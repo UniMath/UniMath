@@ -91,7 +91,7 @@ Definition coproduct_nat_trans_in i : nat_trans (F i) coproduct_of_functors :=
 Section vertex.
 
 Variable A : functor C D.
-Variable f : forall i, nat_trans (F i) A.
+Variable f : Π i, nat_trans (F i) A.
 
 Definition coproduct_nat_trans_data c :
   coproduct_of_functors c --> A c :=

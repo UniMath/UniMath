@@ -33,7 +33,7 @@ Definition tallyStandardSubset {n} (P: DecidableSubtype (stn n)) : stn (S n).
 Proof. intros. exists (stnsum (λ x, choice (P x) 1 0)). apply natlehtolthsn.
        apply (istransnatleh (m := stnsum(λ _ : stn n, 1))).
        { apply stnsum_le; intro i. apply bound01. }
-       assert ( p : ∀ r s, r = s -> (r ≤ s)%nat). { intros ? ? e. destruct e. apply isreflnatleh. }
+       assert ( p : Π r s, r = s -> (r ≤ s)%nat). { intros ? ? e. destruct e. apply isreflnatleh. }
        apply p. apply stnsum_1.
 Defined.
 
@@ -51,7 +51,7 @@ Defined.
 (* types and univalence *)
 
 Theorem UU_rect (X Y : UU) (P : X ≃ Y -> UU) :
-  (∀ e : X=Y, P (univalence _ _ e)) -> ∀ f, P f.
+  (Π e : X=Y, P (univalence _ _ e)) -> Π f, P f.
 Proof.
   intros ? ? ? ih ?.
   set (p := ih (invmap (univalence _ _) f)).
@@ -62,7 +62,7 @@ Defined.
 Ltac type_induction f e := generalize f; apply UU_rect; intro e; clear f.
 
 Theorem hSet_rect (X Y : hSet) (P : X ≃ Y -> UU) :
-  (∀ e : X=Y, P (hSet_univalence _ _ e)) -> ∀ f, P f.
+  (Π e : X=Y, P (hSet_univalence _ _ e)) -> Π f, P f.
 Proof.
   intros ? ? ? ih ?.
   Set Printing Coercions.
@@ -94,7 +94,7 @@ Proof.
   unfold isaposetmorphism in e; simpl in e.
   induction e as [e e'].
   unfold posetRelation in *. unfold invmap in *; simpl in *.
-  apply uahp. { apply e. } { apply e'. }
+  apply hPropUnivalence. { apply e. } { apply e'. }
 Defined.
 
 Open Scope transport.
@@ -152,14 +152,14 @@ Proof. reflexivity. Defined.
                   pathToEq : (X=Y) -> PosetEquivalence X Y.
 
     PosetEquivalence_rect
-         : ∀ (X Y : Poset) (P : PosetEquivalence X Y -> Type),
-           (∀ e : X = Y, P (pathToEq X Y e)) ->
-           ∀ p : PosetEquivalence X Y, P p
+         : Π (X Y : Poset) (P : PosetEquivalence X Y -> Type),
+           (Π e : X = Y, P (pathToEq X Y e)) ->
+           Π p : PosetEquivalence X Y, P p
 
 *)
 
 Theorem PosetEquivalence_rect (X Y : Poset) (P : X ≅ Y -> UU) :
-  (∀ e : X = Y, P (Poset_univalence_map e)) -> ∀ f, P f.
+  (Π e : X = Y, P (Poset_univalence_map e)) -> Π f, P f.
 Proof.
   intros ? ? ? ih ?.
   set (p := ih (invmap (Poset_univalence _ _) f)).
@@ -246,7 +246,7 @@ Proof. intros ? i ? ?. apply isdeceq_isdec_ordering. now apply isfinite_isdeceq.
 Defined.
 
 Corollary isdeceq_isdec_lessthan (X:OrderedSet) :
-  isdeceq X -> ∀ (x y:X), decidable (x < y).
+  isdeceq X -> Π (x y:X), decidable (x < y).
 Proof.
   intros ? i ? ?. apply decidable_dirprod.
   - now apply isdeceq_isdec_ordering.
@@ -256,7 +256,7 @@ Proof.
     * apply i.
 Defined.
 
-Corollary isfinite_isdec_lessthan (X:OrderedSet) : isfinite X -> ∀ (x y:X), decidable (x < y).
+Corollary isfinite_isdec_lessthan (X:OrderedSet) : isfinite X -> Π (x y:X), decidable (x < y).
 Proof. intros ? i ? ?. apply isdeceq_isdec_lessthan. now apply isfinite_isdeceq.
 Defined.
 
@@ -278,7 +278,7 @@ Proof. intros. exact ((Poset_univalence _ _) ∘ (underlyingPoset_weq _ _))%weq.
 Defined.
 
 Theorem OrderedSetEquivalence_rect (X Y : OrderedSet) (P : X ≅ Y -> UU) :
-  (∀ e : X = Y, P (OrderedSet_univalence _ _ e)) -> ∀ f, P f.
+  (Π e : X = Y, P (OrderedSet_univalence _ _ e)) -> Π f, P f.
 Proof.
   intros ? ? ? ih ?.
   set (p := ih (invmap (OrderedSet_univalence _ _) f)).
@@ -399,21 +399,21 @@ Close Scope foset.
 
 Definition lexicographicOrder
            (X:hSet) (Y:X->hSet)
-           (R:hrel X) (S : ∀ x, hrel (Y x)) : hrel (Σ x, Y x)%set.
+           (R:hrel X) (S : Π x, hrel (Y x)) : hrel (Σ x, Y x)%set.
   intros ? ? ? ? u u'.
   set (x := pr1 u). set (y := pr2 u). set (x' := pr1 u'). set (y' := pr2 u').
   exact ((x != x' ∧ R x x') ∨ (∃ e : x = x', S x' (transportf Y e y) y'))%set.
 Defined.
 
-Lemma lex_isrefl (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
-  (∀ x, isrefl(S x)) -> isrefl (lexicographicOrder X Y R S).
+Lemma lex_isrefl (X:hSet) (Y:X->hSet) (R:hrel X) (S : Π x, hrel (Y x)) :
+  (Π x, isrefl(S x)) -> isrefl (lexicographicOrder X Y R S).
 Proof.
   intros ? ? ? ? Srefl u. induction u as [x y]. apply hdisj_in2; simpl.
   apply hinhpr. exists (idpath x). apply Srefl.
 Defined.
 
-Lemma lex_istrans (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
-  isantisymm R -> istrans R -> (∀ x, istrans(S x)) -> istrans (lexicographicOrder X Y R S).
+Lemma lex_istrans (X:hSet) (Y:X->hSet) (R:hrel X) (S : Π x, hrel (Y x)) :
+  isantisymm R -> istrans R -> (Π x, istrans(S x)) -> istrans (lexicographicOrder X Y R S).
 Proof.
   intros ? ? ? ? Ranti Rtrans Strans u u' u'' p q.
   induction u as [x y]. induction u' as [x' y']. induction u'' as [x'' y''].
@@ -450,8 +450,8 @@ Defined.
 Local Ltac unwrap a := apply (squash_to_prop a);
     [ apply isaset_total2_hSet | simpl; clear a; intro a; simpl in a ].
 
-Lemma lex_isantisymm (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
-  isantisymm R -> (∀ x, isantisymm(S x)) -> isantisymm (lexicographicOrder X Y R S).
+Lemma lex_isantisymm (X:hSet) (Y:X->hSet) (R:hrel X) (S : Π x, hrel (Y x)) :
+  isantisymm R -> (Π x, isantisymm(S x)) -> isantisymm (lexicographicOrder X Y R S).
 Proof.
   intros ? ? ? ? Ranti Santi u u' a b.
   induction u as [x y]; induction u' as [x' y'].
@@ -467,8 +467,8 @@ Proof.
     { apply (Santi x' y y' s s'). }
     induction t. reflexivity. Defined.
 
-Lemma lex_istotal (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
-  isdeceq X -> istotal R -> (∀ x, istotal(S x)) -> istotal (lexicographicOrder X Y R S).
+Lemma lex_istotal (X:hSet) (Y:X->hSet) (R:hrel X) (S : Π x, hrel (Y x)) :
+  isdeceq X -> istotal R -> (Π x, istotal(S x)) -> istotal (lexicographicOrder X Y R S).
 Proof.
   intros ? ? ? ? Xdec Rtot Stot u u'. induction u as [x y]. induction u' as [x' y'].
   induction (Xdec x x') as [eq|ne].
@@ -571,16 +571,16 @@ Open Scope logic.
 
 Definition isLattice {X:hSet} (le:hrel X) (min max:binop X) :=
   Σ po : isPartialOrder le,
-  Σ lub : ∀ x y z, le x z ∧ le y z <-> le (max x y) z,
-  Σ glb : ∀ x y t, le t x ∧ le t y <-> le t (min x y),
+  Σ lub : Π x y z, le x z ∧ le y z <-> le (max x y) z,
+  Σ glb : Π x y t, le t x ∧ le t y <-> le t (min x y),
   unit.
 
 Definition istrans2 {X:hSet} (le lt:hrel X) :=
-  Σ transltle: ∀ x y z, lt x y -> le y z -> lt x z,
-  Σ translelt: ∀ x y z, le x y -> lt y z -> lt x z,
+  Σ transltle: Π x y z, lt x y -> le y z -> lt x z,
+  Σ translelt: Π x y z, le x y -> lt y z -> lt x z,
   unit.
 
-Definition iswklin {X} (lt:hrel X) := ∀ x y z, lt x y -> lt x z ∨ lt z y.
+Definition iswklin {X} (lt:hrel X) := Π x y z, lt x y -> lt x z ∨ lt z y.
 
 Definition isComputablyOrdered {X:hSet}
            (lt:hrel X) (min max:binop X) :=

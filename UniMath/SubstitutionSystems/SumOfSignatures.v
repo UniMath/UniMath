@@ -54,10 +54,10 @@ Local Notation "'CCC'" := (Coproducts_functor_precat I C C CC hsC : Coproducts I
 
 Variables H1 : I -> functor [C, C, hsC] [C, C, hsC].
 
-Variable θ1 : forall i, θ_source (H1 i) ⟶ θ_target (H1 i).
+Variable θ1 : Π i, θ_source (H1 i) ⟶ θ_target (H1 i).
 
-(* Variable S11 : forall i, θ_Strength1 (θ1 i). *)
-(* Variable S12 : forall i, θ_Strength2 (θ1 i). *)
+(* Variable S11 : Π i, θ_Strength1 (θ1 i). *)
+(* Variable S12 : Π i, θ_Strength2 (θ1 i). *)
 
 (** * Definition of the data of the sum of two signatures *)
 
@@ -93,7 +93,7 @@ Proof.
 exists (bla1 X Z); apply bar.
 Defined.
 
-Definition θ_ob : ∀ XF, θ_source H XF --> θ_target H XF.
+Definition θ_ob : Π XF, θ_source H XF --> θ_target H XF.
 Proof.
 intros [X Z]; apply bla.
 Defined.
@@ -114,8 +114,8 @@ Local Definition θ : θ_source H ⟶ θ_target H := tpair _ _ is_nat_trans_θ_o
 
 (** * Proof of the laws of the sum of two signatures *)
 
-Variable S11' : forall i, θ_Strength1_int (θ1 i).
-Variable S12' : forall i, θ_Strength2_int (θ1 i).
+Variable S11' : Π i, θ_Strength1_int (θ1 i).
+Variable S12' : Π i, θ_Strength2_int (θ1 i).
 
 Lemma SumStrength1' : θ_Strength1_int θ.
 Proof.
@@ -156,7 +156,7 @@ mkpair.
 Defined.
 
 Lemma is_omega_cocont_Sum_of_Signatures (S : I -> Signature C hsC)
-  (h : forall i, is_omega_cocont (S i)) (PC : Products I C) :
+  (h : Π i, is_omega_cocont (S i)) (PC : Products I C) :
   is_omega_cocont (Sum_of_Signatures S).
 Proof.
 apply is_omega_cocont_coproduct_of_functors; try assumption.

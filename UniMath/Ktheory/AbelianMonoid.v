@@ -13,7 +13,7 @@ Definition finiteOperation0 (X:abmonoid) n (x:stn n->X) : X.
 Proof. (* return (...((x0*x1)*x2)*...)  *)
   intros. induction n as [|n x'].
   { exact (unel _). } { exact ((x' (funcomp (dni_last n) x)) + x (lastelement n)). } Defined.
-Goal ∀ (X:abmonoid) n (x:stn (S n)->X),
+Goal Π (X:abmonoid) n (x:stn (S n)->X),
      finiteOperation0 X (S n) x
   = finiteOperation0 X n (funcomp (dni_last n) x) + x (lastelement n).
 Proof. reflexivity. Qed.
@@ -73,7 +73,7 @@ Proof.
   induction (dec i j) as [ieqj | inej].
   { induction (ne ieqj). }
   { assert ( H : inej = ne ).
-    { apply funextfun. intros. induction (ne x). }
+    { apply funextfun. intro x. induction (ne x). }
     induction H.
     reflexivity. }
 Defined.
@@ -283,7 +283,7 @@ Abort.
 
 Definition decidable_type (X:UU) := X ⨿ ¬X.
 
-Lemma uniqueness0 (X:abmonoid) n : ∀ I (f g:nelstruct n I) (x:I->X),
+Lemma uniqueness0 (X:abmonoid) n : Π I (f g:nelstruct n I) (x:I->X),
      finiteOperation0 X n (funcomp (pr1 f) x)
   = finiteOperation0 X n (funcomp (pr1 g) x).
 Proof.
@@ -367,16 +367,16 @@ Module Presentation.
 
   Record AdequateRelation {X I} (R:I->reln X) (r : hrel (word X)) :=
     make_AdequateRelation {
-        base: ∀ i, r (lhs (R i)) (rhs (R i));
-        reflex : ∀ w, r w w;
-        symm : ∀ v w, r v w -> r w v;
-        trans : ∀ u v w, r u v -> r v w -> r u w;
-        left_compat : ∀ u v w, r v w -> r (word_op u v) (word_op u w);
-        right_compat: ∀ u v w, r u v -> r (word_op u w) (word_op v w);
-        left_unit : ∀ w, r (word_op word_unit w) w;
-        right_unit : ∀ w, r (word_op w word_unit) w;
-        assoc : ∀ u v w, r (word_op (word_op u v) w) (word_op u (word_op v w));
-        comm : ∀ v w, r (word_op v w) (word_op w v)
+        base: Π i, r (lhs (R i)) (rhs (R i));
+        reflex : Π w, r w w;
+        symm : Π v w, r v w -> r w v;
+        trans : Π u v w, r u v -> r v w -> r u w;
+        left_compat : Π u v w, r v w -> r (word_op u v) (word_op u w);
+        right_compat: Π u v w, r u v -> r (word_op u w) (word_op v w);
+        left_unit : Π w, r (word_op word_unit w) w;
+        right_unit : Π w, r (word_op w word_unit) w;
+        assoc : Π u v w, r (word_op (word_op u v) w) (word_op u (word_op v w));
+        comm : Π v w, r (word_op v w) (word_op w v)
       }.
   Arguments make_AdequateRelation {X I} R r _ _ _ _ _ _ _ _ _ _.
   Arguments base {X I R r} _ _.
@@ -393,7 +393,7 @@ Module Presentation.
 
   Definition smallestAdequateRelation0 {X I} (R:I->reln X) : hrel (word X).
     intros ? ? ? v w.
-    exists (∀ r: hrel (word X), AdequateRelation R r -> r v w).
+    exists (Π r: hrel (word X), AdequateRelation R r -> r v w).
     abstract (apply impred; intro r; apply impred_prop).
   Defined.
   Lemma adequacy {X I} (R:I->reln X) :
@@ -492,7 +492,7 @@ Module Presentation.
     make_MarkedAbelianMonoid {
         m_base :> abmonoid;
         m_mark : X -> m_base;
-        m_reln : ∀ i, evalword (toMarkedPreAbelianMonoid R m_base m_mark) (lhs (R i)) =
+        m_reln : Π i, evalword (toMarkedPreAbelianMonoid R m_base m_mark) (lhs (R i)) =
                            evalword (toMarkedPreAbelianMonoid R m_base m_mark) (rhs (R i)) }.
   Arguments make_MarkedAbelianMonoid {X I} R _ _ _.
   Arguments m_base {X I R} _.
@@ -520,7 +520,7 @@ Module Presentation.
   Record MarkedAbelianMonoidMap {X I} {R:I->reln X} (M N:MarkedAbelianMonoid R) :=
     make_MarkedAbelianMonoidMap {
         map_base :> Hom M N;
-        map_mark : ∀ x, map_base (m_mark M x) = m_mark N x }.
+        map_mark : Π x, map_base (m_mark M x) = m_mark N x }.
   Arguments map_base {X I R M N} m.
   Arguments map_mark {X I R M N} m x.
   Lemma MarkedAbelianMonoidMapEquality {X I} {R:I->reln X} {M N:MarkedAbelianMonoid R}
@@ -578,7 +578,7 @@ Module Presentation.
                 (universalMarkedAbelianMonoid3 R).
   Fixpoint agreement_on_gens0 {X I} {R:I->reln X} {M:abmonoid}
         (f g:Hom (universalMarkedAbelianMonoid R) M)
-        (p:∀ i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
+        (p:Π i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i)))
         (w:word X) :
           pr1 f (setquotpr (smallestAdequateRelation R) w) =
@@ -598,7 +598,7 @@ Module Presentation.
            { apply agreement_on_gens0. assumption. } } Qed.
   Lemma agreement_on_gens {X I} {R:I->reln X} {M:abmonoid}
         (f g:Hom (universalMarkedAbelianMonoid R) M) :
-        (∀ i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
+        (Π i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i)))
           -> f = g.
     intros ? ? ? ? ? ? p. apply Monoid.funEquality.

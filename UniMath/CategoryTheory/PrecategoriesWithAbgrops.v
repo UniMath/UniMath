@@ -17,14 +17,14 @@ Section def_precategory_with_abgrops.
 
 
   (** Definition of precategories such that homsets are abgrops. *)
-  Definition isPrecategoryWithAbgrops (PB : PrecategoryWithBinOps)
-             (hs : has_homsets PB) :=
-    forall (x y : PB), @isabgrop (hSetpair (PB⟦x,y⟧) (hs x y))
+  Definition PrecategoryWithAbgropsData (PB : PrecategoryWithBinOps)
+             (hs : has_homsets PB) : UU :=
+    Π (x y : PB), @isabgrop (hSetpair (PB⟦x,y⟧) (hs x y))
                             (PrecategoryWithBinOps_binop PB x y).
 
   Definition PrecategoryWithAbgrops : UU :=
     Σ PA : (Σ PB : PrecategoryWithBinOps, has_homsets PB),
-           isPrecategoryWithAbgrops (pr1 PA) (pr2 PA).
+           PrecategoryWithAbgropsData (pr1 PA) (pr2 PA).
   Definition PrecategoryWithAbgrops_PrecategoryWithBinOps
              (PB : PrecategoryWithAbgrops) :
     PrecategoryWithBinOps := pr1 (pr1 PB).
@@ -32,7 +32,7 @@ Section def_precategory_with_abgrops.
     PrecategoryWithAbgrops >-> PrecategoryWithBinOps.
   Definition mk_PrecategoryWithAbgrops (PB : PrecategoryWithBinOps)
              (hs : has_homsets PB)
-             (H : isPrecategoryWithAbgrops PB hs) : PrecategoryWithAbgrops.
+             (H : PrecategoryWithAbgropsData PB hs) : PrecategoryWithAbgrops.
   Proof.
     exact (tpair _ (tpair _ PB hs) H).
   Defined.

@@ -19,13 +19,13 @@ Section def_zero.
   Context {C : precategory}.
 
   (** An object c is zero if it initial and terminal. *)
-  Definition isZero (c : C) := (isInitial C c) × (isTerminal C c).
+  Definition isZero (c : C) : UU := (isInitial C c) × (isTerminal C c).
 
   (** Construction of isZero for an object c from the conditions that the space
     of all morphisms from c to any object d is contractible and and the space of
     all morphisms from any object d to c is contractible. *)
-  Definition mk_isZero (c : C) (H : (forall (d : C), iscontr (c --> d))
-                                      × (forall (d : C), iscontr (d --> c))) :
+  Definition mk_isZero (c : C) (H : (Π (d : C), iscontr (c --> d))
+                                      × (Π (d : C), iscontr (d --> c))) :
     isZero c := mk_isInitial c (dirprod_pr1 H),,mk_isTerminal c (dirprod_pr2 H).
 
   (** Definition of Zero. *)

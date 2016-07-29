@@ -14,12 +14,12 @@ Section def_coequalizers.
   (** Definition and construction of isCoequalizer. *)
   Definition isCoequalizer {x y z : C} (f g : x --> y) (e : y --> z)
              (H : f ;; e = g ;; e) : UU :=
-    forall (w : C) (h : y --> w) (H : f ;; h = g ;; h),
+    Π (w : C) (h : y --> w) (H : f ;; h = g ;; h),
       iscontr (Σ φ : z --> w, e ;; φ  = h).
 
   Definition mk_isCoequalizer {y z w : C} (f g : y --> z) (e : z --> w)
              (H : f ;; e = g ;; e) :
-    (forall (w0 : C) (h : z --> w0) (H' : f ;; h = g ;; h),
+    (Π (w0 : C) (h : z --> w0) (H' : f ;; h = g ;; h),
         iscontr (Σ ψ : w --> w0, e ;; ψ = h)) -> isCoequalizer f g e H.
   Proof.
     intros X. unfold isCoequalizer. exact X.
@@ -63,10 +63,10 @@ Section def_coequalizers.
   Defined.
 
   (** Coequalizers in precategories. *)
-  Definition Coequalizers := forall (y z : C) (f g : y --> z),
+  Definition Coequalizers := Π (y z : C) (f g : y --> z),
       Coequalizer f g.
 
-  Definition hasCoequalizers := forall (y z : C) (f g : y --> z),
+  Definition hasCoequalizers := Π (y z : C) (f g : y --> z),
       ishinh (Coequalizer f g).
 
   (** Returns the coequalizer object. *)
@@ -116,7 +116,8 @@ Section def_coequalizers.
 
   Lemma CoequalizerOutsEq {y z: C} {f g : y --> z} (E : Coequalizer f g)
         {w : C} (φ1 φ2: C⟦E, w⟧)
-        (H' : (CoequalizerArrow E) ;; φ1 = (CoequalizerArrow E) ;; φ2) : φ1 = φ2.
+        (H' : (CoequalizerArrow E) ;; φ1 = (CoequalizerArrow E) ;; φ2) :
+    φ1 = φ2.
   Proof.
     apply (isCoequalizerOutsEq (isCoequalizer_Coequalizer E) _ _ H').
   Defined.
@@ -183,12 +184,11 @@ Section def_coequalizers.
     intros z0 g0 h X.
     apply (CoequalizerOutsEq E).
     apply X.
-  Defined.
+  Qed.
 
   Lemma CoequalizerArrowEpi {y z : C} {f g : y --> z} (E : Coequalizer f g ) :
     Epi _ z E.
   Proof.
-    apply (mk_Epi _ (CoequalizerArrow E)).
-    apply (CoequalizerArrowisEpi E).
+    exact (mk_Epi C (CoequalizerArrow E) (CoequalizerArrowisEpi E)).
   Defined.
 End def_coequalizers.

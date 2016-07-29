@@ -143,7 +143,7 @@ Let D' Ze Ze' :=
  (nat_trans_comp (post_whisker (δ Ze) (pr1 Ze'))
                  (α_functor _ G (pr1 Ze) (pr1 Ze'))))).
 
-Definition δ_law2 : UU := forall Ze Ze', δ (Ze p• Ze') = D' Ze Ze'.
+Definition δ_law2 : UU := Π Ze Ze', δ (Ze p• Ze') = D' Ze Ze'.
 Hypothesis H2 : δ_law2.
 
 Lemma θ_Strength2_int_from_δ : θ_Strength2_int θ_from_δ.

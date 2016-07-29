@@ -58,14 +58,14 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 Definition is_sub_precategory {C : precategory}
     (C' : hsubtypes C)
-    (Cmor' : forall a b : C, hsubtypes (a --> b)) :=
- dirprod (forall a : C, C' a ->  Cmor' _ _ (identity a ))
-         (forall (a b c : C) (f: a --> b) (g : b --> c),
+    (Cmor' : Π a b : C, hsubtypes (a --> b)) :=
+ dirprod (Π a : C, C' a ->  Cmor' _ _ (identity a ))
+         (Π (a b c : C) (f: a --> b) (g : b --> c),
                    Cmor' _ _ f -> Cmor' _ _  g -> Cmor' _ _  (f ;; g)).
 
 Definition sub_precategories (C : precategory) := total2 (
    fun C' : dirprod (hsubtypes (ob C))
-                    (forall a b:ob C, hsubtypes (a --> b)) =>
+                    (Π a b:ob C, hsubtypes (a --> b)) =>
         is_sub_precategory (pr1 C') (pr2 C')).
 
 (** A full subcategory has the true predicate on morphisms *)
@@ -110,13 +110,13 @@ Definition sub_precategory_morphisms {C : precategory}(C':sub_precategories C)
 *)
 
 Definition sub_precategory_id (C : precategory)(C':sub_precategories C) :
-   forall a : ob C,
+   Π a : ob C,
        sub_precategory_predicate_objects C' a ->
        sub_precategory_predicate_morphisms  C' _ _ (identity a) :=
          pr1 (pr2 C').
 
 Definition sub_precategory_comp (C : precategory)(C':sub_precategories C) :
-   forall (a b c: ob C) (f: a --> b) (g : b --> c),
+   Π (a b c: ob C) (f: a --> b) (g : b --> c),
           sub_precategory_predicate_morphisms C' _ _ f ->
           sub_precategory_predicate_morphisms C' _ _ g ->
           sub_precategory_predicate_morphisms C' _ _  (f ;; g) :=
@@ -409,15 +409,14 @@ Qed.
 
 (** *** Image factorization C -> Img(F) -> D *)
 
-Lemma functor_full_img_factorization_ob (C D: precategory)
+Local Lemma functor_full_img_factorization_ob (C D: precategory)
    (F : functor C D):
   functor_on_objects F =
   functor_on_objects (functor_composite
        (functor_full_img F)
             (sub_precategory_inclusion D _)).
 Proof.
-  simpl.
-  apply etacorrection.
+  reflexivity.
 Defined.
 
 
@@ -438,11 +437,11 @@ Proof.
   apply (total2_paths2 (H)).
   unfold functor_full_img_factorization_ob in H.
   simpl in *.
-  apply dep_funextfunax.
+  apply dep_funextfun.
   intro a.
-  apply dep_funextfunax.
+  apply dep_funextfun.
   intro b.
-  apply funextfunax.
+  apply funextfun.
   intro f.
 
   generalize Fmor.
@@ -548,7 +547,7 @@ Lemma Id_in_sub_to_iso_equal_iso
     Id_in_sub_to_iso a b = funcomp (total2_paths_hProp_equiv C' a b)
                                     (@idtoiso _ (pr1 a) (pr1 b)).
 Proof.
-  apply funextfunax.
+  apply funextfun.
   intro p.
   destruct p.
   apply eq_iso.
@@ -571,7 +570,7 @@ Lemma precat_paths_in_sub_as_3_maps
      @idtoiso _ a b = funcomp (Id_in_sub_to_iso a b)
                                         (iso_in_sub_from_iso a b).
 Proof.
-  apply funextfunax.
+  apply funextfun.
   intro p; destruct p.
   apply eq_iso; simpl.
   unfold precategory_morphisms_in_subcat.

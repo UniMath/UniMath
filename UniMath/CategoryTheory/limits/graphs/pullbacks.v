@@ -2,7 +2,7 @@
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
-
+Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.precategories.
 
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
@@ -15,28 +15,40 @@ Section def_pb.
 Variable C : precategory.
 Variable hs: has_homsets C.
 
-Inductive three := One | Two | Three.
+Open Scope stn.
+Definition One : three := ● 0.
+Definition Two : three := ● 1.
+Definition Three : three := ● 2.
 
 Definition pushout_graph : graph.
 Proof.
   exists three.
-  exact (fun a b =>
-           match (a,b) with
-             | (One, Two) => unit
-             | (Three, Two) => unit
-             | _ => empty
-            end).
+  apply (@three_rec (three -> UU)).
+  - apply three_rec.
+    + apply empty.
+    + apply unit.
+    + apply empty.
+  - apply (fun _ => empty).
+  - apply three_rec.
+    + apply empty.
+    + apply unit.
+    + apply empty.
 Defined.
 
 Definition pullback_diagram {a b c : C} (f : C ⟦b,a⟧) (g : C⟦c,a⟧) :
   diagram pushout_graph C.
 Proof.
-  exists (fun x => match x with
-                     | One => b
-                     | Two => a
-                     | Three => c end).
-  intros u v e.
-  induction u; induction v; simpl; try induction e; assumption.
+  exists (three_rec b a c).
+  use (three_rec_dep); cbn.
+  - use three_rec_dep; cbn.
+    + apply fromempty.
+    + intro; assumption.
+    + apply fromempty.
+  - intro; apply fromempty.
+  - use three_rec_dep; cbn.
+    + apply fromempty.
+    + intro; assumption.
+    + apply fromempty.
 Defined.
 
 Definition PullbCone {a b c : C} (f : C ⟦b,a⟧) (g : C⟦c,a⟧)
@@ -45,25 +57,31 @@ Definition PullbCone {a b c : C} (f : C ⟦b,a⟧) (g : C⟦c,a⟧)
   : cone (pullback_diagram f g) d.
 Proof.
   simple refine (mk_cone _ _  ).
-  - intro v; induction v; simpl; try assumption.
+  - use three_rec_dep; cbn; try assumption.
     apply (f' ;; f).
-  - intros u v e;
-    induction u; induction v; try induction e; simpl.
-    + apply idpath.
-    + apply (!H).
+  - use three_rec_dep; cbn; use three_rec_dep; cbn.
+    + exact (Empty_set_rect _ ).
+    + intro. apply idpath.
+    + exact (Empty_set_rect _ ).
+    + exact (Empty_set_rect _ ).
+    + exact (Empty_set_rect _ ).
+    + exact (Empty_set_rect _ ).
+    + exact (Empty_set_rect _ ).
+    + intro; apply (!H).
+    + exact (Empty_set_rect _ ).
 Defined.
 
 Definition isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
            (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) : UU :=
     isLimCone (pullback_diagram f g) d (PullbCone f g d p1 p2 H).
 (*
-   forall e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g ),
+   Π e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g ),
       iscontr (total2 (fun hk : e --> d => dirprod (hk ;; p1 = h)(hk ;; p2 = k))).
  *)
 
 Definition mk_isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
            (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) :
-  (forall e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h ;; f = k ;; g ),
+  (Π e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h ;; f = k ;; g ),
       iscontr (total2 (fun hk : C⟦e,d⟧ => dirprod (hk ;; p1 = h)(hk ;; p2 = k))))
   →
   isPullback f g p1 p2 H.
@@ -79,7 +97,7 @@ Proof.
   - set (H2 := H1 p).
     simple refine (tpair _ _ _ ).
     + exists (pr1 (pr1 H2)).
-      intro v; induction v; simpl.
+      use three_rec_dep; cbn.
       * apply (pr1 (pr2 (pr1 H2))).
       * unfold compose.
         simpl.
@@ -136,10 +154,10 @@ Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
         isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
  *)
 
-Definition Pullbacks := forall (a b c : C)(f : C⟦b, a⟧)(g : C⟦c, a⟧),
+Definition Pullbacks := Π (a b c : C)(f : C⟦b, a⟧)(g : C⟦c, a⟧),
        Pullback f g.
 
-Definition hasPullbacks := forall (a b c : C) (f : C⟦b, a⟧) (g : C⟦c, a⟧),
+Definition hasPullbacks := Π (a b c : C) (f : C⟦b, a⟧) (g : C⟦c, a⟧),
          ishinh (Pullback f g).
 
 
@@ -170,11 +188,18 @@ Definition PullbackArrow {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
 Proof.
   simple refine (limArrow _ _ _ ).
   simple refine (mk_cone _ _ ).
-  - intro v; induction v; simpl; try assumption.
+  - use three_rec_dep; cbn; try assumption.
     apply (h ;; f).
-  - intros u v edg; induction u; induction v; try induction edg; simpl.
-    + apply idpath.
-    + apply (!H).
+  - use three_rec_dep; cbn; use three_rec_dep; cbn.
+    + exact (Empty_set_rect _ ).
+    + intro. apply idpath.
+    + exact (Empty_set_rect _ ).
+    + exact (Empty_set_rect _ ).
+    + exact (Empty_set_rect _ ).
+    + exact (Empty_set_rect _ ).
+    + exact (Empty_set_rect _ ).
+    + intro; apply (!H).
+    + exact (Empty_set_rect _ ).
 Defined.
 
 Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : C⟦b , a⟧} {g : C⟦c , a⟧}
@@ -200,7 +225,7 @@ Lemma PullbackArrowUnique {a b c d : C} (f : C⟦b , a⟧) (g : C⟦c , a⟧)
   w = PullbackArrow Pb _ h k Hcomm.
 Proof.
   apply path_to_ctr.
-  intro v; induction v; simpl; try assumption.
+  use three_rec_dep; cbn; try assumption.
   set (X:= limOutCommutes Pb Three Two tt).
   eapply pathscomp0. apply maponpaths.
    eapply pathsinv0.
@@ -256,9 +281,10 @@ Proof.
         assert (XRT := coneOutCommutes cc One Two tt); simpl in XRT;
         eapply pathscomp0; [| apply (XRT)]; apply idpath
          ).
-    + simpl. intro v; induction v; simpl.
+    + use three_rec_dep; cbn.
       * abstract (apply (pullbacks.PullbackArrow_PullbackPr1 XR)).
       * abstract (
+        simpl; cbn; unfold idfun;
         rewrite assoc;
         rewrite  (limits.pullbacks.PullbackArrow_PullbackPr1 XR);
         assert (XRT := coneOutCommutes cc One Two tt); simpl in XRT;
@@ -321,7 +347,7 @@ Lemma PullbackArrowUnique' {a b c d : C} (f : C⟦b , a⟧) (g : C⟦c , a⟧)
      w =  (pr1 (pr1 (P e (PullbCone f g _ h k Hcomm)))).
 Proof.
   apply path_to_ctr.
-  intro v; induction v; simpl.
+  use three_rec_dep; cbn.
   - assumption.
   - unfold compose; simpl.
     eapply pathscomp0. apply assoc.
@@ -337,16 +363,15 @@ Lemma PullbackEndo_is_identity {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧}
        identity (lim Pb) = k.
 Proof.
   apply lim_endo_is_identity.
-  intro u; induction u; simpl.
+  use three_rec_dep.
   - apply kH1.
   - unfold limOut. simpl.
     assert (T:= coneOutCommutes (limCone Pb) Three Two tt).
-    rewrite <- T.
-    simpl.
+    eapply pathscomp0. apply maponpaths. apply (!T).
     rewrite assoc.
     eapply pathscomp0. apply cancel_postcomposition.
        apply kH2.
-       apply idpath.
+       apply T.
  - assumption.
 Qed.
 

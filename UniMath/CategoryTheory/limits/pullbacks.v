@@ -6,6 +6,8 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.Monics.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
@@ -18,7 +20,7 @@ Variable hs: has_homsets C.
 
 Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
         (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2;; g) : UU :=
-   forall e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g ),
+   Π e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g ),
       iscontr (total2 (fun hk : e --> d => dirprod (hk ;; p1 = h)(hk ;; p2 = k))).
 
 Lemma isaprop_isPullback {a b c d : C} (f : b --> a) (g : c --> a)
@@ -48,10 +50,10 @@ Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
          total2 (fun H : pr1 (pr2 pfg) ;; f = pr2 (pr2 pfg) ;; g =>
         isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
 
-Definition Pullbacks := forall (a b c : C)(f : b --> a)(g : c --> a),
+Definition Pullbacks := Π (a b c : C)(f : b --> a)(g : c --> a),
        Pullback f g.
 
-Definition hasPullbacks := forall (a b c : C) (f : b --> a) (g : c --> a),
+Definition hasPullbacks := Π (a b c : C) (f : b --> a) (g : c --> a),
          ishinh (Pullback f g).
 
 
@@ -114,7 +116,7 @@ Defined.
 
 Definition mk_isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
            (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) :
-  (forall e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h ;; f = k ;; g ),
+  (Π e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h ;; f = k ;; g ),
       iscontr (total2 (fun hk : C⟦e,d⟧ => dirprod (hk ;; p1 = h)(hk ;; p2 = k))))
   →
   isPullback f g p1 p2 H.
@@ -354,3 +356,82 @@ Section monic_pb.
 End monic_pb.
 
 Arguments glueSquares {_ _ _ _ _ _ _ _ _ _ _ _ _ _ } _ _ .
+
+
+(** Criteria for existence of pullbacks. *)
+Section pb_criteria.
+
+  Variable C : precategory.
+  Hypothesis hs : has_homsets C.
+
+  Definition Pullback_from_Equalizer_BinProduct_eq (X Y Z : C)
+             (f : X --> Z) (g : Y --> Z) (BinProd : BinProductCone C X Y)
+             (Eq : Equalizer ((BinProductPr1 C BinProd) ;; f)
+                             ((BinProductPr2 C BinProd) ;; g)) :
+    EqualizerArrow Eq ;; (BinProductPr1 C BinProd) ;; f
+    = EqualizerArrow Eq ;; (BinProductPr2 C BinProd) ;; g.
+  Proof.
+    repeat rewrite <- assoc. apply EqualizerEqAr.
+  Qed.
+
+  Definition Pullback_from_Equalizer_BinProduct_isPullback (X Y Z : C)
+             (f : X --> Z) (g : Y --> Z) (BinProd : BinProductCone C X Y)
+             (Eq : Equalizer ((BinProductPr1 C BinProd) ;; f)
+                             ((BinProductPr2 C BinProd) ;; g)) :
+    isPullback f g (EqualizerArrow Eq ;; BinProductPr1 C BinProd)
+               (EqualizerArrow Eq ;; BinProductPr2 C BinProd)
+               (Pullback_from_Equalizer_BinProduct_eq
+                  X Y Z f g BinProd Eq).
+  Proof.
+    use mk_isPullback.
+    intros e h k Hk.
+    set (com1 := BinProductPr1Commutes C _ _ BinProd _ h k).
+    set (com2 := BinProductPr2Commutes C _ _ BinProd _ h k).
+    apply (maponpaths (fun l : _ => l ;; f)) in com1.
+    apply (maponpaths (fun l : _ => l ;; g)) in com2.
+    rewrite <- com1 in Hk. rewrite <- com2 in Hk.
+    repeat rewrite <- assoc in Hk.
+    apply (unique_exists (EqualizerIn Eq _ _ Hk)).
+
+    (* Commutativity *)
+    split.
+    rewrite assoc. rewrite (EqualizerCommutes Eq e _).
+    exact (BinProductPr1Commutes C _ _ BinProd _ h k).
+    rewrite assoc. rewrite (EqualizerCommutes Eq e _).
+    exact (BinProductPr2Commutes C _ _ BinProd _ h k).
+
+    (* Equality on equalities of morphisms. *)
+    intros y. apply isapropdirprod. apply hs. apply hs.
+
+    (* Uniqueness *)
+    intros y H. induction H. apply EqualizerInsEq. apply BinProductArrowsEq.
+    rewrite assoc in t. rewrite t.
+    rewrite (EqualizerCommutes Eq e _). apply pathsinv0.
+    exact (BinProductPr1Commutes C _ _ BinProd _ h k).
+    rewrite assoc in p. rewrite p.
+    rewrite (EqualizerCommutes Eq e _). apply pathsinv0.
+    exact (BinProductPr2Commutes C _ _ BinProd _ h k).
+  Qed.
+
+  Definition Pullback_from_Equalizer_BinProduct (X Y Z : C)
+             (f : X --> Z) (g : Y --> Z) (BinProd : BinProductCone C X Y)
+             (Eq : Equalizer ((BinProductPr1 C BinProd) ;; f)
+                             ((BinProductPr2 C BinProd) ;; g)) :
+    Pullback f g.
+  Proof.
+    use (mk_Pullback f g Eq (EqualizerArrow Eq ;; (BinProductPr1 C BinProd))
+                     (EqualizerArrow Eq ;; (BinProductPr2 C BinProd))).
+    apply Pullback_from_Equalizer_BinProduct_eq.
+    apply Pullback_from_Equalizer_BinProduct_isPullback.
+  Defined.
+
+  Definition Pullbacks_from_Equalizers_BinProducts (BinProds : BinProducts C)
+             (Eqs : @Equalizers C) :
+    @Pullbacks C.
+  Proof.
+    intros Z X Y f g.
+    use (Pullback_from_Equalizer_BinProduct X Y Z f g).
+    apply BinProds.
+    apply Eqs.
+  Defined.
+End pb_criteria.

@@ -11,7 +11,8 @@ endif
 PACKAGES += Foundations
 PACKAGES += CategoryTheory
 PACKAGES += Ktheory
-PACKAGES += Dedekind
+PACKAGES += Topology
+PACKAGES += RealNumbers
 PACKAGES += Tactics
 PACKAGES += SubstitutionSystems
 PACKAGES += Folds
@@ -47,7 +48,7 @@ include build/CoqMakefile.make
 endif
 everything: TAGS all html install
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -indices-matter -type-in-type
+OTHERFLAGS += -indices-matter -type-in-type -w none
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
@@ -115,9 +116,11 @@ sub/coq/config/coq_config.ml: sub/coq/configure sub/coq/configure.ml
 	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" $(LABLGTK) -with-doc no -annotate -debug -local
 # instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
-	$(MAKE) -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqbinaries tools states
+.PHONY: rebuild-coq
+rebuild-coq sub/coq/bin/coq_makefile sub/coq/bin/coqc:
+	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqbinaries tools states
 sub/coq/bin/coqide: sub/lablgtk/README sub/coq/config/coq_config.ml
-	$(MAKE) -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
+	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
 configure-coq: sub/coq/config/coq_config.ml
 # we use sub/lablgtk/src/gSourceView2.cmi as a proxy for all of lablgtk
 # note: under Mac OS X, "homebrew" installs lablgtk without that file, but it's needed for building coqide.  That's why we build lablgtk ourselves.
@@ -138,7 +141,7 @@ doc: $(GLOBFILES) $(VFILES)
 # Jason Gross' coq-tools bug isolator:
 # The isolated bug will appear in this file, in the UniMath directory:
 ISOLATED_BUG_FILE := isolated_bug.v
-# To use it, run something like this command:
+# To use it, run something like this command in an interactive shell:
 #     make isolate-bug BUGGY_FILE=Foundations/Basics/PartB.v
 sub/coq-tools/find-bug.py:
 	git submodule update --init sub/coq-tools
@@ -147,7 +150,7 @@ help-find-bug:
 isolate-bug: sub/coq-tools/find-bug.py
 	cd UniMath && \
 	rm -f $(ISOLATED_BUG_FILE) && \
-	yes | ../sub/coq-tools/find-bug.py --coqbin ../sub/coq/bin -R . UniMath \
+	../sub/coq-tools/find-bug.py --coqbin ../sub/coq/bin -R . UniMath \
 		--arg " -indices-matter" \
 		--arg " -type-in-type" \
 		$(BUGGY_FILE) $(ISOLATED_BUG_FILE)

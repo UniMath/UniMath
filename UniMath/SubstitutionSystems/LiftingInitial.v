@@ -79,7 +79,7 @@ Let EndEndC := [EndC, EndC, hsEndC].
 Let CPEndEndC:= BinCoproducts_functor_precat _ _ CPEndC hsEndC: BinCoproducts EndEndC.
 
 
-Variable KanExt : ∀ Z : Ptd, GlobalRightKanExtensionExists _ _ (U Z) _ hs hs.
+Variable KanExt : Π Z : Ptd, GlobalRightKanExtensionExists _ _ (U Z) _ hs hs.
 
 Variable H : Signature C hs.
 Let θ := theta H.
@@ -96,7 +96,7 @@ Let Alg : precategory := FunctorAlg Id_H hsEndC.
 
 Variable IA : Initial Alg.
 Definition SpecializedGMIt (Z : Ptd) (X : EndC)
-  :  ∀ (G : functor [C, C, hs] [C, C, hs])
+  :  Π (G : functor [C, C, hs] [C, C, hs])
        (ρ : [C, C, hs] ⟦ G X, X ⟧)
        (θ : functor_composite Id_H (ℓ (U Z)) ⟶ functor_composite (ℓ (U Z)) G),
      ∃! h : [C, C, hs] ⟦ ℓ (U Z) (` (InitialObject IA)), X ⟧,
@@ -429,7 +429,7 @@ Proof.
 Qed.
 
 Local Lemma foo' (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
- ∀ t : Σ h : [C, C, hs] ⟦ functor_composite (U Z) (pr1  InitAlg),
+ Π t : Σ h : [C, C, hs] ⟦ functor_composite (U Z) (pr1  InitAlg),
                          pr1 InitAlg ⟧,
        bracket_property f h,
    t
@@ -680,7 +680,7 @@ Proof.
     + apply idpath.
     + eapply pathscomp0. Focus 2. apply T5.
       (* hypothesis of fusion law *)
-      apply funextsec. intro.
+      apply funextsec. intro t.
       simpl.
       unfold compose. simpl.
       apply nat_trans_eq. assumption.
@@ -860,7 +860,7 @@ Proof.
       apply (nat_trans_eq_pointwise Hyp c).
 Qed.
 
-Definition hss_InitMor : ∀ T' : hss CP H, hssMor InitHSS T'.
+Definition hss_InitMor : Π T' : hss CP H, hssMor InitHSS T'.
 Proof.
   intro T'.
   exists (InitialArrow IA (pr1 T')).
@@ -868,7 +868,7 @@ Proof.
 Defined.
 
 Lemma hss_InitMor_unique (T' : hss_precategory CP H):
-  ∀ t : hss_precategory CP H ⟦ InitHSS, T' ⟧, t = hss_InitMor T'.
+  Π t : hss_precategory CP H ⟦ InitHSS, T' ⟧, t = hss_InitMor T'.
 Proof.
   intro t.
   apply (invmap (hssMor_eq1 _ _ _ _ _ _ _ _ )).

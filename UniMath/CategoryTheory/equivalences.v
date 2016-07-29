@@ -49,9 +49,9 @@ Definition form_adjunction {A B : precategory}
        (eta : nat_trans (functor_identity A) (functor_composite F G))
        (eps : nat_trans (functor_composite G F) (functor_identity B)) : UU :=
 dirprod
-  (forall a : ob A,
+  (Π a : ob A,
        #F (eta a) ;; eps (F a) = identity (F a))
-  (forall b : ob B,
+  (Π b : ob B,
        eta (G b) ;; #G (eps b) = identity (G b)).
 
 
@@ -86,7 +86,7 @@ Definition counit_from_left_adjoint {A B : precategory}
 
 Definition triangle_id_left_ad (A B : precategory)
   (F : functor A B) (H : is_left_adjoint F) :
-  forall (a : ob A),
+  Π (a : ob A),
        #F (unit_from_left_adjoint H a);;
        counit_from_left_adjoint H (F a)
        =
@@ -95,7 +95,7 @@ Definition triangle_id_left_ad (A B : precategory)
 
 Definition triangle_id_right_ad (A B : precategory)
    (F : functor A B)  (H : is_left_adjoint F) :
-  forall b : ob B,
+  Π b : ob B,
          unit_from_left_adjoint H (right_adjoint H b);;
         #(right_adjoint H) (counit_from_left_adjoint H b) =
         identity (right_adjoint H b)
@@ -106,9 +106,9 @@ Definition triangle_id_right_ad (A B : precategory)
 Definition adj_equivalence_of_precats {A B : precategory}
   (F : functor A B) : UU :=
    total2 (fun H : is_left_adjoint  F =>
-     dirprod (forall a, is_isomorphism
+     dirprod (Π a, is_isomorphism
                     (unit_from_left_adjoint H a))
-             (forall b, is_isomorphism
+             (Π b, is_isomorphism
                     (counit_from_left_adjoint H b))
              ).
 
@@ -120,7 +120,7 @@ Local Notation "HF ^^-1" := (adj_equivalence_inv  HF)(at level 3).
 
 Definition unit_pointwise_iso_from_adj_equivalence {A B : precategory}
    {F : functor A B} (HF : adj_equivalence_of_precats F) :
-    forall a, iso a (HF^^-1 (F a)).
+    Π a, iso a (HF^^-1 (F a)).
   intro a.
   exists (unit_from_left_adjoint (pr1 HF) a).
   exact (pr1 (pr2 HF) a).
@@ -128,7 +128,7 @@ Defined.
 
 Definition counit_pointwise_iso_from_adj_equivalence {A B : precategory}
   {F : functor A B} (HF : adj_equivalence_of_precats F) :
-    forall b, iso (F (HF^^-1 b)) b.
+    Π b, iso (F (HF^^-1 b)) b.
   intro b.
   exists (counit_from_left_adjoint (pr1 HF) b).
   exact (pr2 (pr2 HF) b).
@@ -199,7 +199,7 @@ Defined.
 
 Lemma isaprop_sigma_iso (A B : precategory) (HA : is_category A) (*hsB: has_homsets B*)
      (F : functor A B) (HF : fully_faithful F) :
-      forall b : ob B,
+      Π b : ob B,
   isaprop (total2 (fun a : ob A => iso (pr1 F a) b)).
 Proof.
   intro b.
@@ -248,7 +248,7 @@ Qed.
 
 Lemma isaprop_pi_sigma_iso (A B : precategory) (HA : is_category A) (hsB: has_homsets B)
      (F : ob [A, B, hsB]) (HF : fully_faithful F) :
-  isaprop (forall b : ob B,
+  isaprop (Π b : ob B,
              total2 (fun a : ob A => iso (pr1 F a) b)).
 Proof.
   apply impred.
@@ -474,11 +474,11 @@ Section adjunction_from_partial.
 
 Definition is_universal_arrow_from {D C : precategory}
   (S : functor D C) (c : C) (r : D) (v : C⟦S r, c⟧) : UU :=
-  forall (d : D) (f : C⟦S d,c⟧), ∃! (f' : D⟦d,r⟧), f = # S f' ;; v.
+  Π (d : D) (f : C⟦S d,c⟧), ∃! (f' : D⟦d,r⟧), f = # S f' ;; v.
 
 Variables (X A : precategory) (F : functor X A).
-Variables (G0 : ob A -> ob X) (eps : forall a, A⟦F (G0 a),a⟧).
-Hypothesis (Huniv : forall a, is_universal_arrow_from F a (G0 a) (eps a)).
+Variables (G0 : ob A -> ob X) (eps : Π a, A⟦F (G0 a),a⟧).
+Hypothesis (Huniv : Π a, is_universal_arrow_from F a (G0 a) (eps a)).
 
 Local Definition G_data : functor_data A X.
 Proof.
@@ -516,12 +516,12 @@ Proof.
 * intro x.
   apply (pr1 (pr1 (Huniv (F x) x (identity _)))).
 * abstract (intros x y f; simpl;
-            destruct (Huniv (F y) y (identity (F y))), t; simpl;
-            destruct (Huniv (F x) x (identity (F x))), t0; simpl;
-            destruct (Huniv (F y) (G0 (F x)) (eps (F x) ;; # F f)), t1; simpl;
+            destruct (Huniv (F y) y (identity (F y))) as [t p], t as [t p0]; simpl;
+            destruct (Huniv (F x) x (identity (F x))) as [t0 p1], t0 as [t0 p2]; simpl;
+            destruct (Huniv (F y) (G0 (F x)) (eps (F x) ;; # F f)) as [t1 p3], t1 as [t1 p4]; simpl;
             assert (H1 : # F f = # F (t0 ;; t1) ;; eps (F y));
             [now rewrite functor_comp, <- assoc, <- p4, assoc, <- p2, id_left|];
-            destruct (Huniv (F y) x (# F f));
+            destruct (Huniv (F y) x (# F f)) as [t2 p5];
             set (HH := (maponpaths pr1 (p5 (_,,H1))));
             simpl in HH; rewrite HH;
             assert (H2 : # F f = # F (f ;; t) ;; eps (F y));
@@ -546,7 +546,7 @@ mkpair; simpl.
 + intros a; simpl.
   destruct (Huniv (F (G0 a)) (G0 a) (identity (F (G0 a)))) as [[f hf] H]; simpl.
   destruct ((Huniv a (G0 (F (G0 a))) (eps (F (G0 a)) ;; eps a))) as [[g hg] Hg]; simpl.
-  destruct (Huniv _ _ (eps a)).
+  destruct (Huniv _ _ (eps a)) as [t p].
   assert (H1 : eps a = # F (identity _) ;; eps a).
     now rewrite functor_id, id_left.
   assert (H2 : eps a = # F (f ;; g) ;; eps a).

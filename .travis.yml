@@ -3,12 +3,13 @@ sudo: 		required
 dist: 		precise
 group: 		legacy
 before_install: sudo apt-get update -qq
-install:        sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra time libgtk2.0 libgtksourceview2.0
+install:        sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp5 camlp4-extra time libgtk2.0 libgtksourceview2.0
 env:
   - PACKAGE=Foundations
   - PACKAGE=CategoryTheory
   - PACKAGE=Ktheory
-  - PACKAGE=Dedekind
+  - PACKAGE=Topology
+  - PACKAGE=RealNumbers
   - PACKAGE=SubstitutionSystems
   - PACKAGE=Tactics
   - PACKAGE=Folds

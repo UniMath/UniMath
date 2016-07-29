@@ -14,12 +14,12 @@ Section def_equalizers.
   (** Definition and construction of isEqualizer. *)
   Definition isEqualizer {x y z : C} (f g : y --> z) (e : x --> y)
              (H : e ;; f = e ;; g) : UU :=
-    forall (w : C) (h : w --> y) (H : h ;; f = h ;; g),
+    Π (w : C) (h : w --> y) (H : h ;; f = h ;; g),
       iscontr (Σ φ : w --> x, φ ;; e = h).
 
   Definition mk_isEqualizer {x y z : C} (f g : y --> z) (e : x --> y)
              (H : e ;; f = e ;; g) :
-    (forall (w : C) (h : w --> y) (H' : h ;; f = h ;; g),
+    (Π (w : C) (h : w --> y) (H' : h ;; f = h ;; g),
         iscontr (Σ ψ : w --> x, ψ ;; e = h)) -> isEqualizer f g e H.
   Proof.
     intros X. unfold isEqualizer. exact X.
@@ -63,9 +63,9 @@ Section def_equalizers.
   Defined.
 
   (** Equalizers in precategories. *)
-  Definition Equalizers := forall (y z : C) (f g : y --> z), Equalizer f g.
+  Definition Equalizers : UU := Π (y z : C) (f g : y --> z), Equalizer f g.
 
-  Definition hasEqualizers := forall (y z : C) (f g : y --> z),
+  Definition hasEqualizers : UU := Π (y z : C) (f g : y --> z),
       ishinh (Equalizer f g).
 
   (** Returns the equalizer object. *)
@@ -82,7 +82,8 @@ Section def_equalizers.
     EqualizerArrow E ;; f = EqualizerArrow E ;; g := pr1 (pr2 E).
 
   (** Returns the property isEqualizer from Equalizer. *)
-  Definition isEqualizer_Equalizer {y z : C} {f g : y --> z} (E : Equalizer f g) :
+  Definition isEqualizer_Equalizer {y z : C} {f g : y --> z}
+             (E : Equalizer f g) :
     isEqualizer f g (EqualizerArrow E) (EqualizerEqAr E) := pr2 (pr2 E).
 
   (** Every morphism which satisfy the equalizer equality on morphism factors
@@ -179,12 +180,11 @@ Section def_equalizers.
     intros z0 g0 h X.
     apply (EqualizerInsEq E).
     apply X.
-  Defined.
+  Qed.
 
   Lemma EqualizerArrowMonic {y z : C} {f g : y --> z} (E : Equalizer f g ) :
     Monic _ E y.
   Proof.
-    apply (mk_Monic _ (EqualizerArrow E)).
-    apply (EqualizerArrowisMonic E).
+    exact (mk_Monic C (EqualizerArrow E) (EqualizerArrowisMonic E)).
   Defined.
 End def_equalizers.

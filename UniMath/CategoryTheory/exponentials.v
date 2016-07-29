@@ -27,7 +27,7 @@ Definition constprod_functor2 (a : C) : functor C C :=
 
 Definition is_exponentiable (a : C) : UU := is_left_adjoint (constprod_functor1 a).
 
-Definition has_exponentials : UU := forall (a : C), is_exponentiable a.
+Definition has_exponentials : UU := Π (a : C), is_exponentiable a.
 
 Definition nat_trans_constprod_functor1 (a : C) :
   nat_trans (constprod_functor1 a) (constprod_functor2 a).
@@ -116,13 +116,15 @@ fold eta in H1; fold eps in H1; fold eta in H2; fold eps in H2; fold G in H2.
 mkpair.
 + intro x; unfold eta', eps'; cbn.
   rewrite assoc.
-  eapply pathscomp0; [eapply cancel_postcomposition; apply nat_trans_ax|].
-  rewrite functor_comp, assoc.
-  eapply pathscomp0; [rewrite <- assoc; apply maponpaths, (nat_trans_ax eps)|].
-  rewrite <- assoc.
-  eapply pathscomp0; [apply maponpaths; rewrite assoc; apply cancel_postcomposition, H1|].
-  rewrite id_left.
-  apply (nat_trans_eq_pointwise (iso_after_iso_inv (flip_iso a)) x).
+  eapply pathscomp0.
+  - eapply cancel_postcomposition.
+    exact (nat_trans_ax (inv_from_iso (flip_iso _)) _ _ _).
+  - rewrite functor_comp, assoc.
+    eapply pathscomp0; [rewrite <- assoc; apply maponpaths, (nat_trans_ax eps)|].
+    rewrite <- assoc.
+    eapply pathscomp0; [apply maponpaths; rewrite assoc; apply cancel_postcomposition, H1|].
+    rewrite id_left.
+    apply (nat_trans_eq_pointwise (iso_after_iso_inv (flip_iso a)) x).
 + intro x.
   rewrite <- (H2 x), <- assoc, <- (functor_comp G).
   apply maponpaths, maponpaths.

@@ -31,9 +31,9 @@ Defined.
 
 Definition isInitial (a : C) :=
   isColimCocone initDiagram a (initCocone a).
- (* forall b : C, iscontr (a --> b). *)
+ (* Π b : C, iscontr (a --> b). *)
 
-Definition mk_isInitial (a : C) (H : ∀ (b : C), iscontr (a --> b)) :
+Definition mk_isInitial (a : C) (H : Π (b : C), iscontr (a --> b)) :
   isInitial a.
 Proof.
 intros b cb.

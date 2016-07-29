@@ -50,19 +50,19 @@ Definition isinvertible { X : UU } ( opp : binop X ) ( x : X ) := dirprod ( isli
 
 (** *)
 
-Definition isassoc { X : hSet} ( opp : binop X ) := forall x x' x'' , paths ( opp ( opp x x' ) x'' ) ( opp x ( opp x' x'' ) ) .
+Definition isassoc { X : hSet} ( opp : binop X ) := Π x x' x'' , paths ( opp ( opp x x' ) x'' ) ( opp x ( opp x' x'' ) ) .
 
 Lemma isapropisassoc { X : hSet } ( opp : binop X ) : isaprop ( isassoc opp ) .
 Proof . intros . apply impred . intro x . apply impred . intro x' . apply impred . intro x'' . simpl . apply ( setproperty X ) . Defined .
 
 (** *)
 
-Definition islunit { X : hSet} ( opp : binop X ) ( un0 : X ) := forall x : X , paths ( opp un0 x ) x .
+Definition islunit { X : hSet} ( opp : binop X ) ( un0 : X ) := Π x : X , paths ( opp un0 x ) x .
 
 Lemma isapropislunit { X : hSet} ( opp : binop X ) ( un0 : X ) : isaprop ( islunit opp un0 ) .
 Proof . intros . apply impred . intro x . simpl . apply ( setproperty X ) .  Defined .
 
-Definition isrunit { X : hSet} ( opp : binop X ) ( un0 : X ) := forall x : X , paths ( opp x un0 ) x  .
+Definition isrunit { X : hSet} ( opp : binop X ) ( un0 : X ) := Π x : X , paths ( opp x un0 ) x  .
 
 Lemma isapropisrunit { X : hSet} ( opp : binop X ) ( un0 : X ) : isaprop ( isrunit opp un0 ) .
 Proof . intros . apply impred . intro x . simpl . apply ( setproperty X ) .  Defined .
@@ -92,12 +92,12 @@ Proof . intros . apply ( isofhleveldirprod 1 ) . apply ( isapropisassoc ) .  app
 
 (** *)
 
-Definition islinv { X : hSet } ( opp : binop X ) ( un0 : X ) ( inv0 : X -> X ) := forall x : X , paths ( opp ( inv0 x ) x ) un0 .
+Definition islinv { X : hSet } ( opp : binop X ) ( un0 : X ) ( inv0 : X -> X ) := Π x : X , paths ( opp ( inv0 x ) x ) un0 .
 
 Lemma isapropislinv { X : hSet } ( opp : binop X ) ( un0 : X ) ( inv0 : X -> X ) : isaprop ( islinv opp un0 inv0 ) .
 Proof . intros . apply impred . intro x .  apply ( setproperty X (opp (inv0 x) x) un0 ) . Defined .
 
-Definition isrinv { X : hSet } ( opp : binop X ) ( un0 : X ) ( inv0 : X -> X ) := forall x : X , paths ( opp x ( inv0 x ) ) un0 .
+Definition isrinv { X : hSet } ( opp : binop X ) ( un0 : X ) ( inv0 : X -> X ) := Π x : X , paths ( opp x ( inv0 x ) ) un0 .
 
 Lemma isapropisrinv { X : hSet } ( opp : binop X ) ( un0 : X ) ( inv0 : X -> X ) : isaprop ( isrinv opp un0 inv0 ) .
 Proof . intros . apply impred . intro x .  apply ( setproperty X ) . Defined .
@@ -123,42 +123,42 @@ Definition grrinvax_is { X : hSet } { opp : binop X } ( is : isgrop opp ) := pr2
 
 Lemma isweqrmultingr_is { X : hSet } { opp : binop X } ( is : isgrop opp ) ( x0 : X ) : isrinvertible opp x0 .
 Proof . intros .  destruct is as [ is istr ] . set ( f := fun x : X => opp x x0 ) . set ( g := fun x : X => opp x ( ( pr1 istr ) x0 ) ) .  destruct is as [ assoc isun0 ] . destruct istr as [ inv0 axs ] .   destruct isun0 as [ un0 unaxs ] .  simpl in * |-  .
-assert ( egf : forall x : _ , paths ( g ( f x ) ) x ) . intro x . unfold f . unfold g . destruct ( pathsinv0 ( assoc x x0 ( inv0 x0 ) ) ) .  assert ( e := pr2 axs x0 ) .   simpl in e . rewrite e . apply ( pr2 unaxs x ) .
-assert ( efg : forall x : _ , paths ( f ( g x ) ) x ) . intro x .  unfold f . unfold g . destruct ( pathsinv0 ( assoc x ( inv0 x0 ) x0 ) ) . assert ( e := pr1 axs x0 ) . simpl in e . rewrite e . apply ( pr2 unaxs x ) .
+assert ( egf : Π x : _ , paths ( g ( f x ) ) x ) . intro x . unfold f . unfold g . destruct ( pathsinv0 ( assoc x x0 ( inv0 x0 ) ) ) .  assert ( e := pr2 axs x0 ) .   simpl in e . rewrite e . apply ( pr2 unaxs x ) .
+assert ( efg : Π x : _ , paths ( f ( g x ) ) x ) . intro x .  unfold f . unfold g . destruct ( pathsinv0 ( assoc x ( inv0 x0 ) x0 ) ) . assert ( e := pr1 axs x0 ) . simpl in e . rewrite e . apply ( pr2 unaxs x ) .
 apply ( gradth _ _ egf efg ) . Defined .
 
 Lemma isweqlmultingr_is { X : hSet } { opp : binop X } ( is : isgrop opp )  ( x0 : X ) : islinvertible opp x0 .
 Proof . intros .   destruct is as [ is istr ] .  set ( f := fun x : X => opp x0 x ) . set ( g := fun x : X => opp ( ( pr1 istr ) x0 ) x ) .  destruct is as [ assoc isun0 ] . destruct istr as [ inv0 axs ] .  destruct isun0 as [ un0 unaxs ] .  simpl in * |-  .
-assert ( egf : forall x : _ , paths ( g ( f x ) ) x ) . intro x . unfold f . unfold g . destruct ( assoc ( inv0 x0 ) x0 x  ) . assert ( e := pr1 axs x0 ) . simpl in e . rewrite e . apply ( pr1 unaxs x ) .
-assert ( efg : forall x : _ , paths ( f ( g x ) ) x ) . intro x . unfold f . unfold g . destruct ( assoc x0 ( inv0 x0 ) x  ) . assert ( e := pr2 axs x0 ) . simpl in e . rewrite e . apply ( pr1 unaxs x ) .
+assert ( egf : Π x : _ , paths ( g ( f x ) ) x ) . intro x . unfold f . unfold g . destruct ( assoc ( inv0 x0 ) x0 x  ) . assert ( e := pr1 axs x0 ) . simpl in e . rewrite e . apply ( pr1 unaxs x ) .
+assert ( efg : Π x : _ , paths ( f ( g x ) ) x ) . intro x . unfold f . unfold g . destruct ( assoc x0 ( inv0 x0 ) x  ) . assert ( e := pr2 axs x0 ) . simpl in e . rewrite e . apply ( pr1 unaxs x ) .
 apply ( gradth _ _ egf efg ) . Defined .
 
 
 Lemma isapropinvstruct { X : hSet } { opp : binop X } ( is : ismonoidop opp ) : isaprop ( invstruct opp is ) .
-Proof . intros . apply isofhlevelsn . intro is0 . set ( un0 := pr1 ( pr2 is ) ) . assert ( int : forall i : X -> X , isaprop ( dirprod ( forall x : X , paths ( opp ( i x ) x ) un0 ) ( forall x : X , paths ( opp x ( i x ) ) un0 ) ) ) . intro i . apply ( isofhleveldirprod 1 ) .  apply impred . intro x .  simpl . apply ( setproperty X  ) . apply impred . intro x .   simpl .  apply ( setproperty X ) . apply ( isapropsubtype ( fun i : _ => hProppair _ ( int i ) ) ) .  intros inv1 inv2 .  simpl . intro ax1 .  intro ax2 .  apply funextfun . intro x0 . apply ( invmaponpathsweq ( weqpair _ ( isweqrmultingr_is ( tpair _ is is0 ) x0 ) ) ) .    simpl . rewrite ( pr1 ax1 x0 ) .   rewrite ( pr1 ax2 x0 ) .  apply idpath .  Defined .
+Proof . intros . apply isofhlevelsn . intro is0 . set ( un0 := pr1 ( pr2 is ) ) . assert ( int : Π i : X -> X , isaprop ( dirprod ( Π x : X , paths ( opp ( i x ) x ) un0 ) ( Π x : X , paths ( opp x ( i x ) ) un0 ) ) ) . intro i . apply ( isofhleveldirprod 1 ) .  apply impred . intro x .  simpl . apply ( setproperty X  ) . apply impred . intro x .   simpl .  apply ( setproperty X ) . apply ( isapropsubtype ( fun i : _ => hProppair _ ( int i ) ) ) .  intros inv1 inv2 .  simpl . intro ax1 .  intro ax2 .  apply funextfun . intro x0 . apply ( invmaponpathsweq ( weqpair _ ( isweqrmultingr_is ( tpair _ is is0 ) x0 ) ) ) .    simpl . rewrite ( pr1 ax1 x0 ) .   rewrite ( pr1 ax2 x0 ) .  apply idpath .  Defined .
 
 Lemma isapropisgrop { X : hSet } ( opp : binop X ) : isaprop ( isgrop opp ) .
 Proof . intros . apply ( isofhleveltotal2 1 ) . apply isapropismonoidop . apply isapropinvstruct . Defined .
 
 (* (** Unitary monoid where all elements are invertible is a group *)
 
-Definition allinvvertibleinv { X : hSet } { opp : binop X } ( is : ismonoidop opp ) ( allinv : forall x : X , islinvertible opp x ) : X -> X := fun x : X => invmap ( weqpair _ ( allinv x ) ) ( unel_is is ) .
+Definition allinvvertibleinv { X : hSet } { opp : binop X } ( is : ismonoidop opp ) ( allinv : Π x : X , islinvertible opp x ) : X -> X := fun x : X => invmap ( weqpair _ ( allinv x ) ) ( unel_is is ) .
 
 *)
 
 
 (** The following lemma is an analog of [ Bourbaki , Alg. 1 , ex. 2 , p. 132 ] *)
 
-Lemma isgropif { X : hSet } { opp : binop X } ( is0 : ismonoidop opp ) ( is : forall x : X, hexists ( fun x0 : X => eqset ( opp x x0 ) ( unel_is is0 ) ) ) : isgrop opp .
+Lemma isgropif { X : hSet } { opp : binop X } ( is0 : ismonoidop opp ) ( is : Π x : X, hexists ( fun x0 : X => eqset ( opp x x0 ) ( unel_is is0 ) ) ) : isgrop opp .
 Proof . intros . split with is0 .  destruct is0 as [ assoc isun0 ] . destruct isun0 as [ un0 unaxs0 ] . simpl in is .  simpl in unaxs0 . simpl in un0 . simpl in assoc . simpl in unaxs0 .
 
-assert ( l1 : forall x' : X , isincl ( fun x0 : X => opp x0 x' ) ) . intro x' . apply ( @hinhuniv ( total2 ( fun x0 : X => paths ( opp x' x0 ) un0 ) ) ( hProppair _ ( isapropisincl ( fun x0 : X => opp x0 x' ) ) ) ) .  intro int1 . simpl . apply isinclbetweensets .  apply ( pr2 X ) .  apply ( pr2 X ) .   intros a b .  intro e .  rewrite ( pathsinv0 ( pr2 unaxs0 a ) ) . rewrite ( pathsinv0 ( pr2 unaxs0 b ) ) .  destruct int1 as [ invx' eq ] .  rewrite ( pathsinv0 eq ) . destruct ( assoc a x' invx' ) .  destruct ( assoc b x' invx' ) .  rewrite e . apply idpath .  apply ( is x' ) .
+assert ( l1 : Π x' : X , isincl ( fun x0 : X => opp x0 x' ) ) . intro x' . apply ( @hinhuniv ( total2 ( fun x0 : X => paths ( opp x' x0 ) un0 ) ) ( hProppair _ ( isapropisincl ( fun x0 : X => opp x0 x' ) ) ) ) .  intro int1 . simpl . apply isinclbetweensets .  apply ( pr2 X ) .  apply ( pr2 X ) .   intros a b .  intro e .  rewrite ( pathsinv0 ( pr2 unaxs0 a ) ) . rewrite ( pathsinv0 ( pr2 unaxs0 b ) ) .  destruct int1 as [ invx' eq ] .  rewrite ( pathsinv0 eq ) . destruct ( assoc a x' invx' ) .  destruct ( assoc b x' invx' ) .  rewrite e . apply idpath .  apply ( is x' ) .
 
-assert ( is' :  forall x : X, hexists ( fun x0 : X => eqset ( opp x0 x ) un0 ) ) . intro x . apply ( fun f : _  => hinhuniv f ( is x ) ) .  intro s1 .  destruct s1 as [ x' eq ] .  apply hinhpr . split with x' . simpl . apply ( invmaponpathsincl _ ( l1 x' ) ) .   rewrite ( assoc x' x x' ) . rewrite eq .  rewrite ( pr1 unaxs0 x' ) . unfold unel_is.   simpl . rewrite ( pr2 unaxs0 x' ) .  apply idpath .
+assert ( is' :  Π x : X, hexists ( fun x0 : X => eqset ( opp x0 x ) un0 ) ) . intro x . apply ( fun f : _  => hinhuniv f ( is x ) ) .  intro s1 .  destruct s1 as [ x' eq ] .  apply hinhpr . split with x' . simpl . apply ( invmaponpathsincl _ ( l1 x' ) ) .   rewrite ( assoc x' x x' ) . rewrite eq .  rewrite ( pr1 unaxs0 x' ) . unfold unel_is.   simpl . rewrite ( pr2 unaxs0 x' ) .  apply idpath .
 
-assert ( l1' :  forall x' : X , isincl ( fun x0 : X => opp x' x0 ) ) . intro x' . apply ( @hinhuniv ( total2 ( fun x0 : X => paths ( opp x0 x' ) un0 ) ) ( hProppair _ ( isapropisincl ( fun x0 : X => opp x' x0 ) ) ) ) .  intro int1 . simpl . apply isinclbetweensets .  apply ( pr2 X ) .  apply ( pr2 X ) .   intros a b .  intro e .  rewrite ( pathsinv0 ( pr1 unaxs0 a ) ) . rewrite ( pathsinv0 ( pr1 unaxs0 b ) ) .  destruct int1 as [ invx' eq ] .  rewrite ( pathsinv0 eq ) . destruct ( pathsinv0 ( assoc invx' x' a )  ) .  destruct ( pathsinv0 ( assoc invx' x' b ) ) .  rewrite e . apply idpath .  apply ( is' x' ) .
+assert ( l1' :  Π x' : X , isincl ( fun x0 : X => opp x' x0 ) ) . intro x' . apply ( @hinhuniv ( total2 ( fun x0 : X => paths ( opp x0 x' ) un0 ) ) ( hProppair _ ( isapropisincl ( fun x0 : X => opp x' x0 ) ) ) ) .  intro int1 . simpl . apply isinclbetweensets .  apply ( pr2 X ) .  apply ( pr2 X ) .   intros a b .  intro e .  rewrite ( pathsinv0 ( pr1 unaxs0 a ) ) . rewrite ( pathsinv0 ( pr1 unaxs0 b ) ) .  destruct int1 as [ invx' eq ] .  rewrite ( pathsinv0 eq ) . destruct ( pathsinv0 ( assoc invx' x' a )  ) .  destruct ( pathsinv0 ( assoc invx' x' b ) ) .  rewrite e . apply idpath .  apply ( is' x' ) .
 
-assert ( int : forall x : X , isaprop ( total2 ( fun x0 : X => eqset ( opp x0 x ) un0 ) ) ) . intro x .   apply isapropsubtype .  intros x1 x2 .  intros eq1 eq2 .  apply ( invmaponpathsincl _ ( l1 x ) ) . rewrite eq1 .   rewrite eq2 .  apply idpath .
+assert ( int : Π x : X , isaprop ( total2 ( fun x0 : X => eqset ( opp x0 x ) un0 ) ) ) . intro x .   apply isapropsubtype .  intros x1 x2 .  intros eq1 eq2 .  apply ( invmaponpathsincl _ ( l1 x ) ) . rewrite eq1 .   rewrite eq2 .  apply idpath .
 
 simpl . set ( linv0 := fun x : X => hinhunivcor1 ( hProppair _ ( int x ) ) ( is' x ) ) .  simpl in linv0 .  set ( inv0 := fun x : X => pr1 ( linv0 x ) ) .  split with inv0 . simpl . split with ( fun x : _ => pr2 ( linv0 x ) ) .  intro x .  apply ( invmaponpathsincl _ ( l1 x ) ) . rewrite ( assoc x ( inv0 x ) x ) . change ( inv0 x ) with ( pr1 ( linv0 x ) ) . rewrite ( pr2 ( linv0 x ) ) . unfold unel_is . simpl . rewrite ( pr1 unaxs0 x ) . rewrite ( pr2 unaxs0 x ) . apply idpath .  Defined .
 
@@ -166,7 +166,7 @@ simpl . set ( linv0 := fun x : X => hinhunivcor1 ( hProppair _ ( int x ) ) ( is'
 
 (** *)
 
-Definition iscomm { X : hSet} ( opp : binop X ) := forall x x' : X , paths ( opp x x' ) ( opp x' x ) .
+Definition iscomm { X : hSet} ( opp : binop X ) := Π x x' : X , paths ( opp x x' ) ( opp x' x ) .
 
 Lemma isapropiscomm { X : hSet } ( opp : binop X ) : isaprop ( iscomm opp ) .
 Proof . intros . apply impred . intros x . apply impred . intro x' . simpl . apply ( setproperty X ) . Defined .
@@ -255,12 +255,12 @@ Proof . intros . apply ( isofhleveldirprod 1 ) . apply isapropisgrop . apply isa
 
 (** *)
 
-Definition isldistr { X : hSet} ( opp1 opp2 : binop X ) := forall x x' x'' : X , paths ( opp2 x'' ( opp1 x x' ) ) ( opp1 ( opp2 x'' x ) ( opp2 x'' x' ) ) .
+Definition isldistr { X : hSet} ( opp1 opp2 : binop X ) := Π x x' x'' : X , paths ( opp2 x'' ( opp1 x x' ) ) ( opp1 ( opp2 x'' x ) ( opp2 x'' x' ) ) .
 
 Lemma isapropisldistr { X : hSet} ( opp1 opp2 : binop X ) : isaprop ( isldistr opp1 opp2 ) .
 Proof . intros . apply impred . intro x . apply impred . intro x' . apply impred . intro x'' . simpl . apply ( setproperty X ) . Defined .
 
-Definition isrdistr { X : hSet} ( opp1 opp2 : binop X ) := forall x x' x'' : X , paths ( opp2 ( opp1 x x' ) x'' ) ( opp1 ( opp2 x x'' ) ( opp2 x' x'' ) ) .
+Definition isrdistr { X : hSet} ( opp1 opp2 : binop X ) := Π x x' x'' : X , paths ( opp2 ( opp1 x x' ) x'' ) ( opp1 ( opp2 x x'' ) ( opp2 x' x'' ) ) .
 
 Lemma isapropisrdistr { X : hSet} ( opp1 opp2 : binop X ) : isaprop ( isrdistr opp1 opp2 ) .
 Proof . intros . apply impred . intro x . apply impred . intro x' . apply impred . intro x'' . simpl . apply ( setproperty X ) . Defined .
@@ -284,7 +284,7 @@ split with f . apply ( isweqimplimpl f g ( isapropisldistr opp1 opp2 )  ( isapro
 (** *)
 
 
-Definition isrigops { X : hSet } ( opp1 opp2 : binop X ) :=  dirprod ( total2 ( fun axs : dirprod ( isabmonoidop opp1 ) ( ismonoidop opp2 ) => ( dirprod ( forall x : X , paths ( opp2 ( unel_is ( pr1 axs ) ) x ) ( unel_is ( pr1 axs ) ) ) ) ( forall x : X , paths ( opp2 x ( unel_is ( pr1 axs ) ) ) ( unel_is ( pr1 axs ) ) ) ) ) ( isdistr opp1 opp2 ) .
+Definition isrigops { X : hSet } ( opp1 opp2 : binop X ) :=  dirprod ( total2 ( fun axs : dirprod ( isabmonoidop opp1 ) ( ismonoidop opp2 ) => ( dirprod ( Π x : X , paths ( opp2 ( unel_is ( pr1 axs ) ) x ) ( unel_is ( pr1 axs ) ) ) ) ( Π x : X , paths ( opp2 x ( unel_is ( pr1 axs ) ) ) ( unel_is ( pr1 axs ) ) ) ) ) ( isdistr opp1 opp2 ) .
 
 Definition rigop1axs_is { X : hSet } { opp1 opp2 : binop X } : isrigops opp1 opp2 -> isabmonoidop opp1 := fun is : _ => pr1 ( pr1 ( pr1 is ) ) .
 Definition rigop2axs_is { X : hSet } { opp1 opp2 : binop X } : isrigops opp1 opp2 -> ismonoidop opp2 := fun is : _ => pr2 ( pr1 ( pr1 is ) ) .
@@ -320,12 +320,12 @@ Definition rngunel2_is { X : hSet } { opp1 opp2 : binop X } ( is : isrngops opp1
 Lemma isapropisrngops { X : hSet } ( opp1 opp2 : binop X ) : isaprop ( isrngops opp1 opp2 ) .
 Proof . intros . apply ( isofhleveldirprod 1 ) . apply ( isofhleveldirprod 1 ) . apply isapropisabgrop . apply isapropismonoidop. apply isapropisdistr . Defined .
 
-Lemma multx0_is_l { X : hSet } { opp1 opp2 : binop X } ( is1 : isgrop opp1 ) ( is2 : ismonoidop opp2 ) ( is12 : isdistr opp1 opp2 ) : forall x : X , paths ( opp2 x ( unel_is ( pr1 is1 ) ) ) ( unel_is ( pr1 is1 ) )  .
+Lemma multx0_is_l { X : hSet } { opp1 opp2 : binop X } ( is1 : isgrop opp1 ) ( is2 : ismonoidop opp2 ) ( is12 : isdistr opp1 opp2 ) : Π x : X , paths ( opp2 x ( unel_is ( pr1 is1 ) ) ) ( unel_is ( pr1 is1 ) )  .
 Proof . intros .  destruct is12 as [ ldistr0 rdistr0 ] . destruct is2 as [ assoc2 [ un2 [ lun2 run2 ] ] ] . simpl in * . apply ( invmaponpathsweq ( weqpair _ ( isweqrmultingr_is is1 ( opp2 x un2 ) ) ) ) .  simpl .  destruct is1 as [ [ assoc1 [ un1 [ lun1 run1 ] ] ] [ inv0 [ linv0 rinv0 ] ] ] .  unfold unel_is .  simpl in * . rewrite ( lun1 ( opp2 x un2 ) ) . destruct ( ldistr0 un1 un2 x ) .    rewrite ( run2 x ) .  rewrite ( lun1 un2 ) .  rewrite ( run2 x ) . apply idpath .  Defined .
 
 Opaque multx0_is_l .
 
-Lemma mult0x_is_l { X : hSet } { opp1 opp2 : binop X } ( is1 : isgrop opp1 ) ( is2 : ismonoidop opp2 ) ( is12 : isdistr opp1 opp2 ) : forall x : X , paths ( opp2 ( unel_is ( pr1 is1 ) ) x ) ( unel_is ( pr1 is1 ) ) .
+Lemma mult0x_is_l { X : hSet } { opp1 opp2 : binop X } ( is1 : isgrop opp1 ) ( is2 : ismonoidop opp2 ) ( is12 : isdistr opp1 opp2 ) : Π x : X , paths ( opp2 ( unel_is ( pr1 is1 ) ) x ) ( unel_is ( pr1 is1 ) ) .
 Proof . intros .  destruct is12 as [ ldistr0 rdistr0 ] . destruct is2 as [ assoc2 [ un2 [ lun2 run2 ] ] ] . simpl in * . apply ( invmaponpathsweq ( weqpair _ ( isweqrmultingr_is is1 ( opp2 un2 x ) ) ) ) .  simpl .  destruct is1 as [ [ assoc1 [ un1 [ lun1 run1 ] ] ] [ inv0 [ linv0 rinv0 ] ] ] .  unfold unel_is .  simpl in * . rewrite ( lun1 ( opp2 un2 x ) ) . destruct ( rdistr0 un1 un2 x ) .  rewrite ( lun2 x ) .  rewrite ( lun1 un2 ) .  rewrite ( lun2 x ) . apply idpath .  Defined .
 
 Opaque mult0x_is_l .
@@ -422,7 +422,7 @@ Notation "x * y" := ( op x y ) : multoperation_scope .
 
 (** **** Functions compatible with a binary operation ( homomorphisms ) and their properties *)
 
-Definition isbinopfun { X Y : setwithbinop } ( f : X -> Y ) := forall x x' : X , paths ( f ( op x x' ) ) ( op ( f x ) ( f x' ) ) .
+Definition isbinopfun { X Y : setwithbinop } ( f : X -> Y ) := Π x x' : X , paths ( f ( op x x' ) ) ( op ( f x ) ( f x' ) ) .
 
 Lemma isapropisbinopfun { X Y : setwithbinop } ( f : X -> Y ) : isaprop ( isbinopfun f ) .
 Proof . intros . apply impred . intro x . apply impred . intro x' . apply ( setproperty Y ) . Defined .
@@ -619,7 +619,7 @@ Definition isabgropisob { X Y : setwithbinop } ( f : binopiso X Y ) ( is : isabg
 
 (** **** Subobjects *)
 
-Definition issubsetwithbinop { X : hSet } ( opp : binop X ) ( A : hsubtypes X ) := forall a a' : A , A ( opp ( pr1 a ) ( pr1 a' ) ) .
+Definition issubsetwithbinop { X : hSet } ( opp : binop X ) ( A : hsubtypes X ) := Π a a' : A , A ( opp ( pr1 a ) ( pr1 a' ) ) .
 
 Lemma isapropissubsetwithbinop { X : hSet } ( opp : binop X ) ( A : hsubtypes X ) : isaprop ( issubsetwithbinop opp A ) .
 Proof .  intros .  apply impred .  intro a . apply impred . intros a' . apply ( pr2 ( A ( opp (pr1 a) (pr1 a')) ) ) . Defined .
@@ -647,7 +647,7 @@ Coercion carrierofasubsetwithbinop : subsetswithbinop >-> setwithbinop .
 
 (** **** Relations compatible with a binary operation and quotient objects *)
 
-Definition isbinophrel { X : setwithbinop } ( R : hrel X ) := dirprod ( forall a b c : X , R a b -> R ( op c a ) ( op c b ) ) ( forall a b c : X , R a b -> R ( op a c ) ( op b c ) ) .
+Definition isbinophrel { X : setwithbinop } ( R : hrel X ) := dirprod ( Π a b c : X , R a b -> R ( op c a ) ( op c b ) ) ( Π a b c : X , R a b -> R ( op a c ) ( op b c ) ) .
 
 Definition isbinophrellogeqf { X : setwithbinop } { L R : hrel X } ( lg : hrellogeq L R ) ( isl : isbinophrel L ) : isbinophrel R .
 Proof . intros . split . intros a b c rab . apply ( ( pr1 ( lg _ _ ) ( ( pr1 isl ) _ _ _ ( pr2 ( lg  _ _ ) rab ) ) ) ) . intros a b c rab .  apply ( ( pr1 ( lg _ _ ) ( ( pr2 isl ) _ _ _ ( pr2 ( lg  _ _ ) rab ) ) ) ) . Defined .
@@ -655,7 +655,7 @@ Proof . intros . split . intros a b c rab . apply ( ( pr1 ( lg _ _ ) ( ( pr1 isl
 Lemma isapropisbinophrel { X : setwithbinop } ( R : hrel X ) : isaprop ( isbinophrel R ) .
 Proof . intros . apply isapropdirprod . apply impred . intro a . apply impred . intro b . apply impred . intro c . apply impred . intro r . apply ( pr2 ( R _ _ ) ) .  apply impred . intro a . apply impred . intro b . apply impred . intro c . apply impred . intro r . apply ( pr2 ( R _ _ ) ) .  Defined .
 
-Lemma isbinophrelif { X : setwithbinop } ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : forall a b c : X , R a b -> R ( op c a ) ( op c b ) ) : isbinophrel R .
+Lemma isbinophrelif { X : setwithbinop } ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : Π a b c : X , R a b -> R ( op c a ) ( op c b ) ) : isbinophrel R .
 Proof . intros . split with isl .  intros a b c rab .  destruct ( is c a ) . destruct ( is c b ) . apply ( isl _ _ _ rab ) . Defined .
 
 Lemma iscompbinoptransrel { X : setwithbinop } ( R : hrel X ) ( ist : istrans R )  ( isb : isbinophrel R ) : iscomprelrelfun2 R R ( @op X ) .
@@ -686,7 +686,7 @@ assert ( iscomp : iscomprelrelfun2 R R op ) . apply ( iscompbinoptransrel R ( eq
 set ( qtmlt := setquotfun2 R R op iscomp ) .   simpl . unfold binop . apply qtmlt . Defined .
 
 
-Definition ispartbinophrel { X : setwithbinop } ( S : hsubtypes X ) ( R : hrel X ) := dirprod ( forall a b c : X , S c -> R a b -> R ( op c a ) ( op c b ) ) ( forall a b c : X , S c -> R a b -> R ( op a c ) ( op b c ) ) .
+Definition ispartbinophrel { X : setwithbinop } ( S : hsubtypes X ) ( R : hrel X ) := dirprod ( Π a b c : X , S c -> R a b -> R ( op c a ) ( op c b ) ) ( Π a b c : X , S c -> R a b -> R ( op a c ) ( op b c ) ) .
 
 Definition isbinoptoispartbinop { X : setwithbinop } ( S : hsubtypes X ) ( L : hrel X ) ( is : isbinophrel L ) : ispartbinophrel S L .
 Proof . intros X S L .  unfold isbinophrel . unfold ispartbinophrel . intro d2 .  split .  intros a b c is .  apply ( pr1 d2 a b c ) . intros a b c is . apply ( pr2 d2 a b c ) . Defined .
@@ -694,14 +694,14 @@ Proof . intros X S L .  unfold isbinophrel . unfold ispartbinophrel . intro d2 .
 Definition ispartbinophrellogeqf { X : setwithbinop } ( S : hsubtypes X ) { L R : hrel X } ( lg : hrellogeq L R ) ( isl : ispartbinophrel S L ) : ispartbinophrel S R .
 Proof . intros . split . intros a b c is rab .  apply ( ( pr1 ( lg _ _ ) ( ( pr1 isl ) _ _ _ is ( pr2 ( lg _ _ ) rab ) ) ) ) . intros a b c is rab .  apply ( ( pr1 ( lg _ _ ) ( ( pr2 isl ) _ _ _ is ( pr2 ( lg  _ _ ) rab ) ) ) ) . Defined .
 
-Lemma ispartbinophrelif { X : setwithbinop } ( S : hsubtypes X ) ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : forall a b c : X , S c -> R a b -> R ( op c a ) ( op c b ) ) : ispartbinophrel S R .
+Lemma ispartbinophrelif { X : setwithbinop } ( S : hsubtypes X ) ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : Π a b c : X , S c -> R a b -> R ( op c a ) ( op c b ) ) : ispartbinophrel S R .
 Proof . intros .  split with isl .  intros a b c s rab .  destruct ( is c a ) . destruct ( is c b ) . apply ( isl _ _ _ s rab ) . Defined .
 
 
 
 (** **** Relations inversely compatible with a binary operation *)
 
-Definition isinvbinophrel { X : setwithbinop } ( R : hrel X ) := dirprod ( forall a b c : X , R ( op c a ) ( op c b ) ->  R a b ) ( forall a b c : X , R ( op a c ) ( op b c ) -> R a b ) .
+Definition isinvbinophrel { X : setwithbinop } ( R : hrel X ) := dirprod ( Π a b c : X , R ( op c a ) ( op c b ) ->  R a b ) ( Π a b c : X , R ( op a c ) ( op b c ) -> R a b ) .
 
 Definition isinvbinophrellogeqf { X : setwithbinop } { L R : hrel X } ( lg : hrellogeq L R ) ( isl : isinvbinophrel L ) : isinvbinophrel R .
 Proof . intros . split . intros a b c rab . apply ( ( pr1 ( lg _ _ ) ( ( pr1 isl ) _ _ _ ( pr2 ( lg  _ _ ) rab ) ) ) ) . intros a b c rab .  apply ( ( pr1 ( lg _ _ ) ( ( pr2 isl ) _ _ _ ( pr2 ( lg  _ _ ) rab ) ) ) ) . Defined .
@@ -709,14 +709,14 @@ Proof . intros . split . intros a b c rab . apply ( ( pr1 ( lg _ _ ) ( ( pr1 isl
 Lemma isapropisinvbinophrel { X : setwithbinop } ( R : hrel X ) : isaprop ( isinvbinophrel R ) .
 Proof . intros . apply isapropdirprod . apply impred . intro a . apply impred . intro b . apply impred . intro c . apply impred . intro r . apply ( pr2 ( R _ _ ) ) .  apply impred . intro a . apply impred . intro b . apply impred . intro c . apply impred . intro r . apply ( pr2 ( R _ _ ) ) .  Defined .
 
-Lemma isinvbinophrelif { X : setwithbinop } ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : forall a b c : X ,  R ( op c a ) ( op c b ) -> R a b ) : isinvbinophrel R .
+Lemma isinvbinophrelif { X : setwithbinop } ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : Π a b c : X ,  R ( op c a ) ( op c b ) -> R a b ) : isinvbinophrel R .
 Proof . intros . split with isl .  intros a b c rab .  destruct ( is c a ) . destruct ( is c b ) . apply ( isl _ _ _ rab ) . Defined .
 
 
 
 
 
-Definition ispartinvbinophrel { X : setwithbinop } ( S : hsubtypes X ) ( R : hrel X ) := dirprod ( forall a b c : X , S c -> R ( op c a ) ( op c b ) -> R a b ) ( forall  a b c : X  , S c -> R ( op a c ) ( op b c ) -> R a b ) .
+Definition ispartinvbinophrel { X : setwithbinop } ( S : hsubtypes X ) ( R : hrel X ) := dirprod ( Π a b c : X , S c -> R ( op c a ) ( op c b ) -> R a b ) ( Π a b c : X  , S c -> R ( op a c ) ( op b c ) -> R a b ) .
 
 Definition isinvbinoptoispartinvbinop { X : setwithbinop } ( S : hsubtypes X ) ( L : hrel X ) ( is : isinvbinophrel L ) : ispartinvbinophrel S L .
 Proof . intros X S L .  unfold isinvbinophrel . unfold ispartinvbinophrel . intro d2 .  split .  intros a b c s .  apply ( pr1 d2 a b c ) . intros a b c s . apply ( pr2 d2 a b c ) . Defined .
@@ -724,37 +724,37 @@ Proof . intros X S L .  unfold isinvbinophrel . unfold ispartinvbinophrel . intr
 Definition ispartinvbinophrellogeqf { X : setwithbinop } ( S : hsubtypes X ) { L R : hrel X } ( lg : hrellogeq L R ) ( isl : ispartinvbinophrel S L ) : ispartinvbinophrel S R .
 Proof . intros . split . intros a b c s rab . apply ( ( pr1 ( lg _ _ ) ( ( pr1 isl ) _ _ _ s ( pr2 ( lg  _ _ ) rab ) ) ) ) . intros a b c s rab .  apply ( ( pr1 ( lg _ _ ) ( ( pr2 isl ) _ _ _ s ( pr2 ( lg  _ _ ) rab ) ) ) ) . Defined .
 
-Lemma ispartinvbinophrelif { X : setwithbinop } ( S : hsubtypes X ) ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : forall a b c : X , S c -> R ( op c a ) ( op c b ) -> R a b ) : ispartinvbinophrel S R .
+Lemma ispartinvbinophrelif { X : setwithbinop } ( S : hsubtypes X ) ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : Π a b c : X , S c -> R ( op c a ) ( op c b ) -> R a b ) : ispartinvbinophrel S R .
 Proof . intros .  split with isl .  intros a b c s rab .  destruct ( is c a ) . destruct ( is c b ) . apply ( isl _ _ _ s rab ) . Defined .
 
 
 (** **** Homomorphisms and relations *)
 
 Lemma binophrelandfun { X Y : setwithbinop } ( f : binopfun X Y ) ( R : hrel Y ) ( is : @isbinophrel Y R ) : @isbinophrel X ( fun x x' => R ( f x ) ( f x' ) ) .
-Proof . intros . set ( ish := ( pr2 f ) : forall a0 b0 , paths ( f ( op a0 b0 ) ) ( op ( f a0 ) ( f b0 ) ) ) . split .
+Proof . intros . set ( ish := ( pr2 f ) : Π a0 b0 , paths ( f ( op a0 b0 ) ) ( op ( f a0 ) ( f b0 ) ) ) . split .
 
 intros a b c r . rewrite ( ish _ _ ) .   rewrite ( ish _ _ ) .  apply ( pr1 is ) . apply r .
 
 intros a b c r . rewrite ( ish _ _ ) .   rewrite ( ish _ _ ) .  apply ( pr2 is ) . apply r . Defined .
 
 
-Lemma ispartbinophrelandfun { X Y : setwithbinop } ( f : binopfun X Y ) ( SX : hsubtypes X ) ( SY : hsubtypes Y ) ( iss : forall x : X , ( SX x ) -> ( SY ( f x ) ) ) ( R : hrel Y ) ( is : @ispartbinophrel Y SY R ) : @ispartbinophrel X SX ( fun x x' => R ( f x ) ( f x' ) ) .
-Proof . intros . set ( ish := ( pr2 f ) : forall a0 b0 , paths ( f ( op a0 b0 ) ) ( op ( f a0 ) ( f b0 ) ) ) . split .
+Lemma ispartbinophrelandfun { X Y : setwithbinop } ( f : binopfun X Y ) ( SX : hsubtypes X ) ( SY : hsubtypes Y ) ( iss : Π x : X , ( SX x ) -> ( SY ( f x ) ) ) ( R : hrel Y ) ( is : @ispartbinophrel Y SY R ) : @ispartbinophrel X SX ( fun x x' => R ( f x ) ( f x' ) ) .
+Proof . intros . set ( ish := ( pr2 f ) : Π a0 b0 , paths ( f ( op a0 b0 ) ) ( op ( f a0 ) ( f b0 ) ) ) . split .
 
 intros a b c s r . rewrite ( ish _ _ ) .   rewrite ( ish _ _ ) .  apply ( ( pr1 is ) _ _ _ ( iss _ s ) r ) .
 
 intros a b c s r . rewrite ( ish _ _ ) .   rewrite ( ish _ _ ) .  apply ( ( pr2 is ) _ _ _ ( iss _ s ) r ) . Defined .
 
 Lemma invbinophrelandfun { X Y : setwithbinop } ( f : binopfun X Y ) ( R : hrel Y ) ( is : @isinvbinophrel Y R ) : @isinvbinophrel X ( fun x x' => R ( f x ) ( f x' ) ) .
-Proof . intros .  set ( ish := ( pr2 f ) : forall a0 b0 , paths ( f ( op a0 b0 ) ) ( op ( f a0 ) ( f b0 ) ) ) . split .
+Proof . intros .  set ( ish := ( pr2 f ) : Π a0 b0 , paths ( f ( op a0 b0 ) ) ( op ( f a0 ) ( f b0 ) ) ) . split .
 
 intros a b c r . rewrite ( ish _ _ ) in r .   rewrite ( ish _ _ ) in r .  apply ( ( pr1 is ) _ _ _ r ) .
 
 intros a b c r . rewrite ( ish _ _ ) in r .   rewrite ( ish _ _ ) in r .  apply ( ( pr2 is ) _ _ _ r ) . Defined .
 
 
-Lemma ispartinvbinophrelandfun { X Y : setwithbinop } ( f : binopfun X Y ) ( SX : hsubtypes X ) ( SY : hsubtypes Y ) ( iss : forall x : X , ( SX x ) -> ( SY ( f x ) ) ) ( R : hrel Y ) ( is : @ispartinvbinophrel Y SY R ) : @ispartinvbinophrel X SX ( fun x x' => R ( f x ) ( f x' ) ) .
-Proof . intros .  set ( ish := ( pr2 f ) : forall a0 b0 , paths ( f ( op a0 b0 ) ) ( op ( f a0 ) ( f b0 ) ) ) . split .
+Lemma ispartinvbinophrelandfun { X Y : setwithbinop } ( f : binopfun X Y ) ( SX : hsubtypes X ) ( SY : hsubtypes Y ) ( iss : Π x : X , ( SX x ) -> ( SY ( f x ) ) ) ( R : hrel Y ) ( is : @ispartinvbinophrel Y SY R ) : @ispartinvbinophrel X SX ( fun x x' => R ( f x ) ( f x' ) ) .
+Proof . intros .  set ( ish := ( pr2 f ) : Π a0 b0 , paths ( f ( op a0 b0 ) ) ( op ( f a0 ) ( f b0 ) ) ) . split .
 
 intros a b c s r . rewrite ( ish _ _ ) in r .   rewrite ( ish _ _ ) in r .  apply ( ( pr1 is ) _ _ _ ( iss _ s ) r ) .
 
@@ -764,8 +764,8 @@ intros a b c s r . rewrite ( ish _ _ ) in r .   rewrite ( ish _ _ ) in r .  appl
 (** **** Quotient relations *)
 
 Lemma isbinopquotrel { X : setwithbinop } ( R : @binopeqrel X ) { L : hrel X } ( is : iscomprelrel R L ) ( isl : isbinophrel L ) : @isbinophrel ( setwithbinopquot R ) ( quotrel is ) .
-Proof .  intros .  unfold isbinophrel .   split . assert ( int : forall a b c :  setwithbinopquot R , isaprop ( quotrel is a b -> quotrel is (op c a ) (op c b ) ) ) . intros a b c .  apply impred . intro .  apply ( pr2 ( quotrel is _ _ ) ) .  apply ( setquotuniv3prop R ( fun a b c => hProppair _ ( int a b c ) ) ) . exact ( pr1 isl )  .
- assert ( int : forall a b c :  setwithbinopquot R , isaprop ( quotrel is a b -> quotrel is (op a c ) (op b c ) ) ) . intros a b c .  apply impred . intro .  apply ( pr2 ( quotrel is _ _ ) ) .  apply ( setquotuniv3prop R ( fun a b c => hProppair _ ( int a b c ) ) ) . exact ( pr2 isl )  . Defined .
+Proof .  intros .  unfold isbinophrel .   split . assert ( int : Π a b c :  setwithbinopquot R , isaprop ( quotrel is a b -> quotrel is (op c a ) (op c b ) ) ) . intros a b c .  apply impred . intro .  apply ( pr2 ( quotrel is _ _ ) ) .  apply ( setquotuniv3prop R ( fun a b c => hProppair _ ( int a b c ) ) ) . exact ( pr1 isl )  .
+ assert ( int : Π a b c :  setwithbinopquot R , isaprop ( quotrel is a b -> quotrel is (op a c ) (op b c ) ) ) . intros a b c .  apply impred . intro .  apply ( pr2 ( quotrel is _ _ ) ) .  apply ( setquotuniv3prop R ( fun a b c => hProppair _ ( int a b c ) ) ) . exact ( pr2 isl )  . Defined .
 
 
 
@@ -805,7 +805,7 @@ Notation "x * y" := ( op2 x y ) : twobinops_scope .
 
 (** **** Functions compatible with a pair of binary operation ( homomorphisms ) and their properties *)
 
-Definition istwobinopfun { X Y : setwith2binop } ( f : X -> Y ) := dirprod ( forall x x' : X , paths ( f ( op1 x x' ) ) ( op1 ( f x ) ( f x' ) ) ) ( forall x x' : X , paths ( f ( op2 x x' ) ) ( op2 ( f x ) ( f x' ) ) )  .
+Definition istwobinopfun { X Y : setwith2binop } ( f : X -> Y ) := dirprod ( Π x x' : X , paths ( f ( op1 x x' ) ) ( op1 ( f x ) ( f x' ) ) ) ( Π x x' : X , paths ( f ( op2 x x' ) ) ( op2 ( f x ) ( f x' ) ) )  .
 
 Lemma isapropistwobinopfun { X Y : setwith2binop } ( f : X -> Y ) : isaprop ( istwobinopfun f ) .
 Proof . intros . apply isofhleveldirprod . apply impred . intro x . apply impred . intro x' . apply ( setproperty Y ) . apply impred . intro x . apply impred . intro x' . apply ( setproperty Y ) . Defined .
@@ -928,7 +928,7 @@ Definition iscommrngopsisob { X Y : setwith2binop } ( f : twobinopiso X Y ) ( is
 
 (** **** Subobjects *)
 
-Definition issubsetwith2binop { X : setwith2binop } ( A : hsubtypes X ) := dirprod ( forall a a' : A , A ( op1 ( pr1 a ) ( pr1 a' ) ) ) ( forall a a' : A , A ( op2 ( pr1 a ) ( pr1 a' ) ) ) .
+Definition issubsetwith2binop { X : setwith2binop } ( A : hsubtypes X ) := dirprod ( Π a a' : A , A ( op1 ( pr1 a ) ( pr1 a' ) ) ) ( Π a a' : A , A ( op2 ( pr1 a ) ( pr1 a' ) ) ) .
 
 Lemma isapropissubsetwith2binop { X : setwith2binop } ( A : hsubtypes X ) : isaprop ( issubsetwith2binop A ) .
 Proof . intros . apply ( isofhleveldirprod 1 ) .

@@ -67,3 +67,10 @@ PrecategoriesWithBinOps.v
 PrecategoriesWithAbgrops.v
 PreAdditive.v
 limits/BinDirectSums.v
+limits/FinOrdProducts.v
+limits/FinOrdCoproducts.v
+Additive.v
+Abelian.v
+category_binops.v
+category_abgr.v
+AbelianisAdditive.v

@@ -11,10 +11,10 @@ Section def_epi.
   Variable C : precategory.
 
   (** Definition and construction of isEpi. *)
-  Definition isEpi {x y : C} (f : x --> y) :=
-    forall (z : C) (g h : y --> z), f ;; g = f ;; h -> g = h.
+  Definition isEpi {x y : C} (f : x --> y) : UU :=
+    Π (z : C) (g h : y --> z), f ;; g = f ;; h -> g = h.
   Definition mk_isEpi {x y : C} (f : x --> y) :
-    (forall (z : C) (g h : y --> z), f ;; g = f ;; h -> g = h) -> isEpi f.
+    (Π (z : C) (g h : y --> z), f ;; g = f ;; h -> g = h) -> isEpi f.
   Proof. intros X. unfold isEpi. apply X.  Defined.
 
   (** Definition and construction of Epi. *)

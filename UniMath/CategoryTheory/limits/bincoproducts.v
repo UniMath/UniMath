@@ -13,6 +13,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.limits.zero.
 
 (** * Definition of binary coproduct of objects in a precategory *)
 Section coproduct_def.
@@ -20,7 +21,7 @@ Section coproduct_def.
 Variable C : precategory.
 
 Definition isBinCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
-  ∀ (c : C) (f : a --> c) (g : b --> c),
+  Π (c : C) (f : a --> c) (g : b --> c),
     iscontr (Σ fg : co --> c, (ia ;; fg = f) × (ib ;; fg = g)).
 
 Definition BinCoproductCocone (a b : C) :=
@@ -28,7 +29,7 @@ Definition BinCoproductCocone (a b : C) :=
       isBinCoproductCocone a b (pr1 coiaib) (pr1 (pr2 coiaib)) (pr2 (pr2 coiaib)).
 
 
-Definition BinCoproducts := ∀ (a b : C), BinCoproductCocone a b.
+Definition BinCoproducts := Π (a b : C), BinCoproductCocone a b.
 Definition hasBinCoproducts := ishinh BinCoproducts.
 
 Definition BinCoproductObject {a b : C} (CC : BinCoproductCocone a b) : C := pr1 (pr1 CC).
@@ -50,14 +51,14 @@ Proof.
 Defined.
 
 Lemma BinCoproductIn1Commutes (a b : C) (CC : BinCoproductCocone a b):
-     ∀ (c : C) (f : a --> c) g, BinCoproductIn1 CC ;; BinCoproductArrow CC f g  = f.
+     Π (c : C) (f : a --> c) g, BinCoproductIn1 CC ;; BinCoproductArrow CC f g  = f.
 Proof.
   intros c f g.
   exact (pr1 (pr2 (pr1 (isBinCoproductCocone_BinCoproductCocone CC _ f g)))).
 Qed.
 
 Lemma BinCoproductIn2Commutes (a b : C) (CC : BinCoproductCocone a b):
-     ∀ (c : C) (f : a --> c) g, BinCoproductIn2 CC ;; BinCoproductArrow CC f g = g.
+     Π (c : C) (f : a --> c) g, BinCoproductIn2 CC ;; BinCoproductArrow CC f g = g.
 Proof.
   intros c f g.
   exact (pr2 (pr2 (pr1 (isBinCoproductCocone_BinCoproductCocone CC _ f g)))).
@@ -74,6 +75,22 @@ Proof.
   apply (base_paths _ _ H').
 Qed.
 
+Lemma BinCoproductArrowsEq (c d : C) (CC : BinCoproductCocone c d) (x : C)
+      (k1 k2 : BinCoproductObject CC --> x) :
+  BinCoproductIn1 CC ;; k1 = BinCoproductIn1 CC ;; k2 ->
+  BinCoproductIn2 CC ;; k1 = BinCoproductIn2 CC ;; k2 ->
+  k1 = k2.
+Proof.
+  intros H1 H2.
+  set (p1 := BinCoproductIn1 CC ;; k1).
+  set (p2 := BinCoproductIn2 CC ;; k1).
+  rewrite (BinCoproductArrowUnique _ _ CC _ p1 p2 k1).
+  apply pathsinv0.
+  apply BinCoproductArrowUnique.
+  unfold p1. apply pathsinv0. apply H1.
+  unfold p2. apply pathsinv0. apply H2.
+  apply idpath. apply idpath.
+Qed.
 
 Lemma BinCoproductArrowEta (a b : C) (CC : BinCoproductCocone a b) (x : C)
     (f : BinCoproductObject CC --> x) :
@@ -107,7 +124,7 @@ Qed.
 
 
 Definition mk_BinCoproductCocone (a b : C) :
-  ∀ (c : C) (f : a --> c) (g : b --> c),
+  Π (c : C) (f : a --> c) (g : b --> c),
    isBinCoproductCocone _ _ _ f g →  BinCoproductCocone a b.
 Proof.
   intros.
@@ -119,7 +136,7 @@ Proof.
 Defined.
 
 Definition mk_isBinCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a --> co) (ib : b --> co) :
-   (∀ (c : C) (f : a --> c) (g : b --> c),
+   (Π (c : C) (f : a --> c) (g : b --> c),
     ∃! k : C ⟦co, c⟧,
       ia ;; k = f ×
       ib ;; k = g)
@@ -566,7 +583,7 @@ End BinCoproducts.
 (* + apply (tpair _ (pr1 t)); split; [ apply (pr2 t true) | apply (pr2 t false) ]. *)
 (* + intros t0. *)
 (*   apply subtypeEquality; [intros aa; apply isapropdirprod; apply hsC|]; simpl. *)
-(*   simple refine (let X : Σ x : C ⟦ ab, c ⟧, ∀ v, coconeIn cc v ;; x = *)
+(*   simple refine (let X : Σ x : C ⟦ ab, c ⟧, Π v, coconeIn cc v ;; x = *)
 (*             bool_rect (λ v0, C ⟦ if v0 then a else b, c ⟧) f g v := _ in _). *)
 (*   { apply (tpair _ (pr1 t0)); intro x; case x; *)
 (*     [ apply (pr1 (pr2 t0)) | apply (pr2 (pr2 t0)) ]. } *)
@@ -612,3 +629,24 @@ Definition BinCoproduct_of_functors_alt {C D : precategory}
      (functor_composite (binproduct_pair_functor F G) (bincoproduct_functor HD)).
 
 End functors.
+
+(** In the following section we show that if the morphism to components are
+    zero, then the unique morphism factoring through the bincoproduct is the
+    zero morphism. *)
+Section BinCoproduct_zeroarrow.
+
+  Variable C : precategory.
+  Variable Z : Zero C.
+
+  Lemma BinCoproductArrowZero {x y z: C} {BP : BinCoproductCocone C x y}
+        (f : x --> z) (g : y --> z) :
+    f = ZeroArrow C Z _ _ -> g = ZeroArrow C Z _ _ ->
+    BinCoproductArrow C BP f g = ZeroArrow C Z _ _ .
+  Proof.
+    intros X X0. apply pathsinv0.
+    use BinCoproductArrowUnique.
+    rewrite X. apply ZeroArrow_comp_right.
+    rewrite X0. apply ZeroArrow_comp_right.
+  Qed.
+
+End BinCoproduct_zeroarrow.

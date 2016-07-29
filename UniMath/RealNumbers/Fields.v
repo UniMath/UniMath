@@ -3,7 +3,7 @@
 Require Export UniMath.Foundations.Algebra.Domains_and_Fields.
 
 Lemma isapropmultinvpair :
-  ∀ (X : rig) (x : X), isaprop (multinvpair X x).
+  Π (X : rig) (x : X), isaprop (multinvpair X x).
 Proof.
   intros X x.
   apply isapropinvpair.
@@ -38,7 +38,7 @@ Section fld_struct.
 Context (X : fld).
 
 Definition fld_to_gr1 : gr :=
-  abgrtogr (rngaddabgr (pr1fld X)).
+  abgrtogr (pr1fld X).
 
 Definition fld_to_monoid1 : monoid :=
   grtomonoid fld_to_gr1.
