@@ -43,7 +43,7 @@ Lemma is_zero_dec :
   Π x : Dcuts, isboolDcuts x -> (x = 0) ∨ (¬ (x = 0)).
 Proof.
   intros x Hx.
-  generalize (Hx 0%NRat) ; apply hinhfun ; intros [Hx0 | Hx0].
+  generalize (Hx 0%NRat) ; apply hinhfun ; apply sumofmaps ; intros Hx0.
   - right ; intro H.
     rewrite H in Hx0.
     now apply Dcuts_zero_empty in Hx0.

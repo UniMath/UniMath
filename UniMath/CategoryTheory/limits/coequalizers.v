@@ -116,7 +116,8 @@ Section def_coequalizers.
 
   Lemma CoequalizerOutsEq {y z: C} {f g : y --> z} (E : Coequalizer f g)
         {w : C} (φ1 φ2: C⟦E, w⟧)
-        (H' : (CoequalizerArrow E) ;; φ1 = (CoequalizerArrow E) ;; φ2) : φ1 = φ2.
+        (H' : (CoequalizerArrow E) ;; φ1 = (CoequalizerArrow E) ;; φ2) :
+    φ1 = φ2.
   Proof.
     apply (isCoequalizerOutsEq (isCoequalizer_Coequalizer E) _ _ H').
   Defined.
@@ -183,12 +184,11 @@ Section def_coequalizers.
     intros z0 g0 h X.
     apply (CoequalizerOutsEq E).
     apply X.
-  Defined.
+  Qed.
 
   Lemma CoequalizerArrowEpi {y z : C} {f g : y --> z} (E : Coequalizer f g ) :
     Epi _ z E.
   Proof.
-    apply (mk_Epi _ (CoequalizerArrow E)).
-    apply (CoequalizerArrowisEpi E).
+    exact (mk_Epi C (CoequalizerArrow E) (CoequalizerArrowisEpi E)).
   Defined.
 End def_coequalizers.

@@ -7,6 +7,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.limits.zero.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
@@ -70,6 +71,22 @@ Proof.
   apply (base_paths _ _ H').
 Qed.
 
+Lemma BinProductArrowsEq (c d : C) (P : BinProductCone c d) (x : C)
+      (k1 k2 : x --> BinProductObject P) :
+  k1 ;; BinProductPr1 P = k2 ;; BinProductPr1 P ->
+  k1 ;; BinProductPr2 P = k2 ;; BinProductPr2 P ->
+  k1 = k2.
+Proof.
+  intros H1 H2.
+  set (p1 := k1 ;; BinProductPr1 P).
+  set (p2 := k1 ;; BinProductPr2 P).
+  rewrite (BinProductArrowUnique _ _ P _ p1 p2 k1).
+  apply pathsinv0.
+  apply BinProductArrowUnique.
+  unfold p1. apply pathsinv0. apply H1.
+  unfold p2. apply pathsinv0. apply H2.
+  apply idpath. apply idpath.
+Qed.
 
 Definition mk_BinProductCone (a b : C) :
   Π (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
@@ -317,3 +334,25 @@ Definition BinProduct_of_functors_alt {C D : precategory} (HD : BinProducts D)
   (F G : functor C D) : functor C D :=
   functor_composite (bindelta_functor C)
      (functor_composite (binproduct_pair_functor F G) (binproduct_functor HD)).
+
+
+(** In the following section we show that if the morphism to components are
+    zero, then the unique morphism factoring through the binproduct is the
+    zero morphism. *)
+Section BinProduct_zeroarrow.
+
+  Variable C : precategory.
+  Variable Z : Zero C.
+
+  Lemma BinProductArrowZero {x y z: C} {BP : BinProductCone C x y}
+        (f : z --> x) (g : z --> y) :
+    f = ZeroArrow C Z _ _ -> g = ZeroArrow C Z _ _ ->
+    BinProductArrow C BP f g = ZeroArrow C Z _ _ .
+  Proof.
+    intros X X0. apply pathsinv0.
+    use BinProductArrowUnique.
+    rewrite X. apply ZeroArrow_comp_left.
+    rewrite X0. apply ZeroArrow_comp_left.
+  Qed.
+
+End BinProduct_zeroarrow.

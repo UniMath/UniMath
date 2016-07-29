@@ -41,21 +41,45 @@ Proof.
   exact Hxy.
 Qed.
 
+(** ** A new tactic *)
+
+Ltac apply_pr2 T :=
+  first [ refine (pr2 (T) _)
+        | refine (pr2 (T _) _)
+        | refine (pr2 (T _ _) _)
+        | refine (pr2 (T _ _ _) _)
+        | refine (pr2 (T _ _ _ _) _)
+        | refine (pr2 (T _ _ _ _ _) _)
+        | refine (pr2 (T))
+        | refine (pr2 (T _))
+        | refine (pr2 (T _ _))
+        | refine (pr2 (T _ _ _))
+        | refine (pr2 (T _ _ _ _))
+        | refine (pr2 (T _ _ _ _ _)) ].
+
+Ltac apply_pr2_in T H :=
+  first [ apply (pr2 (T)) in H
+        | apply (fun H0 => pr2 (T H0)) in H
+        | apply (fun H0 H1 => pr2 (T H0 H1)) in H
+        | apply (fun H0 H1 H2 => pr2 (T H0 H1 H2)) in H
+        | apply (fun H0 H1 H2 H3 => pr2 (T H0 H1 H2 H3)) in H
+        | apply (fun H0 H1 H2 H3 H4 => pr2 (T H0 H1 H2 H3 H4)) in H ].
+
 (** ** About nat *)
 
 Lemma max_le_l : Π n m : nat, (n ≤ max n m)%nat.
 Proof.
-  induction n ; simpl max.
-  - intros ; reflexivity.
-  - destruct m.
+  induction n as [ | n IHn] ; simpl max.
+  - intros m ; reflexivity.
+  - induction m as [ | m _].
     + now apply isreflnatleh.
     + now apply IHn.
 Qed.
 Lemma max_le_r : Π n m : nat, (m ≤ max n m)%nat.
 Proof.
-  induction n ; simpl max.
-  - intros ; now apply isreflnatleh.
-  - destruct m.
+  induction n as [ | n IHn] ; simpl max.
+  - intros m ; now apply isreflnatleh.
+  - induction m as [ | m _].
     + reflexivity.
     + now apply IHn.
 Qed.
@@ -63,7 +87,16 @@ Qed.
 (** ** More about Sequence *)
 
 Definition singletonSequence {X} (A : X) : Sequence X := (1 ,, λ _, A).
-Definition pairSequence {X} (A B : X) : Sequence X := (2 ,, λ m, match (pr1 m) with | O => A | _ => B end).
+Definition pairSequence {X} (A B : X) : Sequence X.
+Proof.
+  intros X A B.
+  exists 2.
+  intros m.
+  induction m as [m _].
+  induction m as [ | _ _].
+  exact A.
+  exact B.
+Defined.
 
 (** ** More about sets *)
 (** union *)
@@ -95,12 +128,12 @@ Proof.
     intros C.
     generalize (pr1 (pr2 C)).
     apply hinhfun.
-    intros [<- | <-].
+    apply sumofmaps ; intros <-.
     + left.
       apply (pr2 (pr2 C)).
     + right.
       apply (pr2 (pr2 C)).
-  - apply hinhfun ; intros [Ax | Bx].
+  - apply hinhfun ; apply sumofmaps ; [ intros Ax | intros Bx].
     + exists A.
       split.
       apply hinhpr.
@@ -124,7 +157,7 @@ Proof.
   apply Hp.
   intros C.
   apply hinhuniv.
-  now intros [-> | ->].
+  now apply sumofmaps ; intros ->.
 Qed.
 
 (** finite intersection *)
@@ -146,7 +179,10 @@ Proof.
   apply hPropUnivalence.
   - intros _.
     apply tt.
-  - intros _ (m,Hm).
+  - intros _ m.
+    rewrite (tppr m) ;
+      generalize (pr1 m) (pr2 m) ;
+      clear m ; intros m Hm.
     apply fromempty.
     revert Hm.
     apply negnatlthn0.
@@ -163,11 +199,8 @@ Proof.
   - intros H.
     apply H.
     now exists 0.
-  - intros Lx (m,Hm).
-    destruct m.
-    exact Lx.
-    apply fromempty.
-    easy.
+ - intros Lx m.
+   exact Lx.
 Qed.
 
 Lemma finite_intersection_and {X : UU} :
@@ -185,39 +218,45 @@ Proof.
     reflexivity.
     simple refine (H (1,,_)).
     reflexivity.
-  - intros H (m,Hm) ; simpl.
-    destruct m.
+  - intros H m ; simpl.
+    rewrite (tppr m) ;
+      generalize (pr1 m) (pr2 m) ;
+      clear m ; intros m Hm.
+    induction m as [ | m _].
     apply (pr1 H).
-    destruct m.
     apply (pr2 H).
-    easy.
 Qed.
 
 Lemma finite_intersection_case {X : UU} :
   Π (L : Sequence (X → hProp)),
-    finite_intersection L = match disassembleSequence L with
-                            | ii1 _ => λ _, htrue
-                            | ii2 (A,,B) => (λ x : X, A x ∧ finite_intersection B x)
-                            end.
+  finite_intersection L =
+  sumofmaps (λ _ _, htrue)
+            (λ (AB : (X → hProp) × Sequence (X → hProp)) (x : X), pr1 AB x ∧ finite_intersection (pr2 AB) x)
+            (disassembleSequence L).
 Proof.
   intros X.
   intros L.
   apply funextfun ; intros x.
   apply hPropUnivalence.
   - intros Hx.
-    destruct L as [n L].
-    destruct n ; simpl.
+    induction L as [n L].
+    induction n as [ | n _] ; simpl.
     + apply tt.
     + split.
       apply Hx.
       intros m.
       apply Hx.
-  - destruct L as [n L].
-    destruct n ; simpl.
-    + intros _ (n,Hn).
-      now apply fromempty.
-    + intros Hx (m,Hm).
-      destruct (natlehchoice _ _ (natlthsntoleh _ _ Hm)) as [Hm' | ->].
+  - induction L as [n L].
+    induction n as [ | n _] ; simpl.
+    + intros _ n.
+      apply fromempty.
+      now generalize (pr2 n).
+    + intros Hx m.
+      rewrite (tppr m) ;
+        generalize (pr1 m) (pr2 m) ;
+        clear m ;
+        intros m Hm.
+      induction (natlehchoice _ _ (natlthsntoleh _ _ Hm)) as [Hm' | ->].
       generalize (pr2 Hx (m,,Hm')).
       unfold funcomp, dni_lastelement ; simpl.
       assert (H : Hm = natlthtolths m n Hm' ).
@@ -232,16 +271,16 @@ Lemma finite_intersection_append {X : UU} :
   Π (A : X → hProp) (L : Sequence (X → hProp)),
     finite_intersection (append L A) = (λ x : X, A x ∧ finite_intersection L x).
 Proof.
-  intros.
+  intros X A L.
   rewrite finite_intersection_case.
   simpl.
   rewrite append_fun_compute_2.
   apply funextfun ; intro x.
   apply maponpaths.
   apply map_on_two_paths.
-  destruct L ; simpl.
+  induction L as [n L] ; simpl.
   apply maponpaths.
-  apply funextfun ; intro n.
+  apply funextfun ; intro m.
   apply append_fun_compute_1.
   reflexivity.
 Qed.
@@ -256,20 +295,26 @@ Proof.
   - split.
     + rewrite <- finite_intersection_htrue.
       apply X0.
-      now intros (n,Hn).
+      intros n.
+      now generalize (pr2 n).
     + intros A B Pa Pb.
       rewrite <- finite_intersection_and.
       apply X0.
-      intros (n,Hn).
-      now destruct n ; simpl.
-  - intros (P0,P2).
+      intros n.
+      rewrite (tppr n) ;
+        generalize (pr1 n) (pr2 n) ;
+        clear n ;
+        intros n Hn.
+      now induction n as [ | n _] ; simpl.
+  - intros Hp.
     apply (Sequence_rect (P := λ L : Sequence (X → hProp),
                                      (Π n : stn (length L), P (L n)) → P (finite_intersection L))).
     + intros _.
-      now rewrite finite_intersection_htrue.
+      rewrite finite_intersection_htrue.
+      exact (pr1 Hp).
     + intros L A IHl Hl.
       rewrite finite_intersection_append.
-      apply P2.
+      apply (pr2 Hp).
       * rewrite <- (append_fun_compute_2 L A).
         now apply Hl.
       * apply IHl.
