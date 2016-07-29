@@ -12,7 +12,8 @@ Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 (******************************************************************************)
 (* Lemmas for use in PreCat and Cat *)
 
-Definition Catlike_associator ( a b c d : precategory ) (hsB : has_homsets b) (hsC : has_homsets c) (hsD : has_homsets d) :
+Definition Catlike_associator ( a b c d : precategory )
+   (hsB : has_homsets b) (hsC : has_homsets c) (hsD : has_homsets d) :
    nat_trans
      (functor_composite
         (binproduct_pair_functor
@@ -76,7 +77,8 @@ Defined.
 
 Definition Catlike_associator_is_iso ( a b c d : precategory )
   (hsB : has_homsets b) (hsC : has_homsets c) (hsD : has_homsets d) :
-  forall f g h, is_iso (Catlike_associator a b c d hsB hsC hsD (precatbinprodpair f (precatbinprodpair g h))).
+  forall f g h, is_iso (Catlike_associator a b c d hsB hsC hsD
+                    (precatbinprodpair f (precatbinprodpair g h))).
 Proof.
   intros f g h.
   (* The components are all the identity, so this is easy *)
@@ -121,7 +123,8 @@ Proof.
     reflexivity.
 Defined.
 
-Definition Catlike_left_unitor_is_iso (a b : precategory) (hsA : has_homsets a) (hsB : has_homsets b) :
+Definition Catlike_left_unitor_is_iso (a b : precategory)
+  (hsA : has_homsets a) (hsB : has_homsets b) :
   forall f, is_iso (Catlike_left_unitor a b hsA hsB f).
 Proof.
   intros f.
@@ -202,7 +205,8 @@ Definition Catlike_triangle ( a b c : precategory )
    forall f g, functor_on_morphisms (functorial_composition a b c _ _)
                                (precatbinprodmor (identity f) (Catlike_left_unitor b c _ hsC g))
    =
-      (Catlike_associator a b b c hsB _ _ (precatbinprodpair f (precatbinprodpair (functor_identity_as_ob b hsB) g)))
+      (Catlike_associator a b b c hsB _ _
+        (precatbinprodpair f (precatbinprodpair (functor_identity_as_ob b hsB) g)))
    ;; functor_on_morphisms (functorial_composition a b c _ _)
                            (precatbinprodmor (Catlike_right_unitor a b _ f) (identity g)).
 Proof.
@@ -233,7 +237,8 @@ Proof.
     exact functor_identity.
   - simpl.
     intros a b c.
-    exact (functorial_composition a b c (hs_precategory_has_homsets b) (hs_precategory_has_homsets c)).
+    exact (functorial_composition a b c (hs_precategory_has_homsets b)
+                                        (hs_precategory_has_homsets c)).
 Defined.
 
 Definition PreCat_data : prebicategory_data.
@@ -313,7 +318,8 @@ Proof.
     exact functor_identity.
   - simpl.
     intros a b c.
-    exact (functorial_composition a b c (category_has_homsets b) (category_has_homsets c)).
+    exact (functorial_composition a b c (category_has_homsets b)
+                                        (category_has_homsets c)).
 Defined.
 
 Definition Cat_data : prebicategory_data.

@@ -18,7 +18,8 @@ Definition inv {C:precategory} {a b : C}
 
 Definition is_int_equivalence {C : prebicategory} {a b : C}
   (f : a -1-> b)
-  := total2 (fun g : b -1-> a => (iso (identity_1mor a) (f ;1; g)) × (iso (g ;1; f) (identity_1mor b))).
+  := total2 (fun g : b -1-> a => (iso (identity_1mor a) (f ;1; g))
+                            × (iso (g ;1; f) (identity_1mor b))).
 
 Definition int_equivalence {C : prebicategory}
   (a b : C)

@@ -172,7 +172,9 @@ Proof.
 Defined.
 
 Lemma transport_mor {A B : UU} (B1 : B -> B -> UU) (p : A = B) :
-  forall a a' : A, B1 (eqweqmap p a) (eqweqmap p a') = (transportb (fun T => T -> T -> UU) p B1) a a'.
+  forall a a' : A,
+    B1 (eqweqmap p a) (eqweqmap p a')
+  = (transportb (fun T => T -> T -> UU) p B1) a a'.
 Proof.
   induction p.
   reflexivity.
@@ -217,8 +219,13 @@ Definition catiso_to_precategory_ob_mor_path {A B : precategory_data}
 Lemma transport_id {A0 B0 : UU} (p0 : A0 = B0)
   (A1 : A0 -> A0 -> UU) (B1 : B0 -> B0 -> UU) (p1 : A1 = transportb _ p0 B1)
   (idB : forall b : B0, B1 b b)
-  : forall a : A0, (transportb (X := total2 (fun T => T -> T -> UU)) (fun T => forall a, (pr2 T) a a) (total2_paths2_b p0 p1) idB) a
-              = (eqweqmap ((transport_mor B1 p0 _ _) @ !weqtoforallpaths _ _ _ (weqtoforallpaths _ _ _ p1 a) a)) (idB (eqweqmap p0 a)).
+  : forall a : A0,
+    (transportb (X := total2 (fun T => T -> T -> UU))
+                (fun T => forall a, (pr2 T) a a)
+                (total2_paths2_b p0 p1) idB) a
+  = (eqweqmap (  (transport_mor B1 p0 _ _)
+               @ !weqtoforallpaths _ _ _ (weqtoforallpaths _ _ _ p1 a) a))
+    (idB (eqweqmap p0 a)).
 Proof.
   induction p0.
   rewrite p1.
@@ -245,7 +252,10 @@ Defined.
 Lemma catiso_to_precategory_id_path {A B : precategory}
   (F : catiso A B)
   : forall a : A,
-    (transportb (X := total2 (fun T => T -> T -> UU)) (fun T => forall a, (pr2 T) a a) (total2_paths2_b (catiso_to_precategory_ob_path F) (catiso_to_precategory_mor_path_funext F))
+    (transportb (X := total2 (fun T => T -> T -> UU))
+                (fun T => forall a, (pr2 T) a a)
+                (total2_paths2_b (catiso_to_precategory_ob_path F)
+                                 (catiso_to_precategory_mor_path_funext F))
      identity) a
    = identity a.
 Proof.
@@ -289,14 +299,17 @@ Defined.
 Lemma transport_comp_target {A0 B0 : UU} (p0 : A0 = B0)
   (A1 : A0 -> A0 -> UU) (B1 : B0 -> B0 -> UU) (p1 : A1 = transportb (fun T => T -> T -> UU) p0 B1)
   : forall a a' a'' : A0,
-    ( B1 (eqweqmap p0 a) (eqweqmap p0 a') -> B1 (eqweqmap p0 a') (eqweqmap p0 a'') -> B1 (eqweqmap p0 a) (eqweqmap p0 a''))
+    (   B1 (eqweqmap p0 a) (eqweqmap p0 a')
+      -> B1 (eqweqmap p0 a') (eqweqmap p0 a'')
+      -> B1 (eqweqmap p0 a) (eqweqmap p0 a''))
   -> ( A1 a a' -> A1 a' a'' -> A1 a a'').
 Proof.
   intros a a' a''.
   intros Bhom.
   intros f g.
 
-  set (X := fun a a' => (transport_mor B1 p0 a a') @ (! weqtoforallpaths _ _ _ (weqtoforallpaths _ _ _ p1 a) a') ).
+  set (X := fun a a' => (transport_mor B1 p0 a a')
+                    @ (! weqtoforallpaths _ _ _ (weqtoforallpaths _ _ _ p1 a) a') ).
 
   apply (eqweqmap (X a a'')).
   apply Bhom.
@@ -312,8 +325,12 @@ Lemma transport_comp {A0 B0 : UU} (p0 : A0 = B0)
   (A1 : A0 -> A0 -> UU) (B1 : B0 -> B0 -> UU) (p1 : A1 = transportb _ p0 B1)
   (compB : forall b b' b'' : B0, B1 b b' -> B1 b' b'' -> B1 b b'')
   : forall a a' a'' : A0,
-      (transportb (X := total2 (fun T => T -> T -> UU)) (fun T => forall a b c, (pr2 T) a b -> (pr2 T) b c -> (pr2 T) a c) (total2_paths2_b p0 p1) compB) a a' a''
-    = transport_comp_target p0 A1 B1 p1 a a' a'' (compB (eqweqmap p0 a) (eqweqmap p0 a') (eqweqmap p0 a'') ).
+      (transportb (X := total2 (fun T => T -> T -> UU))
+                  (fun T => forall a b c, (pr2 T) a b -> (pr2 T) b c -> (pr2 T) a c)
+                  (total2_paths2_b p0 p1) compB)
+        a a' a''
+    = transport_comp_target p0 A1 B1 p1 a a' a''
+        (compB (eqweqmap p0 a) (eqweqmap p0 a') (eqweqmap p0 a'')).
 Proof.
   induction p0.
   rewrite p1.
@@ -340,7 +357,10 @@ Defined.
 Lemma catiso_to_precategory_comp_path {A B : precategory}
   (F : catiso A B)
   : forall a a' a'' : A,
-    (transportb (X := total2 (fun T => T -> T -> UU)) (fun T => forall a b c : (pr1 T), (pr2 T) a b -> (pr2 T) b c -> (pr2 T) a c) (total2_paths2_b (catiso_to_precategory_ob_path F) (catiso_to_precategory_mor_path_funext F))
+    (transportb (X := total2 (fun T => T -> T -> UU))
+                (fun T => forall a b c : (pr1 T), (pr2 T) a b -> (pr2 T) b c -> (pr2 T) a c)
+                (total2_paths2_b (catiso_to_precategory_ob_path F)
+                                 (catiso_to_precategory_mor_path_funext F))
      (@compose B)) a a' a''
    = (@compose A a a' a'').
 Proof.
@@ -356,19 +376,28 @@ Proof.
   unfold catiso_to_precategory_mor_path_funext.
   simpl.
 
-  set (W := homotweqinvweq (weqtoforallpaths (λ _ : A, A -> UU)
-                                             precategory_morphisms
-                                             (transportb (fun T => T -> T -> UU) (catiso_to_precategory_ob_path F) precategory_morphisms))).
+  set (W := homotweqinvweq
+              (weqtoforallpaths (λ _ : A, A -> UU)
+                                precategory_morphisms
+                                (transportb (fun T => T -> T -> UU)
+                                            (catiso_to_precategory_ob_path F)
+                                            precategory_morphisms))).
   simpl in W. rewrite !W. clear W.
 
-  set (W := homotweqinvweq (weqtoforallpaths (λ _ : A, UU)
-                                             (precategory_morphisms a)
-                                             (transportb (fun T => T -> T -> UU) (catiso_to_precategory_ob_path F) precategory_morphisms a))).
+  set (W := homotweqinvweq
+              (weqtoforallpaths (λ _ : A, UU)
+                                (precategory_morphisms a)
+                                (transportb (fun T => T -> T -> UU)
+                                            (catiso_to_precategory_ob_path F)
+                                            precategory_morphisms a))).
   simpl in W. rewrite !W. clear W.
 
-  set (W := homotweqinvweq (weqtoforallpaths (λ _ : A, UU)
-                                             (precategory_morphisms a')
-                                             (transportb (fun T => T -> T -> UU) (catiso_to_precategory_ob_path F) precategory_morphisms a'))).
+  set (W := homotweqinvweq
+              (weqtoforallpaths (λ _ : A, UU)
+                                (precategory_morphisms a')
+                                (transportb (fun T => T -> T -> UU)
+                                            (catiso_to_precategory_ob_path F)
+                                            precategory_morphisms a'))).
   simpl in W. rewrite !W. clear W.
 
   (* Cancel as much as possible *)

@@ -276,7 +276,8 @@ Proof.
                 (binproduct_pair_functor (compose_functor a b c) (functor_identity _))
                 (compose_functor a c d)))
             (precatbinprodmor alpha (precatbinprodmor beta gamma)))).
-    apply (nat_trans_ax (associator_trans a b c d) _ _ (precatbinprodmor alpha (precatbinprodmor beta gamma))).
+    apply (nat_trans_ax (associator_trans a b c d) _ _
+                        (precatbinprodmor alpha (precatbinprodmor beta gamma))).
 
   reflexivity.
 Defined.
