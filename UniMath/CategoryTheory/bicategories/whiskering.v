@@ -271,7 +271,7 @@ Proof.
   pathvia (associator f g h ;v;
           (functor_on_morphisms
             (functor_composite
-              (binproduct_precategory_assoc _ _ _)
+              (precategory_binproduct_assoc _ _ _)
               (functor_composite
                 (binproduct_pair_functor (compose_functor a b c) (functor_identity _))
                 (compose_functor a c d)))

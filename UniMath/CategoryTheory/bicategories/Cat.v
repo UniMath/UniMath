@@ -20,7 +20,7 @@ Definition Catlike_associator ( a b c d : precategory ) (hsB : has_homsets b) (h
            (functorial_composition b c d hsC hsD))
         (functorial_composition a b d hsB hsD))
      (functor_composite
-        (binproduct_precategory_assoc (functor_precategory a b hsB)
+        (precategory_binproduct_assoc (functor_precategory a b hsB)
            (functor_precategory b c hsC)
            (functor_precategory c d hsD))
         (functor_composite

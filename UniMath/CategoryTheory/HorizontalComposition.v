@@ -91,7 +91,7 @@ Proof.
 Qed.
 
 Definition functorial_composition_data (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) :
-  functor_data (binproduct_precategory_data [A, B, hsB] [B, C, hsC])
+  functor_data (precategory_binproduct_data [A, B, hsB] [B, C, hsC])
                [A, C, hsC].
 Proof.
   exists (fun FG => functor_composite (pr1 FG) (pr2 FG)).
@@ -101,7 +101,7 @@ Proof.
 Defined.
 
 Definition functorial_composition (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) :
-  functor (binproduct_precategory [A, B, hsB] [B, C, hsC]) [A, C, hsC].
+  functor (precategory_binproduct [A, B, hsB] [B, C, hsC]) [A, C, hsC].
 Proof.
   exists (functorial_composition_data A B C hsB hsC).
   split.

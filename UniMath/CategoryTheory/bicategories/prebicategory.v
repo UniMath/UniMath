@@ -28,7 +28,7 @@ Arguments functor_composite {_ _ _} _ _ .
  *)
 
 
-Local Notation "C c× D" := (binproduct_precategory C D) (at level 75, right associativity).
+Local Notation "C c× D" := (precategory_binproduct C D) (at level 75, right associativity).
 
 Local Notation "a -2-> b" := (precategory_morphisms a b)(at level 50).
 (* To keep it straight in my head *)
@@ -107,7 +107,7 @@ Definition associator_trans_type { C : prebicategory_id_comp } (a b c d : C) :=
       (binproduct_pair_functor (functor_identity _) (compose_functor b c d))
       (compose_functor a b d))
     (functor_composite
-      (binproduct_precategory_assoc _ _ _)
+      (precategory_binproduct_assoc _ _ _)
       (functor_composite
         (binproduct_pair_functor (compose_functor a b c) (functor_identity _))
         (compose_functor a c d))).
