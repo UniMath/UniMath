@@ -745,6 +745,33 @@ Proof.
   - apply (pr2 (pr2 Hr)).
 Qed.
 
+Lemma Dcuts_min_lt_l :
+  Π x y : Dcuts, Dcuts_min x y < x <-> y < x.
+Proof.
+  intros x y ; split ; apply hinhfun ; intros r.
+  - exists (pr1 r).
+    split.
+    + intros Yr.
+      apply (pr1 (pr2 r)).
+      split.
+      exact (pr2 (pr2 r)).
+      exact Yr.
+    + exact (pr2 (pr2 r)).
+  - exists (pr1 r).
+    split.
+    + intros Hr.
+      apply (pr1 (pr2 r)).
+      exact (pr2 Hr).
+    + exact (pr2 (pr2 r)).
+Qed.
+Lemma Dcuts_min_lt_r :
+  Π x y : Dcuts, Dcuts_min x y < y <-> x < y.
+Proof.
+  intros x y.
+  rewrite iscomm_Dcuts_min.
+  exact (Dcuts_min_lt_l _ _).
+Qed.
+
 Lemma Dcuts_min_le_l :
   Π x y : Dcuts, Dcuts_min x y <= x.
 Proof.
@@ -762,13 +789,15 @@ Lemma Dcuts_min_carac_r :
   Π x y : Dcuts, y <= x -> Dcuts_min x y = y.
 Proof.
   intros x y Hxy.
-  apply Dcuts_eq_is_eq ; intros r ; split.
-  - intros Hr.
-    exact (pr2 Hr).
-  - intros Yr.
-    split.
-    now apply Hxy.
-    exact Yr.
+  apply Dcuts_eq_is_eq ; intros r ;
+  split ; revert r.
+  - apply Dcuts_min_le_r.
+  - apply Dcuts_le_ngt_rel.
+    intros H.
+    refine (pr2 (Dcuts_le_ngt_rel _ _) _ _).
+    exact Hxy.
+    apply Dcuts_min_lt_r.
+    exact H.
 Qed.
 Lemma Dcuts_min_carac_l :
   Π x y : Dcuts, x <= y -> Dcuts_min x y = x.
@@ -785,6 +814,7 @@ Proof.
   apply Dcuts_eq_is_eq ; intros r.
   split ; apply islogeqcommhdisj.
 Qed.
+
 Lemma isassoc_Dcuts_max :
   Π x y z : Dcuts, Dcuts_max (Dcuts_max x y) z = Dcuts_max x (Dcuts_max y z).
 Proof.
@@ -809,6 +839,34 @@ Proof.
       * now right.
 Qed.
 
+Lemma Dcuts_max_lt_l :
+  Π x y : Dcuts, x < Dcuts_max x y <-> x < y.
+Proof.
+  intros x y ; split ; apply hinhfun ; intros r.
+  - exists (pr1 r).
+    split.
+    + exact (pr1 (pr2 r)).
+    + generalize (pr2 (pr2 r)).
+      apply hinhuniv, sumofmaps ;
+        intros Hr.
+      apply fromempty.
+      now apply (pr1 (pr2 r)).
+      exact Hr.
+  - exists (pr1 r).
+    split.
+    + exact (pr1 (pr2 r)).
+    + apply hinhpr.
+      right.
+      exact (pr2 (pr2 r)).
+Qed.
+Lemma Dcuts_max_lt_r :
+  Π x y : Dcuts, y < Dcuts_max x y <-> y < x.
+Proof.
+  intros x y.
+  rewrite iscomm_Dcuts_max.
+  exact (Dcuts_max_lt_l _ _).
+Qed.
+
 Lemma Dcuts_max_le_l :
   Π x y : Dcuts, x <= Dcuts_max x y.
 Proof.
@@ -828,12 +886,15 @@ Lemma Dcuts_max_carac_l :
   Π x y : Dcuts, y <= x -> Dcuts_max x y = x.
 Proof.
   intros x y Hxy.
-  apply Dcuts_eq_is_eq ; intros r ; split.
-  apply hinhuniv ; apply sumofmaps ; [ intros Xr | intros Yr ].
-  - exact Xr.
-  - now refine (Hxy _ _).
-  - intros Xr.
-    now apply hinhpr ; left.
+  apply Dcuts_eq_is_eq ; intros r ;
+  split ; revert r.
+  - apply Dcuts_le_ngt_rel.
+    intros H.
+    refine (pr2 (Dcuts_le_ngt_rel _ _) _ _).
+    exact Hxy.
+    apply Dcuts_max_lt_l.
+    exact H.
+  - apply Dcuts_max_le_l.
 Qed.
 Lemma Dcuts_max_carac_r :
   Π x y : Dcuts, x <= y -> Dcuts_max x y = y.
