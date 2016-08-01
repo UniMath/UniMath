@@ -723,26 +723,50 @@ Definition Dcuts_max (X Y : Dcuts) : Dcuts :=
 
 (** ** Theorems about Dcuts_min and Dcuts_max *)
 
+Lemma iscomm_Dcuts_min_val :
+  Π x y r, Dcuts_min_val x y r -> Dcuts_min_val y x r.
+Proof.
+  intros x y r.
+  apply weqdirprodcomm.
+Qed.
 Lemma iscomm_Dcuts_min :
   Π x y : Dcuts, Dcuts_min x y = Dcuts_min y x.
 Proof.
   intros x y.
   apply Dcuts_eq_is_eq ; intros r.
-  split ; apply weqdirprodcomm.
+  split ; apply iscomm_Dcuts_min_val.
 Qed.
 
+Lemma isassoc_Dcuts_min_val_1 :
+  Π x y z r,
+  Dcuts_min_val (Dcuts_min_val x y) z r →
+  Dcuts_min_val x (Dcuts_min_val y z) r.
+Proof.
+  intros x y z r Hr.
+  repeat split.
+  - apply (pr1 (pr1 Hr)).
+  - apply (pr2 (pr1 Hr)).
+  - apply (pr2 Hr).
+Qed.
+Lemma isassoc_Dcuts_min_val_2 :
+  Π x y z r,
+  Dcuts_min_val x (Dcuts_min_val y z) r →
+  Dcuts_min_val (Dcuts_min_val x y) z r.
+Proof.
+  intros x y z r Hr.
+  repeat split.
+  - apply (pr1 Hr).
+  - apply (pr1 (pr2 Hr)).
+  - apply (pr2 (pr2 Hr)).
+Qed.
 Lemma isassoc_Dcuts_min :
   Π x y z : Dcuts, Dcuts_min (Dcuts_min x y) z = Dcuts_min x (Dcuts_min y z).
 Proof.
   intros x y z.
   apply Dcuts_eq_is_eq ; intros r.
-  split ; intros Hr ; repeat split.
-  - apply (pr1 (pr1 Hr)).
-  - apply (pr2 (pr1 Hr)).
-  - apply (pr2 Hr).
-  - apply (pr1 Hr).
-  - apply (pr1 (pr2 Hr)).
-  - apply (pr2 (pr2 Hr)).
+  split.
+  now apply isassoc_Dcuts_min_val_1.
+  now apply isassoc_Dcuts_min_val_2.
 Qed.
 
 Lemma Dcuts_min_lt_l :
@@ -807,20 +831,27 @@ Proof.
   now apply Dcuts_min_carac_r.
 Qed.
 
+Lemma iscomm_Dcuts_max_val :
+  Π x y r,
+  Dcuts_max_val x y r → Dcuts_max_val y x r.
+Proof.
+  intros x y r.
+  apply islogeqcommhdisj.
+Qed.
 Lemma iscomm_Dcuts_max :
   Π x y : Dcuts, Dcuts_max x y = Dcuts_max y x.
 Proof.
   intros x y.
   apply Dcuts_eq_is_eq ; intros r.
-  split ; apply islogeqcommhdisj.
+  split ; apply iscomm_Dcuts_max_val.
 Qed.
 
-Lemma isassoc_Dcuts_max :
-  Π x y z : Dcuts, Dcuts_max (Dcuts_max x y) z = Dcuts_max x (Dcuts_max y z).
+Lemma isassoc_Dcuts_max_val_1 :
+  Π x y z r,
+  Dcuts_max_val (Dcuts_max_val x y) z r →
+  Dcuts_max_val x (Dcuts_max_val y z) r.
 Proof.
-  intros x y z.
-  apply Dcuts_eq_is_eq ; intros r.
-  split.
+  intros x y z r.
   - apply hinhuniv ; apply sumofmaps ; [ | intros Zr].
     + apply hinhfun ; apply sumofmaps ; [ intros Xr | intros Yr].
       * now left.
@@ -829,6 +860,13 @@ Proof.
     + apply hinhpr.
       right ; apply hinhpr.
       now right.
+Qed.
+Lemma isassoc_Dcuts_max_val_2 :
+  Π x y z r,
+  Dcuts_max_val x (Dcuts_max_val y z) r →
+  Dcuts_max_val (Dcuts_max_val x y) z r.
+Proof.
+  intros x y z r.
   - apply hinhuniv ; apply sumofmaps ; [intros Xr | ].
     + apply hinhpr.
       left ; apply hinhpr.
@@ -837,6 +875,15 @@ Proof.
       * left ; apply hinhpr.
         now right.
       * now right.
+Qed.
+Lemma isassoc_Dcuts_max :
+  Π x y z : Dcuts, Dcuts_max (Dcuts_max x y) z = Dcuts_max x (Dcuts_max y z).
+Proof.
+  intros x y z.
+  apply Dcuts_eq_is_eq ; intros r.
+  split.
+  now apply isassoc_Dcuts_max_val_1.
+  now apply isassoc_Dcuts_max_val_2.
 Qed.
 
 Lemma Dcuts_max_lt_l :
