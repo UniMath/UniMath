@@ -101,18 +101,7 @@ Definition totaltoforalltototal {X : UU} (P : X -> UU) (PP : Π x : X, P x -> UU
            (ss : total2 (fun s0 : Π x : X, P x => Π x : X, PP x (s0 x))) :
   paths (foralltototal _ _ (totaltoforall  _ _ ss)) ss.
 Proof.
-  intros. induction ss as [ t x ].
-  unfold foralltototal. unfold totaltoforall. simpl.
-  set (et := fun x : X => t x).
-  assert (paths (tpair (fun s0 : Π x0 : X, P x0 => Π x0 : X, PP x0 (s0 x0)) t x)
-                (tpair (fun s0 : Π x0 : X, P x0 => Π x0 : X, PP x0 (s0 x0)) et x))
-    by reflexivity.
-
-  assert (ee : paths (tpair (fun s0 : Π x0 : X, P x0 => Π x0 : X, PP x0 (s0 x0)) et x)
-                     (tpair (fun s0 : Π x0 : X, P x0 => Π x0 : X, PP x0 (s0 x0)) et
-                            (fun x0 : X => x x0)))
-    by apply idpath.
-  induction ee. apply pathsinv0. assumption.
+  intros; induction ss; apply idpath.
 Defined.
 
 
@@ -812,26 +801,12 @@ Defined.
 
 Theorem isapropisofhlevel (n : nat) (X : UU) : isaprop (isofhlevel n X).
 Proof.
-  intro.  unfold isofhlevel. induction n as [ | n IHn ].
+  intro. induction n as [ | n IHn ].
   - apply isapropiscontr.
   - intro X.
-    assert (X0 : Π (x x' : X),
-                 isaprop ((fix isofhlevel (n0 : nat) (X0 : UU) {struct n0} : UU
-                           := match n0 with
-                              | O => iscontr X0
-                              | S m => Π x0 x'0 : X0, isofhlevel m (paths x0 x'0)
-                              end) n (paths x x')))
-      by (intros; apply (IHn (paths x x'))).
-    assert (is1 : Π (x : X),
-                  isaprop (Π (x' : X),
-                           (fix isofhlevel (n0 : nat) (X1 : UU) {struct n0} : UU
-                            := match n0 with
-                               | O => iscontr X1
-                               | S m => Π x0 x'0 : X1,
-                                                  isofhlevel m (paths x0 x'0)
-                               end) n (paths x x')))
-      by (intro; apply (impred (S O) _  (X0 x))).
-    apply (impred (S O) _ is1).
+    apply impred. intros t.
+    apply impred. intros t0.
+    apply IHn.
 Defined.
 
 Corollary isapropisaprop (X : UU) : isaprop (isaprop X).
@@ -965,14 +940,12 @@ Proof.
   assert (egf : Π w : _, paths (g (f w)) w).
   {
     intro. apply (invmaponpathsincl _ (isinclpr1weq _ _)). apply funextfun.
-    intro x. unfold f. unfold g. unfold invweq. simpl. unfold invmap. simpl.
-    apply idpath.
+    intro x. apply idpath.
   }
   assert (efg : Π w : _, paths (f (g w)) w).
   {
     intro. apply (invmaponpathsincl _ (isinclpr1weq _ _)). apply funextfun.
-    intro x. unfold f. unfold g. unfold invweq. simpl. unfold invmap. simpl.
-    apply idpath.
+    intro x. apply idpath.
   }
   apply (gradth _ _ egf efg).
 Defined.
