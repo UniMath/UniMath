@@ -26,13 +26,20 @@ Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 Require Import UniMath.CategoryTheory.cocontfunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.SubstitutionSystems.GenSigToMonad.
+Require Import UniMath.SubstitutionSystems.SigToMonad.
 
+Definition Arity_to_Signature : lists.list nat -> Signatures.Signature HSET has_homsets_HSET.
+Proof.
+  exact @SigToMonad.Arity_to_Signature.
+Defined.
 
-Check colimAlgInitial.
+Definition GenSigToSignature
+  : GenSig → Signatures.Signature HSET has_homsets_HSET.
+Proof.
+  exact UniMath.SubstitutionSystems.GenSigToMonad.GenSigToSignature.
+Defined.
 
-Check colimAlgIsInitial.
-
-Search (algebra_ob).
 
 Definition algebra_ob_pair {C : precategory} {F : functor C C} X (f : C⟦F X, X⟧)
   : algebra_ob F.
