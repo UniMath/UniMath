@@ -63,6 +63,11 @@ limits/coequalizers.v
 limits/kernels.v
 limits/cokernels.v
 limits/pushouts.v
+limits/graphs/pushouts.v
+limits/graphs/equalizers.v
+limits/graphs/coequalizers.v
+limits/graphs/kernels.v
+limits/graphs/cokernels.v
 PrecategoriesWithBinOps.v
 PrecategoriesWithAbgrops.v
 PreAdditive.v

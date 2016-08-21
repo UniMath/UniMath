@@ -1001,6 +1001,27 @@ Proof.
   exact (transportf (fun x => P (k,,x)) X H).
 Defined.
 
+Definition two := stn 2.
+
+Definition two_rec {A : UU} (a b : A) : stn 2 -> A.
+Proof.
+  intros A a b.
+  induction 1 as [n p].
+  induction n as [_|n _]; [apply a|].
+  induction n as [_|n _]; [apply b|].
+  induction (nopathsfalsetotrue p).
+Defined.
+
+Definition two_rec_dep (P : two -> UU):
+  P (● 0) -> P (● 1) -> Π n, P n.
+Proof.
+  intros P a b n.
+  induction n as [n p].
+  induction n as [_|n _]. eapply stn_predicate. apply a.
+  induction n as [_|n _]. eapply stn_predicate. apply b.
+  induction (nopathsfalsetotrue p).
+Defined.
+
 Definition three := stn 3.
 
 Definition three_rec {A : UU} (a b c : A) : stn 3 -> A.
