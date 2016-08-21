@@ -147,19 +147,7 @@ Intuition based on standard univalent models suggests that any type satisfying w
 
 *)
 
-<<<<<<< HEAD
-
-(* Definition ischoicebase_uu1 ( X : UU ) :=
-  forall P : X -> UU ,
-    ( forall x : X , ishinh ( P x ) ) -> ishinh ( forall x : X , P x ) .*)
-
-Definition ischoicebase_uu1 ( X : UU ) :=
-  ∀ P : X -> UU ,
-    ( ∀ x : X , ishinh ( P x ) ) -> ishinh ( ∀ x : X , P x ) .
-
-=======
 Definition ischoicebase_uu1 ( X : UU ) := Π P : X -> UU , ( Π x : X , ishinh ( P x ) ) -> ishinh ( Π x : X , P x ) .
->>>>>>> ec921fe6486b146e4ef416986825ea8a6d8721e6
 
 Lemma isapropischoicebase ( X : UU ) : isaprop ( ischoicebase_uu1 X ) .  (** Uses RR1 *)
 Proof .
@@ -1020,8 +1008,6 @@ Proof . intros . assert ( int1 : Π c0' c0'' : _ , P c c0' c0'' ) .  apply ( set
 Theorem setquotuniv4prop { X : UU } ( R : eqrel X ) ( P : setquot R -> setquot R ->  setquot R -> setquot R -> hProp ) ( is : Π x x' x'' x''' : X ,  P  ( setquotpr R x ) ( setquotpr R x' ) ( setquotpr R x'' ) ( setquotpr R x''' ) ) : Π c c' c'' c''' : setquot R , P c c' c'' c''' .
 Proof . intros . assert ( int1 : Π c0 c0' c0'' : _ , P c c0 c0' c0'' ) .  apply ( setquotuniv3prop R ( fun c0 c0' c0'' => P c c0 c0' c0'' ) ) .  intros x x' x'' . apply ( setquotunivprop R ( fun c0 : _ => P c0 ( setquotpr R x ) ( setquotpr R x' ) ( setquotpr R x'' ) ) ) .  intro x0 . apply ( is x0 x x' x'' ) . apply ( int1 c' c'' c''' ) .  Defined .
 
-
-<<<<<<< HEAD
 (** Important note : theorems proved above can not be used ( al least at the moment ) to
 construct terms whose complete normalization ( evaluation ) is important . For example they
 should not be used * directly * to construct [ isdeceq ] property of [ setquot ] since [ isdeceq ]
@@ -1038,14 +1024,6 @@ is given by the following theorem [ isdeceqsetquot_non_constr ] which , as simpl
 show, can not be used to compute the value of [ isdeceqsetquot ] . Below we give another proof
 of [ isdeceq ( setquot R ) ] using the same assumptions which is " constructive " i.e. usable
 for the evaluation purposes . *)
-=======
-
-
-(** Important note : theorems proved above can not be used ( al least at the moment ) to construct terms whose complete normalization ( evaluation ) is important . For example they should not be used * directly * to construct [ isdeceq ] property of [ setquot ] since [ isdeceq ] is in turn used to construct boolean equality [ booleq ] and evaluation of [ booleq x y ] is important for computational purposes . Terms produced using these universality theorems will not fully normalize even in simple cases due to the following steps in the proof of [ setquotunivprop ] . As a part of the proof term of this theorem there appears the composition of an application of [ hPropUnivalence ] , transfer of the resulting term of the identity type by [ maponpaths ] along [ P ] followed by the reconstruction of a equivalence ( two directional implication ) between the corresponding propositions through [  eqweqmaphProp ] . The resulting implications are " opaque " and the proofs of disjunctions [ P \/ Q ]  produced with the use of such implications can not be evaluated to one of the summands of the disjunction . An example is given by the following theorem [ isdeceqsetquot_non_constr ] which , as simple experiments show, can not be used to compute the value of [ isdeceqsetquot ] . Below we give another proof of [ isdeceq ( setquot R ) ] using the same assumptions which is " constructive " i.e. usable for the evaluation purposes . *)
->>>>>>> ec921fe6486b146e4ef416986825ea8a6d8721e6
-
-
-
 
 (** *** The case when the function between quotients defined by [ setquotfun ] is a surjection , inclusion or a weak equivalence  *)
 

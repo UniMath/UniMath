@@ -102,15 +102,9 @@ Proof . intros . split . apply ( ismonoidfuninvmap ( rigaddiso f ) ) . apply  ( 
 
 (** **** Relations similar to "greater" or "greater or equal" on rigs *)
 
-<<<<<<< HEAD
 Definition isrigmultgt ( X : rig ) ( R : hrel X ) :=  forall a b c d : X , R a b -> R c d -> R ( a * c  +  b * d ) ( a * d + b * c ) .
-=======
-Definition isrigmultgt ( X : rig ) ( R : hrel X ) :=  Π a b c d : X , R a b -> R c d -> R ( op1 ( op2 a c ) ( op2 b d ) ) ( op1 ( op2 a d ) ( op2 b c ) ) .
 
-Definition isinvrigmultgt ( X : rig ) ( R : hrel X ) := dirprod ( Π a b c d : X , R ( op1 ( op2 a c ) ( op2 b d ) ) ( op1 ( op2 a d ) ( op2 b c ) ) -> R a b -> R c d ) ( Π a b c d : X , R ( op1 ( op2 a c ) ( op2 b d ) ) ( op1 ( op2 a d ) ( op2 b c ) ) -> R c d -> R a b ) .
->>>>>>> ec921fe6486b146e4ef416986825ea8a6d8721e6
-
-Definition isinvrigmultgt ( X : rig ) ( R : hrel X ) := dirprod ( forall a b c d : X , R ( a * c + b * d ) ( a * d + b * c ) -> R a b -> R c d ) ( forall a b c d : X , R ( a * c + b * d ) ( a * d + b * c ) -> R c d -> R a b ) .
+Definition isinvrigmultgt ( X : rig ) ( R : hrel X ) := dirprod ( Π a b c d : X , R ( a * c + b * d ) ( a * d + b * c ) -> R a b -> R c d ) ( Π a b c d : X , R ( a * c + b * d ) ( a * d + b * c ) -> R c d -> R a b ) .
 
 (** **** Subobjects *)
 
