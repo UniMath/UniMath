@@ -21,4 +21,9 @@ This directory contains a development of limits on the basis of descriptions of 
 * *binproducts.v* --- formalization as instance of limit
 * *bincoproducts.v* --- formalization as instance of colimit
 * *pullbacks.v* --- formalization as instance of limit
+* *pushouts.v* --- formalization as instance of colimit
+* *equalizers.v* --- formalization as instance of limit
+* *coequalizers.v* --- formalization as instance of colimit
+* *kernels.v* --- formalization as instance of limit
+* *cokernels.v* --- formalization as instance of colimit
 * *zero.v* --- formalization within the approach of this directory

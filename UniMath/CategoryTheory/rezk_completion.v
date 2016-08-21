@@ -130,8 +130,7 @@ Theorem Rezk_eta_Universal_Property :
   isweq (pre_composition_functor A (Rezk_completion A hsA) C
    (pr2 (pr2 (Rezk_completion A hsA))) (pr2 Ccat) (Rezk_eta A hsA)).
 Proof.
-  apply (adj_equiv_of_cats_is_weq_of_objects _ _ (functor_category_has_homsets _ _ _  )
-                                         (functor_category_has_homsets _ _ _ )).
+  apply adj_equiv_of_cats_is_weq_of_objects.
   - apply is_category_functor_category;
     assumption.
   - apply is_category_functor_category;
@@ -238,8 +237,7 @@ Theorem Rezk_eta_opp_Universal_Property :
   isweq (pre_composition_functor A^op (Rezk_completion A hsA)^op C
           hsRAop (pr2 Ccat) (functor_opp (Rezk_eta A hsA))).
 Proof.
-  apply (adj_equiv_of_cats_is_weq_of_objects _ _ (functor_category_has_homsets _ _ _  )
-                                         (functor_category_has_homsets _ _ _ )).
+  apply adj_equiv_of_cats_is_weq_of_objects.
   - apply is_category_functor_category;
     assumption.
   - apply is_category_functor_category;

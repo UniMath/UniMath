@@ -4,21 +4,34 @@ This file contains proofs that the following functors are
 (omega-)cocontinuous:
 
 - Constant functor: F_x : C -> D, c |-> x
+  [is_omega_cocont_constant_functor]
 - Identity functor
+  [is_omega_cocont_functor_identity]
 - Composition of omega-cocontinuous functors
+  [is_omega_cocont_functor_composite]
 - Iteration of omega-cocontinuous functors: F^n : C -> C
+  [is_omega_cocont_iter_functor]
 - Pairing of omega-cocont functors (F,G) : A * B -> C * D, (x,y) |-> (F x,G y)
+  [is_omega_cocont_binproduct_pair_functor]
 - Indexed families of omega-cocont functors F^I : A^I -> B^I
+  [is_omega_cocont_pair_functor]
 - Binary delta functor: C -> C^2, x |-> (x,x)
+  [cocont_bindelta_functor] [is_omega_cocont_bindelta_functor]
 - General delta functor: C -> C^I
+  [is_omega_cocont_delta_functor]
 - Binary coproduct functor: C^2 -> C, (x,y) |-> x + y
+  [cocont_bincoproduct_functor] [is_omega_cocont_bincoproduct_functor]
 - General coproduct functor: C^I -> C
+  [cocont_indexed_coproduct_functor] [is_omega_cocont_indexed_coproduct_functor]
 - Binary coproduct of functors: F + G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x + G x
+  [is_omega_cocont_BinCoproduct_of_functors_alt] [is_omega_cocont_BinCoproduct_of_functors]
 - Coproduct of families of functors: + F_i : C -> D  (generalization of coproduct of functors)
+  [is_omega_cocont_coproduct_of_functors_alt] [is_omega_cocont_coproduct_of_functors]
 - Binary coproduct functor: F + G : C -> D, x |-> F x + G x
 - General coproduct functor: + F_i : C -> D
 - Constant product functors: C -> C, x |-> a * x  and  x |-> x * a
 - Binary product functor: C^2 -> C, (x,y) |-> x * y
+  [is_omega_cocont_binproduct_functor]
 - Product of functors: F * G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x * G x
 - Product functor: F * G : C -> D, x |-> F x * G x
 - Precomposition functor: _ o K : [C,A] -> [M,A] for K : M -> C
