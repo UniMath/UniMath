@@ -11,5 +11,10 @@
 	     (add-hook 'before-save-hook 'delete-trailing-whitespace)
 	     (modify-syntax-entry ?' "w")
 	     (modify-syntax-entry ?_ "w")
-	     (if (not (memq 'agda-input features)) (load (concat unimath-topdir "emacs/agda/agda-input")))
+	     (if (not (memq 'agda-input features))
+		 (load (concat unimath-topdir "emacs/agda/agda-input")))
+	     (if (not (member '("chimney" "╝") agda-input-user-translations))
+		 (progn
+		   (setq agda-input-user-translations (cons '("chimney" "╝") agda-input-user-translations))
+		   (agda-input-setup)))
 	     (set-input-method "Agda"))))))
