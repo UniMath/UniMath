@@ -1473,7 +1473,8 @@ Definition PathPair {A : UU} {B : A -> UU} (x y : Σ x, B x) :=
 Notation "a ╝ b" := (PathPair a b) (at level 70, no associativity) : type_scope.
 (* the two horizontal lines represent an equality in the base and
    the two vertical lines represent an equality in the fiber *)
-(* in agda input mode use \--= and select the 6-th one in the first set *)
+(* in agda input mode use \--= and select the 6-th one in the first set,
+   or use \chimney *)
 
 Theorem total2_paths_equiv {A : UU} (B : A -> UU) (x y : Σ x, B x) :
   x = y  ≃  x ╝ y.
