@@ -11,61 +11,89 @@ approach, and which do not require the use of universes as types.
 
 Ported to coq trunk (8.4-8.5) in March 2014.
 
-Edited by Dan Grayson 2014-2016, Alex Kavvos 2014 and Tomi Panila 2016.   *)
+Edited by Benedikt Ahrens 2014-2016, Dan Grayson 2014-2016, Vladimir Voevodsky 2014 - 2016,
+Alex Kavvos 2014, Peter LeFanu Lumsdaine 2016 and Tomi Pannila 2016. *)
 
 (** ** Contents
+- Preamble
+ - Settings
+ - Imports
 - Some standard constructions not using identity paths
- - Basics on functions
- - Evaluation map
+ - Canonical functions from [ empty ] and to [unit ]
+ - Identity functions and function composition, curry and uncurry
+ - Iteration of an endomorphism
+ - Basic constructions related to the adjoint evaluation function [ X -> ((X -> Y) -> Y) ]
  - Pairwise direct products
  - Negation and double negation
  - Logical equivalence
 - Paths and operations on paths
- - Associativity of function composition and curry/uncurry paths
- - Composition and inverse paths
+ - Associativity of function composition and mutual invertibility of curry/uncurry
+ - Composition of paths and inverse paths
  - Direct product of paths
- - Maponpaths
- - Fibrations and paths
-- Homotopy notions
+ - The function [ maponpaths ] between paths types defined by a function between ambient types
+ - [ maponpaths ] for the identity functions and compositions of functions
+ - More on [maponpaths]
+- Fibrations and paths including the transport functions
+- First homotopy notions
  - Homotopy between functions
- - Contractibility and homotopy fibers
- - Weak equivalences
-  - Basics
-  - Adjointness property of a weak equivalence and its inverse
-  - Transport functions are weak equivalences
-  - Weak equivalences between contractible types (one implication)
-  - Unit and contractibility
-  - Homotopy equivalence is a weak equivalence
-  - Some basic weak equivalences
-  - 2-out-of-3 property
-  - Any function between contractible types is a weak equivalence
-  - Composition of weak equivalences
-  - 2-out-of-6 property
-  - Associativity of total2 as a weak equivalence
-  - Associativity and commutativity of direct products as weak equivalences
-  - Distributivity of coproducts and direct products as a weak equivalence
-  - Total space of a family over a coproduct
-  - Pairwise direct products of weak equivalences
-  - Pairwise sum of functions, coproduct associativity and commutativity
-  - Fibrations with only one non-empty fiber
-  - Bool as coproduct
-  - Pairwise coproducts as dependent sums of families over bool
-  - Some properties of bool
+ - Contractibility
+ - Coconuses: spaces of paths that begin (coconusfromt) or end (coconustot) at a given point
+ - The total paths space of a type - two definitions
+ - Homotopy fibers
+ - The functions between the hfibers of homotopic functions over the same point
+ - Paths in homotopy fibers
+ - Coconus of a function: the total space of the family of h-fibers
+ - Homotopies between families and the total spaces
+- Weak equivalences
+ - Basics
+ - Weak equivalences and paths spaces (more results in further sections)
+ - Adjointness property of a weak equivalence and its inverse
+ - Transport functions are weak equivalences
+ - Weak equivalences between contractible types (one implication)
+ - Unit and contractibility
+ - Homotopy equivalence is a weak equivalence
+ - Some weak equivalences
+ - 2-out-of-3 property  of weak equivalences
+ - Any function between contractible types is a weak equivalence
+ - Composition of weak equivalences
+ - 2-out-of-6 property  of weak equivalences
+ - Pairwise direct products of weak equivalences
+ - Weak equivalence of a type and its direct product with the unit
+ - Associativity of total2 as a weak equivalence
+ - Associativity and commutativity of direct products as weak equivalences
+- Binary coproducts and their basic properties
+ - Distributivity of coproducts and direct products as a weak equivalence
+ - Total space of a family over a coproduct
+ - Pairwise sum of functions, coproduct associativity and commutativity
+ - Coproduct with a "negative" type
+ - Coproduct of two functions
+ - The [ equality_cases ] construction and four applications to [ ii1 ] and [ ii2 ]
+ - Bool as coproduct
+ - Pairwise coproducts as dependent sums of families over bool
+ - Splitting of [ X ] into a coproduct defined by a function [ X -> Y ⨿ Z ]
+ - Some properties of bool
+ - Fibrations with only one non-empty fiber
 - Basics about fibration sequences
- - Fibration sequences and their first "left shifts"
- - Fibration sequences, pr1 case
- - Fibration sequences, g case
- - fibration sequence of h-fibers
- - Fiber-wise weak equivalences
-  - Homotopy fibers of [ fpmap ]
-  - Total spaces of families over a contractible base
+ - The structures of a complex and of a fibration sequence on a composable pair of functions
+ - Construction of the derived fibration sequence
+ - Explicit description of the first map in the second derived sequence
+ - Fibration sequences based on [ tpair P z , pr1 ] ( the "pr1-case" )
+ - Fibration sequences based on [ hfiberpr1 , g ] ( the "g-case" )
+ - fibration sequence of h-fibers defined by a composable pair of functions (the "hf-case")
+- Functions between total spaces of families
+ - Function [ totalfun ] between total spaces from a family of functions between the fibers
+ - Function [ fpmap ] between the total spaces from a function between the bases
+ - Homotopy fibers of [ fpmap ]
+ - The [ fpmap ] from a weak equivalence is a weak equivalence
+ - Total spaces of families over a contractible base
+ - Function on the total spaces from functions between the bases and between the fibers
+- Homotopy fiber squares
+ - Homotopy commutative squares
+ - Short complexes and homotopy commutative squares
+ - Homotopy fiber products
+ - Homotopy fiber products and homotopy fibers
  - Homotopy fiber squares
-  - Homotopy commutative squares
-  - Short complexes and homotopy commutative squares
-  - Homotopy fiber products
-  - Homotopy fiber products and homotopy fibers
-  - Homotopy fiber squares
-  - Fiber sequences and homotopy fiber squares
+ - Fiber sequences and homotopy fiber squares
  *)
 
 
@@ -108,7 +136,7 @@ Definition tounit {X : UU} : X -> unit := fun (x : X) => tt.
 
 Definition termfun {X : UU} (x : X) : unit -> X := fun (t : unit) => x.
 
-(** *** Identity functions and function composition *)
+(** *** Identity functions and function composition, curry and uncurry *)
 
 Definition idfun (T : UU) := λ t:T, t.
 
@@ -252,11 +280,22 @@ Ltac intermediate_logeq Y' := apply (logeq_trans (Y := Y')).
 
 (** ** Paths and operations on [ paths ] *)
 
-(** *** Associativity of function composition and curry/uncurry paths *)
+(** *** Associativity of function composition and mutual invertibility of curry/uncurry  *)
 
-Definition funcomp_assoc {X Y Z W : UU} (f : X -> Y) (g : Y -> Z) (h : Z -> W)
-  :  h ∘ (g ∘ f) = (h ∘ g) ∘ f
-  := idpath _.
+(** While the paths in two of the three following lemmas are trivial, having them as
+lemmas turns out to be convenient in some future proofs. They are used to apply a particular
+definitional equalities to modify the syntactic form of the goal in order to make the
+next tactic, which uses the syntactic form of the goal to guess how to proceed, to work.
+
+The same applies to other lemmas below whose proof is by immediate "reflexivity" or
+"idpath". *)
+
+Lemma funcomp_assoc {X Y Z W : UU} (f : X -> Y) (g : Y -> Z) (h : Z -> W)
+: h ∘ (g ∘ f) = (h ∘ g) ∘ f.
+Proof.
+  intros .
+  apply idpath.
+Defined.
 
 Lemma uncurry_curry {X Z : UU} {Y : X -> UU} (f : (Σ x : X, Y x) -> Z) :
   Π p, uncurry (curry f) p = f p.
@@ -266,8 +305,8 @@ Lemma curry_uncurry {X Z : UU} {Y : X -> UU} (g : Π x : X, Y x -> Z) :
   Π x y, curry (uncurry g) x y = g x y.
 Proof. reflexivity. Defined.
 
-(** *** Composition of paths and inverse paths *)
 
+(** *** Composition of paths and inverse paths *)
 
 Definition pathscomp0 {X : UU} {a b c : X} (e1 : a = b) (e2 : b = c) : a = c.
 Proof.
@@ -288,11 +327,11 @@ Proof.
   intros. induction e1. simpl. apply idpath.
 Defined.
 
-(** Note that we do not need [ pathscomp0lid ] since the corresponding
+(** Note that we do not introduce [ pathscomp0lid ] since the corresponding
     two terms are convertible to each other due to our definition of
     [ pathscomp0 ]. If we defined it by inductioning [ e2 ] and
     applying [ e1 ] then [ pathscomp0rid ] would be trivial but
-    [ pathscomp0lid ] would require a proof. Similarly we do not need a
+    [ pathscomp0lid ] would require a proof. Similarly we do not introduce a
     lemma to connect [ pathsinv0 (idpath _) ] to [ idpath ].
  *)
 
@@ -412,7 +451,7 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
-(** naturality of [maponpaths] *)
+(** *** More on [maponpaths] *)
 
 (* Note(2016.08.21, V.V.): "destruct" is used in many places below.
 Need to decide whether to remove it based on the effect on the compilation time. *)
@@ -461,7 +500,6 @@ Proof.
   unfold maponpathshomidinv.
   apply (pathscomp0 (maponpathshomid1 f h (! h x @ e @ h x'))).
 
-  (* We prove a little lemma first. *)
   assert (l : Π (X : UU) (a b c d : X) (p : a = b) (q : a = c) (r : c = d),
               p @ (!p @ q @ r) @ !r = q).
   { intros. induction p. induction q. induction r. apply idpath. }
@@ -520,7 +558,7 @@ Defined.
 (* end of "Operations on [ paths ]". *)
 
 
-(** ** Fibrations and paths *)
+(** ** Fibrations and paths including the transport functions *)
 
 Definition tppr {T : UU} {P : T -> UU}
            (x : total2 P) : x = tpair _ (pr1 x) (pr2 x).
@@ -785,9 +823,7 @@ Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
            (g : Y -> Z) : (g ∘ f) ~ (g ∘ f') := fun (x : X) => maponpaths g (h x).
 
 
-(** *** Contractibility, homotopy fibers etc. *)
-
-(** Contractible types. *)
+(** *** Contractibility *)
 
 Definition iscontr (T:UU) : UU := Σ cntr:T, Π t:T, t=cntr.
 
@@ -827,8 +863,8 @@ Proof.
 Defined.
 
 
-(** Coconuses: spaces of paths which begin (coconusfromt) or end (coconustot)
-    at a given point. *)
+(** *** Coconuses: spaces of paths that begin (coconusfromt) or end (coconustot)
+    at a given point *)
 
 Definition coconusfromt (T : UU) (t : T) := Σ t' : T, t = t'.
 
@@ -886,7 +922,7 @@ Proof.
   apply connectedcoconusfromt.
 Defined.
 
-(** Paths space of a type - two definitions that differ by the (non) associativity
+(** *** The total paths space of a type - two definitions that differ by the (non) associativity
 of the dependent sum Sigma *)
 
 Definition pathsspace (T : UU) := Σ t:T, coconusfromt T t.
@@ -899,7 +935,7 @@ Definition deltap (T : UU) : T -> pathsspace T :=
 
 Definition pathsspace' (T : UU) := Σ xy : dirprod T T, pr1 xy = pr2 xy.
 
-(** Homotopy fibers. *)
+(** *** Homotopy fibers. *)
 
 Definition hfiber {X Y : UU}  (f : X -> Y) (y : Y) : UU := Σ x:X, f x = y.
 
@@ -909,7 +945,7 @@ Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
 
 Definition hfiberpr1 {X Y : UU} (f : X -> Y) (y : Y) : hfiber f y -> X := pr1.
 
-(** The functions between the hfibers of homotopic functions over the same point *)
+(** *** The functions between the hfibers of homotopic functions over the same point *)
 
 Lemma hfibershomotftog {X Y : UU} (f g : X -> Y)
       (h : f ~ g) (y : Y) : hfiber f y -> hfiber g y.
@@ -929,7 +965,7 @@ Proof.
   apply (h x @ e).
 Defined.
 
-(** Paths in homotopy fibers. *)
+(** *** Paths in homotopy fibers. *)
 
 Lemma hfibertriangle1 {X Y : UU} (f : X -> Y) {y : Y} {xe1 xe2 : hfiber f y}
       (e : xe1 = xe2) :
@@ -980,7 +1016,7 @@ Proof.
   apply (maponpaths (fun e: f t = y => hfiberpair f t e) eee).
 Defined.
 
-(** Coconus of a function: the total space of the family of h-fibers. *)
+(** *** Coconus of a function: the total space of the family of h-fibers *)
 
 Definition coconusf {X Y : UU} (f : X -> Y) := Σ y:Y, hfiber f y.
 
@@ -1013,7 +1049,7 @@ Proof.
   apply idpath.
 Defined.
 
-(** Homotopies between families and the total spaces *)
+(** *** Homotopies between families and the total spaces *)
 
 Definition famhomotfun {X : UU} {P Q : X -> UU}
            (h : P ~ Q) (xp : total2 P) : total2 Q.
@@ -1101,6 +1137,8 @@ Definition weqtoempty2 {X Y : UU} (f : X -> Y) (is : ¬ Y) :=
 
 Definition invmap {X Y : UU} (w : X ≃ Y) : Y -> X :=
   fun (y : Y) => pr1 (weqccontrhfiber w y).
+
+(** *** Weak equivalences and paths spaces (more results in further sections) *)
 
 (** We now define different homotopies and maps between the paths
     spaces corresponding to a weak equivalence. What may look like
@@ -1193,7 +1231,7 @@ Proof.
   apply (! e4 @ e5 @ e1).
 Defined.
 
-(** *** Adjointness property of a weak equivalence and its inverse. *)
+(** *** Adjointness property of a weak equivalence and its inverse *)
 
 Lemma diaglemma2 {X Y : UU} (f : X -> Y) {x x' : X}
       (e1 : x = x') (e2 : f x' = f x)
@@ -1216,7 +1254,7 @@ Proof.
   apply (@hfibertriangle1 _ _ w _ hfid hfcc (weqccontrhfiber2 w (w x) hfid)).
 Defined.
 
-(* another way the adjointness relation may occur: *)
+(* another way the adjointness relation may occur (added by D. Grayson, Oct. 2015): *)
 Definition weq_transportf_adjointness {X Y : UU} (w : X ≃ Y) (P : Y -> UU)
            (x : X) (p : P (w x)) :
   transportf (P ∘ w) (! homotinvweqweq w x) p
@@ -1227,7 +1265,6 @@ Proof.
   rewrite maponpathsinv0. apply maponpaths. apply homotweqinvweqweq.
 Defined.
 
-(* another way the adjointness relation may occur: *)
 Definition weq_transportb_adjointness {X Y : UU} (w : X ≃ Y) (P : Y -> UU)
            (x : X) (p : P (w x)) :
   transportb (P ∘ w) (homotinvweqweq w x) p
@@ -1239,8 +1276,7 @@ Proof.
   apply homotweqinvweqweq.
 Defined.
 
-(** *** Functions between fibers defined by a path on the base are
-        weak equivalences. *)
+(** *** Transport functions are weak equivalences *)
 
 Lemma isweqtransportf {X : UU} (P : X -> UU) {x x' : X}
       (e : x = x') : isweq (transportf P e).
@@ -1254,7 +1290,7 @@ Proof.
   intros. apply (isweqtransportf _ (pathsinv0 e)).
 Defined.
 
-(** *** Weak equivalences between contractible types (the other implication is proved below) *)
+(** *** Weak equivalences between contractible types (one implication) *)
 
 Lemma iscontrweqb {X Y : UU} (w : weq X Y) (is : iscontr Y) : iscontr X.
 Proof.
@@ -1352,7 +1388,7 @@ Proof.
   apply iscontrunit.
 Defined.
 
-(** *** A homotopy equivalence is a weak equivalence *)
+(** *** Homotopy equivalence is a weak equivalence *)
 
 Definition hfibersgftog {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
            (xe : hfiber (g ∘ f) z) : hfiber g z :=
@@ -1492,7 +1528,7 @@ Proof.
   - intros. simpl. exact (pr2 (sur y)).
 Defined.
 
-(** *** Some basic weak equivalences *)
+(** *** Some weak equivalences *)
 
 Corollary isweqinvmap {X Y : UU} (w : weq X Y) : isweq (invmap w).
 Proof.
@@ -1696,7 +1732,7 @@ Proof.
   apply (gradth _ _ eggff effgg).
 Defined.
 
-(** *** The 2-out-of-3 property of weak equivalences.
+(** *** The 2-out-of-3 property of weak equivalences
 
     Theorems showing that if any two of three functions f, g, gf are
     weak equivalences then so is the third - the 2-out-of-3 property.
@@ -1902,7 +1938,7 @@ Definition invmap_weqcomp_expand {X Y Z : UU} {f : X ≃ Y} {g : Y ≃ Z} :
 Proof. reflexivity. Defined.
 
 
-(** *** The 2-out-of-6 (two-out-of-six) property of weak equivalences. *)
+(** *** The 2-out-of-6 (two-out-of-six) property of weak equivalences *)
 
 Theorem twooutofsixu {X Y Z K : UU} {u : X -> Y} {v : Y -> Z} {w : Z -> K}
         (isuv : isweq (funcomp u v)) (isvw : isweq (funcomp v w)) : isweq u.
@@ -1939,6 +1975,40 @@ Theorem twooutofsixw {X Y Z K : UU} {u : X -> Y} {v : Y -> Z} {w : Z -> K}
 Proof.
   intros. exact (twooutof3b _ _ (twooutofsixv isuv isvw) isvw).
 Defined.
+
+(** *** Pairwise direct products of weak equivalences *)
+
+Theorem isweqdirprodf {X Y X' Y' : UU} (w : X ≃ Y) (w' : weq X' Y') :
+  isweq (dirprodf w w').
+Proof.
+  intros.
+  set (f := dirprodf w w'). set (g := dirprodf (invweq w) (invweq w')).
+  assert (egf : Π a : _, (g (f a)) = a).
+  intro a. induction a as [ x x' ].  simpl. apply pathsdirprod.
+  apply (homotinvweqweq w x).  apply (homotinvweqweq w' x').
+  assert (efg : Π a : _, (f (g a)) = a).
+  intro a. induction a as [ x x' ].  simpl. apply pathsdirprod.
+  apply (homotweqinvweq w x). apply (homotweqinvweq w' x').
+  apply (gradth _ _ egf efg).
+Defined.
+
+Definition weqdirprodf {X Y X' Y' : UU} (w : X ≃ Y) (w' : weq X' Y')
+  := weqpair _ (isweqdirprodf w w').
+
+(** *** Weak equivalence of a type and its direct product with the unit *)
+
+Definition weqtodirprodwithunit (X : UU): weq X (dirprod X unit).
+Proof.
+  intros.
+  set (f := fun x : X => dirprodpair x tt).
+  split with f.
+  set (g := fun xu : dirprod X unit => pr1 xu).
+  assert (egf : Π x : X, (g (f x)) = x). intro. apply idpath.
+  assert (efg : Π xu : _, (f (g xu)) = xu). intro. induction xu as [ t x ].
+  induction x. apply idpath.
+  apply (gradth f g egf efg).
+Defined.
+
 
 (** *** Associativity of [ total2 ] as a weak equivalence *)
 
@@ -1984,7 +2054,7 @@ Definition weqtotal2asstol {X : UU} (P : X -> UU) (Q : total2 P -> UU) :
   weq (Σ x : X, Σ p : P x, Q (tpair P x p)) (total2 Q)
   := invweq (weqtotal2asstor P Q).
 
-(** *** Associativity and commutativity of [ dirprod ] as weak equivalences *)
+(** *** Associativity and commutativity of direct products as weak equivalences *)
 
 Definition weqdirprodasstor (X Y Z : UU) :
   weq (dirprod (dirprod X Y) Z) (dirprod X (dirprod Y Z)).
@@ -2063,11 +2133,13 @@ Proof.
   - intros [[x q] p]. reflexivity.
 Defined.
 
+(** ** Binary coproducts and their basic properties *)
+
+(** Binary coproducts have not been introduced or used earlier except for the
+lines in the Preamble.v that define [ coprod ] and [ ⨿ ] as a notation for
+the inductive type family [ sum ] that is defined in Coq.Init. *)
 
 (** *** Distributivity of coproducts and direct products as a weak equivalence *)
-
-(** In the current version [ coprod ] and [ ⨿ ] is a notation, introduced in uuu.v for
-  [ sum ] of types which is defined in Coq.Init *)
 
 Definition rdistrtocoprod (X Y Z : UU) :
   dirprod X (Y ⨿ Z) -> (X × Y) ⨿ (X × Z).
@@ -2158,43 +2230,8 @@ Proof.
 Defined.
 
 
-(** *** Pairwise direct products of weak equivalences *)
-
-Theorem isweqdirprodf {X Y X' Y' : UU} (w : X ≃ Y) (w' : weq X' Y') :
-  isweq (dirprodf w w').
-Proof.
-  intros.
-  set (f := dirprodf w w'). set (g := dirprodf (invweq w) (invweq w')).
-  assert (egf : Π a : _, (g (f a)) = a).
-  intro a. induction a as [ x x' ].  simpl. apply pathsdirprod.
-  apply (homotinvweqweq w x).  apply (homotinvweqweq w' x').
-  assert (efg : Π a : _, (f (g a)) = a).
-  intro a. induction a as [ x x' ].  simpl. apply pathsdirprod.
-  apply (homotweqinvweq w x). apply (homotweqinvweq w' x').
-  apply (gradth _ _ egf efg).
-Defined.
-
-Definition weqdirprodf {X Y X' Y' : UU} (w : X ≃ Y) (w' : weq X' Y')
-  := weqpair _ (isweqdirprodf w w').
-
-(** *** Weak equivalence of direct product of a type with the unit *)
-
-Definition weqtodirprodwithunit (X : UU): weq X (dirprod X unit).
-Proof.
-  intros.
-  set (f := fun x : X => dirprodpair x tt).
-  split with f.
-  set (g := fun xu : dirprod X unit => pr1 xu).
-  assert (egf : Π x : X, (g (f x)) = x). intro. apply idpath.
-  assert (efg : Π xu : _, (f (g xu)) = xu). intro. induction xu as [ t x ].
-  induction x. apply idpath.
-  apply (gradth f g egf efg).
-Defined.
-
-
-
 (** *** Pairwise sum of functions, coproduct associativity and commutativity  *)
-(* ### *)
+
 Definition sumofmaps {X Y Z : UU} (fx : X -> Z)(fy : Y -> Z) :
   (X ⨿ Y) -> Z := fun xy : _ => match xy with ii1 x => fx x | ii2 y => fy y end.
 
@@ -2261,6 +2298,8 @@ Defined.
 
 Definition weqcoprodcomm (X Y : UU) := weqpair _ (isweqcoprodcomm X Y).
 
+(** *** Coproduct with a "negative" type *)
+
 Theorem isweqii1withneg (X : UU) {Y : UU} (nf : Y -> empty) : isweq (@ii1 X Y).
 Proof.
   intros.
@@ -2295,7 +2334,7 @@ Defined.
 Definition weqii2withneg {X : UU} (Y : UU) (nf : ¬ X)
   := weqpair _ (isweqii2withneg Y nf).
 
-
+(** *** Coproduct of two functions *)
 
 Definition coprodf {X Y X' Y' : UU} (f : X -> X') (g : Y-> Y') :
   X ⨿ Y -> coprod X' Y'
@@ -2304,7 +2343,6 @@ Definition coprodf {X Y X' Y' : UU} (f : X -> X') (g : Y-> Y') :
        | ii1 x => ii1 (f x)
        | ii2 y => ii2 (g y)
        end.
-
 
 Definition homotcoprodfcomp {X X' Y Y' Z Z' : UU} (f : X -> Y)
            (f' : X' -> Y') (g : Y -> Z) (g' : Y' -> Z') :
@@ -2346,6 +2384,11 @@ Definition weqcoprodf {X Y X' Y' : UU} : X ≃ X' -> Y ≃ Y' -> X ⨿ Y ≃ X' 
 Proof.
   intros ? ? ? ? w1 w2. exact (weqpair _ (isweqcoprodf w1 w2)).
 Defined.
+
+
+(** *** The [ equality_cases ] construction and four applications to [ ii1 ] and [ ii2 ] *)
+
+(* Added by D. Grayson, Nov. 2015 *)
 
 Definition equality_cases {P Q : UU} (x x' : P ⨿ Q) : UU.
 Proof.                          (* "codes" *)
@@ -2405,15 +2448,126 @@ Proof. intros ? ? ? ?. exact equality_by_case. Defined.
 Lemma negpathsii2ii1 {X Y : UU} (x : X) (y : Y) : ii2 y != ii1 x.
 Proof. intros ? ? ? ?. exact equality_by_case. Defined.
 
-(* ... but we still need the lemmas so we can find them by searching for ii1 or
-  ii2 *)
+
+(** *** Bool as coproduct *)
+
+Definition boolascoprod: unit ⨿ unit ≃ bool.
+Proof.
+  set (f := fun xx : coprod unit unit
+            => match xx with ii1 t => true | ii2 t => false end).
+  split with f.
+  set (g := fun t:bool => match t with true => ii1 tt | false => ii2 tt end).
+
+  assert (egf : Π xx : _, g (f xx) = xx).
+  intro xx. induction xx as [ u | u ]. induction u. apply idpath.
+  induction u. apply idpath.
+
+  assert (efg : Π t : _, f (g t) = t). induction t. apply idpath.
+  apply idpath.
+
+  apply (gradth f g egf efg).
+Defined.
+
+
+(** *** Pairwise coproducts as dependent sums of families over [ bool ] *)
+
+Definition coprodtobool {X Y : UU} (xy : X ⨿ Y) : bool
+  := match xy with
+     | ii1 x => true
+     | ii2 y => false
+     end.
+
+Definition boolsumfun (X Y : UU) : bool -> UU
+  := fun t : _ => match t with
+                  | true => X
+                  | false => Y
+                  end.
+
+Definition coprodtoboolsum (X Y : UU) : X ⨿ Y -> total2 (boolsumfun X Y)
+  := fun xy : _ => match xy with
+                   | ii1 x => tpair (boolsumfun X Y) true x
+                   | ii2 y => tpair (boolsumfun X Y) false y
+                   end.
+
+Definition boolsumtocoprod (X Y : UU): (total2 (boolsumfun X Y)) -> X ⨿ Y
+  := fun xy:_ => match xy with
+                 | tpair _ true x => ii1 x
+                 | tpair _ false y => ii2 y
+                 end.
+
+Theorem isweqcoprodtoboolsum (X Y : UU) : isweq (coprodtoboolsum X Y).
+Proof.
+  intros.
+  set (f := coprodtoboolsum X Y). set (g := boolsumtocoprod X Y).
+  assert (egf : Π xy : X ⨿ Y , (g (f xy)) = xy).
+  induction xy. apply idpath. apply idpath.
+  assert (efg : Π xy : total2 (boolsumfun X Y), (f (g xy)) = xy).
+  intro. induction xy as [ t x ]. induction t. apply idpath. apply idpath.
+  apply (gradth f g egf efg).
+Defined.
+
+Definition weqcoprodtoboolsum (X Y : UU) := weqpair _ (isweqcoprodtoboolsum X Y).
+
+Corollary isweqboolsumtocoprod (X Y : UU): isweq (boolsumtocoprod X Y).
+Proof. intros. apply (isweqinvmap (weqcoprodtoboolsum X Y)). Defined.
+
+Definition weqboolsumtocoprod (X Y : UU) := weqpair _ (isweqboolsumtocoprod X Y).
+
+
+(** *** Splitting of [ X ] into a coproduct defined by a function
+  [ X -> Y ⨿ Z ] *)
+
+Definition weqcoprodsplit {X Y Z : UU} (f : X -> coprod Y Z) :
+  X ≃ (Σ y : Y, hfiber f (ii1 y)) ⨿ (Σ z : Z, hfiber f (ii2 z)).
+Proof.
+  intros.
+  set (w1 := weqtococonusf f).
+  set (w2 := weqtotal2overcoprod (fun yz : coprod Y Z => hfiber f yz)).
+  apply (weqcomp w1 w2).
+Defined.
+
+
+(** *** Some properties of [ bool ] *)
+
+Definition boolchoice (x : bool) : coprod (x = true) (x = false).
+Proof.
+  intro. induction x. apply (ii1 (idpath _)). apply (ii2 (idpath _)).
+Defined.
+
+Definition bool_to_type : bool -> UU.
+Proof.
+  intros b. induction b as [|]. { exact unit. } { exact empty. }
+Defined.
+
+Theorem nopathstruetofalse : true = false -> empty.
+Proof. intro X. apply (transportf bool_to_type X tt). Defined.
+
+Corollary nopathsfalsetotrue : false = true -> empty.
+Proof. intro X. apply (transportb bool_to_type X tt). Defined.
+
+Definition truetonegfalse (x : bool) : x = true -> x != false.
+Proof. intros x e. rewrite e. unfold neg. apply nopathstruetofalse. Defined.
+
+Definition falsetonegtrue (x : bool) : x = false -> x != true.
+Proof. intros x e. rewrite e. unfold neg. apply nopathsfalsetotrue. Defined.
+
+Definition negtruetofalse (x : bool) : x != true -> x = false.
+Proof.
+  intros x ne. induction (boolchoice x) as [t | f]. induction (ne t). apply f.
+Defined.
+
+Definition negfalsetotrue (x : bool) : x != false -> x = true.
+Proof.
+  intros x ne. induction (boolchoice x) as [t | f]. apply t. induction (ne f).
+Defined.
+
 
 (** *** Fibrations with only one non-empty fiber.
 
 Theorem saying that if a fibration has only one non-empty fiber then the total
 space is weakly equivalent to this fiber. *)
 
-
+(* The current proof added by P. L. Lumsdaine, 2016 *)
 
 Theorem onefiber {X : UU} (P : X -> UU) (x : X)
         (c : Π x' : X, (x = x') ⨿ ¬ P x') : isweq (λ p, tpair P x p).
@@ -2427,6 +2581,7 @@ Proof.
       + intro ee. apply ii1; exact (pathscomp0 (pathsinv0 x0) ee).
       + intro phi. apply ii2, phi.
     - intro phi. exact (c x'). }
+
 
   set (g := fun pp : total2 P =>
               match (cnew (pr1 pp)) with
@@ -2468,130 +2623,6 @@ Proof.
   unfold isweq. intro y0. induction (e0 (g y0)).
 Defined.
 
-
-
-(** *** Bool as coproduct *)
-
-Definition boolascoprod: unit ⨿ unit ≃ bool.
-Proof.
-  set (f := fun xx : coprod unit unit
-            => match xx with ii1 t => true | ii2 t => false end).
-  split with f.
-  set (g := fun t:bool => match t with true => ii1 tt | false => ii2 tt end).
-
-  assert (egf : Π xx : _, g (f xx) = xx).
-  intro xx. induction xx as [ u | u ]. induction u. apply idpath.
-  induction u. apply idpath.
-
-  assert (efg : Π t : _, f (g t) = t). induction t. apply idpath.
-  apply idpath.
-
-  apply (gradth f g egf efg).
-Defined.
-
-
-
-(** *** Pairwise coproducts as dependent sums of families over [ bool ] *)
-
-
-Definition coprodtobool {X Y : UU} (xy : X ⨿ Y) : bool
-  := match xy with
-     | ii1 x => true
-     | ii2 y => false
-     end.
-
-
-Definition boolsumfun (X Y : UU) : bool -> UU
-  := fun t : _ => match t with
-                  | true => X
-                  | false => Y
-                  end.
-
-Definition coprodtoboolsum (X Y : UU) : X ⨿ Y -> total2 (boolsumfun X Y)
-  := fun xy : _ => match xy with
-                   | ii1 x => tpair (boolsumfun X Y) true x
-                   | ii2 y => tpair (boolsumfun X Y) false y
-                   end.
-
-
-Definition boolsumtocoprod (X Y : UU): (total2 (boolsumfun X Y)) -> X ⨿ Y
-  := fun xy:_ => match xy with
-                 | tpair _ true x => ii1 x
-                 | tpair _ false y => ii2 y
-                 end.
-
-
-
-Theorem isweqcoprodtoboolsum (X Y : UU) : isweq (coprodtoboolsum X Y).
-Proof.
-  intros.
-  set (f := coprodtoboolsum X Y). set (g := boolsumtocoprod X Y).
-  assert (egf : Π xy : X ⨿ Y , (g (f xy)) = xy).
-  induction xy. apply idpath. apply idpath.
-  assert (efg : Π xy : total2 (boolsumfun X Y), (f (g xy)) = xy).
-  intro. induction xy as [ t x ]. induction t. apply idpath. apply idpath.
-  apply (gradth f g egf efg).
-Defined.
-
-Definition weqcoprodtoboolsum (X Y : UU) := weqpair _ (isweqcoprodtoboolsum X Y).
-
-Corollary isweqboolsumtocoprod (X Y : UU): isweq (boolsumtocoprod X Y).
-Proof. intros. apply (isweqinvmap (weqcoprodtoboolsum X Y)). Defined.
-
-Definition weqboolsumtocoprod (X Y : UU) := weqpair _ (isweqboolsumtocoprod X Y).
-
-
-
-
-
-
-
-
-(** *** Splitting of [ X ] into a coproduct defined by a function
-  [ X -> Y ⨿ Z ] *)
-
-Definition weqcoprodsplit {X Y Z : UU} (f : X -> coprod Y Z) :
-  X ≃ (Σ y : Y, hfiber f (ii1 y)) ⨿ (Σ z : Z, hfiber f (ii2 z)).
-Proof.
-  intros.
-  set (w1 := weqtococonusf f).
-  set (w2 := weqtotal2overcoprod (fun yz : coprod Y Z => hfiber f yz)).
-  apply (weqcomp w1 w2).
-Defined.
-
-(** *** Some properties of [ bool ] *)
-
-Definition boolchoice (x : bool) : coprod (x = true) (x = false).
-Proof.
-  intro. induction x. apply (ii1 (idpath _)). apply (ii2 (idpath _)).
-Defined.
-
-Definition bool_to_type : bool -> UU.
-Proof.
-  intros b. induction b as [|]. { exact unit. } { exact empty. }
-Defined.
-
-Theorem nopathstruetofalse : true = false -> empty.
-Proof. intro X. apply (transportf bool_to_type X tt). Defined.
-
-Corollary nopathsfalsetotrue : false = true -> empty.
-Proof. intro X. apply (transportb bool_to_type X tt). Defined.
-
-Definition truetonegfalse (x : bool) : x = true -> x != false.
-Proof. intros x e. rewrite e. unfold neg. apply nopathstruetofalse. Defined.
-
-Definition falsetonegtrue (x : bool) : x = false -> x != true.
-Proof. intros x e. rewrite e. unfold neg. apply nopathsfalsetotrue. Defined.
-
-Definition negtruetofalse (x : bool) : x != true -> x = false.
-Proof.
-  intros x ne. induction (boolchoice x) as [t | f]. induction (ne t). apply f.
-Defined.
-
-Definition negfalsetotrue (x : bool) : x != false -> x = true.
-Proof.
-  intros x ne. induction (boolchoice x) as [t | f]. apply t. induction (ne f).
-Defined.
 
 
 
@@ -2660,13 +2691,14 @@ functions [ (f : X -> Y) (g : Y -> Z) ] and any terms
 [ hfibergftog : hfiber (funcomp f g) z -> hfiber g z ] which are defined below.
  *)
 
+(** *** The structures of a complex and of a fibration sequence on
+a composable pair of functions *)
 
-(** The structure of a complex structure on a composable pair of functions
+(** The structure of a complex on a composable pair of functions
   [ (f : X -> Y) (g : Y -> Z) ] relative to a term [ z : Z ]. *)
 
 Definition complxstr {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
   := Π x : X, (g (f x)) = z.
-
 
 
 (** The structure of a fibration sequence on a complex. *)
@@ -2693,7 +2725,7 @@ Definition ezweq {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
 
 
 
-(** Construction of the derived fibration sequence. *)
+(** *** Construction of the derived fibration sequence *)
 
 
 Definition d1 {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
@@ -2755,13 +2787,14 @@ Defined.
 
 Definition ezweq1 {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
            (fs : fibseqstr f g z) (y : Y) := weqpair _ (isweqezmap1 f g z fs y).
+
 Definition fibseq1 {X Y Z : UU} (f :X -> Y) (g : Y -> Z) (z : Z)
            (fs : fibseqstr f g z) (y : Y) : fibseqstr (d1 f g z fs y) f y
   := fibseqstrpair _ _ _ _ (isweqezmap1 f g z fs y).
 
 
 
-(** Explitcit description of the first map in the second derived sequence. *)
+(** *** Explicit description of the first map in the second derived sequence *)
 
 Definition d2 {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
            (fs : fibseqstr f g z) (y : Y) (x : X) (e : (f x) = y) :
@@ -2778,11 +2811,8 @@ Definition fibseq2 {X Y Z : UU} (f : X -> Y) (g : Y->Z) (z : Z)
 
 
 
-
-
 (** *** Fibration sequences based on
   [ (tpair P z : P z -> total2 P) (pr1 : total2 P -> Z) ] ( the "pr1-case" ) *)
-
 
 
 (** Construction of the fibration sequence. *)
@@ -2908,8 +2938,6 @@ Definition fibseq3g {Y Z : UU} (g : Y -> Z) {z : Z} (y : Y) (ye' : hfiber g z)
 
 
 
-
-
 (** *** Fibration sequence of h-fibers defined by a composable pair of functions
   (the "hf-case")
 
@@ -3024,13 +3052,16 @@ Defined.
 
 
 
-(** ** Fiber-wise weak equivalences.
+(** ** Functions between total spaces of families
 
 
-Theorems saying that a fiber-wise morphism between total spaces is a weak
+(** *** Function [ totalfun ] between total spaces from a family of functions between the fibers
+
+Including theorems saying that a fiber-wise morphism between total spaces is a weak
 equivalence if and only if all the morphisms between the fibers are weak
 equivalences. *)
 
+*)
 
 Definition totalfun {X : UU} (P Q : X -> UU) (f : Π x : X, P x -> Q x)
   := (fun z: total2 P => tpair Q (pr1 z) (f (pr1 z) (pr2 z))).
@@ -3093,7 +3124,8 @@ Defined.
 Definition weqfibtototal {X : UU} (P Q : X -> UU) (f : Π x, P x ≃ Q x) :
   (Σ x, P x) ≃ (Σ x, Q x) := weqpair _ (isweqfibtototal P Q f).
 
-(** ** Homotopy fibers of the function [fpmap: total2 X (P f) -> total2 Y P].
+
+(** *** Function [ fpmap ] between the total spaces from a function between the bases
 
 Given [ X Y ] in [ UU ], [ P:Y -> UU ] and [ f: X -> Y ] we get a function
 [ fpmap: total2 X (P f) -> total2 Y P ]. The main theorem of this section
@@ -3115,19 +3147,6 @@ Proof.
   split with x.
   simpl. apply idpath.
 Defined.
-
-Definition hfiberfpmap {X Y : UU} (f : X -> Y) (P : Y -> UU) (yp : total2 P) :
-  hfiber (fpmap f P) yp -> hfiber f (pr1 yp).
-Proof.
-  intros X Y f P yp X0.
-  set (int1:= hfibersgftog (hffpmap2 f P)
-                           (fun u : (Σ u : total2 P, hfiber f (pr1  u))
-                            => (pr1 u)) yp).
-  set (phi := invezmappr1 (fun u:total2 P => hfiber f (pr1 u)) yp).
-  apply (phi (int1 X0)).
-Defined.
-
-
 
 Lemma centralfiber {X : UU} (P : X -> UU) (x : X) :
   isweq (fun p : P x => tpair (fun u : coconusfromt X x => P (pr1 u))
@@ -3198,6 +3217,20 @@ Proof.
   apply (twooutof3a (hffpmap2 f P) toint X0 is).
 Defined.
 
+(** *** Homotopy fibers of [ fpmap ] *)
+
+Definition hfiberfpmap {X Y : UU} (f : X -> Y) (P : Y -> UU) (yp : total2 P) :
+  hfiber (fpmap f P) yp -> hfiber f (pr1 yp).
+Proof.
+  intros X Y f P yp X0.
+  set (int1:= hfibersgftog (hffpmap2 f P)
+                           (fun u : (Σ u : total2 P, hfiber f (pr1  u))
+                            => (pr1 u)) yp).
+  set (phi := invezmappr1 (fun u:total2 P => hfiber f (pr1 u)) yp).
+  apply (phi (int1 X0)).
+Defined.
+
+
 Theorem isweqhfiberfp {X Y : UU} (f : X -> Y) (P : Y -> UU) (yp : total2 P) :
   isweq (hfiberfpmap f P yp).
 Proof.
@@ -3219,6 +3252,7 @@ Proof.
   apply (twooutof3c int1 phi is1 is2).
 Defined.
 
+(** *** The [ fpmap ] from a weak equivalence is a weak equivalence *)
 
 Corollary isweqfpmap {X Y : UU} (w : X ≃ Y)(P : Y -> UU) : isweq (fpmap w P).
 Proof.
@@ -3228,8 +3262,6 @@ Proof.
   assert (is : iscontr (hfiber w (pr1 y))). apply (pr2 w).
   apply (iscontrweqb (weqpair h X1) is).
 Defined.
-
-(** weq on total2 given by weq on base *)
 
 Definition weqfp_map {X Y : UU} (w : X ≃ Y) (P : Y -> UU) :
   (Σ x, P(w x)) -> (Σ y, P y).
@@ -3294,9 +3326,8 @@ Proof.
   intro a. apply idpath. apply (gradth _ _ egf efg).
 Defined.
 
-(** ** The maps between total spaces of families given by a map between the
-  bases of the families and maps between the corresponding members of the
-  families. *)
+(** *** The function on the total spaces from functions on the bases and on the fibers *)
+
 Definition bandfmap {X Y : UU} (f : X -> Y) (P : X -> UU) (Q : Y -> UU)
            (fm : Π x : X, P x -> (Q (f x))) :
   (Σ x, P x) -> (Σ x, Q x) := λ xp, f (pr1 xp) ,, fm (pr1 xp) (pr2 xp).
@@ -3322,10 +3353,7 @@ Definition weqbandf {X Y : UU} (w : X ≃ Y) (P : X -> UU) (Q : Y -> UU)
 
 (** ** Homotopy fiber squares *)
 
-
-
 (** *** Homotopy commutative squares *)
-
 
 Definition commsqstr {X X' Y Z : UU} (g' : Z -> X') (f' : X' -> Y) (g : Z -> X)
            (f : X -> Y) := Π (z : Z), (f' (g' z)) = (f (g z)).
@@ -3452,7 +3480,6 @@ Definition commhfp {X X' Y : UU} (f : X -> Y) (f' : X' -> Y) :
 
 (** *** Homotopy fiber products and homotopy fibers *)
 
-
 Definition  hfibertohfp {X Y : UU} (f : X -> Y) (y : Y) (xe : hfiber f y) :
   hfp (fun t : unit => y) f := tpair (fun tx : dirprod unit X => (f (pr2 tx)) = y)
                                      (dirprodpair tt (pr1 xe)) (pr2 xe).
@@ -3500,8 +3527,8 @@ Proof.
   - intros [y [x e]]. apply maponpaths, maponpaths, pathsinv0inv0.
 Defined.
 
-(** *** Homotopy fiber squares *)
 
+(** *** Homotopy fiber squares *)
 
 Definition ishfsq {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y)
            (g : Z -> X) (g' : Z -> X') (h : commsqstr g' f' g f)
@@ -3674,4 +3701,4 @@ Proof.
   apply (twooutof3a ff gg (pr2 ggff) (pr2 gg)).
 Defined.
 
-(* End of the file uu0a.v *)
+(* End of the file PartA.v *)
