@@ -63,14 +63,14 @@ Proof. intros. split with  ( setwith2binoppair X ( dirprodpair opp1 opp2 ) ) . s
 Definition rigaddabmonoid ( X : rig ) : abmonoid := abmonoidpair ( setwithbinoppair X op1 ) ( rigop1axs X ) .
 Definition rigmultmonoid ( X : rig ) : monoid := monoidpair  ( setwithbinoppair X op2 ) ( rigop2axs X ) .
 
-Notation "x + y" := ( op1 x y ) : rig_scope .
-Notation "x * y" := ( op2 x y ) : rig_scope .
+Notation "x + y" := ( op1 x y ) ( at level 50, left associativity ) : rig_scope .
+Notation "x * y" := ( op2 x y ) ( at level 40, left associativity ) : rig_scope .
 Notation "0" := ( rigunel1 ) : rig_scope .
 Notation "1" := ( rigunel2 ) : rig_scope .
 
 Delimit Scope rig_scope with rig .
 
-
+Open Scope rig_scope.
 
 
 
@@ -102,10 +102,9 @@ Proof . intros . split . apply ( ismonoidfuninvmap ( rigaddiso f ) ) . apply  ( 
 
 (** **** Relations similar to "greater" or "greater or equal" on rigs *)
 
-Definition isrigmultgt ( X : rig ) ( R : hrel X ) :=  Π a b c d : X , R a b -> R c d -> R ( op1 ( op2 a c ) ( op2 b d ) ) ( op1 ( op2 a d ) ( op2 b c ) ) .
+Definition isrigmultgt ( X : rig ) ( R : hrel X ) :=  forall a b c d : X , R a b -> R c d -> R ( a * c  +  b * d ) ( a * d + b * c ) .
 
-Definition isinvrigmultgt ( X : rig ) ( R : hrel X ) := dirprod ( Π a b c d : X , R ( op1 ( op2 a c ) ( op2 b d ) ) ( op1 ( op2 a d ) ( op2 b c ) ) -> R a b -> R c d ) ( Π a b c d : X , R ( op1 ( op2 a c ) ( op2 b d ) ) ( op1 ( op2 a d ) ( op2 b c ) ) -> R c d -> R a b ) .
-
+Definition isinvrigmultgt ( X : rig ) ( R : hrel X ) := dirprod ( Π a b c d : X , R ( a * c + b * d ) ( a * d + b * c ) -> R a b -> R c d ) ( Π a b c d : X , R ( a * c + b * d ) ( a * d + b * c ) -> R c d -> R a b ) .
 
 (** **** Subobjects *)
 
@@ -436,6 +435,7 @@ set ( int := is _ _ intab intcd ) .  rewrite ( rngrdistr X _ _ _ ) in int .  rew
 Opaque isrngmultgttoisrigmultgt .
 
 Lemma isrigmultgttoisrngmultgt ( X : rng ) { R : hrel X } ( is : isrigmultgt X R ) : isrngmultgt X R .
+
 Proof . intros .  intros a b ra0 rb0 . set ( is' := is _ _ _ _ ra0 rb0 ) .  simpl in is' . fold ( pr1rng ) in is' . rewrite 2? ( rngmult0x X _ ) in is' .   rewrite ( rngmultx0 X _ ) in is' .  rewrite 2? ( rngrunax1 X _ ) in is' .  exact is' .  Defined .
 
 Opaque isrigmultgttoisrngmultgt .
@@ -475,15 +475,9 @@ Proof . intros . split .  intro ism . split .  apply ( isinvrngmultgttoislinvrng
 Lemma isinvrngmultgttoisinvrigmultgt ( X : rng ) { R : hrel X } ( is0 : @isbinophrel X R ) ( is : isinvrngmultgt X R ) : isinvrigmultgt X R .
 Proof . intros .  set ( rer := abmonoidrer X ) . simpl in rer .   split .
 
-        intros a b c d r rab . set ( r' := ( pr2 is0 ) _ _ (a * - d + - b * c) r ) .  clearbody r' .  simpl in r' . rewrite ( rer _ ( b * c ) _ _ ) in r' . rewrite ( pathsinv0 ( rngldistr X _ _ a ) ) in r' . rewrite ( pathsinv0 ( rngrdistr X _ _ c ) ) in r' .  rewrite ( rngrinvax1 X d ) in r' .  rewrite ( rngrinvax1 X b ) in r' . rewrite ( rngmult0x X _ ) in r' .  rewrite ( rngmultx0 X _ ) in r' .  rewrite ( rnglunax1 X ) in r' .  rewrite ( rer _ ( b * d ) _ _ ) in r' . rewrite ( pathsinv0 ( rngldistr X _ _ a ) ) in r' .  simpl in r' .
-        fold pr1rng in r' .     (* fold stopped working *)
-        change (pr1 X) with (pr1rng X) in r'.
-        rewrite ( pathsinv0 ( rngmultminusminus X b d ) ) in r' . rewrite ( pathsinv0 ( rngldistr X _ _ ( - b ) ) ) in r' . rewrite ( rngcomm1 X _ c ) in r' . rewrite ( pathsinv0 ( rngrdistr X _ _ _ ) ) in r'. set ( rab' := ( pr2 is0 ) _ _ ( - b ) rab ) . clearbody rab'.  simpl in rab' .  rewrite ( rngrinvax1 X b ) in rab' . set ( rcd' := ( pr1 is ) _ _ r' rab' ) . set ( rcd'' := ( pr2 is0 ) _ _ d rcd' ) .     simpl in rcd'' .  rewrite ( rngassoc1 _ _ _ ) in rcd''. rewrite ( rnglinvax1 X _ ) in rcd'' . rewrite ( rnglunax1 X _ ) in rcd''.  rewrite ( rngrunax1 X _ ) in rcd'' .  apply rcd''.
+intros a b c d r rab . set ( r' := ( pr2 is0 ) _ _ (a * - d + - b * c) r ) .  clearbody r' .  simpl in r' . rewrite ( rer _ ( b * c ) _ _ ) in r' . rewrite ( pathsinv0 ( rngldistr X _ _ a ) ) in r' . rewrite ( pathsinv0 ( rngrdistr X _ _ c ) ) in r' .  rewrite ( rngrinvax1 X d ) in r' .  rewrite ( rngrinvax1 X b ) in r' . rewrite ( rngmult0x X _ ) in r' .  rewrite ( rngmultx0 X _ ) in r' .  rewrite ( rnglunax1 X ) in r' .  rewrite ( rer _ ( b * d ) _ _ ) in r' . rewrite ( pathsinv0 ( rngldistr X _ _ a ) ) in r' .  simpl in r' .   fold pr1rng in r' . rewrite ( pathsinv0 ( rngmultminusminus X b d ) ) in r' . rewrite ( pathsinv0 ( rngldistr X _ _ ( - b ) ) ) in r' . rewrite ( rngcomm1 X _ c ) in r' . rewrite ( pathsinv0 ( rngrdistr X _ _ _ ) ) in r'. set ( rab' := ( pr2 is0 ) _ _ ( - b ) rab ) . clearbody rab'.  simpl in rab' .  rewrite ( rngrinvax1 X b ) in rab' . set ( rcd' := ( pr1 is ) _ _ r' rab' ) . set ( rcd'' := ( pr2 is0 ) _ _ d rcd' ) .     simpl in rcd'' .  rewrite ( rngassoc1 _ _ _ ) in rcd''. rewrite ( rnglinvax1 X _ ) in rcd'' . rewrite ( rnglunax1 X _ ) in rcd''.  rewrite ( rngrunax1 X _ ) in rcd'' .  apply rcd''.
 
-        intros a b c d r rcd . set ( r' := ( pr2 is0 ) _ _ (a * - d + - b * c) r ) .  clearbody r' .  simpl in r' . rewrite ( rer _ ( b * c ) _ _ ) in r' . rewrite ( pathsinv0 ( rngldistr X _ _ a ) ) in r' . rewrite ( pathsinv0 ( rngrdistr X _ _ c ) ) in r' .  rewrite ( rngrinvax1 X d ) in r' .  rewrite ( rngrinvax1 X b ) in r' . rewrite ( rngmult0x X _ ) in r' .  rewrite ( rngmultx0 X _ ) in r' .  rewrite ( rnglunax1 X ) in r' .  rewrite ( rer _ ( b * d ) _ _ ) in r' . rewrite ( pathsinv0 ( rngldistr X _ _ a ) ) in r' .  simpl in r' .
-        fold pr1rng in r' . (* fold stopped working *)
-        change (pr1 X) with (pr1rng X) in r'.
-        rewrite ( pathsinv0 ( rngmultminusminus X b d ) ) in r' . rewrite ( pathsinv0 ( rngldistr X _ _ ( - b ) ) ) in r' . rewrite ( rngcomm1 X _ c ) in r' . rewrite ( pathsinv0 ( rngrdistr X _ _ _ ) ) in r'. set ( rcd' := ( pr2 is0 ) _ _ ( - d ) rcd ) . clearbody rcd'.  simpl in rcd' .  rewrite ( rngrinvax1 X d ) in rcd' . set ( rab' := ( pr2 is ) _ _ r' rcd' ) . set ( rab'' := ( pr2 is0 ) _ _ b rab' ) .     simpl in rab'' .  rewrite ( rngassoc1 _ _ _ ) in rab''. rewrite ( rnglinvax1 X _ ) in rab'' . rewrite ( rnglunax1 X _ ) in rab''.  rewrite ( rngrunax1 X _ ) in rab'' .  apply rab''. Defined .
+intros a b c d r rcd . set ( r' := ( pr2 is0 ) _ _ (a * - d + - b * c) r ) .  clearbody r' .  simpl in r' . rewrite ( rer _ ( b * c ) _ _ ) in r' . rewrite ( pathsinv0 ( rngldistr X _ _ a ) ) in r' . rewrite ( pathsinv0 ( rngrdistr X _ _ c ) ) in r' .  rewrite ( rngrinvax1 X d ) in r' .  rewrite ( rngrinvax1 X b ) in r' . rewrite ( rngmult0x X _ ) in r' .  rewrite ( rngmultx0 X _ ) in r' .  rewrite ( rnglunax1 X ) in r' .  rewrite ( rer _ ( b * d ) _ _ ) in r' . rewrite ( pathsinv0 ( rngldistr X _ _ a ) ) in r' .  simpl in r' .   fold pr1rng in r' . rewrite ( pathsinv0 ( rngmultminusminus X b d ) ) in r' . rewrite ( pathsinv0 ( rngldistr X _ _ ( - b ) ) ) in r' . rewrite ( rngcomm1 X _ c ) in r' . rewrite ( pathsinv0 ( rngrdistr X _ _ _ ) ) in r'. set ( rcd' := ( pr2 is0 ) _ _ ( - d ) rcd ) . clearbody rcd'.  simpl in rcd' .  rewrite ( rngrinvax1 X d ) in rcd' . set ( rab' := ( pr2 is ) _ _ r' rcd' ) . set ( rab'' := ( pr2 is0 ) _ _ b rab' ) .     simpl in rab'' .  rewrite ( rngassoc1 _ _ _ ) in rab''. rewrite ( rnglinvax1 X _ ) in rab'' . rewrite ( rnglunax1 X _ ) in rab''.  rewrite ( rngrunax1 X _ ) in rab'' .  apply rab''. Defined .
 
 Opaque isinvrngmultgttoisinvrigmultgt .
 

@@ -433,6 +433,7 @@ Definition pr1binopfun ( X Y : setwithbinop ) : binopfun X Y -> ( X -> Y ) := @p
 Coercion pr1binopfun : binopfun >-> Funclass .
 
 Lemma isasetbinopfun  ( X Y : setwithbinop ) : isaset ( binopfun X Y ) .
+
 Proof . intros . apply ( isasetsubset ( pr1binopfun X Y  ) ) . change ( isofhlevel 2 ( X -> Y ) ) . apply impred .  intro . apply ( setproperty Y ) . refine (isinclpr1 _ _) .  intro .  apply isapropisbinopfun . Defined .
 
 Lemma isbinopfuncomp { X Y Z : setwithbinop } ( f : binopfun X Y ) ( g : binopfun Y Z ) : isbinopfun ( funcomp ( pr1 f ) ( pr1 g ) ) .
@@ -818,6 +819,7 @@ Definition binop1fun { X Y : setwith2binop } ( f : twobinopfun X Y ) : binopfun 
 
 Definition binop2fun { X Y : setwith2binop } ( f : twobinopfun X Y ) : binopfun ( setwithbinop2 X ) ( setwithbinop2 Y ) := @binopfunpair ( setwithbinop2 X ) ( setwithbinop2 Y ) ( pr1 f ) ( pr2 ( pr2 f ) ) .
 Lemma isasettwobinopfun  ( X Y : setwith2binop ) : isaset ( twobinopfun X Y ) .
+
 Proof . intros . apply ( isasetsubset ( pr1twobinopfun X Y  ) ) . change ( isofhlevel 2 ( X -> Y ) ) . apply impred .  intro . apply ( setproperty Y ) . refine (isinclpr1 _ _) .  intro .  apply isapropistwobinopfun . Defined .
 
 
