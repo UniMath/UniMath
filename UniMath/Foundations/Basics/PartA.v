@@ -18,7 +18,7 @@ Alex Kavvos 2014, Peter LeFanu Lumsdaine 2016 and Tomi Pannila 2016. *)
 - Preamble
  - Settings
  - Imports
-- Some standard constructions not using identity paths
+- Some standard constructions not using identity types (paths)
  - Canonical functions from [ empty ] and to [unit ]
  - Identity functions and function composition, curry and uncurry
  - Iteration of an endomorphism
