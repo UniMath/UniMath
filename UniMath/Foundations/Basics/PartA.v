@@ -1,15 +1,14 @@
-(** * Univalent Basics.
+(** * Univalent Basics, Part A
 
 Vladimir Voevodsky.
 Feb. 2010 - Sep. 2011.
 
 
-The first part of the original uu0 file, created on Dec. 3, 2014.
+This file is based on the first part of the original uu0 file.
+It was created as a separate file on Dec. 3, 2014.
 
-This file contains results which form a basis of the univalent
-approach, and which do not require the use of universes as types.
-
-Ported to coq trunk (8.4-8.5) in March 2014.
+It contains those results from the the basis of the univalent
+approach that do not require the use of any axioms.
 
 Edited by Benedikt Ahrens 2014-2016, Dan Grayson 2014-2016, Vladimir Voevodsky 2014 - 2016,
 Alex Kavvos 2014, Peter LeFanu Lumsdaine 2016 and Tomi Pannila 2016. *)
@@ -18,6 +17,7 @@ Alex Kavvos 2014, Peter LeFanu Lumsdaine 2016 and Tomi Pannila 2016. *)
 - Preamble
  - Settings
  - Imports
+
 - Some standard constructions not using identity types (paths)
  - Canonical functions from [ empty ] and to [unit ]
  - Identity functions and function composition, curry and uncurry
@@ -26,24 +26,30 @@ Alex Kavvos 2014, Peter LeFanu Lumsdaine 2016 and Tomi Pannila 2016. *)
  - Pairwise direct products
  - Negation and double negation
  - Logical equivalence
+
 - Paths and operations on paths
  - Associativity of function composition and mutual invertibility of curry/uncurry
  - Composition of paths and inverse paths
  - Direct product of paths
  - The function [ maponpaths ] between paths types defined by a function between ambient types
  - [ maponpaths ] for the identity functions and compositions of functions
- - More on [maponpaths]
-- Fibrations and paths including the transport functions
-- First homotopy notions
  - Homotopy between functions
+ - [ maponpaths ] for a function homotopic to the identity
+ - [ maponpaths ] in the case of a projection p with a section s
+ - Fibrations and paths - the transport functions
+ - A series of lemmas about paths and [ total2 ]
+ - Lemmas about transport adapted from the HoTT library and the HoTT book
+
+- First fundamental notions
  - Contractibility
- - Coconuses: spaces of paths that begin (coconusfromt) or end (coconustot) at a given point
- - The total paths space of a type - two definitions
  - Homotopy fibers
  - The functions between the hfibers of homotopic functions over the same point
  - Paths in homotopy fibers
+ - Coconuses: spaces of paths that begin (coconusfromt) or end (coconustot) at a given point
+ - The total paths space of a type - two definitions
  - Coconus of a function: the total space of the family of h-fibers
  - Homotopies between families and the total spaces
+
 - Weak equivalences
  - Basics
  - Weak equivalences and paths spaces (more results in further sections)
@@ -61,6 +67,7 @@ Alex Kavvos 2014, Peter LeFanu Lumsdaine 2016 and Tomi Pannila 2016. *)
  - Weak equivalence of a type and its direct product with the unit
  - Associativity of total2 as a weak equivalence
  - Associativity and commutativity of direct products as weak equivalences
+
 - Binary coproducts and their basic properties
  - Distributivity of coproducts and direct products as a weak equivalence
  - Total space of a family over a coproduct
@@ -73,6 +80,7 @@ Alex Kavvos 2014, Peter LeFanu Lumsdaine 2016 and Tomi Pannila 2016. *)
  - Splitting of [ X ] into a coproduct defined by a function [ X -> Y ⨿ Z ]
  - Some properties of bool
  - Fibrations with only one non-empty fiber
+
 - Basics about fibration sequences
  - The structures of a complex and of a fibration sequence on a composable pair of functions
  - Construction of the derived fibration sequence
@@ -80,6 +88,7 @@ Alex Kavvos 2014, Peter LeFanu Lumsdaine 2016 and Tomi Pannila 2016. *)
  - Fibration sequences based on [ tpair P z , pr1 ] ( the "pr1-case" )
  - Fibration sequences based on [ hfiberpr1 , g ] ( the "g-case" )
  - fibration sequence of h-fibers defined by a composable pair of functions (the "hf-case")
+
 - Functions between total spaces of families
  - Function [ totalfun ] between total spaces from a family of functions between the fibers
  - Function [ fpmap ] between the total spaces from a function between the bases
@@ -87,6 +96,7 @@ Alex Kavvos 2014, Peter LeFanu Lumsdaine 2016 and Tomi Pannila 2016. *)
  - The [ fpmap ] from a weak equivalence is a weak equivalence
  - Total spaces of families over a contractible base
  - Function on the total spaces from functions between the bases and between the fibers
+
 - Homotopy fiber squares
  - Homotopy commutative squares
  - Short complexes and homotopy commutative squares
@@ -166,8 +176,7 @@ Proof.
   + exact (f ∘ IHn).
 Defined.
 
-(** *** Basic constructions related to the adjoint evaluation
-  function [ X -> ((X -> Y) -> Y) ] *)
+(** *** Basic constructions related to the adjoint evaluation function [ X -> ((X -> Y) -> Y) ] *)
 
 Definition adjev {X Y : UU} (x : X) (f : X -> Y) : Y := f x.
 
@@ -412,9 +421,9 @@ Proof.
 Defined.
 
 
-(** *** The function [ maponpaths ] between paths types defined by a
-    function between ambient types and its behavior relative to [ @ ]
-    and [ ! ] *)
+(** *** The function [ maponpaths ] between paths types defined by a function between ambient types
+
+and its behavior relative to [ @ ] and [ ! ] *)
 
 Definition maponpaths {T1 T2 : UU} (f : T1 -> T2) {t1 t2 : T1}
            (e: t1 = t2) : f t1 = f t2.
@@ -422,11 +431,19 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
+(* useful with apply, to save typing *)
+Definition map_on_two_paths {X Y Z : UU} (f : X -> Y -> Z) {x x' y y'} (ex : x = x') (ey: y = y') :
+  f x y = f x' y'.
+Proof.
+  intros. induction ex. induction ey. reflexivity.
+Defined.
+
+
 Definition maponpathscomp0 {X Y : UU} {x1 x2 x3 : X}
            (f : X -> Y) (e1 : x1 = x2) (e2 : x2 = x3) :
   maponpaths f (e1 @ e2) = maponpaths f e1 @ maponpaths f e2.
 Proof.
-  intros. induction e1. induction e2. simpl. apply idpath.
+  intros. induction e1. induction e2. apply idpath.
 Defined.
 
 Definition maponpathsinv0 {X Y : UU} (f : X -> Y)
@@ -436,8 +453,7 @@ Proof.
 Defined.
 
 
-(** *** [ maponpaths ] for the identity functions and compositions of
-    functions *)
+(** *** [ maponpaths ] for the identity functions and compositions of functions *)
 
 Lemma maponpathsidfun {X : UU} {x x' : X}
       (e : x = x') : maponpaths (idfun _) e = e.
@@ -451,10 +467,36 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
-(** *** More on [maponpaths] *)
+(** *** Homotopy between functions *)
 
-(* Note(2016.08.21, V.V.): "destruct" is used in many places below.
-Need to decide whether to remove it based on the effect on the compilation time. *)
+Definition homot {X : UU} {P : X -> UU} (f g : Π x : X, P x) :=
+  Π x : X , f x = g x.
+
+Notation "f ~ g" := (homot f g) (at level 70, no associativity).
+
+Definition homotcomp {X Y : UU} {f f' f'' : X -> Y}
+           (h : f ~ f') (h' : f' ~ f'') : f ~ f'' := fun (x : X) => h x @ h' x.
+
+Definition invhomot {X Y : UU} {f f' : X -> Y}
+           (h : f ~ f') : f' ~ f := fun (x : X) => !(h x).
+
+Definition funhomot {X Y Z : UU} (f : X -> Y) {g g' : Y -> Z}
+           (h : g ~ g') : (g ∘ f) ~ (g' ∘ f) := fun (x : X) => h (f x).
+
+Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
+           (g : Y -> Z) : (g ∘ f) ~ (g ∘ f') := fun (x : X) => maponpaths g (h x).
+
+
+(** *** [ maponpaths ] for a function homotopic to the identity
+
+The following three statements show that [ maponpaths ] defined by
+a function f which is homotopic to the identity is
+"surjective". It is later used to show that the maponpaths defined
+by a function which is a weak equivalence is itself a weak
+equivalence. *)
+
+
+(* ### *)
 
 Definition maponpaths_naturality {X Y : UU} {f : X -> Y}
            {x x' x'' : X} {p : x = x'} {q : x' = x''}
@@ -462,7 +504,7 @@ Definition maponpaths_naturality {X Y : UU} {f : X -> Y}
            (r : maponpaths f p = p') (s : maponpaths f q = q') :
   maponpaths f (p @ q) = p' @ q'.
 Proof.
-  intros. destruct r, s. apply maponpathscomp0.
+  intros. induction r, s. apply maponpathscomp0.
 Defined.
 
 Definition maponpaths_naturality' {X Y : UU} {f : X -> Y}
@@ -471,14 +513,13 @@ Definition maponpaths_naturality' {X Y : UU} {f : X -> Y}
            (r : maponpaths f p = p') (s : maponpaths f q = q') :
   maponpaths f (!p @ q) = (!p') @ q'.
 Proof.
-  intros. destruct r, s, p, q. reflexivity.
+  intros. induction r, s, p, q. reflexivity.
 Defined.
 
-(** The following three statements show that [ maponpaths ] defined by
-    a function f which is homotopic to the identity is
-    "surjective". It is later used to show that the maponpaths defined
-    by a function which is a weak equivalence is itself a weak
-    equivalence. *)
+(* ### *)
+
+(** Note that the type of the assumption h below can equivalently be written as
+[ homot f ( idfun X ) ] *)
 
 Definition maponpathshomidinv {X : UU} (f : X -> X)
            (h : Π x : X, f x = x) (x x' : X) (e : f x = f x') :
@@ -507,8 +548,11 @@ Proof.
   apply (l _ _ _ _ _ (h x) e (h x')).
 Defined.
 
-(** Here we consider the behavior of maponpaths in the case of a
-    projection [ p ] with a section [ s ]. *)
+
+(** *** [ maponpaths ] in the case of a projection p with a section s *)
+
+(** Note that the type of the assumption eps below can equivalently be written as
+[ homot ( funcomp s p ) ( idfun X ) ] *)
 
 Definition pathssec1 {X Y : UU} (s : X -> Y) (p : Y -> X)
            (eps : Π (x : X) , p (s x) = x)
@@ -548,17 +592,9 @@ Proof.
   apply pathssec2id.
 Defined.
 
-(* useful with apply, to save typing *)
-Lemma map_on_two_paths {X Y Z : UU} (f : X -> Y -> Z) {x x' y y'} :
-  x = x' -> y = y' -> f x y = f x' y'.
-Proof.
-  intros ? ? ? ? ? ? ? ? r s. induction r. induction s. reflexivity.
-Defined.
-
-(* end of "Operations on [ paths ]". *)
 
 
-(** ** Fibrations and paths including the transport functions *)
+(** *** Fibrations and paths - the transport functions *)
 
 Definition tppr {T : UU} {P : T -> UU}
            (x : total2 P) : x = tpair _ (pr1 x) (pr2 x).
@@ -652,7 +688,8 @@ Proof.
   intros. exact (transport_map (P:= λ _,unit) (λ x _,f x) e tt).
 Defined.
 
-(** A series of lemmas about paths and sigma types.
+(** *** A series of lemmas about paths and [ total2 ]
+
     Some lemmas are adapted from the HoTT library http://github.com/HoTT/HoTT *)
 
 Lemma base_paths {A : UU} {B : A -> UU}
@@ -744,9 +781,7 @@ Proof.
 Defined.
 
 
-(** Lemmas about transport
-    Adapted from the HoTT library and the HoTT book
- *)
+(** *** Lemmas about transport adapted from the HoTT library and the HoTT book *)
 
 Definition transportD {A : UU} (B : A -> UU) (C : Π a : A, B a -> UU)
            {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C x1 y) :
@@ -801,27 +836,9 @@ Proof.
   intros. induction p. simpl. apply pathsinv0. apply pathscomp0rid.
 Defined.
 
-(** ** First homotopy notions *)
 
-(** *** Homotopy between functions *)
 
-Definition homot {X : UU} {P : X -> UU} (f g : Π x : X, P x) :=
-  Π x : X , f x = g x.
-
-Notation "f ~ g" := (homot f g) (at level 70, no associativity).
-
-Definition homotcomp {X Y : UU} {f f' f'' : X -> Y}
-           (h : f ~ f') (h' : f' ~ f'') : f ~ f'' := fun (x : X) => h x @ h' x.
-
-Definition invhomot {X Y : UU} {f f' : X -> Y}
-           (h : f ~ f') : f' ~ f := fun (x : X) => !(h x).
-
-Definition funhomot {X Y Z : UU} (f : X -> Y) {g g' : Y -> Z}
-           (h : g ~ g') : (g ∘ f) ~ (g' ∘ f) := fun (x : X) => h (f x).
-
-Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
-           (g : Y -> Z) : (g ∘ f) ~ (g ∘ f') := fun (x : X) => maponpaths g (h x).
-
+(** ** First fundamental notions *)
 
 (** *** Contractibility *)
 
@@ -860,6 +877,89 @@ Proof.
   intros A B isc a p.
   set (Hi := tpair _ a p).
   apply (maponpaths pr1 (pr2 isc Hi)).
+Defined.
+
+
+(** *** Homotopy fibers. *)
+
+Definition hfiber {X Y : UU}  (f : X -> Y) (y : Y) : UU := Σ x:X, f x = y.
+
+Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
+           (x : X) (e : f x = y) : hfiber f y :=
+  tpair _ x e.
+
+Definition hfiberpr1 {X Y : UU} (f : X -> Y) (y : Y) : hfiber f y -> X := pr1.
+
+
+(** *** The functions between the hfibers of homotopic functions over the same point *)
+
+Lemma hfibershomotftog {X Y : UU} (f g : X -> Y)
+      (h : f ~ g) (y : Y) : hfiber f y -> hfiber g y.
+Proof.
+  intros X Y f g h y xe.
+  induction xe as [x e].
+  split with x.
+  apply (!(h x) @ e).
+Defined.
+
+Lemma hfibershomotgtof {X Y : UU} (f g : X -> Y)
+      (h : f ~ g) (y : Y) : hfiber g y -> hfiber f y.
+Proof.
+  intros X Y f g h y xe.
+  induction xe as [x e].
+  split with x.
+  apply (h x @ e).
+Defined.
+
+(** *** Paths in homotopy fibers. *)
+
+Lemma hfibertriangle1 {X Y : UU} (f : X -> Y) {y : Y} {xe1 xe2 : hfiber f y}
+      (e : xe1 = xe2) :
+  pr2 xe1 = maponpaths f (maponpaths pr1 e) @ pr2 xe2.
+Proof.
+  intros. induction e. simpl. apply idpath.
+Defined.
+
+Corollary hfibertriangle1' {X Y : UU} (f : X -> Y) {x : X} {xe1: hfiber f (f x)}
+          (e : xe1 = (x,,idpath (f x))) :
+  pr2 xe1 = maponpaths f (maponpaths pr1 e).
+Proof.
+  intros.
+  intermediate_path (maponpaths f (maponpaths pr1 e) @ idpath (f x)).
+  - apply hfibertriangle1.
+  - apply pathscomp0rid.
+Defined.
+
+Lemma hfibertriangle1inv0 {X Y : UU} (f : X -> Y) {y : Y} {xe1 xe2: hfiber f y}
+      (e : xe1 = xe2) :
+  maponpaths f (! (maponpaths pr1 e)) @ (pr2 xe1) = pr2 xe2.
+Proof.
+  intros. induction e. apply idpath.
+Defined.
+
+Corollary hfibertriangle1inv0' {X Y : UU} (f : X -> Y) {x : X}
+          {xe2: hfiber f (f x)} (e : (x,,idpath (f x)) = xe2) :
+  maponpaths f (! (maponpaths pr1 e)) = pr2 xe2.
+Proof.
+  intros.
+  intermediate_path (maponpaths f (! (maponpaths pr1 e)) @ idpath (f x)).
+  - apply pathsinv0, pathscomp0rid.
+  - apply hfibertriangle1inv0.
+Defined.
+
+Lemma hfibertriangle2 {X Y : UU} (f : X -> Y) {y : Y} (xe1 xe2: hfiber f y)
+      (ee: pr1 xe1 = pr1 xe2) (eee: pr2 xe1 = maponpaths f ee @ (pr2 xe2)) :
+  xe1 = xe2.
+Proof.
+  intros.
+  induction xe1 as [t e1].
+  induction xe2 as [t' e2].
+  simpl in *.
+  fold (hfiberpair f t e1).
+  fold (hfiberpair f t' e2).
+  induction ee.
+  simpl in eee.
+  apply (maponpaths (fun e: f t = y => hfiberpair f t e) eee).
 Defined.
 
 
@@ -935,86 +1035,6 @@ Definition deltap (T : UU) : T -> pathsspace T :=
 
 Definition pathsspace' (T : UU) := Σ xy : dirprod T T, pr1 xy = pr2 xy.
 
-(** *** Homotopy fibers. *)
-
-Definition hfiber {X Y : UU}  (f : X -> Y) (y : Y) : UU := Σ x:X, f x = y.
-
-Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
-           (x : X) (e : f x = y) : hfiber f y :=
-  tpair _ x e.
-
-Definition hfiberpr1 {X Y : UU} (f : X -> Y) (y : Y) : hfiber f y -> X := pr1.
-
-(** *** The functions between the hfibers of homotopic functions over the same point *)
-
-Lemma hfibershomotftog {X Y : UU} (f g : X -> Y)
-      (h : f ~ g) (y : Y) : hfiber f y -> hfiber g y.
-Proof.
-  intros X Y f g h y xe.
-  induction xe as [x e].
-  split with x.
-  apply (!(h x) @ e).
-Defined.
-
-Lemma hfibershomotgtof {X Y : UU} (f g : X -> Y)
-      (h : f ~ g) (y : Y) : hfiber g y -> hfiber f y.
-Proof.
-  intros X Y f g h y xe.
-  induction xe as [x e].
-  split with x.
-  apply (h x @ e).
-Defined.
-
-(** *** Paths in homotopy fibers. *)
-
-Lemma hfibertriangle1 {X Y : UU} (f : X -> Y) {y : Y} {xe1 xe2 : hfiber f y}
-      (e : xe1 = xe2) :
-  pr2 xe1 = maponpaths f (maponpaths pr1 e) @ pr2 xe2.
-Proof.
-  intros. induction e. simpl. apply idpath.
-Defined.
-
-Corollary hfibertriangle1' {X Y : UU} (f : X -> Y) {x : X} {xe1: hfiber f (f x)}
-          (e : xe1 = (x,,idpath (f x))) :
-  pr2 xe1 = maponpaths f (maponpaths pr1 e).
-Proof.
-  intros.
-  intermediate_path (maponpaths f (maponpaths pr1 e) @ idpath (f x)).
-  - apply hfibertriangle1.
-  - apply pathscomp0rid.
-Defined.
-
-Lemma hfibertriangle1inv0 {X Y : UU} (f : X -> Y) {y : Y} {xe1 xe2: hfiber f y}
-      (e : xe1 = xe2) :
-  maponpaths f (! (maponpaths pr1 e)) @ (pr2 xe1) = pr2 xe2.
-Proof.
-  intros. induction e. apply idpath.
-Defined.
-
-Corollary hfibertriangle1inv0' {X Y : UU} (f : X -> Y) {x : X}
-          {xe2: hfiber f (f x)} (e : (x,,idpath (f x)) = xe2) :
-  maponpaths f (! (maponpaths pr1 e)) = pr2 xe2.
-Proof.
-  intros.
-  intermediate_path (maponpaths f (! (maponpaths pr1 e)) @ idpath (f x)).
-  - apply pathsinv0, pathscomp0rid.
-  - apply hfibertriangle1inv0.
-Defined.
-
-Lemma hfibertriangle2 {X Y : UU} (f : X -> Y) {y : Y} (xe1 xe2: hfiber f y)
-      (ee: pr1 xe1 = pr1 xe2) (eee: pr2 xe1 = maponpaths f ee @ (pr2 xe2)) :
-  xe1 = xe2.
-Proof.
-  intros.
-  induction xe1 as [t e1].
-  induction xe2 as [t' e2].
-  simpl in *.
-  fold (hfiberpair f t e1).
-  fold (hfiberpair f t' e2).
-  induction ee.
-  simpl in eee.
-  apply (maponpaths (fun e: f t = y => hfiberpair f t e) eee).
-Defined.
 
 (** *** Coconus of a function: the total space of the family of h-fibers *)
 
@@ -1193,7 +1213,7 @@ Definition pathsweq4 {X Y : UU} (w : weq X Y) (x x' : X)
            (e : w x = w x') : maponpaths w (invmaponpathsweq w x x' e) = e.
 Proof.
   intros.
-  destruct w as [f is1].
+  induction w as [f is1].
   set (w := weqpair f is1).
   set (g := invmap w).
   set (ee := maponpaths g e).
@@ -1367,7 +1387,7 @@ Defined.
 Lemma isweqcontrtounit {T : UU} (is : iscontr T) : isweq (fun (t : T) => tt).
 Proof.
   intros. unfold isweq. intro y. induction y.
-  destruct is as [c h].
+  induction is as [c h].
   set (hc := hfiberpair _ c (isconnectedunit tt tt)).
   split with hc.
   intros ha.
@@ -1399,7 +1419,7 @@ Lemma constr2 {X Y : UU} (f : X -> Y) (g : Y -> X)
   Σ xe' : hfiber (g ∘ f) x0, xe = hfibersgftog f g x0 xe'.
 Proof.
   intros.
-  destruct xe as [y0 e].
+  induction xe as [y0 e].
   set (eint := pathssec1 _ _ efg _ _ e).
   set (ee := ! (maponpaths g eint) @ e).
   split with (hfiberpair (g ∘ f) x0 ee).
