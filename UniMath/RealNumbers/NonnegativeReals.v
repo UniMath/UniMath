@@ -69,7 +69,7 @@ Proof.
   now apply pr2.
 Qed.
 
-Lemma isaprop_Dcuts_hsubtypes (X : hsubtype NonnegativeRationals) :
+Lemma isaprop_Dcuts_hsubtype (X : hsubtype NonnegativeRationals) :
   isaprop (Dcuts_def_bot X × Dcuts_def_open X × Dcuts_def_error X).
 Proof.
   intro X.
@@ -79,12 +79,12 @@ Proof.
   - exact (isaprop_Dcuts_def_error X).
 Qed.
 
-Definition Dcuts_hsubtypes : hsubtype (hsubtype NonnegativeRationals) :=
-  fun X : hsubtype NonnegativeRationals => hProppair _ (isaprop_Dcuts_hsubtypes X).
-Lemma isaset_Dcuts : isaset (carrier Dcuts_hsubtypes).
+Definition Dcuts_hsubtype : hsubtype (hsubtype NonnegativeRationals) :=
+  fun X : hsubtype NonnegativeRationals => hProppair _ (isaprop_Dcuts_hsubtype X).
+Lemma isaset_Dcuts : isaset (carrier Dcuts_hsubtype).
 Proof.
   apply isasetsubset with pr1.
-  apply isasethsubtypes.
+  apply isasethsubtype.
   apply isinclpr1.
   intro x.
   apply pr2.
@@ -4495,9 +4495,9 @@ Definition divNonnegativeReals (x y : NonnegativeReals) (Hy0 : y ≠ 0) : Nonneg
 
 (** ** Special functions *)
 
-Definition NonnegativeReals_to_hsubtypesNonnegativeRationals :
+Definition NonnegativeReals_to_hsubtypeNonnegativeRationals :
   NonnegativeReals → (hsubtype NonnegativeRationals) := pr1.
-Definition hsubtypesNonnegativeRationals_to_NonnegativeReals
+Definition hsubtypeNonnegativeRationals_to_NonnegativeReals
   (X : NonnegativeRationals -> hProp)
   (Xbot : Π x : NonnegativeRationals,
             X x -> Π y : NonnegativeRationals, (y <= x)%NRat -> X y)

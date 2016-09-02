@@ -169,7 +169,7 @@ Proof . intros .  unfold ischoicebase .  intros P fs .  apply ( hinhfun ( invweq
 (** *** Genneral definitions *)
 
 Definition hsubtype ( X : UU ) :=  X -> hProp .
-Identity Coercion id_hsubtypes :  hsubtype >-> Funclass .
+Identity Coercion id_hsubtype :  hsubtype >-> Funclass .
 Definition carrier { X : UU } ( A : hsubtype X ) := total2 A.
 Coercion carrier : hsubtype >-> Sortclass.
 Definition carrierpair { X : UU } ( A : hsubtype X ) := tpair A.
@@ -178,7 +178,7 @@ Definition pr1carrier { X:UU } ( A : hsubtype X ) := @pr1 _ _  : carrier A -> X 
 Lemma isinclpr1carrier { X : UU } ( A : hsubtype X ) : isincl ( @pr1carrier X A ) .
 Proof . intros . apply ( isinclpr1 A ( fun x : _ => pr2 ( A x ) ) ) . Defined .
 
-Lemma isasethsubtypes (X : UU) : isaset (hsubtype X).
+Lemma isasethsubtype (X : UU) : isaset (hsubtype X).
 Proof.
 intro X.
 change (isofhlevel 2 (hsubtype X)).
@@ -200,9 +200,9 @@ Proof.
   - apply propproperty.
 Defined.
 
-Definition DecidableSubtype_to_hsubtypes {X} (P:DecidableSubtype X) : hsubtype X
+Definition DecidableSubtype_to_hsubtype {X} (P:DecidableSubtype X) : hsubtype X
   := λ x, DecidableProposition_to_hProp(P x).
-Coercion DecidableSubtype_to_hsubtypes : DecidableSubtype >-> hsubtype.
+Coercion DecidableSubtype_to_hsubtype : DecidableSubtype >-> hsubtype.
 
 (** *** Direct product of two subtypes *)
 
@@ -220,7 +220,7 @@ assert ( egf : Π a : _ , paths ( g ( f a ) ) a ) . intro a . destruct a as [ xy
 assert ( efg : Π a : _ , paths ( f ( g a ) ) a ) . intro a . destruct a as [ xis yis ] . destruct xis as [ x isx ] . destruct yis as [ y isy ] . apply idpath .
 apply ( gradth _ _ egf efg ) . Defined .
 
-Lemma ishinhsubtypesdirprod  { X Y : UU } ( A : hsubtype X ) ( B : hsubtype Y ) ( isa : ishinh A ) ( isb : ishinh B ) : ishinh ( subtypesdirprod A B ) .
+Lemma ishinhsubtypedirprod  { X Y : UU } ( A : hsubtype X ) ( B : hsubtype Y ) ( isa : ishinh A ) ( isb : ishinh B ) : ishinh ( subtypesdirprod A B ) .
 Proof . intros . apply ( hinhfun ( invweq ( weqsubtypesdirprod A B ) ) ) .  apply hinhand .  apply isa . apply isb . Defined .
 
 
@@ -811,7 +811,7 @@ Defined.
 
 Lemma iseqclassdirprod { X Y : UU } { R : hrel X } { Q : hrel Y } { A : hsubtype X } { B : hsubtype Y } ( isa : iseqclass R A ) ( isb : iseqclass Q B ) : iseqclass ( hreldirprod R Q ) ( subtypesdirprod A B ) .
 Proof . intros . set ( XY := dirprod X Y ) . set ( AB := subtypesdirprod A B ) . set ( RQ := hreldirprod R Q ) .
-set ( ax0 := ishinhsubtypesdirprod  A B ( eqax0 isa ) ( eqax0 isb ) ) .
+set ( ax0 := ishinhsubtypedirprod  A B ( eqax0 isa ) ( eqax0 isb ) ) .
 assert ( ax1 : Π xy1 xy2 : XY , RQ xy1 xy2 -> AB xy1 -> AB xy2 ) . intros xy1 xy2 rq ab1 . apply ( dirprodpair ( eqax1 isa _ _ ( pr1 rq ) ( pr1 ab1 ) ) ( eqax1 isb _ _ ( pr2 rq ) ( pr2 ab1 ) ) ) .
 assert ( ax2 : Π xy1 xy2 : XY ,  AB xy1 -> AB xy2 -> RQ xy1 xy2 ) . intros xy1 xy2 ab1 ab2 . apply ( dirprodpair ( eqax2 isa _ _ ( pr1 ab1 ) ( pr1 ab2 ) ) ( eqax2 isb _ _ ( pr2 ab1 ) ( pr2 ab2 ) ) ) .
 apply ( iseqclassconstr _ ax0 ax1 ax2 ) . Defined .
@@ -861,7 +861,7 @@ Coercion setquottouu0 : setquot >-> Sortclass.
 Theorem isasetsetquot {X : UU} (R : hrel X) : isaset (setquot R).
 Proof.
 intros X R.
-apply (isasetsubset (@pr1 _ _) (isasethsubtypes X)).
+apply (isasetsubset (@pr1 _ _) (isasethsubtype X)).
 apply isinclpr1; intro x.
 now apply isapropiseqclass.
 Defined.
