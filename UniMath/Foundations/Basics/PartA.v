@@ -5,13 +5,19 @@ Feb. 2010 - Sep. 2011.
 
 
 This file is based on the first part of the original uu0 file.
-It was created as a separate file on Dec. 3, 2014.
 
-It contains those results from the the basis of the univalent
-approach that do not require the use of any axioms.
+The uu0 file contained the basic results of the univalent foundations
+that required the use of only one universe.
 
-Edited by Benedikt Ahrens 2014-2016, Dan Grayson 2014-2016, Vladimir Voevodsky 2014 - 2016,
-Alex Kavvos 2014, Peter LeFanu Lumsdaine 2016 and Tomi Pannila 2016. *)
+Part A was created as a separate file on Dec. 3, 2014.
+
+It contains those results that in addition to using only one universe
+do not require the use of any axioms.
+
+It was edited and expanded by Benedikt Ahrens 2014-2016, Dan Grayson 2014-2016,
+Vladimir Voevodsky 2014-2016, Alex Kavvos 2014, Peter LeFanu Lumsdaine 2016 and
+Tomi Pannila 2016.
+*)
 
 (** ** Contents
 - Preamble
@@ -41,17 +47,16 @@ Alex Kavvos 2014, Peter LeFanu Lumsdaine 2016 and Tomi Pannila 2016. *)
  - Lemmas about transport adapted from the HoTT library and the HoTT book
 
 - First fundamental notions
- - Contractibility
- - Homotopy fibers
+ - Contractibility [ iscontr ]
+ - Homotopy fibers [ hfiber ]
  - The functions between the hfibers of homotopic functions over the same point
  - Paths in homotopy fibers
  - Coconuses: spaces of paths that begin (coconusfromt) or end (coconustot) at a given point
  - The total paths space of a type - two definitions
  - Coconus of a function: the total space of the family of h-fibers
- - Homotopies between families and the total spaces
 
 - Weak equivalences
- - Basics
+ - Basics - [ isweq ] and [ weq ]
  - Weak equivalences and paths spaces (more results in further sections)
  - Adjointness property of a weak equivalence and its inverse
  - Transport functions are weak equivalences
@@ -85,9 +90,9 @@ Alex Kavvos 2014, Peter LeFanu Lumsdaine 2016 and Tomi Pannila 2016. *)
  - The structures of a complex and of a fibration sequence on a composable pair of functions
  - Construction of the derived fibration sequence
  - Explicit description of the first map in the second derived sequence
- - Fibration sequences based on [ tpair P z , pr1 ] ( the "pr1-case" )
- - Fibration sequences based on [ hfiberpr1 , g ] ( the "g-case" )
- - fibration sequence of h-fibers defined by a composable pair of functions (the "hf-case")
+ - Fibration sequences based on [ tpair P z ] and [ pr1 : total2 P -> Z ] ( the "pr1-case" )
+ - Fibration sequences based on [ hfiberpr1 : hfiber g z -> Y ] and [ g : Y -> Z ] (the "g-case")
+ - Fibration sequence of h-fibers defined by a composable pair of functions (the "hf-case")
 
 - Functions between total spaces of families
  - Function [ totalfun ] between total spaces from a family of functions between the fibers
@@ -840,7 +845,7 @@ Defined.
 
 (** ** First fundamental notions *)
 
-(** *** Contractibility *)
+(** *** Contractibility [ iscontr ] *)
 
 Definition iscontr (T:UU) : UU := Σ cntr:T, Π t:T, t=cntr.
 
@@ -880,7 +885,7 @@ Proof.
 Defined.
 
 
-(** *** Homotopy fibers. *)
+(** *** Homotopy fibers [ hfiber ] *)
 
 Definition hfiber {X Y : UU}  (f : X -> Y) (y : Y) : UU := Σ x:X, f x = y.
 
@@ -911,7 +916,7 @@ Proof.
   apply (h x @ e).
 Defined.
 
-(** *** Paths in homotopy fibers. *)
+(** *** Paths in homotopy fibers *)
 
 Lemma hfibertriangle1 {X Y : UU} (f : X -> Y) {y : Y} {xe1 xe2 : hfiber f y}
       (e : xe1 = xe2) :
@@ -963,8 +968,7 @@ Proof.
 Defined.
 
 
-(** *** Coconuses: spaces of paths that begin (coconusfromt) or end (coconustot)
-    at a given point *)
+(** *** Coconuses: spaces of paths that begin [ coconusfromt ] or end [ coconustot ] at a given point *)
 
 Definition coconusfromt (T : UU) (t : T) := Σ t' : T, t = t'.
 
@@ -1022,8 +1026,9 @@ Proof.
   apply connectedcoconusfromt.
 Defined.
 
-(** *** The total paths space of a type - two definitions that differ by the (non) associativity
-of the dependent sum Sigma *)
+(** *** The total paths space of a type - two definitions
+
+The definitions differ by the (non) associativity of the [ total2 ].  *)
 
 Definition pathsspace (T : UU) := Σ t:T, coconusfromt T t.
 
@@ -1069,34 +1074,10 @@ Proof.
   apply idpath.
 Defined.
 
-(** *** Homotopies between families and the total spaces *)
-
-Definition famhomotfun {X : UU} {P Q : X -> UU}
-           (h : P ~ Q) (xp : total2 P) : total2 Q.
-Proof.
-  intros.
-  induction xp as [ x p ].
-  split with x.
-  induction (h x).
-  apply p.
-Defined.
-
-Definition famhomothomothomot {X : UU} {P Q : X -> UU} (h1 h2 : P ~ Q)
-           (H : h1 ~ h2) : famhomotfun h1 ~ famhomotfun h2.
-Proof.
-  intros.
-  intro xp.
-  induction xp as [x p].
-  simpl.
-  apply (maponpaths (fun q => tpair Q x q)).
-  induction (H x).
-  apply idpath.
-Defined.
-
 
 (** ** Weak equivalences *)
 
-(** *** Basics *)
+(** *** Basics - [ isweq ] and [ weq ] *)
 
 Definition isweq {X Y : UU} (f : X -> Y) : UU :=
   Π y : Y, iscontr (hfiber f y).
@@ -1549,6 +1530,8 @@ Proof.
 Defined.
 
 (** *** Some weak equivalences *)
+
+(* ### *)
 
 Corollary isweqinvmap {X Y : UU} (w : weq X Y) : isweq (invmap w).
 Proof.
@@ -2534,8 +2517,7 @@ Proof. intros. apply (isweqinvmap (weqcoprodtoboolsum X Y)). Defined.
 Definition weqboolsumtocoprod (X Y : UU) := weqpair _ (isweqboolsumtocoprod X Y).
 
 
-(** *** Splitting of [ X ] into a coproduct defined by a function
-  [ X -> Y ⨿ Z ] *)
+(** *** Splitting of [ X ] into a coproduct defined by a function [ X -> Y ⨿ Z ] *)
 
 Definition weqcoprodsplit {X Y Z : UU} (f : X -> coprod Y Z) :
   X ≃ (Σ y : Y, hfiber f (ii1 y)) ⨿ (Σ z : Z, hfiber f (ii2 z)).
@@ -2582,7 +2564,7 @@ Proof.
 Defined.
 
 
-(** *** Fibrations with only one non-empty fiber.
+(** *** Fibrations with only one non-empty fiber
 
 Theorem saying that if a fibration has only one non-empty fiber then the total
 space is weakly equivalent to this fiber. *)
@@ -2650,7 +2632,7 @@ Defined.
 
 
 
-(** *** Fibrations sequences and their first "left shifts".
+(** *** Fibrations sequences and their first "left shifts"
 
 The group of constructions related to fibration sequences forms one of the most
 important computational toolboxes of homotopy theory.
@@ -2711,8 +2693,7 @@ functions [ (f : X -> Y) (g : Y -> Z) ] and any terms
 [ hfibergftog : hfiber (funcomp f g) z -> hfiber g z ] which are defined below.
  *)
 
-(** *** The structures of a complex and of a fibration sequence on
-a composable pair of functions *)
+(** *** The structures of a complex and of a fibration sequence on a composable pair of functions *)
 
 (** The structure of a complex on a composable pair of functions
   [ (f : X -> Y) (g : Y -> Z) ] relative to a term [ z : Z ]. *)
@@ -2831,8 +2812,7 @@ Definition fibseq2 {X Y Z : UU} (f : X -> Y) (g : Y->Z) (z : Z)
 
 
 
-(** *** Fibration sequences based on
-  [ (tpair P z : P z -> total2 P) (pr1 : total2 P -> Z) ] ( the "pr1-case" ) *)
+(** *** Fibration sequences based on [ tpair P z ] and [ pr1 : total2 P -> Z ] ( the "pr1-case" ) *)
 
 
 (** Construction of the fibration sequence. *)
@@ -2884,8 +2864,7 @@ Definition ezweq1pr1 {Z : UU} (P : Z -> UU) (z : Z) (zp : total2 P) :
 
 
 
-(** *** Fibration sequences based on
-  [ (hfiberpr1 : hfiber g z -> Y) (g : Y -> Z) ] (the "g-case"). *)
+(** *** Fibration sequences based on [ hfiberpr1 : hfiber g z -> Y ] and [ g : Y -> Z ] (the "g-case") *)
 
 
 Theorem isfibseqg {Y Z : UU} (g : Y -> Z) (z : Z) :
@@ -2958,12 +2937,12 @@ Definition fibseq3g {Y Z : UU} (g : Y -> Z) {z : Z} (y : Y) (ye' : hfiber g z)
 
 
 
-(** *** Fibration sequence of h-fibers defined by a composable pair of functions
-  (the "hf-case")
+(** *** Fibration sequence of h-fibers defined by a composable pair of functions (the "hf-case")
 
-  We construct a fibration sequence based on
-  [ (hfibersftogf f g z ye : hfiber f (pr1 ye) -> hfiber gf z)
-    (hfibersgftog f g z : hfiber gf z -> hfiber g z) ]. *)
+  We construct a fibration sequence based on [ hfibersftogf f g z ye : hfiber f (pr1 ye) -> hfiber gf z) ]
+  and [ hfibersgftog f g z : hfiber gf z -> hfiber g z) ].
+
+*)
 
 
 

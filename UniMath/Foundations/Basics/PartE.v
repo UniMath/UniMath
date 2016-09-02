@@ -15,7 +15,21 @@ This part of the Univalent Basics starts introducing concepts requiring more tha
 universes.
 
 The analysis of how a particular system of universe management would affect UniMath should
-strart with this file. *)
+start with this file. *)
+
+(** ** Preamble *)
+
+(** *** Settings *)
+
+Unset Automatic Introduction.
+(* The above line has to be removed for the file to compile with Coq8.2 *)
+
+
+(** *** Imports *)
+
+Require Export UniMath.Foundations.Basics.PartB.
+
+(* end of "Preamble" *)
 
 (** *** Homotopies between families and the total spaces *)
 
