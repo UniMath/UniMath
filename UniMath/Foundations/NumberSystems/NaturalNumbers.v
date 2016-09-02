@@ -1339,7 +1339,7 @@ Close Scope rig_scope .
 
 (** *** Submonoid of non-zero elements in [ nat ] *)
 
-Definition natnonzero : subabmonoid natmultabmonoid .
+Definition natnonzero : @subabmonoids natmultabmonoid .
 Proof . split with ( λ a, a ≠ 0 ) .  unfold issubmonoid .  split .  unfold issubsetwithbinop . intros a a' .  apply ( natneq0andmult _ _ ( pr2 a ) ( pr2 a' ) ) . apply ( ct ( natneq , isdecrel_natneq, 1 , 0 ) ) . Defined .
 
 Lemma natnonzerocomm ( a b : natnonzero ) : ( @op natnonzero a b ) = ( @op natnonzero b a ) .

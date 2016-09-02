@@ -664,7 +664,7 @@ Proof . intros . apply ( intdomrcan hq _ _ _ ne e ) . Defined .
 
 (** *** Positive rationals *)
 
-Definition hqpos : subabmonoid hqmultabmonoid .
+Definition hqpos : @subabmonoids hqmultabmonoid .
 Proof . split with ( fun x => hqgth x 0 ) . split .  intros x1 x2 . apply ( isrngmulthqgth ) . apply ( pr2 x1 ) .  apply ( pr2 x2 ) .  apply ( ct ( hqgth , isdecrelhqgth , 1 , 0 ) ) . Defined .
 
 
