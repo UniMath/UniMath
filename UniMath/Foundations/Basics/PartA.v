@@ -9,12 +9,19 @@ This file is based on the first part of the original uu0 file.
 The uu0 file contained the basic results of the univalent foundations
 that required the use of only one universe.
 
+Eventually the requirement concerning one universe was removed because of the
+general uncertainty in what does it mean for a construction to require only one universe.
+For example, [ boolsumfun ], when written in terms of the eliminatior [ bool_rect ]
+instead of the  [ match ], requires application of [ bool_rect ] to an argument that is
+not a member of the base universe [ UU ]. This would be different if the universe management
+in Coq was constructed differently. Due to this uncertainty we do not consider any more the
+single universe requirement as a defining one when selecting results for the inclusion in Basics.
+
 Part A was created as a separate file on Dec. 3, 2014.
 
-It contains those results that in addition to using only one universe
-do not require the use of any axioms.
+Together with Part B it contains those results that do not require any axioms.
 
-It was edited and expanded by Benedikt Ahrens 2014-2016, Dan Grayson 2014-2016,
+This file was edited and expanded by Benedikt Ahrens 2014-2016, Dan Grayson 2014-2016,
 Vladimir Voevodsky 2014-2016, Alex Kavvos 2014, Peter LeFanu Lumsdaine 2016 and
 Tomi Pannila 2016.
 *)
@@ -45,6 +52,7 @@ Tomi Pannila 2016.
  - Fibrations and paths - the transport functions
  - A series of lemmas about paths and [ total2 ]
  - Lemmas about transport adapted from the HoTT library and the HoTT book
+ - Homotopies between families and the total spaces
 
 - First fundamental notions
  - Contractibility [ iscontr ]
@@ -81,7 +89,7 @@ Tomi Pannila 2016.
  - Coproduct of two functions
  - The [ equality_cases ] construction and four applications to [ ii1 ] and [ ii2 ]
  - Bool as coproduct
- - Pairwise coproducts as dependent sums of families over bool
+ - Pairwise coproducts as dependent sums of families over [ bool ]
  - Splitting of [ X ] into a coproduct defined by a function [ X -> Y ⨿ Z ]
  - Some properties of bool
  - Fibrations with only one non-empty fiber
@@ -500,29 +508,6 @@ a function f which is homotopic to the identity is
 by a function which is a weak equivalence is itself a weak
 equivalence. *)
 
-
-(* ### *)
-
-Definition maponpaths_naturality {X Y : UU} {f : X -> Y}
-           {x x' x'' : X} {p : x = x'} {q : x' = x''}
-           {p': f x = f x'} {q': f x' = f x''}
-           (r : maponpaths f p = p') (s : maponpaths f q = q') :
-  maponpaths f (p @ q) = p' @ q'.
-Proof.
-  intros. induction r, s. apply maponpathscomp0.
-Defined.
-
-Definition maponpaths_naturality' {X Y : UU} {f : X -> Y}
-           {x x' x'' : X} {p : x' = x} {q : x' = x''}
-           {p' : f x' = f x} {q' : f x' = f x''}
-           (r : maponpaths f p = p') (s : maponpaths f q = q') :
-  maponpaths f (!p @ q) = (!p') @ q'.
-Proof.
-  intros. induction r, s, p, q. reflexivity.
-Defined.
-
-(* ### *)
-
 (** Note that the type of the assumption h below can equivalently be written as
 [ homot f ( idfun X ) ] *)
 
@@ -841,6 +826,30 @@ Proof.
   intros. induction p. simpl. apply pathsinv0. apply pathscomp0rid.
 Defined.
 
+
+(** *** Homotopies between families and the total spaces *)
+
+Definition famhomotfun {X : UU} {P Q : X -> UU}
+           (h : P ~ Q) (xp : total2 P) : total2 Q.
+Proof.
+  intros.
+  induction xp as [ x p ].
+  split with x.
+  induction (h x).
+  apply p.
+Defined.
+
+Definition famhomothomothomot {X : UU} {P Q : X -> UU} (h1 h2 : P ~ Q)
+           (H : h1 ~ h2) : famhomotfun h1 ~ famhomotfun h2.
+Proof.
+  intros.
+  intro xp.
+  induction xp as [x p].
+  simpl.
+  apply (maponpaths (fun q => tpair Q x q)).
+  induction (H x).
+  apply idpath.
+Defined.
 
 
 (** ** First fundamental notions *)
