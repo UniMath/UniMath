@@ -597,7 +597,7 @@ Definition is_in_img_functor {C D : precategory_data} (F : functor C D)
   total2 (fun c : ob C => iso (F c) d)).
 
 Definition sub_img_functor {C D : precategory_data}(F : functor C D) :
-    subtype (ob D) :=
+    hsubtypes (ob D) :=
        fun d : ob D => is_in_img_functor F d.
 
 

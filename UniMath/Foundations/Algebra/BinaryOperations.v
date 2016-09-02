@@ -618,16 +618,16 @@ Definition isabgropisob { X Y : setwithbinop } ( f : binopiso X Y ) ( is : isabg
 
 (** **** Subobjects *)
 
-Definition issubsetwithbinop { X : hSet } ( opp : binop X ) ( A : subtype X ) := forall a a' : A , A ( opp ( pr1 a ) ( pr1 a' ) ) .
+Definition issubsetwithbinop { X : hSet } ( opp : binop X ) ( A : hsubtypes X ) := forall a a' : A , A ( opp ( pr1 a ) ( pr1 a' ) ) .
 
-Lemma isapropissubsetwithbinop { X : hSet } ( opp : binop X ) ( A : subtype X ) : isaprop ( issubsetwithbinop opp A ) .
+Lemma isapropissubsetwithbinop { X : hSet } ( opp : binop X ) ( A : hsubtypes X ) : isaprop ( issubsetwithbinop opp A ) .
 Proof .  intros .  apply impred .  intro a . apply impred . intros a' . apply ( pr2 ( A ( opp (pr1 a) (pr1 a')) ) ) . Defined .
 
-Definition subsetwithbinop ( X : setwithbinop ) := Σ A : subtype X, issubsetwithbinop ( @op X ) A.
-Definition subsetwithbinoppair { X : setwithbinop } := tpair ( fun A : subtype X => issubsetwithbinop ( @op X ) A ) .
+Definition subsetwithbinop ( X : setwithbinop ) := Σ A : hsubtypes X, issubsetwithbinop ( @op X ) A.
+Definition subsetwithbinoppair { X : setwithbinop } := tpair ( fun A : hsubtypes X => issubsetwithbinop ( @op X ) A ) .
 Definition subsetwithbinopconstr { X : setwithbinop } := @subsetwithbinoppair X .
-Definition pr1subsetwithbinop ( X : setwithbinop ) : subsetwithbinop X -> subtype X := @pr1 _ ( fun A : subtype X => issubsetwithbinop ( @op X ) A ) .
-Coercion pr1subsetwithbinop : subsetwithbinop >-> subtype .
+Definition pr1subsetwithbinop ( X : setwithbinop ) : subsetwithbinop X -> hsubtypes X := @pr1 _ ( fun A : hsubtypes X => issubsetwithbinop ( @op X ) A ) .
+Coercion pr1subsetwithbinop : subsetwithbinop >-> hsubtypes .
 
 Definition totalsubsetwithbinop ( X : setwithbinop ) : subsetwithbinop X .
 Proof . intros .  split with ( fun x : X => htrue ) . intros x x' .  apply tt . Defined .
@@ -680,15 +680,15 @@ Proof . intros . split with ( setquotinset R )  .  set ( qt  := setquot R ) . se
 assert ( iscomp : iscomprelrelfun2 R R op ) . apply ( iscompbinoptransrel R ( eqreltrans R ) ( pr2 R ) ) .
 set ( qtmlt := setquotfun2 R R op iscomp ) .   simpl . unfold binop . apply qtmlt . Defined .
 
-Definition ispartbinophrel { X : setwithbinop } ( S : subtype X ) ( R : hrel X ) := dirprod ( forall a b c : X , S c -> R a b -> R ( op c a ) ( op c b ) ) ( forall a b c : X , S c -> R a b -> R ( op a c ) ( op b c ) ) .
+Definition ispartbinophrel { X : setwithbinop } ( S : hsubtypes X ) ( R : hrel X ) := dirprod ( forall a b c : X , S c -> R a b -> R ( op c a ) ( op c b ) ) ( forall a b c : X , S c -> R a b -> R ( op a c ) ( op b c ) ) .
 
-Definition isbinoptoispartbinop { X : setwithbinop } ( S : subtype X ) ( L : hrel X ) ( is : isbinophrel L ) : ispartbinophrel S L .
+Definition isbinoptoispartbinop { X : setwithbinop } ( S : hsubtypes X ) ( L : hrel X ) ( is : isbinophrel L ) : ispartbinophrel S L .
 Proof . intros X S L .  unfold isbinophrel . unfold ispartbinophrel . intro d2 .  split .  intros a b c is .  apply ( pr1 d2 a b c ) . intros a b c is . apply ( pr2 d2 a b c ) . Defined .
 
-Definition ispartbinophrellogeqf { X : setwithbinop } ( S : subtype X ) { L R : hrel X } ( lg : hrellogeq L R ) ( isl : ispartbinophrel S L ) : ispartbinophrel S R .
+Definition ispartbinophrellogeqf { X : setwithbinop } ( S : hsubtypes X ) { L R : hrel X } ( lg : hrellogeq L R ) ( isl : ispartbinophrel S L ) : ispartbinophrel S R .
 Proof . intros . split . intros a b c is rab .  apply ( ( pr1 ( lg _ _ ) ( ( pr1 isl ) _ _ _ is ( pr2 ( lg _ _ ) rab ) ) ) ) . intros a b c is rab .  apply ( ( pr1 ( lg _ _ ) ( ( pr2 isl ) _ _ _ is ( pr2 ( lg  _ _ ) rab ) ) ) ) . Defined .
 
-Lemma ispartbinophrelif { X : setwithbinop } ( S : subtype X ) ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : Π a b c : X , S c -> R a b -> R ( op c a ) ( op c b ) ) : ispartbinophrel S R .
+Lemma ispartbinophrelif { X : setwithbinop } ( S : hsubtypes X ) ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : Π a b c : X , S c -> R a b -> R ( op c a ) ( op c b ) ) : ispartbinophrel S R .
 Proof . intros .  split with isl .  intros a b c s rab .  destruct ( is c a ) . destruct ( is c b ) . apply ( isl _ _ _ s rab ) . Defined .
 
 (** **** Relations inversely compatible with a binary operation *)
@@ -704,15 +704,15 @@ Proof . intros . apply isapropdirprod . apply impred . intro a . apply impred . 
 Lemma isinvbinophrelif { X : setwithbinop } ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : Π a b c : X ,  R ( op c a ) ( op c b ) -> R a b ) : isinvbinophrel R .
 Proof . intros . split with isl .  intros a b c rab .  destruct ( is c a ) . destruct ( is c b ) . apply ( isl _ _ _ rab ) . Defined .
 
-Definition ispartinvbinophrel { X : setwithbinop } ( S : subtype X ) ( R : hrel X ) := dirprod ( Π a b c : X , S c -> R ( op c a ) ( op c b ) -> R a b ) ( Π  a b c : X  , S c -> R ( op a c ) ( op b c ) -> R a b ) .
+Definition ispartinvbinophrel { X : setwithbinop } ( S : hsubtypes X ) ( R : hrel X ) := dirprod ( Π a b c : X , S c -> R ( op c a ) ( op c b ) -> R a b ) ( Π  a b c : X  , S c -> R ( op a c ) ( op b c ) -> R a b ) .
 
-Definition isinvbinoptoispartinvbinop { X : setwithbinop } ( S : subtype X ) ( L : hrel X ) ( is : isinvbinophrel L ) : ispartinvbinophrel S L .
+Definition isinvbinoptoispartinvbinop { X : setwithbinop } ( S : hsubtypes X ) ( L : hrel X ) ( is : isinvbinophrel L ) : ispartinvbinophrel S L .
 Proof . intros X S L .  unfold isinvbinophrel . unfold ispartinvbinophrel . intro d2 .  split .  intros a b c s .  apply ( pr1 d2 a b c ) . intros a b c s . apply ( pr2 d2 a b c ) . Defined .
 
-Definition ispartinvbinophrellogeqf { X : setwithbinop } ( S : subtype X ) { L R : hrel X } ( lg : hrellogeq L R ) ( isl : ispartinvbinophrel S L ) : ispartinvbinophrel S R .
+Definition ispartinvbinophrellogeqf { X : setwithbinop } ( S : hsubtypes X ) { L R : hrel X } ( lg : hrellogeq L R ) ( isl : ispartinvbinophrel S L ) : ispartinvbinophrel S R .
 Proof . intros . split . intros a b c s rab . apply ( ( pr1 ( lg _ _ ) ( ( pr1 isl ) _ _ _ s ( pr2 ( lg  _ _ ) rab ) ) ) ) . intros a b c s rab .  apply ( ( pr1 ( lg _ _ ) ( ( pr2 isl ) _ _ _ s ( pr2 ( lg  _ _ ) rab ) ) ) ) . Defined .
 
-Lemma ispartinvbinophrelif { X : setwithbinop } ( S : subtype X ) ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : Π a b c : X , S c -> R ( op c a ) ( op c b ) -> R a b ) : ispartinvbinophrel S R .
+Lemma ispartinvbinophrelif { X : setwithbinop } ( S : hsubtypes X ) ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : Π a b c : X , S c -> R ( op c a ) ( op c b ) -> R a b ) : ispartinvbinophrel S R .
 Proof . intros .  split with isl .  intros a b c s rab .  destruct ( is c a ) . destruct ( is c b ) . apply ( isl _ _ _ s rab ) . Defined .
 
 
@@ -726,7 +726,7 @@ intros a b c r . rewrite ( ish _ _ ) .   rewrite ( ish _ _ ) .  apply ( pr1 is )
 intros a b c r . rewrite ( ish _ _ ) .   rewrite ( ish _ _ ) .  apply ( pr2 is ) . apply r . Defined .
 
 
-Lemma ispartbinophrelandfun { X Y : setwithbinop } ( f : binopfun X Y ) ( SX : subtype X ) ( SY : subtype Y ) ( iss : Π x : X , ( SX x ) -> ( SY ( f x ) ) ) ( R : hrel Y ) ( is : @ispartbinophrel Y SY R ) : @ispartbinophrel X SX ( fun x x' => R ( f x ) ( f x' ) ) .
+Lemma ispartbinophrelandfun { X Y : setwithbinop } ( f : binopfun X Y ) ( SX : hsubtypes X ) ( SY : hsubtypes Y ) ( iss : Π x : X , ( SX x ) -> ( SY ( f x ) ) ) ( R : hrel Y ) ( is : @ispartbinophrel Y SY R ) : @ispartbinophrel X SX ( fun x x' => R ( f x ) ( f x' ) ) .
 Proof . intros . set ( ish := ( pr2 f ) : Π a0 b0 , paths ( f ( op a0 b0 ) ) ( op ( f a0 ) ( f b0 ) ) ) . split .
 
 intros a b c s r . rewrite ( ish _ _ ) .   rewrite ( ish _ _ ) .  apply ( ( pr1 is ) _ _ _ ( iss _ s ) r ) .
@@ -741,7 +741,7 @@ intros a b c r . rewrite ( ish _ _ ) in r .   rewrite ( ish _ _ ) in r .  apply 
 intros a b c r . rewrite ( ish _ _ ) in r .   rewrite ( ish _ _ ) in r .  apply ( ( pr2 is ) _ _ _ r ) . Defined .
 
 
-Lemma ispartinvbinophrelandfun { X Y : setwithbinop } ( f : binopfun X Y ) ( SX : subtype X ) ( SY : subtype Y ) ( iss : Π x : X , ( SX x ) -> ( SY ( f x ) ) ) ( R : hrel Y ) ( is : @ispartinvbinophrel Y SY R ) : @ispartinvbinophrel X SX ( fun x x' => R ( f x ) ( f x' ) ) .
+Lemma ispartinvbinophrelandfun { X Y : setwithbinop } ( f : binopfun X Y ) ( SX : hsubtypes X ) ( SY : hsubtypes Y ) ( iss : Π x : X , ( SX x ) -> ( SY ( f x ) ) ) ( R : hrel Y ) ( is : @ispartinvbinophrel Y SY R ) : @ispartinvbinophrel X SX ( fun x x' => R ( f x ) ( f x' ) ) .
 Proof . intros .  set ( ish := ( pr2 f ) : Π a0 b0 , paths ( f ( op a0 b0 ) ) ( op ( f a0 ) ( f b0 ) ) ) . split .
 
 intros a b c s r . rewrite ( ish _ _ ) in r .   rewrite ( ish _ _ ) in r .  apply ( ( pr1 is ) _ _ _ ( iss _ s ) r ) .
@@ -914,17 +914,17 @@ Definition iscommrngopsisob { X Y : setwith2binop } ( f : twobinopiso X Y ) ( is
 
 (** **** Subobjects *)
 
-Definition issubsetwith2binop { X : setwith2binop } ( A : subtype X ) := dirprod ( Π a a' : A , A ( op1 ( pr1 a ) ( pr1 a' ) ) ) ( Π a a' : A , A ( op2 ( pr1 a ) ( pr1 a' ) ) ) .
+Definition issubsetwith2binop { X : setwith2binop } ( A : hsubtypes X ) := dirprod ( Π a a' : A , A ( op1 ( pr1 a ) ( pr1 a' ) ) ) ( Π a a' : A , A ( op2 ( pr1 a ) ( pr1 a' ) ) ) .
 
-Lemma isapropissubsetwith2binop { X : setwith2binop } ( A : subtype X ) : isaprop ( issubsetwith2binop A ) .
+Lemma isapropissubsetwith2binop { X : setwith2binop } ( A : hsubtypes X ) : isaprop ( issubsetwith2binop A ) .
 Proof . intros . apply ( isofhleveldirprod 1 ) .
  apply impred .  intro a . apply impred . intros a' . apply ( pr2 ( A ( op1 (pr1 a) (pr1 a')) ) ) .  apply impred .  intro a . apply impred . intros a' . apply ( pr2 ( A ( op2 (pr1 a) (pr1 a')) ) ) .  Defined .
 
-Definition subsetswith2binop { X : setwith2binop } := total2 ( fun A : subtype X => issubsetwith2binop A ) .
-Definition subsetswith2binoppair { X : setwith2binop } := tpair ( fun A : subtype X => issubsetwith2binop A ) .
+Definition subsetswith2binop { X : setwith2binop } := total2 ( fun A : hsubtypes X => issubsetwith2binop A ) .
+Definition subsetswith2binoppair { X : setwith2binop } := tpair ( fun A : hsubtypes X => issubsetwith2binop A ) .
 Definition subsetswith2binopconstr { X : setwith2binop } := @subsetswith2binoppair X .
-Definition pr1subsetswith2binop ( X : setwith2binop ) : @subsetswith2binop X -> subtype X := @pr1 _ ( fun A : subtype X => issubsetwith2binop A ) .
-Coercion pr1subsetswith2binop : subsetswith2binop >-> subtype .
+Definition pr1subsetswith2binop ( X : setwith2binop ) : @subsetswith2binop X -> hsubtypes X := @pr1 _ ( fun A : hsubtypes X => issubsetwith2binop A ) .
+Coercion pr1subsetswith2binop : subsetswith2binop >-> hsubtypes .
 
 Definition totalsubsetwith2binop ( X : setwith2binop ) : @subsetswith2binop X .
 Proof . intros .  split with ( fun x : X => htrue ) . split . intros x x' .  apply tt .  intros . apply tt . Defined .

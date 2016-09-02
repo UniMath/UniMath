@@ -334,10 +334,10 @@ Section ABGR_general.
   (** hsubtypes for forming the subgroups kernel and image, and also the
     quotient group for cokernel. These are needed to use the relevant results
     in Algebra/Monoid_and_Groups.v . *)
-  Definition ABGR_kernel_hsubtype {A B : abgr} (f : monoidfun A B) : subtype A
+  Definition ABGR_kernel_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtypes A
     := (fun x : A => ishinh ((f x) = unel B)).
 
-  Definition ABGR_image_hsubtype {A B : abgr} (f : monoidfun A B) : subtype B
+  Definition ABGR_image_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtypes B
     := (fun y : B => ∃ x : A, (f x) = y).
 
   (** An equality we are going to use. *)

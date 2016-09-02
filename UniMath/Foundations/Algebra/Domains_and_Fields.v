@@ -106,7 +106,7 @@ Definition rngneq0andmultrinv ( X : rng ) ( n m : X ) ( isnm : neg ( paths ( n *
 Proof . intros . intro e .  rewrite e in isnm .  rewrite ( rngmultx0 _ ) in isnm .  destruct ( isnm ( idpath _ ) ) .  Defined .
 
 
-Definition rngpossubmonoid ( X : rng ) { R : hrel X } ( is1 : isrngmultgt X R ) ( is2 : R 1 0 ) : submonoid ( rngmultmonoid X ) .
+Definition rngpossubmonoid ( X : rng ) { R : hrel X } ( is1 : isrngmultgt X R ) ( is2 : R 1 0 ) : submonoids ( rngmultmonoid X ) .
 Proof . intros . split with ( fun x => R x 0 ) . split .  intros x1 x2 . apply is1 . apply ( pr2 x1 ) .  apply ( pr2 x2 ) .  apply is2 . Defined .
 
 Lemma isinvrngmultgtif ( X : rng ) { R : hrel X } ( is0 : @isbinophrel X R ) ( is1 : isrngmultgt X R ) ( nc : neqchoice R ) ( isa : isasymm R ) : isinvrngmultgt X R .
@@ -186,7 +186,7 @@ Proof . intros . apply iscancelableif .  intros a b . apply ( intdomlcan X a b x
 
 
 
-(** **** Multiplicative submonoid of non-zero elements *)
+(** **** Multiplicative submonoids of non-zero elements *)
 
 Definition intdomnonzerosubmonoid ( X : intdom ) (neq : neqReln X) :
   subabmonoid ( rngmultabmonoid X ) .
@@ -306,12 +306,12 @@ Definition fldfracmultinv0 ( X : intdom ) (neq:neqReln X) ( i : isdeceq X ) :
   F -> F
   := λ x, setquotfun _ _ _ ( fldfracmultinvintcomp X neq i ) x .
 
-Lemma nonzeroincommrngfrac ( X : commrng ) ( S : submonoid ( rngmultmonoid X ) ) ( xa : dirprod X S ) ( ne : neg ( paths ( setquotpr ( eqrelcommrngfrac X S ) xa ) ( setquotpr _ ( dirprodpair 0 ( unel S ) ) ) ) ) : neg ( paths ( pr1 xa ) 0 ) .
+Lemma nonzeroincommrngfrac ( X : commrng ) ( S : submonoids ( rngmultmonoid X ) ) ( xa : dirprod X S ) ( ne : neg ( paths ( setquotpr ( eqrelcommrngfrac X S ) xa ) ( setquotpr _ ( dirprodpair 0 ( unel S ) ) ) ) ) : neg ( paths ( pr1 xa ) 0 ) .
 Proof . intros . set ( x := pr1 xa ) . set ( aa := pr2 xa ) .  assert ( e' := negf ( weqpathsinsetquot ( eqrelcommrngfrac X S ) _ _ ) ne ) . simpl in e' . generalize e' .   apply negf .  intro e .  apply hinhpr .  split with ( unel S ) .  change ( paths ( x * 1 * 1 ) ( 0 * ( pr1 aa ) * 1 ) ) . rewrite e . rewrite ( rngmult0x X _ ) .  rewrite ( rngmult0x X _ ) .   rewrite ( rngmult0x X _ ) .  rewrite ( rngmult0x X _ ) . apply idpath . Defined .
 
 Opaque nonzeroincommrngfrac .
 
-Lemma zeroincommrngfrac ( X : intdom ) ( S : submonoid ( rngmultmonoid X ) ) ( is : Π s : S , neg ( paths ( pr1 s ) 0 ) ) ( x : X ) ( aa : S ) ( e : paths ( setquotpr ( eqrelcommrngfrac X S ) ( dirprodpair x aa ) ) ( setquotpr _ ( dirprodpair 0 ( unel S ) ) ) )  : paths x 0 .
+Lemma zeroincommrngfrac ( X : intdom ) ( S : submonoids ( rngmultmonoid X ) ) ( is : Π s : S , neg ( paths ( pr1 s ) 0 ) ) ( x : X ) ( aa : S ) ( e : paths ( setquotpr ( eqrelcommrngfrac X S ) ( dirprodpair x aa ) ) ( setquotpr _ ( dirprodpair 0 ( unel S ) ) ) )  : paths x 0 .
 Proof . intros . assert ( e' := invweq ( weqpathsinsetquot _ _ _ ) e ) .  simpl in e' .  generalize e' .  apply ( @hinhuniv _ ( hProppair _ ( setproperty X _ _ ) ) ) . intro t2 . simpl . set ( aa0 := pr1 t2 ) . set ( a0 := pr1 aa0 ) . assert ( e2 := pr2 t2 ) . set ( a := pr1 aa ) .  simpl in e2 . change ( paths ( x * 1 * a0 ) ( 0 * a * a0 ) ) in e2 . rewrite ( rngmult0x X _ ) in e2 .  rewrite ( rngmult0x X _ ) in e2 . rewrite ( rngrunax2 X _ ) in e2 . apply ( intdomax2r X x a0 e2 ( is aa0 ) ) . Defined .
 
 Opaque zeroincommrngfrac .
@@ -422,7 +422,7 @@ Our approach here is slightly different from the tranditional one used for examp
 
 
 
-(** **** Description of the field of fractions as the ring of fractions with respect to the submonoid of "positive" elements *)
+(** **** Description of the field of fractions as the ring of fractions with respect to the submonoids of "positive" elements *)
 
 Definition weqfldfracgtint_f ( X : intdom ) { R : hrel X }
            ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is1 : isrngmultgt X R )
