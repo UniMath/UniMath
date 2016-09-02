@@ -226,7 +226,7 @@ Notation hinhprinv := hinhunivcor1.
 Lemma weqishinhnegtoneg (X : UU) : ∥ ¬ X ∥ ≃ ¬ X.
 Proof.
   intro.
-  assert (lg : logeq (ishinh (neg X)) (neg X)).
+  assert (lg : logeq (ishinh (¬ X)) (¬ X)).
   {
     split.
     - simpl. apply (@hinhuniv _ (hProppair _ (isapropneg X))).
@@ -239,7 +239,7 @@ Defined.
 Lemma weqnegtonegishinh (X : UU) : ¬ X ≃ ¬ ∥ X ∥.
 Proof.
   intro.
-  assert (lg : logeq (neg (ishinh X)) (neg X)).
+  assert (lg : logeq (¬ (ishinh X)) (¬ X)).
   {
     split.
     - apply (negf (@hinhpr X)).
@@ -395,7 +395,7 @@ Definition hneg (P : UU) : hProp := hProppair (¬ P) (isapropneg P).
 (* use scope "logic" for notations that might conflict with others *)
 
 Notation "'¬' X" := (hneg X) (at level 35, right associativity) : logic.
-  (* type this in emacs in agda-input method with \neg *)
+  (* type this in emacs in agda-input method with \¬ *)
 Delimit Scope logic with logic.
 
 Definition himpl (P : UU) (Q : hProp) : hProp.
@@ -422,10 +422,10 @@ Definition total2tohexists {X : UU} (P : X -> UU) : total2 P -> hexists P
   := hinhpr.
 
 Definition weqneghexistsnegtotal2 {X : UU} (P : X -> UU) :
-  weq (neg (hexists P)) (neg (total2 P)).
+  weq (¬ (hexists P)) (¬ (total2 P)).
 Proof.
   intros.
-  assert (lg : (neg (hexists P)) <-> (neg (total2 P))).
+  assert (lg : (¬ (hexists P)) <-> (¬ (total2 P))).
   {
     split.
     - apply (negf (total2tohexists P)).
@@ -470,15 +470,15 @@ Defined.
 (** *** Negation and quantification.
 
 There are four standard implications in classical logic which can be summarized
-as (neg (Π P)) <-> (exists (neg P)) and (neg (exists P)) <-> (Π (neg P)). Of
+as (¬ (Π P)) <-> (exists (¬ P)) and (¬ (exists P)) <-> (Π (¬ P)). Of
 these four implications three are provable in the intuitionistic logic. The
-remaining implication (neg (Π P)) -> (exists (neg P)) is not provable in
+remaining implication (¬ (Π P)) -> (exists (¬ P)) is not provable in
 general. For a proof in the case of bounded quantification of decidable
 predicates on natural numbers see hnat.v. For some other cases when these
 implications hold see ???. *)
 
 Lemma hexistsnegtonegforall {X : UU} (F : X -> UU) :
-  (∃ x : X, neg (F x)) -> neg (Π x : X, F x).
+  (∃ x : X, ¬ (F x)) -> ¬ (Π x : X, F x).
 Proof.
   intros X F. simpl.
   apply (@hinhuniv _ (hProppair _ (isapropneg (Π x : X, F x)))).
@@ -486,7 +486,7 @@ Proof.
 Defined.
 
 Lemma forallnegtoneghexists {X : UU} (F : X -> UU) :
-  (Π x : X, neg (F x)) -> neg (∃ x, F x).
+  (Π x : X, ¬ (F x)) -> ¬ (∃ x, F x).
 Proof.
   intros X F nf.
   change ((ishinh_UU (total2 F)) -> hfalse).
@@ -552,12 +552,11 @@ Proof.
   - apply (pr2 is y).
 Defined.
 
-Lemma toneghdisj {X Y : UU} : ¬ X × ¬ Y -> ¬ (X ∨ Y).
-Proof.
-  intros ? ? is. unfold hdisj.
-  apply weqnegtonegishinh.
-  apply tonegcoprod.
-  apply is.
+Lemma toneghdisj { X Y : UU } : ¬ X × ¬ Y -> ¬ (X ∨ Y) .
+Proof . intros ? ? is p. apply (p hfalse); clear p; intro p.
+        induction p as [x|y].
+        - exact (pr1 is x).
+        - exact (pr2 is y).
 Defined.
 
 Lemma fromnegcoprod {X Y : UU} : ¬ (X ⨿ Y) -> ¬X × ¬Y.
@@ -706,14 +705,14 @@ Proof.
   - now exists q'.
 Defined.
 
-Definition to_ComplementaryPair {P : UU} (c : P ⨿ neg P) : ComplementaryPair
+Definition to_ComplementaryPair {P : UU} (c : P ⨿ ¬ P) : ComplementaryPair
   (* By using [isTrue _] instead, we're effectively replacing P by a
      propositional subtype of it: *)
   (* the part connected to the element of [P ⨿ ¬P]. *)
   (* Similarly, by using [isFalse _] instead, we're effectively replacing [¬P]
      by a propositional subtype of it.  *)
   (* Both are proved to be propositions without [funextemptyAxiom] *)
-  := (P,,neg P,,(λ p n, n p),,c).
+  := (P,,(neg P),,(λ p n, n p),,c).
 
 (* Relate isolated points to complementary pairs *)
 

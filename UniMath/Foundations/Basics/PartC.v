@@ -21,14 +21,14 @@ Require Export UniMath.Foundations.Basics.UnivalenceAxiom.
 (** *** More results on propositions *)
 
 
-Theorem isapropneg (X:UU): isaprop (neg X).
+Theorem isapropneg (X:UU): isaprop (¬ X).
 Proof. intro.  apply invproofirrelevance . intros x x' .   apply ( funextempty X x x' ) . Defined .
 
 (** See also [ isapropneg2 ] *)
 
 
 Corollary isapropdneg (X:UU): isaprop (dneg X).
-Proof. intro. apply (isapropneg (neg X)). Defined.
+Proof. intro. apply (isapropneg (¬ X)). Defined.
 
 
 Definition isaninvprop (X:UU) := isweq  (todneg X).
@@ -41,9 +41,9 @@ Proof. intros X X0.
 apply (isofhlevelweqb (S O) ( weqpair (todneg X) X0 ) (isapropdneg X)). Defined.
 
 
-Theorem isaninvpropneg (X:UU): isaninvprop (neg X).
+Theorem isaninvpropneg (X:UU): isaninvprop (¬ X).
 Proof. intros.
-set (f:= todneg (neg X)). set (g:= negf  (todneg X)). set (is1:= isapropneg X). set (is2:= isapropneg (dneg X)). apply (isweqimplimpl  f g is1 is2).  Defined.
+set (f:= todneg (¬ X)). set (g:= negf  (todneg X)). set (is1:= isapropneg X). set (is2:= isapropneg (dneg X)). apply (isweqimplimpl  f g is1 is2).  Defined.
 
 
 Theorem isapropdec (X:UU): isaprop X -> isaprop (X ⨿ ¬X).
@@ -62,8 +62,8 @@ Defined.
 
 
 Definition compl (X:UU) (x:X):= Σ x', x != x'.
-Definition complpair ( X : UU ) ( x : X ) := tpair (fun x':X => neg (paths x x' ) ) .
-Definition pr1compl ( X : UU ) ( x : X ) := @pr1 _ (fun x':X => neg (paths x x' ) ) .
+Definition complpair ( X : UU ) ( x : X ) := tpair (fun x':X => ¬ (paths x x' ) ) .
+Definition pr1compl ( X : UU ) ( x : X ) := @pr1 _ (fun x':X => ¬ (paths x x' ) ) .
 
 
 Lemma isinclpr1compl ( X : UU ) ( x : X ) : isincl ( pr1compl X x ) .
@@ -523,7 +523,7 @@ Proof . intros . unfold funtranspos . rewrite ( pathsrecomplfxtoy t1 t2 is1 _ ) 
 Lemma pathsfuntransposoft2 { T : UU } ( t1 t2 : T ) ( is1 : isisolated T t1 ) ( is2 : isisolated T t2 ) : paths ( funtranspos ( tpair _ t1 is1 ) ( tpair _ t2 is2 ) t2 ) t1 .
 Proof . intros .  unfold funtranspos . simpl . unfold funtranspos0 .   unfold recomplf .  unfold funcomp .  unfold coprodf . unfold invmap .  unfold weqrecompl .  unfold recompl .   simpl .  unfold invrecompl . induction ( is1 t2 ) as [ et1t2 | net1t2 ] . apply ( pathsinv0 et1t2 ) .  simpl . induction ( is2 t2 ) as [ et2t2 | net2t2 ] .  induction ( is2 t1 ) as [ et2t1 | net2t1 ] . induction (net1t2 (pathscomp0 (pathsinv0 et2t1) et2t2) ).  simpl . apply idpath . induction ( net2t2 ( idpath _ ) ) .  Defined .
 
-Lemma pathsfuntransposofnet1t2 { T : UU } ( t1 t2 : T ) ( is1 : isisolated T t1 ) ( is2 : isisolated T t2 ) ( t : T ) ( net1t : neg ( paths t1 t ) ) ( net2t : neg ( paths t2 t ) ) : paths ( funtranspos ( tpair _ t1 is1 ) ( tpair _ t2 is2 ) t ) t .
+Lemma pathsfuntransposofnet1t2 { T : UU } ( t1 t2 : T ) ( is1 : isisolated T t1 ) ( is2 : isisolated T t2 ) ( t : T ) ( net1t : ¬ ( paths t1 t ) ) ( net2t : ¬ ( paths t2 t ) ) : paths ( funtranspos ( tpair _ t1 is1 ) ( tpair _ t2 is2 ) t ) t .
 Proof . intros .  unfold funtranspos . simpl . unfold funtranspos0 .   unfold recomplf .  unfold funcomp .  unfold coprodf . unfold invmap .  unfold weqrecompl .  unfold recompl .   simpl .  unfold invrecompl . induction ( is1 t ) as [ et1t | net1t' ] . induction ( net1t et1t ) .  simpl .  induction ( is2 t ) as [ et2t | net2t' ] . induction ( net2t et2t ) . simpl . apply idpath . Defined .
 
 Lemma homotfuntranspos2 { T : UU } ( t1 t2 : T ) ( is1 : isisolated T t1 ) ( is2 : isisolated T t2 ) : homot ( funcomp ( funtranspos ( tpair _ t1 is1 ) ( tpair _ t2 is2 ) ) ( funtranspos ( tpair _ t1 is1 ) ( tpair _ t2 is2 ) ) ) ( idfun _ ) .
@@ -663,7 +663,7 @@ apply (isofhlevelff (S O) _ _ is2  (isofhlevelfweq (S (S O) )  (weqcoprodtobools
 Corollary iscontrhfiberii1x ( X Y : UU ) ( x : X ) : iscontr ( hfiber ( @ii1 X Y ) ( ii1 x ) ) .
 Proof. intros . set ( xe1 :=  hfiberpair ( @ii1 _ _ ) x ( idpath ( @ii1 X Y x ) ) ) . apply ( iscontraprop1 ( isinclii1 X Y ( ii1 x ) ) xe1 ) .  Defined .
 
-Corollary neghfiberii1y ( X Y : UU ) ( y : Y ) : neg ( hfiber ( @ii1 X Y ) ( ii2 y ) ) .
+Corollary neghfiberii1y ( X Y : UU ) ( y : Y ) : ¬ ( hfiber ( @ii1 X Y ) ( ii2 y ) ) .
 Proof. intros . intro xe . induction xe as [ x e ] . apply ( negpathsii1ii2 _ _ e ) .  Defined.
 
 
@@ -681,7 +681,7 @@ apply (isofhlevelff (S O)  _ _ is2 (isofhlevelfweq (S (S O)) ( weqcoprodtoboolsu
 Corollary iscontrhfiberii2y ( X Y : UU ) ( y : Y ) : iscontr ( hfiber ( @ii2 X Y ) ( ii2 y ) ) .
 Proof. intros . set ( xe1 :=  hfiberpair ( @ii2 _ _ ) y ( idpath ( @ii2 X Y y ) ) ) . apply ( iscontraprop1 ( isinclii2 X Y ( ii2 y ) ) xe1 ) .  Defined .
 
-Corollary neghfiberii2x ( X Y : UU ) ( x : X ) : neg ( hfiber ( @ii2 X Y ) ( ii1 x ) ) .
+Corollary neghfiberii2x ( X Y : UU ) ( x : X ) : ¬ ( hfiber ( @ii2 X Y ) ( ii1 x ) ) .
 Proof. intros . intro ye . induction ye as [ y e ] . apply ( negpathsii2ii1 _ _ e ) .  Defined.
 
 
@@ -820,19 +820,19 @@ Proof . intros . intro z .  set ( w := weqhfibersofsumofmaps f g z ) .  set ( is
 (** *** Theorem saying that the sum of two functions of h-level n with non-intersecting images is of h-level n *)
 
 
-Lemma noil1 { X Y Z : UU } ( f : X -> Z ) ( g : Y -> Z ) ( noi : Π ( x : X ) ( y : Y ) , neg ( paths ( f x ) ( g y ) ) ) ( z : Z ) : hfiber f z -> hfiber g z -> empty .
+Lemma noil1 { X Y Z : UU } ( f : X -> Z ) ( g : Y -> Z ) ( noi : Π ( x : X ) ( y : Y ) , ¬ ( paths ( f x ) ( g y ) ) ) ( z : Z ) : hfiber f z -> hfiber g z -> empty .
 Proof. intros X Y Z f g noi z hfz hgz . induction hfz as [ x fe ] . induction hgz as [ y ge ] . apply ( noi x y ( pathscomp0 fe ( pathsinv0 ge ) ) ) .   Defined .
 
 
-Lemma weqhfibernoi1  { X Y Z : UU } ( f : X -> Z ) ( g : Y -> Z ) ( noi : Π ( x : X ) ( y : Y ) , neg ( paths ( f x ) ( g y ) ) ) ( z : Z ) ( xe : hfiber f z ) : weq ( hfiber ( sumofmaps f g ) z ) ( hfiber f z ) .
-Proof. intros . set ( w1 := invweq ( weqhfibersofsumofmaps f g z ) ) .  assert ( a : neg ( hfiber g z ) ) . intro ye . apply ( noil1 f g noi z xe ye ) .    set ( w2 := invweq ( weqii1withneg ( hfiber f z ) a ) ) .  apply ( weqcomp w1 w2 ) . Defined .
+Lemma weqhfibernoi1  { X Y Z : UU } ( f : X -> Z ) ( g : Y -> Z ) ( noi : Π ( x : X ) ( y : Y ) , ¬ ( paths ( f x ) ( g y ) ) ) ( z : Z ) ( xe : hfiber f z ) : weq ( hfiber ( sumofmaps f g ) z ) ( hfiber f z ) .
+Proof. intros . set ( w1 := invweq ( weqhfibersofsumofmaps f g z ) ) .  assert ( a : ¬ ( hfiber g z ) ) . intro ye . apply ( noil1 f g noi z xe ye ) .    set ( w2 := invweq ( weqii1withneg ( hfiber f z ) a ) ) .  apply ( weqcomp w1 w2 ) . Defined .
 
-Lemma weqhfibernoi2  { X Y Z : UU } ( f : X -> Z ) ( g : Y -> Z ) ( noi : Π ( x : X ) ( y : Y ) , neg ( paths ( f x ) ( g y ) ) ) ( z : Z ) ( ye : hfiber g z ) : weq ( hfiber ( sumofmaps f g ) z ) ( hfiber g z ) .
-Proof. intros . set ( w1 := invweq ( weqhfibersofsumofmaps f g z ) ) .  assert ( a : neg ( hfiber f z ) ) . intro xe . apply ( noil1 f g noi z xe ye ) .    set ( w2 := invweq ( weqii2withneg ( hfiber g z ) a ) ) .  apply ( weqcomp w1 w2 ) . Defined .
+Lemma weqhfibernoi2  { X Y Z : UU } ( f : X -> Z ) ( g : Y -> Z ) ( noi : Π ( x : X ) ( y : Y ) , ¬ ( paths ( f x ) ( g y ) ) ) ( z : Z ) ( ye : hfiber g z ) : weq ( hfiber ( sumofmaps f g ) z ) ( hfiber g z ) .
+Proof. intros . set ( w1 := invweq ( weqhfibersofsumofmaps f g z ) ) .  assert ( a : ¬ ( hfiber f z ) ) . intro xe . apply ( noil1 f g noi z xe ye ) .    set ( w2 := invweq ( weqii2withneg ( hfiber g z ) a ) ) .  apply ( weqcomp w1 w2 ) . Defined .
 
 
 
-Theorem isofhlevelfsumofmapsnoi ( n : nat ) { X Y Z : UU } ( f : X -> Z ) ( g : Y -> Z ) ( isf : isofhlevelf n f ) ( isg : isofhlevelf n g ) ( noi : Π ( x : X ) ( y : Y ) , neg ( paths ( f x ) ( g y ) ) ) : isofhlevelf n ( sumofmaps f g ) .
+Theorem isofhlevelfsumofmapsnoi ( n : nat ) { X Y Z : UU } ( f : X -> Z ) ( g : Y -> Z ) ( isf : isofhlevelf n f ) ( isg : isofhlevelf n g ) ( noi : Π ( x : X ) ( y : Y ) , ¬ ( paths ( f x ) ( g y ) ) ) : isofhlevelf n ( sumofmaps f g ) .
 Proof. intros .  intro z .  induction n as [ | n ] .   set ( zinx := invweq ( weqpair _ isf ) z ) . set ( ziny := invweq ( weqpair _ isg ) z ) . assert ( ex : paths ( f zinx ) z ) .  apply ( homotweqinvweq ( weqpair _ isf ) z ) . assert ( ey : paths ( g ziny ) z ) . apply ( homotweqinvweq ( weqpair _ isg ) z ) .   induction ( ( noi zinx ziny ) ( pathscomp0 ex ( pathsinv0 ey ) ) ) .
 apply isofhlevelsn . intro hfgz .  induction ( ( invweq ( weqhfibersofsumofmaps f g z ) hfgz ) ) as [ xe | ye ] .   apply ( isofhlevelweqb _ ( weqhfibernoi1 f g noi z xe ) ( isf z ) ) .   apply ( isofhlevelweqb _ ( weqhfibernoi2 f g noi z ye ) ( isg z ) ) . Defined .
 
@@ -847,39 +847,39 @@ apply isofhlevelsn . intro hfgz .  induction ( ( invweq ( weqhfibersofsumofmaps 
 
 Definition tocompltoii1x (X Y:UU)(x:X): coprod (compl X x) Y -> compl (coprod X Y) (ii1  x).
 Proof. intros X Y x X0. induction X0 as [ c | y ] .  split with (ii1  (pr1  c)).
-assert (e: neg(paths x (pr1 c) )). apply (pr2  c). apply (negf  (invmaponpathsincl  ( @ii1 _ _ ) (isinclii1 X Y) _ _) e).
+assert (e: ¬(paths x (pr1 c) )). apply (pr2  c). apply (negf  (invmaponpathsincl  ( @ii1 _ _ ) (isinclii1 X Y) _ _) e).
 split with (ii2  y). apply (negf  (pathsinv0 ) (negpathsii2ii1 x y)). Defined.
 
 
 Definition fromcompltoii1x (X Y:UU)(x:X): compl (coprod X Y) (ii1  x) ->  coprod (compl X x) Y.
 Proof. intros X Y x X0. induction X0 as [ t x0 ].  induction t as [ x1 | y ].
-assert (ne: neg (paths x x1 )). apply (negf  (maponpaths ( @ii1 _ _ ) ) x0). apply (ii1  (complpair _ _ x1 ne )). apply (ii2  y). Defined.
+assert (ne: ¬ (paths x x1 )). apply (negf  (maponpaths ( @ii1 _ _ ) ) x0). apply (ii1  (complpair _ _ x1 ne )). apply (ii2  y). Defined.
 
 
 Theorem isweqtocompltoii1x (X Y:UU)(x:X): isweq (tocompltoii1x X Y x).
 Proof. intros. set (f:= tocompltoii1x X Y x). set (g:= fromcompltoii1x X Y x).
 assert (egf:Π nexy:_ , paths (g (f nexy)) nexy). intro. induction nexy as [ c | y ]. induction c as [ t x0 ]. simpl.
 assert (e: paths (negf (maponpaths (@ii1 X Y)) (negf (invmaponpathsincl  (@ii1 X Y) (isinclii1 X Y) x t) x0)) x0). apply (isapropneg (paths x t) ).
-apply (maponpaths (fun ee: neg (paths x t ) => ii1  (complpair X x t ee))  e). apply idpath.
+apply (maponpaths (fun ee: ¬ (paths x t ) => ii1  (complpair X x t ee))  e). apply idpath.
 
 assert (efg: Π neii1x:_, paths (f (g neii1x)) neii1x). intro.  induction neii1x as [ t x0 ]. induction t as [ x1 | y ].  simpl.
 assert (e: paths  (negf (invmaponpathsincl (@ii1 X Y) (isinclii1 X Y) x x1 ) (negf (maponpaths (@ii1 X Y) ) x0)) x0). apply (isapropneg (paths _ _ )  ).
-apply (maponpaths (fun ee: (neg (paths (ii1 x) (ii1 x1))) => (complpair _ _ (ii1 x1) ee))  e). simpl.
+apply (maponpaths (fun ee: (¬ (paths (ii1 x) (ii1 x1))) => (complpair _ _ (ii1 x1) ee))  e). simpl.
 assert (e: paths (negf pathsinv0 (negpathsii2ii1 x y)) x0). apply (isapropneg (paths _ _ ) ).
-apply (maponpaths   (fun ee: (neg (paths (ii1 x) (ii2 y) )) => (complpair _ _ (ii2 y) ee))  e).
+apply (maponpaths   (fun ee: (¬ (paths (ii1 x) (ii2 y) )) => (complpair _ _ (ii2 y) ee))  e).
 apply (gradth  f g egf efg). Defined.
 
 
 Definition tocompltoii2y (X Y:UU)(y:Y): coprod X (compl Y y) -> compl (coprod X Y) (ii2  y).
 Proof. intros X Y y X0. induction X0 as [ x | c ]. split with (ii1  x). apply (negpathsii2ii1 x y ).
-split with (ii2  (pr1  c)). assert (e: neg(paths y (pr1  c) )). apply (pr2  c). apply (negf  (invmaponpathsincl  ( @ii2 _ _ ) (isinclii2 X Y) _ _ ) e).
+split with (ii2  (pr1  c)). assert (e: ¬(paths y (pr1  c) )). apply (pr2  c). apply (negf  (invmaponpathsincl  ( @ii2 _ _ ) (isinclii2 X Y) _ _ ) e).
 Defined.
 
 
 
 Definition fromcompltoii2y (X Y:UU)(y:Y): compl (coprod X Y) (ii2  y) ->  coprod X (compl Y y).
 Proof. intros X Y y X0. induction X0 as [ t x ].  induction t as [ x0 | y0 ]. apply (ii1  x0).
-assert (ne: neg (paths y y0 )). apply (negf  (maponpaths ( @ii2 _ _ ) ) x). apply (ii2  (complpair _ _ y0 ne)). Defined.
+assert (ne: ¬ (paths y y0 )). apply (negf  (maponpaths ( @ii2 _ _ ) ) x). apply (ii2  (complpair _ _ y0 ne)). Defined.
 
 
 Theorem isweqtocompltoii2y (X Y:UU)(y:Y): isweq (tocompltoii2y X Y y).
@@ -887,13 +887,13 @@ Proof. intros. set (f:= tocompltoii2y X Y y). set (g:= fromcompltoii2y X Y y).
 assert (egf:Π nexy:_ , paths (g (f nexy)) nexy). intro. induction nexy as [ x | c ].
 apply idpath. induction c as [ t x ]. simpl.
 assert (e: paths (negf (maponpaths (@ii2 X Y) ) (negf (invmaponpathsincl (@ii2 X Y) (isinclii2 X Y) y t) x)) x). apply (isapropneg (paths y t ) ).
-apply (maponpaths (fun ee: neg ( paths y t ) => ii2  (complpair _ y t ee))  e).
+apply (maponpaths (fun ee: ¬ ( paths y t ) => ii2  (complpair _ y t ee))  e).
 
 assert (efg: Π neii2x:_, paths (f (g neii2x)) neii2x). intro.  induction neii2x as [ t x ]. induction t as [ x0 | y0 ].  simpl.
 assert (e: paths (negpathsii2ii1 x0 y) x). apply (isapropneg (paths _ _ ) ).
-apply (maponpaths   (fun ee: (neg (paths (ii2 y) (ii1 x0)  )) => (complpair _ _ (ii1 x0) ee))  e). simpl.
+apply (maponpaths   (fun ee: (¬ (paths (ii2 y) (ii1 x0)  )) => (complpair _ _ (ii1 x0) ee))  e). simpl.
 assert (e: paths  (negf (invmaponpathsincl _ (isinclii2 X Y) y y0 ) (negf (maponpaths (@ii2 X Y) ) x)) x). apply (isapropneg (paths _ _ )  ).
-apply (maponpaths (fun ee: (neg (paths (ii2 y) (ii2 y0)  )) => (complpair _ _ (ii2 y0) ee))  e).
+apply (maponpaths (fun ee: (¬ (paths (ii2 y) (ii2 y0)  )) => (complpair _ _ (ii2 y0) ee))  e).
 apply (gradth f g egf efg). Defined.
 
 
@@ -946,7 +946,7 @@ Proof. intros ? i c. exact (c,,i). Defined.
 
 Lemma isdecpropif' ( X : UU ) : isaprop X -> X ⨿ ¬ X -> iscontr (X ⨿ ¬ X) .
 (* This contractibility was the old definition of isdecpropif.  We can probably do without it. *)
-Proof. intros X is a . assert ( is1 : isaprop ( coprod X ( neg X ) ) ) . apply isapropdec . assumption .   apply ( iscontraprop1 is1 a ) . Defined.
+Proof. intros X is a . assert ( is1 : isaprop ( coprod X ( ¬ X ) ) ) . apply isapropdec . assumption .   apply ( iscontraprop1 is1 a ) . Defined.
 
 Lemma isdecpropfromiscontr {P} : iscontr P -> isdecprop P.
 Proof.
@@ -1027,7 +1027,7 @@ induction ( pr1 isy ) as [ y | ny ] .  apply ( isdecpropfibseq1 _ _ y ( fibseq1 
 apply ( isdecpropif _ isp ( ii2  ( negf f ny ) ) ) . Defined.
 
 Theorem isdecpropdirprod { X Y : UU } ( isx : isdecprop X ) ( isy : isdecprop Y ) : isdecprop ( dirprod X Y ) .
-Proof. intros . assert ( isp : isaprop ( dirprod X Y ) ) . apply ( isofhleveldirprod 1 _ _ ( isdecproptoisaprop _ isx ) ( isdecproptoisaprop _ isy ) ) .  induction ( pr1 isx ) as [ x | nx ] . induction ( pr1 isy ) as [ y | ny ] .  apply ( isdecpropif _ isp ( ii1 ( dirprodpair x y ) ) ) . assert ( nxy : neg ( dirprod X Y ) ) . intro xy . induction xy as [ x0  y0 ] . apply ( ny y0 ) .  apply ( isdecpropif _ isp ( ii2 nxy ) ) .  assert ( nxy : neg ( dirprod X Y ) ) . intro xy . induction xy as [ x0  y0 ] . apply ( nx x0 ) .  apply ( isdecpropif _ isp ( ii2 nxy ) ) . Defined.
+Proof. intros . assert ( isp : isaprop ( dirprod X Y ) ) . apply ( isofhleveldirprod 1 _ _ ( isdecproptoisaprop _ isx ) ( isdecproptoisaprop _ isy ) ) .  induction ( pr1 isx ) as [ x | nx ] . induction ( pr1 isy ) as [ y | ny ] .  apply ( isdecpropif _ isp ( ii1 ( dirprodpair x y ) ) ) . assert ( nxy : ¬ ( dirprod X Y ) ) . intro xy . induction xy as [ x0  y0 ] . apply ( ny y0 ) .  apply ( isdecpropif _ isp ( ii2 nxy ) ) .  assert ( nxy : ¬ ( dirprod X Y ) ) . intro xy . induction xy as [ x0  y0 ] . apply ( nx x0 ) .  apply ( isdecpropif _ isp ( ii2 nxy ) ) . Defined.
 
 Lemma fromneganddecx { X Y : UU } : isdecprop X -> ¬ ( X × Y ) -> ¬X ⨿ ¬Y.
 Proof . intros ? ? isx nf.  induction ( pr1 isx ) as [ x | nx ] .  assert ( ny := negf ( λ y : Y, dirprodpair x y ) nf ) . exact ( ii2 ny ) .   exact ( ii1 nx ) . Defined .
@@ -1107,21 +1107,21 @@ Proof .  intros X Y f x isf isx .   assert ( is' : Π y : Y , isdecincl ( d1g  f
 (** *** Decidable inclusions and coprojections *)
 
 
-Definition negimage { X Y : UU } ( f : X -> Y ) := total2 ( fun y : Y => neg ( hfiber f y ) ) .
-Definition negimagepair { X Y : UU } ( f : X -> Y ) := tpair ( fun y : Y => neg ( hfiber f y ) ) .
+Definition negimage { X Y : UU } ( f : X -> Y ) := total2 ( fun y : Y => ¬ ( hfiber f y ) ) .
+Definition negimagepair { X Y : UU } ( f : X -> Y ) := tpair ( fun y : Y => ¬ ( hfiber f y ) ) .
 
-Lemma isinclfromcoprodwithnegimage { X Y : UU } ( f : X -> Y ) ( is : isincl f ) : isincl ( sumofmaps f ( @pr1 _ ( fun y : Y => neg ( hfiber f y ) ) ) ) .
-Proof .  intros . assert ( noi : Π ( x : X ) ( nx : negimage f ) , neg ( paths ( f x ) ( pr1 nx ) ) ) .  intros x nx e .  induction nx as [ y nhf ] .  simpl in e .  apply ( nhf ( hfiberpair _ x e ) ) . assert ( is' : isincl ( @pr1 _ ( fun y : Y => neg ( hfiber f y ) ) ) ) .  apply isinclpr1 .   intro y .  apply isapropneg .  apply ( isofhlevelfsumofmapsnoi 1 f _ is is' noi ) .   Defined .
+Lemma isinclfromcoprodwithnegimage { X Y : UU } ( f : X -> Y ) ( is : isincl f ) : isincl ( sumofmaps f ( @pr1 _ ( fun y : Y => ¬ ( hfiber f y ) ) ) ) .
+Proof .  intros . assert ( noi : Π ( x : X ) ( nx : negimage f ) , ¬ ( paths ( f x ) ( pr1 nx ) ) ) .  intros x nx e .  induction nx as [ y nhf ] .  simpl in e .  apply ( nhf ( hfiberpair _ x e ) ) . assert ( is' : isincl ( @pr1 _ ( fun y : Y => ¬ ( hfiber f y ) ) ) ) .  apply isinclpr1 .   intro y .  apply isapropneg .  apply ( isofhlevelfsumofmapsnoi 1 f _ is is' noi ) .   Defined .
 
 
-Definition iscoproj { X Y : UU } ( f : X -> Y ) := isweq ( sumofmaps f ( @pr1 _ ( fun y : Y => neg ( hfiber f y ) ) ) ) .
+Definition iscoproj { X Y : UU } ( f : X -> Y ) := isweq ( sumofmaps f ( @pr1 _ ( fun y : Y => ¬ ( hfiber f y ) ) ) ) .
 
 Definition weqcoproj { X Y : UU } ( f : X -> Y ) ( is : iscoproj f ) : weq ( coprod X ( negimage f ) ) Y := weqpair _ is .
 
 Theorem iscoprojfromisdecincl { X Y : UU } ( f : X -> Y ) ( is : isdecincl f ) : iscoproj f .
-Proof. intros . set ( p := sumofmaps f ( @pr1 _ ( fun y : Y => neg ( hfiber f y ) ) ) ) .  assert ( is' : isincl p ) .  apply isinclfromcoprodwithnegimage .   apply ( isdecincltoisincl _ is ) . unfold iscoproj .   intro y . induction ( pr1 ( is y ) ) as [ h | nh ] .   induction h as [ x e ] .  induction e .  change ( f x ) with ( p ( ii1 x ) ) . apply iscontrhfiberofincl .  assumption .  change y with ( p ( ii2 ( negimagepair _ y nh ) ) ) .  apply iscontrhfiberofincl .  assumption .  Defined .
+Proof. intros . set ( p := sumofmaps f ( @pr1 _ ( fun y : Y => ¬ ( hfiber f y ) ) ) ) .  assert ( is' : isincl p ) .  apply isinclfromcoprodwithnegimage .   apply ( isdecincltoisincl _ is ) . unfold iscoproj .   intro y . induction ( pr1 ( is y ) ) as [ h | nh ] .   induction h as [ x e ] .  induction e .  change ( f x ) with ( p ( ii1 x ) ) . apply iscontrhfiberofincl .  assumption .  change y with ( p ( ii2 ( negimagepair _ y nh ) ) ) .  apply iscontrhfiberofincl .  assumption .  Defined .
 
 Theorem isdecinclfromiscoproj { X Y : UU } ( f : X -> Y ) ( is : iscoproj f ) : isdecincl f .
-Proof . intros . set ( g := ( sumofmaps f ( @pr1 _ ( fun y : Y => neg ( hfiber f y ) ) ) ) ) . set ( f' :=  fun x : X => g ( ii1 x ) ) . assert ( is' : isdecincl f' ) . apply ( isdecinclcomp _ _ ( isdecinclii1 _ _ ) ( isdecinclfromisweq _ is ) ) .    assumption .  Defined .
+Proof . intros . set ( g := ( sumofmaps f ( @pr1 _ ( fun y : Y => ¬ ( hfiber f y ) ) ) ) ) . set ( f' :=  fun x : X => g ( ii1 x ) ) . assert ( is' : isdecincl f' ) . apply ( isdecinclcomp _ _ ( isdecinclii1 _ _ ) ( isdecinclfromisweq _ is ) ) .    assumption .  Defined .
 
 (* End of the file uu0c.v *)

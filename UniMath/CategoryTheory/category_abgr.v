@@ -331,13 +331,13 @@ Section ABGR_general.
          ((pr1 hf1) * (pr1 hf2))%multmonoid
          (hfiber_op_eq f b1 b2 hf1 hf2).
 
-  (** hsubtypes for forming the subgroups kernel and image, and also the
+  (** hsubtype for forming the subgroups kernel and image, and also the
     quotient group for cokernel. These are needed to use the relevant results
     in Algebra/Monoid_and_Groups.v . *)
-  Definition ABGR_kernel_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtypes A
+  Definition ABGR_kernel_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype A
     := (fun x : A => ishinh ((f x) = unel B)).
 
-  Definition ABGR_image_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtypes B
+  Definition ABGR_image_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype B
     := (fun y : B => ∃ x : A, (f x) = y).
 
   (** An equality we are going to use. *)

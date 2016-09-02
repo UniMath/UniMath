@@ -27,7 +27,7 @@ Require Export UniMath.Foundations.Algebra.Domains_and_Fields .
 
 (* we will write m≠n for algorithmic inequality and ¬(m=n) for negation of equality *)
 
-Definition natnegpaths ( x y : nat ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
+Definition natnegpaths ( x y : nat ) : hProp := hProppair ( ¬ ( paths x y ) ) ( isapropneg _  )  .
 
 Fixpoint natneq_hProp (n m : nat) : hProp :=
 match n , m with

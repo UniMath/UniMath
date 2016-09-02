@@ -455,7 +455,7 @@ Proof.
   intro t0. induction t0.
 Defined.
 
-Definition iscontrsecoverempty2 {X : UU} (P : X -> UU) (is : neg X) :
+Definition iscontrsecoverempty2 {X : UU} (P : X -> UU) (is : ¬ X) :
   iscontr (Π x : X, P x).
 Proof.
   intros. set (w := weqtoempty is). set (w' := weqonsecbase P (invweq w)).
@@ -511,7 +511,7 @@ Proof.
   intro x. induction x.
 Defined.
 
-Theorem iscontrfunfromempty2 (X : UU) {Y : UU} (is : neg Y) : iscontr (Y -> X).
+Theorem iscontrfunfromempty2 (X : UU) {Y : UU} (is : ¬ Y) : iscontr (Y -> X).
 Proof.
   intros. set (w := weqtoempty is). set (w' := weqbfun X (invweq w)).
   apply (iscontrweqb w' (iscontrfunfromempty X)).
@@ -732,7 +732,7 @@ Proof. intros. apply impred. intro. assumption. Defined.
 (** *** Functions to an empty type (generalization of [ isapropneg ]) *)
 
 
-Theorem isapropneg2 (X : UU) {Y : UU} (is : neg Y) : isaprop (X -> Y).
+Theorem isapropneg2 (X : UU) {Y : UU} (is : ¬ Y) : isaprop (X -> Y).
 Proof. intros. apply impred. intro. apply (isapropifnegtrue is). Defined.
 
 
@@ -1011,7 +1011,7 @@ Theorem isapropweqtoempty (X : UU) : isaprop (weq X empty).
 Proof. intro. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropempty)). Defined.
 
 
-Theorem isapropweqtoempty2 (X : UU) {Y : UU} (is : neg Y) : isaprop (weq X Y).
+Theorem isapropweqtoempty2 (X : UU) {Y : UU} (is : ¬ Y) : isaprop (weq X Y).
 Proof. intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropifnegtrue is)). Defined.
 
 
@@ -1020,7 +1020,7 @@ Proof. intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropifnegtrue is)). De
 Theorem isapropweqfromempty (X : UU) : isaprop (weq empty X).
 Proof. intro. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropempty)). Defined.
 
-Theorem isapropweqfromempty2 (X : UU) {Y : UU} (is : neg Y) : isaprop (weq Y X).
+Theorem isapropweqfromempty2 (X : UU) {Y : UU} (is : ¬ Y) : isaprop (weq Y X).
 Proof. intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropifnegtrue is)). Defined.
 
 (** *** Weak equivalences to and from [ unit ] *)
@@ -1086,7 +1086,7 @@ Proof.
         -- simpl. rewrite (pathsinv0 etwt').
            apply (pathsfuntransposoft2 t (w t) is _).
         -- simpl.
-           assert (ne : neg (paths (w t) (w t')))
+           assert (ne : ¬ (paths (w t) (w t')))
              by apply (negf (invmaponpathsweq w _ _) nett').
            apply (pathsfuntransposofnet1t2 t (w t) is _  (w t') netwt' ne).
   - intro xw. induction xw as [ x w ]. induction x as [ t' is' ].
@@ -1181,9 +1181,9 @@ Defined.
 
 
 Definition negimage (X : UU) (Y : UU) (f : X -> Y)
-:= total2 Y (fun y : Y => neg(hfiber f y)).
+:= total2 Y (fun y : Y => ¬(hfiber f y)).
 Definition negimageincl (X Y : UU) (f : X -> Y)
-:= pr1 Y (fun y : Y => neg(hfiber f y)).
+:= pr1 Y (fun y : Y => ¬(hfiber f y)).
 
 
 Definition imsum (X : UU) (Y : UU) (f : X -> Y) :

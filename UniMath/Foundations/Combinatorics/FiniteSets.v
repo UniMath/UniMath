@@ -37,7 +37,7 @@ Definition nelstructweqb { X Y : UU } { n : nat } ( w : weq X Y ) ( sy : nelstru
 
 Definition nelstructonempty : nelstruct 0 empty := weqstn0toempty .
 
-Definition nelstructonempty2 { X : UU } ( is : neg X ) : nelstruct 0 X :=  weqcomp weqstn0toempty ( invweq ( weqtoempty is ) ) .
+Definition nelstructonempty2 { X : UU } ( is : ¬ X ) : nelstruct 0 X :=  weqcomp weqstn0toempty ( invweq ( weqtoempty is ) ) .
 
 Definition nelstructonunit : nelstruct 1 unit := weqstn1tounit .
 
@@ -85,7 +85,7 @@ Definition isofnelweqb { X Y : UU } { n : nat } ( w : weq X Y ) ( sy : isofnel n
 
 Definition isofnelempty : isofnel 0 empty := hinhpr nelstructonempty .
 
-Definition isofnelempty2 { X : UU } ( is : neg X ) : isofnel 0 X :=  hinhpr ( nelstructonempty2 is ) .
+Definition isofnelempty2 { X : UU } ( is : ¬ X ) : isofnel 0 X :=  hinhpr ( nelstructonempty2 is ) .
 
 Definition isofnelunit : isofnel 1 unit := hinhpr nelstructonunit  .
 
@@ -128,7 +128,7 @@ Definition finstructweqb { X Y : UU } ( w : weq X Y ) ( sy : finstruct Y ) : fin
 
 Definition finstructonempty : finstruct empty := tpair _ 0 nelstructonempty .
 
-Definition finstructonempty2 { X : UU } ( is : neg X ) : finstruct X :=  tpair _ 0 ( nelstructonempty2 is ) .
+Definition finstructonempty2 { X : UU } ( is : ¬ X ) : finstruct X :=  tpair _ 0 ( nelstructonempty2 is ) .
 
 Definition finstructonunit : finstruct unit := tpair _ 1 nelstructonunit .
 
@@ -209,7 +209,7 @@ Definition isfiniteweqb { X Y : UU } ( w : weq X Y ) ( sy : isfinite Y ) : isfin
 
 Definition isfiniteempty : isfinite empty := hinhpr finstructonempty .
 
-Definition isfiniteempty2 { X : UU } ( is : neg X ) : isfinite X :=  hinhpr ( finstructonempty2 is ) .
+Definition isfiniteempty2 { X : UU } ( is : ¬ X ) : isfinite X :=  hinhpr ( finstructonempty2 is ) .
 
 Definition isfiniteunit : isfinite unit := hinhpr finstructonunit .
 
