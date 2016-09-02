@@ -69,7 +69,7 @@ Proof.
   now apply pr2.
 Qed.
 
-Lemma isaprop_Dcuts_subtype (X : hsubtypes NonnegativeRationals) :
+Lemma isaprop_Dcuts_hsubtypes (X : hsubtypes NonnegativeRationals) :
   isaprop (Dcuts_def_bot X × Dcuts_def_open X × Dcuts_def_error X).
 Proof.
   intro X.
@@ -79,12 +79,12 @@ Proof.
   - exact (isaprop_Dcuts_def_error X).
 Qed.
 
-Definition Dcuts_subtype : hsubtypes (hsubtypes NonnegativeRationals) :=
-  fun X : hsubtypes NonnegativeRationals => hProppair _ (isaprop_Dcuts_subtype X).
-Lemma isaset_Dcuts : isaset (carrier Dcuts_subtype).
+Definition Dcuts_hsubtypes : hsubtypes (hsubtypes NonnegativeRationals) :=
+  fun X : hsubtypes NonnegativeRationals => hProppair _ (isaprop_Dcuts_hsubtypes X).
+Lemma isaset_Dcuts : isaset (carrier Dcuts_hsubtypes).
 Proof.
   apply isasetsubset with pr1.
-  apply isasetsubtype.
+  apply isasethsubtypes.
   apply isinclpr1.
   intro x.
   apply pr2.

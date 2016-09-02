@@ -9,13 +9,13 @@ Require Import UniMath.Foundations.Algebra.BinaryOperations
 
 (** ** Subsets *)
 
-Lemma isaset_subtype {X : hSet} (Hsub : hsubtypes X) : isaset (carrier Hsub).
+Lemma isaset_hsubtypes {X : hSet} (Hsub : hsubtypes X) : isaset (carrier Hsub).
 Proof.
   intros X Hsub.
   apply (isasetsubset pr1 (pr2 X) (isinclpr1 (λ x : X, Hsub x) (λ x : X, pr2 (Hsub x)))).
 Qed.
 Definition subset {X : hSet} (Hsub : hsubtypes X) : hSet :=
-  hSetpair (carrier Hsub) (isaset_subtype Hsub).
+  hSetpair (carrier Hsub) (isaset_hsubtypes Hsub).
 Definition makeSubset {X : hSet} {Hsub : hsubtypes X} (x : X) (Hx : Hsub x) : subset Hsub :=
   x,, Hx.
 
