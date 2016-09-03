@@ -186,8 +186,8 @@ Section cokernels_iso.
              (H : g = (CokernelArrow _ CK) ;; h) :
     f ;; g = ZeroArrow C Z x z.
   Proof.
-    induction CK. induction t. induction p.
-    unfold isCoequalizer in p.
+    induction CK as [t p]. induction t as [t' p']. induction p as [t'' p''].
+    unfold isCoequalizer in p''.
     rewrite H.
     rewrite <- (ZeroArrow_comp_left _ _ _ _ _ h).
     rewrite assoc.
@@ -203,16 +203,16 @@ Section cokernels_iso.
                   (CokernelEqRw Z (Cokernel_up_to_iso_eq f g CK h H)).
   Proof.
     apply mk_isCoequalizer.
-    induction CK. induction t. induction p.
-    unfold isCoequalizer in p.
+    induction CK as [t p]. induction t as [t' p']. induction p as [t'' p''].
+    unfold isCoequalizer in p''.
     intros w h0 HH.
-    set (tmp := p w h0 HH). cbn in tmp. cbn in h.
-    induction tmp.
-    induction t1.
+    set (tmp := p'' w h0 HH). cbn in tmp. cbn in h.
+    induction tmp as [t''' p'''].
+    induction t''' as [t'''' p''''].
 
     use unique_exists.
-    exact ((inv_from_iso h) ;; t1).
-    cbn. rewrite <- p2.
+    exact ((inv_from_iso h) ;; t'''').
+    cbn. rewrite <- p''''.
     rewrite assoc. apply cancel_postcomposition.
     cbn in H. rewrite H. rewrite <- assoc.
     rewrite <- id_right. apply cancel_precomposition.
@@ -222,7 +222,7 @@ Section cokernels_iso.
     intros y0 X. cbn in X. cbn in H.
     rewrite H in X.
     rewrite <- assoc in X.
-    set (tmp := p1 (tpair _ (h ;; y0) X)).
+    set (tmp := p''' (tpair _ (h ;; y0) X)).
     apply base_paths in tmp. cbn in tmp.
     rewrite <- tmp. rewrite assoc.
     rewrite iso_after_iso_inv.

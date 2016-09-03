@@ -67,17 +67,23 @@ The coproduct of two types is introduced in Coq.Init.Datatypes by the lines:
   | inr : B -> sum A B. ]
 *)
 
-Notation coprod := sum .
+(* Notation coprod := sum . *)
+(* Notation coprod_rect := sum_rect. *)
+
+Inductive coprod (__A__ __B__:Type) : Type :=
+  | inl : __A__ -> coprod __A__ __B__
+  | inr : __B__ -> coprod __A__ __B__.
+(* Do not use "induction" on an element of this type without specifying names; seeing __A__ or __B__ will indicate that you did that. *)
+
+Arguments coprod_rect {_ _} _ _ _ _.
 
 Notation ii1fun := inl .
 Notation ii2fun := inr .
 
 Notation ii1 := inl .
 Notation ii2 := inr .
-Implicit Arguments ii1 [ A B ] .
-Implicit Arguments ii2 [ A B ] .
-
-Notation coprod_rect := sum_rect.
+Arguments ii1 {A B} _ : rename.
+Arguments ii2 {A B} _ : rename.
 
 Notation "X ⨿ Y" := (coprod X Y) (at level 50, left associativity).
   (* type this in emacs with C-X 8 RET AMALGAMATION OR COPRODUCT *)
@@ -134,7 +140,9 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
 (* or total2 as an inductive type:  *)
 
-    Inductive total2 { T: Type } ( P: T -> Type ) := tpair : Π ( t : T ) ( p : P t ) , total2 P .
+    Inductive total2 { T: Type } ( P: T -> Type ) := tpair : Π ( __t__ : T ) ( __p__ : P __t__ ) , total2 P .
+    (* Do not use "induction" without specifying names; seeing __t__ or __p__ will indicate that you did that. *)
+    (* This will prepare for the use of primitive projections, when the names will be pr1 and pr2. *)
 
     Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T .
     Proof . intros .  induction t as [ t p ] . exact t . Defined.

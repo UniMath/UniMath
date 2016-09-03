@@ -26,7 +26,7 @@ Lemma mt_path_refl (T:Tree) (x y:T) : x = y -> mt_dist _ x y = 0.
 Proof. intros ? ? ? e. destruct e. apply mt_refl. Qed.
 
 Lemma tree_deceq (T:Tree) : isdeceq T.
-Proof. intros. intros t u. induction (isdeceqnat (mt_dist T t u) 0).
+Proof. intros. intros t u. induction (isdeceqnat (mt_dist T t u) 0) as [a|b].
        { apply inl. apply mt_anti. assumption. }
        { apply inr. intro e. apply b. destruct e. apply mt_refl. } Qed.
 

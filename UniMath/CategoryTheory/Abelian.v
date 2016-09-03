@@ -238,8 +238,8 @@ Section abelian_monic_epi_iso.
     set (AMK := Abelian_AMKD A x y M1).
     set (AEC := Abelian_AECD A x y E1).
 
-    induction AMK. induction t. induction t.
-    induction AEC. induction t0. induction t0.
+    induction AMK as [t p]. induction t as [t p0]. induction t as [t p1].
+    induction AEC as [t0 p2]. induction t0 as [t0 p3]. induction t0 as [t0 p4].
 
     unfold isEqualizer in p. unfold isCoequalizer in p2.
 
@@ -249,7 +249,7 @@ Section abelian_monic_epi_iso.
     set (t'1 := maponpaths (fun h : A⟦y, t⟧ => identity _ ;; h) p0).
     cbn in t'1.
     set (p'' := p' t'1).
-    induction p''. induction t1.
+    induction p'' as [t1 p5]. induction t1 as [t1 p6].
 
     use is_iso_qinv.
 
@@ -479,7 +479,7 @@ Section abelian_subobject_pullbacks.
     intros y0. apply isapropdirprod. apply hs. apply hs.
 
     (* Uniqueness *)
-    intros y0 t. cbn in t. induction t.
+    intros y0 t. cbn in t. induction t as [t p].
     apply (KernelArrowisMonic (Abelian_Zero A) ker).
     rewrite (KernelCommutes (Abelian_Zero A) ker).
     rewrite <- (KernelCommutes (Abelian_Zero A) ker1 ker
@@ -726,7 +726,7 @@ Section abelian_subobject_pullbacks.
     intros y0. apply isapropdirprod. apply hs. apply hs.
 
     (* Uniqueness *)
-    intros y0 t. cbn in t. induction t.
+    intros y0 t. cbn in t. induction t as [t p].
     apply (CokernelArrowisEpi (Abelian_Zero A) coker).
     rewrite (CokernelCommutes (Abelian_Zero A) coker).
     rewrite <- (CokernelCommutes (Abelian_Zero A) coker1 coker
