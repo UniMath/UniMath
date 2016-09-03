@@ -189,7 +189,7 @@ Proof . intros . apply iscancelableif .  intros a b . apply ( intdomlcan X a b x
 (** **** Multiplicative submonoid of non-zero elements *)
 
 
-Definition intdomnonzerosubmonoid ( X : intdom ) : @subabmonoids ( rngmultabmonoid X ) .
+Definition intdomnonzerosubmonoid ( X : intdom ) : subabmonoid ( rngmultabmonoid X ) .
 Proof . intros . split with ( fun x : X => hProppair _ ( isapropneg ( paths x 0 ) ) ) . split .
 
 intros a b . simpl in * .  intro e . set ( int := intdomax X ( pr1 a ) ( pr1 b ) e ) . clearbody int . generalize int . apply ( toneghdisj ) .  apply ( dirprodpair ( pr2 a ) ( pr2 b ) ) .

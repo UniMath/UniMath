@@ -24,7 +24,7 @@ Require Export UniMath.Foundations.Basics.Propositions .
 
 (** ** The type of sets i.e. of types of h-level 2 in [ UU ] *)
 
-Definition hSet:= total2 (fun X : UU => isaset X) .
+Definition hSet:= Σ X:UU, isaset X.
 Definition hSetpair X i := tpair isaset X i : hSet.
 Definition pr1hSet:= @pr1 UU (fun X : UU => isaset X) : hSet -> UU.
 Coercion pr1hSet: hSet >-> UU .
@@ -507,7 +507,7 @@ Proof. intros ? x y l m. exact (pr2 (pr2 (pr2 X)) x y l m). Defined.
 Delimit Scope poset with poset.
 Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) : poset.
 Definition isaposetmorphism { X Y : Poset } ( f : X -> Y ) := (Π x x' : X, x ≤ x' -> f x ≤ f x')%poset .
-Definition posetmorphism ( X Y : Poset ) := total2 ( fun f : X -> Y => isaposetmorphism f ) .
+Definition posetmorphism ( X Y : Poset ) := Σ f : X -> Y, isaposetmorphism f.
 Definition posetmorphismpair ( X Y : Poset ) := tpair ( fun f : X -> Y => isaposetmorphism f ) .
 Definition carrierofposetmorphism ( X Y : Poset ) : posetmorphism X Y -> ( X -> Y ) := @pr1 _ _ .
 Coercion  carrierofposetmorphism : posetmorphism >-> Funclass .
@@ -604,7 +604,7 @@ Defined.
 
 (** *** Eqivalence relations and associated types . *)
 
-Definition eqrel ( X : UU ) := total2 ( fun R : hrel X => iseqrel R ) .
+Definition eqrel ( X : UU ) := Σ R:hrel X, iseqrel R.
 Definition eqrelpair { X : UU } ( R : hrel X ) ( is : iseqrel R ) : eqrel X := tpair ( fun R : hrel X => iseqrel R ) R is .
 Definition eqrelconstr { X : UU } ( R : hrel X ) ( is1 : istrans R ) ( is2 : isrefl R ) ( is3 : issymm R ) : eqrel X := eqrelpair R ( dirprodpair ( dirprodpair is1 is2 ) is3 ) .
 Definition pr1eqrel ( X : UU ) : eqrel X -> ( X -> ( X -> hProp ) ) := @pr1 _ _ .
@@ -685,7 +685,7 @@ Proof . intros .  unfold neqh . unfold booleq . apply weqimplimpl . destruct ( i
 (** *** Boolean representation of decidable relations *)
 
 
-Definition decrel ( X : UU ) := total2 ( fun R : hrel X => isdecrel R ) .
+Definition decrel ( X : UU ) := Σ R : hrel X, isdecrel R.
 Definition pr1decrel ( X : UU ) : decrel X -> hrel X := @pr1 _ _ .
 Definition decrelpair { X : UU } { R : hrel X } ( is : isdecrel R ) : decrel X := tpair _ R is .
 Coercion pr1decrel : decrel >-> hrel .
@@ -845,7 +845,7 @@ Our main construction is analogous to the usual construction of quotient as a se
 (** ** Setquotient defined in terms of equivalence classes *)
 
 
-Definition setquot { X : UU } ( R : hrel X ) := total2 ( fun A : _ => iseqclass R A ) .
+Definition setquot { X : UU } ( R : hrel X ) := Σ A, iseqclass R A.
 Definition setquotpair { X : UU } ( R : hrel X ) ( A : hsubtype X ) ( is : iseqclass R A ) := tpair _ A is .
 Definition pr1setquot { X : UU } ( R : hrel X ) : setquot R -> ( hsubtype X ) := @pr1 _ ( fun A : _ => iseqclass R A ) .
 Coercion pr1setquot : setquot >-> hsubtype .
@@ -1280,7 +1280,7 @@ We also show that two constructions of set-quotients of types - the one given in
 
 
 
-Definition compfun { X : UU }  ( R : hrel X ) ( S : UU ) : UU := total2  (fun F: X -> S => iscomprelfun R F ) .
+Definition compfun { X : UU }  ( R : hrel X ) ( S : UU ) : UU := Σ F: X -> S, iscomprelfun R F.
 Definition compfunpair { X : UU }  ( R : hrel X ) { S : UU } ( f : X -> S ) ( is : iscomprelfun R f ) : compfun R S := tpair _ f is .
 Definition pr1compfun ( X : UU )  ( R : hrel X ) ( S : UU ) : @compfun X R S -> ( X -> S ) := @pr1 _ _ .
 Coercion pr1compfun : compfun >-> Funclass .

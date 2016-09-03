@@ -965,7 +965,7 @@ Section ABGR_kernels.
   Qed.
 
   (** Construction of the kernel of f. *)
-  Definition ABGR_kernel_subabgr {A B : abgr} (f : monoidfun A B) : @subabgrs A
+  Definition ABGR_kernel_subabgr {A B : abgr} (f : monoidfun A B) : @subabgr A
     := subgrconstr (@ABGR_kernel_hsubtype A B f)
                    (ABGR_kernel_subabgr_issubgr f).
 
@@ -1118,7 +1118,7 @@ Section ABGR_kernels.
   Qed.
 
   (** Construction of the image of f. *)
-  Definition ABGR_image {A B : abgr} (f : monoidfun A B) : @subabgrs B
+  Definition ABGR_image {A B : abgr} (f : monoidfun A B) : @subabgr B
     := @subgrconstr B (@ABGR_image_hsubtype A B f)
                     (ABGR_image_issubgr f).
 

@@ -1107,7 +1107,7 @@ Proof .  intros X Y f x isf isx .   assert ( is' : Π y : Y , isdecincl ( d1g  f
 (** *** Decidable inclusions and coprojections *)
 
 
-Definition negimage { X Y : UU } ( f : X -> Y ) := total2 ( fun y : Y => ¬ ( hfiber f y ) ) .
+Definition negimage { X Y : UU } ( f : X -> Y ) := Σ y, ¬ ( hfiber f y ).
 Definition negimagepair { X Y : UU } ( f : X -> Y ) := tpair ( fun y : Y => ¬ ( hfiber f y ) ) .
 
 Lemma isinclfromcoprodwithnegimage { X Y : UU } ( f : X -> Y ) ( is : isincl f ) : isincl ( sumofmaps f ( @pr1 _ ( fun y : Y => ¬ ( hfiber f y ) ) ) ) .

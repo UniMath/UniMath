@@ -69,7 +69,7 @@ Proof . intros . apply impred . intro x . simpl . apply ( setproperty X ) .  Def
 
 Definition isunit { X : hSet} ( opp : binop X ) ( un0 : X ) := dirprod ( islunit opp un0 ) ( isrunit opp un0 ) .
 
-Definition isunital { X : hSet} ( opp : binop X ) := total2 ( fun un0 : X => isunit opp un0 ) .
+Definition isunital { X : hSet} ( opp : binop X ) := Σ un0:X, isunit opp un0.
 Definition isunitalpair { X : hSet } { opp : binop X } ( un0 : X ) ( is : isunit opp un0 ) : isunital opp := tpair _ un0 is .
 
 Lemma isapropisunital { X : hSet} ( opp : binop X )  : isaprop ( isunital opp ) .
@@ -107,9 +107,9 @@ Definition isinv { X : hSet } ( opp : binop X ) ( un0 : X ) ( inv0 : X -> X ) :=
 Lemma isapropisinv { X : hSet } ( opp : binop X ) ( un0 : X ) ( inv0 : X -> X ) : isaprop ( isinv opp un0 inv0 ) .
 Proof . intros . apply ( isofhleveldirprod 1 ) . apply isapropislinv .  apply isapropisrinv . Defined .
 
-Definition invstruct { X : hSet } ( opp : binop X ) ( is : ismonoidop opp  ) := total2 ( fun inv0 : X -> X =>  isinv opp ( unel_is is ) inv0 ) .
+Definition invstruct { X : hSet } ( opp : binop X ) ( is : ismonoidop opp  ) := Σ inv0 : X -> X, isinv opp ( unel_is is ) inv0.
 
-Definition isgrop { X : hSet } ( opp : binop X ) := total2 ( fun is : ismonoidop opp => invstruct opp is ) .
+Definition isgrop { X : hSet } ( opp : binop X ) := Σ is : ismonoidop opp, invstruct opp is.
 Definition isgroppair { X : hSet } { opp : binop X } ( is1 : ismonoidop opp ) ( is2 : invstruct opp is1 ) : isgrop opp := tpair ( fun is : ismonoidop opp => invstruct opp is ) is1 is2 .
 Definition pr1isgrop ( X : hSet ) ( opp : binop X ) : isgrop opp -> ismonoidop opp := @pr1 _ _ .
 Coercion pr1isgrop : isgrop >-> ismonoidop .
