@@ -120,7 +120,6 @@ Defined.
 
 (** ** Types [ X ] which satisfy " weak " axiom of choice for all families [ P : X -> UU ]
 
-<<<<<<< HEAD:UniMath/Foundations/Sets.v
 Weak axiom of choice for [ X ] is the condition that for any family [ P : X -> UU ] over [ X ] such
 that all members of the family are inhabited the space of sections of the family is inhabited .
 Equivalently one can formulate it as an assertion that for any surjection ( see below )
@@ -138,12 +137,6 @@ a set . In particular , if one imposes weak axiom of choice for sets as an axiom
 follow that every type satisfying weak axiom of choice is a set . I do not know however if there
 are models which would validate a possibility of types other than sets to satisfy weak axiom of
 choice .
-=======
-Weak axiom of choice for [ X ] is the condition that for any family [ P : X -> UU ] over [ X ] such that all members of the family are inhabited the space of sections of the family is inhabited . Equivalently one can formulate it as an assertion that for any surjection ( see below ) [ p : Y -> X ] the space of sections of this surjection i.e. functions [ s : X -> Y ] together with a homotopy from [ funcomp s p ] to [ idfun X ] is inhabited . It does not provide a choice of a section for such a family or a surjection . In topos-theoretic semantics this condition corresponds to " local projectivity " of [ X ] . It automatically holds for the point [ unit ] but need not hold for sub-objects of [ unit ] i.e. for types of h-level 1 ( propositions ) . In particular it does not have to hold for general types with decidable equality .
-
-Intuition based on standard univalent models suggests that any type satisfying weak axiom of choice is a set . Indeed it seems to be possible to show that if both a type and the set of connected components of this type ( see below ) satisfy weak  axiom of choice then the type is a set . In particular , if one imposes weak axiom of choice for sets as an axiom then it would follow that every type satisfying weak axiom of choice is a set . I do not know however if there are models which would validate a possibility of types other than sets to satisfy weak axiom of choice .
->>>>>>> 6ce8bf092873744cc1f0696f2291380307cab948:UniMath/Foundations/Basics/Sets.v
-
 
 *)
 
