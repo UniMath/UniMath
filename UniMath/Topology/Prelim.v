@@ -128,10 +128,14 @@ Proof.
     intros C.
     generalize (pr1 (pr2 C)).
     apply hinhfun.
-    apply sumofmaps ; intros <-.
-    + left.
+    apply sumofmaps.
+    + intro e.
+      rewrite <- e.
+      left.
       apply (pr2 (pr2 C)).
-    + right.
+    + intro e.
+      rewrite <- e.
+      right.
       apply (pr2 (pr2 C)).
   - apply hinhfun ; apply sumofmaps ; [ intros Ax | intros Bx].
     + exists A.

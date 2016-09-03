@@ -34,7 +34,8 @@ Lemma natmultS :
   Π {X : monoid} (n : nat) (x : X),
     natmult (S n) x = (x + natmult n x)%addmonoid.
 Proof.
-  intros X [ | n] x.
+  intros X n x.
+  induction n as [|n].
   - now rewrite runax.
   - reflexivity.
 Qed.
@@ -491,8 +492,8 @@ Proof.
     apply hinhfun.
     intros n.
     exists (pr1 n).
-    abstract (pattern x at 2 ; rewrite <- (riglunax1 X x) ;
-              pattern (0%rig : X) at 2 ; rewrite <- (rigmultx0 X (nattorig (pr1 n))) ;
+    abstract (pattern x ; rewrite <- (riglunax1 X x) ;
+              pattern (0%rig : X) ; rewrite <- (rigmultx0 X (nattorig (pr1 n))) ;
               rewrite nattorig_natmult ;
               exact (pr2 n)).
   - intros x.
@@ -500,7 +501,7 @@ Proof.
     apply hinhfun.
     intros n.
     exists (pr1 n).
-    abstract (pattern (0%rig : X) at 2 ;
+    abstract (pattern (0%rig : X) ;
                rewrite <- (rigmultx0 X (nattorig (pr1 n))), nattorig_natmult ;
                exact (pr2 n)).
 Defined.

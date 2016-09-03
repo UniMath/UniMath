@@ -166,10 +166,9 @@ Section def_cokernels.
   Lemma CokernelArrowisEpi {y z : C} {g : y --> z} (CK : Cokernel g ) :
     isEpi _ (CokernelArrow CK).
   Proof.
-    apply CoequalizerArrowisEpi.
+    simple refine (CoequalizerArrowisEpi _).
   Defined.
 End def_cokernels.
-
 
 (** In the following section we construct a new cokernel from an arrow which is
   equal to cokernelarrow of some cokernel, up to postcomposing with an
