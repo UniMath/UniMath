@@ -74,7 +74,8 @@ The coproduct of two types is introduced in Coq.Init.Datatypes by the lines:
 Inductive coprod (__A__ __B__:Type) : Type :=
   | inl : __A__ -> coprod __A__ __B__
   | inr : __B__ -> coprod __A__ __B__.
-(* Do not use "induction" on an element of this type without specifying names; seeing __A__ or __B__ will indicate that you did that. *)
+(* Do not use "induction" on an element of this type without specifying names; seeing __A__ or __B__
+   will indicate that you did that. *)
 
 Arguments coprod_rect {_ _} _ _ _ _.
 
@@ -141,9 +142,11 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
 (* or total2 as an inductive type:  *)
 
-    Inductive total2 { T: Type } ( P: T -> Type ) := tpair : Π ( __t__ : T ) ( __p__ : P __t__ ) , total2 P .
-    (* Do not use "induction" without specifying names; seeing __t__ or __p__ will indicate that you did that. *)
-    (* This will prepare for the use of primitive projections, when the names will be pr1 and pr2. *)
+    Inductive total2 { T: Type } ( P: T -> Type ) := tpair : Π (__t__:T) (__p__:P __t__), total2 P.
+
+    (* Do not use "induction" without specifying names; seeing __t__ or __p__ will indicate that you
+       did that.  This will prepare for the use of primitive projections, when the names will be pr1
+       and pr2. *)
 
     Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T .
     Proof . intros .  induction t as [ t p ] . exact t . Defined.
