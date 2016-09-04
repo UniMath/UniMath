@@ -50,6 +50,10 @@ according to the following principles.
   HTML with expansible/collapsible proofs.
 * Use Unicode notation freely, but make the parsing conventions uniform across files, and consider
   putting them into a scope.
+* Each line should be limited to at most 100 (unicode) characters.  The
+  makefile target `enforce-max-line-length` can be used to detect nonconforming
+  files, and the target `show-long-lines` can be used to display the
+  nonconforming lines.
 
 Our files don't adhere yet to all of these conventions, but it's a goal we
 strive for.

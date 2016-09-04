@@ -1,6 +1,7 @@
 ((coq-mode
   . ((eval . 
 	   (let ((unimath-topdir (expand-file-name (locate-dominating-file buffer-file-name "UniMath"))))
+	     (setq fill-column 100)
 	     (make-local-variable 'coq-use-project-file)
 	     (setq coq-use-project-file nil)
 	     (make-local-variable 'coq-prog-args)

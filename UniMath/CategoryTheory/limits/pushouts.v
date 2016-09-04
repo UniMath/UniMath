@@ -380,7 +380,7 @@ Section po_criteria.
     intros y. apply isapropdirprod. apply hs. apply hs.
 
     (* Uniqueness *)
-    intros y H. induction H. apply CoequalizerOutsEq.
+    intros y H. induction H as [t p]. apply CoequalizerOutsEq.
     apply BinCoproductArrowsEq.
     rewrite <- assoc in t. rewrite t.
     rewrite (CoequalizerCommutes CEq e _). apply pathsinv0.

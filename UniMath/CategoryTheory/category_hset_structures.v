@@ -620,7 +620,7 @@ use adjunction_from_partial.
         apply maponpaths;
         assert (H : # R (identity x) = identity (R x));
           [apply functor_id|];
-        destruct p; apply maponpaths; simpl;
+        induction p as [t p]; apply maponpaths; simpl;
         now apply pathsinv0; eapply pathscomp0; [apply (toforallpaths _ _ _ H p)|]).
   + abstract (
     intros [t p]; apply subtypeEquality; simpl;
