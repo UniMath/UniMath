@@ -43,7 +43,7 @@ Proof. intro .  refine (isinclpr1 _ _) .  intro x .  apply ( pr2 ( natlth x n ) 
 Lemma isdecinclstntonat ( n : nat ) : isdecincl ( stntonat n ) .
 Proof. intro . refine ( isdecinclpr1 _ _) .  intro x . apply isdecpropif . apply ( pr2 _ ) .   apply isdecrelnatgth .  Defined .
 
-Lemma neghfiberstntonat ( n m : nat ) ( is : natgeh m n ) : neg ( hfiber ( stntonat n ) m ) .
+Lemma neghfiberstntonat ( n m : nat ) ( is : natgeh m n ) : ¬ ( hfiber ( stntonat n ) m ) .
 Proof. intros . intro h . destruct h as [ j e ] .  destruct j as [ j is' ] .  simpl in e .  rewrite e in is' .  apply ( natgehtonegnatlth _ _ is is' ) . Defined .
 
 Lemma iscontrhfiberstntonat ( n m : nat ) ( is : natlth m n ) : iscontr ( hfiber ( stntonat n ) m ) .
@@ -186,7 +186,7 @@ assert ( is1 : iscontr ( hfiber ( stntonat n ) x ) ) . apply iscontrhfiberstnton
 assert ( is2 : iscontr ( hfiber ( stntonat ( S n ) ) ( di i x )  ) ) .    apply iscontrhfiberstntonat . apply ( natlehlthtrans _ ( S x ) ( S n ) ( natlehdinsn i x ) g ) .
 apply isweqcontrcontr . assumption . assumption .
 
-assert ( is1 : neg ( hfiber ( stntonat ( S n ) ) ( di i x ) ) ) . apply neghfiberstntonat . unfold di .   destruct ( natlthorgeh x i ) as [ l'' | g' ] .  destruct ( natgehchoice2 _ _ l ) as [ g' | e ] .   apply g' .  rewrite e in l'' .  assert ( int := natlthtolehsn _ _ l'' ) . contradicts (natgthnegleh (pr2 i)) int. apply l .  apply ( isweqtoempty2 _ is1 ) .
+assert ( is1 : ¬ ( hfiber ( stntonat ( S n ) ) ( di i x ) ) ) . apply neghfiberstntonat . unfold di .   destruct ( natlthorgeh x i ) as [ l'' | g' ] .  destruct ( natgehchoice2 _ _ l ) as [ g' | e ] .   apply g' .  rewrite e in l'' .  assert ( int := natlthtolehsn _ _ l'' ) . contradicts (natgthnegleh (pr2 i)) int. apply l .  apply ( isweqtoempty2 _ is1 ) .
 Defined .
 
 Lemma dni_neq_i {n} i j : i ≠ dni n i j.
@@ -369,7 +369,7 @@ Abort.
 
 (** *** Weak equivalences from [ stn n ] for [ n = 0 , 1 , 2 ] to [ empty ] , [ unit ] and [ bool ] ( see also the section on [ nelstruct ] in finitesets.v ) . *)
 
-Definition negstn0 : neg ( stn 0 ) .
+Definition negstn0 : ¬ ( stn 0 ) .
 Proof . intro x .  destruct x as [ a b ] .  apply ( negnatlthn0 _ b ) . Defined .
 
 Definition weqstn0toempty : weq ( stn 0 ) empty .
@@ -739,7 +739,7 @@ set ( x0 := pr1 ( IHn fh ) ) . set ( w0 := pr2 ( IHn fh ) ) . simpl in w0 . dest
 
 split with ( S x0 ) .  assert ( wi : weq ( hfiber fl true ) ( stn 1 ) ) . assert ( is : iscontr ( hfiber fl true ) ) . apply iscontraprop1 . apply ( isinclfromstn1 fl isasetbool true ) .  apply ( hfiberpair _ ( lastelement 0 ) i ) . apply ( weqcontrcontr is iscontrstn1 ) .  apply ( weqcomp ( weqcomp w' ( weqcoprodf wi w0 ) ) ( weqfromcoprodofstn 1 _ ) ) .
 
-split with x0 .  assert ( g' : neg ( hfiber fl true ) ) . intro hf . destruct hf as [ j e ] .  assert ( ee : paths j ( lastelement 0 ) ) . apply ( proofirrelevance _ ( isapropifcontr iscontrstn1 ) _ _ ) .  destruct ( nopathstruetofalse ( pathscomp0 ( pathscomp0 ( pathsinv0 e ) ( maponpaths fl ee ) ) ni ) ) .  apply ( weqcomp w' ( weqcomp ( invweq ( weqii2withneg _ g' ) ) w0 )  )  .  Defined .
+split with x0 .  assert ( g' : ¬ ( hfiber fl true ) ) . intro hf . destruct hf as [ j e ] .  assert ( ee : paths j ( lastelement 0 ) ) . apply ( proofirrelevance _ ( isapropifcontr iscontrstn1 ) _ _ ) .  destruct ( nopathstruetofalse ( pathscomp0 ( pathscomp0 ( pathsinv0 e ) ( maponpaths fl ee ) ) ni ) ) .  apply ( weqcomp w' ( weqcomp ( invweq ( weqii2withneg _ g' ) ) w0 )  )  .  Defined .
 
 (** *** Weak equivalences between hfibers of functions from [ stn n ] over isolated points and [ stn x ] *)
 
@@ -841,10 +841,10 @@ Proof . intro . induction n as [ | n IHn ] .  apply ( ischoicebaseempty2 negstn0
 (** ** Weak equivalence class of [ stn n ] determines [ n ] . *)
 
 
-Lemma negweqstnsn0 (n:nat): neg (weq (stn (S n)) (stn O)).
+Lemma negweqstnsn0 (n:nat): ¬ (weq (stn (S n)) (stn O)).
 Proof. unfold neg. intro. assert (lp: stn (S n)). apply lastelement.  intro X.  apply weqstn0toempty .  apply (pr1 X lp). Defined.
 
-Lemma negweqstn0sn (n:nat): neg (weq (stn O) (stn (S n))).
+Lemma negweqstn0sn (n:nat): ¬ (weq (stn O) (stn (S n))).
 Proof.  unfold neg. intro. assert (lp: stn (S n)). apply lastelement.  intro X.  apply weqstn0toempty .  apply (pr1 ( invweq X ) lp). Defined.
 
 Lemma weqcutforstn ( n n' : nat ) : stn (S n) ≃ stn (S n') -> stn n ≃ stn n'.
@@ -895,9 +895,9 @@ Proof . intros .  set ( P' := fun n' : nat => hProppair _ ( is n' ) ) . inductio
 
 
 
-(** The following lemma finds the largest [ n' ] such that [ neg ( P n' ) ] . It is a stronger form of ( neg Π ) -> ( exists neg ) in the case of bounded quantification of decidable propositions. *)
+(** The following lemma finds the largest [ n' ] such that [ ¬ ( P n' ) ] . It is a stronger form of ( ¬ Π ) -> ( exists ¬ ) in the case of bounded quantification of decidable propositions. *)
 
-Lemma negbforalldectototal2neg ( n : nat ) ( P : nat -> UU ) ( is : Π n' : nat , isdecprop ( P n' ) ) : neg ( Π n' : nat , natleh n' n -> P n' ) -> total2 ( fun n' => dirprod ( natleh n' n ) ( neg ( P n' ) ) ) .
+Lemma negbforalldectototal2neg ( n : nat ) ( P : nat -> UU ) ( is : Π n' : nat , isdecprop ( P n' ) ) : ¬ ( Π n' : nat , natleh n' n -> P n' ) -> total2 ( fun n' => dirprod ( natleh n' n ) ( ¬ ( P n' ) ) ) .
 Proof . intros n P is . set ( P' := fun n' : nat => hProppair _ ( is n' ) ) . induction n as [ | n IHn ] . intro nf . set ( nf0 := negf ( invweq ( weqforallnatlehn0 P' ) ) nf ) . split with 0 . apply ( dirprodpair ( isreflnatleh 0 ) nf0 ) .   intro nf . set ( nf2 := negf ( invweq ( weqforallnatlehnsn' n P' ) ) nf ) . set ( nf3 := fromneganddecy ( is ( S n ) ) nf2 ) . destruct nf3 as [ f1 | f2 ] . set ( int := IHn f1 ) .  destruct int as [ n' d2 ] . destruct d2 as [ l np ] . split with n' .  split with ( natlehtolehs _ _ l ) .  apply np . split with ( S n ) . split with ( isreflnatleh _ ) . apply f2 .  Defined .
 
 

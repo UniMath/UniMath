@@ -27,7 +27,7 @@ Require Export UniMath.Foundations.Algebra.Domains_and_Fields .
 
 (* we will write m≠n for algorithmic inequality and ¬(m=n) for negation of equality *)
 
-Definition natnegpaths ( x y : nat ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
+Definition natnegpaths ( x y : nat ) : hProp := hProppair ( ¬ ( paths x y ) ) ( isapropneg _  )  .
 
 Fixpoint natneq_hProp (n m : nat) : hProp :=
 match n , m with
@@ -1339,7 +1339,7 @@ Close Scope rig_scope .
 
 (** *** Submonoid of non-zero elements in [ nat ] *)
 
-Definition natnonzero : @subabmonoids natmultabmonoid .
+Definition natnonzero : subabmonoid natmultabmonoid .
 Proof . split with ( λ a, a ≠ 0 ) .  unfold issubmonoid .  split .  unfold issubsetwithbinop . intros a a' .  apply ( natneq0andmult _ _ ( pr2 a ) ( pr2 a' ) ) . apply ( ct ( natneq , isdecrel_natneq, 1 , 0 ) ) . Defined .
 
 Lemma natnonzerocomm ( a b : natnonzero ) : ( @op natnonzero a b ) = ( @op natnonzero b a ) .

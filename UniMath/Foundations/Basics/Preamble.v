@@ -1,7 +1,8 @@
 (** * Introduction. Vladimir Voevodsky . Feb. 2010 - Sep. 2011
 
-This is the first in the group of files which contain the (current state of) the mathematical library for the proof assistant Coq based on the Univalent Foundations.
-It contains some new notations for constructions defined in Coq.Init library as well as the definition of dependent sum.
+This is the first in the group of files which contain the (current state of) the mathematical
+library for the proof assistant Coq based on the Univalent Foundations.  It contains some new
+notations for constructions defined in Coq.Init library as well as the definition of dependent sum.
 
 
 *)
@@ -11,7 +12,7 @@ It contains some new notations for constructions defined in Coq.Init library as 
 
 (** Preamble. *)
 
-Unset Automatic Introduction.  (** This line has to be removed for the file to compile with Coq8.2 *)
+Unset Automatic Introduction.
 
 (** Universe structure *)
 
@@ -194,7 +195,9 @@ Inductive Phant ( T : Type ) := phant : Phant T .
 
 
 
-(** The following command checks whether the flag [-indices-matter] which modifies the universe level assignment for inductive types has been set. With the flag it returns [ paths 0 0 : UUU ] . Without the flag it returns [ paths 0 0 : Prop ]. *)
+(** The following command checks whether the flag [-indices-matter] which modifies the universe
+level assignment for inductive types has been set. With the flag it returns [ paths 0 0 : UUU
+]. Without the flag it returns [ paths 0 0 : Prop ]. *)
 
 Check (O = O) .
 

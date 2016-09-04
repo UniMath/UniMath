@@ -181,9 +181,9 @@ Definition neg (X : UU) : UU := X -> empty.
 Notation "'¬' X" := (neg X) (at level 35, right associativity).
 (* type this in emacs in agda-input method with \neg *)
 
-Notation "x != y" := (neg (x = y)) (at level 70).
+Notation "x != y" := (¬ (x = y)) (at level 70).
 
-(* Apply this tactic to a proof of [X] and [neg X], in either order: *)
+(* Apply this tactic to a proof of [X] and [¬ X], in either order: *)
 Ltac contradicts a b := solve [ induction (a b) | induction (b a) ].
 
 Definition negf {X Y : UU} (f : X -> Y) : ¬ Y -> ¬ X := λ phi x, phi (f x).
@@ -191,7 +191,7 @@ Definition negf {X Y : UU} (f : X -> Y) : ¬ Y -> ¬ X := λ phi x, phi (f x).
 Definition dneg (X : UU) : UU := ¬ ¬ X.
 
 Notation "'¬¬' X" := (dneg X) (at level 35, right associativity).
-(* type this in emacs in agda-input method with \neg *)
+(* type this in emacs in agda-input method with \¬ *)
 
 Definition dnegf {X Y : UU} (f : X -> Y) : dneg X -> dneg Y :=
   negf (negf f).
