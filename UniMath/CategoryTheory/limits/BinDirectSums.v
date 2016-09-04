@@ -519,7 +519,7 @@ Section bindirectsums_criteria.
 
     intros y. apply isapropdirprod. apply hs. apply hs.
 
-    intros y H. induction H. rewrite <- t. rewrite <- p.
+    intros y H. induction H as [t p]. rewrite <- t. rewrite <- p.
     rewrite assoc. rewrite assoc. cbn.
     set (tmp := (PreAdditive_postmor_linear
                    A _ _ _ y
@@ -547,7 +547,7 @@ Section bindirectsums_criteria.
     apply BinProductPr1Commutes.
     apply BinProductPr2Commutes.
     intros y. apply isapropdirprod. apply hs. apply hs.
-    intros y H. induction H. rewrite <- t. rewrite <- p.
+    intros y H. induction H as [t p]. rewrite <- t. rewrite <- p.
     rewrite <- precompWithBinProductArrow.
     apply BinProductArrowsEq.
     rewrite <- assoc. rewrite BinProductPr1Commutes. apply idpath.

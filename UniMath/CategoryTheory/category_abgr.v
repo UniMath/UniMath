@@ -998,7 +998,7 @@ Section ABGR_kernels.
     = ZeroArrow ABGR ABGR_has_zero
                 (carrierofasubabgr (ABGR_kernel_subabgr f)) B.
   Proof.
-    use total2_paths. apply funextfun. intros x. induction x. cbn.
+    use total2_paths. apply funextfun. intros x. induction x as [t p]. cbn.
     unfold funcomp, pr1carrier. cbn in p. cbn.
     use (squash_to_prop p). apply (setproperty B).
     intros X.
@@ -1100,9 +1100,9 @@ Section ABGR_kernels.
     intros a a'.  induction a as [a1 a2]. induction a' as [a'1 a'2].
     cbn in *.  unfold ishinh_UU in *.
     intros P X. apply (a2 P). intros a3. apply (a'2 P). intros a'3. apply X.
-    cbn in *. use tpair.  induction a3. induction a'3.
+    cbn in *. use tpair.  induction a3 as [t p]. induction a'3 as [t0 p0].
     apply (op t t0). cbn. unfold total2_rect.
-    induction a3. induction a'3. rewrite (pr1 (pr2 f)). cbn in *.
+    induction a3 as [t p]. induction a'3 as [t0 p0]. rewrite (pr1 (pr2 f)). cbn in *.
     rewrite p. rewrite p0. apply idpath.
 
     intros P X. apply X. use tpair. exact (unel A). cbn.
@@ -1112,7 +1112,7 @@ Section ABGR_kernels.
     intros x a.
     unfold ABGR_image_hsubtype in *. unfold ishinh in *. cbn in *.
     unfold ishinh_UU in *. intros P X. apply a. intros X1. apply X.
-    induction X1. use tpair. apply (grinv A t). cbn.
+    induction X1 as [t p]. use tpair. apply (grinv A t). cbn.
     set (XXt := monoidfuninvtoinv f t). cbn in XXt.
     rewrite XXt. rewrite p. apply idpath.
   Qed.
@@ -1129,7 +1129,7 @@ Section ABGR_kernels.
   Proof.
     intros x1 x2 x3 y1 y2.
     unfold ishinh in *. cbn in *. unfold ishinh_UU in *. intros P X.
-    apply y1. intros Y1. apply y2. intros Y2. induction Y1, Y2. apply X.
+    apply y1. intros Y1. apply y2. intros Y2. induction Y1 as [t p], Y2 as [t0 p0]. apply X.
     refine (tpair _ (op t t0) _). rewrite (pr1 (pr2 f)). cbn in *.
     rewrite p. rewrite p0.
 
@@ -1151,7 +1151,7 @@ Section ABGR_kernels.
   Proof.
     intros x1 x2 x3 y1 y2.
     unfold ishinh in *. cbn in *. unfold ishinh_UU in *. apply x3.
-    intros X3. apply y2. induction X3. refine (tpair _ (grinv A t) _).
+    intros X3. apply y2. induction X3 as [t p]. refine (tpair _ (grinv A t) _).
     set (XXf := (grinvandmonoidfun A B (pr2 f) t)). cbn in XXf.
     rewrite XXf. rewrite p.
     set (XXB := grinvcomp B x1 (grinv B x2)). cbn in XXB.
@@ -1175,7 +1175,7 @@ Section ABGR_kernels.
   Proof.
     use isbinophrelif. apply (pr2 (pr2 B)).
     intros x1 x2 x3 y1. cbn in *. unfold ishinh_UU in *. intros P X.
-    apply y1. intros Y1. induction Y1. apply X.
+    apply y1. intros Y1. induction Y1 as [t p]. apply X.
     refine (tpair _ t _). rewrite p. rewrite ((pr2 (pr2 B)) x3 _).
     rewrite (assocax B). apply lopeq. rewrite ((pr2 (pr2 B)) x3 _).
     rewrite grinvcomp. rewrite (assocax B). rewrite (grlinvax B).
@@ -1232,7 +1232,7 @@ Section ABGR_kernels.
     intros HH1.
     use (squash_to_prop H2). apply (pr2 (pr1 C)).
     intros HH2.
-    unfold hfiber in *. induction HH1. induction HH2.
+    unfold hfiber in *. induction HH1 as [t p]. induction HH2 as [t0 p0].
     rewrite <- p. rewrite <- p0. rewrite <- f'. cbn.
 
     assert (g (f (t * t0)%multmonoid) = (g ∘ f) (t * t0)%multmonoid).
@@ -1253,7 +1253,7 @@ Section ABGR_kernels.
   Proof.
     intros x x' X.
     use (squash_to_prop X). apply (pr2 (pr1 (pr1 C))).
-    intros X'. induction X'.
+    intros X'. induction X' as [t p].
     set (Y := funeqpaths H t). cbn in Y.
     apply (maponpaths (pr1 h)) in p. cbn in *.
     rewrite Y in p. rewrite (pr1 (pr2 h)) in p.
@@ -1309,14 +1309,14 @@ Section ABGR_kernels.
     intros y. cbn. intros x x'. apply (has_homsets_ABGR).
 
     (* Uniqueness *)
-    intros y. induction y. intros  t0. cbn in t0.
+    intros y. induction y as [t p]. intros  t0. cbn in t0.
     use total2_paths. cbn. apply funextfun.
     intros z. cbn in *.
     set (surj := issurjsetquotpr (ABGR_cokernel_eqrel f)).
     unfold issurjective in surj. cbn in surj.
     set (surjz := surj z).
     use (squash_to_prop surjz). apply (pr2 (pr1 (pr1 w))).
-    intros surjz'. unfold hfiber in surjz'. induction surjz'.
+    intros surjz'. unfold hfiber in surjz'. induction surjz' as [t1 p0].
     rewrite <- p0. cbn. apply base_paths in t0. cbn in t0.
     unfold funcomp in t0. apply (funeqpaths t0 t1).
 
@@ -1476,26 +1476,26 @@ Section ABGR_monics.
     iscomprelfun (binopeqrelabgrfrac (rigaddabmonoid natcommrig))
                  (ABGR_natset_dirprod_map a).
   Proof.
-    intros x. induction x. induction p.
+    intros x. induction x as [t p]. induction p.
 
-    intros x'. induction x'. induction p.
+    intros x'. induction x' as [t0 p]. induction p.
     intros H. cbn in *. use (squash_to_prop H). apply (setproperty A).
-    intros H'. induction H'. repeat rewrite natplusassoc in p. cbn in p.
+    intros H'. induction H' as [t1 p]. repeat rewrite natplusassoc in p. cbn in p.
     apply natplusrcan in p. rewrite p. apply idpath.
 
     intros H. cbn in *. use (squash_to_prop H). apply (setproperty A).
-    intros H'. induction H'. rewrite (natplusassoc _ 0) in p0. cbn in p0.
+    intros H'. induction H' as [t1 p0]. rewrite (natplusassoc _ 0) in p0. cbn in p0.
     apply natplusrcan in p0. rewrite <- p0.
     rewrite ABGR_natset_dirprod_map_ind. apply idpath.
 
-    intros x'. induction x'. induction p0.
+    intros x'. induction x' as [t0 p0]. induction p0.
     intros H. cbn in *. use (squash_to_prop H). apply (setproperty A).
-    intros H'. induction H'. rewrite natplusassoc in p0. cbn in p0.
+    intros H'. induction H' as [t1 p0]. rewrite natplusassoc in p0. cbn in p0.
     apply natplusrcan in p0. rewrite p0.
     rewrite ABGR_natset_dirprod_map_ind. apply idpath.
 
     intros H. cbn in *. use (squash_to_prop H). apply (setproperty A).
-    intros H'. induction H'. apply natplusrcan in p1.
+    intros H'. induction H' as [t1 p1]. apply natplusrcan in p1.
     repeat rewrite natplusnsm in p1. cbn in p1.
     apply invmaponpathsS in p1.
     set (tmp := IHp (t0,,p0)). cbn in tmp.
@@ -1567,7 +1567,7 @@ Section ABGR_monics.
     set (tmp1 := pr1weq (invweq tmp) H).
     unfold ABGR_cokernel_eqrel in tmp1. cbn in tmp1.
 
-    intros P X. apply tmp1. intros Y. apply X. induction Y.
+    intros P X. apply tmp1. intros Y. apply X. induction Y as [t p].
     rewrite grinvunel in p.
     rewrite (runax B) in p.
     apply (hfiberpair (pr1 f) t p).
@@ -1611,7 +1611,7 @@ Section ABGR_monics.
     = monoidfuncomp (ABGR_natset_dirprod_map_monoidfun a2) f.
   Proof.
     use total2_paths. cbn. unfold funcomp. apply funextfun.
-    intros x. induction x. induction t. induction p.
+    intros x. induction x as [t p]. induction t. induction p.
 
     (* p = 0 *)
     unfold ABGR_natset_dirprod_map. cbn.
@@ -1651,7 +1651,7 @@ Section ABGR_monics.
     apply base_paths in X. cbn in X. unfold funcomp in X.
     unfold issurjective in H.
     use (squash_to_prop (H x)). use (setproperty C).
-    intros h. induction h.
+    intros h. induction h as [t p].
     rewrite <- p.
     apply (funeqpaths X t).
 

@@ -526,7 +526,7 @@ Proof.
       induction e. rewrite idpath_transportf. rewrite stn_left_compute. unfold dni,di, stntonat; simpl.
       induction (natlthorgeh i j) as [R|R].
       { unfold stntonat; simpl; repeat rewrite transport_stn; simpl.
-        induction (natlthorgeh i j). { simpl. reflexivity. } { simpl. contradicts R (natlehneggth b). }}
+        induction (natlthorgeh i j) as [a|b]. { simpl. reflexivity. } { simpl. contradicts R (natlehneggth b). }}
       { unfold stntonat; simpl; repeat rewrite transport_stn; simpl.
         induction (natlthorgeh i j) as [V|V]. { simpl. contradicts I (natlehneggth R). } { simpl. reflexivity. }}}
     { apply stnsum_eq; intro i. induction i as [i I]. apply maponpaths.

@@ -277,7 +277,7 @@ mkpair.
   apply subtypeEquality; simpl.
   + intro x; apply impred; intro.
     apply isaset_dirprod; [ apply hsC | apply hsD ].
-  + destruct t as [[f1 f2] ?]; simpl in *.
+  + induction t as [[f1 f2] p]; simpl in *.
     apply pathsdirprod.
     * apply (maponpaths pr1 (hf2 (f1,, (λ n, maponpaths pr1 (p n))))).
     * apply (maponpaths pr1 (hg2 (f2,, (λ n, maponpaths dirprod_pr2 (p n))))).
@@ -856,10 +856,10 @@ Proof.
   apply subtypeEquality; simpl.
   + intro; apply impred; intros; apply hsC.
   + apply (colimArrowUnique HAiM K ccAiM_K).
-    destruct t; simpl; intro i.
+    induction t as [t p]; simpl; intro i.
     apply (colimArrowUnique (CCAiB i) K (ccAiB_K i)).
     simpl; intros j; unfold map_to_K.
-    destruct (natlthorgeh i j).
+    induction (natlthorgeh i j) as [h|h].
     * rewrite <- (p j); unfold fun_lt.
       rewrite !assoc.
       apply cancel_postcomposition.

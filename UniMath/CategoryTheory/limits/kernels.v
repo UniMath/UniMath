@@ -176,8 +176,8 @@ Section kernels_iso.
              (H : f = h ;; (KernelArrow _ K)) :
     f ;; g = ZeroArrow C Z x z.
   Proof.
-    induction K. induction t. induction p.
-    unfold isEqualizer in p.
+    induction K as [t p]. induction t as [t' p']. induction p as [t'' p''].
+    unfold isEqualizer in p''.
     rewrite H.
     rewrite <- (ZeroArrow_comp_right _ _ _ _ _ h).
     rewrite <- assoc.
@@ -193,16 +193,16 @@ Section kernels_iso.
                 (KernelEqRw Z (Kernel_up_to_iso_eq f g K h H)).
   Proof.
    apply mk_isEqualizer.
-    induction K. induction t. induction p.
-    unfold isEqualizer in p.
+    induction K as [t p]. induction t as [t' p']. induction p as [t'' p''].
+    unfold isEqualizer in p''.
     intros w h0 HH.
-    set (tmp := p w h0 HH). cbn in tmp. cbn in h.
-    induction tmp.
-    induction t1.
+    set (tmp := p'' w h0 HH). cbn in tmp. cbn in h.
+    induction tmp as [t''' p'''].
+    induction t''' as [t'''' p''''].
 
     use unique_exists.
-    exact (t1 ;; (inv_from_iso h)).
-    cbn. rewrite <- p2.
+    exact (t'''' ;; (inv_from_iso h)).
+    cbn. rewrite <- p''''.
     rewrite <- assoc. apply cancel_precomposition.
     cbn in H. rewrite H. rewrite assoc.
     rewrite <- id_left. apply cancel_postcomposition.
@@ -212,7 +212,7 @@ Section kernels_iso.
     intros y0 X. cbn in X. cbn in H.
     rewrite H in X.
     rewrite assoc in X.
-    set (tmp := p1 (tpair _ (y0 ;; h) X)).
+    set (tmp := p''' (tpair _ (y0 ;; h) X)).
     apply base_paths in tmp. cbn in tmp.
     rewrite <- tmp. rewrite <- assoc.
     rewrite iso_inv_after_iso.
