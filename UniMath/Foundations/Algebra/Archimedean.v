@@ -492,18 +492,28 @@ Proof.
     apply hinhfun.
     intros n.
     exists (pr1 n).
-    abstract (pattern x ; rewrite <- (riglunax1 X x) ;
-              pattern (0%rig : X) ; rewrite <- (rigmultx0 X (nattorig (pr1 n))) ;
-              rewrite nattorig_natmult ;
-              exact (pr2 n)).
+    abstract (
+        tryif primitive_projections
+        then pattern x at 1
+        else pattern x at 2;
+        rewrite <- (riglunax1 X x) ;
+        tryif primitive_projections
+        then pattern (0%rig : X) at 1
+        else pattern (0%rig : X) at 2 ;
+        rewrite <- (rigmultx0 X (nattorig (pr1 n))) ;
+        rewrite nattorig_natmult ;
+        exact (pr2 n)).
   - intros x.
     generalize (isarchmonoid_1 _ H x _ _ H01).
     apply hinhfun.
     intros n.
     exists (pr1 n).
-    abstract (pattern (0%rig : X) ;
-               rewrite <- (rigmultx0 X (nattorig (pr1 n))), nattorig_natmult ;
-               exact (pr2 n)).
+    abstract (
+        tryif primitive_projections
+        then pattern (0%rig : X) at 1
+        else pattern (0%rig : X) at 2;
+        rewrite <- (rigmultx0 X (nattorig (pr1 n))), nattorig_natmult ;
+        exact (pr2 n)).
 Defined.
 
 (** ** Archimedean property in a ring *)

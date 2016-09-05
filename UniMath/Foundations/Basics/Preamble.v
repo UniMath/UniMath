@@ -162,6 +162,23 @@ Arguments tpair {_} _ _ _.
 Arguments pr1 {_ _} _.
 Arguments pr2 {_ _} _.
 
+(* Now prepare tactics for writing proofs in two ways, depending on whether projections are primitive *)
+Ltac primitive_projections :=
+  unify (fun (w : total2 (fun _:nat => nat)) => tpair _ (pr1 w) (pr2 w))
+        (fun (w : total2 (fun _:nat => nat)) => w).
+
+Ltac case_primitive_projections
+     do_if_primitive do_if_not_primitive :=
+  tryif primitive_projections then do_if_primitive else do_if_not_primitive.
+(* Use like this: case_primitive_projections ltac:(...) ltac:(...). *)
+
+Definition test_primitive_projections : bool.
+Proof.
+  tryif primitive_projections then exact true else exact false.
+Defined.
+
+Print test_primitive_projections.
+
 Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
   (* type this in emacs in agda-input method with \Sigma *)
