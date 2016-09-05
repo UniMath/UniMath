@@ -416,8 +416,7 @@ Defined.
 
 
 
-(** ** h -levels of [ pr1 ], fiber inclusions, fibers, total spaces and bases
-  of fibrations *)
+(** ** h -levels of [ pr1 ], fiber inclusions, fibers, total spaces and bases of fibrations *)
 
 
 (** *** h-levelf of [ pr1 ] *)
@@ -657,8 +656,6 @@ Proof.
   apply (isofhlevelweqb 1 w isapropempty).
 Defined.
 
-(** Basic facts about complementary propositions  *)
-
 Lemma isapropretract {P Q : UU} (i : isaprop Q) (f : P -> Q) (g : Q -> P)
       (h : g ∘ f ~ idfun _) : isaprop P.
 Proof.
@@ -683,10 +680,6 @@ Proof.
   intros ? ? i. apply invproofirrelevance; intros q q'.
   exact (equality_by_case (proofirrelevance _ i (ii2 q) (ii2 q'))).
 Defined.
-
-(** *** Two pairs are equal if their first components are and the type of the
-        second component is a proposition for one of the components *)
-
 
 (** *** Inclusions - functions of h-level 1 *)
 
@@ -960,5 +953,376 @@ Proof.
       apply i.
 Defined.
 
+(** *** Propositions equivalent to negations of propositions *)
 
-(* End of the file uu0b.v *)
+Definition negProp P := Σ Q, isaprop Q × (¬P <-> Q).
+
+Definition negProp_to_type {P} (negP : negProp P) := pr1 negP.
+
+Coercion negProp_to_type : negProp >-> UU.
+
+Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop nP
+  := pr1 (pr2 nP).
+
+Definition negProp_to_iff {P} (nP : negProp P) : ¬P <-> nP
+  := pr2 (pr2 nP).
+
+Definition negProp_to_neg {P} {nP : negProp P} : nP -> ¬P.
+Proof. intros ? ? np. exact (pr2 (negProp_to_iff nP) np). Defined.
+
+Coercion negProp_to_neg : negProp >-> Funclass.
+
+Definition neg_to_negProp {P} {nP : negProp P} : ¬P -> nP.
+Proof. intros ? ? np. exact (pr1 (negProp_to_iff nP) np). Defined.
+
+Definition negPred {X:UU} (x  :X) (P:Π y:X, UU)      := Π y  , negProp (P y).
+
+Definition negReln {X:UU}         (P:Π (x y:X), UU)  := Π x y, negProp (P x y).
+
+Definition neqProp {X:UU} (x y:X) :=            negProp (x=y).
+
+Definition neqPred {X:UU} (x  :X) := Π y,       negProp (x=y).
+
+Definition neqReln (X:UU)         := Π (x y:X), negProp (x=y).
+
+(** Complementary propositions  *)
+
+Definition complementary P Q := (P -> Q -> ∅) × (P ⨿ Q).
+Definition complementary_to_neg_iff {P Q} : complementary P Q -> ¬P <-> Q.
+Proof.
+  intros ? ? c.
+  induction c as [n c]. split.
+  - intro np. induction c as [p|q].
+    * contradicts p np.
+    * exact q.
+  - intro q. induction c as [p|_].
+    * intros _. exact (n p q).
+    * intros p. exact (n p q).
+Defined.
+
+Lemma negProp_to_complementary P (Q:negProp P) : P ⨿ Q <-> complementary P Q.
+Proof.
+  intros ? [Q [i [r s]]]; simpl in *.
+  split.
+  * intros pq. split.
+    - intros p q. now apply s.
+    - assumption.
+  * intros [j c]. assumption.
+Defined.
+
+Lemma negProp_to_uniqueChoice P (Q:negProp P) : (isaprop P × (P ⨿ Q)) <-> iscontr (P ⨿ Q).
+Proof.
+  intros ? [Q [j [r s]]]; simpl in *. split.
+  * intros [i v]. exists v. intro w.
+    induction v as [v|v].
+    - induction w as [w|w].
+      + apply maponpaths, i.
+      + contradicts (s w) v.
+    - induction w as [w|w].
+      + contradicts (s v) w.
+      + apply maponpaths, j.
+  * intros [c e]. split.
+    - induction c as [c|c].
+      + apply invproofirrelevance; intros p p'.
+        exact (equality_by_case (e (ii1 p) @ !e (ii1 p'))).
+      + apply invproofirrelevance; intros p p'.
+        contradicts (s c) p.
+    - exact c.
+Defined.
+
+(** *** Decidable propositions [ isdecprop ] *)
+
+Definition isdecprop (P:UU) := (P ⨿ ¬P) × isaprop P.
+
+Definition isdecproptoisaprop ( X : UU ) ( is : isdecprop X ) : isaprop X := pr2 is.
+Coercion isdecproptoisaprop : isdecprop >-> isaprop .
+
+Lemma isdecpropif ( X : UU ) : isaprop X -> X ⨿ ¬ X -> isdecprop X.
+Proof. intros ? i c. exact (c,,i). Defined.
+
+Lemma isdecpropfromiscontr {P} : iscontr P -> isdecprop P.
+Proof.
+  intros ? i.
+  split.
+  - exact (ii1 (iscontrpr1 i)).
+  - now apply isapropifcontr.
+Defined.
+
+Lemma isdecpropempty : isdecprop ∅.
+Proof.
+  unfold isdecprop.
+  split.
+  - exact (ii2 (idfun ∅)).
+  - exact isapropempty.
+Defined.
+
+Lemma isdecpropweqf {X Y} : X≃Y -> isdecprop X -> isdecprop Y.
+Proof.
+  intros ? ? w i. unfold isdecprop in *. induction i as [xnx i]. split.
+  - clear i. induction xnx as [x|nx].
+    * apply ii1. now apply w.
+    * apply ii2. intro x'. apply nx. now apply (invmap w).
+  - apply (isofhlevelweqf 1 (X:=X)).
+    { exact w. }
+    { exact i. }
+Defined.
+
+Lemma isdecpropweqb {X Y} : X≃Y -> isdecprop Y -> isdecprop X.
+Proof.
+  intros ? ? w i. unfold isdecprop in *. induction i as [yny i]. split.
+  - clear i. induction yny as [y|ny].
+    * apply ii1. now apply (invmap w).
+    * apply ii2. intro x. apply ny. now apply w.
+  - apply (isofhlevelweqb 1 (Y:=Y)).
+    { exact w. }
+    { exact i. }
+Defined.
+
+Lemma isdecproplogeqf {X Y : UU} (isx : isdecprop X) (isy : isaprop Y)
+      (lg : X <-> Y) : isdecprop Y.
+Proof.
+  intros.
+  set (w := weqimplimpl (pr1 lg) (pr2 lg) isx isy).
+  apply (isdecpropweqf w isx).
+Defined.
+
+Lemma isdecproplogeqb {X Y : UU} (isx : isaprop X) (isy : isdecprop Y)
+      (lg : X <-> Y) : isdecprop X.
+Proof.
+  intros.
+  set (w := weqimplimpl (pr1 lg) (pr2 lg) isx isy).
+  apply (isdecpropweqb w isy).
+Defined.
+
+Lemma isdecpropfromneg {P : UU} : ¬P -> isdecprop P.
+Proof.
+  intros ? n. split.
+  - exact (ii2 n).
+  - now apply isapropifnegtrue.
+Defined.
+
+(** *** Types with decidable equality *)
+
+Definition isdeceq (X:UU) : UU := Π (x x':X), (x=x') ⨿ (x!=x').
+
+Lemma isdeceqweqf {X Y : UU} (w : weq X Y) (is : isdeceq X) : isdeceq Y.
+Proof.
+  intros. intros y y'.
+  set (w' := weqonpaths (invweq w) y y').
+  set (int := is ((invweq w) y) ((invweq w) y')).
+  induction int as [ i | ni ].
+  - apply (ii1 ((invweq w') i)).
+  - apply (ii2 ((negf w') ni)).
+Defined.
+
+Lemma isdeceqweqb {X Y : UU} (w : weq X Y) (is : isdeceq Y) : isdeceq X.
+Proof. intros. apply (isdeceqweqf (invweq w) is). Defined.
+
+Theorem isdeceqinclb {X Y : UU} (f : X -> Y) (is : isdeceq Y) (is' : isincl f) :
+  isdeceq X.
+Proof.
+  intros. intros x x'.
+  set (w := weqonpathsincl f is' x x'). set (int := is (f x) (f x')).
+  induction int as [ i | ni ].
+  - apply (ii1 ((invweq w) i)).
+  - apply (ii2 ((negf w) ni)).
+Defined.
+
+Lemma isdeceqifisaprop (X : UU) : isaprop X -> isdeceq X.
+Proof.
+  intros X is. intros x x'. apply (ii1 (proofirrelevance _ is x x')).
+Defined.
+
+Definition booleq {X : UU} (is : isdeceq X) (x x' : X) : bool.
+Proof. intros. induction (is x x'). apply true. apply false. Defined.
+
+Lemma eqfromdnegeq (X : UU) (is : isdeceq X) (x x' : X) :
+  dneg (paths x x') -> paths x x'.
+Proof.
+  intros X is x x' X0. induction (is x x') as [ y | n ].
+  - assumption.
+  - induction (X0 n).
+Defined.
+
+Lemma isdecequnit : isdeceq unit.
+Proof. apply (isdeceqifisaprop _ isapropunit). Defined.
+
+Theorem isdeceqbool: isdeceq bool.
+Proof.
+  unfold isdeceq. intros x' x. induction x.
+  - induction x'.
+    + apply (ii1 (idpath true)).
+    + apply (ii2 nopathsfalsetotrue).
+  - induction x'.
+    + apply (ii2 nopathstruetofalse).
+    + apply (ii1 (idpath false)).
+Defined.
+
+Lemma isdeceqcoprod {A B : UU} (h1 : isdeceq A) (h2 : isdeceq B) :
+  isdeceq (A ⨿ B).
+Proof.
+intros A B h1 h2 ab ab'.
+induction ab as [a|b]; induction ab' as [a'|b'].
+- induction (h1 a a') as [p|p].
+  + apply inl, (maponpaths (@ii1 A B) p).
+  + apply inr; intro H; apply (p (ii1_injectivity _ _ H)).
+- apply inr, negpathsii1ii2.
+- apply inr, negpathsii2ii1.
+- induction (h2 b b') as [p|p].
+  + apply inl, (maponpaths (@ii2 A B) p).
+  + apply inr; intro H; apply (p (ii2_injectivity _ _ H)).
+Defined.
+
+(** *** Isolated points *)
+
+Definition isisolated (X:UU) (x:X) := Π x':X, (x = x') ⨿ (x != x').
+Definition isisolated_ne (X:UU) (x:X) (neq_x:neqPred x) := Π y:X, (x=y) ⨿ neq_x y.
+
+Definition isisolated_to_isisolated_ne {X x neq_x} :
+  isisolated X x -> isisolated_ne X x neq_x.
+Proof.
+  intros ? ? ? i y. induction (i y) as [eq|ne].
+  - exact (ii1 eq).
+  - apply ii2. now apply neg_to_negProp.
+Defined.
+
+Definition isisolated_ne_to_isisolated {X x neq_x} :
+  isisolated_ne X x neq_x -> isisolated X x.
+Proof.
+  intros ? ? ? i y. induction (i y) as [eq|ne].
+  - exact (ii1 eq).
+  - apply ii2. now simple refine (negProp_to_neg _).
+Defined.
+
+Definition isolated ( T : UU ) := Σ t:T, isisolated _ t.
+Definition isolated_ne ( T : UU ) (neq:neqReln T) := Σ t:T, isisolated_ne _ t (neq t).
+
+Definition isolatedpair ( T : UU ) (t:T) (i:isisolated _ t) : isolated T
+  := (t,,i).
+Definition isolatedpair_ne (T : UU) (t:T) (neq:neqReln T) (i:isisolated_ne _ t (neq t)) :
+  isolated_ne T neq
+  := (t,,i).
+
+Definition pr1isolated ( T : UU ) (x:isolated T) : T := pr1 x.
+Definition pr1isolated_ne ( T : UU ) (neq:neqReln T) (x:isolated_ne T neq) : T := pr1 x.
+
+Theorem isaproppathsfromisolated (X : UU) (x : X) (is : isisolated X x) :
+  Π x', isaprop(x = x').
+Proof.
+  intros. apply iscontraprop1inv. intro e. induction e.
+  set (f := fun e : paths x x => coconusfromtpair _ e).
+  assert (is' : isweq f)
+    by apply (onefiber (fun x' : X => paths x x') (x : X) (fun x' : X => is x')).
+  assert (is2 : iscontr (coconusfromt _ x))
+    by apply iscontrcoconusfromt.
+  apply (iscontrweqb (weqpair f is')).
+  assumption.
+Defined.
+
+Local Open Scope transport.
+
+Theorem isaproppathsfromisolated_ne (X : UU) (x : X) (neq_x : neqPred x)
+        (is : isisolated_ne X x neq_x) (y : X)
+  : isaprop (x = y).
+Proof.
+  (* we could follow the proof of isaproppathsfromisolated here, but we try a
+     different way *)
+  intros. unfold isisolated_ne in is. apply invproofirrelevance; intros m n.
+  set (Q y := (x = y) ⨿ (neq_x y)).
+  assert (a := (transport_section is m) @ !(transport_section is n)).
+  induction (is x) as [j|k].
+  - assert (b := transport_map (λ y p, ii1 p : Q y) m j); simpl in b;
+      assert (c := transport_map (λ y p, ii1 p : Q y) n j); simpl in c.
+    assert (d := equality_by_case (!b @ a @ c)); simpl in d.
+    rewrite 2? transportf_id1 in d. now apply (pathscomp_cancel_left j).
+  - contradicts (neq_x x k) (idpath x).
+Defined.
+
+Theorem isaproppathstoisolated (X : UU) (x : X) (is : isisolated X x) :
+  Π x' : X, isaprop (x' = x).
+Proof.
+  intros.
+  apply (isofhlevelweqf 1 (weqpathsinv0 x x')
+                        (isaproppathsfromisolated X x is x')).
+Defined.
+
+Lemma isisolatedweqf { X Y : UU } (f : X ≃ Y) (x:X) : isisolated X x -> isisolated Y (f x).
+Proof.
+  intros ? ? ? ? is. unfold isisolated. intro y.
+  induction (is (invmap f y)) as [ eq | ne ].
+  { apply ii1. now apply pathsweq1'. }
+  { apply ii2. intro eq. apply ne; clear ne. now apply pathsweq1. }
+Defined.
+
+Theorem isisolatedinclb {X Y : UU} (f : X -> Y) (is : isincl f) (x : X)
+        (is0 : isisolated _ (f x)) : isisolated _ x.
+Proof.
+  intros. unfold isisolated. intro x'. set (a := is0 (f x')).
+  induction a as [ a1 | a2 ]. apply (ii1 (invmaponpathsincl f is _ _ a1)).
+  apply (ii2 ((negf (@maponpaths _ _ f _ _)) a2)).
+Defined.
+
+Lemma disjointl1 (X : UU) : isisolated (coprod X unit) (ii2 tt).
+Proof.
+  intros. unfold isisolated. intros x'. induction x' as [ x | u ].
+  apply (ii2 (negpathsii2ii1 x tt)). induction u.
+  apply (ii1 (idpath _)).
+Defined.
+
+(** *** Decidable types are sets *)
+
+Theorem isasetifdeceq (X : UU) : isdeceq X -> isaset X.
+Proof.
+  intro X. intro is. intros x x'. apply (isaproppathsfromisolated X x (is x)).
+Defined.
+
+(** **** [ bool ] is a set *)
+
+Theorem isasetbool: isaset bool.
+Proof. apply (isasetifdeceq _ isdeceqbool). Defined.
+
+(** ** Splitting of [ X ] into a coproduct defined by a function [ X -> bool ] *)
+
+
+Definition subsetsplit {X : UU} (f : X -> bool) (x : X) :
+  coprod (hfiber f true) (hfiber f false).
+Proof.
+  intros. induction (boolchoice (f x)) as [ a | b ].
+  - apply (ii1 (hfiberpair f x a)).
+  - apply (ii2 (hfiberpair f x b)).
+Defined.
+
+Definition subsetsplitinv {X : UU} (f : X -> bool)
+           (ab : coprod (hfiber f true) (hfiber f false)) : X
+  := match ab with ii1 xt => pr1 xt | ii2 xf => pr1 xf end.
+
+Theorem weqsubsetsplit {X : UU} (f : X -> bool) :
+  weq X (coprod (hfiber f true) (hfiber f false)).
+Proof.
+  intros.
+  set (ff := subsetsplit f). set (gg := subsetsplitinv f).
+  split with ff.
+  assert (egf : Π a : _, paths (gg (ff a)) a).
+  {
+    intros. unfold ff. unfold subsetsplit.
+    induction (boolchoice (f a)) as [ et | ef ]. simpl. apply idpath. simpl.
+    apply idpath.
+  }
+  assert (efg : Π a : _, paths (ff (gg a)) a).
+  {
+    intros. induction a as [ et | ef ].
+    - induction et as [ x et' ]. simpl. unfold ff. unfold subsetsplit.
+      induction (boolchoice (f x)) as [ e1 | e2 ].
+      + apply (maponpaths (@ii1 _ _ )). apply (maponpaths (hfiberpair f x)).
+        apply uip. apply isasetbool.
+      + induction (nopathstruetofalse (pathscomp0 (pathsinv0 et') e2)).
+    - induction ef as [ x et' ]. simpl. unfold ff. unfold subsetsplit.
+      induction (boolchoice (f x)) as [ e1 | e2 ].
+      + induction (nopathsfalsetotrue (pathscomp0 (pathsinv0 et') e1)).
+      + apply (maponpaths (@ii2 _ _ )). apply (maponpaths (hfiberpair f x)).
+        apply uip. apply isasetbool.
+  }
+  apply (gradth _ _ egf efg).
+Defined.
+
+(* End of file *)
