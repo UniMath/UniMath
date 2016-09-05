@@ -101,7 +101,7 @@ Let LC_alg : algebra_ob lambdaFunctor :=
   InitialObject lambdaFunctor_Initial.
 
 Definition var_map : HSET2⟦functor_identity HSET,LC⟧ :=
-  BinCoproductIn1 HSET2 _ ;; LC_mor.
+  BinCoproductIn1 HSET2 (BinCoproductsHSET2 _ _) ;; LC_mor.
 
 (* How to do this nicer? *)
 Definition prod2 (x y : HSET2) : HSET2.
@@ -110,7 +110,7 @@ apply BinProductsHSET2; [apply x | apply y].
 Defined.
 
 Definition app_map : HSET2⟦prod2 LC LC,LC⟧ :=
-  BinCoproductIn1 HSET2 _ ;; BinCoproductIn2 HSET2 _ ;; LC_mor.
+  BinCoproductIn1 HSET2 (BinCoproductsHSET2 _ _) ;; BinCoproductIn2 HSET2 (BinCoproductsHSET2 _ _) ;; LC_mor.
 
 Definition app_map' (x : HSET) : HSET⟦(pr1 LC x × pr1 LC x)%set,pr1 LC x⟧.
 Proof.
@@ -121,7 +121,7 @@ Let precomp_option X := (pre_composition_functor _ _ HSET has_homsets_HSET has_h
                   (option_functor HSET BinCoproductsHSET TerminalHSET) X).
 
 Definition lam_map : HSET2⟦precomp_option LC,LC⟧ :=
-  BinCoproductIn2 HSET2 _ ;; BinCoproductIn2 HSET2 _ ;; LC_mor.
+  BinCoproductIn2 HSET2 (BinCoproductsHSET2 _ _) ;; BinCoproductIn2 HSET2 (BinCoproductsHSET2 _ _) ;; LC_mor.
 
 Definition mk_lambdaAlgebra (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) : algebra_ob lambdaFunctor.
@@ -148,7 +148,7 @@ Lemma foldr_var (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
   var_map ;; foldr_map X fvar fapp flam = fvar.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET2 _ _) ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
 rewrite assoc in F.
 eapply pathscomp0; [apply F|].
@@ -164,7 +164,7 @@ Lemma foldr_app (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   app_map ;; foldr_map X fvar fapp flam =
   # (pr1 (Id * Id)) (foldr_map X fvar fapp flam) ;; fapp.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ _ ;; BinCoproductIn2 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET2 _ _) ;; BinCoproductIn2 _ (BinCoproductsHSET2 _ _) ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
 rewrite assoc in F.
 eapply pathscomp0; [apply F|].
@@ -187,7 +187,7 @@ Lemma foldr_lam (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   lam_map ;; foldr_map X fvar fapp flam =
   # (pr1 (_ o option)) (foldr_map X fvar fapp flam) ;; flam.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn2 _ _ ;; BinCoproductIn2 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET2 _ _) ;; BinCoproductIn2 _ (BinCoproductsHSET2 _ _) ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
 rewrite assoc in F.
 eapply pathscomp0; [apply F|].
