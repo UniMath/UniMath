@@ -172,12 +172,12 @@ Ltac case_primitive_projections
   tryif primitive_projections then do_if_primitive else do_if_not_primitive.
 (* Use like this: case_primitive_projections ltac:(...) ltac:(...). *)
 
-Definition test_primitive_projections : bool.
+Definition whether_primitive_projections : bool.
 Proof.
   tryif primitive_projections then exact true else exact false.
 Defined.
 
-Print test_primitive_projections.
+Print whether_primitive_projections.
 
 Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.

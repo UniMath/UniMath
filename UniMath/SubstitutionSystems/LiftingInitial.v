@@ -277,7 +277,7 @@ Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
   := @BinCoproductArrow
    EndC _ _  (CPEndC (U Z)
    (H (alg_carrier _ InitAlg))) (alg_carrier _ InitAlg) (#U f)
-   (BinCoproductIn2 _ _ ;; (alg_map _ InitAlg)).
+   (BinCoproductIn2 _ (CPEndC _ _) ;; (alg_map _ InitAlg)).
 
 Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
   : ∃! h : [C, C, hs] ⟦ ℓ (U Z) (` (InitialObject IA)), pr1 InitAlg ⟧,

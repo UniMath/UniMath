@@ -371,7 +371,7 @@ intros cAB ml ccml Hccml xy ccxy; simpl in *.
 simple refine (let cc i : cocone (mapdiagram (F i)
                             (mapdiagram (pr_functor I (fun _ => A) i) cAB)) (xy i) := _ in _).
 { simple refine (mk_cocone _ _).
-  - intro n; apply (pr1 ccxy n).
+  - intro n; simple refine (pr1 ccxy n _).
   - abstract (intros m n e;
               apply (toforallpaths _ _ _ (pr2 ccxy m n e) i)).
 }
