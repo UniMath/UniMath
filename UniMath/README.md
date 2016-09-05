@@ -57,6 +57,7 @@ less fragile and to make the files have a more uniform and pleasing appearance.
   nonconforming lines.
 * Always use Coq's proof structuring syntax ( ` { } + - * ` ) to focus on a
   single goal immediately after a tactic creates additional goals.
+* Indentation should normally be that produced automatically by emacs' `coq-mode`.
 * Within the core `Foundations` package:
   * Do not start lines with `:` or with `:=`.
   * One should normally put an extra blank line between units.  Exceptions may
