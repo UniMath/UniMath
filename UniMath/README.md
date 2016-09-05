@@ -25,28 +25,29 @@ accidentally commit and push, add its name to the head of the list in
 
 ## UniMath coding style
 
-We purposely restrict our use of Coq to a subset whose semantics is more likely
-to be rigorously verifiable and portable to new proof checking systems,
-according to the following principles.
+In the following rules, we purposely restrict our use of Coq to a subset whose
+semantics is more likely to be rigorously verifiable and portable to new proof
+checking systems, and we follow a style of coding designed to render proofs
+less fragile and to make the files have a more uniform and pleasing appearance.
 
-* Do not use ```Admitted``` or introduce new axioms.
-* Do not use ```Prop``` or ```Set```, and ensure definitions don't produce
+* Do not use `Admitted` or introduce new axioms.
+* Do not use `Prop` or `Set`, and ensure definitions don't produce
   elements of them.
-* Do not use ```Type```, except in ```Foundations/Basics/Preamble.v```.
-  Use ```UU``` instead.  If higher universes are needed, they should be
-  added to ```Foundations/Basics/Preamble.v```.
-* Do not use ```Inductive``` or ```Record```, except in ```Foundations/Basics/Preamble.v```.
-* Do not use ```Module``` or ```Structure```.
-* Do not use ```Fixpoint```.
-* Do not use ```destruct```, ```match```, square brackets with ```intros```, or
-  nested square brackets with ```induction```.
-* Use ```as``` to name all new variables introduced by ```induction``` or
-  ```destruct```, if the corresponding type is defined in a remote location,
+* Do not use `Type`, except in `Foundations/Basics/Preamble.v`.
+  Use `UU` instead.  If higher universes are needed, they should be
+  added to `Foundations/Basics/Preamble.v`.
+* Do not use `Inductive` or `Record`, except in `Foundations/Basics/Preamble.v`.
+* Do not use `Module` or `Structure`.
+* Do not use `Fixpoint`.
+* Do not use `destruct`, `match`, square brackets with `intros`, or
+  nested square brackets with `induction`.
+* Use `as` to name all new variables introduced by `induction` or
+  `destruct`, if the corresponding type is defined in a remote location,
   because different names might be used by Coq when the definition of the type
   is changed.
-* Do not end a proof with ```Qed.```, except with ```Goal```, for that may prevent later computations.
-* Start all proofs with ```Proof.``` on a separate line and end it with
-  ```Defined.``` on a separate line, as this makes it possible for us to generate
+* Do not end a proof with `Qed.`, except with `Goal`, for that may prevent later computations.
+* Start all proofs with `Proof.` on a separate line and end it with
+  `Defined.` on a separate line, as this makes it possible for us to generate
   HTML with expansible/collapsible proofs.
 * Use Unicode notation freely, but make the parsing conventions uniform across files, and consider
   putting them into a scope.
@@ -54,6 +55,12 @@ according to the following principles.
   makefile target `enforce-max-line-length` can be used to detect nonconforming
   files, and the target `show-long-lines` can be used to display the
   nonconforming lines.
+* Always use Coq's proof structuring syntax ( ` { } + - * ` ) to focus on a
+  single goal immediately after a tactic creates additional goals.
+* Within the core `Foundations` package:
+  * Do not start lines with `:` or with `:=`.
+  * One should normally put an extra blank line between units.  Exceptions may
+    be made for closely related items.
 
 Our files don't adhere yet to all of these conventions, but it's a goal we
 strive for.
