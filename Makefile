@@ -169,6 +169,11 @@ $(LATEXDIR)/doc.pdf : $(LATEXDIR)/helper.tex
 $(LATEXDIR)/coqdoc.sty $(LATEXDIR)/helper.tex : $(VFILES:.v=.glob) $(VFILES)
 	$(COQDOC) -Q UniMath UniMath $(COQDOCLATEXOPTIONS) $(VFILES) -o $@
 
+.PHONY: enforce-max-line-length
+enforce-max-line-length:
+	LC_ALL="en_US.UTF-8" gwc -L $(VFILES) | grep -vw total | awk '{ if ($$1 > 100) { printf "%6d  %s\n", $$1, $$2 }}' | sort -r | grep .
+show-long-lines:
+	LC_ALL="en_US.UTF-8" grep -nE '.{101}' $(VFILES)
 
 #################################
 # targets best used with INCLUDE=no

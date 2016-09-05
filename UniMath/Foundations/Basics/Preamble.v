@@ -1,7 +1,8 @@
 (** * Introduction. Vladimir Voevodsky . Feb. 2010 - Sep. 2011
 
-This is the first in the group of files which contain the (current state of) the mathematical library for the proof assistant Coq based on the Univalent Foundations.
-It contains some new notations for constructions defined in Coq.Init library as well as the definition of dependent sum.
+This is the first in the group of files which contain the (current state of) the mathematical
+library for the proof assistant Coq based on the Univalent Foundations.  It contains some new
+notations for constructions defined in Coq.Init library as well as the definition of dependent sum.
 
 
 *)
@@ -11,7 +12,7 @@ It contains some new notations for constructions defined in Coq.Init library as 
 
 (** Preamble. *)
 
-Unset Automatic Introduction.  (** This line has to be removed for the file to compile with Coq8.2 *)
+Unset Automatic Introduction.
 
 (** Universe structure *)
 
@@ -73,7 +74,8 @@ The coproduct of two types is introduced in Coq.Init.Datatypes by the lines:
 Inductive coprod (__A__ __B__:Type) : Type :=
   | inl : __A__ -> coprod __A__ __B__
   | inr : __B__ -> coprod __A__ __B__.
-(* Do not use "induction" on an element of this type without specifying names; seeing __A__ or __B__ will indicate that you did that. *)
+(* Do not use "induction" on an element of this type without specifying names; seeing __A__ or __B__
+   will indicate that you did that. *)
 
 Arguments coprod_rect {_ _} _ _ _ _.
 
@@ -140,9 +142,11 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
 (* or total2 as an inductive type:  *)
 
-    (* Inductive total2 { T: Type } ( P: T -> Type ) := tpair : Π ( __t__ : T ) ( __p__ : P __t__ ) , total2 P . *)
-    (* (* Do not use "induction" without specifying names; seeing __t__ or __p__ will indicate that you did that. *) *)
-    (* (* This will prepare for the use of primitive projections, when the names will be pr1 and pr2. *) *)
+    (* Inductive total2 { T: Type } ( P: T -> Type ) := tpair : Π (__t__:T) (__p__:P __t__), total2 P. *)
+
+    (* Do not use "induction" without specifying names; seeing __t__ or __p__ will indicate that you
+       did that.  This will prepare for the use of primitive projections, when the names will be pr1
+       and pr2. *)
 
     (* Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T . *)
     (* Proof . intros .  induction t as [ t p ] . exact t . Defined. *)
@@ -202,7 +206,9 @@ Inductive Phant ( T : Type ) := phant : Phant T .
 
 
 
-(** The following command checks whether the flag [-indices-matter] which modifies the universe level assignment for inductive types has been set. With the flag it returns [ paths 0 0 : UUU ] . Without the flag it returns [ paths 0 0 : Prop ]. *)
+(** The following command checks whether the flag [-indices-matter] which modifies the universe
+level assignment for inductive types has been set. With the flag it returns [ paths 0 0 : UUU
+]. Without the flag it returns [ paths 0 0 : Prop ]. *)
 
 Check (O = O) .
 
