@@ -201,7 +201,7 @@ Proof.
   apply funextfun ; intros x.
   apply hPropUnivalence.
   - intros H.
-    apply H.
+    simple refine (H _).
     now exists 0.
  - intros Lx m.
    exact Lx.
@@ -247,9 +247,9 @@ Proof.
     induction n as [ | n _] ; simpl.
     + apply tt.
     + split.
-      apply Hx.
-      intros m.
-      apply Hx.
+      * simple refine (Hx _).
+      * intros m.
+        simple refine (Hx _).
   - induction L as [n L].
     induction n as [ | n _] ; simpl.
     + intros _ n.
