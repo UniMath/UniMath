@@ -2265,4 +2265,4 @@ Opaque iscomptocommrngfrac.
 
 Close Scope rng_scope.
 
-(* End of the file algebra1c.v *)
+(* End of the file *)
