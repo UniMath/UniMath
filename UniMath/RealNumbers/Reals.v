@@ -1514,7 +1514,7 @@ Proof.
   apply (maponpaths (λ x, (x * _)%CF)).
   rewrite <- NRNRtoR_mult.
   unfold Rinv.
-  rewrite (islinv_CFinv (X := Reals) _ Hr).
+  rewrite (islinv_CFinv (X := Reals) (NRNRtoR x 0%NR) Hr).
   rewrite !israbsorb_zero_multNonnegativeReals, islabsorb_zero_multNonnegativeReals.
   rewrite !isrunit_zero_plusNonnegativeReals.
   rewrite islinv_invNonnegativeReals.
@@ -1531,7 +1531,7 @@ Proof.
   apply (maponpaths (λ x, (x * _)%CF)).
   rewrite <- NRNRtoR_mult.
   unfold Rinv.
-  rewrite (islinv_CFinv (X := Reals) _ Hr).
+  rewrite (islinv_CFinv (X := Reals) (NRNRtoR 0%NR x) Hr).
   rewrite !israbsorb_zero_multNonnegativeReals, islabsorb_zero_multNonnegativeReals.
   rewrite !islunit_zero_plusNonnegativeReals.
   rewrite islinv_invNonnegativeReals.
