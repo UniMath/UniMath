@@ -603,10 +603,10 @@ Proof.
       * apply isapropisabmonoidop.
       * apply isapropismonoidop.
     + intro x. apply (isofhleveldirprod 1).
-      apply impred. intro x'.
-      apply (setproperty X).
-      apply impred. intro x'.
-      apply (setproperty X).
+      * apply impred. intro x'.
+        apply (setproperty X).
+      * apply impred. intro x'.
+        apply (setproperty X).
   - apply isapropisdistr.
 Defined.
 
@@ -787,8 +787,8 @@ Lemma isapropiscommrig {X : hSet} (opp1 opp2 : binop X) : isaprop (iscommrigops 
 Proof.
   intros.
   apply (isofhleveldirprod 1).
-  apply isapropisrigops.
-  apply isapropiscomm.
+  - apply isapropisrigops.
+  - apply isapropiscomm.
 Defined.
 
 (** *)
@@ -807,8 +807,8 @@ Lemma isapropiscommrng {X : hSet} (opp1 opp2 : binop X) : isaprop (iscommrngops 
 Proof.
   intros.
   apply (isofhleveldirprod 1).
-  apply isapropisrngops.
-  apply isapropiscomm.
+  - apply isapropisrngops.
+  - apply isapropiscomm.
 Defined.
 
 Definition iscommrngopstoiscommrigops (X : hSet) (opp1 opp2 : binop X)
@@ -860,11 +860,11 @@ Lemma isasetbinopfun  (X Y : setwithbinop) : isaset (binopfun X Y).
 Proof.
   intros.
   apply (isasetsubset (pr1binopfun X Y)).
-  change (isofhlevel 2 (X -> Y)).
-  apply impred. intro.
-  apply (setproperty Y).
-  refine (isinclpr1 _ _). intro.
-  apply isapropisbinopfun.
+  - change (isofhlevel 2 (X -> Y)).
+    apply impred. intro.
+    apply (setproperty Y).
+  - refine (isinclpr1 _ _). intro.
+    apply isapropisbinopfun.
 Defined.
 
 Lemma isbinopfuncomp {X Y Z : setwithbinop} (f : binopfun X Y) (g : binopfun Y Z) :
@@ -1051,11 +1051,15 @@ Notation isassocisob := isassocmonob.
 Notation iscommisob := iscommmonob.
 
 Lemma isassocisof {X Y : setwithbinop} (f : binopiso X Y) (is : isassoc (@op X)) : isassoc (@op Y).
-Proof. intros. apply (isassocmonob (invbinopiso f) is). Defined.
+Proof.
+  intros. apply (isassocmonob (invbinopiso f) is).
+Defined.
 Opaque isassocisof.
 
 Lemma iscommisof {X Y : setwithbinop} (f : binopiso X Y) (is : iscomm (@op X)) : iscomm (@op Y).
-Proof. intros. apply (iscommmonob (invbinopiso f) is). Defined.
+Proof.
+  intros. apply (iscommmonob (invbinopiso f) is).
+Defined.
 Opaque iscommisof.
 
 Lemma isunitisof {X Y : setwithbinop} (f : binopiso X Y) (unx : X) (is : isunit (@op X) unx) :
@@ -1120,7 +1124,9 @@ Definition isgropisof {X Y : setwithbinop} (f : binopiso X Y) (is : isgrop (@op 
 Lemma isinvisob {X Y : setwithbinop} (f : binopiso X Y) (uny : Y) (invy : Y -> Y)
       (is : isinv (@op Y) uny invy) : isinv (@op X) (invmap (pr1 f) uny)
                                             (funcomp (pr1 f) (funcomp invy (invmap (pr1 f)))).
-Proof. intros. apply (isinvisof (invbinopiso f) uny invy is). Defined.
+Proof.
+  intros. apply (isinvisof (invbinopiso f) uny invy is).
+Defined.
 Opaque isinvisob.
 
 Definition isgropisob {X Y : setwithbinop} (f : binopiso X Y) (is : isgrop (@op Y)) :
@@ -1172,7 +1178,9 @@ Definition pr1subsetswithbinop (X : setwithbinop) : @subsetswithbinop X -> hsubt
 Coercion pr1subsetswithbinop : subsetswithbinop >-> hsubtypes.
 
 Definition totalsubsetwithbinop (X : setwithbinop) : @subsetswithbinop X.
-Proof. intros. split with (fun x : X => htrue). intros x x'. apply tt. Defined.
+Proof.
+  intros. split with (fun x : X => htrue). intros x x'. apply tt.
+Defined.
 
 Definition carrierofasubsetwithbinop {X : setwithbinop} (A : @subsetswithbinop X) : setwithbinop.
 Proof.
@@ -1195,10 +1203,11 @@ Definition isbinophrel {X : setwithbinop} (R : hrel X) : UU :=
 Definition isbinophrellogeqf {X : setwithbinop} {L R : hrel X}
            (lg : hrellogeq L R) (isl : isbinophrel L) : isbinophrel R.
 Proof.
-  intros. split. intros a b c rab.
-  apply ((pr1 (lg _ _) ((pr1 isl) _ _ _ (pr2 (lg  _ _) rab)))).
-  intros a b c rab.
-  apply ((pr1 (lg _ _) ((pr2 isl) _ _ _ (pr2 (lg  _ _) rab)))).
+  intros. split.
+  - intros a b c rab.
+    apply ((pr1 (lg _ _) ((pr1 isl) _ _ _ (pr2 (lg  _ _) rab)))).
+  - intros a b c rab.
+    apply ((pr1 (lg _ _) ((pr2 isl) _ _ _ (pr2 (lg  _ _) rab)))).
 Defined.
 
 Lemma isapropisbinophrel {X : setwithbinop} (R : hrel X) : isaprop (isbinophrel R).
@@ -1441,12 +1450,16 @@ Proof.
   intros. unfold isbinophrel. split.
   - assert (int : Π (a b c : setwithbinopquot R),
                   isaprop (quotrel is a b -> quotrel is (op c a) (op c b))).
-    intros a b c. apply impred. intro. apply (pr2 (quotrel is _ _)).
+    {
+      intros a b c. apply impred. intro. apply (pr2 (quotrel is _ _)).
+    }
     apply (setquotuniv3prop R (fun a b c => hProppair _ (int a b c))).
     exact (pr1 isl).
   - assert (int : Π (a b c : setwithbinopquot R),
                   isaprop (quotrel is a b -> quotrel is (op a c) (op b c))).
-    intros a b c. apply impred. intro. apply (pr2 (quotrel is _ _)).
+    {
+      intros a b c. apply impred. intro. apply (pr2 (quotrel is _ _)).
+    }
     apply (setquotuniv3prop R (fun a b c => hProppair _ (int a b c))).
     exact (pr2 isl).
 Defined.
@@ -1527,9 +1540,9 @@ Lemma isasettwobinopfun  (X Y : setwith2binop) : isaset (twobinopfun X Y).
 Proof.
   intros.
   apply (isasetsubset (pr1twobinopfun X Y)).
-  change (isofhlevel 2 (X -> Y)).
-  apply impred. intro. apply (setproperty Y). refine (isinclpr1 _ _).
-  intro. apply isapropistwobinopfun.
+  - change (isofhlevel 2 (X -> Y)).
+    apply impred. intro. apply (setproperty Y).
+  - refine (isinclpr1 _ _). intro. apply isapropistwobinopfun.
 Defined.
 
 Lemma istwobinopfuncomp {X Y Z : setwith2binop} (f : twobinopfun X Y) (g : twobinopfun Y Z) :
@@ -1667,15 +1680,21 @@ Notation isdistrisob := isdistrmonob.
 
 Lemma isldistrisof {X Y : setwith2binop} (f : twobinopiso X Y) (is : isldistr (@op1 X) (@op2 X)) :
   isldistr (@op1 Y) (@op2 Y).
-Proof. intros. apply (isldistrisob (invtwobinopiso f) is). Defined.
+Proof.
+  intros. apply (isldistrisob (invtwobinopiso f) is).
+Defined.
 
 Lemma isrdistrisof {X Y : setwith2binop} (f : twobinopiso X Y) (is : isrdistr (@op1 X) (@op2 X)) :
   isrdistr (@op1 Y) (@op2 Y).
-Proof. intros. apply (isrdistrisob (invtwobinopiso f) is). Defined.
+Proof.
+  intros. apply (isrdistrisob (invtwobinopiso f) is).
+Defined.
 
 Lemma isdistrisof {X Y : setwith2binop} (f : twobinopiso X Y) (is : isdistr (@op1 X) (@op2 X)) :
   isdistr (@op1 Y) (@op2 Y).
-Proof. intros. apply (isdistrisob (invtwobinopiso f) is). Defined.
+Proof.
+  intros. apply (isdistrisob (invtwobinopiso f) is).
+Defined.
 
 Definition isrigopsisof {X Y : setwith2binop} (f : twobinopiso X Y)
            (is : isrigops (@op1 X) (@op2 X)) : isrigops (@op1 Y) (@op2 Y).
@@ -1686,21 +1705,24 @@ Proof.
     simpl.
     change (unel_is (ismonoidopisof (binop1iso f) (rigop1axs_is is)))
     with ((pr1 f) (rigunel1_is is)).
-    split. intro y.
-    rewrite (pathsinv0 (homotweqinvweq f y)).
-    rewrite (pathsinv0 ((pr2 (pr2 f)) _ _)).
-    apply (maponpaths (pr1 f)). apply (rigmult0x_is is).
-    intro y.
-    rewrite (pathsinv0 (homotweqinvweq f y)).
-    rewrite (pathsinv0 ((pr2 (pr2 f)) _ _)).
-    apply (maponpaths (pr1 f)).
-    apply (rigmultx0_is is).
+    split.
+    + intro y.
+      rewrite (pathsinv0 (homotweqinvweq f y)).
+      rewrite (pathsinv0 ((pr2 (pr2 f)) _ _)).
+      apply (maponpaths (pr1 f)). apply (rigmult0x_is is).
+    + intro y.
+      rewrite (pathsinv0 (homotweqinvweq f y)).
+      rewrite (pathsinv0 ((pr2 (pr2 f)) _ _)).
+      apply (maponpaths (pr1 f)).
+      apply (rigmultx0_is is).
   - apply (isdistrisof f). apply (rigdistraxs_is is).
 Defined.
 
 Definition isrigopsisob {X Y : setwith2binop} (f : twobinopiso X Y)
            (is : isrigops (@op1 Y) (@op2 Y)) : isrigops (@op1 X) (@op2 X).
-Proof. intros. apply (isrigopsisof (invtwobinopiso f) is). Defined.
+Proof.
+  intros. apply (isrigopsisof (invtwobinopiso f) is).
+Defined.
 
 Definition isrngopsisof {X Y : setwith2binop} (f : twobinopiso X Y)
            (is : isrngops (@op1 X) (@op2 X)) : isrngops (@op1 Y) (@op2 Y) :=
