@@ -78,15 +78,6 @@ Require Import UniMath.CategoryTheory.CommaCategories.
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
-Section move_upstream.
-
-Lemma paireta {A B : UU} (p : A × B) : p = (pr1 p,, pr2 p).
-Proof.
-destruct p; apply idpath.
-Defined.
-
-End move_upstream.
-
 Section cocont_functors.
 
 (** The constant functor is omega cocontinuous *)
@@ -175,7 +166,7 @@ simple refine (let HHH : cocone cAB (x,, ob2 ab) := _ in _).
   - simpl; intro n; split;
       [ apply (pr1 ccx n) | apply (# (pr2_functor A B) (pr1 ccab n)) ].
   - abstract(
-    simpl; intros m n e; rewrite (paireta (dmor cAB e));
+    simpl; intros m n e; rewrite (tppr (dmor cAB e));
     apply pathsdirprod; [ apply (pr2 ccx m n e)
                         | apply (maponpaths dirprod_pr2 ((pr2 ccab) m n e)) ]).
 }
