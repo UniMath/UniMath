@@ -67,5 +67,8 @@ less fragile and to make the files have a more uniform and pleasing appearance.
   its type may vary from one version of Coq to another.  Coq's current behavior is also
   unlikely to be duplicated precisely by a future proof assistant. 
 
+Our files don't adhere yet to all of these conventions, but it's a goal we
+strive for.
+
 Another advantage of coding in this style is that the proofs should be easier
 to transport to another proof assistant.
