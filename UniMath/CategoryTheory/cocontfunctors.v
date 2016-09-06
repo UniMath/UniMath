@@ -581,7 +581,12 @@ End constprod_functors.
 Section binprod_functor.
 
 Variables (C : precategory) (PC : BinProducts C) (hsC : has_homsets C).
-Variables (hE : has_exponentials PC).
+
+(** These hypotheses follow directly if C has exponentials *)
+Variable omega_cocont_constprod_functor1 :
+  Π x : C, is_omega_cocont (constprod_functor1 PC x).
+Variable omega_cocont_constprod_functor2 :
+  Π x : C, is_omega_cocont (constprod_functor2 PC x).
 
 Local Definition fun_lt (cAB : chain (binproduct_precategory C C)) :
   Π i j, i < j ->
@@ -692,6 +697,7 @@ Variable ccLM : cocone cAB LM.
 Variable HccLM : isColimCocone cAB LM ccLM.
 Variable K : C.
 Variable ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K.
+
 Let L := pr1 LM : C.
 Let M := pr2 LM : (λ _ : C, C) (pr1 LM).
 Let cA := mapchain (pr1_functor C C) cAB : chain C.
@@ -702,15 +708,13 @@ Let HB := isColimCocone_pr2_functor _ _ hsC _ _ _ HccLM
   : isColimCocone cB M (cocone_pr2_functor C C cAB LM ccLM).
 
 (* Form the colimiting cocones of "A_i * B_0 -> A_i * B_1 -> ..." *)
-Let HAiB :=
-  fun i => is_omega_cocont_constprod_functor1 _ PC hsC hE (pr1 (pr1 cAB i)) _ _ _ HB.
+Let HAiB := λ i, omega_cocont_constprod_functor1 (pr1 (pr1 cAB i)) _ _ _ HB.
 
 (* Turn HAiB into a ColimCocone: *)
 Let CCAiB := fun i => mk_ColimCocone _ _ _ (HAiB i).
 
 (* Define the HAiM ColimCocone: *)
-Let HAiM :=
-  mk_ColimCocone _ _ _ (is_omega_cocont_constprod_functor2 _ PC hsC hE M _ _ _ HA).
+Let HAiM := mk_ColimCocone _ _ _ (omega_cocont_constprod_functor2 M _ _ _ HA).
 
 Let ccAiB_K := fun i => ccAiB_K _ _ ccK i.
 
@@ -910,10 +914,12 @@ Lemma is_omega_cocont_BinProduct_of_functors_alt (F G : functor C D)
   is_omega_cocont (BinProduct_of_functors_alt PD F G).
 Proof.
 apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_bindelta_functor _ PC hsC).
-apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_binproduct_pair_functor _ _ _ _ _ _ hsC hsC hsD hsD HF HG).
-apply (is_omega_cocont_binproduct_functor _ _ hsD hED).
+- apply (is_omega_cocont_bindelta_functor _ PC hsC).
+- apply (is_omega_cocont_functor_composite hsD).
+  + apply (is_omega_cocont_binproduct_pair_functor _ _ _ _ _ _ hsC hsC hsD hsD HF HG).
+  + apply (is_omega_cocont_binproduct_functor _ _ hsD).
+    * now apply is_omega_cocont_constprod_functor1.
+    * now apply is_omega_cocont_constprod_functor2.
 Defined.
 
 Definition omega_cocont_BinProduct_of_functors_alt (F G : omega_cocont_functor C D) :
