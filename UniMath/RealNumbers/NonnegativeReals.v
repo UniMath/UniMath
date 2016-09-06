@@ -4098,8 +4098,8 @@ Proof.
             apply istrans_leNonnegativeRationals with r.
             now apply minusNonnegativeRationals_le.
             now apply plusNonnegativeRationals_le_r.
-          - simpl in Yr.
-            apply notge_ltNonnegativeRationals in Yr.
+          - simpl in Yr. (* this simplification helps when primitive projections are enabled *)
+            apply_pr2_in notge_ltNonnegativeRationals Yr.
             apply fromempty, Yr.
             apply istrans_leNonnegativeRationals with r.
             exact Hrc.
