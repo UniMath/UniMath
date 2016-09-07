@@ -22,7 +22,7 @@ Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
 Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
-Require Import UniMath.CategoryTheory.cocontfunctors.
+Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.SubstitutionSystems.GenSigToMonad.
@@ -54,7 +54,7 @@ Lemma colim_of_chain_is_initial_alg
     isInitial (FunctorAlg F hsC)
               (algebra_ob_pair (colim CC) (colim_algebra_mor C InitC F HF CC)).
 Proof.
-  exact cocontfunctors.colimAlgIsInitial.
+  exact CocontFunctors.colimAlgIsInitial.
 Defined.
 
 
@@ -63,7 +63,7 @@ Lemma is_omega_cocont_pre_composition_functor
      (hsA : has_homsets A),
    Lims A → is_omega_cocont (pre_composition_functor M C A hsC hsA K).
 Proof.
-  exact cocontfunctors.is_omega_cocont_pre_composition_functor.
+  exact CocontFunctors.is_omega_cocont_pre_composition_functor.
 Defined.
 
 Definition RightKanExtension_from_limits
@@ -71,7 +71,7 @@ Definition RightKanExtension_from_limits
     (hsA : has_homsets A),
   Lims A → RightKanExtension.GlobalRightKanExtensionExists M C K A hsC hsA.
 Proof.
-  exact cocontfunctors.RightKanExtension_from_limits.
+  exact CocontFunctors.RightKanExtension_from_limits.
 Defined.
 
 Definition ColimCoconeHSET
@@ -86,12 +86,12 @@ Lemma is_omega_cocont_binproduct_functor
     (Π x : C, is_omega_cocont (constprod_functor2 PC x)) →
     is_omega_cocont (binproduct_functor PC).
 Proof.
-  exact cocontfunctors.is_omega_cocont_binproduct_functor.
+  exact CocontFunctors.is_omega_cocont_binproduct_functor.
 Defined.
 
 Lemma left_adjoint_cocont
   : Π (C D : precategory) (F : functor C D),
     is_left_adjoint F → has_homsets C → has_homsets D → is_cocont F.
 Proof.
-  exact @cocontfunctors.left_adjoint_cocont.
+  exact @CocontFunctors.left_adjoint_cocont.
 Defined.
