@@ -1351,6 +1351,12 @@ End binprod_functor.
 (** ** Binary product of functors: F * G : C -> D is omega cocontinuous *)
 Section BinProduct_of_functors.
 
+(* TODO: weaken this and drop the assumption that D has exponentials. Use one of the following instead: *)
+(* Variable omega_cocont_constprod_functor1 : *)
+(*   Π x : C, is_omega_cocont (constprod_functor1 PC x). *)
+(* Variable omega_cocont_constprod_functor2 : *)
+(*   Π x : C, is_omega_cocont (constprod_functor2 PC x). *)
+
 Variables (C D : precategory) (PC : BinProducts C) (PD : BinProducts D) (hED : has_exponentials PD).
 Variables (hsC : has_homsets C) (hsD : has_homsets D).
 
