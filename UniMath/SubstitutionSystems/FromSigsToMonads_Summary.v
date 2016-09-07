@@ -55,7 +55,7 @@ Lemma colim_of_chain_is_initial_alg
     isInitial (FunctorAlg F hsC)
               (algebra_ob_pair (colim CC) (α_mor C F HF InitC CC)).
 Proof.
-  exact chains.colimAlgIsInitial.
+  exact cocontfunctors.colimAlgIsInitial.
 Defined.
 
 
@@ -94,5 +94,5 @@ Lemma left_adjoint_cocont
   : Π (C D : precategory) (F : functor C D),
     is_left_adjoint F → has_homsets C → has_homsets D → is_cocont F.
 Proof.
-  exact @UniMath.CategoryTheory.limits.graphs.colimits.left_adjoint_cocont.
+  exact @cocontfunctors.left_adjoint_cocont.
 Defined.
