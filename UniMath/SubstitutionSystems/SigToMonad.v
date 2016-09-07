@@ -90,7 +90,7 @@ Definition precomp_option_iter (n : nat) : functor HSET2 HSET2 := match n with
 Lemma is_omega_cocont_precomp_option_iter (n : nat) : is_omega_cocont (precomp_option_iter n).
 Proof.
 destruct n; simpl.
-- apply (is_omega_cocont_functor_identity _ has_homsets_HSET2).
+- apply (is_omega_cocont_functor_identity has_homsets_HSET2).
 - apply (is_omega_cocont_pre_composition_functor _ _ _ (iter_functor1 _ optionHSET n) _ _ cats_LimsHSET).
 Defined.
 
@@ -120,7 +120,7 @@ Lemma is_omega_cocont_Arity_to_Signature (xs : list nat) : is_omega_cocont (Arit
 Proof.
 destruct xs as [n xs].
 destruct n.
-- destruct xs; simpl; apply (is_omega_cocont_functor_identity _ has_homsets_HSET2).
+- destruct xs; simpl; apply (is_omega_cocont_functor_identity has_homsets_HSET2).
 - induction n.
   + destruct xs as [m []]; simpl.
     apply is_omega_cocont_precomp_option_iter.
@@ -149,7 +149,7 @@ Proof.
 destruct s as [n xs].
 destruct n.
 - destruct xs.
-  apply (is_omega_cocont_functor_identity _ has_homsets_HSET2).
+  apply (is_omega_cocont_functor_identity has_homsets_HSET2).
 - induction n.
   + destruct xs as [xs []]; simpl.
     apply is_omega_cocont_Arity_to_Signature.
@@ -167,6 +167,7 @@ Definition SigInitial (sig : Sig) :
   Initial (FunctorAlg (Id_H HSET has_homsets_HSET BinCoproductsHSET (SigToSignature sig)) has_homsets_HSET2).
 Proof.
 use colimAlgInitial.
+- apply (Initial_functor_precat _ _ InitialHSET).
 - unfold Id_H, Const_plus_H.
   apply is_omega_cocont_BinCoproduct_of_functors.
   + apply (BinProducts_functor_precat _ _ BinProductsHSET).
@@ -174,7 +175,6 @@ use colimAlgInitial.
   + apply functor_category_has_homsets.
   + apply is_omega_cocont_constant_functor, functor_category_has_homsets.
   + apply is_omega_cocont_SigToSignature.
-- apply (Initial_functor_precat _ _ InitialHSET).
 - apply ColimsFunctorCategory; apply ColimsHSET.
 Defined.
 

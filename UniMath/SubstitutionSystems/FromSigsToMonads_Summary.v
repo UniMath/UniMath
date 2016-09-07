@@ -48,11 +48,11 @@ Proof.
 Defined.
 
 Lemma colim_of_chain_is_initial_alg
-  : Π (C : precategory) (hsC : has_homsets C) (F : functor C C)
-      (HF : is_omega_cocont F) (InitC : Initial C)
+  : Π (C : precategory) (hsC : has_homsets C) (InitC : Initial C)
+      (F : functor C C) (HF : is_omega_cocont F)
       (CC : ColimCocone (initChain InitC F)),
     isInitial (FunctorAlg F hsC)
-              (algebra_ob_pair (colim CC) (α_mor C F HF InitC CC)).
+              (algebra_ob_pair (colim CC) (colim_algebra_mor C InitC F HF CC)).
 Proof.
   exact cocontfunctors.colimAlgIsInitial.
 Defined.

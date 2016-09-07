@@ -1223,15 +1223,6 @@ Proof.
 
 Defined.
 
-(** Note: the following should be somewhere upstream: *)
-
-Lemma pathscomp0assoc { X : UU } { a b c d : X } ( e1 : a = b ) ( e2 : b = c ) ( e3 : c = d ) :
-  e1 @ ( e2 @ e3 ) = ( e1 @ e2 ) @ e3 .
-Proof.
-  intros . destruct e1 . destruct e2 . apply idpath .
-Defined.
-
-
 Lemma functor_assoc (C0 C1 C2 C3 : precategory)
   (F0 : functor C0 C1) (F1 : functor C1 C2) (F2 : functor C2 C3) :
     functor_composite (functor_composite F0 F1) F2 =
@@ -1253,7 +1244,7 @@ Proof.
   destruct is2 as [ is2id is2comp ] .
   simpl .
 
-  rewrite pathscomp0assoc .
+  rewrite path_assoc.
   apply ( maponpaths ( fun e => pathscomp0 e ( is2id (F1ob (F0ob t)) ) ) ) .
   rewrite maponpathscomp0 .
   apply ( maponpaths ( fun e => pathscomp0 e ( maponpaths
@@ -1271,7 +1262,7 @@ Proof.
   destruct is2 as [ is2id is2comp ] .
   simpl .
 
-  rewrite pathscomp0assoc .
+  rewrite path_assoc.
   apply ( maponpaths ( fun e =>
                          pathscomp0 e ( is2comp (F1ob (F0ob t)) (F1ob (F0ob t0)) (F1ob (F0ob t1))
                                                 (F1mor (F0ob t) (F0ob t0) (F0mor t t0 f))
@@ -1282,5 +1273,23 @@ Proof.
                                                    (is1comp (F0ob t) (F0ob t0) (F0ob t1)
                                                             (F0mor t t0 f) (F0mor t0 t1 g)) ))).
   apply maponpathscomp .
+Defined.
 
-  Defined.
+
+Definition iter_functor {C : precategory} (F : functor C C) (n : nat) : functor C C.
+Proof.
+induction n.
+apply functor_identity.
+apply (functor_composite IHn F).
+Defined.
+
+(* TODO : state this for any object and morphism, that is,
++   - Id^n a = a
++   - #(Id^n) f = f
++   thus avoiding use of funext
++
++  TODO: similar for
++   - (G o F)^n (a) = G^n(a) o F^n(a)
++   - #(G o F)^n (f) = #G^n(f) o #F^n(f)
++
+*)

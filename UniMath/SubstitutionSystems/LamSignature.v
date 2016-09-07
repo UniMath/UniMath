@@ -94,8 +94,8 @@ apply is_omega_cocont_BinProduct_of_functors.
 - apply hE.
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.
-- apply (is_omega_cocont_functor_identity _ (functor_category_has_homsets _ _ hs)).
-- apply (is_omega_cocont_functor_identity _ (functor_category_has_homsets _ _ hs)).
+- apply (is_omega_cocont_functor_identity (functor_category_has_homsets _ _ hs)).
+- apply (is_omega_cocont_functor_identity (functor_category_has_homsets _ _ hs)).
 Defined.
 
 (**

@@ -50,6 +50,7 @@ Let hsEndC : has_homsets EndHSET := functor_category_has_homsets _ _ has_homsets
 Lemma Lam_Initial_HSET : Initial (precategory_FunctorAlg (Id_H _ _ BinCoproductsHSET Lam_S) hsEndC).
 Proof.
 use colimAlgInitial.
+- apply (Initial_functor_precat _ _ InitialHSET).
 - unfold Id_H, Const_plus_H.
   apply is_omega_cocont_BinCoproduct_of_functors.
   + apply (BinProducts_functor_precat _ _ BinProductsHSET).
@@ -59,7 +60,6 @@ use colimAlgInitial.
   + apply is_omega_cocont_Lam.
     * apply (has_exponentials_functor_HSET _ has_homsets_HSET).
     * apply cats_LimsHSET.
-- apply (Initial_functor_precat _ _ InitialHSET).
 - apply ColimsFunctorCategory; apply ColimsHSET.
 Defined.
 

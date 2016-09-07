@@ -1,14 +1,17 @@
 (**
 
-This file contains
+This file contains the definition and theory about (omega-) cocontinuous functors, i.e. functors
+which preserve (sequential-) colimits ([is_omega_cocont] and [is_cocont]).
 
-This file contains proofs that the following functors are
-(omega-)cocontinuous:
+The main result is Adámek's theorem for constructing initial algebras of omega-cocontinuous functors
+([colimAlgIsInitial]) which is used to construct inductive types.
 
-- Constant functor: F_x : C -> D, c |-> x
-  [is_omega_cocont_constant_functor]
+This file also contains proofs that the following functors are (omega-)cocontinuous:
+
 - Identity functor
   [is_omega_cocont_functor_identity]
+- Constant functor: F_x : C -> D, c |-> x
+  [is_omega_cocont_constant_functor]
 - Composition of omega-cocontinuous functors
   [is_omega_cocont_functor_composite]
 - Iteration of omega-cocontinuous functors: F^n : C -> C
@@ -39,7 +42,7 @@ This file contains proofs that the following functors are
 - Precomposition functor: _ o K : [C,A] -> [M,A] for K : M -> C
 
 
-Written by: Anders Mörtberg, 2015-2016
+Written by: Anders Mörtberg and Benedikt Ahrens, 2015-2016
 
 *)
 
@@ -66,7 +69,6 @@ Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.cats.limits.
-(* Require Import UniMath.CategoryTheory.chains. *)
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.equivalences.
@@ -80,9 +82,8 @@ Require Import UniMath.CategoryTheory.CommaCategories.
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
-
-
-Section preserves_colimit.
+(** Definition of cocontinuous functors *)
+Section cocont.
 
 Context {C D : precategory} (F : functor C D).
 
@@ -107,179 +108,24 @@ Defined.
 
 Lemma mapcocone_chain_coconeIn {g : graph} {c : diagram g C} {x : C}
   (cx : cocone c x) (n : vertex g) :
-  coconeIn (mapcocone c cx) n = #F (coconeIn cx n).
+  coconeIn (mapcocone c cx) n = # F (coconeIn cx n).
 Proof.
 apply idpath.
 Qed.
 
-Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
+Definition preserves_colimits {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : UU :=
   isColimCocone d L cc -> isColimCocone (mapdiagram d) (F L) (mapcocone d cc).
 
 Definition is_cocont := Π {g : graph} (d : diagram g C) (L : C)
-  (cc : cocone d L), preserves_colimit d L cc.
+  (cc : cocone d L), preserves_colimits d L cc.
 
-End preserves_colimit.
+End cocont.
 
-Lemma left_adjoint_cocont {C D : precategory} (F : functor C D)
-  (H : is_left_adjoint F) (hsC : has_homsets C) (hsD : has_homsets D) : is_cocont F.
-Proof.
-intros g d L ccL HccL M ccM.
-set (G := pr1 H).
-apply (@iscontrweqb _ (Σ y : C ⟦ L, G M ⟧,
-    Π i, coconeIn ccL i ;; y = φ_adj _ _ _ H (coconeIn ccM i))).
-- eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
-    Π i, # F (coconeIn ccL i) ;; φ_adj_inv _ _ _ H y = coconeIn ccM i)).
-  + apply (weqbandf (adjunction_hom_weq _ _ _ H L M)); simpl; intro f.
-    abstract (apply weqiff; try (apply impred; intro; apply hsD);
-    now rewrite φ_adj_inv_after_φ_adj).
-  + eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
-      Π i, φ_adj_inv _ _ _ _ (coconeIn ccL i ;; y) = coconeIn ccM i)).
-    * apply weqfibtototal; simpl; intro f.
-    abstract (apply weqiff; try (apply impred; intro; apply hsD); split;
-      [ intros HH i; rewrite φ_adj_inv_natural_precomp; apply HH
-      | intros HH i; rewrite <- φ_adj_inv_natural_precomp; apply HH ]).
-      (* apply weqonsecfibers; intro i. *)
-      (* rewrite φ_adj_inv_natural_precomp; apply idweq. *)
-    * apply weqfibtototal; simpl; intro f.
-    abstract (apply weqiff; [ | apply impred; intro; apply hsD | apply impred; intro; apply hsC ];
-    split; intros HH i;
-    [ rewrite <- (HH i), φ_adj_after_φ_adj_inv; apply idpath
-    | rewrite (HH i),  φ_adj_inv_after_φ_adj; apply idpath ]).
+(** Definition of chains and omega-cocontinuous functors *)
+Section omega_cocont.
 
-
-      (* apply weqonsecfibers; intro i. *)
-      (* apply weqimplimpl; [ | | apply hsD | apply hsC]; intro h. *)
-      (*   now rewrite <- h, (φ_adj_after_φ_adj_inv _ _ _ H). *)
-      (* now rewrite h, (φ_adj_inv_after_φ_adj _ _ _ H). *)
-- simple refine (let X : cocone d (G M) := _ in _).
-  { simple refine (mk_cocone _ _).
-    + intro v; apply (φ_adj C D F H (coconeIn ccM v)).
-    + abstract (intros m n e; simpl;
-                rewrite <- (coconeInCommutes ccM m n e); simpl;
-                now rewrite φ_adj_natural_precomp).
-  }
-  apply (HccL (G M) X).
-Defined.
-
-(* Print Assumptions left_adjoint_cocont. *)
-
-(* Print Assumptions weqbandf. *)
-(* Print Assumptions weqiff. *)
-(* Print Assumptions weqcomp. *)
-(* Print Assumptions weqfibtototal. *)
-(* Print Assumptions weqimplimpl. *)
-(* Print Assumptions iscontrweqb. *)
-(* Print Assumptions adjunction_hom_weq. *)
-
-
-(* Print Assumptions weqonsecfibers. *)
-
-
-(* Print Assumptions φ_adj_inv_after_φ_adj. *)
-(* Print Assumptions impred. *)
-(* Print Assumptions  *)
-
-Section preserves_colimit_examples.
-
-Context {C D E : precategory} (hsC : has_homsets C) (hsD : has_homsets D)
-        (hsE : has_homsets E).
-
-Let Fid : functor C C := functor_identity C.
-
-Lemma preserves_colimit_identity {g : graph} (d : diagram g C) (L : C)
-  (cc : cocone d L) : preserves_colimit Fid d L cc.
-Proof.
-intros HcL y ccy; simpl.
-set (CC := mk_ColimCocone _ _ _ HcL).
-mkpair.
-- mkpair.
-  + apply (colimArrow CC), ccy.
-  + abstract (simpl; intro n; apply (colimArrowCommutes CC)).
-- abstract (simpl; intro t; apply subtypeEquality;
-  [ simpl; intro v; apply impred; intro; apply hsC
-  | apply (colimArrowUnique CC); intro n; apply (pr2 t)]).
-Defined.
-
-Lemma is_cocont_identity : is_cocont Fid.
-Proof.
-intros g d L cc; apply preserves_colimit_identity.
-Defined.
-
-Variable (x : D).
-
-Let Fx : functor C D := constant_functor C D x.
-
-(* This is is too weak as diagrams are not necessarily categories *)
-Lemma preserves_colimit_constant {g : graph} (v : vertex g)
-  (conn : Π (u : vertex g), edge v u)
-  (d : diagram g C) (L : C) (cc : cocone d L) :
-  preserves_colimit Fx d L cc.
-Proof.
-intros HcL y ccy; simpl.
-mkpair.
-- mkpair.
-  + apply (coconeIn ccy v).
-  + abstract (simpl; intro u; generalize (coconeInCommutes ccy _ _ (conn u)); simpl;
-    do 2 rewrite id_left; intro H; rewrite H; apply idpath).
-- abstract (simpl; intro p; apply subtypeEquality;
-  [ intros f; apply impred; intro; apply hsD
-  | now simpl; destruct p as [p H]; rewrite <- (H v), id_left ]).
-Defined.
-
-Lemma preserves_colimit_comp (F : functor C D) (G : functor D E)
-  {g : graph} (d : diagram g C) (L : C) (cc : cocone d L)
-  (H1 : preserves_colimit F d L cc)
-  (H2 : preserves_colimit G (mapdiagram F d) (F L) (mapcocone F _ cc)) :
-  preserves_colimit (functor_composite F G) d L cc.
-Proof.
-intros HcL y ccy; simpl.
-set (CC := mk_ColimCocone _ _ _ (H2 (H1 HcL))).
-mkpair.
-- mkpair.
-  + apply (colimArrow CC), ccy.
-  + abstract (simpl; intro v; apply (colimArrowCommutes CC)).
-- abstract (simpl; intro t; apply subtypeEquality;
-  [ intros f; apply impred; intro; apply hsE
-  | simpl; apply (colimArrowUnique CC), (pr2 t) ]).
-Defined.
-
-Lemma is_cocont_comp (F : functor C D) (G : functor D E)
-  (HF : is_cocont F) (HG : is_cocont G) : is_cocont (functor_composite F G).
-Proof.
-intros g d L cc.
-apply preserves_colimit_comp; [ apply HF | apply HG ].
-Defined.
-
-End preserves_colimit_examples.
-
-Section move_upstream.
-
-(* Move to limits.initial *)
-
-Fixpoint iter_functor {C : precategory} (F : functor C C) (n : nat) : functor C C := match n with
-  | O => functor_identity C
-  | S n' => functor_composite (iter_functor F n') F
-  end.
-
-(* TODO : state this for any object and morphism, that is,
-+   - Id^n a = a
-+   - #(Id^n) f = f
-+   thus avoiding use of funext
-+
-+  TODO: similar for
-+   - (G o F)^n (a) = G^n(a) o F^n(a)
-+   - #(G o F)^n (f) = #G^n(f) o #F^n(f)
-+
-*)
-
-End move_upstream.
-
-(* Local Notation "F ^ n" := (iter_functor _ F n) (at level 10, format "F ^ n"). *)
-
-Section chains.
-
-(* Define the chain:
+(** Define the chain:
 
      0 --> 1 --> 2 --> 3 --> ...
 
@@ -293,7 +139,66 @@ Local Notation "'chain'" := (diagram nat_graph).
 Definition mapchain {C D : precategory} (F : functor C D)
   (c : chain C) : chain D := mapdiagram F c.
 
-(* Construct the chain:
+(** Any i < j gives a morphism in the chain *)
+Definition chain_mor {C : precategory} (c : chain C) {i j} :
+  i < j -> C⟦dob c i, dob c j⟧.
+Proof.
+induction j.
+- intros Hi0.
+  destruct (negnatlthn0 0 Hi0).
+- intros Hij.
+  destruct (natlehchoice4 _ _ Hij) as [|H].
+  + apply (IHj h ;; dmor c (idpath (S j))).
+  + apply dmor, (maponpaths S H).
+Defined.
+
+Lemma chain_mor_coconeIn {C : precategory} (c : chain C) (x : C)
+  (cc : cocone c x) i : Π j (Hij : i < j),
+  chain_mor c Hij ;; coconeIn cc j = coconeIn cc i.
+Proof.
+induction j.
+- intros Hi0.
+  destruct (negnatlthn0 _ Hi0).
+- intros Hij; simpl.
+  destruct (natlehchoice4 _ _ Hij).
+  + rewrite <- (IHj h), <- assoc.
+    apply maponpaths, coconeInCommutes.
+  + destruct p.
+    apply coconeInCommutes.
+Qed.
+
+Lemma chain_mor_right {C : precategory} {c : chain C} {i j} (Hij : i < j) (HSij : S i < j) :
+  dmor c (idpath (S i)) ;; chain_mor c HSij = chain_mor c Hij.
+Proof.
+induction j.
+- destruct (negnatlthn0 _ Hij).
+- simpl.
+  destruct (natlehchoice4 _ _ Hij).
+  + destruct (natlehchoice4 _ _ HSij).
+    * now rewrite <- (IHj h h0), assoc.
+    * destruct p; simpl.
+      destruct (natlehchoice4 _ _ h); [destruct (isirreflnatlth _ h0)|].
+      apply cancel_postcomposition, maponpaths, isasetnat.
+  + destruct p, (isirreflnatlth _ HSij).
+Qed.
+
+Lemma chain_mor_left {C : precategory} {c : chain C} {i j} (Hij : i < j) (HiSj : i < S j) :
+  chain_mor c Hij ;; dmor c (idpath (S j)) = chain_mor c HiSj.
+Proof.
+destruct j.
+- destruct (negnatlthn0 _ Hij).
+- simpl; destruct (natlehchoice4 i (S j) HiSj).
+  + destruct (natlehchoice4 _ _ h).
+    * destruct (natlehchoice4 _ _ Hij); [|destruct p, (isirreflnatlth _ h0)].
+      apply cancel_postcomposition, cancel_postcomposition, maponpaths, isasetbool.
+    * destruct p; simpl.
+      destruct (natlehchoice4 _ _ Hij); [destruct (isirreflnatlth _ h0)|].
+      apply cancel_postcomposition, maponpaths, isasetnat.
+  + generalize Hij; rewrite p; intros H.
+    destruct (isirreflnatlth _ H).
+Qed.
+
+(** Construct the initial chain:
 
          !          F!            F^2 !
      0 -----> F 0 ------> F^2 0 --------> F^3 0 ---> ...
@@ -303,100 +208,41 @@ Definition initChain {C : precategory} (InitC : Initial C) (F : functor C C) : c
 Proof.
 exists (λ n, iter_functor F n InitC).
 intros m n Hmn. destruct Hmn. simpl.
-induction m; simpl.
+induction m as [|m IHm]; simpl.
 - exact (InitialArrow InitC _).
 - exact (# F IHm).
 Defined.
 
-Definition chain_mor {C : precategory} (c : chain C) i :
-  Π j, i < j -> C⟦dob c i, dob c j⟧.
-Proof.
-induction j.
-- intros Hi0.
-  destruct (negnatlthn0 0 Hi0).
-- intros Hij.
-  destruct (natlehchoice4 _ _ Hij) as [|H].
-  + apply (IHj h ;; dmor c (idpath (S j))).
-  + apply dmor.
-    apply (maponpaths S H).
-Defined.
-
-Lemma chain_mor_commutes {C : precategory} (c : chain C) (x : C)
-  (cc : cocone c x) i : Π j (Hij : i < j),
-  chain_mor c i j Hij ;; coconeIn cc j = coconeIn cc i.
-Proof.
-induction j.
-- intros Hi0.
-  destruct (negnatlthn0 0 Hi0).
-- intros Hij; simpl.
-  destruct (natlehchoice4 i j Hij).
-  + rewrite <- (IHj h), <- assoc.
-    apply maponpaths, coconeInCommutes.
-  + destruct p.
-    apply coconeInCommutes.
-Qed.
-
-Lemma chain_mor_commutes2 {C : precategory} (c : chain C) i j (Hij : i < j) (HSij : S i < j) :
-  dmor c (idpath (S i)) ;; chain_mor c _ _ HSij = chain_mor c _ _ Hij.
-Proof.
-induction j.
-- destruct (negnatlthn0 _ Hij).
-- simpl.
-  destruct (natlehchoice4 i j Hij).
-  + destruct (natlehchoice4 (S i) j HSij).
-    * now rewrite <- (IHj h h0), assoc.
-    * destruct p; simpl.
-      destruct (natlehchoice4 i i h); [destruct (isirreflnatlth _ h0)|].
-      apply cancel_postcomposition, maponpaths, isasetnat.
-  + destruct p, (isirreflnatlth _ HSij).
-Qed.
-
-(* TODO: HSij is redundant? *)
-Lemma chain_mor_commutes3 {C : precategory} (c : chain C) i j (HSij : i < S j) (Hij : i < j) :
-  chain_mor c i (S j) HSij = chain_mor c i j Hij ;; dmor c (idpath (S j)).
-Proof.
-destruct j.
-- destruct (negnatlthn0 _ Hij).
-- simpl; destruct (natlehchoice4 i (S j) HSij).
-  + destruct (natlehchoice4 i j h).
-    * destruct (natlehchoice4 i j Hij); [|destruct p, (isirreflnatlth _ h0)].
-      apply cancel_postcomposition, cancel_postcomposition, maponpaths, isasetbool.
-    * destruct p; simpl.
-      destruct (natlehchoice4 i i Hij); [destruct (isirreflnatlth _ h0)|].
-      apply cancel_postcomposition, maponpaths, isasetnat.
-  + generalize Hij; rewrite p; intros H.
-    destruct (isirreflnatlth _ H).
-Qed.
-
-End chains.
-
-Notation "'chain'" := (diagram nat_graph).
-
 Definition is_omega_cocont {C D : precategory} (F : functor C D) : UU :=
   Π (c : chain C) (L : C) (cc : cocone c L),
-  preserves_colimit F c L cc.
+  preserves_colimits F c L cc.
 
-Definition omega_cocont_functor (C D : precategory)  : UU :=
-  total2 (fun F : functor C D => is_omega_cocont F).
+Definition omega_cocont_functor (C D : precategory) : UU :=
+  Σ (F : functor C D), is_omega_cocont F.
 
+End omega_cocont.
 
-(* This section proves that (L,α : F L -> L) is the initial algebra
-   where L is the colimit of the inital chain:
+Local Notation "'chain'" := (diagram nat_graph).
+
+(** This section proves that (L,α : F L -> L) is the initial algebra
+    where L is the colimit of the inital chain:
 
          !          F !           F^2 !
      0 -----> F 0 ------> F^2 0 --------> F^3 0 ---> ...
 
+This result is also known as Adámek's theorem:
+
+  https://ncatlab.org/nlab/show/initial+algebra+of+an+endofunctor#AdameksTheorem
+
 *)
 Section colim_initial_algebra.
 
-Variables (C : precategory) (hsC : has_homsets C).
+Variables (C : precategory) (hsC : has_homsets C) (InitC : Initial C).
 
 (* It is important that these are not packaged together as it is
    sometimes necessary to control how opaque HF is. See
    isalghom_pr1foldr in lists.v *)
 Variables (F : functor C C) (HF : is_omega_cocont F).
-
-Variables (InitC : Initial C).
 
 Let Fchain : chain C := initChain InitC F.
 
@@ -404,75 +250,64 @@ Variable (CC : ColimCocone Fchain).
 
 Let L : C := colim CC.
 Let FFchain : chain C := mapchain F Fchain.
-
 Let Fa : cocone FFchain (F L) := mapcocone F _ (colimCocone CC).
 Let FHC' : isColimCocone FFchain (F L) Fa :=
   HF Fchain L (colimCocone CC) (isColimCocone_from_ColimCocone CC).
 Let FHC : ColimCocone FFchain := mk_ColimCocone _ _ _ FHC'.
 
-Definition shiftCocone : cocone FFchain L.
+Local Definition shiftCocone : cocone FFchain L.
 Proof.
 simple refine (mk_cocone _ _).
 - intro n; apply (coconeIn (colimCocone CC) (S n)).
-- abstract (
-  intros m n e; destruct e ;
-  apply (coconeInCommutes (colimCocone CC) (S m) _ (idpath _))).
+- abstract (intros m n e; destruct e ;
+            apply (coconeInCommutes (colimCocone CC) (S m) _ (idpath _))).
 Defined.
 
-Definition unshiftCocone (x : C) : cocone FFchain x -> cocone Fchain x.
+Local Definition unshiftCocone (x : C) : cocone FFchain x -> cocone Fchain x.
 Proof.
 intros cc.
 simple refine (mk_cocone _ _).
 - simpl; intro n.
-  destruct n as [|n]; simpl.
+  induction n as [|n]; simpl.
   + apply InitialArrow.
   + apply (coconeIn cc _).
-- abstract (
-  simpl; intros m n e; destruct e; simpl;
-  destruct m as [|m] ;
-  try apply InitialArrowUnique ;
-  try apply (coconeInCommutes cc m _ (idpath _))).
+- abstract (simpl; intros m n e; destruct e;
+            destruct m as [|m]; [ apply InitialArrowUnique
+                                | apply (coconeInCommutes cc m _ (idpath _))]).
 Defined.
 
-Definition shiftIsColimCocone : isColimCocone FFchain L shiftCocone.
+Local Definition shiftIsColimCocone : isColimCocone FFchain L shiftCocone.
 Proof.
 intros x cc; simpl.
 mkpair.
 + mkpair.
   * apply colimArrow, (unshiftCocone _ cc).
-  * abstract (simpl; intro n;
-              apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n))).
-+ abstract (
-  simpl; intros p ;
-  apply subtypeEquality ;
-  [
-   intro f; apply impred; intro; apply hsC
-  |
-   apply colimArrowUnique; simpl; intro n ;
-    destruct n as [|n]; [ apply InitialArrowUnique | apply (pr2 p) ]]).
+  * abstract (intro n; apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n))).
++ abstract (intros p; apply subtypeEquality;
+             [ intro f; apply impred; intro; apply hsC
+             | apply colimArrowUnique; intro n;
+               destruct n as [|n]; [ apply InitialArrowUnique | apply (pr2 p) ]]).
 Defined.
 
-Definition shiftColimCocone : ColimCocone FFchain :=
+Local Definition shiftColimCocone : ColimCocone FFchain :=
   mk_ColimCocone FFchain L shiftCocone shiftIsColimCocone.
 
-Definition α_mor : C⟦F L,L⟧ := colimArrow FHC L shiftCocone.
+Definition colim_algebra_mor : C⟦F L,L⟧ := colimArrow FHC L shiftCocone.
 
-Definition is_iso_α_mor : is_iso α_mor :=
+Local Definition is_iso_colim_algebra_mor : is_iso colim_algebra_mor :=
   isColim_is_iso _ FHC _ _ shiftIsColimCocone.
 
-Let α : iso (F L) L := isopair _ is_iso_α_mor.
+Let α : iso (F L) L := isopair _ is_iso_colim_algebra_mor.
 Let α_inv : iso L (F L) := iso_inv_from_iso α.
 Let α_alg : algebra_ob F := tpair (λ X : C, C ⟦ F X, X ⟧) L α.
 
-(* Why does this not compute? *)
 Lemma unfold_inv_from_iso_α :
   inv_from_iso α = colimArrow shiftColimCocone _ (colimCocone FHC).
 Proof.
-cbn.
 apply id_right.
 Qed.
 
-(* Given an algebra:
+(** Given an algebra:
 
           a
    F A ------> A
@@ -496,7 +331,7 @@ Variable (Aa : algebra_ob F).
 Local Notation A := (alg_carrier _ Aa).
 Local Notation a := (alg_map _ Aa).
 
-Definition cocone_over_alg (n : nat) : C ⟦ dob Fchain n, A ⟧.
+Local Definition cocone_over_alg (n : nat) : C ⟦ dob Fchain n, A ⟧.
 Proof.
 induction n as [|n Fn]; simpl.
 - now apply InitialArrow.
@@ -524,7 +359,7 @@ Qed.
 Local Definition ad : C⟦L,A⟧.
 Proof.
 apply colimArrow.
-simple refine (mk_cocone _ _).
+use mk_cocone.
 - apply cocone_over_alg.
 - apply isCoconeOverAlg.
 Defined.
@@ -564,8 +399,7 @@ Qed.
 
 Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg F hsC) α_alg.
 Proof.
-apply mk_isInitial.
-intros Aa.
+apply mk_isInitial; intros Aa.
 exists (ad_mor Aa).
 apply colimAlgIsInitial_subproof.
 Defined.
@@ -576,64 +410,182 @@ Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
 End colim_initial_algebra.
 
 
+(** Examples of (omega) cocontinuous functors *)
 Section cocont_functors.
 
-(** The constant functor is omega cocontinuous *)
-Lemma is_omega_cocont_constant_functor (C D : precategory) (hsD : has_homsets D)
-  (x : D) : is_omega_cocont (constant_functor C D x).
+(** Left adjoints preserve colimits *)
+Lemma left_adjoint_cocont {C D : precategory} (F : functor C D)
+  (H : is_left_adjoint F) (hsC : has_homsets C) (hsD : has_homsets D) : is_cocont F.
 Proof.
-intros c L ccL HcL y ccy; simpl.
-simple refine (tpair _ _ _).
-- simple refine (tpair _ _ _).
-  + apply (coconeIn ccy 0).
-  + abstract (simpl; intro n; rewrite id_left;
-              destruct ccy as [f Hf]; simpl in *;
-              induction n; [apply idpath|];
-              now rewrite IHn, <- (Hf n (S n) (idpath _)), id_left).
-- abstract (simpl; intro p; apply subtypeEquality;
+intros g d L ccL HccL M ccM.
+set (G := pr1 H).
+apply (@iscontrweqb _ (Σ y : C ⟦ L, G M ⟧,
+    Π i, coconeIn ccL i ;; y = φ_adj _ _ _ H (coconeIn ccM i))).
+- eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
+    Π i, # F (coconeIn ccL i) ;; φ_adj_inv _ _ _ H y = coconeIn ccM i)).
+  + apply (weqbandf (adjunction_hom_weq _ _ _ H L M)); simpl; intro f.
+    abstract (apply weqiff; try (apply impred; intro; apply hsD);
+    now rewrite φ_adj_inv_after_φ_adj).
+  + eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
+      Π i, φ_adj_inv _ _ _ _ (coconeIn ccL i ;; y) = coconeIn ccM i)).
+    * apply weqfibtototal; simpl; intro f.
+    abstract (apply weqiff; try (apply impred; intro; apply hsD); split;
+      [ intros HH i; rewrite φ_adj_inv_natural_precomp; apply HH
+      | intros HH i; rewrite <- φ_adj_inv_natural_precomp; apply HH ]).
+      (* apply weqonsecfibers; intro i. *)
+      (* rewrite φ_adj_inv_natural_precomp; apply idweq. *)
+    * apply weqfibtototal; simpl; intro f.
+    abstract (apply weqiff; [ | apply impred; intro; apply hsD | apply impred; intro; apply hsC ];
+      split; intros HH i;
+        [ now rewrite <- (HH i), φ_adj_after_φ_adj_inv
+        | now rewrite (HH i),  φ_adj_inv_after_φ_adj ]).
+      (* apply weqonsecfibers; intro i. *)
+      (* apply weqimplimpl; [ | | apply hsD | apply hsC]; intro h. *)
+      (*   now rewrite <- h, (φ_adj_after_φ_adj_inv _ _ _ H). *)
+      (* now rewrite h, (φ_adj_inv_after_φ_adj _ _ _ H). *)
+- simple refine (let X : cocone d (G M) := _ in _).
+  { simple refine (mk_cocone _ _).
+    + intro v; apply (φ_adj C D F H (coconeIn ccM v)).
+    + abstract (intros m n e; simpl;
+                rewrite <- (coconeInCommutes ccM m n e); simpl;
+                now rewrite φ_adj_natural_precomp).
+  }
+  apply (HccL (G M) X).
+Defined.
+
+(* Print Assumptions left_adjoint_cocont. *)
+
+Section functor_identity.
+
+Context {C : precategory} (hsC : has_homsets C).
+
+(** The identity functor is (omega) cocontinuous *)
+Lemma preserves_colimits_identity{g : graph} (d : diagram g C) (L : C)
+  (cc : cocone d L) : preserves_colimits (functor_identity C) d L cc.
+Proof.
+intros HcL y ccy; simpl.
+set (CC := mk_ColimCocone _ _ _ HcL).
+mkpair.
+- mkpair.
+  + apply (colimArrow CC), ccy.
+  + abstract (simpl; intro n; apply (colimArrowCommutes CC)).
+- abstract (simpl; intro t; apply subtypeEquality;
+    [ simpl; intro v; apply impred; intro; apply hsC
+    | apply (colimArrowUnique CC); intro n; apply (pr2 t)]).
+Defined.
+
+Lemma is_cocont_identity : is_cocont (functor_identity C).
+Proof.
+now intros g; apply preserves_colimits_identity.
+Defined.
+
+Lemma is_omega_cocont_functor_identity : is_omega_cocont (functor_identity C).
+Proof.
+now intros c; apply is_cocont_identity.
+Defined.
+
+Definition omega_cocont_functor_identity : omega_cocont_functor C C :=
+  tpair _ _ is_omega_cocont_functor_identity.
+
+End functor_identity.
+
+(** The constant functor is omega cocontinuous *)
+Section constant_functor.
+
+Context {C D : precategory} (hsD : has_homsets D) (x : D).
+
+(* Without the conn argument this is is too weak as diagrams are not necessarily categories *)
+Lemma preserves_colimits_constant_functor {g : graph} (v : vertex g)
+  (conn : Π (u : vertex g), edge v u)
+  (d : diagram g C) (L : C) (cc : cocone d L) :
+  preserves_colimits (constant_functor C D x) d L cc.
+Proof.
+intros HcL y ccy; simpl.
+mkpair.
+- apply (tpair _ (coconeIn ccy v)).
+  abstract (now intro u; generalize (coconeInCommutes ccy _ _ (conn u));
+            rewrite !id_left; intro H; rewrite H).
+- abstract (intro p; apply subtypeEquality;
+              [ intro; apply impred; intro; apply hsD
+              | now destruct p as [p H]; rewrite <- (H v), id_left ]).
+Defined.
+
+(** The constant functor is omega cocontinuous *)
+Lemma is_omega_cocont_constant_functor : is_omega_cocont (constant_functor C D x).
+Proof.
+intros c L ccL HccL y ccy.
+mkpair.
+- apply (tpair _ (coconeIn ccy 0)).
+  abstract (intro n; rewrite id_left; destruct ccy as [f Hf]; simpl;
+            now induction n; [apply idpath|]; rewrite IHn, <- (Hf n (S n) (idpath _)), id_left).
+- abstract (intro p; apply subtypeEquality;
               [ intros f; apply impred; intro; apply hsD
               | now simpl; destruct p as [p H]; rewrite <- (H 0), id_left]).
 Defined.
 
-Definition omega_cocont_constant_functor (C D : precategory) (hsD : has_homsets D)
-  (x : D) : omega_cocont_functor C D := tpair _ _ (is_omega_cocont_constant_functor C D hsD x).
+Definition omega_cocont_constant_functor : omega_cocont_functor C D :=
+  tpair _ _ is_omega_cocont_constant_functor.
 
-(** The identity functor is omega cocontinuous *)
-Lemma is_omega_cocont_functor_identity (C : precategory) (hsC : has_homsets C) :
-  is_omega_cocont (functor_identity C).
-Proof.
-intros c L ccL HcL.
-apply (preserves_colimit_identity hsC _ _ _ HcL).
-Defined.
-
-Definition omega_cocont_functor_identity (C : precategory) (hsC : has_homsets C) :
-  omega_cocont_functor C C := tpair _ _ (is_omega_cocont_functor_identity C hsC).
+End constant_functor.
 
 (** Functor composition preserves omega cocontinuity *)
-Lemma is_omega_cocont_functor_composite {C D E : precategory}
-  (hsE : has_homsets E) (F : functor C D) (G : functor D E) :
+Section functor_composite.
+
+Context {C D E : precategory} (hsE : has_homsets E).
+
+Lemma preserves_colimits_functor_composite (F : functor C D) (G : functor D E)
+  {g : graph} (d : diagram g C) (L : C) (cc : cocone d L)
+  (H1 : preserves_colimits F d L cc)
+  (H2 : preserves_colimits G (mapdiagram F d) (F L) (mapcocone F _ cc)) :
+  preserves_colimits (functor_composite F G) d L cc.
+Proof.
+intros HcL y ccy; simpl.
+set (CC := mk_ColimCocone _ _ _ (H2 (H1 HcL))).
+mkpair.
+- mkpair.
+  + apply (colimArrow CC), ccy.
+  + abstract (simpl; intro v; apply (colimArrowCommutes CC)).
+- abstract (simpl; intro t; apply subtypeEquality;
+    [ intros f; apply impred; intro; apply hsE
+    | simpl; apply (colimArrowUnique CC), (pr2 t) ]).
+Defined.
+
+Lemma is_cocont_functor_composite (F : functor C D) (G : functor D E)
+  (HF : is_cocont F) (HG : is_cocont G) : is_cocont (functor_composite F G).
+Proof.
+intros g d L cc.
+apply preserves_colimits_functor_composite; [ apply HF | apply HG ].
+Defined.
+
+Lemma is_omega_cocont_functor_composite (F : functor C D) (G : functor D E) :
   is_omega_cocont F -> is_omega_cocont G -> is_omega_cocont (functor_composite F G).
 Proof.
 intros hF hG c L cc.
-apply (preserves_colimit_comp hsE); [ apply hF | apply hG ].
+apply preserves_colimits_functor_composite; [ apply hF | apply hG ].
 Defined.
 
-Definition omega_cocont_functor_composite {C D E : precategory}
-  (hsE : has_homsets E) (F : omega_cocont_functor C D) (G : omega_cocont_functor D E) :
-  omega_cocont_functor C E := tpair _ _ (is_omega_cocont_functor_composite hsE _ _ (pr2 F) (pr2 G)).
+Definition omega_cocont_functor_composite
+  (F : omega_cocont_functor C D) (G : omega_cocont_functor D E) :
+  omega_cocont_functor C E := tpair _ _ (is_omega_cocont_functor_composite _ _ (pr2 F) (pr2 G)).
+
+End functor_composite.
 
 (** Functor iteration preserves omega cocontinuity *)
+Section iter_functor.
+
 Lemma is_omega_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
   (F : functor C C) (hF : is_omega_cocont F) n : is_omega_cocont (iter_functor F n).
 Proof.
 induction n as [|n IH]; simpl.
-- apply (is_omega_cocont_functor_identity _ hsC).
+- apply (is_omega_cocont_functor_identity hsC).
 - apply (is_omega_cocont_functor_composite hsC _ _ IH hF).
 Defined.
 
 Definition omega_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
   (F : omega_cocont_functor C C) n : omega_cocont_functor C C :=
   tpair _ _ (is_omega_cocont_iter_functor hsC _ (pr2 F) n).
+
+End iter_functor.
 
 (** A pair of functors (F,G) : A * B -> C * D is omega_cocont if F and G are *)
 Section binproduct_pair_functor.
@@ -646,7 +598,7 @@ Variables (hsC : has_homsets C) (hsD : has_homsets D).
 (* Maybe generalize these to arbitrary diagrams? *)
 Local Definition cocone_pr1_functor (cAB : chain (binproduct_precategory A B))
   (ab : A × B) (ccab : cocone cAB ab) :
-  cocone (mapchain (pr1_functor A B)cAB) (ob1 ab).
+  cocone (mapchain (pr1_functor A B) cAB) (ob1 ab).
 Proof.
 simple refine (mk_cocone _ _).
 - simpl; intro n; apply (mor1 (coconeIn ccab n)).
@@ -743,13 +695,13 @@ Lemma is_omega_cocont_binproduct_pair_functor (HF : is_omega_cocont F) (HG : is_
   is_omega_cocont (binproduct_pair_functor F G).
 Proof.
 intros cAB ml ccml Hccml xy ccxy; simpl in *.
-simple refine (let cFAX : cocone (mapdiagram F (mapchain (pr1_functor A B) cAB))
+simple refine (let cFAX : cocone (mapchain F (mapchain (pr1_functor A B) cAB))
                                  (pr1 xy) := _ in _).
 { simple refine (mk_cocone _ _).
   - intro n; apply (pr1 (pr1 ccxy n)).
   - abstract (intros m n e; apply (maponpaths pr1 (pr2 ccxy m n e))).
 }
-simple refine (let cGBY : cocone (mapdiagram G (mapchain (pr2_functor A B)cAB))
+simple refine (let cGBY : cocone (mapchain G (mapchain (pr2_functor A B)cAB))
                                  (pr2 xy) := _ in _).
 { simple refine (mk_cocone _ _).
   - intro n; apply (pr2 (pr1 ccxy n)).
@@ -784,10 +736,8 @@ Variables (hsA : has_homsets A) (hsB : has_homsets B).
 (* I needs to have decidable equality for pr_functor to be omega cocont *)
 Hypothesis (HI : isdeceq I).
 
-Local Definition ifI (i j : I) (a b : A) : A := match HI i j with
-  | ii1 _ => a
-  | ii2 _ => b
-  end.
+Local Definition ifI (i j : I) (a b : A) : A :=
+  coprod_rect (λ _, A) (λ _,a) (λ _,b) (HI i j).
 
 Local Lemma ifI_eq i x y : ifI i i x y = x.
 Proof.
@@ -857,8 +807,8 @@ Lemma is_omega_cocont_pair_functor
   is_omega_cocont (pair_functor I F).
 Proof.
 intros cAB ml ccml Hccml xy ccxy; simpl in *.
-simple refine (let cc i : cocone (mapdiagram (F i)
-                            (mapdiagram (pr_functor I (fun _ => A) i) cAB)) (xy i) := _ in _).
+simple refine (let cc i : cocone (mapchain (F i)
+                                 (mapchain (pr_functor I (fun _ => A) i) cAB)) (xy i) := _ in _).
 { simple refine (mk_cocone _ _).
   - intro n; apply (pr1 ccxy n).
   - abstract (intros m n e;
@@ -1092,7 +1042,7 @@ Local Definition fun_lt (cAB : chain (binproduct_precategory C C)) :
                   BinProductObject C (PC (ob1 (dob cAB j)) (ob2 (dob cAB j))) ⟧.
 Proof.
 intros i j hij.
-apply (BinProductOfArrows _ _ _ (mor1 (chain_mor cAB _ _ hij)) (identity _)).
+apply (BinProductOfArrows _ _ _ (mor1 (chain_mor cAB hij)) (identity _)).
 Defined.
 
 Local Definition fun_gt (cAB : chain (binproduct_precategory C C)) :
@@ -1101,12 +1051,12 @@ Local Definition fun_gt (cAB : chain (binproduct_precategory C C)) :
                   BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB i))) ⟧.
 Proof.
 intros i j hij.
-apply (BinProductOfArrows _ _ _ (identity _) (mor2 (chain_mor cAB _ _ hij))).
+apply (BinProductOfArrows _ _ _ (identity _) (mor2 (chain_mor cAB hij))).
 Defined.
 
 (* The map to K from the "grid" *)
 Local Definition map_to_K (cAB : chain (binproduct_precategory C C)) (K : C)
-  (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) i j :
+  (ccK : cocone (mapchain (binproduct_functor PC) cAB) K) i j :
   C⟦BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))), K⟧.
 Proof.
 destruct (natlthorgeh i j).
@@ -1117,7 +1067,7 @@ destruct (natlthorgeh i j).
 Defined.
 
 Local Lemma map_to_K_commutes (cAB : chain (binproduct_precategory C C)) (K : C)
-  (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K)
+  (ccK : cocone (mapchain (binproduct_functor PC) cAB) K)
   i j k (e : edge j k) :
    BinProduct_of_functors_mor C C PC (constant_functor C C (pr1 (pr1 cAB i)))
      (functor_identity C) (pr2 (dob cAB j)) (pr2 (dob cAB k))
@@ -1133,8 +1083,7 @@ destruct (natlthorgeh i j) as [h|h].
     rewrite BinProductOfArrows_comp, id_left.
     eapply pathscomp0; [apply BinProductOfArrows_comp|].
     rewrite id_right.
-    apply BinProductOfArrows_eq; trivial.
-    rewrite id_left; simpl.
+    apply BinProductOfArrows_eq; trivial; rewrite id_left; simpl.
     destruct (natlehchoice4 i j h0) as [h1|h1].
     + apply cancel_postcomposition, maponpaths, maponpaths, isasetbool.
     + destruct h1; destruct (isirreflnatlth _ h).
@@ -1146,10 +1095,7 @@ destruct (natlthorgeh i j) as [h|h].
       { destruct h2; destruct (isirreflnatlth _ h0). }
     + destruct h1; simpl.
       rewrite <- (coconeInCommutes ccK i (S i) (idpath _)), assoc.
-      unfold fun_lt.
-      eapply pathscomp0.
-      eapply cancel_postcomposition.
-      apply BinProductOfArrows_comp.
+      eapply pathscomp0; [apply cancel_postcomposition, BinProductOfArrows_comp|].
       rewrite id_left, id_right.
       apply cancel_postcomposition, BinProductOfArrows_eq; trivial.
       simpl; destruct (natlehchoice4 i i h0) as [h1|h1]; [destruct (isirreflnatlth _ h1)|].
@@ -1157,16 +1103,11 @@ destruct (natlthorgeh i j) as [h|h].
   * destruct (natgehchoice i j h) as [h1|h1].
     + destruct (natgehchoice i (S j) h0) as [h2|h2].
       { unfold fun_gt; rewrite assoc.
-        eapply pathscomp0.
-        eapply cancel_postcomposition.
-        apply BinProductOfArrows_comp.
+        eapply pathscomp0; [eapply cancel_postcomposition, BinProductOfArrows_comp|].
         rewrite id_right.
-        apply cancel_postcomposition.
-        apply BinProductOfArrows_eq; trivial.
-        rewrite <- (chain_mor_commutes2 cAB _ _ h1 h2).
-        apply idpath. }
-      { destruct h.
-        unfold fun_gt; simpl.
+        apply cancel_postcomposition, BinProductOfArrows_eq; trivial.
+        now rewrite <- (chain_mor_right h1 h2). }
+      { destruct h; unfold fun_gt; simpl.
         generalize h1; clear h1.
         rewrite h2; intro h1.
         apply cancel_postcomposition.
@@ -1178,7 +1119,7 @@ Qed.
 
 (* The cocone over K from the A_i * B chain *)
 Local Definition ccAiB_K (cAB : chain (binproduct_precategory C C)) (K : C)
-  (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) i :
+  (ccK : cocone (mapchain (binproduct_functor PC) cAB) K) i :
   cocone (mapchain (constprod_functor1 PC (pr1 (pr1 cAB i)))
          (mapchain (pr2_functor C C) cAB)) K.
 Proof.
@@ -1194,7 +1135,7 @@ Variable LM : C × C.
 Variable ccLM : cocone cAB LM.
 Variable HccLM : isColimCocone cAB LM ccLM.
 Variable K : C.
-Variable ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K.
+Variable ccK : cocone (mapchain (binproduct_functor PC) cAB) K.
 
 Let L := pr1 LM : C.
 Let M := pr2 LM : (λ _ : C, C) (pr1 LM).
@@ -1227,8 +1168,8 @@ Proof.
 Defined.
 
 Local Lemma fNat : Π i u v (e : edge u v),
-   dmor (mapdiagram (constprod_functor1 PC _) cB) e ;; f i v =
-   f i u ;; dmor (mapdiagram (constprod_functor1 PC _) cB) e.
+   dmor (mapchain (constprod_functor1 PC _) cB) e ;; f i v =
+   f i u ;; dmor (mapchain (constprod_functor1 PC _) cB) e.
 Proof.
   intros i j k e; destruct e; simpl.
   eapply pathscomp0; [apply BinProductOfArrows_comp|].
@@ -1246,7 +1187,7 @@ Proof.
 Defined.
 
 Local Lemma AiM_chain_eq : Π i, dmor AiM_chain (idpath (S i)) =
-                       dmor (mapdiagram (constprod_functor2 PC M) cA) (idpath _).
+                       dmor (mapchain (constprod_functor2 PC M) cA) (idpath _).
 Proof.
   intro i; simpl; unfold colimOfArrows, BinProduct_of_functors_mor; simpl.
   apply pathsinv0, colimArrowUnique.
@@ -1276,7 +1217,7 @@ Proof.
     * rewrite assoc; apply cancel_postcomposition.
       unfold f, fun_lt; simpl.
       eapply pathscomp0; [apply BinProductOfArrows_comp|].
-      now rewrite id_right, <- (chain_mor_commutes2 _ i j h0 h).
+      now rewrite id_right, <- (chain_mor_right h0 h).
     * destruct (isasymmnatgth _ _ h h0).
   + destruct (natgehchoice (S i) j h).
     * destruct h.
@@ -1291,7 +1232,7 @@ Proof.
             unfold f, fun_gt.
             rewrite BinProductOfArrows_comp.
             eapply pathscomp0; [apply BinProductOfArrows_comp|].
-            now rewrite !id_left, !id_right, (chain_mor_commutes3 cAB _ _ h0 h1).
+            now rewrite !id_left, !id_right, <- (chain_mor_left h1 h0).
           + destruct p.
             rewrite <- (coconeInCommutes ccK i _ (idpath _)), assoc.
             apply cancel_postcomposition.
@@ -1362,7 +1303,7 @@ Proof.
       eapply pathscomp0; [apply BinProductOfArrows_comp|].
       rewrite !id_left, id_right.
       apply BinProductOfArrows_eq; trivial.
-      apply (maponpaths pr1 (chain_mor_commutes cAB LM ccLM i j h)).
+      apply (maponpaths pr1 (chain_mor_coconeIn cAB LM ccLM i j h)).
     * destruct (natgehchoice i j h).
       { unfold fun_gt; rewrite <- (p i), !assoc.
         apply cancel_postcomposition.
@@ -1370,7 +1311,7 @@ Proof.
         eapply pathscomp0; [apply BinProductOfArrows_comp|].
         apply pathsinv0.
         eapply pathscomp0; [apply BinProductOfArrows_comp|].
-        now rewrite !id_left, id_right, <- (chain_mor_commutes cAB LM ccLM _ _ h0). }
+        now rewrite !id_left, id_right, <- (chain_mor_coconeIn cAB LM ccLM _ _ h0). }
       { destruct p0.
         rewrite <- (p i), assoc.
         apply cancel_postcomposition.
@@ -1627,10 +1568,10 @@ End cocont_functors.
 (** Specialized notations for HSET *)
 Delimit Scope cocont_functor_hset_scope with CS.
 
-Notation "' x" := (omega_cocont_constant_functor _ _ has_homsets_HSET x)
+Notation "' x" := (omega_cocont_constant_functor has_homsets_HSET x)
                     (at level 10) : cocont_functor_hset_scope.
 
-Notation "'Id'" := (omega_cocont_functor_identity _ has_homsets_HSET) :
+Notation "'Id'" := (omega_cocont_functor_identity has_homsets_HSET) :
                      cocont_functor_hset_scope.
 
 Notation "F * G" :=
