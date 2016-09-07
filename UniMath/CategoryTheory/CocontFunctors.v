@@ -1,7 +1,7 @@
 (**
 
-This file contains the definition and theory about (omega-) cocontinuous functors, i.e. functors
-which preserve (sequential-) colimits ([is_omega_cocont] and [is_cocont]).
+This file contains theory about (omega-) cocontinuous functors, i.e. functors which preserve
+(sequential-) colimits ([is_omega_cocont] and [is_cocont]).
 
 The main result is Adámek's theorem for constructing initial algebras of omega-cocontinuous functors
 ([colimAlgIsInitial]) which is used to construct inductive types.
@@ -32,14 +32,14 @@ This file also contains proofs that the following functors are (omega-)cocontinu
   [is_omega_cocont_BinCoproduct_of_functors_alt] [is_omega_cocont_BinCoproduct_of_functors]
 - Coproduct of families of functors: + F_i : C -> D  (generalization of coproduct of functors)
   [is_omega_cocont_coproduct_of_functors_alt] [is_omega_cocont_coproduct_of_functors]
-- Binary coproduct functor: F + G : C -> D, x |-> F x + G x
-- General coproduct functor: + F_i : C -> D
 - Constant product functors: C -> C, x |-> a * x  and  x |-> x * a
+  [is_omega_cocont_constprod_functor1] [is_omega_cocont_constprod_functor2]
 - Binary product functor: C^2 -> C, (x,y) |-> x * y
   [is_omega_cocont_binproduct_functor]
 - Product of functors: F * G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x * G x
-- Product functor: F * G : C -> D, x |-> F x * G x
-- Precomposition functor: _ o K : [C,A] -> [M,A] for K : M -> C
+  [is_omega_cocont_BinProduct_of_functors_alt] [is_omega_cocont_BinProduct_of_functors]
+- Precomposition functor: _ o K : ⟦C,A⟧ -> ⟦M,A⟧ for K : M -> C
+  [is_omega_cocont_pre_composition_functor]
 
 
 Written by: Anders Mörtberg and Benedikt Ahrens, 2015-2016
@@ -82,7 +82,7 @@ Require Import UniMath.CategoryTheory.CommaCategories.
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
-(** Definition of cocontinuous functors *)
+(** * Definition of cocontinuous functors *)
 Section cocont.
 
 Context {C D : precategory} (F : functor C D).
@@ -122,7 +122,7 @@ Definition is_cocont := Π {g : graph} (d : diagram g C) (L : C)
 
 End cocont.
 
-(** Definition of chains and omega-cocontinuous functors *)
+(** * Definition of chains and omega-cocontinuous functors *)
 Section omega_cocont.
 
 (** Define the chain:
@@ -224,7 +224,9 @@ End omega_cocont.
 
 Local Notation "'chain'" := (diagram nat_graph).
 
-(** This section proves that (L,α : F L -> L) is the initial algebra
+
+(** * Adámek's theorem for constructing initial algebras of omega-cocontinuous functors *)
+(* This section proves that (L,α : F L -> L) is the initial algebra
     where L is the colimit of the inital chain:
 
          !          F !           F^2 !
@@ -410,10 +412,10 @@ Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
 End colim_initial_algebra.
 
 
-(** Examples of (omega) cocontinuous functors *)
+(** * Examples of (omega) cocontinuous functors *)
 Section cocont_functors.
 
-(** Left adjoints preserve colimits *)
+(** ** Left adjoints preserve colimits *)
 Lemma left_adjoint_cocont {C D : precategory} (F : functor C D)
   (H : is_left_adjoint F) (hsC : has_homsets C) (hsD : has_homsets D) : is_cocont F.
 Proof.
@@ -455,11 +457,11 @@ Defined.
 
 (* Print Assumptions left_adjoint_cocont. *)
 
+(** ** The identity functor is (omega) cocontinuous *)
 Section functor_identity.
 
 Context {C : precategory} (hsC : has_homsets C).
 
-(** The identity functor is (omega) cocontinuous *)
 Lemma preserves_colimits_identity{g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : preserves_colimits (functor_identity C) d L cc.
 Proof.
@@ -489,7 +491,7 @@ Definition omega_cocont_functor_identity : omega_cocont_functor C C :=
 
 End functor_identity.
 
-(** The constant functor is omega cocontinuous *)
+(** ** The constant functor is omega cocontinuous *)
 Section constant_functor.
 
 Context {C D : precategory} (hsD : has_homsets D) (x : D).
@@ -528,7 +530,7 @@ Definition omega_cocont_constant_functor : omega_cocont_functor C D :=
 
 End constant_functor.
 
-(** Functor composition preserves omega cocontinuity *)
+(** ** Functor composition preserves omega cocontinuity *)
 Section functor_composite.
 
 Context {C D E : precategory} (hsE : has_homsets E).
@@ -570,7 +572,7 @@ Definition omega_cocont_functor_composite
 
 End functor_composite.
 
-(** Functor iteration preserves omega cocontinuity *)
+(** ** Functor iteration preserves omega cocontinuity *)
 Section iter_functor.
 
 Lemma is_omega_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
@@ -587,7 +589,7 @@ Definition omega_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
 
 End iter_functor.
 
-(** A pair of functors (F,G) : A * B -> C * D is omega_cocont if F and G are *)
+(** ** A pair of functors (F,G) : A * B -> C * D is omega cocontinuous if F and G are *)
 Section binproduct_pair_functor.
 
 Variables A B C D : precategory.
@@ -726,7 +728,7 @@ Defined.
 
 End binproduct_pair_functor.
 
-(** A family of functor F^I : A^I -> B^I is omega_cocont if each F_i is *)
+(** ** A family of functor F^I : A^I -> B^I is omega cocontinuous if each F_i is *)
 Section pair_functor.
 
 Variables (I : UU) (A B : precategory).
@@ -833,7 +835,7 @@ Defined.
 
 End pair_functor.
 
-(** The bindelta functor C -> C^2 mapping x to (x,x) is omega_cocont *)
+(** ** The bindelta functor C -> C^2 mapping x to (x,x) is omega cocontinuous *)
 Section bindelta_functor.
 
 Variables (C : precategory) (PC : BinProducts C) (hsC : has_homsets C).
@@ -852,7 +854,7 @@ Defined.
 
 End bindelta_functor.
 
-(** The generalized delta functor C -> C^I is omega_cocont *)
+(** ** The generalized delta functor C -> C^I is omega cocontinuous *)
 Section delta_functor.
 
 Variables (I : UU) (C : precategory) (PC : Products I C) (hsC : has_homsets C).
@@ -872,7 +874,7 @@ Defined.
 
 End delta_functor.
 
-(** The functor "+ : C^2 -> C" is cocont *)
+(** ** The functor "+ : C^2 -> C" is cocontinuous *)
 Section bincoprod_functor.
 
 Variables (C : precategory) (PC : BinCoproducts C) (hsC : has_homsets C).
@@ -892,7 +894,7 @@ Defined.
 
 End bincoprod_functor.
 
-(** The functor "+ : C^I -> C" is cocont *)
+(** ** The functor "+ : C^I -> C" is cocontinuous *)
 Section coprod_functor.
 
 Variables (I : UU) (C : precategory) (PC : Coproducts I C).
@@ -914,6 +916,7 @@ Defined.
 
 End coprod_functor.
 
+(** ** Binary coproduct of functors: F + G : C -> D is omega cocontinuous *)
 Section BinCoproduct_of_functors.
 
 Variables (C D : precategory) (PC : BinProducts C) (HD : BinCoproducts D).
@@ -950,6 +953,7 @@ Definition omega_cocont_BinCoproduct_of_functors
 
 End BinCoproduct_of_functors.
 
+(** ** Coproduct of families of functors: + F_i : C -> D is omega cocontinuous *)
 Section coproduct_of_functors.
 
 Variables (I : UU) (C D : precategory) (PC : Products I C).
@@ -989,6 +993,7 @@ Definition omega_cocont_coproduct_of_functors
 
 End coproduct_of_functors.
 
+(** ** Constant product functors: C -> C, x |-> a * x  and  x |-> x * a are cocontinuous *)
 Section constprod_functors.
 
 Variables (C : precategory) (PC : BinProducts C) (hsC : has_homsets C).
@@ -1025,12 +1030,12 @@ Definition omega_cocont_constprod_functor2 (x : C) :
 
 End constprod_functors.
 
-(** The functor "* : C^2 -> C" is omega cocont *)
+(** ** The functor "* : C^2 -> C" is omega cocontinuous *)
 Section binprod_functor.
 
 Variables (C : precategory) (PC : BinProducts C) (hsC : has_homsets C).
 
-(** These hypotheses follow directly if C has exponentials *)
+(* These hypotheses follow directly if C has exponentials *)
 Variable omega_cocont_constprod_functor1 :
   Π x : C, is_omega_cocont (constprod_functor1 PC x).
 Variable omega_cocont_constprod_functor2 :
@@ -1343,6 +1348,7 @@ Defined.
 
 End binprod_functor.
 
+(** ** Binary product of functors: F * G : C -> D is omega cocontinuous *)
 Section BinProduct_of_functors.
 
 Variables (C D : precategory) (PC : BinProducts C) (PD : BinProducts D) (hED : has_exponentials PD).
@@ -1380,7 +1386,7 @@ Definition omega_cocont_BinProduct_of_functors (F G : omega_cocont_functor C D) 
 
 End BinProduct_of_functors.
 
-(** Precomposition functor is cocontinuous *)
+(** ** Precomposition functor is cocontinuous *)
 Section pre_composition_functor.
 
 Variables M C A : precategory.
