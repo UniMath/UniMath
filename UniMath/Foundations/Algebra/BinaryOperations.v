@@ -1878,4 +1878,4 @@ Proof.
                                                  (op2 (pr2 xy) (pr2 xy')))).
 Defined.
 
-(* End of the file algebra1a.v *)
+(* End of file *)
