@@ -31,24 +31,27 @@ Defined.
 
 Opaque hz.
 
-Lemma hq2eq1plus1 : 2 = 1 + 1.
+Lemma hq2eq1plus1 :
+  2 = 1 + 1.
 Proof.
-  exact (confirm_pos (hqdeceq, 2, 1+1)).
+  rewrite <- hztohqand1, <- nattohzand1.
+  now rewrite <- hztohqandplus, <- nattohzandplus.
 Qed.
 
 Lemma hq2_gt0 : 2 > 0.
 Proof.
-  exact_op (confirm_pos (hqgthdec, 2, 0)).
+  rewrite <- hztohqand0, <- nattohzand0.
+  now apply hztohqandgth, nattohzandgth.
 Qed.
-
 Lemma hq1_gt0 : 1 > 0.
 Proof.
-  exact_op (confirm_pos (hqgthdec, 1, 0)).
+  rewrite <- hztohqand0, <- hztohqand1.
+  rewrite <- nattohzand1, <- nattohzand0.
+  now apply hztohqandgth, nattohzandgth.
 Qed.
-
 Lemma hq1ge0 : (0 <= 1)%hq.
 Proof.
-  exact (confirm_pos (hqlehdec, 0, 1)).
+  now apply hqlthtoleh, hq1_gt0.
 Qed.
 
 Lemma hqgth_hqneq :
