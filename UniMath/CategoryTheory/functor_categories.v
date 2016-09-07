@@ -1282,14 +1282,3 @@ induction n.
 apply functor_identity.
 apply (functor_composite IHn F).
 Defined.
-
-(* TODO : state this for any object and morphism, that is,
-+   - Id^n a = a
-+   - #(Id^n) f = f
-+   thus avoiding use of funext
-+
-+  TODO: similar for
-+   - (G o F)^n (a) = G^n(a) o F^n(a)
-+   - #(G o F)^n (f) = #G^n(f) o #F^n(f)
-+
-*)
