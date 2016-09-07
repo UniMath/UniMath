@@ -113,12 +113,12 @@ Proof.
 apply idpath.
 Qed.
 
-Definition preserves_colimits {g : graph} (d : diagram g C) (L : C)
+Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : UU :=
   isColimCocone d L cc -> isColimCocone (mapdiagram d) (F L) (mapcocone d cc).
 
 Definition is_cocont := Π {g : graph} (d : diagram g C) (L : C)
-  (cc : cocone d L), preserves_colimits d L cc.
+  (cc : cocone d L), preserves_colimit d L cc.
 
 End cocont.
 
@@ -215,7 +215,7 @@ Defined.
 
 Definition is_omega_cocont {C D : precategory} (F : functor C D) : UU :=
   Π (c : chain C) (L : C) (cc : cocone c L),
-  preserves_colimits F c L cc.
+  preserves_colimit F c L cc.
 
 Definition omega_cocont_functor (C D : precategory) : UU :=
   Σ (F : functor C D), is_omega_cocont F.
@@ -462,8 +462,8 @@ Section functor_identity.
 
 Context {C : precategory} (hsC : has_homsets C).
 
-Lemma preserves_colimits_identity{g : graph} (d : diagram g C) (L : C)
-  (cc : cocone d L) : preserves_colimits (functor_identity C) d L cc.
+Lemma preserves_colimit_identity{g : graph} (d : diagram g C) (L : C)
+  (cc : cocone d L) : preserves_colimit (functor_identity C) d L cc.
 Proof.
 intros HcL y ccy; simpl.
 set (CC := mk_ColimCocone _ _ _ HcL).
@@ -478,7 +478,7 @@ Defined.
 
 Lemma is_cocont_identity : is_cocont (functor_identity C).
 Proof.
-now intros g; apply preserves_colimits_identity.
+now intros g; apply preserves_colimit_identity.
 Defined.
 
 Lemma is_omega_cocont_functor_identity : is_omega_cocont (functor_identity C).
@@ -497,10 +497,10 @@ Section constant_functor.
 Context {C D : precategory} (hsD : has_homsets D) (x : D).
 
 (* Without the conn argument this is is too weak as diagrams are not necessarily categories *)
-Lemma preserves_colimits_constant_functor {g : graph} (v : vertex g)
+Lemma preserves_colimit_constant_functor {g : graph} (v : vertex g)
   (conn : Π (u : vertex g), edge v u)
   (d : diagram g C) (L : C) (cc : cocone d L) :
-  preserves_colimits (constant_functor C D x) d L cc.
+  preserves_colimit (constant_functor C D x) d L cc.
 Proof.
 intros HcL y ccy; simpl.
 mkpair.
@@ -535,11 +535,11 @@ Section functor_composite.
 
 Context {C D E : precategory} (hsE : has_homsets E).
 
-Lemma preserves_colimits_functor_composite (F : functor C D) (G : functor D E)
+Lemma preserves_colimit_functor_composite (F : functor C D) (G : functor D E)
   {g : graph} (d : diagram g C) (L : C) (cc : cocone d L)
-  (H1 : preserves_colimits F d L cc)
-  (H2 : preserves_colimits G (mapdiagram F d) (F L) (mapcocone F _ cc)) :
-  preserves_colimits (functor_composite F G) d L cc.
+  (H1 : preserves_colimit F d L cc)
+  (H2 : preserves_colimit G (mapdiagram F d) (F L) (mapcocone F _ cc)) :
+  preserves_colimit (functor_composite F G) d L cc.
 Proof.
 intros HcL y ccy; simpl.
 set (CC := mk_ColimCocone _ _ _ (H2 (H1 HcL))).
@@ -556,14 +556,14 @@ Lemma is_cocont_functor_composite (F : functor C D) (G : functor D E)
   (HF : is_cocont F) (HG : is_cocont G) : is_cocont (functor_composite F G).
 Proof.
 intros g d L cc.
-apply preserves_colimits_functor_composite; [ apply HF | apply HG ].
+apply preserves_colimit_functor_composite; [ apply HF | apply HG ].
 Defined.
 
 Lemma is_omega_cocont_functor_composite (F : functor C D) (G : functor D E) :
   is_omega_cocont F -> is_omega_cocont G -> is_omega_cocont (functor_composite F G).
 Proof.
 intros hF hG c L cc.
-apply preserves_colimits_functor_composite; [ apply hF | apply hG ].
+apply preserves_colimit_functor_composite; [ apply hF | apply hG ].
 Defined.
 
 Definition omega_cocont_functor_composite
