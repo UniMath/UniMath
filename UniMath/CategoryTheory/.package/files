@@ -37,7 +37,6 @@ precomp_fully_faithful.v
 precomp_ess_surj.v
 rezk_completion.v
 slicecat.v
-chains.v
 EquivalencesExamples.v
 cocontfunctors.v
 limits/cats/limits.v
