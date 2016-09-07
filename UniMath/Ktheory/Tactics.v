@@ -22,7 +22,7 @@ Ltac maponpaths_pre_post_cat :=
 Ltac prop_logic :=
   abstract (intros; simpl;
             repeat (try (apply isapropdirprod);try (apply isapropishinh);apply impred ;intro);
-            try (apply isapropiscontr); try assumption) using L.
+            try (apply isapropiscontr); try assumption) using _L_.
 
 Lemma iscontrweqb' {X Y} (is:iscontr Y) (w:X ≃ Y) : iscontr X.
 Proof. intros. apply (iscontrweqb (Y:=Y)). assumption. assumption. Defined.
