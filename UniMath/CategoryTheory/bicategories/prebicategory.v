@@ -116,7 +116,7 @@ Definition left_unitor_trans_type { C : prebicategory_id_comp } (a b : C) :=
   nat_trans
     (functor_composite
       (bindelta_pair_functor
-        (functor_composite (unit_functor _) (ob_as_functor (identity_1mor a)))
+        (functor_composite (unit_functor _) (constant_functor unit_precategory _ (identity_1mor a)))
         (functor_identity _))
       (compose_functor a a b))
     (functor_identity _).
@@ -126,7 +126,7 @@ Definition right_unitor_trans_type { C : prebicategory_id_comp } (a b : C) :=
     (functor_composite
       (bindelta_pair_functor
         (functor_identity _)
-        (functor_composite (unit_functor _) (ob_as_functor (identity_1mor b))))
+        (functor_composite (unit_functor _) (constant_functor unit_precategory _ (identity_1mor b))))
       (compose_functor a b b))
     (functor_identity _).
 

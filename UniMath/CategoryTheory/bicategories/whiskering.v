@@ -218,7 +218,7 @@ Proof.
   pathvia ((functor_on_morphisms
                  (functor_composite
                      (bindelta_pair_functor
-                        (functor_composite (unit_functor _) (ob_as_functor (identity_1mor a)))
+                        (functor_composite (unit_functor _) (constant_functor unit_precategory _ (identity_1mor a)))
                         (functor_identity _))
                      (compose_functor a a b))
                  alpha)
@@ -240,7 +240,7 @@ Proof.
                  (functor_composite
                     (bindelta_pair_functor
                        (functor_identity _)
-                       (functor_composite (unit_functor _) (ob_as_functor (identity_1mor b))))
+                       (functor_composite (unit_functor _) (constant_functor unit_precategory _ (identity_1mor b))))
                     (compose_functor a b b))
                  alpha)
            ;v;(right_unitor _)).

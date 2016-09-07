@@ -92,7 +92,7 @@ Definition Catlike_left_unitor (a b : precategory) (hsA : has_homsets a) (hsB : 
      (functor_composite
         (bindelta_pair_functor
            (functor_composite (unit_functor (functor_precategory a b hsB))
-              (ob_as_functor (C:= (functor_precategory a a hsA)) (functor_identity a)))
+              (constant_functor unit_precategory (functor_precategory a a hsA) (functor_identity a)))
            (functor_identity (functor_precategory a b hsB)))
         (functorial_composition a a b hsA hsB))
      (functor_identity (functor_precategory a b hsB)).
@@ -138,8 +138,9 @@ Definition Catlike_right_unitor (a b : precategory) (hsB : has_homsets b) :
      (functor_composite
         (bindelta_pair_functor (functor_identity (functor_precategory a b hsB))
            (functor_composite (unit_functor (functor_precategory a b hsB))
-              (ob_as_functor (C:= (functor_precategory b b hsB)) (functor_identity b))))
-        (functorial_composition a b b hsB hsB)) (functor_identity (functor_precategory a b hsB)).
+              (constant_functor unit_precategory (functor_precategory b b hsB) (functor_identity b))))
+        (functorial_composition a b b hsB hsB))
+     (functor_identity (functor_precategory a b hsB)).
 Proof.
   use tpair. (* Same as above *)
   - intros x.

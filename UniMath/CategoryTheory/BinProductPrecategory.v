@@ -190,22 +190,6 @@ Proof.
   (* functor_comp *) intros x y z w v; apply paths_refl.
 Defined.
 
-(* TODO: perhaps generalise to constant functors? *)
-Definition ob_as_functor_data {C : precategory_data} (c : C) : functor_data unit_precategory C.
-Proof.
-  use tpair.
-  (* functor_on_objects *) intros; exact c.
-  (* functor_on_morphisms *) intros F a b; apply identity.
-Defined.
-
-Definition ob_as_functor {C : precategory} (c : C) : functor unit_precategory C.
-Proof.
-  exists (ob_as_functor_data c).
-  split.
-  (* functor_id *) intros; constructor.
-  (* functor_comp *) intros x y z w v; simpl. apply pathsinv0, id_left.
-Defined.
-
 End unit_precategory.
 
 (** Fixing one argument of C × D -> E results in a functor *)
