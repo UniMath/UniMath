@@ -56,8 +56,9 @@ ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
 LATEXDIR = latex
 COQDOCLATEXOPTIONS := -latex -utf8 --body-only
-COQDEFS := --language=none \
+COQDEFS := --language=none																																			       \
 	-r '/^[[:space:]]*\(Local[[:space:]]+\)?\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Identity Coercion\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\3/' \
+	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:]]+\)'/\1/"																															       \
 	-r '/^[[:space:]]*Tactic Notation.* "\([[:alnum:]]+\)" /\1/'
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
 $(VFILES:.v=.vo) : $(COQBIN)coqc
