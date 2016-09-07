@@ -1141,6 +1141,25 @@ Defined.
 Notation " 'ct' ( R , is , x , y ) " := (ctlong R is x y (idpath true))
                                           (at level 70).
 
+(* An alternative to [ct], with tactics and negations *)
+
+Definition deceq_to_decrel {X:UU} : isdeceq X -> decrel X.
+Proof. intros ? i. use decrelpair.
+       - intros x y. exists (x=y). now apply isasetifdeceq.
+       - exact i.
+Defined.
+
+Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
+  let T := type of x in
+  let G := match goal with |- ?G => constr:(G) end in
+  exact ((@id G : T -> G) x).
+
+(* I don't know why exact_op works better here, but with "exact", the code in RealNumbers/Prelim.v breaks *)
+Ltac confirm_yes d x y := exact_op (pathstor d x y (idpath true)).
+Ltac confirm_no  d x y := exact_op (pathstonegr d x y (idpath false)).
+Ltac confirm_equal     i := match goal with |- ?x = ?y => confirm_yes (deceq_to_decrel i) x y end.
+Ltac confirm_not_equal i := match goal with |- ?x != ?y => confirm_no (deceq_to_decrel i) x y end.
+
 (** *** Restriction of a relation to a subtype *)
 
 Definition resrel {X : UU} (L : hrel X) (P : hsubtypes X) : hrel P
