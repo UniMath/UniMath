@@ -60,16 +60,18 @@ COQDOCLATEXOPTIONS := -latex -utf8 --body-only
 DEFINERS := 
 DEFINERS := $(DEFINERS)Axiom\|
 DEFINERS := $(DEFINERS)Class\|
+DEFINERS := $(DEFINERS)CoFixpoint\|
 DEFINERS := $(DEFINERS)CoInductive\|
 DEFINERS := $(DEFINERS)Corollary\|
 DEFINERS := $(DEFINERS)Definition\|
+DEFINERS := $(DEFINERS)Example\|
 DEFINERS := $(DEFINERS)Fact\|
 DEFINERS := $(DEFINERS)Fixpoint\|
+DEFINERS := $(DEFINERS)Function\|
 DEFINERS := $(DEFINERS)Identity[[:space:]]+Coercion\|
 DEFINERS := $(DEFINERS)Inductive\|
 DEFINERS := $(DEFINERS)Instance\|
 DEFINERS := $(DEFINERS)Lemma\|
-DEFINERS := $(DEFINERS)Let\|
 DEFINERS := $(DEFINERS)Ltac\|
 DEFINERS := $(DEFINERS)Module[[:space:]]+Import\|
 DEFINERS := $(DEFINERS)Module\|
@@ -77,12 +79,24 @@ DEFINERS := $(DEFINERS)Notation\|
 DEFINERS := $(DEFINERS)Proposition\|
 DEFINERS := $(DEFINERS)Record\|
 DEFINERS := $(DEFINERS)Remark\|
+DEFINERS := $(DEFINERS)Scheme[[:space:]]+Equality[[:space:]]+for\|
+DEFINERS := $(DEFINERS)Scheme[[:space:]]+Induction[[:space:]]+for\|
+DEFINERS := $(DEFINERS)Scheme\|
 DEFINERS := $(DEFINERS)Structure\|
 DEFINERS := $(DEFINERS)Theorem
+
+MODIFIERS := 
+MODIFIERS := $(MODIFIERS)Canonical\|
+MODIFIERS := $(MODIFIERS)Global\|
+MODIFIERS := $(MODIFIERS)Local\|
+MODIFIERS := $(MODIFIERS)Private\|
+MODIFIERS := $(MODIFIERS)Program\|
+
 COQDEFS := --language=none												\
-	-r '/^[[:space:]]*\(\(Local\|Global\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:]'\''_]+\)/\4/'	\
+	-r '/^[[:space:]]*\(\($(MODIFIERS)\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:]'\''_]+\)/\4/'	\
 	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:]]+\)'/\1/"								\
 	-r '/^[[:space:]]*Tactic Notation.* "\([[:alnum:]]+\)" /\1/'
+
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
 $(VFILES:.v=.vo) : $(COQBIN)coqc
 TAGS : $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
