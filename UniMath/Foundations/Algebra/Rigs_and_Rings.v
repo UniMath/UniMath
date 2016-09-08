@@ -792,8 +792,6 @@ Proof.
   exact is'.
 Defined.
 Opaque isrigmultgttoisrngmultgt.
->>>>>>> 8d305a4db9a9227dde37794f99f7b8a74a2f01e6
-
 
 (** **** Relations "inversely compatible" with the multiplicative structure on rings *)
 
@@ -924,7 +922,6 @@ Proof.
     apply rab''.
 Defined.
 Opaque isinvrngmultgttoisinvrigmultgt.
->>>>>>> 8d305a4db9a9227dde37794f99f7b8a74a2f01e6
 
 
 (** **** Relations on rings and ring homomorphisms *)
