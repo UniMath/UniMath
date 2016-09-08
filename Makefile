@@ -70,7 +70,6 @@ DEFINERS := $(DEFINERS)Inductive\|
 DEFINERS := $(DEFINERS)Instance\|
 DEFINERS := $(DEFINERS)Lemma\|
 DEFINERS := $(DEFINERS)Let\|
-DEFINERS := $(DEFINERS)Let\|
 DEFINERS := $(DEFINERS)Ltac\|
 DEFINERS := $(DEFINERS)Module[[:space:]]+Import\|
 DEFINERS := $(DEFINERS)Module\|
