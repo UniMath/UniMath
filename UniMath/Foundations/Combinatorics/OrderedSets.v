@@ -119,7 +119,7 @@ Proof.
   { apply isaset_PartialOrder. }
 Defined.
 
-Local Lemma posetTransport_weq (X Y:Poset) : X≡Y ≃ X≅Y.
+Local Lemma posetTransport_weq (X Y:Poset) : X╝Y ≃ X≅Y.
 Proof.
   intros.
   simple refine (weqbandf _ _ _ _).

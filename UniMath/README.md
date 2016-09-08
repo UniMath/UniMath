@@ -62,6 +62,10 @@ less fragile and to make the files have a more uniform and pleasing appearance.
   * Do not start lines with `:` or with `:=`.
   * One should normally put an extra blank line between units.  Exceptions may
     be made for closely related items.
+* When using `abstract` in a proof, it is unsound to refer later by name to the
+  abstracted lemma (whose name typically ends with `_subproof`), because
+  its type may vary from one version of Coq to another.  Coq's current behavior is also
+  unlikely to be duplicated precisely by a future proof assistant. 
 
 Our files don't adhere yet to all of these conventions, but it's a goal we
 strive for.
