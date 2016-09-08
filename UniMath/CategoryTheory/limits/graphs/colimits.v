@@ -412,23 +412,16 @@ use isopair.
               rewrite assoc, colimArrowCommutes; eapply pathscomp0; try apply colimArrowCommutes).
 Defined.
 
-Lemma my_transportf_isotoid_dep
-     : Π (C : precategory) (H : is_category C) (a a' : C) (p : iso a a')
-       (f : Π c : C, C ⟦ a, c ⟧),
-       transportf (fun x : C => Π c, x --> c) (isotoid C H p) f =
-(* (isotoid C H p # f)%transport = *)
-       (λ c : C, inv_from_iso p ;; f c).
-Admitted.
-
-(*      : Π (C : precategory) (H : is_category C) (a a' b : C) *)
-(*        (p : iso a a') (f : C ⟦ a, b ⟧), *)
-(*        (isotoid C H p # f)%transport = inv_from_iso p ;; f *)
-
-(* transportf_isotoid *)
-(*      : Π (C : precategory) (H : is_category C) (a a' b : C) *)
-(*        (p : iso a a') (f : C ⟦ a, b ⟧), *)
-(*        (isotoid C H p # f)%transport = inv_from_iso p ;; f *)
-
+Lemma my_transportf_isotoid_dep' (J : UU)
+  (F : J -> C)
+   (a a' : C) (p : a = a') (f : Π c, F c --> a) :
+ transportf (fun x : C => Π c, F c --> x) p f = fun c => f c ;; idtoiso p.
+Proof.
+  destruct p.
+  apply funextsec.
+  intro. simpl.
+  apply (! id_right _ _ _ _).
+Defined.
 
 Lemma isaprop_Colims: isaprop Colims.
 Proof.
@@ -456,159 +449,15 @@ apply impred; intro.
 apply impred; intro.
 apply hsC.
 simpl.
-
-(* TODO: Stuck after this... *)
-
+eapply pathscomp0.
+apply (my_transportf_isotoid_dep' (vertex g)).
 apply funextsec; intro v.
+rewrite idtoiso_isotoid.
 simpl.
-Check (pr1 (pr2 (pr1 Hccx)) v).
-
-set (ttf := transportf).
-Check (ttf B (pr1 (pr1 Hccx)) (pr1 (pr1 Hccy))
-    (isotoid C H (iso_from_Colim_to_Colim Hccx Hccy))
-    (pr1 (pr2 (pr1 Hccx)))).
-generalize idtoiso_precompose.
-rewrite id
-
-eapply pathscomp0.
-generalize (my_transportf_isotoid_dep C H _ _  (iso_from_Colim_to_Colim Hccx Hccy)).
-Check (pr1 (pr2 (pr1 Hccx))).
-eapply pathscomp0.
-apply transportf_isotoid.
-
-(* destruct Hccx as [[x ccx] Hccx]. *)
-(* destruct Hccy as [[y ccy] Hccy]. *)
-(* simpl in *. *)
-apply funextsec; intro v.
-simpl.
-Check (pr1 ccy).
-
-clear HH.
-unfold colimCocone.
-simpl.
-destruct ccx as [a b].
-simpl.
-simpl.
-Check (colimCocone Hccy).
-
-rewrite HH.
-
-assert (H : transportf _ (pr2 (pr1 Hccx)) (isotoid C H (iso_from_Colim_to_Colim Hccx Hccy)) =
-            (isotoid C H (iso_from_Colim_to_Colim Hccx Hccy) # pr2 (pr1 Hccx))%transport).
-Check (colimCocone
-eapply (my_transportf_isotoid_dep C H _ _ (iso_from_Colim_to_Colim Hccx Hccy)).
-Check transportf_isotoid.
-eapply (transportf_isotoid C (colim Hccx) (colim Hccy) (iso_from_Colim_to_Colim Hccx Hccy)).
-Search "isotoid" "dep".
-Search transportf isotoid.
-eapply (transportf_isotoid C H (colim Hccx) (colim Hccy) _ (iso_from_Colim_to_Colim Hccx Hccy) (coconeIn (pr2 (pr1 Hccx)))).
-
-
-Check (isotoid C H (iso_from_Colim_to_Colim Hccx Hccy)).
-eapply
-
-
-_ (fun _ => UU) (fun _ _ => UU) (isotoid C H (iso_from_Colim_to_Colim Hccx Hccy))).
-
-Search transportf total2.
-Check (a,,b).
-simpl.
-
-simpl.
-cbn.
-Check (pr2 (pr1 Hccx)).
-
-simpl.
-
-transportf_isotoid_dep.
-
-Search transportf.
-rewrite transportf_dirprod.
-
-eapply pathscomp0.
-generalize (transportf_isotoid _ H).
-(* _ _ _  (iso_from_Colim_to_Colim Hccx Hccy)). *)
-intro HH.
-destruct ccx as [a b].
-unfold transportf.
-unfold constr1.
-simpl.
-simpl.
-Check (ccocone cc).
-simpl in *.
-eapply HH.
-Check (pr1 ccx).
-
-unfold is_category in *.
-assert (p : x = y).
-  admit.
-eapply total2_paths.
-simpl.
-Unshelve.
-Focus 2.
-simpl.
-apply p.
-
-apply (@total2_paths p).
-
-
-apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))).
-    rewrite transportf_dirprod, transportf_isotoid.
-    rewrite inv_from_iso_iso_from_Pullback.
-    rewrite transportf_isotoid.
-    rewrite inv_from_iso_iso_from_Pullback.
-    destruct Pb as [Cone bla];
-    destruct Pb' as [Cone' bla'];
-    simpl in *.
-    destruct Cone as [p [h k]];
-    destruct Cone' as [p' [h' k']];
-    simpl in *.
-    unfold from_Pullback_to_Pullback;
-    rewrite PullbackArrow_PullbackPr2, PullbackArrow_PullbackPr1.
-    apply idpath.
+apply colimArrowCommutes.
 Qed.
 
-(* Lemma inv_from_iso_iso_from_Pullback (a b c : C) (f : b --> a) (g : c --> a) *)
-(*   (Pb : Pullback f g) (Pb' : Pullback f g): *)
-(*     inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb') = from_Pullback_to_Pullback Pb' Pb. *)
-(* Proof. *)
-(*   apply pathsinv0. *)
-(*   apply inv_iso_unique'. *)
-(*   set (T:= are_inverses_from_Pullback_to_Pullback Pb Pb'). *)
-(*   apply (pr1 T). *)
-(* Qed. *)
-
-(* Lemma isaprop_Pullbacks: isaprop Pullbacks. *)
-(* Proof. *)
-(*   apply impred; intro a; *)
-(*   apply impred; intro b; *)
-(*   apply impred; intro c; *)
-(*   apply impred; intro f; *)
-(*   apply impred; intro g; *)
-(*   apply invproofirrelevance. *)
-(*   intros Pb Pb'. *)
-(*   apply subtypeEquality. *)
-(*   - intro; apply isofhleveltotal2. *)
-(*     + apply hs. *)
-(*     + intros; apply isaprop_isPullback. *)
-(*   - apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))). *)
-(*     rewrite transportf_dirprod, transportf_isotoid. *)
-(*     rewrite inv_from_iso_iso_from_Pullback. *)
-(*     rewrite transportf_isotoid. *)
-(*     rewrite inv_from_iso_iso_from_Pullback. *)
-(*     destruct Pb as [Cone bla]; *)
-(*     destruct Pb' as [Cone' bla']; *)
-(*     simpl in *. *)
-(*     destruct Cone as [p [h k]]; *)
-(*     destruct Cone' as [p' [h' k']]; *)
-(*     simpl in *. *)
-(*     unfold from_Pullback_to_Pullback; *)
-(*     rewrite PullbackArrow_PullbackPr2, PullbackArrow_PullbackPr1. *)
-(*     apply idpath. *)
-(* Qed. *)
-
 End Universal_Unique.
-
 
 End colim_def.
 
