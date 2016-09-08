@@ -223,9 +223,9 @@ Proof.
   - apply tt.
 Defined.
 
-Definition submonoidstosubsetwithbinop (X : monoid) : @submonoids X -> @subsetwithbinop X :=
-  fun A : _ => subsetwithbinoppair (pr1 A) (pr1 (pr2 A)).
-Coercion submonoidstosubsetwithbinop : submonoids >-> subsetwithbinop.
+Definition submonoidstosubsetswithbinop (X : monoid) : @submonoids X -> @subsetswithbinop X :=
+  fun A : _ => subsetswithbinoppair (pr1 A) (pr1 (pr2 A)).
+Coercion submonoidstosubsetswithbinop : submonoids >-> subsetswithbinop.
 
 Lemma ismonoidcarrier {X : monoid} (A : @submonoids X) : ismonoidop (@op A).
 Proof.
@@ -587,7 +587,7 @@ Definition ismonoidfuntoabmonoidfrac (X : abmonoid) (A : @submonoids X) :
   dirprodpair (isbinopfuntoabmonoidfrac X A) (isunitalfuntoabmonoidfrac X A).
 
 
-(** **** Abelian monoid of fractions in the case when elements of the localziation submonoids are cancelable *)
+(** **** Abelian monoid of fractions in the case when elements of the localziation submonoid are cancelable *)
 
 Definition hrel0abmonoidfrac (X : abmonoid) (A : @submonoids X) : hrel (dirprod X A) :=
   fun xa yb : setdirprod X A => eqset ((pr1 xa) + (pr1 (pr2 yb))) ((pr1 yb) + (pr1 (pr2 xa))).

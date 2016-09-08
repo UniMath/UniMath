@@ -1059,4 +1059,4 @@ Defined .
 Opaque iscomptofldfrac .
 
 
-(* End of the file algebra1d.v *)
+(* End of the file *)
