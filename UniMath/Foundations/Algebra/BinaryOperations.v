@@ -853,6 +853,9 @@ Definition binopfun (X Y : setwithbinop) : UU := total2 (fun f : X -> Y => isbin
 Definition binopfunpair {X Y : setwithbinop} (f : X -> Y) (is : isbinopfun f) : binopfun X Y :=
   tpair _ f is.
 
+Definition pr1binopfun (X Y : setwithbinop) : binopfun X Y -> (X -> Y) := @pr1 _ _.
+Coercion pr1binopfun : binopfun >-> Funclass.
+
 Lemma isasetbinopfun  (X Y : setwithbinop) : isaset (binopfun X Y).
 Proof.
   intros.
@@ -1475,7 +1478,6 @@ Defined.
 
 
 (** *** Sets with two binary operations *)
-
 
 (** **** General definitions *)
 
