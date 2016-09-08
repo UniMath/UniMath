@@ -167,6 +167,8 @@ induction j.
     apply coconeInCommutes.
 Qed.
 
+(** One of the hypotheses of this lemma is redundant, however when stated this way the lemma can be
+used for any two proofs making it easier to apply. *)
 Lemma chain_mor_right {C : precategory} {c : chain C} {i j} (Hij : i < j) (HSij : S i < j) :
   dmor c (idpath (S i)) ;; chain_mor c HSij = chain_mor c Hij.
 Proof.
@@ -182,6 +184,7 @@ induction j.
   + destruct p, (isirreflnatlth _ HSij).
 Qed.
 
+(** See comment for [chain_mor_right] about the redundant hypothesis *)
 Lemma chain_mor_left {C : precategory} {c : chain C} {i j} (Hij : i < j) (HiSj : i < S j) :
   chain_mor c Hij ;; dmor c (idpath (S j)) = chain_mor c HiSj.
 Proof.
