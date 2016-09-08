@@ -3,7 +3,20 @@
   uu0 file, created on Dec. 3, 2014.
 
 This file starts with the definition of h-levels. No axioms are used. Only one
-universe is used and only once as a type in the definition of the family
+universe [ UU ] is used, except in one case.
+
+In the current approach to dependent eliminators for inductive types, in this case for [ nat ],
+the type family appears as an argument of the eliminator in the form of a function. Therefore,
+if one wants to use the eliminator [ nat_rect ] to define a function [ nat -> UU ] one must use,
+as an argument, the function [ n : nat => UU ] whose type is [ forall n : nat, UU' ] where [ UU' ]
+is the type of [ UU ]. Therefore, the eliminator must be defined on arguments whose type contains
+[ UU' ] and we should acknowledge it as an instance of using a second universe.
+
+
+
+
+
+ once as a type in the definition of the family
 isofhlevel : nat -> UU as a fixpoint with values in UU. *)
 
 (** ** Contents
