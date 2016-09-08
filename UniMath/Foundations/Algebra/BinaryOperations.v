@@ -853,15 +853,6 @@ Definition binopfun (X Y : setwithbinop) : UU := total2 (fun f : X -> Y => isbin
 Definition binopfunpair {X Y : setwithbinop} (f : X -> Y) (is : isbinopfun f) : binopfun X Y :=
   tpair _ f is.
 
-<<<<<<< HEAD
-Lemma isasetbinopfun  ( X Y : setwithbinop ) : isaset ( binopfun X Y ) .
-
-Proof . intros . apply ( isasetsubset ( pr1binopfun X Y  ) ) . change ( isofhlevel 2 ( X -> Y ) ) . apply impred .  intro . apply ( setproperty Y ) . refine (isinclpr1 _ _) .  intro .  apply isapropisbinopfun . Defined .
-=======
-Definition pr1binopfun (X Y : setwithbinop) : binopfun X Y -> (X -> Y) := @pr1 _ _.
-Coercion pr1binopfun : binopfun >-> Funclass.
->>>>>>> 8d305a4db9a9227dde37794f99f7b8a74a2f01e6
-
 Lemma isasetbinopfun  (X Y : setwithbinop) : isaset (binopfun X Y).
 Proof.
   intros.
@@ -1485,88 +1476,6 @@ Defined.
 
 (** *** Sets with two binary operations *)
 
-<<<<<<< HEAD
-(** **** General definitions *)
-
-
-Definition setwith2binop := total2 ( fun X : hSet => dirprod ( binop X ) ( binop X ) ) .
-Definition setwith2binoppair ( X : hSet ) ( opps : dirprod ( binop X ) ( binop X ) ) : setwith2binop := tpair ( fun X : hSet => dirprod ( binop X ) ( binop X ) ) X opps .
-Definition pr1setwith2binop : setwith2binop -> hSet := @pr1 _ ( fun X : hSet => dirprod ( binop X ) ( binop X ) ) .
-Coercion pr1setwith2binop : setwith2binop >-> hSet .
-
-Definition op1 { X : setwith2binop } : binop X := pr1 ( pr2 X ) .
-Definition op2 { X : setwith2binop } : binop X := pr2 ( pr2 X ) .
-
-Definition setwithbinop1 ( X : setwith2binop ) : setwithbinop := setwithbinoppair ( pr1 X ) ( @op1 X ) .
-Definition setwithbinop2 ( X : setwith2binop ) : setwithbinop := setwithbinoppair ( pr1 X ) ( @op2 X ) .
-
-Notation "x + y" := ( op1 x y ) : twobinops_scope .
-Notation "x * y" := ( op2 x y ) : twobinops_scope .
-
-
-(** **** Functions compatible with a pair of binary operation ( homomorphisms ) and their properties *)
-
-Definition istwobinopfun { X Y : setwith2binop } ( f : X -> Y ) := dirprod ( Π x x' : X , paths ( f ( op1 x x' ) ) ( op1 ( f x ) ( f x' ) ) ) ( Π x x' : X , paths ( f ( op2 x x' ) ) ( op2 ( f x ) ( f x' ) ) )  .
-
-Lemma isapropistwobinopfun { X Y : setwith2binop } ( f : X -> Y ) : isaprop ( istwobinopfun f ) .
-Proof . intros . apply isofhleveldirprod . apply impred . intro x . apply impred . intro x' . apply ( setproperty Y ) . apply impred . intro x . apply impred . intro x' . apply ( setproperty Y ) . Defined .
-
-Definition twobinopfun ( X Y : setwith2binop ) : UU := total2 ( fun f : X -> Y => istwobinopfun f ) .
-Definition twobinopfunpair { X Y : setwith2binop } ( f : X -> Y ) ( is : istwobinopfun f ) : twobinopfun X Y := tpair _ f is .
-Definition pr1twobinopfun ( X Y : setwith2binop ) : twobinopfun X Y -> ( X -> Y ) := @pr1 _ _ .
-Coercion pr1twobinopfun : twobinopfun >-> Funclass .
-
-Definition binop1fun { X Y : setwith2binop } ( f : twobinopfun X Y ) : binopfun ( setwithbinop1 X ) ( setwithbinop1 Y ) := @binopfunpair ( setwithbinop1 X ) ( setwithbinop1 Y ) ( pr1 f ) ( pr1 ( pr2 f ) ) .
-
-Definition binop2fun { X Y : setwith2binop } ( f : twobinopfun X Y ) : binopfun ( setwithbinop2 X ) ( setwithbinop2 Y ) := @binopfunpair ( setwithbinop2 X ) ( setwithbinop2 Y ) ( pr1 f ) ( pr2 ( pr2 f ) ) .
-Lemma isasettwobinopfun  ( X Y : setwith2binop ) : isaset ( twobinopfun X Y ) .
-
-Proof . intros . apply ( isasetsubset ( pr1twobinopfun X Y  ) ) . change ( isofhlevel 2 ( X -> Y ) ) . apply impred .  intro . apply ( setproperty Y ) . refine (isinclpr1 _ _) .  intro .  apply isapropistwobinopfun . Defined .
-
-
-Lemma istwobinopfuncomp { X Y Z : setwith2binop } ( f : twobinopfun X Y ) ( g : twobinopfun Y Z ) : istwobinopfun ( funcomp ( pr1 f ) ( pr1 g ) ) .
-Proof . intros . set ( ax1f := pr1 ( pr2 f ) ) . set ( ax2f := pr2 ( pr2 f ) ) . set ( ax1g := pr1 ( pr2 g ) ) . set ( ax2g := pr2 ( pr2 g ) ) .  split.
-
-intros a b . unfold funcomp .  rewrite ( ax1f a b ) . rewrite ( ax1g ( pr1 f a ) ( pr1 f b ) ) .  apply idpath .
-intros a b . unfold funcomp .  rewrite ( ax2f a b ) . rewrite ( ax2g ( pr1 f a ) ( pr1 f b ) ) .  apply idpath . Defined .
-
-Opaque istwobinopfuncomp .
-
-Definition twobinopfuncomp { X Y Z : setwith2binop } ( f : twobinopfun X Y ) ( g : twobinopfun Y Z ) : twobinopfun X Z := twobinopfunpair ( funcomp ( pr1 f ) ( pr1 g ) ) ( istwobinopfuncomp f g ) .
-
-
-Definition twobinopmono ( X Y : setwith2binop ) : UU := total2 ( fun f : incl X Y => istwobinopfun f ) .
-Definition twobinopmonopair { X Y : setwith2binop } ( f : incl X Y ) ( is : istwobinopfun f ) : twobinopmono X Y := tpair _  f is .
-Definition pr1twobinopmono ( X Y : setwith2binop ) : twobinopmono X Y -> incl X Y := @pr1 _ _ .
-Coercion pr1twobinopmono : twobinopmono >-> incl .
-
-Definition twobinopincltotwobinopfun ( X Y : setwith2binop ) : twobinopmono X Y -> twobinopfun X Y := fun f => twobinopfunpair ( pr1 ( pr1 f ) ) ( pr2 f ) .
-Coercion twobinopincltotwobinopfun : twobinopmono >-> twobinopfun .
-
-Definition binop1mono { X Y : setwith2binop } ( f : twobinopmono X Y ) : binopmono ( setwithbinop1 X ) ( setwithbinop1 Y ) := @binopmonopair ( setwithbinop1 X ) ( setwithbinop1 Y ) ( pr1 f ) ( pr1 ( pr2 f ) ) .
-
-Definition binop2mono { X Y : setwith2binop } ( f : twobinopmono X Y ) : binopmono ( setwithbinop2 X ) ( setwithbinop2 Y ) := @binopmonopair ( setwithbinop2 X ) ( setwithbinop2 Y ) ( pr1 f ) ( pr2 ( pr2 f ) ) .
-
-Definition twobinopmonocomp { X Y Z : setwith2binop } ( f : twobinopmono X Y ) ( g : twobinopmono Y Z ) : twobinopmono X Z := twobinopmonopair ( inclcomp ( pr1 f ) ( pr1 g ) ) ( istwobinopfuncomp f g ) .
-
-Definition twobinopiso ( X Y : setwith2binop ) : UU := total2 ( fun f : weq X Y => istwobinopfun f ) .
-Definition twobinopisopair { X Y : setwith2binop } ( f : weq X Y ) ( is : istwobinopfun f ) : twobinopiso X Y := tpair _  f is .
-Definition pr1twobinopiso ( X Y : setwith2binop ) : twobinopiso X Y -> weq X Y := @pr1 _ _ .
-Coercion pr1twobinopiso : twobinopiso >-> weq .
-
-Definition twobinopisototwobinopmono ( X Y : setwith2binop ) : twobinopiso X Y -> twobinopmono X Y := fun f => twobinopmonopair ( pr1 f ) ( pr2 f ) .
-Coercion twobinopisototwobinopmono : twobinopiso >-> twobinopmono .
-
-Definition binop1iso { X Y : setwith2binop } ( f : twobinopiso X Y ) : binopiso ( setwithbinop1 X ) ( setwithbinop1 Y ) := @binopisopair ( setwithbinop1 X ) ( setwithbinop1 Y ) ( pr1 f ) ( pr1 ( pr2 f ) ) .
-
-Definition binop2iso { X Y : setwith2binop } ( f : twobinopiso X Y ) : binopiso ( setwithbinop2 X ) ( setwithbinop2 Y ) := @binopisopair ( setwithbinop2 X ) ( setwithbinop2 Y ) ( pr1 f ) ( pr2 ( pr2 f ) ) .
-Definition twobinopisocomp { X Y Z : setwith2binop } ( f : twobinopiso X Y ) ( g : twobinopiso Y Z ) : twobinopiso X Z := twobinopisopair ( weqcomp ( pr1 f ) ( pr1 g ) ) ( istwobinopfuncomp f g ) .
-
-Lemma istwobinopfuninvmap { X Y : setwith2binop } ( f : twobinopiso X Y ) : istwobinopfun ( invmap ( pr1 f ) ) .
-Proof . intros . set ( ax1f := pr1 ( pr2 f ) ) . set ( ax2f := pr2 ( pr2 f ) ) . split .
-
-=======
->>>>>>> 8d305a4db9a9227dde37794f99f7b8a74a2f01e6
 
 (** **** General definitions *)
 

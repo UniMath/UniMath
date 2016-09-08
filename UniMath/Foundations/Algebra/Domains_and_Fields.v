@@ -1006,21 +1006,7 @@ Defined.
 
 (** **** Relations and the canonical homomorphism to the field of fractions *)
 
-<<<<<<< HEAD
 
-Definition iscomptofldfrac ( X : intdom ) ( is : isdeceq X ) { L : hrel X } ( is0 : @isbinophrel X L ) ( is1 : isrngmultgt X L )  ( is2 : L 1 0 ) ( nc : neqchoice L ) ( isa : isasymm L ) : iscomprelrelfun L ( fldfracgt X is is0 is1 is2 nc ) ( tofldfrac X is ) .
-Proof . intros . intros x1 x2 l . assert ( int := iscomptocommrngfrac X ( rngpossubmonoid X is1 is2 ) is0 is1 ( fun c r => r )  ) . simpl in int .  unfold fldfracgt . unfold iscomprelrelfun in int .  assert ( ee : Π x : X , paths (tocommrngfrac X (rngpossubmonoid X is1 is2) x) (weqfldfracgt_f X is is0 is1 is2 nc (tofldfrac X is x)) ) .  intros x .  change (tocommrngfrac X (rngpossubmonoid X is1 is2) x) with (  setquotpr (eqrelcommrngfrac X (rngpossubmonoid X is1 is2)) ( dirprodpair x ( tpair ( fun a => L a 0 ) _ is2 ) ) ) . change (weqfldfracgt_f X is is0 is1 is2 nc (tofldfrac X is x)) with (  setquotpr (eqrelcommrngfrac X (rngpossubmonoid X is1 is2)) ( weqfldfracgtint_f X is0 is1 is2 nc ( dirprodpair x ( tpair ( fun a => neg ( paths a 0 ) ) 1 ( nonzeroax X ) ) ) ) ) . apply ( maponpaths ( setquotpr (eqrelcommrngfrac X (rngpossubmonoid X is1 is2)) ) ) . unfold weqfldfracgtint_f .  simpl . destruct ( nc 1 0 (nonzeroax X)  ) as [ l' | nl ] .
-
-apply pathsdirprod .  apply idpath .  apply ( invmaponpathsincl _ ( isinclpr1 _ ( fun a => ( pr2 ( L a 0 ) ) ) ) ) . apply idpath .
-
-destruct ( isa _ _ is2 nl ) .
-
-assert  ( int' := int x1 x2 ) .   rewrite ( ee x1 ) in int' .   rewrite ( ee x2 ) in int' . apply int' .  apply l . Defined .
-
-Opaque iscomptofldfrac .
-
-(* End of the file Domains_and_Fields.v *)
-=======
 Definition iscomptofldfrac (X : intdom) (is : isdeceq X) {L : hrel X} (is0 : @isbinophrel X L)
            (is1 : isrngmultgt X L) (is2 : L 1 0) (nc : neqchoice L) (isa : isasymm L) :
   iscomprelrelfun L (fldfracgt X is is0 is1 is2 nc) (tofldfrac X is).
@@ -1056,4 +1042,3 @@ Defined.
 Opaque iscomptofldfrac.
 
 (* End of the file *)
->>>>>>> 8d305a4db9a9227dde37794f99f7b8a74a2f01e6
