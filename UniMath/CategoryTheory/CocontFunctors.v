@@ -239,6 +239,9 @@ This result is also known as Adámek's theorem:
 
   https://ncatlab.org/nlab/show/initial+algebra+of+an+endofunctor#AdameksTheorem
 
+Adámek, Jiří. "Free algebras and automata realizations in the language of categories."
+Commentationes Mathematicae Universitatis Carolinae 015.4 (1974): 589-602.
+
 *)
 Section colim_initial_algebra.
 
