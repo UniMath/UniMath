@@ -67,6 +67,10 @@ coqwc:; coqwc $(VFILES)
 lc:; wc -l $(VFILES)
 lcp:; for i in $(PACKAGES) ; do echo ; echo ==== $$i ==== ; for f in $(VFILES) ; do echo "$$f" ; done | grep "UniMath/$$i" | xargs wc -l ; done
 wc:; wc -w $(VFILES)
+admitted: 
+	grep --color=auto Admitted $(VFILES)
+axiom:
+	grep --color=auto "Axiom " $(VFILES)
 describe:; git describe --dirty --long --always --abbrev=40 --all
 .coq_makefile_input: $(PACKAGE_FILES) $(UMAKEFILES)
 	@ echo making $@ ; ( \
@@ -167,7 +171,7 @@ $(LATEXDIR)/doc.pdf : $(LATEXDIR)/helper.tex
 	cd $(LATEXDIR) && latexmk -pdf doc
 
 $(LATEXDIR)/coqdoc.sty $(LATEXDIR)/helper.tex : $(VFILES:.v=.glob) $(VFILES)
-	$(COQDOC) -Q UniMath UniMath $(COQDOCLATEXOPTIONS) $(VFILES) -o $@
+	$(COQDOC) -Q UniMath UniMath $(COQDOC_OPTIONS) $(COQDOCLATEXOPTIONS) $(VFILES) -o $@
 
 .PHONY: enforce-max-line-length
 enforce-max-line-length:
