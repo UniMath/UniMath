@@ -463,6 +463,65 @@ Defined.
 
 (* Print Assumptions left_adjoint_cocont. *)
 
+Section cocont_iso.
+
+Context {C D : precategory} (hsD : has_homsets D) {F G : functor C D} (αiso : @iso [C,D,hsD] F G).
+
+Lemma preserves_colimit_iso (g : graph) (d : diagram g C) (L : C) (cc : cocone d L) :
+  preserves_colimit F d L cc → preserves_colimit G d L cc.
+Proof.
+intros HF HccL y ccy.
+set (αinv := inv_from_iso αiso).
+destruct αiso as [α Hα].
+simpl in *.
+transparent assert (HH : (cocone (mapdiagram F d) y)).
+{ use mk_cocone.
+  - intro v; apply (α (dob d v) ;; coconeIn ccy v).
+  - abstract (simpl; intros u v e; rewrite <- (coconeInCommutes ccy u v e), !assoc;
+              apply cancel_postcomposition, nat_trans_ax).
+}
+destruct (HF HccL y HH) as [[f Hf] HHf].
+mkpair.
+- mkpair.
+  + exact (αinv L ;; f).
+  + abstract
+      (intro v; rewrite assoc;
+       eapply pathscomp0; [apply cancel_postcomposition, nat_trans_ax|];
+       rewrite <- assoc; eapply pathscomp0; [apply maponpaths, (Hf v)|]; simpl; rewrite assoc;
+       eapply pathscomp0;
+         [apply cancel_postcomposition,
+                (nat_trans_eq_pointwise (@iso_after_iso_inv [C,D,hsD] _ _ (isopair _ Hα)))|];
+       now rewrite id_left).
+- abstract (intros [f' Hf'];
+  apply subtypeEquality; simpl;
+    [intro; apply impred; intro; apply hsD|];
+  transparent assert (HH : (Σ x : D ⟦ F L, y ⟧,
+            Π v : vertex g,
+            coconeIn (mapcocone F d cc) v ;; x = coconeIn HH v));
+  [mkpair;
+    [ apply (α L ;; f')
+    | abstract (intro v; rewrite <- Hf', !assoc; apply cancel_postcomposition, nat_trans_ax)]
+  |];
+  apply pathsinv0; generalize (maponpaths pr1 (HHf HH)); simpl; intro Htemp;
+  rewrite <- Htemp, assoc;
+  eapply pathscomp0;
+    [apply cancel_postcomposition,
+           (nat_trans_eq_pointwise (@iso_after_iso_inv [C,D,hsD] _ _ (isopair _ Hα)))|];
+  now apply id_left).
+Defined.
+
+Lemma is_cocont_iso : is_cocont F -> is_cocont G.
+Proof.
+now intros H g d c cc; apply (preserves_colimit_iso).
+Defined.
+
+Lemma is_omega_cocont_iso : is_omega_cocont F -> is_omega_cocont G.
+Proof.
+now intros H g d c cc; apply (preserves_colimit_iso).
+Defined.
+
+End cocont_iso.
+
 (** ** The identity functor is (omega) cocontinuous *)
 Section functor_identity.
 
@@ -925,8 +984,8 @@ End coprod_functor.
 (** ** Binary coproduct of functors: F + G : C -> D is omega cocontinuous *)
 Section BinCoproduct_of_functors.
 
-Variables (C D : precategory) (PC : BinProducts C) (HD : BinCoproducts D).
-Variables (hsC : has_homsets C) (hsD : has_homsets D).
+Context {C D : precategory} (PC : BinProducts C) (HD : BinCoproducts D)
+        (hsC : has_homsets C) (hsD : has_homsets D).
 
 Lemma is_omega_cocont_BinCoproduct_of_functors_alt (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
@@ -1041,11 +1100,16 @@ Section binprod_functor.
 
 Variables (C : precategory) (PC : BinProducts C) (hsC : has_homsets C).
 
-(* These hypotheses follow directly if C has exponentials *)
+(* This hypothesis follow directly if C has exponentials *)
 Variable omega_cocont_constprod_functor1 :
   Π x : C, is_omega_cocont (constprod_functor1 PC x).
-Variable omega_cocont_constprod_functor2 :
+
+Let omega_cocont_constprod_functor2 :
   Π x : C, is_omega_cocont (constprod_functor2 PC x).
+Proof.
+intro x.
+now apply (is_omega_cocont_iso hsC (flip_iso PC hsC x)).
+Defined.
 
 Local Definition fun_lt (cAB : chain (binproduct_precategory C C)) :
   Π i j, i < j ->
@@ -1357,14 +1421,11 @@ End binprod_functor.
 (** ** Binary product of functors: F * G : C -> D is omega cocontinuous *)
 Section BinProduct_of_functors.
 
-(* TODO: weaken this and drop the assumption that D has exponentials. Use one of the following instead: *)
-(* Variable omega_cocont_constprod_functor1 : *)
-(*   Π x : C, is_omega_cocont (constprod_functor1 PC x). *)
-(* Variable omega_cocont_constprod_functor2 : *)
-(*   Π x : C, is_omega_cocont (constprod_functor2 PC x). *)
+Context {C D : precategory} (PC : BinProducts C) (PD : BinProducts D)
+        (hsC : has_homsets C) (hsD : has_homsets D).
 
-Variables (C D : precategory) (PC : BinProducts C) (PD : BinProducts D) (hED : has_exponentials PD).
-Variables (hsC : has_homsets C) (hsD : has_homsets D).
+Variable omega_cocont_constprod_functor1 :
+  Π x : D, is_omega_cocont (constprod_functor1 PD x).
 
 Lemma is_omega_cocont_BinProduct_of_functors_alt (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
@@ -1374,9 +1435,7 @@ apply (is_omega_cocont_functor_composite hsD).
 - apply (is_omega_cocont_bindelta_functor _ PC hsC).
 - apply (is_omega_cocont_functor_composite hsD).
   + apply (is_omega_cocont_binproduct_pair_functor _ _ _ _ _ _ hsC hsC hsD hsD HF HG).
-  + apply (is_omega_cocont_binproduct_functor _ _ hsD).
-    * now apply is_omega_cocont_constprod_functor1.
-    * now apply is_omega_cocont_constprod_functor2.
+  + now apply (is_omega_cocont_binproduct_functor _ _ hsD).
 Defined.
 
 Definition omega_cocont_BinProduct_of_functors_alt (F G : omega_cocont_functor C D) :
@@ -1593,12 +1652,13 @@ Notation "'Id'" := (omega_cocont_functor_identity has_homsets_HSET) :
                      cocont_functor_hset_scope.
 
 Notation "F * G" :=
-  (omega_cocont_BinProduct_of_functors_alt _ _ BinProductsHSET _
-     has_exponentials_HSET has_homsets_HSET has_homsets_HSET F G) :
-    cocont_functor_hset_scope.
+  (omega_cocont_BinProduct_of_functors_alt BinProductsHSET _
+     has_homsets_HSET has_homsets_HSET
+     (is_omega_cocont_constprod_functor1 _ _ has_homsets_HSET has_exponentials_HSET)
+     F G) : cocont_functor_hset_scope.
 
 Notation "F + G" :=
-  (omega_cocont_BinCoproduct_of_functors_alt _ _ BinProductsHSET BinCoproductsHSET
+  (omega_cocont_BinCoproduct_of_functors_alt BinProductsHSET BinCoproductsHSET
      has_homsets_HSET has_homsets_HSET F G) : cocont_functor_hset_scope.
 
 (* omega_cocont_coproduct_functor has worse computational behavior

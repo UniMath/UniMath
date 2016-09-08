@@ -58,7 +58,9 @@ use colimAlgInitial.
   + apply functor_category_has_homsets.
   + apply is_omega_cocont_constant_functor; apply functor_category_has_homsets.
   + apply is_omega_cocont_Lam.
-    * apply (has_exponentials_functor_HSET _ has_homsets_HSET).
+    * apply is_omega_cocont_constprod_functor1.
+      apply functor_category_has_homsets.
+      apply (has_exponentials_functor_HSET _ has_homsets_HSET).
     * apply cats_LimsHSET.
 - apply ColimsFunctorCategory; apply ColimsHSET.
 Defined.

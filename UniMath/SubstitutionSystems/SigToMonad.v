@@ -131,6 +131,8 @@ destruct n.
     apply is_omega_cocont_BinProduct_of_Signatures.
     apply is_omega_cocont_precomp_option_iter.
     apply IH.
+    apply is_omega_cocont_constprod_functor1.
+    apply has_homsets_HSET2.
     apply has_exponentials_HSET2.
 Defined.
 

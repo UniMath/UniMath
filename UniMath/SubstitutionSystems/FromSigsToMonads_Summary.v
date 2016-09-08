@@ -83,7 +83,6 @@ Defined.
 Lemma is_omega_cocont_binproduct_functor
   : Π (C : precategory) (PC : BinProducts C), has_homsets C →
     (Π x : C, is_omega_cocont (constprod_functor1 PC x)) →
-    (Π x : C, is_omega_cocont (constprod_functor2 PC x)) →
     is_omega_cocont (binproduct_functor PC).
 Proof.
   exact CocontFunctors.is_omega_cocont_binproduct_functor.
