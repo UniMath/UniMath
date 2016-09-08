@@ -52,9 +52,9 @@ Lemma colim_of_chain_is_initial_alg
       (F : functor C C) (HF : is_omega_cocont F)
       (CC : ColimCocone (initChain InitC F)),
     isInitial (FunctorAlg F hsC)
-              (algebra_ob_pair (colim CC) (colim_algebra_mor C InitC F HF CC)).
+              (algebra_ob_pair (colim CC) (colim_algebra_mor InitC HF CC)).
 Proof.
-  exact CocontFunctors.colimAlgIsInitial.
+  exact @CocontFunctors.colimAlgIsInitial.
 Defined.
 
 

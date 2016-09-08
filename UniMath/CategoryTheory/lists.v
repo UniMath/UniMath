@@ -38,7 +38,7 @@ Let is_omega_cocont_listFunctor : is_omega_cocont listFunctor := pr2 listOmegaFu
 Lemma listFunctor_Initial :
   Initial (precategory_FunctorAlg listFunctor has_homsets_HSET).
 Proof.
-apply (colimAlgInitial _ _ InitialHSET _ is_omega_cocont_listFunctor (ColimCoconeHSET _ _)).
+apply (colimAlgInitial _ InitialHSET is_omega_cocont_listFunctor (ColimCoconeHSET _ _)).
 Defined.
 
 Definition List : HSET :=
@@ -504,7 +504,7 @@ Defined.
 Lemma listFunctor_Initial :
   Initial (precategory_FunctorAlg listFunctor has_homsets_HSET).
 Proof.
-apply (colimAlgInitial _ _ InitialHSET _ omega_cocont_listFunctor (ColimCoconeHSET _ _)).
+apply (colimAlgInitial _ InitialHSET omega_cocont_listFunctor (ColimCoconeHSET _ _)).
 Defined.
 
 Definition List : HSET :=

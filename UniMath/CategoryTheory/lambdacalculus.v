@@ -87,7 +87,7 @@ Let is_omega_cocont_lambdaFunctor : is_omega_cocont lambdaFunctor :=
 Lemma lambdaFunctor_Initial :
   Initial (precategory_FunctorAlg lambdaFunctor has_homsets_HSET2).
 Proof.
-apply (colimAlgInitial _ _ InitialHSET2 _ is_omega_cocont_lambdaFunctor).
+apply (colimAlgInitial _ InitialHSET2 is_omega_cocont_lambdaFunctor).
 apply ColimsFunctorCategory; apply ColimsHSET.
 Defined.
 
