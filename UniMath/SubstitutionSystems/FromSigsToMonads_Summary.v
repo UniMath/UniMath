@@ -63,7 +63,7 @@ Lemma is_omega_cocont_pre_composition_functor
      (hsA : has_homsets A),
    Lims A → is_omega_cocont (pre_composition_functor M C A hsC hsA K).
 Proof.
-  exact CocontFunctors.is_omega_cocont_pre_composition_functor.
+  exact @CocontFunctors.is_omega_cocont_pre_composition_functor.
 Defined.
 
 Definition RightKanExtension_from_limits
@@ -71,7 +71,7 @@ Definition RightKanExtension_from_limits
     (hsA : has_homsets A),
   Lims A → RightKanExtension.GlobalRightKanExtensionExists M C K A hsC hsA.
 Proof.
-  exact CocontFunctors.RightKanExtension_from_limits.
+  exact @CocontFunctors.RightKanExtension_from_limits.
 Defined.
 
 Definition ColimCoconeHSET
@@ -85,7 +85,7 @@ Lemma is_omega_cocont_binproduct_functor
     (Π x : C, is_omega_cocont (constprod_functor1 PC x)) →
     is_omega_cocont (binproduct_functor PC).
 Proof.
-  exact CocontFunctors.is_omega_cocont_binproduct_functor.
+  exact @CocontFunctors.is_omega_cocont_binproduct_functor.
 Defined.
 
 Lemma left_adjoint_cocont

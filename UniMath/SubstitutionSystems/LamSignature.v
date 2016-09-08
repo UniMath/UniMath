@@ -170,7 +170,7 @@ Definition Abs_H : functor [C, C, hs] [C, C, hs] :=
 Lemma is_omega_cocont_Abs_H (LC : Lims C) : is_omega_cocont Abs_H.
 Proof.
 unfold Abs_H.
-apply (is_omega_cocont_pre_composition_functor _ _ _ _ _ _ LC).
+apply (is_omega_cocont_pre_composition_functor _ _ _ LC).
 Defined.
 
 

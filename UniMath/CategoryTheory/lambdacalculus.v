@@ -66,14 +66,14 @@ Local Notation "'Id'" := (omega_cocont_functor_identity has_homsets_HSET2).
 Local Notation "F * G" :=
   (omega_cocont_BinProduct_of_functors_alt BinProductsHSET2 _
      has_homsets_HSET2 has_homsets_HSET2
-     (is_omega_cocont_constprod_functor1 _ _ has_homsets_HSET2 has_exponentials_HSET2) F G).
+     (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2 has_exponentials_HSET2) F G).
 
 Local Notation "F + G" :=
   (omega_cocont_BinCoproduct_of_functors_alt BinProductsHSET2 BinCoproductsHSET2
      has_homsets_HSET2 has_homsets_HSET2 F G).
 
 Local Notation "'_' 'o' 'option'" :=
-  (omega_cocont_pre_composition_functor _ _ _
+  (omega_cocont_pre_composition_functor
       (option_functor HSET BinCoproductsHSET TerminalHSET)
       has_homsets_HSET has_homsets_HSET cats_LimsHSET) (at level 10).
 
