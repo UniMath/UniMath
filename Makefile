@@ -56,9 +56,33 @@ ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
 LATEXDIR = latex
 COQDOCLATEXOPTIONS := -latex -utf8 --body-only
-COQDEFS := --language=none																																					   \
-	-r '/^[[:space:]]*\(\(Local\|Global\)[[:space:]]+\)?\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Identity Coercion\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|CoInductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\4/' \
-	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:]]+\)'/\1/"																																	   \
+
+DEFINERS := 
+DEFINERS := $(DEFINERS)Axiom\|
+DEFINERS := $(DEFINERS)Class\|
+DEFINERS := $(DEFINERS)CoInductive\|
+DEFINERS := $(DEFINERS)Corollary\|
+DEFINERS := $(DEFINERS)Definition\|
+DEFINERS := $(DEFINERS)Fact\|
+DEFINERS := $(DEFINERS)Fixpoint\|
+DEFINERS := $(DEFINERS)Identity[[:space:]]+Coercion\|
+DEFINERS := $(DEFINERS)Inductive\|
+DEFINERS := $(DEFINERS)Instance\|
+DEFINERS := $(DEFINERS)Lemma\|
+DEFINERS := $(DEFINERS)Let\|
+DEFINERS := $(DEFINERS)Let\|
+DEFINERS := $(DEFINERS)Ltac\|
+DEFINERS := $(DEFINERS)Module[[:space:]]+Import\|
+DEFINERS := $(DEFINERS)Module\|
+DEFINERS := $(DEFINERS)Notation\|
+DEFINERS := $(DEFINERS)Proposition\|
+DEFINERS := $(DEFINERS)Record\|
+DEFINERS := $(DEFINERS)Remark\|
+DEFINERS := $(DEFINERS)Structure\|
+DEFINERS := $(DEFINERS)Theorem
+COQDEFS := --language=none												\
+	-r '/^[[:space:]]*\(\(Local\|Global\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:]'\''_]+\)/\4/'	\
+	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:]]+\)'/\1/"								\
 	-r '/^[[:space:]]*Tactic Notation.* "\([[:alnum:]]+\)" /\1/'
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
 $(VFILES:.v=.vo) : $(COQBIN)coqc
