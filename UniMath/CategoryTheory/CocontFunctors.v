@@ -201,7 +201,7 @@ destruct j.
     destruct (isirreflnatlth _ H).
 Qed.
 
-(** Construct the initial chain:
+(** Construct the chain:
 
          !          F!            F^2 !
      0 -----> F 0 ------> F^2 0 --------> F^3 0 ---> ...
