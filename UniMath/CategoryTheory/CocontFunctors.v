@@ -747,21 +747,29 @@ Proof.
 now intros c L ccL M H; apply isColimCocone_pr2_functor.
 Defined.
 
-(* TODO: refactor this and the below proof? *)
+Local Definition cFAX {gr : graph} (cAB : diagram gr (binproduct_precategory A B))
+  (xy : C × D) (ccxy : cocone (mapdiagram (binproduct_pair_functor F G) cAB) xy) :
+  cocone (mapdiagram F (mapdiagram (pr1_functor A B) cAB)) (pr1 xy).
+Proof.
+use mk_cocone.
+- intro n; apply (pr1 (pr1 ccxy n)).
+- abstract (intros m n e; apply (maponpaths dirprod_pr1 (pr2 ccxy m n e))).
+Defined.
+
+Local Definition cGBY {gr : graph} (cAB : diagram gr (binproduct_precategory A B))
+  (xy : C × D) (ccxy : cocone (mapdiagram (binproduct_pair_functor F G) cAB) xy) :
+  (cocone (mapdiagram G (mapdiagram (pr2_functor A B) cAB)) (pr2 xy)).
+Proof.
+use mk_cocone.
+- intro n; apply (pr2 (pr1 ccxy n)).
+- abstract (intros m n e; apply (maponpaths dirprod_pr2 (pr2 ccxy m n e))).
+Defined.
+
 Lemma is_cocont_binproduct_pair_functor (HF : is_cocont F) (HG : is_cocont G) :
   is_cocont (binproduct_pair_functor F G).
 Proof.
-intros gr cAB ml ccml Hccml xy ccxy; simpl in *.
-transparent assert (cFAX : (cocone (mapdiagram F (mapdiagram (pr1_functor A B) cAB)) (pr1 xy))).
-{ use mk_cocone.
-  - intro n; apply (pr1 (pr1 ccxy n)).
-  - abstract (intros m n e; apply (maponpaths pr1 (pr2 ccxy m n e))).
-}
-transparent assert (cGBY : (cocone (mapdiagram G (mapdiagram (pr2_functor A B) cAB)) (pr2 xy))).
-{ use mk_cocone.
-  - intro n; apply (pr2 (pr1 ccxy n)).
-  - abstract (intros m n e; apply (maponpaths dirprod_pr2 (pr2 ccxy m n e))).
-}
+intros gr cAB ml ccml Hccml xy ccxy.
+set (cFAX := cFAX cAB xy ccxy); set (cGBY := cGBY cAB xy ccxy).
 destruct (HF _ _ _ _ (isColimCocone_pr1_functor cAB ml ccml Hccml) _ cFAX) as [[f hf1] hf2].
 destruct (HG _ _ _ _ (isColimCocone_pr2_functor cAB ml ccml Hccml) _ cGBY) as [[g hg1] hg2].
 simpl in *.
@@ -769,30 +777,20 @@ mkpair.
 - apply (tpair _ (f,,g)).
   abstract (intro n; unfold binprodcatmor, compose; simpl;
             now rewrite hf1, hg1, (paireta (coconeIn ccxy n))).
-- intro t.
-  apply subtypeEquality; simpl.
-  + intro x; apply impred; intro.
-    apply isaset_dirprod; [ apply hsC | apply hsD ].
-  + induction t as [[f1 f2] p]; simpl in *.
-    apply pathsdirprod.
-    * apply (maponpaths pr1 (hf2 (f1,, (λ n, maponpaths pr1 (p n))))).
-    * apply (maponpaths pr1 (hg2 (f2,, (λ n, maponpaths dirprod_pr2 (p n))))).
+- abstract (intro t; apply subtypeEquality; simpl;
+             [ intro x; apply impred; intro; apply isaset_dirprod; [ apply hsC | apply hsD ]
+             | induction t as [[f1 f2] p]; simpl in *; apply pathsdirprod;
+               [ apply (maponpaths pr1 (hf2 (f1,, (λ n, maponpaths pr1 (p n)))))
+               | apply (maponpaths pr1 (hg2 (f2,, (λ n, maponpaths dirprod_pr2 (p n)))))]]).
 Defined.
 
+(** Note that this proof is more less the same as the above one. However we cannot use it as the
+    assumptions are too strong *)
 Lemma is_omega_cocont_binproduct_pair_functor (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
   is_omega_cocont (binproduct_pair_functor F G).
 Proof.
-intros cAB ml ccml Hccml xy ccxy; simpl in *.
-transparent assert (cFAX : (cocone (mapdiagram F (mapdiagram (pr1_functor A B) cAB)) (pr1 xy))).
-{ use mk_cocone.
-  - intro n; apply (pr1 (pr1 ccxy n)).
-  - abstract (intros m n e; apply (maponpaths pr1 (pr2 ccxy m n e))).
-}
-transparent assert (cGBY : (cocone (mapdiagram G (mapdiagram (pr2_functor A B) cAB)) (pr2 xy))).
-{ use mk_cocone.
-  - intro n; apply (pr2 (pr1 ccxy n)).
-  - abstract (intros m n e; apply (maponpaths dirprod_pr2 (pr2 ccxy m n e))).
-}
+intros cAB ml ccml Hccml xy ccxy.
+set (cFAX := cFAX cAB xy ccxy); set (cGBY := cGBY cAB xy ccxy).
 destruct (HF _ _ _ (isColimCocone_pr1_functor cAB ml ccml Hccml) _ cFAX) as [[f hf1] hf2].
 destruct (HG _ _ _ (isColimCocone_pr2_functor cAB ml ccml Hccml) _ cGBY) as [[g hg1] hg2].
 simpl in *.
@@ -800,14 +798,11 @@ mkpair.
 - apply (tpair _ (f,,g)).
   abstract (intro n; unfold binprodcatmor, compose; simpl;
             now rewrite hf1, hg1, (paireta (coconeIn ccxy n))).
-- intro t.
-  apply subtypeEquality; simpl.
-  + intro x; apply impred; intro.
-    apply isaset_dirprod; [ apply hsC | apply hsD ].
-  + induction t as [[f1 f2] p]; simpl in *.
-    apply pathsdirprod.
-    * apply (maponpaths pr1 (hf2 (f1,, (λ n, maponpaths pr1 (p n))))).
-    * apply (maponpaths pr1 (hg2 (f2,, (λ n, maponpaths dirprod_pr2 (p n))))).
+- abstract (intro t; apply subtypeEquality; simpl;
+             [ intro x; apply impred; intro; apply isaset_dirprod; [ apply hsC | apply hsD ]
+             | induction t as [[f1 f2] p]; simpl in *; apply pathsdirprod;
+               [ apply (maponpaths pr1 (hf2 (f1,, (λ n, maponpaths pr1 (p n)))))
+               | apply (maponpaths pr1 (hg2 (f2,, (λ n, maponpaths dirprod_pr2 (p n)))))]]).
 Defined.
 
 End binproduct_pair_functor.
@@ -884,63 +879,59 @@ Proof.
 now intros c L ccL M H; apply isColimCocone_pr_functor.
 Defined.
 
-(* TODO: refactor this and the below proof? *)
+(** This is used in the both of the next two proofs *)
+Local Definition cc {gr : graph} (F : Π (i : I), functor A B)
+  (cAB : diagram gr (product_precategory I (λ _ : I, A)))
+  (xy : I → B) (ccxy : cocone (mapdiagram (pair_functor I F) cAB) xy) (i : I) :
+  cocone (mapdiagram (F i) (mapdiagram (pr_functor I (λ _ : I, A) i) cAB)) (xy i).
+Proof.
+use mk_cocone.
+- intro n; apply (pr1 ccxy n).
+- abstract (intros m n e; apply (toforallpaths _ _ _ (pr2 ccxy m n e) i)).
+Defined.
+
 Lemma is_cocont_pair_functor
   {F : Π (i : I), functor A B} (HF : Π (i : I), is_cocont (F i)) :
   is_cocont (pair_functor I F).
 Proof.
 intros gr cAB ml ccml Hccml xy ccxy; simpl in *.
-simple refine (let cc i : cocone (mapdiagram (F i)
-                                 (mapdiagram (pr_functor I (fun _ => A) i) cAB)) (xy i) := _ in _).
-{ use mk_cocone.
-  - intro n; apply (pr1 ccxy n).
-  - abstract (intros m n e;
-              apply (toforallpaths _ _ _ (pr2 ccxy m n e) i)).
-}
+set (cc := cc F cAB xy ccxy).
 set (X i := HF i _ _ _ _ (isColimCocone_pr_functor _ _ _ Hccml i) (xy i) (cc i)).
 mkpair.
 - mkpair.
   + intro i; apply (pr1 (pr1 (X i))).
   + abstract (intro n; apply funextsec; intro j; apply (pr2 (pr1 (X j)) n)).
-- intro t.
-  apply subtypeEquality; simpl.
-  + intro x; apply impred; intro; apply impred_isaset; intro i; apply hsB.
-  + destruct t as [f1 f2]; simpl in *.
-    apply funextsec; intro i.
-    transparent assert (H : (Σ x : B ⟦ (F i) (ml i), xy i ⟧,
-                             Π n, # (F i) (coconeIn ccml n i) ;; x =
-                                  coconeIn ccxy n i)).
-    { apply (tpair _ (f1 i)); intro n; apply (toforallpaths _ _ _ (f2 n) i). }
-    apply (maponpaths pr1 (pr2 (X i) H)).
+- abstract (intro t; apply subtypeEquality; simpl;
+             [ intro x; apply impred; intro; apply impred_isaset; intro i; apply hsB
+             | destruct t as [f1 f2]; simpl in *;  apply funextsec; intro i;
+               transparent assert (H : (Σ x : B ⟦ (F i) (ml i), xy i ⟧,
+                                       Π n, # (F i) (coconeIn ccml n i) ;; x =
+                                       coconeIn ccxy n i));
+                [apply (tpair _ (f1 i)); intro n; apply (toforallpaths _ _ _ (f2 n) i)|];
+               apply (maponpaths pr1 (pr2 (X i) H))]).
 Defined.
 
+(** Note that this proof is more less the same as the above one. However we cannot use it as the
+    assumptions are too strong *)
 Lemma is_omega_cocont_pair_functor
   {F : Π (i : I), functor A B} (HF : Π (i : I), is_omega_cocont (F i)) :
   is_omega_cocont (pair_functor I F).
 Proof.
 intros cAB ml ccml Hccml xy ccxy; simpl in *.
-simple refine (let cc i : cocone (mapchain (F i)
-                                 (mapchain (pr_functor I (fun _ => A) i) cAB)) (xy i) := _ in _).
-{ use mk_cocone.
-  - intro n; apply (pr1 ccxy n).
-  - abstract (intros m n e;
-              apply (toforallpaths _ _ _ (pr2 ccxy m n e) i)).
-}
+set (cc := cc F cAB xy ccxy).
 set (X i := HF i _ _ _ (isColimCocone_pr_functor _ _ _ Hccml i) (xy i) (cc i)).
 mkpair.
 - mkpair.
   + intro i; apply (pr1 (pr1 (X i))).
   + abstract (intro n; apply funextsec; intro j; apply (pr2 (pr1 (X j)) n)).
-- intro t.
-  apply subtypeEquality; simpl.
-  + intro x; apply impred; intro; apply impred_isaset; intro i; apply hsB.
-  + destruct t as [f1 f2]; simpl in *.
-    apply funextsec; intro i.
-    transparent assert (H : (Σ x : B ⟦ (F i) (ml i), xy i ⟧,
-                             Π n, # (F i) (coconeIn ccml n i) ;; x =
-                                  coconeIn ccxy n i)).
-    { apply (tpair _ (f1 i)); intro n; apply (toforallpaths _ _ _ (f2 n) i). }
-    apply (maponpaths pr1 (pr2 (X i) H)).
+- abstract (intro t; apply subtypeEquality; simpl;
+             [ intro x; apply impred; intro; apply impred_isaset; intro i; apply hsB
+             | destruct t as [f1 f2]; simpl in *;  apply funextsec; intro i;
+               transparent assert (H : (Σ x : B ⟦ (F i) (ml i), xy i ⟧,
+                                       Π n, # (F i) (coconeIn ccml n i) ;; x =
+                                       coconeIn ccxy n i));
+                [apply (tpair _ (f1 i)); intro n; apply (toforallpaths _ _ _ (f2 n) i)|];
+               apply (maponpaths pr1 (pr2 (X i) H))]).
 Defined.
 
 End pair_functor.
