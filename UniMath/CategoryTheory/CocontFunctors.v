@@ -126,9 +126,9 @@ End cocont.
 Section omega_cocont.
 
 (** Define the chain:
-
+<<
      0 --> 1 --> 2 --> 3 --> ...
-
+>>
    with exactly one arrow from n to S n.
 *)
 Definition nat_graph : graph :=
@@ -202,10 +202,10 @@ destruct j.
 Qed.
 
 (** Construct the chain:
-
+<<
          !          F!            F^2 !
      0 -----> F 0 ------> F^2 0 --------> F^3 0 ---> ...
-
+>>
 *)
 Definition initChain {C : precategory} (InitC : Initial C) (F : functor C C) : chain C.
 Proof.
@@ -229,13 +229,13 @@ Local Notation "'chain'" := (diagram nat_graph).
 
 
 (** * Adámek's theorem for constructing initial algebras of omega-cocontinuous functors *)
-(* This section proves that (L,α : F L -> L) is the initial algebra
+(** This section proves that (L,α : F L -> L) is the initial algebra
     where L is the colimit of the inital chain:
-
+<<
          !          F !           F^2 !
      0 -----> F 0 ------> F^2 0 --------> F^3 0 ---> ...
-
-This result is also known as Adámek's theorem:
+>>
+This result is also known as Adámek's theorem % \cite{Adamek1974}: \par %
 
   https://ncatlab.org/nlab/show/initial+algebra+of+an+endofunctor#AdameksTheorem
 
@@ -316,12 +316,12 @@ apply id_right.
 Qed.
 
 (** Given an algebra:
-
+<<
           a
    F A ------> A
-
+>>
  we now define an algebra morphism ad:
-
+<<
           α
    F L ------> L
     |          |
@@ -329,7 +329,7 @@ Qed.
     |          |
     V     a    V
    F A ------> A
-
+>>
 
 *)
 Section algebra_mor.
