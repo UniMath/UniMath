@@ -166,7 +166,7 @@ world: all html doc latex-doc
 
 latex-doc: $(LATEXDIR)/doc.pdf
 
-$(LATEXDIR)/doc.pdf : $(LATEXDIR)/helper.tex
+$(LATEXDIR)/doc.pdf : $(LATEXDIR)/helper.tex $(LATEXDIR)/references.bib $(LATEXDIR)/latex-preamble.txt $(LATEXDIR)/helper.tex $(LATEXDIR)/latex-epilogue.txt
 	cd $(LATEXDIR) && cat latex-preamble.txt helper.tex latex-epilogue.txt > doc.tex
 	cd $(LATEXDIR) && latexmk -pdf doc
 
