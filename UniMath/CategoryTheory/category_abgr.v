@@ -2346,7 +2346,7 @@ End ABGR_monic_kernels.
 Section ABGR_abelian_precategory.
 
   Definition ABGR_Abelian_precategory :
-    Abelian_precategory.
+    AbelianPreCat.
   Proof.
     set (Add := ABGR_Additive).
     set (BinDS := Additive_BinDirectSums Add).

@@ -41,7 +41,7 @@ Require Import UniMath.CategoryTheory.Additive.
 (** * Abelian_precategory is Additive. *)
 Section abelian_is_additive.
 
-  Variable A : Abelian_precategory.
+  Variable A : AbelianPreCat.
   Hypothesis hs : has_homsets A.
 
   (** ** Preliminaries *)
@@ -54,10 +54,10 @@ Section abelian_is_additive.
   Definition IdZeroMap {X : A} (BinProd : BinProductCone A X X) :
     A⟦X, (BinProductObject A BinProd)⟧
     := BinProductArrow A BinProd (identity X)
-                       (ZeroArrow Abelian_Zero X X).
+                       (ZeroArrow Zero X X).
   Definition ZeroIdMap {X : A} (BinProd : BinProductCone A X X) :
     A⟦X, (BinProductObject A BinProd)⟧
-    := BinProductArrow A BinProd (ZeroArrow Abelian_Zero X X)
+    := BinProductArrow A BinProd (ZeroArrow Zero X X)
                        (identity X).
 
   (** Proofs that these maps are monics. *)
@@ -123,7 +123,7 @@ Section abelian_is_additive.
   (** We construct kernels of BinProduct Pr1 and Pr2. *)
   Definition KernelOfPr1_Eq {X : A} (BinProd : BinProductCone A X X) :
     ZeroIdMap BinProd ;; BinProductPr1 A BinProd
-    = ZeroArrow Abelian_Zero X X.
+    = ZeroArrow Zero X X.
   Proof.
     unfold ZeroIdMap.
     rewrite (BinProductPr1Commutes A _ _ BinProd _ _ (identity X)).
@@ -131,10 +131,10 @@ Section abelian_is_additive.
   Qed.
 
   Definition KernelOfPr1_isEqualizer {X : A} (BinProd : BinProductCone A X X) :
-    isEqualizer (BinProductPr1 A BinProd)
-                (ZeroArrow Abelian_Zero (BinProductObject A BinProd) X)
-                (ZeroIdMap BinProd)
-                (KernelEqRw Abelian_Zero (KernelOfPr1_Eq BinProd)).
+    equalizers.isEqualizer (BinProductPr1 A BinProd)
+                           (ZeroArrow Zero (BinProductObject A BinProd) X)
+                           (ZeroIdMap BinProd)
+                           (KernelEqRw Zero (KernelOfPr1_Eq BinProd)).
   Proof.
     use mk_isEqualizer.
     intros w h H'.
@@ -155,16 +155,16 @@ Section abelian_is_additive.
   Qed.
 
   Definition KernelOfPr1 {X : A} (BinProd : BinProductCone A X X) :
-    Kernel Abelian_Zero (BinProductPr1 A BinProd).
+    kernels.Kernel Zero (BinProductPr1 A BinProd).
   Proof.
-    exact (mk_Kernel Abelian_Zero (ZeroIdMap BinProd) _
+    exact (mk_Kernel Zero (ZeroIdMap BinProd) _
                      (KernelOfPr1_Eq BinProd)
                      (KernelOfPr1_isEqualizer BinProd)).
   Defined.
 
   Definition KernelOfPr2_Eq {X : A} (BinProd : BinProductCone A X X) :
     IdZeroMap BinProd ;; BinProductPr2 A BinProd
-    = ZeroArrow Abelian_Zero X X.
+    = ZeroArrow Zero X X.
   Proof.
     unfold IdZeroMap.
     rewrite (BinProductPr2Commutes A _ _ BinProd _ (identity X) _).
@@ -172,10 +172,10 @@ Section abelian_is_additive.
   Qed.
 
   Definition KernelOfPr2_isEqualizer {X : A} (BinProd : BinProductCone A X X) :
-    isEqualizer (BinProductPr2 A BinProd)
-                (ZeroArrow Abelian_Zero (BinProductObject A BinProd) X)
-                (IdZeroMap BinProd)
-                (KernelEqRw Abelian_Zero (KernelOfPr2_Eq BinProd)).
+    equalizers.isEqualizer (BinProductPr2 A BinProd)
+                           (ZeroArrow Zero (BinProductObject A BinProd) X)
+                           (IdZeroMap BinProd)
+                           (KernelEqRw Zero (KernelOfPr2_Eq BinProd)).
   Proof.
     use mk_isEqualizer.
     intros w h H'.
@@ -195,9 +195,9 @@ Section abelian_is_additive.
   Qed.
 
   Definition KernelOfPr2 {X : A} (BinProd : BinProductCone A X X) :
-    Kernel Abelian_Zero (BinProductPr2 A BinProd).
+    kernels.Kernel Zero (BinProductPr2 A BinProd).
   Proof.
-    exact (mk_Kernel Abelian_Zero (IdZeroMap BinProd) _
+    exact (mk_Kernel Zero (IdZeroMap BinProd) _
                      (KernelOfPr2_Eq BinProd)
                      (KernelOfPr2_isEqualizer BinProd)).
   Defined.
@@ -205,43 +205,43 @@ Section abelian_is_additive.
   (** From properties of abelian categories, it follows that Pr1 and Pr2 are
     cokernels of the above kernels since they are epimorphisms. *)
   Definition CokernelOfKernelOfPr1 {X : A} (BinProd : BinProductCone A X X) :
-    Cokernel Abelian_Zero (KernelArrow (KernelOfPr1 BinProd)).
+    cokernels.Cokernel Zero (KernelArrow (KernelOfPr1 BinProd)).
   Proof.
-    exact (Abelian_EpiToCokernel' A hs
-                                  (mk_Epi A _ (BinProductPr1_isEpi BinProd))
-                                  (KernelOfPr1 BinProd)).
+    exact (EpiToCokernel' A hs
+                          (mk_Epi A _ (BinProductPr1_isEpi BinProd))
+                          (KernelOfPr1 BinProd)).
   Defined.
 
   Definition CokernelOfKernelOfPr2 {X : A} (BinProd : BinProductCone A X X) :
-    Cokernel Abelian_Zero (KernelArrow (KernelOfPr2 BinProd)).
+    cokernels.Cokernel Zero (KernelArrow (KernelOfPr2 BinProd)).
   Proof.
-    exact (Abelian_EpiToCokernel' A hs
-                                  (mk_Epi A _ (BinProductPr2_isEpi BinProd))
-                                  (KernelOfPr2 BinProd)).
+    exact (EpiToCokernel' A hs
+                          (mk_Epi A _ (BinProductPr2_isEpi BinProd))
+                          (KernelOfPr2 BinProd)).
   Defined.
 
   (** We construct a cokernel of the DiagonalMap. The CokernelOb is the
    object X.*)
   Lemma CokernelOfDiagonal_is_iso {X : A} (BinProd : BinProductCone A X X) :
-    is_iso ((BinProductArrow A BinProd (identity X) (ZeroArrow Abelian_Zero X X))
-              ;; (CokernelArrow (Abelian_Cokernel (DiagonalMap BinProd)))).
+    is_iso ((BinProductArrow A BinProd (identity X) (ZeroArrow Zero X X))
+              ;; (CokernelArrow (Cokernel (DiagonalMap BinProd)))).
   Proof.
-    set (coker := Abelian_Cokernel (DiagonalMap BinProd)).
+    set (coker := Cokernel (DiagonalMap BinProd)).
     set (r := (BinProductArrow A BinProd (identity X)
-                               (ZeroArrow Abelian_Zero X X))
+                               (ZeroArrow Zero X X))
                 ;; (CokernelArrow coker)).
     set (M := mk_Monic A _ (DiagonalMap_isMonic BinProd)).
-    set (ker := Abelian_MonicToKernel A hs M).
+    set (ker := MonicToKernel A hs M).
 
-    apply Abelian_monic_epi_is_iso.
+    apply monic_epi_is_iso.
 
     (* isMonic *)
-    use (@Abelian_KernelZeroisMonic A hs Abelian_Zero).
+    use (@KernelZeroisMonic A hs Zero).
     apply ZeroArrow_comp_left.
 
     apply mk_isEqualizer.
     intros w h H'.
-    apply (unique_exists (ZeroArrow Abelian_Zero w Abelian_Zero)).
+    apply (unique_exists (ZeroArrow Zero w Zero)).
 
     (* Commutativity *)
     rewrite ZeroArrow_comp_right in H'. unfold r in H'. rewrite assoc in H'.
@@ -249,7 +249,7 @@ Section abelian_is_additive.
     set (com1 := KernelCommutes _ ker _ _ H'). cbn in com1. fold y in com1.
     unfold DiagonalMap in com1.
 
-    assert (H : y = ZeroArrow Abelian_Zero w ker).
+    assert (H : y = ZeroArrow Zero w ker).
     {
       rewrite <- (id_right A _ _ y).
       set (tmp := BinProductPr2Commutes A _ _ BinProd _ (identity X)
@@ -262,7 +262,7 @@ Section abelian_is_additive.
     rewrite ZeroArrow_comp_left. cbn in H. apply pathsinv0 in H.
     use (pathscomp0 H). rewrite <- id_right.
     rewrite <- (BinProductPr1Commutes A _ _ BinProd _ (identity X)
-                                     (ZeroArrow Abelian_Zero _ _)).
+                                     (ZeroArrow Zero _ _)).
     rewrite assoc. rewrite <- com1. rewrite <- assoc.
     rewrite (BinProductPr1Commutes A _ _ BinProd _ (identity X) (identity X)).
     rewrite id_right. apply idpath.
@@ -274,13 +274,13 @@ Section abelian_is_additive.
     intros y H. apply ArrowsToZero.
 
     (* isEpi *)
-    use (@Abelian_CokernelZeroisEpi A hs).
-    exact Abelian_Zero.
+    use (@CokernelZeroisEpi A hs).
+    exact Zero.
     apply ZeroArrow_comp_right.
 
     apply mk_isCoequalizer.
     intros w h H'.
-    apply (unique_exists (ZeroArrow Abelian_Zero Abelian_Zero w)).
+    apply (unique_exists (ZeroArrow Zero Zero w)).
 
 
     (* Commutativity *)
@@ -290,7 +290,7 @@ Section abelian_is_additive.
     set (y := CokernelOut _ coker2 _ _ H'). cbn in y.
     set (com1 := CokernelCommutes _ coker2 _ _ H'). cbn in com1. fold y in com1.
 
-    assert (H : y = ZeroArrow Abelian_Zero X w).
+    assert (H : y = ZeroArrow Zero X w).
     {
       rewrite <- (id_left A _ _ y).
       set (tmp := BinProductPr2Commutes A _ _ BinProd _ (identity X)
@@ -301,7 +301,7 @@ Section abelian_is_additive.
     }
 
     rewrite H in com1. rewrite ZeroArrow_comp_right in com1.
-    rewrite <- (ZeroArrow_comp_right A Abelian_Zero _ _ _
+    rewrite <- (ZeroArrow_comp_right A Zero _ _ _
                                     (CokernelArrow coker))
       in com1.
     apply CokernelArrowisEpi in com1. rewrite <- com1.
@@ -315,14 +315,14 @@ Section abelian_is_additive.
   Qed.
 
   Definition CokernelOfDiagonal {X : A} (BinProd : BinProductCone A X X) :
-    Cokernel Abelian_Zero (DiagonalMap BinProd).
+    cokernels.Cokernel Zero (DiagonalMap BinProd).
   Proof.
     set (X0 := CokernelOfDiagonal_is_iso BinProd).
-    exact (Cokernel_up_to_iso A hs Abelian_Zero _
+    exact (Cokernel_up_to_iso A hs Zero _
                               (CokernelArrow
-                                             (Abelian_Cokernel (DiagonalMap BinProd))
+                                             (Cokernel (DiagonalMap BinProd))
                                              ;; iso_inv_from_iso (isopair _ X0))
-                              (Abelian_Cokernel (DiagonalMap BinProd))
+                              (Cokernel (DiagonalMap BinProd))
                               (iso_inv_from_iso (isopair _ X0)) (idpath _)).
   Defined.
 
@@ -330,7 +330,7 @@ Section abelian_is_additive.
   Lemma CokernelOfDiagonal_CokernelArrowEq {X : A}
         (BinProd : BinProductCone A X X) :
     CokernelArrow (CokernelOfDiagonal BinProd)
-    = (CokernelArrow (Abelian_Cokernel (DiagonalMap BinProd))
+    = (CokernelArrow (Cokernel (DiagonalMap BinProd))
                      ;; iso_inv_from_iso (isopair _
                                                   (CokernelOfDiagonal_is_iso
                                                      BinProd))).
@@ -342,13 +342,13 @@ Section abelian_is_additive.
     groups. *)
   Definition Abelian_minus_op {X Y : A} (f g : X --> Y) :
     A⟦X, Y⟧ :=
-    (BinProductArrow A (Abelian_BinProducts A Y Y) f g)
-      ;; CokernelArrow (CokernelOfDiagonal (Abelian_BinProducts A Y Y)).
+    (BinProductArrow A (BinProducts A Y Y) f g)
+      ;; CokernelArrow (CokernelOfDiagonal (BinProducts A Y Y)).
 
   Definition Abelian_op (X Y : A) : binop (A⟦X, Y⟧) :=
     (fun f : _ => fun g : _ =>
                  Abelian_minus_op f (Abelian_minus_op
-                                       (ZeroArrow Abelian_Zero _ _) g)).
+                                       (ZeroArrow Zero _ _) g)).
 
   (** Construction of a precategory with binops from Abelian category. *)
   Definition Abelian_precategory_PrecategoryWithBinops :
@@ -362,11 +362,11 @@ Section abelian_is_additive.
   (** We need the following lemmas to prove that the homsets of an abelian
      precategory are abelian groups. *)
   Lemma Abelian_DiagonalMap_eq {X Y : A} (f : X --> Y) :
-    f ;; (DiagonalMap (Abelian_BinProducts A Y Y))
-    = (DiagonalMap (Abelian_BinProducts A X X))
-        ;; (BinProductArrow A (Abelian_BinProducts A Y Y)
-                       (BinProductPr1 _ (Abelian_BinProducts A X X) ;; f)
-                       (BinProductPr2 _ (Abelian_BinProducts A X X) ;; f)).
+    f ;; (DiagonalMap (BinProducts A Y Y))
+    = (DiagonalMap (BinProducts A X X))
+        ;; (BinProductArrow A (BinProducts A Y Y)
+                       (BinProductPr1 _ (BinProducts A X X) ;; f)
+                       (BinProductPr2 _ (BinProducts A X X) ;; f)).
   Proof.
     unfold DiagonalMap.
     apply BinProductArrowsEq.
@@ -384,24 +384,24 @@ Section abelian_is_additive.
   Qed.
 
   Definition Abelian_op_eq_IdZero (X : A) :
-    IdZeroMap (Abelian_BinProducts A X X)
-              ;; CokernelArrow (CokernelOfDiagonal (Abelian_BinProducts A X X))
+    IdZeroMap (BinProducts A X X)
+              ;; CokernelArrow (CokernelOfDiagonal (BinProducts A X X))
     = identity _ .
   Proof.
     set (r := (isopair
-                 (BinProductArrow A (Abelian_BinProducts A X X) (identity X)
-                                  (ZeroArrow Abelian_Zero X X)
+                 (BinProductArrow A (BinProducts A X X) (identity X)
+                                  (ZeroArrow Zero X X)
                                   ;; CokernelArrow
-                                  (Abelian_Cokernel (DiagonalMap
-                                                         (Abelian_BinProducts
+                                  (Cokernel (DiagonalMap
+                                                         (BinProducts
                                                             A X X))))
-                 (CokernelOfDiagonal_is_iso (Abelian_BinProducts A X X)))).
+                 (CokernelOfDiagonal_is_iso (BinProducts A X X)))).
     cbn. fold r. rewrite assoc. unfold IdZeroMap.
-    assert (e2 : BinProductArrow A (Abelian_BinProducts A X X) (identity X)
-                                 (ZeroArrow Abelian_Zero X X) ;;
+    assert (e2 : BinProductArrow A (BinProducts A X X) (identity X)
+                                 (ZeroArrow Zero X X) ;;
                                  CokernelArrow
-                                 (Abelian_Cokernel (DiagonalMap
-                                                        (Abelian_BinProducts
+                                 (Cokernel (DiagonalMap
+                                                        (BinProducts
                                                            A X X)))
                  = r).
     {
@@ -411,46 +411,46 @@ Section abelian_is_additive.
   Qed.
 
   Lemma Abelian_op_eq {X Y : A} (f : X --> Y) :
-    CokernelArrow (CokernelOfDiagonal (Abelian_BinProducts A X X)) ;; f
-    = (BinProductArrow A (Abelian_BinProducts A Y Y)
-                       (BinProductPr1 _ (Abelian_BinProducts A X X) ;; f)
-                       (BinProductPr2 _ (Abelian_BinProducts A X X) ;; f))
-        ;; (CokernelArrow (CokernelOfDiagonal (Abelian_BinProducts A Y Y))).
+    CokernelArrow (CokernelOfDiagonal (BinProducts A X X)) ;; f
+    = (BinProductArrow A (BinProducts A Y Y)
+                       (BinProductPr1 _ (BinProducts A X X) ;; f)
+                       (BinProductPr2 _ (BinProducts A X X) ;; f))
+        ;; (CokernelArrow (CokernelOfDiagonal (BinProducts A Y Y))).
   Proof.
-    set (ar := (BinProductArrow A (Abelian_BinProducts A Y Y)
-                       (BinProductPr1 _ (Abelian_BinProducts A X X) ;; f)
-                       (BinProductPr2 _ (Abelian_BinProducts A X X) ;; f))
+    set (ar := (BinProductArrow A (BinProducts A Y Y)
+                       (BinProductPr1 _ (BinProducts A X X) ;; f)
+                       (BinProductPr2 _ (BinProducts A X X) ;; f))
                   ;; CokernelArrow
-                  (CokernelOfDiagonal (Abelian_BinProducts A Y Y))).
-    assert (H: DiagonalMap (Abelian_BinProducts A X X) ;; ar =
-               ZeroArrow Abelian_Zero _ _).
+                  (CokernelOfDiagonal (BinProducts A Y Y))).
+    assert (H: DiagonalMap (BinProducts A X X) ;; ar =
+               ZeroArrow Zero _ _).
     {
       unfold ar. rewrite assoc.
       rewrite <- (Abelian_DiagonalMap_eq f).
       rewrite <- assoc. rewrite CokernelCompZero.
       apply ZeroArrow_comp_right.
     }
-    set (g := CokernelOut Abelian_Zero
-                           (CokernelOfDiagonal (Abelian_BinProducts A X X))
-                           (CokernelOfDiagonal (Abelian_BinProducts A Y Y))
+    set (g := CokernelOut Zero
+                           (CokernelOfDiagonal (BinProducts A X X))
+                           (CokernelOfDiagonal (BinProducts A Y Y))
                            ar H).
-    set (com := CokernelCommutes Abelian_Zero
-                           (CokernelOfDiagonal (Abelian_BinProducts A X X))
-                           (CokernelOfDiagonal (Abelian_BinProducts A Y Y))
+    set (com := CokernelCommutes Zero
+                           (CokernelOfDiagonal (BinProducts A X X))
+                           (CokernelOfDiagonal (BinProducts A Y Y))
                            ar H).
     rewrite <- com.
     apply cancel_precomposition.
 
     set (e1 := Abelian_op_eq_IdZero X).
     set (e2 := Abelian_op_eq_IdZero Y).
-    set (ar' := BinProductArrow A (Abelian_BinProducts A Y Y)
-                                (BinProductPr1 A (Abelian_BinProducts A X X)
+    set (ar' := BinProductArrow A (BinProducts A Y Y)
+                                (BinProductPr1 A (BinProducts A X X)
                                                ;; f)
-                                (BinProductPr2 A (Abelian_BinProducts A X X)
+                                (BinProductPr2 A (BinProducts A X X)
                                                ;; f)).
 
-    assert (e3 : IdZeroMap (Abelian_BinProducts A X X) ;; ar'
-                 = f ;; IdZeroMap (Abelian_BinProducts A Y Y)).
+    assert (e3 : IdZeroMap (BinProducts A X X) ;; ar'
+                 = f ;; IdZeroMap (BinProducts A Y Y)).
     {
       unfold ar', IdZeroMap.
       apply BinProductArrowsEq. rewrite <- assoc.
@@ -477,15 +477,15 @@ Section abelian_is_additive.
 
   (** Construction of morphisms to BinProducts. *)
   Definition Abelian_mor_to_BinProd {X Y : A} (f g : X --> Y) :
-    A⟦X, (BinProductObject A (Abelian_BinProducts A Y Y))⟧
-    :=  BinProductArrow _ (Abelian_BinProducts A Y Y) f g.
+    A⟦X, (BinProductObject A (BinProducts A Y Y))⟧
+    :=  BinProductArrow _ (BinProducts A Y Y) f g.
 
   Definition Abelian_mor_from_to_BinProd {X Y : A} (f g : X --> Y) :
-    A⟦BinProductObject A (Abelian_BinProducts A X X),
-      BinProductObject A (Abelian_BinProducts A Y Y)⟧
-    :=  BinProductArrow _ (Abelian_BinProducts A Y Y)
-                        (BinProductPr1 _ (Abelian_BinProducts A X X) ;; f)
-                        (BinProductPr2 _ (Abelian_BinProducts A X X) ;; g).
+    A⟦BinProductObject A (BinProducts A X X),
+      BinProductObject A (BinProducts A Y Y)⟧
+    :=  BinProductArrow _ (BinProducts A Y Y)
+                        (BinProductPr1 _ (BinProducts A X X) ;; f)
+                        (BinProductPr2 _ (BinProducts A X X) ;; g).
 
 
   (** A few equations about the op. *)
@@ -495,8 +495,8 @@ Section abelian_is_additive.
     = Abelian_mor_to_BinProd (Abelian_minus_op a c)
                              (Abelian_minus_op b d).
   Proof.
-    set (com1 := Abelian_op_eq (BinProductPr1 A (Abelian_BinProducts A Y Y))).
-    set (com2 := Abelian_op_eq (BinProductPr2 A (Abelian_BinProducts A Y Y))).
+    set (com1 := Abelian_op_eq (BinProductPr1 A (BinProducts A Y Y))).
+    set (com2 := Abelian_op_eq (BinProductPr2 A (BinProducts A Y Y))).
     unfold Abelian_minus_op. unfold Abelian_mor_to_BinProd.
     apply BinProductArrowsEq.
 
@@ -543,13 +543,13 @@ Section abelian_is_additive.
     Abelian_mor_to_BinProd
       (Abelian_mor_to_BinProd a b) (Abelian_mor_to_BinProd c d)
       ;; Abelian_mor_from_to_BinProd
-      (CokernelArrow (CokernelOfDiagonal (Abelian_BinProducts A Y Y)))
-      (CokernelArrow (CokernelOfDiagonal (Abelian_BinProducts A Y Y)))
+      (CokernelArrow (CokernelOfDiagonal (BinProducts A Y Y)))
+      (CokernelArrow (CokernelOfDiagonal (BinProducts A Y Y)))
     = Abelian_mor_to_BinProd
         ((Abelian_mor_to_BinProd a b)
-           ;; (CokernelArrow (CokernelOfDiagonal (Abelian_BinProducts A Y Y))))
+           ;; (CokernelArrow (CokernelOfDiagonal (BinProducts A Y Y))))
         ((Abelian_mor_to_BinProd c d)
-            ;; (CokernelArrow (CokernelOfDiagonal (Abelian_BinProducts A Y Y)))).
+            ;; (CokernelArrow (CokernelOfDiagonal (BinProducts A Y Y)))).
   Proof.
     unfold Abelian_mor_to_BinProd.
     unfold Abelian_mor_from_to_BinProd.
@@ -574,7 +574,7 @@ Section abelian_is_additive.
   Proof.
     set (com := Abelian_op_eq
                   (CokernelArrow (CokernelOfDiagonal
-                                    (Abelian_BinProducts A Y Y)))).
+                                    (BinProducts A Y Y)))).
     unfold Abelian_minus_op at 1.
     set (tmp := Abelian_precategory_op_eq1 a c b d).
     unfold Abelian_mor_to_BinProd in tmp.
@@ -594,7 +594,7 @@ Section abelian_is_additive.
 
   (** The zero element in a homset of A is given by the ZeroArrow. *)
   Definition Abelian_precategory_homset_zero (X Y : A) :
-    A⟦X, Y⟧ := ZeroArrow Abelian_Zero X Y.
+    A⟦X, Y⟧ := ZeroArrow Zero X Y.
 
   (** Some equations involving Abelian_minus_op and Abelian_op. *)
   Definition Abelian_precategory_homset_zero_right' {X Y : A} (f : X --> Y) :
@@ -604,11 +604,11 @@ Section abelian_is_additive.
     unfold Abelian_minus_op.
     set (tmp := Abelian_op_eq_IdZero Y). unfold IdZeroMap in tmp.
 
-    assert (e1 : BinProductArrow A (Abelian_BinProducts A Y Y) f
-                                 (ZeroArrow Abelian_Zero X Y)
+    assert (e1 : BinProductArrow A (BinProducts A Y Y) f
+                                 (ZeroArrow Zero X Y)
                  = f ;; BinProductArrow
-                     A (Abelian_BinProducts A Y Y) (identity _)
-                     (ZeroArrow Abelian_Zero Y Y)).
+                     A (BinProducts A Y Y) (identity _)
+                     (ZeroArrow Zero Y Y)).
     {
       apply BinProductArrowsEq.
       rewrite BinProductPr1Commutes. rewrite <- assoc.
@@ -631,19 +631,19 @@ Section abelian_is_additive.
     unfold Abelian_op. unfold Abelian_minus_op at 2.
     use (pathscomp0 _ (Abelian_precategory_homset_zero_right' f)).
 
-    assert (e1 :  (BinProductArrow A (Abelian_BinProducts A Y Y)
-                                   (ZeroArrow Abelian_Zero X Y)
-                                   (ZeroArrow Abelian_Zero X Y)
+    assert (e1 :  (BinProductArrow A (BinProducts A Y Y)
+                                   (ZeroArrow Zero X Y)
+                                   (ZeroArrow Zero X Y)
                                    ;; CokernelArrow
                                    (CokernelOfDiagonal
-                                      (Abelian_BinProducts A Y Y)))
-                  = ZeroArrow Abelian_Zero _ _ ).
+                                      (BinProducts A Y Y)))
+                  = ZeroArrow Zero _ _ ).
     {
       use (pathscomp0
-             _ (ZeroArrow_comp_left A Abelian_Zero _ _ _
+             _ (ZeroArrow_comp_left A Zero _ _ _
                                     (CokernelArrow
                                        (CokernelOfDiagonal
-                                          (Abelian_BinProducts A Y Y))))).
+                                          (BinProducts A Y Y))))).
       apply cancel_postcomposition.
       apply BinProductArrowsEq.
       rewrite BinProductPr1Commutes.
@@ -657,7 +657,7 @@ Section abelian_is_additive.
   Qed.
 
   Definition Abelian_precategory_homset_inv {X Y : A} (f : X --> Y) :
-    A⟦X, Y⟧ := Abelian_minus_op (ZeroArrow Abelian_Zero _ _) f.
+    A⟦X, Y⟧ := Abelian_minus_op (ZeroArrow Zero _ _) f.
 
   Definition Abelian_precategory_homset_inv_left' {X Y : A} (f : X --> Y) :
     Abelian_minus_op f f
@@ -665,8 +665,8 @@ Section abelian_is_additive.
   Proof.
     unfold Abelian_precategory_homset_zero. unfold Abelian_minus_op.
 
-    assert (e1 : BinProductArrow A (Abelian_BinProducts A Y Y) f f
-                 = f ;; BinProductArrow A (Abelian_BinProducts A Y Y)
+    assert (e1 : BinProductArrow A (BinProducts A Y Y) f f
+                 = f ;; BinProductArrow A (BinProducts A Y Y)
                      (identity _ ) (identity _ )).
     {
       apply BinProductArrowsEq.
@@ -878,33 +878,33 @@ Section abelian_is_additive.
     cbn in x', x'0. rewrite assoc. apply cancel_postcomposition.
 
     assert (e2 : BinProductArrow
-                   A (Abelian_BinProducts A z z) (f ;; x')
+                   A (BinProducts A z z) (f ;; x')
                    (BinProductArrow
-                      A (Abelian_BinProducts A z z)
-                      (ZeroArrow Abelian_Zero x z)
+                      A (BinProducts A z z)
+                      (ZeroArrow Zero x z)
                       (f ;; x'0)
                       ;; CokernelArrow
-                      (CokernelOfDiagonal (Abelian_BinProducts A z z)))
+                      (CokernelOfDiagonal (BinProducts A z z)))
                  = BinProductArrow
-                   A (Abelian_BinProducts A z z) (f ;; x')
+                   A (BinProducts A z z) (f ;; x')
                    (BinProductArrow
-                      A (Abelian_BinProducts A z z)
-                      (f ;; ZeroArrow Abelian_Zero y z)
+                      A (BinProducts A z z)
+                      (f ;; ZeroArrow Zero y z)
                       (f ;; x'0)
                       ;; CokernelArrow
-                      (CokernelOfDiagonal (Abelian_BinProducts A z z)))).
+                      (CokernelOfDiagonal (BinProducts A z z)))).
     {
-      set (tmp := ZeroArrow_comp_right A Abelian_Zero x y z f).
+      set (tmp := ZeroArrow_comp_right A Zero x y z f).
       apply (maponpaths
                (fun h : _ =>
                   BinProductArrow
-                   A (Abelian_BinProducts A z z) (f ;; x')
+                   A (BinProducts A z z) (f ;; x')
                    (BinProductArrow
-                      A (Abelian_BinProducts A z z)
+                      A (BinProducts A z z)
                       h
                       (f ;; x'0)
                       ;; CokernelArrow
-                      (CokernelOfDiagonal (Abelian_BinProducts A z z)))))
+                      (CokernelOfDiagonal (BinProducts A z z)))))
         in tmp.
       apply pathsinv0 in tmp. apply tmp.
     }
@@ -926,11 +926,11 @@ Section abelian_is_additive.
     cbn in x', x'0.
 
     assert (e0 : BinProductArrow
-                   A (Abelian_BinProducts A z z)
-                   (ZeroArrow Abelian_Zero x z) (x'0 ;; f)
+                   A (BinProducts A z z)
+                   (ZeroArrow Zero x z) (x'0 ;; f)
                  = BinProductArrow
-                   A (Abelian_BinProducts A y y)
-                   (ZeroArrow Abelian_Zero x y) x'0
+                   A (BinProducts A y y)
+                   (ZeroArrow Zero x y) x'0
                    ;; Abelian_mor_from_to_BinProd f f).
     {
       apply BinProductArrowsEq.
@@ -958,7 +958,7 @@ Section abelian_is_additive.
     rewrite <- tmp. rewrite assoc. rewrite assoc.
 
     rewrite <- (postcompWithBinProductArrow
-                 A _ (Abelian_BinProducts A y y)).
+                 A _ (BinProducts A y y)).
     unfold BinProductOfArrows. rewrite <- assoc. rewrite <- assoc.
     rewrite <- tmp.
     apply idpath.
@@ -981,9 +981,9 @@ Section abelian_is_additive.
   Proof.
     use (mk_Additive Abelian_precategory_PreAdditive).
     use mk_isAdditive.
-    exact Abelian_Zero.
+    exact Zero.
     exact (BinDirectSums_from_BinProducts Abelian_precategory_PreAdditive
-                                          hs Abelian_Zero
-                                          (Abelian_BinProducts A)).
+                                          hs Zero
+                                          (BinProducts A)).
   Defined.
 End abelian_is_additive.

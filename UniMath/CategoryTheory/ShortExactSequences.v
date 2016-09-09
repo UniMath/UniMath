@@ -56,43 +56,43 @@ Require Import UniMath.CategoryTheory.limits.cokernels.
 (** * Definition of short exact sequences *)
 Section def_shortexactseqs.
 
-  Variable A : Abelian_precategory.
+  Variable A : AbelianPreCat.
   Hypothesis hs : has_homsets A.
 
   (** Image of the first morphism and equality of morphisms associated to it. *)
-  Definition ShortShortExactData_Im (SSED : ShortShortExactData A Abelian_Zero) :
-    Kernel Abelian_Zero (CokernelArrow (Abelian_Cokernel (MorphismPairMor1 SSED))) :=
+  Definition ShortShortExactData_Im (SSED : ShortShortExactData A Abelian.Zero) :
+    Kernel Abelian.Zero (CokernelArrow (Abelian.Cokernel (MorphismPairMor1 SSED))) :=
     Image (MorphismPairMor1 SSED).
 
-  Lemma ShortShortExactData_Im_Eq (SSED : ShortShortExactData A Abelian_Zero) :
+  Lemma ShortShortExactData_Im_Eq (SSED : ShortShortExactData A Abelian.Zero) :
     (KernelArrow (ShortShortExactData_Im SSED)) ;; (MorphismPairMor2 SSED) =
-    ZeroArrow Abelian_Zero _ _.
+    ZeroArrow Abelian.Zero _ _.
   Proof.
     unfold ShortShortExactData_Im.
-    set (fact := Abelian_factorization1 hs (MorphismPairMor1 SSED)).
-    unfold Abelian_factorization1_monic in fact. cbn in fact.
-    apply (Abelian_factorization1_is_epi hs (MorphismPairMor1 SSED)).
+    set (fact := factorization1 hs (MorphismPairMor1 SSED)).
+    unfold factorization1_monic in fact. cbn in fact.
+    apply (factorization1_is_epi hs (MorphismPairMor1 SSED)).
     rewrite ZeroArrow_comp_right.
     rewrite assoc. rewrite <- fact.
-    apply (ShortShortExactData_Eq Abelian_Zero SSED).
+    apply (ShortShortExactData_Eq Abelian.Zero SSED).
   Qed.
 
   (** Coimage of the second morphism and equality of morphisms associated to it. *)
-  Definition ShortShortExactData_CoIm (SSED : ShortShortExactData A Abelian_Zero) :
-    Cokernel Abelian_Zero (KernelArrow (Abelian_Kernel (MorphismPairMor2 SSED))) :=
+  Definition ShortShortExactData_CoIm (SSED : ShortShortExactData A Abelian.Zero) :
+    Cokernel Abelian.Zero (KernelArrow (Abelian.Kernel (MorphismPairMor2 SSED))) :=
     CoImage (MorphismPairMor2 SSED).
 
-  Lemma ShortShortExactData_CoIm_Eq (SSED : ShortShortExactData A Abelian_Zero) :
+  Lemma ShortShortExactData_CoIm_Eq (SSED : ShortShortExactData A Abelian.Zero) :
     (MorphismPairMor1 SSED) ;; (CokernelArrow (ShortShortExactData_CoIm SSED)) =
-    ZeroArrow Abelian_Zero _ _.
+    ZeroArrow Abelian.Zero _ _.
   Proof.
     unfold ShortShortExactData_CoIm.
-    set (fact := Abelian_factorization2 hs (MorphismPairMor2 SSED)).
-    unfold Abelian_factorization2_epi in fact. cbn in fact.
-    apply (Abelian_factorization2_is_monic hs (MorphismPairMor2 SSED)).
+    set (fact := factorization2 hs (MorphismPairMor2 SSED)).
+    unfold factorization2_epi in fact. cbn in fact.
+    apply (factorization2_is_monic hs (MorphismPairMor2 SSED)).
     rewrite ZeroArrow_comp_left.
     rewrite <- assoc. rewrite <- fact.
-    apply (ShortShortExactData_Eq Abelian_Zero SSED).
+    apply (ShortShortExactData_Eq Abelian.Zero SSED).
   Qed.
 
 
@@ -103,15 +103,15 @@ Section def_shortexactseqs.
   *)
 
   Definition ShortShortExact : UU :=
-    Σ SSED : ShortShortExactData A Abelian_Zero,
-             isEqualizer (MorphismPairMor2 SSED) (ZeroArrow Abelian_Zero _ _)
+    Σ SSED : ShortShortExactData A Abelian.Zero,
+             isEqualizer (MorphismPairMor2 SSED) (ZeroArrow Abelian.Zero _ _)
                          (KernelArrow (ShortShortExactData_Im SSED))
-                         (KernelEqRw Abelian_Zero (ShortShortExactData_Im_Eq SSED)).
+                         (KernelEqRw Abelian.Zero (ShortShortExactData_Im_Eq SSED)).
 
-  Definition mk_ShortShortExact (SSED : ShortShortExactData A Abelian_Zero)
-             (H : isEqualizer (MorphismPairMor2 SSED) (ZeroArrow Abelian_Zero _ _)
+  Definition mk_ShortShortExact (SSED : ShortShortExactData A Abelian.Zero)
+             (H : isEqualizer (MorphismPairMor2 SSED) (ZeroArrow Abelian.Zero _ _)
                               (KernelArrow (ShortShortExactData_Im SSED))
-                              (KernelEqRw Abelian_Zero (ShortShortExactData_Im_Eq SSED))) :
+                              (KernelEqRw Abelian.Zero (ShortShortExactData_Im_Eq SSED))) :
     ShortShortExact.
   Proof.
     use tpair.
@@ -121,17 +121,17 @@ Section def_shortexactseqs.
 
   (** Accessor functions *)
   Definition ShortShortExact_ShortShortExactData (SSE : ShortShortExact) :
-    ShortShortExactData A Abelian_Zero := pr1 SSE.
+    ShortShortExactData A Abelian.Zero := pr1 SSE.
   Coercion ShortShortExact_ShortShortExactData : ShortShortExact >-> ShortShortExactData.
 
   Definition ShortShortExact_isEqualizer (SSE : ShortShortExact) :
-    isEqualizer (MorphismPairMor2 SSE) (ZeroArrow Abelian_Zero _ _)
+    isEqualizer (MorphismPairMor2 SSE) (ZeroArrow Abelian.Zero _ _)
                 (KernelArrow (ShortShortExactData_Im SSE))
-                (KernelEqRw Abelian_Zero (ShortShortExactData_Im_Eq SSE)) := pr2 SSE.
+                (KernelEqRw Abelian.Zero (ShortShortExactData_Im_Eq SSE)) := pr2 SSE.
 
   Definition ShortShortExact_Kernel (SSE : ShortShortExact) :
-    Kernel Abelian_Zero (MorphismPairMor2 SSE) :=
-    mk_Kernel Abelian_Zero (KernelArrow (ShortShortExactData_Im SSE))
+    Kernel Abelian.Zero (MorphismPairMor2 SSE) :=
+    mk_Kernel Abelian.Zero (KernelArrow (ShortShortExactData_Im SSE))
               (MorphismPairMor2 SSE) (ShortShortExactData_Im_Eq SSE)
               (ShortShortExact_isEqualizer SSE).
 
@@ -264,7 +264,7 @@ Arguments ShortExact_isEpi [A] _ _ _ _ _ _.
   of the first morphism and give a way to construct [ShortShortExact] from certain isCoequalizer. *)
 Section shortshortexact_coequalizer.
 
-  Variable A : Abelian_precategory.
+  Variable A : AbelianPreCat.
   Hypothesis hs : has_homsets A.
 
 
@@ -277,13 +277,13 @@ Section shortshortexact_coequalizer.
 
   Local Lemma ShortShortExact_isCoequalizer_eq1 (SSE : ShortShortExact hs) (w0 : A)
         (h : A ⟦MorphismPairOb2 SSE, w0⟧)
-        (H : MorphismPairMor1 SSE ;; h = (ZeroArrow Abelian_Zero _ _) ;; h) :
-    (KernelArrow (ShortShortExact_Kernel hs SSE)) ;; h = ZeroArrow Abelian_Zero _ _.
+        (H : MorphismPairMor1 SSE ;; h = (ZeroArrow Abelian.Zero _ _) ;; h) :
+    (KernelArrow (ShortShortExact_Kernel hs SSE)) ;; h = ZeroArrow Abelian.Zero _ _.
   Proof.
-    apply (Abelian_factorization1_is_epi hs (MorphismPairMor1 SSE)).
-    set (tmp := Abelian_factorization1 hs (MorphismPairMor1 SSE)).
-    unfold Abelian_factorization1_epi in tmp.
-    unfold Abelian_factorization1_monic in tmp.
+    apply (factorization1_is_epi hs (MorphismPairMor1 SSE)).
+    set (tmp := factorization1 hs (MorphismPairMor1 SSE)).
+    unfold factorization1_epi in tmp.
+    unfold factorization1_monic in tmp.
     cbn in tmp. rewrite assoc. unfold ShortShortExact_Kernel.
     cbn. unfold ShortShortExactData_Im. rewrite <- tmp. clear tmp.
     rewrite ZeroArrow_comp_right.
@@ -293,12 +293,12 @@ Section shortshortexact_coequalizer.
 
   Local Lemma ShortShortExact_isCoequalizer_eq2 (SSE : ShortShortExact hs) (w0 : A)
         (h : A ⟦MorphismPairOb2 SSE, w0⟧)
-        (H : MorphismPairMor1 SSE ;; h = (ZeroArrow Abelian_Zero _ _) ;; h) :
-    KernelArrow (Abelian_Kernel (MorphismPairMor2 SSE)) ;; h =
-    ZeroArrow Abelian_Zero _ _.
+        (H : MorphismPairMor1 SSE ;; h = (ZeroArrow Abelian.Zero _ _) ;; h) :
+    KernelArrow (Abelian.Kernel (MorphismPairMor2 SSE)) ;; h =
+    ZeroArrow Abelian.Zero _ _.
   Proof.
-    set (i := iso_from_Kernel_to_Kernel Abelian_Zero (ShortShortExact_Kernel hs SSE)
-                                        (Abelian_Kernel (MorphismPairMor2 SSE))).
+    set (i := iso_from_Kernel_to_Kernel Abelian.Zero (ShortShortExact_Kernel hs SSE)
+                                        (Abelian.Kernel (MorphismPairMor2 SSE))).
     set (epi := iso_Epi A i (pr2 i)).
     apply (pr2 epi). cbn. rewrite ZeroArrow_comp_right.
     rewrite assoc. unfold from_Kernel_to_Kernel.
@@ -307,16 +307,16 @@ Section shortshortexact_coequalizer.
   Qed.
 
   Local Lemma  ShortShortExact_isCoequalizer (SSE : ShortShortExact hs) :
-    isCoequalizer (MorphismPairMor1 SSE) (ZeroArrow Abelian_Zero _ _)
+    isCoequalizer (MorphismPairMor1 SSE) (ZeroArrow Abelian.Zero _ _)
                   (CokernelArrow (ShortShortExactData_CoIm SSE))
-                  (CokernelEqRw Abelian_Zero (ShortShortExactData_CoIm_Eq hs SSE)).
+                  (CokernelEqRw Abelian.Zero (ShortShortExactData_CoIm_Eq hs SSE)).
   Proof.
     use mk_isCoequalizer.
     intros w0 h H'.
     use unique_exists.
 
     (* Construction of the morphism *)
-    - apply (CokernelOut Abelian_Zero (ShortShortExactData_CoIm SSE) w0 h
+    - apply (CokernelOut Abelian.Zero (ShortShortExactData_CoIm SSE) w0 h
                          (ShortShortExact_isCoequalizer_eq2 SSE w0 h H')).
 
     (* Commutativity *)
@@ -333,8 +333,8 @@ Section shortshortexact_coequalizer.
   Qed.
 
   Definition ShortShortExact_Coequalizer (SSE : ShortShortExact hs) :
-    Cokernel Abelian_Zero (MorphismPairMor1 SSE) :=
-    mk_Cokernel Abelian_Zero (CokernelArrow (ShortShortExactData_CoIm SSE))
+    Cokernel Abelian.Zero (MorphismPairMor1 SSE) :=
+    mk_Cokernel Abelian.Zero (CokernelArrow (ShortShortExactData_CoIm SSE))
                 (MorphismPairMor1 SSE) (ShortShortExactData_CoIm_Eq hs SSE)
                 (ShortShortExact_isCoequalizer SSE).
 
@@ -342,20 +342,20 @@ Section shortshortexact_coequalizer.
   (** ** From isCoequalizer to [ShortShortExact]
     We show that we can construct [ShortShortExact] from the isCoequalizer property proved above. *)
 
-  Local Lemma ShortShortExact_from_isCoequalizer_eq1 (SSED : ShortShortExactData A Abelian_Zero)
+  Local Lemma ShortShortExact_from_isCoequalizer_eq1 (SSED : ShortShortExactData A Abelian.Zero)
         (w : A) (h : A ⟦w, MorphismPairOb2 SSED⟧)
         (H : (h ;; (CokernelArrow (CoImage (MorphismPairMor2 SSED)))) =
-             ZeroArrow Abelian_Zero _ _)
-        (H' : isCoequalizer (MorphismPairMor1 SSED) (ZeroArrow Abelian_Zero _ _)
+             ZeroArrow Abelian.Zero _ _)
+        (H' : isCoequalizer (MorphismPairMor1 SSED) (ZeroArrow Abelian.Zero _ _)
                             (CokernelArrow (ShortShortExactData_CoIm SSED))
-                            (CokernelEqRw Abelian_Zero (ShortShortExactData_CoIm_Eq hs SSED))):
-    h ;; CokernelArrow (Abelian_Cokernel (MorphismPairMor1 SSED)) =
-    ZeroArrow Abelian_Zero _ _.
+                            (CokernelEqRw Abelian.Zero (ShortShortExactData_CoIm_Eq hs SSED))):
+    h ;; CokernelArrow (Abelian.Cokernel (MorphismPairMor1 SSED)) =
+    ZeroArrow Abelian.Zero _ _.
   Proof.
-    set (coker := mk_Cokernel Abelian_Zero (CokernelArrow (ShortShortExactData_CoIm SSED))
+    set (coker := mk_Cokernel Abelian.Zero (CokernelArrow (ShortShortExactData_CoIm SSED))
                               (MorphismPairMor1 SSED) (ShortShortExactData_CoIm_Eq hs SSED) H').
-    set (i := iso_from_Cokernel_to_Cokernel Abelian_Zero
-                                            (Abelian_Cokernel (MorphismPairMor1 SSED)) coker).
+    set (i := iso_from_Cokernel_to_Cokernel Abelian.Zero
+                                            (Abelian.Cokernel (MorphismPairMor1 SSED)) coker).
     set (isM := iso_Monic A i (pr2 i)). apply (pr2 isM). cbn.
     rewrite ZeroArrow_comp_left. rewrite <- assoc.
     unfold from_Cokernel_to_Cokernel.
@@ -364,19 +364,19 @@ Section shortshortexact_coequalizer.
     exact H.
   Qed.
 
-  Local Lemma ShortShortExact_from_isCoequalizer_eq2 (SSED : ShortShortExactData A Abelian_Zero)
+  Local Lemma ShortShortExact_from_isCoequalizer_eq2 (SSED : ShortShortExactData A Abelian.Zero)
         (w : A) (h : A ⟦w, MorphismPairOb2 SSED⟧)
-        (H : h ;; MorphismPairMor2 SSED = h ;; (ZeroArrow Abelian_Zero _ _))
-        (H' : isCoequalizer (MorphismPairMor1 SSED) (ZeroArrow Abelian_Zero _ _)
+        (H : h ;; MorphismPairMor2 SSED = h ;; (ZeroArrow Abelian.Zero _ _))
+        (H' : isCoequalizer (MorphismPairMor1 SSED) (ZeroArrow Abelian.Zero _ _)
                             (CokernelArrow (ShortShortExactData_CoIm SSED))
-                            (CokernelEqRw Abelian_Zero (ShortShortExactData_CoIm_Eq hs SSED))) :
+                            (CokernelEqRw Abelian.Zero (ShortShortExactData_CoIm_Eq hs SSED))) :
     h ;; CokernelArrow (CoImage (MorphismPairMor2 SSED)) =
-    ZeroArrow Abelian_Zero _ _.
+    ZeroArrow Abelian.Zero _ _.
   Proof.
-    apply (Abelian_factorization2_is_monic hs (MorphismPairMor2 SSED)).
-    set (tmp := Abelian_factorization2 hs (MorphismPairMor2 SSED)).
-    unfold Abelian_factorization2_epi in tmp.
-    unfold Abelian_factorization2_monic in tmp.
+    apply (factorization2_is_monic hs (MorphismPairMor2 SSED)).
+    set (tmp := factorization2 hs (MorphismPairMor2 SSED)).
+    unfold factorization2_epi in tmp.
+    unfold factorization2_monic in tmp.
     cbn in tmp. rewrite <- assoc. rewrite <- tmp.
     clear tmp.
     rewrite ZeroArrow_comp_left.
@@ -385,20 +385,20 @@ Section shortshortexact_coequalizer.
   Qed.
 
   Local Lemma ShortShortExact_from_isCoequalizer_isEqualizer
-        (SSED : ShortShortExactData A Abelian_Zero)
-        (H : isCoequalizer (MorphismPairMor1 SSED) (ZeroArrow Abelian_Zero _ _)
+        (SSED : ShortShortExactData A Abelian.Zero)
+        (H : isCoequalizer (MorphismPairMor1 SSED) (ZeroArrow Abelian.Zero _ _)
                            (CokernelArrow (ShortShortExactData_CoIm SSED))
-                           (CokernelEqRw Abelian_Zero (ShortShortExactData_CoIm_Eq hs SSED))) :
-    isEqualizer (MorphismPairMor2 SSED) (ZeroArrow Abelian_Zero _ _)
+                           (CokernelEqRw Abelian.Zero (ShortShortExactData_CoIm_Eq hs SSED))) :
+    isEqualizer (MorphismPairMor2 SSED) (ZeroArrow Abelian.Zero _ _)
                 (KernelArrow (ShortShortExactData_Im SSED))
-                (KernelEqRw Abelian_Zero (ShortShortExactData_Im_Eq hs SSED)).
+                (KernelEqRw Abelian.Zero (ShortShortExactData_Im_Eq hs SSED)).
   Proof.
     use mk_isEqualizer.
     intros w h H'.
     use unique_exists.
 
     (* Construction of the morphism *)
-    - apply (KernelIn Abelian_Zero (ShortShortExactData_Im SSED) w h
+    - apply (KernelIn Abelian.Zero (ShortShortExactData_Im SSED) w h
                       (ShortShortExact_from_isCoequalizer_eq1
                          SSED w h (ShortShortExact_from_isCoequalizer_eq2 SSED w h H' H) H)).
 
@@ -415,10 +415,10 @@ Section shortshortexact_coequalizer.
       apply KernelCommutes.
   Qed.
 
-  Definition ShortShortExact_from_isCoequalizer (SSED : ShortShortExactData A Abelian_Zero)
-             (H : isCoequalizer (MorphismPairMor1 SSED) (ZeroArrow Abelian_Zero _ _)
+  Definition ShortShortExact_from_isCoequalizer (SSED : ShortShortExactData A Abelian.Zero)
+             (H : isCoequalizer (MorphismPairMor1 SSED) (ZeroArrow Abelian.Zero _ _)
                                 (CokernelArrow (ShortShortExactData_CoIm SSED))
-                                (CokernelEqRw Abelian_Zero (ShortShortExactData_CoIm_Eq hs SSED))) :
+                                (CokernelEqRw Abelian.Zero (ShortShortExactData_CoIm_Eq hs SSED))) :
     ShortShortExact hs := mk_ShortShortExact
                             hs SSED (ShortShortExact_from_isCoequalizer_isEqualizer SSED H).
 
@@ -432,7 +432,7 @@ Arguments ShortShortExact_from_isCoequalizer [A] _ _ _.
   [ShortExact]. *)
 Section shortexact_correspondence.
 
-  Variable A : Abelian_precategory.
+  Variable A : AbelianPreCat.
   Hypothesis hs : has_homsets A.
 
 
@@ -445,51 +445,51 @@ Section shortexact_correspondence.
 
   Local Lemma ShortExact_from_ShortShortExact_eq (SSE : ShortShortExact hs) :
     (KernelArrow (Image (MorphismPairMor1 SSE)))
-      ;; (CokernelArrow (CoImage (MorphismPairMor2 SSE))) = ZeroArrow Abelian_Zero _ _.
+      ;; (CokernelArrow (CoImage (MorphismPairMor2 SSE))) = ZeroArrow Abelian.Zero _ _.
   Proof.
     (* Work on mor1 using factorization *)
-    apply (Abelian_factorization1_is_epi hs (MorphismPairMor1 SSE)).
+    apply (factorization1_is_epi hs (MorphismPairMor1 SSE)).
     rewrite assoc.
-    set (fact := Abelian_factorization1 hs (MorphismPairMor1 SSE)).
+    set (fact := factorization1 hs (MorphismPairMor1 SSE)).
     rewrite ZeroArrow_comp_right.
-    unfold Abelian_factorization1_monic in fact. cbn in fact. rewrite <- fact. clear fact.
+    unfold factorization1_monic in fact. cbn in fact. rewrite <- fact. clear fact.
 
     (* Work on mor2 using factorization *)
-    apply (Abelian_factorization2_is_monic hs (MorphismPairMor2 SSE)).
+    apply (factorization2_is_monic hs (MorphismPairMor2 SSE)).
     rewrite <- assoc.
-    set (fact := Abelian_factorization2 hs (MorphismPairMor2 SSE)).
-    unfold Abelian_factorization2_epi in fact. cbn in fact. rewrite <- fact. clear fact.
+    set (fact := factorization2 hs (MorphismPairMor2 SSE)).
+    unfold factorization2_epi in fact. cbn in fact. rewrite <- fact. clear fact.
     rewrite ZeroArrow_comp_left.
 
-    apply (ShortShortExactData_Eq Abelian_Zero SSE).
+    apply (ShortShortExactData_Eq Abelian.Zero SSE).
   Qed.
 
   Local Lemma ShortExact_ShortShortExact_isEqualizer_Eq (SSE : ShortShortExact hs) (w : A)
              (h : A ⟦w, MorphismPairOb2 SSE⟧)
              (H' : h ;; CokernelArrow (CoImage (MorphismPairMor2 SSE))
-                   = ZeroArrow Abelian_Zero _ _) :
+                   = ZeroArrow Abelian.Zero _ _) :
     let Im := Image (MorphismPairMor1 SSE) in
-    h ;; (CokernelArrow (Abelian_Cokernel (KernelArrow Im))) = ZeroArrow Abelian_Zero _ _.
+    h ;; (CokernelArrow (Abelian.Cokernel (KernelArrow Im))) = ZeroArrow Abelian.Zero _ _.
   Proof.
     cbn zeta.
 
-    assert (X : h ;; MorphismPairMor2 SSE = ZeroArrow Abelian_Zero _ _).
+    assert (X : h ;; MorphismPairMor2 SSE = ZeroArrow Abelian.Zero _ _).
     {
-      rewrite (Abelian_factorization2 hs (MorphismPairMor2 SSE)).
-      unfold Abelian_factorization2_epi. cbn.
-      set (tmp := Abelian_factorization2_monic A hs (MorphismPairMor2 SSE)).
+      rewrite (factorization2 hs (MorphismPairMor2 SSE)).
+      unfold factorization2_epi. cbn.
+      set (tmp := factorization2_monic A hs (MorphismPairMor2 SSE)).
       apply (maponpaths (fun h' : _ => h' ;; tmp)) in H'. unfold tmp in H'.
       clear tmp. rewrite ZeroArrow_comp_left in H'. rewrite <- assoc in H'.
-      unfold Abelian_factorization2_monic in H'. cbn in H'.
+      unfold factorization2_monic in H'. cbn in H'.
       exact H'.
     }
 
-    set (comm1 := KernelCommutes Abelian_Zero (Abelian_Kernel (MorphismPairMor2 SSE)) w h X).
+    set (comm1 := KernelCommutes Abelian.Zero (Abelian.Kernel (MorphismPairMor2 SSE)) w h X).
     set (ker := ShortShortExact_Kernel hs SSE).
-    set (tmp := Abelian_Kernel (MorphismPairMor2 SSE)).
-    set (tmp_eq := (KernelEqAr Abelian_Zero tmp)).
+    set (tmp := Abelian.Kernel (MorphismPairMor2 SSE)).
+    set (tmp_eq := (KernelEqAr Abelian.Zero tmp)).
     rewrite ZeroArrow_comp_right in tmp_eq.
-    set (comm2 := KernelCommutes Abelian_Zero ker tmp (KernelArrow tmp) tmp_eq).
+    set (comm2 := KernelCommutes Abelian.Zero ker tmp (KernelArrow tmp) tmp_eq).
     unfold tmp in comm2. rewrite <- comm2 in comm1. clear comm2.
     rewrite <- comm1. rewrite <- assoc. rewrite <- assoc.
     rewrite CokernelCompZero. rewrite ZeroArrow_comp_right.
@@ -500,10 +500,10 @@ Section shortexact_correspondence.
     let Im := Image (MorphismPairMor1 SSE) in
     let CoIm := CoImage (MorphismPairMor2 SSE) in
     let MP := mk_MorphismPair (KernelArrow Im) (CokernelArrow CoIm) in
-    let SSED := mk_ShortShortExactData Abelian_Zero MP (ShortExact_from_ShortShortExact_eq SSE) in
-    isEqualizer (CokernelArrow CoIm) (ZeroArrow Abelian_Zero _ _)
+    let SSED := mk_ShortShortExactData Abelian.Zero MP (ShortExact_from_ShortShortExact_eq SSE) in
+    isEqualizer (CokernelArrow CoIm) (ZeroArrow Abelian.Zero _ _)
                 (KernelArrow (ShortShortExactData_Im SSED))
-                (KernelEqRw Abelian_Zero (ShortShortExactData_Im_Eq hs SSED)).
+                (KernelEqRw Abelian.Zero (ShortShortExactData_Im_Eq hs SSED)).
   Proof.
     cbn zeta.
     use mk_isEqualizer.
@@ -541,8 +541,8 @@ Section shortexact_correspondence.
           -- exact (CokernelArrow (CoImage (MorphismPairMor2 SSE))).
         * exact (ShortExact_from_ShortShortExact_eq SSE).
       + exact (ShortExact_ShortShortExact_isEqualizer SSE).
-    - exact (KernelArrowisMonic Abelian_Zero _).
-    - exact (CokernelArrowisEpi Abelian_Zero _).
+    - exact (KernelArrowisMonic Abelian.Zero _).
+    - exact (CokernelArrowisEpi Abelian.Zero _).
   Defined.
 
 
@@ -552,27 +552,27 @@ Section shortexact_correspondence.
 
   Local Lemma ShortShortExact_from_isSortExact_eq {a b c : A} (f : a --> b) (g : b --> c)
              (H : (KernelArrow (Image f)) ;; (CokernelArrow (CoImage g))
-                  = ZeroArrow Abelian_Zero _ _)
-             (isEq : isEqualizer (CokernelArrow (CoImage g)) (ZeroArrow Abelian_Zero _ _)
-                                 (KernelArrow (Image f)) (KernelEqRw Abelian_Zero H)) :
-    f ;; g = ZeroArrow Abelian_Zero _ _.
+                  = ZeroArrow Abelian.Zero _ _)
+             (isEq : isEqualizer (CokernelArrow (CoImage g)) (ZeroArrow Abelian.Zero _ _)
+                                 (KernelArrow (Image f)) (KernelEqRw Abelian.Zero H)) :
+    f ;; g = ZeroArrow Abelian.Zero _ _.
   Proof.
     set (tmp := maponpaths (fun h' : _ => CokernelArrow (CoImage f)
-                                                     ;; (Abelian_CoIm_to_Im f) ;; h') H).
+                                                     ;; (CoIm_to_Im f) ;; h') H).
     cbn in tmp. rewrite ZeroArrow_comp_right in tmp.
-    apply (maponpaths (fun h' : _ => h' ;; (Abelian_CoIm_to_Im g) ;; ((KernelArrow (Image g)))))
+    apply (maponpaths (fun h' : _ => h' ;; (CoIm_to_Im g) ;; ((KernelArrow (Image g)))))
       in tmp.
     rewrite ZeroArrow_comp_left in tmp.
     repeat rewrite assoc in tmp.
 
     (* Work on f in tmp *)
-    set (fact := Abelian_factorization2 hs f).
-    unfold Abelian_factorization2_epi in fact. cbn in fact.
+    set (fact := factorization2 hs f).
+    unfold factorization2_epi in fact. cbn in fact.
     rewrite assoc in fact. rewrite <- fact in tmp. clear fact.
 
     (* Work of g in tmp *)
-    set (fact := Abelian_factorization1 hs g).
-    unfold Abelian_factorization2_monic in fact. cbn in fact.
+    set (fact := factorization1 hs g).
+    unfold factorization2_monic in fact. cbn in fact.
     repeat rewrite <- assoc in tmp. repeat rewrite <- assoc in fact.
     rewrite <- fact in tmp. clear fact.
 
@@ -580,30 +580,30 @@ Section shortexact_correspondence.
   Qed.
 
   Local Lemma ShortShortExact_from_isShortExact_isEqualizer_eq {a b c : A} (f : a --> b) (g : b --> c)
-        (H : (KernelArrow (Image f)) ;; (CokernelArrow (CoImage g)) = ZeroArrow Abelian_Zero _ _)
-        (isEq : isEqualizer (CokernelArrow (CoImage g)) (ZeroArrow Abelian_Zero _ _)
-                            (KernelArrow (Image f)) (KernelEqRw Abelian_Zero H))
-        (w : A) (h : A ⟦w, b⟧) (H' : h ;; g = h ;; ZeroArrow Abelian_Zero b c) :
-    h ;; CokernelArrow (Abelian_Cokernel f) =
-    ZeroArrow Abelian_Zero w (Abelian_Cokernel f).
+        (H : (KernelArrow (Image f)) ;; (CokernelArrow (CoImage g)) = ZeroArrow Abelian.Zero _ _)
+        (isEq : isEqualizer (CokernelArrow (CoImage g)) (ZeroArrow Abelian.Zero _ _)
+                            (KernelArrow (Image f)) (KernelEqRw Abelian.Zero H))
+        (w : A) (h : A ⟦w, b⟧) (H' : h ;; g = h ;; ZeroArrow Abelian.Zero b c) :
+    h ;; CokernelArrow (Abelian.Cokernel f) =
+    ZeroArrow Abelian.Zero w (Abelian.Cokernel f).
   Proof.
-    set (ker := mk_Kernel Abelian_Zero (KernelArrow (Image f)) (CokernelArrow (CoImage g)) H isEq).
+    set (ker := mk_Kernel Abelian.Zero (KernelArrow (Image f)) (CokernelArrow (CoImage g)) H isEq).
     rewrite ZeroArrow_comp_right in H'.
 
     (* Rewrite g in H' *)
-    set (fact := Abelian_factorization2 hs g).
-    unfold Abelian_factorization2_epi in fact. cbn in fact.
+    set (fact := factorization2 hs g).
+    unfold factorization2_epi in fact. cbn in fact.
     rewrite fact in H'. clear fact.
 
     (* Use commutativity of ker *)
     rewrite assoc in H'.
-    assert (X : h ;; CokernelArrow (CoImage g) = ZeroArrow Abelian_Zero _ _).
+    assert (X : h ;; CokernelArrow (CoImage g) = ZeroArrow Abelian.Zero _ _).
     {
-      apply (Abelian_factorization2_is_monic hs g).
+      apply (factorization2_is_monic hs g).
       rewrite ZeroArrow_comp_left.
       apply H'.
     }
-    set (comm1 := KernelCommutes Abelian_Zero ker w h X).
+    set (comm1 := KernelCommutes Abelian.Zero ker w h X).
     unfold ker in comm1. cbn in comm1.
 
     rewrite <- comm1. unfold Image. rewrite <- assoc.
@@ -611,14 +611,14 @@ Section shortexact_correspondence.
   Qed.
 
   Local Lemma ShortShortExact_from_isShortExact_isEqualizer {a b c : A} (f : a --> b) (g : b --> c)
-        (H : (KernelArrow (Image f)) ;; (CokernelArrow (CoImage g)) = ZeroArrow Abelian_Zero _ _)
-        (isEq : isEqualizer (CokernelArrow (CoImage g)) (ZeroArrow Abelian_Zero _ _)
-                            (KernelArrow (Image f)) (KernelEqRw Abelian_Zero H)) :
-    let SSED := mk_ShortShortExactData Abelian_Zero (mk_MorphismPair f g)
+        (H : (KernelArrow (Image f)) ;; (CokernelArrow (CoImage g)) = ZeroArrow Abelian.Zero _ _)
+        (isEq : isEqualizer (CokernelArrow (CoImage g)) (ZeroArrow Abelian.Zero _ _)
+                            (KernelArrow (Image f)) (KernelEqRw Abelian.Zero H)) :
+    let SSED := mk_ShortShortExactData Abelian.Zero (mk_MorphismPair f g)
                                        (ShortShortExact_from_isSortExact_eq f g H isEq) in
-    isEqualizer g (ZeroArrow Abelian_Zero b c)
+    isEqualizer g (ZeroArrow Abelian.Zero b c)
                 (KernelArrow (ShortShortExactData_Im SSED))
-                (KernelEqRw Abelian_Zero (ShortShortExactData_Im_Eq hs SSED)).
+                (KernelEqRw Abelian.Zero (ShortShortExactData_Im_Eq hs SSED)).
   Proof.
     cbn zeta.
     use mk_isEqualizer.
@@ -650,9 +650,9 @@ Section shortexact_correspondence.
      kernelarrow. Thus the assumptions are similar to assumptions of [ShortExact]. *)
   Definition ShortShortExact_from_isShortExact {a b c : A} (f : a --> b) (g : b --> c)
              (H : (KernelArrow (Image f)) ;; (CokernelArrow (CoImage g)) =
-                  ZeroArrow Abelian_Zero _ _)
-             (isEq : isEqualizer (CokernelArrow (CoImage g)) (ZeroArrow Abelian_Zero _ _)
-                                 (KernelArrow (Image f)) (KernelEqRw Abelian_Zero H)) :
+                  ZeroArrow Abelian.Zero _ _)
+             (isEq : isEqualizer (CokernelArrow (CoImage g)) (ZeroArrow Abelian.Zero _ _)
+                                 (KernelArrow (Image f)) (KernelEqRw Abelian.Zero H)) :
     ShortShortExact hs.
   Proof.
     use mk_ShortShortExact.
