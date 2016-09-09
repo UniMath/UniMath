@@ -392,11 +392,10 @@ Defined.
 
 Definition hneg (P : UU) : hProp := hProppair (¬ P) (isapropneg P).
 
-(* We introduce no notation (such as [¬P]) for [hneg], to discourage its use,
-   because it uses the axiom [funextempty]. *)
-
 (* use scope "logic" for notations that might conflict with others *)
 
+Notation "'¬' X" := (hneg X) (at level 35, right associativity) : logic.
+  (* type this in emacs in agda-input method with \neg *)
 Delimit Scope logic with logic.
 
 Definition himpl (P : UU) (Q : hProp) : hProp.
@@ -568,7 +567,7 @@ Proof.
   - exact (fun y => is (ii2 y)).
 Defined.
 
-Corollary fromnegcoprod_prop {X Y : hProp} : ¬ (X ∨ Y) -> hneg X ∧ hneg Y.
+Corollary fromnegcoprod_prop {X Y : hProp} : ¬ (X ∨ Y) -> ¬ X ∧ ¬ Y.
 Proof.
   intros ? ? n.
   simpl in *.
@@ -643,10 +642,6 @@ Definition pair_contradiction (C : ComplementaryPair) : Part1 C -> Part2 C -> �
 Definition chooser (C : ComplementaryPair) : Part1 C ⨿ Part2 C
   := pr2 (pr2 (pr2 C)).
 
-Definition to_ComplementaryPair {P} (c:P ⨿ ¬ P) : ComplementaryPair
-  := (P,,¬ P,,(λ p n, n p),,c).
-  (* we write [¬ P] because here [¬P] gives [hneg P], as the "logic" scope is on *)
-
 Definition isTrue  (C:ComplementaryPair) := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
 Definition isFalse (C:ComplementaryPair) := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
 
@@ -669,7 +664,7 @@ Defined.
 Lemma isTrue_or_isFalse (C:ComplementaryPair) : isTrue C ⨿ isFalse C.
 Proof. intros. exact (pr1 (complementaryDecisions C)). Defined.
 
-Lemma isaprop_isTrue (C:ComplementaryPair) : isaprop (isTrue C).
+Lemma isaprop_isTrue (C : ComplementaryPair) : isaprop (isTrue C).
 (* No axioms are used. *)
 Proof.
   intros.
@@ -712,47 +707,53 @@ Proof.
   - now exists q'.
 Defined.
 
-(* helper functions for the special case where [Q] is [¬ P] *)
+(**
 
-Definition isTrue_hProp {P:UU} (c:P ⨿ ¬ P) : hProp :=
+   We define some helper functions below for the special case where [Q] is [neg P]
+
+   By using [isTrue_hProp c] instead of [P], we're effectively replacing [P] by a propositional
+   subtype of it: the part of [P] connected to the element [c].
+
+   Similarly, by using [isFalse c] instead of [neg P], we're effectively replacing [neg P] by a
+   propositional subtype of it: the part of [neg P] connected to the element [c].
+
+   Both are proved to be propositions without [funextemptyAxiom].
+
+   One could also just map [P ⨿ neg P] to [bool] and compare the result with [true] or [false]: that
+   would also be a proposition.  But then the proof of truth or falsehood has been discarded, and it
+   will save time not to have to recompute it by running the decidability algorithm again.
+
+ *)
+
+Definition to_ComplementaryPair {P : UU} (c : P ⨿ neg P) : ComplementaryPair
+  := (P,,neg P,,(λ p n, n p),,c).
+
+Definition isTrue_hProp {P:UU} (c:P ⨿ neg P) : hProp :=
   let C := to_ComplementaryPair c in hProppair (isTrue C) (isaprop_isTrue C).
 
-Definition isFalse_hProp {P:UU} (c:P ⨿ ¬ P) : hProp :=
+Definition isFalse_hProp {P:UU} (c:P ⨿ neg P) : hProp :=
   let C := to_ComplementaryPair c in hProppair (isFalse C) (isaprop_isFalse C).
 
-Lemma isTrue_hProp_iff {P:UU} (c:P ⨿ ¬ P) : P <-> isTrue_hProp c.
+Lemma isTrue_hProp_iff {P:UU} (c:P ⨿ neg P) : P <-> isTrue_hProp c.
 Proof.
   intros. split.
   - intros p. now apply pair_truth.
   - intros t. exact (trueWitness t).
 Defined.
 
-Lemma isFalse_hProp_iff {P:UU} (c:P ⨿ ¬ P) : ¬ P <-> isFalse_hProp c.
+Lemma isFalse_hProp_iff {P:UU} (c:P ⨿ neg P) : neg P <-> isFalse_hProp c.
 Proof.
   intros. split.
   - intros p. now apply pair_falsehood.
   - intros t. exact (falseWitness t).
 Defined.
 
-Definition decprop_to_negProp {P:hProp} (c:P ⨿ ¬ P) : negProp P.
+Definition decprop_to_negProp {P:hProp} (c:P ⨿ neg P) : negProp P.
 Proof.
   intros. exists (isFalse_hProp c). split.
   - apply propproperty.
   - apply isFalse_hProp_iff.
 Defined.
-
-(*
-  By using [isTrue_hProp _] instead, we're effectively replacing P by a propositional subtype of it:
-  the part connected to the element of [P ⨿ ¬P].
-  Similarly, by using [isFalse_hProp _] instead, we're effectively replacing [¬P] by a propositional subtype of it.
-  Both are proved to be propositions without [funextempty]
-
-  One could also just map [P ⨿ ¬P] to [bool] and compare the result with [true]
-  or [false]: that would also be a proposition.  But then the proof of truth or
-  falsehood has been discarded, and it will save time not to have to recompute
-  it by running the decidability algorithm again.
-
- *)
 
 (* Relate isolated points to complementary pairs *)
 
