@@ -57,7 +57,7 @@ Ltac eqn_logic :=
           try apply functor_id;
           try apply functor_comp;
           try apply isaprop_is_nat_trans
-        )) using L.
+        )) using _L_.
 
 Ltac set_logic :=
   abstract (repeat (
@@ -66,12 +66,12 @@ Ltac set_logic :=
                 try apply isasetdirprod;
                 try apply homset_property;
                 try apply impred_isaset;
-                try apply isasetaprop)) using M.
+                try apply isasetaprop)) using _M_.
 
 Definition functorPrecategory (C D:Precategory) : Precategory.
 Proof.
   exists (functor_precategory C D (homset_property D)).
-  abstract set_logic using L.
+  abstract set_logic using _L_.
 Defined.
 
 Notation "[ C , D ]" := (functorPrecategory C D) : cat.
@@ -412,7 +412,7 @@ Proof.
   unshelve refine (makeFunctor _ _ _ _).
   { exact functor_opp. }
   { intros H I p. exists (λ b, pr1 p b).
-    abstract (intros b b' f; simpl; exact (! nat_trans_ax p _ _ f)) using L. }
+    abstract (intros b b' f; simpl; exact (! nat_trans_ax p _ _ f)) using _L_. }
   { abstract (intros H; now apply (nat_trans_eq (homset_property _))). }
   { abstract (intros H J K p q; now apply (nat_trans_eq (homset_property _))). }
 Defined.
@@ -427,8 +427,8 @@ Proof.
   unshelve refine (makeFunctor _ _ _ _).
   { exact functor_opp. }
   { intros H I p. exists (λ b, pr1 p b).
-    abstract (intros b b' f; simpl; exact (! nat_trans_ax p _ _ f)) using L. }
-  { abstract (intros H; now apply (nat_trans_eq (homset_property _))) using L. }
+    abstract (intros b b' f; simpl; exact (! nat_trans_ax p _ _ f)) using _L_. }
+  { abstract (intros H; now apply (nat_trans_eq (homset_property _))) using _L_. }
   { abstract (intros H J K p q; now apply (nat_trans_eq (homset_property _))). }
 Defined.
 
@@ -437,7 +437,7 @@ Proof.
   unshelve refine (makeFunctor _ _ _ _).
   { exact functor_opp. }
   { intros H I p. exists (λ b, pr1 p b).
-    abstract (intros b b' f; simpl; exact (! nat_trans_ax p _ _ f)) using L. }
+    abstract (intros b b' f; simpl; exact (! nat_trans_ax p _ _ f)) using _L_. }
   { abstract (intros H; now apply (nat_trans_eq (homset_property _))). }
   { abstract (intros H J K p q; now apply (nat_trans_eq (homset_property _))). }
 Defined.
@@ -450,17 +450,17 @@ Proof.
     { intros H H'. unshelve refine (gradth _ _ _ _).
       { simpl. intros p. unshelve refine (makeNattrans _ _).
         { intros b. exact (pr1 p b). }
-        { abstract (intros b b' f; simpl; exact (!nat_trans_ax p _ _ f)) using L. } }
+        { abstract (intros b b' f; simpl; exact (!nat_trans_ax p _ _ f)) using _L_. } }
       { abstract (intro p; apply nat_trans_eq;
                   [ apply homset_property
-                  | intro b; reflexivity ]) using L. }
+                  | intro b; reflexivity ]) using _L_. }
       { abstract (intro p; apply nat_trans_eq;
                   [ apply homset_property
-                  | intro b; reflexivity ]) using L. }}}
+                  | intro b; reflexivity ]) using _L_. }}}
   { simpl. unshelve refine (gradth _ _ _ _).
     { exact (functor_opp : B^op ==> C^op -> B ==> C). }
     { abstract (intros H; simpl; apply (functor_eq _ _ (homset_property C));
-                unshelve refine (total2_paths _ _); reflexivity) using L. }
+                unshelve refine (total2_paths _ _); reflexivity) using _L_. }
     { abstract (intros H; simpl; apply functor_eq;
                 [ exact (homset_property C^op)
                 | unshelve refine (total2_paths _ _); reflexivity]). } }
@@ -541,8 +541,8 @@ Proof.
   unshelve refine (makeFunctor _ _ _ _).
   - intros b. exact (F b,,h b).
   - intros b b' f. exact (# F f).
-  - abstract (intros b; simpl; apply functor_id) using L.
-  - abstract (intros b b' b'' f g; simpl; apply functor_comp) using L.
+  - abstract (intros b; simpl; apply functor_id) using _L_.
+  - abstract (intros b b' b'' f g; simpl; apply functor_comp) using _L_.
 Defined.
 
 Lemma identityFunction : Π (T:SET) (f:T-->T) (t:T:hSet), f = identity T -> f t = t.
@@ -565,7 +565,7 @@ Proof.
   - exact (λ _, d).
   - intros c c' f; simpl. exact (identity d).
   - intros c; simpl. reflexivity.
-  - abstract (simpl; intros a b c f g; apply pathsinv0, id_left) using L.
+  - abstract (simpl; intros a b c f g; apply pathsinv0, id_left) using _L_.
 Defined.
 
 (*  *)
@@ -579,11 +579,11 @@ Proof.
     unshelve refine (@makeNattrans A C (G □ F) (G' □ F) (λ a, p ◽ (F ◾ a)) _).
     abstract (
         intros a a' f; rewrite 2? nattrans_nattrans_object_assoc;
-        exact (nattrans_naturality p (F ▭ f))) using L.
+        exact (nattrans_naturality p (F ▭ f))) using _L_.
   - abstract (
-        intros G; now apply (nat_trans_eq (homset_property C))) using M.
+        intros G; now apply (nat_trans_eq (homset_property C))) using _M_.
   - abstract (
-        intros G G' G'' p q; now apply (nat_trans_eq (homset_property C))) using N.
+        intros G G' G'' p q; now apply (nat_trans_eq (homset_property C))) using _N_.
 Defined.
 
 (* zero maps, definition: *)
