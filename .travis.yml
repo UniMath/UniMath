@@ -16,5 +16,4 @@ env:
   - PACKAGE=Tactics BUILD_COQIDE=yes
   - PACKAGE=Folds
 script:
-  - lsb_release -a
   - time make TIMECMD=time $PACKAGE
