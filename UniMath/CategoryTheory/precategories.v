@@ -1133,7 +1133,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma transportf_isotoid_dep' (J C : precategory)
+Lemma transportf_isotoid_dep' (J : UU) (C : precategory)
   (F : J -> C)
    (a a' : C) (p : a = a') (f : Π c, a --> F c) :
  transportf (fun x : C => Π c, x --> F c) p f = fun c => idtoiso (!p) ;; f c.
