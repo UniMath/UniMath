@@ -678,10 +678,8 @@ Section BinCoproduct_zeroarrow.
   Variable C : precategory.
   Variable Z : Zero C.
 
-  Lemma BinCoproductArrowZero {x y z: C} {BP : BinCoproductCocone C x y}
-        (f : x --> z) (g : y --> z) :
-    f = ZeroArrow C Z _ _ -> g = ZeroArrow C Z _ _ ->
-    BinCoproductArrow C BP f g = ZeroArrow C Z _ _ .
+  Lemma BinCoproductArrowZero {x y z: C} {BP : BinCoproductCocone C x y} (f : x --> z) (g : y --> z) :
+    f = ZeroArrow Z _ _ -> g = ZeroArrow Z _ _ -> BinCoproductArrow C BP f g = ZeroArrow Z _ _ .
   Proof.
     intros X X0. apply pathsinv0.
     use BinCoproductArrowUnique.

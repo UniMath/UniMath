@@ -88,7 +88,7 @@ Section preadditive_with_zero.
 
   (** Proof that the zero arrow and the unit element coincide *)
   Lemma PreAdditive_unel_zero (Z : Zero A) (x y : A):
-    PrecategoryWithAbgrops_unel A x y = ZeroArrow A Z x y.
+    PrecategoryWithAbgrops_unel A x y = ZeroArrow Z x y.
   Proof.
     unfold ZeroArrow.
     rewrite <- (id_left A _ _ (ZeroArrowFrom y)).

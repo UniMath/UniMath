@@ -360,10 +360,8 @@ Section BinProduct_zeroarrow.
   Variable C : precategory.
   Variable Z : Zero C.
 
-  Lemma BinProductArrowZero {x y z: C} {BP : BinProductCone C x y}
-        (f : z --> x) (g : z --> y) :
-    f = ZeroArrow C Z _ _ -> g = ZeroArrow C Z _ _ ->
-    BinProductArrow C BP f g = ZeroArrow C Z _ _ .
+  Lemma BinProductArrowZero {x y z: C} {BP : BinProductCone C x y} (f : z --> x) (g : z --> y) :
+    f = ZeroArrow Z _ _ -> g = ZeroArrow Z _ _ -> BinProductArrow C BP f g = ZeroArrow Z _ _ .
   Proof.
     intros X X0. apply pathsinv0.
     use BinProductArrowUnique.

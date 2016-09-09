@@ -397,7 +397,7 @@ Section bindirectsums_criteria.
 
   Definition BinDirectSums_from_binproduct_bincoproducts_eq1
              {X Y : A} (P : BinProductCone A X Y):
-    BinProductArrow A P (identity X) (ZeroArrow A Z X Y) ;; BinProductPr1 A P
+    BinProductArrow A P (identity X) (ZeroArrow Z X Y) ;; BinProductPr1 A P
     = identity _ .
   Proof.
     apply BinProductPr1Commutes.
@@ -405,7 +405,7 @@ Section bindirectsums_criteria.
 
   Definition BinDirectSums_from_binproduct_bincoproducts_eq2
              {X Y : A} (P : BinProductCone A X Y):
-    BinProductArrow A P (identity X) (ZeroArrow A Z X Y) ;; BinProductPr2 A P =
+    BinProductArrow A P (identity X) (ZeroArrow Z X Y) ;; BinProductPr2 A P =
       PrecategoryWithAbgrops_unel A X Y.
   Proof.
     rewrite (PreAdditive_unel_zero A Z).
@@ -414,7 +414,7 @@ Section bindirectsums_criteria.
 
   Definition BinDirectSums_from_binproduct_bincoproducts_eq3
              {X Y : A} (P : BinProductCone A X Y):
-    BinProductArrow A P (ZeroArrow A Z Y X) (identity _ ) ;; BinProductPr1 A P
+    BinProductArrow A P (ZeroArrow Z Y X) (identity _ ) ;; BinProductPr1 A P
     = PrecategoryWithAbgrops_unel A Y X.
   Proof.
     rewrite (PreAdditive_unel_zero A Z).
@@ -423,7 +423,7 @@ Section bindirectsums_criteria.
 
   Definition BinDirectSums_from_binproduct_bincoproducts_eq4
              {X Y : A} (P : BinProductCone A X Y):
-    BinProductArrow A P (ZeroArrow A Z Y X) (identity _ ) ;; BinProductPr2 A P
+    BinProductArrow A P (ZeroArrow Z Y X) (identity _ ) ;; BinProductPr2 A P
     = identity _ .
   Proof.
     apply BinProductPr2Commutes.
@@ -434,9 +434,9 @@ Section bindirectsums_criteria.
     PrecategoryWithBinOps_binop A (BinProductObject A P) (BinProductObject A P)
                                 (BinProductPr1 A P ;; BinProductArrow A P
                                                (identity X)
-                                               (ZeroArrow A Z X Y))
+                                               (ZeroArrow Z X Y))
                                 (BinProductPr2 A P ;; BinProductArrow A P
-                                               (ZeroArrow A Z Y X)
+                                               (ZeroArrow Z Y X)
                                                (identity Y))
     = identity _ .
   Proof.
@@ -444,9 +444,9 @@ Section bindirectsums_criteria.
     set (tmp := (PreAdditive_postmor_linear
                    A _ _ _ (BinProductPr1 A P)
                    (BinProductPr1 A P ;; BinProductArrow A P
-                                  (identity X) (ZeroArrow A Z X Y))
+                                  (identity X) (ZeroArrow Z X Y))
                    (BinProductPr2 A P ;; BinProductArrow A P
-                                  (ZeroArrow A Z Y X) (identity Y)))).
+                                  (ZeroArrow Z Y X) (identity Y)))).
     unfold PrecategoryWithAbgrops_postmor in tmp. cbn in tmp. rewrite tmp.
     rewrite <- assoc. rewrite <- assoc.
     rewrite BinProductPr1Commutes. rewrite BinProductPr1Commutes.
@@ -458,9 +458,9 @@ Section bindirectsums_criteria.
     set (tmp := (PreAdditive_postmor_linear
                    A _ _ _ (BinProductPr2 A P)
                    (BinProductPr1 A P ;; BinProductArrow A P
-                                  (identity X) (ZeroArrow A Z X Y))
+                                  (identity X) (ZeroArrow Z X Y))
                    (BinProductPr2 A P ;; BinProductArrow A P
-                                  (ZeroArrow A Z Y X) (identity Y)))).
+                                  (ZeroArrow Z Y X) (identity Y)))).
     unfold PrecategoryWithAbgrops_postmor in tmp. cbn in tmp. rewrite tmp.
     rewrite <- assoc. rewrite <- assoc.
     rewrite BinProductPr2Commutes. rewrite BinProductPr2Commutes.
@@ -473,8 +473,8 @@ Section bindirectsums_criteria.
   Definition BinDirectSums_from_binproduct_bincoproducts_isCoproduct
              {X Y : A} (P : BinProductCone A X Y) :
     isBinCoproductCocone A X Y (BinProductObject A P)
-    (BinProductArrow A P (identity X) (ZeroArrow A Z X Y))
-    (BinProductArrow A P (ZeroArrow A Z Y X) (identity Y)).
+    (BinProductArrow A P (identity X) (ZeroArrow Z X Y))
+    (BinProductArrow A P (ZeroArrow Z Y X) (identity Y)).
   Proof.
     use mk_isBinCoproductCocone.
     exact hs.
@@ -486,7 +486,7 @@ Section bindirectsums_criteria.
     split.
     set (tmp := (PreAdditive_premor_linear
                    A _ _ c (BinProductArrow A P (identity X)
-                                            (ZeroArrow A Z X Y))
+                                            (ZeroArrow Z X Y))
 
                    (BinProductPr1 A P ;; f)
                    (BinProductPr2 A P ;; g))).
@@ -502,7 +502,7 @@ Section bindirectsums_criteria.
     apply PrecategoryWithAbgrops_runax.
 
     set (tmp := (PreAdditive_premor_linear
-                   A _ _ c (BinProductArrow A P (ZeroArrow A Z Y X)
+                   A _ _ c (BinProductArrow A P (ZeroArrow Z Y X)
                            (identity Y))
                    (BinProductPr1 A P ;; f)
                    (BinProductPr2 A P ;; g))).
@@ -524,9 +524,9 @@ Section bindirectsums_criteria.
     set (tmp := (PreAdditive_postmor_linear
                    A _ _ _ y
                    (BinProductPr1 A P ;; BinProductArrow A P
-                                  (identity X) (ZeroArrow A Z X Y))
+                                  (identity X) (ZeroArrow Z X Y))
                    (BinProductPr2 A P ;; BinProductArrow A P
-                                  (ZeroArrow A Z Y X) (identity Y)))).
+                                  (ZeroArrow Z Y X) (identity Y)))).
     unfold PrecategoryWithAbgrops_postmor in tmp. cbn in tmp.
     rewrite <- tmp.
     rewrite (BinDirectSums_from_binproduct_bincoproducts_eq5 P).
@@ -561,8 +561,8 @@ Section bindirectsums_criteria.
     := mk_BinDirectSumCone
          A X Y
          (BinProductObject A P)
-         (BinProductArrow A P (identity X) (ZeroArrow A Z X Y))
-         (BinProductArrow A P (ZeroArrow A Z Y X) (identity Y))
+         (BinProductArrow A P (identity X) (ZeroArrow Z X Y))
+         (BinProductArrow A P (ZeroArrow Z Y X) (identity Y))
          (BinProductPr1 A P)
          (BinProductPr2 A P)
          (mk_isBinDirectSumCone

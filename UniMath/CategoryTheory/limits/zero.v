@@ -123,5 +123,6 @@ End def_zero.
 Arguments ZeroObject [C] _.
 Arguments ZeroArrowTo [C]{Z} b.
 Arguments ZeroArrowFrom [C]{Z} b.
+Arguments ZeroArrow [C] _ _ _.
 Arguments mk_isZero {_} _ _ _ .
 Arguments mk_Zero {_} _ _ .
