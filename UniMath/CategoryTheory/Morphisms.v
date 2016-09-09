@@ -20,6 +20,7 @@ Section def_morphismpair.
   Variable C : precategory.
 
   Definition MorphismPair : UU := Σ (a b c : C), (a --> b × b --> c).
+
   Definition mk_MorphismPair {a b c : C} (f : a --> b) (g : b --> c) : MorphismPair.
   Proof.
     use tpair.
@@ -34,25 +35,23 @@ Section def_morphismpair.
   Defined.
 
   (** Accessor function *)
-  Definition MorphismPairOb1 (MP : MorphismPair) : ob C := pr1 MP.
+  Definition Ob1 (MP : MorphismPair) : ob C := pr1 MP.
 
-  Definition MorphismPairOb2 (MP : MorphismPair) : ob C := pr1 (pr2 MP).
+  Definition Ob2 (MP : MorphismPair) : ob C := pr1 (pr2 MP).
 
-  Definition MorphismPairOb3 (MP : MorphismPair) : ob C := pr1 (pr2 (pr2 MP)).
+  Definition Ob3 (MP : MorphismPair) : ob C := pr1 (pr2 (pr2 MP)).
 
-  Definition MorphismPairMor1 (MP : MorphismPair) :
-    C⟦MorphismPairOb1 MP, MorphismPairOb2 MP⟧ := dirprod_pr1 (pr2 (pr2 (pr2 MP))).
+  Definition Mor1 (MP : MorphismPair) : C⟦Ob1 MP, Ob2 MP⟧ := dirprod_pr1 (pr2 (pr2 (pr2 MP))).
 
-  Definition MorphismPairMor2 (MP : MorphismPair) :
-    C⟦MorphismPairOb2 MP, MorphismPairOb3 MP⟧ := dirprod_pr2 (pr2 (pr2 (pr2 MP))).
+  Definition Mor2 (MP : MorphismPair) : C⟦Ob2 MP, Ob3 MP⟧ := dirprod_pr2 (pr2 (pr2 (pr2 MP))).
 
 End def_morphismpair.
 Arguments mk_MorphismPair [C] [a] [b] [c] _ _.
-Arguments MorphismPairOb1 [C] _.
-Arguments MorphismPairOb2 [C] _.
-Arguments MorphismPairOb3 [C] _.
-Arguments MorphismPairMor1 [C] _.
-Arguments MorphismPairMor2 [C] _.
+Arguments Ob1 [C] _.
+Arguments Ob2 [C] _.
+Arguments Ob3 [C] _.
+Arguments Mor1 [C] _.
+Arguments Mor2 [C] _.
 
 (** * ShortShortExactData *)
 Section def_shortshortexactdata.
@@ -66,11 +65,10 @@ Section def_shortshortexactdata.
     morphism. *)
 
   Definition ShortShortExactData : UU :=
-    Σ MP : MorphismPair C, MorphismPairMor1 MP ;; MorphismPairMor2 MP = ZeroArrow Z _ _.
+    Σ MP : MorphismPair C, Mor1 MP ;; Mor2 MP = ZeroArrow Z _ _.
 
   Definition mk_ShortShortExactData (MP : MorphismPair C)
-             (H : MorphismPairMor1 MP ;; MorphismPairMor2 MP = ZeroArrow Z _ _) :
-    ShortShortExactData.
+             (H : Mor1 MP ;; Mor2 MP = ZeroArrow Z _ _) : ShortShortExactData.
   Proof.
     use tpair.
     - exact MP.
@@ -83,7 +81,7 @@ Section def_shortshortexactdata.
   Coercion ShortShortExactData_MorphismPair : ShortShortExactData >-> MorphismPair.
 
   Definition ShortShortExactData_Eq (SSED : ShortShortExactData) :
-    (MorphismPairMor1 SSED) ;; (MorphismPairMor2 SSED) = ZeroArrow Z _ _ := pr2 SSED.
+    (Mor1 SSED) ;; (Mor2 SSED) = ZeroArrow Z _ _ := pr2 SSED.
 
 End def_shortshortexactdata.
 Arguments mk_ShortShortExactData [C] _ _ _.
