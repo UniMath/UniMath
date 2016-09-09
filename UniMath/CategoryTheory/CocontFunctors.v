@@ -9,37 +9,41 @@ The main result is Adámek's theorem for constructing initial algebras of omega-
 This file also contains proofs that the following functors are (omega-)cocontinuous:
 
 - Identity functor
-  [is_omega_cocont_functor_identity]
+  [is_cocont_functor_identity] [is_omega_cocont_functor_identity]
 - Constant functor: F_x : C -> D, c |-> x
   [is_omega_cocont_constant_functor]
 - Composition of omega-cocontinuous functors
-  [is_omega_cocont_functor_composite]
+  [is_cocont_functor_composite] [is_omega_cocont_functor_composite]
 - Iteration of omega-cocontinuous functors: F^n : C -> C
-  [is_omega_cocont_iter_functor]
-- Pairing of omega-cocont functors (F,G) : A * B -> C * D, (x,y) |-> (F x,G y)
-  [is_omega_cocont_binproduct_pair_functor]
-- Indexed families of omega-cocont functors F^I : A^I -> B^I
-  [is_omega_cocont_pair_functor]
+  [is_cocont_iter_functor] [is_omega_cocont_iter_functor]
+- Pairing of (omega-)cocont functors (F,G) : A * B -> C * D, (x,y) |-> (F x,G y)
+  [is_cocont_binproduct_pair_functor] [is_omega_cocont_binproduct_pair_functor]
+- Indexed families of (omega-)cocont functors F^I : A^I -> B^I
+  [is_cocont_pair_functor] [is_omega_cocont_pair_functor]
 - Binary delta functor: C -> C^2, x |-> (x,x)
-  [cocont_bindelta_functor] [is_omega_cocont_bindelta_functor]
+  [is_cocont_bindelta_functor] [is_omega_cocont_bindelta_functor]
 - General delta functor: C -> C^I
-  [is_omega_cocont_delta_functor]
+  [is_cocont_delta_functor] [is_omega_cocont_delta_functor]
 - Binary coproduct functor: C^2 -> C, (x,y) |-> x + y
-  [cocont_bincoproduct_functor] [is_omega_cocont_bincoproduct_functor]
+  [is_cocont_bincoproduct_functor] [is_omega_cocont_bincoproduct_functor]
 - General coproduct functor: C^I -> C
-  [cocont_indexed_coproduct_functor] [is_omega_cocont_indexed_coproduct_functor]
-- Binary coproduct of functors: F + G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x + G x
+  [is_cocont_indexed_coproduct_functor] [is_omega_cocont_indexed_coproduct_functor]
+- Binary coproduct of functors: F + G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x
+ + G x
+  [is_cocont_BinCoproduct_of_functors_alt] [is_cocont_BinCoproduct_of_functors]
   [is_omega_cocont_BinCoproduct_of_functors_alt] [is_omega_cocont_BinCoproduct_of_functors]
 - Coproduct of families of functors: + F_i : C -> D  (generalization of coproduct of functors)
+  [is_cocont_coproduct_of_functors_alt] [is_cocont_coproduct_of_functors]
   [is_omega_cocont_coproduct_of_functors_alt] [is_omega_cocont_coproduct_of_functors]
 - Constant product functors: C -> C, x |-> a * x  and  x |-> x * a
+  [is_cocont_constprod_functor1] [is_cocont_constprod_functor2]
   [is_omega_cocont_constprod_functor1] [is_omega_cocont_constprod_functor2]
 - Binary product functor: C^2 -> C, (x,y) |-> x * y
   [is_omega_cocont_binproduct_functor]
 - Product of functors: F * G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x * G x
   [is_omega_cocont_BinProduct_of_functors_alt] [is_omega_cocont_BinProduct_of_functors]
 - Precomposition functor: _ o K : ⟦C,A⟧ -> ⟦M,A⟧ for K : M -> C
-  [is_omega_cocont_pre_composition_functor]
+  [is_cocont_pre_composition_functor] [is_omega_cocont_pre_composition_functor]
 
 
 Written by: Anders Mörtberg and Benedikt Ahrens, 2015-2016
@@ -539,14 +543,14 @@ mkpair.
     | apply (colimArrowUnique CC); intro n; apply (pr2 t)]).
 Defined.
 
-Lemma is_cocont_identity : is_cocont (functor_identity C).
+Lemma is_cocont_functor_identity : is_cocont (functor_identity C).
 Proof.
 now intros g; apply preserves_colimit_identity.
 Defined.
 
 Lemma is_omega_cocont_functor_identity : is_omega_cocont (functor_identity C).
 Proof.
-now intros c; apply is_cocont_identity.
+now intros c; apply is_cocont_functor_identity.
 Defined.
 
 Definition omega_cocont_functor_identity : omega_cocont_functor C C :=
@@ -635,8 +639,16 @@ Definition omega_cocont_functor_composite
 
 End functor_composite.
 
-(** ** Functor iteration preserves omega cocontinuity *)
+(** ** Functor iteration preserves (omega)-cocontinuity *)
 Section iter_functor.
+
+Lemma is_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
+  (F : functor C C) (hF : is_cocont F) n : is_cocont (iter_functor F n).
+Proof.
+induction n as [|n IH]; simpl.
+- apply (is_cocont_functor_identity hsC).
+- apply (is_cocont_functor_composite hsC _ _ IH hF).
+Defined.
 
 Lemma is_omega_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
   (F : functor C C) (hF : is_omega_cocont F) n : is_omega_cocont (iter_functor F n).
@@ -997,6 +1009,18 @@ Section BinCoproduct_of_functors.
 Context {C D : precategory} (PC : BinProducts C) (HD : BinCoproducts D)
         (hsC : has_homsets C) (hsD : has_homsets D).
 
+
+Lemma is_cocont_BinCoproduct_of_functors_alt {F G : functor C D}
+  (HF : is_cocont F) (HG : is_cocont G) :
+  is_cocont (BinCoproduct_of_functors_alt HD F G).
+Proof.
+apply (is_cocont_functor_composite hsD).
+  apply (is_cocont_bindelta_functor PC hsC).
+apply (is_cocont_functor_composite hsD).
+  apply (is_cocont_binproduct_pair_functor _ _ hsC hsC hsD hsD HF HG).
+apply (is_cocont_bincoproduct_functor _ hsD).
+Defined.
+
 Lemma is_omega_cocont_BinCoproduct_of_functors_alt {F G : functor C D}
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
   is_omega_cocont (BinCoproduct_of_functors_alt HD F G).
@@ -1011,6 +1035,15 @@ Defined.
 Definition omega_cocont_BinCoproduct_of_functors_alt (F G : omega_cocont_functor C D) :
   omega_cocont_functor C D :=
     tpair _ _ (is_omega_cocont_BinCoproduct_of_functors_alt (pr2 F) (pr2 G)).
+
+Lemma is_cocont_BinCoproduct_of_functors (F G : functor C D)
+  (HF : is_cocont F) (HG : is_cocont G) :
+  is_cocont (BinCoproduct_of_functors _ _ HD F G).
+Proof.
+exact (transportf _
+         (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors C D HD hsD F G)
+         (is_cocont_BinCoproduct_of_functors_alt HF HG)).
+Defined.
 
 Lemma is_omega_cocont_BinCoproduct_of_functors (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
@@ -1034,6 +1067,17 @@ Section coproduct_of_functors.
 Context {I : UU} {C D : precategory} (PC : Products I C) (HD : Coproducts I D)
         (hsC : has_homsets C) (hsD : has_homsets D) (HI : isdeceq I).
 
+Lemma is_cocont_coproduct_of_functors_alt (F : Π i, functor C D)
+  (HF : Π i, is_cocont (F i)) :
+  is_cocont (coproduct_of_functors_alt _ HD F).
+Proof.
+apply (is_cocont_functor_composite hsD).
+  apply (is_cocont_delta_functor PC hsC).
+apply (is_cocont_functor_composite hsD).
+  apply (is_cocont_pair_functor hsC hsD HI HF).
+apply (is_cocont_indexed_coproduct_functor _ hsD).
+Defined.
+
 Lemma is_omega_cocont_coproduct_of_functors_alt (F : Π i, functor C D)
   (HF : Π i, is_omega_cocont (F i)) :
   is_omega_cocont (coproduct_of_functors_alt _ HD F).
@@ -1049,6 +1093,15 @@ Definition omega_cocont_coproduct_of_functors_alt
   (F : Π i, omega_cocont_functor C D) :
   omega_cocont_functor C D :=
     tpair _ _ (is_omega_cocont_coproduct_of_functors_alt _ (fun i => pr2 (F i))).
+
+Lemma is_cocont_coproduct_of_functors (F : Π (i : I), functor C D)
+  (HF : Π i, is_cocont (F i)) :
+  is_cocont (coproduct_of_functors I _ _ HD F).
+Proof.
+exact (transportf _
+        (coproduct_of_functors_alt_eq_coproduct_of_functors I C D HD hsD F)
+        (is_cocont_coproduct_of_functors_alt _ HF)).
+Defined.
 
 Lemma is_omega_cocont_coproduct_of_functors (F : Π (i : I), functor C D)
   (HF : Π i, is_omega_cocont (F i)) :
