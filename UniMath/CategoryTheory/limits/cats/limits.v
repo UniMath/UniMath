@@ -265,6 +265,40 @@ split.
 Defined.
 *)
 
+Definition iso_from_lim_to_lim {J C : precategory} {F : functor J C}
+  (CC CC' : LimCone F) : iso (lim CC) (lim CC').
+Proof.
+use isopair.
+- apply limArrow, limCone.
+- use is_iso_qinv.
+  + apply limArrow, limCone.
+  + abstract (now split; apply pathsinv0, lim_endo_is_identity; intro u;
+              rewrite <- assoc, limArrowCommutes; eapply pathscomp0; try apply limArrowCommutes).
+Defined.
+
+Section Universal_Unique.
+
+Context {C : precategory} (H : is_category C).
+
+Lemma isaprop_Lims: isaprop (Lims C).
+Proof.
+apply impred; intro J; apply impred; intro F.
+apply invproofirrelevance; intros Hccx Hccy.
+apply subtypeEquality.
+- intro; apply isaprop_isLimCone.
+- apply (total2_paths (isotoid _ H (iso_from_lim_to_lim Hccx Hccy))).
+  set (B c := Π v, C⟦c,F v⟧).
+  set (C' (c : C) f := Π u v (e : J⟦u,v⟧), @compose _ c _ _ (f u) (# F e) = f v).
+  rewrite (@transportf_total2 _ B C').
+  apply subtypeEquality.
+  + intro; repeat (apply impred; intro); apply (pr2 H).
+  + abstract (now simpl; eapply pathscomp0; [apply transportf_isotoid_dep'|];
+              apply funextsec; intro v; rewrite inv_isotoid, idtoiso_isotoid;
+              cbn; unfold precomp_with; rewrite id_right; apply limArrowCommutes).
+Qed.
+
+End Universal_Unique.
+
 End lim_def.
 
 Arguments Lims : clear implicits.
