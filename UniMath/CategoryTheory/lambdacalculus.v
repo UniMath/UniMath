@@ -18,12 +18,11 @@ Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.cats.limits.
-Require Import UniMath.CategoryTheory.chains.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
 Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
-Require Import UniMath.CategoryTheory.cocontfunctors.
+Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 
@@ -59,10 +58,10 @@ Proof.
 apply (Initial_functor_precat _ _ InitialHSET).
 Defined.
 
-Local Notation "' x" := (omega_cocont_constant_functor _ _ has_homsets_HSET2 x)
+Local Notation "' x" := (omega_cocont_constant_functor has_homsets_HSET2 x)
                           (at level 10).
 
-Local Notation "'Id'" := (omega_cocont_functor_identity _ has_homsets_HSET2).
+Local Notation "'Id'" := (omega_cocont_functor_identity has_homsets_HSET2).
 
 Local Notation "F * G" :=
   (omega_cocont_BinProduct_of_functors_alt _ _ BinProductsHSET2 _
@@ -87,7 +86,7 @@ Let is_omega_cocont_lambdaFunctor : is_omega_cocont lambdaFunctor :=
 Lemma lambdaFunctor_Initial :
   Initial (precategory_FunctorAlg lambdaFunctor has_homsets_HSET2).
 Proof.
-apply (colimAlgInitial _ _ _ is_omega_cocont_lambdaFunctor InitialHSET2).
+apply (colimAlgInitial _ _ InitialHSET2 _ is_omega_cocont_lambdaFunctor).
 apply ColimsFunctorCategory; apply ColimsHSET.
 Defined.
 

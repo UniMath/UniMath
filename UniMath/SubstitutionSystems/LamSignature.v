@@ -39,6 +39,10 @@ Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.Notation.
+Require Import UniMath.CategoryTheory.CocontFunctors.
+Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.limits.cats.limits.
 
 Arguments θ_source {_ _} _ .
 Arguments θ_target {_ _} _ .
@@ -81,10 +85,6 @@ Proof.
   exact CP.
 Defined.
 
-Require Import UniMath.CategoryTheory.chains.
-Require Import UniMath.CategoryTheory.cocontfunctors.
-Require Import UniMath.CategoryTheory.exponentials.
-
 Lemma is_omega_cocont_App_H (hE : has_exponentials (BinProducts_functor_precat C C CP hs)) :
   is_omega_cocont App_H.
 Proof.
@@ -94,8 +94,8 @@ apply is_omega_cocont_BinProduct_of_functors.
 - apply hE.
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.
-- apply (is_omega_cocont_functor_identity _ (functor_category_has_homsets _ _ hs)).
-- apply (is_omega_cocont_functor_identity _ (functor_category_has_homsets _ _ hs)).
+- apply (is_omega_cocont_functor_identity (functor_category_has_homsets _ _ hs)).
+- apply (is_omega_cocont_functor_identity (functor_category_has_homsets _ _ hs)).
 Defined.
 
 (**
@@ -162,9 +162,6 @@ Defined.
 (*     simpl. *)
 (*     apply idpath. *)
 (* Qed. *)
-
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.cats.limits.
 
 Definition Abs_H : functor [C, C, hs] [C, C, hs] :=
  (* tpair _ _ is_functor_Abs_H_data. *)

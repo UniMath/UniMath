@@ -22,7 +22,7 @@ Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
-(** ** Definition of limits *)
+(** * Definition of limits *)
 
 Section lim_def.
 
@@ -319,7 +319,7 @@ End lim_def.
 Arguments Lims : clear implicits.
 
 
-(** ** Limits in functor categories *)
+(** * Limits in functor categories *)
 
 Section LimFunctor.
 
@@ -442,7 +442,7 @@ Defined.
 
 
 
-(** ** Definition of limits via colimits *)
+(** * Definition of limits via colimits *)
 
 (** Put in a module for namespace reasons *)
 
