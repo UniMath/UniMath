@@ -354,7 +354,7 @@ simple refine (tpair _ _ _).
     now rewrite <- (Hf u), assoc, colimArrowCommutes.
 Defined.
 
-Definition iso_from_Colim_to_Colim {g : graph} {d : diagram g C}
+Definition iso_from_colim_to_colim {g : graph} {d : diagram g C}
   (CC CC' : ColimCocone d) : iso (colim CC) (colim CC').
 Proof.
 use isopair.
@@ -375,7 +375,7 @@ apply impred; intro g; apply impred; intro cc.
 apply invproofirrelevance; intros Hccx Hccy.
 apply subtypeEquality.
 - intro; apply isaprop_isColimCocone.
-- apply (total2_paths (isotoid _ H (iso_from_Colim_to_Colim Hccx Hccy))).
+- apply (total2_paths (isotoid _ H (iso_from_colim_to_colim Hccx Hccy))).
   set (B c := Π v, C⟦dob cc v,c⟧).
   set (C' (c : C) f := Π u v (e : edge u v), @compose _ _ _ c (dmor cc e) (f v) = f u).
   rewrite (@transportf_total2 _ B C').
