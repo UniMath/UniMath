@@ -1133,15 +1133,19 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma transportf_isotoid_dep' (J : UU) (C : precategory)
-  (F : J -> C)
-   (a a' : C) (p : a = a') (f : Π c, a --> F c) :
- transportf (fun x : C => Π c, x --> F c) p f = fun c => idtoiso (!p) ;; f c.
+Lemma transportf_isotoid_dep' (J : UU) (C : precategory) (F : J -> C)
+  (a a' : C) (p : a = a') (f : Π c, a --> F c) :
+  transportf (fun x : C => Π c, x --> F c) p f = fun c => idtoiso (!p) ;; f c.
 Proof.
-  destruct p.
-  apply funextsec.
-  intro. simpl.
-  apply (! id_left _ _ _ _).
+  now destruct p; apply funextsec; intro x; rewrite id_left.
+Defined.
+
+(* This and the above name is not very good... *)
+ Lemma transportf_isotoid_dep'' (J : UU) (C : precategory) (F : J -> C)
+   (a a' : C) (p : a = a') (f : Π c, F c --> a) :
+   transportf (fun x : C => Π c, F c --> x) p f = fun c => f c ;; idtoiso p.
+Proof.
+  now destruct p; apply funextsec; intro x; rewrite id_right.
 Defined.
 
 
