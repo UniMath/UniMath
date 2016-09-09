@@ -354,47 +354,6 @@ simple refine (tpair _ _ _).
     now rewrite <- (Hf u), assoc, colimArrowCommutes.
 Defined.
 
-Section Universal_Unique.
-
-Hypothesis H : is_category C.
-
-
-(* Definition from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a} *)
-(*    (Pb Pb': Pullback f g) : Pb --> Pb'. *)
-(* Proof. *)
-(*   apply (PullbackArrow Pb' Pb (PullbackPr1 _ ) (PullbackPr2 _)). *)
-(*   exact (PullbackSqrCommutes _ ). *)
-(* Defined. *)
-
-
-(* Lemma are_inverses_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a} *)
-(*    (Pb Pb': Pullback f g) : *)
-(* is_inverse_in_precat (from_Pullback_to_Pullback Pb Pb') *)
-(*   (from_Pullback_to_Pullback Pb' Pb). *)
-(* Proof. *)
-(*   split; apply pathsinv0; *)
-(*   apply PullbackEndo_is_identity; *)
-(*   rewrite <- assoc; *)
-(*   unfold from_Pullback_to_Pullback; *)
-(*   repeat rewrite PullbackArrow_PullbackPr1; *)
-(*   repeat rewrite PullbackArrow_PullbackPr2; *)
-(*   auto. *)
-(* Qed. *)
-
-
-(* Lemma isiso_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a} *)
-(*    (Pb Pb': Pullback f g) : *)
-(*       is_isomorphism (from_Pullback_to_Pullback Pb Pb'). *)
-(* Proof. *)
-(*   apply (is_iso_qinv _ (from_Pullback_to_Pullback Pb' Pb)). *)
-(*   apply are_inverses_from_Pullback_to_Pullback. *)
-(* Defined. *)
-
-
-(* Definition iso_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a} *)
-(*    (Pb Pb': Pullback f g) : iso Pb Pb' := *)
-(*   tpair _ _ (isiso_from_Pullback_to_Pullback Pb Pb'). *)
-
 Definition iso_from_Colim_to_Colim {g : graph} {d : diagram g C}
   (CC CC' : ColimCocone d) : iso (colim CC) (colim CC').
 Proof.
@@ -406,49 +365,25 @@ use isopair.
               rewrite assoc, colimArrowCommutes; eapply pathscomp0; try apply colimArrowCommutes).
 Defined.
 
-Lemma my_transportf_isotoid_dep' (J : UU)
-  (F : J -> C)
-   (a a' : C) (p : a = a') (f : Π c, F c --> a) :
- transportf (fun x : C => Π c, F c --> x) p f = fun c => f c ;; idtoiso p.
-Proof.
-  destruct p.
-  apply funextsec.
-  intro. simpl.
-  apply (! id_right _ _ _ _).
-Defined.
+Section Universal_Unique.
+
+Hypothesis H : is_category C.
 
 Lemma isaprop_Colims: isaprop Colims.
 Proof.
 apply impred; intro g; apply impred; intro cc.
-apply invproofirrelevance.
-intros Hccx Hccy.
+apply invproofirrelevance; intros Hccx Hccy.
 apply subtypeEquality.
 - intro; apply isaprop_isColimCocone.
--
-apply (total2_paths (isotoid _ H (iso_from_Colim_to_Colim Hccx Hccy))).
-set (B c := forall v : vertex g, precategory_morphisms (dob cc v) c).
-set (C0 c f := forall (u v : vertex g) (e : edge u v),
-           paths (@compose _ _ _ c (dmor cc e) (f v)) (f u)).
-assert (test : forall (x1 x2 : C)
-          (p : x1 = x2) (yz : total2 (fun y : B x1 => C0 x1 y)),
-        transportf (λ c : C, total2 (fun y : B c => C0 c y)) p yz =
-          (transportf B p (pr1 yz),,transportD B C0 p (pr1 yz) (pr2 yz))).
-  apply @transportf_total2.
-rewrite test. (* GAH!!! *)
-
-apply subtypeEquality.
-intro.
-apply impred; intro.
-apply impred; intro.
-apply impred; intro.
-apply hsC.
-simpl.
-eapply pathscomp0.
-apply (my_transportf_isotoid_dep' (vertex g)).
-apply funextsec; intro v.
-rewrite idtoiso_isotoid.
-simpl.
-apply colimArrowCommutes.
+- apply (total2_paths (isotoid _ H (iso_from_Colim_to_Colim Hccx Hccy))).
+  set (B c := Π v, C⟦dob cc v,c⟧).
+  set (C' (c : C) f := Π u v (e : edge u v), @compose _ _ _ c (dmor cc e) (f v) = f u).
+  rewrite (@transportf_total2 _ B C').
+  apply subtypeEquality.
+  + intro; repeat (apply impred; intro); apply hsC.
+  + simpl; eapply pathscomp0; [apply transportf_isotoid_dep''|].
+    apply funextsec; intro v.
+    now rewrite idtoiso_isotoid; apply colimArrowCommutes.
 Qed.
 
 End Universal_Unique.
