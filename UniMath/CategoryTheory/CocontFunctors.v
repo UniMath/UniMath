@@ -465,52 +465,75 @@ Defined.
 
 (* Print Assumptions left_adjoint_cocont. *)
 
+(** Cocontinuity is preserved by isomorphic functors *)
 Section cocont_iso.
 
 Context {C D : precategory} (hsD : has_homsets D) {F G : functor C D} (αiso : @iso [C,D,hsD] F G).
 
-Lemma preserves_colimit_iso (g : graph) (d : diagram g C) (L : C) (cc : cocone d L) :
-  preserves_colimit F d L cc → preserves_colimit G d L cc.
+Section preserves_colimit_iso.
+
+Context {g : graph} (d : diagram g C) (L : C) (cc : cocone d L) (HF : preserves_colimit F d L cc).
+
+Let αinv := inv_from_iso αiso.
+Let α := pr1 αiso.
+Let Hα : is_iso α := pr2 αiso.
+
+Local Definition ccFy y (ccGy : cocone (mapdiagram G d) y) : cocone (mapdiagram F d) y.
 Proof.
-intros HF HccL y ccy.
-set (αinv := inv_from_iso αiso).
-destruct αiso as [α Hα].
-simpl in *.
-transparent assert (HH : (cocone (mapdiagram F d) y)).
-{ use mk_cocone.
-  - intro v; apply (α (dob d v) ;; coconeIn ccy v).
-  - abstract (simpl; intros u v e; rewrite <- (coconeInCommutes ccy u v e), !assoc;
-              apply cancel_postcomposition, nat_trans_ax).
-}
-destruct (HF HccL y HH) as [[f Hf] HHf].
-mkpair.
-- mkpair.
-  + exact (αinv L ;; f).
-  + abstract
-      (intro v; rewrite assoc;
-       eapply pathscomp0; [apply cancel_postcomposition, nat_trans_ax|];
-       rewrite <- assoc; eapply pathscomp0; [apply maponpaths, (Hf v)|]; simpl; rewrite assoc;
-       eapply pathscomp0;
-         [apply cancel_postcomposition,
-                (nat_trans_eq_pointwise (@iso_after_iso_inv [C,D,hsD] _ _ (isopair _ Hα)))|];
-       now rewrite id_left).
-- abstract (intros [f' Hf'];
-  apply subtypeEquality; simpl;
-    [intro; apply impred; intro; apply hsD|];
-  transparent assert (HH : (Σ x : D ⟦ F L, y ⟧,
-            Π v : vertex g,
-            coconeIn (mapcocone F d cc) v ;; x = coconeIn HH v));
-  [mkpair;
-    [ apply (α L ;; f')
-    | abstract (intro v; rewrite <- Hf', !assoc; apply cancel_postcomposition, nat_trans_ax)]
-  |];
-  apply pathsinv0; generalize (maponpaths pr1 (HHf HH)); simpl; intro Htemp;
-  rewrite <- Htemp, assoc;
-  eapply pathscomp0;
-    [apply cancel_postcomposition,
-           (nat_trans_eq_pointwise (@iso_after_iso_inv [C,D,hsD] _ _ (isopair _ Hα)))|];
-  now apply id_left).
+use mk_cocone.
+- intro v; apply (pr1 α (dob d v) ;; coconeIn ccGy v).
+- abstract (simpl; intros u v e; rewrite <- (coconeInCommutes ccGy u v e), !assoc;
+            apply cancel_postcomposition, nat_trans_ax).
 Defined.
+
+Lemma αinv_f_commutes y (ccGy : cocone (mapdiagram G d) y) (f : D⟦F L,y⟧)
+       (Hf : Π v,coconeIn (mapcocone F d cc) v ;; f = coconeIn (ccFy y ccGy) v) :
+       Π v, # G (coconeIn cc v) ;; (pr1 αinv L ;; f) = coconeIn ccGy v.
+Proof.
+intro v; rewrite assoc.
+eapply pathscomp0; [apply cancel_postcomposition, nat_trans_ax|].
+rewrite <- assoc; eapply pathscomp0; [apply maponpaths, (Hf v)|]; simpl; rewrite assoc.
+eapply pathscomp0.
+  apply cancel_postcomposition.
+  apply (nat_trans_eq_pointwise (@iso_after_iso_inv [C,D,hsD] _ _ (isopair _ Hα))).
+now rewrite id_left.
+Qed.
+
+Lemma αinv_f_unique y (ccGy : cocone (mapdiagram G d) y) (f : D⟦F L,y⟧)
+     (Hf : Π v,coconeIn (mapcocone F d cc) v ;; f = coconeIn (ccFy y ccGy) v)
+     (HHf : Π t : Σ x, Π v, coconeIn (mapcocone F d cc) v ;; x = coconeIn _ v, t = f,, Hf) :
+     Π t : Σ x, Π v, # G (coconeIn cc v) ;; x = coconeIn ccGy v,
+     t = pr1 αinv L ;; f,, αinv_f_commutes y ccGy f Hf.
+Proof.
+intros [f' Hf'].
+apply subtypeEquality; simpl; [intro; apply impred; intro; apply hsD|].
+transparent assert (HH : (Σ x : D ⟦ F L, y ⟧,
+            Π v : vertex g,
+            coconeIn (mapcocone F d cc) v ;; x = coconeIn (ccFy y ccGy) v)).
+{ mkpair.
+  - apply (pr1 α L ;; f').
+  - abstract (intro v; rewrite <- Hf', !assoc; apply cancel_postcomposition, nat_trans_ax).
+}
+apply pathsinv0.
+generalize (maponpaths pr1 (HHf HH)); simpl; intro Htemp.
+rewrite <- Htemp, assoc.
+eapply pathscomp0.
+  apply cancel_postcomposition.
+  apply (nat_trans_eq_pointwise (@iso_after_iso_inv [C,D,hsD] _ _ (isopair _ Hα))).
+now apply id_left.
+Qed.
+
+Lemma preserves_colimit_iso  : preserves_colimit G d L cc.
+Proof.
+intros HccL y ccGy.
+set (H := HF HccL y (ccFy y ccGy)).
+set (f := pr1 (pr1 H)); set (Hf := pr2 (pr1 H)); set (HHf := pr2 H).
+mkpair.
+- apply (pr1 αinv L ;; f ,, αinv_f_commutes y ccGy f Hf).
+- abstract (apply αinv_f_unique; intro t; rewrite (HHf t); apply tppr).
+Defined.
+
+End preserves_colimit_iso.
 
 Lemma is_cocont_iso : is_cocont F -> is_cocont G.
 Proof.
