@@ -1,9 +1,11 @@
-language:       ocaml
+# validate this file at http://lint.travis-ci.org/
+# ocaml and coq are not on the list of languages, and ruby is the default, so:
+language:       ruby
 sudo: 		required
-dist: 		precise
-group: 		legacy
+dist: 		trusty
 before_install: sudo apt-get update -qq
 install:        sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp5 camlp4-extra time libgtk2.0 libgtksourceview2.0
+# we build coqide along with the Tactics package, because it's a short package
 env:
   - PACKAGE=Foundations
   - PACKAGE=CategoryTheory
@@ -11,8 +13,7 @@ env:
   - PACKAGE=Topology
   - PACKAGE=RealNumbers
   - PACKAGE=SubstitutionSystems
-  - PACKAGE=Tactics
+  - PACKAGE=Tactics BUILD_COQIDE=yes
   - PACKAGE=Folds
 script:
-  - time make BUILD_COQIDE=yes build-coq
   - time make TIMECMD=time $PACKAGE
