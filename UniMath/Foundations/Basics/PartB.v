@@ -12,12 +12,7 @@ as an argument, the function [ n : nat => UU ] whose type is [ forall n : nat, U
 is the type of [ UU ]. Therefore, the eliminator must be defined on arguments whose type contains
 [ UU' ] and we should acknowledge it as an instance of using a second universe.
 
-
-
-
-
- once as a type in the definition of the family
-isofhlevel : nat -> UU as a fixpoint with values in UU. *)
+ *)
 
 (** ** Contents
 - Basics about h-levels
