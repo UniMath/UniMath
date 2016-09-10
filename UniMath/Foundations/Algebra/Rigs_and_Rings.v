@@ -141,7 +141,6 @@ Notation "1" := (rigunel2) : rig_scope.
 
 Delimit Scope rig_scope with rig.
 
-
 (** **** Homomorphisms of rigs (rig functions) *)
 
 Definition isrigfun {X Y : rig} (f : X -> Y) : UU :=
@@ -794,8 +793,8 @@ Proof.
 Defined.
 Opaque isrigmultgttoisrngmultgt.
 
-
 (** **** Relations "inversely compatible" with the multiplicative structure on rings *)
+
 
 Definition isinvrngmultgt (X : rng) (R : hrel X) : UU :=
   dirprod (Π a b, R (a * b) 0 -> R a 0 -> R b 0) (Π a b, R (a * b) 0 -> R b 0 -> R a 0).

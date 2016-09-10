@@ -1479,7 +1479,6 @@ Defined.
 
 (** *** Sets with two binary operations *)
 
-
 (** **** General definitions *)
 
 Definition setwith2binop : UU := total2 (fun X : hSet => dirprod (binop X) (binop X)).

@@ -219,6 +219,25 @@ Definition path_inv_rotate_2 {X} {a b c d:X} (p:a = b) (p':c = d) (q:a = c) (q':
 Proof. intros ? ? ? ? ? ? ? ? ?. destruct q,q'. simpl.
        repeat rewrite pathscomp0rid. apply idfun. Defined.
 
+Definition maponpaths_naturality {X Y : UU} {f : X -> Y}
+           {x x' x'' : X} {p : x = x'} {q : x' = x''}
+           {p': f x = f x'} {q': f x' = f x''}
+           (r : maponpaths f p = p') (s : maponpaths f q = q') :
+  maponpaths f (p @ q) = p' @ q'.
+Proof.
+  intros. induction r, s. apply maponpathscomp0.
+Defined.
+
+Definition maponpaths_naturality' {X Y : UU} {f : X -> Y}
+           {x x' x'' : X} {p : x' = x} {q : x' = x''}
+           {p' : f x' = f x} {q' : f x' = f x''}
+           (r : maponpaths f p = p') (s : maponpaths f q = q') :
+  maponpaths f (!p @ q) = (!p') @ q'.
+Proof.
+  intros. induction r, s, p, q. reflexivity.
+Defined.
+
+
 (** ** Pairs *)
 
 Definition pr2_of_hfiberpair {X Y} {f:X->Y} {x:X} {y:Y} {e:f x = y} :

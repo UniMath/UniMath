@@ -188,6 +188,7 @@ Proof.
            using isaprop_isInjectiveFunction.
 Defined.
 
+
 (** ** Types [X] which satisfy "weak" axiom of choice for all families [P : X -> UU]
 
 Weak axiom of choice for [X] is the condition that for any family [P : X -> UU]
@@ -224,7 +225,6 @@ Proof.
 Defined.
 
 Definition ischoicebase (X : UU) : hProp := hProppair _ (isapropischoicebase X).
-
 
 Lemma ischoicebaseweqf {X Y : UU} (w : X ≃ Y) (is : ischoicebase X) :
   ischoicebase Y.
@@ -1606,8 +1606,6 @@ Proof.
 Defined.
 
 
-
-
 (** Important note : theorems proved above can not be used (al least at the
   moment) to construct terms whose complete normalization (evaluation) is
   important. For example they should not be used * directly * to construct
@@ -1628,10 +1626,7 @@ Defined.
   [isdeceq (setquot R)] using the same assumptions which is "constructive"
   i.e. usable for the evaluation purposes. *)
 
-
-
-
-(** *** The case when the function between quotients defined by [setquotfun] is a surjection, inclusion or a weak equivalence *)
+(** *** The case when [setquotfun] is a surjection, inclusion or a weak equivalence *)
 
 Lemma issurjsetquotfun {X Y : UU} (RX : eqrel X) (RY : eqrel Y) (f : X -> Y)
       (is : issurjective f) (is1 : iscomprelrelfun RX RY f) :
@@ -2277,8 +2272,8 @@ Definition decquotrel {X : UU} {R : eqrel X} (L : decrel X)
 (** *** Subtypes of quotients and quotients of subtypes *)
 
 
-Definition reseqrel {X : UU} (R : eqrel X) (P : hsubtypes X) : eqrel P
-  := eqrelpair _ (iseqrelresrel R P (pr2 R)).
+Definition reseqrel {X : UU} (R : eqrel X) (P : hsubtypes X) : eqrel P :=
+  eqrelpair _ (iseqrelresrel R P (pr2 R)).
 
 Lemma iseqclassresrel {X : UU} (R : hrel X) (P Q : hsubtypes X)
       (is : iseqclass R Q) (is' : Π x, Q x -> P x) :
