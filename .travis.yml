@@ -17,10 +17,10 @@ env:
   - PACKAGE=Topology
   - PACKAGE=RealNumbers
   - PACKAGE=SubstitutionSystems
-  - PACKAGE=Tactics BUILD_COQIDE=yes
+  - PACKAGE=Tactics BUILD_COQIDE=yes BUILD_ALSO=TAGS
   - PACKAGE=Folds
 # building Coq in a separate stage folds up the output in the log:
 before_script:
   - time make build-coq
 script:
-  - time make TIMECMD=time $PACKAGE
+  - time make TIMECMD=time $PACKAGE $BUILD_ALSO
