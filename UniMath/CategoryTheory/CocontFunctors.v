@@ -501,12 +501,10 @@ Qed.
 
 Lemma αinv_f_unique y (ccGy : cocone (mapdiagram G d) y) (f : D⟦F L,y⟧)
      (Hf : Π v,coconeIn (mapcocone F d cc) v ;; f = coconeIn (ccFy y ccGy) v)
-     (HHf : Π t : Σ x, Π v, coconeIn (mapcocone F d cc) v ;; x = coconeIn _ v, t = f,, Hf) :
-     Π t : Σ x, Π v, # G (coconeIn cc v) ;; x = coconeIn ccGy v,
-     t = pr1 αinv L ;; f,, αinv_f_commutes y ccGy f Hf.
+     (HHf : Π t : Σ x, Π v, coconeIn (mapcocone F d cc) v ;; x = coconeIn _ v, t = f,, Hf)
+      f' (Hf' : Π v, # G (coconeIn cc v) ;; f' = coconeIn ccGy v) :
+      f' = pr1 αinv L ;; f.
 Proof.
-intros [f' Hf'].
-apply subtypeEquality; simpl; [intro; apply impred; intro; apply hsD|].
 transparent assert (HH : (Σ x : D ⟦ F L, y ⟧,
             Π v : vertex g,
             coconeIn (mapcocone F d cc) v ;; x = coconeIn (ccFy y ccGy) v)).
@@ -515,8 +513,8 @@ transparent assert (HH : (Σ x : D ⟦ F L, y ⟧,
   - abstract (intro v; rewrite <- Hf', !assoc; apply cancel_postcomposition, nat_trans_ax).
 }
 apply pathsinv0.
-generalize (maponpaths pr1 (HHf HH)); simpl; intro Htemp.
-rewrite <- Htemp, assoc.
+generalize (maponpaths pr1 (HHf HH)); intro Htemp; simpl in *.
+rewrite <- Htemp; simpl; rewrite assoc.
 eapply pathscomp0.
   apply cancel_postcomposition.
   apply (nat_trans_eq_pointwise (@iso_after_iso_inv [C,D,hsD] _ _ (isopair _ Hα))).
@@ -528,9 +526,12 @@ Proof.
 intros HccL y ccGy.
 set (H := HF HccL y (ccFy y ccGy)).
 set (f := pr1 (pr1 H)); set (Hf := pr2 (pr1 H)); set (HHf := pr2 H).
-mkpair.
-- apply (pr1 αinv L ;; f ,, αinv_f_commutes y ccGy f Hf).
-- abstract (apply αinv_f_unique; intro t; rewrite (HHf t); apply tppr).
+use unique_exists.
+- apply (pr1 αinv L ;; f).
+- simpl; apply (αinv_f_commutes y ccGy f Hf).
+- abstract (intro; apply impred; intro; apply hsD).
+- abstract (simpl in *; intros f' Hf'; apply (αinv_f_unique y ccGy f Hf); trivial;
+            intro t; rewrite (HHf t); apply tppr).
 Defined.
 
 End preserves_colimit_iso.
