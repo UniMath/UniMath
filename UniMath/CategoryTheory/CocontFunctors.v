@@ -471,7 +471,7 @@ Section cocont_iso.
 (* As this section is proving a proposition, the hypothesis can be weakened from a specified iso to
 F and G being isomorphic. *)
 Context {C D : precategory} (hsD : has_homsets D) {F G : functor C D}
-        (αiso : @is_iso [C,D,hsD] F G).
+        (αiso : @iso [C,D,hsD] F G).
 
 Section preserves_colimit_iso.
 
