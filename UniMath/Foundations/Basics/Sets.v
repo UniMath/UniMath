@@ -1152,7 +1152,7 @@ Defined.
 Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
   let T := type of x in
   let G := match goal with |- ?G => constr:(G) end in
-  exact ((@id G : T -> G) x).
+  exact ((@idfun G : T -> G) x).
 
 (* I don't know why exact_op works better here, but with "exact", the code in RealNumbers/Prelim.v breaks *)
 Ltac confirm_yes d x y := exact_op (pathstor d x y (idpath true)).
