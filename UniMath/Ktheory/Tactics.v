@@ -3,11 +3,6 @@ Require Import UniMath.Foundations.Basics.Sets UniMath.Foundations.Basics.Unival
 
 Notation ap := maponpaths (only parsing).
 
-Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
-  let T := type of x in
-  let G := match goal with |- ?G => constr:(G) end in
-  exact ((@id G : T -> G) x).
-
 Definition post_cat {X} {x y z:X} {p:y = z} : x = y -> x = z.
 Proof. intros q. exact (pathscomp0 q p). Defined.
 
