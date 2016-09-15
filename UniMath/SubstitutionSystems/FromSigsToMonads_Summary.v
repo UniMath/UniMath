@@ -52,9 +52,9 @@ Lemma colim_of_chain_is_initial_alg
       (F : functor C C) (HF : is_omega_cocont F)
       (CC : ColimCocone (initChain InitC F)),
     isInitial (FunctorAlg F hsC)
-              (algebra_ob_pair (colim CC) (colim_algebra_mor C InitC F HF CC)).
+              (algebra_ob_pair (colim CC) (colim_algebra_mor InitC HF CC)).
 Proof.
-  exact CocontFunctors.colimAlgIsInitial.
+  exact @CocontFunctors.colimAlgIsInitial.
 Defined.
 
 
@@ -63,7 +63,7 @@ Lemma is_omega_cocont_pre_composition_functor
      (hsA : has_homsets A),
    Lims A → is_omega_cocont (pre_composition_functor M C A hsC hsA K).
 Proof.
-  exact CocontFunctors.is_omega_cocont_pre_composition_functor.
+  exact @CocontFunctors.is_omega_cocont_pre_composition_functor.
 Defined.
 
 Definition RightKanExtension_from_limits
@@ -71,7 +71,7 @@ Definition RightKanExtension_from_limits
     (hsA : has_homsets A),
   Lims A → RightKanExtension.GlobalRightKanExtensionExists M C K A hsC hsA.
 Proof.
-  exact CocontFunctors.RightKanExtension_from_limits.
+  exact @CocontFunctors.RightKanExtension_from_limits.
 Defined.
 
 Definition ColimCoconeHSET
@@ -83,10 +83,9 @@ Defined.
 Lemma is_omega_cocont_binproduct_functor
   : Π (C : precategory) (PC : BinProducts C), has_homsets C →
     (Π x : C, is_omega_cocont (constprod_functor1 PC x)) →
-    (Π x : C, is_omega_cocont (constprod_functor2 PC x)) →
     is_omega_cocont (binproduct_functor PC).
 Proof.
-  exact CocontFunctors.is_omega_cocont_binproduct_functor.
+  exact @CocontFunctors.is_omega_cocont_binproduct_functor.
 Defined.
 
 Lemma left_adjoint_cocont

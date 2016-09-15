@@ -91,7 +91,7 @@ Lemma is_omega_cocont_precomp_option_iter (n : nat) : is_omega_cocont (precomp_o
 Proof.
 destruct n; simpl.
 - apply (is_omega_cocont_functor_identity has_homsets_HSET2).
-- apply (is_omega_cocont_pre_composition_functor _ _ _ (iter_functor1 _ optionHSET n) _ _ cats_LimsHSET).
+- apply (is_omega_cocont_pre_composition_functor (iter_functor1 _ optionHSET n) _ _ cats_LimsHSET).
 Defined.
 
 Definition precomp_option_iter_Signature (n : nat) : Signature HSET has_homsets_HSET.
@@ -131,6 +131,8 @@ destruct n.
     apply is_omega_cocont_BinProduct_of_Signatures.
     apply is_omega_cocont_precomp_option_iter.
     apply IH.
+    apply is_omega_cocont_constprod_functor1.
+    apply has_homsets_HSET2.
     apply has_exponentials_HSET2.
 Defined.
 

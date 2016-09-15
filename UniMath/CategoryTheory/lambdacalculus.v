@@ -64,15 +64,16 @@ Local Notation "' x" := (omega_cocont_constant_functor has_homsets_HSET2 x)
 Local Notation "'Id'" := (omega_cocont_functor_identity has_homsets_HSET2).
 
 Local Notation "F * G" :=
-  (omega_cocont_BinProduct_of_functors_alt _ _ BinProductsHSET2 _
-     has_exponentials_HSET2 has_homsets_HSET2 has_homsets_HSET2 F G).
+  (omega_cocont_BinProduct_of_functors_alt BinProductsHSET2 _
+     has_homsets_HSET2 has_homsets_HSET2
+     (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2 has_exponentials_HSET2) F G).
 
 Local Notation "F + G" :=
-  (omega_cocont_BinCoproduct_of_functors_alt _ _ BinProductsHSET2 BinCoproductsHSET2
+  (omega_cocont_BinCoproduct_of_functors_alt BinProductsHSET2 BinCoproductsHSET2
      has_homsets_HSET2 has_homsets_HSET2 F G).
 
 Local Notation "'_' 'o' 'option'" :=
-  (omega_cocont_pre_composition_functor _ _ _
+  (omega_cocont_pre_composition_functor
       (option_functor HSET BinCoproductsHSET TerminalHSET)
       has_homsets_HSET has_homsets_HSET cats_LimsHSET) (at level 10).
 
@@ -86,7 +87,7 @@ Let is_omega_cocont_lambdaFunctor : is_omega_cocont lambdaFunctor :=
 Lemma lambdaFunctor_Initial :
   Initial (precategory_FunctorAlg lambdaFunctor has_homsets_HSET2).
 Proof.
-apply (colimAlgInitial _ _ InitialHSET2 _ is_omega_cocont_lambdaFunctor).
+apply (colimAlgInitial _ InitialHSET2 is_omega_cocont_lambdaFunctor).
 apply ColimsFunctorCategory; apply ColimsHSET.
 Defined.
 

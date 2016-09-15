@@ -276,7 +276,7 @@ Defined.
 
 Lemma is_omega_cocont_BinProduct_of_Signatures (S1 S2 : Signature C hsC)
   (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2)
-  (hE : has_exponentials (BinProducts_functor_precat C C PC hsC)) :
+  (hE : Π x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C PC hsC) x)) :
   is_omega_cocont (BinProduct_of_Signatures S1 S2).
 Proof.
 destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.

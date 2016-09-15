@@ -29,12 +29,6 @@ Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Section move_upstream.
 
-Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : iscontr (total2 (fun a => B a)))
-           (a : A) (p : B a) : a = pr1 (pr1 isc).
-Proof.
-exact (maponpaths pr1 (pr2 isc (tpair _ a p))).
-Defined.
-
 Lemma uniqueExists (A : UU) (P : A -> UU)
   (Hexists : iscontr (total2 (fun a => P a)))
   (a b : A) (Ha : P a) (Hb : P b) : a = b.
@@ -121,7 +115,7 @@ Definition Colims : UU := Π {g : graph} (d : diagram g C), ColimCocone d.
 Definition hasColims : UU  :=
   Π {g : graph} (d : diagram g C), ishinh (ColimCocone d).
 
-(* colim is the tip of the colim cocone *)
+(** colim is the tip of the colim cocone *)
 Definition colim {g : graph} {d : diagram g C} (CC : ColimCocone d) : C :=
   pr1 (pr1 CC).
 
@@ -360,11 +354,45 @@ simple refine (tpair _ _ _).
     now rewrite <- (Hf u), assoc, colimArrowCommutes.
 Defined.
 
+Definition iso_from_colim_to_colim {g : graph} {d : diagram g C}
+  (CC CC' : ColimCocone d) : iso (colim CC) (colim CC').
+Proof.
+use isopair.
+- apply colimArrow, colimCocone.
+- use is_iso_qinv.
+  + apply colimArrow, colimCocone.
+  + abstract (now split; apply pathsinv0, colim_endo_is_identity; intro u;
+              rewrite assoc, colimArrowCommutes; eapply pathscomp0; try apply colimArrowCommutes).
+Defined.
+
+Section Universal_Unique.
+
+Hypothesis H : is_category C.
+
+Lemma isaprop_Colims: isaprop Colims.
+Proof.
+apply impred; intro g; apply impred; intro cc.
+apply invproofirrelevance; intros Hccx Hccy.
+apply subtypeEquality.
+- intro; apply isaprop_isColimCocone.
+- apply (total2_paths (isotoid _ H (iso_from_colim_to_colim Hccx Hccy))).
+  set (B c := Π v, C⟦dob cc v,c⟧).
+  set (C' (c : C) f := Π u v (e : edge u v), @compose _ _ _ c (dmor cc e) (f v) = f u).
+  rewrite (@transportf_total2 _ B C').
+  apply subtypeEquality.
+  + intro; repeat (apply impred; intro); apply hsC.
+  + simpl; eapply pathscomp0; [apply transportf_isotoid_dep''|].
+    apply funextsec; intro v.
+    now rewrite idtoiso_isotoid; apply colimArrowCommutes.
+Qed.
+
+End Universal_Unique.
+
 End colim_def.
 
 Arguments Colims : clear implicits.
 
-(* Defines colimits in functor categories when the target has colimits *)
+(** Defines colimits in functor categories when the target has colimits *)
 Section ColimFunctor.
 
 Variable A C : precategory.
