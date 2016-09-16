@@ -1,4 +1,16 @@
-(** Direct implementation of pullbacks *)
+(**
+
+Direct implementation of pullbacks together with:
+
+- Proof that pullbacks form a property in a (saturated/univalent) category ([isaprop_Pullbacks])
+- The pullback of a monic is monic ([MonicPullbackisMonic])
+- Symmetry ([is_symmetric_isPullback])
+- Construction of pullbacks from equalizers and binary products
+  ([Pullbacks_from_Equalizers_BinProducts])
+- A fully faithfull and essentially surjects functor preserves pullbacks ([isPullback_image_square]
+- Construction of binary products from pullbacks ([BinProductsFromPullbacks])
+
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -13,6 +25,7 @@ Require Import UniMath.CategoryTheory.Monics.
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
+(** Definition of pullbacks *)
 Section def_pb.
 
 Context {C : precategory}.

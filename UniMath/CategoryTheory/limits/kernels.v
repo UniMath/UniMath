@@ -1,4 +1,12 @@
-(* direct implementation of kernels *)
+(**
+
+Direct implementation of kernels together with:
+
+- Proof that the kernel arrow is monic ([KernelArrowisMonic])
+
+Written by Tomi Pannila.
+
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -9,6 +17,7 @@ Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.zero.
 
+(** Definition of kernels *)
 Section def_kernels.
 
   Context {C : precategory}.

@@ -1,4 +1,12 @@
-(* Direct implementation of equalizers. *)
+(**
+
+Direct implementation of equalizers together with:
+
+- Proof that the equalizer arrow is monic ([EqualizerArrowisMonic])
+
+Written by Tomi Pannila
+
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.

@@ -27,7 +27,7 @@ This file also contains proofs that the following functors are (omega-)cocontinu
 - Binary coproduct functor: C^2 -> C, (x,y) |-> x + y
   [is_cocont_bincoproduct_functor] [is_omega_cocont_bincoproduct_functor]
 - General coproduct functor: C^I -> C
-  [is_cocont_indexed_coproduct_functor] [is_omega_cocont_indexed_coproduct_functor]
+  [is_cocont_coproduct_functor] [is_omega_cocont_coproduct_functor]
 - Binary coproduct of functors: F + G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x
  + G x
   [is_cocont_BinCoproduct_of_functors_alt] [is_cocont_BinCoproduct_of_functors]
@@ -1014,18 +1014,18 @@ Section coprod_functor.
 
 Context {I : UU} {C : precategory} (PC : Coproducts I C) (hsC : has_homsets C).
 
-Lemma is_cocont_indexed_coproduct_functor :
-  is_cocont (indexed_coproduct_functor _ PC).
+Lemma is_cocont_coproduct_functor :
+  is_cocont (coproduct_functor _ PC).
 Proof.
-apply (left_adjoint_cocont _ (is_left_adjoint_indexed_coproduct_functor _ PC)).
+apply (left_adjoint_cocont _ (is_left_adjoint_coproduct_functor _ PC)).
 - abstract (apply has_homsets_power_precategory; apply hsC).
 - abstract (apply hsC).
 Defined.
 
-Lemma is_omega_cocont_indexed_coproduct_functor :
-  is_omega_cocont (indexed_coproduct_functor _ PC).
+Lemma is_omega_cocont_coproduct_functor :
+  is_omega_cocont (coproduct_functor _ PC).
 Proof.
-now intros c L ccL; apply is_cocont_indexed_coproduct_functor.
+now intros c L ccL; apply is_cocont_coproduct_functor.
 Defined.
 
 End coprod_functor.
@@ -1102,7 +1102,7 @@ apply (is_cocont_functor_composite hsD).
   apply (is_cocont_delta_functor PC hsC).
 apply (is_cocont_functor_composite hsD).
   apply (is_cocont_pair_functor hsC hsD HI HF).
-apply (is_cocont_indexed_coproduct_functor _ hsD).
+apply (is_cocont_coproduct_functor _ hsD).
 Defined.
 
 Lemma is_omega_cocont_coproduct_of_functors_alt (F : Π i, functor C D)
@@ -1113,7 +1113,7 @@ apply (is_omega_cocont_functor_composite hsD).
   apply (is_omega_cocont_delta_functor PC hsC).
 apply (is_omega_cocont_functor_composite hsD).
   apply (is_omega_cocont_pair_functor hsC hsD HI HF).
-apply (is_omega_cocont_indexed_coproduct_functor _ hsD).
+apply (is_omega_cocont_coproduct_functor _ hsD).
 Defined.
 
 Definition omega_cocont_coproduct_of_functors_alt

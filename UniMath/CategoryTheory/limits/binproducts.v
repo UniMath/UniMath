@@ -1,4 +1,10 @@
-(** Direct implementation of binary products *)
+(**
+
+Direct implementation of binary products together with:
+
+- definition of binary product functor ([binproduct_functor])
+
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -11,6 +17,7 @@ Require Import UniMath.CategoryTheory.limits.zero.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
+(** Definition of binary products *)
 Section binproduct_def.
 
 Variable C : precategory.

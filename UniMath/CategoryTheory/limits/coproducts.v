@@ -1,6 +1,8 @@
 (*
 
-Direct implementation of arbitrary coproducts.
+Direct implementation of arbitrary coproducts together with:
+
+- The general coproduct functor ([coproduct_functor])
 
 Written by: Anders Mörtberg 2016
 
@@ -174,7 +176,7 @@ End Coproducts.
 
 Section functors.
 
-Definition indexed_coproduct_functor_data (I : UU) {C : precategory}
+Definition coproduct_functor_data (I : UU) {C : precategory}
   (PC : Coproducts I C) : functor_data (power_precategory I C) C.
 Proof.
 mkpair.
@@ -185,10 +187,10 @@ mkpair.
 Defined.
 
 (* The arbitrary coproduct functor: C^I -> C *)
-Definition indexed_coproduct_functor (I : UU) {C : precategory}
+Definition coproduct_functor (I : UU) {C : precategory}
   (PC : Coproducts I C) : functor (power_precategory I C) C.
 Proof.
-apply (tpair _ (indexed_coproduct_functor_data _ PC)).
+apply (tpair _ (coproduct_functor_data _ PC)).
 split.
   - intro x; simpl; apply pathsinv0, Coproduct_endo_is_identity.
     now intro i; rewrite CoproductOfArrowsIn, id_left.
@@ -202,4 +204,4 @@ Definition coproduct_of_functors_alt (I : UU) {C D : precategory}
   (HD : Coproducts I D) (F : I -> functor C D) : functor C D :=
   functor_composite (delta_functor I C)
      (functor_composite (pair_functor _ F)
-                        (indexed_coproduct_functor _ HD)).
+                        (coproduct_functor _ HD)).

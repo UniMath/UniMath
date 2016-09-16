@@ -1,4 +1,8 @@
-(** Direct implementation of arbitrary products.
+(**
+
+Direct implementation of arbitrary products together with:
+
+- The general product functor ([product_functor])
 
 Written by: Anders Mörtberg 2016
 
@@ -14,6 +18,7 @@ Require Import UniMath.CategoryTheory.ProductPrecategory.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
+(** * Definition of arbitrary products *)
 Section product_def.
 
 Variable (I : UU) (C : precategory).
@@ -36,7 +41,7 @@ Definition ProductPr {c : Π i, C} (P : ProductCone c) : Π i, ProductObject P -
 
 Definition isProductCone_ProductCone {c : Π i, C} (P : ProductCone c) :
    isProductCone c (ProductObject P) (ProductPr P).
-Proof.
+ Proof.
   exact (pr2 P).
 Defined.
 
