@@ -1,4 +1,4 @@
-(* Direct implementation of binary products *)
+(** Direct implementation of binary products *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.

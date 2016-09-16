@@ -13,7 +13,6 @@ Monads.v
 limits/cones.v
 limits/pullbacks.v
 limits/graphs/pullbacks.v
-limits/more_on_pullbacks.v
 limits/initial.v
 limits/graphs/initial.v
 limits/zero.v

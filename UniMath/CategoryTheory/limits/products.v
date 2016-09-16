@@ -1,6 +1,4 @@
-(*
-
-Direct implementation of arbitrary products.
+(** Direct implementation of arbitrary products.
 
 Written by: Anders Mörtberg 2016
 
