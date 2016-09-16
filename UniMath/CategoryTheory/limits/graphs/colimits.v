@@ -62,12 +62,15 @@ Variables (J C : precategory).
 Variable (F : functor J C).
 
 Definition graph_from_precategory : graph := pr1 (pr1 J).
+
 Definition diagram_from_functor : diagram graph_from_precategory C :=
   tpair _ _ (pr2 (pr1 F)).
 
 End diagram_from_functor.
 
 End diagram_def.
+
+Coercion graph_from_precategory : precategory >-> graph.
 
 (* Definition diagram_after_functor (C : precategory) (F : functor C C) :  *)
 

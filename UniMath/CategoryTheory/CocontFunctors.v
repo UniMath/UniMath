@@ -72,7 +72,7 @@ Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.cats.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.equivalences.
@@ -1552,9 +1552,10 @@ Variable (T : functor M A).
 
 Local Definition Q (c : C) : functor (c ↓ K) M := cComma_pr1 hsC K c.
 
-Local Definition QT (c : C) := functor_composite (Q c) T.
+Local Definition QT (c : C) : diagram (c ↓ K) A :=
+  diagram_from_functor _ _ (functor_composite (Q c) T).
 
-Local Definition R (c : C) := lim (LA _ (QT c)).
+Local Definition R (c : C) : A := lim (LA _ (QT c)).
 
 Local Definition lambda (c : C) : cone (QT c) (R c) := limCone (LA _ (QT c)).
 

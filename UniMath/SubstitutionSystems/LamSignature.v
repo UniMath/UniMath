@@ -42,7 +42,7 @@ Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.cats.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
 Arguments θ_source {_ _} _ .
 Arguments θ_target {_ _} _ .

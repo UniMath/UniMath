@@ -810,9 +810,6 @@ Arguments Lims : clear implicits.
 
 Section LimFunctor.
 
-(* TODO: move to opp_precat *)
-
-
 Definition get_diagram (A C : precategory) (hsC : has_homsets C)
   (g : graph) (D : diagram g [A, C, hsC]^op) :
     diagram g [A^op, C^op, has_homsets_opp hsC].

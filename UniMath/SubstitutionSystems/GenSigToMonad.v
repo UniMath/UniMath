@@ -121,7 +121,7 @@ Defined.
 Definition GenSigInitialHSS : Initial (hss_precategory BinCoproductsHSET GenSigToSignature).
 Proof.
 apply InitialHSS.
-- intro Z; apply RightKanExtension_from_limits, cats_LimsHSET.
+- intro Z; apply RightKanExtension_from_limits, LimsHSET.
 - apply GenSigInitial.
 Defined.
 

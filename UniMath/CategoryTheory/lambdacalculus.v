@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.cats.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
@@ -75,7 +75,7 @@ Local Notation "F + G" :=
 Local Notation "'_' 'o' 'option'" :=
   (omega_cocont_pre_composition_functor
       (option_functor HSET BinCoproductsHSET TerminalHSET)
-      has_homsets_HSET has_homsets_HSET cats_LimsHSET) (at level 10).
+      has_homsets_HSET has_homsets_HSET LimsHSET) (at level 10).
 
 Definition lambdaOmegaFunctor : omega_cocont_functor HSET2 HSET2 :=
   '(functor_identity HSET) + (Id * Id + _ o option).
@@ -250,5 +250,5 @@ End lambdacalculus.
 (*   apply has_exponentials_functor_HSET. *)
 (*   apply has_homsets_HSET. *)
 (* apply is_omega_cocont_pre_composition_functor. *)
-(* apply cats_LimsHSET. *)
+(* apply LimsHSET. *)
 (* Defined. *)
