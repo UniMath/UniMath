@@ -21,8 +21,6 @@ limits/bincoproducts.v
 limits/coproducts.v
 limits/graphs/bincoproducts.v
 limits/graphs/colimits.v
-limits/FunctorsPointwiseCoproduct.v
-limits/FunctorsPointwiseProduct.v
 HLevel_n_is_of_hlevel_Sn.v
 category_hset_structures.v
 category_hset.v
