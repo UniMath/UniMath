@@ -1,18 +1,23 @@
 (** **********************************************************
 
+Structures on HSET.
+
+Contents:
+
+- Colimits in HSET ([ColimsHSET])
+- Binary coproducts ([BinCoproductsHSET])
+- General indexed coproducts ([Coproducts_HSET])
+- Initial object ([InitialHSET])
+- Limits ([LimsHSET])
+- Binary products ([BinProductsHSET])
+- General indexed products ([ProductsHSET]
+- Terminal object ([TerminalHSET])
+- Exponentials ([has_exponentials_HSET])
+- Construction of exponentials for functors into HSET ([has_exponentials_functor_HSET])
+
 Written by: Benedikt Ahrens, Anders Mörtberg
 
 October 2015 - January 2016
-
-************************************************************)
-
-
-(** **********************************************************
-
-Contents :
-	    Colimits in HSET
-
-	    Limits in HSET
 
 ************************************************************)
 
