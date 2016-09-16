@@ -1,7 +1,8 @@
 graphs
 ============
 
-This directory contains a development of limits on the basis of descriptions of diagrams by graphs instead of functors.
+This directory contains a development of limits on the basis of
+descriptions of diagrams by graphs instead of functors.
 
 ## Contents
 
@@ -10,10 +11,9 @@ This directory contains a development of limits on the basis of descriptions of 
   * formalization of colimits on this basis
   * rules for pre- and post-composition
   * pointwise construction of colimits in functor precategories
-  * left adjoints are co-continuous
-  * closure properties of co-continuous functors
 * *limits.v*
   * formalization of limits on the basis of graphs
+  * proof that limits form a property in a (saturated/univalent) category
   * pointwise construction of limits in functor precategories
   * alternative definition of limits via colimits
 * *initial.v* --- definition as instance of colimit

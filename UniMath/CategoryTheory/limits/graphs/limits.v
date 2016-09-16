@@ -1,12 +1,13 @@
-(****************************************************
-  Benedikt Ahrens and Anders Mörtberg, October 2015
-*****************************************************)
-
 (** *************************************************
 
-Contents :
+Contents:
 
-	    Definition of limits via colimits
+- Definition of limits
+- Proof that limits form a property in a (saturated/univalent) category ([isaprop_Lims])
+- Pointwise construction of limits in functor precategories [LimsFunctorCategory]
+- Alternative definition of limits via colimits
+
+Written by: Benedikt Ahrens and Anders Mörtberg, 2015-2016
 
 *****************************************************)
 
@@ -23,7 +24,6 @@ Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (** * Definition of limits *)
-
 Section lim_def.
 
 Context {C : precategory} (hsC : has_homsets C).
@@ -329,7 +329,7 @@ Section Universal_Unique.
 
 Hypothesis H : is_category C.
 
-Lemma isaprop_Lims: isaprop Lims.
+Lemma isaprop_Lims : isaprop Lims.
 Proof.
 apply impred; intro g; apply impred; intro cc.
 apply invproofirrelevance; intros Hccx Hccy.

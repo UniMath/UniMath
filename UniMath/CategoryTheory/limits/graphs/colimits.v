@@ -1,16 +1,15 @@
-(****************************************************
-  Benedikt Ahrens and Anders Mörtberg, October 2015
-*****************************************************)
 
 (** *************************************************
 
-Contents :
+Contents:
 
-            Definition of cocones
+- Definitions of graphs and diagrams
+- Formalization of colimits on this basis
+- Rules for pre- and post-composition
+- Proof that colimits form a property in a (saturated/univalent) category ([isaprop_Colims])
+- Pointwise construction of colimits in functor precategories ([ColimsFunctorCategory])
 
-	    Definition of colimits
-
-	    Colimits in functor categories
+Written by Benedikt Ahrens and Anders Mörtberg, 2015-2016
 
 *****************************************************)
 
@@ -40,6 +39,7 @@ Defined.
 
 End move_upstream.
 
+(** Definition of graphs and diagrams *)
 Section diagram_def.
 
 Definition graph := Σ (D : UU), D -> D -> UU.
@@ -78,7 +78,7 @@ Section colim_def.
 
 Context {C : precategory} (hsC : has_homsets C).
 
-(* A cocone with tip c over a diagram d *)
+(** A cocone with tip c over a diagram d *)
 Definition cocone {g : graph} (d : diagram g C) (c : C) : UU :=
   Σ (f : Π (v : vertex g), C⟦dob d v,c⟧),
     Π (u v : vertex g) (e : edge u v), dmor d e ;; f v = f u.
@@ -87,7 +87,7 @@ Definition mk_cocone {g : graph} {d : diagram g C} {c : C}
   (f : Π v, C⟦dob d v,c⟧) (Hf : Π u v e, dmor d e ;; f v = f u) :
   cocone d c := tpair _ f Hf.
 
-(* The injections to c in the cocone *)
+(** The injections to c in the cocone *)
 Definition coconeIn {g : graph} {d : diagram g C} {c : C} (cc : cocone d c) :
   Π v, C⟦dob d v,c⟧ := pr1 cc.
 
@@ -97,7 +97,7 @@ Proof.
 exact (pr2 cc).
 Qed.
 
-(* cc0 is a colimit cocone if for any other cocone cc over the same
+(** cc0 is a colimit cocone if for any other cocone cc over the same
    diagram there is a unique morphism from the tip of cc0 to the tip
    of cc *)
 Definition isColimCocone {g : graph} (d : diagram g C) (c0 : C)
