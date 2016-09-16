@@ -1,12 +1,15 @@
 limits
 ===============
 
-This directory contains the definition of some limits for the notion of precategory defined in the package *CategoryTheory* which formerly had the name "RezkCompletion".
+This directory contains the definition of some limits for the notion
+of precategory defined in the package *CategoryTheory* which formerly
+had the name "RezkCompletion".
 
 ## Contents
 
-
-* *cones.v* --- definition of the precategory of cones over precategory C; proof that that precategory is a category if C is
+* *cones.v*
+  * definition of the precategory of cones over precategory C
+  * proof that that precategory is a category if C is
 * *initial.v*
   * direct formalization of initial objects
   * proof that initial object is a property in a category
@@ -16,7 +19,15 @@ This directory contains the definition of some limits for the notion of precateg
   * direct formalization of terminal objects
   * proof that terminal object is a property in a category
   * link with empty product
-* *pullbacks.v* --- direct formalization of pullbacks; proof that pullbacks form a property in a category. symmetry; on sections; pb chasing; reflection and preservation; pointwise constructions in functor precategory 
+* *pullbacks.v*
+  * direct formalization of pullbacks
+  * proof that pullbacks form a property in a (saturated/univalent) category
+  * symmetry
+  * on sections
+  * pullback chasing
+  * reflection and preservation
+  * pointwise constructions in functor precategory
+  * construction of products from pullbacks
 * *binproducts.v*
   * direct formalization of binary product
   * definition of binary product functor
@@ -27,8 +38,12 @@ This directory contains the definition of some limits for the notion of precateg
   * definition of binary coproduct functor
 * *products.v* --- direct generalization to arbitrary products
 * *coproducts.v* --- direct generalization to arbitrary coproducts
-* *equalizers.v* --- direct formalization of equalizer; equalizer arrows are monic
-* *coequalizers.v* --- direct formalization of coequalizer; coequalizer arrows are epi
+* *equalizers.v*
+  * direct formalization of equalizer
+  * equalizer arrows are monic
+* *coequalizers.v*
+  * direct formalization of coequalizer
+  * coequalizer arrows are epi
 * *zero.v* --- direct formalization of zero objects
 * *kernels.v* --- direct formalization of kernels
 * *cokernels.v* --- direct formalization of cokernels
