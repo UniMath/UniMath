@@ -4,10 +4,13 @@ Direct implementation of pullbacks together with:
 
 - Proof that pullbacks form a property in a (saturated/univalent) category ([isaprop_Pullbacks])
 - The pullback of a monic is monic ([MonicPullbackisMonic])
+- A square isomorphic to a pullback is a pullback (case 1) ([isPullback_iso_of_morphisms])
 - Symmetry ([is_symmetric_isPullback])
 - Construction of pullbacks from equalizers and binary products
   ([Pullbacks_from_Equalizers_BinProducts])
-- A fully faithfull and essentially surjects functor preserves pullbacks ([isPullback_image_square]
+- A fully faithful functor reflects limits ([isPullback_preimage_square])
+- A fully faithfull and essentially surjects functor preserves pullbacks ([isPullback_image_square])
+- Pullbacks in functor categories ([pb_if_pointwise_pb])
 - Construction of binary products from pullbacks ([BinProductsFromPullbacks])
 
 *)
@@ -283,7 +286,6 @@ Section Universal_Unique.
 
 Hypothesis H : is_category C.
 
-
 Lemma inv_from_iso_iso_from_Pullback (a b c : C) (f : b --> a) (g : c --> a)
   (Pb : Pullback f g) (Pb' : Pullback f g):
     inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb') = from_Pullback_to_Pullback Pb' Pb.
@@ -293,7 +295,6 @@ Proof.
   set (T:= are_inverses_from_Pullback_to_Pullback Pb Pb').
   apply (pr1 T).
 Qed.
-
 
 Lemma isaprop_Pullbacks: isaprop Pullbacks.
 Proof.
@@ -370,7 +371,7 @@ End monic_pb.
 Arguments glueSquares {_ _ _ _ _ _ _ _ _ _ _ _ _ _ } _ _ .
 
 
-(** Criteria for existence of pullbacks. *)
+(** * Criteria for existence of pullbacks. *)
 Section pb_criteria.
 
   Variable C : precategory.
@@ -612,6 +613,9 @@ Proof.
     ).
 Defined.
 
+(** * A square isomorphic to a pullback is a pullback (case 1) *)
+Section pullback_iso.
+
 (**  Diagram for next lemma
 <<
               i'           k
@@ -683,18 +687,16 @@ Proof.
       * rewrite <- assoc. apply (pr2 Ht).
 Defined.
 
+End pullback_iso.
+
 End lemmas_on_pullbacks.
 
-
-
-Section functor_on_square.
-
 (** * A fully faithful functor reflects limits *)
+Section functor_on_square.
 
 Variables C D : precategory.
 Variable hsC : has_homsets C.
 Variable F : functor C D.
-
 
 Section isPullback_if_functor_on_square_is.
 
@@ -778,9 +780,8 @@ Defined.
 
 End isPullback_if_functor_on_square_is.
 
-(** A ff and es functor preserves pullbacks *)
-
-Section functor_preserves_pb.
+(** * A fully faithful and essentially surjective functor preserves pullbacks *)
+Section ff_es_functor_preserves_pb.
 
 Variable hsD : has_homsets D.
 Variable Fff : fully_faithful F.
@@ -863,7 +864,7 @@ Proof.
       rewrite TX. apply idpath.
 Qed.
 
-End functor_preserves_pb.
+End ff_es_functor_preserves_pb.
 
 
 Definition maps_pb_square_to_pb_square
@@ -881,10 +882,10 @@ Definition maps_pb_squares_to_pb_squares :=
 
 End functor_on_square.
 
-
+(** * Pullbacks in functor categories *)
 Section pullbacks_pointwise.
 
-(**
+(** Diagram for this section:
 <<
           d
     J -------> H
@@ -896,8 +897,7 @@ Section pullbacks_pointwise.
 >>
 *)
 
-Context {C D : precategory}.
-Variable hsD : has_homsets D.
+Context {C D : precategory} (hsD : has_homsets D).
 Let CD := [C, D, hsD].
 Context {F G H J : CD}.
 Context {a : CD ⟦G, F⟧}{b : CD ⟦H, F⟧}{c : CD⟦J,G⟧}{d : CD⟦J, H⟧}.
@@ -971,6 +971,7 @@ Defined.
 
 End pullbacks_pointwise.
 
+(** * Construction of binary products from pullbacks *)
 Section binproduct_from_pullback.
 
 Context {C : precategory} (Pb : Pullbacks C) (T : Terminal C).
@@ -988,8 +989,6 @@ Proof.
   apply PullbackArrow_PullbackPr1 .
   apply PullbackArrow_PullbackPr2 .
 Defined.
-
-
 
 Lemma isBinProductCone_PullbackCone (c d : C):
    isBinProductCone C c d
