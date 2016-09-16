@@ -15,8 +15,7 @@ Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
 Section def_po.
 
-  Context {C : precategory}.
-  Variable hs: has_homsets C.
+  Context {C : precategory} (hsC : has_homsets C).
 
   Definition isPushout {a b c d : C} (f : a --> b) (g : a --> c)
              (in1 : b --> d) (in2 : c --> d) (H : f ;; in1 = g ;; in2) : UU :=
@@ -266,7 +265,7 @@ Section def_po.
       intros Pb Pb'.
       apply subtypeEquality.
       - intro; apply isofhleveltotal2.
-        + apply hs.
+        + apply hsC.
         + intros; apply isaprop_isPushout.
       - apply (total2_paths
                  (isotoid _ H (iso_from_Pushout_to_Pushout Pb Pb' ))).
@@ -295,6 +294,8 @@ Section def_po.
 
 End def_po.
 
+(** Make the C not implicit for Pushouts *)
+Arguments Pushouts : clear implicits.
 
 (** In this section we prove that the pushout of an epimorphism is an
   epimorphism. *)
@@ -405,8 +406,7 @@ Section po_criteria.
 
   Definition Pushouts_from_Coequalizers_BinCoproducts
              (BinCoprods : BinCoproducts C)
-             (CEqs : @Coequalizers C) :
-    @Pushouts C.
+             (CEqs : Coequalizers C) : Pushouts C.
   Proof.
     intros Z X Y f g.
     use (Pushout_from_Coequalizer_BinCoproduct X Y Z f g).

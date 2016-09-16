@@ -200,3 +200,6 @@ Section def_coequalizers.
     exact (mk_Epi C (CoequalizerArrow E) (CoequalizerArrowisEpi E)).
   Defined.
 End def_coequalizers.
+
+(** Make the C not implicit for Coequalizers *)
+Arguments Coequalizers : clear implicits.

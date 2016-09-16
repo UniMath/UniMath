@@ -196,3 +196,6 @@ Section def_equalizers.
     exact (mk_Monic C (EqualizerArrow E) (EqualizerArrowisMonic E)).
   Defined.
 End def_equalizers.
+
+(** Make the C not implicit for Equalizers *)
+Arguments Equalizers : clear implicits.

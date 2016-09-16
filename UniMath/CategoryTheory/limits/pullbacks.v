@@ -12,8 +12,6 @@ Direct implementation of pullbacks together with:
 
 *)
 Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -28,8 +26,7 @@ Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 (** Definition of pullbacks *)
 Section def_pb.
 
-Context {C : precategory}.
-Variable hs: has_homsets C.
+Context {C : precategory} (hsC : has_homsets C).
 
 Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
         (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2;; g) : UU :=
@@ -266,7 +263,7 @@ Proof.
   intro t.
   apply subtypeEquality.
   - intro a0. apply isapropdirprod;
-    apply hs.
+    apply hsC.
   - simpl. destruct t as [t [Ht1 Ht2]].
     simpl in *.
     apply PullbackArrowUnique.
@@ -309,7 +306,7 @@ Proof.
   intros Pb Pb'.
   apply subtypeEquality.
   - intro; apply isofhleveltotal2.
-    + apply hs.
+    + apply hsC.
     + intros; apply isaprop_isPullback.
   - apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))).
     rewrite transportf_dirprod, transportf_isotoid.
@@ -331,6 +328,8 @@ End Universal_Unique.
 
 End def_pb.
 
+(** Make the C not implicit for Pullbacks *)
+Arguments Pullbacks : clear implicits.
 
 (** In this section we prove that the pullback of a monomorphism is a
   monomorphism. *)
@@ -439,8 +438,7 @@ Section pb_criteria.
   Defined.
 
   Definition Pullbacks_from_Equalizers_BinProducts (BinProds : BinProducts C)
-             (Eqs : @Equalizers C) :
-    @Pullbacks C.
+             (Eqs : Equalizers C) : Pullbacks C.
   Proof.
     intros Z X Y f g.
     use (Pullback_from_Equalizer_BinProduct X Y Z f g).
@@ -972,8 +970,7 @@ End pullbacks_pointwise.
 
 Section binproduct_from_pullback.
 
-Context {C : precategory} (Pb : @Pullbacks C).
-Variable T : Terminal C.
+Context {C : precategory} (Pb : Pullbacks C) (T : Terminal C).
 
 Definition UnivProductFromPullback (c d a : C) (f : a --> c) (g : a --> d):
 total2
