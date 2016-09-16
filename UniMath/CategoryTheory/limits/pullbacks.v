@@ -452,7 +452,7 @@ Section lemmas_on_pullbacks.
 
 
 (** setup for this section
-
+<<
                 k
           d --------> c
           |           |
@@ -460,6 +460,7 @@ Section lemmas_on_pullbacks.
           v           v
           b --------> a
                f
+>>
 *)
 
 Context {C : precategory} (hsC : has_homsets C).
@@ -552,7 +553,7 @@ Proof.
 Defined.
 
 (**  Diagram for next lemma
-
+<<
               i'           k
          d' -------> d --------> c
          |           |           |
@@ -560,6 +561,7 @@ Defined.
          v           v           v
          b'--------> b --------> a
               i            f
+>>
 *)
 
 Lemma isPullback_two_pullback
@@ -611,7 +613,7 @@ Proof.
 Defined.
 
 (**  Diagram for next lemma
-
+<<
               i'           k
          d' -------> d --------> c
          |           |           |
@@ -619,6 +621,7 @@ Defined.
          v           v           v
          b'--------> b --------> a
               i            f
+>>
 *)
 
 Lemma isPullback_iso_of_morphisms (b' d' : C) (h' : C⟦d', b'⟧)
@@ -882,7 +885,7 @@ End functor_on_square.
 Section pullbacks_pointwise.
 
 (**
-
+<<
           d
     J -------> H
     |          |
@@ -890,7 +893,7 @@ Section pullbacks_pointwise.
     v          v
     G -------> F
          a
-
+>>
 *)
 
 Context {C D : precategory}.
