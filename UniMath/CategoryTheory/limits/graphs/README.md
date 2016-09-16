@@ -4,6 +4,12 @@ graphs
 This directory contains a development of limits on the basis of
 descriptions of diagrams by graphs instead of functors.
 
+It is often better to use the direct implementation of specific limits
+in the parent folder for efficiency reasons. For instance we have
+noticed that changing the proof that binary (co)products lift to
+functor categories to the general one for limits makes the compilation
+of SubstitutionSystems very slow.
+
 ## Contents
 
 * *colimits.v*
