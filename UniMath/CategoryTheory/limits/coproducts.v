@@ -1,6 +1,6 @@
 (*
 
-Direct implementation of arbitrary coproducts together with:
+Direct implementation of indexed coproducts together with:
 
 - The general coproduct functor ([coproduct_functor])
 - Definition of a coproduct structure on a functor category by taking pointwise coproducts in the
@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.ProductPrecategory.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
-(** * Definition of arbitrary coproducts of objects in a precategory *)
+(** * Definition of indexed coproducts of objects in a precategory *)
 Section coproduct_def.
 
 Variables (I : UU) (C : precategory).
@@ -191,7 +191,7 @@ mkpair.
   apply (CoproductOfArrows _ _ _ _ f).
 Defined.
 
-(* The arbitrary coproduct functor: C^I -> C *)
+(** * The coproduct functor: C^I -> C *)
 Definition coproduct_functor (I : UU) {C : precategory}
   (PC : Coproducts I C) : functor (power_precategory I C) C.
 Proof.
@@ -211,8 +211,7 @@ Definition coproduct_of_functors_alt (I : UU) {C D : precategory}
      (functor_composite (pair_functor _ F)
                         (coproduct_functor _ HD)).
 
-
-(** Coproducts lift to functor categories *)
+(** * Coproducts lift to functor categories *)
 Section def_functor_pointwise_coprod.
 
 Variables (I : UU) (C D : precategory).

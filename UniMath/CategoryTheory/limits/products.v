@@ -1,6 +1,6 @@
 (**
 
-Direct implementation of arbitrary products together with:
+Direct implementation of indexed products together with:
 
 - The general product functor ([product_functor])
 - Definition of a product structure on a functor category by taking pointwise products in the target
@@ -22,7 +22,7 @@ Require Import UniMath.CategoryTheory.ProductPrecategory.
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
-(** * Definition of arbitrary products *)
+(** * Definition of indexed products of objects in a precategory *)
 Section product_def.
 
 Variable (I : UU) (C : precategory).
@@ -179,7 +179,7 @@ Qed.
 
 End Product_unique.
 
-(* The arbitrary product functor: C^I -> C *)
+(** * The product functor: C^I -> C *)
 Section product_functor.
 
 Context (I : UU) {C : precategory} (PC : Products I C).
@@ -212,7 +212,7 @@ Definition product_of_functors_alt
    functor_composite (delta_functor I C)
      (functor_composite (pair_functor _ F) (product_functor _ HD)).
 
-(** Products lift to functor categories *)
+(** * Products lift to functor categories *)
 Section def_functor_pointwise_prod.
 
 Variables (I : UU) (C D : precategory).
