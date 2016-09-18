@@ -42,10 +42,10 @@ Section def_additive.
   Defined.
 
   (** Accessor functions. *)
-  Definition toisAdditive (A : Additive) : isAdditive A := pr2 A.
+  Definition to_isAdditive (A : Additive) : isAdditive A := pr2 A.
 
-  Definition toZero (A : Additive) : Zero A := (dirprod_pr1 (toisAdditive A)).
+  Definition to_Zero (A : Additive) : Zero A := dirprod_pr1 (to_isAdditive A).
 
-  Definition toBinDirectSums (A : Additive) : BinDirectSums A := (dirprod_pr2 (toisAdditive A)).
+  Definition to_BinDirectSums (A : Additive) : BinDirectSums A := dirprod_pr2 (to_isAdditive A).
 
 End def_additive.

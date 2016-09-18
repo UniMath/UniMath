@@ -424,7 +424,6 @@ Section shortexact_correspondence.
     h ;; (CokernelArrow (Abelian.Cokernel (KernelArrow Im))) = ZeroArrow to_Zero _ _.
   Proof.
     cbn zeta.
-
     assert (X : h ;; Mor2 SSE = ZeroArrow to_Zero _ _).
     {
       rewrite (factorization2 hs (Mor2 SSE)).
@@ -435,7 +434,6 @@ Section shortexact_correspondence.
       unfold factorization2_monic in H'. cbn in H'.
       exact H'.
     }
-
     set (comm1 := KernelCommutes to_Zero (Abelian.Kernel (Mor2 SSE)) w h X).
     set (ker := ShortShortExact_Kernel hs SSE).
     set (tmp := Abelian.Kernel (Mor2 SSE)).

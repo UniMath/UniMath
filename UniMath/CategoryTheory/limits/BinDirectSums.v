@@ -81,16 +81,12 @@ Section def_bindirectsums.
   (** Definition of BinDirectSums. *)
   Definition BinDirectSumCone (a b : A) : UU :=
     Σ coab : (Σ co : A, a --> co × b --> co × co --> a × co --> b),
-             isBinDirectSumCone
-               a b (pr1 coab) (pr1 (pr2 coab))
-               (pr1 (pr2 (pr2 coab)))
-               (pr1 (pr2 (pr2 (pr2 coab))))
-               (pr2 (pr2 (pr2 (pr2 coab)))).
+             isBinDirectSumCone a b (pr1 coab) (pr1 (pr2 coab)) (pr1 (pr2 (pr2 coab)))
+                                (pr1 (pr2 (pr2 (pr2 coab)))) (pr2 (pr2 (pr2 (pr2 coab)))).
 
   (** Construction of BinDirectSumCone. *)
-  Definition mk_BinDirectSumCone (a b co : A)
-             (i1 : a --> co) (i2 : b --> co) (p1 : co --> a) (p2 : co --> b)
-             (H :  isBinDirectSumCone a b co i1 i2 p1 p2) :
+  Definition mk_BinDirectSumCone (a b co : A) (i1 : a --> co) (i2 : b --> co)
+             (p1 : co --> a) (p2 : co --> b) (H :  isBinDirectSumCone a b co i1 i2 p1 p2) :
     BinDirectSumCone a b := tpair _ (tpair _ co (i1,,(i2,,(p1,,p2)))) H.
 
   (** BinDirectSum in categories. *)
@@ -127,19 +123,18 @@ Section def_bindirectsums.
     exact (to_isBinCoproductCocone B).
   Defined.
 
-  Definition BinDirectSum_BinProduct {a b : A} (B : BinDirectSumCone a b) :
-    BinProductCone A a b.
+  Definition BinDirectSum_BinProduct {a b : A} (B : BinDirectSumCone a b) : BinProductCone A a b.
   Proof.
     use (mk_BinProductCone A a b B (to_Pr1 B) (to_Pr2 B)).
     exact (to_isBinProductCone B).
   Defined.
 
   (** An arrow to BinDirectSum and arrow from BinDirectSum. *)
-  Definition ToBinDirectSum {a b : A} (B : BinDirectSumCone a b) {c : A} (f : c --> a) (g : c --> b) :
-    A⟦c, B⟧ := BinProductArrow A (BinDirectSum_BinProduct B) f g.
+  Definition ToBinDirectSum {a b : A} (B : BinDirectSumCone a b) {c : A} (f : c --> a)
+             (g : c --> b) : A⟦c, B⟧ := BinProductArrow A (BinDirectSum_BinProduct B) f g.
 
-  Definition FromBinDirectSum {a b : A} (B : BinDirectSumCone a b) {c : A} (f : a --> c) (g : b --> c) :
-    A⟦B, c⟧ := BinCoproductArrow A (BinDirectSum_BinCoproduct B) f g.
+  Definition FromBinDirectSum {a b : A} (B : BinDirectSumCone a b) {c : A} (f : a --> c)
+             (g : b --> c) : A⟦B, c⟧ := BinCoproductArrow A (BinDirectSum_BinCoproduct B) f g.
 
   (** Commutativity of BinDirectSum. *)
   Definition BinDirectSumIn1Commutes {a b : A} (B : BinDirectSumCone a b) :
@@ -416,23 +411,23 @@ Section bindirectsums_criteria.
   Qed.
 
   Definition BinDirectSum_from_BinProduct {X Y : A} (P : BinProductCone A X Y) :
-    BinDirectSumCone A X Y
-    := mk_BinDirectSumCone
-         A X Y
-         (BinProductObject A P)
-         (BinProductArrow A P (identity X) (ZeroArrow Z X Y))
-         (BinProductArrow A P (ZeroArrow Z Y X) (identity Y))
-         (BinProductPr1 A P)
-         (BinProductPr2 A P)
-         (mk_isBinDirectSumCone
-            _ _ _ _ _ _ _ _
-            (BinDirectSums_from_binproduct_bincoproducts_isCoproduct P)
-            (BinDirectSums_from_binproduct_bincoproducts_isProduct P)
-            (BinDirectSums_from_binproduct_bincoproducts_eq1 P)
-            (BinDirectSums_from_binproduct_bincoproducts_eq4 P)
-            (BinDirectSums_from_binproduct_bincoproducts_eq2 P)
-            (BinDirectSums_from_binproduct_bincoproducts_eq3 P)
-            (BinDirectSums_from_binproduct_bincoproducts_eq5 P)).
+    BinDirectSumCone A X Y :=
+    mk_BinDirectSumCone
+      A X Y
+      (BinProductObject A P)
+      (BinProductArrow A P (identity X) (ZeroArrow Z X Y))
+      (BinProductArrow A P (ZeroArrow Z Y X) (identity Y))
+      (BinProductPr1 A P)
+      (BinProductPr2 A P)
+      (mk_isBinDirectSumCone
+         _ _ _ _ _ _ _ _
+         (BinDirectSums_from_binproduct_bincoproducts_isCoproduct P)
+         (BinDirectSums_from_binproduct_bincoproducts_isProduct P)
+         (BinDirectSums_from_binproduct_bincoproducts_eq1 P)
+         (BinDirectSums_from_binproduct_bincoproducts_eq4 P)
+         (BinDirectSums_from_binproduct_bincoproducts_eq2 P)
+         (BinDirectSums_from_binproduct_bincoproducts_eq3 P)
+         (BinDirectSums_from_binproduct_bincoproducts_eq5 P)).
 
   Definition BinDirectSums_from_BinProducts (BinProds : BinProducts A) : BinDirectSums A.
   Proof.

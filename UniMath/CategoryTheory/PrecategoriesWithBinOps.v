@@ -1,4 +1,4 @@
-(** ** Precategories with homs having a binary operation *)
+(** ** Precategories such that spaces of morphisms have a binary operation *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.

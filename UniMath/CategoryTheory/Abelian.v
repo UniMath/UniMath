@@ -108,9 +108,8 @@ Section def_abelian.
     isCoequalizer (AECD_Mor AECD y z E) (ZeroArrow (pr1 AD) (AECD_Ob AECD y z E) y) E
                   (AECD_Eq AECD y z E) := pr2 (AECD y z E).
 
-  (** Data which contains kernels, cokernels, the data that monics are kernels
-    of some morphisms, and the data that epis are cokernels of some
-    morphisms. *)
+  (** Data which contains kernels, cokernels, the data that monics are kernels of some morphisms,
+      and the data that epis are cokernels of some morphisms. *)
   Definition AbelianData (C : precategory) (AD1 : Data1 C) : UU :=
     (Data2 C AD1) × (AbelianMonicKernelsData C AD1) × (AbelianEpiCokernelsData C AD1).
 
@@ -204,30 +203,23 @@ Section abelian_monic_epi_iso.
     set (E1 := mk_Epi A f E).
     set (AMK := to_AMKD A x y M1).
     set (AEC := to_AECD A x y E1).
-
     induction AMK as [t p]. induction t as [t p0]. induction t as [t p1].
     induction AEC as [t0 p2]. induction t0 as [t0 p3]. induction t0 as [t0 p4].
-
     unfold isEqualizer in p. unfold isCoequalizer in p2.
-
-    (* Here we construct the inverse of f *)
+    (* Construct the inverse of f *)
     cbn in *. apply E in p0.
     set (p' := p y (identity _)).
     set (t'1 := maponpaths (fun h : A⟦y, t⟧ => identity _ ;; h) p0).
     cbn in t'1.
     set (p'' := p' t'1).
     induction p'' as [t1 p5]. induction t1 as [t1 p6].
-
+    (* Show that t1 is the inverse of f *)
     use is_iso_qinv.
-
-    (* The inverse of f *)
-    exact t1.
-
-    (* It remains to show that this is the inverse of f *)
-    split.
-    - apply (pr2 M1). cbn. rewrite <- assoc. rewrite p6.
-      rewrite id_left. rewrite id_right. apply idpath.
-    - apply p6.
+    - exact t1.
+    - split.
+      + apply (pr2 M1). cbn. rewrite <- assoc. rewrite p6.
+        rewrite id_left. rewrite id_right. apply idpath.
+      + apply p6.
   Qed.
 
   (** Construction of the iso. *)
@@ -307,23 +299,19 @@ Section abelian_subobject_pullbacks.
     set (ker2 := monic_kernel A M2).
     set (ar := BinProductArrow A BinProd (AMKD_Mor (to_AMKD A) x z M1)
                                (AMKD_Mor (to_AMKD A) y z M2)).
-
     assert (com1 : KernelIn to_Zero ker1 ker (KernelArrow ker)
                             (monics_Pullback_eq1 M1 M2 BinProd ker) ;; M1 = KernelArrow ker).
     {
       apply (KernelCommutes to_Zero ker1 _ (KernelArrow ker)).
     }
-
     assert (com2 : KernelIn to_Zero ker2 ker (KernelArrow ker)
                             (monics_Pullback_eq2 M1 M2 BinProd ker) ;; M2 = KernelArrow ker).
     {
       apply (KernelCommutes to_Zero ker2 _ (KernelArrow ker)).
     }
-
     (* isPullback *)
     use mk_isPullback.
     intros e h k H.
-
     (* First we show that h ;; M1 ;; ar = ZeroArrow by uniqueness of the morphism to product. *)
     assert (e1 : h ;; (KernelArrow ker1) ;; (AMKD_Mor (to_AMKD A) x z M1) = ZeroArrow to_Zero _ _).
     {
@@ -331,20 +319,17 @@ Section abelian_subobject_pullbacks.
       set (ee1 := KernelCompZero to_Zero ker1). cbn in ee1. cbn. rewrite ee1.
       apply ZeroArrow_comp_right.
     }
-
     assert (e2 : k ;; (KernelArrow ker2) ;; (AMKD_Mor (to_AMKD A) y z M2) = ZeroArrow to_Zero _ _).
     {
       rewrite <- assoc.
       set (ee2 := KernelCompZero to_Zero ker2). cbn in ee2. cbn. rewrite ee2.
       apply ZeroArrow_comp_right.
     }
-
     cbn in e1, e2.
     assert (e'1 : h ;; M1 ;; (AMKD_Mor (to_AMKD A) y z M2) = ZeroArrow to_Zero _ _).
     {
       rewrite H. apply e2.
     }
-
     assert (e''1 : h ;; M1 ;; ar = ZeroArrow to_Zero _ _).
     {
       rewrite (BinProductArrowEta A _ _ BinProd e (h ;; M1 ;; ar)).
@@ -358,7 +343,6 @@ Section abelian_subobject_pullbacks.
                                          (AMKD_Mor (to_AMKD A) y z M2)).
         fold ar in tmp1. rewrite tmp1. apply e'1.
     }
-
     use unique_exists.
     (* The arrow *)
     - use (KernelIn to_Zero ker e (h ;; M1)). apply e''1.
@@ -386,15 +370,12 @@ Section abelian_subobject_pullbacks.
   (** Construction of the Pullback of monics. *)
   Definition monics_Pullback {x y z : A} (M1 : Monic A x z) (M2 : Monic A y z) : Pullback M1 M2.
   Proof.
-    (* variables *)
     set (ker1 := monic_kernel A M1).
     set (ker2 := monic_kernel A M2).
     set (BinProd := to_BinProducts A (AMKD_Ob (to_AMKD A) x z M1) (AMKD_Ob (to_AMKD A) y z M2)).
     set (ar := BinProductArrow A BinProd (AMKD_Mor (to_AMKD A) x z M1)
                                (AMKD_Mor (to_AMKD A) y z M2)).
     set (ker := to_Kernels A _ _ ar).
-
-    (* Construction *)
     use (mk_Pullback M1 M2 ker
            (KernelIn to_Zero ker1 ker (KernelArrow ker) (monics_Pullback_eq1 M1 M2 BinProd ker))
            (KernelIn to_Zero ker2 ker (KernelArrow ker) (monics_Pullback_eq2 M1 M2 BinProd ker))
@@ -462,57 +443,47 @@ Section abelian_subobject_pullbacks.
                            (epis_Pushout_eq2 E1 E2 BinCoprod coker))
               (epis_Pushout_eq3 E1 E2 BinCoprod coker).
   Proof.
-    (* variables *)
     set (coker1 := epi_cokernel A E1).
     set (coker2 := epi_cokernel A E2).
     set (ar := BinCoproductArrow A BinCoprod (AECD_Mor (to_AECD A) x y E1)
                                  (AECD_Mor (to_AECD A) x z E2)).
-
     assert (com1 : E1 ;; (CokernelOut to_Zero coker1 coker (CokernelArrow coker)
                                       (epis_Pushout_eq1 E1 E2 BinCoprod coker)) =
                    CokernelArrow coker).
     {
       apply (CokernelCommutes to_Zero coker1 _ (CokernelArrow coker)).
     }
-
     assert (com2 : E2 ;; (CokernelOut to_Zero coker2 coker (CokernelArrow coker)
                                       (epis_Pushout_eq2 E1 E2 BinCoprod coker)) =
                    CokernelArrow coker).
     {
       apply (CokernelCommutes to_Zero coker2 _ (CokernelArrow coker)).
     }
-
     (* isPushout *)
     use mk_isPushout.
     intros e h k H.
-
-    (* First we show that h ;; M1 ;; ar = ZeroArrow by uniqueness of the
-       morphism to product. *)
+    (* First we show that h ;; M1 ;; ar = ZeroArrow by uniqueness of the morphism to product. *)
     assert (e1 : (AECD_Mor (to_AECD A) x y E1) ;; (CokernelArrow coker1) ;; h =
                  ZeroArrow to_Zero _ _).
     {
       set (ee1 := CokernelCompZero to_Zero coker1). cbn in ee1. cbn. rewrite ee1.
       apply ZeroArrow_comp_left.
     }
-
     assert (e2 : (AECD_Mor (to_AECD A) x z E2) ;; (CokernelArrow coker2) ;; k =
                  ZeroArrow to_Zero _ _).
     {
       set (ee2 := CokernelCompZero to_Zero coker2). cbn in ee2. cbn. rewrite ee2.
       apply ZeroArrow_comp_left.
     }
-
     cbn in e1, e2.
     assert (e'1 : (AECD_Mor (to_AECD A) x z E2) ;; E1 ;; h = ZeroArrow to_Zero _ _).
     {
       rewrite <- assoc. rewrite H. rewrite assoc. apply e2.
     }
-
     assert (e'2 : (AECD_Mor (to_AECD A) x y E1) ;; E2 ;; k = ZeroArrow to_Zero _ _).
     {
       rewrite <- assoc. rewrite <- H. rewrite assoc. apply e1.
     }
-
     assert (e''1 : ar ;; (E1 ;; h) = ZeroArrow to_Zero _ _).
     {
       rewrite assoc. rewrite (BinCoproductArrowEta A _ _ BinCoprod e (ar ;; E1 ;; h)).
@@ -526,7 +497,6 @@ Section abelian_subobject_pullbacks.
                                              (AECD_Mor (to_AECD A) x z E2)).
         fold ar in tmp1. rewrite tmp1. apply e'1.
     }
-
     use unique_exists.
     (* The arrow *)
     - use (CokernelOut to_Zero coker e (E1 ;; h)). apply e''1.
@@ -555,15 +525,12 @@ Section abelian_subobject_pullbacks.
 
   Definition epis_Pushout {x y z: A} (E1 : Epi A x y) (E2 : Epi A x z) : Pushout E1 E2.
   Proof.
-    (* variables *)
     set (coker1 := epi_cokernel A E1).
     set (coker2 := epi_cokernel A E2).
     set (BinCoprod := to_BinCoproducts A (AECD_Ob (to_AECD A) x y E1) (AECD_Ob (to_AECD A) x z E2)).
     set (ar := BinCoproductArrow A BinCoprod (AECD_Mor (to_AECD A) x y E1)
                                  (AECD_Mor (to_AECD A) x z E2)).
     set (coker := to_Cokernels A _ _ ar).
-
-    (* construction *)
     use (mk_Pushout E1 E2 coker
                     (CokernelOut to_Zero coker1 coker (CokernelArrow coker)
                                  (epis_Pushout_eq1 E1 E2 BinCoprod coker))
@@ -601,9 +568,9 @@ Section abelian_equalizers.
 
   Definition Equalizer_Pullback {x y : A} (f1 f2 : x --> y) :
     Pullback (BinProductArrow A (to_BinProducts A x y) (identity x) f1)
-             (BinProductArrow A (to_BinProducts A x y) (identity x) f2)
-    := monics_Pullback A hs (mk_Monic A _ (Equalizer_isMonic f1))
-                       (mk_Monic A _ (Equalizer_isMonic f2)).
+             (BinProductArrow A (to_BinProducts A x y) (identity x) f2) :=
+    monics_Pullback A hs (mk_Monic A _ (Equalizer_isMonic f1))
+                    (mk_Monic A _ (Equalizer_isMonic f2)).
 
   Definition Equalizer_eq1 {x y : A} (f1 f2 : x --> y) :
     PullbackPr1 (Equalizer_Pullback f1 f2) = PullbackPr2 (Equalizer_Pullback f1 f2).
@@ -612,11 +579,8 @@ Section abelian_equalizers.
     set (ar1 := BinProductArrow A BinProd (identity x) f1).
     set (ar2 := BinProductArrow A BinProd (identity x) f2).
     set (Pb := Equalizer_Pullback f1 f2).
-
-    assert (H1 : ar1 ;; (BinProductPr1 A BinProd) = identity x) by
-        apply BinProductPr1Commutes.
-    assert (H2 : ar2 ;; (BinProductPr1 A BinProd) = identity x) by
-        apply BinProductPr1Commutes.
+    assert (H1 : ar1 ;; (BinProductPr1 A BinProd) = identity x) by apply BinProductPr1Commutes.
+    assert (H2 : ar2 ;; (BinProductPr1 A BinProd) = identity x) by apply BinProductPr1Commutes.
     use (pathscomp0 (!(id_right A _ _ (PullbackPr1 Pb)))).
     use (pathscomp0 (!(maponpaths (fun h : _ => PullbackPr1 Pb ;; h) H1))).
     use (pathscomp0 _ ((id_right A _ _ (PullbackPr2 Pb)))).
@@ -633,13 +597,10 @@ Section abelian_equalizers.
     set (ar2 := BinProductArrow A BinProd (identity x) f2).
     set (H := Equalizer_eq1 f1 f2).
     set (Pb := Equalizer_Pullback f1 f2).
-
     assert (H1 : BinProductArrow A BinProd (identity x) f1 ;; (BinProductPr2 A BinProd) = f1) by
         apply BinProductPr2Commutes.
-
     assert (H2 : BinProductArrow A BinProd (identity x) f2 ;; (BinProductPr2 A BinProd) = f2) by
         apply BinProductPr2Commutes.
-
     rewrite <- H1. rewrite <- H2. rewrite assoc. rewrite assoc.
     apply cancel_postcomposition. unfold BinProd.
     set (X := PullbackSqrCommutes (Equalizer_Pullback f1 f2)).
@@ -653,10 +614,8 @@ Section abelian_equalizers.
     set (ar1 := BinProductArrow A BinProd (identity x) f1).
     set (ar2 := BinProductArrow A BinProd (identity x) f2).
     set (H := Equalizer_eq1 f1 f2).
-
     use mk_isEqualizer.
     intros w h HH.
-
     assert (HH' : h ;; ar1 = BinProductArrow A BinProd h (h ;; f1)).
     {
       apply (BinProductArrowUnique A _ _ BinProd).
@@ -667,7 +626,6 @@ Section abelian_equalizers.
         set (com2 := BinProductPr2Commutes A _ _ BinProd x (identity x) f1).
         fold ar1 in com2. rewrite com2. apply idpath.
     }
-
     assert (HH'' : h ;; ar2 = BinProductArrow A BinProd h (h ;; f1)).
     {
       apply (BinProductArrowUnique A _ _ BinProd).
@@ -678,12 +636,10 @@ Section abelian_equalizers.
         set (com2 := BinProductPr2Commutes A _ _ BinProd x (identity x) f2).
         fold ar2 in com2. rewrite com2. apply pathsinv0. apply HH.
     }
-
     assert (HH''' : h ;; ar1 = h ;; ar2).
     {
       rewrite HH'. rewrite HH''. apply idpath.
     }
-
     use unique_exists.
     (* The arrow *)
     - exact (PullbackArrow (Equalizer_Pullback f1 f2) w h h HH''').
@@ -737,7 +693,6 @@ Section abelian_equalizers.
     set (ar1 := BinCoproductArrow A BinCoprod (identity x) f1).
     set (ar2 := BinCoproductArrow A BinCoprod (identity x) f2).
     set (Po := Coequalizer_Pushout f1 f2).
-
     assert (H1 : (BinCoproductIn1 A BinCoprod) ;; ar1 = identity x) by
         apply BinCoproductIn1Commutes.
     assert (H2 : (BinCoproductIn1 A BinCoprod) ;; ar2 = identity x) by
@@ -758,7 +713,6 @@ Section abelian_equalizers.
     set (ar2 := BinCoproductArrow A BinCoprod (identity x) f2).
     set (H := Coequalizer_eq1 f1 f2).
     set (Pb := Coequalizer_Pushout f1 f2).
-
     rewrite <- (BinCoproductIn2Commutes A _ _ BinCoprod _ (identity x) f1).
     rewrite <- (BinCoproductIn2Commutes A _ _ BinCoprod _ (identity x) f2).
     repeat rewrite <- assoc. apply cancel_precomposition.
@@ -773,10 +727,8 @@ Section abelian_equalizers.
     set (ar1 := BinCoproductArrow A BinCoprod (identity x) f1).
     set (ar2 := BinCoproductArrow A BinCoprod (identity x) f2).
     set (H := Coequalizer_eq1 f1 f2).
-
     use mk_isCoequalizer.
     intros w h HH.
-
     assert (HH' : ar1 ;; h = BinCoproductArrow A BinCoprod h (f1 ;; h)).
     {
       use (BinCoproductArrowUnique A _ _ BinCoprod).
@@ -787,7 +739,6 @@ Section abelian_equalizers.
         set (com2 := BinCoproductIn2Commutes A _ _ BinCoprod x (identity x) f1).
         fold ar1 in com2. rewrite com2. apply idpath.
     }
-
     assert (HH'' : ar2 ;; h = BinCoproductArrow A BinCoprod h (f1 ;; h)).
     {
       apply (BinCoproductArrowUnique A _ _ BinCoprod).
@@ -798,12 +749,10 @@ Section abelian_equalizers.
         set (com2 := BinCoproductIn2Commutes A _ _ BinCoprod x (identity x) f2).
         fold ar2 in com2. rewrite com2. apply pathsinv0. apply HH.
     }
-
     assert (HH''' : ar1 ;; h = ar2 ;; h).
     {
       rewrite HH'. rewrite HH''. apply idpath.
     }
-
     use unique_exists.
     (* The arrow *)
     - exact (PushoutArrow (Coequalizer_Pushout f1 f2) w h h HH''').
@@ -876,12 +825,10 @@ Section abelian_monic_kernels.
   Proof.
     use (mk_isEqualizer).
     intros w h X.
-
     (* Transform X into an equality we need *)
     rewrite ZeroArrow_comp_right in X.
     rewrite <- (ZeroArrow_comp_left _ _ _ x y M) in X.
     apply (pr2 M) in X.
-
     use unique_exists.
     (* The arrow *)
     - exact (ZeroArrow to_Zero _ _).
@@ -910,12 +857,11 @@ Section abelian_monic_kernels.
   Proof.
     use (mk_isCoequalizer).
     intros w h X.
-
     (* Transform X into an equality we need *)
     rewrite ZeroArrow_comp_left in X.
     rewrite <- (ZeroArrow_comp_right A to_Zero y z w E) in X.
     apply (pr2 E) in X.
-
+    (* iscontr *)
     use unique_exists.
     (* The arrow *)
     - exact (ZeroArrow to_Zero _ _).
@@ -960,12 +906,10 @@ Section abelian_monic_kernels.
     set (Coeqar_epi := CoequalizerArrowEpi Coeq).
     set (Coeq_coker := epi_cokernel A Coeqar_epi).
     set (ker := @mk_Kernel A to_Zero _ _ _ (ZeroArrow to_Zero x y) f H isE).
-
     assert (e0 : CokernelArrow Coeq_coker = CoequalizerArrow Coeq).
     {
       apply idpath.
     }
-
     assert (e1 : f = (CokernelArrow Coeq_coker) ;; Coeqar).
     {
       apply pathsinv0. rewrite e0.
@@ -973,36 +917,30 @@ Section abelian_monic_kernels.
       fold Coeqar in XX.
       apply XX.
     }
-
     assert (e2 : (AECD_Mor (to_AECD A) _ _ Coeqar_epi) ;; f = ZeroArrow to_Zero _ _).
     {
       rewrite e1. rewrite assoc.
       rewrite CokernelCompZero.
       apply ZeroArrow_comp_left.
     }
-
     set (ar := KernelIn to_Zero ker (AECD_Ob (to_AECD A) _ _ Coeqar_epi)
                         (AECD_Mor (to_AECD A) _ _ Coeqar_epi) e2).
     set (com1 := KernelCommutes to_Zero ker (AECD_Ob (to_AECD A) _ _ Coeqar_epi)
                                 (AECD_Mor (to_AECD A) _ _ Coeqar_epi) e2).
-
     assert (e3 : KernelArrow ker = ZeroArrow to_Zero _ _ ).
     {
       apply idpath.
     }
-
     assert (e4 : AECD_Mor (to_AECD A) y Coeq Coeqar_epi = ZeroArrow to_Zero _ _).
     {
       rewrite <- com1. apply ZeroArrow_comp_right.
     }
-
     assert (e5 : is_iso (CoequalizerArrow Coeq)).
     {
       set (coker2 := KernelZeroMonic_cokernel e4 Coeq_coker).
       set (coker2_iso := CokernelofZeroArrow_iso to_Zero hs _ y coker2).
       apply (pr2 (coker2_iso)).
     }
-
     set (isoar := isopair (CoequalizerArrow Coeq) e5).
     set (coeq_eq := CoequalizerEqAr Coeq).
     apply (maponpaths (fun f : _ => f ;; inv_from_iso isoar)) in coeq_eq.
@@ -1050,12 +988,10 @@ Section abelian_monic_kernels.
     set (Eqar_monic := EqualizerArrowMonic Eq).
     set (Eq_ker := monic_kernel A Eqar_monic).
     set (coker := @mk_Cokernel A to_Zero _ _ _ (ZeroArrow to_Zero y z) f H isCE).
-
     assert (e0 : KernelArrow Eq_ker = EqualizerArrow Eq).
     {
       apply idpath.
     }
-
     assert (e1 : f = Eqar ;; (KernelArrow Eq_ker)).
     {
       apply pathsinv0. rewrite e0.
@@ -1063,7 +999,6 @@ Section abelian_monic_kernels.
       fold Eqar in XX.
       apply XX.
     }
-
     assert (e2 : f ;; (AMKD_Mor (to_AMKD A) _ _ Eqar_monic) = ZeroArrow to_Zero _ _).
     {
       rewrite e1. rewrite <- assoc.
@@ -1071,29 +1006,24 @@ Section abelian_monic_kernels.
       use (pathscomp0 tmp).
       apply ZeroArrow_comp_right.
     }
-
     set (ar := CokernelOut to_Zero coker (AMKD_Ob (to_AMKD A) _ _ Eqar_monic)
                            (AMKD_Mor (to_AMKD A) _ _ Eqar_monic) e2).
     set (com1 := CokernelCommutes to_Zero coker (AMKD_Ob (to_AMKD A) _ _ Eqar_monic)
                                   (AMKD_Mor (to_AMKD A) _ _ Eqar_monic) e2).
-
     assert (e3 : CokernelArrow coker = ZeroArrow to_Zero _ _ ).
     {
       apply idpath.
     }
-
     assert (e4 : AMKD_Mor (to_AMKD A) Eq y Eqar_monic = ZeroArrow to_Zero _ _).
     {
       rewrite <- com1. apply ZeroArrow_comp_left.
     }
-
     assert (e5 : is_iso (EqualizerArrow Eq)).
     {
       set (ker2 := CokernelZeroEpi_kernel e4 Eq_ker).
       set (ker2_iso := KernelofZeroArrow_iso to_Zero hs _ _ ker2).
       apply (pr2 (ker2_iso)).
     }
-
     set (isoar := isopair (EqualizerArrow Eq) e5).
     set (Eq_eq := EqualizerEqAr Eq).
     apply (maponpaths (fun f : _ => inv_from_iso isoar ;; f)) in Eq_eq.
@@ -1178,14 +1108,15 @@ Section abelian_factorization.
     f = (CokernelArrow (CoImage f)) ;; (CoIm_to_Im f) ;; (KernelArrow (Image f)).
   Proof.
     unfold CoIm_to_Im.
+    (* Commutativity of cokernel *)
     set (com0 := CokernelCommutes to_Zero (CoImage f) y f (CoIm_ar_eq f)).
-    apply pathsinv0 in com0.
-    use (pathscomp0 com0).
+    apply pathsinv0 in com0. use (pathscomp0 com0).
+    (* Cancel precomposition *)
     rewrite <- assoc. apply cancel_precomposition.
-
+    (* Commutativity of kernel *)
     set (com1 := KernelCommutes to_Zero (Image f) (CoImage f) (CoIm_ar f) (CoIm_to_Im_eq2 f)).
-    apply pathsinv0 in com1.
-    use (pathscomp0 com1).
+    apply pathsinv0 in com1. use (pathscomp0 com1).
+    (* idpath *)
     apply idpath.
   Qed.
 
@@ -1195,7 +1126,6 @@ Section abelian_factorization.
   Proof.
     (* It suffices to show that this morphism is monic and epi. *)
     use monic_epi_is_iso.
-
     (* isMonic *)
     - use (isMonic_postcomp A _ (KernelArrow (Image f))).
       intros z g1 g2 H.
@@ -1209,7 +1139,6 @@ Section abelian_factorization.
         apply CokernelArrowisEpi.
         apply CoequalizerArrowisEpi.
       }
-
       set (E := mk_Epi A ((CokernelArrow (CoImage f)) ;; (CoequalizerArrow q)) isE).
       set (coker := epi_cokernel A E).
       assert (e0 : (AECD_Mor (to_AECD A) _ _ E) ;; ((CokernelArrow (CoImage f))
@@ -1221,27 +1150,24 @@ Section abelian_factorization.
         apply cancel_precomposition.
         unfold E. apply idpath.
       }
-
       assert (e : (AECD_Mor (to_AECD A) _ _ E) ;; f = ZeroArrow to_Zero _ _).
       {
+        (* Use CoImage Image equation *)
         set (tmp := CoIm_to_Im_eq f).
         apply (maponpaths (fun f : _ => AECD_Mor (to_AECD A) x q E ;; f)) in tmp.
         use (pathscomp0 tmp).
-        rewrite <- assoc.
-        rewrite <- com1.
-
+        (* rewrite com1 *)
+        rewrite <- assoc. rewrite <- com1.
+        (* cancel postcompostion and use e0 *)
         rewrite assoc. rewrite assoc.
         set (tmpar1 := CoIm_to_Im f ;; KernelArrow (Image f)).
         set (tmpar2 := CoequalizerOut q y tmpar1 H).
         rewrite <- (ZeroArrow_comp_left A to_Zero _ _ _ tmpar2).
         apply cancel_postcomposition.
         rewrite <- assoc.
-
         rewrite e0. apply idpath.
       }
-
       set (l := KernelIn to_Zero (Kernel f) _ _ e).
-
       assert (e1 : (AECD_Mor (to_AECD A) x q E) ;; (CokernelArrow (CoImage f)) =
                    ZeroArrow to_Zero _ _).
       {
@@ -1254,7 +1180,6 @@ Section abelian_factorization.
         unfold CoImage.
         apply CokernelCompZero.
       }
-
       set (ar2 := CokernelOut to_Zero coker _ _ e1).
       set (com2 := CokernelCommutes to_Zero coker _ _ e1).
       assert (e2 : CokernelArrow (CoImage f) ;; (CoequalizerArrow q) ;;
@@ -1262,7 +1187,6 @@ Section abelian_factorization.
       {
         apply com2.
       }
-
       assert (e3 : (CoequalizerArrow q) ;; (CokernelOut to_Zero coker (CoImage f) _ e1)  =
                    identity _).
       {
@@ -1272,7 +1196,6 @@ Section abelian_factorization.
         rewrite id_right.
         apply e2.
       }
-
       assert (e4 : isMonic (CoequalizerArrow q)).
       {
         apply (isMonic_postcomp A _ (CokernelOut to_Zero coker (CoImage f) _ e1)).
@@ -1280,11 +1203,9 @@ Section abelian_factorization.
         rewrite <- e3 in tmp.
         apply tmp.
       }
-
       set (coeqeq := CoequalizerEqAr q).
       apply e4 in coeqeq.
       apply coeqeq.
-
     (* isEpi *)
     - use (isEpi_precomp A (CokernelArrow (CoImage f)) _).
       intros z g1 g2 H.
@@ -1298,36 +1219,32 @@ Section abelian_factorization.
         apply EqualizerArrowisMonic.
         apply KernelArrowisMonic.
       }
-
       set (M := mk_Monic A ((EqualizerArrow q) ;; (KernelArrow (Image f))) isE).
       set (ker := monic_kernel A M).
-
       assert (e0 : (EqualizerArrow q) ;; (KernelArrow (Image f)) ;; (AMKD_Mor (to_AMKD A) _ _ M) =
                    ZeroArrow to_Zero (monic_kernel A M) _).
       {
         use (pathscomp0 _ (KernelCompZero to_Zero (monic_kernel A M))).
         apply cancel_precomposition. apply idpath.
       }
-
       assert (e : f ;; (AMKD_Mor (to_AMKD A) _ _ M) = ZeroArrow to_Zero _ _).
       {
+        (* Use CoImage Image equation *)
         set (tmp := CoIm_to_Im_eq f).
         apply (maponpaths (fun f : _ => f ;; AMKD_Mor (to_AMKD A) q y M)) in tmp.
         use (pathscomp0 tmp).
+        (* rewrite com1 *)
         rewrite <- com1.
-
+        (* cancel precomposition and rewrite e0 *)
         set (tmpar1 := CokernelArrow (CoImage f) ;; CoIm_to_Im f).
         set (tmpar2 := EqualizerIn q x tmpar1 H).
         rewrite <- (ZeroArrow_comp_right A to_Zero _ _ _ tmpar2).
         rewrite <- assoc. rewrite <- assoc.
         apply cancel_precomposition.
         rewrite assoc.
-
         rewrite e0. apply idpath.
       }
-
-    set (l := CokernelOut to_Zero (Cokernel f) _ _ e).
-
+      set (l := CokernelOut to_Zero (Cokernel f) _ _ e).
       assert (e1 : (KernelArrow (Image f)) ;; (AMKD_Mor (to_AMKD A) q y M) = ZeroArrow to_Zero _ _).
       {
         set (tmp := CokernelCommutes to_Zero (Cokernel f) _ _ e).
@@ -1339,7 +1256,6 @@ Section abelian_factorization.
         unfold Image.
         apply KernelCompZero.
       }
-
       set (ar2 := KernelIn to_Zero ker _ _ e1).
       set (com2 := KernelCommutes to_Zero ker _ _ e1).
       assert (e2 : (KernelIn to_Zero ker _ _ e1) ;; (EqualizerArrow q) ;; KernelArrow (Image f) =
@@ -1349,7 +1265,6 @@ Section abelian_factorization.
         apply cancel_precomposition. unfold ker.
         apply idpath.
       }
-
       assert (e3 : (KernelIn to_Zero ker (Image f) _ e1) ;; (EqualizerArrow q)  = identity _).
       {
         set (isM1 := KernelArrowisMonic to_Zero (Image f)).
@@ -1358,7 +1273,6 @@ Section abelian_factorization.
         rewrite id_left.
         apply e2.
       }
-
       assert (e4 : isEpi (EqualizerArrow q)).
       {
         apply (isEpi_precomp A (KernelIn to_Zero ker (Image f) _ e1)).
@@ -1366,7 +1280,6 @@ Section abelian_factorization.
         rewrite <- e3 in tmp.
         apply tmp.
       }
-
       set (eqeq := EqualizerEqAr q).
       apply e4 in eqeq.
       apply eqeq.
