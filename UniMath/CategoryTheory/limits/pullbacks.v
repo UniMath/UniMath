@@ -404,7 +404,7 @@ Section pb_criteria.
     intros y. apply isapropdirprod. apply hs. apply hs.
 
     (* Uniqueness *)
-    intros y H. induction H. apply EqualizerInsEq. apply BinProductArrowsEq.
+    intros y H. induction H as [t p]. apply EqualizerInsEq. apply BinProductArrowsEq.
     rewrite assoc in t. rewrite t.
     rewrite (EqualizerCommutes Eq e _). apply pathsinv0.
     exact (BinProductPr1Commutes C _ _ BinProd _ h k).

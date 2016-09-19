@@ -12,10 +12,15 @@ introduce axioms for various consequences of univalence.  This allows us to
 measure how subsequent theorems depend on the axioms using the "Print
 Assumptions" command of Coq.
 
-An important point is that we introduce as axioms only those whose statements
-are propositions, so that the axiom and any proofs derivable from other
-axioms will be equal.  Proofs that the statements are propositions will be
-provided in the file UnivalenceAxiom2.
+An important point is that the types of all our axioms are propositions, that is
+types of h-level 1 and once an element of such a type is declared or contructed
+it becomes a contractible type.
+
+In particular, the declared element corresponding to the axiom and the element
+that can be contructed using another, stronger, axiom are connected by a path.
+
+Proofs that the types of our axioms are propositions will be provided in the
+file UnivalenceAxiom2.
 
 We postpone stating the axioms themselves until after all the implications
 are established; this helps us encourage the use of the axioms for the

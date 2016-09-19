@@ -95,7 +95,7 @@ Section def_coequalizers.
       + apply (pr2 (pr1 H2)).
     - intro t. apply subtypeEquality.
       intros y. apply impred. intros t0. apply hs.
-      induction t. cbn.
+      induction t as [t p]. cbn.
       apply path_to_ctr.
       apply (p Two).
   Defined.

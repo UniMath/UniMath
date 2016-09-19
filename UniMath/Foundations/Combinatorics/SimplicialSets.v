@@ -23,15 +23,15 @@ Require Export UniMath.CategoryTheory.functor_categories.
 (* The pre-category data for the category Delta *)
 
 
-Definition monfunstn ( n m : nat ) : UU := total2 ( fun f : stn n -> stn m =>
-                                                       forall ( x y : stn n ) ( is : x < y ) ,
+Definition monfunstn ( n m : nat ) : UU :=
+  total2 ( fun f : stn n -> stn m => forall ( x y : stn n ) ( is : x < y ) ,
                                                          f x < f y ) .
-Definition monfunstnpair { n m : nat } := tpair ( fun f : stn n -> stn m =>
-                                                       forall ( x y : stn n ) ( is : x < y ) ,
+Definition monfunstnpair { n m : nat } :=
+  tpair ( fun f : stn n -> stn m => forall ( x y : stn n ) ( is : x < y ) ,
                                                          f x < f y ) .
 
-
-Definition monfunstnpr1 ( n m : nat ) : monfunstn n m  -> ( stn n -> stn m ) := pr1 .
+Definition monfunstnpr1 ( n m : nat ) :
+  monfunstn n m  -> ( stn n -> stn m ) := pr1 .
 Coercion monfunstnpr1 : monfunstn >-> Funclass .
 
 Lemma isasetmonfunstn ( n m : nat ) : isaset ( monfunstn n m ) .
@@ -101,7 +101,7 @@ Admitted.
 
 (* Definition of a simplicial hset *)
 
-Definition sSet := [ precatDelta , HSET, pr2 is_category_HSET ] .
+Definition sSet := [ precatDelta^op , HSET, pr2 is_category_HSET ] .
 
 (* V.V. with Sasha Vishik, Nov. 23, 2014 *)
 
