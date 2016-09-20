@@ -1144,8 +1144,8 @@ Proof.
   intros P.
   apply hinhuniv.
   intros Hp.
-  generalize (filter_and F _ _ (Hf _ (pr1 (pr2 (pr2 Hp)))) (Hg _ (pr1 (pr2 (pr2 (pr2 Hp)))))).
-  apply (filter_imply F).
+  generalize (Filter_and F _ _ (Hf _ (pr1 (pr2 (pr2 Hp)))) (Hg _ (pr1 (pr2 (pr2 (pr2 Hp)))))).
+  apply (Filter_imply F).
   intros x Hx.
   apply (pr2 (pr2 (pr2 (pr2 Hp)))).
   exact (pr1 Hx).
@@ -1158,9 +1158,13 @@ Proof.
   intros U V x y P.
   apply hinhuniv.
   intros O.
-  simple refine (filter_imply _ _ _ _ _).
+  simple refine (Filter_imply _ _ _ _ _).
   - exact (pr1 O).
-  - exact (pr2 (pr2 O)).
+  - intros z Oz.
+    simpl.
+    apply (pr2 (pr2 O)).
+    rewrite <- tppr.
+    exact Oz.
   - generalize (pr2 (pr1 O) _ (pr1 (pr2 O))).
     apply hinhfun.
     intros Ho.
@@ -1180,9 +1184,12 @@ Proof.
   intros U V xy P.
   apply hinhuniv.
   intros O.
-  simple refine (filter_imply _ _ _ _ _).
-  - exact (pr1 (pr1 O)).
-  - exact (pr2 (pr2 O)).
+  simple refine (Filter_imply _ _ _ _ _).
+  - intros z.
+    apply (pr1 (pr1 O)).
+    exact (pr1 z).
+  - intros x.
+    apply (pr2 (pr2 O)).
   - apply hinhpr.
     mkpair.
     mkpair.
@@ -1205,9 +1212,11 @@ Proof.
   intros U V xy P.
   apply hinhuniv.
   intros O.
-  simple refine (filter_imply _ _ _ _ _).
-  - exact (pr1 (pr1 O)).
-  - exact (pr2 (pr2 O)).
+  simple refine (Filter_imply _ _ _ _ _).
+  - intros z.
+    exact (pr1 (pr1 O) (pr2 z)).
+  - intros z.
+    apply (pr2 (pr2 O)).
   - apply hinhpr.
     mkpair.
     mkpair.
