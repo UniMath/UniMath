@@ -1036,6 +1036,7 @@ Defined.
 
 (** **** Relations and the canonical homomorphism to the field of fractions *)
 
+
 Definition iscomptofldfrac (X : intdom) (is : isdeceq X) {L : hrel X} (is0 : @isbinophrel X L)
            (is1 : isrngmultgt X L)
            (is2 : L 1 0)

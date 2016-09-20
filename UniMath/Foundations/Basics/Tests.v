@@ -78,11 +78,11 @@ Module Test_sets.
   Proof. reflexivity. Qed.
 
   Goal true != false.
-    exact (confirm_neg ( deceq_to_decrel isdeceqbool, true, false )).
+    confirm_not_equal isdeceqbool.
   Defined.
 
   Goal true = true.
-    exact (confirm_pos ( deceq_to_decrel isdeceqbool, true, true )).
+    confirm_equal isdeceqbool.
   Defined.
 
 End Test_sets.

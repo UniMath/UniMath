@@ -104,15 +104,15 @@ Proof.
     { unshelve refine (makeNatiso _ _).
       { intro a. unshelve refine (makeNatiso _ _).
         { intro b. exact (identity_iso _). }
-        { abstract (intros b b' f; simpl; rewrite id_right, id_left; reflexivity) using L. } }
+        { abstract (intros b b' f; simpl; rewrite id_right, id_left; reflexivity) using _L_. } }
       abstract (intros a a' f; apply nat_trans_eq;
                 [ apply homset_property
-                | intro b; simpl; now rewrite id_left, id_right]) using M. } }
+                | intro b; simpl; now rewrite id_left, id_right]) using _M_. } }
   { abstract (intros F F' p; simpl; apply nat_trans_eq;
               [ exact (homset_property [B,C])
               | intro a; apply nat_trans_eq;
                 [ apply homset_property
-                | intro b; simpl; now rewrite id_right, id_left]]) using N. }
+                | intro b; simpl; now rewrite id_right, id_left]]) using _N_. }
 Defined.
 
 Lemma transport_along_funextsec {X:UU} {Y:X->UU} {f g:Π x, Y x}
@@ -259,11 +259,11 @@ Proof.
     { intros F' F p xe. exact (xe ⟲⟲ p). }
     { abstract (
           intros F; apply funextsec; intro xe; apply θ_subset;
-          simpl; apply funextsec; intro b; apply arrow_mor_id) using K. }
+          simpl; apply funextsec; intro b; apply arrow_mor_id) using _K_. }
     { abstract (
           intros F F' F'' p q; simpl; apply funextsec; intro xe; apply θ_subset;
           simpl; apply funextsec; intro b;
-          unfold θ_map_1; exact (arrow_mor_mor_assoc _ _ _)) using L. } }
+          unfold θ_map_1; exact (arrow_mor_mor_assoc _ _ _)) using _L_. } }
   { intros X Y p. simpl.
     unshelve refine (_,,_).
     { intros F. simpl. intro x. exact (φ_map x p). }
@@ -278,7 +278,7 @@ Proof.
           | apply funextsec; intro b;
             apply funextsec; intro b';
             apply funextsec; intro b'';
-            apply setproperty ]) using L. } }
+            apply setproperty ]) using _L_. } }
   { abstract( simpl;
     intro F;
     apply nat_trans_eq;
@@ -294,7 +294,7 @@ Proof.
         apply funextsec; intro b';
         apply funextsec; intro f;
         simpl;
-        apply setproperty] ]) using L. }
+        apply setproperty] ]) using _L_. }
   { abstract (intros F F' F'' p q;
               simpl;
               apply nat_trans_eq;
@@ -309,7 +309,7 @@ Proof.
                 | apply funextsec; intro b;
                   apply funextsec; intro b';
                   apply funextsec; intro f;
-                  apply setproperty ]]) using L. }
+                  apply setproperty ]]) using _L_. }
 Defined.
 
 (* *)

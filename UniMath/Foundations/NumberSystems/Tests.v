@@ -71,11 +71,10 @@ Module Test_int.
   Open Scope hz.
 
   Goal nattohz 4 = nattohz 2 + nattohz 2.
-    exact ( confirm_pos ( deceq_to_decrel isdeceqhz , nattohz 4 , nattohz 2 + nattohz 2 ) ).
+    confirm_equal isdeceqhz.
   Defined.
-  Goal nattohz 3 != 0. exact (confirm_neg ( deceq_to_decrel isdeceqhz , nattohz 3 , 0 ) ). Defined.
-  Goal nattohz 3 ≠ 0. exact (neg_to_negProp (confirm_neg ( deceq_to_decrel isdeceqhz , nattohz 3 , 0 ) )). Defined.
-
+  Goal nattohz 3 != 0. confirm_not_equal isdeceqhz. Defined.
+  Goal nattohz 3 ≠ 0. apply neg_to_negProp. confirm_not_equal isdeceqhz. Defined.
   Goal true = hzbooleq (natnattohz 3 4) (natnattohz 17 18) . reflexivity. Qed.
   Goal false = (hzbooleq (natnattohz 3 4) (natnattohz 17 19)) . reflexivity. Qed.
   Goal 274 = (hzabsval (natnattohz 58 332)) . reflexivity. Qed.
@@ -96,19 +95,6 @@ Module Test_rat.
 
   Transparent hz .
 
-  Goal true = hqbooleq ( hzhztohq ( nattohz 4 )
-                                    ( nattohz 3,, neg_to_negProp (nP := (_ ≠ _)%hz) (confirm_neg (deceq_to_decrel isdeceqhz, nattohz 3, 0%hz))))
-                         ( hzhztohq ( natnattohz 13 1 )
-                                    ( natnattohz 11 2,, neg_to_negProp (nP := (_ ≠ _)%hz) (confirm_neg ( deceq_to_decrel isdeceqhz, natnattohz 11 2, 0%hz)))) .
-                reflexivity. Qed.
-
-  Goal true = decreltobrel hqgthdec
-                           ( hzhztohq ( nattohz 5)
-                                      ( nattohz 3,, neg_to_negProp (nP := (_ ≠ _)%hz) (confirm_neg(deceq_to_decrel isdeceqhz, nattohz 3, 0%hz))))
-                           ( hzhztohq ( natnattohz 13 1 )
-                                        ( natnattohz 11 2,, neg_to_negProp (nP := (_ ≠ _)%hz) (confirm_neg(deceq_to_decrel isdeceqhz, natnattohz 11 2, 0%hz)))).
-    reflexivity. Qed.
-
   Goal 4 = ( hzabsval ( intpart ( hqdiv ( hztohq ( nattohz ( 10 ) ) )  ( - ( 1 + 1 + 1 ) ) ) ) ) . reflexivity. Qed.
 
   Goal true = hqbooleq (hztohq(nattohz (S O)) + hztohq(nattohz (S O)))
@@ -117,7 +103,7 @@ Module Test_rat.
   Qed.
 
   Goal ( nattohq 1%nat + nattohq 1%nat = nattohq 2 ).
-    exact (confirm_pos ( deceq_to_decrel isdeceqhq, nattohq (S O) + nattohq (S O), nattohq 2)).
+    confirm_equal isdeceqhq.
   Defined.
 
   Unset Kernel Term Sharing.    (* needed for the following tests: *)

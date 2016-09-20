@@ -38,8 +38,7 @@ Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
-Require Import UniMath.CategoryTheory.chains.
-Require Import UniMath.CategoryTheory.cocontfunctors.
+Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.lists.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
@@ -91,8 +90,8 @@ Definition precomp_option_iter (n : nat) : functor HSET2 HSET2 := match n with
 Lemma is_omega_cocont_precomp_option_iter (n : nat) : is_omega_cocont (precomp_option_iter n).
 Proof.
 destruct n; simpl.
-- apply (is_omega_cocont_functor_identity _ has_homsets_HSET2).
-- apply (is_omega_cocont_pre_composition_functor _ _ _ (iter_functor1 _ optionHSET n) _ _ cats_LimsHSET).
+- apply (is_omega_cocont_functor_identity has_homsets_HSET2).
+- apply (is_omega_cocont_pre_composition_functor (iter_functor1 _ optionHSET n) _ _ cats_LimsHSET).
 Defined.
 
 Definition precomp_option_iter_Signature (n : nat) : Signature HSET has_homsets_HSET.
@@ -121,7 +120,7 @@ Lemma is_omega_cocont_Arity_to_Signature (xs : list nat) : is_omega_cocont (Arit
 Proof.
 destruct xs as [n xs].
 destruct n.
-- destruct xs; simpl; apply (is_omega_cocont_functor_identity _ has_homsets_HSET2).
+- destruct xs; simpl; apply (is_omega_cocont_functor_identity has_homsets_HSET2).
 - induction n.
   + destruct xs as [m []]; simpl.
     apply is_omega_cocont_precomp_option_iter.
@@ -132,6 +131,8 @@ destruct n.
     apply is_omega_cocont_BinProduct_of_Signatures.
     apply is_omega_cocont_precomp_option_iter.
     apply IH.
+    apply is_omega_cocont_constprod_functor1.
+    apply has_homsets_HSET2.
     apply has_exponentials_HSET2.
 Defined.
 
@@ -150,7 +151,7 @@ Proof.
 destruct s as [n xs].
 destruct n.
 - destruct xs.
-  apply (is_omega_cocont_functor_identity _ has_homsets_HSET2).
+  apply (is_omega_cocont_functor_identity has_homsets_HSET2).
 - induction n.
   + destruct xs as [xs []]; simpl.
     apply is_omega_cocont_Arity_to_Signature.
@@ -168,6 +169,7 @@ Definition SigInitial (sig : Sig) :
   Initial (FunctorAlg (Id_H HSET has_homsets_HSET BinCoproductsHSET (SigToSignature sig)) has_homsets_HSET2).
 Proof.
 use colimAlgInitial.
+- apply (Initial_functor_precat _ _ InitialHSET).
 - unfold Id_H, Const_plus_H.
   apply is_omega_cocont_BinCoproduct_of_functors.
   + apply (BinProducts_functor_precat _ _ BinProductsHSET).
@@ -175,7 +177,6 @@ use colimAlgInitial.
   + apply functor_category_has_homsets.
   + apply is_omega_cocont_constant_functor, functor_category_has_homsets.
   + apply is_omega_cocont_SigToSignature.
-- apply (Initial_functor_precat _ _ InitialHSET).
 - apply ColimsFunctorCategory; apply ColimsHSET.
 Defined.
 

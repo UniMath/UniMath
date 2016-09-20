@@ -86,7 +86,10 @@ Notation " x ≠ y " := ( hzneq x y ) (at level 70, no associativity) : hz_scope
 (** *** [ hz ] is a non-zero ring *)
 
 Lemma isnonzerornghz : isnonzerorng hz .
-Proof . exact (confirm_neg (deceq_to_decrel isdeceqhz, 1, 0 )). Defined.
+Proof.
+  unfold isnonzerorng.
+  confirm_not_equal isdeceqhz.
+Defined.
 
 (** *** Properties of addition and subtraction on [ hz ] *)
 

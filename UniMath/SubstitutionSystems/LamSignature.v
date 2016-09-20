@@ -39,6 +39,10 @@ Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.Notation.
+Require Import UniMath.CategoryTheory.CocontFunctors.
+Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.limits.cats.limits.
 
 Arguments θ_source {_ _} _ .
 Arguments θ_target {_ _} _ .
@@ -81,21 +85,17 @@ Proof.
   exact CP.
 Defined.
 
-Require Import UniMath.CategoryTheory.chains.
-Require Import UniMath.CategoryTheory.cocontfunctors.
-Require Import UniMath.CategoryTheory.exponentials.
-
-Lemma is_omega_cocont_App_H (hE : has_exponentials (BinProducts_functor_precat C C CP hs)) :
+Lemma is_omega_cocont_App_H
+  (hE : Π x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C CP hs) x)) :
   is_omega_cocont App_H.
 Proof.
 unfold App_H, square_functor.
-apply is_omega_cocont_BinProduct_of_functors.
+apply is_omega_cocont_BinProduct_of_functors; try assumption.
 - apply (BinProducts_functor_precat _ _ CP).
-- apply hE.
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.
-- apply (is_omega_cocont_functor_identity _ (functor_category_has_homsets _ _ hs)).
-- apply (is_omega_cocont_functor_identity _ (functor_category_has_homsets _ _ hs)).
+- apply (is_omega_cocont_functor_identity (functor_category_has_homsets _ _ hs)).
+- apply (is_omega_cocont_functor_identity (functor_category_has_homsets _ _ hs)).
 Defined.
 
 (**
@@ -163,9 +163,6 @@ Defined.
 (*     apply idpath. *)
 (* Qed. *)
 
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.cats.limits.
-
 Definition Abs_H : functor [C, C, hs] [C, C, hs] :=
  (* tpair _ _ is_functor_Abs_H_data. *)
   pre_composition_functor _ _ _ hs _ (option_functor C CC terminal).
@@ -173,7 +170,7 @@ Definition Abs_H : functor [C, C, hs] [C, C, hs] :=
 Lemma is_omega_cocont_Abs_H (LC : Lims C) : is_omega_cocont Abs_H.
 Proof.
 unfold Abs_H.
-apply (is_omega_cocont_pre_composition_functor _ _ _ _ _ _ LC).
+apply (is_omega_cocont_pre_composition_functor _ _ _ LC).
 Defined.
 
 
@@ -672,8 +669,9 @@ Defined.
 Definition Lam_Sig: Signature C hs :=
   BinSum_of_Signatures C hs CC App_Sig Abs_Sig.
 
-Lemma is_omega_cocont_Lam (hE : has_exponentials (BinProducts_functor_precat C C CP hs)) (LC : Lims C) :
-  is_omega_cocont (Signature_Functor _ _ Lam_Sig).
+Lemma is_omega_cocont_Lam
+  (hE : Π x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C CP hs) x))
+  (LC : Lims C) : is_omega_cocont (Signature_Functor _ _ Lam_Sig).
 Proof.
 apply is_omega_cocont_BinCoproduct_of_functors.
 - apply (BinProducts_functor_precat _ _ CP).

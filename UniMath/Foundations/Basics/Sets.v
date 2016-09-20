@@ -188,6 +188,7 @@ Proof.
            using isaprop_isInjectiveFunction.
 Defined.
 
+
 (** ** Types [X] which satisfy "weak" axiom of choice for all families [P : X -> UU]
 
 Weak axiom of choice for [X] is the condition that for any family [P : X -> UU]
@@ -224,7 +225,6 @@ Proof.
 Defined.
 
 Definition ischoicebase (X : UU) : hProp := hProppair _ (isapropischoicebase X).
-
 
 Lemma ischoicebaseweqf {X Y : UU} (w : X ≃ Y) (is : ischoicebase X) :
   ischoicebase Y.
@@ -1068,80 +1068,17 @@ Proof.
   - apply false.
 Defined.
 
-Lemma decreltobrel_iff { X : UU } ( R : decrel X ) (x y:X) : R x y <-> decreltobrel R x y = true.
-Proof.
-  intros.
-  - unfold decreltobrel. induction (pr2 R x y) as [yes|no].
-    + split; now intros _.
-    + split.
-      * intros r. apply fromempty. exact (no r).
-      * intros n. apply fromempty. exact (nopathsfalsetotrue n).
-Defined.
-
-Lemma decreltobrel_neg_iff { X : UU } ( R : decrel X ) (x y:X) : ¬ R x y <-> decreltobrel R x y = false.
-Proof.
-  intros.
-  - unfold decreltobrel. induction (pr2 R x y) as [yes|no].
-    + split.
-      * intros no. apply fromempty. exact (no yes).
-      * intros e. apply fromempty. exact (nopathstruetofalse e).
-    + split; now intros _.
-Defined.
-
 Definition breltodecrel {X : UU} (B : brel X) : decrel X
   := @decrelpair _ (fun x x' => hProppair (paths (B x x') true) (isasetbool _ _))
                  (fun x x' => (isdeceqbool _ _)).
-
-Definition deceq_to_decrel {X:UU} : isdeceq X -> decrel X.
-Proof. intros ? i. simple refine (_,,_).
-       - intros x y. exists (x=y). now apply isasetifdeceq.
-       - exact i.
-Defined.
 
 Definition deceq_to_neqReln {X:hSet} : isdeceq X -> neqReln X.
 Proof.
   intros ? i x y. exact (decprop_to_negProp (P := eqset x y) (i x y)).
 Defined.
 
-Definition decrel_to_pos_decrel {X:UU} : decrel X -> decrel X.
-Proof.
-  (* the point of this is that the new relation takes values in htrue or hfalse, so
-     when it's true, [tt] will always serve as a proof, and when it's false,
-     no proof is needed, as implemented below. *)
-  intros ? i. simple refine (_,,_).
-  { intros x y.
-    induction (pr2 i x y) as [eq|neq].
-    { exact htrue. }
-    { exact hfalse. } }
-  { intros x y; simpl.
-    induction (pr2 i x y) as [eq|neq].
-    { simpl. apply ii1. exact tt. }
-    { simpl. apply ii2. exact (idfun _). } }
-Defined.
-
-Lemma decrel_to_pos_decrel_iff {X:UU} (R:decrel X) (x y:X) :
-  decrel_to_pos_decrel R x y <-> R x y.
-Proof.
-  intros. split.
-  { unfold decrel_to_pos_decrel; simpl.
-    induction (pr2 R x y) as [eq|neq].
-    - simpl. intros _. exact eq.
-    - simpl. exact fromempty. }
-  { intros e. unfold decrel_to_pos_decrel. simpl.
-    induction (pr2 R x y) as [eq|neq].
-    - simpl. exact tt.
-    - simpl. exact (neq e). }
-Defined.
-
-Notation "'confirm_pos' ( R , x , y ) " := (pr1 (decrel_to_pos_decrel_iff R x y) tt) (at level 200).
-Notation "'confirm_neg' ( R , x , y ) " := (pr2 (decrel_to_pos_decrel_iff R x y)) (at level 200).
-(* Compare the notations above with "ct" and "ctlong". The advantage of these over it
-   is that we don't have to prove decidability both for equality and for inequality. *)
-
-Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
-  let T := type of x in match goal with |- ?G => exact ((@id G : T -> G) x) end.
-
-Definition decrel_to_DecidableRelation {X} : decrel X -> DecidableRelation X.
+Definition decrel_to_DecidableRelation {X : UU} :
+  decrel X -> DecidableRelation X.
 Proof.
   intros ? R x y. induction R as [R is]. exists (R x y).
   apply isdecpropif. { apply propproperty. } apply is.
@@ -1208,6 +1145,25 @@ Defined.
 
 Notation " 'ct' ( R , is , x , y ) " := (ctlong R is x y (idpath true))
                                           (at level 70).
+
+(* An alternative to [ct], with tactics and negations *)
+
+Definition deceq_to_decrel {X:UU} : isdeceq X -> decrel X.
+Proof. intros ? i. use decrelpair.
+       - intros x y. exists (x=y). now apply isasetifdeceq.
+       - exact i.
+Defined.
+
+Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
+  let T := type of x in
+  let G := match goal with |- ?G => constr:(G) end in
+  exact ((@idfun G : T -> G) x).
+
+(* I don't know why exact_op works better here, but with "exact", the code in RealNumbers/Prelim.v breaks *)
+Ltac confirm_yes d x y := exact_op (pathstor d x y (idpath true)).
+Ltac confirm_no  d x y := exact_op (pathstonegr d x y (idpath false)).
+Ltac confirm_equal     i := match goal with |- ?x = ?y => confirm_yes (deceq_to_decrel i) x y end.
+Ltac confirm_not_equal i := match goal with |- ?x != ?y => confirm_no (deceq_to_decrel i) x y end.
 
 (** *** Restriction of a relation to a subtype *)
 
@@ -1674,8 +1630,6 @@ Proof.
 Defined.
 
 
-
-
 (** Important note : theorems proved above can not be used (al least at the
   moment) to construct terms whose complete normalization (evaluation) is
   important. For example they should not be used * directly * to construct
@@ -1696,10 +1650,7 @@ Defined.
   [isdeceq (setquot R)] using the same assumptions which is "constructive"
   i.e. usable for the evaluation purposes. *)
 
-
-
-
-(** *** The case when the function between quotients defined by [setquotfun] is a surjection, inclusion or a weak equivalence *)
+(** *** The case when [setquotfun] is a surjection, inclusion or a weak equivalence *)
 
 Lemma issurjsetquotfun {X Y : UU} (RX : eqrel X) (RY : eqrel Y) (f : X -> Y)
       (is : issurjective f) (is1 : iscomprelrelfun RX RY f) :
@@ -2345,8 +2296,8 @@ Definition decquotrel {X : UU} {R : eqrel X} (L : decrel X)
 (** *** Subtypes of quotients and quotients of subtypes *)
 
 
-Definition reseqrel {X : UU} (R : eqrel X) (P : hsubtypes X) : eqrel P
-  := eqrelpair _ (iseqrelresrel R P (pr2 R)).
+Definition reseqrel {X : UU} (R : eqrel X) (P : hsubtypes X) : eqrel P :=
+  eqrelpair _ (iseqrelresrel R P (pr2 R)).
 
 Lemma iseqclassresrel {X : UU} (R : hrel X) (P Q : hsubtypes X)
       (is : iseqclass R Q) (is' : Π x, Q x -> P x) :
