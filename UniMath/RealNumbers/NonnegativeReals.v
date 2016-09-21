@@ -575,45 +575,37 @@ Proof.
   intros r Hr.
   generalize (X_open _ (pr1 Hr)) (Y_open _ (pr2 Hr)).
   apply hinhfun2 ; intros q q'.
-  generalize (isdecrel_ltNonnegativeRationals (pr1 q) (pr1 q')) ;
-    apply sumofmaps ; intros H.
-  - exists (pr1 q) ; repeat split.
-    exact (pr1 (pr2 q)).
-    apply Y_bot with (1 := pr1 (pr2 q')), lt_leNonnegativeRationals, H.
-    exact (pr2 (pr2 q)).
-  - exists (pr1 q') ; repeat split.
-    apply X_bot with (1 := pr1 (pr2 q)), notlt_geNonnegativeRationals, H.
-    exact (pr1 (pr2 q')).
-    exact (pr2 (pr2 q')).
+  exists (NQmin (pr1 q) (pr1 q')).
+  repeat split.
+  apply X_bot with (1 := pr1 (pr2 q)), NQmin_ge_l.
+  apply Y_bot with (1 := pr1 (pr2 q')), NQmin_ge_r.
+  apply NQmin_case.
+  exact (pr2 (pr2 q)).
+  exact (pr2 (pr2 q')).
 Qed.
 
 Lemma Dcuts_min_error : Dcuts_def_error Dcuts_min_val.
 Proof.
   intros c Hc0.
-  generalize (X_error _ Hc0) (Y_error _ Hc0) ; apply hinhfun2 ; apply (sumofmaps (Z := _ → _)) ; [intros nXc | intros q] ; intros Hy.
-  - left ; intros Hc.
-    apply nXc.
-    exact (pr1 Hc).
-  - revert Hy ; apply sumofmaps ;
-    [intros nYc | intros q'].
-    + left ; intros Hc.
-      apply nYc.
-      exact (pr2 Hc).
+  generalize (X_error _ Hc0) (Y_error _ Hc0) ; apply hinhfun2 ;
+  apply (sumofmaps (Z := _ → _)) ; [intros nXc | intros q] ; intros Hy.
+  - left ; revert nXc.
+    apply negf, pr1.
+  - revert Hy ; apply sumofmaps ; [intros nYc | intros q'].
+    + left ; revert nYc.
+      apply negf.
+      refine pr2.
     + right.
-      generalize (isdecrel_ltNonnegativeRationals (pr1 q) (pr1 q')) ;
-        apply sumofmaps ; intros H.
-      * exists (pr1 q) ; repeat split.
-        exact (pr1 (pr2 q)).
-        apply Y_bot with (1 := pr1 (pr2 q')), lt_leNonnegativeRationals, H.
-        intros Hc.
-        apply (pr2 (pr2 q)).
-        exact (pr1 Hc).
-      * exists (pr1 q') ; repeat split.
-        apply X_bot with (1 := pr1 (pr2 q)), notlt_geNonnegativeRationals, H.
-        exact (pr1 (pr2 q')).
-        intros Hc.
-        apply (pr2 (pr2 q')).
-        exact (pr2 Hc).
+      exists (NQmin (pr1 q) (pr1 q')).
+      repeat split.
+      * apply X_bot with (1 := pr1 (pr2 q)), NQmin_ge_l.
+      * apply Y_bot with (1 := pr1 (pr2 q')), NQmin_ge_r.
+      * apply NQmin_case.
+        generalize (pr2 (pr2 q)).
+        apply negf, pr1.
+        generalize (pr2 (pr2 q')).
+        apply negf.
+        refine pr2.
 Qed.
 
 End Dcuts_min.
@@ -723,50 +715,28 @@ Definition Dcuts_max (X Y : Dcuts) : Dcuts :=
 
 (** ** Theorems about Dcuts_min and Dcuts_max *)
 
-Lemma iscomm_Dcuts_min_val :
-  Π x y r, Dcuts_min_val x y r -> Dcuts_min_val y x r.
-Proof.
-  intros x y r.
-  apply weqdirprodcomm.
-Qed.
 Lemma iscomm_Dcuts_min :
   Π x y : Dcuts, Dcuts_min x y = Dcuts_min y x.
 Proof.
   intros x y.
   apply Dcuts_eq_is_eq ; intros r.
-  split ; apply iscomm_Dcuts_min_val.
+  split ; apply weqdirprodcomm.
 Qed.
 
-Lemma isassoc_Dcuts_min_val_1 :
-  Π x y z r,
-  Dcuts_min_val (Dcuts_min_val x y) z r →
-  Dcuts_min_val x (Dcuts_min_val y z) r.
-Proof.
-  intros x y z r Hr.
-  repeat split.
-  - apply (pr1 (pr1 Hr)).
-  - apply (pr2 (pr1 Hr)).
-  - apply (pr2 Hr).
-Qed.
-Lemma isassoc_Dcuts_min_val_2 :
-  Π x y z r,
-  Dcuts_min_val x (Dcuts_min_val y z) r →
-  Dcuts_min_val (Dcuts_min_val x y) z r.
-Proof.
-  intros x y z r Hr.
-  repeat split.
-  - apply (pr1 Hr).
-  - apply (pr1 (pr2 Hr)).
-  - apply (pr2 (pr2 Hr)).
-Qed.
 Lemma isassoc_Dcuts_min :
   Π x y z : Dcuts, Dcuts_min (Dcuts_min x y) z = Dcuts_min x (Dcuts_min y z).
 Proof.
   intros x y z.
   apply Dcuts_eq_is_eq ; intros r.
   split.
-  now apply isassoc_Dcuts_min_val_1.
-  now apply isassoc_Dcuts_min_val_2.
+  - repeat split.
+    + apply (pr1 (pr1 X)).
+    + apply (pr2 (pr1 X)).
+    + apply (pr2 X).
+  - repeat split.
+    + apply (pr1 X).
+    + apply (pr1 (pr2 X)).
+    + apply (pr2 (pr2 X)).
 Qed.
 
 Lemma Dcuts_min_lt_l :
@@ -832,26 +802,26 @@ Proof.
 Qed.
 
 Lemma iscomm_Dcuts_max_val :
-  Π x y r,
-  Dcuts_max_val x y r → Dcuts_max_val y x r.
+  Π x y, Dcuts_max_val x y = Dcuts_max_val y x.
 Proof.
-  intros x y r.
-  apply islogeqcommhdisj.
+  intros x y.
+  apply funextfun ; intros r.
+  apply hPropUnivalence ; apply islogeqcommhdisj.
 Qed.
 Lemma iscomm_Dcuts_max :
   Π x y : Dcuts, Dcuts_max x y = Dcuts_max y x.
 Proof.
   intros x y.
   apply Dcuts_eq_is_eq ; intros r.
-  split ; apply iscomm_Dcuts_max_val.
+  split ; apply islogeqcommhdisj.
 Qed.
 
-Lemma isassoc_Dcuts_max_val_1 :
-  Π x y z r,
-  Dcuts_max_val (Dcuts_max_val x y) z r →
-  Dcuts_max_val x (Dcuts_max_val y z) r.
+Lemma isassoc_Dcuts_max_val :
+  Π x y z, Dcuts_max_val (Dcuts_max_val x y) z = Dcuts_max_val x (Dcuts_max_val y z).
 Proof.
-  intros x y z r.
+  intros x y z.
+  apply funextfun ; intros r.
+  apply hPropUnivalence.
   - apply hinhuniv ; apply sumofmaps ; [ | intros Zr].
     + apply hinhfun ; apply sumofmaps ; [ intros Xr | intros Yr].
       * now left.
@@ -860,13 +830,6 @@ Proof.
     + apply hinhpr.
       right ; apply hinhpr.
       now right.
-Qed.
-Lemma isassoc_Dcuts_max_val_2 :
-  Π x y z r,
-  Dcuts_max_val x (Dcuts_max_val y z) r →
-  Dcuts_max_val (Dcuts_max_val x y) z r.
-Proof.
-  intros x y z r.
   - apply hinhuniv ; apply sumofmaps ; [intros Xr | ].
     + apply hinhpr.
       left ; apply hinhpr.
@@ -880,10 +843,8 @@ Lemma isassoc_Dcuts_max :
   Π x y z : Dcuts, Dcuts_max (Dcuts_max x y) z = Dcuts_max x (Dcuts_max y z).
 Proof.
   intros x y z.
-  apply Dcuts_eq_is_eq ; intros r.
-  split.
-  now apply isassoc_Dcuts_max_val_1.
-  now apply isassoc_Dcuts_max_val_2.
+  apply subtypeEquality_prop.
+  apply isassoc_Dcuts_max_val.
 Qed.
 
 Lemma Dcuts_max_lt_l :
@@ -989,17 +950,13 @@ Proof.
   intros x y z.
   apply hinhfun2.
   intros r q.
-  generalize (isdecrel_ltNonnegativeRationals (pr1 r) (pr1 q)) ; apply sumofmaps ; intros H.
-  - exists (pr1 r).
-    repeat split.
-    + exact (pr1 (pr2 r)).
-    + exact (pr2 (pr2 r)).
-    + apply is_Dcuts_bot with (1 := pr2 (pr2 q)), lt_leNonnegativeRationals, H.
-  - exists (pr1 q).
-    repeat split.
-    + exact (pr1 (pr2 q)).
-    + apply is_Dcuts_bot with (1 := pr2 (pr2 r)), notlt_geNonnegativeRationals, H.
-    + exact (pr2 (pr2 q)).
+  exists (NQmin (pr1 r) (pr1 q)).
+  repeat split.
+  apply NQmin_case.
+  exact (pr1 (pr2 r)).
+  exact (pr1 (pr2 q)).
+  apply is_Dcuts_bot with (1 := pr2 (pr2 r)), NQmin_ge_l.
+  apply is_Dcuts_bot with (1 := pr2 (pr2 q)), NQmin_ge_r.
 Qed.
 
 (** * Algebraic structures on Dcuts *)
