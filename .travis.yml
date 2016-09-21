@@ -4,6 +4,8 @@ language:       generic
 sudo: 		required
 # "trusty" is the most modern release of Ubuntu supported
 dist: 		trusty
+git:
+  submodules:   false
 before_install:
   - sudo apt-get update -qq
 install:
