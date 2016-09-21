@@ -34,15 +34,13 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.cats.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
 Arguments θ_source {_ _} _ .
 Arguments θ_target {_ _} _ .

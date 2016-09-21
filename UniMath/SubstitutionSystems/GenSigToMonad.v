@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.initial.
@@ -26,8 +26,6 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
@@ -121,7 +119,7 @@ Defined.
 Definition GenSigInitialHSS : Initial (hss_precategory BinCoproductsHSET GenSigToSignature).
 Proof.
 apply InitialHSS.
-- intro Z; apply RightKanExtension_from_limits, cats_LimsHSET.
+- intro Z; apply RightKanExtension_from_limits, LimsHSET.
 - apply GenSigInitial.
 Defined.
 

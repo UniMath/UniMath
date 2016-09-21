@@ -1,4 +1,12 @@
-(* direct implementation of cokernels *)
+(**
+
+Direct implementation of cokernels together with:
+
+- Proof that the cokernel arrow is epi ([CokernelArrowisEpi])
+
+Written by Tomi Pannila.
+
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
