@@ -906,67 +906,46 @@ Variable Hcomm : c ;; a = d ;; b.
 
 Arguments mk_Pullback {_ _ _ _ _ _ _ _ _ _ } _ .
 
-Lemma pb_if_pointwise_pb
-  : (Π x : C, isPullback _ _ _ _ (nat_trans_eq_pointwise Hcomm x)) -> isPullback _ _ _ _ Hcomm.
+Let Hcommx x := nat_trans_eq_pointwise Hcomm x.
+
+Local Definition g (T : Π x, isPullback _ _ _ _ (Hcommx x))
+  E (h : CD ⟦ E, G ⟧) (k : CD ⟦ E, H ⟧)
+  (Hhk : h ;; a = k ;; b) : Π x, D ⟦ pr1 E x, pr1 J x ⟧.
 Proof.
-  intro T.
-  simple refine (mk_isPullback _ _ _ _ _ _ ).
-  intros E h k Hhk.
-  simple refine (tpair _ _ _ ).
-  - simple refine (tpair _ _ _ ).
-    + simple refine (tpair _ _ _ ).
-      * intro x.
-        {
-          simple refine (PullbackArrow (mk_Pullback (T x)) _ _ _ _ ).
-          - apply h.
-          - apply k.
-          - apply (nat_trans_eq_pointwise Hhk).
-        }
-      * intros x y f.
-        {
-          abstract (
-          apply (MorphismsIntoPullbackEqual (T y)); [
-          repeat rewrite <- assoc;
-            assert (XX:= PullbackArrow_PullbackPr1
-                     (mk_Pullback (T y))); cbn in XX;
-            rewrite XX; clear XX;
-            rewrite (nat_trans_ax c); rewrite assoc;
-            assert (XX:= PullbackArrow_PullbackPr1
-                     (mk_Pullback (T x))); cbn in XX;
-            rewrite XX; clear XX;
-            apply (nat_trans_ax h) |];
-          repeat rewrite <- assoc;
-            assert (XX:= PullbackArrow_PullbackPr2
-                     (mk_Pullback (T y))); cbn in XX;
-            rewrite XX; clear XX;
-            rewrite (nat_trans_ax d); rewrite assoc;
-            assert (XX:= PullbackArrow_PullbackPr2
-                     (mk_Pullback (T x))); cbn in XX;
-            rewrite XX; clear XX;
-            apply (nat_trans_ax k)
-            ).
-        }
-    + abstract (
-      split;
-       apply nat_trans_eq; try apply hsD ; cbn;
-       [ intro ;
-        assert (XX:= PullbackArrow_PullbackPr1
-                     (mk_Pullback (T x))); cbn in XX;
-        apply XX |];
-      intro;
-      assert (XX:= PullbackArrow_PullbackPr2
-                     (mk_Pullback (T x))); cbn in XX;
-        apply XX
-      ).
-  - abstract (
-    intro t; apply subtypeEquality; [intro; apply isapropdirprod ;apply functor_category_has_homsets |];
-    destruct t as [t Ht];
-      apply nat_trans_eq; try assumption; cbn;
-    intro x;
-    apply PullbackArrowUnique;
-     [ apply (nat_trans_eq_pointwise (pr1 Ht)) |];
-     apply (nat_trans_eq_pointwise (pr2 Ht))
-      ).
+intro x; apply (PullbackArrow (mk_Pullback (T x)) _ (pr1 h x) (pr1 k x)).
+abstract (apply (nat_trans_eq_pointwise Hhk)).
+Defined.
+
+Local Lemma is_nat_trans_g (T : Π x, isPullback _ _ _ _ (Hcommx x))
+  E (h : CD ⟦ E, G ⟧) (k : CD ⟦ E, H ⟧)
+  (Hhk : h ;; a = k ;; b) : is_nat_trans _ _ (λ x : C, g T E h k Hhk x).
+Proof.
+intros x y f; unfold g.
+apply (MorphismsIntoPullbackEqual (T y)).
++ rewrite <- !assoc, (PullbackArrow_PullbackPr1 (mk_Pullback (T y))).
+  rewrite (nat_trans_ax c), assoc.
+  now rewrite (PullbackArrow_PullbackPr1 (mk_Pullback (T x))), (nat_trans_ax h).
++ rewrite <- !assoc,(PullbackArrow_PullbackPr2 (mk_Pullback (T y))).
+  rewrite (nat_trans_ax d), assoc.
+  now rewrite (PullbackArrow_PullbackPr2 (mk_Pullback (T x))), (nat_trans_ax k).
+Qed.
+
+Lemma pb_if_pointwise_pb : (Π x, isPullback _ _ _ _ (Hcommx x)) ->
+  isPullback _ _ _ _ Hcomm.
+Proof.
+intro T.
+use mk_isPullback; intros E h k Hhk.
+use unique_exists.
+- mkpair.
+  + intro x; apply (g T E h k Hhk).
+  + apply is_nat_trans_g.
+- abstract (split; apply (nat_trans_eq hsD); intro x;
+           [ apply (PullbackArrow_PullbackPr1 (mk_Pullback (T x)))
+           | apply (PullbackArrow_PullbackPr2 (mk_Pullback (T x))) ]).
+- abstract (intro; apply isapropdirprod; apply functor_category_has_homsets).
+- abstract (intros t [h1 h2]; destruct h as [h Hh];
+            apply (nat_trans_eq hsD); intro x; apply PullbackArrowUnique;
+            [ apply (nat_trans_eq_pointwise h1) | apply (nat_trans_eq_pointwise h2) ]).
 Defined.
 
 End pullbacks_pointwise.
