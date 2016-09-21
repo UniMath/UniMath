@@ -21,8 +21,6 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
@@ -91,7 +89,7 @@ Lemma is_omega_cocont_precomp_option_iter (n : nat) : is_omega_cocont (precomp_o
 Proof.
 destruct n; simpl.
 - apply (is_omega_cocont_functor_identity has_homsets_HSET2).
-- apply (is_omega_cocont_pre_composition_functor (iter_functor1 _ optionHSET n) _ _ cats_LimsHSET).
+- apply (is_omega_cocont_pre_composition_functor (iter_functor1 _ optionHSET n) _ _ LimsHSET).
 Defined.
 
 Definition precomp_option_iter_Signature (n : nat) : Signature HSET has_homsets_HSET.
@@ -184,7 +182,7 @@ Definition SigInitialHSS (sig : Sig) :
   Initial (hss_precategory BinCoproductsHSET (SigToSignature sig)).
 Proof.
 apply InitialHSS.
-- intro Z; apply RightKanExtension_from_limits, cats_LimsHSET.
+- intro Z; apply RightKanExtension_from_limits, LimsHSET.
 - apply SigInitial.
 Defined.
 

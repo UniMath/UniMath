@@ -909,7 +909,7 @@ Section abelian_equalizers.
          (Abelian_Equalizer_eq2 f1 f2)
          (Abelian_isEqualizer f1 f2).
 
-  Corollary Abelian_Equalizers : @Equalizers A.
+  Corollary Abelian_Equalizers : Equalizers A.
   Proof.
     intros X Y f g.
     apply Abelian_Equalizer.
@@ -1062,14 +1062,14 @@ Section abelian_pushouts.
   Variable A : Abelian_precategory.
   Hypothesis hs : has_homsets A.
 
-  Definition Abelian_Pullbacks : @Pullbacks A.
+  Definition Abelian_Pullbacks : Pullbacks A.
   Proof.
     apply (@Pullbacks_from_Equalizers_BinProducts A hs).
     apply (Abelian_BinProducts A).
     apply (Abelian_Equalizers A hs).
   Defined.
 
-  Definition Abelian_Pushouts : @Pushouts A.
+  Definition Abelian_Pushouts : Pushouts A.
   Proof.
     apply (@Pushouts_from_Coequalizers_BinCoproducts A hs).
     apply (Abelian_BinCoproducts A).

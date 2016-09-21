@@ -1,4 +1,12 @@
-(* Direct implementation of coequalizers. *)
+(**
+
+Direct implementation of coequalizers together with:
+
+- Proof that the coequalizer arrow is epi ([CoequalizerArrowisEpi])
+
+Written by Tomi Pannila
+
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -192,3 +200,6 @@ Section def_coequalizers.
     exact (mk_Epi C (CoequalizerArrow E) (CoequalizerArrowisEpi E)).
   Defined.
 End def_coequalizers.
+
+(** Make the C not implicit for Coequalizers *)
+Arguments Coequalizers : clear implicits.
