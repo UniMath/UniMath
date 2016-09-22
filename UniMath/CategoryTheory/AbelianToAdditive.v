@@ -1,8 +1,8 @@
-(** * Abelian_precategory is Additive *)
+(** * AbelianPreCat is Additive *)
 (** ** Contents
-- Abelian_precategory is Additive
+- AbelianPreCat is Additive
  - Preliminaries
- - Abelian_precategory is Additive
+ - AbelianPreCat is Additive
 *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
@@ -38,7 +38,7 @@ Require Import UniMath.CategoryTheory.Additive.
 Require Import UniMath.CategoryTheory.Abelian.
 
 
-(** * Abelian_precategory is Additive. *)
+(** * AbelianPreCat is Additive. *)
 Section abelian_is_additive.
 
   Variable A : AbelianPreCat.
@@ -121,6 +121,33 @@ Section abelian_is_additive.
     exact (BinProductPr1Commutes A _ _ BinProd _ _ (identity X)).
   Qed.
 
+  Local Lemma KernelOfPr1_isEqualizer_comm (X : A) (BinProd : BinProductCone A X X) (w : A)
+        (h : A ⟦ w, BinProductObject A BinProd ⟧)
+        (H' : h ;; BinProductPr1 A BinProd =
+              h ;; ZeroArrow to_Zero (BinProductObject A BinProd) X) :
+    h ;; (BinProductPr2 A BinProd)
+      ;; BinProductArrow A BinProd (ZeroArrow to_Zero X X) (identity X) = h.
+  Proof.
+    apply BinProductArrowsEq.
+    - rewrite <- assoc. rewrite (BinProductPr1Commutes A _ _ BinProd _ _ (identity X)).
+      rewrite H'. repeat rewrite ZeroArrow_comp_right. apply idpath.
+    - rewrite <- assoc. rewrite (BinProductPr2Commutes A _ _ BinProd _ _ (identity X)).
+      apply id_right.
+  Qed.
+
+  Local Lemma KernelOfPr1_isEqualizer_unique (X : A) (BinProd : BinProductCone A X X) (w : A)
+        (h : A ⟦ w, BinProductObject A BinProd ⟧)
+        (H' : h ;; BinProductPr1 A BinProd =
+              h ;; ZeroArrow to_Zero (BinProductObject A BinProd) X)
+        (y : A ⟦ w, X ⟧)
+        (H : y ;; BinProductArrow A BinProd (ZeroArrow to_Zero X X) (identity X) = h) :
+    y = h ;; BinProductPr2 A BinProd.
+  Proof.
+    rewrite <- H. rewrite <- assoc.
+    rewrite (BinProductPr2Commutes A _ _ BinProd _ _ (identity X)).
+    rewrite id_right. apply idpath.
+  Qed.
+
   Lemma KernelOfPr1_isEqualizer {X : A} (BinProd : BinProductCone A X X) :
     equalizers.isEqualizer (BinProductPr1 A BinProd)
                            (ZeroArrow to_Zero (BinProductObject A BinProd) X)
@@ -133,18 +160,12 @@ Section abelian_is_additive.
     (* The arrow *)
     - exact (h ;; (BinProductPr2 A BinProd)).
     (* commutativity *)
-    - apply BinProductArrowsEq.
-      + rewrite <- assoc. rewrite (BinProductPr1Commutes A _ _ BinProd _ _ (identity X)).
-        rewrite H'. repeat rewrite ZeroArrow_comp_right. apply idpath.
-      + rewrite <- assoc. rewrite (BinProductPr2Commutes A _ _ BinProd _ _ (identity X)).
-        apply id_right.
+    - exact (KernelOfPr1_isEqualizer_comm X BinProd w h H').
     (* equality of equalities of morphisms *)
     - intros y. apply hs.
     (* uniqueness *)
-    - intros y H. rewrite <- H. rewrite <- assoc.
-      rewrite (BinProductPr2Commutes A _ _ BinProd _ _ (identity X)).
-      rewrite id_right. apply idpath.
-  Qed.
+    - exact (KernelOfPr1_isEqualizer_unique X BinProd w h H').
+  Defined.
 
   Definition KernelOfPr1 {X : A} (BinProd : BinProductCone A X X) :
     kernels.Kernel to_Zero (BinProductPr1 A BinProd).
@@ -160,6 +181,32 @@ Section abelian_is_additive.
     apply idpath.
   Qed.
 
+  Local Lemma KernelOfPr2_isEqualizer_comm (X : A) (BinProd : BinProductCone A X X) (w : A)
+        (h : A ⟦w, BinProductObject A BinProd⟧)
+        (H' : h ;; BinProductPr2 A BinProd =
+              h ;; ZeroArrow to_Zero (BinProductObject A BinProd) X) :
+    h ;; (BinProductPr1 A BinProd)
+      ;; BinProductArrow A BinProd (identity X) (ZeroArrow to_Zero X X) = h.
+  Proof.
+    apply BinProductArrowsEq.
+    - rewrite <- assoc. rewrite (BinProductPr1Commutes A _ _ BinProd _ (identity X) _).
+      apply id_right.
+    - rewrite <- assoc. rewrite (BinProductPr2Commutes A _ _ BinProd _ (identity X) _).
+      rewrite H'. repeat rewrite ZeroArrow_comp_right. apply idpath.
+  Qed.
+
+  Local Lemma KernelOfPr2_isEqualizer_unique (X : A) (BinProd : BinProductCone A X X) (w : A)
+        (h : A ⟦ w, BinProductObject A BinProd ⟧)
+        (H' : h ;; BinProductPr2 A BinProd = h ;; ZeroArrow to_Zero (BinProductObject A BinProd) X)
+        (y : A ⟦ w, X ⟧)
+        (H : y ;; BinProductArrow A BinProd (identity X) (ZeroArrow to_Zero X X) = h) :
+    y = h ;; BinProductPr1 A BinProd.
+  Proof.
+    rewrite <- H. rewrite <- assoc.
+    rewrite (BinProductPr1Commutes A _ _ BinProd _ (identity X) _).
+    rewrite id_right. apply idpath.
+  Qed.
+
   Definition KernelOfPr2_isEqualizer {X : A} (BinProd : BinProductCone A X X) :
     equalizers.isEqualizer (BinProductPr2 A BinProd)
                            (ZeroArrow to_Zero (BinProductObject A BinProd) X)
@@ -172,18 +219,12 @@ Section abelian_is_additive.
     (* The arrow *)
     - exact (h ;; (BinProductPr1 A BinProd)).
     (* Commutativity *)
-    - apply BinProductArrowsEq.
-      + rewrite <- assoc. rewrite (BinProductPr1Commutes A _ _ BinProd _ (identity X) _).
-        apply id_right.
-      + rewrite <- assoc. rewrite (BinProductPr2Commutes A _ _ BinProd _ (identity X) _).
-        rewrite H'. repeat rewrite ZeroArrow_comp_right. apply idpath.
+    - exact (KernelOfPr2_isEqualizer_comm X BinProd w h H').
     (* Equality of equalities of morphisms *)
     - intros y. apply hs.
     (* Uniqueness *)
-    - intros y H. rewrite <- H. rewrite <- assoc.
-      rewrite (BinProductPr1Commutes A _ _ BinProd _ (identity X) _).
-      rewrite id_right. apply idpath.
-  Qed.
+    - intros y H. exact (KernelOfPr2_isEqualizer_unique X BinProd w h H' y H).
+  Defined.
 
   Definition KernelOfPr2 {X : A} (BinProd : BinProductCone A X X) :
     kernels.Kernel to_Zero (BinProductPr2 A BinProd).
@@ -308,7 +349,7 @@ Section abelian_is_additive.
     (fun f : _ => fun g : _ => Abelian_minus_op f (Abelian_minus_op (ZeroArrow to_Zero _ _) g)).
 
   (** Construction of a precategory with binops from Abelian category. *)
-  Definition Abelian_precategory_PrecategoryWithBinops : PrecategoryWithBinOps.
+  Definition AbelianToPrecategoryWithBinops : PrecategoryWithBinOps.
   Proof.
     use (mk_PrecategoryWithBinOps A).
     unfold PrecategoryWithBinOpsData.
@@ -411,7 +452,7 @@ Section abelian_is_additive.
                     (BinProductPr2 _ (to_BinProducts A X X) ;; g).
 
   (** A few equations Abelian_minus_op and Abelian_op. *)
-  Lemma Abelian_precategory_op_eq1 {X Y : A} (a b c d : X --> Y) :
+  Lemma AbelianPreCat_op_eq1 {X Y : A} (a b c d : X --> Y) :
     Abelian_minus_op (Abelian_mor_to_BinProd a b) (Abelian_mor_to_BinProd c d) =
     Abelian_mor_to_BinProd (Abelian_minus_op a c) (Abelian_minus_op b d).
   Proof.
@@ -449,7 +490,7 @@ Section abelian_is_additive.
         apply idpath.
   Qed.
 
-  Lemma Abelian_precategory_op_eq2 {X Y : A} (a b c d : X --> Y) :
+  Lemma AbelianPreCat_op_eq2 {X Y : A} (a b c d : X --> Y) :
     (Abelian_mor_to_BinProd (Abelian_mor_to_BinProd a b) (Abelian_mor_to_BinProd c d))
       ;; (Abelian_mor_from_to_BinProd
             (CokernelArrow (CokernelOfDiagonal (to_BinProducts A Y Y)))
@@ -469,13 +510,13 @@ Section abelian_is_additive.
       rewrite BinProductPr2Commutes. apply idpath.
   Qed.
 
-  Lemma Abelian_precategory_op_eq3 {X Y : A} (a b c d : X --> Y) :
+  Lemma AbelianPreCat_op_eq3 {X Y : A} (a b c d : X --> Y) :
     Abelian_minus_op (Abelian_minus_op a b) (Abelian_minus_op c d) =
     Abelian_minus_op (Abelian_minus_op a c) (Abelian_minus_op b d).
   Proof.
     (* Rewrite Abelian_minus_op_eq1 *)
     unfold Abelian_minus_op at 1.
-    set (tmp := Abelian_precategory_op_eq1 a c b d).
+    set (tmp := AbelianPreCat_op_eq1 a c b d).
     unfold Abelian_mor_to_BinProd in tmp.
     rewrite <- tmp.
     (* Rewrite com *)
@@ -483,7 +524,7 @@ Section abelian_is_additive.
     unfold Abelian_minus_op at 1. rewrite <- assoc. rewrite com.
     (* Cancel postcompostion *)
     rewrite assoc.
-    set (tmp1 := Abelian_precategory_op_eq2 a c b d).
+    set (tmp1 := AbelianPreCat_op_eq2 a c b d).
     unfold Abelian_mor_to_BinProd, Abelian_mor_from_to_BinProd in tmp1.
     rewrite tmp1. apply cancel_postcomposition.
     (* Use idpath *)
@@ -491,16 +532,16 @@ Section abelian_is_additive.
   Qed.
 
 
-  (** ** Abelian_precategory is Additive *)
+  (** ** AbelianPreCat is Additive *)
 
   (** The zero element in a homset of A is given by the ZeroArrow. *)
-  Definition Abelian_precategory_homset_zero (X Y : A) : A⟦X, Y⟧ := ZeroArrow to_Zero X Y.
+  Definition AbelianPreCat_homset_zero (X Y : A) : A⟦X, Y⟧ := ZeroArrow to_Zero X Y.
 
   (** Some equations involving Abelian_minus_op and Abelian_op. *)
-  Definition Abelian_precategory_homset_zero_right' {X Y : A} (f : X --> Y) :
-    Abelian_minus_op f (Abelian_precategory_homset_zero X Y) = f.
+  Lemma AbelianPreCat_homset_zero_right' {X Y : A} (f : X --> Y) :
+    Abelian_minus_op f (AbelianPreCat_homset_zero X Y) = f.
   Proof.
-    unfold Abelian_precategory_homset_zero. unfold Abelian_minus_op.
+    unfold AbelianPreCat_homset_zero. unfold Abelian_minus_op.
     set (tmp := Abelian_op_eq_IdZero Y). unfold IdZeroMap in tmp.
     assert (e : BinProductArrow A (to_BinProducts A Y Y) f (ZeroArrow to_Zero X Y) =
                 f ;; BinProductArrow A (to_BinProducts A Y Y) (identity _)
@@ -517,12 +558,12 @@ Section abelian_is_additive.
     rewrite e. clear e. rewrite <- assoc. rewrite tmp. apply id_right.
   Qed.
 
-  Definition Abelian_precategory_homset_zero_right {X Y : A} (f : X --> Y) :
-    Abelian_op _ _ f (Abelian_precategory_homset_zero X Y) = f.
+  Lemma AbelianPreCat_homset_zero_right {X Y : A} (f : X --> Y) :
+    Abelian_op _ _ f (AbelianPreCat_homset_zero X Y) = f.
   Proof.
-    unfold Abelian_precategory_homset_zero.
+    unfold AbelianPreCat_homset_zero.
     unfold Abelian_op. unfold Abelian_minus_op at 2.
-    use (pathscomp0 _ (Abelian_precategory_homset_zero_right' f)).
+    use (pathscomp0 _ (AbelianPreCat_homset_zero_right' f)).
     set (bpY := to_BinProducts A Y Y).
     assert (e : (BinProductArrow A bpY (ZeroArrow to_Zero X Y) (ZeroArrow to_Zero X Y))
                   ;; CokernelArrow (CokernelOfDiagonal bpY) = ZeroArrow to_Zero _ _ ).
@@ -539,13 +580,13 @@ Section abelian_is_additive.
     rewrite e. apply idpath.
   Qed.
 
-  Definition Abelian_precategory_homset_inv {X Y : A} (f : X --> Y) :
+  Definition AbelianPreCat_homset_inv {X Y : A} (f : X --> Y) :
     A⟦X, Y⟧ := Abelian_minus_op (ZeroArrow to_Zero _ _) f.
 
-  Definition Abelian_precategory_homset_inv_left' {X Y : A} (f : X --> Y) :
-    Abelian_minus_op f f = (Abelian_precategory_homset_zero X Y).
+  Lemma AbelianPreCat_homset_inv_left' {X Y : A} (f : X --> Y) :
+    Abelian_minus_op f f = (AbelianPreCat_homset_zero X Y).
   Proof.
-    unfold Abelian_precategory_homset_zero. unfold Abelian_minus_op.
+    unfold AbelianPreCat_homset_zero. unfold Abelian_minus_op.
     set (bpY := to_BinProducts A Y Y).
     assert (e : BinProductArrow A bpY f f =
                 f ;; BinProductArrow A bpY (identity _ ) (identity _ )).
@@ -561,162 +602,162 @@ Section abelian_is_additive.
     rewrite e. rewrite <- assoc. rewrite CokernelCompZero. apply ZeroArrow_comp_right.
   Qed.
 
-  Definition Abelian_precategory_homset_inv_left {X Y : A} (f : X --> Y) :
-    Abelian_op _ _ (Abelian_precategory_homset_inv f) f = (Abelian_precategory_homset_zero X Y).
+  Lemma AbelianPreCat_homset_inv_left {X Y : A} (f : X --> Y) :
+    Abelian_op _ _ (AbelianPreCat_homset_inv f) f = (AbelianPreCat_homset_zero X Y).
   Proof.
-    unfold Abelian_precategory_homset_inv.
-    unfold Abelian_precategory_homset_zero.
+    unfold AbelianPreCat_homset_inv.
+    unfold AbelianPreCat_homset_zero.
     unfold Abelian_op.
-    rewrite Abelian_precategory_op_eq3.
-    rewrite Abelian_precategory_homset_inv_left'.
-    rewrite Abelian_precategory_homset_inv_left'.
-    apply Abelian_precategory_homset_zero_right'.
+    rewrite AbelianPreCat_op_eq3.
+    rewrite AbelianPreCat_homset_inv_left'.
+    rewrite AbelianPreCat_homset_inv_left'.
+    apply AbelianPreCat_homset_zero_right'.
   Qed.
 
-  Definition Abelian_precategory_homset_zero_left {X Y : A} (f : X --> Y) :
-    Abelian_op _ _ (Abelian_precategory_homset_zero X Y) f = f.
+  Lemma AbelianPreCat_homset_zero_left {X Y : A} (f : X --> Y) :
+    Abelian_op _ _ (AbelianPreCat_homset_zero X Y) f = f.
   Proof.
-    rewrite <- (Abelian_precategory_homset_inv_left' f).
-    set (tmp := Abelian_precategory_homset_zero_right' f).
+    rewrite <- (AbelianPreCat_homset_inv_left' f).
+    set (tmp := AbelianPreCat_homset_zero_right' f).
     apply (maponpaths (fun g : _ => Abelian_op X Y (Abelian_minus_op f f) g)) in tmp.
     apply pathsinv0 in tmp.
     use (pathscomp0 tmp).
     unfold Abelian_op.
-    rewrite Abelian_precategory_op_eq3.
-    rewrite Abelian_precategory_homset_zero_right'.
-    rewrite Abelian_precategory_homset_zero_right'.
-    rewrite Abelian_precategory_homset_inv_left'.
-    rewrite Abelian_precategory_homset_zero_right'.
+    rewrite AbelianPreCat_op_eq3.
+    rewrite AbelianPreCat_homset_zero_right'.
+    rewrite AbelianPreCat_homset_zero_right'.
+    rewrite AbelianPreCat_homset_inv_left'.
+    rewrite AbelianPreCat_homset_zero_right'.
     apply idpath.
   Qed.
 
-  Definition Abeliain_precategory_homset_comm' {X Y : A} (f g : X --> Y) :
-    Abelian_minus_op (Abelian_minus_op (Abelian_precategory_homset_zero X Y) f) g =
-    Abelian_minus_op (Abelian_minus_op (Abelian_precategory_homset_zero X Y) g) f.
+  Lemma Abeliain_precategory_homset_comm' {X Y : A} (f g : X --> Y) :
+    Abelian_minus_op (Abelian_minus_op (AbelianPreCat_homset_zero X Y) f) g =
+    Abelian_minus_op (Abelian_minus_op (AbelianPreCat_homset_zero X Y) g) f.
   Proof.
-    rewrite <- (Abelian_precategory_homset_zero_right' g).
-    rewrite Abelian_precategory_op_eq3.
-    rewrite (Abelian_precategory_homset_zero_right' f).
-    rewrite (Abelian_precategory_homset_zero_right' g).
+    rewrite <- (AbelianPreCat_homset_zero_right' g).
+    rewrite AbelianPreCat_op_eq3.
+    rewrite (AbelianPreCat_homset_zero_right' f).
+    rewrite (AbelianPreCat_homset_zero_right' g).
     apply idpath.
   Qed.
 
-  Definition Abelian_precategory_homset_comm {X Y : A} (f g : X --> Y) :
+  Lemma AbelianPreCat_homset_comm {X Y : A} (f g : X --> Y) :
     Abelian_op _ _ f g = Abelian_op _ _ g f.
   Proof.
     (* Use zero left for f *)
-    set (tmp1 := Abelian_precategory_homset_zero_left f).
+    set (tmp1 := AbelianPreCat_homset_zero_left f).
     apply (maponpaths (fun h : _ => Abelian_op X Y h g)) in tmp1.
     apply pathsinv0 in tmp1. use (pathscomp0 tmp1). clear tmp1.
     (* Use zero left for g *)
-    set (tmp2 := Abelian_precategory_homset_zero_left g).
+    set (tmp2 := AbelianPreCat_homset_zero_left g).
     apply (maponpaths (fun h : _ => Abelian_op X Y h f)) in tmp2.
     use (pathscomp0 _ tmp2). clear tmp2.
     (* The goal follows from eq3 and comm' *)
     unfold Abelian_op.
-    rewrite (Abelian_precategory_op_eq3 _ _ _ g).
-    rewrite (Abelian_precategory_op_eq3 _ _ _ f).
+    rewrite (AbelianPreCat_op_eq3 _ _ _ g).
+    rewrite (AbelianPreCat_op_eq3 _ _ _ f).
     rewrite (Abeliain_precategory_homset_comm' _ g).
     apply idpath.
   Qed.
 
-  Definition Abelian_precategory_homset_inv_minus {X Y : A} (f g : X --> Y) :
-    Abelian_op _ _ f (Abelian_precategory_homset_inv g) = Abelian_minus_op f g.
+  Lemma AbelianPreCat_homset_inv_minus {X Y : A} (f g : X --> Y) :
+    Abelian_op _ _ f (AbelianPreCat_homset_inv g) = Abelian_minus_op f g.
   Proof.
     unfold Abelian_op.
-    unfold Abelian_precategory_homset_inv.
-    set (tmp := Abelian_precategory_homset_zero_left g).
+    unfold AbelianPreCat_homset_inv.
+    set (tmp := AbelianPreCat_homset_zero_left g).
     unfold Abelian_op in tmp.
-    unfold Abelian_precategory_homset_zero in tmp.
+    unfold AbelianPreCat_homset_zero in tmp.
     rewrite tmp. apply idpath.
   Qed.
 
-  Definition Abelian_precategory_homset_inv_right {X Y : A} (f : X --> Y) :
-    Abelian_op _ _ f (Abelian_precategory_homset_inv f) = Abelian_precategory_homset_zero X Y.
+  Lemma AbelianPreCat_homset_inv_right {X Y : A} (f : X --> Y) :
+    Abelian_op _ _ f (AbelianPreCat_homset_inv f) = AbelianPreCat_homset_zero X Y.
   Proof.
-    rewrite Abelian_precategory_homset_inv_minus.
-    apply Abelian_precategory_homset_inv_left'.
+    rewrite AbelianPreCat_homset_inv_minus.
+    apply AbelianPreCat_homset_inv_left'.
   Qed.
 
-  Definition Abelian_precategory_homset_assoc_eq1 {X Y : A} (f g : X --> Y) :
-    Abelian_minus_op (Abelian_precategory_homset_zero X Y) (Abelian_minus_op f g) =
-    Abelian_op _ _ (Abelian_minus_op (Abelian_precategory_homset_zero X Y) f) g.
+  Lemma AbelianPreCat_homset_assoc_eq1 {X Y : A} (f g : X --> Y) :
+    Abelian_minus_op (AbelianPreCat_homset_zero X Y) (Abelian_minus_op f g) =
+    Abelian_op _ _ (Abelian_minus_op (AbelianPreCat_homset_zero X Y) f) g.
   Proof.
-    rewrite <- (Abelian_precategory_homset_inv_left' (Abelian_precategory_homset_zero X Y)).
+    rewrite <- (AbelianPreCat_homset_inv_left' (AbelianPreCat_homset_zero X Y)).
     unfold Abelian_op.
-    rewrite Abelian_precategory_op_eq3.
-    rewrite (Abelian_precategory_homset_inv_left' (Abelian_precategory_homset_zero X Y)).
+    rewrite AbelianPreCat_op_eq3.
+    rewrite (AbelianPreCat_homset_inv_left' (AbelianPreCat_homset_zero X Y)).
     apply idpath.
   Qed.
 
-  Definition Abelian_precategory_homset_assoc_eq2 {X Y : A} (f g : X --> Y) :
-    Abelian_minus_op (Abelian_precategory_homset_zero X Y) (Abelian_op _ _ f g) =
-    Abelian_minus_op (Abelian_minus_op (Abelian_precategory_homset_zero X Y) f) g.
+  Lemma AbelianPreCat_homset_assoc_eq2 {X Y : A} (f g : X --> Y) :
+    Abelian_minus_op (AbelianPreCat_homset_zero X Y) (Abelian_op _ _ f g) =
+    Abelian_minus_op (Abelian_minus_op (AbelianPreCat_homset_zero X Y) f) g.
   Proof.
-    set (tmp := Abelian_precategory_homset_inv_left' (Abelian_precategory_homset_zero X Y)).
+    set (tmp := AbelianPreCat_homset_inv_left' (AbelianPreCat_homset_zero X Y)).
     apply (maponpaths (fun h : _ => Abelian_minus_op h (Abelian_op X Y f g))) in tmp.
     apply pathsinv0 in tmp. use (pathscomp0 tmp).
     unfold Abelian_op.
-    rewrite Abelian_precategory_op_eq3.
-    set (tmp2 := Abelian_precategory_homset_zero_left g).
+    rewrite AbelianPreCat_op_eq3.
+    set (tmp2 := AbelianPreCat_homset_zero_left g).
     unfold Abelian_op in tmp2. rewrite tmp2.
     apply idpath.
   Qed.
 
-  Definition Abelian_precategory_homset_assoc_eq3 {X Y : A} (f g h : X --> Y) :
+  Lemma AbelianPreCat_homset_assoc_eq3 {X Y : A} (f g h : X --> Y) :
      Abelian_op _ _ (Abelian_minus_op f g) h = Abelian_minus_op f (Abelian_minus_op g h).
   Proof.
     unfold Abelian_op.
-    rewrite Abelian_precategory_op_eq3.
-    rewrite Abelian_precategory_homset_zero_right'.
+    rewrite AbelianPreCat_op_eq3.
+    rewrite AbelianPreCat_homset_zero_right'.
     apply idpath.
   Qed.
 
-  Definition Abelian_precategory_homset_assoc {X Y : A} (f g h : X --> Y) :
+  Lemma AbelianPreCat_homset_assoc {X Y : A} (f g h : X --> Y) :
      Abelian_op _ _ (Abelian_op _ _ f g) h = Abelian_op _ _ f (Abelian_op _ _ g h).
   Proof.
-    set (tmp := Abelian_precategory_homset_zero_left h).
+    set (tmp := AbelianPreCat_homset_zero_left h).
     apply (maponpaths (fun k : _ => Abelian_op X Y (Abelian_op X Y f g) k)) in tmp.
     apply pathsinv0 in tmp. use (pathscomp0 tmp).
     unfold Abelian_op.
-    rewrite Abelian_precategory_op_eq3.
-    rewrite Abelian_precategory_homset_zero_right'.
-    rewrite Abelian_precategory_op_eq3.
-    rewrite Abelian_precategory_homset_zero_right'.
+    rewrite AbelianPreCat_op_eq3.
+    rewrite AbelianPreCat_homset_zero_right'.
+    rewrite AbelianPreCat_op_eq3.
+    rewrite AbelianPreCat_homset_zero_right'.
     apply idpath.
   Qed.
 
-  Definition Abelian_precategory_PrecategoryWithAbgropsData :
-    PrecategoryWithAbgropsData Abelian_precategory_PrecategoryWithBinops hs.
+  Definition AbelianToPrecategoryWithAbgropsData :
+    PrecategoryWithAbgropsData AbelianToPrecategoryWithBinops hs.
   Proof.
     unfold PrecategoryWithAbgropsData.
     intros x y.
     split.
     - use isgroppair.
       + split.
-        * intros f g h. apply Abelian_precategory_homset_assoc.
+        * intros f g h. apply AbelianPreCat_homset_assoc.
         * use isunitalpair.
-          -- apply Abelian_precategory_homset_zero.
+          -- apply AbelianPreCat_homset_zero.
           -- split.
-             ++ intros f. apply Abelian_precategory_homset_zero_left.
-             ++ intros f. apply Abelian_precategory_homset_zero_right.
+             ++ intros f. apply AbelianPreCat_homset_zero_left.
+             ++ intros f. apply AbelianPreCat_homset_zero_right.
       + use tpair.
-        * intros f. apply (Abelian_precategory_homset_inv f).
+        * intros f. apply (AbelianPreCat_homset_inv f).
         * split.
-          -- intros f. apply Abelian_precategory_homset_inv_left.
-          -- intros f. apply Abelian_precategory_homset_inv_right.
-    - intros f g. apply Abelian_precategory_homset_comm.
+          -- intros f. apply AbelianPreCat_homset_inv_left.
+          -- intros f. apply AbelianPreCat_homset_inv_right.
+    - intros f g. apply AbelianPreCat_homset_comm.
   Defined.
 
   (** We prove that Abelian_precategories are PrecategoriesWithAbgrops. *)
-  Definition Abelian_precategory_PrecategoryWithAbgrops :
+  Definition AbelianToPrecategoryWithAbgrops :
     PrecategoryWithAbgrops := mk_PrecategoryWithAbgrops
-                                Abelian_precategory_PrecategoryWithBinops  hs
-                                Abelian_precategory_PrecategoryWithAbgropsData.
+                                AbelianToPrecategoryWithBinops  hs
+                                AbelianToPrecategoryWithAbgropsData.
 
   (** Hide isPreAdditive behind Qed. *)
-  Definition Abelian_precategory_isPreAdditive :
-    isPreAdditive Abelian_precategory_PrecategoryWithAbgrops.
+  Lemma AbelianToisPreAdditive :
+    isPreAdditive AbelianToPrecategoryWithAbgrops.
   Proof.
     use mk_isPreAdditive.
     (* precomposition ismonoidfun *)
@@ -747,7 +788,7 @@ Section abelian_is_additive.
         rewrite <- precompWithBinProductArrow. rewrite <- assoc.
         rewrite <- precompWithBinProductArrow. apply idpath.
       + unfold to_premor. cbn.
-        unfold Abelian_precategory_homset_zero.
+        unfold AbelianPreCat_homset_zero.
         apply ZeroArrow_comp_right.
     (* postcomposition is monoidfun *)
     - intros x y z f.
@@ -786,24 +827,22 @@ Section abelian_is_additive.
         unfold BinProductOfArrows.
         apply tmp.
       + unfold to_postmor. cbn.
-        unfold Abelian_precategory_homset_zero.
+        unfold AbelianPreCat_homset_zero.
         apply ZeroArrow_comp_left.
   Qed.
 
   (** We prove that Abelian_precategories are PreAddtitive. *)
-  Definition Abelian_precategory_PreAdditive :
-    PreAdditive := mk_PreAdditive Abelian_precategory_PrecategoryWithAbgrops
-                                  Abelian_precategory_isPreAdditive.
+  Definition AbelianToPreAdditive :
+    PreAdditive := mk_PreAdditive AbelianToPrecategoryWithAbgrops AbelianToisPreAdditive.
 
   (** Finally, we show that Abelian_precategories are Additive. *)
-  Definition Abelian_precategory_Additive : Additive.
+  Definition AbelianToAdditive : Additive.
   Proof.
     use mk_Additive.
-    - exact Abelian_precategory_PreAdditive.
+    - exact AbelianToPreAdditive.
     - use mk_isAdditive.
       + exact to_Zero.
-      + exact (BinDirectSums_from_BinProducts
-                 Abelian_precategory_PreAdditive hs to_Zero (to_BinProducts A)).
+      + exact (BinDirectSums_from_BinProducts AbelianToPreAdditive hs to_Zero (to_BinProducts A)).
   Defined.
 
 End abelian_is_additive.

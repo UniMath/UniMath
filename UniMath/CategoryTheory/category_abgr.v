@@ -18,7 +18,7 @@
 - Monics are Kernels and Epis are Cokernels
  - Monics are Kernels
  - Epis are Cokernels
-- ABGR is Abelian_precategory
+- ABGR is AbelianPreCat
 *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
@@ -2030,12 +2030,12 @@ Section ABGR_monic_kernels.
 End ABGR_monic_kernels.
 
 
-(** * ABGR is Abelian_precategory
+(** * ABGR is AbelianPreCat
     In this section we put all the previous results together to show that the precategory ABGR,
-    consisting of abelian groups, is an Abelian_precategory. *)
-Section ABGR_abelian_precategory.
+    consisting of abelian groups, is an AbelianPreCat. *)
+Section ABGR_abelianprecat.
 
-  Definition ABGR_Abelian_precategory : AbelianPreCat.
+  Definition ABGR_AbelianPreCat : AbelianPreCat.
   Proof.
     set (Add := ABGR_Additive).
     set (BinDS := to_BinDirectSums Add).
@@ -2079,4 +2079,4 @@ Section ABGR_abelian_precategory.
       -- exact (isCoequalizer_Coequalizer epi_coker).
   Defined.
 
-End ABGR_abelian_precategory.
+End ABGR_abelianprecat.
