@@ -112,7 +112,7 @@ Section preadditive_with_zero.
   Lemma PreAdditive_unel_zero (Z : Zero A) (x y : A) : to_unel x y = ZeroArrow Z x y.
   Proof.
     unfold ZeroArrow.
-    rewrite <- (id_left A _ _ (ZeroArrowFrom y)).
+    rewrite <- (id_left (ZeroArrowFrom y)).
     assert (identity Z = to_unel Z Z) by apply ZeroEndo_is_identity.
     rewrite -> X. clear X.
 

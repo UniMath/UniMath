@@ -562,7 +562,7 @@ Section abelian_equalizers.
     rewrite <- assoc in H. rewrite <- assoc in H.
     set (com1 := BinProductPr1Commutes A _ _ BinProd x (identity x) f).
     rewrite com1 in H.
-    rewrite (id_right A _ _ h1) in H. rewrite (id_right A _ _ h2) in H.
+    rewrite (id_right h1) in H. rewrite (id_right h2) in H.
     exact H.
   Qed.
 
@@ -581,9 +581,9 @@ Section abelian_equalizers.
     set (Pb := Equalizer_Pullback f1 f2).
     assert (H1 : ar1 ;; (BinProductPr1 A BinProd) = identity x) by apply BinProductPr1Commutes.
     assert (H2 : ar2 ;; (BinProductPr1 A BinProd) = identity x) by apply BinProductPr1Commutes.
-    use (pathscomp0 (!(id_right A _ _ (PullbackPr1 Pb)))).
+    use (pathscomp0 (!(id_right (PullbackPr1 Pb)))).
     use (pathscomp0 (!(maponpaths (fun h : _ => PullbackPr1 Pb ;; h) H1))).
-    use (pathscomp0 _ ((id_right A _ _ (PullbackPr2 Pb)))).
+    use (pathscomp0 _ ((id_right (PullbackPr2 Pb)))).
     use (pathscomp0 _ (maponpaths (fun h : _ => PullbackPr2 Pb ;; h) H2)).
     rewrite assoc. rewrite assoc. apply cancel_postcomposition.
     apply PullbackSqrCommutes.
@@ -677,7 +677,7 @@ Section abelian_equalizers.
     rewrite assoc in H. rewrite assoc in H.
     set (com1 := BinCoproductIn1Commutes A _ _ BinCoprod x (identity x) f).
     rewrite com1 in H. clear com1.
-    rewrite (id_left A _ _ h1) in H. rewrite (id_left A _ _ h2) in H.
+    rewrite (id_left h1) in H. rewrite (id_left h2) in H.
     exact H.
   Qed.
 
@@ -697,9 +697,9 @@ Section abelian_equalizers.
         apply BinCoproductIn1Commutes.
     assert (H2 : (BinCoproductIn1 A BinCoprod) ;; ar2 = identity x) by
         apply BinCoproductIn1Commutes.
-    use (pathscomp0 (!(id_left A _ _ (PushoutIn1 Po)))).
+    use (pathscomp0 (!(id_left (PushoutIn1 Po)))).
     use (pathscomp0 (!(maponpaths (fun h : _ => h ;; PushoutIn1 Po) H1))).
-    use (pathscomp0 _ ((id_left A _ _ (PushoutIn2 Po)))).
+    use (pathscomp0 _ ((id_left (PushoutIn2 Po)))).
     use (pathscomp0 _ (maponpaths (fun h : _ => h ;; PushoutIn2 Po) H2)).
     rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
     apply PushoutSqrCommutes.
