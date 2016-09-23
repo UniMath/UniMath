@@ -15,11 +15,12 @@ Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
 Require Import UniMath.Ktheory.Representation.
 Require UniMath.Ktheory.Precategories.
-Coercion Precategories.Precategory_to_precategory : Precategories.Precategory >-> precategory.
+
+(* Coercion Precategories.Precategory_to_precategory : Precategories.Precategory >-> precategory. *)
 
 Section interface.
 
-Variable C : Precategories.Precategory.
+Variable C : Precategory.
 
 Set Automatic Introduction.
 
@@ -43,7 +44,7 @@ Proof.
     { intros ee. split.
       { simpl. exact (maponpaths (HomPair_1 _ _ _) ee). }
       { simpl. exact (maponpaths (HomPair_2 _ _ _) ee). } } }
-  { apply isapropdirprod; apply (Precategories.homset_property C). }
+  { apply isapropdirprod; apply (homset_property C). }
   { apply setproperty. }
 Defined.
 
@@ -185,16 +186,16 @@ End interface.
 
 Section def_functor_pointwise_coprod.
 
-Variable C D : Precategories.Precategory.
+Variable C D : Precategory.
 Variable HD : Coproducts D.
 
-Definition hsD := Precategories.homset_property D.
+Definition hsD := homset_property D.
 
 Section coproduct_functor.
 
 Variables F G : functor C D.
 
-Definition Coproducts_functor_precat : Coproducts (Precategories.functorPrecategory C D).
+Definition Coproducts_functor_precat : Coproducts (functorPrecategory C D).
 Proof.
   apply functorBinarySum.
   exact HD.

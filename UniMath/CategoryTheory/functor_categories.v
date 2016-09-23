@@ -1193,11 +1193,20 @@ Proof.
   apply hs.
 Qed.
 
+
+Definition functorPrecategory (C : precategory) (D : Precategory)
+  : Precategory.
+Proof.
+  exists (functor_precategory C D (homset_property D)).
+  apply functor_category_has_homsets.
+Defined.
+
 Lemma functor_identity_left (C D : precategory) (F : functor C D) :
   functor_composite (functor_identity C) F = F.
 Proof.
-  destruct F as [ [ Fob Fmor ] is ] . destruct is as [ idax compax ] . apply idpath .
-
+  destruct F as [ [ Fob Fmor ] is ].
+  destruct is as [ idax compax ] .
+  apply idpath .
 Defined.
 
 
@@ -1278,7 +1287,7 @@ Defined.
 
 Definition iter_functor {C : precategory} (F : functor C C) (n : nat) : functor C C.
 Proof.
-induction n.
-apply functor_identity.
-apply (functor_composite IHn F).
+  induction n.
+  apply functor_identity.
+  apply (functor_composite IHn F).
 Defined.

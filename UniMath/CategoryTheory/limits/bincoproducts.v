@@ -217,7 +217,7 @@ Proof.
           pr1 (pr2 (pr1 CC));; fg = BinCoproductIn1 CC
           × pr2 (pr2 (pr1 CC));; fg = BinCoproductIn2 CC)).
   set (t1 := tpair _ k (dirprodpair H1 H2) : X).
-  set (t2 := tpair _ (identity _ ) (dirprodpair (id_right _ _ _ _ ) (id_right _ _ _ _ ) ) : X).
+  set (t2 := tpair _ (identity _ ) (dirprodpair (id_right _ ) (id_right _ ) ) : X).
   assert (X' : t1 = t2).
   { apply proofirrelevance.
     apply isapropifcontr.

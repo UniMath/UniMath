@@ -323,7 +323,7 @@ Proof.
   - intro c; simpl.
     assert (H':=nat_trans_ax (tau_from_alg T)).
     simpl in H'.
-    eapply pathscomp0. Focus 2. apply (!assoc _ _ _ _ _ _ _ _ ).
+    eapply pathscomp0. Focus 2. apply (!assoc _ _ _ ).
     eapply pathscomp0. Focus 2.  apply  cancel_postcomposition. apply H'.
     clear H'.
     set (H':=fbracket_τ T g).
@@ -565,7 +565,7 @@ Proof.
   set (H2' := functor_id H2). simpl in H2'.
   simpl.
   rewrite H2'.
-  rewrite (id_left EndC).
+  rewrite (@id_left EndC).
   apply idpath.
 Qed.
 
@@ -619,11 +619,11 @@ Lemma is_precategory_hss : is_precategory hss_precategory_data.
 Proof.
   repeat split; intros.
   - apply (invmap (hssMor_eq _ _ _ _ )).
-    apply (id_left EndC).
+    apply (@id_left EndC).
   - apply (invmap (hssMor_eq _ _ _ _ )).
-    apply (id_right EndC).
+    apply (@id_right EndC).
   - apply (invmap (hssMor_eq _ _ _ _ )).
-    apply (assoc EndC).
+    apply (@assoc EndC).
 Qed.
 
 Definition hss_precategory : precategory := tpair _ _ is_precategory_hss.

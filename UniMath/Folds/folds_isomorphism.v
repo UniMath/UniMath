@@ -175,7 +175,7 @@ Proof.
   specialize (q _ f (id _ ) f).
   set (q':=pr1 q). clearbody q'. simpl in q'. clear q.
   match goal with | [_ : ?a → _ |- _ ] => assert a end.
-  { apply comp_compose2. apply (id_right C'). }
+  { apply comp_compose2. apply (@id_right C'). }
   specialize (q' X). clear X.
   set (q:= comp_compose2' q'). clearbody q; clear q'.
   simpl in *.
@@ -471,10 +471,10 @@ Proof.
       rename H' into H; rewrite <- H; clear H.
       apply comp_compose2.
       repeat rewrite <- assoc; apply maponpaths; simpl.
-      set (H':=assoc C' _ _ _ _ f0 g f); clearbody H';
+      set (H':=@assoc C' _ _ _ _ f0 g f); clearbody H';
       simpl in *. rewrite <- H'; clear H'.
       apply maponpaths. simpl in *.
-      repeat rewrite  (assoc C').
+      repeat rewrite  (@assoc C').
       rewrite z_iso_inv_after_z_iso, id_left;
       apply idpath.
     + intro H; set (H':=comp_compose2' H); clearbody H'; clear H;
@@ -490,7 +490,7 @@ Proof.
       assumption.
   - simpl. apply logeqweq.
     + intro H. apply id_identity2.
-      rewrite (id_identity2' H). rewrite (id_left C').
+      rewrite (id_identity2' H). rewrite (@id_left C').
       apply (z_iso_after_z_iso_inv _ _ _ f).
     + intro H. apply id_identity2.
       set (H':=id_identity2' H); clearbody H'; clear H.
@@ -534,7 +534,7 @@ Context {a b : C} (i : z_iso (C:=C') a b).
 Lemma iso_from_folds_iso_folds_iso_from_iso : iso_from_folds_iso _ _ (folds_iso_from_iso _ _ i) = i.
 Proof.
   apply eq_z_iso. apply hs.
-  apply (id_left C').
+  apply (@id_left C').
 Qed.
 
 
@@ -543,7 +543,7 @@ Variable i' : folds_iso a b.
 Lemma folds_iso_from_iso_iso_from_folds_iso : folds_iso_from_iso _ _ (iso_from_folds_iso _ _ i') = i'.
 Proof.
   apply folds_iso_equal.
-  apply (id_left C').
+  apply (@id_left C').
 Qed.
 
 
