@@ -16,7 +16,6 @@ Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.Ktheory.Representation.
 Require UniMath.Ktheory.Precategories.
 
-(* Coercion Precategories.Precategory_to_precategory : Precategories.Precategory >-> precategory. *)
 
 Section interface.
 
