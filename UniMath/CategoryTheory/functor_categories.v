@@ -1287,7 +1287,7 @@ Defined.
 
 Definition iter_functor {C : precategory} (F : functor C C) (n : nat) : functor C C.
 Proof.
-  induction n.
-  apply functor_identity.
-  apply (functor_composite IHn F).
+  induction n as [ | n IHn].
+  - apply functor_identity.
+  - apply (functor_composite IHn F).
 Defined.
