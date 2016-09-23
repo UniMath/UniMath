@@ -67,3 +67,4 @@ Section def_epi.
   Defined.
 
 End def_epi.
+Arguments isEpi [C] [x] [y] _.

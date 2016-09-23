@@ -305,7 +305,7 @@ Section epi_po.
 
   (** The pushout of an epimorphism is an epimorphism. *)
   Lemma EpiPushoutEpi {a b c : C} (E : Epi _ a b) (g : a --> c)
-        (PB : Pushout E g) : isEpi _ (PushoutIn2 PB).
+        (PB : Pushout E g) : isEpi (PushoutIn2 PB).
   Proof.
     apply mk_isEpi. intros z g0 h X.
     use (MorphismsOutofPushoutEqual (isPushout_Pushout PB) _ _ _ X).
@@ -319,7 +319,7 @@ Section epi_po.
 
   (** Same result for the other morphism *)
   Lemma EpiPushoutEpi' {a b c : C} (f : a --> b) (E : Epi _ a c)
-        (PB : Pushout f E) : isEpi _ (PushoutIn1 PB).
+        (PB : Pushout f E) : isEpi (PushoutIn1 PB).
   Proof.
     apply mk_isEpi. intros z g0 h X.
     use (MorphismsOutofPushoutEqual (isPushout_Pushout PB) _ _ X).

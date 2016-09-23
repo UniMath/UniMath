@@ -67,3 +67,4 @@ Section def_monic.
   Defined.
 
 End def_monic.
+Arguments isMonic [C] [y] [z] _.

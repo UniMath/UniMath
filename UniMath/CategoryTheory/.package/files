@@ -72,4 +72,6 @@ Additive.v
 Abelian.v
 category_binops.v
 category_abgr.v
-AbelianisAdditive.v
+AbelianToAdditive.v
+ShortExactSequences.v
+Morphisms.v

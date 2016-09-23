@@ -27,23 +27,22 @@ Section def_kernels.
   (** This rewrite is used to rewrite an equality f ;; g = ZeroArrow to
      f ;; g = f ;; ZeroArrow. This is because Equalizers need the latter
      equality. *)
-  Lemma KernelEqRw {x y z : C} {g : y --> z} {f : x --> y}
-        (H : f ;; g = ZeroArrow _ Z x z) :
-    f ;; g = f ;; ZeroArrow _ Z y z.
+  Lemma KernelEqRw {x y z : C} {g : y --> z} {f : x --> y} (H : f ;; g = ZeroArrow Z x z) :
+    f ;; g = f ;; ZeroArrow Z y z.
   Proof.
-    pathvia (ZeroArrow _ Z x z).
+    pathvia (ZeroArrow Z x z).
     apply H. apply pathsinv0. apply ZeroArrow_comp_right.
   Defined.
 
   (** Definition and construction of Kernels *)
-  Definition Kernel {y z : C} (g : y --> z) :
-    UU := Equalizer g (ZeroArrow _ Z y z).
-  Definition mk_Kernel {x y z : C} (f : x --> y) (g : y --> z)
-             (H : f ;; g = (ZeroArrow _ Z x z))
-             (isE : isEqualizer g (ZeroArrow _ Z y z) f (KernelEqRw H))
-    : Kernel g.
+  Definition isKernel {x y z : C} (f : x --> y) (g : y --> z) (H : f ;; g = ZeroArrow Z x z) : UU :=
+    isEqualizer g (ZeroArrow Z y z) f (KernelEqRw H).
+
+  Definition Kernel {y z : C} (g : y --> z) : UU := Equalizer g (ZeroArrow Z y z).
+  Definition mk_Kernel {x y z : C} (f : x --> y) (g : y --> z) (H : f ;; g = (ZeroArrow Z x z))
+             (isE : isEqualizer g (ZeroArrow Z y z) f (KernelEqRw H)) : Kernel g.
   Proof.
-    use (mk_Equalizer g (ZeroArrow _ Z y z) f (KernelEqRw H)).
+    use (mk_Equalizer g (ZeroArrow Z y z) f (KernelEqRw H)).
     apply isE.
   Defined.
   Definition Kernels : UU := Π (y z : C) (g : y --> z), Kernel g.
@@ -54,15 +53,15 @@ Section def_kernels.
   Definition KernelArrow {y z : C} {g : y --> z} (K : Kernel g) :
     C⟦K, y⟧ := EqualizerArrow K.
   Definition KernelEqAr {y z : C} {g : y --> z} (K : Kernel g)
-    : EqualizerArrow K ;; g = EqualizerArrow K ;; (ZeroArrow _ Z y z)
+    : EqualizerArrow K ;; g = EqualizerArrow K ;; (ZeroArrow Z y z)
     := EqualizerEqAr K.
   Definition KernelIn {y z : C} {g : y --> z} (K : Kernel g)
-             (w : C) (h : w --> y) (H : h ;; g = ZeroArrow _ Z w z) :
+             (w : C) (h : w --> y) (H : h ;; g = ZeroArrow Z w z) :
     C⟦w, K⟧ := EqualizerIn K _ h (KernelEqRw H).
 
   (** Commutativity of Kernels. *)
   Lemma KernelCommutes {y z : C} {g : y --> z} (K : Kernel g)
-        (w : C) (h : w --> y) (H : h ;; g = ZeroArrow _ Z w z) :
+        (w : C) (h : w --> y) (H : h ;; g = ZeroArrow Z w z) :
     (KernelIn K w h H) ;; (KernelArrow K) = h.
   Proof.
     apply (EqualizerCommutes K).
@@ -103,7 +102,7 @@ Section def_kernels.
              (K K': Kernel g) : C⟦K, K'⟧.
   Proof.
     apply (KernelIn K' K (KernelArrow K)).
-    pathvia (KernelArrow K ;; ZeroArrow _ Z y z).
+    pathvia (KernelArrow K ;; ZeroArrow Z y z).
     apply KernelEqAr.
     apply ZeroArrow_comp_right.
   Defined.
@@ -132,7 +131,7 @@ Section def_kernels.
 
   (** Composing with the KernelArrow gives the zero arrow. *)
   Lemma KernelCompZero {x y : C} {f : x --> y} (K : Kernel f ) :
-    KernelArrow K ;; f = ZeroArrow C Z K y.
+    KernelArrow K ;; f = ZeroArrow Z K y.
   Proof.
     unfold KernelArrow. use (pathscomp0 (EqualizerEqAr K)).
     apply ZeroArrow_comp_right.
@@ -165,11 +164,13 @@ Section def_kernels.
 
   (** It follows that KernelArrow is monic. *)
   Lemma KernelArrowisMonic {y z : C} {g : y --> z} (K : Kernel g ) :
-    isMonic _ (KernelArrow K).
+    isMonic (KernelArrow K).
   Proof.
     exact (EqualizerArrowisMonic K).
   Defined.
 End def_kernels.
+Arguments KernelArrow [C] [Z] [y] [z] [g] _.
+
 
 (** In the following section we construct a new kernel from an arrow which is
   equal to kernelarrow of some kernel, up to precomposing with an isomorphism *)
@@ -182,8 +183,8 @@ Section kernels_iso.
 
   Definition Kernel_up_to_iso_eq {x y z : C} (f : x --> y) (g : y --> z)
              (K : Kernel Z g) (h : iso x K)
-             (H : f = h ;; (KernelArrow _ K)) :
-    f ;; g = ZeroArrow C Z x z.
+             (H : f = h ;; (KernelArrow K)) :
+    f ;; g = ZeroArrow Z x z.
   Proof.
     induction K as [t p]. induction t as [t' p']. induction p as [t'' p''].
     unfold isEqualizer in p''.
@@ -197,8 +198,8 @@ Section kernels_iso.
 
   Definition Kernel_up_to_iso_isEqualizer {x y z : C} (f : x --> y) (g : y --> z)
              (K : Kernel Z g) (h : iso x K)
-             (H : f = h ;; (KernelArrow _ K)) :
-    isEqualizer g (ZeroArrow C Z y z) f
+             (H : f = h ;; (KernelArrow K)) :
+    isEqualizer g (ZeroArrow Z y z) f
                 (KernelEqRw Z (Kernel_up_to_iso_eq f g K h H)).
   Proof.
    apply mk_isEqualizer.
@@ -230,7 +231,7 @@ Section kernels_iso.
 
   Definition Kernel_up_to_iso {x y z : C} (f : x --> y) (g : y --> z)
              (K : Kernel Z g) (h : iso x K)
-             (H : f = h ;; (KernelArrow _ K)) :
+             (H : f = h ;; (KernelArrow K)) :
     Kernel Z g
     := (mk_Kernel Z f _ (Kernel_up_to_iso_eq f g K h H)
                   (Kernel_up_to_iso_isEqualizer f g K h H)).
@@ -238,7 +239,7 @@ Section kernels_iso.
   Definition Kernel_up_to_iso2_eq  {x y z : C} (f1 : x --> y) (f2 : x --> z)
              (h : iso y z) (H : f1 ;; h = f2)
              (K : Kernel Z f1) :
-    KernelArrow Z K ;; f2 = ZeroArrow C Z K z.
+    KernelArrow K ;; f2 = ZeroArrow Z K z.
   Proof.
     rewrite <- H. rewrite assoc. rewrite KernelCompZero.
     apply ZeroArrow_comp_left.
@@ -248,7 +249,7 @@ Section kernels_iso.
              (f2 : x --> z)
              (h : iso y z) (H : f1 ;; h = f2)
              (K : Kernel Z f1) :
-    isEqualizer f2 (ZeroArrow C Z x z) (KernelArrow Z K)
+    isEqualizer f2 (ZeroArrow Z x z) (KernelArrow K)
                 (KernelEqRw Z (Kernel_up_to_iso2_eq f1 f2 h H K)).
   Proof.
     use mk_isEqualizer.
@@ -272,6 +273,6 @@ Section kernels_iso.
              (h : iso y z) (H : f1 ;; h = f2)
              (K : Kernel Z f1) :
     Kernel Z f2
-    := (mk_Kernel Z (KernelArrow Z K) _ (Kernel_up_to_iso2_eq f1 f2 h H K)
+    := (mk_Kernel Z (KernelArrow K) _ (Kernel_up_to_iso2_eq f1 f2 h H K)
                   (Kernel_up_to_iso2_isEqualizer f1 f2 h H K)).
 End kernels_iso.

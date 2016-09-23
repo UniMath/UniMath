@@ -340,7 +340,7 @@ Section monic_pb.
 
   (** The pullback of a Monic is isMonic. *)
   Lemma MonicPullbackisMonic {a b c : C} (M : Monic _ b a) (g : c --> a)
-        (PB : Pullback M g) : isMonic _ (PullbackPr2 PB).
+        (PB : Pullback M g) : isMonic (PullbackPr2 PB).
   Proof.
     apply mk_isMonic. intros x g0 h X.
     use (MorphismsIntoPullbackEqual (isPullback_Pullback PB) _ _ _ X).
@@ -354,7 +354,7 @@ Section monic_pb.
 
   (** Same result for the other morphism. *)
   Lemma MonicPullbackisMonic' {a b c : C} (f : b --> a) (M : Monic _ c a)
-        (PB : Pullback f M) : isMonic _ (PullbackPr1 PB).
+        (PB : Pullback f M) : isMonic (PullbackPr1 PB).
   Proof.
     apply mk_isMonic. intros x g h X.
     use (MorphismsIntoPullbackEqual (isPullback_Pullback PB) _ _ X).

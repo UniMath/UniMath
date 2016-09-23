@@ -87,7 +87,7 @@ Section def_kernels.
 
   Lemma equiv_Kernel2_eq {a b : C} (f : C⟦a, b⟧) (K : Kernel f ) :
     EqualizerArrow C K ;; f
-    = EqualizerArrow C K ;; limits.zero.ZeroArrow C (equiv_Zero2 Z) a b.
+    = EqualizerArrow C K ;; limits.zero.ZeroArrow (equiv_Zero2 Z) a b.
   Proof.
     set (tmp := EqualizerArrowEq C K).
     set (tmp1 := equiv_ZeroArrow a b Z).
@@ -98,7 +98,7 @@ Section def_kernels.
   Qed.
 
   Lemma equiv_Kernel2_isEqualizer {a b : C} (f : C⟦a, b⟧) (K : Kernel f ) :
-    isEqualizer C f (limits.zero.ZeroArrow C (equiv_Zero2 Z) a b)
+    isEqualizer C f (limits.zero.ZeroArrow (equiv_Zero2 Z) a b)
                 (EqualizerObject C K)
                 (EqualizerArrow C K) (equiv_Kernel2_eq f K).
   Proof.
