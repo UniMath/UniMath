@@ -258,7 +258,7 @@ Section kernels_iso.
     rewrite ZeroArrow_comp_right in H'.
     rewrite <- (ZeroArrow_comp_left C Z _ _ _ h) in H'.
     apply (maponpaths (fun f : _ => f ;; (inv_from_iso h))) in H'.
-    rewrite <- assoc in H'. rewrite <- (assoc _ _ _ _ _ _ h) in H'.
+    rewrite <- assoc in H'. rewrite <- (assoc  _ h) in H'.
     repeat rewrite iso_inv_after_iso in H'.
     repeat rewrite id_right in H'.
     apply (unique_exists (KernelIn Z K _ _ H')).

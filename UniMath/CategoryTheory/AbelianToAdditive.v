@@ -275,7 +275,7 @@ Section abelian_is_additive.
         unfold DiagonalMap in com1.
         assert (H : y = ZeroArrow to_Zero w ker).
         {
-          rewrite <- (id_right A _ _ y).
+          rewrite <- (id_right y).
           set (tmp := BinProductPr2Commutes A _ _ BinProd _ (identity X) (identity X)).
           rewrite <- tmp. rewrite assoc. rewrite com1. rewrite <- assoc.
           rewrite (BinProductPr2Commutes A _ _ BinProd _ (identity X) _).
@@ -306,7 +306,7 @@ Section abelian_is_additive.
         set (com1 := CokernelCommutes _ coker2 _ _ H'). cbn in com1. fold y in com1.
         assert (H : y = ZeroArrow to_Zero X w).
         {
-          rewrite <- (id_left A _ _ y).
+          rewrite <- (id_left y).
           set (tmp := BinProductPr2Commutes A _ _ BinProd _ (identity X) (identity X)).
           rewrite <- tmp. rewrite <- assoc. rewrite com1. rewrite assoc.
           rewrite CokernelCompZero.
@@ -433,7 +433,7 @@ Section abelian_is_additive.
         rewrite ZeroArrow_comp_right.
         apply ZeroArrow_comp_left.
     }
-    rewrite <- (id_right A _ _ f). rewrite <- e2. rewrite assoc.
+    rewrite <- (id_right f). rewrite <- e2. rewrite assoc.
     rewrite <- e3. unfold ar'. rewrite <- assoc. fold ar.
     rewrite <- id_left. cbn. rewrite <- e1. rewrite <- assoc.
     apply cancel_precomposition. apply pathsinv0.

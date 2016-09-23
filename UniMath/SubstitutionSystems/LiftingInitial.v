@@ -223,8 +223,8 @@ Local Lemma aux_iso_2_inv_is_nat_trans (Z : Ptd) :
 Proof.
   unfold is_nat_trans; simpl.
   intros X X' α.
-  rewrite (id_left EndC).
-  rewrite (id_right EndC).
+  rewrite (@id_left EndC).
+  rewrite (@id_right EndC).
   apply nat_trans_eq; try (exact hs).
   intro c; simpl.
   unfold coproduct_nat_trans_data; simpl.
@@ -326,10 +326,10 @@ Proof.
     unfold ρ_functor; simpl.
     rewrite id_left.
     apply BinCoproductIn1Commutes_right_in_ctx_dir.
-    rewrite (id_left EndC).
+    rewrite (@id_left EndC).
     rewrite id_left.
     apply BinCoproductIn1Commutes_right_in_ctx_dir.
-    rewrite (id_left EndC).
+    rewrite (@id_left EndC).
     apply BinCoproductIn1Commutes_right_dir.
     apply idpath.
   - rewrite <- h_eq1'_inst.
@@ -453,22 +453,21 @@ Proof.
     apply nat_trans_eq; try (exact hs).
     intro c; simpl.
     unfold coproduct_nat_trans_data.
-    repeat rewrite (id_left EndC).
+    repeat rewrite (@id_left EndC).
     rewrite id_right.
-    repeat rewrite <- assoc.
+    repeat rewrite <- @assoc.
     eapply pathscomp0. Focus 2. eapply pathsinv0. apply postcompWithBinCoproductArrow.
     apply BinCoproductArrowUnique.
     + destruct h'_eq as [h'_eq1 _ ]. (*clear h'_eq2.*)
       simpl.
-      rewrite (id_left C).
+      rewrite id_left.
       assert (h'_eq1_inst := nat_trans_eq_pointwise h'_eq1 c);
         clear h'_eq1.
       simpl in h'_eq1_inst.
       unfold coproduct_nat_trans_in1_data in h'_eq1_inst; simpl in h'_eq1_inst.
-      rewrite <- assoc in h'_eq1_inst.
+      rewrite <- @assoc in h'_eq1_inst.
       eapply pathscomp0.
-      eapply pathsinv0.
-      exact h'_eq1_inst.
+      eapply pathsinv0. exact h'_eq1_inst.
       clear h'_eq1_inst.
       apply BinCoproductIn1Commutes_right_in_ctx_dir.
       apply BinCoproductIn1Commutes_right_in_ctx_dir.
@@ -579,8 +578,8 @@ Local Lemma is_nat_trans_iso2' (Z : Ptd) :
 Proof.
   unfold is_nat_trans; simpl.
   intros X X' α.
-  rewrite (id_left EndC).
-  rewrite (id_right EndC).
+  rewrite (@id_left EndC).
+  rewrite (@id_right EndC).
   apply nat_trans_eq; try (exact hs).
   intro c; simpl.
   unfold coproduct_nat_trans_data; simpl.
@@ -719,7 +718,7 @@ Proof.
         do 5 rewrite <- assoc.
         apply BinCoproductIn2Commutes_left_in_ctx_dir.
         apply BinCoproductIn2Commutes_right_in_ctx_dir.
-        rewrite (id_left EndC).
+        rewrite (@id_left EndC).
         apply BinCoproductIn2Commutes_left_in_ctx_dir.
         apply BinCoproductIn2Commutes_right_in_ctx_dir.
         simpl.
