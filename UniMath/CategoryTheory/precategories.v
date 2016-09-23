@@ -954,11 +954,6 @@ Qed.
 
 Definition category := total2 (fun C : precategory => is_category C).
 
-(*
-Definition precat_from_cat (C : category) : precategory := pr1 C.
-Coercion precat_from_cat : category >-> precategory.
-*)
-
 Definition category_to_Precategory (C : category) : Precategory.
 Proof.
   exists (pr1 C).
