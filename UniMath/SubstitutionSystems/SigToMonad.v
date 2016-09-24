@@ -37,7 +37,7 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.CocontFunctors.
-Require Import UniMath.CategoryTheory.lists.
+Require Import UniMath.CategoryTheory.Inductives.Lists.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).

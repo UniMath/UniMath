@@ -16,6 +16,7 @@ Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.Inductives.Lists.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
@@ -26,7 +27,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.SubstitutionSystems.GenSigToMonad.
 Require Import UniMath.SubstitutionSystems.SigToMonad.
 
-Definition Arity_to_Signature : lists.list nat -> Signatures.Signature HSET has_homsets_HSET.
+Definition Arity_to_Signature : list nat -> Signatures.Signature HSET has_homsets_HSET.
 Proof.
   exact @SigToMonad.Arity_to_Signature.
 Defined.
