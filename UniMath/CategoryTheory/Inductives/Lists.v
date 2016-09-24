@@ -98,7 +98,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A × X -> X) : foldr X x f nil = x.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET _ _) ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -107,7 +107,7 @@ Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A × X -> X)
                  (a : pr1 A) (l : pr1 List) :
   foldr X x f (cons (a,,l)) = f (a,,foldr X x f l).
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn2 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _) ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 assert (Fal := toforallpaths _ _ _ F (a,,l)).
 clear F.
@@ -269,7 +269,7 @@ Lemma list_ind : Π (A : Type) (P : list A -> UU),
 Proof.
 intros A P Hnil Hcons xs.
 destruct xs as [n xs].
-induction n.
+induction n as [|n IHn].
 - destruct xs.
   apply Hnil.
 - destruct xs as [x xs].
@@ -310,7 +310,7 @@ Defined.
 Lemma isaset_list (A : HSET) : isaset (list (pr1 A)).
 Proof.
 apply isaset_total2; [apply isasetnat|].
-intro n; induction n; simpl; [apply isasetunit|].
+intro n; induction n as [|n IHn]; simpl; [apply isasetunit|].
 apply isaset_dirprod; [ apply setproperty | apply IHn ].
 Qed.
 
@@ -318,7 +318,7 @@ Definition to_List (A : HSET) : list (pr1 A) -> pr1 (List A).
 Proof.
 intros l.
 destruct l as [n l].
-induction n.
+induction n as [|n IHn].
 + exact (nil A).
 + apply (cons _ (pr1 l,,IHn (pr2 l))).
 Defined.
@@ -334,7 +334,7 @@ Defined.
 Lemma to_listK (A : HSET) : Π x : list (pr1 A), to_list A (to_List A x) = x.
 Proof.
 intro l; destruct l as [n l]; unfold to_list, to_List.
-induction n; simpl.
+induction n as [|n IHn]; simpl.
 - rewrite foldr_nil.
   destruct l.
   apply idpath.
@@ -371,7 +371,6 @@ Defined.
 (* Eval compute in (to_list _ testlist). *)
 
 End list.
-
 
 (** Alternative version of lists using a more direct proof of omega-cocontinuity. This definition
     has slightly better computational properties. *)
@@ -458,7 +457,7 @@ simple refine (tpair _ _ _).
     destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
     simpl; intro n; unfold BinCoproduct_of_functors_mor in *;
     rewrite precompWithBinCoproductArrow; apply pathsinv0, BinCoproductArrowUnique;
-    [ rewrite id_left; induction n; [apply idpath|];
+    [ rewrite id_left; induction n as [|n IHn]; [apply idpath|];
       now rewrite <- IHn, <- (hf n _ (idpath _)), assoc,
                   BinCoproductOfArrowsIn1, id_left
     | rewrite <- (hf n _ (idpath _)); destruct ccL as [t p]; destruct t as [t p0]; simpl in *;
@@ -562,7 +561,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A × X -> X) : foldr X x f nil = x.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET _ _) ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -571,7 +570,7 @@ Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A × X -> X)
                  (a : pr1 A) (l : pr1 List) :
   foldr X x f (cons (a,,l)) = f (a,,foldr X x f l).
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn2 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _) ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 assert (Fal := toforallpaths _ _ _ F (a,,l)).
 clear F.
