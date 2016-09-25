@@ -1228,7 +1228,7 @@ where "n - m" := (minus n m) : nat_scope.
 
 Definition minuseq0 (n m : nat) (is : n <= m) : n - m = 0.
 Proof.
-  intros n m. generalize n. clear n. induction m.
+  intros n m. generalize n. clear n. induction m as [|m IHm].
   - intros n is. rewrite (natleh0tois0 is). simpl. apply idpath.
   - intro n. destruct n.
     + intro. apply idpath.
@@ -2391,7 +2391,7 @@ Defined.
 
 Lemma natlehtole (n m : nat) : n ≤ m ->  le n m.
 Proof.
-  intros n m H. induction m.
+  intros n m H. induction m as [|m IHm].
   - assert (int := natleh0tois0 H). clear H. destruct int. apply le_n.
   - set (int2 := natlehchoice2 n (S m) H).
     destruct int2 as [ isnatleh | iseq ].

@@ -4684,7 +4684,7 @@ Qed.
 Lemma NonnegativeRationals_to_NonnegativeReals_nattorig :
   Π n : nat, NonnegativeRationals_to_NonnegativeReals (nattorig n) = nattorig n.
 Proof.
-  induction n.
+  induction n as [|n IHn].
   - reflexivity.
   - rewrite !nattorigS.
     rewrite NonnegativeRationals_to_NonnegativeReals_plus, IHn.

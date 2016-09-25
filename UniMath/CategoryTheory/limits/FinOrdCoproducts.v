@@ -77,7 +77,7 @@ Section FinOrdCoproduct_criteria.
   Theorem FinOrdCoproducts_from_Initial_and_BinCoproducts :
     Initial C -> BinCoproducts C -> FinOrdCoproducts C.
   Proof.
-    intros I BinCoprods. unfold FinOrdCoproducts. intros n. induction n.
+    intros I BinCoprods. unfold FinOrdCoproducts. intros n. induction n as [|n IHn].
 
     (* Case n = 0 *)
     apply (InitialToCoproduct I).
