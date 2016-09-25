@@ -1,9 +1,19 @@
-language:       ocaml
+# validate this file at http://lint.travis-ci.org/
+# ocaml and coq are not on the list of languages:
+language:       generic
 sudo: 		required
-dist: 		precise
-group: 		legacy
-before_install: sudo apt-get update -qq
-install:        sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp5 camlp4-extra time libgtk2.0 libgtksourceview2.0
+# "trusty" is the most modern release of Ubuntu supported
+dist: 		trusty
+git:
+  submodules:   false
+before_install:
+  - sudo apt-get update -qq
+install:
+  - sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers
+  - sudo apt-get install -y camlp5 camlp4-extra time libgtk2.0 libgtksourceview2.0
+  # get etags from emacs:
+  - sudo apt-get install -y emacs
+# build coqide along with the Tactics package, just because it's a short package
 env:
   - PACKAGE=Foundations
   - PACKAGE=CategoryTheory
@@ -11,8 +21,10 @@ env:
   - PACKAGE=Topology
   - PACKAGE=RealNumbers
   - PACKAGE=SubstitutionSystems
-  - PACKAGE=Tactics
+  - PACKAGE=Tactics BUILD_COQIDE=yes BUILD_ALSO=TAGS
   - PACKAGE=Folds
+# building Coq in a separate stage folds up the output in the log:
+before_script:
+  - time make build-coq
 script:
-  - time make BUILD_COQIDE=yes build-coq
-  - time make TIMECMD=time $PACKAGE
+  - time make TIMECMD=time $PACKAGE $BUILD_ALSO

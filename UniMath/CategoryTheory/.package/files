@@ -13,7 +13,6 @@ Monads.v
 limits/cones.v
 limits/pullbacks.v
 limits/graphs/pullbacks.v
-limits/more_on_pullbacks.v
 limits/initial.v
 limits/graphs/initial.v
 limits/zero.v
@@ -21,10 +20,6 @@ limits/graphs/zero.v
 limits/bincoproducts.v
 limits/coproducts.v
 limits/graphs/bincoproducts.v
-limits/FunctorsPointwiseBinCoproduct.v
-limits/FunctorsPointwiseCoproduct.v
-limits/FunctorsPointwiseBinProduct.v
-limits/FunctorsPointwiseProduct.v
 limits/graphs/colimits.v
 HLevel_n_is_of_hlevel_Sn.v
 category_hset_structures.v
@@ -37,9 +32,8 @@ precomp_fully_faithful.v
 precomp_ess_surj.v
 rezk_completion.v
 slicecat.v
-chains.v
 EquivalencesExamples.v
-cocontfunctors.v
+CocontFunctors.v
 limits/cats/limits.v
 limits/graphs/limits.v
 AdjunctionHomTypesWeq.v
@@ -78,4 +72,7 @@ Additive.v
 Abelian.v
 category_binops.v
 category_abgr.v
-AbelianisAdditive.v
+AbelianToAdditive.v
+ShortExactSequences.v
+Morphisms.v
+AdditiveFunctors.v

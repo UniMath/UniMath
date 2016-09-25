@@ -169,11 +169,11 @@ Lemma precategory_Monad_axioms (C : precategory) (hs : has_homsets C)
 Proof.
   repeat split; simpl; intros.
   - apply (invmap (Monad_Mor_equiv hs _ _ )).
-    apply (id_left (functor_precategory C C hs)).
+    apply (@id_left (functor_precategory C C hs)).
   - apply (invmap (Monad_Mor_equiv hs _ _ )).
-    apply (id_right (functor_precategory C C hs)).
+    apply (@id_right (functor_precategory C C hs)).
   - apply (invmap (Monad_Mor_equiv hs _ _ )).
-    apply (assoc (functor_precategory C C hs)).
+    apply (@assoc (functor_precategory C C hs)).
 Qed.
 
 Definition precategory_Monad (C : precategory) (hs : has_homsets C) : precategory

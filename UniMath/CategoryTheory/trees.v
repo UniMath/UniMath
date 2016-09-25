@@ -16,12 +16,9 @@ Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.chains.
-Require Import UniMath.CategoryTheory.cocontfunctors.
+Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
@@ -44,7 +41,7 @@ Let is_omega_cocont_treeFunctor : is_omega_cocont treeFunctor := pr2 treeOmegaFu
 Lemma treeFunctor_Initial :
   Initial (precategory_FunctorAlg treeFunctor has_homsets_HSET).
 Proof.
-apply (colimAlgInitial _ _ _ is_omega_cocont_treeFunctor InitialHSET (ColimCoconeHSET _ _)).
+apply (colimAlgInitial _ InitialHSET is_omega_cocont_treeFunctor (ColimCoconeHSET _ _)).
 Defined.
 
 Definition Tree : HSET :=

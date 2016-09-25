@@ -188,6 +188,7 @@ Proof.
            using isaprop_isInjectiveFunction.
 Defined.
 
+
 (** ** Types [X] which satisfy "weak" axiom of choice for all families [P : X -> UU]
 
 Weak axiom of choice for [X] is the condition that for any family [P : X -> UU]
@@ -224,7 +225,6 @@ Proof.
 Defined.
 
 Definition ischoicebase (X : UU) : hProp := hProppair _ (isapropischoicebase X).
-
 
 Lemma ischoicebaseweqf {X Y : UU} (w : X ≃ Y) (is : ischoicebase X) :
   ischoicebase Y.
@@ -1141,6 +1141,25 @@ Defined.
 Notation " 'ct' ( R , is , x , y ) " := (ctlong R is x y (idpath true))
                                           (at level 70).
 
+(* An alternative to [ct], with tactics and negations *)
+
+Definition deceq_to_decrel {X:UU} : isdeceq X -> decrel X.
+Proof. intros ? i. use decrelpair.
+       - intros x y. exists (x=y). now apply isasetifdeceq.
+       - exact i.
+Defined.
+
+Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
+  let T := type of x in
+  let G := match goal with |- ?G => constr:(G) end in
+  exact ((@idfun G : T -> G) x).
+
+(* I don't know why exact_op works better here, but with "exact", the code in RealNumbers/Prelim.v breaks *)
+Ltac confirm_yes d x y := exact_op (pathstor d x y (idpath true)).
+Ltac confirm_no  d x y := exact_op (pathstonegr d x y (idpath false)).
+Ltac confirm_equal     i := match goal with |- ?x = ?y => confirm_yes (deceq_to_decrel i) x y end.
+Ltac confirm_not_equal i := match goal with |- ?x != ?y => confirm_no (deceq_to_decrel i) x y end.
+
 (** *** Restriction of a relation to a subtype *)
 
 Definition resrel {X : UU} (L : hrel X) (P : hsubtypes X) : hrel P
@@ -1606,8 +1625,6 @@ Proof.
 Defined.
 
 
-
-
 (** Important note : theorems proved above can not be used (al least at the
   moment) to construct terms whose complete normalization (evaluation) is
   important. For example they should not be used * directly * to construct
@@ -1628,10 +1645,7 @@ Defined.
   [isdeceq (setquot R)] using the same assumptions which is "constructive"
   i.e. usable for the evaluation purposes. *)
 
-
-
-
-(** *** The case when the function between quotients defined by [setquotfun] is a surjection, inclusion or a weak equivalence *)
+(** *** The case when [setquotfun] is a surjection, inclusion or a weak equivalence *)
 
 Lemma issurjsetquotfun {X Y : UU} (RX : eqrel X) (RY : eqrel Y) (f : X -> Y)
       (is : issurjective f) (is1 : iscomprelrelfun RX RY f) :
@@ -2277,8 +2291,8 @@ Definition decquotrel {X : UU} {R : eqrel X} (L : decrel X)
 (** *** Subtypes of quotients and quotients of subtypes *)
 
 
-Definition reseqrel {X : UU} (R : eqrel X) (P : hsubtypes X) : eqrel P
-  := eqrelpair _ (iseqrelresrel R P (pr2 R)).
+Definition reseqrel {X : UU} (R : eqrel X) (P : hsubtypes X) : eqrel P :=
+  eqrelpair _ (iseqrelresrel R P (pr2 R)).
 
 Lemma iseqclassresrel {X : UU} (R : hrel X) (P Q : hsubtypes X)
       (is : iseqclass R Q) (is' : Π x, Q x -> P x) :

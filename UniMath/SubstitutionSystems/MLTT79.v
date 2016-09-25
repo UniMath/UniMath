@@ -15,8 +15,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
-Require Import UniMath.CategoryTheory.chains.
-Require Import UniMath.CategoryTheory.cocontfunctors.
+Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.lists.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -24,12 +23,8 @@ Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.cats.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.

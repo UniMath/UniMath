@@ -1,18 +1,23 @@
 (** **********************************************************
 
+Structures on HSET.
+
+Contents:
+
+- Colimits in HSET ([ColimsHSET])
+- Binary coproducts ([BinCoproductsHSET])
+- General indexed coproducts ([Coproducts_HSET])
+- Initial object ([InitialHSET])
+- Limits ([LimsHSET])
+- Binary products ([BinProductsHSET])
+- General indexed products ([ProductsHSET]
+- Terminal object ([TerminalHSET])
+- Exponentials ([has_exponentials_HSET])
+- Construction of exponentials for functors into HSET ([has_exponentials_functor_HSET])
+
 Written by: Benedikt Ahrens, Anders Mörtberg
 
 October 2015 - January 2016
-
-************************************************************)
-
-
-(** **********************************************************
-
-Contents :
-	    Colimits in HSET
-
-	    Limits in HSET
 
 ************************************************************)
 
@@ -24,18 +29,17 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.covyoneda.
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").

@@ -34,12 +34,9 @@ Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.SubstitutionSystems.Notation.
-Require Import UniMath.CategoryTheory.chains.
-Require Import UniMath.CategoryTheory.cocontfunctors.
+Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).

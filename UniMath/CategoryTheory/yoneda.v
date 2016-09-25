@@ -84,7 +84,7 @@ Proof.
   intro f. unf. apply id_left.
   intros a b d f g.
   apply funextsec. intro h.
-  apply (! assoc _ _ _ _ _ _ _ _ ).
+  apply (! assoc _ _ _ ).
 Qed.
 
 Definition yoneda_objects (C : precategory) (hs: has_homsets C) (c : C) :
@@ -110,7 +110,7 @@ Proof.
   apply funextsec; simpl in *.
   unfold yoneda_objects_ob; simpl.
   unf; intro;
-  apply  ( ! assoc _ _ _ _ _ _ _ _  ).
+  apply  ( ! assoc _ _ _ ).
 Qed.
 
 Definition yoneda_morphisms (C : precategory) (hs: has_homsets C) (c c' : C)
@@ -199,7 +199,7 @@ Proof.
     apply idpath.
   rewrite <- nat_trans_ax.
   unf; apply maponpaths.
-  apply (id_right C a' c f ).
+  apply (id_right f ).
 Qed.
 
 

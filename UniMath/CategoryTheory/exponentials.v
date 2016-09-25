@@ -8,7 +8,6 @@ Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).

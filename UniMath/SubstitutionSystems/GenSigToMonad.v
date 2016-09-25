@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.initial.
@@ -26,8 +26,6 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
@@ -44,8 +42,7 @@ Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
-Require Import UniMath.CategoryTheory.chains.
-Require Import UniMath.CategoryTheory.cocontfunctors.
+Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.lists.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
@@ -108,6 +105,7 @@ Definition GenSigInitial :
                         GenSigToSignature) has_homsets_HSET2).
 Proof.
 use colimAlgInitial.
+- apply (Initial_functor_precat _ _ InitialHSET).
 - unfold Id_H, Const_plus_H.
   apply is_omega_cocont_BinCoproduct_of_functors.
   + apply (BinProducts_functor_precat _ _ BinProductsHSET).
@@ -115,14 +113,13 @@ use colimAlgInitial.
   + apply functor_category_has_homsets.
   + apply is_omega_cocont_constant_functor, functor_category_has_homsets.
   + apply is_omega_cocont_GenSigToSignature.
-- apply (Initial_functor_precat _ _ InitialHSET).
 - apply ColimsFunctorCategory; apply ColimsHSET.
 Defined.
 
 Definition GenSigInitialHSS : Initial (hss_precategory BinCoproductsHSET GenSigToSignature).
 Proof.
 apply InitialHSS.
-- intro Z; apply RightKanExtension_from_limits, cats_LimsHSET.
+- intro Z; apply RightKanExtension_from_limits, LimsHSET.
 - apply GenSigInitial.
 Defined.
 

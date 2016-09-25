@@ -1,4 +1,12 @@
-(* Direct definition of initial object *)
+(**
+
+Direct definition of initial object together with:
+
+- A proof that initial object is a property in a (saturated/univalent) category ([isaprop_Initial])
+- Construction of initial from the empty coproduct ([initial_from_empty_coproduct])
+- Initial element in a functor precategory ([Initial_functor_precat])
+
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -66,6 +74,7 @@ Definition iso_Initials (O O' : Initial) : iso O O' :=
 
 Definition hasInitial := ishinh Initial.
 
+(** * Being initial is a property in a (saturated/univalent) category *)
 Section Initial_Unique.
 
 Hypothesis H : is_category C.
@@ -151,6 +160,7 @@ End Initial_and_EmptyCoprod.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
+(** * Construction of initial object in a functor category *)
 Section InitialFunctorCat.
 
 Variable C D : precategory.
