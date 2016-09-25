@@ -914,7 +914,7 @@ Proof.
 intros cAB ml ccml Hccml xy ccxy; simpl in *.
 transparent assert (cc : (Π i, cocone (mapdiagram (F i) (mapdiagram (pr_functor I (λ _ : I, A) i) cAB)) (xy i))).
 { intro i; use mk_cocone.
-  - intro n; apply (pr1 ccxy n).
+  - intro n; simple refine (pr1 ccxy n _).
   - abstract (intros m n e; apply (toforallpaths _ _ _ (pr2 ccxy m n e) i)).
 }
 set (X i := HF i _ _ _ (isColimCocone_pr_functor _ _ _ Hccml i) (xy i) (cc i)).
