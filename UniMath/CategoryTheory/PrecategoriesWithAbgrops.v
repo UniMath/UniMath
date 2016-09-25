@@ -52,7 +52,17 @@ Section def_precategory_with_abgrops.
 
   Definition to_lunax (x y : PA) := lunax (to_abgrop x y).
 
+  Definition to_lunax' (x y : PA) (f : x --> y) : to_binop x y (to_unel x y) f = f.
+  Proof.
+    apply to_lunax.
+  Qed.
+
   Definition to_runax (x y : PA) := runax (to_abgrop x y).
+
+  Definition to_runax' (x y : PA) (f : x --> y) : to_binop x y f (to_unel x y) = f.
+  Proof.
+    apply to_runax.
+  Qed.
 
   Definition to_inv (x y : PA) :  PA⟦x, y⟧ -> PA⟦x, y⟧ := grinv (to_abgrop x y).
 

@@ -117,6 +117,26 @@ Section def_zero.
     split; intros H; apply H.
   Defined.
 
+  Definition IsoToisZero {A : C} (Z : Zero) (i : iso A Z) :
+    isZero A.
+  Proof.
+    use mk_isZero.
+    - intros a.
+      use tpair.
+      + exact (i ;; (ZeroArrowFrom Z a)).
+      + cbn. intros t.
+        apply (pre_comp_with_iso_is_inj
+                 C _ _ a (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
+        rewrite assoc. cbn. rewrite (iso_after_iso_inv i). rewrite id_left.
+        apply ArrowsFromZero.
+    - intros a.
+      use tpair.
+      + exact ((ZeroArrowTo Z a) ;; (iso_inv_from_iso i)).
+      + cbn. intros t.
+        apply (post_comp_with_iso_is_inj C _ _ i (pr2 i)).
+        rewrite <- assoc. rewrite (iso_after_iso_inv i). rewrite id_right.
+        apply ArrowsToZero.
+  Qed.
 End def_zero.
 
 

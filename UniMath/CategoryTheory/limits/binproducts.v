@@ -31,10 +31,18 @@ Section binproduct_def.
 
 Variable C : precategory.
 
-Definition isBinProductCone (c d p: C) (p1 : p --> c) (p2 : p --> d) :=
+Definition isBinProductCone (c d p : C) (p1 : p --> c) (p2 : p --> d) :=
   Π (a : C) (f : a --> c) (g : a --> d),
-    iscontr (total2 (fun fg : a --> p => dirprod (fg ;; p1 = f)
-                                                 (fg ;; p2 = g))).
+  iscontr (total2 (fun fg : a --> p => dirprod (fg ;; p1 = f) (fg ;; p2 = g))).
+
+Lemma isaprop_isBinProductCone (c d p : C) (p1 : p --> c) (p2 : p --> d) :
+  isaprop (isBinProductCone c d p p1 p2).
+Proof.
+  apply impred_isaprop. intros t.
+  apply impred_isaprop. intros t0.
+  apply impred_isaprop. intros t1.
+  apply isapropiscontr.
+Qed.
 
 Definition BinProductCone (c d : C) :=
    total2 (fun pp1p2 : total2 (fun p : C => dirprod (p --> c) (p --> d)) =>
@@ -372,8 +380,7 @@ Section BinProduct_zeroarrow.
 End BinProduct_zeroarrow.
 
 
-(** Goal: lift binary products from the target (pre)category to the
-    functor (pre)category *)
+(** Goal: lift binary products from the target (pre)category to the functor (pre)category *)
 Section def_functor_pointwise_binprod.
 
 Variable C D : precategory.
@@ -398,7 +405,6 @@ Proof.
   exists BinProduct_of_functors_ob.
   exact BinProduct_of_functors_mor.
 Defined.
-
 
 Lemma is_functor_BinProduct_of_functors_data : is_functor BinProduct_of_functors_data.
 Proof.
@@ -589,3 +595,62 @@ Defined.
 
 
 End def_functor_pointwise_binprod.
+
+
+(** ** Construction of BinProduct from an isomorphism to BinProduct. *)
+Section BinProduct_from_iso.
+
+  Variable C : precategory.
+  Hypothesis hs : has_homsets C.
+
+  Local Lemma iso_to_isBinProductCone_comm {x y z : C} (BP : BinProductCone C x y)
+        (i : iso z (BinProductObject C BP)) (w : C) (f : w --> x) (g : w --> y) :
+    (BinProductArrow C BP f g ;; inv_from_iso i ;; (i ;; BinProductPr1 C BP) = f)
+      × (BinProductArrow C BP f g ;; inv_from_iso i ;; (i ;; BinProductPr2 C BP) = g).
+  Proof.
+    split.
+    - rewrite <- assoc. rewrite (assoc _ i).
+      rewrite (iso_after_iso_inv i). rewrite id_left.
+      apply BinProductPr1Commutes.
+    - rewrite <- assoc. rewrite (assoc _ i).
+      rewrite (iso_after_iso_inv i). rewrite id_left.
+      apply BinProductPr2Commutes.
+  Qed.
+
+  Local Lemma iso_to_isBinProductCone_unique {x y z : C} (BP : BinProductCone C x y)
+        (i : iso z (BinProductObject C BP)) (w : C) (f : C ⟦w, x⟧) (g : C ⟦w, y⟧) (y0 : C ⟦w, z⟧)
+        (T : y0 ;; (i ;; BinProductPr1 C BP) = f × y0 ;; (i ;; BinProductPr2 C BP) = g) :
+    y0 = BinProductArrow C BP f g ;; iso_inv_from_iso i.
+  Proof.
+    apply (post_comp_with_iso_is_inj C _ _ i (pr2 i)).
+    rewrite <- assoc. cbn. rewrite (iso_after_iso_inv i). rewrite id_right.
+    apply BinProductArrowUnique.
+    - rewrite <- assoc. apply (dirprod_pr1 T).
+    - rewrite <- assoc. apply (dirprod_pr2 T).
+  Qed.
+
+  Lemma iso_to_isBinProductCone {x y z : C} (BP : BinProductCone C x y)
+        (i : iso z (BinProductObject C BP)) :
+    isBinProductCone C _ _ z (i ;; (BinProductPr1 C BP))  (i ;; (BinProductPr2 C BP)).
+  Proof.
+    intros w f g.
+    use unique_exists.
+    (* Arrow *)
+    - exact ((BinProductArrow C BP f g) ;; (iso_inv_from_iso i)).
+    (* Commutativity *)
+    - exact (iso_to_isBinProductCone_comm BP i w f g).
+    (* Equality of equalities of morphisms. *)
+    - intros y0. apply isapropdirprod. apply hs. apply hs.
+    (* Uniqueness *)
+    - intros y0 T. exact (iso_to_isBinProductCone_unique BP i w f g y0 T).
+  Defined.
+  Opaque iso_to_isBinProductCone.
+
+  Definition iso_to_BinProductCone {x y z : C} (BP : BinProductCone C x y)
+             (i : iso z (BinProductObject C BP)) :
+    BinProductCone C x y := mk_BinProductCone C _ _ z
+                                              (i ;; (BinProductPr1 C BP))
+                                              (i ;; (BinProductPr2 C BP))
+                                              (iso_to_isBinProductCone BP i).
+
+End BinProduct_from_iso.
