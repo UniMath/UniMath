@@ -649,18 +649,18 @@ Definition NN := Free.make unit.
 Module NN_agreement.
   Import Presentation.
   Definition mult {X:abmonoid} (n:nat) (x:X) : X.
-    intros. induction n. exact (unel _). exact (x + IHn). Defined.
+    intros. induction n as [|n IHn]. exact (unel _). exact (x + IHn). Defined.
   Local Notation "n * x" := ( mult n x ).
   Lemma mult_one (n:nat) : n * (1 : nataddabmonoid) = n.
-  Proof. intro. induction n. { reflexivity. } { exact (ap S IHn). } Qed.
+  Proof. intro. induction n as [|n IHn]. { reflexivity. } { exact (ap S IHn). } Qed.
   Lemma mult_fun {X Y:abmonoid} (f:Hom X Y) (n:nat) (x:X) : f(n*x) = n*f x.
-  Proof. intros. induction n. { exact (Monoid.unitproperty f). }
+  Proof. intros. induction n as [|n IHn]. { exact (Monoid.unitproperty f). }
          { simple refine (Monoid.multproperty f x (n*x) @ _).
            { simpl. simpl in IHn. induction IHn. reflexivity. } } Qed.
   Lemma uniq_fun {X:abmonoid} (f g:Hom nataddabmonoid X) :
     f 1 = g 1 -> homot f g.
   Proof. intros ? ? ? e n.
-         induction n.
+         induction n as [|n IHn].
          { exact (Monoid.unitproperty f @ !Monoid.unitproperty g). }
          { exact (Monoid.multproperty f 1 n
                 @ aptwice (fun x y => x+y) e IHn

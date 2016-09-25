@@ -119,7 +119,7 @@ Proof.
 destruct xs as [n xs].
 destruct n.
 - destruct xs; simpl; apply (is_omega_cocont_functor_identity has_homsets_HSET2).
-- induction n.
+- induction n as [|n IHn].
   + destruct xs as [m []]; simpl.
     apply is_omega_cocont_precomp_option_iter.
   + destruct xs as [m xs].
@@ -150,7 +150,7 @@ destruct s as [n xs].
 destruct n.
 - destruct xs.
   apply (is_omega_cocont_functor_identity has_homsets_HSET2).
-- induction n.
+- induction n as [|n IHn].
   + destruct xs as [xs []]; simpl.
     apply is_omega_cocont_Arity_to_Signature.
   + destruct xs as [m xs].

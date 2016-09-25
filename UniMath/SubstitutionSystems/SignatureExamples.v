@@ -384,7 +384,7 @@ Fixpoint iter_functor1 (n : nat) : functor C C := match n with
 
 Definition δ_iter_functor1 n : δ_source C hsC (iter_functor1 n) ⟶ δ_target C hsC (iter_functor1 n).
 Proof.
-induction n.
+induction n as [|n IHn].
 - apply δ.
 - apply δ_comp.
   + apply IHn.

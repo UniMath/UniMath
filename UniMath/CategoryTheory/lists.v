@@ -267,7 +267,7 @@ Lemma list_ind : Π (A : Type) (P : list A -> UU),
 Proof.
 intros A P Hnil Hcons xs.
 destruct xs as [n xs].
-induction n.
+induction n as [|n IHn].
 - destruct xs.
   apply Hnil.
 - destruct xs as [x xs].
@@ -308,7 +308,7 @@ Defined.
 Lemma isaset_list (A : HSET) : isaset (list (pr1 A)).
 Proof.
 apply isaset_total2; [apply isasetnat|].
-intro n; induction n; simpl; [apply isasetunit|].
+intro n; induction n as [|n IHn]; simpl; [apply isasetunit|].
 apply isaset_dirprod; [ apply setproperty | apply IHn ].
 Qed.
 
@@ -316,7 +316,7 @@ Definition to_List (A : HSET) : list (pr1 A) -> pr1 (List A).
 Proof.
 intros l.
 destruct l as [n l].
-induction n.
+induction n as [|n IHn].
 + exact (nil A).
 + apply (cons _ (pr1 l,,IHn (pr2 l))).
 Defined.
@@ -332,7 +332,7 @@ Defined.
 Lemma to_listK (A : HSET) : Π x : list (pr1 A), to_list A (to_List A x) = x.
 Proof.
 intro l; destruct l as [n l]; unfold to_list, to_List.
-induction n; simpl.
+induction n as [|n IHn]; simpl.
 - rewrite foldr_nil.
   destruct l.
   apply idpath.
@@ -457,7 +457,7 @@ simple refine (tpair _ _ _).
     destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
     simpl; intro n; unfold BinCoproduct_of_functors_mor in *;
     rewrite precompWithBinCoproductArrow; apply pathsinv0, BinCoproductArrowUnique;
-    [ rewrite id_left; induction n; [apply idpath|];
+    [ rewrite id_left; induction n as [|n IHn]; [apply idpath|];
       now rewrite <- IHn, <- (hf n _ (idpath _)), assoc,
                   BinCoproductOfArrowsIn1, id_left
     | rewrite <- (hf n _ (idpath _)); destruct ccL as [t p]; destruct t as [t p0]; simpl in *;

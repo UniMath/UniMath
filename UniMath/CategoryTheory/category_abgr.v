@@ -1215,7 +1215,7 @@ Section ABGR_monics.
       in ABGR. *)
   Definition ABGR_natset_map {A : abgr} (a : A) : natset -> A.
   Proof.
-    intros n. induction n.
+    intros n. induction n as [|n IHn].
     - apply (unel A).
     - apply (@op A a IHn).
   Defined.
@@ -1229,7 +1229,7 @@ Section ABGR_monics.
   Definition ABGR_natset_map_S {A : abgr} (a : A) (n : nat) :
     ABGR_natset_map a (S n) = (ABGR_natset_map a n * a)%multmonoid.
   Proof.
-    induction n.
+    induction n as [|n IHn].
     - cbn. rewrite (lunax A). apply (runax A).
     - cbn. rewrite (assocax A). apply lopeq. apply (commax A).
   Qed.
@@ -1237,7 +1237,7 @@ Section ABGR_monics.
   Definition ABGR_natset_map_plus {A : abgr} (a : A) (n m : nat) :
     ABGR_natset_map a (n + m) = (ABGR_natset_map a n * ABGR_natset_map a m)%multmonoid.
   Proof.
-    induction n.
+    induction n as [|n IHn].
     - rewrite (lunax A). apply idpath.
     - cbn. rewrite (assocax A). apply lopeq.
       unfold ABGR_natset_map in *. cbn in IHn.
@@ -1304,7 +1304,7 @@ Section ABGR_monics.
   Definition ABGR_natset_dirprod_map_ind {A : abgr} (a : A) (n m : nat) :
     ABGR_natset_dirprod_map a (n + m,,m) = ABGR_natset_dirprod_map a (n,, 0).
   Proof.
-    induction m.
+    induction m as [|m IHm].
     - rewrite natpluscomm. cbn. apply idpath.
     - rewrite natplusnsm. cbn.
       unfold ABGR_natset_dirprod_map. cbn.
@@ -1329,8 +1329,8 @@ Section ABGR_monics.
   Definition ABGR_integer_map_iscomprelfun {A : abgr} (a : A) :
     iscomprelfun (binopeqrelabgrfrac (rigaddabmonoid natcommrig)) (ABGR_natset_dirprod_map a).
   Proof.
-    intros x. induction x as [t p]. induction p.
-    - intros x'. induction x' as [t0 p]. induction p.
+    intros x. induction x as [t p]. induction p as [|p IHp].
+    - intros x'. induction x' as [t0 p]. induction p as [|p IHp].
       + intros H. cbn in *. use (squash_to_prop H). apply (setproperty A).
         intros H'. induction H' as [t1 p]. repeat rewrite natplusassoc in p. cbn in p.
         apply natplusrcan in p. rewrite p. apply idpath.
@@ -1338,7 +1338,7 @@ Section ABGR_monics.
         intros H'. induction H' as [t1 p0]. rewrite (natplusassoc _ 0) in p0. cbn in p0.
         apply natplusrcan in p0. rewrite <- p0.
         rewrite ABGR_natset_dirprod_map_ind. apply idpath.
-    - intros x'. induction x' as [t0 p0]. induction p0.
+    - intros x'. induction x' as [t0 p0]. induction p0 as [|p0 IHp0].
       + intros H. cbn in *. use (squash_to_prop H). apply (setproperty A).
         intros H'. induction H' as [t1 p0]. rewrite natplusassoc in p0. cbn in p0.
         apply natplusrcan in p0. rewrite p0.
@@ -1444,8 +1444,8 @@ Section ABGR_monics.
   Proof.
     use total2_paths.
     - cbn. unfold funcomp. apply funextfun.
-      intros x. induction x as [t p]. induction t.
-      + induction p.
+      intros x. induction x as [t p]. induction t as [|t IHt].
+      + induction p as [|p IHp].
         (* p = 0 *)
         * unfold ABGR_natset_dirprod_map. cbn.
           rewrite (runax A). apply idpath.

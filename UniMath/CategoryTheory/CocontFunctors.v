@@ -143,7 +143,7 @@ Definition mapchain {C D : precategory} (F : functor C D)
 Definition chain_mor {C : precategory} (c : chain C) {i j} :
   i < j -> C⟦dob c i, dob c j⟧.
 Proof.
-induction j.
+induction j as [|j IHj].
 - intros Hi0.
   destruct (negnatlthn0 0 Hi0).
 - intros Hij.
@@ -156,7 +156,7 @@ Lemma chain_mor_coconeIn {C : precategory} (c : chain C) (x : C)
   (cc : cocone c x) i : Π j (Hij : i < j),
   chain_mor c Hij ;; coconeIn cc j = coconeIn cc i.
 Proof.
-induction j.
+induction j as [|j IHj].
 - intros Hi0.
   destruct (negnatlthn0 _ Hi0).
 - intros Hij; simpl.
@@ -172,7 +172,7 @@ used for any two proofs making it easier to apply. *)
 Lemma chain_mor_right {C : precategory} {c : chain C} {i j} (Hij : i < j) (HSij : S i < j) :
   dmor c (idpath (S i)) ;; chain_mor c HSij = chain_mor c Hij.
 Proof.
-induction j.
+induction j as [|j IHj].
 - destruct (negnatlthn0 _ Hij).
 - simpl.
   destruct (natlehchoice4 _ _ Hij).
@@ -610,7 +610,7 @@ intros c L ccL HccL y ccy.
 mkpair.
 - apply (tpair _ (coconeIn ccy 0)).
   abstract (intro n; rewrite id_left; destruct ccy as [f Hf]; simpl;
-            now induction n; [apply idpath|]; rewrite IHn, <- (Hf n (S n) (idpath _)), id_left).
+            now induction n as [|n IHn]; [apply idpath|]; rewrite IHn, <- (Hf n (S n) (idpath _)), id_left).
 - abstract (intro p; apply subtypeEquality;
               [ intros f; apply impred; intro; apply hsD
               | now simpl; destruct p as [p H]; rewrite <- (H 0), id_left]).
