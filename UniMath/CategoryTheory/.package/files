@@ -85,3 +85,7 @@ Morphisms.v
 AdditiveFunctors.v
 LocalizingClass.v
 DiscretePrecategory.v
+UnderPrecategories.v
+Subobjects.v
+Quotobjects.v
+GrothendieckTopos.v

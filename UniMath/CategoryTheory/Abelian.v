@@ -2,9 +2,9 @@
 (** ** Contents
 - Definition of Abelian categories
 - If Monic and Epi, then iso
-- Pushouts of subobjects and pullbacks of quotient objects
- - Pushouts of subobjects
- - Pullbacks of quotient objects
+- Pushouts of monics and pullbacks of epis
+ - Pushouts of monics
+ - Pullbacks of epis
 - Equalizers and Coequalizers
  - Equalizers
  - Coequalizers
@@ -232,10 +232,10 @@ Section abelian_monic_epi_iso.
 End abelian_monic_epi_iso.
 
 
-(** * Pullbacks of subjects and pushouts of quotient objects
+(** * Pullbacks of monics and pushouts of epis
   In the following section we prove that an abelian category has pullbacks of
-  subobjects and pushouts of quotient objects. *)
-Section abelian_subobject_pullbacks.
+  monics and pushouts of epis. *)
+Section abelian_monic_pullbacks.
 
   Variable A : AbelianPreCat.
   Hypothesis hs : has_homsets A.
@@ -540,7 +540,7 @@ Section abelian_subobject_pullbacks.
                     (epis_Pushout_isPushout E1 E2 BinCoprod coker)).
   Defined.
 
-End abelian_subobject_pullbacks.
+End abelian_monic_pullbacks.
 
 (** * Equalizers and Coequalizers
   In the following section we show that equalizers and coequalizers exist in

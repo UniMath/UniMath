@@ -475,12 +475,28 @@ Defined.
 
 End TerminalHSET_from_Lims.
 
-(*
-Lemma PullbacksHSET : Pullbacks HSET.
-Proof.
-now apply Pullbacks_from_Lims, LimsHSET.
-Qed.
-*)
+
+Section PullbacksHSET_from_Lims.
+
+  Require UniMath.CategoryTheory.limits.graphs.pullbacks.
+
+  Lemma PullbacksHSET : graphs.pullbacks.Pullbacks HSET.
+  Proof.
+    apply (graphs.pullbacks.Pullbacks_from_Lims HSET LimsHSET).
+  Defined.
+
+End PullbacksHSET_from_Lims.
+
+Section EqualizersHSET_from_Lims.
+
+  Require UniMath.CategoryTheory.limits.graphs.equalizers.
+
+  Lemma EqualizersHSET : graphs.equalizers.Equalizers HSET.
+  Proof.
+    apply (graphs.equalizers.Equalizers_from_Lims HSET LimsHSET).
+  Defined.
+
+End EqualizersHSET_from_Lims.
 
 Section exponentials.
 

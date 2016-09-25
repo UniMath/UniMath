@@ -27,15 +27,12 @@ Section def_kernels.
     := Equalizer C f (ZeroArrow Z a b).
 
   (** ** Maps between Kernels as limits and direct definition. *)
-  Lemma equiv_Kernel1_eq {a b : C} (f : C⟦a, b⟧)
-        (K : limits.kernels.Kernel (equiv_Zero2 Z) f) :
-    limits.equalizers.EqualizerArrow K ;; f
-    = limits.equalizers.EqualizerArrow K ;; ZeroArrow Z a b.
+  Lemma equiv_Kernel1_eq {a b : C} (f : C⟦a, b⟧) (K : limits.kernels.Kernel (equiv_Zero2 Z) f) :
+    limits.equalizers.EqualizerArrow K ;; f = limits.equalizers.EqualizerArrow K ;; ZeroArrow Z a b.
   Proof.
     set (tmp := limits.equalizers.EqualizerEqAr K).
     set (tmp1 := equiv_ZeroArrow a b Z).
-    apply (maponpaths (fun h : _ => limits.equalizers.EqualizerArrow K ;; h))
-      in tmp1.
+    apply (maponpaths (fun h : _ => limits.equalizers.EqualizerArrow K ;; h)) in tmp1.
     set (tmp2 := pathscomp0 tmp tmp1).
     apply tmp2.
   Qed.
@@ -43,26 +40,21 @@ Section def_kernels.
   Lemma equiv_Kernel1_isEqualizer {a b : C} (f : C⟦a, b⟧)
         (K : limits.kernels.Kernel (equiv_Zero2 Z) f) :
     limits.equalizers.isEqualizer
-      f (ZeroArrow Z a b) (limits.equalizers.EqualizerArrow K)
-      (equiv_Kernel1_eq f K).
+      f (ZeroArrow Z a b) (limits.equalizers.EqualizerArrow K) (equiv_Kernel1_eq f K).
   Proof.
     use limits.equalizers.mk_isEqualizer.
     intros w h H.
     use unique_exists.
-
     (* Construction of the morphism *)
     - use limits.kernels.KernelIn.
       + exact h.
       + rewrite precomp_with_ZeroArrow in H.
         use (pathscomp0 _ (!(equiv_ZeroArrow w b Z))).
         exact H.
-
     (* Commutativity *)
     - use limits.kernels.KernelCommutes.
-
     (* Equality on equalities of morphisms *)
     - intros y. apply hs.
-
     (* Uniqueness *)
     - intros y T. cbn in T.
       use limits.kernels.KernelInsEq. unfold KernelArrow.
@@ -85,9 +77,8 @@ Section def_kernels.
 
   (* Other direction *)
 
-  Lemma equiv_Kernel2_eq {a b : C} (f : C⟦a, b⟧) (K : Kernel f ) :
-    EqualizerArrow C K ;; f
-    = EqualizerArrow C K ;; limits.zero.ZeroArrow (equiv_Zero2 Z) a b.
+  Lemma equiv_Kernel2_eq {a b : C} (f : C⟦a, b⟧) (K : Kernel f) :
+    EqualizerArrow C K ;; f = EqualizerArrow C K ;; limits.zero.ZeroArrow (equiv_Zero2 Z) a b.
   Proof.
     set (tmp := EqualizerArrowEq C K).
     set (tmp1 := equiv_ZeroArrow a b Z).
@@ -97,15 +88,13 @@ Section def_kernels.
     apply tmp2.
   Qed.
 
-  Lemma equiv_Kernel2_isEqualizer {a b : C} (f : C⟦a, b⟧) (K : Kernel f ) :
+  Lemma equiv_Kernel2_isEqualizer {a b : C} (f : C⟦a, b⟧) (K : Kernel f) :
     isEqualizer C f (limits.zero.ZeroArrow (equiv_Zero2 Z) a b)
-                (EqualizerObject C K)
-                (EqualizerArrow C K) (equiv_Kernel2_eq f K).
+                (EqualizerObject C K) (EqualizerArrow C K) (equiv_Kernel2_eq f K).
   Proof.
     use mk_isEqualizer. apply hs.
     intros w h H.
     use unique_exists.
-
     (* Construction of the morphism *)
     - use EqualizerIn.
       + exact h.
@@ -113,13 +102,10 @@ Section def_kernels.
         rewrite limits.zero.ZeroArrow_comp_right in H.
         use (pathscomp0 H).
         apply (equiv_ZeroArrow w b Z).
-
     (* Commutativity *)
     - use EqualizerArrowComm.
-
     (* Equality on equalities of morphisms *)
     - intros y. apply hs.
-
     (* Uniqueness *)
     - intros y T. cbn in T.
       use EqualizerInUnique. exact T.
