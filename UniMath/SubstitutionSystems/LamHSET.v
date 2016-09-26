@@ -25,7 +25,6 @@ Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
-Require Import UniMath.SubstitutionSystems.Lam.
 Require Import UniMath.SubstitutionSystems.LiftingInitial.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.

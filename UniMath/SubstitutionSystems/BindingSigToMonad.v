@@ -1,6 +1,11 @@
 (**
 
-From signatures to monads
+From general signatures to monads. A general signature is a collection
+of lists of natural numbers indexed by a type I with decidable
+equality:
+
+Definition GenSig : UU := I -> list nat.
+
 
 Written by: Anders Mörtberg, 2016
 
@@ -23,7 +28,7 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monads.
-Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
+Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
@@ -53,7 +58,36 @@ Local Notation "'HSET2'":= ([HSET, HSET, has_homsets_HSET]) .
 (* I:= Initial (HSS(func(S), \theta) *)
 (* |-> *)
 (* M := Monad_from_HSS(I)    # *)
-Section SigToMonad.
+Section GenSigToMonad.
+
+Definition GenSig : UU := Σ (I : UU), Σ (h : isdeceq I), I -> list nat.
+
+Definition GenSigIndex : GenSig -> UU := pr1.
+Definition GenSigIsdeceq (s : GenSig) : isdeceq (GenSigIndex s) :=
+  pr1 (pr2 s).
+Definition GenSigMap (s : GenSig) : GenSigIndex s -> list nat :=
+  pr2 (pr2 s).
+
+Definition mkGenSig {I : UU} (h : isdeceq I) (f : I -> list nat) : GenSig :=
+  tpair _ I (tpair _ h f).
+
+Definition SumGenSig : GenSig -> GenSig -> GenSig.
+Proof.
+intros s1 s2.
+mkpair.
+- apply (GenSigIndex s1 ⨿ GenSigIndex s2).
+- mkpair.
+  + apply (isdeceqcoprod (GenSigIsdeceq s1) (GenSigIsdeceq s2)).
+  + induction 1 as [i|i]; [ apply (GenSigMap s1 i) | apply (GenSigMap s2 i) ].
+Defined.
+
+Variable (sig : GenSig).
+Let I := GenSigIndex sig.
+Let HI := GenSigIsdeceq sig.
+
+Let optionHSET := (option_functor HSET BinCoproductsHSET TerminalHSET).
+
+Local Notation "'HSET2'":= ([HSET, HSET, has_homsets_HSET]) .
 
 Definition has_homsets_HSET2 : has_homsets HSET2.
 Proof.
@@ -74,10 +108,6 @@ Lemma has_exponentials_HSET2 : has_exponentials BinProductsHSET2.
 Proof.
 apply has_exponentials_functor_HSET, has_homsets_HSET.
 Defined.
-
-Definition Sig : UU := list (list nat).
-
-Let optionHSET := (option_functor HSET BinCoproductsHSET TerminalHSET).
 
 (* Form "_ o option^n" and return Id if n = 0 *)
 Definition precomp_option_iter (n : nat) : functor HSET2 HSET2 := match n with
@@ -134,37 +164,54 @@ destruct n.
     apply has_exponentials_HSET2.
 Defined.
 
-(* [[nat]] to Signature *)
-Definition SigToSignature : Sig -> Signature HSET has_homsets_HSET.
+
+Definition GenSigToSignature : Signature HSET has_homsets_HSET.
 Proof.
-intro xs.
-generalize (map_list Arity_to_Signature xs).
-apply foldr1_list.
-- apply (BinSum_of_Signatures _ _ BinCoproductsHSET).
-- apply IdSignature.
+eapply (Sum_of_Signatures I).
+- apply Coproducts_HSET, (isasetifdeceq _ HI).
+- intro i; apply (Arity_to_Signature (GenSigMap sig i)).
 Defined.
 
-Lemma is_omega_cocont_SigToSignature (s : Sig) : is_omega_cocont (SigToSignature s).
+Lemma is_omega_cocont_GenSigToSignature : is_omega_cocont GenSigToSignature.
 Proof.
-destruct s as [n xs].
-destruct n.
-- destruct xs.
-  apply (is_omega_cocont_functor_identity has_homsets_HSET2).
-- induction n as [|n IHn].
-  + destruct xs as [xs []]; simpl.
-    apply is_omega_cocont_Arity_to_Signature.
-  + destruct xs as [m xs].
-    generalize (IHn xs).
-    destruct xs.
-    intro IH.
-    apply is_omega_cocont_BinSum_of_Signatures.
-    apply is_omega_cocont_Arity_to_Signature.
-    apply IH.
-    apply BinProductsHSET.
+apply (is_omega_cocont_Sum_of_Signatures _ HI).
+- intro i; apply is_omega_cocont_Arity_to_Signature.
+- apply Products_HSET.
 Defined.
 
-Definition SigInitial (sig : Sig) :
-  Initial (FunctorAlg (Id_H HSET has_homsets_HSET BinCoproductsHSET (SigToSignature sig)) has_homsets_HSET2).
+(* (* [[nat]] to Signature *) *)
+(* Definition SigToSignature : Sig -> Signature HSET has_homsets_HSET. *)
+(* Proof. *)
+(* intro xs. *)
+(* generalize (map_list Arity_to_Signature xs). *)
+(* apply foldr1_list. *)
+(* - apply (BinSum_of_Signatures _ _ BinCoproductsHSET). *)
+(* - apply IdSignature. *)
+(* Defined. *)
+
+(* Lemma is_omega_cocont_SigToSignature (s : Sig) : is_omega_cocont (SigToSignature s). *)
+(* Proof. *)
+(* destruct s as [n xs]. *)
+(* destruct n. *)
+(* - destruct xs. *)
+(*   apply (is_omega_cocont_functor_identity has_homsets_HSET2). *)
+(* - induction n. *)
+(*   + destruct xs as [xs []]; simpl. *)
+(*     apply is_omega_cocont_Arity_to_Signature. *)
+(*   + destruct xs as [m xs]. *)
+(*     generalize (IHn xs). *)
+(*     destruct xs. *)
+(*     intro IH. *)
+(*     apply is_omega_cocont_BinSum_of_Signatures. *)
+(*     apply is_omega_cocont_Arity_to_Signature. *)
+(*     apply IH. *)
+(*     apply BinProductsHSET. *)
+(* Defined. *)
+
+
+Definition GenSigInitial :
+  Initial (FunctorAlg (Id_H HSET has_homsets_HSET BinCoproductsHSET
+                        GenSigToSignature) has_homsets_HSET2).
 Proof.
 use colimAlgInitial.
 - apply (Initial_functor_precat _ _ InitialHSET).
@@ -174,25 +221,24 @@ use colimAlgInitial.
   + apply functor_category_has_homsets.
   + apply functor_category_has_homsets.
   + apply is_omega_cocont_constant_functor, functor_category_has_homsets.
-  + apply is_omega_cocont_SigToSignature.
+  + apply is_omega_cocont_GenSigToSignature.
 - apply ColimsFunctorCategory; apply ColimsHSET.
 Defined.
 
-Definition SigInitialHSS (sig : Sig) :
-  Initial (hss_precategory BinCoproductsHSET (SigToSignature sig)).
+Definition GenSigInitialHSS : Initial (hss_precategory BinCoproductsHSET GenSigToSignature).
 Proof.
 apply InitialHSS.
 - intro Z; apply RightKanExtension_from_limits, LimsHSET.
-- apply SigInitial.
+- apply GenSigInitial.
 Defined.
 
-Definition SigToMonad (sig : Sig) : Monad HSET.
+Definition GenSigToMonad : Monad HSET.
 Proof.
 use Monad_from_hss.
 - apply has_homsets_HSET.
 - apply BinCoproductsHSET.
-- apply (SigToSignature sig).
-- apply SigInitialHSS.
+- apply GenSigToSignature.
+- apply GenSigInitialHSS.
 Defined.
 
-End SigToMonad.
+End GenSigToMonad.
