@@ -15,5 +15,5 @@ LamHSET.v
 BindingSigToMonad.v
 LamFromBindingSig.v
 MLTT79.v
-FromSigsToMonads_Summary.v
+FromBindingSigsToMonads_Summary.v
 
