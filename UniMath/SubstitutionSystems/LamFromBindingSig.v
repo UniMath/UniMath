@@ -54,16 +54,6 @@ Proof.
 apply (BinProducts_functor_precat _ _ BinProductsHSET).
 Defined.
 
-Local Definition ProductsHSET2 : Products bool HSET2.
-Proof.
-apply (Products_functor_precat _ _ _ (Products_HSET bool)).
-Defined.
-
-Local Definition BinCoproductsHSET2 : BinCoproducts HSET2.
-Proof.
-apply (BinCoproducts_functor_precat _ _ BinCoproductsHSET).
-Defined.
-
 Local Lemma has_exponentials_HSET2 : has_exponentials BinProductsHSET2.
 Proof.
 apply has_exponentials_functor_HSET, has_homsets_HSET.
