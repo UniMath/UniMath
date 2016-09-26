@@ -24,18 +24,17 @@ Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.SubstitutionSystems.GenSigToMonad.
-Require Import UniMath.SubstitutionSystems.SigToMonad.
+Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 
 Definition Arity_to_Signature : list nat -> Signatures.Signature HSET has_homsets_HSET.
 Proof.
-  exact @SigToMonad.Arity_to_Signature.
+  exact @BindingSigToMonad.Arity_to_Signature.
 Defined.
 
 Definition GenSigToSignature
   : GenSig → Signatures.Signature HSET has_homsets_HSET.
 Proof.
-  exact UniMath.SubstitutionSystems.GenSigToMonad.GenSigToSignature.
+  exact UniMath.SubstitutionSystems.BindingSigToMonad.GenSigToSignature.
 Defined.
 
 

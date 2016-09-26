@@ -36,8 +36,7 @@ Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
 Require Import UniMath.SubstitutionSystems.Notation.
-Require Import UniMath.SubstitutionSystems.SigToMonad.
-Require Import UniMath.SubstitutionSystems.GenSigToMonad.
+Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.LiftingInitial.
 
 Local Infix "::" := (cons_list nat).
