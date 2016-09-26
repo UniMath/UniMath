@@ -195,12 +195,12 @@ Definition MLTT79Sig := PiSig ++ SigmaSig ++ SumSig ++ IdSig ++
 
 Definition MLTT79Signature : SigHSET.
 Proof.
-use (BindingSigToSignature MLTT79Sig).
+use (BindingSigToSignature _ _ _ _ MLTT79Sig).
 - apply BinCoproductsHSET.
-- apply Coproducts_HSET.
-  exact (isasetifdeceq _ (BindingSigIsdeceq MLTT79Sig)).
 - apply BinProductsHSET.
 - apply TerminalHSET.
+- apply Coproducts_HSET.
+  exact (isasetifdeceq _ (BindingSigIsdeceq MLTT79Sig)).
 Defined.
 
 Definition MLTT79Functor : functor HSET2 HSET2 :=
@@ -209,29 +209,35 @@ Definition MLTT79Functor : functor HSET2 HSET2 :=
 (* TODO: This could be implemented nicer with a special function for HSET *)
 Definition MLTT79Monad : Monad HSET.
 Proof.
-use (BindingSigToMonad MLTT79Sig).
+use (BindingSigToMonad _ _ _ _ _ _ _ MLTT79Sig).
 - apply has_homsets_HSET.
 - apply BinCoproductsHSET.
-- apply Coproducts_HSET.
-  exact (isasetifdeceq _ (BindingSigIsdeceq MLTT79Sig)).
 - apply BinProductsHSET.
-- apply Products_HSET.
 - apply InitialHSET.
 - apply TerminalHSET.
 - apply LimsHSET.
 - apply ColimsHSET.
-- apply has_exponentials_functor_HSET, has_homsets_HSET.
+- apply Coproducts_HSET.
+  exact (isasetifdeceq _ (BindingSigIsdeceq MLTT79Sig)).
+- apply Products_HSET.
+- intros F.
+  apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
+  apply has_exponentials_functor_HSET, has_homsets_HSET.
 Defined.
 
 Lemma MLTT79Functor_Initial :
    Initial (FunctorAlg MLTT79Functor has_homsets_HSET2).
 Proof.
-apply (BindingSigInitial MLTT79Sig).
-- apply Products_HSET.
+apply SignatureInitialAlgebra.
+- apply BinProductsHSET.
 - apply InitialHSET.
-- apply LimsHSET.
 - apply ColimsHSET.
-- apply has_exponentials_functor_HSET, has_homsets_HSET.
+- apply is_omega_cocont_BindingSigToSignature.
+  + apply LimsHSET.
+  + apply Products_HSET.
+  + intros F.
+    apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
+    apply has_exponentials_functor_HSET, has_homsets_HSET.
 Defined.
 
 Definition MLTT79 : HSET2 :=

@@ -36,11 +36,12 @@ Proof.
 Defined.
 
 Definition BindingSigToSignature :
-  Π (sig : BindingSig) (C : precategory) (hsC : has_homsets C),
-     BinCoproducts C -> Coproducts (BindingSigIndex sig) C
-  → BinProducts C → Terminal C → Signatures.Signature C hsC.
+  Π {C : precategory} (hsC : has_homsets C),
+  BinCoproducts C → BinProducts C → Terminal C →
+  Π sig : BindingSig, Coproducts (BindingSigIndex sig) C →
+  Signatures.Signature C hsC.
 Proof.
-  exact UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
+  exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
 Defined.
 
 

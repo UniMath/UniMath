@@ -77,29 +77,36 @@ Local Notation "'_' 'o' 'option'" :=
   (ℓ (option_functor HSET BinCoproductsHSET TerminalHSET)) (at level 10).
 
 Definition LamSignature : Signature HSET has_homsets_HSET :=
-  BindingSigToSignature LamSig has_homsets_HSET BinCoproductsHSET
-                        (Coproducts_HSET _ isasetbool) BinProductsHSET
-                        TerminalHSET.
+  BindingSigToSignature has_homsets_HSET BinCoproductsHSET BinProductsHSET
+                        TerminalHSET LamSig (Coproducts_HSET _ isasetbool).
 
 Definition LamFunctor : functor HSET2 HSET2 :=
   Id_H _ _ BinCoproductsHSET LamSignature.
 
-Definition LamMonad : Monad HSET :=
-  BindingSigToMonad LamSig has_homsets_HSET BinCoproductsHSET
-                    (Coproducts_HSET _ isasetbool) BinProductsHSET
-                    (Products_HSET _) InitialHSET TerminalHSET LimsHSET
-                    ColimsHSET has_exponentials_HSET2.
+Definition LamMonad : Monad HSET.
+Proof.
+apply (BindingSigToMonad has_homsets_HSET BinCoproductsHSET BinProductsHSET
+                         InitialHSET TerminalHSET LimsHSET ColimsHSET LamSig
+                         (Coproducts_HSET _ isasetbool) (Products_HSET _)).
+intros F.
+apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
+apply has_exponentials_HSET2.
+Defined.
 
 (* From here on it is exactly the same as in CT/lambdacalculus.v *)
 Lemma lambdaFunctor_Initial :
    Initial (FunctorAlg LamFunctor has_homsets_HSET2).
 Proof.
-apply (BindingSigInitial LamSig).
-- apply Products_HSET.
+apply SignatureInitialAlgebra.
+- apply BinProductsHSET.
 - apply InitialHSET.
-- apply LimsHSET.
 - apply ColimsHSET.
-- apply has_exponentials_HSET2.
+- apply is_omega_cocont_BindingSigToSignature.
+  + apply LimsHSET.
+  + apply Products_HSET.
+  + intros F.
+    apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
+    apply has_exponentials_HSET2.
 Defined.
 
 Definition LC : HSET2 :=
