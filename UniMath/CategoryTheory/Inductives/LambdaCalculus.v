@@ -3,7 +3,7 @@
 This file contains a direct formalization of the lambda calculus ([LambdaCalculus]) as the initial
 algebra of the lambda calculus functor. A better formalization where the lambda calculus and a
 substitution monad is obtained from a binding signature can be found in
-SubstitutionSystems/LamFromSig.v.
+SubstitutionSystems/LamFromBindingSig.v.
 
 Written by: Anders Mörtberg, 2016
 
