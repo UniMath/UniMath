@@ -1,11 +1,7 @@
 (**
 
-From general signatures to monads. A general signature is a collection
-of lists of natural numbers indexed by a type I with decidable
-equality:
-
-Definition GenSig : UU := I -> list nat.
-
+Definition of binding signatures ([BindingSig]) and translation from from binding signatures to
+monads ([BindingSigToMonad]).
 
 Written by: Anders Mörtberg, 2016
 
@@ -19,73 +15,76 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.PointedFunctors.
-Require Import UniMath.CategoryTheory.BinProductPrecategory.
-Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.SignatureExamples.
-Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
-Require Import UniMath.CategoryTheory.Monads.
-Require Import UniMath.SubstitutionSystems.SumOfSignatures.
-Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
-Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
-Require Import UniMath.SubstitutionSystems.LamSignature.
-Require Import UniMath.SubstitutionSystems.Lam.
-Require Import UniMath.SubstitutionSystems.LiftingInitial.
-Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
-Require Import UniMath.SubstitutionSystems.Notation.
-
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.Inductives.Lists.
-Require Import UniMath.CategoryTheory.HorizontalComposition.
+Require Import UniMath.CategoryTheory.Monads.
+
+Require Import UniMath.SubstitutionSystems.Signatures.
+Require Import UniMath.SubstitutionSystems.SignatureExamples.
+Require Import UniMath.SubstitutionSystems.SumOfSignatures.
+Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
+Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
+Require Import UniMath.SubstitutionSystems.LiftingInitial.
+Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
+Require Import UniMath.SubstitutionSystems.Notation.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "'HSET2'":= ([HSET, HSET, has_homsets_HSET]) .
 
-(* Translation from a Sig to a monad by: *)
-(* S : SIG *)
-(* |-> *)
-(* functor(S) : functor [Set,Set] [Set,Set] *)
-(* |-> *)
-(* Initial (Id + functor(S)) *)
-(* |-> *)
-(* I:= Initial (HSS(func(S), \theta) *)
-(* |-> *)
-(* M := Monad_from_HSS(I)    # *)
-Section GenSigToMonad.
+(** * Definition of binding signatures *)
+Section BindingSig.
 
-Definition GenSig : UU := Σ (I : UU), Σ (h : isdeceq I), I -> list nat.
+(** A binding signature is a collection of lists of natural numbers indexed by types I. *)
+Definition BindingSig : UU := Σ (I : UU) (h : isdeceq I), I -> list nat.
 
-Definition GenSigIndex : GenSig -> UU := pr1.
-Definition GenSigIsdeceq (s : GenSig) : isdeceq (GenSigIndex s) :=
+Definition BindingSigIndex : BindingSig -> UU := pr1.
+Definition BindingSigIsdeceq (s : BindingSig) : isdeceq (BindingSigIndex s) :=
   pr1 (pr2 s).
-Definition GenSigMap (s : GenSig) : GenSigIndex s -> list nat :=
+Definition BindingSigMap (s : BindingSig) : BindingSigIndex s -> list nat :=
   pr2 (pr2 s).
 
-Definition mkGenSig {I : UU} (h : isdeceq I) (f : I -> list nat) : GenSig :=
-  tpair _ I (tpair _ h f).
+Definition mkBindingSig {I : UU} (h : isdeceq I) (f : I -> list nat) : BindingSig := (I,,h,,f).
 
-Definition SumGenSig : GenSig -> GenSig -> GenSig.
+(** Sum of binding signatures *)
+Definition SumBindingSig : BindingSig -> BindingSig -> BindingSig.
 Proof.
 intros s1 s2.
 mkpair.
-- apply (GenSigIndex s1 ⨿ GenSigIndex s2).
+- apply (BindingSigIndex s1 ⨿ BindingSigIndex s2).
 - mkpair.
-  + apply (isdeceqcoprod (GenSigIsdeceq s1) (GenSigIsdeceq s2)).
-  + induction 1 as [i|i]; [ apply (GenSigMap s1 i) | apply (GenSigMap s2 i) ].
+  + apply (isdeceqcoprod (BindingSigIsdeceq s1) (BindingSigIsdeceq s2)).
+  + induction 1 as [i|i]; [ apply (BindingSigMap s1 i) | apply (BindingSigMap s2 i) ].
 Defined.
 
-Variable (sig : GenSig).
-Let I := GenSigIndex sig.
-Let HI := GenSigIsdeceq sig.
+End BindingSig.
+
+(** * Translation from a binding signature to a monad by:
+<<
+          S : BindingSig
+      |-> functor(S) : functor [Set,Set] [Set,Set]
+      |-> Initial (Id + functor(S))
+      |-> I := Initial (HSS(func(S), θ)
+      |-> M := Monad_from_HSS(I)
+>>
+*)
+Section BindingSigToMonad.
+
+Variable (sig : BindingSig).
+
+Let I := BindingSigIndex sig.
+Let HI := BindingSigIsdeceq sig.
 
 Let optionHSET := (option_functor HSET BinCoproductsHSET TerminalHSET).
+
+Section HSET.
 
 Local Notation "'HSET2'":= ([HSET, HSET, has_homsets_HSET]) .
 
@@ -109,7 +108,9 @@ Proof.
 apply has_exponentials_functor_HSET, has_homsets_HSET.
 Defined.
 
-(* Form "_ o option^n" and return Id if n = 0 *)
+End HSET.
+
+(** Form "_ o option^n" and return Id if n = 0 *)
 Definition precomp_option_iter (n : nat) : functor HSET2 HSET2 := match n with
   | O => functor_identity HSET2
   | S n => pre_composition_functor _ _ _ has_homsets_HSET _ (iter_functor1 _ optionHSET n)
@@ -134,7 +135,7 @@ mkpair.
     * apply δ_law2_iter_functor1, δ_law2_option.
 Defined.
 
-(* [nat] to a Signature *)
+(** [nat] to a Signature *)
 Definition Arity_to_Signature : list nat -> Signature HSET has_homsets_HSET.
 Proof.
 intros xs.
@@ -146,38 +147,70 @@ Defined.
 
 Lemma is_omega_cocont_Arity_to_Signature (xs : list nat) : is_omega_cocont (Arity_to_Signature xs).
 Proof.
-destruct xs as [n xs].
-destruct n.
-- destruct xs; simpl; apply (is_omega_cocont_functor_identity has_homsets_HSET2).
+destruct xs as [[|n] xs].
+- destruct xs; apply (is_omega_cocont_functor_identity has_homsets_HSET2).
 - induction n as [|n IHn].
   + destruct xs as [m []]; simpl.
     apply is_omega_cocont_precomp_option_iter.
-  + destruct xs as [m xs].
-    generalize (IHn xs).
-    destruct xs.
-    intro IH.
+  + destruct xs as [m [k xs]].
     apply is_omega_cocont_BinProduct_of_Signatures.
-    apply is_omega_cocont_precomp_option_iter.
-    apply IH.
-    apply is_omega_cocont_constprod_functor1.
-    apply has_homsets_HSET2.
-    apply has_exponentials_HSET2.
+    * apply is_omega_cocont_precomp_option_iter.
+    * apply (IHn (k,,xs)).
+    * apply is_omega_cocont_constprod_functor1;
+        [ apply has_homsets_HSET2 | apply has_exponentials_HSET2 ].
 Defined.
 
-
-Definition GenSigToSignature : Signature HSET has_homsets_HSET.
+Definition BindingSigToSignature : Signature HSET has_homsets_HSET.
 Proof.
-eapply (Sum_of_Signatures I).
+apply (Sum_of_Signatures I).
 - apply Coproducts_HSET, (isasetifdeceq _ HI).
-- intro i; apply (Arity_to_Signature (GenSigMap sig i)).
+- intro i; apply (Arity_to_Signature (BindingSigMap sig i)).
 Defined.
 
-Lemma is_omega_cocont_GenSigToSignature : is_omega_cocont GenSigToSignature.
+Lemma is_omega_cocont_BindingSigToSignature : is_omega_cocont BindingSigToSignature.
 Proof.
 apply (is_omega_cocont_Sum_of_Signatures _ HI).
 - intro i; apply is_omega_cocont_Arity_to_Signature.
 - apply Products_HSET.
 Defined.
+
+Definition BindingSigInitial :
+  Initial (FunctorAlg (Id_H HSET has_homsets_HSET BinCoproductsHSET
+                        BindingSigToSignature) has_homsets_HSET2).
+Proof.
+use colimAlgInitial.
+- apply (Initial_functor_precat _ _ InitialHSET).
+- unfold Id_H, Const_plus_H.
+  apply is_omega_cocont_BinCoproduct_of_functors.
+  + apply (BinProducts_functor_precat _ _ BinProductsHSET).
+  + apply functor_category_has_homsets.
+  + apply functor_category_has_homsets.
+  + apply is_omega_cocont_constant_functor, functor_category_has_homsets.
+  + apply is_omega_cocont_BindingSigToSignature.
+- apply ColimsFunctorCategory; apply ColimsHSET.
+Defined.
+
+Definition BindingSigInitialHSS : Initial (hss_precategory BinCoproductsHSET BindingSigToSignature).
+Proof.
+apply InitialHSS.
+- intro Z; apply RightKanExtension_from_limits, LimsHSET.
+- apply BindingSigInitial.
+Defined.
+
+Definition BindingSigToMonad : Monad HSET.
+Proof.
+use Monad_from_hss.
+- apply has_homsets_HSET.
+- apply BinCoproductsHSET.
+- apply BindingSigToSignature.
+- apply BindingSigInitialHSS.
+Defined.
+
+End BindingSigToMonad.
+
+
+
+(* Old code for translation from lists of lists *)
 
 (* (* [[nat]] to Signature *) *)
 (* Definition SigToSignature : Sig -> Signature HSET has_homsets_HSET. *)
@@ -207,38 +240,3 @@ Defined.
 (*     apply IH. *)
 (*     apply BinProductsHSET. *)
 (* Defined. *)
-
-
-Definition GenSigInitial :
-  Initial (FunctorAlg (Id_H HSET has_homsets_HSET BinCoproductsHSET
-                        GenSigToSignature) has_homsets_HSET2).
-Proof.
-use colimAlgInitial.
-- apply (Initial_functor_precat _ _ InitialHSET).
-- unfold Id_H, Const_plus_H.
-  apply is_omega_cocont_BinCoproduct_of_functors.
-  + apply (BinProducts_functor_precat _ _ BinProductsHSET).
-  + apply functor_category_has_homsets.
-  + apply functor_category_has_homsets.
-  + apply is_omega_cocont_constant_functor, functor_category_has_homsets.
-  + apply is_omega_cocont_GenSigToSignature.
-- apply ColimsFunctorCategory; apply ColimsHSET.
-Defined.
-
-Definition GenSigInitialHSS : Initial (hss_precategory BinCoproductsHSET GenSigToSignature).
-Proof.
-apply InitialHSS.
-- intro Z; apply RightKanExtension_from_limits, LimsHSET.
-- apply GenSigInitial.
-Defined.
-
-Definition GenSigToMonad : Monad HSET.
-Proof.
-use Monad_from_hss.
-- apply has_homsets_HSET.
-- apply BinCoproductsHSET.
-- apply GenSigToSignature.
-- apply GenSigInitialHSS.
-Defined.
-
-End GenSigToMonad.

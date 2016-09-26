@@ -36,7 +36,7 @@ Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.LiftingInitial.
 
-Section GenLam.
+Section Lam.
 
 Infix "::" := (cons_list nat).
 Notation "[]" := (nil_list nat) (at level 0, format "[]").
@@ -74,8 +74,8 @@ apply (Initial_functor_precat _ _ InitialHSET).
 Defined.
 
 (* The signature of the lambda calculus: { [0,0], [1] } *)
-Definition GenLamSig : GenSig :=
-  mkGenSig isdeceqbool (fun b => if b then 0 :: 0 :: [] else 1 :: []).
+Definition LamSig : BindingSig :=
+  mkBindingSig isdeceqbool (fun b => if b then 0 :: 0 :: [] else 1 :: []).
 
 Local Notation "'Id'" := (functor_identity _).
 
@@ -85,25 +85,25 @@ Local Notation "F + G" := (BinSumOfSignatures.H _ _ BinCoproductsHSET F G).
 Local Notation "'_' 'o' 'option'" :=
   (ℓ (option_functor HSET BinCoproductsHSET TerminalHSET)) (at level 10).
 
-Definition GenLamSignature : Signature HSET has_homsets_HSET := GenSigToSignature GenLamSig.
-Definition GenLamFunctor : functor HSET2 HSET2 := Id_H _ _ BinCoproductsHSET GenLamSignature.
+Definition LamSignature : Signature HSET has_homsets_HSET := BindingSigToSignature LamSig.
+Definition LamFunctor : functor HSET2 HSET2 := Id_H _ _ BinCoproductsHSET LamSignature.
 
-Definition GenLamMonad : Monad HSET := GenSigToMonad GenLamSig.
+Definition LamMonad : Monad HSET := BindingSigToMonad LamSig.
 
 (* From here on it is exactly the same as in CT/lambdacalculus.v *)
 Lemma lambdaFunctor_Initial :
-   Initial (FunctorAlg GenLamFunctor has_homsets_HSET2).
+   Initial (FunctorAlg LamFunctor has_homsets_HSET2).
 Proof.
-apply (GenSigInitial GenLamSig).
+apply (BindingSigInitial LamSig).
 Defined.
 
 Definition LC : HSET2 :=
   alg_carrier _ (InitialObject lambdaFunctor_Initial).
 
-Let LC_mor : HSET2⟦GenLamFunctor LC,LC⟧ :=
+Let LC_mor : HSET2⟦LamFunctor LC,LC⟧ :=
   alg_map _ (InitialObject lambdaFunctor_Initial).
 
-Let LC_alg : algebra_ob GenLamFunctor :=
+Let LC_alg : algebra_ob LamFunctor :=
   InitialObject lambdaFunctor_Initial.
 
 Definition var_map : HSET2⟦functor_identity HSET,LC⟧ :=
@@ -133,7 +133,7 @@ Definition lam_map : HSET2⟦precomp_option LC,LC⟧ :=
               HSET2 (BinCoproducts_functor_precat _ _ _ _ _ _) ;; LC_mor.
 
 Definition mk_lambdaAlgebra (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
-  (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) : algebra_ob GenLamFunctor.
+  (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) : algebra_ob LamFunctor.
 Proof.
 apply (tpair _ X).
 simple refine (BinCoproductArrow _ _ fvar _).
@@ -145,7 +145,7 @@ Defined.
 
 Definition foldr_map (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
-  algebra_mor GenLamFunctor LC_alg (mk_lambdaAlgebra X fvar fapp flam).
+  algebra_mor LamFunctor LC_alg (mk_lambdaAlgebra X fvar fapp flam).
 Proof.
 apply (InitialArrow lambdaFunctor_Initial (mk_lambdaAlgebra X fvar fapp flam)).
 Defined.
@@ -193,7 +193,7 @@ eapply pathscomp0.
   eapply cancel_postcomposition, cancel_postcomposition.
   apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
           (Coproducts_HSET _ (isasetifdeceq _ isdeceqbool))
-          _ (λ i, pr1 (Arity_to_Signature (GenSigMap GenLamSig i)) `LC_alg))).
+          _ (λ i, pr1 (Arity_to_Signature (BindingSigMap LamSig i)) `LC_alg))).
 rewrite <- assoc.
 eapply pathscomp0; [eapply maponpaths, BinCoproductIn2Commutes|].
 rewrite <- assoc.
@@ -223,7 +223,7 @@ eapply pathscomp0.
   eapply cancel_postcomposition, cancel_postcomposition.
   apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
           (Coproducts_HSET _ (isasetifdeceq _ isdeceqbool))
-          _ (λ i, pr1 (Arity_to_Signature (GenSigMap GenLamSig i)) `LC_alg))).
+          _ (λ i, pr1 (Arity_to_Signature (BindingSigMap LamSig i)) `LC_alg))).
 rewrite <- assoc.
 eapply pathscomp0.
   eapply maponpaths, BinCoproductIn2Commutes.
@@ -233,4 +233,4 @@ eapply pathscomp0; eapply maponpaths.
 apply idpath.
 Defined.
 
-End GenLam.
+End Lam.

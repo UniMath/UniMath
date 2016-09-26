@@ -62,7 +62,7 @@ Defined.
 
 End preamble.
 
-Infix "++" := SumGenSig.
+Infix "++" := SumBindingSig.
 
 Section MLTT79.
 
@@ -113,17 +113,17 @@ Local Notation "[0,0,0]" := (0 :: 0 :: 0 :: []).
 Local Notation "[0,0,2]" := (0 :: 0 :: 2 :: []).
 Local Notation "[0,1,1]" := (0 :: 1 :: 1 :: []).
 
-Definition PiSig : GenSig :=
-  mkGenSig (isdeceqstn 3) (three_rec [0,1] [1] [0,0]).
+Definition PiSig : BindingSig :=
+  mkBindingSig (isdeceqstn 3) (three_rec [0,1] [1] [0,0]).
 
-Definition SigmaSig : GenSig :=
-  mkGenSig (isdeceqstn 3) (three_rec [0,1] [0,0] [0,2]).
+Definition SigmaSig : BindingSig :=
+  mkBindingSig (isdeceqstn 3) (three_rec [0,1] [0,0] [0,2]).
 
-Definition SumSig : GenSig :=
-  mkGenSig (isdeceqstn 4) (four_rec [0,0] [0] [0] [0,1,1]).
+Definition SumSig : BindingSig :=
+  mkBindingSig (isdeceqstn 4) (four_rec [0,0] [0] [0] [0,1,1]).
 
-Definition IdSig : GenSig :=
-  mkGenSig (isdeceqstn 3) (three_rec [0,0,0] [] [0,0]).
+Definition IdSig : BindingSig :=
+  mkBindingSig (isdeceqstn 3) (three_rec [0,0,0] [] [0,0]).
 
 (* Define the arity of the eliminators for Fin by recursion *)
 Definition FinSigElim (n : nat) : list nat.
@@ -138,7 +138,7 @@ Definition FinSigConstructors (n : nat) : stn n -> list nat := fun _ => [].
 
 (* The FinSig family is defined by recursion and decomposed into the
    type, the constructors and the eliminator *)
-(* Definition FinSig (n : nat) : GenSig (unit ⨿ (stn n ⨿ unit)). *)
+(* Definition FinSig (n : nat) : BindingSig (unit ⨿ (stn n ⨿ unit)). *)
 (* Proof. *)
 (* induction 1 as [_|p]. *)
 (* - apply []. *)
@@ -175,15 +175,15 @@ induction (isdeceqnat n m) as [h|h].
 - apply inr; intro H; apply (h (maponpaths pr1 H)).
 Defined.
 
-Definition FinSig : GenSig := mkGenSig isdeceqFinSig FinSigFun.
+Definition FinSig : BindingSig := mkBindingSig isdeceqFinSig FinSigFun.
 
-Definition NatSig : GenSig :=
-  mkGenSig (isdeceqstn 4) (four_rec [] [] [0] [0,0,2]).
+Definition NatSig : BindingSig :=
+  mkBindingSig (isdeceqstn 4) (four_rec [] [] [0] [0,0,2]).
 
-Definition WSig : GenSig :=
-  mkGenSig (isdeceqstn 3) (three_rec [0,1] [0,0] [0,3]).
+Definition WSig : BindingSig :=
+  mkBindingSig (isdeceqstn 3) (three_rec [0,1] [0,0] [0,3]).
 
-Definition USig : GenSig := mkGenSig isdeceqnat (fun _ => []).
+Definition USig : BindingSig := mkBindingSig isdeceqnat (fun _ => []).
 
 Let SigHSET := Signature HSET has_homsets_HSET.
 
@@ -192,17 +192,17 @@ Definition MLTT79Sig := PiSig ++ SigmaSig ++ SumSig ++ IdSig ++
 
 (* Check MLTT79Sig. *)
 
-Definition MLTT79Signature : SigHSET := GenSigToSignature MLTT79Sig.
+Definition MLTT79Signature : SigHSET := BindingSigToSignature MLTT79Sig.
 
 Definition MLTT79Functor : functor HSET2 HSET2 :=
   Id_H _ _ BinCoproductsHSET MLTT79Signature.
 
-Definition MLTT79Monad : Monad HSET := GenSigToMonad MLTT79Sig.
+Definition MLTT79Monad : Monad HSET := BindingSigToMonad MLTT79Sig.
 
 Lemma MLTT79Functor_Initial :
    Initial (FunctorAlg MLTT79Functor has_homsets_HSET2).
 Proof.
-apply (GenSigInitial MLTT79Sig).
+apply (BindingSigInitial MLTT79Sig).
 Defined.
 
 Definition MLTT79 : HSET2 :=

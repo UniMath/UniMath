@@ -31,10 +31,10 @@ Proof.
   exact @BindingSigToMonad.Arity_to_Signature.
 Defined.
 
-Definition GenSigToSignature
-  : GenSig → Signatures.Signature HSET has_homsets_HSET.
+Definition BindingSigToSignature
+  : BindingSig → Signatures.Signature HSET has_homsets_HSET.
 Proof.
-  exact UniMath.SubstitutionSystems.BindingSigToMonad.GenSigToSignature.
+  exact UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
 Defined.
 
 
