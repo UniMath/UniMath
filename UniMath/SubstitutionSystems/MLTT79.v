@@ -1,7 +1,7 @@
 (**
 
 Syntax of Martin-Löf type theory a la "Constructive Mathematics and
-Computer Programming" (1979)
+Computer Programming" (1979).
 
 Written by: Anders Mörtberg, 2016
 
@@ -68,7 +68,7 @@ Infix "++" := SumBindingSig.
 Section MLTT79.
 
 (** This is the syntax as presented on page 158:
-
+<<
 Pi types           (Πx:A)B                     [0,1]
 lambda             (λx)b                       [1]
 application        (c)a                        [0,0]
@@ -100,10 +100,10 @@ sup                sup(a,b)                    [0,0]
 W-elim             (Tx,y,z)(c,d)               [0,3]
 
 Universes          U_0,U_1,...                 [],[],...
-
+>>
 *)
 
-(* Some convenient notations *)
+(** Some convenient notations *)
 Local Notation "[0]" := (0 :: []).
 Local Notation "[1]" := (1 :: []).
 Local Notation "[0,0]" := (0 :: 0 :: []).
@@ -126,7 +126,7 @@ Definition SumSig : BindingSig :=
 Definition IdSig : BindingSig :=
   mkBindingSig (isdeceqstn 3) (three_rec [0,0,0] [] [0,0]).
 
-(* Define the arity of the eliminators for Fin by recursion *)
+(** Define the arity of the eliminators for Fin by recursion *)
 Definition FinSigElim (n : nat) : list nat.
 Proof.
 induction n as [|n ih].
@@ -134,7 +134,7 @@ induction n as [|n ih].
 - apply (0 :: ih).
 Defined.
 
-(* Define the signature of the constructors for Fin by recursion *)
+(** Define the signature of the constructors for Fin *)
 Definition FinSigConstructors (n : nat) : stn n -> list nat := fun _ => [].
 
 (* The FinSig family is defined by recursion and decomposed into the
@@ -148,7 +148,7 @@ Definition FinSigConstructors (n : nat) : stn n -> list nat := fun _ => [].
 (*   + apply (FinSigElim n). *)
 (* Defined. *)
 
-(* Uncurried version of the FinSig family *)
+(** Uncurried version of the FinSig family *)
 Definition FinSigFun : (Σ n : nat, unit ⨿ (stn n ⨿ unit)) → list nat.
 Proof.
 induction 1 as [n p].
@@ -188,6 +188,7 @@ Definition USig : BindingSig := mkBindingSig isdeceqnat (fun _ => []).
 
 Let SigHSET := Signature HSET has_homsets_HSET.
 
+(** The binding signature of MLTT79 *)
 Definition MLTT79Sig := PiSig ++ SigmaSig ++ SumSig ++ IdSig ++
                         FinSig ++ NatSig ++ WSig ++ USig.
 

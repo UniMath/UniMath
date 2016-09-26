@@ -1,6 +1,6 @@
 (**
 
-Obtain the lambda calculus from the signature { [0,0], [1] }
+Obtain the lambda calculus from the signature { [0,0], [1] }.
 
 Written by: Anders Mörtberg, 2016
 
@@ -54,7 +54,7 @@ Proof.
 apply (BinProducts_functor_precat _ _ BinProductsHSET).
 Defined.
 
-(* The signature of the lambda calculus: { [0,0], [1] } *)
+(** The signature of the lambda calculus: { [0,0], [1] } *)
 Definition LamSig : BindingSig :=
   mkBindingSig isdeceqbool (fun b => if b then 0 :: 0 :: [] else 1 :: []).
 
