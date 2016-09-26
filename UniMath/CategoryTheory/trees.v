@@ -56,7 +56,8 @@ Let Tree_alg : algebra_ob treeFunctor :=
 Definition leaf_map : HSET⟦unitHSET,Tree⟧.
 Proof.
 simpl; intro x.
-apply Tree_mor, inl, x.
+simple refine (Tree_mor _).
+apply inl, x.
 Defined.
 
 Definition leaf : pr1 Tree := leaf_map tt.
@@ -64,7 +65,8 @@ Definition leaf : pr1 Tree := leaf_map tt.
 Definition node_map : HSET⟦(A × (Tree × Tree))%set,Tree⟧.
 Proof.
 intros xs.
-apply Tree_mor, (inr xs).
+simple refine (Tree_mor _).
+exact (inr xs).
 Defined.
 
 Definition node : pr1 A × (pr1 Tree × pr1 Tree) -> pr1 Tree := node_map.
@@ -97,7 +99,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_leaf (X : hSet) (x : X) (f : pr1 A × X × X -> X) : foldr X x f leaf = x.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET _ _) ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -106,7 +108,7 @@ Lemma foldr_node (X : hSet) (x : X) (f : pr1 A × X × X -> X)
                  (a : pr1 A) (l1 l2 : pr1 Tree) :
   foldr X x f (node (a,,l1,,l2)) = f (a,,foldr X x f l1,,foldr X x f l2).
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn2 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _);; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 assert (Fal := toforallpaths _ _ _ F (a,,l1,,l2)).
 clear F.

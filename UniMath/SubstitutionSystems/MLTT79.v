@@ -216,7 +216,7 @@ Let MLTT79_alg : algebra_ob MLTT79Functor :=
   InitialObject MLTT79Functor_Initial.
 
 Definition var_map : HSET2⟦functor_identity HSET,MLTT79⟧ :=
-  BinCoproductIn1 HSET2 _ ;; MLTT79_mor.
+  BinCoproductIn1 HSET2 (BinCoproducts_functor_precat _ _ _ _ _ _) ;; MLTT79_mor.
 
 (* TODO: define the rest of the constructors and computation rules? *)
 

@@ -868,7 +868,9 @@ Lemma hr_islinv_neg :
    (NR_to_hr (0%NR,, invNonnegativeReals (hr_to_NRneg x) (pr2 (pr2 (hr_to_NR_negative _) Hap))) * x)%rng = 1%rng.
 Proof.
   intros x Hap.
-  pattern x at 15 ;
+  tryif primitive_projections
+  then pattern x at 3
+  else pattern x at 15;
     rewrite <- (hr_to_NR_bij x).
   rewrite NR_to_hr_mult ; simpl.
   rewrite  !islabsorb_zero_multNonnegativeReals , !islunit_zero_plusNonnegativeReals.
@@ -894,7 +896,9 @@ Lemma hr_islinv_pos :
    (NR_to_hr (invNonnegativeReals (hr_to_NRpos x) (pr1 (pr2 (hr_to_NR_positive _) Hap)) ,, 0%NR) * x)%rng = 1%rng.
 Proof.
   intros x Hap.
-  pattern x at 15 ;
+  tryif primitive_projections
+  then pattern x at 3
+  else pattern x at 15;
     rewrite <- (hr_to_NR_bij x).
   rewrite NR_to_hr_mult ; simpl.
   rewrite  !islabsorb_zero_multNonnegativeReals , !isrunit_zero_plusNonnegativeReals.
@@ -1215,7 +1219,7 @@ Proof.
   assert (Hxy : Π n, NR_to_hr (x n ,, y n) = u n).
   { intros n.
     unfold x, y, hr_to_NRpos, hr_to_NRneg.
-    rewrite <- tppr.
+    tryif primitive_projections then idtac else rewrite <- tppr.
     apply hr_to_NR_bij. }
   intros Cu c Hc.
   generalize (Cu c Hc).
@@ -1252,7 +1256,7 @@ Proof.
   assert (Hxy : Π n, NR_to_hr (x n ,, y n) = u n).
   { intros n.
     unfold x, y, hr_to_NRpos, hr_to_NRneg.
-    rewrite <- tppr.
+    tryif primitive_projections then idtac else rewrite <- tppr.
     apply hr_to_NR_bij. }
   intros Cu c Hc.
   generalize (Cu c Hc).
@@ -1300,7 +1304,7 @@ Proof.
   assert (Hxy : Π n, NR_to_hr (x n ,, y n) = u n).
   { intros n.
     unfold x, y, hr_to_NRpos, hr_to_NRneg.
-    rewrite <- tppr.
+    tryif primitive_projections then idtac else rewrite <- tppr.
     apply hr_to_NR_bij. }
   generalize (Cauchy_seq_impl_ex_lim_seq x (Cauchy_seq_pr1 u Cu)).
   set (lx := Cauchy_lim_seq x (Cauchy_seq_pr1 u Cu)) ; clearbody lx ; intro Hx.
@@ -1400,7 +1404,7 @@ Lemma NRNRtoR_RtoNRNR :
 Proof.
   intros X.
   unfold NRNRtoR.
-  rewrite <- tppr.
+  tryif primitive_projections then idtac else rewrite <- tppr.
   apply hr_to_NR_bij.
 Qed.
 
@@ -1510,7 +1514,7 @@ Proof.
   apply (maponpaths (λ x, (x * _)%CF)).
   rewrite <- NRNRtoR_mult.
   unfold Rinv.
-  rewrite (islinv_CFinv (X := Reals) _ Hr).
+  rewrite (islinv_CFinv (X := Reals) (NRNRtoR x 0%NR) Hr).
   rewrite !israbsorb_zero_multNonnegativeReals, islabsorb_zero_multNonnegativeReals.
   rewrite !isrunit_zero_plusNonnegativeReals.
   rewrite islinv_invNonnegativeReals.
@@ -1527,7 +1531,7 @@ Proof.
   apply (maponpaths (λ x, (x * _)%CF)).
   rewrite <- NRNRtoR_mult.
   unfold Rinv.
-  rewrite (islinv_CFinv (X := Reals) _ Hr).
+  rewrite (islinv_CFinv (X := Reals) (NRNRtoR 0%NR x) Hr).
   rewrite !israbsorb_zero_multNonnegativeReals, islabsorb_zero_multNonnegativeReals.
   rewrite !islunit_zero_plusNonnegativeReals.
   rewrite islinv_invNonnegativeReals.

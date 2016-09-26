@@ -156,7 +156,7 @@ Lemma hztohqandleh':
   Π n m : hz, (hztohq n <= hztohq m)%hq → hzleh n m.
 Proof.
   intros n m Hle Hlt.
-  apply Hle.
+  simple refine (Hle _).
   apply hztohqandgth.
   exact Hlt.
 Qed.

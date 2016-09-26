@@ -77,7 +77,9 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 
 Definition eta_from_alg (T : algebra_ob Id_H) : EndC ⟦ functor_identity _,  `T ⟧.
 Proof.
-  exact (BinCoproductIn1 _ _ ;; alg_map _ T).
+  tryif primitive_projections
+  then exact (BinCoproductIn1 _ (CPEndC _ _) ;; alg_map _ T)
+  else exact (BinCoproductIn1 _ _            ;; alg_map _ T).
 Defined.
 
 Local Notation η := eta_from_alg.
@@ -90,7 +92,9 @@ Defined.
 
 Definition tau_from_alg (T : algebra_ob Id_H) : EndC ⟦H `T, `T⟧.
 Proof.
-  exact (BinCoproductIn2 _ _ ;; alg_map _ T).
+  tryif primitive_projections
+  then exact (BinCoproductIn2 _ (CPEndC _ _) ;; alg_map _ T)
+  else exact (BinCoproductIn2 _ _            ;; alg_map _ T).
 Defined.
 Local Notation τ := tau_from_alg.
 
