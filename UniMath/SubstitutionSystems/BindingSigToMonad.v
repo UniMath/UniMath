@@ -13,16 +13,16 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.category_hset.
-Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.Inductives.Lists.
 Require Import UniMath.CategoryTheory.Monads.
@@ -37,7 +37,6 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "'HSET2'":= ([HSET, HSET, has_homsets_HSET]) .
 
 (** * Definition of binding signatures *)
 Section BindingSig.
@@ -77,78 +76,64 @@ End BindingSig.
 *)
 Section BindingSigToMonad.
 
-Variable (sig : BindingSig).
+Context (sig : BindingSig) {C : precategory} (hsC : has_homsets C).
 
 Let I := BindingSigIndex sig.
 Let HI := BindingSigIsdeceq sig.
+Local Notation "'C2'":= ([C, C, hsC]) .
 
-Let optionHSET := (option_functor HSET BinCoproductsHSET TerminalHSET).
+Context (BCC : BinCoproducts C) (CC : Coproducts I C)
+        (BPC : BinProducts C) (PC : Products I C)
+        (IC : Initial C) (TC : Terminal C) (LC : Lims C) (CLC : Colims C).
 
-Section HSET.
+Context (EC2 : has_exponentials (BinProducts_functor_precat C C BPC hsC)).
 
-Local Notation "'HSET2'":= ([HSET, HSET, has_homsets_HSET]) .
+Let optionC := (option_functor C BCC TC).
 
-Definition has_homsets_HSET2 : has_homsets HSET2.
+Definition has_homsets_C2 : has_homsets C2.
 Proof.
 apply functor_category_has_homsets.
 Defined.
 
-Definition BinProductsHSET2 : BinProducts HSET2.
-Proof.
-apply (BinProducts_functor_precat _ _ BinProductsHSET).
-Defined.
-
-Definition BinCoproductsHSET2 : BinCoproducts HSET2.
-Proof.
-apply (BinCoproducts_functor_precat _ _ BinCoproductsHSET).
-Defined.
-
-Lemma has_exponentials_HSET2 : has_exponentials BinProductsHSET2.
-Proof.
-apply has_exponentials_functor_HSET, has_homsets_HSET.
-Defined.
-
-End HSET.
-
 (** Form "_ o option^n" and return Id if n = 0 *)
-Definition precomp_option_iter (n : nat) : functor HSET2 HSET2 := match n with
-  | O => functor_identity HSET2
-  | S n => pre_composition_functor _ _ _ has_homsets_HSET _ (iter_functor1 _ optionHSET n)
+Definition precomp_option_iter (n : nat) : functor C2 C2 := match n with
+  | O => functor_identity C2
+  | S n => pre_composition_functor _ _ _ hsC _ (iter_functor1 _ optionC n)
   end.
 
 Lemma is_omega_cocont_precomp_option_iter (n : nat) : is_omega_cocont (precomp_option_iter n).
 Proof.
 destruct n; simpl.
-- apply (is_omega_cocont_functor_identity has_homsets_HSET2).
-- apply (is_omega_cocont_pre_composition_functor (iter_functor1 _ optionHSET n) _ _ LimsHSET).
+- apply (is_omega_cocont_functor_identity has_homsets_C2).
+- apply (is_omega_cocont_pre_composition_functor (iter_functor1 _ optionC n) _ _ LC).
 Defined.
 
-Definition precomp_option_iter_Signature (n : nat) : Signature HSET has_homsets_HSET.
+Definition precomp_option_iter_Signature (n : nat) : Signature C hsC.
 Proof.
 mkpair.
 - apply (precomp_option_iter n).
 - destruct n; simpl.
-  + apply (θ_functor_identity HSET).
-  + set (F := δ_iter_functor1 _ _ _ (δ_option _ has_homsets_HSET TerminalHSET BinCoproductsHSET)).
-    apply (θ_precompG _ has_homsets_HSET (iter_functor1 HSET optionHSET n) (F n)).
+  + apply θ_functor_identity.
+  + set (F := δ_iter_functor1 _ _ _ (δ_option _ hsC TC BCC)).
+    apply (θ_precompG _ hsC (iter_functor1 _ optionC n) (F n)).
     * apply δ_law1_iter_functor1, δ_law1_option.
     * apply δ_law2_iter_functor1, δ_law2_option.
 Defined.
 
 (** [nat] to a Signature *)
-Definition Arity_to_Signature : list nat -> Signature HSET has_homsets_HSET.
+Definition Arity_to_Signature : list nat -> Signature C hsC.
 Proof.
 intros xs.
 generalize (map_list precomp_option_iter_Signature xs).
 apply foldr1_list.
-- apply (BinProduct_of_Signatures _ _ BinProductsHSET).
+- apply (BinProduct_of_Signatures _ _ BPC).
 - apply IdSignature.
 Defined.
 
 Lemma is_omega_cocont_Arity_to_Signature (xs : list nat) : is_omega_cocont (Arity_to_Signature xs).
 Proof.
 destruct xs as [[|n] xs].
-- destruct xs; apply (is_omega_cocont_functor_identity has_homsets_HSET2).
+- destruct xs; apply (is_omega_cocont_functor_identity has_homsets_C2).
 - induction n as [|n IHn].
   + destruct xs as [m []]; simpl.
     apply is_omega_cocont_precomp_option_iter.
@@ -157,13 +142,13 @@ destruct xs as [[|n] xs].
     * apply is_omega_cocont_precomp_option_iter.
     * apply (IHn (k,,xs)).
     * apply is_omega_cocont_constprod_functor1;
-        [ apply has_homsets_HSET2 | apply has_exponentials_HSET2 ].
+        [ apply has_homsets_C2 | apply EC2 ].
 Defined.
 
-Definition BindingSigToSignature : Signature HSET has_homsets_HSET.
+Definition BindingSigToSignature : Signature C hsC.
 Proof.
 apply (Sum_of_Signatures I).
-- apply Coproducts_HSET, (isasetifdeceq _ HI).
+- apply CC.
 - intro i; apply (Arity_to_Signature (BindingSigMap sig i)).
 Defined.
 
@@ -171,43 +156,41 @@ Lemma is_omega_cocont_BindingSigToSignature : is_omega_cocont BindingSigToSignat
 Proof.
 apply (is_omega_cocont_Sum_of_Signatures _ HI).
 - intro i; apply is_omega_cocont_Arity_to_Signature.
-- apply Products_HSET.
+- apply PC.
 Defined.
 
 Definition BindingSigInitial :
-  Initial (FunctorAlg (Id_H HSET has_homsets_HSET BinCoproductsHSET
-                        BindingSigToSignature) has_homsets_HSET2).
+  Initial (FunctorAlg (Id_H C hsC BCC BindingSigToSignature) has_homsets_C2).
 Proof.
 use colimAlgInitial.
-- apply (Initial_functor_precat _ _ InitialHSET).
+- apply (Initial_functor_precat _ _ IC).
 - unfold Id_H, Const_plus_H.
   apply is_omega_cocont_BinCoproduct_of_functors.
-  + apply (BinProducts_functor_precat _ _ BinProductsHSET).
+  + apply (BinProducts_functor_precat _ _ BPC).
   + apply functor_category_has_homsets.
   + apply functor_category_has_homsets.
   + apply is_omega_cocont_constant_functor, functor_category_has_homsets.
   + apply is_omega_cocont_BindingSigToSignature.
-- apply ColimsFunctorCategory; apply ColimsHSET.
+- apply ColimsFunctorCategory; apply CLC.
 Defined.
 
-Definition BindingSigInitialHSS : Initial (hss_precategory BinCoproductsHSET BindingSigToSignature).
+Definition BindingSigInitialHSS : Initial (hss_precategory BCC BindingSigToSignature).
 Proof.
 apply InitialHSS.
-- intro Z; apply RightKanExtension_from_limits, LimsHSET.
+- intro Z; apply RightKanExtension_from_limits, LC.
 - apply BindingSigInitial.
 Defined.
 
-Definition BindingSigToMonad : Monad HSET.
+Definition BindingSigToMonad : Monad C.
 Proof.
 use Monad_from_hss.
-- apply has_homsets_HSET.
-- apply BinCoproductsHSET.
+- apply hsC.
+- apply BCC.
 - apply BindingSigToSignature.
 - apply BindingSigInitialHSS.
 Defined.
 
 End BindingSigToMonad.
-
 
 
 (* Old code for translation from lists of lists *)
@@ -240,3 +223,5 @@ End BindingSigToMonad.
 (*     apply IH. *)
 (*     apply BinProductsHSET. *)
 (* Defined. *)
+
+(* TODO: Add special function for HSET *)

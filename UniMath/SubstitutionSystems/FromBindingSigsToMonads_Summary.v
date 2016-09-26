@@ -13,7 +13,9 @@ Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.Inductives.Lists.
@@ -26,13 +28,17 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 
-Definition Arity_to_Signature : list nat -> Signatures.Signature HSET has_homsets_HSET.
+Definition Arity_to_Signature :
+  Π (C : precategory) (hsC : has_homsets C),
+  BinCoproducts C → BinProducts C → Terminal C → list nat → Signatures.Signature C hsC.
 Proof.
   exact @BindingSigToMonad.Arity_to_Signature.
 Defined.
 
-Definition BindingSigToSignature
-  : BindingSig → Signatures.Signature HSET has_homsets_HSET.
+Definition BindingSigToSignature :
+  Π (sig : BindingSig) (C : precategory) (hsC : has_homsets C),
+     BinCoproducts C -> Coproducts (BindingSigIndex sig) C
+  → BinProducts C → Terminal C → Signatures.Signature C hsC.
 Proof.
   exact UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
 Defined.

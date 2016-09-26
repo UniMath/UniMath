@@ -17,13 +17,14 @@ Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.Inductives.Lists.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
@@ -192,17 +193,45 @@ Definition MLTT79Sig := PiSig ++ SigmaSig ++ SumSig ++ IdSig ++
 
 (* Check MLTT79Sig. *)
 
-Definition MLTT79Signature : SigHSET := BindingSigToSignature MLTT79Sig.
+Definition MLTT79Signature : SigHSET.
+Proof.
+use (BindingSigToSignature MLTT79Sig).
+- apply BinCoproductsHSET.
+- apply Coproducts_HSET.
+  exact (isasetifdeceq _ (BindingSigIsdeceq MLTT79Sig)).
+- apply BinProductsHSET.
+- apply TerminalHSET.
+Defined.
 
 Definition MLTT79Functor : functor HSET2 HSET2 :=
   Id_H _ _ BinCoproductsHSET MLTT79Signature.
 
-Definition MLTT79Monad : Monad HSET := BindingSigToMonad MLTT79Sig.
+(* TODO: This could be implemented nicer with a special function for HSET *)
+Definition MLTT79Monad : Monad HSET.
+Proof.
+use (BindingSigToMonad MLTT79Sig).
+- apply has_homsets_HSET.
+- apply BinCoproductsHSET.
+- apply Coproducts_HSET.
+  exact (isasetifdeceq _ (BindingSigIsdeceq MLTT79Sig)).
+- apply BinProductsHSET.
+- apply Products_HSET.
+- apply InitialHSET.
+- apply TerminalHSET.
+- apply LimsHSET.
+- apply ColimsHSET.
+- apply has_exponentials_functor_HSET, has_homsets_HSET.
+Defined.
 
 Lemma MLTT79Functor_Initial :
    Initial (FunctorAlg MLTT79Functor has_homsets_HSET2).
 Proof.
 apply (BindingSigInitial MLTT79Sig).
+- apply Products_HSET.
+- apply InitialHSET.
+- apply LimsHSET.
+- apply ColimsHSET.
+- apply has_exponentials_functor_HSET, has_homsets_HSET.
 Defined.
 
 Definition MLTT79 : HSET2 :=

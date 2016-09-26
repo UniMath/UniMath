@@ -15,13 +15,14 @@ Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.Inductives.Lists.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
@@ -85,16 +86,30 @@ Local Notation "F + G" := (BinSumOfSignatures.H _ _ BinCoproductsHSET F G).
 Local Notation "'_' 'o' 'option'" :=
   (ℓ (option_functor HSET BinCoproductsHSET TerminalHSET)) (at level 10).
 
-Definition LamSignature : Signature HSET has_homsets_HSET := BindingSigToSignature LamSig.
-Definition LamFunctor : functor HSET2 HSET2 := Id_H _ _ BinCoproductsHSET LamSignature.
+Definition LamSignature : Signature HSET has_homsets_HSET :=
+  BindingSigToSignature LamSig has_homsets_HSET BinCoproductsHSET
+                        (Coproducts_HSET _ isasetbool) BinProductsHSET
+                        TerminalHSET.
 
-Definition LamMonad : Monad HSET := BindingSigToMonad LamSig.
+Definition LamFunctor : functor HSET2 HSET2 :=
+  Id_H _ _ BinCoproductsHSET LamSignature.
+
+Definition LamMonad : Monad HSET :=
+  BindingSigToMonad LamSig has_homsets_HSET BinCoproductsHSET
+                    (Coproducts_HSET _ isasetbool) BinProductsHSET
+                    (Products_HSET _) InitialHSET TerminalHSET LimsHSET
+                    ColimsHSET has_exponentials_HSET2.
 
 (* From here on it is exactly the same as in CT/lambdacalculus.v *)
 Lemma lambdaFunctor_Initial :
    Initial (FunctorAlg LamFunctor has_homsets_HSET2).
 Proof.
 apply (BindingSigInitial LamSig).
+- apply Products_HSET.
+- apply InitialHSET.
+- apply LimsHSET.
+- apply ColimsHSET.
+- apply has_exponentials_HSET2.
 Defined.
 
 Definition LC : HSET2 :=
@@ -193,7 +208,8 @@ eapply pathscomp0.
   eapply cancel_postcomposition, cancel_postcomposition.
   apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
           (Coproducts_HSET _ (isasetifdeceq _ isdeceqbool))
-          _ (λ i, pr1 (Arity_to_Signature (BindingSigMap LamSig i)) `LC_alg))).
+          _ (λ i, pr1 (Arity_to_Signature has_homsets_HSET BinCoproductsHSET
+                         BinProductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))).
 rewrite <- assoc.
 eapply pathscomp0; [eapply maponpaths, BinCoproductIn2Commutes|].
 rewrite <- assoc.
@@ -223,7 +239,8 @@ eapply pathscomp0.
   eapply cancel_postcomposition, cancel_postcomposition.
   apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
           (Coproducts_HSET _ (isasetifdeceq _ isdeceqbool))
-          _ (λ i, pr1 (Arity_to_Signature (BindingSigMap LamSig i)) `LC_alg))).
+          _ (λ i, pr1 (Arity_to_Signature has_homsets_HSET BinCoproductsHSET
+                         BinProductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))).
 rewrite <- assoc.
 eapply pathscomp0.
   eapply maponpaths, BinCoproductIn2Commutes.
