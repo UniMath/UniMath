@@ -1,12 +1,12 @@
 (**
 
 Definition of binding signatures ([BindingSig]) and translation from from binding signatures to
-monads ([BindingSigToMonad]). This is defined using multiple steps:
+monads ([BindingSigToMonad]). This is defined in multiple steps:
 
 - Binding signature to a signature with strength ([BindingSigToSignature])
 - Construction of initial algebra for a signature with strength ([SignatureInitialAlgebra])
 - Signature with strength and initial algebra to a HSS ([SignatureToHSS])
-- Construction of a monad from a HSS ([Monad_from_hss] in MonadsFromSubstitutionSystems)
+- Construction of a monad from a HSS ([Monad_from_hss] in MonadsFromSubstitutionSystems.v)
 - Composition of these maps to get a function from binding signatures to monads ([BindingSigToMonad])
 
 Written by: Anders Mörtberg, 2016
@@ -49,7 +49,7 @@ Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 (** * Definition of binding signatures *)
 Section BindingSig.
 
-(** A binding signature is a collection of lists of natural numbers indexed by types I. *)
+(** A binding signature is a collection of lists of natural numbers indexed by types I *)
 Definition BindingSig : UU := Σ (I : UU) (h : isdeceq I), I -> list nat.
 
 Definition BindingSigIndex : BindingSig -> UU := pr1.
@@ -276,6 +276,8 @@ use (BindingSigToMonad _ _ _ _ _ _ _ sig).
 Defined.
 
 End BindingSigToMonadHSET.
+
+
 
 (* Old code for translation from lists of lists *)
 
