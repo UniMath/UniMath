@@ -1,6 +1,6 @@
 (**
 
-Obtain the lambda calculus from the signature [[0,0],[1]]
+Obtain the lambda calculus from the signature { [0,0], [1] }
 
 Written by: Anders Mörtberg, 2016
 
@@ -17,7 +17,9 @@ Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.Inductives.Lists.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
@@ -26,17 +28,15 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
+Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
-Require Import UniMath.SubstitutionSystems.Lam.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.SubstitutionSystems.SigToMonad.
 Require Import UniMath.SubstitutionSystems.LiftingInitial.
-Require Import UniMath.SubstitutionSystems.LamHSET.
 
-Section Lam.
+Section GenLam.
 
 Infix "::" := (cons_list nat).
 Notation "[]" := (nil_list nat) (at level 0, format "[]").
@@ -51,6 +51,11 @@ Defined.
 Local Definition BinProductsHSET2 : BinProducts HSET2.
 Proof.
 apply (BinProducts_functor_precat _ _ BinProductsHSET).
+Defined.
+
+Local Definition ProductsHSET2 : Products bool HSET2.
+Proof.
+apply (Products_functor_precat _ _ _ (Products_HSET bool)).
 Defined.
 
 Local Definition BinCoproductsHSET2 : BinCoproducts HSET2.
@@ -68,10 +73,9 @@ Proof.
 apply (Initial_functor_precat _ _ InitialHSET).
 Defined.
 
-(* The signature of the lambda calculus: [[0,0],[1]] *)
-Definition LamSig : Sig :=
-  cons_list (list nat) (0 :: 0 :: [])
-   (cons_list (list nat) (1 :: []) (nil_list (list nat))).
+(* The signature of the lambda calculus: { [0,0], [1] } *)
+Definition GenLamSig : GenSig :=
+  mkGenSig isdeceqbool (fun b => if b then 0 :: 0 :: [] else 1 :: []).
 
 Local Notation "'Id'" := (functor_identity _).
 
@@ -81,37 +85,25 @@ Local Notation "F + G" := (BinSumOfSignatures.H _ _ BinCoproductsHSET F G).
 Local Notation "'_' 'o' 'option'" :=
   (ℓ (option_functor HSET BinCoproductsHSET TerminalHSET)) (at level 10).
 
-Eval cbn in pr1 (SigToSignature LamSig).
-(* = Id * Id + _ o option *)
-(*      : functor [HSET, HSET, has_homsets_HSET] *)
-(*          [HSET, HSET, has_homsets_HSET] *)
+Definition GenLamSignature : Signature HSET has_homsets_HSET := GenSigToSignature GenLamSig.
+Definition GenLamFunctor : functor HSET2 HSET2 := Id_H _ _ BinCoproductsHSET GenLamSignature.
 
-Let Lam_S : Signature HSET has_homsets_HSET :=
-  Lam_Sig HSET has_homsets_HSET TerminalHSET BinCoproductsHSET BinProductsHSET.
-
-Goal (pr1 Lam_S = pr1 (SigToSignature LamSig)).
-now apply idpath.
-Abort.
-
-Definition LamSignature : Signature HSET has_homsets_HSET := SigToSignature LamSig.
-Definition LamFunctor : functor HSET2 HSET2 := Id_H _ _ BinCoproductsHSET LamSignature.
-
-Definition LamMonad : Monad HSET := SigToMonad LamSig.
+Definition GenLamMonad : Monad HSET := GenSigToMonad GenLamSig.
 
 (* From here on it is exactly the same as in CT/lambdacalculus.v *)
 Lemma lambdaFunctor_Initial :
-   Initial (FunctorAlg LamFunctor has_homsets_HSET2).
+   Initial (FunctorAlg GenLamFunctor has_homsets_HSET2).
 Proof.
-apply (SigInitial LamSig).
+apply (GenSigInitial GenLamSig).
 Defined.
 
 Definition LC : HSET2 :=
   alg_carrier _ (InitialObject lambdaFunctor_Initial).
 
-Let LC_mor : HSET2⟦LamFunctor LC,LC⟧ :=
+Let LC_mor : HSET2⟦GenLamFunctor LC,LC⟧ :=
   alg_map _ (InitialObject lambdaFunctor_Initial).
 
-Let LC_alg : algebra_ob LamFunctor :=
+Let LC_alg : algebra_ob GenLamFunctor :=
   InitialObject lambdaFunctor_Initial.
 
 Definition var_map : HSET2⟦functor_identity HSET,LC⟧ :=
@@ -124,7 +116,9 @@ apply BinProductsHSET2; [apply x | apply y].
 Defined.
 
 Definition app_map : HSET2⟦prod2 LC LC,LC⟧ :=
-  BinCoproductIn1 HSET2 (BinCoproducts_functor_precat _ _ _ _ _ _) ;; BinCoproductIn2 HSET2 (BinCoproducts_functor_precat _ _ _ _ _ _) ;; LC_mor.
+  CoproductIn bool HSET2 (Coproducts_functor_precat _ _ _ _ _ _) true ;;
+              BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) ;;
+              LC_mor.
 
 Definition app_map' (x : HSET) : HSET⟦(pr1 LC x × pr1 LC x)%set,pr1 LC x⟧.
 Proof.
@@ -135,18 +129,23 @@ Let precomp_option X := (pre_composition_functor _ _ HSET has_homsets_HSET has_h
                   (option_functor HSET BinCoproductsHSET TerminalHSET) X).
 
 Definition lam_map : HSET2⟦precomp_option LC,LC⟧ :=
-  BinCoproductIn2 HSET2 (BinCoproducts_functor_precat _ _ _ _ _ _) ;; BinCoproductIn2 HSET2 (BinCoproducts_functor_precat _ _ _ _ _ _) ;; LC_mor.
+  CoproductIn bool HSET2 (Coproducts_functor_precat _ _ _ _ _ _) false ;; BinCoproductIn2
+              HSET2 (BinCoproducts_functor_precat _ _ _ _ _ _) ;; LC_mor.
 
 Definition mk_lambdaAlgebra (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
-  (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) : algebra_ob LamFunctor.
+  (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) : algebra_ob GenLamFunctor.
 Proof.
 apply (tpair _ X).
-simple refine (BinCoproductArrow _ _ fvar (BinCoproductArrow _ _ fapp flam)).
+simple refine (BinCoproductArrow _ _ fvar _).
+simple refine (CoproductArrow _ _ _ _).
+intro b; destruct b.
+- apply fapp.
+- apply flam.
 Defined.
 
 Definition foldr_map (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
-  algebra_mor LamFunctor LC_alg (mk_lambdaAlgebra X fvar fapp flam).
+  algebra_mor GenLamFunctor LC_alg (mk_lambdaAlgebra X fvar fapp flam).
 Proof.
 apply (InitialArrow lambdaFunctor_Initial (mk_lambdaAlgebra X fvar fapp flam)).
 Defined.
@@ -178,7 +177,9 @@ Lemma foldr_app (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   app_map ;; foldr_map X fvar fapp flam =
   # (pr1 (Id * Id)) (foldr_map X fvar fapp flam) ;; fapp.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _) ;; BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) ;; x)
+  assert (F := maponpaths (fun x => CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ _) true ;;
+                                                BinCoproductIn2 _ (BinCoproducts_functor_precat
+                                                                     _ _ _ _ _ _) ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
 rewrite assoc in F.
 eapply pathscomp0; [apply F|].
@@ -189,11 +190,16 @@ eapply pathscomp0.
   eapply maponpaths, BinCoproductOfArrowsIn2.
 rewrite assoc.
 eapply pathscomp0.
-  eapply cancel_postcomposition, cancel_postcomposition, BinCoproductOfArrowsIn1.
+  eapply cancel_postcomposition, cancel_postcomposition.
+  apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
+          (Coproducts_HSET _ (isasetifdeceq _ isdeceqbool))
+          _ (λ i, pr1 (Arity_to_Signature (GenSigMap GenLamSig i)) `LC_alg))).
 rewrite <- assoc.
 eapply pathscomp0; [eapply maponpaths, BinCoproductIn2Commutes|].
 rewrite <- assoc.
-now eapply pathscomp0; [eapply maponpaths, BinCoproductIn1Commutes|].
+eapply pathscomp0; eapply maponpaths.
+  refine (CoproductInCommutes _ _ _ _ _ _ true).
+apply idpath.
 Defined.
 
 Lemma foldr_lam (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
@@ -201,7 +207,9 @@ Lemma foldr_lam (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   lam_map ;; foldr_map X fvar fapp flam =
   # (pr1 (_ o option)) (foldr_map X fvar fapp flam) ;; flam.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) ;; BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) ;; x)
+  assert (F := maponpaths (fun x => CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ _) false ;;
+                                                BinCoproductIn2 _ (BinCoproducts_functor_precat
+                                                                     _ _ _ _ _ _) ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
 rewrite assoc in F.
 eapply pathscomp0; [apply F|].
@@ -212,12 +220,17 @@ eapply pathscomp0.
   eapply maponpaths, BinCoproductOfArrowsIn2.
 rewrite assoc.
 eapply pathscomp0.
-  eapply cancel_postcomposition, cancel_postcomposition, BinCoproductOfArrowsIn2.
+  eapply cancel_postcomposition, cancel_postcomposition.
+  apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
+          (Coproducts_HSET _ (isasetifdeceq _ isdeceqbool))
+          _ (λ i, pr1 (Arity_to_Signature (GenSigMap GenLamSig i)) `LC_alg))).
 rewrite <- assoc.
 eapply pathscomp0.
   eapply maponpaths, BinCoproductIn2Commutes.
 rewrite <- assoc.
-now eapply pathscomp0; [eapply maponpaths, BinCoproductIn2Commutes|].
+eapply pathscomp0; eapply maponpaths.
+  refine (CoproductInCommutes _ _ _ _ _ _ false).
+apply idpath.
 Defined.
 
-End Lam.
+End GenLam.

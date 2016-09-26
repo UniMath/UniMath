@@ -13,8 +13,7 @@ Notation.v
 SubstitutionSystems_Summary.v
 LamHSET.v
 BindingSigToMonad.v
-LamFromSig.v
-LamFromGenSig.v
+LamFromBindingSig.v
 MLTT79.v
 FromSigsToMonads_Summary.v
 
