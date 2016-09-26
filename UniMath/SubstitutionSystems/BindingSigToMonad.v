@@ -32,6 +32,8 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.Inductives.Lists.
 Require Import UniMath.CategoryTheory.Monads.
+Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.category_hset_structures.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
@@ -215,6 +217,65 @@ Defined.
 
 End BindingSigToMonad.
 
+(** Specialized versions of some of the above functions for HSET *)
+Section BindingSigToMonadHSET.
+
+Local Definition has_homsets_HSET2 : has_homsets [HSET,HSET,has_homsets_HSET].
+Proof.
+apply functor_category_has_homsets.
+Defined.
+
+Definition BindingSigToSignatureHSET (sig : BindingSig) : Signature HSET has_homsets_HSET.
+Proof.
+use BindingSigToSignature.
+- apply BinCoproductsHSET.
+- apply BinProductsHSET.
+- apply TerminalHSET.
+- apply sig.
+- apply Coproducts_HSET, (isasetifdeceq _ (BindingSigIsdeceq sig)).
+Defined.
+
+Lemma is_omega_cocont_BindingSigToSignatureHSET (sig : BindingSig) :
+  is_omega_cocont (BindingSigToSignatureHSET sig).
+Proof.
+apply (is_omega_cocont_Sum_of_Signatures _ (BindingSigIsdeceq sig)).
+- intro i; apply is_omega_cocont_Arity_to_Signature.
+  + apply LimsHSET.
+  + intros F.
+    apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
+    apply has_exponentials_functor_HSET, has_homsets_HSET.
+- apply Products_HSET.
+Defined.
+
+Definition SignatureInitialAlgebraHSET (s : Signature HSET has_homsets_HSET) (Hs : is_omega_cocont s) :
+  Initial (FunctorAlg (Id_H _ _ BinCoproductsHSET s) has_homsets_HSET2).
+Proof.
+apply SignatureInitialAlgebra.
+- apply BinProductsHSET.
+- apply InitialHSET.
+- apply ColimsHSET.
+- apply Hs.
+Defined.
+
+Definition BindingSigToMonadHSET (sig : BindingSig) : Monad HSET.
+Proof.
+use (BindingSigToMonad _ _ _ _ _ _ _ sig).
+- apply has_homsets_HSET.
+- apply BinCoproductsHSET.
+- apply BinProductsHSET.
+- apply InitialHSET.
+- apply TerminalHSET.
+- apply LimsHSET.
+- apply ColimsHSET.
+- apply Coproducts_HSET.
+  exact (isasetifdeceq _ (BindingSigIsdeceq sig)).
+- apply Products_HSET.
+- intros F.
+  apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
+  apply has_exponentials_functor_HSET, has_homsets_HSET.
+Defined.
+
+End BindingSigToMonadHSET.
 
 (* Old code for translation from lists of lists *)
 
@@ -246,5 +307,3 @@ End BindingSigToMonad.
 (*     apply IH. *)
 (*     apply BinProductsHSET. *)
 (* Defined. *)
-
-(* TODO: Add special function for HSET *)

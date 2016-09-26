@@ -54,16 +54,6 @@ Proof.
 apply (BinProducts_functor_precat _ _ BinProductsHSET).
 Defined.
 
-Local Lemma has_exponentials_HSET2 : has_exponentials BinProductsHSET2.
-Proof.
-apply has_exponentials_functor_HSET, has_homsets_HSET.
-Defined.
-
-Local Lemma InitialHSET2 : Initial HSET2.
-Proof.
-apply (Initial_functor_precat _ _ InitialHSET).
-Defined.
-
 (* The signature of the lambda calculus: { [0,0], [1] } *)
 Definition LamSig : BindingSig :=
   mkBindingSig isdeceqbool (fun b => if b then 0 :: 0 :: [] else 1 :: []).
@@ -77,36 +67,17 @@ Local Notation "'_' 'o' 'option'" :=
   (ℓ (option_functor HSET BinCoproductsHSET TerminalHSET)) (at level 10).
 
 Definition LamSignature : Signature HSET has_homsets_HSET :=
-  BindingSigToSignature has_homsets_HSET BinCoproductsHSET BinProductsHSET
-                        TerminalHSET LamSig (Coproducts_HSET _ isasetbool).
+  BindingSigToSignatureHSET LamSig.
 
 Definition LamFunctor : functor HSET2 HSET2 :=
   Id_H _ _ BinCoproductsHSET LamSignature.
 
-Definition LamMonad : Monad HSET.
-Proof.
-apply (BindingSigToMonad has_homsets_HSET BinCoproductsHSET BinProductsHSET
-                         InitialHSET TerminalHSET LimsHSET ColimsHSET LamSig
-                         (Coproducts_HSET _ isasetbool) (Products_HSET _)).
-intros F.
-apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
-apply has_exponentials_HSET2.
-Defined.
+Definition LamMonad : Monad HSET := BindingSigToMonadHSET LamSig.
 
 (* From here on it is exactly the same as in CT/lambdacalculus.v *)
-Lemma lambdaFunctor_Initial :
-   Initial (FunctorAlg LamFunctor has_homsets_HSET2).
+Lemma lambdaFunctor_Initial : Initial (FunctorAlg LamFunctor has_homsets_HSET2).
 Proof.
-apply SignatureInitialAlgebra.
-- apply BinProductsHSET.
-- apply InitialHSET.
-- apply ColimsHSET.
-- apply is_omega_cocont_BindingSigToSignature.
-  + apply LimsHSET.
-  + apply Products_HSET.
-  + intros F.
-    apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
-    apply has_exponentials_HSET2.
+apply SignatureInitialAlgebraHSET, is_omega_cocont_BindingSigToSignatureHSET.
 Defined.
 
 Definition LC : HSET2 :=

@@ -56,7 +56,7 @@ induction n as [_|n _]; [apply d|].
 induction (nopathsfalsetotrue p).
 Defined.
 
-Definition has_homsets_HSET2 : has_homsets HSET2.
+Local Lemma has_homsets_HSET2 : has_homsets HSET2.
 Proof.
 apply functor_category_has_homsets.
 Defined.
@@ -193,51 +193,17 @@ Definition MLTT79Sig := PiSig ++ SigmaSig ++ SumSig ++ IdSig ++
 
 (* Check MLTT79Sig. *)
 
-Definition MLTT79Signature : SigHSET.
-Proof.
-use (BindingSigToSignature _ _ _ _ MLTT79Sig).
-- apply BinCoproductsHSET.
-- apply BinProductsHSET.
-- apply TerminalHSET.
-- apply Coproducts_HSET.
-  exact (isasetifdeceq _ (BindingSigIsdeceq MLTT79Sig)).
-Defined.
+Definition MLTT79Signature : SigHSET := BindingSigToSignatureHSET MLTT79Sig.
 
 Definition MLTT79Functor : functor HSET2 HSET2 :=
   Id_H _ _ BinCoproductsHSET MLTT79Signature.
 
-(* TODO: This could be implemented nicer with a special function for HSET *)
-Definition MLTT79Monad : Monad HSET.
-Proof.
-use (BindingSigToMonad _ _ _ _ _ _ _ MLTT79Sig).
-- apply has_homsets_HSET.
-- apply BinCoproductsHSET.
-- apply BinProductsHSET.
-- apply InitialHSET.
-- apply TerminalHSET.
-- apply LimsHSET.
-- apply ColimsHSET.
-- apply Coproducts_HSET.
-  exact (isasetifdeceq _ (BindingSigIsdeceq MLTT79Sig)).
-- apply Products_HSET.
-- intros F.
-  apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
-  apply has_exponentials_functor_HSET, has_homsets_HSET.
-Defined.
+Definition MLTT79Monad : Monad HSET := BindingSigToMonadHSET MLTT79Sig.
 
 Lemma MLTT79Functor_Initial :
    Initial (FunctorAlg MLTT79Functor has_homsets_HSET2).
 Proof.
-apply SignatureInitialAlgebra.
-- apply BinProductsHSET.
-- apply InitialHSET.
-- apply ColimsHSET.
-- apply is_omega_cocont_BindingSigToSignature.
-  + apply LimsHSET.
-  + apply Products_HSET.
-  + intros F.
-    apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
-    apply has_exponentials_functor_HSET, has_homsets_HSET.
+apply SignatureInitialAlgebraHSET, is_omega_cocont_BindingSigToSignatureHSET.
 Defined.
 
 Definition MLTT79 : HSET2 :=
