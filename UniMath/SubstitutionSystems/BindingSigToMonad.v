@@ -217,7 +217,7 @@ Defined.
 
 End BindingSigToMonad.
 
-(** Specialized versions of some of the above functions for HSET *)
+(** * Specialized versions of some of the above functions for HSET *)
 Section BindingSigToMonadHSET.
 
 Local Definition has_homsets_HSET2 : has_homsets [HSET,HSET,has_homsets_HSET].
@@ -225,6 +225,7 @@ Proof.
 apply functor_category_has_homsets.
 Defined.
 
+(** ** Binding signature to signature with strength for HSET *)
 Definition BindingSigToSignatureHSET (sig : BindingSig) : Signature HSET has_homsets_HSET.
 Proof.
 use BindingSigToSignature.
@@ -247,6 +248,7 @@ apply (is_omega_cocont_Sum_of_Signatures _ (BindingSigIsdeceq sig)).
 - apply Products_HSET.
 Defined.
 
+(** ** Construction of initial algebra for a signature with strength for HSET *)
 Definition SignatureInitialAlgebraHSET (s : Signature HSET has_homsets_HSET) (Hs : is_omega_cocont s) :
   Initial (FunctorAlg (Id_H _ _ BinCoproductsHSET s) has_homsets_HSET2).
 Proof.
@@ -257,6 +259,7 @@ apply SignatureInitialAlgebra.
 - apply Hs.
 Defined.
 
+(** ** Binding signature to a monad for HSET *)
 Definition BindingSigToMonadHSET (sig : BindingSig) : Monad HSET.
 Proof.
 use (BindingSigToMonad _ _ _ _ _ _ _ sig).
