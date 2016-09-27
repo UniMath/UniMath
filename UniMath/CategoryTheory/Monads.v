@@ -193,10 +193,10 @@ Definition precategory_Monad (C : precategory) (hs : has_homsets C) : precategor
 
 End Monad_precategory.
 
-(** * Theory about monads *)
-Section monad_theory.
+(** * Definition and lemmas for bind *)
+Section bind.
 
-Context {C : precategory} (hsC : has_homsets C) {T : Monad C}.
+Context {C : precategory} {T : Monad C}.
 
 (** Definition of bind *)
 Definition bind {a b : C} (f : C⟦a,T b⟧) : C⟦T a,T b⟧ := # T f ;; μ T b.
@@ -227,10 +227,12 @@ rewrite !functor_comp, <- !assoc.
 now apply maponpaths, maponpaths, (!Monad_law3 c).
 Qed.
 
+End bind.
+
 (** * Substitution operation for monads *)
 Section MonadSubst.
 
-Context (TC : Terminal C) (BC : BinCoproducts C).
+Context {C : precategory} (T : Monad C) (TC : Terminal C) (BC : BinCoproducts C).
 
 Local Notation "1" := TC.
 Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
@@ -239,5 +241,3 @@ Definition monadSubst (a : C) (e : C⟦1,T a⟧) : C⟦T (a ⊕ 1), T a⟧ :=
   bind (BinCoproductArrow _ _ (η T a) e).
 
 End MonadSubst.
-
-End monad_theory.
