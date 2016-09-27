@@ -12,10 +12,8 @@ GenMendlerIteration.v
 Notation.v
 SubstitutionSystems_Summary.v
 LamHSET.v
-SigToMonad.v
-GenSigToMonad.v
-LamFromSig.v
-LamFromGenSig.v
+BindingSigToMonad.v
+LamFromBindingSig.v
 MLTT79.v
-FromSigsToMonads_Summary.v
+FromBindingSigsToMonads_Summary.v
 

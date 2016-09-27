@@ -45,11 +45,11 @@ PointedFunctors.v
 PointedFunctorsComposition.v
 HorizontalComposition.v
 CommaCategories.v
-lists.v
-trees.v
+Inductives/Lists.v
+Inductives/Trees.v
 exponentials.v
 covyoneda.v
-lambdacalculus.v
+Inductives/LambdaCalculus.v
 Monics.v
 Epis.v
 limits/equalizers.v

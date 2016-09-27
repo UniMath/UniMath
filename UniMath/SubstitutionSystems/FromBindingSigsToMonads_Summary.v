@@ -2,6 +2,7 @@ Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
+Require Import UniMath.Foundations.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
@@ -13,7 +14,9 @@ Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
@@ -23,18 +26,22 @@ Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.SubstitutionSystems.GenSigToMonad.
-Require Import UniMath.SubstitutionSystems.SigToMonad.
+Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 
-Definition Arity_to_Signature : lists.list nat -> Signatures.Signature HSET has_homsets_HSET.
+Definition Arity_to_Signature :
+  Π (C : precategory) (hsC : has_homsets C),
+  BinCoproducts C → BinProducts C → Terminal C → list nat → Signatures.Signature C hsC.
 Proof.
-  exact @SigToMonad.Arity_to_Signature.
+  exact @BindingSigToMonad.Arity_to_Signature.
 Defined.
 
-Definition GenSigToSignature
-  : GenSig → Signatures.Signature HSET has_homsets_HSET.
+Definition BindingSigToSignature :
+  Π {C : precategory} (hsC : has_homsets C),
+  BinCoproducts C → BinProducts C → Terminal C →
+  Π sig : BindingSig, Coproducts (BindingSigIndex sig) C →
+  Signatures.Signature C hsC.
 Proof.
-  exact UniMath.SubstitutionSystems.GenSigToMonad.GenSigToSignature.
+  exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
 Defined.
 
 
