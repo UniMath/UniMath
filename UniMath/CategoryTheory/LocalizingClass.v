@@ -1,5 +1,4 @@
 (** * Localizing class *)
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -8,6 +7,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.functor_categories.
 
 (** * Localizing class and localization of categories.
     In this section we define localization of categories when the collection of morphisms forms
@@ -423,6 +423,27 @@ Section def_roofs.
       + apply (RoofMor1Is R).
     - apply idpath.
     - apply idpath.
+  Qed.
+
+
+  Definition RoofEqclassEqRoof {x y : ob C} (RE : RoofEqclass x y)
+             (R : Roof x y) (HR : RoofEqclassIn RE R) : RE = RoofEqclassFromRoof R.
+  Proof.
+    use RoofEqclassEq.
+    - intros R0 HR0.
+      use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof R))).
+      + exact R.
+      + use (eqax2 (RoofEqclassIs RE)).
+        * exact HR.
+        * exact HR0.
+      + apply RoofEqclassFromRoofIn.
+    - intros R0 HR0.
+      use (eqax1 (RoofEqclassIs RE)).
+      + exact R.
+      + use (eqax2 (RoofEqclassIs (RoofEqclassFromRoof R))).
+        * apply RoofEqclassFromRoofIn.
+        * exact HR0.
+      + exact HR.
   Qed.
 
   Definition RoofEqClassIn {x y : ob C} (R1 R2 R3 : Roof x y)
@@ -1108,5 +1129,543 @@ Section def_roofs.
   Proof.
     intros R1 R2. apply isasetRoofEqclass.
   Qed.
+
+
+  (** ** Universal property *)
+
+  Definition MorToRoof {x y : ob C} (f : x --> y) : Roof x y.
+  Proof.
+    use mk_Roof.
+    - exact x.
+    - exact (identity x).
+    - exact f.
+    - exact (isLocClassIs iLC x).
+  Defined.
+
+  Lemma MorphismCompEqrel {x y z : ob C} (f : x --> y) (g : y --> z) :
+    (eqrelpair _ (RoofEqrel x z)) (MorToRoof (f ;; g)) (roof_comp (MorToRoof f) (MorToRoof g)).
+  Proof.
+    set (Rf := MorToRoof f).
+    set (Rg := MorToRoof g).
+    set (Rfg := MorToRoof (f ;; g)).
+    unfold roof_comp.
+    set (sqr1 := isLocClassSqr2 iLC Rg Rf y (RoofMor1 Rg) (RoofMor1Is Rg) (RoofMor2 Rf)).
+    set (CR := RoofToCoroof (MorToRoof g)).
+    set (sqrop := isLocClassSqr1 iLC y y z (identity y) (isLocClassIs iLC y) g).
+    assert (H : LocSqr2Mor1 sqr1 ;; RoofMor2 Rg ;; CoroofMor2 CR =
+                LocSqr2Mor2 sqr1 ;; f ;; g ;; CoroofMor2 CR).
+    {
+      cbn. fold sqrop.
+      rewrite <- assoc. rewrite <- (LocSqr1Comm sqrop). rewrite id_left.
+      rewrite <- assoc. rewrite <- (LocSqr1Comm sqrop). rewrite id_left.
+      apply cancel_postcomposition.
+      set (tmp := LocSqr2Comm sqr1). cbn in tmp. rewrite id_right in tmp.
+      exact tmp.
+    }
+    set (PostS := isLocClassPost iLC _ _ _ (LocSqr2Mor1 sqr1 ;; RoofMor2 Rg)
+                                 (LocSqr2Mor2 sqr1 ;; f ;; g)
+                                 (CoroofMor2 CR) (CoroofMor2Is CR) H).
+    intros P X. apply X. clear X P.
+    use mk_RoofTop.
+    - exact PostS.
+    - exact (PostSwitchMor PostS ;; (LocSqr2Mor2 sqr1)).
+    - exact (PostSwitchMor PostS).
+    - use (isLocClassComp iLC).
+      + use (isLocClassComp iLC).
+        * exact (PostSwitchMorIs PostS).
+        * exact (LocSqr2Mor2Is sqr1).
+      + exact (RoofMor1Is Rfg).
+    - cbn. rewrite assoc. apply idpath.
+    - cbn.
+      set (tmp := PostSwitchEq PostS). cbn in tmp.
+      rewrite assoc in tmp. rewrite assoc in tmp. rewrite assoc in tmp.
+      rewrite assoc. rewrite assoc.
+      exact (! (tmp)).
+  Qed.
+
+  Lemma functor_comp' {x y z : ob C} (f : x --> y) (g : y --> z) :
+    RoofEqclassFromRoof (MorToRoof (f ;; g)) =
+    pr1 (pr1 (roof_comp_iscontr x y z (RoofEqclassFromRoof (MorToRoof f))
+                                (RoofEqclassFromRoof (MorToRoof g)))).
+  Proof.
+    set (tmpp := roof_comp_iscontr_in x y z (MorToRoof f) (MorToRoof g)).
+    set (eqclass := pr1 (pr1 (roof_comp_iscontr x y z (RoofEqclassFromRoof (MorToRoof f))
+                                                (RoofEqclassFromRoof (MorToRoof g))))).
+    fold eqclass in tmpp.
+    set (cont := pr1 (roof_comp_iscontr x y z (RoofEqclassFromRoof (MorToRoof f))
+                                        (RoofEqclassFromRoof (MorToRoof g)))).
+    set (cont' := pr2 cont). cbn in cont, cont'.
+    use RoofEqclassEq.
+    - intros R HR.
+      unfold RoofEqclassIn in tmpp.
+      use (eqax1 (RoofEqclassIs eqclass)).
+      + exact (roof_comp (MorToRoof f) (MorToRoof g)).
+      + use eqreltrans.
+        * exact (MorToRoof (f ;; g)).
+        * apply eqrelsymm. apply MorphismCompEqrel.
+        * set (HR' := RoofEqclassFromRoofIn (MorToRoof (f ;; g))).
+          use (eqax2 (RoofEqclassIs (RoofEqclassFromRoof (MorToRoof (f ;; g))))).
+          -- exact HR'.
+          -- exact HR.
+      + exact tmpp.
+    - intros R HR.
+      use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof (MorToRoof (f ;; g))))).
+      + exact (MorToRoof (f ;; g)).
+      + use eqreltrans.
+        * exact (roof_comp (MorToRoof f) (MorToRoof g)).
+        * apply MorphismCompEqrel.
+        * use (eqax2 (RoofEqclassIs eqclass)).
+          -- exact tmpp.
+          -- exact HR.
+      + apply RoofEqclassFromRoofIn.
+  Qed.
+
+  Definition FunctorToLocalization : functor C loc_precategory.
+  Proof.
+    use tpair.
+    - use functor_data_constr.
+      + intros x. exact x.
+      + intros x y f. exact (RoofEqclassFromRoof (MorToRoof f)).
+    - split.
+      + intros x. apply idpath. (* exact (test1 x). *)
+      + intros x y z f g. exact (functor_comp' f g).
+  Defined.
+
+  Definition MorMap (D : precategory) (hsD : has_homsets D) (F : functor C D) (x y : ob C)
+             (H : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
+    Roof x y -> D⟦F x, F y⟧.
+  Proof.
+    intros R.
+    exact (inv_from_iso (isopair _ (H _ _(RoofMor1 R) (RoofMor1Is R))) ;; (# F (RoofMor2 R))).
+  Defined.
+
+  Lemma is_iso_pre {D : precategory} {x y z : D} (f : x --> y) (g : y --> z)
+        (H1 : is_iso (f ;; g)) (H2 : is_iso g) : is_iso f.
+  Proof.
+    set (iso1 := isopair _ H1).
+    set (iso2 := isopair _ H2).
+    set (inv1 := inv_from_iso iso1).
+    set (inv2 := inv_from_iso iso2).
+    use is_iso_qinv.
+    - exact (g ;; inv1).
+    - split.
+      + rewrite assoc. unfold inv1.
+        set (tmp := iso_inv_after_iso iso1). cbn in tmp.
+        apply tmp.
+      + set (tmp := iso_inv_after_iso iso2). cbn in tmp. rewrite <- tmp. clear tmp.
+        rewrite <- assoc. apply cancel_precomposition.
+        apply (post_comp_with_iso_is_inj _ _ _ g H2).
+        set (tmp := iso_after_iso_inv iso2). cbn in tmp. rewrite tmp. clear tmp.
+        rewrite <- assoc. set (tmp := iso_after_iso_inv iso1). cbn in tmp. exact tmp.
+  Qed.
+
+  Lemma MorMap_top_mor1_is_iso (D : precategory) (hsD : has_homsets D) (F : functor C D) (x y : ob C)
+        (H : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) (R1 R2 : Roof x y)
+        (T : RoofTop R1 R2) : is_iso (# F (RoofTopMor1 T)).
+  Proof.
+    use (@is_iso_pre D).
+    - exact (F x).
+    - exact (# F (RoofMor1 R1)).
+    - rewrite <- functor_comp. apply H. apply (RoofTopMor1Is T).
+    - apply H. apply (RoofMor1Is R1).
+  Qed.
+
+  Lemma MorMap_top_mor2_is_iso (D : precategory) (hsD : has_homsets D) (F : functor C D) (x y : ob C)
+        (H : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) (R1 R2 : Roof x y)
+        (T : RoofTop R1 R2) : is_iso (# F (RoofTopMor2 T)).
+  Proof.
+    use (@is_iso_pre D).
+    - exact (F x).
+    - exact (# F (RoofMor1 R2)).
+    - rewrite <- functor_comp. rewrite <- (RoofTopEq1 T). apply H. apply (RoofTopMor1Is T).
+    - apply H. apply (RoofMor1Is R2).
+  Qed.
+
+  Lemma inv_from_iso_comp {D : precategory} {x y z : D} (f : iso x y) (g : iso y z) :
+    inv_from_iso (iso_comp f g) = inv_from_iso g ;; inv_from_iso f.
+  Proof.
+    apply pathsinv0. apply inv_iso_unique'. unfold precomp_with. unfold iso_comp. cbn.
+    rewrite assoc. rewrite <- (assoc _ g). rewrite iso_inv_after_iso. rewrite id_right.
+    apply iso_inv_after_iso.
+  Qed.
+
+  Lemma MorMap_iscomprelfun (D : precategory) (hsD : has_homsets D) (F : functor C D) (x y : ob C)
+             (H : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
+    iscomprelfun (eqrelpair _ (RoofEqrel x y)) (MorMap D hsD F x y H).
+  Proof.
+    intros R1 R2 T'.
+    use (squash_to_prop T'). apply hsD. intros T. clear T'.
+    set (iso1 := isopair _ (H _ _ _ (RoofMor1Is R1))).
+    set (iso2 := isopair _ (H _ _ _ (RoofMor1Is R2))).
+    set (iso3 := isopair _ (MorMap_top_mor1_is_iso D hsD F x y H R1 R2 T)).
+    set (iso4 := isopair _ (MorMap_top_mor2_is_iso D hsD F x y H R1 R2 T)).
+    unfold MorMap.
+    rewrite <- (id_left (# F (RoofMor2 R1))).
+    rewrite <- (iso_after_iso_inv (iso3)). cbn.
+    rewrite <- assoc. rewrite <- functor_comp. rewrite assoc.
+    rewrite <- inv_from_iso_comp.
+    rewrite (RoofTopEq2 T). rewrite functor_comp.
+    fold iso1 iso2 iso3 iso4.
+    assert (X : iso_comp iso3 iso1 = iso_comp iso4 iso2).
+    {
+      apply eq_iso. cbn.
+      rewrite <- functor_comp. rewrite <- functor_comp. apply maponpaths.
+      apply (RoofTopEq1 T).
+    }
+    rewrite X.
+    rewrite inv_from_iso_comp. rewrite <- assoc.
+    apply cancel_precomposition.
+    rewrite assoc.
+    set (tmp := iso_after_iso_inv iso4). cbn in tmp. rewrite tmp. clear tmp.
+    apply id_left.
+  Qed.
+
+  Lemma MorMap_iscontr (D : precategory) (hsD : has_homsets D) (F : functor C D)
+        (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f))
+        (x y : C) (eqclass : RoofEqclass x y) :
+    iscontr (Σ g : D⟦F x, F y⟧,
+                   Π (R : Roof x y) (H1 : RoofEqclassIn (eqclass) R), g = MorMap D hsD F x y H' R).
+  Proof.
+    use (squash_to_prop (pr1 (RoofEqclassIs eqclass))). apply isapropiscontr. intros R.
+    induction R as [R1 R2].
+    set (tmp := MorMap_iscomprelfun D hsD F x y H'). unfold iscomprelfun in tmp.
+    use unique_exists.
+    - exact (MorMap D hsD F x y H' R1).
+    - cbn. intros R' HR'. apply tmp.
+      use (eqax2 (RoofEqclassIs eqclass)).
+      + exact R2.
+      + exact HR'.
+    - intros y0.
+      apply impred_isaprop. intros t.
+      apply impred_isaprop. intros t0.
+      apply hsD.
+    - intros y0 T. cbn beta in T. exact (T R1 R2).
+  Qed.
+
+  Lemma MorMap_iscontr_eq (D : precategory) (hsD : has_homsets D) (F : functor C D)
+        (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f))
+        (x y : C) (eqclass : RoofEqclass x y) (R : Roof x y) (H1 : RoofEqclassIn eqclass R) :
+    pr1 (pr1 (MorMap_iscontr D hsD F H' x y eqclass)) = MorMap D hsD F x y H' R.
+  Proof.
+    apply (pr2 (pr1 (MorMap_iscontr D hsD F H' x y eqclass))).
+    exact H1.
+  Qed.
+
+  Lemma tmp_lemma (x : C) : RoofEqclassIn (IdRoofEqclass x) (IdRoof x).
+  Proof.
+    unfold IdRoofEqclass. unfold IdRoof.
+    apply RoofEqclassFromRoofIn.
+  Qed.
+
+  Lemma tmp_comp {x y z : ob C} (R1 : RoofEqclass x y) (R2 : RoofEqclass y z)
+        (R1' : Roof x y) (R1'' : RoofEqclassIn R1 R1')
+        (R2' : Roof y z) (R2'' : RoofEqclassIn R2 R2') :
+    pr1 (pr1 (roof_comp_iscontr x y z R1 R2)) = RoofEqclassFromRoof (roof_comp R1' R2').
+  Proof.
+    set (tmp := pr2 (pr1 (roof_comp_iscontr x y z R1 R2)) R1' R1'' R2' R2'').
+    use RoofEqclassEq.
+    - intros R3 HR3.
+      use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof (roof_comp R1' R2')))).
+      + exact (roof_comp R1' R2').
+      + use (eqax2 (RoofEqclassIs (pr1 (pr1 (roof_comp_iscontr x y z R1 R2))))).
+        * exact tmp.
+        * exact HR3.
+      + apply RoofEqclassFromRoofIn.
+    - intros R3 HR3.
+      use (eqax1 (RoofEqclassIs (pr1 (pr1 (roof_comp_iscontr x y z R1 R2))))).
+      + exact (roof_comp R1' R2').
+      + use (eqax2 (RoofEqclassIs (RoofEqclassFromRoof (roof_comp R1' R2')))).
+        * apply RoofEqclassFromRoofIn.
+        * exact HR3.
+      + apply tmp.
+  Qed.
+
+  Lemma MorMap_compose (D : precategory) (hsD : has_homsets D) (F : functor C D)
+        (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f))
+        {x y z : ob C} (R1 : Roof x y) (R2 : Roof y z) :
+    MorMap D hsD F x z H' (roof_comp R1 R2) = MorMap D hsD F x y H' R1 ;; MorMap D hsD F y z H' R2.
+  Proof.
+    set (sqr := isLocClassSqr2 iLC R2 R1 y (RoofMor1 R2) (RoofMor1Is R2) (RoofMor2 R1)).
+    unfold roof_comp. fold sqr. unfold MorMap at 1. cbn.
+    set (iso1 := isopair
+                   (# F (LocSqr2Mor2 sqr ;; RoofMor1 R1))
+                   (H' sqr x (LocSqr2Mor2 sqr ;; RoofMor1 R1)
+                       (isLocClassComp iLC sqr R1 x (LocSqr2Mor2 sqr) (LocSqr2Mor2Is sqr)
+                                       (RoofMor1 R1) (RoofMor1Is R1)))).
+    set (iso2 := isopair _ (H' sqr R1 (LocSqr2Mor2 sqr) (LocSqr2Mor2Is sqr))).
+    set (iso3 := isopair _ (H' R1 x (RoofMor1 R1) (RoofMor1Is R1))).
+    set (iso4 := isopair _ (H' R2 y (RoofMor1 R2) (RoofMor1Is R2))).
+    assert (X : iso1 = iso_comp iso2 iso3).
+    {
+      use eq_iso. cbn.
+      rewrite functor_comp.
+      apply idpath.
+    }
+    rewrite X. rewrite inv_from_iso_comp. rewrite functor_comp. rewrite assoc.
+    unfold MorMap. rewrite assoc. fold iso3 iso4.
+    apply cancel_postcomposition.
+    rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+    set (tmp := LocSqr2Comm sqr).
+    apply (pre_comp_with_iso_is_inj D _ _ _ _ (pr2 iso2)). rewrite assoc.
+    set (tmp2 := iso_inv_after_iso iso2). cbn in tmp2. cbn. rewrite tmp2. clear tmp2.
+    rewrite id_left.
+    apply (post_comp_with_iso_is_inj D _ _ _ (pr2 iso4)). cbn. rewrite <- functor_comp.
+    rewrite tmp. clear tmp. rewrite functor_comp. rewrite <- assoc.
+    apply cancel_precomposition.
+    rewrite <- assoc.
+    set (tmp2 := iso_after_iso_inv iso4). cbn in tmp2. rewrite tmp2. rewrite id_right.
+    apply idpath.
+  Qed.
+
+  Lemma LocalizationUniversal_isfunctor
+    (D : precategory) (hsD : has_homsets D) (F : functor C D)
+    (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
+    @is_functor loc_precategory_data D
+      (functor_data_constr
+         loc_precategory_ob_mor D (λ x : C, F x)
+         (λ (x y : C) (eqclass : RoofEqclass x y), pr1 (pr1 (MorMap_iscontr D hsD F H' x y eqclass)))).
+  Proof.
+    split.
+    * intros x. cbn. cbn in *.
+      set (tmp := pr2 (pr1 (MorMap_iscontr D hsD F H' x x (IdRoofEqclass x))) (IdRoof x)).
+      assert (H2 : MorMap D hsD F x x H' (IdRoof x) = identity (F x)).
+      {
+        unfold MorMap. cbn.
+        set (iso := isopair _ (H' x x (identity x) (isLocClassIs iLC x))).
+        set (tmpp := iso_after_iso_inv iso). cbn in tmpp. apply tmpp.
+      }
+      use (pathscomp0 _ H2).
+      apply tmp.
+      apply tmp_lemma.
+    * intros x y z R1 R2. cbn.
+      use (squash_to_prop (pr1 (RoofEqclassIs R1))). apply hsD. intros R1'.
+      induction R1' as [R1' R1''].
+      use (squash_to_prop (pr1 (RoofEqclassIs R2))). apply hsD. intros R2'.
+      induction R2' as [R2' R2''].
+      rewrite (MorMap_iscontr_eq D hsD F H' x y R1 R1' R1'').
+      rewrite (MorMap_iscontr_eq D hsD F H' y z R2 R2' R2'').
+      rewrite (tmp_comp R1 R2 R1' R1'' R2' R2'').
+      set (tmp := pr2 (pr1 (MorMap_iscontr D hsD F H' x z (RoofEqclassFromRoof (roof_comp R1' R2'))))
+                      (roof_comp R1' R2') (RoofEqclassFromRoofIn (roof_comp R1' R2'))).
+      rewrite tmp. clear tmp.
+      apply MorMap_compose.
+  Qed.
+
+  Lemma LocalizationUniversal_functor_eq1 (D : precategory) (hsD : has_homsets D) (F : functor C D)
+                                  (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
+    functor_composite
+      FunctorToLocalization
+      (@mk_functor loc_precategory_data D
+         (functor_data_constr
+            loc_precategory_ob_mor D (λ x : C, F x)
+            (λ (x y : C) (eqclass : RoofEqclass x y),
+             pr1 (pr1 (MorMap_iscontr D hsD F H' x y eqclass))))
+         (LocalizationUniversal_isfunctor D hsD F H')) = F.
+  Proof.
+    use functor_eq.
+    + apply hsD.
+    + use total2_paths.
+      * cbn. apply idpath.
+      * cbn.
+        use funextsec. intros a.
+        use funextsec. intros b.
+        use funextsec. intros f.
+        set (tmp := MorMap_iscontr_eq D hsD F H' a b (RoofEqclassFromRoof (MorToRoof f))
+                                      (MorToRoof f) (RoofEqclassFromRoofIn _)).
+        use (pathscomp0 tmp).
+        unfold MorToRoof. unfold MorMap. cbn.
+        cbn.
+        set (iso := (isopair (# F (identity a)) (H' a a (identity a) (isLocClassIs iLC a)))).
+        assert (X : iso = identity_iso (F a)).
+        {
+          use eq_iso. cbn.
+          rewrite functor_id.
+          apply idpath.
+        }
+        rewrite X. cbn. apply id_left.
+  Qed.
+
+  Definition InvRoofFromMorInSom {x y : C} (s : y --> x) (S : SOM y x s) : Roof x y.
+  Proof.
+    use mk_Roof.
+    - exact y.
+    - exact s.
+    - exact (identity y).
+    - exact S.
+  Defined.
+
+  Definition RoofDecomposeEqrel {x y : C} (R : Roof x y) :
+    (eqrelpair _ (RoofEqrel x y)) R (roof_comp (InvRoofFromMorInSom (RoofMor1 R) (RoofMor1Is R))
+                                               (MorToRoof (RoofMor2 R))).
+  Proof.
+    unfold roof_comp.
+    set (sqr := isLocClassSqr2 iLC (MorToRoof (RoofMor2 R))
+                               (InvRoofFromMorInSom (RoofMor1 R) (RoofMor1Is R)) R
+                               (RoofMor1 (MorToRoof (RoofMor2 R)))
+                               (RoofMor1Is (MorToRoof (RoofMor2 R)))
+                               (RoofMor2 (InvRoofFromMorInSom (RoofMor1 R) (RoofMor1Is R)))).
+    fold sqr.
+    intros P X. apply X. clear X P.
+    use mk_RoofTop.
+    - exact sqr.
+    - exact (LocSqr2Mor2 sqr).
+    - exact (identity (sqr)).
+    - use (isLocClassComp iLC).
+      + exact (LocSqr2Mor2Is sqr).
+      + exact (RoofMor1Is R).
+    - rewrite id_left. cbn. apply idpath.
+    - cbn. set (tmp := LocSqr2Comm sqr). cbn in tmp.
+      rewrite id_right in tmp. rewrite id_right in tmp.
+      rewrite id_left. rewrite tmp. apply idpath.
+  Qed.
+
+  Lemma Localiz {x y z : C} (R1 : Roof x y) (R2 : Roof y z) :
+    @compose loc_precategory x y z (RoofEqclassFromRoof R1) (RoofEqclassFromRoof R2) =
+    (RoofEqclassFromRoof (roof_comp R1 R2)).
+  Proof.
+    apply RoofEqclassEqRoof.
+    apply (pr2 (pr1 (roof_comp_iscontr x y z (RoofEqclassFromRoof R1) (RoofEqclassFromRoof R2)))).
+    - apply RoofEqclassFromRoofIn.
+    - apply RoofEqclassFromRoofIn.
+  Qed.
+
+  Lemma RoofEqClassEq1 {x y : ob C} (R1 R2 : Roof x y) (H : (eqrelpair _ (RoofEqrel x y)) R1 R2) :
+    (RoofEqclassFromRoof R1) = (RoofEqclassFromRoof R2).
+  Proof.
+    use RoofEqclassEq.
+    - intros R HR.
+      use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof R2))).
+      + exact R1.
+      + use (eqax2 (RoofEqclassIs (RoofEqclassFromRoof R1))).
+        * exact (RoofEqclassFromRoofIn R1).
+        * exact HR.
+      + use (eqax2 (RoofEqclassIs (RoofEqclassFromRoof R2))).
+        * exact H.
+        * exact (RoofEqclassFromRoofIn R2).
+    - intros R HR.
+      use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof R1))).
+      + exact R2.
+      + use (eqax2 (RoofEqclassIs (RoofEqclassFromRoof R2))).
+        * exact (RoofEqclassFromRoofIn R2).
+        * exact HR.
+      + use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof R1))).
+        * exact R1.
+        * exact H.
+        * exact (RoofEqclassFromRoofIn R1).
+  Qed.
+
+  Lemma testestasdasd {x y : ob C} (f1 : Roof x y) :
+    @compose loc_precategory _ _ _
+             (RoofEqclassFromRoof (InvRoofFromMorInSom (RoofMor1 f1) (RoofMor1Is f1)))
+             (RoofEqclassFromRoof (MorToRoof (RoofMor1 f1))) = (RoofEqclassFromRoof (IdRoof x)).
+  Proof.
+    set (R1 := (InvRoofFromMorInSom (RoofMor1 f1) (RoofMor1Is f1))).
+    set (R2 := (MorToRoof (RoofMor1 f1))).
+    set (tmp := pr2
+                  (pr1
+                     (roof_comp_iscontr x f1 x (RoofEqclassFromRoof
+                                                  (InvRoofFromMorInSom (RoofMor1 f1) (RoofMor1Is f1)))
+                                        (RoofEqclassFromRoof (MorToRoof (RoofMor1 f1)))))).
+    cbn in tmp.
+    use pathscomp0.
+    - exact (RoofEqclassFromRoof (roof_comp R1 R2)).
+    - use RoofEqclassEqRoof.
+      apply tmp.
+      + apply RoofEqclassFromRoofIn.
+      + apply RoofEqclassFromRoofIn.
+    - apply RoofEqClassEq1.
+      intros P X. apply X. clear X P. clear tmp.
+      unfold roof_comp.
+      set (sqr := (isLocClassSqr2 iLC R2 R1 f1 (RoofMor1 R2) (RoofMor1Is R2) (RoofMor2 R1))).
+      use mk_RoofTop.
+      + exact sqr.
+      + cbn. exact (identity sqr).
+      + exact (LocSqr2Mor2 sqr ;; (RoofMor1 f1)).
+      + use (isLocClassComp iLC).
+        * exact (isLocClassIs iLC _).
+        * exact (RoofMor1Is _).
+      + rewrite id_left. cbn. rewrite id_right. apply idpath.
+      + rewrite id_left. rewrite id_right. cbn.
+        set (tmp := LocSqr2Comm sqr). cbn in tmp. rewrite id_right in tmp. rewrite id_right in tmp.
+        rewrite tmp. apply idpath.
+  Qed.
+
+  (** ** LOCALIZATION
+   * We need to assume that [isaset D] (parameter hssD). This because we need to have
+   * isaprop (F1 = F2), where F1 and F2 are functors.
+   *)
+  Lemma LocalizationUniversal (D : precategory) (hsD : has_homsets D) (hssD : isaset D) (F : functor C D)
+        (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
+    iscontr (Σ H : functor loc_precategory D, functor_composite FunctorToLocalization H = F).
+  Proof.
+    use unique_exists.
+    - use mk_functor.
+      + use functor_data_constr.
+        * intros x. exact (F x).
+        * intros x y eqclass. apply (pr1 (pr1 (MorMap_iscontr D hsD F H' x y eqclass))).
+      + exact (LocalizationUniversal_isfunctor D hsD F H').
+    - exact (LocalizationUniversal_functor_eq1 D hsD F H').
+    (* Uniqueness of equality of equalities of functors *)
+    - intros y. apply (functor_isaset _ _ hsD hssD).
+    (* Equality of the functor H *)
+    - intros y T. cbn beta in T.
+      remember T as T'.
+      use functor_eq.
+      + apply hsD.
+      + use total2_paths.
+        * induction T. apply idpath.
+        * use funextsec. intros a.
+          use funextsec. intros b.
+          use funextsec. intros f.
+          induction T. cbn.
+          unfold idfun.
+          use (squash_to_prop (pr1 (RoofEqclassIs f))). apply hsD. intros f'. induction f' as [f1 f2].
+          set (tmp := RoofEqclassEqRoof f f1 f2). rewrite tmp. clear tmp.
+          set (tmp := pr2 (pr1 (MorMap_iscontr D hsD (functor_composite FunctorToLocalization y)
+                                               H' a b (RoofEqclassFromRoof f1)))
+                          f1 (RoofEqclassFromRoofIn f1)). apply pathsinv0 in tmp.
+          use (pathscomp0 _ tmp). clear tmp.
+          assert (HH : RoofEqclassFromRoof f1 =
+                       RoofEqclassFromRoof (roof_comp (InvRoofFromMorInSom (RoofMor1 f1) (RoofMor1Is f1))
+                                                      (MorToRoof (RoofMor2 f1)))).
+          {
+            use RoofEqclassEqRoof.
+            use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof f1))).
+            - exact f1.
+            - exact (RoofDecomposeEqrel f1).
+            - apply RoofEqclassFromRoofIn.
+          }
+          rewrite HH. clear HH.
+          set (tmp := Localiz (InvRoofFromMorInSom (RoofMor1 f1) (RoofMor1Is f1))
+                              (MorToRoof (RoofMor2 f1))).
+          rewrite <- tmp. clear tmp.
+          set (tmp := @functor_comp loc_precategory D y
+                                    _ _ _
+                                    (RoofEqclassFromRoof (InvRoofFromMorInSom (RoofMor1 f1) (RoofMor1Is f1)))
+                                    (RoofEqclassFromRoof (MorToRoof (RoofMor2 f1)))).
+          unfold functor_on_morphisms in tmp. use (pathscomp0 tmp). clear tmp.
+          assert (HH : (RoofEqclassFromRoof (MorToRoof (RoofMor2 f1))) =
+                       (# (FunctorToLocalization) (RoofMor2 f1))).
+          {
+            apply idpath.
+          }
+          rewrite HH. clear HH. unfold MorMap. unfold functor_composite. cbn.
+          apply cancel_postcomposition.
+          set (iso1 := isopair (# y (RoofEqclassFromRoof (MorToRoof (RoofMor1 f1))))
+                               (H' f1 a (RoofMor1 f1) (RoofMor1Is f1))).
+          apply (post_comp_with_iso_is_inj _ _ _ _ (pr2 iso1)). fold iso1.
+          set (tmp := iso_after_iso_inv iso1). apply pathsinv0 in tmp.
+          use (pathscomp0 _ tmp). clear tmp. unfold iso1. clear iso1. cbn.
+          set (tmp := @functor_comp loc_precategory D y
+                                    _ _ _
+                                    (RoofEqclassFromRoof (InvRoofFromMorInSom (RoofMor1 f1) (RoofMor1Is f1)))
+                                    (RoofEqclassFromRoof (MorToRoof (RoofMor1 f1)))).
+          unfold functor_on_morphisms in tmp. apply pathsinv0 in tmp. use (pathscomp0 tmp). clear tmp.
+          rewrite testestasdasd.
+          set (tmp := @functor_id loc_precategory D y). cbn in tmp.
+          unfold IdRoofEqclass in tmp. unfold IdRoof. apply tmp.
+  Qed.
+
+  Print Assumptions LocalizationUniversal.
 
 End def_roofs.
