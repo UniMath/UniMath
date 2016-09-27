@@ -139,6 +139,18 @@ eapply pathscomp0; [eapply maponpaths, BinCoproductIn1Commutes|].
 apply id_left.
 Defined.
 
+(* Lemma foldr_var_pt X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) (A : HSET) (x : pr1 A) : *)
+(*   pr1 (pr1 (foldr_map X fvar fapp flam)) A (pr1 var_map A x) = pr1 fvar A x. *)
+(* Proof. *)
+(* set (H := (toforallpaths _ _ _ (nat_trans_eq_pointwise (foldr_var X fvar fapp flam) A) x)). *)
+(* (* now rewrite foldr_var. *) *)
+(* (* Arguments foldr_map : simpl never. *) *)
+(* (* Arguments alg_carrier : simpl never. *) *)
+(* (* Arguments var_map : simpl never. *) *)
+(* cbn in *. *)
+(* apply H. *)
+(* Qed. *)
+
 Lemma foldr_app X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) :
   app_map ;; foldr_map X fvar fapp flam =
   # (pr1 (Id * Id)) (foldr_map X fvar fapp flam) ;; fapp.
