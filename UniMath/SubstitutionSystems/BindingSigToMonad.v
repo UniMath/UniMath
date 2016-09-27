@@ -73,7 +73,7 @@ Defined.
 
 End BindingSig.
 
-(** * Translation from a binding signature to a monad by:
+(** * Translation from a binding signature to a monad
 <<
           S : BindingSig
       |-> functor(S) : functor [C,C] [C,C]
@@ -149,7 +149,7 @@ destruct xs as [[|n] xs].
     * intro x; apply (H x).
 Defined.
 
-(** Binding signature to a signature with strength *)
+(** ** Binding signature to a signature with strength *)
 Definition BindingSigToSignature (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C) :
   Signature C hsC.
 Proof.
@@ -168,7 +168,7 @@ apply (is_omega_cocont_Sum_of_Signatures _ (BindingSigIsdeceq sig)).
 - apply PC.
 Defined.
 
-(** Construction of initial algebra for a signature with strength *)
+(** ** Construction of initial algebra for a signature with strength *)
 Definition SignatureInitialAlgebra (s : Signature C hsC) (Hs : is_omega_cocont s) :
   Initial (FunctorAlg (Id_H C hsC BCC s) has_homsets_C2).
 Proof.
@@ -184,7 +184,7 @@ use colimAlgInitial.
 - apply ColimsFunctorCategory; apply CLC.
 Defined.
 
-(** Signature with strength and initial algebra to a HSS *)
+(** ** Signature with strength and initial algebra to a HSS *)
 Definition SignatureToHSS (s : Signature C hsC)
   (Hs : Initial (FunctorAlg (Id_H C hsC BCC s) has_homsets_C2)) :
   hss_precategory BCC s.
@@ -202,7 +202,7 @@ Proof.
 now unfold SignatureToHSS; destruct InitialHSS.
 Qed.
 
-(** Combine all of the above maps to get a function from binding signatures to monads *)
+(** ** Function from binding signatures to monads *)
 Definition BindingSigToMonad (sig : BindingSig)
   (CC : Coproducts (BindingSigIndex sig) C) (PC : Products (BindingSigIndex sig) C)
   (H : Π (x : C2), is_omega_cocont (constprod_functor1 (BinProducts_functor_precat _ _ BPC hsC) x)) :
