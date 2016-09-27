@@ -8,13 +8,13 @@ Written by: Anders Mörtberg, 2016
 
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.CocontFunctors.
-Require Import UniMath.CategoryTheory.Inductives.Lists.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.initial.
@@ -39,8 +39,8 @@ Require Import UniMath.SubstitutionSystems.LiftingInitial.
 
 Section Lam.
 
-Infix "::" := (cons_list nat).
-Notation "[]" := (nil_list nat) (at level 0, format "[]").
+Local Infix "::" := (@cons nat).
+Local Notation "[]" := (@nil nat) (at level 0, format "[]").
 
 Local Notation "'HSET2'":= [HSET, HSET, has_homsets_HSET].
 

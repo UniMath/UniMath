@@ -14,6 +14,7 @@ Written by: Anders Mörtberg, 2016
 *)
 
 Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -30,7 +31,6 @@ Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.CocontFunctors.
-Require Import UniMath.CategoryTheory.Inductives.Lists.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
@@ -129,8 +129,8 @@ Defined.
 
 (** [nat] to a Signature *)
 Definition Arity_to_Signature (xs : list nat) : Signature C hsC :=
- foldr1_list (BinProduct_of_Signatures _ _ BPC) (IdSignature _ _)
-             (map_list precomp_option_iter_Signature xs).
+ foldr1 (BinProduct_of_Signatures _ _ BPC) (IdSignature _ _)
+        (map precomp_option_iter_Signature xs).
 
 (** The H assumption follows directly if [C,C] has exponentials *)
 Lemma is_omega_cocont_Arity_to_Signature (xs : list nat)

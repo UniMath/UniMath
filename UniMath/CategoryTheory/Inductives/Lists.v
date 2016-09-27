@@ -10,6 +10,7 @@ Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
+Require Import UniMath.Foundations.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
@@ -202,8 +203,8 @@ Section nat_examples.
 
 Definition cons_nat a l : pr1 (List natHSET) := cons natHSET (a,,l).
 
-Infix "::" := cons_nat.
-Notation "[]" := (nil natHSET) (at level 0, format "[]").
+Local Infix "::" := cons_nat.
+Local Notation "[]" := (nil natHSET) (at level 0, format "[]").
 
 Definition testlist : pr1 (List natHSET) := 5 :: 2 :: [].
 
@@ -244,68 +245,8 @@ Abort.
 
 End nat_examples.
 
-(** Alternative and more general definition of lists (inspired by a
-    remark of Voevodsky) *)
+(** * Equivalence with lists as iterated products *)
 Section list.
-
-Definition iterprod (n : nat) (A : UU) : UU.
-Proof.
-induction n as [|n IHn].
-- apply unit.
-- apply (A × IHn).
-Defined.
-
-(** Lists over an arbitrary type *)
-Definition list (A : UU) : UU := Σ n, iterprod n A.
-
-Definition nil_list (A : UU) : list A := (0,,tt).
-Definition cons_list (A : UU) (x : A) (xs : list A) : list A :=
-  (S (pr1 xs),, (x,, pr2 xs)).
-
-Lemma list_ind : Π (A : Type) (P : list A -> UU),
-     P (nil_list A)
-  -> (Π (x : A) (xs : list A), P xs -> P (cons_list A x xs))
-  -> Π xs, P xs.
-Proof.
-intros A P Hnil Hcons xs.
-destruct xs as [n xs].
-induction n as [|n IHn].
-- destruct xs.
-  apply Hnil.
-- destruct xs as [x xs].
-  apply (Hcons x (n,,xs) (IHn xs)).
-Defined.
-
-Definition foldr_list {A B : UU} (f : A -> B -> B) (b : B) : list A -> B :=
-  list_ind A (fun _ => B) b (fun a _ b' => f a b').
-
-Definition length_list {A : UU} : list A -> nat :=
-  foldr_list (fun _ => S) 0.
-
-(* Eval compute in length_list (cons_list unit tt *)
-(*                               (cons_list unit tt (nil_list unit))). *)
-
-(** Variation of foldr that returns a for the empty list and folds the
-    rest with the first element as new default value *)
-Definition foldr1_list {A : UU} (f : A -> A -> A) (a : A) (l : list A) : A.
-Proof.
-destruct l as [n xs].
-destruct n.
-- apply a.
-- induction n as [|n F].
-  + apply (pr1 xs).
-  + apply (f (pr1 xs) (F (pr2 xs))).
-Defined.
-
-Definition map_list {A B : UU} (f : A -> B) : list A -> list B.
-Proof.
-apply foldr_list.
-+ intros a l.
-  apply (cons_list B (f a) l).
-+ apply (nil_list B).
-Defined.
-
-(* Eval compute in (foldr_list (fun (x y : nat) => x + y) 0 (cons_list nat 3 (cons_list nat 2 (nil_list nat)))). *)
 
 Lemma isaset_list (A : HSET) : isaset (list (pr1 A)).
 Proof.
@@ -336,19 +277,16 @@ Proof.
 intro l; destruct l as [n l]; unfold to_list, to_List.
 induction n as [|n IHn]; simpl.
 - rewrite foldr_nil.
-  destruct l.
-  apply idpath.
+  now destruct l.
 - rewrite foldr_cons; simpl.
-  rewrite IHn; simpl; rewrite <- (paireta l).
-  apply idpath.
+  now rewrite IHn; simpl; rewrite <- (paireta l).
 Qed.
 
 Lemma to_ListK (A : HSET) : Π y : pr1 (List A), to_List A (to_list A y) = y.
 Proof.
 apply listIndProp.
 * intro l; apply setproperty.
-* unfold to_list; rewrite foldr_nil.
-  apply idpath.
+* now unfold to_list; rewrite foldr_nil.
 * unfold to_list, to_List; intros a l IH.
   rewrite foldr_cons; simpl.
   apply maponpaths, maponpaths, pathsinv0.
@@ -361,7 +299,7 @@ Lemma weq_list (A : HSET) : list (pr1 A) ≃ pr1 (List A).
 Proof.
 mkpair.
 - apply to_List.
-- simple refine (gradth _ _ _ _).
+- use gradth.
   + apply to_list.
   + apply to_listK.
   + apply to_ListK.
