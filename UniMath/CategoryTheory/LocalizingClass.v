@@ -1698,4 +1698,100 @@ Section def_roofs.
   Defined.
   Opaque LocalizationUniversalProperty.
 
+  (** The functor FunctorToLocalization maps morphisms in SOM to isomorphisms *)
+  Definition FunctorToLocalization_is_iso :
+    Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# FunctorToLocalization f).
+  Proof.
+    intros x y f s. cbn.
+    use (@is_iso_qinv loc_precategory).
+    - exact (RoofEqclassFromRoof (InvRoofFromMorInSom f s)).
+    - split.
+      + set (sqr := isLocClassSqr2 iLC (InvRoofFromMorInSom f s) (MorToRoof f) y
+                                   (RoofMor1 (InvRoofFromMorInSom f s))
+                                   (RoofMor1Is (InvRoofFromMorInSom f s))
+                                   (RoofMor2 (MorToRoof f))).
+        set (PostS := isLocClassPost iLC sqr x y (LocSqr2Mor2 sqr) (LocSqr2Mor1 sqr) f s
+                                     (! (LocSqr2Comm sqr))).
+        rewrite RoofEqclassCompToRoofComp.
+        use RoofEqClassEq1.
+        intros P X. apply X. clear X P.
+        unfold roof_comp. fold sqr.
+        use mk_RoofTop.
+        * exact PostS.
+        * exact (PostSwitchMor PostS).
+        * exact (PostSwitchMor PostS ;; LocSqr2Mor2 sqr).
+        * use (isLocClassComp iLC).
+          -- exact (PostSwitchMorIs PostS).
+          -- use (isLocClassComp iLC).
+             ++ exact (LocSqr2Mor2Is sqr).
+             ++ exact (isLocClassIs iLC x).
+        * cbn. rewrite assoc. apply idpath.
+        * cbn. rewrite assoc. rewrite id_right. rewrite id_right.
+          exact (! (PostSwitchEq PostS)).
+      + set (sqr := isLocClassSqr2 iLC (MorToRoof f) (InvRoofFromMorInSom f s) x
+                                   (RoofMor1 (MorToRoof f)) (RoofMor1Is (MorToRoof f))
+                                   (RoofMor2 (InvRoofFromMorInSom f s))).
+        rewrite RoofEqclassCompToRoofComp.
+        use RoofEqClassEq1.
+        intros P X. apply X. clear X P.
+        unfold roof_comp. fold sqr.
+        use mk_RoofTop.
+        * exact sqr.
+        * exact (identity sqr).
+        * exact (LocSqr2Mor2 sqr ;; f).
+        * use (isLocClassComp iLC).
+          -- exact (isLocClassIs iLC sqr).
+          -- use (isLocClassComp iLC).
+             ++ exact (LocSqr2Mor2Is sqr).
+             ++ exact s.
+        * rewrite id_left. cbn. rewrite id_right. apply idpath.
+        * rewrite id_left. cbn. rewrite id_right.
+          set (tmp := LocSqr2Comm sqr). cbn in tmp.
+          rewrite id_right in tmp. rewrite id_right in tmp. rewrite tmp.
+          apply idpath.
+  Qed.
+
+  (** Localization of categories is unique up to isomorphism of categories and loc_precategory is
+      one such precategory. *)
+  Lemma LocalizationUniversalCategory (CC : precategory) (hss : has_homsets CC)
+        (In : functor C CC) (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# In f))
+        (HH : Π (D : precategory) (hsD : has_homsets D)
+                (F : functor C D) (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)),
+              Σ HH : functor CC D, (functor_composite In HH = F)
+                                     × (Π (yy : functor CC D) (comm : functor_composite In yy = F),
+                                        yy = HH)) :
+    Σ D : (functor CC loc_precategory × functor loc_precategory CC),
+          (functor_composite (dirprod_pr1 D) (dirprod_pr2 D) = (functor_identity _))
+            × (functor_composite (dirprod_pr2 D) (dirprod_pr1 D) = (functor_identity _)).
+  Proof.
+    set (comm1 := LocalizationUniversalFunctorComm CC hss In H').
+    set (tmp := HH loc_precategory has_homsets_loc_precategory FunctorToLocalization
+                   FunctorToLocalization_is_iso).
+    induction tmp as [inv1 p]. induction p as [comm2 unique2].
+    set (inv2 := (LocalizationUniversalFunctor CC hss In H')).
+    use tpair.
+    - use dirprodpair.
+      + exact inv1.
+      + exact inv2.
+    - use dirprodpair.
+      + cbn.
+        rewrite <- comm2 in comm1. rewrite functor_assoc in comm1.
+        set (tmp := HH CC hss In H').
+        induction tmp as [F' CC2]. induction CC2 as [comm3 unique3].
+        set (tmp1 := unique3 (functor_identity CC) (functor_identity_right _ _ _)).
+        set (tmp2 := unique3 (functor_composite inv1 (LocalizationUniversalFunctor CC hss In H'))
+                             comm1).
+        rewrite <- tmp1 in tmp2. exact tmp2.
+      + cbn.
+        rewrite <- comm1 in comm2. rewrite functor_assoc in comm2.
+        set (tmp := LocalizationUniversalFunctorUnique
+                      loc_precategory has_homsets_loc_precategory FunctorToLocalization
+                      FunctorToLocalization_is_iso).
+        set (tmp1 := tmp _ comm2). fold inv2 in tmp1.
+        set (tmp2 := tmp (functor_identity _) (functor_identity_right _ _ _)).
+        rewrite <- tmp2 in tmp1.
+        exact tmp1.
+  Defined.
+  Opaque LocalizationUniversalCategory.
+
 End def_roofs.
