@@ -43,42 +43,27 @@ Section DiscreteCategory.
 
 Variable (A : UU).
 
-Definition DiscretePrecategory : precategory.
+Definition DiscPrecat_data : precategory_data.
 Proof.
-use tpair.
-- use tpair.
-use tpair.
-apply A.
-simpl.
-intros a b.
-apply (a = b).
-use tpair.
-simpl.
-intro a; apply idpath.
-simpl.
-intros a b c h1 h2.
-apply (pathscomp0 h1 h2).
-- split. split; trivial.
-simpl.
-intros a b f.
-apply pathscomp0rid.
-simpl.
-intros.
-apply path_assoc.
+mkpair.
+- apply (A,,paths).
+- mkpair; [ apply idpath | apply @pathscomp0 ].
 Defined.
 
-Lemma has_homsets_DiscretePrecategory (H : isofhlevel 3 A) : has_homsets DiscretePrecategory.
+Definition is_precategory_DiscPrecat_data : is_precategory DiscPrecat_data.
 Proof.
-simpl.
-unfold has_homsets.
-intros.
-simpl in *.
-unfold isaset in *.
-intros h1 h2.
-unfold isaprop.
-simpl.
-apply H.
-Defined.
+split; [split|]; trivial; intros.
++ apply pathscomp0rid.
++ apply path_assoc.
+Qed.
+
+Definition DiscPrecat : precategory :=
+  (DiscPrecat_data,,is_precategory_DiscPrecat_data).
+
+Lemma has_homsets_DiscPrecat (H : isofhlevel 3 A) : has_homsets DiscPrecat.
+Proof.
+intros ? ? ? ? ? ?; apply H.
+Qed.
 
 End DiscreteCategory.
 
@@ -87,10 +72,44 @@ Section MBindingSig.
 
 Variable sort : UU.
 
-Let Dsort := DiscretePrecategory sort.
+Let sort_cat : precategory := DiscPrecat sort.
+Let sortToHSET : precategory := [sort_cat,HSET,has_homsets_HSET].
 
-Let C := [Dsort,HSET,has_homsets_HSET].
+Definition MSig (s : sort) : UU :=
+  Σ (I : sort -> UU), I s → list (list sort × sort).
+
+Definition indices {s : sort} (M : MSig s) : sort → UU := pr1 M.
+
+Definition args {s : sort} (M : MSig s) : indices M s → list (list sort × sort) := pr2 M.
 
 
+Local Notation "'1'" := (TerminalHSET).
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoproductsHSET a b)) (at level 50).
+Local Notation "a ⊛ b" := (BinProductObject _ (BinProductsHSET a b)) (at level 60).
+
+Definition option (eq : isdeceq sort) : sort -> sortToHSET -> sortToHSET.
+Proof.
+intros s f.
+mkpair.
+- mkpair.
+  + intro t.
+    induction (eq s t) as [H|H].
+    * apply (pr1 f t ⊕ 1). (* TODO: Add coercion to make this look like sort -> Set *)
+    * apply (pr1 f t).
+  + now intros t1 t2 [].
+- abstract (split; [ now intros ? | now intros ? ? ? [] [] ]). (* UGH *)
+Defined.
+
+Definition option_list (eq : isdeceq sort) : list sort -> sortToHSET -> sortToHSET.
+Admitted.
+
+Definition endo_fun (a : list sort × sort) (X : functor sortToHSET sortToHSET) : functor sortToHSET HSET.
+Admitted.
+
+Definition endo_funs (xs : list (list sort × sort)) (X : functor sortToHSET sortToHSET) : functor sortToHSET HSET.
+Admitted.
+
+Definition MSigToFunctor {s : sort} (M : MSig s) : functor sortToHSET sortToHSET.
+Admitted.
 
 End MBindingSig.
