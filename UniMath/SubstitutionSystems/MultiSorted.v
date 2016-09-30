@@ -71,7 +71,8 @@ End DiscreteCategory.
 (** * Definition of multisorted binding signatures *)
 Section MBindingSig.
 
-Variable sort : UU.
+Variable (sort : UU).
+Variable (eq : isdeceq sort). (* Can we eliminate this assumption? *)
 
 Let sort_cat : precategory := DiscPrecat sort.
 Let sortToHSET : precategory := [sort_cat,HSET,has_homsets_HSET].
@@ -80,6 +81,16 @@ Lemma has_homsets_sortToHSET : has_homsets sortToHSET.
 Proof.
 apply functor_category_has_homsets.
 Qed.
+
+Definition mk_sortToHSET (f : sort → hSet) : sortToHSET.
+Proof.
+mkpair.
++ apply (tpair _ f).
+  intros a b hab; simpl; apply (transportf f hab).
++ abstract (now split; [ intros a; apply idpath | intros a b c [] [] ]).
+Defined.
+
+(* Coercion sortToHsetToFun (s : sortToHSET) : sort → HSET := pr1 s. *)
 
 Definition MSig : UU :=
   Π (s : sort), Σ (I : UU), I → list (list sort × sort).
@@ -94,53 +105,45 @@ Local Notation "'1'" := (TerminalHSET).
 Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoproductsHSET a b)) (at level 50).
 Local Notation "a ⊛ b" := (BinProductObject _ (BinProductsHSET a b)) (at level 60).
 
-Definition option (eq : isdeceq sort) : sort -> sortToHSET -> sortToHSET.
+Definition option : sort -> sortToHSET -> sortToHSET.
 Proof.
 intros s f.
-mkpair.
-- mkpair.
-  + intro t.
-    induction (eq s t) as [H|H].
-    * apply (pr1 f t ⊕ 1). (* TODO: Add coercion to make this look like sort -> Set *)
-    * apply (pr1 f t).
-  + now intros t1 t2 [].
-- abstract (split; [ now intros ? | now intros ? ? ? [] [] ]). (* UGH *)
+apply mk_sortToHSET; intro t.
+induction (eq s t) as [H|H].
+- apply (pr1 f t ⊕ 1). (* TODO: Can one add a coercion to make this look like sort -> Set *)
+- apply (pr1 f t).
 Defined.
 
-Definition option_list (eq : isdeceq sort) (xs : list sort) :
-  functor sortToHSET sortToHSET.
+(* Maybe define this as a functor? *)
+Definition option_list (xs : list sort) : sortToHSET → sortToHSET.
 Proof.
-mkpair.
-- mkpair.
-  + intro a.
-    apply (foldr (option eq) a xs).
-  + simpl. admit.
-- admit.
-Admitted.
+intro a.
+apply (foldr option a xs).
+Defined.
 
-Definition endo_fun (eq : isdeceq sort)
-  (X : functor sortToHSET sortToHSET)
-  (a : list sort × sort) :
-  functor sortToHSET HSET.
+(* Definition sortToHSETToHSET (s : sort) : functor sortToHSET HSET. *)
+(* Admitted. *)
+
+(* Maybe define this as a functor? *)
+Definition endo_fun (X : sortToHSET → sortToHSET) (a : list sort × sort) : sortToHSET → HSET.
 Proof.
 destruct a as [l t].
-set (O := functor_composite (option_list eq l) X).
-mkpair.
-- mkpair.
-  + intros f.
-    apply (pr1 (O f) t).
-  + simpl. admit.
-- simpl. admit.
-Admitted.
+(* set (O := functor_composite (option_list eq l) X). *)
+intros f.
+apply (pr1 (X (option_list l f)) t).
+Defined.
 
-Definition endo_funs (eq : isdeceq sort) (xs : list (list sort × sort))
-  (X : functor sortToHSET sortToHSET) : functor sortToHSET HSET.
+Search Products "functor".
+(* Maybe define this as a functor? *)
+Definition endo_funs (xs : list (list sort × sort)) (X : sortToHSET → sortToHSET) :
+  sortToHSET → HSET.
 Proof.
-set (XS := map (endo_fun eq X) xs).
-(* TODO: Fold with functor product *)
-Admitted.
+set (XS := map (endo_fun X) xs).
+intro s.
+apply (foldr (fun (f : sortToHSET → HSET) (b : HSET) => pr1 (f s ⊗ b)) emptyHSET XS).
+Defined.
 
-Definition MSigToFunctor (eq : isdeceq sort) (M : MSig) :
+Definition MSigToFunctor (M : MSig) :
   functor [sortToHSET,sortToHSET,has_homsets_sortToHSET]
           [sortToHSET,sortToHSET,has_homsets_sortToHSET].
 Proof.
@@ -151,9 +154,8 @@ mkpair.
 mkpair.
 * mkpair.
 { intro f.
-mkpair.
-- mkpair.
-+ intro s.
+use mk_sortToHSET.
+intro s.
 set (Is := indices M s).
 simpl.
 mkpair.
@@ -161,13 +163,11 @@ use total2.
 * apply Is.
 * intro y.
 set (ary := args M s y).
-apply (endo_funs eq ary X f).
+apply (endo_funs ary (pr1 X) f).
 *simpl.
 apply isaset_total2.
 admit.
 admit.
-+ admit.
-- admit.
 }
 admit.
 * admit.
