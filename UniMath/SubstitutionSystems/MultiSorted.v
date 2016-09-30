@@ -134,6 +134,15 @@ mkpair.
     | now intros f g h fg gh; apply funextsec; intro x ]).
 Defined.
 
+Definition sortToHSETToHSet' : [sortToHSET, sortToHSET, has_homsets_sortToHSET].
+Proof.
+mkpair.
++ mkpair.
+  admit.
+  admit.
++ admit.
+Admitted.
+
 Definition endo_fun (X : functor sortToHSET sortToHSET) (a : list sort × sort) : functor sortToHSET HSET.
 Proof.
 set (O := functor_composite (option_list (pr1 a)) X).
