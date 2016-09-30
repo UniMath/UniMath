@@ -15,9 +15,6 @@ Local Open Scope cat.
 Set Automatic Introduction.
 
 (* move upstream *)
-Arguments id_left [C a b] f.
-Arguments id_right [C a b] f.
-Arguments assoc [C a b c d] f g h.
 
 Notation "a --> b" := (@precategory_morphisms _ a b) (at level 50) : cat.
 (* agda input \r- *)
@@ -27,12 +24,6 @@ Notation "a <-- b" := (@precategory_morphisms (opp_precat _) a b) (at level 50) 
 
 Definition src {C:precategory} {a b:C} (f:a-->b) : C := a.
 Definition tar {C:precategory} {a b:C} (f:a-->b) : C := b.
-
-Definition Precategory := Σ C:precategory, has_homsets C.
-Definition Precategory_pair C h : Precategory := C,,h.
-Definition Precategory_to_precategory : Precategory -> precategory := pr1.
-Coercion Precategory_to_precategory : Precategory >-> precategory.
-Definition homset_property (C:Precategory) : has_homsets C := pr2 C.
 
 Definition hom (C:precategory_data) : ob C -> ob C -> UU :=
   λ c c', c --> c'.
@@ -68,12 +59,6 @@ Ltac set_logic :=
                 try apply impred_isaset;
                 try apply isasetaprop)) using _M_.
 
-Definition functorPrecategory (C D:Precategory) : Precategory.
-Proof.
-  exists (functor_precategory C D (homset_property D)).
-  abstract set_logic using _L_.
-Defined.
-
 Notation "[ C , D ]" := (functorPrecategory C D) : cat.
 
 Definition oppositePrecategory (C:Precategory) : Precategory.
@@ -82,15 +67,6 @@ Proof.
 Defined.
 
 Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat.
-
-Definition category_to_Precategory (C:category) : Precategory.
-Proof.
-  unshelve refine (_,,_).
-  - exact C.
-  - exact (pr2 (pr2 C)).
-Defined.
-
-Coercion category_to_Precategory : category >-> Precategory.
 
 (* Open scope cat' to see what categories maps are in.  This helps
    especially when a category and its opposite are both in play. *)
@@ -126,7 +102,7 @@ Definition Functor_compose {C D} (F:functor C D) := functor_comp F.
 
 Definition category_pair (C:precategory) (i:is_category C) : category := C,,i.
 
-Definition theUnivalenceProperty (C:category) := pr2 _ : is_category C.
+Definition theUnivalenceProperty (C:category) := pr2 C : is_category C.
 
 Definition reflects_isos {C D} (X:C==>D) :=
   Π c c' (f : c --> c'), is_isomorphism (#X f) -> is_isomorphism f.

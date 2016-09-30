@@ -353,8 +353,8 @@ Proof.
       simpl in *.
       match goal with |[H3 : _ = ?f |- ?e ;; _ ;; _ ;; _  = _ ] =>
          pathvia (e ;; f) end.
-      * eapply pathscomp0. apply (!assoc _ _ _ _ _ _ _ _ ).
-        eapply pathscomp0. apply (!assoc _ _ _ _ _ _ _ _ ).
+      * eapply pathscomp0. apply (!assoc _ _ _).
+        eapply pathscomp0. apply (!assoc _ _ _ ).
         apply maponpaths.
         eapply pathscomp0. Focus 2. apply H3.
         apply assoc.
@@ -405,7 +405,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
     simpl.
     transitivity (identity _ ;; μ_2 c).
     + apply pathsinv0, id_left.
-    + eapply pathscomp0; [ | apply (!assoc _ _ _ _ _ _ _ _ ) ].
+    + eapply pathscomp0; [ | apply (!assoc _ _ _ ) ].
       apply cancel_postcomposition.
       assert (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
       apply (!H1).
@@ -455,7 +455,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
       }
       eapply pathscomp0. apply (Strength_2 F).
       clear Strength_2.
-      eapply pathscomp0. apply (!assoc _ _ _ _ _ _ _ _ ).
+      eapply pathscomp0. apply (!assoc _ _ _).
       apply maponpaths.
       apply maponpaths.
       match goal with |[ |- _ = ?pr1 (# ?G ?g) _ ] =>

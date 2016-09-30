@@ -156,7 +156,7 @@ Lemma hztohqandleh':
   Π n m : hz, (hztohq n <= hztohq m)%hq → hzleh n m.
 Proof.
   intros n m Hle Hlt.
-  apply Hle.
+  simple refine (Hle _).
   apply hztohqandgth.
   exact Hlt.
 Qed.
@@ -177,7 +177,7 @@ Qed.
 Lemma nattorig_nattohz :
   Π n : nat, nattorig (X := hz) n = nattohz n.
 Proof.
-  induction n.
+  induction n as [|n IHn].
   - unfold nattorig, nattohz ; simpl.
     reflexivity.
   - rewrite nattorigS, IHn.
@@ -187,7 +187,7 @@ Qed.
 Lemma nattorig_nat :
   Π n : nat, nattorig (X := natcommrig) n = n.
 Proof.
-  induction n.
+  induction n as [|n IHn].
   reflexivity.
   rewrite nattorigS, IHn.
   reflexivity.

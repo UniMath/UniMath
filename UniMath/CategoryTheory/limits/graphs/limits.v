@@ -243,7 +243,7 @@ simple refine (tpair _ _ _).
   + simpl; intro u.
     assert (XR:=limArrowCommutes CC x cx u).
     eapply pathscomp0; [| apply XR].
-    eapply pathscomp0; [ apply (!assoc _ _ _ _ _ _ _ _ ) |].
+    eapply pathscomp0; [ apply (!assoc _ _ _ ) |].
     apply maponpaths.
     apply z_iso_inv_on_right.
     apply pathsinv0, limArrowCommutes.
@@ -254,7 +254,7 @@ simple refine (tpair _ _ _).
     apply pathsinv0, limArrowUnique; intro u.
     cbn in *.
     eapply pathscomp0; [| apply Hf].
-    eapply pathscomp0. apply (!assoc _ _ _ _ _ _ _ _ ).
+    eapply pathscomp0. apply (!assoc _ _ _ ).
     apply maponpaths.
     apply limArrowCommutes.
 Defined.
@@ -787,7 +787,7 @@ simple refine (tpair _ _ _).
   + simpl; intro u.
     assert (XR:=limArrowCommutes CC x cx u).
     eapply pathscomp0; [| apply XR].
-    eapply pathscomp0; [ apply (!assoc _ _ _ _ _ _ _ _ ) |].
+    eapply pathscomp0; [ apply (!assoc _ _ _ ) |].
     apply maponpaths.
     apply z_iso_inv_on_right.
     apply pathsinv0, limArrowCommutes.
@@ -798,7 +798,7 @@ simple refine (tpair _ _ _).
     apply pathsinv0, limArrowUnique; intro u.
     cbn in *.
     eapply pathscomp0; [| apply Hf].
-    eapply pathscomp0. apply (!assoc _ _ _ _ _ _ _ _ ).
+    eapply pathscomp0. apply (!assoc _ _ _ ).
     apply maponpaths.
     apply limArrowCommutes.
 Defined.

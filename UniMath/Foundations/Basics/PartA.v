@@ -589,8 +589,9 @@ Defined.
 Definition tppr {T : UU} {P : T -> UU}
            (x : total2 P) : x = tpair _ (pr1 x) (pr2 x).
 Proof.
-  intros. induction x. simpl.
-  apply idpath.
+  intros.
+  tryif primitive_projections then idtac else induction x.
+  reflexivity.
 Defined.
 
 Definition constr1 {X : UU} (P : X -> UU) {x x' : X} (e : x = x') :
@@ -612,8 +613,10 @@ Definition transportf {X : UU} (P : X -> UU) {x x' : X}
 Definition transportb {X : UU} (P : X -> UU) {x x' : X}
            (e : x = x') : P x' -> P x := transportf P (!e).
 
-Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport.
-Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport.
+Notation "p # x" := (transportf _ p x)
+  (right associativity, at level 65, only parsing) : transport.
+Notation "p #' x" := (transportb _ p x)
+  (right associativity, at level 65, only parsing) : transport.
 Delimit Scope transport with transport.
 
 Definition idpath_transportf {X : UU} (P : X -> UU) {x : X} (p : P x) :

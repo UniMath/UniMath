@@ -509,7 +509,8 @@ Proof.
     intros O.
     apply (pr1 H) with (pr1 (pr1 O)).
     apply (pr2 (pr2 O)).
-    apply (pr2 (pr1 O)), (pr1 (pr2 O)).
+    simple refine (pr2 (pr1 O) _ _).
+    exact (pr1 (pr2 O)).
 Qed.
 
 Lemma isNeighborhood_isPreFilter {X : UU} N :

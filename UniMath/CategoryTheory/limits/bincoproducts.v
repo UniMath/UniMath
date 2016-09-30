@@ -36,7 +36,16 @@ Variable C : precategory.
 
 Definition isBinCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
   Π (c : C) (f : a --> c) (g : b --> c),
-    iscontr (Σ fg : co --> c, (ia ;; fg = f) × (ib ;; fg = g)).
+  iscontr (Σ fg : co --> c, (ia ;; fg = f) × (ib ;; fg = g)).
+
+Lemma isaprop_isBinCoproductCocone {a b co : C} {ia : a --> co} {ib : b --> co} :
+  isaprop (isBinCoproductCocone a b co ia ib).
+Proof.
+  apply impred_isaprop. intros t.
+  apply impred_isaprop. intros t0.
+  apply impred_isaprop. intros g.
+  apply isapropiscontr.
+Qed.
 
 Definition BinCoproductCocone (a b : C) :=
    Σ coiaib : (Σ co : C, a --> co × b --> co),
@@ -217,7 +226,7 @@ Proof.
           pr1 (pr2 (pr1 CC));; fg = BinCoproductIn1 CC
           × pr2 (pr2 (pr1 CC));; fg = BinCoproductIn2 CC)).
   set (t1 := tpair _ k (dirprodpair H1 H2) : X).
-  set (t2 := tpair _ (identity _ ) (dirprodpair (id_right _ _ _ _ ) (id_right _ _ _ _ ) ) : X).
+  set (t2 := tpair _ (identity _ ) (dirprodpair (id_right _ ) (id_right _ ) ) : X).
   assert (X' : t1 = t2).
   { apply proofirrelevance.
     apply isapropifcontr.
@@ -678,10 +687,8 @@ Section BinCoproduct_zeroarrow.
   Variable C : precategory.
   Variable Z : Zero C.
 
-  Lemma BinCoproductArrowZero {x y z: C} {BP : BinCoproductCocone C x y}
-        (f : x --> z) (g : y --> z) :
-    f = ZeroArrow C Z _ _ -> g = ZeroArrow C Z _ _ ->
-    BinCoproductArrow C BP f g = ZeroArrow C Z _ _ .
+  Lemma BinCoproductArrowZero {x y z: C} {BP : BinCoproductCocone C x y} (f : x --> z) (g : y --> z) :
+    f = ZeroArrow Z _ _ -> g = ZeroArrow Z _ _ -> BinCoproductArrow C BP f g = ZeroArrow Z _ _ .
   Proof.
     intros X X0. apply pathsinv0.
     use BinCoproductArrowUnique.
@@ -951,3 +958,65 @@ Definition option_functor : functor C C :=
   BinCoproduct_of_functors C C CC (constant_functor _ _ one) (functor_identity C).
 
 End option_functor.
+
+(** ** Construction of isBinCoproduct from an isomorphism to BinCoproduct. *)
+Section BinCoproduct_from_iso.
+
+  Variable C : precategory.
+  Hypothesis hs : has_homsets C.
+
+  Local Lemma iso_to_isBinCoproductCocone_comm {x y z : C} (BP : BinCoproductCocone C x y)
+        (i : iso z (BinCoproductObject C BP)) (w : C) (f : x --> w) (g : y --> w) :
+    (BinCoproductIn1 C BP ;; inv_from_iso i ;; (i ;; BinCoproductArrow C BP f g) = f)
+      × (BinCoproductIn2 C BP ;; inv_from_iso i ;; (i ;; BinCoproductArrow C BP f g) = g).
+  Proof.
+    split.
+    - rewrite <- assoc. rewrite (assoc _ i).
+      rewrite (iso_after_iso_inv i). rewrite id_left.
+      apply BinCoproductIn1Commutes.
+    - rewrite <- assoc. rewrite (assoc _ i).
+      rewrite (iso_after_iso_inv i). rewrite id_left.
+      apply BinCoproductIn2Commutes.
+  Qed.
+
+  Local Lemma iso_to_isBinCoproductCocone_unique {x y z : C} (BP : BinCoproductCocone C x y)
+        (i : iso z (BinCoproductObject C BP)) (w : C) (f : x --> w) (g : y --> w) (y0 : C ⟦ z, w ⟧)
+        (T : (BinCoproductIn1 C BP ;; inv_from_iso i ;; y0 = f)
+               × (BinCoproductIn2 C BP ;; inv_from_iso i ;; y0 = g)) :
+    y0 = i ;; BinCoproductArrow C BP f g.
+  Proof.
+    apply (pre_comp_with_iso_is_inj C _ _ w (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
+    rewrite assoc. cbn. rewrite (iso_after_iso_inv i). rewrite id_left.
+    apply BinCoproductArrowUnique.
+    - rewrite assoc. apply (dirprod_pr1 T).
+    - rewrite assoc. apply (dirprod_pr2 T).
+  Qed.
+
+  Lemma iso_to_isBinCoproductCocone {x y z : C} (BP : BinCoproductCocone C x y)
+        (i : iso z (BinCoproductObject C BP)) :
+    isBinCoproductCocone C _ _ z
+                         ((BinCoproductIn1 C BP) ;; (iso_inv_from_iso i))
+                         ((BinCoproductIn2 C BP) ;; (iso_inv_from_iso i)).
+  Proof.
+    intros w f g.
+    use unique_exists.
+    (* The arrow *)
+    - exact (i ;; (BinCoproductArrow C BP f g)).
+    (* Commutativity *)
+    - exact (iso_to_isBinCoproductCocone_comm BP i w f g).
+    (* Equality on equalities of morphisms. *)
+    - intros y0. apply isapropdirprod. apply hs. apply hs.
+    (* Uniqueness *)
+    - intros y0 T. exact (iso_to_isBinCoproductCocone_unique BP i w f g y0 T).
+  Defined.
+  Opaque iso_to_isBinCoproductCocone.
+
+  Definition iso_to_BinCoproductCocone {x y z : C} (BP : BinCoproductCocone C x y)
+             (i : iso z (BinCoproductObject C BP)) :
+    BinCoproductCocone C x y := mk_BinCoproductCocone
+                                  C _ _ z
+                                  ((BinCoproductIn1 C BP) ;; (iso_inv_from_iso i))
+                                  ((BinCoproductIn2 C BP) ;; (iso_inv_from_iso i))
+                                  (iso_to_isBinCoproductCocone BP i).
+
+End BinCoproduct_from_iso.

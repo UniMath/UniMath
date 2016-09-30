@@ -826,7 +826,8 @@ Lemma filtertop_imply :
   isfilter_imply filtertop.
 Proof.
   intros A B H Ha x.
-  apply H, Ha.
+  apply H.
+  simple refine (Ha _).
 Qed.
 Lemma filtertop_htrue :
   isfilter_htrue filtertop.
@@ -839,8 +840,8 @@ Lemma filtertop_and :
 Proof.
   intros A B Ha Hb x.
   split.
-  apply Ha.
-  apply Hb.
+  + simple refine (Ha _).
+  + simple refine (Hb _).
 Qed.
 Lemma filtertop_notempty :
   isfilter_notempty filtertop.
@@ -850,7 +851,7 @@ Proof.
   apply hinhfun.
   intros x0.
   exists x0.
-  apply Fa.
+  simple refine (Fa _).
 Qed.
 
 End filtertop.
@@ -911,7 +912,8 @@ Proof.
   intros A B H Ha F Hf.
   apply (Himp F Hf A).
   apply H.
-  apply Ha, Hf.
+  simple refine (Ha _ _).
+  exact Hf.
 Qed.
 Lemma filterintersection_htrue :
   isfilter_htrue filterintersection.
@@ -924,8 +926,8 @@ Lemma filterintersection_and :
 Proof.
   intros A B Ha Hb F Hf.
   apply (Hand F Hf).
-  apply Ha, Hf.
-  apply Hb, Hf.
+  * now simple refine (Ha _ _).
+  * now simple refine (Hb _ _).
 Qed.
 Lemma filterintersection_notempty :
   isfilter_notempty filterintersection.
@@ -935,9 +937,9 @@ Proof.
   apply hinhuniv.
   intros F.
   apply (Hempty (pr1 F)).
-  exact (pr2 F).
-  apply Fa.
-  exact (pr2 F).
+  * exact (pr2 F).
+  * simple refine (Fa _ _).
+    exact (pr2 F).
 Qed.
 
 End filterintersection.
@@ -986,7 +988,7 @@ Lemma PreFilterIntersection_glb {X : UU} (FF : PreFilter X → hProp) :
 Proof.
   split.
   - intros F Hf A Ha.
-    apply Ha, Hf.
+    now simple refine (Ha _ _).
   - intros F H A Fa G Hg.
     apply (H G Hg).
     apply Fa.
@@ -998,7 +1000,7 @@ Lemma FilterIntersection_glb {X : UU} (FF : Filter X → hProp) Hff :
 Proof.
   split.
   - intros F Hf A Ha.
-    apply Ha, Hf.
+    now simple refine (Ha _ _).
   - intros F H A Fa G Hg.
     apply (H G Hg).
     apply Fa.
@@ -1202,7 +1204,7 @@ Proof.
           rewrite finite_intersection_htrue.
           exists (λ _, htrue).
           split.
-          + apply Filter_htrue.
+          + exact (Filter_htrue _).
           + easy.
         - intros L B IHl Hl.
           rewrite finite_intersection_append.
@@ -1446,7 +1448,8 @@ Proof.
     + intros m ; simpl.
       exact (pr1 (pr2 A)).
     + intros x Ax.
-      apply (pr2 (pr2 A)), Ax.
+      apply (pr2 (pr2 A)).
+      simple refine (Ax _).
       now exists 0%nat.
   - apply hinhuniv.
     intros L.

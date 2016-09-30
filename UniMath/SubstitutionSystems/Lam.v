@@ -111,26 +111,26 @@ Let LamHSS := InitialObject LamHSS_Initial.
 
 Definition Lam_Var : EndC ⟦functor_identity C, `Lam ⟧.
 Proof.
-  exact (BinCoproductIn1 _ _ ;; alg_map _ Lam).
+  exact (BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _)  ;; alg_map _ Lam).
 Defined.
 
 (* we later prefer leaving App and Abs bundled in the definition of LamE_algebra_on_Lam *)
 
 Definition Lam_App : [C, C, hs] ⟦ (App_H C hs CP) `Lam , `Lam ⟧.
 Proof.
-  exact (BinCoproductIn1 _ _ ;; (BinCoproductIn2 _ _ ;; alg_map _ Lam)).
+  exact (BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _) ;; (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) ;; alg_map _ Lam)).
 Defined.
 
 Definition Lam_Abs : [C, C, hs] ⟦ (Abs_H C hs terminal CC) `Lam, `Lam ⟧.
 Proof.
-  exact (BinCoproductIn2 _ _ ;; (BinCoproductIn2 _ _ ;; alg_map _ Lam)).
+  exact (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) ;; (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) ;; alg_map _ Lam)).
 Defined.
 
 
 Definition Lam_App_Abs :  [C, C, hs]
    ⟦ (H C hs CC (App_H C hs CP) (Abs_H C hs terminal CC)) `Lam , `Lam ⟧.
 Proof.
-  exact (BinCoproductIn2 _ _ ;; alg_map _ Lam).
+  exact (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) ;; alg_map _ Lam).
 Defined.
 
 (** * Definition of a "model" of the flattening arity in pure lambda calculus *)
@@ -478,7 +478,7 @@ Proof.
 
       eapply pathscomp0. apply maponpaths. apply cancel_postcomposition. apply BinCoproductIn1Commutes.
 
-      eapply pathscomp0. apply maponpaths. apply (!assoc _ _ _ _ _ _ _ _ ).
+      eapply pathscomp0. apply maponpaths. apply (!assoc _ _ _ ).
       simpl. apply maponpaths. apply maponpaths.
       apply BinCoproductIn1Commutes.
 Qed.

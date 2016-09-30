@@ -87,7 +87,7 @@ Section def_cokernels.
 
   Lemma equiv_Cokernel2_eq {a b : C} (f : C⟦a, b⟧) (K : Cokernel f ) :
     f ;; CoequalizerArrow C K
-    = limits.zero.ZeroArrow C (equiv_Zero2 Z) a b ;; CoequalizerArrow C K.
+    = limits.zero.ZeroArrow (equiv_Zero2 Z) a b ;; CoequalizerArrow C K.
   Proof.
     set (tmp := CoequalizerArrowEq C K).
     set (tmp1 := equiv_ZeroArrow a b Z).
@@ -99,7 +99,7 @@ Section def_cokernels.
 
   Lemma equiv_Cokernel2_isCoequalizer {a b : C} (f : C⟦a, b⟧)
         (K : Cokernel f ) :
-    isCoequalizer C f (limits.zero.ZeroArrow C (equiv_Zero2 Z) a b)
+    isCoequalizer C f (limits.zero.ZeroArrow (equiv_Zero2 Z) a b)
                   (CoequalizerObject C K)
                   (CoequalizerArrow C K) (equiv_Cokernel2_eq f K).
   Proof.

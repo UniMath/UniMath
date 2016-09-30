@@ -102,7 +102,7 @@ Proof.
       * unfold compose.
         simpl.
         eapply pathscomp0.
-        apply (assoc C).
+        apply assoc.
         eapply pathscomp0.
         eapply cancel_postcomposition.
         apply (pr2 (pr1 H2)).

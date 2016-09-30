@@ -22,6 +22,7 @@ Combinatorics/FiniteSets.v
 Combinatorics/OrderedSets.v
 Combinatorics/FiniteSequences.v
 Combinatorics/Tests.v
+Combinatorics/Lists.v
 Algebra/IteratedBinaryOperations.v
 Algebra/Tests.v
 NumberSystems/Integers.v

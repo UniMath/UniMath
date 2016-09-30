@@ -144,9 +144,9 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
     Inductive total2 { T: Type } ( P: T -> Type ) := tpair : Π (__t__:T) (__p__:P __t__), total2 P.
 
-    (* Do not use "induction" without specifying names; seeing __t__ or __p__ will indicate that you
-       did that.  This will prepare for the use of primitive projections, when the names will be pr1
-       and pr2. *)
+    (* Do not use "induction" without specifying names; seeing __t__ or __p__ will indicate that you *)
+    (*    did that.  This will prepare for the use of primitive projections, when the names will be pr1 *)
+    (*    and pr2. *)
 
     Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T .
     Proof . intros .  induction t as [ t p ] . exact t . Defined.
@@ -161,6 +161,19 @@ if we used "Record", has a known interpretation in the framework of the univalen
 Arguments tpair {_} _ _ _.
 Arguments pr1 {_ _} _.
 Arguments pr2 {_ _} _.
+
+(* Now prepare tactics for writing proofs in two ways, depending on whether projections are primitive *)
+Ltac primitive_projections :=
+  unify (fun (w : total2 (fun _:nat => nat)) => tpair _ (pr1 w) (pr2 w))
+        (fun (w : total2 (fun _:nat => nat)) => w).
+(* Use like this: [ tryif primitive_projections then ... else ... . ] *)
+
+Definition whether_primitive_projections : bool.
+Proof.
+  tryif primitive_projections then exact true else exact false.
+Defined.
+
+Print whether_primitive_projections.
 
 Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.

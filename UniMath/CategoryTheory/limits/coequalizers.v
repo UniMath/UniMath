@@ -186,7 +186,7 @@ Section def_coequalizers.
 
   (** We prove that CoequalizerArrow is an epi. *)
   Lemma CoequalizerArrowisEpi {y z : C} {f g : y --> z} (E : Coequalizer f g ) :
-    isEpi _ (CoequalizerArrow E).
+    isEpi (CoequalizerArrow E).
   Proof.
     apply mk_isEpi.
     intros z0 g0 h X.

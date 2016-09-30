@@ -59,7 +59,7 @@ Definition slice_precat_ob_mor : precategory_ob_mor :=
   tpair _ _ slicecat_mor.
 
 Definition id_slice_precat (c : slice_precat_ob_mor) : c --> c :=
-  tpair _ _ (id_left _ _ _ (pr2 c)).
+  tpair _ _ (id_left (pr2 c)).
 
 Definition comp_slice_precat_subproof (a b c : slice_precat_ob_mor)
   (f : a --> b) (g : b --> c) : (pr1 f ;; pr1 g) ;; pr2 c = pr2 a.
@@ -280,8 +280,8 @@ apply subtypePairEquality; [intro; apply hsC | ].
 rewrite transportf_total2; simpl.
 unfold slicecat_functor_identity_ob.
 rewrite toforallpaths_funextsec; simpl.
-case (id_right C a x f).
-case (id_right C b x g).
+case (id_right f).
+case (id_right g).
 apply idpath.
 Qed.
 
@@ -317,15 +317,15 @@ rewrite toforallpaths_funextsec; simpl.
 assert (H1 : transportf (fun x : C / z => pr1 x --> b)
                (Basics.PartA.internal_paths_rew_r _ _ _
                  (fun p => tpair _ a p = tpair _ a _) (idpath (tpair _ a _))
-                 (assoc C a x y z fax f g)) h = h).
-  case (assoc C a x y z fax f g); apply idpath.
+                 (assoc fax f g)) h = h).
+  case (assoc fax f g); apply idpath.
 assert (H2 : Π h', h' = h ->
              transportf (fun x : C / z => a --> pr1 x)
                         (Basics.PartA.internal_paths_rew_r _ _ _
                            (fun p => tpair _ b p = tpair _ b _) (idpath _)
-                           (assoc C b x y z fbx f g)) h' = h).
+                           (assoc fbx f g)) h' = h).
   intros h' eq.
-  case (assoc C b x y z fbx f g); rewrite eq; apply idpath.
+  case (assoc fbx f g); rewrite eq; apply idpath.
 apply H2.
 assumption.
 Qed.
