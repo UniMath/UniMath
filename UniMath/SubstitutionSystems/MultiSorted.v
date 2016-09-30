@@ -7,6 +7,7 @@ Written by: Anders Mörtberg, 2016
 *)
 
 Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.Foundations.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.precategories.
@@ -75,12 +76,18 @@ Variable sort : UU.
 Let sort_cat : precategory := DiscPrecat sort.
 Let sortToHSET : precategory := [sort_cat,HSET,has_homsets_HSET].
 
-Definition MSig (s : sort) : UU :=
-  Σ (I : sort -> UU), I s → list (list sort × sort).
+Lemma has_homsets_sortToHSET : has_homsets sortToHSET.
+Proof.
+apply functor_category_has_homsets.
+Qed.
 
-Definition indices {s : sort} (M : MSig s) : sort → UU := pr1 M.
+Definition MSig : UU :=
+  Π (s : sort), Σ (I : UU), I → list (list sort × sort).
 
-Definition args {s : sort} (M : MSig s) : indices M s → list (list sort × sort) := pr2 M.
+Definition indices (M : MSig) : sort → UU := fun s => pr1 (M s).
+
+Definition args (M : MSig) (s : sort) : indices M s → list (list sort × sort) :=
+  pr2 (M s).
 
 
 Local Notation "'1'" := (TerminalHSET).
@@ -100,16 +107,72 @@ mkpair.
 - abstract (split; [ now intros ? | now intros ? ? ? [] [] ]). (* UGH *)
 Defined.
 
-Definition option_list (eq : isdeceq sort) : list sort -> sortToHSET -> sortToHSET.
+Definition option_list (eq : isdeceq sort) (xs : list sort) :
+  functor sortToHSET sortToHSET.
+Proof.
+mkpair.
+- mkpair.
+  + intro a.
+    apply (foldr (option eq) a xs).
+  + simpl. admit.
+- admit.
 Admitted.
 
-Definition endo_fun (a : list sort × sort) (X : functor sortToHSET sortToHSET) : functor sortToHSET HSET.
+Definition endo_fun (eq : isdeceq sort)
+  (X : functor sortToHSET sortToHSET)
+  (a : list sort × sort) :
+  functor sortToHSET HSET.
+Proof.
+destruct a as [l t].
+set (O := functor_composite (option_list eq l) X).
+mkpair.
+- mkpair.
+  + intros f.
+    apply (pr1 (O f) t).
+  + simpl. admit.
+- simpl. admit.
 Admitted.
 
-Definition endo_funs (xs : list (list sort × sort)) (X : functor sortToHSET sortToHSET) : functor sortToHSET HSET.
+Definition endo_funs (eq : isdeceq sort) (xs : list (list sort × sort))
+  (X : functor sortToHSET sortToHSET) : functor sortToHSET HSET.
+Proof.
+set (XS := map (endo_fun eq X) xs).
+(* TODO: Fold with functor product *)
 Admitted.
 
-Definition MSigToFunctor {s : sort} (M : MSig s) : functor sortToHSET sortToHSET.
+Definition MSigToFunctor (eq : isdeceq sort) (M : MSig) :
+  functor [sortToHSET,sortToHSET,has_homsets_sortToHSET]
+          [sortToHSET,sortToHSET,has_homsets_sortToHSET].
+Proof.
+unfold MSig in M.
+mkpair.
++ mkpair.
+- intro X.
+mkpair.
+* mkpair.
+{ intro f.
+mkpair.
+- mkpair.
++ intro s.
+set (Is := indices M s).
+simpl.
+mkpair.
+use total2.
+* apply Is.
+* intro y.
+set (ary := args M s y).
+apply (endo_funs eq ary X f).
+*simpl.
+apply isaset_total2.
+admit.
+admit.
++ admit.
+- admit.
+}
+admit.
+* admit.
+- admit.
++ admit.
 Admitted.
 
 End MBindingSig.
