@@ -103,7 +103,6 @@ Definition args (M : MSig) (s : sort) : indices M s → list (list sort × sort)
 
 Local Notation "'1'" := (TerminalHSET).
 Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoproductsHSET a b)) (at level 50).
-Local Notation "a ⊛ b" := (BinProductObject _ (BinProductsHSET a b)) (at level 60).
 
 Definition option : sort -> sortToHSET -> sortToHSET.
 Proof.
@@ -115,32 +114,44 @@ induction (eq s t) as [H|H].
 Defined.
 
 (* Maybe define this as a functor? *)
-Definition option_list (xs : list sort) : sortToHSET → sortToHSET.
+Definition option_list (xs : list sort) : functor sortToHSET sortToHSET.
 Proof.
-intro a.
-apply (foldr option a xs).
+mkpair.
++ mkpair.
+  - intro a; apply (foldr option a xs).
+  - admit.
++ admit.
+Admitted.
+
+Definition sortToHSETToHSET (s : sort) : functor sortToHSET HSET.
+Proof.
+mkpair.
++ mkpair.
+  - intro f; apply (pr1 f s).
+  - simpl; intros a b f H; apply (f s H).
++ abstract (split;
+    [ now intros f; apply funextsec
+    | now intros f g h fg gh; apply funextsec; intro x ]).
 Defined.
 
-(* Definition sortToHSETToHSET (s : sort) : functor sortToHSET HSET. *)
-(* Admitted. *)
-
-(* Maybe define this as a functor? *)
-Definition endo_fun (X : sortToHSET → sortToHSET) (a : list sort × sort) : sortToHSET → HSET.
+Definition endo_fun (X : functor sortToHSET sortToHSET) (a : list sort × sort) : functor sortToHSET HSET.
 Proof.
-destruct a as [l t].
-(* set (O := functor_composite (option_list eq l) X). *)
-intros f.
-apply (pr1 (X (option_list l f)) t).
+set (O := functor_composite (option_list (pr1 a)) X).
+apply (functor_composite O (sortToHSETToHSET (pr2 a))).
 Defined.
 
-Search Products "functor".
-(* Maybe define this as a functor? *)
-Definition endo_funs (xs : list (list sort × sort)) (X : sortToHSET → sortToHSET) :
-  sortToHSET → HSET.
+Local Definition BinProductsSortToHSETToHSET : BinProducts [sortToHSET,HSET,has_homsets_HSET].
+Proof.
+apply (BinProducts_functor_precat _ _ BinProductsHSET).
+Defined.
+
+Definition endo_funs (xs : list (list sort × sort)) (X : functor sortToHSET sortToHSET) :
+  functor sortToHSET HSET.
 Proof.
 set (XS := map (endo_fun X) xs).
-intro s.
-apply (foldr (fun (f : sortToHSET → HSET) (b : HSET) => pr1 (f s ⊗ b)) emptyHSET XS).
+(* The output for the empty list *)
+set (T := constant_functor sortToHSET HSET emptyHSET).
+apply (foldr1 (fun F G => BinProductObject _ (BinProductsSortToHSETToHSET F G)) T XS).
 Defined.
 
 Definition MSigToFunctor (M : MSig) :
@@ -151,6 +162,7 @@ unfold MSig in M.
 mkpair.
 + mkpair.
 - intro X.
+simpl.
 mkpair.
 * mkpair.
 { intro f.
@@ -163,11 +175,11 @@ use total2.
 * apply Is.
 * intro y.
 set (ary := args M s y).
-apply (endo_funs ary (pr1 X) f).
-*simpl.
-apply isaset_total2.
+(* apply (endo_funs ary (pr1 X) f). *)
+(* *simpl. *)
+(* apply isaset_total2. *)
 admit.
-admit.
+* admit.
 }
 admit.
 * admit.
