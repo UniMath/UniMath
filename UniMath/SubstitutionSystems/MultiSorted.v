@@ -104,24 +104,57 @@ Definition args (M : MSig) (s : sort) : indices M s → list (list sort × sort)
 Local Notation "'1'" := (TerminalHSET).
 Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoproductsHSET a b)) (at level 50).
 
-Definition option : sort -> sortToHSET -> sortToHSET.
-Proof.
-intros s f.
-apply mk_sortToHSET; intro t.
-induction (eq s t) as [H|H].
-- apply (pr1 f t ⊕ 1). (* TODO: Can one add a coercion to make this look like sort -> Set *)
-- apply (pr1 f t).
-Defined.
+(* Definition option : sort -> sortToHSET -> sortToHSET. *)
+(* Proof. *)
+(* intros s f. *)
+(* apply mk_sortToHSET; intro t. *)
+(* induction (eq s t) as [H|H]. *)
+(* - apply (pr1 f t ⊕ 1). (* TODO: Can one add a coercion to make this look like sort -> Set *) *)
+(* - apply (pr1 f t). *)
+(* Defined. *)
 
-(* Maybe define this as a functor? *)
-Definition option_list (xs : list sort) : functor sortToHSET sortToHSET.
+Definition option_functor (s : sort) : functor sortToHSET sortToHSET.
 Proof.
 mkpair.
-+ mkpair.
-  - intro a; apply (foldr option a xs).
-  - admit.
-+ admit.
-Admitted.
+- mkpair.
++ intro f.
+apply mk_sortToHSET; intro t.
+induction (eq s t) as [H|H].
+* apply (pr1 f t ⊕ 1). (* TODO: Can one add a coercion to make this look like sort -> Set *)
+* apply (pr1 f t).
++
+intros F G α.
+mkpair.
+* simpl; intro t.
+induction (eq s t) as [p|p]; simpl; clear p.
+{ apply (coprodf (α t) (idfun unit)). }
+{ apply α. }
+* intros t1 t2 []; apply idpath.
+-
+simpl.
+split.
++ intros F; simpl in *.
+apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|].
+simpl.
+apply funextsec; intro t.
+induction (eq s t) as [p|p]; trivial; simpl; clear p.
+now apply funextfun; intros [].
++
+intros F G H αFG αGH; simpl in *.
+apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|].
+simpl.
+apply funextsec; intro t.
+induction (eq s t) as [p|p]; trivial; simpl; clear p.
+now apply funextfun; intros [].
+Defined.
+
+Definition option_list (xs : list sort) : functor sortToHSET sortToHSET.
+Proof.
+use (foldr _ _ xs).
++ intros s F.
+  apply (functor_composite (option_functor s) F).
++ apply functor_identity.
+Defined.
 
 Definition sortToHSETToHSET (s : sort) : functor sortToHSET HSET.
 Proof.
