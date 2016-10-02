@@ -40,6 +40,7 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 (* Require Import UniMath.SubstitutionSystems.Notation. *)
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 Section DiscreteCategory.
 
@@ -99,12 +100,22 @@ Proof.
 now apply Coproducts_functor_precat, CoproductsSortToHSET.
 Defined.
 
-Definition mk_sortToHSET (f : sort → hSet) : sortToHSET.
+Lemma functor_sort_cat (D : precategory) (f : sort → D) : functor sort_cat D.
 Proof.
 mkpair.
-+ apply (tpair _ f).
-  intros a b hab; simpl; apply (transportf f hab).
-+ abstract (now split; [ intros a; apply idpath | intros a b c [] [] ]).
++ mkpair.
+  - apply f.
+  - intros s t []; apply identity.
++ abstract (now split; [intro|intros a b c [] []; simpl; rewrite id_left]).
+Defined.
+
+Definition mk_sortToHSET (f : sort → HSET) : sortToHSET.
+Proof.
+apply (functor_sort_cat _ f).
+(* mkpair. *)
+(* + apply (tpair _ f). *)
+(*   intros a b hab; simpl; apply (transportf f hab). *)
+(* + abstract (now split; [ intros a; apply idpath | intros a b c [] [] ]). *)
 Defined.
 
 (* Coercion sortToHsetToFun (s : sortToHSET) : sort → HSET := pr1 s. *)
@@ -193,14 +204,16 @@ Defined.
 (* + admit. *)
 (* Admitted. *)
 
-Definition endo_fun (X : functor sortToHSET sortToHSET) (a : list sort × sort) : functor sortToHSET HSET.
+Definition endo_fun (X : functor sortToHSET sortToHSET) (a : list sort × sort) :
+  functor sortToHSET HSET.
 Proof.
 set (O := functor_composite (option_list (pr1 a)) X).
 apply (functor_composite O (sortToHSETToHSET (pr2 a))).
 Defined.
 
 Lemma endo_fun_functor (a : list sort × sort) :
-  functor [sortToHSET,sortToHSET,has_homsets_sortToHSET] [sortToHSET,HSET,has_homsets_HSET].
+  functor [sortToHSET,sortToHSET,has_homsets_sortToHSET]
+          [sortToHSET,HSET,has_homsets_HSET].
 Proof.
 mkpair.
 - mkpair.
@@ -227,6 +240,11 @@ set (T := constant_functor sortToHSET HSET emptyHSET).
 apply (foldr1 (fun F G => BinProductObject _ (BinProductsSortToHSETToHSET F G)) T XS).
 Defined.
 
+Definition endo_funs_functor (xs : list (list sort × sort)) :
+  functor [sortToHSET,sortToHSET,has_homsets_sortToHSET]
+          [sortToHSET,HSET,has_homsets_HSET].
+Admitted.
+
 (* Definition MSigToFunctor_helper *)
 (*   (H : functor sortToHSET sortToHSET → sortToHSET → sort → HSET) : *)
 (*  functor [sortToHSET, sortToHSET, has_homsets_sortToHSET] *)
@@ -243,103 +261,110 @@ Defined.
 (*     } *)
 (*       simpl. *)
 
-Arguments pr1 : simpl never.
-Arguments pr2 : simpl never.
+Lemma asdf : has_homsets [sortToHSET,HSET,has_homsets_HSET].
+Proof.
+apply functor_category_has_homsets.
+Qed.
 
-Definition MSigToFunctor_helper
-  (H : sort → functor [sortToHSET,sortToHSET,has_homsets_sortToHSET] [sortToHSET,HSET,has_homsets_HSET]) :
- functor [sortToHSET, sortToHSET, has_homsets_sortToHSET]
-         [sortToHSET, sortToHSET, has_homsets_sortToHSET].
+Lemma lol (D : precategory)
+  (H : functor sort_cat [D,HSET,has_homsets_HSET]) :
+  functor D sortToHSET.
 Proof.
 mkpair.
 - mkpair.
-  + intro X.
++ intros f.
+  apply mk_sortToHSET.
+  intro s.
+  apply (pr1 (H s) f).
++ intros F G α.
 mkpair.
-* mkpair.
-{ intro f.
-  apply mk_sortToHSET; intro s.
-  apply (H s X).
-  apply f.
-}
-admit.
+* intros s.
+  apply (# (pr1 (H s)) α).
 *
-admit.
-+ admit.
-- admit.
-(* { *)
-(*   intros F G α. *)
-(* simpl. *)
-(* apply nat_trans_id. *)
-(* mkpair. *)
-(* + *)
-(* simpl. *)
-(* intro s. *)
-(* apply (#(H s X) α). *)
-(* + *)
-(* now intros s t []. *)
-(* } *)
-(* * *)
-(* split. *)
-(* { simpl. *)
-(* intros F. *)
-(* simpl. *)
-(* apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|]. *)
-(* simpl. *)
+intros s t []; clear t.
+eapply pathscomp0.
+apply (id_left (# (pr1 (H s)) α)).
+apply pathsinv0.
+apply (id_right (# (pr1 (H s)) α)).
+- split.
++ intro F.
+apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|].
+apply funextsec; intro s.
+apply (functor_id ( (H s))).
++
+intros F1 F2 F3 α12 α23.
+apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|].
+apply funextsec; intro s.
+apply (functor_comp (H s)).
+Admitted. (* Defined is very slow... *)
 
-(* apply funextsec; intro t. *)
-(* apply (functor_id (H t X)). *)
-(* } *)
-(* { *)
-(* intros F1 F2 F3 αF12 αF23; simpl in *. *)
-(* apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|]. *)
+
+Definition lol2
+  (H : functor [[sortToHSET,sortToHSET,has_homsets_sortToHSET],sortToHSET,has_homsets_sortToHSET]
+               sortToHSET) :
+ functor [sortToHSET, sortToHSET, has_homsets_sortToHSET]
+         [sortToHSET, sortToHSET, has_homsets_sortToHSET].
+Admitted.
+
+Definition MSigToFunctor_helper
+  (* (H : functor sort_cat *)
+  (*              [[sortToHSET,sortToHSET,has_homsets_sortToHSET], *)
+  (*               [sortToHSET,HSET,has_homsets_HSET], *)
+  (*               asdf]) : *)
+ ( H : functor sort_cat
+    [[[sortToHSET, sortToHSET, has_homsets_sortToHSET], sortToHSET,
+     has_homsets_sortToHSET], HSET, has_homsets_HSET]) :
+
+
+ functor [sortToHSET, sortToHSET, has_homsets_sortToHSET]
+         [sortToHSET, sortToHSET, has_homsets_sortToHSET].
+Proof.
+apply lol2.
+apply lol.
+apply H.
+Defined.
+(* mkpair. *)
+(* * mkpair. *)
+(* { intro X. *)
+(*   apply lol. *)
+(*   mkpair. *)
+(*   + mkpair. *)
+(*   - intro s. *)
+(*     apply (pr1 (H s) X). *)
+(*   - intros s t []. *)
+(*     set (XX :=  ((pr1 (H s)) X)). *)
+(*     simpl in XX. *)
+(*     apply (@nat_trans_id sortToHSET HSET XX). *)
+(* + split. *)
+(* - intro x. *)
 (* simpl. *)
-(* apply funextsec; intro t. *)
-(* apply (functor_comp (H t X)). *)
+(* apply idpath. *)
+(* - intros x y z [] []. *)
+
+(*  simpl in *. *)
+(* apply subtypeEquality; [intro xx; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|]. *)
+(* apply funextsec; intro s. *)
+(* apply idpath. *)
 (* } *)
-(* + *)
-(* simpl. *)
 (* intros F G α. *)
-(* mkpair. *)
-(* * simpl. *)
-(* intros FF. *)
-(* mkpair. *)
-(* { *)
-(* simpl. *)
-(* intro s. *)
-(* generalize ((α FF)). *)
-(* simpl. *)
-
-(* Check (H s). *)
-
 (* admit. *)
-(* } *)
-(* admit. *)
-(* * *)
-(* admit. *)
-(* - *)
-(* admit. *)
-Admitted.
+(* * admit. *)
+(* Admitted. *)
 
-Definition MSigToFunctor_helper2
-  (H : functor sortToHSET sortToHSET → functor sortToHSET HSET) :
-   functor [sortToHSET, sortToHSET, has_homsets_sortToHSET]
-           [sortToHSET, HSET, has_homsets_HSET].
-Admitted.
-
+(* (C -> D) -> (E -> F) = ((C -> D) -> E) -> F *)
+(* functor [C,D] [E,F] = functor [[C,D],E] F *)
 
 Definition MSigToFunctor (M : MSig) :
   functor [sortToHSET,sortToHSET,has_homsets_sortToHSET]
           [sortToHSET,sortToHSET,has_homsets_sortToHSET].
 Proof.
 apply MSigToFunctor_helper.
-intros s.
-apply MSigToFunctor_helper2.
-intro X.
+apply functor_sort_cat.
+intro s.
 use (coproduct_of_functors (indices M s)).
-+ apply Coproducts_HSET.
-  admit.
++ admit.
 + intros y.
-  apply (endo_funs (args M s y) X).
+  generalize (endo_funs_functor (args M s y)).
 Admitted.
 
 
