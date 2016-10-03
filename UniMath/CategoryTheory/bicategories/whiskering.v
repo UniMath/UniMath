@@ -338,7 +338,7 @@ Local Lemma kelly_left_region_123 :
   ;v; whisker_left f (whisker_right (left_unitor g) h)
   ;v; associator f g h.
 Proof.
-  rewrite <- (assoc _ _ _ _ _ _ _ (associator f g h)).
+  rewrite <- (assoc _ _ (associator f g h)).
   unfold whisker_left at 2.
   unfold whisker_right at 3.
   rewrite associator_naturality.

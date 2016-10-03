@@ -47,7 +47,7 @@ Proof.
 
     (* Which is natural. *)
     intros oba oba' f.
-    refine (id_right d _ _ _ @ !(id_left d _ _ _)).
+    refine (id_right _ @ !(id_left _)).
 
   - (* Step 2: Show the above is natural, so given
        f : F -> F', g : G -> G', h : H -> H', *)
@@ -103,7 +103,7 @@ Proof.
     intros x.
     exists (fun x => identity _).
     intros oba oba' f.
-    exact (id_right b _ _ _ @ !(id_left b _ _ _)).
+    exact (id_right _ @ !(id_left _)).
 
   - (* Step 2: Show the above is natural, so given f : F -> F' *)
     intros F F' f.
@@ -146,15 +146,15 @@ Proof.
   - intros x.
     exists (fun x => identity _).
     intros oba oba' f.
-    exact (id_right b _ _ _ @ !(id_left b _ _ _)).
+    exact (id_right _ @ !(id_left _)).
 
   - intros F F' f.
     apply nat_trans_eq. exact hsB.
     intros oba.
 
     simpl.
-    rewrite (id_right b _ _ _).
-    rewrite (id_left b _ _ _).
+    rewrite (id_right _).
+    rewrite (id_left _).
     reflexivity.
 Defined.
 
@@ -197,7 +197,7 @@ Proof.
 
   (* Everything boils down to the identity *)
   repeat rewrite functor_id.
-  repeat rewrite (id_left e _ _ _).
+  repeat rewrite (id_left _).
   reflexivity.
 Defined.
 
@@ -216,7 +216,7 @@ Proof.
   intros oba.
   simpl.
   repeat rewrite functor_id.
-  repeat rewrite (id_left c _ _ _).
+  repeat rewrite (id_left _).
   reflexivity.
 Defined.
 

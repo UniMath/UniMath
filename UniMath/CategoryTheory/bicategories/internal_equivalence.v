@@ -115,12 +115,12 @@ Local Definition identity_triangle2 {C : prebicategory}
   ;v; (left_unitor _)
     = (identity (identity_1mor a)).
 Proof.
-  rewrite <- (assoc _ _ _ _ _ _ (associator _ _ _)).
+  rewrite <- (assoc _ _ (whisker_right _ _)).
   unfold whisker_right at 1.
   simpl.
   rewrite <- triangle_axiom.
   fold (whisker_left (identity_1mor a) (left_unitor_2mor (identity_1mor a))).
-  rewrite <- (assoc _ _ _ _ _ _  (whisker_left (identity_1mor a) (inv_from_iso _))).
+  rewrite <- (assoc _ _ (whisker_left _ _)).
   rewrite <- whisker_left_on_comp.
 
   set (W := iso_after_iso_inv (left_unitor (identity_1mor a))).
