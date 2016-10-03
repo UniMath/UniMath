@@ -42,6 +42,20 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
+Section move_upstream.
+
+Lemma horcomp_id_prewhisker {C D E : precategory} (hsE : has_homsets E)
+  (X : functor C D) (Z Z' : functor D E) (f : nat_trans Z Z') :
+  hor_comp (nat_trans_id X) f = pre_whisker _ f.
+Proof.
+apply (nat_trans_eq hsE).
+simpl.
+intro x.
+now rewrite functor_id, id_right.
+Qed.
+
+End move_upstream.
+
 Section preamble.
 
 Context {C D E : precategory} {hsE : has_homsets E}.
@@ -264,43 +278,75 @@ Defined.
 Definition endo_fun (X : functor sortToHSET sortToHSET) (a : list sort × sort) :
   functor sortToHSET HSET.
 Proof.
-set (O := functor_composite (option_list (pr1 a)) X).
-apply (functor_composite O (sortToHSETToHSET (pr2 a))).
+(* Version 1: *)
+(* apply (functor_composite (functor_composite (option_list (pr1 a)) X) *)
+(*                          (sortToHSETToHSET (pr2 a))). *)
+
+(* same thing but different associativity: *)
+apply (functor_composite (option_list (pr1 a))
+                         (functor_composite X (sortToHSETToHSET (pr2 a)))).
 Defined.
 
-(* Lemma endo_fun_functor (a : list sort × sort) : *)
-(*   functor [sortToHSET,sortToHSET,has_homsets_sortToHSET] *)
-(*           [sortToHSET,HSET,has_homsets_HSET]. *)
-(* Proof. *)
-(* mkpair. *)
-(* - mkpair. *)
-(*   + intro X. *)
-(*     apply (endo_fun X a). *)
-(*   + intros F G α. *)
-(* unfold endo_fun. *)
-(* set (F1 := functor_composite (option_list (pr1 a)) F : functor sortToHSET sortToHSET). *)
-(* set (F1' := functor_composite (option_list (pr1 a)) G : functor sortToHSET sortToHSET). *)
-(* set (F2 := sortToHSETToHSET (pr2 a)). *)
-(* apply (@hor_comp _ _ _ F1 F1' F2 F2). *)
-(* admit. *)
-(* apply nat_trans_id. *)
-(* - admit. *)
-(* Admitted. *)
+Local Arguments hor_comp : simpl never.
 
-
-Definition endo_funs (xs : list (list sort × sort)) (X : functor sortToHSET sortToHSET) :
-  functor sortToHSET HSET.
+Lemma endo_fun_functor (a : list sort × sort) :
+  functor [sortToHSET,sortToHSET,has_homsets_sortToHSET]
+          [sortToHSET,HSET,has_homsets_HSET].
 Proof.
-set (XS := map (endo_fun X) xs).
-(* The output for the empty list *)
-set (T := constant_functor sortToHSET HSET emptyHSET).
-apply (foldr1 (fun F G => BinProductObject _ (BinProductsSortToHSETToHSET F G)) T XS).
-Defined.
+mkpair.
+- mkpair.
+  + intro X.
+    apply (endo_fun X a).
+  + intros F G α.
+    use (@hor_comp sortToHSET _ HSET).
+    * apply (nat_trans_id _).
+    * use hor_comp; [ assumption | apply nat_trans_id ].
+- split.
++ intro F; simpl in *.
+  repeat rewrite horcomp_id_postwhisker, post_whisker_identity; trivial;
+    try apply has_homsets_HSET; try apply has_homsets_sortToHSET.
++ intros F G H α β. simpl in *.
+rewrite !horcomp_id_postwhisker.
+eapply pathscomp0.
+eapply maponpaths.
+apply (post_whisker_composition sortToHSET _ _ has_homsets_HSET (sortToHSETToHSET (pr2 a))).
+eapply pathscomp0.
+simpl.
+Check ( (nat_trans_comp (post_whisker α (sortToHSETToHSET (pr2 a)))
+         (post_whisker β (sortToHSETToHSET (pr2 a))))).
+(* This is not the right thing to do... *)
+apply (@horcomp_id_prewhisker sortToHSET sortToHSET HSET has_homsets_HSET  (option_list (pr1 a)) (functor_composite F (sortToHSETToHSET (pr2 a))) (functor_composite H (sortToHSETToHSET (pr2 a)))).
+simpl.
+cbn.
+apply (nat_trans_eq has_homsets_HSET).
+intro x.
+simpl.
+apply funextsec; intro xx.
+cbn.
+admit.
+Admitted.
+
+(* Definition endo_funs (xs : list (list sort × sort)) (X : functor sortToHSET sortToHSET) : *)
+(*   functor sortToHSET HSET. *)
+(* Proof. *)
+(* set (XS := map (endo_fun X) xs). *)
+(* (* The output for the empty list *) *)
+(* set (T := constant_functor sortToHSET HSET emptyHSET). *)
+(* apply (foldr1 (fun F G => BinProductObject _ (BinProductsSortToHSETToHSET F G)) T XS). *)
+(* Defined. *)
 
 Definition endo_funs_functor (xs : list (list sort × sort)) :
   functor [sortToHSET,sortToHSET,has_homsets_sortToHSET]
           [sortToHSET,HSET,has_homsets_HSET].
-Admitted.
+Proof.
+set (XS := map endo_fun_functor xs).
+set (T := constant_functor [sortToHSET, sortToHSET, has_homsets_sortToHSET]
+                           [sortToHSET, HSET, has_homsets_HSET]
+                           (constant_functor sortToHSET HSET emptyHSET)).
+(* TODO: Maybe use indexed finite products instead of a fold? *)
+(* TODO: Should we use BinProduct_of_functors? *)
+apply (foldr1 (fun F G => BinProduct_of_functors _ _ BinProductsSortToHSETToHSET F G) T XS).
+Defined.
 
 (* This lemma is just here to check that the correct sort_cat gets pulled out *)
 Definition MSigToFunctor_helper (C D E F G : precategory)
