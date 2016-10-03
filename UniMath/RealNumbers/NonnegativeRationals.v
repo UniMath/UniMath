@@ -59,12 +59,7 @@ Qed.
 Local Definition hnnq_ge : hrel hnnq_set := resrel hqgeh (hqleh 0).
 Local Lemma ispreorder_hnnq_ge : ispreorder hnnq_ge.
 Proof.
-  set (H := ispreorder_hnnq_le).
-  split.
-  intros x y z Hxy Hyz.
-  now apply (pr1 H) with y.
-  intros x.
-  now apply (pr2 H).
+  apply (ispreorder_reverse _ ispreorder_hnnq_le).
 Qed.
 
 Local Definition hnnq_lt : hrel hnnq_set := resrel hqlth (hqleh 0).
@@ -88,14 +83,7 @@ Qed.
 Local Definition hnnq_gt : hrel hnnq_set := resrel hqgth (hqleh 0).
 Local Lemma isStrongOrder_hnnq_gt : isStrongOrder hnnq_gt.
 Proof.
-  set (H := isStrongOrder_reverse _ isStrongOrder_hnnq_lt).
-  repeat split.
-  intros x y z.
-  now apply (pr1 H).
-  intros x y z.
-  now apply (pr1 (pr2 H)).
-  intros x.
-  now apply (pr2 (pr2 H)).
+  apply (isStrongOrder_reverse _ isStrongOrder_hnnq_lt).
 Qed.
 
 Local Lemma isEffectiveOrder_hnnq : isEffectiveOrder hnnq_le hnnq_lt.
