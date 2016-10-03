@@ -182,13 +182,17 @@ Defined.
 (* Coercion sortToHsetToFun (s : sortToHSET) : sort → HSET := pr1 s. *)
 
 Definition MSig : UU :=
-  Π (s : sort), Σ (I : UU), I → list (list sort × sort).
+  Π (s : sort), Σ (I : UU), (I → list (list sort × sort)) × (isaset I).
 
 Definition indices (M : MSig) : sort → UU := fun s => pr1 (M s).
 
 Definition args (M : MSig) (s : sort) : indices M s → list (list sort × sort) :=
-  pr2 (M s).
+  pr1 (pr2 (M s)).
 
+Lemma isaset_indices (M : MSig) (s : sort) : isaset (indices M s).
+Proof.
+apply (pr2 (pr2 (M s))).
+Qed.
 
 Local Notation "'1'" := (TerminalHSET).
 Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoproductsHSET a b)) (at level 50).
@@ -264,24 +268,24 @@ set (O := functor_composite (option_list (pr1 a)) X).
 apply (functor_composite O (sortToHSETToHSET (pr2 a))).
 Defined.
 
-Lemma endo_fun_functor (a : list sort × sort) :
-  functor [sortToHSET,sortToHSET,has_homsets_sortToHSET]
-          [sortToHSET,HSET,has_homsets_HSET].
-Proof.
-mkpair.
-- mkpair.
-  + intro X.
-    apply (endo_fun X a).
-  + intros F G α.
-unfold endo_fun.
-set (F1 := functor_composite (option_list (pr1 a)) F : functor sortToHSET sortToHSET).
-set (F1' := functor_composite (option_list (pr1 a)) G : functor sortToHSET sortToHSET).
-set (F2 := sortToHSETToHSET (pr2 a)).
-apply (@hor_comp _ _ _ F1 F1' F2 F2).
-admit.
-apply nat_trans_id.
-- admit.
-Admitted.
+(* Lemma endo_fun_functor (a : list sort × sort) : *)
+(*   functor [sortToHSET,sortToHSET,has_homsets_sortToHSET] *)
+(*           [sortToHSET,HSET,has_homsets_HSET]. *)
+(* Proof. *)
+(* mkpair. *)
+(* - mkpair. *)
+(*   + intro X. *)
+(*     apply (endo_fun X a). *)
+(*   + intros F G α. *)
+(* unfold endo_fun. *)
+(* set (F1 := functor_composite (option_list (pr1 a)) F : functor sortToHSET sortToHSET). *)
+(* set (F1' := functor_composite (option_list (pr1 a)) G : functor sortToHSET sortToHSET). *)
+(* set (F2 := sortToHSETToHSET (pr2 a)). *)
+(* apply (@hor_comp _ _ _ F1 F1' F2 F2). *)
+(* admit. *)
+(* apply nat_trans_id. *)
+(* - admit. *)
+(* Admitted. *)
 
 
 Definition endo_funs (xs : list (list sort × sort)) (X : functor sortToHSET sortToHSET) :
@@ -313,9 +317,9 @@ apply MSigToFunctor_helper.
 apply functor_sort_cat.
 intro s.
 use (coproduct_of_functors (indices M s)).
-+ admit.
++ apply Coproducts_functor_precat, Coproducts_HSET, isaset_indices.
 + intros y.
   apply (endo_funs_functor (args M s y)).
-Admitted.
+Defined.
 
 End MBindingSig.
