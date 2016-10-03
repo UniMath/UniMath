@@ -1,5 +1,3 @@
-
-
 (** **********************************************************
 
 Benedikt Ahrens, Ralph Matthes
@@ -11,17 +9,14 @@ SubstitutionSystems
 
 ************************************************************)
 
-
 (** **********************************************************
 
-Contents :
+Contents:
 
--    Definition of the sum of two signatures, in particular proof of strength laws for the sum
-
-
+- Definition of the sum of two signatures ([BinSum_of_Signatures]), in particular proof of strength
+  laws for the sum
 
 ************************************************************)
-
 
 Require Import UniMath.Foundations.Basics.PartD.
 
@@ -34,12 +29,9 @@ Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.SubstitutionSystems.Notation.
-Require Import UniMath.CategoryTheory.chains.
-Require Import UniMath.CategoryTheory.cocontfunctors.
+Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -79,7 +71,7 @@ Definition H : functor [C, C, hs] [C, C, hs] := BinCoproduct_of_functors _ _ CCC
 (* This becomes too slow: *)
 (* Definition H : functor [C, C, hs] [C, C, hs] := BinCoproduct_of_functors_alt CCC H1 H2. *)
 
-Local Definition bla1 (X : [C, C, hs]) (Z : precategory_Ptd C hs) :
+Local Definition θ_ob_fun (X : [C, C, hs]) (Z : precategory_Ptd C hs) :
    Π c : C,
     (functor_composite_data (pr1 Z)
      (BinCoproduct_of_functors_data C C CC (H1 X) (H2 X))) c
@@ -92,16 +84,10 @@ Proof.
   - exact (pr1 (θ2 (X ⊗ Z)) c).
 Defined.
 
-Local Lemma bar (X : [C, C, hs]) (Z : precategory_Ptd C hs):
-   is_nat_trans
-     (functor_composite_data (pr1 Z)
-        (BinCoproduct_of_functors_data C C CC (H1 X) (H2 X)))
-     (BinCoproduct_of_functors_data C C CC (H1 (functor_composite (pr1 Z) X))
-        (H2 (functor_composite (pr1 Z) X))) (bla1 X Z).
+Local Lemma is_nat_trans_θ_ob_fun (X : [C, C, hs]) (Z : precategory_Ptd C hs):
+   is_nat_trans _ _ (θ_ob_fun X Z).
 Proof.
-  intros x x' f; simpl.
-  unfold bla1; simpl.
-  unfold BinCoproduct_of_functors_mor.
+  intros x x' f.
   eapply pathscomp0; [ apply BinCoproductOfArrows_comp | ].
   eapply pathscomp0; [ | eapply pathsinv0; apply BinCoproductOfArrows_comp].
   apply BinCoproductOfArrows_eq.
@@ -109,28 +95,15 @@ Proof.
   * apply (nat_trans_ax (θ2 (X ⊗ Z))).
 Qed.
 
-Local Definition bla (X : [C, C, hs]) (Z : precategory_Ptd C hs) :
-   functor_composite_data (pr1 Z)
-     (BinCoproduct_of_functors_data C C CC (H1 X) (H2 X))
-   ⟶ BinCoproduct_of_functors_data C C CC (H1 (functor_composite (pr1 Z) X))
-       (H2 (functor_composite (pr1 Z) X)).
-Proof.
-  exists (bla1 X Z).
-  apply bar.
-Defined.
-
-
 Definition θ_ob : Π XF, θ_source H XF --> θ_target H XF.
 Proof.
-  intro XZ.
-  destruct XZ as [X Z].
-  apply bla.
+  intros [X Z].
+  exists (θ_ob_fun X Z).
+  apply is_nat_trans_θ_ob_fun.
 Defined.
 
-
 Local Lemma is_nat_trans_θ_ob :
- is_nat_trans (θ_source_functor_data C hs H) (θ_target_functor_data C hs H)
-     θ_ob.
+  is_nat_trans (θ_source_functor_data C hs H) (θ_target_functor_data C hs H) θ_ob.
 Proof.
   intros XZ X'Z' αβ.
   assert (Hyp1:= nat_trans_ax θ1 _ _ αβ).
@@ -141,12 +114,8 @@ Proof.
     destruct XZ as [X Z].
     destruct X'Z' as [X' Z'].
     destruct αβ as [α β]. simpl in *.
-    unfold coproduct_nat_trans_data;
-    unfold bla1; simpl.
-    unfold BinCoproduct_of_functors_mor.
-    unfold coproduct_nat_trans_in2_data.
-    unfold coproduct_nat_trans_in1_data.
-    (* on the right-hand side, there is a second but unfolded BinCoproductOfArrows in the row - likewise a first such on the left-hand side, to be treater further below *)
+    (* on the right-hand side, there is a second but unfolded BinCoproductOfArrows in the row -
+       likewise a first such on the left-hand side, to be treater further below *)
     eapply pathscomp0; [ | eapply pathsinv0; apply BinCoproductOfArrows_comp].
     eapply pathscomp0. apply cancel_postcomposition. apply BinCoproductOfArrows_comp.
     eapply pathscomp0. apply BinCoproductOfArrows_comp.
@@ -154,9 +123,6 @@ Proof.
     + apply (nat_trans_eq_pointwise Hyp1 c).
     + apply (nat_trans_eq_pointwise Hyp2 c).
 Qed.
-
-
-
 
 Local Definition θ : θ_source H ⟶ θ_target H.
 Proof.
@@ -168,51 +134,43 @@ Defined.
 
 Lemma SumStrength1 : θ_Strength1 θ.
 Proof.
-  unfold θ_Strength1.
   intro X.
-  apply nat_trans_eq.
-  - apply hs.
-  - intro x.
-    simpl.
-    unfold bla1.
-    unfold coproduct_nat_trans_data.
-
-    eapply pathscomp0. apply BinCoproductOfArrows_comp.
-     apply pathsinv0.
-     apply BinCoproduct_endo_is_identity.
-     + rewrite BinCoproductOfArrowsIn1.
-       unfold θ_Strength1 in S11.
-       assert (Ha := nat_trans_eq_pointwise (S11 X) x).
-       eapply pathscomp0; [ | apply id_left].
-       apply cancel_postcomposition.
-       apply Ha.
-     + rewrite BinCoproductOfArrowsIn2.
-       unfold θ_Strength1 in S21.
-       assert (Ha := nat_trans_eq_pointwise (S21 X) x).
-       eapply pathscomp0; [ | apply id_left].
-       apply cancel_postcomposition.
-       apply Ha.
+  apply (nat_trans_eq hs).
+  intro x; simpl.
+  eapply pathscomp0; [ apply BinCoproductOfArrows_comp |].
+  apply pathsinv0, BinCoproduct_endo_is_identity.
+  + rewrite BinCoproductOfArrowsIn1.
+    unfold θ_Strength1 in S11.
+    assert (Ha := nat_trans_eq_pointwise (S11 X) x).
+    eapply pathscomp0; [ | apply id_left].
+    apply cancel_postcomposition.
+    apply Ha.
+  + rewrite BinCoproductOfArrowsIn2.
+    unfold θ_Strength1 in S21.
+    assert (Ha := nat_trans_eq_pointwise (S21 X) x).
+    eapply pathscomp0; [ | apply id_left].
+    apply cancel_postcomposition.
+    apply Ha.
 Qed.
 
 Lemma SumStrength2 : θ_Strength2 θ.
 Proof.
   intros X Z Z' Y α.
-  apply (nat_trans_eq hs).
-    intro x.
-    eapply pathscomp0. apply BinCoproductOfArrows_comp.
-    apply pathsinv0.
-    eapply pathscomp0. apply cancel_postcomposition. simpl. apply BinCoproductOfArrows_comp.
-    eapply pathscomp0. apply BinCoproductOfArrows_comp.
-    apply pathsinv0.
-    apply BinCoproductOfArrows_eq.
-       - assert (Ha:=S12 X Z Z' Y α).
-         simpl in Ha.
-         assert (Ha_x := nat_trans_eq_pointwise Ha x).
-         apply Ha_x.
-       - assert (Ha:=S22 X Z Z' Y α).
-         simpl in Ha.
-         assert (Ha_x := nat_trans_eq_pointwise Ha x).
-         apply Ha_x.
+  apply (nat_trans_eq hs); intro x.
+  eapply pathscomp0; [ apply BinCoproductOfArrows_comp |].
+  apply pathsinv0.
+  eapply pathscomp0. apply cancel_postcomposition. simpl. apply BinCoproductOfArrows_comp.
+  eapply pathscomp0. apply BinCoproductOfArrows_comp.
+  apply pathsinv0.
+  apply BinCoproductOfArrows_eq.
+  - assert (Ha:=S12 X Z Z' Y α).
+    simpl in Ha.
+    assert (Ha_x := nat_trans_eq_pointwise Ha x).
+    apply Ha_x.
+  - assert (Ha:=S22 X Z Z' Y α).
+    simpl in Ha.
+    assert (Ha_x := nat_trans_eq_pointwise Ha x).
+    apply Ha_x.
 Qed.
 
 Variable S11' : θ_Strength1_int θ1.
@@ -222,67 +180,50 @@ Variable S22' : θ_Strength2_int θ2.
 
 Lemma SumStrength1' : θ_Strength1_int θ.
 Proof.
-  clear S11 S12 S21 S22 S12' S22'.
-  unfold θ_Strength1_int.
-  intro X.
-  apply nat_trans_eq.
-  - apply hs.
-  - intro x.
-    simpl.
-    unfold bla1.
-    unfold coproduct_nat_trans_data.
-
-    eapply pathscomp0. apply BinCoproductOfArrows_comp.
-     apply pathsinv0.
-     apply BinCoproduct_endo_is_identity.
-     + rewrite BinCoproductOfArrowsIn1.
-       red in S11'.
-       assert (Ha := nat_trans_eq_pointwise (S11' X) x).
-       simpl in Ha.
-       eapply pathscomp0; [ | apply id_left].
-       apply cancel_postcomposition.
-       apply Ha.
-     + rewrite BinCoproductOfArrowsIn2.
-       red in S21'.
-       assert (Ha := nat_trans_eq_pointwise (S21' X) x).
-       simpl in Ha.
-       eapply pathscomp0; [ | apply id_left].
-       apply cancel_postcomposition.
-       apply Ha.
+  clear S11 S12 S21 S22 S12' S22'; intro X.
+  apply (nat_trans_eq hs); intro x.
+  eapply pathscomp0. apply BinCoproductOfArrows_comp.
+  apply pathsinv0, BinCoproduct_endo_is_identity.
+  + rewrite BinCoproductOfArrowsIn1.
+    assert (Ha := nat_trans_eq_pointwise (S11' X) x).
+    simpl in Ha.
+    eapply pathscomp0; [ | apply id_left].
+    apply cancel_postcomposition.
+    apply Ha.
+  + rewrite BinCoproductOfArrowsIn2.
+    assert (Ha := nat_trans_eq_pointwise (S21' X) x).
+    simpl in Ha.
+    eapply pathscomp0; [ | apply id_left].
+    apply cancel_postcomposition.
+    apply Ha.
 Qed.
-
 
 Lemma SumStrength2' : θ_Strength2_int θ.
 Proof.
-  clear S11 S12 S21 S22 S11' S21'.
-  unfold θ_Strength2_int.
-  intros X Z Z'.
-  apply nat_trans_eq; try assumption.
-    intro x.
-    simpl.
-    rewrite id_left.
-    eapply pathscomp0. apply BinCoproductOfArrows_comp.
-    apply pathsinv0.
-    eapply pathscomp0. apply BinCoproductOfArrows_comp.
-    apply pathsinv0.
-    apply BinCoproductOfArrows_eq.
-       - assert (Ha:=S12' X Z Z').
-         simpl in Ha.
-         assert (Ha_x := nat_trans_eq_pointwise Ha x).
-         simpl in Ha_x.
-         rewrite id_left in Ha_x.
-         apply Ha_x.
-       - assert (Ha:=S22' X Z Z').
-         simpl in Ha.
-         assert (Ha_x := nat_trans_eq_pointwise Ha x).
-         simpl in Ha_x.
-         rewrite id_left in Ha_x.
-         apply Ha_x.
+  clear S11 S12 S21 S22 S11' S21'; intros X Z Z'.
+  apply (nat_trans_eq hs); intro x; simpl; rewrite id_left.
+  eapply pathscomp0. apply BinCoproductOfArrows_comp.
+  apply pathsinv0.
+  eapply pathscomp0. apply BinCoproductOfArrows_comp.
+  apply pathsinv0.
+  apply BinCoproductOfArrows_eq.
+  - assert (Ha:=S12' X Z Z').
+    simpl in Ha.
+    assert (Ha_x := nat_trans_eq_pointwise Ha x).
+    simpl in Ha_x.
+    rewrite id_left in Ha_x.
+    apply Ha_x.
+  - assert (Ha:=S22' X Z Z').
+    simpl in Ha.
+    assert (Ha_x := nat_trans_eq_pointwise Ha x).
+    simpl in Ha_x.
+    rewrite id_left in Ha_x.
+    apply Ha_x.
 Qed.
 
 End construction.
 
-Definition BinSum_of_Signatures (S1 S2: Signature C hs) : Signature C hs.
+Definition BinSum_of_Signatures (S1 S2 : Signature C hs) : Signature C hs.
 Proof.
   destruct S1 as [H1 [θ1 [S11' S12']]].
   destruct S2 as [H2 [θ2 [S21' S22']]].

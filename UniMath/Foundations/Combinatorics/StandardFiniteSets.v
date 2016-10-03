@@ -526,7 +526,7 @@ Proof.
       induction e. rewrite idpath_transportf. rewrite stn_left_compute. unfold dni,di, stntonat; simpl.
       induction (natlthorgeh i j) as [R|R].
       { unfold stntonat; simpl; repeat rewrite transport_stn; simpl.
-        induction (natlthorgeh i j). { simpl. reflexivity. } { simpl. contradicts R (natlehneggth b). }}
+        induction (natlthorgeh i j) as [a|b]. { simpl. reflexivity. } { simpl. contradicts R (natlehneggth b). }}
       { unfold stntonat; simpl; repeat rewrite transport_stn; simpl.
         induction (natlthorgeh i j) as [V|V]. { simpl. contradicts I (natlehneggth R). } { simpl. reflexivity. }}}
     { apply stnsum_eq; intro i. induction i as [i I]. apply maponpaths.
@@ -999,6 +999,27 @@ Proof.
   transparent assert (X : (h = h')).
   { apply propproperty. }
   exact (transportf (fun x => P (k,,x)) X H).
+Defined.
+
+Definition two := stn 2.
+
+Definition two_rec {A : UU} (a b : A) : stn 2 -> A.
+Proof.
+  intros A a b.
+  induction 1 as [n p].
+  induction n as [_|n _]; [apply a|].
+  induction n as [_|n _]; [apply b|].
+  induction (nopathsfalsetotrue p).
+Defined.
+
+Definition two_rec_dep (P : two -> UU):
+  P (● 0) -> P (● 1) -> Π n, P n.
+Proof.
+  intros P a b n.
+  induction n as [n p].
+  induction n as [_|n _]. eapply stn_predicate. apply a.
+  induction n as [_|n _]. eapply stn_predicate. apply b.
+  induction (nopathsfalsetotrue p).
 Defined.
 
 Definition three := stn 3.

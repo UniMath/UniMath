@@ -1,7 +1,8 @@
 (** ******************************************
-Benedikt Ahrens, March 2015
 
 Binary coproducts defined as a colimit
+
+Written by: Benedikt Ahrens, March 2015
 
 *********************************************)
 

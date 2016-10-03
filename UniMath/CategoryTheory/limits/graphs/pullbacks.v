@@ -1,4 +1,4 @@
-(* Pullbacks defined in terms of limits *)
+(** Pullbacks defined in terms of limits *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -102,7 +102,7 @@ Proof.
       * unfold compose.
         simpl.
         eapply pathscomp0.
-        apply (assoc C).
+        apply assoc.
         eapply pathscomp0.
         eapply cancel_postcomposition.
         apply (pr2 (pr1 H2)).

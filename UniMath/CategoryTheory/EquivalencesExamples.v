@@ -124,8 +124,8 @@ Section coproduct_functor_adjunction.
 Context (I : UU) {C : precategory} (PC : Coproducts I C).
 
 (** The general coproduct functor left adjoint to the general delta functor *)
-Lemma is_left_adjoint_indexed_coproduct_functor :
-  is_left_adjoint (indexed_coproduct_functor I PC).
+Lemma is_left_adjoint_coproduct_functor :
+  is_left_adjoint (coproduct_functor I PC).
 Proof.
 apply (tpair _ (delta_functor _ _)).
 mkpair.

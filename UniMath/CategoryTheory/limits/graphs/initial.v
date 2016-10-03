@@ -1,4 +1,4 @@
-(* Definition of initial object as a colimit *)
+(** Definition of initial object as a colimit *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -7,6 +7,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.limits.initial.
 
 Section def_initial.
 
@@ -113,6 +114,58 @@ Definition hasInitial := ishinh Initial.
 (* Qed. *)
 
 (* End Initial_Unique. *)
+
+Lemma isInitial_Initial (I : Initial) :
+  isInitial (InitialObject I).
+Proof.
+  use mk_isInitial.
+  intros b.
+  use tpair.
+  - exact (InitialArrow I b).
+  - intros t. use (InitialArrowUnique I).
+Qed.
+
+
+(** ** Maps between initial as special colimit and direct definition *)
+Lemma equiv_isInitial1 (c : C) :
+  limits.initial.isInitial C c -> isInitial c.
+Proof.
+  intros X.
+  use mk_isInitial.
+  intros b.
+  apply (X b).
+Qed.
+
+Lemma equiv_isInitial2 (c : C) :
+  limits.initial.isInitial C c <- isInitial c.
+Proof.
+  intros X.
+  set (XI := mk_Initial c X).
+  intros b.
+  use tpair.
+  - exact (InitialArrow XI b).
+  - intros t. use (InitialArrowUnique XI b).
+Qed.
+
+Definition equiv_Initial1 (c : C) :
+  limits.initial.Initial C -> Initial.
+Proof.
+  intros I.
+  use mk_Initial.
+  - exact I.
+  - use equiv_isInitial1.
+    exact (pr2 I).
+Defined.
+
+Definition equiv_Initial2 (c : C) :
+  limits.initial.Initial C <- Initial.
+Proof.
+  intros I.
+  use limits.initial.mk_Initial.
+  - exact (InitialObject I).
+  - use equiv_isInitial2.
+    use (isInitial_Initial I).
+Defined.
 
 End def_initial.
 

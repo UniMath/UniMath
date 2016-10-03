@@ -26,7 +26,7 @@ Lemma mt_path_refl (T:Tree) (x y:T) : x = y -> mt_dist _ x y = 0.
 Proof. intros ? ? ? e. destruct e. apply mt_refl. Qed.
 
 Lemma tree_deceq (T:Tree) : isdeceq T.
-Proof. intros. intros t u. induction (isdeceqnat (mt_dist T t u) 0).
+Proof. intros. intros t u. induction (isdeceqnat (mt_dist T t u) 0) as [a|b].
        { apply inl. apply mt_anti. assumption. }
        { apply inr. intro e. apply b. destruct e. apply mt_refl. } Qed.
 
@@ -61,7 +61,7 @@ Require Import UniMath.Ktheory.Nat.
 
 Definition nat_tree : Tree.
 Proof. refine (make nat nat_dist _ _ _ _ _).
-       { intro m. induction m. { reflexivity. } { rewrite nat_dist_S. assumption. } }
+       { intro m. induction m as [|m IHm]. { reflexivity. } { rewrite nat_dist_S. assumption. } }
        { apply nat_dist_anti. } { apply nat_dist_symm. }
        { apply nat_dist_trans. }
        { intros m n e. assert (d := natneqchoice _ _ (neg_to_negProp e)). clear e.
@@ -70,7 +70,7 @@ Proof. refine (make nat nat_dist _ _ _ _ _).
            { split.
              { apply nat_dist_gt. exact h. }
              { destruct (natgthorleh (S n) n) as [_|j].
-               { clear h. induction n. { reflexivity. } { apply IHn. } }
+               { clear h. induction n as [|n IHn]. { reflexivity. } { apply IHn. } }
                { apply fromempty. clear h. contradicts j (negnatSleh n). }}} }
          { exists (n - 1).
            { split.

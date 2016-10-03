@@ -5,9 +5,9 @@ Basics/UnivalenceAxiom.v
 Basics/PartC.v
 Basics/PartD.v
 Basics/UnivalenceAxiom2.v
-Basics/Tests.v
 Basics/Propositions.v
 Basics/Sets.v
+Basics/Tests.v
 Algebra/BinaryOperations.v
 Algebra/Monoids_and_Groups.v
 Algebra/Rigs_and_Rings.v
@@ -22,6 +22,7 @@ Combinatorics/FiniteSets.v
 Combinatorics/OrderedSets.v
 Combinatorics/FiniteSequences.v
 Combinatorics/Tests.v
+Combinatorics/Lists.v
 Algebra/IteratedBinaryOperations.v
 Algebra/Tests.v
 NumberSystems/Integers.v

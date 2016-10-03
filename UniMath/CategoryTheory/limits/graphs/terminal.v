@@ -1,4 +1,4 @@
-(* Terminal object defined as a limit *)
+(** Terminal object defined as a limit *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -8,6 +8,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.limits.terminal.
 
 Section def_terminal.
 
@@ -114,6 +115,54 @@ Definition hasTerminal := ishinh Terminal.
 (* Qed. *)
 
 (* End Terminal_Unique. *)
+
+Definition isTerminal_Terminal (T : Terminal) :
+  isTerminal (TerminalObject T).
+Proof.
+  use mk_isTerminal.
+  intros a.
+  use tpair.
+  - exact (TerminalArrow T a).
+  - intros t. use (TerminalArrowUnique T a).
+Qed.
+
+
+(** ** Maps between terminal as a special limit and direct definition *)
+Lemma equiv_isTerminal1 (c : C) :
+  limits.terminal.isTerminal C c -> isTerminal c.
+Proof.
+  intros X.
+  use mk_isTerminal.
+  intros b.
+  apply (X b).
+Qed.
+
+Lemma equiv_isTerminal2 (c : C) :
+  limits.terminal.isTerminal C c <- isTerminal c.
+Proof.
+  intros X.
+  set (XT := mk_Terminal c X).
+  intros b.
+  use tpair.
+  - exact (TerminalArrow XT b).
+  - intros t. use (TerminalArrowUnique XT b).
+Qed.
+
+Definition equiv_Terminal1 :
+  limits.terminal.Terminal C -> Terminal.
+Proof.
+  intros T.
+  exact (mk_Terminal T (equiv_isTerminal1 _ (pr2 T))).
+Defined.
+
+Definition equiv_Terminal2 :
+  limits.terminal.Terminal C <- Terminal.
+Proof.
+  intros T.
+  exact (limits.terminal.mk_Terminal
+           (TerminalObject T)
+           (equiv_isTerminal2 _ (isTerminal_Terminal T))).
+Defined.
 
 End def_terminal.
 

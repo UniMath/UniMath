@@ -78,7 +78,7 @@ Section FinOrdProduct_criteria.
   Theorem FinOrdProducts_from_Terminal_and_BinProducts :
     Terminal C -> BinProducts C -> FinOrdProducts C.
   Proof.
-    intros T BinProds. unfold FinOrdProducts. intros n. induction n.
+    intros T BinProds. unfold FinOrdProducts. intros n. induction n as [|n IHn].
 
     (* Case n = 0 *)
     apply (TerminalToProduct T).
@@ -103,7 +103,7 @@ Section FinOrdProduct_criteria.
     use (mk_ProductCone (stn (S n)) C a BinConeOb _).
 
     (* Construction of the arrows from a i to BinConeOb *)
-    intros i. induction (natlehchoice4 (pr1 i) _ (pr2 i)).
+    intros i. induction (natlehchoice4 (pr1 i) _ (pr2 i)) as [a0|b].
     exact (m1 (stnpair n (pr1 i) a0) ;;
               idtoiso (! maponpaths a (dni_lastelement_eq n i a0))).
     exact (m2 (invweq(weqstn1tounit) tt) ;;
@@ -129,7 +129,7 @@ Section FinOrdProduct_criteria.
     use (ProductArrow _ _ Cone2). intros i. exact (g (lastelement n)).
 
     (* First commutativity. *)
-    intros i. unfold coprod_rect. induction (natlehchoice4 (pr1 i) n (pr2 i)).
+    intros i. unfold coprod_rect. induction (natlehchoice4 (pr1 i) n (pr2 i)) as [a0|b].
     rewrite (dni_lastelement_eq n i a0). repeat rewrite assoc.
     apply remove_id_right. apply idpath.
 
@@ -161,7 +161,7 @@ Section FinOrdProduct_criteria.
     intros i. rewrite <- (X (dni_lastelement i)). rewrite <- assoc.
     apply cancel_precomposition.
     induction (natlehchoice4 (pr1 (dni_lastelement i)) n
-                             (pr2 (dni_lastelement i))).
+                             (pr2 (dni_lastelement i))) as [a0|b].
     unfold m1. rewrite <- assoc. unfold p1.
     apply cancel_precomposition.
     unfold Cone1Pr. apply pathsinv0.
@@ -187,7 +187,7 @@ Section FinOrdProduct_criteria.
     apply ProductArrowUnique.
     intros i. rewrite <- (X (lastelement n)).  rewrite <- assoc.
     apply cancel_precomposition.
-    induction (natlehchoice4 (pr1 (lastelement n)) n (pr2 (lastelement n))).
+    induction (natlehchoice4 (pr1 (lastelement n)) n (pr2 (lastelement n))) as [a0|b].
 
     (* This case is false because of a0 *)
     apply fromempty. cbn in a0. apply (isirreflnatlth _ a0).

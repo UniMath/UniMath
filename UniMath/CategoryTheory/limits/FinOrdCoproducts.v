@@ -77,7 +77,7 @@ Section FinOrdCoproduct_criteria.
   Theorem FinOrdCoproducts_from_Initial_and_BinCoproducts :
     Initial C -> BinCoproducts C -> FinOrdCoproducts C.
   Proof.
-    intros I BinCoprods. unfold FinOrdCoproducts. intros n. induction n.
+    intros I BinCoprods. unfold FinOrdCoproducts. intros n. induction n as [|n IHn].
 
     (* Case n = 0 *)
     apply (InitialToCoproduct I).
@@ -100,7 +100,7 @@ Section FinOrdCoproduct_criteria.
     use (mk_CoproductCocone (stn (S n)) C a (BinCoproductObject _ BinCone) _).
 
     (* Construction of the arrows from a i to BinCone *)
-    intros i. induction (natlehchoice4 (pr1 i) _ (pr2 i)).
+    intros i. induction (natlehchoice4 (pr1 i) _ (pr2 i)) as [a0|b].
     exact (idtoiso (maponpaths a (dni_lastelement_eq n i a0))
                    ;; m1 (stnpair n (pr1 i) a0)).
     exact (idtoiso (maponpaths a (lastelement_eq n i b))
@@ -128,7 +128,7 @@ Section FinOrdCoproduct_criteria.
     use (CoproductArrow _ _ Cone2). intros i. exact (g (lastelement n)).
 
     (* First commutativity. *)
-    intros i. unfold coprod_rect. induction (natlehchoice4 (pr1 i) n (pr2 i)).
+    intros i. unfold coprod_rect. induction (natlehchoice4 (pr1 i) n (pr2 i)) as [a0|b].
     rewrite (dni_lastelement_eq n i a0). repeat rewrite <- assoc.
     apply remove_id_left. apply idpath.
 
@@ -160,7 +160,7 @@ Section FinOrdCoproduct_criteria.
     intros i. rewrite <- (X (dni_lastelement i)). rewrite assoc.
     apply cancel_postcomposition.
     induction (natlehchoice4 (pr1 (dni_lastelement i)) n
-                             (pr2 (dni_lastelement i))).
+                             (pr2 (dni_lastelement i))) as [a0|b].
     unfold m1. rewrite assoc. unfold in1.
     apply cancel_postcomposition.
     unfold Cone1In. apply pathsinv0.
@@ -184,7 +184,7 @@ Section FinOrdCoproduct_criteria.
     apply CoproductArrowUnique.
     intros i. rewrite <- (X (lastelement n)). rewrite assoc.
     apply cancel_postcomposition.
-    induction (natlehchoice4 (pr1 (lastelement n)) n (pr2 (lastelement n))).
+    induction (natlehchoice4 (pr1 (lastelement n)) n (pr2 (lastelement n))) as [a0|b].
 
     (* This case is false because of a0 *)
     apply fromempty. cbn in a0. apply (isirreflnatlth _ a0).

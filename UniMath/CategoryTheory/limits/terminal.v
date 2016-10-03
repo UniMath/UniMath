@@ -1,4 +1,12 @@
-(* Direct definition of terminal object *)
+(**
+
+Direct definition of terminal object together with:
+
+- A proof that the terminal object is a property in a (saturated/univalent) category ([isaprop_Terminal])
+- Construction of the terminal object from the empty product ([terminal_from_empty_product])
+
+
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.

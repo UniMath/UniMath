@@ -178,12 +178,11 @@ Defined.
 (**  Fundamentally needed that both source and target are categories *)
 
 Lemma adj_equiv_of_cats_is_weq_of_objects (A B : precategory)
-    (hsA: has_homsets A) (hsB: has_homsets B)
-   (HA : is_category A) (HB : is_category B) (F : ob [A, B, hsB ])
+   (HA : is_category A) (HB : is_category B) (F : ob [A, B, pr2 HB ])
    (HF : adj_equivalence_of_precats F) : isweq (pr1 (pr1 F)).
 Proof.
   set (G := right_adjoint (pr1 HF)).
-  set (et := unit_iso_from_adj_equivalence_of_precats hsA  HF).
+  set (et := unit_iso_from_adj_equivalence_of_precats (pr2 HA)  HF).
   set (ep := counit_iso_from_adj_equivalence_of_precats _ HF).
   set (AAcat := is_category_functor_category A _ HA).
   set (BBcat := is_category_functor_category B _ HB).
@@ -205,7 +204,7 @@ Definition weq_on_objects_from_adj_equiv_of_cats (A B : precategory)
           (ob A) (ob B).
 Proof.
   exists (pr1 (pr1 F)).
-  apply (@adj_equiv_of_cats_is_weq_of_objects _ _ (pr2 HA)); assumption.
+  apply (@adj_equiv_of_cats_is_weq_of_objects _ _  HA); assumption.
 Defined.
 
 

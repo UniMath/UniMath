@@ -272,7 +272,7 @@ Module Test_fin.
   Goal 15 = finsum (isfinitestn _) (λ i:stn 6, i). reflexivity. Qed.
   Goal 20 = finsum isfinitebool (λ i:bool, 10). reflexivity. Qed.
   Goal 21 = finsum (isfinitecoprod isfinitebool isfinitebool)
-             (sum_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
+             (coprod_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
     reflexivity. Qed.
 
   Goal 10 = finsum' (isfinitestn _) (λ i:stn 5, i). reflexivity. Defined. (* fixed! *)
