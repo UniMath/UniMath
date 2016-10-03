@@ -100,61 +100,9 @@ mkpair.
     now apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ hsE) |]]).
 Defined.
 
-(* Lemma functor_assoc1 {C D E F : precategory} *)
-(*   {hsD : has_homsets D } {hsE : has_homsets E} {hsF : has_homsets F} : *)
-(*   functor [[C,D,hsD],E,hsE] F → functor [C,D,hsD] [E,F,hsF]. *)
-(* Proof. *)
-(* intros H. *)
-(* mkpair. *)
-(* - mkpair. *)
-(*   + intro FCD; simpl. *)
-(*   { mkpair. *)
-(*     - mkpair. *)
-(*       + intro e. *)
-(*         set (temp := constant_functor [C, D, hsD] E e : [[C, D, hsD], E, hsE]). *)
-(*         apply (H temp). *)
-(* + intros a b f; simpl. *)
-
-
-(*         set (temp := constant_functor [C, D, hsD] E e : [[C, D, hsD], E, hsE]). *)
-(* simpl. *)
-(*         apply (# H temp). *)
-
-(* generalyze (# *)
-
-
-(* apply *)
-(* generalize (H FCD). *)
-
-(*         apply (pr1 (F c) d). *)
-(*         + intros a b f; apply (# F f). *)
-(*           - abstract (split; *)
-(*             [ now intro x; simpl; rewrite (functor_id F) *)
-(*             | now intros a b c f g; simpl; rewrite (functor_comp F)]). *)
-(*   } *)
-(*   + intros a b f; simpl. *)
-(*   { mkpair. *)
-(*     - intros x; apply (# (pr1 (F x)) f). *)
-(*     - abstract (intros c d g; simpl; apply pathsinv0, nat_trans_ax). *)
-(*   } *)
-(* - abstract (split; *)
-(*   [ intros d; simpl; *)
-(*     apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ hsE) |]; simpl; *)
-(*     apply funextsec; intro c; apply functor_id *)
-(*   | intros a b c f g; simpl; *)
-(*     apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ hsE) |]; simpl; *)
-(*     apply funextsec; intro x; apply functor_comp ]). *)
-(* Defined. *)
-(* Admitted. *)
-
-(* Lemma functor_assoc2 {C D E F : precategory} *)
-(*   {hsD : has_homsets D } {hsE : has_homsets E} {hsF : has_homsets F} : *)
-(*   functor [C,D,hsD] [E,F,hsF] → functor [[C,D,hsD],E,hsE] F. *)
-(* Admitted. *)
-
 End preamble.
 
-
+(** * Discrete categories *)
 Section DiscreteCategory.
 
 Variable (A : UU).
@@ -297,7 +245,7 @@ use (foldr _ _ xs).
 + apply functor_identity.
 Defined.
 
-(** This applies the sortToHSET to s *)
+(** This applies the sortToHSET to s and returns HSET *)
 Definition sortToHSETToHSET (s : sort) : functor sortToHSET HSET.
 Proof.
 mkpair.
@@ -350,122 +298,7 @@ Definition endo_funs_functor (xs : list (list sort × sort)) :
           [sortToHSET,HSET,has_homsets_HSET].
 Admitted.
 
-(* Definition MSigToFunctor_helper *)
-(*   (H : functor sortToHSET sortToHSET → sortToHSET → sort → HSET) : *)
-(*  functor [sortToHSET, sortToHSET, has_homsets_sortToHSET] *)
-(*          [sortToHSET, sortToHSET, has_homsets_sortToHSET]. *)
-
-(* Lemma asdf : has_homsets [sortToHSET,HSET,has_homsets_HSET]. *)
-(* Proof. *)
-(* apply functor_category_has_homsets. *)
-(* Qed. *)
-
-(* Lemma lol (D : precategory) *)
-(*   (H : functor sort_cat [D,HSET,has_homsets_HSET]) : *)
-(*   functor D sortToHSET. *)
-(* Proof. *)
-(* mkpair. *)
-(* - mkpair. *)
-(* + intros f. *)
-(*   apply mk_sortToHSET. *)
-(*   intro s. *)
-(*   apply (pr1 (H s) f). *)
-(* + intros F G α. *)
-(* mkpair. *)
-(* * intros s. *)
-(*   apply (# (pr1 (H s)) α). *)
-(* * *)
-(* intros s t []; clear t. *)
-(* eapply pathscomp0. *)
-(* apply (id_left (# (pr1 (H s)) α)). *)
-(* apply pathsinv0. *)
-(* apply (id_right (# (pr1 (H s)) α)). *)
-(* - split. *)
-(* + intro F. *)
-(* apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|]. *)
-(* apply funextsec; intro s. *)
-(* apply (functor_id ( (H s))). *)
-(* + *)
-(* intros F1 F2 F3 α12 α23. *)
-(* apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|]. *)
-(* apply funextsec; intro s. *)
-(* apply (functor_comp (H s)). *)
-(* Admitted. (* Defined is very slow... *) *)
-
-
-(* Definition lol2 *)
-(*   (H : functor [[sortToHSET,sortToHSET,has_homsets_sortToHSET],sortToHSET,has_homsets_sortToHSET] *)
-(*                sortToHSET) : *)
-(*  functor [sortToHSET, sortToHSET, has_homsets_sortToHSET] *)
-(*          [sortToHSET, sortToHSET, has_homsets_sortToHSET]. *)
-(* Proof. *)
-(* use functor_assoc1. *)
-(* - apply has_homsets_sortToHSET. *)
-(* - assumption. *)
-(* Defined. *)
-
-(* Definition MSigToFunctor_helper *)
-(*   (* (H : functor sort_cat *) *)
-(*   (*              [[sortToHSET,sortToHSET,has_homsets_sortToHSET], *) *)
-(*   (*               [sortToHSET,HSET,has_homsets_HSET], *) *)
-(*   (*               asdf]) : *) *)
-(*  ( H : functor sort_cat *)
-(*     [[[sortToHSET, sortToHSET, has_homsets_sortToHSET], sortToHSET, *)
-(*      has_homsets_sortToHSET], HSET, has_homsets_HSET]) : *)
-(*  functor [sortToHSET, sortToHSET, has_homsets_sortToHSET] *)
-(*          [sortToHSET, sortToHSET, has_homsets_sortToHSET]. *)
-(* Proof. *)
-
-(* use functor_assoc1. *)
-(* - apply has_homsets_sortToHSET. *)
-(* - apply functor_swap. *)
-(*   apply H. *)
-(* Defined. *)
-(* Admitted. *)
-
-(* mkpair. *)
-(* * mkpair. *)
-(* { intro X. *)
-(*   apply lol. *)
-(*   mkpair. *)
-(*   + mkpair. *)
-(*   - intro s. *)
-(*     apply (pr1 (H s) X). *)
-(*   - intros s t []. *)
-(*     set (XX :=  ((pr1 (H s)) X)). *)
-(*     simpl in XX. *)
-(*     apply (@nat_trans_id sortToHSET HSET XX). *)
-(* + split. *)
-(* - intro x. *)
-(* simpl. *)
-(* apply idpath. *)
-(* - intros x y z [] []. *)
-
-(*  simpl in *. *)
-(* apply subtypeEquality; [intro xx; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|]. *)
-(* apply funextsec; intro s. *)
-(* apply idpath. *)
-(* } *)
-(* intros F G α. *)
-(* admit. *)
-(* * admit. *)
-(* Admitted. *)
-
-(* (C -> D) -> (E -> F) = ((C -> D) -> E) -> F *)
-(* functor [C,D] [E,F] = functor [[C,D],E] F *)
-
-(* Variables (A : precategory). *)
-
-(* Lemma temp : has_homsets [A,HSET,has_homsets_HSET]. *)
-(* Proof. *)
-(* apply functor_category_has_homsets. *)
-(* Qed. *)
-
-(* Lemma temp2 : has_homsets [sortToHSET,HSET,has_homsets_HSET]. *)
-(* Proof. *)
-(* apply functor_category_has_homsets. *)
-(* Qed. *)
-
+(* This lemma is just here to check that the correct sort_cat gets pulled out *)
 Definition MSigToFunctor_helper (C D E F G : precategory)
   (hsD : has_homsets D) (hsG : has_homsets G)
   (H : functor F [[C,D,hsD],[E,G,hsG],functor_category_has_homsets _ _ hsG]) :
