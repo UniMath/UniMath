@@ -39,7 +39,7 @@ limits/graphs/limits.v
 AdjunctionHomTypesWeq.v
 EndofunctorsMonoidal.v
 RightKanExtension.v
-BinProductPrecategory.v
+PrecategoryBinProduct.v
 ProductPrecategory.v
 PointedFunctors.v
 PointedFunctorsComposition.v
