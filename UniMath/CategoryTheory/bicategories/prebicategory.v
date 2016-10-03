@@ -9,11 +9,13 @@ Arguments functor_composite {_ _ _} _ _ .
 
 (******************************************************************************)
 (* Definition of a prebicategory *)
+(* Mitchell Riley, July 2016, following previously unreleased code by Peter Lumsdaine *)
 
-(* This is done in a few pieces. Instead of specifying all the data and
-   the conditions afterwards, we interleave them, i.e., we have a
-   precategory of morphisms immediately, instead of a type that is later
-   said to be a precategory. This makes the definition easier to work with. *)
+(* This is done in a few pieces. Instead of specifying all the data
+   and the conditions afterwards, we interleave them, i.e., we have a
+   precategory of morphisms immediately, instead of a type that is
+   later said to be a precategory. This (possibly) makes the
+   definition easier to work with. *)
 
 (* The pieces are:
    precategory_ob_1mor_2mor: A type C, and for each a,b : C, a precategory (a -1-> b)
@@ -27,6 +29,9 @@ Arguments functor_composite {_ _ _} _ _ .
                              The pentagon and triangle axioms hold
  *)
 
+(* An alternative structure would be to define a prebicategory as a
+   precategory such that each hom type itself has the structure of a
+   precategory, together with appropriate axioms. *)
 
 Local Notation "C c× D" := (precategory_binproduct C D) (at level 75, right associativity).
 
