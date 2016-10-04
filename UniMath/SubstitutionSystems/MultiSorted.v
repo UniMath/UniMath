@@ -85,12 +85,8 @@ mkpair.
     - abstract (intros c d g; simpl; apply pathsinv0, nat_trans_ax).
   }
 - abstract (split;
-  [ intros d; simpl;
-    apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ hsE) |]; simpl;
-    apply funextsec; intro c; apply functor_id
-  | intros a b c f g; simpl;
-    apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ hsE) |]; simpl;
-    apply funextsec; intro x; apply functor_comp ]).
+  [ intros d; apply (nat_trans_eq hsE); intro c; simpl; apply functor_id
+  | intros a b c f g; apply (nat_trans_eq hsE); intro x; simpl; apply functor_comp]).
 Defined.
 
 (* Lift the result to functor categories. It might be good to decompose this proof as the natural
@@ -106,18 +102,12 @@ mkpair.
     mkpair.
     * intro c; apply (α c).
     * abstract (intros a b f; apply (nat_trans_eq_pointwise (nat_trans_ax α _ _ f) d)).
-  + abstract (intros a b f; simpl;
-              apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ hsE) |]; simpl;
-              apply funextsec; intro c; apply nat_trans_ax).
+  + abstract (intros a b f; apply (nat_trans_eq hsE); intro c; simpl; apply nat_trans_ax).
 - abstract (split;
-  [ intro F; simpl; apply subtypeEquality;
-      [ intro x; apply isaprop_is_nat_trans, (functor_category_has_homsets _ _ hsE)|]; simpl;
-    apply funextsec; intro d;
-    now apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ hsE) |]
-  | intros F G H α β; simpl in *; apply subtypeEquality;
-      [ intro x; apply isaprop_is_nat_trans, (functor_category_has_homsets _ _ hsE)|]; simpl;
-    apply funextsec; intro d;
-    now apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ hsE) |]]).
+  [ intro F; apply (nat_trans_eq (functor_category_has_homsets _ _ hsE)); simpl; intro d;
+    now apply (nat_trans_eq hsE)
+  | intros F G H α β; cbn; apply (nat_trans_eq (functor_category_has_homsets _ _ hsE)); intro d;
+    now apply (nat_trans_eq hsE)]).
 Defined.
 
 End functor_swap.
@@ -251,14 +241,10 @@ Defined.
 Lemma is_functor_option_functor s : is_functor (option_functor_data s).
 Proof.
 split.
-+ intros F; simpl in *.
-  apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|]; simpl.
-  apply funextsec; intro t.
++ intros F; apply (nat_trans_eq has_homsets_HSET); intro t; simpl.
   induction (eq s t) as [p|p]; trivial; simpl; clear p.
   now apply funextfun; intros [].
-+ intros F G H αFG αGH; simpl in *.
-  apply subtypeEquality; [intro x; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|]; simpl.
-  apply funextsec; intro t.
++ intros F G H αFG αGH; apply (nat_trans_eq has_homsets_HSET); intro t; simpl.
   induction (eq s t) as [p|p]; trivial; simpl; clear p.
   now apply funextfun; intros [].
 Qed.
