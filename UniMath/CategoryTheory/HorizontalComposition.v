@@ -77,7 +77,7 @@ Proof.
   exists (fun FG => functor_composite (pr1 FG) (pr2 FG)).
   intros a b αβ.
   induction αβ as [α β].
-  exact (hor_comp α β).
+  exact (horcomp α β).
 Defined.
 
 Definition functorial_composition (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) :
