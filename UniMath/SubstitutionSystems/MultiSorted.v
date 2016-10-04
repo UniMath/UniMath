@@ -48,9 +48,7 @@ Lemma horcomp_id_prewhisker {C D E : precategory} (hsE : has_homsets E)
   (X : functor C D) (Z Z' : functor D E) (f : nat_trans Z Z') :
   hor_comp (nat_trans_id X) f = pre_whisker _ f.
 Proof.
-apply (nat_trans_eq hsE).
-simpl.
-intro x.
+apply (nat_trans_eq hsE); simpl; intro x.
 now rewrite functor_id, id_right.
 Qed.
 
@@ -306,25 +304,16 @@ mkpair.
   repeat rewrite horcomp_id_postwhisker, post_whisker_identity; trivial;
     try apply has_homsets_HSET; try apply has_homsets_sortToHSET.
 + intros F G H α β. simpl in *.
-rewrite !horcomp_id_postwhisker.
+rewrite !horcomp_id_postwhisker;
+  try apply has_homsets_HSET; try apply has_homsets_sortToHSET.
 eapply pathscomp0.
 eapply maponpaths.
 apply (post_whisker_composition sortToHSET _ _ has_homsets_HSET (sortToHSETToHSET (pr2 a))).
 eapply pathscomp0.
-simpl.
-Check ( (nat_trans_comp (post_whisker α (sortToHSETToHSET (pr2 a)))
-         (post_whisker β (sortToHSETToHSET (pr2 a))))).
-(* This is not the right thing to do... *)
 apply (@horcomp_id_prewhisker sortToHSET sortToHSET HSET has_homsets_HSET  (option_list (pr1 a)) (functor_composite F (sortToHSETToHSET (pr2 a))) (functor_composite H (sortToHSETToHSET (pr2 a)))).
-simpl.
-cbn.
-apply (nat_trans_eq has_homsets_HSET).
-intro x.
-simpl.
-apply funextsec; intro xx.
-cbn.
-admit.
-Admitted.
+rewrite (pre_whisker_composition _ _ _ has_homsets_HSET).
+now rewrite !(horcomp_id_prewhisker has_homsets_HSET (option_list (pr1 a))).
+Defined.
 
 (* Definition endo_funs (xs : list (list sort × sort)) (X : functor sortToHSET sortToHSET) : *)
 (*   functor sortToHSET HSET. *)
