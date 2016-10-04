@@ -70,7 +70,7 @@ Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
@@ -695,7 +695,7 @@ Context {A B C D : precategory} (F : functor A C) (G : functor B D)
         (hsA : has_homsets A) (hsB : has_homsets B) (hsC : has_homsets C) (hsD : has_homsets D).
 
 
-Local Definition cocone_pr1_functor {g : graph} (cAB : diagram g (binproduct_precategory A B))
+Local Definition cocone_pr1_functor {g : graph} (cAB : diagram g (precategory_binproduct A B))
   (ab : A × B) (ccab : cocone cAB ab) :
   cocone (mapdiagram (pr1_functor A B) cAB) (ob1 ab).
 Proof.
@@ -704,7 +704,7 @@ use mk_cocone.
 - abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)).
 Defined.
 
-Local Lemma isColimCocone_pr1_functor {g : graph} (cAB : diagram g (binproduct_precategory A B))
+Local Lemma isColimCocone_pr1_functor {g : graph} (cAB : diagram g (precategory_binproduct A B))
   (ab : A × B) (ccab : cocone cAB ab) (Hccab : isColimCocone cAB ab ccab) :
    isColimCocone (mapdiagram (pr1_functor A B) cAB) (ob1 ab)
      (mapcocone (pr1_functor A B) cAB ccab).
@@ -723,7 +723,7 @@ mkpair.
   abstract (intro n; apply (maponpaths pr1 (p1 n))).
 - intro t.
   transparent assert (X : (Σ x0, Π v, coconeIn ccab v ;; x0 =
-                                 binprodcatmor (pr1 ccx v) (pr2 (pr1 ccab v)))).
+                                 precatbinprodmor (pr1 ccx v) (pr2 (pr1 ccab v)))).
   { mkpair.
     - split; [ apply (pr1 t) | apply (identity _) ].
     - abstract (intro n; rewrite id_right; apply pathsdirprod;
@@ -739,7 +739,7 @@ Proof.
 now intros c L ccL M H; apply isColimCocone_pr1_functor.
 Defined.
 
-Local Definition cocone_pr2_functor {g : graph} (cAB : diagram g (binproduct_precategory A B))
+Local Definition cocone_pr2_functor {g : graph} (cAB : diagram g (precategory_binproduct A B))
   (ab : A × B) (ccab : cocone cAB ab) :
   cocone (mapdiagram (pr2_functor A B) cAB) (pr2 ab).
 Proof.
@@ -748,7 +748,7 @@ use mk_cocone.
 - abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)).
 Defined.
 
-Local Lemma isColimCocone_pr2_functor {g : graph} (cAB : diagram g (binproduct_precategory A B))
+Local Lemma isColimCocone_pr2_functor {g : graph} (cAB : diagram g (precategory_binproduct A B))
   (ab : A × B) (ccab : cocone cAB ab) (Hccab : isColimCocone cAB ab ccab) :
    isColimCocone (mapdiagram (pr2_functor A B) cAB) (pr2 ab)
      (mapcocone (pr2_functor A B) cAB ccab).
@@ -767,7 +767,7 @@ mkpair.
   abstract (intro n; apply (maponpaths dirprod_pr2 (p1 n))).
 - intro t.
   transparent assert (X : (Σ x0, Π v, coconeIn ccab v ;; x0 =
-                                 binprodcatmor (pr1 (pr1 ccab v)) (pr1 ccx v))).
+                                 precatbinprodmor (pr1 (pr1 ccab v)) (pr1 ccx v))).
   { mkpair.
     - split; [ apply (identity _) | apply (pr1 t) ].
     - abstract (intro n; rewrite id_right; apply pathsdirprod;
@@ -788,7 +788,7 @@ Lemma isColimCocone_binproduct_pair_functor {gr : graph}
         isColimCocone _ _ (mapcocone F d cc))
   (HG : Π (d : diagram gr B) (c : B) (cc : cocone d c) (h : isColimCocone d c cc),
         isColimCocone _ _ (mapcocone G d cc)) :
-  Π (d : diagram gr (binproduct_precategory A B)) (cd : A × B) (cc : cocone d cd),
+  Π (d : diagram gr (precategory_binproduct A B)) (cd : A × B) (cc : cocone d cd),
   isColimCocone _ _ cc ->
   isColimCocone _ _ (mapcocone (binproduct_pair_functor F G) d cc).
 Proof.
@@ -808,7 +808,7 @@ destruct (HG _ _ _ (isColimCocone_pr2_functor cAB ml ccml Hccml) _ cGBY) as [[g 
 simpl in *.
 mkpair.
 - apply (tpair _ (f,,g)).
-  abstract (intro n; unfold binprodcatmor, compose; simpl;
+  abstract (intro n; unfold precatbinprodmor, compose; simpl;
             now rewrite hf1, hg1, (paireta (coconeIn ccxy n))).
 - abstract (intro t; apply subtypeEquality; simpl;
              [ intro x; apply impred; intro; apply isaset_dirprod; [ apply hsC | apply hsD ]
@@ -957,7 +957,7 @@ Context {C : precategory} (PC : BinProducts C) (hsC : has_homsets C).
 Lemma is_cocont_bindelta_functor : is_cocont (bindelta_functor C).
 Proof.
 apply (left_adjoint_cocont _ (is_left_adjoint_bindelta_functor PC) hsC).
-abstract (apply (has_homsets_binproduct_precategory _ _ hsC hsC)).
+abstract (apply (has_homsets_precategory_binproduct _ _ hsC hsC)).
 Defined.
 
 Lemma is_omega_cocont_bindelta_functor : is_omega_cocont (bindelta_functor C).
@@ -994,7 +994,7 @@ Context {C : precategory} (PC : BinCoproducts C) (hsC : has_homsets C).
 Lemma is_cocont_bincoproduct_functor : is_cocont (bincoproduct_functor PC).
 Proof.
 apply (left_adjoint_cocont _ (is_left_adjoint_bincoproduct_functor PC)).
-- abstract (apply has_homsets_binproduct_precategory; apply hsC).
+- abstract (apply has_homsets_precategory_binproduct; apply hsC).
 - abstract (apply hsC).
 Defined.
 
@@ -1192,7 +1192,7 @@ Proof.
 now intro x; apply (is_omega_cocont_iso hsC (flip_iso PC hsC x)).
 Defined.
 
-Local Definition fun_lt (cAB : chain (binproduct_precategory C C)) :
+Local Definition fun_lt (cAB : chain (precategory_binproduct C C)) :
   Π i j, i < j ->
               C ⟦ BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
                   BinProductObject C (PC (ob1 (dob cAB j)) (ob2 (dob cAB j))) ⟧.
@@ -1201,7 +1201,7 @@ intros i j hij.
 apply (BinProductOfArrows _ _ _ (mor1 (chain_mor cAB hij)) (identity _)).
 Defined.
 
-Local Definition fun_gt (cAB : chain (binproduct_precategory C C)) :
+Local Definition fun_gt (cAB : chain (precategory_binproduct C C)) :
   Π i j, i > j ->
               C ⟦ BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
                   BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB i))) ⟧.
@@ -1211,7 +1211,7 @@ apply (BinProductOfArrows _ _ _ (identity _) (mor2 (chain_mor cAB hij))).
 Defined.
 
 (* The map to K from the "grid" *)
-Local Definition map_to_K (cAB : chain (binproduct_precategory C C)) (K : C)
+Local Definition map_to_K (cAB : chain (precategory_binproduct C C)) (K : C)
   (ccK : cocone (mapchain (binproduct_functor PC) cAB) K) i j :
   C⟦BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))), K⟧.
 Proof.
@@ -1222,7 +1222,7 @@ destruct (natlthorgeh i j).
   * destruct H; apply (coconeIn ccK i).
 Defined.
 
-Local Lemma map_to_K_commutes (cAB : chain (binproduct_precategory C C)) (K : C)
+Local Lemma map_to_K_commutes (cAB : chain (precategory_binproduct C C)) (K : C)
   (ccK : cocone (mapchain (binproduct_functor PC) cAB) K)
   i j k (e : edge j k) :
    BinProduct_of_functors_mor C C PC (constant_functor C C (pr1 (pr1 cAB i)))
@@ -1274,7 +1274,7 @@ destruct (natlthorgeh i j) as [h|h].
 Qed.
 
 (* The cocone over K from the A_i * B chain *)
-Local Definition ccAiB_K (cAB : chain (binproduct_precategory C C)) (K : C)
+Local Definition ccAiB_K (cAB : chain (precategory_binproduct C C)) (K : C)
   (ccK : cocone (mapchain (binproduct_functor PC) cAB) K) i :
   cocone (mapchain (constprod_functor1 PC (pr1 (pr1 cAB i)))
          (mapchain (pr2_functor C C) cAB)) K.
@@ -1286,7 +1286,7 @@ Defined.
 
 Section omega_cocont_binproduct.
 
-Context {cAB : chain (binproduct_precategory C C)} {LM : C × C}
+Context {cAB : chain (precategory_binproduct C C)} {LM : C × C}
         {ccLM : cocone cAB LM} (HccLM : isColimCocone cAB LM ccLM)
         {K : C} (ccK : cocone (mapchain (binproduct_functor PC) cAB) K).
 

@@ -725,6 +725,15 @@ Proof.
                        (tpair (fun x => B x) a2 b2) p q).
 Defined.
 
+Lemma total2_paths2_b {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1}
+  {a2 : A} {b2 : B a2} (p : a1 = a2)
+  (q : b1 = transportb B p b2) : a1,,b1 = a2,,b2.
+Proof.
+  intros.
+  apply (@total2_paths_b _ _
+    (tpair (fun x => B x) a1 b1) (tpair (fun x => B x) a2 b2) p q).
+Defined.
+
 Definition pair_path_in2 {X : UU} (P : X -> UU) {x : X} {p q : P x} (e : p = q) :
   x,,p = x,,q.
 Proof.
@@ -806,6 +815,16 @@ Definition transportf_dirprod (A : UU) (B B' : A -> UU)
 Proof.
   induction p.
   apply tppr.
+Defined.
+
+Definition transportb_dirprod (A : UU) (B B' : A -> UU)
+  (x x' : Σ a,  B a × B' a)  (p : pr1 x = pr1 x') :
+  transportb (fun a => dirprod (B a) (B' a)) p (pr2 x') =
+    dirprodpair (transportb (fun a => B a) p (pr1 (pr2 x')))
+                (transportb (fun a => B' a) p (pr2 (pr2 x'))).
+Proof.
+  intros.
+  apply transportf_dirprod.
 Defined.
 
 Definition transportf_id1 {A : UU} {a x1 x2 : A}
