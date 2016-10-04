@@ -1,6 +1,9 @@
 (** * Lattice *)
 
 Require Export UniMath.Foundations.Algebra.BinaryOperations.
+Require Export UniMath.Foundations.Algebra.Monoids_and_Groups.
+
+(** ** Definition *)
 
 Definition islatticeop {X : hSet} (min max : binop X) :=
   ((isassoc min) × (iscomm min))
@@ -158,3 +161,70 @@ Proof.
 Qed.
 
 End lattice_pty.
+
+(** ** Troncated minus *)
+
+Local Open Scope addmonoid.
+
+Definition istminus {X : abmonoid} (is : islattice X) (minus : binop X) :=
+  Π x y : X, minus x y + y = Lmax (L := islattice2lattice X is) x y.
+
+Definition extminus {X : abmonoid} (is : islattice X) :=
+  Σ minus : binop X, istminus is minus.
+
+(** *** Troncated minus and abgrfrac *)
+
+Lemma iscomprel_tminus {X : abmonoid} (is : islattice X) (minus : binop X) :
+  istminus is minus
+  → (Π x y z : X, y + x = z + x → y = z)
+  → isrdistr (Lmax (L := islattice2lattice X is)) op
+  → iscomprelfun (eqrelabgrfrac X) (λ x, minus (pr1 x) (pr2 x)).
+Proof.
+  intros Hminus H H0.
+  intros x y.
+  simple refine (hinhuniv (P := hProppair _ _) _).
+  apply (pr2 (pr1 (pr1 X))).
+  intros c.
+  apply (H (pr2 x + pr2 y + pr1 c)).
+  rewrite <- 2!assocax, Hminus.
+  rewrite (commax _ (pr2 x)), <- 2!assocax, Hminus.
+  rewrite !H0, (pr2 c), (commax _ (pr2 x)).
+  reflexivity.
+Qed.
+
+Definition abgrfracelt {X : abmonoid} (is : islattice X) (minus : binop X)
+           (is0 : istminus is minus)
+           (is1 : Π x y z : X, y + x = z + x → y = z)
+           (is2 : isrdistr (Lmax (L := islattice2lattice X is)) op)
+           (x : abgrfrac X) : X × X.
+Proof.
+  split.
+  - refine (setquotuniv _ _ _ _ _).
+    apply (iscomprel_tminus is _ is0 is1 is2).
+    apply x.
+  - refine (setquotuniv _ _ _ _ _).
+    apply (iscomprel_tminus is _ is0 is1 is2).
+    apply (grinv (abgrfrac X) x).
+Defined.
+
+Lemma abgrfracelt_correct {X : abmonoid} (is : islattice X) (minus : binop X)
+           (is0 : istminus is minus)
+           (is1 : Π x y z : X, y + x = z + x → y = z)
+           (is2 : isrdistr (Lmax (L := islattice2lattice X is)) op)
+           (x : abgrfrac X) :
+  setquotpr _ (abgrfracelt is minus is0 is1 is2 x) = x.
+Proof.
+  generalize (pr1 (pr2 x)).
+  simple refine (hinhuniv (P := hProppair _ _) _).
+  apply (pr2 (pr1 (pr1 (abgrfrac X)))).
+  intros c ; simpl.
+  rewrite <- (setquotl0 (eqrelabgrfrac X) x c).
+  refine (iscompsetquotpr (eqrelabgrfrac X) _ _ _).
+  apply hinhpr.
+  exists 0 ; simpl.
+  unfold grinv ; simpl.
+  unfold abgrfracinv ; simpl.
+  rewrite (setquotfuncomm (eqrelabgrfrac X) _), !(setquotunivcomm (eqrelabgrfrac X) (pr1 X)) ; simpl.
+  rewrite (commax _ (pr1 (pr1 c))), !is0.
+  now rewrite iscomm_Lmax.
+Qed.
