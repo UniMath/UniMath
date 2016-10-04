@@ -1,3 +1,16 @@
+
+(** **********************************************************
+
+Mitchell Riley
+
+June 2016
+
+I am very grateful to Peter LeFanu Lumsdaine, whose unreleased
+bicategories code strongly influenced the definitions in this
+file.
+
+************************************************************)
+
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -9,7 +22,6 @@ Arguments functor_composite {_ _ _} _ _ .
 
 (******************************************************************************)
 (* Definition of a prebicategory *)
-(* Mitchell Riley, July 2016, following previously unreleased code by Peter Lumsdaine *)
 
 (* This is done in a few pieces. Instead of specifying all the data
    and the conditions afterwards, we interleave them, i.e., we have a

@@ -1,3 +1,14 @@
+(** **********************************************************
+
+Mitchell Riley
+
+June 2016
+
+I am very grateful to Peter LeFanu Lumsdaine, whose unreleased
+bicategories code strongly influenced the proofs in this file.
+
+************************************************************)
+
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.

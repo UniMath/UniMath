@@ -1,12 +1,11 @@
 
 (** **********************************************************
 
-Benedikt Ahrens, Ralph Matthes
+Benedikt Ahrens, Ralph Matthes, Peter LeFanu Lumsdaine
 
 SubstitutionSystems
 
 2015
-
 
 ************************************************************)
 
@@ -20,7 +19,14 @@ Contents :
 - From a functor on a product of precategories to a functor on one of
   the categories by fixing the argument in the other component
 
+By PLL:
 
+- Definition of the unit precategory
+
+- Definition of the associator functors
+
+- Definition of the pair of two functors: A × C → B × D
+  given A → B and C → D
 
 ************************************************************)
 
