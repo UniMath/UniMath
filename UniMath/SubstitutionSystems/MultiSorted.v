@@ -43,20 +43,16 @@ Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LiftingInitial.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Notation "[ C , D ]" := (functor_Precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-
-Section move_upstream.
-
-End move_upstream.
 
 (** Swapping of functor arguments *)
 (* TODO: Move upstream as well? *)
 Section functor_swap.
 
-Context {C D E : precategory} {hsE : has_homsets E}.
+Context {C D : precategory} {E : Precategory}.
 
-Lemma functor_swap : functor C [D,E,hsE] → functor D [C,E,hsE].
+Lemma functor_swap : functor C [D,E] → functor D [C,E].
 Proof.
 intros F.
 mkpair.
@@ -77,15 +73,13 @@ mkpair.
     - abstract (intros c d g; simpl; apply pathsinv0, nat_trans_ax).
   }
 - abstract (split;
-  [ intros d; apply (nat_trans_eq hsE); intro c; simpl; apply functor_id
-  | intros a b c f g; apply (nat_trans_eq hsE); intro x; simpl; apply functor_comp]).
+  [ intros d; apply (nat_trans_eq (homset_property E)); intro c; simpl; apply functor_id
+  | intros a b c f g; apply (nat_trans_eq (homset_property E)); intro x; simpl; apply functor_comp]).
 Defined.
 
 (* Lift the result to functor categories. It might be good to decompose this proof as the natural
 transformations constructed might be useful later *)
-Lemma functor_cat_swap :
-  functor [C, [D, E, hsE], functor_category_has_homsets _ _ hsE]
-          [D, [C, E, hsE], functor_category_has_homsets _ _ hsE].
+Lemma functor_cat_swap : functor [C, [D, E]] [D, [C, E]].
 Proof.
 mkpair.
 - apply (tpair _ functor_swap); simpl; intros F G α.
@@ -94,12 +88,12 @@ mkpair.
     mkpair.
     * intro c; apply (α c).
     * abstract (intros a b f; apply (nat_trans_eq_pointwise (nat_trans_ax α _ _ f) d)).
-  + abstract (intros a b f; apply (nat_trans_eq hsE); intro c; simpl; apply nat_trans_ax).
+  + abstract (intros a b f; apply (nat_trans_eq (homset_property E)); intro c; simpl; apply nat_trans_ax).
 - abstract (split;
-  [ intro F; apply (nat_trans_eq (functor_category_has_homsets _ _ hsE)); simpl; intro d;
-    now apply (nat_trans_eq hsE)
-  | intros F G H α β; cbn; apply (nat_trans_eq (functor_category_has_homsets _ _ hsE)); intro d;
-    now apply (nat_trans_eq hsE)]).
+  [ intro F; apply (nat_trans_eq (functor_category_has_homsets _ _ (homset_property E))); simpl; intro d;
+    now apply (nat_trans_eq (homset_property E))
+  | intros F G H α β; cbn; apply (nat_trans_eq (functor_category_has_homsets _ _ (homset_property E))); intro d;
+    now apply (nat_trans_eq (homset_property E))]).
 Defined.
 
 End functor_swap.
@@ -109,31 +103,31 @@ Section DiscreteCategory.
 
 Variable (A : UU).
 
-Definition DiscretePrecategory_data : precategory_data.
+Definition discrete_precategory_data : precategory_data.
 Proof.
 mkpair.
 - apply (A,,paths).
 - mkpair; [ apply idpath | apply @pathscomp0 ].
 Defined.
 
-Definition is_precategory_DiscretePrecategory_data : is_precategory DiscretePrecategory_data.
+Definition is_precategory_discrete_precategory_data : is_precategory discrete_precategory_data.
 Proof.
 split; [split|]; trivial; intros.
 + apply pathscomp0rid.
 + apply path_assoc.
 Qed.
 
-Definition DiscretePrecategory : precategory :=
-  (DiscretePrecategory_data,,is_precategory_DiscretePrecategory_data).
+Definition discrete_precategory : precategory :=
+  (discrete_precategory_data,,is_precategory_discrete_precategory_data).
 
-Lemma has_homsets_DiscretePrecategory (H : isofhlevel 3 A) : has_homsets DiscretePrecategory.
+Lemma has_homsets_discrete_precategory (H : isofhlevel 3 A) : has_homsets discrete_precategory.
 Proof.
 intros ? ? ? ? ? ?; apply H.
 Qed.
 
 (** To define a functor out of a discrete category it suffices to give a function *)
-Lemma functor_DiscretePrecategory (D : precategory) (f : A → D) :
-  functor DiscretePrecategory D.
+Lemma functor_discrete_precategory (D : precategory) (f : A → D) :
+  functor discrete_precategory D.
 Proof.
 mkpair.
 + mkpair.
@@ -151,23 +145,25 @@ Variable (sort : UU).
 Variable (eq : isdeceq sort). (* Can we eliminate this assumption? *)
 
 (** Define the discrete category of sorts *)
-Let sort_cat : precategory := DiscretePrecategory sort.
+Let sort_cat : precategory := discrete_precategory sort.
+
+Let HSET : Precategory := (HSET,,has_homsets_HSET).
 
 (** This represents "sort → HSET" *)
-Let sortToHSET : precategory := [sort_cat,HSET,has_homsets_HSET].
+Let sortToHSET : Precategory := [sort_cat,HSET].
 
 Local Lemma has_homsets_sortToHSET : has_homsets sortToHSET.
 Proof.
-apply functor_category_has_homsets.
+apply homset_property.
 Qed.
 
-Local Definition BinProductsSortToHSETToHSET : BinProducts [sortToHSET,HSET,has_homsets_HSET].
+Local Definition BinProductsSortToHSETToHSET : BinProducts [sortToHSET,HSET].
 Proof.
 apply (BinProducts_functor_precat _ _ BinProductsHSET).
 Defined.
 
 Definition mk_sortToHSET (f : sort → HSET) : sortToHSET :=
-  functor_DiscretePrecategory _ _ f.
+  functor_discrete_precategory _ _ f.
 
 (** Given a sort s this applies the sortToHSET to s and returns HSET *)
 Definition sortToHSETToHSET (s : sort) : functor sortToHSET HSET.
@@ -272,8 +268,7 @@ Local Arguments horcomp : simpl never.
 
 (* This is X^a as a functor between functor categories *)
 Lemma exp_functor (a : list sort × sort) :
-  functor [sortToHSET,sortToHSET,has_homsets_sortToHSET]
-          [sortToHSET,HSET,has_homsets_HSET].
+  functor [sortToHSET,sortToHSET] [sortToHSET,HSET].
 Proof.
 mkpair.
 - mkpair.
@@ -307,14 +302,12 @@ Defined.
 (* This defines X^as where as is a list. Outputs a product of functors if the list is nonempty and
 otherwise the constant functor. *)
 Definition exp_functors (xs : list (list sort × sort)) :
-  functor [sortToHSET,sortToHSET,has_homsets_sortToHSET]
-          [sortToHSET,HSET,has_homsets_HSET].
+  functor [sortToHSET,sortToHSET] [sortToHSET,HSET].
 Proof.
 (* Apply the exp functor to every element of the list *)
 set (XS := map exp_functor xs).
 (* If the list is empty we output the constant functor *)
-set (T := constant_functor [sortToHSET, sortToHSET, has_homsets_sortToHSET]
-                           [sortToHSET, HSET, has_homsets_HSET]
+set (T := constant_functor [sortToHSET,sortToHSET] [sortToHSET,HSET]
                            (constant_functor sortToHSET HSET emptyHSET)).
 (* TODO: Maybe use indexed finite products instead of a fold? *)
 (* TODO: Should we really use BinProduct_of_functors? Can we prove omega-cocont? *)
@@ -323,21 +316,18 @@ Defined.
 
 (* This lemma is just here to check that the correct sort_cat gets pulled out when reorganizing
    arguments *)
-Definition MultiSortedSigToFunctor_helper (C D E F G : precategory)
-  (hsD : has_homsets D) (hsG : has_homsets G)
-  (H : functor F [[C,D,hsD],[E,G,hsG],functor_category_has_homsets _ _ hsG]) :
-  functor [C,D,hsD] [E,[F,G,hsG],functor_category_has_homsets _ _ hsG] :=
+Definition MultiSortedSigToFunctor_helper (C E F : precategory) (D G : Precategory)
+  (H : functor F [[C,D],[E,G]]) : functor [C,D] [E,[F,G]] :=
     functor_composite (functor_swap H) functor_cat_swap.
 
 (** * The functor constructed from a multisorted binding signature *)
 Definition MultiSortedSigToFunctor (M : MultiSortedSig) :
-  functor [sortToHSET,sortToHSET,has_homsets_sortToHSET]
-          [sortToHSET,sortToHSET,has_homsets_sortToHSET].
+  functor [sortToHSET,sortToHSET] [sortToHSET,sortToHSET].
 Proof.
 (* First reorganize so that the last sort argument is first: *)
 apply MultiSortedSigToFunctor_helper.
 (* As we're defining a functor out of a discrete category it suffices to give a function: *)
-apply functor_DiscretePrecategory; intro s.
+apply functor_discrete_precategory; intro s.
 (* This is then a coproduct of functors (for this to exist the indices need to be a set) *)
 use (coproduct_of_functors (indices M s)).
 + apply Coproducts_functor_precat, Coproducts_HSET, isaset_indices.
