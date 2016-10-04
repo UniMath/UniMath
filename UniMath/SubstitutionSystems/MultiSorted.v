@@ -310,7 +310,6 @@ set (XS := map exp_functor xs).
 set (T := constant_functor [sortToHSET,sortToHSET] [sortToHSET,HSET]
                            (constant_functor sortToHSET HSET emptyHSET)).
 (* TODO: Maybe use indexed finite products instead of a fold? *)
-(* TODO: Should we really use BinProduct_of_functors? Can we prove omega-cocont? *)
 apply (foldr1 (fun F G => BinProduct_of_functors _ _ BinProductsSortToHSETToHSET F G) T XS).
 Defined.
 
