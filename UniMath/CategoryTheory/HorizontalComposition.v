@@ -1,26 +1,12 @@
 (** **********************************************************
 
-Benedikt Ahrens, Ralph Matthes
+Contents:
 
-SubstitutionSystems
+- Definition of horizontal composition for natural transformations ([horcomp])
 
-2015
-
-
-************************************************************)
-
-
-(** **********************************************************
-
-Contents :
-
-- Definition of horizontal composition for natural transformations
-
-
+Written by: Benedikt Ahrens, Ralph Matthes (2015)
 
 ************************************************************)
-
-
 
 Require Import UniMath.Foundations.Basics.PartD.
 
@@ -50,44 +36,38 @@ Lemma is_nat_trans_horcomp : is_nat_trans (G □ F) (G' □ F')
   (λ c : C, β (F c) ;; #G' (α _ )).
 Proof.
   intros c d f; simpl.
-  rewrite assoc.
-  rewrite nat_trans_ax.
-  repeat rewrite <- assoc; apply maponpaths.
-  repeat rewrite <- functor_comp.
-  rewrite nat_trans_ax; apply idpath.
-Defined.
+  rewrite assoc, nat_trans_ax, <- !assoc; apply maponpaths.
+  now rewrite <- !functor_comp, nat_trans_ax.
+Qed.
 
-Definition hor_comp : nat_trans (G □ F) (G' □ F') := tpair _ _ is_nat_trans_horcomp.
+Definition horcomp : nat_trans (G □ F) (G' □ F') := tpair _ _ is_nat_trans_horcomp.
 
 End horizontal_composition.
 
-Arguments hor_comp { _ _ _ } { _ _ _ _ } _ _ .
+Arguments horcomp { _ _ _ } { _ _ _ _ } _ _ .
 
-(*
-Lemma horcomp_id_left (C D : precategory) (X : functor C C) (Z Z' : functor C D)(f : nat_trans Z Z')
-  :
-  hor_comp (nat_trans_id X) f = pre_whisker f.
-*)
-Lemma horcomp_id_left (C D : precategory) (X : functor C C) (Z Z' : functor C D)(f : nat_trans Z Z')
-  :
-  Π c : C, hor_comp (nat_trans_id X) f c = f (X c).
+Lemma horcomp_id_prewhisker {C D E : precategory} (hsE : has_homsets E)
+  (X : functor C D) (Z Z' : functor D E) (f : nat_trans Z Z') :
+  horcomp (nat_trans_id X) f = pre_whisker _ f.
 Proof.
-  simpl.
-  intro c.
-  rewrite functor_id.
-  rewrite id_right.
-  apply idpath.
+apply (nat_trans_eq hsE); simpl; intro x.
+now rewrite functor_id, id_right.
+Qed.
+
+Lemma horcomp_id_left (C D : precategory) (X : functor C C) (Z Z' : functor C D)(f : nat_trans Z Z')
+  :
+  Π c : C, horcomp (nat_trans_id X) f c = f (X c).
+Proof.
+  intro c; simpl.
+  now rewrite functor_id, id_right.
 Qed.
 
 Lemma horcomp_id_postwhisker (A B C : precategory)
    (hsB : has_homsets B) (hsC : has_homsets C) (X X' : [A, B, hsB]) (α : X --> X')
    (Z : [B ,C, hsC])
-  : hor_comp α (nat_trans_id _ ) = post_whisker α Z.
+  : horcomp α (nat_trans_id _ ) = post_whisker α Z.
 Proof.
-  apply nat_trans_eq.
-  - apply hsC.
-  - intro a.
-    apply id_left.
+  apply (nat_trans_eq hsC); intro a; apply id_left.
 Qed.
 
 Definition functorial_composition_data (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) :

@@ -48,14 +48,6 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 Section move_upstream.
 
-Lemma horcomp_id_prewhisker {C D E : precategory} (hsE : has_homsets E)
-  (X : functor C D) (Z Z' : functor D E) (f : nat_trans Z Z') :
-  hor_comp (nat_trans_id X) f = pre_whisker _ f.
-Proof.
-apply (nat_trans_eq hsE); simpl; intro x.
-now rewrite functor_id, id_right.
-Qed.
-
 End move_upstream.
 
 (** Swapping of functor arguments *)
@@ -275,8 +267,8 @@ apply (functor_composite (option_list (pr1 a))
                          (functor_composite X (sortToHSETToHSET (pr2 a)))).
 Defined.
 
-(* This stops Coq from unfolding hor_comp too much *)
-Local Arguments hor_comp : simpl never.
+(* This stops Coq from unfolding horcomp too much *)
+Local Arguments horcomp : simpl never.
 
 (* This is X^a as a functor between functor categories *)
 Lemma exp_functor (a : list sort × sort) :
@@ -287,8 +279,8 @@ mkpair.
 - mkpair.
   + intro X; apply (exp_fun X a).
   + intros F G α.
-    use (@hor_comp sortToHSET _ HSET _ _ _ _ (nat_trans_id _)).
-    use hor_comp; [ assumption | apply nat_trans_id ].
+    use (@horcomp sortToHSET _ HSET _ _ _ _ (nat_trans_id _)).
+    use horcomp; [ assumption | apply nat_trans_id ].
 - abstract (split;
   [ intro F; cbn;
     rewrite (horcomp_id_postwhisker _ _ _ has_homsets_sortToHSET has_homsets_HSET);
