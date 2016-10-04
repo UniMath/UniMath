@@ -47,7 +47,7 @@ Local Notation "[ C , D ]" := (functor_Precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 (** Swapping of functor arguments *)
-(* TODO: Move upstream as well? *)
+(* TODO: Move upstream? *)
 Section functor_swap.
 
 Context {C D : precategory} {E : Precategory}.
@@ -77,6 +77,33 @@ mkpair.
   | intros a b c f g; apply (nat_trans_eq (homset_property E)); intro x; simpl; apply functor_comp]).
 Defined.
 
+(* Lemma is_omega_cocont_functor_swap *)
+(*   (F : functor C [D,E]) (HF : forall c, is_omega_cocont (F c)) : *)
+(*    is_omega_cocont (functor_swap F). *)
+(* Proof. *)
+(* intros d L ccL HccL G ccG. *)
+(* simpl in G. *)
+(* transparent assert (temp : (Π c, cocone (mapdiagram (F c) d) (G c))). *)
+(* { intro c; use mk_cocone. *)
+(*   + simpl; intro n. *)
+(*     apply (pr1 (coconeIn ccG n) c). *)
+(*   + abstract (intros m n e; apply (nat_trans_eq_pointwise (coconeInCommutes ccG _ _ e) c)). *)
+(* } *)
+(* mkpair. *)
+(* + mkpair. *)
+(* - mkpair. *)
+(* * intro c. *)
+(* simpl. *)
+(* apply (HF c d L ccL HccL (G c) (temp c)). *)
+(* * intros x y f; simpl. *)
+(* destruct (HF y d L ccL HccL (G y) (temp y)) as [[hy1 hy2] hy3]. *)
+(* destruct (HF x d L ccL HccL (G x) (temp x)) as [[hx1 hx2] hx3]. *)
+(* generalize (nat_trans_ax (#F f) L L). *)
+(* admit. *)
+(* - admit. *)
+(* + admit. *)
+(* Admitted. *)
+
 (* Lift the result to functor categories. It might be good to decompose this proof as the natural
 transformations constructed might be useful later *)
 Lemma functor_cat_swap : functor [C, [D, E]] [D, [C, E]].
@@ -96,7 +123,21 @@ mkpair.
     now apply (nat_trans_eq (homset_property E))]).
 Defined.
 
+(* Lemma is_omega_cocont_functor_swap : is_cocont functor_cat_swap. *)
+(* Admitted. *)
+
 End functor_swap.
+
+(* Lemma is_omega_cocont_swap {C D : precategory} {E : Precategory} : is_cocont (@functor_cat_swap C D E). *)
+(* Proof. *)
+(* intros g d L ccL HccL F ccF. *)
+(* simpl in F. *)
+(* generalize (is_omega_cocont_functor_swap F). *)
+(* simpl. *)
+(* simpl. *)
+(* (* eapply is_cocont_iso. *) *)
+(* (* unfold iso. *) *)
+(* functor_ *)
 
 (** * Discrete precategories *)
 Section DiscreteCategory.
@@ -318,7 +359,7 @@ Defined.
 
 (* This lemma is just here to check that the correct sort_cat gets pulled out when reorganizing
    arguments *)
-Definition MultiSortedSigToFunctor_helper (C E F : precategory) (D G : Precategory)
+Local Definition MultiSortedSigToFunctor_helper (C E F : precategory) (D G : Precategory)
   (H : functor F [[C,D],[E,G]]) : functor [C,D] [E,[F,G]] :=
     functor_composite (functor_swap H) functor_cat_swap.
 
@@ -335,5 +376,20 @@ use (coproduct_of_functors (indices M s)).
 + apply Coproducts_functor_precat, CC.
 + intros y; apply (exp_functors (args M s y)).
 Defined.
+
+(* Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig) *)
+(*   (CC : Π s, Coproducts (indices M s) C) : is_omega_cocont (MultiSortedSigToFunctor M CC). *)
+(* Proof. *)
+(* use is_omega_cocont_functor_composite. *)
+(* + apply (functor_category_has_homsets sortToC). *)
+(* + *)
+(* apply is_omega_cocont_functor_swap. *)
+(* intro s. *)
+(* simpl. *)
+(* apply is_omega_cocont_coproduct_of_functors. *)
+(* eapply functor_swap. *)
+(*  admit. *)
+(* + admit. *)
+(* Admitted. *)
 
 End MBindingSig.
