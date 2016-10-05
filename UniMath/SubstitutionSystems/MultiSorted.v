@@ -29,6 +29,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.category_hset.
@@ -89,33 +90,43 @@ Defined.
 (*     apply (pr1 (coconeIn ccG n) c). *)
 (*   + abstract (intros m n e; apply (nat_trans_eq_pointwise (coconeInCommutes ccG _ _ e) c)). *)
 (* } *)
+(* transparent assert (apa : (nat_trans (pr1 (functor_swap F L)) G)). *)
+(* + intro c. *)
+(* apply (HF c d L ccL HccL (G c) (temp c)). *)
+(* + apply H. intros x y f. *)
+(* simpl. *)
+(* } *)
 (* mkpair. *)
 (* + mkpair. *)
 (* - mkpair. *)
 (* * intro c. *)
 (* simpl. *)
-(* apply (HF c d L ccL HccL (G c) (temp c)). *)
+(* apply apa. *)
+(* (* simpl. *) *)
+(* (* apply (HF c d L ccL HccL (G c) (temp c)). *) *)
 (* * intros x y f; simpl. *)
-(* destruct (HF y d L ccL HccL (G y) (temp y)) as [[hy1 hy2] hy3]. *)
-(* destruct (HF x d L ccL HccL (G x) (temp x)) as [[hx1 hx2] hx3]. *)
-(* generalize (nat_trans_ax (#F f) L L). *)
-(* admit. *)
+(* (* destruct (HF y d L ccL HccL (G y) (temp y)) as [[hy1 hy2] hy3]. *) *)
+(* (* destruct (HF x d L ccL HccL (G x) (temp x)) as [[hx1 hx2] hx3]. *) *)
+(* apply (nat_trans_ax apa x y f). *)
 (* - admit. *)
 (* + admit. *)
 (* Admitted. *)
 
-(* Lift the result to functor categories. It might be good to decompose this proof as the natural
-transformations constructed might be useful later *)
+Lemma functor_cat_swap_nat_trans (F G : functor C [D, E]) (α : nat_trans F G) :
+  nat_trans (functor_swap F) (functor_swap G).
+Proof.
+mkpair.
++ intros d; simpl.
+  mkpair.
+  * intro c; apply (α c).
+  * abstract (intros a b f; apply (nat_trans_eq_pointwise (nat_trans_ax α _ _ f) d)).
++ abstract (intros a b f; apply (nat_trans_eq (homset_property E)); intro c; simpl; apply nat_trans_ax).
+Defined.
+
 Lemma functor_cat_swap : functor [C, [D, E]] [D, [C, E]].
 Proof.
 mkpair.
-- apply (tpair _ functor_swap); simpl; intros F G α.
-  mkpair.
-  + intros d; simpl.
-    mkpair.
-    * intro c; apply (α c).
-    * abstract (intros a b f; apply (nat_trans_eq_pointwise (nat_trans_ax α _ _ f) d)).
-  + abstract (intros a b f; apply (nat_trans_eq (homset_property E)); intro c; simpl; apply nat_trans_ax).
+- apply (tpair _ functor_swap functor_cat_swap_nat_trans).
 - abstract (split;
   [ intro F; apply (nat_trans_eq (functor_category_has_homsets _ _ (homset_property E))); simpl; intro d;
     now apply (nat_trans_eq (homset_property E))
@@ -123,21 +134,10 @@ mkpair.
     now apply (nat_trans_eq (homset_property E))]).
 Defined.
 
-(* Lemma is_omega_cocont_functor_swap : is_cocont functor_cat_swap. *)
-(* Admitted. *)
+(* How should one even express this: *)
+(* Lemma is_omega_cocont_functor_cat_swap : is_omega_cocont functor_cat_swap. *)
 
 End functor_swap.
-
-(* Lemma is_omega_cocont_swap {C D : precategory} {E : Precategory} : is_cocont (@functor_cat_swap C D E). *)
-(* Proof. *)
-(* intros g d L ccL HccL F ccF. *)
-(* simpl in F. *)
-(* generalize (is_omega_cocont_functor_swap F). *)
-(* simpl. *)
-(* simpl. *)
-(* (* eapply is_cocont_iso. *) *)
-(* (* unfold iso. *) *)
-(* functor_ *)
 
 (** * Discrete precategories *)
 Section DiscreteCategory.
@@ -189,9 +189,6 @@ Variable (eq : isdeceq sort). (* Can we eliminate this assumption? *)
 Let sort_cat : precategory := discrete_precategory sort.
 
 Let hsC : has_homsets C := homset_property C.
-
-(* (* TODO: Maybe this should be the global definition? *) *)
-(* Let C : Precategory := (HSET,,has_homsets_HSET). *)
 
 (** This represents "sort → C" *)
 Let sortToC : Precategory := [sort_cat,C].
@@ -357,11 +354,54 @@ set (T := constant_functor [sortToC,sortToC] [sortToC,C]
 apply (foldr1 (fun F G => BinProduct_of_functors _ _ BinProductsSortToCToC F G) T XS).
 Defined.
 
+Lemma is_omega_cocont_exp_functors (xs : list (list sort × sort)) :
+  is_omega_cocont (exp_functors xs).
+Admitted.
+
 (* This lemma is just here to check that the correct sort_cat gets pulled out when reorganizing
    arguments *)
-Local Definition MultiSortedSigToFunctor_helper (C E F : precategory) (D G : Precategory)
-  (H : functor F [[C,D],[E,G]]) : functor [C,D] [E,[F,G]] :=
-    functor_composite (functor_swap H) functor_cat_swap.
+Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (C2 E2 : Precategory)
+  (F : functor E1 [[C1,C2],[D,E2]]) : functor [C1,C2] [D,[E1,E2]] :=
+    functor_composite (functor_cat_swap F) functor_cat_swap.
+
+Lemma is_omega_cocont_MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (C2 E2 : Precategory)
+  (F : functor E1 [[C1,C2],[D,E2]]) (HF : Π c, is_omega_cocont (F c)) :
+  is_omega_cocont (MultiSortedSigToFunctor_helper C1 D E1 C2 E2 F).
+Proof.
+(* unfold MultiSortedSigToFunctor_helper. *)
+(* intros diag L ccL HccL G ccG. *)
+(* mkpair. *)
+(* + mkpair. *)
+(* mkpair. *)
+(* - *)
+(* intro d. *)
+(* mkpair. *)
+(* * *)
+(* intro e1. *)
+(* simpl. *)
+(* generalize (HF e1 diag L ccL HccL (functor_swap G e1)). *)
+(* simpl. *)
+Admitted.
+
+Definition MultiSortedSigToFunctor_fun (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C) (s : sort) :
+  [[sortToC, sortToC], [sortToC, C]].
+Proof.
+use (coproduct_of_functors (indices M s)).
++ apply Coproducts_functor_precat, CC.
++ intros y; apply (exp_functors (args M s y)).
+Defined.
+
+Lemma is_omega_cocont_MultiSortedSigToFunctor_fun
+ (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C) (s : sort)
+ (CP : Products (indices M s) C)
+ (hs : isdeceq (indices M s)) :
+ is_omega_cocont (MultiSortedSigToFunctor_fun M CC s).
+Proof.
+apply is_omega_cocont_coproduct_of_functors; try apply homset_property.
++ apply Products_functor_precat, Products_functor_precat, CP.
++ assumption.
++ intros y; apply is_omega_cocont_exp_functors.
+Defined.
 
 (** * The functor constructed from a multisorted binding signature *)
 Definition MultiSortedSigToFunctor (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C) :
@@ -371,25 +411,26 @@ Proof.
 apply MultiSortedSigToFunctor_helper.
 (* As we're defining a functor out of a discrete category it suffices to give a function: *)
 apply functor_discrete_precategory; intro s.
-(* This is then a coproduct of functors (for this to exist the indices need to be a set) *)
-use (coproduct_of_functors (indices M s)).
-+ apply Coproducts_functor_precat, CC.
-+ intros y; apply (exp_functors (args M s y)).
+apply (MultiSortedSigToFunctor_fun M CC s).
 Defined.
 
-(* Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig) *)
-(*   (CC : Π s, Coproducts (indices M s) C) : is_omega_cocont (MultiSortedSigToFunctor M CC). *)
-(* Proof. *)
+Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig)
+  (CC : Π s, Coproducts (indices M s) C)
+  (PC : Π s, Products (indices M s) C)
+  (Hi : Π s, isdeceq (indices M s)) :
+   is_omega_cocont (MultiSortedSigToFunctor M CC).
+Proof.
+apply is_omega_cocont_MultiSortedSigToFunctor_helper.
+intros s; apply is_omega_cocont_MultiSortedSigToFunctor_fun.
+- apply PC.
+- apply Hi.
+Defined.
 (* use is_omega_cocont_functor_composite. *)
 (* + apply (functor_category_has_homsets sortToC). *)
+(* + apply is_omega_cocont_functor_swap. *)
+(*   intros s; apply is_omega_cocont_MultiSortedSigToFunctor_fun. *)
+(*   - apply PC. *)
+(*   - apply Hi. *)
 (* + *)
-(* apply is_omega_cocont_functor_swap. *)
-(* intro s. *)
-(* simpl. *)
-(* apply is_omega_cocont_coproduct_of_functors. *)
-(* eapply functor_swap. *)
-(*  admit. *)
-(* + admit. *)
-(* Admitted. *)
 
 End MBindingSig.
