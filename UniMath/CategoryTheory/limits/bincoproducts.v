@@ -21,7 +21,7 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.terminal.
 
@@ -644,7 +644,7 @@ End BinCoproducts.
 Section functors.
 
 Definition bincoproduct_functor_data {C : precategory} (PC : BinCoproducts C) :
-  functor_data (binproduct_precategory C C) C.
+  functor_data (precategory_binproduct C C) C.
 Proof.
 mkpair.
 - intros p.
@@ -656,7 +656,7 @@ Defined.
 
 (* The binary coproduct functor: C * C -> C *)
 Definition bincoproduct_functor {C : precategory} (PC : BinCoproducts C) :
-  functor (binproduct_precategory C C) C.
+  functor (precategory_binproduct C C) C.
 Proof.
 apply (tpair _ (bincoproduct_functor_data PC)).
 abstract (split;

@@ -35,7 +35,7 @@ Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.PointedFunctors.
-Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
@@ -445,7 +445,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
 
                     pr1 (θ (`T ⊗ T_squared)) c ;; pr1 (# H α) c =
                      pr1 (θ ((`T) ⊗ (ptd_from_alg T))) ((pr1 (pr1 (pr1 T))) c);;
-                     pr1 (θ (( (`T) • (`T)) ⊗ (ptd_from_alg T))) c;;
+                     pr1 (θ (( ((`T) • (`T) : [_, _, hs])) ⊗ (ptd_from_alg T))) c;;
                      pr1 (# H (α : functor_compose hs hs (`T) (functor_composite (`T) (` T))--> _)) c       ).
       { (intro α;
           assert (HA := θ_Strength2_int_implies_θ_Strength2 _ _ _ _ θ_strength2_int);

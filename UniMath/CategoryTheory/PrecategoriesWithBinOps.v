@@ -8,7 +8,7 @@ Require Import UniMath.Foundations.Algebra.BinaryOperations.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 
 Section def_precategory_with_binops.

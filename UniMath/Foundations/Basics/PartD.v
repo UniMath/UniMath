@@ -876,6 +876,35 @@ Proof.
   - simpl. reflexivity.
 Defined.
 
+Lemma eqweqmap_pathscomp0 {A B C : UU} (p : A = B) (q : B = C)
+  : weqcomp (eqweqmap p) (eqweqmap q)
+  = eqweqmap (pathscomp0 p q).
+Proof.
+  induction p.
+  induction q.
+  eapply total2_paths.
+    apply isapropisweq.
+    Unshelve.
+  reflexivity.
+Defined.
+
+Lemma inv_idweq_is_idweq {A : UU} :
+  idweq A = invweq (idweq A).
+Proof.
+  intros A.
+  eapply total2_paths.
+  apply isapropisweq.
+  Unshelve.
+  reflexivity.
+Defined.
+
+Lemma eqweqmap_pathsinv0 {A B : UU} (p : A = B)
+  : eqweqmap (!p) = invweq (eqweqmap p).
+Proof.
+  induction p.
+  exact inv_idweq_is_idweq.
+Defined.
+
 (** ** Various weak equivalences between spaces of weak equivalences *)
 
 (** *** Composition with a weak quivalence is a weak equivalence on weak equivalences *)

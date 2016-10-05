@@ -17,7 +17,7 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.zero.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
@@ -326,7 +326,7 @@ Section binproduct_functor.
 Context {C : precategory} (PC : BinProducts C).
 
 Definition binproduct_functor_data :
-  functor_data (binproduct_precategory C C) C.
+  functor_data (precategory_binproduct C C) C.
 Proof.
 mkpair.
 - intros p.
@@ -336,7 +336,7 @@ mkpair.
                            (PC (pr1 p) (pr2 p)) (pr1 f) (pr2 f)).
 Defined.
 
-Definition binproduct_functor : functor (binproduct_precategory C C) C.
+Definition binproduct_functor : functor (precategory_binproduct C C) C.
 Proof.
 apply (tpair _ binproduct_functor_data).
 abstract (split;
