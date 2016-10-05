@@ -27,10 +27,6 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
-
-(* Redeclaring in [mor_scope].  TODO: upstream to [Systems.UnicodeNotations]? *)
-Notation "# F" := (functor_on_morphisms F) (at level 3) : mor_scope.
-
 Bind Scope precategory_scope with precategory_ob_mor.
 Bind Scope precategory_scope with precategory_data.
 Bind Scope precategory_scope with Precategory.
