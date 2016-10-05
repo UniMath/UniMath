@@ -47,6 +47,66 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Local Notation "[ C , D ]" := (functor_Precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
+Section move_upstream.
+
+Lemma foldr_cons {A B : UU} (f : A -> B -> B) (b : B) (x : A) (xs : list A) :
+  foldr f b (cons x xs) = f x (foldr f b xs).
+Proof.
+now destruct xs.
+Qed.
+
+Lemma map_nil {A B : UU} (f : A -> B) : map f nil = nil.
+Proof.
+apply idpath.
+Qed.
+
+Lemma map_cons {A B : UU} (f : A -> B) (x : A) (xs : list A) :
+  map f (cons x xs) = cons (f x) (map f xs).
+Proof.
+now destruct xs.
+Qed.
+
+Lemma foldr1_cons_nil {A : UU} (f : A -> A -> A) (a : A) (x : A) :
+  foldr1 f a (cons x nil) = x.
+Proof.
+apply idpath.
+Qed.
+
+Lemma foldr1_cons {A : UU} (f : A -> A -> A) (a : A) (x y : A) (xs : list A) :
+  foldr1 f a (cons x (cons y xs)) = f x (foldr1 f a (cons y xs)).
+Proof.
+apply idpath.
+Qed.
+
+Definition head {A : UU} (a : A) (xs : list A) : A.
+Proof.
+induction xs as [n xs].
+destruct n.
+- apply a.
+- simpl in xs.
+  apply (pr1 xs).
+Defined.
+
+Lemma foldr1_ind {A : UU} (P : A -> UU) (f : A -> A -> A) (a : A) (Ha : P a) :
+  Π xs, P (foldr1 f (head a xs) xs) → P (foldr1 f a xs).
+Proof.
+intros xs.
+use (list_ind (fun xs =>  P (foldr1 f (head a xs) xs) → P (foldr1 f a xs))); clear xs.
+- intros _; apply Ha.
+-
+intros x xs IH.
+intros H.
+destruct xs as [n xs].
+destruct n.
++ destruct xs.
+simpl.
+simpl in *.
+apply H.
++ apply H.
+Defined.
+
+End move_upstream.
+
 (** Swapping of functor arguments *)
 (* TODO: Move upstream? *)
 Section functor_swap.
@@ -335,11 +395,6 @@ mkpair.
 Defined.
 
 Lemma  is_omega_cocont_exp_functor a : is_omega_cocont (exp_functor a).
-Proof.
-assert (lol : is_omega_cocont (pr1 (exp_functor a)).
-unfold exp_functor.
-simpl.
-
 Admitted.
 
 (* First version: *)
@@ -365,36 +420,6 @@ set (T := constant_functor [sortToC,sortToC] [sortToC,C]
 (* TODO: Maybe use indexed finite products instead of a fold? *)
 apply (foldr1 (fun F G => BinProduct_of_functors _ _ BinProductsSortToCToC F G) T XS).
 Defined.
-
-(* TODO: move these *)
-Lemma foldr_cons {A B : UU} (f : A -> B -> B) (b : B) (x : A) (xs : list A) :
-  foldr f b (cons x xs) = f x (foldr f b xs).
-Proof.
-now destruct xs.
-Qed.
-
-Lemma map_nil {A B : UU} (f : A -> B) : map f nil = nil.
-Proof.
-apply idpath.
-Qed.
-
-Lemma map_cons {A B : UU} (f : A -> B) (x : A) (xs : list A) :
-  map f (cons x xs) = cons (f x) (map f xs).
-Proof.
-now destruct xs.
-Qed.
-
-Lemma foldr1_cons_nil {A : UU} (f : A -> A -> A) (a : A) (x : A) :
-  foldr1 f a (cons x nil) = x.
-Proof.
-apply idpath.
-Qed.
-
-Lemma foldr1_cons {A : UU} (f : A -> A -> A) (a : A) (x y : A) (xs : list A) :
-  foldr1 f a (cons x (cons y xs)) = f x (foldr1 f a (cons y xs)).
-Proof.
-apply idpath.
-Qed.
 
 (* Lemma exp_functor_cons x xs : *)
 (*   exp_functors (cons x xs) = BinProduct_of_functors _ _ BinProductsSortToCToC F (exp_functors G). *)
