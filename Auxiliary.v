@@ -27,11 +27,6 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
-(** * Notations and tactics *)
-
-
-Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z) : core_scope.
-(** Replaces builtin notation for [pair], since we use [dirprod, dirprodpair] instead of [prod, pair]. *)
 
 (* Redeclaring in [mor_scope].  TODO: upstream to [Systems.UnicodeNotations]? *)
 Notation "# F" := (functor_on_morphisms F) (at level 3) : mor_scope.
