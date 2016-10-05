@@ -305,6 +305,10 @@ apply (functor_composite (option_list (pr1 a))
                          (functor_composite X (sortToCToC (pr2 a)))).
 Defined.
 
+Lemma is_omega_cocont_exp_fun (X : functor sortToC sortToC) (a : list sort × sort) :
+  is_omega_cocont (exp_fun X a).
+Admitted.
+
 (* This stops Coq from unfolding horcomp too much *)
 Local Arguments horcomp : simpl never.
 
@@ -330,6 +334,14 @@ mkpair.
     now rewrite (pre_whisker_composition _ _ _ hsC)]).
 Defined.
 
+Lemma  is_omega_cocont_exp_functor a : is_omega_cocont (exp_functor a).
+Proof.
+assert (lol : is_omega_cocont (pr1 (exp_functor a)).
+unfold exp_functor.
+simpl.
+
+Admitted.
+
 (* First version: *)
 (* Definition exp_funs (xs : list (list sort × sort)) (X : functor sortToC sortToC) : *)
 (*   functor sortToC C. *)
@@ -354,8 +366,64 @@ set (T := constant_functor [sortToC,sortToC] [sortToC,C]
 apply (foldr1 (fun F G => BinProduct_of_functors _ _ BinProductsSortToCToC F G) T XS).
 Defined.
 
+(* TODO: move these *)
+Lemma foldr_cons {A B : UU} (f : A -> B -> B) (b : B) (x : A) (xs : list A) :
+  foldr f b (cons x xs) = f x (foldr f b xs).
+Proof.
+now destruct xs.
+Qed.
+
+Lemma map_nil {A B : UU} (f : A -> B) : map f nil = nil.
+Proof.
+apply idpath.
+Qed.
+
+Lemma map_cons {A B : UU} (f : A -> B) (x : A) (xs : list A) :
+  map f (cons x xs) = cons (f x) (map f xs).
+Proof.
+now destruct xs.
+Qed.
+
+Lemma foldr1_cons_nil {A : UU} (f : A -> A -> A) (a : A) (x : A) :
+  foldr1 f a (cons x nil) = x.
+Proof.
+apply idpath.
+Qed.
+
+Lemma foldr1_cons {A : UU} (f : A -> A -> A) (a : A) (x y : A) (xs : list A) :
+  foldr1 f a (cons x (cons y xs)) = f x (foldr1 f a (cons y xs)).
+Proof.
+apply idpath.
+Qed.
+
+(* Lemma exp_functor_cons x xs : *)
+(*   exp_functors (cons x xs) = BinProduct_of_functors _ _ BinProductsSortToCToC F (exp_functors G). *)
+
 Lemma is_omega_cocont_exp_functors (xs : list (list sort × sort)) :
   is_omega_cocont (exp_functors xs).
+Proof.
+use (list_ind (fun xs => is_omega_cocont (exp_functors xs)) _ _ xs); simpl; clear xs.
+- apply is_omega_cocont_constant_functor.
+  apply (functor_category_has_homsets sortToC).
+- intros x xs.
+use (list_ind (fun xs => is_omega_cocont (exp_functors xs) -> is_omega_cocont (exp_functors (cons x xs))) _ _ xs); simpl; clear xs.
+
++ intros _. unfold exp_functors.
+rewrite map_cons, map_nil.
+rewrite foldr1_cons_nil.
+apply is_omega_cocont_exp_functor.
++
+intros y xs Hxs Hys.
+unfold exp_functors.
+rewrite !map_cons.
+rewrite foldr1_cons.
+apply is_omega_cocont_BinProduct_of_functors.
+admit.
+admit.
+admit.
+admit.
+apply is_omega_cocont_exp_functor.
+admit.
 Admitted.
 
 (* This lemma is just here to check that the correct sort_cat gets pulled out when reorganizing
