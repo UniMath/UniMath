@@ -558,6 +558,60 @@ Qed.
 
 Lemma isabsorb_abgrfrac_min_max :
   Π x y : abgrfrac X, abgrfrac_min x (abgrfrac_max x y) = x.
-Admitted.
+Proof.
+  intros x y.
+  unfold abgrfrac_max, abgrfrac_min.
+  set (x' := abgrfracelt (min,, max,, is) minus is0 is1 is2 x).
+  set (y' := abgrfracelt (min,, max,, is) minus is0 is1 is2 y).
+
+  generalize (abgrfracelt_correct' (min,, max,, is) minus is0 is1 is2 x).
+  fold x'.
+  rewrite abgrfracelt_simpl.
+  intros Hx'.
+
+  generalize (abgrfracelt_correct' (min,, max,, is) minus is0 is1 is2 y).
+  fold y'.
+  rewrite abgrfracelt_simpl.
+  intros Hy'.
+
+  rewrite !(abgrfracelt_simpl (min,, max,, is)),
+          !rewrite_pr1_tpair, !rewrite_pr2_tpair.
+  rewrite (Lmin_eq_l (min,, max,, is)), (Lmax_eq_l (min,, max,, is)).
+
+  - rewrite <- tppr.
+    apply abgrfracelt_correct.
+
+  - refine (istrans_Lle _ _ _ _ _ _).
+    + apply tminus_le.
+      exact is0.
+      exact is1.
+      exact is3.
+      exact is4.
+      apply Lmin_ge.
+      rewrite <- Hx', rewrite_pr2_tpair.
+      now apply tminus_ge_0.
+      rewrite <- Hy', rewrite_pr2_tpair.
+      now apply tminus_ge_0.
+      refine (istrans_Lle _ _ _ _ _ _).
+      2: apply (Lmax_ge_l (_,,_,,is)).
+      rewrite <- Hx', rewrite_pr1_tpair.
+      now apply tminus_ge_0.
+    + apply Lmin_le_l.
+  - pattern x' at 1 ; rewrite <- Hx', rewrite_pr1_tpair.
+    refine (istrans_Lle _ _ _ _ _ _).
+    + apply tminus_le_r.
+      exact is0.
+      exact is1.
+      exact is3.
+      exact is5.
+      apply (Lmax_ge_l (min,,max,,is)).
+    + apply tminus_le_l.
+      exact is0.
+      exact is1.
+      exact is2.
+      exact is3.
+      exact is5.
+      apply (Lmin_le_l (min,,max,,is)).
+Qed.
 
 End lattice_abgrfrac.
