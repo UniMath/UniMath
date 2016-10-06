@@ -47,37 +47,6 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Local Notation "[ C , D ]" := (functor_Precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
-(* Section move_upstream. *)
-
-(* Definition head {A : UU} (a : A) (xs : list A) : A. *)
-(* Proof. *)
-(* induction xs as [n xs]. *)
-(* destruct n. *)
-(* - apply a. *)
-(* - simpl in xs. *)
-(*   apply (pr1 xs). *)
-(* Defined. *)
-
-(* Lemma foldr1_ind {A : UU} (P : A -> UU) (f : A -> A -> A) (a : A) (Ha : P a) : *)
-(*   Π xs, P (foldr1 f (head a xs) xs) → P (foldr1 f a xs). *)
-(* Proof. *)
-(* intros xs. *)
-(* use (list_ind (fun xs =>  P (foldr1 f (head a xs) xs) → P (foldr1 f a xs))); clear xs. *)
-(* - intros _; apply Ha. *)
-(* - *)
-(* intros x xs IH. *)
-(* intros H. *)
-(* destruct xs as [n xs]. *)
-(* destruct n. *)
-(* + destruct xs. *)
-(* simpl. *)
-(* simpl in *. *)
-(* apply H. *)
-(* + apply H. *)
-(* Defined. *)
-
-(* End move_upstream. *)
-
 (** Swapping of functor arguments *)
 (* TODO: Move upstream? *)
 Section functor_swap.
@@ -354,6 +323,19 @@ destruct xs as [[|n] xs].
     * apply (IHn (k,,xs)).
 Defined.
 
+
+(* This lemma is just here to check that the correct sort_cat gets pulled out when reorganizing *)
+(*    arguments *)
+Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (C2 E2 : Precategory)
+  (F : functor E1 [[C1,C2],[D,E2]]) : functor [C1,C2] [D,[E1,E2]] :=
+    functor_composite (functor_cat_swap F) functor_cat_swap.
+
+Lemma is_omega_cocont_MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (C2 E2 : Precategory)
+  (F : functor E1 [[C1,C2],[D,E2]]) (HF : Π c, is_omega_cocont (F c)) :
+  is_omega_cocont (MultiSortedSigToFunctor_helper C1 D E1 C2 E2 F).
+Admitted.
+
+
 Definition MultiSortedSigToFunctor_fun (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C) (s : sort) :
   [[sortToC, sortToC], [sortToC, C]].
 Proof.
@@ -378,13 +360,27 @@ Defined.
 (** * The functor constructed from a multisorted binding signature *)
 Definition MultiSortedSigToFunctor (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C) :
   functor [sortToC,sortToC] [sortToC,sortToC].
-Admitted.
+Proof.
+(* First reorganize so that the last sort argument is first: *)
+apply MultiSortedSigToFunctor_helper.
+(* As we're defining a functor out of a discrete category it suffices to give a function: *)
+apply functor_discrete_precategory; intro s.
+apply (MultiSortedSigToFunctor_fun M CC s).
+Defined.
 
-(* Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig) *)
-(*   (CC : Π s, Coproducts (indices M s) C) *)
-(*   (PC : Π s, Products (indices M s) C) *)
-(*   (Hi : Π s, isdeceq (indices M s)) : *)
-(*    is_omega_cocont (MultiSortedSigToFunctor M CC). *)
+Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig)
+  (CC : Π s, Coproducts (indices M s) C)
+  (PC : Π s, Products (indices M s) C)
+  (Hi : Π s, isdeceq (indices M s))
+  (H : Π x : [sortToC, C], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x)) :
+   is_omega_cocont (MultiSortedSigToFunctor M CC).
+Proof.
+apply is_omega_cocont_MultiSortedSigToFunctor_helper.
+intros s; apply is_omega_cocont_MultiSortedSigToFunctor_fun.
+- apply PC.
+- apply Hi.
+- apply H.
+Defined.
 
 End MBindingSig.
 
