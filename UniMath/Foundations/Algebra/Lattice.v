@@ -329,6 +329,18 @@ Proof.
   apply is4.
 Qed.
 
+Lemma tminus_le_l :
+  Π k x y : X, Lle is y x → Lle is (minus k x) (minus k y).
+Proof.
+  intros k x y H.
+  apply (is1 y).
+  rewrite is3, is0.
+  apply (is1 x).
+  rewrite is3, assocax, (commax _ y), <- assocax, is0.
+  rewrite !is2, (commax _ y), <- is4, !(commax _ k), <- is3, H.
+  reflexivity.
+Qed.
+
 End tminus_pty.
 
 (** *** Truncated minus and abgrfrac *)
@@ -406,6 +418,17 @@ End abgrfrac_minus.
 
 (** ** lattice in abgrfrac *)
 
+Lemma abgrfrac_setquotpr_equiv {X : abmonoid} :
+  Π k x y : X,
+  setquotpr (eqrelabgrfrac X) (x,,y) = setquotpr (eqrelabgrfrac X) (x + k,,y + k).
+Proof.
+  intros k x y.
+  apply iscompsetquotpr, hinhpr.
+  exists 0 ; simpl.
+  rewrite !(assocax X), !runax, (commax X y).
+  reflexivity.
+Qed.
+
 Section lattice_abgrfrac.
 
 Context {X : abmonoid}
@@ -415,7 +438,9 @@ Context {X : abmonoid}
         (is0 : istminus (_,,_,,is) minus)
         (is1 : Π x y z : X, y + x = z + x → y = z)
         (is2 : isrdistr max op)
-        (is3 : isrdistr min op).
+        (is3 : isrdistr min op)
+        (is4 : isrdistr max min)
+        (is5 : isrdistr min max).
 
 Definition abgrfrac_min : binop (abgrfrac X).
 Proof.
@@ -454,6 +479,10 @@ Proof.
   reflexivity.
 Qed.
 
+Lemma isassoc_abgrfrac_min :
+  isassoc abgrfrac_min.
+Admitted.
+
 Lemma iscomm_abgrfrac_max :
   iscomm abgrfrac_max.
 Proof.
@@ -464,5 +493,71 @@ Proof.
   rewrite (iscomm_Lmin (_,,_,,is)), (iscomm_Lmax (_,,_,,is)).
   reflexivity.
 Qed.
+
+Lemma isassoc_abgrfrac_max :
+  isassoc abgrfrac_max.
+Admitted.
+
+Lemma isabsorb_abgrfrac_max_min :
+  Π x y : abgrfrac X, abgrfrac_max x (abgrfrac_min x y) = x.
+Proof.
+  intros x y.
+  unfold abgrfrac_max, abgrfrac_min.
+  set (x' := abgrfracelt (min,, max,, is) minus is0 is1 is2 x).
+  set (y' := abgrfracelt (min,, max,, is) minus is0 is1 is2 y).
+
+  generalize (abgrfracelt_correct' (min,, max,, is) minus is0 is1 is2 x).
+  fold x'.
+  rewrite abgrfracelt_simpl.
+  intros Hx'.
+
+  generalize (abgrfracelt_correct' (min,, max,, is) minus is0 is1 is2 y).
+  fold y'.
+  rewrite abgrfracelt_simpl.
+  intros Hy'.
+
+  rewrite !(abgrfracelt_simpl (min,, max,, is)),
+          !rewrite_pr1_tpair, !rewrite_pr2_tpair.
+  rewrite (Lmax_eq_l (min,, max,, is)), (Lmin_eq_l (min,, max,, is)).
+
+  - rewrite <- tppr.
+    apply abgrfracelt_correct.
+
+  - pattern x' at 1 ; rewrite <- Hx', rewrite_pr2_tpair.
+    refine (istrans_Lle _ _ _ _ _ _).
+    + apply tminus_le_r.
+      exact is0.
+      exact is1.
+      exact is3.
+      exact is5.
+      apply (Lmax_ge_l (min,,max,,is)).
+    + apply tminus_le_l.
+      exact is0.
+      exact is1.
+      exact is2.
+      exact is3.
+      exact is5.
+      apply (Lmin_le_l (min,,max,,is)).
+  - refine (istrans_Lle _ _ _ _ _ _).
+    + apply tminus_le.
+      exact is0.
+      exact is1.
+      exact is3.
+      exact is4.
+      apply Lmin_ge.
+      rewrite <- Hx', rewrite_pr1_tpair.
+      now apply tminus_ge_0.
+      rewrite <- Hy', rewrite_pr1_tpair.
+      now apply tminus_ge_0.
+      refine (istrans_Lle _ _ _ _ _ _).
+      2: apply (Lmax_ge_l (_,,_,,is)).
+      rewrite <- Hx', rewrite_pr2_tpair.
+      now apply tminus_ge_0.
+    + apply Lmin_le_l.
+Qed.
+
+Lemma isabsorb_abgrfrac_min_max :
+  Π x y : abgrfrac X, abgrfrac_min x (abgrfrac_max x y) = x.
+Admitted.
 
 End lattice_abgrfrac.
