@@ -153,13 +153,19 @@ mkpair.
 - apply form_adjunction_functor_cat_swap.
 Defined.
 
+Lemma is_left_adjoint_functor_cat_swap (C D : precategory) (E : Precategory) :
+  is_left_adjoint (functor_cat_swap C D E).
+Proof.
+mkpair.
++ apply functor_cat_swap.
++ apply are_adjoint_functor_cat_swap.
+Defined.
+
 Lemma is_cocont_functor_cat_swap (C D : precategory) (E : Precategory) :
   is_cocont (functor_cat_swap C D E).
 Proof.
 apply left_adjoint_cocont; try apply homset_property.
-mkpair.
-+ apply functor_cat_swap.
-+ apply are_adjoint_functor_cat_swap.
+apply is_left_adjoint_functor_cat_swap.
 Defined.
 
 Lemma is_omega_cocont_functor_cat_swap (C D : precategory) (E : Precategory) :
@@ -169,13 +175,12 @@ intros d L ccL HccL.
 apply (is_cocont_functor_cat_swap _ _ _ _ d L ccL HccL).
 Defined.
 
-(* Maybe prove this as well? *)
-(* Lemma equiv_functor_cat_swap (C D : precategory) (E : Precategory) :  *)
+(* (* Maybe prove this as well? *) *)
+(* Lemma equiv_functor_cat_swap (C D : precategory) (E : Precategory) : *)
 (*   adj_equivalence_of_precats (@functor_cat_swap C D E). *)
 (* Proof. *)
 (* mkpair. *)
-(* + exists functor_cat_swap. *)
-(*   apply are_adjoint_functor_cat_swap. *)
+(* + apply is_left_adjoint_functor_cat_swap. *)
 (* + split. *)
 (*   - admit. *)
 (*   - admit. *)
