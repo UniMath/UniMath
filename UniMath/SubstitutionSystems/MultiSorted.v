@@ -186,8 +186,13 @@ Defined.
 (*   - admit. *)
 (* Admitted. *)
 
-End functor_swap.
+(* Lemma test (C1 D1 : precategory) (C2 D2 : Precategory) (F : functor [C1,C2] [D1,D2]) *)
+(*   (HF : adj_equivalence_of_precats F) *)
+(*   (G : [C1,C2]) (HG : is_omega_cocont G) : *)
+(*   is_omega_cocont (F G). *)
+(* Admitted. *)
 
+End functor_swap.
 
 
 (** * Discrete precategories *)
@@ -229,8 +234,6 @@ mkpair.
 Defined.
 
 End DiscreteCategory.
-
-
 
 
 (** * Definition of multisorted binding signatures *)
@@ -443,7 +446,7 @@ Defined.
 (*     functor_composite (functor_cat_swap F) functor_cat_swap. *)
 
 Lemma is_omega_cocont_MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory)
-  (F : functor E1 [C1,[D,E2]]) (HF : Π c, is_omega_cocont (F c)) :
+  (F : functor E1 [C1,[D,E2]]) (HF : Π s, is_omega_cocont (F s)) :
   is_omega_cocont (MultiSortedSigToFunctor_helper C1 D E1 E2 F).
 Proof.
 apply is_omega_cocont_functor_composite.
@@ -463,15 +466,16 @@ use (coproduct_of_functors (indices M s)).
 Defined.
 
 Lemma is_omega_cocont_MultiSortedSigToFunctor_fun
-  (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C) (s : sort)
-  (CP : Products (indices M s) C)
-  (hs : isdeceq (indices M s))
+  (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C)
+  (CP : Π s, Products (indices M s) C)
+  (hs : Π s, isdeceq (indices M s))
   (H : Π x : [sortToC, C], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x)) :
-  is_omega_cocont (pr1 (MultiSortedSigToFunctor_fun M CC) s).
+  Π s, is_omega_cocont (pr1 (MultiSortedSigToFunctor_fun M CC) s).
 Proof.
+intros s.
 apply is_omega_cocont_coproduct_of_functors; try apply homset_property.
 + apply Products_functor_precat, Products_functor_precat, CP.
-+ assumption.
++ apply (hs s).
 + intros y; apply is_omega_cocont_exp_functors, H.
 Defined.
 
@@ -492,13 +496,11 @@ Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig)
   (H : Π x : [sortToC, C], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x)) :
    is_omega_cocont (MultiSortedSigToFunctor M CC).
 Proof.
-unfold MultiSortedSigToFunctor.
-apply is_omega_cocont_MultiSortedSigToFunctor_helper.
-intros s; apply is_omega_cocont_MultiSortedSigToFunctor_fun.
-- apply PC.
-- apply Hi.
-- apply H.
-Defined.
+apply is_omega_cocont_functor_composite.
++ apply (homset_property [sortToC,sortToC]).
++ simpl. admit.
++ apply is_omega_cocont_functor_cat_swap.
+Admitted.
 
 End MBindingSig.
 
