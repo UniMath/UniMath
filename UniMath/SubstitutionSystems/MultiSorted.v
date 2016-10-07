@@ -438,12 +438,15 @@ eapply (functor_composite (functor_cat_swap _ _ _)).
 apply MultiSortedSigToFunctor_helper1.
 Defined.
 
+
+
 (* The above definition might be the same as: *)
 (* functor_composite (functor_cat_swap F) functor_cat_swap. *)
 
 (* Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory) *)
 (*   (F : functor E1 [C1,[D,E2]]) : functor C1 [D,[E1,E2]]. *)
 (*     functor_composite (functor_cat_swap F) functor_cat_swap. *)
+
 
 Lemma is_omega_cocont_MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory)
   (F : functor E1 [C1,[D,E2]]) (HF : Π s, is_omega_cocont (F s)) :
@@ -454,6 +457,15 @@ apply is_omega_cocont_functor_composite.
 + admit.
 + apply is_omega_cocont_functor_cat_swap.
 Admitted.
+
+Local Definition MultiSortedSigToFunctor_helper2 (C1 D E1 : precategory) (E2 : Precategory) :
+  functor [E1,[D,[C1,E2]]] [C1,[D,[E1,E2]]].
+Proof.
+eapply functor_composite;[apply functor_cat_swap|].
+eapply functor_composite;[|apply functor_cat_swap].
+eapply functor_composite; [eapply post_composition_functor; apply functor_cat_swap|].
+apply functor_identity.
+Defined.
 
 Definition MultiSortedSigToFunctor_fun (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C)
   : [sort_cat, [[sortToC, sortToC], [sortToC, C]]].
