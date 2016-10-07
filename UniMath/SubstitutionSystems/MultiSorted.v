@@ -47,6 +47,20 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Local Notation "[ C , D ]" := (functor_Precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
+(* Lemma test4 (C1 C2 : precategory) (D1 D2 : Precategory) (F : functor [C1,D1] [C2,D2]) (G : [C1,D1]) : *)
+(*   adj_equivalence_of_precats F -> *)
+(*   is_omega_cocont G -> *)
+(*   is_omega_cocont (F G). *)
+(* Proof. *)
+(* intros α HG d L ccL HccL x ccx. *)
+(* unfold is_omega_cocont in HG. *)
+(* simpl in *. *)
+(* set (αinv := adj_equivalence_inv α). *)
+(* simpl in *. *)
+(* apply (test2 hsC hsD _ H _ _ _ _ HccL). *)
+(* Defined. *)
+
+
 (** Swapping of functor arguments *)
 (* TODO: Move upstream? *)
 Section functor_swap.
@@ -104,10 +118,110 @@ mkpair.
     now apply (nat_trans_eq (homset_property E))]).
 Defined.
 
+End functor_swap.
+
+Section temp.
+
 (* How should one even express this: *)
 (* Lemma is_omega_cocont_functor_cat_swap : is_omega_cocont functor_cat_swap. *)
 
-End functor_swap.
+(* Lemma are_adjoints_constprod_functor2 A : *)
+(*   are_adjoints (constprod_functor2 BinProductsHSET A) (exponential_functor A). *)
+(* Proof. *)
+(* mkpair. *)
+(* - mkpair. *)
+(*   + mkpair. *)
+(*     * intro x; simpl; apply dirprodpair. *)
+(*     * abstract (intros x y f; apply idpath). *)
+(*   + mkpair. *)
+(*     * intros X fx; apply (pr1 fx (pr2 fx)). *)
+(*     * abstract (intros x y f; apply idpath). *)
+(* - abstract (mkpair; *)
+(*   [ intro x; simpl; apply funextfun; intro ax; now rewrite (paireta ax) *)
+(*   | intro b; apply funextfun; intro f; apply idpath]). *)
+(* Defined. *)
+
+Definition id_functor_cat_swap (C D : precategory) (E : Precategory) :
+  nat_trans (functor_identity [C, [D, E]])
+    (functor_composite (@functor_cat_swap C D E) (@functor_cat_swap D C E)).
+Proof.
+set (hsE := homset_property E).
+mkpair.
+intros F.
+mkpair.
+* intro c.
+{ mkpair.
+- now intro f; apply identity.
+- abstract (now intros a b f; rewrite id_left, id_right).
+}
+* abstract (now intros a b f; apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
+* abstract (now intros a b f; apply nat_trans_eq; [apply functor_category_has_homsets|]; intro c;
+            apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
+Defined.
+
+Definition functor_cat_swap_id (C D : precategory) (E : Precategory) :
+  nat_trans (functor_composite (@functor_cat_swap D C E) (@functor_cat_swap C D E))
+      (functor_identity [D, [C, E]]).
+Proof.
+set (hsE := homset_property E).
+mkpair.
+intros F.
+mkpair.
+* intro c.
+{ mkpair.
+- now intro f; apply identity.
+- abstract (now intros a b f; rewrite id_left, id_right).
+}
+* abstract (now intros a b f; apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
+* abstract (now intros a b f; apply nat_trans_eq; [apply functor_category_has_homsets|]; intro c;
+            apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
+Defined.
+
+Lemma form_adjunction_functor_cat_swap (C D : precategory) (E : Precategory) :
+  form_adjunction _ _ (id_functor_cat_swap C D E) (functor_cat_swap_id C D E).
+Proof.
+set (hsE := homset_property E).
+split;
+  simpl; intro F; apply (nat_trans_eq (functor_category_has_homsets _ _ hsE)); intro d;
+  apply (nat_trans_eq hsE); intro c; simpl; apply id_right.
+Admitted.
+
+Lemma are_adjoint_functor_cat_swap (C D : precategory) (E : Precategory) :
+  are_adjoints (@functor_cat_swap C D E) (@functor_cat_swap D C E).
+Proof.
+set (hsE := homset_property E).
+mkpair.
+- split; [ apply id_functor_cat_swap | apply functor_cat_swap_id ].
+- apply form_adjunction_functor_cat_swap.
+Defined.
+
+Lemma test (C D : precategory) (E : Precategory) : adj_equivalence_of_precats (@functor_cat_swap C D E).
+Proof.
+mkpair.
++ exists functor_cat_swap.
+  apply are_adjoint_functor_cat_swap.
++ split.
+- admit.
+- admit.
+Admitted.
+
+Lemma test2 (C D : Precategory) (F : functor C D) :
+  adj_equivalence_of_precats F -> is_cocont F.
+Proof.
+intro H.
+apply left_adjoint_cocont; try apply homset_property.
+apply H.
+Defined.
+
+Lemma test3 (C D : Precategory) (F : functor C D) :
+  adj_equivalence_of_precats F -> is_omega_cocont F.
+Proof.
+intros H g L ccL HccL d ccd.
+apply (test2 C D _ H _ _ _ _ HccL).
+Defined.
+
+
+End temp.
 
 (** * Discrete precategories *)
 Section DiscreteCategory.
@@ -179,7 +293,7 @@ Defined.
 Definition mk_sortToC (f : sort → C) : sortToC :=
   functor_discrete_precategory _ _ f.
 
-Definition proj_gen {D : precategory} {E : Precategory} (d : D) : functor [D,E] E.
+Definition proj_gen_fun {D : precategory} {E : Precategory} (d : D) : functor [D,E] E.
 Proof.
 mkpair.
 + mkpair.
@@ -188,6 +302,24 @@ mkpair.
 + abstract (split; [intro f; apply idpath|intros f g h fg gh; apply idpath]).
 Defined.
 
+Definition proj_gen {D : precategory} {E : Precategory} : functor D [[D,E],E].
+Proof.
+mkpair.
++ mkpair.
+  - apply proj_gen_fun.
+  - intros d1 d2 f.
+    mkpair.
+    * simpl; intro F; apply (# F f).
+    * intros F G α; simpl in *.
+      apply pathsinv0, (nat_trans_ax α d1 d2 f).
++ split.
+  - intros F; simpl.
+    apply nat_trans_eq; [apply homset_property|]; intro G; simpl.
+    apply functor_id.
+  - intros F G H α β; simpl.
+    apply nat_trans_eq; [apply homset_property|]; intro γ; simpl.
+    apply functor_comp.
+Defined.
 
 (** Given a sort s this applies the sortToC to s and returns C *)
 Definition projSortToC (s : sort) : functor sortToC C.
@@ -326,15 +458,20 @@ Defined.
 
 (* This lemma is just here to check that the correct sort_cat gets pulled out when reorganizing *)
 (*    arguments *)
-Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (C2 E2 : Precategory)
-  (F : functor E1 [[C1,C2],[D,E2]]) : functor [C1,C2] [D,[E1,E2]] :=
+Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory)
+  (F : functor E1 [C1,[D,E2]]) : functor C1 [D,[E1,E2]] :=
     functor_composite (functor_cat_swap F) functor_cat_swap.
 
-Lemma is_omega_cocont_MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (C2 E2 : Precategory)
-  (F : functor E1 [[C1,C2],[D,E2]]) (HF : Π c, is_omega_cocont (F c)) :
-  is_omega_cocont (MultiSortedSigToFunctor_helper C1 D E1 C2 E2 F).
+Lemma is_omega_cocont_MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory)
+  (F : functor E1 [C1,[D,E2]]) (HF : Π c, is_omega_cocont (F c)) :
+  is_omega_cocont (MultiSortedSigToFunctor_helper C1 D E1 E2 F).
+Proof.
+apply is_omega_cocont_functor_composite.
++ apply functor_category_has_homsets.
++ admit.
++ apply test3.
+  eapply test.
 Admitted.
-
 
 Definition MultiSortedSigToFunctor_fun (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C) (s : sort) :
   [[sortToC, sortToC], [sortToC, C]].
