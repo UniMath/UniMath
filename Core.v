@@ -25,10 +25,9 @@ Contents:
   - [functor_over], [total_functor]
   - properties of functors: [functor_over_ff], …
   - natural transformations: [nat_trans_over], …
-- Fibrations
 *)
 
-(* TODO: this file has become large and unwieldy; should probably be split up.  Displayed functors and fibration-ness can certainly be happily split off.  Should total precats stay here, or also be split out? *)
+(* TODO: this file has become large and unwieldy; should probably be split up.  Displayed functors can certainly be happily split off.  Should total precats stay here, or also be split out? *)
 
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
@@ -1678,25 +1677,6 @@ Proof.
 Defined.
 
 End Nat_Trans_Over.
-
-(** * Fibrations *)
-
-(** Fibratons, opfibrations, and isofibrations are all displayed categories with extra lifting conditions. *)
-
-(* TODO: flesh out this section; probably break it out into its own file. *)
-Section Fibrations.
-
-(** whenever you have an iso φ : c =~ c' in C, and an object d in D c,
-there’s some object d' in D c', and an iso φbar : d =~ d' over φ
-*)
-
-Definition isofibration {C : Precategory} (D : disp_precat C) : UU
-  := 
-  forall (c c' : C) (i : iso c c') (d : D c),
-          Σ d' : D c', iso_disp i d d'.
-
-
-End Fibrations.
 
 (** some TODOs for the displayed-cats library:
 

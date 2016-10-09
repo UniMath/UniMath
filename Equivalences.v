@@ -14,6 +14,7 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.Displayed_Cats.Auxiliary.
 Require Import TypeTheory.Displayed_Cats.Core.
 Require Import TypeTheory.Displayed_Cats.Constructions.
+Require Import TypeTheory.Displayed_Cats.Fibrations.
 
 
 Local Set Automatic Introduction.
@@ -34,7 +35,8 @@ Definition fiber_functor_ess_split_surj
     {F : functor C C'} (FF : functor_over F D D')
     (H : functor_over_ff FF)
     {X : functor_over_ess_split_surj FF}
-    {Y : isofibration D}
+    {Y : is_op_isofibration D}
+  (* TODO: change to [is_isofibration], once [is_isofibration_iff_is_op_isofibration] is provided *)
     (x : C)
   : Π yy : D'[{F x}], Σ xx : D[{x}], 
                 iso (fiber_functor FF _ xx) yy.
