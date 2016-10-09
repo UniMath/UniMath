@@ -298,10 +298,10 @@ Lemma is_iso_sigma_disp_aux2
 Proof.
   split.
   - use total2_paths.
-    + etrans. apply iso_disp_after_inv_mor.
-      apply pathsinv0, pr1_transportf_sigma_disp.
-    + cbn.
-      etrans. Focus 2. apply @pathsinv0, pr2_transportf_sigma_disp.
+    + abstract ( etrans; 
+        [ apply iso_disp_after_inv_mor
+        | apply pathsinv0, pr1_transportf_sigma_disp]).
+    + etrans. Focus 2. apply @pathsinv0, pr2_transportf_sigma_disp.
       etrans. apply maponpaths.
         refine (mor_disp_transportf_postwhisker
           (@inv_mor_total_iso _ _ (_,,_) (_,,_) f ffi) _ (pr2 fff)).
@@ -311,10 +311,10 @@ Proof.
         apply (iso_disp_after_inv_mor iii).
       apply maponpaths_2, (@homset_property (total_precat D)).
   - use total2_paths; cbn.
-    + etrans. apply inv_mor_after_iso_disp.
-      apply pathsinv0, pr1_transportf_sigma_disp.
-    + cbn.
-      etrans. Focus 2. apply @pathsinv0, pr2_transportf_sigma_disp.
+    + abstract ( etrans;
+        [ apply inv_mor_after_iso_disp
+        | apply pathsinv0, pr1_transportf_sigma_disp ]).
+    + etrans. Focus 2. apply @pathsinv0, pr2_transportf_sigma_disp.
       etrans. apply maponpaths.
       refine (mor_disp_transportf_prewhisker
         (@inv_mor_total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff) _).
