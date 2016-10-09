@@ -8,7 +8,7 @@ Partial contents:
   - [dirprodpr1_functor], [dirprodpr2_functor]
 - Sigmas of displayed precategories
 - Displayed functor precat
-- Fibre precats
+- Fiber precats
 *)
 
 Require Import UniMath.Foundations.Basics.Sets.
@@ -371,7 +371,7 @@ Definition sigma_disp_iso_equiv
 Lemma is_category_sigma_disp (DD : is_category_disp D) (EE : is_category_disp E)
   : is_category_disp sigma_disp_precat.
 Proof.
-  apply is_category_disp_from_fibres.
+  apply is_category_disp_from_fibers.
   intros x xx yy.
   use weqhomot.
   - destruct xx as [xx xxx], yy as [yy yyy].
@@ -789,16 +789,16 @@ Defined.
 
 End Functor.
 
-(** * Fibre precategories *)
+(** * Fiber precategories *)
 
-(** A displayed category gives a _fibre_ category over each object of the base.  These are most interesting in the case where the displayed category is an isofibration. *)
-Section Fibre.
+(** A displayed category gives a _fiber_ category over each object of the base.  These are most interesting in the case where the displayed category is an isofibration. *)
+Section Fiber.
 
 Context {C : Precategory}
         (D : disp_precat C)
         (c : C).
 
-Definition fibre_precategory_data : precategory_data.
+Definition fiber_precategory_data : precategory_data.
 Proof.
   mkpair.
   - mkpair.
@@ -809,7 +809,7 @@ Proof.
     + intros. apply (transportf _ (id_right _ ) (comp_disp X X0)).
 Defined.
 
-Lemma fibre_is_precategory : is_precategory fibre_precategory_data.
+Lemma fiber_is_precategory : is_precategory fiber_precategory_data.
 Proof.
   repeat split; intros; cbn.
   - etrans. apply maponpaths. apply id_left_disp.
@@ -828,16 +828,16 @@ Proof.
     apply transportf_ext. apply homset_property.
 Qed.
 
-Definition fibre_precategory : precategory := ( _ ,, fibre_is_precategory).
+Definition fiber_precategory : precategory := ( _ ,, fiber_is_precategory).
 
-Lemma has_homsets_fibre : has_homsets fibre_precategory.
+Lemma has_homsets_fiber : has_homsets fiber_precategory.
 Proof.
   intros x y. apply homsets_disp.
 Qed.
 
 
 
-Definition iso_disp_from_iso_fibre (a b : fibre_precategory) :
+Definition iso_disp_from_iso_fiber (a b : fiber_precategory) :
   iso a b -> iso_disp (identity_iso c) a b.
 Proof.
  intro i.
@@ -859,14 +859,14 @@ Proof.
         apply transportf_ext; apply homset_property ] ).
 Defined.
 
-Definition iso_fibre_from_iso_disp (a b : fibre_precategory) :
+Definition iso_fiber_from_iso_disp (a b : fiber_precategory) :
   iso a b <- iso_disp (identity_iso c) a b.
 Proof.
   intro i.
   mkpair.
   + apply (pr1 i).
   + cbn in *. 
-    apply (@is_iso_from_is_z_iso fibre_precategory).
+    apply (@is_iso_from_is_z_iso fiber_precategory).
     mkpair.
     apply (inv_mor_disp_from_iso i).
     abstract (split; cbn;
@@ -884,11 +884,11 @@ Proof.
               ]). 
 Defined.
 
-Lemma iso_disp_iso_fibre (a b : fibre_precategory) :
+Lemma iso_disp_iso_fiber (a b : fiber_precategory) :
   iso a b ≃ iso_disp (identity_iso c) a b.
 Proof.
-  exists (iso_disp_from_iso_fibre a b).
-  use (gradth _ (iso_fibre_from_iso_disp _ _ )).
+  exists (iso_disp_from_iso_fiber a b).
+  use (gradth _ (iso_fiber_from_iso_disp _ _ )).
   - intro. apply eq_iso. apply idpath.
   - intro. apply eq_iso_disp. apply idpath.
 Defined.
@@ -896,15 +896,15 @@ Defined.
 (** ** Univalence *)
 Variable H : is_category_disp D.
 
-Let idto1 (a b : fibre_precategory) : a = b ≃ iso_disp (identity_iso c) a b 
+Let idto1 (a b : fiber_precategory) : a = b ≃ iso_disp (identity_iso c) a b 
   := 
   weqpair (@idtoiso_fiber_disp _ _ _ a b) (H _ _ (idpath _ ) a b).
 
-Let idto2 (a b : fibre_precategory) : a = b -> iso_disp (identity_iso c) a b 
+Let idto2 (a b : fiber_precategory) : a = b -> iso_disp (identity_iso c) a b 
   := 
-  funcomp (λ p : a = b, idtoiso p) (iso_disp_iso_fibre a b).
+  funcomp (λ p : a = b, idtoiso p) (iso_disp_iso_fiber a b).
 
-Lemma eq_idto1_idto2 (a b : fibre_precategory) 
+Lemma eq_idto1_idto2 (a b : fiber_precategory) 
   : Π p : a = b, idto1 _ _ p = idto2 _ _ p.
 Proof.
   intro p. induction p.
@@ -912,12 +912,12 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma is_univalent_fibre_precat 
-  (a b : fibre_precategory)
+Lemma is_univalent_fiber_precat 
+  (a b : fiber_precategory)
   :
   isweq (λ p : a = b, idtoiso p).
 Proof.
-  use (twooutof3a _ (iso_disp_iso_fibre a b)). 
+  use (twooutof3a _ (iso_disp_iso_fiber a b)). 
   - use (isweqhomot (idto1 a b)).
     + intro p.
       apply eq_idto1_idto2.
@@ -926,24 +926,24 @@ Proof.
 Defined.    
 
 
-Lemma is_category_fibre : is_category fibre_precategory.
+Lemma is_category_fiber : is_category fiber_precategory.
 Proof.
   split.
-  - apply is_univalent_fibre_precat.
-  - apply has_homsets_fibre.
+  - apply is_univalent_fiber_precat.
+  - apply has_homsets_fiber.
 Defined.
 
-End Fibre.
+End Fiber.
 
-Arguments fibre_precategory {_} _ _ .
+Arguments fiber_precategory {_} _ _ .
 
 (* TODO: is this a terrible notation?  Probably. *)
-Notation "D [{ x }]" := (fibre_precategory D x)(at level 3,format "D [{ x }]").
+Notation "D [{ x }]" := (fiber_precategory D x)(at level 3,format "D [{ x }]").
 
-(** ** Fibre functors
+(** ** Fiber functors
 
-Functors between displayed categories induce functors between their fibres. *)
-Section Fibre_Functors.
+Functors between displayed categories induce functors between their fibers. *)
+Section Fiber_Functors.
 
 Section fix_context.
 
@@ -951,7 +951,7 @@ Context {C C' : Precategory} {D} {D'}
         {F : functor C C'} (FF : functor_over F D D')
         (x : C).
 
-Definition fibre_functor_data : functor_data D[{x}] D'[{F x}].
+Definition fiber_functor_data : functor_data D[{x}] D'[{F x}].
 Proof.
   mkpair.
   - apply (fun xx' => FF xx').
@@ -959,7 +959,7 @@ Proof.
     apply (transportf _ (functor_id _ _ ) (# FF ff)).
 Defined.
 
-Lemma is_functor_fibre_functor : is_functor fibre_functor_data.
+Lemma is_functor_fiber_functor : is_functor fiber_functor_data.
 Proof.
   split; unfold functor_idax, functor_compax; cbn.
   - intros.
@@ -978,18 +978,18 @@ Proof.
     apply transportf_ext, homset_property.
 Qed.
 
-Definition fibre_functor : functor D[{x}] D'[{F x}]
-  := ( _ ,, is_functor_fibre_functor).
+Definition fiber_functor : functor D[{x}] D'[{F x}]
+  := ( _ ,, is_functor_fiber_functor).
 
 End fix_context.
 
 (* TODO: consider lemma organisation in this file *)
 
-Definition is_iso_fibre_from_is_iso_disp
+Definition is_iso_fiber_from_is_iso_disp
   {C : Precategory} {D : disp_precat C}
   {c : C} {d d' : D c} (ff : d -->[identity c] d')
   (Hff : is_iso_disp (identity_iso c) ff)
-: @is_iso (fibre_precategory D c) _ _ ff.
+: @is_iso (fiber_precategory D c) _ _ ff.
 Proof.
   apply is_iso_from_is_z_iso.
   exists (pr1 Hff).
@@ -1006,12 +1006,12 @@ Proof.
     apply homset_property.
 Qed.
 
-Definition fibre_nat_trans {C C' : Precategory}
+Definition fiber_nat_trans {C C' : Precategory}
   {F : functor C C'}
   {D D'} {FF FF' : functor_over F D D'}
   (α : nat_trans_over (nat_trans_id F) FF FF')
   (c : C)
-: nat_trans (fibre_functor FF c) (fibre_functor FF' c).
+: nat_trans (fiber_functor FF c) (fiber_functor FF' c).
 Proof.
   use tpair; simpl.
   - intro d. exact (α c d).
@@ -1028,12 +1028,12 @@ Proof.
     apply maponpaths_2, homset_property.
 Defined.
 
-Lemma fibre_functor_ff
+Lemma fiber_functor_ff
     {C C' : Precategory} {D} {D'}
     {F : functor C C'} (FF : functor_over F D D')
     (H : functor_over_ff FF)
     (c : C)
-: fully_faithful (fibre_functor FF c).
+: fully_faithful (fiber_functor FF c).
 Proof.
   intros xx yy; cbn.
   set (XR := H _ _ xx yy (identity _ )).
@@ -1042,6 +1042,6 @@ Proof.
   - apply isweqtransportf.
 Defined.
 
-End Fibre_Functors.
+End Fiber_Functors.
 
 

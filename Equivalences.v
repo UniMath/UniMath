@@ -29,7 +29,7 @@ End Auxiliary.
 (* TODO: move somewhere.  Not sure where? [Constructions]? *)
 Section Essential_Surjectivity.
 
-Definition fibre_functor_ess_split_surj 
+Definition fiber_functor_ess_split_surj 
     {C C' : Precategory} {D} {D'}
     {F : functor C C'} (FF : functor_over F D D')
     (H : functor_over_ff FF)
@@ -37,7 +37,7 @@ Definition fibre_functor_ess_split_surj
     {Y : isofibration D}
     (x : C)
   : Π yy : D'[{F x}], Σ xx : D[{x}], 
-                iso (fibre_functor FF _ xx) yy.
+                iso (fiber_functor FF _ xx) yy.
 Proof.
   intro yy.
   set (XR := X _ yy).
@@ -51,7 +51,7 @@ Proof.
     set (XR := functor_over_on_iso_disp FF pe).
     set (XR' := iso_inv_from_iso_disp XR).
     (* now need composition of iso_disps *)
-    apply  (invweq (iso_disp_iso_fibre _ _ _ _)).
+    apply  (invweq (iso_disp_iso_fiber _ _ _ _)).
     set (XRt := iso_disp_comp XR' ii).
     transparent assert (XH : 
            (iso_comp (iso_inv_from_iso (functor_on_iso F i))
@@ -908,21 +908,21 @@ Section Displayed_Equiv_Compose.
 
 End Displayed_Equiv_Compose.
 
-(** ** Induced adjunctions/equivalences of fibre precats *)
-Section Equiv_Fibres.
+(** ** Induced adjunctions/equivalences of fiber precats *)
+Section Equiv_Fibers.
 
 Context {C : Precategory}.
 
-Definition fibre_is_left_adj {D D' : disp_precat C}
+Definition fiber_is_left_adj {D D' : disp_precat C}
   {FF : functor_over (functor_identity _) D D'}
   (EFF : right_adjoint_over_id FF)
   (c : C)
-: is_left_adjoint (fibre_functor FF c).
+: is_left_adjoint (fiber_functor FF c).
 Proof.
   destruct EFF as [[GG [η ε]] axs]; simpl in axs.
-  exists (fibre_functor GG _).
-  exists (fibre_nat_trans η _,
-          fibre_nat_trans ε _).
+  exists (fiber_functor GG _).
+  exists (fiber_nat_trans η _,
+          fiber_nat_trans ε _).
   mkpair; cbn.
   + intros d.
     set (thisax := pr1 axs c d); clearbody thisax; clear axs.
@@ -938,24 +938,24 @@ Proof.
     apply homset_property.
 Defined.
 
-Definition fibre_equiv {D D' : disp_precat C}
+Definition fiber_equiv {D D' : disp_precat C}
   {FF : functor_over (functor_identity _) D D'}
   (EFF : is_equiv_over_id FF)
   (c : C)
-: adj_equivalence_of_precats (fibre_functor FF c).
+: adj_equivalence_of_precats (fiber_functor FF c).
 Proof.
-  exists (fibre_is_left_adj EFF c).
+  exists (fiber_is_left_adj EFF c).
   destruct EFF as [[[GG [η ε]] tris] isos]; cbn in isos; cbn.
   mkpair.
   + intros d.
-    apply is_iso_fibre_from_is_iso_disp. 
+    apply is_iso_fiber_from_is_iso_disp. 
     apply (is_iso_unit_over_id isos).
   + intros d.
-    apply is_iso_fibre_from_is_iso_disp. 
+    apply is_iso_fiber_from_is_iso_disp. 
     apply (is_iso_counit_over_id isos).
 Defined.
 
-End Equiv_Fibres.
+End Equiv_Fibers.
 
 (* *)
 

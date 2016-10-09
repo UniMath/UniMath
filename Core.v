@@ -1,7 +1,7 @@
 (**
 A module for “displayed precategories”, based over UniMath’s [CategoryTheory] library.
 
-Roughly, a “displayed category _D_ over a precategory _C_” is analogous to “a family of types _Y_ indexed over a type _X_”.  A displayed category has a “total category” Σ _C_ _D_, with a functor to _D_; and indeed displayed categories should be equivalent to categories over _D_, by taking fibres.
+Roughly, a “displayed category _D_ over a precategory _C_” is analogous to “a family of types _Y_ indexed over a type _X_”.  A displayed category has a “total category” Σ _C_ _D_, with a functor to _D_; and indeed displayed categories should be equivalent to categories over _D_, by taking fibers.
 
 In a little more detail: if [D] is a displayed precategory over [C], then [D] has a type of objects indexed over [ob C], and for each [x y : C, f : x --> y, xx : D x, yy : D y], a type of “morphisms over [f] from [xx] to [yy]”.  The identity and composition (and axioms) for [D] all overlie the corresponding structure on [C].
 
@@ -643,7 +643,7 @@ Definition is_category_disp {C} (D : disp_precat C)
        isweq (λ ee, @idtoiso_disp _ _ _ _ e xx xx' ee).
 
 (* TODO: maybe rename further.  *)
-Lemma is_category_disp_from_fibres {C} {D : disp_precat C}
+Lemma is_category_disp_from_fibers {C} {D : disp_precat C}
   : (Π x (xx xx' : D x), isweq (fun e : xx = xx' => idtoiso_fiber_disp e))
   -> is_category_disp D.
 Proof.
@@ -1394,7 +1394,7 @@ End ff_reflects_isos.
 
 (** Given a base functor [F : C —> C'] and a displayed functor [FF : D' -> D] over it, there are two different “essential surjectivity” conditions one can put on [FF].
 
-Given [c : C] and [d : D' (F c)], one can ask for a lift of [d] either in [D c] itself, or more generally in some fibre [D c'] with [c'] isomorphic to [c].
+Given [c : C] and [d : D' (F c)], one can ask for a lift of [d] either in [D c] itself, or more generally in some fiber [D c'] with [c'] isomorphic to [c].
 
 The second version is better-behaved in general; but the stricter first version is equivalent when [D] is an isofibration, and is simpler to work with.  So we call the second version “essentially split surjective”, [functor_over_ess_split_surj], and the first “displayed ess. split surj.”, [functor_over_disp_ess_split_surj].
 *)

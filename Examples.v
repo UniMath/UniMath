@@ -111,7 +111,7 @@ End NAction.
 
 (** ** Elements of sets
 
-A presheaf on a (pre)category can be viewed as a fibrewise discrete displayed (pre)category. In fact, the universal example of this is the case corresponding to the identity functor on [SET].  So, having given the displayed category for this case, one obtains it for arbitrary presheaves by reindexing. *)
+A presheaf on a (pre)category can be viewed as a fiberwise discrete displayed (pre)category. In fact, the universal example of this is the case corresponding to the identity functor on [SET].  So, having given the displayed category for this case, one obtains it for arbitrary presheaves by reindexing. *)
 
 (* TODO: move? ponder? *)
 Local Notation SET := Precategories.SET.
