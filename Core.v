@@ -630,6 +630,58 @@ Qed.
 
 End Isos.
 
+(** ** More utility lemmas *)
+
+(** A few more general lemmas for displayed-cat algebra, that require isomorphisms to state. *)
+Section Utilities.
+
+(** Note: closely analogous to [idtoiso_precompose].  We name it differently to fit the convention of naming equalities according to their LHS, for reference during calculation. *)
+Lemma transportf_precompose_disp {C} {D : disp_precat C}
+    {c d : C} (f : c --> d )
+    {cc cc' : D c} (e : cc = cc') {dd} (ff : cc -->[f] dd)
+  : transportf (fun xx : D c => xx -->[f] dd) e ff
+  = transportf _ (id_left _)
+    (iso_inv_from_iso_disp (idtoiso_disp (idpath _) (e)) ;; ff).
+Proof.
+  destruct e; cbn; unfold idfun; cbn. 
+  rewrite id_left_disp.
+  apply pathsinv0, Utilities.transportfbinv.
+Qed.
+
+(* TODO: add dual [transportf_postcompose_disp]. *)
+
+Definition precomp_with_iso_disp_is_inj
+    {C : Precategory} {D : disp_precat C}
+    {a b c : C} {i : iso a b} {f : b --> c}
+    {aa : D a} {bb} {cc} (ii : iso_disp i aa bb) {ff ff' : bb -->[f] cc}
+  : (ii ;; ff = ii ;; ff') -> ff = ff'.
+Proof.
+  intros e.
+  simple refine (pathscomp0 _ _). 
+  - refine (transportf _ _ ((iso_inv_from_iso_disp ii ;; ii) ;; ff)). 
+    etrans; [ apply maponpaths_2, iso_after_iso_inv | apply id_left ].
+  - apply pathsinv0.
+    etrans. eapply transportf_bind.
+      eapply cancel_postcomposition_disp, iso_disp_after_inv_mor.
+    rewrite id_left_disp.
+    etrans. apply transport_f_f.
+    refine (@maponpaths_2 _ _ _ _ _ (idpath _) _ _).
+    apply homset_property.
+  - etrans. eapply transportf_bind, assoc_disp_var.
+    rewrite e.
+    etrans. eapply transportf_bind, assoc_disp.
+    etrans. eapply transportf_bind.
+      eapply cancel_postcomposition_disp, iso_disp_after_inv_mor.
+    rewrite id_left_disp.
+    etrans. apply transport_f_f.
+    refine (@maponpaths_2 _ _ _ _ _ (idpath _) _ _).
+    apply homset_property.
+Qed.
+
+(* TODO: add dual [postcomp_with_iso_disp_is_inj]. *)
+
+End Utilities.
+
 (** ** Saturation: displayed _categories_ *)
 Section Categories.
 
@@ -651,6 +703,45 @@ Qed.
 
 Definition disp_category C
   := Σ D : disp_precat C, is_category_disp D.
+
+Definition disp_category_pair
+    {C} {D : disp_precat C} (H : is_category_disp D)
+  : disp_category C
+:= (D,,H).
+
+Definition disp_precat_of_disp_cat {C} (D : disp_category C)
+  : disp_precat C
+:= pr1 D.
+Coercion disp_precat_of_disp_cat : disp_category >-> disp_precat.
+
+Definition category_is_category_disp {C} (D : disp_category C)
+  : is_category_disp D
+:= pr2 D.
+Coercion category_is_category_disp : disp_category >-> is_category_disp.
+
+Definition isotoid_disp
+    {C} {D : disp_precat C} (D_cat : is_category_disp D)
+    {c c' : C} (e : c = c') {d : D c} {d'} (i : iso_disp (idtoiso e) d d')
+  : transportf _ e d = d'.
+Proof.
+  exact (invmap (weqpair (idtoiso_disp e) (D_cat _ _ _ _ _)) i).
+Defined.
+
+Definition idtoiso_isotoid_disp
+    {C} {D : disp_precat C} (D_cat : is_category_disp D)
+    {c c' : C} (e : c = c') {d : D c} {d'} (i : iso_disp (idtoiso e) d d')
+  : idtoiso_disp e (isotoid_disp D_cat e i) = i.
+Proof.
+  refine (homotweqinvweq _ _).
+Qed.
+
+Definition isotoid_idtoiso_disp
+    {C} {D : disp_precat C} (D_cat : is_category_disp D)
+    {c c' : C} (e : c = c') {d : D c} {d'} (ee : transportf _ e d = d')
+  : isotoid_disp D_cat e (idtoiso_disp e ee) = ee.
+Proof.
+  refine (homotinvweqweq _ _).
+Qed.
 
 End Categories.
 

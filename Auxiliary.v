@@ -280,6 +280,16 @@ End Discrete_precats.
 (** * Miscellaneous lemmas *)
 Section Miscellaneous.
 
+(* TODO: _surely_ this is in the library!? *)
+(** Note: generalises [pr1_transportf]. *)
+Definition functtransportf_2
+  {X : UU} {P P' : X → UU} (f : forall x, P x -> P' x)
+  {x x' : X} (e : x = x') (p : P x)
+  : f _ (transportf _ e p) = transportf _ e (f _ p).
+Proof.
+  destruct e; apply idpath.
+Defined.
+
 (* TODO: upstream; also perhaps reconsider implicit args of pr1_transportf to match this? *)
 Lemma pr2_transportf {A} {B1 B2 : A → UU} 
     {a a' : A} (e : a = a') (xs : B1 a × B2 a)
