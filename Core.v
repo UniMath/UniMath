@@ -649,7 +649,7 @@ Proof.
   intros H x x' e. destruct e. apply H.
 Qed.
 
-Definition disp_category {C}
+Definition disp_category C
   := Σ D : disp_precat C, is_category_disp D.
 
 End Categories.
