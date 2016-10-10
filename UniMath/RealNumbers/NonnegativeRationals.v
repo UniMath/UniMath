@@ -59,12 +59,7 @@ Qed.
 Local Definition hnnq_ge : hrel hnnq_set := resrel hqgeh (hqleh 0).
 Local Lemma ispreorder_hnnq_ge : ispreorder hnnq_ge.
 Proof.
-  set (H := ispreorder_hnnq_le).
-  split.
-  intros x y z Hxy Hyz.
-  now apply (pr1 H) with y.
-  intros x.
-  now apply (pr2 H).
+  apply (ispreorder_reverse _ ispreorder_hnnq_le).
 Qed.
 
 Local Definition hnnq_lt : hrel hnnq_set := resrel hqlth (hqleh 0).
@@ -88,14 +83,7 @@ Qed.
 Local Definition hnnq_gt : hrel hnnq_set := resrel hqgth (hqleh 0).
 Local Lemma isStrongOrder_hnnq_gt : isStrongOrder hnnq_gt.
 Proof.
-  set (H := isStrongOrder_reverse _ isStrongOrder_hnnq_lt).
-  repeat split.
-  intros x y z.
-  now apply (pr1 H).
-  intros x y z.
-  now apply (pr1 (pr2 H)).
-  intros x.
-  now apply (pr2 (pr2 H)).
+  apply (isStrongOrder_reverse _ isStrongOrder_hnnq_lt).
 Qed.
 
 Local Lemma isEffectiveOrder_hnnq : isEffectiveOrder hnnq_le hnnq_lt.
@@ -1587,6 +1575,54 @@ Proof.
   exact x.
   exact y.
 Defined.
+
+Lemma NQmin_case :
+  Π (P : NonnegativeRationals -> UU),
+  Π x y : NonnegativeRationals, P x -> P y -> P (NQmin x y).
+Proof.
+  intros P x y Hx Hy.
+  unfold NQmin.
+  generalize (isdecrel_leNonnegativeRationals x y).
+  now apply coprod_rect.
+Qed.
+Lemma NQmin_case_strong :
+  Π (P : NonnegativeRationals -> UU),
+  Π x y : NonnegativeRationals, (x <= y -> P x) -> (y <= x -> P y) -> P (NQmin x y).
+Proof.
+  intros P x y Hx Hy.
+  unfold NQmin.
+  generalize ( isdecrel_leNonnegativeRationals x y).
+  apply coprod_rect ; [intros Hle | intros Hlt].
+  - now apply Hx.
+  - apply Hy.
+    now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
+Qed.
+Lemma iscomm_NQmin :
+  Π x y, NQmin x y = NQmin y x.
+Proof.
+  intros x y.
+  apply NQmin_case_strong ; intro Hle ;
+  apply NQmin_case_strong ; intro Hle'.
+  - now apply isantisymm_leNonnegativeRationals.
+  - reflexivity.
+  - reflexivity.
+  - now apply isantisymm_leNonnegativeRationals.
+Qed.
+Lemma NQmin_ge_l :
+  Π x y : NonnegativeRationals, NQmin x y <= x.
+Proof.
+  intros x y.
+  apply NQmin_case_strong ; intro Hle.
+  - apply isrefl_leNonnegativeRationals.
+  - exact Hle.
+Qed.
+Lemma NQmin_ge_r :
+  Π x y : NonnegativeRationals, NQmin x y <= y.
+Proof.
+  intros x y.
+  rewrite iscomm_NQmin.
+  now apply NQmin_ge_l.
+Qed.
 
 (** ** intpart *)
 
