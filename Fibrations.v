@@ -288,6 +288,34 @@ Defined.
  
 End Fibrations.
 
+Section Discrete_Fibrations.
+
+Definition is_discrete_fibration {C : Precategory} (D : disp_precat C) : UU
+:= 
+  forall (c c' : C) (f : c' --> c) (d : D c),
+          ∃! d' : D c', d' -->[f] d.
+
+Definition discrete_fibration C : UU
+  := Σ D : disp_precat C, is_discrete_fibration D.
+
+(* GOAL: correspondence between discrete fibrations and presheaves.
+
+Outline via categories:
+
+- show that the fibers of a discrete fibration are (discrete categories on) sets, and that the disp morphism types are props;
+- define the category of discrete fibrations over C, using [functor_over_id] for morphisms, and with [homset_property] coming from the previous point;
+- construct equivalence of cats; probably easiest by explicit functors and natural isos (not by “ess split” plus “full and faithful”); 
+- show [disc_fib_precat C] is univalent (possibly _using_ the above equivalence of cats, to get “isos of displayed cats are weq to isos btn associated presheaves”?);
+- conclude equivalence of types.
+
+More direct equivalence of types:
+
+- ?
+
+ *)
+ 
+End Discrete_Fibrations.
+
 Section Opfibrations.
 
 (* TODO: add definitions analogous to in [Fibrations].  For constructions/theorems: think about whether it’s possible to recover them by duality, instead of repeating all proofs?? *)
