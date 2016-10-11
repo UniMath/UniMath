@@ -1,19 +1,24 @@
 Package *Displayed_Cats*
 ===================================================
 
+Authors: Benedikt Ahrens, Peter LeFanu Lumsdaine
+
 
 Contents
 --------
 
-We give a per-file overview of the contents of this package:
+The files of this package provide:
 
 * *Auxiliary.v*
-  * Some auxiliary material
+  * Some background material
 * *Core.v*
   * Definition of displayed categories
   * Definition of total categories
   * Displayed functors 
   * Displayed natural transformations
+* *Fibrations.v*
+  * Definitions of isofibrations, (op)fibrations, discrete fibrations
+  * Clovenness of any univalent fibration
 * *Constructions.v*
   * Direct product of displayed categories
   * Sigmas of displayed categories
