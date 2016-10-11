@@ -785,7 +785,7 @@ Proof.
     apply id_left.
     eapply pathscomp0.
       apply maponpaths, id_left_disp.
-  (* Note: [transportbfinv] is from [UniMath.Ktheory.Utilities].
+  (* Note: [transportbfi] is from [UniMath.Ktheory.Utilities].
   We currently can’t import that, due to notation clashes. *)
     apply Utilities.transportfbinv. 
   - intros xx yy ff; cbn.
