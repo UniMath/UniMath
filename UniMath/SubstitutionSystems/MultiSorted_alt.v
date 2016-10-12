@@ -56,11 +56,8 @@ Local Notation "C / X ⟦ a , b ⟧" := (slicecat_mor C X a b) (at level 50, for
 Section MBindingSig.
 
 Variables (sort : hSet).
-(* Variables (C : Precategory) (BP : BinProducts C) (BC : BinCoproducts C) (TC : Terminal C) (LC : Lims C). *)
 
 Let SET : Precategory := (HSET,,has_homsets_HSET).
-
-(* Let Csort : precategory := HSET / sort. *)
 
 Lemma has_homsets_Csort : has_homsets (SET / sort).
 Proof.
@@ -71,7 +68,6 @@ Qed.
 Definition MultiSortedSig : UU := Σ (I : hSet), I → list (list sort × sort) × sort.
 
 Definition ops (M : MultiSortedSig) : hSet := pr1 M.
-
 Definition arity (M : MultiSortedSig) : ops M → list (list sort × sort) × sort :=
   λ x, pr2 M x.
 
@@ -96,22 +92,6 @@ mkpair.
             apply funextsec; intro p; apply subtypeEquality; trivial; intros x; apply setproperty).
 Defined.
 
-Local Notation "'1'" := (TerminalHSET).
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoproductsHSET a b)) (at level 50).
-
-(* opt (s:sort)(xi:sort -> Set) := fun s => total2 fun (z : hfiber (sumofmap<s (idfun sort) (termfun s)) *)
-(* s => sumofmaps xi (termfun unit)) *)
-
-(* where termfun is from PartA. *)
-
-(* The idea is to take (sort \coprod unit) -> Set given by xi \coprod (a=>unit) . Then (sort \coprod *)
-(* unit) -> sort that maps unit to s. Then to take sort -> Set given by the sums of the sets given by *)
-(* the first function over the fibers of the second. *)
-
-(* The fiber of the second function over s’ != s is unit that maps to xi(s’) and the fiber over s is *)
-(* unit\coprod \unit where the first unit maps to xi(s) and the second one to unit. *)
-
-(* Code for option as a function, below is the definition as a functor *)
 Definition option_fun : sort -> SET / sort -> SET / sort.
 Proof.
 simpl; intros s Xf.
@@ -127,11 +107,6 @@ mkpair.
   - apply (pr2 Xf t).
   - apply s.
 Defined.
-(* apply mk_sortToC; intro t. *)
-(* induction (eq s t) as [H|H]. *)
-(* - apply (pr1 f t ⊕ 1). *)
-(* - apply (pr1 f t). *)
-(* Defined. *)
 
 Definition option_functor_data  (s : sort) : functor_data (SET / sort) (SET / sort).
 Proof.
@@ -139,38 +114,12 @@ mkpair.
 + apply (option_fun s).
 + intros X Y f.
   mkpair.
-  - simpl; intros F.
-{
- mkpair.
-+ induction F as [t h].
-    induction t as [t|t]; simpl in *.
--
-(* induction f as [h1 h2]. *)
-simpl in *.
-apply ii1.
-apply (pr1 f).
-apply t.
-- apply ii2.
-apply t.
-+
- induction F as [t h].
-simpl.
-    induction t as [t|t]; simpl in *; trivial.
-rewrite <- h.
-apply (toforallpaths _ _ _ (pr2 f) t).
-}
--
-simpl.
-apply funextsec; intro F; simpl.
- induction F as [t h].
-simpl.
-    induction t as [t|t]; simpl in *; trivial.
-apply (toforallpaths _ _ _ (pr2 f) t).
+  - intros F; induction F as [t h]; simpl.
+    mkpair.
+    * induction t as [t|t]; [apply (ii1 (pr1 f t)) | apply (ii2 t)].
+    * abstract (induction t as [t|t]; trivial; rewrite <- h; apply (toforallpaths _ _ _ (pr2 f) t)).
+  - abstract (apply funextsec; intros [[t|t] h]; trivial; apply (toforallpaths _ _ _ (pr2 f) t)).
 Defined.
-    (* induction (eq s t) as [p|p]; simpl; clear p. *)
-    (* { apply (BinCoproductOfArrows _ _ _ (α t) (identity _)). } *)
-    (* { apply α. } *)
- (* * abstract (now intros t1 t2 []; cbn; induction (eq s t1); simpl; rewrite id_left, id_right). *)
 
 Lemma is_functor_option_functor s : is_functor (option_functor_data s).
 Proof.
@@ -194,6 +143,8 @@ use (foldr _ _ xs).
   apply (functor_composite (option_functor s) F).
 + apply functor_identity.
 Defined.
+
+(* TODO: adapt the rest *)
 
 Definition SET_over_sort : Precategory.
 Proof.
@@ -230,7 +181,7 @@ Proof.
 set (XS := map exp_functor xs).
 (* If the list is empty we output the constant functor *)
 set (T := constant_functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET]
-                           (constant_functor SET_over_sort HSET 1)).
+                           (constant_functor SET_over_sort HSET TerminalHSET)).
 (* TODO: Maybe use indexed finite products instead of a fold? *)
 use (foldr1 (fun F G => BinProduct_of_functors _ _ _ F G) T XS).
 apply BinProducts_functor_precat.
