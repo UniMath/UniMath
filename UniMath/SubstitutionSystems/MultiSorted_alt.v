@@ -92,6 +92,8 @@ mkpair.
             apply funextsec; intro p; apply subtypeEquality; trivial; intros x; apply setproperty).
 Defined.
 
+(* TODO: this could be defined more abstractly as:
+     option(s)(X,f) := [f, \lambda _ .s] : X+1 -> sort *)
 Definition option_fun : sort -> SET / sort -> SET / sort.
 Proof.
 simpl; intros s Xf.
