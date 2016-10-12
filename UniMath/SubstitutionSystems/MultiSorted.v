@@ -47,6 +47,7 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Local Notation "[ C , D ]" := (functor_Precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
+
 (** Swapping of functor arguments *)
 (* TODO: Move upstream? *)
 Section functor_swap.
