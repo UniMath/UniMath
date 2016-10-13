@@ -12,14 +12,6 @@ Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.SubstitutionSystems.Signatures.
 
-Lemma horcomp_id_prewhisker {C D E : precategory} (hsE : has_homsets E)
-  (X : functor C D) (Z Z' : functor D E) (f : nat_trans Z Z') :
-  hor_comp (nat_trans_id X) f = pre_whisker _ f.
-Proof.
-apply (nat_trans_eq hsE); simpl; intro x.
-now rewrite functor_id, id_right.
-Qed.
-
 Section SignatureCategory.
 
 Variables (C : precategory) (hsC : has_homsets C).
@@ -32,7 +24,7 @@ Local Notation "'Ptd'" := (precategory_Ptd C hsC).
 Local Notation "'EndC'":= ([C, C, hsC]) .
 
 
-(* Define the morphism in the category *)
+(* Define the commutative diagram used in the morphisms *)
 Section Signature_category_mor.
 
 Variables (Ht Ht' : Signature C hsC).
@@ -43,7 +35,6 @@ Let θ : nat_trans (θ_source C hsC Ht) (θ_target C hsC Ht) := theta Ht.
 Let θ' : nat_trans (θ_source C hsC Ht') (θ_target C hsC Ht') := theta Ht'.
 
 Variables (α : nat_trans H H').
-
 Variables (X : [C,C,hsC]) (Y : Ptd).
 
 Let f1 : [C,C,hsC] ⟦H X • U Y,H (X • U Y)⟧ := θ (X,,Y).
@@ -63,8 +54,9 @@ mkpair.
 + mkpair.
   - apply (Signature C hsC).
   - intros Ht Ht'.
-    eapply total2.
-    apply (λ (α : nat_trans Ht Ht'), Π X Y, Signature_category_mor_diagram Ht Ht' α X Y).
+    use total2.
+    * apply (nat_trans Ht Ht').
+    * intros α; apply (Π X Y, Signature_category_mor_diagram Ht Ht' α X Y).
 + split.
   - simpl; intro Ht.
     mkpair.
@@ -76,8 +68,7 @@ mkpair.
     mkpair.
     * apply (@nat_trans_comp _ _ _ _ (pr1 Ht3) α β).
     * intros X Y.
-unfold Signature_category_mor_diagram in *.
-simpl.
+      unfold Signature_category_mor_diagram in *; simpl.
 rewrite (assoc ((theta Ht1) (X,, Y))).
 eapply pathscomp0.
 eapply (cancel_postcomposition [C,C,hsC] _ _ _ ((theta Ht1) (X,, Y) ;; α (functor_composite (pr1 Y) X)) _ (β (functor_composite (pr1 Y) X))).
