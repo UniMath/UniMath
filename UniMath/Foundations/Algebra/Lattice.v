@@ -66,15 +66,19 @@ Lemma Lmin_id :
   Π x : L, Lmin x x = x.
 Proof.
   intros x.
-  pattern x at 2 ; rewrite <- (Lmax_absorb x x).
-  apply Lmin_absorb.
+  apply (pathscomp0 (b := Lmin x (Lmax x (Lmin x x)))).
+  - rewrite Lmax_absorb.
+    reflexivity.
+  - apply Lmin_absorb.
 Qed.
 Lemma Lmax_id :
   Π x : L, Lmax x x = x.
 Proof.
   intros x.
-  pattern x at 2 ; rewrite <- (Lmin_absorb x x).
-  apply Lmax_absorb.
+  apply (pathscomp0 (b := Lmax x (Lmin x (Lmax x x)))).
+  - rewrite Lmin_absorb.
+    reflexivity.
+  - apply Lmax_absorb.
 Qed.
 
 End lattice_pty.
@@ -100,7 +104,7 @@ Lemma isantisymm_Lle :
 Proof.
   intros x y Hxy Hyx.
   rewrite <- Hxy.
-  pattern y at 2 ; rewrite <- Hyx.
+  apply pathscomp0 with (2 := Hyx).
   apply iscomm_Lmin.
 Qed.
 Lemma istrans_Lle :
@@ -294,11 +298,16 @@ Proof.
   apply (op_le_r' _ is1 is3 y).
   rewrite is0.
   apply Lmax_le.
-  apply is5.
-  pattern x at 1 ; rewrite <- (lunax _ x), (commax _ x).
-  now apply op_le_r.
-  pattern y at 1 ; rewrite <- (lunax _ y).
-  now apply op_le_r.
+  - apply is5.
+  - apply istrans_Lle with (0 + x).
+    + rewrite (lunax _ x).
+      apply isrefl_Lle.
+    + rewrite (commax _ x).
+      now apply op_le_r.
+  - apply istrans_Lle with (0 + y).
+    + rewrite (lunax _ y).
+      apply isrefl_Lle.
+    + now apply op_le_r.
 Qed.
 
 Lemma tminus_le_r :
