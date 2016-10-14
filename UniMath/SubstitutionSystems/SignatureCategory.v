@@ -124,97 +124,72 @@ Section BinProducts.
 
 Variables (C : precategory) (hsC : has_homsets C) (BC : BinProducts C).
 
-Let BCC : BinProducts [[C,C,hsC],[C,C,hsC],functor_category_has_homsets _ _ hsC].
+Local Definition BCC : BinProducts [[C,C,hsC],[C,C,hsC],functor_category_has_homsets _ _ hsC].
 Proof.
-apply BinProducts_functor_precat.
-apply (BinProducts_functor_precat C _ BC hsC).
+apply BinProducts_functor_precat, (BinProducts_functor_precat C _ BC hsC).
 Defined.
+
+Local Definition Signature_precategory_pr1 (Ht1 Ht2 : Signature C hsC) :
+  Signature_precategory C hsC ⟦ BinProduct_of_Signatures C hsC BC Ht1 Ht2, Ht1 ⟧.
+Proof.
+mkpair.
++ apply (BinProductPr1 _ (BCC (pr1 Ht1) (pr1 Ht2))).
++ abstract (intros X Y; apply (nat_trans_eq hsC); intro c; simpl;
+            rewrite functor_id, id_right; apply BinProductOfArrowsPr1).
+Defined.
+
+Local Definition Signature_precategory_pr2 (Ht1 Ht2 : Signature C hsC) :
+  Signature_precategory C hsC ⟦ BinProduct_of_Signatures C hsC BC Ht1 Ht2, Ht2 ⟧.
+Proof.
+mkpair.
++ apply (BinProductPr2 _ (BCC (pr1 Ht1) (pr1 Ht2))).
++ abstract (intros X Y; apply (nat_trans_eq hsC); intro c; simpl;
+            rewrite functor_id, id_right; apply BinProductOfArrowsPr2).
+Defined.
+
+Local Lemma isBinProductCone_Signature_precategory (Ht1 Ht2 : Signature C hsC) :
+  isBinProductCone (Signature_precategory C hsC) Ht1 Ht2
+                   (BinProduct_of_Signatures C hsC BC Ht1 Ht2)
+                   (Signature_precategory_pr1 Ht1 Ht2) (Signature_precategory_pr2 Ht1 Ht2).
+Proof.
+apply (mk_isBinProductCone _ (has_homsets_Signature_precategory C hsC)).
+simpl; intros Ht3 F G.
+use unique_exists.
+- apply (tpair _ (BinProductArrow _ (BCC (pr1 Ht1) (pr1 Ht2)) (pr1 F) (pr1 G))).
+  intros X Y; apply (nat_trans_eq hsC); intro c; simpl.
+  rewrite <- assoc; apply pathsinv0.
+  eapply pathscomp0; [apply maponpaths, BinProductOfArrows_comp|].
+  eapply pathscomp0; [apply postcompWithBinProductArrow|].
+  apply pathsinv0, BinProductArrowUnique.
+  + abstract (rewrite <- assoc;
+    eapply pathscomp0; [apply maponpaths, BinProductPr1Commutes|];
+    eapply pathscomp0; [apply (nat_trans_eq_pointwise (pr2 F X Y) c)|]; simpl;
+    now rewrite assoc, !functor_id, !id_right).
+  + abstract (rewrite <- assoc;
+    eapply pathscomp0; [apply maponpaths, BinProductPr2Commutes|];
+    eapply pathscomp0; [apply (nat_trans_eq_pointwise (pr2 G X Y) c)|]; simpl;
+    now rewrite assoc, !functor_id, !id_right).
+- split.
+  + apply SignatureMor_eq, (BinProductPr1Commutes _ _ _ (BCC  _ _)).
+  + apply SignatureMor_eq, (BinProductPr2Commutes _ _ _ (BCC  _ _)).
+- abstract (intros X; simpl in *;
+  apply isapropdirprod; apply has_homsets_Signature_precategory).
+- intros X H1H2; apply SignatureMor_eq; simpl.
+  apply (BinProductArrowUnique _ _ _ (BCC  _ _)).
+  + apply (maponpaths pr1 (pr1 H1H2)).
+  + apply (maponpaths pr1 (pr2 H1H2)).
+Time Qed. (* 162.664 secs *)
 
 Lemma BinProducts_Signature_precategory : BinProducts (Signature_precategory C hsC).
 Proof.
 intros Ht1 Ht2.
 use mk_BinProductCone.
 - apply (BinProduct_of_Signatures _ _ BC Ht1 Ht2).
-- simpl in *.
-mkpair.
-+
-apply (BinProductPr1 _ (BCC (pr1 Ht1) (pr1 Ht2))).
-+
-abstract (intros X Y; apply (nat_trans_eq hsC); intro c; simpl;
-eapply pathscomp0; [apply BinProductOfArrowsPr1|];
-eapply pathscomp0; [|apply assoc]; apply maponpaths;
-apply pathsinv0; eapply pathscomp0; [apply cancel_postcomposition, functor_id|];
-apply id_left).
-- simpl in *.
-mkpair.
-+
-apply (BinProductPr2 _ (BCC (pr1 Ht1) (pr1 Ht2))).
-+
-abstract (
-intros X Y;
-apply (nat_trans_eq hsC); intro c; simpl;
-rewrite functor_id, id_right;
-apply BinProductOfArrowsPr2).
+- apply Signature_precategory_pr1.
+- apply Signature_precategory_pr2.
+- apply isBinProductCone_Signature_precategory.
+Defined.
+
 -
-use mk_isBinProductCone.
-+ apply has_homsets_Signature_precategory.
-+ simpl.
-  intros Ht3 F G.
-set (H := @BinProductArrow _ _ _ (BCC (pr1 Ht1) (pr1 Ht2)) (pr1 Ht3) (pr1 F) (pr1 G)).
-use unique_exists; simpl.
-* apply (tpair _ H).
-intros X Y.
-generalize (pr2 G X Y).
-generalize (pr2 F X Y).
-unfold Signature_category_mor_diagram.
-unfold H.
-intros HH1 HH2.
-apply (nat_trans_eq hsC); intro c.
-simpl.
-rewrite <- assoc.
-apply pathsinv0.
-eapply pathscomp0.
-eapply maponpaths.
-apply BinProductOfArrows_comp.
-rewrite !functor_id.
-rewrite !id_left.
-eapply pathscomp0.
-apply postcompWithBinProductArrow.
-apply pathsinv0.
-apply BinProductArrowUnique.
-eapply pathscomp0.
-rewrite <- assoc.
-apply maponpaths.
-apply BinProductPr1Commutes.
-eapply pathscomp0.
-apply (nat_trans_eq_pointwise HH1 c).
-simpl.
-rewrite functor_id.
-rewrite id_right.
-apply idpath.
-eapply pathscomp0.
-rewrite <- assoc.
-apply maponpaths.
-apply BinProductPr2Commutes.
-eapply pathscomp0.
-apply (nat_trans_eq_pointwise HH2 c).
-simpl.
-rewrite functor_id.
-rewrite id_right.
-apply idpath.
-* split.
-{ apply SignatureMor_eq, (BinProductPr1Commutes _ _ _ (BCC  _ _)). }
-{ apply SignatureMor_eq, (BinProductPr2Commutes _ _ _ (BCC  _ _)). }
-* intros X; simpl in *.
-apply isapropdirprod.
-apply has_homsets_Signature_precategory.
-apply has_homsets_Signature_precategory.
-* intros X.
-intros H1H2.
-apply SignatureMor_eq; simpl.
-apply (BinProductArrowUnique _ _ _ (BCC  _ _)).
-apply (maponpaths pr1 (pr1 H1H2)).
-apply (maponpaths pr1 (pr2 H1H2)).
-Admitted.
 
 End BinProducts.
