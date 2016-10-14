@@ -1,3 +1,13 @@
+(**
+
+Definition of the category of signatures with strength ([Signature_precategory]) with
+
+- Binary products ([BinProducts_Signature_precategory])
+- Coproducts ([Coproducts_Signature_precategory])
+
+Written by: Anders Mörtberg in October 2016 based on a note of Benedikt Ahrens.
+
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
@@ -17,6 +27,7 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 
+(** * The category of signatures with strength *)
 Section SignatureCategory.
 
 Variables (C : precategory) (hsC : has_homsets C).
@@ -45,7 +56,7 @@ Let g2 : [C,C,hsC] ⟦H' X • U Y,H' (X • U Y)⟧ := θ' (X,,Y).
 
 Definition Signature_category_mor_diagram : UU := f1 ;; f2 = g1 ;; g2.
 
-(* Special comparison lemma that speeds things up a lot *)
+(** Special comparison lemma that speeds things up a lot *)
 Lemma Signature_category_mor_diagram_pointwise
   (Hc : Π c, pr1 f1 c ;; pr1 f2 c = pr1 (α X) ((pr1 Y) c) ;; pr1 g2 c) :
    Signature_category_mor_diagram.
@@ -133,6 +144,7 @@ Qed.
 
 End SignatureCategory.
 
+(** * Binary products in the category of signatures *)
 Section BinProducts.
 
 Variables (C : precategory) (hsC : has_homsets C) (BC : BinProducts C).
@@ -187,7 +199,7 @@ apply pathsinv0, BinProductArrowUnique; rewrite <- assoc.
 + eapply pathscomp0; [apply maponpaths, BinProductPr2Commutes|].
   eapply pathscomp0; [apply (nat_trans_eq_pointwise (pr2 G X Y) c)|]; simpl.
   now rewrite functor_id, id_right.
-Admitted. (* Qed. *) (* 39s *)
+Qed. (* This takes 39s *)
 
 Local Lemma isBinProductCone_Signature_precategory (Ht1 Ht2 : Signature C hsC) :
   isBinProductCone (Signature_precategory C hsC) Ht1 Ht2
@@ -220,6 +232,7 @@ Defined.
 
 End BinProducts.
 
+(** * Coproducts in the category of signatures *)
 Section Coproducts.
 
 Variables (I : UU) (HI : isdeceq I) (C : precategory) (hsC : has_homsets C).
