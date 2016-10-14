@@ -108,7 +108,15 @@ Definition Signature_precategory : precategory :=
  (Signature_precategory_data,,is_precategory_Signature_precategory_data).
 
 Lemma has_homsets_Signature_precategory : has_homsets Signature_precategory.
-Admitted.
+Proof.
+intros Ht1 Ht2.
+change isaset with (isofhlevel 2); apply isofhleveltotal2.
+* apply isaset_nat_trans, functor_category_has_homsets.
+* intros α.
+  apply isasetaprop.
+  apply impred; intros X; apply impred; intros Y.
+  apply functor_category_has_homsets.
+Qed.
 
 End SignatureCategory.
 
