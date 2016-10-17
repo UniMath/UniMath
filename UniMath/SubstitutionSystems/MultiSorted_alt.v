@@ -146,8 +146,6 @@ use (foldr _ _ xs).
 + apply functor_identity.
 Defined.
 
-(* TODO: adapt the rest *)
-
 Definition SET_over_sort : Precategory.
 Proof.
 mkpair.
