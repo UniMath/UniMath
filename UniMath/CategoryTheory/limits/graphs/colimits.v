@@ -551,3 +551,27 @@ use is_iso_isColim.
       apply pathsinv0, (colimArrowUnique (CC x)); intro u;
       now rewrite id_right]).
 Defined.
+
+Section map.
+
+Context {C D : precategory} (F : functor C D).
+
+Definition mapdiagram {g : graph} (d : diagram g C) : diagram g D.
+Proof.
+mkpair.
+- intros n; apply (F (dob d n)).
+- simpl; intros m n e.
+  apply (# F (dmor d e)).
+Defined.
+
+Definition mapcocone {g : graph} (d : diagram g C) {x : C}
+  (dx : cocone d x) : cocone (mapdiagram d) (F x).
+Proof.
+use mk_cocone.
+- simpl; intro n.
+  exact (#F (coconeIn dx n)).
+- abstract (intros u v e; simpl; rewrite <- functor_comp;
+            apply maponpaths, (coconeInCommutes dx _ _ e)).
+Defined.
+
+End map.

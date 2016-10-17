@@ -6,13 +6,13 @@ Anders Mörtberg, Benedikt Ahrens
 
 (** **********************************************************
 
-Contents: Definition of slice precategories, C/x (assumes
-            that C has homsets)
+Contents:
 
-          Proof that C/x is a category if C is
+- Definition of slice precategories, C/x (assumes that C has homsets)
 
-          Proof that any morphism x --> y induces a functor
-            from C/x to C/y
+- Proof that C/x is a category if C is
+
+- Proof that any morphism C[x,y] induces a functor from C/x to C/y
 
 ************************************************************)
 
@@ -22,18 +22,17 @@ Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Local Notation "a --> b" := (precategory_morphisms a b) (at level 50, left associativity).
-Local Notation "f ;; g"  := (compose f g) (at level 50, format "f  ;;  g").
-
-(* Slice category:
-
-Given a category C and x : obj C. The slice category C/x is given by:
+(** * Definition of slice categories *)
+(** Given a category C and x : obj C. The slice category C/x is given by:
 
 - obj C/x: pairs (a,f) where f : a -> x
 
 - morphism (a,f) -> (b,g): morphism h : a -> b with
-
+<<
            h
        a - - -> b
        |       /
@@ -42,7 +41,7 @@ Given a category C and x : obj C. The slice category C/x is given by:
        | /
        v
        x
-
+>>
     where h ;; g = f
 
 *)
@@ -92,6 +91,7 @@ Qed.
 Definition slice_precat (hsC : has_homsets C) : precategory :=
   tpair _ _ (is_precategory_slice_precat_data hsC).
 
+
 End slice_precat_def.
 
 Section slice_precat_theory.
@@ -121,8 +121,8 @@ intro.
 apply isaprop_is_iso.
 Qed.
 
-(* It suffices that the underlying morphism is an iso to get an iso in
-   the slice category *)
+(** It suffices that the underlying morphism is an iso to get an iso in
+    the slice category *)
 Lemma iso_to_slice_precat_iso (af bg : C / x) (h : af --> bg)
   (isoh : is_iso (pr1 h)) : is_iso h.
 Proof.
@@ -136,7 +136,7 @@ exists (tpair _ hinv (!(pinv))).
 split; ( apply subtypePairEquality ; [ intro; apply hsC | trivial ]).
 Qed.
 
-(* An iso in the slice category gives an iso in the base category *)
+(** An iso in the slice category gives an iso in the base category *)
 Lemma slice_precat_iso_to_iso  (af bg : C / x) (h : af --> bg)
   (p : is_iso h) : is_iso (pr1 h).
 Proof.
@@ -164,8 +164,8 @@ Defined.
 
 End slice_precat_theory.
 
-(* Proof that C/x is a category if C is. This is exercise 9.1 in the
-   HoTT book *)
+(** * Proof that C/x is a category if C is. *)
+(** This is exercise 9.1 in the HoTT book *)
 Section slicecat_theory.
 
 Variable C : precategory.
@@ -214,8 +214,7 @@ Qed.
 
 End slicecat_theory.
 
-(* Any morphism x --> y in the base category induces a functor between
-   the slice categories C/x and C/y *)
+(** * A morphism x --> y in the base category induces a functor between C/x and C/y *)
 Section slicecat_functor_def.
 
 Variable C : precategory.
@@ -261,8 +260,7 @@ Lemma slicecat_functor_identity_ob (x : C) :
 Proof.
 apply funextsec; intro af.
 unfold slicecat_functor_ob.
-rewrite id_right, tppr.
-apply idpath.
+now rewrite id_right, tppr.
 Defined.
 
 Lemma slicecat_functor_identity (x : C) :
@@ -281,8 +279,7 @@ rewrite transportf_total2; simpl.
 unfold slicecat_functor_identity_ob.
 rewrite toforallpaths_funextsec; simpl.
 case (id_right f).
-case (id_right g).
-apply idpath.
+now case (id_right g).
 Qed.
 
 Lemma slicecat_functor_comp_ob (x y z : C) (f : x --> y) (g : y --> z) :
@@ -291,8 +288,7 @@ Lemma slicecat_functor_comp_ob (x y z : C) (f : x --> y) (g : y --> z) :
         slicecat_functor_ob C hsC y z g (slicecat_functor_ob C hsC x y f a)).
 Proof.
 apply funextsec; intro af.
-unfold slicecat_functor_ob; simpl.
-rewrite assoc; apply idpath.
+now unfold slicecat_functor_ob; rewrite assoc.
 Defined.
 
 (* This proof is not so nice... *)
@@ -304,9 +300,9 @@ apply (functor_eq _ _ (has_homsets_slice_precat _ _ _)); simpl.
 unfold slicecat_functor_data; simpl.
 unfold functor_composite_data; simpl.
 apply (total2_paths2 (slicecat_functor_comp_ob _ _ _ _ _)).
-apply funextsec; intro a; case a; clear a; intros a fax.
-apply funextsec; intro b; case b; clear b; intros b fbx.
-apply funextsec; intro h; case h; clear h; intros h hh.
+apply funextsec; intros [a fax].
+apply funextsec; intros [b fbx].
+apply funextsec; intros [h hh].
 rewrite transport_of_functor_map_is_pointwise; simpl in *.
 unfold slicecat_mor.
 rewrite transportf_total2.
@@ -326,8 +322,75 @@ assert (H2 : Π h', h' = h ->
                            (assoc fbx f g)) h' = h).
   intros h' eq.
   case (assoc fbx f g); rewrite eq; apply idpath.
-apply H2.
-assumption.
+now apply H2.
 Qed.
 
 End slicecat_functor_theory.
+
+(** * Colimits in slice categories *)
+(* Section slicecat_colimits. *)
+
+(* Variables (C : precategory) (hsC : has_homsets C) (x : C) (CC : Colims C). *)
+
+(* Local Notation "C / X" := (slice_precat C X hsC). *)
+
+(* Definition slicecat_to_cat : functor (C / x) C. *)
+(* Proof. *)
+(* mkpair. *)
+(* + mkpair. *)
+(*   - apply pr1. *)
+(*   - intros a b; apply pr1. *)
+(* + abstract (now split). *)
+(* Defined. *)
+
+(* Definition slice_precat_colims : Colims (C / x). *)
+(* Proof. *)
+(* intros g d. *)
+(* set (H := CC g (mapdiagram slicecat_to_cat d)). *)
+(* set (L := colim H). *)
+(* (* destruct H as [[L ccL] HccL]; simpl in *. *) *)
+(* use mk_ColimCocone. *)
+(* - mkpair. *)
+(*   + apply L. *)
+(*   + apply colimArrow. *)
+(*     use mk_cocone. *)
+(*     * simpl; intro v. *)
+(* generalize (coconeIn (colimCocone H) v). *)
+(* simpl. *)
+
+(* End slicecat_colimits. *)
+
+(** * Limits in slice categories *)
+(* Section slicecat_limits. *)
+
+(* Variables (C : precategory) (hsC : has_homsets C) (x : C) (CC : Lims C). *)
+
+(* Local Notation "C / X" := (slice_precat C X hsC). *)
+
+(* Definition slicecat_to_cat : functor (C / x) C. *)
+(* Proof. *)
+(* mkpair. *)
+(* + mkpair. *)
+(*   - apply pr1. *)
+(*   - intros a b; apply pr1. *)
+(* + abstract (now split). *)
+(* Defined. *)
+
+(* Definition slice_precat_lims : Lims (C / x). *)
+(* Proof. *)
+(* intros g d. *)
+(* set (H := CC g (mapdiagram slicecat_to_cat d)). *)
+(* set (L := lim H). *)
+(* (* destruct H as [[L ccL] HccL]; simpl in *. *) *)
+(* use mk_LimCone. *)
+(* - mkpair. *)
+(*   + apply L. *)
+(*   + apply colimArrow. *)
+(*     use mk_cocone. *)
+(*     * simpl; intro v. *)
+(* generalize (coconeIn (colimCocone H) v). *)
+(* simpl. *)
+
+(* Admitted. *)
+
+(* End slicecat_limits. *)

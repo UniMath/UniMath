@@ -87,34 +87,9 @@ Section cocont.
 
 Context {C D : precategory} (F : functor C D).
 
-Definition mapdiagram {g : graph} (d : diagram g C) : diagram g D.
-Proof.
-mkpair.
-- intros n; apply (F (dob d n)).
-- simpl; intros m n e.
-  apply (# F (dmor d e)).
-Defined.
-
-Definition mapcocone {g : graph} (d : diagram g C) {x : C}
-  (dx : cocone d x) : cocone (mapdiagram d) (F x).
-Proof.
-use mk_cocone.
-- simpl; intro n.
-  exact (#F (coconeIn dx n)).
-- abstract (intros u v e; simpl; rewrite <- functor_comp;
-            apply maponpaths, (coconeInCommutes dx _ _ e)).
-Defined.
-
-Lemma mapcocone_chain_coconeIn {g : graph} {c : diagram g C} {x : C}
-  (cx : cocone c x) (n : vertex g) :
-  coconeIn (mapcocone c cx) n = # F (coconeIn cx n).
-Proof.
-apply idpath.
-Qed.
-
 Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : UU :=
-  isColimCocone d L cc -> isColimCocone (mapdiagram d) (F L) (mapcocone d cc).
+  isColimCocone d L cc -> isColimCocone (mapdiagram F d) (F L) (mapcocone F d cc).
 
 Definition is_cocont := Π {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L), preserves_colimit d L cc.
