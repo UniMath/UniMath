@@ -146,6 +146,24 @@ apply (isofhleveltotal2 2).
   apply functor_category_has_homsets.
 Qed.
 
+Definition SignatureForgetfulFunctor : functor Signature_precategory [[C,C],[C,C]].
+Proof.
+mkpair.
+- mkpair.
+  + intros F; apply(Signature_Functor _ _ F).
+  + intros F G α; apply α.
+- abstract (now split).
+Defined.
+
+Lemma SignatureForgetfulFunctorFaithful : faithful SignatureForgetfulFunctor.
+Proof.
+intros F G.
+apply isinclbetweensets.
++ apply has_homsets_Signature_precategory.
++ apply functor_category_has_homsets.
++ apply SignatureMor_eq.
+Qed.
+
 End SignatureCategory.
 
 (** * Binary products in the category of signatures *)
