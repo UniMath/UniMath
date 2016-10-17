@@ -189,17 +189,17 @@ Local Lemma BinProductArrow_diagram Ht1 Ht2 Ht3
   Signature_category_mor_diagram _ _ _ (BinProduct_of_Signatures _ _ _ Ht1 Ht2)
     (BinProductArrow _ (BCC _ _) (pr1 F) (pr1 G)) X Y.
 Proof.
-apply Signature_category_mor_diagram_pointwise; intro c; simpl.
+apply Signature_category_mor_diagram_pointwise; intro c.
 apply pathsinv0.
 eapply pathscomp0; [apply postcompWithBinProductArrow|].
 apply pathsinv0, BinProductArrowUnique; rewrite <- assoc.
 + eapply pathscomp0; [apply maponpaths, BinProductPr1Commutes|].
-  eapply pathscomp0; [apply (nat_trans_eq_pointwise (pr2 F X Y) c)|]; simpl.
-  now rewrite functor_id, id_right.
+  eapply pathscomp0; [apply (nat_trans_eq_pointwise (pr2 F X Y) c)|].
+  now eapply pathscomp0; [apply cancel_postcomposition, horcomp_id_left|].
 + eapply pathscomp0; [apply maponpaths, BinProductPr2Commutes|].
-  eapply pathscomp0; [apply (nat_trans_eq_pointwise (pr2 G X Y) c)|]; simpl.
-  now rewrite functor_id, id_right.
-Qed. (* This takes 39s *)
+  eapply pathscomp0; [apply (nat_trans_eq_pointwise (pr2 G X Y) c)|].
+  now eapply pathscomp0; [apply cancel_postcomposition, horcomp_id_left|].
+Qed.
 
 Local Lemma isBinProductCone_Signature_precategory (Ht1 Ht2 : Signature C hsC) :
   isBinProductCone (Signature_precategory C hsC) Ht1 Ht2
@@ -267,13 +267,13 @@ Lemma CoproductArrow_diagram (Hti : I → Signature_precategory C hsC)
   Signature_category_mor_diagram C hsC (Sum_of_Signatures I C hsC CC Hti) Ht
     (CoproductArrow I _ (CCC _) (λ i, pr1 (F i))) X Y.
 Proof.
-apply Signature_category_mor_diagram_pointwise; intro c; simpl.
+apply Signature_category_mor_diagram_pointwise; intro c.
 eapply pathscomp0; [apply precompWithCoproductArrow|].
-apply pathsinv0, CoproductArrowUnique; intro i; rewrite assoc.
+apply pathsinv0, CoproductArrowUnique; intro i; rewrite assoc; simpl.
 eapply pathscomp0;
   [apply cancel_postcomposition, (CoproductInCommutes _ _ _ (CC (λ j, pr1 (pr1 (Hti j) X) _)))|].
 apply pathsinv0; eapply pathscomp0; [apply (nat_trans_eq_pointwise (pr2 (F i) X Y) c)|].
-now simpl; rewrite functor_id, id_right.
+now eapply pathscomp0; [apply cancel_postcomposition, horcomp_id_left|].
 Qed.
 
 Local Lemma isCoproductCocone_Signature_precategory (Hti : I → Signature_precategory C hsC) :
