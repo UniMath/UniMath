@@ -27,10 +27,14 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 
+Local Notation "[ C , D ]" := (functorPrecategory C D).
+
 (** * The category of signatures with strength *)
 Section SignatureCategory.
 
-Variables (C : precategory) (hsC : has_homsets C).
+Variables (C : Precategory).
+
+Let hsC : has_homsets C := homset_property C.
 
 Local Notation "'U'" := (functor_ptd_forget C hsC).
 Local Notation "'Ptd'" := (precategory_Ptd C hsC).
@@ -46,13 +50,13 @@ Let θ : nat_trans (θ_source Ht) (θ_target Ht) := theta Ht.
 Let θ' : nat_trans (θ_source Ht') (θ_target Ht') := theta Ht'.
 
 Variables (α : nat_trans H H').
-Variables (X : [C,C,hsC]) (Y : Ptd).
+Variables (X : [C,C]) (Y : Ptd).
 
-Let f1 : [C,C,hsC] ⟦H X • U Y,H (X • U Y)⟧ := θ (X,,Y).
-Let f2 : [C,C,hsC] ⟦H (X • U Y),H' (X • U Y)⟧ := α (X • U Y).
+Let f1 : [C,C] ⟦H X • U Y,H (X • U Y)⟧ := θ (X,,Y).
+Let f2 : [C,C] ⟦H (X • U Y),H' (X • U Y)⟧ := α (X • U Y).
 
-Let g1 : [C,C,hsC] ⟦H X • U Y,H' X • U Y⟧ := α X ∙∙ identity (U Y).
-Let g2 : [C,C,hsC] ⟦H' X • U Y,H' (X • U Y)⟧ := θ' (X,,Y).
+Let g1 : [C,C] ⟦H X • U Y,H' X • U Y⟧ := α X ∙∙ identity (U Y).
+Let g2 : [C,C] ⟦H' X • U Y,H' (X • U Y)⟧ := θ' (X,,Y).
 
 Definition Signature_category_mor_diagram : UU := f1 ;; f2 = g1 ;; g2.
 
@@ -102,7 +106,7 @@ unfold Signature_category_mor_diagram in *; simpl.
 rewrite (assoc ((theta Ht1) (X,,Y))).
 eapply pathscomp0; [apply (cancel_postcomposition _ _ _ _ ((theta Ht1) (X,,Y) ;; _)), Hα|].
 rewrite <- assoc; eapply pathscomp0; [apply maponpaths, Hβ|].
-rewrite assoc; apply (cancel_postcomposition [C,C,hsC] _ _ _ _ (_ ∙∙ identity (U Y))).
+rewrite assoc; apply (cancel_postcomposition [C,C] _ _ _ _ (_ ∙∙ identity (U Y))).
 apply (nat_trans_eq hsC); intro c; simpl.
 now rewrite assoc, !functor_id, !id_right.
 Qed.
@@ -147,22 +151,24 @@ End SignatureCategory.
 (** * Binary products in the category of signatures *)
 Section BinProducts.
 
-Variables (C : precategory) (hsC : has_homsets C) (BC : BinProducts C).
+Variables (C : Precategory) (BC : BinProducts C).
 
-Local Definition BCC : BinProducts [[C,C,hsC],[C,C,hsC],functor_category_has_homsets _ _ hsC].
+Let hsC : has_homsets C := homset_property C.
+
+Local Definition BCC : BinProducts [[C,C],[C,C]].
 Proof.
-apply BinProducts_functor_precat, (BinProducts_functor_precat C _ BC hsC).
+apply BinProducts_functor_precat, (BinProducts_functor_precat C _ BC).
 Defined.
 
 Local Lemma Signature_precategory_pr1_diagram (Ht1 Ht2 : Signature C hsC) X Y :
-  Signature_category_mor_diagram _ _ (BinProduct_of_Signatures _ _ _ Ht1 Ht2) _
+  Signature_category_mor_diagram _ (BinProduct_of_Signatures _ _ _ Ht1 Ht2) _
     (BinProductPr1 _ (BCC _ _)) X Y.
 Proof.
 apply Signature_category_mor_diagram_pointwise; intro c; apply BinProductOfArrowsPr1.
 Qed.
 
 Local Definition Signature_precategory_pr1 (Ht1 Ht2 : Signature C hsC) :
-  SignatureMor C hsC (BinProduct_of_Signatures C hsC BC Ht1 Ht2) Ht1.
+  SignatureMor C (BinProduct_of_Signatures C hsC BC Ht1 Ht2) Ht1.
 Proof.
 mkpair.
 + apply (BinProductPr1 _ (BCC (pr1 Ht1) (pr1 Ht2))).
@@ -170,14 +176,14 @@ mkpair.
 Defined.
 
 Local Lemma Signature_precategory_pr2_diagram (Ht1 Ht2 : Signature C hsC) X Y :
-  Signature_category_mor_diagram _ _ (BinProduct_of_Signatures _ _ _ Ht1 Ht2) _
+  Signature_category_mor_diagram _ (BinProduct_of_Signatures _ _ _ Ht1 Ht2) _
     (BinProductPr2 _ (BCC _ _)) X Y.
 Proof.
 apply Signature_category_mor_diagram_pointwise; intro c; apply BinProductOfArrowsPr2.
 Qed.
 
 Local Definition Signature_precategory_pr2 (Ht1 Ht2 : Signature C hsC) :
-  SignatureMor C hsC (BinProduct_of_Signatures C hsC BC Ht1 Ht2) Ht2.
+  SignatureMor C (BinProduct_of_Signatures C hsC BC Ht1 Ht2) Ht2.
 Proof.
 mkpair.
 + apply (BinProductPr2 _ (BCC (pr1 Ht1) (pr1 Ht2))).
@@ -185,8 +191,8 @@ mkpair.
 Defined.
 
 Local Lemma BinProductArrow_diagram Ht1 Ht2 Ht3
-  (F : SignatureMor C hsC Ht3 Ht1) (G : SignatureMor C hsC Ht3 Ht2) X Y :
-  Signature_category_mor_diagram _ _ _ (BinProduct_of_Signatures _ _ _ Ht1 Ht2)
+  (F : SignatureMor C Ht3 Ht1) (G : SignatureMor C Ht3 Ht2) X Y :
+  Signature_category_mor_diagram _ _ (BinProduct_of_Signatures _ _ _ Ht1 Ht2)
     (BinProductArrow _ (BCC _ _) (pr1 F) (pr1 G)) X Y.
 Proof.
 apply Signature_category_mor_diagram_pointwise; intro c.
@@ -202,11 +208,11 @@ apply pathsinv0, BinProductArrowUnique; rewrite <- assoc.
 Qed.
 
 Local Lemma isBinProductCone_Signature_precategory (Ht1 Ht2 : Signature C hsC) :
-  isBinProductCone (Signature_precategory C hsC) Ht1 Ht2
+  isBinProductCone (Signature_precategory C) Ht1 Ht2
                    (BinProduct_of_Signatures C hsC BC Ht1 Ht2)
                    (Signature_precategory_pr1 Ht1 Ht2) (Signature_precategory_pr2 Ht1 Ht2).
 Proof.
-apply (mk_isBinProductCone _ (has_homsets_Signature_precategory C hsC)).
+apply (mk_isBinProductCone _ (has_homsets_Signature_precategory C)).
 simpl; intros Ht3 F G.
 use unique_exists; simpl.
 - apply (tpair _ (BinProductArrow _ (BCC (pr1 Ht1) (pr1 Ht2)) (pr1 F) (pr1 G))).
@@ -220,7 +226,7 @@ use unique_exists; simpl.
       [ apply (maponpaths pr1 (pr1 H1H2)) | apply (maponpaths pr1 (pr2 H1H2)) ]).
 Defined.
 
-Lemma BinProducts_Signature_precategory : BinProducts (Signature_precategory C hsC).
+Lemma BinProducts_Signature_precategory : BinProducts (Signature_precategory C).
 Proof.
 intros Ht1 Ht2.
 use mk_BinProductCone.
@@ -235,16 +241,18 @@ End BinProducts.
 (** * Coproducts in the category of signatures *)
 Section Coproducts.
 
-Variables (I : UU) (HI : isdeceq I) (C : precategory) (hsC : has_homsets C).
-Variables (CC : Coproducts I C).
+Variables (I : UU) (HI : isdeceq I).
+Variables (C : Precategory) (CC : Coproducts I C).
 
-Local Definition CCC : Coproducts I [[C,C,hsC],[C,C,hsC],functor_category_has_homsets _ _ hsC].
+Let hsC : has_homsets C := homset_property C.
+
+Local Definition CCC : Coproducts I [[C,C],[C,C]].
 Proof.
 now repeat apply Coproducts_functor_precat.
 Defined.
 
-Local Lemma Signature_precategory_in_diagram (Ht : I → Signature_precategory C hsC) i X Y :
-  Signature_category_mor_diagram _ _ _ (Sum_of_Signatures I C hsC CC Ht)
+Local Lemma Signature_precategory_in_diagram (Ht : I → Signature_precategory C) i X Y :
+  Signature_category_mor_diagram _ _ (Sum_of_Signatures I C _ CC Ht)
     (CoproductIn _ _ (CCC (λ j : I, pr1 (Ht j))) i) X Y.
 Proof.
 apply Signature_category_mor_diagram_pointwise; intro c.
@@ -254,17 +262,17 @@ set (C2 := CC (λ j, pr1 (pr1 (Ht j) (functor_composite (pr1 Y) X)) c)).
 apply (@CoproductOfArrowsIn I C _ C1 _ C2).
 Defined.
 
-Local Definition Signature_precategory_in (Ht : I → Signature_precategory C hsC) (i : I) :
-  SignatureMor C hsC (Ht i) (Sum_of_Signatures I C hsC CC Ht).
+Local Definition Signature_precategory_in (Ht : I → Signature_precategory C) (i : I) :
+  SignatureMor C (Ht i) (Sum_of_Signatures I C _ CC Ht).
 Proof.
 mkpair.
 + apply (CoproductIn _ _ (CCC (λ j, pr1 (Ht j))) i).
 + apply Signature_precategory_in_diagram.
 Defined.
 
-Lemma CoproductArrow_diagram (Hti : I → Signature_precategory C hsC)
-  (Ht : Signature C hsC) (F : Π i : I, SignatureMor C hsC (Hti i) Ht) X Y :
-  Signature_category_mor_diagram C hsC (Sum_of_Signatures I C hsC CC Hti) Ht
+Lemma CoproductArrow_diagram (Hti : I → Signature_precategory C)
+  (Ht : Signature C hsC) (F : Π i : I, SignatureMor C (Hti i) Ht) X Y :
+  Signature_category_mor_diagram C (Sum_of_Signatures I C hsC CC Hti) Ht
     (CoproductArrow I _ (CCC _) (λ i, pr1 (F i))) X Y.
 Proof.
 apply Signature_category_mor_diagram_pointwise; intro c.
@@ -276,11 +284,11 @@ apply pathsinv0; eapply pathscomp0; [apply (nat_trans_eq_pointwise (pr2 (F i) X 
 now eapply pathscomp0; [apply cancel_postcomposition, horcomp_id_left|].
 Qed.
 
-Local Lemma isCoproductCocone_Signature_precategory (Hti : I → Signature_precategory C hsC) :
-  isCoproductCocone I (Signature_precategory C hsC) _
+Local Lemma isCoproductCocone_Signature_precategory (Hti : I → Signature_precategory C) :
+  isCoproductCocone I (Signature_precategory C) _
     (Sum_of_Signatures I C hsC CC Hti) (Signature_precategory_in Hti).
 Proof.
-apply (mk_isCoproductCocone _ _ (has_homsets_Signature_precategory C hsC)); simpl.
+apply (mk_isCoproductCocone _ _ (has_homsets_Signature_precategory C)); simpl.
 intros Ht F.
 use unique_exists; simpl.
 + mkpair.
@@ -293,7 +301,7 @@ use unique_exists; simpl.
             apply (maponpaths pr1 (Hi i))).
 Defined.
 
-Lemma Coproducts_Signature_precategory : Coproducts I (Signature_precategory C hsC).
+Lemma Coproducts_Signature_precategory : Coproducts I (Signature_precategory C).
 Proof.
 intros Ht.
 use mk_CoproductCocone.
