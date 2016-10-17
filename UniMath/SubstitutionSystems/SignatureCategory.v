@@ -134,7 +134,7 @@ Definition Signature_precategory : precategory :=
 Lemma has_homsets_Signature_precategory : has_homsets Signature_precategory.
 Proof.
 intros Ht1 Ht2.
-change isaset with (isofhlevel 2); apply isofhleveltotal2.
+apply (isofhleveltotal2 2).
 * apply isaset_nat_trans, functor_category_has_homsets.
 * intros α.
   apply isasetaprop.
