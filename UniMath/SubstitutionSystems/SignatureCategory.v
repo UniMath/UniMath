@@ -104,8 +104,8 @@ Proof.
 destruct α as [α Hα]; destruct β as [β Hβ].
 unfold Signature_category_mor_diagram in *; simpl.
 rewrite (assoc ((theta Ht1) (X,,Y))).
-eapply pathscomp0; [apply (cancel_postcomposition _ _ _ _ ((theta Ht1) (X,,Y) ;; _)), Hα|].
-rewrite <- assoc; eapply pathscomp0; [apply maponpaths, Hβ|].
+etrans; [apply (cancel_postcomposition _ _ _ _ ((theta Ht1) (X,,Y) ;; _)), Hα|].
+rewrite <- assoc; etrans; [apply maponpaths, Hβ|].
 rewrite assoc; apply (cancel_postcomposition [C,C] _ _ _ _ (_ ∙∙ identity (U Y))).
 apply (nat_trans_eq hsC); intro c; simpl.
 now rewrite assoc, !functor_id, !id_right.
@@ -215,14 +215,14 @@ Local Lemma BinProductArrow_diagram Ht1 Ht2 Ht3
 Proof.
 apply Signature_category_mor_diagram_pointwise; intro c.
 apply pathsinv0.
-eapply pathscomp0; [apply postcompWithBinProductArrow|].
+etrans; [apply postcompWithBinProductArrow|].
 apply pathsinv0, BinProductArrowUnique; rewrite <- assoc.
-+ eapply pathscomp0; [apply maponpaths, BinProductPr1Commutes|].
-  eapply pathscomp0; [apply (nat_trans_eq_pointwise (pr2 F X Y) c)|].
-  now eapply pathscomp0; [apply cancel_postcomposition, horcomp_id_left|].
-+ eapply pathscomp0; [apply maponpaths, BinProductPr2Commutes|].
-  eapply pathscomp0; [apply (nat_trans_eq_pointwise (pr2 G X Y) c)|].
-  now eapply pathscomp0; [apply cancel_postcomposition, horcomp_id_left|].
++ etrans; [apply maponpaths, BinProductPr1Commutes|].
+  etrans; [apply (nat_trans_eq_pointwise (pr2 F X Y) c)|].
+  now etrans; [apply cancel_postcomposition, horcomp_id_left|].
++ etrans; [apply maponpaths, BinProductPr2Commutes|].
+  etrans; [apply (nat_trans_eq_pointwise (pr2 G X Y) c)|].
+  now etrans; [apply cancel_postcomposition, horcomp_id_left|].
 Qed.
 
 Local Lemma isBinProductCone_Signature_precategory (Ht1 Ht2 : Signature C hsC) :
@@ -294,12 +294,12 @@ Lemma CoproductArrow_diagram (Hti : I → Signature_precategory C)
     (CoproductArrow I _ (CCC _) (λ i, pr1 (F i))) X Y.
 Proof.
 apply Signature_category_mor_diagram_pointwise; intro c.
-eapply pathscomp0; [apply precompWithCoproductArrow|].
+etrans; [apply precompWithCoproductArrow|].
 apply pathsinv0, CoproductArrowUnique; intro i; rewrite assoc; simpl.
-eapply pathscomp0;
+etrans;
   [apply cancel_postcomposition, (CoproductInCommutes _ _ _ (CC (λ j, pr1 (pr1 (Hti j) X) _)))|].
-apply pathsinv0; eapply pathscomp0; [apply (nat_trans_eq_pointwise (pr2 (F i) X Y) c)|].
-now eapply pathscomp0; [apply cancel_postcomposition, horcomp_id_left|].
+apply pathsinv0; etrans; [apply (nat_trans_eq_pointwise (pr2 (F i) X Y) c)|].
+now etrans; [apply cancel_postcomposition, horcomp_id_left|].
 Qed.
 
 Local Lemma isCoproductCocone_Signature_precategory (Hti : I → Signature_precategory C) :
