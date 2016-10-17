@@ -169,8 +169,7 @@ Proof.
 apply is_omega_cocont_functor_composite.
 + apply functor_category_has_homsets.
 + apply is_omega_cocont_pre_composition_functor.
-  (* apply LimsFunctorCategory, LC. *)
-  admit.
+  admit. (* Limits in Set/sort *)
 + admit. (* is_omega_cocont post_composition_functor *)
 Admitted.
 
@@ -190,9 +189,7 @@ apply BinProducts_functor_precat.
 apply BinProductsHSET.
 Defined.
 
-(* H follows if C has exponentials? *)
-Lemma is_omega_cocont_exp_functors (xs : list (list sort × sort))
-  (* (H : Π x : [SET_over_sort, SET], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x)) *) :
+Lemma is_omega_cocont_exp_functors (xs : list (list sort × sort)) :
   is_omega_cocont (exp_functors xs).
 Proof.
 destruct xs as [[|n] xs].
@@ -204,33 +201,60 @@ destruct xs as [[|n] xs].
     apply is_omega_cocont_exp_functor.
   + destruct xs as [m [k xs]].
     apply is_omega_cocont_BinProduct_of_functors; try apply homset_property.
-    * apply BinProducts_functor_precat. admit.
-    * admit.
+    * apply BinProducts_functor_precat.
+      admit. (* BinProducts in Set/sort *)
+    * apply is_omega_cocont_constprod_functor1; try apply functor_category_has_homsets.
+      apply has_exponentials_functor_HSET, has_homsets_Csort.
     * apply is_omega_cocont_exp_functor.
     * apply (IHn (k,,xs)).
 Admitted.
 
-(* Definition MultiSortedSigToFunctor_fun (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C) *)
-(*   : [sort_cat, [[sortToC, sortToC], [sortToC, C]]]. *)
-(* Proof. *)
-(* (* As we're defining a functor out of a discrete category it suffices to give a function: *) *)
-(* apply functor_discrete_precategory; intro s. *)
-(* use (coproduct_of_functors (indices M s)). *)
-(* + apply Coproducts_functor_precat, CC. *)
-(* + intros y; apply (exp_functors (args M s y)). *)
-(* Defined. *)
+Definition HatFunctor (t : sort) : functor SET SET_over_sort.
+Proof.
+mkpair.
+- mkpair.
+  + intro A; apply (A,,λ _, t).
+  + intros A B f; apply (tpair _ f), idpath.
+- abstract (now split; [intros A|intros A B C f g];
+            apply subtypeEquality; try (intro x; apply has_homsets_HSET)).
+Defined.
+
+Definition hat_exp_functors (xst : list (list sort × sort) × sort) :
+  functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET_over_sort].
+Proof.
+eapply functor_composite.
++ apply (exp_functors (pr1 xst)).
++ eapply post_composition_functor.
+  apply (HatFunctor (pr2 xst)).
+Defined.
+
+Lemma is_omega_cocont_hat_exp_functors (xst : list (list sort × sort) × sort) :
+  is_omega_cocont (hat_exp_functors xst).
+Proof.
+apply is_omega_cocont_functor_composite.
++ apply functor_category_has_homsets.
++ apply is_omega_cocont_exp_functors.
++ admit. (* is_omega_cocont post_composition_functor *)
+Admitted.
 
 Definition MultiSortedSigToFunctor (M : MultiSortedSig) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET_over_sort].
 Proof.
 use (coproduct_of_functors (ops M)).
-+ admit.
++ apply Coproducts_functor_precat.
+  admit. (* Coproducts in Set/sort *)
 + intros op.
-  admit.
+  apply (hat_exp_functors (arity M op)).
 Admitted.
 
-Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig) :
-   is_omega_cocont (MultiSortedSigToFunctor M).
-Admitted.
+(* Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig) : *)
+(*   is_omega_cocont (MultiSortedSigToFunctor M). *)
+(* Proof. *)
+(* apply is_omega_cocont_coproduct_of_functors. ; try apply homset_property. *)
+(* + apply PC. *)
+(* + admit. *)
+(* + intros op; apply is_omega_cocont_hat_exp_functors. *)
+(* Defined. *)
+
 
 End MBindingSig.
