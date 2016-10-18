@@ -94,6 +94,13 @@ mkpair.
             apply funextsec; intro p; apply subtypeEquality; trivial; intros x; apply setproperty).
 Defined.
 
+Lemma is_omega_cocont_postcomp_proj (s : sort) :
+  is_omega_cocont (post_composition_functor (SET / sort) _ _ has_homsets_Csort has_homsets_HSET (proj s)).
+Proof.
+(* intros d L ccL Hccl F ccF; simpl in *. *)
+(* use unique_exists. *)
+Admitted.
+
 (* TODO: this could be defined more abstractly as:
      option(s)(X,f) := [f, \lambda _ .s] : X+1 -> sort *)
 Definition option_fun : sort -> SET / sort -> SET / sort.
@@ -170,8 +177,8 @@ apply is_omega_cocont_functor_composite.
 + apply functor_category_has_homsets.
 + apply is_omega_cocont_pre_composition_functor.
   apply LimsCsort. (* Limits in Set/sort *)
-+ admit. (* is_omega_cocont post_composition_functor *)
-Admitted.
++ apply is_omega_cocont_postcomp_proj.
+Defined.
 
 (* This defines X^as where as is a list. Outputs a product of functors if the list is nonempty and
 otherwise the constant functor. *)
@@ -221,6 +228,15 @@ mkpair.
             apply subtypeEquality; try (intro x; apply has_homsets_HSET)).
 Defined.
 
+Lemma is_omega_cocont_postcomp_HatFunctor (t : sort) :
+  is_omega_cocont (post_composition_functor SET_over_sort  _ _
+       (homset_property SET) (homset_property SET_over_sort)
+       (HatFunctor t)).
+Proof.
+(* intros d L ccL Hccl F ccF; simpl in *. *)
+(* use unique_exists. *)
+Admitted.
+
 Definition hat_exp_functors (xst : list (list sort × sort) × sort) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET_over_sort].
 Proof.
@@ -236,8 +252,8 @@ Proof.
 apply is_omega_cocont_functor_composite.
 + apply functor_category_has_homsets.
 + apply is_omega_cocont_exp_functors.
-+ admit. (* is_omega_cocont post_composition_functor *)
-Admitted.
++ apply is_omega_cocont_postcomp_HatFunctor.
+Defined.
 
 Definition MultiSortedSigToFunctor (M : MultiSortedSig) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET_over_sort].
