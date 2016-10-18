@@ -5,6 +5,7 @@ Direct implementation of binary products together with:
 - Definition of binary product functor ([binproduct_functor])
 - Definition of a binary product structure on a functor category by taking pointwise binary products
   in the target category ([BinProducts_functor_precat])
+- Binary products from limits ([BinProducts_from_Lims])
 
 Written by: Benedikt Ahrens, Ralph Matthes
 Extended by: Anders Mörtberg and Tomi Pannila

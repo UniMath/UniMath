@@ -64,6 +64,8 @@ Proof.
 apply has_homsets_slice_precat.
 Qed.
 
+Variable (LimsCsort : Lims (SET / sort)).
+
 (** Definition of multi sorted signatures *)
 Definition MultiSortedSig : UU := Σ (I : hSet), I → list (list sort × sort) × sort.
 
@@ -167,7 +169,7 @@ Proof.
 apply is_omega_cocont_functor_composite.
 + apply functor_category_has_homsets.
 + apply is_omega_cocont_pre_composition_functor.
-  admit. (* Limits in Set/sort *)
+  apply LimsCsort. (* Limits in Set/sort *)
 + admit. (* is_omega_cocont post_composition_functor *)
 Admitted.
 
@@ -200,7 +202,8 @@ destruct xs as [[|n] xs].
   + destruct xs as [m [k xs]].
     apply is_omega_cocont_BinProduct_of_functors; try apply homset_property.
     * apply BinProducts_functor_precat.
-      admit. (* BinProducts in Set/sort *)
+      apply BinProducts_from_Lims.
+      apply LimsCsort.
     * apply is_omega_cocont_constprod_functor1; try apply functor_category_has_homsets.
       apply has_exponentials_functor_HSET, has_homsets_Csort.
     * apply is_omega_cocont_exp_functor.

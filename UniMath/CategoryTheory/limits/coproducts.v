@@ -5,7 +5,7 @@ Direct implementation of indexed coproducts together with:
 - The general coproduct functor ([coproduct_functor])
 - Definition of a coproduct structure on a functor category by taking pointwise coproducts in the
   target category (adapted from the binary version) ([])
-
+- Coproducts from colimits ([Coproducts_from_Colims])
 
 Written by: Anders Mörtberg 2016
 
@@ -335,6 +335,7 @@ Defined.
 
 End def_functor_pointwise_coprod.
 
+(** * Coproducts from colimits *)
 Section coproducts_from_colimits.
 
 Variables (I : UU) (C : precategory) (hsC : has_homsets C).
@@ -344,7 +345,7 @@ Definition I_graph : graph := (I,,λ _ _,empty).
 Definition coproducts_diagram (F : I → C) : diagram I_graph C.
 Proof.
 exists F.
-intros u v e; induction e.
+abstract (intros u v e; induction e).
 Defined.
 
 Definition CoproductsCocone c (F : I → C) (H : Π i, F i --> c) :

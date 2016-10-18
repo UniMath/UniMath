@@ -5,6 +5,7 @@ Direct implementation of indexed products together with:
 - The general product functor ([product_functor])
 - Definition of a product structure on a functor category by taking pointwise products in the target
   category (adapted from the binary version) ([Products_functor_precat])
+- Products from limits ([Products_from_Lims])
 
 Written by: Anders Mörtberg 2016
 
@@ -18,6 +19,8 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
@@ -333,3 +336,44 @@ intros F; apply functor_precat_product_cone.
 Defined.
 
 End def_functor_pointwise_prod.
+
+(** * Products from limits *)
+Section products_from_limits.
+
+Variables (I : UU) (C : precategory) (hsC : has_homsets C).
+
+Definition I_graph : graph := (I,,λ _ _,empty).
+
+Definition products_diagram (F : I → C) : diagram I_graph C.
+Proof.
+exists F.
+abstract (intros u v e; induction e).
+Defined.
+
+Definition productscone c (F : I → C) (H : Π i, c --> F i) :
+  cone (products_diagram F) c.
+Proof.
+mkpair.
++ intro v; apply H.
++ abstract (intros u v e; induction e).
+Defined.
+
+Lemma Products_from_Lims : Lims C -> Products I C.
+Proof.
+intros H F.
+set (HF := H _ (products_diagram F)).
+use mk_ProductCone.
++ apply (lim HF).
++ intros i; apply (limOut HF).
++ apply (mk_isProductCone _ _ hsC); intros c Fic.
+  use unique_exists.
+  - apply limArrow.
+    use mk_cone.
+    * simpl; intro i; apply Fic.
+    * abstract (simpl; intros u v e; induction e).
+  - abstract (simpl; intro i; apply (limArrowCommutes HF)).
+  - abstract (intros y; apply impred; intro i; apply hsC).
+  - abstract (intros f Hf; apply limArrowUnique; simpl in *; intros i; apply Hf).
+Defined.
+
+End products_from_limits.
