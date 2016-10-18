@@ -203,12 +203,13 @@ destruct xs as [[|n] xs].
     apply is_omega_cocont_BinProduct_of_functors; try apply homset_property.
     * apply BinProducts_functor_precat.
       apply BinProducts_from_Lims.
+      apply has_homsets_Csort.
       apply LimsCsort.
     * apply is_omega_cocont_constprod_functor1; try apply functor_category_has_homsets.
       apply has_exponentials_functor_HSET, has_homsets_Csort.
     * apply is_omega_cocont_exp_functor.
     * apply (IHn (k,,xs)).
-Admitted.
+Defined.
 
 Definition HatFunctor (t : sort) : functor SET SET_over_sort.
 Proof.
@@ -256,9 +257,11 @@ Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig)
 Proof.
 apply is_omega_cocont_coproduct_of_functors; try apply homset_property.
 + apply Products_functor_precat.
-  admit. (* Products in Set/sort *)
+  apply Products_from_Lims.
+  apply has_homsets_Csort.
+  apply LimsCsort.
 + apply H.
 + intros op; apply is_omega_cocont_hat_exp_functors.
-Admitted.
+Defined.
 
 End MBindingSig.
