@@ -8,6 +8,7 @@ Direct implementation of binary coproducts togther with:
 - Definition of a coproduct structure on a functor category by taking pointwise coproducts in the
   target category ([BinCoproducts_functor_precat])
 - Definition of the option functor ([option_functor])
+- Binary coproducts from colimits ([BinCoproducts_from_Colims])
 
 Written by Benedikt Ahrens, March 2015
 Extended by Anders Mörtberg and Tomi Pannila, 2016
@@ -24,6 +25,7 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -592,54 +594,46 @@ Qed.
 
 End BinCoproducts.
 
-(* Section BinCoproducts_from_Colims. *)
+(** * Binary coproducts from colimits *)
+Section BinCoproducts_from_Colims.
 
-(* Require Import UniMath.CategoryTheory.limits.graphs.colimits. *)
+Variables (C : precategory) (hsC : has_homsets C).
 
-(* Variable C : precategory. *)
-(* Variable hsC : has_homsets C. *)
+Definition two_graph : graph := (bool,,λ _ _,empty).
 
-(* Definition two_graph : graph. *)
-(* Proof. *)
-(*   exists bool. *)
-(*   exact (fun _ _ => empty). *)
-(* Defined. *)
+Definition bincoproduct_diagram (a b : C) : diagram two_graph C.
+Proof.
+exists (fun x : bool => if x then a else b).
+abstract (intros u v F; induction F).
+Defined.
 
-(* Definition coproduct_diagram (a b : C) : diagram two_graph C. *)
-(* Proof. *)
-(*   exists (fun x : bool => if x then a else b). *)
-(*   intros u v F. *)
-(*   induction F. *)
-(* Defined. *)
+Definition BinCoprodCocone {a b c : C} (ac : a --> c) (bc : b --> c) :
+   cocone (bincoproduct_diagram a b) c.
+Proof.
+use mk_cocone; simpl.
++ intros x; induction x; assumption.
++ abstract (intros x y e; destruct e).
+Defined.
 
-(* Definition CoprodCocone {a b c : C} (ac : a --> c) (bc : b --> c) : *)
-(*    cocone (coproduct_diagram a b) c. *)
-(* Proof. *)
-(* simple refine (tpair _ _ _ ). *)
-(* + intro v; induction v; [ exact ac | exact bc ]. *)
-(* + abstract (intros u v e; induction e). *)
-(* Defined. *)
+Lemma BinCoproducts_from_Colims : Colims C -> BinCoproducts C.
+Proof.
+intros H a b.
+set (CC := H _ (bincoproduct_diagram a b)); simpl.
+use mk_BinCoproductCocone.
++ apply (colim CC).
++ apply (colimIn CC true).
++ apply (colimIn CC false).
++ apply (mk_isBinCoproductCocone _ hsC); simpl; intros c f g.
+  use unique_exists; simpl.
+  - apply colimArrow, (BinCoprodCocone f g).
+  - abstract (split;
+      [ apply (colimArrowCommutes CC c (BinCoprodCocone f g) true)
+      | apply (colimArrowCommutes CC c (BinCoprodCocone f g) false) ]).
+  - abstract (intros h; apply isapropdirprod; apply hsC).
+  - abstract (now intros h [H1 H2]; apply colimArrowUnique; intro x; induction x).
+Defined.
 
-(* Lemma BinCoproducts_from_Colims : Colims C -> BinCoproducts C. *)
-(* Proof. *)
-(* intros H a b. *)
-(* case (H _ (coproduct_diagram a b)); simpl. *)
-(* intros t; destruct t as [ab cc]; simpl; intros iscc. *)
-(* apply (mk_BinCoproductCocone _ _ _ ab (coconeIn cc true) (coconeIn cc false)). *)
-(* apply (mk_isBinCoproductCocone _ hsC); simpl; intros c f g. *)
-(* case (iscc c (CoprodCocone f g)); simpl; intros t Ht. *)
-(* simple refine (tpair _ _ _). *)
-(* + apply (tpair _ (pr1 t)); split; [ apply (pr2 t true) | apply (pr2 t false) ]. *)
-(* + intros t0. *)
-(*   apply subtypeEquality; [intros aa; apply isapropdirprod; apply hsC|]; simpl. *)
-(*   simple refine (let X : Σ x : C ⟦ ab, c ⟧, Π v, coconeIn cc v ;; x = *)
-(*             bool_rect (λ v0, C ⟦ if v0 then a else b, c ⟧) f g v := _ in _). *)
-(*   { apply (tpair _ (pr1 t0)); intro x; case x; *)
-(*     [ apply (pr1 (pr2 t0)) | apply (pr2 (pr2 t0)) ]. } *)
-(* apply (maponpaths pr1 (Ht X)). *)
-(* Defined. *)
-
-(* End BinCoproducts_from_Colims. *)
+End BinCoproducts_from_Colims.
 
 Section functors.
 
