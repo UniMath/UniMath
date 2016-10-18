@@ -133,9 +133,9 @@ Admitted.
 Lemma is_omega_cocont_postcomp_proj (s : sort) :
   is_omega_cocont (post_composition_functor (SET / sort) _ _ has_homsets_Csort has_homsets_HSET (proj s)).
 Proof.
-(* intros d L ccL Hccl F ccF; simpl in *. *)
-(* use unique_exists. *)
-Admitted.
+apply is_omega_cocont_post_composition_functor.
+apply is_left_adjoint_proj.
+Defined.
 
 (* TODO: this could be defined more abstractly as:
      option(s)(X,f) := [f, \lambda _ .s] : X+1 -> sort *)
@@ -259,9 +259,9 @@ Lemma is_omega_cocont_postcomp_HatFunctor (t : sort) :
        (homset_property SET) (homset_property SET_over_sort)
        (HatFunctor t)).
 Proof.
-(* intros d L ccL Hccl F ccF; simpl in *. *)
-(* use unique_exists. *)
-Admitted.
+apply is_omega_cocont_post_composition_functor.
+apply is_left_adjoint_hat.
+Defined.
 
 Definition hat_exp_functors (xst : list (list sort × sort) × sort) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET_over_sort].

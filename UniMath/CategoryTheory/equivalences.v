@@ -3,6 +3,7 @@
 Benedikt Ahrens, Chris Kapulkin, Mike Shulman
 january 2013
 
+Extended by: Anders Mörtberg, 2016
 
 ************************************************************)
 
@@ -30,6 +31,7 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.whiskering.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -484,7 +486,8 @@ Defined.
 End from_fully_faithful_and_ess_surj_to_equivalence.
 
 
-(* Theorem 2 (iv) of Chapter IV.1 of MacLane *)
+(** * Construction of an adjunction from some partial data (Theorem 2 (iv) of Chapter IV.1 of
+      MacLane) *)
 Section adjunction_from_partial.
 
 Definition is_universal_arrow_from {D C : precategory}
@@ -574,3 +577,23 @@ Qed.
 Definition adjunction_from_partial : is_left_adjoint F := (G,, (unit,, counit),, form_adjunctionFG).
 
 End adjunction_from_partial.
+
+Section postcomp.
+
+Variables (C D E : precategory) (hsD : has_homsets D) (hsE : has_homsets E).
+Variables (F : functor D E).
+
+Variables (H : is_left_adjoint F).
+
+Let F' : functor E D := right_adjoint H.
+Let H1 : nat_trans (functor_identity D) (functor_composite F F'):= unit_from_left_adjoint H.
+Let H2 : nat_trans (functor_composite F' F) (functor_identity E) := counit_from_left_adjoint H.
+
+Lemma is_left_adjoint_post_composition_functor :
+  is_left_adjoint (post_composition_functor C D E hsD hsE F).
+Proof.
+exists (post_composition_functor _ _ _ _ _ F').
+admit.
+Admitted.
+
+End postcomp.
