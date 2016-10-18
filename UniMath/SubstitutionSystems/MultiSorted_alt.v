@@ -240,19 +240,22 @@ Definition MultiSortedSigToFunctor (M : MultiSortedSig) :
 Proof.
 use (coproduct_of_functors (ops M)).
 + apply Coproducts_functor_precat.
-  admit. (* Coproducts in Set/sort *)
+  apply Coproducts_from_Colims.
+  apply has_homsets_Csort.
+  apply slice_precat_colims.
+  apply ColimsHSET.
 + intros op.
   apply (hat_exp_functors (arity M op)).
+Defined.
+
+Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig)
+  (H : isdeceq (ops M)) : is_omega_cocont (MultiSortedSigToFunctor M).
+Proof.
+apply is_omega_cocont_coproduct_of_functors; try apply homset_property.
++ apply Products_functor_precat.
+  admit. (* Products in Set/sort *)
++ apply H.
++ intros op; apply is_omega_cocont_hat_exp_functors.
 Admitted.
-
-(* Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig) : *)
-(*   is_omega_cocont (MultiSortedSigToFunctor M). *)
-(* Proof. *)
-(* apply is_omega_cocont_coproduct_of_functors. ; try apply homset_property. *)
-(* + apply PC. *)
-(* + admit. *)
-(* + intros op; apply is_omega_cocont_hat_exp_functors. *)
-(* Defined. *)
-
 
 End MBindingSig.
