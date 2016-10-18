@@ -77,7 +77,7 @@ Definition proj_fun (s : sort) : SET / sort -> SET.
 Proof.
 intros p.
 mkpair.
-- apply (Σ x, pr2 p x = s).
+- apply (hfiber (pr2 p) s).
 - abstract (apply isaset_total2; [|intros x; apply isasetaprop]; apply setproperty).
 Defined.
 
@@ -125,6 +125,8 @@ mkpair.
               apply subtypeEquality; trivial; intros x'; apply setproperty).
 Defined.
 
+(* Could maybe be proved by showing that (proj s) is a product in Set/sort (it's a pullback) and
+   then use that Set/sort is cartesian closed *)
 Lemma is_left_adjoint_proj (s : sort) : is_left_adjoint (proj s).
 Admitted.
 
