@@ -104,68 +104,28 @@ mkpair.
             apply subtypeEquality; try (intro x; apply has_homsets_HSET)).
 Defined.
 
-Definition forget : functor (SET / sort) SET.
+Lemma is_left_adjoint_hat (s : sort) : is_left_adjoint (HatFunctor s).
 Proof.
-apply slicecat_to_cat.
+apply (tpair _ (proj s)).
+mkpair.
++ split.
+  - mkpair.
+    * intros X; simpl; intros x; apply (x,,idpath s).
+    * abstract (intros X Y f; simpl; apply funextsec; intro x; cbn; apply subtypeEquality; trivial;
+                intros y; apply setproperty).
+  - mkpair.
+    * intros X; simpl in *.
+      mkpair; simpl.
+      { intros H; apply (pr1 H). }
+      { abstract (apply funextsec; intro x; apply (pr2 x)). }
+    * abstract (now intros X Y f; apply (eq_mor_slicecat _ has_homsets_HSET)).
++ split.
+  - abstract (now intros X; apply (eq_mor_slicecat _ has_homsets_HSET)).
+  - abstract (intros X; apply funextsec; intro x;
+              apply subtypeEquality; trivial; intros x'; apply setproperty).
 Defined.
 
 Lemma is_left_adjoint_proj (s : sort) : is_left_adjoint (proj s).
-Admitted.
-
-Lemma is_left_adjoint_hat (s : sort) : is_left_adjoint (HatFunctor s).
-Proof.
-mkpair.
-apply (proj s).
-mkpair.
-split.
-+
-mkpair.
-intros x.
-simpl.
-intros Y.
-exists Y.
-apply idpath.
-simpl.
-intros X Y f.
-simpl in *.
-apply funextsec; intro x; simpl.
-cbn.
-apply subtypeEquality; simpl; trivial.
-intros XX; simpl.
-apply setproperty.
-+ mkpair.
-intros x; cbn.
-mkpair.
-simpl.
-intros XX.
-apply (pr1 XX).
-simpl.
-apply funextsec; intro XXX; simpl.
-apply (pr2 XXX).
-intros X Y f.
-cbn.
-apply subtypeEquality; simpl.
-admit.
-cbn.
-apply idpath.
-+
-simpl.
-split.
-*
-intros X.
-simpl.
-apply subtypeEquality; simpl.
-admit.
-apply funextsec; intro XX; simpl.
-cbn.
-apply idpath.
-* intros X.
-simpl.
-apply funextsec; intro Y; cbn.
-apply subtypeEquality.
-admit.
-simpl.
-apply idpath.
 Admitted.
 
 Lemma is_omega_cocont_postcomp_proj (s : sort) :
