@@ -94,6 +94,80 @@ mkpair.
             apply funextsec; intro p; apply subtypeEquality; trivial; intros x; apply setproperty).
 Defined.
 
+Definition HatFunctor (t : sort) : functor SET (SET / sort).
+Proof.
+mkpair.
+- mkpair.
+  + intro A; apply (A,,λ _, t).
+  + intros A B f; apply (tpair _ f), idpath.
+- abstract (now split; [intros A|intros A B C f g];
+            apply subtypeEquality; try (intro x; apply has_homsets_HSET)).
+Defined.
+
+Definition forget : functor (SET / sort) SET.
+Proof.
+apply slicecat_to_cat.
+Defined.
+
+Lemma is_left_adjoint_proj (s : sort) : is_left_adjoint (proj s).
+Admitted.
+
+Lemma is_left_adjoint_hat (s : sort) : is_left_adjoint (HatFunctor s).
+Proof.
+mkpair.
+apply (proj s).
+mkpair.
+split.
++
+mkpair.
+intros x.
+simpl.
+intros Y.
+exists Y.
+apply idpath.
+simpl.
+intros X Y f.
+simpl in *.
+apply funextsec; intro x; simpl.
+cbn.
+apply subtypeEquality; simpl; trivial.
+intros XX; simpl.
+apply setproperty.
++ mkpair.
+intros x; cbn.
+mkpair.
+simpl.
+intros XX.
+apply (pr1 XX).
+simpl.
+apply funextsec; intro XXX; simpl.
+apply (pr2 XXX).
+intros X Y f.
+cbn.
+apply subtypeEquality; simpl.
+admit.
+cbn.
+apply idpath.
++
+simpl.
+split.
+*
+intros X.
+simpl.
+apply subtypeEquality; simpl.
+admit.
+apply funextsec; intro XX; simpl.
+cbn.
+apply idpath.
+* intros X.
+simpl.
+apply funextsec; intro Y; cbn.
+apply subtypeEquality.
+admit.
+simpl.
+apply idpath.
+Admitted.
+
 Lemma is_omega_cocont_postcomp_proj (s : sort) :
   is_omega_cocont (post_composition_functor (SET / sort) _ _ has_homsets_Csort has_homsets_HSET (proj s)).
 Proof.
@@ -216,16 +290,6 @@ destruct xs as [[|n] xs].
       apply has_exponentials_functor_HSET, has_homsets_Csort.
     * apply is_omega_cocont_exp_functor.
     * apply (IHn (k,,xs)).
-Defined.
-
-Definition HatFunctor (t : sort) : functor SET SET_over_sort.
-Proof.
-mkpair.
-- mkpair.
-  + intro A; apply (A,,λ _, t).
-  + intros A B f; apply (tpair _ f), idpath.
-- abstract (now split; [intros A|intros A B C f g];
-            apply subtypeEquality; try (intro x; apply has_homsets_HSET)).
 Defined.
 
 Lemma is_omega_cocont_postcomp_HatFunctor (t : sort) :
