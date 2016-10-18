@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
@@ -333,3 +334,43 @@ Proof.
 Defined.
 
 End def_functor_pointwise_coprod.
+
+Section coproducts_from_colimits.
+
+Variables (I : UU) (C : precategory) (hsC : has_homsets C).
+
+Definition I_graph : graph := (I,,λ _ _,empty).
+
+Definition coproducts_diagram (F : I → C) : diagram I_graph C.
+Proof.
+exists F.
+intros u v e; induction e.
+Defined.
+
+Definition CoproductsCocone c (F : I → C) (H : Π i, F i --> c) :
+  cocone (coproducts_diagram F) c.
+Proof.
+mkpair.
++ intro v; apply H.
++ abstract (intros u v e; induction e).
+Defined.
+
+Lemma Coproducts_from_Colims : Colims C -> Coproducts I C.
+Proof.
+intros H F.
+set (HF := H _ (coproducts_diagram F)).
+use mk_CoproductCocone.
++ apply (colim HF).
++ intros i; apply (colimIn HF).
++ apply (mk_isCoproductCocone _ _ hsC); intros c Fic.
+  use unique_exists.
+  - apply colimArrow.
+    use mk_cocone.
+    * simpl; intro i; apply Fic.
+    * abstract (simpl; intros u v e; induction e).
+  - abstract (simpl; intro i; apply (colimArrowCommutes HF)).
+  - abstract (intros y; apply impred; intro i; apply hsC).
+  - abstract (intros f Hf; apply colimArrowUnique; simpl in *; intros i; apply Hf).
+Defined.
+
+End coproducts_from_colimits.
