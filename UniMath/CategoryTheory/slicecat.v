@@ -328,37 +328,74 @@ Qed.
 End slicecat_functor_theory.
 
 (** * Colimits in slice categories *)
-(* Section slicecat_colimits. *)
+Section slicecat_colimits.
 
-(* Variables (C : precategory) (hsC : has_homsets C) (x : C) (CC : Colims C). *)
+Variables (C : precategory) (hsC : has_homsets C) (x : C) (CC : Colims C).
 
-(* Local Notation "C / X" := (slice_precat C X hsC). *)
+Local Notation "C / X" := (slice_precat C X hsC).
 
-(* Definition slicecat_to_cat : functor (C / x) C. *)
-(* Proof. *)
-(* mkpair. *)
-(* + mkpair. *)
-(*   - apply pr1. *)
-(*   - intros a b; apply pr1. *)
-(* + abstract (now split). *)
-(* Defined. *)
+Definition slicecat_to_cat : functor (C / x) C.
+Proof.
+mkpair.
++ mkpair.
+  - apply pr1.
+  - intros a b; apply pr1.
++ abstract (now split).
+Defined.
 
-(* Definition slice_precat_colims : Colims (C / x). *)
-(* Proof. *)
-(* intros g d. *)
-(* set (H := CC g (mapdiagram slicecat_to_cat d)). *)
-(* set (L := colim H). *)
-(* (* destruct H as [[L ccL] HccL]; simpl in *. *) *)
-(* use mk_ColimCocone. *)
-(* - mkpair. *)
-(*   + apply L. *)
-(*   + apply colimArrow. *)
-(*     use mk_cocone. *)
-(*     * simpl; intro v. *)
-(* generalize (coconeIn (colimCocone H) v). *)
-(* simpl. *)
+Definition slice_precat_colims : Colims (C / x).
+Proof.
+intros g d.
+set (H := CC g (mapdiagram slicecat_to_cat d)).
+set (L := colim H).
+use mk_ColimCocone.
+- mkpair.
+  + apply L.
+  + apply colimArrow.
+    use mk_cocone.
+    * intro v; apply (pr2 (dob d v)).
+    * intros u v e; apply (pr2 (dmor d e)).
+- use mk_cocone.
+  + intro v; simpl.
+    mkpair; simpl.
+* apply (colimIn H v).
+* apply (colimArrowCommutes H).
++ simpl; intros u v e.
+apply eq_mor_slicecat, (coconeInCommutes (colimCocone H)).
+- intros y ccy.
+use unique_exists.
++ mkpair; simpl.
+* apply colimArrow.
+apply (mapcocone slicecat_to_cat _ ccy).
+* apply colimArrowUnique.
+  intros v; simpl.
+rewrite assoc.
+eapply pathscomp0.
+apply cancel_postcomposition.
+apply (colimArrowCommutes H _ (mapcocone slicecat_to_cat _ ccy) v).
+destruct y as [y Hy].
+simpl in *.
+destruct ccy as [f Hf].
+simpl.
+apply (pr2 (f v)).
++ intro v.
+apply eq_mor_slicecat; simpl.
+apply (colimArrowCommutes _ _ (mapcocone slicecat_to_cat d ccy)).
++ simpl.
+intros f.
+apply impred; intro v.
+apply has_homsets_slice_precat.
++ simpl.
+intros f Hf.
+simpl.
+apply eq_mor_slicecat; simpl.
+apply colimArrowUnique.
+intros v.
+simpl.
+apply (maponpaths pr1 (Hf v)).
+Defined.
 
-(* End slicecat_colimits. *)
+End slicecat_colimits.
 
 (** * Limits in slice categories *)
 (* Section slicecat_limits. *)
