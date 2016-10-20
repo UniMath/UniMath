@@ -3,6 +3,7 @@ SumOfSignatures.v
 BinProductOfSignatures.v
 SubstitutionSystems.v
 Signatures.v
+SignatureCategory.v
 SignatureExamples.v
 MonadsFromSubstitutionSystems.v
 LiftingInitial.v

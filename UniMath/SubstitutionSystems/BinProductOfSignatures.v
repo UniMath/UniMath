@@ -185,13 +185,13 @@ End construction.
 (** Binary product of signatures *)
 Definition BinProduct_of_Signatures (S1 S2 : Signature C hsC) : Signature C hsC.
 Proof.
-  destruct S1 as [H1 [θ1 [S11' S12']]].
-  destruct S2 as [H2 [θ2 [S21' S22']]].
-  exists (H H1 H2).
-  exists (θ H1 H2 θ1 θ2).
+  (* destruct S1 as [H1 [θ1 [S11' S12']]]. *)
+  (* destruct S2 as [H2 [θ2 [S21' S22']]]. *)
+  exists (H (pr1 S1) (pr1 S2)).
+  exists (θ (pr1 S1) (pr1 S2) (pr1 (pr2 S1)) (pr1 (pr2 S2))).
   split.
-  + apply ProductStrength1'; assumption.
-  + apply ProductStrength2'; assumption.
+  + apply ProductStrength1'; [apply (pr1 (pr2 (pr2 S1)))|apply (pr1 (pr2 (pr2 S2)))].
+  + apply ProductStrength2'; [apply (pr2 (pr2 (pr2 S1)))|apply (pr2 (pr2 (pr2 S2)))].
 Defined.
 
 Lemma is_omega_cocont_BinProduct_of_Signatures (S1 S2 : Signature C hsC)

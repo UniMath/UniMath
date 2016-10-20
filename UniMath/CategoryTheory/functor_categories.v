@@ -126,38 +126,19 @@ Definition functor_eq_eq_from_functor_ob_eq (C C' : precategory_data) (hs: has_h
          base_paths _ _ (base_paths _ _ q)) :
     p = q.
 Proof.
-  apply (invmaponpathsweq (total2_paths_equiv _ _ _ )).
-  simpl.
+  apply (invmaponpathsweq (total2_paths_equiv _ _ _ )); simpl.
   assert (H' : base_paths _ _ p = base_paths _ _ q).
-  apply (invmaponpathsweq (total2_paths_equiv _ _ _ )).
-  simpl.
-  apply (@total2_paths2 _ (fun p : pr1 (pr1 F) = pr1 (pr1 G) =>
-          transportf
-            (fun x : ob C -> ob C' =>
-            (fun x0 : ob C -> ob C' =>
-            Π a b : ob C, a --> b -> x0 a --> x0 b) x)
-            p (pr2 (pr1 F)) = pr2 (pr1 G)) _
-   (fiber_paths (base_paths F G p)) _ (fiber_paths (base_paths F G q))  H).
-   apply uip.
-   change (isaset) with (isofhlevel 2).
-   apply impred; intro a.
-   apply impred; intro b.
-   apply impred; intro f.
-   apply hs.
-   apply (@total2_paths2 (pr1 F = pr1 G)
-    (fun x : pr1 F = pr1 G => transportf _ x (pr2 F) = pr2 G)
-          (base_paths F G p) (fiber_paths p) (base_paths F G q) (fiber_paths q) H').
-   apply uip.
-   apply isasetaprop.
-   apply isaprop_is_functor.
-   apply hs.
+  { apply (invmaponpathsweq (total2_paths_equiv _ _ _ )); simpl.
+    apply (total2_paths2 H), uip.
+    apply impred_isaset; intro a; apply impred_isaset; intro b; apply impred_isaset; intro f.
+    apply hs.
+  }
+  apply (total2_paths2 H'), uip, isasetaprop, isaprop_is_functor, hs.
 Defined.
-
-
-
 
 Definition functor_id {C C' : precategory_data}(F : functor C C'):
        Π a : ob C, #F (identity a) = identity (F a) := pr1 (pr2 F).
+
 
 Definition functor_comp {C C' : precategory_data}
       (F : functor C C'):
@@ -707,14 +688,9 @@ Definition nat_trans {C C' : precategory_data}
 Lemma isaset_nat_trans {C C' : precategory_data} (hs: has_homsets C')
   (F F' : functor_data C C') : isaset (nat_trans F F').
 Proof.
-  change isaset with (isofhlevel 2).
-  apply isofhleveltotal2.
-  apply impred.
-  intro t. apply hs.
-  intro x.
-  apply isasetaprop.
-  apply isaprop_is_nat_trans.
-  apply hs.
+  apply (isofhleveltotal2 2).
+  + apply impred; intro t; apply hs.
+  + intro x; apply isasetaprop, isaprop_is_nat_trans, hs.
 Qed.
 
 Definition nat_trans_data {C C' : precategory_data}
@@ -735,12 +711,8 @@ Lemma nat_trans_eq {C C' : precategory_data} (hs: has_homsets C')
 Proof.
   intro H.
   assert (H' : pr1 a = pr1 a').
-  apply funextsec.
-  assumption.
-  apply (total2_paths H').
-  apply proofirrelevance.
-  apply isaprop_is_nat_trans.
-  apply hs.
+  { now apply funextsec. }
+  apply (total2_paths H'), proofirrelevance, isaprop_is_nat_trans, hs.
 Qed.
 
 Definition nat_trans_eq_pointwise {C C' : precategory_data}
@@ -748,9 +720,7 @@ Definition nat_trans_eq_pointwise {C C' : precategory_data}
       a = a' -> Π x, a x = a' x.
 Proof.
   intro h.
-  apply toforallpaths.
-  apply maponpaths.
-  assumption.
+  now apply toforallpaths, maponpaths.
 Qed.
 
 
@@ -768,9 +738,7 @@ Lemma is_nat_trans_id {C : precategory_data}{C' : precategory}
      (fun c : ob C => identity (F c)).
 Proof.
   intros ? ? ? .
-  rewrite id_left.
-  rewrite id_right.
-  apply idpath.
+  now rewrite id_left, id_right.
 Qed.
 
 Definition nat_trans_id {C:precategory_data}{C' : precategory}
@@ -785,12 +753,8 @@ Lemma is_nat_trans_comp {C : precategory_data}{C' : precategory}
   (b : nat_trans G H): is_nat_trans F H
      (fun x : ob C => a x ;; b x).
 Proof.
-  intros ? ? ? .
-  rewrite assoc.
-  rewrite nat_trans_ax.
-  rewrite <- assoc.
-  rewrite nat_trans_ax.
-  apply assoc.
+  intros ? ? ?.
+  now rewrite assoc, nat_trans_ax, <- assoc, nat_trans_ax, assoc.
 Qed.
 
 
@@ -805,12 +769,11 @@ Definition nat_trans_comp {C:precategory_data}{C' : precategory}
 
 Definition functor_precategory_data (C : precategory_data)(C' : precategory): precategory_data.
 Proof.
-  apply ( precategory_data_pair
-        (functor_precategory_ob_mor C C')).
-  intro a. simpl.
-  apply (nat_trans_id (pr1 a)).
-  intros a b c f g.
-  apply (nat_trans_comp _ _ _ f g).
+  apply (precategory_data_pair (functor_precategory_ob_mor C C')).
+  + intro a; simpl.
+    apply (nat_trans_id (pr1 a)).
+  + intros a b c f g.
+    apply (nat_trans_comp _ _ _ f g).
 Defined.
 
 (** *** Above data forms a precategory *)
