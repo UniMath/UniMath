@@ -55,6 +55,8 @@ Proof.
     try apply isasetaprop; apply Hisprop. 
 Defined.
 
+(** ** Displayed category from SIP data is univalent *)
+
 Lemma is_category_disp_from_SIP_data : is_category_disp disp_precat_from_SIP_data.
 Proof.
   apply is_category_disp_from_fibers.
@@ -68,6 +70,8 @@ Proof.
     + apply Hisprop.
     + intro. apply (@isaprop_is_iso_disp _ disp_precat_from_SIP_data).
 Defined.
+
+(** ** The conclusion of SIP: total category is univalent *)
 
 Definition SIP : is_category (total_precat disp_precat_from_SIP_data).
 Proof.
