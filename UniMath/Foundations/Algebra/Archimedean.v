@@ -214,23 +214,56 @@ Qed.
 
 (** ** Archimedean property in a monoid *)
 
+Definition isarchmonoid_1_acc {X : abmonoid} (R : hrel X) (x y1 y2 : X) : UU :=
+  Σ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2).
+Definition mk_isarchmonoid_1_acc {X : abmonoid} (R : hrel X) (x y1 y2 : X)
+           (n : nat) (Hn : R (natmult n y1 + x)%addmonoid (natmult n y2)) : isarchmonoid_1_acc R x y1 y2 :=
+  n ,, Hn.
+Definition isarchmonoid_1_val {X : abmonoid} {R : hrel X} {x y1 y2 : X}
+           (n : isarchmonoid_1_acc R x y1 y2) : nat :=
+  pr1 n.
+Lemma isarchmonoid_1_pty {X : abmonoid} {R : hrel X} {x y1 y2 : X}
+      (n : isarchmonoid_1_acc R x y1 y2) :
+  R (natmult (isarchmonoid_1_val n) y1 + x)%addmonoid (natmult (isarchmonoid_1_val n) y2).
+Proof.
+  intros X R x y1 y2.
+  intros n.
+  exact (pr2 n).
+Qed.
+
+Definition isarchmonoid_2_acc {X : abmonoid} (R : hrel X) (x y1 y2 : X) : UU :=
+  Σ n : nat, R (natmult n y1) (natmult n y2 + x)%addmonoid.
+Definition mk_isarchmonoid_2_acc {X : abmonoid} (R : hrel X) (x y1 y2 : X)
+           (n : nat) (Hn : R (natmult n y1) (natmult n y2 + x)%addmonoid) : isarchmonoid_2_acc R x y1 y2 :=
+  n ,, Hn.
+Definition isarchmonoid_2_val {X : abmonoid} {R : hrel X} {x y1 y2 : X}
+           (n : isarchmonoid_2_acc R x y1 y2) : nat :=
+  pr1 n.
+Lemma isarchmonoid_2_pty {X : abmonoid} {R : hrel X} {x y1 y2 : X}
+      (n : isarchmonoid_2_acc R x y1 y2) : R (natmult (isarchmonoid_2_val n) y1) (natmult (isarchmonoid_2_val n) y2 + x)%addmonoid.
+Proof.
+  intros X R x y1 y2.
+  intros n.
+  exact (pr2 n).
+Qed.
+
 Definition isarchmonoid {X : abmonoid} (R : hrel X) :=
-  Π x y1 y2 : X,
-    R y1 y2 ->
-    (∃ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2))
-      × (∃ n : nat, R (natmult n y1) (natmult n y2 + x)%addmonoid).
+  Π (x y1 y2 : X),
+  R y1 y2 ->
+  ∥ isarchmonoid_1_acc R x y1 y2 ∥
+    × ∥ isarchmonoid_2_acc R x y1 y2 ∥.
 
 Definition isarchmonoid_1 {X : abmonoid} (R : hrel X) :
   isarchmonoid R ->
-  Π x y1 y2 : X,
-    R y1 y2 ->
-    ∃ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2) :=
+  Π (x y1 y2 : X),
+  R y1 y2 ->
+  ∥ isarchmonoid_1_acc R x y1 y2 ∥ :=
   λ H x y1 y2 Hy, (pr1 (H x y1 y2 Hy)).
 Definition isarchmonoid_2 {X : abmonoid} (R : hrel X) :
   isarchmonoid R ->
   Π x y1 y2 : X,
     R y1 y2 ->
-    ∃ n : nat, R (natmult n y1) (natmult n y2 + x)%addmonoid :=
+    ∥ isarchmonoid_2_acc R x y1 y2 ∥ :=
   λ H x y1 y2 Hy, (pr2 (H x y1 y2 Hy)).
 
 (** ** Archimedean property in a group *)
@@ -258,14 +291,20 @@ Lemma isarchgr_isarchmonoid {X : abgr} (R : hrel X) :
 Proof.
   intros X R Hop H x y1 y2 Hy.
   split.
-  - now apply H.
+  - generalize (H x y1 y2 Hy).
+    apply hinhfun.
+    intros n.
+    simple refine (mk_isarchmonoid_1_acc _ _ _ _ _ _).
+    exact (pr1 n).
+    exact (pr2 n).
   - generalize (H (grinv X x) _ _ Hy).
     apply hinhfun.
-    intros (n,Hn).
-    exists n.
+    intros n.
+    simple refine (mk_isarchmonoid_2_acc _ _ _ _ _ _).
+    exact (pr1 n).
     apply isarchgr_isarchmonoid_aux.
     exact Hop.
-    exact Hn.
+    exact (pr2 n).
 Defined.
 
 Lemma isarchmonoid_isarchgr {X : abgr} (R : hrel X) :
@@ -273,7 +312,11 @@ Lemma isarchmonoid_isarchgr {X : abgr} (R : hrel X) :
   isarchgr R.
 Proof.
   intros X R H x y1 y2 Hy.
-  apply (isarchmonoid_1 _ H x y1 y2 Hy).
+  generalize (isarchmonoid_1 _ H x y1 y2 Hy).
+  apply hinhfun.
+  intros n.
+  exists (isarchmonoid_1_val n).
+  exact (isarchmonoid_1_pty n).
 Defined.
 
 
@@ -362,11 +405,11 @@ Proof.
   2: apply (isarchmonoid_1 _ H (pr1 x) (pr1 y1 * pr2 y2)%multmonoid (pr1 y2 * pr2 y1)%multmonoid), Hy.
   2: apply (isarchmonoid_2 _ H (pr2 x) (pr1 y1 * pr2 y2)%multmonoid (pr1 y2 * pr2 y1)%multmonoid), Hy.
   intros n1 n2.
-  exists (pr1 n1 + pr1 n2)%nat.
-  apply isarchabgrfrac_aux.
+  exists (isarchmonoid_1_val n1 + isarchmonoid_2_val n2)%nat.
+  apply (isarchabgrfrac_aux (X := X)).
   exact Hr'.
-  exact (pr2 n1).
-  exact (pr2 n2).
+  exact (isarchmonoid_1_pty n1).
+  exact (isarchmonoid_2_pty n2).
 Defined.
 
 (** ** Archimedean property in a rig *)
@@ -478,7 +521,8 @@ Proof.
   - generalize (isarchrig_1 _ H _ _ Hy) (isarchrig_3 _ H x).
     apply hinhfun2.
     intros m n.
-    exists (max 1 (pr1 n) * (pr1 m))%nat.
+    simple refine (mk_isarchmonoid_1_acc _ _ _ _ _ _).
+    exact (max 1 (pr1 n) * (pr1 m))%nat.
     apply isarchrig_isarchmonoid_1_aux.
     exact Hr1.
     exact Hr.
@@ -488,7 +532,8 @@ Proof.
   - generalize (isarchrig_1 _ H _ _ Hy) (isarchrig_2 _ H x).
     apply hinhfun2.
     intros m n.
-    exists (max 1 (pr1 n) * (pr1 m))%nat.
+    simple refine (mk_isarchmonoid_2_acc _ _ _ _ _ _).
+    exact (max 1 (pr1 n) * (pr1 m))%nat.
     apply isarchrig_isarchmonoid_2_aux.
     exact Hr1.
     exact Hr.
@@ -508,14 +553,14 @@ Proof.
     generalize (isarchmonoid_2 _ H 1%rig y1 y2 Hy).
     apply hinhfun.
     intros n.
-    exists (pr1 n).
+    exists (isarchmonoid_2_val n).
     abstract (rewrite !nattorig_natmult, rigcomm1 ;
-               exact (pr2 n)).
+               exact (isarchmonoid_2_pty n)).
   - intros x.
     generalize (isarchmonoid_2 _ H x _ _ H01).
     apply hinhfun.
     intros n.
-    exists (pr1 n).
+    exists (isarchmonoid_2_val n).
     abstract (
         tryif primitive_projections
         then pattern x at 1
@@ -524,20 +569,20 @@ Proof.
         tryif primitive_projections
         then pattern (0%rig : X) at 1
         else pattern (0%rig : X) at 2 ;
-        rewrite <- (rigmultx0 X (nattorig (pr1 n))) ;
+        rewrite <- (rigmultx0 X (nattorig (isarchmonoid_2_val n))) ;
         rewrite nattorig_natmult ;
-        exact (pr2 n)).
+        exact (isarchmonoid_2_pty n)).
   - intros x.
     generalize (isarchmonoid_1 _ H x _ _ H01).
     apply hinhfun.
     intros n.
-    exists (pr1 n).
+    exists (isarchmonoid_1_val n).
     abstract (
         tryif primitive_projections
         then pattern (0%rig : X) at 1
         else pattern (0%rig : X) at 2;
-        rewrite <- (rigmultx0 X (nattorig (pr1 n))), nattorig_natmult ;
-        exact (pr2 n)).
+        rewrite <- (rigmultx0 X (nattorig (isarchmonoid_1_val n))), nattorig_natmult ;
+        exact (isarchmonoid_1_pty n)).
 Defined.
 
 (** ** Archimedean property in a ring *)
