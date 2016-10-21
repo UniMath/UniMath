@@ -268,10 +268,27 @@ Definition isarchmonoid_2 {X : abmonoid} (R : hrel X) :
 
 (** ** Archimedean property in a group *)
 
+Definition isarchgr_acc {X : abgr} (R : hrel X) (x y1 y2 : X) : UU :=
+  Σ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2).
+Definition mk_isarchgr_acc {X : abgr} (R : hrel X) (x y1 y2 : X)
+           (n : nat) (Hn : R (natmult n y1 + x)%addmonoid (natmult n y2)) : isarchgr_acc R x y1 y2 :=
+  n ,, Hn.
+Definition isarchgr_val {X : abgr} {R : hrel X} {x y1 y2 : X}
+           (n : isarchgr_acc R x y1 y2) : nat :=
+  pr1 n.
+Lemma isarchgr_pty {X : abgr} {R : hrel X} {x y1 y2 : X}
+      (n : isarchgr_acc R x y1 y2) :
+  R (natmult (isarchgr_val n) y1 + x)%addmonoid (natmult (isarchgr_val n) y2).
+Proof.
+  intros X R x y1 y2.
+  intros n.
+  exact (pr2 n).
+Qed.
+
 Definition isarchgr {X : abgr} (R : hrel X) :=
-  Π x y1 y2 : X,
-    R y1 y2 ->
-    ∃ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2).
+  Π (x y1 y2 : X),
+  R y1 y2 ->
+  ∥ isarchgr_acc R x y1 y2 ∥.
 
 Local Lemma isarchgr_isarchmonoid_aux {X : abgr} (R : hrel X) :
   isbinophrel R ->
@@ -295,16 +312,16 @@ Proof.
     apply hinhfun.
     intros n.
     simple refine (mk_isarchmonoid_1_acc _ _ _ _ _ _).
-    exact (pr1 n).
-    exact (pr2 n).
+    exact (isarchgr_val n).
+    exact (isarchgr_pty n).
   - generalize (H (grinv X x) _ _ Hy).
     apply hinhfun.
     intros n.
     simple refine (mk_isarchmonoid_2_acc _ _ _ _ _ _).
-    exact (pr1 n).
+    exact (isarchgr_val n).
     apply isarchgr_isarchmonoid_aux.
     exact Hop.
-    exact (pr2 n).
+    exact (isarchgr_pty n).
 Defined.
 
 Lemma isarchmonoid_isarchgr {X : abgr} (R : hrel X) :
@@ -315,7 +332,8 @@ Proof.
   generalize (isarchmonoid_1 _ H x y1 y2 Hy).
   apply hinhfun.
   intros n.
-  exists (isarchmonoid_1_val n).
+  simple refine (mk_isarchgr_acc _ _ _ _ _ _).
+  exact (isarchmonoid_1_val n).
   exact (isarchmonoid_1_pty n).
 Defined.
 
@@ -398,14 +416,32 @@ Lemma isarchabgrfrac {X : abmonoid} (R : hrel X)  (Hr : isbinophrel R) :
 Proof.
   intros X R Hr Hr' H.
   simple refine (setquotuniv3prop _ (λ x y1 y2, (abgrfracrel X Hr y1 y2 ->
-    ∃ n : nat, abgrfracrel X Hr (natmult (X := abgrfrac X) n y1 * x)%multmonoid (natmult (X := abgrfrac X) n y2)) ,, _) _).
+    ∥ isarchgr_acc (X := abgrfrac X) (abgrfracrel X Hr) x y1 y2 ∥) ,, _) _).
   abstract apply isapropimpl, propproperty.
   intros x y1 y2 Hy.
   eapply hinhfun2.
-  2: apply (isarchmonoid_1 _ H (pr1 x) (pr1 y1 * pr2 y2)%multmonoid (pr1 y2 * pr2 y1)%multmonoid), Hy.
-  2: apply (isarchmonoid_2 _ H (pr2 x) (pr1 y1 * pr2 y2)%multmonoid (pr1 y2 * pr2 y1)%multmonoid), Hy.
+
+  Focus 2.
+  apply (isarchmonoid_1 _ H (pr1 x) (pr1 y1 * pr2 y2)%multmonoid (pr1 y2 * pr2 y1)%multmonoid).
+  revert Hy.
+  apply hinhfun.
+  intros n.
+  simple refine (mk_setquot_aux_acc _ _ _ _ _).
+  exact (pr1 n).
+  exact (pr2 n).
+
+  Focus 2.
+  apply (isarchmonoid_2 _ H (pr2 x) (pr1 y1 * pr2 y2)%multmonoid (pr1 y2 * pr2 y1)%multmonoid).
+  revert Hy.
+  apply hinhfun.
+  intros n.
+  simple refine (mk_setquot_aux_acc _ _ _ _ _).
+  exact (pr1 n).
+  exact (pr2 n).
+
   intros n1 n2.
-  exists (isarchmonoid_1_val n1 + isarchmonoid_2_val n2)%nat.
+  simple refine (mk_isarchgr_acc _ _ _ _ _ _).
+  exact (isarchmonoid_1_val n1 + isarchmonoid_2_val n2)%nat.
   apply (isarchabgrfrac_aux (X := X)).
   exact Hr'.
   exact (isarchmonoid_1_pty n1).

@@ -232,13 +232,14 @@ Proof.
       intros n.
       exists (pr1 n).
       apply hinhpr.
-      exists O.
+      simple refine (mk_setquot_aux_acc _ _ _ _ _).
+      exact O.
       rewrite !natplusr0.
       apply (pr2 n).
       revert Hy.
       apply hinhuniv.
       intros c.
-      generalize (pr2 c).
+      generalize (setquot_aux_pty c).
       apply natgthandplusrinv.
     + intros x.
       generalize ((pr1 (pr2 H)) x).
@@ -246,7 +247,8 @@ Proof.
       intros n.
       exists (pr1 n).
       apply hinhpr.
-      exists O.
+      simple refine (mk_setquot_aux_acc _ _ _ _ _).
+      exact O.
       rewrite !natplusr0.
       exact (pr2 n).
     + intros x.
@@ -255,7 +257,8 @@ Proof.
       intros n.
       exists (pr1 n).
       apply hinhpr.
-      exists O.
+      simple refine (mk_setquot_aux_acc _ _ _ _ _).
+      exact O.
       rewrite !natplusr0.
       exact (pr2 n).
 Qed.

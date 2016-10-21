@@ -1157,14 +1157,15 @@ Proof.
     - intros y1 y2.
       apply hinhuniv.
       intros c.
-      generalize (pr2 c) ; intros Hc.
+      generalize (setquot_aux_pty c) ; intros Hc.
       apply_pr2_in plusNonnegativeReals_ltcompat_l Hc.
       generalize (isarchrig_1 _ H _ _ Hc).
       apply hinhfun.
       intros n.
       exists (pr1 n).
       apply hinhpr.
-      exists 0%NR.
+      simple refine (mk_setquot_aux_acc _ _ _ _ _).
+      exact 0%NR.
       apply plusNonnegativeReals_ltcompat_l.
       exact (pr2 n).
     - intros x.
@@ -1173,7 +1174,8 @@ Proof.
       intros n.
       exists (pr1 n).
       apply hinhpr.
-      exists 0%NR.
+      simple refine (mk_setquot_aux_acc _ _ _ _ _).
+      exact 0%NR.
       apply plusNonnegativeReals_ltcompat_l.
       exact (pr2 n).
     - intros x.
@@ -1182,7 +1184,8 @@ Proof.
       intros n.
       exists (pr1 n).
       apply hinhpr.
-      exists 0%NR.
+      simple refine (mk_setquot_aux_acc _ _ _ _ _).
+      exact 0%NR.
       apply plusNonnegativeReals_ltcompat_l.
       exact (pr2 n). }
   intros x.
