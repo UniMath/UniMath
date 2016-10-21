@@ -25,4 +25,6 @@ We give a per-file overview of the contents of this package:
   * Transfer of displayed equivalences to fibers
 * *Examples.v*
   * Displayed arrow category
+* *SIP.v*
+  * Proof of the Structure Identity Principle (HoTT book, chapter 9.8)
 
