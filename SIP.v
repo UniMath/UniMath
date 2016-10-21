@@ -76,3 +76,5 @@ Proof.
   - apply is_category_disp_from_SIP_data.
 Defined.
 
+End SIP.
+
