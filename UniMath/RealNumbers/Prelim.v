@@ -201,21 +201,26 @@ Proof.
     apply natlthchoice2 in Hy.
     induction Hy as [Hy | <-].
     + apply hinhpr.
-      exists 1%nat.
+      simple refine (mk_isarchrig_1_acc _ _ _ _ _).
+      exact 1%nat.
       exact Hy.
     + apply hinhpr.
-      exists 2%nat.
+      simple refine (mk_isarchrig_1_acc _ _ _ _ _).
+      exact 2%nat.
       rewrite nattorig_nat, !multsnm ; simpl.
       rewrite natplusr0.
       apply natgthandplusl, natgthsnn.
   - intros n.
     apply hinhpr.
-    exists (S n).
+    simple refine (mk_isarchrig_2_acc _ _ _ _).
+    exact (S n).
     rewrite nattorig_nat.
     now apply natgthsnn.
   - intros n.
     apply hinhpr.
-    now exists 1%nat.
+    simple refine (mk_isarchrig_3_acc _ _ _ _).
+    exact 1%nat.
+    reflexivity.
 Defined.
 
 Definition isarchhz : isarchrng (X := hz) hzgth.
@@ -230,12 +235,13 @@ Proof.
       refine (hinhfun _ _).
       2: apply ((pr1 H) y1 y2).
       intros n.
-      exists (pr1 n).
+      simple refine (mk_isarchrig_1_acc _ _ _ _ _).
+      exact (isarchrig_1_val n).
       apply hinhpr.
       simple refine (mk_setquot_aux_acc _ _ _ _ _).
       exact O.
       rewrite !natplusr0.
-      apply (pr2 n).
+      apply (isarchrig_1_pty n).
       revert Hy.
       apply hinhuniv.
       intros c.
@@ -245,22 +251,24 @@ Proof.
       generalize ((pr1 (pr2 H)) x).
       apply hinhfun.
       intros n.
-      exists (pr1 n).
+      simple refine (mk_isarchrig_2_acc _ _ _ _).
+      exact (isarchrig_2_val n).
       apply hinhpr.
       simple refine (mk_setquot_aux_acc _ _ _ _ _).
       exact O.
       rewrite !natplusr0.
-      exact (pr2 n).
+      exact (isarchrig_2_pty n).
     + intros x.
       generalize ((pr2 (pr2 H)) x).
       apply hinhfun.
       intros n.
-      exists (pr1 n).
+      simple refine (mk_isarchrig_3_acc _ _ _ _).
+      exact (isarchrig_3_val n).
       apply hinhpr.
       simple refine (mk_setquot_aux_acc _ _ _ _ _).
       exact O.
       rewrite !natplusr0.
-      exact (pr2 n).
+      exact (isarchrig_3_pty n).
 Qed.
 
 Lemma isarchhq :

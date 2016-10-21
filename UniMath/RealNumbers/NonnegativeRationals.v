@@ -1622,24 +1622,27 @@ Proof.
     generalize (isarchrig_1 _ H (pr1 y1) (pr1 y2) Hy).
     apply hinhfun.
     intros n.
-    exists (pr1 n).
-    generalize (pr2 n) ; intros Hn.
+    simple refine (mk_isarchrig_1_acc _ _ _ _ _).
+    exact (isarchrig_1_val n).
+    generalize (isarchrig_1_pty n) ; intros Hn.
     rewrite <- !X in Hn.
     exact Hn.
   - intros x.
     generalize (isarchrig_2 _ H (pr1 x)).
     apply hinhfun.
     intros n.
-    exists (pr1 n).
-    generalize (pr2 n) ; intros Hn.
+    simple refine (mk_isarchrig_2_acc _ _ _ _).
+    exact (isarchrig_2_val n).
+    generalize (isarchrig_2_pty n) ; intros Hn.
     rewrite <- X in Hn.
     exact Hn.
   - intros x.
     generalize (isarchrig_3 _ H (pr1 x)).
     apply hinhfun.
     intros n.
-    exists (pr1 n).
-    generalize (pr2 n) ; intros Hn.
+    simple refine (mk_isarchrig_3_acc _ _ _ _).
+    exact (isarchrig_3_val n).
+    generalize (isarchrig_3_pty n) ; intros Hn.
     rewrite <- X in Hn.
     exact Hn.
   - exact isrngaddhzgth.

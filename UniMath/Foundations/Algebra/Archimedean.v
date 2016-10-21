@@ -450,22 +450,73 @@ Defined.
 
 (** ** Archimedean property in a rig *)
 
+Definition isarchrig_1_acc {X : rig} (R : hrel X) (y1 y2 : X) : UU :=
+  Σ n : nat, R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig.
+Definition mk_isarchrig_1_acc {X : rig} (R : hrel X) (y1 y2 : X)
+           (n : nat) (Hn : R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig) : isarchrig_1_acc R y1 y2 :=
+  n ,, Hn.
+Definition isarchrig_1_val {X : rig} {R : hrel X} {y1 y2 : X}
+           (n : isarchrig_1_acc R y1 y2) : nat :=
+  pr1 n.
+Lemma isarchrig_1_pty {X : rig} {R : hrel X} {y1 y2 : X}
+      (n : isarchrig_1_acc R y1 y2) :
+  R (nattorig (isarchrig_1_val n) * y1)%rig (1 + nattorig (isarchrig_1_val n) * y2)%rig.
+Proof.
+  intros X R y1 y2.
+  intros n.
+  exact (pr2 n).
+Qed.
+
+Definition isarchrig_2_acc {X : rig} (R : hrel X) (x : X) : UU :=
+  Σ n : nat, R (nattorig n) x.
+Definition mk_isarchrig_2_acc {X : rig} (R : hrel X) (x : X)
+           (n : nat) (Hn : R (nattorig n) x) : isarchrig_2_acc R x :=
+  n ,, Hn.
+Definition isarchrig_2_val {X : rig} {R : hrel X} {x : X}
+           (n : isarchrig_2_acc R x) : nat :=
+  pr1 n.
+Lemma isarchrig_2_pty {X : rig} {R : hrel X} {x : X}
+      (n : isarchrig_2_acc R x) :
+  R (nattorig (isarchrig_2_val n)) x.
+Proof.
+  intros X R x.
+  intros n.
+  exact (pr2 n).
+Qed.
+
+Definition isarchrig_3_acc {X : rig} (R : hrel X) (x : X) : UU :=
+  Σ n : nat, R (nattorig n + x)%rig 0%rig.
+Definition mk_isarchrig_3_acc {X : rig} (R : hrel X) (x : X)
+           (n : nat) (Hn : R (nattorig n + x)%rig 0%rig) : isarchrig_3_acc R x :=
+  n ,, Hn.
+Definition isarchrig_3_val {X : rig} {R : hrel X} {x : X}
+           (n : isarchrig_3_acc R x) : nat :=
+  pr1 n.
+Lemma isarchrig_3_pty {X : rig} {R : hrel X} {x : X}
+      (n : isarchrig_3_acc R x) :
+  R (nattorig (isarchrig_3_val n) + x)%rig 0%rig.
+Proof.
+  intros X R x.
+  intros n.
+  exact (pr2 n).
+Qed.
+
 Definition isarchrig {X : rig} (R : hrel X) :=
-  (Π y1 y2 : X, R y1 y2 -> ∃ n : nat, R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig)
-    × (Π x : X, ∃ n : nat, R (nattorig n) x)
-    × (Π x : X, ∃ n : nat, R (nattorig n + x)%rig 0%rig).
+  (Π y1 y2 : X, R y1 y2 -> ∥ isarchrig_1_acc R y1 y2 ∥)
+    × (Π x : X, ∥ isarchrig_2_acc R x ∥)
+    × (Π x : X, ∥ isarchrig_3_acc R x ∥).
 
 Definition isarchrig_1 {X : rig} (R : hrel X) :
   isarchrig R ->
-  Π y1 y2 : X, R y1 y2 -> ∃ n : nat, R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig :=
+  Π y1 y2 : X, R y1 y2 -> ∥ isarchrig_1_acc R y1 y2 ∥ :=
   pr1.
 Definition isarchrig_2 {X : rig} (R : hrel X) :
   isarchrig R ->
-  Π x : X, ∃ n : nat, R (nattorig n) x :=
+  Π x : X, ∥ isarchrig_2_acc R x ∥ :=
   λ H, (pr1 (pr2 H)).
 Definition isarchrig_3 {X : rig} (R : hrel X) :
   isarchrig R ->
-  Π x : X, ∃ n : nat, R (nattorig n + x)%rig 0%rig :=
+  Π x : X, ∥ isarchrig_3_acc R x ∥ :=
 
   λ H, (pr2 (pr2 H)).
 
@@ -558,24 +609,24 @@ Proof.
     apply hinhfun2.
     intros m n.
     simple refine (mk_isarchmonoid_1_acc _ _ _ _ _ _).
-    exact (max 1 (pr1 n) * (pr1 m))%nat.
+    exact (max 1 (isarchrig_3_val n) * (isarchrig_1_val m))%nat.
     apply isarchrig_isarchmonoid_1_aux.
     exact Hr1.
     exact Hr.
     exact Hop1.
-    exact (pr2 m).
-    exact (pr2 n).
+    exact (isarchrig_1_pty m).
+    exact (isarchrig_3_pty n).
   - generalize (isarchrig_1 _ H _ _ Hy) (isarchrig_2 _ H x).
     apply hinhfun2.
     intros m n.
     simple refine (mk_isarchmonoid_2_acc _ _ _ _ _ _).
-    exact (max 1 (pr1 n) * (pr1 m))%nat.
+    exact (max 1 (isarchrig_2_val n) * (isarchrig_1_val m))%nat.
     apply isarchrig_isarchmonoid_2_aux.
     exact Hr1.
     exact Hr.
     exact Hop1.
-    exact (pr2 m).
-    exact (pr2 n).
+    exact (isarchrig_1_pty m).
+    exact (isarchrig_2_pty n).
 Defined.
 
 Lemma isarchmonoid_isarchrig {X : rig} (R : hrel X) :
@@ -589,14 +640,16 @@ Proof.
     generalize (isarchmonoid_2 _ H 1%rig y1 y2 Hy).
     apply hinhfun.
     intros n.
-    exists (isarchmonoid_2_val n).
+    simple refine (mk_isarchrig_1_acc _ _ _ _ _).
+    exact (isarchmonoid_2_val n).
     abstract (rewrite !nattorig_natmult, rigcomm1 ;
                exact (isarchmonoid_2_pty n)).
   - intros x.
     generalize (isarchmonoid_2 _ H x _ _ H01).
     apply hinhfun.
     intros n.
-    exists (isarchmonoid_2_val n).
+    simple refine (mk_isarchrig_2_acc _ _ _ _).
+    exact (isarchmonoid_2_val n).
     abstract (
         tryif primitive_projections
         then pattern x at 1
@@ -612,7 +665,8 @@ Proof.
     generalize (isarchmonoid_1 _ H x _ _ H01).
     apply hinhfun.
     intros n.
-    exists (isarchmonoid_1_val n).
+    simple refine (mk_isarchrig_3_acc _ _ _ _).
+    exact (isarchmonoid_1_val n).
     abstract (
         tryif primitive_projections
         then pattern (0%rig : X) at 1
@@ -649,19 +703,26 @@ Proof.
     generalize (isarchrng_1 _ H _ X0).
     apply hinhfun.
     intros n.
-    exists (pr1 n).
+    simple refine (mk_isarchrig_1_acc _ _ _ _ _).
+    exact (pr1 n).
     abstract
       (rewrite <- (rngrunax1 _ (nattorig (pr1 n) * y1)%rng), <- (rnglinvax1 _ (nattorig (pr1 n) * y2)%rng), <- rngassoc1 ;
         apply (pr2 Hop1) ;
         rewrite <- rngrmultminus, <- rngldistr ;
         exact (pr2 n)).
-  - apply isarchrng_2.
-    exact H.
+  - intros x.
+    generalize (isarchrng_2 _ H x).
+    apply hinhfun.
+    intros n.
+    simple refine (mk_isarchrig_2_acc _ _ _ _).
+    exact (pr1 n).
+    exact (pr2 n).
   - intros x.
     generalize (isarchrng_2 _ H (- x)%rng).
     apply hinhfun.
     intros n.
-    exists (pr1 n).
+    simple refine (mk_isarchrig_3_acc _ _ _ _).
+    exact (pr1 n).
     abstract (change 0%rig with (0%rng : X) ;
                rewrite <- (rnglinvax1 _ x) ;
                apply (pr2 Hop1) ;
@@ -677,12 +738,21 @@ Proof.
   - intros x Hx.
     generalize (isarchrig_1 _ H _ _ Hx).
     apply hinhfun.
-    intros (n,Hn).
-    exists n.
-    rewrite <- (rngrunax1 _ 1%rng), <- (rngmultx0 _ (nattorng n)).
-    exact Hn.
-  - apply (isarchrig_2 (X := rngtorig X)).
-    exact H.
+    intros n.
+    exists (isarchrig_1_val n).
+    rewrite <- (rngrunax1 _ 1%rng).
+    generalize (rngmultx0 X (nattorng (isarchrig_1_val (X := rngtorig X) n))).
+    set (_0_ := 0%rng).
+    change ((nattorng (isarchrig_1_val n) * 0)%rng = _0_
+            → R (nattorng (isarchrig_1_val n) * x)%rng (1 + _0_)%rng).
+    intros <-.
+    exact (isarchrig_1_pty n).
+  - intros x.
+    generalize (isarchrig_2 (X := rngtorig X) _ H x).
+    apply hinhfun.
+    intros n.
+    exists (isarchrig_2_val n).
+    exact (isarchrig_2_pty n).
 Defined.
 
 Lemma isarchrng_isarchgr {X : rng} (R : hrel X) :

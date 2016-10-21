@@ -1162,32 +1162,35 @@ Proof.
       generalize (isarchrig_1 _ H _ _ Hc).
       apply hinhfun.
       intros n.
-      exists (pr1 n).
+      simple refine (mk_isarchrig_1_acc _ _ _ _ _).
+      exact (isarchrig_1_val n).
       apply hinhpr.
       simple refine (mk_setquot_aux_acc _ _ _ _ _).
       exact 0%NR.
       apply plusNonnegativeReals_ltcompat_l.
-      exact (pr2 n).
+      exact (isarchrig_1_pty n).
     - intros x.
       generalize (isarchrig_2 _ H x).
       apply hinhfun.
       intros n.
-      exists (pr1 n).
+      simple refine (mk_isarchrig_2_acc _ _ _ _).
+      exact (isarchrig_2_val n).
       apply hinhpr.
       simple refine (mk_setquot_aux_acc _ _ _ _ _).
       exact 0%NR.
       apply plusNonnegativeReals_ltcompat_l.
-      exact (pr2 n).
+      exact (isarchrig_2_pty n).
     - intros x.
       generalize (isarchrig_3 _ H x).
       apply hinhfun.
       intros n.
-      exists (pr1 n).
+      simple refine (mk_isarchrig_3_acc _ _ _ _).
+      exact (isarchrig_3_val n).
       apply hinhpr.
       simple refine (mk_setquot_aux_acc _ _ _ _ _).
       exact 0%NR.
       apply plusNonnegativeReals_ltcompat_l.
-      exact (pr2 n). }
+      exact (isarchrig_3_pty n). }
   intros x.
   generalize (isarchrng_isarchCF (X := hr_ConstructiveField) _ (isarchrigtorng NonnegativeReals gtNonnegativeReals ispositive_oneNonnegativeReals Hadd Htra Harch) x).
   apply hinhfun.
