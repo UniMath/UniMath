@@ -136,8 +136,23 @@ Qed.
 
 (** ** relation  *)
 
+Definition setquot_aux_acc {X : monoid} (R : hrel X) (x y : X) : UU :=
+  Σ c : X, R (x + c)%addmonoid (y + c)%addmonoid.
+Definition mk_setquot_aux_acc {X : monoid} (R : hrel X) (x y : X)
+           (c : X) (Hc : R (x + c)%addmonoid (y + c)%addmonoid) : setquot_aux_acc R x y :=
+  c ,, Hc.
+Definition setquot_aux_val {X : monoid} {R : hrel X} {x y : X}
+           (c : setquot_aux_acc R x y) : X :=
+  pr1 c.
+Lemma setquot_aux_pty {X : monoid} {R : hrel X} {x y : X}
+      (c : setquot_aux_acc R x y) : R (x + setquot_aux_val c)%addmonoid (y + setquot_aux_val c)%addmonoid.
+Proof.
+  intros X R x y.
+  intros c.
+  exact (pr2 c).
+Qed.
 Definition setquot_aux {X : monoid} (R : hrel X) : hrel X :=
-  λ x y : X, ∃ c : X, R (x + c)%addmonoid (y + c)%addmonoid.
+  λ x y : X, ∥setquot_aux_acc R x y∥.
 
 Lemma istrans_setquot_aux {X : abmonoid} (R : hrel X) :
   istrans R -> isbinophrel R -> istrans (setquot_aux R).
@@ -145,15 +160,16 @@ Proof.
   intros X R Hr Hop.
   intros x y z.
   apply hinhfun2.
-  intros (c1,Hc1) (c2,Hc2).
-  exists (c1 + c2)%addmonoid.
-  eapply Hr.
+  intros c1 c2.
+  simple refine (mk_setquot_aux_acc _ _ _ _ _).
+  apply (setquot_aux_val c1 + setquot_aux_val c2)%addmonoid.
+  refine (Hr _ _ _ _ _).
   rewrite <- assocax.
   apply (pr2 Hop).
-  exact Hc1.
-  rewrite assocax, (commax _ c1), <- !assocax.
+  exact (setquot_aux_pty c1).
+  rewrite assocax, (commax _ (setquot_aux_val c1)), <- !assocax.
   apply (pr2 Hop).
-  exact Hc2.
+  exact (setquot_aux_pty c2).
 Qed.
 Lemma isbinophrel_setquot_aux {X : abmonoid} (R : hrel X) :
   isbinophrel R -> isbinophrel (setquot_aux R).
@@ -162,18 +178,20 @@ Proof.
   split.
   - intros x y z.
     apply hinhfun.
-    intros (c,Hc).
-    exists c.
+    intros c.
+    simple refine (mk_setquot_aux_acc _ _ _ _ _).
+    apply (setquot_aux_val c).
     rewrite !assocax.
     apply (pr1 Hop).
-    exact Hc.
+    exact (setquot_aux_pty c).
   - intros x y z.
     apply hinhfun.
-    intros (c,Hc).
-    exists c.
+    intros c.
+    simple refine (mk_setquot_aux_acc _ _ _ _ _).
+    apply (setquot_aux_val c).
     rewrite !assocax, (commax _ z), <- !assocax.
     apply (pr2 Hop).
-    exact Hc.
+    exact (setquot_aux_pty c).
 Qed.
 
 Lemma isequiv_setquot_aux {X : abmonoid} (R : hrel X) :
@@ -183,12 +201,13 @@ Proof.
   intros X R H x y.
   split.
   apply hinhuniv.
-  intros (c,H').
-  generalize H'; clear H'.
+  intros c.
+  generalize (setquot_aux_pty c).
   apply (pr2 H).
   intros H1.
   apply hinhpr.
-  exists 0%addmonoid.
+  simple refine (mk_setquot_aux_acc _ _ _ _ _).
+  apply 0%addmonoid.
   rewrite !runax.
   exact H1.
 Qed.
@@ -283,46 +302,51 @@ Proof.
   rewrite !H0.
   revert Hn1 Hn2.
   apply hinhfun2 ; simpl.
-  intros (c1,Hc1) (c2,Hc2).
-  exists (c1 * c2)%multmonoid.
+  intros c1 c2.
+  set (c1_val := setquot_aux_val c1) ;
+    set (c2_val := setquot_aux_val c2).
+  exists (c1_val * c2_val)%multmonoid.
+  set (tmp1 := (natmult (n1 + n2) (pr1 y1) * pr1 x * natmult (n1 + n2) (pr2 y2) * (c1_val * c2_val))%multmonoid).
+  set (tmp2 := (natmult (n1 + n2) (pr1 y2) * (natmult (n1 + n2) (pr2 y1) * pr2 x) * (c1_val * c2_val))%multmonoid).
+  change (R tmp1 tmp2).
   eapply Hr'.
-  assert (natmult (n1 + n2) (pr1 y1) * pr1 x * natmult (n1 + n2) (pr2 y2) * (c1 * c2) = (natmult n1 (pr1 y1 * pr2 y2) * pr1 x * c1) * (natmult n2 (pr1 y1 * pr2 y2) * c2))%multmonoid.
-  { rewrite !natmult_op, !natmult_plus, !assocax.
-    apply maponpaths.
-    rewrite commax, !assocax.
-    rewrite commax, !assocax.
-    apply maponpaths.
-    rewrite commax, !assocax.
-    rewrite commax, !assocax.
-    rewrite commax, !assocax.
-    rewrite commax, !assocax.
-    apply maponpaths.
-    rewrite commax, !assocax.
-    apply maponpaths.
-    rewrite commax, !assocax.
-    reflexivity.
-    apply commax.
-    apply commax. }
-  simpl in X0 |- *.
-  rewrite X0 ; clear X0.
-  apply (pr2 Hr).
-  apply Hc1.
-  assert (natmult (n1 + n2) (pr1 y2) * (natmult (n1 + n2) (pr2 y1) * pr2 x) * (c1 * c2) = (natmult n1 (pr1 y2 * pr2 y1) * c1) * (natmult n2 (pr1 y2 * pr2 y1) * pr2 x * c2))%multmonoid.
-  { rewrite !natmult_op, !natmult_plus, !assocax.
-    apply maponpaths.
-    rewrite commax, !assocax.
-    apply maponpaths.
-    rewrite commax, !assocax.
-    rewrite commax, !assocax.
-    apply maponpaths.
-    rewrite commax, !assocax.
-    reflexivity.
-    apply commax.
-    apply commax. }
-  simpl in X0 |- *.
-  rewrite X0 ; clear X0.
-  apply (pr1 Hr).
-  apply Hc2.
+  - assert (Hrw : (tmp1 = (natmult n1 (pr1 y1 * pr2 y2) * pr1 x * c1_val) * (natmult n2 (pr1 y1 * pr2 y2) * c2_val))%multmonoid).
+    { unfold tmp1.
+      rewrite !natmult_op, !natmult_plus, !assocax.
+      apply maponpaths.
+      rewrite commax, !assocax.
+      rewrite commax, !assocax.
+      apply maponpaths.
+      rewrite commax, !assocax.
+      rewrite commax, !assocax.
+      rewrite commax, !assocax.
+      rewrite commax, !assocax.
+      apply maponpaths.
+      rewrite commax, !assocax.
+      apply maponpaths.
+      rewrite commax, !assocax.
+      reflexivity.
+      apply commax.
+      apply commax. }
+    rewrite Hrw ; clear Hrw.
+    apply (pr2 Hr).
+    exact (setquot_aux_pty c1).
+  - assert (Hrw : (tmp2 = (natmult n1 (pr1 y2 * pr2 y1) * c1_val) * (natmult n2 (pr1 y2 * pr2 y1) * pr2 x * c2_val))%multmonoid).
+    { unfold tmp2.
+      rewrite !natmult_op, !natmult_plus, !assocax.
+      apply maponpaths.
+      rewrite commax, !assocax.
+      apply maponpaths.
+      rewrite commax, !assocax.
+      rewrite commax, !assocax.
+      apply maponpaths.
+      rewrite commax, !assocax.
+      reflexivity.
+      apply commax.
+      apply commax. }
+    rewrite Hrw ; clear Hrw.
+    apply (pr1 Hr).
+    exact (setquot_aux_pty c2).
 Qed.
 Lemma isarchabgrfrac {X : abmonoid} (R : hrel X)  (Hr : isbinophrel R) :
   istrans R ->
@@ -626,8 +650,10 @@ Proof.
   exact Htra.
   apply isarchrig_isarchmonoid.
   abstract (apply hinhpr ; simpl ;
-  exists 0%rig ; rewrite !rigrunax1 ;
-  exact Hr).
+            apply (mk_setquot_aux_acc (X := rigaddabmonoid X) _ _ _ 0%rig) ;
+            change (R (1 + 0)%rig (0 + 0)%rig) ;
+            rewrite !(rigrunax1 X) ;
+            exact Hr).
   (now apply (istrans_setquot_aux (X := rigaddabmonoid X))).
   (now apply (isbinophrel_setquot_aux (X := rigaddabmonoid X))).
   exact Harch.
