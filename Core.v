@@ -1210,6 +1210,15 @@ Definition functor_over_axioms {C' C : Precategory} {F : functor C' C}
       # FF (ff ;; gg)
       = transportb _ (functor_comp F _ _ _ f g) (# FF ff ;; # FF gg)).
 
+Lemma isaprop_functor_over_axioms {C' C : Precategory} {F : functor C' C}
+  {D' : disp_precat C'} {D : disp_precat C} (FF : functor_over_data F D' D)
+  : isaprop (functor_over_axioms FF).
+Proof.
+  apply isapropdirprod;
+  repeat (apply impred; intros); 
+  apply homsets_disp.
+Qed.    
+
 Definition functor_over {C' C : Precategory} (F : functor C' C)
   (D' : disp_precat C') (D : disp_precat C)
 := Σ FF : functor_over_data F D' D, functor_over_axioms FF.
