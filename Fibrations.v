@@ -307,16 +307,23 @@ Section Discrete_Fibrations.
 
 Definition is_discrete_fibration {C : Precategory} (D : disp_precat C) : UU
 := 
-  forall (c c' : C) (f : c' --> c) (d : D c),
-          ∃! d' : D c', d' -->[f] d.
+  (forall (c c' : C) (f : c' --> c) (d : D c),
+          ∃! d' : D c', d' -->[f] d)
+  ×
+  (forall c, isaset (D c)).
 
 Definition discrete_fibration C : UU
   := Σ D : disp_precat C, is_discrete_fibration D.
 
 Coercion disp_precat_from_discrete_fibration C (D : discrete_fibration C)
   : disp_precat C := pr1 D.
-Coercion is_disc_fib_from_discrete_fibration C (D : discrete_fibration C)
-         c c' (f : c' --> c) (d : D c) : ∃! d' : D c', d' -->[f] d := pr2 D c c' f d.
+Definition unique_lift {C} {D : discrete_fibration C} {c c'} 
+           (f : c' --> c) (d : D c) 
+  : ∃! d' : D c', d' -->[f] d 
+  := pr1 (pr2 D) c c' f d.
+Definition isaset_fiber_discrete_fibration C (D : discrete_fibration C)
+           (c : C) : isaset (D c) := pr2 (pr2 D) c.
+
 
 Section Equivalence_disc_fibs_presheaves.
 
@@ -337,12 +344,6 @@ More direct equivalence of types:
  *)
 
 Variable C : Precategory.
-
-Lemma isaset_fiber_discrete_fibration (D : discrete_fibration C)
-  : Π c, isaset (fiber_precategory D c).
-Proof.
-  admit.
-Admitted.
 
 Definition precat_of_discrete_fibs_ob_mor : precategory_ob_mor.
 Proof.
@@ -388,7 +389,7 @@ Proof.
   apply (isofhleveltotal2 2).
   - apply (isofhleveltotal2 2).
     + do 2 (apply impred; intro).
-      apply isaset_fiber_discrete_fibration. (* this lemma is admitted so far *)
+      apply isaset_fiber_discrete_fibration. 
     + intro. do 6 (apply impred; intro).
       apply homsets_disp.
   - intro. apply isasetaprop. apply isaprop_functor_over_axioms.
@@ -408,7 +409,7 @@ Proof.
   - mkpair.
     + intro c. exists (D c). apply  isaset_fiber_discrete_fibration.
     + intros c' c f x. cbn in *.
-      exact (pr1 (iscontrpr1 (pr2 D _ _ f x))).
+      exact (pr1 (iscontrpr1 (unique_lift f x))).
   - split.
     + intro c; cbn.
       apply funextsec; intro x. simpl.
@@ -419,8 +420,8 @@ Proof.
       apply pathsinv0. 
       apply eq_exists_unique.
       eapply comp_disp.
-      * apply (pr2 (iscontrpr1 (pr2 D _ _ g _))). (* TODO: deserves an access function *)
-      * apply (pr2 (iscontrpr1 (pr2 D _ _ f _ ))).
+      * apply (pr2 (iscontrpr1 (unique_lift g _))). 
+      * apply (pr2 (iscontrpr1 (unique_lift f _ ))).
 Defined.
 
 (** *** Functor on morphisms *)
@@ -436,7 +437,7 @@ Proof.
     apply funextsec. intro d.
     apply eq_exists_unique.
     apply #a.
-    apply (pr2 (iscontrpr1 (pr2 D _ _ f _ ))).
+    apply (pr2 (iscontrpr1 (unique_lift f _ ))).
 Defined.
 
 (** *** Functor properties *)
