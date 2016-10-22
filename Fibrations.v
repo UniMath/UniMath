@@ -454,7 +454,62 @@ Qed.
 Definition functor_Disc_Fibs_to_preShvs : functor _ _ 
   := ( _ ,, bar).
 
+(** ** Functor from presheaves to discrete fibrations *)
 
+(** *** Functor on objects *)
+
+(* TODO: split into data and properties *)
+Definition disp_precat_from_preshv (D : preShv C) : disp_precat C.
+Proof.
+  mkpair.
+  + mkpair.
+    * exists (fun c => pr1hSet (pr1 D c)).
+      intros x y c d f. exact (functor_on_morphisms (pr1 D) f d = c).
+    * (* we even opacify identity and composition, since they are propositional *)
+      abstract ( split;
+        [
+          intros; cbn in *; apply (toforallpaths _ _ _ (functor_id D x ) _ ) |]
+        ;
+          intros ? ? ? ? ? ? ? ? X X0; cbn in *; 
+          etrans; [apply (toforallpaths _ _ _ (functor_comp D _ _ _  g f ) _ ) |];
+          cbn; etrans; [ apply maponpaths; apply X0 |]; (* here maponpaths depends on cbn *)
+          apply X
+       ).
+  + abstract (
+    cbn; repeat split; cbn; intros; try apply setproperty;
+         apply isasetaprop; apply setproperty ) .
+Defined.
+
+Definition disc_fib_from_preshv (D : preShv C) : discrete_fibration C.
+Proof.
+  mkpair.
+  - apply (disp_precat_from_preshv D).
+  - cbn.
+    split.
+    + intros c c' f d. simpl.
+      use unique_exists.
+      * apply (functor_on_morphisms (pr1 D) f d).
+      * apply idpath.
+      * intro. apply setproperty. 
+      * intros. apply pathsinv0. assumption.
+    + intro. simpl. apply setproperty.
+Defined.
+
+(** *** Functor on morphisms *)
+
+Definition foo' : functor_data (preShv C) Precat_of_discrete_fibs.
+Proof.
+Abort.
+
+(** *** Functor properties *)
+
+Definition bar' : is_functor foo.    
+Abort.
+
+(*
+Definition functor_preShvs_to_Disc_Fibs : functor _ _ 
+  := ( _ ,, bar).
+*)
 
 End Equivalence_disc_fibs_presheaves.
 
