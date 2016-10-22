@@ -4,18 +4,21 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.category_hset.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.Displayed_Cats.Auxiliary.
 Require Import TypeTheory.Displayed_Cats.Core.
+Require Import TypeTheory.Displayed_Cats.Constructions.
 
 Set Automatic Introduction.
 
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
+(*
 Local Open Scope hide_transport_scope.
-
+*)
 (** Fibratons, opfibrations, and isofibrations are all displayed categories with extra lifting conditions. 
 
 Classically, these lifting conditions are usually taken by default as mere existence conditions; when they are given by operations, one speaks of a _cloven_ fibration, etc.
@@ -288,6 +291,18 @@ Defined.
  
 End Fibrations.
 
+(** a proof principle for use with discrete fibrations *)
+Lemma eq_exists_unique (A : UU) (B : A → UU) (H : iscontr (Σ a : A, B a)) 
+  : Π a, B a → a = pr1 (iscontrpr1 H).
+Proof.
+  intros a b.
+  assert (g : ((a,,b) : total2 B) 
+                = 
+              ( (pr1 (iscontrpr1 H),, pr2 (iscontrpr1 H)) : total2 B)).
+  { etrans. apply (pr2 H). apply tppr. }
+  apply (maponpaths pr1 g).
+Defined.
+
 Section Discrete_Fibrations.
 
 Definition is_discrete_fibration {C : Precategory} (D : disp_precat C) : UU
@@ -297,6 +312,13 @@ Definition is_discrete_fibration {C : Precategory} (D : disp_precat C) : UU
 
 Definition discrete_fibration C : UU
   := Σ D : disp_precat C, is_discrete_fibration D.
+
+Coercion disp_precat_from_discrete_fibration C (D : discrete_fibration C)
+  : disp_precat C := pr1 D.
+Coercion is_disc_fib_from_discrete_fibration C (D : discrete_fibration C)
+         c c' (f : c' --> c) (d : D c) : ∃! d' : D c', d' -->[f] d := pr2 D c c' f d.
+
+Section Equivalence_disc_fibs_presheaves.
 
 (* GOAL: correspondence between discrete fibrations and presheaves.
 
@@ -313,7 +335,128 @@ More direct equivalence of types:
 - ?
 
  *)
- 
+
+Variable C : Precategory.
+
+Lemma isaset_fiber_discrete_fibration (D : discrete_fibration C)
+  : Π c, isaset (fiber_precategory D c).
+Proof.
+  admit.
+Admitted.
+
+Definition precat_of_discrete_fibs_ob_mor : precategory_ob_mor.
+Proof.
+  exists (discrete_fibration C).
+  intros a b. exact (functor_over (functor_identity _ ) a b).
+Defined.
+
+Definition precat_of_discrete_fibs_data : precategory_data.
+Proof.
+  exists precat_of_discrete_fibs_ob_mor.
+  split.
+  - intro.
+    exact (@functor_over_identity _ _ ).
+  - intros ? ? ? f g. exact (functor_over_composite f g ).
+Defined.
+
+Definition precat_axioms_of_discrete_fibs : is_precategory precat_of_discrete_fibs_data.
+Proof.
+  repeat split; intros.
+  - apply subtypeEquality.
+    { intro. apply isaprop_functor_over_axioms. } 
+    use total2_paths.
+    + apply idpath.
+    + apply idpath.
+  - apply subtypeEquality.
+    { intro. apply isaprop_functor_over_axioms. } 
+    use total2_paths.
+    + apply idpath.
+    + apply idpath.
+  - apply subtypeEquality.
+    { intro. apply isaprop_functor_over_axioms. } 
+    use total2_paths.
+    + apply idpath.
+    + apply idpath.
+Qed.
+
+Definition precat_of_discrete_fibs : precategory 
+  := (_ ,, precat_axioms_of_discrete_fibs).
+
+Lemma has_homsets_precat_of_discrete_fibs : has_homsets precat_of_discrete_fibs.
+Proof.
+  intros f f'. 
+  apply (isofhleveltotal2 2).
+  - apply (isofhleveltotal2 2).
+    + do 2 (apply impred; intro).
+      apply isaset_fiber_discrete_fibration. (* this lemma is admitted so far *)
+    + intro. do 6 (apply impred; intro).
+      apply homsets_disp.
+  - intro. apply isasetaprop. apply isaprop_functor_over_axioms.
+Qed.  
+
+Definition Precat_of_discrete_fibs : Precategory 
+  := ( precat_of_discrete_fibs ,, has_homsets_precat_of_discrete_fibs).
+
+(** ** Functor from discrete fibrations to presheaves *)
+
+(** *** Functor on objects *)
+
+(* TODO: split into data and properties *)
+Definition preshv_from_disc_fib_ob (D : discrete_fibration C) : preShv C.
+Proof.
+  mkpair.
+  - mkpair.
+    + intro c. exists (D c). apply  isaset_fiber_discrete_fibration.
+    + intros c' c f x. cbn in *.
+      exact (pr1 (iscontrpr1 (pr2 D _ _ f x))).
+  - split.
+    + intro c; cbn.
+      apply funextsec; intro x. simpl.
+      apply pathsinv0. apply eq_exists_unique.
+      apply id_disp.
+    + intros c c' c'' f g. cbn in *.
+      apply funextsec; intro x.
+      apply pathsinv0. 
+      apply eq_exists_unique.
+      eapply comp_disp.
+      * apply (pr2 (iscontrpr1 (pr2 D _ _ g _))). (* TODO: deserves an access function *)
+      * apply (pr2 (iscontrpr1 (pr2 D _ _ f _ ))).
+Defined.
+
+(** *** Functor on morphisms *)
+
+Definition foo : functor_data Precat_of_discrete_fibs (preShv C).
+Proof.
+  exists preshv_from_disc_fib_ob.
+  intros D D' a.
+  mkpair.
+  - intro c. simpl.
+    exact (pr1 a c).
+  - intros x y f. cbn in *.
+    apply funextsec. intro d.
+    apply eq_exists_unique.
+    apply #a.
+    apply (pr2 (iscontrpr1 (pr2 D _ _ f _ ))).
+Defined.
+
+(** *** Functor properties *)
+
+Definition bar : is_functor foo.    
+Proof.
+  split.
+  - intro D. apply nat_trans_eq. { apply has_homsets_HSET. } 
+    intro c . apply idpath.
+  - intros D E F a b. apply nat_trans_eq. { apply has_homsets_HSET. } 
+    intro c. apply idpath.
+Qed.
+
+Definition functor_Disc_Fibs_to_preShvs : functor _ _ 
+  := ( _ ,, bar).
+
+
+
+End Equivalence_disc_fibs_presheaves.
+
 End Discrete_Fibrations.
 
 Section Opfibrations.
