@@ -330,14 +330,9 @@ Lemma pair_inj {A : UU} {B : A -> UU} (is : isaset A) {a : A}
    {b b' : B a} : (a,,b) = (a,,b') -> b = b'.
 Proof.
   intro H.
-  set (XR := fiber_paths H). cbn in XR.
-  etrans; [| apply XR].
-  apply pathsinv0. 
-  etrans. apply maponpaths_2. 
-  - apply (is _ _ _ (idpath _ )).
-  - apply idpath.
+  use (invmaponpathsincl _ _ _ _ H).
+  apply isofhlevelffib. intro. apply is.
 Defined.
-  
 
 Lemma disp_mor_unique_disc_fib C (D : discrete_fibration C) 
   : Π (c c' : C) (f : c --> c') (d : D c) (d' : D c')
