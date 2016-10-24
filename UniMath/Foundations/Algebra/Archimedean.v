@@ -1051,8 +1051,25 @@ Qed.
 
 (** ** Archimedean property in a field *)
 
+Definition isarchfld_acc {X : fld} (R : hrel X) (x : X) : UU :=
+  Σ n : nat, R (nattorng n) x.
+Definition mk_isarchfld_acc {X : fld} (R : hrel X) (x : X)
+           (n : nat) (Hn : R (nattorng n) x) : isarchfld_acc R x :=
+  n ,, Hn.
+Definition isarchfld_val {X : fld} {R : hrel X} {x : X}
+           (n : isarchfld_acc R x) : nat :=
+  pr1 n.
+Lemma isarchfld_pty {X : fld} {R : hrel X} {x : X}
+      (n : isarchfld_acc R x) :
+  R (nattorng (isarchfld_val n)) x.
+Proof.
+  intros X R x.
+  intros n.
+  exact (pr2 n).
+Qed.
+
 Definition isarchfld {X : fld} (R : hrel X) :=
-  Π x : X, ∃ n : nat, R (nattorng n) x.
+  Π x : X, ∥ isarchfld_acc R x ∥.
 
 Lemma isarchfld_isarchrng {X : fld} (R : hrel X) :
   Π (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isrngmultgt X R)
@@ -1067,10 +1084,10 @@ Proof.
       apply hinhfun.
       intros n.
       simple refine (mk_isarchrng_1_acc _ _ _ _).
-      exact (pr1 n).
+      exact (isarchfld_val n).
       abstract (pattern (1%rng : X) at 1 ;
                  rewrite <- (pr1 (pr2 x')) ;
-                apply (isrngmultgttoisrrngmultgt _ Hadd Hmult _ _ _ Hx (pr2 n))).
+                apply (isrngmultgttoisrrngmultgt _ Hadd Hmult _ _ _ Hx (isarchfld_pty n))).
     + apply hinhpr.
       simple refine (mk_isarchrng_1_acc _ _ _ _).
       exact O.
@@ -1082,8 +1099,8 @@ Proof.
     generalize (H x).
     apply hinhfun ; intros n.
     simple refine (mk_isarchrng_2_acc _ _ _ _).
-    exact (pr1 n).
-    exact (pr2 n).
+    exact (isarchfld_val n).
+    exact (isarchfld_pty n).
 Defined.
 Lemma isarchrng_isarchfld {X : fld} (R : hrel X) :
     isarchrng R -> isarchfld R.
@@ -1093,7 +1110,8 @@ Proof.
   generalize (isarchrng_2 R H x).
   apply hinhfun.
   intros n.
-  exists (isarchrng_2_val n).
+  simple refine (mk_isarchfld_acc _ _ _ _).
+  exact (isarchrng_2_val n).
   exact (isarchrng_2_pty n).
 Defined.
 
