@@ -1167,8 +1167,25 @@ Defined.
 
 (** ** Archimedean property in a constructive field *)
 
+Definition isarchCF_acc {X : ConstructiveField} (R : hrel X) (x : X) : UU :=
+  Σ n : nat, R (nattorng n) x.
+Definition mk_isarchCF_acc {X : ConstructiveField} (R : hrel X) (x : X)
+           (n : nat) (Hn : R (nattorng n) x) : isarchCF_acc R x :=
+  n ,, Hn.
+Definition isarchCF_val {X : ConstructiveField} {R : hrel X} {x : X}
+           (n : isarchCF_acc R x) : nat :=
+  pr1 n.
+Lemma isarchCF_pty {X : ConstructiveField} {R : hrel X} {x : X}
+      (n : isarchCF_acc R x) :
+  R (nattorng (isarchCF_val n)) x.
+Proof.
+  intros X R x.
+  intros n.
+  exact (pr2 n).
+Qed.
+
 Definition isarchCF {X : ConstructiveField} (R : hrel X) :=
-  Π x : X, ∃ n : nat, R (nattorng n) x.
+  Π x : X, ∥ isarchCF_acc R x ∥.
 
 Lemma isarchCF_isarchrng {X : ConstructiveField} (R : hrel X) :
   Π (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isrngmultgt X R)
@@ -1183,21 +1200,21 @@ Proof.
     apply hinhfun.
     intros n.
     simple refine (mk_isarchrng_1_acc _ _ _ _).
-    exact (pr1 n).
+    exact (isarchCF_val n).
     change 1%rng with (1%CF : X).
     rewrite <- (islinv_CFinv x (H0 x Hx)).
     apply isrngmultgttoisrrngmultgt.
     exact Hadd.
     exact Hmult.
     exact Hx.
-    exact (pr2 n).
+    exact (isarchCF_pty n).
   - intros x.
     generalize (H x).
     apply hinhfun.
     intros n.
     simple refine (mk_isarchrng_2_acc _ _ _ _).
-    exact (pr1 n).
-    exact (pr2 n).
+    exact (isarchCF_val n).
+    exact (isarchCF_pty n).
 Defined.
 Lemma isarchrng_isarchCF {X : ConstructiveField} (R : hrel X) :
     isarchrng R -> isarchCF R.
@@ -1207,6 +1224,7 @@ Proof.
   generalize (isarchrng_2 R H x).
   apply hinhfun.
   intros n.
-  exists (isarchrng_2_val n).
+  simple refine (mk_isarchCF_acc _ _ _ _).
+  exact (isarchrng_2_val n).
   exact (isarchrng_2_pty n).
 Defined.

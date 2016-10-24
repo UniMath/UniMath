@@ -1195,9 +1195,9 @@ Proof.
   generalize (isarchrng_isarchCF (X := hr_ConstructiveField) _ (isarchrigtorng NonnegativeReals gtNonnegativeReals ispositive_oneNonnegativeReals Hadd Htra Harch) x).
   apply hinhfun.
   intros n.
-  exists (pr1 n).
-  rewrite (tppr n) ; generalize (pr1 n) (pr2 n) ; clear n ; intros n Hn.
-  simpl pr1.
+  simple refine (mk_isarchCF_acc _ _ _ _).
+  exact (isarchCF_val n).
+  generalize (isarchCF_val n) (isarchCF_pty n) ; clear n ; intros n Hn.
   rewrite <- (hr_to_NR_bij x), <- (hr_to_NR_bij (@nattorng hr_ConstructiveField n)) in Hn |- *.
   revert Hn.
   apply hinhfun ; simpl.
@@ -1630,7 +1630,12 @@ Qed.
 Lemma Rarchimedean:
   Π x : Reals, ∃ n : nat, x < nattorng n.
 Proof.
-  exact hr_archimedean.
+  intros x.
+  generalize (hr_archimedean x).
+  apply hinhfun.
+  intros n.
+  exists (isarchCF_val n).
+  exact (isarchCF_pty n).
 Qed.
 
 Lemma notRlt_Rle :
