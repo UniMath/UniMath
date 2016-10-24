@@ -338,6 +338,7 @@ Defined.
 Hint Resolve @pathscomp0 : pathshints.
 
 Ltac intermediate_path x := apply (pathscomp0 (b := x)).
+Ltac etrans := eapply pathscomp0.
 
 (** Notation [p @ q] added by B.A., oct 2014 *)
 
