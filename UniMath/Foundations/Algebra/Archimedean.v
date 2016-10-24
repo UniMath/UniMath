@@ -308,12 +308,7 @@ Lemma isarchgr_isarchmonoid {X : abgr} (R : hrel X) :
 Proof.
   intros X R Hop H x y1 y2 Hy.
   split.
-  - generalize (H x y1 y2 Hy).
-    apply hinhfun.
-    intros n.
-    simple refine (mk_isarchmonoid_1_acc _ _ _ _ _ _).
-    exact (isarchgr_val n).
-    exact (isarchgr_pty n).
+  - apply (H x y1 y2 Hy).
   - generalize (H (grinv X x) _ _ Hy).
     apply hinhfun.
     intros n.
@@ -329,12 +324,7 @@ Lemma isarchmonoid_isarchgr {X : abgr} (R : hrel X) :
   isarchgr R.
 Proof.
   intros X R H x y1 y2 Hy.
-  generalize (isarchmonoid_1 _ H x y1 y2 Hy).
-  apply hinhfun.
-  intros n.
-  simple refine (mk_isarchgr_acc _ _ _ _ _ _).
-  exact (isarchmonoid_1_val n).
-  exact (isarchmonoid_1_pty n).
+  exact (isarchmonoid_1 _ H x y1 y2 Hy).
 Defined.
 
 
@@ -534,7 +524,7 @@ Local Lemma isarchrig_isarchmonoid_1_aux {X : rig} (R : hrel X)
 Proof.
   intros.
   rewrite !nattorig_natmult in Hm.
-  destruct n.
+  induction n as [ | n _].
   + rewrite riglunax1 in Hn.
     eapply Hr.
     apply (pr1 Hop1).
@@ -576,7 +566,7 @@ Local Lemma isarchrig_isarchmonoid_2_aux {X : rig} (R : hrel X)
 Proof.
   intros.
   rewrite !nattorig_natmult in Hm.
-  destruct n.
+  induction n as [ | n _].
   + eapply Hr.
     exact Hm.
     rewrite rigcomm1.
@@ -650,17 +640,16 @@ Proof.
     intros n.
     simple refine (mk_isarchrig_2_acc _ _ _ _).
     exact (isarchmonoid_2_val n).
-    abstract (
-        tryif primitive_projections
-        then pattern x at 1
-        else pattern x at 2;
-        rewrite <- (riglunax1 X x) ;
-        tryif primitive_projections
-        then pattern (0%rig : X) at 1
-        else pattern (0%rig : X) at 2 ;
-        rewrite <- (rigmultx0 X (nattorig (isarchmonoid_2_val n))) ;
-        rewrite nattorig_natmult ;
-        exact (isarchmonoid_2_pty n)).
+    abstract (set (_x_ := x) ;
+              change (R (nattorig (isarchmonoid_2_val n)) _x_) ;
+              rewrite <- (riglunax1 X _x_) ;
+              set (_0_ := 0%rig) ;
+              generalize (rigmultx0 X (nattorig (isarchmonoid_2_val n))) ;
+              change ((nattorig (isarchmonoid_2_val n) * 0%rig)%rng = _0_
+                      → R (nattorig (isarchmonoid_2_val n)) (_0_ + _x_)%rng) ;
+              intros <- ;
+              rewrite nattorig_natmult ;
+              exact (isarchmonoid_2_pty n)).
   - intros x.
     generalize (isarchmonoid_1 _ H x _ _ H01).
     apply hinhfun.
@@ -668,10 +657,12 @@ Proof.
     simple refine (mk_isarchrig_3_acc _ _ _ _).
     exact (isarchmonoid_1_val n).
     abstract (
-        tryif primitive_projections
-        then pattern (0%rig : X) at 1
-        else pattern (0%rig : X) at 2;
-        rewrite <- (rigmultx0 X (nattorig (isarchmonoid_1_val n))), nattorig_natmult ;
+        generalize (rigmultx0 X (nattorig (isarchmonoid_1_val n))) ;
+        set (_0_ := 0%rig) ;
+        change ((nattorig (isarchmonoid_1_val n) * 0)%rig = _0_
+                → R (nattorig (isarchmonoid_1_val n) + x)%rig _0_) ;
+        intros <- ;
+        rewrite nattorig_natmult ;
         exact (isarchmonoid_1_pty n)).
 Defined.
 
@@ -745,12 +736,7 @@ Proof.
         rewrite <- rngrmultminus, <- rngldistr ;
         exact (isarchrng_1_pty n)).
   - intros x.
-    generalize (isarchrng_2 _ H x).
-    apply hinhfun.
-    intros n.
-    simple refine (mk_isarchrig_2_acc _ _ _ _).
-    exact (isarchrng_2_val n).
-    exact (isarchrng_2_pty n).
+    exact (isarchrng_2 _ H x).
   - intros x.
     generalize (isarchrng_2 _ H (- x)%rng).
     apply hinhfun.
@@ -783,12 +769,7 @@ Proof.
     intros <-.
     exact (isarchrig_1_pty n).
   - intros x.
-    generalize (isarchrig_2 (X := rngtorig X) _ H x).
-    apply hinhfun.
-    intros n.
-    simple refine (mk_isarchrng_2_acc _ _ _ _).
-    exact (isarchrig_2_val n).
-    exact (isarchrig_2_pty n).
+    exact (isarchrig_2 (X := rngtorig X) _ H x).
 Defined.
 
 Lemma isarchrng_isarchgr {X : rng} (R : hrel X) :
@@ -956,7 +937,9 @@ Proof.
   - simple refine (setquotunivprop _ (λ _, (_,,_)) _).
     apply isapropimpl, propproperty.
     intros x Hx.
-    revert Hx ; apply hinhuniv ; intros (c,Hx) ; simpl in Hx.
+    revert Hx ; apply hinhuniv ; intros c.
+    induction c as [c Hx].
+    simpl in Hx.
     rewrite !(rngmult0x X), (rngrunax2 X) in Hx.
     apply (hinhfun (X := Σ n, commrngfracgt X S Hop1 Hop2 Hs (setquotpr (eqrelcommrngfrac X S) ((nattorng n * pr1 x)%rng,, pr2 x)) 1%rng)).
     intros H.
@@ -984,7 +967,7 @@ Proof.
       exact Hn.
     + unfold nattorng.
       rewrite (nattorig_natmult (X := X)), natmult_mult.
-      apply hinhpr ; simpl.
+      apply hinhpr.
       exists c.
       change (R
                 (natmult (Datatypes.S n) (natmult (X := X) (isarchrng_1_val m) (pr1 x)) * 1 * pr1 c)%rng
@@ -1079,15 +1062,18 @@ Proof.
   intros X R Hadd Hmult Hirr H.
   split.
   - intros x Hx.
-    case (fldchoice x) ; intros x'.
+    induction (fldchoice x) as [ x' | x' ].
     + generalize (H (pr1 x')).
       apply hinhfun.
       intros n.
       simple refine (mk_isarchrng_1_acc _ _ _ _).
       exact (isarchfld_val n).
-      abstract (pattern (1%rng : X) at 1 ;
-                 rewrite <- (pr1 (pr2 x')) ;
-                apply (isrngmultgttoisrrngmultgt _ Hadd Hmult _ _ _ Hx (isarchfld_pty n))).
+      generalize (pr1 (pr2 x')).
+      set (_1_ := 1%rng).
+      change ((pr1 x' * x)%rng = _1_
+              → R (nattorng (isarchfld_val n) * x)%rng _1_).
+      intros <-.
+      apply (isrngmultgttoisrrngmultgt _ Hadd Hmult _ _ _ Hx (isarchfld_pty n)).
     + apply hinhpr.
       simple refine (mk_isarchrng_1_acc _ _ _ _).
       exact O.
@@ -1096,23 +1082,14 @@ Proof.
                  rewrite x' in Hx ;
                  apply Hx).
   - intros x.
-    generalize (H x).
-    apply hinhfun ; intros n.
-    simple refine (mk_isarchrng_2_acc _ _ _ _).
-    exact (isarchfld_val n).
-    exact (isarchfld_pty n).
+    exact (H x).
 Defined.
 Lemma isarchrng_isarchfld {X : fld} (R : hrel X) :
     isarchrng R -> isarchfld R.
 Proof.
   intros X R H.
   intros x.
-  generalize (isarchrng_2 R H x).
-  apply hinhfun.
-  intros n.
-  simple refine (mk_isarchfld_acc _ _ _ _).
-  exact (isarchrng_2_val n).
-  exact (isarchrng_2_pty n).
+  exact (isarchrng_2 R H x).
 Defined.
 
 Theorem isarchfldfrac ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel X R ) ( is1 : isrngmultgt X R ) ( is2 : R 1%rng 0%rng ) ( nc : neqchoice R ) ( irr : isirrefl R ) ( tra : istrans R ) :
@@ -1208,23 +1185,12 @@ Proof.
     exact Hmult.
     exact Hx.
     exact (isarchCF_pty n).
-  - intros x.
-    generalize (H x).
-    apply hinhfun.
-    intros n.
-    simple refine (mk_isarchrng_2_acc _ _ _ _).
-    exact (isarchCF_val n).
-    exact (isarchCF_pty n).
+  - exact H.
 Defined.
 Lemma isarchrng_isarchCF {X : ConstructiveField} (R : hrel X) :
     isarchrng R -> isarchCF R.
 Proof.
   intros X R H.
   intros x.
-  generalize (isarchrng_2 R H x).
-  apply hinhfun.
-  intros n.
-  simple refine (mk_isarchCF_acc _ _ _ _).
-  exact (isarchrng_2_val n).
-  exact (isarchrng_2_pty n).
+  exact (isarchrng_2 R H x).
 Defined.
