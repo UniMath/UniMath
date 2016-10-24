@@ -351,12 +351,15 @@ Proof.
     rewrite !natmultS, IHn.
     reflexivity. }
   rewrite !H0.
+  change (setquot_aux R (natmult (n1 + n2) (pr1 y1) * pr1 x * natmult (n1 + n2) (pr2 y2))%multmonoid
+       (natmult (n1 + n2) (pr1 y2) * (natmult (n1 + n2) (pr2 y1) * pr2 x))%multmonoid).
   revert Hn1 Hn2.
-  apply hinhfun2 ; simpl.
+  apply hinhfun2.
   intros c1 c2.
   set (c1_val := setquot_aux_val c1) ;
     set (c2_val := setquot_aux_val c2).
-  exists (c1_val * c2_val)%multmonoid.
+  simple refine (mk_setquot_aux_acc _ _ _ _ _).
+  exact (c1_val * c2_val)%multmonoid.
   set (tmp1 := (natmult (n1 + n2) (pr1 y1) * pr1 x * natmult (n1 + n2) (pr2 y2) * (c1_val * c2_val))%multmonoid).
   set (tmp2 := (natmult (n1 + n2) (pr1 y2) * (natmult (n1 + n2) (pr2 y1) * pr2 x) * (c1_val * c2_val))%multmonoid).
   change (R tmp1 tmp2).
@@ -913,14 +916,19 @@ Proof.
   simpl ; intros X S n x.
   induction n as [|n IHn].
   - apply (iscompsetquotpr (eqrelcommrngfrac X S)).
-    apply hinhpr ; simpl.
-    exists (pr2 x).
+    apply hinhpr.
+    exists (pr2 x) ; simpl.
     rewrite !(rngmult0x X).
     reflexivity.
   - rewrite !natmultS, IHn.
     apply (iscompsetquotpr (eqrelcommrngfrac X S)).
-    apply hinhpr ; simpl.
-    exists (pr2 x) ; simpl.
+    apply hinhpr.
+    exists (pr2 x).
+    change ((pr1 (pr2 x) * pr1 x + pr1 (pr2 x) * natmult (X := X) n (pr1 x)) * pr1 (pr2 x) *
+   pr1 (pr2 x) =
+            (pr1 x + natmult (X := X) n (pr1 x)) *
+            (pr1carrier (pr1 S) (pr2 x) * pr1carrier (pr1 S) (pr2 x)) *
+   pr1 (pr2 x))%rng.
     rewrite <- (rngldistr X).
     rewrite (rngcomm2 X (pr1 (pr2 x))).
     rewrite !(rngassoc2 X).
@@ -935,11 +943,11 @@ Proof.
   intros X S R Hop1 Hop2 Hs H0 Htra Hr.
   split.
   - simple refine (setquotunivprop _ (λ _, (_,,_)) _).
-    apply isapropimpl, propproperty.
+    abstract (apply isapropimpl, propproperty).
     intros x Hx.
     revert Hx ; apply hinhuniv ; intros c.
-    induction c as [c Hx].
-    simpl in Hx.
+    assert (Hx : R (pr1 x * 1 * pr1 (pr1 c))%rng (0 * pr1 (pr2 x) * pr1 (pr1 c))%rng) by (exact (pr2 c)).
+    generalize (pr1 c) Hx ; clear c Hx ; intros c Hx.
     rewrite !(rngmult0x X), (rngrunax2 X) in Hx.
     apply (hinhfun (X := Σ n, commrngfracgt X S Hop1 Hop2 Hs (setquotpr (eqrelcommrngfrac X S) ((nattorng n * pr1 x)%rng,, pr2 x)) 1%rng)).
     intros H.
@@ -957,8 +965,10 @@ Proof.
     generalize (isarchrng_2_val n) (isarchrng_2_pty n).
     clear n ; intros n Hn.
     induction n as [ | n _] ; simpl max.
-    + apply hinhpr ; simpl.
+    + apply hinhpr.
       exists c.
+      change (R (nattorng (isarchrng_1_val m) * pr1 x * 1 * pr1 c)%rng
+    (1 * pr1 (pr2 x) * pr1 c)%rng).
       rewrite (rngrunax2 X), (rnglunax2 X), (rngassoc2 X).
       eapply Htra.
       exact (isarchrng_1_pty m).
@@ -988,7 +998,7 @@ Proof.
     intros n.
     induction n as [n Hn].
     simple refine (mk_isarchrng_2_acc _ _ _ _).
-    exact  n.
+    exact n.
     unfold nattorng, nattorig.
     change 1%rig with (setquotpr (eqrelcommrngfrac X S)
                                 (1%rng,, unel S)).
@@ -1000,8 +1010,10 @@ Proof.
     exists (max 1 (isarchrng_2_val n) * (isarchrng_1_val m))%nat.
     generalize (isarchrng_2_val n) (isarchrng_2_pty n) ; clear n ; intros n Hn.
     induction n as [ | n _] ; simpl max.
-    + apply hinhpr ; simpl.
+    + apply hinhpr.
       exists (pr2 x).
+      change (R (nattorng (isarchrng_1_val m) * pr1 (pr2 x) * pr1 (pr2 x))%rng
+                (pr1 x * 1 * pr1 (pr2 x))%rng).
       apply (isrngmultgttoisrrngmultgt X).
       exact Hop1.
       exact Hop2.
@@ -1013,9 +1025,11 @@ Proof.
       exact H0.
       rewrite (rngrunax2 X).
       exact Hn.
-    + apply hinhpr ; simpl.
+    + apply hinhpr.
       exists (pr2 x).
-      change (n * (isarchrng_1_val m) + isarchrng_1_val m)%nat with (Datatypes.S n * isarchrng_1_val m)%nat.
+      change (R
+                (nattorng (Datatypes.S n * isarchrng_1_val m) * pr1 (pr2 x) *
+                 pr1 (pr2 x))%rng (pr1 x * 1 * pr1 (pr2 x))%rng).
       unfold nattorng.
       apply (isrngmultgttoisrrngmultgt X).
       exact Hop1.
