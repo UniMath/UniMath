@@ -25,6 +25,7 @@ Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -228,6 +229,12 @@ Definition unitHSET : HSET.
 Proof.
 exists unit.
 abstract (apply isasetunit).
+Defined.
+
+Definition natHSET : HSET.
+Proof.
+exists nat.
+abstract (apply isasetnat).
 Defined.
 
 End HSETs.

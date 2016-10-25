@@ -27,6 +27,7 @@ Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -54,7 +55,7 @@ Proof.
   repeat rewrite <- assoc; apply maponpaths.
   repeat rewrite <- functor_comp.
   rewrite nat_trans_ax; apply idpath.
-Qed.
+Defined.
 
 Definition hor_comp : nat_trans (G □ F) (G' □ F') := tpair _ _ is_nat_trans_horcomp.
 
@@ -88,3 +89,46 @@ Proof.
   - intro a.
     apply id_left.
 Qed.
+
+Definition functorial_composition_data (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) :
+  functor_data (precategory_binproduct_data [A, B, hsB] [B, C, hsC])
+               [A, C, hsC].
+Proof.
+  exists (fun FG => functor_composite (pr1 FG) (pr2 FG)).
+  intros a b αβ.
+  induction αβ as [α β].
+  exact (hor_comp α β).
+Defined.
+
+Definition functorial_composition (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) :
+  functor (precategory_binproduct [A, B, hsB] [B, C, hsC]) [A, C, hsC].
+Proof.
+  exists (functorial_composition_data A B C hsB hsC).
+  split.
+  - unfold functor_idax.
+    intros FG.
+    apply nat_trans_eq.
+    apply hsC.
+    intros x.
+    apply remove_id_left.
+    reflexivity.
+    simpl.
+    exact (functor_id (pr2 FG) ((pr1 (pr1 FG)) x)).
+  - unfold functor_compax.
+    intros FG1 FG2 FG3 αβ1 αβ2.
+    induction αβ1 as [α1 β1].
+    induction αβ2 as [α2 β2].
+
+    apply nat_trans_eq.
+    apply hsC.
+    intros a.
+
+    simpl.
+    rewrite <- ?assoc.
+    apply cancel_precomposition.
+    rewrite (functor_comp _).
+    rewrite -> ?assoc.
+    apply cancel_postcomposition.
+    apply pathsinv0.
+    apply nat_trans_ax.
+Defined.

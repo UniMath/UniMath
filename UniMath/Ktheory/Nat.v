@@ -21,9 +21,9 @@ Module Uniqueness.
   Proof. intros. simple refine (_,,gradth _ _ _ _).
          { intros h. split.
            { exact (h 0). } { intros. exact (h (S n) @ ap (IH n) (! h n)). } }
-         { intros [h0 h'] ?. induction n as [|n'].
+         { intros [h0 h'] ?. induction n as [|n' IHn'].
            { exact h0. } { exact (h' n' @ ap (IH n') IHn'). } }
-         { simpl. intros h. apply funextsec; intros n; simpl. induction n.
+         { simpl. intros h. apply funextsec; intros n; simpl. induction n as [|n IHn].
            { simpl. reflexivity. }
            { simpl. rewrite <- path_assoc. simple refine (_ @ pathscomp0rid _).
              rewrite <- maponpathscomp0. rewrite IHn. rewrite pathsinv0l.
@@ -98,21 +98,21 @@ Module Discern.
   Defined.
 
   Lemma nat_discern_isaprop m n : isaprop (nat_discern m n).
-  Proof. intros m. induction m.
-         { intros n. induction n.
+  Proof. intros m. induction m as [|m IHm].
+         { intros n. induction n as [|n IHn].
            { apply isapropifcontr. apply iscontrunit. }
            { simpl. apply isapropempty. } }
-         { intros n. induction n.
+         { intros n. induction n as [|n IHn].
            { simpl. apply isapropempty. }
            { simpl. apply IHm. } } Defined.
 
   Lemma nat_discern_unit m : nat_discern m m = unit.
-  Proof. intros m. induction m. { reflexivity. } { simpl. apply IHm. } Defined.
+  Proof. intros m. induction m as [|m IHm]. { reflexivity. } { simpl. apply IHm. } Defined.
 
   Lemma nat_discern_iscontr m : iscontr (nat_discern m m).
   Proof. intros m. apply iscontr_if_inhab_prop.
          { apply nat_discern_isaprop. }
-         { induction m. { exact tt. } { simpl. exact IHm. } } Defined.
+         { induction m as [|m IHm]. { exact tt. } { simpl. exact IHm. } } Defined.
 
   Fixpoint helper_A m n : nat_dist m n = 0 -> nat_discern m n.
   Proof. intros ? ?. destruct m as [|m'].
@@ -148,7 +148,7 @@ Module Discern.
   Proof. intros. simple refine (gradth _ (helper_C _ _) _ _).
          { intro e. assert(p := ! helper_B _ _ e). destruct p.
            apply proofirrelevancecontr. apply nat_discern_iscontr. }
-         { intro e. destruct e. induction m.
+         { intro e. destruct e. induction m as [|m IHm].
            { reflexivity. }
            { exact (  ap (helper_B (S m) (S m)) (! apSC _ _ (idpath m))
                     @ ap (ap S) IHm). } } Defined.
@@ -324,10 +324,10 @@ Proof. intros ? ? i. apply negnatgthtoleh. intro k.
 Defined.
 
 Lemma minusxx m : m - m = 0.
-Proof. intro. induction m. reflexivity. simpl. assumption. Defined.
+Proof. intro. induction m as [|m IHm]. reflexivity. simpl. assumption. Defined.
 
 Lemma minusSxx m : S m - m = 1.
-Proof. intro. induction m. reflexivity. assumption. Defined.
+Proof. intro. induction m as [|m IHm]. reflexivity. assumption. Defined.
 
 Lemma natminusminus n m : m ≤ n -> n - (n - m) = m.
 Proof. intros ? ? i. assert (b := plusminusnmm m (n-m)).

@@ -1,6 +1,6 @@
 (**
 
-Definitions of various signatures
+Definitions of various signatures.
 
 Written by: Anders Mörtberg, 2016
 Based on a note by Ralph Matthes
@@ -14,7 +14,6 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
@@ -23,10 +22,11 @@ Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Lam.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
+Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 
-(* Construct θ in a Signature in the case when the functor is
-   precomposition with a functor G by constructing a family of simpler
-   distributive laws δ *)
+(** Construct θ in a Signature in the case when the functor is
+    precomposition with a functor G by constructing a family of simpler
+    distributive laws δ *)
 Section θ_from_δ.
 
 Variable C : precategory.
@@ -133,8 +133,6 @@ eapply pathscomp0;
   [eapply maponpaths, (nat_trans_eq_pointwise H1 c)|].
 apply functor_id.
 Qed.
-
-Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 
 Let D' Ze Ze' :=
   nat_trans_comp (α_functor _ (pr1 Ze) (pr1 Ze') G)
@@ -365,7 +363,7 @@ Definition precomp_option_Signature : Signature C hsC :=
 
 End option_sig.
 
-(* Define δ for G = F^n *)
+(** Define δ for G = F^n *)
 Section iter1_sig.
 
 Variable C : precategory.
@@ -385,7 +383,7 @@ Fixpoint iter_functor1 (n : nat) : functor C C := match n with
 
 Definition δ_iter_functor1 n : δ_source C hsC (iter_functor1 n) ⟶ δ_target C hsC (iter_functor1 n).
 Proof.
-induction n.
+induction n as [|n IHn].
 - apply δ.
 - apply δ_comp.
   + apply IHn.
@@ -425,7 +423,7 @@ mkpair; simpl.
 + now split; intros x; intros; apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_left.
 Defined.
 
-(* Signature for the Id functor *)
+(** Signature for the Id functor *)
 Definition IdSignature : Signature C hsC :=
   tpair _ (functor_identity _) θ_functor_identity.
 

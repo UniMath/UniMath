@@ -128,6 +128,8 @@ Definition precategory := total2 is_precategory.
 Definition hs_precategory := total2 (fun C : precategory_data =>
   dirprod (is_precategory C) (Π a b : C, isaset (a --> b))).
 
+Definition hs_precategory_has_homsets (C : hs_precategory) := pr2 (pr2 C).
+
 Definition precategory_data_from_precategory (C : precategory) :
        precategory_data := pr1 C.
 Coercion precategory_data_from_precategory : precategory >-> precategory_data.
@@ -147,6 +149,12 @@ Proof.
   do 2 (apply impred; intro).
   apply isapropisaset.
 Qed.
+
+Definition Precategory := Σ C:precategory, has_homsets C.
+Definition Precategory_pair C h : Precategory := C,,h.
+Definition Precategory_to_precategory : Precategory -> precategory := pr1.
+Coercion Precategory_to_precategory : Precategory >-> precategory.
+Definition homset_property (C : Precategory) : has_homsets C := pr2 C.
 
 Lemma isaprop_is_precategory (C : precategory_data)(hs: has_homsets C)
   : isaprop (is_precategory C).
@@ -170,6 +178,10 @@ Definition assoc (C : precategory) :
    Π (a b c d : C)
           (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) = (f ;; g) ;; h := pr2 (pr2 C).
+
+Arguments id_left [C a b] f.
+Arguments id_right [C a b] f.
+Arguments assoc [C a b c d] f g h.
 
 Lemma assoc4 (C : precategory) (a b c d e : C) (f : a --> b) (g : b --> c)
        (h : c --> d) (i : d --> e) :
@@ -216,7 +228,6 @@ Proof.
   destruct H.
   exact (identity a).
 Defined.
-
 
 Lemma cancel_postcomposition (C : precategory_data) (a b c: C)
    (f f' : a --> b) (g : b --> c) : f = f' -> f ;; g = f' ;; g.
@@ -314,7 +325,7 @@ Proof.
   - apply assoc.
   - apply remove_id_left.
     + apply iso_inv_after_iso.
-    + apply (!(id_right _ _ _ _ )).
+    + apply (!(id_right _ )).
 Defined.
 
 Definition is_iso_inv_from_iso {C:precategory}{a b : C} (f : iso a b) : is_iso (inv_from_iso f).
@@ -944,8 +955,16 @@ Qed.
 
 Definition category := total2 (fun C : precategory => is_category C).
 
-Definition precat_from_cat (C : category) : precategory := pr1 C.
-Coercion precat_from_cat : category >-> precategory.
+Definition category_to_Precategory (C : category) : Precategory.
+Proof.
+  exists (pr1 C).
+  exact (pr2 (pr2 C)).
+Defined.
+Coercion category_to_Precategory : category >-> Precategory.
+
+
+Definition category_has_homsets ( C : category )
+  := pr2 (pr2 C).
 
 Lemma category_has_groupoid_ob (C : category): isofhlevel 3 (ob C).
 Proof.
@@ -1133,15 +1152,19 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma transportf_isotoid_dep' (J C : precategory)
-  (F : J -> C)
-   (a a' : C) (p : a = a') (f : Π c, a --> F c) :
- transportf (fun x : C => Π c, x --> F c) p f = fun c => idtoiso (!p) ;; f c.
+Lemma transportf_isotoid_dep' (J : UU) (C : precategory) (F : J -> C)
+  (a a' : C) (p : a = a') (f : Π c, a --> F c) :
+  transportf (fun x : C => Π c, x --> F c) p f = fun c => idtoiso (!p) ;; f c.
 Proof.
-  destruct p.
-  apply funextsec.
-  intro. simpl.
-  apply (! id_left _ _ _ _).
+  now destruct p; apply funextsec; intro x; rewrite id_left.
+Defined.
+
+(* This and the above name is not very good... *)
+ Lemma transportf_isotoid_dep'' (J : UU) (C : precategory) (F : J -> C)
+   (a a' : C) (p : a = a') (f : Π c, F c --> a) :
+   transportf (fun x : C => Π c, F c --> x) p f = fun c => f c ;; idtoiso p.
+Proof.
+  now destruct p; apply funextsec; intro x; rewrite id_right.
 Defined.
 
 

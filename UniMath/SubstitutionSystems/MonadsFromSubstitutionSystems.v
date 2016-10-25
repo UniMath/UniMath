@@ -35,12 +35,11 @@ Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.PointedFunctors.
-Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 
@@ -354,8 +353,8 @@ Proof.
       simpl in *.
       match goal with |[H3 : _ = ?f |- ?e ;; _ ;; _ ;; _  = _ ] =>
          pathvia (e ;; f) end.
-      * eapply pathscomp0. apply (!assoc _ _ _ _ _ _ _ _ ).
-        eapply pathscomp0. apply (!assoc _ _ _ _ _ _ _ _ ).
+      * eapply pathscomp0. apply (!assoc _ _ _).
+        eapply pathscomp0. apply (!assoc _ _ _ ).
         apply maponpaths.
         eapply pathscomp0. Focus 2. apply H3.
         apply assoc.
@@ -406,7 +405,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
     simpl.
     transitivity (identity _ ;; μ_2 c).
     + apply pathsinv0, id_left.
-    + eapply pathscomp0; [ | apply (!assoc _ _ _ _ _ _ _ _ ) ].
+    + eapply pathscomp0; [ | apply (!assoc _ _ _ ) ].
       apply cancel_postcomposition.
       assert (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
       apply (!H1).
@@ -446,7 +445,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
 
                     pr1 (θ (`T ⊗ T_squared)) c ;; pr1 (# H α) c =
                      pr1 (θ ((`T) ⊗ (ptd_from_alg T))) ((pr1 (pr1 (pr1 T))) c);;
-                     pr1 (θ (( (`T) • (`T)) ⊗ (ptd_from_alg T))) c;;
+                     pr1 (θ (( ((`T) • (`T) : [_, _, hs])) ⊗ (ptd_from_alg T))) c;;
                      pr1 (# H (α : functor_compose hs hs (`T) (functor_composite (`T) (` T))--> _)) c       ).
       { (intro α;
           assert (HA := θ_Strength2_int_implies_θ_Strength2 _ _ _ _ θ_strength2_int);
@@ -456,7 +455,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
       }
       eapply pathscomp0. apply (Strength_2 F).
       clear Strength_2.
-      eapply pathscomp0. apply (!assoc _ _ _ _ _ _ _ _ ).
+      eapply pathscomp0. apply (!assoc _ _ _).
       apply maponpaths.
       apply maponpaths.
       match goal with |[ |- _ = ?pr1 (# ?G ?g) _ ] =>

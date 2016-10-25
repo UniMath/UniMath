@@ -29,7 +29,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PointedFunctors.
-Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Notation.
@@ -327,7 +327,7 @@ Lemma θ_nat_1 (X X' : EndC) (α : X --> X') (Z : Ptd)
 Proof.
   set (t:=nat_trans_ax θ).
   set (t':=t (X ⊗ Z) (X' ⊗ Z)).
-  set (t'':= t' (binprodcatmor α (identity _ ))).
+  set (t'':= t' (precatbinprodmor α (identity _ ))).
   simpl in t''.
   exact t''.
 Qed.
@@ -363,7 +363,7 @@ Lemma θ_nat_2 (X : EndC) (Z Z' : Ptd) (f : Z --> Z')
        θ (X ⊗ Z);; # H (identity X ∙∙ pr1 f).
 Proof.
   set (t := nat_trans_ax θ).
-  set (t' := t (binprodcatpair X Z) (binprodcatpair X Z') (binprodcatmor (identity _ ) f)).
+  set (t' := t (precatbinprodpair X Z) (precatbinprodpair X Z') (precatbinprodmor (identity _ ) f)).
   simpl in t'.
   unfold θ_source_mor in t'.
   unfold θ_target_mor in t'.

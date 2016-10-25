@@ -1,18 +1,23 @@
 (** **********************************************************
 
+Structures on HSET.
+
+Contents:
+
+- Colimits in HSET ([ColimsHSET])
+- Binary coproducts ([BinCoproductsHSET])
+- General indexed coproducts ([Coproducts_HSET])
+- Initial object ([InitialHSET])
+- Limits ([LimsHSET])
+- Binary products ([BinProductsHSET])
+- General indexed products ([ProductsHSET]
+- Terminal object ([TerminalHSET])
+- Exponentials ([has_exponentials_HSET])
+- Construction of exponentials for functors into HSET ([has_exponentials_functor_HSET])
+
 Written by: Benedikt Ahrens, Anders Mörtberg
 
 October 2015 - January 2016
-
-************************************************************)
-
-
-(** **********************************************************
-
-Contents :
-	    Colimits in HSET
-
-	    Limits in HSET
 
 ************************************************************)
 
@@ -24,18 +29,17 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.covyoneda.
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
@@ -546,12 +550,12 @@ mkpair.
 - abstract (
     split;
       [ intros c; simpl; apply funextsec; intro a;
-        apply (nat_trans_eq has_homsets_HSET); cbn; intro x;
+        apply (nat_trans_eq has_homsets_HSET); cbn; unfold prodtofuntoprod; intro x;
         apply funextsec; intro f;
         destruct f as [cx Px]; simpl; unfold covyoneda_morphisms_data;
         now rewrite id_left
       | intros a b c f g; simpl; apply funextsec; intro alpha;
-        apply (nat_trans_eq has_homsets_HSET); cbn; intro x;
+        apply (nat_trans_eq has_homsets_HSET); cbn; unfold prodtofuntoprod; intro x;
         apply funextsec; intro h;
         destruct h as [cx pcx]; simpl; unfold covyoneda_morphisms_data;
         now rewrite assoc ]).
@@ -563,15 +567,16 @@ Proof.
 mkpair.
 - intros c ytheta; set (y := pr1 ytheta); set (theta := pr2 ytheta);
   simpl in *.
-  apply (theta c).
-  apply (identity c,,y).
+  simple refine (theta c _).
+  exact (identity c,,y).
 - abstract (
     intros c c' f; simpl;
-    apply funextfun; intros ytheta; destruct ytheta as [y theta]; cbn;
+    apply funextfun; intros ytheta; destruct ytheta as [y theta];
+    cbn; unfold prodtofuntoprod;
     unfold covyoneda_morphisms_data;
     assert (X := nat_trans_ax theta);
     assert (Y := toforallpaths _ _ _ (X c c' f) (identity c,, y));
-    eapply pathscomp0; [|apply Y]; cbn;
+    eapply pathscomp0; [|apply Y]; cbn; unfold prodtofuntoprod;
     now rewrite id_right, id_left).
 Defined.
 
@@ -591,11 +596,12 @@ use adjunction_from_partial.
           + simpl; intros d fx.
             apply (φ d (dirprodpair (pr2 fx) (# R (pr1 fx) u))).
           + abstract (
-              intros a b f; simpl; cbn;
+              intros a b f; simpl; cbn; unfold prodtofuntoprod;
               apply funextsec; intro x;
               eapply pathscomp0;
               [|apply (toforallpaths _ _ _ (nat_trans_ax φ _ _ f)
                                      (dirprodpair (pr2 x) (# R (pr1 x) u)))]; cbn;
+              unfold prodtofuntoprod;
               apply maponpaths, maponpaths;
               assert (H : # R (pr1 x ;; f) = # R (pr1 x) ;; #R f);
               [apply functor_comp|];
@@ -633,6 +639,7 @@ use adjunction_from_partial.
     apply funextsec; intros [t0 pd]; simpl;
     assert (HH := toforallpaths _ _ _ (nat_trans_ax t c d t0) rc);
     cbn in HH; rewrite HH; cbn; unfold covyoneda_morphisms_data;
+    unfold prodtofuntoprod;
     now rewrite id_right).
 Qed.
 

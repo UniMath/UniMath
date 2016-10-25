@@ -8,7 +8,7 @@ Anders Mörtberg, 2016
 
 Contents :
 
--  Definition of the sum of a family of signatures
+- Definition of the sum of a family of signatures ([Sum_of_Signatures)]
 
 Adapted from the binary case
 
@@ -20,17 +20,14 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.SubstitutionSystems.Notation.
-Require Import UniMath.CategoryTheory.chains.
-Require Import UniMath.CategoryTheory.cocontfunctors.
+Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -56,14 +53,11 @@ Variables H1 : I -> functor [C, C, hsC] [C, C, hsC].
 
 Variable θ1 : Π i, θ_source (H1 i) ⟶ θ_target (H1 i).
 
-(* Variable S11 : Π i, θ_Strength1 (θ1 i). *)
-(* Variable S12 : Π i, θ_Strength2 (θ1 i). *)
-
 (** * Definition of the data of the sum of two signatures *)
 
-Definition H : functor [C, C, hsC] [C, C, hsC] := coproduct_of_functors _ _ _ CCC H1.
+Local Definition H : functor [C, C, hsC] [C, C, hsC] := coproduct_of_functors _ _ _ CCC H1.
 
-Local Definition bla1 (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) (x : C) :
+Local Definition θ_ob_fun (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) (x : C) :
    C ⟦ coproduct_of_functors_ob _ _ _ CC (λ i, H1 i X) (pr1 Z x),
        coproduct_of_functors_ob _ _ _ CC (λ i, H1 i (functor_composite (pr1 Z) X)) x ⟧.
 Proof.
@@ -71,48 +65,39 @@ apply CoproductOfArrows; intro i.
 exact (pr1 (θ1 i (X ⊗ Z)) x).
 Defined.
 
-Local Lemma bar (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) :
+Local Lemma is_nat_trans_θ_ob_fun (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) :
   is_nat_trans (functor_composite_data (pr1 Z)
                  (coproduct_of_functors_data _ _ _  CC (λ i, H1 i X)))
                  (coproduct_of_functors_data _ _ _ CC (λ i, H1 i (functor_composite (pr1 Z) X)))
-               (bla1 X Z).
+               (θ_ob_fun X Z).
 Proof.
-intros x x' f; simpl.
-unfold bla1; simpl.
-unfold coproduct_of_functors_mor.
+intros x x' f.
 eapply pathscomp0; [ apply CoproductOfArrows_comp | ].
 eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp].
-apply CoproductOfArrows_eq.
-apply funextsec; intro i.
+apply CoproductOfArrows_eq, funextsec; intro i.
 apply (nat_trans_ax (θ1 i (X ⊗ Z))).
 Qed.
 
-Local Definition bla (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) :
-   [C, C, hsC] ⟦ (θ_source H) (X,, Z), (θ_target H) (X,, Z) ⟧.
-Proof.
-exists (bla1 X Z); apply bar.
-Defined.
-
 Definition θ_ob : Π XF, θ_source H XF --> θ_target H XF.
 Proof.
-intros [X Z]; apply bla.
+intros [X Z]; exists (θ_ob_fun X Z); apply is_nat_trans_θ_ob_fun.
 Defined.
 
 Local Lemma is_nat_trans_θ_ob :
-  is_nat_trans (θ_source_functor_data C hsC H) (θ_target_functor_data C hsC H)  θ_ob.
+  is_nat_trans (θ_source_functor_data C hsC H) (θ_target_functor_data C hsC H) θ_ob.
 Proof.
 intros [X Z] [X' Z'] αβ.
-apply (nat_trans_eq hsC); intro c; simpl in *.
+apply (nat_trans_eq hsC); intro c.
 eapply pathscomp0; [ | eapply pathsinv0, CoproductOfArrows_comp].
 eapply pathscomp0; [ apply cancel_postcomposition, CoproductOfArrows_comp |].
 eapply pathscomp0; [ apply CoproductOfArrows_comp |].
-apply CoproductOfArrows_eq; apply funextsec; intro i.
+apply CoproductOfArrows_eq, funextsec; intro i.
 apply (nat_trans_eq_pointwise (nat_trans_ax (θ1 i) (X,,Z) (X',,Z') αβ) c).
 Qed.
 
 Local Definition θ : θ_source H ⟶ θ_target H := tpair _ _ is_nat_trans_θ_ob.
 
-(** * Proof of the laws of the sum of two signatures *)
+(** * Proof of the strength laws of the sum of two signatures *)
 
 Variable S11' : Π i, θ_Strength1_int (θ1 i).
 Variable S12' : Π i, θ_Strength2_int (θ1 i).
@@ -132,8 +117,7 @@ Qed.
 Lemma SumStrength2' : θ_Strength2_int θ.
 Proof.
 intros X Z Z'.
-apply (nat_trans_eq hsC); intro x; simpl.
-rewrite id_left.
+apply (nat_trans_eq hsC); intro x; simpl; rewrite id_left.
 eapply pathscomp0; [apply CoproductOfArrows_comp|].
 apply pathsinv0.
 eapply pathscomp0; [apply CoproductOfArrows_comp|].

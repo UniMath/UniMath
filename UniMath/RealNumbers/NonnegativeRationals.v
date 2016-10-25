@@ -1613,7 +1613,7 @@ Proof.
   apply isarchfld_isarchrng in H.
   apply isarchrng_isarchrig in H.
   assert (Π n, pr1 (nattorig (X := pr1 (CommDivRig_DivRig NonnegativeRationals)) n) = nattorig (X := pr1fld hq) n).
-  { induction n.
+  { induction n as [|n IHn].
     - reflexivity.
     - rewrite !nattorigS, <- IHn.
       reflexivity. }

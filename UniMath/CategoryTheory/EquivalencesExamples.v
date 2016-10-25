@@ -20,7 +20,7 @@ Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.equivalences.
@@ -46,10 +46,10 @@ mkpair.
                 now rewrite precompWithBinProductArrow, id_right, postcompWithBinProductArrow, id_left).
   + mkpair.
     * simpl; intro x; split; [ apply BinProductPr1 | apply BinProductPr2 ].
-    * abstract (intros p q f; unfold binprodcatmor, compose; simpl;
+    * abstract (intros p q f; unfold precatbinprodmor, compose; simpl;
                 now rewrite BinProductOfArrowsPr1, BinProductOfArrowsPr2).
 - abstract (split; simpl; intro x;
-  [ unfold binprodcatmor, compose; simpl;
+  [ unfold precatbinprodmor, compose; simpl;
     now rewrite BinProductPr1Commutes, BinProductPr2Commutes
   | rewrite postcompWithBinProductArrow, !id_left;
     apply pathsinv0, BinProduct_endo_is_identity;
@@ -102,7 +102,7 @@ mkpair.
   + mkpair.
     * simpl; intro p; set (x := pr1 p); set (y := pr2 p).
       split; [ apply (BinCoproductIn1 _ (PC x y)) | apply (BinCoproductIn2 _ (PC x y)) ].
-    * abstract (intros p q f; unfold binprodcatmor, compose; simpl;
+    * abstract (intros p q f; unfold precatbinprodmor, compose; simpl;
                 now rewrite BinCoproductOfArrowsIn1, BinCoproductOfArrowsIn2).
   + mkpair.
     * intro x; apply (BinCoproductArrow _ _ (identity x) (identity x)).
@@ -113,7 +113,7 @@ mkpair.
   [ rewrite precompWithBinCoproductArrow, !id_right;
     apply pathsinv0, BinCoproduct_endo_is_identity;
       [ apply BinCoproductIn1Commutes | apply BinCoproductIn2Commutes ]
-  | unfold binprodcatmor, compose; simpl;
+  | unfold precatbinprodmor, compose; simpl;
     now rewrite BinCoproductIn1Commutes, BinCoproductIn2Commutes ]).
 Defined.
 
@@ -124,8 +124,8 @@ Section coproduct_functor_adjunction.
 Context (I : UU) {C : precategory} (PC : Coproducts I C).
 
 (** The general coproduct functor left adjoint to the general delta functor *)
-Lemma is_left_adjoint_indexed_coproduct_functor :
-  is_left_adjoint (indexed_coproduct_functor I PC).
+Lemma is_left_adjoint_coproduct_functor :
+  is_left_adjoint (coproduct_functor I PC).
 Proof.
 apply (tpair _ (delta_functor _ _)).
 mkpair.

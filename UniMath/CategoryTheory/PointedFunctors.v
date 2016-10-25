@@ -104,11 +104,11 @@ Lemma is_precategory_ptd : is_precategory ptd_precategory_data.
 Proof.
   repeat split; simpl; intros.
   - apply (invmap (eq_ptd_mor _ _ )).
-    apply (id_left (functor_precategory C C hs)).
+    apply (@id_left (functor_precategory C C hs)).
   - apply (invmap (eq_ptd_mor _ _ )).
-    apply (id_right (functor_precategory _ _ hs )).
+    apply (@id_right (functor_precategory _ _ hs )).
   - apply (invmap (eq_ptd_mor _ _ )).
-    apply (assoc (functor_precategory _ _ hs)).
+    apply (@assoc (functor_precategory _ _ hs)).
 Qed.
 
 Definition precategory_Ptd : precategory := tpair _ _ is_precategory_ptd.

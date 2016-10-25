@@ -27,13 +27,13 @@ Definition halfline := ∥ ℕ ∥.
 
 Definition makeNullHomotopy {Y} {f:ℕ->Y} (s:target_paths f) {y:Y} (h0:y=f 0) :
   nullHomotopyFrom f y.
-Proof. intros. intro n. induction n. { exact (h0). } { exact (IHn @ s _). } Defined.
+Proof. intros. intro n. induction n as [|n IHn]. { exact (h0). } { exact (IHn @ s _). } Defined.
 
 Definition map {Y} {f:ℕ->Y} (s:target_paths f) :
   halfline -> GuidedHomotopy f s.
 Proof. intros ? ? ? r. apply (squash_to_prop r).
        { apply isapropifcontr. apply iscontrGuidedHomotopy. }
-       { intro n. exists (f n). induction n.
+       { intro n. exists (f n). induction n as [|n IHn].
          { exists (makeNullHomotopy s (idpath _)). intro n. reflexivity. }
          { exact (transportf (gHomotopy f s) (s n) IHn). } } Defined.
 
