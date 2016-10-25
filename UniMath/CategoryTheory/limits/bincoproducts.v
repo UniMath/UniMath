@@ -949,10 +949,8 @@ End def_functor_pointwise_coprod.
 
 Section option_functor.
 
-Variables (C : precategory) (hsC : has_homsets C) (CC : BinCoproducts C).
-
-Variable terminal : Terminal C.
-Let one : C :=  @TerminalObject C terminal.
+Context {C : precategory} (CC : BinCoproducts C) (TC : Terminal C).
+Let one : C := TerminalObject TC.
 
 Definition option_functor : functor C C :=
   BinCoproduct_of_functors C C CC (constant_functor _ _ one) (functor_identity C).

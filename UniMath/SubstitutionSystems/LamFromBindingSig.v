@@ -48,7 +48,7 @@ Local Notation "'Id'" := (functor_identity _).
 Local Notation "F * G" := (H HSET has_homsets_HSET BinProductsHSET F G).
 Local Notation "F + G" := (BinSumOfSignatures.H _ _ BinCoproductsHSET F G).
 Local Notation "'_' 'o' 'option'" :=
-  (ℓ (option_functor HSET BinCoproductsHSET TerminalHSET)) (at level 10).
+  (ℓ (option_functor BinCoproductsHSET TerminalHSET)) (at level 10).
 
 Local Definition has_homsets_HSET2 : has_homsets HSET2.
 Proof.
@@ -62,7 +62,7 @@ Defined.
 
 Local Notation "x ⊗ y" := (BinProductObject _ (BinProductsHSET2 x y)) (at level 10).
 Let precomp_option X := (pre_composition_functor _ _ HSET has_homsets_HSET has_homsets_HSET
-                        (option_functor HSET BinCoproductsHSET TerminalHSET) X).
+                          (option_functor BinCoproductsHSET TerminalHSET) X).
 Local Notation "X + 1" := (precomp_option X) (at level 50).
 Local Notation "'1'" := (functor_identity HSET).
 

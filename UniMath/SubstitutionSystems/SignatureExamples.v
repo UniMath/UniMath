@@ -254,7 +254,7 @@ Variables (C : precategory) (hsC : has_homsets C) (TC : Terminal C) (CC : BinCop
 
 Local Notation "'Ptd'" := (precategory_Ptd C hsC).
 
-Let opt := option_functor C CC TC.
+Let opt := option_functor CC TC.
 
 Definition δ_option_mor (Ze : Ptd) (c : C) :  C ⟦ BinCoproductObject C (CC TC (pr1 Ze c)),
                                                   pr1 Ze (BinCoproductObject C (CC TC c)) ⟧.
