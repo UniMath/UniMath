@@ -83,7 +83,7 @@ End power_precategory.
 
 Section functors.
 
-Definition pair_functor_data (I : UU) {A B : I -> precategory}
+Definition family_functor_data (I : UU) {A B : I -> precategory}
   (F : Π (i : I), functor (A i) (B i)) :
   functor_data (product_precategory I A)
                (product_precategory I B).
@@ -93,12 +93,12 @@ mkpair.
 - intros a b f i; apply (# (F i) (f i)).
 Defined.
 
-Definition pair_functor (I : UU) {A B : I -> precategory}
+Definition family_functor (I : UU) {A B : I -> precategory}
   (F : Π (i : I), functor (A i) (B i)) :
   functor (product_precategory I A)
           (product_precategory I B).
 Proof.
-apply (tpair _ (pair_functor_data I F)).
+apply (tpair _ (family_functor_data I F)).
 abstract
   (split; [ intro x; apply funextsec; intro i; simpl; apply functor_id
           | intros x y z f g; apply funextsec; intro i; apply functor_comp]).

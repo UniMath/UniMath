@@ -342,7 +342,7 @@ End nat_trans_fix_snd_arg.
 (* Define pairs of functors and functors from pr1 and pr2 *)
 Section functors.
 
-Definition binproduct_pair_functor_data {A B C D : precategory}
+Definition pair_functor_data {A B C D : precategory}
   (F : functor A C) (G : functor B D) :
   functor_data (precategory_binproduct A B) (precategory_binproduct C D).
 Proof.
@@ -351,11 +351,11 @@ mkpair.
 - intros x y f; simpl; apply (precatbinprodmor (# F (pr1 f)) (# G (pr2 f))).
 Defined.
 
-Definition binproduct_pair_functor {A B C D : precategory}
+Definition pair_functor {A B C D : precategory}
   (F : functor A C) (G : functor B D) :
   functor (precategory_binproduct A B) (precategory_binproduct C D).
 Proof.
-apply (tpair _ (binproduct_pair_functor_data F G)).
+apply (tpair _ (pair_functor_data F G)).
 abstract (split;
   [ intro x; simpl; rewrite !functor_id; apply idpath
   | intros x y z f g; simpl; rewrite !functor_comp; apply idpath]).
