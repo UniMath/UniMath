@@ -261,7 +261,7 @@ Lemma associator_naturality {C : prebicategory} { a b c d : C }
 Proof.
   pathvia ((functor_on_morphisms
             (functor_composite
-              (binproduct_pair_functor (functor_identity _) (compose_functor b c d))
+              (pair_functor (functor_identity _) (compose_functor b c d))
               (compose_functor a b d))
            (precatbinprodmor alpha (precatbinprodmor beta gamma)))
            ;v; associator f' g' h'
@@ -273,7 +273,7 @@ Proof.
             (functor_composite
               (precategory_binproduct_assoc _ _ _)
               (functor_composite
-                (binproduct_pair_functor (compose_functor a b c) (functor_identity _))
+                (pair_functor (compose_functor a b c) (functor_identity _))
                 (compose_functor a c d)))
             (precatbinprodmor alpha (precatbinprodmor beta gamma)))).
     apply (nat_trans_ax (associator_trans a b c d) _ _

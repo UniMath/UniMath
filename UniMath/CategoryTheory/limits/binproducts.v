@@ -357,7 +357,7 @@ End binproduct_functor.
 Definition BinProduct_of_functors_alt {C D : precategory} (HD : BinProducts D)
   (F G : functor C D) : functor C D :=
   functor_composite (bindelta_functor C)
-     (functor_composite (binproduct_pair_functor F G) (binproduct_functor HD)).
+     (functor_composite (pair_functor F G) (binproduct_functor HD)).
 
 
 (** In the following section we show that if the morphism to components are
