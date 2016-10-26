@@ -323,12 +323,12 @@ Proof.
   apply maxNonnegativeReals_le.
   rewrite <- max_plusNonnegativeReals.
   apply maxNonnegativeReals_le.
-  eapply istrans_leNonnegativeReals, maxNonnegativeReals_le_l.
+  eapply istrans_leNonnegativeReals, maxNonnegativeReals_ge_l.
   apply plusNonnegativeReals_le_l.
-  eapply istrans_leNonnegativeReals, maxNonnegativeReals_le_r.
+  eapply istrans_leNonnegativeReals, maxNonnegativeReals_ge_r.
   apply plusNonnegativeReals_le_r.
   apply hr_to_NRposneg_zero.
-  apply maxNonnegativeReals_le_r.
+  apply maxNonnegativeReals_ge_r.
 Qed.
 Lemma hr_to_NRneg_minus :
   Π x y : hr_commrng,
@@ -962,9 +962,9 @@ Proof.
   unfold hr_abs.
   rewrite hr_to_NRpos_NR_to_hr, hr_to_NRneg_NR_to_hr.
   apply maxNonnegativeReals_le.
-  - eapply istrans_leNonnegativeReals, maxNonnegativeReals_le_l.
+  - eapply istrans_leNonnegativeReals, maxNonnegativeReals_ge_l.
     now apply minusNonnegativeReals_le.
-  - eapply istrans_leNonnegativeReals, maxNonnegativeReals_le_r.
+  - eapply istrans_leNonnegativeReals, maxNonnegativeReals_ge_r.
     now apply minusNonnegativeReals_le.
 Qed.
 
@@ -988,10 +988,10 @@ Proof.
   eapply istrans_leNonnegativeReals.
   apply NR_to_hr_abs.
   apply maxNonnegativeReals_le ; apply plusNonnegativeReals_lecompat.
-  apply maxNonnegativeReals_le_l.
-  apply maxNonnegativeReals_le_l.
-  apply maxNonnegativeReals_le_r.
-  apply maxNonnegativeReals_le_r.
+  apply maxNonnegativeReals_ge_l.
+  apply maxNonnegativeReals_ge_l.
+  apply maxNonnegativeReals_ge_r.
+  apply maxNonnegativeReals_ge_r.
 Qed.
 
 Lemma istriangle_hr_abs' :
@@ -1238,20 +1238,20 @@ Proof.
     rewrite hr_opp_minus, hr_abs_opp, rngcomm1.
     change (- - u n)%rng with (grinv hr_commrng (grinv hr_commrng (u n))).
     rewrite (grinvinv hr_commrng (u n)).
-    eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, maxNonnegativeReals_le_l.
+    eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, maxNonnegativeReals_ge_l.
     eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, hr_to_NRpos_minus.
     change (hr_to_NRpos (u n)) with (x n) ;
       change (hr_to_NRpos (u m)) with (x m).
     rewrite iscomm_plusNonnegativeReals, <- maxNonnegativeReals_minus_plus.
-    now apply maxNonnegativeReals_le_l.
+    now apply maxNonnegativeReals_ge_l.
   - apply (plusNonnegativeReals_ltcompat_r (x n)) in Hu.
     eapply istrans_le_lt_ltNonnegativeReals, Hu.
-    eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, maxNonnegativeReals_le_l.
+    eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, maxNonnegativeReals_ge_l.
     eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, hr_to_NRpos_minus.
     change (hr_to_NRpos (u n)) with (x n) ;
       change (hr_to_NRpos (u m)) with (x m).
     rewrite iscomm_plusNonnegativeReals, <- maxNonnegativeReals_minus_plus.
-    now apply maxNonnegativeReals_le_l.
+    now apply maxNonnegativeReals_ge_l.
 Qed.
 Lemma Cauchy_seq_pr2 (u : nat → hr_ConstructiveField) :
   let y := λ n : nat, hr_to_NRneg (u n) in
@@ -1275,20 +1275,20 @@ Proof.
     rewrite hr_opp_minus, hr_abs_opp, rngcomm1.
     change (- - u n)%rng with (grinv hr_commrng (grinv hr_commrng (u n))).
     rewrite (grinvinv hr_commrng (u n)).
-    eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, maxNonnegativeReals_le_r.
+    eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, maxNonnegativeReals_ge_r.
     eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, hr_to_NRneg_minus.
     change (hr_to_NRneg (u n)) with (y n) ;
       change (hr_to_NRneg (u m)) with (y m).
     rewrite iscomm_plusNonnegativeReals, <- maxNonnegativeReals_minus_plus.
-    now apply maxNonnegativeReals_le_l.
+    now apply maxNonnegativeReals_ge_l.
   - apply (plusNonnegativeReals_ltcompat_r (y n)) in Hu.
     eapply istrans_le_lt_ltNonnegativeReals, Hu.
-    eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, maxNonnegativeReals_le_r.
+    eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, maxNonnegativeReals_ge_r.
     eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, hr_to_NRneg_minus.
     change (hr_to_NRneg (u n)) with (y n) ;
       change (hr_to_NRneg (u m)) with (y m).
     rewrite iscomm_plusNonnegativeReals, <- maxNonnegativeReals_minus_plus.
-    now apply maxNonnegativeReals_le_l.
+    now apply maxNonnegativeReals_ge_l.
 Qed.
 
 Definition is_lim_seq (u : nat → hr_ConstructiveField) (l : hr_ConstructiveField) : hProp.
@@ -1551,7 +1551,7 @@ Proof.
   intros x.
   rewrite <- (NRNRtoR_RtoNRNR x).
   generalize (pr1 (RtoNRNR x)) (pr2 (RtoNRNR x)) ; clear x ; intros x y ; simpl.
-  apply maxNonnegativeReals_le_l.
+  apply maxNonnegativeReals_ge_l.
 Qed.
 Lemma Rabs_pr2RtoNRNR :
   Π x : Reals,
@@ -1560,7 +1560,7 @@ Proof.
   intros x.
   rewrite <- (NRNRtoR_RtoNRNR x).
   generalize (pr1 (RtoNRNR x)) (pr2 (RtoNRNR x)) ; clear x ; intros x y ; simpl.
-  apply maxNonnegativeReals_le_r.
+  apply maxNonnegativeReals_ge_r.
 Qed.
 
 (** ** Theorems about apartness and order *)

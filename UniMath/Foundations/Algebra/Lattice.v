@@ -343,25 +343,6 @@ Proof.
   rewrite is4, isassoc_Lmin, Lmin_id.
   reflexivity.
 Qed.
-
-Lemma tminus_Lmax_l :
-  Π k x y : X, tminus ex (Lmax is x y) k = Lmax is (tminus ex x k) (tminus ex y k).
-Proof.
-  intros k x y.
-  apply (is1 k).
-  rewrite is2, !istminus_ex.
-  rewrite !isassoc_Lmax, (iscomm_Lmax _ k), isassoc_Lmax, Lmax_id.
-  reflexivity.
-Qed.
-Lemma tminus_Lmin_l :
-  Π k x y : X, tminus ex (Lmin is x y) k = Lmin is (tminus ex x k) (tminus ex y k).
-Proof.
-  intros k x y.
-  apply (is1 k).
-  rewrite is3, !istminus_ex.
-  apply is4.
-Qed.
-
 Lemma tminus_le_l :
   Π k x y : X, Lle is y x → Lle is (tminus ex k x) (tminus ex k y).
 Proof.
@@ -372,6 +353,68 @@ Proof.
   rewrite is3, assocax, (commax _ y), <- assocax, istminus_ex.
   rewrite !is2, (commax _ y), <- is4, !(commax _ k), <- is3, H.
   reflexivity.
+Qed.
+
+Lemma tminus_Lmax_l :
+  Π (k x y : X),
+  tminus ex (Lmax is x y) k = Lmax is (tminus ex x k) (tminus ex y k).
+Proof.
+  intros k x y.
+  apply (is1 k).
+  rewrite is2, !istminus_ex.
+  rewrite !isassoc_Lmax, (iscomm_Lmax _ k), isassoc_Lmax, Lmax_id.
+  reflexivity.
+Qed.
+Lemma tminus_Lmax_r :
+  Π (k x y : X),
+  Lle is (Lmin is (y + y) (x + x)) (x + y) →
+  tminus ex k (Lmax is x y) = Lmin is (tminus ex k x) (tminus ex k y).
+Proof.
+  intros k x y H.
+  apply (is1 (Lmax is x y)).
+  rewrite is3, istminus_ex.
+  rewrite !(commax _ _ (Lmax _ _ _)), !is2.
+  rewrite !(commax _ _ (tminus _ _ _)), !istminus_ex.
+  rewrite (iscomm_Lmax _ (_*_)%multmonoid (Lmax _ _ _)).
+  rewrite !isassoc_Lmax, !(iscomm_Lmax _ k).
+  rewrite <- is4.
+
+  apply (is1 x).
+  rewrite !is2, is3, !is2.
+  rewrite assocax, (commax _ y x), <- assocax.
+  rewrite istminus_ex, is2.
+
+  apply (is1 y).
+  rewrite !is2, is3, !is2.
+  rewrite !assocax, (commax _ (tminus _ _ _)), !assocax, (commax _ _ (tminus _ _ _)).
+  rewrite istminus_ex.
+  rewrite (commax _ _ (Lmax _ _ _)), is2.
+  rewrite (commax _ _ (Lmax _ _ _)), is2.
+
+  rewrite 4!(commax _ _ x).
+  rewrite <- (isassoc_Lmax _ _ _ (x * (y * y))%multmonoid).
+  rewrite (iscomm_Lmax _ (x * (y * y))%multmonoid (Lmax _ _ _)).
+
+  rewrite <- is4.
+  rewrite (iscomm_Lmax _ (x * (x * y))%multmonoid (k * (y * y))%multmonoid), <- is4.
+  rewrite !(commax _ k), <- !assocax.
+  rewrite <- is3.
+  rewrite !(iscomm_Lmax _ _ (x * y * k)%multmonoid), <- !isassoc_Lmax.
+  rewrite (Lmax_eq_l _ (x * y * k)%multmonoid
+                     (Lmin is (y * y) (x * x) * k)%multmonoid).
+  reflexivity.
+  apply op_le_r.
+  exact is3.
+  exact H.
+Qed.
+
+Lemma tminus_Lmin_l :
+  Π k x y : X, tminus ex (Lmin is x y) k = Lmin is (tminus ex x k) (tminus ex y k).
+Proof.
+  intros k x y.
+  apply (is1 k).
+  rewrite is3, !istminus_ex.
+  apply is4.
 Qed.
 
 End tminus_pty.
