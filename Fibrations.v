@@ -347,6 +347,34 @@ Proof.
   apply (pair_inj (isaset_fiber_discrete_fibration _ _ ) foo).
 Defined.
 
+Definition fibration_from_discrete_fibration C (D : discrete_fibration C)
+  : is_fibration D.
+Proof.
+  intros c c' f d.
+  mkpair.
+  - exact (pr1 (iscontrpr1 (unique_lift f d))).
+  - mkpair.
+    + exact (pr2 (iscontrpr1 (unique_lift f d))).
+    + intros c'' g db hh.
+      set (ff := pr2 (iscontrpr1 (unique_lift f d))  ). cbn in ff.
+      set (d' := pr1 (iscontrpr1 (unique_lift f d))) in *.
+      set (ggff := pr2 (iscontrpr1 (unique_lift (g;;f) d))  ). cbn in ggff.
+      set (d'' := pr1 (iscontrpr1 (unique_lift (g;;f) d))) in *.
+(*
+      use unique_exists.
+      * set (XR := unique_lift g d'). 
+        set (XR1 := pr1 (iscontrpr1 XR)).
+        assert (HH : d'' = XR1).
+        { apply eq_exists_unique. apply (pr2
+        
+        (pr1 (iscontrpr1 (unique_lift f d)))).
+        
+      Focus 3. intros. simpl. apply homset_property.
+      Focus 2. cbn.
+*)
+Abort.
+
+
 Section Equivalence_disc_fibs_presheaves.
 
 (* GOAL: correspondence between discrete fibrations and presheaves.
