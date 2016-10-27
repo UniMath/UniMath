@@ -292,6 +292,7 @@ Defined.
 End Fibrations.
 
 (** a proof principle for use with discrete fibrations *)
+(** TODO: upstream *)
 Lemma eq_exists_unique (A : UU) (B : A → UU) (H : iscontr (Σ a : A, B a)) 
   : Π a, B a → a = pr1 (iscontrpr1 H).
 Proof.
@@ -307,16 +308,44 @@ Section Discrete_Fibrations.
 
 Definition is_discrete_fibration {C : Precategory} (D : disp_precat C) : UU
 := 
-  forall (c c' : C) (f : c' --> c) (d : D c),
-          ∃! d' : D c', d' -->[f] d.
+  (forall (c c' : C) (f : c' --> c) (d : D c),
+          ∃! d' : D c', d' -->[f] d)
+  ×
+  (forall c, isaset (D c)).
 
 Definition discrete_fibration C : UU
   := Σ D : disp_precat C, is_discrete_fibration D.
 
 Coercion disp_precat_from_discrete_fibration C (D : discrete_fibration C)
   : disp_precat C := pr1 D.
-Coercion is_disc_fib_from_discrete_fibration C (D : discrete_fibration C)
-         c c' (f : c' --> c) (d : D c) : ∃! d' : D c', d' -->[f] d := pr2 D c c' f d.
+Definition unique_lift {C} {D : discrete_fibration C} {c c'} 
+           (f : c' --> c) (d : D c) 
+  : ∃! d' : D c', d' -->[f] d 
+  := pr1 (pr2 D) c c' f d.
+Definition isaset_fiber_discrete_fibration {C} (D : discrete_fibration C)
+           (c : C) : isaset (D c) := pr2 (pr2 D) c.
+
+(** TODO: move upstream *)
+Lemma pair_inj {A : UU} {B : A -> UU} (is : isaset A) {a : A}
+   {b b' : B a} : (a,,b) = (a,,b') -> b = b'.
+Proof.
+  intro H.
+  use (invmaponpathsincl _ _ _ _ H).
+  apply isofhlevelffib. intro. apply is.
+Defined.
+
+Lemma disp_mor_unique_disc_fib C (D : discrete_fibration C) 
+  : Π (c c' : C) (f : c --> c') (d : D c) (d' : D c')
+      (ff ff' : d -->[f] d'), ff = ff'.
+Proof.
+  intros.
+  assert (XR := unique_lift f d').
+  assert (foo : ((d,,ff) : Σ d0, d0 -->[f] d') = (d,,ff')).
+  { apply proofirrelevance. 
+    apply isapropifcontr. apply XR.
+  } 
+  apply (pair_inj (isaset_fiber_discrete_fibration _ _ ) foo).
+Defined.
 
 Section Equivalence_disc_fibs_presheaves.
 
@@ -336,13 +365,11 @@ More direct equivalence of types:
 
  *)
 
-Variable C : Precategory.
 
-Lemma isaset_fiber_discrete_fibration (D : discrete_fibration C)
-  : Π c, isaset (fiber_precategory D c).
-Proof.
-  admit.
-Admitted.
+(** TODO: the whole section needs cleaning *)
+
+
+Variable C : Precategory.
 
 Definition precat_of_discrete_fibs_ob_mor : precategory_ob_mor.
 Proof.
@@ -388,7 +415,7 @@ Proof.
   apply (isofhleveltotal2 2).
   - apply (isofhleveltotal2 2).
     + do 2 (apply impred; intro).
-      apply isaset_fiber_discrete_fibration. (* this lemma is admitted so far *)
+      apply isaset_fiber_discrete_fibration. 
     + intro. do 6 (apply impred; intro).
       apply homsets_disp.
   - intro. apply isasetaprop. apply isaprop_functor_over_axioms.
@@ -408,7 +435,7 @@ Proof.
   - mkpair.
     + intro c. exists (D c). apply  isaset_fiber_discrete_fibration.
     + intros c' c f x. cbn in *.
-      exact (pr1 (iscontrpr1 (pr2 D _ _ f x))).
+      exact (pr1 (iscontrpr1 (unique_lift f x))).
   - split.
     + intro c; cbn.
       apply funextsec; intro x. simpl.
@@ -419,8 +446,8 @@ Proof.
       apply pathsinv0. 
       apply eq_exists_unique.
       eapply comp_disp.
-      * apply (pr2 (iscontrpr1 (pr2 D _ _ g _))). (* TODO: deserves an access function *)
-      * apply (pr2 (iscontrpr1 (pr2 D _ _ f _ ))).
+      * apply (pr2 (iscontrpr1 (unique_lift g _))). 
+      * apply (pr2 (iscontrpr1 (unique_lift f _ ))).
 Defined.
 
 (** *** Functor on morphisms *)
@@ -436,7 +463,7 @@ Proof.
     apply funextsec. intro d.
     apply eq_exists_unique.
     apply #a.
-    apply (pr2 (iscontrpr1 (pr2 D _ _ f _ ))).
+    apply (pr2 (iscontrpr1 (unique_lift f _ ))).
 Defined.
 
 (** *** Functor properties *)
@@ -453,7 +480,145 @@ Qed.
 Definition functor_Disc_Fibs_to_preShvs : functor _ _ 
   := ( _ ,, bar).
 
+(** ** Functor from presheaves to discrete fibrations *)
 
+(** *** Functor on objects *)
+
+(* TODO: split into data and properties *)
+Definition disp_precat_from_preshv (D : preShv C) : disp_precat C.
+Proof.
+  mkpair.
+  + mkpair.
+    * exists (fun c => pr1hSet (pr1 D c)).
+      intros x y c d f. exact (functor_on_morphisms (pr1 D) f d = c).
+    * (* we even opacify identity and composition, since they are propositional *)
+      abstract ( 
+          split;
+        [
+          intros; cbn in *; apply (toforallpaths _ _ _ (functor_id D x ) _ ) |]
+        ;
+          intros ? ? ? ? ? ? ? ? X X0; cbn in *; 
+          etrans; [apply (toforallpaths _ _ _ (functor_comp D _ _ _  g f ) _ ) |];
+          cbn; etrans; [ apply maponpaths; apply X0 |]; (* here maponpaths depends on cbn *)
+          apply X
+       ) 
+         .
+  +  abstract ( 
+    cbn; repeat split; cbn; intros; try apply setproperty;
+         apply isasetaprop; apply setproperty 
+     ) 
+        .
+Defined.
+
+Definition disc_fib_from_preshv (D : preShv C) : discrete_fibration C.
+Proof.
+  mkpair.
+  - apply (disp_precat_from_preshv D).
+  - cbn.
+    split.
+    + intros c c' f d. simpl.
+      use unique_exists.
+      * apply (functor_on_morphisms (pr1 D) f d).
+      * apply idpath.
+      * intro. apply setproperty. 
+      * intros. apply pathsinv0. assumption.
+    + intro. simpl. apply setproperty.
+Defined.
+
+(** *** Functor on morphisms *)
+
+Definition foo' : functor_data (preShv C) Precat_of_discrete_fibs.
+Proof.
+  mkpair.
+  - apply disc_fib_from_preshv. 
+  - intros F G a.
+    mkpair.
+    + mkpair.
+      * intros c. apply (pr1 a c). 
+      *  abstract ( 
+            intros x y X Y f H;
+            assert (XR := nat_trans_ax a);
+            apply pathsinv0; etrans; [|apply (toforallpaths _ _ _ (XR _ _ f))];
+            cbn; apply maponpaths, (!H)
+          ) 
+          .
+    +  abstract (      
+          repeat split; intros; apply setproperty
+         ) 
+        .
+Defined.
+    
+(** *** Functor properties *)
+
+Definition bar' : is_functor foo'.    
+Proof.
+  split.
+  - intro F. 
+    apply subtypeEquality. { intro. apply isaprop_functor_over_axioms. }
+    cbn. 
+    apply subtypeEquality. { intro. do 6 (apply impred; intro). 
+                             apply setproperty. }
+    cbn. apply idpath.
+  - intros F G H a b.
+    apply subtypeEquality. { intro. apply isaprop_functor_over_axioms. }
+    cbn. 
+    apply subtypeEquality. { intro. do 6 (apply impred; intro). 
+                             apply setproperty. }
+    cbn. apply idpath.
+Qed.
+
+
+Definition functor_preShvs_to_Disc_Fibs : functor _ _ 
+  := ( _ ,, bar').
+
+Definition cr : nat_trans (functor_composite functor_preShvs_to_Disc_Fibs
+                                             functor_Disc_Fibs_to_preShvs) 
+                          (functor_identity _ ).
+Proof.
+  mkpair.
+  - intro F.
+    cbn. mkpair.
+    + cbn. intro c; apply idfun.
+    + intros c c' f. cbn in *. apply idpath.
+  - intros F G a. cbn in *.
+    apply nat_trans_eq. { apply has_homsets_HSET. }
+    cbn. intro c. apply idpath.
+Defined.
+
+Definition rc : nat_trans (functor_composite functor_Disc_Fibs_to_preShvs
+                                             functor_preShvs_to_Disc_Fibs) 
+                          (functor_identity _ ).
+Proof.
+  mkpair.
+  - intro D.
+    cbn. 
+    mkpair.
+    + mkpair.
+      * cbn. intro c; apply idfun.
+      * intros c c' x y f H. cbn. 
+        unfold idfun.
+        set (XR := pr2 (iscontrpr1 (unique_lift f y))). cbn in XR.
+        apply (transportf (fun t => t -->[f] y) H XR).
+    + split; cbn; unfold idfun.
+      * intros x y.
+        apply  disp_mor_unique_disc_fib.
+      * intros x y z xx yy zz f g ff gg.
+        apply disp_mor_unique_disc_fib.
+  - intros c c' f. cbn in *.
+    apply subtypeEquality. { intro. apply isaprop_functor_over_axioms. }
+    cbn.
+    use total2_paths.
+    + cbn. apply idpath.
+    + cbn. 
+      do 6 (apply funextsec; intro). 
+      apply disp_mor_unique_disc_fib.     
+Defined.
+
+(** TODO:
+    Both natural transformations are pointwise given by 
+    the identity function. It is hence easy to show
+    that they are isos, if a bit annoying to write down.
+*)
 
 End Equivalence_disc_fibs_presheaves.
 
