@@ -121,12 +121,12 @@ Local Notation "alpha ;hi; beta" := (compose_2mor_iso_horizontal alpha beta) (at
 Definition associator_trans_type { C : prebicategory_id_comp } (a b c d : C) :=
   nat_trans
     (functor_composite
-      (binproduct_pair_functor (functor_identity _) (compose_functor b c d))
+      (pair_functor (functor_identity _) (compose_functor b c d))
       (compose_functor a b d))
     (functor_composite
       (precategory_binproduct_assoc _ _ _)
       (functor_composite
-        (binproduct_pair_functor (compose_functor a b c) (functor_identity _))
+        (pair_functor (compose_functor a b c) (functor_identity _))
         (compose_functor a c d))).
 
 Definition left_unitor_trans_type { C : prebicategory_id_comp } (a b : C) :=

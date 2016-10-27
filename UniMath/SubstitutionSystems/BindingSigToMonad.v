@@ -98,7 +98,7 @@ Context (BCC : BinCoproducts C) (BPC : BinProducts C)
         (IC : Initial C) (TC : Terminal C)
         (LC : Lims C) (CLC : Colims C).
 
-Let optionC := (option_functor C BCC TC).
+Let optionC := (option_functor BCC TC).
 
 (** Form "_ o option^n" and return Id if n = 0 *)
 Definition precomp_option_iter (n : nat) : functor C2 C2.

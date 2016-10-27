@@ -82,7 +82,7 @@ Local Notation "F + G" :=
 
 Local Notation "'_' 'o' 'option'" :=
   (omega_cocont_pre_composition_functor
-      (option_functor HSET BinCoproductsHSET TerminalHSET)
+      (option_functor BinCoproductsHSET TerminalHSET)
       has_homsets_HSET has_homsets_HSET LimsHSET) (at level 10).
 
 (** The lambda calculus functor with one component for variables, one for application and one for
@@ -129,7 +129,7 @@ apply app_map.
 Defined.
 
 Let precomp_option X := (pre_composition_functor _ _ HSET has_homsets_HSET has_homsets_HSET
-                  (option_functor HSET BinCoproductsHSET TerminalHSET) X).
+                          (option_functor BinCoproductsHSET TerminalHSET) X).
 
 Definition lam_map : HSET2⟦precomp_option LambdaCalculus,LambdaCalculus⟧ :=
   BinCoproductIn2 HSET2 (BinCoproductsHSET2 _ _) ;; BinCoproductIn2 HSET2 (BinCoproductsHSET2 _ _) ;; LambdaCalculus_mor.
