@@ -153,6 +153,26 @@ Proof.
       exact Hx.
 Qed.
 
+Lemma hqgth_opp :
+  Π x y : hq, x > y → - y > - x.
+Proof.
+  intros x y Hxy.
+  apply hqgthandpluslinv with y.
+  change (y - y > y + - x).
+  rewrite hqrminus.
+  apply hqgthandplusrinv with x.
+  rewrite hqplusassoc, hqlminus, hqplusl0, hqplusr0.
+  exact Hxy.
+Qed.
+Lemma hqgth_opp' :
+  Π x y : hq, - x > - y → y > x.
+Proof.
+  intros x y Hxy.
+  apply hqgth_opp in Hxy.
+  rewrite !(grinvinv hq) in Hxy.
+  exact Hxy.
+Qed.
+
 Lemma hztohqandleh':
   Π n m : hz, (hztohq n <= hztohq m)%hq → hzleh n m.
 Proof.
@@ -172,6 +192,187 @@ Proof.
   apply Hle.
   exact Hlt.
 Qed.
+
+(** ** nat is a lattice *)
+
+Lemma min_id :
+  Π n : nat, min n n = n.
+Proof.
+  intros n.
+  induction n as [ | n IHn].
+  - reflexivity.
+  - change (S (min n n) = S n).
+    apply maponpaths, IHn.
+Qed.
+Lemma max_id :
+  Π n : nat, max n n = n.
+Proof.
+  intros n.
+  induction n as [ | n IHn].
+  - reflexivity.
+  - change (S (max n n) = S n).
+    apply maponpaths, IHn.
+Qed.
+
+Lemma isassoc_min :
+  isassoc (X := hSetpair nat isasetnat) min.
+Proof.
+  intros n.
+  induction n as [ | n IHn].
+  - intros m k.
+    reflexivity.
+  - intros m.
+    induction m as [ | m _].
+    + intros k.
+      reflexivity.
+    + intros k.
+      induction k as [ | k _].
+      * reflexivity.
+      * change (S (min (min n m) k) = S (min n (min m k))).
+        apply maponpaths, IHn.
+Qed.
+Lemma iscomm_min :
+  iscomm (X := hSetpair nat isasetnat) min.
+Proof.
+  intros n.
+  induction n as [ | n IHn].
+  - intros m.
+    induction m as [ | m _].
+    + reflexivity.
+    + reflexivity.
+  - intros m.
+    induction m as [ | m _].
+    + reflexivity.
+    + change (S (min n m) = S (min m n)).
+      apply maponpaths, IHn.
+Qed.
+
+Lemma isassoc_max :
+  isassoc (X := hSetpair nat isasetnat) max.
+Proof.
+  intros n.
+  induction n as [ | n IHn].
+  - intros m k.
+    reflexivity.
+  - intros m.
+    induction m as [ | m _].
+    + intros k.
+      reflexivity.
+    + intros k.
+      induction k as [ | k _].
+      * reflexivity.
+      * change (S (max (max n m) k) = S (max n (max m k))).
+        apply maponpaths, IHn.
+Qed.
+Lemma iscomm_max :
+  iscomm (X := hSetpair nat isasetnat) max.
+Proof.
+  intros n.
+  induction n as [ | n IHn].
+  - intros m.
+    induction m as [ | m _].
+    + reflexivity.
+    + reflexivity.
+  - intros m.
+    induction m as [ | m _].
+    + reflexivity.
+    + change (S (max n m) = S (max m n)).
+      apply maponpaths, IHn.
+Qed.
+Lemma isabsorb_min_max :
+  Π n m : nat, min n (max n m) = n.
+Proof.
+  intros n.
+  induction n as [ | n IHn].
+  - intros m.
+    reflexivity.
+  - intros m.
+    induction m as [ | m _].
+    + change (S (min n n) = S n).
+      apply maponpaths, min_id.
+    + change (S (min n (max n m)) = S n).
+      apply maponpaths, IHn.
+Qed.
+Lemma isabsorb_max_min :
+  Π n m : nat, max n (min n m) = n.
+Proof.
+  intros n.
+  induction n as [ | n IHn].
+  - intros m.
+    reflexivity.
+  - intros m.
+    induction m as [ | m _].
+    + reflexivity.
+    + change (S (max n (min n m)) = S n).
+      apply maponpaths, IHn.
+Qed.
+
+Lemma islatticeop_nat : islatticeop (X := hSetpair nat isasetnat) min max.
+Proof.
+  repeat split.
+  - exact isassoc_min.
+  - exact iscomm_min.
+  - exact isassoc_max.
+  - exact iscomm_max.
+  - exact isabsorb_min_max.
+  - exact isabsorb_max_min.
+Qed.
+
+Definition islattice_nat : islattice (hSetpair nat isasetnat) :=
+  min ,, max ,, islatticeop_nat.
+
+Lemma Llenat_correct :
+  Π n m, n ≤ m <-> Lle islattice_nat n m.
+Proof.
+  intros n m.
+  split.
+  - revert m.
+    induction n as [ | n IHn].
+    + intros m H.
+      reflexivity.
+    + intros m.
+      induction m as [ | m _].
+      * change (false = true → O = S n).
+        intros H.
+        apply fromempty, nopathsfalsetotrue, H.
+      * change (n ≤ m → S (min n m) = S n).
+        intros H.
+        apply maponpaths, IHn, H.
+  - revert m.
+    induction n as [ | n IHn].
+    + intros m H.
+      reflexivity.
+    + intros m.
+      induction m as [ | m _].
+      * change (O = S n → false = true).
+        intros H.
+        apply fromempty, (negpaths0sx n), H.
+      * change (S (min n m) = S n → n ≤ m).
+        intros H.
+        apply IHn.
+        apply invmaponpathsS, H.
+Qed.
+
+(** ** hz is a lattice *)
+
+Definition hzmin : binop hz.
+Proof.
+  intros x y.
+  generalize (hzgthorleh x y) ;
+    apply sumofmaps ;
+    intros H.
+  apply y.
+  apply x.
+Defined.
+Definition hzmax : binop hz.
+Proof.
+  intros x y.
+  generalize (hzgthorleh x y) ;
+    apply sumofmaps ;
+    intros H.
+  apply x.
+  apply y.
+Defined.
 
 (** ** hq is a lattice *)
 
@@ -193,26 +394,6 @@ Proof.
   apply x.
   apply y.
 Defined.
-
-Lemma hqgth_opp :
-  Π x y : hq, x > y → - y > - x.
-Proof.
-  intros x y Hxy.
-  apply hqgthandpluslinv with y.
-  change (y - y > y + - x).
-  rewrite hqrminus.
-  apply hqgthandplusrinv with x.
-  rewrite hqplusassoc, hqlminus, hqplusl0, hqplusr0.
-  exact Hxy.
-Qed.
-Lemma hqgth_opp' :
-  Π x y : hq, - x > - y → y > x.
-Proof.
-  intros x y Hxy.
-  apply hqgth_opp in Hxy.
-  rewrite !(grinvinv hq) in Hxy.
-  exact Hxy.
-Qed.
 
 Lemma hqmaxopp_opphqmin :
   Π x y : hq, hqmax (- x) (- y) = - hqmin x y.
@@ -365,6 +546,21 @@ Qed.
 Definition islattice_hq : islattice hq :=
   hqmin ,, hqmax ,, islatticeop_hq.
 
+Lemma Lmin_hqmin :
+  Lmin islattice_hq = hqmin.
+Proof.
+  unfold Lmin, islattice_hq.
+  simpl.
+  reflexivity.
+Qed.
+Lemma Lmax_hqmax :
+  Lmax islattice_hq = hqmax.
+Proof.
+  unfold Lmax, islattice_hq.
+  simpl.
+  reflexivity.
+Qed.
+
 Lemma Lle_hqleh :
   Π x y : hq, x <= y <-> Lle islattice_hq x y.
 Proof.
@@ -387,19 +583,124 @@ Proof.
     + exact Hxy.
 Qed.
 
+Lemma hqmax_case_strong :
+  Π (P : hq → UU) (x y : hq),
+  (y <= x → P x) → (x <= y → P y)
+  → P (hqmax x y).
+Proof.
+  intros P x y Hx Hy.
+  unfold hqmax.
+  induction (hqgthorleh x y) as [ H | H ].
+  - apply Hx, hqlthtoleh, H.
+  - apply Hy, H.
+Qed.
+Lemma hqmax_case :
+  Π (P : hq → UU) (x y : hq),
+  P x → P y → P (hqmax x y).
+Proof.
+  intros P x y Hx Hy.
+  apply hqmax_case_strong ; intros _.
+  - exact Hx.
+  - exact Hy.
+Qed.
+
+Lemma hqmax_ge_l :
+  Π (x y : hq), x <= hqmax x y.
+Proof.
+  intros x y.
+  apply_pr2 Lle_hqleh.
+  rewrite <- Lmax_hqmax.
+  apply (Lmax_ge_l islattice_hq).
+Qed.
+Lemma hqmax_ge_r :
+  Π (x y : hq), y <= hqmax x y.
+Proof.
+  intros x y.
+  apply_pr2 Lle_hqleh.
+  rewrite <- Lmax_hqmax.
+  apply (Lmax_ge_r islattice_hq).
+Qed.
+Lemma hqmax_eq_l :
+  Π (x y : hq), y <= x → hqmax x y = x.
+Proof.
+  intros x y H.
+  rewrite <- Lmax_hqmax.
+  apply (Lmax_eq_l islattice_hq).
+  apply Lle_hqleh.
+  exact H.
+Qed.
+Lemma hqmax_eq_r :
+  Π (x y : hq), x <= y → hqmax x y = y.
+Proof.
+  intros x y H.
+  rewrite <- Lmax_hqmax.
+  apply (Lmax_eq_r islattice_hq).
+  apply Lle_hqleh.
+  exact H.
+Qed.
+Lemma hqmax_lth_l :
+  Π x y : hq, x < y <-> x < hqmax x y.
+Proof.
+  intros x y.
+  apply hqmax_case_strong.
+  - intros H ; split ; intros H0.
+    + apply fromempty.
+      refine (hqgehtoneghqlth _ _ _ _).
+      exact H.
+      exact H0.
+    + apply fromempty.
+      refine (isirreflhqlth _ _).
+      exact H0.
+  - split ; intros H0 ; exact H0.
+Qed.
+
 Lemma isrdistr_hqmax_hqplus :
   isrdistr hqmax hqplus.
 Proof.
   intros x y k.
-  unfold hqmax.
-  induction (hqgthorleh x y) as [H | H] ;
-    induction (hqgthorleh (x + k) (y + k)) as [H0 | H0].
+  apply hqmax_case_strong ; intros H ;
+  apply hqmax_case_strong ; intros H0.
   - reflexivity.
-  - apply fromempty, H0.
-    apply hqgthandplusr, H.
-  - apply fromempty, H.
-    apply (hqgthandplusrinv _ _ k), H0.
+  - apply isantisymmhqleh.
+    exact H0.
+    apply hqlehandplusr, H.
+  - apply isantisymmhqleh.
+    exact H0.
+    apply hqlehandplusr, H.
   - reflexivity.
+Qed.
+
+Definition hqtminus : binop hq :=
+  λ x y : hq, hqmax 0 (x - y).
+Lemma istminus_hq :
+  istminus (X := rngaddabgr hq) islattice_hq hqtminus.
+Proof.
+  unfold hqtminus.
+  rewrite <- Lmax_hqmax.
+  apply (abgr_tminus (X := rngaddabgr hq) islattice_hq).
+  exact isrdistr_hqmax_hqplus.
+Qed.
+
+Definition extminus_hq : extminus (X := rngaddabgr hq) islattice_hq :=
+  hqtminus,, istminus_hq.
+
+Lemma hqtminus_pos :
+  Π x y : hq, x < y <-> 0 < hqtminus y x.
+Proof.
+  unfold hqtminus.
+  intros x y ; split.
+  - intros H.
+    apply hqmax_lth_l.
+    unfold hqminus.
+    apply hqlthandplusrinv with x.
+    rewrite hqplusassoc, hqlminus, hqplusl0, hqplusr0.
+    exact H.
+  - intros H.
+    apply_pr2_in hqmax_lth_l H.
+    apply hqlthandplusrinv with (- x).
+    change (x - x < y - x).
+    rewrite hqrminus.
+    exact H.
 Qed.
 
 (** ** hq is archimedean *)

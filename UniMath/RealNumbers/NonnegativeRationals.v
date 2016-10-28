@@ -110,7 +110,7 @@ Qed.
 
 Local Lemma isEffectiveOrder_hnnq : isEffectiveOrder hnnq_le hnnq_lt.
 Proof.
-  split ; [ split | repeat split ].
+  split ; split ; [ | | split | split ].
   - exact ispreorder_hnnq_le.
   - exact isStrongOrder_hnnq_lt.
   - easy.
@@ -942,33 +942,8 @@ Proof.
   intros x y.
   unfold minusNonnegativeRationals, hnnq_minus, hq_to_hnnq_set.
   generalize (hq_to_hnnq_set_subproof (pr1 y - pr1 x)%hq).
-  unfold hqmax.
-  induction (hqgthorleh 0%hq (pr1 y - pr1 x)%hq) as [H | H].
-  - change (sumofmaps (λ _ : (0 > pr1 y - pr1 x), 0)
-                      (λ _ : 0 <= pr1 y - pr1 x, pr1 y - pr1 x)
-                      (ii1 H))%hq with 0%hq.
-    intros Hxy.
-    split ; intros Hlt.
-    + apply fromempty.
-      revert H.
-      change (0 <= pr1 y - pr1 x)%hq.
-      apply hq0leminus, hqlthtoleh.
-      exact Hlt.
-    + apply fromempty, Hxy.
-      exact Hlt.
-  - change (sumofmaps (λ _ : 0 > pr1 y - pr1 x, 0)
-                      (λ _ : 0 <= pr1 y - pr1 x, pr1 y - pr1 x)
-                      (ii2 H))%hq with (pr1 y - pr1 x)%hq.
-    clear H ; intros H.
-    split ; intros Hlt.
-    + apply (hqlthandplusrinv _ _ (pr1 x)).
-      change (0 + pr1 x < pr1 y + - pr1 x + pr1 x)%hq.
-      rewrite hqplusassoc, hqlminus, hqplusl0, hqplusr0.
-      exact Hlt.
-    + apply (hqlthandplusrinv _ _ (- pr1 x)).
-      change (pr1 x - pr1 x < pr1 y - pr1 x)%hq.
-      rewrite hqrminus.
-      exact Hlt.
+  intros H.
+  apply hqtminus_pos.
 Qed.
 
 Lemma minusNonnegativeRationals_le :
@@ -1257,7 +1232,8 @@ Proof.
     exact Hx0.
     exact Hy.
     apply multNonnegativeRationals_lecompat_r.
-    now apply lt_leNonnegativeRationals.
+    apply lt_leNonnegativeRationals.
+    exact Hx.
 Qed.
 Lemma multNonnegativeRationals_le_lt:
   Π x x' y y' : NonnegativeRationals,
@@ -1571,7 +1547,7 @@ Proof.
   generalize (hqlehchoice 0%hq 2%hq (hqlthtoleh 0%hq 2%hq hq2_gt0)) ;
   apply coprod_rect ; intros H2.
   apply subtypeEquality_prop ; simpl pr1.
-  rewrite !(hqmultcomm x), <- hqldistr, hqmultcomm.
+  rewrite !(hqmultcomm x (/ 2)%hq), <- hqldistr, hqmultcomm.
   apply hqplusdiv2.
   apply fromempty ; generalize hq2_gt0.
   rewrite H2.
@@ -1604,23 +1580,18 @@ Proof.
   intros x y.
   unfold maxNonnegativeRationals, hnnq_max.
   generalize (hnnq_max_subproof x y).
-  unfold hqmax.
-  induction (hqgthorleh (pr1 x) (pr1 y)) as [H | H].
-  - change (sumofmaps (λ _ : (pr1 x > pr1 y)%hq, pr1 x) (λ _ : (pr1 x <= pr1 y)%hq, pr1 y)
-                      (ii1 H)) with (pr1 x).
-    intros Hx Hx0.
+  apply (hqmax_case_strong (λ x, Π n : ¬ (0 > x)%hq,
+                                       x ,, n = 0 → _)).
+  - intros H Hx Hx0.
     split.
     + apply subtypeEquality_prop.
       apply (maponpaths pr1 Hx0).
     + apply subtypeEquality_prop.
       apply isantisymmhqleh.
       rewrite <- (maponpaths pr1 Hx0).
-      apply hqlthtoleh.
       exact H.
       exact (pr2 y).
-  - change (sumofmaps (λ _ : (pr1 x > pr1 y)%hq, pr1 x) (λ _ : (pr1 x <= pr1 y)%hq, pr1 y)
-                      (ii2 H)) with (pr1 y).
-    intros Hy Hy0.
+  - intros H Hy Hy0.
     split.
     + apply subtypeEquality_prop.
       apply isantisymmhqleh.
@@ -1637,21 +1608,15 @@ Proof.
   intros P x y Hx Hy.
   unfold maxNonnegativeRationals, hnnq_max.
   generalize (hnnq_max_subproof x y).
-  unfold hqmax.
-  induction (hqgthorleh (pr1 x) (pr1 y)) as [H | H].
-  - change (sumofmaps (λ _ : (pr1 x > pr1 y)%hq, pr1 x)
-                      (λ _ : (pr1 x <= pr1 y)%hq, pr1 y) (ii1 H)) with (pr1 x).
-    intros n.
+  apply (hqmax_case_strong (λ x, Π n : ¬ (0 > x)%hq, P (x ,, n))).
+  - intros H n.
     assert (H0 : x = (pr1 x,, n)).
     apply subtypeEquality_prop.
     reflexivity.
     rewrite <- H0.
     apply Hx.
-    apply hqlthtoleh.
     exact H.
-  - change (sumofmaps (λ _ : (pr1 x > pr1 y)%hq, pr1 x)
-                      (λ _ : (pr1 x <= pr1 y)%hq, pr1 y) (ii2 H)) with (pr1 y).
-    intros n.
+  - intros H n.
     assert (H0 : y = (pr1 y,, n)).
     apply subtypeEquality_prop.
     reflexivity.
