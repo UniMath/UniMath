@@ -100,9 +100,7 @@ Proof.
   apply e.
 
   apply (seq_key_eq_lemma _ _ e_len e_el).
-
 Defined.
-
 
 
 Local Definition empty_fun {X} : stn 0 -> X.
