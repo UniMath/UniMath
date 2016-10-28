@@ -45,29 +45,27 @@ Proof.
   induction g as [m g]. induction g' as [m' g']. simpl in e_len. simpl in e_el.
 
   assert ( e_int1 : (m ,, g) = (m' ,, transportf (fun i => (stn i -> X)) e_len g) ).
-  apply transportf_eq.
+  { apply transportf_eq. }
 
-  assert ( e_int2 : transportf (fun i => (stn i -> X)) e_len g =
-                    funcomp ( transportb stn e_len ) g ).
-  apply transportf_fun .
+  assert ( e_int2 : transportf (fun i => (stn i -> X)) e_len g = g ∘ transportb stn e_len ).
+  { apply transportf_fun. }
 
-  assert ( e_int3 : funcomp ( transportb stn e_len ) g = g' ) .  apply funextfun .
-  unfold homot. unfold funcomp. intro. induction x as [ i b ] .
+  assert ( e_int3 : g ∘ transportb stn e_len = g' ) .
+  { apply funextfun .
+    unfold homot. unfold funcomp. intro. induction x as [ i b ].
 
-  assert ( e_int31 :
-             g (transportb stn e_len (i ,, b)) = g ((i ,, transportb (fun l => i<l) e_len b))).
-  apply maponpaths.
-  apply transport_stn.
+    assert ( e_int31 :
+               g (transportb stn e_len (i ,, b)) = g ((i ,, transportb (fun l => i<l) e_len b))).
+    { apply maponpaths.
+      apply transport_stn. }
 
-  assert ( e_int32 : g (i,, transportb (λ l : nat, i < l) e_len b) = g' (i ,, b)).
-  apply e_el.
+    assert ( e_int32 : g (i,, transportb (λ l : nat, i < l) e_len b) = g' (i ,, b)).
+    { apply e_el. }
 
-  apply (e_int31 @ e_int32 ).
+    apply (e_int31 @ e_int32 ). }
 
   assert ( e_int4 : m',, transportf (λ i : nat, stn i → X) e_len g = (m' ,, g')).
-  apply (maponpaths (fun gg => (m',, gg))).
-
-  apply (e_int2 @ e_int3).
+  { apply (maponpaths (fun gg => (m',, gg))). apply (e_int2 @ e_int3). }
 
   apply (e_int1 @ e_int4).
 Defined.
@@ -86,18 +84,20 @@ Proof.
 
   assert (e_el : forall ( i : nat )(ltg1 : i < seq_len g )(ltg1' : i < seq_len g' ),
                g (i ,, ltg1) = g' (i ,, ltg1')).
-  intros.
-  assert ( e_eli' := e_el' i).
-  induction e_eli' as [ ltg [ ltg' e ]].
+  { intros.
+    assert ( e_eli' := e_el' i).
+    induction e_eli' as [ ltg [ ltg' e ]].
 
-  assert ( e_int1 : ltg1 = ltg ) . apply (pr2 (i < seq_len g)).
+    assert ( e_int1 : ltg1 = ltg ) .
+    { apply (pr2 (i < seq_len g)). }
 
-  assert ( e_int2 : ltg1' = ltg' ) . apply (pr2 (i < seq_len g')).
+    assert ( e_int2 : ltg1' = ltg' ) .
+    { apply (pr2 (i < seq_len g')). }
 
-  rewrite <- e_int1 in e.
-  rewrite <- e_int2 in e.
+    rewrite <- e_int1 in e.
+    rewrite <- e_int2 in e.
 
-  apply e.
+    apply e. }
 
   apply (seq_key_eq_lemma _ _ e_len e_el).
 Defined.
