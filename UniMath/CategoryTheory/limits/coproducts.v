@@ -208,7 +208,7 @@ End functors.
 Definition coproduct_of_functors_alt (I : UU) {C D : precategory}
   (HD : Coproducts I D) (F : I -> functor C D) : functor C D :=
   functor_composite (delta_functor I C)
-     (functor_composite (pair_functor _ F)
+     (functor_composite (family_functor _ F)
                         (coproduct_functor _ HD)).
 
 (** * Coproducts lift to functor categories *)

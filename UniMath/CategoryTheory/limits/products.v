@@ -210,7 +210,7 @@ Definition product_of_functors_alt
   (I : UU) {C D : precategory} (HD : Products I D)
   (F : Π (i : I), functor C D) : functor C D :=
    functor_composite (delta_functor I C)
-     (functor_composite (pair_functor _ F) (product_functor _ HD)).
+     (functor_composite (family_functor _ F) (product_functor _ HD)).
 
 (** * Products lift to functor categories *)
 Section def_functor_pointwise_prod.

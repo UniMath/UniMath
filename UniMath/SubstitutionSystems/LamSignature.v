@@ -163,7 +163,7 @@ Defined.
 
 Definition Abs_H : functor [C, C, hs] [C, C, hs] :=
  (* tpair _ _ is_functor_Abs_H_data. *)
-  pre_composition_functor _ _ _ hs _ (option_functor C CC terminal).
+  pre_composition_functor _ _ _ hs _ (option_functor CC terminal).
 
 Lemma is_omega_cocont_Abs_H (LC : Lims C) : is_omega_cocont Abs_H.
 Proof.

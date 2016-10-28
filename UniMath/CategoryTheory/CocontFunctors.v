@@ -17,9 +17,9 @@ This file also contains proofs that the following functors are (omega-)cocontinu
 - Iteration of omega-cocontinuous functors: F^n : C -> C
   [is_cocont_iter_functor] [is_omega_cocont_iter_functor]
 - Pairing of (omega-)cocont functors (F,G) : A * B -> C * D, (x,y) |-> (F x,G y)
-  [is_cocont_binproduct_pair_functor] [is_omega_cocont_binproduct_pair_functor]
-- Indexed families of (omega-)cocont functors F^I : A^I -> B^I
   [is_cocont_pair_functor] [is_omega_cocont_pair_functor]
+- Indexed families of (omega-)cocont functors F^I : A^I -> B^I
+  [is_cocont_family_functor] [is_omega_cocont_family_functor]
 - Binary delta functor: C -> C^2, x |-> (x,x)
   [is_cocont_bindelta_functor] [is_omega_cocont_bindelta_functor]
 - General delta functor: C -> C^I
@@ -689,7 +689,7 @@ Definition omega_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
 End iter_functor.
 
 (** ** A pair of functors (F,G) : A * B -> C * D is omega cocontinuous if F and G are *)
-Section binproduct_pair_functor.
+Section pair_functor.
 
 Context {A B C D : precategory} (F : functor A C) (G : functor B D)
         (hsA : has_homsets A) (hsB : has_homsets B) (hsC : has_homsets C) (hsD : has_homsets D).
@@ -783,14 +783,14 @@ Proof.
 now intros c L ccL M H; apply isColimCocone_pr2_functor.
 Defined.
 
-Lemma isColimCocone_binproduct_pair_functor {gr : graph}
+Lemma isColimCocone_pair_functor {gr : graph}
   (HF : Π (d : diagram gr A) (c : A) (cc : cocone d c) (h : isColimCocone d c cc),
         isColimCocone _ _ (mapcocone F d cc))
   (HG : Π (d : diagram gr B) (c : B) (cc : cocone d c) (h : isColimCocone d c cc),
         isColimCocone _ _ (mapcocone G d cc)) :
   Π (d : diagram gr (precategory_binproduct A B)) (cd : A × B) (cc : cocone d cd),
   isColimCocone _ _ cc ->
-  isColimCocone _ _ (mapcocone (binproduct_pair_functor F G) d cc).
+  isColimCocone _ _ (mapcocone (pair_functor F G) d cc).
 Proof.
 intros cAB ml ccml Hccml xy ccxy.
 transparent assert (cFAX : (cocone (mapdiagram F (mapdiagram (pr1_functor A B) cAB)) (pr1 xy))).
@@ -817,23 +817,23 @@ mkpair.
                | apply (maponpaths pr1 (hg2 (f2,, (λ n, maponpaths dirprod_pr2 (p n)))))]]).
 Defined.
 
-Lemma is_cocont_binproduct_pair_functor (HF : is_cocont F) (HG : is_cocont G) :
-  is_cocont (binproduct_pair_functor F G).
+Lemma is_cocont_pair_functor (HF : is_cocont F) (HG : is_cocont G) :
+  is_cocont (pair_functor F G).
 Proof.
 intros gr cAB ml ccml Hccml.
-now apply isColimCocone_binproduct_pair_functor; [apply HF|apply HG|].
+now apply isColimCocone_pair_functor; [apply HF|apply HG|].
 Defined.
 
-Lemma is_omega_cocont_binproduct_pair_functor (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (binproduct_pair_functor F G).
+Lemma is_omega_cocont_pair_functor (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
+  is_omega_cocont (pair_functor F G).
 Proof.
-now intros cAB ml ccml Hccml; apply isColimCocone_binproduct_pair_functor.
+now intros cAB ml ccml Hccml; apply isColimCocone_pair_functor.
 Defined.
 
-End binproduct_pair_functor.
+End pair_functor.
 
 (** ** A family of functor F^I : A^I -> B^I is omega cocontinuous if each F_i is *)
-Section pair_functor.
+Section family_functor.
 
 Context {I : UU} {A B : precategory} (hsA : has_homsets A) (hsB : has_homsets B).
 
@@ -904,12 +904,12 @@ Proof.
 now intros c L ccL M H; apply isColimCocone_pr_functor.
 Defined.
 
-Lemma isColimCocone_pair_functor {gr : graph} (F : Π (i : I), functor A B)
+Lemma isColimCocone_family_functor {gr : graph} (F : Π (i : I), functor A B)
   (HF : Π i (d : diagram gr A) (c : A) (cc : cocone d c) (h : isColimCocone d c cc),
         isColimCocone _ _ (mapcocone (F i) d cc)) :
   Π (d : diagram gr (product_precategory I (λ _, A))) (cd : I -> A) (cc : cocone d cd),
   isColimCocone _ _ cc ->
-  isColimCocone _ _ (mapcocone (pair_functor I F) d cc).
+  isColimCocone _ _ (mapcocone (family_functor I F) d cc).
 Proof.
 intros cAB ml ccml Hccml xy ccxy; simpl in *.
 transparent assert (cc : (Π i, cocone (mapdiagram (F i) (mapdiagram (pr_functor I (λ _ : I, A) i) cAB)) (xy i))).
@@ -932,22 +932,22 @@ mkpair.
                apply (maponpaths pr1 (pr2 (X i) H))]).
 Defined.
 
-Lemma is_cocont_pair_functor
+Lemma is_cocont_family_functor
   {F : Π (i : I), functor A B} (HF : Π (i : I), is_cocont (F i)) :
-  is_cocont (pair_functor I F).
+  is_cocont (family_functor I F).
 Proof.
 intros gr cAB ml ccml Hccml.
-apply isColimCocone_pair_functor; trivial; intro i; apply HF.
+apply isColimCocone_family_functor; trivial; intro i; apply HF.
 Defined.
 
-Lemma is_omega_cocont_pair_functor
+Lemma is_omega_cocont_family_functor
   {F : Π (i : I), functor A B} (HF : Π (i : I), is_omega_cocont (F i)) :
-  is_omega_cocont (pair_functor I F).
+  is_omega_cocont (family_functor I F).
 Proof.
-now intros cAB ml ccml Hccml; apply isColimCocone_pair_functor.
+now intros cAB ml ccml Hccml; apply isColimCocone_family_functor.
 Defined.
 
-End pair_functor.
+End family_functor.
 
 (** ** The bindelta functor C -> C^2 mapping x to (x,x) is omega cocontinuous *)
 Section bindelta_functor.
@@ -1041,7 +1041,7 @@ Proof.
 apply (is_cocont_functor_composite hsD).
   apply (is_cocont_bindelta_functor PC hsC).
 apply (is_cocont_functor_composite hsD).
-  apply (is_cocont_binproduct_pair_functor _ _ hsC hsC hsD hsD HF HG).
+  apply (is_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
 apply (is_cocont_bincoproduct_functor _ hsD).
 Defined.
 
@@ -1052,7 +1052,7 @@ Proof.
 apply (is_omega_cocont_functor_composite hsD).
   apply (is_omega_cocont_bindelta_functor PC hsC).
 apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_binproduct_pair_functor _ _ hsC hsC hsD hsD HF HG).
+  apply (is_omega_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
 apply (is_omega_cocont_bincoproduct_functor _ hsD).
 Defined.
 
@@ -1098,7 +1098,7 @@ Proof.
 apply (is_cocont_functor_composite hsD).
   apply (is_cocont_delta_functor PC hsC).
 apply (is_cocont_functor_composite hsD).
-  apply (is_cocont_pair_functor hsC hsD HI HF).
+  apply (is_cocont_family_functor hsC hsD HI HF).
 apply (is_cocont_coproduct_functor _ hsD).
 Defined.
 
@@ -1109,7 +1109,7 @@ Proof.
 apply (is_omega_cocont_functor_composite hsD).
   apply (is_omega_cocont_delta_functor PC hsC).
 apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_pair_functor hsC hsD HI HF).
+  apply (is_omega_cocont_family_functor hsC hsD HI HF).
 apply (is_omega_cocont_coproduct_functor _ hsD).
 Defined.
 
@@ -1512,7 +1512,7 @@ Proof.
 apply (is_omega_cocont_functor_composite hsD).
 - apply (is_omega_cocont_bindelta_functor PC hsC).
 - apply (is_omega_cocont_functor_composite hsD).
-  + apply (is_omega_cocont_binproduct_pair_functor _ _ hsC hsC hsD hsD HF HG).
+  + apply (is_omega_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
   + now apply (is_omega_cocont_binproduct_functor _ hsD).
 Defined.
 
