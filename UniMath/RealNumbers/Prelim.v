@@ -395,28 +395,68 @@ Proof.
   apply y.
 Defined.
 
+Lemma hqmax_case_strong :
+  Π (P : hq → UU) (x y : hq),
+  (y <= x → P x) → (x <= y → P y)
+  → P (hqmax x y).
+Proof.
+  intros P x y Hx Hy.
+  unfold hqmax.
+  induction (hqgthorleh x y) as [ H | H ].
+  - apply Hx, hqlthtoleh, H.
+  - apply Hy, H.
+Qed.
+Lemma hqmax_case :
+  Π (P : hq → UU) (x y : hq),
+  P x → P y → P (hqmax x y).
+Proof.
+  intros P x y Hx Hy.
+  apply hqmax_case_strong ; intros _.
+  - exact Hx.
+  - exact Hy.
+Qed.
+
+Lemma hqmin_case_strong :
+  Π (P : hq → UU) (x y : hq),
+  (x <= y → P x) → (y <= x → P y)
+  → P (hqmin x y).
+Proof.
+  intros P x y Hx Hy.
+  unfold hqmin.
+  induction (hqgthorleh x y) as [ H | H ].
+  - apply Hy, hqlthtoleh, H.
+  - apply Hx, H.
+Qed.
+Lemma hqmin_case :
+  Π (P : hq → UU) (x y : hq),
+  P x → P y → P (hqmin x y).
+Proof.
+  intros P x y Hx Hy.
+  apply hqmin_case_strong ; intros _.
+  - exact Hx.
+  - exact Hy.
+Qed.
+
 Lemma hqmaxopp_opphqmin :
   Π x y : hq, hqmax (- x) (- y) = - hqmin x y.
 Proof.
   intros x y.
-  unfold hqmax, hqmin.
-  induction (hqgthorleh x y) as [Hxy | Hxy] ;
-    induction (hqgthorleh (- x) (- y)) as [Hxy' | Hxy'].
-  - apply fromempty.
-    generalize (hqgth_opp' x y Hxy').
-    apply (hqlehtoneghqgth y x).
-    apply hqlthtoleh.
-    exact Hxy.
+  apply hqmax_case_strong ; intros Hxy ;
+  apply hqmin_case_strong ; intros Hxy'.
   - reflexivity.
-  - reflexivity.
-  - change (- y = - x).
-    apply isantisymmhqleh.
+  - apply isantisymmhqleh.
     + apply neghqgthtoleh.
       intros H.
-      revert Hxy.
-      apply hqgthtoneghqleh, hqgth_opp'.
+      apply Hxy', hqgth_opp'.
       exact H.
-    + exact Hxy'.
+    + exact Hxy.
+  - apply isantisymmhqleh.
+    + apply neghqgthtoleh.
+      intros H.
+      apply Hxy', hqgth_opp'.
+      exact H.
+    + exact Hxy.
+  - reflexivity.
 Qed.
 
 Lemma isassoc_hqmin : isassoc hqmin.
@@ -543,8 +583,52 @@ Proof.
   - exact isabsorb_hqmax_hqmin.
 Qed.
 
-Definition islattice_hq : islattice hq :=
-  hqmin ,, hqmax ,, islatticeop_hq.
+Lemma nothqlth_hqmin :
+  Π x y : hq, ¬ (x < y) <-> hqmin y x = y.
+Proof.
+  intros x y.
+  apply hqmin_case_strong ; intros H ; split ; intros H0.
+  - reflexivity.
+  - exact H.
+  - apply isantisymmhqleh.
+    exact H.
+    exact H0.
+  - rewrite H0.
+    apply (isirreflhqgth y).
+Qed.
+
+Lemma hqmin_gt :
+  Π x y z : hq, z < x → z < y → z < hqmin x y.
+Proof.
+  intros x y z Hx Hy.
+  apply hqmin_case.
+  exact Hx.
+  exact Hy.
+Qed.
+Lemma hqmax_lt :
+  Π x y z : hq, x < z → y < z → hqmax x y < z.
+Proof.
+  intros x y z Hx Hy.
+  apply hqmax_case.
+  exact Hx.
+  exact Hy.
+Qed.
+Definition islattice_hq : islatticewithlt hq.
+Proof.
+  mkpair.
+  exact (hqmin ,, hqmax ,, islatticeop_hq).
+  mkpair.
+  - mkpair.
+    exact hqlth.
+    split ; [ | split].
+    + exact istranshqlth.
+    + exact iscotranshqlth.
+    + exact isirreflhqlth.
+  - split ; [ | split].
+    + exact nothqlth_hqmin.
+    + exact hqmin_gt.
+    + exact hqmax_lt.
+Defined.
 
 Lemma Lmin_hqmin :
   Lmin islattice_hq = hqmin.
@@ -581,27 +665,6 @@ Proof.
     induction (hqgthorleh x y) as [Hxy | Hxy].
     + exact (isreflhqleh _).
     + exact Hxy.
-Qed.
-
-Lemma hqmax_case_strong :
-  Π (P : hq → UU) (x y : hq),
-  (y <= x → P x) → (x <= y → P y)
-  → P (hqmax x y).
-Proof.
-  intros P x y Hx Hy.
-  unfold hqmax.
-  induction (hqgthorleh x y) as [ H | H ].
-  - apply Hx, hqlthtoleh, H.
-  - apply Hy, H.
-Qed.
-Lemma hqmax_case :
-  Π (P : hq → UU) (x y : hq),
-  P x → P y → P (hqmax x y).
-Proof.
-  intros P x y Hx Hy.
-  apply hqmax_case_strong ; intros _.
-  - exact Hx.
-  - exact Hy.
 Qed.
 
 Lemma hqmax_ge_l :
@@ -681,9 +744,6 @@ Proof.
   exact isrdistr_hqmax_hqplus.
 Qed.
 
-Definition extminus_hq : extminus (X := rngaddabgr hq) islattice_hq :=
-  hqtminus,, istminus_hq.
-
 Lemma hqtminus_pos :
   Π x y : hq, x < y <-> 0 < hqtminus y x.
 Proof.
@@ -702,6 +762,13 @@ Proof.
     rewrite hqrminus.
     exact H.
 Qed.
+
+Definition extminus_hq : extminuswithlt (X := rngaddabgr hq) islattice_hq.
+Proof.
+  mkpair.
+  exact (hqtminus,, istminus_hq).
+  exact (λ x y : hq, pr2 (hqtminus_pos x y)).
+Defined.
 
 (** ** hq is archimedean *)
 

@@ -3,6 +3,42 @@
 Require Export UniMath.Foundations.Algebra.BinaryOperations.
 Require Export UniMath.Foundations.Algebra.Monoids_and_Groups.
 
+Unset Automatic Introduction.
+
+(** ** Strong Order *)
+(* todo : move it into UniMath.Foundations.Basics.Sets *)
+
+Definition isStrongOrder {X : UU} (R : hrel X) := istrans R × iscotrans R × isirrefl R.
+Definition StrongOrder (X : UU) := Σ R : hrel X, isStrongOrder R.
+Definition pairStrongOrder {X : UU} (R : hrel X) (is : isStrongOrder R) : StrongOrder X :=
+  tpair (fun R : hrel X => isStrongOrder R ) R is.
+Definition pr1StrongOrder {X : UU} : StrongOrder X → hrel X := pr1.
+Coercion  pr1StrongOrder : StrongOrder >-> hrel.
+
+Section so_pty.
+
+Context {X : UU}.
+Context (R : StrongOrder X).
+
+Definition istrans_StrongOrder : istrans R :=
+  pr1 (pr2 R).
+Definition iscotrans_StrongOrder : iscotrans R :=
+  pr1 (pr2 (pr2 R)).
+Definition isirrefl_StrongOrder : isirrefl R :=
+  pr2 (pr2 (pr2 R)).
+
+End so_pty.
+
+Definition isStrongOrder_quotrel {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
+  isStrongOrder L → isStrongOrder (quotrel is).
+Proof.
+  intros X R L is H.
+  repeat split.
+  - apply istransquotrel, (pr1 H).
+  - apply iscotransquotrel, (pr1 (pr2 H)).
+  - apply isirreflquotrel, (pr2 (pr2 H)).
+Defined.
+
 (** ** Definition *)
 
 Definition islatticeop {X : hSet} (min max : binop X) :=
@@ -199,6 +235,137 @@ Qed.
 
 End lattice_le.
 
+Definition islatticewithltrel {X : hSet} (is : islattice X) (lt : StrongOrder X) :=
+  (Π x y : X, (¬ (lt x y)) <-> Lle is y x)
+    × (Π x y z : X, lt z x -> lt z y -> lt z (Lmin is x y))
+    × (Π x y z : X, lt x z -> lt y z -> lt (Lmax is x y) z).
+
+Definition islatticewithlt (X : hSet) :=
+  Σ (is : islattice X) (lt : StrongOrder X), islatticewithltrel is lt.
+
+Definition islattice_islatticewithlt {X : hSet} : islatticewithlt X → islattice X :=
+  pr1.
+Coercion islattice_islatticewithlt : islatticewithlt >-> islattice.
+
+Section latticewithlt.
+
+Context {X : hSet}
+        (is : islatticewithlt X).
+
+Definition Llt : StrongOrder X :=
+  pr1 (pr2 is).
+
+Lemma notLlt_Lle :
+  Π x y : X, (¬ (Llt x y)) <-> Lle is y x.
+Proof.
+  apply (pr1 (pr2 (pr2 is))).
+Qed.
+Lemma Llt_Lle :
+  Π x y : X, Llt x y -> Lle is x y.
+Proof.
+  intros x y H.
+  apply notLlt_Lle.
+  intro H0.
+  eapply isirrefl_StrongOrder.
+  eapply istrans_StrongOrder.
+  exact H.
+  exact H0.
+Qed.
+
+Lemma istrans_Llt_Lle :
+  Π x y z : X, Llt x y → Lle is y z → Llt x z.
+Proof.
+  intros x y z Hlt Hle.
+  generalize (iscotrans_StrongOrder _ _ z _ Hlt).
+  apply hinhuniv.
+  apply sumofmaps ; intros H.
+  - exact H.
+  - apply fromempty.
+    refine (pr2 (notLlt_Lle _ _) _ _).
+    exact Hle.
+    exact H.
+Qed.
+Lemma istrans_Lle_Llt :
+  Π x y z : X, Lle is x y → Llt y z → Llt x z.
+Proof.
+  intros x y z Hle Hlt.
+  generalize (iscotrans_StrongOrder _ _ x _ Hlt).
+  apply hinhuniv.
+  apply sumofmaps ; intros H.
+  - apply fromempty.
+    refine (pr2 (notLlt_Lle _ _) _ _).
+    exact Hle.
+    exact H.
+  - exact H.
+Qed.
+
+Lemma Lmin_Llt :
+  Π x y z : X, Llt z x -> Llt z y -> Llt z (Lmin is x y).
+Proof.
+  apply (pr1 (pr2 (pr2 (pr2 is)))).
+Qed.
+Lemma Lmax_lt  :
+  Π x y z : X, Llt x z -> Llt y z -> Llt (Lmax is x y) z.
+Proof.
+  apply (pr2 (pr2 (pr2 (pr2 is)))).
+Qed.
+
+End latticewithlt.
+
+(** ** Lattice with a total order *)
+
+Section lattice_deceq.
+
+Context {L : hSet}
+        (is : islattice L)
+        (dec : Π x y : L, (Lle is x y) ⨿ (Lle is y x)).
+
+Lemma Lmin_case_strong :
+  Π (P : L → UU) (x y : L),
+  (Lle is x y → P x) → (Lle is y x → P y) → P (Lmin is x y).
+Proof.
+  intros P x y Hx Hy.
+  induction (dec x y) as [H | H].
+  - rewrite H.
+    apply Hx, H.
+  - rewrite iscomm_Lmin, H.
+    apply Hy, H.
+Qed.
+Lemma Lmin_case :
+  Π (P : L → UU) (x y : L),
+  P x → P y → P (Lmin is x y).
+Proof.
+  intros P x y Hx Hy.
+  apply Lmin_case_strong ; intros _.
+  - exact Hx.
+  - exact Hy.
+Qed.
+
+Lemma Lmax_case_strong :
+  Π (P : L → UU) (x y : L),
+  (Lle is y x → P x) → (Lle is x y → P y) → P (Lmax is x y).
+Proof.
+  intros P x y Hx Hy.
+  induction (dec x y) as [H | H].
+  - rewrite Lmax_eq_r.
+    apply Hy, H.
+    exact H.
+  - rewrite Lmax_eq_l.
+    apply Hx, H.
+    exact H.
+Qed.
+Lemma Lmax_case :
+  Π (P : L → UU) (x y : L),
+  P x → P y → P (Lmax is x y).
+Proof.
+  intros P x y Hx Hy.
+  apply Lmax_case_strong ; intros _.
+  - exact Hx.
+  - exact Hy.
+Qed.
+
+End lattice_deceq.
+
 (** *** Lattice in an abmonoid *)
 
 Local Open Scope addmonoid.
@@ -243,6 +410,7 @@ Definition tminus {X : abmonoid} {is : islattice X} (ex : extminus is) : binop X
 Lemma istminus_ex {X : abmonoid} {is : islattice X} (ex : extminus is) :
   Π x y : X, tminus ex x y + y = Lmax is x y.
 Proof.
+  intros X is ex.
   apply (pr2 ex).
 Qed.
 
@@ -423,10 +591,44 @@ Lemma abgr_tminus {X : abgr} (is : islattice X) :
   isrdistr (Lmax is) op →
   istminus (X := abgrtoabmonoid X) is (λ x y : X, Lmax is 0 (x + grinv X y)).
 Proof.
-  intros H x y.
+  intros X is H x y.
   rewrite H, assocax, grlinvax, lunax, runax.
   apply iscomm_Lmax.
 Qed.
+
+Definition extminuswithlt {X : abmonoid} (is : islatticewithlt X) :=
+  Σ (ex : extminus is), Π x y : X, Llt is 0 (tminus ex y x) → Llt is x y.
+Definition extminuswithlt_extminus {X : abmonoid} (is : islatticewithlt X) :
+  extminuswithlt is → extminus is := pr1.
+Coercion extminuswithlt_extminus : extminuswithlt >-> extminus.
+
+Section tminus_lt.
+
+Context {X : abmonoid}
+        (is : islatticewithlt X)
+        (ex : extminuswithlt is)
+        (is0 : Π x y z : X, Llt is y z → Llt is (y + x) (z + x))
+        (is1 : Π x y z : X, Llt is (y + x) (z + x) → Llt is y z).
+
+Lemma tminus_pos :
+  Π x y : X, Llt is x y → Llt is 0 (tminus ex y x).
+Proof.
+  intros x y.
+  intros H.
+  apply (is1 x).
+  rewrite lunax, istminus_ex.
+  rewrite Lmax_eq_l.
+  exact H.
+  apply Llt_Lle, H.
+Qed.
+
+Lemma tminus_pos' :
+  Π x y : X, Llt is 0 (tminus ex y x) → Llt is x y.
+Proof.
+  exact (pr2 ex).
+Qed.
+
+End tminus_lt.
 
 (** *** Truncated minus and abgrfrac *)
 
@@ -468,6 +670,7 @@ Defined.
 Lemma abgrfracelt_simpl (c : X × X) :
   abgrfracelt (setquotpr _ c) = tminus ex (pr1 c) (pr2 c) ,, tminus ex (pr2 c) (pr1 c).
 Proof.
+  intros c.
   unfold abgrfracelt.
   unfold grinv ; simpl.
   unfold abgrfracinv ; simpl.
@@ -479,6 +682,7 @@ Qed.
 Lemma abgrfracelt_correct (x : abgrfrac X) :
   setquotpr _ (abgrfracelt x) = x.
 Proof.
+  intros x.
   generalize (pr1 (pr2 x)).
   simple refine (hinhuniv (P := hProppair _ _) _).
   apply (pr2 (pr1 (pr1 (abgrfrac X)))).
@@ -495,6 +699,7 @@ Qed.
 Lemma abgrfracelt_correct' (x : abgrfrac X) :
   abgrfracelt (setquotpr _ (abgrfracelt x)) = abgrfracelt x.
 Proof.
+  intros x.
   now rewrite abgrfracelt_correct.
 Qed.
 
