@@ -683,6 +683,13 @@ Defined.
 
 Definition natlthorgeh (n m : nat) : (n < m) ⨿ (n ≥ m) := natgthorleh _ _.
 
+Definition natchoice0 (n : nat) : (0 = n) ⨿ (0 < n).
+Proof.
+  intros n. induction n as [ | n].
+  - use ii1. apply idpath.
+  - use ii2. apply natgthsn0.
+Qed.
+
 Definition natneqchoice (n m : nat) (ne : n ≠ m) : (n > m) ⨿ (n < m).
 Proof.
   intros. induction (natgthorleh n m) as [ l | g ].
@@ -883,6 +890,14 @@ Proof.
   - intros. simpl. apply (maponpaths S (IHn m k)).
 Defined.
 Hint Resolve natplusassoc : natarith.
+
+Lemma natplussnm (n m : nat) : n + S m = S (n + m).
+Proof.
+  intros n. induction n as [n | n].
+  - intros m. rewrite natplusl0. rewrite natplusl0. apply idpath.
+  - intros m. rewrite <- natplusnsm. rewrite IHn. apply maponpaths.
+    apply natplusnsm.
+Qed.
 
 Definition nataddabmonoid : abmonoid :=
   abmonoidpair (setwithbinoppair natset (fun n m : nat => n + m))
@@ -1357,6 +1372,28 @@ Proof.
       * rewrite natminuseqn in is. rewrite natminuseqn in is. apply is.
       * apply (IHn m k is' is).
 Defined.
+
+Definition natlthandminusl (n m i : nat) (is : n < m) (is' : i < m) : n - i < m - i.
+Proof.
+  intros n m i. induction i as [ | i].
+  - intros is is'. rewrite natminuseqn. rewrite natminuseqn. apply is.
+  - intros is is'.
+    induction (natlthorgeh n (S i)) as [H | H].
+    + assert (e : n - S i = 0).
+      {
+        apply minuseq0.
+        exact (natlthtoleh _ _ H).
+      }
+      rewrite e. apply (natlthandplusrinv _ _ (S i)). rewrite natplusl0.
+      rewrite minusplusnmm. apply is'.
+      apply natlthtoleh. apply is'.
+    + apply (natlthandplusrinv _ _ (S i)).
+      rewrite (minusplusnmm m (S i)).
+      * rewrite (minusplusnmm n (S i)).
+        -- apply is.
+        -- apply H.
+      * apply natlthtoleh. apply is'.
+Qed.
 
 (*
 Definition natgehandminuslinv (n m k : nat) (is' : natgeh k n)

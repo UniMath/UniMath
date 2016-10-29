@@ -401,7 +401,6 @@ apply ( gradth _ _ egf efg ) . Defined .
 
 
 
-
 (** ***  Weak equivalence between the coproduct of [ stn n ] and [ stn m ] and [ stn ( n + m ) ] *)
 
 Theorem weqfromcoprodofstn ( n m : nat ) : weq ( coprod ( stn n ) ( stn m ) ) ( stn ( n + m ) ) .
@@ -423,6 +422,60 @@ intro jl . apply iscontraprop1 .  apply ( is jl ) .   destruct jl as [ j l ] . d
 split with ( ii1 ( stnpair _ j i ) ) . simpl .   apply ( invmaponpathsincl _ ( isinclstntonat ( n + m ) )  (stnpair (n + m) j (i1 j i)) ( stnpair _ j l )  ( idpath j ) ) .
 
 set ( jmn := pr1 ( iscontrhfibernatplusl n j ni ) ) .   destruct jmn as [ k e ] . assert ( is'' : natlth k m ) . rewrite ( pathsinv0 e ) in l .  apply ( natgthandpluslinv _ _ _ l ) . split with ( ii2 ( stnpair _ k is'' ) ) .  simpl .  apply ( invmaponpathsincl _ ( isinclstntonat _ ) (stnpair _ (n + k) (i2 k is'')) ( stnpair _ j l ) e ) . Defined .
+
+(** *** Compuatational inverse for weqfromcoprod_of_stn
+   TODO: verify that this gives the inverse! Then remove this comment. *)
+Local Lemma weqfromcoprodofstn_inv_map_lt (n m : nat) (i : stn (n + m)) (H : 0 < m) : i - n < m.
+Proof.
+  induction m.
+  - intros i H. apply fromempty.
+    use (isirrefl_natneq 0). exact (natlthtoneq _ _ H).
+  - intros i H.
+    set (tmp := natlthandminusl i (n + (S m)) n (stnlt i)).
+    assert (e : n + 0 < n + S m).
+    {
+      apply natlthandplusl.
+      apply natneq0to0lth.
+      apply nat_nopath_to_neq. intros H'. use negpaths0sx.
+      exact m. apply pathsinv0. apply H'.
+    }
+    rewrite natplusr0 in e.
+    set (tmp2 := tmp e).
+    assert (e2 : n + S m - n = S m + n - n).
+    {
+      rewrite natpluscomm. apply idpath.
+    }
+    rewrite e2 in tmp2. rewrite plusminusnmm in tmp2.
+    apply tmp2.
+Qed.
+
+Local Lemma weqfromcoprodofstn_inv_map_empty (n m : nat) (i : stn (n + m)) (i2 : i ≥ n) (H : 0 = m) :
+  coprod (stn n) (stn m).
+Proof.
+  intros n m i i2 H.
+  apply fromempty.
+  assert (e : i < n + 0).
+  {
+    rewrite H. apply (stnlt i).
+  }
+  rewrite natplusr0 in e.
+  apply (natlthtonegnatgeh i n).
+  - apply e.
+  - apply i2.
+Qed.
+
+(** This defines the inverse *)
+Definition weqfromcoprodofstn_inv_map (n m : nat) : (stn (n + m)) -> (coprod (stn n) (stn m)).
+Proof.
+  intros n m i.
+  induction (natlthorgeh i n) as [i1 | i2].
+  - exact (ii1 (stnpair n i i1)).
+  - induction (natchoice0 m) as [H | H].
+    + exact (weqfromcoprodofstn_inv_map_empty n m i i2 H).
+    + use ii2. use stnpair.
+      * exact (i - n).
+      * exact (weqfromcoprodofstn_inv_map_lt n m i H).
+Defined.
 
 (** Associativity of [weqfromcoprodofstn] *)
 
