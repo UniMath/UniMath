@@ -400,7 +400,8 @@ Proof.
 Abort.
 
 (** Versions of concatenate_0 for the alternative concatenate *)
-Definition concatenate_0_alt {X : UU} (s:Sequence X) (t:stn 0 -> X) : concatenate_alt s (0,,t) = s.
+Definition concatenate_0_alt {X : UU} (s : Sequence X) (t : stn 0 -> X) :
+  concatenate_alt s (0,,t) = s.
 Proof.
   intros.
   use seq_key_eq_lemma.
@@ -415,14 +416,15 @@ Proof.
     + apply fromempty. apply (natlthtonegnatgeh i (seq_len s) ltg' H).
 Qed.
 
-Definition concatenate_0'_alt {X : UU} (s:Sequence X) (t:stn 0 -> X) : concatenate_alt (0,,t) s = s.
+Definition concatenate_0'_alt {X : UU} (s : Sequence X) (t : stn 0 -> X) :
+  concatenate_alt (0,,t) s = s.
 Proof.
   intros. apply pathsinv0. induction s as [s l].
   use seq_key_eq_lemma.
   - apply idpath.
   - intros i ltg ltg'. cbn. unfold coprod_rect.
     induction (natchoice0 s) as [H | H].
-    + apply fromempty. cbn in ltg'. rewrite <- H in ltg'. cbn in ltg'. apply (nopathsfalsetotrue ltg').
+    + apply fromempty. cbn in ltg'. rewrite <- H in ltg'. apply (nopathsfalsetotrue ltg').
     + apply maponpaths.
       use total2_paths.
       * cbn. apply pathsinv0. apply natminuseqn.
@@ -437,7 +439,8 @@ Abort.
 
 (** concatenateStep for the alternative definition *)
 Definition concatenateStep_alt {X : UU} (x : Sequence X) {n : nat} (y : stn (S n) -> X) :
-  concatenate_alt x (S n,,y) = append (concatenate_alt x (n,,y ∘ dni_lastelement)) (y (lastelement _)).
+  concatenate_alt x (S n,,y) =
+  append (concatenate_alt x (n,,y ∘ dni_lastelement)) (y (lastelement _)).
 Proof.
   intros X x. induction x as [x l]. intros n y.
   use seq_key_eq_lemma.

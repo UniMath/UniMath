@@ -423,8 +423,8 @@ split with ( ii1 ( stnpair _ j i ) ) . simpl .   apply ( invmaponpathsincl _ ( i
 
 set ( jmn := pr1 ( iscontrhfibernatplusl n j ni ) ) .   destruct jmn as [ k e ] . assert ( is'' : natlth k m ) . rewrite ( pathsinv0 e ) in l .  apply ( natgthandpluslinv _ _ _ l ) . split with ( ii2 ( stnpair _ k is'' ) ) .  simpl .  apply ( invmaponpathsincl _ ( isinclstntonat _ ) (stnpair _ (n + k) (i2 k is'')) ( stnpair _ j l ) e ) . Defined .
 
-(** *** Compuatational inverse for weqfromcoprod_of_stn
-   TODO: verify that this gives the inverse! Then remove this comment. *)
+(** Computational inverse for weqfromcoprodofstn.
+    TODO : verify that [weqfromcoprodofstn_inv_map] is a weak equivalence. *)
 Local Lemma weqfromcoprodofstn_inv_map_lt (n m : nat) (i : stn (n + m)) (H : 0 < m) : i - n < m.
 Proof.
   induction m.
@@ -464,7 +464,6 @@ Proof.
   - apply i2.
 Qed.
 
-(** This defines the inverse *)
 Definition weqfromcoprodofstn_inv_map (n m : nat) : (stn (n + m)) -> (coprod (stn n) (stn m)).
 Proof.
   intros n m i.
