@@ -598,8 +598,7 @@ Defined.
 Definition constr1 {X : UU} (P : X -> UU) {x x' : X} (e : x = x') :
   Σ (f : P x -> P x'),
   Σ (ee : Π p : P x, tpair _ x p = tpair _ x' (f p)),
-  Π (pp : P x),
-  maponpaths pr1 (ee pp) = e.
+  Π (pp : P x), maponpaths pr1 (ee pp) = e.
 Proof.
   intros. induction e.
   split with (idfun (P x)).
@@ -610,6 +609,9 @@ Defined.
 
 Definition transportf {X : UU} (P : X -> UU) {x x' : X}
            (e : x = x') : P x -> P x' := pr1 (constr1 P e).
+
+Definition transportf_eq {X : UU} (P : X -> UU) {x x' : X} (e : x = x') ( p : P x ) :
+  tpair _ x p = tpair  _ x' ( transportf P e p ) := ( pr1 ( pr2 ( constr1 P e ))) p .
 
 Definition transportb {X : UU} (P : X -> UU) {x x' : X}
            (e : x = x') : P x' -> P x := transportf P (!e).
@@ -681,6 +683,27 @@ Definition transport_section {X : UU} {P:X -> UU} (f : Π x, P x)
 Proof.
   intros. exact (transport_map (P:= λ _,unit) (λ x _,f x) e tt).
 Defined.
+
+Definition transportf_fun {X Y : UU}(P : X -> UU)
+           {x1 x2 : X}(e : x1 = x2)(f : P x1 -> Y) :
+  transportf (fun x => (P x -> Y)) e f = funcomp (transportb P e) f .
+Proof.
+  intros. induction e. apply idpath .
+Defined.
+
+Definition transportf_const {X : UU}{x1 x2 : X}(e : x1 = x2)(Y : UU) :
+  transportf (fun x => Y) e = idfun Y.
+Proof.
+  intros. induction e. apply idpath.
+Defined.
+
+Definition transportb_const {X : UU}{x1 x2 : X}(e : x1 = x2)(Y : UU) :
+  transportb (fun x => Y) e = idfun Y.
+Proof.
+  intros. induction e. apply idpath.
+Defined.
+
+
 
 (** *** A series of lemmas about paths and [ total2 ]
 
