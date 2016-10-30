@@ -8,7 +8,7 @@ Require Import UniMath.Foundations.Basics.Sets
 
 Section hfiber_hSet.
 
-  Lemma isaset_hfiber {X : hSet} {Y : UU} (p : Π y1 y2 : Y, isaprop (y1 = y2)) (f : X -> Y) (y : Y) : isaset (hfiber f y).
+  Lemma isaset_hfiber {X : hSet} {Y : UU} (p : Π y1 y2 : Y, isaprop (y1 = y2)) (f : X → Y) (y : Y) : isaset (hfiber f y).
   Proof.
     unfold hfiber.
     apply isaset_total2.
@@ -18,12 +18,13 @@ Section hfiber_hSet.
     apply p.
   Defined.
 
-  Definition hfiber_hSet {X : hSet} {Y : UU} (p : Π y1 y2 : Y, isaprop (y1 = y2)) (f : X -> Y) (y : Y) : hSet :=
+  Definition hfiber_hSet {X : hSet} {Y : UU} (p : Π y1 y2 : Y, isaprop (y1 = y2)) (f : X → Y) (y : Y) : hSet :=
     hSetpair (hfiber f y) (isaset_hfiber p f y).
 
 End hfiber_hSet.
 
-(** * Discrete precategories FROM Anders' multisorted.v *)
+(** * Discrete precategories *)
+(* ***** taken from Anders' multisorted.v ***** *)
 Section DiscreteCategory.
 
 Variable (A : UU).
@@ -63,7 +64,7 @@ Defined.
 
 End DiscreteCategory.
 
-(** Proof that Set / X is equivalent as categories to Set ^ X *)
+(** Proof that Set / X and Set ^ X are equivalent as categories *)
 Section slice_fam_equiv.
 
   Variable X : hSet.

@@ -83,3 +83,4 @@ AbelianToAdditive.v
 ShortExactSequences.v
 Morphisms.v
 AdditiveFunctors.v
+slice_fam_equiv.v
