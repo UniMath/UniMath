@@ -444,7 +444,7 @@ Definition concatenateStep_alt {X : UU} (x : Sequence X) {n : nat} (y : stn (S n
 Proof.
   intros X x. induction x as [x l]. intros n y.
   use seq_key_eq_lemma.
-  - apply natplussnm.
+  - apply natplusnsms.
   - intros i ltg ltg'. cbn. unfold append_fun. unfold coprod_rect. cbn.
     unfold weqfromcoprodofstn_inv_map. cbn. unfold coprod_rect.
     induction (natlthorgeh i x) as [H | H].
@@ -459,9 +459,7 @@ Proof.
       * induction (natlehchoice4 i (x + n) ltg') as [H' | H'].
         -- induction (natchoice0 n) as [H3 | H3].
            ++ apply fromempty. induction H3. rewrite natplusr0 in H'.
-              use (natlthtonegnatgeh i x).
-              ** exact H'.
-              ** exact H.
+              use (natlthtonegnatgeh i x H' H).
            ++ unfold funcomp. apply maponpaths.
               use total2_paths.
               ** apply idpath.
@@ -668,6 +666,59 @@ Proof.
 
 
 Abort.
+
+Definition isassoc_concatenate_alt {X : UU} (x y z : Sequence X) :
+  concatenate_alt (concatenate_alt x y) z = concatenate_alt x (concatenate_alt y z).
+Proof.
+  intros X x y z.
+  use seq_key_eq_lemma.
+  - cbn. rewrite natplusassoc. apply idpath.
+  - intros i ltg ltg'. cbn. unfold weqfromcoprodofstn_inv_map. unfold coprod_rect. cbn.
+    induction (natlthorgeh i (seq_len x + seq_len y)) as [H | H].
+    + induction (natlthorgeh (stnpair (seq_len x + seq_len y) i H) (seq_len x)) as [H1 | H1].
+      * induction (natlthorgeh i (seq_len x)) as [H2 | H2].
+        -- apply maponpaths. apply isinjstntonat. apply idpath.
+        -- apply fromempty. exact (natlthtonegnatgeh i (seq_len x) H1 H2).
+      * induction (natchoice0 (seq_len y)) as [H2 | H2].
+        -- apply fromempty. induction H2. induction (! (natplusr0 (seq_len x))).
+           apply (natlthtonegnatgeh i (seq_len x) H H1).
+        -- induction (natlthorgeh i (seq_len x)) as [H3 | H3].
+           ++ apply fromempty. apply (natlthtonegnatgeh i (seq_len x) H3 H1).
+           ++ induction (natchoice0 (seq_len y + seq_len z)) as [H4 | H4].
+              ** apply fromempty. induction (! H4).
+                 use (isirrefl_natneq (seq_len y)).
+                 use natlthtoneq.
+                 use (natlehlthtrans (seq_len y) (seq_len y + seq_len z) (seq_len y) _ H2).
+                 apply natlehnplusnm.
+              ** cbn. induction (natlthorgeh (i - seq_len x) (seq_len y)) as [H5 | H5].
+                 --- apply maponpaths. apply isinjstntonat. apply idpath.
+                 --- apply fromempty.
+                     use (natlthtonegnatgeh (i - (seq_len x)) (seq_len y)).
+                     +++ set (tmp := natlthandminusl i (seq_len x + seq_len y) (seq_len x) H
+                                                     (natlthandplusm (seq_len x) _ H2)).
+                         rewrite (natpluscomm (seq_len x) (seq_len y)) in tmp.
+                         rewrite plusminusnmm in tmp. exact tmp.
+                     +++ exact H5.
+    + induction (natchoice0 (seq_len z)) as [H1 | H1].
+      * apply fromempty. cbn in ltg. induction H1. rewrite natplusr0 in ltg.
+        exact (natlthtonegnatgeh i (seq_len x + seq_len y) ltg H).
+      * induction (natlthorgeh i (seq_len x)) as [H2 | H2].
+        -- apply fromempty.
+           use (natlthtonegnatgeh i (seq_len x) H2).
+           use (istransnatgeh i (seq_len x + seq_len y) (seq_len x) H).
+           apply natgehplusnmn.
+        -- induction (natchoice0 (seq_len y + seq_len z)) as [H3 | H3].
+           ++ apply fromempty. cbn in ltg'. induction H3. rewrite natplusr0 in ltg'.
+              exact (natlthtonegnatgeh i (seq_len x) ltg' H2).
+           ++ cbn. induction (natlthorgeh (i - seq_len x) (seq_len y)) as [H4 | H4].
+              ** apply fromempty.
+                 use (natlthtonegnatgeh i (seq_len x + seq_len y) _ H).
+                 apply (natlthandplusr _ _ (seq_len x)) in H4.
+                 rewrite minusplusnmm in H4.
+                 --- rewrite natpluscomm in H4. exact H4.
+                 --- exact H2.
+              ** apply maponpaths. apply isinjstntonat. cbn. apply minusminusplus.
+Qed.
 
 (*
 Local Variables:

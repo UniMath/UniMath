@@ -397,7 +397,8 @@ assert ( egf : Π j : _ , paths ( g ( f j ) ) j ) . intro j . unfold f .  destru
 assert ( efg : Π b : _ , paths ( f ( g b ) ) b ) . intro b .  unfold g .  destruct b . apply idpath . apply idpath.
 apply ( gradth _ _ egf efg ) . Defined .
 
-
+Lemma isinjstntonat n : isInjectiveFunction (pr1 : stnset n -> natset).
+Proof. intros ? i j. apply (invmaponpathsincl pr1). apply isinclstntonat. Defined.
 
 
 
@@ -423,8 +424,7 @@ split with ( ii1 ( stnpair _ j i ) ) . simpl .   apply ( invmaponpathsincl _ ( i
 
 set ( jmn := pr1 ( iscontrhfibernatplusl n j ni ) ) .   destruct jmn as [ k e ] . assert ( is'' : natlth k m ) . rewrite ( pathsinv0 e ) in l .  apply ( natgthandpluslinv _ _ _ l ) . split with ( ii2 ( stnpair _ k is'' ) ) .  simpl .  apply ( invmaponpathsincl _ ( isinclstntonat _ ) (stnpair _ (n + k) (i2 k is'')) ( stnpair _ j l ) e ) . Defined .
 
-(** Computational inverse for weqfromcoprodofstn.
-    TODO : verify that [weqfromcoprodofstn_inv_map] is a weak equivalence. *)
+(** Computational inverse for weqfromcoprodofstn. *)
 Local Lemma weqfromcoprodofstn_inv_map_lt (n m : nat) (i : stn (n + m)) (H : 0 < m) : i - n < m.
 Proof.
   induction m.
@@ -474,6 +474,55 @@ Proof.
     + use ii2. use stnpair.
       * exact (i - n).
       * exact (weqfromcoprodofstn_inv_map_lt n m i H).
+Defined.
+
+Definition weqfromcoprodofstn_map (n m : nat) : (coprod (stn n) (stn m)) -> (stn (n + m)).
+Proof.
+  intros n m i.
+  induction i as [i | i].
+  - exact (stnpair (n + m) i (natlthlehtrans _ _ _ (stnlt i) (natlehnplusnm n m))).
+  - exact (stnpair (n + m) (n + i) (natgthandplusl _ _ _ (stnlt i))).
+Defined.
+
+Local Lemma weqfromcoprodofstn_eq1 (n m : nat) :
+  Π x : stn n ⨿ stn m, weqfromcoprodofstn_inv_map n m (weqfromcoprodofstn_map n m x) = x.
+Proof.
+  intros n m x.
+  unfold weqfromcoprodofstn_map, weqfromcoprodofstn_inv_map. unfold coprod_rect.
+  induction x as [x | x].
+  - cbn. induction (natlthorgeh x n) as [H | H].
+    + apply maponpaths. apply isinjstntonat. apply idpath.
+    + apply fromempty. apply (natlthtonegnatgeh x n (stnlt x) H).
+  - cbn. induction (natlthorgeh (n + x) n) as [H | H].
+    + apply fromempty.
+      set (tmp := natlehlthtrans n (n + x) n (natlehnplusnm n x) H).
+      use (isirrefl_natneq n (natlthtoneq _ _ tmp)).
+    + induction (natchoice0 m) as [H1 | H1].
+      * apply fromempty. apply (negnatlthn0 x). rewrite H1. exact (stnlt x).
+      * apply maponpaths. apply isinjstntonat. cbn. rewrite natpluscomm. apply plusminusnmm.
+Qed.
+
+Local Lemma weqfromcoprodofstn_eq2 (n m : nat) :
+  Π y : stn (n + m), weqfromcoprodofstn_map n m (weqfromcoprodofstn_inv_map n m y) = y.
+Proof.
+  intros n m x.
+  unfold weqfromcoprodofstn_map, weqfromcoprodofstn_inv_map. unfold coprod_rect.
+  induction (natlthorgeh x n) as [H | H].
+  - apply isinjstntonat. apply idpath.
+  - induction (natchoice0 m) as [H1 | H1].
+    + apply fromempty. induction H1. induction (! (natplusr0 n)).
+      use (natlthtonegnatgeh x n (stnlt x) H).
+    + apply isinjstntonat. cbn. rewrite natpluscomm. apply minusplusnmm. apply H.
+Qed.
+
+(** A proof of weqfromcoprodofstn using gradth *)
+Theorem weqfromcoprodofstn' (n m : nat) : weq (coprod (stn n) (stn m )) (stn (n + m)).
+Proof.
+  intros n m.
+  use (tpair _ (weqfromcoprodofstn_map n m)).
+  use (gradth _ (weqfromcoprodofstn_inv_map n m)).
+  - exact (weqfromcoprodofstn_eq1 n m).
+  - exact (weqfromcoprodofstn_eq2 n m).
 Defined.
 
 (** Associativity of [weqfromcoprodofstn] *)
@@ -969,8 +1018,6 @@ assert ( is' : isdecprop ( F' n' ) ) . apply ( isdecbexists n' F is ) .   destru
 
 apply ( X n ( hinhpr ( tpair _ n ( dirprodpair ( isreflnatleh n ) l ) ) ) ) .  Defined .
 
-Lemma isinjstntonat n : isInjectiveFunction (pr1 : stnset n -> natset).
-Proof. intros ? i j. apply (invmaponpathsincl pr1). apply isinclstntonat. Defined.
 
 Corollary dni_lastelement_is_inj {n : nat} {i j : stn n}
       (e : dni_lastelement i = dni_lastelement j) :

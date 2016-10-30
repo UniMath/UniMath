@@ -891,7 +891,7 @@ Proof.
 Defined.
 Hint Resolve natplusassoc : natarith.
 
-Lemma natplussnm (n m : nat) : n + S m = S (n + m).
+Lemma natplusnsms (n m : nat) : n + S m = S (n + m).
 Proof.
   intros n. induction n as [n | n].
   - intros m. rewrite natplusl0. rewrite natplusl0. apply idpath.
@@ -960,6 +960,14 @@ Proof.
   apply (natgthandpluslinv _ _ _ l).
 Defined.
 
+Definition natgthandplusm (n m : nat) (H : m > 0) : n + m > n.
+Proof.
+  intros n. induction n as [ | n].
+  - intros m H. rewrite natplusl0. exact H.
+  - intros m H. rewrite <- natplusnsm. change (S n) with (1 + n). rewrite (natpluscomm 1 n).
+    apply natgthandplusl. apply H.
+Qed.
+
 (** [natlth] *)
 
 Definition natlthtolths (n m : nat) : n < m -> n < S m := natgthtogths _ _.
@@ -975,6 +983,8 @@ Definition natlthandplusr (n m k : nat) : n < m -> n + k < m + k := natgthandplu
 Definition natlthandpluslinv  (n m k : nat) : k + n < k + m -> n < m := natgthandpluslinv _ _ _.
 
 Definition natlthandplusrinv (n m k : nat) : n + k < m + k -> n < m := natgthandplusrinv _ _ _.
+
+Definition natlthandplusm (n m : nat) (H : 0 < m) : n < n + m := natgthandplusm _ _ H.
 
 (** [natleh] *)
 
@@ -1331,6 +1341,17 @@ Proof.
   rewrite (minusplusnmm _ _ int1).
   apply idpath.
 Defined.
+
+Definition minusminusplus (n m k : nat) : n - (m + k) = n - m - k.
+Proof.
+  intros n. induction n as [ | n].
+  - intros m k. apply idpath.
+  - intros m. induction m as [ | m].
+    + intros k. apply idpath.
+    + intros k. rewrite (natpluscomm (S m) k). rewrite natplusnsms. rewrite (natpluscomm k m). cbn.
+      rewrite IHn. apply idpath.
+Qed.
+
 
 (* *** Two-sided minus and comparisons *)
 
