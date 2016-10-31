@@ -7,12 +7,20 @@ Unset Automatic Introduction.
 
 Definition Sequence X := Σ n, stn n -> X.
 
+Notation seq := Sequence.
+
 Definition length {X} : Sequence X -> nat := pr1.
+
+Notation seq_len := length .
 
 Definition Sequence_to_function {X} (x:Sequence X) := pr2 x : stn (length x) -> X.
 Coercion Sequence_to_function : Sequence >-> Funclass.
 
+Notation seq_to_fun := Sequence_to_function.
+
 Definition sequencePair {X n} (f:stn n -> X) : Sequence X := (n,,f).
+
+Notation fun_to_seq := sequencePair.
 
 Definition transport_stn m n i (b:i<m) (p:m=n) :
   transportf stn p (i,,b) = (i,,transportf (λ m,i<m) p b).
@@ -23,8 +31,82 @@ Definition sequenceEquality {X m n} (f:stn m->X) (g:stn n->X) (p:m=n) :
   -> transportf (λ m, stn m->X) p f = g.
 Proof. intros ? ? ? ? ? ? e. induction p. apply funextfun. exact e. Defined.
 
+
+(** The following two lemmas are the key lemmas that allow to prove (transportational) equality of
+ sequences whose lengths are not definitionally equal. In particular, these lemmas can be used in
+the proofs of such results as associativity of concatenation of sequences and the right unity
+axiom for the empty sequence. **)
+
+Definition seq_key_eq_lemma {X :UU}( g g' : seq X)(e_len : seq_len g = seq_len g')
+           (e_el : forall ( i : nat )(ltg : i < seq_len g )(ltg' : i < seq_len g' ),
+               g (i ,, ltg) = g' (i ,, ltg')) : g=g'.
+Proof.
+  intros.
+  induction g as [m g]. induction g' as [m' g']. simpl in e_len. simpl in e_el.
+
+  assert ( e_int1 : (m ,, g) = (m' ,, transportf (fun i => (stn i -> X)) e_len g) ).
+  { apply transportf_eq. }
+
+  assert ( e_int2 : transportf (fun i => (stn i -> X)) e_len g = g ∘ transportb stn e_len ).
+  { apply transportf_fun. }
+
+  assert ( e_int3 : g ∘ transportb stn e_len = g' ) .
+  { apply funextfun .
+    unfold homot. unfold funcomp. intro. induction x as [ i b ].
+
+    assert ( e_int31 :
+               g (transportb stn e_len (i ,, b)) = g ((i ,, transportb (fun l => i<l) e_len b))).
+    { apply maponpaths.
+      apply transport_stn. }
+
+    assert ( e_int32 : g (i,, transportb (λ l : nat, i < l) e_len b) = g' (i ,, b)).
+    { apply e_el. }
+
+    apply (e_int31 @ e_int32 ). }
+
+  assert ( e_int4 : m',, transportf (λ i : nat, stn i → X) e_len g = (m' ,, g')).
+  { apply (maponpaths (fun gg => (m',, gg))). apply (e_int2 @ e_int3). }
+
+  apply (e_int1 @ e_int4).
+Defined.
+
+(** The following lemma requires in the assumption [ e_el ] only one comparison [ i < seq_len g ]
+ and one comparison [ i < seq_len g' ] for each i instead of all such comparisons as in the
+ original version [ seq_key_eq_lemma ] . **)
+
+Definition seq_key_eq_lemma' {X :UU}( g g' : seq X)(e_len : seq_len g = seq_len g')
+           (e_el' : forall (i : nat) , total2 ( fun ltg : i < seq_len g =>
+                                                 total2 ( fun ltg' : i < seq_len g' =>
+                                                            g (i ,, ltg) = g' (i ,, ltg')))) :
+  g=g'.
+Proof.
+  intros.
+
+  assert (e_el : forall ( i : nat )(ltg1 : i < seq_len g )(ltg1' : i < seq_len g' ),
+               g (i ,, ltg1) = g' (i ,, ltg1')).
+  { intros.
+    assert ( e_eli' := e_el' i).
+    induction e_eli' as [ ltg [ ltg' e ]].
+
+    assert ( e_int1 : ltg1 = ltg ) .
+    { apply (pr2 (i < seq_len g)). }
+
+    assert ( e_int2 : ltg1' = ltg' ) .
+    { apply (pr2 (i < seq_len g')). }
+
+    rewrite <- e_int1 in e.
+    rewrite <- e_int2 in e.
+
+    apply e. }
+
+  apply (seq_key_eq_lemma _ _ e_len e_el).
+Defined.
+
+
 Local Definition empty_fun {X} : stn 0 -> X.
 Proof. intros ? i. contradicts i negstn0. Defined.
+
+Notation fromstn0 := empty_fun.
 
 Definition nil {X} : Sequence X.
 Proof. intros. exact (0,, empty_fun). Defined.
