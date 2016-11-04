@@ -136,8 +136,23 @@ Qed.
 
 (** ** relation  *)
 
+Definition setquot_aux_acc {X : monoid} (R : hrel X) (x y : X) : UU :=
+  Σ c : X, R (x + c)%addmonoid (y + c)%addmonoid.
+Definition mk_setquot_aux_acc {X : monoid} (R : hrel X) (x y : X)
+           (c : X) (Hc : R (x + c)%addmonoid (y + c)%addmonoid) : setquot_aux_acc R x y :=
+  c ,, Hc.
+Definition setquot_aux_val {X : monoid} {R : hrel X} {x y : X}
+           (c : setquot_aux_acc R x y) : X :=
+  pr1 c.
+Lemma setquot_aux_pty {X : monoid} {R : hrel X} {x y : X}
+      (c : setquot_aux_acc R x y) : R (x + setquot_aux_val c)%addmonoid (y + setquot_aux_val c)%addmonoid.
+Proof.
+  intros X R x y.
+  intros c.
+  exact (pr2 c).
+Qed.
 Definition setquot_aux {X : monoid} (R : hrel X) : hrel X :=
-  λ x y : X, ∃ c : X, R (x + c)%addmonoid (y + c)%addmonoid.
+  λ x y : X, ∥setquot_aux_acc R x y∥.
 
 Lemma istrans_setquot_aux {X : abmonoid} (R : hrel X) :
   istrans R -> isbinophrel R -> istrans (setquot_aux R).
@@ -145,15 +160,16 @@ Proof.
   intros X R Hr Hop.
   intros x y z.
   apply hinhfun2.
-  intros (c1,Hc1) (c2,Hc2).
-  exists (c1 + c2)%addmonoid.
-  eapply Hr.
+  intros c1 c2.
+  simple refine (mk_setquot_aux_acc _ _ _ _ _).
+  apply (setquot_aux_val c1 + setquot_aux_val c2)%addmonoid.
+  refine (Hr _ _ _ _ _).
   rewrite <- assocax.
   apply (pr2 Hop).
-  exact Hc1.
-  rewrite assocax, (commax _ c1), <- !assocax.
+  exact (setquot_aux_pty c1).
+  rewrite assocax, (commax _ (setquot_aux_val c1)), <- !assocax.
   apply (pr2 Hop).
-  exact Hc2.
+  exact (setquot_aux_pty c2).
 Qed.
 Lemma isbinophrel_setquot_aux {X : abmonoid} (R : hrel X) :
   isbinophrel R -> isbinophrel (setquot_aux R).
@@ -162,18 +178,20 @@ Proof.
   split.
   - intros x y z.
     apply hinhfun.
-    intros (c,Hc).
-    exists c.
+    intros c.
+    simple refine (mk_setquot_aux_acc _ _ _ _ _).
+    apply (setquot_aux_val c).
     rewrite !assocax.
     apply (pr1 Hop).
-    exact Hc.
+    exact (setquot_aux_pty c).
   - intros x y z.
     apply hinhfun.
-    intros (c,Hc).
-    exists c.
+    intros c.
+    simple refine (mk_setquot_aux_acc _ _ _ _ _).
+    apply (setquot_aux_val c).
     rewrite !assocax, (commax _ z), <- !assocax.
     apply (pr2 Hop).
-    exact Hc.
+    exact (setquot_aux_pty c).
 Qed.
 
 Lemma isequiv_setquot_aux {X : abmonoid} (R : hrel X) :
@@ -183,43 +201,94 @@ Proof.
   intros X R H x y.
   split.
   apply hinhuniv.
-  intros (c,H').
-  generalize H'; clear H'.
+  intros c.
+  generalize (setquot_aux_pty c).
   apply (pr2 H).
   intros H1.
   apply hinhpr.
-  exists 0%addmonoid.
+  simple refine (mk_setquot_aux_acc _ _ _ _ _).
+  apply 0%addmonoid.
   rewrite !runax.
   exact H1.
 Qed.
 
 (** ** Archimedean property in a monoid *)
 
+Definition isarchmonoid_1_acc {X : abmonoid} (R : hrel X) (x y1 y2 : X) : UU :=
+  Σ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2).
+Definition mk_isarchmonoid_1_acc {X : abmonoid} (R : hrel X) (x y1 y2 : X)
+           (n : nat) (Hn : R (natmult n y1 + x)%addmonoid (natmult n y2)) : isarchmonoid_1_acc R x y1 y2 :=
+  n ,, Hn.
+Definition isarchmonoid_1_val {X : abmonoid} {R : hrel X} {x y1 y2 : X}
+           (n : isarchmonoid_1_acc R x y1 y2) : nat :=
+  pr1 n.
+Lemma isarchmonoid_1_pty {X : abmonoid} {R : hrel X} {x y1 y2 : X}
+      (n : isarchmonoid_1_acc R x y1 y2) :
+  R (natmult (isarchmonoid_1_val n) y1 + x)%addmonoid (natmult (isarchmonoid_1_val n) y2).
+Proof.
+  intros X R x y1 y2.
+  intros n.
+  exact (pr2 n).
+Qed.
+
+Definition isarchmonoid_2_acc {X : abmonoid} (R : hrel X) (x y1 y2 : X) : UU :=
+  Σ n : nat, R (natmult n y1) (natmult n y2 + x)%addmonoid.
+Definition mk_isarchmonoid_2_acc {X : abmonoid} (R : hrel X) (x y1 y2 : X)
+           (n : nat) (Hn : R (natmult n y1) (natmult n y2 + x)%addmonoid) : isarchmonoid_2_acc R x y1 y2 :=
+  n ,, Hn.
+Definition isarchmonoid_2_val {X : abmonoid} {R : hrel X} {x y1 y2 : X}
+           (n : isarchmonoid_2_acc R x y1 y2) : nat :=
+  pr1 n.
+Lemma isarchmonoid_2_pty {X : abmonoid} {R : hrel X} {x y1 y2 : X}
+      (n : isarchmonoid_2_acc R x y1 y2) : R (natmult (isarchmonoid_2_val n) y1) (natmult (isarchmonoid_2_val n) y2 + x)%addmonoid.
+Proof.
+  intros X R x y1 y2.
+  intros n.
+  exact (pr2 n).
+Qed.
+
 Definition isarchmonoid {X : abmonoid} (R : hrel X) :=
-  Π x y1 y2 : X,
-    R y1 y2 ->
-    (∃ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2))
-      × (∃ n : nat, R (natmult n y1) (natmult n y2 + x)%addmonoid).
+  Π (x y1 y2 : X),
+  R y1 y2 ->
+  ∥ isarchmonoid_1_acc R x y1 y2 ∥
+    × ∥ isarchmonoid_2_acc R x y1 y2 ∥.
 
 Definition isarchmonoid_1 {X : abmonoid} (R : hrel X) :
   isarchmonoid R ->
-  Π x y1 y2 : X,
-    R y1 y2 ->
-    ∃ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2) :=
+  Π (x y1 y2 : X),
+  R y1 y2 ->
+  ∥ isarchmonoid_1_acc R x y1 y2 ∥ :=
   λ H x y1 y2 Hy, (pr1 (H x y1 y2 Hy)).
 Definition isarchmonoid_2 {X : abmonoid} (R : hrel X) :
   isarchmonoid R ->
   Π x y1 y2 : X,
     R y1 y2 ->
-    ∃ n : nat, R (natmult n y1) (natmult n y2 + x)%addmonoid :=
+    ∥ isarchmonoid_2_acc R x y1 y2 ∥ :=
   λ H x y1 y2 Hy, (pr2 (H x y1 y2 Hy)).
 
 (** ** Archimedean property in a group *)
 
+Definition isarchgr_acc {X : abgr} (R : hrel X) (x y1 y2 : X) : UU :=
+  Σ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2).
+Definition mk_isarchgr_acc {X : abgr} (R : hrel X) (x y1 y2 : X)
+           (n : nat) (Hn : R (natmult n y1 + x)%addmonoid (natmult n y2)) : isarchgr_acc R x y1 y2 :=
+  n ,, Hn.
+Definition isarchgr_val {X : abgr} {R : hrel X} {x y1 y2 : X}
+           (n : isarchgr_acc R x y1 y2) : nat :=
+  pr1 n.
+Lemma isarchgr_pty {X : abgr} {R : hrel X} {x y1 y2 : X}
+      (n : isarchgr_acc R x y1 y2) :
+  R (natmult (isarchgr_val n) y1 + x)%addmonoid (natmult (isarchgr_val n) y2).
+Proof.
+  intros X R x y1 y2.
+  intros n.
+  exact (pr2 n).
+Qed.
+
 Definition isarchgr {X : abgr} (R : hrel X) :=
-  Π x y1 y2 : X,
-    R y1 y2 ->
-    ∃ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2).
+  Π (x y1 y2 : X),
+  R y1 y2 ->
+  ∥ isarchgr_acc R x y1 y2 ∥.
 
 Local Lemma isarchgr_isarchmonoid_aux {X : abgr} (R : hrel X) :
   isbinophrel R ->
@@ -239,14 +308,15 @@ Lemma isarchgr_isarchmonoid {X : abgr} (R : hrel X) :
 Proof.
   intros X R Hop H x y1 y2 Hy.
   split.
-  - now apply H.
+  - apply (H x y1 y2 Hy).
   - generalize (H (grinv X x) _ _ Hy).
     apply hinhfun.
-    intros (n,Hn).
-    exists n.
+    intros n.
+    simple refine (mk_isarchmonoid_2_acc _ _ _ _ _ _).
+    exact (isarchgr_val n).
     apply isarchgr_isarchmonoid_aux.
     exact Hop.
-    exact Hn.
+    exact (isarchgr_pty n).
 Defined.
 
 Lemma isarchmonoid_isarchgr {X : abgr} (R : hrel X) :
@@ -254,7 +324,7 @@ Lemma isarchmonoid_isarchgr {X : abgr} (R : hrel X) :
   isarchgr R.
 Proof.
   intros X R H x y1 y2 Hy.
-  apply (isarchmonoid_1 _ H x y1 y2 Hy).
+  exact (isarchmonoid_1 _ H x y1 y2 Hy).
 Defined.
 
 
@@ -281,48 +351,56 @@ Proof.
     rewrite !natmultS, IHn.
     reflexivity. }
   rewrite !H0.
+  change (setquot_aux R (natmult (n1 + n2) (pr1 y1) * pr1 x * natmult (n1 + n2) (pr2 y2))%multmonoid
+       (natmult (n1 + n2) (pr1 y2) * (natmult (n1 + n2) (pr2 y1) * pr2 x))%multmonoid).
   revert Hn1 Hn2.
-  apply hinhfun2 ; simpl.
-  intros (c1,Hc1) (c2,Hc2).
-  exists (c1 * c2)%multmonoid.
+  apply hinhfun2.
+  intros c1 c2.
+  set (c1_val := setquot_aux_val c1) ;
+    set (c2_val := setquot_aux_val c2).
+  simple refine (mk_setquot_aux_acc _ _ _ _ _).
+  exact (c1_val * c2_val)%multmonoid.
+  set (tmp1 := (natmult (n1 + n2) (pr1 y1) * pr1 x * natmult (n1 + n2) (pr2 y2) * (c1_val * c2_val))%multmonoid).
+  set (tmp2 := (natmult (n1 + n2) (pr1 y2) * (natmult (n1 + n2) (pr2 y1) * pr2 x) * (c1_val * c2_val))%multmonoid).
+  change (R tmp1 tmp2).
   eapply Hr'.
-  assert (natmult (n1 + n2) (pr1 y1) * pr1 x * natmult (n1 + n2) (pr2 y2) * (c1 * c2) = (natmult n1 (pr1 y1 * pr2 y2) * pr1 x * c1) * (natmult n2 (pr1 y1 * pr2 y2) * c2))%multmonoid.
-  { rewrite !natmult_op, !natmult_plus, !assocax.
-    apply maponpaths.
-    rewrite commax, !assocax.
-    rewrite commax, !assocax.
-    apply maponpaths.
-    rewrite commax, !assocax.
-    rewrite commax, !assocax.
-    rewrite commax, !assocax.
-    rewrite commax, !assocax.
-    apply maponpaths.
-    rewrite commax, !assocax.
-    apply maponpaths.
-    rewrite commax, !assocax.
-    reflexivity.
-    apply commax.
-    apply commax. }
-  simpl in X0 |- *.
-  rewrite X0 ; clear X0.
-  apply (pr2 Hr).
-  apply Hc1.
-  assert (natmult (n1 + n2) (pr1 y2) * (natmult (n1 + n2) (pr2 y1) * pr2 x) * (c1 * c2) = (natmult n1 (pr1 y2 * pr2 y1) * c1) * (natmult n2 (pr1 y2 * pr2 y1) * pr2 x * c2))%multmonoid.
-  { rewrite !natmult_op, !natmult_plus, !assocax.
-    apply maponpaths.
-    rewrite commax, !assocax.
-    apply maponpaths.
-    rewrite commax, !assocax.
-    rewrite commax, !assocax.
-    apply maponpaths.
-    rewrite commax, !assocax.
-    reflexivity.
-    apply commax.
-    apply commax. }
-  simpl in X0 |- *.
-  rewrite X0 ; clear X0.
-  apply (pr1 Hr).
-  apply Hc2.
+  - assert (Hrw : (tmp1 = (natmult n1 (pr1 y1 * pr2 y2) * pr1 x * c1_val) * (natmult n2 (pr1 y1 * pr2 y2) * c2_val))%multmonoid).
+    { unfold tmp1.
+      rewrite !natmult_op, !natmult_plus, !assocax.
+      apply maponpaths.
+      rewrite commax, !assocax.
+      rewrite commax, !assocax.
+      apply maponpaths.
+      rewrite commax, !assocax.
+      rewrite commax, !assocax.
+      rewrite commax, !assocax.
+      rewrite commax, !assocax.
+      apply maponpaths.
+      rewrite commax, !assocax.
+      apply maponpaths.
+      rewrite commax, !assocax.
+      reflexivity.
+      apply commax.
+      apply commax. }
+    rewrite Hrw ; clear Hrw.
+    apply (pr2 Hr).
+    exact (setquot_aux_pty c1).
+  - assert (Hrw : (tmp2 = (natmult n1 (pr1 y2 * pr2 y1) * c1_val) * (natmult n2 (pr1 y2 * pr2 y1) * pr2 x * c2_val))%multmonoid).
+    { unfold tmp2.
+      rewrite !natmult_op, !natmult_plus, !assocax.
+      apply maponpaths.
+      rewrite commax, !assocax.
+      apply maponpaths.
+      rewrite commax, !assocax.
+      rewrite commax, !assocax.
+      apply maponpaths.
+      rewrite commax, !assocax.
+      reflexivity.
+      apply commax.
+      apply commax. }
+    rewrite Hrw ; clear Hrw.
+    apply (pr1 Hr).
+    exact (setquot_aux_pty c2).
 Qed.
 Lemma isarchabgrfrac {X : abmonoid} (R : hrel X)  (Hr : isbinophrel R) :
   istrans R ->
@@ -331,38 +409,107 @@ Lemma isarchabgrfrac {X : abmonoid} (R : hrel X)  (Hr : isbinophrel R) :
 Proof.
   intros X R Hr Hr' H.
   simple refine (setquotuniv3prop _ (λ x y1 y2, (abgrfracrel X Hr y1 y2 ->
-    ∃ n : nat, abgrfracrel X Hr (natmult (X := abgrfrac X) n y1 * x)%multmonoid (natmult (X := abgrfrac X) n y2)) ,, _) _).
+    ∥ isarchgr_acc (X := abgrfrac X) (abgrfracrel X Hr) x y1 y2 ∥) ,, _) _).
   abstract apply isapropimpl, propproperty.
   intros x y1 y2 Hy.
   eapply hinhfun2.
-  2: apply (isarchmonoid_1 _ H (pr1 x) (pr1 y1 * pr2 y2)%multmonoid (pr1 y2 * pr2 y1)%multmonoid), Hy.
-  2: apply (isarchmonoid_2 _ H (pr2 x) (pr1 y1 * pr2 y2)%multmonoid (pr1 y2 * pr2 y1)%multmonoid), Hy.
+
+  Focus 2.
+  apply (isarchmonoid_1 _ H (pr1 x) (pr1 y1 * pr2 y2)%multmonoid (pr1 y2 * pr2 y1)%multmonoid).
+  revert Hy.
+  apply hinhfun.
+  intros n.
+  simple refine (mk_setquot_aux_acc _ _ _ _ _).
+  exact (pr1 n).
+  exact (pr2 n).
+
+  Focus 2.
+  apply (isarchmonoid_2 _ H (pr2 x) (pr1 y1 * pr2 y2)%multmonoid (pr1 y2 * pr2 y1)%multmonoid).
+  revert Hy.
+  apply hinhfun.
+  intros n.
+  simple refine (mk_setquot_aux_acc _ _ _ _ _).
+  exact (pr1 n).
+  exact (pr2 n).
+
   intros n1 n2.
-  exists (pr1 n1 + pr1 n2)%nat.
-  apply isarchabgrfrac_aux.
+  simple refine (mk_isarchgr_acc _ _ _ _ _ _).
+  exact (isarchmonoid_1_val n1 + isarchmonoid_2_val n2)%nat.
+  apply (isarchabgrfrac_aux (X := X)).
   exact Hr'.
-  exact (pr2 n1).
-  exact (pr2 n2).
+  exact (isarchmonoid_1_pty n1).
+  exact (isarchmonoid_2_pty n2).
 Defined.
 
 (** ** Archimedean property in a rig *)
 
+Definition isarchrig_1_acc {X : rig} (R : hrel X) (y1 y2 : X) : UU :=
+  Σ n : nat, R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig.
+Definition mk_isarchrig_1_acc {X : rig} (R : hrel X) (y1 y2 : X)
+           (n : nat) (Hn : R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig) : isarchrig_1_acc R y1 y2 :=
+  n ,, Hn.
+Definition isarchrig_1_val {X : rig} {R : hrel X} {y1 y2 : X}
+           (n : isarchrig_1_acc R y1 y2) : nat :=
+  pr1 n.
+Lemma isarchrig_1_pty {X : rig} {R : hrel X} {y1 y2 : X}
+      (n : isarchrig_1_acc R y1 y2) :
+  R (nattorig (isarchrig_1_val n) * y1)%rig (1 + nattorig (isarchrig_1_val n) * y2)%rig.
+Proof.
+  intros X R y1 y2.
+  intros n.
+  exact (pr2 n).
+Qed.
+
+Definition isarchrig_2_acc {X : rig} (R : hrel X) (x : X) : UU :=
+  Σ n : nat, R (nattorig n) x.
+Definition mk_isarchrig_2_acc {X : rig} (R : hrel X) (x : X)
+           (n : nat) (Hn : R (nattorig n) x) : isarchrig_2_acc R x :=
+  n ,, Hn.
+Definition isarchrig_2_val {X : rig} {R : hrel X} {x : X}
+           (n : isarchrig_2_acc R x) : nat :=
+  pr1 n.
+Lemma isarchrig_2_pty {X : rig} {R : hrel X} {x : X}
+      (n : isarchrig_2_acc R x) :
+  R (nattorig (isarchrig_2_val n)) x.
+Proof.
+  intros X R x.
+  intros n.
+  exact (pr2 n).
+Qed.
+
+Definition isarchrig_3_acc {X : rig} (R : hrel X) (x : X) : UU :=
+  Σ n : nat, R (nattorig n + x)%rig 0%rig.
+Definition mk_isarchrig_3_acc {X : rig} (R : hrel X) (x : X)
+           (n : nat) (Hn : R (nattorig n + x)%rig 0%rig) : isarchrig_3_acc R x :=
+  n ,, Hn.
+Definition isarchrig_3_val {X : rig} {R : hrel X} {x : X}
+           (n : isarchrig_3_acc R x) : nat :=
+  pr1 n.
+Lemma isarchrig_3_pty {X : rig} {R : hrel X} {x : X}
+      (n : isarchrig_3_acc R x) :
+  R (nattorig (isarchrig_3_val n) + x)%rig 0%rig.
+Proof.
+  intros X R x.
+  intros n.
+  exact (pr2 n).
+Qed.
+
 Definition isarchrig {X : rig} (R : hrel X) :=
-  (Π y1 y2 : X, R y1 y2 -> ∃ n : nat, R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig)
-    × (Π x : X, ∃ n : nat, R (nattorig n) x)
-    × (Π x : X, ∃ n : nat, R (nattorig n + x)%rig 0%rig).
+  (Π y1 y2 : X, R y1 y2 -> ∥ isarchrig_1_acc R y1 y2 ∥)
+    × (Π x : X, ∥ isarchrig_2_acc R x ∥)
+    × (Π x : X, ∥ isarchrig_3_acc R x ∥).
 
 Definition isarchrig_1 {X : rig} (R : hrel X) :
   isarchrig R ->
-  Π y1 y2 : X, R y1 y2 -> ∃ n : nat, R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig :=
+  Π y1 y2 : X, R y1 y2 -> ∥ isarchrig_1_acc R y1 y2 ∥ :=
   pr1.
 Definition isarchrig_2 {X : rig} (R : hrel X) :
   isarchrig R ->
-  Π x : X, ∃ n : nat, R (nattorig n) x :=
+  Π x : X, ∥ isarchrig_2_acc R x ∥ :=
   λ H, (pr1 (pr2 H)).
 Definition isarchrig_3 {X : rig} (R : hrel X) :
   isarchrig R ->
-  Π x : X, ∃ n : nat, R (nattorig n + x)%rig 0%rig :=
+  Π x : X, ∥ isarchrig_3_acc R x ∥ :=
 
   λ H, (pr2 (pr2 H)).
 
@@ -380,7 +527,7 @@ Local Lemma isarchrig_isarchmonoid_1_aux {X : rig} (R : hrel X)
 Proof.
   intros.
   rewrite !nattorig_natmult in Hm.
-  destruct n.
+  induction n as [ | n _].
   + rewrite riglunax1 in Hn.
     eapply Hr.
     apply (pr1 Hop1).
@@ -422,7 +569,7 @@ Local Lemma isarchrig_isarchmonoid_2_aux {X : rig} (R : hrel X)
 Proof.
   intros.
   rewrite !nattorig_natmult in Hm.
-  destruct n.
+  induction n as [ | n _].
   + eapply Hr.
     exact Hm.
     rewrite rigcomm1.
@@ -454,23 +601,25 @@ Proof.
   - generalize (isarchrig_1 _ H _ _ Hy) (isarchrig_3 _ H x).
     apply hinhfun2.
     intros m n.
-    exists (max 1 (pr1 n) * (pr1 m))%nat.
+    simple refine (mk_isarchmonoid_1_acc _ _ _ _ _ _).
+    exact (max 1 (isarchrig_3_val n) * (isarchrig_1_val m))%nat.
     apply isarchrig_isarchmonoid_1_aux.
     exact Hr1.
     exact Hr.
     exact Hop1.
-    exact (pr2 m).
-    exact (pr2 n).
+    exact (isarchrig_1_pty m).
+    exact (isarchrig_3_pty n).
   - generalize (isarchrig_1 _ H _ _ Hy) (isarchrig_2 _ H x).
     apply hinhfun2.
     intros m n.
-    exists (max 1 (pr1 n) * (pr1 m))%nat.
+    simple refine (mk_isarchmonoid_2_acc _ _ _ _ _ _).
+    exact (max 1 (isarchrig_2_val n) * (isarchrig_1_val m))%nat.
     apply isarchrig_isarchmonoid_2_aux.
     exact Hr1.
     exact Hr.
     exact Hop1.
-    exact (pr2 m).
-    exact (pr2 n).
+    exact (isarchrig_1_pty m).
+    exact (isarchrig_2_pty n).
 Defined.
 
 Lemma isarchmonoid_isarchrig {X : rig} (R : hrel X) :
@@ -484,50 +633,88 @@ Proof.
     generalize (isarchmonoid_2 _ H 1%rig y1 y2 Hy).
     apply hinhfun.
     intros n.
-    exists (pr1 n).
+    simple refine (mk_isarchrig_1_acc _ _ _ _ _).
+    exact (isarchmonoid_2_val n).
     abstract (rewrite !nattorig_natmult, rigcomm1 ;
-               exact (pr2 n)).
+               exact (isarchmonoid_2_pty n)).
   - intros x.
     generalize (isarchmonoid_2 _ H x _ _ H01).
     apply hinhfun.
     intros n.
-    exists (pr1 n).
-    abstract (
-        tryif primitive_projections
-        then pattern x at 1
-        else pattern x at 2;
-        rewrite <- (riglunax1 X x) ;
-        tryif primitive_projections
-        then pattern (0%rig : X) at 1
-        else pattern (0%rig : X) at 2 ;
-        rewrite <- (rigmultx0 X (nattorig (pr1 n))) ;
-        rewrite nattorig_natmult ;
-        exact (pr2 n)).
+    simple refine (mk_isarchrig_2_acc _ _ _ _).
+    exact (isarchmonoid_2_val n).
+    abstract (set (_x_ := x) ;
+              change (R (nattorig (isarchmonoid_2_val n)) _x_) ;
+              rewrite <- (riglunax1 X _x_) ;
+              set (_0_ := 0%rig) ;
+              generalize (rigmultx0 X (nattorig (isarchmonoid_2_val n))) ;
+              change ((nattorig (isarchmonoid_2_val n) * 0%rig)%rng = _0_
+                      → R (nattorig (isarchmonoid_2_val n)) (_0_ + _x_)%rng) ;
+              intros <- ;
+              rewrite nattorig_natmult ;
+              exact (isarchmonoid_2_pty n)).
   - intros x.
     generalize (isarchmonoid_1 _ H x _ _ H01).
     apply hinhfun.
     intros n.
-    exists (pr1 n).
+    simple refine (mk_isarchrig_3_acc _ _ _ _).
+    exact (isarchmonoid_1_val n).
     abstract (
-        tryif primitive_projections
-        then pattern (0%rig : X) at 1
-        else pattern (0%rig : X) at 2;
-        rewrite <- (rigmultx0 X (nattorig (pr1 n))), nattorig_natmult ;
-        exact (pr2 n)).
+        generalize (rigmultx0 X (nattorig (isarchmonoid_1_val n))) ;
+        set (_0_ := 0%rig) ;
+        change ((nattorig (isarchmonoid_1_val n) * 0)%rig = _0_
+                → R (nattorig (isarchmonoid_1_val n) + x)%rig _0_) ;
+        intros <- ;
+        rewrite nattorig_natmult ;
+        exact (isarchmonoid_1_pty n)).
 Defined.
 
 (** ** Archimedean property in a ring *)
 
+Definition isarchrng_1_acc {X : rng} (R : hrel X) (x : X) : UU :=
+  Σ n : nat, R (nattorng n * x)%rng 1%rng.
+Definition mk_isarchrng_1_acc {X : rng} (R : hrel X) (x : X)
+           (n : nat) (Hn : R (nattorng n * x)%rng 1%rng) : isarchrng_1_acc R x :=
+  n ,, Hn.
+Definition isarchrng_1_val {X : rng} {R : hrel X} {x : X}
+           (n : isarchrng_1_acc R x) : nat :=
+  pr1 n.
+Lemma isarchrng_1_pty {X : rng} {R : hrel X} {x : X}
+      (n : isarchrng_1_acc R x) :
+  R (nattorng (isarchrng_1_val n) * x)%rng 1%rng.
+Proof.
+  intros X R x.
+  intros n.
+  exact (pr2 n).
+Qed.
+
+Definition isarchrng_2_acc {X : rng} (R : hrel X) (x : X) : UU :=
+  Σ n : nat, R (nattorng n) x.
+Definition mk_isarchrng_2_acc {X : rng} (R : hrel X) (x : X)
+           (n : nat) (Hn : R (nattorng n) x) : isarchrng_2_acc R x :=
+  n ,, Hn.
+Definition isarchrng_2_val {X : rng} {R : hrel X} {x : X}
+           (n : isarchrng_2_acc R x) : nat :=
+  pr1 n.
+Lemma isarchrng_2_pty {X : rng} {R : hrel X} {x : X}
+      (n : isarchrng_2_acc R x) :
+  R (nattorng (isarchrng_2_val n)) x.
+Proof.
+  intros X R x.
+  intros n.
+  exact (pr2 n).
+Qed.
+
 Definition isarchrng {X : rng} (R : hrel X) :=
-  (Π x : X, R x 0%rng -> ∃ n : nat, R (nattorng n * x)%rng 1%rng)
-    × (Π x : X, ∃ n : nat, R (nattorng n) x).
+  (Π x : X, R x 0%rng -> ∥ isarchrng_1_acc R x ∥)
+    × (Π x : X, ∥ isarchrng_2_acc R x ∥).
 
 Definition isarchrng_1 {X : rng} (R : hrel X) :
   isarchrng R ->
-  Π x : X, R x 0%rng -> ∃ n : nat, R (nattorng n * x)%rng 1%rng := pr1.
+  Π x : X, R x 0%rng -> ∥ isarchrng_1_acc R x ∥ := pr1.
 Definition isarchrng_2 {X : rng} (R : hrel X) :
   isarchrng R ->
-  Π x : X, ∃ n : nat, R (nattorng n) x := pr2.
+  Π x : X, ∥ isarchrng_2_acc R x ∥ := pr2.
 
 Lemma isarchrng_isarchrig {X : rng} (R : hrel X) :
   isbinophrel (X := rigaddabmonoid X) R ->
@@ -544,23 +731,25 @@ Proof.
     generalize (isarchrng_1 _ H _ X0).
     apply hinhfun.
     intros n.
-    exists (pr1 n).
+    simple refine (mk_isarchrig_1_acc _ _ _ _ _).
+    exact (isarchrng_1_val n).
     abstract
-      (rewrite <- (rngrunax1 _ (nattorig (pr1 n) * y1)%rng), <- (rnglinvax1 _ (nattorig (pr1 n) * y2)%rng), <- rngassoc1 ;
+      (rewrite <- (rngrunax1 _ (nattorig (isarchrng_1_val n) * y1)%rng), <- (rnglinvax1 _ (nattorig (isarchrng_1_val n) * y2)%rng), <- rngassoc1 ;
         apply (pr2 Hop1) ;
         rewrite <- rngrmultminus, <- rngldistr ;
-        exact (pr2 n)).
-  - apply isarchrng_2.
-    exact H.
+        exact (isarchrng_1_pty n)).
+  - intros x.
+    exact (isarchrng_2 _ H x).
   - intros x.
     generalize (isarchrng_2 _ H (- x)%rng).
     apply hinhfun.
     intros n.
-    exists (pr1 n).
+    simple refine (mk_isarchrig_3_acc _ _ _ _).
+    exact (isarchrng_2_val n).
     abstract (change 0%rig with (0%rng : X) ;
                rewrite <- (rnglinvax1 _ x) ;
                apply (pr2 Hop1) ;
-               exact (pr2 n)).
+               exact (isarchrng_2_pty n)).
 Defined.
 
 Lemma isarchrig_isarchrng {X : rng} (R : hrel X) :
@@ -572,12 +761,18 @@ Proof.
   - intros x Hx.
     generalize (isarchrig_1 _ H _ _ Hx).
     apply hinhfun.
-    intros (n,Hn).
-    exists n.
-    rewrite <- (rngrunax1 _ 1%rng), <- (rngmultx0 _ (nattorng n)).
-    exact Hn.
-  - apply (isarchrig_2 (X := rngtorig X)).
-    exact H.
+    intros n.
+    simple refine (mk_isarchrng_1_acc _ _ _ _).
+    exact (isarchrig_1_val n).
+    rewrite <- (rngrunax1 _ 1%rng).
+    generalize (rngmultx0 X (nattorng (isarchrig_1_val (X := rngtorig X) n))).
+    set (_0_ := 0%rng).
+    change ((nattorng (isarchrig_1_val n) * 0)%rng = _0_
+            → R (nattorng (isarchrig_1_val n) * x)%rng (1 + _0_)%rng).
+    intros <-.
+    exact (isarchrig_1_pty n).
+  - intros x.
+    exact (isarchrig_2 (X := rngtorig X) _ H x).
 Defined.
 
 Lemma isarchrng_isarchgr {X : rng} (R : hrel X) :
@@ -626,8 +821,10 @@ Proof.
   exact Htra.
   apply isarchrig_isarchmonoid.
   abstract (apply hinhpr ; simpl ;
-  exists 0%rig ; rewrite !rigrunax1 ;
-  exact Hr).
+            apply (mk_setquot_aux_acc (X := rigaddabmonoid X) _ _ _ 0%rig) ;
+            change (R (1 + 0)%rig (0 + 0)%rig) ;
+            rewrite !(rigrunax1 X) ;
+            exact Hr).
   (now apply (istrans_setquot_aux (X := rigaddabmonoid X))).
   (now apply (isbinophrel_setquot_aux (X := rigaddabmonoid X))).
   exact Harch.
@@ -719,14 +916,19 @@ Proof.
   simpl ; intros X S n x.
   induction n as [|n IHn].
   - apply (iscompsetquotpr (eqrelcommrngfrac X S)).
-    apply hinhpr ; simpl.
-    exists (pr2 x).
+    apply hinhpr.
+    exists (pr2 x) ; simpl.
     rewrite !(rngmult0x X).
     reflexivity.
   - rewrite !natmultS, IHn.
     apply (iscompsetquotpr (eqrelcommrngfrac X S)).
-    apply hinhpr ; simpl.
-    exists (pr2 x) ; simpl.
+    apply hinhpr.
+    exists (pr2 x).
+    change ((pr1 (pr2 x) * pr1 x + pr1 (pr2 x) * natmult (X := X) n (pr1 x)) * pr1 (pr2 x) *
+   pr1 (pr2 x) =
+            (pr1 x + natmult (X := X) n (pr1 x)) *
+            (pr1carrier (pr1 S) (pr2 x) * pr1carrier (pr1 S) (pr2 x)) *
+   pr1 (pr2 x))%rng.
     rewrite <- (rngldistr X).
     rewrite (rngcomm2 X (pr1 (pr2 x))).
     rewrite !(rngassoc2 X).
@@ -741,13 +943,16 @@ Proof.
   intros X S R Hop1 Hop2 Hs H0 Htra Hr.
   split.
   - simple refine (setquotunivprop _ (λ _, (_,,_)) _).
-    apply isapropimpl, propproperty.
+    abstract (apply isapropimpl, propproperty).
     intros x Hx.
-    revert Hx ; apply hinhuniv ; intros (c,Hx) ; simpl in Hx.
+    revert Hx ; apply hinhuniv ; intros c.
+    assert (Hx : R (pr1 x * 1 * pr1 (pr1 c))%rng (0 * pr1 (pr2 x) * pr1 (pr1 c))%rng) by (exact (pr2 c)).
+    generalize (pr1 c) Hx ; clear c Hx ; intros c Hx.
     rewrite !(rngmult0x X), (rngrunax2 X) in Hx.
     apply (hinhfun (X := Σ n, commrngfracgt X S Hop1 Hop2 Hs (setquotpr (eqrelcommrngfrac X S) ((nattorng n * pr1 x)%rng,, pr2 x)) 1%rng)).
     intros H.
-    eexists (pr1 H).
+    simple refine (mk_isarchrng_1_acc _ _ _ _).
+    exact (pr1 H).
     unfold nattorng.
     rewrite (nattorig_natmult (X := commrngfrac X S)).
     rewrite (natmult_commrngfrac (X := X) (S := S)).
@@ -755,23 +960,27 @@ Proof.
     now apply (pr2 H).
     generalize (isarchrng_1 _ Hr _ Hx) (isarchrng_2 _ Hr (pr1 (pr2 x) * pr1 c)%rng).
     apply hinhfun2.
-    intros (m,Hm) (n,Hn).
-    exists (max 1 n * m)%nat.
-    destruct n ; simpl max.
-    + apply hinhpr ; simpl.
+    intros m n.
+    exists (max 1 (isarchrng_2_val n) * (isarchrng_1_val m))%nat.
+    generalize (isarchrng_2_val n) (isarchrng_2_pty n).
+    clear n ; intros n Hn.
+    induction n as [ | n _] ; simpl max.
+    + apply hinhpr.
       exists c.
+      change (R (nattorng (isarchrng_1_val m) * pr1 x * 1 * pr1 c)%rng
+    (1 * pr1 (pr2 x) * pr1 c)%rng).
       rewrite (rngrunax2 X), (rnglunax2 X), (rngassoc2 X).
       eapply Htra.
-      exact Hm.
+      exact (isarchrng_1_pty m).
       eapply Htra.
       exact H0.
       exact Hn.
     + unfold nattorng.
       rewrite (nattorig_natmult (X := X)), natmult_mult.
-      apply hinhpr ; simpl.
+      apply hinhpr.
       exists c.
       change (R
-                (natmult (Datatypes.S n) (natmult (X := X) m (pr1 x)) * 1 * pr1 c)%rng
+                (natmult (Datatypes.S n) (natmult (X := X) (isarchrng_1_val m) (pr1 x)) * 1 * pr1 c)%rng
                 (1 * pr1 (pr2 x) * pr1 c)%rng).
       rewrite <- (nattorig_natmult (X := X)), (rngrunax2 X), (rnglunax2 X), (rngassoc2 X), (nattorig_natmult (X := X)).
       eapply Htra.
@@ -779,15 +988,17 @@ Proof.
       exact Htra.
       exact Hop1.
       rewrite <- (nattorig_natmult (X := X)), (rngassoc2 X).
-      exact Hm.
+      exact (isarchrng_1_pty m).
       exact Hn.
   - simple refine (setquotunivprop _ _ _).
     intros x.
     apply (hinhfun (X := Σ n : nat, commrngfracgt X S Hop1 Hop2 Hs
      (setquotpr (eqrelcommrngfrac X S) (nattorng n,, unel S))
      (setquotpr (eqrelcommrngfrac X S) x))).
-    intros (n,Hn).
-    exists n.
+    intros n.
+    induction n as [n Hn].
+    simple refine (mk_isarchrng_2_acc _ _ _ _).
+    exact n.
     unfold nattorng, nattorig.
     change 1%rig with (setquotpr (eqrelcommrngfrac X S)
                                 (1%rng,, unel S)).
@@ -795,25 +1006,30 @@ Proof.
     exact Hn.
     generalize (isarchrng_1 _ Hr _ (Hs (pr1 (pr2 x)) (pr2 (pr2 x)))) (isarchrng_2 _ Hr (pr1 x)%rng).
     apply hinhfun2.
-    intros (m,Hm) (n,Hn).
-    exists (max 1 n * m)%nat.
-    destruct n ; simpl max.
-    + apply hinhpr ; simpl.
+    intros m n.
+    exists (max 1 (isarchrng_2_val n) * (isarchrng_1_val m))%nat.
+    generalize (isarchrng_2_val n) (isarchrng_2_pty n) ; clear n ; intros n Hn.
+    induction n as [ | n _] ; simpl max.
+    + apply hinhpr.
       exists (pr2 x).
+      change (R (nattorng (isarchrng_1_val m) * pr1 (pr2 x) * pr1 (pr2 x))%rng
+                (pr1 x * 1 * pr1 (pr2 x))%rng).
       apply (isrngmultgttoisrrngmultgt X).
       exact Hop1.
       exact Hop2.
       apply Hs.
       apply (pr2 (pr2 x)).
       eapply Htra.
-      exact Hm.
+      exact (isarchrng_1_pty m).
       eapply Htra.
       exact H0.
       rewrite (rngrunax2 X).
       exact Hn.
-    + apply hinhpr ; simpl.
+    + apply hinhpr.
       exists (pr2 x).
-      change (n * m + m)%nat with (Datatypes.S n * m)%nat.
+      change (R
+                (nattorng (Datatypes.S n * isarchrng_1_val m) * pr1 (pr2 x) *
+                 pr1 (pr2 x))%rng (pr1 x * 1 * pr1 (pr2 x))%rng).
       unfold nattorng.
       apply (isrngmultgttoisrrngmultgt X).
       exact Hop1.
@@ -826,14 +1042,31 @@ Proof.
       exact Htra.
       exact Hop1.
       rewrite <- (nattorig_natmult (X := X)).
-      exact Hm.
+      exact (isarchrng_1_pty m).
       exact Hn.
 Qed.
 
 (** ** Archimedean property in a field *)
 
+Definition isarchfld_acc {X : fld} (R : hrel X) (x : X) : UU :=
+  Σ n : nat, R (nattorng n) x.
+Definition mk_isarchfld_acc {X : fld} (R : hrel X) (x : X)
+           (n : nat) (Hn : R (nattorng n) x) : isarchfld_acc R x :=
+  n ,, Hn.
+Definition isarchfld_val {X : fld} {R : hrel X} {x : X}
+           (n : isarchfld_acc R x) : nat :=
+  pr1 n.
+Lemma isarchfld_pty {X : fld} {R : hrel X} {x : X}
+      (n : isarchfld_acc R x) :
+  R (nattorng (isarchfld_val n)) x.
+Proof.
+  intros X R x.
+  intros n.
+  exact (pr2 n).
+Qed.
+
 Definition isarchfld {X : fld} (R : hrel X) :=
-  Π x : X, ∃ n : nat, R (nattorng n) x.
+  Π x : X, ∥ isarchfld_acc R x ∥.
 
 Lemma isarchfld_isarchrng {X : fld} (R : hrel X) :
   Π (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isrngmultgt X R)
@@ -843,28 +1076,34 @@ Proof.
   intros X R Hadd Hmult Hirr H.
   split.
   - intros x Hx.
-    case (fldchoice x) ; intros x'.
+    induction (fldchoice x) as [ x' | x' ].
     + generalize (H (pr1 x')).
       apply hinhfun.
       intros n.
-      exists (pr1 n).
-      abstract (pattern (1%rng : X) at 1 ;
-                 rewrite <- (pr1 (pr2 x')) ;
-                apply (isrngmultgttoisrrngmultgt _ Hadd Hmult _ _ _ Hx (pr2 n))).
+      simple refine (mk_isarchrng_1_acc _ _ _ _).
+      exact (isarchfld_val n).
+      generalize (pr1 (pr2 x')).
+      set (_1_ := 1%rng).
+      change ((pr1 x' * x)%rng = _1_
+              → R (nattorng (isarchfld_val n) * x)%rng _1_).
+      intros <-.
+      apply (isrngmultgttoisrrngmultgt _ Hadd Hmult _ _ _ Hx (isarchfld_pty n)).
     + apply hinhpr.
-      exists O.
+      simple refine (mk_isarchrng_1_acc _ _ _ _).
+      exact O.
       abstract (apply fromempty ;
                  refine (Hirr _ _) ;
                  rewrite x' in Hx ;
                  apply Hx).
-  - exact H.
+  - intros x.
+    exact (H x).
 Defined.
 Lemma isarchrng_isarchfld {X : fld} (R : hrel X) :
     isarchrng R -> isarchfld R.
 Proof.
   intros X R H.
   intros x.
-  apply (isarchrng_2 R H x).
+  exact (isarchrng_2 R H x).
 Defined.
 
 Theorem isarchfldfrac ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel X R ) ( is1 : isrngmultgt X R ) ( is2 : R 1%rng 0%rng ) ( nc : neqchoice R ) ( irr : isirrefl R ) ( tra : istrans R ) :
@@ -896,25 +1135,48 @@ Proof.
   - intros x Hx.
     eapply hinhfun.
     2: apply (isarchrng_1 _ X1 (weqfldfracgt_f X is is0 is1 is2 nc x)).
-    intros (n,Hn).
-    exists n.
+    intros n.
+    simple refine (mk_isarchrng_1_acc _ _ _ _).
+    exact (isarchrng_1_val n).
+    change (commrngfracgt X (rngpossubmonoid X is1 is2) is0 is1
+     (λ (c : X) (r : (rngpossubmonoid X is1 is2) c), r)
+     (weqfldfracgt_f X is is0 is1 is2 nc (nattorng (isarchrng_1_val n) * x)%rng)
+     (weqfldfracgt_f X is is0 is1 is2 nc 1%rng)).
     rewrite H_f, H_1.
-    exact Hn.
+    exact (isarchrng_1_pty n).
     rewrite H_0 in Hx.
     exact Hx.
   - intros x.
     eapply hinhfun.
     2: apply (isarchrng_2 _ X1 (weqfldfracgt_f X is is0 is1 is2 nc x)).
-    intros (n,Hn).
-    exists n.
-    rewrite <- (rngrunax2 _ (nattorng n)), H_f, H_1, rngrunax2.
-    exact Hn.
+    intros n.
+    simple refine (mk_isarchrng_2_acc _ _ _ _).
+    exact (isarchrng_2_val n).
+    rewrite <- (rngrunax2 _ (nattorng (isarchrng_2_val n))), H_f, H_1, rngrunax2.
+    exact (isarchrng_2_pty n).
 Defined.
 
 (** ** Archimedean property in a constructive field *)
 
+Definition isarchCF_acc {X : ConstructiveField} (R : hrel X) (x : X) : UU :=
+  Σ n : nat, R (nattorng n) x.
+Definition mk_isarchCF_acc {X : ConstructiveField} (R : hrel X) (x : X)
+           (n : nat) (Hn : R (nattorng n) x) : isarchCF_acc R x :=
+  n ,, Hn.
+Definition isarchCF_val {X : ConstructiveField} {R : hrel X} {x : X}
+           (n : isarchCF_acc R x) : nat :=
+  pr1 n.
+Lemma isarchCF_pty {X : ConstructiveField} {R : hrel X} {x : X}
+      (n : isarchCF_acc R x) :
+  R (nattorng (isarchCF_val n)) x.
+Proof.
+  intros X R x.
+  intros n.
+  exact (pr2 n).
+Qed.
+
 Definition isarchCF {X : ConstructiveField} (R : hrel X) :=
-  Π x : X, ∃ n : nat, R (nattorng n) x.
+  Π x : X, ∥ isarchCF_acc R x ∥.
 
 Lemma isarchCF_isarchrng {X : ConstructiveField} (R : hrel X) :
   Π (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isrngmultgt X R)
@@ -927,15 +1189,16 @@ Proof.
   - intros x Hx.
     generalize (H (CFinv x (H0 _ Hx))).
     apply hinhfun.
-    intros (n,Hn).
-    exists n.
+    intros n.
+    simple refine (mk_isarchrng_1_acc _ _ _ _).
+    exact (isarchCF_val n).
     change 1%rng with (1%CF : X).
     rewrite <- (islinv_CFinv x (H0 x Hx)).
     apply isrngmultgttoisrrngmultgt.
     exact Hadd.
     exact Hmult.
     exact Hx.
-    exact Hn.
+    exact (isarchCF_pty n).
   - exact H.
 Defined.
 Lemma isarchrng_isarchCF {X : ConstructiveField} (R : hrel X) :
@@ -943,5 +1206,5 @@ Lemma isarchrng_isarchCF {X : ConstructiveField} (R : hrel X) :
 Proof.
   intros X R H.
   intros x.
-  apply (isarchrng_2 R H x).
+  exact (isarchrng_2 R H x).
 Defined.
