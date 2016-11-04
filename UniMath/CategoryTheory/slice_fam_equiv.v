@@ -1,7 +1,6 @@
 Require Import UniMath.Foundations.Basics.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
-        UniMath.CategoryTheory.CommaCategories
         UniMath.CategoryTheory.category_hset
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.equivalences.
