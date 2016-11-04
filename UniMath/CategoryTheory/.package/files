@@ -10,6 +10,7 @@ limits/graphs/binproducts.v
 functor_categories.v
 FunctorAlgebras.v
 Monads.v
+Modules.v
 limits/cones.v
 limits/pullbacks.v
 limits/graphs/pullbacks.v
