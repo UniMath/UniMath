@@ -5,23 +5,6 @@ Require Import UniMath.Foundations.Basics.Sets
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.equivalences.
 
-Section hfiber_hSet.
-
-  Lemma isaset_hfiber {X : hSet} {Y : UU} (p : Π y1 y2 : Y, isaprop (y1 = y2)) (f : X → Y) (y : Y) : isaset (hfiber f y).
-  Proof.
-    unfold hfiber.
-    apply isaset_total2.
-    apply (pr2 X).
-    intro x.
-    apply isasetaprop.
-    apply p.
-  Defined.
-
-  Definition hfiber_hSet {X : hSet} {Y : UU} (p : Π y1 y2 : Y, isaprop (y1 = y2)) (f : X → Y) (y : Y) : hSet :=
-    hSetpair (hfiber f y) (isaset_hfiber p f y).
-
-End hfiber_hSet.
-
 (** * Discrete precategories *)
 (* ***** taken from Anders' multisorted.v ***** *)
 Section DiscreteCategory.
@@ -66,6 +49,9 @@ End DiscreteCategory.
 (** Proof that Set / X and Set ^ X are equivalent as categories *)
 Section slice_fam_equiv.
 
+  Definition hfiber_hSet {X : hSet} {Y : hSet} (f : X → Y) (y : Y) : hSet :=
+    hSetpair (hfiber f y) (isaset_hfiber f y (pr2 X) (pr2 Y)).
+
   Variable X : hSet.
 
   Local Definition slice (A : hSet) := slice_precat HSET A has_homsets_HSET.
@@ -74,11 +60,10 @@ Section slice_fam_equiv.
     has_homsets_discrete_precategory (pr1 A) (hlevelntosn 2 (pr1 A) (isofhlevelssnset 0 (pr1 A) (pr2 A))).
   Local Definition fam (A : hSet) := functor_precategory (discrete A) HSET has_homsets_HSET.
   Local Definition mkfam (f : X → hSet) := functor_discrete_precategory (pr1 X) HSET f.
-  Local Definition mkhfiberhset {A B : hSet} (f : A → B) := hfiber_hSet (fun x x' => pr2 (eqset x x')) f.
   Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
   Definition slice_to_fam_fun (a : slice X) : fam X :=
-    mkfam (fun x : X => mkhfiberhset (pr2 a) x).
+    mkfam (fun x : X => hfiber_hSet (pr2 a) x).
 
   Local Notation s_to_f := slice_to_fam_fun.
 
@@ -197,7 +182,7 @@ Section slice_fam_equiv.
                   => pr1 (pr2 h))).
     + reflexivity.
     + rewrite <- H.      assert (coconus_isaset : isaset ((coconusf (pr2 x)))).
-    - apply (isaset_total2_hSet X (fun y => (hfiber_hSet (fun z z' => pr2 (eqset z z')) (pr2 x) y))).
+    - apply (isaset_total2_hSet X (fun y => (hfiber_hSet (pr2 x) y))).
     - apply (hset_equiv_is_iso (hSetpair (coconusf (pr2 x)) coconus_isaset) _ (weqfromcoconusf (pr2 x))).
   Defined.
 
@@ -249,7 +234,7 @@ Section slice_fam_equiv.
     assert (isaset_total2_F : isaset (Σ x ,  pr1 ((pr1 F) x))).
     - apply isaset_total2_hSet.
     - assert (isaset_hfiber_pr1 : isaset (hfiber (@pr1 (discrete X) (funcomp (pr1 (pr1 F)) pr1)) x)).
-      + apply (@isaset_hfiber (hSetpair (Σ x ,  pr1 ((pr1 F) x)) isaset_total2_F) _ (fun z z' : X => pr2 (eqset z z')) (@pr1 (discrete X) (funcomp (pr1 (pr1 F)) pr1)) x).
+      + apply (@isaset_hfiber (hSetpair (Σ x ,  pr1 ((pr1 F) x)) isaset_total2_F) _ (@pr1 (discrete X) (funcomp (pr1 (pr1 F)) pr1)) x isaset_total2_F (pr2 X)).
       + assert (H : (λ a : (pr1 ((pr1 F) x)), (x,, a),, idpath x) = ezmappr1 (funcomp (pr1 (pr1 F)) pr1) x).
         * apply funextsec.
           intro a.
