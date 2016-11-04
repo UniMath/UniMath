@@ -73,11 +73,11 @@ Section slice_fam_equiv.
   Local Definition discrete_has_homsets (A : hSet) :=
     has_homsets_discrete_precategory (pr1 A) (hlevelntosn 2 (pr1 A) (isofhlevelssnset 0 (pr1 A) (pr2 A))).
   Local Definition fam (A : hSet) := functor_precategory (discrete A) HSET has_homsets_HSET.
-  Local Definition mkfam (f : (pr1 X) → hSet) := functor_discrete_precategory (pr1 X) HSET f.
-  Local Definition mkhfiberhset {A B : hSet} (f : (pr1 A) → (pr1 B)) := hfiber_hSet (fun x x' => pr2 (eqset x x')) f.
+  Local Definition mkfam (f : X → hSet) := functor_discrete_precategory (pr1 X) HSET f.
+  Local Definition mkhfiberhset {A B : hSet} (f : A → B) := hfiber_hSet (fun x x' => pr2 (eqset x x')) f.
   Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
-  Definition slice_to_fam_fun (a : ob (slice X)) : ob (fam X) :=
+  Definition slice_to_fam_fun (a : slice X) : fam X :=
     mkfam (fun x : X => mkhfiberhset (pr2 a) x).
 
   Local Notation s_to_f := slice_to_fam_fun.
@@ -130,7 +130,7 @@ Section slice_fam_equiv.
   Definition slice_to_fam_functor : functor (slice X) (fam X) :=
     slice_to_fam_data ,, slice_to_fam_is_functor.
 
-  Definition fam_to_slice_fun (f : ob (fam X)) : ob (slice X) :=
+  Definition fam_to_slice_fun (f : fam X) : slice X :=
     (total2_hSet (pr1 f)) ,, pr1.
 
   Local Notation f_to_s := fam_to_slice_fun.
@@ -183,7 +183,7 @@ Section slice_fam_equiv.
   Definition slice_counit : nat_trans (functor_composite slice_to_fam_functor fam_to_slice_functor) (functor_identity (slice X)) :=
     slice_counit_fun ,, slice_counit_is_nat_trans.
 
-  Definition slice_all_iso : forall x : slice X, is_isomorphism ((pr1 slice_counit) x).
+  Definition slice_all_iso : forall x : slice X, is_isomorphism (slice_counit x).
   Proof.
     intro x.
     apply iso_to_slice_precat_iso.
@@ -257,7 +257,7 @@ Section slice_fam_equiv.
         * apply (hset_equiv_is_iso ((pr1 F) x) (hSetpair (hfiber pr1 x) isaset_hfiber_pr1) (ezweqpr1 (funcomp (pr1 (pr1 F)) pr1) x)).
   Defined.
 
-  Definition fam_all_iso (F : fam X) : is_isomorphism ((pr1 fam_unit) F) := pr2 (fam_iso F).
+  Definition fam_all_iso (F : fam X) : is_isomorphism (fam_unit F) := pr2 (fam_iso F).
 
   Definition fam_counit := nat_trans_inv_from_pointwise_inv _ _ (functor_category_has_homsets _ _ has_homsets_HSET) _ _ fam_unit fam_all_iso.
 
