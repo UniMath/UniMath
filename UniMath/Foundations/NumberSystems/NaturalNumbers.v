@@ -891,14 +891,6 @@ Proof.
 Defined.
 Hint Resolve natplusassoc : natarith.
 
-Lemma natplusnsms (n m : nat) : n + S m = S (n + m).
-Proof.
-  intros n. induction n as [n | n].
-  - intros m. rewrite natplusl0. rewrite natplusl0. apply idpath.
-  - intros m. rewrite <- natplusnsm. rewrite IHn. apply maponpaths.
-    apply natplusnsm.
-Qed.
-
 Definition nataddabmonoid : abmonoid :=
   abmonoidpair (setwithbinoppair natset (fun n m : nat => n + m))
                (dirprodpair
@@ -1342,16 +1334,42 @@ Proof.
   apply idpath.
 Defined.
 
-Definition minusminusplus (n m k : nat) : n - (m + k) = n - m - k.
+Definition minusminusmmn (n m : nat) (H : m ≥ n) : m - (m - n) = n.
 Proof.
-  intros n. induction n as [ | n].
-  - intros m k. apply idpath.
-  - intros m. induction m as [ | m].
-    + intros k. apply idpath.
-    + intros k. rewrite (natpluscomm (S m) k). rewrite natplusnsms. rewrite (natpluscomm k m). cbn.
-      rewrite IHn. apply idpath.
+  intros n m H.
+  apply (natplusrcan (m - (m - n)) n (m - n)).
+  - rewrite minusplusnmm.
+    + rewrite natpluscomm. rewrite minusplusnmm.
+      * apply idpath.
+      * apply H.
+    + apply natminusgehn.
 Qed.
 
+(** *** Comparisons and [n -> n - 1] *)
+
+Definition natgthtogthm1 (n m : nat) : n > m -> n > m - 1.
+Proof.
+  intros n m is. induction m as [ | m].
+  - apply is.
+  - cbn. rewrite natminuseqn. apply (natgehgthtrans n (S m) m).
+    + apply (natgthtogeh _ _ is).
+    + apply natgthsnn.
+Qed.
+
+Definition natlthtolthm1 (n m : nat) : n < m -> n - 1 < m := natgthtogthm1 _ _.
+
+Definition natlehtolehm1 (n m : nat) : n ≤ m -> n - 1 ≤ m := (fun X : n ≤ m => natlthtolthm1 n (S m) X).
+
+Definition natgehtogehm1 (n m : nat) : n ≥ m -> n ≥ m - 1 := natlehtolehm1 _ _.
+
+Definition natgthtogehm1 (n m : nat) : n > m -> n - 1 ≥ m.
+Proof.
+  intros n. induction n as [ | n].
+  - intros m X. apply fromempty. apply (negnatgth0n m X).
+  - intros m X. induction m as [ | m].
+    + apply idpath.
+    + cbn. rewrite natminuseqn. apply X.
+Qed.
 
 (* *** Two-sided minus and comparisons *)
 
@@ -2468,7 +2486,7 @@ Definition weqletoleh (n m : nat) : le n m ≃ n ≤ m := weqpair _ (isweqletole
 
 (* more lemmas about natural numbers *)
 
-Lemma natsubsub (n i j : nat) : n - i - j = n - (i + j).
+Lemma natminusminus (n i j : nat) : n - i - j = n - (i + j).
 Proof.
   intros n; induction n as [|n N].
   - reflexivity.

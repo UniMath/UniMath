@@ -1021,8 +1021,8 @@ Proof.
   exists (concatenate (pr1 Ha) (pr1 Hb)).
   split.
   + simpl ; intros m.
-    set (Hm := invmap (weqfromcoprodofstn (length (pr1 Ha)) (length (pr1 Hb))) m).
-    change (invmap (weqfromcoprodofstn (length (pr1 Ha)) (length (pr1 Hb))) m) with Hm.
+    set (Hm := (weqfromcoprodofstn_invmap (length (pr1 Ha)) (length (pr1 Hb))) m).
+    change ((weqfromcoprodofstn_invmap (length (pr1 Ha)) (length (pr1 Hb))) m) with Hm.
     induction Hm as [Hm | Hm].
     * rewrite coprod_rect_compute_1.
       apply (pr1 (pr2 Ha)).
@@ -1032,13 +1032,13 @@ Proof.
     split.
     * apply (pr2 (pr2 Ha)).
       intros m.
-      specialize (Hx (weqfromcoprodofstn _ _ (ii1 m))).
-      rewrite homotinvweqweq, coprod_rect_compute_1 in Hx.
+      specialize (Hx (weqfromcoprodofstn_map _ _ (ii1 m))).
+      rewrite (weqfromcoprodofstn_eq1 _ _), coprod_rect_compute_1 in Hx.
       exact Hx.
     * apply (pr2 (pr2 Hb)).
       intros m.
-      specialize (Hx (weqfromcoprodofstn _ _ (ii2 m))).
-      rewrite homotinvweqweq, coprod_rect_compute_2 in Hx.
+      specialize (Hx (weqfromcoprodofstn_map _ _ (ii2 m))).
+      rewrite (weqfromcoprodofstn_eq1 _ _), coprod_rect_compute_2 in Hx.
       exact Hx.
 Qed.
 Lemma filtergenerated_notempty :
