@@ -22,7 +22,7 @@ Definition cat_data {C} (X:C^op==>SET) : precategory_data.
   { intro a.
     exact (identity (pr1 a),,
                     (apevalat (pr2 a) (!((functor_id X) (pr1 a))))). }
-  { intros a b c f g. Check (ap (#X (pr1 g))).
+  { intros a b c f g.
     exact (pr1 g ∘ pr1 f,,
            ((pr2 f) @ !ap (#X (pr1 f)) (!(pr2 g))) @ (!(apevalat (pr2 c) (((functor_comp X) _ _ _ (pr1 g) (pr1 f)))))). } Defined.
 

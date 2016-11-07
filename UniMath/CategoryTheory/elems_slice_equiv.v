@@ -5,32 +5,31 @@ Require Import UniMath.Foundations.Basics.Sets
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.opp_precat
         UniMath.CategoryTheory.equivalences
-        UniMath.Ktheory.Elements.
+        UniMath.Ktheory.ElementsOp.
 
 (* Proof that pshf (el P) ≃ (pshf C) / P *)
 Section elems_slice_equiv.
 
   Local Open Scope cat.
 
-  Local Definition el {C : Precategory} (P : C ==> SET) : Precategory := cat P.
-  Local Definition pshf (C : Precategory) : Precategory := [C, SET]. (* Need to change to C^op, once I figure how to get proofs to go through w/ C^op *)
+  Local Open Scope set.
+
+  Local Definition el {C : Precategory} (P : C^op ==> SET) : Precategory := @cat C P.
+  Local Definition pshf (C : Precategory) : Precategory := [C^op, SET].
   Local Definition slice (C : Precategory) (X : C) : Precategory :=
     ((slice_precat C X (pr2 C)) ,, (has_homsets_slice_precat C (pr2 C) X)).
 
   Variable (C : Precategory).
   Variable (P : pshf C).
 
-  Print functor_data.
+  Definition pshf_to_slice_ob_funct_fun (F : pshf (el P)) : C^op → SET :=
+    fun X => total2_hSet (fun (p : pr1 ((pr1 P) X)) => ((pr1 F) (X ,, p))).
 
-  Definition pshf_to_slice_ob_funct_fun (F : pshf (el P)) : C → SET :=
-    fun X => (Σ(p : pr1 ((pr1 P) X)), pr1 ((pr1 F) (X ,, p)))
-               ,, (isaset_total2 _ (pr2 ((pr1 P) X)) (fun x => pr2 ((pr1 F) (X,, x)))).
-
-  Definition pshf_to_slice_ob_funct_mor (F : pshf (el P)) (X Y : C) (f : X --> Y) :
+  Definition pshf_to_slice_ob_funct_mor (F : pshf (el P)) (X Y : C^op) (f : X --> Y) :
     pshf_to_slice_ob_funct_fun F X --> pshf_to_slice_ob_funct_fun F Y :=
     fun p => # (pr1 P) f (pr1 p) ,, pr2 (pr1 F) (X ,, (pr1 p)) (Y,, # (pr1 P) f (pr1 p)) (f ,, idpath (# (pr1 P) f (pr1 p))) (pr2 p).
 
-  Definition pshf_to_slice_ob_funct_data (F : pshf (el P)) : functor_data C SET :=
+  Definition pshf_to_slice_ob_funct_data (F : pshf (el P)) : functor_data C^op SET :=
     (pshf_to_slice_ob_funct_fun F) ,, (pshf_to_slice_ob_funct_mor F).
 
   Definition pshf_to_slice_ob_is_funct (F : pshf (el P)) : is_functor (pshf_to_slice_ob_funct_data F).
@@ -45,6 +44,8 @@ Section elems_slice_equiv.
       assert (H : pr1 p = # (pr1 P) (identity a) (pr1 p)).
     - apply (transportb (fun f => pr1 p = f (pr1 p)) ((pr1 (pr2 P)) a) (idpath _)).
     - unfold functor_on_morphisms. unfold functor_on_morphisms in H.
+      unfold identity. simpl.
+      rewrite tppr. rewrite <- H.
       (*
       Set Printing All. simpl.
       unfold identity. simpl.
