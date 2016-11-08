@@ -869,6 +869,9 @@ Proof. intros. apply (isofhleveltotal2 2); assumption. Defined.
 Corollary isaset_dirprod {X Y : UU} : isaset X -> isaset Y -> isaset (X × Y).
 Proof. intros. apply isaset_total2. assumption. intro. assumption. Defined.
 
+Corollary isaset_hfiber {X Y : UU} (f : X -> Y) (y : Y) : isaset X -> isaset Y -> isaset (hfiber f y).
+Proof. intros X Y f y isX isY. apply isaset_total2. assumption. intro. apply isasetaprop. apply isY. Defined.
+
 (** The following lemma assert "uniqueness of identity proofs" (uip) for
   sets. *)
 
