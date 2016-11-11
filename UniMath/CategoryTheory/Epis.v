@@ -46,6 +46,8 @@ Section def_epi.
   Definition EpiArrow {x y : C} (E : Epi x y) : C⟦x, y⟧ := pr1 E.
   Coercion EpiArrow : Epi >-> precategory_morphisms.
 
+  Definition EpiisEpi {x y : C} (E : Epi x y) : isEpi E := pr2 E.
+
   (** Isomorphism to isEpi and Epi. *)
   Lemma iso_isEpi {x y : C} (f : x --> y) (H : is_iso f) : isEpi f.
   Proof.

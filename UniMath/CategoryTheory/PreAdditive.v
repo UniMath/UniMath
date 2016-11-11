@@ -129,6 +129,7 @@ Section preadditive_with_zero.
 
 End preadditive_with_zero.
 
+
 (** Some equations on inverses in PreAdditiev categories *)
 Section preadditive_inv_comp.
 
@@ -154,6 +155,12 @@ Section preadditive_inv_comp.
     rewrite linvax. rewrite to_premor_unel'.
     unfold to_unel.
     apply idpath.
+  Qed.
+
+  Lemma PreAdditive_cancel_inv {x y : A} (f g : A⟦x, y⟧) (H : (to_inv _ _ f)  = (to_inv _ _ g)) :
+    f = g.
+  Proof.
+    apply (grinvmaponpathsinv (to_abgrop x y) H).
   Qed.
 
 End preadditive_inv_comp.

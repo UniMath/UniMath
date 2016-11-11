@@ -126,6 +126,27 @@ Proof . intros . apply ( @grrcan hzaddabgr a b c is ) .  Defined .
 
 Definition hzinvmaponpathsminus { a b : hz } ( e :  paths ( - a ) ( - b ) ) : paths a b := grinvmaponpathsinv hzaddabgr e .
 
+Lemma hzrplusminus (n m : hz) : n + m - m = n.
+Proof.
+  intros n m. unfold hzminus, hzplus, hzplus. rewrite rngassoc1.
+  set (tmp := hzrminus m). unfold hzminus, hzplus in tmp. rewrite tmp. clear tmp.
+  apply hzplusr0.
+Defined.
+Opaque hzrplusminus.
+
+Lemma hzrminusplus (n m : hz) : n - m + m = n.
+Proof.
+  intros n m. unfold hzplus, hzminus. rewrite rngassoc1.
+  rewrite hzlminus. apply hzplusr0.
+Defined.
+Opaque hzrminusplus.
+
+
+Lemma hzrminusplus' (n m : hz) : n = n - m + m.
+Proof.
+  intros n m. apply pathsinv0. apply hzrminusplus.
+Defined.
+Opaque hzrminusplus'.
 
 (** *** Properties of multiplication on [ hz ] *)
 
@@ -907,5 +928,121 @@ rewrite ( hzabsvalgth0 ga ) .  rewrite ( hzabsvalleh0 leb ) . rewrite ( hzabsval
 rewrite ( hzabsvalgth0 gb ) .  rewrite ( hzabsvalleh0 lea ) . rewrite ( hzabsvalleh0 ( hzmultleh0gth0 lea gb ) ) . apply ( rnglmultminus hz ) .
 
 rewrite ( hzabsvalleh0 lea ) . rewrite ( hzabsvalleh0 leb ) . rewrite ( hzabsvalgeh0 ( hzmultleh0leh0 lea leb ) ) .  apply (rngmultminusminus hz ) . Defined .
+
+
+
+(** *** Some common equalities on integers *)
+(** These lemmas are used for example in Complexes.v to construct complexes. *)
+Local Opaque hz isdecrelhzeq iscommrngops.
+
+Lemma hzeqbooleqii (i : hz) : hzbooleq i i = true.
+Proof.
+  intros i.
+  unfold hzbooleq. unfold decreltobrel. induction (pr2 hzdeceq i i) as [T | F].
+  - apply idpath.
+  - apply fromempty. apply F. apply idpath.
+Qed.
+
+Lemma hzbooleqisi (i : hz) : hzbooleq i (i + 1) = false.
+Proof.
+  intros i.
+  unfold hzbooleq, decreltobrel. cbn.
+  induction (isdecrelhzeq i (i + 1)) as [e | n].
+  - apply fromempty. apply (ct (hzneq, isdecrelhzneq, 1, 0)).
+    apply (hzpluslcan 1 0 i (! (pathscomp0 (hzplusr0 i) e))).
+  - apply idpath.
+Qed.
+
+Lemma hzbooleqissi (i : hz) : hzbooleq i (i + 1 + 1) = false.
+Proof.
+  intros i.
+  unfold hzbooleq. unfold decreltobrel. cbn.
+  induction (isdecrelhzeq i (i + 1 + 1)) as [e | n].
+  - apply fromempty. apply (ct (hzneq, isdecrelhzneq, 1 + 1, 0)).
+    rewrite hzplusassoc in e. apply (hzpluslcan (1 + 1) 0 i (! (pathscomp0 (hzplusr0 i) e))).
+  - apply idpath.
+Qed.
+
+Lemma hzeqeisi {i i0 : hz} (e : hzeq i i0) (e' : hzeq i (i0 + 1)) : empty.
+Proof.
+  intros i i0 e e'.
+  apply nopathstruetofalse.
+  use (pathscomp0 _ (hzbooleqisi i0)).
+  rewrite <- e'. rewrite <- e.
+  apply (! (hzeqbooleqii i)).
+Qed.
+
+Lemma hzeqisi {i : hz} (e' : hzeq i (i + 1)) : empty.
+Proof.
+  intros i e'.
+  apply nopathstruetofalse. rewrite <- (hzbooleqisi i). rewrite <- e'.
+  apply (! (hzeqbooleqii i)).
+Qed.
+
+Lemma hzeqissi {i : hz} (e : hzeq i (i + 1 + 1)) : empty.
+Proof.
+  intros i e.
+  set (tmp := hzbooleqissi i). cbn in e. rewrite <- e in tmp.
+  rewrite (hzeqbooleqii i) in tmp. apply nopathstruetofalse. apply tmp.
+Qed.
+
+Lemma hzeqeissi {i i0 : hz} (e : hzeq i i0) (e' : hzeq i (i0 + 1 + 1)) : empty.
+Proof.
+  intros i e0 e e'.
+  cbn in e. rewrite e in e'. apply (hzeqissi e').
+Qed.
+
+Lemma hzeqsnmnsm {n m : hz} (e : hzeq (n + 1) m) (e' : hzeq n (m + 1)) : empty.
+Proof.
+  intros n m e e'.
+  cbn in e. rewrite <- e in e'. apply (hzeqissi e').
+Qed.
+
+Lemma isdecrelhzeqi (i : hz) : isdecrelhzeq i i = ii1 (idpath _).
+Proof.
+  intros i.
+  induction (isdecrelhzeq i i) as [T | F].
+  - apply maponpaths. apply isasethz.
+  - apply fromempty. apply F. apply idpath.
+Qed.
+
+Lemma isdecrelhzeqminusplus (i j : hz) : isdecrelhzeq i (i - j + j) = ii1 (hzrminusplus' i j).
+Proof.
+  intros i j.
+  induction (isdecrelhzeq i (i - j + j)) as [T | F].
+  - apply maponpaths. apply isasethz.
+  - apply fromempty. apply F. apply (hzrminusplus' i j).
+Qed.
+
+Lemma isdecrelhzeqminusplus' (i j : hz) : isdecrelhzeq (i - j + j) i = ii1 (hzrminusplus i j).
+Proof.
+  intros i j.
+  induction (isdecrelhzeq (i - j + j) i) as [T | F].
+  - apply maponpaths. apply isasethz.
+  - apply fromempty. apply F. apply (hzrminusplus i j).
+Qed.
+
+Lemma hzeqpii {i : hz} (e : hzeq (i - 1) i) : empty.
+Proof.
+  intros i e.
+  cbn in e.
+  rewrite <- (hzplusr0 i) in e. unfold hzminus in e.
+  rewrite hzplusassoc in e.
+  set (e' := hzpluslcan _ _ _ e). rewrite hzplusl0 in e'.
+  set (tmp := ( ct ( hzneq , isdecrelhzneq, - (1) , 0 ) )). cbn in tmp.
+  apply tmp. apply e'.
+Qed.
+
+Lemma isdecrelhzeqpii (i : hz) :
+  isdecrelhzeq (i - 1) i = ii2 (fun (e : hzeq (i - 1) i) => hzeqpii e).
+Proof.
+  intros i.
+  induction (isdecrelhzeq (i - 1) i) as [e | n].
+  - apply fromempty. apply (hzeqpii e).
+  - apply maponpaths. apply funextfun. intros e.
+    apply fromempty. apply n. apply e.
+Qed.
+
+Local Transparent hz isdecrelhzeq iscommrngops.
 
 (* End of the file hz.v *)

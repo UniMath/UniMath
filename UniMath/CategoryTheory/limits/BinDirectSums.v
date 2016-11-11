@@ -345,6 +345,32 @@ Section def_bindirectsums.
   Defined.
   Opaque BinDirectSumIndArEq.
 
+  (** ** Composition of IndAr *)
+  Lemma BinDirectSumIndArComp {a b c d e f : A} (f1 : a --> b) (f2 : b --> c)
+        (g1 : d --> e) (g2 : e --> f) (B1 : BinDirectSumCone a d) (B2 : BinDirectSumCone b e)
+        (B3 : BinDirectSumCone c f) :
+    BinDirectSumIndAr f1 g1 B1 B2 ;; BinDirectSumIndAr f2 g2 B2 B3 =
+    BinDirectSumIndAr (f1 ;; f2) (g1 ;; g2) B1 B3.
+  Proof.
+    rewrite BinDirectSumIndArEq1. rewrite BinDirectSumIndArEq1. rewrite BinDirectSumIndArEq1.
+    unfold BinDirectSumIndArFormula.
+    rewrite to_postmor_linear'.
+    rewrite to_premor_linear'.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite <- (assoc _ (to_In1 B2)). rewrite <- (assoc _ (to_In1 B2)).
+    rewrite (to_IdIn1 B2). rewrite id_right.
+    rewrite (to_Unel1 B2). rewrite to_premor_unel'.
+    rewrite to_postmor_unel'. rewrite to_postmor_unel'. rewrite to_runax'.
+    rewrite to_premor_linear'.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite <- (assoc _ (to_In2 B2)). rewrite <- (assoc _ (to_In2 B2)).
+    rewrite (to_IdIn2 B2). rewrite id_right.
+    rewrite (to_Unel2 B2). rewrite to_premor_unel'.
+    rewrite to_postmor_unel'. rewrite to_postmor_unel'.
+    rewrite to_lunax'.
+    apply idpath.
+  Qed.
+
 End def_bindirectsums.
 
 (** In1 and In2 are monics, and Pr1 and Pr2 are epis. *)

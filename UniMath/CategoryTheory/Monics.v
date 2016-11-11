@@ -46,6 +46,8 @@ Section def_monic.
   Definition MonicArrow {y z : C} (M : Monic y z) : C⟦y, z⟧ := pr1 M.
   Coercion MonicArrow : Monic >-> precategory_morphisms.
 
+  Definition MonicisMonic {y z : C} (M : Monic y z) : isMonic M := pr2 M.
+
   (** Isomorphism to isMonic and Monic. *)
   Lemma iso_isMonic {y x : C} (f : y --> x) (H : is_iso f) : isMonic f.
   Proof.

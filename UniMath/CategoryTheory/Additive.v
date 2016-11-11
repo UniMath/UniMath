@@ -14,6 +14,8 @@ Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 
 Require Import UniMath.CategoryTheory.limits.zero.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 
 
@@ -47,5 +49,17 @@ Section def_additive.
   Definition to_Zero (A : Additive) : Zero A := dirprod_pr1 (to_isAdditive A).
 
   Definition to_BinDirectSums (A : Additive) : BinDirectSums A := dirprod_pr2 (to_isAdditive A).
+
+  Definition to_BinCoproducts (A : Additive) : BinCoproducts A.
+  Proof.
+    intros X Y.
+    exact (BinDirectSum_BinCoproduct A (to_BinDirectSums A X Y)).
+  Defined.
+
+  Definition to_BinProducts (A : Additive) : BinProducts A.
+  Proof.
+    intros X Y.
+    exact (BinDirectSum_BinProduct A (to_BinDirectSums A X Y)).
+  Defined.
 
 End def_additive.
