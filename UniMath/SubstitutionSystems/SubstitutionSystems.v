@@ -121,6 +121,13 @@ Definition bracket_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T)
 Definition bracket (T : algebra_ob Id_H) : UU
   := Π (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_at T f.
 
+Lemma isaprop_bracket (T : algebra_ob Id_H) : isaprop (bracket T).
+Proof.
+  apply impred_isaprop; intro Z.
+  apply impred_isaprop; intro f.
+  apply isapropiscontr.
+Qed.
+
 Definition bracket_property_parts (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T)
            (h : `T • (U Z)  --> `T) : UU
   :=
