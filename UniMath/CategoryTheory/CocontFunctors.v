@@ -1551,8 +1551,6 @@ intro a.
 apply (CC g (diagram_pointwise A C hsC g d a)).
 Defined.
 
-
-
 Lemma key2 (H : Π a, isColimCocone _ _ (cocone_pointwise _ _ _ _ d G ccG a)) :
   isColimCocone d G ccG.
 Proof.
@@ -1564,72 +1562,122 @@ Proof.
     - apply H.
   }
   transparent assert (D' : (ColimCocone d)).
-  { use mk_ColimCocone.
-    - apply G.
-    - apply ccG.
-    - intros G' ccG'.
-      simpl in *.
-      set (apa := cocone_pointwise _ _ _ _ d G' ccG').
-      (* transparent assert (apa : (Π a, cocone (diagram_pointwise A C hsC g d a) (G' a))). *)
-      (* { intros a; use mk_cocone. *)
-      (*   - intros v; apply (pr1 (coconeIn ccG' v)). *)
-      (*   - intros u v e; apply (nat_trans_eq_pointwise (coconeInCommutes ccG' u v e) a). *)
-      (* } *)
-      use unique_exists.
-      + mkpair.
-        * intro a.
-          apply (colimArrow (bar a) _ (apa a)).
-        * intros a b f.
-          apply pathsinv0.
-          eapply pathscomp0.
-          apply (postcompWithColimArrow _ (bar a)).
-          apply pathsinv0.
-          apply (colimArrowUnique (bar a)); intro v.
-          simpl.
-          cbn.
-          admit.
-      + simpl.
-        intro v.
-        apply (nat_trans_eq hsC); simpl; intro a.
-        apply (pr2 (pr1 (H a (G' a) (apa a)))).
-      + intros α; apply impred; intro v.
-        apply functor_category_has_homsets.
-      + simpl; intros α H1.
-        apply (nat_trans_eq hsC); intro a; simpl.
-        transparent assert (foo : (Σ x : C ⟦ (pr1 G) a, G' a ⟧,
-                                         Π v : vertex g, coconeIn (cocone_pointwise A C hsC g d G ccG a) v ;; x = coconeIn (apa a) v)).
-        mkpair.
-        apply α.
-        intros v; simpl.
-        apply (nat_trans_eq_pointwise (H1 v) a).
-        apply (maponpaths pr1 (pr2 (H a (G' a) (apa a)) foo)).
+  { apply (ColimFunctorCocone _ _ _ _ _ bar).
   }
   use is_iso_isColim.
   - apply functor_category_has_homsets.
   - apply D'.
   - use is_iso_qinv.
-    + cbn. apply nat_trans_id.
+    + cbn.
+      mkpair.
+      * intros a; simpl.
+        apply identity.
+      * intros a b f; rewrite id_left, id_right.
+        cbn.
+        Check (ColimFunctor_mor A C hsC g d bar a b f).
+        admit.
     + split.
       * assert (temp : colimArrow D' G ccG ;; nat_trans_id (pr1 G) = colimArrow D' G ccG).
         apply (nat_trans_eq hsC); simpl; intro x.
         now rewrite id_right.
-        eapply pathscomp0. apply temp.
+        cbn.
+        apply (nat_trans_eq hsC).
+
+        simpl.
+        intros x.
+        rewrite id_right.
         apply pathsinv0.
         apply colimArrowUnique.
         intros v.
         now rewrite id_right.
-      * unfold compose.
+      * apply (nat_trans_eq hsC).
+        intro a.
         simpl.
-        assert (temp : nat_trans_comp _ _ _ (nat_trans_id (pr1 G)) (colimArrow D' G ccG) = colimArrow D' G ccG).
-        apply (nat_trans_eq hsC); simpl; intro x.
-        now rewrite id_left.
-        eapply pathscomp0.
-        simpl.
-        apply temp.
+        rewrite id_left.
         apply pathsinv0.
+        apply (colimArrowUnique (bar a)); intro u.
         simpl.
-        now apply (colimArrowUnique D'); intro u; rewrite id_right.
+        now rewrite id_right.
 Admitted.
+
+(* First try *)
+(* Lemma key2 (H : Π a, isColimCocone _ _ (cocone_pointwise _ _ _ _ d G ccG a)) : *)
+(* isColimCocone d G ccG. *)
+(* Proof. *)
+(* transparent assert (bar : (Π a, ColimCocone (diagram_pointwise A C hsC g d a))). *)
+(* { intro a. *)
+(* use mk_ColimCocone. *)
+(* - apply (pr1 G a). *)
+(* - apply cocone_pointwise, ccG. *)
+(* - apply H. *)
+(* } *)
+(* transparent assert (D' : (ColimCocone d)). *)
+(* { use mk_ColimCocone. *)
+(* - apply G. *)
+(* - apply ccG. *)
+(* - intros G' ccG'. *)
+(* simpl in *. *)
+(* set (apa := cocone_pointwise _ _ _ _ d G' ccG'). *)
+(* (* transparent assert (apa : (Π a, cocone (diagram_pointwise A C hsC g d a) (G' a))). *) *)
+(* (* { intros a; use mk_cocone. *) *)
+(* (* - intros v; apply (pr1 (coconeIn ccG' v)). *) *)
+(* (* - intros u v e; apply (nat_trans_eq_pointwise (coconeInCommutes ccG' u v e) a). *) *)
+(* (* } *) *)
+(* use unique_exists. *)
+(* + mkpair. *)
+(* * intro a. *)
+(* apply (colimArrow (bar a) _ (apa a)). *)
+(* * intros a b f. *)
+(* apply pathsinv0. *)
+(* eapply pathscomp0. *)
+(* apply (postcompWithColimArrow _ (bar a)). *)
+(* apply pathsinv0. *)
+(* apply (colimArrowUnique (bar a)); intro v. *)
+(* simpl. *)
+(* cbn. *)
+(* admit. *)
+(* + simpl. *)
+(* intro v. *)
+(* apply (nat_trans_eq hsC); simpl; intro a. *)
+(* apply (pr2 (pr1 (H a (G' a) (apa a)))). *)
+(* + intros α; apply impred; intro v. *)
+(* apply functor_category_has_homsets. *)
+(* + simpl; intros α H1. *)
+(* apply (nat_trans_eq hsC); intro a; simpl. *)
+(* transparent assert (foo : (Σ x : C ⟦ (pr1 G) a, G' a ⟧, *)
+(* Π v : vertex g, coconeIn (cocone_pointwise A C hsC g d G ccG a) v ;; x = coconeIn (apa a) v)). *)
+(* mkpair. *)
+(* apply α. *)
+(* intros v; simpl. *)
+(* apply (nat_trans_eq_pointwise (H1 v) a). *)
+(* apply (maponpaths pr1 (pr2 (H a (G' a) (apa a)) foo)). *)
+(* } *)
+(* use is_iso_isColim. *)
+(* - apply functor_category_has_homsets. *)
+(* - apply D'. *)
+(* - use is_iso_qinv. *)
+(* + cbn. apply nat_trans_id. *)
+(* + split. *)
+(* * assert (temp : colimArrow D' G ccG ;; nat_trans_id (pr1 G) = colimArrow D' G ccG). *)
+(* apply (nat_trans_eq hsC); simpl; intro x. *)
+(* now rewrite id_right. *)
+(* eapply pathscomp0. apply temp. *)
+(* apply pathsinv0. *)
+(* apply colimArrowUnique. *)
+(* intros v. *)
+(* now rewrite id_right. *)
+(* * unfold compose. *)
+(* simpl. *)
+(* assert (temp : nat_trans_comp _ _ _ (nat_trans_id (pr1 G)) (colimArrow D' G ccG) = colimArrow D' G ccG). *)
+(* apply (nat_trans_eq hsC); simpl; intro x. *)
+(* now rewrite id_left. *)
+(* eapply pathscomp0. *)
+(* simpl. *)
+(* apply temp. *)
+(* apply pathsinv0. *)
+(* simpl. *)
+(* now apply (colimArrowUnique D'); intro u; rewrite id_right. *)
+(* Admitted. *)
 
 End temp.
 
