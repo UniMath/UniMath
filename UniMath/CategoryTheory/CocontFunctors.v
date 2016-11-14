@@ -1535,41 +1535,6 @@ Definition omega_cocont_BinProduct_of_functors (F G : omega_cocont_functor C D) 
 
 End BinProduct_of_functors.
 
-(* WIP *)
-Section temp.
-
-Lemma key2 {A C : precategory} (hsC: has_homsets C) {g : graph}
-  (d : diagram g [A,C,hsC]) (G : [A,C,hsC]) (ccG : cocone d G)
-  (H : Π a, isColimCocone _ _ (cocone_pointwise _ _ _ _ d G ccG a)) :
-  isColimCocone d G ccG.
-Proof.
-transparent assert (CC : (Π a, ColimCocone (diagram_pointwise A C hsC g d a))).
-{ intro a; use mk_ColimCocone.
-  - apply (pr1 G a).
-  - apply cocone_pointwise, ccG.
-  - apply H.
-}
-set (D' := ColimFunctorCocone _ _ _ _ _ CC).
-use is_iso_isColim.
-- apply functor_category_has_homsets.
-- apply D'.
-- use is_iso_qinv.
-  + mkpair.
-    * intros a; apply identity.
-    * abstract (intros a b f; rewrite id_left, id_right; simpl;
-                apply (colimArrowUnique (CC a)); intro u; cbn;
-                now rewrite <- (nat_trans_ax (coconeIn ccG u))).
-  + abstract (split;
-    [ apply (nat_trans_eq hsC); intros x; simpl; rewrite id_right;
-      apply pathsinv0, colimArrowUnique; intros v;
-      now rewrite id_right
-    | apply (nat_trans_eq hsC); intros x; simpl; rewrite id_left;
-      apply pathsinv0, (colimArrowUnique (CC x)); intro u;
-      now rewrite id_right]).
-Defined.
-
-End temp.
-
 (** ** Direct proof that the precomposition functor is cocontinuous *)
 Section pre_composition_functor.
 
@@ -1580,7 +1545,7 @@ Lemma is_cocont_pre_composition_functor :
   is_cocont (pre_composition_functor _ _ _ hsB hsC F).
 Proof.
   intros g d G ccG HccG.
-  apply key2; intro a.
+  apply pointwise_Colim_is_isColimFunctor; intro a.
   apply (isColimFunctor_is_pointwise_Colim _ _ _ _ _
            (λ b, CC _ (diagram_pointwise _ _ _ _ _ b)) _ _ HccG).
 Defined.
