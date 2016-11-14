@@ -83,7 +83,7 @@ Local Notation "F + G" :=
 Local Notation "'_' 'o' 'option'" :=
   (omega_cocont_pre_composition_functor
       (option_functor BinCoproductsHSET TerminalHSET)
-      has_homsets_HSET has_homsets_HSET LimsHSET) (at level 10).
+      has_homsets_HSET has_homsets_HSET ColimsHSET) (at level 10).
 
 (** The lambda calculus functor with one component for variables, one for application and one for
     abstraction/lambda *)
