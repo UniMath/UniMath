@@ -1572,7 +1572,16 @@ Proof.
       * intros a; simpl.
         apply identity.
       * intros a b f; rewrite id_left, id_right.
-        admit.
+        cbn.
+        unfold ColimFunctor_mor.
+        unfold colimOfArrows.
+        match goal with |[|- _ = colimArrow _ _ ?CCCCCC] =>
+                    set (CCC:= CCCCCC) end.
+        use (colimArrowUnique (bar a) _ CCC).
+        intro u. cbn.
+        assert (XR := nat_trans_ax (coconeIn ccG u)).
+        rewrite <- XR.
+        apply idpath.
     + split.
       * apply (nat_trans_eq hsC).
         simpl.
@@ -1590,7 +1599,8 @@ Proof.
         apply (colimArrowUnique (bar a)); intro u.
         simpl.
         now rewrite id_right.
-Admitted.
+Defined.
+
 
 (* First try *)
 (* Lemma key2 (H : Π a, isColimCocone _ _ (cocone_pointwise _ _ _ _ d G ccG a)) : *)
