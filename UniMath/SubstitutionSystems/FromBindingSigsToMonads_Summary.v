@@ -26,6 +26,7 @@ Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 
 Definition Arity_to_Signature :
@@ -76,7 +77,7 @@ Definition RightKanExtension_from_limits
     (hsA : has_homsets A),
   Lims A → RightKanExtension.GlobalRightKanExtensionExists M C K A hsC hsA.
 Proof.
-  exact @CocontFunctors.RightKanExtension_from_limits.
+  exact @RightKanExtension.RightKanExtension_from_limits.
 Defined.
 
 Definition ColimCoconeHSET
