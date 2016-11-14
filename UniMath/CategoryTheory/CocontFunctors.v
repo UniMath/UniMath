@@ -1562,8 +1562,7 @@ Proof.
     - apply H.
   }
   transparent assert (D' : (ColimCocone d)).
-  { apply (ColimFunctorCocone _ _ _ _ _ bar).
-  }
+  { apply (ColimFunctorCocone _ _ _ _ _ bar). }
   use is_iso_isColim.
   - apply functor_category_has_homsets.
   - apply D'.
@@ -1573,16 +1572,9 @@ Proof.
       * intros a; simpl.
         apply identity.
       * intros a b f; rewrite id_left, id_right.
-        cbn.
-        Check (ColimFunctor_mor A C hsC g d bar a b f).
         admit.
     + split.
-      * assert (temp : colimArrow D' G ccG ;; nat_trans_id (pr1 G) = colimArrow D' G ccG).
-        apply (nat_trans_eq hsC); simpl; intro x.
-        now rewrite id_right.
-        cbn.
-        apply (nat_trans_eq hsC).
-
+      * apply (nat_trans_eq hsC).
         simpl.
         intros x.
         rewrite id_right.
