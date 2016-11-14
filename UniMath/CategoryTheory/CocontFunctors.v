@@ -1512,8 +1512,8 @@ Proof.
 apply (is_omega_cocont_functor_composite hsD).
 - apply (is_omega_cocont_bindelta_functor PC hsC).
 - apply (is_omega_cocont_functor_composite hsD).
-  + apply (is_omega_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
-  + now apply (is_omega_cocont_binproduct_functor _ hsD).
++ apply (is_omega_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
++ now apply (is_omega_cocont_binproduct_functor _ hsD).
 Defined.
 
 Definition omega_cocont_BinProduct_of_functors_alt (F G : omega_cocont_functor C D) :
@@ -1535,7 +1535,132 @@ Definition omega_cocont_BinProduct_of_functors (F G : omega_cocont_functor C D) 
 
 End BinProduct_of_functors.
 
-(** ** Precomposition functor is cocontinuous *)
+(* WIP *)
+Section temp.
+
+Context {A C : precategory} (hsC: has_homsets C) {g : graph}
+        (d : diagram g [A,C,hsC]) (G : [A,C,hsC]) (ccG : cocone d G)
+        (CC : Colims C). (* This is overkill *)
+
+Lemma key1 : isColimCocone d G ccG →
+             Π a, isColimCocone (diagram_pointwise _ _ _ _ d a) _ (cocone_pointwise _ _ _ _ d G ccG a).
+Proof.
+intros HccG.
+apply isColimFunctor_is_pointwise_Colim; try assumption.
+intro a.
+apply (CC g (diagram_pointwise A C hsC g d a)).
+Defined.
+
+
+
+Lemma key2 (H : Π a, isColimCocone _ _ (cocone_pointwise _ _ _ _ d G ccG a)) :
+  isColimCocone d G ccG.
+Proof.
+  transparent assert (bar : (Π a, ColimCocone (diagram_pointwise A C hsC g d a))).
+  { intro a.
+    use mk_ColimCocone.
+    - apply (pr1 G a).
+    - apply cocone_pointwise, ccG.
+    - apply H.
+  }
+  transparent assert (D' : (ColimCocone d)).
+  { use mk_ColimCocone.
+    - apply G.
+    - apply ccG.
+    - intros G' ccG'.
+      simpl in *.
+      set (apa := cocone_pointwise _ _ _ _ d G' ccG').
+      (* transparent assert (apa : (Π a, cocone (diagram_pointwise A C hsC g d a) (G' a))). *)
+      (* { intros a; use mk_cocone. *)
+      (*   - intros v; apply (pr1 (coconeIn ccG' v)). *)
+      (*   - intros u v e; apply (nat_trans_eq_pointwise (coconeInCommutes ccG' u v e) a). *)
+      (* } *)
+      use unique_exists.
+      + mkpair.
+        * intro a.
+          apply (colimArrow (bar a) _ (apa a)).
+        * intros a b f.
+          apply pathsinv0.
+          eapply pathscomp0.
+          apply (postcompWithColimArrow _ (bar a)).
+          apply pathsinv0.
+          apply (colimArrowUnique (bar a)); intro v.
+          simpl.
+          cbn.
+          admit.
+      + simpl.
+        intro v.
+        apply (nat_trans_eq hsC); simpl; intro a.
+        apply (pr2 (pr1 (H a (G' a) (apa a)))).
+      + intros α; apply impred; intro v.
+        apply functor_category_has_homsets.
+      + simpl; intros α H1.
+        apply (nat_trans_eq hsC); intro a; simpl.
+        transparent assert (foo : (Σ x : C ⟦ (pr1 G) a, G' a ⟧,
+                                         Π v : vertex g, coconeIn (cocone_pointwise A C hsC g d G ccG a) v ;; x = coconeIn (apa a) v)).
+        mkpair.
+        apply α.
+        intros v; simpl.
+        apply (nat_trans_eq_pointwise (H1 v) a).
+        apply (maponpaths pr1 (pr2 (H a (G' a) (apa a)) foo)).
+  }
+  use is_iso_isColim.
+  - apply functor_category_has_homsets.
+  - apply D'.
+  - use is_iso_qinv.
+    + cbn. apply nat_trans_id.
+    + split.
+      * assert (temp : colimArrow D' G ccG ;; nat_trans_id (pr1 G) = colimArrow D' G ccG).
+        apply (nat_trans_eq hsC); simpl; intro x.
+        now rewrite id_right.
+        eapply pathscomp0. apply temp.
+        apply pathsinv0.
+        apply colimArrowUnique.
+        intros v.
+        now rewrite id_right.
+      * unfold compose.
+        simpl.
+        assert (temp : nat_trans_comp _ _ _ (nat_trans_id (pr1 G)) (colimArrow D' G ccG) = colimArrow D' G ccG).
+        apply (nat_trans_eq hsC); simpl; intro x.
+        now rewrite id_left.
+        eapply pathscomp0.
+        simpl.
+        apply temp.
+        apply pathsinv0.
+        simpl.
+        now apply (colimArrowUnique D'); intro u; rewrite id_right.
+Admitted.
+
+End temp.
+
+(** ** Direct proof that the precomposition functor is cocontinuous *)
+Section pre_composition_functor_direct.
+
+Context {A B C : precategory} (F : functor A B) (hsB : has_homsets B) (hsC : has_homsets C).
+Context (CC : Colims C).
+
+Lemma is_cocont_pre_composition_functor_direct :
+  is_cocont (pre_composition_functor _ _ _ hsB hsC F).
+Proof.
+  intros g d G ccG HccG.
+  apply key2; intro a.
+  apply CC.
+  apply (key1 _ _ _ _ CC HccG).
+Defined.
+
+Lemma is_omega_cocont_pre_composition_functor_direct :
+  is_omega_cocont (pre_composition_functor _ _ _ hsB hsC F).
+Proof.
+now intros c L ccL; apply is_cocont_pre_composition_functor_direct.
+Defined.
+
+Definition omega_cocont_pre_composition_functor_direct :
+  omega_cocont_functor [B, C, hsC] [A, C, hsC] :=
+  tpair _ _ is_omega_cocont_pre_composition_functor_direct.
+
+End pre_composition_functor_direct.
+
+(** ** Precomposition functor is cocontinuous using construction of right Kan extensions *)
 Section pre_composition_functor.
 
 Context {M C A : precategory} (K : functor M C) (hsC : has_homsets C)
