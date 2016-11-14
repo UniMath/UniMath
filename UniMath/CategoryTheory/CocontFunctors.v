@@ -1545,8 +1545,8 @@ Lemma is_cocont_pre_composition_functor :
 Proof.
   intros g d G ccG HccG.
   apply pointwise_Colim_is_isColimFunctor; intro a.
-  apply (isColimFunctor_is_pointwise_Colim _ _ _ _ _
-           (λ b, CC _ (diagram_pointwise _ _ _ _ _ b)) _ _ HccG).
+  apply (isColimFunctor_is_pointwise_Colim _ _
+           (λ b, CC _ (diagram_pointwise _ _ b)) _ _ HccG).
 Defined.
 
 Lemma is_omega_cocont_pre_composition_functor :

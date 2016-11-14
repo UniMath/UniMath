@@ -398,11 +398,8 @@ Arguments Colims : clear implicits.
 (** Defines colimits in functor categories when the target has colimits *)
 Section ColimFunctor.
 
-Variable A C : precategory.
+Context {A C : precategory} (hsC : has_homsets C) {g : graph} (D : diagram g [A, C, hsC]).
 (* Variable HC : Colims C. *) (* Too strong! *)
-Variable hsC : has_homsets C.
-Variable g : graph.
-Variable D : diagram g [A, C, hsC].
 
 Definition diagram_pointwise (a : A) : diagram g C.
 Proof.
@@ -518,11 +515,11 @@ Defined.
 Lemma pointwise_Colim_is_isColimFunctor
   {A C : precategory} (hsC: has_homsets C) {g : graph}
   (d : diagram g [A,C,hsC]) (G : [A,C,hsC]) (ccG : cocone d G)
-  (H : Π a, isColimCocone _ _ (cocone_pointwise _ _ _ _ d G ccG a)) :
+  (H : Π a, isColimCocone _ _ (cocone_pointwise hsC d G ccG a)) :
   isColimCocone d G ccG.
 Proof.
 set (CC a := mk_ColimCocone _ _ _ (H a)).
-set (D' := ColimFunctorCocone _ _ _ _ _ CC).
+set (D' := ColimFunctorCocone _ _ CC).
 use is_iso_isColim.
 - apply functor_category_has_homsets.
 - apply D'.
