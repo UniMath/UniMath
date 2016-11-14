@@ -80,16 +80,17 @@ Section def_complexes.
            Π i : hz, (pr2 D' i) ;; (pr2 D' (hzplus i 1)) = ZeroArrow (Additive.to_Zero A) _ _.
 
   Definition mk_Complex (D : Π i : hz, ob A) (D' : Π i : hz, A⟦D i, D (hzplus i 1)⟧)
-             (D'' : Π i : hz, D' i ;; D' (hzplus i 1) = ZeroArrow (Additive.to_Zero A) _ _) :
+             (D'' : Π i : hz, (D' i) ;; (D' (hzplus i 1)) = ZeroArrow (Additive.to_Zero A) _ _) :
     Complex := ((D,,D'),,D'').
 
   (** Accessor functions *)
-  Definition COb (C : Complex) (i : hz) : ob A := pr1 (pr1 C) i.
+  Definition Complex_Funclass (C : Complex) : hz -> ob A := pr1 (pr1 C).
+  Coercion Complex_Funclass : Complex >-> Funclass.
 
-  Definition CMor (C : Complex) (i : hz) : A⟦COb C i, COb C (hzplus i 1)⟧ := pr2 (pr1 C) i.
+  Definition Diff {C : Complex} (i : hz) : A⟦C i, C (hzplus i 1)⟧ := pr2 (pr1 C) i.
 
   Definition CEq (C : Complex) (i : hz) :
-    (CMor C i) ;; (CMor C (hzplus i 1)) = ZeroArrow (Additive.to_Zero A) _ _ := pr2 C i.
+    (Diff i) ;; (Diff (hzplus i 1)) = ZeroArrow (Additive.to_Zero A) _ _ := pr2 C i.
 
   (** Zero Complex *)
   Definition ZeroComplex : Complex.
@@ -101,12 +102,12 @@ Section def_complexes.
   Defined.
 
   (** Direct sum of two complexes *)
-  Local Lemma DirectSumComplex_comm (C1 C2 : Complex) (i : hz) :
-    let B1 := to_BinDirectSums A (COb C1 i) (COb C2 i) in
-    let B2 := to_BinDirectSums A (COb C1 (i + 1)) (COb C2 (i + 1)) in
-    let B3 := to_BinDirectSums A (COb C1 (i + 1 + 1)) (COb C2 (i + 1 + 1)) in
-    (BinDirectSumIndAr A (CMor C1 i) (CMor C2 i) B1 B2)
-      ;; (BinDirectSumIndAr A (CMor C1 (i + 1)) (CMor C2 (i + 1)) B2 B3)  =
+  Local Lemma DirectSumComplex_comm {C1 C2 : Complex} (i : hz) :
+    let B1 := to_BinDirectSums A (C1 i) (C2 i) in
+    let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
+    let B3 := to_BinDirectSums A (C1 (i + 1 + 1)) (C2 (i + 1 + 1)) in
+    (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) B1 B2)
+      ;; (BinDirectSumIndAr A (@Diff C1 (i + 1)) (@Diff C2 (i + 1)) B2 B3) =
     ZeroArrow (Additive.to_Zero A) B1 B3.
   Proof.
     cbn.
@@ -123,25 +124,25 @@ Section def_complexes.
   Definition DirectSumComplex (C1 C2 : Complex) : Complex.
   Proof.
     use mk_Complex.
-    - intros i. exact (to_BinDirectSums A (COb C1 i) (COb C2 i)).
-    - intros i. exact (BinDirectSumIndAr A (CMor C1 i) (CMor C2 i) _ _).
-    - intros i. exact (DirectSumComplex_comm C1 C2 i).
+    - intros i. exact (to_BinDirectSums A (C1 i) (C2 i)).
+    - intros i. exact (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) _ _).
+    - intros i. exact (DirectSumComplex_comm i).
   Defined.
 
   (** Morphism of complexes *)
   Definition Morphism (C1 C2 : Complex) : UU :=
-    Σ D : (Π i : hz, A⟦COb C1 i, COb C2 i⟧), Π i : hz, D i ;; CMor C2 i = CMor C1 i ;; D (i + 1).
+    Σ D : (Π i : hz, A⟦C1 i, C2 i⟧), Π i : hz, (D i) ;; (@Diff C2 i) = (@Diff C1 i) ;; (D (i + 1)).
 
-  Definition mk_Morphism (C1 C2 : Complex) (Mors : Π i : hz, A⟦COb C1 i, COb C2 i⟧)
-             (Comm : Π i : hz, Mors i ;; CMor C2 i = CMor C1 i ;; Mors (i + 1)) : Morphism C1 C2 :=
-    tpair _ Mors Comm.
+  Definition mk_Morphism (C1 C2 : Complex) (Mors : Π i : hz, A⟦C1 i, C2 i⟧)
+             (Comm : Π i : hz, (Mors i) ;; (@Diff C2 i) = (@Diff C1 i) ;; (@Mors (i + 1))) :
+    Morphism C1 C2 := tpair _ Mors Comm.
 
   (** Accessor functions *)
-  Definition MMor {C1 C2 : Complex} (M : Morphism C1 C2) (i : hz) : A⟦COb C1 i, COb C2 i⟧ :=
+  Definition MMor {C1 C2 : Complex} (M : Morphism C1 C2) (i : hz) : A⟦C1 i, C2 i⟧ :=
     pr1 M i.
 
   Definition MComm {C1 C2 : Complex} (M : Morphism C1 C2) (i : hz) :
-    MMor M i ;; CMor C2 i = CMor C1 i ;; MMor M (i + 1) := pr2 M i.
+    (MMor M i) ;; (@Diff C2 i) = (@Diff C1 i) ;; (MMor M (i + 1)) := pr2 M i.
 
   (** A lemma to show that two morphisms are the same *)
   Lemma MorphismEq {C1 C2 : Complex} (M1 M2 : Morphism C1 C2)
@@ -174,7 +175,7 @@ Section def_complexes.
 
   (** Identity Morphism *)
   Local Lemma IdMorComm (C1 : Complex) (i : hz) :
-    identity (COb C1 i) ;; CMor C1 i = CMor C1 i ;; identity (COb C1 (i + 1)).
+    (identity (C1 i)) ;; (@Diff C1 i) = (@Diff C1 i) ;; (identity (C1 (i + 1))).
   Proof.
     rewrite id_left.
     rewrite id_right.
@@ -190,9 +191,9 @@ Section def_complexes.
 
   (** Morphisms from and to Zero complex *)
   Local Lemma MorphismFromZero_comm (C : Complex) (i : hz) :
-    (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (COb C i)) ;; (CMor C i) =
+    (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (C i)) ;; (Diff i) =
     (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (Additive.to_Zero A))
-      ;; (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (COb C (i + 1))).
+      ;; (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (C (i + 1))).
   Proof.
     rewrite ZeroArrow_comp_left.
     rewrite ZeroArrow_comp_left.
@@ -207,9 +208,9 @@ Section def_complexes.
   Defined.
 
   Local Lemma MorphismToZero_comm (C : Complex) (i : hz) :
-    (ZeroArrow (Additive.to_Zero A) (COb C i) (Additive.to_Zero A))
+    (ZeroArrow (Additive.to_Zero A) (C i) (Additive.to_Zero A))
       ;; (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (Additive.to_Zero A)) =
-    CMor C i ;; ZeroArrow (Additive.to_Zero A) (COb C (i + 1)) (Additive.to_Zero A).
+    (Diff i) ;; ZeroArrow (Additive.to_Zero A) (C (i + 1)) (Additive.to_Zero A).
   Proof.
     rewrite ZeroArrow_comp_right.
     rewrite ZeroArrow_comp_right.
@@ -226,7 +227,8 @@ Section def_complexes.
   (** Composition of morphisms *)
   Local Lemma MorphismCompComm {C1 C2 C3 : Complex} (M1 : Morphism C1 C2) (M2 : Morphism C2 C3)
         (i : hz) :
-    MMor M1 i ;; MMor M2 i ;; CMor C3 i = CMor C1 i ;; (MMor M1 (i + 1) ;; MMor M2 (i + 1)).
+    (MMor M1 i) ;; (MMor M2 i) ;; (@Diff C3 i) =
+    (@Diff C1 i) ;; (MMor M1 (i + 1) ;; MMor M2 (i + 1)).
   Proof.
     rewrite assoc.
     rewrite <- (MComm M1).
@@ -239,7 +241,7 @@ Section def_complexes.
     Morphism C1 C3.
   Proof.
     use mk_Morphism.
-    - intros i. exact (MMor M1 i ;; MMor M2 i).
+    - intros i. exact ((MMor M1 i) ;; (MMor M2 i)).
     - intros i. exact (MorphismCompComm M1 M2 i).
   Defined.
 
@@ -251,13 +253,14 @@ Section def_complexes.
 
   (** Inclusions and projections from the DirectSumComplex *)
   Local Lemma DirectSumComplexIn1_comm (C1 C2 : Complex) (i : hz) :
-    let B1 := to_BinDirectSums A (COb C1 i) (COb C2 i) in
-    let B2 := to_BinDirectSums A (COb C1 (i + 1)) (COb C2 (i + 1)) in
-    to_In1 A B1 ;; BinDirectSumIndAr A (CMor C1 i) (CMor C2 i) B1 B2  = CMor C1 i ;; to_In1 A B2.
+    let B1 := to_BinDirectSums A (C1 i) (C2 i) in
+    let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
+    (to_In1 A B1) ;; (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) B1 B2) =
+    (@Diff C1 i) ;; (to_In1 A B2).
   Proof.
     cbn.
-    set (B1 := to_BinDirectSums A (COb C1 i) (COb C2 i)).
-    set (B2 := to_BinDirectSums A (COb C1 (i + 1)) (COb C2 (i + 1))).
+    set (B1 := to_BinDirectSums A (C1 i) (C2 i)).
+    set (B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1))).
     rewrite BinDirectSumIndArEq1.
     unfold BinDirectSumIndArFormula.
     rewrite to_premor_linear'.
@@ -270,18 +273,19 @@ Section def_complexes.
   Definition DirectSumComplexIn1 (C1 C2 : Complex) : Morphism C1 (DirectSumComplex C1 C2).
   Proof.
     use mk_Morphism.
-    - intros i. exact (to_In1 A (to_BinDirectSums A (COb C1 i) (COb C2 i))).
+    - intros i. exact (to_In1 A (to_BinDirectSums A (C1 i) (C2 i))).
     - intros i. exact (DirectSumComplexIn1_comm C1 C2 i).
   Defined.
 
   Local Lemma DirectSumComplexIn2_comm (C1 C2 : Complex) (i : hz) :
-    let B1 := to_BinDirectSums A (COb C1 i) (COb C2 i) in
-    let B2 := to_BinDirectSums A (COb C1 (i + 1)) (COb C2 (i + 1)) in
-    to_In2 A B1 ;; BinDirectSumIndAr A (CMor C1 i) (CMor C2 i) B1 B2  = CMor C2 i ;; to_In2 A B2.
+    let B1 := to_BinDirectSums A (C1 i) (C2 i) in
+    let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
+    (to_In2 A B1) ;; (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) B1 B2) =
+    (@Diff C2 i) ;; (to_In2 A B2).
   Proof.
     cbn.
-    set (B1 := to_BinDirectSums A (COb C1 i) (COb C2 i)).
-    set (B2 := to_BinDirectSums A (COb C1 (i + 1)) (COb C2 (i + 1))).
+    set (B1 := to_BinDirectSums A (C1 i) (C2 i)).
+    set (B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1))).
     rewrite BinDirectSumIndArEq1.
     unfold BinDirectSumIndArFormula.
     rewrite to_premor_linear'. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
@@ -293,18 +297,19 @@ Section def_complexes.
   Definition DirectSumComplexIn2 (C1 C2 : Complex) : Morphism C2 (DirectSumComplex C1 C2).
   Proof.
     use mk_Morphism.
-    - intros i. exact (to_In2 A (to_BinDirectSums A (COb C1 i) (COb C2 i))).
+    - intros i. exact (to_In2 A (to_BinDirectSums A (C1 i) (C2 i))).
     - intros i. exact (DirectSumComplexIn2_comm C1 C2 i).
   Defined.
 
   Local Lemma DirectSumComplexPr1_comm (C1 C2 : Complex) (i : hz) :
-    let B1 := to_BinDirectSums A (COb C1 i) (COb C2 i) in
-    let B2 := to_BinDirectSums A (COb C1 (i + 1)) (COb C2 (i + 1)) in
-    to_Pr1 A B1 ;; CMor C1 i = (BinDirectSumIndAr A (CMor C1 i) (CMor C2 i) B1 B2) ;; (to_Pr1 A B2).
+    let B1 := to_BinDirectSums A (C1 i) (C2 i) in
+    let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
+    (to_Pr1 A B1) ;; (@Diff C1 i) =
+    (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) B1 B2) ;; (to_Pr1 A B2).
   Proof.
     cbn.
-    set (B1 := to_BinDirectSums A (COb C1 i) (COb C2 i)).
-    set (B2 := to_BinDirectSums A (COb C1 (i + 1)) (COb C2 (i + 1))).
+    set (B1 := to_BinDirectSums A (C1 i) (C2 i)).
+    set (B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1))).
     rewrite BinDirectSumIndArEq1.
     unfold BinDirectSumIndArFormula.
     rewrite to_postmor_linear'.
@@ -317,18 +322,19 @@ Section def_complexes.
   Definition DirectSumComplexPr1 (C1 C2 : Complex) : Morphism (DirectSumComplex C1 C2) C1.
   Proof.
     use mk_Morphism.
-    - intros i. exact (to_Pr1 A (to_BinDirectSums A (COb C1 i) (COb C2 i))).
+    - intros i. exact (to_Pr1 A (to_BinDirectSums A (C1 i) (C2 i))).
     - intros i. exact (DirectSumComplexPr1_comm C1 C2 i).
   Defined.
 
   Local Lemma DirectSumComplexPr2_comm (C1 C2 : Complex) (i : hz) :
-    let B1 := to_BinDirectSums A (COb C1 i) (COb C2 i) in
-    let B2 := to_BinDirectSums A (COb C1 (i + 1)) (COb C2 (i + 1)) in
-    to_Pr2 A B1 ;; CMor C2 i = (BinDirectSumIndAr A (CMor C1 i) (CMor C2 i) B1 B2) ;; (to_Pr2 A B2).
+    let B1 := to_BinDirectSums A (C1 i) (C2 i) in
+    let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
+    (to_Pr2 A B1) ;; (@Diff C2 i) =
+    (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) B1 B2) ;; (to_Pr2 A B2).
   Proof.
     cbn.
-    set (B1 := to_BinDirectSums A (COb C1 i) (COb C2 i)).
-    set (B2 := to_BinDirectSums A (COb C1 (i + 1)) (COb C2 (i + 1))).
+    set (B1 := to_BinDirectSums A (C1 i) (C2 i)).
+    set (B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1))).
     rewrite BinDirectSumIndArEq1.
     unfold BinDirectSumIndArFormula.
     rewrite to_postmor_linear'.
@@ -341,7 +347,7 @@ Section def_complexes.
   Definition DirectSumComplexPr2 (C1 C2 : Complex) : Morphism (DirectSumComplex C1 C2) C2.
   Proof.
     use mk_Morphism.
-    - intros i. exact (to_Pr2 A (to_BinDirectSums A (COb C1 i) (COb C2 i))).
+    - intros i. exact (to_Pr2 A (to_BinDirectSums A (C1 i) (C2 i))).
     - intros i. exact (DirectSumComplexPr2_comm C1 C2 i).
   Defined.
 
@@ -351,7 +357,7 @@ Section def_complexes.
   Proof.
     use MorphismEq.
     intros i. cbn.
-    set (B := to_BinDirectSums A (COb C1 i) (COb C2 i)).
+    set (B := to_BinDirectSums A (C1 i) (C2 i)).
     rewrite (to_IdIn1 A B).
     apply idpath.
   Qed.
@@ -361,7 +367,7 @@ Section def_complexes.
   Proof.
     use MorphismEq.
     intros i. cbn.
-    set (B := to_BinDirectSums A (COb C1 i) (COb C2 i)).
+    set (B := to_BinDirectSums A (C1 i) (C2 i)).
     rewrite (to_IdIn2 A B).
     apply idpath.
   Qed.
@@ -372,7 +378,7 @@ Section def_complexes.
   Proof.
     use MorphismEq.
     intros i. cbn.
-    set (B := to_BinDirectSums A (COb C1 i) (COb C2 i)).
+    set (B := to_BinDirectSums A (C1 i) (C2 i)).
     rewrite (to_Unel1 A B).
     rewrite ZeroArrow_comp_left.
     apply PreAdditive_unel_zero.
@@ -384,7 +390,7 @@ Section def_complexes.
   Proof.
     use MorphismEq.
     intros i. cbn.
-    set (B := to_BinDirectSums A (COb C1 i) (COb C2 i)).
+    set (B := to_BinDirectSums A (C1 i) (C2 i)).
     rewrite (to_Unel2 A B).
     rewrite ZeroArrow_comp_left.
     apply PreAdditive_unel_zero.
@@ -392,8 +398,8 @@ Section def_complexes.
 
   (** Additition of morphisms is pointwise addition *)
   Local Lemma MorphismOpComm {C1 C2 : Complex} (M1 M2 : Morphism C1 C2)  (i : hz) :
-    to_binop (COb C1 i) (COb C2 i) (MMor M1 i) (MMor M2 i) ;; CMor C2 i =
-    CMor C1 i ;; to_binop (COb C1 (i + 1)) (COb C2 (i + 1)) (MMor M1 (i + 1)) (MMor M2 (i + 1)).
+    (to_binop (C1 i) (C2 i) (MMor M1 i) (MMor M2 i)) ;; (@Diff C2 i) =
+    (@Diff C1 i) ;; (to_binop (C1 (i + 1)) (C2 (i + 1)) (MMor M1 (i + 1)) (MMor M2 (i + 1))).
   Proof.
     rewrite to_postmor_linear'. rewrite to_premor_linear'.
     rewrite (MComm M1 i). rewrite (MComm M2 i). apply idpath.
@@ -411,12 +417,12 @@ Section def_complexes.
     intros M1 M2 M3.
     use MorphismEq.
     intros i. cbn.
-    apply (assocax (to_abgrop (COb C1 i) (COb C2 i))).
+    apply (assocax (to_abgrop (C1 i) (C2 i))).
   Qed.
 
   Lemma MorphismZeroComm (C1 C2 : Complex) (i : hz) :
-    ZeroArrow (Additive.to_Zero A) (COb C1 i) (COb C2 i) ;; CMor C2 i =
-    CMor C1 i ;; ZeroArrow (Additive.to_Zero A) (COb C1 (i + 1)) (COb C2 (i + 1)).
+    (ZeroArrow (Additive.to_Zero A) (C1 i) (C2 i)) ;; (@Diff C2 i) =
+    (@Diff C1 i) ;; (ZeroArrow (Additive.to_Zero A) (C1 (i + 1)) (C2 (i + 1))).
   Proof.
     rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_right. apply idpath.
   Qed.
@@ -442,9 +448,9 @@ Section def_complexes.
       rewrite to_runax'. apply idpath.
   Qed.
 
-  Local Lemma MorphismOp_inv_comm (C1 C2 : Complex) (M : Morphism C1 C2) (i : hz) :
-    to_inv (COb C1 i) (COb C2 i) (MMor M i) ;; CMor C2 i =
-    CMor C1 i ;; to_inv (COb C1 (i + 1)) (COb C2 (i + 1)) (MMor M (i + 1)).
+  Local Lemma MorphismOp_inv_comm {C1 C2 : Complex} (M : Morphism C1 C2) (i : hz) :
+    (to_inv (C1 i) (C2 i) (MMor M i)) ;; (@Diff C2 i) =
+    (@Diff C1 i) ;; (to_inv (C1 (i + 1)) (C2 (i + 1)) (MMor M (i + 1))).
   Proof.
     rewrite <- PreAdditive_invlcomp.
     rewrite <- PreAdditive_invrcomp.
@@ -454,15 +460,15 @@ Section def_complexes.
     exact (MComm M i).
   Qed.
 
-  Definition MorphismOp_inv (C1 C2 : Complex) (M : Morphism C1 C2) : Morphism C1 C2.
+  Definition MorphismOp_inv {C1 C2 : Complex} (M : Morphism C1 C2) : Morphism C1 C2.
   Proof.
     use mk_Morphism.
-    - intros i. exact (to_inv (COb C1 i) (COb C2 i) (MMor M i)).
-    - intros i. exact (MorphismOp_inv_comm C1 C2 M i).
+    - intros i. exact (to_inv (C1 i) (C2 i) (MMor M i)).
+    - intros i. exact (MorphismOp_inv_comm M i).
   Defined.
 
   Lemma MorphismOp_isinv (C1 C2 : Complex) :
-    @isinv (Morphisms_hSet C1 C2) MorphismOp (MorphismZero C1 C2) (MorphismOp_inv C1 C2).
+    @isinv (Morphisms_hSet C1 C2) MorphismOp (MorphismZero C1 C2) MorphismOp_inv.
   Proof.
     split.
     - intros H.
@@ -482,7 +488,7 @@ Section def_complexes.
     intros M1 M2.
     use MorphismEq.
     intros i. cbn.
-    apply (commax (to_abgrop (COb C1 i) (COb C2 i)) (MMor M1 i) (MMor M2 i)).
+    apply (commax (to_abgrop (C1 i) (C2 i)) (MMor M1 i) (MMor M2 i)).
   Qed.
 
   Definition MorphismOp_isabgrop (C1 C2 : Complex) : @isabgrop (Morphisms_hSet C1 C2) MorphismOp.
@@ -495,7 +501,7 @@ Section def_complexes.
           -- exact (MorphismZero C1 C2).
           -- exact (MorphismOp_isunit C1 C2).
       + use tpair.
-        * exact (MorphismOp_inv C1 C2).
+        * exact MorphismOp_inv.
         * exact (MorphismOp_isinv C1 C2).
     - exact (MorphismOp_iscomm C1 C2).
   Defined.
@@ -508,22 +514,22 @@ Section def_complexes.
   Proof.
     use MorphismEq.
     intros i. cbn.
-    set (B := to_BinDirectSums A (COb C1 i) (COb C2 i)).
+    set (B := to_BinDirectSums A (C1 i) (C2 i)).
     apply (to_BinOpId A B).
   Qed.
 
   (** The unique morphisms in and out of BinDirectSum *)
-  Local Lemma DirectSumMorOut_comm (C1 C2 D : Complex) (f : Morphism C1 D) (g : Morphism C2 D)
+  Local Lemma DirectSumMorOut_comm {C1 C2 D : Complex} (f : Morphism C1 D) (g : Morphism C2 D)
         (i : hz) :
-    let B1 := to_BinDirectSums A (COb C1 i) (COb C2 i) in
-    let B2 := to_BinDirectSums A (COb C1 (i + 1)) (COb C2 (i + 1)) in
-    FromBinDirectSum A B1 (MMor f i) (MMor g i) ;;  CMor D i =
-    (BinDirectSumIndAr A (CMor C1 i) (CMor C2 i) B1 B2)
+    let B1 := to_BinDirectSums A (C1 i) (C2 i) in
+    let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
+    (FromBinDirectSum A B1 (MMor f i) (MMor g i)) ;; (@Diff D i) =
+    (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) B1 B2)
       ;; (FromBinDirectSum A B2 (MMor f (i + 1)) (MMor g (i + 1))).
   Proof.
     cbn.
-    set (B1 := to_BinDirectSums A (COb C1 i) (COb C2 i)).
-    set (B2 := to_BinDirectSums A (COb C1 (i + 1)) (COb C2 (i + 1))).
+    set (B1 := to_BinDirectSums A (C1 i) (C2 i)).
+    set (B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1))).
     rewrite BinDirectSumIndArEq1.
     unfold BinDirectSumIndArFormula. cbn.
     rewrite to_postmor_linear'.
@@ -540,25 +546,23 @@ Section def_complexes.
     apply idpath.
   Qed.
 
-  Definition DirectSumMorOut (C1 C2 D: Complex) (f : Morphism C1 D) (g : Morphism C2 D) :
+  Definition DirectSumMorOut {C1 C2 D : Complex} (f : Morphism C1 D) (g : Morphism C2 D) :
     Morphism (DirectSumComplex C1 C2) D.
   Proof.
     use mk_Morphism.
     - intros i. exact (FromBinDirectSum A _ (MMor f i) (MMor g i)).
-    - intros i. exact (DirectSumMorOut_comm C1 C2 D f g i).
+    - intros i. exact (DirectSumMorOut_comm f g i).
   Defined.
 
-  Local Lemma DirectSumMorIn_comm (C1 C2 D : Complex) (f : Morphism D C1) (g : Morphism D C2)
+  Local Lemma DirectSumMorIn_comm {C1 C2 D : Complex} (f : Morphism D C1) (g : Morphism D C2)
         (i : hz) :
-    let B1 := to_BinDirectSums A (COb C1 i) (COb C2 i) in
-    let B2 := to_BinDirectSums A (COb C1 (i + 1)) (COb C2 (i + 1)) in
+    let B1 := to_BinDirectSums A (C1 i) (C2 i) in
+    let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
     (ToBinDirectSum A B1 (MMor f i) (MMor g i))
-      ;; (BinDirectSumIndAr A (CMor C1 i) (CMor C2 i) B1 B2) =
-    CMor D i ;; ToBinDirectSum A B2 (MMor f (i + 1)) (MMor g (i + 1)).
+      ;; (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) B1 B2) =
+    (@Diff D i) ;; (ToBinDirectSum A B2 (MMor f (i + 1)) (MMor g (i + 1))).
   Proof.
-    cbn.
-    set (B1 := to_BinDirectSums A (COb C1 i) (COb C2 i)).
-    set (B2 := to_BinDirectSums A (COb C1 (i + 1)) (COb C2 (i + 1))).
+    intros B1 B2.
     rewrite BinDirectSumIndArEq1.
     unfold BinDirectSumIndArFormula.
     rewrite to_premor_linear'.
@@ -575,12 +579,12 @@ Section def_complexes.
     apply idpath.
   Qed.
 
-  Definition DirectSumMorIn (C1 C2 D : Complex) (f : Morphism D C1) (g : Morphism D C2) :
+  Definition DirectSumMorIn {C1 C2 D : Complex} (f : Morphism D C1) (g : Morphism D C2) :
     Morphism D (DirectSumComplex C1 C2).
   Proof.
     use mk_Morphism.
     - intros i. exact (ToBinDirectSum A _ (MMor f i) (MMor g i)).
-    - intros i. exact (DirectSumMorIn_comm C1 C2 D f g i).
+    - intros i. exact (DirectSumMorIn_comm f g i).
   Defined.
 
 
@@ -610,7 +614,7 @@ Section def_complexes.
   Defined.
 
   Local Lemma ComplexFromObject_comm (X : ob A) (i : hz) :
-    Π i0 : hz, ComplexFromObject_mors X i i0 ;; ComplexFromObject_mors X i (i0 + 1) =
+    Π i0 : hz, (ComplexFromObject_mors X i i0) ;; (ComplexFromObject_mors X i (i0 + 1)) =
                ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     intros i0.
@@ -634,7 +638,7 @@ Section def_complexes.
 
   (** A morphisms in A induces a morphisms of ComplexFromObjects *)
   Definition ObjectMorToComplexMor_mors {a b : ob A} (f : a --> b) (i : hz) :
-    Π i0 : hz, A ⟦COb (ComplexFromObject a i) i0, COb (ComplexFromObject b i) i0⟧.
+    Π i0 : hz, A ⟦(ComplexFromObject a i) i0, (ComplexFromObject b i) i0⟧.
   Proof.
     intros i0.
     unfold ComplexFromObject. cbn. unfold ComplexFromObject_obs. cbn. unfold coprod_rect.
@@ -644,8 +648,8 @@ Section def_complexes.
   Defined.
 
   Local Lemma ObjectMorToComplexMor_comm {a b : ob A} (f : a --> b) (i : hz) :
-    Π i0 : hz, ObjectMorToComplexMor_mors f i i0 ;; CMor (ComplexFromObject b i) i0 =
-               CMor (ComplexFromObject a i) i0 ;; ObjectMorToComplexMor_mors f i (i0 + 1).
+    Π i0 : hz, (ObjectMorToComplexMor_mors f i i0) ;; (@Diff (ComplexFromObject b i) i0) =
+               (@Diff (ComplexFromObject a i) i0) ;; (ObjectMorToComplexMor_mors f i (i0 + 1)).
   Proof.
     intros i0.
     unfold ComplexFromObject. unfold ComplexFromObject_mors. unfold ComplexFromObject_obs. cbn.
@@ -705,7 +709,7 @@ Section def_complexes.
   Defined.
 
   Local Lemma Complex2FromObject_comm (a : ob A) (i : hz) :
-    Π i0 : hz, Complex2FromObject_mors a i i0 ;; Complex2FromObject_mors a i (i0 + 1) =
+    Π i0 : hz, (Complex2FromObject_mors a i i0) ;; (Complex2FromObject_mors a i (i0 + 1)) =
                ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     intros i0.
@@ -757,8 +761,8 @@ Section def_complexes.
 
   (** *** Morphism from Complex2FromObject to complex *)
 
-  Definition FromComplex2FromObject_mors {a : ob A} (C : Complex) (i : hz) (f : a --> (COb C i)) :
-    Π i0 : hz, A ⟦ COb (Complex2FromObject a i) i0, COb C i0 ⟧.
+  Definition FromComplex2FromObject_mors {a : ob A} {C : Complex} {i : hz} (f : a --> (C i)) :
+    Π i0 : hz, A ⟦(Complex2FromObject a i) i0, C i0⟧.
   Proof.
     intros i0.
     unfold Complex2FromObject. unfold Complex2FromObject_obs. unfold Complex2FromObject_mors. cbn.
@@ -766,13 +770,13 @@ Section def_complexes.
     induction (isdecrelhzeq i i0) as [e | n].
     + induction e. exact f.
     + induction (isdecrelhzeq (i + 1) i0) as [e' | n'].
-      * induction e'. exact (f ;; (CMor C i)).
+      * induction e'. exact (f ;; (Diff i)).
       * apply (ZeroArrow (Additive.to_Zero A)).
   Defined.
 
-  Local Lemma FromComplex2FromObject_comm {a : ob A} (C : Complex) (i : hz) (f : a --> (COb C i)) :
-    Π i0 : hz, FromComplex2FromObject_mors C i f i0 ;; CMor C i0 =
-               CMor (Complex2FromObject a i) i0 ;; FromComplex2FromObject_mors C i f (i0 + 1).
+  Local Lemma FromComplex2FromObject_comm {a : ob A} {C : Complex} {i : hz} (f : a --> (C i)) :
+    Π i0 : hz, (FromComplex2FromObject_mors f i0) ;; (@Diff C i0) =
+               (@Diff (Complex2FromObject a i) i0) ;; (FromComplex2FromObject_mors f (i0 + 1)).
   Proof.
     intros i0.
     unfold Complex2FromObject. unfold Complex2FromObject_obs. unfold Complex2FromObject_mors.
@@ -802,30 +806,30 @@ Section def_complexes.
            ++ rewrite ZeroArrow_comp_right. apply ZeroArrow_comp_left.
   Qed.
 
-  Definition FromComplex2FromObject {a : ob A} (C : Complex) (i : hz) (f : a --> (COb C i)) :
+  Definition FromComplex2FromObject {a : ob A} {C : Complex} {i : hz} (f : a --> (C i)) :
     Morphism (Complex2FromObject a i) C.
   Proof.
     use mk_Morphism.
-    - exact (FromComplex2FromObject_mors C i f).
-    - exact (FromComplex2FromObject_comm C i f).
+    - exact (FromComplex2FromObject_mors f).
+    - exact (FromComplex2FromObject_comm f).
   Defined.
 
-  Lemma FromComplex2FromObject_Eq1 {a : ob A} (C : Complex) (i i0 : hz) (g : a --> (COb C i)) :
-    FromComplex2FromObject_mors C i g i0 = MMor (FromComplex2FromObject C i g) i0.
+  Lemma FromComplex2FromObject_Eq1 {a : ob A} {C : Complex} {i : hz} (i0 : hz) (g : a --> (C i)) :
+    FromComplex2FromObject_mors g i0 = MMor (FromComplex2FromObject g) i0.
   Proof.
     apply idpath.
   Qed.
 
   (** *** Morphism from complex to Complex2FromObject *)
 
-  Definition ToComplex2FromObject_mors {a : ob A} (C : Complex) (i : hz) (f : (COb C i) --> a) :
-    Π i0 : hz, A ⟦COb C i0, COb (Complex2FromObject a (i - 1)) i0⟧.
+  Definition ToComplex2FromObject_mors {a : ob A} {C : Complex} {i : hz} (f : (C i) --> a) :
+    Π i0 : hz, A ⟦C i0, (Complex2FromObject a (i - 1)) i0⟧.
   Proof.
     intros i0. unfold Complex2FromObject. unfold Complex2FromObject_obs. cbn. unfold coprod_rect.
     induction (isdecrelhzeq (i - 1) i0) as [e | n].
     - induction (isdecrelhzeq i (i - 1 + 1)) as [e' | n'].
       + eapply compose.
-        * induction e. exact (CMor C (i - 1)).
+        * induction e. exact (Diff (i - 1)).
         * induction e'. exact f.
       + apply fromempty. apply n'. apply pathsinv0. apply (hzrminusplus i 1).
     - induction (isdecrelhzeq (i - 1 + 1) i0) as [e' | n'].
@@ -836,9 +840,9 @@ Section def_complexes.
       + apply (ZeroArrow (Additive.to_Zero A)).
   Defined.
 
-  Local Lemma ToComplex2FromObject_comm {a : ob A} (C : Complex) (i : hz) (f : (COb C i) --> a) :
-    Π i0 : hz, ToComplex2FromObject_mors C i f i0 ;; CMor (Complex2FromObject a (i - 1)) i0 =
-               CMor C i0 ;; ToComplex2FromObject_mors C i f (i0 + 1).
+  Local Lemma ToComplex2FromObject_comm {a : ob A} {C : Complex} {i : hz} (f : (C i) --> a) :
+    Π i0 : hz, (ToComplex2FromObject_mors f i0) ;; (@Diff (Complex2FromObject a (i - 1)) i0) =
+               (@Diff C i0) ;; (ToComplex2FromObject_mors f (i0 + 1)).
   Proof.
     intros i0.
     unfold Complex2FromObject. unfold Complex2FromObject_obs. unfold Complex2FromObject_mors.
@@ -875,7 +879,7 @@ Section def_complexes.
       + induction (isdecrelhzeq (i - 1) (i0 + 1)) as [e'' | n''].
         * induction (isdecrelhzeq i (i - 1 + 1)) as [e''' | n'''].
           -- rewrite assoc. rewrite ZeroArrow_comp_right.
-             set (mor := match e''' in (_ = y) return (A ⟦ COb C y, a ⟧) with
+             set (mor := match e''' in (_ = y) return (A ⟦ C y, a ⟧) with
                       | idpath _ => f
                       end).
              rewrite <- (ZeroArrow_comp_left _ _ _ _ _ mor). unfold mor. clear mor.
@@ -887,23 +891,22 @@ Section def_complexes.
              apply idpath.
   Qed.
 
-  Definition ToComplex2FromObject {a : ob A} (C : Complex) (i : hz) (f : (COb C i) --> a) :
+  Definition ToComplex2FromObject {a : ob A} {C : Complex} {i : hz} (f : (C i) --> a) :
     Morphism C (Complex2FromObject a (i - 1)).
   Proof.
     use mk_Morphism.
-    - exact (ToComplex2FromObject_mors C i f).
-    - exact (ToComplex2FromObject_comm C i f).
+    - exact (ToComplex2FromObject_mors f).
+    - exact (ToComplex2FromObject_comm f).
   Defined.
 
-  Lemma ToComplex2FromObject_Eq1 {a : ob A} (C : Complex) (i i0 : hz) (g : (COb C i ) --> a) :
-    ToComplex2FromObject_mors C i g i0 = MMor (ToComplex2FromObject C i g) i0.
+  Lemma ToComplex2FromObject_Eq1 {a : ob A} {C : Complex} {i : hz} (i0 : hz) (g : (C i) --> a) :
+    ToComplex2FromObject_mors g i0 = MMor (ToComplex2FromObject g) i0.
   Proof.
     apply idpath.
   Qed.
 
 End def_complexes.
-Arguments COb [A] _ _.
-Arguments CMor [A] _ _.
+Arguments Diff [A] _ _.
 Arguments ZeroComplex [A].
 Arguments Morphism [A] _ _.
 Arguments MorphismEq [A] [C1] [C2] _ _ _.
@@ -966,12 +969,12 @@ Section complexes_precat.
   (** ** Monic of complexes is indexwise monic *)
 
   Local Lemma ComplexMonicIndexMonic_eq {C1 C2 : Complex A} (M : Monic ComplexPreCat C1 C2) (i : hz)
-        (a : A) (g h : A ⟦a, COb C1 i⟧)
-        (H : g ;; MMor (MonicArrow _ M) i = h ;; MMor (MonicArrow _ M) i) :
-    FromComplex2FromObject_mors A C1 i g i = FromComplex2FromObject_mors A C1 i h i.
+        {a : A} (g h : A ⟦a, C1 i⟧)
+        (H : g ;; (MMor (MonicArrow _ M) i) = h ;; (MMor (MonicArrow _ M) i)) :
+    FromComplex2FromObject_mors A g i = FromComplex2FromObject_mors A h i.
   Proof.
-    use (pathscomp0 (FromComplex2FromObject_Eq1 A C1 i i g)).
-    use (pathscomp0 _ (! (FromComplex2FromObject_Eq1 A C1 i i h))).
+    use (pathscomp0 (FromComplex2FromObject_Eq1 A i g)).
+    use (pathscomp0 _ (! (FromComplex2FromObject_Eq1 A i h))).
     use MorphismEq'.
     use (MonicisMonic ComplexPreCat M). cbn.
     use MorphismEq.
@@ -990,7 +993,7 @@ Section complexes_precat.
     Π i : hz, isMonic (@MMor A C1 C2 (MonicArrow _ M) i).
   Proof.
     intros i a g h H.
-    set (tmp := ComplexMonicIndexMonic_eq M i a g h H).
+    set (tmp := ComplexMonicIndexMonic_eq M i g h H).
     unfold FromComplex2FromObject_mors in tmp. cbn in tmp.
     unfold coprod_rect in tmp. unfold Complex2FromObject_obs in tmp.
     unfold paths_rect in tmp. cbn in tmp.
@@ -1002,12 +1005,12 @@ Section complexes_precat.
   (** ** Epi of complexes is indexwise epi *)
 
   Local Lemma ComplexEpiIndexEpi_eq {C1 C2 : Complex A} (E : Epi ComplexPreCat C1 C2) (i : hz)
-        (a : A) (g h : A ⟦ COb C2 i, a ⟧)
-        (H : MMor (EpiArrow _ E) i ;; g = MMor (EpiArrow _ E) i ;; h) :
-    ToComplex2FromObject_mors A C2 i g i = ToComplex2FromObject_mors A C2 i h i.
+        {a : A} (g h : A ⟦C2 i, a⟧)
+        (H : (MMor (EpiArrow _ E) i) ;; g = (MMor (EpiArrow _ E) i) ;; h) :
+    ToComplex2FromObject_mors A g i = ToComplex2FromObject_mors A h i.
   Proof.
-    use (pathscomp0 (ToComplex2FromObject_Eq1 A C2 i i g)).
-    use (pathscomp0 _ (! (ToComplex2FromObject_Eq1 A C2 i i h))).
+    use (pathscomp0 (ToComplex2FromObject_Eq1 A i g)).
+    use (pathscomp0 _ (! (ToComplex2FromObject_Eq1 A i h))).
     use MorphismEq'.
     use (EpiisEpi ComplexPreCat E). cbn.
     use MorphismEq.
@@ -1032,7 +1035,7 @@ Section complexes_precat.
     Π i : hz, isEpi (@MMor A C1 C2 (EpiArrow _ E) i).
   Proof.
     intros i a g h H.
-    set (tmp := ComplexEpiIndexEpi_eq E i a g h H).
+    set (tmp := ComplexEpiIndexEpi_eq E i g h H).
     unfold ToComplex2FromObject_mors in tmp. cbn in tmp.
     unfold coprod_rect in tmp. unfold Complex2FromObject_obs in tmp.
     unfold paths_rect in tmp. cbn in tmp.
@@ -1124,7 +1127,7 @@ Section complexes_additive.
     - apply has_homsets_ComplexPreCat.
     - intros D f g.
       use unique_exists.
-      + exact (DirectSumMorOut A C1 C2 D f g).
+      + exact (DirectSumMorOut A f g).
       (* Commutativity *)
       + split.
         * use MorphismEq.
@@ -1152,7 +1155,7 @@ Section complexes_additive.
     - apply has_homsets_ComplexPreCat.
     - intros D f g.
       use unique_exists.
-      + exact (DirectSumMorIn A C1 C2 D f g).
+      + exact (DirectSumMorIn A f g).
       (* Commutativity *)
       + split.
         * use MorphismEq.
@@ -1227,8 +1230,8 @@ Section complexes_abelian.
   (** *** Construction of the kernel object *)
 
   Local Lemma ComplexPreCat_Kernel_moreq {Y Z : Complex (AbelianToAdditive A hs)} (g : Morphism Y Z)
-        (i : hz) : KernelArrow (Kernel (MMor g i)) ;; CMor Y i ;; MMor g (i + 1) =
-                   ZeroArrow (@to_Zero A) (Kernel (MMor g i)) (COb Z (i + 1)).
+        (i : hz) : (KernelArrow (Kernel (MMor g i))) ;; (Diff Y i) ;; (MMor g (i + 1)) =
+                   ZeroArrow (@to_Zero A) (Kernel (MMor g i)) (Z (i + 1)).
   Proof.
     rewrite <- assoc. cbn. set (tmp := MComm g i). cbn in tmp. rewrite <- tmp. clear tmp.
     rewrite assoc. rewrite KernelCompZero. apply ZeroArrow_comp_left.
@@ -1236,12 +1239,12 @@ Section complexes_abelian.
 
   Local Lemma ComplexPreCat_Kernel_comp {Y Z : Complex (AbelianToAdditive A hs)} (g : Morphism Y Z)
         (i : hz) :
-    KernelIn (@to_Zero A) (Kernel (MMor g (i + 1))) (Kernel (MMor g i))
-             (KernelArrow (Kernel (MMor g i)) ;; CMor Y i)
-             (ComplexPreCat_Kernel_moreq g i) ;;
-             KernelIn (@to_Zero A) (Kernel (MMor g (i + 1 + 1))) (Kernel (MMor g (i + 1)))
-             (KernelArrow (Kernel (MMor g (i + 1))) ;; CMor Y (i + 1))
-             (ComplexPreCat_Kernel_moreq g (i + 1)) =
+    (KernelIn (@to_Zero A) (Kernel (MMor g (i + 1))) (Kernel (MMor g i))
+              ((KernelArrow (Kernel (MMor g i))) ;; (Diff Y i))
+              (ComplexPreCat_Kernel_moreq g i))
+      ;; (KernelIn (@to_Zero A) (Kernel (MMor g (i + 1 + 1))) (Kernel (MMor g (i + 1)))
+                   ((KernelArrow (Kernel (MMor g (i + 1)))) ;; (Diff Y (i + 1)))
+                   (ComplexPreCat_Kernel_moreq g (i + 1))) =
     ZeroArrow (@to_Zero A) (Kernel (MMor g i)) (Kernel (MMor g (i + 1 + 1))).
   Proof.
     apply KernelArrowisMonic. rewrite ZeroArrow_comp_left.
@@ -1256,37 +1259,25 @@ Section complexes_abelian.
     use mk_Complex.
     - intros i. exact (Kernel (MMor g i)).
     - intros i. cbn. use KernelIn.
-      + exact (KernelArrow (Kernel (MMor g i)) ;; CMor Y i).
+      + exact (KernelArrow (Kernel (MMor g i)) ;; Diff Y i).
       + exact (ComplexPreCat_Kernel_moreq g i).
     - intros i. exact (ComplexPreCat_Kernel_comp g i).
   Defined.
 
   (** *** Construction of the KernelArrow *)
-  Local Lemma ComplexPreCat_KernelArrow_eq (Y Z : Complex (AbelianToAdditive A hs))
-        (g : Morphism Y Z) (i : hz) :
-    KernelArrow (Kernel (MMor g i)) ;; CMor Y i =
-    KernelIn (@to_Zero A) (Kernel (MMor g (i + 1))) (Kernel (MMor g i))
-             (KernelArrow (Kernel (MMor g i)) ;; CMor Y i)
-             (ComplexPreCat_Kernel_moreq g i) ;;
-             KernelArrow (Kernel (MMor g (i + 1))).
-  Proof.
-    rewrite KernelCommutes. apply idpath.
-  Qed.
-
   Definition ComplexPreCat_KernelArrow {Y Z : Complex (AbelianToAdditive A hs)}
              (g : Morphism Y Z) : Morphism (ComplexPreCat_Kernel g) Y.
   Proof.
     use mk_Morphism.
     - intros i. use KernelArrow.
-    - intros i. use ComplexPreCat_KernelArrow_eq.
+    - intros i. exact (! (KernelCommutes _ _ _ _ _)).
   Defined.
 
 
   (** *** isEqualizer  *)
   Local Lemma ComplexPreCat_Kernels_comp {X Y : Complex (AbelianToAdditive A hs)}
         (g : Morphism X Y) :
-    let Z := @mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                      ZeroComplex (ComplexPreCat_isZero (AbelianToAdditive A hs)) in
+    let Z := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
     MorphismComp (ComplexPreCat_KernelArrow g) g =
     MorphismComp (ZeroArrowTo (ComplexPreCat_Kernel g)) (@ZeroArrowFrom _ Z Y).
   Proof.
@@ -1296,10 +1287,9 @@ Section complexes_abelian.
 
   Local Lemma ComplexPreCat_KernelIn_comp {X Y w : Complex (AbelianToAdditive A hs)} (g : Morphism X Y)
     (h : Morphism w X) (i : hz) :
-    let Z := @mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                      ZeroComplex (ComplexPreCat_isZero (AbelianToAdditive A hs)) in
+    let Z := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
     MorphismComp h g = ZeroArrow Z w Y ->
-    MMor h i ;; MMor g i = ZeroArrow to_Zero (COb w i) (COb Y i).
+    (MMor h i) ;; (MMor g i) = ZeroArrow to_Zero (w i) (Y i).
   Proof.
     intros Z H.
     set (tmp := MorphismEq' _ (MorphismComp h g) (ZeroArrow Z _ _) H i). cbn in tmp.
@@ -1308,8 +1298,7 @@ Section complexes_abelian.
 
   Definition ComplexPreCat_KernelIn {X Y w : Complex (AbelianToAdditive A hs)} (g : Morphism X Y)
     (h : Morphism w X) :
-    let Z := @mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                      ZeroComplex (ComplexPreCat_isZero (AbelianToAdditive A hs)) in
+    let Z := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
     MorphismComp h g = ZeroArrow Z w Y ->
     (ComplexPreCat (AbelianToAdditive A hs)) ⟦w, ComplexPreCat_Kernel g⟧.
   Proof.
@@ -1330,8 +1319,7 @@ Section complexes_abelian.
 
   Local Lemma ComplexPreCat_Kernels_isEqualizer {X Y : Complex (AbelianToAdditive A hs)}
         (g : Morphism X Y) :
-    let Z := @mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                      ZeroComplex (ComplexPreCat_isZero (AbelianToAdditive A hs)) in
+    let Z := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
     @equalizers.isEqualizer
       (ComplexPreCat (AbelianToAdditive A hs)) _ _ _
       g (MorphismComp (@ZeroArrowTo _ Z X) (@ZeroArrowFrom _ Z Y)) (ComplexPreCat_KernelArrow g)
@@ -1374,22 +1362,23 @@ Section complexes_abelian.
   (** ** Cokernels in Complexes over Abelian *)
 
   (** *** Cokernel complex *)
-  Local Lemma ComplexPreCat_Cokernel_eq (Y Z : Complex (AbelianToAdditive A hs)) (g : Morphism Y Z)
-        (i : hz) : MMor g i ;; (CMor Z i ;; CokernelArrow (Cokernel (MMor g (i + 1)))) =
-                   ZeroArrow (@to_Zero A) (COb Y i) (Cokernel (MMor g (i + 1))).
+  Local Lemma ComplexPreCat_Cokernel_comm {Y Z : Complex (AbelianToAdditive A hs)}
+        (g : Morphism Y Z) (i : hz) :
+    (MMor g i) ;; ((Diff Z i) ;; (CokernelArrow (Cokernel (MMor g (i + 1))))) =
+    ZeroArrow (@to_Zero A) (Y i) (Cokernel (MMor g (i + 1))).
   Proof.
     rewrite assoc. cbn. set (tmp := MComm g i). cbn in tmp. rewrite tmp. clear tmp.
     rewrite <- assoc. rewrite CokernelCompZero. apply ZeroArrow_comp_right.
   Qed.
 
-  Local Lemma ComplexPreCat_Cokernel_comp (Y Z : Complex (AbelianToAdditive A hs))
+  Local Lemma ComplexPreCat_Cokernel_comp {Y Z : Complex (AbelianToAdditive A hs)}
         (g : Morphism Y Z) (i : hz) :
     (CokernelOut (@to_Zero A) (Cokernel (MMor g i)) (Cokernel (MMor g (i + 1)))
-                 (CMor Z i ;; CokernelArrow (Cokernel (MMor g (i + 1))))
-                 (ComplexPreCat_Cokernel_eq Y Z g i))
+                 ((Diff Z i) ;; (CokernelArrow (Cokernel (MMor g (i + 1)))))
+                 (ComplexPreCat_Cokernel_comm g i))
       ;; (CokernelOut (@to_Zero A) (Cokernel (MMor g (i + 1))) (Cokernel (MMor g (i + 1 + 1)))
-                      (CMor Z (i + 1) ;; CokernelArrow (Cokernel (MMor g (i + 1 + 1))))
-                      (ComplexPreCat_Cokernel_eq Y Z g (i + 1))) =
+                      ((Diff Z (i + 1)) ;; (CokernelArrow (Cokernel (MMor g (i + 1 + 1)))))
+                      (ComplexPreCat_Cokernel_comm g (i + 1))) =
     ZeroArrow (@to_Zero A) (Cokernel (MMor g i)) (Cokernel (MMor g (i + 1 + 1))).
   Proof.
     apply CokernelArrowisEpi. rewrite ZeroArrow_comp_right.
@@ -1404,29 +1393,18 @@ Section complexes_abelian.
     use mk_Complex.
     - intros i. exact (Cokernel (MMor g i)).
     - intros i. cbn. use CokernelOut.
-      + exact (CMor Z i ;; CokernelArrow (Cokernel (MMor g (i + 1)))).
-      + exact (ComplexPreCat_Cokernel_eq Y Z g i).
-    - intros i. exact (ComplexPreCat_Cokernel_comp Y Z g i).
+      + exact ((Diff Z i) ;; (CokernelArrow (Cokernel (MMor g (i + 1))))).
+      + exact (ComplexPreCat_Cokernel_comm g i).
+    - intros i. exact (ComplexPreCat_Cokernel_comp g i).
   Defined.
 
   (** *** CokernelArrow *)
-  Local Lemma ComplexPreCat_CokernelArrow_comm (Y Z : Complex (AbelianToAdditive A hs))
-        (g : Morphism Y Z) (i : hz) :
-    (CokernelArrow (Cokernel (MMor g i)))
-      ;; (CokernelOut (@to_Zero A) (Cokernel (MMor g i)) (Cokernel (MMor g (i + 1)))
-                      (CMor Z i ;; CokernelArrow (Cokernel (MMor g (i + 1))))
-                      (ComplexPreCat_Cokernel_eq Y Z g i)) =
-    CMor Z i ;; CokernelArrow (Cokernel (MMor g (i + 1))).
-  Proof.
-    rewrite CokernelCommutes. apply idpath.
-  Qed.
-
   Definition ComplexPreCat_CokernelArrow {Y Z : Complex (AbelianToAdditive A hs)}
              (g : Morphism Y Z) : Morphism Z (ComplexPreCat_Cokernel g).
   Proof.
     use mk_Morphism.
     - intros i. use CokernelArrow.
-    - intros i. use ComplexPreCat_CokernelArrow_comm.
+    - intros i. use CokernelCommutes.
   Defined.
 
   (** *** Cokernel *)
@@ -1434,31 +1412,28 @@ Section complexes_abelian.
         (g : (ComplexPreCat (AbelianToAdditive A hs))⟦Y, Z⟧)
         (h : (ComplexPreCat (AbelianToAdditive A hs))⟦Z, w⟧)
         (i : hz) :
-    let Z0 := @mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                       ZeroComplex (ComplexPreCat_isZero (AbelianToAdditive A hs)) in
+    let Z0 := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
     g ;; h = ZeroArrow Z0 Y w ->
-    MMor g i ;; MMor h i = ZeroArrow (@to_Zero A) (COb Y i) (COb w i).
+    (MMor g i) ;; (MMor h i) = ZeroArrow (@to_Zero A) (Y i) (w i).
   Proof.
     intros Z0. cbn. intros H. set (tmp := MorphismEq' _ (g ;; h) _ H i). cbn in tmp.
     rewrite tmp. apply ZeroArrowEq.
   Qed.
 
-  Local Lemma ComplexPreCat_Cokernels_eq (Y Z : Complex (AbelianToAdditive A hs))
+  Local Lemma ComplexPreCat_Cokernels_Eq {Y Z w : Complex (AbelianToAdditive A hs)}
         (g : (ComplexPreCat (AbelianToAdditive A hs))⟦Y, Z⟧)
-        (w : (ComplexPreCat (AbelianToAdditive A hs)))
         (h : (ComplexPreCat (AbelianToAdditive A hs))⟦Z, w⟧)
-        (H' : g ;; h =
-              ZeroArrow (@mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                                  ZeroComplex (ComplexPreCat_isZero (AbelianToAdditive A hs))) Y w)
+        (H : g ;; h =
+             ZeroArrow (Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs))) Y w)
         (i : hz) :
-    CokernelOut (@to_Zero A) (Cokernel (MMor g i)) (COb w i) (MMor h i)
-                (ComplexPreCat_CokernelCompZero g h i H') ;; CMor w i =
+    (CokernelOut (@to_Zero A) (Cokernel (MMor g i)) (w i) (MMor h i)
+                 (ComplexPreCat_CokernelCompZero g h i H)) ;; (Diff w i) =
     (CokernelOut (@to_Zero A) (Cokernel (MMor g i)) (Cokernel (MMor g (i + 1)))
-                 (CMor Z i ;; CokernelArrow (Cokernel (MMor g (i + 1))))
-                 (ComplexPreCat_Cokernel_eq Y Z g i))
+                 ((Diff Z i) ;; (CokernelArrow (Cokernel (MMor g (i + 1)))))
+                 (ComplexPreCat_Cokernel_comm g i))
       ;; (CokernelOut (@to_Zero A) (Cokernel (MMor g (i + 1)))
-                      (COb w (i + 1)) (MMor h (i + 1))
-                      (ComplexPreCat_CokernelCompZero g h (i + 1) H')).
+                      (w (i + 1)) (MMor h (i + 1))
+                      (ComplexPreCat_CokernelCompZero g h (i + 1) H)).
   Proof.
     apply CokernelArrowisEpi.
     rewrite assoc. rewrite assoc. rewrite CokernelCommutes.
@@ -1466,10 +1441,9 @@ Section complexes_abelian.
     apply (MComm h i).
   Qed.
 
-  Local Lemma ComplexPreCat_Cokernels_comp {Y Z : Complex (AbelianToAdditive A hs)}
+  Local Lemma ComplexPreCat_Cokernels_Comp {Y Z : Complex (AbelianToAdditive A hs)}
         (g : (ComplexPreCat (AbelianToAdditive A hs))⟦Y, Z⟧) :
-    let Z0 := @mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                       ZeroComplex (ComplexPreCat_isZero (AbelianToAdditive A hs)) in
+    let Z0 := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
     MorphismComp g (ComplexPreCat_CokernelArrow g) =
     MorphismComp (@ZeroArrowTo _ Z0 Y) (@ZeroArrowFrom _ Z0 (ComplexPreCat_Cokernel g)).
   Proof.
@@ -1477,13 +1451,12 @@ Section complexes_abelian.
     intros i. cbn. rewrite CokernelCompZero. apply pathsinv0. apply ZeroArrowEq.
   Qed.
 
-  Local Lemma ComplexPreCat_Cokernels_isEqualizer {Y Z : Complex (AbelianToAdditive A hs)}
+  Local Lemma ComplexPreCat_Cokernels_isCoequalizer {Y Z : Complex (AbelianToAdditive A hs)}
         (g : (ComplexPreCat (AbelianToAdditive A hs))⟦Y, Z⟧) :
-    let Z0 := @mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                       ZeroComplex (ComplexPreCat_isZero (AbelianToAdditive A hs)) in
+    let Z0 := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
     coequalizers.isCoequalizer
       g (MorphismComp (@ZeroArrowTo _ Z0 Y) (@ZeroArrowFrom _ Z0 Z))
-      (ComplexPreCat_CokernelArrow g) (CokernelEqRw Z0 (ComplexPreCat_Cokernels_comp g)).
+      (ComplexPreCat_CokernelArrow g) (CokernelEqRw Z0 (ComplexPreCat_Cokernels_Comp g)).
   Proof.
     intros Z0.
     use mk_isCoequalizer.
@@ -1493,7 +1466,7 @@ Section complexes_abelian.
       + intros i. cbn. use CokernelOut.
         * exact (MMor h i).
         * exact (ComplexPreCat_CokernelCompZero g h i H').
-      + intros i. cbn. apply ComplexPreCat_Cokernels_eq.
+      + intros i. cbn. use ComplexPreCat_Cokernels_Eq.
     - cbn. use MorphismEq. intros i. use CokernelCommutes.
     - intros y. apply has_homsets_ComplexPreCat.
     - intros y T. cbn beta in T.
@@ -1506,8 +1479,7 @@ Section complexes_abelian.
   Qed.
 
   Definition ComplexPreCat_Cokernels :
-    Cokernels (@mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                        ZeroComplex (ComplexPreCat_isZero (AbelianToAdditive A hs))).
+    Cokernels (Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs))).
   Proof.
     intros Y Z g. cbn in *.
     use mk_Cokernel.
@@ -1516,9 +1488,9 @@ Section complexes_abelian.
     (* CokernelArrow *)
     - exact(ComplexPreCat_CokernelArrow g).
     (* Composition is zero *)
-    - exact (ComplexPreCat_Cokernels_comp g).
+    - exact (ComplexPreCat_Cokernels_Comp g).
     (* isCoequalizer *)
-    - exact (ComplexPreCat_Cokernels_isEqualizer g).
+    - exact (ComplexPreCat_Cokernels_isCoequalizer g).
   Defined.
 
 
@@ -1529,8 +1501,8 @@ Section complexes_abelian.
     {x y : ComplexPreCat_Additive (AbelianToAdditive A hs)}
     (M : Monic (ComplexPreCat_Additive (AbelianToAdditive A hs)) x y) (i : hz) :
     (MMor (MonicArrow _ M) i)
-      ;; (CMor y i ;; CokernelArrow (Cokernel (MMor (MonicArrow _ M) (i + 1)))) =
-    ZeroArrow (@to_Zero A) (COb x i) (Cokernel (MMor (MonicArrow _ M) (i + 1))).
+      ;; ((Diff y i) ;; (CokernelArrow (Cokernel (MMor (MonicArrow _ M) (i + 1))))) =
+    ZeroArrow (@to_Zero A) _ (Cokernel (MMor (MonicArrow _ M) (i + 1))).
   Proof.
     rewrite assoc. rewrite (MComm (MonicArrow _ M)). rewrite <- assoc.
     rewrite CokernelCompZero. apply ZeroArrow_comp_right.
@@ -1541,12 +1513,12 @@ Section complexes_abelian.
     (M : Monic (ComplexPreCat_Additive (AbelianToAdditive A hs)) x y) (i : hz) :
     (CokernelOut to_Zero (Cokernel (MMor (MonicArrow _ M) i))
                  (Cokernel (MMor (MonicArrow _ M) (i + 1)))
-                 (CMor y i ;; CokernelArrow (Cokernel (MMor (MonicArrow _ M) (i + 1))))
+                 ((Diff y i) ;; (CokernelArrow (Cokernel (MMor (MonicArrow _ M) (i + 1)))))
                  (ComplexPreCat_Monic_Kernel_Complex_comm M i))
       ;; (CokernelOut to_Zero (Cokernel (MMor (MonicArrow _ M) (i + 1)))
                       (Cokernel (MMor (MonicArrow _ M) (i + 1 + 1)))
-                      (CMor y (i + 1)
-                            ;; CokernelArrow (Cokernel (MMor (MonicArrow _ M) (i + 1 + 1))))
+                      ((Diff y (i + 1))
+                         ;; (CokernelArrow (Cokernel (MMor (MonicArrow _ M) (i + 1 + 1)))))
                       (ComplexPreCat_Monic_Kernel_Complex_comm M (i + 1))) =
     ZeroArrow
       to_Zero (Cokernel (MMor (MonicArrow _ M) i)) (Cokernel (MMor (MonicArrow _ M) (i + 1 + 1))).
@@ -1566,8 +1538,8 @@ Section complexes_abelian.
     use mk_Complex.
     - intros i. exact (Cokernel (@MMor _ x y (MonicArrow _ M) i)).
     - intros i. cbn. use CokernelOut.
-      + exact (CMor y i ;; (CokernelArrow (Cokernel (@MMor _ x y (MonicArrow _ M) (i + 1))))).
-      + apply ComplexPreCat_Monic_Kernel_Complex_comm.
+      + exact ((Diff y i) ;; (CokernelArrow (Cokernel (@MMor _ x y (MonicArrow _ M) (i + 1))))).
+      + use ComplexPreCat_Monic_Kernel_Complex_comm.
     - intros i. cbn. exact (ComplexPreCat_Monic_Kernel_Complex_comp M i).
   Defined.
 
@@ -1578,15 +1550,13 @@ Section complexes_abelian.
   Proof.
     use mk_Morphism.
     - intros i. apply CokernelArrow.
-    - intros i. cbn. rewrite CokernelCommutes. apply idpath.
+    - intros i. use CokernelCommutes.
   Defined.
 
   (** *** KernelIn *)
   Local Lemma KernelMorphism_eq {x y : ComplexPreCat_Additive (AbelianToAdditive A hs)}
         (M : Monic (ComplexPreCat_Additive (AbelianToAdditive A hs)) x y) :
-    let Z := @mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                      (@ZeroComplex (AbelianToAdditive A hs))
-                      (ComplexPreCat_isZero (AbelianToAdditive A hs)) in
+    let Z := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
     MorphismComp (MonicArrow _ M) (KernelMorphism M) =
     MorphismComp (MonicArrow _ M)
                  (MorphismComp
@@ -1594,69 +1564,73 @@ Section complexes_abelian.
                     (@ZeroArrowFrom (ComplexPreCat (AbelianToAdditive A hs)) Z
                                     (@ComplexPreCat_Monic_Kernel_Complex x y M))).
   Proof.
+    intros Z.
     use MorphismEq.
     intros i. cbn. rewrite CokernelCompZero.
     rewrite assoc. apply pathsinv0. apply ZeroArrowEq.
   Qed.
 
-  Lemma ComplexMonicKernelInComm (x y : Complex (AbelianToAdditive A hs))
+  Local Lemma ComplexMonicKernelInComm {x y : Complex (AbelianToAdditive A hs)}
         (M : Monic (ComplexPreCat (AbelianToAdditive A hs)) x y)
-        (w : ComplexPreCat (AbelianToAdditive A hs))
+        {w : ComplexPreCat (AbelianToAdditive A hs)}
         (h : (ComplexPreCat (AbelianToAdditive A hs))⟦w, y⟧)
-        (H' : h ;; KernelMorphism M =
-              h ;; (MorphismComp
-                      (@ZeroArrowTo (ComplexPreCat (AbelianToAdditive A hs))
-                                    (@mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                                              (@ZeroComplex (AbelianToAdditive A hs))
-                                              (ComplexPreCat_isZero (AbelianToAdditive A hs))) y)
-                      (@ZeroArrowFrom (ComplexPreCat (AbelianToAdditive A hs))
-                                      (@mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                                                (@ZeroComplex (AbelianToAdditive A hs))
-                                                (ComplexPreCat_isZero (AbelianToAdditive A hs)))
-                                      (@ComplexPreCat_Monic_Kernel_Complex x y M))))
+        (H : let Z := @Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
+             h ;; (KernelMorphism M) =
+             h ;; (MorphismComp (@ZeroArrowTo _ Z y)
+                                (@ZeroArrowFrom _ Z (@ComplexPreCat_Monic_Kernel_Complex x y M))))
         (i : hz) :
-    MMor h i ;; CokernelArrow (Cokernel (MMor (MonicArrow _ M) i)) =
-    ZeroArrow (@to_Zero A) (COb w i) (Cokernel (MMor (MonicArrow _ M) i)).
+    (MMor h i) ;; (CokernelArrow (Cokernel (MMor (MonicArrow _ M) i))) =
+    ZeroArrow (@to_Zero A) _ (Cokernel (MMor (MonicArrow _ M) i)).
   Proof.
-    set (H'' := MorphismEq' _ _ _ H' i). cbn in H''. cbn. rewrite H''.
+    set (H' := MorphismEq' _ _ _ H i). cbn in H'. cbn. rewrite H'.
     rewrite assoc. apply ZeroArrowEq.
   Qed.
 
-  Definition ComplexMonicKernelIn (x y : Complex (AbelianToAdditive A hs))
+  Local Lemma ComplexMonicKernelIn_Complex_Comm {x y w : Complex (AbelianToAdditive A hs)}
+        (M : Monic (ComplexPreCat (AbelianToAdditive A hs)) x y)
+        (h : (ComplexPreCat (AbelianToAdditive A hs))⟦w, y⟧) (i : hz)
+        (H : let Z := @Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
+             h ;; KernelMorphism M =
+             h ;; (MorphismComp (@ZeroArrowTo _ Z y)
+                                (@ZeroArrowFrom _ Z (@ComplexPreCat_Monic_Kernel_Complex x y M)))) :
+    (KernelIn
+       to_Zero
+       (MonicToKernel A hs (mk_Monic A (MMor (MonicArrow _ M) i) ((ComplexMonicIndexMonic _ M) i)))
+       (w i) (MMor h i) (ComplexMonicKernelInComm M h H i)) ;; (Diff x i) =
+    (Diff w i)
+      ;; (KernelIn
+            to_Zero
+            (MonicToKernel A hs (mk_Monic A (MMor (MonicArrow _ M) (i + 1))
+                                          ((ComplexMonicIndexMonic _ M) (i + 1))))
+            (w (i + 1)) (MMor h (i + 1)) (ComplexMonicKernelInComm M h H (i + 1))).
+  Proof.
+    set (isM := ComplexMonicIndexMonic _ M).
+    set (ker := MonicToKernel A hs (mk_Monic _ _ (isM (i + 1)))).
+    cbn in *. apply (KernelArrowisMonic _ ker).
+    rewrite <- assoc. rewrite <- assoc. fold ker.
+    rewrite (KernelCommutes _ ker). cbn. use (pathscomp0 _ (MComm h i)).
+    set (tmp := MComm (MonicArrow _ M) i). cbn in tmp. rewrite <- tmp. clear tmp.
+    rewrite assoc. apply cancel_postcomposition.
+    apply (KernelCommutes _ (MonicToKernel A hs (mk_Monic A _ (isM i))) (w i) (MMor h i)).
+  Qed.
+
+  Definition ComplexMonicKernelIn {x y : Complex (AbelianToAdditive A hs)}
              (M : Monic (ComplexPreCat (AbelianToAdditive A hs)) x y)
-             (w : ComplexPreCat (AbelianToAdditive A hs))
-             (h : (ComplexPreCat (AbelianToAdditive A hs))⟦w, y⟧)
-             (H' : h ;; KernelMorphism M =
-                   h ;; (MorphismComp
-                           (@ZeroArrowTo
-                              (ComplexPreCat (AbelianToAdditive A hs))
-                              (@mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                                        (@ZeroComplex (AbelianToAdditive A hs))
-                                        (ComplexPreCat_isZero (AbelianToAdditive A hs))) y)
-                           (@ZeroArrowFrom
-                              (ComplexPreCat (AbelianToAdditive A hs))
-                              (@mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                                        (@ZeroComplex (AbelianToAdditive A hs))
-                                        (ComplexPreCat_isZero (AbelianToAdditive A hs)))
-                              (@ComplexPreCat_Monic_Kernel_Complex x y M)))) :
+             {w : ComplexPreCat (AbelianToAdditive A hs)}
+             (h : (ComplexPreCat (AbelianToAdditive A hs))⟦w, y⟧) :
+    let Z := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
+    h ;; (KernelMorphism M) =
+    h ;; (MorphismComp (@ZeroArrowTo _ Z y)
+                       (@ZeroArrowFrom _ Z (ComplexPreCat_Monic_Kernel_Complex M))) ->
     (ComplexPreCat (AbelianToAdditive A hs))⟦w, x⟧.
   Proof.
+    intros Z H'.
     set (isM := ComplexMonicIndexMonic _ M).
     use mk_Morphism.
     - intros i.
-      set (ker := MonicToKernel A hs (mk_Monic _ _ (isM i))).
-      apply (KernelIn (@to_Zero A) ker (COb w i) (MMor h i) (ComplexMonicKernelInComm x y M w h H' i)).
-    - intros i.
-      set (ker := MonicToKernel A hs (mk_Monic _ _ (isM (i + 1)))).
-      cbn in *. apply (KernelArrowisMonic _ ker).
-      rewrite <- assoc. rewrite <- assoc. fold ker.
-      rewrite (KernelCommutes _ ker). cbn. use (pathscomp0 _ (MComm h i)).
-      set (tmp := MComm (MonicArrow _ M) i). cbn in tmp. rewrite <- tmp. clear tmp.
-      rewrite assoc. apply cancel_postcomposition.
-      set (tmp := KernelCommutes _ (MonicToKernel A hs (mk_Monic A _ (isM i)))
-                                 (COb w i) (MMor h i)).
-      set (tmp0 := KernelEqAr _ (MonicToKernel A hs (mk_Monic A _ (isM i)))). cbn in tmp0.
-      rewrite ZeroArrow_comp_right in tmp0. cbn in tmp. apply tmp.
+      exact (KernelIn to_Zero (MonicToKernel A hs (mk_Monic _ _ (isM i))) _ (MMor h i)
+                      (ComplexMonicKernelInComm M h H' i)).
+    - intros i. exact (ComplexMonicKernelIn_Complex_Comm M h i H').
   Defined.
 
   (** *** MonicKernelsData *)
@@ -1664,42 +1638,37 @@ Section complexes_abelian.
   Definition ComplexPreCatAbelianMonicKernelsData_isEqualizer
              {x y : Complex (AbelianToAdditive A hs)}
              (M : Monic (ComplexPreCat (AbelianToAdditive A hs)) x y) :
-    let Z := @mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                      (@ZeroComplex (AbelianToAdditive A hs))
-                      (ComplexPreCat_isZero (AbelianToAdditive A hs)) in
-    @equalizers.isEqualizer (ComplexPreCat (AbelianToAdditive A hs)) _ _ _
-                            (KernelMorphism M)
-                            (MorphismComp (@ZeroArrowTo _ Z y)
-                                          (ZeroArrowFrom (ComplexPreCat_Monic_Kernel_Complex M))) M
-                            (KernelMorphism_eq M).
+    let Z := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
+    @equalizers.isEqualizer
+      (ComplexPreCat (AbelianToAdditive A hs)) _ _ _ (KernelMorphism M)
+      (MorphismComp (@ZeroArrowTo _ Z y) (ZeroArrowFrom (ComplexPreCat_Monic_Kernel_Complex M))) M
+      (KernelMorphism_eq M).
   Proof.
-    cbn.
+    intros Z.
     set (isM := ComplexMonicIndexMonic _ M).
     use mk_isEqualizer.
     intros w h H'.
     use unique_exists.
-    - apply (ComplexMonicKernelIn x y M w h H').
+    - apply (ComplexMonicKernelIn M h H').
     - cbn. use MorphismEq.
       intros i. cbn.
-      apply (KernelCommutes _ (MonicToKernel A hs (mk_Monic A _ (isM i))) (COb w i) (MMor h i)).
+      apply (KernelCommutes _ (MonicToKernel A hs (mk_Monic A _ (isM i))) _ (MMor h i)).
     - intros y0. apply has_homsets_ComplexPreCat.
     - intros y0 T. cbn in T.
       use MorphismEq.
       intros i. apply (isM i).
       set (tmp :=  MorphismEq' _ _ _ T i). cbn in tmp. cbn. rewrite tmp.
       apply pathsinv0. clear tmp.
-      apply (KernelCommutes _ (MonicToKernel A hs (mk_Monic A _ (isM i))) (COb w i) (MMor h i)).
+      apply (KernelCommutes _ (MonicToKernel A hs (mk_Monic A _ (isM i))) _ (MMor h i)).
   Qed.
 
   Definition ComplexPreCatAbelianMonicKernelsData :
+    let Add := ComplexPreCat_Additive (AbelianToAdditive A hs) in
     AbelianMonicKernelsData
-      (ComplexPreCat (AbelianToAdditive A hs))
-      (@mk_Zero (ComplexPreCat (AbelianToAdditive A hs)) ZeroComplex
-                (ComplexPreCat_isZero (AbelianToAdditive A hs)),,
-                Additive.to_BinProducts (ComplexPreCat_Additive (AbelianToAdditive A hs)),,
-                Additive.to_BinCoproducts (ComplexPreCat_Additive (AbelianToAdditive A hs))).
+      Add ((Additive.to_Zero Add)
+             ,, (Additive.to_BinProducts Add),, (Additive.to_BinCoproducts Add)).
   Proof.
-    intros x y M.
+    intros Add x y M.
     set (isM := ComplexMonicIndexMonic _ M).
     use tpair.
     - use tpair.
@@ -1710,16 +1679,36 @@ Section complexes_abelian.
     - exact (ComplexPreCatAbelianMonicKernelsData_isEqualizer M).
   Defined.
 
+
   (** ** Epis are Cokernels *)
 
   Local Lemma ComplexPreCat_Epi_Cokernel_Complex_comm
         {x y : ComplexPreCat_Additive (AbelianToAdditive A hs)}
         (E : Epi (ComplexPreCat_Additive (AbelianToAdditive A hs)) x y) (i : hz) :
-    KernelArrow (Kernel (MMor (EpiArrow _ E) i)) ;; CMor x i ;; MMor (EpiArrow _ E) (i + 1) =
-    ZeroArrow (@to_Zero A) (Kernel (MMor (EpiArrow _ E) i)) (COb y (i + 1)).
+    (KernelArrow (Kernel (MMor (EpiArrow _ E) i))) ;; (Diff x i) ;; (MMor (EpiArrow _ E) (i + 1)) =
+    ZeroArrow (@to_Zero A) (Kernel (MMor (EpiArrow _ E) i)) _.
   Proof.
     rewrite <- assoc. rewrite <- (MComm (EpiArrow _ E)). rewrite assoc.
     rewrite KernelCompZero. apply ZeroArrow_comp_left.
+  Qed.
+
+  Local Lemma ComplexPreCat_Epi_Cokernel_Complex_comp
+        {x y : ComplexPreCat_Additive (AbelianToAdditive A hs)}
+        (E : Epi (ComplexPreCat_Additive (AbelianToAdditive A hs)) x y) (i : hz) :
+    (KernelIn to_Zero (Kernel (MMor (EpiArrow _ E) (i + 1))) (Kernel (MMor (EpiArrow _ E) i))
+              ((KernelArrow (Kernel (MMor (EpiArrow _ E) i))) ;; (Diff x i))
+              (ComplexPreCat_Epi_Cokernel_Complex_comm E i))
+      ;; (KernelIn to_Zero (Kernel (MMor (EpiArrow _ E) (i + 1 + 1)))
+                   (Kernel (MMor (EpiArrow _ E) (i + 1)))
+                   ((KernelArrow (Kernel (MMor (EpiArrow _ E) (i + 1)))) ;; (Diff x (i + 1)))
+                   (ComplexPreCat_Epi_Cokernel_Complex_comm E (i + 1))) =
+    ZeroArrow to_Zero (Kernel (MMor (EpiArrow _ E) i)) (Kernel (MMor (EpiArrow _ E) (i + 1 + 1))).
+  Proof.
+    apply KernelArrowisMonic. rewrite <- assoc. rewrite KernelCommutes.
+    rewrite assoc. rewrite KernelCommutes. rewrite <- assoc.
+    cbn. set (tmp := CEq _ x i). cbn in tmp. rewrite tmp. clear tmp.
+    rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left.
+    apply idpath.
   Qed.
 
   Definition ComplexPreCat_Epi_Cokernel_Complex
@@ -1729,111 +1718,96 @@ Section complexes_abelian.
   Proof.
     use mk_Complex.
     - intros i.
-      set (mor := EpiArrow _ E). cbn in mor.
-      set (tmp := @MMor _ x y mor i).
-      exact (Kernel tmp).
+      exact (Kernel (@MMor _ x y (EpiArrow _ E) i)).
     - intros i. cbn. use KernelIn.
-      + set (mor := EpiArrow _ E). cbn in mor.
-        set (tmp := @MMor _ x y mor i).
-        exact ((KernelArrow (Kernel tmp)) ;; CMor x i).
+      + exact ((KernelArrow (Kernel (@MMor _ x y (EpiArrow _ E) i))) ;; (Diff x i)).
       + apply ComplexPreCat_Epi_Cokernel_Complex_comm.
-    - intros i. cbn.
-      apply KernelArrowisMonic. rewrite <- assoc. rewrite KernelCommutes.
-      rewrite assoc. rewrite KernelCommutes. rewrite <- assoc.
-      cbn. set (tmp := CEq _ x i). cbn in tmp. rewrite tmp. clear tmp.
-      rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left.
-      apply idpath.
+    - intros i. exact (ComplexPreCat_Epi_Cokernel_Complex_comp E i).
   Defined.
 
-  Definition CokernelMorphism
-             {x y : ComplexPreCat_Additive (AbelianToAdditive A hs)}
+  (** This is the morphism which has E as cokernel *)
+  Definition CokernelMorphism {x y : ComplexPreCat_Additive (AbelianToAdditive A hs)}
              (E : Epi (ComplexPreCat_Additive (AbelianToAdditive A hs)) x y) :
     Morphism (ComplexPreCat_Epi_Cokernel_Complex E) x.
   Proof.
     use mk_Morphism.
-    - intros i. cbn. apply KernelArrow.
-    - intros i. cbn. rewrite KernelCommutes. apply idpath.
+    - intros i. cbn. use KernelArrow.
+    - intros i. cbn. exact (! (KernelCommutes _ _ _ _ _)).
   Defined.
 
-  Definition CokernelMorphism_eq
-             {x y : ComplexPreCat_Additive (AbelianToAdditive A hs)}
+  Definition CokernelMorphism_eq {x y : ComplexPreCat_Additive (AbelianToAdditive A hs)}
              (E : Epi (ComplexPreCat_Additive (AbelianToAdditive A hs)) x y) :
+    let Z := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
     MorphismComp (CokernelMorphism E) (EpiArrow _ E) =
-    MorphismComp (MorphismComp
-                    (@ZeroArrowTo (ComplexPreCat (AbelianToAdditive A hs))
-                                  (@mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                                            (@ZeroComplex (AbelianToAdditive A hs))
-                                            (ComplexPreCat_isZero (AbelianToAdditive A hs)))
-                                  (ComplexPreCat_Epi_Cokernel_Complex E))
-                    (@ZeroArrowFrom (ComplexPreCat (AbelianToAdditive A hs))
-                                    (@mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                                              (@ZeroComplex (AbelianToAdditive A hs))
-                                              (ComplexPreCat_isZero (AbelianToAdditive A hs)))
-                                    x)) (EpiArrow _ E).
+    MorphismComp (MorphismComp (@ZeroArrowTo _ Z (ComplexPreCat_Epi_Cokernel_Complex E))
+                               (@ZeroArrowFrom _ Z x)) (EpiArrow _ E).
   Proof.
     use MorphismEq.
     intros i. cbn. rewrite KernelCompZero.
     rewrite <- assoc. apply pathsinv0. apply ZeroArrowEq.
   Qed.
 
-  Local Lemma ComplexPreCatCokernelOut_comm
-    {x y : ComplexPreCat_Additive (AbelianToAdditive A hs)}
+  Local Lemma ComplexPreCatCokernelOut_comp
+    {x y w0 : ComplexPreCat_Additive (AbelianToAdditive A hs)}
     (E : Epi (ComplexPreCat (AbelianToAdditive A hs)) x y)
-    (w0 : ComplexPreCat (AbelianToAdditive A hs))
     (h : (ComplexPreCat (AbelianToAdditive A hs))⟦x, w0⟧)
-    (H' : MorphismComp
-            (MorphismComp
-               (@ZeroArrowTo (ComplexPreCat (AbelianToAdditive A hs))
-                             (@mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                                       (@ZeroComplex (AbelianToAdditive A hs))
-                                       (ComplexPreCat_isZero (AbelianToAdditive A hs)))
-                             (ComplexPreCat_Epi_Cokernel_Complex E))
-               (@ZeroArrowFrom (ComplexPreCat (AbelianToAdditive A hs))
-                               (@mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                                         (@ZeroComplex (AbelianToAdditive A hs))
-                                         (ComplexPreCat_isZero (AbelianToAdditive A hs)))
-                               x)) h = MorphismComp (@CokernelMorphism x y E) h) (i : hz) :
+    (H : let Z := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
+         MorphismComp
+           (MorphismComp
+              (@ZeroArrowTo _ Z (ComplexPreCat_Epi_Cokernel_Complex E))
+              (@ZeroArrowFrom _ Z x)) h = MorphismComp (@CokernelMorphism x y E) h) (i : hz) :
     KernelArrow (Kernel (MMor (EpiArrow _ E) i)) ;; MMor h i =
-    ZeroArrow (@to_Zero A) (Kernel (MMor (EpiArrow _ E) i)) (COb w0 i).
+    ZeroArrow (@to_Zero A) (Kernel (MMor (EpiArrow _ E) i)) _.
   Proof.
-    set (H'' := MorphismEq' _ _ _ H' i). cbn in H''. cbn. rewrite <- H''.
+    set (H' := MorphismEq' _ _ _ H i). cbn in H'. cbn. rewrite <- H'.
     rewrite <- assoc. apply ZeroArrowEq.
   Qed.
 
-  Definition ComplexPreCatCokernelOut
-    {x y : ComplexPreCat_Additive (AbelianToAdditive A hs)}
-    (E : Epi (ComplexPreCat (AbelianToAdditive A hs)) x y)
-    (w0 : ComplexPreCat (AbelianToAdditive A hs))
+  Local Lemma ComplexPreCatCokernelOut_comm
+    {x y w0 : ComplexPreCat_Additive (AbelianToAdditive A hs)}
+    (E : Epi (ComplexPreCat (AbelianToAdditive A hs)) x y) (i : hz)
     (h : (ComplexPreCat (AbelianToAdditive A hs))⟦x, w0⟧)
-    (H' : MorphismComp
-            (MorphismComp
-               (@ZeroArrowTo (ComplexPreCat (AbelianToAdditive A hs))
-                             (@mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                                       (@ZeroComplex (AbelianToAdditive A hs))
-                                       (ComplexPreCat_isZero (AbelianToAdditive A hs)))
-                             (ComplexPreCat_Epi_Cokernel_Complex E))
-               (@ZeroArrowFrom (ComplexPreCat (AbelianToAdditive A hs))
-                               (@mk_Zero (ComplexPreCat (AbelianToAdditive A hs))
-                                         (@ZeroComplex (AbelianToAdditive A hs))
-                                         (ComplexPreCat_isZero (AbelianToAdditive A hs)))
-                               x)) h = MorphismComp (@CokernelMorphism x y E) h) :
-    (ComplexPreCat (AbelianToAdditive A hs))⟦y, w0⟧.
+    (H : let Z := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
+         MorphismComp
+           (MorphismComp
+              (@ZeroArrowTo _ Z (ComplexPreCat_Epi_Cokernel_Complex E)) (@ZeroArrowFrom _ Z x)) h =
+         MorphismComp (@CokernelMorphism x y E) h) :
+    let isE := ComplexEpiIndexEpi _ E in
+    (CokernelOut to_Zero
+                 (EpiToCokernel A hs (mk_Epi A (MMor (EpiArrow _ E) i) (isE i))) _ (MMor h i)
+                 (ComplexPreCatCokernelOut_comp E h H i)) ;; (Diff w0 i) =
+    (Diff y i)
+      ;; (CokernelOut to_Zero
+                      (EpiToCokernel A hs (mk_Epi A (MMor (EpiArrow _ E) (i + 1)) (isE (i + 1))))
+                      _ (MMor h (i + 1)) (ComplexPreCatCokernelOut_comp E h H (i + 1))).
+  Proof.
+    intros isE.
+    apply pathsinv0.
+    set (coker := EpiToCokernel A hs (mk_Epi _ _ (isE i))).
+    apply (CokernelArrowisEpi _ coker). rewrite assoc. rewrite assoc. rewrite CokernelCommutes.
+    use (pathscomp0 _ (! (MComm h i))). cbn.
+    set (tmp := MComm (EpiArrow _ E) i). cbn in tmp. rewrite tmp. clear tmp.
+    rewrite <- assoc. apply cancel_precomposition.
+    apply (CokernelCommutes _ (EpiToCokernel A hs (mk_Epi A _ (isE (i + 1))))).
+  Qed.
+
+  Definition ComplexPreCatCokernelOut
+    {x y z : ComplexPreCat_Additive (AbelianToAdditive A hs)}
+    (E : Epi (ComplexPreCat (AbelianToAdditive A hs)) x y)
+    (h : (ComplexPreCat (AbelianToAdditive A hs))⟦x, z⟧)
+    (H : let Z := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)) in
+         MorphismComp
+           (MorphismComp
+              (@ZeroArrowTo _ Z (ComplexPreCat_Epi_Cokernel_Complex E)) (@ZeroArrowFrom _ Z x)) h =
+         MorphismComp (@CokernelMorphism x y E) h) :
+    (ComplexPreCat (AbelianToAdditive A hs))⟦y, z⟧.
   Proof.
     set (isE := ComplexEpiIndexEpi _ E).
     use mk_Morphism.
-    - intros i.
-      set (coker := EpiToCokernel A hs (mk_Epi _ _ (isE i))).
-      apply (CokernelOut (@to_Zero A) coker _ (MMor h i)).
-      apply (ComplexPreCatCokernelOut_comm E w0 h H').
-    - intros i.
-      set (coker := EpiToCokernel A hs (mk_Epi _ _ (isE i))).
-      cbn in *. apply (CokernelArrowisEpi _ coker). repeat rewrite assoc. fold coker.
-      rewrite (CokernelCommutes _ coker). cbn. use (pathscomp0 (MComm h i)).
-      set (tmp := MComm (EpiArrow _ E) i). cbn in tmp. rewrite tmp. clear tmp.
-      rewrite <- assoc. apply cancel_precomposition.
-      set (tmp := CokernelCommutes _ (EpiToCokernel A hs (mk_Epi A _ (isE (i + 1))))).
-      set (tmp0 := CokernelEqAr _ (EpiToCokernel A hs (mk_Epi A _ (isE (i + 1))))). cbn in tmp0.
-      rewrite ZeroArrow_comp_left in tmp0. cbn in tmp. apply pathsinv0. apply tmp.
+    - intros i. exact (CokernelOut
+                         (@to_Zero A) (EpiToCokernel A hs (mk_Epi _ _ (isE i))) _ (MMor h i)
+                         (ComplexPreCatCokernelOut_comp E h H i)).
+    - intros i. exact (ComplexPreCatCokernelOut_comm E i h H).
   Defined.
 
   (** *** EpisCokernelsData *)
@@ -1846,21 +1820,22 @@ Section complexes_abelian.
       (MorphismComp (ZeroArrowTo (ComplexPreCat_Epi_Cokernel_Complex E)) (ZeroArrowFrom x)) E
       (CokernelMorphism_eq E).
   Proof.
-    cbn zeta. set (isE := ComplexEpiIndexEpi (AbelianToAdditive A hs) E).
+    intros Add.
+    set (isE := ComplexEpiIndexEpi (AbelianToAdditive A hs) E).
     use mk_isCoequalizer.
     intros w0 h H'.
     use unique_exists.
-    - apply (ComplexPreCatCokernelOut E w0 h (! H')).
+    - apply (ComplexPreCatCokernelOut E h (! H')).
     - cbn. use MorphismEq.
       intros i. cbn.
-      apply (CokernelCommutes _ (EpiToCokernel A hs (mk_Epi A _ (isE i))) (COb w0 i) (MMor h i)).
+      apply (CokernelCommutes _ (EpiToCokernel A hs (mk_Epi A _ (isE i))) _ (MMor h i)).
     - intros y0. apply has_homsets_ComplexPreCat.
     - intros y0 T. cbn in T.
       use MorphismEq.
       intros i. apply (isE i).
       set (tmp :=  MorphismEq' _ _ _ T i). cbn in tmp. cbn. rewrite tmp.
       apply pathsinv0. clear tmp.
-      apply (CokernelCommutes _ (EpiToCokernel A hs (mk_Epi A _ (isE i))) (COb w0 i) (MMor h i)).
+      apply (CokernelCommutes _ (EpiToCokernel A hs (mk_Epi A _ (isE i))) _ (MMor h i)).
   Qed.
 
   Definition ComplexPreCatAbelianEpiCokernelsData :
@@ -1869,7 +1844,7 @@ Section complexes_abelian.
       Add ((Additive.to_Zero Add)
              ,, (Additive.to_BinProducts Add),, (Additive.to_BinCoproducts Add)).
   Proof.
-    cbn zeta. intros x y E.
+    intros Add x y E.
     set (isE := ComplexEpiIndexEpi _ E).
     use tpair.
     - use tpair.
@@ -1880,6 +1855,7 @@ Section complexes_abelian.
     - exact (ComplexPreCatAbelianEpiCokernelsData_isCoequalizer E).
   Defined.
 
+
   (** ** Complexes over Abelian is Abelian *)
 
   Definition ComplexPreCat_AbelianPreCat : AbelianPreCat.
@@ -1887,7 +1863,7 @@ Section complexes_abelian.
     use mk_Abelian.
     - exact (ComplexPreCat_Additive (AbelianToAdditive A hs)).
     - split.
-      + exact (Additive.to_Zero _).
+      + exact (Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs))).
       + split.
         * exact (Additive.to_BinProducts (ComplexPreCat_Additive (AbelianToAdditive A hs))).
         * exact (Additive.to_BinCoproducts (ComplexPreCat_Additive (AbelianToAdditive A hs))).
