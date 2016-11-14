@@ -1511,8 +1511,8 @@ Proof.
 apply (is_omega_cocont_functor_composite hsD).
 - apply (is_omega_cocont_bindelta_functor PC hsC).
 - apply (is_omega_cocont_functor_composite hsD).
-+ apply (is_omega_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
-+ now apply (is_omega_cocont_binproduct_functor _ hsD).
+  + apply (is_omega_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
+  + now apply (is_omega_cocont_binproduct_functor _ hsD).
 Defined.
 
 Definition omega_cocont_BinProduct_of_functors_alt (F G : omega_cocont_functor C D) :
