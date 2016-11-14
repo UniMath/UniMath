@@ -66,7 +66,7 @@ Defined.
 Lemma is_omega_cocont_pre_composition_functor
   : Π (M C A : precategory) (K : functor M C) (hsC : has_homsets C)
      (hsA : has_homsets A),
-   Lims A → is_omega_cocont (pre_composition_functor M C A hsC hsA K).
+   Colims A → is_omega_cocont (pre_composition_functor M C A hsC hsA K).
 Proof.
   exact @CocontFunctors.is_omega_cocont_pre_composition_functor.
 Defined.

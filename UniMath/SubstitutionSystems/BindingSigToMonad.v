@@ -112,7 +112,7 @@ Lemma is_omega_cocont_precomp_option_iter (n : nat) : is_omega_cocont (precomp_o
 Proof.
 destruct n; simpl.
 - apply (is_omega_cocont_functor_identity has_homsets_C2).
-- apply (is_omega_cocont_pre_composition_functor _ _ _ LC).
+- apply (is_omega_cocont_pre_composition_functor _ _ _ CLC).
 Defined.
 
 Definition precomp_option_iter_Signature (n : nat) : Signature C hsC.
@@ -241,7 +241,7 @@ Lemma is_omega_cocont_BindingSigToSignatureHSET (sig : BindingSig) :
 Proof.
 apply (is_omega_cocont_Sum_of_Signatures _ (BindingSigIsdeceq sig)).
 - intro i; apply is_omega_cocont_Arity_to_Signature.
-  + apply LimsHSET.
+  + apply ColimsHSET.
   + intros F.
     apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
     apply has_exponentials_functor_HSET, has_homsets_HSET.
