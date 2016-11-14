@@ -1694,7 +1694,6 @@ Lemma is_cocont_pre_composition_functor_direct :
 Proof.
   intros g d G ccG HccG.
   apply key2; intro a.
-  apply CC.
   apply (key1 _ _ _ _ CC HccG).
 Defined.
 
