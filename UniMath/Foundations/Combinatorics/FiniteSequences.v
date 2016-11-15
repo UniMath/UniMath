@@ -373,6 +373,17 @@ Proof.
   - exact (y k).
 Defined.
 
+(** Alternative definition of concatenate. *)
+Definition concatenate_alt {X : UU} : binop (Sequence X).
+Proof.
+  intros X x y.
+  use tpair.
+  - exact (length x + length y).
+  - intros i. induction (weqfromcoprodofstn_inv_map _ _ i) as [j | k].
+    + exact (x j).
+    + exact (y k).
+Defined.
+
 Definition concatenate_length {X} (x y:Sequence X) :
   length (concatenate x y) = length x + length y.
 Proof. intros. reflexivity. Defined.
@@ -388,11 +399,76 @@ Proof.
     (* this should be easier! *)
 Abort.
 
+(** Versions of concatenate_0 for the alternative concatenate *)
+Definition concatenate_0_alt {X : UU} (s : Sequence X) (t : stn 0 -> X) :
+  concatenate_alt s (0,,t) = s.
+Proof.
+  intros.
+  use seq_key_eq_lemma.
+  - apply natplusr0.
+  - intros i ltg ltg'. cbn. unfold coprod_rect.
+    unfold weqfromcoprodofstn_inv_map. unfold coprod_rect. cbn.
+    induction (natlthorgeh i (seq_len s)) as [H | H].
+    + apply maponpaths.
+      use total2_paths.
+      * apply idpath.
+      * apply proofirrelevance. apply propproperty.
+    + apply fromempty. apply (natlthtonegnatgeh i (seq_len s) ltg' H).
+Qed.
+
+Definition concatenate_0'_alt {X : UU} (s : Sequence X) (t : stn 0 -> X) :
+  concatenate_alt (0,,t) s = s.
+Proof.
+  intros. apply pathsinv0. induction s as [s l].
+  use seq_key_eq_lemma.
+  - apply idpath.
+  - intros i ltg ltg'. cbn. unfold coprod_rect.
+    induction (natchoice0 s) as [H | H].
+    + apply fromempty. cbn in ltg'. rewrite <- H in ltg'. apply (nopathsfalsetotrue ltg').
+    + apply maponpaths.
+      use total2_paths.
+      * cbn. apply pathsinv0. apply natminuseqn.
+      * apply proofirrelevance. apply propproperty.
+Qed.
+
 Definition concatenateStep {X}  (x : Sequence X) {n} (y : stn (S n) -> X) :
   concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni_lastelement)) (y (lastelement _)).
 Proof. intros.
 
 Abort.
+
+(** concatenateStep for the alternative definition *)
+Definition concatenateStep_alt {X : UU} (x : Sequence X) {n : nat} (y : stn (S n) -> X) :
+  concatenate_alt x (S n,,y) =
+  append (concatenate_alt x (n,,y ∘ dni_lastelement)) (y (lastelement _)).
+Proof.
+  intros X x. induction x as [x l]. intros n y.
+  use seq_key_eq_lemma.
+  - apply natplusnsms.
+  - intros i ltg ltg'. cbn. unfold append_fun. unfold coprod_rect. cbn.
+    unfold weqfromcoprodofstn_inv_map. cbn. unfold coprod_rect.
+    induction (natlthorgeh i x) as [H | H].
+    + induction (natlehchoice4 i (x + n) ltg') as [H1 | H1].
+      * apply idpath.
+      * apply fromempty. rewrite H1 in H.
+        set (tmp := natlehnplusnm x n).
+        set (tmp2 := natlehlthtrans _ _ _ tmp H).
+        use (isirrefl_natneq x). exact (natlthtoneq _ _ tmp2).
+    + induction (natchoice0 (S n)) as [H2 | H2].
+      * apply fromempty. use (negpaths0sx n). exact H2.
+      * induction (natlehchoice4 i (x + n) ltg') as [H' | H'].
+        -- induction (natchoice0 n) as [H3 | H3].
+           ++ apply fromempty. induction H3. rewrite natplusr0 in H'.
+              use (natlthtonegnatgeh i x H' H).
+           ++ unfold funcomp. apply maponpaths.
+              use total2_paths.
+              ** apply idpath.
+              ** apply proofirrelevance. apply propproperty.
+        -- apply maponpaths.
+           use total2_paths.
+           ++ cbn. rewrite H'. rewrite natpluscomm. apply plusminusnmm.
+           ++ apply proofirrelevance. apply propproperty.
+Qed.
 
 Definition partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) : Sequence (Sequence X).
 Proof. intros. exists n. intro i. exists (f i). intro j. exact (x(inverse_lexicalEnumeration f (i,,j))).
@@ -591,8 +667,57 @@ Proof.
 
 Abort.
 
-(*
-Local Variables:
-compile-command: "make -C ../.. UniMath/Foundations/Sequences.vo"
-End:
-*)
+Definition isassoc_concatenate_alt {X : UU} (x y z : Sequence X) :
+  concatenate_alt (concatenate_alt x y) z = concatenate_alt x (concatenate_alt y z).
+Proof.
+  intros X x y z.
+  use seq_key_eq_lemma.
+  - cbn. rewrite natplusassoc. apply idpath.
+  - intros i ltg ltg'. cbn. unfold weqfromcoprodofstn_inv_map. unfold coprod_rect. cbn.
+    induction (natlthorgeh i (seq_len x + seq_len y)) as [H | H].
+    + induction (natlthorgeh (stnpair (seq_len x + seq_len y) i H) (seq_len x)) as [H1 | H1].
+      * induction (natlthorgeh i (seq_len x)) as [H2 | H2].
+        -- apply maponpaths. apply isinjstntonat. apply idpath.
+        -- apply fromempty. exact (natlthtonegnatgeh i (seq_len x) H1 H2).
+      * induction (natchoice0 (seq_len y)) as [H2 | H2].
+        -- apply fromempty. induction H2. induction (! (natplusr0 (seq_len x))).
+           apply (natlthtonegnatgeh i (seq_len x) H H1).
+        -- induction (natlthorgeh i (seq_len x)) as [H3 | H3].
+           ++ apply fromempty. apply (natlthtonegnatgeh i (seq_len x) H3 H1).
+           ++ induction (natchoice0 (seq_len y + seq_len z)) as [H4 | H4].
+              ** apply fromempty. induction (! H4).
+                 use (isirrefl_natneq (seq_len y)).
+                 use natlthtoneq.
+                 use (natlehlthtrans (seq_len y) (seq_len y + seq_len z) (seq_len y) _ H2).
+                 apply natlehnplusnm.
+              ** cbn. induction (natlthorgeh (i - seq_len x) (seq_len y)) as [H5 | H5].
+                 --- apply maponpaths. apply isinjstntonat. apply idpath.
+                 --- apply fromempty.
+                     use (natlthtonegnatgeh (i - (seq_len x)) (seq_len y)).
+                     +++ set (tmp := natlthandminusl i (seq_len x + seq_len y) (seq_len x) H
+                                                     (natlthandplusm (seq_len x) _ H2)).
+                         rewrite (natpluscomm (seq_len x) (seq_len y)) in tmp.
+                         rewrite plusminusnmm in tmp. exact tmp.
+                     +++ exact H5.
+    + induction (natchoice0 (seq_len z)) as [H1 | H1].
+      * apply fromempty. cbn in ltg. induction H1. rewrite natplusr0 in ltg.
+        exact (natlthtonegnatgeh i (seq_len x + seq_len y) ltg H).
+      * induction (natlthorgeh i (seq_len x)) as [H2 | H2].
+        -- apply fromempty.
+           use (natlthtonegnatgeh i (seq_len x) H2).
+           use (istransnatgeh i (seq_len x + seq_len y) (seq_len x) H).
+           apply natgehplusnmn.
+        -- induction (natchoice0 (seq_len y + seq_len z)) as [H3 | H3].
+           ++ apply fromempty. cbn in ltg'. induction H3. rewrite natplusr0 in ltg'.
+              exact (natlthtonegnatgeh i (seq_len x) ltg' H2).
+           ++ cbn. induction (natlthorgeh (i - seq_len x) (seq_len y)) as [H4 | H4].
+              ** apply fromempty.
+                 use (natlthtonegnatgeh i (seq_len x + seq_len y) _ H).
+                 apply (natlthandplusr _ _ (seq_len x)) in H4.
+                 rewrite minusplusnmm in H4.
+                 --- rewrite natpluscomm in H4. exact H4.
+                 --- exact H2.
+              ** apply maponpaths. apply isinjstntonat. cbn. apply minusminusplus.
+Qed.
+
+(* End of file *)

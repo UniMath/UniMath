@@ -683,6 +683,13 @@ Defined.
 
 Definition natlthorgeh (n m : nat) : (n < m) ⨿ (n ≥ m) := natgthorleh _ _.
 
+Definition natchoice0 (n : nat) : (0 = n) ⨿ (0 < n).
+Proof.
+  intros n. induction n as [ | n].
+  - use ii1. apply idpath.
+  - use ii2. apply natgthsn0.
+Qed.
+
 Definition natneqchoice (n m : nat) (ne : n ≠ m) : (n > m) ⨿ (n < m).
 Proof.
   intros. induction (natgthorleh n m) as [ l | g ].
@@ -884,6 +891,14 @@ Proof.
 Defined.
 Hint Resolve natplusassoc : natarith.
 
+Lemma natplusnsms (n m : nat) : n + S m = S (n + m).
+Proof.
+  intros n. induction n as [n | n].
+  - intros m. rewrite natplusl0. rewrite natplusl0. apply idpath.
+  - intros m. rewrite <- natplusnsm. rewrite IHn. apply maponpaths.
+    apply natplusnsm.
+Qed.
+
 Definition nataddabmonoid : abmonoid :=
   abmonoidpair (setwithbinoppair natset (fun n m : nat => n + m))
                (dirprodpair
@@ -945,6 +960,14 @@ Proof.
   apply (natgthandpluslinv _ _ _ l).
 Defined.
 
+Definition natgthandplusm (n m : nat) (H : m > 0) : n + m > n.
+Proof.
+  intros n. induction n as [ | n].
+  - intros m H. rewrite natplusl0. exact H.
+  - intros m H. rewrite <- natplusnsm. change (S n) with (1 + n). rewrite (natpluscomm 1 n).
+    apply natgthandplusl. apply H.
+Qed.
+
 (** [natlth] *)
 
 Definition natlthtolths (n m : nat) : n < m -> n < S m := natgthtogths _ _.
@@ -960,6 +983,8 @@ Definition natlthandplusr (n m k : nat) : n < m -> n + k < m + k := natgthandplu
 Definition natlthandpluslinv  (n m k : nat) : k + n < k + m -> n < m := natgthandpluslinv _ _ _.
 
 Definition natlthandplusrinv (n m k : nat) : n + k < m + k -> n < m := natgthandplusrinv _ _ _.
+
+Definition natlthandplusm (n m : nat) (H : 0 < m) : n < n + m := natgthandplusm _ _ H.
 
 (** [natleh] *)
 
@@ -1317,6 +1342,17 @@ Proof.
   apply idpath.
 Defined.
 
+Definition minusminusplus (n m k : nat) : n - (m + k) = n - m - k.
+Proof.
+  intros n. induction n as [ | n].
+  - intros m k. apply idpath.
+  - intros m. induction m as [ | m].
+    + intros k. apply idpath.
+    + intros k. rewrite (natpluscomm (S m) k). rewrite natplusnsms. rewrite (natpluscomm k m). cbn.
+      rewrite IHn. apply idpath.
+Qed.
+
+
 (* *** Two-sided minus and comparisons *)
 
 Definition natgehandminusr (n m k : nat) (is : n ≥ m) : n - k ≥ m - k.
@@ -1357,6 +1393,28 @@ Proof.
       * rewrite natminuseqn in is. rewrite natminuseqn in is. apply is.
       * apply (IHn m k is' is).
 Defined.
+
+Definition natlthandminusl (n m i : nat) (is : n < m) (is' : i < m) : n - i < m - i.
+Proof.
+  intros n m i. induction i as [ | i].
+  - intros is is'. rewrite natminuseqn. rewrite natminuseqn. apply is.
+  - intros is is'.
+    induction (natlthorgeh n (S i)) as [H | H].
+    + assert (e : n - S i = 0).
+      {
+        apply minuseq0.
+        exact (natlthtoleh _ _ H).
+      }
+      rewrite e. apply (natlthandplusrinv _ _ (S i)). rewrite natplusl0.
+      rewrite minusplusnmm. apply is'.
+      apply natlthtoleh. apply is'.
+    + apply (natlthandplusrinv _ _ (S i)).
+      rewrite (minusplusnmm m (S i)).
+      * rewrite (minusplusnmm n (S i)).
+        -- apply is.
+        -- apply H.
+      * apply natlthtoleh. apply is'.
+Qed.
 
 (*
 Definition natgehandminuslinv (n m k : nat) (is' : natgeh k n)

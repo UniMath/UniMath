@@ -2995,7 +2995,8 @@ Definition fibseq3g {Y Z : UU} (g : Y -> Z) {z : Z} (y : Y) (ye' : hfiber g z)
 
 (** *** Fibration sequence of h-fibers defined by a composable pair of functions (the "hf-case")
 
-  We construct a fibration sequence based on [ hfibersftogf f g z ye : hfiber f (pr1 ye) -> hfiber gf z) ]
+  We construct a fibration sequence based on
+  [ hfibersftogf f g z ye : hfiber f (pr1 ye) -> hfiber gf z) ]
   and [ hfibersgftog f g z : hfiber gf z -> hfiber g z) ].
 
 *)
