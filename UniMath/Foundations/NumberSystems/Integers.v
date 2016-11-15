@@ -807,6 +807,31 @@ Proof.
     + apply isarchnat.
 Qed.
 
+Lemma isarchhz_one :
+  Π x : hz, hzgth x 0 → ∃ n : nat, hzgth (nattohz n * x) 1.
+Proof.
+  intros x Hx.
+  generalize (isarchrng_1 _ isarchhz x Hx).
+  apply hinhfun.
+  intros n.
+  exists (pr1 n).
+  rewrite <- nattorig_nattohz.
+  exact (pr2 n).
+Qed.
+
+Lemma isarchhz_gt :
+  Π x : hz, ∃ n : nat, hzgth (nattohz n) x.
+Proof.
+  intros x.
+  generalize (isarchrng_2 _ isarchhz x).
+  apply hinhfun.
+  intros n.
+  exists (pr1 n).
+  rewrite <- nattorig_nattohz.
+  exact (pr2 n).
+Qed.
+
+
 (** *** Addition and subtraction on [ nat ] and [ hz ] *)
 
 
