@@ -184,40 +184,6 @@ Proof.
     apply pathsinv0, nattohzandS.
 Qed.
 
-Lemma nattorig_nat :
-  Π n : nat, nattorig (X := natcommrig) n = n.
-Proof.
-  induction n as [|n IHn].
-  reflexivity.
-  rewrite nattorigS, IHn.
-  reflexivity.
-Qed.
-
-Lemma isarchnat :
-  isarchrig (X := natcommrig) natgth.
-Proof.
-  repeat split.
-  - intros y1 y2 Hy.
-    apply natlthchoice2 in Hy.
-    induction Hy as [Hy | <-].
-    + apply hinhpr.
-      exists 1%nat.
-      exact Hy.
-    + apply hinhpr.
-      exists 2%nat.
-      rewrite nattorig_nat, !multsnm ; simpl.
-      rewrite natplusr0.
-      apply natgthandplusl, natgthsnn.
-  - intros n.
-    apply hinhpr.
-    exists (S n).
-    rewrite nattorig_nat.
-    now apply natgthsnn.
-  - intros n.
-    apply hinhpr.
-    now exists 1%nat.
-Defined.
-
 Definition isarchhz : isarchrng (X := hz) hzgth.
 Proof.
   simple refine (isarchrigtorng _ _ _ _ _ _).
