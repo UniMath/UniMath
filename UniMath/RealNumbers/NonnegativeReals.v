@@ -5334,7 +5334,7 @@ Proof.
     generalize (NonnegativeReals_dense _ _ (pr2 (pr2 r2))).
     apply hinhuniv.
     intros r1.
-    generalize (isarchrig_1 _ H _ _ (pr2 (NonnegativeRationals_to_NonnegativeReals_lt (pr1 r2) (pr1 r1)) (pr1 (pr2 r1)))).
+    generalize (isarchrig_diff _ H _ _ (pr2 (NonnegativeRationals_to_NonnegativeReals_lt (pr1 r2) (pr1 r1)) (pr1 (pr2 r1)))).
     apply hinhfun.
     intros n.
     exists (pr1 n).
@@ -5349,7 +5349,7 @@ Proof.
   - intros x.
     generalize (Dcuts_def_corr_finite _ (is_Dcuts_corr x)).
     apply hinhuniv ; intros r.
-    generalize (isarchrig_2 _ H (pr1 r)).
+    generalize (isarchrig_gt _ H (pr1 r)).
     apply hinhfun.
     intros n.
     exists (pr1 n).

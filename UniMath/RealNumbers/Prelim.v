@@ -174,57 +174,6 @@ Qed.
 
 (** ** hq is archimedean *)
 
-Lemma nattorig_nattohz :
-  Π n : nat, nattorig (X := hz) n = nattohz n.
-Proof.
-  induction n as [|n IHn].
-  - unfold nattorig, nattohz ; simpl.
-    reflexivity.
-  - rewrite nattorigS, IHn.
-    apply pathsinv0, nattohzandS.
-Qed.
-
-Definition isarchhz : isarchrng (X := hz) hzgth.
-Proof.
-  simple refine (isarchrigtorng _ _ _ _ _ _).
-  - reflexivity.
-  - intros n m k.
-    apply istransnatgth.
-  - generalize isarchnat ; intros H.
-    repeat split.
-    + intros y1 y2 Hy.
-      refine (hinhfun _ _).
-      2: apply ((pr1 H) y1 y2).
-      intros n.
-      exists (pr1 n).
-      apply hinhpr.
-      exists O.
-      rewrite !natplusr0.
-      apply (pr2 n).
-      revert Hy.
-      apply hinhuniv.
-      intros c.
-      generalize (pr2 c).
-      apply natgthandplusrinv.
-    + intros x.
-      generalize ((pr1 (pr2 H)) x).
-      apply hinhfun.
-      intros n.
-      exists (pr1 n).
-      apply hinhpr.
-      exists O.
-      rewrite !natplusr0.
-      exact (pr2 n).
-    + intros x.
-      generalize ((pr2 (pr2 H)) x).
-      apply hinhfun.
-      intros n.
-      exists (pr1 n).
-      apply hinhpr.
-      exists O.
-      rewrite !natplusr0.
-      exact (pr2 n).
-Qed.
 
 Lemma isarchhq :
   isarchfld (X := hq) hqgth.

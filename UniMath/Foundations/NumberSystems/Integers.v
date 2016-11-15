@@ -167,9 +167,6 @@ Definition hzleh : hrel hz := fun a b => hProppair ( neg ( hzgth a b ) ) ( isapr
 
 Definition hzgeh : hrel hz := fun a b => hProppair ( neg ( hzgth b a ) ) ( isapropneg _ )  .
 
-
-
-
 (** *** Decidability *)
 
 
@@ -766,6 +763,16 @@ Definition nattohzandS ( n : nat ) : paths ( nattohz ( S n ) ) ( 1 + nattohz n )
 
 Definition nattohzand1 : paths ( nattohz 1%nat ) 1 := idpath _ .
 
+Lemma nattorig_nattohz :
+  Π n : nat, nattorig (X := hz) n = nattohz n.
+Proof.
+  induction n as [|n IHn].
+  - unfold nattorig, nattohz ; simpl.
+    reflexivity.
+  - rewrite nattorigS, IHn.
+    apply pathsinv0, nattohzandS.
+Qed.
+
 Definition nattohzandplus ( n m : nat ) : paths ( nattohz ( n + m )%nat ) ( nattohz n + nattohz m ) := isbinop1funtorngdiff natcommrig n m .
 
 Definition nattohzandminus ( n m : nat ) ( is : natgeh n m ) : paths ( nattohz ( n - m )%nat ) ( nattohz n - nattohz m ) .
@@ -785,7 +792,20 @@ Proof . intros . destruct ( natlehchoice _ _ is ) as [ l | e ] .   apply ( hzlth
 
 Definition nattohzandgeh ( n m : nat ) ( is : natgeh n m ) : hzgeh ( nattohz n ) ( nattohz m ) := nattohzandleh _ _ is .
 
+(** *** [hz] is an archimedean ring *)
 
+Lemma isarchhz : isarchrng (X := hz) hzgth.
+Proof.
+  simple refine (isarchrigtorng _ _ _ _ _ _).
+  - reflexivity.
+  - intros n m k.
+    apply istransnatgth.
+  - apply isarchrig_setquot_aux.
+    + split.
+      * apply natgthandpluslinv.
+      * apply natgthandplusrinv.
+    + apply isarchnat.
+Qed.
 
 (** *** Addition and subtraction on [ nat ] and [ hz ] *)
 

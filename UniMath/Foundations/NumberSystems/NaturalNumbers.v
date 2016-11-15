@@ -1781,6 +1781,14 @@ Proof.
   - unfold iscomm. apply natmultcomm.
 Defined.
 
+Lemma nattorig_nat :
+  Π n : nat, nattorig (X := natcommrig) n = n.
+Proof.
+  induction n as [|n IHn].
+  reflexivity.
+  rewrite nattorigS, IHn.
+  reflexivity.
+Qed.
 
 (** *** Cancellation properties of [mul] on [nat] *)
 
@@ -1811,15 +1819,6 @@ Proof.
 Defined.
 
 (** *** [nat] is an archimedean rig *)
-
-Lemma nattorig_nat :
-  Π n : nat, nattorig (X := natcommrig) n = n.
-Proof.
-  induction n as [|n IHn].
-  reflexivity.
-  rewrite nattorigS, IHn.
-  reflexivity.
-Qed.
 
 Lemma isarchnat_diff :
   Π (y1 y2 : nat),
