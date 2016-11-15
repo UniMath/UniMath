@@ -172,16 +172,4 @@ Proof.
   exact Hlt.
 Qed.
 
-(** ** hq is archimedean *)
-
-
-Lemma isarchhq :
-  isarchfld (X := hq) hqgth.
-Proof.
-  simple refine (isarchfldfrac hzintdom _ _ _ _ _ _ _ _).
-  - exact isirreflhzgth.
-  - exact istranshzgth.
-  - apply isarchhz.
-Qed.
-
 Close Scope hq_scope.
