@@ -26,6 +26,7 @@ Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 
 Definition Arity_to_Signature :
@@ -62,13 +63,15 @@ Proof.
   exact @CocontFunctors.colimAlgIsInitial.
 Defined.
 
+Local Notation "'chain'" := (diagram nat_graph).
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Lemma is_omega_cocont_pre_composition_functor
-  : Π (M C A : precategory) (K : functor M C) (hsC : has_homsets C)
-     (hsA : has_homsets A),
-   Lims A → is_omega_cocont (pre_composition_functor M C A hsC hsA K).
+     (A B C : precategory) (F : functor A B) (hsB : has_homsets B) (hsC : has_homsets C)
+     (H : Π (c : chain [B,C,hsC]) (b : B), ColimCocone (diagram_pointwise hsC c b)) :
+     is_omega_cocont (pre_composition_functor A B C hsB hsC F).
 Proof.
-  exact @CocontFunctors.is_omega_cocont_pre_composition_functor.
+  exact (@CocontFunctors.is_omega_cocont_pre_composition_functor _ _ _ _ _ _ H).
 Defined.
 
 Definition RightKanExtension_from_limits
@@ -76,7 +79,7 @@ Definition RightKanExtension_from_limits
     (hsA : has_homsets A),
   Lims A → RightKanExtension.GlobalRightKanExtensionExists M C K A hsC hsA.
 Proof.
-  exact @CocontFunctors.RightKanExtension_from_limits.
+  exact @RightKanExtension.RightKanExtension_from_limits.
 Defined.
 
 Definition ColimCoconeHSET

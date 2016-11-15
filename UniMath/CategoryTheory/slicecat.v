@@ -53,18 +53,18 @@ Variable x : C.
 
 Definition slicecat_ob := total2 (fun (a : C) => a --> x).
 Definition slicecat_mor (f g : slicecat_ob) :=
-  total2 (fun h : pr1 f --> pr1 g => h ;; pr2 g = pr2 f).
+  total2 (fun h : pr1 f --> pr1 g => pr2 f = h ;; pr2 g).
 
 Definition slice_precat_ob_mor : precategory_ob_mor :=
   tpair _ _ slicecat_mor.
 
 Definition id_slice_precat (c : slice_precat_ob_mor) : c --> c :=
-  tpair _ _ (id_left (pr2 c)).
+  tpair _ _ (!(id_left (pr2 c))).
 
 Definition comp_slice_precat_subproof (a b c : slice_precat_ob_mor)
-  (f : a --> b) (g : b --> c) : (pr1 f ;; pr1 g) ;; pr2 c = pr2 a.
+  (f : a --> b) (g : b --> c) : pr2 a = (pr1 f ;; pr1 g) ;; pr2 c.
 Proof.
-rewrite <- assoc, (pr2 g).
+rewrite <- assoc, (!(pr2 g)).
 exact (pr2 f).
 Qed.
 
@@ -129,10 +129,10 @@ Proof.
 case (is_z_iso_from_is_iso _ isoh).
 intros hinv hinvP; case hinvP; clear hinvP; intros h1 h2.
 assert (pinv : hinv ;; pr2 af = pr2 bg).
-  rewrite <- id_left, <- h2, <- assoc, (pr2 h).
+  rewrite <- id_left, <- h2, <- assoc, (!(pr2 h)).
   apply idpath.
 apply is_iso_from_is_z_iso.
-exists (tpair _ hinv pinv).
+exists (tpair _ hinv (!(pinv))).
 split; ( apply subtypePairEquality ; [ intro; apply hsC | trivial ]).
 Qed.
 
@@ -149,7 +149,7 @@ apply (maponpaths pr1 h2).
 Qed.
 
 Lemma iso_weq (af bg : C / x) :
-  weq (iso af bg) (total2 (fun h : iso (pr1 af) (pr1 bg) => h ;; pr2 bg = pr2 af)).
+  weq (iso af bg) (total2 (fun h : iso (pr1 af) (pr1 bg) => pr2 af = h ;; pr2 bg)).
 Proof.
 apply (weqcomp (weqtotal2asstor _ _)).
 apply invweq.
@@ -189,14 +189,14 @@ assert (weq2 : weq (total2 (fun (p : a = b) => transportf _ p (pr2 af) = g))
   apply idweq.
 
 assert (weq3 : weq (total2 (fun (p : a = b) => idtoiso (! p) ;; f = g))
-                   (total2 (fun h : iso a b => h ;; g = f))).
+                   (total2 (fun h : iso a b => f = h ;; g))).
   apply (weqbandf (weqpair _ ((pr1 is_catC) a b))); intro p.
   rewrite idtoiso_inv; simpl.
   apply weqimplimpl; simpl; try apply (pr2 is_catC); intro Hp.
     rewrite <- Hp, assoc, iso_inv_after_iso, id_left; apply idpath.
-  rewrite <- Hp, assoc, iso_after_iso_inv, id_left; apply idpath.
+  rewrite Hp, assoc, iso_after_iso_inv, id_left; apply idpath.
 
-assert (weq4 : weq (total2 (fun h : iso a b => h ;; g = f)) (iso af bg)).
+assert (weq4 : weq (total2 (fun h : iso a b => f = h ;; g)) (iso af bg)).
   apply invweq; apply iso_weq.
 
 apply (weqcomp weq1 (weqcomp weq2 (weqcomp weq3 weq4))).
@@ -229,8 +229,8 @@ Definition slicecat_functor_ob (af : C / x) : C / y :=
   tpair _ (pr1 af) (pr2 af ;; f).
 
 Lemma slicecat_functor_subproof (af bg : C / x) (h : af --> bg) :
-  pr1 h ;; (pr2 bg ;; f) = pr2 af ;; f.
-Proof. rewrite assoc, (pr2 h); apply idpath. Qed.
+  pr2 af ;; f = pr1 h ;; (pr2 bg ;; f).
+Proof. rewrite assoc, (!(pr2 h)); apply idpath. Qed.
 
 Definition slicecat_functor_data : functor_data (C / x) (C / y) :=
   tpair (fun F => Π a b, a --> b -> F a --> F b)
