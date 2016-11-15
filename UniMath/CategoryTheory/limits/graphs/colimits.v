@@ -398,11 +398,8 @@ Arguments Colims : clear implicits.
 (** Defines colimits in functor categories when the target has colimits *)
 Section ColimFunctor.
 
-Variable A C : precategory.
+Context {A C : precategory} (hsC : has_homsets C) {g : graph} (D : diagram g [A, C, hsC]).
 (* Variable HC : Colims C. *) (* Too strong! *)
-Variable hsC : has_homsets C.
-Variable g : graph.
-Variable D : diagram g [A, C, hsC].
 
 Definition diagram_pointwise (a : A) : diagram g C.
 Proof.
@@ -507,11 +504,36 @@ Proof.
   apply  (is_functor_iso_pointwise_if_iso _ _ _ _ _ _ XR).
 Defined.
 
-
 End ColimFunctor.
 
 Lemma ColimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
   (HC : Colims C) : Colims [A,C,hsC].
 Proof.
 now intros g d; apply ColimFunctorCocone.
+Defined.
+
+Lemma pointwise_Colim_is_isColimFunctor
+  {A C : precategory} (hsC: has_homsets C) {g : graph}
+  (d : diagram g [A,C,hsC]) (G : [A,C,hsC]) (ccG : cocone d G)
+  (H : Π a, isColimCocone _ _ (cocone_pointwise hsC d G ccG a)) :
+  isColimCocone d G ccG.
+Proof.
+set (CC a := mk_ColimCocone _ _ _ (H a)).
+set (D' := ColimFunctorCocone _ _ CC).
+use is_iso_isColim.
+- apply functor_category_has_homsets.
+- apply D'.
+- use is_iso_qinv.
+  + mkpair.
+    * intros a; apply identity.
+    * abstract (intros a b f; rewrite id_left, id_right; simpl;
+                apply (colimArrowUnique (CC a)); intro u; cbn;
+                now rewrite <- (nat_trans_ax (coconeIn ccG u))).
+  + abstract (split;
+    [ apply (nat_trans_eq hsC); intros x; simpl; rewrite id_right;
+      apply pathsinv0, colimArrowUnique; intros v;
+      now rewrite id_right
+    | apply (nat_trans_eq hsC); intros x; simpl; rewrite id_left;
+      apply pathsinv0, (colimArrowUnique (CC x)); intro u;
+      now rewrite id_right]).
 Defined.
