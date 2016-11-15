@@ -921,18 +921,6 @@ Theorem isinclfromhfiber {X Y : UU} (f: X -> Y) (is : isaset Y) (y : Y) :
 Proof. intros. refine (isofhlevelfhfiberpr1 _ _ _ _). assumption. Defined.
 
 
-(** The hfibers of functions between sets are sets. *)
-
-Theorem isasethfiber {X Y : UU}(isX : isaset X)(isY : isaset Y)(f : X -> Y)(y : Y) :
-  isaset (hfiber f y).
-Proof.
-  intros.
-  assert (isi : isincl (fun z : hfiber f y => pr1 z)).
-  { apply (isinclfromhfiber _ isY y). }
-  apply (isasetsubset _ isX isi).
-Defined.
-
-
 (** Criterion for a function between sets being an inclusion.  *)
 
 

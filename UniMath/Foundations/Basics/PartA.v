@@ -2745,8 +2745,8 @@ of [ fibseqg g z ] corresponding to [ y : Y ] coincides with
 ( hf -case ) The fibration sequence of homotopy fibers defined for any pair of
 functions [ (f : X -> Y) (g : Y -> Z) ] and any terms
 [ (z : Z) (ye : hfiber g z) ]. It is based on functions
-[ hfiberftogf : hfiber f (pr1 ye) -> hfiber (funcomp f g) z ] and
-[ hfibergftog : hfiber (funcomp f g) z -> hfiber g z ] which are defined below.
+[ hfibersftogf : hfiber f (pr1 ye) -> hfiber (funcomp f g) z ] and
+[ hfibersgftog : hfiber (funcomp f g) z -> hfiber g z ] which are defined below.
  *)
 
 (** *** The structures of a complex and of a fibration sequence on a composable pair of functions *)
