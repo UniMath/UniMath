@@ -1538,26 +1538,31 @@ End BinProduct_of_functors.
 Section pre_composition_functor.
 
 Context {A B C : precategory} (F : functor A B) (hsB : has_homsets B) (hsC : has_homsets C).
-Context (CC : Colims C). (* This can be weakened *)
+(* Context (CC : Colims C). *) (* This is too strong *)
 
-Lemma is_cocont_pre_composition_functor :
+Lemma is_cocont_pre_composition_functor
+  (H : Π (g : graph) (d : diagram g [B,C,hsC]) (b : B),
+       ColimCocone (diagram_pointwise hsC d b)) :
   is_cocont (pre_composition_functor _ _ _ hsB hsC F).
 Proof.
-  intros g d G ccG HccG.
-  apply pointwise_Colim_is_isColimFunctor; intro a.
-  apply (isColimFunctor_is_pointwise_Colim _ _
-           (λ b, CC _ (diagram_pointwise _ _ b)) _ _ HccG).
+intros g d G ccG HccG.
+apply pointwise_Colim_is_isColimFunctor; intro a.
+apply (isColimFunctor_is_pointwise_Colim _ _ (H g d) _ _ HccG).
 Defined.
 
-Lemma is_omega_cocont_pre_composition_functor :
+Lemma is_omega_cocont_pre_composition_functor
+  (H : Π (c : chain [B,C,hsC]) (b : B), ColimCocone (diagram_pointwise hsC c b)) :
   is_omega_cocont (pre_composition_functor _ _ _ hsB hsC F).
 Proof.
-now intros c L ccL; apply is_cocont_pre_composition_functor.
+intros c L ccL HccL.
+apply pointwise_Colim_is_isColimFunctor; intro a.
+apply (isColimFunctor_is_pointwise_Colim _ _ (H c) _ _ HccL).
 Defined.
 
-Definition omega_cocont_pre_composition_functor :
+Definition omega_cocont_pre_composition_functor
+  (H : Π (c : chain [B,C,hsC]) (b : B), ColimCocone (diagram_pointwise hsC c b)) :
   omega_cocont_functor [B, C, hsC] [A, C, hsC] :=
-  tpair _ _ is_omega_cocont_pre_composition_functor.
+  tpair _ _ (is_omega_cocont_pre_composition_functor H).
 
 End pre_composition_functor.
 

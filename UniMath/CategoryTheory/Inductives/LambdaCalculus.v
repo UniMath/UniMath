@@ -36,6 +36,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Notation "'chain'" := (diagram nat_graph).
 
 Section lambdacalculus.
 
@@ -66,6 +67,10 @@ Proof.
 apply (Initial_functor_precat _ _ InitialHSET).
 Defined.
 
+Local Definition CCHSET (c : chain [HSET,HSET,has_homsets_HSET]) (b : HSET) :
+  ColimCocone (diagram_pointwise has_homsets_HSET c b) :=
+    ColimsHSET nat_graph (diagram_pointwise has_homsets_HSET c b).
+
 Local Notation "' x" := (omega_cocont_constant_functor has_homsets_HSET2 x)
                           (at level 10).
 
@@ -83,7 +88,7 @@ Local Notation "F + G" :=
 Local Notation "'_' 'o' 'option'" :=
   (omega_cocont_pre_composition_functor
       (option_functor BinCoproductsHSET TerminalHSET)
-      has_homsets_HSET has_homsets_HSET ColimsHSET) (at level 10).
+      has_homsets_HSET has_homsets_HSET CCHSET) (at level 10).
 
 (** The lambda calculus functor with one component for variables, one for application and one for
     abstraction/lambda *)
