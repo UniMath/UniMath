@@ -66,9 +66,11 @@ Section def_precategory_with_abgrops.
 
   Definition to_inv (x y : PA) :  PA⟦x, y⟧ -> PA⟦x, y⟧ := grinv (to_abgrop x y).
 
-  (** The following definition gives maps between abgrops homsets by
-    precomposing and postcomposing with a morphism. Note that we have
-    not required these to be abelian group morphisms of abelian groups. *)
+  Definition to_commax (x y : PA) := commax (to_abgrop x y).
+
+  (** The following definition gives maps between abgrops homsets by precomposing and postcomposing
+      with a morphism. Note that we have not required these to be abelian group morphisms of abelian
+      groups. *)
   Definition to_premor {x y : PA} (z : PA) (f : x --> y) : to_abgrop y z -> to_abgrop x z :=
     fun (g : (to_abgrop y z)) => f ;; g.
 

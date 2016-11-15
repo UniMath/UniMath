@@ -14,6 +14,7 @@ Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
 
+Require Import UniMath.Foundations.Algebra.BinaryOperations.
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups.
 
 Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
@@ -1877,6 +1878,310 @@ Section complexes_abelian.
   Defined.
 
 End complexes_abelian.
+
+
+(** * Homotopies of complexes and K(A), the naive homotopy category of A *)
+Section complexes_homotopies.
+
+  Variable A : Additive.
+
+  Definition ComplexHomot (C1 C2 : Complex A) : UU := Π (i : hz), A⟦C1 i, C2 (i - 1)⟧.
+
+  Local Lemma ComplexHomotMorphism_comm {C1 C2 : Complex A} (H : ComplexHomot C1 C2) (i : hz) :
+    to_binop (C1 i) (C2 i)
+             (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i 1))
+                         (H i ;; Diff C2 (i - 1)))
+             (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrplusminus i 1))
+                         (Diff C1 i ;; H (i + 1))) ;;
+             Diff C2 i =
+    Diff C1 i ;; to_binop (C1 (i + 1)) (C2 (i + 1))
+         (transportf (precategory_morphisms (C1 (i + 1))) (maponpaths C2 (hzrminusplus (i + 1) 1))
+                     (H (i + 1) ;; Diff C2 (i + 1 - 1)))
+         (transportf (precategory_morphisms (C1 (i + 1))) (maponpaths C2 (hzrplusminus (i + 1) 1))
+                     (Diff C1 (i + 1) ;; H (i + 1 + 1))).
+  Proof.
+    rewrite to_postmor_linear'. rewrite to_premor_linear'.
+    assert (e0 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i 1))
+                             (H i ;; Diff C2 (i - 1)) ;;
+                             Diff C2 i) = ZeroArrow (Additive.to_Zero A) _ _).
+    {
+      induction (hzrminusplus i 1). cbn. unfold idfun. rewrite <- assoc.
+      rewrite (@CEq A C2 (i - 1)). apply ZeroArrow_comp_right.
+    }
+    rewrite e0. clear e0.
+    assert (e1 : (Diff C1 i ;; transportf (precategory_morphisms (C1 (i + 1)))
+                       (maponpaths C2 (hzrplusminus (i + 1) 1)) (Diff C1 (i + 1) ;; H (i + 1 + 1)))
+                 = ZeroArrow (Additive.to_Zero A) _ _).
+    {
+      rewrite <- transportf_postcompose. rewrite assoc. rewrite (@CEq A C1 i).
+      rewrite ZeroArrow_comp_left. apply transportf_ZeroArrow.
+    }
+    rewrite e1. clear e1.
+    rewrite <- PreAdditive_unel_zero. rewrite to_lunax'. rewrite to_runax'.
+    rewrite transportf_postcompose. rewrite <- assoc. apply cancel_precomposition.
+    rewrite transport_compose. rewrite transportf_postcompose. apply cancel_precomposition.
+    rewrite <- functtransportf. rewrite <- functtransportb. unfold transportb.
+    use transportf_paths.
+    - exact (C2 (i + 1 - 1 + 1)).
+    - apply maponpaths. apply (hzrminusplus' (i + 1) 1).
+    - rewrite <- functtransportf. rewrite <- functtransportf. rewrite transport_f_f.
+      assert (e2 : (hzrminusplus (i + 1) 1 @ hzrminusplus' (i + 1) 1) = idpath _)
+        by apply isasethz.
+      rewrite e2. clear e2. cbn. unfold idfun.
+      set (tmp := @transport_section hz _ (Diff C2) i (i + 1 - 1) (! (hzrplusminus i 1))).
+      rewrite <- tmp. cbn. clear tmp.
+      assert (e3 : (! hzrplusminus i 1) = hzrplusminus' i 1) by apply isasethz.
+      cbn in e3. rewrite e3. clear e3.
+      (* The morphisms we transport are the same, but the functions and paths are different.
+         Note that in integers, any to paths between definitionally equal source and target
+         are equal by isasethz. Thus it should not matter how we transport the morphisms
+         because the paths we use to transport should always be the same. Thus the resulting
+         morphisms should be the same.
+
+         I don't know how to complete the proof. Can you complete it? *)
+      set (tmp := @transportf_mor' hz A). rewrite tmp. clear tmp. unfold transportb.
+      assert (e4 : (! (! hzrplusminus' i 1)) = hzrplusminus' i 1) by apply isasethz.
+      rewrite e4. clear e4. cbn.
+      set (mor := (transportf (λ x' : pr1 hz, A ⟦ C2 x', C2 (i + 1) ⟧) (hzrplusminus' i 1)
+                              (Diff C2 i))).
+      cbn in mor. rewrite functtransportf.
+      (* Here the only difference is the equation! *)
+      assert (e5 : (maponpaths C2 (hzrminusplus' (i + 1) 1)) =
+                   (maponpaths (λ x' : pr1 hz, C2 (x' + 1)) (hzrplusminus' i 1))).
+      {
+        assert (e6 : (fun (x' :  hz) => C2 (x' + 1)) = C2 ∘ (fun (x' : hz) => x' + 1)).
+        {
+          apply funextfun. intros x'. unfold funcomp. apply idpath.
+        }
+        cbn in e6.
+        assert (e7 : maponpaths C2 (hzrminusplus' (i + 1) 1) =
+                     maponpaths (C2 ∘ (λ x' : pr1 hz, x' + 1)) (hzrplusminus' i 1)).
+        {
+          set (tmp := @maponpathscomp _ _ _ _ _ (λ x' : pr1 hz, x' + 1) C2 (hzrplusminus' i 1)).
+          use (pathscomp0 _ tmp). clear tmp. apply maponpaths.
+          apply isasethz.
+        }
+        use (pathscomp0 e7). clear e7. induction (hzrplusminus' i 1). apply idpath.
+      }
+      induction e5. apply idpath.
+  Qed.
+
+  Definition ComplexHomotMorphism {C1 C2 : Complex A} (H : ComplexHomot C1 C2) : Morphism C1 C2.
+  Proof.
+    use mk_Morphism.
+    - intros i.
+      use to_binop.
+      + exact (transportf _ (maponpaths C2 (hzrminusplus i 1)) ((H i) ;; (@Diff A C2 (i - 1)))).
+      + exact (transportf _ (maponpaths C2 (hzrplusminus i 1)) ((@Diff A C1 i) ;; (H (i + 1)))).
+    - intros i. exact (ComplexHomotMorphism_comm H i).
+  Defined.
+
+  (** Subset consisting of homotopies *)
+  Definition ComplexHomotSubset (C1 C2 : Complex A) :
+    @hsubtypes ((ComplexPreCat_Additive A)⟦C1, C2⟧) :=
+    (fun (f : ((ComplexPreCat_Additive A)⟦C1, C2⟧)) =>
+       ∃ (H : ComplexHomot C1 C2), ComplexHomotMorphism H = f).
+
+  Local Lemma grinvop (Y : gr) :
+    Π y1 y2 : Y, grinv Y (@op Y y1 y2) = @op Y (grinv Y y2) (grinv Y y1).
+  Proof.
+    intros y1 y2.
+    apply (grrcan Y y1).
+    rewrite (assocax Y). rewrite (grlinvax Y). rewrite (runax Y).
+    apply (grrcan Y y2).
+    rewrite (grlinvax Y). rewrite (assocax Y). rewrite (grlinvax Y).
+    apply idpath.
+  Qed.
+
+  Lemma ComplexHomotisSubgrop (C1 C2 : Complex A) :
+    @issubgr (@to_abgrop (ComplexPreCat_Additive A) C1 C2) (ComplexHomotSubset C1 C2).
+  Proof.
+    use tpair.
+    - use tpair.
+      + intros f g P X. induction f as [f1 f2]. induction g as [g1 g2].
+        use (squash_to_prop f2). apply propproperty. intros f3.
+        use (squash_to_prop g2). apply propproperty. intros g3.
+        induction f3 as [f3 f4]. induction g3 as [g3 g4].
+        apply X. clear P X. cbn.
+        use tpair.
+        * intros i.
+          use to_binop.
+          -- exact (f3 i).
+          -- exact (g3 i).
+        * cbn.
+          rewrite <- f4. rewrite <- g4.
+          use MorphismEq.
+          intros i. cbn.
+          rewrite to_postmor_linear'.
+          rewrite to_premor_linear'.
+          assert (e0 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrplusminus i 1))
+                                   (to_binop (C1 i) (C2 (i + 1 - 1)) (Diff C1 i ;; f3 (i + 1))
+                                             (Diff C1 i ;; g3 (i + 1)))) =
+                       to_binop (C1 i) (C2 i)
+                                (transportf (precategory_morphisms (C1 i))
+                                            (maponpaths C2 (hzrplusminus i 1))
+                                            (Diff C1 i ;; f3 (i + 1)))
+                                (transportf (precategory_morphisms (C1 i))
+                                            (maponpaths C2 (hzrplusminus i 1))
+                                            (Diff C1 i ;; g3 (i + 1)))).
+          {
+            induction (hzrplusminus i 1). apply idpath.
+          }
+          cbn in e0. rewrite e0. clear e0.
+          assert (e1 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i 1))
+                                   (to_binop (C1 i) (C2 (i - 1 + 1)) (f3 i ;; Diff C2 (i - 1))
+                                             (g3 i ;; Diff C2 (i - 1)))) =
+                       to_binop (C1 i) (C2 i)
+                                (transportf (precategory_morphisms (C1 i))
+                                            (maponpaths C2 (hzrminusplus i 1))
+                                            (f3 i ;; Diff C2 (i - 1)))
+                                (transportf (precategory_morphisms (C1 i))
+                                            (maponpaths C2 (hzrminusplus i 1))
+                                            (g3 i ;; Diff C2 (i - 1)))).
+          {
+            induction (hzrminusplus i 1). apply idpath.
+          }
+          cbn in e1. rewrite e1. clear e1.
+          set (tmp := @assocax (@to_abgrop A (C1 i) (C2 i))). cbn in tmp.
+          rewrite tmp. rewrite tmp. apply maponpaths.
+          rewrite <- tmp. rewrite <- tmp.
+          set (tmp' := @commax (@to_abgrop A (C1 i) (C2 i))). cbn in tmp'.
+          rewrite tmp'.
+          rewrite (tmp' _ (transportf (precategory_morphisms (C1 i))
+                                      (maponpaths C2 (hzrplusminus i 1))
+                                      (Diff C1 i ;; g3 (i + 1)))).
+          apply maponpaths.
+          apply tmp'.
+      (** ZeroMorphisms *)
+      + cbn. intros P X. apply X. clear X P.
+        use tpair.
+        * intros i. exact (ZeroArrow (Additive.to_Zero A) _ _).
+        * cbn. use MorphismEq. intros i. cbn. rewrite ZeroArrow_comp_left.
+          rewrite transportf_ZeroArrow.
+          rewrite ZeroArrow_comp_right. rewrite transportf_ZeroArrow.
+          rewrite <- PreAdditive_unel_zero. rewrite to_lunax'. apply idpath.
+    - intros f H. use (squash_to_prop H). apply propproperty. intros H'. clear H.
+      induction H' as [homot eq]. intros P X. apply X. clear P X.
+      use tpair.
+      + intros i. exact (grinv (to_abgrop (C1 i) (C2 (i - 1))) (homot i)).
+      + cbn. rewrite <- eq. use MorphismEq. intros i. cbn.
+        set (tmp := @PreAdditive_invrcomp A _ _ _ (Diff C1 i) (homot (i + 1))).
+        unfold to_inv in tmp. cbn in tmp. cbn. rewrite <- tmp. clear tmp.
+        assert (e0 : (transportf (precategory_morphisms (C1 i))
+                                 (maponpaths C2 (hzrplusminus i 1))
+                                 (grinv (to_abgrop (C1 i) (C2 (i + 1 - 1)))
+                                        (Diff C1 i ;; homot (i + 1)))) =
+                     to_inv _ _ (transportf (precategory_morphisms (C1 i))
+                                            (maponpaths C2 (hzrplusminus i 1))
+                                            (Diff C1 i ;; homot (i + 1)))).
+        {
+          unfold to_inv. cbn. induction (hzrplusminus i 1). apply idpath.
+        }
+        cbn in e0. rewrite e0. clear e0.
+        assert (e1 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i 1))
+                                 (grinv (to_abgrop (C1 i) (C2 (i - 1)))
+                                        (homot i) ;; Diff C2 (i - 1))) =
+                     to_inv _ _ (transportf (precategory_morphisms (C1 i))
+                                            (maponpaths C2 (hzrminusplus i 1))
+                                            (homot i ;; Diff C2 (i - 1)))).
+        {
+          unfold to_inv. cbn. induction (hzrminusplus i 1). cbn. unfold idfun.
+          set (tmp := @PreAdditive_invlcomp A (C1 i) (C2 (i - 1)) (C2 (i - 1 + 1))
+                                            (homot i) (Diff C2 (i - 1))).
+          apply pathsinv0. unfold to_inv in tmp.
+          apply tmp.
+        }
+        cbn in e1. rewrite e1. clear e1.
+        set (tmp' := @commax (@to_abgrop A (C1 i) (C2 i))). cbn in tmp'. rewrite tmp'. clear tmp'.
+        set (tmp := @grinvop (@to_abgrop A (C1 i) (C2 i))). cbn in tmp. unfold to_inv.
+        apply pathsinv0.
+        apply tmp.
+  Qed.
+
+  Definition ComplexHomotSubgrp (C1 C2 : Complex A) :
+    @subabgrs (@to_abgrop (ComplexPreCat_Additive A) C1 C2).
+  Proof.
+    use subgrconstr.
+    - exact (ComplexHomotSubset C1 C2).
+    - exact (ComplexHomotisSubgrop C1 C2).
+  Defined.
+
+  (** Pre- and postcomposition with morphisms in ComplexHomotSubset is in ComplexHomotSubset. *)
+  Lemma ComplexHomotSubgrop_comp_left (C1 : Complex A) {C2 C3 : Complex A}
+        (f : ((ComplexPreCat_Additive A)⟦C2, C3⟧)) (H : ComplexHomotSubset C2 C3 f) :
+    Π (g : ((ComplexPreCat_Additive A)⟦C1, C2⟧)), ComplexHomotSubset C1 C3 (g ;; f).
+  Proof.
+    intros g P X.
+    use (squash_to_prop H). apply propproperty. intros HH.
+    apply X. clear P X.
+    induction HH as [homot eq].
+    use tpair.
+    - intros i. exact ((MMor g i) ;; (homot i)).
+    - cbn. rewrite <- eq. use MorphismEq. intros i. cbn. rewrite assoc.
+      rewrite <- (MComm g i). rewrite transportf_postcompose. rewrite transportf_postcompose.
+      rewrite <- assoc. rewrite <- assoc. rewrite <- to_premor_linear'.
+      rewrite <- transportf_postcompose. rewrite <- transportf_postcompose.
+      apply idpath.
+  Qed.
+
+  Lemma ComplexHomotSubgrop_comp_right {C1 C2 : Complex A} (C3 : Complex A)
+        (f : ((ComplexPreCat_Additive A)⟦C1, C2⟧)) (H : ComplexHomotSubset C1 C2 f) :
+    Π (g : ((ComplexPreCat_Additive A)⟦C2, C3⟧)), ComplexHomotSubset C1 C3 (f ;; g).
+  Proof.
+    intros g P X.
+    use (squash_to_prop H). apply propproperty. intros HH.
+    apply X. clear P X.
+    induction HH as [homot eq].
+    use tpair.
+    - intros i. exact ((homot i) ;; (MMor g (i - 1))).
+    - cbn. rewrite <- eq. use MorphismEq. intros i. cbn. rewrite <- assoc.
+      rewrite (MComm g (i - 1)). rewrite assoc. rewrite assoc.
+      assert (e0 : (transportf (precategory_morphisms (C1 i)) (maponpaths C3 (hzrminusplus i 1))
+                               (homot i ;; Diff C2 (i - 1) ;; MMor g (i - 1 + 1))) =
+                   (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i 1))
+                               (homot i ;; Diff C2 (i - 1))) ;; (MMor g i)).
+      {
+        induction (hzrminusplus i 1). apply idpath.
+      }
+      cbn in e0. rewrite e0. clear e0.
+      assert (e1 : (transportf (precategory_morphisms (C1 i)) (maponpaths C3 (hzrplusminus i 1))
+                               (Diff C1 i ;; homot (i + 1) ;; MMor g (i + 1 - 1))) =
+                   (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrplusminus i 1))
+                               (Diff C1 i ;; homot (i + 1))) ;; (MMor g i)).
+      {
+        induction (hzrplusminus i 1). apply idpath.
+      }
+      cbn in e1. rewrite e1. clear e1.
+      rewrite <- to_postmor_linear'. apply idpath.
+  Qed.
+
+  (** ** Construction of the naive homotopy category as an additive category *)
+  Local Lemma ComplexHomot_Additive_Comp :
+    PreAdditiveComps (ComplexPreCat_Additive A)
+                     (λ C1 C2 : ComplexPreCat_Additive A, ComplexHomotSubgrp C1 C2).
+  Proof.
+    intros C1 C2. split.
+    - intros C3 f H g.
+      apply ComplexHomotSubgrop_comp_right. apply H.
+    - intros C3 f g H.
+      apply ComplexHomotSubgrop_comp_left. apply H.
+  Qed.
+
+  (** Here we consruct K(A) *)
+  Definition ComplexHomot_Additive : Additive.
+  Proof.
+    use QuotPrecategory_Additive.
+    - exact (ComplexPreCat_Additive A).
+    - intros C1 C2. exact (ComplexHomotSubgrp C1 C2).
+    - exact (ComplexHomot_Additive_Comp).
+  Defined.
+
+  (* From the following we see that [ComplexHomotMorphism_comm] is the only unnecessary axiom
+     we assume. Thus is one proves [ComplexHomotMorphism_comm], then the naive homotopy category
+     follows. Remove this comments when [ComplexHomotMorphism_comm] is proved. *)
+  Print Assumptions ComplexHomot_Additive.
+
+End complexes_homotopies.
 
 Local Transparent hz isdecrelhzeq hzplus iscommrngops.
 Close Scope hz_scope.

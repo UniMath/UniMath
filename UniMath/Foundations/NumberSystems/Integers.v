@@ -134,6 +134,12 @@ Proof.
 Defined.
 Opaque hzrplusminus.
 
+Lemma hzrplusminus' (n m : hz) : n = n + m - m.
+Proof.
+  intros n m. apply pathsinv0. apply hzrplusminus.
+Defined.
+Opaque hzrplusminus'.
+
 Lemma hzrminusplus (n m : hz) : n - m + m = n.
 Proof.
   intros n m. unfold hzplus, hzminus. rewrite rngassoc1.
