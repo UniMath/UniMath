@@ -15,7 +15,7 @@ Open Scope NR_scope.
 Definition hr_commrng : commrng := commrigtocommrng NonnegativeReals.
 
 Definition NR_to_hr : NonnegativeReals × NonnegativeReals → hr_commrng
-  := setquotpr (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals)).
+  := setquotpr (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals)).
 
 Definition nat_to_hr (n : nat) : hr_commrng :=
   NR_to_hr (nat_to_NonnegativeReals n,,0).
@@ -43,7 +43,7 @@ Proof.
 Qed.
 
 Lemma iscomprelfun_hr_to_NR :
-  iscomprelfun (Y := NonnegativeReals × NonnegativeReals) (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals))
+  iscomprelfun (Y := NonnegativeReals × NonnegativeReals) (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals))
                (λ x : NonnegativeReals × NonnegativeReals,
                       pr1 x - pr2 x ,, pr2 x - pr1 x).
 Proof.
@@ -235,7 +235,7 @@ Proof.
   unfold BinaryOperations.op1 ; simpl.
   unfold rigtorngop1 ; simpl.
   unfold NR_to_hr.
-  apply (setquotfun2comm (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals)) (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals))).
+  apply (setquotfun2comm (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals)) (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals))).
 Qed.
 
 (** opp *)
@@ -246,9 +246,9 @@ Lemma NR_to_hr_opp :
 Proof.
   intros x.
   unfold rnginv1, grinv_is ; simpl.
-  unfold abgrfracinv.
+  unfold abgrdiffinv.
   unfold NR_to_hr.
-  apply (setquotfuncomm (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals)) (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals))).
+  apply (setquotfuncomm (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals)) (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals))).
 Qed.
 
 Lemma hr_to_NR_opp :
@@ -356,7 +356,7 @@ Proof.
   unfold BinaryOperations.op2 ; simpl.
   unfold rigtorngop2 ; simpl.
   unfold NR_to_hr.
-  apply (setquotfun2comm (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals)) (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals))).
+  apply (setquotfun2comm (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals)) (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals))).
 Qed.
 
 (** *** Order *)
@@ -454,7 +454,7 @@ Qed.
 Lemma isantisymm_hr_le :
   isantisymm hr_le_rel.
 Proof.
-  apply isantisymmabgrfracrel.
+  apply isantisymmabgrdiffrel.
   intros X Y Hxy Hyx.
   apply isantisymm_leNonnegativeReals.
   now split.
@@ -463,17 +463,17 @@ Qed.
 Lemma isStrongOrder_hr_lt : isStrongOrder hr_lt_rel.
 Proof.
   repeat split.
-  - apply istransabgrfracrel.
+  - apply istransabgrdiffrel.
     exact istrans_ltNonnegativeReals.
-  - apply iscotransabgrfracrel.
+  - apply iscotransabgrdiffrel.
     exact iscotrans_ltNonnegativeReals.
-  - apply isirreflabgrfracrel.
+  - apply isirreflabgrdiffrel.
     exact isirrefl_ltNonnegativeReals.
 Qed.
 Lemma iscotrans_hr_lt :
   iscotrans hr_lt_rel.
 Proof.
-  apply iscotransabgrfracrel.
+  apply iscotransabgrdiffrel.
   exact iscotrans_ltNonnegativeReals.
 Qed.
 

@@ -34,6 +34,7 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.CocontFunctors.
+Require Import UniMath.CategoryTheory.RightKanExtension.
 
 Section LamHSET.
 

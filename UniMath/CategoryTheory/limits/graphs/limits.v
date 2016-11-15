@@ -354,21 +354,11 @@ Arguments Lims : clear implicits.
 
 
 (** * Limits in functor categories *)
-
 Section LimFunctor.
 
-Variable A C : precategory.
-Variable hsC : has_homsets C.
-Variable g : graph.
-Variable D : diagram g [A, C, hsC].
+Context {A C : precategory} (hsC : has_homsets C) {g : graph} (D : diagram g [A, C, hsC]).
 
-(* Definition diagram_pointwise (a : A) : diagram g C. *)
-(* Proof. *)
-(* exists (fun v => pr1 (dob D v) a); intros u v e. *)
-(* now apply (pr1 (dmor D e) a). *)
-(* Defined. *)
-
-Variable (HCg : Π (a : A), LimCone (diagram_pointwise A C hsC g D a)).
+Variable (HCg : Π (a : A), LimCone (diagram_pointwise hsC D a)).
 
 Definition LimFunctor_ob (a : A) : C := lim (HCg a).
 
@@ -409,7 +399,7 @@ mkpair.
 Defined.
 
 Definition cone_pointwise (F : [A,C,hsC]) (cc : cone D F) a :
-  cone (diagram_pointwise _ _ _ _ D a) (pr1 F a).
+  cone (diagram_pointwise _ D a) (pr1 F a).
 Proof.
 simple refine (mk_cone _ _).
 - now intro v; apply (pr1 (coneOut cc v) a).
@@ -454,9 +444,7 @@ Defined.
 
 Definition isLimFunctor_is_pointwise_Lim
   (X : [A,C,hsC]) (R : cone D X) (H : isLimCone D X R)
-  : Π a, isLimCone (diagram_pointwise _ _ hsC _ D a)
-                   _
-                   (cone_pointwise X R a).
+  : Π a, isLimCone (diagram_pointwise hsC D a) _ (cone_pointwise X R a).
 Proof.
   intro a.
   apply (is_iso_isLim hsC _ (HCg a)).
@@ -839,12 +827,10 @@ Lemma LimFunctorCone (A C : precategory) (hsC : has_homsets C)
   (D : diagram g [A, C, hsC]^op)
   (HC : Π a : A^op,
             LimCone
-              (diagram_pointwise A^op C^op (has_homsets_opp hsC) g
-                 (get_diagram A C hsC g D) a))
-
+              (diagram_pointwise (has_homsets_opp hsC) (get_diagram A C hsC g D) a))
   : LimCone D.
 Proof.
-set (HColim := ColimFunctorCocone A^op C^op  (has_homsets_opp hsC) g (get_diagram _ _ _ _ D) HC).
+set (HColim := ColimFunctorCocone (has_homsets_opp hsC) (get_diagram _ _ _ _ D) HC).
 destruct HColim as [pr1x pr2x].
 destruct pr1x as [pr1pr1x pr2pr1x].
 destruct pr2pr1x as [pr1pr2pr1x pr2pr2pr1x].
