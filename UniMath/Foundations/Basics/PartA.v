@@ -703,7 +703,12 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
-
+Lemma transportf_paths {X : UU} (P : X -> UU) {x1 x2 : X} {e1 e2 : x1 = x2} (e : e1 = e2)
+      (p : P x1) : transportf P e1 p = transportf P e2 p.
+Proof.
+  intros X P x1 x2 e1 e2 e p. induction e. apply idpath.
+Defined.
+Opaque transportf_paths.
 
 (** *** A series of lemmas about paths and [ total2 ]
 

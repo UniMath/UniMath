@@ -1880,13 +1880,14 @@ Section complexes_abelian.
 End complexes_abelian.
 
 
-(** * Homotopies of complexes and K(A), the naive homotopy category of A *)
+(** * Homotopies of complexes and K(A), the naive homotopy category of A. *)
 Section complexes_homotopies.
 
   Variable A : Additive.
 
   Definition ComplexHomot (C1 C2 : Complex A) : UU := Π (i : hz), A⟦C1 i, C2 (i - 1)⟧.
 
+  (** This lemma shows that the squares of the morphism map, defined by the homotopy H, commute. *)
   Local Lemma ComplexHomotMorphism_comm {C1 C2 : Complex A} (H : ComplexHomot C1 C2) (i : hz) :
     to_binop (C1 i) (C2 i)
              (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i 1))
@@ -1900,6 +1901,7 @@ Section complexes_homotopies.
          (transportf (precategory_morphisms (C1 (i + 1))) (maponpaths C2 (hzrplusminus (i + 1) 1))
                      (Diff C1 (i + 1) ;; H (i + 1 + 1))).
   Proof.
+    (* First we get rid of the ZeroArrows *)
     rewrite to_postmor_linear'. rewrite to_premor_linear'.
     assert (e0 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i 1))
                              (H i ;; Diff C2 (i - 1)) ;;
@@ -1918,65 +1920,53 @@ Section complexes_homotopies.
     }
     rewrite e1. clear e1.
     rewrite <- PreAdditive_unel_zero. rewrite to_lunax'. rewrite to_runax'.
+    (* Here the idea is to apply cancel_precomposition *)
     rewrite transportf_postcompose. rewrite <- assoc. apply cancel_precomposition.
+    (* Other application of cancel_precomposition *)
     rewrite transport_compose. rewrite transportf_postcompose. apply cancel_precomposition.
+    (* Start to solve the transport stuff *)
     rewrite <- functtransportf. rewrite <- functtransportb. unfold transportb.
+    use (transportf_path _ _ (maponpaths C2 (hzrminusplus' (i + 1) 1))).
+    rewrite <- functtransportf. rewrite <- functtransportf. rewrite transport_f_f.
+    assert (e2 : (hzrminusplus (i + 1) 1 @ hzrminusplus' (i + 1) 1) = idpath _)
+      by apply isasethz.
+    rewrite e2. clear e2. cbn. unfold idfun.
+    use (pathscomp0 _ (@transport_section hz _ (Diff C2) i (i + 1 - 1) (! (hzrplusminus i 1)))).
+    assert (e3 : (! hzrplusminus i 1) = hzrplusminus' i 1) by apply isasethz.
+    cbn. cbn in e3. rewrite e3. clear e3.
+    (* Split the right hand side to two transports *)
+    rewrite (@transportf_mor' hz A). unfold transportb. rewrite pathsinv0inv0.
+    rewrite functtransportf. cbn.
+    (* Here only the equations of the first transportfs are different! *)
     use transportf_paths.
-    - exact (C2 (i + 1 - 1 + 1)).
-    - apply maponpaths. apply (hzrminusplus' (i + 1) 1).
-    - rewrite <- functtransportf. rewrite <- functtransportf. rewrite transport_f_f.
-      assert (e2 : (hzrminusplus (i + 1) 1 @ hzrminusplus' (i + 1) 1) = idpath _)
-        by apply isasethz.
-      rewrite e2. clear e2. cbn. unfold idfun.
-      set (tmp := @transport_section hz _ (Diff C2) i (i + 1 - 1) (! (hzrplusminus i 1))).
-      rewrite <- tmp. cbn. clear tmp.
-      assert (e3 : (! hzrplusminus i 1) = hzrplusminus' i 1) by apply isasethz.
-      cbn in e3. rewrite e3. clear e3.
-      (* The morphisms we transport are the same, but the functions and paths are different.
-         Note that in integers, any to paths between definitionally equal source and target
-         are equal by isasethz. Thus it should not matter how we transport the morphisms
-         because the paths we use to transport should always be the same. Thus the resulting
-         morphisms should be the same.
-
-         I don't know how to complete the proof. Can you complete it? *)
-      set (tmp := @transportf_mor' hz A). rewrite tmp. clear tmp. unfold transportb.
-      assert (e4 : (! (! hzrplusminus' i 1)) = hzrplusminus' i 1) by apply isasethz.
-      rewrite e4. clear e4. cbn.
-      set (mor := (transportf (λ x' : pr1 hz, A ⟦ C2 x', C2 (i + 1) ⟧) (hzrplusminus' i 1)
-                              (Diff C2 i))).
-      cbn in mor. rewrite functtransportf.
-      (* Here the only difference is the equation! *)
-      assert (e5 : (maponpaths C2 (hzrminusplus' (i + 1) 1)) =
-                   (maponpaths (λ x' : pr1 hz, C2 (x' + 1)) (hzrplusminus' i 1))).
-      {
-        assert (e6 : (fun (x' :  hz) => C2 (x' + 1)) = C2 ∘ (fun (x' : hz) => x' + 1)).
-        {
-          apply funextfun. intros x'. unfold funcomp. apply idpath.
-        }
-        cbn in e6.
-        assert (e7 : maponpaths C2 (hzrminusplus' (i + 1) 1) =
-                     maponpaths (C2 ∘ (λ x' : pr1 hz, x' + 1)) (hzrplusminus' i 1)).
-        {
-          set (tmp := @maponpathscomp _ _ _ _ _ (λ x' : pr1 hz, x' + 1) C2 (hzrplusminus' i 1)).
-          use (pathscomp0 _ tmp). clear tmp. apply maponpaths.
-          apply isasethz.
-        }
-        use (pathscomp0 e7). clear e7. induction (hzrplusminus' i 1). apply idpath.
-      }
-      induction e5. apply idpath.
+    assert (e5 : maponpaths C2 (hzrminusplus' (i + 1) 1) =
+                 maponpaths (C2 ∘ (λ x' : pr1 hz, x' + 1)) (hzrplusminus' i 1)).
+    {
+      use (pathscomp0 _ (maponpathscomp (λ x' : pr1 hz, x' + 1) C2 (hzrplusminus' i 1))).
+      apply maponpaths. apply isasethz.
+    }
+    use (pathscomp0 e5). clear e5. induction (hzrplusminus' i 1). apply idpath.
   Qed.
 
+  (** Every homotopy H of complexes induces a morphisms of complexes. The morphisms is defined by
+      taking the map C1 i --> C2 i to be the sum
+                         (H i) ;; (Diff C2 (i - 1)) + (Diff C1 i) ;; (H (i + 1)).
+      Note that we need to use transportf because the targets are not definitionally equal. The
+      target of the first is C2 (i - 1 + 1) and the second target is C2 (i + 1 - 1). We transport
+      these to C2 i. *)
   Definition ComplexHomotMorphism {C1 C2 : Complex A} (H : ComplexHomot C1 C2) : Morphism C1 C2.
   Proof.
     use mk_Morphism.
     - intros i.
       use to_binop.
-      + exact (transportf _ (maponpaths C2 (hzrminusplus i 1)) ((H i) ;; (@Diff A C2 (i - 1)))).
-      + exact (transportf _ (maponpaths C2 (hzrplusminus i 1)) ((@Diff A C1 i) ;; (H (i + 1)))).
+      + exact (transportf _ (maponpaths C2 (hzrminusplus i 1)) ((H i) ;; (Diff C2 (i - 1)))).
+      + exact (transportf _ (maponpaths C2 (hzrplusminus i 1)) ((Diff C1 i) ;; (H (i + 1)))).
     - intros i. exact (ComplexHomotMorphism_comm H i).
   Defined.
 
-  (** Subset consisting of homotopies *)
+  (** For all complexes C1 and C2, we define a subset of C1 --> C2 to consist of all the morphisms
+      which have a path to a morphism induced by a homotopy H by [ComplexHomotMorphism]. Our goal is
+      to show that this subset is an abelian subgroup, and thus we can form the quotient group. *)
   Definition ComplexHomotSubset (C1 C2 : Complex A) :
     @hsubtypes ((ComplexPreCat_Additive A)⟦C1, C2⟧) :=
     (fun (f : ((ComplexPreCat_Additive A)⟦C1, C2⟧)) =>
@@ -1993,6 +1983,7 @@ Section complexes_homotopies.
     apply idpath.
   Qed.
 
+  (** This lemma shows that the subset [ComplexHomotSubset] satisfies the axioms of a subgroup. *)
   Lemma ComplexHomotisSubgrop (C1 C2 : Complex A) :
     @issubgr (@to_abgrop (ComplexPreCat_Additive A) C1 C2) (ComplexHomotSubset C1 C2).
   Proof.
@@ -2052,7 +2043,7 @@ Section complexes_homotopies.
                                       (Diff C1 i ;; g3 (i + 1)))).
           apply maponpaths.
           apply tmp'.
-      (** ZeroMorphisms *)
+      (* ZeroMorphisms *)
       + cbn. intros P X. apply X. clear X P.
         use tpair.
         * intros i. exact (ZeroArrow (Additive.to_Zero A) _ _).
@@ -2155,7 +2146,14 @@ Section complexes_homotopies.
       rewrite <- to_postmor_linear'. apply idpath.
   Qed.
 
-  (** ** Construction of the naive homotopy category as an additive category *)
+
+  (** ** Naive homotopy category
+     We know that the homotopies from C1 to C2 form an abelian subgroup of the abelian group of all
+     morphisms from C1 to C2, by [ComplexHomotSubgrp]. We also know that composition of a morphism
+     with a morphism coming from a homotopy, is a morphism which comes from a homotopy, by
+     [ComplexHomotSubgrop_comp_left] and [ComplexHomotSubgrop_comp_right]. This is enough to
+     invoke our abstract construction QuotPrecategory_Additive, to construct the naive homotopy
+     category. *)
   Local Lemma ComplexHomot_Additive_Comp :
     PreAdditiveComps (ComplexPreCat_Additive A)
                      (λ C1 C2 : ComplexPreCat_Additive A, ComplexHomotSubgrp C1 C2).
@@ -2167,7 +2165,7 @@ Section complexes_homotopies.
       apply ComplexHomotSubgrop_comp_left. apply H.
   Qed.
 
-  (** Here we consruct K(A) *)
+  (** Here we construct K(A). *)
   Definition ComplexHomot_Additive : Additive.
   Proof.
     use QuotPrecategory_Additive.
@@ -2175,11 +2173,6 @@ Section complexes_homotopies.
     - intros C1 C2. exact (ComplexHomotSubgrp C1 C2).
     - exact (ComplexHomot_Additive_Comp).
   Defined.
-
-  (* From the following we see that [ComplexHomotMorphism_comm] is the only unnecessary axiom
-     we assume. Thus is one proves [ComplexHomotMorphism_comm], then the naive homotopy category
-     follows. Remove this comments when [ComplexHomotMorphism_comm] is proved. *)
-  Print Assumptions ComplexHomot_Additive.
 
 End complexes_homotopies.
 

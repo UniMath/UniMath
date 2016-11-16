@@ -1,5 +1,5 @@
 (** * Direct definition of binary direct sum using preadditive categories. *)
-(** ** Contensts
+(** ** Contents
 - Definition of binary direct sums (also known as biproducts)
 - Criteria for binary direct sums
 - Quotient has binary direct sums

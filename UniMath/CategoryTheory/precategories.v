@@ -1250,13 +1250,13 @@ Proof.
   induction e. apply idpath.
 Qed.
 
-Lemma transportf_paths {C : precategory} {x y z : ob C} (f g : x --> y) (e : y = z) :
+Lemma transportf_path {C : precategory} {x y z : ob C} (f g : x --> y) (e : y = z) :
   transportf (precategory_morphisms x) e f = transportf (precategory_morphisms x) e g -> f = g.
 Proof.
   induction e. intros H. apply H.
 Qed.
 
-Lemma transportb_paths {C : precategory} {x y z : ob C} (f g : y --> z) (e : x = y) :
+Lemma transportb_path {C : precategory} {x y z : ob C} (f g : y --> z) (e : x = y) :
   transportb (fun x' : ob C => precategory_morphisms x' z) e f =
   transportb (fun x' : ob C => precategory_morphisms x' z) e g -> f = g.
 Proof.
