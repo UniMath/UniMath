@@ -58,58 +58,58 @@ Definition lattice2islattice : Π X : lattice, islattice X :=
 Definition islattice2lattice : Π X : hSet, islattice X → lattice :=
 λ (X : hSet) (is : islattice X), mklattice (pr2 (pr2 is)).
 
+Definition Lmin {X : hSet} (is : islattice X) : binop X := pr1 is.
+Definition Lmax {X : hSet} (is : islattice X) : binop X := pr1 (pr2 is).
+
 Section lattice_pty.
 
-Context {L : hSet}
-        (is : islattice L).
-
-Definition Lmin : binop L := pr1 is.
-Definition Lmax : binop L := pr1 (pr2 is).
+Context {X : hSet}
+        (is : islattice X).
 
 Lemma isassoc_Lmin :
-  isassoc Lmin.
+  isassoc (Lmin is).
 Proof.
   exact (pr1 (pr1 (pr2 (pr2 is)))).
 Qed.
 Lemma iscomm_Lmin :
-  iscomm Lmin.
+  iscomm (Lmin is).
 Proof.
   exact (pr2 (pr1 (pr2 (pr2 is)))).
 Qed.
 Lemma isassoc_Lmax :
-  isassoc Lmax.
+  isassoc (Lmax is).
 Proof.
   exact (pr1 (pr1 (pr2 (pr2 (pr2 is))))).
 Qed.
 Lemma iscomm_Lmax :
-  iscomm Lmax.
+  iscomm (Lmax is).
 Proof.
   exact (pr2 (pr1 (pr2 (pr2 (pr2 is))))).
 Qed.
 Lemma Lmin_absorb :
-  Π x y : L, Lmin x (Lmax x y) = x.
+  Π x y : X, Lmin is x (Lmax is x y) = x.
 Proof.
   exact (pr1 (pr2 (pr2 (pr2 (pr2 is))))).
 Qed.
 Lemma Lmax_absorb :
-  Π x y : L, Lmax x (Lmin x y) = x.
+  Π x y : X, Lmax is x (Lmin is x y) = x.
 Proof.
   exact (pr2 (pr2 (pr2 (pr2 (pr2 is))))).
 Qed.
 
 Lemma Lmin_id :
-  Π x : L, Lmin x x = x.
+  Π x : X, Lmin is x x = x.
 Proof.
   intros x.
-  apply (pathscomp0 (b := Lmin x (Lmax x (Lmin x x)))).
+  apply (pathscomp0 (b := Lmin is x (Lmax is x (Lmin is x x)))).
   - apply maponpaths, pathsinv0, Lmax_absorb.
   - apply Lmin_absorb.
 Qed.
 Lemma Lmax_id :
-  Π x : L, Lmax x x = x.
+  Π x : X, Lmax is x x = x.
 Proof.
   intros x.
-  apply (pathscomp0 (b := Lmax x (Lmin x (Lmax x x)))).
+  apply (pathscomp0 (b := Lmax is x (Lmin is x (Lmax is x x)))).
   - apply maponpaths, pathsinv0, Lmin_absorb.
   - apply Lmax_absorb.
 Qed.
@@ -118,22 +118,24 @@ End lattice_pty.
 
 (** ** Order in a lattice *)
 
+(** [Lle] *)
+
+Definition Lle {X : hSet} (is : islattice X) : hrel X :=
+  λ (x y : X), hProppair (Lmin is x y = x) ((pr2 X) (Lmin is x y) x).
+
 Section lattice_le.
 
-Context {L : hSet}
-        (is : islattice L).
-
-Definition Lle : hrel L :=
-  λ (x y : L), hProppair (Lmin is x y = x) ((pr2 L) (Lmin is x y) x).
+Context {X : hSet}
+        (is : islattice X).
 
 Lemma isrefl_Lle :
-  isrefl Lle.
+  isrefl (Lle is).
 Proof.
   intros x.
   apply Lmin_id.
 Qed.
 Lemma isantisymm_Lle :
-  isantisymm Lle.
+  isantisymm (Lle is).
 Proof.
   intros x y Hxy Hyx.
   rewrite <- Hxy.
@@ -141,7 +143,7 @@ Proof.
   apply iscomm_Lmin.
 Qed.
 Lemma istrans_Lle :
-  istrans Lle.
+  istrans (Lle is).
 Proof.
   intros x y z <- <-.
   simpl.
@@ -150,7 +152,7 @@ Proof.
 Qed.
 
 Lemma Lmin_le_l :
-  Π x y : L, Lle (Lmin is x y) x.
+  Π x y : X, Lle is (Lmin is x y) x.
 Proof.
   intros x y.
   simpl.
@@ -158,7 +160,7 @@ Proof.
   reflexivity.
 Qed.
 Lemma Lmin_le_r :
-  Π x y : L, Lle (Lmin is x y) y.
+  Π x y : X, Lle is (Lmin is x y) y.
 Proof.
   intros x y.
   rewrite iscomm_Lmin.
@@ -166,7 +168,7 @@ Proof.
 Qed.
 
 Lemma Lmin_ge :
-  Π x y z : L, Lle z x → Lle z y → Lle z (Lmin is x y).
+  Π x y z : X, Lle is z x → Lle is z y → Lle is z (Lmin is x y).
 Proof.
   intros x y z <- <-.
   simpl.
@@ -178,14 +180,14 @@ Proof.
 Qed.
 
 Lemma Lmax_ge_l :
-  Π x y : L, Lle x (Lmax is x y).
+  Π x y : X, Lle is x (Lmax is x y).
 Proof.
   intros x y.
   simpl.
   apply Lmin_absorb.
 Qed.
 Lemma Lmax_ge_r :
-  Π x y : L, Lle y (Lmax is x y).
+  Π x y : X, Lle is y (Lmax is x y).
 Proof.
   intros x y.
   rewrite iscomm_Lmax.
@@ -194,7 +196,7 @@ Qed.
 
 Lemma Lmax_le :
   isrdistr (Lmax is) (Lmin is)
-  → Π x y z : L, Lle x z → Lle y z → Lle (Lmax is x y) z.
+  → Π x y z : X, (Lle is) x z → (Lle is) y z → (Lle is) (Lmax is x y) z.
 Proof.
   intros H x y z <- <-.
   rewrite <- H.
@@ -202,13 +204,13 @@ Proof.
 Qed.
 
 Lemma Lmin_eq_l :
-  Π x y : L, Lle x y → Lmin is x y = x.
+  Π x y : X, Lle is x y → Lmin is x y = x.
 Proof.
   intros x y H.
   apply H.
 Qed.
 Lemma Lmin_eq_r :
-  Π x y : L, Lle y x → Lmin is x y = y.
+  Π x y : X, Lle is y x → Lmin is x y = y.
 Proof.
   intros x y H.
   rewrite iscomm_Lmin.
@@ -216,14 +218,14 @@ Proof.
 Qed.
 
 Lemma Lmax_eq_l :
-  Π x y : L, Lle y x → Lmax is x y = x.
+  Π x y : X, Lle is y x → Lmax is x y = x.
 Proof.
   intros x y <-.
   rewrite iscomm_Lmin.
   apply Lmax_absorb.
 Qed.
 Lemma Lmax_eq_r :
-  Π x y : L, Lle x y → Lmax is x y = y.
+  Π x y : X, Lle is x y → Lmax is x y = y.
 Proof.
   intros x y H.
   rewrite iscomm_Lmax.
@@ -231,6 +233,11 @@ Proof.
 Qed.
 
 End lattice_le.
+
+(** [Lge] *)
+
+Definition Lge {X : hSet} (is : islattice X) : hrel X :=
+  λ x y : X, Lle is y x.
 
 (** ** Lattice with a strong order *)
 
@@ -246,67 +253,85 @@ Definition islattice_islatticewithgt {X : hSet} : islatticewithgt X → islattic
   pr1.
 Coercion islattice_islatticewithgt : islatticewithgt >-> islattice.
 
+(** [Lgt] *)
+
+Definition Lgt {X : hSet} (is : islatticewithgt X) : StrongOrder X :=
+  pr1 (pr2 is).
+
 Section latticewithgt_def.
 
 Context {X : hSet}
         (is : islatticewithgt X).
 
-Definition Lgt : StrongOrder X :=
-  pr1 (pr2 is).
-
 Lemma notLgt_Lle :
-  Π x y : X, (¬ (Lgt x y)) <-> Lle is x y.
+  Π x y : X, (¬ (Lgt is x y)) <-> Lle is x y.
 Proof.
   apply (pr1 (pr2 (pr2 is))).
 Qed.
-Lemma Lgt_Lle :
-  Π x y : X, Lgt x y → Lle is y x.
-Proof.
-  intros x y H.
-  apply notLgt_Lle.
-  intro H0.
-  eapply isirrefl_StrongOrder.
-  eapply istrans_StrongOrder.
-  exact H.
-  exact H0.
-Qed.
 
-Lemma istrans_Lgt_Lle :
-  Π x y z : X, Lgt y x → Lle is y z → Lgt z x.
-Proof.
-  intros x y z Hgt Hle.
-  generalize (iscotrans_StrongOrder _ _ z _ Hgt).
-  apply hinhuniv.
-  apply sumofmaps ; intros H.
-  - apply fromempty.
-    refine (pr2 (notLgt_Lle _ _) _ _).
-    exact Hle.
-    exact H.
-  - exact H.
-Qed.
-Lemma istrans_Lle_Lgt :
-  Π x y z : X, Lle is x y → Lgt z y → Lgt z x.
-Proof.
-  intros x y z Hle Hgt.
-  generalize (iscotrans_StrongOrder _ _ x _ Hgt).
-  apply hinhuniv.
-  apply sumofmaps ; intros H.
-  - exact H.
-  - apply fromempty.
-    refine (pr2 (notLgt_Lle _ _) _ _).
-    exact Hle.
-    exact H.
-Qed.
+Definition isirrefl_Lgt : isirrefl (Lgt is) :=
+  isirrefl_StrongOrder (Lgt is).
+Definition istrans_Lgt : istrans (Lgt is) :=
+  istrans_StrongOrder (Lgt is).
+Definition iscotrans_Lgt : iscotrans (Lgt is) :=
+  iscotrans_StrongOrder (Lgt is).
 
 Lemma Lmin_Lgt :
-  Π x y z : X, Lgt x z → Lgt y z → Lgt (Lmin is x y) z.
+  Π x y z : X, Lgt is x z → Lgt is y z → Lgt is (Lmin is x y) z.
 Proof.
   apply (pr1 (pr2 (pr2 (pr2 is)))).
 Qed.
+
 Lemma Lmax_gt  :
-  Π x y z : X, Lgt z x → Lgt z y → Lgt z (Lmax is x y).
+  Π x y z : X, Lgt is z x → Lgt is z y → Lgt is z (Lmax is x y).
 Proof.
   apply (pr2 (pr2 (pr2 (pr2 is)))).
 Qed.
 
 End latticewithgt_def.
+
+Section latticewithgt_pty.
+
+Context {X : hSet}
+        (is : islatticewithgt X).
+
+Lemma Lgt_Lge :
+  Π x y : X, Lgt is x y → Lge is x y.
+Proof.
+  intros x y H.
+  apply notLgt_Lle.
+  intro H0.
+  eapply isirrefl_Lgt.
+  eapply istrans_Lgt.
+  exact H.
+  exact H0.
+Qed.
+
+Lemma istrans_Lgt_Lge :
+  Π x y z : X, Lgt is x y → Lge is y z → Lgt is x z.
+Proof.
+  intros x y z Hgt Hge.
+  generalize (iscotrans_Lgt _ _ z _ Hgt).
+  apply hinhuniv.
+  apply sumofmaps ; intros H.
+  - exact H.
+  - apply fromempty.
+    refine (pr2 (notLgt_Lle _ _ _) _ _).
+    exact Hge.
+    exact H.
+Qed.
+Lemma istrans_Lge_Lgt :
+  Π x y z : X, Lge is x y → Lgt is y z → Lgt is x z.
+Proof.
+  intros x y z Hge Hgt.
+  generalize (iscotrans_Lgt _ _ x _ Hgt).
+  apply hinhuniv.
+  apply sumofmaps ; intros H.
+  - apply fromempty.
+    refine (pr2 (notLgt_Lle _ _ _) _ _).
+    exact Hge.
+    exact H.
+  - exact H.
+Qed.
+
+End latticewithgt_pty.
