@@ -451,7 +451,7 @@ Require UniMath.CategoryTheory.limits.graphs.binproducts.
 
 Lemma BinProductsHSET_from_Lims : graphs.binproducts.BinProducts HSET.
 Proof.
-exact (binproducts.BinProducts_from_Lims _ LimsHSET).
+now apply binproducts.BinProducts_from_Lims, LimsHSET_of_shape.
 Defined.
 
 End BinProductsHSET_from_Lims.
@@ -470,7 +470,7 @@ Require UniMath.CategoryTheory.limits.graphs.terminal.
 
 Lemma TerminalHSET_from_Lims : graphs.terminal.Terminal HSET.
 Proof.
-now apply terminal.Terminal_from_Lims, LimsHSET.
+now apply terminal.Terminal_from_Lims, LimsHSET_of_shape.
 Defined.
 
 End TerminalHSET_from_Lims.

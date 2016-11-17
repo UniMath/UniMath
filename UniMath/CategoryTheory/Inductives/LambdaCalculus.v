@@ -67,9 +67,8 @@ Proof.
 apply (Initial_functor_precat _ _ InitialHSET).
 Defined.
 
-Local Definition CCHSET (c : chain [HSET,HSET,has_homsets_HSET]) (b : HSET) :
-  ColimCocone (diagram_pointwise has_homsets_HSET c b) :=
-    ColimsHSET nat_graph (diagram_pointwise has_homsets_HSET c b).
+Local Definition CCHSET : Colims_of_shape nat_graph HSET :=
+  ColimsHSET_of_shape nat_graph.
 
 Local Notation "' x" := (omega_cocont_constant_functor has_homsets_HSET2 x)
                           (at level 10).
@@ -103,7 +102,7 @@ Lemma lambdaFunctor_Initial :
   Initial (precategory_FunctorAlg lambdaFunctor has_homsets_HSET2).
 Proof.
 apply (colimAlgInitial _ InitialHSET2 is_omega_cocont_lambdaFunctor).
-apply ColimsFunctorCategory_of_shape; apply Colims_of_shape.
+apply ColimsFunctorCategory_of_shape; apply ColimsHSET_of_shape.
 Defined.
 
 (** The lambda calculus *)
