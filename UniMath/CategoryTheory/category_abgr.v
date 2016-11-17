@@ -1327,7 +1327,7 @@ Section ABGR_monics.
   Qed.
 
   Definition ABGR_integer_map_iscomprelfun {A : abgr} (a : A) :
-    iscomprelfun (binopeqrelabgrfrac (rigaddabmonoid natcommrig)) (ABGR_natset_dirprod_map a).
+    iscomprelfun (binopeqrelabgrdiff (rigaddabmonoid natcommrig)) (ABGR_natset_dirprod_map a).
   Proof.
     intros x. induction x as [t p]. induction p as [|p IHp].
     - intros x'. induction x' as [t0 p]. induction p as [|p IHp].
