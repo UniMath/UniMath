@@ -98,8 +98,9 @@ Defined.
 (* TODO: Having limits and colimits should be sufficient *)
 Context (BCC : BinCoproducts C) (BPC : BinProducts C)
         (IC : Initial C) (TC : Terminal C) (LC : Lims C)
-        (Hchain : Π (c : chain [C,C,hsC]) (b : C), ColimCocone (diagram_pointwise hsC c b)).
+        (Hchain : Π (c : chain [C,C,hsC]) (b : C), ColimCocone (diagram_pointwise _ _ hsC _ c b)).
         (* (CLC : Colims C). (* This is too strong, but still needed for HSS *) *)
+        (* (LC : Lims_of_shape nat_graph C). *)
 
 Let optionC := (option_functor BCC TC).
 
@@ -185,7 +186,7 @@ use colimAlgInitial.
   + apply functor_category_has_homsets.
   + apply is_omega_cocont_constant_functor, functor_category_has_homsets.
   + apply Hs.
-- apply ColimsFunctorCategory; apply CLC.
+- apply ColimsFunctorCategory_of_shape, CLC.
 Defined.
 
 (** ** Signature with strength and initial algebra to a HSS *)

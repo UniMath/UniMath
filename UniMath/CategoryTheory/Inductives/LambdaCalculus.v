@@ -103,7 +103,7 @@ Lemma lambdaFunctor_Initial :
   Initial (precategory_FunctorAlg lambdaFunctor has_homsets_HSET2).
 Proof.
 apply (colimAlgInitial _ InitialHSET2 is_omega_cocont_lambdaFunctor).
-apply ColimsFunctorCategory; apply ColimsHSET.
+apply ColimsFunctorCategory_of_shape; apply Colims_of_shape.
 Defined.
 
 (** The lambda calculus *)

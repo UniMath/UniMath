@@ -228,7 +228,7 @@ Proof.
 now intros g d; apply ColimCoconeHSET.
 Defined.
 
-Lemma Colims_of_shape_HSET (g : graph) :
+Lemma ColimsHSET_of_shape (g : graph) :
   Colims_of_shape g HSET.
 Proof.
 now intros d; apply ColimCoconeHSET.
@@ -279,7 +279,7 @@ Require UniMath.CategoryTheory.limits.graphs.bincoproducts.
 
 Lemma BinCoproductsHSET_from_Colims : graphs.bincoproducts.BinCoproducts HSET.
 Proof.
-exact (bincoproducts.BinCoproducts_from_Colims _ ColimsHSET).
+now apply bincoproducts.BinCoproducts_from_Colims, ColimsHSET_of_shape.
 Defined.
 
 End CoproductsHSET_from_Colims.
@@ -299,7 +299,7 @@ Require UniMath.CategoryTheory.limits.graphs.initial.
 
 Lemma InitialHSET_from_Colims : graphs.initial.Initial HSET.
 Proof.
-now apply initial.Initial_from_Colims, ColimsHSET.
+apply initial.Initial_from_Colims, ColimsHSET_of_shape.
 Defined.
 
 End InitialHSET_from_Colims.
@@ -348,6 +348,12 @@ Proof.
 now intros g d; apply LimConeHSET.
 Defined.
 
+Lemma LimsHSET_of_shape (g : graph) : Lims_of_shape g HSET.
+Proof.
+now intros d; apply LimConeHSET.
+Defined.
+
+
 (** Alternative definition of limits using cats/limits *)
 Section cats_limits.
 
@@ -393,6 +399,11 @@ End cats_limits.
 Lemma cats_LimsHSET : cats.limits.Lims HSET.
 Proof.
 now intros g d; apply cats_LimConeHSET.
+Defined.
+
+Lemma cats_LimsHSET_of_shape (g : precategory) : cats.limits.Lims_of_shape g HSET.
+Proof.
+now intros d; apply cats_LimConeHSET.
 Defined.
 
 (** end of alternative def *)
