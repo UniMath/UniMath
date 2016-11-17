@@ -228,6 +228,12 @@ Proof.
 now intros g d; apply ColimCoconeHSET.
 Defined.
 
+Lemma Colims_of_shape_HSET (g : graph) :
+  Colims_of_shape g HSET.
+Proof.
+now intros d; apply ColimCoconeHSET.
+Defined.
+
 (* Direct construction of binary coproducts in HSET *)
 Lemma BinCoproductsHSET : BinCoproducts HSET.
 Proof.
