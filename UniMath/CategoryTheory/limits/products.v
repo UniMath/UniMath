@@ -358,10 +358,10 @@ mkpair.
 + abstract (intros u v e; induction e).
 Defined.
 
-Lemma Products_from_Lims : Lims C -> Products I C.
+Lemma Products_from_Lims : Lims_of_shape I_graph C -> Products I C.
 Proof.
 intros H F.
-set (HF := H _ (products_diagram F)).
+set (HF := H (products_diagram F)).
 use mk_ProductCone.
 + apply (lim HF).
 + intros i; apply (limOut HF).

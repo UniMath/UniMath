@@ -281,10 +281,10 @@ use mk_cone; simpl.
 + abstract (intros x y e; destruct e).
 Defined.
 
-Lemma BinProducts_from_Lims : Lims C -> BinProducts C.
+Lemma BinProducts_from_Lims : Lims_of_shape two_graph C -> BinProducts C.
 Proof.
 intros H a b.
-set (LC := H _ (binproduct_diagram a b)); simpl.
+set (LC := H (binproduct_diagram a b)); simpl.
 use mk_BinProductCone.
 + apply (lim LC).
 + apply (limOut LC true).

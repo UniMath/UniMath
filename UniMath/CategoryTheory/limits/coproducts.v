@@ -356,10 +356,10 @@ mkpair.
 + abstract (intros u v e; induction e).
 Defined.
 
-Lemma Coproducts_from_Colims : Colims C -> Coproducts I C.
+Lemma Coproducts_from_Colims : Colims_of_shape I_graph C -> Coproducts I C.
 Proof.
 intros H F.
-set (HF := H _ (coproducts_diagram F)).
+set (HF := H (coproducts_diagram F)).
 use mk_CoproductCocone.
 + apply (colim HF).
 + intros i; apply (colimIn HF).

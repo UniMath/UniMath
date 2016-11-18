@@ -615,10 +615,10 @@ use mk_cocone; simpl.
 + abstract (intros x y e; destruct e).
 Defined.
 
-Lemma BinCoproducts_from_Colims : Colims C -> BinCoproducts C.
+Lemma BinCoproducts_from_Colims : Colims_of_shape two_graph C -> BinCoproducts C.
 Proof.
 intros H a b.
-set (CC := H _ (bincoproduct_diagram a b)); simpl.
+set (CC := H (bincoproduct_diagram a b)); simpl.
 use mk_BinCoproductCocone.
 + apply (colim CC).
 + apply (colimIn CC true).
