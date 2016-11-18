@@ -9,6 +9,7 @@ Interval.v
 Precategories.v
 StandardCategories.v
 Elements.v
+ElementsOp.v
 Representation.v
 Bifunctor.v
 RawMatrix.v
