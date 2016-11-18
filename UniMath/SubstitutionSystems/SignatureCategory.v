@@ -27,7 +27,7 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 
-Local Notation "[ C , D ]" := (functorPrecategory C D).
+Local Notation "[ C , D ]" := (functor_Precategory C D).
 
 (** * The category of signatures with strength *)
 Section SignatureCategory.

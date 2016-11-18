@@ -353,22 +353,22 @@ use mk_ColimCocone.
   + apply colimArrow.
     use mk_cocone.
     * intro v; apply (pr2 (dob d v)).
-    * abstract (intros u v e; apply (pr2 (dmor d e))).
+    * abstract (intros u v e; apply (! pr2 (dmor d e))).
 - use mk_cocone.
   + intro v; simpl.
     mkpair; simpl.
     * apply (colimIn H v).
-    * abstract (apply (colimArrowCommutes H)).
+    * abstract (apply pathsinv0, (colimArrowCommutes H)).
   + abstract (intros u v e; apply eq_mor_slicecat, (coconeInCommutes (colimCocone H))).
 - intros y ccy.
   use unique_exists.
   + mkpair; simpl.
     * apply colimArrow, (mapcocone slicecat_to_cat _ ccy).
-    * abstract (apply colimArrowUnique; intros v; simpl; rewrite assoc;
+    * abstract (apply pathsinv0, colimArrowUnique; intros v; simpl; rewrite assoc;
                 eapply pathscomp0;
                   [apply cancel_postcomposition,
                         (colimArrowCommutes H _ (mapcocone slicecat_to_cat _ ccy) v)|];
-                destruct ccy as [f Hf]; simpl; apply (pr2 (f v))).
+                destruct ccy as [f Hf]; simpl; apply (! pr2 (f v))).
   + abstract (intro v; apply eq_mor_slicecat; simpl;
               apply (colimArrowCommutes _ _ (mapcocone slicecat_to_cat d ccy))).
   + abstract (simpl; intros f; apply impred; intro v; apply has_homsets_slice_precat).

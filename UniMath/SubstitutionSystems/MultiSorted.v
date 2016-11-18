@@ -375,13 +375,14 @@ eapply functor_composite.
 - apply post_composition_functor, (projSortToC (pr2 a)).
 Defined.
 
-Lemma is_omega_cocont_exp_functor (a : list sort × sort) :
+Lemma is_omega_cocont_exp_functor (a : list sort × sort)
+  (H : Colims_of_shape nat_graph sortToC) :
   is_omega_cocont (exp_functor a).
 Proof.
 apply is_omega_cocont_functor_composite.
 + apply functor_category_has_homsets.
 + apply is_omega_cocont_pre_composition_functor.
-  apply LimsFunctorCategory, LC.
+  apply H.
 + admit. (* is_omega_cocont post_composition_functor *)
 Admitted.
 
@@ -401,7 +402,8 @@ Defined.
 
 (* H follows if C has exponentials? *)
 Lemma is_omega_cocont_exp_functors (xs : list (list sort × sort))
-  (H : Π x : [sortToC, C], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x)) :
+  (H : Π x : [sortToC, C], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x))
+  (H2 : Colims_of_shape nat_graph sortToC) :
   is_omega_cocont (exp_functors xs).
 Proof.
 destruct xs as [[|n] xs].
@@ -410,12 +412,12 @@ destruct xs as [[|n] xs].
   apply (functor_category_has_homsets sortToC).
 - induction n as [|n IHn].
   + destruct xs as [m []].
-    apply is_omega_cocont_exp_functor.
+    apply is_omega_cocont_exp_functor, H2.
   + destruct xs as [m [k xs]].
     apply is_omega_cocont_BinProduct_of_functors; try apply homset_property.
     * now repeat apply BinProducts_functor_precat.
     * apply H.
-    * apply is_omega_cocont_exp_functor.
+    * apply is_omega_cocont_exp_functor, H2.
     * apply (IHn (k,,xs)).
 Defined.
 
@@ -482,14 +484,17 @@ Lemma is_omega_cocont_MultiSortedSigToFunctor_fun
   (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C)
   (CP : Π s, Products (indices M s) C)
   (hs : Π s, isdeceq (indices M s))
-  (H : Π x : [sortToC, C], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x)) :
+  (H : Π x : [sortToC, C], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x))
+  (H2 : Colims_of_shape nat_graph sortToC) :
   Π s, is_omega_cocont (pr1 (MultiSortedSigToFunctor_fun M CC) s).
 Proof.
 intros s.
 apply is_omega_cocont_coproduct_of_functors; try apply homset_property.
 + apply Products_functor_precat, Products_functor_precat, CP.
 + apply (hs s).
-+ intros y; apply is_omega_cocont_exp_functors, H.
++ intros y; apply is_omega_cocont_exp_functors.
+  - apply H.
+  - apply H2.
 Defined.
 
 (** * The functor constructed from a multisorted binding signature *)

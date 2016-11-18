@@ -1570,25 +1570,25 @@ Definition omega_cocont_pre_composition_functor_kan :
 
 End pre_composition_functor_kan.
 
-Section post_composition_functor.
+(* Section post_composition_functor. *)
 
-Context {C D E : precategory} (hsD : has_homsets D) (hsE : has_homsets E).
-Context (F : functor D E) (HF : is_left_adjoint F).
+(* Context {C D E : precategory} (hsD : has_homsets D) (hsE : has_homsets E). *)
+(* Context (F : functor D E) (HF : is_left_adjoint F). *)
 
-Lemma is_cocont_post_composition_functor :
-  is_cocont (post_composition_functor C D E hsD hsE F).
-Proof.
-apply left_adjoint_cocont; try apply functor_category_has_homsets.
-apply (is_left_adjoint_post_composition_functor _ _ _ _ _ _ HF).
-Defined.
+(* Lemma is_cocont_post_composition_functor : *)
+(*   is_cocont (post_composition_functor C D E hsD hsE F). *)
+(* Proof. *)
+(* apply left_adjoint_cocont; try apply functor_category_has_homsets. *)
+(* apply (is_left_adjoint_post_composition_functor _ _ _ _ _ _ HF). *)
+(* Defined. *)
 
-Lemma is_omega_cocont_post_composition_functor :
-  is_omega_cocont (post_composition_functor C D E hsD hsE F).
-Proof.
-now intros c L ccL; apply is_cocont_post_composition_functor.
-Defined.
+(* Lemma is_omega_cocont_post_composition_functor : *)
+(*   is_omega_cocont (post_composition_functor C D E hsD hsE F). *)
+(* Proof. *)
+(* now intros c L ccL; apply is_cocont_post_composition_functor. *)
+(* Defined. *)
 
-End post_composition_functor.
+(* End post_composition_functor. *)
 
 End cocont_functors.
 

@@ -89,7 +89,7 @@ mkpair.
   + intros X Y f p.
     mkpair.
     * apply (pr1 f (pr1 p)).
-    * abstract (now destruct f as [h hh]; destruct p as [x hx]; simpl in *; rewrite <- hx, <- hh).
+    * abstract (now destruct f as [h hh]; destruct p as [x hx]; simpl in *; rewrite <- hx, hh).
 - abstract (split; [intros X|intros X Y Z f g];
             apply funextsec; intro p; apply subtypeEquality; trivial; intros x; apply setproperty).
 Defined.
@@ -117,7 +117,7 @@ mkpair.
     * intros X; simpl in *.
       mkpair; simpl.
       { intros H; apply (pr1 H). }
-      { abstract (apply funextsec; intro x; apply (pr2 x)). }
+      { abstract (apply funextsec; intro x; apply (! pr2 x)). }
     * abstract (now intros X Y f; apply (eq_mor_slicecat _ has_homsets_HSET)).
 + split.
   - abstract (now intros X; apply (eq_mor_slicecat _ has_homsets_HSET)).
@@ -133,9 +133,10 @@ Admitted.
 Lemma is_omega_cocont_postcomp_proj (s : sort) :
   is_omega_cocont (post_composition_functor (SET / sort) _ _ has_homsets_Csort has_homsets_HSET (proj s)).
 Proof.
-apply is_omega_cocont_post_composition_functor.
-apply is_left_adjoint_proj.
-Defined.
+admit.
+(* apply is_omega_cocont_post_composition_functor. *)
+(* apply is_left_adjoint_proj. *)
+Admitted.
 
 (* TODO: this could be defined more abstractly as:
      option(s)(X,f) := [f, \lambda _ .s] : X+1 -> sort *)
@@ -164,7 +165,7 @@ mkpair.
   - intros F; induction F as [t h]; simpl.
     mkpair.
     * induction t as [t|t]; [apply (ii1 (pr1 f t)) | apply (ii2 t)].
-    * abstract (induction t as [t|t]; trivial; rewrite <- h; apply (toforallpaths _ _ _ (pr2 f) t)).
+    * abstract (induction t as [t|t]; trivial; rewrite <- h; apply (toforallpaths _ _ _ (! pr2 f) t)).
   - abstract (apply funextsec; intros [[t|t] h]; trivial; apply (toforallpaths _ _ _ (pr2 f) t)).
 Defined.
 
@@ -206,13 +207,13 @@ eapply functor_composite.
 - apply post_composition_functor, (proj (pr2 a)).
 Defined.
 
-Lemma is_omega_cocont_exp_functor (a : list sort × sort) :
+Lemma is_omega_cocont_exp_functor (a : list sort × sort)
+  (H : Colims_of_shape nat_graph SET_over_sort) :
   is_omega_cocont (exp_functor a).
 Proof.
 apply is_omega_cocont_functor_composite.
 + apply functor_category_has_homsets.
-+ apply is_omega_cocont_pre_composition_functor.
-  apply LimsCsort. (* Limits in Set/sort *)
++ apply is_omega_cocont_pre_composition_functor, H.
 + apply is_omega_cocont_postcomp_proj.
 Defined.
 
@@ -232,7 +233,8 @@ apply BinProducts_functor_precat.
 apply BinProductsHSET.
 Defined.
 
-Lemma is_omega_cocont_exp_functors (xs : list (list sort × sort)) :
+Lemma is_omega_cocont_exp_functors (xs : list (list sort × sort))
+  (H : Colims_of_shape nat_graph SET_over_sort) :
   is_omega_cocont (exp_functors xs).
 Proof.
 destruct xs as [[|n] xs].
@@ -241,7 +243,7 @@ destruct xs as [[|n] xs].
   apply functor_category_has_homsets.
 - induction n as [|n IHn].
   + destruct xs as [m []].
-    apply is_omega_cocont_exp_functor.
+    apply is_omega_cocont_exp_functor, H.
   + destruct xs as [m [k xs]].
     apply is_omega_cocont_BinProduct_of_functors; try apply homset_property.
     * apply BinProducts_functor_precat.
@@ -250,7 +252,7 @@ destruct xs as [[|n] xs].
       apply LimsCsort.
     * apply is_omega_cocont_constprod_functor1; try apply functor_category_has_homsets.
       apply has_exponentials_functor_HSET, has_homsets_Csort.
-    * apply is_omega_cocont_exp_functor.
+    * apply is_omega_cocont_exp_functor, H.
     * apply (IHn (k,,xs)).
 Defined.
 
@@ -259,9 +261,11 @@ Lemma is_omega_cocont_postcomp_HatFunctor (t : sort) :
        (homset_property SET) (homset_property SET_over_sort)
        (HatFunctor t)).
 Proof.
-apply is_omega_cocont_post_composition_functor.
-apply is_left_adjoint_hat.
-Defined.
+admit.
+Admitted.
+(* apply is_omega_cocont_post_composition_functor. *)
+(* apply is_left_adjoint_hat. *)
+(* Defined. *)
 
 Definition hat_exp_functors (xst : list (list sort × sort) × sort) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET_over_sort].
@@ -272,12 +276,13 @@ eapply functor_composite.
   apply (HatFunctor (pr2 xst)).
 Defined.
 
-Lemma is_omega_cocont_hat_exp_functors (xst : list (list sort × sort) × sort) :
+Lemma is_omega_cocont_hat_exp_functors (xst : list (list sort × sort) × sort)
+  (H : Colims_of_shape nat_graph SET_over_sort) :
   is_omega_cocont (hat_exp_functors xst).
 Proof.
 apply is_omega_cocont_functor_composite.
 + apply functor_category_has_homsets.
-+ apply is_omega_cocont_exp_functors.
++ apply is_omega_cocont_exp_functors, H.
 + apply is_omega_cocont_postcomp_HatFunctor.
 Defined.
 
@@ -295,15 +300,16 @@ use (coproduct_of_functors (ops M)).
 Defined.
 
 Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig)
-  (H : isdeceq (ops M)) : is_omega_cocont (MultiSortedSigToFunctor M).
+  (Heq : isdeceq (ops M)) (H : Colims_of_shape nat_graph SET_over_sort) :
+  is_omega_cocont (MultiSortedSigToFunctor M).
 Proof.
 apply is_omega_cocont_coproduct_of_functors; try apply homset_property.
 + apply Products_functor_precat.
   apply Products_from_Lims.
   apply has_homsets_Csort.
   apply LimsCsort.
-+ apply H.
-+ intros op; apply is_omega_cocont_hat_exp_functors.
++ apply Heq.
++ intros op; apply is_omega_cocont_hat_exp_functors, H.
 Defined.
 
 End MBindingSig.

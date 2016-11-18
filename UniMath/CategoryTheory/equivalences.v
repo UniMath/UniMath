@@ -578,64 +578,64 @@ Definition adjunction_from_partial : is_left_adjoint F := (G,, (unit,, counit),,
 
 End adjunction_from_partial.
 
-Section postcomp.
+(* Section postcomp. *)
 
-Variables (C D E : precategory) (hsD : has_homsets D) (hsE : has_homsets E).
-Variables (F : functor D E).
+(* Variables (C D E : precategory) (hsD : has_homsets D) (hsE : has_homsets E). *)
+(* Variables (F : functor D E). *)
 
-Variables (H : is_left_adjoint F).
+(* Variables (H : is_left_adjoint F). *)
 
-Let G : functor E D := right_adjoint H.
-Let η : nat_trans (functor_identity D) (functor_composite F G):= unit_from_left_adjoint H.
-Let ε : nat_trans (functor_composite G F) (functor_identity E) := counit_from_left_adjoint H.
-Let H1 : Π a : D, # F (η a) ;; ε (F a) = identity (F a) := triangle_id_left_ad _ _ _ H.
-Let H2 : Π b : E, η (G b) ;; # G (ε b) = identity (G b) := triangle_id_right_ad _ _ _ H.
+(* Let G : functor E D := right_adjoint H. *)
+(* Let η : nat_trans (functor_identity D) (functor_composite F G):= unit_from_left_adjoint H. *)
+(* Let ε : nat_trans (functor_composite G F) (functor_identity E) := counit_from_left_adjoint H. *)
+(* Let H1 : Π a : D, # F (η a) ;; ε (F a) = identity (F a) := triangle_id_left_ad _ _ _ H. *)
+(* Let H2 : Π b : E, η (G b) ;; # G (ε b) = identity (G b) := triangle_id_right_ad _ _ _ H. *)
 
-Lemma is_left_adjoint_post_composition_functor :
-  is_left_adjoint (post_composition_functor C D E hsD hsE F).
-Proof.
-exists (post_composition_functor _ _ _ _ _ G).
-mkpair.
-- split.
-+ mkpair.
-* intros F'.
-simpl.
-set (HH := maponpaths pr1 (functor_assoc _ _ _ _ F' F G)).
-simpl in HH.
-rewrite HH.
-simpl.
-eapply nat_trans_comp.
-Focus 2.
-Search nat_trans functor_composite.
-use adjunction_from_partial.
-- apply (post_composition_functor _ _ _ _ _ G).
-- simpl.
-intros F'.
-admit.
-- simpl.
-intros F'.
-unfold is_universal_arrow_from.
-simpl.
-intros G' α.
-use unique_exists.1<
-
+(* Lemma is_left_adjoint_post_composition_functor : *)
+(*   is_left_adjoint (post_composition_functor C D E hsD hsE F). *)
+(* Proof. *)
+(* exists (post_composition_functor _ _ _ _ _ G). *)
 (* mkpair. *)
 (* - split. *)
-(* mkpair. *)
-(* + intros G. *)
-(* simpl in *. *)
-
-(* generalize (@pre_whisker C _ _ G _ _ H1). *)
-(* admit. *)
-(* + simpl. *)
-(* admit. *)
-(* + admit. *)
+(* + mkpair. *)
+(* * intros F'. *)
+(* simpl. *)
+(* set (HH := maponpaths pr1 (functor_assoc _ _ _ _ F' F G)). *)
+(* simpl in HH. *)
+(* rewrite HH. *)
+(* simpl. *)
+(* eapply nat_trans_comp. *)
+(* Focus 2. *)
+(* Search nat_trans functor_composite. *)
+(* use adjunction_from_partial. *)
+(* - apply (post_composition_functor _ _ _ _ _ G). *)
 (* - simpl. *)
-(* split. *)
-(* simpl. *)
-(* Search post_whisker. *)
-(* simpl. *)
+(* intros F'. *)
 (* admit. *)
-Admitted.
+(* - simpl. *)
+(* intros F'. *)
+(* unfold is_universal_arrow_from. *)
+(* simpl. *)
+(* intros G' α. *)
+(* use unique_exists.1< *)
 
-End postcomp.
+(* (* mkpair. *) *)
+(* (* - split. *) *)
+(* (* mkpair. *) *)
+(* (* + intros G. *) *)
+(* (* simpl in *. *) *)
+
+(* (* generalize (@pre_whisker C _ _ G _ _ H1). *) *)
+(* (* admit. *) *)
+(* (* + simpl. *) *)
+(* (* admit. *) *)
+(* (* + admit. *) *)
+(* (* - simpl. *) *)
+(* (* split. *) *)
+(* (* simpl. *) *)
+(* (* Search post_whisker. *) *)
+(* (* simpl. *) *)
+(* (* admit. *) *)
+(* Admitted. *)
+
+(* End postcomp. *)
