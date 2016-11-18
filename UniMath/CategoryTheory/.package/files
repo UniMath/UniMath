@@ -84,3 +84,4 @@ ShortExactSequences.v
 Morphisms.v
 AdditiveFunctors.v
 LocalizingClass.v
+DiscretePrecategory.v

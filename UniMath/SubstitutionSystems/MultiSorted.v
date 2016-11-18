@@ -17,6 +17,7 @@ Require Import UniMath.Foundations.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.DiscretePrecategory.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
@@ -30,6 +31,7 @@ Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.EquivalencesExamples.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.category_hset.
@@ -47,195 +49,46 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Local Notation "[ C , D ]" := (functor_Precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
+Section postcomp.
 
-(** Swapping of functor arguments *)
-(* TODO: Move upstream? *)
-Section functor_swap.
+Variables (C D E : precategory) (hsD : has_homsets D) (hsE : has_homsets E).
+Variables (F : functor D E).
+Variables (H : is_left_adjoint F).
 
-Lemma functor_swap {C D : precategory} {E : Precategory} : functor C [D,E] → functor D [C,E].
+Let G : functor E D := right_adjoint H.
+Let η : nat_trans (functor_identity D) (functor_composite F G):= unit_from_left_adjoint H.
+Let ε : nat_trans (functor_composite G F) (functor_identity E) := counit_from_left_adjoint H.
+Let H1 : Π a : D, # F (η a) ;; ε (F a) = identity (F a) := triangle_id_left_ad _ _ _ H.
+Let H2 : Π b : E, η (G b) ;; # G (ε b) = identity (G b) := triangle_id_right_ad _ _ _ H.
+
+Lemma is_left_adjoint_post_composition_functor :
+  is_left_adjoint (post_composition_functor C D E hsD hsE F).
 Proof.
-intros F.
-mkpair.
-- mkpair.
-  + intro d; simpl.
-  { mkpair.
-    - mkpair.
-      + intro c.
-        apply (pr1 (F c) d).
-      + intros a b f; apply (# F f).
-    - abstract (split;
-      [ now intro x; simpl; rewrite (functor_id F)
-      | now intros a b c f g; simpl; rewrite (functor_comp F)]).
-  }
-  + intros a b f; simpl.
-  { mkpair.
-    - intros x; apply (# (pr1 (F x)) f).
-    - abstract (intros c d g; simpl; apply pathsinv0, nat_trans_ax).
-  }
-- abstract (split;
-  [ intros d; apply (nat_trans_eq (homset_property E)); intro c; simpl; apply functor_id
-  | intros a b c f g; apply (nat_trans_eq (homset_property E)); intro x; simpl; apply functor_comp]).
+exists (post_composition_functor _ _ _ _ _ G).
+admit.
+Admitted.
+
+End postcomp.
+
+Section post_composition_functor.
+
+Context {C D E : precategory} (hsD : has_homsets D) (hsE : has_homsets E).
+Context (F : functor D E) (HF : is_left_adjoint F).
+
+Lemma is_cocont_post_composition_functor :
+  is_cocont (post_composition_functor C D E hsD hsE F).
+Proof.
+apply left_adjoint_cocont; try apply functor_category_has_homsets.
+apply (is_left_adjoint_post_composition_functor _ _ _ _ _ _ HF).
 Defined.
 
-Lemma functor_cat_swap_nat_trans {C D : precategory} {E : Precategory}
-  (F G : functor C [D, E]) (α : nat_trans F G) :
-  nat_trans (functor_swap F) (functor_swap G).
+Lemma is_omega_cocont_post_composition_functor :
+  is_omega_cocont (post_composition_functor C D E hsD hsE F).
 Proof.
-mkpair.
-+ intros d; simpl.
-  mkpair.
-  * intro c; apply (α c).
-  * abstract (intros a b f; apply (nat_trans_eq_pointwise (nat_trans_ax α _ _ f) d)).
-+ abstract (intros a b f; apply (nat_trans_eq (homset_property E)); intro c; simpl; apply nat_trans_ax).
+now intros c L ccL; apply is_cocont_post_composition_functor.
 Defined.
 
-Lemma functor_cat_swap (C D : precategory) (E : Precategory) : functor [C, [D, E]] [D, [C, E]].
-Proof.
-mkpair.
-- mkpair.
-  + apply functor_swap.
-  + apply functor_cat_swap_nat_trans.
-- abstract (split;
-  [ intro F; apply (nat_trans_eq (functor_category_has_homsets _ _ (homset_property E))); simpl; intro d;
-    now apply (nat_trans_eq (homset_property E))
-  | intros F G H α β; cbn; apply (nat_trans_eq (functor_category_has_homsets _ _ (homset_property E))); intro d;
-    now apply (nat_trans_eq (homset_property E))]).
-Defined.
-
-Definition id_functor_cat_swap (C D : precategory) (E : Precategory) :
-  nat_trans (functor_identity [C,[D,E]])
-            (functor_composite (functor_cat_swap C D E) (functor_cat_swap D C E)).
-Proof.
-set (hsE := homset_property E).
-mkpair.
-+ intros F.
-  mkpair.
-  - intro c.
-     mkpair.
-     * now intro f; apply identity.
-     * abstract (now intros a b f; rewrite id_left, id_right).
-  - abstract (now intros a b f; apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
-+ abstract (now intros a b f; apply nat_trans_eq; [apply functor_category_has_homsets|]; intro c;
-            apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
-Defined.
-
-Definition functor_cat_swap_id (C D : precategory) (E : Precategory) :
-  nat_trans (functor_composite (functor_cat_swap D C E) (functor_cat_swap C D E))
-            (functor_identity [D,[C,E]]).
-Proof.
-set (hsE := homset_property E).
-mkpair.
-+ intros F.
-  mkpair.
-  - intro c.
-    mkpair.
-    * now intro f; apply identity.
-    * abstract (now intros a b f; rewrite id_left, id_right).
-  - abstract (now intros a b f; apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
-+ abstract (now intros a b f; apply nat_trans_eq; [apply functor_category_has_homsets|]; intro c;
-            apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
-Defined.
-
-Lemma form_adjunction_functor_cat_swap (C D : precategory) (E : Precategory) :
-  form_adjunction _ _ (id_functor_cat_swap C D E) (functor_cat_swap_id C D E).
-Proof.
-set (hsE := homset_property E).
-split;
-  simpl; intro F; apply (nat_trans_eq (functor_category_has_homsets _ _ hsE)); intro d;
-  apply (nat_trans_eq hsE); intro c; simpl; apply id_right.
-Admitted. (* Qed is very slow... *)
-
-Lemma are_adjoint_functor_cat_swap (C D : precategory) (E : Precategory) :
-  are_adjoints (@functor_cat_swap C D E) (@functor_cat_swap D C E).
-Proof.
-set (hsE := homset_property E).
-mkpair.
-- split; [ apply id_functor_cat_swap | apply functor_cat_swap_id ].
-- apply form_adjunction_functor_cat_swap.
-Defined.
-
-Lemma is_left_adjoint_functor_cat_swap (C D : precategory) (E : Precategory) :
-  is_left_adjoint (functor_cat_swap C D E).
-Proof.
-mkpair.
-+ apply functor_cat_swap.
-+ apply are_adjoint_functor_cat_swap.
-Defined.
-
-Lemma is_cocont_functor_cat_swap (C D : precategory) (E : Precategory) :
-  is_cocont (functor_cat_swap C D E).
-Proof.
-apply left_adjoint_cocont; try apply homset_property.
-apply is_left_adjoint_functor_cat_swap.
-Defined.
-
-Lemma is_omega_cocont_functor_cat_swap (C D : precategory) (E : Precategory) :
-  is_omega_cocont (functor_cat_swap C D E).
-Proof.
-intros d L ccL HccL.
-apply (is_cocont_functor_cat_swap _ _ _ _ d L ccL HccL).
-Defined.
-
-(* (* Maybe prove this as well? *) *)
-(* Lemma equiv_functor_cat_swap (C D : precategory) (E : Precategory) : *)
-(*   adj_equivalence_of_precats (@functor_cat_swap C D E). *)
-(* Proof. *)
-(* mkpair. *)
-(* + apply is_left_adjoint_functor_cat_swap. *)
-(* + split. *)
-(*   - admit. *)
-(*   - admit. *)
-(* Admitted. *)
-
-(* Lemma test (C1 D1 : precategory) (C2 D2 : Precategory) (F : functor [C1,C2] [D1,D2]) *)
-(*   (HF : adj_equivalence_of_precats F) *)
-(*   (G : [C1,C2]) (HG : is_omega_cocont G) : *)
-(*   is_omega_cocont (F G). *)
-(* Admitted. *)
-
-End functor_swap.
-
-
-(** * Discrete precategories *)
-Section DiscreteCategory.
-
-Variable (A : UU).
-
-Definition discrete_precategory_data : precategory_data.
-Proof.
-mkpair.
-- apply (A,,paths).
-- mkpair; [ apply idpath | apply @pathscomp0 ].
-Defined.
-
-Definition is_precategory_discrete_precategory_data : is_precategory discrete_precategory_data.
-Proof.
-split; [split|]; trivial; intros.
-+ apply pathscomp0rid.
-+ apply path_assoc.
-Qed.
-
-Definition discrete_precategory : precategory :=
-  (discrete_precategory_data,,is_precategory_discrete_precategory_data).
-
-Lemma has_homsets_discrete_precategory (H : isofhlevel 3 A) : has_homsets discrete_precategory.
-Proof.
-intros ? ? ? ? ? ?; apply H.
-Qed.
-
-(** To define a functor out of a discrete category it suffices to give a function *)
-Lemma functor_discrete_precategory (D : precategory) (f : A → D) :
-  functor discrete_precategory D.
-Proof.
-mkpair.
-+ mkpair.
-  - apply f.
-  - intros s t []; apply identity.
-+ abstract (now split; [intro|intros a b c [] []; simpl; rewrite id_left]).
-Defined.
-
-End DiscreteCategory.
-
+End post_composition_functor.
 
 (** * Definition of multisorted binding signatures *)
 Section MBindingSig.
