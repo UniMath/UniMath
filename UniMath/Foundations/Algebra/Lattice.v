@@ -70,36 +70,20 @@ Section lattice_pty.
 Context {X : hSet}
         (is : islattice X).
 
-Lemma isassoc_Lmin :
-  isassoc (Lmin is).
-Proof.
-  exact (pr1 (pr1 (pr2 (pr2 is)))).
-Qed.
-Lemma iscomm_Lmin :
-  iscomm (Lmin is).
-Proof.
-  exact (pr2 (pr1 (pr2 (pr2 is)))).
-Qed.
-Lemma isassoc_Lmax :
-  isassoc (Lmax is).
-Proof.
-  exact (pr1 (pr1 (pr2 (pr2 (pr2 is))))).
-Qed.
-Lemma iscomm_Lmax :
-  iscomm (Lmax is).
-Proof.
-  exact (pr2 (pr1 (pr2 (pr2 (pr2 is))))).
-Qed.
-Lemma Lmin_absorb :
-  Π x y : X, Lmin is x (Lmax is x y) = x.
-Proof.
-  exact (pr1 (pr2 (pr2 (pr2 (pr2 is))))).
-Qed.
-Lemma Lmax_absorb :
-  Π x y : X, Lmax is x (Lmin is x y) = x.
-Proof.
-  exact (pr2 (pr2 (pr2 (pr2 (pr2 is))))).
-Qed.
+Definition isassoc_Lmin : isassoc (Lmin is) :=
+  pr1 (pr1 (pr2 (pr2 is))).
+Definition iscomm_Lmin : iscomm (Lmin is) :=
+  pr2 (pr1 (pr2 (pr2 is))).
+Definition isassoc_Lmax : isassoc (Lmax is) :=
+  pr1 (pr1 (pr2 (pr2 (pr2 is)))).
+Definition iscomm_Lmax : iscomm (Lmax is) :=
+  pr2 (pr1 (pr2 (pr2 (pr2 is)))).
+Definition Lmin_absorb :
+  Π x y : X, Lmin is x (Lmax is x y) = x :=
+  pr1 (pr2 (pr2 (pr2 (pr2 is)))).
+Definition Lmax_absorb :
+  Π x y : X, Lmax is x (Lmin is x y) = x :=
+  pr2 (pr2 (pr2 (pr2 (pr2 is)))).
 
 Lemma Lmin_id :
   Π x : X, Lmin is x x = x.
@@ -132,17 +116,13 @@ Section lattice_le.
 Context {X : hSet}
         (is : islattice X).
 
-Lemma isrefl_Lle :
-  isrefl (Lle is).
-Proof.
-  intros x.
-  apply Lmin_id.
-Qed.
+Definition isrefl_Lle : isrefl (Lle is) :=
+  Lmin_id is.
 Lemma isantisymm_Lle :
   isantisymm (Lle is).
 Proof.
   intros x y Hxy Hyx.
-  rewrite <- Hxy.
+  apply pathscomp0 with (1 := pathsinv0 Hxy).
   apply pathscomp0 with (2 := Hyx).
   apply iscomm_Lmin.
 Qed.
@@ -254,11 +234,8 @@ Section Lge_pty.
 Context {X : hSet}
         (is : islattice X).
 
-Lemma isrefl_Lge :
-  isrefl (Lge is).
-Proof.
-  apply isrefl_Lle.
-Qed.
+Definition isrefl_Lge : isrefl (Lge is) :=
+  isrefl_Lle is.
 Lemma isantisymm_Lge :
   isantisymm (Lge is).
 Proof.
@@ -284,61 +261,41 @@ Proof.
   - exact isantisymm_Lge.
 Qed.
 
-Lemma Lmin_ge_l :
-  Π (x y : X), Lge is x (Lmin is x y).
-Proof.
-  apply Lmin_le_l.
-Qed.
-Lemma Lmin_ge_r :
-  Π (x y : X), Lge is y (Lmin is x y).
-Proof.
-  apply Lmin_le_r.
-Qed.
-Lemma Lmin_ge_case :
+Definition Lmin_ge_l :
+  Π (x y : X), Lge is x (Lmin is x y) :=
+  Lmin_le_l is.
+Definition Lmin_ge_r :
+  Π (x y : X), Lge is y (Lmin is x y) :=
+  Lmin_le_r is.
+Definition Lmin_ge_case :
   Π (x y z : X),
-  Lge is x z → Lge is y z → Lge is (Lmin is x y) z.
-Proof.
-  apply Lmin_le_case.
-Qed.
+  Lge is x z → Lge is y z → Lge is (Lmin is x y) z :=
+  Lmin_le_case is.
 
-Lemma Lmax_ge_l :
-  Π (x y : X), Lge is (Lmax is x y) x.
-Proof.
-  apply Lmax_le_l.
-Qed.
-Lemma Lmax_ge_r :
-  Π (x y : X), Lge is (Lmax is x y) y.
-Proof.
-  apply Lmax_le_r.
-Qed.
-Lemma Lmax_ge_case :
+Definition Lmax_ge_l :
+  Π (x y : X), Lge is (Lmax is x y) x :=
+  Lmax_le_l is.
+Definition Lmax_ge_r :
+  Π (x y : X), Lge is (Lmax is x y) y :=
+  Lmax_le_r is.
+Definition Lmax_ge_case :
   isrdistr (Lmax is) (Lmin is)
-  → Π x y z : X, Lge is z x → Lge is z y → Lge is z (Lmax is x y).
-Proof.
-  apply Lmax_le_case.
-Qed.
+  → Π x y z : X, Lge is z x → Lge is z y → Lge is z (Lmax is x y) :=
+  Lmax_le_case is.
 
-Lemma Lmin_ge_eq_l:
-  Π (x y : X), Lge is y x → Lmin is x y = x.
-Proof.
-  apply Lmin_le_eq_l.
-Qed.
-Lemma Lmin_ge_eq_r:
-  Π (x y : X), Lge is x y → Lmin is x y = y.
-Proof.
-  apply Lmin_le_eq_r.
-Qed.
+Definition Lmin_ge_eq_l :
+  Π (x y : X), Lge is y x → Lmin is x y = x :=
+  Lmin_le_eq_l is.
+Definition Lmin_ge_eq_r :
+  Π (x y : X), Lge is x y → Lmin is x y = y :=
+  Lmin_le_eq_r is.
 
-Lemma Lmax_ge_eq_l:
-  Π (x y : X), Lge is x y → Lmax is x y = x.
-Proof.
-  apply Lmax_le_eq_l.
-Qed.
-Lemma Lmax_ge_eq_r:
-  Π (x y : X), Lge is y x → Lmax is x y = y.
-Proof.
-  apply Lmax_le_eq_r.
-Qed.
+Definition Lmax_ge_eq_l :
+  Π (x y : X), Lge is x y → Lmax is x y = x :=
+  Lmax_le_eq_l is.
+Definition Lmax_ge_eq_r :
+  Π (x y : X), Lge is y x → Lmax is x y = y :=
+  Lmax_le_eq_r is.
 
 End Lge_pty.
 
@@ -366,11 +323,12 @@ Section latticewithgt_pty.
 Context {X : hSet}
         (is : islatticewithgt X).
 
-Lemma notLgt_Lle :
-  Π x y : X, (¬ (Lgt is x y)) <-> Lle is x y.
-Proof.
-  apply (pr1 (pr2 (pr2 is))).
-Qed.
+Definition notLgt_Lle :
+  Π x y : X, (¬ Lgt is x y) → Lle is x y :=
+  λ x y : X, pr1 (pr1 (pr2 (pr2 is)) x y).
+Definition Lle_notLgt :
+  Π x y : X, Lle is x y → ¬ Lgt is x y :=
+  λ x y : X, pr2 (pr1 (pr2 (pr2 is)) x y).
 
 Definition isirrefl_Lgt : isirrefl (Lgt is) :=
   isirrefl_StrongOrder (Lgt is).
@@ -401,7 +359,7 @@ Proof.
   apply sumofmaps ; intros H.
   - exact H.
   - apply fromempty.
-    refine (pr2 (notLgt_Lle _ _) _ _).
+    refine (Lle_notLgt _ _ _ _).
     exact Hge.
     exact H.
 Qed.
@@ -413,22 +371,18 @@ Proof.
   apply hinhuniv.
   apply sumofmaps ; intros H.
   - apply fromempty.
-    refine (pr2 (notLgt_Lle _ _) _ _).
+    refine (Lle_notLgt _ _ _ _).
     exact Hge.
     exact H.
   - exact H.
 Qed.
 
-Lemma Lmin_Lgt :
-  Π x y z : X, Lgt is x z → Lgt is y z → Lgt is (Lmin is x y) z.
-Proof.
-  apply (pr1 (pr2 (pr2 (pr2 is)))).
-Qed.
+Definition Lmin_Lgt :
+  Π x y z : X, Lgt is x z → Lgt is y z → Lgt is (Lmin is x y) z :=
+  pr1 (pr2 (pr2 (pr2 is))).
 
-Lemma Lmax_Lgt  :
-  Π x y z : X, Lgt is z x → Lgt is z y → Lgt is z (Lmax is x y).
-Proof.
-  apply (pr2 (pr2 (pr2 (pr2 is)))).
-Qed.
+Definition Lmax_Lgt :
+  Π x y z : X, Lgt is z x → Lgt is z y → Lgt is z (Lmax is x y) :=
+  pr2 (pr2 (pr2 (pr2 is))).
 
 End latticewithgt_pty.
