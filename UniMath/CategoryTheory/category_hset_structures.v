@@ -228,6 +228,12 @@ Proof.
 now intros g d; apply ColimCoconeHSET.
 Defined.
 
+Lemma ColimsHSET_of_shape (g : graph) :
+  Colims_of_shape g HSET.
+Proof.
+now intros d; apply ColimCoconeHSET.
+Defined.
+
 (* Direct construction of binary coproducts in HSET *)
 Lemma BinCoproductsHSET : BinCoproducts HSET.
 Proof.
@@ -273,7 +279,7 @@ Require UniMath.CategoryTheory.limits.graphs.bincoproducts.
 
 Lemma BinCoproductsHSET_from_Colims : graphs.bincoproducts.BinCoproducts HSET.
 Proof.
-exact (bincoproducts.BinCoproducts_from_Colims _ ColimsHSET).
+now apply bincoproducts.BinCoproducts_from_Colims, ColimsHSET_of_shape.
 Defined.
 
 End CoproductsHSET_from_Colims.
@@ -293,7 +299,7 @@ Require UniMath.CategoryTheory.limits.graphs.initial.
 
 Lemma InitialHSET_from_Colims : graphs.initial.Initial HSET.
 Proof.
-now apply initial.Initial_from_Colims, ColimsHSET.
+apply initial.Initial_from_Colims, ColimsHSET_of_shape.
 Defined.
 
 End InitialHSET_from_Colims.
@@ -342,6 +348,12 @@ Proof.
 now intros g d; apply LimConeHSET.
 Defined.
 
+Lemma LimsHSET_of_shape (g : graph) : Lims_of_shape g HSET.
+Proof.
+now intros d; apply LimConeHSET.
+Defined.
+
+
 (** Alternative definition of limits using cats/limits *)
 Section cats_limits.
 
@@ -389,6 +401,11 @@ Proof.
 now intros g d; apply cats_LimConeHSET.
 Defined.
 
+Lemma cats_LimsHSET_of_shape (g : precategory) : cats.limits.Lims_of_shape g HSET.
+Proof.
+now intros d; apply cats_LimConeHSET.
+Defined.
+
 (** end of alternative def *)
 
 (* Direct construction of binary products in HSET *)
@@ -434,7 +451,7 @@ Require UniMath.CategoryTheory.limits.graphs.binproducts.
 
 Lemma BinProductsHSET_from_Lims : graphs.binproducts.BinProducts HSET.
 Proof.
-exact (binproducts.BinProducts_from_Lims _ LimsHSET).
+now apply binproducts.BinProducts_from_Lims, LimsHSET_of_shape.
 Defined.
 
 End BinProductsHSET_from_Lims.
@@ -453,7 +470,7 @@ Require UniMath.CategoryTheory.limits.graphs.terminal.
 
 Lemma TerminalHSET_from_Lims : graphs.terminal.Terminal HSET.
 Proof.
-now apply terminal.Terminal_from_Lims, LimsHSET.
+now apply terminal.Terminal_from_Lims, LimsHSET_of_shape.
 Defined.
 
 End TerminalHSET_from_Lims.
