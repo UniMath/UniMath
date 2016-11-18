@@ -1,6 +1,6 @@
 (** **********************************************************
 
-Anders Mörtberg, Benedikt Ahrens
+Anders Mörtberg, Benedikt Ahrens, 2015-2016
 
 *************************************************************)
 
@@ -13,6 +13,8 @@ Contents:
 - Proof that C/x is a category if C is
 
 - Proof that any morphism C[x,y] induces a functor from C/x to C/y
+
+- Colimits in slice categories ([slice_precat_colims])
 
 ************************************************************)
 
@@ -330,7 +332,7 @@ End slicecat_functor_theory.
 (** * Colimits in slice categories *)
 Section slicecat_colimits.
 
-Variables (C : precategory) (hsC : has_homsets C) (x : C) (CC : Colims C).
+Context (g : graph) {C : precategory} (hsC : has_homsets C) (x : C).
 
 Local Notation "C / X" := (slice_precat C X hsC).
 
@@ -343,10 +345,10 @@ mkpair.
 + abstract (now split).
 Defined.
 
-Definition slice_precat_colims : Colims (C / x).
+Lemma slice_precat_ColimCocone (d : diagram g (C / x))
+  (H : ColimCocone (mapdiagram slicecat_to_cat d)) :
+  ColimCocone d.
 Proof.
-intros g d.
-set (H := CC g (mapdiagram slicecat_to_cat d)).
 use mk_ColimCocone.
 - mkpair.
   + apply (colim H).
@@ -376,4 +378,15 @@ use mk_ColimCocone.
               intros v; apply (maponpaths pr1 (Hf v))).
 Defined.
 
+Lemma slice_precat_colims_of_shape (CC : Colims_of_shape g C) : Colims_of_shape g (C / x).
+Proof.
+now intros d; apply slice_precat_ColimCocone, CC.
+Defined.
+
 End slicecat_colimits.
+
+Lemma slice_precat_colims {C : precategory} (hsC : has_homsets C) (x : C) (CC : Colims C) :
+  Colims (slice_precat C x hsC).
+Proof.
+now intros g d; apply slice_precat_ColimCocone, CC.
+Defined.
