@@ -8,6 +8,7 @@
  - The precategory of complexes over an additive precategory is an additive category,
    [complexes_additive]
  - Precategory of complexes over an abelian category is abelian [complexes_abelian]
+ - Homotopies and construction of K(A), the naive homotopy category
 *)
 Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Require Import UniMath.Foundations.Basics.PartD.
@@ -88,10 +89,10 @@ Section def_complexes.
   Definition Complex_Funclass (C : Complex) : hz -> ob A := pr1 (pr1 C).
   Coercion Complex_Funclass : Complex >-> Funclass.
 
-  Definition Diff {C : Complex} (i : hz) : A⟦C i, C (hzplus i 1)⟧ := pr2 (pr1 C) i.
+  Definition Diff (C : Complex) (i : hz) : A⟦C i, C (hzplus i 1)⟧ := pr2 (pr1 C) i.
 
   Definition CEq (C : Complex) (i : hz) :
-    (Diff i) ;; (Diff (hzplus i 1)) = ZeroArrow (Additive.to_Zero A) _ _ := pr2 C i.
+    (Diff C i) ;; (Diff C (hzplus i 1)) = ZeroArrow (Additive.to_Zero A) _ _ := pr2 C i.
 
   (** Zero Complex *)
   Definition ZeroComplex : Complex.
@@ -107,8 +108,8 @@ Section def_complexes.
     let B1 := to_BinDirectSums A (C1 i) (C2 i) in
     let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
     let B3 := to_BinDirectSums A (C1 (i + 1 + 1)) (C2 (i + 1 + 1)) in
-    (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) B1 B2)
-      ;; (BinDirectSumIndAr A (@Diff C1 (i + 1)) (@Diff C2 (i + 1)) B2 B3) =
+    (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2)
+      ;; (BinDirectSumIndAr A (Diff C1 (i + 1)) (Diff C2 (i + 1)) B2 B3) =
     ZeroArrow (Additive.to_Zero A) B1 B3.
   Proof.
     cbn.
@@ -126,16 +127,16 @@ Section def_complexes.
   Proof.
     use mk_Complex.
     - intros i. exact (to_BinDirectSums A (C1 i) (C2 i)).
-    - intros i. exact (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) _ _).
+    - intros i. exact (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) _ _).
     - intros i. exact (DirectSumComplex_comm i).
   Defined.
 
   (** Morphism of complexes *)
   Definition Morphism (C1 C2 : Complex) : UU :=
-    Σ D : (Π i : hz, A⟦C1 i, C2 i⟧), Π i : hz, (D i) ;; (@Diff C2 i) = (@Diff C1 i) ;; (D (i + 1)).
+    Σ D : (Π i : hz, A⟦C1 i, C2 i⟧), Π i : hz, (D i) ;; (Diff C2 i) = (Diff C1 i) ;; (D (i + 1)).
 
   Definition mk_Morphism (C1 C2 : Complex) (Mors : Π i : hz, A⟦C1 i, C2 i⟧)
-             (Comm : Π i : hz, (Mors i) ;; (@Diff C2 i) = (@Diff C1 i) ;; (@Mors (i + 1))) :
+             (Comm : Π i : hz, (Mors i) ;; (Diff C2 i) = (Diff C1 i) ;; (Mors (i + 1))) :
     Morphism C1 C2 := tpair _ Mors Comm.
 
   (** Accessor functions *)
@@ -143,7 +144,7 @@ Section def_complexes.
     pr1 M i.
 
   Definition MComm {C1 C2 : Complex} (M : Morphism C1 C2) (i : hz) :
-    (MMor M i) ;; (@Diff C2 i) = (@Diff C1 i) ;; (MMor M (i + 1)) := pr2 M i.
+    (MMor M i) ;; (Diff C2 i) = (Diff C1 i) ;; (MMor M (i + 1)) := pr2 M i.
 
   (** A lemma to show that two morphisms are the same *)
   Lemma MorphismEq {C1 C2 : Complex} (M1 M2 : Morphism C1 C2)
@@ -176,7 +177,7 @@ Section def_complexes.
 
   (** Identity Morphism *)
   Local Lemma IdMorComm (C1 : Complex) (i : hz) :
-    (identity (C1 i)) ;; (@Diff C1 i) = (@Diff C1 i) ;; (identity (C1 (i + 1))).
+    (identity (C1 i)) ;; (Diff C1 i) = (Diff C1 i) ;; (identity (C1 (i + 1))).
   Proof.
     rewrite id_left.
     rewrite id_right.
@@ -192,7 +193,7 @@ Section def_complexes.
 
   (** Morphisms from and to Zero complex *)
   Local Lemma MorphismFromZero_comm (C : Complex) (i : hz) :
-    (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (C i)) ;; (Diff i) =
+    (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (C i)) ;; (Diff C i) =
     (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (Additive.to_Zero A))
       ;; (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (C (i + 1))).
   Proof.
@@ -211,7 +212,7 @@ Section def_complexes.
   Local Lemma MorphismToZero_comm (C : Complex) (i : hz) :
     (ZeroArrow (Additive.to_Zero A) (C i) (Additive.to_Zero A))
       ;; (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (Additive.to_Zero A)) =
-    (Diff i) ;; ZeroArrow (Additive.to_Zero A) (C (i + 1)) (Additive.to_Zero A).
+    (Diff C i) ;; ZeroArrow (Additive.to_Zero A) (C (i + 1)) (Additive.to_Zero A).
   Proof.
     rewrite ZeroArrow_comp_right.
     rewrite ZeroArrow_comp_right.
@@ -228,8 +229,8 @@ Section def_complexes.
   (** Composition of morphisms *)
   Local Lemma MorphismCompComm {C1 C2 C3 : Complex} (M1 : Morphism C1 C2) (M2 : Morphism C2 C3)
         (i : hz) :
-    (MMor M1 i) ;; (MMor M2 i) ;; (@Diff C3 i) =
-    (@Diff C1 i) ;; (MMor M1 (i + 1) ;; MMor M2 (i + 1)).
+    (MMor M1 i) ;; (MMor M2 i) ;; (Diff C3 i) =
+    (Diff C1 i) ;; (MMor M1 (i + 1) ;; MMor M2 (i + 1)).
   Proof.
     rewrite assoc.
     rewrite <- (MComm M1).
@@ -256,8 +257,8 @@ Section def_complexes.
   Local Lemma DirectSumComplexIn1_comm (C1 C2 : Complex) (i : hz) :
     let B1 := to_BinDirectSums A (C1 i) (C2 i) in
     let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
-    (to_In1 A B1) ;; (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) B1 B2) =
-    (@Diff C1 i) ;; (to_In1 A B2).
+    (to_In1 A B1) ;; (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2) =
+    (Diff C1 i) ;; (to_In1 A B2).
   Proof.
     cbn.
     set (B1 := to_BinDirectSums A (C1 i) (C2 i)).
@@ -281,8 +282,8 @@ Section def_complexes.
   Local Lemma DirectSumComplexIn2_comm (C1 C2 : Complex) (i : hz) :
     let B1 := to_BinDirectSums A (C1 i) (C2 i) in
     let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
-    (to_In2 A B1) ;; (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) B1 B2) =
-    (@Diff C2 i) ;; (to_In2 A B2).
+    (to_In2 A B1) ;; (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2) =
+    (Diff C2 i) ;; (to_In2 A B2).
   Proof.
     cbn.
     set (B1 := to_BinDirectSums A (C1 i) (C2 i)).
@@ -305,8 +306,8 @@ Section def_complexes.
   Local Lemma DirectSumComplexPr1_comm (C1 C2 : Complex) (i : hz) :
     let B1 := to_BinDirectSums A (C1 i) (C2 i) in
     let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
-    (to_Pr1 A B1) ;; (@Diff C1 i) =
-    (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) B1 B2) ;; (to_Pr1 A B2).
+    (to_Pr1 A B1) ;; (Diff C1 i) =
+    (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2) ;; (to_Pr1 A B2).
   Proof.
     cbn.
     set (B1 := to_BinDirectSums A (C1 i) (C2 i)).
@@ -330,8 +331,8 @@ Section def_complexes.
   Local Lemma DirectSumComplexPr2_comm (C1 C2 : Complex) (i : hz) :
     let B1 := to_BinDirectSums A (C1 i) (C2 i) in
     let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
-    (to_Pr2 A B1) ;; (@Diff C2 i) =
-    (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) B1 B2) ;; (to_Pr2 A B2).
+    (to_Pr2 A B1) ;; (Diff C2 i) =
+    (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2) ;; (to_Pr2 A B2).
   Proof.
     cbn.
     set (B1 := to_BinDirectSums A (C1 i) (C2 i)).
@@ -399,8 +400,8 @@ Section def_complexes.
 
   (** Additition of morphisms is pointwise addition *)
   Local Lemma MorphismOpComm {C1 C2 : Complex} (M1 M2 : Morphism C1 C2)  (i : hz) :
-    (to_binop (C1 i) (C2 i) (MMor M1 i) (MMor M2 i)) ;; (@Diff C2 i) =
-    (@Diff C1 i) ;; (to_binop (C1 (i + 1)) (C2 (i + 1)) (MMor M1 (i + 1)) (MMor M2 (i + 1))).
+    (to_binop (C1 i) (C2 i) (MMor M1 i) (MMor M2 i)) ;; (Diff C2 i) =
+    (Diff C1 i) ;; (to_binop (C1 (i + 1)) (C2 (i + 1)) (MMor M1 (i + 1)) (MMor M2 (i + 1))).
   Proof.
     rewrite to_postmor_linear'. rewrite to_premor_linear'.
     rewrite (MComm M1 i). rewrite (MComm M2 i). apply idpath.
@@ -422,8 +423,8 @@ Section def_complexes.
   Qed.
 
   Lemma MorphismZeroComm (C1 C2 : Complex) (i : hz) :
-    (ZeroArrow (Additive.to_Zero A) (C1 i) (C2 i)) ;; (@Diff C2 i) =
-    (@Diff C1 i) ;; (ZeroArrow (Additive.to_Zero A) (C1 (i + 1)) (C2 (i + 1))).
+    (ZeroArrow (Additive.to_Zero A) (C1 i) (C2 i)) ;; (Diff C2 i) =
+    (Diff C1 i) ;; (ZeroArrow (Additive.to_Zero A) (C1 (i + 1)) (C2 (i + 1))).
   Proof.
     rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_right. apply idpath.
   Qed.
@@ -450,8 +451,8 @@ Section def_complexes.
   Qed.
 
   Local Lemma MorphismOp_inv_comm {C1 C2 : Complex} (M : Morphism C1 C2) (i : hz) :
-    (to_inv (C1 i) (C2 i) (MMor M i)) ;; (@Diff C2 i) =
-    (@Diff C1 i) ;; (to_inv (C1 (i + 1)) (C2 (i + 1)) (MMor M (i + 1))).
+    (to_inv (C1 i) (C2 i) (MMor M i)) ;; (Diff C2 i) =
+    (Diff C1 i) ;; (to_inv (C1 (i + 1)) (C2 (i + 1)) (MMor M (i + 1))).
   Proof.
     rewrite <- PreAdditive_invlcomp.
     rewrite <- PreAdditive_invrcomp.
@@ -524,8 +525,8 @@ Section def_complexes.
         (i : hz) :
     let B1 := to_BinDirectSums A (C1 i) (C2 i) in
     let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
-    (FromBinDirectSum A B1 (MMor f i) (MMor g i)) ;; (@Diff D i) =
-    (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) B1 B2)
+    (FromBinDirectSum A B1 (MMor f i) (MMor g i)) ;; (Diff D i) =
+    (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2)
       ;; (FromBinDirectSum A B2 (MMor f (i + 1)) (MMor g (i + 1))).
   Proof.
     cbn.
@@ -560,8 +561,8 @@ Section def_complexes.
     let B1 := to_BinDirectSums A (C1 i) (C2 i) in
     let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
     (ToBinDirectSum A B1 (MMor f i) (MMor g i))
-      ;; (BinDirectSumIndAr A (@Diff C1 i) (@Diff C2 i) B1 B2) =
-    (@Diff D i) ;; (ToBinDirectSum A B2 (MMor f (i + 1)) (MMor g (i + 1))).
+      ;; (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2) =
+    (Diff D i) ;; (ToBinDirectSum A B2 (MMor f (i + 1)) (MMor g (i + 1))).
   Proof.
     intros B1 B2.
     rewrite BinDirectSumIndArEq1.
@@ -649,8 +650,8 @@ Section def_complexes.
   Defined.
 
   Local Lemma ObjectMorToComplexMor_comm {a b : ob A} (f : a --> b) (i : hz) :
-    Π i0 : hz, (ObjectMorToComplexMor_mors f i i0) ;; (@Diff (ComplexFromObject b i) i0) =
-               (@Diff (ComplexFromObject a i) i0) ;; (ObjectMorToComplexMor_mors f i (i0 + 1)).
+    Π i0 : hz, (ObjectMorToComplexMor_mors f i i0) ;; (Diff (ComplexFromObject b i) i0) =
+               (Diff (ComplexFromObject a i) i0) ;; (ObjectMorToComplexMor_mors f i (i0 + 1)).
   Proof.
     intros i0.
     unfold ComplexFromObject. unfold ComplexFromObject_mors. unfold ComplexFromObject_obs. cbn.
@@ -771,13 +772,13 @@ Section def_complexes.
     induction (isdecrelhzeq i i0) as [e | n].
     + induction e. exact f.
     + induction (isdecrelhzeq (i + 1) i0) as [e' | n'].
-      * induction e'. exact (f ;; (Diff i)).
+      * induction e'. exact (f ;; (Diff C i)).
       * apply (ZeroArrow (Additive.to_Zero A)).
   Defined.
 
   Local Lemma FromComplex2FromObject_comm {a : ob A} {C : Complex} {i : hz} (f : a --> (C i)) :
-    Π i0 : hz, (FromComplex2FromObject_mors f i0) ;; (@Diff C i0) =
-               (@Diff (Complex2FromObject a i) i0) ;; (FromComplex2FromObject_mors f (i0 + 1)).
+    Π i0 : hz, (FromComplex2FromObject_mors f i0) ;; (Diff C i0) =
+               (Diff (Complex2FromObject a i) i0) ;; (FromComplex2FromObject_mors f (i0 + 1)).
   Proof.
     intros i0.
     unfold Complex2FromObject. unfold Complex2FromObject_obs. unfold Complex2FromObject_mors.
@@ -830,7 +831,7 @@ Section def_complexes.
     induction (isdecrelhzeq (i - 1) i0) as [e | n].
     - induction (isdecrelhzeq i (i - 1 + 1)) as [e' | n'].
       + eapply compose.
-        * induction e. exact (Diff (i - 1)).
+        * induction e. exact (Diff C (i - 1)).
         * induction e'. exact f.
       + apply fromempty. apply n'. apply pathsinv0. apply (hzrminusplus i 1).
     - induction (isdecrelhzeq (i - 1 + 1) i0) as [e' | n'].
@@ -842,8 +843,8 @@ Section def_complexes.
   Defined.
 
   Local Lemma ToComplex2FromObject_comm {a : ob A} {C : Complex} {i : hz} (f : (C i) --> a) :
-    Π i0 : hz, (ToComplex2FromObject_mors f i0) ;; (@Diff (Complex2FromObject a (i - 1)) i0) =
-               (@Diff C i0) ;; (ToComplex2FromObject_mors f (i0 + 1)).
+    Π i0 : hz, (ToComplex2FromObject_mors f i0) ;; (Diff (Complex2FromObject a (i - 1)) i0) =
+               (Diff C i0) ;; (ToComplex2FromObject_mors f (i0 + 1)).
   Proof.
     intros i0.
     unfold Complex2FromObject. unfold Complex2FromObject_obs. unfold Complex2FromObject_mors.
