@@ -17,9 +17,9 @@ This file also contains proofs that the following functors are (omega-)cocontinu
 - Iteration of omega-cocontinuous functors: F^n : C -> C
   [is_cocont_iter_functor] [is_omega_cocont_iter_functor]
 - Pairing of (omega-)cocont functors (F,G) : A * B -> C * D, (x,y) |-> (F x,G y)
-  [is_cocont_binproduct_pair_functor] [is_omega_cocont_binproduct_pair_functor]
-- Indexed families of (omega-)cocont functors F^I : A^I -> B^I
   [is_cocont_pair_functor] [is_omega_cocont_pair_functor]
+- Indexed families of (omega-)cocont functors F^I : A^I -> B^I
+  [is_cocont_family_functor] [is_omega_cocont_family_functor]
 - Binary delta functor: C -> C^2, x |-> (x,x)
   [is_cocont_bindelta_functor] [is_omega_cocont_bindelta_functor]
 - General delta functor: C -> C^I
@@ -78,7 +78,6 @@ Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.RightKanExtension.
-Require Import UniMath.CategoryTheory.CommaCategories.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
@@ -689,7 +688,7 @@ Definition omega_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
 End iter_functor.
 
 (** ** A pair of functors (F,G) : A * B -> C * D is omega cocontinuous if F and G are *)
-Section binproduct_pair_functor.
+Section pair_functor.
 
 Context {A B C D : precategory} (F : functor A C) (G : functor B D)
         (hsA : has_homsets A) (hsB : has_homsets B) (hsC : has_homsets C) (hsD : has_homsets D).
@@ -783,14 +782,14 @@ Proof.
 now intros c L ccL M H; apply isColimCocone_pr2_functor.
 Defined.
 
-Lemma isColimCocone_binproduct_pair_functor {gr : graph}
+Lemma isColimCocone_pair_functor {gr : graph}
   (HF : Π (d : diagram gr A) (c : A) (cc : cocone d c) (h : isColimCocone d c cc),
         isColimCocone _ _ (mapcocone F d cc))
   (HG : Π (d : diagram gr B) (c : B) (cc : cocone d c) (h : isColimCocone d c cc),
         isColimCocone _ _ (mapcocone G d cc)) :
   Π (d : diagram gr (precategory_binproduct A B)) (cd : A × B) (cc : cocone d cd),
   isColimCocone _ _ cc ->
-  isColimCocone _ _ (mapcocone (binproduct_pair_functor F G) d cc).
+  isColimCocone _ _ (mapcocone (pair_functor F G) d cc).
 Proof.
 intros cAB ml ccml Hccml xy ccxy.
 transparent assert (cFAX : (cocone (mapdiagram F (mapdiagram (pr1_functor A B) cAB)) (pr1 xy))).
@@ -817,23 +816,23 @@ mkpair.
                | apply (maponpaths pr1 (hg2 (f2,, (λ n, maponpaths dirprod_pr2 (p n)))))]]).
 Defined.
 
-Lemma is_cocont_binproduct_pair_functor (HF : is_cocont F) (HG : is_cocont G) :
-  is_cocont (binproduct_pair_functor F G).
+Lemma is_cocont_pair_functor (HF : is_cocont F) (HG : is_cocont G) :
+  is_cocont (pair_functor F G).
 Proof.
 intros gr cAB ml ccml Hccml.
-now apply isColimCocone_binproduct_pair_functor; [apply HF|apply HG|].
+now apply isColimCocone_pair_functor; [apply HF|apply HG|].
 Defined.
 
-Lemma is_omega_cocont_binproduct_pair_functor (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (binproduct_pair_functor F G).
+Lemma is_omega_cocont_pair_functor (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
+  is_omega_cocont (pair_functor F G).
 Proof.
-now intros cAB ml ccml Hccml; apply isColimCocone_binproduct_pair_functor.
+now intros cAB ml ccml Hccml; apply isColimCocone_pair_functor.
 Defined.
 
-End binproduct_pair_functor.
+End pair_functor.
 
 (** ** A family of functor F^I : A^I -> B^I is omega cocontinuous if each F_i is *)
-Section pair_functor.
+Section family_functor.
 
 Context {I : UU} {A B : precategory} (hsA : has_homsets A) (hsB : has_homsets B).
 
@@ -904,12 +903,12 @@ Proof.
 now intros c L ccL M H; apply isColimCocone_pr_functor.
 Defined.
 
-Lemma isColimCocone_pair_functor {gr : graph} (F : Π (i : I), functor A B)
+Lemma isColimCocone_family_functor {gr : graph} (F : Π (i : I), functor A B)
   (HF : Π i (d : diagram gr A) (c : A) (cc : cocone d c) (h : isColimCocone d c cc),
         isColimCocone _ _ (mapcocone (F i) d cc)) :
   Π (d : diagram gr (product_precategory I (λ _, A))) (cd : I -> A) (cc : cocone d cd),
   isColimCocone _ _ cc ->
-  isColimCocone _ _ (mapcocone (pair_functor I F) d cc).
+  isColimCocone _ _ (mapcocone (family_functor I F) d cc).
 Proof.
 intros cAB ml ccml Hccml xy ccxy; simpl in *.
 transparent assert (cc : (Π i, cocone (mapdiagram (F i) (mapdiagram (pr_functor I (λ _ : I, A) i) cAB)) (xy i))).
@@ -932,22 +931,22 @@ mkpair.
                apply (maponpaths pr1 (pr2 (X i) H))]).
 Defined.
 
-Lemma is_cocont_pair_functor
+Lemma is_cocont_family_functor
   {F : Π (i : I), functor A B} (HF : Π (i : I), is_cocont (F i)) :
-  is_cocont (pair_functor I F).
+  is_cocont (family_functor I F).
 Proof.
 intros gr cAB ml ccml Hccml.
-apply isColimCocone_pair_functor; trivial; intro i; apply HF.
+apply isColimCocone_family_functor; trivial; intro i; apply HF.
 Defined.
 
-Lemma is_omega_cocont_pair_functor
+Lemma is_omega_cocont_family_functor
   {F : Π (i : I), functor A B} (HF : Π (i : I), is_omega_cocont (F i)) :
-  is_omega_cocont (pair_functor I F).
+  is_omega_cocont (family_functor I F).
 Proof.
-now intros cAB ml ccml Hccml; apply isColimCocone_pair_functor.
+now intros cAB ml ccml Hccml; apply isColimCocone_family_functor.
 Defined.
 
-End pair_functor.
+End family_functor.
 
 (** ** The bindelta functor C -> C^2 mapping x to (x,x) is omega cocontinuous *)
 Section bindelta_functor.
@@ -1041,7 +1040,7 @@ Proof.
 apply (is_cocont_functor_composite hsD).
   apply (is_cocont_bindelta_functor PC hsC).
 apply (is_cocont_functor_composite hsD).
-  apply (is_cocont_binproduct_pair_functor _ _ hsC hsC hsD hsD HF HG).
+  apply (is_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
 apply (is_cocont_bincoproduct_functor _ hsD).
 Defined.
 
@@ -1052,7 +1051,7 @@ Proof.
 apply (is_omega_cocont_functor_composite hsD).
   apply (is_omega_cocont_bindelta_functor PC hsC).
 apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_binproduct_pair_functor _ _ hsC hsC hsD hsD HF HG).
+  apply (is_omega_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
 apply (is_omega_cocont_bincoproduct_functor _ hsD).
 Defined.
 
@@ -1098,7 +1097,7 @@ Proof.
 apply (is_cocont_functor_composite hsD).
   apply (is_cocont_delta_functor PC hsC).
 apply (is_cocont_functor_composite hsD).
-  apply (is_cocont_pair_functor hsC hsD HI HF).
+  apply (is_cocont_family_functor hsC hsD HI HF).
 apply (is_cocont_coproduct_functor _ hsD).
 Defined.
 
@@ -1109,7 +1108,7 @@ Proof.
 apply (is_omega_cocont_functor_composite hsD).
   apply (is_omega_cocont_delta_functor PC hsC).
 apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_pair_functor hsC hsD HI HF).
+  apply (is_omega_cocont_family_functor hsC hsD HI HF).
 apply (is_omega_cocont_coproduct_functor _ hsD).
 Defined.
 
@@ -1512,7 +1511,7 @@ Proof.
 apply (is_omega_cocont_functor_composite hsD).
 - apply (is_omega_cocont_bindelta_functor PC hsC).
 - apply (is_omega_cocont_functor_composite hsD).
-  + apply (is_omega_cocont_binproduct_pair_functor _ _ hsC hsC hsD hsD HF HG).
+  + apply (is_omega_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
   + now apply (is_omega_cocont_binproduct_functor _ hsD).
 Defined.
 
@@ -1535,186 +1534,66 @@ Definition omega_cocont_BinProduct_of_functors (F G : omega_cocont_functor C D) 
 
 End BinProduct_of_functors.
 
-(** ** Precomposition functor is cocontinuous *)
+(** ** Direct proof that the precomposition functor is cocontinuous *)
 Section pre_composition_functor.
 
-Context {M C A : precategory} (K : functor M C) (hsC : has_homsets C)
-        (hsA : has_homsets A) (LA : Lims A).
+Context {A B C : precategory} (F : functor A B) (hsB : has_homsets B) (hsC : has_homsets C).
+(* Context (CC : Colims C). *) (* This is too strong *)
 
-Local Notation "c ↓ K" := (cComma hsC K c) (at level 30).
-
-Section fix_T.
-
-Variable (T : functor M A).
-
-Local Definition Q (c : C) : functor (c ↓ K) M := cComma_pr1 hsC K c.
-
-Local Definition QT (c : C) : diagram (c ↓ K) A :=
-  diagram_from_functor _ _ (functor_composite (Q c) T).
-
-Local Definition R (c : C) : A := lim (LA _ (QT c)).
-
-Local Definition lambda (c : C) : cone (QT c) (R c) := limCone (LA _ (QT c)).
-
-Local Definition Rmor_cone (c c' : C) (g : C⟦c,c'⟧) : cone (QT c') (R c).
+Lemma is_cocont_pre_composition_functor
+  (H : Π (g : graph) (d : diagram g [B,C,hsC]) (b : B),
+       ColimCocone (diagram_pointwise hsC d b)) :
+  is_cocont (pre_composition_functor _ _ _ hsB hsC F).
 Proof.
-use mk_cone.
-- intro m1f1.
-  transparent assert (m1gf1 : (c ↓ K)).
-  { mkpair.
-    + apply (pr1 m1f1).
-    + apply (g ;; pr2 m1f1). }
-  exact (coneOut (lambda c) m1gf1).
-- intros x y f; simpl in *.
-  transparent assert (e : ((c ↓ K) ⟦ pr1 x,, g ;; pr2 x, pr1 y,, g ;; pr2 y ⟧)).
-  { mkpair.
-    + apply (pr1 f).
-    + now rewrite <- assoc; rewrite (pr2 f). }
-  exact (coneOutCommutes (lambda c) _ _ e).
+intros g d G ccG HccG.
+apply pointwise_Colim_is_isColimFunctor; intro a.
+apply (isColimFunctor_is_pointwise_Colim _ _ (H g d) _ _ HccG).
 Defined.
 
-Local Definition Rmor (c c' : C) (g : C⟦c,c'⟧) : A⟦R c,R c'⟧ :=
-  limArrow (LA (c' ↓ K) (QT c')) (R c) (Rmor_cone c c' g).
-
-Local Definition R_data : functor_data C A := R,,Rmor.
-Local Lemma R_is_functor : is_functor R_data.
+(* Which assumption is the best? *)
+Lemma is_omega_cocont_pre_composition_functor
+  (* (H : Π (c : chain [B,C,hsC]) (b : B), ColimCocone (diagram_pointwise hsC c b)) : *)
+  (H : Colims_of_shape nat_graph C) :
+  is_omega_cocont (pre_composition_functor _ _ _ hsB hsC F).
 Proof.
-split.
-- intros c; simpl.
-  apply pathsinv0, limArrowUnique.
-  intro c'; simpl; rewrite !id_left.
-  now destruct c'.
-- intros c c' c'' f f'; simpl.
-  apply pathsinv0, limArrowUnique; intros x; simpl.
-  rewrite <- assoc; eapply pathscomp0.
-  apply maponpaths, (limArrowCommutes _ _ (Rmor_cone c' c'' f')).
-  eapply pathscomp0.
-  apply (limArrowCommutes _ _ (Rmor_cone c c' f) (pr1 x,,f' ;; pr2 x)).
-  destruct x.
-  now rewrite <- assoc.
-Qed.
-
-Local Definition R_functor : functor C A := tpair _ R_data R_is_functor.
-
-Local Definition eps_n (n : M) : A⟦R_functor (K n),T n⟧ :=
-  coneOut (lambda (K n)) (n,,identity (K n)).
-
-Local Definition Kid n : K n ↓ K := (n,, identity (K n)).
-
-Local Lemma eps_is_nat_trans : is_nat_trans (functor_composite_data K R_data) T eps_n.
-Proof.
-intros n n' h; simpl.
-eapply pathscomp0.
-apply (limArrowCommutes (LA (K n' ↓ K) (QT (K n'))) (R (K n))
-       (Rmor_cone (K n) (K n') (# K h)) (Kid n')).
-unfold eps_n; simpl.
-transparent assert (v : (K n ↓ K)).
-{ apply (n',, # K h ;; identity (K n')). }
-transparent assert (e : (K n ↓ K ⟦ Kid n, v ⟧)).
-{ mkpair.
-  + apply h.
-  + abstract (now rewrite id_left, id_right).
-}
-now apply pathsinv0; eapply pathscomp0; [apply (coneOutCommutes (lambda (K n)) _ _ e)|].
-Qed.
-
-Local Definition eps : [M,A,hsA]⟦functor_composite K R_functor,T⟧ :=
-  tpair _ eps_n eps_is_nat_trans.
-
-End fix_T.
-
-(** Construction of right Kan extensions based on MacLane, CWM, X.3 (p. 233) *)
-Lemma RightKanExtension_from_limits : GlobalRightKanExtensionExists _ _ K _ hsC hsA.
-Proof.
-unfold GlobalRightKanExtensionExists.
-use adjunction_from_partial.
-- apply R_functor.
-- apply eps.
-- intros T S α; simpl in *.
-
-  transparent assert (cc : (Π c, cone (QT T c) (S c))).
-  { intro c.
-    use mk_cone.
-    + intro mf; apply (# S (pr2 mf) ;; α (pr1 mf)).
-    + abstract (intros fm fm' h; simpl; rewrite <- assoc;
-                eapply pathscomp0; [apply maponpaths, (pathsinv0 (nat_trans_ax α _ _ (pr1 h)))|];
-                simpl; rewrite assoc, <- functor_comp; apply cancel_postcomposition, maponpaths, (pr2 h)).
-  }
-
-  transparent assert (σ : (Π c, A ⟦ S c, R T c ⟧)).
-  { intro c; apply (limArrow _ _ (cc c)). }
-
-  set (lambda' := fun c' mf' => limOut (LA (c' ↓ K) (QT T c')) mf').
-
-  (* this is the conclusion from the big diagram (8) in MacLane's proof *)
-  assert (H : Π c c' (g : C ⟦ c, c' ⟧) (mf' : c' ↓ K),
-                # S g ;; σ c' ;; lambda' _ mf' = σ c ;; Rmor T c c' g ;; lambda' _ mf').
-  { intros c c' g mf'.
-    rewrite <- !assoc.
-    apply pathsinv0; eapply pathscomp0.
-    apply maponpaths, (limArrowCommutes _ _ (Rmor_cone T c c' g) mf').
-    apply pathsinv0; eapply pathscomp0.
-    eapply maponpaths, (limArrowCommutes _ _ (cc c') mf').
-    simpl; rewrite assoc, <- functor_comp.
-    set (mf := tpair _ (pr1 mf') (g ;; pr2 mf') : c ↓ K).
-    apply pathsinv0.
-    exact (limArrowCommutes (LA (c ↓ K) (QT T c)) (S c) (cc c) mf).
-  }
-
-  assert (is_nat_trans_σ : is_nat_trans S (R_data T) σ).
-  { intros c c' g; simpl.
-    transparent assert (ccc : (cone (QT T c') (S c))).
-    { use mk_cone.
-      - intro mf'; apply (σ c ;; Rmor T c c' g ;; limOut (LA (c' ↓ K) (QT T c')) mf').
-      - abstract (intros u v e; simpl; rewrite <- !assoc;
-                  apply maponpaths, maponpaths, (limOutCommutes (LA (c' ↓ K) (QT T c')) u v e)).
-    }
-    rewrite (limArrowUnique (LA (c' ↓ K) (QT T c')) _ ccc (# S g ;; σ c') (H _ _ _)).
-    now apply pathsinv0, limArrowUnique.
-  }
-
-  mkpair.
-  + apply (tpair _ (tpair _ σ is_nat_trans_σ)).
-    apply (nat_trans_eq hsA); intro n; cbn.
-    generalize (limArrowCommutes (LA (K n ↓ K) (QT T (K n))) _ (cc _) (Kid n)); simpl.
-    now rewrite functor_id, id_left.
-  + intro x.
-    apply subtypeEquality; [intros xx; apply (isaset_nat_trans hsA)|].
-    apply subtypeEquality; [intros xx; apply (isaprop_is_nat_trans _ _ hsA)|]; simpl.
-    apply funextsec; intro c.
-    apply limArrowUnique; intro u; simpl.
-    destruct x as [t p]; simpl.
-    assert (temp : α (pr1 u) = nat_trans_comp _ _ T (pre_whisker K t) (eps T) (pr1 u)).
-      now rewrite p.
-    rewrite temp; simpl.
-    destruct u as [n g]; simpl in *.
-    apply pathsinv0; eapply pathscomp0;
-    [rewrite assoc; apply cancel_postcomposition, (nat_trans_ax t _ _ g)|].
-    rewrite <- !assoc; apply maponpaths.
-    generalize (limArrowCommutes (LA (K n ↓ K) _) _ (Rmor_cone T c (K n) g) (Kid n)).
-    now simpl; rewrite id_right.
+intros c L ccL HccL.
+apply pointwise_Colim_is_isColimFunctor; intro a.
+use (isColimFunctor_is_pointwise_Colim _ _ _ _ _ HccL).
+intros b; apply H.
 Defined.
 
-Lemma is_cocont_pre_composition_functor :
-  is_cocont (pre_composition_functor _ _ _ hsC hsA K).
-Proof.
-apply left_adjoint_cocont.
-- apply RightKanExtension_from_limits.
-- apply functor_category_has_homsets.
-- apply functor_category_has_homsets.
-Qed.
-
-Lemma is_omega_cocont_pre_composition_functor :
-  is_omega_cocont (pre_composition_functor _ _ _ hsC hsA K).
-Proof.
-now intros c L ccL; apply is_cocont_pre_composition_functor.
-Defined.
-
-Definition omega_cocont_pre_composition_functor :
-  omega_cocont_functor [C, A, hsA] [M, A, hsA] :=
-  tpair _ _ is_omega_cocont_pre_composition_functor.
+Definition omega_cocont_pre_composition_functor
+  (* (H : Π (c : chain [B,C,hsC]) (b : B), ColimCocone (diagram_pointwise hsC c b))  *)
+  (H : Colims_of_shape nat_graph C) :
+  omega_cocont_functor [B, C, hsC] [A, C, hsC] :=
+  tpair _ _ (is_omega_cocont_pre_composition_functor H).
 
 End pre_composition_functor.
+
+(** ** Precomposition functor is cocontinuous using construction of right Kan extensions *)
+Section pre_composition_functor_kan.
+
+Context {A B C : precategory} (F : functor A B) (hsB : has_homsets B) (hsC : has_homsets C).
+Context (LC : Lims C).
+
+Lemma is_cocont_pre_composition_functor_kan :
+  is_cocont (pre_composition_functor _ _ _ hsB hsC F).
+Proof.
+apply left_adjoint_cocont; try apply functor_category_has_homsets.
+apply (RightKanExtension_from_limits _ _ _ LC).
+Qed.
+
+Lemma is_omega_cocont_pre_composition_functor_kan :
+  is_omega_cocont (pre_composition_functor _ _ _ hsB hsC F).
+Proof.
+now intros c L ccL; apply is_cocont_pre_composition_functor_kan.
+Defined.
+
+Definition omega_cocont_pre_composition_functor_kan :
+  omega_cocont_functor [B, C, hsC] [A, C, hsC] :=
+  tpair _ _ is_omega_cocont_pre_composition_functor_kan.
+
+End pre_composition_functor_kan.
 
 End cocont_functors.
 

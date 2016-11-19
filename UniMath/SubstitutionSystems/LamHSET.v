@@ -34,6 +34,7 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.CocontFunctors.
+Require Import UniMath.CategoryTheory.RightKanExtension.
 
 Section LamHSET.
 
@@ -58,8 +59,8 @@ use colimAlgInitial.
     * apply is_omega_cocont_constprod_functor1.
       apply functor_category_has_homsets.
       apply (has_exponentials_functor_HSET _ has_homsets_HSET).
-    * apply LimsHSET.
-- apply ColimsFunctorCategory; apply ColimsHSET.
+    * apply ColimsHSET_of_shape.
+- apply ColimsFunctorCategory_of_shape; apply ColimsHSET_of_shape.
 Defined.
 
 Lemma KanExt_HSET : Π Z : precategory_Ptd HSET has_homsets_HSET,
@@ -67,8 +68,7 @@ Lemma KanExt_HSET : Π Z : precategory_Ptd HSET has_homsets_HSET,
      (U Z) HSET has_homsets_HSET has_homsets_HSET.
 Proof.
 intro Z.
-apply RightKanExtension_from_limits.
-apply LimsHSET.
+apply RightKanExtension_from_limits, LimsHSET.
 Defined.
 
 Definition LamHSS_Initial_HSET : Initial (hss_precategory BinCoproductsHSET Lam_S).

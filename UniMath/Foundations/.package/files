@@ -17,6 +17,7 @@ Algebra/Apartness.v
 Algebra/ConstructiveStructures.v
 Algebra/Archimedean.v
 NumberSystems/NaturalNumbers.v
+NumberSystems/NaturalNumbers_le_Inductive.v
 Combinatorics/StandardFiniteSets.v
 Combinatorics/FiniteSets.v
 Combinatorics/OrderedSets.v

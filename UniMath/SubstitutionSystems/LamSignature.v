@@ -40,7 +40,7 @@ Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
 Arguments θ_source {_ _} _ .
 Arguments θ_target {_ _} _ .
@@ -163,12 +163,12 @@ Defined.
 
 Definition Abs_H : functor [C, C, hs] [C, C, hs] :=
  (* tpair _ _ is_functor_Abs_H_data. *)
-  pre_composition_functor _ _ _ hs _ (option_functor C CC terminal).
+  pre_composition_functor _ _ _ hs _ (option_functor CC terminal).
 
-Lemma is_omega_cocont_Abs_H (LC : Lims C) : is_omega_cocont Abs_H.
+Lemma is_omega_cocont_Abs_H (CLC : Colims_of_shape nat_graph C) : is_omega_cocont Abs_H.
 Proof.
 unfold Abs_H.
-apply (is_omega_cocont_pre_composition_functor _ _ _ LC).
+apply (is_omega_cocont_pre_composition_functor _ _ _ CLC).
 Defined.
 
 
@@ -669,7 +669,7 @@ Definition Lam_Sig: Signature C hs :=
 
 Lemma is_omega_cocont_Lam
   (hE : Π x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C CP hs) x))
-  (LC : Lims C) : is_omega_cocont (Signature_Functor _ _ Lam_Sig).
+  (LC : Colims_of_shape nat_graph C) : is_omega_cocont (Signature_Functor _ _ Lam_Sig).
 Proof.
 apply is_omega_cocont_BinCoproduct_of_functors.
 - apply (BinProducts_functor_precat _ _ CP).

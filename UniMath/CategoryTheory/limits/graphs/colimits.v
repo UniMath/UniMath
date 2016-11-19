@@ -72,8 +72,8 @@ End diagram_def.
 
 Coercion graph_from_precategory : precategory >-> graph.
 
-(* Definition diagram_after_functor (C : precategory) (F : functor C C) :  *)
 
+(** * Definition of colimits *)
 Section colim_def.
 
 Context {C : precategory} (hsC : has_homsets C).
@@ -113,10 +113,6 @@ Definition ColimCocone {g : graph} (d : diagram g C) : UU :=
 Definition mk_ColimCocone {g : graph} (d : diagram g C)
   (c : C) (cc : cocone d c) (isCC : isColimCocone d c cc) : ColimCocone d :=
     tpair _ (tpair _ c cc) isCC.
-
-Definition Colims : UU := Π {g : graph} (d : diagram g C), ColimCocone d.
-Definition hasColims : UU  :=
-  Π {g : graph} (d : diagram g C), ishinh (ColimCocone d).
 
 (** colim is the tip of the colim cocone *)
 Definition colim {g : graph} {d : diagram g C} (CC : ColimCocone d) : C :=
@@ -368,11 +364,26 @@ use isopair.
               rewrite assoc, colimArrowCommutes; eapply pathscomp0; try apply colimArrowCommutes).
 Defined.
 
+End colim_def.
+
+Section Colims.
+
+Definition Colims (C : precategory) : UU := Π {g : graph} (d : diagram g C), ColimCocone d.
+Definition hasColims (C : precategory) : UU  :=
+  Π {g : graph} (d : diagram g C), ishinh (ColimCocone d).
+
+(** Colimits of a specific shape *)
+Definition Colims_of_shape (g : graph) (C : precategory) : UU :=
+  Π (d : diagram g C), ColimCocone d.
+
+(** If C is a category then Colims is a prop *)
 Section Universal_Unique.
 
-Hypothesis H : is_category C.
+Variables (C : category).
 
-Lemma isaprop_Colims: isaprop Colims.
+Let H : is_category C := pr2 C.
+
+Lemma isaprop_Colims: isaprop (Colims C).
 Proof.
 apply impred; intro g; apply impred; intro cc.
 apply invproofirrelevance; intros Hccx Hccy.
@@ -383,26 +394,20 @@ apply subtypeEquality.
   set (C' (c : C) f := Π u v (e : edge u v), @compose _ _ _ c (dmor cc e) (f v) = f u).
   rewrite (@transportf_total2 _ B C').
   apply subtypeEquality.
-  + intro; repeat (apply impred; intro); apply hsC.
+  + intro; repeat (apply impred; intro); apply category_has_homsets.
   + simpl; eapply pathscomp0; [apply transportf_isotoid_dep''|].
     apply funextsec; intro v.
     now rewrite idtoiso_isotoid; apply colimArrowCommutes.
 Qed.
 
 End Universal_Unique.
+End Colims.
 
-End colim_def.
-
-Arguments Colims : clear implicits.
-
-(** Defines colimits in functor categories when the target has colimits *)
+(** * Defines colimits in functor categories when the target has colimits *)
 Section ColimFunctor.
 
-Variable A C : precategory.
+Context {A C : precategory} (hsC : has_homsets C) {g : graph} (D : diagram g [A, C, hsC]).
 (* Variable HC : Colims C. *) (* Too strong! *)
-Variable hsC : has_homsets C.
-Variable g : graph.
-Variable D : diagram g [A, C, hsC].
 
 Definition diagram_pointwise (a : A) : diagram g C.
 Proof.
@@ -507,11 +512,42 @@ Proof.
   apply  (is_functor_iso_pointwise_if_iso _ _ _ _ _ _ XR).
 Defined.
 
-
 End ColimFunctor.
 
 Lemma ColimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
   (HC : Colims C) : Colims [A,C,hsC].
 Proof.
 now intros g d; apply ColimFunctorCocone.
+Defined.
+
+Lemma ColimsFunctorCategory_of_shape (g : graph) (A C : precategory) (hsC : has_homsets C)
+  (HC : Colims_of_shape g C) : Colims_of_shape g [A,C,hsC].
+Proof.
+now intros d; apply ColimFunctorCocone.
+Defined.
+
+Lemma pointwise_Colim_is_isColimFunctor
+  {A C : precategory} (hsC: has_homsets C) {g : graph}
+  (d : diagram g [A,C,hsC]) (G : [A,C,hsC]) (ccG : cocone d G)
+  (H : Π a, isColimCocone _ _ (cocone_pointwise hsC d G ccG a)) :
+  isColimCocone d G ccG.
+Proof.
+set (CC a := mk_ColimCocone _ _ _ (H a)).
+set (D' := ColimFunctorCocone _ _ CC).
+use is_iso_isColim.
+- apply functor_category_has_homsets.
+- apply D'.
+- use is_iso_qinv.
+  + mkpair.
+    * intros a; apply identity.
+    * abstract (intros a b f; rewrite id_left, id_right; simpl;
+                apply (colimArrowUnique (CC a)); intro u; cbn;
+                now rewrite <- (nat_trans_ax (coconeIn ccG u))).
+  + abstract (split;
+    [ apply (nat_trans_eq hsC); intros x; simpl; rewrite id_right;
+      apply pathsinv0, colimArrowUnique; intros v;
+      now rewrite id_right
+    | apply (nat_trans_eq hsC); intros x; simpl; rewrite id_left;
+      apply pathsinv0, (colimArrowUnique (CC x)); intro u;
+      now rewrite id_right]).
 Defined.
