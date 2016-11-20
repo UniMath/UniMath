@@ -21,29 +21,21 @@ Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Local Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "↓ f").
+Local Notation "'chain'" := (diagram nat_graph).
 
 (** Goal: derive Generalized Iteration in Mendler-style and a fusion law *)
 
 (** * Generalized Iteration in Mendler-style *)
 Section GenMenIt.
 
-Context {C : precategory} (hsC : has_homsets C) (I : Initial C)
+Context {C : precategory} (hsC : has_homsets C) (IC : Initial C)
         (CC : Colims_of_shape nat_graph C) (F : functor C C)
         (HF : is_omega_cocont F).
 
 Let AF := FunctorAlg F hsC.
+Let chnF := initChain IC F.
 
-(* Definition AlgConstr (A : C) (α : F A --> A) : AF. *)
-(* Proof. *)
-(*   exists A. *)
-(*   exact α. *)
-(* Defined. *)
-
-(* Notation "⟨ A , α ⟩" := (AlgConstr A α). *)
-(* (* \<  , \> *) *)
-
-Definition μF_Initial : Initial AF :=
-  colimAlgInitial hsC I HF (CC (initChain I F)).
+Definition μF_Initial : Initial AF := colimAlgInitial hsC IC HF (CC chnF).
 
 Let μF : C := alg_carrier _ (InitialObject μF_Initial).
 Let inF : F μF --> μF := alg_map _ (InitialObject μF_Initial).
@@ -53,7 +45,7 @@ Context {D : precategory} (hsD : has_homsets D).
 Section the_iteration_principle.
 
 Variables (X : D) (L : functor C D).
-Hypothesis (IL : isInitial D (L I)) (HL : is_omega_cocont L).
+Hypothesis (IL : isInitial D (L IC)) (HL : is_omega_cocont L).
 
 Let Yon : functor D^op HSET := yoneda_objects D hsD X.
 
@@ -64,14 +56,52 @@ Section general_case.
 
 Variable ψ : ψ_source ⟶ ψ_target.
 
-Definition preIt : L μF --> X.
+Let LchnF : chain D := mapchain L chnF.
+
+
+Definition iter_functor' {C' : precategory} (F' : functor C' C') (n : nat) : functor C' C'.
+Proof.
+  induction n as [ | n IHn].
+  - apply functor_identity.
+  - apply (functor_composite F' IHn).
+Defined.
+
+Definition Pow_source : functor C^op HSET := ψ_source.
+Definition Pow_target (n : nat) : functor C^op HSET :=
+  functor_composite (functor_opp (iter_functor F n)) ψ_source.
+
+(* Proof. *)
+(* induction n as [|n _]. *)
+(* - apply Pow_source. *)
+(* - apply (functor_composite (functor_opp (iter_functor F (S n))) ψ_source). *)
+(* Defined. *)
+
+
+Require Import UniMath.CategoryTheory.HorizontalComposition.
+Require Import UniMath.CategoryTheory.whiskering.
+
+Definition Pow (n : nat) : Pow_source ⟶ Pow_target n.
+Proof.
+induction n as [|n Pown].
+- apply nat_trans_id.
+- eapply nat_trans_comp.
++ apply Pown.
++ (* eapply nat_trans_comp. *)
+apply (@pre_whisker C^op C^op HSET (functor_opp (iter_functor F n)) _ _ ψ).
+(* apply nat_trans_id. *)
+Defined.
+
+Definition Pow_cocone : cocone LchnF X.
 Admitted.
+
+Definition preIt : D⟦L μF,X⟧.
+Proof.
+Check (@colimArrow D nat_graph LchnF _ X Pow_cocone).
 
 Lemma preIt_ok : # L inF ;; preIt = ψ μF preIt.
 Admitted.
 
-Lemma preIt_uniq (t : Σ h : L μF --> X, # L inF ;; h = ψ μF h):
-    t = tpair (λ h : L μF --> X, # L inF ;; h = ψ μF h) preIt preIt_ok.
+Lemma preIt_uniq (t : Σ h, # L inF ;; h = ψ μF h) : t = (preIt,,preIt_ok).
 Admitted.
 
 Theorem GenMendlerIteration : ∃! (h : L μF --> X), #L inF ;; h = ψ μF h.
