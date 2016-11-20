@@ -86,46 +86,33 @@ End general_case.
 (** * Specialized Mendler Iteration *)
 Section special_case.
 
-  Variable G : functor D D.
-  Variable ρ : G X --> X.
-  Variable θ : functor_composite F L ⟶ functor_composite L G.
+Variables (G : functor D D) (ρ : G X --> X).
+Variables (θ : functor_composite F L ⟶ functor_composite L G).
 
-  Lemma is_nat_trans_ψ_from_comps
-        :  is_nat_trans ψ_source ψ_target
-                        (λ (A : C^op) (f : yoneda_objects_ob D X (L A)), θ A;; # G f;; ρ).
-  Proof.
-    intros A B h.
-      apply funextfun.
-      intro f.
-      simpl.
-      unfold compose at 1 5; simpl.
-      rewrite functor_comp.
-      repeat rewrite assoc.
-      assert (θ_nat_trans_ax := nat_trans_ax θ).
-      unfold functor_composite in θ_nat_trans_ax.
-      simpl in θ_nat_trans_ax.
-      rewrite <- θ_nat_trans_ax.
-      apply idpath.
-   Qed.
+Lemma is_nat_trans_ψ_from_comps :
+        is_nat_trans ψ_source ψ_target
+          (λ A (f : yoneda_objects_ob D X (L A)), θ A ;; # G f ;; ρ).
+Proof.
+intros A B h; apply funextfun; intro f; cbn.
+rewrite functor_comp, !assoc.
+assert (θ_nat_trans_ax := nat_trans_ax θ); simpl in θ_nat_trans_ax.
+now rewrite <- θ_nat_trans_ax.
+Qed.
 
-  Definition ψ_from_comps : ψ_source ⟶ ψ_target.
-  Proof.
-    simple refine (tpair _ _ _ ).
-    - intro A. simpl. intro f.
-      unfold yoneda_objects_ob in *.
-      exact (θ A ;; #G f ;; ρ).
-    - apply is_nat_trans_ψ_from_comps.
-  Defined.
+Definition ψ_from_comps : ψ_source ⟶ ψ_target.
+Proof.
+mkpair.
+- intros A f.
+  exact (θ A ;; #G f ;; ρ).
+- apply is_nat_trans_ψ_from_comps.
+Defined.
 
-
-  Definition SpecialGenMendlerIteration :
-    iscontr
-      (Σ h : L μF --> X, # L inF ;; h = θ μF ;; #G h ;; ρ)
+Definition SpecialGenMendlerIteration :
+  ∃! (h : L μF --> X), # L inF ;; h = θ μF ;; #G h ;; ρ
     := GenMendlerIteration ψ_from_comps.
 
 End special_case.
 End the_iteration_principle.
-
 
 (** * Fusion law for Generalized Iteration in Mendler-style *)
 Section fusion_law.
