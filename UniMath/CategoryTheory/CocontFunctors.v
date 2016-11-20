@@ -1550,17 +1550,21 @@ apply pointwise_Colim_is_isColimFunctor; intro a.
 apply (isColimFunctor_is_pointwise_Colim _ _ (H g d) _ _ HccG).
 Defined.
 
+(* Which assumption is the best? *)
 Lemma is_omega_cocont_pre_composition_functor
-  (H : Π (c : chain [B,C,hsC]) (b : B), ColimCocone (diagram_pointwise hsC c b)) :
+  (* (H : Π (c : chain [B,C,hsC]) (b : B), ColimCocone (diagram_pointwise hsC c b)) : *)
+  (H : Colims_of_shape nat_graph C) :
   is_omega_cocont (pre_composition_functor _ _ _ hsB hsC F).
 Proof.
 intros c L ccL HccL.
 apply pointwise_Colim_is_isColimFunctor; intro a.
-apply (isColimFunctor_is_pointwise_Colim _ _ (H c) _ _ HccL).
+use (isColimFunctor_is_pointwise_Colim _ _ _ _ _ HccL).
+intros b; apply H.
 Defined.
 
 Definition omega_cocont_pre_composition_functor
-  (H : Π (c : chain [B,C,hsC]) (b : B), ColimCocone (diagram_pointwise hsC c b)) :
+  (* (H : Π (c : chain [B,C,hsC]) (b : B), ColimCocone (diagram_pointwise hsC c b))  *)
+  (H : Colims_of_shape nat_graph C) :
   omega_cocont_functor [B, C, hsC] [A, C, hsC] :=
   tpair _ _ (is_omega_cocont_pre_composition_functor H).
 
