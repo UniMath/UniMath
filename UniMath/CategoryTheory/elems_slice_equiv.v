@@ -34,19 +34,18 @@ Section elems_slice_equiv.
 
   Definition pshf_to_slice_ob_is_funct (F : pshf (el P)) : is_functor (pshf_to_slice_ob_funct_data F).
   Proof.
-    intro F. unfold is_functor. split.
-    + unfold functor_idax. simpl.
-      intro a.
+    destruct F as [[ F Fmor ] [ Fid Fcomp ]].
+    split.
+    + intro a. simpl.
       unfold pshf_to_slice_ob_funct_mor.
       unfold pshf_to_slice_ob_funct_fun.
       simpl.
-      apply funextsec. intro p. Check ((pr1 (pr2 F)) (a ,, pr1 p)).
+      apply funextsec. intro p. Check (Fid (a ,, pr1 p)).
       assert (H : pr1 p = # (pr1 P) (identity a) (pr1 p)).
     - apply (transportb (fun f => pr1 p = f (pr1 p)) ((pr1 (pr2 P)) a) (idpath _)).
     - unfold functor_on_morphisms. unfold functor_on_morphisms in H.
       unfold identity. simpl.
-      rewrite tppr. rewrite <- H.
-      (*
+      rewrite tppr. (* rewrite <- H.
       Set Printing All. simpl.
       unfold identity. simpl.
       rewrite tppr.
@@ -74,14 +73,17 @@ Section elems_slice_equiv.
   Definition slice_to_presheaf_ob_mor (Q : slice (pshf C) P) (F G : el P) (f : F --> G) :
     slice_to_presheaf_ob_ob Q F --> slice_to_presheaf_ob_ob Q G.
     unfold slice_to_presheaf_ob_ob. unfold hfiber. simpl.
-    intros Q F G f s.
+    intros Q F G f s. (*
     exists ((pr2 (pr1 (pr1 Q))) _ _ (pr1 f) (pr1 s)).
     rewrite <- (pr2 f).
-    Check (pr2 s). Check (pr2 Q).
+    Check (pr2 s). Check (pr2 Q). *)
+  Admitted.
 
   Definition slice_to_presheaf_ob : slice (pshf C) P → pshf (el P).
   Proof.
     simpl. unfold slicecat_ob. simpl.
     intro Q. unfold "==>".
+  Admitted.
+
 
 End elems_slice_equiv.
