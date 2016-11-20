@@ -53,8 +53,7 @@ Context {D : precategory} (hsD : has_homsets D).
 Section the_iteration_principle.
 
 Variables (X : D) (L : functor C D).
-Hypothesis (* HH : preserves initial L? *)
-        (HL : is_omega_cocont L).
+Hypothesis (IL : isInitial D (L I)) (HL : is_omega_cocont L).
 
 Let Yon : functor D^op HSET := yoneda_objects D hsD X.
 
@@ -65,21 +64,29 @@ Section general_case.
 
 Variable ψ : ψ_source ⟶ ψ_target.
 
-Theorem GenMendlerIteration : iscontr (Σ h : L μF --> X, #L inF ;; h = ψ μF h).
-Proof.
-  admit.
-  (* simple refine (tpair _ _ _ ). *)
-  (* - exists preIt. *)
-  (*   exact preIt_ok. *)
-  (* - exact preIt_uniq. *)
+Definition preIt : L μF --> X.
 Admitted.
+
+Lemma preIt_ok : # L inF ;; preIt = ψ μF preIt.
+Admitted.
+
+Lemma preIt_uniq (t : Σ h : L μF --> X, # L inF ;; h = ψ μF h):
+    t = tpair (λ h : L μF --> X, # L inF ;; h = ψ μF h) preIt preIt_ok.
+Admitted.
+
+Theorem GenMendlerIteration : ∃! (h : L μF --> X), #L inF ;; h = ψ μF h.
+Proof.
+mkpair.
+- apply (preIt,,preIt_ok).
+- exact preIt_uniq.
+Defined.
 
 Definition It : L μF --> X := pr1 (pr1 GenMendlerIteration).
 
-(* Lemma It_is_preIt : It = preIt. *)
-(* Proof. *)
-(*   apply idpath. *)
-(* Qed. *)
+Lemma It_is_preIt : It = preIt.
+Proof.
+  apply idpath.
+Qed.
 
 End general_case.
 
@@ -122,33 +129,32 @@ Variables (X X' : D).
 Let Yon : functor D^op HSET := yoneda_objects D hsD X.
 Let Yon' : functor D^op HSET := yoneda_objects D hsD X'.
 
-Variables (L : functor C D) (HL : is_omega_cocont L).
+Variables (L : functor C D) (HL : is_omega_cocont L) (IL : isInitial D (L I)).
 Variables (ψ : ψ_source X L ⟶ ψ_target X L).
 
-Variables (L' : functor C D) (HL' : is_omega_cocont L').
+Variables (L' : functor C D) (HL' : is_omega_cocont L') (IL' : isInitial D (L' I)).
 Variables (ψ' : ψ_source X' L' ⟶ ψ_target X' L').
 
 Variables (Φ : functor_composite (functor_opp L) Yon ⟶ functor_composite (functor_opp L') Yon').
 
 Variables (H : ψ μF ;; Φ (F μF) = Φ μF ;; ψ' μF).
 
-Theorem fusion_law : Φ μF (It X L HL ψ) = It X' L' HL' ψ'.
+Theorem fusion_law : Φ μF (It X L IL HL ψ) = It X' L' IL' HL' ψ'.
 Proof.
 apply path_to_ctr.
 assert (Φ_is_nat := nat_trans_ax Φ).
 assert (Φ_is_nat_inst1 := Φ_is_nat _ _ inF).
-assert (Φ_is_nat_inst2 := toforallpaths _ _ _ Φ_is_nat_inst1 (It X L HL ψ)).
+assert (Φ_is_nat_inst2 := toforallpaths _ _ _ Φ_is_nat_inst1 (It X L IL HL ψ)).
 unfold compose in Φ_is_nat_inst2; simpl in Φ_is_nat_inst2.
 simpl.
 rewrite <- Φ_is_nat_inst2.
-assert (H_inst :=  toforallpaths _ _ _ H (It X L HL ψ)).
+assert (H_inst :=  toforallpaths _ _ _ H (It X L IL HL ψ)).
 unfold compose in H_inst; simpl in H_inst.
 rewrite <- H_inst.
 apply maponpaths.
-admit.
-(* rewrite It_is_preIt. *)
-(* apply preIt_ok. *)
-Admitted.
+rewrite It_is_preIt.
+apply preIt_ok.
+Qed.
 
 End fusion_law.
 End GenMenIt.
