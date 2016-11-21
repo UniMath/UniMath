@@ -47,6 +47,41 @@ Local Definition e : Π (n : nat), C⟦iter_functor F n IC,μF⟧ := colimIn (CC
 
 Definition cocone_μF : cocone chnF μF := colimCocone (CC chnF).
 
+(* Let FchnF := mapdiagram F chnF. *)
+
+(* Lemma cocone_F : cocone FchnF (F μF). *)
+(* Proof. *)
+(* use mk_cocone. *)
+(* - intros n. *)
+(*   apply (# F (e n)). *)
+(* - intros m n e. *)
+(*   simpl. rewrite <- functor_comp. *)
+(*   generalize (coconeInCommutes cocone_μF m n e). *)
+(*   cbn. *)
+(*   destruct e. *)
+(*   simpl. *)
+(*   unfold e. *)
+(*   unfold colimIn. *)
+(*   unfold cocone_μF. *)
+(*   intros HH. *)
+(*   apply maponpaths. *)
+(*   apply HH. *)
+(* Defined. *)
+
+(* Lemma cocone_F' : cocone FchnF μF. *)
+(* Proof. *)
+(* use mk_cocone. *)
+(* - intros n. *)
+(*   apply (e (S n)). *)
+(* - intros m n []; clear n. *)
+(*   apply (coconeInCommutes (colimCocone (CC chnF)) (S m) _ (idpath _)). *)
+(* Defined. *)
+
+Lemma e_comm (n : nat) : e (S n) = # F (e n) ;; inF.
+Proof.
+apply pathsinv0, (colimArrowCommutes (mk_ColimCocone _ _ _ (HF _ _ _ (isColimCocone_from_ColimCocone (CC chnF))))).
+Qed.
+
 Context {D : precategory} (hsD : has_homsets D).
 
 Section the_iteration_principle.
@@ -63,6 +98,7 @@ Definition ψ_source : functor C^op HSET := functor_composite (functor_opp L) Yo
 Definition ψ_target : functor C^op HSET := functor_composite (functor_opp F) ψ_source.
 
 Section general_case.
+
 
 Variable ψ : ψ_source ⟶ ψ_target.
 
@@ -133,16 +169,25 @@ apply (colimArrowCommutes temp).
 Qed.
 
 (* The direction ** -> * *)
-Lemma SS_imp_S h n : # L (e n) ;; h = Pow n IC z -> # L inF ;; h = ψ μF h.
+Lemma SS_imp_S h (H : Π n, # L (e n) ;; h = Pow n IC z) : # L inF ;; h = ψ μF h.
 Admitted.
 
 (* The direction * -> ** *)
 Lemma S_imp_SS h n : # L inF ;; h = ψ μF h → # L (e n) ;; h = Pow n IC z.
-Admitted.
+Proof.
+intros Hh.
+induction n.
+- cbn.
+  apply (InitialArrowUnique ILD).
+- rewrite e_comm, functor_comp, <- assoc, Hh.
+  assert (H : # L (# F (e n)) ;; ψ μF h = ψ (iter_functor F n 0) (# L (e n) ;; h)).
+    apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (e n))).
+  now rewrite H, IHn.
+Qed.
 
 Lemma preIt_ok : # L inF ;; preIt = ψ μF preIt.
 Proof.
-  apply (SS_imp_S preIt 0).
+  apply (SS_imp_S preIt); intro n.
   apply eqSS.
 Qed.
 
