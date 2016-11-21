@@ -20,7 +20,6 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.products.
@@ -34,14 +33,13 @@ Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
-Require Import UniMath.CategoryTheory.RightKanExtension.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
-Require Import UniMath.SubstitutionSystems.LiftingInitial.
+Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 
@@ -95,11 +93,9 @@ Proof.
 apply functor_category_has_homsets.
 Defined.
 
-(* TODO: Having limits and colimits should be sufficient *)
 Context (BCC : BinCoproducts C) (BPC : BinProducts C)
         (IC : Initial C) (TC : Terminal C)
-        (CLC : Colims_of_shape nat_graph C)
-        (LC : Lims C).
+        (CLC : Colims_of_shape nat_graph C).
 
 Let optionC := (option_functor BCC TC).
 
@@ -189,17 +185,14 @@ Defined.
 
 (** ** Signature with strength and initial algebra to a HSS *)
 Definition SignatureToHSS (s : Signature C hsC)
-  (Hs : Initial (FunctorAlg (Id_H C hsC BCC s) has_homsets_C2)) :
-  hss_precategory BCC s.
+  (Hs : is_omega_cocont s) : hss_precategory BCC s.
 Proof.
-apply InitialHSS.
-- intro Z; apply RightKanExtension_from_limits, LC.
-- apply Hs.
+now apply InitialHSS.
 Defined.
 
 (** The above HSS is initial *)
 Definition SignatureToHSSisInitial (s : Signature C hsC)
-  (Hs : Initial (FunctorAlg (Id_H C hsC BCC s) has_homsets_C2)) :
+  (Hs : is_omega_cocont s) :
   isInitial _ (SignatureToHSS s Hs).
 Proof.
 now unfold SignatureToHSS; destruct InitialHSS.
@@ -215,7 +208,6 @@ Proof.
 use (Monad_from_hss _ hsC BCC).
 - apply (BindingSigToSignature sig CC).
 - apply SignatureToHSS.
-  apply SignatureInitialAlgebra.
   apply (is_omega_cocont_BindingSigToSignature _ _ PC H).
 Defined.
 
@@ -265,14 +257,13 @@ Defined.
 (** ** Binding signature to a monad for HSET *)
 Definition BindingSigToMonadHSET (sig : BindingSig) : Monad HSET.
 Proof.
-use (BindingSigToMonad _ _ _ _ _ _ _ sig).
+use (BindingSigToMonad _ _ _ _ _ _ sig).
 - apply has_homsets_HSET.
 - apply BinCoproductsHSET.
 - apply BinProductsHSET.
 - apply InitialHSET.
 - apply TerminalHSET.
 - apply ColimsHSET_of_shape.
-- apply LimsHSET.
 - apply Coproducts_HSET.
   exact (isasetifdeceq _ (BindingSigIsdeceq sig)).
 - apply Products_HSET.
