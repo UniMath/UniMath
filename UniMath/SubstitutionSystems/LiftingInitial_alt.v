@@ -42,6 +42,9 @@ Variable hs : has_homsets C.
 
 Variable CP : BinCoproducts C.
 
+Variables (IC : Initial C) (CC : Colims_of_shape nat_graph C).
+Variables (BPC : BinProducts C).
+
 Local Notation "'EndC'":= ([C, C, hs]) .
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
 
@@ -56,6 +59,8 @@ Let CPEndEndC:= BinCoproducts_functor_precat _ _ CPEndC hsEndC: BinCoproducts En
 Variable H : Signature C hs.
 Let θ := theta H.
 
+Variable (HH : is_omega_cocont H).
+
 Definition Const_plus_H (X : EndC) : functor EndC EndC
   := BinCoproduct_of_functors _ _ CPEndC (constant_functor _ _ X) H.
   (* := sum_of_functors CPEndC (constant_functor _ _ X) H. *)
@@ -65,52 +70,32 @@ Definition Id_H :  functor [C, C, hs] [C, C, hs]
 
 Let Alg : precategory := FunctorAlg Id_H hsEndC.
 
-
-(* Variables (IC : Initial C) (CC : Colims_of_shape nat_graph C) (F : functor C C) *)
-(*           (HF : is_omega_cocont F). *)
-
-
-(* SpecialGenMendlerIteration : *)
-(* Π (C : precategory) (hsC : has_homsets C) (IC : Initial C) *)
-(* (CC : Colims_of_shape nat_graph C) (F : functor C C)  *)
-(* (HF : is_omega_cocont F) (D : precategory), *)
-(* has_homsets D *)
-(* → Π (X : D) (L : functor C D), *)
-(*   isInitial D (L IC) *)
-(*   → is_omega_cocont L *)
-(*     → Π (G : functor D D) (ρ : D ⟦ G X, X ⟧) *)
-(*       (θ : functor_composite F L ⟶ functor_composite L G), *)
-(*       ∃! h : D ⟦ L (μF_Initial hsC IC CC F HF), X ⟧, *)
-(*       # L (alg_map F (μF_Initial hsC IC CC F HF)) ;; h = *)
-(*       θ (μF_Initial hsC IC CC F HF) ;; # G h ;; ρ *)
-
-(* SpecialGenMendlerIteration : *)
-(* Π (C : precategory) (hsC : has_homsets C) (F : functor C C) *)
-(* (μF_Initial : Initial (FunctorAlg F hsC)) (C' : precategory), *)
-(* has_homsets C' *)
-(* → Π (X : C') (L : functor C C'), *)
-(*   equivalences.is_left_adjoint L *)
-(*   → Π (G : functor C' C') (ρ : C' ⟦ G X, X ⟧) *)
-(*     (θ : functor_composite F L ⟶ functor_composite L G), *)
-(*     ∃! h : C' ⟦ L μF_Initial, X ⟧, *)
-(*     # L (alg_map F μF_Initial) ;; h = θ μF_Initial ;; # G h ;; ρ *)
-
-(* Variable IA : Initial Alg. *)
-
 Lemma arg1 : Initial EndC.
-Admitted.
+Proof.
+apply Initial_functor_precat, IC.
+Defined.
 
 Lemma arg2 : Colims_of_shape nat_graph EndC.
-Admitted.
+Proof.
+apply ColimsFunctorCategory_of_shape, CC.
+Defined.
 
 Lemma arg3 : is_omega_cocont Id_H.
-Admitted.
+Proof.
+unfold Id_H, Const_plus_H.
+apply is_omega_cocont_BinCoproduct_of_functors; try apply functor_category_has_homsets.
+- apply (BinProducts_functor_precat _ _ BPC).
+- apply is_omega_cocont_constant_functor, functor_category_has_homsets.
+- apply HH.
+Defined.
 
 Lemma arg4 (Z : Ptd) : isInitial [C, C, hs] (ℓ (U Z) arg1).
 Admitted.
 
 Lemma arg5 (Z : Ptd) : is_omega_cocont (pre_composition_functor C C C hs hs (U Z)).
-Admitted.
+Proof.
+apply is_omega_cocont_pre_composition_functor, CC.
+Defined.
 
 Definition SpecializedGMIt (Z : Ptd) (X : EndC) : Π (G : functor [C, C, hs] [C, C, hs]) (ρ : [C, C, hs] ⟦ G X, X ⟧)
    (θ : functor_composite Id_H (ℓ (U Z)) ⟶ functor_composite (ℓ (U Z)) G),
