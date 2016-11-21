@@ -45,6 +45,8 @@ Let μF : C := alg_carrier _ (InitialObject μF_Initial).
 Let inF : C⟦F μF,μF⟧ := alg_map _ (InitialObject μF_Initial).
 Local Definition e : Π (n : nat), C⟦iter_functor F n IC,μF⟧ := colimIn (CC chnF).
 
+Definition cocone_μF : cocone chnF μF := colimCocone (CC chnF).
+
 Context {D : precategory} (hsD : has_homsets D).
 
 Section the_iteration_principle.
@@ -97,7 +99,7 @@ Proof.
 induction n as [|n IHn].
 + cbn.
   apply (InitialArrowUnique ILD).
-+ change ( pr1 (Pow (S (S n))) _ z) with (ψ (iter_functor F (S n) 0) (Pow (S n) _ z)).
++ change (pr1 (Pow (S (S n))) _ z) with (ψ (iter_functor F (S n) 0) (Pow (S n) _ z)).
   assert (H : dmor LchnF (idpath (S (S n))) ;; ψ ((iter_functor F (S n)) IC) ((Pow (S n)) IC z) =
               ψ (iter_functor F n 0) (dmor LchnF (idpath (S n)) ;; pr1 (Pow (S n)) _ z)).
     apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (dmor chnF (idpath (S n))))).
@@ -112,8 +114,18 @@ use mk_cocone.
 - abstract (intros n m []; clear m; apply Pow_cocone_subproof).
 Defined.
 
+Definition temp : ColimCocone LchnF.
+Proof.
+use mk_ColimCocone.
+- apply (L μF).
+- apply (mapcocone L _ cocone_μF).
+- apply HL, (isColimCocone_from_ColimCocone (CC chnF)).
+Defined.
+
 Definition preIt : D⟦L μF,X⟧.
-Admitted.
+Proof.
+apply (@colimArrow D nat_graph LchnF temp X Pow_cocone).
+Defined.
 
 Lemma preIt_ok : # L inF ;; preIt = ψ μF preIt.
 Admitted.
