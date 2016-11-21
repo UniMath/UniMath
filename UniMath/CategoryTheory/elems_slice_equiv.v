@@ -34,26 +34,18 @@ Section elems_slice_equiv.
 
   Definition pshf_to_slice_ob_is_funct (F : pshf (el P)) : is_functor (pshf_to_slice_ob_funct_data F).
   Proof.
-    destruct F as [[ F Fmor ] [ Fid Fcomp ]].
+    intros [[ F Fmor ] [ Fid Fcomp ]].
     split.
     + intro a. simpl.
       unfold pshf_to_slice_ob_funct_mor.
       unfold pshf_to_slice_ob_funct_fun.
       simpl.
-      apply funextsec. intro p. Check (Fid (a ,, pr1 p)).
-      assert (H : pr1 p = # (pr1 P) (identity a) (pr1 p)).
-    - apply (transportb (fun f => pr1 p = f (pr1 p)) ((pr1 (pr2 P)) a) (idpath _)).
-    - unfold functor_on_morphisms. unfold functor_on_morphisms in H.
-      unfold identity. simpl.
-      rewrite tppr. (* rewrite <- H.
-      Set Printing All. simpl.
-      unfold identity. simpl.
+      apply funextsec. intro p.
       rewrite tppr.
       apply (total2_paths2 (transportb (fun f => f (pr1 p) = pr1 p) ((pr1 (pr2 P)) a) (idpath _))).
-      unfold identity. simpl. rewrite ((pr1 (pr2 P)) a).
+      Check ((pr1 (pr2 P)) a).
 
-              ((pr1 (pr2 P)) a)
-       *)
+
   Admitted.
 
   Definition presheaf_to_slice_ob : pshf (el P) → slice (pshf C) P.
@@ -64,25 +56,50 @@ Section elems_slice_equiv.
   Admitted.
 
   (* make/find helper functions to extract various pieces of stuff I want *)
+  Local Definition sl_nat {C : Precategory} {P : pshf C} (Q : slice (pshf C) P) := pr1 (pr2 Q).
+  Local Definition sl_funct {C : Precategory} {P : pshf C} (Q : slice (pshf C) P) := pr1 (pr1 Q).
 
-  Definition slice_to_presheaf_ob_ob (Q : slice (pshf C) P) : el P → SET :=
+  Definition slice_to_presheaf_ob_ob (Q : slice (pshf C) P) : (el P)^op → SET :=
     fun p =>
-      hfiber ((pr1 (pr2 Q)) (pr1 p)) (pr2 p) ,,
-             isaset_hfiber ((pr1 (pr2 Q)) (pr1 p)) (pr2 p) (pr2 (((pr1 (pr1 Q)) (pr1 p)))) (pr2 ((pr1 P) (pr1 p))).
+      hfiber ((sl_nat Q) (pr1 p)) (pr2 p) ,,
+             isaset_hfiber ((sl_nat Q) (pr1 p)) (pr2 p) (pr2 (((sl_funct Q) (pr1 p)))) (pr2 ((pr1 P) (pr1 p))).
 
-  Definition slice_to_presheaf_ob_mor (Q : slice (pshf C) P) (F G : el P) (f : F --> G) :
+  Definition slice_to_presheaf_ob_mor (Q : slice (pshf C) P) (F G : (el P)^op) (f : F --> G) :
     slice_to_presheaf_ob_ob Q F --> slice_to_presheaf_ob_ob Q G.
-    unfold slice_to_presheaf_ob_ob. unfold hfiber. simpl.
-    intros Q F G f s. (*
-    exists ((pr2 (pr1 (pr1 Q))) _ _ (pr1 f) (pr1 s)).
-    rewrite <- (pr2 f).
-    Check (pr2 s). Check (pr2 Q). *)
+    unfold slice_to_presheaf_ob_ob. simpl.
+    intros Q [x Px] [y Py] [f feq] s.
+    apply (hfibersgftog (# (sl_funct Q) f) (sl_nat Q y)).
+    exists (pr1 s).
+    rewrite (feq).
+    assert (H : funcomp (# (sl_funct Q) f) (sl_nat Q y) (pr1 s) = (sl_nat Q (pr1 (y,, Py)) ∘ # (sl_funct Q) f) (pr1 s)).
+    admit.
+    rewrite H.
+    unfold sl_nat , sl_funct.
+    set (K := (apevalat (pr1 s) ((pr2 (pr2 Q)) _ _ f))).
+    simpl in K. simpl.
+
+
+(*
+    intros [[Q Qis] [Qnat Qisnat]] [x Px] [y Py] [f feq] s.
+    apply (hfibersgftog (# Q f) (Qnat y)).
+    exists (pr1 s).
+    rewrite (feq).
+    assert (H : funcomp (# Q f) (Qnat y) (pr1 s) = (Qnat (pr1 (y,, Py)) ∘ # Q f) (pr1 s)).
+    admit.
+    rewrite H.
+    Check (Qisnat _ _ f).
+    rewrite (apevalat (pr1 s) (Qisnat _ _ f)).
+*)
+
+  (* exists ((pr2 (pr1 (pr1 Q))) _ _ (pr1 f) (pr1 s)).
+     rewrite <- (pr2 f).
+     Check (pr2 s). Check (pr2 Q). *)
   Admitted.
 
   Definition slice_to_presheaf_ob : slice (pshf C) P → pshf (el P).
   Proof.
     simpl. unfold slicecat_ob. simpl.
-    intro Q. unfold "==>".
+    intro Q. unfold "==>". unfold functor_data. simpl.
   Admitted.
 
 
