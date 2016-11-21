@@ -70,10 +70,6 @@ Definition mk_LimCone {J C : precategory} (F : functor J C)
   (c : C) (cc : cone F c) (isCC : isLimCone F c cc) : LimCone F :=
   tpair _ (tpair _ c cc) isCC.
 
-Definition Lims (C : precategory) : UU := Π {J : precategory} (F : functor J C), LimCone F.
-Definition hasLims : UU  :=
-  Π {J C : precategory} (F : functor J C), ishinh (LimCone F).
-
 (* lim is the tip of the lim cone *)
 Definition lim {J C : precategory} {F : functor J C} (CC : LimCone F) : C
   := pr1 (pr1 CC).
@@ -276,9 +272,20 @@ use isopair.
               rewrite <- assoc, limArrowCommutes; eapply pathscomp0; try apply limArrowCommutes).
 Defined.
 
+End lim_def.
+
+Section Lims.
+
+Definition Lims (C : precategory) : UU := Π {J : precategory} (F : functor J C), LimCone F.
+Definition hasLims : UU  :=
+  Π {J C : precategory} (F : functor J C), ishinh (LimCone F).
+Definition Lims_of_shape (J C : precategory) : UU := Π (F : functor J C), LimCone F.
+
 Section Universal_Unique.
 
-Context {C : precategory} (H : is_category C).
+Context (C : category).
+
+Let H : is_category C := pr2 C.
 
 Lemma isaprop_Lims: isaprop (Lims C).
 Proof.
@@ -298,10 +305,7 @@ apply subtypeEquality.
 Qed.
 
 End Universal_Unique.
-
-End lim_def.
-
-Arguments Lims : clear implicits.
+End Lims.
 
 Section LimFunctor.
 
@@ -411,4 +415,10 @@ Lemma LimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
   (HC : Lims C) : Lims [A,C,hsC].
 Proof.
 now intros g d; apply LimFunctorCone.
+Defined.
+
+Lemma LimsFunctorCategory_of_shape (J A C : precategory) (hsC : has_homsets C)
+  (HC : Lims_of_shape J C) : Lims_of_shape J [A,C,hsC].
+Proof.
+now intros d; apply LimFunctorCone.
 Defined.
