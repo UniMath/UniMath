@@ -1,4 +1,22 @@
 (** * Lattice *)
+(** Catherine Lelay. Nov. 2016 - *)
+(**
+Definition of a lattice: (Burris, S., & Sankappanavar, H. P. (2006).
+A Course in Universal Algebra-With 36 Illustrations. Chapter I)
+A lattice is a set with two binary operators min and max such that:
+- min and max are associative
+- min and max are commutative
+- Π x y : X, min x (max x y) = x
+- Π x y : X, max x (min x y) = x
+
+In a lattice, we can define a partial order:
+- le := λ (x y : X), min is x y = x
+
+Lattice with a strict order:
+A lattice with a strict order gt is lattice such that:
+- Π (x y : X), (¬ gt x y) <-> le x y
+- Π x y z : X, gt x z → gt y z → gt (min x y) z
+- Π x y z : X, gt z x → gt z y → gt z (max is x y) *)
 
 Require Export UniMath.Foundations.Algebra.BinaryOperations.
 
