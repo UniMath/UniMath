@@ -127,11 +127,37 @@ Proof.
 apply (@colimArrow D nat_graph LchnF temp X Pow_cocone).
 Defined.
 
-Lemma preIt_ok : # L inF ;; preIt = ψ μF preIt.
+Lemma eqSS n : # L (e n) ;; preIt = Pow n IC z.
+Proof.
+apply (colimArrowCommutes temp).
+Qed.
+
+(* The direction ** -> * *)
+Lemma SS_imp_S h n : # L (e n) ;; h = Pow n IC z -> # L inF ;; h = ψ μF h.
 Admitted.
 
-Lemma preIt_uniq (t : Σ h, # L inF ;; h = ψ μF h) : t = (preIt,,preIt_ok).
+(* The direction * -> ** *)
+Lemma S_imp_SS h n : # L inF ;; h = ψ μF h → # L (e n) ;; h = Pow n IC z.
 Admitted.
+
+Lemma preIt_ok : # L inF ;; preIt = ψ μF preIt.
+Proof.
+  apply (SS_imp_S preIt 0).
+  apply eqSS.
+Qed.
+
+Lemma preIt_uniq (t : Σ h, # L inF ;; h = ψ μF h) : t = (preIt,,preIt_ok).
+Proof.
+apply subtypeEquality.
+- intros f; apply hsD.
+- simpl.
+  destruct t as [f Hf]; simpl.
+  unfold preIt.
+  apply (colimArrowUnique temp); intro n.
+  simpl.
+  apply S_imp_SS.
+  apply Hf.
+Qed.
 
 Theorem GenMendlerIteration : ∃! (h : L μF --> X), #L inF ;; h = ψ μF h.
 Proof.
