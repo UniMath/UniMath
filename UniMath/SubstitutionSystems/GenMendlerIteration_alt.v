@@ -168,9 +168,79 @@ Proof.
 apply (colimArrowCommutes temp).
 Qed.
 
+Lemma is_iso_inF : is_iso inF.
+Proof.
+(* Use Lambek's lemma, this could be extracted from the concrete proof as well *)
+apply (initialAlg_is_iso _ hsC), pr2.
+Defined.
+
+Let inF_iso : iso (F μF) μF := isopair _ is_iso_inF.
+Let inF_inv : C⟦μF,F μF⟧ := inv_from_iso inF_iso.
+
 (* The direction ** -> * *)
-Lemma SS_imp_S h (H : Π n, # L (e n) ;; h = Pow n IC z) : # L inF ;; h = ψ μF h.
-Admitted.
+Lemma SS_imp_S (H : Π n, # L (e n) ;; preIt = Pow n IC z) : # L inF ;; preIt = ψ μF preIt.
+Proof.
+assert (H' : Π n, # L (e (S n)) ;; # L inF_inv ;; ψ μF preIt = pr1 (Pow (S n)) _ z).
+{ intro n.
+  rewrite e_comm, functor_comp.
+  eapply pathscomp0.
+  eapply cancel_postcomposition.
+  rewrite <-assoc.
+  eapply maponpaths.
+  rewrite <- functor_comp.
+  generalize (iso_inv_after_iso inF_iso).
+  simpl.
+  intros XXX.
+  eapply maponpaths.
+  apply XXX.
+  rewrite functor_id.
+  rewrite id_right.
+  assert (H1 : # L (# F (e n)) ;; ψ μF preIt = ψ (iter_functor F n 0) (# L (e n) ;; preIt)).
+      apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (e n))).
+  eapply pathscomp0. apply H1.
+  rewrite H.
+  apply idpath.
+}
+assert (HH : preIt = # L inF_inv ;; ψ μF preIt).
+apply pathsinv0.
+(* transparent assert (apa : (iso (L (F μF)) (L μF))). *)
+(* apply (isopair (# L inF)), functor_on_iso_is_iso. *)
+(* apply pathsinv0, (@iso_inv_to_left _ _ _ _ apa preIt (ψ μF preIt)). *)
+
+apply (colimArrowUnique temp); simpl; intro n.
+destruct n.
+- apply (InitialArrowUnique ILD).
+- simpl.
+  eapply pathscomp0.
+  Focus 2.
+  apply H'.
+  rewrite assoc.
+  apply idpath.
+- eapply pathscomp0. eapply maponpaths.
+  apply HH.
+  rewrite assoc, <- functor_comp.
+  unfold inF_inv.
+  generalize (iso_inv_after_iso inF_iso).
+  simpl.
+  intros XXX.
+  rewrite XXX.
+  now rewrite functor_id, id_left.
+Qed.
+
+(* General version, not needed? *)
+(* Lemma SS_imp_S h (H : Π n, # L (e n) ;; h = Pow n IC z) : # L inF ;; h = ψ μF h. *)
+(* Proof. *)
+(* assert (H' : Π n, # L (e (S n)) ;; # L inF_inv ;; ψ μF h = pr1 (Pow (S n)) _ z). *)
+(* admit. *)
+(* generalize (@colimArrowUnique D nat_graph LchnF temp X). *)
+(* Check (# L inF_inv ;; ψ μF h). *)
+(* Check (# L inF). *)
+(* transparent assert (apa : (iso (L (F μF)) (L μF))). *)
+(* apply (isopair (# L inF)), functor_on_iso_is_iso. *)
+(* apply pathsinv0, (@iso_inv_to_left _ _ _ _ apa h (ψ μF h)). *)
+(* Check colimArrowUnique. *)
+(* Qed. *)
+
 
 (* The direction * -> ** *)
 Lemma S_imp_SS h n : # L inF ;; h = ψ μF h → # L (e n) ;; h = Pow n IC z.
@@ -187,8 +257,7 @@ Qed.
 
 Lemma preIt_ok : # L inF ;; preIt = ψ μF preIt.
 Proof.
-  apply (SS_imp_S preIt); intro n.
-  apply eqSS.
+apply SS_imp_S; intro n; apply eqSS.
 Qed.
 
 Lemma preIt_uniq (t : Σ h, # L inF ;; h = ψ μF h) : t = (preIt,,preIt_ok).
