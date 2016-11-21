@@ -90,7 +90,27 @@ apply is_omega_cocont_BinCoproduct_of_functors; try apply functor_category_has_h
 Defined.
 
 Lemma arg4 (Z : Ptd) : isInitial [C, C, hs] (ℓ (U Z) arg1).
-Admitted.
+Proof.
+use mk_isInitial.
+intros F.
+mkpair.
+simpl.
+mkpair.
+intros c.
+simpl.
+apply InitialArrow.
+intros x y f.
+cbn.
+apply InitialArrowEq.
+intros FF.
+apply subtypeEquality.
+intros x.
+apply isaprop_is_nat_trans.
+apply hs.
+simpl.
+apply funextsec; intro c.
+apply InitialArrowUnique.
+Defined.
 
 Lemma arg5 (Z : Ptd) : is_omega_cocont (pre_composition_functor C C C hs hs (U Z)).
 Proof.
