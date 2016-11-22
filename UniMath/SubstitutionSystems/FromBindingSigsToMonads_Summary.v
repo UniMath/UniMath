@@ -68,7 +68,7 @@ Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Lemma is_omega_cocont_pre_composition_functor
      (A B C : precategory) (F : functor A B) (hsB : has_homsets B) (hsC : has_homsets C)
-     (H : Π (c : chain [B,C,hsC]) (b : B), ColimCocone (diagram_pointwise hsC c b)) :
+     (H : Colims_of_shape nat_graph C) :
      is_omega_cocont (pre_composition_functor A B C hsB hsC F).
 Proof.
   exact (@CocontFunctors.is_omega_cocont_pre_composition_functor _ _ _ _ _ _ H).

@@ -173,7 +173,7 @@ Arguments Initial : clear implicits.
 Arguments isInitial : clear implicits.
 
 Lemma Initial_from_Colims (C : precategory) :
-  Colims C -> Initial C.
+  Colims_of_shape empty_graph C -> Initial C.
 Proof.
 now intros H; apply H.
 Defined.
