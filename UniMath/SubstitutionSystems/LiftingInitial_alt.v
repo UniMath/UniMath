@@ -1,3 +1,17 @@
+(** **********************************************************
+
+Contents:
+
+- Construction of a substitution system from an initial algebra Proof that the substitution system
+- Constructed from an initial algebra is an initial substitution system
+
+This file differs from LiftingInitial.v in the hypotheses. Here we use omega cocontinuity instead of
+Kan extensions.
+
+Written by: Anders Mörtberg, 2016 (adapted from LiftingInitial.v)
+
+************************************************************)
+
 Set Kernel Term Sharing.
 
 Require Import UniMath.Foundations.Basics.PartD.
@@ -56,17 +70,17 @@ Definition Id_H :  functor [C, C, hsC] [C, C, hsC]
 
 Let Alg : precategory := FunctorAlg Id_H hsEndC.
 
-Lemma arg1 : Initial EndC.
+Let InitialEndC : Initial EndC.
 Proof.
 apply Initial_functor_precat, IC.
 Defined.
 
-Lemma arg2 : Colims_of_shape nat_graph EndC.
+Let Colims_of_shape_nat_graph_EndC : Colims_of_shape nat_graph EndC.
 Proof.
 apply ColimsFunctorCategory_of_shape, CC.
 Defined.
 
-Lemma arg3 : is_omega_cocont Id_H.
+Lemma is_omega_cocont_Id_H : is_omega_cocont Id_H.
 Proof.
 apply is_omega_cocont_BinCoproduct_of_functors; try apply functor_category_has_homsets.
 - apply (BinProducts_functor_precat _ _ BPC).
@@ -74,10 +88,10 @@ apply is_omega_cocont_BinCoproduct_of_functors; try apply functor_category_has_h
 - apply HH.
 Defined.
 
-(* Definition InitAlg : Alg := InitialObject IA. *)
-Definition InitAlg : Alg := InitialObject (μF_Initial hsEndC arg1 arg2 Id_H arg3).
+Definition InitAlg : Alg :=
+  InitialObject (μF_Initial hsEndC InitialEndC Colims_of_shape_nat_graph_EndC Id_H is_omega_cocont_Id_H).
 
-Lemma arg4 (Z : Ptd) : isInitial [C, C, hsC] (ℓ (U Z) arg1).
+Lemma isInitial_pre_comp (Z : Ptd) : isInitial [C, C, hsC] (ℓ (U Z) InitialEndC).
 Proof.
 use mk_isInitial; intros F.
 mkpair.
@@ -89,7 +103,7 @@ mkpair.
     | apply funextsec; intro c; apply InitialArrowUnique]).
 Defined.
 
-Lemma arg5 (Z : Ptd) : is_omega_cocont (pre_composition_functor C C C hsC hsC (U Z)).
+Local Lemma HU (Z : Ptd) : is_omega_cocont (pre_composition_functor C C C hsC hsC (U Z)).
 Proof.
 apply is_omega_cocont_pre_composition_functor, CC.
 Defined.
@@ -100,7 +114,8 @@ Definition SpecializedGMIt (Z : Ptd) (X : EndC) :
   ∃! h : [C, C, hsC] ⟦ ℓ (U Z) (alg_carrier _ InitAlg), X ⟧,
     # (ℓ (U Z)) (alg_map Id_H InitAlg) ;; h =
     θ (alg_carrier _ InitAlg) ;; # G h ;; ρ
- := SpecialGenMendlerIteration hsEndC arg1 arg2 Id_H arg3 hsEndC X (ℓ (U Z)) (arg4 Z) (arg5 Z).
+  := SpecialGenMendlerIteration hsEndC InitialEndC Colims_of_shape_nat_graph_EndC
+                                Id_H is_omega_cocont_Id_H hsEndC X (ℓ (U Z)) (isInitial_pre_comp Z) (HU Z).
 
 Definition θ_in_first_arg (Z: Ptd)
   : functor_fix_snd_arg [C, C,hsC] Ptd [C, C, hsC] (θ_source H) Z
@@ -473,7 +488,7 @@ mkpair.
             apply pathsinv0, assoc).
 Defined.
 
-Let IA := μF_Initial hsEndC arg1 arg2 Id_H arg3.
+Let IA := μF_Initial hsEndC InitialEndC Colims_of_shape_nat_graph_EndC Id_H is_omega_cocont_Id_H.
 
 Lemma ishssMor_InitAlg (T' : hss CP H) :
   @ishssMor C hsC CP H InitHSS T'
@@ -486,14 +501,15 @@ set (rhohat := BinCoproductArrow EndC  (CPEndC _ _ )  β (tau_from_alg T')
                 :  pr1 Ghat T' --> T').
 set (X:= SpecializedGMIt Z _ Ghat rhohat (thetahat Z f)).
 pathvia (pr1 (pr1 X)).
-- set (TT := @fusion_law EndC hsEndC arg1 arg2 Id_H arg3 _ hsEndC (pr1 (InitAlg)) T').
+- set (TT := @fusion_law EndC hsEndC InitialEndC Colims_of_shape_nat_graph_EndC
+                         Id_H is_omega_cocont_Id_H _ hsEndC (pr1 (InitAlg)) T').
   set (Psi := ψ_from_comps (Id_H) hsEndC _ (ℓ (U Z)) (Const_plus_H (U Z)) (ρ_Thm15 Z f)
                              (aux_iso_1 Z ;; θ'_Thm15 Z ;; aux_iso_2_inv Z) ).
-  set (T2 := TT _ (arg5 Z) (arg4 Z) Psi).
-  set (T3 := T2 (ℓ (U Z)) (arg5 Z)).
+  set (T2 := TT _ (HU Z) (isInitial_pre_comp Z) Psi).
+  set (T3 := T2 (ℓ (U Z)) (HU Z)).
   set (Psi' := ψ_from_comps (Id_H) hsEndC _ (ℓ (U Z)) (Ghat) (rhohat)
                            (iso1' Z ;; thetahat_0 Z f ;; iso2' Z) ).
-  set (T4 := T3 (arg4 Z) Psi').
+  set (T4 := T3 (isInitial_pre_comp Z) Psi').
   set (Φ := (Phi_fusion Z T' β)).
   set (T5 := T4 Φ).
   pathvia (Φ _ (fbracket InitHSS f)); trivial.
