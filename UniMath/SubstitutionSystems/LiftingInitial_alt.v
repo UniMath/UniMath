@@ -89,7 +89,7 @@ apply is_omega_cocont_BinCoproduct_of_functors; try apply functor_category_has_h
 Defined.
 
 Definition InitAlg : Alg :=
-  InitialObject (μF_Initial hsEndC InitialEndC Colims_of_shape_nat_graph_EndC Id_H is_omega_cocont_Id_H).
+  InitialObject (colimAlgInitial hsEndC InitialEndC is_omega_cocont_Id_H (Colims_of_shape_nat_graph_EndC _)).
 
 Lemma isInitial_pre_comp (Z : Ptd) : isInitial [C, C, hsC] (ℓ (U Z) InitialEndC).
 Proof.
