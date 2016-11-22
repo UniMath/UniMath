@@ -2,15 +2,17 @@
 
 Contents:
 
-- Derivation of Generalized Iteration in Mendler-style Instantiation to a special case, Specialized
-- Mendler Iteration Proof of a fusion law à la Bird-Paterson (Generalised folds for nested
-- datatypes) for Generalized Iteration in Mendler-style
+- Derivation of Generalized Iteration in Mendler-style
+  Instantiation to a special case, Specialized
+- Mendler Iteration Proof of a fusion law à la Bird-Paterson
+  (Generalised folds for nested datatypes, theorem 1) for
+  Generalized Iteration in Mendler-style
 
-This file differs from GenMendlerIteration.v in the hypotheses. Here we use omega cocontinuity
-instead of Kan extensions.
+This file differs from GenMendlerIteration.v in the hypotheses.
+Here we use omega cocontinuity instead of Kan extensions.
 
-Written by: Anders Mörtberg, 2016
-Based on a note of Ralph Matthes
+Written by: Anders Mörtberg, 2016.
+Based on a note by Ralph Matthes.
 
 ************************************************************)
 
@@ -52,19 +54,17 @@ Local Notation "0" := (InitialObject IC).
 
 Let AF := FunctorAlg F hsC.
 Let chnF := initChain IC F.
-
-Definition μF_Initial : Initial AF := colimAlgInitial hsC IC HF (CC chnF).
-
+Let μF_Initial : Initial AF := colimAlgInitial hsC IC HF (CC chnF).
 Let μF : C := alg_carrier _ (InitialObject μF_Initial).
 Let inF : C⟦F μF,μF⟧ := alg_map _ (InitialObject μF_Initial).
-Local Definition e : Π (n : nat), C⟦iter_functor F n IC,μF⟧ := colimIn (CC chnF).
-
-Definition cocone_μF : cocone chnF μF := colimCocone (CC chnF).
+Let e : Π (n : nat), C⟦iter_functor F n IC,μF⟧ := colimIn (CC chnF).
+Let cocone_μF : cocone chnF μF := colimCocone (CC chnF).
 
 Local Lemma e_comm (n : nat) : e (S n) = # F (e n) ;; inF.
 Proof.
 apply pathsinv0,
-      (colimArrowCommutes (mk_ColimCocone _ _ _ (HF _ _ _ (isColimCocone_from_ColimCocone (CC chnF))))).
+      (colimArrowCommutes (mk_ColimCocone _ _ _ (HF _ _ _
+                          (isColimCocone_from_ColimCocone (CC chnF))))).
 Qed.
 
 Context {D : precategory} (hsD : has_homsets D).
@@ -86,6 +86,7 @@ Section general_case.
 Variable (ψ : ψ_source ⟶ ψ_target).
 
 Let LchnF : chain D := mapchain L chnF.
+Let z : D⟦L0,X⟧ := InitialArrow ILD X.
 
 Local Definition Pow_source : functor C^op HSET := ψ_source.
 Local Definition Pow_target (n : nat) : functor C^op HSET :=
@@ -97,8 +98,6 @@ induction n as [|n Pown].
 - apply nat_trans_id.
 - apply (nat_trans_comp Pown (pre_whisker (functor_opp (iter_functor F n)) ψ)).
 Defined.
-
-Local Definition z : D⟦L0,X⟧ := InitialArrow ILD X.
 
 Local Lemma Pow_cocone_subproof n :
   dmor LchnF (idpath (S n)) ;; pr1 (Pow (S n)) IC z = pr1 (Pow n) IC z.
