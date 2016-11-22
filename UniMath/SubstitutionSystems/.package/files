@@ -7,9 +7,11 @@ SignatureCategory.v
 SignatureExamples.v
 MonadsFromSubstitutionSystems.v
 LiftingInitial.v
+LiftingInitial_alt.v
 Lam.v
 LamSignature.v
 GenMendlerIteration.v
+GenMendlerIteration_alt.v
 Notation.v
 SubstitutionSystems_Summary.v
 LamHSET.v
