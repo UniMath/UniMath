@@ -488,7 +488,7 @@ mkpair.
             apply pathsinv0, assoc).
 Defined.
 
-Let IA := μF_Initial hsEndC InitialEndC Colims_of_shape_nat_graph_EndC Id_H is_omega_cocont_Id_H.
+Let IA := colimAlgInitial hsEndC InitialEndC is_omega_cocont_Id_H (Colims_of_shape_nat_graph_EndC _).
 
 Lemma ishssMor_InitAlg (T' : hss CP H) :
   @ishssMor C hsC CP H InitHSS T'
