@@ -45,6 +45,27 @@ Proof.
   exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
 Defined.
 
+Definition SignatureInitialAlgebra :
+  Π {C : precategory} (hsC : has_homsets C) (BCC : BinCoproducts C),
+  BinProducts C → Initial C → Colims_of_shape nat_graph C
+  → Π s : Signatures.Signature C hsC,
+          is_omega_cocont (Signatures.Signature_Functor C hsC s)
+  → Initial (FunctorAlg (LiftingInitial_alt.Id_H C hsC BCC s) (BindingSigToMonad.has_homsets_C2 hsC)).
+Proof.
+  exact @UniMath.SubstitutionSystems.BindingSigToMonad.SignatureInitialAlgebra.
+Defined.
+
+Definition BindingSigToMonad :
+  Π (C : precategory) (hsC : has_homsets C),
+  BinCoproducts C → Π BPC : BinProducts C,
+  Initial C → Terminal C → Colims_of_shape nat_graph C
+  → Π sig : BindingSig, Coproducts (BindingSigIndex sig) C
+  → Products (BindingSigIndex sig) C
+  → (Π F, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C BPC hsC) F)) →
+  Monads.Monad C.
+Proof.
+  exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToMonad.
+Defined.
 
 Definition algebra_ob_pair {C : precategory} {F : functor C C} X (f : C⟦F X, X⟧)
   : algebra_ob F.
