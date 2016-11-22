@@ -3,48 +3,8 @@ Require Import UniMath.Foundations.Basics.Sets
         UniMath.CategoryTheory.functor_categories
         UniMath.CategoryTheory.category_hset
         UniMath.CategoryTheory.slicecat
-        UniMath.CategoryTheory.equivalences.
-
-(** * Discrete precategories *)
-(* ***** taken from Anders' multisorted.v ***** *)
-Section DiscreteCategory.
-
-Variable (A : UU).
-
-Definition discrete_precategory_data : precategory_data.
-Proof.
-mkpair.
-- apply (A,,paths).
-- mkpair; [ apply idpath | apply @pathscomp0 ].
-Defined.
-
-Definition is_precategory_discrete_precategory_data : is_precategory discrete_precategory_data.
-Proof.
-split; [split|]; trivial; intros.
-+ apply pathscomp0rid.
-+ apply path_assoc.
-Qed.
-
-Definition discrete_precategory : precategory :=
-  (discrete_precategory_data,,is_precategory_discrete_precategory_data).
-
-Lemma has_homsets_discrete_precategory (H : isofhlevel 3 A) : has_homsets discrete_precategory.
-Proof.
-intros ? ? ? ? ? ?; apply H.
-Qed.
-
-(** To define a functor out of a discrete category it suffices to give a function *)
-Lemma functor_discrete_precategory (D : precategory) (f : A → D) :
-  functor discrete_precategory D.
-Proof.
-mkpair.
-+ mkpair.
-  - apply f.
-  - intros s t []; apply identity.
-+ abstract (now split; [intro|intros a b c [] []; simpl; rewrite id_left]).
-Defined.
-
-End DiscreteCategory.
+        UniMath.CategoryTheory.equivalences
+        UniMath.CategoryTheory.DiscretePrecategory.
 
 (** Proof that Set / X and Set ^ X are equivalent as categories *)
 Section slice_fam_equiv.
