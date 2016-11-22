@@ -67,11 +67,19 @@ Section slice_fam_equiv.
 
   Local Notation s_to_f := slice_to_fam_fun.
 
-  Definition slice_to_fam_mor_fun (a b : slice X) (f : a --> b) (x : X) : (pr1 (s_to_f a)) x --> (pr1 (s_to_f b)) x :=
+  (* don't use transportf! or maybe do, but w/ destruct or induction *)
+  (* figure out why we need [pr1] in type *)
+  (* maybe need pr1 b.c. coerces to [X → hSet] (and not [X → HSET]) *)
+  Definition slice_to_fam_mor_fun {a b : slice X} (f : a --> b) (x : X) :
+    (pr1 (s_to_f a) : X → HSET) x --> (pr1 (s_to_f b)) x :=
     fun p => hfibersgftog (pr1 f) (pr2 b) _ (transportf (fun p => hfiber p x) (pr2 f) p).
 
-  Definition slice_to_fam_mor_is_nat_trans (a b : slice X) (f : a --> b) :
-    is_nat_trans (pr1 (s_to_f a)) (pr1 (s_to_f b)) (slice_to_fam_mor_fun a b f).
+  (* generalize for any fam of functions, then fam of morphisms, then apply to above *)
+  (* Look for stuff about discrete cats in new commits/PRs *)
+  (* More explicit arguments! e.g. change below *)
+  (* Email when done!! *)
+  Definition slice_to_fam_mor_is_nat_trans {a b : slice X} (f : a --> b) :
+    is_nat_trans (pr1 (s_to_f a)) (pr1 (s_to_f b)) (slice_to_fam_mor_fun f).
   Proof.
     intros ? ? g.
     rewrite g.
@@ -79,11 +87,12 @@ Section slice_fam_equiv.
   Defined.
 
   Definition slice_to_fam_mor (a b : slice X) (f : a --> b) : s_to_f a --> s_to_f b :=
-    (slice_to_fam_mor_fun a b f) ,, (slice_to_fam_mor_is_nat_trans a b f).
+    (slice_to_fam_mor_fun f) ,, (slice_to_fam_mor_is_nat_trans f).
 
   Definition slice_to_fam_data : functor_data (slice X) (fam X) :=
     functor_data_constr _ _ slice_to_fam_fun slice_to_fam_mor.
 
+  (* maybe (later) look at when base category isn't an hSet (h1, h2, h3 stuff) *)
   Lemma slice_to_fam_is_functor : is_functor slice_to_fam_data.
   Proof.
     split; [ intro a | intros a b c f g];
