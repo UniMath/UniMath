@@ -26,12 +26,15 @@ Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
+Require Import UniMath.SubstitutionSystems.Signatures.
+Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 
 Definition Arity_to_Signature :
   Π (C : precategory) (hsC : has_homsets C),
-  BinCoproducts C → BinProducts C → Terminal C → list nat → Signatures.Signature C hsC.
+  BinCoproducts C → BinProducts C → Terminal C → list nat → Signature C hsC.
 Proof.
   exact @BindingSigToMonad.Arity_to_Signature.
 Defined.
@@ -40,7 +43,7 @@ Definition BindingSigToSignature :
   Π {C : precategory} (hsC : has_homsets C),
   BinCoproducts C → BinProducts C → Terminal C →
   Π sig : BindingSig, Coproducts (BindingSigIndex sig) C →
-  Signatures.Signature C hsC.
+  Signature C hsC.
 Proof.
   exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
 Defined.
@@ -48,9 +51,8 @@ Defined.
 Definition SignatureInitialAlgebra :
   Π {C : precategory} (hsC : has_homsets C) (BCC : BinCoproducts C),
   BinProducts C → Initial C → Colims_of_shape nat_graph C
-  → Π s : Signatures.Signature C hsC,
-          is_omega_cocont (Signatures.Signature_Functor C hsC s)
-  → Initial (FunctorAlg (LiftingInitial_alt.Id_H C hsC BCC s) (BindingSigToMonad.has_homsets_C2 hsC)).
+  → Π s : Signature C hsC, is_omega_cocont (Signature_Functor C hsC s)
+  → Initial (FunctorAlg (Id_H C hsC BCC s) (BindingSigToMonad.has_homsets_C2 hsC)).
 Proof.
   exact @UniMath.SubstitutionSystems.BindingSigToMonad.SignatureInitialAlgebra.
 Defined.
@@ -62,7 +64,7 @@ Definition BindingSigToMonad :
   → Π sig : BindingSig, Coproducts (BindingSigIndex sig) C
   → Products (BindingSigIndex sig) C
   → (Π F, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C BPC hsC) F)) →
-  Monads.Monad C.
+  Monad C.
 Proof.
   exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToMonad.
 Defined.
