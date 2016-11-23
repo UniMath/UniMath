@@ -346,10 +346,6 @@ Context (g : graph) {C : precategory} (hsC : has_homsets C) (x : C).
 
 Local Notation "C / X" := (slice_precat C X hsC).
 
-(* I think that this lemma would be better stated by saying that the forgetful functor *)
-(* `slicecat_to_cat' creates limits, that is, by saying that, given a diagram in C/X and a cocone CC *)
-(* under that diagram, then CC is colimiting if the image of CC under the forgetful functor is. *)
-
 Let U : functor (C / x) C := slicecat_to_cat C hsC x.
 
 Lemma slice_precat_isColimCocone (d : diagram g (C / x)) (a : C / x)
@@ -359,38 +355,22 @@ Lemma slice_precat_isColimCocone (d : diagram g (C / x)) (a : C / x)
 Proof.
 set (CC := mk_ColimCocone _ _ _ H).
 intros y ccy.
-  use unique_exists.
-  + mkpair; simpl.
-    * apply (colimArrow CC), (mapcocone U _ ccy).
-    *
-apply pathsinv0.
-eapply pathscomp0.
-apply (postcompWithColimArrow _ CC (pr1 y) (mapcocone U d ccy)).
-apply pathsinv0.
-apply (colimArrowUnique CC).
-intros u.
-simpl.
-unfold colimIn.
-simpl.
-eapply pathscomp0.
-apply (!(pr2 (coconeIn cc u))).
-apply (pr2 (coconeIn ccy u)).
-+ intros u.
-apply subtypeEquality.
-intros xx.
-apply hsC.
-simpl.
-apply (colimArrowCommutes CC).
-+ intros f; simpl; apply impred; intro u; apply has_homsets_slice_precat.
-+ intros f; simpl; intros Hf.
-apply eq_mor_slicecat; simpl.
-apply (colimArrowUnique CC); intro u.
-cbn.
-rewrite <- (Hf u).
-apply idpath.
+use unique_exists.
++ mkpair; simpl.
+  * apply (colimArrow CC), (mapcocone U _ ccy).
+  * abstract (apply pathsinv0;
+              eapply pathscomp0; [apply (postcompWithColimArrow _ CC (pr1 y) (mapcocone U d ccy))|];
+              apply pathsinv0, (colimArrowUnique CC); intros u; simpl;
+              eapply pathscomp0; [apply (!(pr2 (coconeIn cc u)))|];
+              apply (pr2 (coconeIn ccy u))).
++ abstract (intros u; apply subtypeEquality; [intros xx; apply hsC|]; simpl;
+            apply (colimArrowCommutes CC)).
++ abstract (intros f; simpl; apply impred; intro u; apply has_homsets_slice_precat).
++ abstract (intros f; simpl; intros Hf;
+            apply eq_mor_slicecat; simpl;
+            apply (colimArrowUnique CC); intro u; cbn;
+            now rewrite <- (Hf u)).
 Defined.
-
-
 
 Lemma slice_precat_ColimCocone (d : diagram g (C / x))
   (H : ColimCocone (mapdiagram U d)) :
@@ -425,12 +405,14 @@ use mk_ColimCocone.
               intros v; apply (maponpaths pr1 (Hf v))).
 Defined.
 
-Lemma slice_precat_colims_of_shape (CC : Colims_of_shape g C) : Colims_of_shape g (C / x).
-Proof.
-now intros d; apply slice_precat_ColimCocone, CC.
-Defined.
-
 End slicecat_colimits.
+
+Lemma slice_precat_colims_of_shape {C : precategory} (hsC : has_homsets C)
+  {g : graph} (d : diagram g C) (x : C) (CC : Colims_of_shape g C) :
+  Colims_of_shape g (slice_precat C x hsC).
+Proof.
+now intros y; apply slice_precat_ColimCocone, CC.
+Defined.
 
 Lemma slice_precat_colims {C : precategory} (hsC : has_homsets C) (x : C) (CC : Colims C) :
   Colims (slice_precat C x hsC).
