@@ -1200,8 +1200,7 @@ Proof.
 Qed.
 
 
-Definition functorPrecategory (C : precategory) (D : Precategory)
-  : Precategory.
+Definition functor_Precategory (C : precategory) (D : Precategory) : Precategory.
 Proof.
   exists (functor_precategory C D (homset_property D)).
   apply functor_category_has_homsets.

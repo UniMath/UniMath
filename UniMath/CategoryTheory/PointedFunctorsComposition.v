@@ -43,7 +43,7 @@ Variable hs : has_homsets C.
 Definition ptd_composite (Z Z' : ptd_obj C) : precategory_Ptd C hs.
 Proof.
   exists (functor_composite Z Z').
-  apply (hor_comp (ptd_pt _ Z) (ptd_pt _ Z')).
+  apply (horcomp (ptd_pt _ Z) (ptd_pt _ Z')).
 Defined.
 
 End def_ptd.
