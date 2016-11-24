@@ -47,6 +47,8 @@ Definition graph := Σ (D : UU), D -> D -> UU.
 Definition vertex : graph -> UU := pr1.
 Definition edge {g : graph} : vertex g -> vertex g -> UU := pr2 g.
 
+Definition mk_graph (D : UU) (e : D → D → UU) : graph := tpair _ D e.
+
 Definition diagram (g : graph) (C : precategory) : UU :=
   Σ (f : vertex g -> C), Π (a b : vertex g), edge a b -> C⟦f a, f b⟧.
 

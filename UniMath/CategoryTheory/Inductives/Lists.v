@@ -38,10 +38,11 @@ Variable A : HSET.
 Local Open Scope cocont_functor_hset_scope.
 
 (** F(X) = 1 + (A * X) *)
-Definition listOmegaFunctor : omega_cocont_functor HSET HSET := '1 + 'A * Id.
+Definition L_A : omega_cocont_functor HSET HSET := '1 + 'A * Id.
 
-Let listFunctor : functor HSET HSET := pr1 listOmegaFunctor.
-Let is_omega_cocont_listFunctor : is_omega_cocont listFunctor := pr2 listOmegaFunctor.
+Let listFunctor : functor HSET HSET := pr1 L_A.
+
+Let is_omega_cocont_listFunctor : is_omega_cocont listFunctor := pr2 L_A.
 
 Lemma listFunctor_Initial :
   Initial (precategory_FunctorAlg listFunctor has_homsets_HSET).
@@ -50,23 +51,23 @@ apply (colimAlgInitial _ InitialHSET is_omega_cocont_listFunctor (ColimCoconeHSE
 Defined.
 
 (** The type of lists of A's *)
-Definition ListHSET : HSET :=
+Definition μL_A : HSET :=
   alg_carrier _ (InitialObject listFunctor_Initial).
 
-Definition List : UU := pr1 ListHSET.
+Definition List : UU := pr1 μL_A.
 
-Let List_mor : HSET⟦listFunctor ListHSET,ListHSET⟧ :=
+Let List_mor : HSET⟦listFunctor μL_A,μL_A⟧ :=
   alg_map _ (InitialObject listFunctor_Initial).
 
 Let List_alg : algebra_ob listFunctor :=
   InitialObject listFunctor_Initial.
 
-Definition nil_map : HSET⟦unitHSET,ListHSET⟧ :=
+Definition nil_map : HSET⟦unitHSET,μL_A⟧ :=
   BinCoproductIn1 HSET _ ;; List_mor.
 
 Definition nil : List := nil_map tt.
 
-Definition cons_map : HSET⟦(A × ListHSET)%set,ListHSET⟧ :=
+Definition cons_map : HSET⟦(A × μL_A)%set,μL_A⟧ :=
   BinCoproductIn2 HSET _ ;; List_mor.
 
 Definition cons : pr1 A → List -> List := λ a l, cons_map (a,,l).
@@ -93,25 +94,25 @@ Defined.
 
 (** Iteration/fold *)
 Definition foldr (X : HSET) (x : pr1 X)
-  (f : pr1 A × pr1 X -> pr1 X) : List -> pr1 X.
+  (f : pr1 A → pr1 X → pr1 X) : List → pr1 X.
 Proof.
-apply (foldr_map _ x f).
+apply (foldr_map _ x (λ a, f (pr1 a) (pr2 a))).
 Defined.
 
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
-Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A × X -> X) : foldr X x f nil = x.
+Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A → X -> X) : foldr X x f nil = x.
 Proof.
 assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET _ _) ;; x)
-                        (algebra_mor_commutes _ _ _ (foldr_map X x f))).
+                        (algebra_mor_commutes _ _ _ (foldr_map X x (λ a, f (pr1 a) (pr2 a))))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
 
-Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A × X -> X)
+Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A → X -> X)
                  (a : pr1 A) (l : List) :
-  foldr X x f (cons a l) = f (a,,foldr X x f l).
+  foldr X x f (cons a l) = f a (foldr X x f l).
 Proof.
 assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _) ;; x)
-                        (algebra_mor_commutes _ _ _ (foldr_map X x f))).
+                        (algebra_mor_commutes _ _ _ (foldr_map X x (λ a, f (pr1 a) (pr2 a))))).
 assert (Fal := toforallpaths _ _ _ F (a,,l)).
 clear F.
 unfold compose in Fal.
@@ -130,8 +131,8 @@ Variables (P0 : P nil)
 
 Let P' : UU := Σ l, P l.
 Let P0' : P' := (nil,, P0).
-Let Pc' : pr1 A × P' -> P' :=
-  λ ap : pr1 A × P', cons (pr1 ap) (pr1 (pr2 ap)),,Pc (pr1 ap) (pr1 (pr2 ap)) (pr2 (pr2 ap)).
+Let Pc' : pr1 A  → P' -> P' :=
+  λ (a : pr1 A) (p : P'), cons a (pr1 p),,Pc a (pr1 p) (pr2 p).
 
 Definition P'HSET : HSET.
 Proof.
@@ -193,11 +194,10 @@ Local Open Scope nat_scope.
 
 Local Notation "'A'" := (pr1 A).
 
-Definition length : List -> nat :=
-  foldr natHSET 0 (fun x => S (pr2 x)).
+Definition length : List -> nat := foldr natHSET 0 (λ _ (n : nat), 1 + n).
 
 Definition map (f : A -> A) : List -> List :=
-  foldr _ nil (λ xxs : A × List, cons (f (pr1 xxs)) (pr2 xxs)).
+  foldr _ nil (λ (x : A) (xs : List), cons (f x) xs).
 
 Lemma length_map (f : A -> A) : Π xs, length (map f xs) = length xs.
 Proof.
@@ -228,7 +228,7 @@ Definition testlistS : List natHSET :=
   map natHSET S testlist.
 
 Definition sum : List natHSET -> nat :=
-  foldr natHSET natHSET 0 (fun xy => pr1 xy + pr2 xy).
+  foldr natHSET natHSET 0 (fun x y => x + y).
 
 (* None of these compute *)
 (* Eval cbn in length _ (nil natHSET). *)
@@ -293,8 +293,8 @@ Definition to_list (A : HSET) : List A -> list (pr1 A).
 Proof.
 apply (foldr A (list (pr1 A),,isaset_list A)).
 * apply (0,,tt).
-* intros L.
-  apply (tpair _ (S (pr1 (pr2 L))) (pr1 L,,pr2 (pr2 L))).
+* intros a L; simpl in *.
+  apply (tpair _ (S (pr1 L)) (a,,pr2 L)).
 Defined.
 
 Lemma to_listK (A : HSET) : Π x : list (pr1 A), to_list A (to_List A x) = x.
