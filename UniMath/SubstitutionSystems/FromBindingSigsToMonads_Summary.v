@@ -35,14 +35,14 @@ Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 
 Definition Arity_to_Signature :
   Π (C : precategory) (hsC : has_homsets C),
-  BinCoproducts C → BinProducts C → Terminal C → list nat → Signature C hsC.
+  BinProducts C → BinCoproducts C → Terminal C → list nat → Signature C hsC.
 Proof.
   exact @UniMath.SubstitutionSystems.BindingSigToMonad.Arity_to_Signature.
 Defined.
 
 Definition BindingSigToSignature :
   Π {C : precategory} (hsC : has_homsets C),
-  BinCoproducts C → BinProducts C → Terminal C →
+  BinProducts C → BinCoproducts C → Terminal C →
   Π sig : BindingSig, Coproducts (BindingSigIndex sig) C →
   Signature C hsC.
 Proof.
@@ -59,8 +59,9 @@ Proof.
 Defined.
 
 Definition SignatureInitialAlgebra :
-  Π {C : precategory} (hsC : has_homsets C) (BCC : BinCoproducts C),
-  BinProducts C → Initial C → Colims_of_shape nat_graph C
+  Π {C : precategory} (hsC : has_homsets C)
+  (BPC : BinProducts C) (BCC : BinCoproducts C),
+    Initial C → Colims_of_shape nat_graph C
   → Π s : Signature C hsC, is_omega_cocont (Signature_Functor C hsC s)
   → Initial (FunctorAlg (Id_H C hsC BCC s) (BindingSigToMonad.has_homsets_C2 hsC)).
 Proof.
@@ -68,13 +69,12 @@ Proof.
 Defined.
 
 Definition BindingSigToMonad :
-  Π (C : precategory) (hsC : has_homsets C),
-  BinCoproducts C → Π BPC : BinProducts C,
-  Initial C → Terminal C → Colims_of_shape nat_graph C
-  → Π sig : BindingSig, Coproducts (BindingSigIndex sig) C
-  → Products (BindingSigIndex sig) C
-  → (Π F, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C BPC hsC) F)) →
-  Monad C.
+  Π (C : precategory) (hsC : has_homsets C) (BPC : BinProducts C),
+  BinCoproducts C → Terminal C → Initial C → Colims_of_shape nat_graph C
+  → (Π F, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C BPC hsC) F))
+  → Π sig : BindingSig, Products (BindingSigIndex sig) C
+  → Coproducts (BindingSigIndex sig) C
+  → Monad C.
 Proof.
   exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToMonad.
 Defined.
