@@ -43,7 +43,7 @@ Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Notation "[ C , D , hsD ]" := (functor_precategory C D hsD).
 Local Notation "'chain'" := (diagram nat_graph).
 
 (** * Definition of binding signatures *)
@@ -86,15 +86,15 @@ Section BindingSigToMonad.
 
 Context {C : precategory} (hsC : has_homsets C).
 
-Local Notation "'C2'":= ([C, C, hsC]) .
+Local Notation "'[C,C]'" := (functor_precategory C C hsC).
 
-Local Definition has_homsets_C2 : has_homsets C2.
+Local Definition has_homsets_C2 : has_homsets [C,C].
 Proof.
 apply functor_category_has_homsets.
 Defined.
 
 (** Form "_ o option^n" and return Id if n = 0 *)
-Definition precomp_option_iter (BCC : BinCoproducts C) (TC : Terminal C) (n : nat) : functor C2 C2.
+Definition precomp_option_iter (BCC : BinCoproducts C) (TC : Terminal C) (n : nat) : functor [C,C] [C,C].
 Proof.
 induction n as [|n IHn].
 - apply functor_identity.
@@ -138,7 +138,7 @@ Let constprod_functor1 := constprod_functor1 (BPC2 BPC).
 (** The H assumption follows directly if [C,C] has exponentials *)
 Lemma is_omega_cocont_Arity_to_Signature
   (TC : Terminal C) (CLC : Colims_of_shape nat_graph C)
-  (H : Π (x : C2), is_omega_cocont (constprod_functor1 x))
+  (H : Π (F : [C,C]), is_omega_cocont (constprod_functor1 F))
   (xs : list nat) :
   is_omega_cocont (Arity_to_Signature TC xs).
 Proof.
@@ -166,7 +166,7 @@ Defined.
 
 Lemma is_omega_cocont_BindingSigToSignature
   (TC : Terminal C) (CLC : Colims_of_shape nat_graph C)
-  (H : Π (x : C2), is_omega_cocont (constprod_functor1 x))
+  (H : Π (F : [C,C]), is_omega_cocont (constprod_functor1 F))
   (sig : BindingSig)
   (CC : Coproducts (BindingSigIndex sig) C) (PC : Products (BindingSigIndex sig) C) :
   is_omega_cocont (BindingSigToSignature TC sig CC).
@@ -220,7 +220,7 @@ Defined.
 (** ** Function from binding signatures to monads *)
 Definition BindingSigToMonad
   (TC : Terminal C) (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
-  (H : Π (x : C2), is_omega_cocont (constprod_functor1 x))
+  (H : Π (F : [C,C]), is_omega_cocont (constprod_functor1 F))
   (sig : BindingSig)
   (PC : Products (BindingSigIndex sig) C) (CC : Coproducts (BindingSigIndex sig) C) :
  Monad C.
