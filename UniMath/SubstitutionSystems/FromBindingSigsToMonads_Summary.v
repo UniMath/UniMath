@@ -49,6 +49,21 @@ Proof.
   exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
 Defined.
 
+Local Notation "'[ C , C, hsC ]'" := (functor_precategory C C hsC).
+
+Lemma is_omega_cocont_BindingSigToSignature :
+  Π (C : precategory) (hsC : has_homsets C)
+  (BPC : BinProducts C) (BCC : BinCoproducts C) (TC : Terminal C),
+  Colims_of_shape nat_graph C →
+  (Π F : functor_precategory C C hsC, is_omega_cocont
+       (constprod_functor1 (BinProducts_functor_precat C C BPC hsC) F))
+  → Π (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C),
+                          Products (BindingSigIndex sig) C →
+  is_omega_cocont (BindingSigToSignature hsC BPC BCC TC sig CC).
+Proof.
+  exact @UniMath.SubstitutionSystems.BindingSigToMonad.is_omega_cocont_BindingSigToSignature.
+Defined.
+
 Definition InitialHSS :
   Π (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C),
   BinProducts C → Initial C → Colims_of_shape nat_graph C →
@@ -123,7 +138,7 @@ Defined.
 
 Lemma is_omega_cocont_binproduct_functor
   : Π (C : precategory) (PC : BinProducts C), has_homsets C →
-    (Π x : C, is_omega_cocont (constprod_functor1 PC x)) →
+    (Π (x : C), is_omega_cocont (constprod_functor1 PC x)) →
     is_omega_cocont (binproduct_functor PC).
 Proof.
   exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_binproduct_functor.

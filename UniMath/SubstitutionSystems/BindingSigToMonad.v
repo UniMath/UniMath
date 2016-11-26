@@ -166,13 +166,13 @@ Defined.
 
 Lemma is_omega_cocont_BindingSigToSignature
   (TC : Terminal C) (CLC : Colims_of_shape nat_graph C)
-  (H : Π (F : [C,C]), is_omega_cocont (constprod_functor1 F))
+  (HF : Π (F : [C,C]), is_omega_cocont (constprod_functor1 F))
   (sig : BindingSig)
   (CC : Coproducts (BindingSigIndex sig) C) (PC : Products (BindingSigIndex sig) C) :
   is_omega_cocont (BindingSigToSignature TC sig CC).
 Proof.
 apply (is_omega_cocont_Sum_of_Signatures _ (BindingSigIsdeceq sig)).
-- intro i; apply is_omega_cocont_Arity_to_Signature, H; assumption.
+- intro i; apply is_omega_cocont_Arity_to_Signature, HF; assumption.
 - apply PC.
 Defined.
 
@@ -182,8 +182,8 @@ Let FunctorAlg F := FunctorAlg F has_homsets_C2.
 (** ** Construction of initial algebra for a signature with strength *)
 Definition SignatureInitialAlgebra
   (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
-  (s : Signature C hsC) (Hs : is_omega_cocont s) :
-  Initial (FunctorAlg (Id_H s)).
+  (H : Signature C hsC) (Hs : is_omega_cocont H) :
+  Initial (FunctorAlg (Id_H H)).
 Proof.
 use colimAlgInitial.
 - apply (Initial_functor_precat _ _ IC).
@@ -192,6 +192,15 @@ use colimAlgInitial.
 Defined.
 
 Let HSS := @hss_precategory C hsC BCC.
+
+(* Redefine this here so that it uses the arguments above *)
+Let InitialHSS
+  (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
+  (H : Signature C hsC) (Hs : is_omega_cocont H) :
+  Initial (HSS H).
+Proof.
+apply InitialHSS; assumption.
+Defined.
 
 (** ** Signature with strength and initial algebra to a HSS *)
 Definition SignatureToHSS
@@ -205,8 +214,8 @@ Defined.
 (** The above HSS is initial *)
 Definition SignatureToHSSisInitial
   (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
-  (s : Signature C hsC) (Hs : is_omega_cocont s) :
-  isInitial _ (SignatureToHSS IC CLC s Hs).
+  (H : Signature C hsC) (Hs : is_omega_cocont H) :
+  isInitial _ (SignatureToHSS IC CLC H Hs).
 Proof.
 now unfold SignatureToHSS; destruct InitialHSS.
 Qed.
@@ -220,15 +229,16 @@ Defined.
 (** ** Function from binding signatures to monads *)
 Definition BindingSigToMonad
   (TC : Terminal C) (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
-  (H : Π (F : [C,C]), is_omega_cocont (constprod_functor1 F))
+  (HF : Π (F : [C,C]), is_omega_cocont (constprod_functor1 F))
   (sig : BindingSig)
-  (PC : Products (BindingSigIndex sig) C) (CC : Coproducts (BindingSigIndex sig) C) :
- Monad C.
+  (PC : Products (BindingSigIndex sig) C)
+  (CC : Coproducts (BindingSigIndex sig) C) :
+  Monad C.
 Proof.
 use Monad_from_hss.
 - apply (BindingSigToSignature TC sig CC).
 - apply (SignatureToHSS IC CLC).
-  apply (is_omega_cocont_BindingSigToSignature TC CLC H _ _ PC).
+  apply (is_omega_cocont_BindingSigToSignature TC CLC HF _ _ PC).
 Defined.
 
 End BindingSigToMonad.
