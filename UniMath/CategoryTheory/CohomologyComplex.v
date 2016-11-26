@@ -3,9 +3,9 @@
 - Cohomology functor C(A) -> C(A)
 - Alternative definition of cohomology complex
 - Quasi-isomorphism in C(A)
-- Cohomology functor K(A) -> K(A)
- - Construction of K(A) -> K(A)
- - K(A) -> K(A) is additive
+- Cohomology functor K(A) -> C(A)
+ - Construction of K(A) -> C(A)
+ - K(A) -> C(A) is additive
  - Quasi-isomorphisms in K(A)
 - Complex of kernels and complex of cokernels
  - Construction of the complexes
@@ -982,14 +982,14 @@ End def_cohomology_functor_additive.
 
 
 
-(** * We show that CohomologyFunctor factors though naive homotopy category *)
+(** * CohomologyFunctor factors through naive homotopy category *)
 (** ** Introduction
    We show that there exists a functor K(A) -> K(A) such that the following diagram is commutative
                            C(A) -> C(A)
-                             |       |
-                           K(A) -> K(A)
+                             |      ||         (Think this as a triangle)
+                           K(A) -> C(A)
    Here C(A) -> C(A) is the cohomology functor H : C(A) -> C(A), [CohomologyFunctor], see section
-   [def_cohomology_complex]. The vertical functor C(A) -> K(A) are the canonical functors
+   [def_cohomology_complex]. The vertical functor C(A) -> K(A) is the canonical functor
    [ComplexHomotFunctor]. The constructed functor K(A) -> K(A) is also additive. Using this
    functor we define quasi-isomorphisms for K(A).
 
@@ -997,17 +997,17 @@ End def_cohomology_functor_additive.
    commute because the vertical functors are identity on objects. To construct the map on morphisms
    we  first show that two homotopic, [ComplexHomotSubset], morphisms in C(A) are mapped to the
    same morphism by the cohomology functor for C(A). Thus, given a morphism f in K(A), for every
-   morphism f' which maps to f by C(A) -> K(A) the image under C(A) -> C(A) -> K(A) is the same,
-   that is, is contractible. This is the observation we use to define the map on morphisms. After
-   this observation it is easy to see that the diagram is commutative.
+   morphism f' which maps to f by C(A) -> K(A) the image under C(A) -> C(A) is the same, that is,
+   is contractible. This is the observation we use to define the map on morphisms. After this
+   observation it is easy to see that the diagram is commutative.
 
    In [CohomologyFunctorHomotopy] it is shown that a morphism induced by homotopy is sent to the
    zero morphism in C(A). In [CohomologyFunctorHomotopies] we use this observation to prove that
    two homotopic morphisms are sent to the same morphisms by the cohomology functor. In
    [CohomologyFunctorH_Mor] we show that the image on morphisms is contractible, in
-   [CohomologyFunctorH_functor_data] we construct the functor data for K(A) -> K(A), and finally
+   [CohomologyFunctorH_functor_data] we construct the functor data for K(A) -> C(A), and finally
    in [CohomologyFunctorH] we construct the functor. Commutativity of the diagram is proved in
-   [CohomologyFunctorHCommutes]. The fact that K(A) -> K(A) is additive is proved in
+   [CohomologyFunctorHCommutes]. The fact that K(A) -> C(A) is additive is proved in
    [CohomologyFunctorH_Additive].
 *)
 Section def_cohomology_homotopy.
@@ -1112,34 +1112,32 @@ Section def_cohomology_homotopy.
 
   Definition CohomologyFunctorHIm {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A hs)}
              (f : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧) : UU :=
-    Σ (h : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦CohomologyComplex A hs C1,
-                                                           CohomologyComplex A hs C2⟧),
+    Σ (h : (ComplexPreCat_Additive (AbelianToAdditive A hs))⟦CohomologyComplex A hs C1,
+                                                             CohomologyComplex A hs C2⟧),
     Π (f' : ComplexPreCat_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
       (H : # (ComplexHomotFunctor (AbelianToAdditive A hs)) f' = f),
-    h = # (ComplexHomotFunctor (AbelianToAdditive A hs)) (# (CohomologyFunctor A hs) f').
+    h = # (CohomologyFunctor A hs) f'.
 
   Definition CohomologyFunctorHImMor {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A hs)}
              {f : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧}
              (h : CohomologyFunctorHIm f) :
-    ComplexHomot_Additive (AbelianToAdditive A hs) ⟦CohomologyComplex A hs C1,
-                                                    CohomologyComplex A hs C2⟧ := pr1 h.
+    (ComplexPreCat_Additive (AbelianToAdditive A hs))⟦CohomologyComplex A hs C1,
+                                                      CohomologyComplex A hs C2⟧ := pr1 h.
 
   Definition CohomologyFunctorHImEq {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A hs)}
              {f : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧}
              (h : CohomologyFunctorHIm f)
              (f' : ComplexPreCat_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
              (H : # (ComplexHomotFunctor (AbelianToAdditive A hs)) f' = f) :
-    (CohomologyFunctorHImMor h) =
-    # (ComplexHomotFunctor (AbelianToAdditive A hs)) (# (CohomologyFunctor A hs) f') := pr2 h f' H.
+    CohomologyFunctorHImMor h = # (CohomologyFunctor A hs) f' := pr2 h f' H.
 
   Definition mk_CohomologyFunctorHIm {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A hs)}
-             (f : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
-             (h : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦CohomologyComplex A hs C1,
-                                                                  CohomologyComplex A hs C2⟧)
+             (f : (ComplexHomot_Additive (AbelianToAdditive A hs))⟦C1, C2⟧)
+             (h : (ComplexPreCat_Additive (AbelianToAdditive A hs))⟦CohomologyComplex A hs C1,
+                                                                    CohomologyComplex A hs C2⟧)
              (HH : Π (f' : ComplexPreCat_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
                      (H : # (ComplexHomotFunctor (AbelianToAdditive A hs)) f' = f),
-                   h = # (ComplexHomotFunctor (AbelianToAdditive A hs))
-                         (# (CohomologyFunctor A hs) f')) : CohomologyFunctorHIm f :=
+                   h = # (CohomologyFunctor A hs) f') : CohomologyFunctorHIm f :=
     tpair _ h HH.
 
   Lemma CohomologyFunctorHImEquality {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A hs)}
@@ -1150,7 +1148,7 @@ Section def_cohomology_homotopy.
     use total2_paths.
     - exact e.
     - apply proofirrelevance. apply impred_isaprop. intros t0.
-      apply impred_isaprop. intros H0. apply has_homsets_ComplexHomot_Additive.
+      apply impred_isaprop. intros H0. apply has_homsets_ComplexPreCat.
   Qed.
 
   (** ** Construction of the functor and commutativity  *)
@@ -1160,10 +1158,8 @@ Section def_cohomology_homotopy.
         (H : hfiber # (ComplexHomotFunctor (AbelianToAdditive A hs)) f)
         (f' : ComplexPreCat_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
         (H' : # (ComplexHomotFunctor (AbelianToAdditive A hs)) f' = f) :
-    # (ComplexHomotFunctor (AbelianToAdditive A hs)) (# (CohomologyFunctor A hs) (pr1 H)) =
-    # (ComplexHomotFunctor (AbelianToAdditive A hs)) (# (CohomologyFunctor A hs) f').
+    # (CohomologyFunctor A hs) (pr1 H) = # (CohomologyFunctor A hs) f'.
   Proof.
-    apply maponpaths.
     use CohomologyFunctorHomotopies.
     use (@abgrquotpr_rel_paths _ (binopeqrel_subgr_eqrel
                                     (ComplexHomotSubgrp (AbelianToAdditive A hs) C1 C2))).
@@ -1178,8 +1174,7 @@ Section def_cohomology_homotopy.
     apply isapropiscontr. intros H.
     use iscontrpair.
     - use mk_CohomologyFunctorHIm.
-      + exact (# ((ComplexHomotFunctor (AbelianToAdditive A hs)))
-                 (# (CohomologyFunctor A hs) (hfiberpr1 _ _ H))).
+      + exact ((# (CohomologyFunctor A hs) (hfiberpr1 _ _ H))).
       + intros f' H'. exact (CohomologyFunctorH_Mor_eq f H f' H').
     - intros t. use CohomologyFunctorHImEquality.
       use CohomologyFunctorHImEq.
@@ -1193,7 +1188,7 @@ Section def_cohomology_homotopy.
                        (iscontrpr1 (CohomologyFunctorH_Mor (identity C)))
                        (identity _)
                        (functor_id (ComplexHomotFunctor (AbelianToAdditive A hs)) _))).
-    rewrite functor_id. rewrite functor_id. apply idpath.
+    rewrite functor_id. apply idpath.
   Qed.
 
   Lemma CohomologyFunctorH_Mor_Comp {C1 C2 C3 : ComplexHomot_Additive (AbelianToAdditive A hs)}
@@ -1204,17 +1199,12 @@ Section def_cohomology_homotopy.
       ;; (CohomologyFunctorHImMor (iscontrpr1 (CohomologyFunctorH_Mor g))) .
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A hs) f)).
-    apply has_homsets_ComplexHomot_Additive. intros f'.
+    apply has_homsets_ComplexPreCat. intros f'.
     use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A hs) g)).
-    apply has_homsets_ComplexHomot_Additive. intros g'.
+    apply has_homsets_ComplexPreCat. intros g'.
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor f)) _ (hfiberpr2 _ _ f')).
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor g)) _ (hfiberpr2 _ _ g')).
-    set (tmp := functor_comp (ComplexHomotFunctor (AbelianToAdditive A hs)) _ _ _
-                             (# (CohomologyFunctor A hs) (hfiberpr1 _ _ f'))
-                             (# (CohomologyFunctor A hs) (hfiberpr1 _ _ g'))).
-    use (pathscomp0 _ tmp). clear tmp.
     set (tmp := functor_comp (CohomologyFunctor A hs) _ _ _ (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
-    apply (maponpaths (# (ComplexHomotFunctor (AbelianToAdditive A hs)))) in tmp.
     use (pathscomp0 _ tmp). clear tmp.
     use (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor (f ;; g)))).
     rewrite functor_comp. rewrite (hfiberpr2 _ _ f'). rewrite (hfiberpr2 _ _ g'). apply idpath.
@@ -1222,7 +1212,7 @@ Section def_cohomology_homotopy.
 
   Definition CohomologyFunctorH_functor_data :
     functor_data (ComplexHomot_Additive (AbelianToAdditive A hs))
-                 (ComplexHomot_Additive (AbelianToAdditive A hs)).
+                 (ComplexPreCat_Additive (AbelianToAdditive A hs)).
   Proof.
     use tpair.
     - intros C. exact (CohomologyComplex A hs C).
@@ -1238,7 +1228,7 @@ Section def_cohomology_homotopy.
 
   Definition CohomologyFunctorH :
     functor (ComplexHomot_Additive (AbelianToAdditive A hs))
-            (ComplexHomot_Additive (AbelianToAdditive A hs)).
+            (ComplexPreCat_Additive (AbelianToAdditive A hs)).
   Proof.
     use tpair.
     - exact CohomologyFunctorH_functor_data.
@@ -1247,7 +1237,7 @@ Section def_cohomology_homotopy.
 
   Lemma CohomologyFunctorHCommutes :
     functor_composite (ComplexHomotFunctor (AbelianToAdditive A hs)) CohomologyFunctorH =
-    functor_composite (CohomologyFunctor A hs) (ComplexHomotFunctor (AbelianToAdditive A hs)).
+    (CohomologyFunctor A hs).
   Proof.
     use total2_paths.
     - use total2_paths.
@@ -1262,7 +1252,7 @@ Section def_cohomology_homotopy.
                      (# (ComplexHomotFunctor (AbelianToAdditive A hs)) f))) f
                (idpath _)).
     - apply proofirrelevance. apply isaprop_is_functor.
-      use has_homsets_ComplexHomot_Additive.
+      use has_homsets_ComplexPreCat.
   Qed.
 
 
@@ -1273,33 +1263,24 @@ Section def_cohomology_homotopy.
         (C1 C2 : (ComplexHomot_Additive (AbelianToAdditive A hs))) :
     # CohomologyFunctorH
       (ZeroArrow (Additive.to_Zero (ComplexHomot_Additive (AbelianToAdditive A hs))) C1 C2) =
-    ZeroArrow (Additive.to_Zero (ComplexHomot_Additive (AbelianToAdditive A hs)))
+    ZeroArrow (Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)))
               (CohomologyFunctorH C1) (CohomologyFunctorH C2).
   Proof.
+    use (pathscomp0 _ (@AdditiveFunctorZeroArrow
+                         (ComplexPreCat_Additive (AbelianToAdditive A hs))
+                         (ComplexPreCat_Additive (AbelianToAdditive A hs))
+                         (CohomologyFunctor_Additive A hs) C1 C2)).
     assert (e0 : # (ComplexHomotFunctor (AbelianToAdditive A hs))
                    (ZeroArrow (Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)))
                               _ _) =
                  ZeroArrow (Additive.to_Zero (ComplexHomot_Additive (AbelianToAdditive A hs)))
-                           (CohomologyFunctorH C1) (CohomologyFunctorH C2)).
+                           C1 C2).
     {
       apply AdditiveFunctorZeroArrow.
     }
     rewrite <- e0. clear e0.
-    assert (e1 : # (ComplexHomotFunctor (AbelianToAdditive A hs))
-                   (ZeroArrow (Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A hs)))
-                              (CohomologyFunctorH C1) (CohomologyFunctorH C2)) =
-                 # (ComplexHomotFunctor (AbelianToAdditive A hs))
-                   (# (CohomologyFunctor A hs) (ZeroArrow to_Zero _ _))).
-    {
-      apply maponpaths. apply pathsinv0.
-      apply (@AdditiveFunctorZeroArrow
-               (ComplexPreCat_Additive (AbelianToAdditive A hs))
-               (ComplexPreCat_Additive (AbelianToAdditive A hs))
-               (CohomologyFunctor_Additive A hs)).
-    }
-    rewrite e1. clear e1.
     use CohomologyFunctorHImEq.
-    apply AdditiveFunctorZeroArrow.
+    apply idpath.
   Qed.
 
   Local Lemma CohomologyFunctorH_Additive_linear
@@ -1310,9 +1291,9 @@ Section def_cohomology_homotopy.
              (# CohomologyFunctorH f) (# CohomologyFunctorH g).
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A hs) f)).
-    apply has_homsets_ComplexHomot_Additive. intros f'.
+    apply has_homsets_ComplexPreCat. intros f'.
     use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A hs) g)).
-    apply has_homsets_ComplexHomot_Additive. intros g'.
+    apply has_homsets_ComplexPreCat. intros g'.
     cbn.
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor f))
                                     (hfiberpr1 _ _ f') (hfiberpr2 _ _ f')).
@@ -1320,21 +1301,10 @@ Section def_cohomology_homotopy.
                                     (hfiberpr1 _ _ g') (hfiberpr2 _ _ g')).
     set (tmp := @AdditiveFunctorLinear
                   (ComplexPreCat_Additive (AbelianToAdditive A hs))
-                  (ComplexHomot_Additive (AbelianToAdditive A hs))
-                  (ComplexHomotFunctor (AbelianToAdditive A hs))
-                  (CohomologyComplex A hs C1) (CohomologyComplex A hs C2)
-                  (# (CohomologyFunctor A hs)
-                     (hfiberpr1 # (ComplexHomotFunctor (AbelianToAdditive A hs)) f f'))
-                  (# (CohomologyFunctor A hs)
-                     (hfiberpr1 # (ComplexHomotFunctor (AbelianToAdditive A hs)) g g'))).
-    use (pathscomp0 _ tmp). clear tmp.
-    set (tmp := @AdditiveFunctorLinear
-                  (ComplexPreCat_Additive (AbelianToAdditive A hs))
                   (ComplexPreCat_Additive (AbelianToAdditive A hs))
                   (CohomologyFunctor_Additive A hs) C1 C2
                   (hfiberpr1 # (ComplexHomotFunctor (AbelianToAdditive A hs)) f f')
                   (hfiberpr1 # (ComplexHomotFunctor (AbelianToAdditive A hs)) g g')).
-    apply (maponpaths # (ComplexHomotFunctor (AbelianToAdditive A hs))) in tmp.
     use (pathscomp0 _ tmp). clear tmp.
     use (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor (to_binop C1 C2 f g)))).
     rewrite AdditiveFunctorLinear.
@@ -1344,7 +1314,7 @@ Section def_cohomology_homotopy.
   Local Lemma CohomologyFunctorH_isAdditive : isAdditiveFunctor CohomologyFunctorH.
   Proof.
     refine (@mk_isAdditiveFunctor' (ComplexHomot_Additive (AbelianToAdditive A hs))
-                                   (ComplexHomot_Additive (AbelianToAdditive A hs))
+                                   (ComplexPreCat_Additive (AbelianToAdditive A hs))
                                    CohomologyFunctorH _ _).
     - intros C1 C2. exact (CohomologyFunctorH_Additive_zero C1 C2).
     - intros C1 C2 f g. exact (CohomologyFunctorH_Additive_linear f g).
@@ -1352,7 +1322,7 @@ Section def_cohomology_homotopy.
 
   Definition CohomologyFunctorH_Additive :
     AdditiveFunctor (ComplexHomot_Additive (AbelianToAdditive A hs))
-                    (ComplexHomot_Additive (AbelianToAdditive A hs)).
+                    (ComplexPreCat_Additive (AbelianToAdditive A hs)).
   Proof.
     use mk_AdditiveFunctor.
     - exact CohomologyFunctorH.
@@ -1384,7 +1354,7 @@ Section def_cohomology_homotopy.
     isHQIS (f1 ;; f2).
   Proof.
     unfold isHQIS. rewrite functor_comp.
-    apply (@is_iso_comp_of_isos (ComplexHomot_Additive (AbelianToAdditive A hs)) _ _ _
+    apply (@is_iso_comp_of_isos (ComplexPreCat_Additive (AbelianToAdditive A hs)) _ _ _
                                 (isopair _ H1) (isopair _ H2)).
   Qed.
 
