@@ -100,6 +100,20 @@ Section def_precategory_with_abgrops.
     apply (grrinvax (to_abgrop x y)).
   Qed.
 
+  Lemma to_lcan {x y : PA} {f g : PA⟦x, y⟧} (h : PA⟦x, y⟧) :
+    to_binop x y h f = to_binop x y h g -> f = g.
+  Proof.
+    intros H.
+    apply (grlcan (to_abgrop x y) h H).
+  Qed.
+
+  Lemma to_rcan {x y : PA} {f g : PA⟦x, y⟧} (h : PA⟦x, y⟧) :
+    to_binop x y f h = to_binop x y g h -> f = g.
+  Proof.
+    intros H.
+    apply (grrcan (to_abgrop x y) h H).
+  Qed.
+
 End def_precategory_with_abgrops.
 Arguments to_has_homsets [PA] _ _ _ _ _ _.
 Arguments to_homset [PA] _ _.

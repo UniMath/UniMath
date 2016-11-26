@@ -93,6 +93,19 @@ Section def_epi.
     apply (X w _ _ H).
   Defined.
 
+  (** Transport of isEpi *)
+  Lemma transportf_isEpi {x y z : C} (f : x --> y) (E : isEpi f) (e : y = z) :
+    isEpi (transportf (precategory_morphisms x) e f).
+  Proof.
+    induction e. apply E.
+  Qed.
+
+  Lemma transportb_isEpi {x y z : C} (f : y --> z) (E : isEpi f) (e : x = y) :
+    isEpi (transportb (fun x' : ob C => precategory_morphisms x' z) e f).
+  Proof.
+    induction e. apply E.
+  Qed.
+
 End def_epi.
 Arguments isEpi [C] [x] [y] _.
 

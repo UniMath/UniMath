@@ -955,6 +955,8 @@ Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
 
 Definition hfiberpr1 {X Y : UU} (f : X -> Y) (y : Y) : hfiber f y -> X := pr1.
 
+Definition hfiberpr2 {X Y : UU} (f : X -> Y) (y : Y) (y' : hfiber f y) : f (hfiberpr1 f y y') = y :=
+  pr2 y'.
 
 (** *** The functions between the hfibers of homotopic functions over the same point *)
 

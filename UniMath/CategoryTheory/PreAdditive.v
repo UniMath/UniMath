@@ -3,6 +3,7 @@
 - Definition of preadditive categories [PreAdditive]
 - Zero and unit element coincide
 - Composition and inverses
+- KernelIn, CokernelOut, and binary operations
 - Quotient of PreAdditive
  *)
 
@@ -21,7 +22,8 @@ Require Import UniMath.CategoryTheory.PrecategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 
 Require Import UniMath.CategoryTheory.limits.zero.
-
+Require Import UniMath.CategoryTheory.limits.kernels.
+Require Import UniMath.CategoryTheory.limits.cokernels.
 
 (** * Definition of a PreAdditive precategory
    A preadditive precategory is a precategory such that the sets of morphisms are abelian groups and
@@ -139,7 +141,6 @@ Section preadditive_with_zero.
 End preadditive_with_zero.
 
 
-
 (** * Inverses and composition
    Some equations on inverses in PreAdditive categories *)
 Section preadditive_inv_comp.
@@ -175,6 +176,64 @@ Section preadditive_inv_comp.
   Qed.
 
 End preadditive_inv_comp.
+
+
+(** * KernelIn, CokernelOut, and Binary Operations *)
+(** ** Introduction
+   In this section we show that binop commutes with KernelIn and CokernelOut in a PreAdditive
+   category. [KernelInOp] proves commutativity for KernelIn and [CokernelOutOp] proves commutativity
+   for CokernelOut.
+*)
+Section def_additive_kernel_cokernel.
+
+  Variable A : PreAdditive.
+  Variable Z : Zero A.
+
+  Local Lemma KernelInOp_Eq {x y z : A} (f1 f2 : A⟦x, y⟧) (g : A⟦y, z⟧)
+        (H1 : f1 ;; g = ZeroArrow Z _ _) (H2 : f2 ;; g = ZeroArrow Z _ _) :
+    (to_binop _ _ f1 f2 ;; g = ZeroArrow Z _ _).
+  Proof.
+    rewrite to_postmor_linear'. rewrite H1. rewrite H2.
+    rewrite <- PreAdditive_unel_zero.
+    rewrite to_lunax'. apply idpath.
+  Qed.
+
+  Lemma KernelInOp {x y z : A} (f1 f2 : A⟦x, y⟧) (g : A⟦y, z⟧) (K : Kernel Z g)
+        (H1 : f1 ;; g = ZeroArrow Z _ _) (H2 : f2 ;; g = ZeroArrow Z _ _) :
+    KernelIn Z K _ (to_binop _ _ f1 f2) (KernelInOp_Eq f1 f2 g H1 H2) =
+    to_binop _ _ (KernelIn Z K _ f1 H1) (KernelIn Z K _ f2 H2).
+  Proof.
+    use KernelInsEq.
+    rewrite KernelCommutes.
+    rewrite to_postmor_linear'.
+    rewrite KernelCommutes.
+    rewrite KernelCommutes.
+    apply idpath.
+  Qed.
+
+  Local Lemma CokernelOutOp_Eq {x y z : A} (f1 f2 : A⟦y, z⟧) (g : A⟦x, y⟧)
+        (H1 : g ;; f1 = ZeroArrow Z _ _) (H2 : g ;; f2 = ZeroArrow Z _ _) :
+    g ;; (to_binop _ _ f1 f2) = ZeroArrow Z _ _.
+  Proof.
+    rewrite to_premor_linear'. rewrite H1. rewrite H2.
+    rewrite <- PreAdditive_unel_zero.
+    rewrite to_lunax'. apply idpath.
+  Qed.
+
+  Lemma CokernelOutOp {x y z : A} (f1 f2 : A⟦y, z⟧) (g : A⟦x, y⟧) (CK : Cokernel Z g)
+        (H1 : g ;; f1 = ZeroArrow Z _ _) (H2 : g ;; f2 = ZeroArrow Z _ _) :
+    CokernelOut Z CK _ (to_binop _ _ f1 f2) (CokernelOutOp_Eq f1 f2 g H1 H2) =
+    to_binop _ _ (CokernelOut Z CK _ f1 H1) (CokernelOut Z CK _ f2 H2).
+  Proof.
+    use CokernelOutsEq.
+    rewrite CokernelCommutes.
+    rewrite to_premor_linear'.
+    rewrite CokernelCommutes.
+    rewrite CokernelCommutes.
+    apply idpath.
+  Qed.
+
+End def_additive_kernel_cokernel.
 
 
 (** * Quotient of homsets
@@ -319,6 +378,11 @@ Section preadditive_quotient.
   Definition QuotPrecategory_ob_mor : precategory_ob_mor :=
     tpair (fun ob : UU => ob -> ob -> UU) (ob PA) (fun A B : ob PA => QuotPrecategory_homsets A B).
 
+  Lemma QuotPrecategory_surj {c d : QuotPrecategory_ob_mor} (f : QuotPrecategory_ob_mor⟦c, d⟧) :
+    ∥ hfiber (setquotpr (binopeqrel_subgr_eqrel (PAS c d))) f ∥.
+  Proof.
+    use issurjsetquotpr.
+  Qed.
 
   (** ** Composition of morphisms *)
 
@@ -342,7 +406,7 @@ Section preadditive_quotient.
     apply eqrelrefl.
   Qed.
 
-  Local Lemma abgrquotpr_rel_paths {A : abgr} {H : @binopeqrel A} {f g : A}
+  Lemma abgrquotpr_rel_paths {A : abgr} {H : @binopeqrel A} {f g : A}
         (e : setquotpr H f = setquotpr H g) : H f g.
   Proof.
     exact (abgrquotpr_rel_to_refl (! (funeqpaths (base_paths _ _ e)) g)).
@@ -796,6 +860,32 @@ Section preadditive_quotient.
   Proof.
     apply idpath.
   Qed.
+
+
+  (** ** The canonical functor to QuotPrecategory *)
+  (** This functor is identity on objects and sends morphisms to the equivalence class they
+      represent. *)
+
+  Definition QuotPrecategoryFunctor_data : functor_data PA QuotPrecategory_PreAdditive.
+  Proof.
+    use tpair.
+    - intros X. exact X.
+    - intros X Y f. exact (setquotpr (binopeqrel_subgr_eqrel (PAS X Y)) f).
+  Defined.
+
+  Local Lemma QuotPrecategoryFunctor_isfunctor : is_functor QuotPrecategoryFunctor_data.
+  Proof.
+    split.
+    - intros X. apply idpath.
+    - intros x Y Z f g. apply idpath.
+  Qed.
+
+  Definition QuotPrecategoryFunctor : functor PA QuotPrecategory_PreAdditive.
+  Proof.
+    use tpair.
+    - exact QuotPrecategoryFunctor_data.
+    - exact QuotPrecategoryFunctor_isfunctor.
+  Defined.
 
 
   (** ** If PA has a zero object, then so does QuotPrecategory of PA *)

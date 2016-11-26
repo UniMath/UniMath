@@ -9,6 +9,7 @@
    [complexes_additive]
  - Precategory of complexes over an abelian category is abelian [complexes_abelian]
  - Homotopies and construction of K(A), the naive homotopy category
+ - Translation functor
 *)
 Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Require Import UniMath.Foundations.Basics.PartD.
@@ -37,6 +38,7 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
+Require Import UniMath.CategoryTheory.functor_categories.
 
 Require Import UniMath.CategoryTheory.PrecategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
@@ -44,8 +46,13 @@ Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
 Require Import UniMath.CategoryTheory.Abelian.
 Require Import UniMath.CategoryTheory.AbelianToAdditive.
+Require Import UniMath.CategoryTheory.AdditiveFunctors.
 
 
+Open Scope hz_scope.
+Local Opaque hz isdecrelhzeq hzplus iscommrngops.
+
+(** * Definition of complexes *)
 (** ** Introduction
    A complex consists of an objects C_i, for every integer i, and a morphism C_i --> C_{i+1} for
    every i, such that composition of two such morphisms is the zero morphism. One visualizes
@@ -60,19 +67,15 @@ Require Import UniMath.CategoryTheory.AbelianToAdditive.
    Composition of morphisms is defined as pointwise composition. It is easy to check that this forms
    a morphisms of complexes. Identity morphism is indexwise identity.
 
-     The direct sum of complexes is given by taking pointwise direct sum of the underlying objects.
+   A direct sum of complexes is given by taking pointwise direct sum of the underlying objects.
    The morphisms between the objects in direct sum complex is given by the following formula
                  Pr1 ;; (C_i --> C_{i+1]) ;; In1 + Pr2 ;; (D_i --> D_{i+1}) ;; In2
-   Again, it is easy to check that this is well defined. Clearly, the zero complex is given by zero
-   objects and zero morphisms. To show that this defines a direct sum in the category of complexes
-   is straightforward.
+   To show that this defines a direct sum in the category of complexes is straightforward. The zero
+   complex is given by zero objects and zero morphisms.
 *)
-
-Open Scope hz_scope.
-Local Opaque hz isdecrelhzeq hzplus iscommrngops.
-
-(** * Definition of complexes *)
 Section def_complexes.
+
+  (** ** Basics of complexes *)
 
   Variable A : Additive.
 
@@ -920,14 +923,19 @@ Arguments IdMor [A] _.
 Arguments MorphismComp [A] [C1] [C2] [C3] _ _.
 
 
-(** * The category of complexes
-     The precategory of complexes over an additive category consists of the following data:
-   - Objects are complexes over the additive category
-   - Morphisms are morphisms of complexes.
+(** * The category of complexes *)
+(** ** Introduction
+   We construct the category of complexes where the objects are complexes, [Complex], and morphisms
+   are  morphisms between complexes, [Morphism]. Also, we show that a monic (resp. epi) in this
+   category is indexwise monic (resp. epi), [ComplexMonicIndexMonic] (resp. [ComplexEpiIndexEpi]).
+   To show that a morphism of complexes is an isomorphism, it is enough to show that the morphism
+   is indexwise isomorphism, [ComplexIsoIndexIso].
 *)
 Section complexes_precat.
 
   Variable A : Additive.
+
+  (** ** Construction of the category of complexes *)
 
   Definition ComplexPreCat_ob_mor : precategory_ob_mor :=
     tpair (fun ob : UU => ob -> ob -> UU) (Complex A) (fun C1 C2 : Complex A => Morphism C1 C2).
@@ -1049,10 +1057,44 @@ Section complexes_precat.
     exact tmp.
   Qed.
 
+
+  (** ** An morphism in complexes is an isomorphism if it is so indexwise *)
+
+  Lemma ComplexIsoIndexIso {C1 C2 : Complex A} (f : ComplexPreCat⟦C1, C2⟧)
+        (H : Π (i : hz), is_iso (MMor f i)) : is_iso f.
+  Proof.
+    use is_iso_qinv.
+    - use mk_Morphism.
+      + intros i. exact (iso_inv_from_is_iso _ (H i)).
+      + intros i. cbn.
+        use (post_comp_with_iso_is_inj _ _ _ _ (H (i + 1))).
+        use (pre_comp_with_iso_is_inj _ _ _ _ _ (H i)).
+        assert (e0 : MMor f i ;; inv_from_iso (MMor f i,, H i) = identity _).
+        {
+          apply (iso_inv_after_iso (isopair _ (H i))).
+        }
+        rewrite assoc. rewrite assoc. rewrite e0. rewrite id_left.
+        rewrite <- (MComm f i). apply cancel_precomposition.
+        assert (e1 : inv_from_iso (MMor f (i + 1),, H (i + 1)) ;; MMor f (i + 1) = identity _).
+        {
+          apply (iso_after_iso_inv (isopair _ (H (i + 1)))).
+        }
+        rewrite <- assoc. rewrite e1. rewrite id_right. apply idpath.
+    - split.
+      + use MorphismEq. intros i. cbn. apply (iso_inv_after_iso (isopair _ (H i))).
+      + use MorphismEq. intros i. cbn. apply (iso_after_iso_inv (isopair _ (H i))).
+  Qed.
+
 End complexes_precat.
 
 
 (** * The category of complexes over Additive is Additive *)
+(** ** Introduction
+   We show that the category of complexes over an additive category is an additive category.
+   Addition of morphisms is given by indexwise addition, [MorphismOp], [ZeroComplex] is a zero
+   object, which is shown to be zero in [ComplexPreCat_isZero], and binary direct sums are
+   given by [DirectSumComplex]. [ComplexPreCat_Additive] is the main result.
+*)
 Section complexes_additive.
 
   Variable A : Additive.
@@ -1223,6 +1265,15 @@ End complexes_additive.
 
 
 (** * Complexes over Abelian is Abelian *)
+(** ** Introduction
+   We show that the category of complexes, [ComplexPreCat_Additive], over an abelian category A,
+   more precisely [AbelianToAdditive A hs], is an abelian category, [ComplexPreCat_AbelianPreCat].
+   Kernels and cokernels are given by taking kernels and cokernels indexwise. Since monics and epis
+   in [ComplexPreCat_Additive] are indexwise monics and epis, by [ComplexMonicIndexMonic] and
+   [ComplexEpiIndexEpi], we can use the fact that A is abelian to show that every monic is a kernel
+   of some morphism in [ComplexPreCat_Additive] and every epi is a cokernel of some morphism in
+   [ComplexPreCat_Additive].
+*)
 Section complexes_abelian.
 
   Variable A : AbelianPreCat.
@@ -1878,10 +1929,72 @@ Section complexes_abelian.
         * exact ComplexPreCatAbelianEpiCokernelsData.
   Defined.
 
+  Lemma has_homsets_ComplexPreCat_AbelianPreCat : has_homsets ComplexPreCat_AbelianPreCat.
+  Proof.
+    apply has_homsets_ComplexPreCat.
+  Qed.
+
 End complexes_abelian.
 
 
+(** * Transposition of differentials *)
+Section transport_diffs.
+
+  Variable A : Additive.
+
+  Lemma transport_Diff (C : Complex A) (i : hz) :
+    transportb (λ x' : A, A ⟦ x', C (i + 1) ⟧) (maponpaths C (hzrplusminus i 1)) (Diff C i) =
+    transportf (precategory_morphisms (C (i + 1 - 1))) (maponpaths C (hzrminusplus (i + 1) 1))
+               (Diff C (i + 1 - 1)).
+  Proof.
+    unfold transportb. rewrite <- functtransportf.
+    rewrite <- maponpathsinv0. rewrite <- functtransportf.
+    use transportf_path.
+    - exact (C (i + 1 - 1 + 1)).
+    - exact (maponpaths C (! hzrminusplus (i + 1) 1)).
+    - rewrite <- functtransportf. rewrite <- functtransportf.
+      rewrite transport_f_f. rewrite pathsinv0r. cbn. unfold idfun.
+      use (pathscomp0 _ (@transport_section hz _ (Diff C) i (i + 1 - 1) (! (hzrplusminus i 1)))).
+      (* Split the right hand side to two transports *)
+      rewrite (@transportf_mor' hz A). unfold transportb. rewrite pathsinv0inv0.
+      rewrite functtransportf.
+      (* Here only the equations of the first transportfs are different! *)
+      use transportf_paths.
+      assert (e5 : maponpaths C (! hzrminusplus (i + 1) 1) =
+                   maponpaths (C ∘ (λ x' : pr1 hz, x' + 1)) (! hzrplusminus i 1)).
+      {
+        use (pathscomp0 _ (maponpathscomp (λ x' : pr1 hz, x' + 1) C (! hzrplusminus i 1))).
+        apply maponpaths. apply isasethz.
+      }
+      use (pathscomp0 e5). clear e5. induction (! hzrplusminus i 1). apply idpath.
+  Qed.
+
+End transport_diffs.
+
+
 (** * Homotopies of complexes and K(A), the naive homotopy category of A. *)
+(** ** Introduction
+   We define homotopy of complexes and the naive homotopy category K(A). A homotopy χ from complex
+   X to a complex Y is a family of morphisms χ^i : X^i --> Y^{i-1}. Note that a homotopy χ induces
+   a morphism of complexes h : X --> Y by setting
+                      h^i = χ^i ;; d^{i-1}_Y + d^i_X ;; χ^{i+1}.
+   The subset of morphisms in Mor(X, Y) which have a path to a morphism of the form h form an
+   abelian subgroup of Mor(X, Y). Also, if f : Z_1 --> X and g : Y --> Z_2 are morphisms of
+   complexes, then f ;; h and h ;; g have paths to morphisms induced by homotopies. These are given
+   (f^i ;; χ^i) and (χ^i ;; g^{i-1}), respectively.
+
+   These are the properties that are enough to form the quotient category of C(A) using
+   [QuotPrecategory_Additive]. We call the resulting category the naive homotopy category of A, and
+   denote it by K(A). The objects of K(A) are objects of C(A) and Mor_{K(A)}(X, Y) =
+   Mor_{C(A)}(X, Y) / (the subgroup of morphisms coming from homotopies, [ComplexHomotSubgrp]).
+
+   Homotopies are defined in [ComplexHomot]. The induced morphisms of a homotopy is constructed in
+   [ComplexHomotMorphism]. The subgroup of morphisms coming from homotopies is defined in
+   [ComplexHomotSubgrp]. Pre- and postcomposition of morphisms coming from homotopies are morphisms
+   coming from homotopies are proven in [ComplexHomotSubgrop_comp_right] and
+   [ComplexHomotSubgrop_comp_left]. The naive homotopy category K(A) is constructed in
+   [ComplexHomot_Additive].
+*)
 Section complexes_homotopies.
 
   Variable A : Additive.
@@ -2175,7 +2288,103 @@ Section complexes_homotopies.
     - exact (ComplexHomot_Additive_Comp).
   Defined.
 
+  Lemma has_homsets_ComplexHomot_Additive : has_homsets ComplexHomot_Additive.
+  Proof.
+    apply to_has_homsets.
+  Qed.
+
+  Lemma ComplexHomot_Mor_issurj {c d : ComplexHomot_Additive} (f : ComplexHomot_Additive⟦c, d⟧) :
+    ∥ hfiber (setquotpr (binopeqrel_subgr_eqrel (ComplexHomotSubgrp c d))) f ∥.
+  Proof.
+    use issurjsetquotpr.
+  Qed.
+
+  Definition ComplexHomotFunctor : AdditiveFunctor (ComplexPreCat_Additive A) ComplexHomot_Additive.
+  Proof.
+    apply QuotPrecategoryAdditiveFunctor.
+  Defined.
+
+  Lemma ComplexHomotFunctor_issurj {C1 C2 : ComplexPreCat_Additive A} (f : ComplexHomot_Additive⟦C1, C2⟧) :
+    ∥ hfiber (# ComplexHomotFunctor) f ∥.
+  Proof.
+    apply ComplexHomot_Mor_issurj.
+  Qed.
+
 End complexes_homotopies.
+
+
+(** * Translation funtor for C(A) and for K(A) *)
+(** ** Introduction
+   We define the translation functor T : C(A) -> C(A), which sends a complex (i ↦ X^i) to
+   (i ↦ X^{i+1}). On morphisms, T maps f to -f.
+*)
+Section translation_functor.
+
+  Variable A : Additive.
+
+  Local Lemma TranslationFunctor_comp (C : Complex A) (i : hz) :
+    (to_inv (C (i + 1)) (C (i + 1 + 1)) (Diff C (i + 1)))
+      ;; (to_inv (C (i + 1 + 1)) (C (i + 1 + 1 + 1)) (Diff C (i + 1 + 1))) =
+  ZeroArrow (Additive.to_Zero A) (C (i + 1)) (C (i + 1 + 1 + 1)).
+  Proof.
+    rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
+    rewrite inv_inv_eq. apply (CEq A C (i + 1)).
+  Qed.
+
+  Local Lemma TranslationFunctor_comm (C1 C2 : Complex A) (f : Morphism C1 C2) (i : hz) :
+    MMor f (i + 1) ;; to_inv (C2 (i + 1)) (C2 (i + 1 + 1)) (Diff C2 (i + 1)) =
+    to_inv (C1 (i + 1)) (C1 (i + 1 + 1)) (Diff C1 (i + 1)) ;; MMor f (i + 1 + 1).
+  Proof.
+    rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
+    apply maponpaths. apply (MComm f (i + 1)).
+  Qed.
+
+  (* Why Defined. does not terminate? *)
+  Definition TranslationFunctor_data :
+    functor_data (ComplexPreCat_Additive A) (ComplexPreCat_Additive A).
+  Proof.
+    use tpair.
+    - cbn. intros C.
+      use mk_Complex.
+      + intros i. exact (C (i + 1)).
+      + intros i. exact (to_inv (C (i + 1)) (C (i + 1 + 1)) (Diff C (i + 1))).
+      + intros i. exact (TranslationFunctor_comp C i).
+    - cbn. intros C1 C2 f.
+      use mk_Morphism.
+      + intros i. cbn. exact (MMor f (i + 1)).
+      + intros i. cbn. exact (TranslationFunctor_comm C1 C2 f i).
+        (* Show Proof. This shows the proof term as explained in 7.3.1.3 of reference manual.
+                       The proof term looks ok to me.  *)
+  Abort. (* Defined. *)
+
+  (* This is ok *)
+  Local Definition test_complex (C : Complex A) : Complex A :=
+    mk_Complex A (λ i : hz, C (i + 1))
+               (λ i : hz, to_inv (C (i + 1)) (C (i + 1 + 1)) (Diff C (i + 1)))
+               (λ i : hz, TranslationFunctor_comp C i).
+
+  (* This hangs *)
+  (* Definition test_morphism (C1 C2 : Complex A) (f : Morphism C1 C2) : Morphism C1 C2 :=
+    mk_Morphism
+      A
+      (mk_Complex A (λ i : pr1 hz, C1 (i + 1))
+                  (λ i : pr1 hz, to_inv (C1 (i + 1)) (C1 (i + 1 + 1)) (Diff C1 (i + 1)))
+                  (λ i : pr1 hz, TranslationFunctor_comp C1 i))
+      (mk_Complex A (λ i : pr1 hz, C2 (i + 1))
+                  (λ i : pr1 hz, to_inv (C2 (i + 1)) (C2 (i + 1 + 1)) (Diff C2 (i + 1)))
+                  (λ i : pr1 hz, TranslationFunctor_comp C2 i)) (λ i : hz, MMor f (i + 1))
+      (λ i : hz, TranslationFunctor_comm C1 C2 f i). *)
+
+  (* These hang too *)
+  (*
+  Lemma test_conv (C : Complex A) (i : hz) :
+    Diff (test_complex C) i = to_inv (C (i + 1)) (C (i + 1 + 1)) (Diff C (i + 1)).
+
+  Lemma test_conv' (C : Complex A) (i : hz) :
+    to_inv (C (i + 1)) (C (i + 1 + 1)) (Diff C (i + 1)) = Diff (test_complex C) i.
+   *)
+
+End translation_functor.
 
 Local Transparent hz isdecrelhzeq hzplus iscommrngops.
 Close Scope hz_scope.
