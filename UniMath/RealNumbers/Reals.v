@@ -1159,7 +1159,7 @@ Proof.
       intros c.
       generalize (pr2 c) ; intros Hc.
       apply_pr2_in plusNonnegativeReals_ltcompat_l Hc.
-      generalize (isarchrig_1 _ H _ _ Hc).
+      generalize (isarchrig_diff _ H _ _ Hc).
       apply hinhfun.
       intros n.
       exists (pr1 n).
@@ -1168,7 +1168,7 @@ Proof.
       apply plusNonnegativeReals_ltcompat_l.
       exact (pr2 n).
     - intros x.
-      generalize (isarchrig_2 _ H x).
+      generalize (isarchrig_gt _ H x).
       apply hinhfun.
       intros n.
       exists (pr1 n).
@@ -1177,7 +1177,7 @@ Proof.
       apply plusNonnegativeReals_ltcompat_l.
       exact (pr2 n).
     - intros x.
-      generalize (isarchrig_3 _ H x).
+      generalize (isarchrig_pos _ H x).
       apply hinhfun.
       intros n.
       exists (pr1 n).
