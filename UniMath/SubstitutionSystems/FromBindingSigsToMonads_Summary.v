@@ -27,7 +27,6 @@ Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
-Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
@@ -120,14 +119,6 @@ Lemma is_omega_cocont_pre_composition_functor
      is_omega_cocont (pre_composition_functor A B C hsB hsC F).
 Proof.
   exact (@CocontFunctors.is_omega_cocont_pre_composition_functor _ _ _ _ _ _ H).
-Defined.
-
-Definition RightKanExtension_from_limits
-  : Π (M C A : precategory) (K : functor M C) (hsC : has_homsets C)
-    (hsA : has_homsets A),
-  Lims A → GlobalRightKanExtensionExists M C K A hsC hsA.
-Proof.
-  exact @UniMath.CategoryTheory.RightKanExtension.RightKanExtension_from_limits.
 Defined.
 
 Definition ColimCoconeHSET
