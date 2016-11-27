@@ -209,7 +209,7 @@ apply listIndProp.
   now rewrite !foldr_cons, <- Hl.
 Qed.
 
-Definition concatenate : pr1 List -> pr1 List -> pr1 List :=
+Definition concatenate : List -> List -> List :=
   fun l l' => foldr _ l cons l'.
 
 End lists.
