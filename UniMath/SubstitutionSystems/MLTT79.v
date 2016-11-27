@@ -1,7 +1,7 @@
 (**
 
-Syntax of Martin-Löf type theory a la "Constructive Mathematics and
-Computer Programming" (1979).
+This file constructs a substitution monad on Set from a binding signature for the syntax of
+Martin-Löf type theory a la "Constructive Mathematics and Computer Programming" (1979).
 
 Written by: Anders Mörtberg, 2016
 

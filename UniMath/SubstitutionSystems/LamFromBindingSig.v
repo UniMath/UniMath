@@ -1,6 +1,7 @@
 (**
 
-Obtain the lambda calculus from the signature { [0,0], [1] }.
+Obtain the lambda calculus and a substitution monad on Set from the signature { [0,0], [1] }.
+
 
 Written by: Anders Mörtberg, 2016
 
