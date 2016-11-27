@@ -1,18 +1,20 @@
 (** **********************************************************
 
-Anders Mörtberg, Benedikt Ahrens
+Anders Mörtberg, Benedikt Ahrens, 2015-2016
 
 *************************************************************)
 
 (** **********************************************************
 
-Contents: Definition of slice precategories, C/x (assumes
-            that C has homsets)
+Contents:
 
-          Proof that C/x is a category if C is
+- Definition of slice precategories, C/x (assumes that C has homsets)
 
-          Proof that any morphism x --> y induces a functor
-            from C/x to C/y
+- Proof that C/x is a category if C is
+
+- Proof that any morphism C[x,y] induces a functor from C/x to C/y
+
+- Colimits in slice categories ([slice_precat_colims])
 
 ************************************************************)
 
@@ -22,18 +24,17 @@ Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Local Notation "a --> b" := (precategory_morphisms a b) (at level 50, left associativity).
-Local Notation "f ;; g"  := (compose f g) (at level 50, format "f  ;;  g").
-
-(* Slice category:
-
-Given a category C and x : obj C. The slice category C/x is given by:
+(** * Definition of slice categories *)
+(** Given a category C and x : obj C. The slice category C/x is given by:
 
 - obj C/x: pairs (a,f) where f : a -> x
 
 - morphism (a,f) -> (b,g): morphism h : a -> b with
-
+<<
            h
        a - - -> b
        |       /
@@ -42,7 +43,7 @@ Given a category C and x : obj C. The slice category C/x is given by:
        | /
        v
        x
-
+>>
     where h ;; g = f
 
 *)
@@ -92,6 +93,7 @@ Qed.
 Definition slice_precat (hsC : has_homsets C) : precategory :=
   tpair _ _ (is_precategory_slice_precat_data hsC).
 
+
 End slice_precat_def.
 
 Section slice_precat_theory.
@@ -121,8 +123,8 @@ intro.
 apply isaprop_is_iso.
 Qed.
 
-(* It suffices that the underlying morphism is an iso to get an iso in
-   the slice category *)
+(** It suffices that the underlying morphism is an iso to get an iso in
+    the slice category *)
 Lemma iso_to_slice_precat_iso (af bg : C / x) (h : af --> bg)
   (isoh : is_iso (pr1 h)) : is_iso h.
 Proof.
@@ -136,7 +138,7 @@ exists (tpair _ hinv (!(pinv))).
 split; ( apply subtypePairEquality ; [ intro; apply hsC | trivial ]).
 Qed.
 
-(* An iso in the slice category gives an iso in the base category *)
+(** An iso in the slice category gives an iso in the base category *)
 Lemma slice_precat_iso_to_iso  (af bg : C / x) (h : af --> bg)
   (p : is_iso h) : is_iso (pr1 h).
 Proof.
@@ -162,10 +164,20 @@ apply weqimplimpl; try apply isaprop_is_iso.
 intro hp; apply (slice_precat_iso_to_iso _ _ _ hp).
 Defined.
 
+(** The forgetful functor from C/x to C *)
+Definition slicecat_to_cat : functor (C / x) C.
+Proof.
+mkpair.
++ mkpair.
+  - apply pr1.
+  - intros a b; apply pr1.
++ abstract (now split).
+Defined.
+
 End slice_precat_theory.
 
-(* Proof that C/x is a category if C is. This is exercise 9.1 in the
-   HoTT book *)
+(** * Proof that C/x is a category if C is. *)
+(** This is exercise 9.1 in the HoTT book *)
 Section slicecat_theory.
 
 Variable C : precategory.
@@ -214,8 +226,7 @@ Qed.
 
 End slicecat_theory.
 
-(* Any morphism x --> y in the base category induces a functor between
-   the slice categories C/x and C/y *)
+(** * A morphism x --> y in the base category induces a functor between C/x and C/y *)
 Section slicecat_functor_def.
 
 Variable C : precategory.
@@ -261,8 +272,7 @@ Lemma slicecat_functor_identity_ob (x : C) :
 Proof.
 apply funextsec; intro af.
 unfold slicecat_functor_ob.
-rewrite id_right, tppr.
-apply idpath.
+now rewrite id_right, tppr.
 Defined.
 
 Lemma slicecat_functor_identity (x : C) :
@@ -270,9 +280,9 @@ Lemma slicecat_functor_identity (x : C) :
 Proof.
 apply (functor_eq _ _ (has_homsets_slice_precat _ _ _)); simpl.
 apply (total2_paths2 (slicecat_functor_identity_ob _)).
-apply funextsec; intro a; case a; clear a; intros a f.
-apply funextsec; intro b; case b; clear b; intros b g.
-apply funextsec; intro h; case h; clear h; intros h hh.
+apply funextsec; intros [a f].
+apply funextsec; intros [b g].
+apply funextsec; intros [h hh].
 rewrite transport_of_functor_map_is_pointwise; simpl in *.
 unfold slicecat_mor.
 rewrite transportf_total2.
@@ -281,8 +291,7 @@ rewrite transportf_total2; simpl.
 unfold slicecat_functor_identity_ob.
 rewrite toforallpaths_funextsec; simpl.
 case (id_right f).
-case (id_right g).
-apply idpath.
+now case (id_right g).
 Qed.
 
 Lemma slicecat_functor_comp_ob (x y z : C) (f : x --> y) (g : y --> z) :
@@ -291,8 +300,7 @@ Lemma slicecat_functor_comp_ob (x y z : C) (f : x --> y) (g : y --> z) :
         slicecat_functor_ob C hsC y z g (slicecat_functor_ob C hsC x y f a)).
 Proof.
 apply funextsec; intro af.
-unfold slicecat_functor_ob; simpl.
-rewrite assoc; apply idpath.
+now unfold slicecat_functor_ob; rewrite assoc.
 Defined.
 
 (* This proof is not so nice... *)
@@ -304,9 +312,9 @@ apply (functor_eq _ _ (has_homsets_slice_precat _ _ _)); simpl.
 unfold slicecat_functor_data; simpl.
 unfold functor_composite_data; simpl.
 apply (total2_paths2 (slicecat_functor_comp_ob _ _ _ _ _)).
-apply funextsec; intro a; case a; clear a; intros a fax.
-apply funextsec; intro b; case b; clear b; intros b fbx.
-apply funextsec; intro h; case h; clear h; intros h hh.
+apply funextsec; intros [a fax].
+apply funextsec; intros [b fbx].
+apply funextsec; intros [h hh].
 rewrite transport_of_functor_map_is_pointwise; simpl in *.
 unfold slicecat_mor.
 rewrite transportf_total2.
@@ -326,8 +334,88 @@ assert (H2 : Π h', h' = h ->
                            (assoc fbx f g)) h' = h).
   intros h' eq.
   case (assoc fbx f g); rewrite eq; apply idpath.
-apply H2.
-assumption.
+now apply H2.
 Qed.
 
 End slicecat_functor_theory.
+
+(** * Colimits in slice categories *)
+Section slicecat_colimits.
+
+Context (g : graph) {C : precategory} (hsC : has_homsets C) (x : C).
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Let U : functor (C / x) C := slicecat_to_cat C hsC x.
+
+Lemma slice_precat_isColimCocone (d : diagram g (C / x)) (a : C / x)
+  (cc : cocone d a)
+  (H : isColimCocone (mapdiagram U d) (U a) (mapcocone U d cc)) :
+  isColimCocone d a cc.
+Proof.
+set (CC := mk_ColimCocone _ _ _ H).
+intros y ccy.
+use unique_exists.
++ mkpair; simpl.
+  * apply (colimArrow CC), (mapcocone U _ ccy).
+  * abstract (apply pathsinv0;
+              eapply pathscomp0; [apply (postcompWithColimArrow _ CC (pr1 y) (mapcocone U d ccy))|];
+              apply pathsinv0, (colimArrowUnique CC); intros u; simpl;
+              eapply pathscomp0; [apply (!(pr2 (coconeIn cc u)))|];
+              apply (pr2 (coconeIn ccy u))).
++ abstract (intros u; apply subtypeEquality; [intros xx; apply hsC|]; simpl;
+            apply (colimArrowCommutes CC)).
++ abstract (intros f; simpl; apply impred; intro u; apply has_homsets_slice_precat).
++ abstract (intros f; simpl; intros Hf;
+            apply eq_mor_slicecat; simpl;
+            apply (colimArrowUnique CC); intro u; cbn;
+            now rewrite <- (Hf u)).
+Defined.
+
+Lemma slice_precat_ColimCocone (d : diagram g (C / x))
+  (H : ColimCocone (mapdiagram U d)) :
+  ColimCocone d.
+Proof.
+use mk_ColimCocone.
+- mkpair.
+  + apply (colim H).
+  + apply colimArrow.
+    use mk_cocone.
+    * intro v; apply (pr2 (dob d v)).
+    * abstract (intros u v e; apply (! pr2 (dmor d e))).
+- use mk_cocone.
+  + intro v; simpl.
+    mkpair; simpl.
+    * apply (colimIn H v).
+    * abstract (apply pathsinv0, (colimArrowCommutes H)).
+  + abstract (intros u v e; apply eq_mor_slicecat, (coconeInCommutes (colimCocone H))).
+- intros y ccy.
+  use unique_exists.
+  + mkpair; simpl.
+    * apply colimArrow, (mapcocone U _ ccy).
+    * abstract (apply pathsinv0, colimArrowUnique; intros v; simpl; rewrite assoc;
+                eapply pathscomp0;
+                  [apply cancel_postcomposition,
+                        (colimArrowCommutes H _ (mapcocone U _ ccy) v)|];
+                destruct ccy as [f Hf]; simpl; apply (! pr2 (f v))).
+  + abstract (intro v; apply eq_mor_slicecat; simpl;
+              apply (colimArrowCommutes _ _ (mapcocone U d ccy))).
+  + abstract (simpl; intros f; apply impred; intro v; apply has_homsets_slice_precat).
+  + abstract (intros f Hf; apply eq_mor_slicecat; simpl in *; apply colimArrowUnique;
+              intros v; apply (maponpaths pr1 (Hf v))).
+Defined.
+
+End slicecat_colimits.
+
+Lemma slice_precat_colims_of_shape {C : precategory} (hsC : has_homsets C)
+  {g : graph} (d : diagram g C) (x : C) (CC : Colims_of_shape g C) :
+  Colims_of_shape g (slice_precat C x hsC).
+Proof.
+now intros y; apply slice_precat_ColimCocone, CC.
+Defined.
+
+Lemma slice_precat_colims {C : precategory} (hsC : has_homsets C) (x : C) (CC : Colims C) :
+  Colims (slice_precat C x hsC).
+Proof.
+now intros g d; apply slice_precat_ColimCocone, CC.
+Defined.

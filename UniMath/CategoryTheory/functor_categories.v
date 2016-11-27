@@ -63,7 +63,7 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 
 (** * Functors : Morphisms of precategories *)
-
+Section functors.
 
 Definition functor_data (C C' : precategory_ob_mor) :=
   total2 ( fun F : ob C -> ob C' =>  Π a b : ob C, a --> b -> F a --> F b).
@@ -685,20 +685,28 @@ Definition constant_functor: functor C D := tpair _ _ is_functor_constant.
 
 End Constant_Functor.
 
+Definition iter_functor {C : precategory} (F : functor C C) (n : nat) : functor C C.
+Proof.
+  induction n as [ | n IHn].
+  - apply functor_identity.
+  - apply (functor_composite IHn F).
+Defined.
 
-
+End functors.
 
 
 (** * Natural transformations *)
-
+Section nat_trans.
 
 (** ** Definition of natural transformations *)
+
+Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 Definition is_nat_trans {C C' : precategory_data}
   (F F' : functor_data C C')
   (t : Π x : ob C, F x -->  F' x) :=
   Π (x x' : ob C)(f : x --> x'),
-    #F f ;; t x' = t x ;; #F' f.
+    # F f ;; t x' = t x ;; #F' f.
 
 
 Lemma isaprop_is_nat_trans (C C' : precategory_data) (hs: has_homsets C')
@@ -870,6 +878,7 @@ Proof.
     intro x. apply isaprop_is_nat_trans. apply hsD.
   - apply weqtoforallpaths.
 Defined.
+
 End nat_trans_eq.
 
 
@@ -1229,12 +1238,15 @@ Proof.
 Qed.
 
 
-Definition functorPrecategory (C : precategory) (D : Precategory)
-  : Precategory.
+Definition functor_Precategory (C : precategory) (D : Precategory) : Precategory.
 Proof.
   exists (functor_precategory C D (homset_property D)).
   apply functor_category_has_homsets.
 Defined.
+
+End nat_trans.
+
+Section functor_equalities.
 
 Lemma functor_identity_left (C D : precategory) (F : functor C D) :
   functor_composite (functor_identity C) F = F.
@@ -1243,8 +1255,6 @@ Proof.
   destruct is as [ idax compax ] .
   apply idpath .
 Defined.
-
-
 
 Lemma functor_identity_right (C D : precategory) (F : functor C D) :
   functor_composite F (functor_identity D) = F.
@@ -1319,10 +1329,4 @@ Proof.
   apply maponpathscomp .
 Defined.
 
-
-Definition iter_functor {C : precategory} (F : functor C C) (n : nat) : functor C C.
-Proof.
-  induction n as [ | n IHn].
-  - apply functor_identity.
-  - apply (functor_composite IHn F).
-Defined.
+End functor_equalities.

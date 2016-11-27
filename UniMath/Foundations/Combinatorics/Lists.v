@@ -78,4 +78,34 @@ Section more_lists.
 Definition map {A B : UU} (f : A -> B) : list A -> list B :=
   foldr (λ a l, cons (f a) l) nil.
 
+(** Various unfolding lemmas *)
+Lemma foldr_cons {A B : UU} (f : A -> B -> B) (b : B) (x : A) (xs : list A) :
+  foldr f b (cons x xs) = f x (foldr f b xs).
+Proof.
+now destruct xs.
+Qed.
+
+Lemma map_nil {A B : UU} (f : A -> B) : map f nil = nil.
+Proof.
+apply idpath.
+Qed.
+
+Lemma map_cons {A B : UU} (f : A -> B) (x : A) (xs : list A) :
+  map f (cons x xs) = cons (f x) (map f xs).
+Proof.
+now destruct xs.
+Qed.
+
+Lemma foldr1_cons_nil {A : UU} (f : A -> A -> A) (a : A) (x : A) :
+  foldr1 f a (cons x nil) = x.
+Proof.
+apply idpath.
+Qed.
+
+Lemma foldr1_cons {A : UU} (f : A -> A -> A) (a : A) (x y : A) (xs : list A) :
+  foldr1 f a (cons x (cons y xs)) = f x (foldr1 f a (cons y xs)).
+Proof.
+apply idpath.
+Qed.
+
 End more_lists.
