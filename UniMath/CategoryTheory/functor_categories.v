@@ -68,6 +68,23 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Definition functor_data (C C' : precategory_ob_mor) :=
   total2 ( fun F : ob C -> ob C' =>  Π a b : ob C, a --> b -> F a --> F b).
 
+Definition mk_functor_data {C C' : precategory_ob_mor} (F : ob C -> ob C')
+           (H : Π a b : ob C, a --> b -> F a --> F b) : functor_data C C' := tpair _ F H.
+
+Lemma functor_data_isaset (C C' : precategory_ob_mor) (hs : has_homsets C') (hsC' : isaset C') :
+  isaset (functor_data C C').
+Proof.
+  change isaset with (isofhlevel 2).
+  apply isofhleveltotal2.
+  apply impred.
+  intro t. apply hsC'.
+  intro x.
+  apply impred. intros a.
+  apply impred. intros b.
+  apply impred. intros f.
+  apply hs.
+Qed.
+
 Definition functor_data_constr ( C C' : precategory_ob_mor )
            ( F : ob C -> ob C' ) ( Fm : Π a b : ob C, a --> b -> F a --> F b ) :
   functor_data C C' := tpair _ F Fm .
@@ -75,7 +92,6 @@ Definition functor_data_constr ( C C' : precategory_ob_mor )
 Definition functor_on_objects {C C' : precategory_ob_mor}
      (F : functor_data C C') :  ob C -> ob C' := pr1 F.
 Coercion functor_on_objects : functor_data >-> Funclass.
-
 
 Definition functor_on_morphisms {C C' : precategory_ob_mor} (F : functor_data C C')
   { a b : ob C} :  a --> b -> F a --> F b := pr2 F a b.
@@ -104,6 +120,8 @@ Qed.
 Definition functor (C C' : precategory_data) :=
   total2 ( fun F : functor_data C C' => is_functor F ).
 
+Definition mk_functor {C C' : precategory_data} (F : functor_data C C') (H : is_functor F) :
+  functor C C' := tpair _ F H.
 
 Lemma functor_eq (C C' : precategory_data) (hs: has_homsets C') (F F': functor C C'):
     pr1 F = pr1 F' -> F = F'.
@@ -114,6 +132,17 @@ Proof.
   apply isaprop_is_functor.
   apply hs.
 Defined.
+
+Lemma functor_isaset (C C' : precategory_data) (hs : has_homsets C') (hsC' : isaset C') :
+  isaset (functor C C').
+Proof.
+  change isaset with (isofhlevel 2).
+  apply isofhleveltotal2.
+  apply (functor_data_isaset C C' hs hsC').
+  intros x.
+  apply isasetaprop.
+  apply (isaprop_is_functor C C' hs).
+Qed.
 
 Definition functor_data_from_functor (C C': precategory_data)
      (F : functor C C') : functor_data C C' := pr1 F.
