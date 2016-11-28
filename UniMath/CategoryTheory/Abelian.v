@@ -20,6 +20,7 @@
 - Results on Kernels and Cokernels
  - Monic are Kernels of their Cokernels
  - Epis are Cokernels of their Kernels
+- Opposite of an abelian category is abelian
 *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
@@ -30,10 +31,9 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.PrecategoriesWithBinOps.
-Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
-Require Import UniMath.CategoryTheory.PreAdditive.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.Monics.
+Require Import UniMath.CategoryTheory.Epis.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -44,8 +44,12 @@ Require Import UniMath.CategoryTheory.limits.kernels.
 Require Import UniMath.CategoryTheory.limits.cokernels.
 Require Import UniMath.CategoryTheory.limits.pushouts.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.Monics.
-Require Import UniMath.CategoryTheory.Epis.
+Require Import UniMath.CategoryTheory.limits.Opp.
+
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.PrecategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+Require Import UniMath.CategoryTheory.PreAdditive.
 
 
 (** * Definition of Abelian categories *)
@@ -55,8 +59,16 @@ Section def_abelian.
       (resp. epi) is a kernel (resp. cokernel). *)
   Definition Data1 (C : precategory) : UU := Zero C × (BinProducts C) × (BinCoproducts C).
 
+  Definition mk_Data1 {C : precategory} (H1 : Zero C) (H2 : BinProducts C) (H3 : BinCoproducts C) :
+    Data1 C := (H1,,(H2,,H3)).
+
+  Definition Data1_Zero {C : precategory} (D : Data1 C) : Zero C := dirprod_pr1 D.
+
   Definition Data2 (C : precategory) (AD1 : Data1 C) : UU :=
     (Kernels (pr1 AD1)) × (Cokernels (pr1 AD1)).
+
+  Definition mk_Data2 {C : precategory} (AD1 : Data1 C) (H1 : Kernels (Data1_Zero AD1))
+             (H2 : Cokernels (Data1_Zero AD1)) : Data2 C AD1 := (H1,,H2).
 
   (** This definition contains the data that every monic is a kernel of some morphism. *)
   Definition AbelianMonicKernelsData (C : precategory) (AD : Data1 C) : UU :=
@@ -64,6 +76,14 @@ Section def_abelian.
     (Σ D2 : (Σ D1 : (Σ z : C, y --> z),
                     M ;; (pr2 D1) = M ;; (ZeroArrow (pr1 AD) y (pr1 D1))),
             isEqualizer (pr2 (pr1 D2)) (ZeroArrow (pr1 AD) y (pr1 (pr1 D2))) M (pr2 D2)).
+
+  Definition mk_AbelianMonicKernelsData {C : precategory} (AD1 : Data1 C)
+             (H : Π (x y : C) (M : Monic C x y),
+                  (Σ D2 : (Σ D1 : (Σ z : C, y --> z),
+                                  M ;; (pr2 D1) = M ;; (ZeroArrow (pr1 AD1) y (pr1 D1))),
+                          isEqualizer (pr2 (pr1 D2)) (ZeroArrow (pr1 AD1) y (pr1 (pr1 D2)))
+                                      M (pr2 D2))) :
+    AbelianMonicKernelsData C AD1 := H.
 
   (** Accessor functions for AbelianMonicKernelsData. *)
   Definition AMKD_Ob {C : precategory} {AD : Data1 C} (AMKD : AbelianMonicKernelsData C AD)
@@ -91,6 +111,14 @@ Section def_abelian.
                      (pr2 D1) ;; E = (ZeroArrow (pr1 AD) (pr1 D1) y) ;; E),
              isCoequalizer (pr2 (pr1 D2)) (ZeroArrow (pr1 AD) (pr1 (pr1 D2)) y) E (pr2 D2))).
 
+   Definition mk_AbelianEpiCokernelsData {C : precategory} (AD1 : Data1 C)
+              (H : (Π (y z : C) (E : Epi C y z),
+                    (Σ D2 : (Σ D1 : (Σ x : C, x --> y),
+                                   (pr2 D1) ;; E = (ZeroArrow (pr1 AD1) (pr1 D1) y) ;; E),
+                            isCoequalizer (pr2 (pr1 D2)) (ZeroArrow (pr1 AD1) (pr1 (pr1 D2)) y)
+                                          E (pr2 D2)))) :
+     AbelianEpiCokernelsData C AD1 := H.
+
   (** Accessor functions for AbelianEpiCokernelsData. *)
   Definition AECD_Ob {C : precategory} {AD : Data1 C} (AECD : AbelianEpiCokernelsData C AD)
              (y z : C) (E : Epi C y z) : C := pr1 (pr1 (pr1 (AECD y z E))).
@@ -112,6 +140,10 @@ Section def_abelian.
       and the data that epis are cokernels of some morphisms. *)
   Definition AbelianData (C : precategory) (AD1 : Data1 C) : UU :=
     (Data2 C AD1) × (AbelianMonicKernelsData C AD1) × (AbelianEpiCokernelsData C AD1).
+
+  Definition mk_AbelianData {C : precategory} {AD1 : Data1 C} (H1 : Data2 C AD1)
+             (H2 : AbelianMonicKernelsData C AD1) (H3 : AbelianEpiCokernelsData C AD1) :
+    AbelianData C AD1 := (H1,,(H2,,H3)).
 
   (** Definition of abelian categories. *)
   Definition AbelianPreCat : UU := Σ A : (Σ C : precategory, Data1 C), AbelianData (pr1 A) (pr2 A).
@@ -1461,3 +1493,132 @@ Section abelian_kernel_cokernel.
   Qed.
 
 End abelian_kernel_cokernel.
+
+
+(** * Opposite category is abelian *)
+Section opp_abelian.
+
+  Variable C : precategory.
+  Hypothesis hs : has_homsets C.
+
+  Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+
+  Definition AbelianData1_opp (AD1 : Data1 C) : @Data1 C^op.
+  Proof.
+    use mk_Data1.
+    - exact (Zero_opp C (pr1 AD1)).
+    - exact (BinCoproducts_opp C (pr2 (pr2 AD1))).
+    - exact (BinProducts_opp C (pr1 (pr2 AD1))).
+  Defined.
+
+  Definition AbelianData2_opp {AD1 : Data1 C} (AD2 : Data2 C AD1) :
+    @Data2 C^op (AbelianData1_opp AD1).
+  Proof.
+    use mk_Data2.
+    - exact (Cokernels_opp C (pr1 AD1) (pr2 AD2)).
+    - exact (Kernels_opp C (pr1 AD1) (pr1 AD2)).
+  Defined.
+
+
+  Lemma AbelianMonicKernelsData_opp_eq {AD1 : Data1 C} (AMKD : AbelianMonicKernelsData C AD1)
+        (y z : C^op) (E : Epi (opp_precat C) y z) :
+    @compose C _ _ _ E (AMKD_Mor AMKD z y (opp_Epi C E))
+    =
+    (@compose C _ _ _ E (@ZeroArrow (opp_precat C) (Zero_opp C (Data1_Zero AD1)) _ _)).
+  Proof.
+    cbn. rewrite <- ZeroArrowFrom_opp. rewrite <- ZeroArrowTo_opp.
+    apply (AMKD_Eq AMKD z y (opp_Epi C E)).
+  Qed.
+
+  Lemma AbelianMonicKernelsData_opp_isEqualizer {AD1 : Data1 C}
+        (AMKD : AbelianMonicKernelsData C AD1)
+        (y z : C^op) (E : Epi (opp_precat C) y z) :
+    @coequalizers.isCoequalizer (opp_precat C) _ _ _ (AMKD_Mor AMKD z y (@opp_Epi C y z E))
+                                (@ZeroArrow (opp_precat C) (Zero_opp C (Data1_Zero AD1)) _ _)
+                                E (AbelianMonicKernelsData_opp_eq AMKD y z E).
+  Proof.
+    use isEqualizer_opp. cbn.
+    set (isE := AMKD_isE AMKD _ _ (opp_Epi C E)).
+    unfold ZeroArrow in isE. cbn in isE. unfold opp_mor.
+    use mk_isEqualizer.
+    intros w h H'. unfold opp_ob in H'.
+    apply (isE w h).
+    use (pathscomp0 H'). apply cancel_precomposition.
+    apply ZeroArrowEq.
+  Qed.
+
+  Definition AbelianMonicKernelsData_opp {AD1 : Data1 C} (AMKD : AbelianMonicKernelsData C AD1) :
+    AbelianEpiCokernelsData (C^op) (AbelianData1_opp AD1).
+  Proof.
+    use mk_AbelianEpiCokernelsData.
+    intros y z E.
+    use tpair.
+    - use tpair.
+      + use tpair.
+        * exact (AMKD_Ob AMKD z y (opp_Epi C E)).
+        * exact (AMKD_Mor AMKD z y (opp_Epi C E)).
+      + exact (AbelianMonicKernelsData_opp_eq AMKD y z E).
+    - exact (AbelianMonicKernelsData_opp_isEqualizer AMKD y z E).
+  Defined.
+
+  Lemma AbelianEpiCokernelsData_opp_eq {AD1 : Data1 C} (AECD : AbelianEpiCokernelsData C AD1)
+        (y z : C^op) (M : Monic (opp_precat C) y z) :
+    M ;; (AECD_Mor AECD z y (opp_Monic C M)) = M ;; (@ZeroArrow (C^op) (Zero_opp C (pr1 AD1)) _ _).
+  Proof.
+    cbn.
+    rewrite <- ZeroArrowFrom_opp. rewrite <- ZeroArrowTo_opp.
+    apply (AECD_Eq AECD z y (opp_Monic C M)).
+  Qed.
+
+  Lemma AbelianEpiCokernelsData_opp_isCoequalizer {AD1 : Data1 C}
+        (AECD : AbelianEpiCokernelsData C AD1) (y z : C^op) (M : Monic (opp_precat C) y z) :
+    @equalizers.isEqualizer (opp_precat C) _ _ _ (AECD_Mor AECD z y (opp_Monic C M))
+                            (@ZeroArrow (C^op) (Zero_opp C (Data1_Zero AD1)) _ _) M
+                            (AbelianEpiCokernelsData_opp_eq AECD y z M).
+  Proof.
+    use isCoequalizer_opp. cbn.
+    set (isC := AECD_isC AECD _ _ (opp_Monic C M)).
+    unfold ZeroArrow in isC. cbn in isC. unfold opp_mor.
+    use mk_isCoequalizer.
+    intros w h H'. unfold opp_ob in H'.
+    apply (isC w h).
+    use (pathscomp0 H'). apply cancel_postcomposition.
+    apply ZeroArrowEq.
+  Qed.
+
+  Definition AbelianEpiCokernelsData_opp {AD1 : Data1 C} (AECD : AbelianEpiCokernelsData C AD1) :
+    AbelianMonicKernelsData (C^op) (AbelianData1_opp AD1).
+  Proof.
+    use mk_AbelianMonicKernelsData.
+    intros y z M.
+    use tpair.
+    - use tpair.
+      + use tpair.
+        * exact (AECD_Ob AECD z y (opp_Monic C M) : ob C^op).
+        * exact (AECD_Mor AECD z y (opp_Monic C M) : C^op⟦z, _⟧).
+      + exact (AbelianEpiCokernelsData_opp_eq AECD y z M).
+    - exact (AbelianEpiCokernelsData_opp_isCoequalizer AECD y z M).
+  Defined.
+
+  Definition AbelianData_opp {AD1 : Data1 C} (AD : AbelianData C AD1) :
+    AbelianData (C^op) (AbelianData1_opp AD1).
+  Proof.
+    use mk_AbelianData.
+    - exact (AbelianData2_opp (pr1 AD)).
+    - exact (AbelianEpiCokernelsData_opp (pr2 (pr2 AD))).
+    - exact (AbelianMonicKernelsData_opp (pr1 (pr2 AD))).
+  Defined.
+
+  (* Need to remove C from context *)
+End opp_abelian.
+Section opp_abelian'.
+
+  Definition Abelian_opp (A : AbelianPreCat) : AbelianPreCat.
+  Proof.
+    use mk_Abelian.
+    - exact (opp_precat (pr1 (pr1 A))).
+    - exact (AbelianData1_opp _ (pr2 (pr1 A))).
+    - exact (AbelianData_opp _ (pr2 A)).
+  Defined.
+
+End opp_abelian'.
