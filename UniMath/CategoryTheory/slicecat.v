@@ -52,9 +52,21 @@ Section slice_precat_def.
 Variable C : precategory.
 Variable x : C.
 
+(* Accessor functions *)
 Definition slicecat_ob := total2 (fun (a : C) => a --> x).
 Definition slicecat_mor (f g : slicecat_ob) :=
   total2 (fun h : pr1 f --> pr1 g => pr2 f = h ;; pr2 g).
+
+Definition slicecat_ob_object (f : slicecat_ob) : ob C := pr1 f.
+
+Definition slicecat_ob_morphism (f : slicecat_ob) : C⟦slicecat_ob_object f, x⟧ := pr2 f.
+
+(* Accessor functions *)
+Definition slicecat_mor_morphism {f g : slicecat_ob} (h : slicecat_mor f g) :
+  C⟦slicecat_ob_object f, slicecat_ob_object g⟧ := pr1 h.
+
+Definition slicecat_mor_comm {f g : slicecat_ob} (h : slicecat_mor f g) :
+  (slicecat_ob_morphism f) = (slicecat_mor_morphism h) ;; (slicecat_ob_morphism g) := pr2 h.
 
 Definition slice_precat_ob_mor : precategory_ob_mor :=
   tpair _ _ slicecat_mor.
@@ -65,8 +77,8 @@ Definition id_slice_precat (c : slice_precat_ob_mor) : c --> c :=
 Definition comp_slice_precat_subproof (a b c : slice_precat_ob_mor)
   (f : a --> b) (g : b --> c) : pr2 a = (pr1 f ;; pr1 g) ;; pr2 c.
 Proof.
-rewrite <- assoc, (!(pr2 g)).
-exact (pr2 f).
+  rewrite <- assoc, (!(pr2 g)).
+  exact (pr2 f).
 Qed.
 
 Definition comp_slice_precat (a b c : slice_precat_ob_mor)
