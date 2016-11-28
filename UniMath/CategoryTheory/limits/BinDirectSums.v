@@ -1,4 +1,10 @@
-(** ** Direct definition of binary direct sum using preadditive categories. *)
+(** * Direct definition of binary direct sum using preadditive categories. *)
+(** ** Contents
+- Definition of binary direct sums (also known as biproducts)
+- Criteria for binary direct sums
+- Quotient has binary direct sums
+*)
+
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -21,8 +27,8 @@ Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 
 
-(** BinDirectSum is at the same time product and coproduct of the underlying objects together with
-    the following equalities
+(** BinDirectSumCone is at the same time product and coproduct of the underlying objects together
+    with the following equalities
 
     i1 ;; p1 = identity  and   i2 ;; p2 = identity
     i1 ;; p2 = unit      and   i2 ;; p1 = unit
@@ -345,6 +351,32 @@ Section def_bindirectsums.
   Defined.
   Opaque BinDirectSumIndArEq.
 
+  (** ** Composition of IndAr *)
+  Lemma BinDirectSumIndArComp {a b c d e f : A} (f1 : a --> b) (f2 : b --> c)
+        (g1 : d --> e) (g2 : e --> f) (B1 : BinDirectSumCone a d) (B2 : BinDirectSumCone b e)
+        (B3 : BinDirectSumCone c f) :
+    BinDirectSumIndAr f1 g1 B1 B2 ;; BinDirectSumIndAr f2 g2 B2 B3 =
+    BinDirectSumIndAr (f1 ;; f2) (g1 ;; g2) B1 B3.
+  Proof.
+    rewrite BinDirectSumIndArEq1. rewrite BinDirectSumIndArEq1. rewrite BinDirectSumIndArEq1.
+    unfold BinDirectSumIndArFormula.
+    rewrite to_postmor_linear'.
+    rewrite to_premor_linear'.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite <- (assoc _ (to_In1 B2)). rewrite <- (assoc _ (to_In1 B2)).
+    rewrite (to_IdIn1 B2). rewrite id_right.
+    rewrite (to_Unel1 B2). rewrite to_premor_unel'.
+    rewrite to_postmor_unel'. rewrite to_postmor_unel'. rewrite to_runax'.
+    rewrite to_premor_linear'.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite <- (assoc _ (to_In2 B2)). rewrite <- (assoc _ (to_In2 B2)).
+    rewrite (to_IdIn2 B2). rewrite id_right.
+    rewrite (to_Unel2 B2). rewrite to_premor_unel'.
+    rewrite to_postmor_unel'. rewrite to_postmor_unel'.
+    rewrite to_lunax'.
+    apply idpath.
+  Qed.
+
 End def_bindirectsums.
 
 (** In1 and In2 are monics, and Pr1 and Pr2 are epis. *)
@@ -525,3 +557,193 @@ Section bindirectsums_criteria.
   Defined.
 
 End bindirectsums_criteria.
+
+
+(** * BinDirectSums in quotient of PreAdditive category
+   In this section we show that, if a PreAdditive A has BinDirectSums, then the quotient of the
+   preadditive category has BinDirectSums. This is used to show that quotient of an Additive is
+   Additive. *)
+Section bindirectsums_in_quot.
+
+  Variable A : PreAdditive.
+  Hypothesis Z : Zero A.
+  Hypothesis BD : BinDirectSums A.
+  Hypothesis PAS : PreAdditiveSubabgrs A.
+  Hypothesis PAC : PreAdditiveComps A PAS.
+
+  Lemma QuotPrecategory_isBinCoproductCocone (x y : A) :
+    isBinCoproductCocone (QuotPrecategory_PreAdditive A PAS PAC) x y (BD x y)
+                         (to_quot_mor A PAS (to_In1 A (BD x y)))
+                         (to_quot_mor A PAS (to_In2 A (BD x y))).
+  Proof.
+    use mk_isBinCoproductCocone.
+    - apply has_homsets_QuotPrecategory.
+    - intros c f g.
+      set (f'' := @issurjsetquotpr (@to_abgrop A x c) (binopeqrel_subgr_eqrel (PAS x c)) f).
+      use (squash_to_prop f''). apply isapropiscontr. intros f'. clear f''.
+      set (g'' := @issurjsetquotpr (@to_abgrop A y c) (binopeqrel_subgr_eqrel (PAS y c)) g).
+      use (squash_to_prop g''). apply isapropiscontr. intros g'. clear g''.
+      induction f' as [f1 f2]. induction g' as [g1 g2]. cbn in f1, g1.
+      use unique_exists.
+      + exact (to_quot_mor A PAS (FromBinDirectSum A (BD x y) f1 g1)).
+      + cbn beta. split.
+        * cbn.
+          rewrite BinDirectSumIn1Commutes. exact f2.
+        * cbn. rewrite BinDirectSumIn2Commutes. exact g2.
+      + intros y0. apply isapropdirprod; apply has_homsets_QuotPrecategory.
+      + intros y0 T. cbn beta in T. induction T as [T1 T2].
+        * set (y'' := @issurjsetquotpr (@to_abgrop A (BD x y) c)
+                                       (binopeqrel_subgr_eqrel (PAS (BD x y) c)) y0).
+          use (squash_to_prop y''). apply has_homsets_QuotPrecategory. intros y'. clear y''.
+          induction y' as [y1 y2]. rewrite <- y2. rewrite <- y2 in T1. rewrite <- y2 in T2.
+          cbn in y1.
+          rewrite <- (@id_left (QuotPrecategory_PreAdditive A PAS PAC) _ _
+                              (setquotpr (binopeqrel_subgr_eqrel (PAS (BD x y) c)) y1)).
+          rewrite <- (@id_left A _ _ (FromBinDirectSum A (BD x y) f1 g1)).
+          rewrite <- (to_BinOpId A (BD x y)). rewrite to_postmor_linear'.
+          repeat rewrite <- assoc.
+          rewrite BinDirectSumIn1Commutes.
+          rewrite BinDirectSumIn2Commutes.
+          rewrite <- f2 in T1. rewrite <- g2 in T2. unfold to_quot_mor.
+          set (tmp := @setquotpr_linear A PAS PAC (BD x y) c). unfold to_quot_mor in tmp.
+          rewrite tmp. clear tmp.
+          set (tmp := @QuotPrecategory_comp_linear A PAS PAC (BD x y) x c).
+          unfold to_quot_mor in tmp. rewrite <- tmp. clear tmp.
+          rewrite <- T1.
+          set (tmp := @QuotPrecategory_comp_linear A PAS PAC (BD x y) y c).
+          unfold to_quot_mor in tmp. rewrite <- tmp. clear tmp.
+          rewrite <- T2. unfold to_quot_mor. rewrite comp_eq. rewrite comp_eq.
+          rewrite assoc. rewrite assoc.
+          rewrite <- to_postmor_linear'.
+          repeat rewrite <- comp_eq.
+          set (tmp := @QuotPrecategory_comp_linear A PAS PAC (BD x y) x (BD x y)).
+          unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
+          set (tmp := @QuotPrecategory_comp_linear A PAS PAC (BD x y) y (BD x y)).
+          unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
+          set (tmp := @setquotpr_linear A PAS PAC (BD x y) (BD x y)). unfold to_quot_mor in tmp.
+          rewrite <- tmp. clear tmp.
+          rewrite comp_eq.
+          rewrite (to_BinOpId A (BD x y)).
+          rewrite comp_eq. apply cancel_postcomposition.
+          apply idpath.
+  Defined.
+  Opaque QuotPrecategory_isBinCoproductCocone.
+
+  Lemma QuotPrecategory_isBinProductCone (x y : A) :
+    isBinProductCone (QuotPrecategory_PreAdditive A PAS PAC) x y (BD x y)
+                     (to_quot_mor A PAS (to_Pr1 A (BD x y)))
+                     (to_quot_mor A PAS (to_Pr2 A (BD x y))).
+  Proof.
+    use mk_isBinProductCone.
+    - apply has_homsets_QuotPrecategory.
+    - intros c f g.
+      set (f'' := @issurjsetquotpr (@to_abgrop A c x) (binopeqrel_subgr_eqrel (PAS c x)) f).
+      use (squash_to_prop f''). apply isapropiscontr. intros f'. clear f''.
+      set (g'' := @issurjsetquotpr (@to_abgrop A c y) (binopeqrel_subgr_eqrel (PAS c y)) g).
+      use (squash_to_prop g''). apply isapropiscontr. intros g'. clear g''.
+      induction f' as [f1 f2]. induction g' as [g1 g2]. cbn in f1, g1.
+      use unique_exists.
+      + exact (to_quot_mor A PAS (ToBinDirectSum A (BD x y) f1 g1)).
+      + cbn beta. split.
+        * cbn. rewrite BinDirectSumPr1Commutes. exact f2.
+        * cbn. rewrite BinDirectSumPr2Commutes. exact g2.
+      + intros y0. apply isapropdirprod; apply has_homsets_QuotPrecategory.
+      + intros y0 T. cbn beta in T. induction T as [T1 T2].
+        * set (y'' := @issurjsetquotpr (@to_abgrop A c (BD x y))
+                                       (binopeqrel_subgr_eqrel (PAS c (BD x y))) y0).
+          use (squash_to_prop y''). apply has_homsets_QuotPrecategory. intros y'. clear y''.
+          induction y' as [y1 y2]. rewrite <- y2. rewrite <- y2 in T1. rewrite <- y2 in T2.
+          cbn in y1.
+          rewrite <- (@id_right (QuotPrecategory_PreAdditive A PAS PAC) _ _
+                               (setquotpr (binopeqrel_subgr_eqrel (PAS c (BD x y))) y1)).
+          rewrite <- (@id_right A _ _ (ToBinDirectSum A (BD x y) f1 g1)).
+          rewrite <- (to_BinOpId A (BD x y)). rewrite to_premor_linear'.
+          repeat rewrite assoc.
+          rewrite BinDirectSumPr1Commutes.
+          rewrite BinDirectSumPr2Commutes.
+          rewrite <- f2 in T1. rewrite <- g2 in T2. unfold to_quot_mor.
+          set (tmp := @setquotpr_linear A PAS PAC c (BD x y)). unfold to_quot_mor in tmp.
+          rewrite tmp. clear tmp.
+          set (tmp := @QuotPrecategory_comp_linear A PAS PAC c x (BD x y)).
+          unfold to_quot_mor in tmp. rewrite <- tmp. clear tmp.
+          rewrite <- T1.
+          set (tmp := @QuotPrecategory_comp_linear A PAS PAC c y (BD x y)).
+          unfold to_quot_mor in tmp. rewrite <- tmp. clear tmp.
+          rewrite <- T2. unfold to_quot_mor. rewrite comp_eq. rewrite comp_eq.
+          rewrite <- assoc. rewrite <- assoc.
+          rewrite <- to_premor_linear'.
+          repeat rewrite <- comp_eq.
+          set (tmp := @QuotPrecategory_comp_linear A PAS PAC (BD x y) x (BD x y)).
+          unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
+          set (tmp := @QuotPrecategory_comp_linear A PAS PAC (BD x y) y (BD x y)).
+          unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
+          set (tmp := @setquotpr_linear A PAS PAC (BD x y) (BD x y)). unfold to_quot_mor in tmp.
+          rewrite <- tmp. clear tmp.
+          rewrite comp_eq.
+          rewrite (to_BinOpId A (BD x y)).
+          rewrite comp_eq. apply cancel_precomposition.
+          apply idpath.
+  Defined.
+  Opaque QuotPrecategory_isBinProductCone.
+
+  Opaque QuotPrecategory_PreAdditive. (* This speeds up the following proof significantly. *)
+  Lemma QuotPrecategory_isBinDirectSumCone (x y : A) :
+    isBinDirectSumCone
+      (QuotPrecategory_PreAdditive A PAS PAC) x y (BD x y)
+      (to_quot_mor A PAS (to_In1 A (BD x y))) (to_quot_mor A PAS (to_In2 A (BD x y)))
+      (to_quot_mor A PAS (to_Pr1 A (BD x y))) (to_quot_mor A PAS (to_Pr2 A (BD x y))).
+  Proof.
+    use mk_isBinDirectSumCone.
+    - exact (QuotPrecategory_isBinCoproductCocone x y).
+    - exact (QuotPrecategory_isBinProductCone x y).
+    - unfold to_quot_mor.
+      rewrite <- comp_eq.
+      set (tmp := @QuotPrecategory_comp_linear A PAS PAC x (BD x y) x).
+      unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
+      rewrite (to_IdIn1 A (BD x y)).
+      apply idpath.
+    - unfold to_quot_mor.
+      rewrite <- comp_eq.
+      set (tmp := @QuotPrecategory_comp_linear A PAS PAC y (BD x y) y).
+      unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
+      rewrite (to_IdIn2 A (BD x y)).
+      apply idpath.
+    - unfold to_quot_mor.
+      rewrite <- comp_eq.
+      set (tmp := @QuotPrecategory_comp_linear A PAS PAC x (BD x y) y).
+      unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
+      rewrite (to_Unel1 A (BD x y)).
+      apply idpath.
+    - unfold to_quot_mor.
+      rewrite <- comp_eq.
+      set (tmp := @QuotPrecategory_comp_linear A PAS PAC y (BD x y) x).
+      unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
+      rewrite (to_Unel2 A (BD x y)).
+      apply idpath.
+    - unfold to_quot_mor.
+      repeat rewrite <- comp_eq.
+      set (tmp := @QuotPrecategory_comp_linear A PAS PAC (BD x y) x (BD x y)).
+      unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
+      set (tmp := @QuotPrecategory_comp_linear A PAS PAC (BD x y) y (BD x y)).
+      unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
+      set (tmp := @setquotpr_linear A PAS PAC (BD x y) (BD x y)). unfold to_quot_mor in tmp.
+      rewrite <- tmp. clear tmp.
+      rewrite (to_BinOpId A (BD x y)).
+      apply idpath.
+  Defined.
+  Opaque QuotPrecategory_isBinDirectSumCone.
+  Transparent QuotPrecategory_PreAdditive. (* Transparent again *)
+
+  Definition QuotPrecategory_BinDirectSums : BinDirectSums (QuotPrecategory_PreAdditive A PAS PAC).
+  Proof.
+    intros x y.
+    use mk_BinDirectSumCone.
+    - exact (BD x y).
+    - exact (to_quot_mor A PAS (to_In1 A (BD x y))).
+    - exact (to_quot_mor A PAS (to_In2 A (BD x y))).
+    - exact (to_quot_mor A PAS (to_Pr1 A (BD x y))).
+    - exact (to_quot_mor A PAS (to_Pr2 A (BD x y))).
+    - exact (QuotPrecategory_isBinDirectSumCone x y).
+  Defined.
+
+End bindirectsums_in_quot.

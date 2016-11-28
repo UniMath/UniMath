@@ -46,6 +46,8 @@ Section def_epi.
   Definition EpiArrow {x y : C} (E : Epi x y) : C⟦x, y⟧ := pr1 E.
   Coercion EpiArrow : Epi >-> precategory_morphisms.
 
+  Definition EpiisEpi {x y : C} (E : Epi x y) : isEpi E := pr2 E.
+
   (** Isomorphism to isEpi and Epi. *)
   Lemma iso_isEpi {x y : C} (f : x --> y) (H : is_iso f) : isEpi f.
   Proof.
@@ -90,6 +92,19 @@ Section def_epi.
     repeat rewrite assoc in H.
     apply (X w _ _ H).
   Defined.
+
+  (** Transport of isEpi *)
+  Lemma transportf_isEpi {x y z : C} (f : x --> y) (E : isEpi f) (e : y = z) :
+    isEpi (transportf (precategory_morphisms x) e f).
+  Proof.
+    induction e. apply E.
+  Qed.
+
+  Lemma transportb_isEpi {x y z : C} (f : y --> z) (E : isEpi f) (e : x = y) :
+    isEpi (transportb (fun x' : ob C => precategory_morphisms x' z) e f).
+  Proof.
+    induction e. apply E.
+  Qed.
 
 End def_epi.
 Arguments isEpi [C] [x] [y] _.

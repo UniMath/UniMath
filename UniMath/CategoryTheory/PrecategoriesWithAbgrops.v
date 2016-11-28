@@ -66,9 +66,11 @@ Section def_precategory_with_abgrops.
 
   Definition to_inv (x y : PA) :  PA⟦x, y⟧ -> PA⟦x, y⟧ := grinv (to_abgrop x y).
 
-  (** The following definition gives maps between abgrops homsets by
-    precomposing and postcomposing with a morphism. Note that we have
-    not required these to be abelian group morphisms of abelian groups. *)
+  Definition to_commax (x y : PA) := commax (to_abgrop x y).
+
+  (** The following definition gives maps between abgrops homsets by precomposing and postcomposing
+      with a morphism. Note that we have not required these to be abelian group morphisms of abelian
+      groups. *)
   Definition to_premor {x y : PA} (z : PA) (f : x --> y) : to_abgrop y z -> to_abgrop x z :=
     fun (g : (to_abgrop y z)) => f ;; g.
 
@@ -96,6 +98,20 @@ Section def_precategory_with_abgrops.
   Lemma rinvax {x y : PA} (f : PA⟦x, y⟧) : to_binop x y f (to_inv x y f) = to_unel x y.
   Proof.
     apply (grrinvax (to_abgrop x y)).
+  Qed.
+
+  Lemma to_lcan {x y : PA} {f g : PA⟦x, y⟧} (h : PA⟦x, y⟧) :
+    to_binop x y h f = to_binop x y h g -> f = g.
+  Proof.
+    intros H.
+    apply (grlcan (to_abgrop x y) h H).
+  Qed.
+
+  Lemma to_rcan {x y : PA} {f g : PA⟦x, y⟧} (h : PA⟦x, y⟧) :
+    to_binop x y f h = to_binop x y g h -> f = g.
+  Proof.
+    intros H.
+    apply (grrcan (to_abgrop x y) h H).
   Qed.
 
 End def_precategory_with_abgrops.

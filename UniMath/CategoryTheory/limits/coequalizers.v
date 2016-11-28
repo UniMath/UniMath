@@ -130,6 +130,15 @@ Section def_coequalizers.
     apply (isCoequalizerOutsEq (isCoequalizer_Coequalizer E) _ _ H').
   Defined.
 
+  Lemma CoequalizerOutComp {y z : C} {f g : y --> z} (CE : Coequalizer f g) {w w' : C}
+        (h1 : z --> w) (h2 : w --> w')
+        (H1 : f ;; (h1 ;; h2) = g ;; (h1 ;; h2)) (H2 : f ;; h1 = g ;; h1) :
+    CoequalizerOut CE w' (h1 ;; h2) H1 = CoequalizerOut CE w h1 H2 ;; h2.
+  Proof.
+    use CoequalizerOutsEq. rewrite CoequalizerCommutes. rewrite assoc.
+    rewrite CoequalizerCommutes. apply idpath.
+  Qed.
+
   (** Morphisms between coequalizer objects with the right commutativity
     equalities. *)
   Definition identity_is_CoequalizerOut {y z : C} {f g : y --> z}
