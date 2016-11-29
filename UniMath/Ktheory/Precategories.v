@@ -59,7 +59,7 @@ Ltac set_logic :=
                 try apply impred_isaset;
                 try apply isasetaprop)) using _M_.
 
-Notation "[ C , D ]" := (functorPrecategory C D) : cat.
+Notation "[ C , D ]" := (functor_Precategory C D) : cat.
 
 Definition oppositePrecategory (C:Precategory) : Precategory.
 Proof.

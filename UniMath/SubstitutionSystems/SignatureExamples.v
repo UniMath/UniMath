@@ -40,7 +40,7 @@ Local Notation "'EndC'":= ([C, C, hsC]) .
 
 Definition δ_source_ob (Ze : Ptd) : EndC := G • pr1 Ze.
 Definition δ_source_mor {Ze Ze' : Ptd} (α : Ze --> Ze') :
-  δ_source_ob Ze --> δ_source_ob Ze' := hor_comp (pr1 α) (nat_trans_id G).
+  δ_source_ob Ze --> δ_source_ob Ze' := horcomp (pr1 α) (nat_trans_id G).
 
 Definition δ_source_functor_data : functor_data Ptd EndC.
 Proof.
@@ -63,7 +63,7 @@ Definition δ_source : functor Ptd EndC := tpair _ _ is_functor_δ_source.
 
 Definition δ_target_ob (Ze : Ptd) : EndC := pr1 Ze • G.
 Definition δ_target_mor {Ze Ze' : Ptd} (α : Ze --> Ze') :
-  δ_target_ob Ze --> δ_target_ob Ze' := hor_comp (nat_trans_id G) (pr1 α).
+  δ_target_ob Ze --> δ_target_ob Ze' := horcomp (nat_trans_id G) (pr1 α).
 
 Definition δ_target_functor_data : functor_data Ptd EndC.
 Proof.

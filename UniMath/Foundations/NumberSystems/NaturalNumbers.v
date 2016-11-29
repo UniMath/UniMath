@@ -57,6 +57,7 @@ Unset Automatic Introduction.
 (** Imports. *)
 
 Require Export UniMath.Foundations.Algebra.Domains_and_Fields.
+Require Export UniMath.Foundations.Algebra.Archimedean.
 
 (** To up-stream files  *)
 
@@ -1429,8 +1430,8 @@ Proof.
     + apply (natlthandplusrinv _ _ (S i)).
       rewrite (minusplusnmm m (S i)).
       * rewrite (minusplusnmm n (S i)).
-        -- apply is.
-        -- apply H.
+        { apply is. }
+        { apply H. }
       * apply natlthtoleh. apply is'.
 Qed.
 
@@ -1780,6 +1781,14 @@ Proof.
   - unfold iscomm. apply natmultcomm.
 Defined.
 
+Lemma nattorig_nat :
+  Π n : nat, nattorig (X := natcommrig) n = n.
+Proof.
+  induction n as [|n IHn].
+  reflexivity.
+  rewrite nattorigS, IHn.
+  reflexivity.
+Qed.
 
 (** *** Cancellation properties of [mul] on [nat] *)
 
@@ -1809,6 +1818,68 @@ Proof.
   - intros _. apply natneqsx0.
 Defined.
 
+(** *** [nat] is an archimedean rig *)
+
+Lemma isarchnat_diff :
+  Π (y1 y2 : nat),
+  y1 > y2 → ∃ n : nat, n * y1 > 1 + n * y2.
+Proof.
+  intros y1 y2 Hy.
+  apply natlthchoice2 in Hy.
+  induction Hy as [Hy | <-].
+  - apply hinhpr.
+    exists 1%nat.
+    exact Hy.
+  - apply hinhpr.
+    exists 2%nat.
+    rewrite !multsnm ; simpl.
+    rewrite natplusr0.
+    apply natgthandplusl, natgthsnn.
+Defined.
+
+Lemma isarchnat_gth :
+  Π x : nat, ∃ n : nat, n > x.
+Proof.
+  intros n.
+  apply hinhpr.
+  exists (S n).
+  now apply natgthsnn.
+Defined.
+
+Lemma isarchnat_pos :
+  Π x : nat, ∃ n : nat, n + x > 0.
+Proof.
+  intros n.
+  apply hinhpr.
+  now exists 1%nat.
+Defined.
+
+Lemma isarchnat :
+  isarchrig (X := natcommrig) natgth.
+Proof.
+  repeat split.
+  - intros y1 y2 Hy.
+    generalize (isarchnat_diff y1 y2 Hy).
+    apply hinhfun.
+    intros n.
+    exists (pr1 n).
+    rewrite nattorig_nat.
+    exact (pr2 n).
+  - intros n.
+    generalize (isarchnat_gth n).
+    apply hinhfun.
+    intros n'.
+    exists (pr1 n').
+    rewrite nattorig_nat.
+    exact (pr2 n').
+  - intros n.
+    generalize (isarchnat_pos n).
+    apply hinhfun.
+    intros n'.
+    exists (pr1 n').
+    rewrite nattorig_nat.
+    exact (pr2 n').
+Defined.
 
 (** *** Multiplication and comparisons  *)
 
@@ -2334,24 +2405,24 @@ Proof.
     + simpl. unfold si. induction (natlthorgeh j i) as [lt|ge].
       * clear ne.
         induction (natlthorgeh i j) as [lt'|_].
-        -- contradicts (isasymmnatlth _ _ lt') lt.
-        -- unfold di. induction (natlthorgeh j i) as [lt'|ge'].
-          ++ reflexivity.
-          ++ contradicts (natgehtonegnatlth _ _ ge') lt.
+        { contradicts (isasymmnatlth _ _ lt') lt. }
+        { unfold di. induction (natlthorgeh j i) as [lt'|ge'].
+          - reflexivity.
+          - contradicts (natgehtonegnatlth _ _ ge') lt. }
       * assert (lt := natleh_neq ge ne); clear ne ge.
         induction (natlthorgeh i j) as [_|ge'].
-        -- unfold di. induction (natlthorgeh (j - 1) i) as [lt'|ge'].
-           ++ apply fromempty. induction j as [|j _].
-              ** exact (negnatlthn0 _ lt).
-              ** change (S j) with (1 + j) in lt'.
+        { unfold di. induction (natlthorgeh (j - 1) i) as [lt'|ge'].
+          - apply fromempty. induction j as [|j _].
+            + exact (negnatlthn0 _ lt).
+            + change (S j) with (1 + j) in lt'.
                  rewrite natpluscomm in lt'.
                  rewrite plusminusnmm in lt'.
                  change (i < S j) with (i ≤ j) in lt.
                  exact (natlehneggth lt lt').
-           ++ induction j as [|j _].
-              ** contradicts (negnatlthn0 i) lt.
-              ** simpl. apply maponpaths. apply natminuseqn.
-        -- contradicts (natgehtonegnatlth _ _ ge') lt.
+          - induction j as [|j _].
+            + contradicts (negnatlthn0 i) lt.
+            + simpl. apply maponpaths. apply natminuseqn. }
+        contradicts (natgehtonegnatlth _ _ ge') lt.
 Defined.
 
 

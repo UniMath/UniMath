@@ -16,6 +16,7 @@ Algebra/DivisionRig.v
 Algebra/Apartness.v
 Algebra/ConstructiveStructures.v
 Algebra/Archimedean.v
+Algebra/Lattice.v
 NumberSystems/NaturalNumbers.v
 NumberSystems/NaturalNumbers_le_Inductive.v
 Combinatorics/StandardFiniteSets.v

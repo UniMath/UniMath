@@ -26,25 +26,58 @@ Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.RightKanExtension.
+Require Import UniMath.SubstitutionSystems.Signatures.
+Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
+Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 
 Definition Arity_to_Signature :
   Π (C : precategory) (hsC : has_homsets C),
-  BinCoproducts C → BinProducts C → Terminal C → list nat → Signatures.Signature C hsC.
+  BinCoproducts C → BinProducts C → Terminal C → list nat → Signature C hsC.
 Proof.
-  exact @BindingSigToMonad.Arity_to_Signature.
+  exact @UniMath.SubstitutionSystems.BindingSigToMonad.Arity_to_Signature.
 Defined.
 
 Definition BindingSigToSignature :
   Π {C : precategory} (hsC : has_homsets C),
   BinCoproducts C → BinProducts C → Terminal C →
   Π sig : BindingSig, Coproducts (BindingSigIndex sig) C →
-  Signatures.Signature C hsC.
+  Signature C hsC.
 Proof.
   exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
 Defined.
 
+Definition InitialHSS :
+  Π (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C),
+  BinProducts C → Initial C → Colims_of_shape nat_graph C →
+  Π H : Signature C hsC, is_omega_cocont H →
+  Initial (hss_precategory CP H).
+Proof.
+  exact @UniMath.SubstitutionSystems.LiftingInitial_alt.InitialHSS.
+Defined.
+
+Definition SignatureInitialAlgebra :
+  Π {C : precategory} (hsC : has_homsets C) (BCC : BinCoproducts C),
+  BinProducts C → Initial C → Colims_of_shape nat_graph C
+  → Π s : Signature C hsC, is_omega_cocont (Signature_Functor C hsC s)
+  → Initial (FunctorAlg (Id_H C hsC BCC s) (BindingSigToMonad.has_homsets_C2 hsC)).
+Proof.
+  exact @UniMath.SubstitutionSystems.BindingSigToMonad.SignatureInitialAlgebra.
+Defined.
+
+Definition BindingSigToMonad :
+  Π (C : precategory) (hsC : has_homsets C),
+  BinCoproducts C → Π BPC : BinProducts C,
+  Initial C → Terminal C → Colims_of_shape nat_graph C
+  → Π sig : BindingSig, Coproducts (BindingSigIndex sig) C
+  → Products (BindingSigIndex sig) C
+  → (Π F, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C BPC hsC) F)) →
+  Monad C.
+Proof.
+  exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToMonad.
+Defined.
 
 Definition algebra_ob_pair {C : precategory} {F : functor C C} X (f : C⟦F X, X⟧)
   : algebra_ob F.
@@ -60,7 +93,7 @@ Lemma colim_of_chain_is_initial_alg
     isInitial (FunctorAlg F hsC)
               (algebra_ob_pair (colim CC) (colim_algebra_mor InitC HF CC)).
 Proof.
-  exact @CocontFunctors.colimAlgIsInitial.
+  exact @UniMath.CategoryTheory.CocontFunctors.colimAlgIsInitial.
 Defined.
 
 Local Notation "'chain'" := (diagram nat_graph).
@@ -77,15 +110,15 @@ Defined.
 Definition RightKanExtension_from_limits
   : Π (M C A : precategory) (K : functor M C) (hsC : has_homsets C)
     (hsA : has_homsets A),
-  Lims A → RightKanExtension.GlobalRightKanExtensionExists M C K A hsC hsA.
+  Lims A → GlobalRightKanExtensionExists M C K A hsC hsA.
 Proof.
-  exact @RightKanExtension.RightKanExtension_from_limits.
+  exact @UniMath.CategoryTheory.RightKanExtension.RightKanExtension_from_limits.
 Defined.
 
 Definition ColimCoconeHSET
   : Π (g : graph) (D : diagram g HSET), ColimCocone D.
 Proof.
-  exact category_hset_structures.ColimCoconeHSET.
+  exact @UniMath.CategoryTheory.category_hset_structures.ColimCoconeHSET.
 Defined.
 
 Lemma is_omega_cocont_binproduct_functor
@@ -93,12 +126,12 @@ Lemma is_omega_cocont_binproduct_functor
     (Π x : C, is_omega_cocont (constprod_functor1 PC x)) →
     is_omega_cocont (binproduct_functor PC).
 Proof.
-  exact @CocontFunctors.is_omega_cocont_binproduct_functor.
+  exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_binproduct_functor.
 Defined.
 
 Lemma left_adjoint_cocont
   : Π (C D : precategory) (F : functor C D),
     is_left_adjoint F → has_homsets C → has_homsets D → is_cocont F.
 Proof.
-  exact @CocontFunctors.left_adjoint_cocont.
+  exact @UniMath.CategoryTheory.CocontFunctors.left_adjoint_cocont.
 Defined.

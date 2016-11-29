@@ -25,6 +25,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Inductives.Lists.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
@@ -222,4 +223,35 @@ Qed.
 Definition sum : pr1 (Tree natHSET) -> nat :=
   foldr natHSET natHSET 0 (fun x => pr1 x + pr1 (pr2 x) + pr2 (pr2 x)).
 
+Definition testtree : pr1 (Tree natHSET).
+Proof.
+  use node_map; repeat split.
+  - apply 5.
+  - use node_map; repeat split.
+    + apply 6.
+    + apply leaf_map. apply tt.
+    + apply leaf_map. apply tt.
+  - apply leaf_map. apply tt.
+Defined.
+
+
 End nat_examples.
+
+(** ** Flattening of a tree into a list *)
+Local Notation "a :: b" := (cons _ ((a,, b) : _ × _  )).
+Check concatenate.
+Definition flatten (A : HSET) : pr1 (Tree A) -> pr1 (List A).
+Proof.
+  intro t.
+  use (foldr A).
+  - apply nil.
+  - intro all'.
+    set (a := pr1 all').
+    set (l := pr1 (pr2 all')).
+    set (l' := pr2 (pr2 all')). cbn beta in l'.
+    exact (concatenate _ l (concatenate _ (a :: nil _ ) l')).
+  - exact t.
+Defined.
+
+Eval lazy in Lists.sum (flatten _ testtree).
+Eval lazy in sum testtree.

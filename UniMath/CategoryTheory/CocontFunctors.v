@@ -44,7 +44,8 @@ This file also contains proofs that the following functors are (omega-)cocontinu
   [is_omega_cocont_BinProduct_of_functors_alt] [is_omega_cocont_BinProduct_of_functors]
 - Precomposition functor: _ o K : ⟦C,A⟧ -> ⟦M,A⟧ for K : M -> C
   [is_cocont_pre_composition_functor] [is_omega_cocont_pre_composition_functor]
-
+- Swapping of functor category arguments:
+  [is_cocont_functor_cat_swap] [is_omega_cocont_functor_cat_swap]
 
 Written by: Anders Mörtberg and Benedikt Ahrens, 2015-2016
 
@@ -87,34 +88,9 @@ Section cocont.
 
 Context {C D : precategory} (F : functor C D).
 
-Definition mapdiagram {g : graph} (d : diagram g C) : diagram g D.
-Proof.
-mkpair.
-- intros n; apply (F (dob d n)).
-- simpl; intros m n e.
-  apply (# F (dmor d e)).
-Defined.
-
-Definition mapcocone {g : graph} (d : diagram g C) {x : C}
-  (dx : cocone d x) : cocone (mapdiagram d) (F x).
-Proof.
-use mk_cocone.
-- simpl; intro n.
-  exact (#F (coconeIn dx n)).
-- abstract (intros u v e; simpl; rewrite <- functor_comp;
-            apply maponpaths, (coconeInCommutes dx _ _ e)).
-Defined.
-
-Lemma mapcocone_chain_coconeIn {g : graph} {c : diagram g C} {x : C}
-  (cx : cocone c x) (n : vertex g) :
-  coconeIn (mapcocone c cx) n = # F (coconeIn cx n).
-Proof.
-apply idpath.
-Qed.
-
 Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : UU :=
-  isColimCocone d L cc -> isColimCocone (mapdiagram d) (F L) (mapcocone d cc).
+  isColimCocone d L cc -> isColimCocone (mapdiagram F d) (F L) (mapcocone F d cc).
 
 Definition is_cocont := Π {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L), preserves_colimit d L cc.
@@ -1594,6 +1570,25 @@ Definition omega_cocont_pre_composition_functor_kan :
   tpair _ _ is_omega_cocont_pre_composition_functor_kan.
 
 End pre_composition_functor_kan.
+
+(** * Swapping of functor category arguments *)
+Section functor_swap.
+
+Lemma is_cocont_functor_cat_swap (C D : precategory) (E : Precategory) :
+  is_cocont (functor_cat_swap C D E).
+Proof.
+apply left_adjoint_cocont; try apply homset_property.
+apply is_left_adjoint_functor_cat_swap.
+Defined.
+
+Lemma is_omega_cocont_functor_cat_swap (C D : precategory) (E : Precategory) :
+  is_omega_cocont (functor_cat_swap C D E).
+Proof.
+intros d L ccL HccL.
+apply (is_cocont_functor_cat_swap _ _ _ _ d L ccL HccL).
+Defined.
+
+End functor_swap.
 
 End cocont_functors.
 

@@ -194,7 +194,7 @@ Section coproduct_functor.
 
 Variables F G : functor C D.
 
-Definition Coproducts_functor_precat : Coproducts (functorPrecategory C D).
+Definition Coproducts_functor_precat : Coproducts (functor_Precategory C D).
 Proof.
   apply functorBinarySum.
   exact HD.
