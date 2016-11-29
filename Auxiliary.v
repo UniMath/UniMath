@@ -216,7 +216,7 @@ Definition is_pregroupoid (C : precategory)
 
 Lemma is_pregroupoid_functor_precat {C D : Precategory}
   (gr_D : is_pregroupoid D)
-  : is_pregroupoid (functorPrecategory C D).
+  : is_pregroupoid (functor_Precategory C D).
 Proof.
   intros F G α; apply functor_iso_if_pointwise_iso.
   intros c; apply gr_D.
