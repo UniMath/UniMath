@@ -34,23 +34,19 @@ Section slice_fam_equiv.
     (pr1 (s_to_f a) : X → HSET) x --> (pr1 (s_to_f b)) x :=
     fun p => hfibersgftog (pr1 f) (pr2 b) _ (transportf (fun p => hfiber p x) (pr2 f) p).
 
-  (* generalize for any fam of functions, then fam of morphisms, then apply to above *)
   (* Look for stuff about discrete cats in new commits/PRs *)
   (* More explicit arguments! e.g. change below *)
   (* Email when done!! *)
-  Definition slice_to_fam_mor_is_nat_trans {a b : slice X} (f : a --> b) :
-    is_nat_trans (pr1 (s_to_f a)) (pr1 (s_to_f b)) (slice_to_fam_mor_fun f).
-  Proof.
-    intros ? ? g.
-    rewrite g.
-    reflexivity.
-  Defined.
 
-  Definition slice_to_fam_mor (a b : slice X) (f : a --> b) : s_to_f a --> s_to_f b :=
+  Definition slice_to_fam_mor_is_nat_trans {a b : slice X} (f : a --> b) :
+    is_nat_trans (pr1 (s_to_f a)) (pr1 (s_to_f b)) (slice_to_fam_mor_fun f)
+    := discrete_fun_is_nat_trans X (slice_to_fam_mor_fun f).
+
+  Definition slice_to_fam_mor {a b : slice X} (f : a --> b) : s_to_f a --> s_to_f b :=
     (slice_to_fam_mor_fun f) ,, (slice_to_fam_mor_is_nat_trans f).
 
   Definition slice_to_fam_data : functor_data (slice X) (fam X) :=
-    functor_data_constr _ _ slice_to_fam_fun slice_to_fam_mor.
+    functor_data_constr _ _ slice_to_fam_fun (@slice_to_fam_mor).
 
   (* maybe (later) look at when base category isn't an hSet (h1, h2, h3 stuff) *)
   Lemma slice_to_fam_is_functor : is_functor slice_to_fam_data.
@@ -79,11 +75,11 @@ Section slice_fam_equiv.
 
   Local Notation f_to_s := fam_to_slice_fun.
 
-  Definition fam_to_slice_mor (a b : fam X) (f : a --> b) : f_to_s a --> f_to_s b :=
+  Definition fam_to_slice_mor {a b : fam X} (f : a --> b) : f_to_s a --> f_to_s b :=
   (fun h => pr1 h ,, (pr1 f) (pr1 h) (pr2 h)) ,, (idpath (pr2 (f_to_s a))).
 
   Definition fam_to_slice_data : functor_data (fam X) (slice X) :=
-    functor_data_constr _ _ fam_to_slice_fun fam_to_slice_mor.
+    functor_data_constr _ _ fam_to_slice_fun (@fam_to_slice_mor).
 
   Theorem fam_to_slice_is_functor : is_functor fam_to_slice_data.
   Proof.

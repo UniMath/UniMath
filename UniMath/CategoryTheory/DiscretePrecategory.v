@@ -54,4 +54,16 @@ mkpair.
 + abstract (now split; [intro|intros a b c [] []; simpl; rewrite id_left]).
 Defined.
 
+Definition discrete_fun_is_nat_trans {D : precategory} {Dhom : has_homsets D}
+           {f g : functor_precategory discrete_precategory D Dhom}
+           (F : Π x : A , (pr1 f) x --> (pr1 g) x)
+  : is_nat_trans (pr1 f) (pr1 g) F.
+  Proof.
+    intros x y h.
+    rewrite h.
+    rewrite (pr1 (pr2 f)) , (pr1 (pr2 g)).
+    rewrite (id_left (F y)) , (id_right (F y)).
+    reflexivity.
+  Defined.
+
 End DiscretePrecategory.
