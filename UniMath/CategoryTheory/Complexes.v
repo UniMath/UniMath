@@ -1977,7 +1977,8 @@ End transport_diffs.
    We define homotopy of complexes and the naive homotopy category K(A). A homotopy χ from complex
    X to a complex Y is a family of morphisms χ^i : X^i --> Y^{i-1}. Note that a homotopy χ induces
    a morphism of complexes h : X --> Y by setting
-                      h^i = χ^i ;; d^{i-1}_Y + d^i_X ;; χ^{i+1}.
+                      # h^i = χ^i ;; d^{i-1}_Y + d^i_X ;; χ^{i+1}. #
+                      $ h^i = χ^i ;; d^{i-1}_Y + d^i_X ;; χ^{i+1}. $
    The subset of morphisms in Mor(X, Y) which have a path to a morphism of the form h form an
    abelian subgroup of Mor(X, Y). Also, if f : Z_1 --> X and g : Y --> Z_2 are morphisms of
    complexes, then f ;; h and h ;; g have paths to morphisms induced by homotopies. These are given
