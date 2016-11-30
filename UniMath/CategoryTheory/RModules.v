@@ -1,8 +1,7 @@
 (** **********************************************************
 Contents:
-        - Definition of right modules ([Monad])
-        - Precategory of monads [precategory_Monad C] on [C]
-        - Pullback modules
+        - Definition of right modules ([RModule R]) over a monad [R] on [C]
+        - Precategory of modules [precategory_Module R D] of range [D] over a monad [R] on [C]
 
 Following the scheme of Monads.v
 
@@ -95,7 +94,6 @@ Lemma isaprop_RModule_Mor_laws (C : precategory) (hs : has_homsets C)
   (T T' : RModule_data C) (α : T ⟶ T')
   : isaprop (RModule_Mor_laws α).
 Proof.
-  (* apply isapropdirprod; *)
   apply impred; intro c; apply hs.
 Qed.
 
@@ -111,9 +109,6 @@ Definition RModule_Mor_σ {C : precategory} {T T' : RModule C} (α : RModule_Mor
 Lemma RModule_identity_laws {C : precategory} (T : RModule C)
   : RModule_Mor_laws (nat_trans_id T).
 Proof.
-
-  red;
-    simpl.
   intro x.
   now rewrite id_right, id_left.
 Qed.
@@ -122,7 +117,7 @@ Definition RModule_identity {C : precategory} (T : RModule C)
 : RModule_Mor T T := tpair _ _ (RModule_identity_laws T).
 
 Lemma RModule_composition_laws {C : precategory} {T T' T'' : RModule C}
-  (α : RModule_Mor T T') (α' : RModule_Mor T' T'') : RModule_Mor_laws (nat_trans_comp _ _ _ ( α) ( α')).
+  (α : RModule_Mor T T') (α' : RModule_Mor T' T'') : RModule_Mor_laws (nat_trans_comp _ _ _ α α').
 Proof.
   red;intros; simpl.
   unfold nat_trans_from_module_mor.
@@ -177,6 +172,3 @@ Definition precategory_RModule (C : precategory) (hs : has_homsets C) : precateg
 End RModule_precategory.
 
 End RModule_over_monad.
-
-
-(* Local Notation "a --> b" := (precategory_morphisms a b)(at level 50). *)
