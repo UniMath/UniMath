@@ -145,6 +145,7 @@ latex-clean clean::; cd $(LATEXDIR) ; rm -f *.pdf *.tex *.log *.aux *.out *.blg 
 distclean:: clean
 distclean::          ; - $(MAKE) -C sub/coq distclean
 distclean::          ; rm -f build/Makefile-configuration
+distclean::          ; - $(MAKE) -C sub/lablgtk arch-clean
 
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
