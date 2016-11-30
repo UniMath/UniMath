@@ -62,8 +62,9 @@ Local Opaque hz isdecrelhzeq hzplus iscommrngops.
    to the complex
      ... -> Ker d^{i-1} / Im d^{i-2} -> Ker d^i / Im d^{i-1} -> Ker d^{i+1} / Im d^i -> ...
    where the differentials are given by zero morphisms. A morphism f : X -> Y is sent to the induced
-   morphism. That is, f^i : X^i -> Y^i induces a morphism (H f)^i : ker d^i_X / Im d^{i-1}_X ->
-   ker d^i_Y / Im d^{i-1}_Y as one can check.
+   morphism. That is, f^i : X^i -> Y^i induces a morphism #(H f)^i : ker d^i_X / Im d^{i-1}_X ->
+   ker d^i_Y / Im d^{i-1}_Y# $(H f)^i : ker d^i_X / Im d^{i-1}_X -> ker d^i_Y / Im d^{i-1}_Y$ as one
+   can check.
 
    In category theory, there are two isomorphic ways to define the cohomology complex. We use the
    following definition. The ith cohomology is defined to be the cokernel of the morphism X^{i-1} ->
