@@ -8,7 +8,7 @@ by Benedikt Ahrens, Ralph Matthes and Anders Mörtberg.
 
 
 PLEASE DO NOT RENAME THIS FILE - its name is referenced in the article
-about this formalization
+about this formalization.
 
 *)
 Require Import UniMath.Foundations.Basics.PartD.
@@ -41,21 +41,30 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.SubstitutionSystems.Signatures.
+Require Import UniMath.SubstitutionSystems.SumOfSignatures.
+Require Import UniMath.SubstitutionSystems.SignatureCategory.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 
 (** Definition 1: Artiy, Binding signature *)
-
-(** Example 2: Binding signature of untyped lambda calculus *)
-
-(** Example 3: Binding signature of presyntax of Martin-Löf type theory *)
+Definition BindingSig : UU :=
+  @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSig.
 
 (** Definition 4: Signatures with strength *)
+Definition Signature : Π C : precategory, has_homsets C → UU :=
+  @UniMath.SubstitutionSystems.Signatures.Signature.
 
 (** Definition 5: Morphism of signatures with strength *)
+Definition SignatureMor :
+  Π C : Precategory, Signature C (homset_property C) → Signature C (homset_property C) → UU :=
+  @UniMath.SubstitutionSystems.SignatureCategory.SignatureMor.
 
 (** Definition 6: Coproduct of signatures with strength *)
+Definition Sum_of_Signatures :
+  Π (I : UU) (C : precategory) (hsC : has_homsets C), Coproducts I C
+  → (I → Signature C hsC) → Signature C hsC :=
+    @UniMath.SubstitutionSystems.SumOfSignatures.Sum_of_Signatures.
 
 (** Definition 7: Binary product of signatures with strength *)
 
