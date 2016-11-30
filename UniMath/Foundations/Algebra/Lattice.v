@@ -16,7 +16,11 @@ Lattice with a strict order:
 A lattice with a strict order gt is lattice such that:
 - Π (x y : X), (¬ gt x y) <-> le x y
 - Π x y z : X, gt x z → gt y z → gt (min x y) z
-- Π x y z : X, gt z x → gt z y → gt z (max is x y) *)
+- Π x y z : X, gt z x → gt z y → gt z (max is x y)
+
+Lattice with a total and decidable order :
+- le is total and decidable
+- it is a lattice with a strong order *)
 
 Require Export UniMath.Foundations.Algebra.BinaryOperations.
 
@@ -483,6 +487,8 @@ Proof.
 Qed.
 
 End islatticedec_pty.
+
+(** It is a lattice with a strong order *)
 
 Section islatticedec_gt.
 
