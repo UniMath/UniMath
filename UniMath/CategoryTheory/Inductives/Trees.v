@@ -238,9 +238,9 @@ Defined.
 End nat_examples.
 
 (** ** Flattening of a tree into a list *)
-Local Notation "a :: b" := (cons _ ((a,, b) : _ × _  )).
-Check concatenate.
-Definition flatten (A : HSET) : pr1 (Tree A) -> pr1 (List A).
+Local Notation "a :: b" := (cons _ a b).
+(* Check concatenate. *)
+Definition flatten (A : HSET) : pr1 (Tree A) -> List A.
 Proof.
   intro t.
   use (foldr A).

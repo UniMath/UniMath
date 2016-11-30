@@ -106,8 +106,9 @@ Section omega_cocont.
 >>
    with exactly one arrow from n to S n.
 *)
+
 Definition nat_graph : graph :=
-  tpair (λ D : UU, D → D → UU) nat (λ m n, S m = n).
+  mk_graph nat (λ m n, 1 + m = n).
 
 Local Notation "'chain'" := (diagram nat_graph).
 

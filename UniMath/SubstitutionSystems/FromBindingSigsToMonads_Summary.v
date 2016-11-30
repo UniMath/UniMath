@@ -27,7 +27,6 @@ Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
-Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
@@ -35,18 +34,33 @@ Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 
 Definition Arity_to_Signature :
   Π (C : precategory) (hsC : has_homsets C),
-  BinCoproducts C → BinProducts C → Terminal C → list nat → Signature C hsC.
+  BinProducts C → BinCoproducts C → Terminal C → list nat → Signature C hsC.
 Proof.
   exact @UniMath.SubstitutionSystems.BindingSigToMonad.Arity_to_Signature.
 Defined.
 
 Definition BindingSigToSignature :
   Π {C : precategory} (hsC : has_homsets C),
-  BinCoproducts C → BinProducts C → Terminal C →
+  BinProducts C → BinCoproducts C → Terminal C →
   Π sig : BindingSig, Coproducts (BindingSigIndex sig) C →
   Signature C hsC.
 Proof.
   exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
+Defined.
+
+Local Notation "'[ C , C, hsC ]'" := (functor_precategory C C hsC).
+
+Lemma is_omega_cocont_BindingSigToSignature :
+  Π (C : precategory) (hsC : has_homsets C)
+  (BPC : BinProducts C) (BCC : BinCoproducts C) (TC : Terminal C),
+  Colims_of_shape nat_graph C →
+  (Π F : functor_precategory C C hsC, is_omega_cocont
+       (constprod_functor1 (BinProducts_functor_precat C C BPC hsC) F))
+  → Π (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C),
+                          Products (BindingSigIndex sig) C →
+  is_omega_cocont (BindingSigToSignature hsC BPC BCC TC sig CC).
+Proof.
+  exact @UniMath.SubstitutionSystems.BindingSigToMonad.is_omega_cocont_BindingSigToSignature.
 Defined.
 
 Definition InitialHSS :
@@ -59,8 +73,9 @@ Proof.
 Defined.
 
 Definition SignatureInitialAlgebra :
-  Π {C : precategory} (hsC : has_homsets C) (BCC : BinCoproducts C),
-  BinProducts C → Initial C → Colims_of_shape nat_graph C
+  Π {C : precategory} (hsC : has_homsets C)
+  (BPC : BinProducts C) (BCC : BinCoproducts C),
+    Initial C → Colims_of_shape nat_graph C
   → Π s : Signature C hsC, is_omega_cocont (Signature_Functor C hsC s)
   → Initial (FunctorAlg (Id_H C hsC BCC s) (BindingSigToMonad.has_homsets_C2 hsC)).
 Proof.
@@ -68,13 +83,12 @@ Proof.
 Defined.
 
 Definition BindingSigToMonad :
-  Π (C : precategory) (hsC : has_homsets C),
-  BinCoproducts C → Π BPC : BinProducts C,
-  Initial C → Terminal C → Colims_of_shape nat_graph C
-  → Π sig : BindingSig, Coproducts (BindingSigIndex sig) C
-  → Products (BindingSigIndex sig) C
-  → (Π F, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C BPC hsC) F)) →
-  Monad C.
+  Π (C : precategory) (hsC : has_homsets C) (BPC : BinProducts C),
+  BinCoproducts C → Terminal C → Initial C → Colims_of_shape nat_graph C
+  → (Π F, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C BPC hsC) F))
+  → Π sig : BindingSig, Products (BindingSigIndex sig) C
+  → Coproducts (BindingSigIndex sig) C
+  → Monad C.
 Proof.
   exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToMonad.
 Defined.
@@ -107,14 +121,6 @@ Proof.
   exact (@CocontFunctors.is_omega_cocont_pre_composition_functor _ _ _ _ _ _ H).
 Defined.
 
-Definition RightKanExtension_from_limits
-  : Π (M C A : precategory) (K : functor M C) (hsC : has_homsets C)
-    (hsA : has_homsets A),
-  Lims A → GlobalRightKanExtensionExists M C K A hsC hsA.
-Proof.
-  exact @UniMath.CategoryTheory.RightKanExtension.RightKanExtension_from_limits.
-Defined.
-
 Definition ColimCoconeHSET
   : Π (g : graph) (D : diagram g HSET), ColimCocone D.
 Proof.
@@ -123,7 +129,7 @@ Defined.
 
 Lemma is_omega_cocont_binproduct_functor
   : Π (C : precategory) (PC : BinProducts C), has_homsets C →
-    (Π x : C, is_omega_cocont (constprod_functor1 PC x)) →
+    (Π (x : C), is_omega_cocont (constprod_functor1 PC x)) →
     is_omega_cocont (binproduct_functor PC).
 Proof.
   exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_binproduct_functor.
