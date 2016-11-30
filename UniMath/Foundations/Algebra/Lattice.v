@@ -50,15 +50,17 @@ Definition isasymm_StrongOrder : isasymm R :=
 
 End so_pty.
 
-Definition isStrongOrder_quotrel {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
+Lemma isStrongOrder_setquot {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
   isStrongOrder L → isStrongOrder (quotrel is).
 Proof.
   intros X R L is H.
-  repeat split.
+  split ; [ | split].
   - apply istransquotrel, (pr1 H).
   - apply iscotransquotrel, (pr1 (pr2 H)).
   - apply isirreflquotrel, (pr2 (pr2 H)).
-Defined.
+Qed.
+Definition StrongOrder_setquot {X : UU} {R : eqrel X} {L : StrongOrder X} (is : iscomprelrel R L) : StrongOrder (setquot R) :=
+  quotrel is,, isStrongOrder_setquot is (pr2 L).
 
 (** ** Definition *)
 
@@ -404,3 +406,151 @@ Definition Lmax_Lgt :
   pr2 (pr2 (pr2 (pr2 is))).
 
 End latticewithgt_pty.
+
+(** ** Lattice with a total order *)
+
+Definition islatticedec (X : hSet) :=
+  Σ is : islattice X, istotal (Lle is) × (isdecrel (Lle is)).
+Definition islattice_islatticedec {X : hSet} (is : islatticedec X) : islattice X :=
+  pr1 is.
+Coercion islattice_islatticedec : islatticedec >-> islattice.
+Definition istotal_islatticedec {X : hSet} (is : islatticedec X) : istotal (Lle is) :=
+  pr1 (pr2 is).
+Definition isdecrel_islatticedec {X : hSet} (is : islatticedec X) : isdecrel (Lle is) :=
+  pr2 (pr2 is).
+
+Section islatticedec_pty.
+
+Context {X : hSet}
+        (is : islatticedec X).
+
+Lemma Lmin_case_strong :
+  Π (P : X → UU) (x y : X),
+  (Lle is x y → P x) → (Lle is y x → P y) → P (Lmin is x y).
+Proof.
+  intros P x y Hx Hy.
+  generalize (isdecrel_islatticedec is x y).
+  apply sumofmaps ; intros H.
+  - rewrite Lmin_le_eq_l.
+    apply Hx, H.
+    exact H.
+  - enough (H0 : Lle is y x).
+    + rewrite Lmin_le_eq_r.
+      apply Hy, H0.
+      exact H0.
+    + generalize (istotal_islatticedec is x y).
+      apply hinhuniv, sumofmaps ; intros H0.
+      apply fromempty, H, H0.
+      exact H0.
+Qed.
+Lemma Lmin_case :
+  Π (P : X → UU) (x y : X),
+  P x → P y → P (Lmin is x y).
+Proof.
+  intros P x y Hx Hy.
+  apply Lmin_case_strong ; intros _.
+  - exact Hx.
+  - exact Hy.
+Qed.
+
+Lemma Lmax_case_strong :
+  Π (P : X → UU) (x y : X),
+  (Lle is y x → P x) → (Lle is x y → P y) → P (Lmax is x y).
+Proof.
+  intros P x y Hx Hy.
+  generalize (isdecrel_islatticedec is x y).
+  apply sumofmaps ; intros H.
+  - rewrite Lmax_le_eq_r.
+    apply Hy, H.
+    exact H.
+  - enough (H0 : Lle is y x).
+    + rewrite Lmax_le_eq_l.
+      apply Hx, H0.
+      exact H0.
+    + generalize (istotal_islatticedec is x y).
+      apply hinhuniv, sumofmaps ; intros H0.
+      apply fromempty, H, H0.
+      exact H0.
+Qed.
+Lemma Lmax_case :
+  Π (P : X → UU) (x y : X),
+  P x → P y → P (Lmax is x y).
+Proof.
+  intros P x y Hx Hy.
+  apply Lmax_case_strong ; intros _.
+  - exact Hx.
+  - exact Hy.
+Qed.
+
+End islatticedec_pty.
+
+Section islatticedec_gt.
+
+Context {X : hSet}
+        (is : islatticedec X).
+
+Definition latticedec_gt_rel : hrel X :=
+  λ x y, hneg (Lle is x y).
+
+Lemma latticedec_gt_ge :
+  Π x y : X, latticedec_gt_rel x y → Lge is x y.
+Proof.
+  intros x y Hxy.
+  generalize (istotal_islatticedec is x y).
+  apply hinhuniv, sumofmaps ; intros H.
+  - apply fromempty, Hxy.
+    exact H.
+  - exact H.
+Qed.
+
+Definition latticedec_gt : StrongOrder X.
+Proof.
+  mkpair.
+  apply latticedec_gt_rel.
+  split ; [ | split].
+  - intros x y z Hxy Hyz Hxz.
+    apply Hxy.
+    apply istrans_Lle with z.
+    apply Hxz.
+    apply latticedec_gt_ge.
+    exact Hyz.
+  - intros x y z Hxz.
+    induction (isdecrel_islatticedec is x y) as [Hxy | Hyx].
+    + apply hinhpr, ii2.
+      intros Hyz.
+      apply Hxz.
+      apply istrans_Lle with y.
+      exact Hxy.
+      exact Hyz.
+    + apply hinhpr, ii1.
+      exact Hyx.
+  - intros x Hx.
+    apply Hx.
+    apply isrefl_Lle.
+Defined.
+
+Definition islatticedec_gt : islatticewithgt X.
+Proof.
+  mkpair.
+  apply (pr1 is).
+  mkpair.
+  apply latticedec_gt.
+  split ; split.
+  - intros H.
+    induction (isdecrel_islatticedec is x y) as [H0 | H0].
+    + exact H0.
+    + apply fromempty, H.
+      exact H0.
+  - intros H H0.
+    apply H0, H.
+  - intros x y z Hxz Hyz.
+    apply (Lmin_case is (λ t : X, latticedec_gt t z)).
+    + exact Hxz.
+    + exact Hyz.
+  - intros x y z Hxz Hyz.
+    apply (Lmax_case is (latticedec_gt z)).
+    + exact Hxz.
+    + exact Hyz.
+Defined.
+
+End islatticedec_gt.
