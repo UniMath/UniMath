@@ -4,7 +4,8 @@ Require Import UniMath.Foundations.Basics.Sets
         UniMath.CategoryTheory.category_hset
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.equivalences
-        UniMath.CategoryTheory.DiscretePrecategory.
+        UniMath.CategoryTheory.DiscretePrecategory
+        UniMath.CategoryTheory.UnicodeNotations.
 
 (** Proof that Set / X and Set ^ X are equivalent as categories *)
 Section slice_fam_equiv.
@@ -20,7 +21,6 @@ Section slice_fam_equiv.
     has_homsets_discrete_precategory (pr1 A) (hlevelntosn 2 (pr1 A) (isofhlevelssnset 0 (pr1 A) (pr2 A))).
   Local Definition fam (A : hSet) := functor_precategory (discrete A) HSET has_homsets_HSET.
   Local Definition mkfam (f : X → hSet) := functor_discrete_precategory (pr1 X) HSET f.
-  Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
   Definition slice_to_fam_fun (a : slice X) : fam X :=
     mkfam (fun x : X => hfiber_hSet (pr2 a) x).
@@ -28,19 +28,15 @@ Section slice_fam_equiv.
   Local Notation s_to_f := slice_to_fam_fun.
 
   (* don't use transportf! or maybe do, but w/ destruct or induction *)
-  (* figure out why we need [pr1] in type *)
-  (* maybe need pr1 b.c. coerces to [X → hSet] (and not [X → HSET]) *)
   Definition slice_to_fam_mor_fun {a b : slice X} (f : a --> b) (x : X) :
-    (pr1 (s_to_f a) : X → HSET) x --> (pr1 (s_to_f b)) x :=
+    (s_to_f a : functor (discrete X) HSET) x --> (s_to_f b : functor (discrete X) HSET) x :=
     fun p => hfibersgftog (pr1 f) (pr2 b) _ (transportf (fun p => hfiber p x) (pr2 f) p).
 
   (* Look for stuff about discrete cats in new commits/PRs *)
-  (* More explicit arguments! e.g. change below *)
   (* Email when done!! *)
-
   Definition slice_to_fam_mor_is_nat_trans {a b : slice X} (f : a --> b) :
-    is_nat_trans (pr1 (s_to_f a)) (pr1 (s_to_f b)) (slice_to_fam_mor_fun f)
-    := discrete_fun_is_nat_trans X (slice_to_fam_mor_fun f).
+    is_nat_trans (s_to_f a : functor (discrete X) HSET) (s_to_f b : functor (discrete X) HSET) (slice_to_fam_mor_fun f)
+    := discrete_fun_is_nat_trans X has_homsets_HSET (slice_to_fam_mor_fun f).
 
   Definition slice_to_fam_mor {a b : slice X} (f : a --> b) : s_to_f a --> s_to_f b :=
     (slice_to_fam_mor_fun f) ,, (slice_to_fam_mor_is_nat_trans f).
@@ -87,7 +83,8 @@ Section slice_fam_equiv.
       apply (invmaponpathsincl pr1);
       try (apply isofhlevelfpr1;
            intros ?; apply (pr2 (eqset _ _))).
-    + apply funextsec. intro p. exact (!(tppr p)).
+    + apply funextsec. intro p.
+      exact (!tppr p).
     + reflexivity.
   Defined.
 
@@ -99,7 +96,8 @@ Section slice_fam_equiv.
     exists (fun h : (Σ x : X, hfiber (pr2 f) x) => pr1 (pr2 h)).
     simpl.
     apply funextsec.
-    intro p. apply(!pr2 (pr2 p)).
+    intro p.
+    exact (!pr2 (pr2 p)).
   Defined.
 
   Definition slice_counit_is_nat_trans : is_nat_trans _ _ slice_counit_fun.
@@ -108,7 +106,7 @@ Section slice_fam_equiv.
     apply (invmaponpathsincl pr1).
     + apply isofhlevelfpr1.
       intros ?.
-      apply (pr2 (eqset _ _)).
+      exact (pr2 (eqset _ _)).
     + unfold slice_counit_fun. simpl.
       unfold compose. simpl.
       apply funextsec. intro p.
@@ -135,8 +133,8 @@ Section slice_fam_equiv.
     + reflexivity.
     + rewrite <- H.
       assert (coconus_isaset : isaset ((coconusf (pr2 x)))).
-    - apply (isaset_total2_hSet X (fun y => (hfiber_hSet (pr2 x) y))).
-    - apply (hset_equiv_is_iso (hSetpair (coconusf (pr2 x)) coconus_isaset) _ (weqfromcoconusf (pr2 x))).
+    - exact (isaset_total2_hSet X (fun y => (hfiber_hSet (pr2 x) y))).
+    - exact (hset_equiv_is_iso (hSetpair (coconusf (pr2 x)) coconus_isaset) _ (weqfromcoconusf (pr2 x))).
   Defined.
 
   Definition slice_unit := nat_trans_inv_from_pointwise_inv _ _ (has_homsets_slice_precat _ has_homsets_HSET X) _ _ slice_counit slice_all_iso.
@@ -154,9 +152,9 @@ Section slice_fam_equiv.
     apply (invmaponpathsincl pr1).
     - apply isofhlevelfpr1.
       intros ?.
-      apply (pr2 (eqset _ _)).
+      exact (pr2 (eqset _ _)).
     -  apply pair_path_in2.
-       apply (transportb (fun f' => f' p = (identity ((pr1 f) x')) p) ((pr1 (pr2 f)) x') (idpath _)).
+       exact (transportb (fun f' => f' p = (identity ((pr1 f) x')) p) ((pr1 (pr2 f)) x') (idpath _)).
   Defined.
 
   Definition fam_unit_fun (f : fam X) : (functor_identity_data _) f --> (functor_composite_data fam_to_slice_data slice_to_fam_data) f :=
@@ -171,7 +169,7 @@ Section slice_fam_equiv.
     apply (invmaponpathsincl pr1).
     + apply isofhlevelfpr1.
       intros ?.
-      apply (pr2 (eqset _ _)).
+      exact (pr2 (eqset _ _)).
     + reflexivity.
   Defined.
 
@@ -187,12 +185,12 @@ Section slice_fam_equiv.
     assert (isaset_total2_F : isaset (Σ x ,  pr1 ((pr1 F) x))).
     - apply isaset_total2_hSet.
     - assert (isaset_hfiber_pr1 : isaset (hfiber (@pr1 (discrete X) (funcomp (pr1 (pr1 F)) pr1)) x)).
-      + apply (@isaset_hfiber (hSetpair (Σ x ,  pr1 ((pr1 F) x)) isaset_total2_F) _ (@pr1 (discrete X) (funcomp (pr1 (pr1 F)) pr1)) x isaset_total2_F (pr2 X)).
+      + exact (@isaset_hfiber (hSetpair (Σ x ,  pr1 ((pr1 F) x)) isaset_total2_F) _ (@pr1 (discrete X) (funcomp (pr1 (pr1 F)) pr1)) x isaset_total2_F (pr2 X)).
       + assert (H : (λ a : (pr1 ((pr1 F) x)), (x,, a),, idpath x) = ezmappr1 (funcomp (pr1 (pr1 F)) pr1) x).
         * apply funextsec.
           intro a.
           reflexivity.
-        * apply (hset_equiv_is_iso ((pr1 F) x) (hSetpair (hfiber pr1 x) isaset_hfiber_pr1) (ezweqpr1 (funcomp (pr1 (pr1 F)) pr1) x)).
+        * exact (hset_equiv_is_iso ((pr1 F) x) (hSetpair (hfiber pr1 x) isaset_hfiber_pr1) (ezweqpr1 (funcomp (pr1 (pr1 F)) pr1) x)).
   Defined.
 
   Definition fam_all_iso (F : fam X) : is_isomorphism (fam_unit F) := pr2 (fam_iso F).
@@ -207,9 +205,9 @@ Section slice_fam_equiv.
       apply (invmaponpathsincl pr1).
     - apply isofhlevelfpr1.
       intros ?.
-      apply (pr2 (eqset _ _)).
+      exact (pr2 (eqset _ _)).
     - apply funextsec. intro x.
-      symmetry. apply tppr.
+      exact (!tppr _).
     + intro F.
       apply (nat_trans_eq has_homsets_HSET).
       intro x.
@@ -218,7 +216,7 @@ Section slice_fam_equiv.
       apply (invmaponpathsincl pr1).
     - apply isofhlevelfpr1.
       intros ?.
-      apply (pr2 (eqset _ _)).
+      exact (pr2 (eqset _ _)).
     - simpl.
       unfold hfiber. rewrite transportf_total2.
       simpl. rewrite transportf_const.
@@ -228,12 +226,7 @@ Section slice_fam_equiv.
   Definition slice_fam_are_adjoints : are_adjoints _ _ :=
     (fam_unit ,, slice_counit) ,, slice_fam_form_adj.
 
-  Theorem slice_fam_equiv : adj_equivalence_of_precats fam_to_slice_functor.
-  Proof.
-    exists (slice_to_fam_functor ,, slice_fam_are_adjoints).
-    split.
-    + apply fam_all_iso.
-    + apply slice_all_iso.
-  Defined.
+  Definition slice_fam_equiv : adj_equivalence_of_precats fam_to_slice_functor :=
+    (slice_to_fam_functor ,, slice_fam_are_adjoints) ,, (fam_all_iso ,, slice_all_iso) .
 
 End slice_fam_equiv.
