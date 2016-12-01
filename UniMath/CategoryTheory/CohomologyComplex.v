@@ -540,7 +540,7 @@ Section def_cohomology'_complex.
   Qed.
 
   Local Lemma CohomologyComplexIso_KernelArrow (C : Complex (AbelianToAdditive A hs)) (i : hz) :
-    let K4 := mk_Kernel' _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
+    let K4 := mk_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
                          (CohomologyComplexIso_isKernel C i) in
     KernelArrow K4 = KernelIn to_Zero (Kernel (Diff C i))
                               (Image
@@ -587,7 +587,7 @@ Section def_cohomology'_complex.
                  (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                        (maponpaths C (hzrminusplus i 1)) (Diff C (i - 1))))
                  _ _ (CohomologyComplexIso_eq2 C i) in
-    isCokernel to_Zero CK1 (φ1 ;; φ2) (CohomologyComplexIso_isCokernel_Eq C i).
+    isCokernel to_Zero (φ1 ;; φ2) CK1 (CohomologyComplexIso_isCokernel_Eq C i).
   Proof.
     intros φ1 φ2 CK1.
     set (f2 := factorization2 hs (Diff C i)).
@@ -617,8 +617,8 @@ Section def_cohomology'_complex.
   Qed.
 
   Local Lemma CohomologyComplexIso_CokernelArrow (C : Complex (AbelianToAdditive A hs)) (i : hz) :
-    let CK4 := mk_Cokernel' _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
-                            (CohomologyComplexIso_isCokernel C i) in
+    let CK4 := mk_Cokernel _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
+                           (CohomologyComplexIso_isCokernel C i) in
     CokernelArrow CK4 =
     (CokernelOut to_Zero
                  (Cokernel
@@ -685,7 +685,7 @@ Section def_cohomology'_complex.
 
   Definition CohomologyComplexIso_Mor5 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
     let K1 := KernelIn to_Zero (Kernel (Diff C i)) _ _ (CohomologyComplexIso_eq1 C i) in
-    let K4 := mk_Kernel' _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
+    let K4 := mk_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
                          (CohomologyComplexIso_isKernel C i) in
     A⟦Cokernel (KernelArrow K4), Cokernel K1⟧ :=
     @CokernelOutPaths_is_iso_mor
@@ -696,15 +696,15 @@ Section def_cohomology'_complex.
     let φ2 := CokernelArrow (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                   (maponpaths C (hzrminusplus i 1))
                                                   (Diff C (i - 1)))) in
-    let K4 := mk_Kernel' _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
-                         (CohomologyComplexIso_isKernel C i) in
+    let K4 := mk_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
+                        (CohomologyComplexIso_isKernel C i) in
     iso (CoImage (φ1 ;; φ2)) (Cokernel (KernelArrow K4)) :=
     let φ1 := KernelArrow (Kernel (Diff C i)) in
     let φ2 := CokernelArrow (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                   (maponpaths C (hzrminusplus i 1))
                                                   (Diff C (i - 1)))) in
-    let K4 := mk_Kernel' _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
-                         (CohomologyComplexIso_isKernel C i) in
+    let K4 := mk_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
+                        (CohomologyComplexIso_isKernel C i) in
     CohomologyComplexIso_CokerKerIso _ K4 (CoImage (φ1 ;; φ2)) (Cokernel (KernelArrow K4)).
 
   Definition CohomologyComplexIso_Mor7 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
@@ -716,14 +716,14 @@ Section def_cohomology'_complex.
     A⟦Kernel CK1,
       Kernel
         (CokernelArrow
-           (mk_Cokernel' to_Zero
-                         (KernelArrow (Kernel (Diff C i)) ;; CokernelArrow
-                                      (Cokernel
-                                         (transportf (precategory_morphisms (C (i - 1)))
-                                                     (maponpaths C (hzrminusplus i 1))
-                                                     (Diff C (i - 1))))) CK1
-                         (CohomologyComplexIso_isCokernel_Eq C i)
-                         (CohomologyComplexIso_isCokernel C i)))⟧ :=
+           (mk_Cokernel to_Zero
+                        (KernelArrow (Kernel (Diff C i)) ;; CokernelArrow
+                                     (Cokernel
+                                        (transportf (precategory_morphisms (C (i - 1)))
+                                                    (maponpaths C (hzrminusplus i 1))
+                                                    (Diff C (i - 1))))) CK1
+                        (CohomologyComplexIso_isCokernel_Eq C i)
+                        (CohomologyComplexIso_isCokernel C i)))⟧ :=
     @KernelInPaths_is_iso_mor
       A to_Zero _ _ _ _ (! (CohomologyComplexIso_CokernelArrow C i)) (Kernel _) (Kernel _).
 
@@ -732,15 +732,15 @@ Section def_cohomology'_complex.
     let φ2 := CokernelArrow (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                   (maponpaths C (hzrminusplus i 1))
                                                   (Diff C (i - 1)))) in
-    let CK4 := mk_Cokernel' _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
-                            (CohomologyComplexIso_isCokernel C i) in
+    let CK4 := mk_Cokernel _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
+                           (CohomologyComplexIso_isCokernel C i) in
     iso (Kernel (CokernelArrow CK4)) (Image (φ1 ;; φ2)) :=
     let φ1 := KernelArrow (Kernel (Diff C i)) in
     let φ2 := CokernelArrow (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                   (maponpaths C (hzrminusplus i 1))
                                                   (Diff C (i - 1)))) in
-    let CK4 := mk_Cokernel' _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
-                            (CohomologyComplexIso_isCokernel C i) in
+    let CK4 := mk_Cokernel _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
+                           (CohomologyComplexIso_isCokernel C i) in
     CohomologyComplexIso_KerCokerIso CK4 _ (Kernel (CokernelArrow CK4)) (Image (φ1 ;; φ2)).
 
   Definition CohomologyComplexIso_Mor_i (C : Complex (AbelianToAdditive A hs)) (i : hz) :
@@ -772,16 +772,16 @@ Section def_cohomology'_complex.
     set (CK2 := CokernelPath A to_Zero f1 (Cokernel _)).
     set (CK2' := CokernelEpiComp A hs to_Zero _ _ CK2).
     set (K3 := MonicToKernel' A hs _ CK2').
-    set (K4 := mk_Kernel' _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
-                          (CohomologyComplexIso_isKernel C i)).
+    set (K4 := mk_Kernel _ _ _ (CohomologyComplexIso_isKernel_Eq C i)
+                         (CohomologyComplexIso_isKernel C i)).
     use (postcompose (CohomologyComplexIso_Mor5 C i)).
     use (postcompose (CohomologyComplexIso_Mor6 C i)).
     (* compose *)
     set (K2 := KernelPath A to_Zero f2 (Kernel _)).
     set (K2' := KernelCompMonic A hs to_Zero _ _ K2).
     set (CK3 := EpiToCokernel' A hs _ K2').
-    set (CK4 := mk_Cokernel' _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
-                             (CohomologyComplexIso_isCokernel C i)).
+    set (CK4 := mk_Cokernel _ _ _ (CohomologyComplexIso_isCokernel_Eq C i)
+                            (CohomologyComplexIso_isCokernel C i)).
     use (compose (CohomologyComplexIso_Mor7 C i)).
     use (compose (CohomologyComplexIso_Mor8 C i)).
     exact (iso_inv_from_is_iso _ (CoIm_to_Im_is_iso A hs (φ1 ;; φ2))).
@@ -1034,7 +1034,7 @@ Section def_cohomology_homotopy.
   Lemma CohomologyFunctorHomotopy {C1 C2 : Complex (AbelianToAdditive A hs)}
         (H : ComplexHomot _ C1 C2) :
     CohomologyMorphism A hs (ComplexHomotMorphism (AbelianToAdditive A hs) H) =
-    MorphismZero (AbelianToAdditive A hs) (CohomologyComplex A hs C1) (CohomologyComplex A hs C2).
+    ZeroMorphism (AbelianToAdditive A hs) (CohomologyComplex A hs C1) (CohomologyComplex A hs C2).
   Proof.
     use MorphismEq. intros i. cbn. unfold CohomologyMorphism_Mor.
     use CokernelOutsEq. rewrite CokernelCommutes.

@@ -49,13 +49,13 @@ Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Definition opp_ob {C : precategory} (c : ob C) : ob C^op := c.
 
-Definition rm_opp_ob {C : Precategory} (cop : ob C^op) : ob C := cop.
+Definition rm_opp_ob {C : precategory} (cop : ob C^op) : ob C := cop.
 
-Definition opp_mor {C : Precategory} {b c : C} (f : C⟦b, c⟧) : C^op⟦c, b⟧ := f.
+Definition opp_mor {C : precategory} {b c : C} (f : C⟦b, c⟧) : C^op⟦c, b⟧ := f.
 
-Definition rm_opp_mor {C : Precategory} {b c : C} (f : C^op⟦c, b⟧) : C⟦b, c⟧ := f.
+Definition rm_opp_mor {C : precategory} {b c : C} (f : C^op⟦c, b⟧) : C⟦b, c⟧ := f.
 
-Definition opp_mor_eq {C : Precategory} {a b : C} {f g : a --> b} (e : opp_mor f = opp_mor g) :
+Definition opp_mor_eq {C : precategory} {a b : C} {f g : a --> b} (e : opp_mor f = opp_mor g) :
   f = g := e.
 
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).

@@ -93,6 +93,21 @@ Section def_zero.
   Definition iso_Zeros (Z Z' : Zero) : iso Z Z' :=
     tpair _ (ZeroArrowTo Z' Z) (isiso_from_Zero_to_Zero Z' Z).
 
+  Lemma ZerosArrowEq (Z Z' : Zero) (a b : C) : ZeroArrow Z a b = ZeroArrow Z' a b.
+  Proof.
+    set (i := iso_Zeros Z Z').
+    unfold ZeroArrow.
+    assert (e : ZeroArrowTo Z a ;; identity _ = ZeroArrowTo Z a) by apply id_right.
+    rewrite <- e. clear e.
+    rewrite <- (iso_inv_after_iso i). rewrite assoc.
+    assert (e1 : ZeroArrowTo Z a ;; i = ZeroArrowTo Z' a) by apply ArrowsToZero.
+    rewrite e1. clear e1.
+    assert (e2 : inv_from_iso i ;; ZeroArrowFrom Z b = ZeroArrowFrom Z' b)
+      by apply ArrowsFromZero.
+    rewrite <- assoc. rewrite e2. clear e2.
+    apply idpath.
+  Qed.
+
   Definition hasZero := ishinh Zero.
 
   Section Zero_Unique.
