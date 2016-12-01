@@ -1,12 +1,13 @@
-(**
-
-Direct implementation of kernels together with:
-
-- Proof that the kernel arrow is monic ([KernelArrowisMonic])
-
-Written by Tomi Pannila.
-
+(** * Direct implementation of kernels *)
+(** ** Contents
+- Definition of [Kernel]
+- Correspondence of Kernels and Equalizers
+- Kernel up to isomorphism
+- Kernel of morphism ;; [Monic]
+- KernelIn of equal morphisms
+- Transport of kernels
 *)
+
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -16,6 +17,7 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.zero.
+
 
 (** Definition of kernels *)
 Section def_kernels.
@@ -299,8 +301,7 @@ Section kernel_equalizers.
 End kernel_equalizers.
 
 
-(** In the following section we construct a new kernel from an arrow which is
-  equal to kernelarrow of some kernel, up to precomposing with an isomorphism *)
+(** * Kernel up to isomorphism *)
 Section kernels_iso.
 
   Variable C : precategory.
@@ -532,7 +533,7 @@ Section kernel_in_paths.
 End kernel_in_paths.
 
 
-(** Transports of kernels *)
+(** * Transports of kernels *)
 Section transport_kernels.
 
   Variable C : precategory.

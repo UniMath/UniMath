@@ -1,12 +1,12 @@
-(**
+(** * Direct definition of cokernels *)
+(** ** Contents
+- Definition of cokernel
+- Correspondence of cokernels and coequalizers
+- Cokernel up to iso
+- Cokernel of [Epi] ;; morphism
+- CokernelOut of equal morphisms
+ *)
 
-Direct implementation of cokernels together with:
-
-- Proof that the cokernel arrow is epi ([CokernelArrowisEpi])
-
-Written by Tomi Pannila.
-
-*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -17,7 +17,8 @@ Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.zero.
 
-(** In this section we define cokernels and show that cokernel arrow is an epi. *)
+
+(** * Definition of cokernels *)
 Section def_cokernels.
 
   Context {C : precategory}.
@@ -226,7 +227,7 @@ End def_cokernels.
 Arguments CokernelArrow [C] [Z] [x] [y] [f] _.
 
 
-(** * Correspondence between cokernels and coequalizers *)
+(** * Correspondence of cokernels and coequalizers *)
 Section cokernels_coequalizers.
 
   Context {C : precategory}.
@@ -302,9 +303,8 @@ Section cokernels_coequalizers.
 
 End cokernels_coequalizers.
 
-(** In the following section we construct a new cokernel from an arrow which is
-  equal to cokernelarrow of some cokernel, up to postcomposing with an
-  isomorphism *)
+
+(** * Cokernels up to iso*)
 Section cokernels_iso.
 
   Variable C : precategory.
