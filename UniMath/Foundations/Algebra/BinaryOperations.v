@@ -1177,6 +1177,9 @@ Definition pr1subsetswithbinop (X : setwithbinop) : @subsetswithbinop X -> hsubt
   @pr1 _ (fun A : hsubtypes X => issubsetwithbinop (@op X) A).
 Coercion pr1subsetswithbinop : subsetswithbinop >-> hsubtypes.
 
+Definition pr2subsetswithbinop {X : setwithbinop} (Y : @subsetswithbinop X) :
+  issubsetwithbinop (@op X) (pr1subsetswithbinop X Y) := pr2 Y.
+
 Definition totalsubsetwithbinop (X : setwithbinop) : @subsetswithbinop X.
 Proof.
   intros. split with (fun x : X => htrue). intros x x'. apply tt.

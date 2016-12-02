@@ -12,6 +12,8 @@ This file contains some adjunctions:
 - The general coproduct functor is left adjoint to the general delta
   functor
 
+- Swapping of arguments in functor categories
+
 Written by: Anders Mörtberg, 2016
 
 *)
@@ -149,3 +151,126 @@ mkpair.
 Defined.
 
 End coproduct_functor_adjunction.
+
+(** * Swapping of arguments in functor categories *)
+Section functor_swap.
+
+Local Notation "[ C , D ]" := (functor_Precategory C D).
+Local Notation "# F" := (functor_on_morphisms F) (at level 3).
+
+Lemma functor_swap {C D : precategory} {E : Precategory} : functor C [D,E] → functor D [C,E].
+Proof.
+intros F.
+mkpair.
+- mkpair.
+  + intro d; simpl.
+  { mkpair.
+    - mkpair.
+      + intro c.
+        apply (pr1 (F c) d).
+      + intros a b f; apply (# F f).
+    - abstract (split;
+      [ now intro x; simpl; rewrite (functor_id F)
+      | now intros a b c f g; simpl; rewrite (functor_comp F)]).
+  }
+  + intros a b f; simpl.
+  { mkpair.
+    - intros x; apply (# (pr1 (F x)) f).
+    - abstract (intros c d g; simpl; apply pathsinv0, nat_trans_ax).
+  }
+- abstract (split;
+  [ intros d; apply (nat_trans_eq (homset_property E)); intro c; simpl; apply functor_id
+  | intros a b c f g; apply (nat_trans_eq (homset_property E)); intro x; simpl; apply functor_comp]).
+Defined.
+
+Lemma functor_cat_swap_nat_trans {C D : precategory} {E : Precategory}
+  (F G : functor C [D, E]) (α : nat_trans F G) :
+  nat_trans (functor_swap F) (functor_swap G).
+Proof.
+mkpair.
++ intros d; simpl.
+  mkpair.
+  * intro c; apply (α c).
+  * abstract (intros a b f; apply (nat_trans_eq_pointwise (nat_trans_ax α _ _ f) d)).
++ abstract (intros a b f; apply (nat_trans_eq (homset_property E)); intro c; simpl; apply nat_trans_ax).
+Defined.
+
+Lemma functor_cat_swap (C D : precategory) (E : Precategory) : functor [C, [D, E]] [D, [C, E]].
+Proof.
+mkpair.
+- mkpair.
+  + apply functor_swap.
+  + apply functor_cat_swap_nat_trans.
+- abstract (split;
+  [ intro F; apply (nat_trans_eq (functor_category_has_homsets _ _ (homset_property E))); simpl; intro d;
+    now apply (nat_trans_eq (homset_property E))
+  | intros F G H α β; cbn; apply (nat_trans_eq (functor_category_has_homsets _ _ (homset_property E))); intro d;
+    now apply (nat_trans_eq (homset_property E))]).
+Defined.
+
+Definition id_functor_cat_swap (C D : precategory) (E : Precategory) :
+  nat_trans (functor_identity [C,[D,E]])
+            (functor_composite (functor_cat_swap C D E) (functor_cat_swap D C E)).
+Proof.
+set (hsE := homset_property E).
+mkpair.
++ intros F.
+  mkpair.
+  - intro c.
+     mkpair.
+     * now intro f; apply identity.
+     * abstract (now intros a b f; rewrite id_left, id_right).
+  - abstract (now intros a b f; apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
++ abstract (now intros a b f; apply nat_trans_eq; [apply functor_category_has_homsets|]; intro c;
+            apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
+Defined.
+
+Definition functor_cat_swap_id (C D : precategory) (E : Precategory) :
+  nat_trans (functor_composite (functor_cat_swap D C E) (functor_cat_swap C D E))
+            (functor_identity [D,[C,E]]).
+Proof.
+set (hsE := homset_property E).
+mkpair.
++ intros F.
+  mkpair.
+  - intro c.
+    mkpair.
+    * now intro f; apply identity.
+    * abstract (now intros a b f; rewrite id_left, id_right).
+  - abstract (now intros a b f; apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
++ abstract (now intros a b f; apply nat_trans_eq; [apply functor_category_has_homsets|]; intro c;
+            apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
+Defined.
+
+Lemma form_adjunction_functor_cat_swap (C D : precategory) (E : Precategory) :
+  form_adjunction _ _ (id_functor_cat_swap C D E) (functor_cat_swap_id C D E).
+Proof.
+set (hsE := homset_property E).
+split; intro F.
++ apply (nat_trans_eq (functor_category_has_homsets _ _ hsE)
+                      (pr1 (pr1 (functor_cat_swap C D E) F))
+                      (pr1 (pr1 (functor_cat_swap C D E) F))).
+  now intro d; apply (nat_trans_eq hsE); intro c; apply id_right.
++ apply (nat_trans_eq (functor_category_has_homsets _ _ hsE)
+                      (pr1 (pr1 (functor_cat_swap D C E) F))
+                      (pr1 (pr1 (functor_cat_swap D C E) F))).
+  now intro d; apply (nat_trans_eq hsE); intro c; apply id_left.
+Qed. (* This Qed is very slow... I don't see how to make it faster *)
+
+Lemma are_adjoint_functor_cat_swap (C D : precategory) (E : Precategory) :
+  are_adjoints (@functor_cat_swap C D E) (@functor_cat_swap D C E).
+Proof.
+mkpair.
+- split; [ apply id_functor_cat_swap | apply functor_cat_swap_id ].
+- apply form_adjunction_functor_cat_swap.
+Defined.
+
+Lemma is_left_adjoint_functor_cat_swap (C D : precategory) (E : Precategory) :
+  is_left_adjoint (functor_cat_swap C D E).
+Proof.
+mkpair.
++ apply functor_cat_swap.
++ apply are_adjoint_functor_cat_swap.
+Defined.
+
+End functor_swap.

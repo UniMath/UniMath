@@ -127,6 +127,16 @@ Section def_equalizers.
     apply (isEqualizerInsEq (isEqualizer_Equalizer E) _ _ H').
   Defined.
 
+  Lemma EqualizerInComp {y z : C} {f g : y --> z} (E : Equalizer f g) {x x' : C}
+        (h1 : x --> x') (h2 : x' --> y)
+        (H1 : h1 ;; h2 ;; f = h1 ;; h2 ;; g) (H2 : h2 ;; f = h2 ;; g) :
+    EqualizerIn E x (h1 ;; h2) H1 = h1 ;; EqualizerIn E x' h2 H2.
+  Proof.
+    use EqualizerInsEq. rewrite EqualizerCommutes.
+    rewrite <- assoc. rewrite EqualizerCommutes.
+    apply idpath.
+  Qed.
+
   (** Morphisms between equalizer objects with the right commutativity
     equalities. *)
   Definition identity_is_EqualizerIn {y z : C} {f g : y --> z}
