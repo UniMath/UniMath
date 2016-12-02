@@ -97,6 +97,8 @@ Definition compose { C : precategory_data }
 
 Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 
+Definition postcompose  {C : precategory_data} {a b c : C} (g : b --> c) (f : a --> b) : a --> c :=
+  compose f g.
 
 (** ** Axioms of a precategory *)
 (**
@@ -449,6 +451,14 @@ Proof.
   apply (isweqhomot' _ _ T).
   intro h. apply assoc.
 Defined.
+
+Lemma is_iso_comp_of_is_isos {C : precategory} {a b c : ob C}
+      (f : a --> b) (g : b --> c) (H1 : is_iso f) (H2 : is_iso g) : is_iso (f ;; g).
+Proof.
+  set (i1 := isopair f H1).
+  set (i2 := isopair g H2).
+  exact (is_iso_comp_of_isos i1 i2).
+Qed.
 
 Definition iso_comp {C : precategory} {a b c : ob C}
   (f : iso a b) (g : iso b c) : iso a c.
@@ -1227,3 +1237,66 @@ Definition precategory_total_comp (C : precategory_data) :
   fun f g e =>
      tpair _ (dirprodpair (pr1 (pr1 f))(pr2 (pr1 g)))
         ((pr2 f ;; idtomor _ _ e) ;; pr2 g).
+
+
+(** ** Transport of morphisms *)
+Lemma transportf_postcompose {C : precategory} {x y z w : ob C} (f : x --> y) (g : y --> z)
+      (e : z = w) :
+  transportf (precategory_morphisms x) e (f ;; g) = f ;; transportf (precategory_morphisms y) e g.
+Proof.
+  induction e. apply idpath.
+Qed.
+
+Lemma transportb_precompose {C : precategory} {x y z w : ob C} (f : x --> y) (g : y --> z) (e : w = x) :
+  transportb (fun x' : ob C => precategory_morphisms x' z) e (f ;; g) =
+  transportb (fun x' : ob C => precategory_morphisms x' y) e f ;; g.
+Proof.
+  induction e. apply idpath.
+Qed.
+
+Lemma transport_compose {C : precategory} {x y z w : ob C} (f : x --> y) (g : z --> w) (e : y = z) :
+  transportf (precategory_morphisms x) e f ;; g =
+  f ;; transportb (fun x' : ob C => precategory_morphisms x' w) e g.
+Proof.
+  induction e. apply idpath.
+Qed.
+
+Lemma transport_compose' {C : precategory} {x y z w : ob C} (f : x --> y) (g : y --> z) (e : y = w) :
+  (transportf (precategory_morphisms x) e f)
+    ;; (transportb (fun x' : ob C => precategory_morphisms x' z) (!e) g) = f ;; g.
+Proof.
+  induction e. cbn. unfold idfun. apply idpath.
+Qed.
+
+Lemma transportf_path {C : precategory} {x y z : ob C} (f g : x --> y) (e : y = z) :
+  transportf (precategory_morphisms x) e f = transportf (precategory_morphisms x) e g -> f = g.
+Proof.
+  induction e. intros H. apply H.
+Qed.
+
+Lemma transportb_path {C : precategory} {x y z : ob C} (f g : y --> z) (e : x = y) :
+  transportb (fun x' : ob C => precategory_morphisms x' z) e f =
+  transportb (fun x' : ob C => precategory_morphisms x' z) e g -> f = g.
+Proof.
+  induction e. intros H. apply H.
+Qed.
+
+Lemma transportf_mor {X : UU} {C : precategory} {x y : X} (P : Π (x' : X), ob C)
+      (P' : Π (x' : X), ob C) (f : Π (x' : X), (P x') --> (P' x')) (e : x = y) :
+  transportf (fun (x' : X) => (P x') --> (P' x')) e (f x) =
+  transportb (fun (x' : X) => precategory_morphisms (P x') (P' y)) (! e)
+             (transportf (precategory_morphisms (P x)) (maponpaths P' e) (f x)).
+Proof.
+  rewrite <- functtransportf. unfold pathsinv0. unfold paths_rect. induction e.
+  apply idpath.
+Qed.
+
+Lemma transportf_mor' {X : UU} {C : precategory} {x y : X} (P : Π (x' : X), ob C)
+      (P' : Π (x' : X), ob C) (f : Π (x' : X), (P x') --> (P' x')) (e : x = y) :
+  transportf (fun (x' : X) => (P x') --> (P' x')) e (f x) =
+  transportf (precategory_morphisms (P y)) (maponpaths P' e)
+             (transportb (fun (x' : X) => precategory_morphisms (P x') (P' x)) (! e) (f x)).
+Proof.
+  rewrite <- functtransportf. unfold pathsinv0. unfold paths_rect. induction e.
+  apply idpath.
+Qed.

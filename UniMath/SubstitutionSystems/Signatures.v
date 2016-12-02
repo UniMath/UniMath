@@ -66,7 +66,7 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 Definition θ_source_ob (FX : EndC XX Ptd) : [C, C, hs] := H (pr1 FX) • U (pr2 FX).
 
 Definition θ_source_mor {FX FX' : EndC XX Ptd} (αβ : FX --> FX')
-  : θ_source_ob FX --> θ_source_ob FX' := hor_comp (#U (pr2 αβ)) (#H (pr1 αβ)).
+  : θ_source_ob FX --> θ_source_ob FX' := horcomp (#U (pr2 αβ)) (#H (pr1 αβ)).
 
 
 Definition θ_source_functor_data : functor_data (EndC XX Ptd) EndC.
@@ -164,7 +164,7 @@ Proof.
     apply nat_trans_eq.
     + apply hs.
     + intro c.
-      unfold hor_comp; simpl.
+      unfold horcomp; simpl.
       destruct FX as [F X];
       destruct FX' as [F' X'];
       destruct FX'' as [F'' X'']; simpl in *.

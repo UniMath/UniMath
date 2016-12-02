@@ -63,19 +63,35 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 
 (** * Functors : Morphisms of precategories *)
+Section functors.
 
-
-Definition functor_data (C C' : precategory_ob_mor) :=
+Definition functor_data (C C' : precategory_ob_mor) : UU :=
   total2 ( fun F : ob C -> ob C' =>  Π a b : ob C, a --> b -> F a --> F b).
 
-Definition functor_data_constr ( C C' : precategory_ob_mor )
-           ( F : ob C -> ob C' ) ( Fm : Π a b : ob C, a --> b -> F a --> F b ) :
+Definition mk_functor_data {C C' : precategory_ob_mor} (F : ob C -> ob C')
+           (H : Π a b : ob C, a --> b -> F a --> F b) : functor_data C C' := tpair _ F H.
+
+Lemma functor_data_isaset (C C' : precategory_ob_mor) (hs : has_homsets C') (hsC' : isaset C') :
+  isaset (functor_data C C').
+Proof.
+  change isaset with (isofhlevel 2).
+  apply isofhleveltotal2.
+  apply impred.
+  intro t. apply hsC'.
+  intro x.
+  apply impred. intros a.
+  apply impred. intros b.
+  apply impred. intros f.
+  apply hs.
+Qed.
+
+Definition functor_data_constr (C C' : precategory_ob_mor)
+           (F : ob C -> ob C') (Fm : Π a b : ob C, a --> b -> F a --> F b) :
   functor_data C C' := tpair _ F Fm .
 
 Definition functor_on_objects {C C' : precategory_ob_mor}
      (F : functor_data C C') :  ob C -> ob C' := pr1 F.
 Coercion functor_on_objects : functor_data >-> Funclass.
-
 
 Definition functor_on_morphisms {C C' : precategory_ob_mor} (F : functor_data C C')
   { a b : ob C} :  a --> b -> F a --> F b := pr2 F a b.
@@ -89,7 +105,7 @@ Definition functor_compax {C C' : precategory_data} (F : functor_data C C') :=
   Π a b c : ob C, Π f : a --> b, Π g : b --> c, #F (f ;; g) = #F f ;; #F g .
 
 Definition is_functor {C C' : precategory_data} (F : functor_data C C') :=
-     dirprod ( functor_idax F ) ( functor_compax F ) .
+  dirprod ( functor_idax F ) ( functor_compax F ) .
 
 Lemma isaprop_is_functor (C C' : precategory_data) (hs: has_homsets C')
       (F : functor_data C C') : isaprop (is_functor F).
@@ -101,9 +117,11 @@ Proof.
   apply hs.
 Qed.
 
-Definition functor (C C' : precategory_data) :=
+Definition functor (C C' : precategory_data) : UU :=
   total2 ( fun F : functor_data C C' => is_functor F ).
 
+Definition mk_functor {C C' : precategory_data} (F : functor_data C C') (H : is_functor F) :
+  functor C C' := tpair _ F H.
 
 Lemma functor_eq (C C' : precategory_data) (hs: has_homsets C') (F F': functor C C'):
     pr1 F = pr1 F' -> F = F'.
@@ -114,6 +132,17 @@ Proof.
   apply isaprop_is_functor.
   apply hs.
 Defined.
+
+Lemma functor_isaset (C C' : precategory_data) (hs : has_homsets C') (hsC' : isaset C') :
+  isaset (functor C C').
+Proof.
+  change isaset with (isofhlevel 2).
+  apply isofhleveltotal2.
+  apply (functor_data_isaset C C' hs hsC').
+  intros x.
+  apply isasetaprop.
+  apply (isaprop_is_functor C C' hs).
+Qed.
 
 Definition functor_data_from_functor (C C': precategory_data)
      (F : functor C C') : functor_data C C' := pr1 F.
@@ -656,20 +685,28 @@ Definition constant_functor: functor C D := tpair _ _ is_functor_constant.
 
 End Constant_Functor.
 
+Definition iter_functor {C : precategory} (F : functor C C) (n : nat) : functor C C.
+Proof.
+  induction n as [ | n IHn].
+  - apply functor_identity.
+  - apply (functor_composite IHn F).
+Defined.
 
-
+End functors.
 
 
 (** * Natural transformations *)
-
+Section nat_trans.
 
 (** ** Definition of natural transformations *)
+
+Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 Definition is_nat_trans {C C' : precategory_data}
   (F F' : functor_data C C')
   (t : Π x : ob C, F x -->  F' x) :=
   Π (x x' : ob C)(f : x --> x'),
-    #F f ;; t x' = t x ;; #F' f.
+    # F f ;; t x' = t x ;; #F' f.
 
 
 Lemma isaprop_is_nat_trans (C C' : precategory_data) (hs: has_homsets C')
@@ -681,9 +718,12 @@ Proof.
 Qed.
 
 
-Definition nat_trans {C C' : precategory_data}
-  (F F' : functor_data C C') := total2 (
-   fun t : Π x : ob C, F x -->  F' x => is_nat_trans F F' t).
+Definition nat_trans {C C' : precategory_data} (F F' : functor_data C C') : UU :=
+  total2 (fun t : Π x : ob C, F x -->  F' x => is_nat_trans F F' t).
+
+Definition mk_nat_trans {C C' : precategory_data} (F F' : functor_data C C')
+           (t : Π x : ob C, F x --> F' x) (H : is_nat_trans F F' t) :
+  nat_trans F F' := tpair _ t H.
 
 Lemma isaset_nat_trans {C C' : precategory_data} (hs: has_homsets C')
   (F F' : functor_data C C') : isaset (nat_trans F F').
@@ -722,7 +762,6 @@ Proof.
   intro h.
   now apply toforallpaths, maponpaths.
 Qed.
-
 
 (** ** Functor category [[C, D]] *)
 
@@ -841,6 +880,7 @@ Proof.
     intro x. apply isaprop_is_nat_trans. apply hsD.
   - apply weqtoforallpaths.
 Defined.
+
 End nat_trans_eq.
 
 
@@ -1200,12 +1240,15 @@ Proof.
 Qed.
 
 
-Definition functorPrecategory (C : precategory) (D : Precategory)
-  : Precategory.
+Definition functor_Precategory (C : precategory) (D : Precategory) : Precategory.
 Proof.
   exists (functor_precategory C D (homset_property D)).
   apply functor_category_has_homsets.
 Defined.
+
+End nat_trans.
+
+Section functor_equalities.
 
 Lemma functor_identity_left (C D : precategory) (F : functor C D) :
   functor_composite (functor_identity C) F = F.
@@ -1214,8 +1257,6 @@ Proof.
   destruct is as [ idax compax ] .
   apply idpath .
 Defined.
-
-
 
 Lemma functor_identity_right (C D : precategory) (F : functor C D) :
   functor_composite F (functor_identity D) = F.
@@ -1290,10 +1331,4 @@ Proof.
   apply maponpathscomp .
 Defined.
 
-
-Definition iter_functor {C : precategory} (F : functor C C) (n : nat) : functor C C.
-Proof.
-  induction n as [ | n IHn].
-  - apply functor_identity.
-  - apply (functor_composite IHn F).
-Defined.
+End functor_equalities.

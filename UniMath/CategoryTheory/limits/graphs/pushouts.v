@@ -15,6 +15,7 @@ Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.pushouts.
 
+
 (** * Definition of pushouts in terms of colimits *)
 Section def_po.
 
@@ -41,7 +42,7 @@ Section def_po.
       + apply empty.
   Defined.
 
-  Definition pushout_diagram {a b c : C} (f : C ⟦a,b⟧) (g : C⟦a,c⟧) :
+  Definition pushout_diagram {a b c : C} (f : C ⟦a, b⟧) (g : C⟦a, c⟧) :
     diagram pushout_graph C.
   Proof.
     exists (three_rec a b c).
@@ -57,10 +58,9 @@ Section def_po.
       + apply fromempty.
   Defined.
 
-  Definition PushoutCocone {a b c : C} (f : C ⟦a,b⟧) (g : C⟦a,c⟧)
-             (d : C) (f' : C ⟦b, d⟧) (g' : C ⟦c,d⟧)
-             (H : f ;; f' = g ;; g')
-    : cocone (pushout_diagram f g) d.
+  Definition PushoutCocone {a b c : C} (f : C ⟦a, b⟧) (g : C⟦a, c⟧) (d : C)
+             (f' : C ⟦b, d⟧) (g' : C ⟦c, d⟧) (H : f ;; f' = g ;; g') :
+    cocone (pushout_diagram f g) d.
   Proof.
     simple refine (mk_cocone _ _  ).
     - use three_rec_dep; cbn; try assumption.
@@ -78,14 +78,13 @@ Section def_po.
   Defined.
 
   Definition isPushout {a b c d : C} (f : C ⟦a, b⟧) (g : C ⟦a, c⟧)
-             (i1 : C⟦b,d⟧) (i2 : C⟦c,d⟧) (H : f ;; i1 = g ;; i2) : UU :=
+             (i1 : C⟦b, d⟧) (i2 : C⟦c, d⟧) (H : f ;; i1 = g ;; i2) : UU :=
     isColimCocone (pushout_diagram f g) d (PushoutCocone f g d i1 i2 H).
 
   Definition mk_isPushout {a b c d : C} (f : C ⟦a, b⟧) (g : C ⟦a, c⟧)
-             (i1 : C⟦b,d⟧) (i2 : C⟦c,d⟧) (H : f ;; i1 = g ;; i2) :
-    (Π e (h : C ⟦b,e⟧) (k : C⟦c,e⟧)(Hk : f ;; h = g ;; k ),
-     iscontr (total2 (fun hk : C⟦d,e⟧ => dirprod (i1 ;; hk = h)(i2 ;; hk = k))))
-    →
+             (i1 : C⟦b, d⟧) (i2 : C⟦c, d⟧) (H : f ;; i1 = g ;; i2) :
+    (Π e (h : C ⟦b, e⟧) (k : C⟦c, e⟧)(Hk : f ;; h = g ;; k ),
+     iscontr (total2 (fun hk : C⟦d, e⟧ => dirprod (i1 ;; hk = h)(i2 ;; hk = k)))) →
     isPushout f g i1 i2 H.
   Proof.
     intros H' x cx; simpl in *.
@@ -118,14 +117,12 @@ Section def_po.
            - apply (p0 Three). }
   Defined.
 
-  Definition Pushout {a b c : C} (f : C⟦a, b⟧)(g : C⟦a, c⟧) :=
+  Definition Pushout {a b c : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) : UU :=
     ColimCocone (pushout_diagram f g).
 
-  Definition mk_Pushout {a b c : C} (f : C⟦a, b⟧)(g : C⟦a, c⟧)
-             (d : C) (i1 : C⟦b,d⟧) (i2 : C ⟦c,d⟧)
-             (H : f ;; i1 = g ;; i2)
-             (ispo : isPushout f g i1 i2 H)
-    : Pushout f g.
+  Definition mk_Pushout {a b c : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) (d : C)
+             (i1 : C⟦b,d⟧) (i2 : C ⟦c,d⟧) (H : f ;; i1 = g ;; i2)
+             (ispo : isPushout f g i1 i2 H) : Pushout f g.
   Proof.
     simple refine (tpair _ _ _ ).
     - simple refine (tpair _ _ _ ).
@@ -134,35 +131,29 @@ Section def_po.
     - apply ispo.
   Defined.
 
-  Definition Pushouts := Π (a b c : C)(f : C⟦a, b⟧)(g : C⟦a, c⟧),
-                          Pushout f g.
+  Definition Pushouts : UU := Π (a b c : C) (f : C⟦a, b⟧)(g : C⟦a, c⟧), Pushout f g.
 
-  Definition hasPushouts := Π (a b c : C) (f : C⟦a, b⟧) (g : C⟦a, c⟧),
-                            ishinh (Pushout f g).
-
+  Definition hasPushouts : UU := Π (a b c : C) (f : C⟦a, b⟧) (g : C⟦a, c⟧), ishinh (Pushout f g).
 
   Definition PushoutObject {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}:
     Pushout f g -> C := fun H => colim H.
   (* Coercion PushoutObject : Pushout >-> ob. *)
 
-  Definition PushoutIn1 {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}
-             (Po : Pushout f g) : C⟦b, colim Po⟧ := colimIn Po Two.
+  Definition PushoutIn1 {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧} (Po : Pushout f g) :
+    C⟦b, colim Po⟧ := colimIn Po Two.
 
-  Definition PushoutIn2 {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}
-             (Po : Pushout f g) : C⟦c, colim Po⟧ := colimIn Po Three.
+  Definition PushoutIn2 {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧} (Po : Pushout f g) :
+    C⟦c, colim Po⟧ := colimIn Po Three.
 
-  Definition PushoutSqrCommutes {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}
-             (Po : Pushout f g) :
+  Definition PushoutSqrCommutes {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧} (Po : Pushout f g) :
     f ;; PushoutIn1 Po = g ;; PushoutIn2 Po.
   Proof.
     eapply pathscomp0; [apply (colimInCommutes Po One Two tt) |].
     apply (!colimInCommutes Po One Three tt).
   Qed.
 
-  Definition PushoutArrow {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}
-             (Po : Pushout f g) e (h : C⟦b, e⟧) (k : C⟦c, e⟧)
-             (H : f ;; h = g ;; k)
-    : C⟦colim Po, e⟧.
+  Definition PushoutArrow {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧} (Po : Pushout f g) (e : C)
+             (h : C⟦b, e⟧) (k : C⟦c, e⟧) (H : f ;; h = g ;; k) : C⟦colim Po, e⟧.
   Proof.
     simple refine (colimArrow _ _ _ ).
     simple refine (mk_cocone _ _ ).
@@ -180,27 +171,22 @@ Section def_po.
       + exact (Empty_set_rect _).
   Defined.
 
-  Lemma PushoutArrow_PushoutIn1 {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}
-        (Po : Pushout f g) e (h : C⟦b , e⟧) (k : C⟦c , e⟧)
-        (H : f ;; h = g ;; k) :
+  Lemma PushoutArrow_PushoutIn1 {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}  (Po : Pushout f g)
+        (e : C) (h : C⟦b , e⟧) (k : C⟦c, e⟧) (H : f ;; h = g ;; k) :
     PushoutIn1 Po ;; PushoutArrow Po e h k H = h.
   Proof.
     refine (colimArrowCommutes Po e _ Two).
   Qed.
 
-  Lemma PushoutArrow_PushoutIn2 {a b c : C} {f : C⟦a , b⟧} {g : C⟦a , c⟧}
-        (Po : Pushout f g) e (h : C⟦b , e⟧) (k : C⟦c , e⟧)
-        (H : f ;; h = g ;; k) :
+  Lemma PushoutArrow_PushoutIn2 {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧} (Po : Pushout f g)
+        (e : C) (h : C⟦b, e⟧) (k : C⟦c, e⟧) (H : f ;; h = g ;; k) :
     PushoutIn2 Po ;; PushoutArrow Po e h k H = k.
   Proof.
     refine (colimArrowCommutes Po e _ Three).
   Qed.
 
-  Lemma PushoutArrowUnique {a b c d : C} (f : C⟦a , b⟧) (g : C⟦a , c⟧)
-        (Po : Pushout f g)
-        e (h : C⟦b , e⟧) (k : C⟦c , e⟧)
-        (Hcomm : f ;; h = g ;; k)
-        (w : C⟦PushoutObject Po, e⟧)
+  Lemma PushoutArrowUnique {a b c d : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) (Po : Pushout f g) (e : C)
+        (h : C⟦b, e⟧) (k : C⟦c, e⟧) (Hcomm : f ;; h = g ;; k) (w : C⟦PushoutObject Po, e⟧)
         (H1 : PushoutIn1 Po ;; w = h) (H2 : PushoutIn2 Po ;; w = k) :
     w = PushoutArrow Po _ h k Hcomm.
   Proof.
@@ -212,8 +198,7 @@ Section def_po.
     apply H1.
   Qed.
 
-  Definition isPushout_Pushout {a b c : C} {f : C⟦a, b⟧}{g : C⟦a, c⟧}
-             (P : Pushout f g) :
+  Definition isPushout_Pushout {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧} (P : Pushout f g) :
     isPushout f g (PushoutIn1 P) (PushoutIn2 P) (PushoutSqrCommutes P).
   Proof.
     apply mk_isPushout.
@@ -234,25 +219,21 @@ Section def_po.
         * apply (pr2 p).
   Qed.
 
+
   (** ** Pushouts to Pushouts *)
 
-  Definition identity_is_Pushout_input {a b c : C}{f : C⟦a , b⟧} {g : C⟦a , c⟧}
-             (Po : Pushout f g) :
-    total2 (fun hk : C⟦colim Po, colim Po⟧ =>
-              dirprod (PushoutIn1 Po ;; hk = PushoutIn1 Po)
-                      (PushoutIn2 Po ;; hk = PushoutIn2 Po)).
+  Definition identity_is_Pushout_input {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧} (Po : Pushout f g) :
+    total2 (fun hk : C⟦colim Po, colim Po⟧ => dirprod (PushoutIn1 Po ;; hk = PushoutIn1 Po)
+                                                   (PushoutIn2 Po ;; hk = PushoutIn2 Po)).
   Proof.
     exists (identity (colim Po)).
     apply dirprodpair; apply id_right.
   Defined.
 
   (* was PushoutArrowUnique *)
-  Lemma PushoutArrowUnique' {a b c d : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧)
-        (i1 : C⟦b, d⟧) (i2 : C⟦c, d⟧) (H : f ;; i1 = g ;; i2)
-        (P : isPushout f g i1 i2 H) e (h : C⟦b, e⟧) (k : C⟦c, e⟧)
-        (Hcomm : f ;; h = g ;; k)
-        (w : C⟦d, e⟧)
-        (H1 : i1 ;; w = h) (H2 : i2 ;; w = k) :
+  Lemma PushoutArrowUnique' {a b c d : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) (i1 : C⟦b, d⟧) (i2 : C⟦c, d⟧)
+        (H : f ;; i1 = g ;; i2) (P : isPushout f g i1 i2 H) e (h : C⟦b, e⟧) (k : C⟦c, e⟧)
+        (Hcomm : f ;; h = g ;; k) (w : C⟦d, e⟧) (H1 : i1 ;; w = h) (H2 : i2 ;; w = k) :
     w =  (pr1 (pr1 (P e (PushoutCocone f g _ h k Hcomm)))).
   Proof.
     apply path_to_ctr.
@@ -261,10 +242,9 @@ Section def_po.
     apply H1.
   Qed.
 
-  Lemma PushoutEndo_is_identity {a b c : C}{f : C⟦a, b⟧} {g : C⟦a, c⟧}
-        (Po : Pushout f g) (k : C⟦colim Po , colim Po⟧)
-        (kH1 : PushoutIn1 Po ;; k = PushoutIn1 Po)
-        (kH2 : PushoutIn2 Po ;; k = PushoutIn2 Po) :
+  Lemma PushoutEndo_is_identity {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧} (Po : Pushout f g)
+        (k : C⟦colim Po , colim Po⟧)
+        (kH1 : PushoutIn1 Po ;; k = PushoutIn1 Po) (kH2 : PushoutIn2 Po ;; k = PushoutIn2 Po) :
     identity (colim Po) = k.
   Proof.
     apply colim_endo_is_identity.
@@ -279,17 +259,16 @@ Section def_po.
     - apply kH2.
   Qed.
 
-  Definition from_Pushout_to_Pushout {a b c : C}{f : C⟦a , b⟧} {g : C⟦a , c⟧}
+  Definition from_Pushout_to_Pushout {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}
              (Po Po': Pushout f g) : C⟦colim Po , colim Po'⟧.
   Proof.
     apply (PushoutArrow Po (colim Po') (PushoutIn1 _ ) (PushoutIn2 _)).
     exact (PushoutSqrCommutes _ ).
   Defined.
 
-  Lemma are_inverses_from_Pushout_to_Pushout {a b c : C}{f : C⟦a , b⟧}
-        {g : C⟦a , c⟧} (Po Po': Pushout f g) :
-    is_inverse_in_precat (from_Pushout_to_Pushout Po Po')
-                         (from_Pushout_to_Pushout Po' Po).
+  Lemma are_inverses_from_Pushout_to_Pushout {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}
+        (Po Po': Pushout f g) :
+    is_inverse_in_precat (from_Pushout_to_Pushout Po Po') (from_Pushout_to_Pushout Po' Po).
   Proof.
     split; apply pathsinv0;
       apply PushoutEndo_is_identity;
@@ -300,16 +279,14 @@ Section def_po.
       auto.
   Qed.
 
-  Lemma isiso_from_Pushout_to_Pushout {a b c : C}{f : C⟦a , b⟧} {g : C⟦a , c⟧}
-        (Po Po': Pushout f g) :
-    is_isomorphism (from_Pushout_to_Pushout Po Po').
+  Lemma isiso_from_Pushout_to_Pushout {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}
+        (Po Po': Pushout f g) : is_isomorphism (from_Pushout_to_Pushout Po Po').
   Proof.
     apply (is_iso_qinv _ (from_Pushout_to_Pushout Po' Po)).
     apply are_inverses_from_Pushout_to_Pushout.
   Defined.
 
-  Definition iso_from_Pushout_to_Pushout {a b c : C}
-             {f : C⟦a , b⟧} {g : C⟦a , c⟧}
+  Definition iso_from_Pushout_to_Pushout {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}
              (Po Po': Pushout f g) : iso (colim Po) (colim Po') :=
     tpair _ _ (isiso_from_Pushout_to_Pushout Po Po').
 
@@ -319,8 +296,8 @@ Section def_po.
   Section pushout_lemma.
 
     Variables a b c d e x : C.
-    Variables (f : C⟦a , b⟧) (g : C⟦a , c⟧) (h : C⟦b , e⟧) (k : C⟦c , e⟧)
-              (i : C⟦b , d⟧) (j : C⟦e , x⟧) (m : C⟦d , x⟧).
+    Variables (f : C⟦a, b⟧) (g : C⟦a, c⟧) (h : C⟦b, e⟧) (k : C⟦c, e⟧)
+              (i : C⟦b, d⟧) (j : C⟦e, x⟧) (m : C⟦d, x⟧).
     Hypothesis H1 : f ;; h = g ;; k.
     Hypothesis H2 : i ;; m = h ;; j.
     Hypothesis P1 : isPushout _ _ _ _ H1.
@@ -335,8 +312,7 @@ Section def_po.
       apply idpath.
     Qed.
 
-    (** TODO: isPushoutGluedSquare : isPushout (f ;; i) g m (k ;; j)
-       glueSquares. *)
+    (** TODO: isPushoutGluedSquare : isPushout (f ;; i) g m (k ;; j) glueSquares. *)
 
   End pushout_lemma.
 
@@ -344,11 +320,9 @@ Section def_po.
 
     Hypothesis H : is_category C.
 
-    Lemma inv_from_iso_iso_from_Pushout (a b c : C)
-          (f : C⟦a , b⟧) (g : C⟦a , c⟧)
+    Lemma inv_from_iso_iso_from_Pushout (a b c : C) (f : C⟦a, b⟧) (g : C⟦a, c⟧)
           (Po : Pushout f g) (Po' : Pushout f g):
-      inv_from_iso (iso_from_Pushout_to_Pushout Po Po')
-      = from_Pushout_to_Pushout Po' Po.
+      inv_from_iso (iso_from_Pushout_to_Pushout Po Po') = from_Pushout_to_Pushout Po' Po.
     Proof.
       apply pathsinv0.
       apply inv_iso_unique'.
@@ -358,10 +332,10 @@ Section def_po.
 
   End Universal_Unique.
 
+
   (** ** Connections to other colimits *)
 
-  Lemma Pushout_from_Colims :
-    Colims C -> Pushouts.
+  Lemma Pushout_from_Colims : Colims C -> Pushouts.
   Proof.
     intros H a b c f g; apply H.
   Defined.
@@ -377,10 +351,11 @@ Section pushout_coincide.
   Variable C : precategory.
   Variable hs: has_homsets C.
 
+
   (** ** isPushout *)
 
   Lemma equiv_isPushout1 {a b c d : C} (f : C ⟦a, b⟧) (g : C ⟦a, c⟧)
-        (i1 : C⟦b,d⟧) (i2 : C⟦c,d⟧) (H : f ;; i1 = g ;; i2) :
+        (i1 : C⟦b, d⟧) (i2 : C⟦c, d⟧) (H : f ;; i1 = g ;; i2) :
     limits.pushouts.isPushout f g i1 i2 H -> isPushout C f g i1 i2 H.
   Proof.
     intros X R cc.
@@ -410,7 +385,7 @@ Section pushout_coincide.
   Qed.
 
   Lemma equiv_isPushout2 {a b c d : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧)
-        (i1 : C⟦b,d⟧) (i2 : C⟦c,d⟧) (H : f ;; i1 = g ;; i2) :
+        (i1 : C⟦b, d⟧) (i2 : C⟦c, d⟧) (H : f ;; i1 = g ;; i2) :
     limits.pushouts.isPushout f g i1 i2 H <- isPushout C f g i1 i2 H.
   Proof.
     intros X R k h HH.
@@ -429,6 +404,7 @@ Section pushout_coincide.
     exact R. exact (pr1 T). exact (pr2 T).
   Qed.
 
+
   (** ** Pushout *)
 
   Definition equiv_Pushout1 {a b c : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) :
@@ -440,9 +416,7 @@ Section pushout_coincide.
              (limits.pushouts.PushoutIn1 X)
              (limits.pushouts.PushoutIn2 X)
              (limits.pushouts.PushoutSqrCommutes X)
-             (equiv_isPushout1
-                _ _ _ _ _
-                (limits.pushouts.isPushout_Pushout X))).
+             (equiv_isPushout1 _ _ _ _ _ (limits.pushouts.isPushout_Pushout X))).
   Defined.
 
   Definition equiv_Pushout2 {a b c : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) :
@@ -455,9 +429,7 @@ Section pushout_coincide.
              (PushoutIn1 C X)
              (PushoutIn2 C X)
              (PushoutSqrCommutes C X)
-             (equiv_isPushout2
-                _ _ _ _ _
-                (isPushout_Pushout C hs X))).
+             (equiv_isPushout2 _ _ _ _ _ (isPushout_Pushout C hs X))).
   Defined.
 
 End pushout_coincide.

@@ -1,6 +1,7 @@
 (**
 
-Obtain the lambda calculus from the signature { [0,0], [1] }.
+Obtain the lambda calculus and a substitution monad on Set from the signature { [0,0], [1] }.
+
 
 Written by: Anders Mörtberg, 2016
 
@@ -35,7 +36,7 @@ Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
-Require Import UniMath.SubstitutionSystems.LiftingInitial.
+Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 
 Section Lam.
 
@@ -77,15 +78,16 @@ Definition LamSig : BindingSig :=
 Definition LamSignature : Signature HSET has_homsets_HSET :=
   BindingSigToSignatureHSET LamSig.
 
-Definition LamFunctor : functor HSET2 HSET2 :=
-  Id_H _ _ BinCoproductsHSET LamSignature.
+Let Id_H := Id_H _ has_homsets_HSET BinCoproductsHSET.
 
-Definition LamMonad : Monad HSET := BindingSigToMonadHSET LamSig.
+Definition LamFunctor : functor HSET2 HSET2 := Id_H LamSignature.
 
 Lemma lambdaFunctor_Initial : Initial (FunctorAlg LamFunctor has_homsets_HSET2).
 Proof.
 apply SignatureInitialAlgebraHSET, is_omega_cocont_BindingSigToSignatureHSET.
 Defined.
+
+Definition LamMonad : Monad HSET := BindingSigToMonadHSET LamSig.
 
 Definition LC : HSET2 :=
   alg_carrier _ (InitialObject lambdaFunctor_Initial).
@@ -171,8 +173,8 @@ eapply pathscomp0.
   eapply cancel_postcomposition, cancel_postcomposition.
   apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
           (Coproducts_HSET _ (isasetifdeceq _ isdeceqbool))
-          _ (λ i, pr1 (Arity_to_Signature has_homsets_HSET BinCoproductsHSET
-                         BinProductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))).
+          _ (λ i, pr1 (Arity_to_Signature has_homsets_HSET BinProductsHSET
+                         BinCoproductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))).
 rewrite <- assoc.
 eapply pathscomp0; [eapply maponpaths, BinCoproductIn2Commutes|].
 rewrite <- assoc.
@@ -201,8 +203,8 @@ eapply pathscomp0.
   eapply cancel_postcomposition, cancel_postcomposition.
   apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
           (Coproducts_HSET _ (isasetifdeceq _ isdeceqbool))
-          _ (λ i, pr1 (Arity_to_Signature has_homsets_HSET BinCoproductsHSET
-                         BinProductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))).
+          _ (λ i, pr1 (Arity_to_Signature has_homsets_HSET BinProductsHSET
+                         BinCoproductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))).
 rewrite <- assoc.
 eapply pathscomp0.
   eapply maponpaths, BinCoproductIn2Commutes.

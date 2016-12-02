@@ -703,7 +703,12 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
-
+Lemma transportf_paths {X : UU} (P : X -> UU) {x1 x2 : X} {e1 e2 : x1 = x2} (e : e1 = e2)
+      (p : P x1) : transportf P e1 p = transportf P e2 p.
+Proof.
+  intros X P x1 x2 e1 e2 e p. induction e. apply idpath.
+Defined.
+Opaque transportf_paths.
 
 (** *** A series of lemmas about paths and [ total2 ]
 
@@ -950,6 +955,8 @@ Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
 
 Definition hfiberpr1 {X Y : UU} (f : X -> Y) (y : Y) : hfiber f y -> X := pr1.
 
+Definition hfiberpr2 {X Y : UU} (f : X -> Y) (y : Y) (y' : hfiber f y) : f (hfiberpr1 f y y') = y :=
+  pr2 y'.
 
 (** *** The functions between the hfibers of homotopic functions over the same point *)
 
