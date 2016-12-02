@@ -10,6 +10,7 @@ limits/graphs/binproducts.v
 functor_categories.v
 FunctorAlgebras.v
 Monads.v
+RModules.v
 limits/cones.v
 limits/pullbacks.v
 limits/graphs/pullbacks.v
@@ -83,3 +84,11 @@ AbelianToAdditive.v
 ShortExactSequences.v
 Morphisms.v
 AdditiveFunctors.v
+LocalizingClass.v
+DiscretePrecategory.v
+UnderPrecategories.v
+Subobjects.v
+Quotobjects.v
+GrothendieckTopos.v
+Complexes.v
+CohomologyComplex.v

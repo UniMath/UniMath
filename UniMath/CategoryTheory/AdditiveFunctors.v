@@ -12,6 +12,7 @@
  - Preserves unel
  - Commutes with BinOp
  - isAdditiveFunctor
+- The natural additive functor to quotient
  *)
 
 Require Import UniMath.Foundations.Basics.PartD.
@@ -53,6 +54,24 @@ Section def_additivefunctor.
   Proof.
     intros a1 a2.
     exact (H a1 a2).
+  Qed.
+
+  Definition mk_isAdditiveFunctor' {A B : Additive} (F : functor A B)
+             (H1 : Π (a1 a2 : A), (# F (ZeroArrow (to_Zero A) a1 a2)) =
+                                  ZeroArrow (to_Zero B) (F a1) (F a2))
+             (H2 : Π (a1 a2 : A) (f g : A⟦a1, a2⟧), # F (to_binop _ _ f g) =
+                                                    to_binop _ _ (# F f) (# F g)) :
+    isAdditiveFunctor F.
+  Proof.
+    use mk_isAdditiveFunctor.
+    intros a1 a2.
+    split.
+    - intros f g. apply (H2 a1 a2 f g).
+    - set (tmp := PreAdditive_unel_zero A (to_Zero A) a1 a2).
+      unfold to_unel in tmp. rewrite tmp. clear tmp.
+      set (tmp := PreAdditive_unel_zero B (to_Zero B) (F a1) (F a2)).
+      unfold to_unel in tmp. rewrite tmp. clear tmp.
+      apply (H1 a1 a2).
   Qed.
 
   Lemma isaprop_isAdditiveFunctor {A B : Additive} (F : functor A B) :
@@ -110,10 +129,25 @@ Section additivefunctor_preserves_bindirectsums.
     apply (pr2 (pr2 F a1 a2)).
   Qed.
 
+  Lemma AdditiveFunctorZeroArrow {A B : Additive} (F : AdditiveFunctor A B)
+        (a1 a2 : A) : # F (ZeroArrow (to_Zero A) a1 a2) = ZeroArrow (to_Zero B) (F a1) (F a2).
+  Proof.
+    rewrite <- PreAdditive_unel_zero. rewrite <- PreAdditive_unel_zero.
+    apply AdditiveFunctorUnel.
+  Qed.
+
   Lemma AdditiveFunctorLinear {A B : Additive} (F : AdditiveFunctor A B) {a1 a2 : A}
         (f g : a1 --> a2) : # F (to_binop _ _ f g) = to_binop _ _ (# F f) (# F g).
   Proof.
     apply (pr1 (pr2 F a1 a2)).
+  Qed.
+
+  Lemma AdditiveFunctorInv {A B : Additive} (F : AdditiveFunctor A B) {a1 a2 : A} (f : a1 --> a2) :
+    # F (to_inv _ _ f) = to_inv _ _ (# F f).
+  Proof.
+    apply (to_lcan _ (# F f)). rewrite <- AdditiveFunctorLinear.
+    rewrite rinvax. rewrite AdditiveFunctorUnel. rewrite rinvax.
+    apply idpath.
   Qed.
 
   (** Additive functor preserves zeros. *)
@@ -643,3 +677,33 @@ Section additivefunctor_criteria.
   Defined.
 
 End additivefunctor_criteria.
+
+
+(** * The functor [QuotPrecategoryFunctor] is additive *)
+Section def_additive_quot_functor.
+
+  Variable A : Additive.
+  Variable PAS : PreAdditiveSubabgrs A.
+  Variable PAC : PreAdditiveComps A PAS.
+
+  Local Lemma QuotPrecategoryAdditiveFunctor_isAdditiveFunctor :
+    @isAdditiveFunctor A (QuotPrecategory_Additive A PAS PAC)
+                       (QuotPrecategoryFunctor (Additive_PreAdditive A) PAS PAC).
+  Proof.
+    use mk_isAdditiveFunctor.
+    intros X Y.
+    split.
+    - intros f g. apply idpath.
+    - apply idpath.
+  Qed.
+
+  Set Printing All.
+  Definition QuotPrecategoryAdditiveFunctor :
+    AdditiveFunctor A (QuotPrecategory_Additive A PAS PAC).
+  Proof.
+    use mk_AdditiveFunctor.
+    - exact (QuotPrecategoryFunctor A PAS PAC).
+    - exact QuotPrecategoryAdditiveFunctor_isAdditiveFunctor.
+  Defined.
+
+End def_additive_quot_functor.

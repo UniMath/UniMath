@@ -3,6 +3,7 @@
 Benedikt Ahrens, Chris Kapulkin, Mike Shulman
 january 2013
 
+Extended by: Anders Mörtberg, 2016
 
 ************************************************************)
 
@@ -484,7 +485,8 @@ Defined.
 End from_fully_faithful_and_ess_surj_to_equivalence.
 
 
-(* Theorem 2 (iv) of Chapter IV.1 of MacLane *)
+(** * Construction of an adjunction from some partial data (Theorem 2 (iv) of Chapter IV.1 of
+      MacLane) *)
 Section adjunction_from_partial.
 
 Definition is_universal_arrow_from {D C : precategory}

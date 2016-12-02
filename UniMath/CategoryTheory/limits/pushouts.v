@@ -304,8 +304,8 @@ Section epi_po.
   Variable C : precategory.
 
   (** The pushout of an epimorphism is an epimorphism. *)
-  Lemma EpiPushoutEpi {a b c : C} (E : Epi _ a b) (g : a --> c)
-        (PB : Pushout E g) : isEpi (PushoutIn2 PB).
+  Lemma EpiPushoutisEpi {a b c : C} (E : Epi _ a b) (g : a --> c) (PB : Pushout E g) :
+    isEpi (PushoutIn2 PB).
   Proof.
     apply mk_isEpi. intros z g0 h X.
     use (MorphismsOutofPushoutEqual (isPushout_Pushout PB) _ _ _ X).
@@ -318,8 +318,8 @@ Section epi_po.
   Defined.
 
   (** Same result for the other morphism *)
-  Lemma EpiPushoutEpi' {a b c : C} (f : a --> b) (E : Epi _ a c)
-        (PB : Pushout f E) : isEpi (PushoutIn1 PB).
+  Lemma EpiPushoutisEpi' {a b c : C} (f : a --> b) (E : Epi _ a c) (PB : Pushout f E) :
+    isEpi (PushoutIn1 PB).
   Proof.
     apply mk_isEpi. intros z g0 h X.
     use (MorphismsOutofPushoutEqual (isPushout_Pushout PB) _ _ X).

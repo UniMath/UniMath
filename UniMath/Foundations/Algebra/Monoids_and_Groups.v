@@ -1505,7 +1505,7 @@ Proof. intros. split with (setwithbinopdirprod X Y). apply isgrdirprod. Defined.
 
 (** **** Basic definitions *)
 
-Definition abgr : UU := total2 (fun X : setwithbinop =>  isabgrop (@op X)).
+Definition abgr : UU := total2 (fun X : setwithbinop => isabgrop (@op X)).
 
 Definition abgrpair (X : setwithbinop) (is : isabgrop (@op X)) : abgr :=
   tpair (fun X : setwithbinop =>  isabgrop (@op X)) X is.

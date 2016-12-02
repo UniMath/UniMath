@@ -137,6 +137,21 @@ Section def_zero.
         rewrite <- assoc. rewrite (iso_after_iso_inv i). rewrite id_right.
         apply ArrowsToZero.
   Qed.
+
+
+  (** ** Transport of ZeroArrow *)
+  Lemma transportf_ZeroArrow {a b c : C} (Z : Zero) (e : b = c) :
+    transportf _ e (ZeroArrow Z a b) = ZeroArrow Z a c.
+  Proof.
+    induction e. apply idpath.
+  Qed.
+
+  Lemma transportb_ZeroArrow {a b c : C} (Z : Zero) (e : a = b) :
+    transportb (fun (a' : ob C) => precategory_morphisms a' c) e (ZeroArrow Z b c) = ZeroArrow Z a c.
+  Proof.
+    induction e. apply idpath.
+  Qed.
+
 End def_zero.
 
 
