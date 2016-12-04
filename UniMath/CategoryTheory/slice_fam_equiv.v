@@ -27,16 +27,16 @@ Section slice_fam_equiv.
 
   Local Notation s_to_f := slice_to_fam_fun.
 
-  (* don't use transportf! or maybe do, but w/ destruct or induction *)
+  (* don't use transportf! or maybe do, but w/ destruct or induction (?) *)
   Definition slice_to_fam_mor_fun {a b : slice X} (f : a --> b) (x : X) :
     (s_to_f a : functor (discrete X) HSET) x --> (s_to_f b : functor (discrete X) HSET) x :=
     fun p => hfibersgftog (pr1 f) (pr2 b) _ (transportf (fun p => hfiber p x) (pr2 f) p).
 
-  (* Look for stuff about discrete cats in new commits/PRs *)
-  (* Email when done!! *)
   Definition slice_to_fam_mor_is_nat_trans {a b : slice X} (f : a --> b) :
-    is_nat_trans (s_to_f a : functor (discrete X) HSET) (s_to_f b : functor (discrete X) HSET) (slice_to_fam_mor_fun f)
-    := discrete_fun_is_nat_trans X has_homsets_HSET (slice_to_fam_mor_fun f).
+    is_nat_trans (s_to_f a : functor (discrete X) HSET)
+                 (s_to_f b : functor (discrete X) HSET)
+                 (slice_to_fam_mor_fun f)
+    := is_nat_trans_discrete_precategory X has_homsets_HSET (slice_to_fam_mor_fun f).
 
   Definition slice_to_fam_mor {a b : slice X} (f : a --> b) : s_to_f a --> s_to_f b :=
     (slice_to_fam_mor_fun f) ,, (slice_to_fam_mor_is_nat_trans f).
@@ -44,7 +44,6 @@ Section slice_fam_equiv.
   Definition slice_to_fam_data : functor_data (slice X) (fam X) :=
     functor_data_constr _ _ slice_to_fam_fun (@slice_to_fam_mor).
 
-  (* maybe (later) look at when base category isn't an hSet (h1, h2, h3 stuff) *)
   Lemma slice_to_fam_is_functor : is_functor slice_to_fam_data.
   Proof.
     split; [ intro a | intros a b c f g];
@@ -91,7 +90,8 @@ Section slice_fam_equiv.
   Definition fam_to_slice_functor : functor (fam X) (slice X) :=
     fam_to_slice_data ,, fam_to_slice_is_functor.
 
-  Definition slice_counit_fun (f : slice X) : (functor_composite_data slice_to_fam_data fam_to_slice_data) f --> (functor_identity_data _) f.
+  Definition slice_counit_fun (f : slice X) :
+    (functor_composite_data slice_to_fam_data fam_to_slice_data) f --> (functor_identity_data _) f.
   Proof.
     exists (fun h : (Σ x : X, hfiber (pr2 f) x) => pr1 (pr2 h)).
     simpl.
@@ -115,7 +115,8 @@ Section slice_fam_equiv.
       reflexivity.
   Defined.
 
-  Definition slice_counit : nat_trans (functor_composite slice_to_fam_functor fam_to_slice_functor) (functor_identity (slice X)) :=
+  Definition slice_counit : nat_trans (functor_composite slice_to_fam_functor fam_to_slice_functor)
+                                      (functor_identity (slice X)) :=
     slice_counit_fun ,, slice_counit_is_nat_trans.
 
   Definition slice_all_iso : forall x : slice X, is_isomorphism (slice_counit x).
@@ -137,14 +138,18 @@ Section slice_fam_equiv.
     - exact (hset_equiv_is_iso (hSetpair (coconusf (pr2 x)) coconus_isaset) _ (weqfromcoconusf (pr2 x))).
   Defined.
 
-  Definition slice_unit := nat_trans_inv_from_pointwise_inv _ _ (has_homsets_slice_precat _ has_homsets_HSET X) _ _ slice_counit slice_all_iso.
+  Definition slice_unit := nat_trans_inv_from_pointwise_inv _ _
+                                                            (has_homsets_slice_precat _ has_homsets_HSET X) _ _
+                                                            slice_counit slice_all_iso.
 
   Definition fam_unit_fun_fun (f : fam X) (x : X) :
     (pr1 ((functor_identity_data _) f)) x --> (pr1 ((functor_composite_data fam_to_slice_data slice_to_fam_data) f)) x :=
     fun a => ((x ,, a) ,, idpath x).
 
   Definition fam_unit_fun_is_nat_trans (f : fam X) :
-    is_nat_trans (pr1 ((functor_identity_data _) f)) (pr1 ((functor_composite_data fam_to_slice_data slice_to_fam_data) f)) (fam_unit_fun_fun f).
+    is_nat_trans (pr1 ((functor_identity_data _) f))
+                 (pr1 ((functor_composite_data fam_to_slice_data slice_to_fam_data) f))
+                 (fam_unit_fun_fun f).
   Proof.
     intros x x' g.
     rewrite g.
@@ -157,7 +162,8 @@ Section slice_fam_equiv.
        exact (transportb (fun f' => f' p = (identity ((pr1 f) x')) p) ((pr1 (pr2 f)) x') (idpath _)).
   Defined.
 
-  Definition fam_unit_fun (f : fam X) : (functor_identity_data _) f --> (functor_composite_data fam_to_slice_data slice_to_fam_data) f :=
+  Definition fam_unit_fun (f : fam X) :
+    (functor_identity_data _) f --> (functor_composite_data fam_to_slice_data slice_to_fam_data) f :=
     (fam_unit_fun_fun f) ,, (fam_unit_fun_is_nat_trans f).
 
   Definition fam_unit_is_nat_trans : is_nat_trans _ _ fam_unit_fun.
@@ -173,10 +179,12 @@ Section slice_fam_equiv.
     + reflexivity.
   Defined.
 
-  Definition fam_unit : nat_trans (functor_identity (fam X)) (functor_composite fam_to_slice_functor slice_to_fam_functor) :=
+  Definition fam_unit : nat_trans (functor_identity (fam X))
+                                  (functor_composite fam_to_slice_functor slice_to_fam_functor) :=
     fam_unit_fun ,, fam_unit_is_nat_trans.
 
-  Lemma fam_iso (F : fam X) : iso ((functor_identity (fam X)) F) ((functor_composite fam_to_slice_functor slice_to_fam_functor) F).
+  Lemma fam_iso (F : fam X) : iso ((functor_identity (fam X)) F)
+                                  ((functor_composite fam_to_slice_functor slice_to_fam_functor) F).
   Proof.
     apply (functor_iso_from_pointwise_iso _ _ has_homsets_HSET _ _ ((pr1 fam_unit) F)).
     intro x.
@@ -185,17 +193,23 @@ Section slice_fam_equiv.
     assert (isaset_total2_F : isaset (Σ x ,  pr1 ((pr1 F) x))).
     - apply isaset_total2_hSet.
     - assert (isaset_hfiber_pr1 : isaset (hfiber (@pr1 (discrete X) (funcomp (pr1 (pr1 F)) pr1)) x)).
-      + exact (@isaset_hfiber (hSetpair (Σ x ,  pr1 ((pr1 F) x)) isaset_total2_F) _ (@pr1 (discrete X) (funcomp (pr1 (pr1 F)) pr1)) x isaset_total2_F (pr2 X)).
+      + exact (@isaset_hfiber (hSetpair (Σ x ,  pr1 ((pr1 F) x)) isaset_total2_F) _
+                              (@pr1 (discrete X) (funcomp (pr1 (pr1 F)) pr1)) x
+                              isaset_total2_F (pr2 X)).
       + assert (H : (λ a : (pr1 ((pr1 F) x)), (x,, a),, idpath x) = ezmappr1 (funcomp (pr1 (pr1 F)) pr1) x).
         * apply funextsec.
           intro a.
           reflexivity.
-        * exact (hset_equiv_is_iso ((pr1 F) x) (hSetpair (hfiber pr1 x) isaset_hfiber_pr1) (ezweqpr1 (funcomp (pr1 (pr1 F)) pr1) x)).
+        * exact (hset_equiv_is_iso ((pr1 F) x)
+                                   (hSetpair (hfiber pr1 x) isaset_hfiber_pr1)
+                                   (ezweqpr1 (funcomp (pr1 (pr1 F)) pr1) x)).
   Defined.
 
   Definition fam_all_iso (F : fam X) : is_isomorphism (fam_unit F) := pr2 (fam_iso F).
 
-  Definition fam_counit := nat_trans_inv_from_pointwise_inv _ _ (functor_category_has_homsets _ _ has_homsets_HSET) _ _ fam_unit fam_all_iso.
+  Definition fam_counit := nat_trans_inv_from_pointwise_inv _ _
+                                                            (functor_category_has_homsets _ _ has_homsets_HSET) _ _
+                                                            fam_unit fam_all_iso.
 
   Lemma slice_fam_form_adj : form_adjunction fam_to_slice_functor slice_to_fam_functor fam_unit slice_counit.
   Proof.

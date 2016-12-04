@@ -54,7 +54,8 @@ mkpair.
 + abstract (now split; [intro|intros a b c [] []; simpl; rewrite id_left]).
 Defined.
 
-Definition discrete_fun_is_nat_trans {D : precategory} (Dhom : has_homsets D)
+(** A natural transformation of functors is given by a family of morphisms (Matt) *)
+Definition is_nat_trans_discrete_precategory {D : precategory} (Dhom : has_homsets D)
            {f g : functor_precategory discrete_precategory D Dhom}
            (F : Π x : A , (pr1 f) x --> (pr1 g) x)
   : is_nat_trans (pr1 f) (pr1 g) F.
