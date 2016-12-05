@@ -41,13 +41,16 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.SubstitutionSystems.Signatures.
+Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.SignatureCategory.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 
-(** Definition 1: Artiy, Binding signature *)
+Local Notation "[ C , D , hsD ]" := (functor_precategory C D hsD).
+
+(** Definition 1: Binding signature *)
 Definition BindingSig : UU :=
   @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSig.
 
@@ -67,28 +70,87 @@ Definition Sum_of_Signatures :
     @UniMath.SubstitutionSystems.SumOfSignatures.Sum_of_Signatures.
 
 (** Definition 7: Binary product of signatures with strength *)
+Definition BinProduct_of_Signatures :
+  Π (C : precategory) (hsC : has_homsets C), BinProducts C
+  → Signature C hsC → Signature C hsC → Signature C hsC :=
+    @UniMath.SubstitutionSystems.BinProductOfSignatures.BinProduct_of_Signatures.
 
 (** Problem 8: Signatures with strength from binding signatures *)
+Definition BindingSigToSignature :
+  Π (C : precategory) (hsC : has_homsets C), BinProducts C → BinCoproducts C → Terminal C
+  → Π sig : BindingSig, Coproducts (BindingSigIndex sig) C → Signature C hsC :=
+    @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
 
 (** Definition 15: Graph *)
+Definition graph : UU := @UniMath.CategoryTheory.limits.graphs.colimits.graph.
 
 (** Definition 16: Diagram *)
+Definition diagram : graph → precategory → UU :=
+  @UniMath.CategoryTheory.limits.graphs.colimits.diagram.
 
 (** Definition 18: Cocone *)
+Definition cocone : Π {C : precategory} {g : graph}, diagram g C → C → UU :=
+  @UniMath.CategoryTheory.limits.graphs.colimits.cocone.
 
 (** Definition 19: Colimiting cocone *)
+Definition isColimCocone : Π {C : precategory} {g : graph} (d : diagram g C)
+  (c0 : C), cocone d c0 → UU :=
+    @UniMath.CategoryTheory.limits.graphs.colimits.isColimCocone.
+
+(** Colimits of a specific shape *)
+Definition Colims_of_shape : graph → precategory → UU :=
+  @UniMath.CategoryTheory.limits.graphs.colimits.Colims_of_shape.
+
+(** Colimits of any shape *)
+Definition Colims : precategory → UU :=
+  @UniMath.CategoryTheory.limits.graphs.colimits.Colims.
 
 (** Remark 20: Uniqueness of colimits *)
+Lemma isaprop_Colims : Π C : category, isaprop (Colims C).
+Proof.
+exact @UniMath.CategoryTheory.limits.graphs.colimits.isaprop_Colims.
+Defined.
 
 (** Definition 21: Preservation of colimits *)
+Definition preserves_colimit : Π {C D : precategory}, functor C D
+  → Π {g : graph} (d : diagram g C) (L : C), cocone d L → UU :=
+    @UniMath.CategoryTheory.CocontFunctors.preserves_colimit.
+
+Definition is_cocont : Π C D : precategory, functor C D → UU :=
+  @UniMath.CategoryTheory.CocontFunctors.is_cocont.
+
+Definition is_omega_cocont : Π {C D : precategory}, functor C D → UU :=
+  @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont.
 
 (** Lemma 22: Invariance of cocontinuity under isomorphism *)
+Lemma preserves_colimit_iso :
+  Π (C D : precategory) (hsD : has_homsets D) (F G : functor C D) (α : @iso [C,D,hsD] F G)
+    (g : graph) (d : diagram g C) (L : C) (cc : cocone d L),
+  preserves_colimit F d L cc → preserves_colimit G d L cc.
+Proof.
+exact @UniMath.CategoryTheory.CocontFunctors.preserves_colimit_iso.
+Defined.
 
 (** Problem 23: Colimits in functor categories *)
+Definition ColimsFunctorCategory_of_shape :
+  Π (g : graph) (A C : precategory) (hsC : has_homsets C),
+  Colims_of_shape g C → Colims_of_shape g [A,C,hsC] :=
+    @UniMath.CategoryTheory.limits.graphs.colimits.ColimsFunctorCategory_of_shape.
 
 (** Problem 25: Initial algebras of ω-cocontinuous functors *)
+Definition colimAlgInitial :
+  Π (C : precategory) (hsC : has_homsets C) (InitC : Initial C)
+    (F : functor C C), is_omega_cocont F → ColimCocone (initChain InitC F) →
+  Initial (FunctorAlg F hsC) :=
+    @UniMath.CategoryTheory.CocontFunctors.colimAlgInitial.
 
 (** Lemma 26: Lambek's lemma *)
+Lemma initialAlg_is_iso :
+  Π (C : precategory) (hsC : has_homsets C) (F : functor C C)
+    (Aa : algebra_ob F), isInitial (FunctorAlg F hsC) Aa → is_iso (alg_map F Aa).
+Proof.
+exact @UniMath.CategoryTheory.FunctorAlgebras.initialAlg_is_iso.
+Defined.
 
 (** Problem 28: Colimits in Set *)
 
@@ -139,21 +201,6 @@ Definition Sum_of_Signatures :
 
 
 
-Definition Arity_to_Signature :
-  Π (C : precategory) (hsC : has_homsets C),
-  BinProducts C → BinCoproducts C → Terminal C → list nat → Signature C hsC.
-Proof.
-  exact @UniMath.SubstitutionSystems.BindingSigToMonad.Arity_to_Signature.
-Defined.
-
-Definition BindingSigToSignature :
-  Π {C : precategory} (hsC : has_homsets C),
-  BinProducts C → BinCoproducts C → Terminal C →
-  Π sig : BindingSig, Coproducts (BindingSigIndex sig) C →
-  Signature C hsC.
-Proof.
-  exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
-Defined.
 
 Local Notation "'[ C , C, hsC ]'" := (functor_precategory C C hsC).
 
@@ -218,7 +265,6 @@ Proof.
 Defined.
 
 Local Notation "'chain'" := (diagram nat_graph).
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Lemma is_omega_cocont_pre_composition_functor
      (A B C : precategory) (F : functor A B) (hsB : has_homsets B) (hsC : has_homsets C)
