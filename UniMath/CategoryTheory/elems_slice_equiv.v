@@ -4,15 +4,17 @@ Require Import UniMath.Foundations.Basics.Sets
         UniMath.CategoryTheory.category_hset
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.opp_precat
-        UniMath.CategoryTheory.equivalences
-        UniMath.Ktheory.ElementsOp.
+        UniMath.Ktheory.ElementsOp
+        UniMath.CategoryTheory.UnicodeNotations.
+
+
 
 (* Proof that pshf (el P) ≃ (pshf C) / P *)
 Section elems_slice_equiv.
 
   Local Open Scope cat.
-
   Local Open Scope set.
+  Local Open Scope type.
 
   Local Definition el {C : Precategory} (P : C^op ==> SET) : Precategory := @cat C P.
   Local Definition pshf (C : Precategory) : Precategory := [C^op, SET].
@@ -27,7 +29,8 @@ Section elems_slice_equiv.
 
   Definition pshf_to_slice_ob_funct_mor (F : pshf (el P)) (X Y : C^op) (f : X --> Y) :
     pshf_to_slice_ob_funct_fun F X --> pshf_to_slice_ob_funct_fun F Y :=
-    fun p => # (pr1 P) f (pr1 p) ,, pr2 (pr1 F) (X ,, (pr1 p)) (Y,, # (pr1 P) f (pr1 p)) (f ,, idpath (# (pr1 P) f (pr1 p))) (pr2 p).
+    fun p => # (pr1 P) f (pr1 p) ,,
+               pr2 (pr1 F) (X ,, (pr1 p)) (Y,, # (pr1 P) f (pr1 p)) (f ,, idpath (# (pr1 P) f (pr1 p))) (pr2 p).
 
   Definition pshf_to_slice_ob_funct_data (F : pshf (el P)) : functor_data C^op SET :=
     (pshf_to_slice_ob_funct_fun F) ,, (pshf_to_slice_ob_funct_mor F).
@@ -41,10 +44,17 @@ Section elems_slice_equiv.
       unfold pshf_to_slice_ob_funct_fun.
       simpl.
       apply funextsec. intro p.
-      rewrite tppr.
-      apply (total2_paths2 (transportb (fun f => f (pr1 p) = pr1 p) ((pr1 (pr2 P)) a) (idpath _))).
-      Check ((pr1 (pr2 P)) a).
+      unfold identity. simpl.
+      SearchAbout tpair.
 
+      rewrite tppr.
+      apply (total2_paths2 (transportf (fun f => f (pr1 p) = pr1 p) (!(pr1 (pr2 P)) a) (idpath _))).
+
+      SearchAbout transportf.
+
+      (*
+      rewrite transport_idfun.
+      rewrite (transport_idfun ((λ f : pr1 ((pr1 P) a) → pr1 ((pr1 P) a), (f (pr1 p) = pr1 p)%type))). *)
 
   Admitted.
 
