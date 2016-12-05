@@ -92,7 +92,7 @@ Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : UU :=
   isColimCocone d L cc -> isColimCocone (mapdiagram F d) (F L) (mapcocone F d cc).
 
-Definition is_cocont := Π {g : graph} (d : diagram g C) (L : C)
+Definition is_cocont : UU := Π {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L), preserves_colimit d L cc.
 
 End cocont.
