@@ -25,12 +25,25 @@ Section slice_fam_equiv.
   Definition slice_to_fam_fun (a : slice X) : fam X :=
     mkfam (fun x : X => hfiber_hSet (pr2 a) x).
 
-  Local Notation s_to_f := slice_to_fam_fun.
+  Local Notation s_to_f := slice_to_fam_fun. (* make sure it isn't any notations *)
 
-  (* don't use transportf! or maybe do, but w/ destruct or induction (?) *)
   Definition slice_to_fam_mor_fun {a b : slice X} (f : a --> b) (x : X) :
-    (s_to_f a : functor (discrete X) HSET) x --> (s_to_f b : functor (discrete X) HSET) x :=
+    (s_to_f a : functor (discrete X) HSET) x --> (s_to_f b : functor (discrete X) HSET) x := (* try and isolate small example for bug report *)
     fun p => hfibersgftog (pr1 f) (pr2 b) _ (transportf (fun p => hfiber p x) (pr2 f) p).
+
+  (* Later: prove composition axiom of functor w/o assuming X is HSET *)
+  Definition slice_to_fam_mor_fun' {a b : slice X} (f : a --> b) (x : X) :
+    (s_to_f a : functor (discrete X) HSET) x --> (s_to_f b : functor (discrete X) HSET) x.
+  Proof.
+    intro p. destruct f as [f feq].
+    simpl in p. simpl.
+    destruct a as [A a], b as [B b].
+    simpl in f , feq , p. simpl.
+    rewrite feq in p.
+    apply (hfibersgftog f b).
+    exact p.
+  Defined.
+
 
   Definition slice_to_fam_mor_is_nat_trans {a b : slice X} (f : a --> b) :
     is_nat_trans (s_to_f a : functor (discrete X) HSET)
