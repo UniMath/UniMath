@@ -88,12 +88,8 @@ Section cocont.
 
 Context {C D : precategory} (F : functor C D).
 
-Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
-  (cc : cocone d L) : UU :=
-  isColimCocone d L cc -> isColimCocone (mapdiagram F d) (F L) (mapcocone F d cc).
-
 Definition is_cocont : UU := Π {g : graph} (d : diagram g C) (L : C)
-  (cc : cocone d L), preserves_colimit d L cc.
+  (cc : cocone d L), preserves_colimit F d L cc.
 
 End cocont.
 
@@ -400,40 +396,7 @@ Section cocont_functors.
 Lemma left_adjoint_cocont {C D : precategory} (F : functor C D)
   (H : is_left_adjoint F) (hsC : has_homsets C) (hsD : has_homsets D) : is_cocont F.
 Proof.
-intros g d L ccL HccL M ccM.
-set (G := pr1 H).
-apply (@iscontrweqb _ (Σ y : C ⟦ L, G M ⟧,
-    Π i, coconeIn ccL i ;; y = φ_adj _ _ _ H (coconeIn ccM i))).
-- eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
-    Π i, # F (coconeIn ccL i) ;; φ_adj_inv _ _ _ H y = coconeIn ccM i)).
-  + apply (weqbandf (adjunction_hom_weq _ _ _ H L M)); simpl; intro f.
-    abstract (apply weqiff; try (apply impred; intro; apply hsD);
-    now rewrite φ_adj_inv_after_φ_adj).
-  + eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
-      Π i, φ_adj_inv _ _ _ _ (coconeIn ccL i ;; y) = coconeIn ccM i)).
-    * apply weqfibtototal; simpl; intro f.
-    abstract (apply weqiff; try (apply impred; intro; apply hsD); split;
-      [ intros HH i; rewrite φ_adj_inv_natural_precomp; apply HH
-      | intros HH i; rewrite <- φ_adj_inv_natural_precomp; apply HH ]).
-      (* apply weqonsecfibers; intro i. *)
-      (* rewrite φ_adj_inv_natural_precomp; apply idweq. *)
-    * apply weqfibtototal; simpl; intro f.
-    abstract (apply weqiff; [ | apply impred; intro; apply hsD | apply impred; intro; apply hsC ];
-      split; intros HH i;
-        [ now rewrite <- (HH i), φ_adj_after_φ_adj_inv
-        | now rewrite (HH i),  φ_adj_inv_after_φ_adj ]).
-      (* apply weqonsecfibers; intro i. *)
-      (* apply weqimplimpl; [ | | apply hsD | apply hsC]; intro h. *)
-      (*   now rewrite <- h, (φ_adj_after_φ_adj_inv _ _ _ H). *)
-      (* now rewrite h, (φ_adj_inv_after_φ_adj _ _ _ H). *)
-- transparent assert (X : (cocone d (G M))).
-  { use mk_cocone.
-    + intro v; apply (φ_adj C D F H (coconeIn ccM v)).
-    + abstract (intros m n e; simpl;
-                rewrite <- (coconeInCommutes ccM m n e); simpl;
-                now rewrite φ_adj_natural_precomp).
-  }
-  apply (HccL (G M) X).
+now intros g d L ccL; apply left_adjoint_preserves_colimit.
 Defined.
 
 (* Print Assumptions left_adjoint_cocont. *)

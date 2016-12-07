@@ -152,7 +152,7 @@ End fix_T.
 Lemma RightKanExtension_from_limits : GlobalRightKanExtensionExists _ _ K _ hsC hsA.
 Proof.
 unfold GlobalRightKanExtensionExists.
-use adjunction_from_partial.
+use left_adjoint_from_partial.
 - apply R_functor.
 - apply eps.
 - intros T S α; simpl in *.
