@@ -21,6 +21,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
@@ -492,67 +493,39 @@ Definition preserves_limit {g : graph} (d : diagram g C) (L : C)
   (cc : cone d L) : UU :=
   isLimCone d L cc -> isLimCone (mapdiagram F d) (F L) (mapcone d cc).
 
-(* Require Import UniMath.CategoryTheory.opp_precat. *)
-
-(* Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op"). *)
-
-(* Lemma is_left_adjoint_functor_opp : is_right_adjoint F → is_left_adjoint (functor_opp F). *)
-(* Proof. *)
-(*   intros H. *)
-(*   mkpair. *)
-(*   apply (functor_opp (left_adjoint H)). *)
-(*   mkpair. *)
-(*   split. *)
-(*   simpl. *)
-(*   mkpair. *)
-(*   simpl. *)
-(*   intros x. *)
-(*   apply (counit_from_right_adjoint H x). *)
-(*   admit. *)
-(*   admit. *)
-(*   admit. *)
-(*  Admitted. *)
-
-
 (** ** Right adjoints preserve limits *)
-(* Lemma right_adjoint_preserves_limit (H : is_right_adjoint F) (hsC : has_homsets C) (hsD : has_homsets D) *)
-(*       {g : graph} (d : diagram g C) (L : C) (ccL : cone d L) : preserves_limit d L ccL. *)
-(* Proof. *)
-(* intros HccL M ccM. *)
-(* set (G := left_adjoint H). *)
-(* apply (@iscontrweqb _ (Σ y : C ⟦ L, G M ⟧, *)
-(*     Π i, coconeIn ccL i ;; y = φ_adj _ _ _ H (coconeIn ccM i))). *)
-(* - eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧, *)
-(*     Π i, # F (coconeIn ccL i) ;; φ_adj_inv _ _ _ H y = coconeIn ccM i)). *)
-(*   + apply (weqbandf (adjunction_hom_weq _ _ _ H L M)); simpl; intro f. *)
-(*     abstract (apply weqiff; try (apply impred; intro; apply hsD); *)
-(*     now rewrite φ_adj_inv_after_φ_adj). *)
-(*   + eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧, *)
-(*       Π i, φ_adj_inv _ _ _ _ (coconeIn ccL i ;; y) = coconeIn ccM i)). *)
-(*     * apply weqfibtototal; simpl; intro f. *)
-(*     abstract (apply weqiff; try (apply impred; intro; apply hsD); split; *)
-(*       [ intros HH i; rewrite φ_adj_inv_natural_precomp; apply HH *)
-(*       | intros HH i; rewrite <- φ_adj_inv_natural_precomp; apply HH ]). *)
-(*       (* apply weqonsecfibers; intro i. *) *)
-(*       (* rewrite φ_adj_inv_natural_precomp; apply idweq. *) *)
-(*     * apply weqfibtototal; simpl; intro f. *)
-(*     abstract (apply weqiff; [ | apply impred; intro; apply hsD | apply impred; intro; apply hsC ]; *)
-(*       split; intros HH i; *)
-(*         [ now rewrite <- (HH i), φ_adj_after_φ_adj_inv *)
-(*         | now rewrite (HH i),  φ_adj_inv_after_φ_adj ]). *)
-(*       (* apply weqonsecfibers; intro i. *) *)
-(*       (* apply weqimplimpl; [ | | apply hsD | apply hsC]; intro h. *) *)
-(*       (*   now rewrite <- h, (φ_adj_after_φ_adj_inv _ _ _ H). *) *)
-(*       (* now rewrite h, (φ_adj_inv_after_φ_adj _ _ _ H). *) *)
-(* - transparent assert (X : (cocone d (G M))). *)
-(*   { use mk_cocone. *)
-(*     + intro v; apply (φ_adj C D F H (coconeIn ccM v)). *)
-(*     + abstract (intros m n e; simpl; *)
-(*                 rewrite <- (coconeInCommutes ccM m n e); simpl; *)
-(*                 now rewrite φ_adj_natural_precomp). *)
-(*   } *)
-(*   apply (HccL (G M) X). *)
-(* Defined. *)
+Lemma right_adjoint_preserves_limit (HF : is_right_adjoint F) (hsC : has_homsets C) (hsD : has_homsets D)
+      {g : graph} (d : diagram g C) (L : C) (ccL : cone d L) : preserves_limit d L ccL.
+Proof.
+intros HccL M ccM.
+set (G := left_adjoint HF).
+set (H := pr2 HF : are_adjoints G F).
+apply (@iscontrweqb _ (Σ y : C ⟦ G M, L ⟧,
+    Π i, y ;; coneOut ccL i = φ_adj_inv H (coneOut ccM i))).
+- eapply (weqcomp (Y := Σ y : C ⟦ G M, L ⟧,
+    Π i, φ_adj H y ;; # F (coneOut ccL i) = coneOut ccM i)).
+  + apply invweq, (weqbandf (adjunction_hom_weq H M L)); simpl; intro f.
+    abstract (now apply weqiff; try (apply impred; intro; apply hsD)).
+  + eapply (weqcomp (Y := Σ y : C ⟦ G M, L ⟧,
+      Π i, φ_adj H (y ;; coneOut ccL i) = coneOut ccM i)).
+    * apply weqfibtototal; simpl; intro f.
+      abstract (apply weqiff; try (apply impred; intro; apply hsD); split; intros HH i;
+               [ now rewrite φ_adj_natural_postcomp; apply HH
+               | now rewrite <- φ_adj_natural_postcomp; apply HH ]).
+    * apply weqfibtototal; simpl; intro f.
+      abstract (apply weqiff; [ | apply impred; intro; apply hsD | apply impred; intro; apply hsC ];
+      split; intros HH i;
+        [ now rewrite <- (HH i), φ_adj_inv_after_φ_adj
+        | now rewrite (HH i),  φ_adj_after_φ_adj_inv ]).
+- transparent assert (X : (cone d (G M))).
+  { use mk_cone.
+    + intro v; apply (φ_adj_inv H (coneOut ccM v)).
+    + intros m n e; simpl.
+      rewrite <- (coneOutCommutes ccM m n e); simpl.
+      now rewrite φ_adj_inv_natural_postcomp.
+  }
+  apply (HccL (G M) X).
+Defined.
 
 End map.
 
