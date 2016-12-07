@@ -88,7 +88,7 @@ Section def_cohomology_complex.
       ;; (Diff C i) = ZeroArrow to_Zero _ _.
   Proof.
     induction (hzrminusplus i 1). cbn. unfold idfun.
-    apply (CEq (AbelianToAdditive A hs) C (i - 1)).
+    apply (DSq (AbelianToAdditive A hs) C (i - 1)).
   Qed.
 
   Local Lemma CohomologyComplex_KernelIn_eq (C : Complex (AbelianToAdditive A hs)) (i : hz) :
@@ -97,7 +97,7 @@ Section def_cohomology_complex.
   Proof.
     rewrite <- functtransportf. cbn.
     induction (hzrminusplus i 1). cbn. unfold idfun.
-    apply (CEq (AbelianToAdditive A hs) C (i - 1)).
+    apply (DSq (AbelianToAdditive A hs) C (i - 1)).
   Qed.
 
   Definition CohomologyComplex (C : (ComplexPreCat_AbelianPreCat A hs)) :
@@ -1026,7 +1026,7 @@ Section def_cohomology_homotopy.
                 Diff C2 i = ZeroArrow to_Zero (Kernel (Diff C1 i)) (C2 (i + 1)).
   Proof.
     induction (hzrminusplus i 1). cbn. unfold idfun. rewrite <- assoc. rewrite <- assoc.
-    set (tmp := CEq _ C2 (i - 1)). cbn in tmp. rewrite tmp. clear tmp.
+    set (tmp := DSq _ C2 (i - 1)). cbn in tmp. rewrite tmp. clear tmp.
     rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right. apply idpath.
   Qed.
 
@@ -1098,7 +1098,7 @@ Section def_cohomology_homotopy.
                         (# (CohomologyFunctor_Additive A hs) g)).
     use (pathscomp0 _ (! tmp)). clear tmp.
     rewrite <- AdditiveFunctorInv.
-    set (tmp := AdditiveFunctorLinear (CohomologyFunctor_Additive A hs) f (to_inv _ _ g)).
+    set (tmp := AdditiveFunctorLinear (CohomologyFunctor_Additive A hs) f (to_inv g)).
     apply pathsinv0 in tmp. use (pathscomp0 tmp). clear tmp.
     use (squash_to_prop H). apply has_homsets_ComplexPreCat_AbelianPreCat.
     intros H'. induction H' as [H1 H2]. induction H1 as [H11 H12]. cbn in H11. cbn in H2.
@@ -1394,7 +1394,7 @@ Section def_kernel_cokernel_complex.
     rewrite <- assoc.
     rewrite <- (ZeroArrow_comp_right _ _ _ _ _ (KernelArrow (Kernel (Diff C i)))).
     apply cancel_precomposition.
-    exact (CEq (AbelianToAdditive A hs) C i).
+    exact (DSq (AbelianToAdditive A hs) C i).
   Qed.
 
   Local Lemma KernelComplex_comm (C : Complex (AbelianToAdditive A hs)) (i : hz) :
@@ -1437,7 +1437,7 @@ Section def_kernel_cokernel_complex.
     ZeroArrow to_Zero (C (i - 1)) (Cokernel (Diff C (i + 1 - 1))).
   Proof.
     induction (hzrminusplus i 1 @ hzrplusminus' i 1). cbn. unfold idfun.
-    rewrite assoc. set (tmp := CEq (AbelianToAdditive A hs) C (i - 1)). cbn in tmp.
+    rewrite assoc. set (tmp := DSq (AbelianToAdditive A hs) C (i - 1)). cbn in tmp.
     rewrite tmp. clear tmp. apply ZeroArrow_comp_left.
   Qed.
 
@@ -1485,7 +1485,7 @@ Section def_kernel_cokernel_complex.
     rewrite <- functtransportb.
     induction (hzrminusplus (i + 1) 1). cbn.
     induction (hzrplusminus' (i + 1 - 1 + 1) 1). cbn. unfold idfun.
-    exact (CEq _ C (i + 1 - 1)).
+    exact (DSq _ C (i + 1 - 1)).
   Qed.
 
   Definition CokernelComplex (C : Complex (AbelianToAdditive A hs)) :
@@ -1515,7 +1515,7 @@ Section def_kernel_cokernel_complex.
          (maponpaths C (hzrminusplus i 1)) (Diff C i) =
     ZeroArrow to_Zero (C (i - 1)) (C (i + 1)).
   Proof.
-    induction (hzrminusplus i 1). cbn. unfold idfun. exact (CEq _ C (i - 1)).
+    induction (hzrminusplus i 1). cbn. unfold idfun. exact (DSq _ C (i - 1)).
   Qed.
 
 
@@ -1529,11 +1529,11 @@ Section def_kernel_cokernel_complex.
     use CokernelOutsEq.
     rewrite assoc. rewrite CokernelCommutes. rewrite ZeroArrow_comp_right.
     induction (hzrminusplus i 1). cbn. unfold idfun.
-    exact (CEq _ C (i - 1 + 1)).
+    exact (DSq _ C (i - 1 + 1)).
   Qed.
 
   Local Lemma CokernelKernelMorphism_comm3 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
-    KernelIn to_Zero (Kernel (Diff C (i + 1))) (C i) (Diff C i) (CEq (AbelianToAdditive A hs) C i) =
+    KernelIn to_Zero (Kernel (Diff C (i + 1))) (C i) (Diff C i) (DSq (AbelianToAdditive A hs) C i) =
     transportf (λ i0 : pr1 hz, A ⟦ C i0, Cokernel (Diff C (i - 1)) ⟧) (hzrminusplus i 1)
                (CokernelArrow (Cokernel (Diff C (i - 1))))
                ;; KernelIn to_Zero (Kernel (Diff C (i + 1)))
@@ -1575,7 +1575,7 @@ Section def_kernel_cokernel_complex.
          (maponpaths C (hzrminusplus i 1)) (Diff C i) =
     ZeroArrow to_Zero (C (i - 1)) (C (i + 1)).
   Proof.
-    induction (hzrminusplus i 1). cbn. unfold idfun. exact (CEq _ C (i - 1)).
+    induction (hzrminusplus i 1). cbn. unfold idfun. exact (DSq _ C (i - 1)).
   Qed.
 
   Local Lemma CokernelKernelMorphism_comm2' (C : Complex (AbelianToAdditive A hs)) (i : hz) :
@@ -1598,7 +1598,7 @@ Section def_kernel_cokernel_complex.
   Local Lemma CokernelKernelMorphism_uni (C : Complex (AbelianToAdditive A hs)) (i : hz) :
     Π t : Σ f : A ⟦Cokernel (Diff C (i - 1)), Kernel (Diff C (i + 1))⟧,
                 (KernelIn to_Zero (Kernel (Diff C (i + 1))) (C i) (Diff C i)
-                          (CEq (AbelianToAdditive A hs) C i) =
+                          (DSq (AbelianToAdditive A hs) C i) =
                  transportf (λ i0 : pr1 hz, A ⟦ C i0, Cokernel (Diff C (i - 1)) ⟧)
                             (hzrminusplus i 1) (CokernelArrow (Cokernel (Diff C (i - 1)))) ;; f)
                   × (CokernelOut to_Zero (Cokernel (Diff C (i - 1))) (C (i + 1))
@@ -1636,7 +1636,7 @@ Section def_kernel_cokernel_complex.
 
   Definition CokernelKernelMorphism (C : Complex (AbelianToAdditive A hs)) (i : hz) :
     iscontr (Σ f : A⟦(CokernelComplex C) i, (KernelComplex C) i⟧,
-                   ((KernelIn to_Zero (Kernel (Diff C (i + 1))) (C i) (Diff C i) (CEq _ C i)) =
+                   ((KernelIn to_Zero (Kernel (Diff C (i + 1))) (C i) (Diff C i) (DSq _ C i)) =
                     (transportf (fun (i0 : hz) => A⟦C i0, (Cokernel (Diff C (i - 1)))⟧)
                                 (hzrminusplus i 1)
                                 (CokernelArrow (Cokernel (Diff C (i - 1))))) ;; f)
@@ -2101,7 +2101,7 @@ Section def_kernel_cokernel_complex.
                  transportb (fun x' : ob A => precategory_morphisms x' _)
                             (maponpaths C (hzrplusminus i 1))
                             (KernelIn to_Zero (Kernel (Diff C (i + 1))) (C i) (Diff C i)
-                                      (CEq (AbelianToAdditive A hs) C i))).
+                                      (DSq (AbelianToAdditive A hs) C i))).
     {
       rewrite transportb_KernelIn.
       use KernelInsEq.

@@ -65,6 +65,22 @@ Section def_additive.
     exact (BinDirectSum_BinProduct A (to_BinDirectSums A X Y)).
   Defined.
 
+
+  Lemma to_Unel1' {A : Additive} {a b : A} (BS : BinDirectSumCone A a b) :
+    to_In1 A BS ;; to_Pr2 A BS = ZeroArrow (to_Zero A) _ _.
+  Proof.
+    rewrite (to_Unel1 A BS). apply PreAdditive_unel_zero.
+  Qed.
+
+  Lemma to_Unel2' {A : Additive} {a b : A} (BS : BinDirectSumCone A a b) :
+    to_In2 A BS ;; to_Pr1 A BS = ZeroArrow (to_Zero A) _ _.
+  Proof.
+    rewrite (to_Unel2 A BS). apply PreAdditive_unel_zero.
+  Qed.
+
+  Definition AdditiveZeroArrow {A : Additive} (x y : ob A) : A⟦x, y⟧ :=
+    ZeroArrow (to_Zero A) x y.
+
 End def_additive.
 
 

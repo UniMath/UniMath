@@ -124,6 +124,12 @@ Proof . intros . apply ( @grlcan hzaddabgr a b c is ) .  Defined .
 Lemma hzplusrcan ( a b c : hz ) ( is : paths ( a + c ) ( b + c ) ) : paths a b .
 Proof . intros . apply ( @grrcan hzaddabgr a b c is ) .  Defined .
 
+Lemma hzplusladd (a b c : hz) (is : paths a b) : paths (a + c) (b + c).
+Proof. intros. induction is. apply idpath. Defined.
+
+Lemma hzplusradd (a b c : hz) (is : paths a b) : paths (c + a) (c + b).
+Proof. intros. apply maponpaths. apply is. Defined.
+
 Definition hzinvmaponpathsminus { a b : hz } ( e :  paths ( - a ) ( - b ) ) : paths a b := grinvmaponpathsinv hzaddabgr e .
 
 Lemma hzrplusminus (n m : hz) : n + m - m = n.

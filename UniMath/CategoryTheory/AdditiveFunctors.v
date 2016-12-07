@@ -143,7 +143,7 @@ Section additivefunctor_preserves_bindirectsums.
   Qed.
 
   Lemma AdditiveFunctorInv {A B : Additive} (F : AdditiveFunctor A B) {a1 a2 : A} (f : a1 --> a2) :
-    # F (to_inv _ _ f) = to_inv _ _ (# F f).
+    # F (to_inv f) = to_inv (# F f).
   Proof.
     apply (to_lcan _ (# F f)). rewrite <- AdditiveFunctorLinear.
     rewrite rinvax. rewrite AdditiveFunctorUnel. rewrite rinvax.

@@ -370,21 +370,21 @@ Section shortexact_opp.
       + exact (CokernelisCokernel to_Zero (ShortShortExact_Cokernel hs SSE)).
   Defined.
 
-  (** Why is this so slow? *)
+  Unset Kernel Term Sharing.
   Local Lemma opp_ShortShortExact_isKernel {A : AbelianPreCat} {hs : has_homsets A}
         (SSE : ShortShortExact (has_homsets_Abelian_opp hs)) :
-    isKernel to_Zero (KernelArrow (Image (opp_ShortShortExactData SSE))) (Mor2 (opp_ShortShortExactData SSE))
+    isKernel to_Zero (KernelArrow (Image (opp_ShortShortExactData SSE)))
+             (Mor2 (opp_ShortShortExactData SSE))
              (Image_Eq hs (opp_ShortShortExactData SSE)).
   Proof.
     cbn. use opp_isKernel.
     - exact hs.
     - exact (Zero_opp A to_Zero).
-    - cbn.
-      set (tmp := CoImage_Eq (has_homsets_Abelian_opp hs) SSE). cbn in tmp. apply tmp.
-    - cbn.
-      set (tmp := CokernelisCokernel to_Zero (ShortShortExact_Cokernel (has_homsets_Abelian_opp hs) SSE)).
-      cbn in tmp. apply tmp.
+    - exact (CoImage_Eq (has_homsets_Abelian_opp hs) SSE).
+    - exact (CokernelisCokernel
+               to_Zero (ShortShortExact_Cokernel (has_homsets_Abelian_opp hs) SSE)).
   Qed.
+  Set Kernel Term Sharing.
 
   Definition opp_ShortShortExact {A : AbelianPreCat} {hs : has_homsets A}
              (SSE : ShortShortExact (has_homsets_Abelian_opp hs)) : ShortShortExact hs.

@@ -1484,8 +1484,8 @@ Section opp_abelian.
     apply ZerosArrowEq.
   Qed.
 
-  Lemma AbelianMonicKernelsData_opp_isCokernel {AD1 : Data1 C} (AMKD : AbelianMonicKernelsData C AD1)
-        (y z : C^op) (E : Epi (opp_precat C) y z) :
+  Lemma AbelianMonicKernelsData_opp_isCokernel {AD1 : Data1 C}
+        (AMKD : AbelianMonicKernelsData C AD1) (y z : C^op) (E : Epi (opp_precat C) y z) :
     isCokernel (Zero_opp C (pr1 AD1)) (AMKD_Mor AMKD z y (opp_Epi C E)) E
                (AbelianMonicKernelsData_opp_eq AMKD y z E).
   Proof.
