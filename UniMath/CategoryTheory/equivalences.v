@@ -21,6 +21,9 @@ Contents :  Definition of adjunction
             equivalence of precategories, if the source
             is a category.
 
+            Post-composition with a left adjoint is a left
+            adjoint ([is_left_adjoint_post_composition_functor])
+
 ************************************************************)
 
 
@@ -31,6 +34,7 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.whiskering.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -584,4 +588,47 @@ Definition left_adjoint_from_partial : is_left_adjoint F := (G,, (unit,, counit)
 Definition right_adjoint_from_partial : is_right_adjoint G := (F,, (unit,, counit),, form_adjunctionFG).
 
 End adjunction_from_partial.
+
+(** * Post-composition with a left adjoint is a left adjoint *)
+Section postcomp.
+
+Context {C D E : precategory} (hsD : has_homsets D) (hsE : has_homsets E)
+        (F : functor D E) (HF : is_left_adjoint F).
+
+Let G : functor E D := right_adjoint HF.
+Let H : are_adjoints F G := pr2 HF.
+Let η : nat_trans (functor_identity D) (functor_composite F G):= unit_from_left_adjoint H.
+Let ε : nat_trans (functor_composite G F) (functor_identity E) := counit_from_left_adjoint H.
+Let H1 : Π a : D, # F (η a) ;; ε (F a) = identity (F a) := triangle_id_left_ad H.
+Let H2 : Π b : E, η (G b) ;; # G (ε b) = identity (G b) := triangle_id_right_ad H.
+
+Lemma is_left_adjoint_post_composition_functor :
+  is_left_adjoint (post_composition_functor C D E hsD hsE F).
+Proof.
+exists (post_composition_functor _ _ _ _ _ G).
+mkpair.
+- split.
+  + use mk_nat_trans.
+    * simpl; intros F'.
+      apply (nat_trans_comp _ _ _
+              (nat_trans_comp _ _ _ (nat_trans_functor_id_right_inv F') (pre_whisker F' η))
+              (nat_trans_functor_assoc_inv _ _ _)).
+    * abstract (intros F1 F2 α; apply (nat_trans_eq hsD); intro c; simpl in *;
+                now rewrite !id_right, !id_left; apply (nat_trans_ax η (F1 c) _ (α c))).
+  + use mk_nat_trans.
+    * simpl; intros F'.
+      apply (nat_trans_comp _ _ _
+              (nat_trans_functor_assoc _ _ _)
+              (nat_trans_comp _ _ _ (pre_whisker F' ε) (nat_trans_functor_id_left _))).
+  * abstract (intros F1 F2 α; apply (nat_trans_eq hsE); intro c; simpl in *;
+              now rewrite !id_right, !id_left; apply (nat_trans_ax ε _ _ (α c))).
+- abstract (split; simpl; intro F';
+    [ apply (nat_trans_eq hsE); simpl; intro c;
+      now rewrite !id_left, !id_right; apply H1
+    | apply (nat_trans_eq hsD); simpl; intro c;
+      now rewrite !id_left, !id_right; apply H2]).
+Defined.
+
+End postcomp.
+
 End adjunctions.

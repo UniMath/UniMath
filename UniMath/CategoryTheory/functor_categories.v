@@ -1332,3 +1332,42 @@ Proof.
 Defined.
 
 End functor_equalities.
+
+(** Natural transformations for reasoning about various compositions of functors *)
+Section nat_trans_functor.
+
+Context {A B C D : precategory}.
+
+Definition nat_trans_functor_id_right (F : functor A B) :
+  nat_trans (functor_composite F (functor_identity B)) F.
+Proof.
+exists (λ x, identity _).
+abstract (now intros a b f; rewrite id_left, id_right).
+Defined.
+
+Definition nat_trans_functor_id_right_inv (F : functor A B) :
+  nat_trans F (functor_composite F (functor_identity B)) :=
+    nat_trans_functor_id_right F.
+
+Definition nat_trans_functor_id_left (F : functor A B) :
+  nat_trans (functor_composite (functor_identity A) F) F :=
+    nat_trans_functor_id_right F.
+
+Definition nat_trans_functor_id_left_inv (F : functor A B) :
+  nat_trans F (functor_composite (functor_identity A) F) :=
+    nat_trans_functor_id_right F.
+
+Definition nat_trans_functor_assoc (F1 : functor A B) (F2 : functor B C) (F3 : functor C D) :
+  nat_trans (functor_composite (functor_composite F1 F2) F3)
+            (functor_composite F1 (functor_composite F2 F3)).
+Proof.
+exists (λ x, identity _).
+abstract (now intros a b f; rewrite id_right, id_left).
+Defined.
+
+Definition nat_trans_functor_assoc_inv (F1 : functor A B) (F2 : functor B C) (F3 : functor C D) :
+  nat_trans (functor_composite F1 (functor_composite F2 F3))
+            (functor_composite (functor_composite F1 F2) F3) :=
+    nat_trans_functor_assoc F1 F2 F3.
+
+End nat_trans_functor.
