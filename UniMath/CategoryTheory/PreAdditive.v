@@ -18,7 +18,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.PrecategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -756,9 +756,9 @@ Section preadditive_quotient.
   (** ** Quotient precategory of PreAdditive is PreAdditive *)
 
   Opaque isbinopeqrel_subgr_eqrel isabgrquot.
-  Definition QuotPrecategory_binops : PrecategoryWithBinOps.
+  Definition QuotPrecategory_binops : precategoryWithBinOps.
   Proof.
-    use mk_PrecategoryWithBinOps.
+    use mk_precategoryWithBinOps.
     - exact QuotPrecategory.
     - intros x y. exact (@op (subabgr_quot (PAS x y))).
   Defined.

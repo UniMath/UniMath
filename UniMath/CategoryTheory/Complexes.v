@@ -45,7 +45,7 @@ Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.functor_categories.
 
-Require Import UniMath.CategoryTheory.PrecategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
@@ -1101,9 +1101,9 @@ Section complexes_additive.
 
   Variable A : Additive.
 
-  Definition ComplexPreCat_PrecategoryWithBinOps : PrecategoryWithBinOps.
+  Definition ComplexPreCat_precategoryWithBinOps : precategoryWithBinOps.
   Proof.
-    use mk_PrecategoryWithBinOps.
+    use mk_precategoryWithBinOps.
     - exact (ComplexPreCat A).
     - intros x y. exact (MorphismOp A).
   Defined.
@@ -1111,7 +1111,7 @@ Section complexes_additive.
   Definition ComplexPreCat_PrecategoryWithAbgrops : PrecategoryWithAbgrops.
   Proof.
     use mk_PrecategoryWithAbgrops.
-    - exact ComplexPreCat_PrecategoryWithBinOps.
+    - exact ComplexPreCat_precategoryWithBinOps.
     - exact (has_homsets_ComplexPreCat A).
     - intros x y. exact (MorphismOp_isabgrop A x y).
   Defined.
@@ -2409,7 +2409,7 @@ to the complex
 More precicely, on objects # X^i ↦ X^{i+1} # $ X^i ↦ X^{i+1} $ and differentials
 # d^i_X ↦ -d^{i+1}_X # $ d^i_X ↦ -d^{i+1}_X $. A morphism f : X -> Y is mapped by
 # f^i ↦ f^{i+1} # $ f^i ↦ f^{i+1} $. We also construct the inverse translation T^{-1} which is the
-unique functor such that T ∘ T^{-1} = id and T^{-1} ∘ T = id (This is has not been proven yet!).
+unique functor such that T ∘ T^{-1} = id and T^{-1} ∘ T = id (This has not been proven yet!).
 All the functors T, T^{-1}, and T' are additive.
 
 The functor T : C(A) -> C(A) is constructed in [TranslationFunctor]. It is shown to be additive in

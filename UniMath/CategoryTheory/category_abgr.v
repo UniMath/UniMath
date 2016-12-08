@@ -38,7 +38,7 @@ Require Import UniMath.CategoryTheory.HLevel_n_is_of_hlevel_Sn.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 
-Require Import UniMath.CategoryTheory.PrecategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
@@ -550,14 +550,14 @@ Section ABGR_preadditive.
     - apply proofirrelevance. apply isapropismonoidfun.
   Qed.
 
-  (** ABGR is PrecategoryWithBinOps. *)
-  Definition ABGR_WithBinOpsData : PrecategoryWithBinOpsData ABGR.
+  (** ABGR is precategoryWithBinOps. *)
+  Definition ABGR_WithBinOpsData : precategoryWithBinOpsData ABGR.
   Proof.
     intros X Y.
     exact (ABGR_hombinop X Y).
   Defined.
 
-  Definition ABGR_WithBinOps : PrecategoryWithBinOps := tpair _ ABGR ABGR_WithBinOpsData.
+  Definition ABGR_WithBinOps : precategoryWithBinOps := tpair _ ABGR ABGR_WithBinOpsData.
 
   (** ABGR is PrecategoryWithAbgrops. *)
   Definition ABGR_WithAbGrops : PrecategoryWithAbgrops.

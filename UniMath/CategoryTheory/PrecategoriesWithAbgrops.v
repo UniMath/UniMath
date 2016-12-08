@@ -10,23 +10,23 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
-Require Import UniMath.CategoryTheory.PrecategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
 
 
 Section def_precategory_with_abgrops.
 
   (** Definition of precategories such that homsets are abgrops. *)
-  Definition PrecategoryWithAbgropsData (PB : PrecategoryWithBinOps) (hs : has_homsets PB) : UU :=
+  Definition PrecategoryWithAbgropsData (PB : precategoryWithBinOps) (hs : has_homsets PB) : UU :=
     Π (x y : PB), @isabgrop (hSetpair (PB⟦x,y⟧) (hs x y)) (to_binop x y).
 
   Definition PrecategoryWithAbgrops : UU :=
-    Σ PA : (Σ PB : PrecategoryWithBinOps, has_homsets PB),
+    Σ PA : (Σ PB : precategoryWithBinOps, has_homsets PB),
            PrecategoryWithAbgropsData (pr1 PA) (pr2 PA).
 
-  Definition PrecategoryWithAbgrops_PrecategoryWithBinOps (PB : PrecategoryWithAbgrops) :
-    PrecategoryWithBinOps := pr1 (pr1 PB).
-  Coercion PrecategoryWithAbgrops_PrecategoryWithBinOps :
-    PrecategoryWithAbgrops >-> PrecategoryWithBinOps.
+  Definition PrecategoryWithAbgrops_precategoryWithBinOps (PB : PrecategoryWithAbgrops) :
+    precategoryWithBinOps := pr1 (pr1 PB).
+  Coercion PrecategoryWithAbgrops_precategoryWithBinOps :
+    PrecategoryWithAbgrops >-> precategoryWithBinOps.
 
   (* Precategory with abgrops to Precategory *)
   Definition PrecategoryWithAbgrops_Precategory (PWA : PrecategoryWithAbgrops) : Precategory.
@@ -37,7 +37,7 @@ Section def_precategory_with_abgrops.
   Defined.
   Coercion PrecategoryWithAbgrops_Precategory : PrecategoryWithAbgrops >-> Precategory.
 
-  Definition mk_PrecategoryWithAbgrops (PB : PrecategoryWithBinOps) (hs : has_homsets PB)
+  Definition mk_PrecategoryWithAbgrops (PB : precategoryWithBinOps) (hs : has_homsets PB)
              (H : PrecategoryWithAbgropsData PB hs) : PrecategoryWithAbgrops.
   Proof.
     exact (tpair _ (tpair _ PB hs) H).

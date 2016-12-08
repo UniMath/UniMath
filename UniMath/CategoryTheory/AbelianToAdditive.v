@@ -14,9 +14,6 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.PrecategoriesWithBinOps.
-Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
-Require Import UniMath.CategoryTheory.PreAdditive.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -31,7 +28,7 @@ Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.PrecategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
@@ -342,10 +339,10 @@ Section abelian_is_additive.
     (fun f : _ => fun g : _ => Abelian_minus_op f (Abelian_minus_op (ZeroArrow to_Zero _ _) g)).
 
   (** Construction of a precategory with binops from Abelian category. *)
-  Definition AbelianToPrecategoryWithBinops : PrecategoryWithBinOps.
+  Definition AbelianToprecategoryWithBinops : precategoryWithBinOps.
   Proof.
-    use (mk_PrecategoryWithBinOps A).
-    unfold PrecategoryWithBinOpsData.
+    use (mk_precategoryWithBinOps A).
+    unfold precategoryWithBinOpsData.
     intros x y. exact (Abelian_op x y).
   Defined.
 
@@ -721,7 +718,7 @@ Section abelian_is_additive.
   Qed.
 
   Definition AbelianToPrecategoryWithAbgropsData :
-    PrecategoryWithAbgropsData AbelianToPrecategoryWithBinops hs.
+    PrecategoryWithAbgropsData AbelianToprecategoryWithBinops hs.
   Proof.
     unfold PrecategoryWithAbgropsData.
     intros x y.
@@ -745,7 +742,7 @@ Section abelian_is_additive.
   (** We prove that Abelian_precategories are PrecategoriesWithAbgrops. *)
   Definition AbelianToPrecategoryWithAbgrops :
     PrecategoryWithAbgrops := mk_PrecategoryWithAbgrops
-                                AbelianToPrecategoryWithBinops  hs
+                                AbelianToprecategoryWithBinops  hs
                                 AbelianToPrecategoryWithAbgropsData.
 
   (** Hide isPreAdditive behind Qed. *)
