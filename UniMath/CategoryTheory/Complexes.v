@@ -1970,7 +1970,7 @@ Section transport_section'.
         (e1 : i = i') :
     H i' = transportb (fun (x : ob C) => C⟦x, f (i' + n)⟧) (maponpaths f (! e1))
                       (transportf (precategory_morphisms (f i))
-                                  (maponpaths f (hzplusladd i i' n e1)) (H i)).
+                                  (maponpaths f (hzplusradd i i' n e1)) (H i)).
   Proof.
     induction e1. apply idpath.
   Qed.
@@ -1978,7 +1978,7 @@ Section transport_section'.
   Lemma transport_mor_f_b (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧) (i i' : hz)
         (e1 : i = i') :
     H i' = transportf (precategory_morphisms (f i'))
-                      (maponpaths f (hzplusladd i i' n e1))
+                      (maponpaths f (hzplusradd i i' n e1))
                       (transportb (fun (x : ob C) => C⟦x, f (i + n)⟧) (maponpaths f (! e1)) (H i)).
   Proof.
     induction e1. apply idpath.
@@ -1986,7 +1986,7 @@ Section transport_section'.
 
   Lemma transport_section' (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧) (i i' : hz)
     (e1 : i = i') :
-    transportf (precategory_morphisms (f i)) (maponpaths f (hzplusladd i i' n e1)) (H i) =
+    transportf (precategory_morphisms (f i)) (maponpaths f (hzplusradd i i' n e1)) (H i) =
     transportb (fun (x : ob C) => C⟦x, f (i' + n)⟧) (maponpaths f e1) (H i').
   Proof.
     induction e1. apply idpath.
