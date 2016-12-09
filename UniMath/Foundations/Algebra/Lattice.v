@@ -824,17 +824,11 @@ Proof.
   apply iscomm_Lmax.
 Qed.
 
-Definition extruncminuswithgt {X : abmonoid} (is : latticewithgt X) :=
-  Σ (ex : extruncminus is), Π x y : X, Lgt is (truncminus ex x y) 0 → Lgt is x y.
-Definition extruncminuswithgt_extruncminus {X : abmonoid} (is : latticewithgt X) :
-  extruncminuswithgt is → extruncminus is := pr1.
-Coercion extruncminuswithgt_extruncminus : extruncminuswithgt >-> extruncminus.
-
 Section truncminus_gt.
 
 Context {X : abmonoid}
         (is : latticewithgt X)
-        (ex : extruncminuswithgt is)
+        (ex : extruncminus is)
         (is0 : Π x y z : X, Lgt is y z → Lgt is (y + x) (z + x))
         (is1 : Π x y z : X, Lgt is (y + x) (z + x) → Lgt is y z).
 
@@ -853,7 +847,18 @@ Qed.
 Lemma truncminus_pos' :
   Π x y : X, Lgt is (truncminus ex x y) 0 → Lgt is x y.
 Proof.
-  exact (pr2 ex).
+  intros x y Hgt.
+  apply (is0 y) in Hgt.
+  rewrite istruncminus_ex, lunax in Hgt.
+  rewrite <- (Lmax_le_eq_l is x y).
+  exact Hgt.
+  apply notLgt_Lle.
+  intros H ; revert Hgt.
+  apply Lle_notLgt.
+  rewrite Lmax_le_eq_r.
+  apply isrefl_Lle.
+  apply Lgt_Lge.
+  exact H.
 Qed.
 
 End truncminus_gt.
