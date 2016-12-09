@@ -9,55 +9,68 @@ Report on the formalization and some additional results are given in
 
 Ahrens & Matthes, [Heterogeneous substitution systems revisited](http://arxiv.org/abs/1601.04299)
 
+Much more on signatures (binding signatures and signatures with strength) and effective constructions of initial algebras and fortiori heterogeneous substitution systems and monads is described in
+
+Ahrens, Matthes & Mörtberg, [From signatures to monads in UniMath](https://arxiv.org/abs/1612.00693)
+
 # Contents (alphabetic order of files)
 
-* *BinProductOfSignatures.v* --- in particular infers strength for the product and proves omega-cocontinuity 
-* *BinSumOfSignatures.v* --- same with sums instead of products (needed to model finitely many constructors)
+* *BindingSigToMonad.v*
+  * defines the notion of binding signature which captures a decidable set of constructors with finitely many binders in their finitely many arguments - this is a purely syntactic definition
+  * signatures with strength are derived
+  * get an initial algebra interpreting the binding signature and get the associated initial heterogeneous substitution system and monad
+* *BinProductOfSignatures.v* --- in particular infers strength for the binary product and proves omega-cocontinuity 
+* *BinSumOfSignatures.v* --- same with binary sums instead of binary products (needed to model finitely many constructors)
+* *FromBindingSigsToMonads_Summary.v* --- provides a stable interface to
+  the formalization described in the paper by Ahrens, Matthes & Mörtberg (with the correspondence to the numbering of the
+  definitions, lemmas and theorems)
 * *GenMendlerIteration.v*
   * assumes an initial algebra
   * Derivation of Generalized Mendler Iteration
   * Instantiation to a special case, Specialized Mendler Iteration
   * Proof of a fusion law à la Bird-Paterson (Generalised folds for nested datatypes) for Generalized Mendler Iteration
-* *GenSigToMonad.v*
-  * defines the notion of "general signature" which captures a decidable set of constructors with finitely many binders in their finitely many arguments - this is a purely syntactic definition
-  * signatures in the sense of this package are derived
-  * a lot of material also from CategoryTheory is employed to get an initial algebra interpreting the general signature and getting the associated initial heterogeneous substitution system and monad
-* *LamFromGenSig.v* --- signature of lambda calculus obtained from general constructions starting from a "general signatures" (a variation on the development in LamFromSig.v)
-* *LamFromSig.v*
+* *GenMendlerIteration_alt.v* --- a variant of GenMendlerIteration.v that differs in the hypotheses: here we use
+  ω-cocontinuity instead of Kan extensions (also based on the paper by Bird & Paterson)
+* *LamFromBindingSig.v*
   * signature of lambda calculus obtained from general constructions
-  * equational laws for catamorphisms/folds on lamba calculus
-* *LamHSET.v* --- instantiates the main result of LiftingInitial.v for Lam in the category HSET and obtains an initial heterogeneous substitution system and a monad
+  * equational laws for catamorphisms/folds on lambda calculus
+  * obtain substitution monad on Set
+* *LamHSET.v* --- instantiates the main result of LiftingInitial_alt.v for Lam in the category HSET and obtains an
+  initial heterogeneous substitution system and a monad
 * *LamSignature.v*
   * "Manual" definition of the arities of the constructors of lambda calculus
   * "Manual" definition of the signatures of lambda calculus and lambda calculus with explicit flattening
-  * omega-cocontinuity only for lambda calculus established by reference to general results, no such result for lambda calculus with explicit flattening
+  * ω-cocontinuity only for lambda calculus established by reference to general results, no such result for lambda
+    calculus with explicit flattening
 * *Lam.v*
-  * Specification of an initial morphism of substitution systems from lambda calculus with explicit flattening to lambda calculus
+  * Specification of an initial morphism of substitution systems from lambda calculus with explicit flattening to
+    lambda calculus
   * the bracket property still has a very long monolithic proof
 * *LiftingInitial.v*
   * Construction of a substitution system from an initial algebra 
   * Proof that the substitution system constructed from an initial algebra is an initial substitution system
-* *MLTT79.v* --- the syntax of Martin-Löf's type theory in the style of LamFromGenSig.v
+* *LiftingInitial_alt.v* --- a variant of LiftingInitial.v that differs in the hypotheses: here we use ω-cocontinuity
+  instead of Kan extensions (this means we use GenMendlerIteration_alt.v instead of GenMendlerIteration.v
+* *MLTT79.v* --- the syntax of Martin-Löf's type theory in the style of LamHSET.v
 * *MonadsFromSubstitutionSystems.v*
   * Construction of a monad from a substitution system
   * Proof that morphism of hss gives morphism of monads
   * Bundling that into a functor
   * Proof that the functor is faithful
 * *Notation.v* --- notation that is used in this package but that is not specific to the topic of the package
+* *SignatureCategory.v*
+  * organize signatures with strength into a category as described in the paper by Ahrens, Matthes & Mörtberg
+  * identify coproducts and binary products
 * *SignatureExamples.v*
-   * provides a general construction of θ in a signature in the case when the functor is precomposition with a functor G by starting with a family of simpler
-   distributive laws δ
+   * provides a general construction of θ in a signature in the case when the functor is precomposition with a
+     functor G by starting with a family of simpler distributive laws δ
    * multiplication of distributive laws δ
    * distributive laws δ for option and iterations of a functor
 * *Signatures.v*
-  * Definition of signatures
+  * Definition of signatures with strength
   * Proof that two forms of strength laws are equivalent
-* *SigToMonad.v*
-  * based on syntactic notion of signature that underlies LamFromSig.v
-  * puts together all the needed semantic signature lemmas over HSET as base category, instantiates main results for obtaining a monad 
 * *SubstitutionSystems_Summary.v* --- provides a stable interface to
-  the formalization of heterogeneous substitution systems as
-  defined by Matthes and Uustalu
+  the formalization of heterogeneous substitution systems as described in the paper by Ahrens & Matthes
 * *SubstitutionSystems.v*
   * Definition of heterogeneous substitution systems
   * Various lemmas about the substitution ("bracket") operation
