@@ -84,6 +84,8 @@ Definition BindingSigToSignature :
   → Π sig : BindingSig, Coproducts (BindingSigIndex sig) C → Signature C hsC :=
     @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
 
+(** Definition 10 and Lemma 11 and 12: see UniMath/SubstitutionSystems/SignatureExamples.v *)
+
 (** Definition 15: Graph *)
 Definition graph : UU := @UniMath.CategoryTheory.limits.graphs.colimits.graph.
 
@@ -347,13 +349,22 @@ exact @UniMath.SubstitutionSystems.BindingSigToMonad.SignatureInitialAlgebra.
 Defined.
 
 (** Theorem 48: Construction of a substitution operation on an initial algebra *)
-Definition InitialHSS :
+Definition InitHSS :
   Π (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C),
   BinProducts C → Initial C → Colims_of_shape nat_graph C →
-  Π H : Signature C hsC, is_omega_cocont (pr1 H) →
-  Initial (hss_precategory CP H).
+  Π H : Signature C hsC, is_omega_cocont (pr1 H) → hss_precategory CP H.
 Proof.
-exact @UniMath.SubstitutionSystems.LiftingInitial_alt.InitialHSS.
+exact @UniMath.SubstitutionSystems.LiftingInitial_alt.InitHSS.
+Defined.
+
+Lemma isInitial_InitHSS :
+  Π (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C)
+  (BPC : BinProducts C) (IC : Initial C)
+  (CC : Colims_of_shape nat_graph C) (H : Signature C hsC)
+  (HH : is_omega_cocont (pr1 H)),
+  isInitial (hss_precategory CP H) (InitHSS C hsC CP BPC IC CC H HH).
+Proof.
+exact @UniMath.SubstitutionSystems.LiftingInitial_alt.isInitial_InitHSS.
 Defined.
 
 (** Section 4.2: Binding signatures to monads *)
