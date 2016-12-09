@@ -306,12 +306,13 @@ Defined.
 (* see: UniMath/CategoryTheory/Inductives/Lists.v *)
 
 (** Theorem 42: Precomposition functor preserves colimits *)
-Lemma is_cocont_pre_composition_functor :
-  Π (A B C : precategory) (F : functor A B) (hsB : has_homsets B) (hsC : has_homsets C),
-  (Π (g : graph) (d : diagram g [B, C, hsC]) (b : B), ColimCocone (diagram_pointwise hsC d b))
-  → is_cocont (pre_composition_functor A B C hsB hsC F).
+Lemma preserves_colimit_pre_composition_functor :
+  Π (A B C : precategory) (F : functor A B) (hsB : has_homsets B) (hsC : has_homsets C)
+    (g : graph) (d : diagram g [B, C, hsC]) (G : [B, C, hsC]) (ccG : cocone d G),
+    (Π b : B, ColimCocone (diagram_pointwise hsC d b))
+  → preserves_colimit (pre_composition_functor A B C hsB hsC F) d G ccG.
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_cocont_pre_composition_functor.
+exact @UniMath.CategoryTheory.CocontFunctors.preserves_colimit_pre_composition_functor.
 Defined.
 
 Lemma is_omega_cocont_pre_composition_functor :
