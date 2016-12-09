@@ -43,7 +43,7 @@ This file also contains proofs that the following functors are (omega-)cocontinu
 - Product of functors: F * G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x * G x
   [is_omega_cocont_BinProduct_of_functors_alt] [is_omega_cocont_BinProduct_of_functors]
 - Precomposition functor: _ o K : ⟦C,A⟧ -> ⟦M,A⟧ for K : M -> C
-  [is_cocont_pre_composition_functor] [is_omega_cocont_pre_composition_functor]
+  [preserves_colimit_pre_composition_functor] [is_omega_cocont_pre_composition_functor]
 - Swapping of functor category arguments:
   [is_cocont_functor_cat_swap] [is_omega_cocont_functor_cat_swap]
 
@@ -529,7 +529,7 @@ Section functor_identity.
 
 Context {C : precategory} (hsC : has_homsets C).
 
-Lemma preserves_colimit_identity{g : graph} (d : diagram g C) (L : C)
+Lemma preserves_colimit_identity {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : preserves_colimit (functor_identity C) d L cc.
 Proof.
 intros HcL y ccy; simpl.
@@ -1517,30 +1517,32 @@ Section pre_composition_functor.
 Context {A B C : precategory} (F : functor A B) (hsB : has_homsets B) (hsC : has_homsets C).
 (* Context (CC : Colims C). *) (* This is too strong *)
 
-Lemma is_cocont_pre_composition_functor
-  (H : Π (g : graph) (d : diagram g [B,C,hsC]) (b : B),
-       ColimCocone (diagram_pointwise hsC d b)) :
-  is_cocont (pre_composition_functor _ _ _ hsB hsC F).
+Lemma preserves_colimit_pre_composition_functor {g : graph}
+  (d : diagram g [B,C,hsC]) (G : [B,C,hsC])
+  (ccG : cocone d G) (H : Π b, ColimCocone (diagram_pointwise hsC d b)) :
+  preserves_colimit (pre_composition_functor A B C hsB hsC F) d G ccG.
 Proof.
-intros g d G ccG HccG.
+intros HccG.
 apply pointwise_Colim_is_isColimFunctor; intro a.
-apply (isColimFunctor_is_pointwise_Colim _ _ (H g d) _ _ HccG).
+now apply (isColimFunctor_is_pointwise_Colim _ _ H _ _ HccG).
 Defined.
 
-(* Which assumption is the best? *)
+(* Lemma is_cocont_pre_composition_functor *)
+(*   (H : Π (g : graph) (d : diagram g [B,C,hsC]) (b : B), *)
+(*        ColimCocone (diagram_pointwise hsC d b)) : *)
+(*   is_cocont (pre_composition_functor _ _ _ hsB hsC F). *)
+(* Proof. *)
+(* now intros g d G ccG; apply preserves_colimit_pre_composition_functor. *)
+(* Defined. *)
+
 Lemma is_omega_cocont_pre_composition_functor
-  (* (H : Π (c : chain [B,C,hsC]) (b : B), ColimCocone (diagram_pointwise hsC c b)) : *)
   (H : Colims_of_shape nat_graph C) :
   is_omega_cocont (pre_composition_functor _ _ _ hsB hsC F).
 Proof.
-intros c L ccL HccL.
-apply pointwise_Colim_is_isColimFunctor; intro a.
-use (isColimFunctor_is_pointwise_Colim _ _ _ _ _ HccL).
-intros b; apply H.
+now intros c L ccL; apply preserves_colimit_pre_composition_functor.
 Defined.
 
 Definition omega_cocont_pre_composition_functor
-  (* (H : Π (c : chain [B,C,hsC]) (b : B), ColimCocone (diagram_pointwise hsC c b))  *)
   (H : Colims_of_shape nat_graph C) :
   omega_cocont_functor [B, C, hsC] [A, C, hsC] :=
   tpair _ _ (is_omega_cocont_pre_composition_functor H).
