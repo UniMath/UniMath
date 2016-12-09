@@ -22,7 +22,7 @@ Lattice with a total and decidable order :
 - le is total and decidable
 - it is a lattice with a strong order *)
 
-Require Export UniMath.Foundations.Algebra.BinaryOperations.
+Require Export UniMath.Foundations.Algebra.Monoids_and_Groups.
 
 Unset Automatic Introduction.
 
@@ -560,3 +560,267 @@ Proof.
 Defined.
 
 End islatticedec_gt.
+
+(** ** Lattice in an abmonoid *)
+
+Local Open Scope addmonoid.
+
+Section lattice_abmonoid.
+
+Context {X : abmonoid}
+        (is : islattice X)
+        (is0 : Π x y z : X, y + x = z + x → y = z)
+        (is1 : isrdistr (Lmax is) op)
+        (is2 : isrdistr (Lmin is) op)
+        (is3 : isrdistr (Lmin is) (Lmax is)).
+
+Lemma op_le_r :
+  Π k x y : X, Lle is x y → Lle is (x + k) (y + k).
+Proof.
+  intros k x y H.
+  unfold Lle ; simpl.
+  now rewrite <- is2, H.
+Qed.
+Lemma op_le_r' :
+  Π k x y : X, Lle is (x + k) (y + k) → Lle is x y.
+Proof.
+  intros k x y H.
+  apply (is0 k).
+  now rewrite is2, H.
+Qed.
+
+End lattice_abmonoid.
+
+(** ** Truncated minus *)
+
+Definition istruncminus {X : abmonoid} (is : islattice X) (minus : binop X) :=
+  Π x y : X, minus x y + y = Lmax is x y.
+
+Definition extruncminus {X : abmonoid} (is : islattice X) :=
+  Σ minus : binop X, istruncminus is minus.
+
+Definition truncminus {X : abmonoid} {is : islattice X} (ex : extruncminus is) : binop X :=
+  pr1 ex.
+
+Lemma istruncminus_ex {X : abmonoid} {is : islattice X} (ex : extruncminus is) :
+  Π x y : X, truncminus ex x y + y = Lmax is x y.
+Proof.
+  intros X is ex.
+  apply (pr2 ex).
+Qed.
+
+Section truncminus_pty.
+
+Context {X : abmonoid}
+        {is : islattice X}
+        (ex : extruncminus is)
+        (is1 : Π x y z : X, y + x = z + x → y = z)
+        (is2 : isrdistr (Lmax is) op)
+        (is3 : isrdistr (Lmin is) op)
+        (is4 : isrdistr (Lmin is) (Lmax is))
+        (is5 : isrdistr (Lmax is) (Lmin is)).
+
+Lemma truncminus_0_r :
+  Π x : X, truncminus ex x 0 = Lmax is x 0.
+Proof.
+  intros x.
+  rewrite <- (runax _ (truncminus _ _ _)).
+  apply (istruncminus_ex).
+Qed.
+
+Lemma truncminus_eq_0 :
+  Π x y : X, Lle is x y → truncminus ex x y = 0.
+Proof.
+  intros x y H.
+  apply (is1 y).
+  rewrite istruncminus_ex, lunax.
+  apply Lmax_le_eq_r, H.
+Qed.
+
+Lemma truncminus_0_l_ge0 :
+  Π x : X, Lle is 0 x → truncminus ex 0 x = 0.
+Proof.
+  intros x Hx.
+  apply truncminus_eq_0, Hx.
+Qed.
+Lemma truncminus_0_l_le0 :
+  Π x : X, Lle is x 0 → truncminus ex 0 x + x = 0.
+Proof.
+  intros x Hx.
+  rewrite istruncminus_ex.
+  apply Lmax_le_eq_l, Hx.
+Qed.
+
+Lemma truncminus_ge_0 :
+  Π x y : X, Lle is 0 (truncminus ex x y).
+Proof.
+  intros x y.
+  apply (op_le_r' _ is1 is3 y).
+  rewrite istruncminus_ex, lunax.
+  apply Lmax_ge_r.
+Qed.
+
+Lemma truncminus_le :
+  Π x y : X,
+          Lle is 0 x → Lle is 0 y
+          → Lle is (truncminus ex x y) x.
+Proof.
+  intros x y Hx Hy.
+  apply (op_le_r' _ is1 is3 y).
+  rewrite istruncminus_ex.
+  apply Lmax_le_case.
+  - apply is5.
+  - apply istrans_Lle with (0 + x).
+    + rewrite (lunax _ x).
+      apply isrefl_Lle.
+    + rewrite (commax _ x).
+      now apply op_le_r.
+  - apply istrans_Lle with (0 + y).
+    + rewrite (lunax _ y).
+      apply isrefl_Lle.
+    + now apply op_le_r.
+Qed.
+
+Lemma truncminus_truncminus :
+  Π x y, Lle is 0 x → Lle is x y → truncminus ex y (truncminus ex y x) = x.
+Proof.
+  intros x y Hx Hxy.
+  apply (is1 (truncminus ex y x)).
+  rewrite (commax _ x), !istruncminus_ex.
+  rewrite !Lmax_le_eq_l.
+  - reflexivity.
+  - exact Hxy.
+  - apply truncminus_le.
+    apply istrans_Lle with x.
+    exact Hx.
+    exact Hxy.
+    exact Hx.
+Qed.
+
+Lemma truncminus_le_r :
+  Π k x y : X, Lle is x y → Lle is (truncminus ex x k) (truncminus ex y k).
+Proof.
+  intros k x y <-.
+  apply (is1 k).
+  rewrite is3, !istruncminus_ex.
+  rewrite is4, isassoc_Lmin, Lmin_id.
+  reflexivity.
+Qed.
+Lemma truncminus_le_l :
+  Π k x y : X, Lle is y x → Lle is (truncminus ex k x) (truncminus ex k y).
+Proof.
+  intros k x y H.
+  apply (is1 y).
+  rewrite is3, istruncminus_ex.
+  apply (is1 x).
+  rewrite is3, assocax, (commax _ y), <- assocax, istruncminus_ex.
+  rewrite !is2, (commax _ y), <- is4, !(commax _ k), <- is3, H.
+  reflexivity.
+Qed.
+
+Lemma truncminus_Lmax_l :
+  Π (k x y : X),
+  truncminus ex (Lmax is x y) k = Lmax is (truncminus ex x k) (truncminus ex y k).
+Proof.
+  intros k x y.
+  apply (is1 k).
+  rewrite is2, !istruncminus_ex.
+  rewrite !isassoc_Lmax, (iscomm_Lmax _ k), isassoc_Lmax, Lmax_id.
+  reflexivity.
+Qed.
+Lemma truncminus_Lmax_r :
+  Π (k x y : X),
+  Lle is (Lmin is (y + y) (x + x)) (x + y) →
+  truncminus ex k (Lmax is x y) = Lmin is (truncminus ex k x) (truncminus ex k y).
+Proof.
+  intros k x y H.
+  apply (is1 (Lmax is x y)).
+  rewrite is3, istruncminus_ex.
+  rewrite !(commax _ _ (Lmax _ _ _)), !is2.
+  rewrite !(commax _ _ (truncminus _ _ _)), !istruncminus_ex.
+  rewrite (iscomm_Lmax _ (_*_)%multmonoid (Lmax _ _ _)).
+  rewrite !isassoc_Lmax, !(iscomm_Lmax _ k).
+  rewrite <- is4.
+
+  apply (is1 x).
+  rewrite !is2, is3, !is2.
+  rewrite assocax, (commax _ y x), <- assocax.
+  rewrite istruncminus_ex, is2.
+
+  apply (is1 y).
+  rewrite !is2, is3, !is2.
+  rewrite !assocax, (commax _ (truncminus _ _ _)), !assocax, (commax _ _ (truncminus _ _ _)).
+  rewrite istruncminus_ex.
+  rewrite (commax _ _ (Lmax _ _ _)), is2.
+  rewrite (commax _ _ (Lmax _ _ _)), is2.
+
+  rewrite 4!(commax _ _ x).
+  rewrite <- (isassoc_Lmax _ _ _ (x * (y * y))%multmonoid).
+  rewrite (iscomm_Lmax _ (x * (y * y))%multmonoid (Lmax _ _ _)).
+
+  rewrite <- is4.
+  rewrite (iscomm_Lmax _ (x * (x * y))%multmonoid (k * (y * y))%multmonoid), <- is4.
+  rewrite !(commax _ k), <- !assocax.
+  rewrite <- is3.
+  rewrite !(iscomm_Lmax _ _ (x * y * k)%multmonoid), <- !isassoc_Lmax.
+  rewrite (Lmax_le_eq_l _ (x * y * k)%multmonoid
+                     (Lmin is (y * y) (x * x) * k)%multmonoid).
+  reflexivity.
+  apply op_le_r.
+  exact is3.
+  exact H.
+Qed.
+
+Lemma truncminus_Lmin_l :
+  Π k x y : X, truncminus ex (Lmin is x y) k = Lmin is (truncminus ex x k) (truncminus ex y k).
+Proof.
+  intros k x y.
+  apply (is1 k).
+  rewrite is3, !istruncminus_ex.
+  apply is4.
+Qed.
+
+End truncminus_pty.
+
+Lemma abgr_truncminus {X : abgr} (is : islattice X) :
+  isrdistr (Lmax is) op →
+  istruncminus (X := abgrtoabmonoid X) is (λ x y : X, Lmax is 0 (x + grinv X y)).
+Proof.
+  intros X is H x y.
+  rewrite H, assocax, grlinvax, lunax, runax.
+  apply iscomm_Lmax.
+Qed.
+
+Definition extruncminuswithgt {X : abmonoid} (is : islatticewithgt X) :=
+  Σ (ex : extruncminus is), Π x y : X, Lgt is (truncminus ex x y) 0 → Lgt is x y.
+Definition extruncminuswithgt_extruncminus {X : abmonoid} (is : islatticewithgt X) :
+  extruncminuswithgt is → extruncminus is := pr1.
+Coercion extruncminuswithgt_extruncminus : extruncminuswithgt >-> extruncminus.
+
+Section truncminus_gt.
+
+Context {X : abmonoid}
+        (is : islatticewithgt X)
+        (ex : extruncminuswithgt is)
+        (is0 : Π x y z : X, Lgt is y z → Lgt is (y + x) (z + x))
+        (is1 : Π x y z : X, Lgt is (y + x) (z + x) → Lgt is y z).
+
+Lemma truncminus_pos :
+  Π x y : X, Lgt is x y → Lgt is (truncminus ex x y) 0.
+Proof.
+  intros x y.
+  intros H.
+  apply (is1 y).
+  rewrite lunax, istruncminus_ex.
+  rewrite Lmax_le_eq_l.
+  exact H.
+  apply Lgt_Lge, H.
+Qed.
+
+Lemma truncminus_pos' :
+  Π x y : X, Lgt is (truncminus ex x y) 0 → Lgt is x y.
+Proof.
+  exact (pr2 ex).
+Qed.
+
+End truncminus_gt.
