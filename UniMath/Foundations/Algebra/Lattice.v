@@ -628,9 +628,39 @@ End lattice_abmonoid.
 
 Definition istruncminus {X : abmonoid} (is : lattice X) (minus : binop X) :=
   Π x y : X, minus x y + y = Lmax is x y.
+Lemma isaprop_istruncminus {X : abmonoid} (is : lattice X) (minus : binop X) :
+  isaprop (istruncminus is minus).
+Proof.
+  intros X is minus.
+  apply impred_isaprop ; intros x.
+  apply impred_isaprop ; intros y.
+  apply (pr2 (pr1 (pr1 X))).
+Qed.
 
 Definition extruncminus {X : abmonoid} (is : lattice X) :=
   Σ minus : binop X, istruncminus is minus.
+Lemma isaprop_extruncminus {X : abmonoid} (is : lattice X)
+      (Hop : Π x y z : X, y + x = z + x → y = z) :
+  isaprop (extruncminus is).
+Proof.
+  intros X is Hop.
+  intros minus1 minus2 ; simpl.
+  rewrite (subtypeEquality' (s := minus1) (s' := minus2)).
+  - apply iscontrloopsifisaset.
+    apply isaset_total2.
+    apply impred_isaset ; intros _.
+    apply impred_isaset ; intros _.
+    apply (pr2 (pr1 (pr1 X))).
+    intros minus.
+    apply isasetaprop.
+    apply isaprop_istruncminus.
+  - apply weqfunextsec ; intros x.
+    apply weqfunextsec ; intros y.
+    apply (Hop y).
+    rewrite (pr2 minus1).
+    apply pathsinv0, (pr2 minus2).
+  - apply isaprop_istruncminus.
+Qed.
 
 Definition truncminus {X : abmonoid} {is : lattice X} (ex : extruncminus is) : binop X :=
   pr1 ex.
