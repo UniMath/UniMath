@@ -85,6 +85,70 @@ Proof.
   apply hs.
 Qed.
 
+(** The following definition is taken as an axiom. It should be provable in cubicaltt, where
+    funextfun is provable. *)
+Definition transportf_funextfun {X Y : UU} (P : Y -> UU) (F F' : X -> Y)
+           (H : Π (x : X), F x = F' x) (x : X) (f : P (F x)) :
+  transportf (λ x0 : X → Y, P (x0 x)) (funextfun F F' (λ x0 : X, H x0)) f =
+  transportf (λ x0 : Y, P x0) (H x) f.
+Proof.
+Admitted.
+
+Definition transportb_mor_funextfun {X : UU} {C : precategory_ob_mor} (F F' : X -> ob C)
+           (H : Π (x : X), F x = F' x) {x : X} (c : ob C) (f : F x --> c) :
+  transportb (λ x0 : X → C, x0 x --> c) (! funextfun F F' (λ x0 : X, H x0)) f =
+  transportb (λ x0 : C, x0 --> c) (! (H x)) f.
+Proof.
+  unfold transportb. rewrite pathsinv0inv0. rewrite pathsinv0inv0.
+  exact (@transportf_funextfun X (ob C) (λ x0 : C, x0 --> c) F F' H x f).
+Qed.
+
+Definition transportf_mor_funextfun {X : UU} {C : precategory_ob_mor} (F F' : X -> ob C)
+           (H : Π (x : X), F x = F' x) {x : X} {c : ob C} (f : c --> F x)  :
+  transportf (λ x0 : X → C, c --> x0 x) (funextfun F F' (λ x0 : X, H x0)) f =
+  transportf (λ x0 : C, c --> x0) (H x) f.
+Proof.
+  use transportf_funextfun.
+Qed.
+
+Lemma transport_mor_funextfun {X : UU} {C : precategory_ob_mor} (F F' : X -> ob C)
+           (H : Π (x : X), F x = F' x) {x1 x2 : X} (f : F x1 --> F x2) :
+  transportf (λ x : X → C, x x1 --> x x2) (funextfun F F' (λ x : X, H x)) f =
+  transportf (λ x : X → C, F' x1 --> x x2)
+             (funextfun F F' (λ x : X, H x))
+             (transportb (λ x : X → C, x x1 --> F x2)
+                         (! (funextfun F F' (λ x : X, H x))) f).
+Proof.
+  induction (funextfun F F' (λ x : X, H x)).
+  apply idpath.
+Qed.
+
+Lemma functor_data_eq {C C' : precategory_ob_mor} (F F' : functor_data C C')
+      (H : Π (c : C), (pr1 F) c = (pr1 F') c)
+      (H1 : Π (C1 C2 : ob C) (f : C1 --> C2),
+            transportf (λ x : C', pr1 F' C1 --> x) (H C2)
+                       (transportb (λ x : C', x --> pr1 F C2) (! H C1) (pr2 F C1 C2 f)) =
+            pr2 F' C1 C2 f) : F = F'.
+Proof.
+  use total2_paths.
+  - use funextfun. intros c. exact (H c).
+  - use funextsec. intros C1. use funextsec. intros C2. use funextsec. intros f.
+    assert (e : transportf (λ x : C → C', Π a b : C, a --> b → x a --> x b)
+                           (funextfun (pr1 F) (pr1 F') (λ c : C, H c))
+                           (pr2 F) C1 C2 f =
+                transportf (λ x : C → C', x C1 --> x C2)
+                           (funextfun (pr1 F) (pr1 F') (λ c : C, H c))
+                           ((pr2 F) C1 C2 f)).
+    {
+      induction (funextfun (pr1 F) (pr1 F') (λ c : C, H c)).
+      apply idpath.
+    }
+    rewrite e. clear e.
+    rewrite transport_mor_funextfun.
+    rewrite transportb_mor_funextfun. rewrite transportf_mor_funextfun.
+    exact (H1 C1 C2 f).
+Qed.
+
 Definition functor_data_constr (C C' : precategory_ob_mor)
            (F : ob C -> ob C') (Fm : Π a b : ob C, a --> b -> F a --> F b) :
   functor_data C C' := tpair _ F Fm .

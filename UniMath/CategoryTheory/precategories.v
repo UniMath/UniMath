@@ -1300,3 +1300,13 @@ Proof.
   rewrite <- functtransportf. unfold pathsinv0. unfold paths_rect. induction e.
   apply idpath.
 Qed.
+
+Lemma transport_mor_f_b_comm {C : precategory} {x y x' y' : ob C} (f : x --> y) (e1 : x = x')
+      (e2 : y = y') :
+  transportf (precategory_morphisms x') e2
+             (transportb (fun (x'' : ob C) => precategory_morphisms x'' y) (! e1) f) =
+  transportb (fun (x'' : ob C) => precategory_morphisms x'' y') (! e1)
+             (transportf (precategory_morphisms x) e2 f).
+Proof.
+  induction e1. induction e2. apply idpath.
+Qed.
