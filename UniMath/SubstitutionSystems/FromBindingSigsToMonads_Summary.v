@@ -119,7 +119,7 @@ Defined.
 (** Definition 21: Preservation of colimits *)
 Definition preserves_colimit : Π {C D : precategory}, functor C D
   → Π {g : graph} (d : diagram g C) (L : C), cocone d L → UU :=
-    @UniMath.CategoryTheory.CocontFunctors.preserves_colimit.
+    @UniMath.CategoryTheory.limits.graphs.colimits.preserves_colimit.
 
 Definition is_cocont : Π {C D : precategory}, functor C D → UU :=
   @UniMath.CategoryTheory.CocontFunctors.is_cocont.

@@ -35,13 +35,10 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Section HomSetIso_from_Adjunction.
 
-Variables C D : precategory.
-Variable F : functor C D.
-Variable H : is_left_adjoint F.
+Context {C D : precategory} {F : functor C D} {G : functor D C} (H : are_adjoints F G).
 
-Let G := right_adjoint H.
-Let η := unit_from_left_adjoint H.
-Let ε := counit_from_left_adjoint H.
+Let η := unit_from_are_adjoints H.
+Let ε := counit_from_are_adjoints H.
 
 (** * Definition of the maps on hom-types *)
 
@@ -58,7 +55,7 @@ Lemma φ_adj_after_φ_adj_inv {A : C} {B : D} (g : A --> G B)
 Proof.
   unfold φ_adj.
   unfold φ_adj_inv.
-  assert (X':=triangle_id_right_ad _ _ _ H).
+  assert (X':=triangle_id_right_ad H).
   rewrite functor_comp.
   rewrite assoc.
   assert (X2 := nat_trans_ax η). simpl in X2.
