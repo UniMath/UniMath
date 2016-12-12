@@ -14,7 +14,8 @@ Contents:
 - Pullbacks ([PullbacksHSET])
 - Terminal object ([TerminalHSET])
 - Exponentials ([has_exponentials_HSET])
-- Construction of exponentials for functors into HSET ([has_exponentials_functor_HSET])
+- Construction of exponentials for functors into HSET
+  ([has_exponentials_functor_HSET])
 
 Written by: Benedikt Ahrens, Anders Mörtberg
 
@@ -42,6 +43,7 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.covyoneda.
+Require Import UniMath.CategoryTheory.slicecat.
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
@@ -695,3 +697,94 @@ use left_adjoint_from_partial.
 Qed.
 
 End exponentials_functor_cat.
+
+(** * Set is locally cartesian closed *)
+Section locally_CCC.
+
+Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
+
+Lemma Terminal_HSET_slice (X : HSET) : Terminal (HSET / X).
+Proof.
+now apply Terminal_slice_precat.
+Defined.
+
+Lemma BinProducts_HSET_slice (X : HSET) : BinProducts (HSET / X).
+Proof.
+now apply BinProducts_slice_precat, PullbacksHSET.
+Defined.
+
+Definition hfiber_HSET {X Y} (f : HSET⟦X,Y⟧) (y : pr1 Y) : HSET.
+Proof.
+mkpair.
++ apply (hfiber f y).
++ abstract (now apply isaset_hfiber; apply setproperty).
+Defined.
+
+Lemma has_exponentials_HSET_slice (X : HSET) : has_exponentials (BinProducts_HSET_slice X).
+Proof.
+intros f.
+mkpair.
+- mkpair.
+  + mkpair.
+    * intros g.
+      { mkpair.
+      - exists (Σ x, HSET⟦hfiber_HSET (pr2 f) x,hfiber_HSET (pr2 g) x⟧).
+        abstract (apply isaset_total2; [ apply setproperty | intros x; apply has_homsets_HSET ]).
+      - now apply pr1. }
+    * simpl; intros a b g.
+      { mkpair; simpl.
+      - intros h.
+        mkpair.
+        + apply (pr1 h).
+        + intros fx.
+          mkpair.
+          * apply (pr1 g), (pr1 (pr2 h fx)).
+          * abstract (etrans; [ apply (!toforallpaths _ _ _ (pr2 g) (pr1 (pr2 h fx)))|];
+                      apply (pr2 (pr2 h fx))).
+      - abstract (now apply funextsec).
+      }
+  + abstract (split;
+    [ intros x; apply (eq_mor_slicecat _ has_homsets_HSET); simpl;
+      apply funextsec; intro y; simpl;
+      destruct y as [y hy]; use total2_paths; [ apply idpath |];
+      apply funextsec; intros w; apply subtypeEquality; [|apply idpath];
+      now intros XX; apply setproperty
+    | intros x y z g h; apply (eq_mor_slicecat _ has_homsets_HSET); simpl;
+      apply funextsec; intro w; simpl;
+      destruct w as [w hw];
+      use total2_paths; [ apply idpath |];
+      apply funextsec; intros w'; apply subtypeEquality; [|apply idpath];
+      now intros XX; apply setproperty ]).
+- simpl.
+  mkpair.
+  + split.
+    * { mkpair.
+        - intros g.
+          cbn.
+          mkpair.
+          + simpl.
+            intros y.
+            mkpair.
+            * apply (pr2 g y).
+            * intros fgy.
+              mkpair.
+              exists (pr1 fgy,,y).
+              apply (pr2 fgy).
+              apply (pr2 fgy).
+          + now apply funextsec.
+        - intros g h w; apply (eq_mor_slicecat _ has_homsets_HSET); simpl.
+          apply funextsec; intro x.
+          use total2_paths; simpl.
+          apply (!toforallpaths _ _ _ (pr2 w) x).
+          apply funextsec; intros y.
+          apply subtypeEquality.
+          intros xx.
+          apply setproperty.
+          cbn.
+          admit.
+      }
+    * admit.
+  + admit.
+Admitted.
+
+End locally_CCC.
