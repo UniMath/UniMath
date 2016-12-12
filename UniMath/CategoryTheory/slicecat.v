@@ -17,7 +17,9 @@ Contents:
 - Colimits in slice categories ([slice_precat_colims])
 
 - Binary products in slice categories of categories with pullbacks
- ([BinProducts_slice_precat])
+  ([BinProducts_slice_precat])
+
+- Terminal object in slice categories ([Terminal_slice_precat])
 
 ************************************************************)
 
@@ -31,6 +33,7 @@ Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 (** * Definition of slice categories *)
@@ -479,3 +482,25 @@ use mk_BinProductCone.
 Defined.
 
 End slicecat_binproducts.
+
+Section slicecat_terminal.
+
+Context {C : precategory} (hsC : has_homsets C).
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Lemma Terminal_slice_precat (x : C) : Terminal (C / x).
+Proof.
+use mk_Terminal.
+- mkpair.
+  + apply x.
+  + apply (identity x).
+- intros y.
+  use unique_exists; simpl.
+  * apply (pr2 y).
+  * abstract (now rewrite id_right).
+  * abstract (now intros f; apply hsC).
+  * abstract (now intros f ->; rewrite id_right).
+Defined.
+
+End slicecat_terminal.
