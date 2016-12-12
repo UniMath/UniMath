@@ -699,7 +699,7 @@ transparent assert (HHH : (cocone cAB (pr1 ab,, x))).
 { use mk_cocone.
   - simpl; intro n; split;
       [ apply (# (pr1_functor A B) (pr1 ccab n)) | apply (pr1 ccx n) ].
-  - abstract (simpl; intros m n e; rewrite (paireta (dmor cAB e)); apply pathsdirprod;
+  - abstract (simpl; intros m n e; rewrite (tppr (dmor cAB e)); apply pathsdirprod;
                 [ apply (maponpaths pr1 (pr2 ccab m n e)) | apply (pr2 ccx m n e) ]).
  }
 destruct (Hccab _ HHH) as [[[x1 x2] p1] p2].
@@ -750,7 +750,7 @@ simpl in *.
 mkpair.
 - apply (tpair _ (f,,g)).
   abstract (intro n; unfold precatbinprodmor, compose; simpl;
-            now rewrite hf1, hg1, (paireta (coconeIn ccxy n))).
+            now rewrite hf1, hg1, (tppr (coconeIn ccxy n))).
 - abstract (intro t; apply subtypeEquality; simpl;
              [ intro x; apply impred; intro; apply isaset_dirprod; [ apply hsC | apply hsD ]
              | induction t as [[f1 f2] p]; simpl in *; apply pathsdirprod;

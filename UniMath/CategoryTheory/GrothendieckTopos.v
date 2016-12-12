@@ -32,10 +32,10 @@ Require Import UniMath.CategoryTheory.equivalences.
 Section HSET_Structures.
 
   Definition HSET_Pullbacks : @limits.pullbacks.Pullbacks HSET :=
-    equiv_Pullbacks_2 HSET has_homsets_HSET PullbacksHSET.
+    equiv_Pullbacks_2 HSET has_homsets_HSET PullbacksHSET_from_Lims.
 
   Definition HSET_Equalizers: @limits.equalizers.Equalizers HSET :=
-    equiv_Equalizers2 HSET has_homsets_HSET EqualizersHSET.
+    equiv_Equalizers2 HSET has_homsets_HSET EqualizersHSET_from_Lims.
 
 End HSET_Structures.
 

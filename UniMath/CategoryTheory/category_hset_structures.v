@@ -11,6 +11,7 @@ Contents:
 - Limits ([LimsHSET])
 - Binary products ([BinProductsHSET])
 - General indexed products ([ProductsHSET]
+- Pullbacks ([PullbacksHSET])
 - Terminal object ([TerminalHSET])
 - Exponentials ([has_exponentials_HSET])
 - Construction of exponentials for functors into HSET ([has_exponentials_functor_HSET])
@@ -189,7 +190,7 @@ End from_colim.
 
 Definition colimCoconeHSET : cocone D colimHSET.
 Proof.
-simple refine (mk_cocone _ _).
+use mk_cocone.
 - now apply injections.
 - abstract (intros u v e;
             apply funextfun; intros Fi; simpl;
@@ -238,14 +239,14 @@ Defined.
 Lemma BinCoproductsHSET : BinCoproducts HSET.
 Proof.
 intros A B.
-simple refine (mk_BinCoproductCocone _ _ _ _ _ _ _).
+use mk_BinCoproductCocone.
 - simpl in *; apply (tpair _ (coprod A B)).
   abstract (apply isasetcoprod; apply setproperty).
 - simpl in *; apply ii1.
 - simpl in *; intros x; apply (ii2 x).
 - apply (mk_isBinCoproductCocone _ has_homsets_HSET).
   intros C f g; simpl in *.
-  simple refine (tpair _ _ _).
+  mkpair.
   * apply (tpair _ (sumofmaps f g)); abstract (split; apply idpath).
   * abstract (intros h; apply subtypeEquality;
     [ intros x; apply isapropdirprod; apply has_homsets_HSET
@@ -255,10 +256,10 @@ simple refine (mk_BinCoproductCocone _ _ _ _ _ _ _).
                case x; intros; apply idpath]).
 Defined.
 
-Lemma Coproducts_HSET (I : UU) (HI : isaset I) : Coproducts I HSET.
+Lemma CoproductsHSET (I : UU) (HI : isaset I) : Coproducts I HSET.
 Proof.
 intros A.
-simple refine (mk_CoproductCocone _ _ _ _ _ _).
+use mk_CoproductCocone.
 - mkpair.
   + apply (Σ i, pr1 (A i)).
   + eapply (isaset_total2 _ HI); intro i; apply setproperty.
@@ -288,7 +289,7 @@ Lemma InitialHSET : Initial HSET.
 Proof.
 apply (mk_Initial emptyHSET).
 apply mk_isInitial; intro a.
-simple refine (tpair _ _ _).
+mkpair.
 - simpl; intro e; induction e.
 - abstract (intro f; apply funextfun; intro e; induction e).
 Defined.
@@ -324,7 +325,7 @@ Defined.
 
 Lemma LimConeHSET : LimCone D.
 Proof.
-simple refine (mk_LimCone _ _ _ _ ).
+use mk_LimCone.
 - apply limset.
 - apply (tpair _ (fun u f => pr1 f u)).
   abstract (intros u v e; simpl; apply funextfun; intro f; simpl; apply (pr2 f)).
@@ -377,7 +378,7 @@ Defined.
 
 Lemma cats_LimConeHSET : cats.limits.LimCone D.
 Proof.
-simple refine (mk_LimCone _ _ _ _ ).
+use mk_LimCone.
 - apply cats_limset.
 - apply (tpair _ (fun u f => pr1 f u)).
   abstract (intros u v e; apply funextfun; intro f; apply (pr2 f)).
@@ -408,18 +409,18 @@ Defined.
 
 (** end of alternative def *)
 
-(* Direct construction of binary products in HSET *)
+(** Direct construction of binary products in HSET *)
 Lemma BinProductsHSET : BinProducts HSET.
 Proof.
 intros A B.
-simple refine (mk_BinProductCone _ _ _ _ _ _ _).
+use mk_BinProductCone.
 - simpl in *; apply (tpair _ (dirprod A B)).
   abstract (apply isasetdirprod; apply setproperty).
 - simpl in *; apply pr1.
 - simpl in *; intros x; apply (pr2 x).
 - apply (mk_isBinProductCone _ has_homsets_HSET).
   intros C f g; simpl in *.
-  simple refine (tpair _ _ _).
+  mkpair.
   * apply (tpair _ (prodtofuntoprod (f ,, g))); abstract (split; apply idpath).
   * abstract (intros h; apply subtypeEquality;
     [ intros x; apply isapropdirprod; apply has_homsets_HSET
@@ -429,10 +430,10 @@ simple refine (mk_BinProductCone _ _ _ _ _ _ _).
                now case (t x)]).
 Defined.
 
-Lemma Products_HSET (I : UU) : Products I HSET.
+Lemma ProductsHSET (I : UU) : Products I HSET.
 Proof.
 intros A.
-simple refine (mk_ProductCone _ _ _ _ _ _).
+use mk_ProductCone.
 - apply (tpair _ (Π i, pr1 (A i))); apply isaset_forall_hSet.
 - simpl; intros i f; apply (f i).
 - apply (mk_isProductCone _ _ has_homsets_HSET).
@@ -475,12 +476,34 @@ Defined.
 
 End TerminalHSET_from_Lims.
 
+Lemma PullbacksHSET : Pullbacks HSET.
+Proof.
+intros A B C f g.
+use mk_Pullback.
++ simpl in *.
+  exists (Σ (xy : B × C), f (pr1 xy) = g (pr2 xy)).
+  abstract (apply isaset_total2; [ apply isasetdirprod; apply setproperty
+                                 | intros xy; apply isasetaprop, setproperty ]).
++ intros xy; apply (pr1 (pr1 xy)).
++ intros xy; apply (pr2 (pr1 xy)).
++ abstract (apply funextsec; intros [[x y] Hxy]; apply Hxy).
++ use mk_isPullback.
+  intros X f1 f2 Hf12; cbn.
+  use unique_exists.
+  - intros x.
+    exists (f1 x,,f2 x); abstract (apply (toforallpaths _ _ _ Hf12)).
+  - abstract (now split).
+  - abstract (now intros h; apply isapropdirprod; apply has_homsets_HSET).
+  - abstract (intros h [H1 H2]; apply funextsec; intro x;
+    apply subtypeEquality; [intros H; apply setproperty|]; simpl;
+    now rewrite <- (toforallpaths _ _ _ H1 x), <- (toforallpaths _ _ _ H2 x), <- tppr).
+Defined.
 
 Section PullbacksHSET_from_Lims.
 
   Require UniMath.CategoryTheory.limits.graphs.pullbacks.
 
-  Lemma PullbacksHSET : graphs.pullbacks.Pullbacks HSET.
+  Lemma PullbacksHSET_from_Lims : graphs.pullbacks.Pullbacks HSET.
   Proof.
     apply (graphs.pullbacks.Pullbacks_from_Lims HSET LimsHSET).
   Defined.
@@ -491,7 +514,7 @@ Section EqualizersHSET_from_Lims.
 
   Require UniMath.CategoryTheory.limits.graphs.equalizers.
 
-  Lemma EqualizersHSET : graphs.equalizers.Equalizers HSET.
+  Lemma EqualizersHSET_from_Lims : graphs.equalizers.Equalizers HSET.
   Proof.
     apply (graphs.equalizers.Equalizers_from_Lims HSET LimsHSET).
   Defined.
@@ -513,11 +536,6 @@ Defined.
 
 Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := fun x y => f y x.
 
-Lemma paireta {A B : UU} (p : A × B) : p = (pr1 p,, pr2 p).
-Proof.
-destruct p; apply idpath.
-Defined.
-
 (* This checks that if we use constprod_functor2 the flip is not necessary *)
 Lemma are_adjoints_constprod_functor2 A :
   are_adjoints (constprod_functor2 BinProductsHSET A) (exponential_functor A).
@@ -531,7 +549,7 @@ mkpair.
     * intros X fx; apply (pr1 fx (pr2 fx)).
     * abstract (intros x y f; apply idpath).
 - abstract (mkpair;
-  [ intro x; simpl; apply funextfun; intro ax; now rewrite (paireta ax)
+  [ intro x; simpl; apply funextfun; intro ax; now rewrite (tppr ax)
   | intro b; apply funextfun; intro f; apply idpath]).
 Defined.
 
@@ -548,7 +566,7 @@ mkpair.
     * intros x xf; simpl in *; apply (pr2 xf (pr1 xf)).
     * abstract (intros x y f; apply idpath).
 - abstract (mkpair;
-  [ now intro x; simpl; apply funextfun; intro ax; rewrite (paireta ax)
+  [ now intro x; simpl; apply funextfun; intro ax; rewrite (tppr ax)
   | now intro b; apply funextfun; intro f]).
 Defined.
 
@@ -595,12 +613,12 @@ mkpair.
 Defined.
 
 Local Definition eval (P Q : functor C HSET) :
- nat_trans (BinProductObject _ (CP P (exponential_functor_cat P Q)) : functor _ _) Q.
+  nat_trans (BinProductObject _ (CP P (exponential_functor_cat P Q)) : functor _ _) Q.
 Proof.
 mkpair.
 - intros c ytheta; set (y := pr1 ytheta); set (theta := pr2 ytheta);
   simpl in *.
-  simple refine (theta c _).
+  use (theta c).
   exact (identity c,,y).
 - abstract (
     intros c c' f; simpl;
