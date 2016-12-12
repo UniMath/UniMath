@@ -16,6 +16,9 @@ Contents:
 
 - Colimits in slice categories ([slice_precat_colims])
 
+- Binary products in slice categories of categories with pullbacks
+ ([BinProducts_slice_precat])
+
 ************************************************************)
 
 Require Import UniMath.Foundations.Basics.PartD.
@@ -26,6 +29,8 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 (** * Definition of slice categories *)
@@ -444,3 +449,33 @@ Proof.
     apply hsC.
   + exact (pr1eq).
 Defined.
+
+(** * Binary products in slice categories of categories with pullbacks *)
+Section slicecat_binproducts.
+
+Context {C : precategory} (hsC : has_homsets C) (PC : Pullbacks C).
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Lemma BinProducts_slice_precat (x : C) : BinProducts (C / x).
+Proof.
+intros a b.
+use mk_BinProductCone.
++ exists (PullbackObject (PC _ _ _ (pr2 a) (pr2 b))).
+  apply (PullbackPr1 (PC x _ _ (pr2 a) (pr2 b)) ;; pr2 a).
++ use (PullbackPr1 _,,idpath _).
++ use (PullbackPr2 _,, PullbackSqrCommutes _).
++ intros c f g.
+  use unique_exists.
+  - mkpair.
+    * apply (PullbackArrow _ _ (pr1 f) (pr1 g)).
+      abstract (now rewrite <- (pr2 f), <- (pr2 g)).
+    * abstract (now rewrite assoc, PullbackArrow_PullbackPr1, <- (pr2 f)).
+  - abstract (split; apply eq_mor_slicecat; simpl;
+             [ apply PullbackArrow_PullbackPr1 | apply PullbackArrow_PullbackPr2 ]).
+  - abstract (now intros h; apply isapropdirprod; apply has_homsets_slice_precat).
+  - abstract (intros h [H1 H2]; apply eq_mor_slicecat, PullbackArrowUnique;
+             [ apply (maponpaths pr1 H1) | apply (maponpaths pr1 H2) ]).
+Defined.
+
+End slicecat_binproducts.
