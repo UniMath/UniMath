@@ -107,7 +107,7 @@ Section def_complexes.
   Local Lemma ComplexEq' (C1 C2 : Complex) (H : Π (i : hz), C1 i = C2 i)
         (H1 : Π (i : hz),
               transportf (λ x : A, C2 i --> x) (H (i + 1))
-                         (transportb (λ x : A, x --> C1 (i + 1)) (! H i) (Diff C1 i)) =
+                         (transportf (λ x : A, x --> C1 (i + 1)) (H i) (Diff C1 i)) =
               Diff C2 i) :
     transportf (λ x : hz → A, Π i : hz, A ⟦ x i, x (i + 1) ⟧)
                (funextfun (pr1 (pr1 C1)) (pr1 (pr1 C2)) (λ i : hz, H i)) (pr2 (pr1 C1)) =
@@ -126,14 +126,14 @@ Section def_complexes.
     }
     rewrite e. clear e.
     rewrite transport_mor_funextfun.
-    rewrite transportb_mor_funextfun. rewrite transportf_mor_funextfun.
+    rewrite transport_source_funextfun. rewrite transport_target_funextfun.
     exact (H1 i).
   Qed.
 
   Local Lemma ComplexEq'' (C1 C2 : Complex) (H : Π (i : hz), C1 i = C2 i)
         (H1 : Π (i : hz),
               transportf (λ x : A, C2 i --> x) (H (i + 1))
-                         (transportb (λ x : A, x --> C1 (i + 1)) (! H i) (Diff C1 i)) =
+                         (transportf (λ x : A, x --> C1 (i + 1)) (H i) (Diff C1 i)) =
               Diff C2 i) :
     transportf
       (λ x : Σ D : hz → A, Π i : hz, A ⟦ D i, D (i + 1) ⟧,
@@ -148,7 +148,7 @@ Section def_complexes.
   Lemma ComplexEq (C1 C2 : Complex) (H : Π (i : hz), C1 i = C2 i)
         (H1 : Π (i : hz),
               transportf (λ x : A, C2 i --> x) (H (i + 1))
-                         (transportb (λ x : A, x --> C1 (i + 1)) (! H i) (Diff C1 i)) =
+                         (transportf (λ x : A, x --> C1 (i + 1)) (H i) (Diff C1 i)) =
               Diff C2 i) : C1 = C2.
   Proof.
     use total2_paths.
@@ -1990,21 +1990,19 @@ Section transport_diffs.
   Variable A : Additive.
 
   Lemma transport_Diff (C : Complex A) (i : hz) :
-    transportb (λ x' : A, A ⟦ x', C (i + 1) ⟧) (maponpaths C (hzrplusminus i 1)) (Diff C i) =
+    transportf (λ x' : A, A ⟦ x', C (i + 1) ⟧) (! maponpaths C (hzrplusminus i 1)) (Diff C i) =
     transportf (precategory_morphisms (C (i + 1 - 1))) (maponpaths C (hzrminusplus (i + 1) 1))
                (Diff C (i + 1 - 1)).
   Proof.
-    unfold transportb. rewrite <- functtransportf.
-    rewrite <- maponpathsinv0. rewrite <- functtransportf.
-    use transportf_path.
+    rewrite <- functtransportf. rewrite <- maponpathsinv0. rewrite <- functtransportf.
+    use transport_target_path.
     - exact (C (i + 1 - 1 + 1)).
     - exact (maponpaths C (! hzrminusplus (i + 1) 1)).
     - rewrite <- functtransportf. rewrite <- functtransportf.
       rewrite transport_f_f. rewrite pathsinv0r. cbn. unfold idfun.
       use (pathscomp0 _ (@transport_section hz _ (Diff C) i (i + 1 - 1) (! (hzrplusminus i 1)))).
       (* Split the right hand side to two transports *)
-      rewrite (@transportf_mor' hz A). unfold transportb. rewrite pathsinv0inv0.
-      rewrite functtransportf.
+      rewrite (@transport_target_source hz A).  rewrite functtransportf.
       (* Here only the equations of the first transportfs are different! *)
       use transportf_paths.
       assert (e5 : maponpaths C (! hzrminusplus (i + 1) 1) =
@@ -2022,52 +2020,52 @@ Section transport_section'.
 
   Variable C : precategory.
 
-  Lemma transport_mor_b_f (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧) (i i' : hz)
-        (e1 : i = i') :
-    H i' = transportb (fun (x : ob C) => C⟦x, f (i' + n)⟧) (maponpaths f (! e1))
+  Lemma transport_hz_source_target (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧)
+        (i i' : hz) (e1 : i = i') :
+    H i' = transportf (fun (x : ob C) => C⟦x, f (i' + n)⟧) (maponpaths f e1)
                       (transportf (precategory_morphisms (f i))
                                   (maponpaths f (hzplusradd i i' n e1)) (H i)).
   Proof.
     induction e1. apply idpath.
   Qed.
 
-  Lemma transport_mor_f_b (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧) (i i' : hz)
-        (e1 : i = i') :
+  Lemma transport_hz_target_source (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧)
+        (i i' : hz) (e1 : i = i') :
     H i' = transportf (precategory_morphisms (f i'))
                       (maponpaths f (hzplusradd i i' n e1))
-                      (transportb (fun (x : ob C) => C⟦x, f (i + n)⟧) (maponpaths f (! e1)) (H i)).
+                      (transportf (fun (x : ob C) => C⟦x, f (i + n)⟧) (maponpaths f e1) (H i)).
   Proof.
     induction e1. apply idpath.
   Qed.
 
-  Lemma transport_section' (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧) (i i' : hz)
-    (e1 : i = i') :
+  Lemma transport_hz_section (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧)
+        (i i' : hz) (e1 : i = i') :
     transportf (precategory_morphisms (f i)) (maponpaths f (hzplusradd i i' n e1)) (H i) =
-    transportb (fun (x : ob C) => C⟦x, f (i' + n)⟧) (maponpaths f e1) (H i').
+    transportf (fun (x : ob C) => C⟦x, f (i' + n)⟧) (maponpaths f (! e1)) (H i').
   Proof.
     induction e1. apply idpath.
   Qed.
 
-  Lemma transport_section'' (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f (i + n), f i⟧)
+  Lemma transport_hz_section' (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f (i + n), f i⟧)
         (i i' : hz) (e1 : i + n = i' + n) (e2 : i = i') :
     transportf (precategory_morphisms (f (i + n))) (maponpaths f e2) (H i) =
-    transportb (fun (x : ob C) => C⟦x, f i'⟧) (maponpaths f e1) (H i').
+    transportf (fun (x : ob C) => C⟦x, f i'⟧) (maponpaths f (! e1)) (H i').
   Proof.
     induction e2. assert (e : e1 = idpath _) by apply isasethz. rewrite e. clear e. apply idpath.
   Qed.
 
-  Lemma transport_double_section (f f' : hz -> ob C) (H : Π (i : hz), C⟦f i, f' i⟧)
+  Lemma transport_hz_double_section (f f' : hz -> ob C) (H : Π (i : hz), C⟦f i, f' i⟧)
         (i i' : hz) (e : i = i') :
     transportf (precategory_morphisms (f i)) (maponpaths f' e) (H i) =
-    transportb (fun (x : ob C) => C⟦x, f' i'⟧) (maponpaths f e) (H i').
+    transportf (fun (x : ob C) => C⟦x, f' i'⟧) (maponpaths f (! e)) (H i').
   Proof.
     induction e. apply idpath.
   Qed.
 
-  Lemma transport_hz_double_section_f_b (f f' : hz -> ob C) (H : Π (i : hz), C⟦f i, f' i⟧)
+  Lemma transport_hz_double_section_source_target (f f' : hz -> ob C) (H : Π (i : hz), C⟦f i, f' i⟧)
         (i i' : hz) (e : i = i') :
     H i' = transportf (precategory_morphisms (f i')) (maponpaths f' e)
-                      (transportb (fun (x : ob C) => C⟦x, f' i⟧) (maponpaths f (! e)) (H i)).
+                      (transportf (fun (x : ob C) => C⟦x, f' i⟧) (maponpaths f e) (H i)).
   Proof.
     induction e. apply idpath.
   Qed.
@@ -2133,37 +2131,17 @@ Section complexes_homotopies.
                        (maponpaths C2 (hzrplusminus (i + 1) 1)) (Diff C1 (i + 1) ;; H (i + 1 + 1)))
                  = ZeroArrow (Additive.to_Zero A) _ _).
     {
-      rewrite <- transportf_postcompose. rewrite assoc. rewrite (@DSq A C1 i).
-      rewrite ZeroArrow_comp_left. apply transportf_ZeroArrow.
+      rewrite <- transport_target_postcompose. rewrite assoc. rewrite (@DSq A C1 i).
+      rewrite ZeroArrow_comp_left. apply transport_target_ZeroArrow.
     }
     rewrite e1. clear e1.
     rewrite <- PreAdditive_unel_zero. rewrite to_lunax'. rewrite to_runax'.
     (* Here the idea is to apply cancel_precomposition *)
-    rewrite transportf_postcompose. rewrite <- assoc. apply cancel_precomposition.
+    rewrite transport_target_postcompose. rewrite <- assoc. apply cancel_precomposition.
     (* Other application of cancel_precomposition *)
-    rewrite transport_compose. rewrite transportf_postcompose. apply cancel_precomposition.
+    rewrite transport_compose. rewrite transport_target_postcompose. apply cancel_precomposition.
     (* Start to solve the transport stuff *)
-    rewrite <- functtransportf. rewrite <- functtransportb. unfold transportb.
-    use (transportf_path _ _ (maponpaths C2 (hzrminusplus' (i + 1) 1))).
-    rewrite <- functtransportf. rewrite <- functtransportf. rewrite transport_f_f.
-    assert (e2 : (hzrminusplus (i + 1) 1 @ hzrminusplus' (i + 1) 1) = idpath _)
-      by apply isasethz.
-    rewrite e2. clear e2. cbn. unfold idfun.
-    use (pathscomp0 _ (@transport_section hz _ (Diff C2) i (i + 1 - 1) (! (hzrplusminus i 1)))).
-    assert (e3 : (! hzrplusminus i 1) = hzrplusminus' i 1) by apply isasethz.
-    cbn. cbn in e3. rewrite e3. clear e3.
-    (* Split the right hand side to two transports *)
-    rewrite (@transportf_mor' hz A). unfold transportb. rewrite pathsinv0inv0.
-    rewrite functtransportf. cbn.
-    (* Here only the equations of the first transportfs are different! *)
-    use transportf_paths.
-    assert (e5 : maponpaths C2 (hzrminusplus' (i + 1) 1) =
-                 maponpaths (C2 ∘ (λ x' : pr1 hz, x' + 1)) (hzrplusminus' i 1)).
-    {
-      use (pathscomp0 _ (maponpathscomp (λ x' : pr1 hz, x' + 1) C2 (hzrplusminus' i 1))).
-      apply maponpaths. apply isasethz.
-    }
-    use (pathscomp0 e5). clear e5. induction (hzrplusminus' i 1). apply idpath.
+    use transport_Diff.
   Qed.
 
   (** Every homotopy H of complexes induces a morphisms of complexes. The morphisms is defined by
@@ -2266,8 +2244,8 @@ Section complexes_homotopies.
         use tpair.
         * intros i. exact (ZeroArrow (Additive.to_Zero A) _ _).
         * cbn. use MorphismEq. intros i. cbn. rewrite ZeroArrow_comp_left.
-          rewrite transportf_ZeroArrow.
-          rewrite ZeroArrow_comp_right. rewrite transportf_ZeroArrow.
+          rewrite transport_target_ZeroArrow.
+          rewrite ZeroArrow_comp_right. rewrite transport_target_ZeroArrow.
           rewrite <- PreAdditive_unel_zero. rewrite to_lunax'. apply idpath.
     - intros f H. use (squash_to_prop H). apply propproperty. intros H'. clear H.
       induction H' as [homot eq]. intros P X. apply X. clear P X.
@@ -2327,9 +2305,10 @@ Section complexes_homotopies.
     use tpair.
     - intros i. exact ((MMor g i) ;; (homot i)).
     - cbn. rewrite <- eq. use MorphismEq. intros i. cbn. rewrite assoc.
-      rewrite <- (MComm g i). rewrite transportf_postcompose. rewrite transportf_postcompose.
+      rewrite <- (MComm g i). rewrite transport_target_postcompose.
+      rewrite transport_target_postcompose.
       rewrite <- assoc. rewrite <- assoc. rewrite <- to_premor_linear'.
-      rewrite <- transportf_postcompose. rewrite <- transportf_postcompose.
+      rewrite <- transport_target_postcompose. rewrite <- transport_target_postcompose.
       apply idpath.
   Qed.
 
@@ -2581,9 +2560,10 @@ Section translation_functor.
   Proof.
     unfold TranslationHomot. cbn. use MorphismEq. intros i. cbn.
     induction (hzrminusplus i 1). cbn. rewrite pathscomp0rid. cbn. unfold idfun.
-    rewrite <- PreAdditive_invrcomp. rewrite <- transportf_to_inv.
+    rewrite <- PreAdditive_invrcomp. rewrite <- transport_target_to_inv.
     rewrite PreAdditive_invlcomp. rewrite inv_inv_eq.
-    rewrite <- transportf_to_inv. rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
+    rewrite <- transport_target_to_inv.
+    rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
     rewrite inv_inv_eq.
     assert (e : (maponpaths (λ i0 : pr1 hz, C2 (i0 + 1)) (hzrplusminus (i - 1 + 1) 1)) =
                 (maponpaths C2 (maponpaths (fun (i0 : hz) => i0 + 1) (hzrplusminus (i - 1 + 1) 1)))).
@@ -2591,6 +2571,7 @@ Section translation_functor.
       induction (hzrplusminus (i - 1 + 1) 1). apply idpath.
     }
     cbn in e. rewrite e. clear e.
+    (* The first elements of to_binop are the same *)
     assert (e1 : (transportf (precategory_morphisms (C1 (i - 1 + 1 + 1)))
                              (maponpaths C2 (maponpaths (λ i0 : pr1 hz, i0 + 1)
                                                         (hzrplusminus (i - 1 + 1) 1)))
@@ -2605,7 +2586,7 @@ Section translation_functor.
                               (maponpaths C2 (hzrplusminus (i - 1 + 1 + 1) 1))
                               (Diff C1 (i - 1 + 1 + 1) ;; H (i - 1 + 1 + 1 + 1))))).
     {
-      rewrite transportf_postcompose. rewrite transport_f_f. rewrite <- maponpathscomp0.
+      rewrite transport_target_postcompose. rewrite transport_f_f. rewrite <- maponpathscomp0.
       set (tmp := ((hzrplusminus (i - 1 + 1 + 1) 1
                                  @ ! hzrminusplus (i - 1 + 1 + 1) 1)
                      @ maponpaths (λ i0 : pr1 hz, i0 + 1) (hzrplusminus (i - 1 + 1) 1))).
@@ -2614,10 +2595,12 @@ Section translation_functor.
       induction (hzrplusminus (i - 1 + 1 + 1) 1). cbn. unfold idfun. apply idpath.
     }
     cbn in e1. rewrite e1. clear e1. use to_lrw.
-
-    set (tmp := @transport_mor_b_f A C2 1 (Diff C2) _ _ (hzrplusminus (i - 1 + 1) 1)).
-    rewrite tmp. clear tmp. rewrite maponpathsinv0. rewrite transport_compose'.
-    rewrite transportf_postcompose. apply cancel_precomposition.
+    (* Show that the first elements of to_binop are the same *)
+    set (tmp := @transport_hz_source_target A C2 1 (Diff C2) _ _ (hzrplusminus (i - 1 + 1) 1)).
+    rewrite tmp. clear tmp. rewrite transport_compose.
+    rewrite transport_target_postcompose. apply cancel_precomposition.
+    rewrite transport_f_f. rewrite <- maponpathsinv0. rewrite <- maponpathscomp0.
+    rewrite pathsinv0r. rewrite <- functtransportf. rewrite idpath_transportf.
     apply transportf_paths. apply maponpaths. apply isasethz.
   Qed.
 
@@ -2698,22 +2681,21 @@ Section translation_functor.
     (InvTranslationMorphism_mor f i) ;; (DiffInvTranslationComplex C2 i) =
     (DiffInvTranslationComplex C1 i) ;; (InvTranslationMorphism_mor f (i + 1)).
   Proof.
-    unfold DiffInvTranslationComplex. rewrite <- transportf_postcompose.
+    unfold DiffInvTranslationComplex. rewrite <- transport_target_postcompose.
     unfold InvTranslationMorphism_mor. cbn. rewrite <- PreAdditive_invrcomp.
     rewrite (MComm f (i - 1)). rewrite PreAdditive_invlcomp.
-    rewrite transportf_postcompose.
-    use transportf_path.
+    rewrite transport_target_postcompose.
+    use transport_target_path.
     - exact (C2 i).
     - exact (maponpaths C2 (hzrplusminus i 1)).
-    - rewrite transportf_postcompose. rewrite transport_f_f. rewrite <- maponpathscomp0.
+    - rewrite transport_target_postcompose. rewrite transport_f_f. rewrite <- maponpathscomp0.
       rewrite <- path_assoc. rewrite pathsinv0l. rewrite pathscomp0rid.
       induction (hzrminusplus i 1). cbn. unfold idfun.
-      rewrite transportf_postcompose.
-      set (tmp := transport_double_section A C1 C2 (MMor f) _ _ (hzrplusminus (i - 1 + 1) 1)).
+      rewrite transport_target_postcompose.
+      set (tmp := transport_hz_double_section A C1 C2 (MMor f) _ _ (hzrplusminus (i - 1 + 1) 1)).
       cbn. cbn in tmp. rewrite tmp. clear tmp.
       rewrite <- (transport_compose' _ _ (maponpaths C1 (! hzrplusminus (i - 1 + 1) 1))).
-      apply cancel_precomposition. rewrite <- maponpathsinv0. rewrite pathsinv0inv0.
-      apply idpath.
+      apply cancel_precomposition. apply idpath.
   Qed.
 
   Definition InvTranslationMorphism (C1 C2 : Complex A) (f : Morphism C1 C2) :
@@ -2777,10 +2759,10 @@ Section translation_functor.
   Proof.
     unfold InvTranslationHomot. cbn. use MorphismEq. intros i. cbn.
     induction (hzrplusminus i 1). cbn. unfold idfun. rewrite pathscomp0rid.
-    rewrite <- transportf_to_inv. rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp.
-    rewrite inv_inv_eq.
-    rewrite <- transportf_to_inv. rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
-    rewrite inv_inv_eq.
+    rewrite <- transport_target_to_inv. rewrite <- PreAdditive_invrcomp.
+    rewrite <- PreAdditive_invlcomp. rewrite inv_inv_eq.
+    rewrite <- transport_target_to_inv. rewrite <- PreAdditive_invlcomp.
+    rewrite <- PreAdditive_invrcomp. rewrite inv_inv_eq.
     assert (e1 : transportf (precategory_morphisms (C1 (i + 1 - 1 - 1)))
                             (maponpaths C1 (hzrminusplus (i + 1 - 1) 1))
                             (Diff C1 (i + 1 - 1 - 1)) ;; H (i + 1 - 1) =
@@ -2788,8 +2770,9 @@ Section translation_functor.
                             (maponpaths C2 (hzrplusminus (i + 1 - 1 - 1) 1))
                             (Diff C1 (i + 1 - 1 - 1) ;; H (i + 1 - 1 - 1 + 1))).
     {
-      rewrite transportf_postcompose. rewrite transport_compose. apply cancel_precomposition.
-      rewrite <- (transport_double_section A _ _ H _ _ (hzrminusplus (i + 1 - 1) 1)).
+      rewrite transport_target_postcompose. rewrite transport_compose. apply cancel_precomposition.
+      rewrite <- maponpathsinv0.
+      rewrite <- (transport_hz_double_section A _ _ H _ _ (hzrminusplus (i + 1 - 1) 1)).
       use transportf_paths.
       assert (e2 : maponpaths (λ i0 : hz, C2 (i0 - 1)) (hzrminusplus (i + 1 - 1) 1) =
                    maponpaths C2 (maponpaths (λ i0 : hz, i0 - 1) (hzrminusplus (i + 1 - 1) 1))).
@@ -2799,7 +2782,7 @@ Section translation_functor.
       rewrite e2. clear e2. apply maponpaths. apply isasethz.
     }
     cbn in e1. rewrite e1. clear e1. use to_lrw.
-    rewrite <- transportf_postcompose. rewrite transport_f_f.
+    rewrite <- transport_target_postcompose. rewrite transport_f_f.
     assert (e2 : maponpaths (λ i0 : pr1 hz, C2 (i0 - 1)) (hzrminusplus (i + 1 - 1) 1) =
                  maponpaths C2 (maponpaths (λ i0 : hz, i0 - 1) (hzrminusplus (i + 1 - 1) 1))).
     {
@@ -2847,19 +2830,10 @@ Section translation_functor.
     induction p. induction q. apply idpath.
   Qed.
 
-  Lemma transportb_total2_base {AA : UU} {B : AA -> UU} (BB : AA -> UU) (s s' : Σ x : AA, B x)
-        (p : pr1 s = pr1 s') (q : transportf B p (pr2 s) = pr2 s') (x : BB (pr1 s)) :
-    transportb (λ x' : Σ x : AA, B x, BB (pr1 x')) (! total2_paths p q) x =
-    transportb (λ x : AA, BB x) (! p) x.
-  Proof.
-    unfold transportb. rewrite pathsinv0inv0. rewrite pathsinv0inv0.
-    use transportf_total2_base.
-  Qed.
-
-  Lemma ComplexEq_transportf {C1 C2 C2' : Complex A} (H : Π (i : hz), C2 i = C2' i)
+  Lemma ComplexEq_transport_target {C1 C2 C2' : Complex A} (H : Π (i : hz), C2 i = C2' i)
         (H1 : Π (i : hz),
               transportf (λ x : A, C2' i --> x) (H (i + 1))
-                         (transportb (λ x : A, x --> C2 (i + 1)) (! H i) (Diff C2 i)) =
+                         (transportf (λ x : A, x --> C2 (i + 1)) (H i) (Diff C2 i)) =
               Diff C2' i) (f : Morphism C1 C2) (i : hz) :
     (transportf (λ x : Complex A, Morphism C1 x) (ComplexEq A C2 C2' H H1) f) i =
     transportf (λ x : A, C1 i --> x) (H i) (f i).
@@ -2870,7 +2844,7 @@ Section translation_functor.
       induction (ComplexEq A C2 C2' H H1). apply idpath.
     }
     use (pathscomp0 e). clear e.
-    rewrite <- (@transportf_mor_funextfun hz _ C2 C2' H i (C1 i) (f i)).
+    rewrite <- (@transport_target_funextfun hz _ C2 C2' H i (C1 i) (f i)).
     unfold ComplexEq. unfold Complex_Funclass.
     set (e := (funextfun (pr1 (pr1 C2)) (pr1 (pr1 C2')) (λ x0 : pr1 hz, H x0))).
     cbn. cbn in e. fold e.
@@ -2882,35 +2856,35 @@ Section translation_functor.
     use transportf_total2_base.
   Qed.
 
-  Lemma ComplexEq_transportb {C1 C1' C2 : Complex A} (H : Π (i : hz), C1' i = C1 i)
+  Lemma ComplexEq_transport_source {C1 C1' C2 : Complex A} (H : Π (i : hz), C1' i = C1 i)
         (H1 : Π (i : hz),
               transportf (λ x : A, C1 i --> x) (H (i + 1))
-                         (transportb (λ x : A, x --> C1' (i + 1)) (! H i) (Diff C1' i)) =
+                         (transportf (λ x : A, x --> C1' (i + 1)) (H i) (Diff C1' i)) =
               Diff C1 i) (f : Morphism C1' C2) (i : hz) :
-    (transportb (λ x : Complex A, Morphism x C2) (! ComplexEq A C1' C1 H H1) f) i =
-    transportb (λ x : A, x --> C2 i) (! H i) (f i).
+    (transportf (λ x : Complex A, Morphism x C2) (ComplexEq A C1' C1 H H1) f) i =
+    transportf (λ x : A, x --> C2 i) (H i) (f i).
   Proof.
-    assert (e : (transportb (λ x : Complex A, Morphism x C2) (! ComplexEq A C1' C1 H H1) f) i =
-                (transportb (λ x : Complex A, x i --> C2 i) (! ComplexEq A C1' C1 H H1) (f i))).
+    assert (e : (transportf (λ x : Complex A, Morphism x C2) (ComplexEq A C1' C1 H H1) f) i =
+                (transportf (λ x : Complex A, x i --> C2 i) (ComplexEq A C1' C1 H H1) (f i))).
     {
       induction (ComplexEq A C1' C1 H H1). apply idpath.
     }
     use (pathscomp0 e). clear e.
-    rewrite <- (@transportb_mor_funextfun hz _ C1' C1 H i (C2 i) (f i)).
+    rewrite <- (@transport_source_funextfun hz _ C1' C1 H i (C2 i) (f i)).
     unfold ComplexEq. unfold Complex_Funclass.
     set (e := (funextfun (pr1 (pr1 C1')) (pr1 (pr1 C1)) (λ i0 : hz, H i0))).
     cbn. cbn in e. fold e.
-    set (tmp := @transportb_total2_base
+    set (tmp := @transportf_total2_base
                   (hz -> ob A) _ (λ x0 : pr1 hz → A, A ⟦ x0 i, pr1 (pr1 C2) i ⟧)
                   (pr1 C1') (pr1 C1) e (ComplexEq' A C1' C1 H H1) (f i)).
     use (pathscomp0 _ tmp). clear tmp. cbn beta.
-    use transportb_total2_base.
+    use transportf_total2_base.
   Qed.
 
   Local Lemma TranslationInvTranslation_eq1 (C : Complex A) (i : hz) :
     transportf (λ x : A, A ⟦ C i, x ⟧) (maponpaths C (hzrminusplus (i + 1) 1))
-               (transportb (λ x : A, A ⟦ x, C (i + 1 - 1 + 1) ⟧)
-                           (! maponpaths C (hzrminusplus i 1))
+               (transportf (λ x : A, A ⟦ x, C (i + 1 - 1 + 1) ⟧)
+                           (maponpaths C (hzrminusplus i 1))
                            (transportf (precategory_morphisms (C (i - 1 + 1)))
                                        (maponpaths (λ i0 : pr1 hz, C (i0 + 1))
                                                    (hzrminusplus i 1 @ ! hzrplusminus i 1))
@@ -2941,16 +2915,16 @@ Section translation_functor.
                (ComplexEq A (InvTranslationComplex (TranslationComplex C2)) C2
                           (λ i : pr1 hz, maponpaths C2 (hzrminusplus i 1))
                           (λ i : pr1 hz, TranslationInvTranslation_eq1 C2 i))
-               (transportb (λ x : Complex A,
+               (transportf (λ x : Complex A,
                                   Morphism x (InvTranslationComplex (TranslationComplex C2)))
-                           (! ComplexEq A (InvTranslationComplex (TranslationComplex C1)) C1
-                              (λ i : pr1 hz, maponpaths C1 (hzrminusplus i 1))
-                              (λ i : pr1 hz, TranslationInvTranslation_eq1 C1 i))
+                           (ComplexEq A (InvTranslationComplex (TranslationComplex C1)) C1
+                                      (λ i : pr1 hz, maponpaths C1 (hzrminusplus i 1))
+                                      (λ i : pr1 hz, TranslationInvTranslation_eq1 C1 i))
                            (InvTranslationMorphism (TranslationComplex C1) (TranslationComplex C2)
                                                    (TranslationMorphism C1 C2 f))) = f.
   Proof.
     use MorphismEq. intros i. Local Opaque ComplexEq. cbn.
-    rewrite ComplexEq_transportf. rewrite ComplexEq_transportb. cbn.
+    rewrite ComplexEq_transport_target. rewrite ComplexEq_transport_source. cbn.
     induction (hzrminusplus i 1). cbn. unfold idfun. apply idpath.
   Qed.
 
@@ -2969,21 +2943,19 @@ Section translation_functor.
 
   Local Lemma InvTranslationTranslation_eq1 (C : Complex A) (i : hz) :
     transportf (λ x : A, A ⟦ C i, x ⟧) (maponpaths C (hzrplusminus (i + 1) 1))
-               (transportb (λ x : A, A ⟦ x, C (i + 1 + 1 - 1) ⟧) (! maponpaths C (hzrplusminus i 1))
+               (transportf (λ x : A, A ⟦ x, C (i + 1 + 1 - 1) ⟧) (maponpaths C (hzrplusminus i 1))
                            (to_inv
                               (transportf
                                  (precategory_morphisms (C (i + 1 - 1)))
                                  (maponpaths C (hzrminusplus (i + 1) 1 @ ! hzrplusminus (i + 1) 1))
                                  (to_inv (Diff C (i + 1 - 1)))))) = Diff C i.
   Proof.
-    rewrite transportf_to_inv.
-    rewrite inv_inv_eq. rewrite <- transport_mor_f_b_comm.
+    rewrite transport_target_to_inv. rewrite inv_inv_eq.
+    rewrite <- transport_source_target_comm.
     rewrite transport_f_f. rewrite <- maponpathscomp0.
     rewrite <- path_assoc. rewrite pathsinv0l. rewrite pathscomp0rid.
-    rewrite transport_mor_f_b_comm.
-    rewrite (transport_mor_b_f A C 1 (Diff C) _ _ (hzrplusminus i 1)).
-    rewrite maponpathsinv0. apply maponpaths.
-    use transportf_paths. apply maponpaths. apply isasethz.
+    rewrite (transport_hz_source_target A C 1 (Diff C) _ _ (hzrplusminus i 1)).
+    apply maponpaths. use transportf_paths. apply maponpaths. apply isasethz.
   Qed.
 
   Local Lemma InvTranslationTranslation_eq2 {C1 C2 : Complex A} (f : Morphism C1 C2) :
@@ -2991,17 +2963,17 @@ Section translation_functor.
                (ComplexEq A (TranslationComplex (InvTranslationComplex C2)) C2
                           (λ i : pr1 hz, maponpaths C2 (hzrplusminus i 1))
                           (λ i : pr1 hz, InvTranslationTranslation_eq1 C2 i))
-               (transportb (λ x : Complex A,
+               (transportf (λ x : Complex A,
                                   Morphism x (TranslationComplex (InvTranslationComplex C2)))
-                           (! ComplexEq A (TranslationComplex (InvTranslationComplex C1)) C1
-                              (λ i : pr1 hz, maponpaths C1 (hzrplusminus i 1))
-                              (λ i : pr1 hz, InvTranslationTranslation_eq1 C1 i))
+                           (ComplexEq A (TranslationComplex (InvTranslationComplex C1)) C1
+                                      (λ i : pr1 hz, maponpaths C1 (hzrplusminus i 1))
+                                      (λ i : pr1 hz, InvTranslationTranslation_eq1 C1 i))
                            (TranslationMorphism (InvTranslationComplex C1)
                                                 (InvTranslationComplex C2)
                                                 (InvTranslationMorphism C1 C2 f))) = f.
   Proof.
     Local Opaque ComplexEq. use MorphismEq. intros i. cbn.
-    rewrite ComplexEq_transportf. rewrite ComplexEq_transportb. cbn.
+    rewrite ComplexEq_transport_target. rewrite ComplexEq_transport_source. cbn.
     induction (hzrplusminus i 1). cbn. unfold idfun. apply idpath.
   Qed.
 
@@ -3167,8 +3139,7 @@ Section translation_functor.
       + intros C. cbn. apply idpath.
       + intros C1 C2 f.
         cbn beta.
-        rewrite idpath_transportf. unfold transportb.
-        rewrite pathsinv0inv0. rewrite idpath_transportf.
+        rewrite idpath_transportf. rewrite idpath_transportf.
         assert (e1 : pr2 (pr1 (functor_composite (ComplexHomotFunctor A) TranslationFunctorH))
                          C1 C2 f =
                     # TranslationFunctorH (# (ComplexHomotFunctor A) f)) by apply idpath.
@@ -3387,8 +3358,7 @@ Section translation_functor.
       + intros C. cbn. apply idpath.
       + intros C1 C2 f.
         cbn beta.
-        rewrite idpath_transportf. unfold transportb.
-        rewrite pathsinv0inv0. rewrite idpath_transportf.
+        rewrite idpath_transportf. rewrite idpath_transportf.
         assert (e1 : pr2 (pr1 (functor_composite (ComplexHomotFunctor A) InvTranslationFunctorH))
                          C1 C2 f =
                     # InvTranslationFunctorH (# (ComplexHomotFunctor A) f)) by apply idpath.
@@ -3458,17 +3428,18 @@ Section translation_functor.
 
   (** Translation functors in K(A) are isomorphisms and inverse to each other. *)
 
-  Lemma transportf_ComplexHomotFunctor {C1 C2 C2' : Complex A} (e : C2 = C2') (f : Morphism C1 C2) :
+  Lemma transport_target_ComplexHomotFunctor {C1 C2 C2' : Complex A} (e : C2 = C2')
+        (f : Morphism C1 C2) :
     # (ComplexHomotFunctor A) (transportf (λ x : Complex A, Morphism C1 x) e f) =
     transportf (λ x : Complex A, (ComplexHomot_Additive A)⟦C1, x⟧) e (# (ComplexHomotFunctor A) f).
   Proof.
     induction e. apply idpath.
   Qed.
 
-  Lemma transportb_ComplexHomotFunctor {C1' C1 C2 : Complex A} (e : C1' = C1)
+  Lemma transport_source_ComplexHomotFunctor {C1' C1 C2 : Complex A} (e : C1' = C1)
         (f : Morphism C1' C2) :
-    # (ComplexHomotFunctor A) (transportb (λ x : Complex A, Morphism x C2) (! e) f) =
-    transportb (λ x : Complex A, (ComplexHomot_Additive A)⟦x, C2⟧) (! e)
+    # (ComplexHomotFunctor A) (transportf (λ x : Complex A, Morphism x C2) e f) =
+    transportf (λ x : Complex A, (ComplexHomot_Additive A)⟦x, C2⟧) e
                (# (ComplexHomotFunctor A) f).
   Proof.
     induction e. apply idpath.
@@ -3493,7 +3464,7 @@ Section translation_functor.
         rewrite (InvTranslationFunctorH_Mor_unique _ f'').
         rewrite <- (hfiberpr2 _ _ f').
         rewrite <- (TranslationInvTranslation_eq2 (hfiberpr1 # (ComplexHomotFunctor A) f f')).
-        rewrite transportf_ComplexHomotFunctor. rewrite transportb_ComplexHomotFunctor.
+        rewrite transport_target_ComplexHomotFunctor. rewrite transport_source_ComplexHomotFunctor.
         apply maponpaths. apply maponpaths.
         assert (e1 : # (ComplexHomotFunctor A)
                        (InvTranslationMorphism
@@ -3533,7 +3504,7 @@ Section translation_functor.
         rewrite (TranslationFunctorH_Mor_unique _ f'').
         rewrite <- (hfiberpr2 _ _ f').
         rewrite <- (InvTranslationTranslation_eq2 (hfiberpr1 # (ComplexHomotFunctor A) f f')).
-        rewrite transportf_ComplexHomotFunctor. rewrite transportb_ComplexHomotFunctor.
+        rewrite transport_target_ComplexHomotFunctor. rewrite transport_source_ComplexHomotFunctor.
         apply maponpaths. apply maponpaths.
         assert (e1 : # (ComplexHomotFunctor A)
                        (TranslationMorphism
@@ -4213,8 +4184,8 @@ Section mapping_cylinder_KA_iso.
     - exact (to_Pr1 A DS2).
     - use compose.
       + exact DS3.
-      + exact (transportb (fun x' : ob A => precategory_morphisms x' DS3)
-                          (maponpaths C1 (! hzrminusplus i 1)) (to_In1 A DS3)).
+      + exact (transportf (fun x' : ob A => precategory_morphisms x' DS3)
+                          (maponpaths C1 (hzrminusplus i 1)) (to_In1 A DS3)).
       + exact (to_inv (to_In2 A DS4)).
   Defined.
 
@@ -4265,7 +4236,7 @@ Section mapping_cylinder_KA_iso.
                 (MappingCylinderIsoHomot f i ;; MappingCylinderDiff A f (i - 1))) =
     MappingCylinderIsoHomot_mor1 f i.
   Proof.
-    cbn. rewrite transportf_postcompose.
+    cbn. rewrite transport_target_postcompose.
     unfold MappingCylinderIsoHomot. unfold MappingCylinderIsoHomot_mor1. cbn.
     set (DS1 := to_BinDirectSums A (C1 (i + 1)) (C2 i)).
     set (DS2 := to_BinDirectSums A (C1 i) DS1).
@@ -4274,9 +4245,9 @@ Section mapping_cylinder_KA_iso.
     set (DS5 := to_BinDirectSums A (C1 (i - 1 + 1 + 1)) (C2 (i - 1 + 1))).
     set (DS6 := to_BinDirectSums A (C1 (i - 1 + 1)) DS5). cbn.
     rewrite <- assoc. rewrite <- assoc. rewrite <- to_premor_linear'. rewrite <- to_premor_linear'.
-    apply cancel_precomposition. rewrite <- transportf_postcompose.
+    apply cancel_precomposition. rewrite <- transport_target_postcompose.
     rewrite assoc. rewrite assoc. rewrite <- to_postmor_linear'.
-    rewrite <- transportf_postcompose. rewrite <- transportb_precompose.
+    rewrite <- transport_target_postcompose. rewrite <- transport_source_precompose.
     (* Unfold MappingCylinderDiff *)
     unfold MappingCylinderDiff. unfold MappingCylinderDiff1.
     unfold MappingCylinderDiff2. unfold MappingCylinderDiff3. cbn.
@@ -4306,9 +4277,10 @@ Section mapping_cylinder_KA_iso.
     rewrite ZeroArrow_comp_left. rewrite to_runax''.
     unfold DiffTranslationComplex. cbn.
     (* rewrite transports *)
-    rewrite <- transportb_to_binop. rewrite <- transportf_to_binop. rewrite <- transportb_to_inv.
-    rewrite <- transportf_to_inv. cbn. rewrite to_postmor_linear'. rewrite <- transportb_to_binop.
-    rewrite <- transportf_to_binop.
+    rewrite <- transport_source_to_binop. rewrite <- transport_target_to_binop.
+    rewrite <- transport_source_to_inv. rewrite <- transport_target_to_inv. cbn.
+    rewrite to_postmor_linear'.
+    rewrite <- transport_source_to_binop. rewrite <- transport_target_to_binop.
     (* The first terms of to_binop are equal, cancel them *)
     assert (e1 : (transportf
                     (precategory_morphisms (C1 i))
@@ -4319,7 +4291,7 @@ Section mapping_cylinder_KA_iso.
                                A (C1 i0)
                                (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
                        (hzrminusplus i 1))
-                    (transportb (λ x' : A, A ⟦ x', DS6 ⟧) (maponpaths C1 (! hzrminusplus i 1))
+                    (transportf (λ x' : A, A ⟦ x', DS6 ⟧) (maponpaths C1 (hzrminusplus i 1))
                                 (to_In1 A DS6))) = (to_In1 A DS2)).
     {
       cbn. unfold DS2, DS1, DS6, DS5.
@@ -4329,15 +4301,16 @@ Section mapping_cylinder_KA_iso.
       set (tmp'' := (fun (i0 : hz) =>
                        to_In1 A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                               (C2 i0))))).
-      set (tmp' := @transport_hz_double_section_f_b A C1 tmp tmp'' _ _ (hzrminusplus i 1)).
+      set (tmp' := @transport_hz_double_section_source_target
+                     A C1 tmp tmp'' _ _ (hzrminusplus i 1)).
       unfold tmp'' in tmp'.
       rewrite tmp'. unfold tmp. apply idpath.
     }
     cbn in e1. cbn. rewrite <- e1. clear e1. use to_rrw.
     (* The first term of to_binop are equal, cancel them *)
-    rewrite <- to_binop_inv_inv. rewrite transportf_to_inv. rewrite transportb_to_inv.
+    rewrite <- to_binop_inv_inv. rewrite transport_target_to_inv. rewrite transport_source_to_inv.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp. rewrite inv_inv_eq.
-    rewrite transportf_to_inv. rewrite transportb_to_inv. rewrite PreAdditive_invlcomp.
+    rewrite transport_target_to_inv. rewrite transport_source_to_inv. rewrite PreAdditive_invlcomp.
     rewrite PreAdditive_invlcomp. rewrite to_postmor_linear'.
     assert (e1 : (transportf (precategory_morphisms (C1 i))
                              (maponpaths
@@ -4346,8 +4319,8 @@ Section mapping_cylinder_KA_iso.
                                    A (to_BinDirectSums
                                         A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
                                 (hzrminusplus i 1))
-                             (transportb (λ x' : A, A ⟦ x', DS6 ⟧)
-                                         (maponpaths C1 (! hzrminusplus i 1))
+                             (transportf (λ x' : A, A ⟦ x', DS6 ⟧)
+                                         (maponpaths C1 (hzrminusplus i 1))
                                          (Diff C1 (i - 1 + 1) ;; to_In1 A DS5 ;; to_In2 A DS6))) =
                  (Diff C1 i ;; to_In1 A DS1 ;; to_In2 A DS2)).
     {
@@ -4360,7 +4333,8 @@ Section mapping_cylinder_KA_iso.
                          ;; (to_In1 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
                          ;; (to_In2 A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                     (C2 i0)))))).
-      set (tmp' := @transport_hz_double_section_f_b A C1 tmp tmp'' _ _ (hzrminusplus i 1)).
+      set (tmp' := @transport_hz_double_section_source_target
+                     A C1 tmp tmp'' _ _ (hzrminusplus i 1)).
       unfold tmp'' in tmp'.
       rewrite tmp'. unfold tmp. apply idpath.
     }
@@ -4375,7 +4349,7 @@ Section mapping_cylinder_KA_iso.
                        ;; (to_In2 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
                        ;; (to_In2 A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                   (C2 i0)))))).
-    set (tmp' := @transport_hz_double_section_f_b A C1 tmp tmp'' _ _ (hzrminusplus i 1)).
+    set (tmp' := @transport_hz_double_section_source_target A C1 tmp tmp'' _ _ (hzrminusplus i 1)).
     unfold tmp'' in tmp'.
     rewrite tmp'. unfold tmp. apply idpath.
   Qed.
@@ -4432,7 +4406,7 @@ Section mapping_cylinder_KA_iso.
     unfold MappingCylinderDiff. unfold MappingCylinderDiff1.
     unfold MappingCylinderDiff2. unfold MappingCylinderDiff3. cbn.
     fold DS1 DS2 DS3 DS4 DS5 DS6. cbn.
-    rewrite to_postmor_linear'. rewrite to_postmor_linear'. rewrite <- transportf_to_binop.
+    rewrite to_postmor_linear'. rewrite to_postmor_linear'. rewrite <- transport_target_to_binop.
     rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
     rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
     rewrite assoc.
@@ -4449,15 +4423,15 @@ Section mapping_cylinder_KA_iso.
                                    A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                    (C2 i0))))
                                 (hzrplusminus i 1))
-                             (to_Pr1 A DS2 ;; Diff C1 i ;; transportb (λ x' : A, A ⟦ x', DS5 ⟧)
-                                     (maponpaths C1 (! hzrminusplus (i + 1) 1))
+                             (to_Pr1 A DS2 ;; Diff C1 i ;; transportf (λ x' : A, A ⟦ x', DS5 ⟧)
+                                     (maponpaths C1 (hzrminusplus (i + 1) 1))
                                      (to_In1 A DS5) ;; to_inv (to_In2 A DS6))) =
                  ((to_Pr1 A DS2) ;; (to_inv (Diff C1 i)) ;; (to_In1 A DS1) ;; (to_In2 A DS2))).
     {
-      rewrite transportf_postcompose. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
+      rewrite transport_target_postcompose. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
       rewrite <- assoc. apply cancel_precomposition.
       rewrite <- PreAdditive_invlcomp. rewrite PreAdditive_invrcomp. apply cancel_precomposition.
-      rewrite <- transportf_postcompose. rewrite <- transportb_precompose.
+      rewrite <- transport_target_postcompose. rewrite <- transport_source_precompose.
       rewrite <- PreAdditive_invrcomp.
       unfold DS2, DS1, DS6, DS5.
       set (tmp := fun i0 : hz => BinDirectSumConeOb
@@ -4468,14 +4442,18 @@ Section mapping_cylinder_KA_iso.
                                   ;; (to_In2 A (to_BinDirectSums
                                                   A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                               (C2 i0)))))))).
-      set (tmp' := @transport_hz_double_section_f_b
+      set (tmp' := @transport_hz_double_section_source_target
                      A (fun i0 : hz => C1 (i0 + 1)) tmp tmp'' _ _ (hzrplusminus i 1)).
-      unfold tmp'' in tmp'. rewrite tmp'. unfold tmp. apply maponpaths.
-      assert (e2 : maponpaths C1 (! hzrminusplus (i + 1) 1) =
-                   maponpaths (λ i0 : hz, C1 (i0 + 1)) (! hzrplusminus i 1)).
+      unfold tmp'' in tmp'. rewrite tmp'. clear tmp'. unfold tmp. clear tmp.
+      clear tmp''. apply maponpaths.
+      rewrite <- transport_source_to_inv. rewrite <- transport_source_to_inv.
+      apply maponpaths. rewrite transport_source_precompose. rewrite transport_source_precompose.
+      apply cancel_postcomposition.
+      assert (e2 : maponpaths C1 (hzrminusplus (i + 1) 1) =
+                   maponpaths (λ i0 : hz, C1 (i0 + 1)) (hzrplusminus i 1)).
       {
-        assert (e3 : maponpaths (λ i0 : hz, C1 (i0 + 1)) (! hzrplusminus i 1) =
-                     maponpaths C1 (maponpaths (fun i0 : hz => i0 + 1) (! hzrplusminus i 1))).
+        assert (e3 : maponpaths (λ i0 : hz, C1 (i0 + 1)) (hzrplusminus i 1) =
+                     maponpaths C1 (maponpaths (fun i0 : hz => i0 + 1) (hzrplusminus i 1))).
         {
           induction (hzrplusminus i 1). apply idpath.
         }
@@ -4485,12 +4463,13 @@ Section mapping_cylinder_KA_iso.
     }
     cbn in e1. cbn. rewrite <- e1. clear e1. use to_rrw.
     (* Use similar technique as above *)
-    rewrite transportf_postcompose. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
+    rewrite transport_target_postcompose. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
     rewrite <- assoc. apply cancel_precomposition.
     rewrite <- PreAdditive_invlcomp. rewrite PreAdditive_invrcomp. apply cancel_precomposition.
-    rewrite <- transportf_postcompose. rewrite <- transportb_precompose.
+    rewrite <- transport_target_postcompose. rewrite <- transport_source_precompose.
     rewrite <- PreAdditive_invrcomp.
-    unfold DS2, DS1, DS6, DS5. rewrite transportf_to_inv. rewrite transportb_to_inv.
+    unfold DS2, DS1, DS6, DS5.
+    rewrite transport_target_to_inv. rewrite transport_source_to_inv.
     rewrite inv_inv_eq.
     set (tmp := fun i0 : hz => BinDirectSumConeOb
                               A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
@@ -4499,15 +4478,17 @@ Section mapping_cylinder_KA_iso.
                      (to_In1 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
                        ;; (to_In2 A (to_BinDirectSums
                                        A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))))).
-    set (tmp' := @transport_hz_double_section_f_b
+    set (tmp' := @transport_hz_double_section_source_target
                    A (fun i0 : hz => C1 (i0 + 1)) tmp tmp'' _ _ (hzrplusminus i 1)).
     unfold tmp'' in tmp'.
-    rewrite tmp'. unfold tmp. apply maponpaths.
-    assert (e2 : maponpaths C1 (! hzrminusplus (i + 1) 1) =
-                 maponpaths (λ i0 : hz, C1 (i0 + 1)) (! hzrplusminus i 1)).
+    rewrite tmp'. clear tmp'. unfold tmp. clear tmp. clear tmp''. apply maponpaths.
+    rewrite transport_source_precompose. rewrite transport_source_precompose.
+    apply cancel_postcomposition.
+    assert (e2 : maponpaths C1 (hzrminusplus (i + 1) 1) =
+                 maponpaths (λ i0 : hz, C1 (i0 + 1)) (hzrplusminus i 1)).
     {
-      assert (e3 : maponpaths (λ i0 : hz, C1 (i0 + 1)) (! hzrplusminus i 1) =
-                   maponpaths C1 (maponpaths (fun i0 : hz => i0 + 1) (! hzrplusminus i 1))).
+      assert (e3 : maponpaths (λ i0 : hz, C1 (i0 + 1)) (hzrplusminus i 1) =
+                   maponpaths C1 (maponpaths (fun i0 : hz => i0 + 1) (hzrplusminus i 1))).
       {
         induction (hzrplusminus i 1). apply idpath.
         }

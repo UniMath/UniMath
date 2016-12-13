@@ -140,7 +140,7 @@ Section def_cohomology_complex.
   Proof.
     apply (KernelArrowisMonic to_Zero (Kernel (Diff C2 i))).
     rewrite <- assoc. rewrite <- assoc. rewrite KernelCommutes. rewrite KernelCommutes.
-    cbn. rewrite <- transportf_postcompose. cbn.
+    cbn. rewrite <- transport_target_postcompose. cbn.
     set (tmp := MComm f (i - 1)). cbn in tmp. rewrite tmp. clear tmp.
     rewrite assoc. rewrite KernelCommutes.
     induction (hzrminusplus i 1). cbn. unfold idfun. apply idpath.
@@ -1058,7 +1058,8 @@ Section def_cohomology_homotopy.
     {
       unfold tmp. clear tmp. use KernelInsEq. rewrite KernelCommutes. rewrite KernelCommutes.
       set (tmp := @to_premor_linear' (AbelianToAdditive A hs)). cbn in tmp. rewrite tmp. clear tmp.
-      rewrite transportf_postcompose. rewrite transportf_postcompose. rewrite assoc. rewrite assoc.
+      rewrite transport_target_postcompose. rewrite transport_target_postcompose.
+      rewrite assoc. rewrite assoc.
       rewrite KernelCompZero. rewrite ZeroArrow_comp_left. rewrite <- PreAdditive_unel_zero.
       set (tmp :=  @to_runax' (AbelianToAdditive A hs)). cbn in tmp. rewrite tmp. clear tmp.
       apply idpath.
@@ -1077,7 +1078,7 @@ Section def_cohomology_homotopy.
     {
       use KernelInsEq. rewrite KernelCommutes. rewrite <- assoc. rewrite <- assoc.
       apply cancel_precomposition. rewrite KernelCommutes.
-      rewrite transportf_postcompose. apply idpath.
+      rewrite transport_target_postcompose. apply idpath.
     }
     cbn. cbn in e1. rewrite e1. clear e1. rewrite <- assoc. rewrite CokernelCompZero.
     rewrite ZeroArrow_comp_right. apply idpath.
@@ -1431,8 +1432,8 @@ Section def_kernel_cokernel_complex.
 
   Local Lemma CokernelComplex_Cokernel_comm (C : Complex (AbelianToAdditive A hs)) (i : hz) :
     (Diff C (i - 1))
-      ;; (transportb (λ x' : A, A ⟦ x', C (i + 1 - 1 + 1) ⟧)
-                     (maponpaths C (hzrminusplus i 1 @ hzrplusminus' i 1)) (Diff C (i + 1 - 1)) ;;
+      ;; (transportf (λ x' : A, A ⟦ x', C (i + 1 - 1 + 1) ⟧)
+                     (! maponpaths C (hzrminusplus i 1 @ hzrplusminus' i 1)) (Diff C (i + 1 - 1)) ;;
                      CokernelArrow (Cokernel (Diff C (i + 1 - 1)))) =
     ZeroArrow to_Zero (C (i - 1)) (Cokernel (Diff C (i + 1 - 1))).
   Proof.
@@ -1443,15 +1444,15 @@ Section def_kernel_cokernel_complex.
 
   Local Lemma CokernelComplex_comm (C : Complex (AbelianToAdditive A hs)) (i : hz) :
     CokernelOut to_Zero (Cokernel (Diff C (i - 1))) (Cokernel (Diff C (i + 1 - 1)))
-                (transportb (λ x' : A, A ⟦ x', C (i + 1 - 1 + 1) ⟧)
-                            (maponpaths C (hzrminusplus i 1 @ hzrplusminus' i 1))
+                (transportf (λ x' : A, A ⟦ x', C (i + 1 - 1 + 1) ⟧)
+                            (! maponpaths C (hzrminusplus i 1 @ hzrplusminus' i 1))
                             (Diff C (i + 1 - 1)) ;; CokernelArrow (Cokernel (Diff C (i + 1 - 1))))
                 (CokernelComplex_Cokernel_comm C i)
                 ;; CokernelOut to_Zero (Cokernel (Diff C (i + 1 - 1)))
                 (Cokernel (Diff C (i + 1 + 1 - 1)))
-                (transportb (λ x' : A, A ⟦ x', C (i + 1 + 1 - 1 + 1) ⟧)
-                            (maponpaths C
-                                        (hzrminusplus (i + 1) 1 @ hzrplusminus' (i + 1) 1))
+                (transportf (λ x' : A, A ⟦ x', C (i + 1 + 1 - 1 + 1) ⟧)
+                            (! maponpaths C
+                               (hzrminusplus (i + 1) 1 @ hzrplusminus' (i + 1) 1))
                             (Diff C (i + 1 + 1 - 1)) ;; CokernelArrow
                             (Cokernel
                                (Diff C (i + 1 + 1 - 1))))
@@ -1463,26 +1464,15 @@ Section def_kernel_cokernel_complex.
     rewrite <- assoc. rewrite CokernelCommutes. rewrite assoc.
     rewrite <- (ZeroArrow_comp_left _ _ _ _ _ (CokernelArrow (Cokernel (Diff C (i + 1 + 1 - 1))))).
     apply cancel_postcomposition.
-    use (transportb_path _ _ (maponpaths C (hzrplusminus i 1 @ hzrminusplus' i 1))).
-    rewrite <- transportb_precompose.
-    rewrite <- functtransportb. rewrite <- functtransportb.
-    rewrite transport_b_b.
-    assert (e0 : ((hzrplusminus i 1 @ hzrminusplus' i 1) @ hzrminusplus i 1 @ hzrplusminus' i 1) =
-                 idpath _).
-    {
-      apply isasethz.
-    }
+    use (transport_source_path _ _ (! maponpaths C (hzrplusminus i 1 @ hzrminusplus' i 1))).
+    rewrite <- transport_source_precompose.
+    rewrite <- maponpathsinv0. rewrite <- functtransportf.
+    rewrite <- maponpathsinv0. rewrite <- functtransportf.
+    rewrite transport_f_f.
+    assert (e0 : (! (hzrminusplus i 1 @ hzrplusminus' i 1)
+                    @ ! (hzrplusminus i 1 @ hzrminusplus' i 1)) = idpath _) by apply isasethz.
     cbn in e0. cbn. rewrite e0. clear e0. cbn. unfold idfun.
-    assert (e1 : transportb (λ x' : A, A ⟦ x', C (i + 1 + 1 - 1 + 1) ⟧)
-                            (maponpaths C (hzrplusminus i 1 @ hzrminusplus' i 1))
-                            (ZeroArrow to_Zero (C (i - 1 + 1)) (C (i + 1 + 1 - 1 + 1))) =
-                 ZeroArrow to_Zero _ _).
-    {
-      rewrite <- functtransportb. induction (hzrplusminus i 1 @ hzrminusplus' i 1).
-      cbn. unfold idfun. apply idpath.
-    }
-    cbn in e1. rewrite e1. clear e1.
-    rewrite <- functtransportb.
+    rewrite transport_source_ZeroArrow.
     induction (hzrminusplus (i + 1) 1). cbn.
     induction (hzrplusminus' (i + 1 - 1 + 1) 1). cbn. unfold idfun.
     exact (DSq _ C (i + 1 - 1)).
@@ -1497,8 +1487,8 @@ Section def_kernel_cokernel_complex.
       use CokernelOut.
       + use compose.
         * exact (C (i + 1 - 1 + 1)).
-        * use (transportb (fun x' : A => precategory_morphisms x' (C (i + 1 - 1 + 1)))
-                          (maponpaths C (hzrminusplus i 1 @ hzrplusminus' i 1))).
+        * use (transportf (fun x' : A => precategory_morphisms x' (C (i + 1 - 1 + 1)))
+                          (! maponpaths C (hzrminusplus i 1 @ hzrplusminus' i 1))).
           cbn.
           exact (Diff C (i + 1 - 1)).
         * use CokernelArrow.
@@ -1511,8 +1501,8 @@ Section def_kernel_cokernel_complex.
   (** *** Uniqueness and existence of h^i *)
 
   Local Lemma CokernelKernelMorphism_comm1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
-    Diff C (i - 1) ;; transportb (λ x : A, A ⟦x, C (i + 1)⟧)
-         (maponpaths C (hzrminusplus i 1)) (Diff C i) =
+    Diff C (i - 1) ;; transportf (λ x : A, A ⟦x, C (i + 1)⟧)
+         (! maponpaths C (hzrminusplus i 1)) (Diff C i) =
     ZeroArrow to_Zero (C (i - 1)) (C (i + 1)).
   Proof.
     induction (hzrminusplus i 1). cbn. unfold idfun. exact (DSq _ C (i - 1)).
@@ -1521,8 +1511,8 @@ Section def_kernel_cokernel_complex.
 
   Local Lemma CokernelKernelMorphism_comm2 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
     CokernelOut to_Zero (Cokernel (Diff C (i - 1))) (C (i + 1))
-                (transportb (λ x : A, A ⟦ x, C (i + 1) ⟧)
-                            (maponpaths C (hzrminusplus i 1)) (Diff C i))
+                (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
+                            (! maponpaths C (hzrminusplus i 1)) (Diff C i))
                 (CokernelKernelMorphism_comm1 C i) ;; Diff C (i + 1) =
     ZeroArrow to_Zero (Cokernel (Diff C (i - 1))) (C (i + 1 + 1)).
   Proof.
@@ -1540,39 +1530,30 @@ Section def_kernel_cokernel_complex.
                (Cokernel (Diff C (i - 1)))
                (CokernelOut to_Zero (Cokernel (Diff C (i - 1)))
                             (C (i + 1))
-                            (transportb (λ x : A, A ⟦ x, C (i + 1) ⟧)
-                                        (maponpaths C (hzrminusplus i 1))
+                            (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
+                                        (! maponpaths C (hzrminusplus i 1))
                                         (Diff C i)) (CokernelKernelMorphism_comm1 C i))
                (CokernelKernelMorphism_comm2 C i).
   Proof.
     use KernelInsEq. rewrite KernelCommutes. rewrite <- assoc. rewrite KernelCommutes.
-    assert (e0 : transportf (λ i0 : pr1 hz, A ⟦ C i0, Cokernel (Diff C (i - 1)) ⟧)
+    assert (e1 : transportf (λ i0 : pr1 hz, A ⟦ C i0, Cokernel (Diff C (i - 1)) ⟧)
                             (hzrminusplus i 1) (CokernelArrow (Cokernel (Diff C (i - 1)))) =
-                 transportb (λ i0 : pr1 hz, A ⟦ C i0, Cokernel (Diff C (i - 1)) ⟧)
-                            (hzrminusplus' i 1) (CokernelArrow (Cokernel (Diff C (i - 1))))).
-    {
-      unfold transportb.
-      assert (e1 : ! hzrminusplus' i 1 = hzrminusplus i 1) by apply isasethz.
-      cbn in e1. rewrite e1. apply idpath.
-    }
-    rewrite e0. clear e0.
-    assert (e1 : transportb (λ i0 : pr1 hz, A ⟦ C i0, Cokernel (Diff C (i - 1)) ⟧)
-                            (hzrminusplus' i 1) (CokernelArrow (Cokernel (Diff C (i - 1)))) =
-                 transportb (λ x : A, A⟦x, Cokernel (Diff C (i - 1))⟧)
-                            (maponpaths C (hzrminusplus' i 1))
+                 transportf (λ x : A, A⟦x, Cokernel (Diff C (i - 1))⟧)
+                            (maponpaths C (hzrminusplus i 1))
                             (CokernelArrow (Cokernel (Diff C (i - 1))))).
     {
-      rewrite <- functtransportb. apply idpath.
+      rewrite <- functtransportf. apply idpath.
     }
-    rewrite e1. clear e1. rewrite <- transportb_precompose. rewrite CokernelCommutes.
-    rewrite transport_b_b. rewrite <- maponpathscomp0. rewrite <- functtransportb.
-    assert (e2 : hzrminusplus' i 1 @ hzrminusplus i 1 = idpath _) by apply isasethz.
+    rewrite e1. clear e1. rewrite <- transport_source_precompose. rewrite CokernelCommutes.
+    rewrite transport_f_f. rewrite <- maponpathsinv0. rewrite <- maponpathscomp0.
+    rewrite <- functtransportf.
+    assert (e2 : ! hzrminusplus i 1 @ hzrminusplus i 1 = idpath _) by apply isasethz.
     rewrite e2. apply idpath.
   Qed.
 
   Local Lemma CokernelKernelMorphism_comm1' (C : Complex (AbelianToAdditive A hs)) (i : hz) :
-    Diff C (i - 1) ;; transportb (λ x : A, A ⟦ x, C (i + 1) ⟧)
-         (maponpaths C (hzrminusplus i 1)) (Diff C i) =
+    Diff C (i - 1) ;; transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
+         (! maponpaths C (hzrminusplus i 1)) (Diff C i) =
     ZeroArrow to_Zero (C (i - 1)) (C (i + 1)).
   Proof.
     induction (hzrminusplus i 1). cbn. unfold idfun. exact (DSq _ C (i - 1)).
@@ -1580,13 +1561,13 @@ Section def_kernel_cokernel_complex.
 
   Local Lemma CokernelKernelMorphism_comm2' (C : Complex (AbelianToAdditive A hs)) (i : hz) :
     CokernelOut to_Zero (Cokernel (Diff C (i - 1))) (C (i + 1))
-                (transportb (λ x : A, A ⟦ x, C (i + 1) ⟧)
-                            (maponpaths C (hzrminusplus i 1)) (Diff C i))
+                (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
+                            (! maponpaths C (hzrminusplus i 1)) (Diff C i))
                 (CokernelKernelMorphism_comm1' C i) =
     (KernelIn to_Zero (Kernel (Diff C (i + 1))) (Cokernel (Diff C (i - 1)))
               (CokernelOut to_Zero (Cokernel (Diff C (i - 1))) (C (i + 1))
-                           (transportb (λ x : A, A ⟦ x, C (i + 1) ⟧)
-                                       (maponpaths C (hzrminusplus i 1)) (Diff C i))
+                           (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
+                                       (! maponpaths C (hzrminusplus i 1)) (Diff C i))
                            (CokernelKernelMorphism_comm1 C i))
               (CokernelKernelMorphism_comm2 C i))
       ;; (KernelArrow (Kernel (Diff C (i + 1)))).
@@ -1602,14 +1583,14 @@ Section def_kernel_cokernel_complex.
                  transportf (λ i0 : pr1 hz, A ⟦ C i0, Cokernel (Diff C (i - 1)) ⟧)
                             (hzrminusplus i 1) (CokernelArrow (Cokernel (Diff C (i - 1)))) ;; f)
                   × (CokernelOut to_Zero (Cokernel (Diff C (i - 1))) (C (i + 1))
-                                 (transportb (λ x : A, A ⟦ x, C (i + 1) ⟧)
-                                             (maponpaths C (hzrminusplus i 1)) (Diff C i))
+                                 (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
+                                             (! maponpaths C (hzrminusplus i 1)) (Diff C i))
                                  (CokernelKernelMorphism_comm1' C i) =
                      f ;; KernelArrow (Kernel (Diff C (i + 1)))),
   t =
   KernelIn to_Zero (Kernel (Diff C (i + 1))) (Cokernel (Diff C (i - 1)))
     (CokernelOut to_Zero (Cokernel (Diff C (i - 1))) (C (i + 1))
-       (transportb (λ x : A, A ⟦ x, C (i + 1) ⟧) (maponpaths C (hzrminusplus i 1)) (Diff C i))
+       (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧) (! maponpaths C (hzrminusplus i 1)) (Diff C i))
        (CokernelKernelMorphism_comm1 C i)) (CokernelKernelMorphism_comm2 C i),,
     CokernelKernelMorphism_comm3 C i,, CokernelKernelMorphism_comm2' C i.
   Proof.
@@ -1618,14 +1599,15 @@ Section def_kernel_cokernel_complex.
     - cbn. use KernelInsEq. rewrite KernelCommutes.
       use CokernelOutsEq. rewrite CokernelCommutes.
       rewrite assoc.
-      use transportb_path.
+      use transport_source_path.
       + exact (C i).
-      + exact (maponpaths C (hzrminusplus' i 1)).
-      + rewrite transport_b_b. rewrite <- maponpathscomp0.
-        assert (e0 : hzrminusplus' i 1 @ hzrminusplus i 1 = idpath _) by apply isasethz.
-        rewrite e0. clear e0. cbn. unfold idfun.
-        rewrite transportb_precompose. rewrite transportb_precompose. rewrite <- functtransportb.
-        unfold transportb.
+      + exact (! maponpaths C (hzrminusplus' i 1)).
+      + rewrite transport_f_f. rewrite <- maponpathsinv0. rewrite <- maponpathsinv0.
+        rewrite <- maponpathscomp0.
+        assert (e0 : (! hzrminusplus i 1 @ ! hzrminusplus' i 1) = idpath _) by apply isasethz.
+        cbn in e0. cbn. rewrite e0. clear e0. cbn. unfold idfun.
+        rewrite transport_source_precompose. rewrite transport_source_precompose.
+        rewrite <- functtransportf.
         assert (e1 : ! hzrminusplus' i 1 = hzrminusplus i 1) by apply isasethz.
         cbn in e1. rewrite e1. clear e1. rewrite <- t21.
         rewrite KernelCommutes. apply idpath.
@@ -1641,8 +1623,8 @@ Section def_kernel_cokernel_complex.
                                 (hzrminusplus i 1)
                                 (CokernelArrow (Cokernel (Diff C (i - 1))))) ;; f)
                      × ((CokernelOut to_Zero (Cokernel (Diff C (i - 1))) (C (i + 1))
-                                     (transportb (λ x : A, A ⟦ x, C (i + 1) ⟧)
-                                                 (maponpaths C (hzrminusplus i 1)) (Diff C i))
+                                     (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
+                                                 (! maponpaths C (hzrminusplus i 1)) (Diff C i))
                                      (CokernelKernelMorphism_comm1' C i)) =
                        f ;; (KernelArrow (Kernel (Diff C (i + 1)))))).
   Proof.
@@ -1650,7 +1632,7 @@ Section def_kernel_cokernel_complex.
     - use tpair.
       + cbn. use KernelIn.
         * use CokernelOut.
-          -- exact (transportb (fun (x : A) => A⟦x, C(i + 1)⟧) (maponpaths C (hzrminusplus i 1))
+          -- exact (transportf (fun (x : A) => A⟦x, C(i + 1)⟧) (! maponpaths C (hzrminusplus i 1))
                                (Diff C i)).
           -- exact (CokernelKernelMorphism_comm1 C i).
         * exact (CokernelKernelMorphism_comm2 C i).
@@ -1667,7 +1649,8 @@ Section def_kernel_cokernel_complex.
     let CK := Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                    (maponpaths C (hzrminusplus i 1)) (Diff C (i - 1))) in
     (Diff C (i - 1))
-      ;; (transportb (λ x' : A, A ⟦ x', CK⟧) (maponpaths C (hzrminusplus i 1)) (CokernelArrow CK)) =
+      ;; (transportf (λ x' : A, A ⟦ x', CK⟧)
+                     (! maponpaths C (hzrminusplus i 1)) (CokernelArrow CK)) =
     ZeroArrow to_Zero _ _.
   Proof.
     induction (hzrminusplus i 1). cbn. unfold idfun. apply CokernelCompZero.
@@ -1676,11 +1659,11 @@ Section def_kernel_cokernel_complex.
   Local Lemma CokernelKernelCohomology1_Mor1_eq1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
     (transportf (precategory_morphisms (C (i - 1))) (maponpaths C (hzrminusplus i 1))
                 (Diff C (i - 1)))
-      ;; (transportb (λ x' : A, A ⟦ x', Cokernel (Diff C (i - 1)) ⟧)
-                     (maponpaths C (! hzrminusplus i 1))
+      ;; (transportf (λ x' : A, A ⟦ x', Cokernel (Diff C (i - 1)) ⟧)
+                     (maponpaths C (hzrminusplus i 1))
                      (CokernelArrow (Cokernel (Diff C (i - 1))))) = ZeroArrow to_Zero _ _.
   Proof.
-    rewrite maponpathsinv0. rewrite transport_compose'. apply CokernelCompZero.
+    rewrite transport_compose'. use CokernelCompZero.
   Qed.
 
   Local Lemma CokernelKernelCohomology1_Mor1_comm1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
@@ -1697,12 +1680,12 @@ Section def_kernel_cokernel_complex.
          (transportf (precategory_morphisms (C (i - 1))) (maponpaths C (hzrminusplus i 1))
                      (Diff C (i - 1))))
       (Cokernel (Diff C (i - 1)))
-      (transportb (λ x' : A, A ⟦ x', Cokernel (Diff C (i - 1)) ⟧)
-                  (maponpaths C (! hzrminusplus i 1)) (CokernelArrow (Cokernel (Diff C (i - 1)))))
+      (transportf (λ x' : A, A ⟦ x', Cokernel (Diff C (i - 1)) ⟧)
+                  (maponpaths C (hzrminusplus i 1)) (CokernelArrow (Cokernel (Diff C (i - 1)))))
       (CokernelKernelCohomology1_Mor1_eq1 C i) ;;
       KernelIn to_Zero (Kernel (Diff C (i + 1))) (Cokernel (Diff C (i - 1)))
       (CokernelOut to_Zero (Cokernel (Diff C (i - 1))) (C (i + 1))
-                   (transportb (λ x : A, A ⟦ x, C (i + 1) ⟧) (maponpaths C (hzrminusplus i 1))
+                   (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧) (! maponpaths C (hzrminusplus i 1))
                                (Diff C i))
                    (CokernelKernelMorphism_comm1 C i)) (CokernelKernelMorphism_comm2 C i) =
     ZeroArrow to_Zero _ _.
@@ -1717,17 +1700,16 @@ Section def_kernel_cokernel_complex.
     rewrite <- assoc. rewrite <- assoc. rewrite KernelCommutes. rewrite ZeroArrow_comp_left.
     cbn. cbn in K. fold K. rewrite <- (KernelCompZero to_Zero K). apply cancel_precomposition.
     use CokernelOutsEq. rewrite assoc. rewrite CokernelCommutes. rewrite CokernelCommutes.
-    use transportb_path.
+    use transport_source_path.
     - exact (C (i - 1 + 1)).
-    - exact (maponpaths C (hzrminusplus i 1)).
-    - rewrite <- (CokernelCommutes to_Zero (Cokernel (Diff C (i - 1))) _
-                                  (transportb (λ x : A, A ⟦ x, C (i + 1) ⟧)
-                                              (maponpaths C (hzrminusplus i 1))
-                                              (Diff C i)) (CokernelKernelMorphism_comm1 C i)).
-      rewrite transportb_precompose. apply cancel_postcomposition. rewrite transport_b_b.
-      rewrite <- maponpathscomp0.
+    - exact (! maponpaths C (hzrminusplus i 1)).
+    - rewrite <- transport_source_precompose.
+      set (tmp := CokernelCommutes
+                    to_Zero (Cokernel (Diff C (i - 1))) _ _ (CokernelKernelMorphism_comm1 C i)).
+      cbn in tmp. cbn. rewrite tmp. clear tmp. rewrite transport_f_f.
+      rewrite <- maponpathsinv0. rewrite <- maponpathscomp0.
       assert (e0 : (hzrminusplus i 1 @ ! hzrminusplus i 1) = idpath _) by apply isasethz.
-      cbn. cbn in e0. rewrite e0. clear e0. apply idpath.
+      cbn. cbn in e0. rewrite e0. clear e0. cbn. unfold idfun. apply idpath.
   Qed.
 
   Definition CokernelKernelCohomology1_Mor1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
@@ -1745,8 +1727,8 @@ Section def_kernel_cokernel_complex.
     - cbn.
       use (compose (KernelArrow K)).
       use CokernelOut.
-      + exact (transportb (fun x' : A => A ⟦x', Cokernel (Diff C (i - 1))⟧)
-                          (maponpaths C (! hzrminusplus i 1))
+      + exact (transportf (fun x' : A => A ⟦x', Cokernel (Diff C (i - 1))⟧)
+                          (maponpaths C (hzrminusplus i 1))
                           (CokernelArrow (Cokernel (Diff C (i - 1))))).
       + exact (CokernelKernelCohomology1_Mor1_eq1 C i).
     - exact (CokernelKernelCohomology1_Mor1_comm1 C i).
@@ -1757,19 +1739,19 @@ Section def_kernel_cokernel_complex.
       (Kernel
          (KernelIn to_Zero (Kernel (Diff C (i + 1))) (Cokernel (Diff C (i - 1)))
                    (CokernelOut to_Zero (Cokernel (Diff C (i - 1))) (C (i + 1))
-                                (transportb (λ x : A, A ⟦x, C (i + 1)⟧)
-                                            (maponpaths C (hzrminusplus i 1)) (Diff C i))
+                                (transportf (λ x : A, A ⟦x, C (i + 1)⟧)
+                                            (! maponpaths C (hzrminusplus i 1)) (Diff C i))
                                 (CokernelKernelMorphism_comm1 C i))
                    (CokernelKernelMorphism_comm2 C i))) ;;
       CokernelOut to_Zero (Cokernel (Diff C (i - 1)))
       (Cokernel
          (transportf (precategory_morphisms (C (i - 1))) (maponpaths C (hzrminusplus i 1))
                      (Diff C (i - 1))))
-      (transportb (λ x' : A, A ⟦x', Cokernel
+      (transportf (λ x' : A, A ⟦x', Cokernel
                                       (transportf (precategory_morphisms (C (i - 1)))
                                                   (maponpaths C (hzrminusplus i 1))
                                                   (Diff C (i - 1)))⟧)
-                  (maponpaths C (hzrminusplus i 1))
+                  (! maponpaths C (hzrminusplus i 1))
                   (CokernelArrow
                      (Cokernel
                         (transportf (precategory_morphisms (C (i - 1)))
@@ -1787,46 +1769,53 @@ Section def_kernel_cokernel_complex.
     set (K := (Kernel
                  (KernelIn to_Zero (Kernel (Diff C (i + 1))) (Cokernel (Diff C (i - 1)))
                            (CokernelOut to_Zero (Cokernel (Diff C (i - 1))) (C (i + 1))
-                                        (transportb (λ x : A, A ⟦ x, C (i + 1) ⟧)
-                                                    (maponpaths C (hzrminusplus i 1)) (Diff C i))
+                                        (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
+                                                    (! maponpaths C (hzrminusplus i 1)) (Diff C i))
                                         (CokernelKernelMorphism_comm1 C i))
                            (CokernelKernelMorphism_comm2 C i)))).
     cbn. cbn in K. fold K.
     set (tmp := dirprod_pr2 (pr2 (pr1 (CokernelKernelMorphism C i)))).
     assert (e0 : CokernelOut to_Zero (Cokernel (Diff C (i - 1))) CK
-                             (transportb (λ x' : A, A ⟦ x', CK ⟧) (maponpaths C (hzrminusplus i 1))
+                             (transportf (λ x' : A, A ⟦ x', CK ⟧)
+                                         (! maponpaths C (hzrminusplus i 1))
                                          (CokernelArrow CK))
                              (CokernelKernelCohomology1_eq C i) ;; CokernelOut to_Zero CK
                              (C (i + 1)) (Diff C i)
                              (CohomologyComplex_KernelIn_eq A hs C i) =
                  (KernelIn to_Zero (Kernel (Diff C (i + 1))) (Cokernel (Diff C (i - 1)))
                            (CokernelOut to_Zero (Cokernel (Diff C (i - 1))) (C (i + 1))
-                                        (transportb (λ x : A, A ⟦ x, C (i + 1) ⟧)
-                                                    (maponpaths C (hzrminusplus i 1)) (Diff C i))
+                                        (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
+                                                    (! maponpaths C (hzrminusplus i 1)) (Diff C i))
                                         (CokernelKernelMorphism_comm1 C i))
                            (CokernelKernelMorphism_comm2 C i)) ;; KernelArrow (Kernel _)).
     {
       use CokernelOutsEq. rewrite assoc. rewrite CokernelCommutes.
-      use transportb_path.
+      use transport_source_path.
       + exact (C i).
-      + exact (maponpaths C (! hzrminusplus i 1)).
-      + rewrite transportb_precompose. rewrite transport_b_b.
-        rewrite <- maponpathscomp0.
-        assert (e0 : ! hzrminusplus i 1 @ hzrminusplus i 1 = idpath _) by apply isasethz.
-        rewrite e0. clear e0. cbn. unfold idfun. rewrite CokernelCommutes.
+      + exact (! maponpaths C (! hzrminusplus i 1)).
+      + rewrite transport_source_precompose. rewrite transport_f_f.
+        rewrite maponpathsinv0. rewrite pathsinv0inv0.
+        assert (e0 : (! maponpaths C (hzrminusplus i 1) @ maponpaths C (hzrminusplus i 1)) =
+                     maponpaths C (idpath _)).
+        {
+          rewrite <- maponpathsinv0. rewrite <- maponpathscomp0. apply maponpaths.
+          apply isasethz.
+        }
+        cbn. cbn in e0. rewrite e0. clear e0. cbn. unfold idfun. rewrite CokernelCommutes.
         cbn in tmp. rewrite <- tmp. clear tmp.
-        use transportb_path.
+        use transport_source_path.
         * exact (C (i - 1 + 1)).
-        * exact (maponpaths C (hzrminusplus i 1)).
-        * rewrite transportb_precompose. rewrite transportb_precompose.
-          rewrite transport_b_b. rewrite <- maponpathscomp0. rewrite pathsinv0r. cbn.
-          unfold idfun. rewrite CokernelCommutes. apply idpath.
+        * exact (! maponpaths C (hzrminusplus i 1)).
+        * rewrite transport_source_precompose. rewrite transport_source_precompose.
+          rewrite transport_f_f. rewrite <- maponpathsinv0. rewrite <- maponpathscomp0.
+          rewrite pathsinv0r. cbn. unfold idfun. rewrite CokernelCommutes.
+          rewrite maponpathsinv0. apply idpath.
     }
     rewrite <- assoc. cbn in e0. rewrite e0. clear e0.
     rewrite KernelCommutes. unfold K.
     set (CKO := CokernelOut to_Zero (Cokernel (Diff C (i - 1))) (C (i + 1))
-                            (transportb (λ x : A, A ⟦ x, C (i + 1) ⟧)
-                                        (maponpaths C (hzrminusplus i 1)) (Diff C i))
+                            (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
+                                        (! maponpaths C (hzrminusplus i 1)) (Diff C i))
                             (CokernelKernelMorphism_comm1 C i)). cbn. cbn in CKO. fold CKO.
     set (K2 := Kernel (KernelIn to_Zero (Kernel (Diff C (i + 1)))
                                 (Cokernel (Diff C (i - 1))) CKO
@@ -1847,7 +1836,8 @@ Section def_kernel_cokernel_complex.
     use KernelIn.
     - use (compose (KernelArrow _)).
       use CokernelOut.
-      + exact (transportb (fun x' : A => precategory_morphisms x' _) (maponpaths C (hzrminusplus i 1))
+      + exact (transportf (fun x' : A => precategory_morphisms x' _)
+                          (! maponpaths C (hzrminusplus i 1))
                           (CokernelArrow (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                                (maponpaths C (hzrminusplus i 1))
                                                                (Diff C (i - 1)))))).
@@ -1873,8 +1863,8 @@ Section def_kernel_cokernel_complex.
     set (K2 := (Kernel
                   (KernelIn to_Zero (Kernel (Diff C (i + 1))) (Cokernel (Diff C (i - 1)))
                             (CokernelOut to_Zero (Cokernel (Diff C (i - 1))) (C (i + 1))
-                                         (transportb (λ x : A, A ⟦ x, C (i + 1) ⟧)
-                                                     (maponpaths C (hzrminusplus i 1)) (Diff C i))
+                                         (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
+                                                     (! maponpaths C (hzrminusplus i 1)) (Diff C i))
                                          (CokernelKernelMorphism_comm1 C i))
                             (CokernelKernelMorphism_comm2 C i)))).
     cbn in K2. fold K2.
@@ -1891,15 +1881,15 @@ Section def_kernel_cokernel_complex.
                           (CohomologyComplexIso_Mor_i A hs C i,,
                                                       CohomologyComplexIso_is_iso_i A hs C i) ;;
                           (KernelArrow K1 ;; CokernelOut to_Zero CK2 CK1
-                                       (transportb
+                                       (transportf
                                           (λ x' : A, A ⟦ x', CK1 ⟧)
-                                          (maponpaths C (! hzrminusplus i 1))
+                                          (maponpaths C (hzrminusplus i 1))
                                           (CokernelArrow CK1))
                                        (CokernelKernelCohomology1_Mor1_eq1 C i)))) =
                  (KernelArrow K1 ;; CokernelOut to_Zero CK2 CK1
-                              (transportb
+                              (transportf
                                  (λ x' : A, A ⟦ x', CK1 ⟧)
-                                 (maponpaths C (! hzrminusplus i 1))
+                                 (maponpaths C (hzrminusplus i 1))
                                  (CokernelArrow CK1))
                               (CokernelKernelCohomology1_Mor1_eq1 C i))).
     {
@@ -1917,8 +1907,8 @@ Section def_kernel_cokernel_complex.
     apply (maponpaths
              (fun gg : _ => KernelIn to_Zero K1 K2
                                   (KernelArrow K2 ;; CokernelOut to_Zero CK1 CK2
-                                               (transportb (λ x' : A, A ⟦ x', CK2 ⟧)
-                                                           (maponpaths C (hzrminusplus i 1))
+                                               (transportf (λ x' : A, A ⟦ x', CK2 ⟧)
+                                                           (! maponpaths C (hzrminusplus i 1))
                                                            (CokernelArrow CK2))
                                                (CokernelKernelCohomology1_eq C i))
                                   (CokernelKernelCohomology1_Mor2_comm1 C i) ;; gg)) in ee.
@@ -1927,11 +1917,12 @@ Section def_kernel_cokernel_complex.
     rewrite assoc. rewrite KernelCommutes. rewrite <- id_right. rewrite <- assoc.
     apply cancel_precomposition. use CokernelOutsEq.
     rewrite id_right. rewrite assoc. rewrite CokernelCommutes.
-    use transportb_path.
+    use transport_source_path.
     -- exact (C i).
-    -- exact (maponpaths C (! hzrminusplus i 1)).
-    -- rewrite transportb_precompose. rewrite transport_b_b.
-       rewrite <- maponpathscomp0. rewrite pathsinv0l. cbn. unfold idfun.
+    -- exact (! maponpaths C (! hzrminusplus i 1)).
+    -- rewrite transport_source_precompose. rewrite transport_f_f.
+       rewrite <- maponpathsinv0. rewrite <- maponpathsinv0. rewrite <- maponpathscomp0.
+       rewrite pathsinv0inv0. rewrite pathsinv0l. cbn. unfold idfun.
        apply CokernelCommutes.
   Qed.
 
@@ -1951,24 +1942,24 @@ Section def_kernel_cokernel_complex.
     set (K2 := Kernel
                  (KernelIn to_Zero (Kernel (Diff C (i + 1))) CK1
                            (CokernelOut to_Zero CK1 (C (i + 1))
-                                        (transportb (λ x : A, A ⟦ x, C (i + 1) ⟧)
-                                                    (maponpaths C (hzrminusplus i 1)) (Diff C i))
+                                        (transportf (λ x : A, A ⟦ x, C (i + 1) ⟧)
+                                                    (! maponpaths C (hzrminusplus i 1)) (Diff C i))
                                         (CokernelKernelMorphism_comm1 C i))
                            (CokernelKernelMorphism_comm2 C i))).
     cbn in K2. fold K2.
     set (KI21 := KernelIn to_Zero K2 K1
                           ((KernelArrow K1)
                              ;; (CokernelOut to_Zero CK2 CK1
-                                             (transportb (λ x' : A, A ⟦ x', CK1 ⟧)
-                                                         (maponpaths C (! hzrminusplus i 1))
+                                             (transportf (λ x' : A, A ⟦ x', CK1 ⟧)
+                                                         (maponpaths C (hzrminusplus i 1))
                                                          (CokernelArrow CK1))
                                              (CokernelKernelCohomology1_Mor1_eq1 C i)))
                           (CokernelKernelCohomology1_Mor1_comm1 C i)).
     cbn in KI21. fold KI21.
     set (KI12 := KernelIn to_Zero K1 K2
                           (KernelArrow K2 ;; CokernelOut to_Zero CK1 CK2
-                                       (transportb (λ x' : A, A ⟦ x', CK2 ⟧)
-                                                   (maponpaths C (hzrminusplus i 1))
+                                       (transportf (λ x' : A, A ⟦ x', CK2 ⟧)
+                                                   (! maponpaths C (hzrminusplus i 1))
                                                    (CokernelArrow CK2))
                                        (CokernelKernelCohomology1_eq C i))
                           (CokernelKernelCohomology1_Mor2_comm1 C i)).
@@ -2007,11 +1998,12 @@ Section def_kernel_cokernel_complex.
     rewrite KernelCommutes.
     rewrite id_left. rewrite <- id_right. rewrite <- assoc. apply cancel_precomposition.
     use CokernelOutsEq. rewrite assoc. rewrite CokernelCommutes. rewrite id_right.
-    use transportb_path.
+    use transport_source_path.
     - exact (C (i - 1 + 1)).
-    - exact (maponpaths C (hzrminusplus i 1)).
-    - rewrite transportb_precompose. rewrite transport_b_b. rewrite <- maponpathscomp0.
-      rewrite pathsinv0r. cbn. unfold idfun. apply CokernelCommutes.
+    - exact (! maponpaths C (hzrminusplus i 1)).
+    - rewrite transport_source_precompose. rewrite transport_f_f.
+      rewrite <- maponpathsinv0. rewrite <- maponpathscomp0.
+      rewrite pathsinv0r. cbn. unfold idfun. rewrite maponpathsinv0. apply CokernelCommutes.
   Qed.
 
   Definition CokernelKernelCohomology1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
@@ -2043,34 +2035,21 @@ Section def_kernel_cokernel_complex.
                                    (hzrminusplus i 1)
                                    (CokernelArrow (Cokernel (Diff C (i - 1)))))).
     {
-      set (tmp' := transportb_isEpi A (CokernelArrow (Cokernel (Diff C (i - 1))))
-                                    (CokernelArrowisEpi _ _) (maponpaths C (hzrminusplus' i 1))).
-      unfold transportb in tmp'.
-      assert (e00 : (! maponpaths C (hzrminusplus' i 1)) = maponpaths C (hzrminusplus i 1)).
-      {
-        rewrite <- maponpathsinv0. apply maponpaths.
-        apply isasethz.
-      }
-      cbn in tmp'.
-      assert (e001 : isEpi (transportf (λ x' : A, A ⟦ x', Cokernel (Diff C (i - 1)) ⟧)
-                                       (maponpaths C (hzrminusplus i 1))
-                                       (CokernelArrow (Cokernel (Diff C (i - 1)))))).
-      {
-        induction e00. apply tmp'.
-      }
-      clear e00.
-      rewrite <- functtransportf in e001. apply e001.
+      set (tmp' := transport_source_isEpi
+                     A (CokernelArrow (Cokernel (Diff C (i - 1))))
+                     (CokernelArrowisEpi _ _) (maponpaths C (hzrminusplus i 1))).
+      rewrite <- functtransportf in tmp'. apply tmp'.
     }
     use e0. rewrite assoc. clear e0. rewrite ZeroArrow_comp_right.
     set (tmp := dirprod_pr1 (pr2 (pr1 (CokernelKernelMorphism C i)))).
     cbn in tmp. rewrite <- tmp. clear tmp.
     set (tmp := CokernelCompZero _ CK).
-    use transportb_path.
+    use transport_source_path.
     - exact (C (i + 1 - 1)).
-    - exact (maponpaths C (hzrplusminus i 1)).
-    - rewrite transportb_ZeroArrow. cbn in tmp. rewrite <- tmp. clear tmp.
-      rewrite transportb_precompose. apply cancel_postcomposition. clear CK.
-      rewrite transportb_KernelIn. use KernelInsEq.
+    - exact (! maponpaths C (hzrplusminus i 1)).
+    - rewrite transport_source_ZeroArrow. cbn in tmp. rewrite <- tmp. clear tmp.
+      rewrite transport_source_precompose. apply cancel_postcomposition. clear CK.
+      rewrite transport_source_KernelIn. use KernelInsEq.
       rewrite KernelCommutes. rewrite KernelCommutes.
       set (tmp := transport_Diff _ C i). cbn. cbn in tmp. apply tmp.
   Qed.
@@ -2098,18 +2077,18 @@ Section def_kernel_cokernel_complex.
                                       (maponpaths C (hzrminusplus (i + 1) 1))
                                       (Diff C (i + 1 - 1)))
                           (CohomologyComplex_KernelIn_eq A hs C (i + 1)) =
-                 transportb (fun x' : ob A => precategory_morphisms x' _)
-                            (maponpaths C (hzrplusminus i 1))
+                 transportf (fun x' : ob A => precategory_morphisms x' _)
+                            (! maponpaths C (hzrplusminus i 1))
                             (KernelIn to_Zero (Kernel (Diff C (i + 1))) (C i) (Diff C i)
                                       (DSq (AbelianToAdditive A hs) C i))).
     {
-      rewrite transportb_KernelIn.
+      rewrite transport_source_KernelIn.
       use KernelInsEq.
       rewrite KernelCommutes. rewrite KernelCommutes. clear tmp.
       set (tmp := transport_Diff _ C i). cbn. cbn in tmp. apply pathsinv0. apply tmp.
     }
     cbn in e0. cbn. rewrite e0. clear e0. rewrite tmp. clear tmp. cbn.
-    rewrite transportb_precompose. rewrite <- assoc. rewrite CokernelCompZero.
+    rewrite transport_source_precompose. rewrite <- assoc. rewrite CokernelCompZero.
     apply ZeroArrow_comp_right.
   Qed.
 

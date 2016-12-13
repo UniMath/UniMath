@@ -414,3 +414,27 @@ Proof.
 Defined.
 
 (** Check assumptions *)
+
+Lemma toforallpaths_induction (X Y : UU) (f g : X -> Y) (P : (Π x, f x = g x) -> UU)
+      (H : Π e : f = g, P (toforallpaths _ _ _ e)) : Π i : (Π x, f x = g x), P i.
+Proof.
+  intros i. rewrite <- (homotweqinvweq (weqtoforallpaths _ f g)). apply H.
+Defined.
+
+Definition transportf_funextfun {X Y : UU} (P : Y -> UU) (F F' : X -> Y) (H : Π (x : X), F x = F' x)
+           (x : X) (f : P (F x)) :
+  transportf (λ x0 : X → Y, P (x0 x)) (funextsec _ F F' H) f = transportf (λ x0 : Y, P x0) (H x) f.
+Proof.
+  apply (toforallpaths_induction
+           _ _ F F' (fun H' => transportf (λ x0 : X → Y, P (x0 x))
+                                       (funextsec (λ _ : X, Y) F F' (λ x0 : X, H' x0)) f =
+                            transportf (λ x0 : Y, P x0) (H' x) f)).
+  intro e. clear H.
+  set (XR := homotinvweqweq (weqtoforallpaths _ F F') e).
+  set (H := funextsec (λ _ : X, Y) F F' (λ x0 : X, toforallpaths (λ _ : X, Y) F F' e x0)).
+  set (P' := λ x0 : X → Y, P (x0 x)).
+  use pathscomp0.
+  - exact (transportf P' e f).
+  - use transportf_paths. exact XR.
+  - induction e. apply idpath.
+Defined.

@@ -540,18 +540,18 @@ Section transport_kernels.
   Variable hs : has_homsets C.
   Variable Z : Zero C.
 
-  Local Lemma transportb_KernelIn_eq {x' x y z : C} (f : x --> y) {g : y --> z} (K : Kernel Z g)
-        (e : x' = x) (H : f ;; g = ZeroArrow Z _ _) :
-    (transportb (fun x' : ob C => precategory_morphisms x' y) e f) ;; g = ZeroArrow Z _ _.
+  Local Lemma transport_source_KernelIn_eq {x' x y z : C} (f : x --> y) {g : y --> z} (K : Kernel Z g)
+        (e : x = x') (H : f ;; g = ZeroArrow Z _ _) :
+    (transportf (fun x' : ob C => precategory_morphisms x' y) e f) ;; g = ZeroArrow Z _ _.
   Proof.
     induction e. apply H.
   Qed.
 
-  Lemma transportb_KernelIn {x' x y z : C} (f : x --> y) {g : y --> z} (K : Kernel Z g)
-        (e : x' = x) (H : f ;; g = ZeroArrow Z _ _) :
-    transportb (fun x' : ob C => precategory_morphisms x' K) e (KernelIn Z K _ f H) =
-    KernelIn Z K _ (transportb (fun x' : ob C => precategory_morphisms x' y) e f)
-             (transportb_KernelIn_eq f K e H).
+  Lemma transport_source_KernelIn {x' x y z : C} (f : x --> y) {g : y --> z} (K : Kernel Z g)
+        (e : x = x') (H : f ;; g = ZeroArrow Z _ _) :
+    transportf (fun x' : ob C => precategory_morphisms x' K) e (KernelIn Z K _ f H) =
+    KernelIn Z K _ (transportf (fun x' : ob C => precategory_morphisms x' y) e f)
+             (transport_source_KernelIn_eq f K e H).
   Proof.
     induction e. use KernelInsEq. cbn. unfold idfun.
     rewrite KernelCommutes. rewrite KernelCommutes.

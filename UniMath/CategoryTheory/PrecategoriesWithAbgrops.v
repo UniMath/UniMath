@@ -184,21 +184,21 @@ Section transport_morphisms.
 
   Variable PA : PrecategoryWithAbgrops.
 
-  Lemma transportf_to_inv {x y z : ob PA} (f : x --> y) (e : y = z) :
+  Lemma transport_target_to_inv {x y z : ob PA} (f : x --> y) (e : y = z) :
     to_inv (transportf (precategory_morphisms x) e f) =
     transportf (precategory_morphisms x) e (to_inv f).
   Proof.
     induction e. apply idpath.
   Qed.
 
-  Lemma transportb_to_inv {x y z : ob PA} (f : y --> z) (e : x = y) :
-    to_inv (transportb (fun x' : ob PA => precategory_morphisms x' z) e f) =
-    transportb (fun x' : ob PA => precategory_morphisms x' z) e (to_inv f).
+  Lemma transport_source_to_inv {x y z : ob PA} (f : y --> z) (e : y = x) :
+    to_inv (transportf (fun x' : ob PA => precategory_morphisms x' z) e f) =
+    transportf (fun x' : ob PA => precategory_morphisms x' z) e (to_inv f).
   Proof.
     induction e. apply idpath.
   Qed.
 
-  Lemma transportf_to_binop {x y z : ob PA} (f g : x --> y) (e : y = z) :
+  Lemma transport_target_to_binop {x y z : ob PA} (f g : x --> y) (e : y = z) :
     to_binop _ _ (transportf (precategory_morphisms x) e f)
              (transportf (precategory_morphisms x) e g) =
     transportf (precategory_morphisms x) e (to_binop _ _ f g).
@@ -206,10 +206,10 @@ Section transport_morphisms.
     induction e. apply idpath.
   Qed.
 
-  Lemma transportb_to_binop {x y z : ob PA} (f g : y --> z) (e : x = y) :
-    to_binop _ _ (transportb (fun x' : ob PA => precategory_morphisms x' z) e f)
-             (transportb (fun x' : ob PA => precategory_morphisms x' z) e g) =
-    transportb (fun x' : ob PA => precategory_morphisms x' z) e (to_binop _ _ f g).
+  Lemma transport_source_to_binop {x y z : ob PA} (f g : y --> z) (e : y = x) :
+    to_binop _ _ (transportf (fun x' : ob PA => precategory_morphisms x' z) e f)
+             (transportf (fun x' : ob PA => precategory_morphisms x' z) e g) =
+    transportf (fun x' : ob PA => precategory_morphisms x' z) e (to_binop _ _ f g).
   Proof.
     induction e. apply idpath.
   Qed.
