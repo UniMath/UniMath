@@ -720,67 +720,219 @@ mkpair.
 + abstract (now apply isaset_hfiber; apply setproperty).
 Defined.
 
+Definition hfiber_fun (X : HSET) (f : HSET / X) : HSET / X → HSET / X.
+Proof.
+intros g.
+mkpair.
+- exists (Σ x, HSET⟦hfiber_HSET (pr2 f) x,hfiber_HSET (pr2 g) x⟧).
+  abstract (apply isaset_total2; [ apply setproperty | intros x; apply has_homsets_HSET ]).
+- now apply pr1.
+Defined.
+
+Definition hfiber_functor (X : HSET) (f : HSET / X) :
+  functor (HSET / X) (HSET / X).
+Proof.
+mkpair.
++ mkpair.
+  * apply (hfiber_fun _ f).
+  * simpl; intros a b g.
+    { mkpair; simpl.
+    - intros h.
+      mkpair.
+      + apply (pr1 h).
+      + intros fx.
+        mkpair.
+        * apply (pr1 g), (pr1 (pr2 h fx)).
+        * abstract (etrans; [ apply (!toforallpaths _ _ _ (pr2 g) (pr1 (pr2 h fx)))|];
+                    apply (pr2 (pr2 h fx))).
+    - abstract (now apply funextsec).
+    }
++ abstract (split;
+            [ intros x; apply (eq_mor_slicecat _ has_homsets_HSET); simpl;
+              apply funextsec; intro y; simpl;
+              destruct y as [y hy]; use total2_paths; [ apply idpath |];
+              apply funextsec; intros w; apply subtypeEquality; [|apply idpath];
+              now intros XX; apply setproperty
+            | intros x y z g h; apply (eq_mor_slicecat _ has_homsets_HSET); simpl;
+              apply funextsec; intro w; simpl;
+              destruct w as [w hw];
+              use total2_paths; [ apply idpath |];
+              apply funextsec; intros w'; apply subtypeEquality; [|apply idpath];
+              now intros XX; apply setproperty ]).
+Defined.
+
+Lemma PullbackArrowUnique' {C : precategory} {a b c d : C} (f : C⟦b,a⟧) (g : C⟦c,a⟧)
+      (P : Pullback f g) e (h : C⟦e,b⟧) (k : C⟦e,c⟧)
+      (Hcomm : h ;; f = k ;; g) (w : C⟦e,P⟧) (H1 : w ;; PullbackPr1 P = h) (H2 : w ;; PullbackPr2 P = k) :
+  w = PullbackArrow P e h k Hcomm.
+Proof.
+now apply PullbackArrowUnique.
+Qed.
+
+Lemma eta {A : Type} (B : A → Type) (f : forall (a : A), B a) : (λ x, f x) = f.
+Proof.
+  apply idpath.
+  Qed.
+
+(* Lemma transportf_fun' : *)
+
+(*   Π (X : UU) (P Q : X → UU) (x1 x2 : X) (e : x1 = x2) (f : forall x, P x → Q x), *)
+(*   transportf (λ x : X, P x → Q x) e f  =   transportf (λ x : X, P x → Q x) e (f x1). *)
+(*   intros. *)
+(*   set (foo := paths). *)
+(*   Check (f x1 ∘ transportb P e). *)
+
+
 Lemma has_exponentials_HSET_slice (X : HSET) : has_exponentials (BinProducts_HSET_slice X).
 Proof.
 intros f.
-mkpair.
-- mkpair.
+use left_adjoint_from_partial.
+- apply (hfiber_fun _ f).
+- intros g.
+  mkpair; simpl.
+  + (* intros [[x [y h]] p]. *)
+    intros H.
+    set (x := pr1 (pr1 H)).
+    set (h := pr2 (pr2 (pr1 H))).
+    set (p := pr2 H).
+    apply (pr1 (h (x,,p))).
+    (* apply (pr1 (pr2 (pr2 (pr1 H)) ((pr1 (pr1 H)),,(pr2 H)))). *)
+  + abstract (now apply funextfun; intros [[x [y h]] p]; simpl in *; rewrite (pr2 (h (x,,p))), p).
+- intros g h α.
+  use unique_exists.
   + mkpair.
+    * intros x.
+
+      simpl.
+      mkpair.
+      apply (pr2 h x).
+      intros fh.
+      transparent assert (asdf : (Σ xy : (pr1 (pr1 f) × pr1 (pr1 h)), pr2 f (pr1 xy) = pr2 h (pr2 xy))).
+
+        exists (pr1 fh,,x).
+        apply (pr2 fh).
+
+      rewrite <- (pr2 fh).
+      mkpair.
+      apply (pr1 α), asdf.
+      destruct α as [a Ha].
+      simpl in *.
+      apply (!toforallpaths _ _ _ Ha asdf).
+    * apply idpath.
+  + simpl.
+
+    apply eq_mor_slicecat.
+    simpl.
+    set (asdf := PullbackArrow _ _ _ _ _).
+    apply funextfun; intros x.
+    cbn.
+    simpl.
+    admit.
+  + admit.
+  + simpl. intros.
+
+mkpair.
+- split.
+
+Lemma has_exponentials_HSET_slice (X : HSET) : has_exponentials (BinProducts_HSET_slice X).
+Proof.
+intros f.
+exists (hfiber_functor _ f).
+mkpair.
+- split.
+  + use mk_nat_trans.
     * intros g.
-      { mkpair.
-      - exists (Σ x, HSET⟦hfiber_HSET (pr2 f) x,hfiber_HSET (pr2 g) x⟧).
-        abstract (apply isaset_total2; [ apply setproperty | intros x; apply has_homsets_HSET ]).
-      - now apply pr1. }
-    * simpl; intros a b g.
-      { mkpair; simpl.
-      - intros h.
-        mkpair.
-        + apply (pr1 h).
-        + intros fx.
-          mkpair.
-          * apply (pr1 g), (pr1 (pr2 h fx)).
-          * abstract (etrans; [ apply (!toforallpaths _ _ _ (pr2 g) (pr1 (pr2 h fx)))|];
-                      apply (pr2 (pr2 h fx))).
-      - abstract (now apply funextsec).
-      }
-  + abstract (split;
-    [ intros x; apply (eq_mor_slicecat _ has_homsets_HSET); simpl;
-      apply funextsec; intro y; simpl;
-      destruct y as [y hy]; use total2_paths; [ apply idpath |];
-      apply funextsec; intros w; apply subtypeEquality; [|apply idpath];
-      now intros XX; apply setproperty
-    | intros x y z g h; apply (eq_mor_slicecat _ has_homsets_HSET); simpl;
-      apply funextsec; intro w; simpl;
-      destruct w as [w hw];
-      use total2_paths; [ apply idpath |];
-      apply funextsec; intros w'; apply subtypeEquality; [|apply idpath];
-      now intros XX; apply setproperty ]).
-- simpl.
-  mkpair.
-  + split.
-    * { mkpair.
-        - intros g.
-          cbn.
-          mkpair.
-          + simpl.
-            intros y.
-            mkpair.
-            * apply (pr2 g y).
-            * intros fgy.
-              mkpair.
-              exists (pr1 fgy,,y).
-              apply (pr2 fgy).
-              apply (pr2 fgy).
-          + now apply funextsec.
-        - intros g h w; apply (eq_mor_slicecat _ has_homsets_HSET); simpl.
-          apply funextsec; intro x.
-          use total2_paths; simpl.
-          apply (!toforallpaths _ _ _ (pr2 w) x).
+    { mkpair.
+      + simpl.
+        intros y.
+        exists (pr2 g y).
+        intros fgy.
+        exists ((pr1 fgy,,y),,(pr2 fgy)).
+        apply (pr2 fgy).
+      + now apply funextsec.
+    }
+    * intros g h w.
+      apply (eq_mor_slicecat _ has_homsets_HSET); simpl.
+      apply funextsec; intro x.
+      use total2_paths2; simpl.
+      apply (!toforallpaths _ _ _ (pr2 w) x).
+
+      match goal with [|- transportf ?PP ?EE ?HH = _ ] =>
+                      set (P' := PP); set (E := EE); set (H := HH) end.
+
+      Search transportf.
+      (* apply funextsec; intro y. *)
+      etrans.
+      {
+        apply funextsec.
+        intros y.
+        destruct y as [y1 y2].
+        Search transportf.
+        generalize (@transportf_total2 (pr1 X) (λ x0, hfiber (pr2 f) x0)). (λ x0 : pr1 X, forall W, W →
+       hfiber (PullbackPr1 (PullbacksHSET X (pr1 f) (pr1 h) (pr2 f) (pr2 h)) ;; pr2 f) x0)).
+        cbn.
+
+      Search transportf.
+      assert (Y : UU). admit.
+      transparent assert (foo : (P' (pr2 h (pr1 w x)) → Y)).
+      generalize (@transportf_fun (pr1 X) Y P' _ _ E).
+      Search transportb.
+
+      unfold P'.
+      match goal with [|- transportf ?PP ?EE ?HH = _ ] =>
+                      set (H := HH); set (E := EE); set (P' := PP) end.
+
+        generalize (@transport_map (pr1 X)  (λ x0, hfiber (pr2 f) x0) (λ x0, hfiber (PullbackPr1 (PullbacksHSET X (pr1 f) (pr1 h) (pr2 f) (pr2 h)) ;; pr2 f) x0)).
+        Search transportf.
+      generalize (@transportf_total2 _ P').
+      Search transportf.
+      etrans.
+
+      transparent assert (foo : (P' ((pr1 w ;; pr2 h) x) → pr1 X)).
+      cbn in *.
+      unfold hfiber in H.
+      unfold hfiber in P'.
+      unfold P'.
+
+      apply H.
+      admit.
+      generalize (@transportf_fun _ (pr1 X) P' _ _ E foo).
+      do 1 unfold P'.
+      simpl.
+      Search transportf.
+      etrans.
+      generalize (@transportf_total2 (pr1 X) (λ x0 : pr1 X,
+       hfiber (pr2 f) x0 → hfiber (PullbackPr1 (PullbacksHSET X (pr1 f) (pr1 h) (pr2 f) (pr2 h)) ;; pr2 f) x0)).
+         Search transportf total2.
+         set (apa := PullbackArrow _ _ _ _ _).
+         apply pathsinv0.
+         etrans.
+         apply eta.
+         Focus 2.
+         apply eta.
+         use PullbackArrowUnique'.
           apply funextsec; intros y.
           apply subtypeEquality.
           intros xx.
           apply setproperty.
           cbn.
+          simpl.
+          apply subtypeEquality.
+          intros ww.
+          apply setproperty.
+          cbn.
+          destruct y as [y1 y2].
+          simpl.
+          cbn.
+          destruct w as [w1 w2]; cbn in *.
+          apply maponpaths.
+          induction y2.
+
+          apply idpath.
+          simpl.
+          set (APA := paths).
+          eapply maponpaths.
+          use PullbackArrowUnique'.
           admit.
       }
     * admit.
