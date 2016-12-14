@@ -84,12 +84,12 @@ AbelianToAdditive.v
 ShortExactSequences.v
 Morphisms.v
 AdditiveFunctors.v
-set_slice_fam_equiv.v
+LocalizingClass.v
+DiscretePrecategory.v
 UnderPrecategories.v
 Subobjects.v
 Quotobjects.v
 GrothendieckTopos.v
 Complexes.v
 CohomologyComplex.v
-DiscretePrecategory.v
-LocalizingClass.v
+set_slice_fam_equiv.v
