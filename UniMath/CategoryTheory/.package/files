@@ -84,7 +84,7 @@ AbelianToAdditive.v
 ShortExactSequences.v
 Morphisms.v
 AdditiveFunctors.v
-slice_fam_equiv.v
+set_slice_fam_equiv.v
 UnderPrecategories.v
 Subobjects.v
 Quotobjects.v
