@@ -478,14 +478,19 @@ Defined.
 
 End TerminalHSET_from_Lims.
 
+Definition PullbackHSET_ob {A B C : HSET} (f : HSET⟦B,A⟧) (g : HSET⟦C,A⟧) : HSET.
+Proof.
+simpl in *.
+exists (Σ (xy : B × C), f (pr1 xy) = g (pr2 xy)).
+abstract (apply isaset_total2; [ apply isasetdirprod; apply setproperty
+                               | intros xy; apply isasetaprop, setproperty ]).
+Defined.
+
 Lemma PullbacksHSET : Pullbacks HSET.
 Proof.
 intros A B C f g.
 use mk_Pullback.
-+ simpl in *.
-  exists (Σ (xy : B × C), f (pr1 xy) = g (pr2 xy)).
-  abstract (apply isaset_total2; [ apply isasetdirprod; apply setproperty
-                                 | intros xy; apply isasetaprop, setproperty ]).
++ apply (PullbackHSET_ob f g).
 + intros xy; apply (pr1 (pr1 xy)).
 + intros xy; apply (pr2 (pr1 xy)).
 + abstract (apply funextsec; intros [[x y] Hxy]; apply Hxy).
@@ -499,6 +504,12 @@ use mk_Pullback.
   - abstract (intros h [H1 H2]; apply funextsec; intro x;
     apply subtypeEquality; [intros H; apply setproperty|]; simpl;
     now rewrite <- (toforallpaths _ _ _ H1 x), <- (toforallpaths _ _ _ H2 x), <- tppr).
+Defined.
+
+Lemma test (A B C : HSET) (f : HSET⟦B,A⟧) (g : HSET⟦C,A⟧) :
+  PullbackObject (PullbacksHSET _ _ _ f g) = PullbackHSET_ob f g.
+Proof.
+  apply idpath.
 Defined.
 
 Section PullbacksHSET_from_Lims.
@@ -698,6 +709,147 @@ Qed.
 
 End exponentials_functor_cat.
 
+(** TODO: remove this *)
+Lemma toforallpaths_induction (X Y : UU) (f g : X -> Y) (P : (Π x, f x = g x) -> UU)
+ (H : Π e : f = g, P (toforallpaths _ _ _ e)) : Π i : (Π x, f x = g x), P i.
+Proof.
+ intros i. rewrite <- (homotweqinvweq (weqtoforallpaths _ f g)). apply H.
+Defined.
+
+Definition transportf_funextfun {X Y : UU} (P : Y -> UU) (F F' : X -> Y) (H : Π (x : X), F x = F' x)
+ (x : X) (f : P (F x)) :
+ transportf (λ x0 : X → Y, P (x0 x)) (funextsec _ F F' H) f = transportf (λ x0 : Y, P x0) (H x) f.
+Proof.
+ apply (toforallpaths_induction
+ _ _ F F' (fun H' => transportf (λ x0 : X → Y, P (x0 x))
+ (funextsec (λ _ : X, Y) F F' (λ x0 : X, H' x0)) f =
+ transportf (λ x0 : Y, P x0) (H' x) f)).
+ intro e. clear H.
+ set (XR := homotinvweqweq (weqtoforallpaths _ F F') e).
+ set (H := funextsec (λ _ : X, Y) F F' (λ x0 : X, toforallpaths (λ _ : X, Y) F F' e x0)).
+ set (P' := λ x0 : X → Y, P (x0 x)).
+ use pathscomp0.
+ - exact (transportf P' e f).
+ - use transportf_paths. exact XR.
+ - induction e. apply idpath.
+Defined.
+(** *** Transport source and target of a morphism *)
+Lemma transport_target_postcompose {C : precategory} {x y z w : ob C} (f : x --> y) (g : y --> z)
+(e : z = w) :
+transportf (precategory_morphisms x) e (f ;; g) = f ;; transportf (precategory_morphisms y) e g.
+Proof.
+induction e. apply idpath.
+Qed.
+Lemma transport_source_precompose {C : precategory} {x y z w : ob C} (f : x --> y) (g : y --> z)
+(e : x = w) :
+transportf (fun x' : ob C => precategory_morphisms x' z) e (f ;; g) =
+transportf (fun x' : ob C => precategory_morphisms x' y) e f ;; g.
+Proof.
+induction e. apply idpath.
+Qed.
+Lemma transport_compose {C : precategory} {x y z w : ob C} (f : x --> y) (g : z --> w) (e : y = z) :
+transportf (precategory_morphisms x) e f ;; g =
+f ;; transportf (fun x' : ob C => precategory_morphisms x' w) (! e) g.
+Proof.
+induction e. apply idpath.
+Qed.
+Lemma transport_compose' {C : precategory} {x y z w : ob C} (f : x --> y) (g : y --> z) (e : y = w) :
+(transportf (precategory_morphisms x) e f)
+;; (transportf (fun x' : ob C => precategory_morphisms x' z) e g) = f ;; g.
+Proof.
+induction e. apply idpath.
+Qed.
+Lemma transport_target_path {C : precategory} {x y z : ob C} (f g : x --> y) (e : y = z) :
+transportf (precategory_morphisms x) e f = transportf (precategory_morphisms x) e g -> f = g.
+Proof.
+induction e. intros H. apply H.
+Qed.
+Lemma transport_source_path {C : precategory} {x y z : ob C} (f g : y --> z) (e : y = x) :
+transportf (fun x' : ob C => precategory_morphisms x' z) e f =
+transportf (fun x' : ob C => precategory_morphisms x' z) e g -> f = g.
+Proof.
+induction e. intros H. apply H.
+Qed.
+Lemma transport_source_target {X : UU} {C : precategory} {x y : X} (P : Π (x' : X), ob C)
+(P' : Π (x' : X), ob C) (f : Π (x' : X), (P x') --> (P' x')) (e : x = y) :
+transportf (fun (x' : X) => (P x') --> (P' x')) e (f x) =
+transportf (fun (x' : X) => precategory_morphisms (P x') (P' y)) e
+(transportf (precategory_morphisms (P x)) (maponpaths P' e) (f x)).
+Proof.
+rewrite <- functtransportf. unfold pathsinv0. unfold paths_rect. induction e.
+apply idpath.
+Qed.
+Lemma transport_target_source {X : UU} {C : precategory} {x y : X} (P : Π (x' : X), ob C)
+(P' : Π (x' : X), ob C) (f : Π (x' : X), (P x') --> (P' x')) (e : x = y) :
+transportf (fun (x' : X) => (P x') --> (P' x')) e (f x) =
+transportf (precategory_morphisms (P y)) (maponpaths P' e)
+(transportf (fun (x' : X) => precategory_morphisms (P x') (P' x)) e (f x)).
+Proof.
+rewrite <- functtransportf. unfold pathsinv0. unfold paths_rect. induction e.
+apply idpath.
+Qed.
+Lemma transport_source_target_comm {C : precategory} {x y x' y' : ob C} (f : x --> y) (e1 : x = x')
+(e2 : y = y') :
+transportf (fun (x'' : ob C) => precategory_morphisms x'' y') e1
+(transportf (precategory_morphisms x) e2 f) =
+transportf (precategory_morphisms x') e2
+(transportf (fun (x'' : ob C) => precategory_morphisms x'' y) e1 f).
+Proof.
+induction e1. induction e2. apply idpath.
+Qed.
+(** *** Transport a morphism using funextfun *)
+Definition transport_source_funextfun {X : UU} {C : precategory_ob_mor} (F F' : X -> ob C)
+(H : Π (x : X), F x = F' x) {x : X} (c : ob C) (f : F x --> c) :
+transportf (λ x0 : X → C, x0 x --> c) (funextfun F F' H) f =
+transportf (λ x0 : C, x0 --> c) (H x) f.
+Proof.
+exact (@transportf_funextfun X (ob C) (λ x0 : C, x0 --> c) F F' H x f).
+Qed.
+Definition transport_target_funextfun {X : UU} {C : precategory_ob_mor} (F F' : X -> ob C)
+(H : Π (x : X), F x = F' x) {x : X} {c : ob C} (f : c --> F x) :
+transportf (λ x0 : X → C, c --> x0 x) (funextfun F F' H) f =
+transportf (λ x0 : C, c --> x0) (H x) f.
+Proof.
+use transportf_funextfun.
+Qed.
+Lemma transport_mor_funextfun {X : UU} {C : precategory_ob_mor} (F F' : X -> ob C)
+(H : Π (x : X), F x = F' x) {x1 x2 : X} (f : F x1 --> F x2) :
+transportf (λ x : X → C, x x1 --> x x2) (funextfun F F' H) f =
+transportf (λ x : X → C, F' x1 --> x x2)
+(funextfun F F' (λ x : X, H x))
+(transportf (λ x : X → C, x x1 --> F x2)
+((funextfun F F' (λ x : X, H x))) f).
+Proof.
+induction (funextfun F F' (λ x : X, H x)).
+apply idpath.
+Qed.
+Lemma functor_data_eq {C C' : precategory_ob_mor} (F F' : functor_data C C')
+ (H : Π (c : C), (pr1 F) c = (pr1 F') c)
+ (H1 : Π (C1 C2 : ob C) (f : C1 --> C2),
+ transportf (λ x : C', pr1 F' C1 --> x) (H C2)
+ (transportf (λ x : C', x --> pr1 F C2) (H C1) (pr2 F C1 C2 f)) =
+   pr2 F' C1 C2 f) : F = F'.
+Proof.
+ use total2_paths.
+ - use funextfun. intros c. exact (H c).
+ - use funextsec. intros C1. use funextsec. intros C2. use funextsec. intros f.
+ assert (e : transportf (λ x : C → C', Π a b : C, a --> b → x a --> x b)
+ (funextfun (pr1 F) (pr1 F') (λ c : C, H c))
+ (pr2 F) C1 C2 f =
+ transportf (λ x : C → C', x C1 --> x C2)
+ (funextfun (pr1 F) (pr1 F') (λ c : C, H c))
+ ((pr2 F) C1 C2 f)).
+ {
+ induction (funextfun (pr1 F) (pr1 F') (λ c : C, H c)).
+ apply idpath.
+ }
+ rewrite e. clear e.
+ rewrite transport_mor_funextfun.
+ rewrite transport_source_funextfun. rewrite transport_target_funextfun.
+ exact (H1 C1 C2 f).
+Qed.
+(** END OF DELETE *)
+
 (** * Set is locally cartesian closed *)
 Section locally_CCC.
 
@@ -738,13 +890,12 @@ mkpair.
   * simpl; intros a b g.
     { mkpair; simpl.
     - intros h.
+      exists (pr1 h).
+      intros fx.
       mkpair.
-      + apply (pr1 h).
-      + intros fx.
-        mkpair.
-        * apply (pr1 g), (pr1 (pr2 h fx)).
-        * abstract (etrans; [ apply (!toforallpaths _ _ _ (pr2 g) (pr1 (pr2 h fx)))|];
-                    apply (pr2 (pr2 h fx))).
+      * apply (pr1 g), (pr1 (pr2 h fx)).
+      * abstract (etrans; [ apply (!toforallpaths _ _ _ (pr2 g) (pr1 (pr2 h fx)))|];
+                  apply (pr2 (pr2 h fx))).
     - abstract (now apply funextsec).
     }
 + abstract (split;
@@ -782,57 +933,159 @@ Proof.
 (*   set (foo := paths). *)
 (*   Check (f x1 ∘ transportb P e). *)
 
+Require Import UniMath.CategoryTheory.DiscretePrecategory.
+
+Hypothesis equiv_slice : Π (X : HSET), HSET / X ≃ [discrete_precategory (pr1 X),HSET,has_homsets_HSET].
+
+
+Lemma has_exponentials_equiv (C D : precategory) (eq : C ≃ D) : has_exponentials C → has_exponentials D.
 
 Lemma has_exponentials_HSET_slice (X : HSET) : has_exponentials (BinProducts_HSET_slice X).
 Proof.
 intros f.
-use left_adjoint_from_partial.
-- apply (hfiber_fun _ f).
-- intros g.
-  mkpair; simpl.
-  + (* intros [[x [y h]] p]. *)
-    intros H.
-    set (x := pr1 (pr1 H)).
-    set (h := pr2 (pr2 (pr1 H))).
-    set (p := pr2 H).
-    apply (pr1 (h (x,,p))).
-    (* apply (pr1 (pr2 (pr2 (pr1 H)) ((pr1 (pr1 H)),,(pr2 H)))). *)
-  + abstract (now apply funextfun; intros [[x [y h]] p]; simpl in *; rewrite (pr2 (h (x,,p))), p).
-- intros g h α.
-  use unique_exists.
-  + mkpair.
-    * intros x.
+Search weq.
+  set (X' := discrete_precategory (pr1 X)).
+  set (XHSET := [X',HSET,has_homsets_HSET]).
+  assert (has_homsets_X' : has_homsets X').
+  apply has_homsets_discrete_precategory, hlevelntosn, setproperty.
+set (α := equiv_slice X).
+set (α1 := pr1 α).
+set (α2 := invmap α).
+set (H1 := homotweqinvweq α).
+set (H2 := homotinvweqweq α).
 
-      simpl.
-      mkpair.
-      apply (pr2 h x).
-      intros fh.
-      transparent assert (asdf : (Σ xy : (pr1 (pr1 f) × pr1 (pr1 h)), pr2 f (pr1 xy) = pr2 h (pr2 xy))).
+  generalize (has_exponentials_functor_HSET X' has_homsets_X' (α1 f)).
+  unfold has_exponentials.
+  unfold is_exponentiable.
+  intros HH.
+  destruct HH as [HH1 HH2].
+  mkpair.
 
-        exists (pr1 fh,,x).
-        apply (pr2 fh).
+  Check
+  simpl.
 
-      rewrite <- (pr2 fh).
-      mkpair.
-      apply (pr1 α), asdf.
-      destruct α as [a Ha].
-      simpl in *.
-      apply (!toforallpaths _ _ _ Ha asdf).
-    * apply idpath.
-  + simpl.
 
-    apply eq_mor_slicecat.
-    simpl.
-    set (asdf := PullbackArrow _ _ _ _ _).
-    apply funextfun; intros x.
-    cbn.
-    simpl.
-    admit.
-  + admit.
-  + simpl. intros.
 
-mkpair.
-- split.
+  (* use left_adjoint_from_partial. *)
+(* - apply (hfiber_fun _ f). *)
+(* - intros g. *)
+(*   mkpair; simpl. *)
+(*   + (* intros [[x [y h]] p]. *) *)
+(*     intros H. *)
+(*     set (x := pr1 (pr1 H)). *)
+(*     set (h := pr2 (pr2 (pr1 H))). *)
+(*     set (p := pr2 H). *)
+(*     apply (pr1 (h (x,,p))). *)
+(*     (* apply (pr1 (pr2 (pr2 (pr1 H)) ((pr1 (pr1 H)),,(pr2 H)))). *) *)
+(*   + abstract (now apply funextfun; intros [[x [y h]] p]; simpl in *; rewrite (pr2 (h (x,,p))), p). *)
+(* - intros g h α. *)
+(*   use unique_exists. *)
+(*   + mkpair. *)
+(*     * intros x. *)
+(*       simpl. *)
+(*       mkpair. *)
+(*       apply (pr2 h x). *)
+(*       intros fh. *)
+(*       transparent assert (asdf : (Σ xy : (pr1 (pr1 f) × pr1 (pr1 h)), pr2 f (pr1 xy) = pr2 h (pr2 xy))). *)
+(*         exists (pr1 fh,,x). *)
+(*         apply (pr2 fh). *)
+(*       rewrite <- (pr2 fh). *)
+(*       mkpair. *)
+(*       apply (pr1 α), asdf. *)
+(*       destruct α as [a Ha]. *)
+(*       simpl in *. *)
+(*       apply (!toforallpaths _ _ _ Ha asdf). *)
+(*     * apply idpath. *)
+(*   + simpl. *)
+(*     apply eq_mor_slicecat. *)
+
+(*     simpl. *)
+(*     unfold PullbackArrow. *)
+(*     simpl. *)
+(*     unfold PullbacksHSET. *)
+(*     simpl. *)
+(*     cbn. *)
+(*     apply funextsec; intro w. *)
+(*     cbn. *)
+(*     unfold PullbacksHSET. *)
+(*     simpl. *)
+(*     unfold PullbackArrow. *)
+(*     simpl. *)
+(*     eapply maponpaths. *)
+(* destruct α as [a1 Ha1]. *)
+(* simpl in *. *)
+
+(* match goal with [|- _ = ?P ;; ?PP ] => set (foo := P); set (bar := PP) end. *)
+(* apply funextsec; intro w. *)
+(* generalize (toforallpaths _ _ _ Ha1 w). *)
+(* cbn. *)
+(* unfold foo. *)
+
+(* intros. *)
+(* match goal with [|- _ = bar (PullbackArrow ?X1 ?X2 ?X3 ?X4 ?X5 ?X6) ] => set (foo1 := X6) end. *)
+(* simpl in *. *)
+(* cbn in foo1. *)
+(* cbn. *)
+(* simpl. *)
+
+(* set (moo := PullbackPr1 (PullbacksHSET X (pr1 f) ((Σ x : pr1 X, hfiber (pr2 f) x → hfiber (pr2 g) x),, hfiber_fun_subproof X f g) *)
+(*                                        (pr2 f) pr1)). *)
+
+(* simpl in *. *)
+(* transparent assert (moo2 : (pr1 (pr1 f) → pr1 (pr1 g))). *)
+(* intros X1. *)
+(* apply a1. *)
+(* mkpair. *)
+(* split. *)
+(* apply X1. *)
+
+(* intros xx *)
+
+(* destruct XX. *)
+
+(* admit. *)
+(* assert (Π x, bar x = moo2 (moo x)). *)
+(* admit. *)
+(* rewrite (funextfun _ _ X0). *)
+(* simpl. *)
+(* simpl in moo. *)
+(* Check (pr2 g). *)
+(* apply funextsec; intro w. *)
+(* generalize (toforallpaths _ _ _ Ha1 w). *)
+(* cbn. *)
+(* destruct w as [[w1 w2] w3]. *)
+(* simpl. *)
+(* simpl in *. *)
+
+(* unfold bar. *)
+(* simpl. *)
+(* unfold foo. *)
+(* cbn. *)
+(* simpl. *)
+(* cbn. *)
+(* set (P := @paths). *)
+(* simpl in *. *)
+(* assert (bar = *)
+(* Check (PullbackPr2). *)
+(* mat *)
+(* set (foo := (λ H : Σ xy : pr1 (pr1 f) × (Σ x : pr1 X, hfiber (pr2 f) x → hfiber (pr2 g) x), pr2 f (pr1 xy) = pr1 (pr2 xy), *)
+(*    pr1 (pr2 (pr2 (pr1 H)) (pr1 (pr1 H),, pr2 H)))). *)
+(*     Search PullbackArrow. *)
+(*     apply funextsec; intro x. *)
+(*     simpl. *)
+(*     cbn. *)
+(*     set (asdf := PullbackArrow _ _ _ _ _). *)
+(*     apply funextfun; intros x. *)
+(*     cbn. *)
+(*     admit. *)
+(*   + intros. *)
+(*     simpl. *)
+(*     apply has_homsets_slice_precat. *)
+(*   +  intros. *)
+(*      simpl. *)
+(*      simpl in X0. *)
+(* mkpair. *)
+(* - split. *)
 
 Lemma has_exponentials_HSET_slice (X : HSET) : has_exponentials (BinProducts_HSET_slice X).
 Proof.
@@ -842,21 +1095,51 @@ mkpair.
 - split.
   + use mk_nat_trans.
     * intros g.
+      simpl.
     { mkpair.
-      + simpl.
-        intros y.
+      + intros y.
         exists (pr2 g y).
         intros fgy.
         exists ((pr1 fgy,,y),,(pr2 fgy)).
         apply (pr2 fgy).
-      + now apply funextsec.
+      + abstract (now apply funextsec).
     }
     * intros g h w.
-      apply (eq_mor_slicecat _ has_homsets_HSET); simpl.
-      apply funextsec; intro x.
-      use total2_paths2; simpl.
-      apply (!toforallpaths _ _ _ (pr2 w) x).
+      apply (eq_mor_slicecat _ has_homsets_HSET).
+      unfold constprod_functor1.
+      unfold BinProduct_of_functors.
+      unfold BinProduct_of_functors_data.
+      simpl.
+      Arguments constprod_functor1 : simpl never.
+      simpl.
 
+      apply funextsec; intro x.
+      use total2_paths2.
+      apply (toforallpaths _ _ _ (!pr2 w) x).
+      apply funextsec; intro y.
+
+      use total2_paths.
+      use total2_paths.
+      cbn.
+            destruct w as [w1 w2].
+            cbn.
+
+      cbn.
+      admit.
+      generalize (@PullbackArrowUnique' _ (PullbacksHSET X (pr1 f) (pr1 h) (pr2 f) (pr2 h)) ).
+      Search transportf.
+      generalize @transportf_total2.
+      destruct w as [w1 w2].
+      simpl in *.
+      destruct y as [y1 y2].
+      cbn.
+      unfold PullbackArrow.
+      simpl.
+      cbn.
+
+            cbn.
+      induction (w2).
+      cbn.
       match goal with [|- transportf ?PP ?EE ?HH = _ ] =>
                       set (P' := PP); set (E := EE); set (H := HH) end.
 
