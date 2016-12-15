@@ -91,11 +91,8 @@ Section elems_slice_equiv.
     simpl.
     intros X Y f.
     exists (pshf_to_slice_ob_nat f ,, pshf_to_slice_ob_isnat f).
-    apply (invmaponpathsincl pr1).
-    + apply isofhlevelfpr1.
-      intros ?.
-      apply (isaprop_is_nat_trans _ _ has_homsets_HSET).
-    + reflexivity.
+    apply (nat_trans_eq has_homsets_HSET).
+    reflexivity.
   Defined.
 
   Definition pshf_to_slice_data : functor_data (pshf (el P)) (slice (pshf C) P) :=
@@ -105,20 +102,12 @@ Section elems_slice_equiv.
   Proof.
     split; [intros X | intros X Y Z f g];
       apply slice_precat_morphisms_pr1_eq;
-      apply (invmaponpathsincl pr1);
-      try (apply isofhlevelfpr1;
-           intros ?;
-                  apply (isaprop_is_nat_trans _ _ has_homsets_HSET));
-      simpl.
-    + unfold pshf_to_slice_ob_nat , pshf_to_slice_ob_funct_fun.
-      apply funextsec; intro c.
-      apply funextsec; intro p.
-      rewrite tppr.
+      apply (nat_trans_eq has_homsets_HSET);
+      unfold pshf_to_slice_ob_nat , pshf_to_slice_ob_funct_fun;
+      intro c;
+      apply funextsec; intro p;
+      rewrite tppr;
       reflexivity.
-    + unfold pshf_to_slice_ob_nat.
-      apply funextsec; intro c.
-      apply funextsec; intro p.
-      rewrite tppr. reflexivity.
   Defined.
 
   Definition pshf_to_slice : (pshf (el P)) ==> (slice (pshf C) P) :=
@@ -148,9 +137,9 @@ Section elems_slice_equiv.
       [intros [x Px] | intros [x Px] [y Py] [z Pz] [f feq] [g geq]];
       destruct Q as [[[Q Qmor] [Qid Qcomp]] [Qnat Qisnat]];
       apply funextsec; intro p;
-      apply (invmaponpathsincl pr1);
-      try (apply isofhlevelfpr1;
-           intros ?; exact (pr2 (eqset _ _))).
+        apply (invmaponpathsincl pr1);
+        try (apply isofhlevelfpr1;
+             intros ?; exact (pr2 (eqset _ _))).
     + exact (apevalat (pr1 p) (Qid x)).
     + exact (apevalat (pr1 p) (Qcomp x y z f g)).
   Defined.
@@ -196,11 +185,8 @@ Section elems_slice_equiv.
   Definition slice_to_pshf_is_funct : is_functor slice_to_pshf_data.
   Proof.
     split; [ intros X | intros X Y Z F G];
-      apply (invmaponpathsincl pr1);
-      try (apply isofhlevelfpr1;
-           intros ?;
-                  apply (isaprop_is_nat_trans _ _ has_homsets_HSET));
-      apply funextsec; intros [c Pc];
+      apply (nat_trans_eq has_homsets_HSET);
+      intros [c Pc];
       apply funextsec; intros [p peq];
       apply (invmaponpathsincl pr1);
       try (apply isofhlevelfpr1;
@@ -217,5 +203,14 @@ Section elems_slice_equiv.
 
   Definition slice_to_pshf : functor (slice (pshf C) P) (pshf (el P)) :=
     slice_to_pshf_data ,, slice_to_pshf_is_funct.
+
+  Definition slice_counit_fun (X : slice (pshf C) P) :
+    (functor_composite_data slice_to_pshf pshf_to_slice) X --> (functor_identity_data _) X.
+  Proof.
+    intros [[[X Xmor] [Xid Xcomp]] [Xnat Xisnat]].
+    simpl in *.
+    unfold pshf_to_slice_ob ,  slice_to_pshf_ob.
+    unfold slice_to_pshf_ob_funct_data , pshf_to_slice_ob_funct_data.
+  Admitted.
 
 End elems_slice_equiv.
