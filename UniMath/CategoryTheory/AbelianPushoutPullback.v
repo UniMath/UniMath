@@ -1,4 +1,4 @@
-(** * Pushout of a Monic is Monic, Pullback an an Epi is Epi *)
+(** * Pushout of a Monic is Monic, Pullback of an Epi is Epi *)
 (** Contents
 - Pushout of a Monic is Monic
 - Pushout of a Monic is Pullback
@@ -55,7 +55,7 @@ diagram
                        pr2  |          f |
                             y ----g----> z
 If f is an Epi, then pr2 is an Epi, [AbelianPushoutEpi2], and if g is an Epi, then pr1 is an Epi,
-[AbelianPushoutEpi1]. In both of the cases the above diagram is a pullback diagram,
+[AbelianPushoutEpi1]. In both of the cases the above diagram is a pushout diagram,
 [AbelianPullbackEpiisPushout1], [AbelianPullbackEpiisPushout2].
 
  *)
@@ -70,7 +70,7 @@ Section pushout_monic_pullback_epi.
   Local Opaque to_binop to_inv.
 
 
-  (** ** Pushouts and monics *)
+  (** ** Pushout of a Monic is Monic *)
 
   Lemma AbelianPushoutMonic2 {x y z : A} (f : Monic A x y) (g : x --> z) (Po : Pushout f g) :
     Monics.isMonic (PushoutIn2 Po).
@@ -226,7 +226,7 @@ Section pushout_monic_pullback_epi.
     - exact (AbelianPushoutMonicisPullback1 g f Po').
   Qed.
 
-  (** ** Pullbacks of Epi is Epi *)
+  (** ** Pullback of an Epi is Epi *)
 
   Lemma AbelianPullbackEpi2 {x y z : A} (f : Epi A x z) (g : y --> z) (Pb : Pullback f g) :
     Epis.isEpi (PullbackPr2 Pb).

@@ -180,7 +180,6 @@ Arguments inv_inv_eq [PA] [x] [y] _.
 Arguments cancel_inv [PA] [x] [y] _ _ _.
 
 
-
 Section transport_morphisms.
 
   Variable PA : PrecategoryWithAbgrops.

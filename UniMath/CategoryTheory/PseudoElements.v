@@ -44,7 +44,7 @@ Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 We define pseudo elements which are used in diagram lemmas in homological algebra. A pseudo element
 of an object x of an abelian category A is a morphism from some object y to x. Two pseudo elements
 f_1 : y_1 --> x, f_2 : y_2 --> x are pseudo equal if there is an object y_3 and epimorphisms
-p : y_3 --> y_1 and q : y_2 --> y_1 such that the following diagram is commutative
+p : y_3 --> y_1 and q : y_3 --> y_2 such that the following diagram is commutative
                                  y_3 --p--> y_1
                                 q |      f_1 |
                                  y_2 -f_2->  x
@@ -63,7 +63,7 @@ Here are the results we prove about pseudo elements :
   a_2 : a_2' --> x, pseudo equality of a_1' ;; f and a_2' ;; f implies that a_1' and a_2' are
   pseudo equal, [PEq_isMonic']
 - A morphism f : x --> y is Epi if and only if for all pseudo elements b : b' --> y of y there
-  exists a pseudo element a : a' --> x of x such that a ;; f is pseudo equal to b.
+  exists a pseudo element a : a' --> x of x such that a ;; f is pseudo equal to b, [PEq_isEpi].
 - A pair of morphisms f : x --> y, g : y --> z is exact if and only if the composite is ZeroArrow
   and for all pseudo elements b : b' --> y such that b ;; g is pseudo equal to PZero, there exists
   a pseudo element a : a' --> x of x such that a ;; f is pseudo equal to b, [PEq_isExact].
@@ -223,7 +223,7 @@ Section def_pseudo_element.
   Definition PFiber_Eq {c d : ob A} {f : c --> d} {b : PseudoElem d} (P : PFiber f b) :
     PEq (PseudoIm P f) b := pr2 P.
 
-  (** ** Basics of Pseudo elements *)
+  (** ** Basics of pseudo elements *)
 
   Lemma PEq_to_hrel {c : A} (P1 P2 : PseudoElem c) (H : PEq P1 P2) : PEq_hrel P1 P2.
   Proof.

@@ -52,7 +52,7 @@ C_2 --> C_3, an image of C_2 --> C_3 is a kernel of C_3 --> C_4, and an image of
 kernel of C_4 --> C_5.
 
 The idea of the proof is to show that f_3 is monic and epi, and thus is an isomorphism by
-[monic_epi_is_iso]. To show that f_3 is monic, we use pseudoelements, [PseudoElem]. By [PEq_isMonic]
+[monic_epi_is_iso]. To show that f_3 is monic, we use pseudo elements, [PseudoElem]. By [PEq_isMonic]
 it suffices to show that if a is a pseudo element of C_3 is mapped to PZero by f_3, then a is
 pseudo equal to PZero. We construct a pseudo element a' of C_1 which is mapped to a by the composite
  C_1 --> C_2 --> C_3. Since the first row is exact, this composite is Zero, and thus the pseudo

@@ -180,7 +180,7 @@ Section def_cokernels.
   Definition CokernelofZeroArrow (x y : C) : Cokernel (ZeroArrow Z x y) :=
     mk_Cokernel (ZeroArrow Z x y) (identity y) (id_right _) (CokernelOfZeroArrow_isCokernel x y).
 
-  (** Cokernel in identity is given by arrow to zero *)
+  (** Cokernel of identity is given by arrow to zero *)
   Local Lemma CokernelOfIdentity_isCokernel (x : C) :
     isCokernel (identity x) (ZeroArrowTo x)
                (ArrowsToZero C Z x (identity x ;; ZeroArrowTo x) (ZeroArrow Z x Z)).
@@ -368,17 +368,10 @@ Section cokernels_iso.
       apply cancel_precomposition. apply idpath.
   Qed.
 
-  Local Lemma Cokernel_up_to_iso_isCokernel' {x y z : C} (f : x --> y) (g : y --> z)
-        (CK : Cokernel Z f) (h : iso CK z) (H : g = (CokernelArrow CK) ;; h) :
-    isCokernel Z f g (Cokernel_up_to_iso_eq f g CK h H).
-  Proof.
-    exact (Cokernel_up_to_iso_isCokernel f g CK h H (Cokernel_up_to_iso_eq f g CK h H)).
-  Qed.
-
   Definition Cokernel_up_to_iso {x y z : C} (f : x --> y) (g : y --> z) (CK : Cokernel Z f)
              (h : iso CK z) (H : g = (CokernelArrow CK) ;; h) : Cokernel Z f :=
     mk_Cokernel Z f g (Cokernel_up_to_iso_eq f g CK h H)
-                (Cokernel_up_to_iso_isCokernel' f g CK h H).
+                (Cokernel_up_to_iso_isCokernel f g CK h H (Cokernel_up_to_iso_eq f g CK h H)).
 
   Definition Cokernel_up_to_iso2_eq {x y z : C} (f1 : x --> z) (f2 : y --> z) (h : iso y x)
              (H : h ;; f1 = f2) (CK : Cokernel Z f1) : f2 ;; CokernelArrow CK = ZeroArrow Z y CK.

@@ -972,7 +972,7 @@ End shortshortexact_iskernel_iscokernel.
 
 (** * [LeftShortExact] (resp. [RightShortExact]) construction for derived functors *)
 (** ** Introduction
-Let f : A --> B and g : A --> C be morphisms. In this section we construct a left short exact
+Let f : A --> B and g : A --> C be morphisms. In this section we construct a right short exact
 sequence of the form
                      A --(f ;; i_1 - g ;; i_2)--> B ⊕ C --> W --> 0
 where B ⊕ C --> W is the coequalizer of f ;; i_1 and g ;; i_2. Similarly for left short exact
