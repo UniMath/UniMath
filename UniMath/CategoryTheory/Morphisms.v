@@ -10,9 +10,10 @@ Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.opp_precat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
-
+Require Import UniMath.CategoryTheory.limits.Opp.
 
 (** * Pair of morphisms *)
 Section def_morphismpair.
@@ -53,6 +54,33 @@ Arguments Ob3 [C] _.
 Arguments Mor1 [C] _.
 Arguments Mor2 [C] _.
 
+
+(** * MorphismPair and opposite categories *)
+Section MorphismPair_opp.
+
+  Definition MorphismPair_opp {C : precategory} (MP : MorphismPair C) : MorphismPair (opp_precat C).
+  Proof.
+    use mk_MorphismPair.
+    - exact (Ob3 MP).
+    - exact (Ob2 MP).
+    - exact (Ob1 MP).
+    - exact (Mor2 MP).
+    - exact (Mor1 MP).
+  Defined.
+
+  Definition opp_MorphismPair {C : precategory} (MP : MorphismPair (opp_precat C)) : MorphismPair C.
+  Proof.
+    use mk_MorphismPair.
+    - exact (Ob3 MP).
+    - exact (Ob2 MP).
+    - exact (Ob1 MP).
+    - exact (Mor2 MP).
+    - exact (Mor1 MP).
+  Defined.
+
+End MorphismPair_opp.
+
+
 (** * ShortShortExactData *)
 Section def_shortshortexactdata.
 
@@ -68,12 +96,7 @@ Section def_shortshortexactdata.
     Σ MP : MorphismPair C, Mor1 MP ;; Mor2 MP = ZeroArrow Z _ _.
 
   Definition mk_ShortShortExactData (MP : MorphismPair C)
-             (H : Mor1 MP ;; Mor2 MP = ZeroArrow Z _ _) : ShortShortExactData.
-  Proof.
-    use tpair.
-    - exact MP.
-    - exact H.
-  Defined.
+             (H : Mor1 MP ;; Mor2 MP = ZeroArrow Z _ _) : ShortShortExactData := tpair _ MP H.
 
   (** Accessor functions *)
   Definition ShortShortExactData_MorphismPair (SSED : ShortShortExactData) :
@@ -86,3 +109,43 @@ Section def_shortshortexactdata.
 End def_shortshortexactdata.
 Arguments mk_ShortShortExactData [C] _ _ _.
 Arguments ShortShortExactData_Eq [C] _ _.
+
+
+(** * ShortShortExactData and opposite categories *)
+Section shortshortexactdata_opp.
+
+  Lemma opp_ShortShortExactData_Eq {C : precategory} {Z : Zero C}
+             (SSED : ShortShortExactData (opp_precat C) (Zero_opp C Z)) :
+    Mor1 (opp_MorphismPair SSED) ;; Mor2 (opp_MorphismPair SSED) =
+    ZeroArrow Z (Ob1 (opp_MorphismPair SSED)) (Ob3 (opp_MorphismPair SSED)).
+  Proof.
+    use (pathscomp0 (@ShortShortExactData_Eq (opp_precat C) (Zero_opp C Z) SSED)).
+    rewrite <- ZeroArrow_opp. apply idpath.
+  Qed.
+
+  Definition opp_ShortShortExactData {C : precategory} {Z : Zero C}
+             (SSED : ShortShortExactData (opp_precat C) (Zero_opp C Z)) : ShortShortExactData C Z.
+  Proof.
+    use mk_ShortShortExactData.
+    - exact (opp_MorphismPair SSED).
+    - exact (opp_ShortShortExactData_Eq SSED).
+  Defined.
+
+  Lemma ShortShortExactData_opp_Eq {C : precategory} {Z : Zero C}
+        (SSED : ShortShortExactData C Z) :
+    Mor1 (MorphismPair_opp SSED) ;; Mor2 (MorphismPair_opp SSED) =
+    ZeroArrow (Zero_opp C Z) (Ob1 (MorphismPair_opp SSED)) (Ob3 (MorphismPair_opp SSED)).
+  Proof.
+    use (pathscomp0 (@ShortShortExactData_Eq C Z SSED)).
+    rewrite <- ZeroArrow_opp. apply idpath.
+  Qed.
+
+  Definition ShortShortExactData_opp {C : precategory} {Z : Zero C}
+             (SSED : ShortShortExactData C Z) : ShortShortExactData (opp_precat C) (Zero_opp C Z).
+  Proof.
+    use mk_ShortShortExactData.
+    - exact (MorphismPair_opp SSED).
+    - exact (ShortShortExactData_opp_Eq SSED).
+  Defined.
+
+End shortshortexactdata_opp.

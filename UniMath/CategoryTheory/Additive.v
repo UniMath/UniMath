@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.PrecategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 
@@ -64,6 +64,22 @@ Section def_additive.
     intros X Y.
     exact (BinDirectSum_BinProduct A (to_BinDirectSums A X Y)).
   Defined.
+
+
+  Lemma to_Unel1' {A : Additive} {a b : A} (BS : BinDirectSumCone A a b) :
+    to_In1 A BS ;; to_Pr2 A BS = ZeroArrow (to_Zero A) _ _.
+  Proof.
+    rewrite (to_Unel1 A BS). apply PreAdditive_unel_zero.
+  Qed.
+
+  Lemma to_Unel2' {A : Additive} {a b : A} (BS : BinDirectSumCone A a b) :
+    to_In2 A BS ;; to_Pr1 A BS = ZeroArrow (to_Zero A) _ _.
+  Proof.
+    rewrite (to_Unel2 A BS). apply PreAdditive_unel_zero.
+  Qed.
+
+  Definition AdditiveZeroArrow {A : Additive} (x y : ob A) : A⟦x, y⟧ :=
+    ZeroArrow (to_Zero A) x y.
 
 End def_additive.
 
