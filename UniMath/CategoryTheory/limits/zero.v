@@ -35,6 +35,7 @@ Section def_zero.
   Defined.
 
   Definition ZeroArrowFrom (Z : Zero) (b : C) : Z --> b := pr1 (pr1 (pr2 Z) b).
+
   Definition ZeroArrowTo (Z : Zero) (b : C) : b --> Z := pr1 (pr2 (pr2 Z) b).
 
   Lemma ArrowsToZero (Z : Zero) (b : C) (f g : b --> Z) : f = g.
@@ -42,19 +43,18 @@ Section def_zero.
     apply proofirrelevance.
     apply isapropifcontr.
     apply (pr2 (pr2 Z) _).
-  Defined.
+  Qed.
 
   Lemma ArrowsFromZero (Z : Zero) (b : C) (f g : Z --> b) : f = g.
   Proof.
     apply proofirrelevance.
     apply isapropifcontr.
     apply (pr1 (pr2 Z) _).
-  Defined.
+  Qed.
 
   (** For any pair of objects, there exists a unique arrow which factors
     through the zero object *)
-  Definition ZeroArrow (Z : Zero) (a b : C) : C⟦a, b⟧
-    := (ZeroArrowTo Z a) ;; (ZeroArrowFrom Z b).
+  Definition ZeroArrow (Z : Zero) (a b : C) : C⟦a, b⟧ := (ZeroArrowTo Z a) ;; (ZeroArrowFrom Z b).
 
   Lemma ZeroArrowEq (Z : Zero) (a b : C) (f1 : C⟦a, Z⟧) (g1 : C⟦Z, b⟧) :
     f1 ;; g1 = ZeroArrow Z a b.
@@ -62,33 +62,33 @@ Section def_zero.
     rewrite (ArrowsToZero Z a f1 (ZeroArrowTo Z a)).
     rewrite (ArrowsFromZero Z b g1 (ZeroArrowFrom Z b)).
     apply idpath.
-  Defined.
+  Qed.
 
   Lemma ZeroArrow_comp_left (Z : Zero) (a b c : C) (f : C⟦b, c⟧) :
     ZeroArrow Z a b ;; f = ZeroArrow Z a c.
   Proof.
     unfold ZeroArrow at 1. rewrite <- assoc.
     apply ZeroArrowEq.
-  Defined.
+  Qed.
 
   Lemma ZeroArrow_comp_right (Z : Zero) (a b c : C) (f : C⟦a, b⟧) :
     f ;; ZeroArrow Z b c = ZeroArrow Z a c.
   Proof.
     unfold ZeroArrow at 1. rewrite assoc.
     apply ZeroArrowEq.
-  Defined.
+  Qed.
 
   Lemma ZeroEndo_is_identity (Z : Zero) (f : Z --> Z) : identity Z = f.
   Proof.
     apply ArrowsToZero.
-  Defined.
+  Qed.
 
   Lemma isiso_from_Zero_to_Zero (Z Z' : Zero) :
     is_isomorphism (ZeroArrowTo Z Z').
   Proof.
     apply (is_iso_qinv _ (ZeroArrowTo Z' Z)).
     split; apply pathsinv0; apply ZeroEndo_is_identity.
-  Defined.
+  Qed.
 
   Definition iso_Zeros (Z Z' : Zero) : iso Z Z' :=
     tpair _ (ZeroArrowTo Z' Z) (isiso_from_Zero_to_Zero Z' Z).
@@ -130,7 +130,7 @@ Section def_zero.
   Proof.
     unfold isZero, isInitial, isTerminal.
     split; intros H; apply H.
-  Defined.
+  Qed.
 
   Definition IsoToisZero {A : C} (Z : Zero) (i : iso A Z) :
     isZero A.

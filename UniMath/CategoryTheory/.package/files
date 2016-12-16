@@ -90,6 +90,9 @@ UnderPrecategories.v
 Subobjects.v
 Quotobjects.v
 GrothendieckTopos.v
+AbelianPushoutPullback.v
+PseudoElements.v
+FiveLemma.v
 Complexes.v
 CohomologyComplex.v
 set_slice_fam_equiv.v

@@ -46,6 +46,39 @@ Section def_morphismpair.
 
   Definition Mor2 (MP : MorphismPair) : C⟦Ob2 MP, Ob3 MP⟧ := dirprod_pr2 (pr2 (pr2 (pr2 MP))).
 
+  (** Morphism of morphism pairs *)
+  Definition MPMorMors (MP1 MP2 : MorphismPair) : UU :=
+    (Ob1 MP1 --> Ob1 MP2) × (Ob2 MP1 --> Ob2 MP2) × (Ob3 MP1 --> Ob3 MP2).
+
+  Definition MPMors1 {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) : Ob1 MP1 --> Ob1 MP2 :=
+    dirprod_pr1 MPM.
+
+  Definition MPMors2 {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) : Ob2 MP1 --> Ob2 MP2 :=
+    dirprod_pr1 (dirprod_pr2 MPM).
+
+  Definition MPMors3 {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) : Ob3 MP1 --> Ob3 MP2 :=
+    dirprod_pr2 (dirprod_pr2 MPM).
+
+  Definition MPMorComms {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) : UU :=
+    (MPMors1 MPM ;; Mor1 MP2 = Mor1 MP1 ;; MPMors2 MPM)
+      × (MPMors2 MPM ;; Mor2 MP2 = Mor2 MP1 ;; MPMors3 MPM).
+
+  Definition MPComm1 {MP1 MP2 : MorphismPair} {MPM : MPMorMors MP1 MP2} (MPMC : MPMorComms MPM) :
+    MPMors1 MPM ;; Mor1 MP2 = Mor1 MP1 ;; MPMors2 MPM := dirprod_pr1 MPMC.
+
+  Definition MPComm2 {MP1 MP2 : MorphismPair} {MPM : MPMorMors MP1 MP2} (MPMC : MPMorComms MPM) :
+    MPMors2 MPM ;; Mor2 MP2 = Mor2 MP1 ;; MPMors3 MPM := dirprod_pr2 MPMC.
+
+  Definition MPMorphism (MP1 MP2 : MorphismPair) : UU := Σ MPM : MPMorMors MP1 MP2, MPMorComms MPM.
+
+  Definition MPMorphism_MPMorMors {MP1 MP2 : MorphismPair} (MPM : MPMorphism MP1 MP2) :
+    MPMorMors MP1 MP2 := pr1 MPM.
+  Coercion MPMorphism_MPMorMors : MPMorphism >-> MPMorMors.
+
+  Definition MPMorphism_MPMorComms {MP1 MP2 : MorphismPair} (MPM : MPMorphism MP1 MP2) :
+    MPMorComms MPM := pr2 MPM.
+  Coercion MPMorphism_MPMorComms : MPMorphism >-> MPMorComms.
+
 End def_morphismpair.
 Arguments mk_MorphismPair [C] [a] [b] [c] _ _.
 Arguments Ob1 [C] _.

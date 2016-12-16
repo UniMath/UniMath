@@ -12,6 +12,8 @@
  - Cohomology and morphisms from cokernels to kernels
  *)
 
+Unset Kernel Term Sharing.
+
 Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
