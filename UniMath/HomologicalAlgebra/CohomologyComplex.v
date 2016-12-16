@@ -50,7 +50,7 @@ Require Import UniMath.CategoryTheory.Additive.
 Require Import UniMath.CategoryTheory.Abelian.
 Require Import UniMath.CategoryTheory.AbelianToAdditive.
 Require Import UniMath.CategoryTheory.AdditiveFunctors.
-Require Import UniMath.CategoryTheory.Complexes.
+Require Import UniMath.HomologicalAlgebra.Complexes.
 
 
 Open Scope hz_scope.
