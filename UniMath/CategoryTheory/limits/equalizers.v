@@ -41,6 +41,19 @@ Section def_equalizers.
     apply isapropiscontr.
   Defined.
 
+  Lemma isEqualizer_path {hs : has_homsets C} {x y z : C} {f g : y --> z} {e : x --> y}
+        {H H' : e ;; f = e ;; g} (iC : isEqualizer f g e H) :
+    isEqualizer f g e H'.
+  Proof.
+    use mk_isEqualizer.
+    intros w0 h H'0.
+    use unique_exists.
+    - exact (pr1 (pr1 (iC w0 h H'0))).
+    - exact (pr2 (pr1 (iC w0 h H'0))).
+    - intros y0. apply hs.
+    - intros y0 X. exact (base_paths _ _ (pr2 (iC w0 h H'0) (tpair _ y0 X))).
+  Defined.
+
   (** Proves that the arrow to the equalizer object with the right
     commutativity property is unique. *)
   Lemma isEqualizerInUnique {x y z : C} (f g : y --> z) (e : x --> y)

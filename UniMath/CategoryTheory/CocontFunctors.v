@@ -43,7 +43,9 @@ This file also contains proofs that the following functors are (omega-)cocontinu
 - Product of functors: F * G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x * G x
   [is_omega_cocont_BinProduct_of_functors_alt] [is_omega_cocont_BinProduct_of_functors]
 - Precomposition functor: _ o K : ⟦C,A⟧ -> ⟦M,A⟧ for K : M -> C
-  [is_cocont_pre_composition_functor] [is_omega_cocont_pre_composition_functor]
+  [preserves_colimit_pre_composition_functor] [is_omega_cocont_pre_composition_functor]
+- Postcomposition with a left adjoint:
+  [is_cocont_post_composition_functor] [is_omega_cocont_post_composition_functor]
 - Swapping of functor category arguments:
   [is_cocont_functor_cat_swap] [is_omega_cocont_functor_cat_swap]
 
@@ -88,12 +90,8 @@ Section cocont.
 
 Context {C D : precategory} (F : functor C D).
 
-Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
-  (cc : cocone d L) : UU :=
-  isColimCocone d L cc -> isColimCocone (mapdiagram F d) (F L) (mapcocone F d cc).
-
-Definition is_cocont := Π {g : graph} (d : diagram g C) (L : C)
-  (cc : cocone d L), preserves_colimit d L cc.
+Definition is_cocont : UU := Π {g : graph} (d : diagram g C) (L : C)
+  (cc : cocone d L), preserves_colimit F d L cc.
 
 End cocont.
 
@@ -400,40 +398,7 @@ Section cocont_functors.
 Lemma left_adjoint_cocont {C D : precategory} (F : functor C D)
   (H : is_left_adjoint F) (hsC : has_homsets C) (hsD : has_homsets D) : is_cocont F.
 Proof.
-intros g d L ccL HccL M ccM.
-set (G := pr1 H).
-apply (@iscontrweqb _ (Σ y : C ⟦ L, G M ⟧,
-    Π i, coconeIn ccL i ;; y = φ_adj _ _ _ H (coconeIn ccM i))).
-- eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
-    Π i, # F (coconeIn ccL i) ;; φ_adj_inv _ _ _ H y = coconeIn ccM i)).
-  + apply (weqbandf (adjunction_hom_weq _ _ _ H L M)); simpl; intro f.
-    abstract (apply weqiff; try (apply impred; intro; apply hsD);
-    now rewrite φ_adj_inv_after_φ_adj).
-  + eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
-      Π i, φ_adj_inv _ _ _ _ (coconeIn ccL i ;; y) = coconeIn ccM i)).
-    * apply weqfibtototal; simpl; intro f.
-    abstract (apply weqiff; try (apply impred; intro; apply hsD); split;
-      [ intros HH i; rewrite φ_adj_inv_natural_precomp; apply HH
-      | intros HH i; rewrite <- φ_adj_inv_natural_precomp; apply HH ]).
-      (* apply weqonsecfibers; intro i. *)
-      (* rewrite φ_adj_inv_natural_precomp; apply idweq. *)
-    * apply weqfibtototal; simpl; intro f.
-    abstract (apply weqiff; [ | apply impred; intro; apply hsD | apply impred; intro; apply hsC ];
-      split; intros HH i;
-        [ now rewrite <- (HH i), φ_adj_after_φ_adj_inv
-        | now rewrite (HH i),  φ_adj_inv_after_φ_adj ]).
-      (* apply weqonsecfibers; intro i. *)
-      (* apply weqimplimpl; [ | | apply hsD | apply hsC]; intro h. *)
-      (*   now rewrite <- h, (φ_adj_after_φ_adj_inv _ _ _ H). *)
-      (* now rewrite h, (φ_adj_inv_after_φ_adj _ _ _ H). *)
-- transparent assert (X : (cocone d (G M))).
-  { use mk_cocone.
-    + intro v; apply (φ_adj C D F H (coconeIn ccM v)).
-    + abstract (intros m n e; simpl;
-                rewrite <- (coconeInCommutes ccM m n e); simpl;
-                now rewrite φ_adj_natural_precomp).
-  }
-  apply (HccL (G M) X).
+now intros g d L ccL; apply left_adjoint_preserves_colimit.
 Defined.
 
 (* Print Assumptions left_adjoint_cocont. *)
@@ -529,7 +494,7 @@ Section functor_identity.
 
 Context {C : precategory} (hsC : has_homsets C).
 
-Lemma preserves_colimit_identity{g : graph} (d : diagram g C) (L : C)
+Lemma preserves_colimit_identity {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : preserves_colimit (functor_identity C) d L cc.
 Proof.
 intros HcL y ccy; simpl.
@@ -1517,30 +1482,32 @@ Section pre_composition_functor.
 Context {A B C : precategory} (F : functor A B) (hsB : has_homsets B) (hsC : has_homsets C).
 (* Context (CC : Colims C). *) (* This is too strong *)
 
-Lemma is_cocont_pre_composition_functor
-  (H : Π (g : graph) (d : diagram g [B,C,hsC]) (b : B),
-       ColimCocone (diagram_pointwise hsC d b)) :
-  is_cocont (pre_composition_functor _ _ _ hsB hsC F).
+Lemma preserves_colimit_pre_composition_functor {g : graph}
+  (d : diagram g [B,C,hsC]) (G : [B,C,hsC])
+  (ccG : cocone d G) (H : Π b, ColimCocone (diagram_pointwise hsC d b)) :
+  preserves_colimit (pre_composition_functor A B C hsB hsC F) d G ccG.
 Proof.
-intros g d G ccG HccG.
+intros HccG.
 apply pointwise_Colim_is_isColimFunctor; intro a.
-apply (isColimFunctor_is_pointwise_Colim _ _ (H g d) _ _ HccG).
+now apply (isColimFunctor_is_pointwise_Colim _ _ H _ _ HccG).
 Defined.
 
-(* Which assumption is the best? *)
+(* Lemma is_cocont_pre_composition_functor *)
+(*   (H : Π (g : graph) (d : diagram g [B,C,hsC]) (b : B), *)
+(*        ColimCocone (diagram_pointwise hsC d b)) : *)
+(*   is_cocont (pre_composition_functor _ _ _ hsB hsC F). *)
+(* Proof. *)
+(* now intros g d G ccG; apply preserves_colimit_pre_composition_functor. *)
+(* Defined. *)
+
 Lemma is_omega_cocont_pre_composition_functor
-  (* (H : Π (c : chain [B,C,hsC]) (b : B), ColimCocone (diagram_pointwise hsC c b)) : *)
   (H : Colims_of_shape nat_graph C) :
   is_omega_cocont (pre_composition_functor _ _ _ hsB hsC F).
 Proof.
-intros c L ccL HccL.
-apply pointwise_Colim_is_isColimFunctor; intro a.
-use (isColimFunctor_is_pointwise_Colim _ _ _ _ _ HccL).
-intros b; apply H.
+now intros c L ccL; apply preserves_colimit_pre_composition_functor.
 Defined.
 
 Definition omega_cocont_pre_composition_functor
-  (* (H : Π (c : chain [B,C,hsC]) (b : B), ColimCocone (diagram_pointwise hsC c b))  *)
   (H : Colims_of_shape nat_graph C) :
   omega_cocont_functor [B, C, hsC] [A, C, hsC] :=
   tpair _ _ (is_omega_cocont_pre_composition_functor H).
@@ -1571,6 +1538,26 @@ Definition omega_cocont_pre_composition_functor_kan :
   tpair _ _ is_omega_cocont_pre_composition_functor_kan.
 
 End pre_composition_functor_kan.
+
+Section post_composition_functor.
+
+Context {C D E : precategory} (hsD : has_homsets D) (hsE : has_homsets E).
+Context (F : functor D E) (HF : is_left_adjoint F).
+
+Lemma is_cocont_post_composition_functor :
+  is_cocont (post_composition_functor C D E hsD hsE F).
+Proof.
+apply left_adjoint_cocont; try apply functor_category_has_homsets.
+apply (is_left_adjoint_post_composition_functor _ _ _ HF).
+Defined.
+
+Lemma is_omega_cocont_post_composition_functor :
+  is_omega_cocont (post_composition_functor C D E hsD hsE F).
+Proof.
+now intros c L ccL; apply is_cocont_post_composition_functor.
+Defined.
+
+End post_composition_functor.
 
 (** * Swapping of functor category arguments *)
 Section functor_swap.

@@ -14,9 +14,6 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.PrecategoriesWithBinOps.
-Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
-Require Import UniMath.CategoryTheory.PreAdditive.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -31,7 +28,7 @@ Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.PrecategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
@@ -121,24 +118,22 @@ Section abelian_is_additive.
     exact (BinProductPr1Commutes A _ _ BinProd _ _ (identity X)).
   Qed.
 
-  Local Lemma KernelOfPr1_isEqualizer_comm (X : A) (BinProd : BinProductCone A X X) (w : A)
+  Local Lemma KernelOfPr1_isKernel_comm (X : A) (BinProd : BinProductCone A X X) (w : A)
         (h : A ⟦ w, BinProductObject A BinProd ⟧)
-        (H' : h ;; BinProductPr1 A BinProd =
-              h ;; ZeroArrow to_Zero (BinProductObject A BinProd) X) :
+        (H' : h ;; BinProductPr1 A BinProd = ZeroArrow to_Zero _ _) :
     h ;; (BinProductPr2 A BinProd)
       ;; BinProductArrow A BinProd (ZeroArrow to_Zero X X) (identity X) = h.
   Proof.
     apply BinProductArrowsEq.
     - rewrite <- assoc. rewrite (BinProductPr1Commutes A _ _ BinProd _ _ (identity X)).
-      rewrite H'. repeat rewrite ZeroArrow_comp_right. apply idpath.
+      rewrite H'. rewrite ZeroArrow_comp_right. apply idpath.
     - rewrite <- assoc. rewrite (BinProductPr2Commutes A _ _ BinProd _ _ (identity X)).
       apply id_right.
   Qed.
 
-  Local Lemma KernelOfPr1_isEqualizer_unique (X : A) (BinProd : BinProductCone A X X) (w : A)
+  Local Lemma KernelOfPr1_isKernel_unique (X : A) (BinProd : BinProductCone A X X) (w : A)
         (h : A ⟦ w, BinProductObject A BinProd ⟧)
-        (H' : h ;; BinProductPr1 A BinProd =
-              h ;; ZeroArrow to_Zero (BinProductObject A BinProd) X)
+        (H' : h ;; BinProductPr1 A BinProd = ZeroArrow to_Zero _ _)
         (y : A ⟦ w, X ⟧)
         (H : y ;; BinProductArrow A BinProd (ZeroArrow to_Zero X X) (identity X) = h) :
     y = h ;; BinProductPr2 A BinProd.
@@ -148,30 +143,28 @@ Section abelian_is_additive.
     rewrite id_right. apply idpath.
   Qed.
 
-  Lemma KernelOfPr1_isEqualizer {X : A} (BinProd : BinProductCone A X X) :
-    equalizers.isEqualizer (BinProductPr1 A BinProd)
-                           (ZeroArrow to_Zero (BinProductObject A BinProd) X)
-                           (ZeroIdMap BinProd) (KernelEqRw to_Zero (KernelOfPr1_Eq BinProd)).
+  Lemma KernelOfPr1_isKernel {X : A} (BinProd : BinProductCone A X X) :
+    isKernel to_Zero (ZeroIdMap BinProd) (BinProductPr1 A BinProd) (KernelOfPr1_Eq BinProd).
   Proof.
-    use mk_isEqualizer.
+    use (mk_isKernel hs).
     intros w h H'.
     unfold ZeroIdMap.
     use unique_exists.
     (* The arrow *)
     - exact (h ;; (BinProductPr2 A BinProd)).
     (* commutativity *)
-    - exact (KernelOfPr1_isEqualizer_comm X BinProd w h H').
+    - exact (KernelOfPr1_isKernel_comm X BinProd w h H').
     (* equality of equalities of morphisms *)
     - intros y. apply hs.
     (* uniqueness *)
-    - exact (KernelOfPr1_isEqualizer_unique X BinProd w h H').
-  Defined.
+    - exact (KernelOfPr1_isKernel_unique X BinProd w h H').
+  Qed.
 
   Definition KernelOfPr1 {X : A} (BinProd : BinProductCone A X X) :
     kernels.Kernel to_Zero (BinProductPr1 A BinProd).
   Proof.
     exact (mk_Kernel to_Zero (ZeroIdMap BinProd) _ (KernelOfPr1_Eq BinProd)
-                     (KernelOfPr1_isEqualizer BinProd)).
+                     (KernelOfPr1_isKernel BinProd)).
   Defined.
 
   Lemma KernelOfPr2_Eq {X : A} (BinProd : BinProductCone A X X) :
@@ -181,10 +174,9 @@ Section abelian_is_additive.
     apply idpath.
   Qed.
 
-  Local Lemma KernelOfPr2_isEqualizer_comm (X : A) (BinProd : BinProductCone A X X) (w : A)
+  Local Lemma KernelOfPr2_isKernel_comm (X : A) (BinProd : BinProductCone A X X) (w : A)
         (h : A ⟦w, BinProductObject A BinProd⟧)
-        (H' : h ;; BinProductPr2 A BinProd =
-              h ;; ZeroArrow to_Zero (BinProductObject A BinProd) X) :
+        (H' : h ;; BinProductPr2 A BinProd = ZeroArrow to_Zero _ _) :
     h ;; (BinProductPr1 A BinProd)
       ;; BinProductArrow A BinProd (identity X) (ZeroArrow to_Zero X X) = h.
   Proof.
@@ -192,12 +184,12 @@ Section abelian_is_additive.
     - rewrite <- assoc. rewrite (BinProductPr1Commutes A _ _ BinProd _ (identity X) _).
       apply id_right.
     - rewrite <- assoc. rewrite (BinProductPr2Commutes A _ _ BinProd _ (identity X) _).
-      rewrite H'. repeat rewrite ZeroArrow_comp_right. apply idpath.
+      rewrite H'. rewrite ZeroArrow_comp_right. apply idpath.
   Qed.
 
-  Local Lemma KernelOfPr2_isEqualizer_unique (X : A) (BinProd : BinProductCone A X X) (w : A)
+  Local Lemma KernelOfPr2_isKernel_unique (X : A) (BinProd : BinProductCone A X X) (w : A)
         (h : A ⟦ w, BinProductObject A BinProd ⟧)
-        (H' : h ;; BinProductPr2 A BinProd = h ;; ZeroArrow to_Zero (BinProductObject A BinProd) X)
+        (H' : h ;; BinProductPr2 A BinProd = ZeroArrow to_Zero _ _)
         (y : A ⟦ w, X ⟧)
         (H : y ;; BinProductArrow A BinProd (identity X) (ZeroArrow to_Zero X X) = h) :
     y = h ;; BinProductPr1 A BinProd.
@@ -207,30 +199,28 @@ Section abelian_is_additive.
     rewrite id_right. apply idpath.
   Qed.
 
-  Definition KernelOfPr2_isEqualizer {X : A} (BinProd : BinProductCone A X X) :
-    equalizers.isEqualizer (BinProductPr2 A BinProd)
-                           (ZeroArrow to_Zero (BinProductObject A BinProd) X)
-                           (IdZeroMap BinProd) (KernelEqRw to_Zero (KernelOfPr2_Eq BinProd)).
+  Definition KernelOfPr2_isKernel {X : A} (BinProd : BinProductCone A X X) :
+    isKernel to_Zero (IdZeroMap BinProd) (BinProductPr2 A BinProd) (KernelOfPr2_Eq BinProd).
   Proof.
-    use mk_isEqualizer.
+    use (mk_isKernel hs).
     intros w h H'.
     unfold IdZeroMap.
     use unique_exists.
     (* The arrow *)
     - exact (h ;; (BinProductPr1 A BinProd)).
     (* Commutativity *)
-    - exact (KernelOfPr2_isEqualizer_comm X BinProd w h H').
+    - exact (KernelOfPr2_isKernel_comm X BinProd w h H').
     (* Equality of equalities of morphisms *)
     - intros y. apply hs.
     (* Uniqueness *)
-    - intros y H. exact (KernelOfPr2_isEqualizer_unique X BinProd w h H' y H).
-  Defined.
+    - intros y H. exact (KernelOfPr2_isKernel_unique X BinProd w h H' y H).
+  Qed.
 
   Definition KernelOfPr2 {X : A} (BinProd : BinProductCone A X X) :
     kernels.Kernel to_Zero (BinProductPr2 A BinProd).
   Proof.
     exact (mk_Kernel to_Zero (IdZeroMap BinProd) _ (KernelOfPr2_Eq BinProd)
-                     (KernelOfPr2_isEqualizer BinProd)).
+                     (KernelOfPr2_isKernel BinProd)).
   Defined.
 
   (** From properties of abelian categories, it follows that Pr1 and Pr2 are
@@ -263,13 +253,13 @@ Section abelian_is_additive.
     use monic_epi_is_iso.
     (* isMonic *)
     - use (@KernelZeroisMonic A hs to_Zero _ _ _ (ZeroArrow_comp_left _ _ _ _ _ _)).
-      use mk_isEqualizer.
+      use (mk_isKernel hs).
       intros w h H'.
       use unique_exists.
       (* The arrow *)
       + exact (ZeroArrow to_Zero w to_Zero).
       (* Commutativity *)
-      + rewrite ZeroArrow_comp_right in H'. unfold r in H'. rewrite assoc in H'.
+      + unfold r in H'. rewrite assoc in H'.
         set (y := KernelIn _ ker _ _ H'). cbn in y.
         set (com1 := KernelCommutes _ ker _ _ H'). cbn in com1. fold y in com1.
         unfold DiagonalMap in com1.
@@ -293,7 +283,7 @@ Section abelian_is_additive.
       + intros y H. apply ArrowsToZero.
     (* isEpi *)
     - use (@CokernelZeroisEpi A hs _ _ to_Zero _ (ZeroArrow_comp_right _ _ _ _ _ _)).
-      use mk_isCoequalizer.
+      use (mk_isCokernel hs).
       intros w h H'.
       use unique_exists.
       (* The arrow *)
@@ -301,7 +291,7 @@ Section abelian_is_additive.
       (* Commutativity *)
       + set(coker2 := CokernelOfKernelOfPr2 BinProd).
         set(coker2ar := CokernelArrow coker2). cbn in coker2ar.
-        rewrite ZeroArrow_comp_left in H'. unfold r in H'. rewrite <- assoc in H'.
+        unfold r in H'. rewrite <- assoc in H'.
         set (y := CokernelOut _ coker2 _ _ H'). cbn in y.
         set (com1 := CokernelCommutes _ coker2 _ _ H'). cbn in com1. fold y in com1.
         assert (H : y = ZeroArrow to_Zero X w).
@@ -349,10 +339,10 @@ Section abelian_is_additive.
     (fun f : _ => fun g : _ => Abelian_minus_op f (Abelian_minus_op (ZeroArrow to_Zero _ _) g)).
 
   (** Construction of a precategory with binops from Abelian category. *)
-  Definition AbelianToPrecategoryWithBinops : PrecategoryWithBinOps.
+  Definition AbelianToprecategoryWithBinops : precategoryWithBinOps.
   Proof.
-    use (mk_PrecategoryWithBinOps A).
-    unfold PrecategoryWithBinOpsData.
+    use (mk_precategoryWithBinOps A).
+    unfold precategoryWithBinOpsData.
     intros x y. exact (Abelian_op x y).
   Defined.
 
@@ -728,7 +718,7 @@ Section abelian_is_additive.
   Qed.
 
   Definition AbelianToPrecategoryWithAbgropsData :
-    PrecategoryWithAbgropsData AbelianToPrecategoryWithBinops hs.
+    PrecategoryWithAbgropsData AbelianToprecategoryWithBinops hs.
   Proof.
     unfold PrecategoryWithAbgropsData.
     intros x y.
@@ -752,7 +742,7 @@ Section abelian_is_additive.
   (** We prove that Abelian_precategories are PrecategoriesWithAbgrops. *)
   Definition AbelianToPrecategoryWithAbgrops :
     PrecategoryWithAbgrops := mk_PrecategoryWithAbgrops
-                                AbelianToPrecategoryWithBinops  hs
+                                AbelianToprecategoryWithBinops  hs
                                 AbelianToPrecategoryWithAbgropsData.
 
   (** Hide isPreAdditive behind Qed. *)

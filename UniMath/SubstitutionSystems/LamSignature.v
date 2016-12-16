@@ -562,8 +562,8 @@ Proof.
 (*  destruct XZ as [X [Z e]].
   simpl.
 *)
-  set (h:= nat_trans_comp (λ_functor_inv _ (pr1 XZ)) ((nat_trans_id _) ∙∙ (pr2 (pr2 XZ)))).
-  exact (nat_trans_comp (α_functor_inv _ (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ∙∙ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
+  set (h:= nat_trans_comp (λ_functor_inv (pr1 XZ)) ((nat_trans_id _) ∙∙ (pr2 (pr2 XZ)))).
+  exact (nat_trans_comp (α_functor_inv (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ∙∙ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
 Defined.
 
 Lemma is_nat_trans_Flat_θ_data: is_nat_trans _ _ Flat_θ_data.

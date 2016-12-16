@@ -194,7 +194,7 @@ Section Strength_law_1_intensional.
 
 Definition θ_Strength1_int : UU
   := Π X : EndC,
-     θ (X ⊗ (id_Ptd C hs)) ;; # H (λ_functor _ _ ) = λ_functor _ _ .
+     θ (X ⊗ (id_Ptd C hs)) ;; # H (λ_functor _) = λ_functor _.
 
 Lemma θ_Strength1_int_implies_θ_Strength1 : θ_Strength1_int → θ_Strength1.
 Proof.
@@ -205,7 +205,7 @@ Proof.
   intro c; simpl.
   assert (T2 := nat_trans_eq_pointwise TX c).
   simpl in *.
-  assert (X0 : λ_functor C X = identity (X : EndC)).
+  assert (X0 : λ_functor X = identity (X : EndC)).
   { apply nat_trans_eq; try assumption; intros; apply idpath. }
   rewrite X0 in T2.
   apply T2.
@@ -221,7 +221,7 @@ Proof.
   intro c; simpl.
   assert (T2 := nat_trans_eq_pointwise TX c).
   simpl in *.
-  assert (X0 : λ_functor C X = identity (X : EndC)).
+  assert (X0 : λ_functor X = identity (X : EndC)).
   { apply nat_trans_eq; try assumption; intros; apply idpath. }
   rewrite X0.
   apply T2.
@@ -244,8 +244,8 @@ Section Strength_law_2_intensional.
 
 Definition θ_Strength2_int : UU
   := Π (X : EndC) (Z Z' : Ptd),
-      θ (X ⊗ (Z p• Z'))  ;; #H (α_functor _ (U Z) (U Z') X )  =
-      (α_functor _ (U Z) (U Z') (H X) : functor_compose hs hs _ _  --> _ ) ;;
+      θ (X ⊗ (Z p• Z'))  ;; #H (α_functor (U Z) (U Z') X )  =
+      (α_functor (U Z) (U Z') (H X) : functor_compose hs hs _ _  --> _ ) ;;
       θ (X ⊗ Z') •• (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) .
 
 Lemma θ_Strength2_int_implies_θ_Strength2 : θ_Strength2_int → θ_Strength2.
@@ -264,7 +264,7 @@ Proof.
   rewrite <- assoc.
   apply maponpaths.
   clear TXZZ'c.
-  assert (functor_comp_H := functor_comp H _ _ _ (α_functor C (pr1 Z) (pr1 Z') X)
+  assert (functor_comp_H := functor_comp H _ _ _ (α_functor (pr1 Z) (pr1 Z') X)
            (a : functor_compose hs hs (U Z) (functor_composite (U Z') X) --> Y)).
   assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
   simpl in functor_comp_H_c.
@@ -288,7 +288,7 @@ Proof.
   unfold θ_Strength2_int, θ_Strength2.
   intros T X Z Z'.
   assert (TXZZ'_inst := T X Z Z' (functor_compose hs hs (U Z)
-          (functor_composite (U Z') X)) (α_functor C (pr1 Z) (pr1 Z') X)).
+          (functor_composite (U Z') X)) (α_functor (pr1 Z) (pr1 Z') X)).
   eapply pathscomp0. apply TXZZ'_inst.
   clear T TXZZ'_inst.
   apply nat_trans_eq; try assumption.

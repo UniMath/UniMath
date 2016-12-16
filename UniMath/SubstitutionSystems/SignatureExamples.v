@@ -92,9 +92,9 @@ Definition θ_from_δ_mor (XZe : [C, C, hsC] XX Ptd) :
   [C, C, hsC] ⟦ θ_source precompG XZe, θ_target precompG XZe ⟧.
 Proof.
 set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
-set (F1 := α_functor _ G Z X).
+set (F1 := α_functor G Z X).
 set (F2 := post_whisker (δ (pr2 XZe)) X).
-set (F3 := α_functor_inv _ Z G X).
+set (F3 := α_functor_inv Z G X).
 apply (nat_trans_comp F3 (nat_trans_comp F2 F1)).
 Defined.
 
@@ -135,11 +135,11 @@ apply functor_id.
 Qed.
 
 Let D' Ze Ze' :=
-  nat_trans_comp (α_functor _ (pr1 Ze) (pr1 Ze') G)
+  nat_trans_comp (α_functor (pr1 Ze) (pr1 Ze') G)
  (nat_trans_comp (pre_whisker (pr1 Ze) (δ Ze'))
- (nat_trans_comp (α_functor_inv _ (pr1 Ze) G (pr1 Ze'))
+ (nat_trans_comp (α_functor_inv (pr1 Ze) G (pr1 Ze'))
  (nat_trans_comp (post_whisker (δ Ze) (pr1 Ze'))
-                 (α_functor _ G (pr1 Ze) (pr1 Ze'))))).
+                 (α_functor G (pr1 Ze) (pr1 Ze'))))).
 
 Definition δ_law2 : UU := Π Ze Ze', δ (Ze p• Ze') = D' Ze Ze'.
 Hypothesis H2 : δ_law2.
@@ -182,11 +182,11 @@ Definition δ_comp_mor (Ze : ptd_obj C) :
    ⟶ functor_composite_data (functor_composite_data G1 G2) (pr1 Ze).
 Proof.
 set (Z := pr1 Ze).
-set (F1 := α_functor_inv _ Z G1 G2).
+set (F1 := α_functor_inv Z G1 G2).
 set (F2 := post_whisker (δ1 Ze) G2).
-set (F3 := α_functor _ G1 Z G2).
+set (F3 := α_functor G1 Z G2).
 set (F4 := pre_whisker G1 (δ2 Ze)).
-set (F5 := α_functor_inv _ G1 G2 Z).
+set (F5 := α_functor_inv G1 G2 Z).
 exact (nat_trans_comp F1 (nat_trans_comp F2 (nat_trans_comp F3 (nat_trans_comp F4 F5)))).
 Defined.
 

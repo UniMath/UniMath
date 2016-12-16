@@ -93,6 +93,21 @@ Section def_zero.
   Definition iso_Zeros (Z Z' : Zero) : iso Z Z' :=
     tpair _ (ZeroArrowTo Z' Z) (isiso_from_Zero_to_Zero Z' Z).
 
+  Lemma ZerosArrowEq (Z Z' : Zero) (a b : C) : ZeroArrow Z a b = ZeroArrow Z' a b.
+  Proof.
+    set (i := iso_Zeros Z Z').
+    unfold ZeroArrow.
+    assert (e : ZeroArrowTo Z a ;; identity _ = ZeroArrowTo Z a) by apply id_right.
+    rewrite <- e. clear e.
+    rewrite <- (iso_inv_after_iso i). rewrite assoc.
+    assert (e1 : ZeroArrowTo Z a ;; i = ZeroArrowTo Z' a) by apply ArrowsToZero.
+    rewrite e1. clear e1.
+    assert (e2 : inv_from_iso i ;; ZeroArrowFrom Z b = ZeroArrowFrom Z' b)
+      by apply ArrowsFromZero.
+    rewrite <- assoc. rewrite e2. clear e2.
+    apply idpath.
+  Qed.
+
   Definition hasZero := ishinh Zero.
 
   Section Zero_Unique.
@@ -140,14 +155,14 @@ Section def_zero.
 
 
   (** ** Transport of ZeroArrow *)
-  Lemma transportf_ZeroArrow {a b c : C} (Z : Zero) (e : b = c) :
+  Lemma transport_target_ZeroArrow {a b c : C} (Z : Zero) (e : b = c) :
     transportf _ e (ZeroArrow Z a b) = ZeroArrow Z a c.
   Proof.
     induction e. apply idpath.
   Qed.
 
-  Lemma transportb_ZeroArrow {a b c : C} (Z : Zero) (e : a = b) :
-    transportb (fun (a' : ob C) => precategory_morphisms a' c) e (ZeroArrow Z b c) = ZeroArrow Z a c.
+  Lemma transport_source_ZeroArrow {a b c : C} (Z : Zero) (e : b = a) :
+    transportf (fun (a' : ob C) => precategory_morphisms a' c) e (ZeroArrow Z b c) = ZeroArrow Z a c.
   Proof.
     induction e. apply idpath.
   Qed.

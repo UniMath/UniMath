@@ -21,6 +21,9 @@ Contents :  Definition of adjunction
             equivalence of precategories, if the source
             is a category.
 
+            Post-composition with a left adjoint is a left
+            adjoint ([is_left_adjoint_post_composition_functor])
+
 ************************************************************)
 
 
@@ -31,87 +34,104 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.whiskering.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-(*Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).*)
-(* Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g"). *)
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
-Arguments functor_composite {_ _ _} _ _ .
+(** * Adjunctions *)
+Section adjunctions.
 
+Definition form_adjunction {A B : precategory} (F : functor A B) (G : functor B A)
+  (eta : nat_trans (functor_identity A) (functor_composite F G))
+  (eps : nat_trans (functor_composite G F) (functor_identity B)) : UU :=
+    (Π a : A, # F (eta a) ;; eps (F a) = identity (F a)) ×
+    (Π b : B, eta (G b) ;; # G (eps b) = identity (G b)).
 
-(** * Adjunction *)
+Definition are_adjoints {A B : precategory} (F : functor A B) (G : functor B A) : UU :=
+  Σ (etaeps : (nat_trans (functor_identity A) (functor_composite F G)) ×
+              (nat_trans (functor_composite G F) (functor_identity B))),
+      form_adjunction F G (pr1 etaeps) (pr2 etaeps).
 
-Definition form_adjunction {A B : precategory}
-       (F : functor A B) (G : functor B A)
-       (eta : nat_trans (functor_identity A) (functor_composite F G))
-       (eps : nat_trans (functor_composite G F) (functor_identity B)) : UU :=
-dirprod
-  (Π a : ob A,
-       #F (eta a) ;; eps (F a) = identity (F a))
-  (Π b : ob B,
-       eta (G b) ;; #G (eps b) = identity (G b)).
+Definition unit_from_are_adjoints {A B : precategory}
+   {F : functor A B} {G : functor B A} (H : are_adjoints F G) :
+  nat_trans (functor_identity A) (functor_composite F G)
+  := pr1 (pr1 H).
 
+Definition counit_from_are_adjoints {A B : precategory}
+  {F : functor A B} {G : functor B A} (H : are_adjoints F G)  :
+   nat_trans (functor_composite G F) (functor_identity B)
+   := pr2 (pr1 H).
 
-Definition are_adjoints {A B : precategory}
-   (F : functor A B)  (G : functor B A) : UU :=
-  total2 (fun etaeps : dirprod
-            (nat_trans (functor_identity A) (functor_composite F G))
-            (nat_trans (functor_composite G F) (functor_identity B)) =>
-      form_adjunction  F G (pr1 etaeps) (pr2 etaeps)).
+Definition is_left_adjoint {A B : precategory} (F : functor A B) : UU :=
+  Σ (G : functor B A), are_adjoints F G.
 
+Definition is_right_adjoint {A B : precategory} (G : functor B A) : UU :=
+  Σ (F : functor A B), are_adjoints F G.
 
-Definition is_left_adjoint {A B : precategory}
-  (F : functor A B) : UU :=
-   total2 (fun G : functor B A => are_adjoints F G).
+Definition are_adjoints_to_is_left_adjoint {A B : precategory} (F : functor A B) (G : functor B A)
+           (H : are_adjoints F G) : is_left_adjoint F := (G,,H).
 
+Coercion are_adjoints_to_is_left_adjoint : are_adjoints >-> is_left_adjoint.
+
+Definition are_adjoints_to_is_right_adjoint {A B : precategory} (F : functor A B) (G : functor B A)
+           (H : are_adjoints F G) : is_right_adjoint G := (F,,H).
+
+Coercion are_adjoints_to_is_right_adjoint : are_adjoints >-> is_right_adjoint.
 
 Definition right_adjoint {A B : precategory}
   {F : functor A B} (H : is_left_adjoint F) : functor B A := pr1 H.
 
+Lemma is_right_adjoint_right_adjoint {A B : precategory}
+      {F : functor A B} (H : is_left_adjoint F) : is_right_adjoint (right_adjoint H).
+Proof.
+exact (F,,pr2 H).
+Defined.
+
+Definition left_adjoint {A B : precategory}
+  {G : functor B A} (H : is_right_adjoint G) : functor A B := pr1 H.
+
+Lemma is_left_adjoint_left_adjoint {A B : precategory}
+      {G : functor B A} (H : is_right_adjoint G) : is_left_adjoint (left_adjoint H).
+Proof.
+exact (G,,pr2 H).
+Defined.
 
 Definition unit_from_left_adjoint {A B : precategory}
    {F : functor A B}  (H : is_left_adjoint F) :
   nat_trans (functor_identity A) (functor_composite F (right_adjoint H))
-  := pr1 (pr1 (pr2 H)).
+  := unit_from_are_adjoints (pr2 H).
 
+Definition unit_from_right_adjoint {A B : precategory}
+   {G : functor B A}  (H : is_right_adjoint G) :
+  nat_trans (functor_identity A) (functor_composite (left_adjoint H) G)
+  := unit_from_are_adjoints (pr2 H).
 
 Definition counit_from_left_adjoint {A B : precategory}
   {F : functor A B}   (H : is_left_adjoint F)  :
  nat_trans (functor_composite (right_adjoint H) F) (functor_identity B)
-   := pr2 (pr1 (pr2 H)).
+   := counit_from_are_adjoints (pr2 H).
 
+Definition counit_from_right_adjoint {A B : precategory}
+  {G : functor B A} (H : is_right_adjoint G)  :
+ nat_trans (functor_composite G (left_adjoint H)) (functor_identity B)
+   := counit_from_are_adjoints (pr2 H).
 
-Definition triangle_id_left_ad (A B : precategory)
-  (F : functor A B) (H : is_left_adjoint F) :
-  Π (a : ob A),
-       #F (unit_from_left_adjoint H a);;
-       counit_from_left_adjoint H (F a)
-       =
-      identity (F a)
-   := pr1 (pr2 (pr2 H)).
+Definition triangle_id_left_ad {A B : precategory} {F : functor A B} {G : functor B A}
+  (H : are_adjoints F G) :
+  Π a, # F (unit_from_are_adjoints H a) ;; counit_from_are_adjoints H (F a) = identity (F a)
+   := pr1 (pr2 H).
 
-Definition triangle_id_right_ad (A B : precategory)
-   (F : functor A B)  (H : is_left_adjoint F) :
-  Π b : ob B,
-         unit_from_left_adjoint H (right_adjoint H b);;
-        #(right_adjoint H) (counit_from_left_adjoint H b) =
-        identity (right_adjoint H b)
-  := pr2 (pr2 (pr2 H)).
+Definition triangle_id_right_ad {A B : precategory} {F : functor A B} {G : functor B A}
+  (H : are_adjoints F G) :
+  Π b, unit_from_are_adjoints H (G b) ;; # G (counit_from_are_adjoints H b) = identity (G b)
+  := pr2 (pr2 H).
 
 (** * Equivalence of (pre)categories *)
 
-Definition adj_equivalence_of_precats {A B : precategory}
-  (F : functor A B) : UU :=
-   total2 (fun H : is_left_adjoint F =>
-     dirprod (Π a, is_isomorphism
-                    (unit_from_left_adjoint H a))
-             (Π b, is_isomorphism
-                    (counit_from_left_adjoint H b))
-             ).
+Definition adj_equivalence_of_precats {A B : precategory} (F : functor A B) : UU :=
+   Σ (H : is_left_adjoint F), (Π a, is_isomorphism (unit_from_left_adjoint H a)) ×
+                              (Π b, is_isomorphism (counit_from_left_adjoint H b)).
 
 Definition adj_equivalence_inv {A B : precategory}
   {F : functor A B} (HF : adj_equivalence_of_precats F) : functor B A :=
@@ -122,14 +142,16 @@ Local Notation "HF ^^-1" := (adj_equivalence_inv  HF)(at level 3).
 Definition unit_pointwise_iso_from_adj_equivalence {A B : precategory}
    {F : functor A B} (HF : adj_equivalence_of_precats F) :
     Π a, iso a (HF^^-1 (F a)).
-  intro a.
-  exists (unit_from_left_adjoint (pr1 HF) a).
-  exact (pr1 (pr2 HF) a).
+Proof.
+intro a.
+exists (unit_from_left_adjoint (pr1 HF) a).
+exact (pr1 (pr2 HF) a).
 Defined.
 
 Definition counit_pointwise_iso_from_adj_equivalence {A B : precategory}
   {F : functor A B} (HF : adj_equivalence_of_precats F) :
     Π b, iso (F (HF^^-1 b)) b.
+Proof.
   intro b.
   exists (counit_from_left_adjoint (pr1 HF) b).
   exact (pr2 (pr2 HF) b).
@@ -163,23 +185,19 @@ Defined.
 Lemma identity_functor_is_adj_equivalence {A : precategory} :
   adj_equivalence_of_precats (functor_identity A).
 Proof.
-  use tpair.
-  - use tpair.
+  mkpair.
+  - mkpair.
     + exact (functor_identity A).
-    + unfold are_adjoints.
-      use tpair.
-        exact (dirprodpair (nat_trans_id _) (nat_trans_id _)).
-        split. intros a. rewrite id_left. reflexivity.
-               intros a. rewrite id_left. reflexivity.
-  - split. intros a. unfold is_isomorphism. apply identity_is_iso.
-           intros a. unfold is_isomorphism. apply identity_is_iso.
+    + exists (nat_trans_id _,, nat_trans_id _).
+      abstract (now split; [intros a; apply id_left| intros a; apply id_left]).
+  - abstract (now split; intros a; apply identity_is_iso).
 Defined.
 
 (** * Equivalence of categories yields equivalence of object types *)
 (**  Fundamentally needed that both source and target are categories *)
 
 Lemma adj_equiv_of_cats_is_weq_of_objects (A B : precategory)
-   (HA : is_category A) (HB : is_category B) (F : ob [A, B, pr2 HB ])
+   (HA : is_category A) (HB : is_category B) (F : [A, B, pr2 HB ])
    (HF : adj_equivalence_of_precats F) : isweq (pr1 (pr1 F)).
 Proof.
   set (G := right_adjoint (pr1 HF)).
@@ -189,14 +207,9 @@ Proof.
   set (BBcat := is_category_functor_category B _ HB).
   set (Et := isotoid _ AAcat et).
   set (Ep := isotoid _ BBcat ep).
-  apply (gradth _ (fun b => pr1 (right_adjoint (pr1 HF)) b)).
-  intro a.
-  set (ou := toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Et)) a).
-  simpl in ou.
-  apply (! ou).
-  intro y.
-  set (ou := toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Ep)) y).
-  apply ou.
+  apply (gradth _ (fun b => pr1 (right_adjoint (pr1 HF)) b)); intro a.
+  apply (!toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Et)) a).
+  now apply (toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Ep))).
 Defined.
 
 Definition weq_on_objects_from_adj_equiv_of_cats (A B : precategory)
@@ -205,7 +218,7 @@ Definition weq_on_objects_from_adj_equiv_of_cats (A B : precategory)
           (ob A) (ob B).
 Proof.
   exists (pr1 (pr1 F)).
-  apply (@adj_equiv_of_cats_is_weq_of_objects _ _  HA); assumption.
+  now apply (@adj_equiv_of_cats_is_weq_of_objects _ _  HA).
 Defined.
 
 
@@ -257,8 +270,7 @@ Proof.
   rewrite iso_after_iso_inv.
   rewrite id_right.
   set (H := iso_inv_iso_inv _ _ _ f').
-  set (h':= base_paths _ _ H).
-  assumption.
+  now apply (base_paths _ _ H).
 Qed.
 
 
@@ -267,9 +279,8 @@ Lemma isaprop_pi_sigma_iso (A B : precategory) (HA : is_category A) (hsB: has_ho
   isaprop (Π b : ob B,
              total2 (fun a : ob A => iso (pr1 F a) b)).
 Proof.
-  apply impred.
-  intro b.
-  apply isaprop_sigma_iso; assumption.
+  apply impred; intro b.
+  now apply isaprop_sigma_iso.
 Qed.
 
 
@@ -573,6 +584,51 @@ mkpair; simpl.
   now rewrite HHH, <- HH.
 Qed.
 
-Definition adjunction_from_partial : is_left_adjoint F := (G,, (unit,, counit),, form_adjunctionFG).
+Definition left_adjoint_from_partial : is_left_adjoint F := (G,, (unit,, counit),, form_adjunctionFG).
+Definition right_adjoint_from_partial : is_right_adjoint G := (F,, (unit,, counit),, form_adjunctionFG).
 
 End adjunction_from_partial.
+
+(** * Post-composition with a left adjoint is a left adjoint *)
+Section postcomp.
+
+Context {C D E : precategory} (hsD : has_homsets D) (hsE : has_homsets E)
+        (F : functor D E) (HF : is_left_adjoint F).
+
+Let G : functor E D := right_adjoint HF.
+Let H : are_adjoints F G := pr2 HF.
+Let η : nat_trans (functor_identity D) (functor_composite F G):= unit_from_left_adjoint H.
+Let ε : nat_trans (functor_composite G F) (functor_identity E) := counit_from_left_adjoint H.
+Let H1 : Π a : D, # F (η a) ;; ε (F a) = identity (F a) := triangle_id_left_ad H.
+Let H2 : Π b : E, η (G b) ;; # G (ε b) = identity (G b) := triangle_id_right_ad H.
+
+Lemma is_left_adjoint_post_composition_functor :
+  is_left_adjoint (post_composition_functor C D E hsD hsE F).
+Proof.
+exists (post_composition_functor _ _ _ _ _ G).
+mkpair.
+- split.
+  + use mk_nat_trans.
+    * simpl; intros F'.
+      apply (nat_trans_comp _ _ _
+              (nat_trans_comp _ _ _ (nat_trans_functor_id_right_inv F') (pre_whisker F' η))
+              (nat_trans_functor_assoc_inv _ _ _)).
+    * abstract (intros F1 F2 α; apply (nat_trans_eq hsD); intro c; simpl in *;
+                now rewrite !id_right, !id_left; apply (nat_trans_ax η (F1 c) _ (α c))).
+  + use mk_nat_trans.
+    * simpl; intros F'.
+      apply (nat_trans_comp _ _ _
+              (nat_trans_functor_assoc _ _ _)
+              (nat_trans_comp _ _ _ (pre_whisker F' ε) (nat_trans_functor_id_left _))).
+  * abstract (intros F1 F2 α; apply (nat_trans_eq hsE); intro c; simpl in *;
+              now rewrite !id_right, !id_left; apply (nat_trans_ax ε _ _ (α c))).
+- abstract (split; simpl; intro F';
+    [ apply (nat_trans_eq hsE); simpl; intro c;
+      now rewrite !id_left, !id_right; apply H1
+    | apply (nat_trans_eq hsD); simpl; intro c;
+      now rewrite !id_left, !id_right; apply H2]).
+Defined.
+
+End postcomp.
+
+End adjunctions.

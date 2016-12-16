@@ -14,20 +14,17 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Section def_precategory_with_binops.
 
   (** Definition of precategories such that homs are binops. *)
-  Definition PrecategoryWithBinOpsData (C : precategory) : UU := Π (x y : C), binop (C⟦x, y⟧).
+  Definition precategoryWithBinOpsData (C : precategory) : UU := Π (x y : C), binop (C⟦x, y⟧).
 
-  Definition PrecategoryWithBinOps : UU := Σ C : precategory, PrecategoryWithBinOpsData C.
+  Definition precategoryWithBinOps : UU := Σ C : precategory, precategoryWithBinOpsData C.
 
-  Definition PrecategoryWithBinOps_precategory (P : PrecategoryWithBinOps) : precategory := pr1 P.
-  Coercion PrecategoryWithBinOps_precategory : PrecategoryWithBinOps >-> precategory.
+  Definition precategoryWithBinOps_precategory (P : precategoryWithBinOps) : precategory := pr1 P.
+  Coercion precategoryWithBinOps_precategory : precategoryWithBinOps >-> precategory.
 
-  Definition mk_PrecategoryWithBinOps (C : precategory) (H : PrecategoryWithBinOpsData C) :
-    PrecategoryWithBinOps.
-  Proof.
-    exact (tpair _ C H).
-  Defined.
+  Definition mk_precategoryWithBinOps (C : precategory) (H : precategoryWithBinOpsData C) :
+    precategoryWithBinOps := tpair _ C H.
 
   (** Gives the binop of the homs from x to y. *)
-  Definition to_binop {BC : PrecategoryWithBinOps} (x y : BC) : binop (BC⟦x, y⟧) := (pr2 BC) x y.
+  Definition to_binop {BC : precategoryWithBinOps} (x y : BC) : binop (BC⟦x, y⟧) := (pr2 BC) x y.
 
 End def_precategory_with_binops.
