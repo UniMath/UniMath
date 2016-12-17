@@ -9,7 +9,7 @@ git:
 before_install:
   - sudo apt-get update -qq
 install:
-  - sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers
+  - sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers ocaml-findlib
   - sudo apt-get install -y camlp5 camlp4-extra time libgtk2.0 libgtksourceview2.0
   # get etags from emacs:
   - sudo apt-get install -y emacs
