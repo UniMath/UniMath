@@ -375,7 +375,7 @@ Proof.
   intros x xx yy.
   use weqhomot.
   - destruct xx as [xx xxx], yy as [yy yyy].
-    refine (@weqcomp _ (Σ ee : xx = yy, transportf _ ee xxx = yyy) _ _ _).
+     use (@weqcomp _ (Σ ee : xx = yy, transportf (fun r => E (x,,r)) ee xxx = yyy) _ _ _).
       refine (total2_paths_equiv _ _ _).
     set (i := fun (ee : xx = yy) => (total2_paths2 (idpath _) ee)).
     apply @weqcomp with

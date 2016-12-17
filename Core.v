@@ -42,7 +42,7 @@ Local Set Automatic Introduction.
 
 Local Open Scope type_scope.
 
-Undelimit Scope transport.
+(* Undelimit Scope transport. *)
 
 (** * Displayed precategories *)
 
@@ -1387,7 +1387,7 @@ Qed.
 
 (** Let's see how [functor_over]s behave on [iso_disp]s *)
 (** TODO: consider naming *)
-Undelimit Scope transport.
+(* Undelimit Scope transport. *)
 Definition functor_over_on_is_iso_disp {C C'} {F} 
     {D : disp_precat C} {D' : disp_precat C'}
     (FF : functor_over F D D')
