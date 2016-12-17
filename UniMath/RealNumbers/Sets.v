@@ -214,24 +214,24 @@ Definition EOle {X : EffectivelyOrderedSet} : po X :=
   popair (pr1 R) (pr1 (pr1 (pr2 (pr2 R)))).
 Definition EOle_rel {X : EffectivelyOrderedSet} : hrel X :=
   pr1 EOle.
-Arguments EOle_rel {!X} x y: simpl never.
+Arguments EOle_rel {X} x y: simpl never.
 Definition EOge {X : EffectivelyOrderedSet} : po X :=
   po_reverse (@EOle X).
 Definition EOge_rel {X : EffectivelyOrderedSet} : hrel X :=
   pr1 EOge.
-Arguments EOge_rel {!X} x y: simpl never.
+Arguments EOge_rel {X} x y: simpl never.
 
 Definition EOlt {X : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
   let R := pr2 X in
   pairStrongOrder (pr1 (pr2 R)) (pr2 (pr1 (pr2 (pr2 R)))).
 Definition EOlt_rel {X : EffectivelyOrderedSet} : hrel X :=
   pr1 EOlt.
-Arguments EOlt_rel {!X} x y: simpl never.
+Arguments EOlt_rel {X} x y: simpl never.
 Definition EOgt {X : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
   StrongOrder_reverse (@EOlt X).
 Definition EOgt_rel {X : EffectivelyOrderedSet} : hrel X :=
   pr1 EOgt.
-Arguments EOgt_rel {!X} x y: simpl never.
+Arguments EOgt_rel {X} x y: simpl never.
 
 Definition PreorderedSetEffectiveOrder (X : EffectivelyOrderedSet) : PreorderedSet :=
   PreorderedSetPair _ (@EOle X).
