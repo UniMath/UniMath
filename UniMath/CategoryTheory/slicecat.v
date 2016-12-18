@@ -35,6 +35,7 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 (** * Definition of slice categories *)
@@ -635,4 +636,39 @@ exists (eta g,,eps g).
 exact (form_adjunction_eta_eps g).
 Defined.
 
+Section dependent_product.
+
+Context (H : Π {c c' : C} (g : C⟦c,c'⟧), is_left_adjoint (base_change_functor g)).
+
+Let Π_ {c c' : C} (g : C⟦c,c'⟧) : functor (C / c) (C / c') := right_adjoint (H c c' g).
+
+Definition dependent_product_to_exponentials c :
+  has_exponentials (BinProducts_slice_precat hsC PC c).
+Proof.
+intros Af.
+mkpair.
++ mkpair.
+  - mkpair.
+    * intros Af'.
+      apply (Π_ (pr2 Af) (base_change_functor (pr2 Af) Af')).
+    * intros x y f.
+{ mkpair.
+-
+apply (# (Π_ (pr2 Af))).
+mkpair.
++ apply (# (base_change_functor (pr2 Af)) f).
++ abstract (now simpl; rewrite PullbackArrow_PullbackPr1).
+- admit.
+}
+- split.
+  * intros x.
+simpl.
+admit.
+* intros x y f.
+simpl.
+admit.
++ admit.
+Admitted.
+
+End dependent_product.
 End base_change.
