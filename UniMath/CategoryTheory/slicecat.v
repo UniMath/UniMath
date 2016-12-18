@@ -34,6 +34,7 @@ Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 (** * Definition of slice categories *)
@@ -504,3 +505,134 @@ use mk_Terminal.
 Defined.
 
 End slicecat_terminal.
+
+Section base_change.
+
+Context {C : precategory} (hsC : has_homsets C) (PC : Pullbacks C).
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Definition base_change_functor_data {c c' : C} (g : C⟦c,c'⟧) : functor_data (C / c') (C / c).
+Proof.
+mkpair.
+- intros Af'.
+  exists (PullbackObject (PC _ _ _ g (pr2 Af'))).
+  apply PullbackPr1.
+- intros a b f.
+  mkpair; simpl.
+  + use PullbackArrow.
+    * apply PullbackPr1.
+    * apply (PullbackPr2 _ ;; pr1 f).
+    * abstract (now rewrite <- assoc, <- (pr2 f), PullbackSqrCommutes).
+  + abstract (now rewrite PullbackArrow_PullbackPr1).
+Defined.
+
+Lemma is_functor_base_change_functor {c c' : C} (g : C⟦c,c'⟧) :
+ is_functor (base_change_functor_data g).
+Proof.
+split.
+- intros x; apply (eq_mor_slicecat _ hsC); simpl.
+  now apply pathsinv0, PullbackArrowUnique; rewrite id_left, ?id_right.
+- intros x y z f1 f2; apply (eq_mor_slicecat _ hsC); simpl.
+  apply pathsinv0, PullbackArrowUnique.
+  + now rewrite <- assoc, !PullbackArrow_PullbackPr1.
+  + now rewrite <- assoc, PullbackArrow_PullbackPr2, !assoc,
+            PullbackArrow_PullbackPr2.
+Qed.
+
+Definition base_change_functor {c c' : C} (g : C⟦c,c'⟧) : functor (C / c') (C / c) :=
+  (base_change_functor_data g,,is_functor_base_change_functor g).
+
+
+Definition dependent_sum_functor_data {c c' : C} (g : C⟦c,c'⟧) :
+  functor_data (C / c) (C / c').
+Proof.
+mkpair.
+- intros Af.
+  apply (pr1 Af,,pr2 Af ;; g).
+- intros a b f.
+  exists (pr1 f); simpl.
+  abstract (now rewrite assoc, <- (pr2 f)).
+Defined.
+
+Lemma is_functor_dependent_sum_functor {c c' : C} (g : C⟦c,c'⟧) :
+  is_functor (dependent_sum_functor_data g).
+Proof.
+split.
+- now intros x; apply eq_mor_slicecat.
+- now intros x y z f1 f2; apply eq_mor_slicecat.
+Qed.
+
+Definition dependent_sum_functor {c c' : C} (g : C⟦c,c'⟧) : functor (C / c) (C / c') :=
+  (dependent_sum_functor_data g,,is_functor_dependent_sum_functor g).
+
+Lemma temp
+ {c d a b x : C} (k0 : C⟦c,d⟧) {f : C⟦a,x⟧} {g : C⟦b,x⟧}
+ {h : C ⟦ d, a ⟧} {k : C ⟦ d, b ⟧} (H : h ;; f = k ;; g)  :
+  k0 ;; h ;; f = k0 ;; k ;; g.
+Proof.
+now rewrite <- assoc, H, assoc.
+Qed.
+
+(* TODO: move *)
+Lemma postCompWithPullbackArrow
+ (c d : C) (k0 : C⟦c,d⟧) {a b x : C} {f : C⟦a,x⟧} {g : C⟦b,x⟧}
+ (h : C ⟦ d, a ⟧) (k : C ⟦ d, b ⟧) (H : h ;; f = k ;; g) :
+   k0 ;; PullbackArrow (PC _ _ _ f g) d h k H =
+   PullbackArrow (PC _ _ _ f g) _ (k0 ;; h) (k0 ;; k) (temp k0 H).
+Proof.
+apply PullbackArrowUnique.
+- now rewrite <- assoc, PullbackArrow_PullbackPr1.
+- now rewrite <- assoc, PullbackArrow_PullbackPr2.
+Qed.
+
+Local Definition eta {c c' : C} (g : C⟦c,c'⟧) :
+  nat_trans (functor_identity (C / c))
+            (functor_composite (dependent_sum_functor g) (base_change_functor g)).
+Proof.
+use mk_nat_trans.
+- intros x.
+  mkpair; simpl.
+  + use (PullbackArrow _ _ (pr2 x) (identity _)).
+    abstract (now rewrite id_left).
+  + abstract (now rewrite PullbackArrow_PullbackPr1).
+- intros x y f; apply eq_mor_slicecat; simpl.
+  eapply pathscomp0; [apply postCompWithPullbackArrow|].
+  apply pathsinv0, PullbackArrowUnique.
+  + now rewrite <- assoc, !PullbackArrow_PullbackPr1, <- (pr2 f).
+  + now rewrite <- assoc, PullbackArrow_PullbackPr2, assoc,
+                PullbackArrow_PullbackPr2, id_right, id_left.
+Defined.
+
+Local Definition eps {c c' : C} (g : C⟦c,c'⟧) :
+  nat_trans (functor_composite (base_change_functor g) (dependent_sum_functor g))
+            (functor_identity (C / c')).
+Proof.
+use mk_nat_trans.
+- intros x.
+  exists (PullbackPr2 _); simpl.
+  abstract (now apply PullbackSqrCommutes).
+- intros x  y f; apply eq_mor_slicecat; simpl.
+  now rewrite PullbackArrow_PullbackPr2.
+Defined.
+
+Local Lemma form_adjunction_eta_eps {c c' : C} (g : C⟦c,c'⟧) :
+  form_adjunction (dependent_sum_functor g) (base_change_functor g) (eta g) (eps g).
+Proof.
+mkpair.
+- now intros x; apply eq_mor_slicecat; simpl; rewrite PullbackArrow_PullbackPr2.
+- intros x; apply (eq_mor_slicecat _ hsC); simpl.
+  apply pathsinv0, PullbackEndo_is_identity.
+  + now rewrite <- assoc, !PullbackArrow_PullbackPr1.
+  + now rewrite <- assoc, PullbackArrow_PullbackPr2, assoc,
+                PullbackArrow_PullbackPr2, id_left.
+Qed.
+
+Lemma are_adjoint_dependent_sum_base_change {c c' : C} (g : C⟦c,c'⟧) :
+  are_adjoints (dependent_sum_functor g) (base_change_functor g).
+Proof.
+exists (eta g,,eps g).
+exact (form_adjunction_eta_eps g).
+Defined.
+
+End base_change.
