@@ -457,7 +457,7 @@ Notation " x ≤ y " := (natleh x y) (at level 70, no associativity) : nat_scope
 
 Definition isdecrelnatleh : isdecrel natleh := λ m n, isdecrelnatgth _ _.
 
-Definition negnatlehsn0 (n : nat) : ¬ (S n ≤ 0) := negnatlthn0 _.
+Definition negnatlehsn0 (n : nat) : ¬ (S n ≤ 0) := negnatlthn0 n.
 
 (* these two lemmas show agreement with the old definition: *)
 
