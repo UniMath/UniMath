@@ -747,9 +747,14 @@ Qed.
 Definition nat_trans {C C' : precategory_data} (F F' : functor_data C C') : UU :=
   total2 (fun t : Π x : ob C, F x -->  F' x => is_nat_trans F F' t).
 
+(* Note that the second component is made opaque *)
 Definition mk_nat_trans {C C' : precategory_data} (F F' : functor_data C C')
            (t : Π x : ob C, F x --> F' x) (H : is_nat_trans F F' t) :
-  nat_trans F F' := tpair _ t H.
+           nat_trans F F'.
+Proof.
+exists t.
+abstract (exact H).
+Defined.
 
 Lemma isaset_nat_trans {C C' : precategory_data} (hs: has_homsets C')
   (F F' : functor_data C C') : isaset (nat_trans F F').
