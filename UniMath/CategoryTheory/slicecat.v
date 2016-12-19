@@ -35,6 +35,7 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
@@ -629,7 +630,7 @@ mkpair.
                 PullbackArrow_PullbackPr2, id_left.
 Qed.
 
-Lemma are_adjoint_dependent_sum_base_change {c c' : C} (g : C⟦c,c'⟧) :
+Lemma are_adjoints_dependent_sum_base_change {c c' : C} (g : C⟦c,c'⟧) :
   are_adjoints (dependent_sum_functor g) (base_change_functor g).
 Proof.
 exists (eta g,,eps g).
@@ -640,35 +641,98 @@ Section dependent_product.
 
 Context (H : Π {c c' : C} (g : C⟦c,c'⟧), is_left_adjoint (base_change_functor g)).
 
-Let Π_ {c c' : C} (g : C⟦c,c'⟧) : functor (C / c) (C / c') := right_adjoint (H c c' g).
+Let dependent_product_functor {c c' : C} (g : C⟦c,c'⟧) :
+  functor (C / c) (C / c') := right_adjoint (H c c' g).
+
+Let η {c c' : C} (g : C⟦c,c'⟧) :
+  nat_trans (functor_identity (C / c'))
+            (functor_composite (base_change_functor g) (dependent_product_functor g)) :=
+  unit_from_left_adjoint (H _ _ g).
+
+Let ε {c c' : C} (g : C⟦c,c'⟧) :
+  nat_trans (functor_composite (dependent_product_functor g) (base_change_functor g))
+            (functor_identity (C / c)) :=
+  counit_from_left_adjoint (H _ _ g).
+
+Let BPC c : BinProducts (C / c) := BinProducts_slice_precat hsC PC c.
+
+Lemma test c (Af : C / c) :
+  constprod_functor1 (BPC c) Af =
+   (functor_composite (base_change_functor (pr2 Af)) (dependent_sum_functor (pr2 Af))).
+Proof.
+apply functor_eq; try apply has_homsets_slice_precat.
+use functor_data_eq; try trivial.
+intros x y f; apply (eq_mor_slicecat _ hsC); simpl.
+apply PullbackArrowUnique.
+- now rewrite PullbackArrow_PullbackPr1, id_right.
+- now rewrite PullbackArrow_PullbackPr2.
+Defined.
+
+Definition mk_are_adjoints {A B : precategory}
+  (F : functor A B) (G : functor B A)
+  (eta : nat_trans (functor_identity A) (functor_composite F G))
+  (eps : nat_trans (functor_composite G F) (functor_identity B))
+  (HH : form_adjunction F G eta eps) : are_adjoints F G.
+Proof.
+exists (eta,,eps).
+abstract (exact HH).
+Defined.
+
+Lemma are_adjoints_functor_composite
+  {A B : precategory} {F1 G2 : functor A B} {F2 G1 : functor B A}
+  (H1 : are_adjoints F1 G1) (H2 : are_adjoints F2 G2) :
+  are_adjoints (functor_composite F1 F2) (functor_composite G2 G1).
+Proof.
+destruct H1 as [[eta1 eps1] [H11 H12]].
+destruct H2 as [[eta2 eps2] [H21 H22]].
+simpl in *.
+use mk_are_adjoints.
+- apply (nat_trans_comp _ _ _ eta1).
+  use (nat_trans_comp _ _ _ _ (nat_trans_functor_assoc_inv _ _ _)).
+  apply pre_whisker.
+  apply (nat_trans_comp _ _ _ (nat_trans_functor_id_right_inv _)
+                              (post_whisker eta2 G1)).
+- use (nat_trans_comp _ _ _ _ eps2).
+  apply (nat_trans_comp _ _ _ (nat_trans_functor_assoc _ _ _)).
+  apply pre_whisker.
+  apply (nat_trans_comp _ _ _ (nat_trans_functor_assoc_inv _ _ _)).
+  apply (nat_trans_comp _ _ _ (post_whisker eps1 _)
+                              (nat_trans_functor_id_left _)).
+- split; intros a; simpl.
+  + rewrite !id_left, !id_right, <-functor_id, <- H11, !functor_comp, <-!assoc.
+    apply maponpaths; rewrite assoc.
+    etrans; [eapply cancel_postcomposition, pathsinv0, functor_comp|].
+    etrans.
+      apply cancel_postcomposition, maponpaths.
+      apply (nat_trans_ax eps1 (F1 a) (G2 (F2 (F1 a))) (eta2 (F1 a))).
+    simpl; rewrite functor_comp, <- assoc.
+    etrans; [eapply maponpaths, H21|].
+    now apply id_right.
+  + rewrite !id_left, !id_right, <- functor_id, <- H22, !functor_comp, assoc.
+    apply cancel_postcomposition; rewrite <- assoc.
+    etrans; [eapply maponpaths, pathsinv0, functor_comp|].
+    etrans.
+      eapply maponpaths, maponpaths, pathsinv0.
+      apply (nat_trans_ax eta2 (F1 (G1 (G2 a))) (G2 a) (eps1 _)).
+    simpl; rewrite functor_comp, assoc.
+    etrans; [apply cancel_postcomposition, H12|].
+    now apply id_left.
+Defined.
 
 Definition dependent_product_to_exponentials c :
-  has_exponentials (BinProducts_slice_precat hsC PC c).
+  has_exponentials (BPC c).
 Proof.
 intros Af.
 mkpair.
-+ mkpair.
-  - mkpair.
-    * intros Af'.
-      apply (Π_ (pr2 Af) (base_change_functor (pr2 Af) Af')).
-    * intros x y f.
-{ mkpair.
--
-apply (# (Π_ (pr2 Af))).
-mkpair.
-+ apply (# (base_change_functor (pr2 Af)) f).
-+ abstract (now simpl; rewrite PullbackArrow_PullbackPr1).
-- admit.
-}
-- split.
-  * intros x.
-simpl.
-admit.
-* intros x y f.
-simpl.
-admit.
-+ admit.
-Admitted.
++ eapply functor_composite.
+apply (base_change_functor (pr2 Af)).
+apply (dependent_product_functor (pr2 Af)).
++
+rewrite test.
+use are_adjoints_functor_composite.
+apply (pr2 (H _ _ _)).
+apply are_adjoints_dependent_sum_base_change.
+Defined.
 
 End dependent_product.
 End base_change.
