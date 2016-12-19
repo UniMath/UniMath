@@ -41,6 +41,19 @@ Section def_coequalizers.
     apply isapropiscontr.
   Defined.
 
+  Lemma isCoequalizer_path {hs : has_homsets C} {x y z : C} {f g : x --> y} {e : y --> z}
+        {H H' : f ;; e = g ;; e} (iC : isCoequalizer f g e H) :
+    isCoequalizer f g e H'.
+  Proof.
+    use mk_isCoequalizer.
+    intros w0 h H'0.
+    use unique_exists.
+    - exact (pr1 (pr1 (iC w0 h H'0))).
+    - exact (pr2 (pr1 (iC w0 h H'0))).
+    - intros y0. apply hs.
+    - intros y0 X. exact (base_paths _ _ (pr2 (iC w0 h H'0) (tpair _ y0 X))).
+  Defined.
+
   (** Proves that the arrow from the coequalizer object with the right
     commutativity property is unique. *)
   Lemma isCoequalizerOutUnique {y z w: C} (f g : y --> z) (e : z --> w)

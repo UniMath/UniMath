@@ -617,7 +617,7 @@ Defined.
 Lemma has_exponentials_functor_HSET : has_exponentials CP.
 Proof.
 intro P.
-use adjunction_from_partial.
+use left_adjoint_from_partial.
 - apply (exponential_functor_cat P).
 - intro Q; simpl; apply eval.
 - intros Q R φ; simpl in *.

@@ -85,6 +85,32 @@ Proof.
   apply hs.
 Qed.
 
+Lemma functor_data_eq {C C' : precategory_ob_mor} (F F' : functor_data C C')
+      (H : Π (c : C), (pr1 F) c = (pr1 F') c)
+      (H1 : Π (C1 C2 : ob C) (f : C1 --> C2),
+            transportf (λ x : C', pr1 F' C1 --> x) (H C2)
+                       (transportf (λ x : C', x --> pr1 F C2) (H C1) (pr2 F C1 C2 f)) =
+            pr2 F' C1 C2 f) : F = F'.
+Proof.
+  use total2_paths.
+  - use funextfun. intros c. exact (H c).
+  - use funextsec. intros C1. use funextsec. intros C2. use funextsec. intros f.
+    assert (e : transportf (λ x : C → C', Π a b : C, a --> b → x a --> x b)
+                           (funextfun (pr1 F) (pr1 F') (λ c : C, H c))
+                           (pr2 F) C1 C2 f =
+                transportf (λ x : C → C', x C1 --> x C2)
+                           (funextfun (pr1 F) (pr1 F') (λ c : C, H c))
+                           ((pr2 F) C1 C2 f)).
+    {
+      induction (funextfun (pr1 F) (pr1 F') (λ c : C, H c)).
+      apply idpath.
+    }
+    rewrite e. clear e.
+    rewrite transport_mor_funextfun.
+    rewrite transport_source_funextfun. rewrite transport_target_funextfun.
+    exact (H1 C1 C2 f).
+Qed.
+
 Definition functor_data_constr (C C' : precategory_ob_mor)
            (F : ob C -> ob C') (Fm : Π a b : ob C, a --> b -> F a --> F b) :
   functor_data C C' := tpair _ F Fm .
@@ -1332,3 +1358,42 @@ Proof.
 Defined.
 
 End functor_equalities.
+
+(** Natural transformations for reasoning about various compositions of functors *)
+Section nat_trans_functor.
+
+Context {A B C D : precategory}.
+
+Definition nat_trans_functor_id_right (F : functor A B) :
+  nat_trans (functor_composite F (functor_identity B)) F.
+Proof.
+exists (λ x, identity _).
+abstract (now intros a b f; rewrite id_left, id_right).
+Defined.
+
+Definition nat_trans_functor_id_right_inv (F : functor A B) :
+  nat_trans F (functor_composite F (functor_identity B)) :=
+    nat_trans_functor_id_right F.
+
+Definition nat_trans_functor_id_left (F : functor A B) :
+  nat_trans (functor_composite (functor_identity A) F) F :=
+    nat_trans_functor_id_right F.
+
+Definition nat_trans_functor_id_left_inv (F : functor A B) :
+  nat_trans F (functor_composite (functor_identity A) F) :=
+    nat_trans_functor_id_right F.
+
+Definition nat_trans_functor_assoc (F1 : functor A B) (F2 : functor B C) (F3 : functor C D) :
+  nat_trans (functor_composite (functor_composite F1 F2) F3)
+            (functor_composite F1 (functor_composite F2 F3)).
+Proof.
+exists (λ x, identity _).
+abstract (now intros a b f; rewrite id_right, id_left).
+Defined.
+
+Definition nat_trans_functor_assoc_inv (F1 : functor A B) (F2 : functor B C) (F3 : functor C D) :
+  nat_trans (functor_composite F1 (functor_composite F2 F3))
+            (functor_composite (functor_composite F1 F2) F3) :=
+    nat_trans_functor_assoc F1 F2 F3.
+
+End nat_trans_functor.

@@ -60,7 +60,7 @@ Coercion aprel_pr1 : aprel >-> hrel.
 Definition apSet := Σ X : hSet, aprel X.
 Definition apSet_pr1 (X : apSet) : hSet := pr1 X.
 Coercion apSet_pr1 : apSet >-> hSet.
-Arguments apSet_pr1 !X: simpl never.
+Arguments apSet_pr1 X: simpl never.
 Definition apSet_pr2 (X : apSet) : aprel X := pr2 X.
 Notation "x # y" := (apSet_pr2 _ x y) : ap_scope.
 

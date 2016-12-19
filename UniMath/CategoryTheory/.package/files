@@ -10,6 +10,7 @@ limits/graphs/binproducts.v
 functor_categories.v
 FunctorAlgebras.v
 Monads.v
+RModules.v
 limits/cones.v
 limits/pullbacks.v
 limits/graphs/pullbacks.v
@@ -62,7 +63,7 @@ limits/graphs/equalizers.v
 limits/graphs/coequalizers.v
 limits/graphs/kernels.v
 limits/graphs/cokernels.v
-PrecategoriesWithBinOps.v
+precategoriesWithBinOps.v
 PrecategoriesWithAbgrops.v
 PreAdditive.v
 limits/BinDirectSums.v
@@ -91,3 +92,6 @@ Quotobjects.v
 GrothendieckTopos.v
 Complexes.v
 CohomologyComplex.v
+set_slice_fam_equiv.v
+limits/Opp.v
+

@@ -1,7 +1,7 @@
 (**
 
-Syntax of Martin-Löf type theory a la "Constructive Mathematics and
-Computer Programming" (1979).
+This file constructs a substitution monad on Set from a binding signature for the syntax of
+Martin-Löf type theory a la "Constructive Mathematics and Computer Programming" (1979).
 
 Written by: Anders Mörtberg, 2016
 
@@ -38,7 +38,7 @@ Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
-Require Import UniMath.SubstitutionSystems.LiftingInitial.
+Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 
 Local Infix "::" := (@cons nat).
 Local Notation "[]" := (@nil nat) (at level 0, format "[]").
@@ -196,8 +196,9 @@ Definition MLTT79Sig := PiSig ++ SigmaSig ++ SumSig ++ IdSig ++
 
 Definition MLTT79Signature : SigHSET := BindingSigToSignatureHSET MLTT79Sig.
 
-Definition MLTT79Functor : functor HSET2 HSET2 :=
-  Id_H _ _ BinCoproductsHSET MLTT79Signature.
+Let Id_H := Id_H _ has_homsets_HSET BinCoproductsHSET.
+
+Definition MLTT79Functor : functor HSET2 HSET2 := Id_H MLTT79Signature.
 
 Definition MLTT79Monad : Monad HSET := BindingSigToMonadHSET MLTT79Sig.
 

@@ -95,14 +95,14 @@ Section def_monic.
   Defined.
 
   (** Transport of isMonic *)
-  Lemma transportf_isMonic {x y z : C} (f : x --> y) (E : isMonic f) (e : y = z) :
+  Lemma transport_target_isMonic {x y z : C} (f : x --> y) (E : isMonic f) (e : y = z) :
     isMonic (transportf (precategory_morphisms x) e f).
   Proof.
     induction e. apply E.
   Qed.
 
-  Lemma transportb_isMonic {x y z : C} (f : y --> z) (E : isMonic f) (e : x = y) :
-    isMonic (transportb (fun x' : ob C => precategory_morphisms x' z) e f).
+  Lemma transport_source_isMonic {x y z : C} (f : y --> z) (E : isMonic f) (e : y = x) :
+    isMonic (transportf (fun x' : ob C => precategory_morphisms x' z) e f).
   Proof.
     induction e. apply E.
   Qed.
