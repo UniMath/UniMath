@@ -53,7 +53,7 @@ Definition are_adjoints {A B : precategory} (F : functor A B) (G : functor B A) 
               (nat_trans (functor_composite G F) (functor_identity B))),
       form_adjunction F G (pr1 etaeps) (pr2 etaeps).
 
-
+(** Note that this makes the second component opaque for efficiency reasons *)
 Definition mk_are_adjoints {A B : precategory}
   (F : functor A B) (G : functor B A)
   (eta : nat_trans (functor_identity A) (functor_composite F G))
