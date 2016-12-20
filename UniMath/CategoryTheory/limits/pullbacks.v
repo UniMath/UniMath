@@ -92,7 +92,7 @@ Definition isPullback_Pullback {a b c : C} {f : b --> a}{g : c --> a}
   isPullback f g (PullbackPr1 P) (PullbackPr2 P) (PullbackSqrCommutes P).
 Proof.
   exact (pr2 (pr2 P)).
-Qed.
+Defined.
 
 Definition PullbackArrow {a b c : C} {f : b --> a} {g : c --> a}
    (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g) : e --> Pb :=
@@ -144,7 +144,7 @@ Local Lemma postCompWithPullbackArrow_subproof
   k0 ;; h ;; f = k0 ;; k ;; g.
 Proof.
 now rewrite <- assoc, H, assoc.
-Defined.
+Qed.
 
 Lemma postCompWithPullbackArrow
  (c d : C) (k0 : C⟦c,d⟧) {a b x : C} {f : C⟦a,x⟧} {g : C⟦b,x⟧}

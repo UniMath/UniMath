@@ -850,10 +850,27 @@ use mk_are_adjoints.
     apply (eq_mor_slicecat _ has_homsets_HSET).
     apply funextsec; intro x1.
     use total2_paths2.
-    * apply (toforallpaths _ _ _ (!pr2 w) x1).
+    * apply (!toforallpaths _ _ _ (pr2 w) x1).
     * apply funextsec; intro y.
-      simpl.
-      admit. (* stuck *)
+      cbn.
+apply subtypeEquality.
+intros x; apply setproperty.
+simpl.
+apply subtypeEquality.
+intros x.
+apply setproperty.
+simpl.
+destruct y as [y1 y2].
+simpl in *.
+destruct w as [w Hw].
+simpl in *.
+destruct f as [f Hf].
+destruct g as [g Hg].
+destruct h as [h Hh].
+simpl in *.
+
+induction (! toforallpaths (λ _ : g, X) Hg (λ x : g, Hh (w x)) Hw x1).
+apply idpath.
 - admit.
 - admit.
 Admitted.
