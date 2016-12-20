@@ -138,6 +138,26 @@ Proof.
   apply H'. assumption.
 Defined.
 
+Local Lemma postCompWithPullbackArrow_subproof
+ {c d a b x : C} (k0 : C⟦c,d⟧) {f : C⟦a,x⟧} {g : C⟦b,x⟧}
+ {h : C ⟦ d, a ⟧} {k : C ⟦ d, b ⟧} (H : h ;; f = k ;; g)  :
+  k0 ;; h ;; f = k0 ;; k ;; g.
+Proof.
+now rewrite <- assoc, H, assoc.
+Defined.
+
+Lemma postCompWithPullbackArrow
+ (c d : C) (k0 : C⟦c,d⟧) {a b x : C} {f : C⟦a,x⟧} {g : C⟦b,x⟧}
+ (Pb : Pullback f g)
+ (h : C ⟦ d, a ⟧) (k : C ⟦ d, b ⟧) (H : h ;; f = k ;; g) :
+   k0 ;; PullbackArrow Pb d h k H =
+   PullbackArrow Pb _ (k0 ;; h) (k0 ;; k) (postCompWithPullbackArrow_subproof k0 H).
+Proof.
+apply PullbackArrowUnique.
+- now rewrite <- assoc, PullbackArrow_PullbackPr1.
+- now rewrite <- assoc, PullbackArrow_PullbackPr2.
+Qed.
+
 Lemma MorphismsIntoPullbackEqual {a b c d : C} {f : b --> a} {g : c --> a}
         {p1 : d --> b} {p2 : d --> c} {H : p1 ;; f = p2;; g}
         (P : isPullback f g p1 p2 H) {e}

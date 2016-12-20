@@ -53,6 +53,17 @@ Definition are_adjoints {A B : precategory} (F : functor A B) (G : functor B A) 
               (nat_trans (functor_composite G F) (functor_identity B))),
       form_adjunction F G (pr1 etaeps) (pr2 etaeps).
 
+
+Definition mk_are_adjoints {A B : precategory}
+  (F : functor A B) (G : functor B A)
+  (eta : nat_trans (functor_identity A) (functor_composite F G))
+  (eps : nat_trans (functor_composite G F) (functor_identity B))
+  (HH : form_adjunction F G eta eps) : are_adjoints F G.
+Proof.
+exists (eta,,eps).
+abstract (exact HH).
+Defined.
+
 Definition unit_from_are_adjoints {A B : precategory}
    {F : functor A B} {G : functor B A} (H : are_adjoints F G) :
   nat_trans (functor_identity A) (functor_composite F G)
@@ -126,6 +137,47 @@ Definition triangle_id_right_ad {A B : precategory} {F : functor A B} {G : funct
   (H : are_adjoints F G) :
   Π b, unit_from_are_adjoints H (G b) ;; # G (counit_from_are_adjoints H b) = identity (G b)
   := pr2 (pr2 H).
+
+Lemma are_adjoints_functor_composite
+  {A B : precategory} {F1 G2 : functor A B} {F2 G1 : functor B A}
+  (H1 : are_adjoints F1 G1) (H2 : are_adjoints F2 G2) :
+  are_adjoints (functor_composite F1 F2) (functor_composite G2 G1).
+Proof.
+destruct H1 as [[eta1 eps1] [H11 H12]].
+destruct H2 as [[eta2 eps2] [H21 H22]].
+simpl in *.
+use mk_are_adjoints.
+- apply (nat_trans_comp _ _ _ eta1).
+  use (nat_trans_comp _ _ _ _ (nat_trans_functor_assoc_inv _ _ _)).
+  apply pre_whisker.
+  apply (nat_trans_comp _ _ _ (nat_trans_functor_id_right_inv _)
+                              (post_whisker eta2 G1)).
+- use (nat_trans_comp _ _ _ _ eps2).
+  apply (nat_trans_comp _ _ _ (nat_trans_functor_assoc _ _ _)).
+  apply pre_whisker.
+  apply (nat_trans_comp _ _ _ (nat_trans_functor_assoc_inv _ _ _)).
+  apply (nat_trans_comp _ _ _ (post_whisker eps1 _)
+                              (nat_trans_functor_id_left _)).
+- split; intros a; simpl.
+  + rewrite !id_left, !id_right, <-functor_id, <- H11, !functor_comp, <-!assoc.
+    apply maponpaths; rewrite assoc.
+    etrans; [eapply cancel_postcomposition, pathsinv0, functor_comp|].
+    etrans.
+      apply cancel_postcomposition, maponpaths.
+      apply (nat_trans_ax eps1 (F1 a) (G2 (F2 (F1 a))) (eta2 (F1 a))).
+    simpl; rewrite functor_comp, <- assoc.
+    etrans; [eapply maponpaths, H21|].
+    now apply id_right.
+  + rewrite !id_left, !id_right, <- functor_id, <- H22, !functor_comp, assoc.
+    apply cancel_postcomposition; rewrite <- assoc.
+    etrans; [eapply maponpaths, pathsinv0, functor_comp|].
+    etrans.
+      eapply maponpaths, maponpaths, pathsinv0.
+      apply (nat_trans_ax eta2 (F1 (G1 (G2 a))) (G2 a) (eps1 _)).
+    simpl; rewrite functor_comp, assoc.
+    etrans; [apply cancel_postcomposition, H12|].
+    now apply id_left.
+Defined.
 
 (** * Equivalence of (pre)categories *)
 

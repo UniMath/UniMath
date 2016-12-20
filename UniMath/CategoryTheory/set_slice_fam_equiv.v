@@ -84,7 +84,7 @@ Section set_slice_fam_equiv.
   Theorem is_functor_fam_to_slice : is_functor fam_to_slice_data.
   Proof.
     split; [intro f | intros f f' f'' F F'];
-      apply slice_precat_morphisms_pr1_eq.
+      apply eq_mor_slicecat.
     + apply funextsec. intro p.
       exact (!tppr p).
     + reflexivity.
@@ -106,7 +106,7 @@ Section set_slice_fam_equiv.
   Definition is_nat_trans_slice_counit : is_nat_trans _ _ slice_counit_fun.
   Proof.
     intros f f' F.
-    apply slice_precat_morphisms_pr1_eq.
+    apply eq_mor_slicecat.
     unfold slice_counit_fun. simpl.
     unfold compose. simpl.
     apply funextsec. intro p.
@@ -190,7 +190,7 @@ Section set_slice_fam_equiv.
     unfold form_adjunction.
     split.
     + intro f.
-      apply slice_precat_morphisms_pr1_eq.
+      apply eq_mor_slicecat.
       apply funextsec. intro x.
       exact (!tppr _).
     + intro F.
