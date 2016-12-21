@@ -23,6 +23,9 @@ Contents:
 - Binary coproducts in slice categories of categories with binary
   coproducts ([BinCoproducts_slice_precat])
 
+- Coproducts in slice categories of categories with coproducts
+  ([Coproducts_slice_precat])
+
 - Terminal object in slice categories ([Terminal_slice_precat])
 
 - Base change functor ([base_change_functor]) and proof that
@@ -41,6 +44,7 @@ Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.exponentials.
@@ -498,6 +502,37 @@ use mk_BinCoproductCocone.
 Defined.
 
 End slicecat_bincoproducts.
+
+(** * Coproducts in slice categories of categories with coproducts *)
+Section slicecat_coproducts.
+
+Context {C : precategory} (hsC : has_homsets C) (I : UU) (BC : Coproducts I C).
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Lemma Coproducts_slice_precat (x : C) : Coproducts I (C / x).
+Proof.
+intros a.
+use mk_CoproductCocone.
++ exists (CoproductObject _ _ (BC (λ i, pr1 (a i)))).
+  apply CoproductArrow; intro i; apply (pr2 (a i)).
++ intro i; mkpair; simpl.
+  - apply (CoproductIn I C (BC (λ i, pr1 (a i))) i).
+  - abstract (now rewrite (CoproductInCommutes I C _ (BC (λ i, pr1 (a i))))).
++ intros c f.
+  use unique_exists.
+  - exists (CoproductArrow _ _ _ (λ i, pr1 (f i))).
+    abstract (simpl; apply pathsinv0, CoproductArrowUnique; intro i;
+              now rewrite assoc, (CoproductInCommutes _ _ _ (BC (λ i, pr1 (a i)))), (pr2 (f i))).
+  - abstract (now intros i;
+              apply eq_mor_slicecat, (CoproductInCommutes _ _ _ (BC (λ i0 : I, pr1 (a i0))))).
+  - abstract (now intros y; apply impred; intro i; apply has_homsets_slice_precat).
+  - abstract (simpl; intros y Hy;
+              apply eq_mor_slicecat, CoproductArrowUnique;
+              intros i; apply (maponpaths pr1 (Hy i))).
+Defined.
+
+End slicecat_coproducts.
 
 Section slicecat_terminal.
 
