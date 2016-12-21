@@ -15,7 +15,7 @@ package, add its path to that file.
 ## Adding a new package
 
 Create a subdirectory of this directory, populate it with your files, add a
-README (or README.md) file, and add a file .packages/files, listing the *.v
+README (or README.md) file, and add a file .package/files, listing the *.v
 files of your package, as above.  Then add the name of your package to the head
 of the list assigned to "PACKAGES" in the file "./Makefile", or, alternatively,
 if you'd like to test your package with modifying "./Makefile", which you might

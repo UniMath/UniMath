@@ -12,6 +12,8 @@
  - Cohomology and morphisms from cokernels to kernels
  *)
 
+Unset Kernel Term Sharing.
+
 Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
@@ -48,7 +50,7 @@ Require Import UniMath.CategoryTheory.Additive.
 Require Import UniMath.CategoryTheory.Abelian.
 Require Import UniMath.CategoryTheory.AbelianToAdditive.
 Require Import UniMath.CategoryTheory.AdditiveFunctors.
-Require Import UniMath.CategoryTheory.Complexes.
+Require Import UniMath.HomologicalAlgebra.Complexes.
 
 
 Open Scope hz_scope.

@@ -49,23 +49,23 @@ Section def_monic.
   Definition MonicisMonic {y z : C} (M : Monic y z) : isMonic M := pr2 M.
 
   (** Isomorphism to isMonic and Monic. *)
-  Lemma iso_isMonic {y x : C} (f : y --> x) (H : is_iso f) : isMonic f.
+  Lemma is_iso_isMonic {y x : C} (f : y --> x) (H : is_iso f) : isMonic f.
   Proof.
     apply mk_isMonic.
     intros z g h X.
     apply (post_comp_with_iso_is_inj _ y _ f H).
     exact X.
-  Defined.
+  Qed.
 
-  Lemma iso_Monic {y x : C} (f : y --> x) (H : is_iso f) : Monic y x.
+  Lemma is_iso_Monic {y x : C} (f : y --> x) (H : is_iso f) : Monic y x.
   Proof.
-    apply (mk_Monic f (iso_isMonic f H)).
+    apply (mk_Monic f (is_iso_isMonic f H)).
   Defined.
 
   (** Identity to isMonic and Monic. *)
   Lemma identity_isMonic {x : C} : isMonic (identity x).
   Proof.
-    apply (iso_isMonic (identity x) (identity_is_iso _ x)).
+    apply (is_iso_isMonic (identity x) (identity_is_iso _ x)).
   Defined.
 
   Lemma identity_Monic {x : C} : Monic x x.
@@ -79,7 +79,7 @@ Section def_monic.
   Proof.
     intros X X0. apply mk_isMonic. intros x0 g0 h X1.
     repeat rewrite assoc in X1. apply X0 in X1. apply X in X1. apply X1.
-  Defined.
+  Qed.
 
   Definition Monic_comp {x y z : C} (M1 : Monic x y) (M2 : Monic y z) :
     Monic x z := tpair _ (M1 ;; M2) (isMonic_comp M1 M2 (pr2 M1) (pr2 M2)).
@@ -93,6 +93,11 @@ Section def_monic.
     repeat rewrite <- assoc in H.
     apply (X w _ _ H).
   Defined.
+
+  Lemma isMonic_path {x y : C} (f1 f2 : x --> y) (e : f1 = f2) (isM : isMonic f1) : isMonic f2.
+  Proof.
+    induction e. exact isM.
+  Qed.
 
   (** Transport of isMonic *)
   Lemma transport_target_isMonic {x y z : C} (f : x --> y) (E : isMonic f) (e : y = z) :

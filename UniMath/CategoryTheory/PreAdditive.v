@@ -17,6 +17,8 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.Monics.
+Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
@@ -261,6 +263,29 @@ Section def_additive_kernel_cokernel.
   Qed.
 
 End def_additive_kernel_cokernel.
+
+
+Section monics_and_epis_in_preadditive.
+
+  Variable PA : PreAdditive.
+
+  Lemma to_inv_isMonic {x y : PA} (f : x --> y) (isM : isMonic f) : isMonic (to_inv f).
+  Proof.
+    use mk_isMonic.
+    intros x0 g h X.
+    rewrite <- PreAdditive_invrcomp in X. rewrite <- PreAdditive_invrcomp in X.
+    apply cancel_inv in X. use isM. exact X.
+  Qed.
+
+  Lemma to_inv_isEpi {x y : PA} (f : x --> y) (isE : isEpi f) : isEpi (to_inv f).
+  Proof.
+    use mk_isEpi.
+    intros x0 g h X.
+    rewrite <- PreAdditive_invlcomp in X. rewrite <- PreAdditive_invlcomp in X.
+    apply cancel_inv in X. use isE. exact X.
+  Qed.
+
+End monics_and_epis_in_preadditive.
 
 
 (** * Quotient of homsets

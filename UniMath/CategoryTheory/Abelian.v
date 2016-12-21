@@ -1280,7 +1280,7 @@ Section abelian_factorization.
   Proof.
     apply isEpi_comp.
     apply CokernelArrowisEpi.
-    apply (iso_isEpi A _ (CoIm_to_Im_is_iso f)).
+    apply (is_iso_isEpi A _ (CoIm_to_Im_is_iso f)).
   Qed.
 
   Definition factorization1_epi {x y : A} (f : x --> y) : Epi A x (Image f).
@@ -1309,7 +1309,7 @@ Section abelian_factorization.
     isMonic (CoIm_to_Im f ;; (KernelArrow (Image f))).
   Proof.
     apply isMonic_comp.
-    apply (iso_isMonic A _ (CoIm_to_Im_is_iso f)).
+    apply (is_iso_isMonic A _ (CoIm_to_Im_is_iso f)).
     apply KernelArrowisMonic.
   Qed.
 
