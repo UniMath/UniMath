@@ -16,6 +16,8 @@ Contents:
 - Exponentials ([has_exponentials_HSET])
 - Construction of exponentials for functors into HSET
   ([has_exponentials_functor_HSET])
+- Locally cartesian closed ([Terminal_HSET_slice],
+  [BinProducts_HSET_slice] and [has_exponentials_HSET_slice])
 
 Written by: Benedikt Ahrens, Anders Mörtberg
 
@@ -44,8 +46,6 @@ Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.covyoneda.
 Require Import UniMath.CategoryTheory.slicecat.
-Require Import UniMath.CategoryTheory.DiscretePrecategory.
-Require Import UniMath.CategoryTheory.set_slice_fam_equiv.
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
@@ -720,81 +720,19 @@ Proof.
 now apply BinProducts_slice_precat, PullbacksHSET.
 Defined.
 
+(** Direct proof that HSET/X has exponentials using explicit formula in example 2.2 of:
 
-(* Try to prove that Set/X has exponentials it using the equivalence to [X,Set] *)
-Section via_equivalence.
-
-Context (X : HSET).
-
-Let discreteX : precategory := discrete_precategory (pr1 X).
-Local Lemma has_homsets_discreteX : has_homsets discreteX.
-Proof.
-now apply has_homsets_discrete_precategory, hlevelntosn, setproperty.
-Qed.
-
-Local Notation "'[X,HSET]'" := ([discreteX, HSET, has_homsets_HSET]).
-Local Lemma has_homsets_XHSET : has_homsets [X,HSET].
-Proof.
-apply functor_category_has_homsets.
-Qed.
-
-Let F : functor [X,HSET] (HSET / X) := fam_to_slice X.
-Let α : adj_equivalence_of_precats F := set_slice_fam_equiv X.
-Let Finv : functor (HSET / X) [X,HSET] := adj_equivalence_inv α.
-Let eta := unit_iso_from_adj_equivalence_of_precats has_homsets_XHSET α.
-Let eps := counit_iso_from_adj_equivalence_of_precats (has_homsets_slice_precat _ _ X) α.
-(* Let eta' := unit_pointwise_iso_from_adj_equivalence α. *)
-(* Let eps' := counit_pointwise_iso_from_adj_equivalence α. *)
-
-Local Lemma BinProducts_XHSET : BinProducts [X,HSET].
-Proof.
-apply BinProducts_functor_precat, BinProductsHSET.
-Defined.
-
-Lemma has_exponentials_XHSET : has_exponentials BinProducts_XHSET.
-Proof.
-apply has_exponentials_functor_HSET, has_homsets_discreteX.
-Defined.
-
-Lemma has_exponentials_HSET_slice_via_equiv : has_exponentials (BinProducts_HSET_slice X).
-Proof.
-intros Y.
-set (H := has_exponentials_XHSET (Finv Y)).
-set (H1:= pr1 H).
-set (eta1 := pr1 (pr1 (pr2 H))).
-exists (functor_composite (functor_composite Finv H1) F).
-use mk_are_adjoints.
-- admit.
-- admit.
-- admit.
-Admitted.
-
-End via_equivalence.
-
-(* This is now hfiber_hSet *)
-Definition hfiber_HSET {X Y} (f : HSET⟦X,Y⟧) (y : pr1 Y) : HSET.
-Proof.
-mkpair.
-+ apply (hfiber f y).
-+ abstract (now apply isaset_hfiber; apply setproperty).
-Defined.
+    https://ncatlab.org/nlab/show/locally+cartesian+closed+category#in_category_theory
+*)
 
 Definition hfiber_fun (X : HSET) (f : HSET / X) : HSET / X → HSET / X.
 Proof.
 intros g.
 mkpair.
-- exists (Σ x, HSET⟦hfiber_HSET (pr2 f) x,hfiber_HSET (pr2 g) x⟧).
+- exists (Σ x, HSET⟦hfiber_hSet (pr2 f) x,hfiber_hSet (pr2 g) x⟧).
   abstract (apply isaset_total2; [ apply setproperty | intros x; apply has_homsets_HSET ]).
 - now apply pr1.
 Defined.
-
-Lemma PullbackArrowUnique' {C : precategory} {a b c : C} (f : C⟦b,a⟧) (g : C⟦c,a⟧)
-      (P : Pullback f g) e (h : C⟦e,b⟧) (k : C⟦e,c⟧)
-      (Hcomm : h ;; f = k ;; g) (w : C⟦e,P⟧) (H1 : w ;; PullbackPr1 P = h) (H2 : w ;; PullbackPr2 P = k) :
-  w = PullbackArrow P e h k Hcomm.
-Proof.
-now apply PullbackArrowUnique.
-Qed.
 
 Definition hfiber_functor (X : HSET) (f : HSET / X) :
   functor (HSET / X) (HSET / X).
@@ -813,129 +751,68 @@ use mk_functor.
                   apply (pr2 (pr2 h fx))).
     - abstract (now apply funextsec).
     }
-+ abstract (split;
-            [ intros x; apply (eq_mor_slicecat _ has_homsets_HSET); simpl;
-              apply funextsec; intro y; simpl;
-              destruct y as [y hy]; use total2_paths; [ apply idpath |];
-              apply funextsec; intros w; apply subtypeEquality; [|apply idpath];
-              now intros XX; apply setproperty
-            | intros x y z g h; apply (eq_mor_slicecat _ has_homsets_HSET); simpl;
-              apply funextsec; intro w; simpl;
-              destruct w as [w hw];
-              use total2_paths; [ apply idpath |];
-              apply funextsec; intros w'; apply subtypeEquality; [|apply idpath];
-              now intros XX; apply setproperty ]).
++ split.
+  - intros x; apply (eq_mor_slicecat _ has_homsets_HSET); simpl.
+    apply funextsec; intros [y hy].
+    use total2_paths; [ apply idpath |].
+    apply funextsec; intros w; apply subtypeEquality; [|apply idpath].
+    now intros XX; apply setproperty.
+  - intros x y z g h; apply (eq_mor_slicecat _ has_homsets_HSET); simpl.
+    apply funextsec; intros [w hw].
+    use total2_paths; [ apply idpath |].
+    apply funextsec; intros w'.
+    apply subtypeEquality; [|apply idpath].
+    now intros XX; apply setproperty.
 Defined.
 
-(* Attempted direct proof using explicit formula in example 2.2 of:
-    https://ncatlab.org/nlab/show/locally+cartesian+closed+category#in_category_theory
-*)
-Lemma has_exponentials_HSET_slice_direct (X : HSET) :
-  has_exponentials (BinProducts_HSET_slice X).
+Local Definition eta X (f : HSET / X) :
+  nat_trans (functor_identity (HSET / X))
+            (functor_composite (constprod_functor1 (BinProducts_HSET_slice X) f) (hfiber_functor X f)).
+Proof.
+use mk_nat_trans.
++ intros g; simpl.
+  mkpair.
+  * intros y; simpl.
+    exists (pr2 g y); intros fgy.
+    exists ((pr1 fgy,,y),,(pr2 fgy)).
+    abstract (now apply (pr2 fgy)).
+  * abstract (now apply funextsec).
++ intros [g Hg] [h Hh] [w Hw].
+  apply (eq_mor_slicecat _ has_homsets_HSET), funextsec; intro x1.
+  apply (total2_paths2 (!toforallpaths _ _ _ Hw x1)), funextsec; intro y.
+  repeat (apply subtypeEquality; [intros x; apply setproperty|]); cbn in *.
+  now induction (! toforallpaths _ _ (λ x : g, Hh (w x)) _ _).
+Defined.
+
+Local Definition eps X (f : HSET / X) :
+  nat_trans (functor_composite (hfiber_functor X f) (constprod_functor1 (BinProducts_HSET_slice X) f))
+            (functor_identity (HSET / X)).
+Proof.
+use mk_nat_trans.
++ intros g; simpl.
+  mkpair.
+  * intros H; apply (pr1 ((pr2 (pr2 (pr1 H))) (pr1 (pr1 H),,pr2 H))).
+  * abstract (apply funextsec; intros [[x1 [x2 x3]] x4]; simpl in *;
+              now rewrite (pr2 (x3 (x1,,x4))), x4).
++ intros g h w; simpl.
+  apply (eq_mor_slicecat _ has_homsets_HSET), funextsec; intro x1; cbn.
+  now repeat apply maponpaths; apply setproperty.
+Defined.
+
+Lemma has_exponentials_HSET_slice (X : HSET) : has_exponentials (BinProducts_HSET_slice X).
 Proof.
 intros f.
 exists (hfiber_functor _ f).
 use mk_are_adjoints.
-- use mk_nat_trans.
-  + intros g.
-    simpl.
-    mkpair.
-    * intros y. simpl.
-      exists (pr2 g y).
-      intros fgy.
-      exists ((pr1 fgy,,y),,(pr2 fgy)).
-      apply (pr2 fgy).
-    * abstract (now apply funextsec).
-  + intros g h w.
-    apply (eq_mor_slicecat _ has_homsets_HSET).
-    apply funextsec; intro x1.
-    use total2_paths2.
-    * apply (!toforallpaths _ _ _ (pr2 w) x1).
-    * apply funextsec; intro y.
-      cbn.
-apply subtypeEquality.
-intros x; apply setproperty.
-simpl.
-apply subtypeEquality.
-intros x.
-apply setproperty.
-simpl.
-destruct y as [y1 y2].
-simpl in *.
-destruct w as [w Hw].
-simpl in *.
-destruct f as [f Hf].
-destruct g as [g Hg].
-destruct h as [h Hh].
-simpl in *.
-
-induction (! toforallpaths (λ _ : g, X) Hg (λ x : g, Hh (w x)) Hw x1).
-apply idpath.
-- admit.
-- admit.
-Admitted.
-
-
-(* Attempted proof using proposition 2.1 from:
-     https://ncatlab.org/nlab/show/locally+cartesian+closed+category#in_category_theory
-*)
-Definition product_hfiber_slice
-  C C' (g : HSET ⟦C,C'⟧) (f : HSET / C) : HSET / C'.
-Proof.
-exists (total2_hSet (λ (c' : pr1 C'), forall_hSet (λ (c : Σ (c : pr1 C), g c = c'), hfiber_hSet (pr2 f) (pr1 c)))).
-simpl; apply pr1.
+- apply eta.
+- apply eps.
+- split.
+  + intros x; apply eq_mor_slicecat, funextsec; intro x1.
+    now apply subtypeEquality; [intro y; apply setproperty|]; rewrite tppr.
+  + intros x; apply eq_mor_slicecat, funextsec; intro x1; simpl.
+    use total2_paths; [apply idpath|]; cbn.
+    apply funextsec; intro y.
+    now apply subtypeEquality; [intro z; apply setproperty|]; simpl; rewrite <- tppr.
 Defined.
-
-Lemma has_exponentials_HSET_slice : Π X, has_exponentials (BinProducts_HSET_slice X).
-Proof.
-use dependent_product_to_exponentials.
-intros C C' g.
-mkpair.
-- use mk_functor.
-  + mkpair.
-    * intros f.
-      apply (product_hfiber_slice C C' g f).
-    * simpl; intros x y f. {
-      mkpair.
-      - intros Hc'.
-        exists (pr1 Hc').
-        intros p.
-        exists (pr1 f (pr1 (pr2 Hc' p))).
-        abstract (now rewrite <- (pr2 (pr2 Hc' p));
-                      apply (toforallpaths _ _ _ (!pr2 f))).
-      - abstract (now apply funextfun; intro z).
-      }
-  + abstract (split;
-      [ intros x; simpl; apply subtypeEquality; [ intros ?; apply has_homsets_HSET|]; simpl;
-        apply funextfun; intros [c' Hc']; apply (total2_paths2 (idpath _));
-        rewrite idpath_transportf; apply funextsec; intro y;
-        now apply subtypeEquality; [ intros ?; apply setproperty| apply idpath]
-      | intros x y z f1 f2; simpl; apply subtypeEquality; [ intros ?; apply has_homsets_HSET|]; simpl;
-        apply funextfun; intros [c' Hc']; apply (total2_paths2 (idpath _));
-        rewrite idpath_transportf; apply funextsec; intro H;
-        now apply subtypeEquality; [ intros xx; apply setproperty| apply idpath]]).
-- use mk_are_adjoints.
-  + use mk_nat_trans.
-    * intros X; cbn. {
-      mkpair.
-      + simpl; intros x.
-        exists (pr2 X x).
-        intros H.
-        mkpair.
-        * exists (pr1 H,,x).
-          abstract (apply (pr2 H)).
-        * abstract (apply idpath).
-      + abstract (apply idpath).
-      }
-    * intros x y f.
-      apply eq_mor_slicecat.
-      apply funextsec; intro w.
-      use total2_paths2.
-      apply (!(toforallpaths _ _ _ (pr2 f) w)).
-      apply funextsec; intros w2.
-      admit. (* stuck again *)
-+ admit.
-+ admit.
-Admitted.
 
 End locally_CCC.
