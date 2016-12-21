@@ -43,7 +43,7 @@ Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
-Require Import UniMath.SubstitutionSystems.LiftingInitial.
+Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 
 Local Notation "[ C , D ]" := (functor_Precategory C D).
@@ -75,9 +75,7 @@ Definition arity (M : MultiSortedSig) : ops M → list (list sort × sort) × so
 Definition proj_fun (s : sort) : SET / sort -> SET.
 Proof.
 intros p.
-mkpair.
-- apply (hfiber (pr2 p) s).
-- abstract (apply isaset_total2; [|intros x; apply isasetaprop]; apply setproperty).
+apply (hfiber_hSet (pr2 p) s).
 Defined.
 
 Definition proj (s : sort) : functor (SET / sort) SET.
@@ -124,6 +122,11 @@ mkpair.
               apply subtypeEquality; trivial; intros x'; apply setproperty).
 Defined.
 
+Definition test (s : sort) : SET / sort.
+Proof.
+exists sort; simpl; apply (λ x, s).
+Defined.
+
 (* Could maybe be proved by showing that (proj s) is a product in Set/sort (it's a pullback) and
    then use that Set/sort is cartesian closed *)
 Lemma is_left_adjoint_proj (s : sort) : is_left_adjoint (proj s).
@@ -132,10 +135,9 @@ Admitted.
 Lemma is_omega_cocont_postcomp_proj (s : sort) :
   is_omega_cocont (post_composition_functor (SET / sort) _ _ has_homsets_Csort has_homsets_HSET (proj s)).
 Proof.
-admit.
-(* apply is_omega_cocont_post_composition_functor. *)
-(* apply is_left_adjoint_proj. *)
-Admitted.
+apply is_omega_cocont_post_composition_functor.
+apply is_left_adjoint_proj.
+Defined.
 
 (* TODO: this could be defined more abstractly as:
      option(s)(X,f) := [f, \lambda _ .s] : X+1 -> sort *)
@@ -259,11 +261,9 @@ Lemma is_omega_cocont_postcomp_HatFunctor (t : sort) :
        (homset_property SET) (homset_property SET_over_sort)
        (HatFunctor t)).
 Proof.
-admit.
-Admitted.
-(* apply is_omega_cocont_post_composition_functor. *)
-(* apply is_left_adjoint_hat. *)
-(* Defined. *)
+apply is_omega_cocont_post_composition_functor.
+apply is_left_adjoint_hat.
+Defined.
 
 Definition hat_exp_functors (xst : list (list sort × sort) × sort) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET_over_sort].
@@ -289,12 +289,9 @@ Definition MultiSortedSigToFunctor (M : MultiSortedSig) :
 Proof.
 use (coproduct_of_functors (ops M)).
 + apply Coproducts_functor_precat.
-
-
-  apply Coproducts_from_Colims.
-  apply has_homsets_Csort.
-  apply slice_precat_colims_of_shape.
-  apply ColimsHSET.
+  apply Coproducts_slice_precat.
+  apply CoproductsHSET.
+  apply setproperty.
 + intros op.
   apply (hat_exp_functors (arity M op)).
 Defined.
@@ -307,9 +304,9 @@ apply is_omega_cocont_coproduct_of_functors; try apply homset_property.
 + apply Products_functor_precat.
   apply Products_from_Lims.
   apply has_homsets_Csort.
-  apply LimsCsort.
+  admit. (* apply LimsCsort. *)
 + apply Heq.
 + intros op; apply is_omega_cocont_hat_exp_functors, H.
-Defined.
+Admitted.
 
 End MBindingSig.
