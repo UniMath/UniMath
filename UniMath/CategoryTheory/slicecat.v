@@ -20,6 +20,9 @@ Contents:
 - Binary products in slice categories of categories with pullbacks
   ([BinProducts_slice_precat])
 
+- Binary coproducts in slice categories of categories with binary
+  coproducts ([BinCoproducts_slice_precat])
+
 - Terminal object in slice categories ([Terminal_slice_precat])
 
 - Base change functor ([base_change_functor]) and proof that
@@ -37,6 +40,7 @@ Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.exponentials.
@@ -461,6 +465,39 @@ use mk_BinProductCone.
 Defined.
 
 End slicecat_binproducts.
+
+(** * Binary coproducts in slice categories of categories with binary coproducts *)
+Section slicecat_bincoproducts.
+
+Context {C : precategory} (hsC : has_homsets C) (BC : BinCoproducts C).
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Lemma BinCoproducts_slice_precat (x : C) : BinCoproducts (C / x).
+Proof.
+intros a b.
+use mk_BinCoproductCocone.
++ exists (BinCoproductObject _ (BC (pr1 a) (pr1 b))).
+  apply (BinCoproductArrow _ _ (pr2 a) (pr2 b)).
++ mkpair.
+  - apply BinCoproductIn1.
+  - abstract (now rewrite BinCoproductIn1Commutes).
++ mkpair.
+  - apply BinCoproductIn2.
+  - abstract (now rewrite BinCoproductIn2Commutes).
++ intros c f g.
+  use unique_exists.
+  - exists (BinCoproductArrow _ _ (pr1 f) (pr1 g)).
+    abstract (apply pathsinv0, BinCoproductArrowUnique;
+      [ now rewrite assoc, (BinCoproductIn1Commutes C _ _ (BC (pr1 a) (pr1 b))), (pr2 f)
+      | now rewrite assoc, (BinCoproductIn2Commutes C _ _ (BC (pr1 a) (pr1 b))), (pr2 g)]).
+  - abstract (split; apply eq_mor_slicecat; simpl;
+             [ apply BinCoproductIn1Commutes | apply BinCoproductIn2Commutes ]).
+  - abstract (intros y; apply isapropdirprod; apply has_homsets_slice_precat).
+  - abstract (now intros y [<- <-]; apply eq_mor_slicecat, BinCoproductArrowUnique).
+Defined.
+
+End slicecat_bincoproducts.
 
 Section slicecat_terminal.
 
