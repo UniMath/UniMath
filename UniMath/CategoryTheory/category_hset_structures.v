@@ -41,13 +41,11 @@ Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.covyoneda.
 Require Import UniMath.CategoryTheory.slicecat.
 
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (* This should be moved upstream. Constructs the smallest eqrel

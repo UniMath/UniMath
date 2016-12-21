@@ -38,7 +38,6 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
