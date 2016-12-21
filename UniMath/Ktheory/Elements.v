@@ -2,8 +2,7 @@
 
 Require Export UniMath.CategoryTheory.precategories
                UniMath.CategoryTheory.functor_categories
-               UniMath.Foundations.Basics.Sets
-               UniMath.Ktheory.Utilities.
+               UniMath.Foundations.Basics.Sets.
 Require Export UniMath.Ktheory.Precategories.
 
 Local Open Scope cat.
@@ -14,14 +13,13 @@ Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
   exact (Σ f : pr1 a --> pr1 b, #X f (pr2 a) = (pr2 b)).
 Defined.
 
-
 Definition cat_data {C} (X:C==>SET) : precategory_data.
   intros. exists (cat_ob_mor X). split.
   { intro a.
-    exact (identity (pr1 a),, (apevalat (pr2 a) ((functor_id X) (pr1 a)))). }
+    exact (identity (pr1 a),, (eqtohomot ((functor_id X) (pr1 a))) (pr2 a)). }
   { intros a b c f g.
     exact (pr1 g ∘ pr1 f,,
-           (  (apevalat (pr2 a) ((functor_comp X) _ _ _ (pr1 f) (pr1 g)))
+           ((eqtohomot ((functor_comp X) _ _ _ (pr1 f) (pr1 g)) (pr2 a))
             @ (ap (#X (pr1 g)) (pr2 f) @ (pr2 g)))). } Defined.
 
 Lemma has_homsets_cat_ob_mor {C:Precategory} (X:C==>SET) :
@@ -73,7 +71,7 @@ Definition cat_on_nat_trans_data {C:Precategory} {X Y:C==>SET} (p:X ⟶ Y) :
 Proof. intros.
   exists (fun a => pr1 a,, p (pr1 a) (pr2 a)).
   exact (fun b c f => pr1 f,,
-          ! (apevalat (pr2 b) (pr2 p (pr1 b) (pr1 c) (pr1 f)))
+          ! (eqtohomot (pr2 p (pr1 b) (pr1 c) (pr1 f)) (pr2 b))
           @ ap ((pr1 p) (pr1 c)) (pr2 f)). Defined.
 
 Lemma cat_on_nat_trans_is_nat_trans {C:Precategory} {X Y:C==>SET} (p:X ⟶ Y) :
@@ -113,10 +111,10 @@ Module pr1.
     { intermediate_path (#X f' (#X f x)).
       { exact (ap (#X f') (!i)). }
       { intermediate_path (#X (f' ∘ f) x).
-        { exact (apevalat x (!functor_comp X _ _ _ f f')). }
+        { exact (eqtohomot (!functor_comp X _ _ _ f f') x). }
         { intermediate_path (#X (identity c) x).
-          { exact (apevalat x (ap #X (pr1 j))). }
-          { exact (apevalat x (functor_id X c)). }}}}
+          { exact (eqtohomot (ap #X (pr1 j)) x). }
+          { exact (eqtohomot (functor_id X c) x). }}}}
     { exists (f' ,, i'). split.
       { apply mor_equality.  exact (pr1 j). }
       { apply mor_equality.  exact (pr2 j). } } Qed.
