@@ -745,12 +745,12 @@ use mk_functor.
     - abstract (now apply funextsec).
     }
 + split.
-  - intros x; apply (eq_mor_slicecat _ has_homsets_HSET); simpl.
+  - intros x; apply (eq_mor_slicecat has_homsets_HSET); simpl.
     apply funextsec; intros [y hy].
     use total2_paths; [ apply idpath |].
     apply funextsec; intros w; apply subtypeEquality; [|apply idpath].
     now intros XX; apply setproperty.
-  - intros x y z g h; apply (eq_mor_slicecat _ has_homsets_HSET); simpl.
+  - intros x y z g h; apply (eq_mor_slicecat has_homsets_HSET); simpl.
     apply funextsec; intros [w hw].
     use total2_paths; [ apply idpath |].
     apply funextsec; intros w'.
@@ -771,7 +771,7 @@ use mk_nat_trans.
     abstract (now apply (pr2 fgy)).
   * abstract (now apply funextsec).
 + intros [g Hg] [h Hh] [w Hw].
-  apply (eq_mor_slicecat _ has_homsets_HSET), funextsec; intro x1.
+  apply (eq_mor_slicecat has_homsets_HSET), funextsec; intro x1.
   apply (total2_paths2 (!toforallpaths _ _ _ Hw x1)), funextsec; intro y.
   repeat (apply subtypeEquality; [intros x; apply setproperty|]); cbn in *.
   now induction (! toforallpaths _ _ (λ x : g, Hh (w x)) _ _).
@@ -788,7 +788,7 @@ use mk_nat_trans.
   * abstract (apply funextsec; intros [[x1 [x2 x3]] x4]; simpl in *;
               now rewrite (pr2 (x3 (x1,,x4))), x4).
 + intros g h w; simpl.
-  apply (eq_mor_slicecat _ has_homsets_HSET), funextsec; intro x1; cbn.
+  apply (eq_mor_slicecat has_homsets_HSET), funextsec; intro x1; cbn.
   now repeat apply maponpaths; apply setproperty.
 Defined.
 

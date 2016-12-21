@@ -131,7 +131,7 @@ Section set_slice_fam_equiv.
   Qed.
 
   Definition slice_unit := nat_trans_inv_from_pointwise_inv _ _
-                                                            (has_homsets_slice_precat _ has_homsets_HSET X) _ _
+                                                            (has_homsets_slice_precat has_homsets_HSET X) _ _
                                                             slice_counit slice_all_iso.
 
   Definition fam_unit_fun_fun (f : fam X) (x : X) :
