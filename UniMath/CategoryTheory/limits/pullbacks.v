@@ -98,6 +98,15 @@ Definition PullbackArrow {a b c : C} {f : b --> a} {g : c --> a}
    (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g) : e --> Pb :=
    pr1 (pr1 (isPullback_Pullback Pb e h k H)).
 
+Lemma PullbackArrowUnique' {a b c : C} (f : C⟦b,a⟧) (g : C⟦c,a⟧)
+      (P : Pullback f g) e (h : C⟦e,b⟧) (k : C⟦e,c⟧)
+      (Hcomm : h ;; f = k ;; g) (w : C⟦e,P⟧) (H1 : w ;; PullbackPr1 P = h) (H2 : w ;; PullbackPr2 P = k) :
+  w = PullbackArrow P e h k Hcomm.
+Proof.
+now apply PullbackArrowUnique.
+Qed.
+
+
 Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a}
    (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g) :
    PullbackArrow Pb e h k H ;; PullbackPr1 Pb = h.

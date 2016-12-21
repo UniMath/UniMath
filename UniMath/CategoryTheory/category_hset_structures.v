@@ -650,35 +650,30 @@ use left_adjoint_from_partial.
 - intros Q R φ; simpl in *.
   mkpair.
   + mkpair.
-    * { mkpair.
+    * { use mk_nat_trans.
         - intros c u; simpl.
-          mkpair.
+          use mk_nat_trans.
           + simpl; intros d fx.
             apply (φ d (dirprodpair (pr2 fx) (# R (pr1 fx) u))).
-          + abstract (
-              intros a b f; simpl; cbn; unfold prodtofuntoprod;
-              apply funextsec; intro x;
-              eapply pathscomp0;
+          + intros a b f; simpl; cbn; unfold prodtofuntoprod.
+            apply funextsec; intro x.
+            etrans;
               [|apply (toforallpaths _ _ _ (nat_trans_ax φ _ _ f)
-                                     (dirprodpair (pr2 x) (# R (pr1 x) u)))]; cbn;
-              unfold prodtofuntoprod;
-              apply maponpaths, maponpaths;
-              assert (H : # R (pr1 x ;; f) = # R (pr1 x) ;; #R f);
-              [apply functor_comp|];
-              apply (toforallpaths _ _ _ H u)).
-        - abstract (
-            intros a b f; cbn;
-            apply funextsec; intros x; cbn; simpl;
-            apply subtypeEquality;
-            [intros xx; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|];
-            simpl; apply funextsec; intro y; cbn;
-            apply funextsec; intro z;
-            apply maponpaths, maponpaths;
-            unfold covyoneda_morphisms_data;
-            assert (H : # R (f ;; pr1 z) = # R f ;; # R (pr1 z));
-              [apply functor_comp|];
-            apply pathsinv0;
-            now eapply pathscomp0; [apply (toforallpaths _ _ _ H x)|]).
+                                     (dirprodpair (pr2 x) (# R (pr1 x) u)))]; cbn.
+              repeat (apply maponpaths).
+              assert (H : # R (pr1 x ;; f) = # R (pr1 x) ;; #R f).
+              { apply functor_comp. }
+              apply (toforallpaths _ _ _ H u).
+        - intros a b f; cbn.
+          apply funextsec; intros x; cbn.
+          apply subtypeEquality;
+            [intros xx; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|].
+          apply funextsec; intro y; apply funextsec; intro z; cbn.
+          repeat apply maponpaths;  unfold covyoneda_morphisms_data.
+          assert (H : # R (f ;; pr1 z) = # R f ;; # R (pr1 z)).
+          { apply functor_comp. }
+          apply pathsinv0.
+          now etrans; [apply (toforallpaths _ _ _ H x)|].
       }
     * abstract (
         apply (nat_trans_eq has_homsets_HSET); cbn; intro x;
