@@ -110,36 +110,26 @@ apply subtypeEquality; trivial.
 intro z; apply setproperty.
 Defined.
 
-Lemma foo s x :
-  iso (pr1 (pr1 (constprod_functor1 (BinProducts_HSET_slice sort) (constSET_slice s)) x))
-  (proj s x).
+Lemma apa (s : sort) : @is_iso [SET/sort,SET] _ _ (temp s).
 Proof.
-Search iso.
-simpl.
-mkpair.
-- intros H.
-exists (pr2 (pr1 H)).
-apply (!pr2 H).
-- simpl.
-use (@is_iso_qinv HSET).
-+ simpl.
-intros H.
-exists (tt,,pr1 H).
-apply (!pr2 H).
+use is_iso_qinv.
++ use mk_nat_trans.
+- simpl; intros x.
+  intros xy.
+  exists (pr2 (pr1 xy)).
+  apply (!pr2 xy).
+- abstract (intros X Y f; apply funextsec; intros [[[] x] y];
+  now apply subtypeEquality; trivial; intros w; apply setproperty).
 + split.
-* cbn.
-apply funextsec; intro y.
-apply subtypeEquality.
-intros w.
-apply setproperty.
-simpl.
-destruct y as [[[] y1] y2].
-apply idpath.
-* apply funextsec; intro y.
-apply subtypeEquality.
-intros w.
-apply setproperty.
-apply idpath.
+- apply subtypeEquality.
+intros x.
+apply isaprop_is_nat_trans, has_homsets_HSET.
+apply funextsec; intro x; simpl.
+apply funextsec; intro y; cbn.
+now rewrite pathsinv0inv0, tppr.
+- apply (nat_trans_eq has_homsets_HSET); simpl; intros x.
+apply funextsec; intros [[[] y] z]; simpl in *.
+apply subtypeEquality; trivial; intros w; apply setproperty.
 Defined.
 
 Definition hfiber_fun' (s : sort) : SET → SET / sort.
@@ -203,6 +193,7 @@ use mk_nat_trans.
   now repeat apply maponpaths; apply setproperty.
 Defined.
 
+(* TODO: is_left_adjoint iso *)
 Lemma is_left_adjoint_proj (s : sort) : is_left_adjoint (proj s).
 Proof.
 exists (hfiber_functor s).
@@ -417,9 +408,9 @@ Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig)
 Proof.
 apply is_omega_cocont_coproduct_of_functors; try apply homset_property.
 + apply Products_functor_precat.
-  admit.
+  apply Products_HSET_slice.
 + apply Heq.
 + intros op; apply is_omega_cocont_hat_exp_functors, H.
-Admitted.
+Defined.
 
 End MBindingSig.
