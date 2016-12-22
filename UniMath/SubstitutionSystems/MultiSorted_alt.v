@@ -91,6 +91,139 @@ mkpair.
             apply funextsec; intro p; apply subtypeEquality; trivial; intros x; apply setproperty).
 Defined.
 
+Definition constSET_slice (s : sort) : SET / sort.
+Proof.
+exists (TerminalObject TerminalHSET); simpl.
+apply (λ x, s).
+Defined.
+
+Lemma temp (s : sort) :
+  nat_trans (proj s) (functor_composite (constprod_functor1 (BinProducts_HSET_slice sort) (constSET_slice s)) (slicecat_to_cat has_homsets_HSET sort)).
+Proof.
+use mk_nat_trans.
+- simpl; intros x H.
+exists (tt,,pr1 H).
+apply (!pr2 H).
+- intros x y f.
+apply funextsec; intro w.
+apply subtypeEquality; trivial.
+intro z; apply setproperty.
+Defined.
+
+Lemma foo s x :
+  iso (pr1 (pr1 (constprod_functor1 (BinProducts_HSET_slice sort) (constSET_slice s)) x))
+  (proj s x).
+Proof.
+Search iso.
+simpl.
+mkpair.
+- intros H.
+exists (pr2 (pr1 H)).
+apply (!pr2 H).
+- simpl.
+use (@is_iso_qinv HSET).
++ simpl.
+intros H.
+exists (tt,,pr1 H).
+apply (!pr2 H).
++ split.
+* cbn.
+apply funextsec; intro y.
+apply subtypeEquality.
+intros w.
+apply setproperty.
+simpl.
+destruct y as [[[] y1] y2].
+apply idpath.
+* apply funextsec; intro y.
+apply subtypeEquality.
+intros w.
+apply setproperty.
+apply idpath.
+Defined.
+
+Definition hfiber_fun' (s : sort) : SET → SET / sort.
+Proof.
+simpl.
+intros X.
+mkpair.
+- exists (Σ x, HSET⟦hfiber_hSet (pr2 (constSET_slice s)) x,X⟧).
+ abstract (apply isaset_total2; [ apply setproperty | intros x; apply has_homsets_HSET ]).
+- apply pr1.
+Defined.
+
+Definition hfiber_functor (s : sort) : functor SET (SET / sort).
+Proof.
+use mk_functor.
++ mkpair.
+  - apply (hfiber_fun' s).
+  - simpl; intros a b g.
+    { mkpair; simpl.
+    - intros h.
+      exists (pr1 h).
+      intros fx.
+      apply g, (pr2 h fx).
+    - now apply funextsec.
+    }
++ split.
+  - intros x; apply (eq_mor_slicecat has_homsets_HSET); simpl.
+    apply funextsec; intros [y hy].
+    use total2_paths; [ apply idpath |].
+    now apply funextsec.
+  - intros x y z g h; apply (eq_mor_slicecat has_homsets_HSET); simpl.
+    apply funextsec; intros [w hw].
+    use total2_paths; [ apply idpath |].
+    now apply funextsec.
+Defined.
+
+Local Definition eta (s : sort) :
+  nat_trans (functor_identity (slice_precat SET sort (homset_property SET)))
+    (functor_composite (proj s) (hfiber_functor s)).
+Proof.
+use mk_nat_trans.
++ intros g; simpl in *.
+  mkpair.
+  * intros y; simpl.
+    exists (pr2 g y); intros fgy.
+    apply (y,,!pr2 fgy).
+  * abstract (now apply funextsec).
++ intros [g Hg] [h Hh] [w Hw].
+  apply (eq_mor_slicecat has_homsets_HSET), funextsec; intro x1.
+  apply (total2_paths2 (!toforallpaths _ _ _ Hw x1)), funextsec; intro y.
+  repeat (apply subtypeEquality; [intros x; apply setproperty|]); cbn in *.
+  now induction (! toforallpaths _ _ (λ x : g, Hh (w x)) _ _).
+Defined.
+
+Local Definition eps (s : sort) :
+  nat_trans (functor_composite (hfiber_functor s) (proj s)) (functor_identity SET).
+Proof.
+use mk_nat_trans.
++ intros g H; apply ((pr2 (pr1 H)) (tt,,!(pr2 H))).
++ intros g h w; apply funextsec; intros x1; cbn.
+  now repeat apply maponpaths; apply setproperty.
+Defined.
+
+Lemma is_left_adjoint_proj (s : sort) : is_left_adjoint (proj s).
+Proof.
+exists (hfiber_functor s).
+use mk_are_adjoints.
+- apply eta.
+- apply eps.
+- split.
+  + intros x; apply funextsec; intro x1.
+    now apply subtypeEquality; [intro y; apply setproperty|].
+  + intros x; apply eq_mor_slicecat, funextsec; intro x1; simpl.
+    use total2_paths; [apply idpath|]; cbn.
+    now apply funextsec; intros [[] y]; rewrite pathsinv0inv0.
+Defined.
+
+Lemma is_omega_cocont_postcomp_proj (s : sort) :
+  is_omega_cocont (post_composition_functor (SET / sort) _ _ has_homsets_Csort has_homsets_HSET (proj s)).
+Proof.
+apply is_omega_cocont_post_composition_functor.
+apply is_left_adjoint_proj.
+Defined.
+
 Definition HatFunctor (t : sort) : functor SET (SET / sort).
 Proof.
 mkpair.
@@ -103,40 +236,22 @@ Defined.
 
 Lemma is_left_adjoint_hat (s : sort) : is_left_adjoint (HatFunctor s).
 Proof.
-apply (tpair _ (proj s)).
-mkpair.
+exists (proj s).
+use mk_are_adjoints.
++ use mk_nat_trans.
+  - intros X; simpl; intros x; apply (x,,idpath s).
+  - intros X Y f; simpl; apply funextsec; intro x; cbn.
+    now apply subtypeEquality; trivial; intros y; apply setproperty.
++ use mk_nat_trans.
+  - intros X; simpl in *.
+    mkpair; simpl.
+    * intros H; apply (pr1 H).
+    * abstract (apply funextsec; intro x; apply (! pr2 x)).
+  - now intros X Y f; apply (eq_mor_slicecat has_homsets_HSET).
 + split.
-  - mkpair.
-    * intros X; simpl; intros x; apply (x,,idpath s).
-    * abstract (intros X Y f; simpl; apply funextsec; intro x; cbn; apply subtypeEquality; trivial;
-                intros y; apply setproperty).
-  - mkpair.
-    * intros X; simpl in *.
-      mkpair; simpl.
-      { intros H; apply (pr1 H). }
-      { abstract (apply funextsec; intro x; apply (! pr2 x)). }
-    * abstract (now intros X Y f; apply (eq_mor_slicecat has_homsets_HSET)).
-+ split.
-  - abstract (now intros X; apply (eq_mor_slicecat has_homsets_HSET)).
-  - abstract (intros X; apply funextsec; intro x;
-              apply subtypeEquality; trivial; intros x'; apply setproperty).
-Defined.
-
-Definition test (s : sort) : SET / sort.
-Proof.
-exists sort; simpl; apply (λ x, s).
-Defined.
-
-(* Could maybe be proved by showing that (proj s) is a product in Set/sort (it's a pullback) and
-   then use that Set/sort is cartesian closed *)
-Lemma is_left_adjoint_proj (s : sort) : is_left_adjoint (proj s).
-Admitted.
-
-Lemma is_omega_cocont_postcomp_proj (s : sort) :
-  is_omega_cocont (post_composition_functor (SET / sort) _ _ has_homsets_Csort has_homsets_HSET (proj s)).
-Proof.
-apply is_omega_cocont_post_composition_functor.
-apply is_left_adjoint_proj.
+  - now intros X; apply (eq_mor_slicecat has_homsets_HSET).
+  - intros X; apply funextsec; intro x.
+    now apply subtypeEquality; trivial; intros x'; apply setproperty.
 Defined.
 
 (* TODO: this could be defined more abstractly as:
@@ -302,9 +417,7 @@ Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig)
 Proof.
 apply is_omega_cocont_coproduct_of_functors; try apply homset_property.
 + apply Products_functor_precat.
-  apply Products_from_Lims.
-  apply has_homsets_Csort.
-  admit. (* apply LimsCsort. *)
+  admit.
 + apply Heq.
 + intros op; apply is_omega_cocont_hat_exp_functors, H.
 Admitted.
