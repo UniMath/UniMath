@@ -809,3 +809,44 @@ use mk_are_adjoints.
 Defined.
 
 End locally_CCC.
+
+(** * Indexed non-empty products in SET/X *)
+Section products_set_slice.
+
+Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
+
+(** Note that I has to be non-empty *)
+Lemma Products_HSET_slice I X (i : I) : Products I (HSET / X).
+Proof.
+intros f.
+use mk_ProductCone.
++ mkpair.
+  - exists (Σ (a : forall_hSet (λ (i : I), pr1 (f i))),
+              Π (i j : I), pr2 (f i) (a i) = pr2 (f j) (a j)).
+    abstract (apply isaset_total2; try apply setproperty; simpl; intro a;
+    apply impred_isaset; intro j; apply impred_isaset; intro k;
+    now apply isasetaprop, setproperty).
+  - intros H; apply (pr2 (f i)), (pr1 H).
++ intros j.
+  mkpair.
+  - intros H; apply (pr1 H j).
+  - abstract (now apply funextsec; intros H; apply (pr2 H)).
++ intros g h.
+  use unique_exists.
+  - mkpair; simpl.
+    * intros x.
+      exists (λ j, pr1 (h j) x).
+      abstract (intros j k; etrans; [apply (!toforallpaths _ _ _ (pr2 (h j)) x)|];
+      now apply pathsinv0; etrans; [apply (!toforallpaths _ _ _ (pr2 (h k)) x)|]).
+    * abstract (now apply funextsec; intro x; apply (toforallpaths _ _ _ (pr2 (h i)) x)).
+  - abstract (intros j; apply subtypeEquality; [intros x; apply setproperty|];
+              now apply funextsec).
+  - abstract (intros y; apply impred_isaprop; intros; apply has_homsets_slice_precat).
+  - intros y Hy; apply subtypeEquality; [intros x; apply setproperty|]; simpl.
+    apply funextsec; intro x; apply subtypeEquality.
+    * intros w; apply impred_isaprop; intros j; apply impred_isaprop; intros k.
+      now apply setproperty.
+    * now simpl; apply funextsec; intro w; rewrite <- (Hy w).
+Defined.
+
+End products_set_slice.
