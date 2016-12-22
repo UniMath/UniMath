@@ -19,6 +19,8 @@ Contents:
 - Locally cartesian closed ([Terminal_HSET_slice],
   [BinProducts_HSET_slice] and [has_exponentials_HSET_slice])
 - Products in Set/X ([Products_HSET_slice])
+- Forgetful functor Set/X to Set is left adjoint
+  ([is_left_adjoint_slicecat_to_cat])
 
 Written by: Benedikt Ahrens, Anders Mörtberg
 
@@ -699,8 +701,8 @@ Qed.
 
 End exponentials_functor_cat.
 
-(** * Set is locally cartesian closed *)
-Section locally_CCC.
+(** * Various results on Set/X *)
+Section set_slicecat.
 
 Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
 
@@ -809,12 +811,8 @@ use mk_are_adjoints.
     now apply subtypeEquality; [intro z; apply setproperty|]; simpl; rewrite <- tppr.
 Defined.
 
-End locally_CCC.
-
 (** * Products in Set/X *)
 Section products_set_slice.
-
-Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
 
 (* The following is an experiment which computes what the product in Set/X
    should be from the one in [X,Set] using the equivalence between Set/X
@@ -866,3 +864,53 @@ use mk_ProductCone.
 Defined.
 
 End products_set_slice.
+
+Lemma is_left_adjoint_slicecat_to_cat_HSET (X : HSET) :
+  is_left_adjoint (slicecat_to_cat has_homsets_HSET X).
+Proof.
+mkpair.
+- use mk_functor.
+  + mkpair.
+    * intro Y. {
+      mkpair.
+      - exists (Σ (x : pr1 X), pr1 Y).
+        abstract (now apply isaset_total2; intros; apply setproperty).
+      - apply pr1.
+      }
+    * intros A B f. {
+      mkpair.
+      - simpl; intros H.
+        exists (pr1 H).
+        apply (f (pr2 H)).
+      - abstract (now apply funextsec).
+      }
+  + abstract (split;
+    [ intros A; simpl; apply subtypeEquality; [intros x; apply setproperty|];
+      now apply funextsec; intros [x a]
+    | intros A B C f g; apply subtypeEquality; [intros x; apply setproperty|];
+      now apply funextsec; intros [x a]]).
+- use mk_are_adjoints.
+  + use mk_nat_trans.
+    * simpl; intros F. {
+      mkpair.
+      - simpl; intro f.
+        mkpair.
+        + apply (pr2 F f).
+        + apply f.
+      - abstract (now apply funextsec).
+      }
+    * abstract (intros Y Z F; apply (eq_mor_slicecat has_homsets_HSET);
+                apply funextsec; intro y;
+                use total2_paths2; [apply (toforallpaths _ _ _ (!pr2 F) y)|];
+                cbn in *; induction (toforallpaths _ _ _ _ _);
+                now rewrite idpath_transportf).
+  + use mk_nat_trans.
+    * intros Y xy; apply (pr2 xy).
+    * now intros Y Z f.
+  + split.
+    * now intros.
+    * intros Y; apply eq_mor_slicecat; simpl.
+      now apply funextsec; intros f; cbn; rewrite tppr.
+Defined.
+
+End set_slicecat.

@@ -1581,13 +1581,37 @@ Defined.
 
 End functor_swap.
 
-
 (** * The forgetful functor from Set/X to Set preserves colimits *)
 Section cocont_slicecat_to_cat_HSET.
 
 Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
 
 Lemma preserves_colimit_slicecat_to_cat_HSET (X : HSET)
+  (g : graph) (d : diagram g (HSET / X)) (L : HSET / X) (ccL : cocone d L) :
+  preserves_colimit (slicecat_to_cat has_homsets_HSET X) d L ccL.
+Proof.
+apply left_adjoint_preserves_colimit.
+- apply is_left_adjoint_slicecat_to_cat_HSET.
+- apply has_homsets_slice_precat.
+- apply has_homsets_HSET.
+Defined.
+
+Lemma is_cocont_slicecat_to_cat_HSET (X : HSET) :
+  is_cocont (slicecat_to_cat has_homsets_HSET X).
+Proof.
+intros g d L cc.
+now apply preserves_colimit_slicecat_to_cat_HSET.
+Defined.
+
+Lemma is_omega_cocont_slicecat_to_cat (X : HSET) :
+  is_omega_cocont (slicecat_to_cat has_homsets_HSET X).
+Proof.
+intros d L cc.
+now apply preserves_colimit_slicecat_to_cat_HSET.
+Defined.
+
+(** Direct proof that the forgetful functor Set/X to Set preserves colimits *)
+Lemma preserves_colimit_slicecat_to_cat_HSET_direct (X : HSET)
   (g : graph) (d : diagram g (HSET / X)) (L : HSET / X) (ccL : cocone d L) :
   preserves_colimit (slicecat_to_cat has_homsets_HSET X) d L ccL.
 Proof.
@@ -1641,20 +1665,6 @@ assert (Hk : (Π n, colimIn CC n ;; k = coconeIn cc n)).
 }
 apply (maponpaths dirprod_pr2
          (toforallpaths _ _ _ (maponpaths pr1 (colimArrowUnique CC c cc k Hk)) l)).
-Defined.
-
-Lemma is_cocont_slicecat_to_cat_HSET (X : HSET) :
-  is_cocont (slicecat_to_cat has_homsets_HSET X).
-Proof.
-intros g d L cc.
-now apply preserves_colimit_slicecat_to_cat_HSET.
-Defined.
-
-Lemma is_omega_cocont_slicecat_to_cat (X : HSET) :
-  is_omega_cocont (slicecat_to_cat has_homsets_HSET X).
-Proof.
-intros d L cc.
-now apply preserves_colimit_slicecat_to_cat_HSET.
 Defined.
 
 End cocont_slicecat_to_cat_HSET.
