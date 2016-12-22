@@ -18,6 +18,9 @@ Contents:
   ([has_exponentials_functor_HSET])
 - Locally cartesian closed ([Terminal_HSET_slice],
   [BinProducts_HSET_slice] and [has_exponentials_HSET_slice])
+- Products in Set/X ([Products_HSET_slice])
+- The forgetful functor from Set/X to Set preserves colimits
+  ([preserves_colimit_slicecat_to_cat_HSET])
 
 Written by: Benedikt Ahrens, Anders Mörtberg
 
@@ -45,6 +48,7 @@ Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.covyoneda.
 Require Import UniMath.CategoryTheory.slicecat.
+Require Import UniMath.CategoryTheory.CocontFunctors.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
@@ -810,11 +814,14 @@ Defined.
 
 End locally_CCC.
 
+(** * Products in Set/X *)
 Section products_set_slice.
 
 Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
 
-(* The following is an experiment which computes what the product in Set/X should    be from the one in [X,Set] using the equivalence between Set/X and [X,Set] *)
+(* The following is an experiment which computes what the product in Set/X
+   should be from the one in [X,Set] using the equivalence between Set/X
+   and [X,Set] *)
 (* Require Import UniMath.CategoryTheory.set_slice_fam_equiv. *)
 (* Require Import UniMath.CategoryTheory.DiscretePrecategory. *)
 
@@ -828,6 +835,7 @@ Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
 (* set (goal := pr1 (pr1 (fam_to_slice _ foo2))). *)
 (* cbn in goal. *)
 
+(** Products in Set/X *)
 Lemma Products_HSET_slice I X : Products I (HSET / X).
 Proof.
 intros F.
@@ -861,3 +869,80 @@ use mk_ProductCone.
 Defined.
 
 End products_set_slice.
+
+(** * The forgetful functor from Set/X to Set preserves colimits *)
+Section cocont_slicecat_to_cat_HSET.
+
+Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
+
+Lemma preserves_colimit_slicecat_to_cat_HSET (X : HSET)
+  (g : graph) (d : diagram g (HSET / X)) (L : HSET / X) (ccL : cocone d L) :
+  preserves_colimit (slicecat_to_cat has_homsets_HSET X) d L ccL.
+Proof.
+intros HccL y ccy.
+set (CC := mk_ColimCocone _ _ _ HccL).
+transparent assert (c : (HSET / X)).
+{ mkpair.
+  - exists (Σ (x : pr1 X), pr1 y).
+    abstract (apply isaset_total2; intros; apply setproperty).
+  - apply pr1.
+}
+transparent assert (cc : (cocone d c)).
+{ use mk_cocone.
+  - intros n.
+    mkpair; simpl.
+    + intros z.
+      mkpair.
+      * apply (pr2 L), (pr1 (coconeIn ccL n) z).
+      * apply (coconeIn ccy n z).
+    + abstract (now apply funextsec; intro z;
+                apply (toforallpaths _ _ _ (pr2 (coconeIn ccL n)) z)).
+  - abstract (intros m n e; apply eq_mor_slicecat, funextsec; intro z;
+    use total2_paths;
+      [ apply (maponpaths _ (toforallpaths _ _ _
+                 (maponpaths pr1 (coconeInCommutes ccL m n e)) z))|];
+    cbn in *; induction (maponpaths _ _);
+    now rewrite idpath_transportf, <- (coconeInCommutes ccy m n e)).
+}
+use unique_exists.
+- intros l; apply (pr2 (pr1 (colimArrow CC c cc) l)).
+- simpl; intro n.
+  apply funextsec; intro x; cbn.
+  now etrans; [apply maponpaths,
+                 (toforallpaths _ _ _ (maponpaths pr1 (colimArrowCommutes CC c cc n)) x)|].
+- intros z; apply impred_isaprop; intro n; apply setproperty.
+- simpl; intros f Hf.
+apply funextsec; intro l.
+transparent assert (k : (HSET/X⟦colim CC,c⟧)).
+{ mkpair.
+  - intros l'.
+    exists (pr2 L l').
+    apply (f l').
+  - abstract (now apply funextsec).
+}
+assert (Hk : (Π n, colimIn CC n ;; k = coconeIn cc n)).
+{ intros n.
+  apply subtypeEquality; [intros x; apply setproperty|].
+  apply funextsec; intro z.
+  use total2_paths; [apply idpath|].
+  now rewrite idpath_transportf; cbn; rewrite <- (toforallpaths _ _ _ (Hf n) z).
+}
+apply (maponpaths dirprod_pr2
+         (toforallpaths _ _ _ (maponpaths pr1 (colimArrowUnique CC c cc k Hk)) l)).
+Defined.
+
+Lemma is_cocont_slicecat_to_cat_HSET (X : HSET) :
+  is_cocont (slicecat_to_cat has_homsets_HSET X).
+Proof.
+intros g d L cc.
+now apply preserves_colimit_slicecat_to_cat_HSET.
+Defined.
+
+Lemma is_omega_cocont_slicecat_to_cat (X : HSET) :
+  is_omega_cocont (slicecat_to_cat has_homsets_HSET X).
+Proof.
+intros d L cc.
+now apply preserves_colimit_slicecat_to_cat_HSET.
+Defined.
+
+End cocont_slicecat_to_cat_HSET.
