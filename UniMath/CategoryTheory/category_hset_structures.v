@@ -810,43 +810,54 @@ Defined.
 
 End locally_CCC.
 
-(** * Indexed non-empty products in SET/X *)
 Section products_set_slice.
 
 Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
 
-(** Note that I has to be non-empty *)
-Lemma Products_HSET_slice I X (i : I) : Products I (HSET / X).
+(* The following is an experiment which computes what the product in Set/X should    be from the one in [X,Set] using the equivalence between Set/X and [X,Set] *)
+(* Require Import UniMath.CategoryTheory.set_slice_fam_equiv. *)
+(* Require Import UniMath.CategoryTheory.DiscretePrecategory. *)
+
+(* Lemma Products_HSET_slice I X : Products I (HSET / X). *)
+(* Proof. *)
+(* intros F. *)
+(* set (foo1 := Products_functor_precat I (discrete_precategory (pr1 X)) HSET (ProductsHSET I) has_homsets_HSET). *)
+(* set (XHSET := [discrete_precategory (pr1 X), HSET, has_homsets_HSET]). *)
+(* set (G := λ i, slice_to_fam X (F i) : XHSET). *)
+(* set (foo2 := ProductObject I XHSET (foo1 G)). *)
+(* set (goal := pr1 (pr1 (fam_to_slice _ foo2))). *)
+(* cbn in goal. *)
+
+Lemma Products_HSET_slice I X : Products I (HSET / X).
 Proof.
-intros f.
+intros F.
 use mk_ProductCone.
 + mkpair.
-  - exists (Σ (a : forall_hSet (λ (i : I), pr1 (f i))),
-              Π (i j : I), pr2 (f i) (a i) = pr2 (f j) (a j)).
-    abstract (apply isaset_total2; try apply setproperty; simpl; intro a;
-    apply impred_isaset; intro j; apply impred_isaset; intro k;
-    now apply isasetaprop, setproperty).
-  - intros H; apply (pr2 (f i)), (pr1 H).
-+ intros j.
+  - exists (Σ x : pr1 X, Π i : I, hfiber_hSet (pr2 (F i)) x).
+    abstract (apply isaset_total2; [apply setproperty|];
+              now intros x; apply impred_isaset; intro i; apply setproperty).
+  - apply pr1.
++ intros i.
   mkpair.
-  - intros H; apply (pr1 H j).
-  - abstract (now apply funextsec; intros H; apply (pr2 H)).
-+ intros g h.
+  - intros H; apply (pr1 (pr2 H i)).
+  - abstract (now apply funextsec; intros H; apply (!pr2 (pr2 H i))).
++ intros f H.
   use unique_exists.
   - mkpair; simpl.
     * intros x.
-      exists (λ j, pr1 (h j) x).
-      abstract (intros j k; etrans; [apply (!toforallpaths _ _ _ (pr2 (h j)) x)|];
-      now apply pathsinv0; etrans; [apply (!toforallpaths _ _ _ (pr2 (h k)) x)|]).
-    * abstract (now apply funextsec; intro x; apply (toforallpaths _ _ _ (pr2 (h i)) x)).
-  - abstract (intros j; apply subtypeEquality; [intros x; apply setproperty|];
-              now apply funextsec).
-  - abstract (intros y; apply impred_isaprop; intros; apply has_homsets_slice_precat).
-  - intros y Hy; apply subtypeEquality; [intros x; apply setproperty|]; simpl.
-    apply funextsec; intro x; apply subtypeEquality.
-    * intros w; apply impred_isaprop; intros j; apply impred_isaprop; intros k.
-      now apply setproperty.
-    * now simpl; apply funextsec; intro w; rewrite <- (Hy w).
+      exists (pr2 f x).
+      intros i.
+      exists (pr1 (H i) x).
+      abstract (exact (!toforallpaths _ _ _ (pr2 (H i)) x)).
+    * abstract (now apply funextsec).
+  - abstract (now intros i; apply eq_mor_slicecat, funextsec).
+  - abstract (now intros g; apply impred_isaprop; intro i; apply has_homsets_slice_precat).
+  - abstract (simpl; intros [y1 y2] Hy; apply eq_mor_slicecat, funextsec; intro x;
+    use total2_paths; [apply (toforallpaths _ _ _ (!y2) x)|];
+    apply funextsec; intro i; apply subtypeEquality; [intros w; apply setproperty|];
+    destruct f as [f Hf]; cbn in *;
+    induction (toforallpaths (λ _ : f, X) (λ x0 : f, pr1 (y1 x0)) Hf (! y2) x);
+    now rewrite idpath_transportf, <- (Hy i)).
 Defined.
 
 End products_set_slice.
