@@ -139,7 +139,8 @@ Definition triangle_id_right_ad {A B : precategory} {F : functor A B} {G : funct
   := pr2 (pr2 H).
 
 Lemma are_adjoints_functor_composite
-  {A B : precategory} {F1 G2 : functor A B} {F2 G1 : functor B A}
+  {A B C : precategory} {F1 : functor A B} {F2 : functor B C}
+  {G1 : functor B A} {G2 : functor C B}
   (H1 : are_adjoints F1 G1) (H2 : are_adjoints F2 G2) :
   are_adjoints (functor_composite F1 F2) (functor_composite G2 G1).
 Proof.
@@ -180,7 +181,7 @@ use mk_are_adjoints.
 Defined.
 
 Lemma is_left_adjoint_functor_composite
-  {A B : precategory} {F1 : functor A B} {F2 : functor B A}
+  {A B C : precategory} {F1 : functor A B} {F2 : functor B C}
   (H1 : is_left_adjoint F1) (H2 : is_left_adjoint F2) :
   is_left_adjoint (functor_composite F1 F2).
 Proof.
