@@ -192,6 +192,38 @@ mkpair.
   + apply (pr2 H2).
 Defined.
 
+Lemma is_left_adjoint_iso {A B : precategory} (hsB : has_homsets B)
+  (F G : functor A B) (αiso : @iso [A,B,hsB] F G) (HF : is_left_adjoint F) :
+  is_left_adjoint G.
+Proof.
+set (α := pr1 αiso : nat_trans F G).
+set (αinv := inv_from_iso αiso : nat_trans G F).
+destruct HF as [F' [[α' β'] [HF1 HF2]]]; simpl in HF1, HF2.
+mkpair.
+- apply F'.
+- use mk_are_adjoints.
+  + apply (nat_trans_comp _ _ _ α' (post_whisker α F')).
+  + apply (nat_trans_comp _ _ _ (pre_whisker F' αinv) β').
+  + split.
+    * simpl; intro a; rewrite assoc, functor_comp.
+      etrans; [ apply cancel_postcomposition; rewrite <- assoc;
+                apply maponpaths, (nat_trans_ax αinv)|].
+      etrans; [ rewrite assoc, <- !assoc;
+                apply maponpaths, maponpaths, (nat_trans_ax β')|].
+      simpl; rewrite assoc.
+      etrans; [ apply cancel_postcomposition, (nat_trans_ax αinv)|].
+      rewrite assoc.
+      etrans; [ apply cancel_postcomposition; rewrite <- assoc;
+                apply maponpaths, HF1|].
+      now rewrite id_right; apply (nat_trans_eq_pointwise (iso_after_iso_inv αiso)).
+    * simpl; intro b; rewrite functor_comp, assoc.
+      etrans; [ apply cancel_postcomposition; rewrite <- assoc;
+                eapply maponpaths, pathsinv0, functor_comp|].
+      etrans; [ apply cancel_postcomposition, maponpaths, maponpaths,
+                      (nat_trans_eq_pointwise (iso_inv_after_iso αiso))|].
+      now rewrite (functor_id F'), id_right, (HF2 b).
+Defined.
+
 (** * Equivalence of (pre)categories *)
 
 Definition adj_equivalence_of_precats {A B : precategory} (F : functor A B) : UU :=
