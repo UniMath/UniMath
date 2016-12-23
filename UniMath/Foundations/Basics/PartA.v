@@ -47,6 +47,7 @@ Tomi Pannila 2016.
  - The function [ maponpaths ] between paths types defined by a function between ambient types
  - [ maponpaths ] for the identity functions and compositions of functions
  - Homotopy between functions
+ - Equality between functions defines a homotopy
  - [ maponpaths ] for a function homotopic to the identity
  - [ maponpaths ] in the case of a projection p with a section s
  - Fibrations and paths - the transport functions
@@ -499,6 +500,12 @@ Definition funhomot {X Y Z : UU} (f : X -> Y) {g g' : Y -> Z}
 
 Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
            (g : Y -> Z) : (g ∘ f) ~ (g ∘ f') := fun (x : X) => maponpaths g (h x).
+
+
+(** *** Equality between functions defines a homotopy *)
+
+Definition eqtohomot {X Y : UU}{f f' : X -> Y}(e : f = f') : homot f f' :=
+  fun x => maponpaths ( fun f => f x ) e.
 
 
 (** *** [ maponpaths ] for a function homotopic to the identity
