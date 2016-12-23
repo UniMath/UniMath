@@ -179,6 +179,18 @@ use mk_are_adjoints.
     now apply id_left.
 Defined.
 
+Lemma is_left_adjoint_functor_composite
+  {A B : precategory} {F1 : functor A B} {F2 : functor B A}
+  (H1 : is_left_adjoint F1) (H2 : is_left_adjoint F2) :
+  is_left_adjoint (functor_composite F1 F2).
+Proof.
+mkpair.
+- apply (functor_composite (pr1 H2) (pr1 H1)).
+- apply are_adjoints_functor_composite.
+  + apply (pr2 H1).
+  + apply (pr2 H2).
+Defined.
+
 (** * Equivalence of (pre)categories *)
 
 Definition adj_equivalence_of_precats {A B : precategory} (F : functor A B) : UU :=
