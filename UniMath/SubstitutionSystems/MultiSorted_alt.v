@@ -39,12 +39,12 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.slicecat.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.SignatureExamples.
+(* Require Import UniMath.SubstitutionSystems.SignatureExamples. *)
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
-Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
-Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
+(* Require Import UniMath.SubstitutionSystems.LiftingInitial_alt. *)
+(* Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems. *)
 
 Local Notation "[ C , D ]" := (functor_Precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -130,6 +130,14 @@ now rewrite pathsinv0inv0, tppr.
 - apply (nat_trans_eq has_homsets_HSET); simpl; intros x.
 apply funextsec; intros [[[] y] z]; simpl in *.
 apply subtypeEquality; trivial; intros w; apply setproperty.
+Defined.
+
+Lemma is_left_adjoint_temp (s : sort) :
+  is_left_adjoint (functor_composite (constprod_functor1 (BinProducts_HSET_slice sort) (constSET_slice s)) (slicecat_to_cat has_homsets_HSET sort)).
+Proof.
+use is_left_adjoint_functor_composite.
+- apply has_exponentials_HSET_slice.
+- apply is_left_adjoint_slicecat_to_cat_HSET.
 Defined.
 
 Definition hfiber_fun' (s : sort) : SET → SET / sort.
