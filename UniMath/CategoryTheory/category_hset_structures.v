@@ -871,19 +871,12 @@ Proof.
 mkpair.
 - use mk_functor.
   + mkpair.
-    * intro Y. {
-      mkpair.
-      - exists (Σ (x : pr1 X), pr1 Y).
-        abstract (now apply isaset_total2; intros; apply setproperty).
-      - apply pr1.
-      }
-    * intros A B f. {
-      mkpair.
-      - simpl; intros H.
-        exists (pr1 H).
-        apply (f (pr2 H)).
-      - abstract (now apply funextsec).
-      }
+    * intro Y.
+      exists (X × Y)%set; simpl.
+      apply pr1.
+    * intros A B f.
+      exists (λ xa, pr1 xa,,f (pr2 xa)).
+      abstract (now apply funextsec).
   + abstract (split;
     [ intros A; simpl; apply subtypeEquality; [intros x; apply setproperty|];
       now apply funextsec; intros [x a]
@@ -891,14 +884,9 @@ mkpair.
       now apply funextsec; intros [x a]]).
 - use mk_are_adjoints.
   + use mk_nat_trans.
-    * simpl; intros F. {
-      mkpair.
-      - simpl; intro f.
-        mkpair.
-        + apply (pr2 F f).
-        + apply f.
-      - abstract (now apply funextsec).
-      }
+    * simpl; intros F.
+      exists (λ f, (pr2 F f,,f)).
+      abstract (now apply funextsec).
     * abstract (intros Y Z F; apply (eq_mor_slicecat has_homsets_HSET);
                 apply funextsec; intro y;
                 use total2_paths2; [apply (toforallpaths _ _ _ (!pr2 F) y)|];
