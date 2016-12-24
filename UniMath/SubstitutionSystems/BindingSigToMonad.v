@@ -259,7 +259,7 @@ use BindingSigToSignature.
 - apply BinCoproductsHSET.
 - apply TerminalHSET.
 - apply sig.
-- apply Coproducts_HSET, (isasetifdeceq _ (BindingSigIsdeceq sig)).
+- apply CoproductsHSET, (isasetifdeceq _ (BindingSigIsdeceq sig)).
 Defined.
 
 Lemma is_omega_cocont_BindingSigToSignatureHSET (sig : BindingSig) :
@@ -271,7 +271,7 @@ apply (is_omega_cocont_Sum_of_Signatures _ (BindingSigIsdeceq sig)).
   + intros F.
     apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
     apply has_exponentials_functor_HSET, has_homsets_HSET.
-- apply Products_HSET.
+- apply ProductsHSET.
 Defined.
 
 (** ** Construction of initial algebra for a signature with strength for HSET *)
@@ -297,8 +297,8 @@ intros sig; use (BindingSigToMonad _ _ _ _ _ _ _ sig).
 - intros F.
   apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
   apply has_exponentials_functor_HSET, has_homsets_HSET.
-- apply Products_HSET.
-- apply Coproducts_HSET.
+- apply ProductsHSET.
+- apply CoproductsHSET.
   exact (isasetifdeceq _ (BindingSigIsdeceq sig)).
 Defined.
 

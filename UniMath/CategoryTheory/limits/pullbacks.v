@@ -92,11 +92,20 @@ Definition isPullback_Pullback {a b c : C} {f : b --> a}{g : c --> a}
   isPullback f g (PullbackPr1 P) (PullbackPr2 P) (PullbackSqrCommutes P).
 Proof.
   exact (pr2 (pr2 P)).
-Qed.
+Defined.
 
 Definition PullbackArrow {a b c : C} {f : b --> a} {g : c --> a}
    (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g) : e --> Pb :=
    pr1 (pr1 (isPullback_Pullback Pb e h k H)).
+
+Lemma PullbackArrowUnique' {a b c : C} (f : C⟦b,a⟧) (g : C⟦c,a⟧)
+      (P : Pullback f g) e (h : C⟦e,b⟧) (k : C⟦e,c⟧)
+      (Hcomm : h ;; f = k ;; g) (w : C⟦e,P⟧) (H1 : w ;; PullbackPr1 P = h) (H2 : w ;; PullbackPr2 P = k) :
+  w = PullbackArrow P e h k Hcomm.
+Proof.
+now apply PullbackArrowUnique.
+Qed.
+
 
 Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a}
    (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g) :
@@ -137,6 +146,26 @@ Proof.
   intros H' x cx k sqr.
   apply H'. assumption.
 Defined.
+
+Local Lemma postCompWithPullbackArrow_subproof
+ {c d a b x : C} (k0 : C⟦c,d⟧) {f : C⟦a,x⟧} {g : C⟦b,x⟧}
+ {h : C ⟦ d, a ⟧} {k : C ⟦ d, b ⟧} (H : h ;; f = k ;; g)  :
+  k0 ;; h ;; f = k0 ;; k ;; g.
+Proof.
+now rewrite <- assoc, H, assoc.
+Qed.
+
+Lemma postCompWithPullbackArrow
+ (c d : C) (k0 : C⟦c,d⟧) {a b x : C} {f : C⟦a,x⟧} {g : C⟦b,x⟧}
+ (Pb : Pullback f g)
+ (h : C ⟦ d, a ⟧) (k : C ⟦ d, b ⟧) (H : h ;; f = k ;; g) :
+   k0 ;; PullbackArrow Pb d h k H =
+   PullbackArrow Pb _ (k0 ;; h) (k0 ;; k) (postCompWithPullbackArrow_subproof k0 H).
+Proof.
+apply PullbackArrowUnique.
+- now rewrite <- assoc, PullbackArrow_PullbackPr1.
+- now rewrite <- assoc, PullbackArrow_PullbackPr2.
+Qed.
 
 Lemma MorphismsIntoPullbackEqual {a b c d : C} {f : b --> a} {g : c --> a}
         {p1 : d --> b} {p2 : d --> c} {H : p1 ;; f = p2;; g}

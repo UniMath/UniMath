@@ -304,7 +304,7 @@ induction n as [|n IHn]; simpl.
 - rewrite foldr_nil.
   now destruct l.
 - rewrite foldr_cons; simpl.
-  now rewrite IHn; simpl; rewrite <- (paireta l).
+  now rewrite IHn; simpl; rewrite <- (tppr l).
 Qed.
 
 Lemma to_ListK (A : HSET) : Π y : List A, to_List A (to_list A y) = y.
@@ -372,7 +372,7 @@ simple refine (tpair _ _ _).
     apply HX.
   + cbn.
     destruct cc as [f hf]; simpl; intro n.
-    apply funextfun; intro p; rewrite (paireta p).
+    apply funextfun; intro p; rewrite (tppr p).
     assert (XR := colimArrowCommutes (mk_ColimCocone hF c L ccL) _ HX n).
     unfold flip, curry, colimIn in *; simpl in *.
     now rewrite <- (toforallpaths _ _ _ (toforallpaths _ _ _ XR (pr2 p)) (pr1 p)).
