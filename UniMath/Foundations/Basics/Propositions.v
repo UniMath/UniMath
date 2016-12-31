@@ -642,8 +642,10 @@ Definition pair_contradiction (C : ComplementaryPair) : Part1 C -> Part2 C -> âˆ
 Definition chooser (C : ComplementaryPair) : Part1 C â¨¿ Part2 C
   := pr2 (pr2 (pr2 C)).
 
-Definition isTrue  (C:ComplementaryPair) := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
-Definition isFalse (C:ComplementaryPair) := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
+Definition isTrue (C : ComplementaryPair)
+  := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
+Definition isFalse (C : ComplementaryPair)
+  := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
 
 Definition  trueWitness {C : ComplementaryPair} : isTrue  C -> Part1 C := pr1.
 Definition falseWitness {C : ComplementaryPair} : isFalse C -> Part2 C := pr1.
@@ -753,6 +755,12 @@ Proof.
   intros. exists (isFalse_hProp c). split.
   - apply propproperty.
   - apply isFalse_hProp_iff.
+Defined.
+
+Definition deceq_to_neqReln {X:UU} : isdeceq X -> neqReln X.
+Proof.
+  intros ? i x y.
+  exact (decprop_to_negProp (P := hProppair _ (isasetifdeceq _ i _ _)) (i _ _)).
 Defined.
 
 (* Relate isolated points to complementary pairs *)

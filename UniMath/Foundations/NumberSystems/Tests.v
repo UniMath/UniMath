@@ -108,6 +108,8 @@ Module Test_rat.
 
   Unset Kernel Term Sharing.    (* needed for the following tests: *)
 
+  Goal ( nattohq 1%nat = 1 ). reflexivity. Defined.
+
   Goal ( 1 = nattohq 1%nat ). reflexivity. Defined.
 
   Goal ( 1 = hztohq 1%hz ). reflexivity. Defined.

@@ -19,17 +19,6 @@ Notation "/ x" := (hqmultinv x) : hq_scope.
 Notation "x / y" := (hqdiv x y) : hq_scope.
 Notation "2" := (hztohq (nattohz 2)) : hq_scope.
 
-Lemma hzone_neg_hzzero : (1 ≠ 0)%hz.
-Proof.
-  apply neg_to_negProp.
-  confirm_not_equal isdeceqhz.
-Qed.
-
-Definition one_intdomnonzerosubmonoid : intdomnonzerosubmonoid hzintdom hzneq.
-Proof.
-  exact (unel (intdomnonzerosubmonoid hzintdom hzneq)).
-Defined.
-
 Opaque hz.
 
 Lemma hq2eq1plus1 : 2 = 1 + 1.

@@ -1075,11 +1075,6 @@ Definition breltodecrel {X : UU} (B : brel X) : decrel X
   := @decrelpair _ (fun x x' => hProppair (paths (B x x') true) (isasetbool _ _))
                  (fun x x' => (isdeceqbool _ _)).
 
-Definition deceq_to_neqReln {X:hSet} : isdeceq X -> neqReln X.
-Proof.
-  intros ? i x y. exact (decprop_to_negProp (P := eqset x y) (i x y)).
-Defined.
-
 Definition decrel_to_DecidableRelation {X : UU} :
   decrel X -> DecidableRelation X.
 Proof.
@@ -1126,7 +1121,7 @@ Defined.
   ideas of George Gonthier. The expression [ct (R, x, y)] where [R] is in
   [hrel X] for some [X] and has a canonical structure of a decidable relation
   and [x, y] are closed terms of type [X] such that [R x y] is inhabited is the
-  term of type [R x y] which realizes the canonical term in [isdecrel R x y].
+  term of type [R x y] which relizes the canonical term in [isdecrel R x y].
 
   Definition pathstor_comp {X : UU} (R : decrel X) (x x' : X)
   (e : paths (decreltobrel R x x') true) : R x x'.
@@ -1167,6 +1162,7 @@ Ltac confirm_yes d x y := exact_op (pathstor d x y (idpath true)).
 Ltac confirm_no  d x y := exact_op (pathstonegr d x y (idpath false)).
 Ltac confirm_equal     i := match goal with |- ?x = ?y => confirm_yes (deceq_to_decrel i) x y end.
 Ltac confirm_not_equal i := match goal with |- ?x != ?y => confirm_no (deceq_to_decrel i) x y end.
+Ltac confirm_equal_absurd i := match goal with |- ?x = ?y → ∅ => confirm_no (deceq_to_decrel i) x y end.
 
 (** *** Restriction of a relation to a subtype *)
 

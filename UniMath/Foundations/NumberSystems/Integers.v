@@ -56,7 +56,7 @@ Notation " x * y " := ( hzmult x y ) : hz_scope .
 Delimit Scope hz_scope with hz .
 
 
-(** *** Properties of equality on [ hz ] *)
+(** *** Properties of equlaity on [ hz ] *)
 
 Theorem isdeceqhz : isdeceq hz .
 Proof . change ( isdeceq ( abgrdiff ( rigaddabmonoid natcommrig ) ) ) . apply isdeceqabgrdiff . apply isinclnatplusr .  apply isdeceqnat .  Defined .
@@ -72,7 +72,6 @@ Definition hzdeceq : decrel hz := decrelpair isdecrelhzeq .
 
 Definition hzbooleq := decreltobrel hzdeceq .
 
-Open Local Scope hz_scope .
 
 (* [funextempty]-free replacement proposition for hzneq *)
 
@@ -80,8 +79,7 @@ Definition hzneq : neqReln hz := deceq_to_neqReln isdeceqhz.
 
 Notation " x ≠ y " := ( hzneq x y ) (at level 70, no associativity) : hz_scope.
 
-(*  *)
-
+Open Local Scope hz_scope .
 
 (** *** [ hz ] is a non-zero ring *)
 
@@ -182,11 +180,9 @@ Proof . intros . apply ( rngassoc2 hz x y z ) . Defined .
 Lemma hzmultcomm ( x y : hz ) : ( x * y ) = ( y * x ) .
 Proof . intros .  apply ( rngcomm2 hz  x y ) . Defined .
 
-Definition hzneq0andmultlinv ( n m : hz ) : n * m != 0 -> n != 0
-  := rngneq0andmultlinv hz n m .
+Definition hzneq0andmultlinv ( n m : hz ) : n * m != 0 -> n != 0 := rngneq0andmultlinv hz n m .
 
-Definition hzneq0andmultrinv ( n m : hz ) : n * m != 0 -> m != 0
-  := rngneq0andmultrinv hz n m.
+Definition hzneq0andmultrinv ( n m : hz ) : n * m != 0 -> m != 0 := rngneq0andmultrinv hz n m.
 
 (** ** Definition and properties of "greater", "less", "greater or equal" and "less or equal" on [ hz ] . *)
 
@@ -679,10 +675,9 @@ Proof . split with isnonzerornghz .  intros a b e0 .  destruct ( isdeceqhz a 0 )
 
 Definition hzintdom : intdom := tpair _ _ isintdomhz .
 
-Definition hz_nonzero_submonoid := intdomnonzerosubmonoid hzintdom hzneq.
+Definition hzneq0andmult ( n m : hz ) : n != 0 -> m != 0 ->  n * m != 0 := intdomneq0andmult hzintdom n m .
 
-Definition hzneq0andmult ( n m : hz ) : n != 0 -> m != 0 ->  n * m != 0
-  := intdomneq0andmult hzintdom n m .
+Definition hz_nz_monoid := intdomnonzerosubmonoid hzintdom hzneq.
 
 Lemma hzmultlcan ( a b c : hz ) ( ne : neg ( c = 0 ) ) ( e : ( c * a ) = ( c * b ) ) : a = b .
 Proof . intros . apply ( intdomlcan hzintdom _ _ _ ne e ) . Defined .
@@ -792,8 +787,7 @@ Definition nattohz : nat -> hz := fun n => setquotpr _ ( dirprodpair n 0%nat ) .
 
 Definition isinclnattohz : isincl nattohz := isincltorngdiff natcommrig ( fun n => isinclnatplusr n ) .
 
-Definition nattohzandneq ( n m : nat ) : n != m -> nattohz n != nattohz m
-  := negf ( invmaponpathsincl _ isinclnattohz n m ) .
+Definition nattohzandneq ( n m : nat ) : n != m -> nattohz n != nattohz m := negf ( invmaponpathsincl _ isinclnattohz n m ) .
 
 Definition nattohzand0 : ( nattohz 0%nat ) = 0 := idpath _ .
 
@@ -962,28 +956,17 @@ Qed.
 
 Lemma hzbooleqisi (i : hz) : hzbooleq i (i + 1) = false.
 Proof.
-  intros i.
-  unfold hzbooleq, decreltobrel. cbn.
-  induction (isdecrelhzeq i (i + 1)) as [e | n].
-  - apply fromempty.
-    assert (t := hzpluslcan 1 0 i (! (pathscomp0 (hzplusr0 i) e))); clear e i.
-    generalize t; clear t; change (1 != 0).
-    confirm_not_equal isdecrelhzeq.
-  - apply idpath.
+  intros i. apply negrtopaths.
+  apply (negf (λ e, hzpluslcan _ _ _ (! (hzplusr0 i @ e)))); clear i.
+  confirm_not_equal isdecrelhzeq.
 Qed.
 
 Lemma hzbooleqissi (i : hz) : hzbooleq i (i + 1 + 1) = false.
 Proof.
-  intros i.
-  unfold hzbooleq. unfold decreltobrel. cbn.
-  induction (isdecrelhzeq i (i + 1 + 1)) as [e | n].
-  - apply fromempty.
-    rewrite hzplusassoc in e.
-    assert (t := hzpluslcan (1 + 1) 0 i (! (pathscomp0 (hzplusr0 i) e))); clear i e.
-    generalize t; clear t.
-    change (1+1 != 0).
-    confirm_not_equal isdecrelhzeq.
-  - apply idpath.
+  intros i. apply negrtopaths.
+  rewrite hzplusassoc.
+  apply (negf (λ e, hzpluslcan _ _ _ (! (hzplusr0 i @ e)))); clear i.
+  confirm_not_equal isdecrelhzeq.
 Qed.
 
 Lemma hzeqeisi {i i0 : hz} (e : hzeq i i0) (e' : hzeq i (i0 + 1)) : empty.
@@ -1045,15 +1028,10 @@ Proof.
   - apply fromempty. apply F. apply (hzrminusplus i j).
 Qed.
 
-Lemma hzeqpii {i : hz} (e : hzeq (i - 1) i) : empty.
+Lemma hzeqpii {i : hz} : i - 1 != i.
 Proof.
-  intros i e.
-  cbn in e.
-  rewrite <- (hzplusr0 i) in e. unfold hzminus in e.
-  rewrite hzplusassoc in e.
-  set (e' := hzpluslcan _ _ _ e). rewrite hzplusl0 in e'.
-  clear i e; generalize e'; clear e'.
-  change (-(1) != 0).
+  intros i.
+  apply (negf (λ e, hzpluslcan _ _ _ (e @ ! hzplusr0 i))); clear i.
   confirm_not_equal isdecrelhzeq.
 Qed.
 

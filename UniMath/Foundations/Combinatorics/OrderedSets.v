@@ -315,7 +315,7 @@ Definition FiniteOrderedSetDecidableEquality (X:FiniteOrderedSet) : DecidableRel
 
 Definition FiniteOrderedSetDecidableInequality (X:FiniteOrderedSet) : DecidableRelation X.
   intros ? x y.
-  apply (@decidable_to_DecidableProposition (hneg (x = y)))%logic. (* rewrite this *)
+  apply (@decidable_to_DecidableProposition (¬ (x = y)))%logic.
   unfold decidable; simpl.
   apply neg_isdecprop.
   apply decidable_to_isdecprop_2.
@@ -584,7 +584,7 @@ Definition iswklin {X} (lt:hrel X) := Π x y z, lt x y -> lt x z ∨ lt z y.
 
 Definition isComputablyOrdered {X:hSet}
            (lt:hrel X) (min max:binop X) :=
-  let le x y := hneg (lt y x) in
+  let le x y := ¬ lt y x in
   Σ latt: isLattice le min max,
   Σ trans2: istrans2 le lt,
   Σ translt: istrans lt,
@@ -604,7 +604,7 @@ Section OtherProperties.
             (min max:binop X)
             (ic:isComputablyOrdered lt min max).
 
-  Let le x y := hneg (lt y x).
+  Let le x y := ¬ lt y x.
   Let apart x y := lt y x ∨ lt x y.
   Let eq x y := @eqset X x y.
   Let ne x y := hneg (eq x y).

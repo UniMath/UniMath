@@ -878,6 +878,10 @@ Proof. intros X Y f y isX isY. apply isaset_total2. assumption. intro. apply isa
 Lemma uip {X : UU} (is : isaset X) {x x' : X} (e e' : x = x') : e = e'.
 Proof. intros. apply (proofirrelevance _ (is x x') e e'). Defined.
 
+(** For the theorem about the coproduct of two sets see [ isasetcoprod ]
+  below. *)
+
+
 Lemma isofhlevelssnset (n : nat) (X : UU) (is : isaset X) :
   isofhlevel (S (S n)) X.
 Proof.
