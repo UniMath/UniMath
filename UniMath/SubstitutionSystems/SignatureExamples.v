@@ -1,6 +1,6 @@
 (**
 
-Definitions of various signatures
+Definitions of various signatures.
 
 Written by: Anders Mörtberg, 2016
 Based on a note by Ralph Matthes
@@ -14,7 +14,6 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
@@ -23,10 +22,11 @@ Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Lam.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
+Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 
-(* Construct θ in a Signature in the case when the functor is
-   precomposition with a functor G by constructing a family of simpler
-   distributive laws δ *)
+(** Construct θ in a Signature in the case when the functor is
+    precomposition with a functor G by constructing a family of simpler
+    distributive laws δ *)
 Section θ_from_δ.
 
 Variable C : precategory.
@@ -40,7 +40,7 @@ Local Notation "'EndC'":= ([C, C, hsC]) .
 
 Definition δ_source_ob (Ze : Ptd) : EndC := G • pr1 Ze.
 Definition δ_source_mor {Ze Ze' : Ptd} (α : Ze --> Ze') :
-  δ_source_ob Ze --> δ_source_ob Ze' := hor_comp (pr1 α) (nat_trans_id G).
+  δ_source_ob Ze --> δ_source_ob Ze' := horcomp (pr1 α) (nat_trans_id G).
 
 Definition δ_source_functor_data : functor_data Ptd EndC.
 Proof.
@@ -63,7 +63,7 @@ Definition δ_source : functor Ptd EndC := tpair _ _ is_functor_δ_source.
 
 Definition δ_target_ob (Ze : Ptd) : EndC := pr1 Ze • G.
 Definition δ_target_mor {Ze Ze' : Ptd} (α : Ze --> Ze') :
-  δ_target_ob Ze --> δ_target_ob Ze' := hor_comp (nat_trans_id G) (pr1 α).
+  δ_target_ob Ze --> δ_target_ob Ze' := horcomp (nat_trans_id G) (pr1 α).
 
 Definition δ_target_functor_data : functor_data Ptd EndC.
 Proof.
@@ -92,9 +92,9 @@ Definition θ_from_δ_mor (XZe : [C, C, hsC] XX Ptd) :
   [C, C, hsC] ⟦ θ_source precompG XZe, θ_target precompG XZe ⟧.
 Proof.
 set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
-set (F1 := α_functor _ G Z X).
+set (F1 := α_functor G Z X).
 set (F2 := post_whisker (δ (pr2 XZe)) X).
-set (F3 := α_functor_inv _ Z G X).
+set (F3 := α_functor_inv Z G X).
 apply (nat_trans_comp F3 (nat_trans_comp F2 F1)).
 Defined.
 
@@ -134,14 +134,12 @@ eapply pathscomp0;
 apply functor_id.
 Qed.
 
-Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
-
 Let D' Ze Ze' :=
-  nat_trans_comp (α_functor _ (pr1 Ze) (pr1 Ze') G)
+  nat_trans_comp (α_functor (pr1 Ze) (pr1 Ze') G)
  (nat_trans_comp (pre_whisker (pr1 Ze) (δ Ze'))
- (nat_trans_comp (α_functor_inv _ (pr1 Ze) G (pr1 Ze'))
+ (nat_trans_comp (α_functor_inv (pr1 Ze) G (pr1 Ze'))
  (nat_trans_comp (post_whisker (δ Ze) (pr1 Ze'))
-                 (α_functor _ G (pr1 Ze) (pr1 Ze'))))).
+                 (α_functor G (pr1 Ze) (pr1 Ze'))))).
 
 Definition δ_law2 : UU := Π Ze Ze', δ (Ze p• Ze') = D' Ze Ze'.
 Hypothesis H2 : δ_law2.
@@ -184,11 +182,11 @@ Definition δ_comp_mor (Ze : ptd_obj C) :
    ⟶ functor_composite_data (functor_composite_data G1 G2) (pr1 Ze).
 Proof.
 set (Z := pr1 Ze).
-set (F1 := α_functor_inv _ Z G1 G2).
+set (F1 := α_functor_inv Z G1 G2).
 set (F2 := post_whisker (δ1 Ze) G2).
-set (F3 := α_functor _ G1 Z G2).
+set (F3 := α_functor G1 Z G2).
 set (F4 := pre_whisker G1 (δ2 Ze)).
-set (F5 := α_functor_inv _ G1 G2 Z).
+set (F5 := α_functor_inv G1 G2 Z).
 exact (nat_trans_comp F1 (nat_trans_comp F2 (nat_trans_comp F3 (nat_trans_comp F4 F5)))).
 Defined.
 
@@ -256,7 +254,7 @@ Variables (C : precategory) (hsC : has_homsets C) (TC : Terminal C) (CC : BinCop
 
 Local Notation "'Ptd'" := (precategory_Ptd C hsC).
 
-Let opt := option_functor C CC TC.
+Let opt := option_functor CC TC.
 
 Definition δ_option_mor (Ze : Ptd) (c : C) :  C ⟦ BinCoproductObject C (CC TC (pr1 Ze c)),
                                                   pr1 Ze (BinCoproductObject C (CC TC c)) ⟧.
@@ -365,7 +363,7 @@ Definition precomp_option_Signature : Signature C hsC :=
 
 End option_sig.
 
-(* Define δ for G = F^n *)
+(** Define δ for G = F^n *)
 Section iter1_sig.
 
 Variable C : precategory.
@@ -385,7 +383,7 @@ Fixpoint iter_functor1 (n : nat) : functor C C := match n with
 
 Definition δ_iter_functor1 n : δ_source C hsC (iter_functor1 n) ⟶ δ_target C hsC (iter_functor1 n).
 Proof.
-induction n.
+induction n as [|n IHn].
 - apply δ.
 - apply δ_comp.
   + apply IHn.
@@ -425,7 +423,7 @@ mkpair; simpl.
 + now split; intros x; intros; apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_left.
 Defined.
 
-(* Signature for the Id functor *)
+(** Signature for the Id functor *)
 Definition IdSignature : Signature C hsC :=
   tpair _ (functor_identity _) θ_functor_identity.
 

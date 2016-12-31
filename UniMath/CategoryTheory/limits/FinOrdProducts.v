@@ -78,7 +78,7 @@ Section FinOrdProduct_criteria.
   Theorem FinOrdProducts_from_Terminal_and_BinProducts :
     Terminal C -> BinProducts C -> FinOrdProducts C.
   Proof.
-    intros T BinProds. unfold FinOrdProducts. intros n. induction n.
+    intros T BinProds. unfold FinOrdProducts. intros n. induction n as [|n IHn].
 
     (* Case n = 0 *)
     apply (TerminalToProduct T).

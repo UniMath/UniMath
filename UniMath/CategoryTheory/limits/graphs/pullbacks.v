@@ -1,4 +1,4 @@
-(* Pullbacks defined in terms of limits *)
+(** Pullbacks defined in terms of limits *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -102,7 +102,7 @@ Proof.
       * unfold compose.
         simpl.
         eapply pathscomp0.
-        apply (assoc C).
+        apply assoc.
         eapply pathscomp0.
         eapply cancel_postcomposition.
         apply (pr2 (pr1 H2)).
@@ -202,25 +202,25 @@ Proof.
     + exact (Empty_set_rect _ ).
 Defined.
 
-Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb : Pullback f g) e (h : C⟦e , b⟧) (k : C⟦e , c⟧)(H : h ;; f = k ;; g) :
+Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
+   (Pb : Pullback f g) e (h : C⟦e, b⟧) (k : C⟦e, c⟧)(H : h ;; f = k ;; g) :
    PullbackArrow Pb e h k H ;; PullbackPr1 Pb = h.
 Proof.
   refine (limArrowCommutes Pb e _ One).
 Qed.
 
-Lemma PullbackArrow_PullbackPr2 {a b c : C} {f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb : Pullback f g) e (h : C⟦e , b⟧) (k : C⟦e , c⟧)(H : h ;; f = k ;; g) :
+Lemma PullbackArrow_PullbackPr2 {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
+   (Pb : Pullback f g) e (h : C⟦e, b⟧) (k : C⟦e, c⟧)(H : h ;; f = k ;; g) :
    PullbackArrow Pb e h k H ;; PullbackPr2 Pb = k.
 Proof.
   refine (limArrowCommutes Pb e _ Three).
 Qed.
 
-Lemma PullbackArrowUnique {a b c d : C} (f : C⟦b , a⟧) (g : C⟦c , a⟧)
+Lemma PullbackArrowUnique {a b c d : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧)
      (Pb : Pullback f g)
-     e (h : C⟦e , b⟧) (k : C⟦e , c⟧)
+     e (h : C⟦e, b⟧) (k : C⟦e, c⟧)
      (Hcomm : h ;; f = k ;; g)
-     (w : C⟦e , PullbackObject Pb⟧)
+     (w : C⟦e, PullbackObject Pb⟧)
      (H1 : w ;; PullbackPr1 Pb  = h) (H2 : w ;; PullbackPr2 Pb = k) :
   w = PullbackArrow Pb _ h k Hcomm.
 Proof.
@@ -264,8 +264,8 @@ Qed.
 *)
 
 Lemma equiv_isPullback_1 {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
-           (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) :
-limits.pullbacks.isPullback f g p1 p2 H -> isPullback f g p1 p2 H.
+      (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) :
+  limits.pullbacks.isPullback f g p1 p2 H -> isPullback f g p1 p2 H.
 Proof.
   intro X.
   intros R cc.
@@ -298,11 +298,35 @@ Proof.
     simpl; destruct t as [t HH];  simpl in *;
     apply limits.pullbacks.PullbackArrowUnique;
     [ apply (HH One) | apply (HH Three)] ).
+Qed.
+
+Definition equiv_Pullback_1 {a b c : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧) :
+  limits.pullbacks.Pullback f g -> Pullback f g.
+Proof.
+  intros X.
+  exact (mk_Pullback
+           f g (limits.pullbacks.PullbackObject X)
+           (limits.pullbacks.PullbackPr1 X)
+           (limits.pullbacks.PullbackPr2 X)
+           (limits.pullbacks.PullbackSqrCommutes X)
+           (equiv_isPullback_1 _ _ _ _ _ (limits.pullbacks.isPullback_Pullback X))).
+Defined.
+
+Definition equiv_Pullbacks_1: @limits.pullbacks.Pullbacks C -> Pullbacks.
+Proof.
+  intros X' a b c f g.
+  set (X := X' a b c f g).
+  exact (mk_Pullback
+           f g (limits.pullbacks.PullbackObject X)
+           (limits.pullbacks.PullbackPr1 X)
+           (limits.pullbacks.PullbackPr2 X)
+           (limits.pullbacks.PullbackSqrCommutes X)
+           (equiv_isPullback_1 _ _ _ _ _ (limits.pullbacks.isPullback_Pullback X))).
 Defined.
 
 Lemma equiv_isPullback_2 {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
-           (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) :
-limits.pullbacks.isPullback f g p1 p2 H <- isPullback f g p1 p2 H.
+      (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) :
+  limits.pullbacks.isPullback f g p1 p2 H <- isPullback f g p1 p2 H.
 Proof.
   intro X.
   set (XR := mk_Pullback _ _ _ _ _  _ X).
@@ -320,14 +344,40 @@ Proof.
     use (PullbackArrowUnique _ _ XR);
     [apply R | apply (pr1 Hx) | apply (pr2 Hx) ]
     ).
+Qed.
+
+Definition equiv_Pullback_2 {a b c : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧) :
+  limits.pullbacks.Pullback f g <- Pullback f g.
+Proof.
+  intros X.
+  exact (limits.pullbacks.mk_Pullback
+           f g
+           (PullbackObject X)
+           (PullbackPr1 X)
+           (PullbackPr2 X)
+           (PullbackSqrCommutes X)
+           (equiv_isPullback_2 _ _ _ _ _ (isPullback_Pullback X))).
+Defined.
+
+Definition equiv_Pullbacks_2 : @limits.pullbacks.Pullbacks C <- Pullbacks.
+Proof.
+  intros X' a b c f g.
+  set (X := X' a b c f g).
+  exact (limits.pullbacks.mk_Pullback
+           f g
+           (PullbackObject X)
+           (PullbackPr1 X)
+           (PullbackPr2 X)
+           (PullbackSqrCommutes X)
+           (equiv_isPullback_2 _ _ _ _ _ (isPullback_Pullback X))).
 Defined.
 
 
 
 
 
-Definition identity_is_Pullback_input {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧} (Pb : Pullback f g) :
- total2 (fun hk : C⟦lim Pb , lim Pb⟧ =>
+Definition identity_is_Pullback_input {a b c : C}{f : C⟦b, a⟧} {g : C⟦c, a⟧} (Pb : Pullback f g) :
+ total2 (fun hk : C⟦lim Pb, lim Pb⟧ =>
    dirprod (hk ;; PullbackPr1 Pb = PullbackPr1 Pb)(hk ;; PullbackPr2 Pb = PullbackPr2 Pb)).
 Proof.
   exists (identity (lim Pb)).
@@ -338,13 +388,11 @@ Defined.
 
 
 (* was PullbackArrowUnique *)
-Lemma PullbackArrowUnique' {a b c d : C} (f : C⟦b , a⟧) (g : C⟦c , a⟧)
-        (p1 : C⟦d , b⟧) (p2 : C⟦d , c⟧) (H : p1 ;; f = p2;; g)
-     (P : isPullback f g p1 p2 H) e (h : C⟦e , b⟧) (k : C⟦e , c⟧)
-     (Hcomm : h ;; f = k ;; g)
-     (w : C⟦e , d⟧)
-     (H1 : w ;; p1 = h) (H2 : w ;; p2 = k) :
-     w =  (pr1 (pr1 (P e (PullbCone f g _ h k Hcomm)))).
+Lemma PullbackArrowUnique' {a b c d : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧)
+      (p1 : C⟦d, b⟧) (p2 : C⟦d, c⟧) (H : p1 ;; f = p2 ;; g) (P : isPullback f g p1 p2 H)
+      (e : C) (h : C⟦e, b⟧) (k : C⟦e, c⟧) (Hcomm : h ;; f = k ;; g) (w : C⟦e, d⟧)
+      (H1 : w ;; p1 = h) (H2 : w ;; p2 = k) :
+  w =  (pr1 (pr1 (P e (PullbCone f g _ h k Hcomm)))).
 Proof.
   apply path_to_ctr.
   use three_rec_dep; cbn.
@@ -357,10 +405,9 @@ Proof.
 Qed.
 
 
-Lemma PullbackEndo_is_identity {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb : Pullback f g) (k : C⟦lim Pb , lim Pb⟧) (kH1 : k ;; PullbackPr1 Pb = PullbackPr1 Pb)
-                                       (kH2 : k ;; PullbackPr2 Pb = PullbackPr2 Pb) :
-       identity (lim Pb) = k.
+Lemma PullbackEndo_is_identity {a b c : C}{f : C⟦b, a⟧} {g : C⟦c, a⟧} (Pb : Pullback f g)
+      (k : C⟦lim Pb, lim Pb⟧) (kH1 : k ;; PullbackPr1 Pb = PullbackPr1 Pb)
+      (kH2 : k ;; PullbackPr2 Pb = PullbackPr2 Pb) : identity (lim Pb) = k.
 Proof.
   apply lim_endo_is_identity.
   use three_rec_dep.
@@ -376,18 +423,17 @@ Proof.
 Qed.
 
 
-Definition from_Pullback_to_Pullback {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb Pb': Pullback f g) : C⟦lim Pb , lim Pb'⟧.
+Definition from_Pullback_to_Pullback {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
+           (Pb Pb': Pullback f g) : C⟦lim Pb, lim Pb'⟧.
 Proof.
   apply (PullbackArrow Pb' (lim Pb) (PullbackPr1 _ ) (PullbackPr2 _)).
   exact (PullbackSqrCommutes _ ).
 Defined.
 
 
-Lemma are_inverses_from_Pullback_to_Pullback {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb Pb': Pullback f g) :
-is_inverse_in_precat (from_Pullback_to_Pullback Pb Pb')
-  (from_Pullback_to_Pullback Pb' Pb).
+Lemma are_inverses_from_Pullback_to_Pullback {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
+      (Pb Pb': Pullback f g) :
+  is_inverse_in_precat (from_Pullback_to_Pullback Pb Pb') (from_Pullback_to_Pullback Pb' Pb).
 Proof.
   split; apply pathsinv0;
   apply PullbackEndo_is_identity;
@@ -399,17 +445,16 @@ Proof.
 Qed.
 
 
-Lemma isiso_from_Pullback_to_Pullback {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb Pb': Pullback f g) :
-      is_isomorphism (from_Pullback_to_Pullback Pb Pb').
+Lemma isiso_from_Pullback_to_Pullback {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
+      (Pb Pb': Pullback f g) : is_isomorphism (from_Pullback_to_Pullback Pb Pb').
 Proof.
   apply (is_iso_qinv _ (from_Pullback_to_Pullback Pb' Pb)).
   apply are_inverses_from_Pullback_to_Pullback.
 Defined.
 
 
-Definition iso_from_Pullback_to_Pullback {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb Pb': Pullback f g) : iso (lim Pb) (lim Pb') :=
+Definition iso_from_Pullback_to_Pullback {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
+           (Pb Pb': Pullback f g) : iso (lim Pb) (lim Pb') :=
   tpair _ _ (isiso_from_Pullback_to_Pullback Pb Pb').
 
 
@@ -418,8 +463,8 @@ Definition iso_from_Pullback_to_Pullback {a b c : C}{f : C⟦b , a⟧} {g : C⟦
 Section pullback_lemma.
 
 Variables a b c d e x : C.
-Variables (f : C⟦b , a⟧) (g : C⟦c , a⟧) (h : C⟦e , b⟧) (k : C⟦e , c⟧)
-          (i : C⟦d , b⟧) (j : C⟦x , e⟧) (m : C⟦x , d⟧).
+Variables (f : C⟦b, a⟧) (g : C⟦c, a⟧) (h : C⟦e, b⟧) (k : C⟦e, c⟧)
+          (i : C⟦d, b⟧) (j : C⟦x, e⟧) (m : C⟦x, d⟧).
 Hypothesis H1 : h ;; f = k ;; g.
 Hypothesis H2 : m ;; i = j ;; h.
 Hypothesis P1 : isPullback _ _ _ _ H1.
@@ -484,7 +529,7 @@ Section Universal_Unique.
 Hypothesis H : is_category C.
 
 
-Lemma inv_from_iso_iso_from_Pullback (a b c : C) (f : C⟦b , a⟧) (g : C⟦c , a⟧)
+Lemma inv_from_iso_iso_from_Pullback (a b c : C) (f : C⟦b, a⟧) (g : C⟦c, a⟧)
   (Pb : Pullback f g) (Pb' : Pullback f g):
     inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb') = from_Pullback_to_Pullback Pb' Pb.
 Proof.

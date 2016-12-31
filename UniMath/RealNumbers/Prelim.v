@@ -156,7 +156,7 @@ Lemma hztohqandleh':
   Π n m : hz, (hztohq n <= hztohq m)%hq → hzleh n m.
 Proof.
   intros n m Hle Hlt.
-  apply Hle.
+  simple refine (Hle _).
   apply hztohqandgth.
   exact Hlt.
 Qed.
@@ -170,103 +170,6 @@ Proof.
   apply hqgehtoneghqlth in Hle.
   apply Hle.
   exact Hlt.
-Qed.
-
-(** ** hq is archimedean *)
-
-Lemma nattorig_nattohz :
-  Π n : nat, nattorig (X := hz) n = nattohz n.
-Proof.
-  induction n.
-  - unfold nattorig, nattohz ; simpl.
-    reflexivity.
-  - rewrite nattorigS, IHn.
-    apply pathsinv0, nattohzandS.
-Qed.
-
-Lemma nattorig_nat :
-  Π n : nat, nattorig (X := natcommrig) n = n.
-Proof.
-  induction n.
-  reflexivity.
-  rewrite nattorigS, IHn.
-  reflexivity.
-Qed.
-
-Lemma isarchnat :
-  isarchrig (X := natcommrig) natgth.
-Proof.
-  repeat split.
-  - intros y1 y2 Hy.
-    apply natlthchoice2 in Hy.
-    induction Hy as [Hy | <-].
-    + apply hinhpr.
-      exists 1%nat.
-      exact Hy.
-    + apply hinhpr.
-      exists 2%nat.
-      rewrite nattorig_nat, !multsnm ; simpl.
-      rewrite natplusr0.
-      apply natgthandplusl, natgthsnn.
-  - intros n.
-    apply hinhpr.
-    exists (S n).
-    rewrite nattorig_nat.
-    now apply natgthsnn.
-  - intros n.
-    apply hinhpr.
-    now exists 1%nat.
-Defined.
-
-Definition isarchhz : isarchrng (X := hz) hzgth.
-Proof.
-  simple refine (isarchrigtorng _ _ _ _ _ _).
-  - reflexivity.
-  - intros n m k.
-    apply istransnatgth.
-  - generalize isarchnat ; intros H.
-    repeat split.
-    + intros y1 y2 Hy.
-      refine (hinhfun _ _).
-      2: apply ((pr1 H) y1 y2).
-      intros n.
-      exists (pr1 n).
-      apply hinhpr.
-      exists O.
-      rewrite !natplusr0.
-      apply (pr2 n).
-      revert Hy.
-      apply hinhuniv.
-      intros c.
-      generalize (pr2 c).
-      apply natgthandplusrinv.
-    + intros x.
-      generalize ((pr1 (pr2 H)) x).
-      apply hinhfun.
-      intros n.
-      exists (pr1 n).
-      apply hinhpr.
-      exists O.
-      rewrite !natplusr0.
-      exact (pr2 n).
-    + intros x.
-      generalize ((pr2 (pr2 H)) x).
-      apply hinhfun.
-      intros n.
-      exists (pr1 n).
-      apply hinhpr.
-      exists O.
-      rewrite !natplusr0.
-      exact (pr2 n).
-Qed.
-
-Lemma isarchhq :
-  isarchfld (X := hq) hqgth.
-Proof.
-  simple refine (isarchfldfrac hzintdom _ _ _ _ _ _ _ _).
-  - exact isirreflhzgth.
-  - exact istranshzgth.
-  - apply isarchhz.
 Qed.
 
 Close Scope hq_scope.

@@ -1,4 +1,7 @@
-(* Definition of binary trees done analoguously to lists.
+(**
+
+Definition of binary trees ([Tree]) implemented similarily to lists as the initial algebra of the
+tree functor.
 
 Written by: Anders Mörtberg (2016)
 
@@ -6,6 +9,7 @@ Written by: Anders Mörtberg (2016)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
@@ -16,25 +20,24 @@ Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Inductives.Lists.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
-(* Binary trees *)
+(** * Binary trees *)
 Section bintrees.
 
 Variable A : HSET.
 
 Local Open Scope cocont_functor_hset_scope.
 
-(* F(X) = 1 + A * X * X *)
+(** The tree functor: F(X) = 1 + A * X * X *)
 Definition treeOmegaFunctor : omega_cocont_functor HSET HSET := '1 + 'A * (Id * Id).
 
 Let treeFunctor : functor HSET HSET := pr1 treeOmegaFunctor.
@@ -46,6 +49,7 @@ Proof.
 apply (colimAlgInitial _ InitialHSET is_omega_cocont_treeFunctor (ColimCoconeHSET _ _)).
 Defined.
 
+(** The type of binary trees *)
 Definition Tree : HSET :=
   alg_carrier _ (InitialObject treeFunctor_Initial).
 
@@ -58,7 +62,8 @@ Let Tree_alg : algebra_ob treeFunctor :=
 Definition leaf_map : HSET⟦unitHSET,Tree⟧.
 Proof.
 simpl; intro x.
-apply Tree_mor, inl, x.
+simple refine (Tree_mor _).
+apply inl, x.
 Defined.
 
 Definition leaf : pr1 Tree := leaf_map tt.
@@ -66,17 +71,19 @@ Definition leaf : pr1 Tree := leaf_map tt.
 Definition node_map : HSET⟦(A × (Tree × Tree))%set,Tree⟧.
 Proof.
 intros xs.
-apply Tree_mor, (inr xs).
+simple refine (Tree_mor _).
+exact (inr xs).
 Defined.
 
 Definition node : pr1 A × (pr1 Tree × pr1 Tree) -> pr1 Tree := node_map.
 
-(* Get recursion/iteration scheme: *)
-
-(*    x : X           f : A × X × X -> X *)
-(* ------------------------------------ *)
-(*       foldr x f : Tree A -> X *)
-
+(** Get recursion/iteration scheme:
+<<
+     x : X           f : A × X × X -> X
+  ------------------------------------
+        foldr x f : Tree A -> X
+>>
+*)
 Definition mk_treeAlgebra (X : HSET) (x : pr1 X)
   (f : HSET⟦(A × X × X)%set,X⟧) : algebra_ob treeFunctor.
 Proof.
@@ -99,7 +106,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_leaf (X : hSet) (x : X) (f : pr1 A × X × X -> X) : foldr X x f leaf = x.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET _ _) ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -108,7 +115,7 @@ Lemma foldr_node (X : hSet) (x : X) (f : pr1 A × X × X -> X)
                  (a : pr1 A) (l1 l2 : pr1 Tree) :
   foldr X x f (node (a,,l1,,l2)) = f (a,,foldr X x f l1,,foldr X x f l2).
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn2 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _);; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 assert (Fal := toforallpaths _ _ _ F (a,,l1,,l2)).
 clear F.
@@ -120,7 +127,7 @@ Opaque foldr_map.
 Qed. (* This Qed is slow unless foldr_map is Opaque *)
 Transparent foldr_map.
 
-(* This defines the induction principle for trees using foldr *)
+(** This defines the induction principle for trees using foldr *)
 Section tree_induction.
 
 Variables (P : pr1 Tree -> UU) (PhSet : Π l, isaset (P l)).
@@ -185,17 +192,10 @@ Defined.
 
 End bintrees.
 
+(** Some tests *)
 Section nat_examples.
 
-Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
-
 Local Open Scope nat_scope.
-
-Definition natHSET : HSET.
-Proof.
-exists nat.
-abstract (apply isasetnat).
-Defined.
 
 Definition size : pr1 (Tree natHSET) -> nat :=
   foldr natHSET natHSET 0 (fun x => S (pr1 (pr2 x) + pr2 (pr2 x))).
@@ -223,4 +223,35 @@ Qed.
 Definition sum : pr1 (Tree natHSET) -> nat :=
   foldr natHSET natHSET 0 (fun x => pr1 x + pr1 (pr2 x) + pr2 (pr2 x)).
 
+Definition testtree : pr1 (Tree natHSET).
+Proof.
+  use node_map; repeat split.
+  - apply 5.
+  - use node_map; repeat split.
+    + apply 6.
+    + apply leaf_map. apply tt.
+    + apply leaf_map. apply tt.
+  - apply leaf_map. apply tt.
+Defined.
+
+
 End nat_examples.
+
+(** ** Flattening of a tree into a list *)
+Local Notation "a :: b" := (cons _ a b).
+(* Check concatenate. *)
+Definition flatten (A : HSET) : pr1 (Tree A) -> List A.
+Proof.
+  intro t.
+  use (foldr A).
+  - apply nil.
+  - intro all'.
+    set (a := pr1 all').
+    set (l := pr1 (pr2 all')).
+    set (l' := pr2 (pr2 all')). cbn beta in l'.
+    exact (concatenate _ l (concatenate _ (a :: nil _ ) l')).
+  - exact t.
+Defined.
+
+Eval lazy in Lists.sum (flatten _ testtree).
+Eval lazy in sum testtree.

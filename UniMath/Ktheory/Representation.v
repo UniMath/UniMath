@@ -1,13 +1,13 @@
 Require Import
-        UniMath.Ktheory.Tactics
-        UniMath.Ktheory.Precategories
-        UniMath.Ktheory.Bifunctor.
-Require Import
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.opp_precat
         UniMath.CategoryTheory.yoneda
         UniMath.CategoryTheory.functor_categories
         UniMath.CategoryTheory.category_hset.
+Require Import
+        UniMath.Ktheory.Tactics
+        UniMath.Ktheory.Precategories
+        UniMath.Ktheory.Bifunctor.
 Set Automatic Introduction.
 Local Open Scope cat.
 

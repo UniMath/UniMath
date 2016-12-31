@@ -16,6 +16,7 @@ PACKAGES += RealNumbers
 PACKAGES += Tactics
 PACKAGES += SubstitutionSystems
 PACKAGES += Folds
+PACKAGES += HomologicalAlgebra
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= yes

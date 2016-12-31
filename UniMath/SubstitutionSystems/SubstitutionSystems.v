@@ -33,11 +33,10 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.PointedFunctors.
-Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.SubstitutionSystems.Notation.
 
 
@@ -78,7 +77,9 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 
 Definition eta_from_alg (T : algebra_ob Id_H) : EndC ⟦ functor_identity _,  `T ⟧.
 Proof.
-  exact (BinCoproductIn1 _ _ ;; alg_map _ T).
+  tryif primitive_projections
+  then exact (BinCoproductIn1 _ (CPEndC _ _) ;; alg_map _ T)
+  else exact (BinCoproductIn1 _ _            ;; alg_map _ T).
 Defined.
 
 Local Notation η := eta_from_alg.
@@ -91,7 +92,9 @@ Defined.
 
 Definition tau_from_alg (T : algebra_ob Id_H) : EndC ⟦H `T, `T⟧.
 Proof.
-  exact (BinCoproductIn2 _ _ ;; alg_map _ T).
+  tryif primitive_projections
+  then exact (BinCoproductIn2 _ (CPEndC _ _) ;; alg_map _ T)
+  else exact (BinCoproductIn2 _ _            ;; alg_map _ T).
 Defined.
 Local Notation τ := tau_from_alg.
 
@@ -117,6 +120,13 @@ Definition bracket_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T)
 
 Definition bracket (T : algebra_ob Id_H) : UU
   := Π (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_at T f.
+
+Lemma isaprop_bracket (T : algebra_ob Id_H) : isaprop (bracket T).
+Proof.
+  apply impred_isaprop; intro Z.
+  apply impred_isaprop; intro f.
+  apply isapropiscontr.
+Qed.
 
 Definition bracket_property_parts (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T)
            (h : `T • (U Z)  --> `T) : UU
@@ -324,7 +334,7 @@ Proof.
   - intro c; simpl.
     assert (H':=nat_trans_ax (tau_from_alg T)).
     simpl in H'.
-    eapply pathscomp0. Focus 2. apply (!assoc _ _ _ _ _ _ _ _ ).
+    eapply pathscomp0. Focus 2. apply (!assoc _ _ _ ).
     eapply pathscomp0. Focus 2.  apply  cancel_postcomposition. apply H'.
     clear H'.
     set (H':=fbracket_τ T g).
@@ -566,7 +576,7 @@ Proof.
   set (H2' := functor_id H2). simpl in H2'.
   simpl.
   rewrite H2'.
-  rewrite (id_left EndC).
+  rewrite (@id_left EndC).
   apply idpath.
 Qed.
 
@@ -620,11 +630,11 @@ Lemma is_precategory_hss : is_precategory hss_precategory_data.
 Proof.
   repeat split; intros.
   - apply (invmap (hssMor_eq _ _ _ _ )).
-    apply (id_left EndC).
+    apply (@id_left EndC).
   - apply (invmap (hssMor_eq _ _ _ _ )).
-    apply (id_right EndC).
+    apply (@id_right EndC).
   - apply (invmap (hssMor_eq _ _ _ _ )).
-    apply (assoc EndC).
+    apply (@assoc EndC).
 Qed.
 
 Definition hss_precategory : precategory := tpair _ _ is_precategory_hss.

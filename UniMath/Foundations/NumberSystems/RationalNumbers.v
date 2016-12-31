@@ -301,6 +301,16 @@ Definition iscoasymmhqgeh ( n m : hq ) ( nl : neg ( hqgeh n m ) ) : hqgeh m n :=
 
 Definition istotalhqgeh : istotal hqgeh := fun n m => istotalhqleh m n .
 
+(** ** [hq] is archimedean *)
+
+Lemma isarchhq :
+  isarchfld (X := hq) hqgth.
+Proof.
+  simple refine (isarchfldfrac hzintdom _ _ _ _ _ _ _ _).
+  - exact isirreflhzgth.
+  - exact istranshzgth.
+  - apply isarchhz.
+Qed.
 
 
 

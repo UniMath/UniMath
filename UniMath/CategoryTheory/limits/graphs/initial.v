@@ -1,4 +1,4 @@
-(* Definition of initial object as a colimit *)
+(** Definition of initial object as a colimit *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -173,7 +173,7 @@ Arguments Initial : clear implicits.
 Arguments isInitial : clear implicits.
 
 Lemma Initial_from_Colims (C : precategory) :
-  Colims C -> Initial C.
+  Colims_of_shape empty_graph C -> Initial C.
 Proof.
 now intros H; apply H.
 Defined.

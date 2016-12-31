@@ -15,7 +15,7 @@ Open Scope NR_scope.
 Definition hr_commrng : commrng := commrigtocommrng NonnegativeReals.
 
 Definition NR_to_hr : NonnegativeReals × NonnegativeReals → hr_commrng
-  := setquotpr (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals)).
+  := setquotpr (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals)).
 
 Definition nat_to_hr (n : nat) : hr_commrng :=
   NR_to_hr (nat_to_NonnegativeReals n,,0).
@@ -43,7 +43,7 @@ Proof.
 Qed.
 
 Lemma iscomprelfun_hr_to_NR :
-  iscomprelfun (Y := NonnegativeReals × NonnegativeReals) (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals))
+  iscomprelfun (Y := NonnegativeReals × NonnegativeReals) (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals))
                (λ x : NonnegativeReals × NonnegativeReals,
                       pr1 x - pr2 x ,, pr2 x - pr1 x).
 Proof.
@@ -235,7 +235,7 @@ Proof.
   unfold BinaryOperations.op1 ; simpl.
   unfold rigtorngop1 ; simpl.
   unfold NR_to_hr.
-  apply (setquotfun2comm (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals)) (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals))).
+  apply (setquotfun2comm (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals)) (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals))).
 Qed.
 
 (** opp *)
@@ -246,9 +246,9 @@ Lemma NR_to_hr_opp :
 Proof.
   intros x.
   unfold rnginv1, grinv_is ; simpl.
-  unfold abgrfracinv.
+  unfold abgrdiffinv.
   unfold NR_to_hr.
-  apply (setquotfuncomm (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals)) (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals))).
+  apply (setquotfuncomm (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals)) (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals))).
 Qed.
 
 Lemma hr_to_NR_opp :
@@ -356,7 +356,7 @@ Proof.
   unfold BinaryOperations.op2 ; simpl.
   unfold rigtorngop2 ; simpl.
   unfold NR_to_hr.
-  apply (setquotfun2comm (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals)) (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals))).
+  apply (setquotfun2comm (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals)) (binopeqrelabgrdiff (rigaddabmonoid NonnegativeReals))).
 Qed.
 
 (** *** Order *)
@@ -454,7 +454,7 @@ Qed.
 Lemma isantisymm_hr_le :
   isantisymm hr_le_rel.
 Proof.
-  apply isantisymmabgrfracrel.
+  apply isantisymmabgrdiffrel.
   intros X Y Hxy Hyx.
   apply isantisymm_leNonnegativeReals.
   now split.
@@ -463,17 +463,17 @@ Qed.
 Lemma isStrongOrder_hr_lt : isStrongOrder hr_lt_rel.
 Proof.
   repeat split.
-  - apply istransabgrfracrel.
+  - apply istransabgrdiffrel.
     exact istrans_ltNonnegativeReals.
-  - apply iscotransabgrfracrel.
+  - apply iscotransabgrdiffrel.
     exact iscotrans_ltNonnegativeReals.
-  - apply isirreflabgrfracrel.
+  - apply isirreflabgrdiffrel.
     exact isirrefl_ltNonnegativeReals.
 Qed.
 Lemma iscotrans_hr_lt :
   iscotrans hr_lt_rel.
 Proof.
-  apply iscotransabgrfracrel.
+  apply iscotransabgrdiffrel.
   exact iscotrans_ltNonnegativeReals.
 Qed.
 
@@ -868,7 +868,9 @@ Lemma hr_islinv_neg :
    (NR_to_hr (0%NR,, invNonnegativeReals (hr_to_NRneg x) (pr2 (pr2 (hr_to_NR_negative _) Hap))) * x)%rng = 1%rng.
 Proof.
   intros x Hap.
-  pattern x at 15 ;
+  tryif primitive_projections
+  then pattern x at 3
+  else pattern x at 15;
     rewrite <- (hr_to_NR_bij x).
   rewrite NR_to_hr_mult ; simpl.
   rewrite  !islabsorb_zero_multNonnegativeReals , !islunit_zero_plusNonnegativeReals.
@@ -894,7 +896,9 @@ Lemma hr_islinv_pos :
    (NR_to_hr (invNonnegativeReals (hr_to_NRpos x) (pr1 (pr2 (hr_to_NR_positive _) Hap)) ,, 0%NR) * x)%rng = 1%rng.
 Proof.
   intros x Hap.
-  pattern x at 15 ;
+  tryif primitive_projections
+  then pattern x at 3
+  else pattern x at 15;
     rewrite <- (hr_to_NR_bij x).
   rewrite NR_to_hr_mult ; simpl.
   rewrite  !islabsorb_zero_multNonnegativeReals , !isrunit_zero_plusNonnegativeReals.
@@ -1155,7 +1159,7 @@ Proof.
       intros c.
       generalize (pr2 c) ; intros Hc.
       apply_pr2_in plusNonnegativeReals_ltcompat_l Hc.
-      generalize (isarchrig_1 _ H _ _ Hc).
+      generalize (isarchrig_diff _ H _ _ Hc).
       apply hinhfun.
       intros n.
       exists (pr1 n).
@@ -1164,7 +1168,7 @@ Proof.
       apply plusNonnegativeReals_ltcompat_l.
       exact (pr2 n).
     - intros x.
-      generalize (isarchrig_2 _ H x).
+      generalize (isarchrig_gt _ H x).
       apply hinhfun.
       intros n.
       exists (pr1 n).
@@ -1173,7 +1177,7 @@ Proof.
       apply plusNonnegativeReals_ltcompat_l.
       exact (pr2 n).
     - intros x.
-      generalize (isarchrig_3 _ H x).
+      generalize (isarchrig_pos _ H x).
       apply hinhfun.
       intros n.
       exists (pr1 n).
@@ -1215,7 +1219,7 @@ Proof.
   assert (Hxy : Π n, NR_to_hr (x n ,, y n) = u n).
   { intros n.
     unfold x, y, hr_to_NRpos, hr_to_NRneg.
-    rewrite <- tppr.
+    tryif primitive_projections then idtac else rewrite <- tppr.
     apply hr_to_NR_bij. }
   intros Cu c Hc.
   generalize (Cu c Hc).
@@ -1252,7 +1256,7 @@ Proof.
   assert (Hxy : Π n, NR_to_hr (x n ,, y n) = u n).
   { intros n.
     unfold x, y, hr_to_NRpos, hr_to_NRneg.
-    rewrite <- tppr.
+    tryif primitive_projections then idtac else rewrite <- tppr.
     apply hr_to_NR_bij. }
   intros Cu c Hc.
   generalize (Cu c Hc).
@@ -1300,7 +1304,7 @@ Proof.
   assert (Hxy : Π n, NR_to_hr (x n ,, y n) = u n).
   { intros n.
     unfold x, y, hr_to_NRpos, hr_to_NRneg.
-    rewrite <- tppr.
+    tryif primitive_projections then idtac else rewrite <- tppr.
     apply hr_to_NR_bij. }
   generalize (Cauchy_seq_impl_ex_lim_seq x (Cauchy_seq_pr1 u Cu)).
   set (lx := Cauchy_lim_seq x (Cauchy_seq_pr1 u Cu)) ; clearbody lx ; intro Hx.
@@ -1400,7 +1404,7 @@ Lemma NRNRtoR_RtoNRNR :
 Proof.
   intros X.
   unfold NRNRtoR.
-  rewrite <- tppr.
+  tryif primitive_projections then idtac else rewrite <- tppr.
   apply hr_to_NR_bij.
 Qed.
 
@@ -1510,7 +1514,7 @@ Proof.
   apply (maponpaths (λ x, (x * _)%CF)).
   rewrite <- NRNRtoR_mult.
   unfold Rinv.
-  rewrite (islinv_CFinv (X := Reals) _ Hr).
+  rewrite (islinv_CFinv (X := Reals) (NRNRtoR x 0%NR) Hr).
   rewrite !israbsorb_zero_multNonnegativeReals, islabsorb_zero_multNonnegativeReals.
   rewrite !isrunit_zero_plusNonnegativeReals.
   rewrite islinv_invNonnegativeReals.
@@ -1527,7 +1531,7 @@ Proof.
   apply (maponpaths (λ x, (x * _)%CF)).
   rewrite <- NRNRtoR_mult.
   unfold Rinv.
-  rewrite (islinv_CFinv (X := Reals) _ Hr).
+  rewrite (islinv_CFinv (X := Reals) (NRNRtoR 0%NR x) Hr).
   rewrite !israbsorb_zero_multNonnegativeReals, islabsorb_zero_multNonnegativeReals.
   rewrite !islunit_zero_plusNonnegativeReals.
   rewrite islinv_invNonnegativeReals.

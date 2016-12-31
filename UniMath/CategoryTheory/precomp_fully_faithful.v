@@ -295,7 +295,7 @@ Proof.
   unfold fully_faithful_inv_hom in P. simpl in P.
   rewrite H3 in P. clear H3.
   repeat rewrite <- assoc.
-  rewrite (assoc _ _ _ _ _ (gamma a)).
+  rewrite (assoc (gamma a)).
   simpl in *.
   rewrite <- P; clear P.
   assert (H4 := functor_on_iso_inv _ _  F _ _ h).

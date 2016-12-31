@@ -119,6 +119,9 @@ Defined.
 Definition total2_hSet {X : hSet} (Y : X -> hSet) : hSet
   := hSetpair (Σ x, Y x) (isaset_total2_hSet X Y).
 
+Definition hfiber_hSet {X : hSet} {Y : hSet} (f : X → Y) (y : Y) : hSet
+  := hSetpair (hfiber f y) (isaset_hfiber f y (pr2 X) (pr2 Y)).
+
 Delimit Scope set with set.
 
 Notation "'Σ' x .. y , P" := (total2_hSet (fun x =>.. (total2_hSet (fun y => P))..))

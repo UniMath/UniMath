@@ -47,6 +47,7 @@ Tomi Pannila 2016.
  - The function [ maponpaths ] between paths types defined by a function between ambient types
  - [ maponpaths ] for the identity functions and compositions of functions
  - Homotopy between functions
+ - Equality between functions defines a homotopy
  - [ maponpaths ] for a function homotopic to the identity
  - [ maponpaths ] in the case of a projection p with a section s
  - Fibrations and paths - the transport functions
@@ -338,6 +339,7 @@ Defined.
 Hint Resolve @pathscomp0 : pathshints.
 
 Ltac intermediate_path x := apply (pathscomp0 (b := x)).
+Ltac etrans := eapply pathscomp0.
 
 (** Notation [p @ q] added by B.A., oct 2014 *)
 
@@ -500,6 +502,12 @@ Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
            (g : Y -> Z) : (g ∘ f) ~ (g ∘ f') := fun (x : X) => maponpaths g (h x).
 
 
+(** *** Equality between functions defines a homotopy *)
+
+Definition eqtohomot {X Y : UU}{f f' : X -> Y}(e : f = f') : homot f f' :=
+  fun x => maponpaths ( fun f => f x ) e.
+
+
 (** *** [ maponpaths ] for a function homotopic to the identity
 
 The following three statements show that [ maponpaths ] defined by
@@ -589,15 +597,15 @@ Defined.
 Definition tppr {T : UU} {P : T -> UU}
            (x : total2 P) : x = tpair _ (pr1 x) (pr2 x).
 Proof.
-  intros. induction x. simpl.
-  apply idpath.
+  intros.
+  tryif primitive_projections then idtac else induction x.
+  reflexivity.
 Defined.
 
 Definition constr1 {X : UU} (P : X -> UU) {x x' : X} (e : x = x') :
   Σ (f : P x -> P x'),
   Σ (ee : Π p : P x, tpair _ x p = tpair _ x' (f p)),
-  Π (pp : P x),
-  maponpaths pr1 (ee pp) = e.
+  Π (pp : P x), maponpaths pr1 (ee pp) = e.
 Proof.
   intros. induction e.
   split with (idfun (P x)).
@@ -609,11 +617,16 @@ Defined.
 Definition transportf {X : UU} (P : X -> UU) {x x' : X}
            (e : x = x') : P x -> P x' := pr1 (constr1 P e).
 
+Definition transportf_eq {X : UU} (P : X -> UU) {x x' : X} (e : x = x') ( p : P x ) :
+  tpair _ x p = tpair  _ x' ( transportf P e p ) := ( pr1 ( pr2 ( constr1 P e ))) p .
+
 Definition transportb {X : UU} (P : X -> UU) {x x' : X}
            (e : x = x') : P x' -> P x := transportf P (!e).
 
-Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport.
-Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport.
+Notation "p # x" := (transportf _ p x)
+  (right associativity, at level 65, only parsing) : transport.
+Notation "p #' x" := (transportb _ p x)
+  (right associativity, at level 65, only parsing) : transport.
 Delimit Scope transport with transport.
 
 Definition idpath_transportf {X : UU} (P : X -> UU) {x : X} (p : P x) :
@@ -678,6 +691,32 @@ Proof.
   intros. exact (transport_map (P:= λ _,unit) (λ x _,f x) e tt).
 Defined.
 
+Definition transportf_fun {X Y : UU}(P : X -> UU)
+           {x1 x2 : X}(e : x1 = x2)(f : P x1 -> Y) :
+  transportf (fun x => (P x -> Y)) e f = funcomp (transportb P e) f .
+Proof.
+  intros. induction e. apply idpath .
+Defined.
+
+Definition transportf_const {X : UU}{x1 x2 : X}(e : x1 = x2)(Y : UU) :
+  transportf (fun x => Y) e = idfun Y.
+Proof.
+  intros. induction e. apply idpath.
+Defined.
+
+Definition transportb_const {X : UU}{x1 x2 : X}(e : x1 = x2)(Y : UU) :
+  transportb (fun x => Y) e = idfun Y.
+Proof.
+  intros. induction e. apply idpath.
+Defined.
+
+Lemma transportf_paths {X : UU} (P : X -> UU) {x1 x2 : X} {e1 e2 : x1 = x2} (e : e1 = e2)
+      (p : P x1) : transportf P e1 p = transportf P e2 p.
+Proof.
+  intros X P x1 x2 e1 e2 e p. induction e. apply idpath.
+Defined.
+Opaque transportf_paths.
+
 (** *** A series of lemmas about paths and [ total2 ]
 
     Some lemmas are adapted from the HoTT library http://github.com/HoTT/HoTT *)
@@ -720,6 +759,15 @@ Proof.
   intros.
   apply (@total2_paths _ _ (tpair (fun x => B x) a1 b1)
                        (tpair (fun x => B x) a2 b2) p q).
+Defined.
+
+Lemma total2_paths2_b {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1}
+  {a2 : A} {b2 : B a2} (p : a1 = a2)
+  (q : b1 = transportb B p b2) : a1,,b1 = a2,,b2.
+Proof.
+  intros.
+  apply (@total2_paths_b _ _
+    (tpair (fun x => B x) a1 b1) (tpair (fun x => B x) a2 b2) p q).
 Defined.
 
 Definition pair_path_in2 {X : UU} (P : X -> UU) {x : X} {p q : P x} (e : p = q) :
@@ -803,6 +851,16 @@ Definition transportf_dirprod (A : UU) (B B' : A -> UU)
 Proof.
   induction p.
   apply tppr.
+Defined.
+
+Definition transportb_dirprod (A : UU) (B B' : A -> UU)
+  (x x' : Σ a,  B a × B' a)  (p : pr1 x = pr1 x') :
+  transportb (fun a => dirprod (B a) (B' a)) p (pr2 x') =
+    dirprodpair (transportb (fun a => B a) p (pr1 (pr2 x')))
+                (transportb (fun a => B' a) p (pr2 (pr2 x'))).
+Proof.
+  intros.
+  apply transportf_dirprod.
 Defined.
 
 Definition transportf_id1 {A : UU} {a x1 x2 : A}
@@ -904,6 +962,8 @@ Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
 
 Definition hfiberpr1 {X Y : UU} (f : X -> Y) (y : Y) : hfiber f y -> X := pr1.
 
+Definition hfiberpr2 {X Y : UU} (f : X -> Y) (y : Y) (y' : hfiber f y) : f (hfiberpr1 f y y') = y :=
+  pr2 y'.
 
 (** *** The functions between the hfibers of homotopic functions over the same point *)
 

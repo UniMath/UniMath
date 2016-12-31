@@ -1,4 +1,12 @@
-(* Direct implementation of equalizers. *)
+(**
+
+Direct implementation of equalizers together with:
+
+- Proof that the equalizer arrow is monic ([EqualizerArrowisMonic])
+
+Written by Tomi Pannila
+
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -31,6 +39,19 @@ Section def_equalizers.
   Proof.
     repeat (apply impred; intro).
     apply isapropiscontr.
+  Defined.
+
+  Lemma isEqualizer_path {hs : has_homsets C} {x y z : C} {f g : y --> z} {e : x --> y}
+        {H H' : e ;; f = e ;; g} (iC : isEqualizer f g e H) :
+    isEqualizer f g e H'.
+  Proof.
+    use mk_isEqualizer.
+    intros w0 h H'0.
+    use unique_exists.
+    - exact (pr1 (pr1 (iC w0 h H'0))).
+    - exact (pr2 (pr1 (iC w0 h H'0))).
+    - intros y0. apply hs.
+    - intros y0 X. exact (base_paths _ _ (pr2 (iC w0 h H'0) (tpair _ y0 X))).
   Defined.
 
   (** Proves that the arrow to the equalizer object with the right
@@ -119,6 +140,16 @@ Section def_equalizers.
     apply (isEqualizerInsEq (isEqualizer_Equalizer E) _ _ H').
   Defined.
 
+  Lemma EqualizerInComp {y z : C} {f g : y --> z} (E : Equalizer f g) {x x' : C}
+        (h1 : x --> x') (h2 : x' --> y)
+        (H1 : h1 ;; h2 ;; f = h1 ;; h2 ;; g) (H2 : h2 ;; f = h2 ;; g) :
+    EqualizerIn E x (h1 ;; h2) H1 = h1 ;; EqualizerIn E x' h2 H2.
+  Proof.
+    use EqualizerInsEq. rewrite EqualizerCommutes.
+    rewrite <- assoc. rewrite EqualizerCommutes.
+    apply idpath.
+  Qed.
+
   (** Morphisms between equalizer objects with the right commutativity
     equalities. *)
   Definition identity_is_EqualizerIn {y z : C} {f g : y --> z}
@@ -174,7 +205,7 @@ Section def_equalizers.
 
   (** We prove that EqualizerArrow is a monic. *)
   Lemma EqualizerArrowisMonic {y z : C} {f g : y --> z} (E : Equalizer f g ) :
-    isMonic _ (EqualizerArrow E).
+    isMonic (EqualizerArrow E).
   Proof.
     apply mk_isMonic.
     intros z0 g0 h X.
@@ -188,3 +219,6 @@ Section def_equalizers.
     exact (mk_Monic C (EqualizerArrow E) (EqualizerArrowisMonic E)).
   Defined.
 End def_equalizers.
+
+(** Make the C not implicit for Equalizers *)
+Arguments Equalizers : clear implicits.

@@ -32,17 +32,15 @@ Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.PointedFunctors.
-Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.cats.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
 Arguments θ_source {_ _} _ .
 Arguments θ_target {_ _} _ .
@@ -165,12 +163,12 @@ Defined.
 
 Definition Abs_H : functor [C, C, hs] [C, C, hs] :=
  (* tpair _ _ is_functor_Abs_H_data. *)
-  pre_composition_functor _ _ _ hs _ (option_functor C CC terminal).
+  pre_composition_functor _ _ _ hs _ (option_functor CC terminal).
 
-Lemma is_omega_cocont_Abs_H (LC : Lims C) : is_omega_cocont Abs_H.
+Lemma is_omega_cocont_Abs_H (CLC : Colims_of_shape nat_graph C) : is_omega_cocont Abs_H.
 Proof.
 unfold Abs_H.
-apply (is_omega_cocont_pre_composition_functor _ _ _ LC).
+apply (is_omega_cocont_pre_composition_functor _ _ _ CLC).
 Defined.
 
 
@@ -564,8 +562,8 @@ Proof.
 (*  destruct XZ as [X [Z e]].
   simpl.
 *)
-  set (h:= nat_trans_comp (λ_functor_inv _ (pr1 XZ)) ((nat_trans_id _) ∙∙ (pr2 (pr2 XZ)))).
-  exact (nat_trans_comp (α_functor_inv _ (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ∙∙ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
+  set (h:= nat_trans_comp (λ_functor_inv (pr1 XZ)) ((nat_trans_id _) ∙∙ (pr2 (pr2 XZ)))).
+  exact (nat_trans_comp (α_functor_inv (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ∙∙ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
 Defined.
 
 Lemma is_nat_trans_Flat_θ_data: is_nat_trans _ _ Flat_θ_data.
@@ -671,7 +669,7 @@ Definition Lam_Sig: Signature C hs :=
 
 Lemma is_omega_cocont_Lam
   (hE : Π x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C CP hs) x))
-  (LC : Lims C) : is_omega_cocont (Signature_Functor _ _ Lam_Sig).
+  (LC : Colims_of_shape nat_graph C) : is_omega_cocont (Signature_Functor _ _ Lam_Sig).
 Proof.
 apply is_omega_cocont_BinCoproduct_of_functors.
 - apply (BinProducts_functor_precat _ _ CP).

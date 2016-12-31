@@ -1,4 +1,12 @@
-(* Direct implementation of coequalizers. *)
+(**
+
+Direct implementation of coequalizers together with:
+
+- Proof that the coequalizer arrow is epi ([CoequalizerArrowisEpi])
+
+Written by Tomi Pannila
+
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -31,6 +39,19 @@ Section def_coequalizers.
   Proof.
     repeat (apply impred; intro).
     apply isapropiscontr.
+  Defined.
+
+  Lemma isCoequalizer_path {hs : has_homsets C} {x y z : C} {f g : x --> y} {e : y --> z}
+        {H H' : f ;; e = g ;; e} (iC : isCoequalizer f g e H) :
+    isCoequalizer f g e H'.
+  Proof.
+    use mk_isCoequalizer.
+    intros w0 h H'0.
+    use unique_exists.
+    - exact (pr1 (pr1 (iC w0 h H'0))).
+    - exact (pr2 (pr1 (iC w0 h H'0))).
+    - intros y0. apply hs.
+    - intros y0 X. exact (base_paths _ _ (pr2 (iC w0 h H'0) (tpair _ y0 X))).
   Defined.
 
   (** Proves that the arrow from the coequalizer object with the right
@@ -122,6 +143,15 @@ Section def_coequalizers.
     apply (isCoequalizerOutsEq (isCoequalizer_Coequalizer E) _ _ H').
   Defined.
 
+  Lemma CoequalizerOutComp {y z : C} {f g : y --> z} (CE : Coequalizer f g) {w w' : C}
+        (h1 : z --> w) (h2 : w --> w')
+        (H1 : f ;; (h1 ;; h2) = g ;; (h1 ;; h2)) (H2 : f ;; h1 = g ;; h1) :
+    CoequalizerOut CE w' (h1 ;; h2) H1 = CoequalizerOut CE w h1 H2 ;; h2.
+  Proof.
+    use CoequalizerOutsEq. rewrite CoequalizerCommutes. rewrite assoc.
+    rewrite CoequalizerCommutes. apply idpath.
+  Qed.
+
   (** Morphisms between coequalizer objects with the right commutativity
     equalities. *)
   Definition identity_is_CoequalizerOut {y z : C} {f g : y --> z}
@@ -178,7 +208,7 @@ Section def_coequalizers.
 
   (** We prove that CoequalizerArrow is an epi. *)
   Lemma CoequalizerArrowisEpi {y z : C} {f g : y --> z} (E : Coequalizer f g ) :
-    isEpi _ (CoequalizerArrow E).
+    isEpi (CoequalizerArrow E).
   Proof.
     apply mk_isEpi.
     intros z0 g0 h X.
@@ -192,3 +222,6 @@ Section def_coequalizers.
     exact (mk_Epi C (CoequalizerArrow E) (CoequalizerArrowisEpi E)).
   Defined.
 End def_coequalizers.
+
+(** Make the C not implicit for Coequalizers *)
+Arguments Coequalizers : clear implicits.

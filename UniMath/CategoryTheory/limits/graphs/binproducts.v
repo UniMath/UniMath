@@ -1,4 +1,4 @@
-(* Binary products via limits *)
+(** Binary products via limits *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -167,7 +167,7 @@ Qed.
 End binproduct_def.
 
 Lemma BinProducts_from_Lims (C : precategory) :
-  Lims C -> BinProducts C.
+  Lims_of_shape two_graph C -> BinProducts C.
 Proof.
 now intros H a b; apply H.
 Defined.

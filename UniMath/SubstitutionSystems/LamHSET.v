@@ -18,17 +18,14 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
-Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
-Require Import UniMath.SubstitutionSystems.Lam.
-Require Import UniMath.SubstitutionSystems.LiftingInitial.
+Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 
@@ -37,6 +34,7 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.CocontFunctors.
+(* Require Import UniMath.CategoryTheory.RightKanExtension. *)
 
 Section LamHSET.
 
@@ -46,6 +44,15 @@ Let Lam_S : Signature HSET has_homsets_HSET :=
 Local Notation "'EndHSET'":= ([HSET, HSET, has_homsets_HSET]) .
 
 Let hsEndC : has_homsets EndHSET := functor_category_has_homsets _ _ has_homsets_HSET.
+
+Local Lemma is_omega_cocont_Lam_S : is_omega_cocont Lam_S.
+Proof.
+apply is_omega_cocont_Lam.
+* apply is_omega_cocont_constprod_functor1.
+  apply functor_category_has_homsets.
+  apply (has_exponentials_functor_HSET _ has_homsets_HSET).
+* apply ColimsHSET_of_shape.
+Defined.
 
 Lemma Lam_Initial_HSET : Initial (precategory_FunctorAlg (Id_H _ _ BinCoproductsHSET Lam_S) hsEndC).
 Proof.
@@ -57,28 +64,25 @@ use colimAlgInitial.
   + apply functor_category_has_homsets.
   + apply functor_category_has_homsets.
   + apply is_omega_cocont_constant_functor; apply functor_category_has_homsets.
-  + apply is_omega_cocont_Lam.
-    * apply is_omega_cocont_constprod_functor1.
-      apply functor_category_has_homsets.
-      apply (has_exponentials_functor_HSET _ has_homsets_HSET).
-    * apply cats_LimsHSET.
-- apply ColimsFunctorCategory; apply ColimsHSET.
+  + apply is_omega_cocont_Lam_S.
+- apply ColimsFunctorCategory_of_shape; apply ColimsHSET_of_shape.
 Defined.
 
-Lemma KanExt_HSET : Π Z : precategory_Ptd HSET has_homsets_HSET,
-   RightKanExtension.GlobalRightKanExtensionExists HSET HSET
-     (U Z) HSET has_homsets_HSET has_homsets_HSET.
-Proof.
-intro Z.
-apply RightKanExtension_from_limits.
-apply cats_LimsHSET.
-Defined.
+(* Lemma KanExt_HSET : Π Z : precategory_Ptd HSET has_homsets_HSET, *)
+(*    RightKanExtension.GlobalRightKanExtensionExists HSET HSET *)
+(*      (U Z) HSET has_homsets_HSET has_homsets_HSET. *)
+(* Proof. *)
+(* intro Z. *)
+(* apply RightKanExtension_from_limits, LimsHSET. *)
+(* Defined. *)
 
 Definition LamHSS_Initial_HSET : Initial (hss_precategory BinCoproductsHSET Lam_S).
 Proof.
 apply InitialHSS.
-- apply KanExt_HSET.
-- apply Lam_Initial_HSET.
+- apply BinProductsHSET.
+- apply InitialHSET.
+- apply ColimsHSET_of_shape.
+- apply is_omega_cocont_Lam_S.
 Defined.
 
 Definition LamMonad : Monad HSET.

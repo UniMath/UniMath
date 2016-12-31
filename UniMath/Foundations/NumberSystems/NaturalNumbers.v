@@ -57,6 +57,7 @@ Unset Automatic Introduction.
 (** Imports. *)
 
 Require Export UniMath.Foundations.Algebra.Domains_and_Fields.
+Require Export UniMath.Foundations.Algebra.Archimedean.
 
 (** To up-stream files  *)
 
@@ -456,7 +457,7 @@ Notation " x ≤ y " := (natleh x y) (at level 70, no associativity) : nat_scope
 
 Definition isdecrelnatleh : isdecrel natleh := λ m n, isdecrelnatgth _ _.
 
-Definition negnatlehsn0 (n : nat) : ¬ (S n ≤ 0) := negnatlthn0 _.
+Definition negnatlehsn0 (n : nat) : ¬ (S n ≤ 0) := negnatlthn0 n.
 
 (* these two lemmas show agreement with the old definition: *)
 
@@ -682,6 +683,13 @@ Proof.
 Defined.
 
 Definition natlthorgeh (n m : nat) : (n < m) ⨿ (n ≥ m) := natgthorleh _ _.
+
+Definition natchoice0 (n : nat) : (0 = n) ⨿ (0 < n).
+Proof.
+  intros n. induction n as [ | n].
+  - use ii1. apply idpath.
+  - use ii2. apply natgthsn0.
+Qed.
 
 Definition natneqchoice (n m : nat) (ne : n ≠ m) : (n > m) ⨿ (n < m).
 Proof.
@@ -945,6 +953,14 @@ Proof.
   apply (natgthandpluslinv _ _ _ l).
 Defined.
 
+Definition natgthandplusm (n m : nat) (H : m > 0) : n + m > n.
+Proof.
+  intros n. induction n as [ | n].
+  - intros m H. rewrite natplusl0. exact H.
+  - intros m H. rewrite <- natplusnsm. change (S n) with (1 + n). rewrite (natpluscomm 1 n).
+    apply natgthandplusl. apply H.
+Qed.
+
 (** [natlth] *)
 
 Definition natlthtolths (n m : nat) : n < m -> n < S m := natgthtogths _ _.
@@ -960,6 +976,8 @@ Definition natlthandplusr (n m k : nat) : n < m -> n + k < m + k := natgthandplu
 Definition natlthandpluslinv  (n m k : nat) : k + n < k + m -> n < m := natgthandpluslinv _ _ _.
 
 Definition natlthandplusrinv (n m k : nat) : n + k < m + k -> n < m := natgthandplusrinv _ _ _.
+
+Definition natlthandplusm (n m : nat) (H : 0 < m) : n < n + m := natgthandplusm _ _ H.
 
 (** [natleh] *)
 
@@ -1228,7 +1246,7 @@ where "n - m" := (minus n m) : nat_scope.
 
 Definition minuseq0 (n m : nat) (is : n <= m) : n - m = 0.
 Proof.
-  intros n m. generalize n. clear n. induction m.
+  intros n m. generalize n. clear n. induction m as [|m IHm].
   - intros n is. rewrite (natleh0tois0 is). simpl. apply idpath.
   - intro n. destruct n.
     + intro. apply idpath.
@@ -1317,6 +1335,43 @@ Proof.
   apply idpath.
 Defined.
 
+Definition minusminusmmn (n m : nat) (H : m ≥ n) : m - (m - n) = n.
+Proof.
+  intros n m H.
+  apply (natplusrcan (m - (m - n)) n (m - n)).
+  - rewrite minusplusnmm.
+    + rewrite natpluscomm. rewrite minusplusnmm.
+      * apply idpath.
+      * apply H.
+    + apply natminusgehn.
+Qed.
+
+(** *** Comparisons and [n -> n - 1] *)
+
+Definition natgthtogthm1 (n m : nat) : n > m -> n > m - 1.
+Proof.
+  intros n m is. induction m as [ | m].
+  - apply is.
+  - cbn. rewrite natminuseqn. apply (natgehgthtrans n (S m) m).
+    + apply (natgthtogeh _ _ is).
+    + apply natgthsnn.
+Qed.
+
+Definition natlthtolthm1 (n m : nat) : n < m -> n - 1 < m := natgthtogthm1 _ _.
+
+Definition natlehtolehm1 (n m : nat) : n ≤ m -> n - 1 ≤ m := (fun X : n ≤ m => natlthtolthm1 n (S m) X).
+
+Definition natgehtogehm1 (n m : nat) : n ≥ m -> n ≥ m - 1 := natlehtolehm1 _ _.
+
+Definition natgthtogehm1 (n m : nat) : n > m -> n - 1 ≥ m.
+Proof.
+  intros n. induction n as [ | n].
+  - intros m X. apply fromempty. apply (negnatgth0n m X).
+  - intros m X. induction m as [ | m].
+    + apply idpath.
+    + cbn. rewrite natminuseqn. apply X.
+Qed.
+
 (* *** Two-sided minus and comparisons *)
 
 Definition natgehandminusr (n m k : nat) (is : n ≥ m) : n - k ≥ m - k.
@@ -1357,6 +1412,28 @@ Proof.
       * rewrite natminuseqn in is. rewrite natminuseqn in is. apply is.
       * apply (IHn m k is' is).
 Defined.
+
+Definition natlthandminusl (n m i : nat) (is : n < m) (is' : i < m) : n - i < m - i.
+Proof.
+  intros n m i. induction i as [ | i].
+  - intros is is'. rewrite natminuseqn. rewrite natminuseqn. apply is.
+  - intros is is'.
+    induction (natlthorgeh n (S i)) as [H | H].
+    + assert (e : n - S i = 0).
+      {
+        apply minuseq0.
+        exact (natlthtoleh _ _ H).
+      }
+      rewrite e. apply (natlthandplusrinv _ _ (S i)). rewrite natplusl0.
+      rewrite minusplusnmm. apply is'.
+      apply natlthtoleh. apply is'.
+    + apply (natlthandplusrinv _ _ (S i)).
+      rewrite (minusplusnmm m (S i)).
+      * rewrite (minusplusnmm n (S i)).
+        { apply is. }
+        { apply H. }
+      * apply natlthtoleh. apply is'.
+Qed.
 
 (*
 Definition natgehandminuslinv (n m k : nat) (is' : natgeh k n)
@@ -1704,6 +1781,14 @@ Proof.
   - unfold iscomm. apply natmultcomm.
 Defined.
 
+Lemma nattorig_nat :
+  Π n : nat, nattorig (X := natcommrig) n = n.
+Proof.
+  induction n as [|n IHn].
+  reflexivity.
+  rewrite nattorigS, IHn.
+  reflexivity.
+Qed.
 
 (** *** Cancellation properties of [mul] on [nat] *)
 
@@ -1733,6 +1818,68 @@ Proof.
   - intros _. apply natneqsx0.
 Defined.
 
+(** *** [nat] is an archimedean rig *)
+
+Lemma isarchnat_diff :
+  Π (y1 y2 : nat),
+  y1 > y2 → ∃ n : nat, n * y1 > 1 + n * y2.
+Proof.
+  intros y1 y2 Hy.
+  apply natlthchoice2 in Hy.
+  induction Hy as [Hy | <-].
+  - apply hinhpr.
+    exists 1%nat.
+    exact Hy.
+  - apply hinhpr.
+    exists 2%nat.
+    rewrite !multsnm ; simpl.
+    rewrite natplusr0.
+    apply natgthandplusl, natgthsnn.
+Defined.
+
+Lemma isarchnat_gth :
+  Π x : nat, ∃ n : nat, n > x.
+Proof.
+  intros n.
+  apply hinhpr.
+  exists (S n).
+  now apply natgthsnn.
+Defined.
+
+Lemma isarchnat_pos :
+  Π x : nat, ∃ n : nat, n + x > 0.
+Proof.
+  intros n.
+  apply hinhpr.
+  now exists 1%nat.
+Defined.
+
+Lemma isarchnat :
+  isarchrig (X := natcommrig) natgth.
+Proof.
+  repeat split.
+  - intros y1 y2 Hy.
+    generalize (isarchnat_diff y1 y2 Hy).
+    apply hinhfun.
+    intros n.
+    exists (pr1 n).
+    rewrite nattorig_nat.
+    exact (pr2 n).
+  - intros n.
+    generalize (isarchnat_gth n).
+    apply hinhfun.
+    intros n'.
+    exists (pr1 n').
+    rewrite nattorig_nat.
+    exact (pr2 n').
+  - intros n.
+    generalize (isarchnat_pos n).
+    apply hinhfun.
+    intros n'.
+    exists (pr1 n').
+    rewrite nattorig_nat.
+    exact (pr2 n').
+Defined.
 
 (** *** Multiplication and comparisons  *)
 
@@ -2258,159 +2405,30 @@ Proof.
     + simpl. unfold si. induction (natlthorgeh j i) as [lt|ge].
       * clear ne.
         induction (natlthorgeh i j) as [lt'|_].
-        -- contradicts (isasymmnatlth _ _ lt') lt.
-        -- unfold di. induction (natlthorgeh j i) as [lt'|ge'].
-          ++ reflexivity.
-          ++ contradicts (natgehtonegnatlth _ _ ge') lt.
+        { contradicts (isasymmnatlth _ _ lt') lt. }
+        { unfold di. induction (natlthorgeh j i) as [lt'|ge'].
+          - reflexivity.
+          - contradicts (natgehtonegnatlth _ _ ge') lt. }
       * assert (lt := natleh_neq ge ne); clear ne ge.
         induction (natlthorgeh i j) as [_|ge'].
-        -- unfold di. induction (natlthorgeh (j - 1) i) as [lt'|ge'].
-           ++ apply fromempty. induction j as [|j _].
-              ** exact (negnatlthn0 _ lt).
-              ** change (S j) with (1 + j) in lt'.
+        { unfold di. induction (natlthorgeh (j - 1) i) as [lt'|ge'].
+          - apply fromempty. induction j as [|j _].
+            + exact (negnatlthn0 _ lt).
+            + change (S j) with (1 + j) in lt'.
                  rewrite natpluscomm in lt'.
                  rewrite plusminusnmm in lt'.
                  change (i < S j) with (i ≤ j) in lt.
                  exact (natlehneggth lt lt').
-           ++ induction j as [|j _].
-              ** contradicts (negnatlthn0 i) lt.
-              ** simpl. apply maponpaths. apply natminuseqn.
-        -- contradicts (natgehtonegnatlth _ _ ge') lt.
+          - induction j as [|j _].
+            + contradicts (negnatlthn0 i) lt.
+            + simpl. apply maponpaths. apply natminuseqn. }
+        contradicts (natgehtonegnatlth _ _ ge') lt.
 Defined.
 
-
-(** ** Inductive types [le] with values in [UU].
-
-This part is included for illustration purposes only. In practice it is easier
-to work with [natleh] than with [le].
-
-*)
-
-(** *** A generalization of [le] and its properties. *)
-
-Inductive leF {T : UU} (F : T -> T) (t : T) : T -> UU :=
-| leF_O : leF F t t
-| leF_S : Π t' : T, leF F t t' -> leF F t (F t').
-
-Lemma leFiter {T : UU} (F : T -> T) (t : T) (n : nat) : leF F t (iteration F n t).
-Proof.
-  intros. induction n as [ | n IHn ].
-  - apply leF_O.
-  - simpl. unfold funcomp. apply leF_S. assumption.
-Defined.
-
-Lemma leFtototal2withnat {T : UU} (F : T -> T) (t t' : T) (a : leF F t t') :
-  total2 (fun n : nat => (iteration F n t) = t').
-Proof.
-  intros. induction a as [ | b H0 IH0 ].
-  - split with O. apply idpath.
-  - split with (S (pr1 IH0)). simpl.
-    apply (@maponpaths _ _ F (iteration F (pr1 IH0) t) b).
-    apply (pr2 IH0).
-Defined.
-
-Lemma total2withnattoleF {T : UU} (F : T -> T) (t t' : T)
-      (a : total2 (fun n : nat => paths (iteration F n t) t')) : leF F t t'.
-Proof.
-  intros. destruct a as [ n e ]. destruct e. apply leFiter.
-Defined.
-
-Lemma leFtototal2withnat_l0 {T : UU} (F : T -> T) (t : T) (n : nat) :
-  (leFtototal2withnat F t _ (leFiter F t n)) = (tpair _  n (idpath (iteration F n t))).
-Proof.
-  intros. induction n as [ | n IHn ].
-  - apply idpath.
-  - simpl.
-    set (h := fun ne : total2 (fun n0 : nat => paths (iteration F n0 t) (iteration F n t)) =>
-                tpair (fun n0 : nat => paths (iteration F n0 t) (iteration F (S n) t)) (S (pr1 ne))
-                      (maponpaths F (pr2 ne))).
-    apply (@maponpaths _ _ h  _ _ IHn).
-Defined.
-
-Lemma isweqleFtototal2withnat {T : UU} (F : T -> T) (t t' : T) : isweq (leFtototal2withnat F t t').
-Proof.
-  intros.
-  set (f := leFtototal2withnat F t t').
-  set (g := total2withnattoleF  F t t').
-  assert (egf : Π x : _, paths (g (f x)) x).
-  {
-    intro x. induction x as [ | y H0 IHH0 ].
-    - apply idpath.
-    - simpl. simpl in IHH0.
-      destruct (leFtototal2withnat F t y H0) as [ m e ].
-      destruct e. simpl. simpl in IHH0.
-      apply (@maponpaths _ _ (leF_S F t (iteration F m t)) _ _ IHH0).
-  }
-  assert (efg : Π x : _, paths (f (g x)) x).
-  {
-    intro x. destruct x as [ n e ]. destruct e. simpl.
-    apply leFtototal2withnat_l0.
-  }
-  apply (gradth _ _ egf efg).
-Defined.
-
-Definition weqleFtototalwithnat { T : UU } (F : T -> T) (t t' : T) :
-  weq (leF F t t') (total2 (fun n : nat => paths (iteration F n t) t')) :=
-  weqpair _ (isweqleFtototal2withnat F t t').
-
-
-(** *** Inductive types [le] with values in [UU] are in [hProp] *)
-
-Definition le (n : nat) : nat -> UU := leF S n.
-
-Definition le_n : Π t : nat, leF S t t := leF_O S.
-
-Definition le_S : Π t t' : nat, leF S t t' → leF S t (S t') := leF_S S.
-
-Theorem isaprople (n m : nat) : isaprop (le n m).
-Proof.
-  intros.
-  apply (isofhlevelweqb 1 (weqleFtototalwithnat S n m)).
-  apply invproofirrelevance. intros x x'.
-  set (i := @pr1 _ (fun n0 : nat => paths (iteration S n0 n) m)).
-  assert (is : isincl i) by apply (isinclpr1 _ (fun n0 : nat => isasetnat (iteration S n0 n) m)).
-  apply (invmaponpathsincl _  is).
-  destruct x as [ n1 e1 ]. destruct x' as [ n2 e2 ]. simpl.
-  set (int1 := pathsinv0 (pathsitertoplus n1 n)).
-  set (int2 := pathsinv0 (pathsitertoplus n2 n)).
-  set (ee1 := pathscomp0 int1 e1).
-  set (ee2 := pathscomp0 int2 e2).
-  set (e := pathscomp0 ee1 (pathsinv0 ee2)).
-  apply (invmaponpathsincl _ (isinclnatplusr n) n1 n2 e).
-Defined.
-
-
-(** *** Comparison between [le] with values in [UU] and [natleh]. *)
-
-Lemma letoleh (n m : nat) : le n m -> n ≤ m.
-Proof.
-  intros n m H. induction H as [ | m H0 IHH0 ].
-  - apply isreflnatleh.
-  - apply natlehtolehs. assumption.
-Defined.
-
-Lemma natlehtole (n m : nat) : n ≤ m ->  le n m.
-Proof.
-  intros n m H. induction m.
-  - assert (int := natleh0tois0 H). clear H. destruct int. apply le_n.
-  - set (int2 := natlehchoice2 n (S m) H).
-    destruct int2 as [ isnatleh | iseq ].
-    apply (le_S n m (IHm isnatleh)). destruct iseq.
-    apply le_n.
-Defined.
-
-Lemma isweqletoleh (n m : nat) : isweq (letoleh n m).
-Proof.
-  intros.
-  set (is1 := isaprople n m). set (is2 := pr2 (n ≤ m)).
-  apply (isweqimplimpl (letoleh n m) (natlehtole n m) is1 is2).
-Defined.
-
-Definition weqletoleh (n m : nat) : le n m ≃ n ≤ m := weqpair _ (isweqletoleh n m).
 
 (* more lemmas about natural numbers *)
 
-Lemma natsubsub (n i j : nat) : n - i - j = n - (i + j).
+Lemma natminusminus (n i j : nat) : n - i - j = n - (i + j).
 Proof.
   intros n; induction n as [|n N].
   - reflexivity.

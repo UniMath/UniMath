@@ -1075,7 +1075,7 @@ Definition rngdirprod (X Y : rng) : rng := @rngpair (setwith2binopdirprod X Y) (
 
 Open Scope rig_scope.
 
-Definition rigtorngaddabgr (X : rig) : abgr := abgrfrac (rigaddabmonoid X).
+Definition rigtorngaddabgr (X : rig) : abgr := abgrdiff (rigaddabmonoid X).
 
 Definition rigtorngcarrier (X : rig) : hSet := pr1 (pr1 (rigtorngaddabgr X)).
 
@@ -1088,7 +1088,7 @@ Definition rigtorngop1axs (X : rig) : isabgrop (rigtorngop1 X) := pr2 (rigtornga
 
 Definition rigtorngunel1 (X : rig) : rigtorngcarrier X := unel (rigtorngaddabgr X).
 
-Definition eqrelrigtorng (X : rig) : eqrel (dirprod X X) := eqrelabgrfrac (rigaddabmonoid X).
+Definition eqrelrigtorng (X : rig) : eqrel (dirprod X X) := eqrelabgrdiff (rigaddabmonoid X).
 
 Definition rigtorngop2int (X : rig) : binop (dirprod X X) :=
   fun xx xx' : dirprod X X =>
@@ -1310,7 +1310,7 @@ Definition torngdiff (X : rig) (x : X) : rigtorng X := setquotpr _ (dirprodpair 
 Lemma isbinop1funtorngdiff (X : rig) : @isbinopfun (rigaddabmonoid X) (rigtorng X) (torngdiff X).
 Proof.
   intros. unfold isbinopfun. intros x x'.
-  apply (isbinopfuntoabgrfrac (rigaddabmonoid X) x x').
+  apply (isbinopfuntoabgrdiff (rigaddabmonoid X) x x').
 Defined.
 Opaque isbinop1funtorngdiff.
 
@@ -1348,13 +1348,13 @@ Definition isrigfuntorngdiff (X : rig) : @isrigfun X (rigtorng X) (torngdiff X) 
   dirprodpair (isaddmonoidfuntorngdiff X) (ismultmonoidfuntorngdiff X).
 
 Definition isincltorngdiff (X : rig) (iscanc : Π x : X, @isrcancelable X (@op1 X) x) :
-  isincl (torngdiff X) := isincltoabgrfrac (rigaddabmonoid X) iscanc.
+  isincl (torngdiff X) := isincltoabgrdiff (rigaddabmonoid X) iscanc.
 
 
 (** **** Relations similar to "greater" or "greater or equal" on the ring associated with a rig *)
 
 Definition rigtorngrel (X : rig) {R : hrel X} (is : @isbinophrel (rigaddabmonoid X) R) :
-  hrel (rigtorng X) := abgrfracrel (rigaddabmonoid X) is.
+  hrel (rigtorng X) := abgrdiffrel (rigaddabmonoid X) is.
 
 Lemma isrngrigtorngmultgt (X : rig) {R : hrel X} (is0 : @isbinophrel (rigaddabmonoid X) R)
       (is : isrigmultgt X R) : isrngmultgt (rigtorng X) (rigtorngrel X is0).
@@ -1376,11 +1376,11 @@ Proof.
   apply (setquotuniv2prop _ (fun a b => hProppair _ (int a b))).
 
   intros xa1 xa2.
-  change ((abgrfracrelint (rigaddabmonoid X) R) xa1 (dirprodpair (@rigunel1 X) (@rigunel1 X)) ->
-          (abgrfracrelint (rigaddabmonoid X) R) xa2 (dirprodpair (@rigunel1 X) (@rigunel1 X)) ->
-          (abgrfracrelint (rigaddabmonoid X) R (@rigtorngop2int X xa1 xa2)
+  change ((abgrdiffrelint (rigaddabmonoid X) R) xa1 (dirprodpair (@rigunel1 X) (@rigunel1 X)) ->
+          (abgrdiffrelint (rigaddabmonoid X) R) xa2 (dirprodpair (@rigunel1 X) (@rigunel1 X)) ->
+          (abgrdiffrelint (rigaddabmonoid X) R (@rigtorngop2int X xa1 xa2)
                           (dirprodpair (@rigunel1 X) (@rigunel1 X)))).
-  unfold abgrfracrelint. simpl. apply hinhfun2. intros t22 t21.
+  unfold abgrdiffrelint. simpl. apply hinhfun2. intros t22 t21.
   set (c2 := pr1 t21). set (c1 := pr1 t22).
   set (r1 := pr2 t21). set (r2 := pr2 t22).
   set (x1 := pr1 xa1). set (a1 := pr2 xa1).
@@ -1420,7 +1420,7 @@ Opaque isrngrigtorngmultgt.
 Definition isdecrigtorngrel (X : rig) {R : hrel X} (is : @isbinophrel (rigaddabmonoid X) R)
            (is' : @isinvbinophrel (rigaddabmonoid X) R) (isd : isdecrel R) :
   isdecrel (rigtorngrel X is).
-Proof. intros. apply (isdecabgrfracrel (rigaddabmonoid X) is is' isd). Defined.
+Proof. intros. apply (isdecabgrdiffrel (rigaddabmonoid X) is is' isd). Defined.
 
 Lemma isinvrngrigtorngmultgt (X : rig) {R : hrel X} (is0 : @isbinophrel (rigaddabmonoid X) R)
       (is1 : @isinvbinophrel (rigaddabmonoid X) R) (is : isinvrigmultgt X R) :
@@ -1437,11 +1437,11 @@ Proof.
     apply (setquotuniv2prop _ (fun a b => hProppair _ (int a b))).
 
     intros xa1 xa2.
-    change ((abgrfracrelint (rigaddabmonoid X) R (@rigtorngop2int X xa1 xa2)
+    change ((abgrdiffrelint (rigaddabmonoid X) R (@rigtorngop2int X xa1 xa2)
                             (dirprodpair (@rigunel1 X) (@rigunel1 X))) ->
-            (abgrfracrelint (rigaddabmonoid X) R) xa1 (dirprodpair (@rigunel1 X) (@rigunel1 X)) ->
-            (abgrfracrelint (rigaddabmonoid X) R) xa2 (dirprodpair (@rigunel1 X) (@rigunel1 X))).
-    unfold abgrfracrelint. simpl. apply hinhfun2. intros t22 t21.
+            (abgrdiffrelint (rigaddabmonoid X) R) xa1 (dirprodpair (@rigunel1 X) (@rigunel1 X)) ->
+            (abgrdiffrelint (rigaddabmonoid X) R) xa2 (dirprodpair (@rigunel1 X) (@rigunel1 X))).
+    unfold abgrdiffrelint. simpl. apply hinhfun2. intros t22 t21.
     set (c2 := pr1 t22). set (c1 := pr1 t21).
     set (r1 := pr2 t21). set (r2 := pr2 t22).
     set (x1 := pr1 xa1). set (a1 := pr2 xa1).
@@ -1467,11 +1467,11 @@ Proof.
     apply (setquotuniv2prop _ (fun a b => hProppair _ (int a b))).
 
     intros xa1 xa2.
-    change ((abgrfracrelint (rigaddabmonoid X) R (@rigtorngop2int X xa1 xa2)
+    change ((abgrdiffrelint (rigaddabmonoid X) R (@rigtorngop2int X xa1 xa2)
                             (dirprodpair (@rigunel1 X) (@rigunel1 X))) ->
-            (abgrfracrelint (rigaddabmonoid X) R) xa2 (dirprodpair (@rigunel1 X) (@rigunel1 X)) ->
-            (abgrfracrelint (rigaddabmonoid X) R) xa1 (dirprodpair (@rigunel1 X) (@rigunel1 X))).
-    unfold abgrfracrelint. simpl. apply hinhfun2. intros t22 t21.
+            (abgrdiffrelint (rigaddabmonoid X) R) xa2 (dirprodpair (@rigunel1 X) (@rigunel1 X)) ->
+            (abgrdiffrelint (rigaddabmonoid X) R) xa1 (dirprodpair (@rigunel1 X) (@rigunel1 X))).
+    unfold abgrdiffrelint. simpl. apply hinhfun2. intros t22 t21.
     set (c2 := pr1 t22). set (c1 := pr1 t21).
     set (r1 := pr2 t21). set (r2 := pr2 t22).
     set (x1 := pr1 xa1). set (a1 := pr2 xa1).
@@ -1494,7 +1494,7 @@ Opaque isinvrngrigtorngmultgt.
 (** **** Realations and the canonical homomorphism to the ring associated with a rig (ring of differences) *)
 
 Definition iscomptorngdiff (X : rig) {L : hrel X} (is0 : @isbinophrel (rigaddabmonoid X) L) :
-  iscomprelrelfun L (rigtorngrel X is0) (torngdiff X) := iscomptoabgrfrac (rigaddabmonoid X) is0.
+  iscomprelrelfun L (rigtorngrel X is0) (torngdiff X) := iscomptoabgrdiff (rigaddabmonoid X) is0.
 Opaque iscomptorngdiff.
 
 Close Scope rig_scope.

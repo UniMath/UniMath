@@ -1,4 +1,4 @@
-(* Terminal object defined as a limit *)
+(** Terminal object defined as a limit *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -170,7 +170,7 @@ Arguments Terminal : clear implicits.
 Arguments isTerminal : clear implicits.
 
 Lemma Terminal_from_Lims (C : precategory) :
-  Lims C -> Terminal C.
+  Lims_of_shape empty_graph  C -> Terminal C.
 Proof.
 now intros H; apply H.
 Defined.

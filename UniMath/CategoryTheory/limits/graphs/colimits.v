@@ -1,16 +1,15 @@
-(****************************************************
-  Benedikt Ahrens and Anders Mörtberg, October 2015
-*****************************************************)
 
 (** *************************************************
 
-Contents :
+Contents:
 
-            Definition of cocones
+- Definitions of graphs and diagrams
+- Formalization of colimits on this basis
+- Rules for pre- and post-composition
+- Proof that colimits form a property in a (saturated/univalent) category ([isaprop_Colims])
+- Pointwise construction of colimits in functor precategories ([ColimsFunctorCategory])
 
-	    Definition of colimits
-
-	    Colimits in functor categories
+Written by Benedikt Ahrens and Anders Mörtberg, 2015-2016
 
 *****************************************************)
 
@@ -40,12 +39,15 @@ Defined.
 
 End move_upstream.
 
+(** Definition of graphs and diagrams *)
 Section diagram_def.
 
 Definition graph := Σ (D : UU), D -> D -> UU.
 
 Definition vertex : graph -> UU := pr1.
 Definition edge {g : graph} : vertex g -> vertex g -> UU := pr2 g.
+
+Definition mk_graph (D : UU) (e : D → D → UU) : graph := tpair _ D e.
 
 Definition diagram (g : graph) (C : precategory) : UU :=
   Σ (f : vertex g -> C), Π (a b : vertex g), edge a b -> C⟦f a, f b⟧.
@@ -62,6 +64,7 @@ Variables (J C : precategory).
 Variable (F : functor J C).
 
 Definition graph_from_precategory : graph := pr1 (pr1 J).
+
 Definition diagram_from_functor : diagram graph_from_precategory C :=
   tpair _ _ (pr2 (pr1 F)).
 
@@ -69,13 +72,15 @@ End diagram_from_functor.
 
 End diagram_def.
 
-(* Definition diagram_after_functor (C : precategory) (F : functor C C) :  *)
+Coercion graph_from_precategory : precategory >-> graph.
 
+
+(** * Definition of colimits *)
 Section colim_def.
 
 Context {C : precategory} (hsC : has_homsets C).
 
-(* A cocone with tip c over a diagram d *)
+(** A cocone with tip c over a diagram d *)
 Definition cocone {g : graph} (d : diagram g C) (c : C) : UU :=
   Σ (f : Π (v : vertex g), C⟦dob d v,c⟧),
     Π (u v : vertex g) (e : edge u v), dmor d e ;; f v = f u.
@@ -84,7 +89,7 @@ Definition mk_cocone {g : graph} {d : diagram g C} {c : C}
   (f : Π v, C⟦dob d v,c⟧) (Hf : Π u v e, dmor d e ;; f v = f u) :
   cocone d c := tpair _ f Hf.
 
-(* The injections to c in the cocone *)
+(** The injections to c in the cocone *)
 Definition coconeIn {g : graph} {d : diagram g C} {c : C} (cc : cocone d c) :
   Π v, C⟦dob d v,c⟧ := pr1 cc.
 
@@ -94,7 +99,7 @@ Proof.
 exact (pr2 cc).
 Qed.
 
-(* cc0 is a colimit cocone if for any other cocone cc over the same
+(** cc0 is a colimit cocone if for any other cocone cc over the same
    diagram there is a unique morphism from the tip of cc0 to the tip
    of cc *)
 Definition isColimCocone {g : graph} (d : diagram g C) (c0 : C)
@@ -110,10 +115,6 @@ Definition ColimCocone {g : graph} (d : diagram g C) : UU :=
 Definition mk_ColimCocone {g : graph} (d : diagram g C)
   (c : C) (cc : cocone d c) (isCC : isColimCocone d c cc) : ColimCocone d :=
     tpair _ (tpair _ c cc) isCC.
-
-Definition Colims : UU := Π {g : graph} (d : diagram g C), ColimCocone d.
-Definition hasColims : UU  :=
-  Π {g : graph} (d : diagram g C), ishinh (ColimCocone d).
 
 (** colim is the tip of the colim cocone *)
 Definition colim {g : graph} {d : diagram g C} (CC : ColimCocone d) : C :=
@@ -365,11 +366,26 @@ use isopair.
               rewrite assoc, colimArrowCommutes; eapply pathscomp0; try apply colimArrowCommutes).
 Defined.
 
+End colim_def.
+
+Section Colims.
+
+Definition Colims (C : precategory) : UU := Π {g : graph} (d : diagram g C), ColimCocone d.
+Definition hasColims (C : precategory) : UU  :=
+  Π {g : graph} (d : diagram g C), ishinh (ColimCocone d).
+
+(** Colimits of a specific shape *)
+Definition Colims_of_shape (g : graph) (C : precategory) : UU :=
+  Π (d : diagram g C), ColimCocone d.
+
+(** If C is a category then Colims is a prop *)
 Section Universal_Unique.
 
-Hypothesis H : is_category C.
+Variables (C : category).
 
-Lemma isaprop_Colims: isaprop Colims.
+Let H : is_category C := pr2 C.
+
+Lemma isaprop_Colims: isaprop (Colims C).
 Proof.
 apply impred; intro g; apply impred; intro cc.
 apply invproofirrelevance; intros Hccx Hccy.
@@ -380,26 +396,20 @@ apply subtypeEquality.
   set (C' (c : C) f := Π u v (e : edge u v), @compose _ _ _ c (dmor cc e) (f v) = f u).
   rewrite (@transportf_total2 _ B C').
   apply subtypeEquality.
-  + intro; repeat (apply impred; intro); apply hsC.
+  + intro; repeat (apply impred; intro); apply category_has_homsets.
   + simpl; eapply pathscomp0; [apply transportf_isotoid_dep''|].
     apply funextsec; intro v.
     now rewrite idtoiso_isotoid; apply colimArrowCommutes.
 Qed.
 
 End Universal_Unique.
+End Colims.
 
-End colim_def.
-
-Arguments Colims : clear implicits.
-
-(** Defines colimits in functor categories when the target has colimits *)
+(** * Defines colimits in functor categories when the target has colimits *)
 Section ColimFunctor.
 
-Variable A C : precategory.
+Context {A C : precategory} (hsC : has_homsets C) {g : graph} (D : diagram g [A, C, hsC]).
 (* Variable HC : Colims C. *) (* Too strong! *)
-Variable hsC : has_homsets C.
-Variable g : graph.
-Variable D : diagram g [A, C, hsC].
 
 Definition diagram_pointwise (a : A) : diagram g C.
 Proof.
@@ -504,7 +514,6 @@ Proof.
   apply  (is_functor_iso_pointwise_if_iso _ _ _ _ _ _ XR).
 Defined.
 
-
 End ColimFunctor.
 
 Lemma ColimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
@@ -512,3 +521,104 @@ Lemma ColimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
 Proof.
 now intros g d; apply ColimFunctorCocone.
 Defined.
+
+Lemma ColimsFunctorCategory_of_shape (g : graph) (A C : precategory) (hsC : has_homsets C)
+  (HC : Colims_of_shape g C) : Colims_of_shape g [A,C,hsC].
+Proof.
+now intros d; apply ColimFunctorCocone.
+Defined.
+
+Lemma pointwise_Colim_is_isColimFunctor
+  {A C : precategory} (hsC: has_homsets C) {g : graph}
+  (d : diagram g [A,C,hsC]) (G : [A,C,hsC]) (ccG : cocone d G)
+  (H : Π a, isColimCocone _ _ (cocone_pointwise hsC d G ccG a)) :
+  isColimCocone d G ccG.
+Proof.
+set (CC a := mk_ColimCocone _ _ _ (H a)).
+set (D' := ColimFunctorCocone _ _ CC).
+use is_iso_isColim.
+- apply functor_category_has_homsets.
+- apply D'.
+- use is_iso_qinv.
+  + mkpair.
+    * intros a; apply identity.
+    * abstract (intros a b f; rewrite id_left, id_right; simpl;
+                apply (colimArrowUnique (CC a)); intro u; cbn;
+                now rewrite <- (nat_trans_ax (coconeIn ccG u))).
+  + abstract (split;
+    [ apply (nat_trans_eq hsC); intros x; simpl; rewrite id_right;
+      apply pathsinv0, colimArrowUnique; intros v;
+      now rewrite id_right
+    | apply (nat_trans_eq hsC); intros x; simpl; rewrite id_left;
+      apply pathsinv0, (colimArrowUnique (CC x)); intro u;
+      now rewrite id_right]).
+Defined.
+
+Section map.
+
+Context {C D : precategory} (F : functor C D).
+
+Definition mapdiagram {g : graph} (d : diagram g C) : diagram g D.
+Proof.
+mkpair.
+- intros n; apply (F (dob d n)).
+- simpl; intros m n e.
+  apply (# F (dmor d e)).
+Defined.
+
+Definition mapcocone {g : graph} (d : diagram g C) {x : C}
+  (dx : cocone d x) : cocone (mapdiagram d) (F x).
+Proof.
+use mk_cocone.
+- simpl; intro n.
+  exact (#F (coconeIn dx n)).
+- abstract (intros u v e; simpl; rewrite <- functor_comp;
+            apply maponpaths, (coconeInCommutes dx _ _ e)).
+Defined.
+
+Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
+  (cc : cocone d L) : UU :=
+  isColimCocone d L cc -> isColimCocone (mapdiagram d) (F L) (mapcocone d cc).
+
+(** ** Left adjoints preserve colimits *)
+Lemma left_adjoint_preserves_colimit (HF : is_left_adjoint F) (hsC : has_homsets C) (hsD : has_homsets D)
+      {g : graph} (d : diagram g C) (L : C) (ccL : cocone d L) : preserves_colimit d L ccL.
+Proof.
+intros HccL M ccM.
+set (G := right_adjoint HF).
+set (H := pr2 HF : are_adjoints F G).
+apply (@iscontrweqb _ (Σ y : C ⟦ L, G M ⟧,
+    Π i, coconeIn ccL i ;; y = φ_adj H (coconeIn ccM i))).
+- eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
+    Π i, # F (coconeIn ccL i) ;; φ_adj_inv H y = coconeIn ccM i)).
+  + apply (weqbandf (adjunction_hom_weq H L M)); simpl; intro f.
+    abstract (apply weqiff; try (apply impred; intro; apply hsD);
+    now rewrite φ_adj_inv_after_φ_adj).
+  + eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
+      Π i, φ_adj_inv H (coconeIn ccL i ;; y) = coconeIn ccM i)).
+    * apply weqfibtototal; simpl; intro f.
+    abstract (apply weqiff; try (apply impred; intro; apply hsD); split;
+      [ intros HH i; rewrite φ_adj_inv_natural_precomp; apply HH
+      | intros HH i; rewrite <- φ_adj_inv_natural_precomp; apply HH ]).
+      (* apply weqonsecfibers; intro i. *)
+      (* rewrite φ_adj_inv_natural_precomp; apply idweq. *)
+    * apply weqfibtototal; simpl; intro f.
+    abstract (apply weqiff; [ | apply impred; intro; apply hsD | apply impred; intro; apply hsC ];
+      split; intros HH i;
+        [ now rewrite <- (HH i), φ_adj_after_φ_adj_inv
+        | now rewrite (HH i),  φ_adj_inv_after_φ_adj ]).
+      (* apply weqonsecfibers; intro i. *)
+      (* apply weqimplimpl; [ | | apply hsD | apply hsC]; intro h. *)
+      (*   now rewrite <- h, (φ_adj_after_φ_adj_inv _ _ _ H). *)
+      (* now rewrite h, (φ_adj_inv_after_φ_adj _ _ _ H). *)
+- transparent assert (X : (cocone d (G M))).
+  { use mk_cocone.
+    + intro v; apply (φ_adj H (coconeIn ccM v)).
+    + abstract (intros m n e; simpl;
+                rewrite <- (coconeInCommutes ccM m n e); simpl;
+                now rewrite φ_adj_natural_precomp).
+  }
+  apply (HccL (G M) X).
+Defined.
+
+End map.

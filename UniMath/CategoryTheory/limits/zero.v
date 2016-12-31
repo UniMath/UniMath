@@ -35,6 +35,7 @@ Section def_zero.
   Defined.
 
   Definition ZeroArrowFrom (Z : Zero) (b : C) : Z --> b := pr1 (pr1 (pr2 Z) b).
+
   Definition ZeroArrowTo (Z : Zero) (b : C) : b --> Z := pr1 (pr2 (pr2 Z) b).
 
   Lemma ArrowsToZero (Z : Zero) (b : C) (f g : b --> Z) : f = g.
@@ -42,19 +43,18 @@ Section def_zero.
     apply proofirrelevance.
     apply isapropifcontr.
     apply (pr2 (pr2 Z) _).
-  Defined.
+  Qed.
 
   Lemma ArrowsFromZero (Z : Zero) (b : C) (f g : Z --> b) : f = g.
   Proof.
     apply proofirrelevance.
     apply isapropifcontr.
     apply (pr1 (pr2 Z) _).
-  Defined.
+  Qed.
 
   (** For any pair of objects, there exists a unique arrow which factors
     through the zero object *)
-  Definition ZeroArrow (Z : Zero) (a b : C) : C⟦a, b⟧
-    := (ZeroArrowTo Z a) ;; (ZeroArrowFrom Z b).
+  Definition ZeroArrow (Z : Zero) (a b : C) : C⟦a, b⟧ := (ZeroArrowTo Z a) ;; (ZeroArrowFrom Z b).
 
   Lemma ZeroArrowEq (Z : Zero) (a b : C) (f1 : C⟦a, Z⟧) (g1 : C⟦Z, b⟧) :
     f1 ;; g1 = ZeroArrow Z a b.
@@ -62,36 +62,51 @@ Section def_zero.
     rewrite (ArrowsToZero Z a f1 (ZeroArrowTo Z a)).
     rewrite (ArrowsFromZero Z b g1 (ZeroArrowFrom Z b)).
     apply idpath.
-  Defined.
+  Qed.
 
   Lemma ZeroArrow_comp_left (Z : Zero) (a b c : C) (f : C⟦b, c⟧) :
     ZeroArrow Z a b ;; f = ZeroArrow Z a c.
   Proof.
     unfold ZeroArrow at 1. rewrite <- assoc.
     apply ZeroArrowEq.
-  Defined.
+  Qed.
 
   Lemma ZeroArrow_comp_right (Z : Zero) (a b c : C) (f : C⟦a, b⟧) :
     f ;; ZeroArrow Z b c = ZeroArrow Z a c.
   Proof.
     unfold ZeroArrow at 1. rewrite assoc.
     apply ZeroArrowEq.
-  Defined.
+  Qed.
 
   Lemma ZeroEndo_is_identity (Z : Zero) (f : Z --> Z) : identity Z = f.
   Proof.
     apply ArrowsToZero.
-  Defined.
+  Qed.
 
   Lemma isiso_from_Zero_to_Zero (Z Z' : Zero) :
     is_isomorphism (ZeroArrowTo Z Z').
   Proof.
     apply (is_iso_qinv _ (ZeroArrowTo Z' Z)).
     split; apply pathsinv0; apply ZeroEndo_is_identity.
-  Defined.
+  Qed.
 
   Definition iso_Zeros (Z Z' : Zero) : iso Z Z' :=
     tpair _ (ZeroArrowTo Z' Z) (isiso_from_Zero_to_Zero Z' Z).
+
+  Lemma ZerosArrowEq (Z Z' : Zero) (a b : C) : ZeroArrow Z a b = ZeroArrow Z' a b.
+  Proof.
+    set (i := iso_Zeros Z Z').
+    unfold ZeroArrow.
+    assert (e : ZeroArrowTo Z a ;; identity _ = ZeroArrowTo Z a) by apply id_right.
+    rewrite <- e. clear e.
+    rewrite <- (iso_inv_after_iso i). rewrite assoc.
+    assert (e1 : ZeroArrowTo Z a ;; i = ZeroArrowTo Z' a) by apply ArrowsToZero.
+    rewrite e1. clear e1.
+    assert (e2 : inv_from_iso i ;; ZeroArrowFrom Z b = ZeroArrowFrom Z' b)
+      by apply ArrowsFromZero.
+    rewrite <- assoc. rewrite e2. clear e2.
+    apply idpath.
+  Qed.
 
   Definition hasZero := ishinh Zero.
 
@@ -115,7 +130,42 @@ Section def_zero.
   Proof.
     unfold isZero, isInitial, isTerminal.
     split; intros H; apply H.
-  Defined.
+  Qed.
+
+  Definition IsoToisZero {A : C} (Z : Zero) (i : iso A Z) :
+    isZero A.
+  Proof.
+    use mk_isZero.
+    - intros a.
+      use tpair.
+      + exact (i ;; (ZeroArrowFrom Z a)).
+      + cbn. intros t.
+        apply (pre_comp_with_iso_is_inj
+                 C _ _ a (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
+        rewrite assoc. cbn. rewrite (iso_after_iso_inv i). rewrite id_left.
+        apply ArrowsFromZero.
+    - intros a.
+      use tpair.
+      + exact ((ZeroArrowTo Z a) ;; (iso_inv_from_iso i)).
+      + cbn. intros t.
+        apply (post_comp_with_iso_is_inj C _ _ i (pr2 i)).
+        rewrite <- assoc. rewrite (iso_after_iso_inv i). rewrite id_right.
+        apply ArrowsToZero.
+  Qed.
+
+
+  (** ** Transport of ZeroArrow *)
+  Lemma transport_target_ZeroArrow {a b c : C} (Z : Zero) (e : b = c) :
+    transportf _ e (ZeroArrow Z a b) = ZeroArrow Z a c.
+  Proof.
+    induction e. apply idpath.
+  Qed.
+
+  Lemma transport_source_ZeroArrow {a b c : C} (Z : Zero) (e : b = a) :
+    transportf (fun (a' : ob C) => precategory_morphisms a' c) e (ZeroArrow Z b c) = ZeroArrow Z a c.
+  Proof.
+    induction e. apply idpath.
+  Qed.
 
 End def_zero.
 
@@ -123,5 +173,6 @@ End def_zero.
 Arguments ZeroObject [C] _.
 Arguments ZeroArrowTo [C]{Z} b.
 Arguments ZeroArrowFrom [C]{Z} b.
+Arguments ZeroArrow [C] _ _ _.
 Arguments mk_isZero {_} _ _ _ .
 Arguments mk_Zero {_} _ _ .

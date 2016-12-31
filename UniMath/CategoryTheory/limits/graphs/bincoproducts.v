@@ -1,7 +1,8 @@
 (** ******************************************
-Benedikt Ahrens, March 2015
 
 Binary coproducts defined as a colimit
+
+Written by: Benedikt Ahrens, March 2015
 
 *********************************************)
 
@@ -285,7 +286,7 @@ End coproduct_unique.
 End bincoproduct_def.
 
 Lemma BinCoproducts_from_Colims (C : precategory) :
-  Colims C -> BinCoproducts C.
+  Colims_of_shape two_graph C -> BinCoproducts C.
 Proof.
 now intros H a b; apply H.
 Defined.

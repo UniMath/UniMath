@@ -509,7 +509,8 @@ Proof.
     intros O.
     apply (pr1 H) with (pr1 (pr1 O)).
     apply (pr2 (pr2 O)).
-    apply (pr2 (pr1 O)), (pr1 (pr2 O)).
+    simple refine (pr2 (pr1 O) _ _).
+    exact (pr1 (pr2 O)).
 Qed.
 
 Lemma isNeighborhood_isPreFilter {X : UU} N :
@@ -595,13 +596,13 @@ Proof.
   - apply (pr2 (pr2 (pr2 La))).
     intros n.
     simpl in X0.
-    specialize (X0 (weqfromcoprodofstn (length (pr1 La)) (length (pr1 Lb)) (ii1 n))).
-    now rewrite homotinvweqweq, coprod_rect_compute_1 in X0.
+    specialize (X0 (weqfromcoprodofstn_map (length (pr1 La)) (length (pr1 Lb)) (ii1 n))).
+    now rewrite (weqfromcoprodofstn_eq1 _ _) , coprod_rect_compute_1 in X0.
   - apply (pr2 (pr2 (pr2 Lb))).
     intros n.
     simpl in X0.
-    specialize (X0 (weqfromcoprodofstn (length (pr1 La)) (length (pr1 Lb)) (ii2 n))).
-    now rewrite homotinvweqweq, coprod_rect_compute_2 in X0.
+    specialize (X0 (weqfromcoprodofstn_map (length (pr1 La)) (length (pr1 Lb)) (ii2 n))).
+    now rewrite (weqfromcoprodofstn_eq1 _ _), coprod_rect_compute_2 in X0.
 Qed.
 
 Lemma topologygenerated_point :
