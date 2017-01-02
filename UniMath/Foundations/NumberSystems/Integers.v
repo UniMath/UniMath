@@ -962,6 +962,15 @@ Proof.
   confirm_not_equal isdecrelhzeq.
 Qed.
 
+Lemma hzbooleqisi' (i : hz) : hzbooleq i (i + 1) = false.
+Proof.
+  (* prove it again, to illustrate how to avoid the tactic [confirm_not_equal] *)
+  intros i. apply negrtopaths.
+  apply (negf (λ e, hzpluslcan _ _ _ (! (hzplusr0 i @ e)))); clear i.
+  simple refine (confirm_not_equal isdecrelhzeq _ _ _).
+  reflexivity.
+Qed.
+
 Lemma hzbooleqissi (i : hz) : hzbooleq i (i + 1 + 1) = false.
 Proof.
   intros i. apply negrtopaths.

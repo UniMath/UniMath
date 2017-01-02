@@ -1144,12 +1144,50 @@ Defined.
 Notation " 'ct' ( R , is , x , y ) " := (ctlong R is x y (idpath true))
                                           (at level 70).
 
-(* An alternative to [ct], with tactics and negations *)
+(*
+
+  Tactics for computing with decidable relations
+
+  A tactic alternative to [ct], with negation
+
+  If [R x y] is a decidable relation on a type [X], then, by definition, we have a proof of [d : R x
+  y ⨿ ¬ R x y].  If [x] and [y] are constants (definable in an empty context), then simplification
+  of [d] will yield either a term of the form [inl p] or [inr q], depending on whether [R x y] is
+  true or false.  Let us suppose the answer turns out to be true.  Then if our current proof goal is
+  [R x y], then we can automate the proof by first converting [R] to a binary relation [S], so that
+  [S x y] simplifies to [true].  Then we know that a proof of [S x y = true] is [idpath true], and
+  we can convert that into a proof of [R x y] using a proof of the implication [S x y = true → R x
+  y].  Similarly, if the answer turns out to be false, then we know that a proof of [S x y = false]
+  is [idpath false], and we can convert that into a proof of [¬ R x y].
+
+  The tactics [confirm_equal] and [confirm_not_equal] make this strategy concise when the goal is of
+  the form [x = y] or [x != y] and we have a proof [i] that equality is decidable.
+
+  (It would be redundant to also have a proof that inequality is decidable.)
+
+  To evaluate whether having a tactic simplifies things, compare the proofs of [hzbooleqisi] and
+  [hzbooleqisi'] in Integers.v.
+
+ *)
 
 Definition deceq_to_decrel {X:UU} : isdeceq X -> decrel X.
 Proof. intros ? i. use decrelpair.
        - intros x y. exists (x=y). now apply isasetifdeceq.
        - exact i.
+Defined.
+
+Definition confirm_equal {X : UU} (i : isdeceq X) (x x' : X)
+           (e : decreltobrel (deceq_to_decrel i) x x' = true) : x = x'.
+Proof.
+  intros.
+  exact (pathstor (deceq_to_decrel i) _ _ e).
+Defined.
+
+Definition confirm_not_equal {X : UU} (i : isdeceq X) (x x' : X)
+           (e : decreltobrel (deceq_to_decrel i) x x' = false) : x != x'.
+Proof.
+  intros.
+  exact (pathstonegr (deceq_to_decrel i) _ _ e).
 Defined.
 
 Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
@@ -1158,10 +1196,11 @@ Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification th
   exact ((@idfun G : T -> G) x).
 
 (* I don't know why exact_op works better here, but with "exact", the code in RealNumbers/Prelim.v breaks *)
-Ltac confirm_yes d x y := exact_op (pathstor d x y (idpath true)).
-Ltac confirm_no  d x y := exact_op (pathstonegr d x y (idpath false)).
-Ltac confirm_equal     i := match goal with |- ?x = ?y => confirm_yes (deceq_to_decrel i) x y end.
-Ltac confirm_not_equal i := match goal with |- ?x != ?y => confirm_no (deceq_to_decrel i) x y end.
+Ltac confirm_yes      d x y := exact_op (pathstor d x y (idpath true)).
+Ltac confirm_no       d x y := exact_op (pathstonegr d x y (idpath false)).
+Ltac confirm_equal        i := match goal with |- ?x = ?y => confirm_yes (deceq_to_decrel i) x y end.
+Ltac confirm_not_equal    i := match goal with |- ?x != ?y => confirm_no (deceq_to_decrel i) x y end.
+Ltac confirm_equal_absurd i := match goal with |- ?x = ?y → ∅ => confirm_no (deceq_to_decrel i) x y end.
 
 (** *** Restriction of a relation to a subtype *)
 
