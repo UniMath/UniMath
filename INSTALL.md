@@ -23,7 +23,7 @@ install "ocamlfind", but it ends up in a nonstandard place.)
 Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
 
 ```bash
-$ sudo apt-get install ocaml ocaml-nox ocaml-native-compilers camlp4-extra proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0
+$ sudo apt-get install ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
 ```
 
 Under Mac OS X, you may obtain ProofGeneral from http://proofgeneral.inf.ed.ac.uk/.
