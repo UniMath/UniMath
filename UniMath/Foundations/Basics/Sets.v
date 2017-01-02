@@ -1150,7 +1150,7 @@ Notation " 'ct' ( R , is , x , y ) " := (ctlong R is x y (idpath true))
 
   A tactic alternative to [ct], with negation
 
-  If [R x y] is a decidable relation on a type [X], then, by definition, we have a proof of [d : R x
+  If [R x y] is a decidable relation on a type [X], then, by definition, we have a proof [d] of [R x
   y ⨿ ¬ R x y].  If [x] and [y] are constants (definable in an empty context), then simplification
   of [d] will yield either a term of the form [inl p] or [inr q], depending on whether [R x y] is
   true or false.  Let us suppose the answer turns out to be true.  Then if our current proof goal is
