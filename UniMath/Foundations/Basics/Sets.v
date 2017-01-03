@@ -1370,32 +1370,17 @@ Proof.
 Qed.
    
 Lemma epiissurjectiontosets {A B : UU} (p : A -> B) (isB:isaset B)
-      (epip : Π C (g1 g2:B->C), (Π x : A, g1 (p x) = g2 (p x)) ->
+      (epip : Π (C:hSet) (g1 g2:B->C), (Π x : A, g1 (p x) = g2 (p x)) ->
                                (Π y : B, g1 y = g2 y)) :   issurjective p.
 Proof.
   intros.
   assert(pred_set : isaset (B -> hProp)).
-  {
-    apply (isaset_set_fun_space _ (hSetpair _ isasethProp)).
-  }
-
-    (*
-    assert(eq_prop : Π (b x:pr1 B),  isaprop (Σ y:hfiber p b, x = p (pr1 y))).
-    {
-      intros b x.
-      apply invproofirrelevance.
-      intros u u'.
-      induction (pr2 u).
-      intros.
-      red.
-      Search _ (isaprop (Σ _, _=_)).
-     *)
-
-    specialize (epip (hSetpair _ pred_set)
+  { apply (isaset_set_fun_space _ (hSetpair _ isasethProp)). }
+  specialize (epip (hSetpair _ pred_set)
                    (fun b x => ∥ Σ y : hfiber p b, x = p (pr1 y) ∥ )
                    (fun b x => hProppair (x = b) (isB x b))
                ).
-    lapply epip.
+  lapply epip.
   - intro h.    
     intro y.
     specialize (h y).
