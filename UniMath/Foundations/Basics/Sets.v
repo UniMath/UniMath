@@ -1349,7 +1349,7 @@ Defined.
 
 
 (** ** Universal property enjoyed by surjections 
-
+<<
     f
  A ---> C
  |
@@ -1357,10 +1357,10 @@ Defined.
  |
  v
  B
+>>
 
 If p is surjective and forall x, y dans A, p(x)=p(y) => f(x)=f(y)
 then there exists a unique function from B to C that makes the diagram commute
-
 *)
 Section LiftSurjection.
 
@@ -1381,17 +1381,17 @@ Section LiftSurjection.
     intro H.
     apply iscontraprop1.
     (* inspired by isapropimeqclass *)
-    apply isapropsubtype.
-    intros x1 x2.    
-    apply (@hinhuniv2 _ _ (hProppair _ (hsc _ _))).
-    simpl; intros y1 y2; simpl.
-    destruct y1 as [ [z1 h1] h1' ].
-    destruct y2 as [ [z2 h2] h2' ].
-    rewrite <- h1' ,<-h2'.
-    apply comp_f_epi;simpl.
-    rewrite h1,h2.
-    apply idpath.    
-    apply prtoimage. apply H.
+    -  apply isapropsubtype.
+       intros x1 x2.    
+       apply (@hinhuniv2 _ _ (hProppair _ (hsc _ _))).
+       simpl; intros y1 y2; simpl.
+       destruct y1 as [ [z1 h1] h1' ].
+       destruct y2 as [ [z2 h2] h2' ].
+       rewrite <- h1' ,<-h2'.
+       apply comp_f_epi;simpl.
+       rewrite h1,h2.
+       apply idpath.    
+    - apply prtoimage. apply H.
   Defined.
 
   Definition univ_surj : B -> C :=
