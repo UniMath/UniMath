@@ -40,6 +40,7 @@ moment without the Type in Type patch.
  - Equivalence classes with respect to a given relation
  - Direct product of equivalence classes
 - Surjections to sets are epimorphisms
+- Universal property enjoyed by surjections 
 - Set quotients of types
  - Set quotients defined in terms of equivalence classes
  - Universal property of [setquot R] for functions to sets satisfying
@@ -1347,6 +1348,80 @@ Proof.
 Defined.
 
 
+(** ** Universal property enjoyed by surjections 
+
+    f
+ A ---> C
+ |
+ | p
+ |
+ v
+ B
+
+If p is surjective and forall x, y dans A, p(x)=p(y) => f(x)=f(y)
+then there exists a unique function from B to C that makes the diagram commute
+
+*)
+Section LiftSurjection.
+
+  Context {A B C :UU}.
+  Hypothesis (hsc:isaset C).
+  Variables        (p : A -> B ) (f: A -> C ).
+
+  Hypothesis (comp_f_epi: Π x y, p x =  p y -> f x = f y).
+  Hypothesis (surjectivep : issurjective p).
+
+  (* Reformulation of the previous hypothesis *)
+  Lemma comp_f_epi_hprop : Π b : B, iscontr
+                                        (image (fun (x:hfiber p b) => f (pr1 x))).
+  Proof.
+    intro b.
+    apply (squash_to_prop (surjectivep b)).
+    { apply isapropiscontr. }
+    intro H.
+    apply iscontraprop1.
+    (* inspired by isapropimeqclass *)
+    apply isapropsubtype.
+    intros x1 x2.    
+    apply (@hinhuniv2 _ _ (hProppair _ (hsc _ _))).
+    simpl; intros y1 y2; simpl.
+    destruct y1 as [ [z1 h1] h1' ].
+    destruct y2 as [ [z2 h2] h2' ].
+    rewrite <- h1' ,<-h2'.
+    apply comp_f_epi;simpl.
+    rewrite h1,h2.
+    apply idpath.    
+    apply prtoimage. apply H.
+  Defined.
+
+  Definition univ_surj : B -> C :=
+    (fun b => (pr1 (pr1 (comp_f_epi_hprop b)))).
+  
+  Lemma univ_surj_ax : Π x,  univ_surj (p x) = f x.
+  Proof.
+    intro x.
+    apply pathsinv0.
+    apply path_to_ctr.
+    apply (squash_to_prop (surjectivep (p x))). 
+    { apply isapropishinh. }
+    intro r. apply hinhpr.
+    exists r.
+    apply comp_f_epi.
+    apply (pr2 r).
+  Defined.
+
+  Lemma univ_surj_unique : Π (g : B -> C) (H : Π a : A, g (p a) = f a)
+                            (b : B), g b = univ_surj b.
+  Proof.    
+    intros g H b.
+    apply (surjectionisepitosets p); [easy|easy|].
+    intro x.
+    now rewrite H,univ_surj_ax.
+  Qed.
+
+    
+
+End LiftSurjection.
 
 
 
