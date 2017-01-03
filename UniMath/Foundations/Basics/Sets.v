@@ -40,6 +40,7 @@ moment without the Type in Type patch.
  - Equivalence classes with respect to a given relation
  - Direct product of equivalence classes
 - Surjections to sets are epimorphisms
+- Epimorphisms are surjections
 - Universal property enjoyed by surjections 
 - Set quotients of types
  - Set quotients defined in terms of equivalence classes
@@ -1346,6 +1347,83 @@ Proof.
   - intro X1. assumption.
   - assumption.
 Defined.
+
+(** ** Epimorphisms are surjections to sets 
+
+The proof goes as follows :
+
+Let p : A -> B be an epi.
+
+Let f,g : B -> P(B) defined by
+f(x) = {x}
+g(x) = p(p^-1({x})) (either {x} or the empty set if x is not in the image)
+
+Then f o p = g o p, so f = g, so p is surjective
+ *)
+
+Lemma isaset_set_fun_space A (B : hSet) : isaset (A -> B).
+Proof.
+  intros.
+  change isaset with (isofhlevel 2).
+  apply impred.
+  apply (fun _ => (pr2 B)).
+Qed.
+   
+Lemma epiissurjectiontosets {A B : UU} (p : A -> B) (isB:isaset B)
+      (epip : Π C (g1 g2:B->C), (Π x : A, g1 (p x) = g2 (p x)) ->
+                               (Π y : B, g1 y = g2 y)) :   issurjective p.
+Proof.
+  intros.
+  assert(pred_set : isaset (B -> hProp)).
+  {
+    apply (isaset_set_fun_space _ (hSetpair _ isasethProp)).
+  }
+
+    (*
+    assert(eq_prop : Π (b x:pr1 B),  isaprop (Σ y:hfiber p b, x = p (pr1 y))).
+    {
+      intros b x.
+      apply invproofirrelevance.
+      intros u u'.
+      induction (pr2 u).
+      intros.
+      red.
+      Search _ (isaprop (Σ _, _=_)).
+     *)
+
+    specialize (epip (hSetpair _ pred_set)
+                   (fun b x => ∥ Σ y : hfiber p b, x = p (pr1 y) ∥ )
+                   (fun b x => hProppair (x = b) (isB x b))
+               ).
+    lapply epip.
+  - intro h.    
+    intro y.
+    specialize (h y).
+    apply toforallpaths in h.
+    specialize (h y).
+    cbn in h.
+    match type of h with _ = ?type_witn => set (typ:= type_witn) in h end.
+    assert (witness:typ ).
+    { apply idpath. }
+    revert witness.
+    rewrite <- h.
+    apply hinhfun.
+    intro h'.
+    exact (pr1 h').
+  - intro b.
+    apply funextfun.
+    intro x; cbn.
+    apply weqtopathshProp.
+    apply logeqweq.
+    + apply hinhuniv.
+      intros [y eqx].
+      rewrite eqx.
+      apply (hfiberpr2 _ _ y).
+    + intro eqx.
+      apply hinhpr.
+      use tpair;[now exists b|exact eqx].
+Qed.
+
 
 
 (** ** Universal property enjoyed by surjections 
