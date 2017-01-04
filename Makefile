@@ -33,7 +33,6 @@ ifeq "$(BUILD_COQIDE)" "yes"
 all: build-coqide
 build-coqide: sub/coq/bin/coqide
 COQIDE_OPTION := opt
-LABLGTK := -lablgtkdir "$(shell pwd)"/sub/lablgtk/src
 endif
 endif
 
@@ -150,30 +149,19 @@ distclean::          ; - $(MAKE) -C sub/lablgtk arch-clean
 
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
-sub/lablgtk/README:
-	git submodule update --init sub/lablgtk
 sub/coq/configure sub/coq/configure.ml:
 	git submodule update --init sub/coq
-ifeq "$(BUILD_COQ) $(BUILD_COQIDE)" "yes yes"
-sub/coq/config/coq_config.ml: sub/lablgtk/src/gSourceView2.cmi
-endif
 sub/coq/config/coq_config.ml: sub/coq/configure sub/coq/configure.ml
 	: making $@ because of $?
-	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" $(LABLGTK) -with-doc no -annotate -debug -local
+	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" -with-doc no -annotate -debug -local
 # instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 .PHONY: rebuild-coq
 rebuild-coq sub/coq/bin/coq_makefile sub/coq/bin/coqc:
 	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqbinaries tools states
-sub/coq/bin/coqide: sub/lablgtk/README sub/coq/config/coq_config.ml
+sub/coq/bin/coqide: sub/coq/config/coq_config.ml
 	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
 configure-coq: sub/coq/config/coq_config.ml
-# we use sub/lablgtk/src/gSourceView2.cmi as a proxy for all of lablgtk
-# note: under Mac OS X, "homebrew" installs lablgtk without that file, but it's needed for building coqide.  That's why we build lablgtk ourselves.
-# note: lablgtk needs camlp4, not camlp5.  Strange, but it does.  So we must install that, too.
-build-lablgtk sub/lablgtk/src/gSourceView2.cmi: sub/lablgtk/README
-	cd sub/lablgtk && ./configure
-	$(MAKE) -C sub/lablgtk all byte opt world
 git-describe:
 	git describe --dirty --long --always --abbrev=40
 	git submodule foreach git describe --dirty --long --always --abbrev=40 --tags
