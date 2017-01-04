@@ -25,6 +25,7 @@ Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 
+Require Import UniMath.Foundations.Algebra.BinaryOperations.
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups.
 
 Require Import UniMath.Foundations.NumberSystems.Integers.
@@ -253,6 +254,13 @@ End ABGR_category.
 (** ** General results
   Move these *)
 Section ABGR_general.
+
+  Definition monoidfun_eq {A B : abgr} (f g : monoidfun A B) (H : Π (x : A), f x = g x) : f = g.
+  Proof.
+    use total2_paths.
+    - use funextfun. intros x. exact (H x).
+    - use proofirrelevance. apply isapropismonoidfun.
+  Qed.
 
   (** Binop preserves equality. *)
   Lemma lopeq (X : setwithbinop) (x y z : X) : x = y -> @op X z x = @op X z y.
@@ -2072,3 +2080,205 @@ Section ABGR_abelianprecat.
   Defined.
 
 End ABGR_abelianprecat.
+
+
+Section ABGR_corollaries.
+
+  (** Some applications to Additive categories *)
+  Lemma AdditiveZeroArrow_postmor_Abelian {Add : Additive} (x y z : Add) :
+    to_postmor_monoidfun Add x y z (ZeroArrow (Additive.to_Zero Add) y z) =
+    ZeroArrow (@to_Zero ABGR_AbelianPreCat) (@to_abgrop Add x y) (@to_abgrop Add x z).
+  Proof.
+    rewrite ABGR_has_zero_arrow_eq.
+    unfold to_postmor_monoidfun.
+    unfold ABGR_zero_arrow.
+    use monoidfun_eq.
+    intros g. cbn. unfold to_postmor. cbn.
+    rewrite ZeroArrow_comp_right.
+    rewrite <- PreAdditive_unel_zero.
+    apply idpath.
+  Qed.
+
+  Lemma AdditiveZeroArrow_premor_Abelian {Add : Additive} (x y z : Add) :
+    to_premor_monoidfun Add x y z (ZeroArrow (Additive.to_Zero Add) x y) =
+    ZeroArrow (@to_Zero ABGR_AbelianPreCat) (@to_abgrop Add y z) (@to_abgrop Add x z).
+  Proof.
+    rewrite ABGR_has_zero_arrow_eq.
+    unfold to_premor_monoidfun.
+    unfold ABGR_zero_arrow.
+    use monoidfun_eq.
+    intros g. cbn. unfold to_premor.
+    rewrite ZeroArrow_comp_left. rewrite <- PreAdditive_unel_zero.
+    apply idpath.
+  Qed.
+
+  (** is_iso_premor *)
+
+  Lemma ABGR_Additive_is_iso_premor {Add : Additive} (x y z : Add) {f : x --> y} (H : is_iso f) :
+    @is_iso ABGR_AbelianPreCat _ _ (to_premor_monoidfun Add x y z f).
+  Proof.
+    use (@is_iso_qinv ABGR_AbelianPreCat).
+    - exact (to_premor_monoidfun Add _ _ z (inv_from_iso (isopair _ H))).
+    - split.
+      + use monoidfun_eq.
+        intros x0. cbn. unfold to_premor. rewrite assoc.
+        rewrite iso_after_iso_inv.
+        apply id_left.
+      + use monoidfun_eq.
+        intros x0. cbn. unfold to_premor. rewrite assoc.
+        assert (X : f ;; inv_from_iso (isopair f H) = identity _).
+        {
+          rewrite <- (iso_inv_after_iso (isopair _ H)).
+          apply idpath.
+        }
+        rewrite X. apply id_left.
+  Qed.
+
+  Lemma ABGR_Additive_is_iso_postmor {Add : Additive} (x y z : Add) {f : y --> z} (H : is_iso f) :
+    @is_iso ABGR_AbelianPreCat _ _ (to_postmor_monoidfun Add x y z f).
+  Proof.
+    use (@is_iso_qinv ABGR_AbelianPreCat).
+    - exact (to_postmor_monoidfun Add x _ _ (inv_from_iso (isopair _ H))).
+    - split.
+      + use monoidfun_eq.
+        intros x0. cbn. unfold to_postmor. rewrite <- assoc.
+        assert (X : f ;; inv_from_iso (isopair f H) = identity _).
+        {
+          rewrite <- (iso_inv_after_iso (isopair _ H)).
+          apply idpath.
+        }
+        rewrite X. apply id_right.
+      + use monoidfun_eq.
+        intros x0. cbn. unfold to_postmor. rewrite <- assoc.
+        rewrite iso_after_iso_inv. apply id_right.
+  Qed.
+
+  Lemma ABGR_Additive_premor_postmor_is_iso {Add : Additive} (x y : Add) {f : x --> y}
+        (H1 : @is_iso ABGR_AbelianPreCat _ _ (to_premor_monoidfun Add x y x f))
+        (H2 : @is_iso ABGR_AbelianPreCat _ _ (to_postmor_monoidfun Add y x y f)) :
+    is_iso f.
+  Proof.
+    set (iso1 := isopair _ H1).
+    set (iso2 := isopair _ H2).
+    set (inv1 := inv_from_iso iso1).
+    set (inv2 := inv_from_iso iso2).
+    cbn in *.
+    set (mor1 := (pr1 inv1) (identity x)).
+    set (mor2 := (pr1 inv2) (identity y)).
+    (* Show that mor1 = mor2 *)
+    cbn in *.
+    assert (Hx : f ;; mor1 = identity x).
+    {
+      set (tmp := @iso_after_iso_inv ABGR_AbelianPreCat _ _ iso1).
+      apply base_paths in tmp.
+      cbn in tmp. unfold to_premor, funcomp in tmp.
+      set (tmp2 := funeqpaths tmp (identity x)). cbn in tmp2.
+      apply tmp2.
+    }
+    assert (Hy : mor2 ;; f = identity y).
+    {
+      set (tmp := @iso_after_iso_inv ABGR_AbelianPreCat _ _ iso2).
+      apply base_paths in tmp. cbn in tmp.
+      unfold to_premor, funcomp in tmp.
+      set (tmp2 := funeqpaths tmp (identity y)). cbn in tmp2.
+      apply tmp2.
+    }
+    assert (H : mor1 = mor2).
+    {
+      rewrite <- (id_right mor2).
+      rewrite <- Hx.
+      rewrite assoc.
+      rewrite Hy.
+      rewrite id_left.
+      apply idpath.
+    }
+    use is_iso_qinv.
+    apply mor1.
+    split.
+    - apply Hx.
+    - rewrite H. apply Hy.
+  Qed.
+
+  (** A criteria for isKernel which uses only the elements in the abelian group. *)
+
+  Local Opaque ZeroArrow.
+
+  Definition ABGR_isKernel_iscontr {X Y Z : ABGR} (f : X --> Y) (g : Y --> Z)
+             (ZA : f ;; g = @ZeroArrow ABGR_AbelianPreCat (@to_Zero ABGR_AbelianPreCat) _ _)
+             (H : Π (D : (Σ y : pr1 Y, pr1 g y = 1%multmonoid)),
+                  ∥ Σ (x : abgrtogr X), monoidfuntobinopfun _ _ f x = (pr1 D) ∥)
+             (isM : @isMonic ABGR _ _ f) (W : ABGR) (h : W --> Y)
+             (H' : h ;; g = @ZeroArrow ABGR (@to_Zero ABGR_AbelianPreCat) W Z) (w' : pr1 W) :
+    iscontr (Σ (x : abgrtogr X), monoidfuntobinopfun _ _ f x = pr1 h w').
+  Proof.
+    cbn in H'. rewrite <- (@PreAdditive_unel_zero (ABGR_PreAdditive)) in H'.
+    unfold to_unel in H'.
+    assert (e : pr1 g (pr1 h w') = 1%multmonoid).
+    {
+      apply base_paths in H'. cbn in H'. unfold funcomp in H'.
+      unfold monoidfuncomp in H'. cbn in H'.
+      set (tmp := @funeqpaths _ _ _ _ H' w'). cbn in tmp.
+      exact tmp.
+    }
+    set (H'' := H (tpair _ (pr1 h w') e)).
+    use (squash_to_prop H''). apply isapropiscontr. intros HH.
+    induction HH as [H1 H2]. cbn in H2.
+    use tpair.
+    - use tpair.
+      + exact H1.
+      + exact H2.
+    - cbn. intros T. induction T as [T1 T2].
+      use total2_paths.
+      + cbn.
+        apply (isweqonpathsincl _ (ABGR_monic_isincl f isM)).
+        cbn in H2. cbn. rewrite H2. rewrite T2. apply idpath.
+      + apply proofirrelevance. apply setproperty.
+  Qed.
+
+  Definition ABGR_isKernel {X Y Z : ABGR} (f : X --> Y) (g : Y --> Z)
+             (ZA : f ;; g = @ZeroArrow ABGR_AbelianPreCat (@to_Zero ABGR_AbelianPreCat) _ _)
+             (H : Π (D : (Σ y : pr1 Y, pr1 g y = 1%multmonoid)),
+                  ∥ Σ (x : abgrtogr X), monoidfuntobinopfun _ _ f x = (pr1 D) ∥)
+             (isM : @isMonic ABGR _ _ f) :
+    isKernel (@to_Zero ABGR_AbelianPreCat) f g ZA.
+  Proof.
+    use mk_isKernel.
+    - exact has_homsets_ABGR.
+    - intros w h H'.
+      use unique_exists.
+      + use monoidfunconstr.
+        * intros w'. exact (pr1 (iscontrpr1 (ABGR_isKernel_iscontr f g ZA H isM w h H' w'))).
+        * split.
+          -- intros x y.
+             apply (isweqonpathsincl _ (ABGR_monic_isincl f isM)).
+             set (ff := (binopfunisbinopfun (f : monoidfun _ _))). cbn in ff. rewrite ff. clear ff.
+             set (tmp := pr2 (iscontrpr1 (ABGR_isKernel_iscontr
+                                            f g ZA H isM w h H' ((x * y)%multmonoid)))).
+             cbn in tmp. cbn. rewrite tmp. clear tmp.
+             set (tmp := pr2 (iscontrpr1 (ABGR_isKernel_iscontr
+                                            f g ZA H isM w h H' (x%multmonoid)))).
+             cbn in tmp. cbn. rewrite tmp. clear tmp.
+             set (tmp := pr2 (iscontrpr1 (ABGR_isKernel_iscontr
+                                            f g ZA H isM w h H' (y%multmonoid)))).
+             cbn in tmp. cbn. rewrite tmp. clear tmp.
+             apply (binopfunisbinopfun (h : monoidfun _ _)).
+          -- apply (isweqonpathsincl _ (ABGR_monic_isincl f isM)).
+             set (tmp := pr2 (iscontrpr1 (ABGR_isKernel_iscontr
+                                            f g ZA H isM w h H' (unel (w : abgr))))).
+             cbn in tmp. cbn. rewrite tmp. clear tmp.
+             set (tmp := monoidfununel h). cbn in tmp. rewrite tmp. clear tmp.
+             set (tmp := monoidfununel f). cbn in tmp. rewrite <- tmp. clear tmp.
+             apply idpath.
+      + use monoidfun_eq. cbn. unfold funcomp. intros x.
+        exact (pr2 (iscontrpr1 (ABGR_isKernel_iscontr f g ZA H isM w h H' (x%multmonoid)))).
+      + intros y. apply (has_homsets_ABGR).
+      + intros y T. cbn in T.
+        use monoidfun_eq. cbn. intros x.
+        apply (isweqonpathsincl _ (ABGR_monic_isincl f isM)).
+        apply base_paths in T. cbn in T. unfold funcomp in T. cbn in T.
+        set(T' := funeqpaths T x). cbn in T'. cbn. rewrite T'. clear T'.
+        apply pathsinv0.
+        exact (pr2 (iscontrpr1 (ABGR_isKernel_iscontr f g ZA H isM w h H' (x%multmonoid)))).
+  Qed.
+
+End ABGR_corollaries.

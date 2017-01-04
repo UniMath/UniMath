@@ -43,15 +43,22 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Section adjunctions.
 
 Definition form_adjunction {A B : precategory} (F : functor A B) (G : functor B A)
-  (eta : nat_trans (functor_identity A) (functor_composite F G))
-  (eps : nat_trans (functor_composite G F) (functor_identity B)) : UU :=
-    (Π a : A, # F (eta a) ;; eps (F a) = identity (F a)) ×
-    (Π b : B, eta (G b) ;; # G (eps b) = identity (G b)).
+           (eta : nat_trans (functor_identity A) (functor_composite F G))
+           (eps : nat_trans (functor_composite G F) (functor_identity B)) : UU :=
+  (Π a : A, # F (eta a) ;; eps (F a) = identity (F a))
+    × (Π b : B, eta (G b) ;; # G (eps b) = identity (G b)).
+
+Definition mk_form_adjunction {A B : precategory} {F : functor A B} {G : functor B A}
+           {eta : nat_trans (functor_identity A) (functor_composite F G)}
+           {eps : nat_trans (functor_composite G F) (functor_identity B)}
+           (H1 : Π a : A, # F (eta a) ;; eps (F a) = identity (F a))
+           (H2 : Π b : B, eta (G b) ;; # G (eps b) = identity (G b)) :
+  form_adjunction F G eta eps := (H1,,H2).
 
 Definition are_adjoints {A B : precategory} (F : functor A B) (G : functor B A) : UU :=
-  Σ (etaeps : (nat_trans (functor_identity A) (functor_composite F G)) ×
-              (nat_trans (functor_composite G F) (functor_identity B))),
-      form_adjunction F G (pr1 etaeps) (pr2 etaeps).
+  Σ (etaeps : (nat_trans (functor_identity A) (functor_composite F G))
+                × (nat_trans (functor_composite G F) (functor_identity B))),
+  form_adjunction F G (pr1 etaeps) (pr2 etaeps).
 
 (** Note that this makes the second component opaque for efficiency reasons *)
 Definition mk_are_adjoints {A B : precategory}

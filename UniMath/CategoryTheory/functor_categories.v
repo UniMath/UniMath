@@ -236,9 +236,15 @@ Proof.
   apply functor_id.
 Qed.
 
+Lemma functor_on_is_iso_is_iso {C C' : precategory} {F : functor C C'}
+      {a b : ob C} {f : a --> b} (H : is_iso f)  : is_iso (#F f).
+Proof.
+  apply (is_iso_qinv _ (#F (inv_from_iso (isopair _ H)))).
+  apply (is_inverse_functor_image _ _ _ _ _ (isopair _ H)).
+Qed.
 
 Lemma functor_on_iso_is_iso (C C' : precategory) (F : functor C C')
-    (a b : ob C)(f : iso a b) : is_isomorphism (#F f).
+    (a b : ob C) (f : iso a b) : is_isomorphism (#F f).
 Proof.
   apply (is_iso_qinv _ (#F (inv_from_iso f))).
   apply is_inverse_functor_image.
@@ -263,6 +269,15 @@ Proof.
   rewrite iso_inv_after_iso.
   apply functor_id.
 Defined.
+
+Lemma functor_on_inv_from_iso' {C C' : precategory} (F : functor C C')
+      {a b : ob C} {f : a --> b} (H : is_iso f) :
+  inv_from_iso (isopair _ (functor_on_is_iso_is_iso H)) = # F (inv_from_iso (isopair _ H)).
+Proof.
+  apply pathsinv0. use inv_iso_unique'. cbn. unfold precomp_with.
+  rewrite <- functor_comp. set (tmp := iso_inv_after_iso (isopair _ H)). cbn in tmp.
+  rewrite tmp. apply functor_id.
+Qed.
 
 (** ** Functors and [idtoiso] *)
 
@@ -1407,3 +1422,36 @@ Definition nat_trans_functor_assoc_inv (F1 : functor A B) (F2 : functor B C) (F3
     nat_trans_functor_assoc F1 F2 F3.
 
 End nat_trans_functor.
+
+Section functors_on_iso_with_inv.
+
+  Local Notation "# F" := (functor_on_morphisms F) (at level 3).
+
+  Lemma functor_on_is_iso_with_inv {C C' : precategory} (F : functor C C')
+        {a b : ob C} {f : a --> b} {g : b --> a} (H : is_iso_with_inv f g) :
+    is_iso_with_inv (# F f) (# F g).
+  Proof.
+    use mk_is_iso_with_inv.
+    - rewrite <- functor_comp. rewrite (is_iso_with_inv1 H). apply functor_id.
+    - rewrite <- functor_comp. rewrite (is_iso_with_inv2 H). apply functor_id.
+  Qed.
+
+  Definition functor_on_is_iso_with_inv_data {C C' : precategory} (F : functor C C')
+             {a b : ob C} {f : a --> b} (I : is_iso_with_inv_data f) :
+    is_iso_with_inv_data (# F f).
+  Proof.
+    use mk_is_iso_with_inv_data.
+    - exact (# F (is_iso_with_inv_data_mor I)).
+    - exact (functor_on_is_iso_with_inv F I).
+  Defined.
+
+  Definition functor_on_iso_with_inv {C C' : precategory} (F : functor C C') {a b : ob C}
+             (f : iso_with_inv a b) : iso_with_inv (F a) (F b).
+  Proof.
+    use mk_iso_with_inv.
+    - exact (# F (iso_with_inv1 f)).
+    - exact (# F (iso_with_inv2 f)).
+    - exact (functor_on_is_iso_with_inv F f).
+  Defined.
+
+End functors_on_iso_with_inv.

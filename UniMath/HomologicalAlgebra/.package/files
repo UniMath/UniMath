@@ -1,2 +1,8 @@
+Triangulated.v
 Complexes.v
+KA.v
+TranslationFunctors.v
+MappingCone.v
+MappingCylinder.v
+KATriangulated.v
 CohomologyComplex.v

@@ -50,8 +50,9 @@ Require Import UniMath.CategoryTheory.Additive.
 Require Import UniMath.CategoryTheory.Abelian.
 Require Import UniMath.CategoryTheory.AbelianToAdditive.
 Require Import UniMath.CategoryTheory.AdditiveFunctors.
-Require Import UniMath.HomologicalAlgebra.Complexes.
 
+Require Import UniMath.HomologicalAlgebra.Complexes.
+Require Import UniMath.HomologicalAlgebra.KA.
 
 Open Scope hz_scope.
 Local Opaque hz isdecrelhzeq hzplus iscommrngops.
@@ -2053,7 +2054,9 @@ Section def_kernel_cokernel_complex.
       rewrite transport_source_precompose. apply cancel_postcomposition. clear CK.
       rewrite transport_source_KernelIn. use KernelInsEq.
       rewrite KernelCommutes. rewrite KernelCommutes.
-      set (tmp := transport_Diff _ C i). cbn. cbn in tmp. apply tmp.
+      apply pathsinv0. rewrite <- maponpathsinv0.
+      use (pathscomp0 _ (transport_hz_section A C 1 (Diff C) _ _ (hzrplusminus i 1))).
+      use transportf_paths. apply maponpaths. apply isasethz.
   Qed.
 
   Definition CokernelKernelCohomology2_Mor1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
@@ -2087,7 +2090,9 @@ Section def_kernel_cokernel_complex.
       rewrite transport_source_KernelIn.
       use KernelInsEq.
       rewrite KernelCommutes. rewrite KernelCommutes. clear tmp.
-      set (tmp := transport_Diff _ C i). cbn. cbn in tmp. apply pathsinv0. apply tmp.
+      rewrite <- maponpathsinv0.
+      use (pathscomp0 _ (transport_hz_section A C 1 (Diff C) _ _ (hzrplusminus i 1))).
+      use transportf_paths. apply maponpaths. apply isasethz.
     }
     cbn in e0. cbn. rewrite e0. clear e0. rewrite tmp. clear tmp. cbn.
     rewrite transport_source_precompose. rewrite <- assoc. rewrite CokernelCompZero.

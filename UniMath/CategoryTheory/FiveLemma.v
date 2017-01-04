@@ -383,8 +383,7 @@ Section five_lemma.
 
   Lemma FiveLemma_isMonic {A : AbelianPreCat} {hs : has_homsets A} {FR1 FR2 : FiveRow hs}
         (FRM : FiveRowMorphism hs FR1 FR2) (H1 : is_iso (FMor1 hs FRM)) (H2 : is_iso (FMor2 hs FRM))
-        (H4 : is_iso (FMor4 hs FRM)) (H5 : is_iso (FMor5 hs FRM)) :
-    isMonic (@FMor3 A hs FR1 FR2 FRM).
+        (H4 : is_iso (FMor4 hs FRM)) (H5 : is_iso (FMor5 hs FRM)) : isMonic (FMor3 hs FRM).
   Proof.
     use (dirprod_pr2 (PEq_isMonic hs (FMor3 hs FRM))).
     intros d' a X. apply pathsinv0. cbn in X. set (X' := PEq_Zero_Eq' _ _ X). cbn in X'.
@@ -439,7 +438,7 @@ Section five_lemma.
 
   Lemma FiveLemma_isEpi {FR1 FR2 : FiveRow hs} (FRM : FiveRowMorphism hs FR1 FR2)
         (H1 : is_iso (FMor1 hs FRM)) (H2 : is_iso (FMor2 hs FRM)) (H4 : is_iso (FMor4 hs FRM))
-        (H5 : is_iso (FMor5 hs FRM)) : isEpi (@FMor3 A hs FR1 FR2 FRM).
+        (H5 : is_iso (FMor5 hs FRM)) : isEpi (FMor3 hs FRM).
   Proof.
     use opp_isMonic.
     set (H1' := opp_is_iso _ H1).
@@ -452,7 +451,7 @@ Section five_lemma.
 
   Lemma FiveLemma {FR1 FR2 : FiveRow hs} (FRM : FiveRowMorphism hs FR1 FR2)
         (H1 : is_iso (FMor1 hs FRM)) (H2 : is_iso (FMor2 hs FRM)) (H4 : is_iso (FMor4 hs FRM))
-        (H5 : is_iso (FMor5 hs FRM)) : is_iso (@FMor3 A hs _ _ FRM).
+        (H5 : is_iso (FMor5 hs FRM)) : is_iso (FMor3 hs FRM).
   Proof.
     use monic_epi_is_iso.
     - use FiveLemma_isMonic.
@@ -486,7 +485,7 @@ Section short_exact_five_lemma.
 
   (** ** Construction of the first row *)
 
-  Definition ShortExactObs1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactObs1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowObs A.
   Proof.
     use mk_FiveRowObs.
@@ -497,7 +496,7 @@ Section short_exact_five_lemma.
     - exact to_Zero.
   Defined.
 
-  Definition ShortExactDiffs1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactDiffs1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowDiffs A (ShortExactObs1 Mor).
   Proof.
     use mk_FiveRowDiffs.
@@ -507,7 +506,7 @@ Section short_exact_five_lemma.
     - exact (ZeroArrow to_Zero _ _).
   Defined.
 
-  Lemma ShortExactDiffsEq1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Lemma ShortExactDiffsEq1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowDiffsEq A _ (ShortExactDiffs1 Mor).
   Proof.
     use mk_FiveRowDiffsEq.
@@ -516,7 +515,7 @@ Section short_exact_five_lemma.
     - cbn. apply ZeroArrow_comp_right.
   Qed.
 
-  Lemma ShortExactExacts1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Lemma ShortExactExacts1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowExacts A hs _ _ (ShortExactDiffsEq1 Mor).
   Proof.
     use mk_FiveRowExacts.
@@ -525,7 +524,7 @@ Section short_exact_five_lemma.
     - cbn. use isExactisEpi. exact (ShortExactSequences.isEpi hs SSE1).
   Qed.
 
-  Definition ShortExactRow1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactRow1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRow A hs.
   Proof.
     use mk_FiveRow.
@@ -537,7 +536,7 @@ Section short_exact_five_lemma.
 
   (** ** Construction of the second row *)
 
-  Definition ShortExactObs2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactObs2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowObs A.
   Proof.
     use mk_FiveRowObs.
@@ -548,7 +547,7 @@ Section short_exact_five_lemma.
     - exact to_Zero.
   Defined.
 
-  Definition ShortExactDiffs2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactDiffs2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowDiffs A (ShortExactObs2 Mor).
   Proof.
     use mk_FiveRowDiffs.
@@ -558,7 +557,7 @@ Section short_exact_five_lemma.
     - exact (ZeroArrow to_Zero _ _).
   Defined.
 
-  Lemma ShortExactDiffsEq2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Lemma ShortExactDiffsEq2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowDiffsEq A _ (ShortExactDiffs2 Mor).
   Proof.
     use mk_FiveRowDiffsEq.
@@ -567,7 +566,7 @@ Section short_exact_five_lemma.
     - cbn. apply ZeroArrow_comp_right.
   Qed.
 
-  Lemma ShortExactExacts2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Lemma ShortExactExacts2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowExacts A hs _ _ (ShortExactDiffsEq2 Mor).
   Proof.
     use mk_FiveRowExacts.
@@ -576,7 +575,7 @@ Section short_exact_five_lemma.
     - cbn. use isExactisEpi. exact (ShortExactSequences.isEpi hs SSE2).
   Qed.
 
-  Definition ShortExactRow2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactRow2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRow A hs.
   Proof.
     use mk_FiveRow.
@@ -588,28 +587,28 @@ Section short_exact_five_lemma.
 
   (** ** Construction of the morphism between rows *)
 
-  Definition ShortExactMors {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactMors {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowMors A hs (ShortExactRow1 Mor) (ShortExactRow2 Mor).
   Proof.
     use mk_FiveRowMors.
     - exact (identity _).
-    - exact (MPMors1 A Mor).
-    - exact (MPMors2 A Mor).
-    - exact (MPMors3 A Mor).
+    - exact (MPMor1 Mor).
+    - exact (MPMor2 Mor).
+    - exact (MPMor3 Mor).
     - exact (identity _).
   Defined.
 
-  Lemma ShortExactMorComm {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Lemma ShortExactMorComm {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowMorsComm A hs _ _ (ShortExactMors Mor).
   Proof.
     use mk_FiveRowMorsComm.
     - cbn. rewrite ZeroArrow_comp_left. rewrite id_left. apply idpath.
-    - cbn. exact (! (MPComm1 A Mor)).
-    - cbn. exact (! (MPComm2 A Mor)).
+    - cbn. exact (! (MPComm1 Mor)).
+    - cbn. exact (! (MPComm2 Mor)).
     - cbn. rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_right. apply idpath.
   Qed.
 
-  Definition ShortExactMor {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactMor {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowMorphism A hs (ShortExactRow1 Mor) (ShortExactRow2 Mor).
   Proof.
     use mk_FiveRowMorphism.
@@ -619,8 +618,8 @@ Section short_exact_five_lemma.
 
   (** ** FiveLemma for short exact sequences *)
 
-  Lemma ShortExactFiveLemma {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2)
-        (H2 : is_iso (MPMors1 A Mor)) (H4 : is_iso (MPMors3 A Mor)) : is_iso (MPMors2 A Mor).
+  Lemma ShortExactFiveLemma {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2)
+        (H2 : is_iso (MPMor1 Mor)) (H4 : is_iso (MPMor3 Mor)) : is_iso (MPMor2 Mor).
   Proof.
     set (FR1 := ShortExactRow1 Mor).
     set (FR2 := ShortExactRow2 Mor).

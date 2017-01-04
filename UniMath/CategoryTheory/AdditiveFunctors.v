@@ -13,6 +13,7 @@
  - Commutes with BinOp
  - isAdditiveFunctor
 - The natural additive functor to quotient
+- Additive equivalences
  *)
 
 Require Import UniMath.Foundations.Basics.PartD.
@@ -30,6 +31,7 @@ Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
+Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -97,30 +99,7 @@ Section def_additivefunctor.
   Definition AdditiveFunctor_isAdditiveFunctor {A B : Additive} (F : AdditiveFunctor A B) :
     isAdditiveFunctor (AdditiveFunctor_Functor F) := pr2 F.
 
-End def_additivefunctor.
-
-
-(** * Additive functor preserves BinDirectSums
-   We say that a functor F between additive categories A and B preserves BinDirectSums if for any
-   BinDirectSum (a1 ⊕ a2, in1, in2, pr1, pr2) in A, the data (F(a1 ⊕ a2), F(in1), F(in2), F(pr1),
-   F(pr2)) is a BinDirectSum in B. *)
-Section additivefunctor_preserves_bindirectsums.
-
-  Definition PreservesBinDirectSums {A B : Additive} (F : functor A B) : UU :=
-    Π (a1 a2 : A) (DS : BinDirectSumCone A a1 a2),
-    isBinDirectSumCone B (F a1) (F a2) (F DS)
-                       (# F (to_In1 A DS)) (# F (to_In2 A DS))
-                       (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS)).
-
-  Lemma isaprop_PreservesBinDirectSums {A B : Additive} (hs : has_homsets B) (F : functor A B) :
-    isaprop (PreservesBinDirectSums F).
-  Proof.
-    apply impred_isaprop. intros t.
-    apply impred_isaprop. intros t0.
-    apply impred_isaprop. intros DS.
-    apply isaprop_isBinDirectSumCone.
-    apply hs.
-  Qed.
+  (** ** Basics of additive functors *)
 
   Lemma AdditiveFunctorUnel {A B : Additive} (F : AdditiveFunctor A B)
         (a1 a2 : A) : # F (to_unel a1 a2) = to_unel (F a1) (F a2).
@@ -148,6 +127,43 @@ Section additivefunctor_preserves_bindirectsums.
     apply (to_lcan _ (# F f)). rewrite <- AdditiveFunctorLinear.
     rewrite rinvax. rewrite AdditiveFunctorUnel. rewrite rinvax.
     apply idpath.
+  Qed.
+
+  Definition CompositionIsAdditive {A1 A2 A3 : Additive} (F1 : AdditiveFunctor A1 A2)
+             (F2 : AdditiveFunctor A2 A3) : isAdditiveFunctor (functor_composite F1 F2).
+  Proof.
+    use mk_isAdditiveFunctor'.
+    - intros a1 a2. cbn. rewrite AdditiveFunctorZeroArrow. use AdditiveFunctorZeroArrow.
+    - intros a1 a2 f g. cbn. rewrite AdditiveFunctorLinear. use AdditiveFunctorLinear.
+  Qed.
+
+  Definition AdditiveComposite {A1 A2 A3 : Additive}(F1 : AdditiveFunctor A1 A2)
+             (F2 : AdditiveFunctor A2 A3) : AdditiveFunctor A1 A3 :=
+    mk_AdditiveFunctor (functor_composite F1 F2) (CompositionIsAdditive F1 F2).
+
+End def_additivefunctor.
+
+
+(** * Additive functor preserves BinDirectSums
+   We say that a functor F between additive categories A and B preserves BinDirectSums if for any
+   BinDirectSum (a1 ⊕ a2, in1, in2, pr1, pr2) in A, the data (F(a1 ⊕ a2), F(in1), F(in2), F(pr1),
+   F(pr2)) is a BinDirectSum in B. *)
+Section additivefunctor_preserves_bindirectsums.
+
+  Definition PreservesBinDirectSums {A B : Additive} (F : functor A B) : UU :=
+    Π (a1 a2 : A) (DS : BinDirectSumCone A a1 a2),
+    isBinDirectSumCone B (F a1) (F a2) (F DS)
+                       (# F (to_In1 A DS)) (# F (to_In2 A DS))
+                       (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS)).
+
+  Lemma isaprop_PreservesBinDirectSums {A B : Additive} (hs : has_homsets B) (F : functor A B) :
+    isaprop (PreservesBinDirectSums F).
+  Proof.
+    apply impred_isaprop. intros t.
+    apply impred_isaprop. intros t0.
+    apply impred_isaprop. intros DS.
+    apply isaprop_isBinDirectSumCone.
+    apply hs.
   Qed.
 
   (** Additive functor preserves zeros. *)
@@ -376,9 +392,7 @@ Section additivefunctor_preserves_bindirectsums.
              ((# F (to_Pr2 A DS)) ;; (to_In2 B BDS)) ;; mor =
     identity (F DS).
   Proof.
-    cbn zeta.
-    set (BDS := to_BinDirectSums B (F a1) (F a2)).
-    set (mor := FromBinDirectSum B BDS (# F (to_In1 A DS)) (# F (to_In2 A DS))).
+    intros BDS mor.
     set (invmor := to_binop _ _
                             ((# F (to_Pr1 A DS)) ;; (to_In1 B BDS))
                             ((# F (to_Pr2 A DS)) ;; (to_In2 B BDS))).
@@ -404,9 +418,7 @@ Section additivefunctor_preserves_bindirectsums.
                    (mor ;; (# F (to_Pr1 A DS)) ;; (to_In1 B BDS))
                    (mor ;; (# F (to_Pr2 A DS)) ;; (to_In2 B BDS))).
   Proof.
-    cbn zeta.
-    set (BDS := to_BinDirectSums B (F a1) (F a2)).
-    set (mor := FromBinDirectSum B BDS (# F (to_In1 A DS)) (# F (to_In2 A DS))).
+    intros BDS mor.
     set (invmor := to_binop _ _
                             ((# F (to_Pr1 A DS)) ;; (to_In1 B BDS))
                             ((# F (to_Pr2 A DS)) ;; (to_In2 B BDS))).
@@ -440,9 +452,7 @@ Section additivefunctor_preserves_bindirectsums.
                      (# F (to_Pr2 A DS) ;; to_In2 B BDS)) =
     identity _.
   Proof.
-    cbn zeta.
-    set (BDS := to_BinDirectSums B (F a1) (F a2)).
-    set (mor := FromBinDirectSum B BDS (# F (to_In1 A DS)) (# F (to_In2 A DS))).
+    intros BDS mor.
     set (invmor := to_binop _ _
                             ((# F (to_Pr1 A DS)) ;; (to_In1 B BDS))
                             ((# F (to_Pr2 A DS)) ;; (to_In2 B BDS))).
@@ -697,7 +707,6 @@ Section def_additive_quot_functor.
     - apply idpath.
   Qed.
 
-  Set Printing All.
   Definition QuotPrecategoryAdditiveFunctor :
     AdditiveFunctor A (QuotPrecategory_Additive A PAS PAC).
   Proof.
@@ -707,3 +716,215 @@ Section def_additive_quot_functor.
   Defined.
 
 End def_additive_quot_functor.
+
+
+(** * Equivalences of additive categories *)
+Section def_additive_equivalence.
+
+  Definition AddEquiv (A1 A2 : Additive) : UU :=
+    Σ D : (Σ F : (AdditiveFunctor A1 A2 × AdditiveFunctor A2 A1),
+                 are_adjoints (dirprod_pr1 F) (dirprod_pr2 F)),
+          (Π a : A1, is_iso_with_inv_data (unit_from_left_adjoint (pr2 D) a))
+            × (Π b : A2, is_iso_with_inv_data (counit_from_left_adjoint (pr2 D) b)).
+
+  Definition mk_AddEquiv {A1 A2 : Additive} (F : AdditiveFunctor A1 A2)
+             (G : AdditiveFunctor A2 A1) (H : are_adjoints F G)
+             (H1 : Π a : A1, is_iso_with_inv_data (unit_from_left_adjoint H a))
+             (H2 : Π b : A2, is_iso_with_inv_data (counit_from_left_adjoint H b)) :
+    AddEquiv A1 A2 := (((F,,G),,H),,(H1,,H2)).
+
+  (** Accessor functions *)
+  Definition AddEquiv1 {A1 A2 : Additive} (AE : AddEquiv A1 A2) : AdditiveFunctor A1 A2 :=
+    dirprod_pr1 (pr1 (pr1 AE)).
+
+  Definition AddEquiv2 {A1 A2 : Additive} (AE : AddEquiv A1 A2) : AdditiveFunctor A2 A1 :=
+    dirprod_pr2 (pr1 (pr1 AE)).
+
+  Definition AddEquiv_are_adjoints {A1 A2 : Additive} (AE : AddEquiv A1 A2) :
+    are_adjoints (AddEquiv1 AE) (AddEquiv2 AE) := pr2 (pr1 AE).
+  Coercion AddEquiv_are_adjoints : AddEquiv >-> are_adjoints.
+
+  Definition AddEquivUnit {A1 A2 : Additive} (AE : AddEquiv A1 A2) :
+    nat_trans (functor_identity A1) (functor_composite (AddEquiv1 AE) (AddEquiv2 AE)) :=
+    unit_from_left_adjoint AE.
+
+  Definition AddEquivCounit {A1 A2 : Additive} (AE : AddEquiv A1 A2) :
+    nat_trans (functor_composite (AddEquiv2 AE) (AddEquiv1 AE)) (functor_identity A2) :=
+    counit_from_left_adjoint AE.
+
+  Definition AddEquivUnitInvMor {A1 A2 : Additive} (AE : AddEquiv A1 A2) (X : A1) :
+    A1⟦(AddEquiv2 AE (AddEquiv1 AE X)), X⟧ := pr1 ((dirprod_pr1 (pr2 AE)) X).
+
+  Definition AddEquivUnitInvMor_is_iso_with_inv_data {A1 A2 : Additive} (AE : AddEquiv A1 A2)
+             (X : A1) : is_iso_with_inv_data (unit_from_left_adjoint AE X) :=
+    ((dirprod_pr1 (pr2 AE)) X).
+
+  Definition AddEquivUnitInvMor_is_iso_with_inv {A1 A2 : Additive} (AE : AddEquiv A1 A2) (X : A1) :
+    is_iso_with_inv (unit_from_left_adjoint AE X) (AddEquivUnitInvMor AE X) :=
+    pr2 ((dirprod_pr1 (pr2 AE)) X).
+
+  Definition AddEquivCounitInvMor {A1 A2 : Additive} (AE : AddEquiv A1 A2) (X : A2) :
+    A2⟦X, (AddEquiv1 AE (AddEquiv2 AE X))⟧ := pr1 ((dirprod_pr2 (pr2 AE)) X).
+
+  Definition AddEquivCounitInvMor_is_iso_with_inv_data {A1 A2 : Additive} (AE : AddEquiv A1 A2)
+             (X : A2) : is_iso_with_inv_data (counit_from_left_adjoint AE X) :=
+    ((dirprod_pr2 (pr2 AE)) X).
+
+  Definition AddEquivCounitInvMor_is_iso_with_inv {A1 A2 : Additive} (AE : AddEquiv A1 A2)
+             (X : A2) :
+    is_iso_with_inv (counit_from_left_adjoint AE X) (AddEquivCounitInvMor AE X) :=
+    pr2 ((dirprod_pr2 (pr2 AE)) X).
+
+  Definition AddEquivUnitIso {A1 A2 : Additive} (AE : AddEquiv A1 A2) (X : A1) :
+    iso_with_inv X (AddEquiv2 AE (AddEquiv1 AE X)).
+  Proof.
+    use mk_iso_with_inv.
+    - exact (AddEquivUnit AE X).
+    - exact (AddEquivUnitInvMor AE X).
+    - exact (AddEquivUnitInvMor_is_iso_with_inv AE X).
+  Defined.
+
+  Definition AddEquivCounitIso {A1 A2 : Additive} (AE : AddEquiv A1 A2) (X : A2) :
+    iso_with_inv (AddEquiv1 AE (AddEquiv2 AE X)) X.
+  Proof.
+    use mk_iso_with_inv.
+    - exact (AddEquivCounit AE X).
+    - exact (AddEquivCounitInvMor AE X).
+    - exact (AddEquivCounitInvMor_is_iso_with_inv AE X).
+  Defined.
+
+  Definition AddEquivLeftTriangle {A1 A2 : Additive} (AE : AddEquiv A1 A2) :
+    Π (a : ob A1), # (AddEquiv1 AE) (iso_with_inv1 (AddEquivUnitIso AE a))
+                     ;; iso_with_inv1 (AddEquivCounitIso AE (AddEquiv1 AE a)) =
+                   identity (AddEquiv1 AE a) := triangle_id_left_ad AE.
+
+  Definition AddEquivRightTriangle {A1 A2 : Additive} (AE : AddEquiv A1 A2) :
+    Π (b : ob A2), iso_with_inv1 (AddEquivUnitIso AE (AddEquiv2 AE b))
+                                 ;; # (AddEquiv2 AE) (iso_with_inv1 (AddEquivCounitIso AE b)) =
+                   identity (AddEquiv2 AE b) := triangle_id_right_ad AE.
+
+  Definition AddEquivUnitComm {A1 A2 : Additive} (AE : AddEquiv A1 A2) :
+    Π (x x' : ob A1) (f : x --> x'),
+    f ;; iso_with_inv1 (AddEquivUnitIso AE x') =
+    (iso_with_inv1 (AddEquivUnitIso AE x))
+      ;; # (functor_composite (AddEquiv1 AE) (AddEquiv2 AE)) f := nat_trans_ax (AddEquivUnit AE).
+
+  Definition AddEquivCounitComm {A1 A2 : Additive} (AE : AddEquiv A1 A2) :
+    Π (x x' : A2) (f : x --> x'),
+    # (functor_composite (AddEquiv2 AE) (AddEquiv1 AE)) f
+      ;; (iso_with_inv1 (AddEquivCounitIso AE x')) =
+    iso_with_inv1 (AddEquivCounitIso AE x) ;; f := nat_trans_ax (AddEquivCounit AE).
+
+  Lemma AddEquivUnitMorComm {A1 A2 : Additive} (AE : AddEquiv A1 A2) {x x' : ob A1} (f : x --> x') :
+    f = (iso_with_inv1 (AddEquivUnitIso AE x))
+          ;; (# (functor_composite (AddEquiv1 AE) (AddEquiv2 AE)) f)
+          ;; iso_with_inv2 (AddEquivUnitIso AE x').
+  Proof.
+    use (post_comp_with_iso_with_inv1_is_inj (AddEquivUnitIso AE x')).
+    use (pathscomp0 (AddEquivUnitComm AE _ _ f)).
+    rewrite <- assoc.
+    set (tmp := is_iso_with_inv2 (AddEquivUnitIso AE x')). cbn in tmp. cbn.
+    rewrite tmp. clear tmp. rewrite id_right. apply idpath.
+  Qed.
+
+  Lemma AddEquivCounitMorComm {A1 A2 : Additive} (AE : AddEquiv A1 A2) {x x' : ob A2} (f : x --> x') :
+    f = (iso_with_inv2 (AddEquivCounitIso AE x))
+          ;; (# (functor_composite (AddEquiv2 AE) (AddEquiv1 AE)) f)
+          ;; iso_with_inv1 (AddEquivCounitIso AE x').
+  Proof.
+    use (pre_comp_with_iso_with_inv1_is_inj (AddEquivCounitIso AE x)).
+    use (pathscomp0 (! AddEquivCounitComm AE _ _ f)).
+    rewrite assoc. rewrite assoc.
+    set (tmp := is_iso_with_inv1 (AddEquivCounitIso AE x)). rewrite tmp.
+    rewrite id_left. apply idpath.
+  Qed.
+
+  Definition AddEquivUnitInv {A1 A2 : Additive} (AE : AddEquiv A1 A2) {x x' : ob A1} (f : x --> x') :
+    iso_with_inv2 (AddEquivUnitIso AE x) ;; f =
+    # (functor_composite (AddEquiv1 AE) (AddEquiv2 AE)) f
+      ;; iso_with_inv2 (AddEquivUnitIso AE x').
+  Proof.
+    use (pre_comp_with_iso_with_inv1_is_inj (AddEquivUnitIso AE x)). rewrite assoc.
+    rewrite (is_iso_with_inv1 (AddEquivUnitIso AE x)). rewrite id_left.
+    use (post_comp_with_iso_with_inv1_is_inj (AddEquivUnitIso AE x')).
+    rewrite AddEquivUnitComm. rewrite <- assoc. apply cancel_precomposition. cbn.
+    rewrite <- assoc.
+    set (tmp := is_iso_with_inv2 (AddEquivUnitIso AE x')). cbn in tmp. cbn. rewrite tmp.
+    rewrite id_right. apply idpath.
+  Qed.
+
+  Definition AddEquivCounitInv {A1 A2 : Additive} (AE : AddEquiv A1 A2) {x x' : ob A2}
+             (f : x --> x') :
+    (iso_with_inv2 (AddEquivCounitIso AE x))
+      ;; # (functor_composite (AddEquiv2 AE) (AddEquiv1 AE)) f =
+    f ;; iso_with_inv2 (AddEquivCounitIso AE x').
+  Proof.
+    use (pre_comp_with_iso_with_inv1_is_inj (AddEquivCounitIso AE x)). rewrite assoc.
+    rewrite (is_iso_with_inv1 (AddEquivCounitIso AE x)). rewrite id_left.
+    use (post_comp_with_iso_with_inv1_is_inj (AddEquivCounitIso AE x')).
+    use (pathscomp0 (AddEquivCounitComm AE _ _ f)). rewrite <- assoc.
+    apply cancel_precomposition. cbn.
+    rewrite <- assoc.
+    set (tmp := is_iso_with_inv2 (AddEquivCounitIso AE x')). cbn in tmp. cbn. rewrite tmp.
+    rewrite id_right. apply idpath.
+  Qed.
+
+  Lemma AddEquivCounitUnit {A1 A2 : Additive} (AE : AddEquiv A1 A2) (x : A1) :
+    iso_with_inv2 (AddEquivCounitIso AE (AddEquiv1 AE x)) =
+    # (AddEquiv1 AE) (iso_with_inv1 (AddEquivUnitIso AE x)).
+  Proof.
+    use (post_comp_with_iso_with_inv1_is_inj (AddEquivCounitIso AE (AddEquiv1 AE x))).
+    apply pathsinv0. rewrite (is_iso_with_inv2 (AddEquivCounitIso AE ((AddEquiv1 AE) x))).
+    exact (AddEquivLeftTriangle AE x).
+  Qed.
+
+  Lemma AddEquivCounitUnit' {A1 A2 : Additive} (AE : AddEquiv A1 A2) (x : A1) :
+    iso_with_inv1 (AddEquivCounitIso AE (AddEquiv1 AE x)) =
+    # (AddEquiv1 AE) (iso_with_inv2 (AddEquivUnitIso AE x)).
+  Proof.
+    use (post_comp_with_iso_with_inv2_is_inj (AddEquivCounitIso AE (AddEquiv1 AE x))).
+    apply pathsinv0. rewrite (is_iso_with_inv1 (AddEquivCounitIso AE ((AddEquiv1 AE) x))).
+    rewrite AddEquivCounitUnit. rewrite <- functor_comp.
+    rewrite (is_iso_with_inv2 (AddEquivUnitIso AE x)). apply functor_id.
+  Qed.
+
+  Lemma AddEquivUnitCounit {A1 A2 : Additive} (AE : AddEquiv A1 A2) (x : A2) :
+    iso_with_inv2 (AddEquivUnitIso AE (AddEquiv2 AE x)) =
+    # (AddEquiv2 AE) (iso_with_inv1 (AddEquivCounitIso AE x)).
+  Proof.
+    use (pre_comp_with_iso_with_inv1_is_inj (AddEquivUnitIso AE (AddEquiv2 AE x))).
+    apply pathsinv0. rewrite (is_iso_with_inv1 (AddEquivUnitIso AE ((AddEquiv2 AE) x))).
+    exact (AddEquivRightTriangle AE x).
+  Qed.
+
+  Lemma AddEquivUnitCounit' {A1 A2 : Additive} (AE : AddEquiv A1 A2) (x : A2) :
+    iso_with_inv1 (AddEquivUnitIso AE (AddEquiv2 AE x)) =
+    # (AddEquiv2 AE) (iso_with_inv2 (AddEquivCounitIso AE x)).
+  Proof.
+    use (pre_comp_with_iso_with_inv2_is_inj (AddEquivUnitIso AE (AddEquiv2 AE x))).
+    apply pathsinv0. rewrite (is_iso_with_inv2 (AddEquivUnitIso AE ((AddEquiv2 AE) x))).
+    rewrite AddEquivUnitCounit. rewrite <- functor_comp.
+    rewrite (is_iso_with_inv1 (AddEquivCounitIso AE x)). apply functor_id.
+  Qed.
+
+  Lemma AddEquiv1Inj {A1 A2 : Additive} (AE : AddEquiv A1 A2) {x y : A1} (f g : x --> y)
+        (H : # (AddEquiv1 AE) f = # (AddEquiv1 AE) g) : f = g.
+  Proof.
+    apply (maponpaths (# (AddEquiv2 AE))) in H.
+    use (post_comp_with_iso_with_inv1_is_inj (AddEquivUnitIso AE y)).
+    use (pathscomp0 (AddEquivUnitComm AE _ _ f)).
+    use (pathscomp0 _ (! (AddEquivUnitComm AE _ _ g))).
+    exact (maponpaths (fun gg : _ => (AddEquivUnit AE) x ;; gg) H).
+  Qed.
+
+  Lemma AddEquiv2Inj {A1 A2 : Additive} (AE : AddEquiv A1 A2) {x y : A2} (f g : x --> y)
+        (H : # (AddEquiv2 AE) f = # (AddEquiv2 AE) g) : f = g.
+  Proof.
+    apply (maponpaths (# (AddEquiv1 AE))) in H.
+    use (pre_comp_with_iso_with_inv1_is_inj (AddEquivCounitIso AE x)).
+    use (pathscomp0 (! AddEquivCounitComm AE _ _ f)).
+    use (pathscomp0 _ (AddEquivCounitComm AE _ _ g)).
+    exact (maponpaths (fun gg : _ => gg ;; (AddEquivCounit AE) y) H).
+  Qed.
+
+End def_additive_equivalence.

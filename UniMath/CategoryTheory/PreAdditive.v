@@ -53,6 +53,14 @@ Section def_preadditive.
   Definition to_postmor_monoid {PWA : PrecategoryWithAbgrops} (iPA : isPreAdditive PWA) :
     Π (x y z : PWA) (f : y --> z), ismonoidfun (to_postmor x f) := dirprod_pr2 iPA.
 
+  Definition to_premor_monoidfun {PWA : PrecategoryWithAbgrops} (iPA : isPreAdditive PWA)
+             (x y z : PWA) (f : x --> y) : monoidfun (to_abgrop y z) (to_abgrop x z) :=
+    monoidfunconstr (to_premor_monoid iPA x y z f).
+
+  Definition to_postmor_monoidfun {PWA : PrecategoryWithAbgrops} (iPA : isPreAdditive PWA)
+             (x y z : PWA) (f : y --> z) : monoidfun (to_abgrop x y) (to_abgrop x z) :=
+    monoidfunconstr (to_postmor_monoid iPA x y z f).
+
   (** Definition of preadditive categories *)
   Definition PreAdditive : UU := Σ PA : PrecategoryWithAbgrops, isPreAdditive PA.
 

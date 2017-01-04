@@ -95,7 +95,7 @@ Section def_shortexactseqs.
     (KernelArrow (Image SSED)) ;; (Mor2 SSED) = ZeroArrow to_Zero _ _.
   Proof.
     exact (isExact_Eq (Mor1 SSED) (Mor2 SSED) (ShortShortExactData_Eq to_Zero SSED)).
-  Qed.
+  Defined.
 
   (** Coimage of the second morphism and equality of morphisms associated to it. *)
   Definition CoImage (SSED : ShortShortExactData A to_Zero) :
@@ -122,7 +122,7 @@ Section def_shortexactseqs.
     (Mor1 SSED) ;; (CokernelArrow (CoImage SSED)) = ZeroArrow to_Zero _ _.
   Proof.
     exact (isExact'_Eq (Mor1 SSED) (Mor2 SSED) (ShortShortExactData_Eq to_Zero SSED)).
-  Qed.
+  Defined.
 
 
   (** ** Transform isExact to isExact' and isExact' to isExact *)
