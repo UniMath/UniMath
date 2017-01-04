@@ -437,6 +437,9 @@ Section KAPreTriangulated.
     - exact (KAPreTriang3_3 D M I').
   Qed.
 
+  (* Produce some output to keep TRAVIS running *)
+  Check KAPreTriang3.
+
   (** ** Extension of squares *)
 
   Local Opaque binopeqrel_subgr_eqrel.
