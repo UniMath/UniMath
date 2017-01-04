@@ -27,5 +27,5 @@ Section EffectiveEpi.
                         (PullbackPr2 g) f (PullbackSqrCommutes g)).
 End EffectiveEpi.
 
-Definition HasEffectiveEpis (C:precategory) :=
+Definition EpisAreEffective (C:precategory) :=
   Π (A B:C) (f:C⟦A,B⟧), isEpi f -> isEffective f.

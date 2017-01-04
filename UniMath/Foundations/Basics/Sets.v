@@ -1368,7 +1368,10 @@ Proof.
   apply impred.
   apply (fun _ => (pr2 B)).
 Qed.
-   
+
+(**
+TODO find a proof without univalence for propositions (if possible)
+*)
 Lemma epiissurjectiontosets {A B : UU} (p : A -> B) (isB:isaset B)
       (epip : Π (C:hSet) (g1 g2:B->C), (Π x : A, g1 (p x) = g2 (p x)) ->
                                (Π y : B, g1 y = g2 y)) :   issurjective p.
@@ -1428,14 +1431,14 @@ then there exists a unique function from B to C that makes the diagram commute
 Section LiftSurjection.
 
   Context {A B C :UU}.
-  Hypothesis (hsc:isaset C).
-  Variables        (p : A -> B ) (f: A -> C ).
+  Hypothesis hsc:isaset C.
+  Variables (p : A -> B ) (f: A -> C ).
 
-  Hypothesis (comp_f_epi: Π x y, p x =  p y -> f x = f y).
-  Hypothesis (surjectivep : issurjective p).
+  Hypothesis comp_f_epi: Π x y, p x =  p y -> f x = f y.
+  Hypothesis surjectivep : issurjective p.
 
   (* Reformulation of the previous hypothesis *)
-  Lemma comp_f_epi_hprop : Π b : B, iscontr
+  Lemma surjective_iscontr_im : Π b : B, iscontr
                                         (image (fun (x:hfiber p b) => f (pr1 x))).
   Proof.
     intro b.
@@ -1458,7 +1461,7 @@ Section LiftSurjection.
   Defined.
 
   Definition univ_surj : B -> C :=
-    (fun b => (pr1 (pr1 (comp_f_epi_hprop b)))).
+    fun b => (pr1 (pr1 (surjective_iscontr_im b))).
   
   Lemma univ_surj_ax : Π x,  univ_surj (p x) = f x.
   Proof.
@@ -1471,7 +1474,7 @@ Section LiftSurjection.
     exists r.
     apply comp_f_epi.
     apply (pr2 r).
-  Defined.
+  Qed.
 
   Lemma univ_surj_unique : Π (g : B -> C) (H : Π a : A, g (p a) = f a)
                             (b : B), g b = univ_surj b.
