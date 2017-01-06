@@ -49,8 +49,6 @@ Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.CategoryTheory.Epis.
 
-Require Import UniMath.CategoryTheory.limits.EffectiveEpis.
-
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
