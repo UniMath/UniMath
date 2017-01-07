@@ -284,13 +284,6 @@ Section ABGR_general.
     apply idpath.
   Qed.
 
-  (** For some reason coq does not fold unel B automatically. Thus I have
-     used the following equality. *)
-  Definition ABGR_monic_kernel_unel_rw (B : abgr) : unel B = pr1 (pr2 (pr1 (pr1 (pr2 B)))).
-  Proof.
-    apply idpath.
-  Qed.
-
   (** Monoidfun preserves inverses. *)
   Definition monoidfun_inv {A B : abgr} (f : monoidfun A B) (a : A) : f (grinv A a) = grinv B (f a).
   Proof.
@@ -1175,8 +1168,7 @@ Section ABGR_kernels.
           -- apply issurjsetquotpr.
           -- unfold funcomp. apply (pr2 h).
           -- apply (pr2 (ABGR_cokernel_monoidfun f)).
-        * cbn. set (XXh := pr2 (pr2 h)). cbn in XXh. rewrite <- XXh.
-          apply maponpaths. apply idpath.
+        * cbn. set (XXh := pr2 (pr2 h)). cbn in XXh. rewrite <- XXh. apply idpath.
       (* Commutativity *)
     - use total2_paths.
       + cbn. apply funextfun. intros b. apply idpath.
@@ -1432,7 +1424,6 @@ Section ABGR_monics.
     intros x.
     unfold ABGR_cokernel_monoidfun in tmp1. unfold ABGR_zero_arrow in tmp1.
     cbn in tmp1. apply base_paths in tmp1. cbn in tmp1.
-    rewrite <- (ABGR_monic_kernel_unel_rw B) in tmp1.
     set (tmp2 := @funeqpaths (pr1 B) (pr1 (ABGR_cokernel_abgr f))).
     set (tmp3 := tmp2 _ _ tmp1). cbn in tmp3.
     apply (ABGR_epi_hfiber_inhabited f isE x (tmp3 x)).
@@ -1584,8 +1575,7 @@ Section ABGR_monic_kernels.
   Proof.
     rewrite ABGR_has_zero_arrow_eq in H.
     cbn in H. unfold ABGR_zero_arrow in H.
-    apply base_paths in H. cbn in H.
-    rewrite <- ABGR_monic_kernel_unel_rw in H. unfold funcomp in H.
+    apply base_paths in H. cbn in H. unfold funcomp in H.
     set (tmp1 := (weqpathsinsetquot (ABGR_cokernel_eqrel f) (pr1 h x) (unel _))).
     set (tmp2 := pr1weq (invweq tmp1)).
     set (tmp3 := tmp2 (funeqpaths H x)).

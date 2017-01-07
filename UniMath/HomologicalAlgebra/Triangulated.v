@@ -447,7 +447,102 @@ Section def_pretriangulated_data.
   Defined.
 
 
-  (** ** The following is used to construct inversions of DTris in K(A) *)
+  (** ** The following is used to prove rotations of DTris in K(A) *)
+  Definition mk_RotDTris_MPMorMors (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
+             (M2 : Morphism) (M2' : ConePropType (Source M2) (Target M2) M2)
+             (f1 : PTD⟦Ob1 (RotTri (ConeIsoTri I1)), Source M2⟧)
+             (f2 : PTD⟦Ob2 (RotTri (ConeIsoTri I1)), Target M2⟧)
+             (f3 : PTD⟦Ob3 (RotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧) :
+    MPMorMors (RotTri D) (ConeTri M2 (MConeOf M2 M2')).
+  Proof.
+    use mk_MPMorMors.
+    - exact ((MPMor2 (ConeIsoMor I1)) ;; f1).
+    - exact ((MPMor3 (ConeIsoMor I1)) ;; f2).
+    - exact (# (AddEquiv1 Trans) (MPMor1 (ConeIsoMor I1)) ;; f3).
+  Defined.
+
+  Lemma mk_RotDTris_MPMorComms (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
+        (M2 : Morphism) (M2' : ConePropType (Source M2) (Target M2) M2)
+        (f1 : PTD⟦Ob1 (RotTri (ConeIsoTri I1)), Source M2⟧)
+        (f2 : PTD⟦Ob2 (RotTri (ConeIsoTri I1)), Target M2⟧)
+        (f3 : PTD⟦Ob3 (RotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
+        (is1 : is_iso_with_inv_data f1) (is2 : is_iso_with_inv_data f2)
+        (is3 : is_iso_with_inv_data f3)
+        (H1 : Mor1 (RotTri (ConeIsoTri I1)) ;; f2 = f1 ;; M2)
+        (H2 : Mor2 (RotTri (ConeIsoTri I1)) ;; f3 = f2 ;; MCone1 (MConeOf M2 M2'))
+        (H3 : Mor3 (RotTri (ConeIsoTri I1)) ;; (# (AddEquiv1 Trans) f1) =
+              f3 ;; MCone2 (MConeOf M2 M2')) :
+    MPMorComms (mk_RotDTris_MPMorMors D M1 I1 M2 M2' f1 f2 f3).
+  Proof.
+    use mk_MPMorComms.
+    - apply (maponpaths (compose (MPMor2 (ConeIsoMor I1)))) in H1.
+      rewrite assoc in H1. rewrite assoc in H1. use (pathscomp0 (! H1)). clear H1.
+      cbn. rewrite assoc. apply cancel_postcomposition. exact (MPComm2 (ConeIsoMor I1)).
+    - apply (maponpaths (compose (MPMor3 (ConeIsoMor I1)))) in H2.
+      rewrite assoc in H2. rewrite assoc in H2. use (pathscomp0 (! H2)). clear H2.
+      cbn. rewrite assoc. apply cancel_postcomposition. exact (DComm3 (ConeIsoMor I1)).
+  Qed.
+
+  Lemma mk_RotDTris_DComm3 (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
+        (M2 : Morphism) (M2' : ConePropType (Source M2) (Target M2) M2)
+        (f1 : PTD⟦Ob1 (RotTri (ConeIsoTri I1)), Source M2⟧)
+        (f2 : PTD⟦Ob2 (RotTri (ConeIsoTri I1)), Target M2⟧)
+        (f3 : PTD⟦Ob3 (RotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
+        (is1 : is_iso_with_inv_data f1) (is2 : is_iso_with_inv_data f2)
+        (is3 : is_iso_with_inv_data f3)
+        (H1 : Mor1 (RotTri (ConeIsoTri I1)) ;; f2 = f1 ;; M2)
+        (H2 : Mor2 (RotTri (ConeIsoTri I1)) ;; f3 = f2 ;; MCone1 (MConeOf M2 M2'))
+        (H3 : Mor3 (RotTri (ConeIsoTri I1)) ;; (# (AddEquiv1 Trans) f1) =
+              f3 ;; MCone2 (MConeOf M2 M2')) :
+    # (AddEquiv1 Trans) (MPMor1 (ConeIsoMor I1)) ;; f3 ;; MCone2 (MConeOf M2 M2') =
+    to_inv (# (AddEquiv1 Trans) (Mor1 D)) ;; # (AddEquiv1 Trans) (MPMor2 (ConeIsoMor I1) ;; f1).
+  Proof.
+    apply (maponpaths (fun gg : _ => # (AddEquiv1 Trans) (MPMor1 (ConeIsoMor I1)) ;; gg)) in H3.
+    rewrite assoc in H3. rewrite assoc in H3. use (pathscomp0 (! H3)). clear H3.
+    rewrite functor_comp. rewrite assoc. apply cancel_postcomposition.
+    cbn. rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp. apply maponpaths.
+    rewrite <- functor_comp. rewrite <- functor_comp. apply maponpaths.
+    exact (MPComm1 (ConeIsoMor I1)).
+  Qed.
+
+  Lemma mk_RotDTris (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
+        (M2 : Morphism) (M2' : ConePropType (Source M2) (Target M2) M2)
+        (f1 : PTD⟦Ob1 (RotTri (ConeIsoTri I1)), Source M2⟧)
+        (f2 : PTD⟦Ob2 (RotTri (ConeIsoTri I1)), Target M2⟧)
+        (f3 : PTD⟦Ob3 (RotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
+        (is1 : is_iso_with_inv_data f1) (is2 : is_iso_with_inv_data f2)
+        (is3 : is_iso_with_inv_data f3)
+        (H1 : Mor1 (RotTri (ConeIsoTri I1)) ;; f2 = f1 ;; M2)
+        (H2 : Mor2 (RotTri (ConeIsoTri I1)) ;; f3 = f2 ;; MCone1 (MConeOf M2 M2'))
+        (H3 : Mor3 (RotTri (ConeIsoTri I1)) ;; (# (AddEquiv1 Trans) f1) =
+              f3 ;; MCone2 (MConeOf M2 M2')) :
+    ∥ Σ M : Morphisms.Morphism, ∥ @ConeIso PTD (RotTri D) M ∥ ∥.
+  Proof.
+    intros P X. apply X. clear P X.
+    use tpair.
+    - exact M2.
+    - intros P X. apply X. clear P X.
+      use mk_ConeIso.
+      + exact M2'.
+      + use mk_TriMor.
+        * use mk_MPMor.
+          -- exact (mk_RotDTris_MPMorMors D M1 I1 M2 M2' f1 f2 f3).
+          -- exact (mk_RotDTris_MPMorComms D M1 I1 M2 M2' f1 f2 f3 is1 is2 is3 H1 H2 H3).
+        * exact (mk_RotDTris_DComm3 D M1 I1 M2 M2' f1 f2 f3 is1 is2 is3 H1 H2 H3).
+      + use mk_TriMor_is_iso.
+        * use is_iso_with_inv_data_comp.
+          -- exact (TriMor_is_iso2 (ConeIsoMor_is_iso I1)).
+          -- exact is1.
+        * use is_iso_with_inv_data_comp.
+          -- exact (TriMor_is_iso3 (ConeIsoMor_is_iso I1)).
+          -- exact is2.
+        * use is_iso_with_inv_data_comp.
+          -- exact (functor_on_is_iso_with_inv_data
+                      (AddEquiv1 Trans) (TriMor_is_iso1 (ConeIsoMor_is_iso I1))).
+          -- exact is3.
+  Qed.
+
+  (** ** The following is used to prove inverse rotations of DTris in K(A) *)
 
   Definition mk_InvRotDTris_MPMorMors (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
         (M2 : Morphism) (M2' : ConePropType (Source M2) (Target M2) M2)
@@ -476,23 +571,49 @@ Section def_pretriangulated_data.
     MPMorComms (mk_InvRotDTris_MPMorMors D M1 I1 M2 M2' f1 f2 f3).
   Proof.
     use mk_MPMorComms.
-    - cbn.
-      set (tmp := DComm3 (ConeIsoMor I1)). cbn in tmp. cbn in H1.
-      rewrite <- assoc.
+    - cbn. rewrite <- assoc.
       apply (maponpaths (compose (# (AddEquiv2 Trans) (MPMor3 (ConeIsoMor I1))))) in H1.
       use (pathscomp0 (! H1)). clear H1. rewrite assoc. rewrite assoc.
-      rewrite assoc. apply cancel_postcomposition.
+      apply cancel_postcomposition. cbn.
       rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
       rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp. apply maponpaths.
-      rewrite <- functor_comp. cbn in tmp. cbn. rewrite tmp. clear tmp.
-      rewrite functor_comp. rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition.
-      set (tmp := AddEquivUnitInv Trans (MPMor1 (ConeIsoMor I1))). cbn in tmp.
-      exact (! tmp).
-    - set (tmp := MPComm1 (ConeIsoMor I1)). cbn. rewrite assoc.
-      cbn in tmp. rewrite <- tmp. clear tmp.
-      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
-      exact (! H2).
+      rewrite assoc. rewrite <- functor_comp.
+      set (tmp := DComm3 (ConeIsoMor I1)).
+      apply (maponpaths (fun gg : _ => (# (AddEquiv2 Trans) gg)
+                                      ;; (AddEquivUnitInvMor Trans (Source M1)))) in tmp.
+      use (pathscomp0 tmp). clear tmp. rewrite functor_comp. rewrite <- assoc.
+      rewrite <- assoc. apply cancel_precomposition.
+      exact (! (AddEquivUnitInv Trans (MPMor1 (ConeIsoMor I1)))).
+    - cbn. rewrite assoc. set (tmp := MPComm1 (ConeIsoMor I1)).
+      apply (maponpaths (fun gg : _ => gg ;; f3)) in tmp.
+      use (pathscomp0 _ tmp). rewrite <- assoc. rewrite <- assoc.
+      apply cancel_precomposition. exact (! H2).
+  Qed.
+
+  Lemma InvRotDTrisComm3 (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
+        (M2 : Morphism) (M2' : ConePropType (Source M2) (Target M2) M2)
+        (f1 : PTD⟦Ob1 (InvRotTri (ConeIsoTri I1)), Source M2⟧)
+        (f2 : PTD⟦Ob2 (InvRotTri (ConeIsoTri I1)), Target M2⟧)
+        (f3 : PTD⟦Ob3 (InvRotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
+        (is1 : is_iso_with_inv_data f1) (is2 : is_iso_with_inv_data f2)
+        (is3 : is_iso_with_inv_data f3)
+        (H1 : Mor1 (InvRotTri (ConeIsoTri I1)) ;; f2 = f1 ;; M2)
+        (H2 : Mor2 (InvRotTri (ConeIsoTri I1)) ;; f3 = f2 ;; MCone1 (MConeOf M2 M2'))
+        (H3 : Mor3 (InvRotTri (ConeIsoTri I1)) ;; (# (AddEquiv1 Trans) f1) =
+              f3 ;; MCone2 (MConeOf M2 M2')) :
+    MPMor2 (ConeIsoMor I1) ;; f3 ;; MCone2 (MConeOf _ M2') =
+    (Mor2 D)
+      ;; AddEquivCounitInvMor Trans (Ob3 D)
+      ;; # (AddEquiv1 Trans) (# (AddEquiv2 Trans) (MPMor3 (ConeIsoMor I1)) ;; f1).
+  Proof.
+    apply (maponpaths (compose (MPMor2 (ConeIsoMor I1)))) in H3.
+    rewrite <- assoc. use (pathscomp0 (! H3)). clear H3.
+    set (tmp := MPComm2 (ConeIsoMor I1)). cbn.
+    cbn in tmp. rewrite assoc. rewrite assoc. rewrite tmp. clear tmp.
+    rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
+    apply cancel_precomposition. rewrite functor_comp. rewrite assoc. rewrite assoc.
+    apply cancel_postcomposition.
+    exact (! (AddEquivCounitInv Trans (MPMor3 (ConeIsoMor I1)))).
   Qed.
 
   Lemma mk_InvRotDTris (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
@@ -518,27 +639,16 @@ Section def_pretriangulated_data.
         * use mk_MPMor.
           -- exact (mk_InvRotDTris_MPMorMors D M1 I1 M2 M2' f1 f2 f3).
           -- exact (mk_InvRotDTris_MPMorComms D M1 I1 M2 M2' f1 f2 f3 is1 is2 is3 H1 H2 H3).
-        * cbn. apply (maponpaths (compose (MPMor2 (ConeIsoMor I1)))) in H3.
-          rewrite <- assoc. use (pathscomp0 (! H3)). clear H3.
-          set (tmp := MPComm2 (ConeIsoMor I1)). cbn.
-          cbn in tmp. rewrite assoc. rewrite assoc. rewrite tmp. clear tmp.
-          rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
-          apply cancel_precomposition. rewrite functor_comp. rewrite assoc. rewrite assoc.
-          apply cancel_postcomposition.
-          set (tmp := AddEquivCounitInv Trans (MPMor3 (ConeIsoMor I1))). cbn in tmp.
-          exact (! tmp).
+        * exact (InvRotDTrisComm3 D M1 I1 M2 M2' f1 f2 f3 is1 is2 is3 H1 H2 H3).
       + use mk_TriMor_is_iso.
-        * cbn.
-          use is_iso_with_inv_data_comp.
+        * use is_iso_with_inv_data_comp.
           -- exact (functor_on_is_iso_with_inv_data
                       (AddEquiv2 Trans) (TriMor_is_iso3 (ConeIsoMor_is_iso I1))).
           -- exact is1.
-        * cbn.
-          use is_iso_with_inv_data_comp.
+        * use is_iso_with_inv_data_comp.
           -- exact (TriMor_is_iso1 (ConeIsoMor_is_iso I1)).
           -- exact is2.
-        * cbn.
-          use is_iso_with_inv_data_comp.
+        * use is_iso_with_inv_data_comp.
           -- exact (TriMor_is_iso2 (ConeIsoMor_is_iso I1)).
           -- exact is3.
   Qed.
@@ -993,55 +1103,71 @@ Section rotation_isos.
              (H : f3 ;; Mor3 D2 = Mor3 D1 ;; f4) :
     let D1' := InvRotDTri PT D1 in
     let D2' := InvRotDTri PT D2 in
-    # (AddEquiv2 Trans) f3 ;; Mor1 D2' =
-    Mor1 D1' ;; (iso_with_inv1 (AddEquivUnitIso Trans (Ob1 D1))
-                   ;; (# (AddEquiv2 Trans) f4)
-                   ;; (iso_with_inv2 (AddEquivUnitIso Trans (Ob1 D2)))).
+    (# (AddEquiv2 Trans) f3)
+      ;; (to_inv (# (AddEquiv2 Trans) (Mor3 D2)) ;; AddEquivUnitInvMor Trans (Ob1 D2)) =
+    (to_inv (# (AddEquiv2 Trans) (Mor3 D1)))
+      ;; AddEquivUnitInvMor Trans (Ob1 D1)
+      ;; (((AddEquivUnit Trans) (Ob1 D1))
+            ;; # (AddEquiv2 Trans) f4 ;; AddEquivUnitInvMor Trans (Ob1 D2)).
   Proof.
-    intros D1' D2'. cbn. rewrite assoc. rewrite assoc. rewrite assoc.
+    intros D1' D2'. rewrite assoc. rewrite assoc. rewrite assoc.
     rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
-    apply maponpaths. apply cancel_postcomposition. cbn.
+    apply maponpaths. apply cancel_postcomposition.
     rewrite <- functor_comp. apply (maponpaths (# (AddEquiv2 Trans))) in H. use (pathscomp0 H).
     rewrite functor_comp. apply cancel_postcomposition. rewrite <- assoc.
-    set (tmp := is_iso_with_inv2 (AddEquivUnitIso Trans (Ob1 D1))). cbn in tmp. rewrite tmp.
-    rewrite id_right. apply idpath.
+    set (tmp := is_iso_with_inv2 (AddEquivUnitIso Trans (Ob1 D1))).
+    apply (maponpaths (compose (# (AddEquiv2 Trans) (Mor3 D1)))) in tmp.
+    use (pathscomp0 _ (! tmp)). rewrite id_right. apply idpath.
   Qed.
 
   Local Lemma ExtMor2_Comm2 (D1 D2 : @DTri PT) (Mor : TriMor (InvRotDTri PT D1) (InvRotDTri PT D2)) :
     MPMor3 Mor ;; Mor2 D2 =
-    Mor2 D1 ;; (iso_with_inv2 (AddEquivCounitIso Trans (Ob3 D1)) ;; # (AddEquiv1 Trans) (MPMor1 Mor) ;;
-                             (AddEquivCounit Trans) (Ob3 D2)).
-
+    Mor2 D1 ;; (AddEquivCounitInvMor Trans (Ob3 D1) ;; # (AddEquiv1 Trans) (MPMor1 Mor) ;;
+                                     (AddEquivCounit Trans) (Ob3 D2)).
   Proof.
-    set (tmp := DComm3 Mor). cbn in tmp. cbn.
     use (post_comp_with_iso_with_inv2_is_inj (AddEquivCounitIso Trans (Ob3 D2))).
-    rewrite <- assoc. use (pathscomp0 tmp). clear tmp. rewrite <- assoc. rewrite <- assoc.
-    apply cancel_precomposition. rewrite <- assoc. rewrite <- assoc.
+    rewrite <- assoc. use (pathscomp0 (DComm3 Mor)). rewrite <- assoc. rewrite <- assoc.
+    cbn. rewrite <- assoc. apply cancel_precomposition. rewrite <- assoc.
     apply cancel_precomposition.
-    set (tmp := is_iso_with_inv1 (AddEquivCounitIso Trans (Ob3 D2))). cbn in tmp. cbn.
-    rewrite tmp. clear tmp. rewrite id_right. apply idpath.
+    set (tmp := is_iso_with_inv1 (AddEquivCounitIso Trans (Ob3 D2))).
+    apply (maponpaths (compose (# (AddEquiv1 Trans) (MPMor1 Mor)))) in tmp.
+    use (pathscomp0 _ (! tmp)). clear tmp. rewrite id_right. apply idpath.
   Qed.
 
   Local Lemma ExtMor2_Comm3 (D1 D2 : @DTri PT) (Mor : TriMor (InvRotDTri PT D1) (InvRotDTri PT D2)) :
-    iso_with_inv2 (AddEquivCounitIso Trans (Ob3 D1)) ;; # (AddEquiv1 Trans) (MPMor1 Mor) ;;
-                 (AddEquivCounit Trans) (Ob3 D2) ;; Mor3 D2 =
+    (AddEquivCounitInvMor Trans (Ob3 D1))
+      ;; # (AddEquiv1 Trans) (MPMor1 Mor) ;; (AddEquivCounit Trans) (Ob3 D2) ;;  Mor3 D2 =
     Mor3 D1 ;; # (AddEquiv1 Trans) (MPMor2 Mor).
   Proof.
     use (pre_comp_with_iso_with_inv1_is_inj (AddEquivCounitIso Trans (Ob3 D1))).
-    cbn. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite assoc. rewrite assoc. rewrite assoc.
     set (tmp' := is_iso_with_inv1 (AddEquivCounitIso Trans (Ob3 D1))). cbn in tmp'.
-    rewrite tmp'. clear tmp'. rewrite id_left. rewrite <- assoc. cbn.
-    set (tmp' := AddEquivCounitComm Trans _ _ (Mor3 D2)). cbn in tmp'. rewrite <- tmp'. clear tmp'.
-    set (tmp' := AddEquivCounitUnit' Trans (Ob1 D2)). cbn in tmp'. cbn. rewrite tmp'. clear tmp'.
+    apply (maponpaths
+             (postcompose ((# (AddEquiv1 Trans) (MPMor1 Mor))
+                             ;; (AddEquivCounit Trans) (Ob3 D2) ;; Mor3 D2))) in tmp'.
+    unfold postcompose in tmp'. rewrite assoc in tmp'. rewrite assoc in tmp'.
+    use (pathscomp0 tmp'). clear tmp'. rewrite id_left. rewrite <- assoc.
+    set (tmp' := AddEquivCounitComm Trans _ _ (Mor3 D2)).
+    apply (maponpaths (compose (# (AddEquiv1 Trans) (MPMor1 Mor)))) in tmp'.
+    use (pathscomp0 (! tmp')). clear tmp'.
+    set (tmp' := AddEquivCounitUnit' Trans (Ob1 D2)).
+    apply (maponpaths (fun gg : _ => # (AddEquiv1 Trans) (MPMor1 Mor)
+                                    ;; (# (AddEquiv1 Trans) (# (AddEquiv2 Trans) (Mor3 D2))
+                                          ;; gg))) in tmp'.
+    use (pathscomp0 tmp'). clear tmp'.
     rewrite <- functor_comp. rewrite <- functor_comp. rewrite assoc. rewrite assoc.
-    set (tmp' := AddEquivCounitComm Trans _ _ (Mor3 D1)). cbn in tmp'. rewrite <- tmp'. clear tmp'.
-    set (tmp' := AddEquivCounitUnit' Trans (Ob1 D1)). cbn in tmp'. cbn. rewrite tmp'. clear tmp'.
+    set (tmp' := AddEquivCounitComm Trans _ _ (Mor3 D1)).
+    apply (maponpaths (postcompose (# (AddEquiv1 Trans) (MPMor2 Mor)))) in tmp'.
+    use (pathscomp0 _ tmp'). clear tmp'. unfold postcompose.
+    set (tmp' := AddEquivCounitUnit' Trans (Ob1 D1)).
+    apply (maponpaths (fun gg : _ => # (AddEquiv1 Trans) (# (AddEquiv2 Trans) (Mor3 D1))
+                                    ;; gg ;; # (AddEquiv1 Trans) (MPMor2 Mor))) in tmp'.
+    use (pathscomp0 _ (! tmp')). clear tmp'.
     rewrite <- functor_comp. rewrite <- functor_comp. apply maponpaths.
-    apply cancel_inv.
-    set (tmp := MPComm1 Mor). cbn in tmp. rewrite assoc in tmp.
-    rewrite <- PreAdditive_invrcomp in tmp. rewrite <- PreAdditive_invlcomp in tmp.
-    use (pathscomp0 tmp). clear tmp. cbn.
+    set (tmp := MPComm1 Mor).
+    apply cancel_inv. rewrite PreAdditive_invlcomp. rewrite PreAdditive_invrcomp.
+    rewrite <- assoc. use (pathscomp0 tmp). clear tmp.
     rewrite PreAdditive_invlcomp. rewrite PreAdditive_invlcomp. apply idpath.
   Qed.
 

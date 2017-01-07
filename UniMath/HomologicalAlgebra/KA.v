@@ -423,7 +423,7 @@ Section complexes_homotopies.
   Proof.
     assert (e : # ComplexHomotFunctor (f1 ;; f2) = # ComplexHomotFunctor (f1 ;; f3)).
     {
-      rewrite functor_comp. rewrite H. apply idpath.
+      rewrite functor_comp. rewrite H. rewrite functor_comp. apply idpath.
     }
     exact (ComplexHomotFunctor_im_to_homot (f1 ;; f2) (f1 ;; f3) e).
   Qed.
@@ -436,7 +436,7 @@ Section complexes_homotopies.
   Proof.
     assert (e : # ComplexHomotFunctor (f1 ;; f3) = # ComplexHomotFunctor (f2 ;; f3)).
     {
-      rewrite functor_comp. rewrite H. apply idpath.
+      rewrite functor_comp. rewrite H. rewrite functor_comp. apply idpath.
     }
     exact (ComplexHomotFunctor_im_to_homot (f1 ;; f3) (f2 ;; f3) e).
   Qed.

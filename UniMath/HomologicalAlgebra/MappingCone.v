@@ -3053,7 +3053,7 @@ Section inv_rotation_mapping_cone.
     use (pathscomp0 tmp). clear tmp. rewrite id_right.
     set (tmp := InvRotMorphismComm2 f). cbn beta in tmp.
     apply (maponpaths (# (ComplexHomotFunctor A))) in tmp.
-    use (pathscomp0 (! tmp)). clear tmp. apply idpath.
+    use (pathscomp0 (! tmp)). clear tmp. rewrite functor_comp. apply idpath.
   Qed.
 
   Local Opaque precategory_morphisms compose identity.

@@ -27,6 +27,7 @@ Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.kernels.
 Require Import UniMath.CategoryTheory.limits.cokernels.
 
+
 (** * Definition of a PreAdditive precategory
    A preadditive precategory is a precategory such that the sets of morphisms are abelian groups and
    pre- and postcomposing with a morphisms is a monoidfun of the abelian groups. *)
@@ -537,8 +538,57 @@ Section preadditive_quotient.
     - apply (dirprod_pr1 (PAC A B) C (pr1 t) (pr2 t) g1).
   Qed.
 
-  (** The following Lemma is used to define composition of morphisms in the quotient precategory.
-      It shows that composition is well defined in QuotPrecategory_ob_mor. *)
+
+  (** [QuotPrecategory_comp_iscontr] is used to define composition of morphisms in the quotient
+      precategory. It shows that composition is well defined in QuotPrecategory_ob_mor. *)
+
+  Local Lemma QuotPrecategory_comp_iscontr_eq1 {A B C : ob PA} (f : QuotPrecategory_ob_mor⟦A, B⟧)
+        (g : QuotPrecategory_ob_mor⟦B, C⟧)  (f'1 : PA ⟦ A, B ⟧) (f''1 : setquotpr _ f'1 = f)
+        (g'1 : PA ⟦ B, C ⟧) (g''1 : setquotpr _ g'1 = g) :
+    Π (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f) (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g),
+    setquotpr _ (f' ;; g') = setquotpr (binopeqrel_subgr_eqrel (PAS A C)) (f'1 ;; g'1).
+  Proof.
+    intros f1 Hf g1 Hg. cbn.
+    apply (iscompsetquotpr (eqrelpair _ (iseqrel_subgrhrel (to_abgrop A C) (PAS A C)))).
+    set (HH := @abgrquotpr_rels_to_unel
+                 (to_abgrop A B) f'1 f1 (binopeqrel_subgr_eqrel (PAS A B)) f f''1 Hf).
+    set (HH' := @abgrquotpr_rels_to_unel
+                  (to_abgrop B C) g'1 g1 (binopeqrel_subgr_eqrel (PAS B C)) g g''1 Hg).
+    apply abgrquotpr_rel_paths in HH. apply abgrquotpr_rel_paths in HH'.
+    use (squash_to_prop HH). apply propproperty. intros HHH. clear HH.
+    use (squash_to_prop HH'). apply propproperty. intros HHH'. clear HH'.
+    cbn in HHH. cbn in HHH'. induction HHH as [t p]. induction HHH' as [t' p'].
+    rewrite grinvunel in p. rewrite grinvunel in p'.
+    set (tmp := to_runax A B). unfold isrunit in tmp. cbn in tmp. rewrite tmp in p. clear tmp.
+    set (tmp := to_runax B C). unfold isrunit in tmp. cbn in tmp. rewrite tmp in p'. clear tmp.
+    cbn. unfold ishinh_UU. intros P X. apply X. clear X P.
+    use tpair.
+    + use tpair.
+      * exact (to_binop A C (f1 ;; g1) (grinv (to_abgrop A C) (f'1 ;; g'1))).
+      * apply (QuotPrecategory_comp_iscontr_PAS p p').
+    + apply idpath.
+  Qed.
+
+  Local Lemma QuotPrecategory_comp_iscontr_eq2 {A B C : ob PA} (f : QuotPrecategory_ob_mor⟦A, B⟧)
+        (g : QuotPrecategory_ob_mor⟦B, C⟧)  (f'1 : PA ⟦ A, B ⟧) (f''1 : setquotpr _ f'1 = f)
+        (g'1 : PA ⟦ B, C ⟧) (g''1 : setquotpr _ g'1 = g) (y : setquot (subgrhrel (PAS A C))) :
+    isaprop
+      ((λ t : setquot (subgrhrel (PAS A C)),
+              Π (f' : PA ⟦ A, B ⟧),
+              setquotpr _ f' = f
+              → Π (g' : PA ⟦ B, C ⟧),
+              setquotpr _ g' = g
+              → setquotpr (eqrelpair (subgrhrel (PAS A C))
+                                     (iseqrel_subgrhrel (to_abgrop A C) (PAS A C)))
+                          (f' ;; g') = t) y).
+  Proof.
+    apply impred. intros t.
+    apply impred. intros H.
+    apply impred. intros t0.
+    apply impred. intros H0.
+    apply isasetsetquot.
+  Qed.
+
   Lemma QuotPrecategory_comp_iscontr {A B C : ob PA} (f : QuotPrecategory_ob_mor⟦A, B⟧)
              (g : QuotPrecategory_ob_mor⟦B, C⟧) :
     iscontr (Σ h : QuotPrecategory_ob_mor⟦A, C⟧,
@@ -548,45 +598,25 @@ Section preadditive_quotient.
     cbn in *.
     set (f'1 := @issurjsetquotpr (to_abgrop A B) (binopeqrel_subgr_eqrel (PAS A B)) f).
     set (g'1 := @issurjsetquotpr (to_abgrop B C) (binopeqrel_subgr_eqrel (PAS B C)) g).
-    use (squash_to_prop f'1). apply isapropiscontr. intros f''1. clear f'1.
-    use (squash_to_prop g'1). apply isapropiscontr. intros g''1. clear g'1.
-    induction f''1 as [f'1 f''1]. induction g''1 as [g'1 g''1]. cbn in *.
+    use (squash_to_prop f'1). apply isapropiscontr. intros f'. clear f'1.
+    use (squash_to_prop g'1). apply isapropiscontr. intros g'. clear g'1.
     use unique_exists.
-    - use (setquotpr (binopeqrel_subgr_eqrel (PAS A C)) (f'1 ;; g'1)).
-    - intros f1 Hf g1 Hg. cbn.
-      apply (iscompsetquotpr (eqrelpair _ (iseqrel_subgrhrel (to_abgrop A C) (PAS A C)))).
-      set (HH := @abgrquotpr_rels_to_unel
-                   (to_abgrop A B) f'1 f1 (binopeqrel_subgr_eqrel (PAS A B)) f f''1 Hf).
-      set (HH' := @abgrquotpr_rels_to_unel
-                    (to_abgrop B C) g'1 g1 (binopeqrel_subgr_eqrel (PAS B C)) g g''1 Hg).
-      apply abgrquotpr_rel_paths in HH. apply abgrquotpr_rel_paths in HH'.
-      use (squash_to_prop HH). apply propproperty. intros HHH. clear HH.
-      use (squash_to_prop HH'). apply propproperty. intros HHH'. clear HH'.
-      cbn in HHH. cbn in HHH'. induction HHH as [t p]. induction HHH' as [t' p'].
-      rewrite grinvunel in p. rewrite grinvunel in p'.
-      set (tmp := to_runax A B). unfold isrunit in tmp. cbn in tmp. rewrite tmp in p. clear tmp.
-      set (tmp := to_runax B C). unfold isrunit in tmp. cbn in tmp. rewrite tmp in p'. clear tmp.
-      cbn. unfold ishinh_UU. intros P X. apply X. clear X P.
-      use tpair.
-      + use tpair.
-        * exact (to_binop A C (f1 ;; g1) (grinv (to_abgrop A C) (f'1 ;; g'1))).
-        * apply (QuotPrecategory_comp_iscontr_PAS p p').
-      + apply idpath.
-    - intros y.
-      apply impred. intros t.
-      apply impred. intros H.
-      apply impred. intros t0.
-      apply impred. intros H0.
-      apply isasetsetquot.
-    - intros y T. cbn in T.
-      set (T' := T f'1 f''1 g'1 g''1). rewrite <- T'. apply idpath.
-  Defined.
-  Opaque QuotPrecategory_comp_iscontr.
+    - exact (setquotpr (binopeqrel_subgr_eqrel (PAS A C))
+                       ((hfiberpr1 _ _ f') ;; (hfiberpr1 _ _ g'))).
+    - exact (QuotPrecategory_comp_iscontr_eq1
+               f g (hfiberpr1 _ _ f') (hfiberpr2 _ _ f')
+               (hfiberpr1 _ _ g') (hfiberpr2 _ _ g')).
+    - intros y. exact (QuotPrecategory_comp_iscontr_eq2
+                         f g (hfiberpr1 _ _ f') (hfiberpr2 _ _ f')
+                         (hfiberpr1 _ _ g') (hfiberpr2 _ _ g') y).
+    - intros y T.
+      exact (! (T (hfiberpr1 _ _ f') (hfiberpr2 _ _ f') (hfiberpr1 _ _ g') (hfiberpr2 _ _ g'))).
+  Qed.
 
   Definition QuotPrecategory_comp {A B C : ob PA} (f : QuotPrecategory_ob_mor⟦A, B⟧)
              (g : QuotPrecategory_ob_mor⟦B, C⟧) : QuotPrecategory_ob_mor⟦A, C⟧.
   Proof.
-    exact (pr1 (pr1 (QuotPrecategory_comp_iscontr f g))).
+    exact (pr1 (iscontrpr1 (QuotPrecategory_comp_iscontr f g))).
   Defined.
 
   Definition to_quot_mor {x y : ob PA} (f : PA⟦x, y⟧) : QuotPrecategory_ob_mor⟦x, y⟧.
@@ -615,7 +645,7 @@ Section preadditive_quotient.
     ((QuotPrecategory_comp (to_quot_mor f) (to_quot_mor g)) *
      (QuotPrecategory_comp (to_quot_mor f) (to_quot_mor h)))%multmonoid.
   Proof.
-    Opaque binopeqrel_subgr_eqrel isabgrquot setquotfun2.
+    Local Opaque binopeqrel_subgr_eqrel isabgrquot setquotfun2.
     apply pathsinv0. cbn.
     eapply pathscomp0.
     - rewrite QuotPrecategory_comp_linear. rewrite QuotPrecategory_comp_linear.
@@ -696,7 +726,7 @@ Section preadditive_quotient.
 
   (** The following two lemmas are used to show associaticity of composition in
       QuotPrecategory. *)
-  Lemma assoc1 {a b c d : QuotPrecategory_data} (f : QuotPrecategory_data ⟦a, b⟧)
+  Local Lemma assoc1 {a b c d : QuotPrecategory_data} (f : QuotPrecategory_data ⟦a, b⟧)
         (g : QuotPrecategory_data ⟦b, c⟧) (h : QuotPrecategory_data ⟦c, d⟧)
         (f1 : PA⟦a, b⟧) (f2 : setquotpr (binopeqrel_subgr_eqrel (PAS a b)) f1 = f)
         (g1 : PA⟦b, c⟧) (g2 : setquotpr (binopeqrel_subgr_eqrel (PAS b c)) g1 = g)
@@ -715,7 +745,7 @@ Section preadditive_quotient.
       + exact h2.
   Qed.
 
-  Lemma assoc2 {a b c d : QuotPrecategory_data} (f : QuotPrecategory_data ⟦a, b⟧)
+  Local Lemma assoc2 {a b c d : QuotPrecategory_data} (f : QuotPrecategory_data ⟦a, b⟧)
         (g : QuotPrecategory_data ⟦b, c⟧) (h : QuotPrecategory_data ⟦c, d⟧)
         (f1 : PA⟦a, b⟧) (f2 : setquotpr (binopeqrel_subgr_eqrel (PAS a b)) f1 = f)
         (g1 : PA⟦b, c⟧) (g2 : setquotpr (binopeqrel_subgr_eqrel (PAS b c)) g1 = g)
@@ -785,10 +815,15 @@ Section preadditive_quotient.
     intros a b. apply isasetsetquot.
   Qed.
 
+  Lemma QuotPrecategory_comp_linear' {x y z : ob QuotPrecategory} (f : PA⟦x, y⟧) (g : PA⟦y, z⟧) :
+    @compose QuotPrecategory _ _ _ (to_quot_mor f) (to_quot_mor g) = to_quot_mor (f ;; g).
+  Proof.
+    exact (QuotPrecategory_comp_linear _ _).
+  Qed.
+
 
   (** ** Quotient precategory of PreAdditive is PreAdditive *)
 
-  Opaque isbinopeqrel_subgr_eqrel isabgrquot.
   Definition QuotPrecategory_binops : precategoryWithBinOps.
   Proof.
     use mk_precategoryWithBinOps.
@@ -796,45 +831,18 @@ Section preadditive_quotient.
     - intros x y. exact (@op (subabgr_quot (PAS x y))).
   Defined.
 
-  Local Lemma QuotPrecategory_isabgrops (x y : QuotPrecategory_binops) :
-    @isabgrop
-      (hSetpair (@setquot (PA ⟦ x, y ⟧) (@binopeqrel_subgr_eqrel (@to_abgrop PA x y) (PAS x y)))
-                (has_homsets_QuotPrecategory x y))
-      (@setquotfun2 (PA ⟦ x, y ⟧) (PA ⟦ x, y ⟧)
-                    (@binopeqrel_subgr_eqrel (@to_abgrop PA x y) (PAS x y))
-                    (@binopeqrel_subgr_eqrel (@to_abgrop PA x y) (PAS x y)) (@to_binop PA x y)
-                    (@iscompbinoptransrel
-                       (@to_setwithbinoppair PA x y)
-                       (@binopeqrel_subgr_eqrel (@to_abgrop PA x y) (PAS x y))
-                       (@eqreltrans (PA ⟦ x, y ⟧)
-                                    (@binopeqrel_subgr_eqrel (@to_abgrop PA x y) (PAS x y)))
-                       (@pr2 (eqrel (PA ⟦ x, y ⟧))
-                             (λ R : eqrel (PA ⟦ x, y ⟧),
-                                    @isbinophrel (@to_setwithbinoppair PA x y) R)
-                             (@binopeqrel_subgr_eqrel (@to_abgrop PA x y) (PAS x y))))).
-  Proof.
-    exact (pr2 (subabgr_quot (PAS x y))).
-  Defined.
-  Opaque QuotPrecategory_isabgrops.
-  (* isabgrops contains construction the unel of the homset. Thus this opaque might be problematic
-     later. Use Transparent QuotPrecategory_isabgrops if needed. *)
-
+  Unset Kernel Term Sharing.
   Definition QuotPrecategory_abgrops : PrecategoryWithAbgrops.
   Proof.
     use mk_PrecategoryWithAbgrops.
     - exact QuotPrecategory_binops.
     - exact has_homsets_QuotPrecategory.
-    - intros x y. exact (QuotPrecategory_isabgrops x y).
+    - intros x y. exact (pr2 (subabgr_quot (PAS x y))).
   Defined.
+  Set Kernel Term Sharing.
 
-  (** Don't know why we need unel and unel'. Try to fix this if you can. *)
-  Local Lemma quot_unel (x y : PA) :
-    @to_unel QuotPrecategory_abgrops x y = to_quot_mor (@to_unel PA x y).
-  Proof.
-    unfold to_unel. unfold to_quot_mor. apply pathsinv0. apply idpath.
-  Qed.
-
-  Local Lemma quot_unel' (x y : PA) : @to_unel QuotPrecategory_abgrops x y = 1%multmonoid.
+  Local Lemma quot_unel {x y : PA} :
+    to_quot_mor (@to_unel PA x y) = unel (@to_abgrop QuotPrecategory_abgrops x y).
   Proof.
     unfold to_unel.
     apply idpath.
@@ -859,7 +867,7 @@ Section preadditive_quotient.
   Local Lemma PreAdditive_pre_unel (x y z : PA) (f : setquot (binopeqrel_subgr_eqrel (PAS x y))) :
     @to_premor QuotPrecategory_abgrops x y z f 1%multmonoid = 1%multmonoid.
   Proof.
-    cbn. rewrite <- quot_unel'. rewrite <- quot_unel'. rewrite quot_unel. rewrite quot_unel.
+    cbn. rewrite <- quot_unel. rewrite <- quot_unel.
     set (f'1 := @issurjsetquotpr (to_abgrop x y) (binopeqrel_subgr_eqrel (PAS x y)) f).
     use (squash_to_prop f'1). apply has_homsets_QuotPrecategory. intros f1. clear f'1.
     induction f1 as [f1 f2].
@@ -889,7 +897,7 @@ Section preadditive_quotient.
   Local Lemma PreAdditive_post_unel (x y z : PA) (f : setquot (binopeqrel_subgr_eqrel (PAS y z))) :
     @to_postmor QuotPrecategory_abgrops x y z f 1%multmonoid = 1%multmonoid.
   Proof.
-    cbn. rewrite <- quot_unel'. rewrite <- quot_unel'. rewrite quot_unel. rewrite quot_unel.
+    cbn. rewrite <- quot_unel. rewrite <- quot_unel.
     set (f'1 := @issurjsetquotpr (to_abgrop y z) (binopeqrel_subgr_eqrel (PAS y z)) f).
     use (squash_to_prop f'1). apply has_homsets_QuotPrecategory. intros f1. clear f'1.
     induction f1 as [f1 f2].
@@ -944,7 +952,7 @@ Section preadditive_quotient.
   Proof.
     split.
     - intros X. apply idpath.
-    - intros x Y Z f g. apply idpath.
+    - intros x Y Z f g. rewrite QuotPrecategory_comp_linear'. apply idpath.
   Qed.
 
   Definition QuotPrecategoryFunctor : functor PA QuotPrecategory_PreAdditive.
@@ -978,8 +986,7 @@ Section preadditive_quotient.
         use (squash_to_prop t'1). apply has_homsets_QuotPrecategory. intros t1. clear t'1.
         induction t1 as [t1 t2]. rewrite <- t2. unfold to_quot_mor. apply maponpaths.
         apply ArrowsToZero.
-  Defined.
-  Opaque QuotPrecategory_isZero.
+  Qed.
 
   Definition QuotPrecategory_Zero : @Zero QuotPrecategory.
   Proof.
