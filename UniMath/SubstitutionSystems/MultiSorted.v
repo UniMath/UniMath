@@ -69,12 +69,8 @@ exists (SET / sort).
 now apply has_homsets_slice_precat.
 Defined.
 
-Local Lemma has_homsets_Csort : has_homsets SET_over_sort.
-Proof.
-apply homset_property.
-Qed.
-
-Let post_comp := post_composition_functor (SET / sort) _ _ has_homsets_Csort has_homsets_HSET.
+Let post_comp := post_composition_functor (SET / sort) _ _
+                   (homset_property SET_over_sort) has_homsets_HSET.
 
 (** Definition of multi sorted signatures *)
 Definition MultiSortedSig : UU :=
@@ -166,7 +162,7 @@ Defined.
 Lemma exp_functor (a : list sort × sort) : functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
 Proof.
 eapply functor_composite.
-- apply (pre_composition_functor _ _ _ has_homsets_Csort _ (option_list (pr1 a))).
+- apply (pre_composition_functor _ _ _ (homset_property SET_over_sort) _ (option_list (pr1 a))).
 - apply post_comp, (proj_functor (pr2 a)).
 Defined.
 
@@ -324,7 +320,7 @@ induction xs as [[|n] xs].
       apply BinProducts_slice_precat.
       apply PullbacksHSET.
     * apply is_omega_cocont_constprod_functor1; try apply functor_category_has_homsets.
-      apply has_exponentials_functor_HSET, has_homsets_Csort.
+      apply has_exponentials_functor_HSET, homset_property.
     * apply is_omega_cocont_exp_functor, H.
     * apply (IHn (k,,xs)).
 Defined.
