@@ -98,6 +98,7 @@ mkpair.
             intros x; apply setproperty).
 Defined.
 
+(** The left adjoint to the proj_functor *)
 Definition hat_functor (t : sort) : functor SET (SET / sort).
 Proof.
 mkpair.
@@ -158,7 +159,7 @@ use (foldr _ _ xs).
 + apply functor_identity.
 Defined.
 
-(** This is X^a as a functor between functor categories *)
+(** Define a functor F^(l,t)(X) := proj_functor(t) ∘ X ∘ option_functor(l) *)
 Lemma exp_functor (a : list sort × sort) : functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
 Proof.
 eapply functor_composite.
