@@ -61,6 +61,21 @@ Definition isasymm_StrongOrder : isasymm R :=
 
 End so_pty.
 
+Lemma isStrongOrder_weq {X Y : UU} (H : weq Y X) (gt : hrel X) :
+  isStrongOrder gt → isStrongOrder (λ x y : Y, gt (H x) (H y)).
+Proof.
+  intros X Y H gt is.
+  split ; [ | split].
+  - intros x y z.
+    apply (pr1 is).
+  - intros x y z.
+    apply (pr1 (pr2 is)).
+  - intros x.
+    apply (pr2 (pr2 is)).
+Qed.
+Definition StrongOrder_weq {X Y : UU} (H : weq Y X) (gt : StrongOrder X) : StrongOrder Y :=
+  (λ x y : Y, gt (H x) (H y)) ,, isStrongOrder_weq H _ (pr2 gt).
+
 Lemma isStrongOrder_setquot {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
   isStrongOrder L → isStrongOrder (quotrel is).
 Proof.
@@ -892,3 +907,193 @@ Proof.
 Qed.
 
 End truncminus_gt.
+(** ** lattice and [weq] *)
+
+(** *** Definition *)
+
+Section lattice_weq.
+
+Context {X Y : hSet}
+        (H : weq Y X)
+        (min max : binop X)
+        (Hmin_assoc : isassoc min)
+        (Hmin_comm : iscomm min)
+        (Hmax_assoc : isassoc max)
+        (Hmax_comm : iscomm max)
+        (Hmin_max : Π x y : X, min x (max x y) = x)
+        (Hmax_min : Π x y : X, max x (min x y) = x).
+
+Definition weq_min : binop Y :=
+  λ x y : Y, invmap H (min (H x) (H y)).
+Definition weq_max : binop Y :=
+  λ x y : Y, invmap H (max (H x) (H y)).
+
+Lemma isassoc_weq_min :
+  isassoc weq_min.
+Proof.
+  intros x y z.
+  unfold weq_min.
+  do 2 rewrite homotweqinvweq.
+  rewrite Hmin_assoc.
+  reflexivity.
+Qed.
+Lemma iscomm_weq_min :
+  iscomm weq_min.
+Proof.
+  intros x y.
+  unfold weq_min.
+  rewrite Hmin_comm.
+  reflexivity.
+Qed.
+
+Lemma isassoc_weq_max :
+  isassoc weq_max.
+Proof.
+  intros x y z.
+  unfold weq_max.
+  do 2 rewrite homotweqinvweq.
+  rewrite Hmax_assoc.
+  reflexivity.
+Qed.
+Lemma iscomm_weq_max :
+  iscomm weq_max.
+Proof.
+  intros x y.
+  unfold weq_max.
+  rewrite Hmax_comm.
+  reflexivity.
+Qed.
+
+Lemma isabsorb_weq_min_max :
+  Π x y : Y, weq_min x (weq_max x y) = x.
+Proof.
+  intros x y.
+  unfold weq_min, weq_max.
+  rewrite homotweqinvweq, Hmin_max.
+  apply homotinvweqweq.
+Qed.
+Lemma isabsorb_weq_max_min :
+  Π x y : Y, weq_max x (weq_min x y) = x.
+Proof.
+  intros x y.
+  unfold weq_min, weq_max.
+  rewrite homotweqinvweq, Hmax_min.
+  apply homotinvweqweq.
+Qed.
+
+End lattice_weq.
+
+Lemma latticeop_weq {X Y : hSet} (H : weq Y X) {min max : binop X} (is : latticeop min max) :
+  latticeop (weq_min H min) (weq_max H max).
+Proof.
+  intros.
+  split ; [ | split] ; split.
+  - apply isassoc_weq_min, (isassoc_Lmin (_,,_,,is)).
+  - apply iscomm_weq_min, (iscomm_Lmin (_,,_,,is)).
+  - apply isassoc_weq_max, (isassoc_Lmax (_,,_,,is)).
+  - apply iscomm_weq_max, (iscomm_Lmax (_,,_,,is)).
+  - apply isabsorb_weq_min_max, (Lmin_absorb (_,,_,,is)).
+  - apply isabsorb_weq_max_min, (Lmax_absorb (_,,_,,is)).
+Qed.
+
+Definition lattice_weq {X Y : hSet} (H : weq Y X) (is : lattice X) : lattice Y.
+Proof.
+  intros X Y H is.
+  exists (weq_min H (Lmin is)), (weq_max H (Lmax is)).
+  apply latticeop_weq.
+  apply (pr2 (pr2 is)).
+Defined.
+
+(** *** Value of [Lle] *)
+
+Lemma Lle_correct_weq {X Y : hSet} (H : weq Y X) (is : lattice X) :
+  Π (x y : Y),
+  Lle is (H x) (H y) <-> Lle (lattice_weq H is) x y.
+Proof.
+  intros X Y H is x y.
+  split ; intros Hle.
+  - apply pathsinv0, pathsweq1, pathsinv0.
+    apply Hle.
+  - apply pathsinv0, pathsweq1', pathsinv0.
+    apply Hle.
+Qed.
+
+(** *** Lattice with strong order *)
+
+Lemma latticewithgtrel_weq {X Y : hSet} (H : weq Y X) {gt : StrongOrder X} (is : lattice X) :
+  latticewithgtrel is gt →
+  latticewithgtrel (lattice_weq H is) (StrongOrder_weq H gt).
+Proof.
+  intros X Y H gt is Hgt.
+  split ; split.
+  - intros Hngt.
+    unfold Lle ; simpl.
+    unfold weq_min.
+    rewrite (pr1 (pr1 Hgt _ _)).
+    apply homotinvweqweq.
+    apply Hngt.
+  - intros Hle.
+    apply (pr2 (pr1 Hgt _ _)).
+    unfold Lle ; simpl.
+    apply pathsinv0, pathsweq1', pathsinv0.
+    apply Hle.
+  - simpl ; intros x y z Hx Hy.
+    unfold weq_min.
+    rewrite homotweqinvweq.
+    apply (pr1 (pr2 Hgt)).
+    exact Hx.
+    exact Hy.
+  - unfold Lmax ; simpl ; intros x y z Hx Hy.
+    unfold weq_max.
+    rewrite homotweqinvweq.
+    apply (pr2 (pr2 Hgt)).
+    exact Hx.
+    exact Hy.
+Qed.
+Definition latticewithgt_weq {X Y : hSet} (H : weq Y X) (is : latticewithgt X) :
+  latticewithgt Y.
+Proof.
+  intros X Y H is.
+  exists (lattice_weq H is), (StrongOrder_weq H (Lgt is)).
+  apply latticewithgtrel_weq.
+  apply (pr2 (pr2 is)).
+Defined.
+
+(** *** Lattice with a decidable order *)
+
+Lemma istotal_Lle_weq {X Y : hSet} (H : weq Y X)
+      (is : lattice X) (is' : istotal (Lle is)) :
+  istotal (Lle (lattice_weq H is)).
+Proof.
+  intros X Y H is is'.
+  intros x y.
+  generalize (is' (H x) (H y)).
+  apply hinhfun, sumofmaps ; intros Hmin.
+  - apply ii1, (pathscomp0 (maponpaths (invmap H) Hmin)), homotinvweqweq.
+  - apply ii2, (pathscomp0 (maponpaths (invmap H) Hmin)), homotinvweqweq.
+Qed.
+Lemma isdecrel_Lle_weq {X Y : hSet} (H : weq Y X)
+      (is : lattice X) (is' : isdecrel (Lle is)) :
+  isdecrel (Lle (lattice_weq H is)).
+Proof.
+  intros X Y H is is'.
+  intros x y.
+  generalize (is' (H x) (H y)).
+  apply sumofmaps ; intros Hmin.
+  - apply ii1, (pathscomp0 (maponpaths (invmap H) Hmin)), homotinvweqweq.
+  - apply ii2.
+    intros Hinv ; apply Hmin.
+    apply pathsinv0, pathsweq1', pathsinv0, Hinv.
+Qed.
+
+Definition latticedec_weq {X Y : hSet} (H : weq Y X) :
+  latticedec X → latticedec Y.
+Proof.
+  intros X Y H is.
+  exists (lattice_weq H (lattice_latticedec is)).
+  split.
+  - apply istotal_Lle_weq.
+    apply istotal_latticedec.
+  - apply isdecrel_Lle_weq.
+    apply isdecrel_latticedec.
+Defined.
