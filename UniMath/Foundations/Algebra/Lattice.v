@@ -30,6 +30,7 @@ Truncated minus is a lattice:
 - a function minus such that: Π (x y : X), (minus x y) + y = max x y *)
 
 Require Export UniMath.Foundations.Algebra.Monoids_and_Groups.
+Require Export UniMath.Foundations.Algebra.Domains_and_Fields.
 
 Unset Automatic Introduction.
 
@@ -87,6 +88,48 @@ Proof.
 Qed.
 Definition StrongOrder_setquot {X : UU} {R : eqrel X} {L : StrongOrder X} (is : iscomprelrel R L) : StrongOrder (setquot R) :=
   quotrel is,, isStrongOrder_setquot is (pr2 L).
+
+Lemma isStrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoids X) (gt : hrel X) (Hgt : ispartbinophrel Y gt) :
+  isStrongOrder gt → isStrongOrder (abmonoidfracrel X Y Hgt).
+Proof.
+  intros X Y gt Hgt H.
+  split ; [ | split].
+  - apply istransabmonoidfracrel, (pr1 H).
+  - apply iscotransabmonoidfracrel, (pr1 (pr2 H)).
+  - apply isirreflabmonoidfracrel, (pr2 (pr2 H)).
+Qed.
+Definition StrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoids X) (gt : StrongOrder X) (Hgt : ispartbinophrel Y gt) : StrongOrder (abmonoidfrac X Y) :=
+  abmonoidfracrel X Y Hgt,, isStrongOrder_abmonoidfrac Y gt Hgt (pr2 gt).
+
+Lemma isStrongOrder_abgrdiff {X : abmonoid} (gt : hrel X) (Hgt : isbinophrel gt) :
+  isStrongOrder gt → isStrongOrder (abgrdiffrel X Hgt).
+Proof.
+  intros X gt Hgt H.
+  split ; [ | split].
+  - apply istransabgrdiffrel, (pr1 H).
+  - apply iscotransabgrdiffrel, (pr1 (pr2 H)).
+  - apply isirreflabgrdiffrel, (pr2 (pr2 H)).
+Qed.
+Definition StrongOrder_abgrdiff {X : abmonoid} (gt : StrongOrder X) (Hgt : isbinophrel gt) : StrongOrder (abgrdiff X) :=
+  abgrdiffrel X Hgt,, isStrongOrder_abgrdiff gt Hgt (pr2 gt).
+
+Lemma StrongOrder_correct_commrngfrac (X : commrng) (Y : @subabmonoids (rngmultabmonoid X))
+      (gt : StrongOrder X)
+      Hgt Hle Hmult Hpos :
+  Π (x y : commrngfrac X Y),
+  commrngfracgt X Y (R := gt) Hle Hmult Hpos x y
+  <-> StrongOrder_abmonoidfrac Y gt Hgt x y.
+Proof.
+  intros X Y is Hgt Hle Hmult Hpos.
+  simpl.
+  simple refine (setquotuniv2prop (eqrelabmonoidfrac (rngmultabmonoid X) Y) (λ _ _, hProppair _ _) _).
+  - apply isapropdirprod ;
+    apply isapropimpl, propproperty.
+  - intros x y.
+    unfold commrngfracgt, abmonoidfracrel, quotrel.
+    do 2 rewrite setquotuniv2comm.
+    split ; intros H ; apply H.
+Qed.
 
 (** ** Definition *)
 
@@ -1096,4 +1139,578 @@ Proof.
     apply istotal_latticedec.
   - apply isdecrel_Lle_weq.
     apply isdecrel_latticedec.
+Defined.
+(** ** lattice in [abmonoid] *)
+
+Lemma abmonoidfrac_setquotpr_equiv {X : abmonoid} {Y : @submonoids X} :
+  Π (k : Y) (x : X) (y : Y),
+  setquotpr (binopeqrelabmonoidfrac X Y) (x,,y) = setquotpr (binopeqrelabmonoidfrac X Y) (x + pr1 k,, @op Y y k).
+Proof.
+  intros X Y k x y.
+  apply iscompsetquotpr, hinhpr.
+  exists y ; simpl.
+  rewrite !(assocax X) ;
+    apply maponpaths.
+  rewrite commax, !assocax.
+  reflexivity.
+Qed.
+
+Definition ispartrdistr {X : abmonoid} (Y : @submonoids X) (opp1 opp2 : binop X) :=
+  Π (x y : X) (k : Y),
+  opp2 (opp1 x y) (pr1 k) = opp1 (opp2 x (pr1 k)) (opp2 y (pr1 k)).
+
+Section abmonoidfrac_lattice.
+
+Context (X : abmonoid)
+        (Y : @submonoids X)
+        {min max : binop X}
+        (Hmin_assoc : isassoc min)
+        (Hmin_comm : iscomm min)
+        (Hmax_assoc : isassoc max)
+        (Hmax_comm : iscomm max)
+        (Hmin_max : Π x y : X, min x (max x y) = x)
+        (Hmax_min : Π x y : X, max x (min x y) = x)
+        (Hmin : ispartrdistr Y min op)
+        (Hmax : ispartrdistr Y max op).
+
+(** generic lemmas *)
+
+Local Definition abmonoidfrac_lattice_fun (f : binop X) : binop (X × Y) :=
+  λ x y,
+  (f (pr1 x * pr1 (pr2 y))%multmonoid (pr1 y * pr1 (pr2 x))%multmonoid ,, @op Y (pr2 x) (pr2 y)).
+
+Local Lemma abmonoidfrac_lattice_def :
+  Π (f : X → X → X),
+  ispartrdistr Y f op →
+  iscomprelrelfun2 (binopeqrelabmonoidfrac X Y) (binopeqrelabmonoidfrac X Y)
+                   (abmonoidfrac_lattice_fun f).
+Proof.
+  intros f Hf.
+  intros x y x' y'.
+  apply hinhfun2.
+  intros c c'.
+  unfold abmonoidfrac_lattice_fun.
+  do 2 rewrite rewrite_pr1_tpair, rewrite_pr2_tpair.
+  exists (@op Y (pr1 c) (pr1 c')).
+  - do 4 rewrite Hf.
+    apply map_on_two_paths.
+    + change ((pr1 x * pr1 (pr2 x') * (pr1 (pr2 y) * pr1 (pr2 y')) * (pr1 (pr1 c) * pr1 (pr1 c')))%multmonoid =
+  (pr1 y * pr1 (pr2 y') * (pr1 (pr2 x) * pr1 (pr2 x')) * (pr1 (pr1 c) * pr1 (pr1 c')))%multmonoid).
+      rewrite (assocax X (pr1 x)), (assocax X (pr1 y)).
+      rewrite (commax X (pr1 (pr2 x'))), (commax X (pr1 (pr2 y'))).
+      do 2 rewrite <- (assocax X (pr1 x)), <- (assocax X (pr1 y)).
+      do 2 rewrite (assocax X (pr1 x * pr1 (pr2 y))%multmonoid), (assocax X (pr1 y * pr1 (pr2 x))%multmonoid).
+      do 2 rewrite (commax X _ (pr1 (pr1 c) * _)%multmonoid).
+      do 2 rewrite <- (assocax X _ (pr1 (pr1 c) * _)%multmonoid).
+      do 2 rewrite <- (assocax X _ (pr1 (pr1 c))%multmonoid).
+      rewrite (commax X (pr1 (pr2 y'))).
+      apply (maponpaths (λ x, (x * _ * _)%multmonoid)).
+      apply (pr2 c).
+    + rewrite (commax _ (pr2 y)), (commax _ (pr2 x)), (iscommcarrier Y (pr1 c)).
+      change ((pr1 x' * pr1 (pr2 x) * (pr1 (pr2 y') * pr1 (pr2 y)) * (pr1 (pr1 c') * pr1 (pr1 c)))%multmonoid =
+  (pr1 y' * pr1 (pr2 y) * (pr1 (pr2 x') * pr1 (pr2 x)) * (pr1 (pr1 c') * pr1 (pr1 c)))%multmonoid).
+      rewrite (assocax X (pr1 x')), (assocax X (pr1 y')).
+      rewrite (commax X (pr1 (pr2 x))), (commax X (pr1 (pr2 y))).
+      do 2 rewrite <- (assocax X (pr1 x')), <- (assocax X (pr1 y')).
+      do 2 rewrite (assocax X (pr1 x' * pr1 (pr2 y'))%multmonoid), (assocax X (pr1 y' * pr1 (pr2 x'))%multmonoid).
+      do 2 rewrite (commax X _ (pr1 (pr1 c') * _)%multmonoid).
+      do 2 rewrite <- (assocax X _ (pr1 (pr1 c') * _)%multmonoid).
+      do 2 rewrite <- (assocax X _ (pr1 (pr1 c'))%multmonoid).
+      rewrite (commax X (pr1 (pr2 y))).
+      apply (maponpaths (λ x, (x * _ * _)%multmonoid)).
+      apply (pr2 c').
+Qed.
+
+Local Lemma iscomm_abmonoidfrac_def :
+  Π (f : X → X → X) Hf,
+  iscomm f →
+  iscomm (X := abmonoidfrac X Y)
+         (setquotfun2 (binopeqrelabmonoidfrac X Y) (binopeqrelabmonoidfrac X Y) _
+                      (abmonoidfrac_lattice_def f Hf)).
+Proof.
+  intros f Hf Hcomm.
+  simple refine (setquotuniv2prop _ (λ x y, (_ x y = _ y x) ,, _) _).
+  - apply (pr2 (pr1 (pr1 (abmonoidfrac X Y)))).
+  - intros x y.
+    simpl.
+    rewrite !(setquotfun2comm (eqrelabmonoidfrac X Y)).
+    unfold abmonoidfrac_lattice_fun.
+    rewrite Hcomm, (commax X (pr1 x)), (commax _ (pr2 x)).
+    reflexivity.
+Qed.
+Local Lemma isassoc_abmonoidfrac_def :
+  Π (f : X → X → X) Hf,
+  isassoc f →
+  isassoc (X := abmonoidfrac X Y)
+         (setquotfun2 (binopeqrelabmonoidfrac X Y) (binopeqrelabmonoidfrac X Y) _
+                      (abmonoidfrac_lattice_def f Hf)).
+Proof.
+  intros f Hf Hassoc.
+  simple refine (setquotuniv3prop _ (λ x y z, (_ (_ x y) z = _ x (_ y z)) ,, _) _).
+  - apply (pr2 (pr1 (pr1 (abmonoidfrac X Y)))).
+  - intros x y z ; simpl.
+    rewrite !(setquotfun2comm (eqrelabmonoidfrac X Y)).
+    apply (iscompsetquotpr (eqrelabmonoidfrac X Y)), hinhpr.
+    exists (pr2 x).
+    apply (maponpaths (λ x, (x * _)%multmonoid)).
+    unfold abmonoidfrac_lattice_fun.
+    rewrite !rewrite_pr1_tpair, !rewrite_pr2_tpair.
+    simpl ; unfold pr1carrier ; simpl.
+    rewrite (assocax X (pr1 (pr2 x))).
+    apply (maponpaths (λ x: X, op x _)).
+    do 2 rewrite Hf.
+    rewrite Hassoc.
+    do 4 rewrite (assocax X).
+    do 2 rewrite (commax X (pr1 (pr2 x))).
+    reflexivity.
+Qed.
+
+Local Lemma isabsorb_abmonoidfrac_def :
+  Π f g Hf Hg,
+  (Π x y, f x (g x y) = x) →
+  Π x y : abmonoidfrac X Y,
+          setquotfun2 (binopeqrelabmonoidfrac X Y) (binopeqrelabmonoidfrac X Y) _
+                      (abmonoidfrac_lattice_def f Hf) x
+                      (setquotfun2 (binopeqrelabmonoidfrac X Y) (binopeqrelabmonoidfrac X Y) _
+                                   (abmonoidfrac_lattice_def g Hg) x y) = x.
+Proof.
+  intros f g Hf Hg Habsorb.
+  simple refine (setquotuniv2prop _ (λ x y, (_ x (_ x y) = x) ,, _) _).
+  - apply (pr2 (pr1 (pr1 (abmonoidfrac X Y)))).
+  - intros x y.
+    simpl.
+    rewrite !(setquotfun2comm (eqrelabmonoidfrac X Y)).
+    unfold abmonoidfrac_lattice_fun.
+    rewrite !rewrite_pr1_tpair, !rewrite_pr2_tpair.
+    apply (iscompsetquotpr (eqrelabmonoidfrac X Y)), hinhpr.
+    exists (pr2 x).
+    apply (maponpaths (λ x, (x * _)%multmonoid)).
+    rewrite !rewrite_pr1_tpair, !rewrite_pr2_tpair.
+    simpl ; unfold pr1carrier ; simpl.
+    rewrite Hf, Hg, Hg.
+    do 3 rewrite (assocax X (pr1 x)).
+    rewrite (commax X (pr1 (pr2 y))).
+    do 2 rewrite (assocax X (pr1 (pr2 x))).
+    do 2 rewrite (commax X (pr1 (pr2 y))).
+    apply Habsorb.
+Qed.
+
+(** definition of abmonoidfrac_lattice *)
+
+Definition abmonoidfrac_min : binop (abmonoidfrac X Y) :=
+  setquotfun2 (binopeqrelabmonoidfrac X Y) (binopeqrelabmonoidfrac X Y) _
+              (abmonoidfrac_lattice_def min Hmin).
+Definition abmonoidfrac_max : binop (abmonoidfrac X Y) :=
+  setquotfun2 (binopeqrelabmonoidfrac X Y) (binopeqrelabmonoidfrac X Y) _
+              (abmonoidfrac_lattice_def max Hmax).
+
+Lemma iscomm_abmonoidfrac_min :
+  iscomm abmonoidfrac_min.
+Proof.
+  apply iscomm_abmonoidfrac_def.
+  apply Hmin_comm.
+Qed.
+
+Lemma isassoc_abmonoidfrac_min :
+  isassoc abmonoidfrac_min.
+Proof.
+  apply isassoc_abmonoidfrac_def.
+  apply Hmin_assoc.
+Qed.
+
+Lemma iscomm_abmonoidfrac_max :
+  iscomm abmonoidfrac_max.
+Proof.
+  apply iscomm_abmonoidfrac_def.
+  apply Hmax_comm.
+Qed.
+
+Lemma isassoc_abmonoidfrac_max :
+  isassoc abmonoidfrac_max.
+Proof.
+  apply isassoc_abmonoidfrac_def.
+  apply Hmax_assoc.
+Qed.
+
+Lemma isabsorb_abmonoidfrac_max_min :
+  Π x y : abmonoidfrac X Y, abmonoidfrac_max x (abmonoidfrac_min x y) = x.
+Proof.
+  apply isabsorb_abmonoidfrac_def.
+  apply Hmax_min.
+Qed.
+
+Lemma isabsorb_abmonoidfrac_min_max :
+  Π x y : abmonoidfrac X Y, abmonoidfrac_min x (abmonoidfrac_max x y) = x.
+Proof.
+  apply isabsorb_abmonoidfrac_def.
+  apply Hmin_max.
+Qed.
+
+End abmonoidfrac_lattice.
+
+Lemma abmonoidfrac_latticeop (X : abmonoid) (Y : @submonoids X) (is : lattice X) :
+  Π (Hmin : ispartrdistr Y (Lmin is) op) (Hmax : ispartrdistr Y (Lmax is) op),
+  latticeop (abmonoidfrac_min X Y Hmin) (abmonoidfrac_max X Y Hmax).
+Proof.
+  intros X Y is Hmin Hmax.
+  repeat split.
+  - apply isassoc_abmonoidfrac_min, isassoc_Lmin.
+  - apply iscomm_abmonoidfrac_min, iscomm_Lmin.
+  - apply isassoc_abmonoidfrac_max, isassoc_Lmax.
+  - apply iscomm_abmonoidfrac_max, iscomm_Lmax.
+  - apply isabsorb_abmonoidfrac_min_max, Lmin_absorb.
+  - apply isabsorb_abmonoidfrac_max_min, Lmax_absorb.
+Qed.
+
+Definition abmonoidfrac_lattice (X : abmonoid) (Y : @submonoids X) (is : lattice X)
+           (Hmin : ispartrdistr Y (Lmin is) op) (Hmax : ispartrdistr Y (Lmax is) op) : lattice (abmonoidfrac X Y).
+Proof.
+  intros X Y is Hmin Hmax.
+  mkpair.
+  exact (abmonoidfrac_min X Y Hmin).
+  mkpair.
+  exact (abmonoidfrac_max X Y Hmax).
+  apply abmonoidfrac_latticeop.
+Defined.
+
+Lemma ispartbinophrel_Lle (X : abmonoid) (Y : @submonoids X) (is : lattice X)
+      (Hmin : ispartrdistr Y (Lmin is) op) :
+  ispartbinophrel Y (Lle is).
+Proof.
+  intros X Y is Hmin.
+  split.
+  - intros a b c Yc.
+    rewrite !(commax _ c).
+    unfold Lle ; rewrite <- (Hmin _ _ (c,,Yc)).
+    apply (maponpaths (λ x, op x _)).
+  - intros a b c Yc.
+    unfold Lle ; rewrite <- (Hmin _ _ (c,,Yc)).
+    apply (maponpaths (λ x, op x _)).
+Qed.
+
+Lemma abmonoidfrac_Lle_1 (X : abmonoid) (Y : @submonoids X) (is : lattice X)
+      (Hmin : ispartrdistr _ (Lmin is) op) :
+  Π (x y : abmonoiddirprod X _),
+  abmonoidfracrel X Y (ispartbinophrel_Lle X Y is Hmin)
+                  (setquotpr (binopeqrelabmonoidfrac X Y) x)
+                  (setquotpr (binopeqrelabmonoidfrac X Y) y) →
+  abmonoidfrac_min X Y Hmin (setquotpr (binopeqrelabmonoidfrac X Y) x)
+                   (setquotpr (binopeqrelabmonoidfrac X Y) y) =
+  setquotpr (binopeqrelabmonoidfrac X Y) x.
+Proof.
+  intros X Y is Hmin.
+  intros x y.
+  unfold abmonoidfracrel, quotrel, abmonoidfrac_min.
+  rewrite setquotuniv2comm, setquotfun2comm.
+  intros H.
+  apply iscompsetquotpr.
+  revert H.
+  apply hinhfun.
+  intros c.
+  exists (pr1 c).
+  simpl in c |- *.
+  rewrite (assocax X), (commax _ _ (pr1 (pr1 c))), <- (assocax X).
+  rewrite Hmin.
+  refine (pathscomp0 _ _).
+  refine (maponpaths (λ x, x + _) _).
+  apply (pr2 c).
+  do 3 rewrite (assocax X) ;
+    apply maponpaths.
+  do 2 rewrite commax, assocax.
+  apply pathsinv0, assocax.
+Timeout 10 Qed.
+Lemma abmonoidfrac_Lle_2 (X : abmonoid) (Y : @submonoids X) (is : lattice X)
+      (Hmin : ispartrdistr _ (Lmin is) op) :
+  Π (x y : abmonoiddirprod X _),
+  abmonoidfrac_min X Y Hmin (setquotpr (binopeqrelabmonoidfrac X Y) x)
+                   (setquotpr (binopeqrelabmonoidfrac X Y) y) =
+  setquotpr (binopeqrelabmonoidfrac X Y) x
+  → abmonoidfracrel X Y (ispartbinophrel_Lle X Y is Hmin)
+                    (setquotpr (binopeqrelabmonoidfrac X Y) x)
+                    (setquotpr (binopeqrelabmonoidfrac X Y) y).
+Proof.
+  intros X Y is Hmin.
+  intros x y.
+  unfold abmonoidfracrel, quotrel, abmonoidfrac_min.
+  rewrite setquotuniv2comm, setquotfun2comm.
+  intros H.
+  generalize (invmap (weqpathsinsetquot _ _ _) H).
+  apply hinhfun.
+  simpl.
+  intros c.
+  exists (pr2 x + pr1 c).
+  rewrite <- Hmin.
+  change (pr1 (pr2 x * pr1 c))%multmonoid
+  with (pr1 (pr2 x) * pr1 (pr1 c))%multmonoid.
+  rewrite <- assocax.
+  refine (pathscomp0 _ _).
+  apply (pr2 c).
+  do 3 rewrite (assocax X) ;
+    apply maponpaths.
+  rewrite commax, assocax.
+  apply maponpaths.
+  apply commax.
+Qed.
+
+Lemma abmonoidfrac_Lle (X : abmonoid) (Y : @submonoids X) (is : lattice X)
+      (Hmin : ispartrdistr Y (Lmin is) op) (Hmax : ispartrdistr Y (Lmax is) op) :
+  Π x y : abmonoidfrac X Y, abmonoidfracrel X Y (ispartbinophrel_Lle X Y is Hmin) x y <-> Lle (abmonoidfrac_lattice X Y is Hmin Hmax) x y.
+Proof.
+  intros X Y is Hmin Hmax.
+  simple refine (setquotuniv2prop _ (λ x y, _ ,, _) _).
+  - apply isapropdirprod ;
+    apply isapropimpl, propproperty.
+  - intros x y.
+    split.
+    + apply abmonoidfrac_Lle_1.
+    + apply abmonoidfrac_Lle_2.
+Qed.
+
+(** *** lattice with a strong order in [abmonoidfrac] *)
+
+Section abmonoidfrac_latticewithgt.
+
+Context (X : abmonoid)
+        (Y : @submonoids X)
+        (is : lattice X)
+        (gt : StrongOrder X)
+        (Hnotgtle : Π x y : X, ¬ gt x y → Lle is x y)
+        (Hlenotgt : Π x y : X, Lle is x y → ¬ gt x y)
+        (Hgtmin : Π x y z : X, gt x z → gt y z → gt (Lmin is x y) z)
+        (Hgtmax : Π x y z : X, gt z x → gt z y → gt z (Lmax is x y))
+
+        (Hgt : ispartbinophrel Y gt)
+        (Hop : Π (x : Y) (y z : X), y + pr1 x = z + pr1 x → y = z)
+        (Hmin : ispartrdistr Y (Lmin is) op)
+        (Hmax : ispartrdistr Y (Lmax is) op).
+
+Lemma abmonoidfrac_notgtle :
+  Π (x y : abmonoidfrac X Y),
+  ¬ (StrongOrder_abmonoidfrac Y gt Hgt) x y
+  → Lle (abmonoidfrac_lattice X Y is Hmin Hmax) x y.
+Proof.
+  simple refine (setquotuniv2prop (eqrelabmonoidfrac X Y) (λ _ _, _ ,, _) _).
+  - apply isapropimpl, propproperty.
+  - intros x y H.
+    apply abmonoidfrac_Lle.
+    unfold abmonoidfracrel, quotrel.
+    rewrite setquotuniv2comm.
+    apply hinhpr.
+    exists (pr2 x).
+    apply Hnotgtle.
+    intros H0 ; apply H.
+    change (abmonoidfracrel X Y Hgt
+                            (setquotpr (eqrelabmonoidfrac X Y) x)
+                            (setquotpr (eqrelabmonoidfrac X Y) y)).
+    unfold abmonoidfracrel, quotrel.
+    rewrite setquotuniv2comm.
+    apply hinhpr.
+    exists (pr2 x).
+    exact H0.
+Qed.
+
+Lemma abmonoidfrac_lenotgt :
+  Π (x y : abmonoidfrac X Y),
+  Lle (abmonoidfrac_lattice X Y is Hmin Hmax) x y
+  → ¬ (StrongOrder_abmonoidfrac Y gt Hgt) x y.
+Proof.
+  simple refine (setquotuniv2prop (eqrelabmonoidfrac X Y) (λ _ _, _ ,, _) _).
+  + apply isapropimpl, isapropimpl, isapropempty.
+  + intros x y H.
+    apply (pr2 (abmonoidfrac_Lle _ _ _ _ _ _ _)) in H.
+    change (abmonoidfracrel X Y Hgt
+                            (setquotpr (eqrelabmonoidfrac X Y) x)
+                            (setquotpr (eqrelabmonoidfrac X Y) y) → ∅).
+    revert H.
+    unfold abmonoidfracrel, quotrel.
+    do 2 rewrite setquotuniv2comm.
+    apply (hinhuniv2 (P := hProppair _ isapropempty)).
+    intros c c'.
+    refine (Hlenotgt _ _ _ _).
+    2: apply (pr2 c').
+    unfold Lle.
+    rewrite <- Hmin.
+    apply (maponpaths (λ x, op x _)).
+    apply (Hop (pr1 c)).
+    rewrite Hmin.
+    apply (pr2 c).
+Qed.
+
+Lemma abmonoidfrac_gtmin :
+  Π (x y z : abmonoidfrac X Y),
+  (StrongOrder_abmonoidfrac Y gt Hgt) x z
+  → (StrongOrder_abmonoidfrac Y gt Hgt) y z
+  → (StrongOrder_abmonoidfrac Y gt Hgt)
+      (Lmin (abmonoidfrac_lattice X Y is Hmin Hmax) x y) z.
+Proof.
+  simple refine (setquotuniv3prop (eqrelabmonoidfrac X Y) (λ _ _ _, _ ,, _) _).
+  - apply isapropimpl, isapropimpl, propproperty.
+  - intros x y z.
+    change (abmonoidfracrel X Y Hgt (setquotpr (eqrelabmonoidfrac X Y) x) (setquotpr (eqrelabmonoidfrac X Y) z)
+            → abmonoidfracrel X Y Hgt (setquotpr (eqrelabmonoidfrac X Y) y) (setquotpr (eqrelabmonoidfrac X Y) z)
+            → abmonoidfracrel X Y Hgt (abmonoidfrac_min X Y Hmin (setquotpr (eqrelabmonoidfrac X Y) x) (setquotpr (eqrelabmonoidfrac X Y) y)) (setquotpr (eqrelabmonoidfrac X Y) z)).
+    unfold abmonoidfrac_min, abmonoidfracrel, quotrel.
+    rewrite setquotfun2comm ;
+      do 3 rewrite setquotuniv2comm.
+    apply hinhfun2.
+    intros cx cy.
+    unfold abmonoidfrac_lattice_fun.
+    rewrite rewrite_pr1_tpair, rewrite_pr2_tpair.
+    exists (@op Y (pr1 cx) (pr1 cy)).
+    do 2 rewrite Hmin.
+    apply Hgtmin.
+    + simpl ; unfold pr1carrier.
+      rewrite (assocax X (pr1 x)).
+      rewrite (commax X (pr1 (pr2 y))).
+      rewrite <- (assocax X (pr1 x)), <- (assocax X (pr1 z)).
+      rewrite (assocax X (pr1 x * pr1 (pr2 z))%multmonoid), (assocax X (pr1 z * pr1 (pr2 x))%multmonoid).
+      do 2 rewrite (commax X (pr1 (pr2 y))).
+      do 2 rewrite <- (assocax X (pr1 x * pr1 (pr2 z))%multmonoid), <- (assocax X (pr1 z * pr1 (pr2 x))%multmonoid).
+      apply (pr2 Hgt).
+      apply (pr2 (pr2 y)).
+      apply (pr2 Hgt).
+      apply (pr2 (pr1 cy)).
+      apply (pr2 cx).
+    + simpl ; unfold pr1carrier.
+      rewrite (commax X (pr1 (pr1 cx))).
+      rewrite (assocax X (pr1 y)).
+      do 2 rewrite (commax X (pr1 (pr2 x))).
+      rewrite <- (assocax X (pr1 y)), <- (assocax X (pr1 z)).
+      rewrite (assocax X (pr1 y * pr1 (pr2 z))%multmonoid), (assocax X (pr1 z * pr1 (pr2 y))%multmonoid).
+      rewrite (commax X (pr1 (pr2 x))).
+      do 2 rewrite <- (assocax X (pr1 y * pr1 (pr2 z))%multmonoid), <- (assocax X (pr1 z * pr1 (pr2 y))%multmonoid).
+      apply (pr2 Hgt).
+      apply (pr2 (pr2 x)).
+      apply (pr2 Hgt).
+      apply (pr2 (pr1 cx)).
+      apply (pr2 cy).
+Timeout 10 Qed.
+
+Lemma abmonoidfrac_gtmax :
+  Π (x y z : abmonoidfrac X Y),
+  (StrongOrder_abmonoidfrac Y gt Hgt) z x
+  → (StrongOrder_abmonoidfrac Y gt Hgt) z y
+    → (StrongOrder_abmonoidfrac Y gt Hgt) z
+                                                (Lmax (abmonoidfrac_lattice X Y is Hmin Hmax) x y).
+Proof.
+  simple refine (setquotuniv3prop (eqrelabmonoidfrac X Y) (λ _ _ _, _ ,, _) _).
+  - apply isapropimpl, isapropimpl, propproperty.
+  - intros x y z.
+    change (abmonoidfracrel X Y Hgt (setquotpr (eqrelabmonoidfrac X Y) z) (setquotpr (eqrelabmonoidfrac X Y) x)
+            → abmonoidfracrel X Y Hgt (setquotpr (eqrelabmonoidfrac X Y) z) (setquotpr (eqrelabmonoidfrac X Y) y)
+            → abmonoidfracrel X Y Hgt (setquotpr (eqrelabmonoidfrac X Y) z) (abmonoidfrac_max X Y Hmax (setquotpr (eqrelabmonoidfrac X Y) x) (setquotpr (eqrelabmonoidfrac X Y) y))).
+    unfold abmonoidfrac_max, abmonoidfracrel, quotrel.
+    rewrite setquotfun2comm ;
+      do 3 rewrite setquotuniv2comm.
+    apply hinhfun2.
+    intros cx cy.
+    unfold abmonoidfrac_lattice_fun.
+    rewrite rewrite_pr1_tpair, rewrite_pr2_tpair.
+    exists (@op Y (pr1 cx) (pr1 cy)).
+    do 2 rewrite Hmax.
+    apply Hgtmax.
+    + simpl ; unfold pr1carrier.
+      rewrite (assocax X (pr1 x)).
+      rewrite (commax X (pr1 (pr2 y))).
+      rewrite <- (assocax X (pr1 x)), <- (assocax X (pr1 z)).
+      rewrite (assocax X (pr1 x * pr1 (pr2 z))%multmonoid), (assocax X (pr1 z * pr1 (pr2 x))%multmonoid).
+      do 2 rewrite (commax X (pr1 (pr2 y))).
+      do 2 rewrite <- (assocax X (pr1 x * pr1 (pr2 z))%multmonoid), <- (assocax X (pr1 z * pr1 (pr2 x))%multmonoid).
+      apply (pr2 Hgt).
+      apply (pr2 (pr2 y)).
+      apply (pr2 Hgt).
+      apply (pr2 (pr1 cy)).
+      apply (pr2 cx).
+    + simpl ; unfold pr1carrier.
+      rewrite (commax X (pr1 (pr1 cx))).
+      rewrite (assocax X (pr1 y)).
+      do 2 rewrite (commax X (pr1 (pr2 x))).
+      rewrite <- (assocax X (pr1 y)), <- (assocax X (pr1 z)).
+      rewrite (assocax X (pr1 y * pr1 (pr2 z))%multmonoid), (assocax X (pr1 z * pr1 (pr2 y))%multmonoid).
+      rewrite (commax X (pr1 (pr2 x))).
+      do 2 rewrite <- (assocax X (pr1 y * pr1 (pr2 z))%multmonoid), <- (assocax X (pr1 z * pr1 (pr2 y))%multmonoid).
+      apply (pr2 Hgt).
+      apply (pr2 (pr2 x)).
+      apply (pr2 Hgt).
+      apply (pr2 (pr1 cx)).
+      apply (pr2 cy).
+Timeout 10 Qed.
+
+End abmonoidfrac_latticewithgt.
+
+Definition abmonoidfrac_latticewithgt (X : abmonoid) (Y : @submonoids X) (is : latticewithgt X)
+           (Hgt : ispartbinophrel Y (Lgt is))
+           (Hop : Π (x : Y) (y z : X), y + pr1 x = z + pr1 x → y = z)
+           (Hmin : ispartrdistr Y (Lmin is) op) (Hmax : ispartrdistr Y (Lmax is) op) : latticewithgt (abmonoidfrac X Y).
+Proof.
+  intros X Y is Hgt Hop Hmin Hmax.
+  mkpair.
+  refine (abmonoidfrac_lattice _ _ _ _ _).
+  exact Hmin.
+  exact Hmax.
+  mkpair.
+  simple refine (StrongOrder_abmonoidfrac _ _ _).
+  apply (Lgt is).
+  apply Hgt.
+  split ; split.
+  - apply abmonoidfrac_notgtle.
+    apply notLgt_Lle.
+  - apply abmonoidfrac_lenotgt.
+    apply Lle_notLgt.
+    apply Hop.
+  - apply abmonoidfrac_gtmin.
+    apply Lmin_Lgt.
+  - apply abmonoidfrac_gtmax.
+    apply Lmax_Lgt.
+Defined.
+
+(** *** lattice with a decidable order in [abmonoidfrac] *)
+
+Lemma istotal_Lle_abmonoidfrac {X : abmonoid} (Y : @submonoids X) (is : lattice X) (is' : istotal (Lle is))
+           (Hmin : ispartrdistr Y (Lmin is) op) (Hmax : ispartrdistr Y (Lmax is) op) :
+  istotal (Lle (abmonoidfrac_lattice X Y is Hmin Hmax)).
+Proof.
+  intros X Y is is' Hmin Hmax.
+  refine (istotallogeqf _ _).
+  - apply abmonoidfrac_Lle.
+  - apply istotalabmonoidfracrel, is'.
+Qed.
+Lemma isdecrel_Lle_abmonoidfrac {X : abmonoid} (Y : @submonoids X) (is : lattice X) (is' : isdecrel (Lle is))
+           (Hop : Π (x : Y) (y z : X), y + pr1 x = z + pr1 x → y = z)
+           (Hmin : ispartrdistr Y (Lmin is) op) (Hmax : ispartrdistr Y (Lmax is) op) :
+  isdecrel (Lle (abmonoidfrac_lattice X Y is Hmin Hmax)).
+Proof.
+  intros X Y is is' Hop Hmin Hmax.
+  refine (isdecrellogeqf _ _).
+  - apply abmonoidfrac_Lle.
+  - apply isdecabmonoidfracrel.
+    split.
+    + clear -Hmin Hop.
+      intros x y z Hz ;
+        rewrite !(commax X z) ;
+        unfold Lle ;
+        rewrite <- (Hmin _ _ (z,,Hz)) ;
+        apply Hop.
+    + clear -Hmin Hop.
+      intros x y z Hz ;
+        unfold Lle ;
+        rewrite <- (Hmin _ _ (z,,Hz)) ;
+        apply Hop.
+    + apply is'.
+Qed.
+
+Definition abmonoidfrac_latticedec {X : abmonoid} (Y : @submonoids X) (is : latticedec X)
+           (Hop : Π (x : Y) (y z : X), y + pr1 x = z + pr1 x → y = z)
+           (Hmin : ispartrdistr Y (Lmin is) op) (Hmax : ispartrdistr Y (Lmax is) op) :
+  latticedec (abmonoidfrac X Y).
+Proof.
+  intros X Y is Hop Hmin Hmax.
+  mkpair.
+  apply (abmonoidfrac_lattice X Y is Hmin Hmax).
+  split.
+  - apply istotal_Lle_abmonoidfrac.
+    apply istotal_latticedec.
+  - apply isdecrel_Lle_abmonoidfrac.
+    + apply isdecrel_latticedec.
+    + apply Hop.
 Defined.
