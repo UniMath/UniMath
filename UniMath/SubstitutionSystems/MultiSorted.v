@@ -83,10 +83,10 @@ Definition arity (M : MultiSortedSig) : ops M → list (list sort × sort) × so
 (** * Construction of an endofunctor on [SET/sort,SET/sort] from a multisorted signature *)
 Section functor.
 
-Definition proj_fun (s : sort) : SET / sort -> SET :=
+Local Definition proj_fun (s : sort) : SET / sort -> SET :=
   λ p, hfiber_hSet (pr2 p) s.
 
-Definition proj_functor (s : sort) : functor (SET / sort) SET.
+Local Definition proj_functor (s : sort) : functor (SET / sort) SET.
 Proof.
 mkpair.
 - exists (proj_fun s).
@@ -99,7 +99,7 @@ mkpair.
 Defined.
 
 (** The left adjoint to the proj_functor *)
-Definition hat_functor (t : sort) : functor SET (SET / sort).
+Local Definition hat_functor (t : sort) : functor SET (SET / sort).
 Proof.
 mkpair.
 - mkpair.
@@ -109,7 +109,7 @@ mkpair.
             apply subtypeEquality; try (intro x; apply has_homsets_HSET)).
 Defined.
 
-Definition option_fun : sort -> SET / sort -> SET / sort.
+Local Definition option_fun : sort -> SET / sort -> SET / sort.
 Proof.
 simpl; intros s Xf.
 mkpair.
@@ -124,7 +124,7 @@ mkpair.
   - apply s.
 Defined.
 
-Definition option_functor_data (s : sort) : functor_data (SET / sort) (SET / sort).
+Local Definition option_functor_data (s : sort) : functor_data (SET / sort) (SET / sort).
 Proof.
 exists (option_fun s).
 intros X Y f.
@@ -136,7 +136,7 @@ mkpair.
 - abstract (apply funextsec; intros [[t|t] h]; trivial; apply (toforallpaths _ _ _ (pr2 f) t)).
 Defined.
 
-Lemma is_functor_option_functor (s : sort) : is_functor (option_functor_data s).
+Local Lemma is_functor_option_functor (s : sort) : is_functor (option_functor_data s).
 Proof.
 split; simpl.
 + intros X; apply (eq_mor_slicecat has_homsets_HSET), funextsec; intros [t Ht].
@@ -147,11 +147,11 @@ split; simpl.
   now induction t.
 Qed.
 
-Definition option_functor (s : sort) : functor (SET / sort) (SET / sort) :=
+Local Definition option_functor (s : sort) : functor (SET / sort) (SET / sort) :=
   tpair _ _ (is_functor_option_functor s).
 
 (** option_functor for lists (also called option in the note) *)
-Definition option_list (xs : list sort) : functor (SET / sort) (SET / sort).
+Local Definition option_list (xs : list sort) : functor (SET / sort) (SET / sort).
 Proof.
 use (foldr _ _ xs).
 + intros s F.
@@ -160,7 +160,8 @@ use (foldr _ _ xs).
 Defined.
 
 (** Define a functor F^(l,t)(X) := proj_functor(t) ∘ X ∘ option_functor(l) *)
-Lemma exp_functor (lt : list sort × sort) : functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
+Local Lemma exp_functor (lt : list sort × sort) :
+  functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
 Proof.
 eapply functor_composite.
 - apply (pre_composition_functor _ _ _ (homset_property SET_over_sort) _ (option_list (pr1 lt))).
@@ -169,7 +170,7 @@ Defined.
 
 (** This defines F^lts where lts is a list of (l,t). Outputs a product of
     functors if the list is nonempty and otherwise the constant functor. *)
-Definition exp_functor_list (xs : list (list sort × sort)) :
+Local Definition exp_functor_list (xs : list (list sort × sort)) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
 Proof.
 (* Apply the exp functor to every element of the list *)
@@ -182,7 +183,7 @@ use (foldr1 (fun F G => BinProduct_of_functors _ _ _ F G) T XS).
 apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
 
-Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
+Local Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET_over_sort].
 Proof.
 eapply functor_composite.
@@ -209,19 +210,19 @@ End functor.
 Section omega_cocont.
 
 (** The object (1,λ _,s) in SET/sort *)
-Definition constHSET_slice (s : sort) : SET / sort.
+Local Definition constHSET_slice (s : sort) : SET / sort.
 Proof.
 exists (TerminalObject TerminalHSET); simpl.
 apply (λ x, s).
 Defined.
 
 (** The proj functor is naturally isomorphic to the following functor which is a left adjoint: *)
-Definition proj_functor' (s : sort) : functor (SET / sort) SET :=
+Local Definition proj_functor' (s : sort) : functor (SET / sort) SET :=
   functor_composite
      (constprod_functor1 (BinProducts_HSET_slice sort) (constHSET_slice s))
      (slicecat_to_cat has_homsets_HSET sort).
 
-Lemma nat_trans_proj_functor (s : sort) : nat_trans (proj_functor' s) (proj_functor s).
+Local Lemma nat_trans_proj_functor (s : sort) : nat_trans (proj_functor' s) (proj_functor s).
 Proof.
 use mk_nat_trans.
 - simpl; intros x H.
@@ -233,7 +234,7 @@ use mk_nat_trans.
   intro z; apply setproperty.
 Defined.
 
-Lemma is_iso_nat_trans_proj_functor (s : sort) :
+Local Lemma is_iso_nat_trans_proj_functor (s : sort) :
   @is_iso [SET/sort,SET] _ _ (nat_trans_proj_functor s).
 Proof.
 use is_iso_qinv.
@@ -252,20 +253,20 @@ use is_iso_qinv.
     now apply subtypeEquality; trivial; intros w; apply setproperty]).
 Defined.
 
-Lemma is_left_adjoint_proj_functor' (s : sort) : is_left_adjoint (proj_functor' s).
+Local Lemma is_left_adjoint_proj_functor' (s : sort) : is_left_adjoint (proj_functor' s).
 Proof.
 use is_left_adjoint_functor_composite.
 - apply has_exponentials_HSET_slice.
 - apply is_left_adjoint_slicecat_to_cat_HSET.
 Defined.
 
-Lemma is_left_adjoint_proj_functor (s : sort) : is_left_adjoint (proj_functor s).
+Local Lemma is_left_adjoint_proj_functor (s : sort) : is_left_adjoint (proj_functor s).
 Proof.
 apply (is_left_adjoint_iso _ _ _ (_,,is_iso_nat_trans_proj_functor s)).
 apply is_left_adjoint_proj_functor'.
 Defined.
 
-Lemma is_omega_cocont_post_comp_proj (s : sort) :
+Local Lemma is_omega_cocont_post_comp_proj (s : sort) :
   is_omega_cocont (post_comp (proj_functor s)).
 Proof.
 apply is_omega_cocont_post_composition_functor.
@@ -273,7 +274,7 @@ apply is_left_adjoint_proj_functor.
 Defined.
 
 (** The hat_functor is left adjoint to proj_functor *)
-Lemma is_left_adjoint_hat (s : sort) : is_left_adjoint (hat_functor s).
+Local Lemma is_left_adjoint_hat (s : sort) : is_left_adjoint (hat_functor s).
 Proof.
 exists (proj_functor s).
 use mk_are_adjoints.
@@ -293,7 +294,7 @@ use mk_are_adjoints.
     now apply subtypeEquality; trivial; intros x'; apply setproperty.
 Defined.
 
-Lemma is_omega_cocont_exp_functor (a : list sort × sort)
+Local Lemma is_omega_cocont_exp_functor (a : list sort × sort)
   (H : Colims_of_shape nat_graph SET_over_sort) :
   is_omega_cocont (exp_functor a).
 Proof.
@@ -303,7 +304,7 @@ apply is_omega_cocont_functor_composite.
 + apply is_omega_cocont_post_comp_proj.
 Defined.
 
-Lemma is_omega_cocont_exp_functor_list (xs : list (list sort × sort))
+Local Lemma is_omega_cocont_exp_functor_list (xs : list (list sort × sort))
   (H : Colims_of_shape nat_graph SET_over_sort) :
   is_omega_cocont (exp_functor_list xs).
 Proof.
@@ -322,7 +323,7 @@ induction xs as [[|n] xs].
     * apply (IHn (k,,xs)).
 Defined.
 
-Lemma is_omega_cocont_post_comp_hat_functor (s : sort) :
+Local Lemma is_omega_cocont_post_comp_hat_functor (s : sort) :
   is_omega_cocont (post_composition_functor SET_over_sort  _ _
        (homset_property SET) (homset_property SET_over_sort)
        (hat_functor s)).
@@ -330,7 +331,7 @@ Proof.
 apply is_omega_cocont_post_composition_functor, is_left_adjoint_hat.
 Defined.
 
-Lemma is_omega_cocont_hat_exp_functor_list (xst : list (list sort × sort) × sort)
+Local Lemma is_omega_cocont_hat_exp_functor_list (xst : list (list sort × sort) × sort)
   (H : Colims_of_shape nat_graph SET_over_sort) :
   is_omega_cocont (hat_exp_functor_list xst).
 Proof.
