@@ -160,16 +160,16 @@ use (foldr _ _ xs).
 Defined.
 
 (** Define a functor F^(l,t)(X) := proj_functor(t) ∘ X ∘ option_functor(l) *)
-Lemma exp_functor (a : list sort × sort) : functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
+Lemma exp_functor (lt : list sort × sort) : functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
 Proof.
 eapply functor_composite.
-- apply (pre_composition_functor _ _ _ (homset_property SET_over_sort) _ (option_list (pr1 a))).
-- apply post_comp, (proj_functor (pr2 a)).
+- apply (pre_composition_functor _ _ _ (homset_property SET_over_sort) _ (option_list (pr1 lt))).
+- apply post_comp, (proj_functor (pr2 lt)).
 Defined.
 
-(* This defines X^as where as is a list. Outputs a product of
-   functors if the list is nonempty and otherwise the constant functor. *)
-Definition exp_functors (xs : list (list sort × sort)) :
+(** This defines F^lts where lts is a list of (l,t). Outputs a product of
+    functors if the list is nonempty and otherwise the constant functor. *)
+Definition exp_functor_list (xs : list (list sort × sort)) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
 Proof.
 (* Apply the exp functor to every element of the list *)
@@ -179,15 +179,14 @@ set (T := constant_functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET]
                            (constant_functor SET_over_sort HSET TerminalHSET)).
 (* TODO: Maybe use indexed finite products instead of a fold? *)
 use (foldr1 (fun F G => BinProduct_of_functors _ _ _ F G) T XS).
-apply BinProducts_functor_precat.
-apply BinProductsHSET.
+apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
 
-Definition hat_exp_functors (xst : list (list sort × sort) × sort) :
+Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET_over_sort].
 Proof.
 eapply functor_composite.
-+ apply (exp_functors (pr1 xst)).
++ apply (exp_functor_list (pr1 xst)).
 + eapply post_composition_functor.
   apply (hat_functor (pr2 xst)).
 Defined.
@@ -201,7 +200,7 @@ use (coproduct_of_functors (ops M)).
   apply Coproducts_slice_precat.
   apply CoproductsHSET, setproperty.
 + intros op.
-  apply (hat_exp_functors (arity M op)).
+  apply (hat_exp_functor_list (arity M op)).
 Defined.
 
 End functor.
@@ -244,13 +243,13 @@ use is_iso_qinv.
     apply (!pr2 xy).
   - abstract (intros X Y f; apply funextsec; intros x;
               apply subtypeEquality; trivial; intros w; apply setproperty).
-+ split.
-  - apply subtypeEquality; [intros x; apply isaprop_is_nat_trans, has_homsets_HSET|].
-  apply funextsec; intro x; apply funextsec; intro y; cbn.
-  now rewrite pathsinv0inv0; induction y as [[[] y2] y3].
-- apply (nat_trans_eq has_homsets_HSET); simpl; intros x.
-  apply funextsec; intros z; simpl in *.
-  now apply subtypeEquality; trivial; intros w; apply setproperty.
++ abstract (split;
+  [ apply subtypeEquality; [intros x; apply isaprop_is_nat_trans, has_homsets_HSET|];
+    apply funextsec; intro x; apply funextsec; intro y; cbn;
+    now rewrite pathsinv0inv0; induction y as [[[] y2] y3]
+  | apply (nat_trans_eq has_homsets_HSET); simpl; intros x;
+    apply funextsec; intros z; simpl in *;
+    now apply subtypeEquality; trivial; intros w; apply setproperty]).
 Defined.
 
 Lemma is_left_adjoint_proj_functor' (s : sort) : is_left_adjoint (proj_functor' s).
@@ -304,22 +303,19 @@ apply is_omega_cocont_functor_composite.
 + apply is_omega_cocont_post_comp_proj.
 Defined.
 
-Lemma is_omega_cocont_exp_functors (xs : list (list sort × sort))
+Lemma is_omega_cocont_exp_functor_list (xs : list (list sort × sort))
   (H : Colims_of_shape nat_graph SET_over_sort) :
-  is_omega_cocont (exp_functors xs).
+  is_omega_cocont (exp_functor_list xs).
 Proof.
 induction xs as [[|n] xs].
 - induction xs.
-  apply is_omega_cocont_constant_functor.
-  apply functor_category_has_homsets.
+  apply is_omega_cocont_constant_functor, functor_category_has_homsets.
 - induction n as [|n IHn].
   + induction xs as [m []].
     apply is_omega_cocont_exp_functor, H.
   + induction xs as [m [k xs]].
     apply is_omega_cocont_BinProduct_of_functors; try apply homset_property.
-    * apply BinProducts_functor_precat.
-      apply BinProducts_slice_precat.
-      apply PullbacksHSET.
+    * apply BinProducts_functor_precat, BinProducts_slice_precat, PullbacksHSET.
     * apply is_omega_cocont_constprod_functor1; try apply functor_category_has_homsets.
       apply has_exponentials_functor_HSET, homset_property.
     * apply is_omega_cocont_exp_functor, H.
@@ -334,13 +330,13 @@ Proof.
 apply is_omega_cocont_post_composition_functor, is_left_adjoint_hat.
 Defined.
 
-Lemma is_omega_cocont_hat_exp_functors (xst : list (list sort × sort) × sort)
+Lemma is_omega_cocont_hat_exp_functor_list (xst : list (list sort × sort) × sort)
   (H : Colims_of_shape nat_graph SET_over_sort) :
-  is_omega_cocont (hat_exp_functors xst).
+  is_omega_cocont (hat_exp_functor_list xst).
 Proof.
 apply is_omega_cocont_functor_composite.
 + apply functor_category_has_homsets.
-+ apply is_omega_cocont_exp_functors, H.
++ apply is_omega_cocont_exp_functor_list, H.
 + apply is_omega_cocont_post_comp_hat_functor.
 Defined.
 
@@ -350,10 +346,9 @@ Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig)
   is_omega_cocont (MultiSortedSigToFunctor M).
 Proof.
 apply is_omega_cocont_coproduct_of_functors; try apply homset_property.
-+ apply Products_functor_precat.
-  apply Products_HSET_slice.
++ apply Products_functor_precat, Products_HSET_slice.
 + apply Heq.
-+ intros op; apply is_omega_cocont_hat_exp_functors, H.
++ intros op; apply is_omega_cocont_hat_exp_functor_list, H.
 Defined.
 
 End omega_cocont.
