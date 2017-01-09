@@ -117,9 +117,7 @@ mkpair.
   abstract (apply isaset_total2;
               [apply isasetcoprod; [apply setproperty| apply isasetunit]
               |intros []; simpl; intro x; apply isasetaprop, setproperty]).
-+ simpl; intros F.
-  induction F as [t h].
-  induction t as [t|t]; simpl in *.
++ intros F; induction (pr1 F) as [t|t].
   - apply (pr2 Xf t).
   - apply s.
 Defined.
@@ -129,10 +127,11 @@ Proof.
 exists (option_fun s).
 intros X Y f.
 mkpair.
-- intros F; induction F as [t h]; simpl.
+- intros F.
   mkpair.
-  * induction t as [t|t]; [apply (ii1 (pr1 f t)) | apply (ii2 t)].
-  * abstract (induction t as [t|t]; trivial; rewrite <- h; apply (toforallpaths _ _ _ (! pr2 f) t)).
+  * induction (pr1 F) as [t|t]; [apply (ii1 (pr1 f t)) | apply (ii2 t)].
+  * abstract (induction F as [[t|t] h]; trivial; rewrite <- h;
+              apply (toforallpaths _ _ _ (! pr2 f) t)).
 - abstract (apply funextsec; intros [[t|t] h]; trivial; apply (toforallpaths _ _ _ (pr2 f) t)).
 Defined.
 
