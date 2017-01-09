@@ -356,176 +356,141 @@ End omega_cocont.
 End MBindingSig.
 
 
-(** Old version using [X,SET] instead of SET/X below *)
+(** Alternative version using [X,SET] instead of SET/X below. There is no proof that the
+    functor we obtain using this approach is omega-cocontinuous yet. *)
+Module alt.
 
-(* Require Import UniMath.Foundations.Basics.PartD. *)
-(* Require Import UniMath.Foundations.Basics.Sets. *)
-(* Require Import UniMath.Foundations.Combinatorics.Lists. *)
+Require Import UniMath.CategoryTheory.DiscretePrecategory.
+Require Import UniMath.CategoryTheory.EquivalencesExamples.
 
-(* Require Import UniMath.CategoryTheory.precategories. *)
-(* Require Import UniMath.CategoryTheory.functor_categories. *)
-(* Require Import UniMath.CategoryTheory.DiscretePrecategory. *)
-(* Require Import UniMath.CategoryTheory.UnicodeNotations. *)
-(* Require Import UniMath.CategoryTheory.whiskering. *)
-(* Require Import UniMath.CategoryTheory.limits.graphs.limits. *)
-(* Require Import UniMath.CategoryTheory.limits.graphs.colimits. *)
-(* Require Import UniMath.CategoryTheory.limits.binproducts. *)
-(* Require Import UniMath.CategoryTheory.limits.products. *)
-(* Require Import UniMath.CategoryTheory.limits.bincoproducts. *)
-(* Require Import UniMath.CategoryTheory.limits.coproducts. *)
-(* Require Import UniMath.CategoryTheory.limits.terminal. *)
-(* Require Import UniMath.CategoryTheory.limits.initial. *)
-(* Require Import UniMath.CategoryTheory.FunctorAlgebras. *)
-(* Require Import UniMath.CategoryTheory.exponentials. *)
-(* Require Import UniMath.CategoryTheory.equivalences. *)
-(* Require Import UniMath.CategoryTheory.EquivalencesExamples. *)
-(* Require Import UniMath.CategoryTheory.CocontFunctors. *)
-(* Require Import UniMath.CategoryTheory.Monads. *)
-(* Require Import UniMath.CategoryTheory.category_hset. *)
-(* Require Import UniMath.CategoryTheory.category_hset_structures. *)
-(* Require Import UniMath.CategoryTheory.HorizontalComposition. *)
+(** * Definition of multisorted binding signatures *)
+Section MBindingSig.
 
-(* Require Import UniMath.SubstitutionSystems.Signatures. *)
-(* Require Import UniMath.SubstitutionSystems.SignatureExamples. *)
-(* Require Import UniMath.SubstitutionSystems.SumOfSignatures. *)
-(* Require Import UniMath.SubstitutionSystems.BinProductOfSignatures. *)
-(* Require Import UniMath.SubstitutionSystems.SubstitutionSystems. *)
-(* Require Import UniMath.SubstitutionSystems.LiftingInitial_alt. *)
-(* Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems. *)
+Variables (sort : UU) (eq : isdeceq sort). (* Can we eliminate this assumption? *)
+Variables (C : Precategory) (BP : BinProducts C) (BC : BinCoproducts C) (TC : Terminal C).
 
-(* Local Notation "[ C , D ]" := (functor_Precategory C D). *)
-(* Local Notation "# F" := (functor_on_morphisms F)(at level 3). *)
+(** Define the discrete category of sorts *)
+Let sort_cat : precategory := discrete_precategory sort.
 
-(* (** * Definition of multisorted binding signatures *) *)
-(* Section MBindingSig. *)
+Let hsC : has_homsets C := homset_property C.
 
-(* Variables (sort : UU) (eq : isdeceq sort). (* Can we eliminate this assumption? *) *)
-(* Variables (C : Precategory) (BP : BinProducts C) (BC : BinCoproducts C) (TC : Terminal C) (LC : Lims C). *)
+(** This represents "sort → C" *)
+Let sortToC : Precategory := [sort_cat,C].
 
-(* (** Define the discrete category of sorts *) *)
-(* Let sort_cat : precategory := discrete_precategory sort. *)
+Local Lemma has_homsets_sortToC : has_homsets sortToC.
+Proof.
+apply homset_property.
+Qed.
 
-(* Let hsC : has_homsets C := homset_property C. *)
+Local Definition BinProductsSortToCToC : BinProducts [sortToC,C].
+Proof.
+apply (BinProducts_functor_precat _ _ BP).
+Defined.
 
-(* (** This represents "sort → C" *) *)
-(* Let sortToC : Precategory := [sort_cat,C]. *)
+Local Definition mk_sortToC (f : sort → C) : sortToC :=
+  functor_discrete_precategory _ _ f.
 
-(* Local Lemma has_homsets_sortToC : has_homsets sortToC. *)
-(* Proof. *)
-(* apply homset_property. *)
-(* Qed. *)
+Local Definition proj_gen_fun (D : precategory) (E : Precategory) (d : D) : functor [D,E] E.
+Proof.
+mkpair.
++ mkpair.
+  - intro f; apply (pr1 f d).
+  - simpl; intros a b f; apply (f d).
++ abstract (split; [intro f; apply idpath|intros f g h fg gh; apply idpath]).
+Defined.
 
-(* Local Definition BinProductsSortToCToC : BinProducts [sortToC,C]. *)
-(* Proof. *)
-(* apply (BinProducts_functor_precat _ _ BP). *)
-(* Defined. *)
+Local Definition proj_gen {D : precategory} {E : Precategory} : functor D [[D,E],E].
+Proof.
+mkpair.
++ mkpair.
+  - apply proj_gen_fun.
+  - intros d1 d2 f.
+    mkpair.
+    * simpl; intro F; apply (# F f).
+    * abstract (intros F G α; simpl in *; apply pathsinv0, (nat_trans_ax α d1 d2 f)).
++ abstract (split;
+  [ intros F; simpl; apply nat_trans_eq; [apply homset_property|]; intro G; simpl; apply functor_id
+  | intros F G H α β; simpl; apply nat_trans_eq; [apply homset_property|];
+    intro γ; simpl; apply functor_comp ]).
+Defined.
 
-(* Definition mk_sortToC (f : sort → C) : sortToC := *)
-(*   functor_discrete_precategory _ _ f. *)
+(** Given a sort s this applies the sortToC to s and returns C *)
+Definition projSortToC (s : sort) : functor sortToC C.
+Proof.
+apply proj_gen_fun.
+apply s.
+Defined.
 
-(* Definition proj_gen_fun (D : precategory) (E : Precategory) (d : D) : functor [D,E] E. *)
-(* Proof. *)
-(* mkpair. *)
-(* + mkpair. *)
-(*   - intro f; apply (pr1 f d). *)
-(*   - simpl; intros a b f; apply (f d). *)
-(* + abstract (split; [intro f; apply idpath|intros f g h fg gh; apply idpath]). *)
-(* Defined. *)
+(** Definition of multi sorted signatures *)
+Definition MultiSortedSig : UU :=
+  Π (s : sort), Σ (I : UU), (I → list (list sort × sort)). (* × (isaset I). *)
 
-(* Definition proj_gen {D : precategory} {E : Precategory} : functor D [[D,E],E]. *)
-(* Proof. *)
-(* mkpair. *)
-(* + mkpair. *)
-(*   - apply proj_gen_fun. *)
-(*   - intros d1 d2 f. *)
-(*     mkpair. *)
-(*     * simpl; intro F; apply (# F f). *)
-(*     * abstract (intros F G α; simpl in *; apply pathsinv0, (nat_trans_ax α d1 d2 f)). *)
-(* + abstract (split; *)
-(*   [ intros F; simpl; apply nat_trans_eq; [apply homset_property|]; intro G; simpl; apply functor_id *)
-(*   | intros F G H α β; simpl; apply nat_trans_eq; [apply homset_property|]; *)
-(*     intro γ; simpl; apply functor_comp ]). *)
-(* Defined. *)
+Definition indices (M : MultiSortedSig) : sort → UU := fun s => pr1 (M s).
 
-(* (** Given a sort s this applies the sortToC to s and returns C *) *)
-(* Definition projSortToC (s : sort) : functor sortToC C. *)
-(* Proof. *)
-(* apply proj_gen_fun. *)
-(* apply s. *)
-(* Defined. *)
+Definition args (M : MultiSortedSig) (s : sort) : indices M s → list (list sort × sort) :=
+  pr2 (M s).
 
+Local Notation "'1'" := (TerminalObject TC).
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
 
+(* Code for option as a function, below is the definition as a functor *)
+Local Definition option_fun : sort -> sortToC -> sortToC.
+Proof.
+intros s f.
+apply mk_sortToC; intro t.
+induction (eq s t) as [H|H].
+- apply (pr1 f t ⊕ 1).
+- apply (pr1 f t).
+Defined.
 
-(* (** Definition of multi sorted signatures *) *)
-(* Definition MultiSortedSig : UU := *)
-(*   Π (s : sort), Σ (I : UU), (I → list (list sort × sort)). (* × (isaset I). *) *)
+(* The function part of Definition 3 *)
+Local Definition option_functor_data  (s : sort) : functor_data sortToC sortToC.
+Proof.
+mkpair.
++ apply (option_fun s).
++ intros F G α.
+  mkpair.
+  * simpl; intro t.
+    induction (eq s t) as [p|p]; simpl; clear p.
+    { apply (BinCoproductOfArrows _ _ _ (α t) (identity _)). }
+    { apply α. }
+  * abstract (now intros t1 t2 []; cbn; induction (eq s t1); simpl; rewrite id_left, id_right).
+Defined.
 
-(* Definition indices (M : MultiSortedSig) : sort → UU := fun s => pr1 (M s). *)
+Local Lemma is_functor_option_functor s : is_functor (option_functor_data s).
+Proof.
+split.
++ intros F; apply (nat_trans_eq hsC); intro t; simpl.
+  induction (eq s t) as [p|p]; trivial; simpl; clear p.
+  now apply pathsinv0, BinCoproductArrowUnique; rewrite id_left, id_right.
++ intros F G H αFG αGH; apply (nat_trans_eq hsC); intro t; simpl.
+  induction (eq s t) as [p|p]; trivial; simpl; clear p.
+  apply pathsinv0; eapply pathscomp0; [apply precompWithBinCoproductArrow|].
+  rewrite !id_left; apply BinCoproductArrowUnique.
+  * now rewrite BinCoproductIn1Commutes, assoc.
+  * now rewrite BinCoproductIn2Commutes, id_left.
+Qed.
 
-(* Definition args (M : MultiSortedSig) (s : sort) : indices M s → list (list sort × sort) := *)
-(*   pr2 (M s). *)
+(* This is Definition 3 (sorted context extension) from the note *)
+Local Definition option_functor (s : sort) : functor sortToC sortToC :=
+  tpair _ _ (is_functor_option_functor s).
 
-(* Local Notation "'1'" := (TerminalObject TC). *)
-(* Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50). *)
+(* option_functor for lists (also called option in the note) *)
+Local Definition option_list (xs : list sort) : functor sortToC sortToC.
+Proof.
+use (foldr _ _ xs).
++ intros s F.
+  apply (functor_composite (option_functor s) F).
++ apply functor_identity.
+Defined.
 
-(* (* Code for option as a function, below is the definition as a functor *) *)
-(* Definition option_fun : sort -> sortToC -> sortToC. *)
-(* Proof. *)
-(* intros s f. *)
-(* apply mk_sortToC; intro t. *)
-(* induction (eq s t) as [H|H]. *)
-(* - apply (pr1 f t ⊕ 1). *)
-(* - apply (pr1 f t). *)
-(* Defined. *)
-
-(* (* The function part of Definition 3 *) *)
-(* Definition option_functor_data  (s : sort) : functor_data sortToC sortToC. *)
-(* Proof. *)
-(* mkpair. *)
-(* + apply (option_fun s). *)
-(* + intros F G α. *)
-(*   mkpair. *)
-(*   * simpl; intro t. *)
-(*     induction (eq s t) as [p|p]; simpl; clear p. *)
-(*     { apply (BinCoproductOfArrows _ _ _ (α t) (identity _)). } *)
-(*     { apply α. } *)
-(*   * abstract (now intros t1 t2 []; cbn; induction (eq s t1); simpl; rewrite id_left, id_right). *)
-(* Defined. *)
-
-(* Lemma is_functor_option_functor s : is_functor (option_functor_data s). *)
-(* Proof. *)
-(* split. *)
-(* + intros F; apply (nat_trans_eq hsC); intro t; simpl. *)
-(*   induction (eq s t) as [p|p]; trivial; simpl; clear p. *)
-(*   now apply pathsinv0, BinCoproductArrowUnique; rewrite id_left, id_right. *)
-(* + intros F G H αFG αGH; apply (nat_trans_eq hsC); intro t; simpl. *)
-(*   induction (eq s t) as [p|p]; trivial; simpl; clear p. *)
-(*   apply pathsinv0; eapply pathscomp0; [apply precompWithBinCoproductArrow|]. *)
-(*   rewrite !id_left; apply BinCoproductArrowUnique. *)
-(*   * now rewrite BinCoproductIn1Commutes, assoc. *)
-(*   * now rewrite BinCoproductIn2Commutes, id_left. *)
-(* Qed. *)
-
-(* (* This is Definition 3 (sorted context extension) from the note *) *)
-(* Definition option_functor (s : sort) : functor sortToC sortToC := *)
-(*   tpair _ _ (is_functor_option_functor s). *)
-
-(* (* option_functor for lists (also called option in the note) *) *)
-(* Definition option_list (xs : list sort) : functor sortToC sortToC. *)
-(* Proof. *)
-(* use (foldr _ _ xs). *)
-(* + intros s F. *)
-(*   apply (functor_composite (option_functor s) F). *)
-(* + apply functor_identity. *)
-(* Defined. *)
-
-(* (* This is X^a as a functor between functor categories *) *)
-(* Lemma exp_functor (a : list sort × sort) : functor [sortToC,sortToC] [sortToC,C]. *)
-(* Proof. *)
-(* eapply functor_composite. *)
-(* - apply (pre_composition_functor _ _ _ has_homsets_sortToC _ (option_list (pr1 a))). *)
-(* - apply post_composition_functor, (projSortToC (pr2 a)). *)
-(* Defined. *)
+(* This is X^a as a functor between functor categories *)
+Local Lemma exp_functor (a : list sort × sort) : functor [sortToC,sortToC] [sortToC,C].
+Proof.
+eapply functor_composite.
+- apply (pre_composition_functor _ _ _ has_homsets_sortToC _ (option_list (pr1 a))).
+- apply post_composition_functor, (projSortToC (pr2 a)).
+Defined.
 
 (* Lemma is_omega_cocont_exp_functor (a : list sort × sort) *)
 (*   (H : Colims_of_shape nat_graph sortToC) : *)
@@ -535,24 +500,25 @@ End MBindingSig.
 (* + apply functor_category_has_homsets. *)
 (* + apply is_omega_cocont_pre_composition_functor. *)
 (*   apply H. *)
-(* + admit. (* is_omega_cocont post_composition_functor *) *)
+(* + apply is_omega_cocont_post_composition_functor. *)
+(*   admit. *)
 (* Admitted. *)
 
-(* (* This defines X^as where as is a list. Outputs a product of functors if the list is nonempty and *)
-(* otherwise the constant functor. *) *)
-(* Definition exp_functors (xs : list (list sort × sort)) : *)
-(*   functor [sortToC,sortToC] [sortToC,C]. *)
-(* Proof. *)
-(* (* Apply the exp functor to every element of the list *) *)
-(* set (XS := map exp_functor xs). *)
-(* (* If the list is empty we output the constant functor *) *)
-(* set (T := constant_functor [sortToC,sortToC] [sortToC,C] *)
-(*                            (constant_functor sortToC C TC)). *)
-(* (* TODO: Maybe use indexed finite products instead of a fold? *) *)
-(* apply (foldr1 (fun F G => BinProduct_of_functors _ _ BinProductsSortToCToC F G) T XS). *)
-(* Defined. *)
+(* This defines X^as where as is a list. Outputs a product of functors if the list is nonempty and *)
+(* otherwise the constant functor. *)
+Local Definition exp_functors (xs : list (list sort × sort)) :
+  functor [sortToC,sortToC] [sortToC,C].
+Proof.
+(* Apply the exp functor to every element of the list *)
+set (XS := map exp_functor xs).
+(* If the list is empty we output the constant functor *)
+set (T := constant_functor [sortToC,sortToC] [sortToC,C]
+                           (constant_functor sortToC C TC)).
+(* TODO: Maybe use indexed finite products instead of a fold? *)
+apply (foldr1 (fun F G => BinProduct_of_functors _ _ BinProductsSortToCToC F G) T XS).
+Defined.
 
-(* (* H follows if C has exponentials? *) *)
+(* H follows if C has exponentials? *)
 (* Lemma is_omega_cocont_exp_functors (xs : list (list sort × sort)) *)
 (*   (H : Π x : [sortToC, C], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x)) *)
 (*   (H2 : Colims_of_shape nat_graph sortToC) : *)
@@ -574,33 +540,31 @@ End MBindingSig.
 (* Defined. *)
 
 
+(* From here on things are not so nice: *)
+Local Definition MultiSortedSigToFunctor_helper1 (C1 D E1 : precategory) (E2 : Precategory)
+  : functor [E1,[C1,[D,E2]]] [E1,[D,[C1,E2]]].
+Proof.
+eapply post_composition_functor.
+apply functor_cat_swap.
+Defined.
 
-(* (* From here on things are not so nice: *) *)
-
-(* Local Definition MultiSortedSigToFunctor_helper1 (C1 D E1 : precategory) (E2 : Precategory) *)
-(*   : functor [E1,[C1,[D,E2]]] [E1,[D,[C1,E2]]]. *)
-(* Proof. *)
-(* eapply post_composition_functor. *)
-(* apply functor_cat_swap. *)
-(* Defined. *)
-
-(* (* This lemma is just here to check that the correct sort_cat gets pulled out when reorganizing *) *)
-(* (*    arguments *) *)
-(* Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory) : *)
-(*   functor [E1,[C1,[D,E2]]] [C1,[D,[E1,E2]]]. *)
-(* Proof. *)
-(* eapply (functor_composite (functor_cat_swap _ _ _)). *)
-(* apply MultiSortedSigToFunctor_helper1. *)
-(* Defined. *)
+(* This lemma is just here to check that the correct sort_cat gets pulled out when reorganizing *)
+(*    arguments *)
+Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory) :
+  functor [E1,[C1,[D,E2]]] [C1,[D,[E1,E2]]].
+Proof.
+eapply (functor_composite (functor_cat_swap _ _ _)).
+apply MultiSortedSigToFunctor_helper1.
+Defined.
 
 
 
-(* (* The above definition might be the same as: *) *)
-(* (* functor_composite (functor_cat_swap F) functor_cat_swap. *) *)
+(* The above definition might be the same as: *)
+(* functor_composite (functor_cat_swap F) functor_cat_swap. *)
 
-(* (* Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory) *) *)
-(* (*   (F : functor E1 [C1,[D,E2]]) : functor C1 [D,[E1,E2]]. *) *)
-(* (*     functor_composite (functor_cat_swap F) functor_cat_swap. *) *)
+(* Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory) *)
+(*   (F : functor E1 [C1,[D,E2]]) : functor C1 [D,[E1,E2]]. *)
+(*     functor_composite (functor_cat_swap F) functor_cat_swap. *)
 
 
 (* Lemma is_omega_cocont_MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory) *)
@@ -622,15 +586,15 @@ End MBindingSig.
 (* apply functor_identity. *)
 (* Defined. *)
 
-(* Definition MultiSortedSigToFunctor_fun (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C) *)
-(*   : [sort_cat, [[sortToC, sortToC], [sortToC, C]]]. *)
-(* Proof. *)
-(* (* As we're defining a functor out of a discrete category it suffices to give a function: *) *)
-(* apply functor_discrete_precategory; intro s. *)
-(* use (coproduct_of_functors (indices M s)). *)
-(* + apply Coproducts_functor_precat, CC. *)
-(* + intros y; apply (exp_functors (args M s y)). *)
-(* Defined. *)
+Local Definition MultiSortedSigToFunctor_fun (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C)
+  : [sort_cat, [[sortToC, sortToC], [sortToC, C]]].
+Proof.
+(* As we're defining a functor out of a discrete category it suffices to give a function: *)
+apply functor_discrete_precategory; intro s.
+use (coproduct_of_functors (indices M s)).
++ apply Coproducts_functor_precat, CC.
++ intros y; apply (exp_functors (args M s y)).
+Defined.
 
 (* Lemma is_omega_cocont_MultiSortedSigToFunctor_fun *)
 (*   (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C) *)
@@ -649,15 +613,15 @@ End MBindingSig.
 (*   - apply H2. *)
 (* Defined. *)
 
-(* (** * The functor constructed from a multisorted binding signature *) *)
-(* Definition MultiSortedSigToFunctor (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C) : *)
-(*   functor [sortToC,sortToC] [sortToC,sortToC]. *)
-(* Proof. *)
-(* (* First reorganize so that the last sort argument is first: *) *)
-(* set (F := MultiSortedSigToFunctor_helper [sortToC,sortToC] sortToC sort_cat C). *)
-(* set (x := MultiSortedSigToFunctor_fun M CC). *)
-(* apply (F x). *)
-(* Defined. *)
+(** * The functor constructed from a multisorted binding signature *)
+Definition MultiSortedSigToFunctor (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C) :
+  functor [sortToC,sortToC] [sortToC,sortToC].
+Proof.
+(* First reorganize so that the last sort argument is first: *)
+set (F := MultiSortedSigToFunctor_helper [sortToC,sortToC] sortToC sort_cat C).
+set (x := MultiSortedSigToFunctor_fun M CC).
+apply (F x).
+Defined.
 
 (* Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig) *)
 (*   (CC : Π s, Coproducts (indices M s) C) *)
@@ -672,4 +636,5 @@ End MBindingSig.
 (* + apply is_omega_cocont_functor_cat_swap. *)
 (* Admitted. *)
 
-(* End MBindingSig. *)
+End MBindingSig.
+End alt.
