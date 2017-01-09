@@ -148,25 +148,25 @@ Proof.
     apply funextsec; intro ed.
     specialize (autreq v v' ed).
     rewrite  <- (pathsinv0inv0 (eqv v)) in autreq.
-    symmetry in autreq.
+    apply pathsinv0 in autreq.
     apply transportf_transpose in autreq.
     unfold dmor in autreq.
     rewrite autreq.
     rewrite pathsinv0inv0.
     etrans.
-    symmetry.
+    eapply pathsinv0.
     apply (  transport_map (P:=P) (Q:=_) (fun x tp => tp  v v' ed)).
     etrans.
     apply (transportf_funextfun (fun x => C⟦ pr1 d' v,x⟧)).
     apply maponpaths.
     etrans.
-    symmetry.
+    eapply pathsinv0.
     apply (  transport_map (P:=P2) (Q:=_) (fun x tp => tp  v v' ed)).
     apply (transportf_funextfun (fun x => C⟦ x,pr1 d v'⟧)).
 Qed.
 
 (* We don't want to use the equivalence with bare identity to show the 
-symmetry because we want computation (Defined)
+apply pathsinv0 because we want computation (Defined)
  *)
 Lemma sym_eq_diag  {C : Precategory} {g : graph} (d d' : diagram g C) :
   eq_diag d d' -> eq_diag d' d.
@@ -181,7 +181,7 @@ Proof.
     unfold eq_d1.
     assert (heqdag:eq_diag d' d).
     + apply eq_is_eq_diag.
-      symmetry.
+      apply pathsinv0.
       apply eq_diag_is_eq.
       assumption.
     +
@@ -189,7 +189,7 @@ Proof.
     abstract (cbn;
     intros v v' f;
     specialize (eq_d2 v v' f);
-    symmetry;
+    apply pathsinv0;
     unfold transportb;
     rewrite pathsinv0inv0;
     apply (transportf_transpose (P:=(λ obj : C, C ⟦ obj, dob d' v' ⟧)));
@@ -223,11 +223,11 @@ Proof.
       [
         unfold transportb; (set (z:= ! heq v));
         rewrite <- (pathsinv0inv0 (heq v));
-        symmetry;
+        apply pathsinv0;
         apply transport_compose|];
       etrans; [
         apply cancel_postcomposition;
-        symmetry; apply heq2|];
+        eapply pathsinv0; apply heq2|];
       clear;
       now destruct (heq u)).
 Defined.
@@ -260,7 +260,7 @@ Proof.
         apply (transport_swap (fun a b => C⟦a,b⟧))|];
       etrans;[
         apply maponpaths;
-        symmetry;
+        eapply pathsinv0;
         apply heq2|];
       unfold heq;
       induction (pr1 heq_d u);
@@ -294,7 +294,7 @@ Proof.
     cbn in islim.
     cbn.
     etrans.
-    symmetry.
+    eapply pathsinv0.
     apply transport_target_postcompose.
     etrans.
     apply maponpaths.
@@ -347,7 +347,7 @@ Proof.
     cbn.
     etrans.
     rewrite <- (pathsinv0inv0 (eq_d1 v)).
-    symmetry.
+    eapply pathsinv0.
     apply transport_source_precompose.
     etrans.
     apply maponpaths.
@@ -388,6 +388,3 @@ Definition eq_diag_liftlimcone
            (cc:LimCone d ) : LimCone d'
   := mk_LimCone _ _ _ (eq_diag_islimcone _ eq_d
                                          (isLimCone_LimCone cc)).
-
-
-
