@@ -959,22 +959,26 @@ Qed.
 
 Lemma hzbooleqisi (i : hz) : hzbooleq i (i + 1) = false.
 Proof.
-  intros i.
-  unfold hzbooleq, decreltobrel. cbn.
-  induction (isdecrelhzeq i (i + 1)) as [e | n].
-  - apply fromempty. apply (ct (hzneq, isdecrelhzneq, 1, 0)).
-    apply (hzpluslcan 1 0 i (! (pathscomp0 (hzplusr0 i) e))).
-  - apply idpath.
+  intros i. apply negrtopaths.
+  apply (negf (λ e, hzpluslcan _ _ _ (! (hzplusr0 i @ e)))); clear i.
+  confirm_not_equal isdecrelhzeq.
+Qed.
+
+Lemma hzbooleqisi' (i : hz) : hzbooleq i (i + 1) = false.
+Proof.
+  (* prove it again, to illustrate how to avoid the tactic [confirm_not_equal] *)
+  intros i. apply negrtopaths.
+  apply (negf (λ e, hzpluslcan _ _ _ (! (hzplusr0 i @ e)))); clear i.
+  simple refine (confirm_not_equal isdecrelhzeq _ _ _).
+  reflexivity.
 Qed.
 
 Lemma hzbooleqissi (i : hz) : hzbooleq i (i + 1 + 1) = false.
 Proof.
-  intros i.
-  unfold hzbooleq. unfold decreltobrel. cbn.
-  induction (isdecrelhzeq i (i + 1 + 1)) as [e | n].
-  - apply fromempty. apply (ct (hzneq, isdecrelhzneq, 1 + 1, 0)).
-    rewrite hzplusassoc in e. apply (hzpluslcan (1 + 1) 0 i (! (pathscomp0 (hzplusr0 i) e))).
-  - apply idpath.
+  intros i. apply negrtopaths.
+  rewrite hzplusassoc.
+  apply (negf (λ e, hzpluslcan _ _ _ (! (hzplusr0 i @ e)))); clear i.
+  confirm_not_equal isdecrelhzeq.
 Qed.
 
 Lemma hzeqeisi {i i0 : hz} (e : hzeq i i0) (e' : hzeq i (i0 + 1)) : empty.
@@ -1036,15 +1040,11 @@ Proof.
   - apply fromempty. apply F. apply (hzrminusplus i j).
 Qed.
 
-Lemma hzeqpii {i : hz} (e : hzeq (i - 1) i) : empty.
+Lemma hzeqpii {i : hz} : i - 1 != i.
 Proof.
-  intros i e.
-  cbn in e.
-  rewrite <- (hzplusr0 i) in e. unfold hzminus in e.
-  rewrite hzplusassoc in e.
-  set (e' := hzpluslcan _ _ _ e). rewrite hzplusl0 in e'.
-  set (tmp := ( ct ( hzneq , isdecrelhzneq, - (1) , 0 ) )). cbn in tmp.
-  apply tmp. apply e'.
+  intros i.
+  apply (negf (λ e, hzpluslcan _ _ _ (e @ ! hzplusr0 i))); clear i.
+  confirm_not_equal isdecrelhzeq.
 Qed.
 
 Lemma isdecrelhzeqpii (i : hz) :

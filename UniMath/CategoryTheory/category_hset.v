@@ -37,13 +37,6 @@ Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 (** * Precategory of hSets *)
 Section HSET_precategory.
 
-Lemma isaset_set_fun_space (A B : hSet) : isaset (A -> B).
-Proof.
-  change isaset with (isofhlevel 2).
-  apply impred.
-  apply (fun _ => (pr2 B)).
-Qed.
-
 Definition hset_fun_space (A B : hSet) : hSet :=
   hSetpair _ (isaset_set_fun_space A B).
 

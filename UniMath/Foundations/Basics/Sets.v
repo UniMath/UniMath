@@ -40,6 +40,8 @@ moment without the Type in Type patch.
  - Equivalence classes with respect to a given relation
  - Direct product of equivalence classes
 - Surjections to sets are epimorphisms
+- Epimorphisms are surjections
+- Universal property enjoyed by surjections 
 - Set quotients of types
  - Set quotients defined in terms of equivalence classes
  - Universal property of [setquot R] for functions to sets satisfying
@@ -1144,12 +1146,50 @@ Defined.
 Notation " 'ct' ( R , is , x , y ) " := (ctlong R is x y (idpath true))
                                           (at level 70).
 
-(* An alternative to [ct], with tactics and negations *)
+(*
+
+  Tactics for computing with decidable relations
+
+  A tactic alternative to [ct], with negation
+
+  If [R x y] is a decidable relation on a type [X], then, by definition, we have a proof [d] of [R x
+  y ⨿ ¬ R x y].  If [x] and [y] are constants (definable in an empty context), then simplification
+  of [d] will yield either a term of the form [inl p] or [inr q], depending on whether [R x y] is
+  true or false.  Let us suppose the answer turns out to be true.  Then if our current proof goal is
+  [R x y], then we can automate the proof by first converting [R] to a binary relation [S], so that
+  [S x y] simplifies to [true].  Then we know that a proof of [S x y = true] is [idpath true], and
+  we can convert that into a proof of [R x y] using a proof of the implication [S x y = true → R x
+  y].  Similarly, if the answer turns out to be false, then we know that a proof of [S x y = false]
+  is [idpath false], and we can convert that into a proof of [¬ R x y].
+
+  The tactics [confirm_equal] and [confirm_not_equal] make this strategy concise when the goal is of
+  the form [x = y] or [x != y] and we have a proof [i] that equality is decidable.
+
+  (It would be redundant to also have a proof that inequality is decidable.)
+
+  To evaluate whether having a tactic simplifies things, compare the proofs of [hzbooleqisi] and
+  [hzbooleqisi'] in Integers.v.
+
+ *)
 
 Definition deceq_to_decrel {X:UU} : isdeceq X -> decrel X.
 Proof. intros ? i. use decrelpair.
        - intros x y. exists (x=y). now apply isasetifdeceq.
        - exact i.
+Defined.
+
+Definition confirm_equal {X : UU} (i : isdeceq X) (x x' : X)
+           (e : decreltobrel (deceq_to_decrel i) x x' = true) : x = x'.
+Proof.
+  intros.
+  exact (pathstor (deceq_to_decrel i) _ _ e).
+Defined.
+
+Definition confirm_not_equal {X : UU} (i : isdeceq X) (x x' : X)
+           (e : decreltobrel (deceq_to_decrel i) x x' = false) : x != x'.
+Proof.
+  intros.
+  exact (pathstonegr (deceq_to_decrel i) _ _ e).
 Defined.
 
 Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
@@ -1158,10 +1198,11 @@ Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification th
   exact ((@idfun G : T -> G) x).
 
 (* I don't know why exact_op works better here, but with "exact", the code in RealNumbers/Prelim.v breaks *)
-Ltac confirm_yes d x y := exact_op (pathstor d x y (idpath true)).
-Ltac confirm_no  d x y := exact_op (pathstonegr d x y (idpath false)).
-Ltac confirm_equal     i := match goal with |- ?x = ?y => confirm_yes (deceq_to_decrel i) x y end.
-Ltac confirm_not_equal i := match goal with |- ?x != ?y => confirm_no (deceq_to_decrel i) x y end.
+Ltac confirm_yes      d x y := exact_op (pathstor d x y (idpath true)).
+Ltac confirm_no       d x y := exact_op (pathstonegr d x y (idpath false)).
+Ltac confirm_equal        i := match goal with |- ?x = ?y => confirm_yes (deceq_to_decrel i) x y end.
+Ltac confirm_not_equal    i := match goal with |- ?x != ?y => confirm_no (deceq_to_decrel i) x y end.
+Ltac confirm_equal_absurd i := match goal with |- ?x = ?y → ∅ => confirm_no (deceq_to_decrel i) x y end.
 
 (** *** Restriction of a relation to a subtype *)
 
@@ -1346,7 +1387,146 @@ Proof.
   - assumption.
 Defined.
 
+(** ** Epimorphisms are surjections to sets 
 
+The proof goes as follows :
+
+Let p : A -> B be an epi.
+
+Let f,g : B -> P(B) defined by
+f(x) = {x}
+g(x) = p(p^-1({x})) (either {x} or the empty set if x is not in the image)
+
+Then f o p = g o p, so f = g, so p is surjective
+ *)
+
+Lemma isaset_set_fun_space A (B : hSet) : isaset (A -> B).
+Proof.
+  intros.
+  change isaset with (isofhlevel 2).
+  apply impred.
+  apply (fun _ => (pr2 B)).
+Qed.
+
+(**
+TODO find a proof without univalence for propositions (if possible)
+*)
+Lemma epiissurjectiontosets {A B : UU} (p : A -> B) (isB:isaset B)
+      (epip : Π (C:hSet) (g1 g2:B->C), (Π x : A, g1 (p x) = g2 (p x)) ->
+                               (Π y : B, g1 y = g2 y)) :   issurjective p.
+Proof.
+  intros.
+  assert(pred_set : isaset (B -> hProp)).
+  { apply (isaset_set_fun_space _ (hSetpair _ isasethProp)). }
+  specialize (epip (hSetpair _ pred_set)
+                   (fun b x => ∥ Σ y : hfiber p b, x = p (pr1 y) ∥ )
+                   (fun b x => hProppair (x = b) (isB x b))
+               ).
+  lapply epip.
+  - intro h.    
+    intro y.
+    specialize (h y).
+    apply toforallpaths in h.
+    specialize (h y).
+    cbn in h.
+    match type of h with _ = ?type_witn => set (typ:= type_witn) in h end.
+    assert (witness:typ ).
+    { apply idpath. }
+    revert witness.
+    rewrite <- h.
+    apply hinhfun.
+    intro h'.
+    exact (pr1 h').
+  - intro b.
+    apply funextfun.
+    intro x; cbn.
+    apply weqtopathshProp.
+    apply logeqweq.
+    + apply hinhuniv.
+      intros [y eqx].
+      rewrite eqx.
+      apply (hfiberpr2 _ _ y).
+    + intro eqx.
+      apply hinhpr.
+      use tpair;[now exists b|exact eqx].
+Qed.
+
+
+
+(** ** Universal property enjoyed by surjections 
+<<
+    f
+ A ---> C
+ |
+ | p
+ |
+ v
+ B
+>>
+
+If p is surjective and forall x, y dans A, p(x)=p(y) => f(x)=f(y)
+then there exists a unique function from B to C that makes the diagram commute
+*)
+Section LiftSurjection.
+
+  Context {A B C :UU}.
+  Hypothesis hsc:isaset C.
+  Variables (p : A -> B ) (f: A -> C ).
+
+  Hypothesis comp_f_epi: Π x y, p x =  p y -> f x = f y.
+  Hypothesis surjectivep : issurjective p.
+
+  (* Reformulation of the previous hypothesis *)
+  Lemma surjective_iscontr_im : Π b : B, iscontr
+                                        (image (fun (x:hfiber p b) => f (pr1 x))).
+  Proof.
+    intro b.
+    apply (squash_to_prop (surjectivep b)).
+    { apply isapropiscontr. }
+    intro H.
+    apply iscontraprop1.
+    (* inspired by isapropimeqclass *)
+    -  apply isapropsubtype.
+       intros x1 x2.    
+       apply (@hinhuniv2 _ _ (hProppair _ (hsc _ _))).
+       simpl; intros y1 y2; simpl.
+       destruct y1 as [ [z1 h1] h1' ].
+       destruct y2 as [ [z2 h2] h2' ].
+       rewrite <- h1' ,<-h2'.
+       apply comp_f_epi;simpl.
+       rewrite h1,h2.
+       apply idpath.    
+    - apply prtoimage. apply H.
+  Defined.
+
+  Definition univ_surj : B -> C :=
+    fun b => (pr1 (pr1 (surjective_iscontr_im b))).
+  
+  Lemma univ_surj_ax : Π x,  univ_surj (p x) = f x.
+  Proof.
+    intro x.
+    apply pathsinv0.
+    apply path_to_ctr.
+    apply (squash_to_prop (surjectivep (p x))). 
+    { apply isapropishinh. }
+    intro r. apply hinhpr.
+    exists r.
+    apply comp_f_epi.
+    apply (pr2 r).
+  Qed.
+
+  Lemma univ_surj_unique : Π (g : B -> C) (H : Π a : A, g (p a) = f a)
+                            (b : B), g b = univ_surj b.
+  Proof.    
+    intros g H b.
+    apply (surjectionisepitosets p); [easy|easy|].
+    intro x.
+    now rewrite H,univ_surj_ax.
+  Qed.
+
+    
+
+End LiftSurjection.
 
 
 
