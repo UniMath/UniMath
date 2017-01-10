@@ -1427,31 +1427,31 @@ Section functors_on_iso_with_inv.
 
   Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 
-  Lemma functor_on_is_iso_with_inv {C C' : precategory} (F : functor C C')
-        {a b : ob C} {f : a --> b} {g : b --> a} (H : is_iso_with_inv f g) :
-    is_iso_with_inv (# F f) (# F g).
+  Lemma functor_on_is_inverse_in_precat {C C' : precategory} (F : functor C C')
+        {a b : ob C} {f : a --> b} {g : b --> a} (H : is_inverse_in_precat f g) :
+    is_inverse_in_precat (# F f) (# F g).
   Proof.
-    use mk_is_iso_with_inv.
-    - rewrite <- functor_comp. rewrite (is_iso_with_inv1 H). apply functor_id.
-    - rewrite <- functor_comp. rewrite (is_iso_with_inv2 H). apply functor_id.
+    use mk_is_inverse_in_precat.
+    - rewrite <- functor_comp. rewrite (is_inverse_in_precat1 H). apply functor_id.
+    - rewrite <- functor_comp. rewrite (is_inverse_in_precat2 H). apply functor_id.
   Qed.
 
-  Definition functor_on_is_iso_with_inv_data {C C' : precategory} (F : functor C C')
-             {a b : ob C} {f : a --> b} (I : is_iso_with_inv_data f) :
-    is_iso_with_inv_data (# F f).
+  Definition functor_on_is_z_isomorphism {C C' : precategory} (F : functor C C')
+             {a b : ob C} {f : a --> b} (I : is_z_isomorphism f) :
+    is_z_isomorphism (# F f).
   Proof.
-    use mk_is_iso_with_inv_data.
-    - exact (# F (is_iso_with_inv_data_mor I)).
-    - exact (functor_on_is_iso_with_inv F I).
+    use mk_is_z_isomorphism.
+    - exact (# F (is_z_isomorphism_mor I)).
+    - exact (functor_on_is_inverse_in_precat F I).
   Defined.
 
-  Definition functor_on_iso_with_inv {C C' : precategory} (F : functor C C') {a b : ob C}
-             (f : iso_with_inv a b) : iso_with_inv (F a) (F b).
+  Definition functor_on_z_iso {C C' : precategory} (F : functor C C') {a b : ob C}
+             (f : z_iso a b) : z_iso (F a) (F b).
   Proof.
-    use mk_iso_with_inv.
-    - exact (# F (iso_with_inv1 f)).
-    - exact (# F (iso_with_inv2 f)).
-    - exact (functor_on_is_iso_with_inv F f).
+    use mk_z_iso.
+    - exact (# F f).
+    - exact (# F (z_iso_inv_mor f)).
+    - exact (functor_on_is_inverse_in_precat F f).
   Defined.
 
 End functors_on_iso_with_inv.

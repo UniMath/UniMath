@@ -203,38 +203,51 @@ Section abelian_monic_epi_iso.
   Variable A : AbelianPreCat.
   Hypothesis hs : has_homsets A.
 
-  (** If a morphism is a monic and an epi, then it is an isomorphism. *)
-  Lemma monic_epi_is_iso {x y : A} {f : x --> y} : isMonic f -> isEpi f -> is_iso f.
+  Local Lemma monic_epi_is_iso_eq {x y : A} {f : x --> y} (iM : isMonic f) (iE : isEpi f) :
+    identity y ;; AMKD_Mor (to_AMKD A) x y (mk_Monic _ _ iM) =
+    ZeroArrow to_Zero y (AMKD_Ob (to_AMKD A) x y (mk_Monic _ _ iM)).
   Proof.
-    intros M E.
-    set (M1 := mk_Monic A f M).
-    set (E1 := mk_Epi A f E).
-    set (AMK := to_AMKD A x y M1).
+    set (E1 := mk_Epi A f iE).
     set (AEC := to_AECD A x y E1).
-    induction AMK as [t p]. induction t as [t p0]. induction t as [t p1].
-    induction AEC as [t0 p2]. induction t0 as [t0 p3]. induction t0 as [t0 p4].
-    unfold isKernel in p. unfold isCokernel in p2.
-    (* Construct the inverse of f *)
-    cbn in *. rewrite <- (ZeroArrow_comp_right _ _ _ _ _ f) in p0. apply E in p0.
-    set (p' := p y (identity _)).
-    set (t'1 := maponpaths (fun h : A⟦y, t⟧ => identity _ ;; h) p0).
-    cbn in t'1. rewrite (id_left (ZeroArrow _ _ _)) in t'1.
-    set (p'' := p' t'1).
-    induction p'' as [t1 p5]. induction t1 as [t1 p6].
-    (* Show that t1 is the inverse of f *)
-    use is_iso_qinv.
-    - exact t1.
-    - split.
-      + apply (pr2 M1). cbn. rewrite <- assoc. rewrite p6.
-        rewrite id_left. rewrite id_right. apply idpath.
-      + apply p6.
+    set (AMK := to_AMKD A x y (mk_Monic _ _ iM)).
+    set (p0 := pr2 (pr1 AMK)). cbn in p0.
+    rewrite <- (ZeroArrow_comp_right _ _ _ _ _ f) in p0. apply iE in p0.
+    set (t'1 := maponpaths (fun h : A⟦y, _⟧ => identity _ ;; h) p0). cbn in t'1.
+    rewrite ZeroArrow_comp_right in t'1. exact t'1.
   Qed.
 
-  (** Construction of the iso. *)
-  Lemma monic_epi_iso {x y : A} {f : x --> y} : isMonic f -> isEpi f -> iso x y.
+  Lemma monic_epi_is_iso_inverses {x y : A} {f : x --> y} (iM : isMonic f) (iE : isEpi f) :
+    is_inverse_in_precat
+      f (KernelIn to_Zero (monic_kernel A (mk_Monic A f iM)) y (identity y)
+                  (monic_epi_is_iso_eq iM iE)).
+  Proof.
+    use mk_is_inverse_in_precat.
+    - apply iM. cbn. rewrite <- assoc.
+      rewrite (KernelCommutes to_Zero (monic_kernel A (mk_Monic A f iM))).
+      rewrite id_right. rewrite id_left.
+      apply idpath.
+    - exact (KernelCommutes to_Zero (monic_kernel A (mk_Monic A f iM)) _ _ _).
+  Qed.
+
+  (** If a morphism is a monic and an epi, then it is an isomorphism. *)
+  Lemma monic_epi_is_iso {x y : A} {f : x --> y} : isMonic f -> isEpi f -> is_z_isomorphism f.
   Proof.
     intros iM iE.
-    exact (isopair f (monic_epi_is_iso iM iE)).
+    use mk_is_z_isomorphism.
+    - exact (KernelIn to_Zero (monic_kernel A (mk_Monic _ _ iM)) y (identity y)
+                      (monic_epi_is_iso_eq iM iE)).
+    - exact (monic_epi_is_iso_inverses iM iE).
+  Defined.
+
+  (** Construction of the iso. *)
+  Lemma monic_epi_z_iso {x y : A} {f : x --> y} : isMonic f -> isEpi f -> z_iso x y.
+  Proof.
+    intros iM iE.
+    use mk_z_iso.
+    - exact f.
+    - exact (KernelIn to_Zero (monic_kernel A (mk_Monic _ _ iM)) y (identity y)
+                      (monic_epi_is_iso_eq iM iE)).
+    - exact (monic_epi_is_iso_inverses iM iE).
   Defined.
 
 End abelian_monic_epi_iso.
@@ -1107,7 +1120,7 @@ Section abelian_factorization.
 
   (** Here we show that the canonical morphism CoIm f --> Im f is an
     isomorphism. *)
-  Lemma CoIm_to_Im_is_iso {x y : A} (f : x --> y) : is_iso (CoIm_to_Im f).
+  Lemma CoIm_to_Im_is_iso {x y : A} (f : x --> y) : is_z_isomorphism (CoIm_to_Im f).
   Proof.
     (* It suffices to show that this morphism is monic and epi. *)
     use monic_epi_is_iso.
@@ -1280,7 +1293,7 @@ Section abelian_factorization.
   Proof.
     apply isEpi_comp.
     apply CokernelArrowisEpi.
-    apply (is_iso_isEpi A _ (CoIm_to_Im_is_iso f)).
+    apply (is_iso_isEpi A _ (is_iso_qinv _ _ (CoIm_to_Im_is_iso f))).
   Qed.
 
   Definition factorization1_epi {x y : A} (f : x --> y) : Epi A x (Image f).
@@ -1309,7 +1322,7 @@ Section abelian_factorization.
     isMonic (CoIm_to_Im f ;; (KernelArrow (Image f))).
   Proof.
     apply isMonic_comp.
-    apply (is_iso_isMonic A _ (CoIm_to_Im_is_iso f)).
+    apply (is_iso_isMonic A _ (is_iso_qinv _ _ (CoIm_to_Im_is_iso f))).
     apply KernelArrowisMonic.
   Qed.
 
@@ -1364,7 +1377,8 @@ Section abelian_kernel_cokernel.
     apply (pr2 M).
   Qed.
 
-  Lemma MonicToKernel_is_iso {x y : A} (M : Monic A x y) : is_iso (factorization1_epi A hs M).
+  Lemma MonicToKernel_is_iso {x y : A} (M : Monic A x y) :
+    is_z_isomorphism (factorization1_epi A hs M).
   Proof.
     apply monic_epi_is_iso.
     apply (MonicToKernel_isMonic M).
@@ -1376,7 +1390,7 @@ Section abelian_kernel_cokernel.
   Definition MonicToKernel {x y : A} (M : Monic A x y) :
     kernels.Kernel to_Zero (CokernelArrow (Cokernel M)) :=
     Kernel_up_to_iso A hs to_Zero M (CokernelArrow (Cokernel M)) (Image M)
-                     (isopair (factorization1_epi A hs M) (MonicToKernel_is_iso M))
+                     (isopair (factorization1_epi A hs M) (is_iso_qinv _ _ (MonicToKernel_is_iso M)))
                      (factorization1 hs M).
 
   (** The following verifies that the monic M is indeed the KernelArrow. *)
@@ -1409,7 +1423,8 @@ Section abelian_kernel_cokernel.
     apply (pr2 E).
   Qed.
 
-  Lemma EpiToCokernel_is_iso {x y : A} (E : Epi A x y) : is_iso (factorization2_monic A hs E).
+  Lemma EpiToCokernel_is_iso {x y : A} (E : Epi A x y) :
+    is_z_isomorphism (factorization2_monic A hs E).
   Proof.
     apply monic_epi_is_iso.
     apply factorization2_is_monic.
@@ -1421,7 +1436,8 @@ Section abelian_kernel_cokernel.
   Definition EpiToCokernel {x y : A} (E : Epi A x y) :
     cokernels.Cokernel to_Zero (KernelArrow (Kernel E)) :=
     Cokernel_up_to_iso A hs to_Zero (KernelArrow (Kernel E)) E (CoImage E)
-                       (isopair (factorization2_monic A hs E) (EpiToCokernel_is_iso E))
+                       (isopair (factorization2_monic A hs E)
+                                (is_iso_qinv _ _ (EpiToCokernel_is_iso E)))
                        (factorization2 hs E).
 
   (** The following verifies that the epi E is indeed the CokernelArrow. *)

@@ -890,7 +890,8 @@ Section shortshortexact_iskernel_iscokernel.
   Proof.
     set (K := mk_Kernel _ _ _ _ H).
     set (e1 := factorization1 hs (Mor1 SSED)). cbn in e1. unfold Image.
-    assert (e : is_iso (CokernelArrow (Abelian.CoImage (Mor1 SSED)) ;; CoIm_to_Im (Mor1 SSED))).
+    assert (e : is_z_isomorphism (CokernelArrow (Abelian.CoImage (Mor1 SSED))
+                                                ;; CoIm_to_Im (Mor1 SSED))).
     {
       use monic_epi_is_iso.
       - use isMonic_postcomp.
@@ -902,15 +903,16 @@ Section shortshortexact_iskernel_iscokernel.
     use Kernel_up_to_iso_isKernel.
     + exact hs.
     + exact K.
-    + exact (iso_inv_from_is_iso _ e).
-    + apply (maponpaths (fun g : _ => (iso_inv_from_is_iso _ e) ;; g)) in e1.
+    + exact (iso_inv_from_is_iso _ (is_iso_qinv _ _ e)).
+    + apply (maponpaths (fun g : _ => (iso_inv_from_is_iso _ (is_iso_qinv _ _ e)) ;; g)) in e1.
       use (pathscomp0 _ (! e1)). clear e1. rewrite assoc.
       assert (e2 : iso_inv_from_is_iso
-                     (CokernelArrow (Abelian.CoImage (Mor1 SSED)) ;; CoIm_to_Im (Mor1 SSED)) e ;;
+                     (CokernelArrow (Abelian.CoImage (Mor1 SSED)) ;; CoIm_to_Im (Mor1 SSED))
+                     (is_iso_qinv _ _ e) ;;
                      (CokernelArrow (Abelian.CoImage (Mor1 SSED)) ;; CoIm_to_Im (Mor1 SSED)) =
                    identity _).
       {
-        use (iso_after_iso_inv (isopair _ e)).
+        use (iso_after_iso_inv (isopair _ (is_iso_qinv _ _ e))).
       }
       rewrite e2. rewrite id_left. apply idpath.
   Qed.
@@ -931,7 +933,8 @@ Section shortshortexact_iskernel_iscokernel.
     use ShortShortExact_from_isCokernel_isKernel.
     set (CK := mk_Cokernel _ _ _ _ H).
     set (e1 := factorization2 hs (Mor2 SSED)). cbn in e1. unfold CoImage.
-    assert (e : is_iso (CoIm_to_Im (Mor2 SSED) ;; KernelArrow (Abelian.Image (Mor2 SSED)))).
+    assert (e : is_z_isomorphism (CoIm_to_Im (Mor2 SSED)
+                                             ;; KernelArrow (Abelian.Image (Mor2 SSED)))).
     {
       use monic_epi_is_iso.
       - exact (factorization2_is_monic hs (Mor2 SSED)).
@@ -943,20 +946,21 @@ Section shortshortexact_iskernel_iscokernel.
     use Cokernel_up_to_iso_isCokernel.
     + exact hs.
     + exact CK.
-    + exact (iso_inv_from_is_iso _ e).
-    + apply (maponpaths (fun g : _ => g ;; (iso_inv_from_is_iso _ e))) in e1.
+    + exact (iso_inv_from_is_iso _ (is_iso_qinv _ _ e)).
+    + apply (maponpaths (fun g : _ => g ;; (iso_inv_from_is_iso _ (is_iso_qinv _ _ e)))) in e1.
       use (pathscomp0 _ (! e1)). clear e1. rewrite <- assoc.
       assert (e2 : (CoIm_to_Im (Mor2 SSED))
                      ;; (KernelArrow (Abelian.Image (Mor2 SSED)))
                      ;; (iso_inv_from_is_iso
-                           (CoIm_to_Im (Mor2 SSED) ;; KernelArrow (Abelian.Image (Mor2 SSED))) e) =
+                           (CoIm_to_Im (Mor2 SSED)
+                                       ;; KernelArrow (Abelian.Image (Mor2 SSED)))
+                           (is_iso_qinv _ _ e)) =
                    identity _).
       {
-        use (iso_inv_after_iso (isopair _ e)).
+        use (iso_inv_after_iso (isopair _ (is_iso_qinv _ _ e))).
       }
       rewrite e2. rewrite id_right. apply idpath.
   Qed.
-
 
   Definition mk_ShortShortExact_isCokernel (SSED : ShortShortExactData A to_Zero)
           (H : isCokernel to_Zero (Mor1 SSED) (Mor2 SSED) (ShortShortExactData_Eq to_Zero SSED)) :

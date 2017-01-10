@@ -837,14 +837,14 @@ Section translation_functor.
   Qed.
 
   Definition TranslationEquiv_is_iso1 (a : ComplexPreCat_Additive A) :
-    is_iso_with_inv_data
+    is_z_isomorphism
       ((unit_from_left_adjoint
           (mk_are_adjoints _ _ TranslationTranslationInvNatTrans InvTranslationTranslationNatTrans
                            TranslationInvTranslation_adjunction)) a).
   Proof.
-    use mk_is_iso_with_inv_data.
+    use mk_is_z_isomorphism.
     - exact (TranslationEquivUnitInv a).
-    - use mk_is_iso_with_inv.
+    - use mk_is_inverse_in_precat.
       + exact (TranslationEquiv_is_iso1_eq1 a).
       + exact (TranslationEquiv_is_iso1_eq2 a).
   Defined.
@@ -902,14 +902,14 @@ Section translation_functor.
   Qed.
 
   Lemma TranslationEquiv_is_iso2 (b : ComplexPreCat_Additive A) :
-    is_iso_with_inv_data
+    is_z_isomorphism
       ((counit_from_left_adjoint
           (mk_are_adjoints _ _ TranslationTranslationInvNatTrans InvTranslationTranslationNatTrans
                            TranslationInvTranslation_adjunction)) b).
   Proof.
-    use mk_is_iso_with_inv_data.
+    use mk_is_z_isomorphism.
     - exact (TranslationEquivCounitInv b).
-    - use mk_is_iso_with_inv.
+    - use mk_is_inverse_in_precat.
       + exact (TranslationEquiv_is_iso2_eq1 b).
       + exact (TranslationEquiv_is_iso2_eq2 b).
   Defined.
@@ -1688,15 +1688,15 @@ Section translation_functor.
   Qed.
 
   Definition TranslationHEquiv_is_iso1 (x : ComplexHomot_Additive A) :
-    is_iso_with_inv_data
+    is_z_isomorphism
       ((unit_from_left_adjoint
           (mk_are_adjoints _ _ TranslationHTranslationInvHNatTrans
                            InvTranslationHTranslationHNatTrans
                            TranslationHInvTranslationH_adjunction)) x).
   Proof.
-    use mk_is_iso_with_inv_data.
+    use mk_is_z_isomorphism.
     - exact (# (ComplexHomotFunctor A) (TranslationEquivUnitInv x)).
-    - use mk_is_iso_with_inv.
+    - use mk_is_inverse_in_precat.
       + exact (TranslationHEquiv_is_iso1_eq1' x).
       + exact (TranslationHEquiv_is_iso1_eq2' x).
   Defined.
@@ -1735,15 +1735,15 @@ Section translation_functor.
   Qed.
 
   Definition TranslationHEquiv_is_iso2 (x : ComplexHomot_Additive A) :
-    is_iso_with_inv_data
+    is_z_isomorphism
       ((counit_from_left_adjoint
           (mk_are_adjoints _ _ TranslationHTranslationInvHNatTrans
                            InvTranslationHTranslationHNatTrans
                            TranslationHInvTranslationH_adjunction)) x).
   Proof.
-    use mk_is_iso_with_inv_data.
+    use mk_is_z_isomorphism.
     - exact (# (ComplexHomotFunctor A) (TranslationEquivCounitInv x)).
-    - use mk_is_iso_with_inv.
+    - use mk_is_inverse_in_precat.
       + exact (TranslationHEquiv_is_iso2_eq1' x).
       + exact (TranslationHEquiv_is_iso2_eq2' x).
   Defined.

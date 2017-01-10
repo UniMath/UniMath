@@ -787,7 +787,7 @@ Section def_cohomology'_complex.
                             (CohomologyComplexIso_isCokernel C i)).
     use (compose (CohomologyComplexIso_Mor7 C i)).
     use (compose (CohomologyComplexIso_Mor8 C i)).
-    exact (iso_inv_from_is_iso _ (CoIm_to_Im_is_iso A hs (φ1 ;; φ2))).
+    exact (iso_inv_from_is_iso _ (is_iso_qinv _ _ (CoIm_to_Im_is_iso A hs (φ1 ;; φ2)))).
   Defined.
 
   Local Lemma CohomologyComplexIso_Mor_comm (C : Complex (AbelianToAdditive A hs)) (i : hz) :
@@ -804,6 +804,8 @@ Section def_cohomology'_complex.
     - intros i. exact (CohomologyComplexIso_Mor_i C i).
     - intros i. exact (CohomologyComplexIso_Mor_comm C i).
   Defined.
+
+  Local Opaque is_iso_qinv.
 
   Lemma CohomologyComplexIso_is_iso_i (C : Complex (AbelianToAdditive A hs)) (i : hz) :
     is_iso (CohomologyComplexIso_Mor_i C i).
@@ -850,6 +852,8 @@ Section def_cohomology'_complex.
                                 K1 (Cokernel _) (Cokernel _)).
     - unfold CohomologyComplexIso_Mor1. apply CokernelOutPaths_is_iso.
   Qed.
+
+  Local Transparent is_iso_qinv.
 
   Local Lemma CohomologyComplexIso_is_iso (C : Complex (AbelianToAdditive A hs)) :
     is_iso (CohomologyComplexIso_Mor C).

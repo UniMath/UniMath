@@ -706,7 +706,7 @@ Section mapping_cone_of_id.
   Qed.
 
   Lemma IDMappingCone_is_iso_with_inv (C : Complex A) :
-    is_iso_with_inv
+    is_inverse_in_precat
       (ZeroArrow (Additive.to_Zero (ComplexHomot_Additive A))
                  ((ComplexHomotFunctor A) (Additive.to_Zero (ComplexPreCat_Additive A)))
                  ((ComplexHomotFunctor A) (MappingCone A (@identity (ComplexPreCat_Additive A) C))))
@@ -714,7 +714,7 @@ Section mapping_cone_of_id.
                  ((ComplexHomotFunctor A) (MappingCone A (@identity (ComplexPreCat_Additive A) C)))
                  ((ComplexHomotFunctor A) (Additive.to_Zero (ComplexPreCat_Additive A)))).
   Proof.
-    use mk_is_iso_with_inv.
+    use mk_is_inverse_in_precat.
     - rewrite ZeroArrow_comp_left.
       use (@ArrowsToZero (ComplexHomot_Additive A) (Additive.to_Zero (ComplexHomot_Additive A))).
     - rewrite ZeroArrow_comp_left.
@@ -725,13 +725,13 @@ Section mapping_cone_of_id.
   Qed.
 
   Lemma IDMappingCone_is_iso_with_inv_data (C : Complex A) :
-    is_iso_with_inv_data
+    is_z_isomorphism
       (ZeroArrow (Additive.to_Zero (ComplexHomot_Additive A))
                  ((ComplexHomotFunctor A) (Additive.to_Zero (ComplexPreCat_Additive A)))
                  ((ComplexHomotFunctor A)
                     (MappingCone A (@identity (ComplexPreCat_Additive A) C)))).
   Proof.
-    use mk_is_iso_with_inv_data.
+    use mk_is_z_isomorphism.
     - exact (ZeroArrow (Additive.to_Zero (ComplexHomot_Additive A)) _ _).
     - exact (IDMappingCone_is_iso_with_inv C).
   Defined.
@@ -1215,10 +1215,10 @@ Section rotation_mapping_cone.
   Qed.
 
   Lemma RotMorphism_is_iso_with_inv {C1 C2 : Complex A} (f : Morphism C1 C2) :
-    is_iso_with_inv (# (ComplexHomotFunctor A) (RotMorphism f))
-                    (# (ComplexHomotFunctor A) (RotMorphismInv f)).
+    is_inverse_in_precat (# (ComplexHomotFunctor A) (RotMorphism f))
+                         (# (ComplexHomotFunctor A) (RotMorphismInv f)).
   Proof.
-    use mk_is_iso_with_inv.
+    use mk_is_inverse_in_precat.
     - rewrite <- functor_comp.
       rewrite <- (@functor_id _ _ (ComplexHomotFunctor A)).
       apply maponpaths. exact (RotMorphismIsoEq1 f).
@@ -1231,9 +1231,9 @@ Section rotation_mapping_cone.
   Qed.
 
   Lemma RotMorphism_is_iso_with_inv_data {C1 C2 : Complex A} (f : Morphism C1 C2) :
-    is_iso_with_inv_data (# (ComplexHomotFunctor A) (RotMorphism f)).
+    is_z_isomorphism (# (ComplexHomotFunctor A) (RotMorphism f)).
   Proof.
-    use mk_is_iso_with_inv_data.
+    use mk_is_z_isomorphism.
     - exact (# (ComplexHomotFunctor A) (RotMorphismInv f)).
     - exact (RotMorphism_is_iso_with_inv f).
   Defined.
@@ -1580,7 +1580,7 @@ Section inv_rotation_mapping_cone.
   Definition InvRotMorphismMor {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
     A ⟦ (MappingCone
            A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f))
-                     ;; iso_with_inv2 (AddEquivUnitIso (TranslationEquiv A) C1))) i, C2 i ⟧.
+                     ;; z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) C1))) i, C2 i ⟧.
   Proof.
     cbn.
     use to_binop.
@@ -1879,8 +1879,8 @@ Section inv_rotation_mapping_cone.
 
   Definition InvRotMorphism {C1 C2 : Complex A} (f : Morphism C1 C2) :
     Morphism (MappingCone
-                A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f)) ;; iso_with_inv2
-                          (AddEquivUnitIso (TranslationEquiv A) C1))) C2.
+                A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f))
+                          ;; z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) C1))) C2.
   Proof.
     use mk_Morphism.
     - intros i. exact (InvRotMorphismMor f i).
@@ -1889,8 +1889,8 @@ Section inv_rotation_mapping_cone.
 
   (** Commutativity of the middle square *)
   Lemma InvRotMorphismComm2 {C1 C2 : Complex A} (f : Morphism C1 C2 ) :
-    ((MappingConeIn2 A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f)) ;; iso_with_inv2
-                               (AddEquivUnitIso (TranslationEquiv A) C1))
+    ((MappingConeIn2 A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f))
+                               ;; z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) C1))
       : (ComplexPreCat_Additive A)⟦_, _⟧)) ;; InvRotMorphism f = f.
   Proof.
     use MorphismEq. intros i. cbn. unfold InvRotMorphismMor.
@@ -1904,7 +1904,8 @@ Section inv_rotation_mapping_cone.
   (** Commutativity of the right square *)
   Definition InvRotMorphismComm3Homot {C1 C2 : Complex A} (f : Morphism C1 C2 ) :
     ComplexHomot
-      A (MappingCone A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f)) ;; iso_with_inv2
+      A (MappingCone A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f))
+                               ;; z_iso_inv_mor
                                (AddEquivUnitIso (TranslationEquiv A) C1))) (MappingCone A f).
   Proof.
     intros i. cbn.
@@ -2119,11 +2120,10 @@ Section inv_rotation_mapping_cone.
                                  ;; (MappingConeIn2 A f)) =
     # (ComplexHomotFunctor A)
       (((MappingConePr1 A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f))
-                                  ;; iso_with_inv2
+                                  ;; z_iso_inv_mor
                                   (AddEquivUnitIso (TranslationEquiv A) C1)))
         : (ComplexPreCat_Additive A)⟦_, _⟧)
-         ;; iso_with_inv1 (AddEquivCounitIso
-                             (TranslationEquiv A) (MappingCone A f))).
+         ;; (AddEquivCounitIso (TranslationEquiv A) (MappingCone A f))).
   Proof.
     use ComplexHomotFunctor_rel_mor'.
     - exact (InvRotMorphismComm3Homot f).
@@ -2148,7 +2148,7 @@ Section inv_rotation_mapping_cone.
   Lemma InvRotMorphismMorInvComm {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
     (InvRotMorphismMorInv f i)
       ;; (MappingConeDiff A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f)) ;;
-                                    iso_with_inv2 (AddEquivUnitIso (TranslationEquiv A) C1)) i) =
+                                    z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) C1)) i) =
     Diff C2 i ;; InvRotMorphismMorInv f (i + 1).
   Proof.
     unfold InvRotMorphismMorInv. unfold MappingConeDiff.
@@ -2218,7 +2218,7 @@ Section inv_rotation_mapping_cone.
 
   Definition InvRotMorphismInv {C1 C2 : Complex A} (f : Morphism C1 C2) :
     Morphism C2 (MappingCone A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f)) ;;
-                                       iso_with_inv2 (AddEquivUnitIso (TranslationEquiv A) C1))).
+                                       z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) C1))).
   Proof.
     use mk_Morphism.
     - intros i. exact (InvRotMorphismMorInv f i).
@@ -2245,10 +2245,10 @@ Section inv_rotation_mapping_cone.
     ComplexHomot
       A (MappingCone
            A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f))
-                     ;; iso_with_inv2 (AddEquivUnitIso (TranslationEquiv A) C1)))
+                     ;; z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) C1)))
       (MappingCone
          A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f))
-                   ;; iso_with_inv2 (AddEquivUnitIso (TranslationEquiv A) C1))).
+                   ;; z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) C1))).
   Proof.
     intros i. cbn.
     use compose.
@@ -2991,10 +2991,10 @@ Section inv_rotation_mapping_cone.
   Qed.
 
   Lemma InvRotMorphism_is_iso_with_inv {C1 C2 : Complex A} (f : Morphism C1 C2) :
-    is_iso_with_inv (# (ComplexHomotFunctor A) (InvRotMorphismInv f))
-                    (# (ComplexHomotFunctor A) (InvRotMorphism f)).
+    is_inverse_in_precat (# (ComplexHomotFunctor A) (InvRotMorphismInv f))
+                         (# (ComplexHomotFunctor A) (InvRotMorphism f)).
   Proof.
-    use mk_is_iso_with_inv.
+    use mk_is_inverse_in_precat.
     - cbn beta. rewrite <- functor_comp. rewrite <- functor_id.
       exact (InvRotMorphism_is_iso_with_inv_eq1 f).
     - cbn beta. rewrite <- functor_comp. rewrite <- functor_id.
@@ -3002,11 +3002,11 @@ Section inv_rotation_mapping_cone.
   Qed.
 
   Definition InvRotMorphism_is_iso_with_inv_data {C1 C2 : Complex A} (f : Morphism C1 C2) :
-    @is_iso_with_inv_data (ComplexHomot_Additive A) _ _
-                          (# (ComplexHomotFunctor A)
-                             (((InvRotMorphismInv f) : (ComplexPreCat_Additive A)⟦_, _⟧))).
+    @is_z_isomorphism (ComplexHomot_Additive A) _ _
+                      (# (ComplexHomotFunctor A)
+                         (((InvRotMorphismInv f) : (ComplexPreCat_Additive A)⟦_, _⟧))).
   Proof.
-    use mk_is_iso_with_inv_data.
+    use mk_is_z_isomorphism.
     - exact (# (ComplexHomotFunctor A) (InvRotMorphism f)).
     - exact (InvRotMorphism_is_iso_with_inv f).
   Defined.
@@ -3014,7 +3014,7 @@ Section inv_rotation_mapping_cone.
   Definition InvRotMorphismInvComm1Homot {C1 C2 : Complex A} (f : Morphism C1 C2)  :
     ComplexHomot A C1 (MappingCone
                          A ((to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f)))
-                              ;; (iso_with_inv2 (AddEquivUnitIso (TranslationEquiv A) C1)))).
+                              ;; (z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) C1)))).
   Proof.
     intros i. cbn.
     use compose.
@@ -3030,10 +3030,10 @@ Section inv_rotation_mapping_cone.
     # (ComplexHomotFunctor A) ((f : (ComplexPreCat_Additive A)⟦_, _⟧) ;; InvRotMorphismInv f) =
     # (ComplexHomotFunctor A)
       (MappingConeIn2 A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f))
-                                ;; (iso_with_inv2 (AddEquivUnitIso (TranslationEquiv A) C1)))).
+                                ;; (z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) C1)))).
   Proof.
-    use (post_comp_with_iso_with_inv2_is_inj (InvRotMorphism_is_iso_with_inv_data f)).
-    unfold is_iso_with_inv_data_mor. unfold InvRotMorphism_is_iso_with_inv_data.
+    use (post_comp_with_z_iso_inv_is_inj (InvRotMorphism_is_iso_with_inv_data f)).
+    unfold is_z_isomorphism_mor. unfold InvRotMorphism_is_iso_with_inv_data.
     set (tmp := functor_comp (ComplexHomotFunctor A) _ _ _
                              ((f : (ComplexPreCat_Additive A)⟦_, _⟧) ;; InvRotMorphismInv f)
                              (InvRotMorphism f)).
@@ -3043,7 +3043,7 @@ Section inv_rotation_mapping_cone.
                              (((InvRotMorphismInv f) : (ComplexPreCat_Additive A)⟦_, _⟧)
                                 ;; (InvRotMorphism f))).
     use (pathscomp0 tmp). clear tmp.
-    set (tmp := is_iso_with_inv1 (InvRotMorphism_is_iso_with_inv_data f)).
+    set (tmp := is_inverse_in_precat1 (InvRotMorphism_is_iso_with_inv_data f)).
     cbn beta in tmp. cbn beta.
     set (tmp' := functor_comp (ComplexHomotFunctor A) _ _ _
                               (((InvRotMorphismInv f) : (ComplexPreCat_Additive A)⟦_, _⟧))
@@ -3062,12 +3062,12 @@ Section inv_rotation_mapping_cone.
       ;; (TranslationEquivCounitInv A (MappingCone A f)) =
     ((InvRotMorphismInv f) : (ComplexPreCat_Additive A)⟦_, _⟧)
       ;; MappingConePr1 A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f)) ;;
-                                  iso_with_inv2 (AddEquivUnitIso (TranslationEquiv A) C1)).
+                                  z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) C1)).
   Proof.
-    use (post_comp_with_iso_with_inv1_is_inj
+    use (post_comp_with_z_iso_is_inj
            (AddEquivCounitIso (TranslationEquiv A) (MappingCone A f))).
     rewrite <- assoc.
-    set (tmp := is_iso_with_inv2 (AddEquivCounitIso (TranslationEquiv A) (MappingCone A f))).
+    set (tmp := is_inverse_in_precat2 (AddEquivCounitIso (TranslationEquiv A) (MappingCone A f))).
     cbn in tmp. cbn. rewrite tmp. clear tmp.
     use (pathscomp0 (@id_right (ComplexPreCat_Additive A) _ _
                                ((MappingConeIn2 A f) : (ComplexPreCat_Additive A)⟦_, _⟧))).

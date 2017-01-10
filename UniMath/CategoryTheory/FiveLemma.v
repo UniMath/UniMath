@@ -451,7 +451,7 @@ Section five_lemma.
 
   Lemma FiveLemma {FR1 FR2 : FiveRow hs} (FRM : FiveRowMorphism hs FR1 FR2)
         (H1 : is_iso (FMor1 hs FRM)) (H2 : is_iso (FMor2 hs FRM)) (H4 : is_iso (FMor4 hs FRM))
-        (H5 : is_iso (FMor5 hs FRM)) : is_iso (FMor3 hs FRM).
+        (H5 : is_iso (FMor5 hs FRM)) : is_z_isomorphism (FMor3 hs FRM).
   Proof.
     use monic_epi_is_iso.
     - use FiveLemma_isMonic.
@@ -619,7 +619,7 @@ Section short_exact_five_lemma.
   (** ** FiveLemma for short exact sequences *)
 
   Lemma ShortExactFiveLemma {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2)
-        (H2 : is_iso (MPMor1 Mor)) (H4 : is_iso (MPMor3 Mor)) : is_iso (MPMor2 Mor).
+        (H2 : is_iso (MPMor1 Mor)) (H4 : is_iso (MPMor3 Mor)) : is_z_isomorphism (MPMor2 Mor).
   Proof.
     set (FR1 := ShortExactRow1 Mor).
     set (FR2 := ShortExactRow2 Mor).

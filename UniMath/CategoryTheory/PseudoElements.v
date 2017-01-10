@@ -443,7 +443,7 @@ Section def_pseudo_element.
         set (PE := PFiber_Eq P).
         set (Pb := Abelian.Pullbacks A hs _ _ _ h (factorization1_monic A f)).
         set (isM := MonicPullbackisMonic' _ _ _ Pb).
-        assert (i : is_iso (PullbackPr1 Pb)).
+        assert (i : is_z_isomorphism (PullbackPr1 Pb)).
         {
           use monic_epi_is_iso.
           - exact isM.
@@ -464,14 +464,16 @@ Section def_pseudo_element.
             apply EpiisEpi.
         }
         set (q := PullbackSqrCommutes Pb).
-        assert (e1 : h = (inv_from_iso (isopair _ i)) ;; PullbackPr2 Pb ;; factorization1_monic A f).
+        assert (e1 : h = (inv_from_iso (isopair _ (is_iso_qinv _ _ i)))
+                           ;; PullbackPr2 Pb ;; factorization1_monic A f).
         {
           rewrite <- assoc. rewrite <- q. rewrite assoc.
-          set (tmp := iso_after_iso_inv (isopair _ i)). cbn in tmp. cbn. rewrite tmp.
+          set (tmp := iso_after_iso_inv (isopair _ (is_iso_qinv _ _ i))).
+          cbn in tmp. cbn. rewrite tmp.
           rewrite id_left. apply idpath.
         }
         use unique_exists.
-        * exact (inv_from_iso (isopair (PullbackPr1 Pb) i) ;; PullbackPr2 Pb).
+        * exact (inv_from_iso (isopair (PullbackPr1 Pb) (is_iso_qinv _ _ i)) ;; PullbackPr2 Pb).
         * cbn. cbn in e1. rewrite <- e1. apply idpath.
         * intros y0. apply hs.
         * intros y0 XX. cbn in XX.
