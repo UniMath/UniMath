@@ -9,4 +9,4 @@ echo "--- stdout ---"
 <COQC.log grep -v '^Chars '
 echo "--- slowest $n commands taking at least $min seconds ---"
 <COQC.log grep '^Chars ' |sort --key=6gr |head -"$n" |awk "\$6 >= $min"
-
+rm COQC.log
