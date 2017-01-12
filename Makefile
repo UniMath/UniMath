@@ -47,6 +47,8 @@ ifneq "$(INCLUDE)" "no"
 include build/CoqMakefile.make
 endif
 everything: TAGS all html install
+check-first: enforce-linear-ordering
+all: check-first
 OTHERFLAGS += $(MOREFLAGS)
 OTHERFLAGS += -indices-matter -type-in-type -w none
 ifeq ($(VERBOSE),yes)
@@ -101,7 +103,7 @@ $(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags 
 $(VFILES:.v=.vo) : $(COQBIN)coqc
 TAGS : $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
-$(foreach P,$(PACKAGES),$(eval $P: $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\)=UniMath/$P/\1o=" )))
+$(foreach P,$(PACKAGES),$(eval $P: check-first $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\)=UniMath/$P/\1o=" )))
 install:all
 coqwc:; coqwc $(VFILES)
 lc:; wc -l $(VFILES)
@@ -208,6 +210,35 @@ enforce-max-line-length:
 	LC_ALL="en_US.UTF-8" gwc -L $(VFILES) | grep -vw total | awk '{ if ($$1 > 100) { printf "%6d  %s\n", $$1, $$2 }}' | sort -r | grep .
 show-long-lines:
 	LC_ALL="en_US.UTF-8" grep -nE '.{101}' $(VFILES)
+
+# here we assume the shell is bash, which it usually is nowadays:
+enforce-linear-ordering:
+	@set -e ;\
+	declare -A seqnum ;\
+	n=0 ;\
+	for i in $(VOFILES) ;\
+	do n=$$(( $$n + 1 )) ;\
+	   seqnum[$$i]=$$n ;\
+	done ;\
+	for i in $(VFILES:.v=.v.d); \
+	do head -1 $$i ;\
+	done \
+	| sed -e 's/[^ ]*\.\(glob\|v\.beautified\|v\)\([ :]\|$$\)/\2/g' -e 's/ *: */ /' \
+	| while read line ;\
+	  do for i in $$line ; do echo $$i ; done \
+	     | ( read target ; \
+		 [ "$${seqnum[$$target]}" ] || (echo unknown target: $$target >&2 ; false) ;\
+	         while read prereq ; \
+		 do [ "$${seqnum[$$prereq]}" ] || (echo unknown prereq of $$target : $$prereq >&2 ; false) ;\
+		    echo "$$(($${seqnum[$$target]} > $${seqnum[$$prereq]})) error: *** $$target should not require $$prereq" ;\
+		 done ) ;\
+	  done | grep ^0 | sed 's/^0 //' | \
+	  ( haderror= ; \
+	    while read line ; \
+	    do if [ ! "$$haderror" ] ; then haderror=1 ; fi ; \
+	       echo "$$line" ;\
+	    done ;\
+	    [ ! "$$haderror" ] )
 
 #################################
 # targets best used with INCLUDE=no

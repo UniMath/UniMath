@@ -292,8 +292,6 @@ Definition istotalhqgeh : istotal hqgeh := fun n m => istotalhqleh m n .
 
 (** ** [hq] is archimedean *)
 
-Require Export UniMath.Foundations.NumberSystems.IntegersArchimedeanRing.
-
 Lemma isarchhq :
   isarchfld (X := hq) hqgth.
 Proof.
