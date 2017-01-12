@@ -1,8 +1,15 @@
+(*
 
-(** ******************************************
-Benedikt Ahrens, March 2015
-*********************************************)
+Direct implementation of indexed coproducts together with:
 
+- The general coproduct functor ([coproduct_functor])
+- Definition of a coproduct structure on a functor category by taking pointwise coproducts in the
+  target category (adapted from the binary version) ([])
+- Coproducts from colimits ([Coproducts_from_Colims])
+
+Written by: Anders Mörtberg 2016
+
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -10,516 +17,361 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
-(** * Definition of binary coproduct of objects in a precategory *)
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
+(** * Definition of indexed coproducts of objects in a precategory *)
 Section coproduct_def.
 
-Variable C : precategory.
+Variables (I : UU) (C : precategory).
 
-Definition isCoproductCocone (a b co : C) (ia : a ⇒ co) (ib : b ⇒ co) :=
-  ∀ (c : C) (f : a ⇒ c) (g : b ⇒ c),
-    iscontr (Σ fg : co ⇒ c, (ia ;; fg = f) × (ib ;; fg = g)).
+Definition isCoproductCocone (a : I -> C) (co : C)
+  (ia : Π i, a i --> co) :=
+  Π (c : C) (f : Π i, a i --> c),
+    iscontr (total2 (fun (g : co --> c) => Π i, ia i ;; g = f i)).
 
-Definition CoproductCocone (a b : C) :=
-   Σ coiaib : (Σ co : C, a ⇒ co × b ⇒ co),
-          isCoproductCocone a b (pr1 coiaib) (pr1 (pr2 coiaib)) (pr2 (pr2 coiaib)).
+Definition CoproductCocone (a : I -> C) :=
+   Σ coia : (Σ co : C, Π i, a i --> co),
+          isCoproductCocone a (pr1 coia) (pr2 coia).
 
-
-Definition Coproducts := ∀ (a b : C), CoproductCocone a b.
+Definition Coproducts := Π (a : I -> C), CoproductCocone a.
 Definition hasCoproducts := ishinh Coproducts.
 
-Definition CoproductObject {a b : C} (CC : CoproductCocone a b) : C := pr1 (pr1 CC).
-Definition CoproductIn1 {a b : C} (CC : CoproductCocone a b): a ⇒ CoproductObject CC :=
-  pr1 (pr2 (pr1 CC)).
-Definition CoproductIn2 {a b : C} (CC : CoproductCocone a b) : b ⇒ CoproductObject CC :=
-   pr2 (pr2 (pr1 CC)).
+Definition CoproductObject {a : I -> C} (CC : CoproductCocone a) : C := pr1 (pr1 CC).
+Definition CoproductIn {a : I -> C} (CC : CoproductCocone a): Π i, a i --> CoproductObject CC :=
+  pr2 (pr1 CC).
 
-Definition isCoproductCocone_CoproductCocone {a b : C} (CC : CoproductCocone a b) :
-   isCoproductCocone a b  (CoproductObject CC) (CoproductIn1 CC) (CoproductIn2 CC).
+Definition isCoproductCocone_CoproductCocone {a : I -> C} (CC : CoproductCocone a) :
+   isCoproductCocone a (CoproductObject CC) (CoproductIn CC).
 Proof.
   exact (pr2 CC).
 Defined.
 
-Definition CoproductArrow {a b : C} (CC : CoproductCocone a b) {c : C} (f : a ⇒ c) (g : b ⇒ c) :
-      CoproductObject CC ⇒ c.
+Definition CoproductArrow {a : I -> C} (CC : CoproductCocone a) {c : C} (f : Π i, a i --> c) :
+      CoproductObject CC --> c.
 Proof.
-  exact (pr1 (pr1 (isCoproductCocone_CoproductCocone CC _ f g))).
+  exact (pr1 (pr1 (isCoproductCocone_CoproductCocone CC _ f))).
 Defined.
 
-Lemma CoproductIn1Commutes (a b : C) (CC : CoproductCocone a b):
-     ∀ (c : C) (f : a ⇒ c) g, CoproductIn1 CC ;; CoproductArrow CC f g  = f.
+Lemma CoproductInCommutes (a : I -> C) (CC : CoproductCocone a) :
+     Π (c : C) (f : Π i, a i --> c) i, CoproductIn CC i ;; CoproductArrow CC f = f i.
 Proof.
-  intros c f g.
-  exact (pr1 (pr2 (pr1 (isCoproductCocone_CoproductCocone CC _ f g)))).
+  intros c f i.
+  exact (pr2 (pr1 (isCoproductCocone_CoproductCocone CC _ f)) i).
 Qed.
 
-Lemma CoproductIn2Commutes (a b : C) (CC : CoproductCocone a b):
-     ∀ (c : C) (f : a ⇒ c) g, CoproductIn2 CC ;; CoproductArrow CC f g = g.
+Lemma CoproductIn_idtoiso {i1 i2 : I} (a : I -> C) (CC : CoproductCocone a)
+      (e : i1 = i2) :
+  idtoiso (maponpaths a e) ;; CoproductIn CC i2 = CoproductIn CC i1.
 Proof.
-  intros c f g.
-  exact (pr2 (pr2 (pr1 (isCoproductCocone_CoproductCocone CC _ f g)))).
+  induction e.
+  apply id_left.
 Qed.
 
-Lemma CoproductArrowUnique (a b : C) (CC : CoproductCocone a b) (x : C)
-    (f : a ⇒ x) (g : b ⇒ x) (k : CoproductObject CC ⇒ x) :
-    CoproductIn1 CC ;; k = f → CoproductIn2 CC ;; k = g →
-      k = CoproductArrow CC f g.
+Lemma CoproductArrowUnique (a : I -> C) (CC : CoproductCocone a) (x : C)
+    (f : Π i, a i --> x) (k : CoproductObject CC --> x)
+    (Hk : Π i, CoproductIn CC i ;; k = f i) :
+  k = CoproductArrow CC f.
 Proof.
-  intros H1 H2.
-  set (H := tpair (λ h, dirprod _ _ ) k (dirprodpair H1 H2)).
-  set (H' := (pr2 (isCoproductCocone_CoproductCocone CC _ f g)) H).
+  set (H' := pr2 (isCoproductCocone_CoproductCocone CC _ f) (k,,Hk)).
   apply (base_paths _ _ H').
 Qed.
 
-
-Lemma CoproductArrowEta (a b : C) (CC : CoproductCocone a b) (x : C)
-    (f : CoproductObject CC ⇒ x) :
-    f = CoproductArrow CC (CoproductIn1 CC ;; f) (CoproductIn2 CC ;; f).
+Lemma CoproductArrowEta (a : I -> C) (CC : CoproductCocone a) (x : C)
+    (f : CoproductObject CC --> x) :
+    f = CoproductArrow CC (fun i => CoproductIn CC i ;; f).
 Proof.
-  apply CoproductArrowUnique;
-  apply idpath.
+  now apply CoproductArrowUnique.
 Qed.
 
 
-Definition CoproductOfArrows {a b : C} (CCab : CoproductCocone a b) {c d : C}
-    (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d) :
-          CoproductObject CCab ⇒ CoproductObject CCcd :=
-    CoproductArrow CCab (f ;; CoproductIn1 CCcd) (g ;; CoproductIn2 CCcd).
+Definition CoproductOfArrows {a : I -> C} (CCab : CoproductCocone a) {c : I -> C}
+    (CCcd : CoproductCocone c) (f : Π i, a i --> c i) :
+          CoproductObject CCab --> CoproductObject CCcd :=
+    CoproductArrow CCab (fun i => f i ;; CoproductIn CCcd i).
 
-Lemma CoproductOfArrowsIn1 {a b : C} (CCab : CoproductCocone a b) {c d : C}
-    (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d) :
-    CoproductIn1 CCab ;; CoproductOfArrows CCab CCcd f g = f ;; CoproductIn1 CCcd.
+Lemma CoproductOfArrowsIn {a : I -> C} (CCab : CoproductCocone a) {c : I -> C}
+    (CCcd : CoproductCocone c) (f : Π i, a i --> c i) :
+    Π i, CoproductIn CCab i ;; CoproductOfArrows CCab CCcd f = f i ;; CoproductIn CCcd i.
 Proof.
-  unfold CoproductOfArrows.
-  apply CoproductIn1Commutes.
+  unfold CoproductOfArrows; intro i.
+  apply CoproductInCommutes.
 Qed.
 
-Lemma CoproductOfArrowsIn2 {a b : C} (CCab : CoproductCocone a b) {c d : C}
-    (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d) :
-    CoproductIn2 CCab ;; CoproductOfArrows CCab CCcd f g = g ;; CoproductIn2 CCcd.
+Definition mk_CoproductCocone (a : I -> C) (c : C) (f : Π i, a i --> c) :
+   isCoproductCocone _ _ f →  CoproductCocone a.
 Proof.
-  unfold CoproductOfArrows.
-  apply CoproductIn2Commutes.
-Qed.
-
-
-Definition mk_CoproductCocone (a b : C) :
-  ∀ (c : C) (f : a ⇒ c) (g : b ⇒ c),
-   isCoproductCocone _ _ _ f g →  CoproductCocone a b.
-Proof.
-  intros.
-  unshelve refine (tpair _ _ _ ).
-  - exists c.
-    exists f.
-    exact g.
-  - apply X.
+intro H.
+mkpair.
+- apply (tpair _ c f).
+- apply H.
 Defined.
 
-Definition mk_isCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a ⇒ co) (ib : b ⇒ co) :
-   (∀ (c : C) (f : a ⇒ c) (g : b ⇒ c),
-    ∃! k : C ⟦co, c⟧,
-      ia ;; k = f ×
-      ib ;; k = g)
-   →
-   isCoproductCocone a b co ia ib.
+Definition mk_isCoproductCocone (hsC : has_homsets C) (a : I -> C) (co : C)
+  (f : Π i, a i --> co) : (Π (c : C) (g : Π i, a i --> c),
+                                  ∃! k : C ⟦co, c⟧, Π i, f i ;; k = g i)
+   →    isCoproductCocone a co f.
 Proof.
   intros H c cc.
   apply H.
 Defined.
 
-
-
-Lemma precompWithCoproductArrow {a b : C} (CCab : CoproductCocone a b) {c d : C}
-    (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d)
-    {x : C} (k : c ⇒ x) (h : d ⇒ x) :
-        CoproductOfArrows CCab CCcd f g ;; CoproductArrow CCcd k h =
-         CoproductArrow CCab (f ;; k) (g ;; h).
+Lemma precompWithCoproductArrow {a : I -> C} (CCab : CoproductCocone a) {c : I -> C}
+    (CCcd : CoproductCocone c) (f : Π i, a i --> c i)
+    {x : C} (k : Π i, c i --> x) :
+        CoproductOfArrows CCab CCcd f ;; CoproductArrow CCcd k =
+         CoproductArrow CCab (fun i => f i ;; k i).
 Proof.
-  apply CoproductArrowUnique.
-  - rewrite assoc. rewrite CoproductOfArrowsIn1.
-    rewrite <- assoc, CoproductIn1Commutes.
-    apply idpath.
-  - rewrite assoc, CoproductOfArrowsIn2.
-    rewrite <- assoc, CoproductIn2Commutes.
-    apply idpath.
+apply CoproductArrowUnique; intro i.
+now rewrite assoc, CoproductOfArrowsIn, <- assoc, CoproductInCommutes.
 Qed.
 
-
-Lemma postcompWithCoproductArrow {a b : C} (CCab : CoproductCocone a b) {c : C}
-    (f : a ⇒ c) (g : b ⇒ c) {x : C} (k : c ⇒ x)  :
-       CoproductArrow CCab f g ;; k = CoproductArrow CCab (f ;; k) (g ;; k).
+Lemma postcompWithCoproductArrow {a : I -> C} (CCab : CoproductCocone a) {c : C}
+    (f : Π i, a i --> c) {x : C} (k : c --> x)  :
+       CoproductArrow CCab f ;; k = CoproductArrow CCab (fun i => f i ;; k).
 Proof.
-  apply CoproductArrowUnique.
-  -  rewrite assoc, CoproductIn1Commutes;
-     apply idpath.
-  -  rewrite assoc, CoproductIn2Commutes;
-     apply idpath.
+apply CoproductArrowUnique; intro i.
+now rewrite assoc, CoproductInCommutes.
 Qed.
 
-
-(** * Proof that coproducts are unique when the precategory [C] is a category *)
-
-Section coproduct_unique.
-
-Hypothesis H : is_category C.
-
-Variables a b : C.
-
-Definition from_Coproduct_to_Coproduct (CC CC' : CoproductCocone a b)
-  : CoproductObject CC ⇒ CoproductObject CC'.
-Proof.
-  apply (CoproductArrow CC  (CoproductIn1 _ ) (CoproductIn2 _ )).
-Defined.
-
-
-Lemma Coproduct_endo_is_identity (CC : CoproductCocone a b)
-  (k : CoproductObject CC ⇒ CoproductObject CC)
-  (H1 : CoproductIn1 CC ;; k = CoproductIn1 CC)
-  (H2 : CoproductIn2 CC ;; k = CoproductIn2 CC)
+Lemma Coproduct_endo_is_identity (a : I -> C) (CC : CoproductCocone a)
+  (k : CoproductObject CC --> CoproductObject CC)
+  (H1 : Π i, CoproductIn CC i ;; k = CoproductIn CC i)
   : identity _ = k.
 Proof.
-  set (H' := pr2 CC _ (CoproductIn1 CC) (CoproductIn2 CC) ); simpl in *.
-  set (X := (Σ fg : pr1 (pr1 CC) ⇒ CoproductObject CC,
-          pr1 (pr2 (pr1 CC));; fg = CoproductIn1 CC
-          × pr2 (pr2 (pr1 CC));; fg = CoproductIn2 CC)).
-  set (t1 := tpair _ k (dirprodpair H1 H2) : X).
-  set (t2 := tpair _ (identity _ ) (dirprodpair (id_right _ _ _ _ ) (id_right _ _ _ _ ) ) : X).
-  assert (X' : t1 = t2).
-  { apply proofirrelevance.
-    apply isapropifcontr.
-    apply H'.
-  }
-  apply pathsinv0.
-  apply (base_paths _ _ X').
+apply pathsinv0.
+eapply pathscomp0; [apply CoproductArrowEta|].
+apply pathsinv0, CoproductArrowUnique; intro i; apply pathsinv0.
+now rewrite id_right, H1.
 Defined.
 
-
-Lemma is_iso_from_Coproduct_to_Coproduct (CC CC' : CoproductCocone a b)
-  : is_iso (from_Coproduct_to_Coproduct CC CC').
-Proof.
-  apply is_iso_from_is_z_iso.
-  exists (from_Coproduct_to_Coproduct CC' CC).
-  split; simpl.
-  - apply pathsinv0.
-    apply Coproduct_endo_is_identity.
-    + rewrite assoc. unfold from_Coproduct_to_Coproduct.
-      rewrite CoproductIn1Commutes.
-      rewrite CoproductIn1Commutes.
-      apply idpath.
-    + rewrite assoc. unfold from_Coproduct_to_Coproduct.
-      rewrite CoproductIn2Commutes.
-      rewrite CoproductIn2Commutes.
-      apply idpath.
-  - apply pathsinv0.
-    apply Coproduct_endo_is_identity.
-    + rewrite assoc; unfold from_Coproduct_to_Coproduct.
-      repeat rewrite CoproductIn1Commutes; apply idpath.
-    + rewrite assoc; unfold from_Coproduct_to_Coproduct.
-      repeat rewrite CoproductIn2Commutes; apply idpath.
-Defined.
-
-Definition iso_from_Coproduct_to_Coproduct (CC CC' : CoproductCocone a b)
-  : iso (CoproductObject CC) (CoproductObject CC')
-  := isopair _ (is_iso_from_Coproduct_to_Coproduct CC CC').
-
-Lemma transportf_isotoid' (c d d': C) (p : iso d d') (f : c ⇒ d) :
-  transportf (λ a0 : C, c ⇒ a0) (isotoid C H p) f = f ;; p .
-Proof.
-  rewrite <- idtoiso_postcompose.
-  rewrite idtoiso_isotoid.
-  apply idpath.
-Defined.
-
-Lemma isaprop_CoproductCocone : isaprop (CoproductCocone a b).
-Proof.
-  apply invproofirrelevance.
-  intros CC CC'.
-  apply subtypeEquality.
-  + intros.
-    intro. do 3 (apply impred; intro); apply isapropiscontr.
-  + apply (total2_paths (isotoid _ H (iso_from_Coproduct_to_Coproduct CC CC'))).
-    rewrite transportf_dirprod.
-    rewrite transportf_isotoid'. simpl.
-    rewrite transportf_isotoid'.
-    destruct CC as [CC bla].
-    destruct CC' as [CC' bla']; simpl in *.
-    destruct CC as [CC [CC1 CC2]].
-    destruct CC' as [CC' [CC1' CC2']]; simpl in *.
-    unfold from_Coproduct_to_Coproduct.
-    rewrite CoproductIn1Commutes.
-    rewrite CoproductIn2Commutes.
-    apply idpath.
-Qed.
-
-End coproduct_unique.
 End coproduct_def.
-
 
 Section Coproducts.
 
-Variable C : precategory.
-Variable CC : Coproducts C.
-Variables a b c d x y : C.
+Variables (I : UU) (C : precategory) (CC : Coproducts I C).
 
-Lemma CoproductArrow_eq (f f' : a ⇒ c) (g g' : b ⇒ c)
-  : f = f' → g = g' →
-      CoproductArrow _ (CC _ _) f g = CoproductArrow _ _ f' g'.
+(* Lemma CoproductArrow_eq (f f' : a --> c) (g g' : b --> c) *)
+(*   : f = f' → g = g' → *)
+(*       CoproductArrow _ (CC _ _) f g = CoproductArrow _ _ f' g'. *)
+(* Proof. *)
+(*   induction 1. *)
+(*   induction 1. *)
+(*   apply idpath. *)
+(* Qed. *)
+
+Definition CoproductOfArrows_comp (a b c : I -> C)
+  (f : Π i, a i --> b i) (g : Π i, b i --> c i) :
+   CoproductOfArrows _ _ _ _ f ;; CoproductOfArrows _ _ (CC _) (CC _) g
+   = CoproductOfArrows _ _ (CC _) (CC _)(fun i => f i ;; g i).
 Proof.
-  induction 1.
-  induction 1.
-  apply idpath.
+apply CoproductArrowUnique; intro i.
+rewrite assoc, CoproductOfArrowsIn.
+now rewrite <- assoc, CoproductOfArrowsIn, assoc.
 Qed.
 
-Lemma CoproductArrow_eq_cor (f f' : CoproductObject C (CC a b) ⇒ c)
-  : CoproductIn1 _ _;; f = CoproductIn1 _ _;; f' → CoproductIn2 _ _;; f = CoproductIn2 _ _;; f' →
-      f = f' .
+Definition CoproductOfArrows_eq (a c : I -> C) (f f' : Π i, a i --> c i) : f = f' ->
+  CoproductOfArrows _ _ _ _ f = CoproductOfArrows _ _ (CC _) (CC _) f'.
 Proof.
-  intros Hyp1 Hyp2.
-  rewrite (CoproductArrowEta _ _ _ _ _ f).
-  rewrite (CoproductArrowEta _ _ _ _ _ f').
-  apply CoproductArrow_eq; assumption.
-Qed.
-
-(** specialized versions of beta rules for coproducts *)
-(* all the following lemmas for manipulation of the hypothesis
-Lemma CoproductIn1Commutes_left (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h -> f = h.
-Proof.
-  intro Hyp.
-  rewrite CoproductIn1Commutes in Hyp.
-  exact Hyp.
-Qed.
-
-Lemma CoproductIn1Commutes_right (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): h = CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g -> h = f.
-Proof.
-  intro Hyp.
-  rewrite CoproductIn1Commutes in Hyp.
-  exact Hyp.
-Qed.
-
-Lemma CoproductIn2Commutes_left (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h -> g = h.
-Proof.
-  intro Hyp.
-  rewrite CoproductIn2Commutes in Hyp.
-  exact Hyp.
-Qed.
-
-Lemma CoproductIn2Commutes_right (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): h = CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g -> h = g.
-Proof.
-  intro Hyp.
-  rewrite CoproductIn2Commutes in Hyp.
-  exact Hyp.
-Qed.
-
-Lemma CoproductIn1Commutes_left_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h' -> f ;; h = h'.
-Proof.
-  intro Hyp.
-  rewrite assoc in Hyp.
-  rewrite CoproductIn1Commutes in Hyp.
-  exact Hyp.
-Qed.
-
-Lemma CoproductIn1Commutes_right_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): h' = CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h)  -> h' = f ;; h.
-Proof.
-  intro Hyp.
-  apply pathsinv0 in Hyp.
-  apply pathsinv0.
-  exact (CoproductIn1Commutes_left_in_ctx _ _ _ _ Hyp).
-Qed.
-
-Lemma CoproductIn2Commutes_left_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h' -> g ;; h = h'.
-Proof.
-  intro Hyp.
-  rewrite assoc in Hyp.
-  rewrite CoproductIn2Commutes in Hyp.
-  exact Hyp.
-Qed.
-
-Lemma CoproductIn2Commutes_right_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): h' = CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h)  -> h' = g ;; h.
-Proof.
-  intro Hyp.
-  apply pathsinv0 in Hyp.
-  apply pathsinv0.
-  exact (CoproductIn2Commutes_left_in_ctx _ _ _ _ Hyp).
-Qed.
-
-Lemma CoproductIn2Commutes_right_in_double_ctx (g0 : x ⇒ b)(f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : x ⇒ d): h' = g0 ;; CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h)  -> h' = g0 ;; g ;; h.
-Proof.
-  intro Hyp.
-  rewrite Hyp.
-  repeat rewrite <- assoc.
-  apply maponpaths.
-  rewrite assoc.
-  rewrite CoproductIn2Commutes.
-  apply idpath.
-Qed.
-*)
-
-
-(* optimized versions in direct style *)
-Lemma CoproductIn1Commutes_right_dir (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): h = f -> h = CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g.
-Proof.
-  intro Hyp.
-  rewrite Hyp.
-  apply pathsinv0.
-  apply CoproductIn1Commutes.
-Qed.
-
-Lemma CoproductIn2Commutes_right_dir (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): h = g -> h = CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g.
-Proof.
-  intro Hyp.
-  rewrite Hyp.
-  apply pathsinv0.
-  apply CoproductIn2Commutes.
-Qed.
-
-Lemma CoproductIn1Commutes_right_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): h' = f ;; h -> h' = CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h).
-Proof.
-  intro Hyp.
-  rewrite Hyp.
-  rewrite assoc.
-  rewrite CoproductIn1Commutes.
-  apply idpath.
-Qed.
-
-Lemma CoproductIn2Commutes_right_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): h' = g ;; h -> h' = CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h).
-Proof.
-  intro Hyp.
-  rewrite Hyp.
-  rewrite assoc.
-  rewrite CoproductIn2Commutes.
-  apply idpath.
-Qed.
-
-Lemma CoproductIn1Commutes_left_dir (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): f = h -> CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h.
-Proof.
-  intro Hyp.
-  rewrite Hyp.
-  apply CoproductIn1Commutes.
-Qed.
-
-Lemma CoproductIn2Commutes_left_dir (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): g = h -> CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h.
-Proof.
-  intro Hyp.
-  rewrite Hyp.
-  apply CoproductIn2Commutes.
-Qed.
-
-Lemma CoproductIn1Commutes_left_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): f ;; h = h' -> CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h'.
-Proof.
-  intro Hyp.
-  rewrite <- Hyp.
-  rewrite assoc.
-  rewrite CoproductIn1Commutes.
-  apply idpath.
-Qed.
-
-Lemma CoproductIn2Commutes_left_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): g ;; h = h' -> CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h'.
-Proof.
-  intro Hyp.
-  rewrite <- Hyp.
-  rewrite assoc.
-  rewrite CoproductIn2Commutes.
-  apply idpath.
-Qed.
-
-Lemma CoproductIn1Commutes_right_in_double_ctx_dir (g0 : x ⇒ a)(f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : x ⇒ d): h' = g0 ;; f ;; h -> h' = g0 ;; CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h).
-Proof.
-  intro Hyp.
-  rewrite Hyp.
-  repeat rewrite <- assoc.
-  apply maponpaths.
-  rewrite assoc.
-  rewrite CoproductIn1Commutes.
-  apply idpath.
-Qed.
-
-Lemma CoproductIn2Commutes_right_in_double_ctx_dir (g0 : x ⇒ b)(f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : x ⇒ d): h' = g0 ;; g ;; h -> h' = g0 ;; CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h).
-Proof.
-  intro Hyp.
-  rewrite Hyp.
-  repeat rewrite <- assoc.
-  apply maponpaths.
-  rewrite assoc.
-  rewrite CoproductIn2Commutes.
-  apply idpath.
-Qed.
-(** end of specialized versions of the beta laws for coproducts *)
-
-
-(* do we ever want to create a multitude of similar lemmas for other rewrite rules?
-Lemma id_left_to_the_right (C': precategory)(a b : C')(f h : C' ⟦ a, b ⟧): h = f -> h = identity a;; f.
-Proof.
-  intro Hyp.
-  rewrite Hyp.
-  apply pathsinv0, id_left.
-Qed.
-
-Lemma id_left_to_the_right_in_ctx (C': precategory)(a b c: C')(f : C' ⟦ a, b ⟧)(g : C' ⟦ b, c ⟧)(h : C' ⟦ a, c ⟧): h = f ;; g -> h = identity a ;; f ;; g.
-Proof.
-  intro Hyp.
-  rewrite Hyp.
-  rewrite id_left.
-  apply idpath.
-Qed.
-
-
-Lemma assoc_to_the_right (C' : precategory) (a b c d : C') (f : C' ⟦ a, b ⟧)
-       (g : C' ⟦ b, c ⟧) (h : C' ⟦ c, d ⟧)(res: C' ⟦ a, d ⟧) : res = f;; g;; h -> res = f;; (g;; h).
-Proof.
-  intro Hyp.
-  rewrite Hyp.
-  apply pathsinv0, assoc.
-Qed.
-
-Lemma assoc_back_to_the_right (C' : precategory) (a b c d : C') (f : C' ⟦ a, b ⟧)
-       (g : C' ⟦ b, c ⟧) (h : C' ⟦ c, d ⟧)(res: C' ⟦ a, d ⟧) : res = f;; (g;; h) -> res = f;; g;; h.
-Proof.
-  intro Hyp.
-  rewrite Hyp.
-  apply assoc.
-Qed.
-*)
-
-Definition CoproductOfArrows_comp (f : a ⇒ c) (f' : b ⇒ d) (g : c ⇒ x) (g' : d ⇒ y)
-  : CoproductOfArrows _ (CC a b) (CC c d) f f' ;;
-    CoproductOfArrows _ (CC _ _) (CC _ _) g g'
-    =
-    CoproductOfArrows _ (CC _ _) (CC _ _)(f ;; g) (f' ;; g').
-Proof.
-  apply CoproductArrowUnique.
-  - rewrite assoc.
-    rewrite CoproductOfArrowsIn1.
-    rewrite <- assoc.
-    rewrite CoproductOfArrowsIn1.
-    apply assoc.
-  - rewrite assoc.
-    rewrite CoproductOfArrowsIn2.
-    rewrite <- assoc.
-    rewrite CoproductOfArrowsIn2.
-    apply assoc.
-Qed.
-
-Definition CoproductOfArrows_eq (f f' : a ⇒ c) (g g' : b ⇒ d)
-  : f = f' → g = g' →
-      CoproductOfArrows _ _ _ f g = CoproductOfArrows _ (CC _ _) (CC _ _) f' g'.
-Proof.
-  induction 1.
-  induction 1.
-  apply idpath.
-Qed.
-
-Lemma precompWithCoproductArrow_eq  (CCab : CoproductCocone _ a b)
-    (CCcd : CoproductCocone _ c d) (f : a ⇒ c) (g : b ⇒ d)
-     (k : c ⇒ x) (h : d ⇒ x) (fk : a ⇒ x) (gh : b ⇒ x):
-      fk = f ;; k → gh = g ;; h →
-        CoproductOfArrows _ CCab CCcd f g ;; CoproductArrow _ CCcd k h =
-         CoproductArrow _ CCab (fk) (gh).
-Proof.
-  intros H H'.
-  rewrite H.
-  rewrite H'.
-  apply precompWithCoproductArrow.
+now induction 1.
 Qed.
 
 End Coproducts.
+
+Section functors.
+
+Definition coproduct_functor_data (I : UU) {C : precategory}
+  (PC : Coproducts I C) : functor_data (power_precategory I C) C.
+Proof.
+mkpair.
+- intros p.
+  apply (CoproductObject _ _ (PC p)).
+- simpl; intros p q f.
+  apply (CoproductOfArrows _ _ _ _ f).
+Defined.
+
+(** * The coproduct functor: C^I -> C *)
+Definition coproduct_functor (I : UU) {C : precategory}
+  (PC : Coproducts I C) : functor (power_precategory I C) C.
+Proof.
+apply (tpair _ (coproduct_functor_data _ PC)).
+split.
+  - intro x; simpl; apply pathsinv0, Coproduct_endo_is_identity.
+    now intro i; rewrite CoproductOfArrowsIn, id_left.
+  - now intros x y z f g; simpl; rewrite CoproductOfArrows_comp .
+Defined.
+
+End functors.
+
+(* Defines the arbitrary copropuct of a family of functors *)
+Definition coproduct_of_functors_alt (I : UU) {C D : precategory}
+  (HD : Coproducts I D) (F : I -> functor C D) : functor C D :=
+  functor_composite (delta_functor I C)
+     (functor_composite (family_functor _ F)
+                        (coproduct_functor _ HD)).
+
+(** * Coproducts lift to functor categories *)
+Section def_functor_pointwise_coprod.
+
+Variables (I : UU) (C D : precategory).
+Variable HD : Coproducts I D.
+Variable hsD : has_homsets D.
+
+Section coproduct_of_functors.
+
+Variables (F : I -> functor C D).
+
+Definition coproduct_of_functors_ob (c : C) : D
+  := CoproductObject _ _ (HD (fun i => F i c)).
+
+Definition coproduct_of_functors_mor (c c' : C) (f : c --> c')
+  : coproduct_of_functors_ob c --> coproduct_of_functors_ob c' :=
+  CoproductOfArrows _ _ _ _ (fun i => # (F i) f).
+
+Definition coproduct_of_functors_data : functor_data C D.
+Proof.
+  exists coproduct_of_functors_ob.
+  exact coproduct_of_functors_mor.
+Defined.
+
+Lemma is_functor_coproduct_of_functors_data :
+  is_functor coproduct_of_functors_data.
+Proof.
+split; simpl; intros.
+- unfold functor_idax; intros; simpl in *.
+    apply pathsinv0.
+    apply Coproduct_endo_is_identity; intro i.
+    unfold coproduct_of_functors_mor.
+    eapply pathscomp0; [apply (CoproductOfArrowsIn _ _ (HD (λ i, (F i) a)))|].
+    now simpl; rewrite functor_id, id_left.
+- unfold functor_compax; simpl; unfold coproduct_of_functors_mor.
+  intros; simpl in *.
+  apply pathsinv0.
+  eapply pathscomp0.
+  apply CoproductOfArrows_comp.
+  apply maponpaths, funextsec; intro i.
+  now rewrite functor_comp.
+Qed.
+
+Definition coproduct_of_functors : functor C D :=
+  tpair _ _ is_functor_coproduct_of_functors_data.
+
+Lemma coproduct_of_functors_alt_eq_coproduct_of_functors :
+  coproduct_of_functors_alt _ HD F = coproduct_of_functors.
+Proof.
+now apply (functor_eq _ _ hsD).
+Defined.
+
+Definition coproduct_nat_trans_in_data i (c : C) :
+  D ⟦ (F i) c, coproduct_of_functors c ⟧ :=
+  CoproductIn _ _ (HD (fun j => (F j) c)) i.
+
+Lemma is_nat_trans_coproduct_nat_trans_in_data i :
+  is_nat_trans _ _ (coproduct_nat_trans_in_data i).
+Proof.
+intros c c' f; apply pathsinv0.
+now eapply pathscomp0;[apply (CoproductOfArrowsIn I _ (HD (λ i, (F i) c)))|].
+Qed.
+
+Definition coproduct_nat_trans_in i : nat_trans (F i) coproduct_of_functors :=
+  tpair _ _ (is_nat_trans_coproduct_nat_trans_in_data i).
+
+Section vertex.
+
+Variable A : functor C D.
+Variable f : Π i, nat_trans (F i) A.
+
+Definition coproduct_nat_trans_data c :
+  coproduct_of_functors c --> A c :=
+    CoproductArrow _ _ _ (fun i => f i c).
+
+Lemma is_nat_trans_coproduct_nat_trans_data :
+  is_nat_trans _ _ coproduct_nat_trans_data.
+Proof.
+intros a b k; simpl.
+eapply pathscomp0.
+apply (precompWithCoproductArrow I D (HD (λ i : I, (F i) a)) (HD (λ i : I, (F i) b))).
+apply pathsinv0.
+eapply pathscomp0; [apply postcompWithCoproductArrow|].
+apply maponpaths, funextsec; intro i.
+now rewrite (nat_trans_ax (f i)).
+Qed.
+
+Definition coproduct_nat_trans : nat_trans coproduct_of_functors A
+  := tpair _ _ is_nat_trans_coproduct_nat_trans_data.
+
+End vertex.
+
+Definition functor_precat_coproduct_cocone
+  : CoproductCocone I [C, D, hsD] F.
+Proof.
+simple refine (mk_CoproductCocone _ _ _ _ _ _).
+- apply coproduct_of_functors.
+- apply coproduct_nat_trans_in.
+- simple refine (mk_isCoproductCocone _ _ _ _ _ _ _).
+  + apply functor_category_has_homsets.
+  + intros A f.
+    mkpair.
+    * apply (tpair _ (coproduct_nat_trans A f)).
+      abstract (intro i; apply (nat_trans_eq hsD); intro c;
+                apply (CoproductInCommutes I D _ (HD (λ j, (F j) c)))).
+    * abstract (
+        intro t; apply subtypeEquality; simpl;
+          [intro; apply impred; intro; apply (isaset_nat_trans hsD)|];
+        apply (nat_trans_eq hsD); intro c;
+        apply CoproductArrowUnique; intro i;
+        apply (nat_trans_eq_pointwise (pr2 t i))).
+Defined.
+
+End coproduct_of_functors.
+
+Definition Coproducts_functor_precat : Coproducts I [C, D, hsD].
+Proof.
+  intros F.
+  apply functor_precat_coproduct_cocone.
+Defined.
+
+End def_functor_pointwise_coprod.
+
+(** * Coproducts from colimits *)
+Section coproducts_from_colimits.
+
+Variables (I : UU) (C : precategory) (hsC : has_homsets C).
+
+Definition I_graph : graph := (I,,λ _ _,empty).
+
+Definition coproducts_diagram (F : I → C) : diagram I_graph C.
+Proof.
+exists F.
+abstract (intros u v e; induction e).
+Defined.
+
+Definition CoproductsCocone c (F : I → C) (H : Π i, F i --> c) :
+  cocone (coproducts_diagram F) c.
+Proof.
+mkpair.
++ intro v; apply H.
++ abstract (intros u v e; induction e).
+Defined.
+
+Lemma Coproducts_from_Colims : Colims_of_shape I_graph C -> Coproducts I C.
+Proof.
+intros H F.
+set (HF := H (coproducts_diagram F)).
+use mk_CoproductCocone.
++ apply (colim HF).
++ intros i; apply (colimIn HF).
++ apply (mk_isCoproductCocone _ _ hsC); intros c Fic.
+  use unique_exists.
+  - apply colimArrow.
+    use mk_cocone.
+    * simpl; intro i; apply Fic.
+    * abstract (simpl; intros u v e; induction e).
+  - abstract (simpl; intro i; apply (colimArrowCommutes HF)).
+  - abstract (intros y; apply impred; intro i; apply hsC).
+  - abstract (intros f Hf; apply colimArrowUnique; simpl in *; intros i; apply Hf).
+Defined.
+
+End coproducts_from_colimits.

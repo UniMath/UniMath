@@ -14,59 +14,59 @@ Definition ℕ := nat.
 
 Module Uniqueness.
 
-  Lemma helper_A (P:nat->Type) (p0:P 0) (IH:∀ n, P n->P(S n))
-        (f:∀ n, P n) :
-    weq (∀ n, f n = nat_rect P p0 IH n)
-        (f 0=p0 × ∀ n, f(S n)=IH n (f n)).
-  Proof. intros. unshelve refine (_,,gradth _ _ _ _).
+  Lemma helper_A (P:nat->Type) (p0:P 0) (IH:Π n, P n->P(S n))
+        (f:Π n, P n) :
+    weq (Π n, f n = nat_rect P p0 IH n)
+        (f 0=p0 × Π n, f(S n)=IH n (f n)).
+  Proof. intros. simple refine (_,,gradth _ _ _ _).
          { intros h. split.
            { exact (h 0). } { intros. exact (h (S n) @ ap (IH n) (! h n)). } }
-         { intros [h0 h'] ?. induction n as [|n'].
+         { intros [h0 h'] ?. induction n as [|n' IHn'].
            { exact h0. } { exact (h' n' @ ap (IH n') IHn'). } }
-         { simpl. intros h. apply funextsec; intros n; simpl. induction n.
+         { simpl. intros h. apply funextsec; intros n; simpl. induction n as [|n IHn].
            { simpl. reflexivity. }
-           { simpl. rewrite <- path_assoc. unshelve refine (_ @ pathscomp0rid _).
+           { simpl. rewrite <- path_assoc. simple refine (_ @ pathscomp0rid _).
              rewrite <- maponpathscomp0. rewrite IHn. rewrite pathsinv0l.
              simpl. reflexivity. } }
          { intros [h0 h']. apply pair_path_in2. apply funextsec; intro n; simpl.
            rewrite <- path_assoc. rewrite <- maponpathscomp0. rewrite pathsinv0r.
            apply pathscomp0rid. } Defined.
 
-  Lemma helper_B (P:nat->Type) (p0:P 0) (IH:∀ n, P n->P(S n))
-        (f:∀ n, P n) :
+  Lemma helper_B (P:nat->Type) (p0:P 0) (IH:Π n, P n->P(S n))
+        (f:Π n, P n) :
     weq (f = nat_rect P p0 IH)
-        ((f 0=p0) × (∀ n, f(S n)=IH n (f n))).
+        ((f 0=p0) × (Π n, f(S n)=IH n (f n))).
   Proof. intros.
          exact (weqcomp (weqtoforallpaths _ _ _) (helper_A _ _ _ _)). Defined.
 
-  Lemma helper_C (P:nat->Type) (p0:P 0) (IH:∀ n, P n->P(S n)) :
-    (Σ f:∀ n, P n, f = nat_rect P p0 IH)
+  Lemma helper_C (P:nat->Type) (p0:P 0) (IH:Π n, P n->P(S n)) :
+    (Σ f:Π n, P n, f = nat_rect P p0 IH)
       ≃
-    (Σ f:∀ n, P n, f 0=p0 × ∀ n, f(S n)=IH n (f n)).
+    (Σ f:Π n, P n, f 0=p0 × Π n, f(S n)=IH n (f n)).
   Proof. intros. apply weqfibtototal. intros f. apply helper_B. Defined.
 
-  Lemma hNatRecursionUniq (P:nat->Type) (p0:P 0) (IH:∀ n, P n->P(S n)) :
-    ∃! (f:∀ n, P n), f 0=p0 × ∀ n, f(S n) = IH n (f n).
+  Lemma hNatRecursionUniq (P:nat->Type) (p0:P 0) (IH:Π n, P n->P(S n)) :
+    ∃! (f:Π n, P n), f 0=p0 × Π n, f(S n) = IH n (f n).
   Proof. intros. exact (iscontrweqf (helper_C _ _ _) (iscontrcoconustot _ _)).
   Defined.
 
-  Lemma helper_D (P:nat->Type) (p0:P 0) (IH:∀ n, P n->P(S n)) :
-     (Σ f:∀ n, P n, (f 0=p0) × (∀ n, f(S n)=IH n (f n)))
+  Lemma helper_D (P:nat->Type) (p0:P 0) (IH:Π n, P n->P(S n)) :
+     (Σ f:Π n, P n, (f 0=p0) × (Π n, f(S n)=IH n (f n)))
        ≃
         (@hfiber
-           (Σ (f:∀ n, P n), ∀ n, f(S n)=IH n (f n))
+           (Σ (f:Π n, P n), Π n, f(S n)=IH n (f n))
            (P 0)
            (fun fh => pr1 fh 0)
            p0).
-  Proof. intros. unshelve refine (weqpair _ (gradth _ _ _ _)).
+  Proof. intros. simple refine (weqpair _ (gradth _ _ _ _)).
          { intros [f [h0 h']]. exact ((f,,h'),,h0). }
          { intros [[f h'] h0]. exact (f,,(h0,,h')). }
          { intros [f [h0 h']]. reflexivity. }
          { intros [[f h'] h0]. reflexivity. }
   Defined.
 
-  Lemma hNatRecursion_weq (P:nat->Type) (IH:∀ n, P n->P(S n)) :
-    weq (total2 (fun f:∀ n, P n => ∀ n, f(S n)=IH n (f n))) (P 0).
+  Lemma hNatRecursion_weq (P:nat->Type) (IH:Π n, P n->P(S n)) :
+    weq (total2 (fun f:Π n, P n => Π n, f(S n)=IH n (f n))) (P 0).
   Proof. intros. exists (fun f => pr1 f 0). intro p0.
          apply (iscontrweqf (helper_D _ _ _)). apply hNatRecursionUniq.
   Defined.
@@ -88,7 +88,7 @@ Module Discern.
       | S m, 0 => empty
       | 0, 0 => unit end.
 
-  Goal ∀ m n, nat_discern m n -> nat_discern (S m) (S n).
+  Goal Π m n, nat_discern m n -> nat_discern (S m) (S n).
   Proof. intros ? ? e. exact e. Defined.
 
   Lemma nat_discern_inj m n : nat_discern (S m) (S n) -> nat_discern m n.
@@ -98,21 +98,21 @@ Module Discern.
   Defined.
 
   Lemma nat_discern_isaprop m n : isaprop (nat_discern m n).
-  Proof. intros m. induction m.
-         { intros n. induction n.
+  Proof. intros m. induction m as [|m IHm].
+         { intros n. induction n as [|n IHn].
            { apply isapropifcontr. apply iscontrunit. }
            { simpl. apply isapropempty. } }
-         { intros n. induction n.
+         { intros n. induction n as [|n IHn].
            { simpl. apply isapropempty. }
            { simpl. apply IHm. } } Defined.
 
   Lemma nat_discern_unit m : nat_discern m m = unit.
-  Proof. intros m. induction m. { reflexivity. } { simpl. apply IHm. } Defined.
+  Proof. intros m. induction m as [|m IHm]. { reflexivity. } { simpl. apply IHm. } Defined.
 
   Lemma nat_discern_iscontr m : iscontr (nat_discern m m).
   Proof. intros m. apply iscontr_if_inhab_prop.
          { apply nat_discern_isaprop. }
-         { induction m. { exact tt. } { simpl. exact IHm. } } Defined.
+         { induction m as [|m IHm]. { exact tt. } { simpl. exact IHm. } } Defined.
 
   Fixpoint helper_A m n : nat_dist m n = 0 -> nat_discern m n.
   Proof. intros ? ?. destruct m as [|m'].
@@ -130,7 +130,7 @@ Module Discern.
            { simpl. intro i. assert(b := helper_B _ _ i); clear i.
              destruct b. reflexivity. } } Defined.
 
-  Goal ∀ m n (e:nat_discern m n), ap S (helper_B m n e) = helper_B (S m) (S n) e.
+  Goal Π m n (e:nat_discern m n), ap S (helper_B m n e) = helper_B (S m) (S n) e.
   Proof. reflexivity. Defined.
 
   Fixpoint helper_C m n : m = n -> nat_discern m n.
@@ -145,10 +145,10 @@ Module Discern.
   Proof. intros. apply proofirrelevance. apply nat_discern_isaprop. Defined.
 
   Definition helper_D m n : isweq (helper_B m n).
-  Proof. intros. unshelve refine (gradth _ (helper_C _ _) _ _).
+  Proof. intros. simple refine (gradth _ (helper_C _ _) _ _).
          { intro e. assert(p := ! helper_B _ _ e). destruct p.
            apply proofirrelevancecontr. apply nat_discern_iscontr. }
-         { intro e. destruct e. induction m.
+         { intro e. destruct e. induction m as [|m IHm].
            { reflexivity. }
            { exact (  ap (helper_B (S m) (S m)) (! apSC _ _ (idpath m))
                     @ ap (ap S) IHm). } } Defined.
@@ -324,10 +324,10 @@ Proof. intros ? ? i. apply negnatgthtoleh. intro k.
 Defined.
 
 Lemma minusxx m : m - m = 0.
-Proof. intro. induction m. reflexivity. simpl. assumption. Defined.
+Proof. intro. induction m as [|m IHm]. reflexivity. simpl. assumption. Defined.
 
 Lemma minusSxx m : S m - m = 1.
-Proof. intro. induction m. reflexivity. assumption. Defined.
+Proof. intro. induction m as [|m IHm]. reflexivity. assumption. Defined.
 
 Lemma natminusminus n m : m ≤ n -> n - (n - m) = m.
 Proof. intros ? ? i. assert (b := plusminusnmm m (n-m)).
@@ -343,7 +343,7 @@ Proof. intros ? ? ? i.
        rewrite minusplusnmm.
        { exact i. }
        { change (m ≤ n).
-         unshelve refine (istransnatleh _ i); clear i.
+         simple refine (istransnatleh _ i); clear i.
          apply natlehmplusnm. }
 Defined.
 
@@ -367,6 +367,6 @@ Proof. intros ? ? ? i p.
 
 (*
 Local Variables:
-compile-command: "make -helper_C ../.. TAGS UniMath/Ktheory/Nat.vo"
+compile-command: "make -C ../.. TAGS UniMath/Ktheory/Nat.vo"
 End:
 *)

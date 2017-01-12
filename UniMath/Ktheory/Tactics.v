@@ -1,13 +1,7 @@
 (** * Tactics *)
-
 Require Import UniMath.Foundations.Basics.Sets UniMath.Foundations.Basics.UnivalenceAxiom.
 
 Notation ap := maponpaths (only parsing).
-
-Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
-  let T := type of x in
-  let G := match goal with |- ?G => constr:(G) end in
-  exact ((@id G : T -> G) x).
 
 Definition post_cat {X} {x y z:X} {p:y = z} : x = y -> x = z.
 Proof. intros q. exact (pathscomp0 q p). Defined.
@@ -20,10 +14,10 @@ Ltac maponpaths_pre_post_cat :=
   repeat apply (ap pre_cat); repeat rewrite path_assoc; repeat rewrite maponpathsinv0;
   try reflexivity.
 
-Ltac prop_logic := 
-  intros; simpl;
-  repeat (try (apply isapropdirprod);try (apply isapropishinh);apply impred ;intro); 
-  try (apply isapropiscontr); try assumption.
+Ltac prop_logic :=
+  abstract (intros; simpl;
+            repeat (try (apply isapropdirprod);try (apply isapropishinh);apply impred ;intro);
+            try (apply isapropiscontr); try assumption) using _L_.
 
 Lemma iscontrweqb' {X Y} (is:iscontr Y) (w:X ≃ Y) : iscontr X.
 Proof. intros. apply (iscontrweqb (Y:=Y)). assumption. assumption. Defined.

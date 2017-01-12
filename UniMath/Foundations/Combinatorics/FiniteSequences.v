@@ -7,24 +7,106 @@ Unset Automatic Introduction.
 
 Definition Sequence X := Σ n, stn n -> X.
 
+Notation seq := Sequence.
+
 Definition length {X} : Sequence X -> nat := pr1.
+
+Notation seq_len := length .
 
 Definition Sequence_to_function {X} (x:Sequence X) := pr2 x : stn (length x) -> X.
 Coercion Sequence_to_function : Sequence >-> Funclass.
 
+Notation seq_to_fun := Sequence_to_function.
+
 Definition sequencePair {X n} (f:stn n -> X) : Sequence X := (n,,f).
+
+Notation fun_to_seq := sequencePair.
 
 Definition transport_stn m n i (b:i<m) (p:m=n) :
   transportf stn p (i,,b) = (i,,transportf (λ m,i<m) p b).
 Proof. intros. induction p. reflexivity. Defined.
 
 Definition sequenceEquality {X m n} (f:stn m->X) (g:stn n->X) (p:m=n) :
-  (∀ i, f i = g (transportf stn p i))
+  (Π i, f i = g (transportf stn p i))
   -> transportf (λ m, stn m->X) p f = g.
 Proof. intros ? ? ? ? ? ? e. induction p. apply funextfun. exact e. Defined.
 
+
+(** The following two lemmas are the key lemmas that allow to prove (transportational) equality of
+ sequences whose lengths are not definitionally equal. In particular, these lemmas can be used in
+the proofs of such results as associativity of concatenation of sequences and the right unity
+axiom for the empty sequence. **)
+
+Definition seq_key_eq_lemma {X :UU}( g g' : seq X)(e_len : seq_len g = seq_len g')
+           (e_el : forall ( i : nat )(ltg : i < seq_len g )(ltg' : i < seq_len g' ),
+               g (i ,, ltg) = g' (i ,, ltg')) : g=g'.
+Proof.
+  intros.
+  induction g as [m g]. induction g' as [m' g']. simpl in e_len. simpl in e_el.
+
+  assert ( e_int1 : (m ,, g) = (m' ,, transportf (fun i => (stn i -> X)) e_len g) ).
+  { apply transportf_eq. }
+
+  assert ( e_int2 : transportf (fun i => (stn i -> X)) e_len g = g ∘ transportb stn e_len ).
+  { apply transportf_fun. }
+
+  assert ( e_int3 : g ∘ transportb stn e_len = g' ) .
+  { apply funextfun .
+    unfold homot. unfold funcomp. intro. induction x as [ i b ].
+
+    assert ( e_int31 :
+               g (transportb stn e_len (i ,, b)) = g ((i ,, transportb (fun l => i<l) e_len b))).
+    { apply maponpaths.
+      apply transport_stn. }
+
+    assert ( e_int32 : g (i,, transportb (λ l : nat, i < l) e_len b) = g' (i ,, b)).
+    { apply e_el. }
+
+    apply (e_int31 @ e_int32 ). }
+
+  assert ( e_int4 : m',, transportf (λ i : nat, stn i → X) e_len g = (m' ,, g')).
+  { apply (maponpaths (fun gg => (m',, gg))). apply (e_int2 @ e_int3). }
+
+  apply (e_int1 @ e_int4).
+Defined.
+
+(** The following lemma requires in the assumption [ e_el ] only one comparison [ i < seq_len g ]
+ and one comparison [ i < seq_len g' ] for each i instead of all such comparisons as in the
+ original version [ seq_key_eq_lemma ] . **)
+
+Definition seq_key_eq_lemma' {X :UU}( g g' : seq X)(e_len : seq_len g = seq_len g')
+           (e_el' : forall (i : nat) , total2 ( fun ltg : i < seq_len g =>
+                                                 total2 ( fun ltg' : i < seq_len g' =>
+                                                            g (i ,, ltg) = g' (i ,, ltg')))) :
+  g=g'.
+Proof.
+  intros.
+
+  assert (e_el : forall ( i : nat )(ltg1 : i < seq_len g )(ltg1' : i < seq_len g' ),
+               g (i ,, ltg1) = g' (i ,, ltg1')).
+  { intros.
+    assert ( e_eli' := e_el' i).
+    induction e_eli' as [ ltg [ ltg' e ]].
+
+    assert ( e_int1 : ltg1 = ltg ) .
+    { apply (pr2 (i < seq_len g)). }
+
+    assert ( e_int2 : ltg1' = ltg' ) .
+    { apply (pr2 (i < seq_len g')). }
+
+    rewrite <- e_int1 in e.
+    rewrite <- e_int2 in e.
+
+    apply e. }
+
+  apply (seq_key_eq_lemma _ _ e_len e_el).
+Defined.
+
+
 Local Definition empty_fun {X} : stn 0 -> X.
 Proof. intros ? i. contradicts i negstn0. Defined.
+
+Notation fromstn0 := empty_fun.
 
 Definition nil {X} : Sequence X.
 Proof. intros. exact (0,, empty_fun). Defined.
@@ -97,7 +179,7 @@ Defined.
 
 (* Three ways.  Use induction: *)
 
-Definition iscontr_rect' X (i : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : ∀ x:X, P x.
+Definition iscontr_rect' X (i : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : Π x:X, P x.
 Proof. intros. induction (pr1 (isapropifcontr i x0 x)). exact p0. Defined.
 
 Definition iscontr_rect_compute' X (i : iscontr X) (x : X) (P : X ->UU) (p : P x) :
@@ -112,12 +194,12 @@ Defined.
 
 (* ... or use weqsecovercontr, but specializing x to pr1 i: *)
 
-Definition iscontr_rect'' X (i : iscontr X) (P : X ->UU) (p0 : P (pr1 i)) : ∀ x:X, P x.
+Definition iscontr_rect'' X (i : iscontr X) (P : X ->UU) (p0 : P (pr1 i)) : Π x:X, P x.
 Proof. intros. exact (invmap (weqsecovercontr P i) p0 x). Defined.
 
 Definition iscontr_rect_compute'' X (i : iscontr X) (P : X ->UU) (p : P(pr1 i)) :
   iscontr_rect'' X i P p (pr1 i) = p.
-Proof. try reflexivity. intros. exact (homotweqinvweq (weqsecovercontr _ i) _).
+Proof. try reflexivity. intros. exact (homotweqinvweq (weqsecovercontr P i) p).
 Defined.
 
 (* .... or use transport explicitly: *)
@@ -127,7 +209,7 @@ Definition iscontr_adjointness X (is:iscontr X) (x:X) : pr1 (isapropifcontr is x
    the weq [unit ≃ X] would give it to us, in the case where x is [pr1 is] *)
 Proof. intros. now apply isasetifcontr. Defined.
 
-Definition iscontr_rect X (is : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : ∀ x:X, P x.
+Definition iscontr_rect X (is : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : Π x:X, P x.
 Proof. intros. exact (transportf P (pr1 (isapropifcontr is x0 x)) p0). Defined.
 
 Definition iscontr_rect_compute X (is : iscontr X) (x : X) (P : X ->UU) (p : P x) :
@@ -135,11 +217,11 @@ Definition iscontr_rect_compute X (is : iscontr X) (x : X) (P : X ->UU) (p : P x
 Proof. intros. unfold iscontr_rect. now rewrite iscontr_adjointness. Defined.
 
 Corollary weqsecovercontr':     (* reprove weqsecovercontr, move upstream *)
-  ∀ (X:UU) (P:X->UU) (is:iscontr X), (∀ x:X, P x) ≃ P (pr1 is).
+  Π (X:UU) (P:X->UU) (is:iscontr X), (Π x:X, P x) ≃ P (pr1 is).
 Proof.
   intros.
   set (x0 := pr1 is).
-  set (secs := ∀ x : X, P x).
+  set (secs := Π x : X, P x).
   set (fib  := P x0).
   set (destr := (λ f, f x0) : secs->fib).
   set (constr:= iscontr_rect X is x0 P : fib->secs).
@@ -225,13 +307,15 @@ Proof.
     { apply nil_unique. }
     apply drop_and_append'. }
   intros co. induction co as [t|p].
-  { simpl. apply maponpaths. apply proofirrelevancecontr. apply iscontrunit. }
+  { unfold disassembleSequence; simpl. apply maponpaths.
+    apply proofirrelevancecontr. apply iscontrunit. }
   induction p as [x y]. induction y as [n y].
   apply (maponpaths (@inr unit (X × Sequence X))).
   unfold append_fun, lastelement, funcomp; simpl.
+  unfold append_fun. simpl.
   induction (natlehchoice4 n n (natgthsnn n)) as [e|e].
   { contradicts e (isirreflnatlth n). }
-  simpl. apply maponpaths. apply maponpaths.
+  simpl. apply maponpaths, maponpaths.
   apply funextfun; intro i. clear e. induction i as [i b].
   unfold funcomp, dni_lastelement; simpl.
   induction (natlehchoice4 i n (natlthtolths i n b)) as [d|d].
@@ -241,7 +325,7 @@ Defined.
 
 Definition Sequence_rect {X} {P : Sequence X ->UU}
            (p0 : P nil)
-           (ind : ∀ (x : Sequence X) (y : X), P x -> P (append x y))
+           (ind : Π (x : Sequence X) (y : X), P x -> P (append x y))
            (x : Sequence X) : P x.
 Proof. intros. induction x as [n x]. induction n as [|n IH].
   - exact (transportf P (nil_unique x) p0).
@@ -252,7 +336,7 @@ Proof. intros. induction x as [n x]. induction n as [|n IH].
 Defined.
 
 Lemma Sequence_rect_compute_nil {X} {P : Sequence X ->UU} (p0 : P nil)
-      (ind : ∀ (s : Sequence X) (x : X), P s -> P (append s x)) :
+      (ind : Π (s : Sequence X) (x : X), P s -> P (append s x)) :
   Sequence_rect p0 ind nil = p0.
 Proof.
   intros.
@@ -265,7 +349,7 @@ Defined.
 
 Lemma Sequence_rect_compute_cons
       {X} {P : Sequence X ->UU} (p0 : P nil)
-      (ind : ∀ (s : Sequence X) (x : X), P s -> P (append s x))
+      (ind : Π (s : Sequence X) (x : X), P s -> P (append s x))
       (x:X) (l:Sequence X) :
   Sequence_rect p0 ind (append l x) = ind l x (Sequence_rect p0 ind l).
 Proof.
@@ -279,43 +363,90 @@ Lemma append_length {X} (x:Sequence X) (y:X) :
   length (append x y) = S (length x).
 Proof. intros. reflexivity. Defined.
 
-Definition concatenate {X} : binop (Sequence X).
+Definition concatenate {X : UU} : binop (Sequence X).
 Proof.
-  intros ? x y.
-  exists (length x + length y).
-  intros i.
-  induction (invweq (weqfromcoprodofstn (length x) (length y)) i) as [j|k].
-  - exact (x j).
-  - exact (y k).
+  intros X x y.
+  use tpair.
+  - exact (length x + length y).
+  - intros i. induction (weqfromcoprodofstn_invmap _ _ i) as [j | k].
+    + exact (x j).
+    + exact (y k).
 Defined.
 
 Definition concatenate_length {X} (x y:Sequence X) :
   length (concatenate x y) = length x + length y.
 Proof. intros. reflexivity. Defined.
 
-Definition concatenate_0 {X} (s:Sequence X) (t:stn 0 -> X) : concatenate s (0,,t) = s.
+(** Versions of concatenate_0 for the alternative concatenate *)
+Definition concatenate_0 {X : UU} (s : Sequence X) (t : stn 0 -> X) : concatenate s (0,,t) = s.
 Proof.
   intros.
-  induction s as [n s].
-  unshelve refine (total2_paths2 _ _).
-  { simpl. apply natplusr0. }
-  { simpl. generalize (natplusr0 n). intro e. apply funextsec; intro i.
+  use seq_key_eq_lemma.
+  - apply natplusr0.
+  - intros i ltg ltg'. cbn. unfold coprod_rect.
+    unfold weqfromcoprodofstn_invmap. unfold coprod_rect. cbn.
+    induction (natlthorgeh i (seq_len s)) as [H | H].
+    + apply maponpaths.
+      use total2_paths.
+      * apply idpath.
+      * apply proofirrelevance. apply propproperty.
+    + apply fromempty. apply (natlthtonegnatgeh i (seq_len s) ltg' H).
+Qed.
 
-    (* this should be easier! *)
-Abort.
+Definition concatenate_0' {X : UU} (s : Sequence X) (t : stn 0 -> X) : concatenate (0,,t) s = s.
+Proof.
+  intros. apply pathsinv0. induction s as [s l].
+  use seq_key_eq_lemma.
+  - apply idpath.
+  - intros i ltg ltg'. cbn. unfold coprod_rect.
+    induction (natchoice0 s) as [H | H].
+    + apply fromempty. cbn in ltg'. rewrite <- H in ltg'. apply (nopathsfalsetotrue ltg').
+    + apply maponpaths.
+      use total2_paths.
+      * cbn. apply pathsinv0. apply natminuseqn.
+      * apply proofirrelevance. apply propproperty.
+Qed.
 
-Definition concatenateStep {X}  (x : Sequence X) {n} (y : stn (S n) -> X) :
+Definition concatenateStep {X : UU} (x : Sequence X) {n : nat} (y : stn (S n) -> X) :
   concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni_lastelement)) (y (lastelement _)).
-Proof. intros.
+Proof.
+  intros X x. induction x as [x l]. intros n y.
+  use seq_key_eq_lemma.
+  - apply natplusnsm.
+  - intros i ltg ltg'. cbn. unfold append_fun. unfold coprod_rect. cbn.
+    unfold weqfromcoprodofstn_invmap. cbn. unfold coprod_rect.
+    induction (natlthorgeh i x) as [H | H].
+    + induction (natlehchoice4 i (x + n) ltg') as [H1 | H1].
+      * apply idpath.
+      * apply fromempty. rewrite H1 in H.
+        set (tmp := natlehnplusnm x n).
+        set (tmp2 := natlehlthtrans _ _ _ tmp H).
+        use (isirrefl_natneq x). exact (natlthtoneq _ _ tmp2).
+    + induction (natchoice0 (S n)) as [H2 | H2].
+      * apply fromempty. use (negpaths0sx n). exact H2.
+      * induction (natlehchoice4 i (x + n) ltg') as [H' | H'].
+        -- induction (natchoice0 n) as [H3 | H3].
+           ++ apply fromempty. induction H3. rewrite natplusr0 in H'.
+              use (natlthtonegnatgeh i x H' H).
+           ++ unfold funcomp. apply maponpaths.
+              use total2_paths.
+              ** apply idpath.
+              ** apply proofirrelevance. apply propproperty.
+        -- apply maponpaths.
+           use total2_paths.
+           ++ cbn. rewrite H'. rewrite natpluscomm. apply plusminusnmm.
+           ++ apply proofirrelevance. apply propproperty.
+Qed.
 
-Abort.
-
-Definition partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) : Sequence (Sequence X).
-Proof. intros. exists n. intro i. exists (f i). intro j. exact (x(inverse_lexicalEnumeration f (i,,j))).
+Definition partition {X : UU} {n : nat} (f : stn n -> nat) (x : stn (stnsum f) -> X) :
+  Sequence (Sequence X).
+Proof.
+  intros. exists n. intro i. exists (f i). intro j. exact (x(inverse_lexicalEnumeration f (i,,j))).
 Defined.
 
-Definition flatten {X} : Sequence (Sequence X) -> Sequence X.
-Proof. intros ? x. exists (stnsum (length ∘ x)). exact (λ j, uncurry (pr2 x) (lexicalEnumeration _ j)).
+Definition flatten {X : UU} : Sequence (Sequence X) -> Sequence X.
+Proof.
+  intros ? x. exists (stnsum (length ∘ x)). exact (λ j, uncurry (pr2 x) (lexicalEnumeration _ j)).
 Defined.
 
 Definition total2_step_f {n} (X:stn (S n) ->UU) :
@@ -357,13 +488,13 @@ Proof.
   unfold total2_step_b, total2_step_f.
   induction (natlehchoice4 j n J) as [J'|K].
   + simpl.
-    unshelve refine (total2_paths _ _).
+    simple refine (total2_paths _ _).
     * simpl. rewrite replace_dni_last. apply isinjstntonat. reflexivity.
     * rewrite replace_dni_last. unfold dni_lastelement.  simpl.
       change (λ x0 : stn (S n), X x0) with X.
       rewrite transport_f_b. apply (isaset_transportf X).
   + induction (!K). simpl.
-    unshelve refine (total2_paths _ _).
+    simple refine (total2_paths _ _).
     * simpl. now apply isinjstntonat.
     * simpl. assert (d : idpath n = K).
       { apply isasetnat. }
@@ -475,7 +606,7 @@ Proof.
   change (pr1 (tpair (λ i, stn(f i)) k p)) with k.
 
   (* perhaps also prove this is by equipping everything in sight with a well-ordering, preserved by all the equivalences involved *)
-Admitted.
+Abort.
 
 Definition flattenStep {X n} (x: stn (S n) -> Sequence X) :
   flatten (S n,,x) = concatenate (flatten (n,,x ∘ dni_lastelement)) (x (lastelement _)).
@@ -493,22 +624,107 @@ Proof.
 
 
 
-Admitted.
+Abort.
 
 
 Definition isassoc_concatenate {X} (x y z:Sequence X) :
   concatenate (concatenate x y) z = concatenate x (concatenate y z).
 Proof.
   intros.
-  unshelve refine (total2_paths _ _).
+  simple refine (total2_paths _ _).
   - simpl. apply natplusassoc.
   - apply sequenceEquality; intros i.
 
 
 Abort.
 
-(*
-Local Variables:
-compile-command: "make -C ../.. UniMath/Foundations/Sequences.vo"
-End:
-*)
+Definition isassoc_concatenate {X : UU} (x y z : Sequence X) :
+  concatenate (concatenate x y) z = concatenate x (concatenate y z).
+Proof.
+  intros X x y z.
+  use seq_key_eq_lemma.
+  - cbn. rewrite natplusassoc. apply idpath.
+  - intros i ltg ltg'. cbn. unfold weqfromcoprodofstn_invmap. unfold coprod_rect. cbn.
+    induction (natlthorgeh i (seq_len x + seq_len y)) as [H | H].
+    + induction (natlthorgeh (stnpair (seq_len x + seq_len y) i H) (seq_len x)) as [H1 | H1].
+      * induction (natlthorgeh i (seq_len x)) as [H2 | H2].
+        -- apply maponpaths. apply isinjstntonat. apply idpath.
+        -- apply fromempty. exact (natlthtonegnatgeh i (seq_len x) H1 H2).
+      * induction (natchoice0 (seq_len y)) as [H2 | H2].
+        -- apply fromempty. induction H2. induction (! (natplusr0 (seq_len x))).
+           apply (natlthtonegnatgeh i (seq_len x) H H1).
+        -- induction (natlthorgeh i (seq_len x)) as [H3 | H3].
+           ++ apply fromempty. apply (natlthtonegnatgeh i (seq_len x) H3 H1).
+           ++ induction (natchoice0 (seq_len y + seq_len z)) as [H4 | H4].
+              ** apply fromempty. induction (! H4).
+                 use (isirrefl_natneq (seq_len y)).
+                 use natlthtoneq.
+                 use (natlehlthtrans (seq_len y) (seq_len y + seq_len z) (seq_len y) _ H2).
+                 apply natlehnplusnm.
+              ** cbn. induction (natlthorgeh (i - seq_len x) (seq_len y)) as [H5 | H5].
+                 --- apply maponpaths. apply isinjstntonat. apply idpath.
+                 --- apply fromempty.
+                     use (natlthtonegnatgeh (i - (seq_len x)) (seq_len y)).
+                     +++ set (tmp := natlthandminusl i (seq_len x + seq_len y) (seq_len x) H
+                                                     (natlthandplusm (seq_len x) _ H2)).
+                         rewrite (natpluscomm (seq_len x) (seq_len y)) in tmp.
+                         rewrite plusminusnmm in tmp. exact tmp.
+                     +++ exact H5.
+    + induction (natchoice0 (seq_len z)) as [H1 | H1].
+      * apply fromempty. cbn in ltg. induction H1. rewrite natplusr0 in ltg.
+        exact (natlthtonegnatgeh i (seq_len x + seq_len y) ltg H).
+      * induction (natlthorgeh i (seq_len x)) as [H2 | H2].
+        -- apply fromempty.
+           use (natlthtonegnatgeh i (seq_len x) H2).
+           use (istransnatgeh i (seq_len x + seq_len y) (seq_len x) H).
+           apply natgehplusnmn.
+        -- induction (natchoice0 (seq_len y + seq_len z)) as [H3 | H3].
+           ++ apply fromempty. cbn in ltg'. induction H3. rewrite natplusr0 in ltg'.
+              exact (natlthtonegnatgeh i (seq_len x) ltg' H2).
+           ++ cbn. induction (natlthorgeh (i - seq_len x) (seq_len y)) as [H4 | H4].
+              ** apply fromempty.
+                 use (natlthtonegnatgeh i (seq_len x + seq_len y) _ H).
+                 apply (natlthandplusr _ _ (seq_len x)) in H4.
+                 rewrite minusplusnmm in H4.
+                 --- rewrite natpluscomm in H4. exact H4.
+                 --- exact H2.
+              ** apply maponpaths. apply isinjstntonat. cbn. apply (! (natminusminus _ _ _)).
+Qed.
+
+(** Reverse *)
+
+Definition reverse {X : UU} (x : Sequence X) : Sequence X :=
+  sequencePair (fun i : (stn (seq_len x)) => x (dualelement i)).
+
+Lemma reversereverse {X : UU} (x : Sequence X) : reverse (reverse x) = x.
+Proof.
+  intros X x.
+  use seq_key_eq_lemma.
+  - apply idpath.
+  - intros i ltg ltg'. unfold reverse, dualelement, coprod_rect. cbn.
+    set (e := natgthtogehm1 (seq_len x) i ltg').
+    induction (natchoice0 (seq_len x)) as [H | H].
+    + apply maponpaths. apply isinjstntonat. cbn. apply (minusminusmmn _ _ e).
+    + apply maponpaths. apply isinjstntonat. cbn. apply (minusminusmmn _ _ e).
+Qed.
+
+Lemma reverse_index {X : UU} (x : Sequence X) (i : stn (seq_len x)) :
+  (reverse x) (dualelement i) = x i.
+Proof.
+  intros X x i. cbn. unfold dualelement, coprod_rect.
+  set (e := natgthtogehm1 (seq_len x) i (stnlt i)).
+  induction (natchoice0 (seq_len x)) as [H' | H'].
+  - apply maponpaths. apply isinjstntonat. cbn. apply (minusminusmmn _ _ e).
+  - apply maponpaths. apply isinjstntonat. cbn. apply (minusminusmmn _ _ e).
+Qed.
+
+Lemma reverse_index' {X : UU} (x : Sequence X) (i : stn (seq_len x)) :
+  (reverse x) i = x (dualelement i).
+Proof.
+  intros X x i. cbn. unfold dualelement, coprod_rect.
+  induction (natchoice0 (seq_len x)) as [H' | H'].
+  - apply maponpaths. apply isinjstntonat. cbn. apply idpath.
+  - apply maponpaths. apply isinjstntonat. cbn. apply idpath.
+Qed.
+
+(* End of the file *)

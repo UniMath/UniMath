@@ -22,7 +22,7 @@ Definition natneqtwist n (p : ¬ (0 = n)) : ¬ (n = 0) :=
   fun f => p (pathsinv0 f).
 
 Definition nat_plus_perm021 :
-  forall n0 n1 n2,
+  Π n0 n1 n2,
     n0 + n1 + n2 = n0 + n2 + n1 :=
   fun n0 n1 n2 =>
     pathscomp0
@@ -32,30 +32,30 @@ Definition nat_plus_perm021 :
       (pathsinv0 (natplusassoc n0 n2 n1)).
 
 Definition nat_plus_perm102 :
-  forall n0 n1 n2,
+  Π n0 n1 n2,
     n0 + n1 + n2 = n1 + n0 + n2 :=
   fun n0 n1 n2 => maponpaths (fun z => z + n2) (natpluscomm n0 n1).
 
 Definition nat_plus_perm120 :
-  forall n0 n1 n2,
+  Π n0 n1 n2,
     n0 + n1 + n2 = n2 + n0 + n1 :=
   fun n0 n1 n2 =>
     pathscomp0 (natpluscomm (n0 + n1) n2) (pathsinv0 (natplusassoc n2 n0 n1)).
 
 Definition nat_plus_perm201 :
-  forall n0 n1 n2,
+  Π n0 n1 n2,
     n0 + n1 + n2 = n1 + n2 + n0 :=
   fun n0 n1 n2 =>
     pathscomp0 (natplusassoc n0 n1 n2) (natpluscomm n0 (n1 + n2)).
 
 Definition nat_plus_perm210 :
-  forall n0 n1 n2,
+  Π n0 n1 n2,
     n0 + n1 + n2 = n2 + n1 + n0 :=
   fun n0 n1 n2 =>
     pathscomp0 (nat_plus_perm102 n0 n1 n2) (nat_plus_perm120 n1 n0 n2).
 
 Definition nat_mult_perm021 :
-  forall n0 n1 n2,
+  Π n0 n1 n2,
     n0 * n1 * n2 = n0 * n2 * n1 :=
   fun n0 n1 n2 =>
     pathscomp0
@@ -65,29 +65,29 @@ Definition nat_mult_perm021 :
       (pathsinv0 (natmultassoc n0 n2 n1)).
 
 Definition nat_mult_perm102 :
-  forall n0 n1 n2,
+  Π n0 n1 n2,
     n0 * n1 * n2 = n1 * n0 * n2 :=
   fun n0 n1 n2 => maponpaths (fun z => z * n2) (natmultcomm n0 n1).
 
 Definition nat_mult_perm120 :
-  forall n0 n1 n2,
+  Π n0 n1 n2,
     n0 * n1 * n2 = n2 * n0 * n1 :=
   fun n0 n1 n2 =>
     pathscomp0 (natmultcomm (n0 * n1) n2) (pathsinv0 (natmultassoc n2 n0 n1)).
 
 Definition nat_mult_perm201 :
-  forall n0 n1 n2,
+  Π n0 n1 n2,
     n0 * n1 * n2 = n1 * n2 * n0 :=
   fun n0 n1 n2 =>
     pathscomp0 (natmultassoc n0 n1 n2) (natmultcomm n0 (n1 * n2)).
 
 Definition nat_mult_perm210 :
-  forall n0 n1 n2,
+  Π n0 n1 n2,
     n0 * n1 * n2 = n2 * n1 * n0 :=
   fun n0 n1 n2 =>
     pathscomp0 (nat_mult_perm102 n0 n1 n2) (nat_mult_perm120 n1 n0 n2).
 
-Definition minus0r : forall n, n - 0 = n :=
+Definition minus0r : Π n, n - 0 = n :=
   fun n => match n with
              | 0 => (idpath _)
              | S _ => (idpath _)
@@ -95,14 +95,14 @@ Definition minus0r : forall n, n - 0 = n :=
 
 Definition minusnn0 n : n - n = 0.
 Proof.
-  intro n. induction n; [exact (idpath 0) | exact IHn].
+  intro n. induction n as [|n IHn]; [exact (idpath 0) | exact IHn].
 Defined.
 
 (** minus0l and Lemma minussn1 n : (S n) - 1 change to n - 0 should be changed in tactics.*)
 
 Definition minusgeh n m : n >= (n - m).
 Proof.
-  intro n. induction n; intros. apply isreflnatgeh.
+  intro n. induction n as [|n IHn]; intros. apply isreflnatgeh.
   destruct m. rewrite minus0r. apply isreflnatgeh.
   apply (istransnatgeh _ n _). apply natgthtogeh. apply natgthsnn.
   apply IHn.
@@ -721,7 +721,7 @@ Ltac nat_ineq_contr_isirrefl :=
       | _ : hProptoType (?x > ?x) |- _ => apply (isirreflnatgth x); assumption
       | N : nat |- _ =>
         let f := make_gth_check N N in
-        apply (isirreflnatgth N); nat_dfs_body ltac:f
+        apply (isirreflnatgth N); nat_dfs_body ltac:(f)
     end
   | contradiction].
 
@@ -911,7 +911,7 @@ Ltac nat_simple :=
 Ltac nat_intros :=
   repeat match goal with
            | |- ?x -> ?y => intro
-           | |- forall _, _ => intro
+           | |- Π _, _ => intro
          end.
 
 Ltac nat_try :=

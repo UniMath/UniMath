@@ -62,9 +62,9 @@ Module Presentation'.
   Definition make_reln {X} : word X -> word X -> reln X := fun v w => v,,w.
 
   Definition isAdequateRelation {X I} (R:I->reln X) (r : eqrel (word X)) :=
-        (* base         *) (∀ i, r (lhs (R i)) (rhs (R i))) ×
-        (* left_compat  *) (∀ u v w, r v w -> r (word_op u v) (word_op u w)) ×
-        (* right_compat *) (∀ u v w, r u v -> r (word_op u w) (word_op v w)).
+        (* base         *) (Π i, r (lhs (R i)) (rhs (R i))) ×
+        (* left_compat  *) (Π u v w, r v w -> r (word_op u v) (word_op u w)) ×
+        (* right_compat *) (Π u v w, r u v -> r (word_op u w) (word_op v w)).
   Definition base         {X I} {R:I->reln X} {r} (ad : isAdequateRelation R r) := pr1 ad.
   Definition left_compat  {X I} {R:I->reln X} {r} (ad : isAdequateRelation R r) := pr1(pr2 ad).
   Definition right_compat {X I} {R:I->reln X} {r} (ad : isAdequateRelation R r) := pr2(pr2 ad).
@@ -76,22 +76,22 @@ Module Presentation'.
   Definition smallestAdequateRelation {X I} (R:I->reln X) : AdequateRelation R.
   Proof.
     intros.
-    unshelve refine (_,,_).
-    { unshelve refine (_,,_).
+    simple refine (_,,_).
+    { simple refine (_,,_).
       { intros v w.
-        exists (∀ r, isAdequateRelation R r -> r v w).
+        exists (Π r, isAdequateRelation R r -> r v w).
         apply impred; intros r; apply impred_prop. }
-      { unshelve refine (_,,_).
-        { unshelve refine (_,,_).
+      { simple refine (_,,_).
+        { simple refine (_,,_).
           { intros u v w uv vw r ad; simpl in uv, vw.
             apply (eqreltrans r u v w).
             { apply uv. exact ad. }
             { apply vw. exact ad. }}
           { intros w r ad. apply eqrelrefl. } }
         { intros v w vw r ad. apply eqrelsymm. apply vw. exact ad. }}}
-    { unshelve refine (_,,_); simpl.
+    { simple refine (_,,_); simpl.
       { intros i r ad. apply (base ad i). }
-      { unshelve refine (_,,_).
+      { simple refine (_,,_).
         { intros u v w min r ad. apply (left_compat  ad). apply min. exact ad. }
         { intros u v w min r ad. apply (right_compat ad). apply min. exact ad. }}}
   Defined.
@@ -103,7 +103,7 @@ Module Presentation'.
   Definition univ_unit {X I} (R:I->reln X) := setquotpr _ word_unit : univ_set R.
 
   Definition univ_binop {X I} (R:I->reln X) : binop (univ_set R).
-    intros. unshelve refine (setquotfun2 _ _ word_op _).
+    intros. simple refine (setquotfun2 _ _ word_op _).
     induction (smallestAdequateRelation R) as [r ad]; simpl.
     intros v v' w w' vv' ww'.
     apply (eqreltrans _ _ (word_op v w') _ (left_compat ad _ _ _ ww') (right_compat ad _ _ _ vv')).
@@ -229,15 +229,15 @@ Module Presentation.
 
   Record AdequateRelation {X I} (R:I->reln X) (r : hrel (word X)) :=
     make_AdequateRelation {
-        base: ∀ i, r (lhs (R i)) (rhs (R i));
-        reflex : ∀ w, r w w;
-        symm : ∀ v w, r v w -> r w v;
-        trans : ∀ u v w, r u v -> r v w -> r u w;
-        left_compat : ∀ u v w, r v w -> r (word_op u v) (word_op u w);
-        right_compat: ∀ u v w, r u v -> r (word_op u w) (word_op v w);
-        left_unit : ∀ w, r (word_op word_unit w) w;
-        right_unit : ∀ w, r (word_op w word_unit) w;
-        assoc : ∀ u v w, r (word_op (word_op u v) w) (word_op u (word_op v w))
+        base: Π i, r (lhs (R i)) (rhs (R i));
+        reflex : Π w, r w w;
+        symm : Π v w, r v w -> r w v;
+        trans : Π u v w, r u v -> r v w -> r u w;
+        left_compat : Π u v w, r v w -> r (word_op u v) (word_op u w);
+        right_compat: Π u v w, r u v -> r (word_op u w) (word_op v w);
+        left_unit : Π w, r (word_op word_unit w) w;
+        right_unit : Π w, r (word_op w word_unit) w;
+        assoc : Π u v w, r (word_op (word_op u v) w) (word_op u (word_op v w))
       }.
   Arguments make_AdequateRelation {X I} R r _ _ _ _ _ _ _ _ _.
   Arguments base {X I R r} _ _.
@@ -254,12 +254,12 @@ Module Presentation.
 
   Definition smallestAdequateRelation0 {X I} (R:I->reln X) : hrel (word X).
     intros ? ? ? v w.
-    exists (∀ r: hrel (word X), AdequateRelation R r -> r v w).
+    exists (Π r: hrel (word X), AdequateRelation R r -> r v w).
     abstract (apply impred; intro r; apply impred_prop).
   Defined.
   Lemma adequacy {X I} (R:I->reln X) :
     AdequateRelation R (smallestAdequateRelation0 R).
-  Proof. intros. unshelve refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _).
+  Proof. intros. simple refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _).
          { intros ? r ra. apply base. exact ra. }
          { intros ? r ra. apply (reflex R). exact ra. }
          { intros ? ? p r ra. apply (symm R). exact ra. exact (p r ra). }
@@ -288,14 +288,14 @@ Module Presentation.
   (** *** the multiplication on on it *)
 
   Definition univ_binop {X I} (R:I->reln X) : binop (universalMarkedPreMonoid0 R).
-    intros. unshelve refine (QuotientSet.setquotfun2 word_op _). apply op2_compatibility. Defined.
+    intros. simple refine (QuotientSet.setquotfun2 word_op _). apply op2_compatibility. Defined.
   Definition univ_setwithbinop {X I} (R:I->reln X) : setwithbinop
              := setwithbinoppair (universalMarkedPreMonoid0 R) (univ_binop R).
 
   (** *** the universal pre-monoid *)
 
   Definition universalMarkedPreMonoid {X I} (R:I->reln X) : MarkedPreMonoid X.
-    intros. unshelve refine (make_preMonoid X (universalMarkedPreMonoid0 R) _ _ _).
+    intros. simple refine (make_preMonoid X (universalMarkedPreMonoid0 R) _ _ _).
     { exact (setquotpr _ word_unit). }
     { exact (fun x => setquotpr _ (word_gen x)). }
     { exact (univ_binop _). } Defined.
@@ -346,7 +346,7 @@ Module Presentation.
     make_MarkedMonoid {
         m_base :> monoid;
         m_mark : X -> m_base;
-        m_reln : ∀ i, evalword (toMarkedPreMonoid R m_base m_mark) (lhs (R i)) =
+        m_reln : Π i, evalword (toMarkedPreMonoid R m_base m_mark) (lhs (R i)) =
                            evalword (toMarkedPreMonoid R m_base m_mark) (rhs (R i)) }.
   Arguments make_MarkedMonoid {X I} R _ _ _.
   Arguments m_base {X I R} _.
@@ -359,7 +359,7 @@ Module Presentation.
     fun v w  => eqset (evalwordMM M v) (evalwordMM M w).
   Lemma abelian_group_adequacy {X I} (R:I->reln X) (M:MarkedMonoid R) :
     AdequateRelation R (MarkedMonoid_to_hrel M).
-  Proof. intros. unshelve refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _).
+  Proof. intros. simple refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _).
          { exact (fun i => m_reln R M i). } { reflexivity. }
          { intros ? ?. exact pathsinv0. } { intros ? ? ?. exact pathscomp0. }
          { intros ? ? ? p. simpl in p; simpl.
@@ -371,7 +371,7 @@ Module Presentation.
   Record MarkedMonoidMap {X I} {R:I->reln X} (M N:MarkedMonoid R) :=
     make_MarkedMonoidMap {
         map_base :> Hom M N;
-        map_mark : ∀ x, map_base (m_mark M x) = m_mark N x }.
+        map_mark : Π x, map_base (m_mark M x) = m_mark N x }.
   Arguments map_base {X I R M N} m.
   Arguments map_mark {X I R M N} m x.
   Lemma MarkedMonoidMapEquality {X I} {R:I->reln X} {M N:MarkedMonoid R}
@@ -429,7 +429,7 @@ Defined.
                 (universalMarkedMonoid3 R).
   Fixpoint agreement_on_gens0 {X I} {R:I->reln X} {M:monoid}
         (f g:Hom (universalMarkedMonoid R) M)
-        (p:∀ i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
+        (p:Π i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i)))
         (w:word X) :
           pr1 f (setquotpr (smallestAdequateRelation R) w) =
@@ -438,7 +438,7 @@ Defined.
          { intermediate_path (unel M). exact (unitproperty f). exact (!unitproperty g). }
          { apply p. }
          (* compare duplication with the proof of MarkedMonoidMap_compat *)
-         { unshelve refine (
+         { simple refine (
                multproperty f (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)
              @ _ @ !
@@ -449,7 +449,7 @@ Defined.
            { apply agreement_on_gens0. assumption. } } Qed.
   Lemma agreement_on_gens {X I} {R:I->reln X} {M:monoid}
         (f g:Hom (universalMarkedMonoid R) M) :
-        (∀ i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
+        (Π i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i)))
           -> f = g.
     intros ? ? ? ? ? ? p. apply funEquality.
@@ -506,13 +506,13 @@ Module Product.
   Definition Proj {I} (X:I->monoid) (i:I) : Hom (make X) (X i).
     intros. exists (pr1 (Magma.Product.Proj X i)). split.
     exact (pr2 (Magma.Product.Proj X i)). simpl. reflexivity. Defined.
-  Definition Fun {I} (X:I->monoid) (T:monoid) (g: ∀ i, Hom T (X i))
+  Definition Fun {I} (X:I->monoid) (T:monoid) (g: Π i, Hom T (X i))
              : Hom T (make X).
     intros.  exists (pr1 (Magma.Product.Fun X T g)).
     exists (pr2 (Magma.Product.Fun X T g)). apply funextsec; intro i.
     exact (pr2 (pr2 (g i))). Defined.
-  Definition Eqn {I} (X:I->monoid) (T:monoid) (g: ∀ i, Hom T (X i))
-             : ∀ i, Proj X i ∘ Fun X T g = g i.
+  Definition Eqn {I} (X:I->monoid) (T:monoid) (g: Π i, Hom T (X i))
+             : Π i, Proj X i ∘ Fun X T g = g i.
     intros. apply funEquality. reflexivity. Qed.
   Lemma issurjective_projection {I} (X:I->monoid) (i:I) :
     isdeceq I -> issurjective (Proj X i).
@@ -522,7 +522,7 @@ Module Product.
       [isdeceq I]. *)
 
   Proof. intros ? ? ? decide_equality xi. apply hinhpr.
-    unshelve refine (_,,_).
+    simple refine (_,,_).
     { intro j. destruct (decide_equality i j) as [p|_].
       { exact (transportf X p xi). }
       { exact (unel (X j)). } }

@@ -32,7 +32,7 @@ Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
 
 Definition weqcompweql {X Y Z} (f:X ≃ Y) :
   isweq (fun g:Y ≃ Z => weqcomp f g).
-Proof. intros. unshelve refine (gradth _ _ _ _).
+Proof. intros. simple refine (gradth _ _ _ _).
        { intro h. exact (weqcomp (invweq f) h). }
        { intro g. simpl. rewrite <- weqcompassoc. rewrite weqcompinvl.
          apply weqcompidl. }
@@ -41,7 +41,7 @@ Proof. intros. unshelve refine (gradth _ _ _ _).
 
 Definition weqcompweqr {X Y Z} (g:Y ≃ Z) :
   isweq (fun f:X ≃ Y => weqcomp f g).
-Proof. intros. unshelve refine (gradth _ _ _ _).
+Proof. intros. simple refine (gradth _ _ _ _).
        { intro h. exact (weqcomp h (invweq g)). }
        { intro f. simpl. rewrite weqcompassoc. rewrite weqcompinvr.
          apply weqcompidr. }
@@ -78,16 +78,16 @@ Definition action_op G X := G -> X -> X.
 Record ActionStructure (G:gr) (X:hSet) :=
   make {
       act_mult : action_op G X;
-      act_unit : ∀ x, act_mult (unel _) x = x;
-      act_assoc : ∀ g h x, act_mult (op g h) x = act_mult g (act_mult h x)
+      act_unit : Π x, act_mult (unel _) x = x;
+      act_assoc : Π g h x, act_mult (op g h) x = act_mult g (act_mult h x)
     }.
 Arguments act_mult {G _} _ g x.
 
 Module Pack.
   Definition ActionStructure' (G:gr) (X:hSet) :=
          Σ act_mult : action_op G X,
-         Σ act_unit : ∀ x, act_mult (unel _) x = x,
-      (* act_assoc : *) ∀ g h x, act_mult (op g h) x = act_mult g (act_mult h x).
+         Σ act_unit : Π x, act_mult (unel _) x = x,
+      (* act_assoc : *) Π g h x, act_mult (op g h) x = act_mult g (act_mult h x).
   Definition pack {G:gr} {X:hSet} : ActionStructure' G X -> ActionStructure G X
     := fun ac => make G X (pr1 ac) (pr1 (pr2 ac)) (pr2 (pr2 ac)).
   Definition unpack {G:gr} {X:hSet} : ActionStructure G X -> ActionStructure' G X
@@ -124,13 +124,13 @@ Definition ac_mult {G:gr} (X:Action G) := act_mult (pr2 X).
 Delimit Scope action_scope with action.
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Open Scope action_scope.
-Definition ac_assoc {G:gr} (X:Action G) := act_assoc _ _ (pr2 X) : ∀ g h x, (op g h)*x = g*(h*x).
+Definition ac_assoc {G:gr} (X:Action G) := act_assoc _ _ (pr2 X) : Π g h x, (op g h)*x = g*(h*x).
 
 Definition right_mult {G:gr} {X:Action G} (x:X) := fun g => g*x.
 Definition left_mult {G:gr} {X:Action G} (g:G) := fun x:X => g*x.
 
 Definition is_equivariant {G:gr} {X Y:Action G} (f:X->Y) :=
-  ∀ g x, f (g*x) = g*(f x).
+  Π g x, f (g*x) = g*(f x).
 
 Definition is_equivariant_isaprop {G:gr} {X Y:Action G} (f:X->Y) :
   isaprop (is_equivariant f).
@@ -148,12 +148,12 @@ Definition is_equivariant_identity {G:gr} {X Y:Action G}
            (p:ac_set X = ac_set Y) :
   weq (p # ac_str X = ac_str Y) (is_equivariant (cast (ap pr1hSet p))).
 Proof. intros ? [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
-       (* should just apply uahp at this point, as in Poset_univalence_prelim! *)
+       (* should just apply hPropUnivalence at this point, as in Poset_univalence_prelim! *)
        simpl in p. destruct p; simpl. unfold transportf; simpl. unfold idfun; simpl.
-       unshelve refine (weqpair _ _).
+       simple refine (weqpair _ _).
        { intros p g x. simpl in x. simpl.
          exact (apevalat x (apevalat g (ap act_mult p))). }
-       unshelve refine (gradth _ _ _ _).
+       simple refine (gradth _ _ _ _).
        { unfold cast; simpl.
          intro i.
          assert (p:Xm=Ym).
@@ -225,11 +225,11 @@ Proof. intros ? ? ? ? x. exact (path_to_ActionIso e x). Defined.
 Definition Action_univalence_prelim {G:gr} {X Y:Action G} :
   weq (X = Y) (ActionIso X Y).
 Proof. intros.
-       unshelve refine (weqcomp (total2_paths_equiv (ActionStructure G) X Y) _).
-       unshelve refine (weqbandf _ _ _ _).
+       simple refine (weqcomp (total2_paths_equiv (ActionStructure G) X Y) _).
+       simple refine (weqbandf _ _ _ _).
        { apply hSet_univalence. }
-       simpl. intro p. unshelve refine (weqcomp (is_equivariant_identity p) _).
-       exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap set_to_type p)))).
+       simpl. intro p. simple refine (weqcomp (is_equivariant_identity p) _).
+       exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap pr1hSet p)))).
 Defined.
 
 Definition Action_univalence_prelim_comp {G:gr} {X Y:Action G} (p:X = Y) :
@@ -270,7 +270,7 @@ Proof. intros. exact (apevalat x (ap pr1weq
 (** ** Torsors *)
 
 Definition is_torsor {G:gr} (X:Action G) :=
-  nonempty X × ∀ x:X, isweq (right_mult x).
+  nonempty X × Π x:X, isweq (right_mult x).
 
 Lemma is_torsor_isaprop {G:gr} (X:Action G) : isaprop (is_torsor X).
 Proof. intros. apply isapropdirprod. { apply propproperty. }
@@ -293,7 +293,7 @@ Proof. intros ? ? ? ?. exact (castAction (ap underlyingAction q)). Defined.
 
 Lemma underlyingAction_incl {G:gr} :
   isincl (underlyingAction : Torsor G -> Action G).
-Proof. intros. apply isinclpr1; intro X. apply is_torsor_isaprop. Defined.
+Proof. intros. refine (isinclpr1 _ _); intro X. apply is_torsor_isaprop. Defined.
 
 Lemma underlyingAction_injectivity {G:gr} {X Y:Torsor G} :
       weq (X = Y) (underlyingAction X = underlyingAction Y).
@@ -389,7 +389,7 @@ Lemma pr1weq_injectivity {X Y} (f g:X ≃ Y) : weq (f = g) (pr1weq f = pr1weq g)
 Proof. intros. apply weqonpathsincl. apply isinclpr1weq.  Defined.
 
 Definition autos (G:gr) : G ≃ (ActionIso (trivialTorsor G) (trivialTorsor G)).
-Proof. intros. exists (trivialTorsorAuto G). unshelve refine (gradth _ _ _ _).
+Proof. intros. exists (trivialTorsorAuto G). simple refine (gradth _ _ _ _).
        { intro f. exact (f (unel G)). } { intro g; simpl. exact (lunax _ g). }
        { intro f; simpl. apply (invweq (underlyingIso_injectivity _ _)); simpl.
          apply (invweq (pr1weq_injectivity _ _)). apply funextsec; intro g.
@@ -408,9 +408,9 @@ Defined.
 
 Lemma trivialTorsorAuto_unit (G:gr) :
   trivialTorsorAuto G (unel _) = idActionIso _.
-Proof. intros. unshelve refine (subtypeEquality _ _).
+Proof. intros. simple refine (subtypeEquality _ _).
        { intro k. apply is_equivariant_isaprop. }
-       { unshelve refine (subtypeEquality _ _).
+       { simple refine (subtypeEquality _ _).
          { intro; apply isapropisweq. }
          { apply funextsec; intro x; simpl. exact (runax G x). } }
 Defined.
@@ -418,9 +418,9 @@ Defined.
 Lemma trivialTorsorAuto_mult (G:gr) (g h:G) :
   composeActionIso (trivialTorsorAuto G g) (trivialTorsorAuto G h)
   = (trivialTorsorAuto G (op g h)).
-Proof. intros. unshelve refine (subtypeEquality _ _).
+Proof. intros. simple refine (subtypeEquality _ _).
        { intro; apply is_equivariant_isaprop. }
-       { unshelve refine (subtypeEquality _ _).
+       { simple refine (subtypeEquality _ _).
          { intro; apply isapropisweq. }
          { apply funextsec; intro x; simpl. exact (assocax _ x g h). } }
 Defined.
@@ -428,7 +428,7 @@ Defined.
 (** ** Applications of univalence *)
 
 Definition Torsor_univalence {G:gr} {X Y:Torsor G} : weq (X = Y) (ActionIso X Y).
-Proof. intros. unshelve refine (weqcomp underlyingAction_injectivity _).
+Proof. intros. simple refine (weqcomp underlyingAction_injectivity _).
        apply Action_univalence. Defined.
 
 Definition Torsor_univalence_comp {G:gr} {X Y:Torsor G} (p:X = Y) :
@@ -457,8 +457,8 @@ Proof. intros ? [X x]. exists (triviality_isomorphism X x).
 Definition PointedTorsor_univalence {G:gr} {X Y:PointedTorsor G} :
   weq (X = Y) (PointedActionIso X Y).
 Proof. intros.
-       unshelve refine (weqcomp (total2_paths_equiv _ X Y) _).
-       unshelve refine (weqbandf _ _ _ _).
+       simple refine (weqcomp (total2_paths_equiv _ X Y) _).
+       simple refine (weqbandf _ _ _ _).
        { intros.
          exact (weqcomp (weqonpathsincl underlyingAction underlyingAction_incl X Y)
                         Action_univalence). }
@@ -483,7 +483,7 @@ Proof. intros. exists (pointedTrivialTorsor G). intros [X x].
 
 Theorem loopsBG (G:gr) : weq (Ω (B G)) G.
 Proof. intros. apply invweq.
-       unshelve refine (weqcomp _ (invweq Torsor_univalence)).
+       simple refine (weqcomp _ (invweq Torsor_univalence)).
        apply autos. Defined.
 
 Definition loopsBG_comp (G:gr) (g h:G)

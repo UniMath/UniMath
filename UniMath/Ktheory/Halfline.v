@@ -6,10 +6,10 @@ Require UniMath.CategoryTheory.precategories.
 Require UniMath.Ktheory.Nat.
 Notation ℕ := nat.
 
-Definition target_paths {Y} (f:ℕ->Y) := ∀ n, f n=f(S n).
+Definition target_paths {Y} (f:ℕ->Y) := Π n, f n=f(S n).
 
 Definition gHomotopy {Y} (f:ℕ->Y) (s:target_paths f) := fun
-     y:Y => Σ (h:nullHomotopyFrom f y), ∀ n, h(S n) = h n @ s n.
+     y:Y => Σ (h:nullHomotopyFrom f y), Π n, h(S n) = h n @ s n.
 
 Definition GuidedHomotopy {Y} (f:ℕ->Y) (s:target_paths f) :=
   total2 (gHomotopy f s).
@@ -27,23 +27,23 @@ Definition halfline := ∥ ℕ ∥.
 
 Definition makeNullHomotopy {Y} {f:ℕ->Y} (s:target_paths f) {y:Y} (h0:y=f 0) :
   nullHomotopyFrom f y.
-Proof. intros. intro n. induction n. { exact (h0). } { exact (IHn @ s _). } Defined.
+Proof. intros. intro n. induction n as [|n IHn]. { exact (h0). } { exact (IHn @ s _). } Defined.
 
 Definition map {Y} {f:ℕ->Y} (s:target_paths f) :
   halfline -> GuidedHomotopy f s.
 Proof. intros ? ? ? r. apply (squash_to_prop r).
        { apply isapropifcontr. apply iscontrGuidedHomotopy. }
-       { intro n. exists (f n). induction n.
+       { intro n. exists (f n). induction n as [|n IHn].
          { exists (makeNullHomotopy s (idpath _)). intro n. reflexivity. }
          { exact (transportf (gHomotopy f s) (s n) IHn). } } Defined.
 
 Definition map_path {Y} {f:ℕ->Y} (s:target_paths f) :
-  ∀ n, map s (squash_element n) = map s (squash_element (S n)).
+  Π n, map s (squash_element n) = map s (squash_element (S n)).
 Proof. intros. apply (total2_paths2 (s n)).
        simpl. reflexivity. Defined.
 
 Definition map_path_check {Y} {f:ℕ->Y} (s:target_paths f) (n:ℕ) :
-  ∀ p : map s (squash_element n) = map s (squash_element (S n)),
+  Π p : map s (squash_element n) = map s (squash_element (S n)),
     ap pr1 p = s n.
 Proof. intros. set (q := map_path s n).
        assert (path_inverse_to_right : q=p).

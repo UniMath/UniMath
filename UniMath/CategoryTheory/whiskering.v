@@ -42,7 +42,7 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Definition functor_compose {A B C : precategory} (hsB: has_homsets B)
                            (hsC: has_homsets C) (F : ob [A, B, hsB])
       (G : ob [B , C, hsC]) : ob [A , C, hsC] :=
-   functor_composite _ _ _ F G.
+   functor_composite F G.
 
 (*
 Local Notation "G 'O' F '{' hsB  hsC '}'" :=
@@ -74,7 +74,14 @@ Proof.
   apply is_nat_trans_pre_whisker.
 Defined.
 
-
+Lemma pre_whisker_iso_is_iso {A B C : precategory_data}
+    (F : functor_data A B)  {G H : functor_data B C} (gamma : nat_trans G H)
+    (X : (forall b : B, is_isomorphism (gamma b)))
+  : (forall a : A, is_isomorphism (pre_whisker F gamma a)).
+Proof.
+  intros a.
+  apply X.
+Qed.
 
 (** Postwhiskering *)
 
@@ -102,7 +109,18 @@ Proof.
   apply is_nat_trans_post_whisker.
 Defined.
 
-
+Lemma post_whisker_iso_is_iso {B C D : precategory}
+   {G H : functor_data B C} (gamma : nat_trans G H)
+   (K : functor C D)
+   (X : (forall b : B, is_isomorphism (gamma b)))
+  : (forall b : B, is_isomorphism (post_whisker gamma K b)).
+Proof.
+  intros b.
+  unfold post_whisker.
+  simpl.
+  set ( gammab := isopair (gamma b) (X b) ).
+  apply (functor_on_iso_is_iso C D K _ _ gammab).
+Qed.
 
 (** Precomposition with a functor is functorial *)
 

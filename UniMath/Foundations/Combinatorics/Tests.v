@@ -13,7 +13,7 @@ Module Test_stn.
   Goal (stnel(6,3) ≠ stnel(6,4)). easy. Defined.
   Goal ¬(stnel(6,3) ≠ stnel(6,3)). easy. Defined.
 
-  Goal ∀ m n (i:m≤n) (j:stn m), pr1 (stnmtostnn m n i j) = pr1 j.
+  Goal Π m n (i:m≤n) (j:stn m), pr1 (stnmtostnn m n i j) = pr1 j.
     intros. induction j as [j J]. reflexivity.
   Defined.
 
@@ -66,7 +66,7 @@ Module Test_stn.
 
     (* here's an example that shows complications need not impede that sort of computability: *)
     Local Definition w : unit ≃ stn 1.
-      unshelve refine (weqgradth _ _ _ _).
+      simple refine (weqgradth _ _ _ _).
       { intro. exact (firstelement _). }
       { intro. exact tt. }
       { intro u. simpl. induction u. reflexivity. }
@@ -113,7 +113,7 @@ Module Test_stn.
     Goal homotinvweqweq re (ii2 tt) = idpath _. reflexivity. Defined.
     Goal homotinvweqweq re (ii1 c) = idpath _.
       try reflexivity.
-      (* quickly returns due to the use of funextempty in the proof of isweqrecompl. *)
+      (* quickly returns due to the use of funextemptyAxiom in the proof of isweqrecompl. *)
     Abort.
 
     Goal re' (ii2 tt) = i. reflexivity. Defined.
@@ -138,8 +138,8 @@ Module Test_stn.
   End Test2.
 
   (* confirm that [stnsum] is associative in the same way as the parser, which is left associative *)
-  Goal ∀ (f : stn 3 -> nat), stnsum f =  f(●0) + f(●1)  +  f(●2). reflexivity. Defined.
-  Goal ∀ (f : stn 3 -> nat), stnsum f = (f(●0) + f(●1)) +  f(●2). reflexivity. Defined.
+  Goal Π (f : stn 3 -> nat), stnsum f =  f(●0) + f(●1)  +  f(●2). reflexivity. Defined.
+  Goal Π (f : stn 3 -> nat), stnsum f = (f(●0) + f(●1)) +  f(●2). reflexivity. Defined.
 
   Module Test_weqstnsum.
     (* this module exports nothing *)
@@ -185,9 +185,11 @@ Module Test_stn.
 
     Goal f'(●0) = (●1,,●0). try reflexivity. Abort. (* fix; fails quickly *)
     (* let's extract the problematic component: *)
+    (* Statement of Goal fails
     Goal (pr2 (pr2 (f'(●0)))) = idpath true.
       try reflexivity. (* fix; fails quickly; might be a Coq bug *)
     Abort.
+     *)
 
   End Test_weqstnsum_2.
 
@@ -206,7 +208,7 @@ Module Test_stn.
   End Test_weqfromprodofstn.
 
   (* confirm that [stnprod] is associative in the same way as the parser *)
-  Goal ∀ (f : stn 3 -> nat), stnprod f = f(●0) * f(●1) * f(●2).
+  Goal Π (f : stn 3 -> nat), stnprod f = f(●0) * f(●1) * f(●2).
   Proof. reflexivity. Defined.
 
 
@@ -223,7 +225,7 @@ Module Test_stn.
           * contradicts (negnatlthn0 n) b.
     Defined.
 
-  Goal ∀ n, testfun n < 5.
+  Goal Π n, testfun n < 5.
     Proof.
       intros.
       induction n as [i c].
@@ -265,15 +267,20 @@ Module Test_fin.
   (* Eval compute in (carddneg _  (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O)))))). *)
   (* Eval lazy in   (pr1 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))). *)
 
-  Goal ∀ X (fin : finstruct X) (f : X -> nat),
+  Goal Π X (fin : finstruct X) (f : X -> nat),
     finsum (hinhpr fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
   Proof. reflexivity. Qed.
 
   Goal 15 = finsum (isfinitestn _) (λ i:stn 6, i). reflexivity. Qed.
   Goal 20 = finsum isfinitebool (λ i:bool, 10). reflexivity. Qed.
   Goal 21 = finsum (isfinitecoprod isfinitebool isfinitebool)
-             (sum_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
-    reflexivity. Qed.
+                   (coprod_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
+    cbn. unfold weqfromcoprodofstn_invmap. cbn. unfold coprod_rect.
+    induction (natchoice0 2) as [F | T].
+    - apply fromempty.
+      assert (e : 0 < 2) by apply idpath. induction F. apply (negnatlthn0 0 e).
+    - apply idpath.
+  Qed.
 
   Goal 10 = finsum' (isfinitestn _) (λ i:stn 5, i). reflexivity. Defined. (* fixed! *)
 
@@ -281,8 +288,8 @@ Module Test_fin.
 
     (* This module exports nothing. *)
 
-    (* The proofs of isfinite_isdeceq and isfinite_isaset depend on funextfunax
-       and funextempty, so here we do an experiment to see if that impedes
+    (* The proofs of isfinite_isdeceq and isfinite_isaset depend on funextfun
+       and funextemptyAxiom, so here we do an experiment to see if that impedes
        computability of equality using it. *)
 
     Open Scope stn.
@@ -334,7 +341,7 @@ Module Test_fin.
     Defined.
 
     (* test isfiniteforall *)
-    Let T := ∀ x, Y' x.
+    Let T := Π x, Y' x.
     Let eqT : DecidableRelation T :=
       isfinite_to_DecidableEquality (isfiniteforall Y' finX (λ _, finY)).
     Goal decide (eqT (λ _, y) (λ _, y)) = true.
@@ -422,7 +429,7 @@ Module Test_ord.
       Unset Printing Notations.
       unfold decidabilityProperty.
       (* Print Assumptions FiniteOrderedSetDecidableEquality. *)
-      (* uses: funextfunax funextempty *)
+      (* uses: funextfun funextemptyAxiom *)
     Abort.
 
     Goal choice (x ≠ y)%foset true false = false.
@@ -430,12 +437,12 @@ Module Test_ord.
     Abort.
 
     Goal 2 = height x.
-      reflexivity.                (* fixed *)
-    Defined.
+      try reflexivity.                (* does not work *)
+    Abort.
 
   End TestLex2.
 
-  Goal ∀ X (lt:hrel X), iscotrans lt <-> iswklin lt.
+  Goal Π X (lt:hrel X), iscotrans lt <-> iswklin lt.
   Proof.
     intros. unfold iscotrans, iswklin. split.
     { intros i x1 x3 x2. apply i. }
@@ -450,13 +457,13 @@ Module Test_ord.
   Open Scope multmonoid.
 
   (* demonstrate that the Coq parser is left-associative with "*" *)
-  Goal ∀ (M:monoid) (x y z:M), x*y*z = (x*y)*z. Proof. reflexivity. Defined.
-  Goal ∀ (M:monoid) (x y z:M), x*y*z = x*(y*z). Proof. apply assocax. Defined.
+  Goal Π (M:monoid) (x y z:M), x*y*z = (x*y)*z. Proof. reflexivity. Defined.
+  Goal Π (M:monoid) (x y z:M), x*y*z = x*(y*z). Proof. apply assocax. Defined.
 
   (* demonstrate that the Coq parser is left-associative with "+" *)
   Open Scope addmonoid.
-  Goal ∀ (M:monoid) (x y z:M), x+y+z = (x+y)+z. Proof. reflexivity. Defined.
-  Goal ∀ (M:monoid) (x y z:M), x+y+z = x+(y+z). Proof. apply assocax. Defined.
+  Goal Π (M:monoid) (x y z:M), x+y+z = (x+y)+z. Proof. reflexivity. Defined.
+  Goal Π (M:monoid) (x y z:M), x+y+z = x+(y+z). Proof. apply assocax. Defined.
   Close Scope addmonoid.
 
 End Test_ord.

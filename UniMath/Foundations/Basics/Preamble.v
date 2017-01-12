@@ -1,7 +1,8 @@
 (** * Introduction. Vladimir Voevodsky . Feb. 2010 - Sep. 2011
 
-This is the first in the group of files which contain the (current state of) the mathematical library for the proof assistant Coq based on the Univalent Foundations.
-It contains some new notations for constructions defined in Coq.Init library as well as the definition of dependent sum.
+This is the first in the group of files which contain the (current state of) the mathematical
+library for the proof assistant Coq based on the Univalent Foundations.  It contains some new
+notations for constructions defined in Coq.Init library as well as the definition of dependent sum.
 
 
 *)
@@ -11,7 +12,7 @@ It contains some new notations for constructions defined in Coq.Init library as 
 
 (** Preamble. *)
 
-Unset Automatic Introduction.  (** This line has to be removed for the file to compile with Coq8.2 *)
+Unset Automatic Introduction.
 
 (** Universe structure *)
 
@@ -45,6 +46,10 @@ Hint Resolve paths_refl : core .
 Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 Notation idpath := paths_refl .
 
+(* When the goal is displayed as x=y and the types of x and y are hard to discern,
+   use this tactic -- it will add the type to the context in simplified form. *)
+Ltac show_id_type := match goal with |- @paths ?ID _ _ => set (TYPE := ID); simpl in TYPE end.
+
 (* Remark: all of the uu0.v now uses only paths_rect and not the direct "match" construction
 on paths. By adding a constantin paths for the computation rule for paths_rect and then making
 both this constant and paths_rect itself opaque it is possible to check which of the
@@ -63,24 +68,31 @@ The coproduct of two types is introduced in Coq.Init.Datatypes by the lines:
   | inr : B -> sum A B. ]
 *)
 
-Notation coprod := sum .
+(* Notation coprod := sum . *)
+(* Notation coprod_rect := sum_rect. *)
+
+Inductive coprod (__A__ __B__:Type) : Type :=
+  | inl : __A__ -> coprod __A__ __B__
+  | inr : __B__ -> coprod __A__ __B__.
+(* Do not use "induction" on an element of this type without specifying names; seeing __A__ or __B__
+   will indicate that you did that. *)
+
+Arguments coprod_rect {_ _} _ _ _ _.
 
 Notation ii1fun := inl .
 Notation ii2fun := inr .
 
 Notation ii1 := inl .
 Notation ii2 := inr .
-Implicit Arguments ii1 [ A B ] .
-Implicit Arguments ii2 [ A B ] .
+Arguments ii1 {A B} _ : rename.
+Arguments ii2 {A B} _ : rename.
 
-Notation coprod_rect := sum_rect.
-
-Notation "X ⨿ Y" := (coprod X Y) (at level 50, left associativity) : type_scope.
+Notation "X ⨿ Y" := (coprod X Y) (at level 50, left associativity).
   (* type this in emacs with C-X 8 RET AMALGAMATION OR COPRODUCT *)
 
-Notation "∀  x .. y , P" := (forall x, .. (forall y, P) ..)
+Notation "'Π'  x .. y , P" := (forall x, .. (forall y, P) ..)
   (at level 200, x binder, y binder, right associativity) : type_scope.
-  (* type this in emacs in agda-input method with \forall *)
+  (* type this in emacs in agda-input method with \Pi *)
 
 Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
   (at level 200, x binder, y binder, right associativity).
@@ -88,15 +100,15 @@ Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
 
 Definition coprod_rect_compute_1
            (A B : UU) (P : A ⨿ B -> UU)
-           (f : ∀ a : A, P (ii1 a))
-           (g : ∀ b : B, P (ii2 b)) (a:A) :
+           (f : Π (a : A), P (ii1 a))
+           (g : Π (b : B), P (ii2 b)) (a:A) :
   coprod_rect P f g (ii1 a) = f a.
 Proof. reflexivity. Defined.
 
 Definition coprod_rect_compute_2
            (A B : UU) (P : A ⨿ B -> UU)
-           (f : ∀ a : A, P (ii1 a))
-           (g : ∀ b : B, P (ii2 b)) (b:B) :
+           (f : Π a : A, P (ii1 a))
+           (g : Π b : B, P (ii2 b)) (b:B) :
   coprod_rect P f g (ii2 b) = g b.
 Proof. reflexivity. Defined.
 
@@ -119,21 +131,49 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
 *)
 
-Set Primitive Projections.
-
 (* two alternatives: *)
 (* total2 as a record with primitive projections: *)
-    Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }.
-    Arguments tpair {T} _ _ _.
-    Arguments pr1 {_ _} _.
-    Arguments pr2 {_ _} _.
+
+    (* Set Primitive Projections. *)
+
+    (* Set Nonrecursive Elimination Schemes. *)
+
+    (* Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }. *)
+
 (* or total2 as an inductive type:  *)
-    (* Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P . *)
-    (* Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T . *)
-    (* Proof . intros .  induction t as [ t p ] . exact t . Defined. *)
-    (* Definition pr2 { T : Type } { P : T -> Type } ( t : total2 P ) : P ( pr1 t ) . *)
-    (* Proof . intros .  induction t as [ t p ] . exact p . Defined. *)
+
+    Inductive total2 { T: Type } ( P: T -> Type ) := tpair : Π (__t__:T) (__p__:P __t__), total2 P.
+
+    (* Do not use "induction" without specifying names; seeing __t__ or __p__ will indicate that you *)
+    (*    did that.  This will prepare for the use of primitive projections, when the names will be pr1 *)
+    (*    and pr2. *)
+
+    Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T .
+    Proof . intros .  induction t as [ t p ] . exact t . Defined.
+
+    Definition pr2 { T : Type } { P : T -> Type } ( t : total2 P ) : P ( pr1 t ) .
+    Proof . intros .  induction t as [ t p ] . exact p . Defined.
+
 (* end of two alternatives *)
+
+    Print total2.               (* log which definition of total2 is currently in use *)
+
+Arguments tpair {_} _ _ _.
+Arguments pr1 {_ _} _.
+Arguments pr2 {_ _} _.
+
+(* Now prepare tactics for writing proofs in two ways, depending on whether projections are primitive *)
+Ltac primitive_projections :=
+  unify (fun (w : total2 (fun _:nat => nat)) => tpair _ (pr1 w) (pr2 w))
+        (fun (w : total2 (fun _:nat => nat)) => w).
+(* Use like this: [ tryif primitive_projections then ... else ... . ] *)
+
+Definition whether_primitive_projections : bool.
+Proof.
+  tryif primitive_projections then exact true else exact false.
+Defined.
+
+Print whether_primitive_projections.
 
 Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
@@ -141,13 +181,26 @@ Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
 
 Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser than '+' *)
 
-(* demonstrate eta expansion for pairs, if primitive projections are on *)
-Goal ∀ X (Y:X->UU) (w:Σ x, Y x), w = (pr1 w,, pr2 w).
-(* Proof. try reflexivity. Abort. *)
-Proof. reflexivity. Defined.
+Ltac mkpair := (simple refine (tpair _ _ _ ) ; [| cbn]).
 
-Arguments pr1 {_ _} _.
-Arguments pr2 {_ _} _.
+Goal Π X (Y : X -> UU) (x : X) (y : Y x), Σ x, Y x.
+  intros X Y x y.
+  mkpair.
+  - apply x.
+  - apply y.
+Defined.
+
+(* print out this theorem to see whether "induction" compiles to "match" *)
+Goal Π X (Y:X->UU) (w:Σ x, Y x), X.
+  intros.
+  induction w as [x y].
+  exact x.
+Defined.
+
+(* Step through this proof to demonstrate eta expansion for pairs, if primitive
+   projections are on: *)
+Goal Π X (Y:X->UU) (w:Σ x, Y x), w = (pr1 w,, pr2 w).
+Proof. try reflexivity. Abort.
 
 Definition rewrite_pr1_tpair {X} {P:X->UU} x p : pr1 (tpair P x p) = x.
 reflexivity. Defined.
@@ -166,7 +219,9 @@ Inductive Phant ( T : Type ) := phant : Phant T .
 
 
 
-(** The following command checks whether the flag [-indices-matter] which modifies the universe level assignment for inductive types has been set. With the flag it returns [ paths 0 0 : UUU ] . Without the flag it returns [ paths 0 0 : Prop ]. *)
+(** The following command checks whether the flag [-indices-matter] which modifies the universe
+level assignment for inductive types has been set. With the flag it returns [ paths 0 0 : UUU
+]. Without the flag it returns [ paths 0 0 : Prop ]. *)
 
 Check (O = O) .
 
@@ -174,6 +229,10 @@ Check (O = O) .
 
 Notation "X <- Y" := (Y -> X) (at level 90, only parsing, left associativity) : type_scope.
 
+Notation "x → y" := (x -> y)
+  (at level 99, y at level 200, right associativity): type_scope.
+(* written \to or \r- in Agda input method *)
+(* the level comes from sub/coq/theories/Unicode/Utf8_core.v *)
 
 (* so we do it the other way around: *)
 Definition mul : nat -> nat -> nat.
@@ -185,3 +244,30 @@ Proof.
 Defined.
 Notation mult := mul.           (* this overrides the notation "mult" defined in Coq's Peano.v *)
 Notation "n * m" := (mul n m) : nat_scope.
+
+
+
+(** A few tactics, thanks go to Jason Gross *)
+
+Ltac simple_rapply p :=
+  simple refine p ||
+  simple refine (p _) ||
+  simple refine (p _ _) ||
+  simple refine (p _ _ _) ||
+  simple refine (p _ _ _ _) ||
+  simple refine (p _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+
+Tactic Notation "use" uconstr(p) := simple_rapply p.
+
+Tactic Notation "transparent" "assert" "(" ident(name) ":" constr(type) ")" :=
+  simple refine (let name := (_ : type) in _).

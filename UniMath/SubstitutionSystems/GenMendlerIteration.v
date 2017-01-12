@@ -35,7 +35,7 @@ Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.equivalences. (* for adjunctions *)
-Require Import UniMath.SubstitutionSystems.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
+Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -60,7 +60,7 @@ Variable F : functor C C.
 
 Let AF := FunctorAlg F hsC.
 
-Definition AlgConstr (A : C) (α : F A ⇒ A) : AF.
+Definition AlgConstr (A : C) (α : F A --> A) : AF.
 Proof.
   exists A.
   exact α.
@@ -72,9 +72,9 @@ Notation "⟨ A , α ⟩" := (AlgConstr A α).
 Variable μF_Initial : Initial AF.
 
 Let μF : C := alg_carrier _ (InitialObject μF_Initial).
-Let inF : F μF ⇒ μF := alg_map _ (InitialObject μF_Initial).
+Let inF : F μF --> μF := alg_map _ (InitialObject μF_Initial).
 
-Let iter {A : C} (α : F A ⇒ A) : μF ⇒ A :=
+Let iter {A : C} (α : F A --> A) : μF --> A :=
   ↓(InitialArrow μF_Initial ⟨A,α⟩).
 
 Variable C' : precategory.
@@ -91,8 +91,8 @@ Variable L : functor C C'.
 
 Variable is_left_adj_L : is_left_adjoint L.
 
-Let φ := @φ_adj _ _ _ is_left_adj_L.
-Let φ_inv := @φ_adj_inv _ _ _ is_left_adj_L.
+Let φ := @φ_adj _ _ _ _ (pr2 is_left_adj_L).
+Let φ_inv := @φ_adj_inv _ _ _ _ (pr2 is_left_adj_L).
 Let R : functor _ _ := right_adjoint is_left_adj_L.
 Let η : nat_trans _ _ := unit_from_left_adjoint is_left_adj_L.
 Let ε : nat_trans _ _ := counit_from_left_adjoint is_left_adj_L.
@@ -112,10 +112,10 @@ Section general_case.
 
 Variable ψ : ψ_source ⟶ ψ_target.
 
-Definition preIt : L μF ⇒ X := φ_inv (iter (φ (ψ (R X) (ε X)))).
+Definition preIt : L μF --> X := φ_inv (iter (φ (ψ (R X) (ε X)))).
 
 
-Lemma ψ_naturality (A B: C)(h: B ⇒ A)(f: L A ⇒ X): ψ B (#L h;; f) = #L (#F h);; ψ A f.
+Lemma ψ_naturality (A B: C)(h: B --> A)(f: L A --> X): ψ B (#L h;; f) = #L (#F h);; ψ A f.
 Proof.
   assert (ψ_is_nat := nat_trans_ax ψ);
   assert (ψ_is_nat_inst1 := ψ_is_nat _ _ h).
@@ -132,23 +132,23 @@ Proof.
   apply id_left.
 Qed.
 
-Lemma φ_ψ_μF_eq (h: L μF ⇒ X): φ (ψ μF h) = #F (φ h) ;; φ(ψ (R X) (ε X)).
+Lemma φ_ψ_μF_eq (h: L μF --> X): φ (ψ μF h) = #F (φ h) ;; φ(ψ (R X) (ε X)).
 Proof.
-  rewrite <- φ_adj_natural_precomp.
+  rewrite <- (φ_adj_natural_precomp (pr2 is_left_adj_L)).
   apply maponpaths.
   eapply pathscomp0.
 Focus 2.
   apply ψ_naturality.
   apply maponpaths.
   rewrite truth_about_ε.
-  rewrite <- (φ_adj_inv_natural_precomp _ _ _ is_left_adj_L).
+  rewrite <- (φ_adj_inv_natural_precomp (pr2 is_left_adj_L)).
   rewrite id_right.
   apply pathsinv0.
   change (φ_inv(φ h) = h).
   apply φ_adj_inv_after_φ_adj.
 Qed.
 
-Lemma cancel_φ {A: C}{B: C'} (f g : L A ⇒ B): φ f = φ g -> f = g.
+Lemma cancel_φ {A: C}{B: C'} (f g : L A --> B): φ f = φ g -> f = g.
 Proof.
   intro Hyp.
 (* pedestrian way:
@@ -157,7 +157,7 @@ Proof.
   apply maponpaths.
   exact Hyp.
 *)
-  apply (invmaponpathsweq (adjunction_hom_weq _ _ _ is_left_adj_L _ _)).
+  apply (invmaponpathsweq (adjunction_hom_weq (pr2 is_left_adj_L) _ _)).
   exact Hyp.
 Qed.
 
@@ -165,16 +165,16 @@ Lemma preIt_ok : # L inF;; preIt = ψ μF preIt.
 Proof.
     apply cancel_φ.
     rewrite φ_ψ_μF_eq.
-    rewrite (φ_adj_natural_precomp _ _ _ is_left_adj_L).
+    rewrite (φ_adj_natural_precomp (pr2 is_left_adj_L)).
     unfold preIt.
-    rewrite φ_adj_after_φ_adj_inv.
-    rewrite (φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L).
+    rewrite (φ_adj_after_φ_adj_inv (pr2 is_left_adj_L)).
+    rewrite (φ_adj_after_φ_adj_inv (pr2 is_left_adj_L)).
     assert (iter_eq := algebra_mor_commutes _ _ _ (InitialArrow μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)).
     exact iter_eq.
 Qed.
 
-Lemma preIt_uniq (t : Σ h : L μF ⇒ X, # L inF;; h = ψ μF h):
-    t = tpair (λ h : L μF ⇒ X, # L inF;; h = ψ μF h) preIt preIt_ok.
+Lemma preIt_uniq (t : Σ h : L μF --> X, # L inF;; h = ψ μF h):
+    t = tpair (λ h : L μF --> X, # L inF;; h = ψ μF h) preIt preIt_ok.
 Proof.
     destruct t as [h h_rec_eq]; simpl.
     assert (same: h = preIt).
@@ -189,31 +189,31 @@ Focus 2.
 
     apply cancel_φ.
     unfold preIt.
-    rewrite (φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L).
+    rewrite (φ_adj_after_φ_adj_inv (pr2 is_left_adj_L)).
     (* assert (iter_uniq := algebra_mor_commutes _ _ _ *)
     (*                        (InitialArrow μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)). *)
     (* simpl in iter_uniq. *)
     assert(φh_is_alg_mor: inF ;; φ h = #F(φ h) ;; φ (ψ (R X) (ε X))).
       (* remark: I am missing a definition of the algebra morphism property in UniMath.CategoryTheory.FunctorAlgebras *)
     + rewrite <- φ_ψ_μF_eq.
-      rewrite <- φ_adj_natural_precomp.
+      rewrite <- (φ_adj_natural_precomp (pr2 is_left_adj_L)).
       apply maponpaths.
       exact h_rec_eq.
-    + (* set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial ⇒ ⟨ R X, φ (ψ (R X) (ε X)) ⟩). *)
-       unshelve refine (let X : AF ⟦ InitialObject μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _).
+    + (* set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial --> ⟨ R X, φ (ψ (R X) (ε X)) ⟩). *)
+       simple refine (let X : AF ⟦ InitialObject μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _).
        * apply (tpair _ (φ h)); assumption.
        * apply (maponpaths pr1 (InitialArrowUnique _ _ X0)).
 Qed.
 
-Theorem GenMendlerIteration : iscontr (Σ h : L μF ⇒ X, #L inF ;; h = ψ μF h).
+Theorem GenMendlerIteration : iscontr (Σ h : L μF --> X, #L inF ;; h = ψ μF h).
 Proof.
-  unshelve refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
   - exists preIt.
     exact preIt_ok.
   - exact preIt_uniq.
 Defined.
 
-Definition It : L μF ⇒ X := pr1 (pr1 GenMendlerIteration).
+Definition It : L μF --> X := pr1 (pr1 GenMendlerIteration).
 Lemma It_is_preIt : It = preIt.
 Proof.
   apply idpath.
@@ -226,7 +226,7 @@ End general_case.
 Section special_case.
 
   Variable G : functor C' C'.
-  Variable ρ : G X ⇒ X.
+  Variable ρ : G X --> X.
   Variable θ : functor_composite F L ⟶ functor_composite L G.
 
 
@@ -250,7 +250,7 @@ Section special_case.
 
   Definition ψ_from_comps : ψ_source ⟶ ψ_target.
   Proof.
-    unshelve refine (tpair _ _ _ ).
+    simple refine (tpair _ _ _ ).
     - intro A. simpl. intro f.
       unfold yoneda_objects_ob in *.
       exact (θ A ;; #G f ;; ρ).
@@ -260,7 +260,7 @@ Section special_case.
 
   Definition SpecialGenMendlerIteration :
     iscontr
-      (Σ h : L μF ⇒ X, # L inF ;; h = θ μF ;; #G h ;; ρ)
+      (Σ h : L μF --> X, # L inF ;; h = θ μF ;; #G h ;; ρ)
     := GenMendlerIteration ψ_from_comps.
 
 End special_case.

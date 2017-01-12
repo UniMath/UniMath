@@ -60,7 +60,7 @@ Coercion aprel_pr1 : aprel >-> hrel.
 Definition apSet := Σ X : hSet, aprel X.
 Definition apSet_pr1 (X : apSet) : hSet := pr1 X.
 Coercion apSet_pr1 : apSet >-> hSet.
-Arguments apSet_pr1 !X: simpl never.
+Arguments apSet_pr1 X: simpl never.
 Definition apSet_pr2 (X : apSet) : aprel X := pr2 X.
 Notation "x # y" := (apSet_pr2 _ x y) : ap_scope.
 
@@ -70,21 +70,21 @@ Open Scope ap_scope.
 (** Lemmas about apartness *)
 
 Lemma isirreflapSet {X : apSet} :
-  ∀ x : X, ¬ (x # x).
+  Π x : X, ¬ (x # x).
 Proof.
   intros ?.
   exact (pr1 (pr2 (pr2 X))).
 Qed.
 
 Lemma issymmapSet {X : apSet} :
-  ∀ x y : X, x # y -> y # x.
+  Π x y : X, x # y -> y # x.
 Proof.
   intros ?.
   exact (pr1 (pr2 (pr2 (pr2 X)))).
 Qed.
 
 Lemma iscotransapSet {X : apSet} :
-  ∀ x y z : X, x # z -> x # y ∨ y # z.
+  Π x y z : X, x # z -> x # y ∨ y # z.
 Proof.
   intros ?.
   exact (pr2 (pr2 (pr2 (pr2 X)))).
@@ -94,7 +94,7 @@ Close Scope ap_scope.
 (** ** Tight apartness *)
 
 Definition istight {X : UU} (R : hrel X) :=
-  forall x y : X, ¬ (R x y) -> x = y.
+  Π x y : X, ¬ (R x y) -> x = y.
 Definition istightap {X : UU} (ap : hrel X) :=
   isaprel ap × istight ap.
 
@@ -115,42 +115,42 @@ Open Scope tap_scope.
 (** Some lemmas *)
 
 Lemma isirrefltightapSet {X : tightapSet} :
-  ∀ x : X, ¬ (x ≠ x).
+  Π x : X, ¬ (x ≠ x).
 Proof.
   intros ?.
   exact isirreflapSet.
 Qed.
 
 Lemma issymmtightapSet {X : tightapSet} :
-  ∀ x y : X, x ≠ y -> y ≠ x.
+  Π x y : X, x ≠ y -> y ≠ x.
 Proof.
   intros ?.
   exact issymmapSet.
 Qed.
 
 Lemma iscotranstightapSet {X : tightapSet} :
-  ∀ x y z : X, x ≠ z -> x ≠ y ∨ y ≠ z.
+  Π x y z : X, x ≠ z -> x ≠ y ∨ y ≠ z.
 Proof.
   intros ?.
   exact iscotransapSet.
 Qed.
 
 Lemma istighttightapSet {X : tightapSet} :
-  forall x y : X, ¬ (x ≠ y) -> x = y.
+  Π x y : X, ¬ (x ≠ y) -> x = y.
 Proof.
   intros ?.
   exact (pr2 (pr2 (pr2 X))).
 Qed.
 
 Lemma istighttightapSet_rev {X : tightapSet} :
-  forall x y : X, x = y -> ¬ (x ≠ y).
+  Π x y : X, x = y -> ¬ (x ≠ y).
 Proof.
   intros ? x _ <-.
   now apply isirrefltightapSet.
 Qed.
 
 Lemma tightapSet_dec {X : tightapSet} :
-  LEM -> forall x y : X, (x != y <-> x ≠ y).
+  LEM -> Π x y : X, (x != y <-> x ≠ y).
 Proof.
   intros ? Hdec x y.
   destruct (Hdec (x ≠ y)) as [ Hneq | Heq ].
@@ -165,13 +165,13 @@ Proof.
       apply fromempty, Hneq.
       now apply istighttightapSet.
     + intros Hneq.
-      now apply fromempty, Heq.
+      exact (fromempty (Heq Hneq)).
 Qed.
 
 (** ** Operations and apartness *)
 
 Definition isapunop {X : tightapSet} (op :unop X) :=
-  forall x y : X, op x ≠ op y -> x ≠ y.
+  Π x y : X, op x ≠ op y -> x ≠ y.
 Lemma isaprop_isapunop {X : tightapSet} (op :unop X) :
   isaprop (isapunop op).
 Proof.
@@ -183,9 +183,9 @@ Proof.
 Qed.
 
 Definition islapbinop {X : tightapSet} (op : binop X) :=
-  forall x, isapunop (λ y, op y x).
+  Π x, isapunop (λ y, op y x).
 Definition israpbinop {X : tightapSet} (op : binop X) :=
-  forall x, isapunop (λ y, op x y).
+  Π x, isapunop (λ y, op x y).
 Definition isapbinop {X : tightapSet} (op : binop X) :=
   (islapbinop op) × (israpbinop op).
 Lemma isaprop_islapbinop {X : tightapSet} (op : binop X) :
@@ -238,21 +238,21 @@ Section apsetwithbinop_pty.
 Context {X : apsetwithbinop}.
 
 Lemma islapbinop_op :
-  ∀ x x' y : X, op x y ≠ op x' y -> x ≠ x'.
+  Π x x' y : X, op x y ≠ op x' y -> x ≠ x'.
 Proof.
   intros x y y'.
   now apply (pr1 (pr2 (pr2 X))).
 Qed.
 
 Lemma israpbinop_op :
-  ∀ x y y' : X, op x y ≠ op x y' -> y ≠ y'.
+  Π x y y' : X, op x y ≠ op x y' -> y ≠ y'.
 Proof.
   intros x y y'.
   now apply (pr2 (pr2 (pr2 X))).
 Qed.
 
 Lemma isapbinop_op :
-  ∀ x x' y y' : X, op x y ≠ op x' y' -> x ≠ x' ∨ y ≠ y'.
+  Π x x' y y' : X, op x y ≠ op x' y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   intros x x' y y' Hop.
   apply (iscotranstightapSet _ (op x' y)) in Hop.
@@ -275,37 +275,37 @@ Definition apsetwith2binop_apsetwithbinop2 : apsetwithbinop :=
   (pr1 X) ,, (pr2 (pr2 X)).
 
 Lemma islapbinop_op1 :
-  ∀ x x' y : X, op1 x y ≠ op1 x' y -> x ≠ x'.
+  Π x x' y : X, op1 x y ≠ op1 x' y -> x ≠ x'.
 Proof.
   exact (islapbinop_op (X := apsetwith2binop_apsetwithbinop1)).
 Qed.
 
 Lemma israpbinop_op1 :
-  ∀ x y y' : X, op1 x y ≠ op1 x y' -> y ≠ y'.
+  Π x y y' : X, op1 x y ≠ op1 x y' -> y ≠ y'.
 Proof.
   exact (israpbinop_op (X := apsetwith2binop_apsetwithbinop1)).
 Qed.
 
 Lemma isapbinop_op1 :
-  ∀ x x' y y' : X, op1 x y ≠ op1 x' y' -> x ≠ x' ∨ y ≠ y'.
+  Π x x' y y' : X, op1 x y ≠ op1 x' y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (isapbinop_op (X := apsetwith2binop_apsetwithbinop1)).
 Qed.
 
 Lemma islapbinop_op2 :
-  ∀ x x' y : X, op2 x y ≠ op2 x' y -> x ≠ x'.
+  Π x x' y : X, op2 x y ≠ op2 x' y -> x ≠ x'.
 Proof.
   exact (islapbinop_op (X := apsetwith2binop_apsetwithbinop2)).
 Qed.
 
 Lemma israpbinop_op2 :
-  ∀ x y y' : X, op2 x y ≠ op2 x y' -> y ≠ y'.
+  Π x y y' : X, op2 x y ≠ op2 x y' -> y ≠ y'.
 Proof.
   exact (israpbinop_op (X := apsetwith2binop_apsetwithbinop2)).
 Qed.
 
 Lemma isapbinop_op2 :
-  ∀ x x' y y' : X, op2 x y ≠ op2 x' y' -> x ≠ x' ∨ y ≠ y'.
+  Π x x' y y' : X, op2 x y ≠ op2 x' y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (isapbinop_op (X := apsetwith2binop_apsetwithbinop2)).
 Qed.

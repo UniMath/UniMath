@@ -5,12 +5,12 @@ Require Import
         UniMath.Ktheory.Utilities.
 Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
            (f:X->Y->Z) : Type
-  := (∀ x x', RX x x' -> ∀ y, f x y = f x' y) ×
-     (∀ y y', RY y y' -> ∀ x, f x y = f x y').
+  := (Π x x', RX x x' -> Π y, f x y = f x' y) ×
+     (Π y y', RY y y' -> Π x, f x y = f x y').
 Definition iscomprelrelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y) (RZ:eqrel Z)
            (f:X->Y->Z) : Type
-  := (∀ x x' y, RX x x' -> RZ (f x y) (f x' y)) ×
-     (∀ x y y', RY y y' -> RZ (f x y) (f x y')).
+  := (Π x x' y, RX x x' -> RZ (f x y) (f x' y)) ×
+     (Π x y y', RY y y' -> RZ (f x y) (f x y')).
 Lemma setquotuniv_equal { X : UU } ( R : hrel X ) ( Y : hSet )
       ( f f' : X -> Y ) (p : f = f')
       ( is : iscomprelfun R f ) ( is' : iscomprelfun R f' )
@@ -25,7 +25,7 @@ Definition setquotuniv2 {X Y} (RX:hrel X) (RY:hrel Y)
            {Z:hSet} (f:X->Y->Z) (is:iscomprelfun2 RX RY f) :
   setquot RX -> setquot RY -> Z.
 Proof. intros ? ? ? ? ? ? ? x''.
-       unshelve refine (setquotuniv RX (funset (setquot RY) Z) _ _ _).
+       simple refine (setquotuniv RX (funset (setquot RY) Z) _ _ _).
        { simpl. intro x. apply (setquotuniv RY Z (f x)).
          intros y y' e. unfold iscomprelfun2 in is.
          apply (pr2 is). assumption. }

@@ -7,13 +7,16 @@ include build/Makefile-configuration
 endif
 endif
 ############################################
-# The packages, listed in reverse order by dependency:
-PACKAGES += SubstitutionSystems
-PACKAGES += Tactics
-PACKAGES += Dedekind
-PACKAGES += Ktheory
-PACKAGES += CategoryTheory
+# The packages, listed in order by dependency:
 PACKAGES += Foundations
+PACKAGES += CategoryTheory
+PACKAGES += Ktheory
+PACKAGES += Topology
+PACKAGES += RealNumbers
+PACKAGES += Tactics
+PACKAGES += SubstitutionSystems
+PACKAGES += Folds
+PACKAGES += HomologicalAlgebra
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= yes
@@ -30,7 +33,6 @@ ifeq "$(BUILD_COQIDE)" "yes"
 all: build-coqide
 build-coqide: sub/coq/bin/coqide
 COQIDE_OPTION := opt
-LABLGTK := -lablgtkdir "$(shell pwd)"/sub/lablgtk/src
 endif
 endif
 
@@ -46,15 +48,55 @@ include build/CoqMakefile.make
 endif
 everything: TAGS all html install
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -indices-matter -type-in-type
+OTHERFLAGS += -indices-matter -type-in-type -w none
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
 ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
-LATEXTARGET = latex
-COQDOCLATEXOPTIONS := -utf8 -p "\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}\DeclareUnicodeCharacter{10815}{{\(\amalg\)}}\DeclareUnicodeCharacter{9679}{{\(\bullet\)}}"
-COQDEFS := --language=none -r '/^[[:space:]]*\(Local[[:space:]]+\)?\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\3/'
+LATEXDIR = latex
+COQDOCLATEXOPTIONS := -latex -utf8 --body-only
+
+DEFINERS := 
+DEFINERS := $(DEFINERS)Axiom\|
+DEFINERS := $(DEFINERS)Class\|
+DEFINERS := $(DEFINERS)CoFixpoint\|
+DEFINERS := $(DEFINERS)CoInductive\|
+DEFINERS := $(DEFINERS)Corollary\|
+DEFINERS := $(DEFINERS)Definition\|
+DEFINERS := $(DEFINERS)Example\|
+DEFINERS := $(DEFINERS)Fact\|
+DEFINERS := $(DEFINERS)Fixpoint\|
+DEFINERS := $(DEFINERS)Function\|
+DEFINERS := $(DEFINERS)Identity[[:space:]]+Coercion\|
+DEFINERS := $(DEFINERS)Inductive\|
+DEFINERS := $(DEFINERS)Instance\|
+DEFINERS := $(DEFINERS)Lemma\|
+DEFINERS := $(DEFINERS)Ltac\|
+DEFINERS := $(DEFINERS)Module[[:space:]]+Import\|
+DEFINERS := $(DEFINERS)Module\|
+DEFINERS := $(DEFINERS)Notation\|
+DEFINERS := $(DEFINERS)Proposition\|
+DEFINERS := $(DEFINERS)Record\|
+DEFINERS := $(DEFINERS)Remark\|
+DEFINERS := $(DEFINERS)Scheme[[:space:]]+Equality[[:space:]]+for\|
+DEFINERS := $(DEFINERS)Scheme[[:space:]]+Induction[[:space:]]+for\|
+DEFINERS := $(DEFINERS)Scheme\|
+DEFINERS := $(DEFINERS)Structure\|
+DEFINERS := $(DEFINERS)Theorem
+
+MODIFIERS := 
+MODIFIERS := $(MODIFIERS)Canonical\|
+MODIFIERS := $(MODIFIERS)Global\|
+MODIFIERS := $(MODIFIERS)Local\|
+MODIFIERS := $(MODIFIERS)Private\|
+MODIFIERS := $(MODIFIERS)Program\|
+
+COQDEFS := --language=none												\
+	-r '/^[[:space:]]*\(\($(MODIFIERS)\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:]'\''_]+\)/\4/'	\
+	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:]]+\)'/\1/"								\
+	-r '/^[[:space:]]*Tactic Notation.* "\([[:alnum:]]+\)" /\1/'
+
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
 $(VFILES:.v=.vo) : $(COQBIN)coqc
 TAGS : $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
@@ -65,6 +107,10 @@ coqwc:; coqwc $(VFILES)
 lc:; wc -l $(VFILES)
 lcp:; for i in $(PACKAGES) ; do echo ; echo ==== $$i ==== ; for f in $(VFILES) ; do echo "$$f" ; done | grep "UniMath/$$i" | xargs wc -l ; done
 wc:; wc -w $(VFILES)
+admitted: 
+	grep --color=auto Admitted $(VFILES)
+axiom:
+	grep --color=auto "Axiom " $(VFILES)
 describe:; git describe --dirty --long --always --abbrev=40 --all
 .coq_makefile_input: $(PACKAGE_FILES) $(UMAKEFILES)
 	@ echo making $@ ; ( \
@@ -90,40 +136,32 @@ build/CoqMakefile.make: .coq_makefile_input $(COQBIN)coq_makefile
 
 # "clean::" occurs also in build/CoqMakefile.make, hence both colons
 clean::
-	rm -f .coq_makefile_output build/CoqMakefile.make
+	rm -f .coq_makefile_input .coq_makefile_output build/CoqMakefile.make COQC.log
 	find UniMath \( -name .\*.aux -o -name \*.glob -o -name \*.v.d -o -name \*.vo \) -delete
 	find UniMath -type d -empty -delete
-clean::          ; rm -rf $(ENHANCEDDOCTARGET)
-clean::          ; rm -rf $(LATEXTARGET)
+clean::; rm -rf $(ENHANCEDDOCTARGET)
+latex-clean clean::; cd $(LATEXDIR) ; rm -f *.pdf *.tex *.log *.aux *.out *.blg *.bbl
 
 distclean:: clean
 distclean::          ; - $(MAKE) -C sub/coq distclean
 distclean::          ; rm -f build/Makefile-configuration
+distclean::          ; - $(MAKE) -C sub/lablgtk arch-clean
 
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
-sub/lablgtk/README:
-	git submodule update --init sub/lablgtk
 sub/coq/configure sub/coq/configure.ml:
 	git submodule update --init sub/coq
-ifeq "$(BUILD_COQ) $(BUILD_COQIDE)" "yes yes"
-sub/coq/config/coq_config.ml: sub/lablgtk/src/gSourceView2.cmi
-endif
 sub/coq/config/coq_config.ml: sub/coq/configure sub/coq/configure.ml
 	: making $@ because of $?
-	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" $(LABLGTK) -with-doc no -annotate -debug -local
+	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" -with-doc no -annotate -debug -local
 # instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
-	$(MAKE) -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqbinaries tools states
-sub/coq/bin/coqide: sub/lablgtk/README sub/coq/config/coq_config.ml
-	$(MAKE) -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
+.PHONY: rebuild-coq
+rebuild-coq sub/coq/bin/coq_makefile sub/coq/bin/coqc:
+	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqbinaries tools states
+sub/coq/bin/coqide: sub/coq/config/coq_config.ml
+	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
 configure-coq: sub/coq/config/coq_config.ml
-# we use sub/lablgtk/src/gSourceView2.cmi as a proxy for all of lablgtk
-# note: under Mac OS X, "homebrew" installs lablgtk without that file, but it's needed for building coqide.  That's why we build lablgtk ourselves.
-# note: lablgtk needs camlp4, not camlp5.  Strange, but it does.  So we must install that, too.
-build-lablgtk sub/lablgtk/src/gSourceView2.cmi: sub/lablgtk/README
-	cd sub/lablgtk && ./configure
-	$(MAKE) -C sub/lablgtk all byte opt world
 git-describe:
 	git describe --dirty --long --always --abbrev=40
 	git submodule foreach git describe --dirty --long --always --abbrev=40 --tags
@@ -136,8 +174,8 @@ doc: $(GLOBFILES) $(VFILES)
 
 # Jason Gross' coq-tools bug isolator:
 # The isolated bug will appear in this file, in the UniMath directory:
-ISOLATED_BUG_FILE := isolated-bug.v
-# To use it, run something like this command:
+ISOLATED_BUG_FILE := isolated_bug.v
+# To use it, run something like this command in an interactive shell:
 #     make isolate-bug BUGGY_FILE=Foundations/Basics/PartB.v
 sub/coq-tools/find-bug.py:
 	git submodule update --init sub/coq-tools
@@ -146,7 +184,7 @@ help-find-bug:
 isolate-bug: sub/coq-tools/find-bug.py
 	cd UniMath && \
 	rm -f $(ISOLATED_BUG_FILE) && \
-	yes | ../sub/coq-tools/find-bug.py --coqbin ../sub/coq/bin -R . UniMath \
+	../sub/coq-tools/find-bug.py --coqbin ../sub/coq/bin -R . UniMath \
 		--arg " -indices-matter" \
 		--arg " -type-in-type" \
 		$(BUGGY_FILE) $(ISOLATED_BUG_FILE)
@@ -154,23 +192,22 @@ isolate-bug: sub/coq-tools/find-bug.py
 	@ echo "=== the isolated bug has been deposited in the file UniMath/$(ISOLATED_BUG_FILE)"
 	@ echo "==="
 
-world: all html doc pdffiles
+world: all html doc latex-doc
 
-texfiles : $(VFILES:%.v=$(LATEXTARGET)/%.tex)
+latex-doc: $(LATEXDIR)/doc.pdf
 
-$(foreach F, $(VFILES:.v=),								\
-        $(eval $(LATEXTARGET)/$F.tex : $F.glob $F.v ;					\
-		mkdir -p $(shell dirname $(LATEXTARGET)/$F) &&				\
-		$(COQDOC) $(COQDOCLATEXOPTIONS) -latex $F.v -o $$@	\
-                ))
+$(LATEXDIR)/doc.pdf : $(LATEXDIR)/helper.tex $(LATEXDIR)/references.bib $(LATEXDIR)/latex-preamble.txt $(LATEXDIR)/helper.tex $(LATEXDIR)/latex-epilogue.txt
+	cd $(LATEXDIR) && cat latex-preamble.txt helper.tex latex-epilogue.txt > doc.tex
+	cd $(LATEXDIR) && latexmk -pdf doc
 
-pdffiles : $(VFILES:%.v=$(LATEXTARGET)/%.pdf)
+$(LATEXDIR)/coqdoc.sty $(LATEXDIR)/helper.tex : $(VFILES:.v=.glob) $(VFILES)
+	$(COQDOC) -Q UniMath UniMath $(COQDOC_OPTIONS) $(COQDOCLATEXOPTIONS) $(VFILES) -o $@
 
-$(foreach F, $(VFILES:.v=),								\
-	$(eval $(LATEXTARGET)/$F.pdf : $(LATEXTARGET)/$F.tex ;				\
-		cd $(shell dirname $(LATEXTARGET)/$F) &&				\
-		pdflatex $(shell basename $(LATEXTARGET)/$F.tex)			\
-		)) 
+.PHONY: enforce-max-line-length
+enforce-max-line-length:
+	LC_ALL="en_US.UTF-8" gwc -L $(VFILES) | grep -vw total | awk '{ if ($$1 > 100) { printf "%6d  %s\n", $$1, $$2 }}' | sort -r | grep .
+show-long-lines:
+	LC_ALL="en_US.UTF-8" grep -nE '.{101}' $(VFILES)
 
 #################################
 # targets best used with INCLUDE=no

@@ -6,4 +6,14 @@
 /.coq_makefile_input
 /.coq_makefile_output
 /build/CoqMakefile.make
-/latex
+/latex/*.log
+/latex/*.aux
+/latex/*.pdf
+/latex/*.tex
+/latex/*.out
+/latex/*.bbl
+/latex/*.blg
+/latex/*.fdb_latexmk
+/latex/*.fls
+/latex/coqdoc.sty
+/COQC.log
