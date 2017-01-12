@@ -3,7 +3,6 @@
 Require Export UniMath.Foundations.Algebra.Archimedean.
 Require Export UniMath.Foundations.Algebra.Domains_and_Fields.
 Require Export UniMath.Foundations.Basics.NaturalNumbers.
-Require Export UniMath.Foundations.NumberSystems.NaturalNumbersRig.
 
 Definition nataddabmonoid : abmonoid :=
   abmonoidpair (setwithbinoppair natset (fun n m : nat => n + m))
