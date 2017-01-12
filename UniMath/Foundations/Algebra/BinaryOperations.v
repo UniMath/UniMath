@@ -52,8 +52,6 @@ Definition unop (X : UU) : UU := X -> X.
 
 (** **** General definitions *)
 
-Definition binop (X : UU) : UU := X -> X -> X.
-
 Definition islcancelable {X : UU} (opp : binop X) (x : X) : UU := isincl (fun x0 : X => opp x x0).
 
 Definition isrcancelable {X : UU} (opp : binop X) (x : X) : UU := isincl (fun x0 : X => opp x0 x).

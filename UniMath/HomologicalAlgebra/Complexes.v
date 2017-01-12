@@ -24,7 +24,7 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.Foundations.Algebra.BinaryOperations.
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups.
 
-Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
+Require Import UniMath.Foundations.Basics.NaturalNumbers.
 Require Import UniMath.Foundations.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.

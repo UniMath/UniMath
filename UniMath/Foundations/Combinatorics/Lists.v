@@ -6,7 +6,6 @@ Written by: Anders Mörtberg, 2016 (inspired by a remark of Vladimir Voevodsky)
 
 *)
 Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
 
 Section preamble.
 

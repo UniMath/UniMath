@@ -179,6 +179,9 @@ Definition uncurry {X Z : UU} {Y : X -> UU} (g : Π x : X, Y x -> Z) :
   (Σ x, Y x) -> Z.
 Proof. intros ? ? ? ? xy. exact (g (pr1 xy) (pr2 xy)). Defined.
 
+(** *** Definition of binary operation *)
+
+Definition binop (X : UU) : UU := X -> X -> X.
 
 (** *** Iteration of an endomorphism *)
 

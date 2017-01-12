@@ -4,7 +4,7 @@ Module Test_nat.
 
   Local Open Scope nat_scope.
 
-  Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
+  Require Import UniMath.Foundations.Basics.NaturalNumbers.
 
   Goal 3 ≠ 5. easy. Defined.
   Goal ¬ (3 ≠ 3). easy. Defined.

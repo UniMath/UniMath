@@ -21,8 +21,7 @@ Unset Automatic Introduction.
 
 (** Imports. *)
 
-Require Export UniMath.Foundations.Algebra.Domains_and_Fields.
-Require Export UniMath.Foundations.NumberSystems.NaturalNumbers.
+Require Export UniMath.Foundations.Basics.NaturalNumbers.
 
 
 

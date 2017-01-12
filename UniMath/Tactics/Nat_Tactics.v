@@ -10,7 +10,7 @@
 Unset Automatic Introduction.
 
 Require Import
-        UniMath.Foundations.NumberSystems.NaturalNumbers
+        UniMath.Foundations.Basics.NaturalNumbers
         UniMath.Tactics.Utilities
         UniMath.Tactics.Abmonoids_Tactics.
 
