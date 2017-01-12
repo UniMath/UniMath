@@ -212,6 +212,7 @@ show-long-lines:
 	LC_ALL="en_US.UTF-8" grep -nE '.{101}' $(VFILES)
 
 # here we assume the shell is bash, which it usually is nowadays:
+SHELL = bash
 enforce-linear-ordering:
 	@set -e ;\
 	declare -A seqnum ;\
