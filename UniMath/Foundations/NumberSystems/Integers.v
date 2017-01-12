@@ -1020,7 +1020,6 @@ Local Transparent hz isdecrelhzeq iscommrngops.
 
 (** *** [hz] is an archimedean ring *)
 
-Require Export UniMath.Foundations.NumberSystems.NaturalNumbersArchimedeanRig.
 Open Local Scope hz_scope .
 
 Lemma isarchhz : isarchrng (X := hz) hzgth.
