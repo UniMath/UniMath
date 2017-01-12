@@ -664,7 +664,10 @@ use left_adjoint_from_partial.
               repeat (apply maponpaths).
               assert (H : # R (pr1 x ;; f) = # R (pr1 x) ;; #R f).
               { apply functor_comp. }
-              apply (toforallpaths _ _ _ H u).
+              unfold prodtofuntoprod.
+              simpl (pr1 _); simpl (pr2 _).
+              apply maponpaths.
+              apply (eqtohomot H u).
         - intros a b f; cbn.
           apply funextsec; intros x; cbn.
           apply subtypeEquality;
@@ -742,7 +745,7 @@ use mk_functor.
       exists (pr1 h).
       intros fx.
       mkpair.
-      * apply (pr1 g), (pr1 (pr2 h fx)).
+      * exact (pr1 g (pr1 (pr2 h fx))).
       * abstract (etrans; [ apply (!toforallpaths _ _ _ (pr2 g) (pr1 (pr2 h fx)))|];
                   apply (pr2 (pr2 h fx))).
     - abstract (now apply funextsec).
@@ -808,7 +811,12 @@ use mk_are_adjoints.
   + intros x; apply eq_mor_slicecat, funextsec; intro x1; simpl.
     use total2_paths; [apply idpath|]; cbn.
     apply funextsec; intro y.
-    now apply subtypeEquality; [intro z; apply setproperty|]; simpl; rewrite <- tppr.
+    simple refine (subtypeEquality _ _).
+    * intro z; apply setproperty.
+    * simpl.
+      apply maponpaths.
+      apply maponpaths.
+      apply tppr.
 Defined.
 
 (** * Products in Set/X *)
@@ -855,12 +863,15 @@ use mk_ProductCone.
     * abstract (now apply funextsec).
   - abstract (now intros i; apply eq_mor_slicecat, funextsec).
   - abstract (now intros g; apply impred_isaprop; intro i; apply has_homsets_slice_precat).
-  - abstract (simpl; intros [y1 y2] Hy; apply eq_mor_slicecat, funextsec; intro x;
+  - abstract(simpl; intros [y1 y2] Hy; apply eq_mor_slicecat, funextsec; intro x;
     use total2_paths; [apply (toforallpaths _ _ _ (!y2) x)|];
     apply funextsec; intro i; apply subtypeEquality; [intros w; apply setproperty|];
     destruct f as [f Hf]; cbn in *;
-    induction (toforallpaths (λ _ : f, X) (λ x0 : f, pr1 (y1 x0)) Hf (! y2) x);
-    now rewrite idpath_transportf, <- (Hy i)).
+    rewrite y2;
+    simpl;
+    rewrite idpath_transportf;
+    rewrite <- Hy;
+    reflexivity).
 Defined.
 
 End products_set_slice.
