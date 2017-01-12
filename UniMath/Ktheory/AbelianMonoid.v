@@ -2,7 +2,7 @@
 
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.Combinatorics.FiniteSets
-               UniMath.Foundations.NumberSystems.NaturalNumbersRig
+               UniMath.Foundations.NumberSystems.NaturalNumbersAlgebra
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
 Close Scope multmonoid_scope.

@@ -19,7 +19,7 @@ Unset Kernel Term Sharing.
 
 Require Export UniMath.Foundations.Basics.NaturalNumbers .
 Require Export UniMath.Foundations.Algebra.Rigs_and_Rings.
-Require Export UniMath.Foundations.NumberSystems.NaturalNumbersRig.
+Require Export UniMath.Foundations.NumberSystems.NaturalNumbersAlgebra.
 
 
 (** Upstream *)
