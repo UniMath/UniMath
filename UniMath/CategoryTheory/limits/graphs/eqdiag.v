@@ -81,8 +81,8 @@ Lemma transport_swap: Π {X Y : UU} (P : X -> Y → UU) {x x':X} {y  y' : Y}
                   transportf (fun a => P a _) e (transportf (fun a => P _ a) e' p) .
 Proof
   intros.
-  destruct e.
-  destruct e'.
+  induction e.
+  induction e'.
   apply idpath.
 Qed.
 
@@ -98,7 +98,7 @@ Lemma transportf_transpose {X : UU} {P : X → UU}
   {x x' : X} (e : x = x') (y : P x) (y' : P x')
 : transportb P e y' = y -> y' = transportf P e y.
 Proof.
-  intro H; destruct e; exact H.
+  intro H; induction e; exact H.
 Defined.
 
 
