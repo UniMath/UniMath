@@ -504,9 +504,14 @@ Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
 
 (** *** Equality between functions defines a homotopy *)
 
-Definition eqtohomot {X Y : UU}{f f' : X -> Y}(e : f = f') : homot f f' :=
-  fun x => maponpaths ( fun f => f x ) e.
+Definition toforallpaths {T:UU} (P:T->UU) (f g:Π t:T, P t) : f = g -> f ~ g.
+Proof. intros ? ? ? ? h t. induction h.  apply (idpath _). Defined.
 
+Definition eqtohomot     {T:UU} {P:T->UU} {f g:Π t:T, P t} : f = g -> f ~ g.
+(* the same as toforallpaths, but with different implicit arguments *)
+Proof.
+  intros ? ? ? ? e t. induction e. reflexivity.
+Defined.
 
 (** *** [ maponpaths ] for a function homotopic to the identity
 

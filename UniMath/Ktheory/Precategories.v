@@ -231,12 +231,12 @@ Notation "p ◽ b" := (nattrans_object_application b p) (at level 40) : cat.
 
 Definition arrow_mor_id {C:Precategory} {c:C} {X:[C^op,SET]} (x:c⇒X) :
   x ⟲ identity c = x
-  := apevalat x (functor_id X c).
+  := eqtohomot (functor_id X c) x.
 
 Definition arrow_mor_mor_assoc {C:Precategory} {c c' c'':C} {X:[C^op,SET]}
            (g:c''-->c') (f:c'-->c) (x:c⇒X) :
   x ⟲ (f ∘ g) = (x ⟲ f) ⟲ g
-  := apevalat x (functor_comp X c c' c'' f g).
+  := eqtohomot (functor_comp X c c' c'' f g) x.
 
 Definition nattrans_naturality {B C:Precategory} {F F':[B, C]} {b b':B}
            (p : F --> F') (f : b --> b') :
@@ -250,7 +250,7 @@ Proof. reflexivity. Defined.
 Definition nattrans_arrow_mor_assoc {C:Precategory} {c' c:C} {X X':[C^op,SET]}
            (g:c'-->c) (x:c⇒X) (p:X-->X') :
   p ⟳ (x ⟲ g) = (p ⟳ x) ⟲ g
-  := apevalat x (nat_trans_ax p _ _ g).
+  := eqtohomot (nat_trans_ax p _ _ g) x.
 
 Definition nattrans_arrow_id {C:Precategory} {c:C} {X:[C^op,SET]} (x:c⇒X) :
   nat_trans_id _ ⟳ x = x
@@ -322,8 +322,8 @@ Proof.
   split.
   - intro i. set (F := isopair f i).
     refine (gradth f (inv_from_iso F)
-                   (λ x, apevalat x (iso_inv_after_iso F))
-                   (λ y, apevalat y (iso_after_iso_inv F))).
+                   (λ x, eqtohomot (iso_inv_after_iso F) x)
+                   (λ y, eqtohomot (iso_after_iso_inv F) y)).
   - exact (λ i Z, weqproperty (weqbfun (Z:hSet) (weqpair f i))).
 Defined.
 
@@ -522,7 +522,7 @@ Proof.
 Defined.
 
 Lemma identityFunction : Π (T:SET) (f:T-->T) (t:T:hSet), f = identity T -> f t = t.
-Proof. intros ? ? ?. exact (apevalat t). Defined.
+Proof. intros ? ? ? e. exact (eqtohomot e t). Defined.
 
 Lemma identityFunction' : Π (T:SET) (t:T:hSet), identity T t = t.
 Proof. reflexivity. Defined.
