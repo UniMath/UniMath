@@ -1629,7 +1629,7 @@ transparent assert (cc : (cocone d c)).
     mkpair; simpl.
     + intros z.
       mkpair.
-      * apply (pr2 L), (pr1 (coconeIn ccL n) z).
+      * exact (pr2 L (pr1 (coconeIn ccL n) z)).
       * apply (coconeIn ccy n z).
     + abstract (now apply funextsec; intro z;
                 apply (toforallpaths _ _ _ (pr2 (coconeIn ccL n)) z)).
@@ -1637,7 +1637,8 @@ transparent assert (cc : (cocone d c)).
     use total2_paths;
       [ apply (maponpaths _ (toforallpaths _ _ _
                  (maponpaths pr1 (coconeInCommutes ccL m n e)) z))|];
-    cbn in *; induction (maponpaths _ _);
+    cbn in *; induction (maponpaths pr1 _);
+    simpl;
     now rewrite idpath_transportf, <- (coconeInCommutes ccy m n e)).
 }
 use unique_exists.
