@@ -152,7 +152,7 @@ Proof. intros ? [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
        simpl in p. destruct p; simpl. unfold transportf; simpl. unfold idfun; simpl.
        simple refine (weqpair _ _).
        { intros p g x. simpl in x. simpl.
-         exact (apevalat x (apevalat g (ap act_mult p))). }
+         exact (eqtohomot (eqtohomot (ap act_mult p) g) x). }
        simple refine (gradth _ _ _ _).
        { unfold cast; simpl.
          intro i.
@@ -263,9 +263,11 @@ Proof. intros.
 
 Definition Action_univalence_inv_comp_eval {G:gr} {X Y:Action G} (f:ActionIso X Y) (x:X) :
   castAction (Action_univalence_inv f) x = f x.
-Proof. intros. exact (apevalat x (ap pr1weq
-                             (ap underlyingIso
-                                 (Action_univalence_inv_comp f)))). Defined.
+Proof. intros. exact (eqtohomot
+                        (ap pr1weq
+                            (ap underlyingIso
+                                (Action_univalence_inv_comp f)))
+                        x). Defined.
 
 (** ** Torsors *)
 
