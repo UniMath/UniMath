@@ -16,7 +16,7 @@ about this formalization.
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
+Require Import UniMath.Foundations.Basics.NaturalNumbers.
 Require Import UniMath.Foundations.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.total2_paths.

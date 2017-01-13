@@ -4,26 +4,26 @@
 - Transports of cones and cocones between equal diagrams.
 - Limits/Colimits are the same for equal diagrams.
 
-This notion of equality is useful to make the link between standard 
+This notion of equality is useful to make the link between standard
 diagrams (pushouts, coequalizers, ...) in a functor category and
 the induced pointwise diagram given an object of the source category
 
 Example of the binary product :
 
 Let
-- C,D be two categories, 
+- C,D be two categories,
 - A and B two functors from C to D
 - x an object of C
 
 Let J := binproduct_diagram  (A x) (B x)
 Let J' := diagram_pointwise (binproduct_diagram A B) x.
 
-J and J' are not definitionnally equal. 
+J and J' are not definitionnally equal.
 
 Let co a cone of J based on c.
 
-Using a (not too stupid) proof (e : eq_diag J J'), we can transport the cone co 
-with eq_diag_mkcone to get a cone co' of J' based on c that satisfies the 
+Using a (not too stupid) proof (e : eq_diag J J'), we can transport the cone co
+with eq_diag_mkcone to get a cone co' of J' based on c that satisfies the
 definitional equalities :
   coneOut co' true  ≡ coneOut co true
   coneOut co' false ≡ coneOut co false
@@ -62,9 +62,6 @@ Require Import UniMath.CategoryTheory.limits.kernels.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 
-Require Import UniMath.Ktheory.Utilities.
-
-
 Set Automatic Introduction.
 
 
@@ -88,10 +85,10 @@ Qed.
 
 
 (* stolen from TypeTheory/Display_Cats/Auxiliary.v *)
-(** Very handy for reasoning with “dependent paths” — 
+(** Very handy for reasoning with “dependent paths” —
 
-Note: similar to [transportf_pathsinv0_var], [transportf_pathsinv0'], 
-but not quite a special case of them, or (as far as I can find) any other 
+Note: similar to [transportf_pathsinv0_var], [transportf_pathsinv0'],
+but not quite a special case of them, or (as far as I can find) any other
 library lemma.
 *)
 Lemma transportf_transpose {X : UU} {P : X → UU}
@@ -134,7 +131,7 @@ Proof.
     apply eqv.
   - rewrite (transportf2_comp
                (λ x y : vertex g → C, Π a b : vertex g, edge a b →
-                                                        C ⟦ y a, x b ⟧)).  
+                                                        C ⟦ y a, x b ⟧)).
     match goal with |- transportf ?Pf ?x1 (transportf ?Pf2 ?s1 ?s2 )  = _ =>
                     set (e := x1);
                       set (P := Pf);
@@ -145,7 +142,7 @@ Proof.
     change (trp = pr2 d').
     unfold trp.
     apply funextsec.
-    intro v; apply funextsec; intro v'.    
+    intro v; apply funextsec; intro v'.
     apply funextsec; intro ed.
     specialize (autreq v v' ed).
     rewrite  <- (pathsinv0inv0 (eqv v)) in autreq.
@@ -166,7 +163,7 @@ Proof.
     apply (transportf_funextfun (fun x => C⟦ x,pr1 d v'⟧)).
 Qed.
 
-(* We don't want to use the equivalence with bare identity to show the 
+(* We don't want to use the equivalence with bare identity to show the
 apply pathsinv0 because we want computation (Defined)
  *)
 Lemma sym_eq_diag  {C : Precategory} {g : graph} (d d' : diagram g C) :
@@ -176,7 +173,7 @@ Proof.
   set (eq_d1 := pr1 eq_d).
   set (eq_d2 := pr2 eq_d).
   use tpair.
-  - intro v.    
+  - intro v.
     apply (! (eq_d1 v)).
   - (* here we use equality *)
     unfold eq_d1.
@@ -203,12 +200,12 @@ Proof.
 Defined.
 
 Lemma eq_diag_mkcocone  :
-  Π {C : Precategory} {g : graph} {d : diagram g C}       
+  Π {C : Precategory} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (heq_d: eq_diag d d')
     {c : C} (cc:cocone d c),
   cocone d' c.
-Proof.           
+Proof.
   clear.
   intros.
   destruct heq_d as [heq heq2].
@@ -236,12 +233,12 @@ Defined.
 
 (* The dual proof *)
 Lemma eq_diag_mkcone  :
-  Π {C : Precategory} {g : graph} {d : diagram g C}       
+  Π {C : Precategory} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (heq_d: eq_diag d d')
     {c : C} (cc:cone d c),
   cone d' c.
-Proof.           
+Proof.
   clear.
   intros.
   set (heq := pr1 heq_d).
@@ -250,7 +247,7 @@ Proof.
   intro v.
   apply (transportf (fun obj => C⟦_,obj⟧ ) (heq v) (coneOut cc v)).
     abstract(
-      intros u v e; simpl;      
+      intros u v e; simpl;
       rewrite <- ( coneOutCommutes cc u v e);
       etrans;[
         apply transport_compose|];
@@ -271,7 +268,7 @@ Defined.
 
 
 Lemma eq_diag_islimcone:
-  Π {C : Precategory} {g : graph} {d : diagram g C} 
+  Π {C : Precategory} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (eq_d : eq_diag d d')
     {c : C} {cc:cone d c}
@@ -300,7 +297,7 @@ Proof.
     etrans.
     apply maponpaths.
     apply islim.
-    apply Utilities.transportfbinv.
+    apply transportfbinv.
   - intro y.
     apply impred_isaprop.
     intro t.
@@ -319,11 +316,11 @@ Proof.
 Qed.
 
 (** The dual proof .
-This proof could be deduced from the previous if there was a lemma 
-stating that colimits are limits in the dual category. 
+This proof could be deduced from the previous if there was a lemma
+stating that colimits are limits in the dual category.
  *)
 Lemma eq_diag_iscolimcocone:
-  Π {C : Precategory} {g : graph} {d : diagram g C} 
+  Π {C : Precategory} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (eq_d : eq_diag d d')
     {c : C} {cc:cocone d c}
@@ -354,7 +351,7 @@ Proof.
     apply maponpaths.
     apply islim.
     cbn.
-    now apply (Utilities.transportbfinv ( (λ x' : C, C ⟦ x', c' ⟧) )).
+    now apply (transportbfinv ( (λ x' : C, C ⟦ x', c' ⟧) )).
   - intro y.
     apply impred_isaprop.
     intro t.
@@ -367,7 +364,7 @@ Proof.
     intro hy.
     apply (transportf_transpose (P:=(λ obj : C, C ⟦ obj, c' ⟧))).
     etrans.
-    apply transport_source_precompose.      
+    apply transport_source_precompose.
     unfold transportb.
     rewrite pathsinv0inv0.
     apply hy.
@@ -375,7 +372,7 @@ Qed.
 
 
 Definition eq_diag_liftcolimcocone
-           {C : Precategory} {g : graph} {d : diagram g C} 
+           {C : Precategory} {g : graph} {d : diagram g C}
            (d' : diagram g C)
            (eq_d : eq_diag d d')
            (cc:ColimCocone d ) : ColimCocone d'
@@ -383,7 +380,7 @@ Definition eq_diag_liftcolimcocone
                                                  (isColimCocone_ColimCocone cc)).
 
 Definition eq_diag_liftlimcone
-           {C : Precategory} {g : graph} {d : diagram g C} 
+           {C : Precategory} {g : graph} {d : diagram g C}
            (d' : diagram g C)
            (eq_d : eq_diag d d')
            (cc:LimCone d ) : LimCone d'

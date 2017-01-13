@@ -454,16 +454,4 @@ Module Test_ord.
   Goal invmap (idweq nat ∘ idweq _ ∘ idweq _)%weq 3 = 3. reflexivity. Defined.
   Goal invmap (idweq nat ∘ invweq (idweq _) ∘ idweq _)%weq 3 = 3. reflexivity. Defined.
 
-  Open Scope multmonoid.
-
-  (* demonstrate that the Coq parser is left-associative with "*" *)
-  Goal Π (M:monoid) (x y z:M), x*y*z = (x*y)*z. Proof. reflexivity. Defined.
-  Goal Π (M:monoid) (x y z:M), x*y*z = x*(y*z). Proof. apply assocax. Defined.
-
-  (* demonstrate that the Coq parser is left-associative with "+" *)
-  Open Scope addmonoid.
-  Goal Π (M:monoid) (x y z:M), x+y+z = (x+y)+z. Proof. reflexivity. Defined.
-  Goal Π (M:monoid) (x y z:M), x+y+z = x+(y+z). Proof. apply assocax. Defined.
-  Close Scope addmonoid.
-
 End Test_ord.

@@ -3,7 +3,7 @@ Unset Automatic Introduction.
 Module Test_assoc.
 
   Require Import UniMath.Foundations.Algebra.IteratedBinaryOperations.
-  Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
+  Require Import UniMath.Foundations.Basics.NaturalNumbers.
 
   (* verify that our associativity matches that of the parser, with an extra "1" *)
 
@@ -21,6 +21,15 @@ Module Test_assoc.
               * sequenceProduct (f(●1%nat))
               * sequenceProduct (f(●2)).
   Proof. reflexivity. Defined.
+
+  (* demonstrate that the Coq parser is left-associative with "*" *)
+  Goal Π (M:monoid) (x y z:M), x*y*z = (x*y)*z. Proof. reflexivity. Defined.
+  Goal Π (M:monoid) (x y z:M), x*y*z = x*(y*z). Proof. apply assocax. Defined.
+
+  (* demonstrate that the Coq parser is left-associative with "+" *)
+  Open Scope addmonoid.
+  Goal Π (M:monoid) (x y z:M), x+y+z = (x+y)+z. Proof. reflexivity. Defined.
+  Goal Π (M:monoid) (x y z:M), x+y+z = x+(y+z). Proof. apply assocax. Defined.
 
 End Test_assoc.
 

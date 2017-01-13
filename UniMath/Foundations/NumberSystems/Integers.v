@@ -17,8 +17,9 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Export UniMath.Foundations.NumberSystems.NaturalNumbers .
-
+Require Export UniMath.Foundations.Basics.NaturalNumbers .
+Require Export UniMath.Foundations.Algebra.Rigs_and_Rings.
+Require Export UniMath.Foundations.NumberSystems.NaturalNumbersAlgebra.
 
 
 (** Upstream *)
@@ -825,46 +826,6 @@ Proof . intros . destruct ( natlehchoice _ _ is ) as [ l | e ] .   apply ( hzlth
 
 Definition nattohzandgeh ( n m : nat ) ( is : natgeh n m ) : hzgeh ( nattohz n ) ( nattohz m ) := nattohzandleh _ _ is .
 
-(** *** [hz] is an archimedean ring *)
-
-Lemma isarchhz : isarchrng (X := hz) hzgth.
-Proof.
-  simple refine (isarchrigtorng _ _ _ _ _ _).
-  - reflexivity.
-  - intros n m k.
-    apply istransnatgth.
-  - apply isarchrig_setquot_aux.
-    + split.
-      * apply natgthandpluslinv.
-      * apply natgthandplusrinv.
-    + apply isarchnat.
-Qed.
-
-Lemma isarchhz_one :
-  Π x : hz, hzgth x 0 → ∃ n : nat, hzgth (nattohz n * x) 1.
-Proof.
-  intros x Hx.
-  generalize (isarchrng_1 _ isarchhz x Hx).
-  apply hinhfun.
-  intros n.
-  exists (pr1 n).
-  rewrite <- nattorig_nattohz.
-  exact (pr2 n).
-Qed.
-
-Lemma isarchhz_gt :
-  Π x : hz, ∃ n : nat, hzgth (nattohz n) x.
-Proof.
-  intros x.
-  generalize (isarchrng_2 _ isarchhz x).
-  apply hinhfun.
-  intros n.
-  exists (pr1 n).
-  rewrite <- nattorig_nattohz.
-  exact (pr2 n).
-Qed.
-
-
 (** *** Addition and subtraction on [ nat ] and [ hz ] *)
 
 
@@ -1056,5 +1017,47 @@ Proof.
 Qed.
 
 Local Transparent hz isdecrelhzeq iscommrngops.
+
+(** *** [hz] is an archimedean ring *)
+
+Open Local Scope hz_scope .
+
+Lemma isarchhz : isarchrng (X := hz) hzgth.
+Proof.
+  simple refine (isarchrigtorng _ _ _ _ _ _).
+  - reflexivity.
+  - intros n m k.
+    apply istransnatgth.
+  - apply isarchrig_setquot_aux.
+    + split.
+      * apply natgthandpluslinv.
+      * apply natgthandplusrinv.
+    + apply isarchnat.
+Qed.
+
+Lemma isarchhz_one :
+  Π x : hz, hzgth x 0 → ∃ n : nat, hzgth (nattohz n * x) 1.
+Proof.
+  intros x Hx.
+  generalize (isarchrng_1 _ isarchhz x Hx).
+  apply hinhfun.
+  intros n.
+  exists (pr1 n).
+  rewrite <- nattorig_nattohz.
+  exact (pr2 n).
+Qed.
+
+Lemma isarchhz_gt :
+  Π x : hz, ∃ n : nat, hzgth (nattohz n) x.
+Proof.
+  intros x.
+  generalize (isarchrng_2 _ isarchhz x).
+  apply hinhfun.
+  intros n.
+  exists (pr1 n).
+  rewrite <- nattorig_nattohz.
+  exact (pr2 n).
+Qed.
+
 
 (* End of the file hz.v *)

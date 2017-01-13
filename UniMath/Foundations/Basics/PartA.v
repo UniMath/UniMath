@@ -179,6 +179,9 @@ Definition uncurry {X Z : UU} {Y : X -> UU} (g : Π x : X, Y x -> Z) :
   (Σ x, Y x) -> Z.
 Proof. intros ? ? ? ? xy. exact (g (pr1 xy) (pr2 xy)). Defined.
 
+(** *** Definition of binary operation *)
+
+Definition binop (X : UU) : UU := X -> X -> X.
 
 (** *** Iteration of an endomorphism *)
 
@@ -721,6 +724,16 @@ Proof.
   intros X P x1 x2 e1 e2 e p. induction e. apply idpath.
 Defined.
 Opaque transportf_paths.
+
+Local Open Scope transport.
+
+Definition transportbfinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P t) : e#'e#p = p.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition transportfbinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P u) : e#e#'p = p.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Close Scope transport.
 
 (** *** A series of lemmas about paths and [ total2 ]
 
