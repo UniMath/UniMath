@@ -725,6 +725,16 @@ Proof.
 Defined.
 Opaque transportf_paths.
 
+Local Open Scope transport.
+
+Definition transportbfinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P t) : e#'e#p = p.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition transportfbinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P u) : e#e#'p = p.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Close Scope transport.
+
 (** *** A series of lemmas about paths and [ total2 ]
 
     Some lemmas are adapted from the HoTT library http://github.com/HoTT/HoTT *)

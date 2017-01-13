@@ -313,12 +313,6 @@ Definition transport_type_path {X Y:Type} (p:X = Y) (x:X) :
   transportf (fun T:Type => T) p x = cast p x.
 Proof. intros. destruct p. reflexivity. Defined.
 
-Definition transportbfinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P t) : e#'e#p = p.
-Proof. intros. destruct e. reflexivity. Defined.
-
-Definition transportfbinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P u) : e#e#'p = p.
-Proof. intros. destruct e. reflexivity. Defined.
-
 Definition transport_fun_path {X Y} {f g:X->Y} {x x':X} {p:x = x'} {e:f x = g x} {e':f x' = g x'} :
   e @ ap g p = ap f p @ e' ->
   transportf (fun x => f x = g x) p e = e'.
