@@ -37,9 +37,6 @@ Require Export UniMath.Foundations.Basics.PartB.
 Definition eqweqmap { T1 T2 : UU } : T1 = T2 -> T1 ≃ T2.
 Proof. intro e. induction e. apply idweq. Defined.
 
-Definition toforallpaths { T : UU } (P:T -> UU) (f g :Π t:T, P t) : f = g -> f ~ g.
-Proof. intros h t. induction h.  apply (idpath _). Defined.
-
 Definition sectohfiber { X : UU } (P:X -> UU): (Π x:X, P x) -> (hfiber (fun f:_ => fun x:_ => pr1  (f x)) (fun x:X => x)) := (fun a : Π x:X, P x => tpair _ (fun x:_ => tpair _ x (a x)) (idpath (fun x:X => x))).
 
 Definition hfibertosec { X : UU } (P:X -> UU):
