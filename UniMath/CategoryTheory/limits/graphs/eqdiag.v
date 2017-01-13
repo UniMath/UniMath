@@ -79,7 +79,7 @@ Lemma transport_swap: Π {X Y : UU} (P : X -> Y → UU) {x x':X} {y  y' : Y}
                         (e : x = x') (e' : y = y') (p : P x y),
                   transportf (fun a => P _ a) e' (transportf (fun a => P a _) e p) =
                   transportf (fun a => P a _) e (transportf (fun a => P _ a) e' p) .
-Proof
+Proof.
   intros.
   induction e.
   induction e'.
