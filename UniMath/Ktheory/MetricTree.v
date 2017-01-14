@@ -2,9 +2,9 @@
 
 (** * Metric trees *)
 
-Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.NumberSystems.NaturalNumbers
-               UniMath.Foundations.Basics.UnivalenceAxiom
+Require Import UniMath.Algebra.Monoids_and_Groups
+               UniMath.Foundations.NaturalNumbers
+               UniMath.Foundations.UnivalenceAxiom
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
 

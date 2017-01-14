@@ -2,9 +2,9 @@
 
 (** * Group actions *)
 
-Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.Basics.UnivalenceAxiom
-               UniMath.Foundations.Combinatorics.OrderedSets
+Require Import UniMath.Algebra.Monoids_and_Groups
+               UniMath.Foundations.UnivalenceAxiom
+               UniMath.Combinatorics.OrderedSets
                UniMath.Ktheory.Utilities.
 
 (** ** Move upstream *)

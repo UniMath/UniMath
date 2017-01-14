@@ -1,7 +1,7 @@
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Require Import UniMath.CategoryTheory.limits.pullbacks.
@@ -17,8 +17,8 @@ is the coequalizer of its kernel pair.
 *)
 Section EffectiveEpi.
   Context {C:precategory} {A B:C}.
-  Variable (f: C ⟦A,B⟧). 
-  
+  Variable (f: C ⟦A,B⟧).
+
   Definition kernel_pair := Pullback  f f.
 
   Definition isEffective :=

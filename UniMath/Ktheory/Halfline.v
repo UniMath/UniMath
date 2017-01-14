@@ -1,6 +1,6 @@
 (** * The induction principle for the half line. *)
 
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom
+Require Import UniMath.Foundations.UnivalenceAxiom
                UniMath.Ktheory.Utilities.
 Require UniMath.CategoryTheory.precategories.
 Require UniMath.Ktheory.Nat.

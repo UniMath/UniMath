@@ -6,10 +6,10 @@ Unset Kernel Term Sharing.
 (** We will show that [B ℤ] has the universal property of the circle. *)
 
 Require Import UniMath.Ktheory.AffineLine
-               UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.Basics.UnivalenceAxiom
+               UniMath.Algebra.Monoids_and_Groups
+               UniMath.Foundations.UnivalenceAxiom
                UniMath.Ktheory.GroupAction
-               UniMath.Foundations.NumberSystems.Integers
+               UniMath.NumberSystems.Integers
                UniMath.Ktheory.Nat
                UniMath.Ktheory.Integers
                UniMath.Ktheory.MoreEquivalences.

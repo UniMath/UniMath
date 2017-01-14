@@ -3,8 +3,8 @@
 (** Based on Bourbaky *)
 
 Require Export UniMath.Topology.Filters.
-Require Import UniMath.Foundations.Algebra.DivisionRig.
-Require Import UniMath.Foundations.Algebra.ConstructiveStructures.
+Require Import UniMath.Algebra.DivisionRig.
+Require Import UniMath.Algebra.ConstructiveStructures.
 
 Section Open.
 
