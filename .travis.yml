@@ -17,6 +17,9 @@ install:
 # build coqide along with the Tactics package, just because it's a short package
 env:
   - PACKAGE=Foundations
+  - PACKAGE=Combinatorics
+  - PACKAGE=Algebra
+  - PACKAGE=NumberSystems
   - PACKAGE=CategoryTheory
   - PACKAGE=Ktheory
   - PACKAGE=Topology
