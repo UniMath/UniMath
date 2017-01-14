@@ -229,9 +229,9 @@ Proof.
   - apply 5.
   - use node_map; repeat split.
     + apply 6.
-    + apply leaf_map. apply tt.
-    + apply leaf_map. apply tt.
-  - apply leaf_map. apply tt.
+    + exact (leaf_map _ tt).
+    + exact (leaf_map _ tt).
+  - exact (leaf_map _ tt).
 Defined.
 
 
