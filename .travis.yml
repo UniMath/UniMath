@@ -16,20 +16,17 @@ install:
   - sudo apt-get install -y emacs
 # build coqide along with the Tactics package, just because it's a short package
 env:
-  - PACKAGE=Foundations
-  - PACKAGE=Combinatorics
-  - PACKAGE=Algebra
-  - PACKAGE=NumberSystems
-  - PACKAGE=CategoryTheory
-  - PACKAGE=Ktheory
-  - PACKAGE=Topology
-  - PACKAGE=RealNumbers
-  - PACKAGE=SubstitutionSystems
-  - PACKAGE=Tactics BUILD_COQIDE=yes BUILD_ALSO=TAGS
-  - PACKAGE=Folds
-  - PACKAGE=HomologicalAlgebra
+  - PACKAGES="Foundations Combinatorics Algebra NumberSystems"
+  - PACKAGES=CategoryTheory
+  - PACKAGES=Ktheory
+  - PACKAGES=Topology
+  - PACKAGES=RealNumbers
+  - PACKAGES=SubstitutionSystems
+  - PACKAGES=Tactics BUILD_COQIDE=yes BUILD_ALSO=TAGS
+  - PACKAGES=Folds
+  - PACKAGES=HomologicalAlgebra
 # building Coq in a separate stage folds up the output in the log:
 before_script:
   - time make build-coq
 script:
-  - time make TIMECMD=time $PACKAGE $BUILD_ALSO
+  - time make TIMECMD=time $PACKAGES $BUILD_ALSO
