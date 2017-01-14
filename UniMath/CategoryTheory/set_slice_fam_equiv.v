@@ -12,7 +12,7 @@ Contents:
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.Sets
+Require Import UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
         UniMath.CategoryTheory.category_hset

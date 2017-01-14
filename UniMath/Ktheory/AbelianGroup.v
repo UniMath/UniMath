@@ -2,8 +2,8 @@
 
 (** * abelian groups *)
 
-Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.NumberSystems.Integers
+Require Import UniMath.Algebra.Monoids_and_Groups
+               UniMath.NumberSystems.Integers
                UniMath.Ktheory.Tactics
                UniMath.Ktheory.Utilities
                UniMath.CategoryTheory.functor_categories
@@ -471,7 +471,7 @@ Definition power (I:Type) (X:abgr) : abgr.
 (** ** the category of abelian groups *)
 
 Module Category.
-  Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
+  Require Import UniMath.Algebra.Monoids_and_Groups
                  UniMath.CategoryTheory.precategories.
 
   Definition Ob := abgr.

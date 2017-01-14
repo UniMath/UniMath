@@ -13,8 +13,8 @@ Written by: Anders Mörtberg, 2016
 -
 *)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Combinatorics.Lists.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.

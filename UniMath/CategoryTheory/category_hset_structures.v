@@ -28,9 +28,9 @@ October 2015 - January 2016
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -100,7 +100,7 @@ Variable D : diagram g HSET.
 
 Local Definition cobase : UU := Σ j : vertex g, pr1hSet (dob D j).
 
-(* Theory about hprop is in UniMath.Foundations.Basics.Propositions *)
+(* Theory about hprop is in UniMath.Foundations.Propositions *)
 Local Definition rel0 : hrel cobase := λ (ia jb : cobase),
   hProppair (ishinh (Σ f : edge (pr1 ia) (pr1 jb), dmor D f (pr2 ia) = pr2 jb))
             (isapropishinh _).
@@ -114,7 +114,7 @@ Qed.
 
 Local Definition eqr : eqrel cobase := eqrelpair _ iseqrel_rel.
 
-(* Defined in UniMath.Foundations.Basics.Sets *)
+(* Defined in UniMath.Foundations.Sets *)
 Definition colimHSET : HSET :=
   hSetpair (setquot eqr) (isasetsetquot _).
 

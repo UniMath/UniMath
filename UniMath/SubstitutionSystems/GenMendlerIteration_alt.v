@@ -16,7 +16,7 @@ Based on a note by Ralph Matthes.
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.

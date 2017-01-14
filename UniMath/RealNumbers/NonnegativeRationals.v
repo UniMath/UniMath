@@ -6,7 +6,7 @@ Unset Kernel Term Sharing.
 
 Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.Fields.
-Require Export UniMath.Foundations.Algebra.DivisionRig.
+Require Export UniMath.Algebra.DivisionRig.
 Require Import UniMath.RealNumbers.Prelim.
 
 Opaque hq.
