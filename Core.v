@@ -29,7 +29,7 @@ Contents:
 
 (* TODO: this file has become large and unwieldy; should probably be split up.  Displayed functors can certainly be happily split off.  Should total precats stay here, or also be split out? *)
 
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
@@ -378,10 +378,10 @@ Proof.
   (* TODO: think about better lemmas for this sort of calculation?
   e.g. all that repeated application of [transport_f_f], etc. *)
   - destruct i as [gg [gf fg]], i' as [gg' [gf' fg']]; simpl.
-    etrans. eapply pathsinv0, Utilities.transportfbinv.
+    etrans. eapply pathsinv0, transportfbinv.
     etrans. apply maponpaths, @pathsinv0, id_right_disp.
     etrans. apply maponpaths, maponpaths.
-      etrans. eapply pathsinv0, Utilities.transportfbinv.
+      etrans. eapply pathsinv0, transportfbinv.
       apply maponpaths, @pathsinv0, fg'.
     etrans. apply maponpaths, mor_disp_transportf_prewhisker.
     etrans. apply transport_f_f.
@@ -645,7 +645,7 @@ Lemma transportf_precompose_disp {C} {D : disp_precat C}
 Proof.
   destruct e; cbn; unfold idfun; cbn. 
   rewrite id_left_disp.
-  apply pathsinv0, Utilities.transportfbinv.
+  apply pathsinv0, transportfbinv.
 Qed.
 
 (* TODO: add dual [transportf_postcompose_disp]. *)
@@ -787,19 +787,19 @@ Proof.
       apply maponpaths, id_left_disp.
   (* Note: [transportbfi] is from [UniMath.Ktheory.Utilities].
   We currently can’t import that, due to notation clashes. *)
-    apply Utilities.transportfbinv. 
+    apply transportfbinv. 
   - intros xx yy ff; cbn.
     use total2_paths; simpl.
     apply id_right.
     eapply pathscomp0.
       apply maponpaths, id_right_disp.
-    apply Utilities.transportfbinv. 
+    apply transportfbinv. 
   - intros xx yy zz ww ff gg hh.
     use total2_paths; simpl.
     apply assoc.
     eapply pathscomp0.
       apply maponpaths, assoc_disp.
-    apply Utilities.transportfbinv. 
+    apply transportfbinv. 
 Qed.
 
 (* The “pre-pre-category” version, without homsets *)
@@ -845,11 +845,11 @@ Proof.
   - use total2_paths.
     apply (iso_inv_after_iso fi).
     etrans. apply maponpaths. apply (inv_mor_after_iso_disp ii). 
-    apply Utilities.transportfbinv.
+    apply transportfbinv.
   - use total2_paths.
     apply (iso_after_iso_inv fi).
     etrans. apply maponpaths. apply (iso_disp_after_inv_mor ii).
-    apply Utilities.transportfbinv.
+    apply transportfbinv.
 Qed.
 
 Definition is_iso_base_from_total {xx yy : total_precat} {ff : xx --> yy} (i : is_iso ff)
@@ -939,7 +939,7 @@ Proof.
   use total2_paths; cbn.
   - apply iso_inv_after_iso.
   - etrans. apply maponpaths, inv_mor_after_iso_disp. 
-    apply Utilities.transportfbinv.
+    apply transportfbinv.
 Qed.
 
 Definition total_iso_equiv_map {xx yy : total_precat}
@@ -1142,11 +1142,11 @@ Proof.
   - intros x. use total2_paths; simpl.
     apply functor_id.
     eapply pathscomp0. apply maponpaths, (section_disp_id FF).
-    cbn. apply Utilities.transportfbinv.
+    cbn. apply transportfbinv.
   - intros x y z f g. use total2_paths; simpl.
     apply functor_comp.
     eapply pathscomp0. apply maponpaths, (section_disp_comp FF).
-    cbn. apply Utilities.transportfbinv.
+    cbn. apply transportfbinv.
 Qed.
 
 Definition lifted_functor {C C' : Precategory} {D : disp_precat C}
@@ -1540,11 +1540,11 @@ Proof.
   - intros xx; use total2_paths.
       apply functor_id.
     etrans. apply maponpaths, functor_over_id.
-    apply Utilities.transportfbinv.
+    apply transportfbinv.
   - intros xx yy zz ff gg; use total2_paths; simpl.
       apply functor_comp.
     etrans. apply maponpaths, functor_over_comp.
-    apply Utilities.transportfbinv.
+    apply transportfbinv.
 Qed.
 
 Definition total_functor {C' C} {F}

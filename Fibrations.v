@@ -1,6 +1,6 @@
 (** Definitions of various kinds of _fibraitions_, using displayed categories. *)
 
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -267,7 +267,7 @@ Proof.
     refine (@functtransportf_2 (D c') _ _ (fun x => pr1) _ _ _ _). 
   cbn. etrans. apply transportf_precompose_disp.
   rewrite idtoiso_isotoid_disp.
-  refine (pathscomp0 (maponpaths _ _) (Utilities.transportfbinv _ _ _)). 
+  refine (pathscomp0 (maponpaths _ _) (transportfbinv _ _ _)). 
   apply (precomp_with_iso_disp_is_inj (cartesian_lifts_iso fd fd')).
   etrans. apply assoc_disp.
   etrans. eapply transportf_bind, cancel_postcomposition_disp.
