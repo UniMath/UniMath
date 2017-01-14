@@ -1,9 +1,9 @@
 (** * Utilities concerning paths, hlevel, and logic *)
 
 Global Unset Automatic Introduction.
-Require Export UniMath.Foundations.Basics.PartD.
-Require Export UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Export UniMath.Foundations.PartD.
+Require Export UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Export UniMath.Ktheory.Tactics.
 
 (** ** Null homotopies, an aid for proving things about propositional truncation *)
@@ -440,7 +440,7 @@ Proof. intros ? ? p x y. assert (a := p x). assert (b := p y). clear p.
 
 (** Compare the following two definitions with [transport_type_path]. *)
 
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Import UniMath.Foundations.UnivalenceAxiom.
 
 Definition pr1_eqweqmap { X Y } ( e: X = Y ) : cast e = pr1 (eqweqmap e).
 Proof. intros. destruct e. reflexivity. Defined.

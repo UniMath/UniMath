@@ -4,14 +4,14 @@
 
 Unset Kernel Term Sharing.
 
-Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.Basics.NaturalNumbers
-               UniMath.Foundations.NumberSystems.Integers
-               UniMath.Foundations.Basics.UnivalenceAxiom
+Require Import UniMath.Algebra.Monoids_and_Groups
+               UniMath.Foundations.NaturalNumbers
+               UniMath.NumberSystems.Integers
+               UniMath.Foundations.UnivalenceAxiom
                UniMath.Ktheory.Utilities
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.GroupAction
-               UniMath.Foundations.NumberSystems.Integers
+               UniMath.NumberSystems.Integers
                UniMath.Ktheory.Nat.
 
 Definition ℤ := hzaddabgr.

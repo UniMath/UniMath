@@ -14,7 +14,7 @@ Written by: Anders Mörtberg, 2016 (adapted from LiftingInitial.v)
 
 Set Kernel Term Sharing.
 
-Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.

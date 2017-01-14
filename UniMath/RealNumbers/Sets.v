@@ -2,10 +2,10 @@
 
 (** Previous theorems about hSet and order *)
 
-Require Export UniMath.Foundations.Basics.Sets
+Require Export UniMath.Foundations.Sets
                UniMath.Ktheory.QuotientSet.
-Require Import UniMath.Foundations.Algebra.BinaryOperations
-               UniMath.Foundations.Algebra.Apartness.
+Require Import UniMath.Algebra.BinaryOperations
+               UniMath.Algebra.Apartness.
 
 (** ** Subsets *)
 

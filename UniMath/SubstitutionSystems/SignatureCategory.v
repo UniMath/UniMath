@@ -8,7 +8,7 @@ Definition of the category of signatures with strength ([Signature_precategory])
 Written by: Anders Mörtberg in October 2016 based on a note of Benedikt Ahrens.
 
 *)
-Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.

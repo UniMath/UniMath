@@ -1,45 +1,11 @@
-# Basics
-
-Basics/Preamble.v
-Basics/PartA.v
-Basics/PartB.v
-Basics/UnivalenceAxiom.v
-Basics/PartC.v
-Basics/PartD.v
-Basics/UnivalenceAxiom2.v
-Basics/Propositions.v
-Basics/Sets.v
-Basics/NaturalNumbers.v
-Basics/Tests.v
-
-# Combinatorics
-
-Combinatorics/StandardFiniteSets.v
-Combinatorics/FiniteSets.v
-Combinatorics/OrderedSets.v
-Combinatorics/FiniteSequences.v
-Combinatorics/Lists.v
-Combinatorics/Tests.v
-# Combinatorics/SimplicialSets.v
-
-# Algebra
-
-Algebra/BinaryOperations.v
-Algebra/Monoids_and_Groups.v
-Algebra/Rigs_and_Rings.v
-Algebra/Domains_and_Fields.v
-Algebra/DivisionRig.v
-Algebra/Apartness.v
-Algebra/ConstructiveStructures.v
-Algebra/Archimedean.v
-Algebra/Lattice.v
-Algebra/IteratedBinaryOperations.v
-Algebra/Tests.v
-
-# NumberSystems
-
-NumberSystems/NaturalNumbersAlgebra.v
-NumberSystems/NaturalNumbers_le_Inductive.v
-NumberSystems/Integers.v
-NumberSystems/RationalNumbers.v
-NumberSystems/Tests.v
+Preamble.v
+PartA.v
+PartB.v
+UnivalenceAxiom.v
+PartC.v
+PartD.v
+UnivalenceAxiom2.v
+Propositions.v
+Sets.v
+NaturalNumbers.v
+Tests.v

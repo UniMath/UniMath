@@ -1,6 +1,6 @@
 
-Require Export UniMath.Foundations.Basics.PartD.
-Require Export UniMath.Foundations.Basics.Propositions.
+Require Export UniMath.Foundations.PartD.
+Require Export UniMath.Foundations.Propositions.
 
 (*
 Notation "'Π'  x .. y , P" := (Π x, .. (Π y, P) ..)

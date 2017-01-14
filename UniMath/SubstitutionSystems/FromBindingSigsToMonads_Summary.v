@@ -13,11 +13,11 @@ PLEASE DO NOT RENAME THIS FILE - its name is referenced in the article
 about this formalization.
 
 *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.Basics.NaturalNumbers.
-Require Import UniMath.Foundations.Combinatorics.Lists.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.

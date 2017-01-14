@@ -20,14 +20,14 @@
  - Epis are Cokernels
 - ABGR is AbelianPreCat
 *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.UnivalenceAxiom.
 
-Require Import UniMath.Foundations.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Monoids_and_Groups.
 
-Require Import UniMath.Foundations.NumberSystems.Integers.
+Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.

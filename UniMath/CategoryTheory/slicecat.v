@@ -33,9 +33,9 @@ Contents:
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -343,13 +343,13 @@ rewrite transportf_total2; simpl.
 unfold slicecat_functor_comp_ob.
 rewrite toforallpaths_funextsec; simpl.
 assert (H1 : transportf (fun x : C / z => pr1 x --> b)
-               (Basics.PartA.internal_paths_rew_r _ _ _
+               (Foundations.PartA.internal_paths_rew_r _ _ _
                  (fun p => tpair _ a p = tpair _ a _) (idpath (tpair _ a _))
                  (assoc fax f g)) h = h).
   case (assoc fax f g); apply idpath.
 assert (H2 : Π h', h' = h ->
              transportf (fun x : C / z => a --> pr1 x)
-                        (Basics.PartA.internal_paths_rew_r _ _ _
+                        (Foundations.PartA.internal_paths_rew_r _ _ _
                            (fun p => tpair _ b p = tpair _ b _) (idpath _)
                            (assoc fbx f g)) h' = h).
   intros h' eq.

@@ -1,8 +1,8 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.Combinatorics.FiniteSets
-               UniMath.Foundations.NumberSystems.NaturalNumbersAlgebra
+Require Import UniMath.Algebra.Monoids_and_Groups
+               UniMath.Combinatorics.FiniteSets
+               UniMath.NumberSystems.NaturalNumbersAlgebra
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
 Close Scope multmonoid_scope.
