@@ -11,7 +11,6 @@ Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
-Require Import UniMath.NumberSystems.NaturalNumbersAlgebra.
 Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
