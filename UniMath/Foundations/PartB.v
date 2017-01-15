@@ -1184,6 +1184,38 @@ induction ab as [a|b]; induction ab' as [a'|b'].
   + apply inr; intro H; apply (p (ii2_injectivity _ _ H)).
 Defined.
 
+(** *** Construction of functions defined at a few points on types with decidable equality *)
+
+Lemma decfun1 {X Y:UU} (i : isdeceq X) (x1:X) (y1 y':Y) : X → Y.
+Proof.
+  intros ? ? ? ? ? ? x.
+  induction (i x x1).
+  - exact y1.
+  - exact y'.
+Defined.
+
+Lemma decfun2 {X Y:UU} (i : isdeceq X) (x1 x2:X) (y1 y2 y':Y) : X → Y.
+Proof.
+  intros ? ? ? ? ? ? ? ? x.
+  induction (i x x1).
+  - exact y1.
+  - induction (i x x2).
+    + exact y2.
+    + exact y'.
+Defined.
+
+Lemma decfun3 {X Y:UU} (i : isdeceq X) (x1 x2 x3:X) (y1 y2 y3 y':Y) : X → Y.
+Proof.
+  intros ? ? ? ? ? ? ? ? ? ? x.
+  induction (i x x1).
+  - exact y1.
+  - induction (i x x2).
+    + exact y2.
+    + induction (i x x3).
+      * exact y3.
+      * exact y'.
+Defined.
+
 (** *** Isolated points *)
 
 Definition isisolated (X:UU) (x:X) := Π x':X, (x = x') ⨿ (x != x').
