@@ -18,11 +18,12 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.NaturalNumbers.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
-Require Import UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.NumberSystems.NaturalNumbersAlgebra.
 Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
