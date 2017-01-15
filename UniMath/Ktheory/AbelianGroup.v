@@ -2,8 +2,8 @@
 
 (** * abelian groups *)
 
-Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.NumberSystems.Integers
+Require Import UniMath.Algebra.Monoids_and_Groups
+               UniMath.NumberSystems.Integers
                UniMath.Ktheory.Tactics
                UniMath.Ktheory.Utilities
                UniMath.CategoryTheory.functor_categories
@@ -426,7 +426,7 @@ Module Product.
        (Π i, Proj G i ∘ h = Proj G i ∘ h') -> h = h'.
     intros ? ? ? ? ? e. apply Monoid.funEquality.
     apply funextsec; intro t. apply funextsec; intro i.
-    exact (apevalat t (ap pr1 (e i))). Qed.
+    exact (eqtohomot (ap pr1 (e i)) t). Qed.
 End Product.
 Module Sum.                   (* coproducts *)
   Import Presentation.
@@ -471,7 +471,7 @@ Definition power (I:Type) (X:abgr) : abgr.
 (** ** the category of abelian groups *)
 
 Module Category.
-  Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
+  Require Import UniMath.Algebra.Monoids_and_Groups
                  UniMath.CategoryTheory.precategories.
 
   Definition Ob := abgr.
@@ -512,7 +512,7 @@ Module Category.
         + intros p. exists (Product.Map X T p).
           apply funextsec; intro i; apply Product.Eqn.
         + intros f f' e. apply Product.UniqueMap.
-          intros i. exact (apevalat i e).
+          intros i. exact (eqtohomot e i).
     Defined.
   End Product.
 
@@ -527,7 +527,7 @@ Module Category.
         + intros p. exists (Sum.Map X T p).
           apply funextsec; intro i; apply Sum.Eqn.
         + intros f f' e. apply Sum.UniqueMap.
-          intros i. exact (apevalat i e).
+          intros i. exact (eqtohomot e i).
     Defined.
   End Sum.
 

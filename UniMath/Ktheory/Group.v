@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
+Require Import UniMath.Algebra.Monoids_and_Groups
 	       UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Monoid.
@@ -387,5 +387,5 @@ Module Free.
   Definition make (X:Type) := @universalMarkedGroup X empty fromempty.
 End Free.
 Definition ZZ := Free.make unit.
-Require Import UniMath.Foundations.NumberSystems.Integers.
+Require Import UniMath.NumberSystems.Integers.
 Definition hZZ := hzaddabgr:gr. (* isomorphic to ZZ *)

@@ -29,7 +29,7 @@ Proof.
     + unshelve refine (twooutof3c_iff_1_homot _ _ _ _ _).
       * exact (pr1 i ◽ opp_ob b).
       * intro f; unfold funcomp; simpl.
-        exact (apevalat x (nat_trans_ax (pr1 i) _ _ f)).
+        exact (eqtohomot (nat_trans_ax (pr1 i) _ _ f) x).
       * exact (hset_iso_is_equiv _ _ (I b)).
     + apply isapropisweq.
     + apply isapropisweq.
