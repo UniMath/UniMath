@@ -1063,6 +1063,15 @@ Section complexes_precat.
     exact tmp.
   Qed.
 
+  Lemma ComplexMonicIndexMonic' {C1 C2 : Complex A} (f : Morphism C1 C2)
+        (H : Π i : hz, isMonic (f i)) : isMonic (f : ComplexPreCat⟦_, _⟧).
+  Proof.
+    use mk_isMonic.
+    intros x g h X.
+    use MorphismEq. intros i.
+    set (tmp := MorphismEq' A _ _ X i). cbn in tmp. apply (H i) in tmp.
+    exact tmp.
+  Qed.
 
   (** ** Epi of complexes is indexwise epi *)
 
@@ -1109,6 +1118,15 @@ Section complexes_precat.
     exact tmp.
   Qed.
 
+  Lemma ComplexEpiIndexEpi' {C1 C2 : Complex A} (f : Morphism C1 C2)
+        (H : Π i : hz, isEpi (f i)) : isEpi (f : ComplexPreCat⟦_, _⟧).
+  Proof.
+    use mk_isEpi.
+    intros z g h X.
+    use MorphismEq. intros i.
+    set (tmp := MorphismEq' A _ _ X i). cbn in tmp. apply (H i) in tmp.
+    exact tmp.
+  Qed.
 
   (** ** An morphism in complexes is an isomorphism if it is so indexwise *)
 
@@ -1654,6 +1672,14 @@ Section complexes_abelian.
     - intros i. use CokernelCommutes.
   Defined.
 
+  Lemma KernelMorphismisEpi {x y : ComplexPreCat_Additive (AbelianToAdditive A hs)}
+        (M : Monic (ComplexPreCat_Additive (AbelianToAdditive A hs)) x y) :
+    isEpi ((KernelMorphism M) : (ComplexPreCat_Additive (AbelianToAdditive A hs))⟦_, _⟧).
+  Proof.
+    use ComplexEpiIndexEpi'.
+    intros i. use CokernelArrowisEpi.
+  Qed.
+
   (** *** KernelIn *)
 
   Local Lemma KernelMorphism_eq {x y : ComplexPreCat_Additive (AbelianToAdditive A hs)}
@@ -1773,7 +1799,9 @@ Section complexes_abelian.
       + use tpair.
         * exact (ComplexPreCat_Monic_Kernel_Complex M).
         * exact (KernelMorphism M).
-      + cbn. exact (KernelMorphism_eq' M).
+      + use dirprodpair.
+        * exact (KernelMorphismisEpi M).
+        * exact (KernelMorphism_eq' M).
     - exact (ComplexPreCatAbelianMonicKernelsData_isKernel M).
   Defined.
 
@@ -1832,6 +1860,14 @@ Section complexes_abelian.
     - intros i. cbn. use KernelArrow.
     - intros i. cbn. exact (! (KernelCommutes _ _ _ _ _)).
   Defined.
+
+  Definition CokernelMorphismisMonic {x y : ComplexPreCat_Additive (AbelianToAdditive A hs)}
+             (E : Epi (ComplexPreCat_Additive (AbelianToAdditive A hs)) x y) :
+    isMonic ((CokernelMorphism E) : (ComplexPreCat_Additive (AbelianToAdditive A hs))⟦_, _⟧).
+  Proof.
+    use ComplexMonicIndexMonic'.
+    intros i. use KernelArrowisMonic.
+  Qed.
 
   Definition CokernelMorphism_eq {x y : ComplexPreCat_Additive (AbelianToAdditive A hs)}
              (E : Epi (ComplexPreCat_Additive (AbelianToAdditive A hs)) x y) :
@@ -1945,7 +1981,9 @@ Section complexes_abelian.
       + use tpair.
         * exact (ComplexPreCat_Epi_Cokernel_Complex E).
         * exact (CokernelMorphism E).
-      + exact (CokernelMorphism_eq' E).
+      + use dirprodpair.
+        ** exact (CokernelMorphismisMonic E).
+        ** exact (CokernelMorphism_eq' E).
     - exact (ComplexPreCatAbelianEpiCokernelsData_isCoequalizer E).
   Defined.
 

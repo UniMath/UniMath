@@ -2045,7 +2045,7 @@ Section ABGR_abelianprecat.
         * intros A B f. exact (ABGR_Kernel f). (* Kernels *)
         * intros A B f. exact (ABGR_Cokernel f). (* Cokernels *)
       + split.
-        (* Monics are kernels *)
+        (* Monics are kernels of epis *)
         * use mk_AbelianMonicKernelsData.
           intros x y M.
           set (monic_ker := ABGR_monic_kernel (pr1 M) (pr2 M)).
@@ -2054,7 +2054,9 @@ Section ABGR_abelianprecat.
              ++ use tpair.
                 ** exact (ABGR_Cokernel (pr1 M)).
                 ** exact (CokernelArrow (ABGR_Cokernel (pr1 M))).
-             ++ exact (KernelCompZero ABGR_has_zero monic_ker).
+             ++ use dirprodpair.
+                ** exact (CokernelArrowisEpi _ (ABGR_Cokernel (pr1 M))).
+                ** exact (KernelCompZero ABGR_has_zero monic_ker).
           -- exact (KernelisKernel _ monic_ker).
         (* Epis are cokernels *)
         * use mk_AbelianEpiCokernelsData.
@@ -2065,7 +2067,9 @@ Section ABGR_abelianprecat.
              ++ use tpair.
                 ** exact (ABGR_Kernel (pr1 E)).
                 ** exact (KernelArrow (ABGR_Kernel (pr1 E))).
-             ++ exact (CokernelCompZero ABGR_has_zero epi_coker).
+             ++ use dirprodpair.
+                ** exact (KernelArrowisMonic _ (ABGR_Kernel (pr1 E))).
+                ** exact (CokernelCompZero ABGR_has_zero epi_coker).
           -- exact (CokernelisCokernel _ epi_coker).
   Defined.
 
