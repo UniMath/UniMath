@@ -56,7 +56,7 @@ Require Import UniMath.CategoryTheory.PreAdditive.
 Section def_abelian.
 
   (** An abelian category has a zero object, binary (co)products, (co)kernels and every monic
-      (resp. epi) is a kernel (resp. cokernel) or an epi (resp. monic). *)
+      (resp. epi) is a kernel (resp. cokernel) of an epi (resp. monic). *)
   Definition Data1 (C : precategory) : UU := Zero C × (BinProducts C) × (BinCoproducts C).
 
   Definition mk_Data1 {C : precategory} (H1 : Zero C) (H2 : BinProducts C) (H3 : BinCoproducts C) :
@@ -70,7 +70,7 @@ Section def_abelian.
   Definition mk_Data2 {C : precategory} (AD1 : Data1 C) (H1 : Kernels (Data1_Zero AD1))
              (H2 : Cokernels (Data1_Zero AD1)) : Data2 C AD1 := (H1,,H2).
 
-  (** This definition contains the data that every monic is a kernel of some morphism. *)
+  (** This definition contains the data that every monic is a kernel of some epi. *)
   Definition AbelianMonicKernelsData (C : precategory) (AD : Data1 C) : UU :=
     Π (x y : C) (M : Monic C x y),
     (Σ D2 : (Σ D1 : (Σ z : C, y --> z), (isEpi (pr2 D1))
@@ -106,8 +106,7 @@ Section def_abelian.
              (x y : C) (M : Monic C x y) :
     isKernel (Data1_Zero AD) M (AMKD_Mor AMKD x y M) (AMKD_Eq AMKD x y M) := pr2 (AMKD x y M).
 
-  (** This definition contains the data that every epi is a cokernel of some
-      morphism. *)
+  (** This definition contains the data that every epi is a cokernel of some monic *)
   Definition AbelianEpiCokernelsData (C : precategory) (AD : Data1 C) : UU :=
     (Π (y z : C) (E : Epi C y z),
      (Σ D2 : (Σ D1 : (Σ x : C, x --> y),
@@ -143,8 +142,8 @@ Section def_abelian.
              (y z : C) (E : Epi C y z) :
     isCokernel (Data1_Zero AD) (AECD_Mor AECD y z E) E (AECD_Eq AECD y z E) := pr2 (AECD y z E).
 
-  (** Data which contains kernels, cokernels, the data that monics are kernels of some morphisms,
-      and the data that epis are cokernels of some morphisms. *)
+  (** Data which contains kernels, cokernels, the data that monics are kernels of some epis,
+      and the data that epis are cokernels of some monics. *)
   Definition AbelianData (C : precategory) (AD1 : Data1 C) : UU :=
     (Data2 C AD1) × (AbelianMonicKernelsData C AD1) × (AbelianEpiCokernelsData C AD1).
 
