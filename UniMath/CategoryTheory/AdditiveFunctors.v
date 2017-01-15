@@ -238,16 +238,14 @@ Section additivefunctor_preserves_bindirectsums.
   (** ** Preserves BinCoproducts *)
 
   Local Lemma AdditiveFunctorPreservesBinDirectSums_isBinCoproductCocone_id1 {A B : Additive}
-        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSumCone A a1 a2) :
-    let BDS := to_BinDirectSums B (F a1) (F a2) in
+        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSumCone A a1 a2)
+        (BDS := to_BinDirectSums B (F a1) (F a2)) :
     ToBinDirectSum B BDS (# F (to_Pr1 A DS))
                    (# F (to_Pr2 A DS)) ;; to_binop (to_BinDirectSums B (F a1) (F a2)) (F DS)
                    ((to_Pr1 B (to_BinDirectSums B (F a1) (F a2))) ;; # F (to_In1 A DS))
                    (to_Pr2 B (to_BinDirectSums B (F a1) (F a2)) ;; # F (to_In2 A DS)) =
     identity (F DS).
   Proof.
-    cbn zeta.
-    set (BDS := to_BinDirectSums B (F a1) (F a2)).
     set (mor := ToBinDirectSum B BDS (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS))).
     set (invmor := to_binop _ _ ((to_Pr1 B BDS) ;; (# F (to_In1 A DS)))
                             ((to_Pr2 B BDS) ;; (# F (to_In2 A DS)))).
@@ -255,16 +253,18 @@ Section additivefunctor_preserves_bindirectsums.
     set (isadd := AdditiveFunctor_isAdditiveFunctor F DS DS).
     set (tmp := pr1 isadd ((to_Pr1 A DS) ;; (to_In1 A DS)) ((to_Pr2 A DS) ;; (to_In2 A DS))).
     cbn in *. rewrite tmp. clear tmp. clear isadd.
-    rewrite (functor_comp F). rewrite (functor_comp F).
-    rewrite <- (BinDirectSumPr1Commutes B BDS _ (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS))). fold mor.
-    rewrite <- (BinDirectSumPr2Commutes B BDS _ (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS))). fold mor.
-    rewrite <- assoc. rewrite <- assoc. rewrite <- (@to_premor_linear' B). apply idpath.
+    rewrite (functor_comp F). rewrite (functor_comp F). rewrite to_premor_linear'.
+    use to_binop_eq.
+    - rewrite <- (BinDirectSumPr1Commutes B BDS _ (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS))).
+      rewrite assoc. apply idpath.
+    - rewrite <- (BinDirectSumPr2Commutes B BDS _ (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS))).
+      rewrite assoc. apply idpath.
   Qed.
 
   Local Lemma AdditiveFunctorPreservesBinDirectSums_isBinCoproductCocone_id2' {A B : Additive}
-        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSumCone A a1 a2) :
-    let BDS := to_BinDirectSums B (F a1) (F a2) in
-    let mor := ToBinDirectSum B BDS (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS)) in
+        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSumCone A a1 a2)
+        (BDS := to_BinDirectSums B (F a1) (F a2))
+        (mor := ToBinDirectSum B BDS (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS))) :
     to_binop BDS BDS
              ((to_Pr1 B BDS) ;; (# F (to_In1 A DS)) ;; mor ;; (to_Pr1 B BDS) ;; (to_In1 B BDS))
              ((to_Pr2 B BDS) ;; (# F (to_In2 A DS)) ;; mor ;; (to_Pr2 B BDS) ;; (to_In2 B BDS)) =
@@ -273,9 +273,6 @@ Section additivefunctor_preserves_bindirectsums.
              ((to_Pr2 B BDS) ;; (# F (to_In2 A DS)) ;; mor)
              ;; identity _.
   Proof.
-    cbn zeta.
-    set (BDS := (to_BinDirectSums B (F a1) (F a2))).
-    set (mor := (ToBinDirectSum B BDS (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS)))).
     set (invmor := (to_binop _ _
                              ((to_Pr1 B BDS) ;; (# F (to_In1 A DS)))
                              ((to_Pr2 B BDS) ;; (# F (to_In2 A DS))))).
@@ -324,13 +321,17 @@ Section additivefunctor_preserves_bindirectsums.
     rewrite <- functor_id. rewrite <- functor_id.
     rewrite <- (to_IdIn1 A DS). rewrite <- (to_IdIn2 A DS).
     rewrite functor_comp. rewrite functor_comp.
-    rewrite <- (BinDirectSumPr1Commutes B BDS _ (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS))). fold mor.
-    rewrite <- (BinDirectSumPr2Commutes B BDS _ (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS))). fold mor.
-    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
-    unfold mor at 2 3.
-    unfold BDS. rewrite AdditiveFunctorPreservesBinDirectSums_isBinCoproductCocone_id2'. fold BDS.
-    fold mor. rewrite id_right.
-    rewrite <- to_postmor_linear'. apply idpath.
+    rewrite <- (id_right mor). rewrite assoc. unfold invmor. rewrite to_postmor_linear'.
+    use (pathscomp0 (! (AdditiveFunctorPreservesBinDirectSums_isBinCoproductCocone_id2' F DS))).
+    use to_binop_eq.
+    - fold BDS. apply cancel_postcomposition. rewrite <- assoc. rewrite <- assoc.
+      apply cancel_precomposition.
+      rewrite (BinDirectSumPr1Commutes B BDS _ (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS))).
+      apply idpath.
+    - fold BDS. apply cancel_postcomposition. rewrite <- assoc. rewrite <- assoc.
+      apply cancel_precomposition.
+      rewrite (BinDirectSumPr2Commutes B BDS _ (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS))).
+      apply idpath.
   Qed.
 
   (** Additive functor preserves BinCoproductCocones *)
@@ -384,32 +385,31 @@ Section additivefunctor_preserves_bindirectsums.
   (** ** Preserves BinProducts *)
 
   Local Lemma AdditiveFunctorPreservesBinDirectSums_isBinProductCone_id1 {A B : Additive}
-        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSumCone A a1 a2) :
-    let BDS := to_BinDirectSums B (F a1) (F a2) in
-    let mor := FromBinDirectSum B BDS (# F (to_In1 A DS)) (# F (to_In2 A DS)) in
+        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSumCone A a1 a2)
+        (BDS := to_BinDirectSums B (F a1) (F a2))
+        (mor := FromBinDirectSum B BDS (# F (to_In1 A DS)) (# F (to_In2 A DS))) :
     to_binop (F DS) (to_BinDirectSums B (F a1) (F a2))
              ((# F (to_Pr1 A DS)) ;; (to_In1 B BDS))
              ((# F (to_Pr2 A DS)) ;; (to_In2 B BDS)) ;; mor =
     identity (F DS).
   Proof.
-    intros BDS mor.
     set (invmor := to_binop _ _
                             ((# F (to_Pr1 A DS)) ;; (to_In1 B BDS))
                             ((# F (to_Pr2 A DS)) ;; (to_In2 B BDS))).
     rewrite <- functor_id. rewrite <- (to_BinOpId A DS).
     rewrite AdditiveFunctorLinear.
-    rewrite functor_comp. rewrite functor_comp.
-    rewrite <- (BinDirectSumIn1Commutes B BDS _ (# F (to_In1 A DS)) (# F (to_In2 A DS))). fold mor.
-    rewrite <- (BinDirectSumIn2Commutes B BDS _ (# F (to_In1 A DS)) (# F (to_In2 A DS))). fold mor.
-    rewrite assoc. rewrite assoc.
-    rewrite <- to_postmor_linear'.
-    apply idpath.
+    rewrite functor_comp. rewrite functor_comp. rewrite to_postmor_linear'.
+    use to_binop_eq.
+    - rewrite <- (BinDirectSumIn1Commutes B BDS _ (# F (to_In1 A DS)) (# F (to_In2 A DS))).
+      rewrite assoc. apply idpath.
+    - rewrite <- (BinDirectSumIn2Commutes B BDS _ (# F (to_In1 A DS)) (# F (to_In2 A DS))).
+      rewrite assoc. apply idpath.
   Qed.
 
   Local Lemma AdditiveFunctorPreservesBinDirectSums_isBinProductCone_id2' {A B : Additive}
-        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSumCone A a1 a2) :
-    let BDS := to_BinDirectSums B (F a1) (F a2) in
-    let mor := FromBinDirectSum B BDS (# F (to_In1 A DS)) (# F (to_In2 A DS)) in
+        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSumCone A a1 a2)
+        (BDS := to_BinDirectSums B (F a1) (F a2))
+        (mor := FromBinDirectSum B BDS (# F (to_In1 A DS)) (# F (to_In2 A DS))) :
     to_binop BDS BDS
       (to_Pr1 B BDS ;; to_In1 B BDS ;; mor ;; # F (to_Pr1 A DS) ;; to_In1 B BDS)
       (to_Pr2 B BDS ;; to_In2 B BDS ;; mor ;; # F (to_Pr2 A DS) ;; to_In2 B BDS) =
@@ -418,7 +418,6 @@ Section additivefunctor_preserves_bindirectsums.
                    (mor ;; (# F (to_Pr1 A DS)) ;; (to_In1 B BDS))
                    (mor ;; (# F (to_Pr2 A DS)) ;; (to_In2 B BDS))).
   Proof.
-    intros BDS mor.
     set (invmor := to_binop _ _
                             ((# F (to_Pr1 A DS)) ;; (to_In1 B BDS))
                             ((# F (to_Pr2 A DS)) ;; (to_In2 B BDS))).
@@ -445,14 +444,12 @@ Section additivefunctor_preserves_bindirectsums.
   Qed.
 
   Local Lemma AdditiveFunctorPreservesBinDirectSums_isBinProductCone_id2 {A B : Additive}
-        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSumCone A a1 a2) :
-    let BDS := to_BinDirectSums B (F a1) (F a2) in
-    let mor := FromBinDirectSum B BDS (# F (to_In1 A DS)) (# F (to_In2 A DS)) in
+        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSumCone A a1 a2)
+        (BDS := to_BinDirectSums B (F a1) (F a2))
+        (mor := FromBinDirectSum B BDS (# F (to_In1 A DS)) (# F (to_In2 A DS))) :
     mor ;; (to_binop (F DS) BDS (# F (to_Pr1 A DS) ;; to_In1 B BDS)
-                     (# F (to_Pr2 A DS) ;; to_In2 B BDS)) =
-    identity _.
+                     (# F (to_Pr2 A DS) ;; to_In2 B BDS)) = identity _.
   Proof.
-    intros BDS mor.
     set (invmor := to_binop _ _
                             ((# F (to_Pr1 A DS)) ;; (to_In1 B BDS))
                             ((# F (to_Pr2 A DS)) ;; (to_In2 B BDS))).
@@ -460,15 +457,18 @@ Section additivefunctor_preserves_bindirectsums.
     rewrite <- (id_right (to_Pr1 B BDS)). rewrite <- (id_right (to_Pr2 B BDS)).
     rewrite <- functor_id. rewrite <- functor_id.
     rewrite <- (to_IdIn1 A DS). rewrite <- (to_IdIn2 A DS).
-    rewrite functor_comp. rewrite functor_comp.
-    rewrite <- (BinDirectSumIn1Commutes B BDS _ (# F (to_In1 A DS)) (# F (to_In2 A DS))). fold mor.
-    rewrite <- (BinDirectSumIn2Commutes B BDS _ (# F (to_In1 A DS)) (# F (to_In2 A DS))). fold mor.
-    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. unfold mor, BDS.
-    rewrite (AdditiveFunctorPreservesBinDirectSums_isBinProductCone_id2' F DS).
-    fold BDS. fold mor. rewrite id_left.
-    rewrite <- assoc. rewrite <- assoc.
-    rewrite <- to_premor_linear'.
-    apply idpath.
+    rewrite functor_comp. rewrite functor_comp. rewrite <- (id_left mor). rewrite <- assoc.
+    unfold invmor. rewrite to_premor_linear'. rewrite assoc. rewrite assoc.
+    use (pathscomp0 (! (AdditiveFunctorPreservesBinDirectSums_isBinProductCone_id2' F DS))).
+    use to_binop_eq.
+    - fold BDS. apply cancel_postcomposition.
+      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition. rewrite assoc.
+      rewrite (BinDirectSumIn1Commutes B BDS _ (# F (to_In1 A DS)) (# F (to_In2 A DS))).
+      apply idpath.
+    - fold BDS. apply cancel_postcomposition.
+      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition. rewrite assoc.
+      rewrite (BinDirectSumIn2Commutes B BDS _ (# F (to_In1 A DS)) (# F (to_In2 A DS))).
+      apply idpath.
   Qed.
 
   (** Additive functor preserves BinProductCones *)
@@ -621,13 +621,11 @@ Section additivefunctor_criteria.
   Qed.
 
   Local Lemma isAdditiveCriteria_BinOp_eq {A B : Additive} (F : functor A B)
-        (H : PreservesBinDirectSums F) {a1 a2 : A} (f g : A⟦a1, a2⟧) :
-    let DS := to_BinDirectSums A a2 a2 in
+        (H : PreservesBinDirectSums F) {a1 a2 : A} (f g : A⟦a1, a2⟧)
+        (DS := to_BinDirectSums A a2 a2) :
     to_binop a1 a2 f g = (to_binop a1 DS (f ;; (to_In1 A DS)) (g ;; (to_In2 A DS)))
                            ;; (to_binop DS a2 (to_Pr1 A DS) (to_Pr2 A DS)).
   Proof.
-    cbn zeta.
-    set (DS := to_BinDirectSums A a2 a2).
     set (isBDS := H a2 a2 DS).
     set (BDS := mk_BinDirectSumCone _ _ _ _ _ _ _ _ isBDS).
     (* First term of to_binop *)

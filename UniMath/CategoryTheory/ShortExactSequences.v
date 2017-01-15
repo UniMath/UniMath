@@ -903,18 +903,10 @@ Section shortshortexact_iskernel_iscokernel.
     use Kernel_up_to_iso_isKernel.
     + exact hs.
     + exact K.
-    + exact (iso_inv_from_is_iso _ (is_iso_qinv _ _ e)).
-    + apply (maponpaths (fun g : _ => (iso_inv_from_is_iso _ (is_iso_qinv _ _ e)) ;; g)) in e1.
+    + exact (z_iso_inv (mk_z_iso _ _ e)).
+    + apply (maponpaths (fun g : _ => (z_iso_inv_mor (mk_z_iso _ _ e)) ;; g)) in e1.
       use (pathscomp0 _ (! e1)). clear e1. rewrite assoc.
-      assert (e2 : iso_inv_from_is_iso
-                     (CokernelArrow (Abelian.CoImage (Mor1 SSED)) ;; CoIm_to_Im (Mor1 SSED))
-                     (is_iso_qinv _ _ e) ;;
-                     (CokernelArrow (Abelian.CoImage (Mor1 SSED)) ;; CoIm_to_Im (Mor1 SSED)) =
-                   identity _).
-      {
-        use (iso_after_iso_inv (isopair _ (is_iso_qinv _ _ e))).
-      }
-      rewrite e2. rewrite id_left. apply idpath.
+      cbn. rewrite (is_inverse_in_precat2 e). rewrite id_left. apply idpath.
   Qed.
 
   Definition mk_ShortShortExact_isKernel (SSED : ShortShortExactData A to_Zero)
@@ -946,20 +938,10 @@ Section shortshortexact_iskernel_iscokernel.
     use Cokernel_up_to_iso_isCokernel.
     + exact hs.
     + exact CK.
-    + exact (iso_inv_from_is_iso _ (is_iso_qinv _ _ e)).
-    + apply (maponpaths (fun g : _ => g ;; (iso_inv_from_is_iso _ (is_iso_qinv _ _ e)))) in e1.
-      use (pathscomp0 _ (! e1)). clear e1. rewrite <- assoc.
-      assert (e2 : (CoIm_to_Im (Mor2 SSED))
-                     ;; (KernelArrow (Abelian.Image (Mor2 SSED)))
-                     ;; (iso_inv_from_is_iso
-                           (CoIm_to_Im (Mor2 SSED)
-                                       ;; KernelArrow (Abelian.Image (Mor2 SSED)))
-                           (is_iso_qinv _ _ e)) =
-                   identity _).
-      {
-        use (iso_inv_after_iso (isopair _ (is_iso_qinv _ _ e))).
-      }
-      rewrite e2. rewrite id_right. apply idpath.
+    + exact (z_iso_inv (mk_z_iso _ _ e)).
+    + apply (maponpaths (fun g : _ => g ;; (z_iso_inv_mor (mk_z_iso _ _ e)))) in e1.
+      use (pathscomp0 _ (! e1)). clear e1. rewrite <- assoc. cbn.
+      rewrite (is_inverse_in_precat1 e). rewrite id_right. apply idpath.
   Qed.
 
   Definition mk_ShortShortExact_isCokernel (SSED : ShortShortExactData A to_Zero)

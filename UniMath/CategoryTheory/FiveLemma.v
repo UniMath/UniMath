@@ -382,8 +382,9 @@ In this section we prove the five lemma following the sketch of a proof on top o
 Section five_lemma.
 
   Lemma FiveLemma_isMonic {A : AbelianPreCat} {hs : has_homsets A} {FR1 FR2 : FiveRow hs}
-        (FRM : FiveRowMorphism hs FR1 FR2) (H1 : is_iso (FMor1 hs FRM)) (H2 : is_iso (FMor2 hs FRM))
-        (H4 : is_iso (FMor4 hs FRM)) (H5 : is_iso (FMor5 hs FRM)) : isMonic (FMor3 hs FRM).
+        (FRM : FiveRowMorphism hs FR1 FR2) (H1 : is_z_isomorphism (FMor1 hs FRM))
+        (H2 : is_z_isomorphism (FMor2 hs FRM)) (H4 : is_z_isomorphism (FMor4 hs FRM))
+        (H5 : is_z_isomorphism (FMor5 hs FRM)) : isMonic (FMor3 hs FRM).
   Proof.
     use (dirprod_pr2 (PEq_isMonic hs (FMor3 hs FRM))).
     intros d' a X. apply pathsinv0. cbn in X. set (X' := PEq_Zero_Eq' _ _ X). cbn in X'.
@@ -437,21 +438,23 @@ Section five_lemma.
   Variable hs : has_homsets A.
 
   Lemma FiveLemma_isEpi {FR1 FR2 : FiveRow hs} (FRM : FiveRowMorphism hs FR1 FR2)
-        (H1 : is_iso (FMor1 hs FRM)) (H2 : is_iso (FMor2 hs FRM)) (H4 : is_iso (FMor4 hs FRM))
-        (H5 : is_iso (FMor5 hs FRM)) : isEpi (FMor3 hs FRM).
+        (H1 : is_z_isomorphism (FMor1 hs FRM)) (H2 : is_z_isomorphism (FMor2 hs FRM))
+        (H4 : is_z_isomorphism (FMor4 hs FRM)) (H5 : is_z_isomorphism (FMor5 hs FRM)) :
+    isEpi (FMor3 hs FRM).
   Proof.
     use opp_isMonic.
-    set (H1' := opp_is_iso _ H1).
-    set (H2' := opp_is_iso _ H2).
-    set (H4' := opp_is_iso _ H4).
-    set (H5' := opp_is_iso _ H5).
+    set (H1' := opp_is_z_isomorphism _ H1).
+    set (H2' := opp_is_z_isomorphism _ H2).
+    set (H4' := opp_is_z_isomorphism _ H4).
+    set (H5' := opp_is_z_isomorphism _ H5).
     set (FRM' := FiveRowMorphism_opp FRM).
     exact (FiveLemma_isMonic FRM' H5' H4' H2' H1').
   Qed.
 
   Lemma FiveLemma {FR1 FR2 : FiveRow hs} (FRM : FiveRowMorphism hs FR1 FR2)
-        (H1 : is_iso (FMor1 hs FRM)) (H2 : is_iso (FMor2 hs FRM)) (H4 : is_iso (FMor4 hs FRM))
-        (H5 : is_iso (FMor5 hs FRM)) : is_z_isomorphism (FMor3 hs FRM).
+        (H1 : is_z_isomorphism (FMor1 hs FRM)) (H2 : is_z_isomorphism (FMor2 hs FRM))
+        (H4 : is_z_isomorphism (FMor4 hs FRM)) (H5 : is_z_isomorphism (FMor5 hs FRM)) :
+    is_z_isomorphism (FMor3 hs FRM).
   Proof.
     use monic_epi_is_iso.
     - use FiveLemma_isMonic.
@@ -619,16 +622,17 @@ Section short_exact_five_lemma.
   (** ** FiveLemma for short exact sequences *)
 
   Lemma ShortExactFiveLemma {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2)
-        (H2 : is_iso (MPMor1 Mor)) (H4 : is_iso (MPMor3 Mor)) : is_z_isomorphism (MPMor2 Mor).
+        (H2 : is_z_isomorphism (MPMor1 Mor)) (H4 : is_z_isomorphism (MPMor3 Mor)) :
+    is_z_isomorphism (MPMor2 Mor).
   Proof.
     set (FR1 := ShortExactRow1 Mor).
     set (FR2 := ShortExactRow2 Mor).
     set (FM := ShortExactMor Mor).
     use (FiveLemma hs FM).
-    - cbn. use identity_is_iso.
+    - exact (is_z_isomorphism_identity _).
     - exact H2.
     - exact H4.
-    - cbn. use identity_is_iso.
+    - exact (is_z_isomorphism_identity _).
   Qed.
 
 End short_exact_five_lemma.

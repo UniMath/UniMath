@@ -2103,63 +2103,66 @@ Section ABGR_corollaries.
   Qed.
 
   (** is_iso_premor *)
-
-  Lemma ABGR_Additive_is_iso_premor {Add : Additive} (x y z : Add) {f : x --> y} (H : is_iso f) :
-    @is_iso ABGR_AbelianPreCat _ _ (to_premor_monoidfun Add x y z f).
+  Local Lemma ABGR_additive_is_iso_premor_inverses {Add : Additive} (x y z : Add) {f : x --> y}
+        (H : is_z_isomorphism f) :
+    is_inverse_in_precat ((to_premor_monoidfun Add x y z f) : ABGR_AbelianPreCat⟦_, _⟧)
+                         (to_premor_monoidfun Add y x z (is_z_isomorphism_mor H)).
   Proof.
-    use (@is_iso_qinv ABGR_AbelianPreCat).
-    - exact (to_premor_monoidfun Add _ _ z (inv_from_iso (isopair _ H))).
-    - split.
-      + use monoidfun_eq.
-        intros x0. cbn. unfold to_premor. rewrite assoc.
-        rewrite iso_after_iso_inv.
-        apply id_left.
-      + use monoidfun_eq.
-        intros x0. cbn. unfold to_premor. rewrite assoc.
-        assert (X : f ;; inv_from_iso (isopair f H) = identity _).
-        {
-          rewrite <- (iso_inv_after_iso (isopair _ H)).
-          apply idpath.
-        }
-        rewrite X. apply id_left.
+    use mk_is_inverse_in_precat.
+    - use monoidfun_eq.
+      intros x0. cbn. unfold to_premor. rewrite assoc.
+      rewrite (is_inverse_in_precat2 H). apply id_left.
+    - use monoidfun_eq.
+      intros x0. cbn. unfold to_premor. rewrite assoc.
+      rewrite (is_inverse_in_precat1 H). apply id_left.
   Qed.
 
-  Lemma ABGR_Additive_is_iso_postmor {Add : Additive} (x y z : Add) {f : y --> z} (H : is_iso f) :
-    @is_iso ABGR_AbelianPreCat _ _ (to_postmor_monoidfun Add x y z f).
+  Lemma ABGR_Additive_is_iso_premor {Add : Additive} (x y z : Add) {f : x --> y}
+        (H : is_z_isomorphism f) :
+    @is_z_isomorphism ABGR_AbelianPreCat _ _ (to_premor_monoidfun Add x y z f).
   Proof.
-    use (@is_iso_qinv ABGR_AbelianPreCat).
-    - exact (to_postmor_monoidfun Add x _ _ (inv_from_iso (isopair _ H))).
-    - split.
-      + use monoidfun_eq.
-        intros x0. cbn. unfold to_postmor. rewrite <- assoc.
-        assert (X : f ;; inv_from_iso (isopair f H) = identity _).
-        {
-          rewrite <- (iso_inv_after_iso (isopair _ H)).
-          apply idpath.
-        }
-        rewrite X. apply id_right.
-      + use monoidfun_eq.
-        intros x0. cbn. unfold to_postmor. rewrite <- assoc.
-        rewrite iso_after_iso_inv. apply id_right.
+    use mk_is_z_isomorphism.
+    - exact (to_premor_monoidfun Add _ _ z (is_z_isomorphism_mor H)).
+    - exact (ABGR_additive_is_iso_premor_inverses _ _ z H).
+  Defined.
+
+  Local Lemma ABGR_additive_is_iso_postmor_inverses {Add : Additive} (x y z : Add) {f : y --> z}
+        (H : is_z_isomorphism f) :
+    is_inverse_in_precat ((to_postmor_monoidfun Add x y z f) : ABGR_AbelianPreCat⟦_, _⟧)
+                         (to_postmor_monoidfun Add x z y (is_z_isomorphism_mor H)).
+  Proof.
+    use mk_is_inverse_in_precat.
+    - use monoidfun_eq.
+      intros x0. cbn. unfold to_postmor. rewrite <- assoc.
+      rewrite (is_inverse_in_precat1 H). apply id_right.
+    - use monoidfun_eq.
+      intros x0. cbn. unfold to_postmor. rewrite <- assoc.
+      rewrite (is_inverse_in_precat2 H). apply id_right.
   Qed.
 
-  Lemma ABGR_Additive_premor_postmor_is_iso {Add : Additive} (x y : Add) {f : x --> y}
-        (H1 : @is_iso ABGR_AbelianPreCat _ _ (to_premor_monoidfun Add x y x f))
-        (H2 : @is_iso ABGR_AbelianPreCat _ _ (to_postmor_monoidfun Add y x y f)) :
-    is_iso f.
+  Lemma ABGR_Additive_is_iso_postmor {Add : Additive} (x y z : Add) {f : y --> z}
+        (H : is_z_isomorphism f) :
+    @is_z_isomorphism ABGR_AbelianPreCat _ _ (to_postmor_monoidfun Add x y z f).
   Proof.
-    set (iso1 := isopair _ H1).
-    set (iso2 := isopair _ H2).
-    set (inv1 := inv_from_iso iso1).
-    set (inv2 := inv_from_iso iso2).
-    cbn in *.
-    set (mor1 := (pr1 inv1) (identity x)).
-    set (mor2 := (pr1 inv2) (identity y)).
-    (* Show that mor1 = mor2 *)
-    cbn in *.
+    use mk_is_z_isomorphism.
+    - exact (to_postmor_monoidfun Add x _ _ (is_z_isomorphism_mor H)).
+    - exact (ABGR_additive_is_iso_postmor_inverses x _ _ H).
+  Defined.
+
+  Local Lemma ABGR_Additive_premor_postmor_is_iso_inverses {Add : Additive} (x y : Add)
+        {f : x --> y}
+        (H1 : @is_z_isomorphism ABGR_AbelianPreCat _ _ (to_premor_monoidfun Add x y x f))
+        (H2 : @is_z_isomorphism ABGR_AbelianPreCat _ _ (to_postmor_monoidfun Add y x y f)) :
+    is_inverse_in_precat f ((is_z_isomorphism_mor H1 : monoidfun (to_abgrop x x) (to_abgrop y x))
+                              (identity x : to_abgrop x x)).
+  Proof.
+    set (mor1 := ((is_z_isomorphism_mor H1) : (monoidfun (to_abgrop x x) (to_abgrop y x)))
+                   ((identity x) : to_abgrop x x)).
+    set (mor2 := ((is_z_isomorphism_mor H2) : (monoidfun (to_abgrop y y) (to_abgrop y x)))
+                   ((identity y) : to_abgrop y y)).
     assert (Hx : f ;; mor1 = identity x).
     {
-      set (tmp := @iso_after_iso_inv ABGR_AbelianPreCat _ _ iso1).
+      set (tmp := is_inverse_in_precat2 H1).
       apply base_paths in tmp.
       cbn in tmp. unfold to_premor, funcomp in tmp.
       set (tmp2 := funeqpaths tmp (identity x)). cbn in tmp2.
@@ -2167,11 +2170,11 @@ Section ABGR_corollaries.
     }
     assert (Hy : mor2 ;; f = identity y).
     {
-      set (tmp := @iso_after_iso_inv ABGR_AbelianPreCat _ _ iso2).
+      set (tmp := is_inverse_in_precat2 H2).
       apply base_paths in tmp. cbn in tmp.
       unfold to_premor, funcomp in tmp.
       set (tmp2 := funeqpaths tmp (identity y)). cbn in tmp2.
-      apply tmp2.
+      unfold to_postmor in tmp2. cbn. apply tmp2.
     }
     assert (H : mor1 = mor2).
     {
@@ -2182,12 +2185,21 @@ Section ABGR_corollaries.
       rewrite id_left.
       apply idpath.
     }
-    use is_iso_qinv.
-    apply mor1.
-    split.
-    - apply Hx.
-    - rewrite H. apply Hy.
+    use mk_is_inverse_in_precat.
+    - exact Hx.
+    - rewrite H. exact Hy.
   Qed.
+
+  Lemma ABGR_Additive_premor_postmor_is_iso {Add : Additive} (x y : Add) {f : x --> y}
+        (H1 : @is_z_isomorphism ABGR_AbelianPreCat _ _ (to_premor_monoidfun Add x y x f))
+        (H2 : @is_z_isomorphism ABGR_AbelianPreCat _ _ (to_postmor_monoidfun Add y x y f)) :
+    is_z_isomorphism f.
+  Proof.
+    use mk_is_z_isomorphism.
+    - exact (((is_z_isomorphism_mor H1) : (monoidfun (to_abgrop x x) (to_abgrop y x)))
+               ((identity x) : to_abgrop x x)).
+    - exact (ABGR_Additive_premor_postmor_is_iso_inverses _ _ H1 H2).
+  Defined.
 
   (** A criteria for isKernel which uses only the elements in the abelian group. *)
 

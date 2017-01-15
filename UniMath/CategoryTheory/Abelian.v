@@ -943,7 +943,7 @@ Section abelian_monic_kernels.
     assert (e5 : is_iso (CoequalizerArrow Coeq)).
     {
       set (coker2 := KernelZeroMonic_cokernel e4 Coeq_coker).
-      apply (CokernelofZeroArrow_is_iso hs to_Zero coker2).
+      apply (is_iso_qinv _ _ (CokernelofZeroArrow_is_iso hs to_Zero coker2)).
     }
     set (isoar := isopair (CoequalizerArrow Coeq) e5).
     set (coeq_eq := CoequalizerEqAr Coeq).
@@ -1021,7 +1021,7 @@ Section abelian_monic_kernels.
     assert (e5 : is_iso (EqualizerArrow Eq)).
     {
       set (ker2 := CokernelZeroEpi_kernel e4 Eq_ker).
-      apply (KernelofZeroArrow_is_iso hs to_Zero ker2).
+      apply (is_iso_qinv _ _ (KernelofZeroArrow_is_iso hs to_Zero ker2)).
     }
     set (isoar := isopair (EqualizerArrow Eq) e5).
     set (Eq_eq := EqualizerEqAr Eq).
@@ -1293,7 +1293,7 @@ Section abelian_factorization.
   Proof.
     apply isEpi_comp.
     apply CokernelArrowisEpi.
-    apply (is_iso_isEpi A _ (is_iso_qinv _ _ (CoIm_to_Im_is_iso f))).
+    apply (is_iso_isEpi A _ (CoIm_to_Im_is_iso f)).
   Qed.
 
   Definition factorization1_epi {x y : A} (f : x --> y) : Epi A x (Image f).
@@ -1322,7 +1322,7 @@ Section abelian_factorization.
     isMonic (CoIm_to_Im f ;; (KernelArrow (Image f))).
   Proof.
     apply isMonic_comp.
-    apply (is_iso_isMonic A _ (is_iso_qinv _ _ (CoIm_to_Im_is_iso f))).
+    apply (is_iso_isMonic A _ (CoIm_to_Im_is_iso f)).
     apply KernelArrowisMonic.
   Qed.
 
@@ -1390,7 +1390,7 @@ Section abelian_kernel_cokernel.
   Definition MonicToKernel {x y : A} (M : Monic A x y) :
     kernels.Kernel to_Zero (CokernelArrow (Cokernel M)) :=
     Kernel_up_to_iso A hs to_Zero M (CokernelArrow (Cokernel M)) (Image M)
-                     (isopair (factorization1_epi A hs M) (is_iso_qinv _ _ (MonicToKernel_is_iso M)))
+                     (mk_z_iso (factorization1_epi A hs M) _ (MonicToKernel_is_iso M))
                      (factorization1 hs M).
 
   (** The following verifies that the monic M is indeed the KernelArrow. *)
@@ -1436,8 +1436,7 @@ Section abelian_kernel_cokernel.
   Definition EpiToCokernel {x y : A} (E : Epi A x y) :
     cokernels.Cokernel to_Zero (KernelArrow (Kernel E)) :=
     Cokernel_up_to_iso A hs to_Zero (KernelArrow (Kernel E)) E (CoImage E)
-                       (isopair (factorization2_monic A hs E)
-                                (is_iso_qinv _ _ (EpiToCokernel_is_iso E)))
+                       (mk_z_iso (factorization2_monic A hs E) _ (EpiToCokernel_is_iso E))
                        (factorization2 hs E).
 
   (** The following verifies that the epi E is indeed the CokernelArrow. *)

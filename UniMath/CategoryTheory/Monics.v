@@ -49,15 +49,15 @@ Section def_monic.
   Definition MonicisMonic {y z : C} (M : Monic y z) : isMonic M := pr2 M.
 
   (** Isomorphism to isMonic and Monic. *)
-  Lemma is_iso_isMonic {y x : C} (f : y --> x) (H : is_iso f) : isMonic f.
+  Lemma is_iso_isMonic {y x : C} (f : y --> x) (H : is_z_isomorphism f) : isMonic f.
   Proof.
     apply mk_isMonic.
     intros z g h X.
-    apply (post_comp_with_iso_is_inj _ y _ f H).
+    apply (post_comp_with_z_iso_is_inj H).
     exact X.
   Qed.
 
-  Lemma is_iso_Monic {y x : C} (f : y --> x) (H : is_iso f) : Monic y x.
+  Lemma is_iso_Monic {y x : C} (f : y --> x) (H : is_z_isomorphism f) : Monic y x.
   Proof.
     apply (mk_Monic f (is_iso_isMonic f H)).
   Defined.
@@ -65,7 +65,7 @@ Section def_monic.
   (** Identity to isMonic and Monic. *)
   Lemma identity_isMonic {x : C} : isMonic (identity x).
   Proof.
-    apply (is_iso_isMonic (identity x) (identity_is_iso _ x)).
+    apply (is_iso_isMonic (identity x) (is_z_isomorphism_identity x)).
   Defined.
 
   Lemma identity_Monic {x : C} : Monic x x.

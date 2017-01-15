@@ -101,6 +101,33 @@ Definition opp_iso {C : precategory} {a b : C} : @iso C a b -> @iso C^op b a.
   split; [ apply (pr2 (pr2 T)) | apply (pr1 (pr2 T)) ].
 Defined.
 
+Lemma opp_is_inverse_in_precat {C : precategory} {a b : C} {f : a --> b} {g : b --> a} :
+  @is_inverse_in_precat C a b f g -> @is_inverse_in_precat (opp_precat C) a b g f.
+Proof.
+  intros H.
+  use mk_is_inverse_in_precat.
+  - exact (is_inverse_in_precat1 H).
+  - exact (is_inverse_in_precat2 H).
+Defined.
+
+Definition opp_is_z_isomorphism {C : precategory} {a b : C} (f : a --> b) :
+  @is_z_isomorphism C a b f -> @is_z_isomorphism C^op b a f.
+Proof.
+  intros H.
+  use mk_is_z_isomorphism.
+  - exact (is_z_isomorphism_mor H).
+  - exact (opp_is_inverse_in_precat (is_inverse_in_precat_inv H)).
+Defined.
+
+Definition opp_z_iso {C : precategory} {a b : C} (f : a --> b) : @z_iso C a b -> @z_iso C^op b a.
+Proof.
+  intros H.
+  use mk_z_iso.
+  - exact (z_iso_mor H).
+  - exact (z_iso_inv_mor H).
+  - exact (opp_is_inverse_in_precat (is_inverse_in_precat_inv H)).
+Defined.
+
 Lemma has_homsets_opp {C : precategory} (hsC : has_homsets C) : has_homsets C^op.
 Proof. intros a b; apply hsC. Qed.
 

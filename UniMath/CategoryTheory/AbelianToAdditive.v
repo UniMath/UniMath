@@ -315,21 +315,11 @@ Section abelian_is_additive.
   Definition CokernelOfDiagonal {X : A} (BinProd : BinProductCone A X X) :
     cokernels.Cokernel to_Zero (DiagonalMap BinProd).
   Proof.
-    set (X0 := iso_inv_from_iso (isopair _ (is_iso_qinv _ _ (CokernelOfDiagonal_is_iso BinProd)))).
+    set (X0 := z_iso_inv (mk_z_iso _ _ (CokernelOfDiagonal_is_iso BinProd))).
     exact (Cokernel_up_to_iso A hs to_Zero _
                               (CokernelArrow (Cokernel (DiagonalMap BinProd)) ;; X0)
                               (Cokernel (DiagonalMap BinProd)) X0 (idpath _)).
   Defined.
-
-  (** Verification that the CokernelArrow of the above is what we wanted. *)
-  Lemma CokernelOfDiagonal_CokernelArrowEq {X : A} (BinProd : BinProductCone A X X) :
-    CokernelArrow (CokernelOfDiagonal BinProd) =
-    (CokernelArrow (Cokernel (DiagonalMap BinProd))
-                   ;; iso_inv_from_iso (isopair _ (is_iso_qinv
-                                                     _ _ (CokernelOfDiagonal_is_iso BinProd)))).
-  Proof.
-    apply idpath.
-  Qed.
 
   (** We define the op which makes the homsets of an abelian category to abelian
     groups. *)
@@ -377,8 +367,8 @@ Section abelian_is_additive.
   Proof.
     set (ar := (BinProductArrow A (to_BinProducts A X X) (identity X) (ZeroArrow to_Zero X X))
                  ;; (CokernelArrow (Cokernel (DiagonalMap (to_BinProducts A X X))))).
-    set (r := isopair ar (is_iso_qinv _ _ (CokernelOfDiagonal_is_iso (to_BinProducts A X X)))).
-    cbn. fold ar. fold r. rewrite assoc. exact (iso_inv_after_iso r).
+    set (r := mk_z_iso ar _ (CokernelOfDiagonal_is_iso (to_BinProducts A X X))).
+    cbn. fold ar. fold r. rewrite assoc. exact (is_inverse_in_precat1 r).
   Qed.
 
   Lemma Abelian_op_eq {X Y : A} (f : X --> Y) :

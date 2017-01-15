@@ -51,15 +51,15 @@ Section def_epi.
   Definition EpiisEpi {x y : C} (E : Epi x y) : isEpi E := pr2 E.
 
   (** Isomorphism to isEpi and Epi. *)
-  Lemma is_iso_isEpi {x y : C} (f : x --> y) (H : is_iso f) : isEpi f.
+  Lemma is_iso_isEpi {x y : C} (f : x --> y) (H : is_z_isomorphism f) : isEpi f.
   Proof.
     apply mk_isEpi.
     intros z g h X.
-    apply (pre_comp_with_iso_is_inj _ x _ _ f H).
+    apply (pre_comp_with_z_iso_is_inj H).
     exact X.
   Qed.
 
-  Lemma is_iso_Epi {x y : C} (f : x --> y) (H : is_iso f) : Epi x y.
+  Lemma is_iso_Epi {x y : C} (f : x --> y) (H : is_z_isomorphism f) : Epi x y.
   Proof.
     apply (mk_Epi f (is_iso_isEpi f H)).
   Defined.
@@ -67,7 +67,7 @@ Section def_epi.
   (** Identity to isEpi and Epi. *)
   Lemma identity_isEpi {x : C} : isEpi (identity x).
   Proof.
-    apply (is_iso_isEpi (identity x) (identity_is_iso _ x)).
+    apply (is_iso_isEpi (identity x) (is_z_isomorphism_identity x)).
   Defined.
 
   Lemma identity_Epi {x : C} : Epi x x.
@@ -168,7 +168,3 @@ Section epis_functorcategories.
   Qed.
 
 End epis_functorcategories.
-
-
-
-
