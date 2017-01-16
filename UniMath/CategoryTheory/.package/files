@@ -46,6 +46,7 @@ limits/BinDirectSums.v
 limits/FinOrdProducts.v
 limits/FinOrdCoproducts.v
 limits/Opp.v
+limits/graphs/eqdiag.v
 limits/EffectiveEpis.v
 HLevel_n_is_of_hlevel_Sn.v
 category_hset.v
@@ -96,4 +97,3 @@ AbelianPushoutPullback.v
 PseudoElements.v
 FiveLemma.v
 set_slice_fam_equiv.v
-limits/graphs/eqdiag.v
