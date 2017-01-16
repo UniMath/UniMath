@@ -94,6 +94,7 @@ Section IsEffectivePw.
   Context {X Y :functor C D } {a:CD ⟦X,Y⟧}.
 
   Lemma isEffectivePw : (Π (x:C), isEffective (pr1 a x)) -> isEffective a.
+  Proof.
     intros h.
     red.
     transparent assert (f:(kernel_pair a)).
