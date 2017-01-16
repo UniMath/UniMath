@@ -977,6 +977,18 @@ Proof.
   cbn in e. rewrite <- e in e'. apply (hzeqissi e').
 Qed.
 
+Lemma hzeqnmplusr {n m i : hz} (e : n = m) (e' : ¬ (n + i = m + i)) : empty.
+Proof.
+  intros n m i e e'.
+  apply e'. exact (hzplusradd _ _ i e).
+Qed.
+
+Lemma hzeqnmplusr' {n m i : hz} (e : ¬ (n = m)) (e' : n + i = m + i) : empty.
+Proof.
+  intros n m i e e'.
+  apply e. exact (hzplusrcan _ _ i e').
+Qed.
+
 Lemma isdecrelhzeqi (i : hz) : isdecrelhzeq i i = ii1 (idpath _).
 Proof.
   intros i.

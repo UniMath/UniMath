@@ -103,18 +103,18 @@ Section def_complexes.
                          (transportf (λ x : A, x --> C1 (i + 1)) (H i) (Diff C1 i)) =
               Diff C2 i) :
     transportf (λ x : hz → A, Π i : hz, A ⟦ x i, x (i + 1) ⟧)
-               (funextfun (pr1 (pr1 C1)) (pr1 (pr1 C2)) (λ i : hz, H i)) (pr2 (pr1 C1)) =
-    pr2 (pr1 C2).
+               (funextfun C1 C2 (λ i : hz, H i)) (Diff C1) =
+    Diff C2.
   Proof.
     use funextsec. intros i.
     assert (e : transportf (λ x : hz → A, Π i0 : hz, A ⟦ x i0, x (i0 + 1) ⟧)
-                           (funextfun (pr1 (pr1 C1)) (pr1 (pr1 C2)) (λ i0 : hz, H i0))
-                           (pr2 (pr1 C1)) i =
+                           (funextfun C1 C2 (λ i0 : hz, H i0))
+                           (Diff C1) i =
                 transportf (λ x : hz → A, A ⟦ x i, x (i + 1) ⟧)
-                           (funextfun (pr1 (pr1 C1)) (pr1 (pr1 C2)) (λ i0 : hz, H i0))
-                           (pr2 (pr1 C1) i)).
+                           (funextfun C1 C2 (λ i0 : hz, H i0))
+                           (Diff C1 i)).
     {
-      induction (funextfun (pr1 (pr1 C1)) (pr1 (pr1 C2)) (λ i0 : hz, H i0)).
+      induction (funextfun C1 C2 (λ i0 : hz, H i0)).
       apply idpath.
     }
     rewrite e. clear e.
@@ -132,8 +132,8 @@ Section def_complexes.
       (λ x : Σ D : hz → A, Π i : hz, A ⟦ D i, D (i + 1) ⟧,
                                  Π i : hz, pr2 x i ;; pr2 x (i + 1) =
                                            ZeroArrow (Additive.to_Zero A) _ _)
-      (total2_paths (funextfun (pr1 (pr1 C1)) (pr1 (pr1 C2)) (λ i : hz, H i))
-                    (ComplexEq' C1 C2 H H1)) (pr2 C1) = pr2 C2.
+      (total2_paths (funextfun C1 C2 (λ i : hz, H i))
+                    (ComplexEq' C1 C2 H H1)) (DSq C1) = DSq C2.
   Proof.
     apply proofirrelevance. apply impred_isaprop. intros t. apply to_has_homsets.
   Qed.
@@ -150,7 +150,6 @@ Section def_complexes.
       + exact (ComplexEq' C1 C2 H H1).
     - exact (ComplexEq'' C1 C2 H H1).
   Defined.
-
 
   (** Zero Complex *)
   Definition ZeroComplex : Complex.
@@ -643,6 +642,80 @@ Section def_complexes.
     - intros i. exact (DirectSumMorIn_comm f g i).
   Defined.
 
+End def_complexes.
+Arguments Diff [A] _ _.
+Arguments ZeroComplex [A].
+Arguments Morphism [A] _ _.
+Arguments MorphismEq [A] [C1] [C2] _ _ _.
+Arguments MorphismFromZero [A] _.
+Arguments MorphismToZero [A] _.
+Arguments MMor [A] [C1] [C2] _ _.
+Arguments MComm [A] [C1] [C2] _ _.
+Arguments IdMor [A] _.
+Arguments MorphismComp [A] [C1] [C2] [C3] _ _.
+
+
+(** * Transport of morphisms indexed by integers *)
+Section transport_section'.
+
+  Variable C : precategory.
+
+  Lemma transport_hz_source_target (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧)
+        (i i' : hz) (e1 : i = i') :
+    H i' = transportf (fun (x : ob C) => C⟦x, f (i' + n)⟧) (maponpaths f e1)
+                      (transportf (precategory_morphisms (f i))
+                                  (maponpaths f (hzplusradd i i' n e1)) (H i)).
+  Proof.
+    induction e1. apply idpath.
+  Qed.
+
+  Lemma transport_hz_target_source (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧)
+        (i i' : hz) (e1 : i = i') :
+    H i' = transportf (precategory_morphisms (f i'))
+                      (maponpaths f (hzplusradd i i' n e1))
+                      (transportf (fun (x : ob C) => C⟦x, f (i + n)⟧) (maponpaths f e1) (H i)).
+  Proof.
+    induction e1. apply idpath.
+  Qed.
+
+  Lemma transport_hz_section (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧)
+        (i i' : hz) (e1 : i = i') :
+    transportf (precategory_morphisms (f i)) (maponpaths f (hzplusradd i i' n e1)) (H i) =
+    transportf (fun (x : ob C) => C⟦x, f (i' + n)⟧) (maponpaths f (! e1)) (H i').
+  Proof.
+    induction e1. apply idpath.
+  Qed.
+
+  Lemma transport_hz_section' (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f (i + n), f i⟧)
+        (i i' : hz) (e1 : i + n = i' + n) (e2 : i = i') :
+    transportf (precategory_morphisms (f (i + n))) (maponpaths f e2) (H i) =
+    transportf (fun (x : ob C) => C⟦x, f i'⟧) (maponpaths f (! e1)) (H i').
+  Proof.
+    induction e2. assert (e : e1 = idpath _) by apply isasethz. rewrite e. clear e. apply idpath.
+  Qed.
+
+  Lemma transport_hz_double_section (f f' : hz -> ob C) (H : Π (i : hz), C⟦f i, f' i⟧)
+        (i i' : hz) (e : i = i') :
+    transportf (precategory_morphisms (f i)) (maponpaths f' e) (H i) =
+    transportf (fun (x : ob C) => C⟦x, f' i'⟧) (maponpaths f (! e)) (H i').
+  Proof.
+    induction e. apply idpath.
+  Qed.
+
+  Lemma transport_hz_double_section_source_target (f f' : hz -> ob C) (H : Π (i : hz), C⟦f i, f' i⟧)
+        (i i' : hz) (e : i = i') :
+    H i' = transportf (precategory_morphisms (f i')) (maponpaths f' e)
+                      (transportf (fun (x : ob C) => C⟦x, f' i⟧) (maponpaths f e) (H i)).
+  Proof.
+    induction e. apply idpath.
+  Qed.
+
+End transport_section'.
+
+
+Section acyclic_complexes.
+
+  Variable A : Additive.
 
   (** ** Construction of a complexes with one object *)
   (** ... -> 0 -> X -> 0 -> ... *)
@@ -659,32 +732,18 @@ Section def_complexes.
     Π i0 : hz, A ⟦ComplexFromObject_obs X i i0, ComplexFromObject_obs X i (i0 + 1)⟧.
   Proof.
     intros i0.
-    unfold ComplexFromObject_obs. unfold coprod_rect.
-    induction (isdecrelhzeq i i0) as [e | n].
-    - induction (isdecrelhzeq i (i0 + 1)) as [e' | n'].
-      + apply (fromempty (hzeqeisi e e')).
-      + apply (ZeroArrow (Additive.to_Zero A)).
-    - induction (isdecrelhzeq i (i0 + 1)) as [e' | n'].
-      + apply (ZeroArrow (Additive.to_Zero A)).
-      + apply (ZeroArrow (Additive.to_Zero A)).
+    exact (ZeroArrow (Additive.to_Zero A) (ComplexFromObject_obs X i i0)
+                     (ComplexFromObject_obs X i (i0 + 1))).
   Defined.
 
   Local Lemma ComplexFromObject_comm (X : ob A) (i : hz) :
     Π i0 : hz, (ComplexFromObject_mors X i i0) ;; (ComplexFromObject_mors X i (i0 + 1)) =
                ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
-    intros i0.
-    unfold ComplexFromObject_obs. unfold ComplexFromObject_mors. unfold coprod_rect. cbn.
-    induction (isdecrelhzeq i i0) as [e | n].
-    + induction (isdecrelhzeq i (i0 + 1)) as [e' | n'].
-      * apply (fromempty (hzeqeisi e e')).
-      * apply ZeroArrow_comp_left.
-    + induction (isdecrelhzeq i (i0 + 1)) as [e' | n'].
-      * apply ZeroArrow_comp_left.
-      * apply ZeroArrow_comp_left.
+    intros i0. apply ZeroArrow_comp_left.
   Qed.
 
-  Definition ComplexFromObject (X : ob A) (i : hz) : Complex.
+  Definition ComplexFromObject (X : ob A) (i : hz) : Complex A.
   Proof.
     use mk_Complex.
     - exact (ComplexFromObject_obs X i).
@@ -692,7 +751,7 @@ Section def_complexes.
     - exact (ComplexFromObject_comm X i).
   Defined.
 
-  (** A morphisms in A induces a morphisms of ComplexFromObjects *)
+  (** A morphism in A induces a morphisms of ComplexFromObjects *)
   Definition ObjectMorToComplexMor_mors {a b : ob A} (f : a --> b) (i : hz) :
     Π i0 : hz, A ⟦(ComplexFromObject a i) i0, (ComplexFromObject b i) i0⟧.
   Proof.
@@ -728,9 +787,12 @@ Section def_complexes.
   Defined.
 
 
-  (** ** Construction of a complex with 2 nonzero objects and morphisms to and from it *)
+  (** ** Construction of a complex with a given object in two adjacent positions *)
 
-  Definition Complex2FromObject_obs (a : ob A) (i : hz) : hz -> ob A.
+
+  (** *** Construction of the complex ... --> 0 --> X -Id-> X --> 0 --> ... *)
+
+  Definition AcyclicComplexFromObject_obs (a : ob A) (i : hz) : hz -> ob A.
   Proof.
     intros i0.
     induction (isdecrelhzeq i i0) as [e | n].
@@ -740,238 +802,286 @@ Section def_complexes.
       + exact (Additive.to_Zero A).
   Defined.
 
-  Definition Complex2FromObject_mors (a : ob A) (i : hz) :
-    Π i0 : hz, A ⟦Complex2FromObject_obs a i i0, Complex2FromObject_obs a i (i0 + 1)⟧.
+  Definition AcyclicComplexFromObject_mors (a : ob A) (i : hz) :
+    Π i0 : hz, A ⟦AcyclicComplexFromObject_obs a i i0, AcyclicComplexFromObject_obs a i (i0 + 1)⟧.
   Proof.
-    intros i0. unfold Complex2FromObject_obs. cbn. unfold coprod_rect.
+    intros i0. unfold AcyclicComplexFromObject_obs. cbn. unfold coprod_rect.
     induction (isdecrelhzeq i i0) as [e | n].
     + induction (isdecrelhzeq i (i0 + 1)) as [e' | n'].
-      * apply (fromempty (hzeqeisi e e')).
+      * exact (fromempty (hzeqeisi e e')).
       * induction (isdecrelhzeq (i + 1) (i0 + 1)) as [e'' | n''].
-        -- apply identity.
-        -- apply fromempty. apply n''. induction e. apply idpath.
+        -- exact (identity a).
+        -- exact (fromempty (hzeqnmplusr e n'')).
     + induction (isdecrelhzeq (i + 1) i0) as [e' | n'].
       * induction (isdecrelhzeq i (i0 + 1)) as [e'' | n''].
-        -- apply fromempty. cbn in e'. rewrite <- e' in e''. apply (hzeqissi e'').
+        -- exact (fromempty (hzeqsnmnsm e' e'')).
         -- induction (isdecrelhzeq (i + 1) (i0 + 1)) as [e''' | n'''].
-           ++ cbn in e'. rewrite e' in e'''.
-              apply (fromempty (hzeqisi e''')).
-           ++ apply (ZeroArrow (Additive.to_Zero A)).
+           ++ exact (fromempty (hzeqeisi e' e''')).
+           ++ exact (ZeroArrow (Additive.to_Zero A) a (Additive.to_Zero A)).
       * induction (isdecrelhzeq i (i0 + 1)) as [e'' | n''].
-        -- apply (ZeroArrow (Additive.to_Zero A)).
+        -- exact (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) a).
         -- induction (isdecrelhzeq (i + 1) (i0 + 1)) as [e''' | n'''].
-           ++ apply fromempty. apply n. apply (hzplusrcan _ _ 1). apply e'''.
-           ++ apply (ZeroArrow (Additive.to_Zero A)).
+           ++ exact (fromempty (hzeqnmplusr' n e''')).
+           ++ exact (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (Additive.to_Zero A)).
   Defined.
 
-  Local Lemma Complex2FromObject_comm (a : ob A) (i : hz) :
-    Π i0 : hz, (Complex2FromObject_mors a i i0) ;; (Complex2FromObject_mors a i (i0 + 1)) =
+  Local Lemma AcyclicComplexFromObject_diff (a : ob A) (i : hz) :
+    Π i0 : hz, (AcyclicComplexFromObject_mors a i i0)
+                 ;; (AcyclicComplexFromObject_mors a i (i0 + 1)) =
                ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
-    intros i0.
-    unfold Complex2FromObject_obs. unfold Complex2FromObject_mors. unfold coprod_rect.
-    induction (isdecrelhzeq i i0) as [e | n].
-    - induction (isdecrelhzeq i (i0 + 1)) as [e' | n'].
-      + apply (fromempty (hzeqeisi e e')).
-      + induction (isdecrelhzeq (i + 1) (i0 + 1)) as [e'' | n''].
-        * rewrite id_left.
-          induction (isdecrelhzeq i (i0 + 1 + 1)) as [e''' | n'''].
-          -- apply (fromempty (hzeqeissi e e''')).
-          -- induction (isdecrelhzeq (i + 1) (i0 + 1 + 1)) as [e'''' | n''''].
-             ++ apply (fromempty (hzeqeisi e'' e'''')).
-             ++ apply idpath.
-        * apply fromempty. apply n''. cbn. cbn in e. rewrite e. apply idpath.
-    - induction (isdecrelhzeq (i + 1) i0) as [e' | n'].
-      + induction (isdecrelhzeq i (i0 + 1)) as [e'' | n''].
-        * apply (fromempty (hzeqsnmnsm e' e'')).
-        * induction (isdecrelhzeq (i + 1) (i0 + 1)) as [e''' | n'''].
-          -- apply (fromempty (hzeqeisi e' e''')).
-          -- induction (isdecrelhzeq i (i0 + 1 + 1)) as [e'''' | n''''].
-             ++ apply ZeroArrow_comp_left.
-             ++ induction (isdecrelhzeq (i + 1) (i0 + 1 + 1)) as [e5 | n5].
-                ** apply (fromempty (hzeqeissi e' e5)).
-                ** apply ZeroArrow_comp_left.
-      + induction (isdecrelhzeq i (i0 + 1)) as [e'' | n''].
-        * induction (isdecrelhzeq i (i0 + 1 + 1)) as [e3 | n3].
-          -- apply (fromempty (hzeqeisi e'' e3)).
-          -- induction (isdecrelhzeq (i + 1) (i0 + 1 + 1)) as [e4 | n4].
-             ++ apply ZeroArrow_comp_left.
-             ++ apply fromempty. apply n4. cbn in e''. rewrite e''. apply idpath.
-        * induction (isdecrelhzeq (i + 1) (i0 + 1)) as [e3 | n3].
-          -- apply fromempty. apply n. apply (hzplusrcan _ _ 1). apply e3.
-          -- induction (isdecrelhzeq i (i0 + 1 + 1)) as [e4 | n4].
-             ++ apply ZeroArrow_comp_left.
-             ++ induction (isdecrelhzeq (i + 1) (i0 + 1 + 1)) as [e5 | n5].
-                ** apply fromempty. apply n''. apply (hzplusrcan _ _ 1). apply e5.
-                ** apply ZeroArrow_comp_left.
-  Qed.
-
-  (** This constructs the complex ... --> 0 --> X -Id-> X --> 0 --> ... *)
-  Definition Complex2FromObject (a : ob A) (i : hz) : Complex.
-  Proof.
-    use mk_Complex.
-    - exact (Complex2FromObject_obs a i).
-    - exact (Complex2FromObject_mors a i).
-    - exact (Complex2FromObject_comm a i).
-  Defined.
-
-  (** *** Morphism from Complex2FromObject to complex *)
-
-  Definition FromComplex2FromObject_mors {a : ob A} {C : Complex} {i : hz} (f : a --> (C i)) :
-    Π i0 : hz, A ⟦(Complex2FromObject a i) i0, C i0⟧.
-  Proof.
-    intros i0.
-    unfold Complex2FromObject. unfold Complex2FromObject_obs. unfold Complex2FromObject_mors. cbn.
+    intros i0. unfold AcyclicComplexFromObject_obs. unfold AcyclicComplexFromObject_mors.
     unfold coprod_rect.
     induction (isdecrelhzeq i i0) as [e | n].
-    + induction e. exact f.
-    + induction (isdecrelhzeq (i + 1) i0) as [e' | n'].
-      * induction e'. exact (f ;; (Diff C i)).
-      * apply (ZeroArrow (Additive.to_Zero A)).
+    - induction (isdecrelhzeq i (i0 + 1)) as [e' | n'].
+      + exact (fromempty (hzeqeisi e e')).
+      + induction (isdecrelhzeq (i + 1) (i0 + 1)) as [e'' | n''].
+        * induction (isdecrelhzeq i (i0 + 1 + 1)) as [e''' | n'''].
+          -- exact (fromempty (hzeqsnmnsm e'' e''')).
+          -- induction (isdecrelhzeq (i + 1) (i0 + 1 + 1)) as [e'''' | n''''].
+             ++ exact (fromempty (hzeqeisi e'' e'''')).
+             ++ exact (ZeroArrow_comp_right _ _ _ _ _ _).
+        * exact (fromempty (hzeqnmplusr e n'')).
+    - induction (isdecrelhzeq (i + 1) i0) as [e' | n'].
+      + induction (isdecrelhzeq i (i0 + 1)) as [e'' | n''].
+        * exact (fromempty (hzeqsnmnsm e' e'')).
+        * induction (isdecrelhzeq (i + 1) (i0 + 1)) as [e''' | n'''].
+          -- exact (fromempty (hzeqeisi e' e''')).
+          -- induction (isdecrelhzeq i (i0 + 1 + 1)) as [e'''' | n''''].
+             ++ exact (ZeroArrow_comp_left _ _ _ _ _ _).
+             ++ induction (isdecrelhzeq (i + 1) (i0 + 1 + 1)) as [e5 | n5].
+                ** exact (fromempty (hzeqnmplusr' n'' e5)).
+                ** exact (ZeroArrow_comp_left _ _ _ _ _ _).
+      + induction (isdecrelhzeq i (i0 + 1)) as [e'' | n''].
+        * induction (isdecrelhzeq i (i0 + 1 + 1)) as [e3 | n3].
+          -- exact (fromempty (hzeqeisi e'' e3)).
+          -- induction (isdecrelhzeq (i + 1) (i0 + 1 + 1)) as [e4 | n4].
+             ++ exact (ZeroArrow_comp_left _ _ _ _ _ _).
+             ++ exact (fromempty (hzeqnmplusr e'' n4)).
+        * induction (isdecrelhzeq (i + 1) (i0 + 1)) as [e3 | n3].
+          -- exact (fromempty (hzeqnmplusr' n e3)).
+          -- induction (isdecrelhzeq i (i0 + 1 + 1)) as [e4 | n4].
+             ++ exact (ZeroArrow_comp_left _ _ _ _ _ _).
+             ++ induction (isdecrelhzeq (i + 1) (i0 + 1 + 1)) as [e5 | n5].
+                ** exact (fromempty (hzeqnmplusr' n'' e5)).
+                ** exact (ZeroArrow_comp_left _ _ _ _ _ _).
+  Qed.
+
+  Definition AcyclicComplexFromObject (a : ob A) (i : hz) : Complex A.
+  Proof.
+    use mk_Complex.
+    - exact (AcyclicComplexFromObject_obs a i).
+    - exact (AcyclicComplexFromObject_mors a i).
+    - exact (AcyclicComplexFromObject_diff a i).
   Defined.
 
-  Local Lemma FromComplex2FromObject_comm {a : ob A} {C : Complex} {i : hz} (f : a --> (C i)) :
-    Π i0 : hz, (FromComplex2FromObject_mors f i0) ;; (Diff C i0) =
-               (Diff (Complex2FromObject a i) i0) ;; (FromComplex2FromObject_mors f (i0 + 1)).
+  (** *** Morphism from [AcyclicComplexFromObject] to a complex
+                           ... -->   0   -->  X^i  -->  X^i   -->   0    -->   ...
+                                     |         |         |          |
+                           .. --> X^{i-1} --> X^i --> X^{i+1} --> X^{i+2} -->  ...
+   *)
+
+  Definition FromAcyclicComplexFromObject_mors {a : ob A} {C : Complex A} {i : hz}
+             (f : a --> (C i)) : Π i0 : hz, A ⟦(AcyclicComplexFromObject a i) i0, C i0⟧.
   Proof.
     intros i0.
-    unfold Complex2FromObject. unfold Complex2FromObject_obs. unfold Complex2FromObject_mors.
-    unfold FromComplex2FromObject_mors. cbn. unfold coprod_rect. cbn.
-    unfold paths_rect. cbn.
+    unfold AcyclicComplexFromObject. unfold AcyclicComplexFromObject_obs.
+    unfold AcyclicComplexFromObject_mors. cbn.
+    unfold coprod_rect.
     induction (isdecrelhzeq i i0) as [e | n].
-    + induction e.
-      induction (isdecrelhzeq i (i + 1)) as [e' | n'].
-      * apply (fromempty (hzeqisi e')).
-      * induction (isdecrelhzeq (i + 1) (i + 1)) as [e'' | n''].
-        -- rewrite id_left.
-           rewrite (pr1 (isasethz (i + 1) (i + 1) e'' (idpath (i + 1)))).
-           apply idpath.
-        -- apply (fromempty (n'' (idpath (i + 1)))).
+    + exact (transportf (precategory_morphisms a) (maponpaths C e) f).
     + induction (isdecrelhzeq (i + 1) i0) as [e' | n'].
-      * induction e'. cbn.
-        induction (isdecrelhzeq i (i + 1 + 1)) as [e'' | n''].
-        -- apply (fromempty (hzeqissi e'')).
-        -- induction (isdecrelhzeq (i + 1) (i + 1 + 1)) as [e''' | n'''].
-           ++ apply (fromempty (hzeqisi e''')).
-           ++ rewrite <- assoc. rewrite (DSq C i). rewrite ZeroArrow_comp_left.
-              apply ZeroArrow_comp_right.
+      * exact (transportf (precategory_morphisms a) (maponpaths C e') (f ;; Diff C i)).
+      * exact (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (C i0)).
+  Defined.
+
+  Local Lemma FromAcyclicComplexFromObject_comm_eq1 {a : ob A} {C : Complex A} {i : hz}
+        (f : a --> (C i)) (i0 : hz) (e : i = i0) (e'' : (i + 1) = (i0 + 1)) :
+    transportf (precategory_morphisms a) (maponpaths C e) f ;; Diff C i0 =
+    identity a ;; transportf (precategory_morphisms a) (maponpaths C e'') (f ;; Diff C i).
+  Proof.
+    rewrite id_left. rewrite transport_target_postcompose.
+    rewrite transport_compose. apply cancel_precomposition.
+    rewrite <- maponpathsinv0.
+    use (pathscomp0 (! (transport_hz_section A C 1 (Diff C) _ _ e))).
+    use transportf_paths. apply maponpaths. apply isasethz.
+  Qed.
+
+  Local Lemma FromAcyclicComplexFromObject_comm_eq2 {a : ob A} {C : Complex A} {i : hz}
+        (f : a --> (C i)) (i0 : hz) (e' : i + 1 = i0) :
+    transportf (precategory_morphisms a) (maponpaths C e') (f ;; Diff C i) ;; Diff C i0 =
+    (ZeroArrow (Additive.to_Zero A) a (Additive.to_Zero A))
+      ;; (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (C (i0 + 1))).
+  Proof.
+    rewrite ZeroArrow_comp_left.
+    rewrite (transport_hz_source_target A C 1 (Diff C) _ _ (e')).
+    rewrite transport_compose'. rewrite <- transport_target_postcompose.
+    rewrite <- assoc. rewrite DSq. rewrite ZeroArrow_comp_right.
+    rewrite transport_target_ZeroArrow. apply idpath.
+  Qed.
+
+  Local Lemma FromAcyclicComplexFromObject_comm {a : ob A} {C : Complex A} {i : hz}
+        (f : a --> (C i)) :
+    Π i0 : hz, (FromAcyclicComplexFromObject_mors f i0) ;; (Diff C i0) =
+               (Diff (AcyclicComplexFromObject a i) i0)
+                 ;; (FromAcyclicComplexFromObject_mors f (i0 + 1)).
+  Proof.
+    intros i0.
+    unfold AcyclicComplexFromObject. unfold AcyclicComplexFromObject_obs.
+    unfold AcyclicComplexFromObject_mors. unfold FromAcyclicComplexFromObject_mors.
+    unfold coprod_rect. cbn.
+    induction (isdecrelhzeq i i0) as [e | n].
+    + induction (isdecrelhzeq i (i0 + 1)) as [e' | n'].
+      * exact (fromempty (hzeqeisi e e')).
+      * induction (isdecrelhzeq (i + 1) (i0 + 1)) as [e'' | n''].
+        -- exact (FromAcyclicComplexFromObject_comm_eq1 f i0 e e'').
+        -- exact (fromempty (n'' (maponpaths (fun i' : hz => i' + 1) e))).
+    + induction (isdecrelhzeq (i + 1) i0) as [e' | n'].
+      * induction (isdecrelhzeq i (i0 + 1)) as [e'' | n''].
+        -- exact (fromempty (hzeqsnmnsm e' e'')).
+        -- induction (isdecrelhzeq (i + 1) (i0 + 1)) as [e''' | n'''].
+           ++ exact (fromempty (hzeqeisi e' e''')).
+           ++ exact (FromAcyclicComplexFromObject_comm_eq2 f i0 e').
       * induction (isdecrelhzeq i (i0 + 1)) as [e'' | n''].
         -- rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left. apply idpath.
         -- induction (isdecrelhzeq (i + 1) (i0 + 1)) as [e''' | n'''].
-           ++ apply (fromempty (n (hzplusrcan i i0 1 e'''))).
-           ++ rewrite ZeroArrow_comp_right. apply ZeroArrow_comp_left.
+           ++ exact (fromempty (n (hzplusrcan i i0 1 e'''))).
+           ++ rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left. apply idpath.
   Qed.
 
-  Definition FromComplex2FromObject {a : ob A} {C : Complex} {i : hz} (f : a --> (C i)) :
-    Morphism (Complex2FromObject a i) C.
+  Definition FromAcyclicComplexFromObject {a : ob A} {C : Complex A} {i : hz} (f : a --> (C i)) :
+    Morphism (AcyclicComplexFromObject a i) C.
   Proof.
     use mk_Morphism.
-    - exact (FromComplex2FromObject_mors f).
-    - exact (FromComplex2FromObject_comm f).
+    - exact (FromAcyclicComplexFromObject_mors f).
+    - exact (FromAcyclicComplexFromObject_comm f).
   Defined.
 
-  Lemma FromComplex2FromObject_Eq1 {a : ob A} {C : Complex} {i : hz} (i0 : hz) (g : a --> (C i)) :
-    FromComplex2FromObject_mors g i0 = (FromComplex2FromObject g) i0.
-  Proof.
-    apply idpath.
-  Qed.
+  (** *** Morphism from [AcyclicComplexFromObject] to a complex
+                           .. --> X^{i-1} --> X^i --> X^{i+1} --> X^{i+2} -->  ...
+                                     |         |         |          |
+                           ... -->   0   -->  X^i  -->  X^i   -->   0    -->   ...
+   *)
 
-  (** *** Morphism from complex to Complex2FromObject *)
-
-  Definition ToComplex2FromObject_mors {a : ob A} {C : Complex} {i : hz} (f : (C i) --> a) :
-    Π i0 : hz, A ⟦C i0, (Complex2FromObject a (i - 1)) i0⟧.
-  Proof.
-    intros i0. unfold Complex2FromObject. unfold Complex2FromObject_obs. cbn. unfold coprod_rect.
-    induction (isdecrelhzeq (i - 1) i0) as [e | n].
-    - induction (isdecrelhzeq i (i - 1 + 1)) as [e' | n'].
-      + eapply compose.
-        * induction e. exact (Diff C (i - 1)).
-        * induction e'. exact f.
-      + apply fromempty. apply n'. apply pathsinv0. apply (hzrminusplus i 1).
-    - induction (isdecrelhzeq (i - 1 + 1) i0) as [e' | n'].
-      + induction e'.
-        induction (isdecrelhzeq i (i - 1 + 1)) as [e'' | n''].
-        * induction e''. exact f.
-        * apply fromempty. apply n''. apply (hzrminusplus' i 1).
-      + apply (ZeroArrow (Additive.to_Zero A)).
-  Defined.
-
-  Local Lemma ToComplex2FromObject_comm {a : ob A} {C : Complex} {i : hz} (f : (C i) --> a) :
-    Π i0 : hz, (ToComplex2FromObject_mors f i0) ;; (Diff (Complex2FromObject a (i - 1)) i0) =
-               (Diff C i0) ;; (ToComplex2FromObject_mors f (i0 + 1)).
+  Definition ToAcyclicComplexFromObject_mors {a : ob A} {C : Complex A} {i : hz}
+             (f : (C i) --> a) : Π i0 : hz, A ⟦C i0, (AcyclicComplexFromObject a (i - 1)) i0⟧.
   Proof.
     intros i0.
-    unfold Complex2FromObject. unfold Complex2FromObject_obs. unfold Complex2FromObject_mors.
-    unfold ToComplex2FromObject_mors. unfold coprod_rect. unfold paths_rect. cbn.
+    unfold AcyclicComplexFromObject. unfold AcyclicComplexFromObject_obs.
+    unfold AcyclicComplexFromObject_mors. cbn.
+    unfold coprod_rect.
     induction (isdecrelhzeq (i - 1) i0) as [e | n].
-    - induction e.
-      induction (isdecrelhzeq (i - 1 + 1) i) as [e' | n'].
-      + induction e'.
-        induction (isdecrelhzeq (i - 1)  (i - 1 + 1)) as [e'' | n''].
-        * apply fromempty. apply (hzeqisi e'').
-        * induction (isdecrelhzeq i (i - 1 + 1)) as [e''' | n'''].
-          -- rewrite isdecrelhzeqi. rewrite id_right.
-             apply cancel_precomposition. induction e'''.
-             exact (idpath f).
-          -- apply fromempty. apply n'''. apply (hzrminusplus' i 1).
-      + induction (isdecrelhzeq (i - 1)  (i - 1 + 1)) as [e'' | n''].
-        * apply fromempty. apply (hzeqisi e'').
-        * induction (isdecrelhzeq i (i - 1 + 1)) as [e''' | n'''].
-          -- rewrite isdecrelhzeqi. rewrite id_right.
-             apply cancel_precomposition.
-             induction e'''.
-             exact (idpath f).
-          -- apply fromempty. apply n'''. apply (hzrminusplus' i 1).
+    - use compose.
+      + exact (C i).
+      + exact (transportf (fun x' : ob A => A⟦x', C i⟧) (maponpaths C e)
+                          (transportf (precategory_morphisms (C (i - 1)))
+                                      (maponpaths C (hzrminusplus i 1))
+                                      (Diff C (i - 1)))).
+      + exact f.
     - induction (isdecrelhzeq (i - 1 + 1) i0) as [e' | n'].
-      + induction e'.
-        induction (isdecrelhzeq i (i - 1 + 1)) as [e'' | n''].
-        * induction (isdecrelhzeq (i - 1) (i - 1 + 1 + 1)) as [e''' | n'''].
-          -- apply fromempty. apply (hzeqissi e''').
-          -- induction (isdecrelhzeq (i - 1 + 1) (i - 1 + 1 + 1)) as [e'''' | n''''].
-             ++ apply fromempty. apply (hzeqisi e'''').
-             ++ rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right.
-                apply idpath.
-        * apply (fromempty (n'' (hzrminusplus' i 1))).
-      + induction (isdecrelhzeq (i - 1) (i0 + 1)) as [e'' | n''].
-        * induction (isdecrelhzeq i (i - 1 + 1)) as [e''' | n'''].
-          -- rewrite assoc. rewrite ZeroArrow_comp_right.
-             set (mor := match e''' in (_ = y) return (A ⟦ C y, a ⟧) with
-                      | idpath _ => f
-                      end).
-             rewrite <- (ZeroArrow_comp_left _ _ _ _ _ mor). unfold mor. clear mor.
-             apply cancel_postcomposition. rewrite e''. apply (! (DSq C i0)).
-          -- apply fromempty. apply n'''. apply (hzrminusplus' i 1).
-        * induction (isdecrelhzeq (i - 1 + 1) (i0 + 1)) as [e''' | n'''].
-          -- apply (fromempty (n (hzplusrcan (i - 1) i0 1 e'''))).
-          -- rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right.
-             apply idpath.
-  Qed.
-
-  Definition ToComplex2FromObject {a : ob A} {C : Complex} {i : hz} (f : (C i) --> a) :
-    Morphism C (Complex2FromObject a (i - 1)).
-  Proof.
-    use mk_Morphism.
-    - exact (ToComplex2FromObject_mors f).
-    - exact (ToComplex2FromObject_comm f).
+      + exact (transportf (fun x' : ob A => A⟦x', a⟧) (maponpaths C (! (hzrminusplus i 1) @ e')) f).
+      + exact (ZeroArrow (Additive.to_Zero A) (C i0) (Additive.to_Zero A)).
   Defined.
 
-  Lemma ToComplex2FromObject_Eq1 {a : ob A} {C : Complex} {i : hz} (i0 : hz) (g : (C i) --> a) :
-    ToComplex2FromObject_mors g i0 = (ToComplex2FromObject g) i0.
+  Local Lemma ToAcyclicComplexFromObject_mors_comm_eq1 {a : ob A} {C : Complex A} {i : hz}
+        (f : C i --> a) (i0 : hz) (e : i - 1 = i0) (e'' : i - 1 + 1 = i0 + 1) :
+    (transportf (λ x' : A, A ⟦ x', C i ⟧) (maponpaths C e)
+                (transportf (precategory_morphisms (C (i - 1)))
+                            (maponpaths C (hzrminusplus i 1)) (Diff C (i - 1))))
+      ;; f ;; identity a =
+    Diff C i0 ;; transportf (λ x' : A, A ⟦ x', a ⟧) (maponpaths C (! hzrminusplus i 1 @ e'')) f.
+  Proof.
+    rewrite id_right. rewrite <- (pathsinv0inv0 (! hzrminusplus i 1 @ e'')).
+    rewrite maponpathsinv0. rewrite <- transport_compose.
+    apply cancel_postcomposition. rewrite transport_source_target_comm.
+    induction e. use transportf_paths. apply maponpaths. apply isasethz.
+  Qed.
+
+  Local Lemma ToAcyclicComplexFromObject_mors_comm_eq2 {a : ob A} {C : Complex A} {i : hz}
+        (f : (C i) --> a) (i0 : hz) (e' : i - 1 = i0 + 1) :
+    (ZeroArrow (Additive.to_Zero A) (C i0) (Additive.to_Zero A))
+      ;; (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) a) =
+    Diff C i0 ;; (transportf (λ x' : A, A ⟦ x', C i ⟧) (maponpaths C e')
+                             (transportf (precategory_morphisms (C (i - 1)))
+                                         (maponpaths C (hzrminusplus i 1))
+                                         (Diff C (i - 1))) ;; f).
+  Proof.
+    rewrite ZeroArrow_comp_left. rewrite assoc.
+    rewrite <- (pathsinv0inv0 e'). rewrite maponpathsinv0.
+    rewrite <- transport_compose.
+    rewrite <- (ZeroArrow_comp_left _ _ _ _ _ f). apply cancel_postcomposition.
+    use (transport_target_path _ _ (! maponpaths C (hzrminusplus i 1))).
+    rewrite <- transport_target_postcompose. rewrite transport_f_f.
+    rewrite pathsinv0r. rewrite transport_target_ZeroArrow.
+    use (transport_target_path _ _ (maponpaths C (hzplusradd _ _ 1 e'))).
+    rewrite transport_target_ZeroArrow. rewrite transport_f_f. cbn.
+    rewrite <- (DSq A C i0). rewrite transport_compose.
+    rewrite transport_target_postcompose. apply cancel_precomposition.
+    use (pathscomp0 (transport_hz_source_target A _ 1 (Diff C) _ _ e')).
+    rewrite transport_source_target_comm.
+    rewrite maponpathsinv0. rewrite pathsinv0inv0.
+    apply idpath.
+  Qed.
+
+  Local Lemma ToAcyclicComplexFromObject_mors_comm {a : ob A} {C : Complex A} {i : hz}
+        (f : (C i) --> a) :
+    Π i0 : hz, (ToAcyclicComplexFromObject_mors f i0)
+                 ;; (Diff (AcyclicComplexFromObject a (i - 1)) i0) =
+               (Diff C i0) ;; (ToAcyclicComplexFromObject_mors f (i0 + 1)).
+  Proof.
+    intros i0.
+    unfold AcyclicComplexFromObject. unfold AcyclicComplexFromObject_obs.
+    unfold AcyclicComplexFromObject_mors. cbn.
+    unfold ToAcyclicComplexFromObject_mors. unfold coprod_rect. cbn.
+    induction (isdecrelhzeq (i - 1) i0) as [e | n].
+    - induction (isdecrelhzeq (i - 1) (i0 + 1)) as [e' | n'].
+      + exact (fromempty (hzeqeisi e e')).
+      + induction (isdecrelhzeq (i - 1 + 1) (i0 + 1)) as [e'' | n''].
+        * exact (ToAcyclicComplexFromObject_mors_comm_eq1 f i0 e e'').
+        * exact (fromempty (hzeqnmplusr e n'')).
+    - induction (isdecrelhzeq (i - 1) (i0 + 1)) as [e' | n'].
+      + induction (isdecrelhzeq (i - 1 + 1) (i0 + 1)) as [e'' | n''].
+        * induction (isdecrelhzeq (i - 1 + 1) i0) as [e''' | n'''].
+          -- exact (fromempty (hzeqsnmnsm e''' e')).
+          -- exact (ToAcyclicComplexFromObject_mors_comm_eq2 f i0 e').
+        * induction (isdecrelhzeq (i - 1 + 1) i0) as [e''' | n'''].
+          -- exact (fromempty (hzeqsnmnsm e''' e')).
+          -- exact (ToAcyclicComplexFromObject_mors_comm_eq2 f i0 e').
+      + induction (isdecrelhzeq (i - 1 + 1) i0) as [e''' | n'''].
+        * induction (isdecrelhzeq (i - 1 + 1) (i0 + 1)) as [e'''' | n''''].
+          -- exact (fromempty (hzeqeisi e''' e'''')).
+          -- rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right. apply idpath.
+        * induction (isdecrelhzeq (i - 1 + 1) (i0 + 1)) as [e'''' | n''''].
+          -- exact (fromempty (hzeqnmplusr' n e'''')).
+          -- rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right. apply idpath.
+  Qed.
+
+  Definition ToAcyclicComplexFromObject {a : ob A} {C : Complex A} {i : hz} (f : (C i) --> a) :
+    Morphism C (AcyclicComplexFromObject a (i - 1)).
+  Proof.
+    use mk_Morphism.
+    - exact (ToAcyclicComplexFromObject_mors f).
+    - exact (ToAcyclicComplexFromObject_mors_comm f).
+  Defined.
+
+
+  (** Some equalities *)
+  Lemma FromAcyclicComplexFromObject_Eq {a : ob A} {C : Complex A} (i0 : hz) {i : hz}
+        (f : a --> (C i)) :
+    FromAcyclicComplexFromObject f i0 = FromAcyclicComplexFromObject_mors f i0.
   Proof.
     apply idpath.
   Qed.
 
-End def_complexes.
-Arguments Diff [A] _ _.
-Arguments ZeroComplex [A].
-Arguments Morphism [A] _ _.
-Arguments MorphismEq [A] [C1] [C2] _ _ _.
-Arguments MorphismFromZero [A] _.
-Arguments MorphismToZero [A] _.
-Arguments MMor [A] [C1] [C2] _ _.
-Arguments MComm [A] [C1] [C2] _ _.
-Arguments IdMor [A] _.
-Arguments MorphismComp [A] [C1] [C2] [C3] _ _.
+  Lemma ToAcyclicComplexFromObject_Eq {a : ob A} {C : Complex A} (i0 : hz) {i : hz}
+        (f : (C i) --> a) :
+    ToAcyclicComplexFromObject f i0 = ToAcyclicComplexFromObject_mors f i0.
+  Proof.
+    apply idpath.
+  Qed.
+
+End acyclic_complexes.
+
 
 
 (** * The category of complexes *)
@@ -1032,19 +1142,20 @@ Section complexes_precat.
   Local Lemma ComplexMonicIndexMonic_eq {C1 C2 : Complex A} (M : Monic ComplexPreCat C1 C2) (i : hz)
         {a : A} (g h : A ⟦a, C1 i⟧)
         (H : g ;; (MMor (MonicArrow _ M) i) = h ;; (MMor (MonicArrow _ M) i)) :
-    FromComplex2FromObject_mors A g i = FromComplex2FromObject_mors A h i.
+    FromAcyclicComplexFromObject_mors A g i = FromAcyclicComplexFromObject_mors A h i.
   Proof.
-    use (pathscomp0 (FromComplex2FromObject_Eq1 A i g)).
-    use (pathscomp0 _ (! (FromComplex2FromObject_Eq1 A i h))).
+    use (pathscomp0 (! (FromAcyclicComplexFromObject_Eq A i g))).
+    use (pathscomp0 _ (FromAcyclicComplexFromObject_Eq A i h)).
     use MorphismEq'.
     use (MonicisMonic ComplexPreCat M). cbn.
     use MorphismEq.
     intros i0. cbn.
-    unfold FromComplex2FromObject_mors. unfold coprod_rect. unfold Complex2FromObject_obs. cbn.
+    unfold FromAcyclicComplexFromObject_mors. unfold coprod_rect.
+    unfold AcyclicComplexFromObject_obs. cbn.
     induction (isdecrelhzeq i i0) as [T | F].
     - induction T. exact H.
     - induction (isdecrelhzeq (i + 1) i0) as [T' | F'].
-      + induction T'. cbn. rewrite <- assoc. rewrite <- assoc. rewrite <- MComm.
+      + induction T'. cbn. unfold idfun. rewrite <- assoc. rewrite <- assoc. rewrite <- MComm.
         rewrite assoc. rewrite assoc. apply cancel_postcomposition.
         exact H.
       + apply idpath.
@@ -1055,8 +1166,8 @@ Section complexes_precat.
   Proof.
     intros i a g h H.
     set (tmp := ComplexMonicIndexMonic_eq M i g h H).
-    unfold FromComplex2FromObject_mors in tmp. cbn in tmp.
-    unfold coprod_rect in tmp. unfold Complex2FromObject_obs in tmp.
+    unfold FromAcyclicComplexFromObject_mors in tmp. cbn in tmp.
+    unfold coprod_rect in tmp. unfold AcyclicComplexFromObject_obs in tmp.
     unfold paths_rect in tmp. cbn in tmp.
     rewrite (isdecrelhzeqi i) in tmp.
     exact tmp.
@@ -1077,27 +1188,57 @@ Section complexes_precat.
   Local Lemma ComplexEpiIndexEpi_eq {C1 C2 : Complex A} (E : Epi ComplexPreCat C1 C2) (i : hz)
         {a : A} (g h : A ⟦C2 i, a⟧)
         (H : (MMor (EpiArrow _ E) i) ;; g = (MMor (EpiArrow _ E) i) ;; h) :
-    ToComplex2FromObject_mors A g i = ToComplex2FromObject_mors A h i.
+    ToAcyclicComplexFromObject_mors A g i = ToAcyclicComplexFromObject_mors A h i.
   Proof.
-    use (pathscomp0 (ToComplex2FromObject_Eq1 A i g)).
-    use (pathscomp0 _ (! (ToComplex2FromObject_Eq1 A i h))).
+    use (pathscomp0 (! (ToAcyclicComplexFromObject_Eq A i g))).
+    use (pathscomp0 _ (ToAcyclicComplexFromObject_Eq A i h)).
     use MorphismEq'.
     use (EpiisEpi ComplexPreCat E). cbn.
     use MorphismEq.
     intros i0. cbn.
-    unfold ToComplex2FromObject_mors. unfold coprod_rect. unfold Complex2FromObject_obs. cbn.
+    unfold ToAcyclicComplexFromObject_mors. unfold coprod_rect.
+    unfold AcyclicComplexFromObject_obs. cbn.
     induction (isdecrelhzeq (i - 1) i0) as [T | F].
-    - induction T.
-      induction (isdecrelhzeq i (i - 1 + 1)) as [e' | n'].
-      + unfold paths_rect. rewrite assoc. rewrite assoc.
-        rewrite (MComm (EpiArrow _ E)). rewrite <- assoc. rewrite <- assoc.
-        apply cancel_precomposition. induction e'. exact H.
-      + apply (fromempty (n' (! hzrminusplus i 1))).
+    - rewrite <- transport_source_precompose. rewrite <- transport_source_precompose.
+      rewrite <- (pathsinv0inv0 T). rewrite maponpathsinv0.
+      rewrite <- transport_compose. rewrite <- transport_compose.
+      rewrite assoc. rewrite assoc.
+      rewrite <- transport_target_postcompose.
+      assert (e : (transportf (precategory_morphisms (C1 i0)) (maponpaths C2 (! T))
+                              (MMor (EpiArrow _ E) i0)) ;; Diff C2 (i - 1) =
+                  (Diff C1 i0) ;; (transportf (precategory_morphisms (C1 (i0 + 1)))
+                                              (maponpaths C2 (hzplusradd i0 (i - 1) 1 (! T)))
+                                              (MMor (EpiArrow _ E) (i0 + 1)))).
+      {
+        rewrite <- transport_target_postcompose. rewrite <- MComm.
+        rewrite transport_target_postcompose. induction T. apply idpath.
+      }
+      cbn in e. cbn. rewrite e. clear e.
+      rewrite transport_target_postcompose.
+      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+      rewrite transport_f_f. rewrite <- maponpathscomp0.
+      use (@transport_source_path
+             A (C1 i) (C1 (i0 + 1)) a _ _
+             (maponpaths C1 (hzplusradd i0 (i - 1) 1 (! T) @ hzrminusplus i 1))).
+      rewrite transport_source_precompose. rewrite transport_source_precompose.
+      rewrite transport_source_target_comm.
+      set (tmp''' := transport_hz_double_section_source_target
+                       A _ _ (MMor (EpiArrow _ E)) _ _
+                       (hzplusradd i0 (i - 1) 1 (! T) @ hzrminusplus i 1)).
+      cbn in tmp'''. cbn. rewrite <- tmp'''. clear tmp'''.
+      exact H.
     - induction (isdecrelhzeq (i - 1 + 1) i0) as [e' | n'].
-      + unfold paths_rect. induction e'.
-        induction (isdecrelhzeq i (i - 1 + 1)) as [e'' | n''].
-        * induction e''. apply H.
-        * apply (fromempty (n'' (hzrminusplus' i 1))).
+      + rewrite <- (pathsinv0inv0 e'). rewrite <- pathscomp_inv. rewrite maponpathsinv0.
+        rewrite <- transport_compose. rewrite <- transport_compose.
+        use (@transport_source_path
+               A (C1 i) (C1 i0) a _ _ (maponpaths C1 (! e' @ hzrminusplus i 1))).
+        rewrite transport_source_precompose. rewrite transport_source_precompose.
+        rewrite transport_source_target_comm.
+        set (tmp''' := transport_hz_double_section_source_target
+                         A _ _ (MMor (EpiArrow _ E)) _ _
+                         (! e' @ hzrminusplus i 1)).
+        cbn in tmp'''. cbn. rewrite <- tmp'''. clear tmp'''.
+        exact H.
       + apply idpath.
   Qed.
 
@@ -1106,14 +1247,11 @@ Section complexes_precat.
   Proof.
     intros i a g h H.
     set (tmp := ComplexEpiIndexEpi_eq E i g h H).
-    unfold ToComplex2FromObject_mors in tmp. cbn in tmp.
-    unfold coprod_rect in tmp. unfold Complex2FromObject_obs in tmp.
-    unfold paths_rect in tmp. cbn in tmp.
-    rewrite (isdecrelhzeqminusplus i) in tmp.
-    rewrite (isdecrelhzeqminusplus' i) in tmp.
+    unfold ToAcyclicComplexFromObject_mors in tmp. cbn in tmp.
+    unfold coprod_rect in tmp. unfold AcyclicComplexFromObject_obs in tmp. cbn in tmp.
     rewrite (isdecrelhzeqpii i) in tmp.
-    induction (hzrminusplus i 1).
-    induction (hzrminusplus' i 1).
+    rewrite (isdecrelhzeqminusplus' i) in tmp.
+    rewrite pathsinv0l in tmp.
     exact tmp.
   Qed.
 
@@ -1159,9 +1297,9 @@ End complexes_precat.
 
 (** * The category of complexes over Additive is Additive *)
 (** ** Introduction
-   We show that the category of complexes over an additive category is an additive category.
-   Addition of morphisms is given by indexwise addition, [MorphismOp], [ZeroComplex] is a zero
-   object, which is shown to be zero in [ComplexPreCat_isZero], and binary direct sums are
+   We give the category of complexes over an additive category a natural structure as an additive
+   category. Addition of morphisms is given by indexwise addition, [MorphismOp], [ZeroComplex] is a
+   zero object, which is shown to be zero in [ComplexPreCat_isZero], and binary direct sums are
    given by [DirectSumComplex]. [ComplexPreCat_Additive] is the main result.
 *)
 Section complexes_additive.
@@ -2014,63 +2152,6 @@ Section complexes_abelian.
 
 End complexes_abelian.
 
-
-(** * Transport of morphisms indexed by integers *)
-Section transport_section'.
-
-  Variable C : precategory.
-
-  Lemma transport_hz_source_target (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧)
-        (i i' : hz) (e1 : i = i') :
-    H i' = transportf (fun (x : ob C) => C⟦x, f (i' + n)⟧) (maponpaths f e1)
-                      (transportf (precategory_morphisms (f i))
-                                  (maponpaths f (hzplusradd i i' n e1)) (H i)).
-  Proof.
-    induction e1. apply idpath.
-  Qed.
-
-  Lemma transport_hz_target_source (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧)
-        (i i' : hz) (e1 : i = i') :
-    H i' = transportf (precategory_morphisms (f i'))
-                      (maponpaths f (hzplusradd i i' n e1))
-                      (transportf (fun (x : ob C) => C⟦x, f (i + n)⟧) (maponpaths f e1) (H i)).
-  Proof.
-    induction e1. apply idpath.
-  Qed.
-
-  Lemma transport_hz_section (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧)
-        (i i' : hz) (e1 : i = i') :
-    transportf (precategory_morphisms (f i)) (maponpaths f (hzplusradd i i' n e1)) (H i) =
-    transportf (fun (x : ob C) => C⟦x, f (i' + n)⟧) (maponpaths f (! e1)) (H i').
-  Proof.
-    induction e1. apply idpath.
-  Qed.
-
-  Lemma transport_hz_section' (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f (i + n), f i⟧)
-        (i i' : hz) (e1 : i + n = i' + n) (e2 : i = i') :
-    transportf (precategory_morphisms (f (i + n))) (maponpaths f e2) (H i) =
-    transportf (fun (x : ob C) => C⟦x, f i'⟧) (maponpaths f (! e1)) (H i').
-  Proof.
-    induction e2. assert (e : e1 = idpath _) by apply isasethz. rewrite e. clear e. apply idpath.
-  Qed.
-
-  Lemma transport_hz_double_section (f f' : hz -> ob C) (H : Π (i : hz), C⟦f i, f' i⟧)
-        (i i' : hz) (e : i = i') :
-    transportf (precategory_morphisms (f i)) (maponpaths f' e) (H i) =
-    transportf (fun (x : ob C) => C⟦x, f' i'⟧) (maponpaths f (! e)) (H i').
-  Proof.
-    induction e. apply idpath.
-  Qed.
-
-  Lemma transport_hz_double_section_source_target (f f' : hz -> ob C) (H : Π (i : hz), C⟦f i, f' i⟧)
-        (i i' : hz) (e : i = i') :
-    H i' = transportf (precategory_morphisms (f i')) (maponpaths f' e)
-                      (transportf (fun (x : ob C) => C⟦x, f' i⟧) (maponpaths f e) (H i)).
-  Proof.
-    induction e. apply idpath.
-  Qed.
-
-End transport_section'.
 
 
 (** * Transport binary direct sums *)
