@@ -1184,38 +1184,6 @@ induction ab as [a|b]; induction ab' as [a'|b'].
   + apply inr; intro H; apply (p (ii2_injectivity _ _ H)).
 Defined.
 
-(** *** Construction of functions defined at a few points on types with decidable equality *)
-
-Lemma decfun1 {X Y:UU} (i : isdeceq X) (x1:X) (y1 y':Y) : X → Y.
-Proof.
-  intros ? ? ? ? ? ? x.
-  induction (i x x1).
-  - exact y1.
-  - exact y'.
-Defined.
-
-Lemma decfun2 {X Y:UU} (i : isdeceq X) (x1 x2:X) (y1 y2 y':Y) : X → Y.
-Proof.
-  intros ? ? ? ? ? ? ? ? x.
-  induction (i x x1).
-  - exact y1.
-  - induction (i x x2).
-    + exact y2.
-    + exact y'.
-Defined.
-
-Lemma decfun3 {X Y:UU} (i : isdeceq X) (x1 x2 x3:X) (y1 y2 y3 y':Y) : X → Y.
-Proof.
-  intros ? ? ? ? ? ? ? ? ? ? x.
-  induction (i x x1).
-  - exact y1.
-  - induction (i x x2).
-    + exact y2.
-    + induction (i x x3).
-      * exact y3.
-      * exact y'.
-Defined.
-
 (** *** Isolated points *)
 
 Definition isisolated (X:UU) (x:X) := Π x':X, (x = x') ⨿ (x != x').
@@ -1317,6 +1285,55 @@ Defined.
 Theorem isasetifdeceq (X : UU) : isdeceq X -> isaset X.
 Proof.
   intro X. intro is. intros x x'. apply (isaproppathsfromisolated X x (is x)).
+Defined.
+
+(** *** Construction of functions with specified values at a few isolated points *)
+
+Definition isolfun1 {X Y:UU} (x1:X) (i1 : isisolated _ x1) (y1 y':Y) : X → Y.
+Proof.
+  intros ? ? ? ? ? ? x.
+  induction (i1 x).
+  - exact y1.
+  - exact y'.
+Defined.
+
+Definition decfun1 {X Y:UU} (i : isdeceq X) (x1:X) (y1 y':Y) : X → Y.
+Proof.
+  intros ? ? ? ?.
+  exact (isolfun1 x1 (i x1)).
+Defined.
+
+Definition isolfun2 {X Y:UU} (x1 x2:X) (i1 : isisolated _ x1) (i2 : isisolated _ x2) (y1 y2 y':Y) : X → Y.
+Proof.
+  intros ? ? ? ? ? ? ? ? ? x.
+  induction (i1 x).
+  - exact y1.
+  - induction (i2 x).
+    + exact y2.
+    + exact y'.
+Defined.
+
+Definition decfun2 {X Y:UU} (i : isdeceq X) (x1 x2:X) (y1 y2 y':Y) : X → Y.
+Proof.
+  intros ? ? ? ? ?.
+  exact (isolfun2 x1 x2 (i x1) (i x2)).
+Defined.
+
+Definition isolfun3 {X Y:UU} (x1 x2 x3:X) (i1 : isisolated _ x1) (i2 : isisolated _ x2) (i3 : isisolated _ x3) (y1 y2 y3 y':Y) : X → Y.
+Proof.
+  intros ? ? ? ? ? ? ? ? ? ? ? ? x.
+  induction (i1 x).
+  - exact y1.
+  - induction (i2 x).
+    + exact y2.
+    + induction (i3 x).
+      * exact y3.
+      * exact y'.
+Defined.
+
+Definition decfun3 {X Y:UU} (i : isdeceq X) (x1 x2 x3:X) (y1 y2 y3 y':Y) : X → Y.
+  intros ? ? ? ? ? ?.
+  exact (isolfun3 x1 x2 x3 (i x1) (i x2) (i x3)).
 Defined.
 
 (** **** [ bool ] is a set *)
