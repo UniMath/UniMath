@@ -73,9 +73,6 @@ Definition hzdeceq : decrel hz := decrelpair isdecrelhzeq .
 
 Definition hzbooleq := decreltobrel hzdeceq .
 
-
-(* [funextempty]-free replacement proposition for hzneq *)
-
 Definition hzneq : neqReln hz := deceq_to_neqReln isdeceqhz.
 
 Notation " x ≠ y " := ( hzneq x y ) (at level 70, no associativity) : hz_scope.

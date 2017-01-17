@@ -483,13 +483,12 @@ Definition fldmultinv {X : fld} (x : X) (ne : neg (paths x 0)) : X := pr1 (fldmu
 
 (** **** Field of fractions of an integral domain with decidable equality *)
 
-(* a version free of [funextempty]: *)
 Definition fldfracmultinvint (X : intdom) (neq : neqReln X) (is : isdeceq X) :
   let S := intdomnonzerosubmonoid X neq in
   X × S -> X × S.
 Proof.
   intros ? ? ? ? xa.
-  destruct (is (pr1 xa) 0) as [ e0 | ne0 ].
+  induction (is (pr1 xa) 0) as [ e0 | ne0 ].
   { (* when the numerator is 0, we arbitrarily assign 1/1 as the reciprocal: *)
     exists 1. exists 1. exact (neg_to_negProp (nonzeroax X)). }
   {                             (* interchange numerator and denominator *)
@@ -520,14 +519,14 @@ Proof.
   assert (nz := nonzeroax X).
   assert (nz' := neg_to_negProp nz : neq 1 0).
   unfold fldfracmultinvint; simpl.
-  destruct (is x1 0) as [ e1 | ne1 ].
-  { destruct (is x2 0) as [ e2 | ne2 ].
+  induction (is x1 0) as [ e1 | ne1 ].
+  { induction (is x2 0) as [ e2 | ne2 ].
     { simpl. exact (unel S,,idpath _). }
     { apply fromempty. apply ne2; clear ne2.
       rewrite e1 in e. rewrite 2? (rngmult0x X _) in e.
       assert (e'  := intdomax2r _ _ _ (!e) nz3).
       exact (intdomax2r _ _ _ e' nz1). } }
-  { destruct (is x2 0) as [ e2 | ne2 ].
+  { induction (is x2 0) as [ e2 | ne2 ].
     { apply fromempty. apply ne1; clear ne1.
       rewrite e2 in e. rewrite 2? (rngmult0x X) in e.
       assert (e'  := intdomax2r _ _ _ e nz3).
@@ -609,8 +608,8 @@ Proof.
   intermediate_path (setquotpr R (1,, unel S)).
   { apply iscompsetquotpr.
     unfold fldfracmultinvint; simpl.
-    destruct (is (pr1 xa) 0) as [ e0 | ne0' ].
-    { destruct (nonzeroincommrngfrac X S xa ne e0). }
+    induction (is (pr1 xa) 0) as [ e0 | ne0' ].
+    { induction (nonzeroincommrngfrac X S xa ne e0). }
     { apply hinhpr.
       exists (unel S).
       set (x := pr1 xa : X). set (aa := pr2 xa). set (a := pr1 aa : X). simpl.
@@ -634,7 +633,7 @@ Proof.
   exists (commrngfrac X S). split.
   - intro e. apply (nonzeroax X).
     exact (zeroincommrngfrac _ _ intdomnonzerosubmonoid_nonzero _ _ e).
-  - intro x. destruct (isdeceqfldfrac X neq is x 0) as [ e | ne ].
+  - intro x. induction (isdeceqfldfrac X neq is x 0) as [ e | ne ].
     + exact (ii2 e).
     + apply ii1. exists (fldfracmultinv0 X neq is x). split.
       * now apply islinvinfldfrac.
@@ -711,7 +710,7 @@ Definition weqfldfracgtint_f (X : intdom) {R : hrel X} (is0 : @isbinophrel X R)
   X × intdomnonzerosubmonoid X neq -> X × rngpossubmonoid X is1 is2.
 Proof.
   intros ? ? ? ? ? ? ? xa.
-  destruct (nc (pr1 ((pr2 xa))) 0 (negProp_to_neg (pr2 (pr2 xa)))) as [ g | l ].
+  induction (nc (pr1 ((pr2 xa))) 0 (negProp_to_neg (pr2 (pr2 xa)))) as [ g | l ].
   apply (dirprodpair (pr1 xa) (tpair _ (pr1 (pr2 xa)) g)).
   split with (- (pr1 xa)).
   split with (- (pr1 (pr2 xa))).
@@ -732,15 +731,15 @@ Proof.
   set (aa0 := pr1 t2). set (a0 := pr1 aa0).
   assert (e := pr2 t2). change (paths (x1 * a2 * a0) (x2 * a1 * a0)) in e.
   unfold weqfldfracgtint_f.
-  destruct (nc (pr1 (pr2 xa1)) 0 (negProp_to_neg (pr2 (pr2 xa1)))) as [g1|l1].
-  - destruct (nc (pr1 (pr2 xa2)) 0 (negProp_to_neg (pr2 (pr2 xa2)))) as [g2|l2].
+  induction (nc (pr1 (pr2 xa1)) 0 (negProp_to_neg (pr2 (pr2 xa1)))) as [g1|l1].
+  - induction (nc (pr1 (pr2 xa2)) 0 (negProp_to_neg (pr2 (pr2 xa2)))) as [g2|l2].
     + simpl. rewrite (rngrunax2 X _). rewrite (rngrunax2 X _).
       apply (intdomrcan X _ _ _ (negProp_to_neg (pr2 aa0)) e).
     + simpl. rewrite (rngrunax2 X _). rewrite (rngrunax2 X _).
       rewrite (rngrmultminus X _ _). rewrite (rnglmultminus X _ _).
       apply (maponpaths (fun x : X => - x)).
       apply (intdomrcan X _ _ _ (negProp_to_neg (pr2 aa0)) e).
-  - destruct (nc (pr1 (pr2 xa2)) 0 (negProp_to_neg (pr2 (pr2 xa2)))) as [g2|l2].
+  - induction (nc (pr1 (pr2 xa2)) 0 (negProp_to_neg (pr2 (pr2 xa2)))) as [g2|l2].
     + simpl. rewrite (rngrunax2 X _). rewrite (rngrunax2 X _).
       rewrite (rngrmultminus X _ _). rewrite (rnglmultminus X _ _).
       apply (maponpaths (fun x : X => - x)).
@@ -816,7 +815,7 @@ Proof.
     unfold weqfldfracgtint_f.
     match goal
     with |- context [ nc ?x ?y ?z ] =>
-         destruct (nc x y z) as [ g' | l' ]
+         induction (nc x y z) as [ g' | l' ]
     end.
     - simpl. apply idpath.
     - simpl.
@@ -835,7 +834,7 @@ Proof.
     unfold weqfldfracgtint_f. unfold weqfldfracgtint_b. simpl.
     match goal
     with |- context [ nc ?x ?y ?z ] =>
-         destruct (nc x y z) as [ g' | l' ]
+         induction (nc x y z) as [ g' | l' ]
     end.
     - simpl. apply idpath.
     - simpl.
@@ -900,8 +899,8 @@ Proof.
     unfold weqfldfracgtint_b. unfold commrngfracop2int. unfold abmonoidfracopint. simpl.
     apply pathsdirprod.
     - apply idpath.
-    - destruct xa1 as [ x1 aa1 ]. destruct xa2 as [ x2 aa2 ]. simpl. destruct aa1 as [ a1 ia1 ].
-      destruct aa2 as [ a2 ia2 ]. simpl.
+    - induction xa1 as [ x1 aa1 ]. induction xa2 as [ x2 aa2 ]. simpl. induction aa1 as [ a1 ia1 ].
+      induction aa2 as [ a2 ia2 ]. simpl.
       refine (invmaponpathsincl _ (isinclpr1 _ _) _ _ _).
     { intro. apply propproperty. }
     { simpl. reflexivity. } }
@@ -1066,7 +1065,7 @@ Proof.
     simpl.
     match goal
     with |- context [ nc ?x ?y ?z ] =>
-         destruct (nc x y z) as [ l' | nl ]
+         induction (nc x y z) as [ l' | nl ]
     end.
     - apply pathsdirprod.
       + apply idpath.
