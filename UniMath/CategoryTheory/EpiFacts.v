@@ -32,7 +32,7 @@ Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 
 
 (** Definition of an effective epimorphism.
-An effective epimorphism p: A -> B is a morphism wich as a kernel pair and which
+An effective epimorphism p: A -> B is a morphism wich has a kernel pair and which
 is the coequalizer of its kernel pair.
 *)
 Section EffectiveEpi.
