@@ -47,7 +47,7 @@ limits/FinOrdProducts.v
 limits/FinOrdCoproducts.v
 limits/Opp.v
 limits/graphs/eqdiag.v
-limits/EffectiveEpis.v
+EpiFacts.v
 HLevel_n_is_of_hlevel_Sn.v
 category_hset.v
 yoneda.v
