@@ -6,7 +6,7 @@
        sum decompositions. *)
 
 Require Import
-        UniMath.Foundations.Basics.Sets
+        UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Representation
@@ -27,7 +27,7 @@ Proof. intros. apply invweq. apply to_row. Defined.
 Lemma from_row_entry {C:Precategory} {I} {b:I -> ob C}
            (B:Sum b) {d:ob C} (f : Π j, Hom C (b j) d) :
   Π j, from_row B f ∘ opp_mor (universalElement B j) = f j.
-Proof. intros. exact (apevalat j (homotweqinvweq (to_row B) f)). Qed.
+Proof. intros. exact (eqtohomot (homotweqinvweq (to_row B) f) j). Qed.
 
 Definition to_col {C:Precategory} {I} {d:I -> ob C} (D:Product d) {b:ob C} :
   (Hom C b (universalObject D)) ≃ (Π i, Hom C b (d i)).
@@ -42,7 +42,7 @@ Lemma from_col_entry {C:Precategory} {I} {b:I -> ob C}
            (D:Product b) {d:ob C} (f : Π i, Hom C d (b i)) :
   Π i, universalElement D i ∘ from_col D f = f i.
 Proof. intros.
-  apply (apevalat i (homotweqinvweq (to_col D) f )). Qed.
+  apply (eqtohomot (homotweqinvweq (to_col D) f ) i). Qed.
 
 Definition to_matrix {C:Precategory}
            {I} {d:I -> ob C} (D:Product d)
@@ -67,7 +67,7 @@ Lemma from_matrix_entry {C:Precategory}
            {J} {b:J -> ob C} (B:Sum b)
            (f : Π i j, Hom C (b j) (d i)) :
   Π i j, (universalElement D i ∘ from_matrix D B f) ∘ opp_mor (universalElement B j) = f i j.
-Proof. intros. exact (apevalat j (apevalat i (homotweqinvweq (to_matrix D B) f))). Qed.
+Proof. intros. exact (eqtohomot (eqtohomot (homotweqinvweq (to_matrix D B) f) i) j). Qed.
 
 Lemma from_matrix_entry_assoc {C:Precategory}
            {I} {d:I -> ob C} (D:Product d)

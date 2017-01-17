@@ -4,7 +4,7 @@
 Require Export UniMath.CategoryTheory.precategories
                UniMath.CategoryTheory.functor_categories
                UniMath.CategoryTheory.opp_precat
-               UniMath.Foundations.Basics.Sets.
+               UniMath.Foundations.Sets.
 Require Export UniMath.Ktheory.Precategories.
 
 Local Open Scope cat.

@@ -1,9 +1,9 @@
 (** * Utilities concerning paths, hlevel, and logic *)
 
 Global Unset Automatic Introduction.
-Require Export UniMath.Foundations.Basics.PartD.
-Require Export UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Export UniMath.Foundations.PartD.
+Require Export UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Export UniMath.Ktheory.Tactics.
 
 (** ** Null homotopies, an aid for proving things about propositional truncation *)
@@ -294,13 +294,8 @@ Definition homotsec {T} {P:T->UU} (f g:Section P) := Π t, f t = g t.
 (* compare with [adjev] *)
 Definition evalat {T} {P:T->UU} (t:T) (f:Section P) := f t.
 
-(* compare this with [toforallpaths]: *)
-Definition apevalat {T} {P:T->UU} (t:T) {f g:Section P}
-  : f = g -> f t = g t
-  := ap (evalat t).
-
 Definition apfun {X Y} {f f':X->Y} (p:f = f') {x x'} (q:x = x') : f x = f' x'.
-  intros. destruct q. exact (apevalat x p). Defined.
+  intros. destruct q. exact (eqtohomot p x). Defined.
 
 Definition aptwice {X Y Z} (f:X->Y->Z) {a a' b b'} (p:a = a') (q:b = b') : f a b = f a' b'.
   intros. exact (apfun (ap f p) q). Defined.
@@ -317,12 +312,6 @@ Proof. intros. reflexivity. Defined.
 Definition transport_type_path {X Y:Type} (p:X = Y) (x:X) :
   transportf (fun T:Type => T) p x = cast p x.
 Proof. intros. destruct p. reflexivity. Defined.
-
-Definition transportbfinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P t) : e#'e#p = p.
-Proof. intros. destruct e. reflexivity. Defined.
-
-Definition transportfbinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P u) : e#e#'p = p.
-Proof. intros. destruct e. reflexivity. Defined.
 
 Definition transport_fun_path {X Y} {f g:X->Y} {x x':X} {p:x = x'} {e:f x = g x} {e':f x' = g x'} :
   e @ ap g p = ap f p @ e' ->
@@ -451,7 +440,7 @@ Proof. intros ? ? p x y. assert (a := p x). assert (b := p y). clear p.
 
 (** Compare the following two definitions with [transport_type_path]. *)
 
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Import UniMath.Foundations.UnivalenceAxiom.
 
 Definition pr1_eqweqmap { X Y } ( e: X = Y ) : cast e = pr1 (eqweqmap e).
 Proof. intros. destruct e. reflexivity. Defined.

@@ -31,6 +31,10 @@ where I started writing this code.
 I thank The Ambrose Monell Foundation for supporting my stay at the Institute
 for Advanced Study in Fall, 2015, where I continued working on this code.
 
+I thank the Friends of the Institute for Advanced Study for supporting my stay
+at the Institute for Advanced Study in Spring, 2017, where I continued working
+on this code.
+
 Overview of contents
 ====================
 

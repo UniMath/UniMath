@@ -1,7 +1,10 @@
-(* Direct implementation of pushouts *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+(* Direct implementation of pushouts
+
+Definition of Epi in terms of a pushout diagram
+*)
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -508,3 +511,46 @@ Section pushout_paths.
   Qed.
 
 End pushout_paths.
+
+(**
+Proof that f: A -> B is an epi is the same as saying that the diagram
+<<
+A ---> B
+|      |
+|      |  id
+‌v     ‌‌ v
+B----> B
+  id
+>>
+is a pushout
+*)
+Section EpiPushoutId.
+
+  Context {C:Precategory} {A B:C} (f:C⟦A,B ⟧).
+
+  Lemma epi_to_pushout : isEpi f -> isPushout f f (identity _) (identity _) (idpath _).
+  Proof.
+    intro h.
+    red.
+    intros x p1 p2 eqx.
+    assert (hp : p1 = p2).
+    { now apply h. }
+    induction hp.
+    apply (unique_exists p1).
+    - split; apply id_left.
+    - intros y. apply isapropdirprod; apply homset_property.
+    - intros y [h1 _].
+      now rewrite id_left in h1.
+  Qed.
+
+  Lemma pushout_to_epi :  isPushout f f (identity _) (identity _) (idpath _)
+                          -> isEpi f.
+  Proof.
+    intros hf.
+    intros D p1 p2 hp.
+    apply hf in hp.
+    destruct hp as [[p [hp1 hp2]] _].
+    now rewrite <- hp1,hp2.
+  Qed.
+
+End EpiPushoutId.

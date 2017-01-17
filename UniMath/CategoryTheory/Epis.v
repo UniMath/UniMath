@@ -3,16 +3,18 @@
 - Definition of Epis
 - Construction of the subcategory of Epis
 - Construction of Epis in functor categories
+- Definition of effective epi
 *)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.sub_precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+
 
 
 (** * Definition of Epis *)
@@ -166,3 +168,7 @@ Section epis_functorcategories.
   Qed.
 
 End epis_functorcategories.
+
+
+
+
