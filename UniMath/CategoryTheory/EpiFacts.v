@@ -8,9 +8,9 @@
 
 
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Basics.Propositions.
+Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
@@ -28,6 +28,7 @@ Require Import UniMath.CategoryTheory.limits.coequalizers.
 
 Require Import UniMath.CategoryTheory.Epis.
 
+Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 
 
 (** Definition of an effective epimorphism.
@@ -60,10 +61,10 @@ Section IsEffectivePw.
   Local Notation CD := (@functor_Precategory C D).
 
   Lemma eq_pb_pw {X Y Z:functor C D}
-        (a:CD⟦X,Z⟧) (b:CD⟦Y,Z⟧)
+        (a: X ⟶ Z) (b: Y ⟶ Z)
         (c:C)
     : eq_diag
-        (pullback_diagram D (pr1 a c) (pr1 b c))
+        (pullback_diagram D ( a c)  (b c))
         (diagram_pointwise (homset_property D)
                            (pullback_diagram CD a b) c).
   Proof.
@@ -74,9 +75,9 @@ Section IsEffectivePw.
       exact (Empty_set_rect _ ) ||  (exact (fun _ => idpath _)).
   Defined.
 
-  Lemma eq_coeq_pw {X Y: functor C D} (a b:CD⟦X,Y⟧) (c:C) :
+  Lemma eq_coeq_pw {X Y: functor C D} (a b:X ⟶ Y) (c:C) :
     eq_diag
-      (Coequalizer_diagram D (pr1 a c) (pr1 b c))
+      (Coequalizer_diagram D ( a c) ( b c))
       (diagram_pointwise (homset_property D)
                          (Coequalizer_diagram CD a b) c).
   Proof.
@@ -91,13 +92,13 @@ Section IsEffectivePw.
     apply idpath.
   Defined.
 
-  Context {X Y :functor C D } {a:CD ⟦X,Y⟧}.
+  Context {X Y :functor C D } {a:X⟶Y}.
 
-  Lemma isEffectivePw : (Π (x:C), isEffective (pr1 a x)) -> isEffective a.
+  Lemma isEffectivePw : (Π (x:C), isEffective ( a x)) -> isEffective (C:=CD) a.
   Proof.
     intros h.
     red.
-    transparent assert (f:(kernel_pair a)).
+    transparent assert (f:(kernel_pair (C:=CD) a)).
     { apply equiv_Pullback_2;[apply homset_property|].
       apply LimFunctorCone.
       intro c.
@@ -130,6 +131,8 @@ Section IsEffectivePw.
 
 End IsEffectivePw.
 
+Set Automatic Introduction.
+
 (**  if the target category has pushouts, a natural transformation that is
   an epimorphism is pointwise epimorphic *)
 Section PointwiseEpi.
@@ -138,22 +141,22 @@ Section PointwiseEpi.
 
   Local Notation CD := (functor_Precategory C D).
 
-  Lemma eq_po_pw {X Y Z :CD} {a:CD  ⟦ X, Y ⟧} {b:CD ⟦ X, Z⟧} x  :
+  Lemma eq_po_pw {X Y Z :functor C D} {a: X ⟶ Y } {b: X ⟶ Z} x  :
     eq_diag
-      (pushout_diagram D (pr1 a x) (pr1 b x))
+      (pushout_diagram D ( a x) ( b x))
       (diagram_pointwise (homset_property D)
                          (pushout_diagram CD a b) x).
   Proof.
-      use tpair.
-      use StandardFiniteSets.three_rec_dep;  apply idpath.
-      use StandardFiniteSets.three_rec_dep;  use StandardFiniteSets.three_rec_dep;
-         exact (Empty_set_rect _ )||exact (fun _ => idpath _).
+    use tpair.
+    use StandardFiniteSets.three_rec_dep;  apply idpath.
+    use StandardFiniteSets.three_rec_dep;  use StandardFiniteSets.three_rec_dep;
+      exact (Empty_set_rect _ )||exact (fun _ => idpath _).
   Defined.
 
   Import graphs.pushouts.
 
-  Lemma Pushouts_pw_epi (colimD : Pushouts D) (A B : CD) (a:CD⟦ A,B⟧)
-        (epia:isEpi a) : Π (x:C), isEpi (pr1 a x).
+  Lemma Pushouts_pw_epi (colimD : Pushouts D) (A B : functor C D) (a: A⟶B)
+        (epia:isEpi (C:=CD) a) : Π (x:C), isEpi (a x).
   Proof.
     intro  x; simpl.
     apply (epi_to_pushout (C:=CD)) in epia.
