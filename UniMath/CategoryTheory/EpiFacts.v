@@ -1,8 +1,8 @@
 (**
 - Definition of an effective epimorphism.
-- Proof that transfo nats that are pointwise effective epis are
+- Proof that natural transformations that are pointwise effective epis are
  effective epis.
-- Proof that if the target category has pushouts, a transfo nat that is
+- Proof that if the target category has pushouts, a natural transformation that is
   an epimorphism is pointwise epimorphic
 *)
 
@@ -53,7 +53,7 @@ Definition EpisAreEffective (C:precategory) :=
 
 
 
-(** Let f be a transfo nat. If f is pointwise effective, then f is effective *)
+(** Let f be a natural transformation. If f is pointwise effective, then f is effective *)
 Section IsEffectivePw.
 
   Context { C :precategory} {D:Precategory} .
@@ -133,7 +133,7 @@ End IsEffectivePw.
 
 Set Automatic Introduction.
 
-(**  if the target category has pushouts, a transfo nat that is
+(**  if the target category has pushouts, a natural transformation that is
   an epimorphism is pointwise epimorphic *)
 Section PointwiseEpi.
 
