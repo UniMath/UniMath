@@ -64,7 +64,7 @@ Section IsEffectivePw.
         (a: X ⟶ Z) (b: Y ⟶ Z)
         (c:C)
     : eq_diag
-        (pullback_diagram D ( a c)  (b c))
+        (pullback_diagram D (a c)  (b c))
         (diagram_pointwise (homset_property D)
                            (pullback_diagram CD a b) c).
   Proof.
@@ -77,7 +77,7 @@ Section IsEffectivePw.
 
   Lemma eq_coeq_pw {X Y: functor C D} (a b:X ⟶ Y) (c:C) :
     eq_diag
-      (Coequalizer_diagram D ( a c) ( b c))
+      (Coequalizer_diagram D (a c) (b c))
       (diagram_pointwise (homset_property D)
                          (Coequalizer_diagram CD a b) c).
   Proof.
@@ -94,7 +94,7 @@ Section IsEffectivePw.
 
   Context {X Y :functor C D } {a:X⟶Y}.
 
-  Lemma isEffectivePw : (Π (x:C), isEffective ( a x)) -> isEffective (C:=CD) a.
+  Lemma isEffectivePw : (Π (x:C), isEffective (a x)) -> isEffective (C:=CD) a.
   Proof.
     intros h.
     red.
@@ -143,7 +143,7 @@ Section PointwiseEpi.
 
   Lemma eq_po_pw {X Y Z :functor C D} {a: X ⟶ Y } {b: X ⟶ Z} x  :
     eq_diag
-      (pushout_diagram D ( a x) ( b x))
+      (pushout_diagram D (a x) (b x))
       (diagram_pointwise (homset_property D)
                          (pushout_diagram CD a b) x).
   Proof.
