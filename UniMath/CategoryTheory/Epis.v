@@ -4,6 +4,8 @@
 - Construction of the subcategory of Epis
 - Construction of Epis in functor categories
 - Definition of effective epi
+
+More proofs/definitions about epi can be found in EpiFacts
 *)
 
 Require Import UniMath.Foundations.PartD.
