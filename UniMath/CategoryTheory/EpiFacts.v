@@ -153,10 +153,8 @@ Section PointwiseEpi.
       exact (Empty_set_rect _ )||exact (fun _ => idpath _).
   Defined.
 
-  Import graphs.pushouts.
-
-  Lemma Pushouts_pw_epi (colimD : Pushouts D) (A B : functor C D) (a: A⟶B)
-        (epia:isEpi (C:=CD) a) : Π (x:C), isEpi (a x).
+  Lemma Pushouts_pw_epi (colimD : graphs.pushouts.Pushouts D) (A B : functor C D)
+       (a: A⟶B)  (epia:isEpi (C:=CD) a) : Π (x:C), isEpi (a x).
   Proof.
     intro  x; simpl.
     apply (epi_to_pushout (C:=CD)) in epia.
