@@ -1307,6 +1307,16 @@ Proof.
   apply (pr2 is).
 Defined.
 
+Lemma grinvop (Y : gr) :
+  Π y1 y2 : Y, grinv Y (@op Y y1 y2) = @op Y (grinv Y y2) (grinv Y y1).
+Proof.
+  intros Y y1 y2.
+  apply (grrcan Y y1).
+  rewrite (assocax Y). rewrite (grlinvax Y). rewrite (runax Y).
+  apply (grrcan Y y2).
+  rewrite (grlinvax Y). rewrite (assocax Y). rewrite (grlinvax Y).
+  apply idpath.
+Qed.
 
 (** **** Relations on groups *)
 

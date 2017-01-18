@@ -341,17 +341,6 @@ Section preadditive_quotient.
     intros e. induction e. apply idpath.
   Qed.
 
-  Local Lemma grinvop (Y : gr) :
-    Π y1 y2 : Y, grinv Y (@op Y y1 y2) = @op Y (grinv Y y2) (grinv Y y1).
-  Proof.
-    intros y1 y2.
-    apply (grrcan Y y1).
-    rewrite (assocax Y). rewrite (grlinvax Y). rewrite (runax Y).
-    apply (grrcan Y y2).
-    rewrite (grlinvax Y). rewrite (assocax Y). rewrite (grlinvax Y).
-    apply idpath.
-  Qed.
-
   (** Let B be a subgroup of A. Then the canonical map A -> A/B is a monoidfun. *)
   Local Lemma abgrquotpr_ismonoidfun {A : abgr} (H : @binopeqrel A) :
     @ismonoidfun A (abgrquot H) (fun a : A => setquotpr H a).

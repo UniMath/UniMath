@@ -297,7 +297,9 @@ Section def_triangles.
     - exact (Mor2 D ;; (z_iso_inv_mor (AddEquivCounitIso T (Ob3 D)))).
   Defined.
 
-  (** ** Mapping Cones *)
+  (** ** Cones
+     In K(A) cone is given by mapping cone.
+   *)
 
   Definition MCone {A : Additive} (T : AddEquiv A A) (x y : ob A) : UU :=
     Σ (z : ob A), A⟦y, z⟧ × A⟦z, (AddEquiv1 T x)⟧.
@@ -327,39 +329,32 @@ Section def_pretriang_data.
   (** ** PreTriangData *)
 
   Definition PreTriangData : UU :=
-    Σ D : (Σ D' : (Σ A : (Additive), (AddEquiv A A) × (Π (x y : ob A) (f : x --> y), UU)),
-                  Π (x y : ob (pr1 D')) (f : x --> y), ishinh (dirprod_pr2 (pr2 D') x y f)),
-          Π (x y : ob (pr1 (pr1 D))) (f : x --> y) (f' : dirprod_pr2 (pr2 (pr1 D)) x y f),
-          MCone (dirprod_pr1 (pr2 (pr1 D))) x y.
+    Σ D : (Σ A : (Additive), (AddEquiv A A) × (Π (x y : ob A) (f : x --> y), UU)),
+          Π (x y : ob (pr1 (pr1 D))) (f : x --> y) (f' : dirprod_pr2 (pr2 D) x y f),
+          MCone (dirprod_pr1 (pr2 D)) x y.
 
   Definition mk_PreTriangData (A : Additive) (T : AddEquiv A A)
              (P : Π (x y : ob A) (f : x --> y), UU)
-             (H1 : Π (x y : ob A) (f : x --> y), ishinh (P x y f))
-             (H2 : Π (x y : ob A) (f : x --> y) (f' : P x y f), MCone T x y) : PreTriangData.
+             (H : Π (x y : ob A) (f : x --> y) (f' : P x y f), MCone T x y) : PreTriangData.
   Proof.
     use tpair.
     - use tpair.
+      + exact A.
       + use tpair.
-        * exact A.
-        * use tpair.
-          -- exact T.
-          -- exact P.
-      + exact H1.
-    - exact H2.
+        * exact T.
+        * exact P.
+    - exact H.
   Defined.
 
-  Definition PreTriangData_Additive (PTD : PreTriangData) : Additive := pr1 (pr1 (pr1 PTD)).
+  Definition PreTriangData_Additive (PTD : PreTriangData) : Additive := pr1 (pr1 PTD).
   Coercion PreTriangData_Additive : PreTriangData >-> Additive.
 
-  Definition Trans {PTD : PreTriangData} : AddEquiv PTD PTD := dirprod_pr1 (pr2 (pr1 (pr1 PTD))).
+  Definition Trans {PTD : PreTriangData} : AddEquiv PTD PTD := dirprod_pr1 (pr2 (pr1 PTD)).
 
-  Definition ConePropType {PTD : PreTriangData} :
-    Π (x y : ob PTD) (f : x --> y), UU := dirprod_pr2 (pr2 (pr1 (pr1 PTD))).
+  Definition ConeType {PTD : PreTriangData} :
+    Π (x y : ob PTD) (f : x --> y), UU := dirprod_pr2 (pr2 (pr1 PTD)).
 
-  Definition ConeProp {PTD : PreTriangData} :
-    Π (x y : ob PTD) (f : x --> y), ishinh (ConePropType x y f) := pr2 (pr1 (PTD)).
-
-  Definition MConeOf {PTD : PreTriangData} {x y : ob PTD} (f : x --> y) (f' : ConePropType x y f) :
+  Definition MConeOf {PTD : PreTriangData} {x y : ob PTD} (f : x --> y) (f' : ConeType x y f) :
     MCone Trans x y := (pr2 PTD) x y f f'.
 
 End def_pretriang_data.
@@ -386,15 +381,15 @@ Section def_pretriangulated_data.
 
   (** Isomorphism to a cone triangle *)
   Definition ConeIso {PTD : PreTriangData} (T : Tri) (M : Morphism) : UU :=
-    Σ D : (Σ (f' : ConePropType (Source M) (Target M) M),
+    Σ D : (Σ (f' : ConeType (Source M) (Target M) M),
            TriMor T (ConeTri M (@MConeOf PTD _ _ M f'))), TriMor_is_iso (pr2 D).
 
   Definition mk_ConeIso {PTD : PreTriangData} {T : Tri} {x y : ob PTD} {f : x --> y}
-             (f' : ConePropType x y f) (M : TriMor T (ConeTri f (@MConeOf PTD _ _ f f')))
+             (f' : ConeType x y f) (M : TriMor T (ConeTri f (@MConeOf PTD _ _ f f')))
              (I : TriMor_is_iso M) : ConeIso T (mk_Morphism f) := ((f',,M),,I).
 
   Definition ConeIsoFiber {PTD : PreTriangData} {T : Tri} {M : Morphism} (CI : ConeIso T M) :
-    @ConePropType PTD (Source M) (Target M) M := pr1 (pr1 CI).
+    @ConeType PTD (Source M) (Target M) M := pr1 (pr1 CI).
 
   Definition ConeIsoTri {PTD : PreTriangData} {T : Tri} {M : Morphism} (CI : ConeIso T M) :
     Tri := ConeTri M (@MConeOf PTD _ _ M (ConeIsoFiber CI)).
@@ -414,23 +409,25 @@ Section def_pretriangulated_data.
 
   (** ** Distinguished triangles *)
 
+  Definition isDTri {PTD : PreTriangData} (T : @Tri _ (@Trans PTD)) : UU :=
+    ∥ Σ M : Morphism, ∥ ConeIso T M ∥ ∥.
+
   Definition DTri {PTD : PreTriangData} : UU :=
-    Σ (T : @Tri _ (@Trans PTD)), ∥ Σ M : Morphism, ∥ ConeIso T M ∥ ∥.
+    Σ (T : @Tri _ (@Trans PTD)), isDTri T.
 
   Definition mk_DTri {PTD : PreTriangData} {x y z : ob PTD} (f : x --> y) (g : y --> z)
-             (h : z --> (AddEquiv1 Trans x))
-             (H : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f g h) M ∥ ∥) : DTri := ((mk_Tri f g h),,H).
+             (h : z --> (AddEquiv1 Trans x)) (H : isDTri (mk_Tri f g h)) :
+    DTri := ((mk_Tri f g h),,H).
 
-  Definition mk_DTri' {PTD : PreTriangData} (T : @Tri _ (@Trans PTD))
-             (H : ∥ Σ M : Morphism, ∥ ConeIso T M ∥ ∥) : DTri := (T,,H).
+  Definition mk_DTri' {PTD : PreTriangData} (T : @Tri _ (@Trans PTD)) (H : isDTri T ) :
+    DTri := (T,,H).
 
   Definition DTriTri {PTD : PreTriangData} (D : @DTri PTD) : Tri := pr1 D.
   Coercion DTriTri : DTri >-> Tri.
 
-  Definition DTriIso {PTD : PreTriangData} (D : @DTri PTD) :
-    ∥ Σ M : Morphism, ∥ ConeIso D M ∥ ∥ := pr2 D.
+  Definition DTriIso {PTD : PreTriangData} (D : @DTri PTD) : isDTri D := pr2 D.
 
-  Definition ConeDTri {PTD : PreTriangData} {x y : ob PTD} (f : x --> y) (f' : ConePropType x y f)
+  Definition ConeDTri {PTD : PreTriangData} {x y : ob PTD} (f : x --> y) (f' : ConeType x y f)
              (Cf : MCone Trans x y) :
     @DTri PTD.
   Proof.
@@ -451,7 +448,7 @@ Section def_pretriangulated_data.
 
   Context {PTD : PreTriangData}.
 
-  (** **  Extension of a commutative square of distinguished triangles to morphism *)
+  (** ** Extensions *)
 
   Definition TExt {D1 D2 : DTri} {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2}
              (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2) : UU :=
@@ -494,7 +491,7 @@ Section def_pretriangulated_data.
 
   (** ** The following is used to prove rotations of DTris in K(A) *)
   Definition mk_RotDTris_MPMorMors (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-             (M2 : Morphism) (M2' : ConePropType (Source M2) (Target M2) M2)
+             (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
              (f1 : PTD⟦Ob1 (RotTri (ConeIsoTri I1)), Source M2⟧)
              (f2 : PTD⟦Ob2 (RotTri (ConeIsoTri I1)), Target M2⟧)
              (f3 : PTD⟦Ob3 (RotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧) :
@@ -507,7 +504,7 @@ Section def_pretriangulated_data.
   Defined.
 
   Lemma mk_RotDTris_MPMorComms (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-        (M2 : Morphism) (M2' : ConePropType (Source M2) (Target M2) M2)
+        (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
         (f1 : PTD⟦Ob1 (RotTri (ConeIsoTri I1)), Source M2⟧)
         (f2 : PTD⟦Ob2 (RotTri (ConeIsoTri I1)), Target M2⟧)
         (f3 : PTD⟦Ob3 (RotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
@@ -529,7 +526,7 @@ Section def_pretriangulated_data.
   Qed.
 
   Lemma mk_RotDTris_DComm3 (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-        (M2 : Morphism) (M2' : ConePropType (Source M2) (Target M2) M2)
+        (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
         (f1 : PTD⟦Ob1 (RotTri (ConeIsoTri I1)), Source M2⟧)
         (f2 : PTD⟦Ob2 (RotTri (ConeIsoTri I1)), Target M2⟧)
         (f3 : PTD⟦Ob3 (RotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
@@ -551,7 +548,7 @@ Section def_pretriangulated_data.
   Qed.
 
   Lemma mk_RotDTris (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-        (M2 : Morphism) (M2' : ConePropType (Source M2) (Target M2) M2)
+        (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
         (f1 : PTD⟦Ob1 (RotTri (ConeIsoTri I1)), Source M2⟧)
         (f2 : PTD⟦Ob2 (RotTri (ConeIsoTri I1)), Target M2⟧)
         (f3 : PTD⟦Ob3 (RotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
@@ -590,7 +587,7 @@ Section def_pretriangulated_data.
   (** ** The following is used to prove inverse rotations of DTris in K(A) *)
 
   Definition mk_InvRotDTris_MPMorMors (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-        (M2 : Morphism) (M2' : ConePropType (Source M2) (Target M2) M2)
+        (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
         (f1 : PTD⟦Ob1 (InvRotTri (ConeIsoTri I1)), Source M2⟧)
         (f2 : PTD⟦Ob2 (InvRotTri (ConeIsoTri I1)), Target M2⟧)
         (f3 : PTD⟦Ob3 (InvRotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧) :
@@ -603,7 +600,7 @@ Section def_pretriangulated_data.
   Defined.
 
   Lemma mk_InvRotDTris_MPMorComms (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-        (M2 : Morphism) (M2' : ConePropType (Source M2) (Target M2) M2)
+        (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
         (f1 : PTD⟦Ob1 (InvRotTri (ConeIsoTri I1)), Source M2⟧)
         (f2 : PTD⟦Ob2 (InvRotTri (ConeIsoTri I1)), Target M2⟧)
         (f3 : PTD⟦Ob3 (InvRotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
@@ -636,7 +633,7 @@ Section def_pretriangulated_data.
   Qed.
 
   Lemma InvRotDTrisComm3 (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-        (M2 : Morphism) (M2' : ConePropType (Source M2) (Target M2) M2)
+        (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
         (f1 : PTD⟦Ob1 (InvRotTri (ConeIsoTri I1)), Source M2⟧)
         (f2 : PTD⟦Ob2 (InvRotTri (ConeIsoTri I1)), Target M2⟧)
         (f3 : PTD⟦Ob3 (InvRotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
@@ -662,7 +659,7 @@ Section def_pretriangulated_data.
   Qed.
 
   Lemma mk_InvRotDTris (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-        (M2 : Morphism) (M2' : ConePropType (Source M2) (Target M2) M2)
+        (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
         (f1 : PTD⟦Ob1 (InvRotTri (ConeIsoTri I1)), Source M2⟧)
         (f2 : PTD⟦Ob2 (InvRotTri (ConeIsoTri I1)), Target M2⟧)
         (f3 : PTD⟦Ob3 (InvRotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
@@ -672,7 +669,7 @@ Section def_pretriangulated_data.
         (H2 : Mor2 (InvRotTri (ConeIsoTri I1)) ;; f3 = f2 ;; MCone1 (MConeOf M2 M2'))
         (H3 : Mor3 (InvRotTri (ConeIsoTri I1)) ;; (# (AddEquiv1 Trans) f1) =
               f3 ;; MCone2 (MConeOf M2 M2')) :
-    ∥ Σ M : Morphism, ∥ @ConeIso PTD (InvRotTri D) M ∥ ∥.
+    isDTri (InvRotTri D).
   Proof.
     intros P X. apply X. clear P X.
     use tpair.
@@ -785,22 +782,22 @@ End def_pretriangulated_data.
 Section def_pretrangulated.
 
   Definition isPreTriang (PTD : PreTriangData) : UU :=
-    (Π (x : ob PTD), ∥ Σ M : Morphism, ∥ ConeIso (TrivialTri x) M ∥ ∥)
-      × (Π (D : DTri), ∥ Σ M : Morphism, ∥ @ConeIso PTD (RotTri D) M ∥ ∥)
-      × (Π (D : DTri), ∥ Σ M : Morphism, ∥ @ConeIso PTD (InvRotTri D) M ∥ ∥)
+    (Π (x : ob PTD), isDTri (TrivialTri x))
+      × (Π (D : DTri), @isDTri PTD (RotTri D))
+      × (Π (D : DTri), @isDTri PTD (InvRotTri D))
       × (Π (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
            (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2), ∥ @TExt PTD _ _ _ _ H ∥).
 
   Definition mk_isPreTriang {PTD : PreTriangData}
-             (H1 : (Π (x : ob PTD), ∥ Σ M : Morphism, ∥ ConeIso (TrivialTri x) M ∥ ∥))
-             (H2 : Π (D : DTri), ∥ Σ M : Morphism, ∥ @ConeIso PTD (RotTri D) M ∥ ∥ )
-             (H3 : Π (D : DTri), ∥ Σ M : Morphism, ∥ @ConeIso PTD (InvRotTri D) M ∥ ∥)
+             (H1 : (Π (x : ob PTD), isDTri (TrivialTri x)))
+             (H2 : Π (D : DTri), isDTri (RotTri D))
+             (H3 : Π (D : DTri), isDTri (InvRotTri D))
              (H4 : Π (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
                      (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2), ∥ (@TExt PTD _ _ _ _ H) ∥) :
     isPreTriang PTD := (H1,,(H2,,(H3,,H4))).
 
   Definition TrivialDTrisData {PTD : PreTriangData} (iPT : isPreTriang PTD) :
-    Π (x : ob PTD), ∥ Σ M : Morphism, ∥ ConeIso (TrivialTri x) M ∥ ∥ := dirprod_pr1 iPT.
+    Π (x : ob PTD), isDTri (TrivialTri x) := dirprod_pr1 iPT.
 
   (** Accessor functions *)
   Definition TrivialDTri {PTD : PreTriangData} (iPT : isPreTriang PTD) (x : ob PTD) : @DTri PTD.
@@ -811,7 +808,7 @@ Section def_pretrangulated.
   Defined.
 
   Definition RotDTris {PTD : PreTriangData} (iPT : isPreTriang PTD) (D : @DTri PTD) :
-    ∥ Σ M : Morphism, ∥ @ConeIso PTD (RotTri D) M ∥ ∥ := dirprod_pr1 (dirprod_pr2 iPT) D.
+    isDTri (RotTri D) := dirprod_pr1 (dirprod_pr2 iPT) D.
 
   Definition RotDTri {PTD : PreTriangData} (iPT : isPreTriang PTD) (D : @DTri PTD) : @DTri PTD.
   Proof.
@@ -820,8 +817,7 @@ Section def_pretrangulated.
   Defined.
 
   Definition InvRotDTris {PTD : PreTriangData} (iPT : isPreTriang PTD) (D : @DTri PTD) :
-    ∥ Σ M : Morphism, ∥ @ConeIso PTD (InvRotTri D) M ∥ ∥ :=
-    dirprod_pr1 (dirprod_pr2 (dirprod_pr2 iPT)) D.
+    isDTri (InvRotTri D) := dirprod_pr1 (dirprod_pr2 (dirprod_pr2 iPT)) D.
 
   Definition InvRotDTri {PTD : PreTriangData} (iPT : isPreTriang PTD) (D : @DTri PTD) : @DTri PTD.
   Proof.
@@ -863,12 +859,10 @@ Section def_triangulated.
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             (H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥)
-             (H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥)
-             (H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥) : UU :=
+             (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
+             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)) : UU :=
     Σ D : ((z2 --> y2) × (y2 --> x2)),
-          (∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (dirprod_pr1 D) (dirprod_pr2 D)
-                                               (g3 ;; (# (AddEquiv1 Trans) f2))) M ∥ ∥)
+          (isDTri (mk_Tri (dirprod_pr1 D) (dirprod_pr2 D) (g3 ;; (# (AddEquiv1 Trans) f2))))
             × (f2 ;; dirprod_pr1 D = g1 ;; h2)
             × (dirprod_pr2 D ;; g3 = h3 ;; (# (AddEquiv1 Trans) f1)).
 
@@ -876,11 +870,10 @@ Section def_triangulated.
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             (H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥)
-             (H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥)
-             (H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥)
+             (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
+             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
              (φ1 : z2 --> y2) (φ2 : y2 --> x2)
-             (H4 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri φ1 φ2 (g3 ;; (# (AddEquiv1 Trans) f2))) M ∥ ∥)
+             (H4 : isDTri (mk_Tri φ1 φ2 (g3 ;; (# (AddEquiv1 Trans) f2))))
              (Comm1 : f2 ;; φ1 = g1 ;; h2)
              (Comm2 : φ2 ;; g3 = h3 ;; (# (AddEquiv1 Trans) f1)) : Octa H1 H2 H3 :=
     ((φ1,,φ2),,(H4,,(Comm1,,Comm2))).
@@ -891,36 +884,32 @@ Section def_triangulated.
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             {H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥}
-             {H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥}
-             {H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥}
+             {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
+             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
              (O : Octa H1 H2 H3) : PT⟦z2, y2⟧ := dirprod_pr1 (pr1 O).
 
   Definition OctaMor2 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             {H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥}
-             {H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥}
-             {H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥}
+             {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
+             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
              (O : Octa H1 H2 H3) : PT⟦y2, x2⟧ := dirprod_pr2 (pr1 O).
 
   Definition OctaDTri {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             {H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥}
-             {H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥}
-             {H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥}
+             {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
+             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
              (O : Octa H1 H2 H3) : @DTri PT := mk_DTri' _ (dirprod_pr1 (pr2 O)).
 
   Definition OctaComm1 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             {H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥}
-             {H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥}
-             {H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥}
+             {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
+             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
              (O : Octa H1 H2 H3) : f2 ;; (OctaMor1 O) = g1 ;; h2 :=
     dirprod_pr1 (dirprod_pr2 (pr2 O)).
 
@@ -928,9 +917,8 @@ Section def_triangulated.
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             {H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥}
-             {H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥}
-             {H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥}
+             {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
+             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
              (O : Octa H1 H2 H3) : (OctaMor2 O) ;; g3 = h3 ;; (# (AddEquiv1 Trans) f1) :=
     dirprod_pr2 (dirprod_pr2 (pr2 O)).
 
@@ -941,19 +929,15 @@ Section def_triangulated.
               (f1 : x1 --> y1) (f2 : y1 --> z2) (f3 : z2 --> (AddEquiv1 Trans x1))
               (g1 : y1 --> z1) (g2 : z1 --> x2) (g3 : x2 --> (AddEquiv1 Trans y1))
               (h2 : z1 --> y2) (h3 : y2 --> (AddEquiv1 Trans x1))
-              (H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥)
-              (H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥)
-              (H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥),
-            ∥ Octa H1 H2 H3 ∥).
+              (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
+              (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)),∥ Octa H1 H2 H3 ∥).
 
   Definition mk_Triang {PT : PreTriang} (H : Π (x1 x2 y1 y2 z1 z2 : ob PT)
               (f1 : x1 --> y1) (f2 : y1 --> z2) (f3 : z2 --> (AddEquiv1 Trans x1))
               (g1 : y1 --> z1) (g2 : z1 --> x2) (g3 : x2 --> (AddEquiv1 Trans y1))
               (h2 : z1 --> y2) (h3 : y2 --> (AddEquiv1 Trans x1))
-              (H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥)
-              (H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥)
-              (H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥),
-                                             ∥ Octa H1 H2 H3 ∥) : Triang := (PT,,H).
+              (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
+              (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)), ∥ Octa H1 H2 H3 ∥) : Triang := (PT,,H).
 
   Definition Triang_PreTriang (TR : Triang) : PreTriang := pr1 TR.
   Coercion Triang_PreTriang : Triang >-> PreTriang.
@@ -962,9 +946,8 @@ Section def_triangulated.
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             {H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥}
-             {H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥}
-             {H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥} :
+             {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
+             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)} :
     ∥ Octa H1 H2 H3 ∥ := (pr2 TR) x1 x2 y1 y2 z1 z2 f1 f2 f3 g1 g2 g3 h2 h3 H1 H2 H3.
 
 End def_triangulated.
@@ -1118,8 +1101,9 @@ Section rotation_isos.
     use (pathscomp0 (AddEquivCounitMorComm Trans (MPMor3 Mor))).
     set (tmp := AddEquivCounitUnit Trans (Ob1 D1)).
     apply (maponpaths
-             (fun gg : _ => (gg) ;; (# (functor_composite (AddEquiv2 Trans) (AddEquiv1 Trans)) (MPMor3 Mor))
-                              ;; (AddEquivCounit Trans) ((AddEquiv1 Trans) (Ob1 D2)))) in tmp.
+             (fun gg : _ => gg ;; (# (functor_composite (AddEquiv2 Trans) (AddEquiv1 Trans))
+                                  (MPMor3 Mor))
+                            ;; (AddEquivCounit Trans) ((AddEquiv1 Trans) (Ob1 D2)))) in tmp.
     use (pathscomp0 tmp). clear tmp. rewrite <- assoc. rewrite <- assoc. rewrite functor_comp.
     apply cancel_precomposition. rewrite functor_comp. apply cancel_precomposition.
     exact (AddEquivCounitUnit' Trans (Ob1 D2)).
@@ -1167,7 +1151,8 @@ Section rotation_isos.
     use (pathscomp0 _ (! tmp)). rewrite id_right. apply idpath.
   Qed.
 
-  Local Lemma ExtMor2_Comm2 (D1 D2 : @DTri PT) (Mor : TriMor (InvRotDTri PT D1) (InvRotDTri PT D2)) :
+  Local Lemma ExtMor2_Comm2 (D1 D2 : @DTri PT)
+        (Mor : TriMor (InvRotDTri PT D1) (InvRotDTri PT D2)) :
     MPMor3 Mor ;; Mor2 D2 =
     Mor2 D1 ;; (AddEquivCounitInvMor Trans (Ob3 D1) ;; # (AddEquiv1 Trans) (MPMor1 Mor) ;;
                                      (AddEquivCounit Trans) (Ob3 D2)).
@@ -1181,7 +1166,8 @@ Section rotation_isos.
     use (pathscomp0 _ (! tmp)). clear tmp. rewrite id_right. apply idpath.
   Qed.
 
-  Local Lemma ExtMor2_Comm3 (D1 D2 : @DTri PT) (Mor : TriMor (InvRotDTri PT D1) (InvRotDTri PT D2)) :
+  Local Lemma ExtMor2_Comm3 (D1 D2 : @DTri PT)
+        (Mor : TriMor (InvRotDTri PT D1) (InvRotDTri PT D2)) :
     (AddEquivCounitInvMor Trans (Ob3 D1))
       ;; # (AddEquiv1 Trans) (MPMor1 Mor) ;; (AddEquivCounit Trans) (Ob3 D2) ;;  Mor3 D2 =
     Mor3 D1 ;; # (AddEquiv1 Trans) (MPMor2 Mor).
@@ -1341,8 +1327,8 @@ We construct the short exact sequences out from distinguished triangles. These c
 the long exact sequences associated to a distinguished triangle. Suppose (X, Y, Z, f, g, h) is a
 distinguished triangle. Then for every object W we have shortshortexact sequences
       Mor(W, X) --> Mor(W, Y) --> Mor(W, Z)    and    Mor(Z, W) --> Mor(Y, W) --> Mor(X, W)
-These shortshortexact sequences are constructed in  [DTriSSE1_ShortShortExact_from_X] and
-[DTriSSE1_ShortShortExact_to_X].
+These shortshortexact sequences are constructed in  [DTriSSE1_ShortShortExact_from_object] and
+[DTriSSE1_ShortShortExact_to_object].
  *)
 Section short_short_exact_sequences.
 
@@ -1350,7 +1336,7 @@ Section short_short_exact_sequences.
 
   Local Opaque ZeroArrow.
 
-  Definition MorphismPair_from_X (D : @DTri PT) (X : ob PT) :
+  Definition MorphismPair_from_object (D : @DTri PT) (X : ob PT) :
     @MorphismPair ABGR_AbelianPreCat.
   Proof.
     use mk_MorphismPair.
@@ -1361,7 +1347,7 @@ Section short_short_exact_sequences.
     - exact (to_postmor_monoidfun PT X (Ob2 D) (Ob3 D) (Mor2 D)).
   Defined.
 
-  Local Lemma ShortShortExactData_Eq_from_X (D : @DTri PT) (X : ob PT):
+  Local Lemma ShortShortExactData_Eq_from_object (D : @DTri PT) (X : ob PT):
     monoidfuncomp (to_postmor_monoidfun PT X (Ob1 D) (Ob2 D) (Mor1 D))
                   (to_postmor_monoidfun PT X (Ob2 D) (Ob3 D) (Mor2 D)) =
     ZeroArrow ABGR_has_zero (to_abgrop X (Ob1 D)) (to_abgrop X (Ob3 D)).
@@ -1371,18 +1357,18 @@ Section short_short_exact_sequences.
     apply cancel_precomposition. exact (DTriCompZero D).
   Qed.
 
-  Definition ShortShortExactData_from_X (D : @DTri PT) (X : ob PT) :
+  Definition ShortShortExactData_from_object (D : @DTri PT) (X : ob PT) :
     @ShortShortExactData ABGR_AbelianPreCat ABGR_has_zero.
   Proof.
     use mk_ShortShortExactData.
-    - exact (MorphismPair_from_X D X).
-    - exact (ShortShortExactData_Eq_from_X D X).
+    - exact (MorphismPair_from_object D X).
+    - exact (ShortShortExactData_Eq_from_object D X).
   Defined.
 
-  Lemma ShortShortExact_isKernel_from_X (D : @DTri PT) (X : ob PT) :
-    isKernel Abelian.to_Zero (KernelArrow (Image (ShortShortExactData_from_X D X)))
-             (Mor2 (ShortShortExactData_from_X D X))
-             (@Image_Eq ABGR_AbelianPreCat has_homsets_ABGR (ShortShortExactData_from_X D X)).
+  Lemma ShortShortExact_isKernel_from_object (D : @DTri PT) (X : ob PT) :
+    isKernel Abelian.to_Zero (KernelArrow (Image (ShortShortExactData_from_object D X)))
+             (Mor2 (ShortShortExactData_from_object D X))
+             (@Image_Eq ABGR_AbelianPreCat has_homsets_ABGR (ShortShortExactData_from_object D X)).
   Proof.
     use ABGR_isKernel.
     - intros D0. induction D0 as [y yH].
@@ -1402,29 +1388,29 @@ Section short_short_exact_sequences.
       use tpair.
       + exact (((factorization1_epi
                    ABGR_AbelianPreCat has_homsets_ABGR
-                   (Mor1 (ShortShortExactData_from_X D X)) : ABGR⟦_, _⟧) : monoidfun _ _)
+                   (Mor1 (ShortShortExactData_from_object D X)) : ABGR⟦_, _⟧) : monoidfun _ _)
                  (MPMor1 Mor)).
       + cbn beta. set (φ := MPMor1 Mor). cbn in φ.
         set (comm1 := MPComm1 Mor). cbn in comm1. fold φ in comm1. rewrite id_left in comm1.
         use (pathscomp0 _ comm1). clear comm1.
         set (tmp := @factorization1 ABGR_AbelianPreCat has_homsets_ABGR _ _
-                                    (Mor1 (ShortShortExactData_from_X D X))).
+                                    (Mor1 (ShortShortExactData_from_object D X))).
         apply base_paths in tmp. set (tmp' := funeqpaths tmp φ). cbn in tmp'.
         unfold to_postmor in tmp'. use (pathscomp0 _ (! tmp')). clear tmp'. clear tmp.
         cbn. apply idpath.
     - use KernelArrowisMonic.
   Qed.
 
-  Definition ShortShortExact_from_X (D : @DTri PT) (X : ob PT) :
+  Definition ShortShortExact_from_object (D : @DTri PT) (X : ob PT) :
     @ShortShortExact ABGR_AbelianPreCat has_homsets_ABGR.
   Proof.
     use mk_ShortShortExact.
-    - exact (ShortShortExactData_from_X D X).
-    - exact (ShortShortExact_isKernel_from_X D X).
+    - exact (ShortShortExactData_from_object D X).
+    - exact (ShortShortExact_isKernel_from_object D X).
   Defined.
 
   (** ShortShortExacts to X *)
-  Definition MorphismPair_to_X (D : @DTri PT) (X : ob PT) :
+  Definition MorphismPair_to_object (D : @DTri PT) (X : ob PT) :
     @MorphismPair ABGR_AbelianPreCat.
   Proof.
     use mk_MorphismPair.
@@ -1435,7 +1421,7 @@ Section short_short_exact_sequences.
     - exact (to_premor_monoidfun PT (Ob1 D) (Ob2 D) X (Mor1 D)).
   Defined.
 
-  Local Lemma ShortShortExactData_Eq_to_X (D : @DTri PT) (X : ob PT) :
+  Local Lemma ShortShortExactData_Eq_to_object (D : @DTri PT) (X : ob PT) :
     monoidfuncomp (to_premor_monoidfun PT (Ob2 D) (Ob3 D) X (Mor2 D))
                   (to_premor_monoidfun PT (Ob1 D) (Ob2 D) X (Mor1 D)) =
     ZeroArrow (@Abelian.to_Zero ABGR_AbelianPreCat) (to_abgrop (Ob3 D) X) (to_abgrop (Ob1 D) X).
@@ -1445,19 +1431,19 @@ Section short_short_exact_sequences.
     apply cancel_postcomposition. exact (DTriCompZero D).
   Qed.
 
-  Definition ShortShortExactData_to_X (D : @DTri PT) (X : ob PT) :
+  Definition ShortShortExactData_to_object (D : @DTri PT) (X : ob PT) :
     @ShortShortExactData ABGR_AbelianPreCat ABGR_has_zero.
   Proof.
     use mk_ShortShortExactData.
-    - exact (MorphismPair_to_X D X).
-    - exact (ShortShortExactData_Eq_to_X D X).
+    - exact (MorphismPair_to_object D X).
+    - exact (ShortShortExactData_Eq_to_object D X).
   Defined.
 
-  Lemma ShortShortExact_isKernel_to_X (D : @DTri PT) (X : ob PT) :
-    isKernel Abelian.to_Zero (KernelArrow (Image (ShortShortExactData_to_X D X)))
-             (Mor2 (ShortShortExactData_to_X D X))
+  Lemma ShortShortExact_isKernel_to_object (D : @DTri PT) (X : ob PT) :
+    isKernel Abelian.to_Zero (KernelArrow (Image (ShortShortExactData_to_object D X)))
+             (Mor2 (ShortShortExactData_to_object D X))
              (@Image_Eq ABGR_AbelianPreCat has_homsets_ABGR
-                       (ShortShortExactData_to_X D X)).
+                       (ShortShortExactData_to_object D X)).
   Proof.
     use ABGR_isKernel.
     - intros D0. induction D0 as [y yH].
@@ -1476,25 +1462,25 @@ Section short_short_exact_sequences.
       use tpair.
       + exact (((factorization1_epi
                    ABGR_AbelianPreCat has_homsets_ABGR
-                   (Mor1 (ShortShortExactData_to_X D X)) : ABGR⟦_, _⟧) : monoidfun _ _)
+                   (Mor1 (ShortShortExactData_to_object D X)) : ABGR⟦_, _⟧) : monoidfun _ _)
                  (MPMor3 Mor)).
       + cbn beta. set (φ := MPMor3 Mor). cbn in φ.
         set (comm2 := MPComm2 Mor). cbn in comm2. fold φ in comm2. rewrite id_right in comm2.
         use (pathscomp0 _ (! comm2)). clear comm2.
         set (tmp := @factorization1 ABGR_AbelianPreCat has_homsets_ABGR _ _
-                                    (Mor1 (ShortShortExactData_to_X D X))).
+                                    (Mor1 (ShortShortExactData_to_object D X))).
         apply base_paths in tmp. set (tmp' := funeqpaths tmp φ). cbn in tmp'.
         unfold to_premor in tmp'. use (pathscomp0 _ (! tmp')). clear tmp'. clear tmp.
         cbn. apply idpath.
     - use KernelArrowisMonic.
   Qed.
 
-  Definition ShortShortExact_to_X (D : @DTri PT) (X : ob PT) :
+  Definition ShortShortExact_to_object (D : @DTri PT) (X : ob PT) :
     @ShortShortExact ABGR_AbelianPreCat has_homsets_ABGR.
   Proof.
     use mk_ShortShortExact.
-    - exact (ShortShortExactData_to_X D X).
-    - exact (ShortShortExact_isKernel_to_X D X).
+    - exact (ShortShortExactData_to_object D X).
+    - exact (ShortShortExact_isKernel_to_object D X).
   Defined.
 
 End short_short_exact_sequences.
@@ -1516,7 +1502,8 @@ Section triangulated_five_lemma.
 
   Local Opaque ZeroArrow.
 
-  Definition TriangulatedRowObs_from_X (D : @DTri PT) (X : ob PT) : @FiveRowObs ABGR_AbelianPreCat.
+  Definition TriangulatedRowObs_from_object (D : @DTri PT) (X : ob PT) :
+    @FiveRowObs ABGR_AbelianPreCat.
   Proof.
     use mk_FiveRowObs.
     - exact (to_abgrop X (Ob1 D)).
@@ -1526,8 +1513,8 @@ Section triangulated_five_lemma.
     - exact (to_abgrop X (AddEquiv1 Trans (Ob2 D))).
   Defined.
 
-  Definition TriangulatedRowDiffs_from_X (D : @DTri PT) (X : ob PT) :
-    @FiveRowDiffs ABGR_AbelianPreCat (TriangulatedRowObs_from_X D X).
+  Definition TriangulatedRowDiffs_from_object (D : @DTri PT) (X : ob PT) :
+    @FiveRowDiffs ABGR_AbelianPreCat (TriangulatedRowObs_from_object D X).
   Proof.
     use mk_FiveRowDiffs.
     - exact (to_postmor_monoidfun PT _ _ _ (Mor1 D)).
@@ -1536,8 +1523,8 @@ Section triangulated_five_lemma.
     - exact (to_postmor_monoidfun PT _ _ _ (to_inv (# (AddEquiv1 Trans) (Mor1 D)))).
   Defined.
 
-  Definition TriangulatedRowDiffsEq_from_X (D : @DTri PT) (X : ob PT) :
-    @FiveRowDiffsEq ABGR_AbelianPreCat _ (TriangulatedRowDiffs_from_X D X).
+  Definition TriangulatedRowDiffsEq_from_object (D : @DTri PT) (X : ob PT) :
+    @FiveRowDiffsEq ABGR_AbelianPreCat _ (TriangulatedRowDiffs_from_object D X).
   Proof.
     use mk_FiveRowDiffsEq.
     - use monoidfun_eq. rewrite ABGR_has_zero_arrow_eq.
@@ -1557,30 +1544,29 @@ Section triangulated_five_lemma.
       rewrite <- PreAdditive_unel_zero. unfold to_unel. apply idpath.
   Qed.
 
-  Local Opaque ABGR_AbelianPreCat ishinh.
-  Definition TriangulatedRowExacts_from_X (D : @DTri PT) (X : ob PT) :
-    @FiveRowExacts ABGR_AbelianPreCat has_homsets_ABGR _ _ (TriangulatedRowDiffsEq_from_X D X).
+  Definition TriangulatedRowExacts_from_object (D : @DTri PT) (X : ob PT) :
+    @FiveRowExacts ABGR_AbelianPreCat has_homsets_ABGR _ _ (TriangulatedRowDiffsEq_from_object D X).
   Proof.
     use mk_FiveRowExacts.
-    - unfold isExact. exact (@ShortShortExact_isKernel_from_X PT D X).
-    - unfold isExact. exact (@ShortShortExact_isKernel_from_X PT (RotDTri PT D) X).
-    - unfold isExact. exact (@ShortShortExact_isKernel_from_X PT (RotDTri PT (RotDTri PT D)) X).
+    - unfold isExact. exact_op (@ShortShortExact_isKernel_from_object PT D X).
+    - unfold isExact. exact_op (@ShortShortExact_isKernel_from_object PT (RotDTri PT D) X).
+    - unfold isExact.
+      exact_op (@ShortShortExact_isKernel_from_object PT (RotDTri PT (RotDTri PT D)) X).
   Qed.
-  Local Transparent ABGR_AbelianPreCat ishinh.
 
-  Definition TriangulatedRow_from_X (D : @DTri PT) (X : ob PT) :
+  Definition TriangulatedRow_from_object (D : @DTri PT) (X : ob PT) :
     @FiveRow ABGR_AbelianPreCat has_homsets_ABGR.
   Proof.
     use mk_FiveRow.
-    - exact (TriangulatedRowObs_from_X D X).
-    - exact (TriangulatedRowDiffs_from_X D X).
-    - exact (TriangulatedRowDiffsEq_from_X D X).
-    - exact (TriangulatedRowExacts_from_X D X).
+    - exact (TriangulatedRowObs_from_object D X).
+    - exact (TriangulatedRowDiffs_from_object D X).
+    - exact (TriangulatedRowDiffsEq_from_object D X).
+    - exact (TriangulatedRowExacts_from_object D X).
   Defined.
 
-  Definition TriangulatedRowMors_from_X {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
+  Definition TriangulatedRowMors_from_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
     @FiveRowMors ABGR_AbelianPreCat has_homsets_ABGR
-                 (TriangulatedRow_from_X D1 X) (TriangulatedRow_from_X D2 X).
+                 (TriangulatedRow_from_object D1 X) (TriangulatedRow_from_object D2 X).
   Proof.
     use mk_FiveRowMors.
     - exact (to_postmor_monoidfun PT _ _ _ (MPMor1 M)).
@@ -1590,8 +1576,8 @@ Section triangulated_five_lemma.
     - exact (to_postmor_monoidfun PT _ _ _ (# (AddEquiv1 Trans) (MPMor2 M))).
   Defined.
 
-  Definition TriangulatedMorsComm_from_X {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMorsComm ABGR_AbelianPreCat has_homsets_ABGR _ _ (TriangulatedRowMors_from_X M X).
+  Definition TriangulatedMorsComm_from_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
+    @FiveRowMorsComm ABGR_AbelianPreCat has_homsets_ABGR _ _ (TriangulatedRowMors_from_object M X).
   Proof.
     use mk_FiveRowMorsComm.
     - use monoidfun_eq.
@@ -1610,16 +1596,17 @@ Section triangulated_five_lemma.
       apply maponpaths. exact (! MPComm1 M).
   Qed.
 
-  Definition TriangulatedMorphism_from_X {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
+  Definition TriangulatedMorphism_from_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
     @FiveRowMorphism ABGR_AbelianPreCat has_homsets_ABGR
-                     (TriangulatedRow_from_X D1 X) (TriangulatedRow_from_X D2 X).
+                     (TriangulatedRow_from_object D1 X) (TriangulatedRow_from_object D2 X).
   Proof.
     use mk_FiveRowMorphism.
-    - exact (TriangulatedRowMors_from_X M X).
-    - exact (TriangulatedMorsComm_from_X M X).
+    - exact (TriangulatedRowMors_from_object M X).
+    - exact (TriangulatedMorsComm_from_object M X).
   Defined.
 
-  Definition TriangulatedRowObs_to_X (D : @DTri PT) (X : ob PT) : @FiveRowObs ABGR_AbelianPreCat.
+  Definition TriangulatedRowObs_to_object (D : @DTri PT) (X : ob PT) :
+    @FiveRowObs ABGR_AbelianPreCat.
   Proof.
     use mk_FiveRowObs.
     - exact (to_abgrop (AddEquiv1 Trans (Ob2 D)) X).
@@ -1629,8 +1616,8 @@ Section triangulated_five_lemma.
     - exact (to_abgrop (Ob1 D) X).
   Defined.
 
-  Definition TriangulatedRowDiffs_to_X (D : @DTri PT) (X : ob PT) :
-    @FiveRowDiffs ABGR_AbelianPreCat (TriangulatedRowObs_to_X D X).
+  Definition TriangulatedRowDiffs_to_object (D : @DTri PT) (X : ob PT) :
+    @FiveRowDiffs ABGR_AbelianPreCat (TriangulatedRowObs_to_object D X).
   Proof.
     use mk_FiveRowDiffs.
     - exact (to_premor_monoidfun PT _ _ _ (to_inv (# (AddEquiv1 Trans) (Mor1 D)))).
@@ -1639,8 +1626,8 @@ Section triangulated_five_lemma.
     - exact (to_premor_monoidfun PT _ _ _ (Mor1 D)).
   Defined.
 
-  Definition TriangulatedRowDiffsEq_to_X (D : @DTri PT) (X : ob PT) :
-    @FiveRowDiffsEq ABGR_AbelianPreCat _ (TriangulatedRowDiffs_to_X D X).
+  Definition TriangulatedRowDiffsEq_to_object (D : @DTri PT) (X : ob PT) :
+    @FiveRowDiffsEq ABGR_AbelianPreCat _ (TriangulatedRowDiffs_to_object D X).
   Proof.
     use mk_FiveRowDiffsEq.
     - use monoidfun_eq. rewrite ABGR_has_zero_arrow_eq.
@@ -1663,30 +1650,29 @@ Section triangulated_five_lemma.
       rewrite <- PreAdditive_unel_zero. unfold to_unel. apply idpath.
   Qed.
 
-  Local Opaque ABGR_AbelianPreCat ishinh.
-  Definition TriangulatedRowExacts_to_X (D : @DTri PT) (X : ob PT) :
-    @FiveRowExacts ABGR_AbelianPreCat has_homsets_ABGR _ _ (TriangulatedRowDiffsEq_to_X D X).
+  Definition TriangulatedRowExacts_to_object (D : @DTri PT) (X : ob PT) :
+    @FiveRowExacts ABGR_AbelianPreCat has_homsets_ABGR _ _ (TriangulatedRowDiffsEq_to_object D X).
   Proof.
     use mk_FiveRowExacts.
-    - unfold isExact. exact (@ShortShortExact_isKernel_to_X PT (RotDTri PT (RotDTri PT D)) X).
-    - unfold isExact. exact (@ShortShortExact_isKernel_to_X PT (RotDTri PT D) X).
-    - unfold isExact. exact (@ShortShortExact_isKernel_to_X PT D X).
+    - unfold isExact.
+      exact_op (@ShortShortExact_isKernel_to_object PT (RotDTri PT (RotDTri PT D)) X).
+    - unfold isExact. exact_op (@ShortShortExact_isKernel_to_object PT (RotDTri PT D) X).
+    - unfold isExact. exact_op (@ShortShortExact_isKernel_to_object PT D X).
   Qed.
-  Local Transparent ABGR_AbelianPreCat ishinh.
 
-  Definition TriangulatedRow_to_X (D : @DTri PT) (X : ob PT) :
+  Definition TriangulatedRow_to_object (D : @DTri PT) (X : ob PT) :
     @FiveRow ABGR_AbelianPreCat has_homsets_ABGR.
   Proof.
     use mk_FiveRow.
-    - exact (TriangulatedRowObs_to_X D X).
-    - exact (TriangulatedRowDiffs_to_X D X).
-    - exact (TriangulatedRowDiffsEq_to_X D X).
-    - exact (TriangulatedRowExacts_to_X D X).
+    - exact (TriangulatedRowObs_to_object D X).
+    - exact (TriangulatedRowDiffs_to_object D X).
+    - exact (TriangulatedRowDiffsEq_to_object D X).
+    - exact (TriangulatedRowExacts_to_object D X).
   Defined.
 
-  Definition TriangulatedRowMors_to_X {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
+  Definition TriangulatedRowMors_to_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
     @FiveRowMors ABGR_AbelianPreCat has_homsets_ABGR
-                 (TriangulatedRow_to_X D2 X) (TriangulatedRow_to_X D1 X).
+                 (TriangulatedRow_to_object D2 X) (TriangulatedRow_to_object D1 X).
   Proof.
     use mk_FiveRowMors.
     - exact (to_premor_monoidfun PT _ _ _ (# (AddEquiv1 Trans) (MPMor2 M))).
@@ -1696,8 +1682,8 @@ Section triangulated_five_lemma.
     - exact (to_premor_monoidfun PT _ _ _ (MPMor1 M)).
   Defined.
 
-  Definition TriangulatedMorsComm_to_X {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMorsComm ABGR_AbelianPreCat has_homsets_ABGR _ _ (TriangulatedRowMors_to_X M X).
+  Definition TriangulatedMorsComm_to_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
+    @FiveRowMorsComm ABGR_AbelianPreCat has_homsets_ABGR _ _ (TriangulatedRowMors_to_object M X).
   Proof.
     use mk_FiveRowMorsComm.
     - use monoidfun_eq.
@@ -1716,21 +1702,21 @@ Section triangulated_five_lemma.
       apply cancel_postcomposition. exact (MPComm1 M).
   Qed.
 
-  Definition TriangulatedMorphism_to_X {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
+  Definition TriangulatedMorphism_to_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
     @FiveRowMorphism ABGR_AbelianPreCat has_homsets_ABGR
-                     (TriangulatedRow_to_X D2 X) (TriangulatedRow_to_X D1 X) .
+                     (TriangulatedRow_to_object D2 X) (TriangulatedRow_to_object D1 X) .
   Proof.
     use mk_FiveRowMorphism.
-    - exact (TriangulatedRowMors_to_X M X).
-    - exact (TriangulatedMorsComm_to_X M X).
+    - exact (TriangulatedRowMors_to_object M X).
+    - exact (TriangulatedMorsComm_to_object M X).
   Defined.
 
   Lemma TriangulatedFiveLemma {D1 D2 : @DTri PT} (M : TriMor D1 D2)
         (H1 : is_z_isomorphism (MPMor1 M)) (H2 : is_z_isomorphism (MPMor2 M)) :
     is_z_isomorphism (MPMor3 M).
   Proof.
-    set (Mor1 := TriangulatedMorphism_from_X M (Ob3 D2)).
-    set (Mor2 := TriangulatedMorphism_to_X M (Ob3 D1)).
+    set (Mor1 := TriangulatedMorphism_from_object M (Ob3 D2)).
+    set (Mor2 := TriangulatedMorphism_to_object M (Ob3 D1)).
     assert (e1 : is_z_isomorphism (@FMor3 ABGR_AbelianPreCat has_homsets_ABGR _ _ Mor1)).
     {
       use FiveLemma.
@@ -1782,16 +1768,14 @@ Section KA_Octa.
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             (H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥)
-             (H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥)
-             (H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥)
+             (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
+             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
              {x1' x2' y1' y2' z1' z2' : ob PT}
              {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
              {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
              {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
-             (H1' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1' f2' f3') M ∥ ∥)
-             (H2' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1' g2' g3') M ∥ ∥)
-             (H3' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1' ;; g1') h2' h3') M ∥ ∥)
+             (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
+             (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
              (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
              (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
              (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
@@ -1813,16 +1797,14 @@ Section KA_Octa.
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             (H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥)
-             (H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥)
-             (H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥)
+             (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
+             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
              {x1' x2' y1' y2' z1' z2' : ob PT}
              {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
              {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
              {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
-             (H1' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1' f2' f3') M ∥ ∥)
-             (H2' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1' g2' g3') M ∥ ∥)
-             (H3' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1' ;; g1') h2' h3') M ∥ ∥)
+             (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
+             (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
              (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
              (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
              (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
@@ -1848,24 +1830,22 @@ Section KA_Octa.
   Qed.
 
   Local Lemma OctaConeIsoComm3 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
-             {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
-             {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
-             {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             (H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥)
-             (H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥)
-             (H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥)
-             {x1' x2' y1' y2' z1' z2' : ob PT}
-             {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
-             {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
-             {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
-             (H1' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1' f2' f3') M ∥ ∥)
-             (H2' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1' g2' g3') M ∥ ∥)
-             (H3' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1' ;; g1') h2' h3') M ∥ ∥)
-             (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
-             (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
-             (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
-             (II12 : MPMor1 I2 = MPMor2 I1) (O : Octa H1' H2' H3')
-             (M : Morphism) (II' : ConeIso (OctaDTri O) M) :
+        {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
+        {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
+        {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
+        (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
+        (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
+        {x1' x2' y1' y2' z1' z2' : ob PT}
+        {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
+        {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
+        {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
+        (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
+        (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
+        (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
+        (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
+        (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
+        (II12 : MPMor1 I2 = MPMor2 I1) (O : Octa H1' H2' H3')
+        (M : Morphism) (II' : ConeIso (OctaDTri O) M) :
     MPMor3 I2 ;; MPMor3 (ConeIsoMor II') ;; MCone2 (MConeOf _ (ConeIsoFiber II')) =
     g3 ;; # (AddEquiv1 Trans) f2 ;; # (AddEquiv1 Trans) (MPMor3 I1 ;; MPMor1 (ConeIsoMor II')).
   Proof.
@@ -1885,24 +1865,22 @@ Section KA_Octa.
   Qed.
 
   Lemma OctaConeIsoOctaComm1 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
-             {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
-             {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
-             {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             (H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥)
-             (H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥)
-             (H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥)
-             {x1' x2' y1' y2' z1' z2' : ob PT}
-             {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
-             {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
-             {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
-             (H1' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1' f2' f3') M ∥ ∥)
-             (H2' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1' g2' g3') M ∥ ∥)
-             (H3' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1' ;; g1') h2' h3') M ∥ ∥)
-             (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
-             (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
-             (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
-             (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
-             (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
+        {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
+        {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
+        {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
+        (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
+        (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
+        {x1' x2' y1' y2' z1' z2' : ob PT}
+        {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
+        {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
+        {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
+        (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
+        (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
+        (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
+        (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
+        (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
+        (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
+        (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
     f2 ;; (MPMor3 I1 ;; OctaMor1 O ;; is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I3))) =
     g1 ;; h2.
   Proof.
@@ -1918,25 +1896,23 @@ Section KA_Octa.
     rewrite <- assoc. cbn in tmp. rewrite tmp. clear tmp. rewrite id_right. apply idpath.
   Qed.
 
-  Lemma OcataConeIsoOctaComm2 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
-             {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
-             {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
-             {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             (H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥)
-             (H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥)
-             (H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥)
-             {x1' x2' y1' y2' z1' z2' : ob PT}
-             {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
-             {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
-             {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
-             (H1' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1' f2' f3') M ∥ ∥)
-             (H2' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1' g2' g3') M ∥ ∥)
-             (H3' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1' ;; g1') h2' h3') M ∥ ∥)
-             (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
-             (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
-             (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
-             (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
-             (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
+  Lemma OctaConeIsoOctaComm2 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
+        {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
+        {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
+        {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
+        (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
+        (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
+        {x1' x2' y1' y2' z1' z2' : ob PT}
+        {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
+        {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
+        {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
+        (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
+        (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
+        (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
+        (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
+        (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
+        (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
+        (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
     MPMor3 I3 ;; OctaMor2 O ;; is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I2)) ;; g3 =
     h3 ;; # (AddEquiv1 Trans) f1.
   Proof.
@@ -1962,16 +1938,14 @@ Section KA_Octa.
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             (H1 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥)
-             (H2 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥)
-             (H3 : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥)
+             (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
+             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
              {x1' x2' y1' y2' z1' z2' : ob PT}
              {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
              {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
              {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
-             (H1' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri f1' f2' f3') M ∥ ∥)
-             (H2' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri g1' g2' g3') M ∥ ∥)
-             (H3' : ∥ Σ M : Morphism, ∥ ConeIso (mk_Tri (f1' ;; g1') h2' h3') M ∥ ∥)
+             (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
+             (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
              (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
              (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
              (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
@@ -2008,7 +1982,7 @@ Section KA_Octa.
              ++ exact (TriMor_is_iso3 (TriIso_is_iso I2)).
              ++ exact (TriMor_is_iso3 (ConeIsoMor_is_iso II')).
     - exact (OctaConeIsoOctaComm1 H1 H2 H3 H1' H2' H3' I1 I2 I3 II12 II13 II23 O).
-    - exact (OcataConeIsoOctaComm2 H1 H2 H3 H1' H2' H3' I1 I2 I3 II12 II13 II23 O).
+    - exact (OctaConeIsoOctaComm2 H1 H2 H3 H1' H2' H3' I1 I2 I3 II12 II13 II23 O).
   Defined.
 
 End KA_Octa.

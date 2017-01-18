@@ -54,15 +54,15 @@ Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow.
    a morphism of complexes h : X --> Y by setting
                       # h^i = χ^i ;; d^{i-1}_Y + d^i_X ;; χ^{i+1}. #
                       $ h^i = χ^i ;; d^{i-1}_Y + d^i_X ;; χ^{i+1}. $
-   The subset of morphisms in Mor(X, Y) which have a path to a morphism of the form h form an
-   abelian subgroup of Mor(X, Y). Also, if f : Z_1 --> X and g : Y --> Z_2 are morphisms of
-   complexes, then f ;; h and h ;; g have paths to morphisms induced by homotopies. These are given
-   (f^i ;; χ^i) and (χ^i ;; g^{i-1}), respectively.
+   The subset of morphisms in Mor(X, Y) which are of the form h form an abelian subgroup of
+   Mor(X, Y). Also, if f : Z_1 --> X and g : Y --> Z_2 are morphisms of complexes, then f ;; h and
+   h ;; g have paths to morphisms induced by homotopies. These are given (f^i ;; χ^i) and
+   (χ^i ;; g^{i-1}), respectively.
 
    These are the properties that are enough to form the quotient category of C(A) using
    [QuotPrecategory_Additive]. We call the resulting category the naive homotopy category of A, and
    denote it by K(A). The objects of K(A) are objects of C(A) and Mor_{K(A)}(X, Y) =
-   Mor_{C(A)}(X, Y) / (the subgroup of morphisms coming from homotopies, [ComplexHomotSubgrp]).
+   Mor_{C(A)}(X, Y) / (the subgroup of null-homotopic morphisms, [ComplexHomotSubgrp]).
 
    Homotopies are defined in [ComplexHomot]. The induced morphisms of a homotopy is constructed in
    [ComplexHomotMorphism]. The subgroup of morphisms coming from homotopies is defined in
@@ -121,7 +121,7 @@ Section complexes_homotopies.
     use transportf_paths. apply maponpaths. apply isasethz.
   Qed.
 
-  (** Every homotopy H of complexes induces a morphisms of complexes. The morphisms is defined by
+  (** Every homotopy H of complexes induces a morphism of complexes. The morphism is defined by
       taking the map C1 i --> C2 i to be the sum
                          (H i) ;; (Diff C2 (i - 1)) + (Diff C1 i) ;; (H (i + 1)).
       Note that we need to use transportf because the targets are not definitionally equal. The
@@ -144,17 +144,6 @@ Section complexes_homotopies.
     @hsubtypes ((ComplexPreCat_Additive A)⟦C1, C2⟧) :=
     (fun (f : ((ComplexPreCat_Additive A)⟦C1, C2⟧)) =>
        ∃ (H : ComplexHomot C1 C2), ComplexHomotMorphism H = f).
-
-  Local Lemma grinvop (Y : gr) :
-    Π y1 y2 : Y, grinv Y (@op Y y1 y2) = @op Y (grinv Y y2) (grinv Y y1).
-  Proof.
-    intros y1 y2.
-    apply (grrcan Y y1).
-    rewrite (assocax Y). rewrite (grlinvax Y). rewrite (runax Y).
-    apply (grrcan Y y2).
-    rewrite (grlinvax Y). rewrite (assocax Y). rewrite (grlinvax Y).
-    apply idpath.
-  Qed.
 
   (** This lemma shows that the subset [ComplexHomotSubset] satisfies the axioms of a subgroup. *)
   Lemma ComplexHomotisSubgrop (C1 C2 : Complex A) :

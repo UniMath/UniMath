@@ -273,17 +273,6 @@ Section ABGR_general.
     intros e. induction e. apply idpath.
   Qed.
 
-  (** How operation behaves under the inverse function. *)
-  Lemma grinvcomp (Y : gr) : Π y1 y2 : Y, grinv Y (@op Y y1 y2) = @op Y (grinv Y y2) (grinv Y y1).
-  Proof.
-    intros y1 y2.
-    apply (grrcan Y y1).
-    rewrite (assocax Y). rewrite (grlinvax Y). rewrite (runax Y).
-    apply (grrcan Y y2).
-    rewrite (grlinvax Y). rewrite (assocax Y). rewrite (grlinvax Y).
-    apply idpath.
-  Qed.
-
   (** Monoidfun preserves inverses. *)
   Definition monoidfun_inv {A B : abgr} (f : monoidfun A B) (a : A) : f (grinv A a) = grinv B (f a).
   Proof.
@@ -510,7 +499,7 @@ Section ABGR_preadditive.
     split.
     - intros x x'.
       rewrite (pr1 (pr2 f)). rewrite (pr2 (pr2 Y)).
-      rewrite (grinvcomp (abgrtogr Y)).
+      rewrite (grinvop (abgrtogr Y)).
       apply idpath.
     - set (tmp := pr2 (pr2 f)). cbn in tmp.
       apply (maponpaths (fun h : _ => grinv (abgrtogr Y) h)) in tmp.
@@ -1035,7 +1024,7 @@ Section ABGR_kernels.
     intros X3. apply y2. induction X3 as [t p]. refine (tpair _ (grinv A t) _).
     set (XXf := (grinvandmonoidfun A B (pr2 f) t)). cbn in XXf.
     rewrite XXf. rewrite p.
-    set (XXB := grinvcomp B x1 (grinv B x2)). cbn in XXB.
+    set (XXB := grinvop B x1 (grinv B x2)). cbn in XXB.
     rewrite XXB. rewrite grinvinv. apply idpath.
   Qed.
 
@@ -1057,7 +1046,7 @@ Section ABGR_kernels.
       apply y1. intros Y1. induction Y1 as [t p]. apply X.
       refine (tpair _ t _). rewrite p. rewrite ((pr2 (pr2 B)) x3 _).
       rewrite (assocax B). apply lopeq. rewrite ((pr2 (pr2 B)) x3 _).
-      rewrite grinvcomp. rewrite (assocax B). rewrite (grlinvax B).
+      rewrite grinvop. rewrite (assocax B). rewrite (grlinvax B).
       rewrite (runax B). apply idpath.
   Qed.
 

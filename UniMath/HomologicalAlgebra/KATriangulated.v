@@ -115,9 +115,6 @@ Section KAPreTriangulated.
     - exact (ComplexHomot_Additive A).
     - exact (TranslationHEquiv A).
     - intros x y f. exact (hfiber (# (ComplexHomotFunctor A)) f).
-    - intros x y f.
-      use (squash_to_prop (ComplexHomotFunctor_issurj A f) (propproperty _)).
-      intros f'. intros P X. apply X. exact f'.
     - intros x y f f'. exact (MappingConeData (hfiberpr1 _ _ f')).
   Defined.
 
@@ -162,8 +159,7 @@ Section KAPreTriangulated.
       rewrite (@ZeroArrow_comp_left (ComplexHomot_Additive A)). apply idpath.
   Defined.
 
-  Lemma KAPreTriang1 :
-    Π x : KAPreTriangData, ∥ Σ M : Morphisms.Morphism, ∥ ConeIso (TrivialTri x) M ∥ ∥.
+  Lemma KAPreTriang1 : Π x : KAPreTriangData, isDTri (TrivialTri x).
   Proof.
     intros x. intros P X. apply X. clear X P.
     use tpair.
@@ -219,8 +215,7 @@ Section KAPreTriangulated.
     apply TranslationFunctorHImEq. exact (hfiberpr2 _ _ (ConeIsoFiber I')).
   Qed.
 
-  Lemma KAPreTriang2 :
-    Π D : DTri, ∥ Σ M : Morphisms.Morphism, ∥ @ConeIso KAPreTriangData (RotTri D) M ∥ ∥.
+  Lemma KAPreTriang2 : Π D : DTri, @isDTri KAPreTriangData (RotTri D).
   Proof.
     intros D.
     use (squash_to_prop (DTriIso D) (propproperty _)). intros I.
@@ -345,8 +340,7 @@ Section KAPreTriangulated.
     exact (InvRotMorphismInvComm2 A M').
   Qed.
 
-  Lemma KAPreTriang3 :
-    Π D : DTri, ∃ M : Morphisms.Morphism, ∥ @ConeIso KAPreTriangData (InvRotTri D) M ∥.
+  Lemma KAPreTriang3 : Π D : DTri, @isDTri KAPreTriangData (InvRotTri D).
   Proof.
     intros D.
     use (squash_to_prop (DTriIso D) (propproperty _)). intros I.
@@ -830,14 +824,12 @@ Section KATriangulated.
   Qed.
 
   Local Lemma KATriangOctaFiberCompCone {x y z : ob (ComplexPreCat_Additive A)}
-        (f1 : Morphism x y) (f2 : Morphism y z)  :
-    ∃ M : @Morphisms.Morphism (@KAPreTriang A),
-      ∥ @ConeIso (@KAPreTriang A)
-        (@mk_Tri (@KAPreTriang A) (@Trans (@KAPreTriang A)) x z
-                 (@MappingCone A x z (MorphismComp f1 f2))
-                 (# (ComplexHomotFunctor A) f1 ;; # (ComplexHomotFunctor A) f2)
-                 (# (ComplexHomotFunctor A) (@MappingConeIn2 A x z (MorphismComp f1 f2)))
-                 (# (ComplexHomotFunctor A) (@MappingConePr1 A x z (MorphismComp f1 f2)))) M ∥.
+        (f1 : Morphism x y) (f2 : Morphism y z) :
+    isDTri (@mk_Tri (@KAPreTriang A) (@Trans (@KAPreTriang A)) x z
+                    (@MappingCone A x z (MorphismComp f1 f2))
+                    (# (ComplexHomotFunctor A) f1 ;; # (ComplexHomotFunctor A) f2)
+                    (# (ComplexHomotFunctor A) (@MappingConeIn2 A x z (MorphismComp f1 f2)))
+                    (# (ComplexHomotFunctor A) (@MappingConePr1 A x z (MorphismComp f1 f2)))).
   Proof.
     intros P X. apply X. clear P X.
     use tpair.
@@ -860,7 +852,7 @@ Section KATriangulated.
   Definition KATriangOctaFiberIso'Mor {x y y' z : KAPreTriang} {f1 : x --> y'} {g1 : y' --> y}
              {h2 : y --> z} {h3 : z --> (AddEquiv1 Trans x)}
              (f1' : hfiber # (ComplexHomotFunctor A) f1) (g1' : hfiber # (ComplexHomotFunctor A) g1)
-             (H : ∥ Σ M : Morphisms.Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥)
+             (H : isDTri (mk_Tri (f1 ;; g1) h2 h3))
              (f1'' := (hfiberpr1 _ _ f1')) (g1'' := (hfiberpr1 _ _ g1'))
              (e : identity x ;; # (ComplexHomotFunctor A) (f1'' ;; g1'') = f1 ;; g1 ;; identity y)
              (T : @TExt KAPreTriang (mk_DTri' _ H) (KAFiberDTri (f1'' ;; g1'')) _ _ e) :
@@ -885,7 +877,7 @@ Section KATriangulated.
   Definition KATriangOctaFiberIso' {x y y' z : KAPreTriang} {f1 : x --> y'} {g1 : y' --> y}
              {h2 : y --> z} {h3 : z --> (AddEquiv1 Trans x)}
              (f1' : hfiber # (ComplexHomotFunctor A) f1) (g1' : hfiber # (ComplexHomotFunctor A) g1)
-             (H : ∥ Σ M : Morphisms.Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥)
+             (H : isDTri (mk_Tri (f1 ;; g1) h2 h3))
              (f1'' := (hfiberpr1 _ _ f1')) (g1'' := (hfiberpr1 _ _ g1'))
              (e : identity x ;; # (ComplexHomotFunctor A) (f1'' ;; g1'') = f1 ;; g1 ;; identity y)
              (T : @TExt KAPreTriang (mk_DTri' _ H) (KAFiberDTri (f1'' ;; g1'')) _ _ e) :
@@ -934,9 +926,8 @@ Section KATriangulated.
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             (H1 : ∥ Σ M : Morphisms.Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥)
-             (H2 : ∥ Σ M : Morphisms.Morphism, ∥ ConeIso (mk_Tri g1 g2 g3) M ∥ ∥)
-             (H3 : ∥ Σ M : Morphisms.Morphism, ∥ ConeIso (mk_Tri (f1 ;; g1) h2 h3) M ∥ ∥) :
+             (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
+             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)) :
     ∥ Octa H1 H2 H3 ∥.
   Proof.
     use (squash_to_prop H1 (propproperty _)). intros H1'.
