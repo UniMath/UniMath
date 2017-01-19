@@ -21,6 +21,8 @@ Contents:
 - Products in Set/X ([Products_HSET_slice])
 - Forgetful functor Set/X to Set is left adjoint
   ([is_left_adjoint_slicecat_to_cat])
+- kernel pairs
+- effective epis
 
 Written by: Benedikt Ahrens, Anders Mörtberg
 
@@ -44,10 +46,14 @@ Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.covyoneda.
 Require Import UniMath.CategoryTheory.slicecat.
+
+Require Import UniMath.CategoryTheory.EpiFacts.
+
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
@@ -531,6 +537,15 @@ Section EqualizersHSET_from_Lims.
 
 End EqualizersHSET_from_Lims.
 
+Section PushoutsHSET_from_colims.
+  Require UniMath.CategoryTheory.limits.graphs.pushouts.
+  Lemma PushoutsHSET_from_Colims : graphs.pushouts.Pushouts HSET.
+    red.
+    intros .
+    apply ColimsHSET_of_shape.
+  Qed.
+End PushoutsHSET_from_colims.
+
 Section exponentials.
 
 (** Define the functor: A -> _^A *)
@@ -902,3 +917,108 @@ mkpair.
 Defined.
 
 End set_slicecat.
+
+(* copied from TypeTheory.Auxiliary.Auxiliary *)
+Lemma pullback_HSET_univprop_elements {P A B C : HSET}
+    {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
+    {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
+    (ep : p1 ;; f = p2 ;; g)
+    (pb : isPullback f g p1 p2 ep)
+  : (Π a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
+Proof.
+  intros a b e.
+  set (Pb := (mk_Pullback _ _ _ _ _ _ pb)).
+  apply iscontraprop1.
+  - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
+    apply subtypeEquality; simpl.
+      intros x; apply isapropdirprod; apply setproperty.
+    refine (@toforallpaths unitset _ (fun _ => ab) (fun _ => ab') _ tt).
+    refine (MorphismsIntoPullbackEqual pb _ _ _ _ );
+    apply funextsec; intros []; cbn;
+    (eapply @pathscomp0; [ eassumption | apply pathsinv0; eassumption]).
+  - simple refine (_,,_).
+    refine (_ tt).
+    refine (PullbackArrow Pb (unitset : HSET)
+      (fun _ => a) (fun _ => b) _).
+    apply funextsec; intro; exact e.
+    simpl; split.
+    + generalize tt; apply toforallpaths.
+      apply (PullbackArrow_PullbackPr1 Pb unitset).
+    + generalize tt; apply toforallpaths.
+      apply (PullbackArrow_PullbackPr2 Pb unitset).
+Defined.
+
+(**
+The set category has kernel pairs
+*)
+Section kernel_pair_Set.
+
+  Context  {A B:HSET}.
+  Variable (f: HSET ⟦A,B⟧).
+
+
+  Definition kernel_pair_HSET : kernel_pair f.
+    red.
+    apply PullbacksHSET.
+  Defined.
+
+  Local Notation g := kernel_pair_HSET.
+
+  (**
+ Formulation in the categorical language of the universal property
+enjoyed by surjections (univ_surj)
+   *)
+  Lemma isCoeqKernelPairSet (hf:issurjective f) :
+    isCoequalizer _ _ _ (PullbackSqrCommutes g).
+  Proof.
+    intros.
+    red.
+    intros C u equ.
+    assert (hcompat :   Π x y : pr1 A, f x = f y → u x = u y).
+    {
+      intros x y eqfxy.
+      assert (hpb:=pullback_HSET_univprop_elements
+                     (PullbackSqrCommutes g) (isPullback_Pullback g) x y eqfxy).
+      assert( hpb' := pr2 (pr1 hpb)); simpl in hpb'.
+      etrans.
+      eapply pathsinv0.
+      apply maponpaths.
+      exact (pr1 hpb').
+      eapply pathscomp0.
+      apply toforallpaths in equ.
+      apply equ.
+      cbn.
+      apply maponpaths.
+      exact (pr2 hpb').
+    }
+    use (unique_exists (univ_surj (setproperty C) _ _ _ hf)).
+    - exact u.
+    - exact hcompat.
+    - simpl.
+      apply funextfun.
+      intros ?.
+      apply univ_surj_ax.
+    - intros ?. apply has_homsets_HSET.
+    - intros ??; simpl.
+      apply funextfun.
+      use univ_surj_unique.
+      simpl in X.
+      apply toforallpaths in X.
+      exact X.
+  Qed.
+End kernel_pair_Set.
+
+
+Lemma EffectiveEpis_HSET : EpisAreEffective HSET.
+Proof.
+  red.
+  clear.
+  intros A B f epif.
+  exists (kernel_pair_HSET f).
+  apply isCoeqKernelPairSet.
+  apply epiissurjectiontosets; [apply setproperty|].
+  intros C g1 g2 h .
+  apply toforallpaths.
+  apply (epif C g1 g2).
+  now apply funextfun.
+Qed.
