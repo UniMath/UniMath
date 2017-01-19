@@ -46,7 +46,7 @@ Given the following diagram :
  B
 >>>
 there exists a unique natural transformation from B to C that makes the diagram
-commute provided that for any set X, any x,y in X, if p x = p y then f x = f y
+commute provided that for any set X, any x,y in X, if p_X x = p_X y then f_X x = f_X y
 
 This property comes from the fact that p is an effective epimorphism.
 *)
