@@ -122,17 +122,17 @@ Section monics_subcategory.
   Variable C : precategory.
   Hypothesis hs : has_homsets C.
 
-  Definition hsubtypes_obs_isMonic : hsubtypes C := (fun c : C => hProppair _ isapropunit).
+  Definition hsubtype_obs_isMonic : hsubtype C := (fun c : C => hProppair _ isapropunit).
 
-  Definition hsubtypes_mors_isMonic : Π (a b : C), hsubtypes (C⟦a, b⟧) :=
+  Definition hsubtype_mors_isMonic : Π (a b : C), hsubtype (C⟦a, b⟧) :=
     (fun a b : C => (fun f : C⟦a, b⟧ => hProppair _ (isapropisMonic C hs f))).
 
   Definition subprecategory_of_monics : sub_precategories C.
   Proof.
     use tpair.
     split.
-    - exact hsubtypes_obs_isMonic.
-    - exact hsubtypes_mors_isMonic.
+    - exact hsubtype_obs_isMonic.
+    - exact hsubtype_mors_isMonic.
     - cbn. unfold is_sub_precategory. cbn.
       split.
       + intros a tt. exact (identity_isMonic C).

@@ -81,7 +81,7 @@ Section def_grothendiecktopology.
 
   (** ** Grothendieck topology *)
 
-  Definition collection_of_sieves : UU := Π (c : C), hsubtypes (sieve c).
+  Definition collection_of_sieves : UU := Π (c : C), hsubtype (sieve c).
 
   Definition isGrothendieckTopology_maximal_sieve (COS : collection_of_sieves) : UU :=
     Π (c : C), COS c (SubobjectsPrecategory_ob
@@ -148,14 +148,14 @@ Section def_grothendiecktopology.
 
   (** The category of sheaves is the full subcategory of presheaves consisting of the presheaves
       which satisfy the isSheaf proposition. *)
-  Definition hsubtypes_obs_isSheaf (GT : GrothendieckTopology) :
-    hsubtypes (functor_precategory (opp_precat C) HSET has_homsets_HSET) :=
+  Definition hsubtype_obs_isSheaf (GT : GrothendieckTopology) :
+    hsubtype (functor_precategory (opp_precat C) HSET has_homsets_HSET) :=
     (fun P : functor_precategory (opp_precat C) HSET has_homsets_HSET =>
        hProppair _ (isaprop_isSheaf GT (mk_Presheaf P))).
 
   Definition PrecategoryOfSheaves (GT : GrothendieckTopology) :
     sub_precategories (functor_precategory (opp_precat C) HSET has_homsets_HSET) :=
-    full_sub_precategory (hsubtypes_obs_isSheaf GT).
+    full_sub_precategory (hsubtype_obs_isSheaf GT).
 
 End def_grothendiecktopology.
 
