@@ -67,8 +67,8 @@ Definition isasymm_StrongOrder : isasymm R :=
 
 End so_pty.
 
-Lemma isStrongOrder_weq {X Y : UU} (H : weq Y X) (gt : hrel X) :
-  isStrongOrder gt → isStrongOrder (λ x y : Y, gt (H x) (H y)).
+Lemma isStrongOrder_fun {X Y : UU} (f : Y → X) (gt : hrel X) :
+  isStrongOrder gt → isStrongOrder (λ x y : Y, gt (f x) (f y)).
 Proof.
   intros X Y H gt is.
   split ; [ | split].
@@ -79,6 +79,12 @@ Proof.
   - intros x.
     apply (pr2 (pr2 is)).
 Qed.
+Definition StrongOrder_fun {X Y : UU} (f : Y → X) (gt : StrongOrder X) : StrongOrder Y :=
+  (λ x y : Y, gt (f x) (f y)) ,, isStrongOrder_fun f _ (pr2 gt).
+
+Definition isStrongOrder_weq {X Y : UU} (H : weq Y X) (gt : hrel X) :
+  isStrongOrder gt → isStrongOrder (λ x y : Y, gt (H x) (H y)) :=
+  isStrongOrder_fun H gt.
 Definition StrongOrder_weq {X Y : UU} (H : weq Y X) (gt : StrongOrder X) : StrongOrder Y :=
   (λ x y : Y, gt (H x) (H y)) ,, isStrongOrder_weq H _ (pr2 gt).
 
