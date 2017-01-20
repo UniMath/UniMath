@@ -2,7 +2,7 @@
 (** Catherine Lelay. Sep. 2015 *)
 
 Require Import UniMath.RealNumbers.Sets.
-Require Export UniMath.Foundations.Algebra.ConstructiveStructures.
+Require Export UniMath.Algebra.ConstructiveStructures.
 Require Import UniMath.RealNumbers.Prelim.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
 

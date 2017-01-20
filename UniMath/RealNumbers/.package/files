@@ -1,7 +1,7 @@
-DecidableDedekindCuts.v
-Reals.v
-NonnegativeReals.v
-NonnegativeRationals.v
 Prelim.v
 Fields.v
 Sets.v
+NonnegativeRationals.v
+NonnegativeReals.v
+Reals.v
+DecidableDedekindCuts.v

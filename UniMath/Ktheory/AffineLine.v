@@ -12,12 +12,12 @@ Unset Kernel Term Sharing.
 (** ** Preliminaries *)
 
 Require UniMath.Ktheory.Nat.
-Require Export UniMath.Foundations.Basics.Sets.
+Require Export UniMath.Foundations.Sets.
 Require Import UniMath.Ktheory.Utilities
-               UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.Basics.UnivalenceAxiom
+               UniMath.Algebra.Monoids_and_Groups
+               UniMath.Foundations.UnivalenceAxiom
                UniMath.Ktheory.GroupAction
-               UniMath.Foundations.NumberSystems.Integers
+               UniMath.NumberSystems.Integers
                UniMath.Ktheory.Integers
                UniMath.Ktheory.Nat
                UniMath.Ktheory.MoreEquivalences.
@@ -360,7 +360,7 @@ Proof. intros.
                                                               (fun t : T => weq_pathscomp0r y (s t)) t0))
                       (iscontrcoconustot Y (f t0)))
                 : @paths (GHomotopy f s (f t0)) _ _).
-       simple refine (apevalat t0 (ap pr1 ((idpath _ :
+       simple refine (eqtohomot (ap pr1 ((idpath _ :
                          (pr2
                             (thePoint
                                (iscontrweqb
@@ -370,15 +370,16 @@ Proof. intros.
                                                                           (fun t : T => weq_pathscomp0r y (s t)) t0))
                                   (iscontrcoconustot Y (f t0)))))
                            =
-                         (path_start a2)) @ a2)) @ _).
-       simple refine (apevalat t0
-                 (ap pr1
+                         (path_start a2)) @ a2)) t0 @ _).
+       simple refine (eqtohomot
+                  (ap pr1
                      (compute_pr2_invmap_weqfibtototal
                         (fun y : Y =>
                            ℤTorsorRecursion_weq
                              (fun t : T => y = f t)
                              (fun t : T => weq_pathscomp0r y (s t)) t0)
-                        (f t0,, idpath (f t0)))) @ _).
+                        (f t0,, idpath (f t0))))
+                 t0 @ _).
        exact (ℤTorsorRecursion_inv_compute _ _ _ _).
 Defined.
 
