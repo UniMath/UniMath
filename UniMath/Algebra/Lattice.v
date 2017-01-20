@@ -144,15 +144,15 @@ Qed.
 
 (** ** Definition *)
 
-Definition latticeop {X : hSet} (min max : binop X) :=
+Definition islatticeop {X : hSet} (min max : binop X) :=
   ((isassoc min) × (iscomm min))
     × ((isassoc max) × (iscomm max))
     × (Π x y : X, min x (max x y) = x)
     × (Π x y : X, max x (min x y) = x).
-Definition lattice (X : hSet) := Σ min max : binop X, latticeop min max.
+Definition lattice (X : hSet) := Σ min max : binop X, islatticeop min max.
 
-Definition mklattice {X : hSet} {min max : binop X} : latticeop min max → lattice X :=
-  λ (is : latticeop min max), min,, max ,, is.
+Definition mklattice {X : hSet} {min max : binop X} : islatticeop min max → lattice X :=
+  λ (is : islatticeop min max), min,, max ,, is.
 
 Definition Lmin {X : hSet} (is : lattice X) : binop X := pr1 is.
 Definition Lmax {X : hSet} (is : lattice X) : binop X := pr1 (pr2 is).
@@ -1040,8 +1040,8 @@ Qed.
 
 End lattice_weq.
 
-Lemma latticeop_weq {X Y : hSet} (H : weq Y X) {min max : binop X} (is : latticeop min max) :
-  latticeop (weq_min H min) (weq_max H max).
+Lemma islatticeop_weq {X Y : hSet} (H : weq Y X) {min max : binop X} (is : islatticeop min max) :
+  islatticeop (weq_min H min) (weq_max H max).
 Proof.
   intros.
   split ; [ | split] ; split.
@@ -1057,7 +1057,7 @@ Definition lattice_weq {X Y : hSet} (H : weq Y X) (is : lattice X) : lattice Y.
 Proof.
   intros X Y H is.
   exists (weq_min H (Lmin is)), (weq_max H (Lmax is)).
-  apply latticeop_weq.
+  apply islatticeop_weq.
   apply (pr2 (pr2 is)).
 Defined.
 
@@ -1365,9 +1365,9 @@ Qed.
 
 End abmonoidfrac_lattice.
 
-Lemma abmonoidfrac_latticeop (X : abmonoid) (Y : @submonoids X) (is : lattice X) :
+Lemma abmonoidfrac_islatticeop (X : abmonoid) (Y : @submonoids X) (is : lattice X) :
   Π (Hmin : ispartrdistr Y (Lmin is) op) (Hmax : ispartrdistr Y (Lmax is) op),
-  latticeop (abmonoidfrac_min X Y Hmin) (abmonoidfrac_max X Y Hmax).
+  islatticeop (abmonoidfrac_min X Y Hmin) (abmonoidfrac_max X Y Hmax).
 Proof.
   intros X Y is Hmin Hmax.
   repeat split.
@@ -1387,7 +1387,7 @@ Proof.
   exact (abmonoidfrac_min X Y Hmin).
   mkpair.
   exact (abmonoidfrac_max X Y Hmax).
-  apply abmonoidfrac_latticeop.
+  apply abmonoidfrac_islatticeop.
 Defined.
 
 Lemma ispartbinophrel_Lle (X : abmonoid) (Y : @submonoids X) (is : lattice X)
