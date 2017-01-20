@@ -393,13 +393,13 @@ End Lge_pty.
 
 (** ** Lattice with a strong order *)
 
-Definition latticewithgtrel {X : hSet} (is : lattice X) (gt : StrongOrder X) :=
+Definition islatticewithgtrel {X : hSet} (is : lattice X) (gt : StrongOrder X) :=
   (Π x y : X, (¬ (gt x y)) <-> Lle is x y)
     × (Π x y z : X, gt x z → gt y z → gt (Lmin is x y) z)
     × (Π x y z : X, gt z x → gt z y → gt z (Lmax is x y)).
 
 Definition latticewithgt (X : hSet) :=
-  Σ (is : lattice X) (gt : StrongOrder X), latticewithgtrel is gt.
+  Σ (is : lattice X) (gt : StrongOrder X), islatticewithgtrel is gt.
 
 Definition lattice_latticewithgt {X : hSet} : latticewithgt X → lattice X :=
   pr1.
@@ -1077,9 +1077,9 @@ Qed.
 
 (** *** Lattice with strong order *)
 
-Lemma latticewithgtrel_weq {X Y : hSet} (H : weq Y X) {gt : StrongOrder X} (is : lattice X) :
-  latticewithgtrel is gt →
-  latticewithgtrel (lattice_weq H is) (StrongOrder_weq H gt).
+Lemma islatticewithgtrel_weq {X Y : hSet} (H : weq Y X) {gt : StrongOrder X} (is : lattice X) :
+  islatticewithgtrel is gt →
+  islatticewithgtrel (lattice_weq H is) (StrongOrder_weq H gt).
 Proof.
   intros X Y H gt is Hgt.
   split ; split.
@@ -1112,7 +1112,7 @@ Definition latticewithgt_weq {X Y : hSet} (H : weq Y X) (is : latticewithgt X) :
 Proof.
   intros X Y H is.
   exists (lattice_weq H is), (StrongOrder_weq H (Lgt is)).
-  apply latticewithgtrel_weq.
+  apply islatticewithgtrel_weq.
   apply (pr2 (pr2 is)).
 Defined.
 
