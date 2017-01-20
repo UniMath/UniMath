@@ -3,6 +3,7 @@
 
 Require Import UniMath.RealNumbers.Sets.
 Require Export UniMath.Algebra.ConstructiveStructures.
+Require Import UniMath.Algebra.Lattice.
 Require Import UniMath.RealNumbers.Prelim.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
 
