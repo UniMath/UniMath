@@ -76,6 +76,7 @@ Section LiftEpiNatTrans.
   Qed.
 
   Definition univ_surj_nt : nat_trans B C.
+  Proof.
     apply EffectiveEpis_Functor_HSET in surjectivep.
     red in surjectivep.
     set (coeq := limits.coequalizers.mk_Coequalizer _ _ _ _ (pr2 surjectivep)).

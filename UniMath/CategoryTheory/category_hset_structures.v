@@ -540,6 +540,7 @@ End EqualizersHSET_from_Lims.
 Section PushoutsHSET_from_colims.
   Require UniMath.CategoryTheory.limits.graphs.pushouts.
   Lemma PushoutsHSET_from_Colims : graphs.pushouts.Pushouts HSET.
+  Proof.
     red.
     intros .
     apply ColimsHSET_of_shape.
@@ -918,7 +919,7 @@ Defined.
 
 End set_slicecat.
 
-(* copied from TypeTheory.Auxiliary.Auxiliary *)
+(* proof by Peter, copied from TypeTheory.Auxiliary.Auxiliary *)
 Lemma pullback_HSET_univprop_elements {P A B C : HSET}
     {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
     {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
