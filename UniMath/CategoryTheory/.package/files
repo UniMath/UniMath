@@ -68,6 +68,7 @@ exponentials.v
 slicecat.v
 covyoneda.v
 category_hset_structures.v
+SetValuedFunctors.v
 CocontFunctors.v
 Inductives/Lists.v
 Inductives/Trees.v
