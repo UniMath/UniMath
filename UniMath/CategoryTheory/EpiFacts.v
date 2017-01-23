@@ -4,6 +4,9 @@
  effective epis.
 - Proof that if the target category has pushouts, a natural transformation that is
   an epimorphism is pointwise epimorphic
+- Faithul functors reflect epimorphisms
+
+Ambroise LAFONT January 2017
 *)
 
 
@@ -184,3 +187,22 @@ Section PointwiseEpi.
   Qed.
 
 End PointwiseEpi.
+
+(** faithul functors reflect epimorphisms *)
+Section FaithFulReflectEpis.
+  Context {C D : precategory} (U: functor C D).
+  Hypothesis (hU : faithful U).
+
+  Lemma faithful_reflects_epis {a b:C} (f:C⟦a,b⟧) : isEpi (#U f) -> isEpi f.
+  Proof.
+    intro hf.
+    intros c u v huv.
+    eapply invmaponpathsincl.
+    apply hU.
+    cbn.
+    apply hf.
+    rewrite <- functor_comp, <- functor_comp.
+    now rewrite huv.
+  Qed.
+
+End FaithFulReflectEpis.
