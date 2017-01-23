@@ -192,8 +192,7 @@ End PointwiseEpi.
 Lemma faithful_reflects_epis {C D:precategory} (U:functor C D) (hU:faithful U)
       {a b:C} (f:C⟦a,b⟧) : isEpi (#U f) -> isEpi f.
 Proof.
-  intro hf.
-  intros c u v huv.
+  intros hf c u v huv.
   eapply invmaponpathsincl.
   apply hU.
   cbn.

@@ -156,13 +156,13 @@ Section QuotientFunctor.
   Definition quot_functor_ob (d:D) :hSet.
   Proof.
     mkpair.
-    apply (setquot (hequiv d)).
-    abstract (apply isasetsetquot).
+    - apply (setquot (hequiv d)).
+    - abstract (apply isasetsetquot).
   Defined.
 
   Definition quot_functor_mor (d d' : D) (f : D ⟦d, d'⟧)
     : HSET ⟦quot_functor_ob d, quot_functor_ob d' ⟧ :=
-    fun (c:quot_functor_ob d) =>  setquotfun (hequiv d) (hequiv d') (#R f) (congru d d' f) c.
+    setquotfun (hequiv d) (hequiv d') (#R f) (congru d d' f).
 
   Definition quot_functor_data : functor_data D HSET := tpair _ _ quot_functor_mor.
 
@@ -199,8 +199,7 @@ Section QuotientFunctor.
   Lemma isEpi_pr_quot_functor : isEpi (C:=functor_precategory _ _ has_homsets_HSET) pr_quot_functor.
   Proof.
     apply is_nat_trans_epi_from_pointwise_epis.
-    intro a.
-    intros z f g eqfg.
+    intros a z f g eqfg.
     apply funextfun.
     intro x.
     eapply surjectionisepitosets.
