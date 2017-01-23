@@ -1,7 +1,7 @@
 (** **********************************************************
 Contents:
         - Definition of right modules ([RModule R]) over a monad [R] on [C]
-        - Precategory of modules [precategory_Module R D] of range [D] over a monad [R] on [C]
+        - Precategory of modules [Precategory_RModule R D] of range [D] over a monad [R] on [C]
 
 Following the scheme of Monads.v
 
@@ -166,8 +166,27 @@ Proof.
     apply (@assoc (functor_precategory B C hs)).
 Qed.
 
-Definition precategory_RModule (C : precategory) (hs : has_homsets C) : precategory
-  := tpair _ _ (precategory_RModule_axioms C hs).
+Definition precategory_RModule (C : Precategory) : precategory
+  := tpair _ _ (precategory_RModule_axioms C (homset_property C)).
+
+Lemma has_homsets_RModule (C:Precategory) :
+  has_homsets (precategory_RModule C).
+Proof.
+  intros F G.
+  simpl.
+  apply isaset_total2 .
+  apply isaset_nat_trans.
+  apply homset_property.
+  intros m.
+  apply isasetaprop.
+  apply isaprop_RModule_Mor_laws.
+  apply homset_property.
+Qed.
+
+Definition Precategory_RModule (C:Precategory) : Precategory :=
+  (precategory_RModule C,, has_homsets_RModule C).
+
+
 
 End RModule_precategory.
 
