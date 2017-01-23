@@ -64,7 +64,9 @@ Proof. intros a b; apply isaset_set_fun_space. Qed.
 
 (*
   Canonical Structure hset_precategory. :-)
-*)
+ *)
+
+Definition hset_Precategory : Precategory := (HSET ,, has_homsets_HSET).
 
 End HSET_precategory.
 
