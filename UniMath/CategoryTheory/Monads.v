@@ -216,9 +216,9 @@ Definition forgetfunctor_Monad (C:Precategory) :
   functor (Precategory_Monad C) (functor_Precategory C C).
 Proof.
   use mk_functor.
-  use mk_functor_data.
-  - exact (fun M => pr1 M:functor C C).
-  - exact (fun M N f => pr1 f).
+  - use mk_functor_data.
+    + exact (fun M => pr1 M:functor C C).
+    + exact (fun M N f => pr1 f).
   - abstract (split; red; intros;  reflexivity).
 Defined.
 

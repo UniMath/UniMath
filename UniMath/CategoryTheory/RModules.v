@@ -179,14 +179,13 @@ Lemma has_homsets_RModule (C:Precategory) :
   has_homsets (precategory_RModule C).
 Proof.
   intros F G.
-  simpl.
   apply isaset_total2 .
-  apply isaset_nat_trans.
-  apply homset_property.
-  intros m.
-  apply isasetaprop.
-  apply isaprop_RModule_Mor_laws.
-  apply homset_property.
+  - apply isaset_nat_trans.
+    apply homset_property.
+  - intros m.
+    apply isasetaprop.
+    apply isaprop_RModule_Mor_laws.
+    apply homset_property.
 Qed.
 
 Definition Precategory_RModule (C:Precategory) : Precategory :=
@@ -223,7 +222,7 @@ Section Pullback_module.
   Lemma cancel_functor_on_morph (C C' : precategory_ob_mor)
         (F : functor_data C C') (a b : C) (m m': C ⟦ a, b ⟧) : m = m' -> #F m = #F m'.
   Proof.
-    now induction 1.
+    now intro e; induction e.
   Qed.
 
   Context {B:precategory} {M M':Monad B} (m: Monad_Mor M M').
@@ -240,14 +239,12 @@ Section Pullback_module.
   Lemma pb_RModule_laws : RModule_laws M pb_RModule_data.
   Proof.
     split.
-    - simpl.
-      assert (hT1:= RModule_law2 _ (T:=T)).
-      assert (hT2:= RModule_law1 _ (T:=T)).
-      intro c.
-      rewrite <- hT2; clear hT2.
+    - intro c.
+      cbn.
+      rewrite <- (RModule_law1 _ (T:=T)).
       rewrite <- (Monad_Mor_η m).
       rewrite functor_comp.
-      now rewrite assoc.
+      apply assoc.
     - simpl.
       intro c.
       rewrite assoc.
