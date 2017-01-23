@@ -25,6 +25,37 @@ Require Import TypeTheory.OtherDefs.DM.
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
+Section Auxiliary.
+
+(* Morally the same as [weq_subtypes], but it’s not clear to me how to easily get this using that. *)
+Lemma weq_subtypes'
+    {X Y : UU} (w : X ≃ Y)
+    {S : X -> UU} {T : Y -> UU}
+    (HS : isPredicate S)
+    (HT : isPredicate T)
+    (HST : Π x : X, S x <-> T (w x))
+  : (Σ x, S x) ≃ (Σ y, T y).
+Proof.
+  apply (weqbandf w).
+  intros. apply weqiff.
+  - apply HST.
+  - apply HS.
+  - apply HT.
+Defined.
+
+(* Specialisation of [weq_subtypes'] *)
+Lemma weq_subtypes_iff
+    {X : UU} {S T : X -> UU}
+    (HS : isPredicate S)
+    (HT : isPredicate T)
+    (HST : Π x, S x <-> T x)
+  : (Σ x, S x) ≃ (Σ x, T x).
+Proof.
+  apply (weq_subtypes' (idweq X)); assumption.
+Defined.
+
+End Auxiliary.
+
 (** ** Displayed category induced by a display map category
 
 The total category associated to this displayed category is going to be isomorphic to
@@ -52,8 +83,7 @@ Proof.
   exists (fun Γ => DM_over D Γ).
   simpl; intros Γ Δ p q f. 
   exact (Σ ff : ob_from_DM_over p --> ob_from_DM_over q,
-           p ;; f = ff ;; q).
-  (* TODO: maybe direction of this equality? *)
+           ff ;; q = p ;; f).
 Defined.
 
 (* TODO: consider implicit args of [disp_precat_id_comp]. *)
@@ -63,16 +93,16 @@ Proof.
   - simpl; intros.
     exists (identity _ ).
     abstract (
-        etrans; [apply id_right |];
-        apply pathsinv0, id_left ).
+        etrans; [apply id_left |];
+        apply pathsinv0, id_right ).
   - simpl; intros Γ Γ' Γ'' f g p p' p'' ff gg.
     exists (pr1 ff ;; pr1 gg).
     abstract (
-        etrans; [apply assoc |];
-        etrans; [apply maponpaths_2, (pr2 ff) |];
         etrans; [eapply pathsinv0, assoc |];
-        etrans; [apply maponpaths, (pr2 gg)|];
-        apply assoc).
+        etrans; [apply maponpaths, (pr2 gg) |];
+        etrans; [eapply assoc |];
+        etrans; [apply maponpaths_2, (pr2 ff)|];
+        eapply pathsinv0, assoc).
 Defined.
 
 Definition DM_disp_data : disp_precat_data CC
@@ -112,9 +142,43 @@ Qed.
 Definition DM_disp : disp_precat CC
   := (DM_disp_data ,, DM_disp_axioms).
 
+(* TODO: check what naming conventions suggest for this. *)
+Definition pullback_is_cartesian
+    { Γ Γ' : CC } {f : Γ' --> Γ}
+    {p : DM_disp Γ} {p' : DM_disp Γ'} (ff : p' -->[f] p)
+  : (isPullback _ _ _ _ (pr2 ff)) -> is_cartesian ff.
+Proof.
+  intros Hpb Δ g q hh.
+  eapply iscontrweqf.
+  Focus 2. { 
+    use Hpb.
+    + exact (ob_from_DM_over q).
+    + exact (pr1 hh).
+    + simpl in q. refine (q ;; g).
+    + etrans. apply (pr2 hh). apply assoc.
+  } Unfocus.
+  eapply weqcomp.
+  Focus 2. apply weqtotal2asstol.
+  apply weq_subtypes_iff.
+  - intro. apply isapropdirprod; apply homset_property.
+  - intro. apply (isofhleveltotal2 1). 
+    + apply homset_property.
+    + intros. apply homsets_disp.
+  - intros gg; split; intros H.
+    + exists (pr2 H).
+      apply subtypeEquality.
+        intro; apply homset_property.
+      exact (pr1 H).
+    + split.
+      * exact (maponpaths pr1 (pr2 H)).
+      * exact (pr1 H).
+Qed.
+
 End Displayed_Cat_of_Class_of_Maps.
 
-(* Even for a fibration, we don’t need a full displayed cat structure: just that we have pullbacks, not the closure under iso or the fact that the [DM] predicate is a prop. *)
+(* Even for a fibration, we don’t need a full displayed cat structure: just that we have pullbacks, not the closure under iso or the fact that the [DM] predicate is a prop. 
+
+TODO: maybe factor out this dependency — name the separate conditions on classes of maps, and state just the hypotheses as needed. *)
 
 Context (D : dm_sub_pb CC).
 
@@ -123,49 +187,13 @@ Proof.
   intros Γ Γ' f p.
   exists (pb_DM_over_of_DM_over p f).
   use tpair.
-  + use tpair. 
+  + use tpair.
     * use (@pb_mor_of_mor _ D).
-    * abstract (cbn; apply pathsinv0; use (@sqr_comm_of_dm_sub_pb _ D) ).
-  + (* TODO: abstract as pair of lemmas:
-      (a) a cartesian [mor_disp] is still cartesian in a full displayed subcat;
-      (b) a pullback square is cartesian in the codomain fibration. *)
-    cbn. 
-    intros c'' g0 d'' hh.
-    destruct d'' as [[e k] H2]. cbn in *.
-    destruct hh as [h H3]. cbn in *.
-    { use unique_exists.
-      - use tpair.
-        use PullbackArrow.
-        + exact h.
-        + exact (k ;; g0).
-        + abstract (etrans; [apply (!H3) |]; apply assoc ) .
-        + abstract (
-              cbn;
-              match goal with [|- _ = PullbackArrow ?PP _ _ _ _ ;; _    ] => 
-                              set (P := PP) end;
-              apply pathsinv0;
-              apply (PullbackArrow_PullbackPr2 P)
-            ).
-      - cbn.
-        apply subtypeEquality.
-        { intro.  apply homset_property. }
-        cbn.
-        match goal with [|- PullbackArrow ?PP _ _ _ _  ;; _ = _ ] =>
-                              set (P := PP) end.
-        apply (PullbackArrow_PullbackPr1 P).
-      - intro y0.
-        simpl.
-        admit.
-      - cbn.
-        intros y0 H5.
-        apply subtypeEquality.
-        { intro. apply homset_property. }
-        destruct y0 as [p' H6]. cbn in *.
-        use PullbackArrowUnique.
-        assert (H7 := maponpaths pr1 H5); cbn in H7.
-        apply H7.
-        apply (!H6).
-Abort.
+    * apply sqr_comm_of_dm_sub_pb.
+  + apply pullback_is_cartesian.
+    apply isPullback_of_dm_sub_pb.
+    apply homset_property.
+Defined.
 
 End DM_Disp.
 
