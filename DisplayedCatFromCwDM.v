@@ -40,21 +40,23 @@ the subcategory of the arrow category where objects are display maps
 
 Section DM_Disp.
 
-Context (C:Precategory).
+Context {CC:Precategory}.
 
-Section defining_the_displayed_cat.
+Section Displayed_Cat_of_Class_of_Maps.
+(* We separate this out from the fibrational part since it has a weaker hypothesis: it just needs a class of maps, no closure under pullback required. *)
 
-Context (H : dm_sub_struct C).
+Context  (D : dm_sub_struct CC).
 
-Definition DM_disp_ob_mor : disp_precat_ob_mor C.
+Definition DM_disp_ob_mor : disp_precat_ob_mor CC.
 Proof.
-  exists (fun x : C => DM_over H x).
-  simpl; intros x y xx yy f. 
-  unfold DM_over in *.
-  exact (Σ ff : pr1 (pr1 xx) --> pr1 (pr1 yy), pr2 (pr1 xx) ;; f = ff ;; pr2 (pr1 yy)).
+  exists (fun Γ => DM_over D Γ).
+  simpl; intros Γ Δ p q f. 
+  exact (Σ ff : ob_from_DM_over p --> ob_from_DM_over q,
+           p ;; f = ff ;; q).
+  (* TODO: maybe direction of this equality? *)
 Defined.
 
-
+(* TODO: consider implicit args of [disp_precat_id_comp]. *)
 Definition DM_disp_id_comp : disp_precat_id_comp _ DM_disp_ob_mor.
 Proof.
   split.
@@ -63,7 +65,7 @@ Proof.
     abstract (
         etrans; [apply id_right |];
         apply pathsinv0, id_left ).
-  - simpl; intros x y z f g xx yy zz ff gg.
+  - simpl; intros Γ Γ' Γ'' f g p p' p'' ff gg.
     exists (pr1 ff ;; pr1 gg).
     abstract (
         etrans; [apply assoc |];
@@ -73,58 +75,57 @@ Proof.
         apply assoc).
 Defined.
 
-Definition DM_disp_data : disp_precat_data _
+Definition DM_disp_data : disp_precat_data CC
   := (DM_disp_ob_mor ,, DM_disp_id_comp).
 
-Lemma DM_disp_axioms : disp_precat_axioms C DM_disp_data.
+Lemma DM_disp_axioms : disp_precat_axioms CC DM_disp_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
-  - apply subtypeEquality.
+  - (* id_left_disp *) 
+    apply subtypeEquality.
     { intro. apply homset_property. }
     etrans. apply id_left.
-    destruct ff as [ff H1]. 
     apply pathsinv0.
-    etrans. refine (pr1_transportf (C⟦x,y⟧) _ _ _ _ _ _ ).
+    etrans. refine (pr1_transportf (CC⟦_,_⟧) _ _ _ _ _ _ ).
     use transportf_const.
-  - apply subtypeEquality.
+  - (* id_right_disp *) 
+    apply subtypeEquality.
     { intro. apply homset_property. }
     etrans. apply id_right.
-    destruct ff as [ff H1]. 
     apply pathsinv0.
-    etrans. refine (pr1_transportf (C⟦x,y⟧) _ _ _ _ _ _ ).
+    etrans. refine (pr1_transportf (CC⟦_,_⟧) _ _ _ _ _ _ ).
     use transportf_const.
-  - apply subtypeEquality.
+  - (* assoc_disp *) 
+    apply subtypeEquality.
     { intro. apply homset_property. }
     etrans. apply assoc.
-    destruct ff as [ff H1]. 
     apply pathsinv0.
     etrans. unfold mor_disp.
-    refine (pr1_transportf (C⟦x,w⟧) _ _ _ _ _ _ ).
+    refine (pr1_transportf (CC⟦_,_⟧) _ _ _ _ _ _ ).
     use transportf_const.
-  - apply (isofhleveltotal2 2).
+  - (* homsets_disp *)
+    apply (isofhleveltotal2 2).
     + apply homset_property.
     + intro. apply isasetaprop. apply homset_property.
 Qed.
 
-Definition DM_disp : disp_precat C
+Definition DM_disp : disp_precat CC
   := (DM_disp_data ,, DM_disp_axioms).
 
-End defining_the_displayed_cat.
+End Displayed_Cat_of_Class_of_Maps.
 
-Variable H : DM_structure C.
+(* Even for a fibration, we don’t need a full displayed cat structure: just that we have pullbacks, not the closure under iso or the fact that the [DM] predicate is a prop. *)
 
-Local Definition D : disp_precat C := DM_disp H.
+Context (D : dm_sub_pb CC).
 
-Lemma is_fibration_DM_disp : is_fibration D.
+Lemma is_fibration_DM_disp : is_fibration (DM_disp D).
 Proof.
-  intros x y f p.
-  unfold cartesian_lift.
-  cbn in p.
+  intros Γ Γ' f p.
   exists (pb_DM_over_of_DM_over p f).
   use tpair.
   + use tpair. 
-    * use (@pb_mor_of_mor _ H).
-    * abstract (cbn; apply pathsinv0; use (@sqr_comm_of_dm_sub_pb _ H) ).
+    * use (@pb_mor_of_mor _ D).
+    * abstract (cbn; apply pathsinv0; use (@sqr_comm_of_dm_sub_pb _ D) ).
   + (* TODO: abstract as pair of lemmas:
       (a) a cartesian [mor_disp] is still cartesian in a full displayed subcat;
       (b) a pullback square is cartesian in the codomain fibration. *)
