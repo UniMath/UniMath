@@ -38,7 +38,7 @@ Definition cod_disp_ob_mor : disp_precat_ob_mor C.
 Proof.
   exists (fun x : C => Σ y, y --> x).
   simpl; intros x y xx yy f. 
-    exact (Σ ff : pr1 xx --> pr1 yy, pr2 xx ;; f = ff ;; pr2 yy).
+    exact (Σ ff : pr1 xx --> pr1 yy, ff ;; pr2 yy = pr2 xx ;; f).
 Defined.
 
 Definition cod_id_comp : disp_precat_id_comp _ cod_disp_ob_mor.
@@ -47,15 +47,16 @@ Proof.
   - simpl; intros.
     exists (identity _ ).
     abstract (
-        etrans; [apply id_right |];
-        apply pathsinv0, id_left ).
+        etrans; [apply id_left |];
+        apply pathsinv0, id_right ).
   - simpl; intros x y z f g xx yy zz ff gg.
     exists (pr1 ff ;; pr1 gg).
-    abstract (
+    abstract ( 
+        apply pathsinv0;
         etrans; [apply assoc |];
-        etrans; [apply maponpaths_2, (pr2 ff) |];
+        etrans; [apply maponpaths_2, (! (pr2 ff)) |];
         etrans; [eapply pathsinv0, assoc |];
-        etrans; [apply maponpaths, (pr2 gg)|];
+        etrans; [apply maponpaths, (! (pr2 gg))|];
         apply assoc).
 Defined.
 
