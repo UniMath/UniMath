@@ -107,6 +107,8 @@ Abort.
 Theorem associativityOfProducts {M:monoid} (x:list (list M)) :
   monoidProduct (Lists.flatten x) = doubleProduct' x.
 Proof.
+  (** This proof comes from the Associativity theorem, % \cite[section 1.3, Theorem 1, page 4]{BourbakiAlgebraI}. \par % *)
+  (* this proof comes from the Associativity theorem, Bourbaki, Algebra, § 1.3, Theorem 1, page 4. *)
   intros M.
   simple refine (list_ind _ _ _).
   - simpl.
