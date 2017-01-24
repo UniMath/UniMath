@@ -76,6 +76,16 @@ Qed.
 
 Definition U : functor_over _ _ _ := _ ,, U_prop.
 
+Definition totalU : functor _ _ := total_functor U.
+
+Lemma comprehensionC_triangle_commutes 
+: functor_composite totalU (pr1_precat _) = pr1_precat _ . 
+Proof. 
+  apply subtypeEquality.
+  { intro. apply isaprop_is_functor. apply homset_property. }
+  apply idpath.
+Qed.
+
 (*
 Lemma foo : is_cartesian_functor_over U.
 Proof.
