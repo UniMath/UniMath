@@ -1561,6 +1561,28 @@ End Functor_Over.
 Notation "# F" := (functor_over_on_morphisms F)
   (at level 3) : mor_disp_scope.
 
+(** ** A functor of displayed categories from reindexing *)
+
+Section reindexing_functor_over.
+
+Context {C C' : Precategory} (F : functor C C') (D' : disp_precat C').
+
+Definition reindex_functor_over : functor_over F (reindex_disp_precat F D') D'.
+Proof.
+  use tpair.
+  - use tpair.
+    + cbn. intro x. exact (idfun _ ).
+    + cbn. intros x x' d d' f.  exact (idfun _ ).
+  - abstract (
+        split;
+        [intros; apply idpath |];
+        intros; apply idpath
+      ).
+Defined.
+
+End reindexing_functor_over.
+
+
 (** ** Natural Transformations *)
 Section Nat_Trans_Over.
 
