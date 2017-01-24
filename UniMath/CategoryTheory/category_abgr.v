@@ -1111,7 +1111,7 @@ Section ABGR_kernels.
     unfold hfiber in *. induction HH1 as [t p]. induction HH2 as [t0 p0].
     rewrite <- p. rewrite <- p0. rewrite <- f'. cbn.
 
-    assert (g (f (t * t0)%multmonoid) = (g ∘ f) (t * t0)%multmonoid).
+    assert (X : g (f (t * t0)%multmonoid) = (g ∘ f) (t * t0)%multmonoid).
     {
       unfold funcomp. apply idpath.
     }

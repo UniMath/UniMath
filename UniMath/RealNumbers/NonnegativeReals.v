@@ -2502,7 +2502,7 @@ Proof.
     right.
     exists (pr1 q,,pr1 q).
     repeat split.
-    + assert (2 = 1+1)%NRat.
+    + assert (X : (2 = 1+1)%NRat).
       { apply subtypeEquality_prop ; simpl.
         apply hq2eq1plus1. }
       pattern 2%NRat at 1 ; rewrite X ; clear X.
@@ -2648,7 +2648,7 @@ Proof.
   apply (fun X X0 Xerr => Dcuts_def_corr_not_empty X X0 Xerr _ Hc) in Y_corr'.
   revert Y_corr' ; apply hinhuniv ; intros y.
   generalize (pr1 (pr2 y)) ; apply hinhuniv ; intros Yy.
-  assert (¬ Y (pr1 y + c / 2%NRat)).
+  assert (X0 : ¬ Y (pr1 y + c / 2%NRat)).
   { intro ; apply (pr2 (pr2 y)).
     now apply hinhpr ; left. }
   rename X0 into nYy.
@@ -3994,7 +3994,7 @@ Proof.
     + intro ; now apply is_Dcuts_bot.
     + intro ; now apply is_Dcuts_corr.
     + intros eps Heps.
-      assert (0 < NonnegativeRationals_to_Dcuts eps)
+      assert (X : 0 < NonnegativeRationals_to_Dcuts eps)
         by (now apply_pr2 isapfun_NonnegativeRationals_to_Dcuts_aux).
       generalize (HU _ X) ; clear HU.
       apply hinhfun ; intros HU.
