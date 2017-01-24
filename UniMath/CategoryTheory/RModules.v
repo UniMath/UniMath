@@ -219,11 +219,6 @@ If T is a module over M', we call m* T the pullback module of T along m
 *)
 Section Pullback_module.
 
-  Lemma cancel_functor_on_morph (C C' : precategory_ob_mor)
-        (F : functor_data C C') (a b : C) (m m': C ⟦ a, b ⟧) : m = m' -> #F m = #F m'.
-  Proof.
-    now intro e; induction e.
-  Qed.
 
   Context {B:precategory} {M M':Monad B} (m: Monad_Mor M M').
   Context {C:precategory}.
@@ -251,7 +246,7 @@ Section Pullback_module.
       rewrite <- (functor_comp T).
       etrans.
       apply cancel_postcomposition.
-      apply cancel_functor_on_morph.
+      apply maponpaths.
       apply Monad_Mor_μ.
       rewrite functor_comp.
       rewrite <- assoc.
