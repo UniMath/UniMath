@@ -42,66 +42,38 @@ Definition seq_key_eq_lemma {X :UU}( g g' : seq X)(e_len : seq_len g = seq_len g
                g (i ,, ltg) = g' (i ,, ltg')) : g=g'.
 Proof.
   intros.
-  induction g as [m g]. induction g' as [m' g']. simpl in e_len. simpl in e_el.
-
-  assert ( e_int1 : (m ,, g) = (m' ,, transportf (fun i => (stn i -> X)) e_len g) ).
-  { apply transportf_eq. }
-
-  assert ( e_int2 : transportf (fun i => (stn i -> X)) e_len g = g ∘ transportb stn e_len ).
-  { apply transportf_fun. }
-
-  assert ( e_int3 : g ∘ transportb stn e_len = g' ) .
-  { apply funextfun .
-    unfold homot. unfold funcomp. intro. induction x as [ i b ].
-
-    assert ( e_int31 :
-               g (transportb stn e_len (i ,, b)) = g ((i ,, transportb (fun l => i<l) e_len b))).
-    { apply maponpaths.
-      apply transport_stn. }
-
-    assert ( e_int32 : g (i,, transportb (λ l : nat, i < l) e_len b) = g' (i ,, b)).
-    { apply e_el. }
-
-    apply (e_int31 @ e_int32 ). }
-
-  assert ( e_int4 : m',, transportf (λ i : nat, stn i → X) e_len g = (m' ,, g')).
-  { apply (maponpaths (fun gg => (m',, gg))). apply (e_int2 @ e_int3). }
-
-  apply (e_int1 @ e_int4).
+  induction g as [m g]; induction g' as [m' g']. simpl in e_len, e_el.
+  intermediate_path (m' ,, transportf (λ i, stn i -> X) e_len g).
+  - apply transportf_eq.
+  - apply maponpaths.
+    intermediate_path (g ∘ transportb stn e_len).
+    + apply transportf_fun.
+    + apply funextfun. intro x. induction x as [ i b ].
+      simple refine (_ @ e_el _ _ _).
+      * unfold funcomp.
+        apply maponpaths.
+        apply transport_stn.
 Defined.
 
 (** The following lemma requires in the assumption [ e_el ] only one comparison [ i < seq_len g ]
  and one comparison [ i < seq_len g' ] for each i instead of all such comparisons as in the
  original version [ seq_key_eq_lemma ] . **)
 
-Definition seq_key_eq_lemma' {X :UU}( g g' : seq X)(e_len : seq_len g = seq_len g')
-           (e_el' : forall (i : nat) , total2 ( fun ltg : i < seq_len g =>
-                                                 total2 ( fun ltg' : i < seq_len g' =>
-                                                            g (i ,, ltg) = g' (i ,, ltg')))) :
+Definition seq_key_eq_lemma' {X :UU} (g g' : seq X) :
+  seq_len g = seq_len g' ->
+  (Π i, Σ ltg : i < seq_len g, Σ ltg' : i < seq_len g',
+                                        g (i ,, ltg) = g' (i ,, ltg')) ->
   g=g'.
 Proof.
-  intros.
-
-  assert (e_el : forall ( i : nat )(ltg1 : i < seq_len g )(ltg1' : i < seq_len g' ),
-               g (i ,, ltg1) = g' (i ,, ltg1')).
-  { intros.
-    assert ( e_eli' := e_el' i).
-    induction e_eli' as [ ltg [ ltg' e ]].
-
-    assert ( e_int1 : ltg1 = ltg ) .
-    { apply (pr2 (i < seq_len g)). }
-
-    assert ( e_int2 : ltg1' = ltg' ) .
-    { apply (pr2 (i < seq_len g')). }
-
-    rewrite <- e_int1 in e.
-    rewrite <- e_int2 in e.
-
-    apply e. }
-
-  apply (seq_key_eq_lemma _ _ e_len e_el).
+  intros ? ? ? k r.
+  apply seq_key_eq_lemma.
+  * assumption.
+  * intros.
+    induction (r i) as [ p [ q e ]].
+    simple refine (_ @ e @ _).
+    - apply maponpaths, maponpaths. apply propproperty.
+    - apply maponpaths, maponpaths. apply propproperty.
 Defined.
-
 
 Local Definition empty_fun {X} : stn 0 -> X.
 Proof. intros ? i. contradicts i negstn0. Defined.
