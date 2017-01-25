@@ -1,12 +1,13 @@
 Installation of UniMath
 =======================
 
-Prepare for installation by installing the OCAML compiler on your system.
-Under Mac OS X, the most convenient way to do that is with "Homebrew",
-available from http://brew.sh/, with the following command:
+Prepare for installation by installing the OCAML compiler and a more modern
+version of `bash` on your system.  Under Mac OS X, the most convenient way to
+do that is with "Homebrew", available from http://brew.sh/, with the following
+command:
 
 ```bash
-$ brew install objective-caml camlp5 camlp4 lablgtk
+$ brew install objective-caml camlp5 camlp4 lablgtk bash
 ```
 
 Also install "ocamlfind" using "homebrew" with the following commands.
