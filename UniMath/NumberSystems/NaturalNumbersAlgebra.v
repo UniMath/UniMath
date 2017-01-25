@@ -21,7 +21,7 @@ Definition natmultabmonoid : abmonoid :=
 
 (** *** Submonoid of non-zero elements in [nat] *)
 
-Definition natnonzero : @subabmonoids natmultabmonoid.
+Definition natnonzero : @subabmonoid natmultabmonoid.
 Proof.
   split with (λ a, a ≠ 0). unfold issubmonoid. split.
   - unfold issubsetwithbinop. intros a a'.

@@ -306,12 +306,12 @@ Section ABGR_general.
              (hf2 : hfiber (pr1 f) b2) : hfiber (pr1 f) (b1 * b2)%multmonoid :=
     hfiberpair (pr1 f) ((pr1 hf1) * (pr1 hf2))%multmonoid (hfiber_op_eq f b1 b2 hf1 hf2).
 
-  (** hsubtypes for forming the subgroups kernel and image, and also the quotient group for
+  (** hsubtype for forming the subgroups kernel and image, and also the quotient group for
       cokernel. These are needed to use the relevant results in Algebra/Monoid_and_Groups.v. *)
-  Definition ABGR_kernel_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtypes A :=
+  Definition ABGR_kernel_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype A :=
     (fun x : A => ishinh ((f x) = unel B)).
 
-  Definition ABGR_image_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtypes B :=
+  Definition ABGR_image_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype B :=
     (fun y : B => ∃ x : A, (f x) = y).
 
   (** An equality we are going to use. *)
@@ -874,7 +874,7 @@ Section ABGR_kernels.
   Qed.
 
   (** Construction of the kernel of f. *)
-  Definition ABGR_kernel_subabgr {A B : abgr} (f : monoidfun A B) : @subabgrs A
+  Definition ABGR_kernel_subabgr {A B : abgr} (f : monoidfun A B) : @subabgr A
     := subgrconstr (@ABGR_kernel_hsubtype A B f) (ABGR_kernel_subabgr_issubgr f).
 
   (** Hide ismonoidfun behind Qed. *)
@@ -1000,7 +1000,7 @@ Section ABGR_kernels.
   Qed.
 
   (** Construction of the image of f. *)
-  Definition ABGR_image {A B : abgr} (f : monoidfun A B) : @subabgrs B :=
+  Definition ABGR_image {A B : abgr} (f : monoidfun A B) : @subabgr B :=
     @subgrconstr B (@ABGR_image_hsubtype A B f) (ABGR_image_issubgr f).
 
   (** A construction of an equivalence relation on B. *)
