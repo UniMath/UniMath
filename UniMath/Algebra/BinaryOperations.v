@@ -1147,10 +1147,10 @@ Definition isabgropisob {X Y : setwithbinop} (f : binopiso X Y) (is : isabgrop (
 
 (** **** Subobjects *)
 
-Definition issubsetwithbinop {X : hSet} (opp : binop X) (A : hsubtypes X) : UU :=
+Definition issubsetwithbinop {X : hSet} (opp : binop X) (A : hsubtype X) : UU :=
   Π a a' : A, A (opp (pr1 a) (pr1 a')).
 
-Lemma isapropissubsetwithbinop {X : hSet} (opp : binop X) (A : hsubtypes X) :
+Lemma isapropissubsetwithbinop {X : hSet} (opp : binop X) (A : hsubtype X) :
   isaprop (issubsetwithbinop opp A).
 Proof.
   intros.
@@ -1160,20 +1160,20 @@ Proof.
 Defined.
 
 Definition subsetswithbinop {X : setwithbinop} : UU :=
-  total2 (fun A : hsubtypes X => issubsetwithbinop (@op X) A).
+  total2 (fun A : hsubtype X => issubsetwithbinop (@op X) A).
 
 Definition subsetswithbinoppair {X : setwithbinop} :
-  Π (t : hsubtypes X), (λ A : hsubtypes X, issubsetwithbinop op A) t →
-                       Σ A : hsubtypes X, issubsetwithbinop op A :=
-  tpair (fun A : hsubtypes X => issubsetwithbinop (@op X) A).
+  Π (t : hsubtype X), (λ A : hsubtype X, issubsetwithbinop op A) t →
+                       Σ A : hsubtype X, issubsetwithbinop op A :=
+  tpair (fun A : hsubtype X => issubsetwithbinop (@op X) A).
 
 Definition subsetswithbinopconstr {X : setwithbinop} :
-  Π (t : hsubtypes X), (λ A : hsubtypes X, issubsetwithbinop op A) t →
-                       Σ A : hsubtypes X, issubsetwithbinop op A := @subsetswithbinoppair X.
+  Π (t : hsubtype X), (λ A : hsubtype X, issubsetwithbinop op A) t →
+                       Σ A : hsubtype X, issubsetwithbinop op A := @subsetswithbinoppair X.
 
-Definition pr1subsetswithbinop (X : setwithbinop) : @subsetswithbinop X -> hsubtypes X :=
-  @pr1 _ (fun A : hsubtypes X => issubsetwithbinop (@op X) A).
-Coercion pr1subsetswithbinop : subsetswithbinop >-> hsubtypes.
+Definition pr1subsetswithbinop (X : setwithbinop) : @subsetswithbinop X -> hsubtype X :=
+  @pr1 _ (fun A : hsubtype X => issubsetwithbinop (@op X) A).
+Coercion pr1subsetswithbinop : subsetswithbinop >-> hsubtype.
 
 Definition pr2subsetswithbinop {X : setwithbinop} (Y : @subsetswithbinop X) :
   issubsetwithbinop (@op X) (pr1subsetswithbinop X Y) := pr2 Y.
@@ -1287,11 +1287,11 @@ Proof.
   simpl. unfold binop. apply qtmlt.
 Defined.
 
-Definition ispartbinophrel {X : setwithbinop} (S : hsubtypes X) (R : hrel X) : UU :=
+Definition ispartbinophrel {X : setwithbinop} (S : hsubtype X) (R : hrel X) : UU :=
   dirprod (Π a b c : X, S c -> R a b -> R (op c a) (op c b))
           (Π a b c : X, S c -> R a b -> R (op a c) (op b c)).
 
-Definition isbinoptoispartbinop {X : setwithbinop} (S : hsubtypes X) (L : hrel X)
+Definition isbinoptoispartbinop {X : setwithbinop} (S : hsubtype X) (L : hrel X)
            (is : isbinophrel L) : ispartbinophrel S L.
 Proof.
   intros X S L.
@@ -1300,7 +1300,7 @@ Proof.
   - intros a b c is. apply (pr2 d2 a b c).
 Defined.
 
-Definition ispartbinophrellogeqf {X : setwithbinop} (S : hsubtypes X) {L R : hrel X}
+Definition ispartbinophrellogeqf {X : setwithbinop} (S : hsubtype X) {L R : hrel X}
            (lg : hrellogeq L R) (isl : ispartbinophrel S L) : ispartbinophrel S R.
 Proof.
   intros. split.
@@ -1310,7 +1310,7 @@ Proof.
     apply ((pr1 (lg _ _) ((pr2 isl) _ _ _ is (pr2 (lg  _ _) rab)))).
 Defined.
 
-Lemma ispartbinophrelif {X : setwithbinop} (S : hsubtypes X) (R : hrel X) (is : iscomm (@op X))
+Lemma ispartbinophrelif {X : setwithbinop} (S : hsubtype X) (R : hrel X) (is : iscomm (@op X))
       (isl : Π a b c : X, S c -> R a b -> R (op c a) (op c b)) : ispartbinophrel S R.
 Proof.
   intros. split with isl.
@@ -1357,11 +1357,11 @@ Proof.
   apply (isl _ _ _ rab).
 Defined.
 
-Definition ispartinvbinophrel {X : setwithbinop} (S : hsubtypes X) (R : hrel X) : UU :=
+Definition ispartinvbinophrel {X : setwithbinop} (S : hsubtype X) (R : hrel X) : UU :=
   dirprod (Π a b c : X, S c -> R (op c a) (op c b) -> R a b)
           (Π a b c : X, S c -> R (op a c) (op b c) -> R a b).
 
-Definition isinvbinoptoispartinvbinop {X : setwithbinop} (S : hsubtypes X) (L : hrel X)
+Definition isinvbinoptoispartinvbinop {X : setwithbinop} (S : hsubtype X) (L : hrel X)
            (is : isinvbinophrel L) : ispartinvbinophrel S L.
 Proof.
   intros X S L.
@@ -1371,7 +1371,7 @@ Proof.
   - intros a b c s. apply (pr2 d2 a b c).
 Defined.
 
-Definition ispartinvbinophrellogeqf {X : setwithbinop} (S : hsubtypes X) {L R : hrel X}
+Definition ispartinvbinophrellogeqf {X : setwithbinop} (S : hsubtype X) {L R : hrel X}
            (lg : hrellogeq L R) (isl : ispartinvbinophrel S L) : ispartinvbinophrel S R.
 Proof.
   intros. split.
@@ -1381,7 +1381,7 @@ Proof.
     apply ((pr1 (lg _ _) ((pr2 isl) _ _ _ s (pr2 (lg  _ _) rab)))).
 Defined.
 
-Lemma ispartinvbinophrelif {X : setwithbinop} (S : hsubtypes X) (R : hrel X) (is : iscomm (@op X))
+Lemma ispartinvbinophrelif {X : setwithbinop} (S : hsubtype X) (R : hrel X) (is : iscomm (@op X))
       (isl : Π a b c : X, S c -> R (op c a) (op c b) -> R a b) : ispartinvbinophrel S R.
 Proof.
   intros. split with isl. intros a b c s rab.
@@ -1404,8 +1404,8 @@ Proof.
     apply (pr2 is). apply r.
 Defined.
 
-Lemma ispartbinophrelandfun {X Y : setwithbinop} (f : binopfun X Y) (SX : hsubtypes X)
-      (SY : hsubtypes Y) (iss : Π x : X, (SX x) -> (SY (f x))) (R : hrel Y)
+Lemma ispartbinophrelandfun {X Y : setwithbinop} (f : binopfun X Y) (SX : hsubtype X)
+      (SY : hsubtype Y) (iss : Π x : X, (SX x) -> (SY (f x))) (R : hrel Y)
       (is : @ispartbinophrel Y SY R) : @ispartbinophrel X SX (fun x x' => R (f x) (f x')).
 Proof.
   intros.
@@ -1429,8 +1429,8 @@ Proof.
     apply ((pr2 is) _ _ _ r).
 Defined.
 
-Lemma ispartinvbinophrelandfun {X Y : setwithbinop} (f : binopfun X Y) (SX : hsubtypes X)
-      (SY : hsubtypes Y) (iss : Π x : X, (SX x) -> (SY (f x))) (R : hrel Y)
+Lemma ispartinvbinophrelandfun {X Y : setwithbinop} (f : binopfun X Y) (SX : hsubtype X)
+      (SY : hsubtype Y) (iss : Π x : X, (SX x) -> (SY (f x))) (R : hrel Y)
       (is : @ispartinvbinophrel Y SY R) : @ispartinvbinophrel X SX (fun x x' => R (f x) (f x')).
 Proof.
   intros.
@@ -1747,10 +1747,10 @@ Definition iscommrngopsisob {X Y : setwith2binop} (f : twobinopiso X Y)
 
 (** **** Subobjects *)
 
-Definition issubsetwith2binop {X : setwith2binop} (A : hsubtypes X) : UU :=
+Definition issubsetwith2binop {X : setwith2binop} (A : hsubtype X) : UU :=
   dirprod (Π a a' : A, A (op1 (pr1 a) (pr1 a'))) (Π a a' : A, A (op2 (pr1 a) (pr1 a'))).
 
-Lemma isapropissubsetwith2binop {X : setwith2binop} (A : hsubtypes X) :
+Lemma isapropissubsetwith2binop {X : setwith2binop} (A : hsubtype X) :
   isaprop (issubsetwith2binop A).
 Proof.
   intros. apply (isofhleveldirprod 1).
@@ -1763,21 +1763,21 @@ Proof.
 Defined.
 
 Definition subsetswith2binop {X : setwith2binop} : UU :=
-  total2 (fun A : hsubtypes X => issubsetwith2binop A).
+  total2 (fun A : hsubtype X => issubsetwith2binop A).
 
 Definition subsetswith2binoppair {X : setwith2binop} :
-  Π (t : hsubtypes X), (λ A : hsubtypes X, issubsetwith2binop A) t →
-                       Σ A : hsubtypes X, issubsetwith2binop A :=
-  tpair (fun A : hsubtypes X => issubsetwith2binop A).
+  Π (t : hsubtype X), (λ A : hsubtype X, issubsetwith2binop A) t →
+                       Σ A : hsubtype X, issubsetwith2binop A :=
+  tpair (fun A : hsubtype X => issubsetwith2binop A).
 
 Definition subsetswith2binopconstr {X : setwith2binop} :
-  Π (t : hsubtypes X), (λ A : hsubtypes X, issubsetwith2binop A) t →
-                       Σ A : hsubtypes X, issubsetwith2binop A :=
+  Π (t : hsubtype X), (λ A : hsubtype X, issubsetwith2binop A) t →
+                       Σ A : hsubtype X, issubsetwith2binop A :=
   @subsetswith2binoppair X.
 
-Definition pr1subsetswith2binop (X : setwith2binop) : @subsetswith2binop X -> hsubtypes X :=
-  @pr1 _ (fun A : hsubtypes X => issubsetwith2binop A).
-Coercion pr1subsetswith2binop : subsetswith2binop >-> hsubtypes.
+Definition pr1subsetswith2binop (X : setwith2binop) : @subsetswith2binop X -> hsubtype X :=
+  @pr1 _ (fun A : hsubtype X => issubsetwith2binop A).
+Coercion pr1subsetswith2binop : subsetswith2binop >-> hsubtype.
 
 Definition totalsubsetwith2binop (X : setwith2binop) : @subsetswith2binop X.
 Proof.
