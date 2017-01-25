@@ -1,7 +1,10 @@
 (** **********************************************************
 Contents:
         - Definition of right modules ([RModule R]) over a monad [R] on [C]
-        - Precategory of modules [precategory_Module R D] of range [D] over a monad [R] on [C]
+        - Precategory of right modules [Precategory_RModule R D] of range [D] over a monad [R] on [C]
+        - Tautological right module [tautological_RModule] : a monad is a module over itself
+        - Pullback of a module along a monad morphism [pb_RModule]
+        - Pullback of a module morphism along a monad morphism [pb_RModule_Mor]
 
 Following the scheme of Monads.v
 
@@ -53,10 +56,8 @@ Coercion functor_from_RModule_data (C : precategory) (F : RModule_data C)
 Definition σ {C : precategory} (F : RModule_data C) : F□M ⟶ F := pr2 F.
 
 Definition RModule_laws  {C:precategory} (T : RModule_data C) : UU :=
-    (
       (Π c : B, #T (η M c) ;; σ T c = identity (T c))
-        ×
-(Π c : B, #T ((μ M) c) ;; σ T c = σ T (M c) ;; σ T c)).
+        × (Π c : B, #T ((μ M) c) ;; σ T c = σ T (M c) ;; σ T c).
 
 Lemma isaprop_RModule_laws (C : precategory) (hs : has_homsets C) (T : RModule_data C) :
    isaprop (RModule_laws T).
@@ -70,12 +71,13 @@ Definition RModule (C : precategory) : UU := Σ T : RModule_data C, RModule_laws
 Coercion RModule_data_from_RModule (C : precategory) (T : RModule C) : RModule_data C := pr1 T.
 
 
-Lemma RModule_law1 {C : precategory} {T : RModule C} :  (Π c : B, #T (η M c) ;; σ T c = identity (T c)).
+Lemma RModule_law1 {C : precategory} {T : RModule C} : Π c : B, #T (η M c) ;; σ T c = identity (T c).
 Proof.
 exact ( (pr1 (pr2 T))).
 Qed.
 
-Lemma RModule_law2 {C : precategory} {T : RModule C} : (Π c : B, #T ((μ M) c) ;; σ T c = σ T (M c) ;; σ T c).
+Lemma RModule_law2 {C : precategory} {T : RModule C} :
+  Π c : B, #T ((μ M) c) ;; σ T c = σ T (M c) ;; σ T c.
 Proof.
 exact (pr2 ( (pr2 T))).
 Qed.
@@ -87,7 +89,7 @@ Section RModule_precategory.
 
 Definition RModule_Mor_laws {C : precategory} {T T' : RModule_data C} (α : T ⟶ T')
   : UU :=
-  (Π a : B, α (M a) ;; σ T' a = σ T a ;; α a).
+  Π a : B, α (M a) ;; σ T' a = σ T a ;; α a.
 
 
 Lemma isaprop_RModule_Mor_laws (C : precategory) (hs : has_homsets C)
@@ -104,7 +106,9 @@ Definition RModule_Mor {C : precategory} (T T' : RModule C) : UU
 Coercion nat_trans_from_module_mor (C : precategory) (T T' : RModule C) (s : RModule_Mor T T')
    : T ⟶ T' := pr1 s.
 
-Definition RModule_Mor_σ {C : precategory} {T T' : RModule C} (α : RModule_Mor T T') := pr2 α.
+Definition RModule_Mor_σ {C : precategory} {T T' : RModule C} (α : RModule_Mor T T')
+           : Π a : B, α (M a) ;; σ T' a = σ T a ;; α a
+  := pr2 α.
 
 Lemma RModule_identity_laws {C : precategory} (T : RModule C)
   : RModule_Mor_laws (nat_trans_id T).
@@ -122,10 +126,12 @@ Proof.
   red;intros; simpl.
   unfold nat_trans_from_module_mor.
   rewrite assoc.
-    set (H:=RModule_Mor_σ α a); simpl in H.
-    rewrite <- H; clear H; rewrite <- !assoc.
-    set (H:=RModule_Mor_σ α' a); simpl in H.
-    now rewrite  H; clear H.
+    etrans; revgoals.
+    apply cancel_postcomposition.
+    apply (RModule_Mor_σ α a).
+    rewrite <- !assoc.
+    apply cancel_precomposition.
+    apply (RModule_Mor_σ α' a).
 Qed.
 
 Definition RModule_composition {C : precategory} {T T' T'' : RModule C}
@@ -166,9 +172,130 @@ Proof.
     apply (@assoc (functor_precategory B C hs)).
 Qed.
 
-Definition precategory_RModule (C : precategory) (hs : has_homsets C) : precategory
-  := tpair _ _ (precategory_RModule_axioms C hs).
+Definition precategory_RModule (C : Precategory) : precategory
+  := tpair _ _ (precategory_RModule_axioms C (homset_property C)).
+
+Lemma has_homsets_RModule (C:Precategory) :
+  has_homsets (precategory_RModule C).
+Proof.
+  intros F G.
+  apply isaset_total2 .
+  - apply isaset_nat_trans.
+    apply homset_property.
+  - intros m.
+    apply isasetaprop.
+    apply isaprop_RModule_Mor_laws.
+    apply homset_property.
+Qed.
+
+Definition Precategory_RModule (C:Precategory) : Precategory :=
+  (precategory_RModule C,, has_homsets_RModule C).
+
+
 
 End RModule_precategory.
 
+(** Any monad is a right module over itself *)
+Definition tautological_RModule_data  : RModule_data B := ((M:functor _ _) ,, μ M).
+
+Lemma tautological_RModule_law  : RModule_laws tautological_RModule_data.
+Proof.
+  split; intro c.
+  - apply Monad_law2.
+  - apply Monad_law3.
+Qed.
+
+Definition tautological_RModule : RModule B :=
+  (tautological_RModule_data ,, tautological_RModule_law).
+
 End RModule_over_monad.
+
+(** Let m : M -> M' a monad morphism.
+
+m induces a functor m* between the category of right modules over M' and the category of
+right modules over M
+
+If T is a module over M', we call m* T the pullback module of T along m
+*)
+Section Pullback_module.
+
+
+  Context {B:precategory} {M M':Monad B} (m: Monad_Mor M M').
+  Context {C:precategory}.
+
+  Variable (T:RModule M' C).
+  Notation "Z ∘ α" := (post_whisker α Z) (at level 50, left associativity).
+
+  Definition pb_RModule_σ : T □ M ⟶ T :=  nat_trans_comp _ _ _ (T ∘ m)  (σ _ T).
+
+  Definition pb_RModule_data : Σ F : functor B C, F □ M ⟶ F :=
+    tpair _ (T:functor B C) pb_RModule_σ.
+
+  Lemma pb_RModule_laws : RModule_laws M pb_RModule_data.
+  Proof.
+    split.
+    - intro c.
+      cbn.
+      rewrite <- (RModule_law1 _ (T:=T)).
+      rewrite <- (Monad_Mor_η m).
+      rewrite functor_comp.
+      apply assoc.
+    - simpl.
+      intro c.
+      rewrite assoc.
+      rewrite <- (functor_comp T).
+      etrans.
+      apply cancel_postcomposition.
+      apply maponpaths.
+      apply Monad_Mor_μ.
+      rewrite functor_comp.
+      rewrite <- assoc.
+      etrans.
+      apply cancel_precomposition.
+      apply RModule_law2.
+      repeat rewrite functor_comp.
+      etrans.
+      rewrite <- assoc.
+      apply cancel_precomposition.
+      rewrite assoc.
+      apply cancel_postcomposition.
+      apply (nat_trans_ax (σ M' T)).
+      now repeat rewrite assoc.
+  Qed.
+
+  Definition pb_RModule : RModule M C := tpair _ _ pb_RModule_laws.
+
+End Pullback_module.
+
+(**
+
+Let m:M -> M' be a monad morphism et n : T -> T' a morphism in the category of modules over M'.
+In this section we construct the morphism m* n : m*T -> m*T' in the category of modules over M
+between the pullback modules along m.
+
+*)
+Section Pullback_Module_Morphism.
+
+  Context {B} {M M':Monad B} (m:Monad_Mor M M') {C:precategory} {T T' :RModule M' C}
+          (n : RModule_Mor _ T T').
+
+  Local Notation pbmT := (pb_RModule m T).
+  Local Notation pbmT' := (pb_RModule m T').
+
+  Lemma pb_RModule_Mor_law : RModule_Mor_laws M (T:=pbmT) (T':=pbmT') n.
+  Proof.
+    intros b.
+    cbn.
+    eapply pathscomp0;revgoals.
+    rewrite <-assoc.
+    apply cancel_precomposition.
+    apply RModule_Mor_σ.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    apply pathsinv0.
+    apply nat_trans_ax.
+  Qed.
+
+  Definition pb_RModule_Mor  : RModule_Mor _  pbmT pbmT'  := ( _ ,, pb_RModule_Mor_law).
+
+End Pullback_Module_Morphism.

@@ -2164,7 +2164,7 @@ Section complexes_homotopies.
       which have a path to a morphism induced by a homotopy H by [ComplexHomotMorphism]. Our goal is
       to show that this subset is an abelian subgroup, and thus we can form the quotient group. *)
   Definition ComplexHomotSubset (C1 C2 : Complex A) :
-    @hsubtypes ((ComplexPreCat_Additive A)⟦C1, C2⟧) :=
+    @hsubtype ((ComplexPreCat_Additive A)⟦C1, C2⟧) :=
     (fun (f : ((ComplexPreCat_Additive A)⟦C1, C2⟧)) =>
        ∃ (H : ComplexHomot C1 C2), ComplexHomotMorphism H = f).
 
@@ -2286,7 +2286,7 @@ Section complexes_homotopies.
   Qed.
 
   Definition ComplexHomotSubgrp (C1 C2 : Complex A) :
-    @subabgrs (@to_abgrop (ComplexPreCat_Additive A) C1 C2).
+    @subabgr (@to_abgrop (ComplexPreCat_Additive A) C1 C2).
   Proof.
     use subgrconstr.
     - exact (ComplexHomotSubset C1 C2).

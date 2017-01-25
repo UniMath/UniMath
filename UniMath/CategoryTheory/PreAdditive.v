@@ -299,7 +299,7 @@ Section preadditive_quotient.
   Variable PA : PreAdditive.
 
   (** For every set morphisms we have a subgroup. *)
-  Definition PreAdditiveSubabgrs : UU := Π (x y : ob PA), @subabgrs (to_abgrop x y).
+  Definition PreAdditiveSubabgrs : UU := Π (x y : ob PA), @subabgr (to_abgrop x y).
 
   Hypothesis PAS : PreAdditiveSubabgrs.
 
@@ -308,10 +308,10 @@ Section preadditive_quotient.
       the unit element in the new precategory. *)
   Definition PreAdditiveComps : UU :=
     Π (x y : ob PA),
-    (Π (z : ob PA) (f : x --> y) (inf : pr1submonoids _ (PAS x y) f) (g : y --> z),
-     pr1submonoids _ (PAS x z) (f ;; g))
-      × (Π (z : ob PA) (f : x --> y) (g : y --> z) (ing : pr1submonoids _ (PAS y z) g),
-         pr1submonoids _ (PAS x z) (f ;; g)).
+    (Π (z : ob PA) (f : x --> y) (inf : pr1submonoid _ (PAS x y) f) (g : y --> z),
+     pr1submonoid _ (PAS x z) (f ;; g))
+      × (Π (z : ob PA) (f : x --> y) (g : y --> z) (ing : pr1submonoid _ (PAS y z) g),
+         pr1submonoid _ (PAS x z) (f ;; g)).
 
   Hypothesis PAC : PreAdditiveComps.
 
@@ -319,11 +319,11 @@ Section preadditive_quotient.
      Theses should be deleted, removed, renamed, generalized, or ...*)
 
   (** The hProp which tells if two elements of A belong to the same equivalence class in A/B *)
-  Definition subgrhrel_hprop {A : gr} (B : @subgrs A) (a1 a2 : A) : hProp :=
+  Definition subgrhrel_hprop {A : gr} (B : @subgr A) (a1 a2 : A) : hProp :=
     hexists (fun b : B => pr1 b = (a1 * grinv A a2)%multmonoid).
 
   (** Construct a relation using the above hProp *)
-  Definition subgrhrel {A : gr} (B : @subgrs A) : @hrel A :=
+  Definition subgrhrel {A : gr} (B : @subgr A) : @hrel A :=
     (fun a1 : A => fun a2 : A => (subgrhrel_hprop B a1 a2)).
 
   (** Some equalities *)
@@ -369,7 +369,7 @@ Section preadditive_quotient.
   Qed.
 
   (** The relation we defined is an equivalence relation *)
-  Lemma iseqrel_subgrhrel (A : gr) (B : @subgrs A) : iseqrel (subgrhrel B).
+  Lemma iseqrel_subgrhrel (A : gr) (B : @subgr A) : iseqrel (subgrhrel B).
   Proof.
     unfold subgrhrel. unfold subgrhrel_hprop.
     use iseqrelconstr.
@@ -399,7 +399,7 @@ Section preadditive_quotient.
 
   (** The relation we defined respects binary operations. Note that we use commax, thus the proof
       does not work for nonabelian groups. *)
-  Lemma isbinopeqrel_subgr_eqrel {A : abgr} (B : @subabgrs A) :
+  Lemma isbinopeqrel_subgr_eqrel {A : abgr} (B : @subabgr A) :
     isbinophrel (eqrelpair (subgrhrel B) (iseqrel_subgrhrel A B)).
   Proof.
     use isbinophrelif.
@@ -414,7 +414,7 @@ Section preadditive_quotient.
   Qed.
 
   (** Thus the relation is a binopeqrel *)
-  Lemma binopeqrel_subgr_eqrel {A : abgr} (B : @subabgrs A) : @binopeqrel A.
+  Lemma binopeqrel_subgr_eqrel {A : abgr} (B : @subabgr A) : @binopeqrel A.
   Proof.
     use binopeqrelpair.
     - exact (eqrelpair _ (iseqrel_subgrhrel A B)).
@@ -422,7 +422,7 @@ Section preadditive_quotient.
   Defined.
 
   (** These are the homsets in our new category. *)
-  Definition subabgr_quot {A : abgr} (B : @subabgrs A) : abgr :=
+  Definition subabgr_quot {A : abgr} (B : @subabgr A) : abgr :=
     abgrquot (binopeqrel_subgr_eqrel B).
 
   Definition QuotPrecategory_homsets (c d : ob PA) : abgr := subabgr_quot (PAS c d).
