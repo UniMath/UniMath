@@ -68,12 +68,20 @@ Module Test_int.
 
   Require Import UniMath.NumberSystems.Integers.
 
-  Goal true = (hzbooleq (natnattohz 3 4) (natnattohz 17 18)) . reflexivity. Qed.
+  Open Scope hz.
+
+  Goal nattohz 4 = nattohz 2 + nattohz 2.
+    confirm_equal isdeceqhz.
+  Defined.
+  Goal nattohz 3 != 0. confirm_not_equal isdeceqhz. Defined.
+  Goal nattohz 3 ≠ 0. apply neg_to_negProp. confirm_not_equal isdeceqhz. Defined.
+  Goal true = hzbooleq (natnattohz 3 4) (natnattohz 17 18) . reflexivity. Qed.
   Goal false = (hzbooleq (natnattohz 3 4) (natnattohz 17 19)) . reflexivity. Qed.
   Goal 274 = (hzabsval (natnattohz 58 332)) . reflexivity. Qed.
-  Goal O = (hzabsval (hzplus (natnattohz 2 3) (natnattohz 3 2))) . reflexivity. Qed.
-  Goal 2 = (hzabsval (hzminus (natnattohz 2 3) (natnattohz 3 2))) . reflexivity. Qed.
-  Goal 300 =  (hzabsval (hzmult (natnattohz 20 50) (natnattohz 30 20))) . reflexivity. Qed.
+  Goal O = (hzabsval (natnattohz 2 3 + natnattohz 3 2)) . reflexivity. Qed.
+  Goal 2 = (hzabsval (natnattohz 2 3 - natnattohz 3 2)) . reflexivity. Qed.
+  Goal 300 =  (hzabsval (natnattohz 20 50 * natnattohz 30 20)) . reflexivity. Qed.
+  Goal nattohz 1 + nattohz 1 = nattohz 2. reflexivity. Defined.
 
 End Test_int.
 
@@ -87,12 +95,29 @@ Module Test_rat.
 
   Transparent hz .
 
-  Goal true = ( hqbooleq ( hzhztohq ( natnattohz 4 0 ) ( tpair _ ( natnattohz 3 0 ) ( ct ( hzneq , isdecrelhzneq, ( natnattohz 3 0 ) , 0 %hz ) ) ) )  ( hzhztohq ( natnattohz 13 1 ) ( tpair _ ( natnattohz 11 2 ) ( ct ( hzneq , isdecrelhzneq , ( natnattohz 11 2 ) , 0 %hz ) ) ) ) ) . reflexivity. Qed.
-
-  Goal true = ( decreltobrel hqgthdec ( hzhztohq ( natnattohz 5 0 ) ( tpair _ ( natnattohz 3 0 ) ( ct ( hzneq , isdecrelhzneq , ( natnattohz 3 0 ) , hzzero ) ) ) )  ( hzhztohq ( natnattohz 13 1 ) ( tpair _ ( natnattohz 11 2 ) ( ct ( hzneq , isdecrelhzneq , ( natnattohz 11 2 ) , hzzero ) ) ) ) ) . reflexivity. Qed.
-
   Goal 4 = ( hzabsval ( intpart ( hqdiv ( hztohq ( nattohz ( 10 ) ) )  ( - ( 1 + 1 + 1 ) ) ) ) ) . reflexivity. Qed.
 
+  Goal true = hqbooleq (hztohq(nattohz (S O)) + hztohq(nattohz (S O)))
+                       (hztohq(nattohz (S (S O)))).
+    reflexivity.
+  Qed.
 
+  Goal ( nattohq 1%nat + nattohq 1%nat = nattohq 2 ).
+    confirm_equal isdeceqhq.
+  Defined.
+
+  Unset Kernel Term Sharing.    (* needed for the following tests: *)
+
+  Goal ( nattohq 1%nat = 1 ). reflexivity. Defined.
+
+  Goal ( 1 = nattohq 1%nat ). reflexivity. Defined.
+
+  Goal ( 1 = hztohq 1%hz ). reflexivity. Defined.
+
+  Goal nattohq 1%nat + nattohq 1%nat = nattohq 2.
+    reflexivity.                  (* fixed, 11 seconds *)
+  Defined.                        (* fixed, 11 seconds *)
+
+  Set Kernel Term Sharing.    (* needed for the following tests: *)
 
 End Test_rat.

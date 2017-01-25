@@ -36,7 +36,14 @@ Definition hqaddabgr : abgr := hq .
 Definition hqmultabmonoid : abmonoid := rngmultabmonoid hq .
 Definition hqtype : UU := hq .
 
-Definition hzhztohq : hz -> ( intdomnonzerosubmonoid hzintdom ) -> hq := fun x a => setquotpr _ ( dirprodpair x a ) .
+Definition hzhztohq : hz -> hz_nz_monoid -> hq
+  := λ x a, setquotpr _ ( x ,, a ) .
+
+Definition hzhzneqtohq (x a:hz) (nz : (a ≠ 0)%hz) : hq
+  := setquotpr _ ( x ,, a ,, nz) .
+
+Definition hzhzneztohq (x a:hz) (nz : (a != 0)%hz) : hq
+  := setquotpr _ ( x ,, a ,, neg_to_negProp (nP := (a ≠ 0)%hz) nz) .
 
 Definition hqplus : hq -> hq -> hq := @op1 hq.
 Definition hqsign : hq -> hq := grinv hqaddabgr .
@@ -57,9 +64,9 @@ Notation " x * y " := ( hqmult x y ) : hq_scope .
 Delimit Scope hq_scope with hq .
 
 
-(** *** Properties of equlaity on [ hq ] *)
+(** *** Properties of equality on [ hq ] *)
 
-Definition isdeceqhq : isdeceq hq := isdeceqfldfrac hzintdom isdeceqhz .
+Definition isdeceqhq : isdeceq hq := isdeceqfldfrac hzintdom hzneq isdeceqhz .
 
 Definition isasethq := setproperty hq .
 
@@ -72,6 +79,9 @@ Definition hqdeceq : decrel hq := decrelpair isdecrelhqeq .
 Definition hqbooleq := decreltobrel hqdeceq .
 
 Definition hqneq ( x y : hq ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
+
+Notation " x ≠ y " := ( hqneq x y ) (at level 70, no associativity) : hq_scope.
+
 Definition isdecrelhqneq : isdecrel hqneq  := isdecnegrel _ isdecrelhqeq .
 Definition hqdecneq : decrel hq := decrelpair isdecrelhqneq .
 
@@ -146,13 +156,13 @@ Proof . intros .  apply ( rngcomm2 hq  x y ) . Defined .
 
 Note : in our definition it is possible to divide by 0 . The result in this case is 0 . *)
 
-Definition hqmultinv : hq -> hq := fun x => fldfracmultinv0 hzintdom isdeceqhz x .
+Definition hqmultinv : hq -> hq := λ x, fldfracmultinv0 hzintdom hzneq isdeceqhz x .
 
-Lemma hqislinvmultinv ( x : hq ) ( ne : hqneq x 0 ) : paths ( ( hqmultinv x ) * x ) 1 .
-Proof. intros .  apply ( islinvinfldfrac hzintdom isdeceqhz x ne ) . Defined .
+Lemma hqislinvmultinv ( x : hq ) ( ne : x ≠ 0 ) : paths ( ( hqmultinv x ) * x ) 1 .
+Proof. intros .  apply ( islinvinfldfrac hzintdom hzneq isdeceqhz x ne ) . Defined .
 
-Lemma hqisrinvmultinv ( x : hq ) ( ne : hqneq x 0 ) : paths (  x * ( hqmultinv x ) ) 1 .
-Proof. intros .  apply ( isrinvinfldfrac hzintdom isdeceqhz x ne ) . Defined .
+Lemma hqisrinvmultinv ( x : hq ) ( ne : x ≠ 0 ) : paths (  x * ( hqmultinv x ) ) 1 .
+Proof. intros .  apply ( isrinvinfldfrac hzintdom hzneq isdeceqhz x ne ) . Defined .
 
 Definition hqdiv ( x y : hq ) : hq := hqmult x ( hqmultinv y ) .
 
@@ -671,9 +681,11 @@ Proof . split with ( fun x => hqgth x 0 ) . split .  intros x1 x2 . apply ( isrn
 
 Definition hztohq : hz -> hq := tofldfrac hzintdom isdeceqhz.
 
+Definition nattohq : nat -> hq := hztohq ∘ nattohz.
+
 Definition isinclhztohq : isincl hztohq := isincltofldfrac hzintdom isdeceqhz .
 
-Definition hztohqandneq ( n m : hz ) ( is : hzneq n m ) : hqneq ( hztohq n ) ( hztohq m ) := negf ( invmaponpathsincl _ isinclhztohq n m ) is .
+Definition hztohqandneq ( n m : hz ) ( is : n != m ) : hztohq n ≠ hztohq m := negf ( invmaponpathsincl _ isinclhztohq n m ) is .
 
 Definition hztohqand0 : paths ( hztohq 0%hz ) 0 := idpath _ .
 
@@ -699,18 +711,18 @@ Definition hztohqandgeh ( n m : hz ) ( is : hzgeh n m ) : hqgeh ( hztohq n ) ( h
 
 (** *** Integral part of a rational *)
 
-Definition intpartint0 ( xa : dirprod hz ( intdomnonzerosubmonoid hzintdom ) ) : nat := natdiv ( hzabsval (pr1 xa ) ) ( hzabsval ( pr1 ( pr2 xa ) ) )  .
+Definition intpartint0 ( xa : dirprod hz hz_nz_monoid ) : nat := natdiv ( hzabsval (pr1 xa ) ) ( hzabsval ( pr1 ( pr2 xa ) ) )  .
 
-Lemma iscompintpartint0 : iscomprelfun ( eqrelabmonoidfrac hzmultabmonoid ( intdomnonzerosubmonoid hzintdom ) ) intpartint0 .
+Lemma iscompintpartint0 : iscomprelfun ( eqrelabmonoidfrac hzmultabmonoid hz_nz_monoid ) intpartint0 .
 Proof . Opaque hq.  unfold iscomprelfun .  intros xa1 xa2 .  set ( x1 := pr1 xa1 ) . set ( aa1 := pr2 xa1 ) . set ( a1 := pr1 aa1 ) .  set ( x2 := pr1 xa2 ) . set ( aa2 := pr2 xa2 ) . set ( a2 := pr1 aa2 ) . simpl .  apply ( @hinhuniv _ ( hProppair _ ( setproperty natset _ _ ) ) ) .  intro t2 .  assert ( e := pr2 t2 ) .
 
-simpl in e .  assert ( e' := ( maponpaths hzabsval ( hzmultrcan _ _ _ ( pr2 ( pr1 t2 ) ) e ) ) : paths ( hzabsval ( x1 * a2 )%hz ) ( hzabsval ( x2 * a1 )%hz ) ) .  clear e . clear t2 . rewrite ( pathsinv0 ( hzabsvalandmult _ _ ) ) in e' . rewrite ( pathsinv0 ( hzabsvalandmult _ _ ) ) in e' .
+simpl in e .  assert ( e' := ( maponpaths hzabsval ( hzmultrcan _ _ _ (negProp_to_neg ( pr2 ( pr1 t2 ) )) e ) ) : paths ( hzabsval ( x1 * a2 )%hz ) ( hzabsval ( x2 * a1 )%hz ) ) .  clear e . clear t2 . rewrite ( pathsinv0 ( hzabsvalandmult _ _ ) ) in e' . rewrite ( pathsinv0 ( hzabsvalandmult _ _ ) ) in e' .
 
-unfold intpartint0 . simpl .  change ( paths ( natdiv ( hzabsval x1 ) ( hzabsval a1 ) ) ( natdiv ( hzabsval x2 ) ( hzabsval a2 ) ) ) . rewrite ( pathsinv0 ( natdivandmultr (hzabsval x1 ) (hzabsval a1 ) ( hzabsval a2 ) ( hzabsvalneq0  ( pr2 aa1 ) ) ( natneq0andmult _ _ ( hzabsvalneq0 (pr2 aa1) ) ( hzabsvalneq0  (pr2 aa2) ) ) ) ) .   rewrite ( pathsinv0 ( natdivandmultr (hzabsval x2 ) (hzabsval a2 ) ( hzabsval a1 ) ( hzabsvalneq0  ( pr2 aa2 ) ) ( natneq0andmult _ _ ( hzabsvalneq0 (pr2 aa2) ) ( hzabsvalneq0  (pr2 aa1) ) ) ) ) .  rewrite ( natmultcomm ( hzabsval a1 ) ( hzabsval a2 ) ) .  rewrite e' . apply idpath . Transparent hq .  Defined .
+unfold intpartint0 . simpl .  change ( paths ( natdiv ( hzabsval x1 ) ( hzabsval a1 ) ) ( natdiv ( hzabsval x2 ) ( hzabsval a2 ) ) ) . rewrite ( pathsinv0 ( natdivandmultr (hzabsval x1 ) (hzabsval a1 ) ( hzabsval a2 ) ( hzabsvalneq0  (negProp_to_neg ( pr2 aa1 )) ) ( natneq0andmult _ _ ( hzabsvalneq0 (negProp_to_neg (pr2 aa1)) ) ( hzabsvalneq0  (negProp_to_neg (pr2 aa2)) ) ) ) ) .   rewrite ( pathsinv0 ( natdivandmultr (hzabsval x2 ) (hzabsval a2 ) ( hzabsval a1 ) ( hzabsvalneq0  (negProp_to_neg ( pr2 aa2 )) ) ( natneq0andmult _ _ ( hzabsvalneq0 (negProp_to_neg (pr2 aa2)) ) ( hzabsvalneq0  (negProp_to_neg (pr2 aa1)) ) ) ) ) .  rewrite ( natmultcomm ( hzabsval a1 ) ( hzabsval a2 ) ) .  rewrite e' . apply idpath . Transparent hq .  Defined .
 
 Opaque iscompintpartint0 .
 
-Definition intpart0 : hq -> nat := setquotuniv ( eqrelabmonoidfrac hzmultabmonoid (intdomnonzerosubmonoid hzintdom) ) natset _
+Definition intpart0 : hq -> nat := setquotuniv ( eqrelabmonoidfrac hzmultabmonoid (intdomnonzerosubmonoid hzintdom _)) natset _
      ( iscompintpartint0 ) .
 
 Definition intpart ( x : hq ) : hz .

@@ -411,28 +411,33 @@ Defined.
 
 (** **** Multiplicative submonoid of non-zero elements *)
 
-Definition intdomnonzerosubmonoid (X : intdom) : @subabmonoids (rngmultabmonoid X).
+Definition intdomnonzerosubmonoid (X:intdom) (neq:neqReln X) : @subabmonoids (rngmultabmonoid X).
 Proof.
-  intros. split with (fun x : X => hProppair _ (isapropneg (paths x 0))). split.
-  - intros a b. simpl in *. intro e.
-    set (int := intdomax X (pr1 a) (pr1 b) e). clearbody int. generalize int.
-    apply toneghdisj. apply (dirprodpair (pr2 a) (pr2 b)).
-  - simpl. apply (nonzeroax X).
+  intros. exists (λ x, neq x 0).
+  split.
+  - intros a b. apply neg_to_negProp. intros e.
+    assert (int := intdomax X (pr1 a) (pr1 b) e).
+    generalize int. apply (toneghdisj).
+    exact (dirprodpair (negProp_to_neg (pr2 a)) (negProp_to_neg (pr2 b))).
+  - apply neg_to_negProp. exact (nonzeroax X).
 Defined.
 
+Definition intdomnonzerosubmonoid_nonzero {X neq} (s : intdomnonzerosubmonoid X neq) : pr1 s != 0
+  := negProp_to_neg (pr2 s).
 
 (** **** Relations similar to "greater" on integral domains *)
 
-Definition intdomnonzerotopos (X : intdom) (R : hrel X) (is0 : @isbinophrel X R)
+
+Definition intdomnonzerotopos (X : intdom) (neq : neqReln X) (R : hrel X) (is0 : @isbinophrel X R)
            (is1 : isrngmultgt X R) (is2 : R 1 0) (nc : neqchoice R)
-           (x : intdomnonzerosubmonoid X) : rngpossubmonoid X is1 is2.
+           (x : intdomnonzerosubmonoid X neq) : rngpossubmonoid X is1 is2.
 Proof.
-  intros. destruct (nc (pr1 x) 0 (pr2 x)) as [ g | l ].
+  intros. induction (nc (pr1 x) 0 (negProp_to_neg (pr2 x))) as [ g | l ].
   - apply (tpair _ (pr1 x) g).
-  - split with (- (pr1 x)). simpl.
-    apply rngtogt0.
+  - split with (- (pr1 x)).
+    simpl. apply rngtogt0.
     + apply is0.
-    + rewrite (rngminusminus X _). apply l.
+    + now rewrite (rngminusminus X _).
 Defined.
 
 
@@ -478,12 +483,16 @@ Definition fldmultinv {X : fld} (x : X) (ne : neg (paths x 0)) : X := pr1 (fldmu
 
 (** **** Field of fractions of an integral domain with decidable equality *)
 
-Definition fldfracmultinvint (X : intdom) (is : isdeceq X)
-           (xa : dirprod X (intdomnonzerosubmonoid X)) : dirprod X (intdomnonzerosubmonoid X).
+Definition fldfracmultinvint (X : intdom) (neq : neqReln X) (is : isdeceq X) :
+  let S := intdomnonzerosubmonoid X neq in
+  X × S -> X × S.
 Proof.
-  intros. destruct (is (pr1 xa) 0) as [ e0 | ne0 ].
-  - apply (dirprodpair 1 (tpair (fun x => neg (paths x 0)) 1 (nonzeroax X))).
-  - apply (dirprodpair (pr1 (pr2 xa)) (tpair (fun x => neg (paths x 0)) (pr1 xa) ne0)).
+  intros ? ? ? ? xa.
+  induction (is (pr1 xa) 0) as [ e0 | ne0 ].
+  { (* when the numerator is 0, we arbitrarily assign 1/1 as the reciprocal: *)
+    exists 1. exists 1. exact (neg_to_negProp (nonzeroax X)). }
+  {                             (* interchange numerator and denominator *)
+    exists (pr1 (pr2 xa)). exists (pr1 xa). exact (neg_to_negProp ne0). }
 Defined.
 
 (** Note: we choose a strange from the mathematicians perspective approach to the definition of the
@@ -493,46 +502,48 @@ particular problem is that the weak equivalence between "quotient of subtype" an
 quotient" is not isomorphism in the syntactic category. This can be corrected by extension of the
 type system with tfc-terms. See discussion in hSet.v *)
 
-Lemma fldfracmultinvintcomp (X : intdom) (is : isdeceq X) :
-  iscomprelrelfun (eqrelcommrngfrac X (intdomnonzerosubmonoid X))
-                  (eqrelcommrngfrac X (intdomnonzerosubmonoid X))
-                  (fldfracmultinvint X is).
+Lemma fldfracmultinvintcomp (X : intdom) (neq : neqReln X) (is : isdeceq X) :
+  let S := intdomnonzerosubmonoid X neq in
+  let R := eqrelcommrngfrac X S in
+  iscomprelrelfun R R (fldfracmultinvint X neq is).
 Proof.
   intros. intros xa1 xa2.
-  set (x1 := pr1 xa1). set (aa1 := pr2 xa1). set (a1 := pr1 aa1).
-  set (x2 := pr1 xa2). set (aa2 := pr2 xa2). set (a2 := pr1 aa2).
-  simpl. apply hinhfun. intro t2. unfold fldfracmultinvint.
-  destruct (is (pr1 xa1) 0) as [ e1 | ne1 ].
-  - destruct (is (pr1 xa2) 0) as [ e2 | ne2 ].
-    + simpl. split with (tpair (fun x => neg (paths x 0)) 1 (nonzeroax X)).
-      apply idpath.
-    +  simpl. set (aa0 := pr1 t2). set (a0 := pr1 aa0).
-       assert (e := pr2 t2). change (paths (x1 * a2 * a0) (x2 * a1 * a0)) in e.
-       change (paths x1 0) in e1. rewrite e1 in e. rewrite (rngmult0x X _) in e.
-       rewrite (rngmult0x X _) in e.
-       assert (e' := intdomax2r X _ _ (pathsinv0 e) (pr2 aa0)).
-       assert (e'' := intdomax2r X _ _ e' (pr2 aa1)).
-       destruct (ne2 e'').
-  - destruct (is (pr1 xa2) 0) as [ e2 | ne2 ].
-    + simpl. set (aa0 := pr1 t2). set (a0 := pr1 aa0).
-      assert (e := pr2 t2). change (paths (x1 * a2 * a0) (x2 * a1 * a0)) in e.
-      change (paths x2 0) in e2. rewrite e2 in e. rewrite (rngmult0x X _) in e.
-      rewrite (rngmult0x X _) in e.
-      assert (e' := intdomax2r X _ _  e (pr2 aa0)).
-      assert (e'' := intdomax2r X _ _ e' (pr2 aa2)).
-      destruct (ne1 e'').
-    + simpl. set (aa0 := pr1 t2). set (a0 := pr1 aa0).
-      assert (e := pr2 t2). split with aa0.
-      change (paths (a1 * x2 * a0) (a2 * x1 * a0)).
-      change (paths (x1 * a2 * a0) (x2 * a1 * a0)) in e.
-      rewrite (rngcomm2 X a1 x2). rewrite (rngcomm2 X a2 x1).
-      apply (pathsinv0 e).
+  apply hinhfun. intro se3.
+  induction xa1 as [x1 s1]. induction s1 as [s1 nz1'].
+  induction xa2 as [x2 s2]. induction s2 as [s2 nz2'].
+  induction se3 as [s3 e]; induction s3 as [s3 nz3']; simpl in e.
+  unfold S in nz1', nz2', nz3'; simpl in nz1', nz2', nz3'.
+  assert (nz1 := negProp_to_neg nz1').
+  assert (nz2 := negProp_to_neg nz2').
+  assert (nz3 := negProp_to_neg nz3').
+  assert (nz := nonzeroax X).
+  assert (nz' := neg_to_negProp nz : neq 1 0).
+  unfold fldfracmultinvint; simpl.
+  induction (is x1 0) as [ e1 | ne1 ].
+  { induction (is x2 0) as [ e2 | ne2 ].
+    { simpl. exact (unel S,,idpath _). }
+    { apply fromempty. apply ne2; clear ne2.
+      rewrite e1 in e. rewrite 2? (rngmult0x X _) in e.
+      assert (e'  := intdomax2r _ _ _ (!e) nz3).
+      exact (intdomax2r _ _ _ e' nz1). } }
+  { induction (is x2 0) as [ e2 | ne2 ].
+    { apply fromempty. apply ne1; clear ne1.
+      rewrite e2 in e. rewrite 2? (rngmult0x X) in e.
+      assert (e'  := intdomax2r _ _ _ e nz3).
+      exact (intdomax2r _ _ _ e' nz2). }
+    { simpl. exists (s3,,nz3'); simpl.
+      change (s1 * x2 * s3 = s2 * x1 * s3).
+      rewrite (rngcomm2 _ s1). rewrite (rngcomm2 _ s2).
+      exact (!e). } }
 Defined.
+
 Opaque fldfracmultinvintcomp.
 
-Definition fldfracmultinv0 (X : intdom) (is : isdeceq X)
-           (x : commrngfrac X (intdomnonzerosubmonoid X)) :
-  commrngfrac X (intdomnonzerosubmonoid X) := setquotfun _ _ _ (fldfracmultinvintcomp X is) x.
+Definition fldfracmultinv0 (X : intdom) (neq:neqReln X) (is : isdeceq X) :
+  let S := intdomnonzerosubmonoid X neq in
+  let F := commrngfrac X S in
+  F -> F
+  := λ x, setquotfun _ _ _ (fldfracmultinvintcomp X neq is) x.
 
 Lemma nonzeroincommrngfrac (X : commrng) (S : @submonoids (rngmultmonoid X)) (xa : dirprod X S)
       (ne : neg (paths (setquotpr (eqrelcommrngfrac X S) xa)
@@ -567,69 +578,73 @@ Proof.
 Defined.
 Opaque zeroincommrngfrac.
 
-Lemma isdeceqfldfrac (X : intdom) (is : isdeceq X) :
-  isdeceq (commrngfrac X (intdomnonzerosubmonoid X)).
+Lemma isdeceqfldfrac (X : intdom) (neq : neqReln X) (is : isdeceq X) :
+  isdeceq (commrngfrac X (intdomnonzerosubmonoid X neq)).
 Proof.
   intros. apply isdeceqcommrngfrac.
   - intro a. apply isrcancelableif.
-    intros b0 b1 e. apply (intdomrcan X _ _ (pr1 a) (pr2 a) e).
+    intros b0 b1 e. apply (intdomrcan X _ _ (pr1 a) (negProp_to_neg (pr2 a)) e).
   - apply is.
 Defined.
 
-Lemma islinvinfldfrac (X : intdom) (is : isdeceq X) (x : commrngfrac X (intdomnonzerosubmonoid X))
-      (ne : neg (paths x 0)) : paths ((fldfracmultinv0 X is x) * x) 1.
+Lemma islinvinfldfrac (X : intdom) (neq:neqReln X) (is : isdeceq X)
+      (x : commrngfrac X (intdomnonzerosubmonoid X neq)) (ne : x != 0) :
+  fldfracmultinv0 X neq is x * x = 1.
 Proof.
-  intros X is.
-  assert (int : Π x0, isaprop (neg (paths x0 0) -> paths ((fldfracmultinv0 X is x0) * x0) 1)).
-  {
-    intro x0.
-    apply impred. intro.
-    apply (setproperty (commrngfrac X (intdomnonzerosubmonoid X)) (fldfracmultinv0 X is x0 * x0) _).
-  }
+  intros ? ? ?.
+  assert (int : Π x0 , isaprop (x0 != 0 -> fldfracmultinv0 X neq is x0 * x0 = 1)).
+  { intro x0. apply impred. intro. apply setproperty. }
   apply (setquotunivprop _ (fun x0 => hProppair _ (int x0))).
   simpl. intros xa ne.
-  change (paths (setquotpr (eqrelcommrngfrac X (intdomnonzerosubmonoid X))
-                           (dirprodpair ((pr1 (fldfracmultinvint X is xa)) * (pr1 xa))
-                                        (@op (intdomnonzerosubmonoid X)
-                                             (pr2 (fldfracmultinvint X is xa)) (pr2 xa))))
-                (setquotpr _ (dirprodpair 1 (tpair _ 1 (nonzeroax X))))).
-  apply (weqpathsinsetquot). unfold fldfracmultinvint. simpl.
-  destruct (is (pr1 xa) 0 ) as [ e0 | ne0' ].
-  - destruct (nonzeroincommrngfrac X (intdomnonzerosubmonoid X) xa ne e0).
-  - apply hinhpr.
-    split with (tpair (fun a => neg (paths a 0)) 1 (nonzeroax X)).
-    set (x := (pr1 xa) : X). set (aa := pr2 xa). set (a := (pr1 aa) : X).
-    simpl. change (paths (a * x * 1  * 1) (1 * (x * a) * 1)).
-    rewrite (rngcomm2 X a x). repeat rewrite (rngrunax2 X _). rewrite (rnglunax2 X _).
-    apply idpath.
+  assert (nz := nonzeroax X).
+  assert (nz' := neg_to_negProp nz : neq 1 0).
+  set (S := intdomnonzerosubmonoid X neq).
+  set (R := eqrelcommrngfrac X S).
+  intermediate_path (setquotpr R
+              (dirprodpair
+                  ((pr1 (fldfracmultinvint X neq is xa)) * (pr1 xa))
+                  (@op S (pr2 (fldfracmultinvint X neq is xa)) (pr2 xa)))).
+  { reflexivity. }
+  intermediate_path (setquotpr R (1,, unel S)).
+  { apply iscompsetquotpr.
+    unfold fldfracmultinvint; simpl.
+    induction (is (pr1 xa) 0) as [ e0 | ne0' ].
+    { induction (nonzeroincommrngfrac X S xa ne e0). }
+    { apply hinhpr.
+      exists (unel S).
+      set (x := pr1 xa : X). set (aa := pr2 xa). set (a := pr1 aa : X). simpl.
+      change (a * x * 1  * 1 = 1 * (x * a) * 1).
+      rewrite (rngcomm2 X a x). rewrite (rngrunax2 X). rewrite (rngrunax2 X).
+      rewrite (rngrunax2 X). rewrite (rnglunax2 X). apply idpath. } }
+  reflexivity.
 Defined.
 Opaque islinvinfldfrac.
 
-Lemma isrinvinfldfrac (X : intdom) (is : isdeceq X) (x : commrngfrac X (intdomnonzerosubmonoid X))
-      (ne : neg (paths x 0)) : paths (x * (fldfracmultinv0 X is x)) 1.
-Proof.
-  intros. rewrite (rngcomm2 _ _ _). apply islinvinfldfrac. apply ne.
-Defined.
+Lemma isrinvinfldfrac (X : intdom) (neq:neqReln X) (is : isdeceq X)
+      (x : commrngfrac X (intdomnonzerosubmonoid X neq)) (ne : x != 0) :
+  x * fldfracmultinv0 X neq is x = 1.
+Proof. intros. rewrite (rngcomm2 _ _ _). exact (islinvinfldfrac X neq is x ne). Defined.
 
 Definition fldfrac (X : intdom) (is : isdeceq X) : fld.
 Proof.
-  intros. split with (commrngfrac X (intdomnonzerosubmonoid X)). split.
-  - intro e.
-    set (e' := zeroincommrngfrac X (intdomnonzerosubmonoid X)
-                                 (fun a : (intdomnonzerosubmonoid X) => pr2 a) 1
-                                 (unel (intdomnonzerosubmonoid X)) e).
-    apply (nonzeroax X e').
-  - intro x. destruct (isdeceqfldfrac X is x 0) as [ e | ne ].
-    apply (ii2 e). apply ii1. split with (fldfracmultinv0 X is x). split.
-    + apply (islinvinfldfrac X is x ne) .
-    + apply (isrinvinfldfrac X is x ne).
+  intros.
+  set (neq := deceq_to_neqReln is).
+  set (S := intdomnonzerosubmonoid X neq).
+  exists (commrngfrac X S). split.
+  - intro e. apply (nonzeroax X).
+    exact (zeroincommrngfrac _ _ intdomnonzerosubmonoid_nonzero _ _ e).
+  - intro x. induction (isdeceqfldfrac X neq is x 0) as [ e | ne ].
+    + exact (ii2 e).
+    + apply ii1. exists (fldfracmultinv0 X neq is x). split.
+      * now apply islinvinfldfrac.
+      * now apply isrinvinfldfrac.
 Defined.
 
 
 (** **** Canonical homomorphism to the field of fractions *)
 
 Definition tofldfrac (X : intdom) (is : isdeceq X) (x : X) : fldfrac X is :=
-  setquotpr _ (dirprodpair x (tpair (fun x => neg (paths x 0)) 1 (nonzeroax X))).
+  setquotpr _ (x ,, unel (intdomnonzerosubmonoid _ _)).
 
 Definition isbinop1funtofldfrac (X : intdom) (is : isdeceq X) :
   @isbinopfun X (fldfrac X is) (tofldfrac X is) := isbinop1funtocommrngfrac X _.
@@ -653,7 +668,7 @@ Definition tofldfracandminus (X : intdom) (is : isdeceq X) (x y : X) :
 
 Definition isbinop2funtofldfrac (X : intdom) (is : isdeceq X) :
   @isbinopfun (rngmultmonoid X) (rngmultmonoid (fldfrac X is)) (tofldfrac X is) :=
-  isbinopfuntoabmonoidfrac (rngmultabmonoid X) (intdomnonzerosubmonoid X).
+  isbinopfuntoabmonoidfrac (rngmultabmonoid X) (intdomnonzerosubmonoid X _).
 Opaque isbinop2funtofldfrac.
 
 Lemma isunital2funtofldfrac (X : intdom) (is : isdeceq X) : paths (tofldfrac X is 1) 1.
@@ -671,9 +686,9 @@ Definition isrngfuntofldfrac (X : intdom) (is : isdeceq X) :
   dirprodpair (isaddmonoidfuntofldfrac X is) (ismultmonoidfuntofldfrac X is).
 
 Definition isincltofldfrac (X : intdom) (is : isdeceq X) : isincl (tofldfrac X is) :=
-  isincltocommrngfrac X (intdomnonzerosubmonoid X)
-                      (fun x : _ => pr2 (intdomiscancelable X (pr1 x) (pr2 x))).
-
+  isincltocommrngfrac X (intdomnonzerosubmonoid X _)
+                      (λ x, pr2 (intdomiscancelable X (pr1 x)
+                                    (intdomnonzerosubmonoid_nonzero x))).
 
 (** *** Relations similar to "greater" on fields of fractions
 
@@ -691,20 +706,23 @@ but not vice versa. *)
 (** **** Description of the field of fractions as the ring of fractions with respect to the submonoid of "positive" elements *)
 
 Definition weqfldfracgtint_f (X : intdom) {R : hrel X} (is0 : @isbinophrel X R)
-           (is1 : isrngmultgt X R) (is2 : R 1 0) (nc : neqchoice R)
-           (xa : dirprod X (intdomnonzerosubmonoid X)) : dirprod X (rngpossubmonoid X is1 is2).
+           (is1 : isrngmultgt X R) (is2 : R 1 0) (neq : neqReln X) (nc : neqchoice R) :
+  X × intdomnonzerosubmonoid X neq -> X × rngpossubmonoid X is1 is2.
 Proof.
-  intros. destruct (nc (pr1 (pr2 xa)) 0 (pr2 (pr2 xa))) as [ g | l ].
-  - apply (dirprodpair (pr1 xa) (tpair _ (pr1 (pr2 xa)) g)).
-  - split with (- (pr1 xa)). split with (- (pr1 (pr2 xa))).
-    simpl. apply (rngfromlt0 X is0 l).
+  intros ? ? ? ? ? ? ? xa.
+  induction (nc (pr1 ((pr2 xa))) 0 (negProp_to_neg (pr2 (pr2 xa)))) as [ g | l ].
+  apply (dirprodpair (pr1 xa) (tpair _ (pr1 (pr2 xa)) g)).
+  split with (- (pr1 xa)).
+  split with (- (pr1 (pr2 xa))).
+  simpl.
+  apply (rngfromlt0 X is0 l).
 Defined.
 
 Lemma weqfldfracgtintcomp_f (X : intdom) {R : hrel X} (is0 : @isbinophrel X R)
-      (is1 : isrngmultgt X R) (is2 : R 1 0) (nc : neqchoice R) :
-  iscomprelrelfun (eqrelcommrngfrac X (intdomnonzerosubmonoid X))
+      (is1 : isrngmultgt X R) (is2 : R 1 0) (neq : neqReln X) (nc : neqchoice R) :
+  iscomprelrelfun (eqrelcommrngfrac X (intdomnonzerosubmonoid X neq))
                   (eqrelcommrngfrac X (rngpossubmonoid X is1 is2))
-                  (weqfldfracgtint_f X is0 is1 is2 nc).
+                  (weqfldfracgtint_f X is0 is1 is2 neq nc).
 Proof.
   intros. intros xa1 xa2. simpl.
   set (x1 := pr1 xa1). set (aa1 := pr2 xa1). set (a1 := pr1 aa1).
@@ -713,98 +731,116 @@ Proof.
   set (aa0 := pr1 t2). set (a0 := pr1 aa0).
   assert (e := pr2 t2). change (paths (x1 * a2 * a0) (x2 * a1 * a0)) in e.
   unfold weqfldfracgtint_f.
-  destruct (nc (pr1 (pr2 xa1)) 0 (pr2 (pr2 xa1))) as [ g1 | l1 ].
-  - destruct (nc (pr1 (pr2 xa2)) 0 (pr2 (pr2 xa2))) as [ g2 | l2 ].
+  induction (nc (pr1 (pr2 xa1)) 0 (negProp_to_neg (pr2 (pr2 xa1)))) as [g1|l1].
+  - induction (nc (pr1 (pr2 xa2)) 0 (negProp_to_neg (pr2 (pr2 xa2)))) as [g2|l2].
     + simpl. rewrite (rngrunax2 X _). rewrite (rngrunax2 X _).
-      apply (intdomrcan X _ _ _ (pr2 aa0) e).
-    + simpl. rewrite (rngrunax2 X _). rewrite (rngrunax2 X _).
-      rewrite (rngrmultminus X _ _). rewrite (rnglmultminus X _ _).
-      apply (maponpaths (fun x : X => - x)).
-      apply (intdomrcan X _ _ _ (pr2 aa0) e).
-  - destruct (nc (pr1 (pr2 xa2)) 0 (pr2 (pr2 xa2))) as [ g2 | l2 ].
+      apply (intdomrcan X _ _ _ (negProp_to_neg (pr2 aa0)) e).
     + simpl. rewrite (rngrunax2 X _). rewrite (rngrunax2 X _).
       rewrite (rngrmultminus X _ _). rewrite (rnglmultminus X _ _).
       apply (maponpaths (fun x : X => - x)).
-      apply (intdomrcan X _ _ _ (pr2 aa0) e).
+      apply (intdomrcan X _ _ _ (negProp_to_neg (pr2 aa0)) e).
+  - induction (nc (pr1 (pr2 xa2)) 0 (negProp_to_neg (pr2 (pr2 xa2)))) as [g2|l2].
+    + simpl. rewrite (rngrunax2 X _). rewrite (rngrunax2 X _).
+      rewrite (rngrmultminus X _ _). rewrite (rnglmultminus X _ _).
+      apply (maponpaths (fun x : X => - x)).
+      apply (intdomrcan X _ _ _ (negProp_to_neg (pr2 aa0)) e).
     + simpl. rewrite (rngrunax2 X _). rewrite (rngrunax2 X _).
       rewrite (rngrmultminus X _ _). rewrite (rnglmultminus X _ _).
       rewrite (rngrmultminus X _ _). rewrite (rnglmultminus X _ _).
       apply (maponpaths (fun x : X => - - x)).
-      apply (intdomrcan X _ _ _ (pr2 aa0) e).
+      apply (intdomrcan X _ _ _ (negProp_to_neg (pr2 aa0)) e).
 Defined.
 Opaque weqfldfracgtintcomp_f.
 
 Definition weqfldfracgt_f (X : intdom) (is : isdeceq X) {R : hrel X} (is0 : @isbinophrel X R)
            (is1 : isrngmultgt X R) (is2 : R 1 0) (nc : neqchoice R) :
   fldfrac X is -> commrngfrac X (rngpossubmonoid X is1 is2) :=
-  setquotfun _ _ _ (weqfldfracgtintcomp_f X is0 is1 is2 nc).
+  setquotfun _ _ _ (weqfldfracgtintcomp_f X is0 is1 is2 (deceq_to_neqReln is) nc).
 
 Definition weqfldfracgtint_b (X : intdom) {R : hrel X} (is1 : isrngmultgt X R) (is2 : R 1 0)
-           (ir : isirrefl R) (xa : dirprod X (rngpossubmonoid X is1 is2)) :
-  dirprod X (intdomnonzerosubmonoid X) :=
-  dirprodpair (pr1 xa) (tpair _ (pr1 (pr2 xa)) (rtoneq ir (pr2 (pr2 xa)))).
+           (ir : isirrefl R) (neq : neqReln X) (xa : dirprod X (rngpossubmonoid X is1 is2)) :
+  dirprod X (intdomnonzerosubmonoid X neq).
+Proof.
+  intros ? ? ? ? ? ? xa.
+  exists (pr1 xa).
+  exists (pr1 (pr2 xa)).
+  apply neg_to_negProp.
+  exact (rtoneq ir (pr2 (pr2 xa))).
+Defined.
 
 Lemma weqfldfracgtintcomp_b (X : intdom) {R : hrel X} (is1 : isrngmultgt X R) (is2 : R 1 0)
-      (ir : isirrefl R) : iscomprelrelfun (eqrelcommrngfrac X (rngpossubmonoid X is1 is2))
-                                          (eqrelcommrngfrac X (intdomnonzerosubmonoid X))
-                                          (weqfldfracgtint_b X is1 is2 ir).
+      (ir : isirrefl R) (neq : neqReln X) :
+  iscomprelrelfun (eqrelcommrngfrac X (rngpossubmonoid X is1 is2))
+                  (eqrelcommrngfrac X (intdomnonzerosubmonoid X neq))
+                  (weqfldfracgtint_b X is1 is2 ir neq).
 Proof.
   intros. intros xa1 xa2. simpl. apply hinhfun. intro t2.
-  split with (tpair _ (pr1 (pr1 t2)) (rtoneq ir (pr2 (pr1 t2)))).
-  apply (pr2 t2).
+  simple refine (_,,_).
+  { exists (pr1 (pr1 t2)).
+    apply neg_to_negProp.
+    exact (rtoneq ir (pr2 (pr1 t2))). }
+  exact (pr2 t2).
 Defined.
 
 Definition weqfldfracgt_b (X : intdom) (is : isdeceq X) {R : hrel X} (is1 : isrngmultgt X R)
            (is2 : R 1 0) (ir : isirrefl R) :
-  commrngfrac X (rngpossubmonoid X is1 is2) -> fldfrac X is :=
-  setquotfun _ _ _ (weqfldfracgtintcomp_b X is1 is2 ir).
+  commrngfrac X (rngpossubmonoid X is1 is2) -> fldfrac X is
+  := setquotfun _ _ _ (weqfldfracgtintcomp_b X is1 is2 ir (deceq_to_neqReln is)).
 
 Definition weqfldfracgt (X : intdom) (is : isdeceq X) {R : hrel X} (is0 : @isbinophrel X R)
-           (is1 : isrngmultgt X R) (is2 : R 1 0) (nc : neqchoice R) (ir : isirrefl R) :
-  weq (fldfrac X is) (commrngfrac X (rngpossubmonoid X is1 is2)).
+           (is1 : isrngmultgt X R)
+           (is2 : R 1 0)
+           (nc : neqchoice R)
+           (ir : isirrefl R) :
+  fldfrac X is ≃ commrngfrac X (rngpossubmonoid X is1 is2).
 Proof.
   intros.
+  set (neq := deceq_to_neqReln is).
   set (f := weqfldfracgt_f X is is0 is1 is2 nc).
   set (g := weqfldfracgt_b X is is1 is2 ir).
-  split with f.
-  assert (egf : Π a, paths (g (f a)) a).
+  set (S := intdomnonzerosubmonoid X neq).
+  set (SX := eqrelcommrngfrac X S).
+  refine (weqgradth f g _ _).
   {
     unfold fldfrac. simpl.
     apply (setquotunivprop _ (fun a => hProppair _ (isasetsetquot _ (g (f a)) a))).
     intro xa. simpl.
-    change (paths (setquotpr (eqrelcommrngfrac X (intdomnonzerosubmonoid X))
-                             (weqfldfracgtint_b
-                                X is1 is2 ir (weqfldfracgtint_f X is0 is1 is2 nc xa)))
-                  (setquotpr (eqrelcommrngfrac X (intdomnonzerosubmonoid X)) xa)).
+    change (setquotpr SX
+                      (weqfldfracgtint_b
+                         X is1 is2 ir neq (weqfldfracgtint_f
+                                             X is0 is1 is2 neq nc xa))
+                = setquotpr SX xa).
     apply (weqpathsinsetquot). simpl. apply hinhpr.
-    split with (tpair (fun x => neg (paths x 0)) 1 (nonzeroax X)). simpl.
+    split with (unel S). simpl.
     unfold weqfldfracgtint_f.
-    destruct (nc (pr1 (pr2 xa)) 0 (pr2 (pr2 xa))) as [ g' | l' ].
+    match goal
+    with |- context [ nc ?x ?y ?z ] =>
+         induction (nc x y z) as [ g' | l' ]
+    end.
     - simpl. apply idpath.
     - simpl.
       rewrite (rngrmultminus X _ _). rewrite (rnglmultminus X _ _).
       apply idpath.
   }
-  assert (efg : Π a, paths (f (g a)) a).
   {
     unfold fldfrac. simpl.
     apply (setquotunivprop _ (fun a => hProppair _ (isasetsetquot _ (f (g a)) a))).
     intro xa. simpl.
-    change (paths (setquotpr _ (weqfldfracgtint_f
-                                  X is0 is1 is2 nc (weqfldfracgtint_b X is1 is2 ir xa)))
-                  (setquotpr (eqrelcommrngfrac X (rngpossubmonoid X is1 is2)) xa)).
+    change (paths
+        (setquotpr _ (weqfldfracgtint_f X is0 is1 is2 neq nc (weqfldfracgtint_b X is1 is2 ir neq xa)))
+        (setquotpr (eqrelcommrngfrac X (rngpossubmonoid X is1 is2)) xa)).
     apply weqpathsinsetquot. simpl. apply hinhpr.
     split with (tpair (fun x => R x 0) 1 is2).
     unfold weqfldfracgtint_f. unfold weqfldfracgtint_b. simpl.
-    set (int := nc (pr1 (pr2 xa)) 0 (rtoneq ir (pr2 (pr2 xa))) ).
-    change (nc (pr1 (pr2 xa)) 0 (rtoneq ir (pr2 (pr2 xa)))) with int.
-    destruct int as [ g' | l' ].
+    match goal
+    with |- context [ nc ?x ?y ?z ] =>
+         induction (nc x y z) as [ g' | l' ]
+    end.
     - simpl. apply idpath.
     - simpl.
       rewrite (rngrmultminus X _ _). rewrite (rnglmultminus X _ _).
       apply idpath.
   }
-  apply (gradth _ _ egf efg).
 Defined.
 
 Lemma isrngfunweqfldfracgt_b (X : intdom) (is : isdeceq X) {R : hrel X} (is1 : isrngmultgt X R)
@@ -812,55 +848,20 @@ Lemma isrngfunweqfldfracgt_b (X : intdom) (is : isdeceq X) {R : hrel X} (is1 : i
 Proof.
   intros.
   set (g :=  weqfldfracgt_b X is is1 is2 ir).
-  set (g0 := weqfldfracgtint_b X is1 is2 ir).
+  set (neq := deceq_to_neqReln is).
+  set (S := intdomnonzerosubmonoid X neq).
+  set (SX := eqrelcommrngfrac X S).
+  set (g0 := weqfldfracgtint_b X is1 is2 ir neq).
   split.
-  - split.
-    + unfold isbinopfun.
-      change (Π x x' : commrngfrac X (rngpossubmonoid X is1 is2),
-                       paths (g (x + x')) ((g x) + (g x'))).
-      apply (setquotuniv2prop
-               _ (fun x x' : commrngfrac X (rngpossubmonoid X is1 is2) =>
-                    hProppair _ (setproperty (fldfrac X is) (g (x + x')) ((g x) + (g x'))))).
+  { split.
+    { unfold isbinopfun.
+      change (Π x x' : commrngfrac X (rngpossubmonoid X is1 is2)  , paths (g (x + x')) ((g x) + (g x'))).
+      apply (setquotuniv2prop _
+                     (fun x x' : commrngfrac X (rngpossubmonoid X is1 is2) =>
+                                 hProppair _ (setproperty (fldfrac X is) (g (x + x')) ((g x) + (g x'))))).
       intros xa1 xa2.
-      change (paths (setquotpr (eqrelcommrngfrac X (intdomnonzerosubmonoid X))
-                               (g0 (commrngfracop1int X (rngpossubmonoid X is1 is2) xa1 xa2)))
-                    (setquotpr (eqrelcommrngfrac X (intdomnonzerosubmonoid X))
-                               (commrngfracop1int X (intdomnonzerosubmonoid X) (g0 xa1) (g0 xa2)))).
-      apply (maponpaths (setquotpr _)).
-      unfold g0. unfold weqfldfracgtint_b. unfold commrngfracop1int. simpl.
-      apply (pathsdirprod).
-      * apply idpath.
-      * destruct xa1 as [ x1 aa1 ]. destruct xa2 as [ x2 aa2 ]. simpl.
-        destruct aa1 as [ a1 ia1 ]. destruct aa2 as [ a2 ia2 ]. simpl.
-        apply (invmaponpathsincl
-                 (@pr1 _ _) (isinclpr1 _ (fun a => (isapropneg (paths a 0))))
-                 (tpair _ (a1 * a2) (rtoneq ir (is1 a1 a2 ia1 ia2)))
-                 (carrierpair (fun x : pr1 X => hProppair (paths x 0 -> empty) (isapropneg (paths x 0)))
-                              (a1 * a2) (fun e : paths (a1 * a2) 0 =>
-                                           toneghdisj (dirprodpair (rtoneq ir ia1) (rtoneq ir ia2))
-                                                      (intdomax X a1 a2 e))) (idpath _)).
-    + change (paths (setquotpr (eqrelcommrngfrac X (intdomnonzerosubmonoid X))
-                               (g0 (dirprodpair 0 (tpair _ 1 is2))))
-                    (setquotpr _ (dirprodpair 0 (tpair _ 1 (nonzeroax X))))).
-      apply (maponpaths (setquotpr _)).
-      unfold g0. unfold weqfldfracgtint_b. simpl.
-      apply pathsdirprod.
-      * apply idpath.
-      * apply (invmaponpathsincl (@pr1 _ _) (isinclpr1 _ (fun a => (isapropneg (paths a 0))))
-                                 (tpair _ 1 (rtoneq ir is2)) (tpair _  1 (nonzeroax X))).
-        simpl. apply idpath.
-  - split.
-    + unfold isbinopfun.
-      change (Π x x' : commrngfrac X (rngpossubmonoid X is1 is2),
-                       paths (g (x * x')) ((g x) * (g x'))).
-      apply (setquotuniv2prop
-               _ (fun x x' : commrngfrac X (rngpossubmonoid X is1 is2) =>
-                    hProppair _ (setproperty (fldfrac X is) (g (x * x')) ((g x) * (g x'))))).
-      intros xa1 xa2.
-      change (paths (setquotpr (eqrelcommrngfrac X (intdomnonzerosubmonoid X))
-                               (g0 (commrngfracop2int X (rngpossubmonoid X is1 is2) xa1 xa2)))
-                    (setquotpr (eqrelcommrngfrac X (intdomnonzerosubmonoid X))
-                               (commrngfracop2int X (intdomnonzerosubmonoid X) (g0 xa1) (g0 xa2)))).
+      change (paths (setquotpr SX (g0 (commrngfracop1int X (rngpossubmonoid X is1 is2) xa1 xa2)))
+                    (setquotpr SX (commrngfracop1int  X S (g0 xa1) (g0 xa2)))).
       apply (maponpaths (setquotpr _)).
       unfold g0. unfold weqfldfracgtint_b.
       unfold commrngfracop2int. unfold abmonoidfracopint. simpl.
@@ -868,24 +869,52 @@ Proof.
       * apply idpath.
       * destruct xa1 as [ x1 aa1 ]. destruct xa2 as [ x2 aa2 ]. simpl.
         destruct aa1 as [ a1 ia1 ]. destruct aa2 as [ a2 ia2 ]. simpl.
-        apply (invmaponpathsincl
-                 (@pr1 _ _)
-                 (isinclpr1 _ (fun a => (isapropneg (paths a 0))))
-                 (tpair _ (a1 * a2) (rtoneq ir (is1 a1 a2 ia1 ia2)))
-                 (carrierpair (fun x : pr1 X => hProppair (paths x 0 -> empty) (isapropneg (paths x 0)))
-                              (a1 * a2) (fun e : paths (a1 * a2) 0 =>
-                                           toneghdisj (dirprodpair (rtoneq ir ia1) (rtoneq ir ia2))
-                                                      (intdomax X a1 a2 e))) (idpath _)).
-    + change (paths (setquotpr (eqrelcommrngfrac X (intdomnonzerosubmonoid X))
-                               (g0 (dirprodpair 1 (tpair _ 1 is2))))
-                    (setquotpr _ (dirprodpair 1 (tpair _ 1 (nonzeroax X))))).
+        refine (invmaponpathsincl _ (isinclpr1 _ _) _ _ _).
+        { intro. apply propproperty. }
+        { simpl. reflexivity. } }
+    { change (paths (setquotpr SX (g0 (dirprodpair 0 (tpair _ 1 is2))))
+                    (setquotpr _ (dirprodpair 0 (unel S)))).
       apply (maponpaths (setquotpr _)).
-      unfold g0. unfold weqfldfracgtint_b. simpl.
+      unfold g0.
+      unfold weqfldfracgtint_b.
+      simpl.
       apply pathsdirprod.
       * apply idpath.
-      * apply (invmaponpathsincl (@pr1 _ _) (isinclpr1 _ (fun a => (isapropneg (paths a 0))))
-                                 (tpair _ 1 (rtoneq ir is2)) (tpair _ 1 (nonzeroax X))).
-        simpl. apply idpath.
+      * refine (invmaponpathsincl _ (isinclpr1 _ _) _ _ _).
+        + intro. apply propproperty.
+        + simpl. apply idpath.
+  } }
+  split.
+  {
+    unfold isbinopfun.
+    change (Π x x':commrngfrac X (rngpossubmonoid X is1 is2), paths (g(x * x')) ((g x) * (g x'))).
+    apply (setquotuniv2prop _
+                    (fun x x' : commrngfrac X (rngpossubmonoid X is1 is2) =>
+                          hProppair _ (setproperty (fldfrac X is) (g (x * x')) ((g x) * (g x'))))).
+    intros xa1 xa2.
+    change (paths (setquotpr SX (g0 (commrngfracop2int X (rngpossubmonoid X is1 is2) xa1 xa2)))
+                  (setquotpr SX (commrngfracop2int  X S (g0 xa1) (g0 xa2)))).
+    apply (maponpaths (setquotpr _)).
+    unfold g0.
+    unfold weqfldfracgtint_b. unfold commrngfracop2int. unfold abmonoidfracopint. simpl.
+    apply pathsdirprod.
+    - apply idpath.
+    - induction xa1 as [ x1 aa1 ]. induction xa2 as [ x2 aa2 ]. simpl. induction aa1 as [ a1 ia1 ].
+      induction aa2 as [ a2 ia2 ]. simpl.
+      refine (invmaponpathsincl _ (isinclpr1 _ _) _ _ _).
+    { intro. apply propproperty. }
+    { simpl. reflexivity. } }
+  { change (paths (setquotpr SX (g0 (dirprodpair 1 (tpair _ 1 is2))))
+                  (setquotpr _ (dirprodpair 1 (unel S)))).
+    apply (maponpaths (setquotpr _)).
+    unfold g0.
+    unfold weqfldfracgtint_b.
+    simpl.
+    apply pathsdirprod.
+    { apply idpath. }
+    { refine (invmaponpathsincl _ (isinclpr1 _ _) _ _ _).
+      { intro. apply propproperty. }
+      { simpl. reflexivity. } } }
 Defined.
 Opaque isrngfunweqfldfracgt_b.
 
@@ -1008,10 +1037,15 @@ Defined.
 
 
 Definition iscomptofldfrac (X : intdom) (is : isdeceq X) {L : hrel X} (is0 : @isbinophrel X L)
-           (is1 : isrngmultgt X L) (is2 : L 1 0) (nc : neqchoice L) (isa : isasymm L) :
+           (is1 : isrngmultgt X L)
+           (is2 : L 1 0)
+           (nc : neqchoice L)
+           (isa : isasymm L) :
   iscomprelrelfun L (fldfracgt X is is0 is1 is2 nc) (tofldfrac X is).
 Proof.
   intros. intros x1 x2 l.
+  set (neq := deceq_to_neqReln is).
+  set (S := intdomnonzerosubmonoid X neq).
   assert (int := iscomptocommrngfrac X (rngpossubmonoid X is1 is2) is0 is1 (fun c r => r)).
   simpl in int. unfold fldfracgt. unfold iscomprelrelfun in int.
   assert (ee : Π x : X, paths (tocommrngfrac X (rngpossubmonoid X is1 is2) x)
@@ -1024,11 +1058,15 @@ Proof.
     change (weqfldfracgt_f X is is0 is1 is2 nc (tofldfrac X is x))
     with (setquotpr (eqrelcommrngfrac X (rngpossubmonoid X is1 is2))
                     (weqfldfracgtint_f
-                       X is0 is1 is2 nc
-                       (dirprodpair x (tpair (fun a => neg (paths a 0)) 1 (nonzeroax X))))).
+                       X is0 is1 is2 neq nc
+                       (dirprodpair x (unel S)))).
     apply (maponpaths (setquotpr (eqrelcommrngfrac X (rngpossubmonoid X is1 is2)))).
-    unfold weqfldfracgtint_f. simpl.
-    destruct (nc 1 0 (nonzeroax X) ) as [ l' | nl ].
+    unfold weqfldfracgtint_f.
+    simpl.
+    match goal
+    with |- context [ nc ?x ?y ?z ] =>
+         induction (nc x y z) as [ l' | nl ]
+    end.
     - apply pathsdirprod.
       + apply idpath.
       + apply (invmaponpathsincl _ (isinclpr1 _ (fun a => (pr2 (L a 0))))).

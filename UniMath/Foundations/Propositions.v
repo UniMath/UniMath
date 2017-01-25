@@ -663,6 +663,9 @@ Proof.
   apply invweq. apply (weqcomp w). apply weqcoprodf; apply weqhfiberunit.
 Defined.
 
+Lemma isTrue_or_isFalse (C:ComplementaryPair) : isTrue C ⨿ isFalse C.
+Proof. intros. exact (pr1 (complementaryDecisions C)). Defined.
+
 Lemma isaprop_isTrue (C : ComplementaryPair) : isaprop (isTrue C).
 (* No axioms are used. *)
 Proof.
@@ -706,14 +709,59 @@ Proof.
   - now exists q'.
 Defined.
 
+(**
+
+   We define some helper functions below for the special case where [Q] is [neg P]
+
+   By using [isTrue_hProp c] instead of [P], we're effectively replacing [P] by a propositional
+   subtype of it: the part of [P] connected to the element [c].
+
+   Similarly, by using [isFalse c] instead of [neg P], we're effectively replacing [neg P] by a
+   propositional subtype of it: the part of [neg P] connected to the element [c].
+
+   Both are proved to be propositions without [funextemptyAxiom].
+
+   One could also just map [P ⨿ neg P] to [bool] and compare the result with [true] or [false]: that
+   would also be a proposition.  But then the proof of truth or falsehood has been discarded, and it
+   will save time not to have to recompute it by running the decidability algorithm again.
+
+ *)
+
 Definition to_ComplementaryPair {P : UU} (c : P ⨿ neg P) : ComplementaryPair
-  (* By using [isTrue _] instead, we're effectively replacing P by a
-     propositional subtype of it: *)
-  (* the part connected to the element of [P ⨿ ¬P]. *)
-  (* Similarly, by using [isFalse _] instead, we're effectively replacing [¬P]
-     by a propositional subtype of it.  *)
-  (* Both are proved to be propositions without [funextemptyAxiom] *)
   := (P,,neg P,,(λ p n, n p),,c).
+
+Definition isTrue_hProp {P:UU} (c:P ⨿ neg P) : hProp :=
+  let C := to_ComplementaryPair c in hProppair (isTrue C) (isaprop_isTrue C).
+
+Definition isFalse_hProp {P:UU} (c:P ⨿ neg P) : hProp :=
+  let C := to_ComplementaryPair c in hProppair (isFalse C) (isaprop_isFalse C).
+
+Lemma isTrue_hProp_iff {P:UU} (c:P ⨿ neg P) : P <-> isTrue_hProp c.
+Proof.
+  intros. split.
+  - intros p. now apply pair_truth.
+  - intros t. exact (trueWitness t).
+Defined.
+
+Lemma isFalse_hProp_iff {P:UU} (c:P ⨿ neg P) : neg P <-> isFalse_hProp c.
+Proof.
+  intros. split.
+  - intros p. now apply pair_falsehood.
+  - intros t. exact (falseWitness t).
+Defined.
+
+Definition decprop_to_negProp {P:hProp} (c:P ⨿ neg P) : negProp P.
+Proof.
+  intros. exists (isFalse_hProp c). split.
+  - apply propproperty.
+  - apply isFalse_hProp_iff.
+Defined.
+
+Definition deceq_to_neqReln {X:UU} : isdeceq X -> neqReln X.
+Proof.
+  intros ? i x y.
+  exact (decprop_to_negProp (P := hProppair _ (isasetifdeceq _ i _ _)) (i _ _)).
+Defined.
 
 (* Relate isolated points to complementary pairs *)
 
