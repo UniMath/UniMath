@@ -682,7 +682,7 @@ Qed.
 
 End Utilities.
 
-(** ** Saturation: displayed _categories_ *)
+(** ** Saturation: displayed categories *)
 Section Categories.
 
 (** The current [is_category_disp] is certainly the correct definition in the case where the base precategory [C] is a category.
