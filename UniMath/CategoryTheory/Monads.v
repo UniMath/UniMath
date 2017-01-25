@@ -3,7 +3,9 @@
 Contents:
 
         - Definition of monads ([Monad])
-        - Precategory of monads [precategory_Monad C] on [C]
+        - Precategory of monads [Precategory_Monad C] on [C]
+        - Forgetful functor [forgetfunctor_Monad] from monads
+             to endofunctors on [C]
         - Haskell style bind operation ([bind])
         - A substitution operator for monads ([monadSubst])
 
@@ -190,6 +192,43 @@ Qed.
 
 Definition precategory_Monad (C : precategory) (hs : has_homsets C) : precategory
   := tpair _ _ (precategory_Monad_axioms C hs).
+
+
+Lemma has_homsets_Monad (C:Precategory) : has_homsets (precategory_Monad C (homset_property C)).
+Proof.
+  intros F G.
+  simpl.
+  unfold Monad_Mor.
+  apply isaset_total2 .
+  apply isaset_nat_trans.
+  apply homset_property.
+  intro m.
+  apply isasetaprop.
+  apply isaprop_Monad_Mor_laws.
+  apply homset_property.
+Qed.
+
+Definition Precategory_Monad (C:Precategory) : Precategory :=
+  (precategory_Monad C (homset_property C) ,, has_homsets_Monad C ).
+
+
+Definition forgetfunctor_Monad (C:Precategory) :
+  functor (Precategory_Monad C) (functor_Precategory C C).
+Proof.
+  use mk_functor.
+  - use mk_functor_data.
+    + exact (fun M => pr1 M:functor C C).
+    + exact (fun M N f => pr1 f).
+  - abstract (split; red; intros;  reflexivity).
+Defined.
+
+Lemma forgetMonad_faithful C : faithful (forgetfunctor_Monad C).
+Proof.
+  intros M N.
+  apply isinclpr1.
+  apply isaprop_Monad_Mor_laws.
+  apply homset_property.
+Qed.
 
 End Monad_precategory.
 

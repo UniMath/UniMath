@@ -31,7 +31,7 @@ Section def_roofs.
   Variable C : precategory.
   Hypothesis hs : has_homsets C.
 
-  Definition SubsetsOfMors : UU := Π (x y : ob C), hsubtypes (hSetpair (C⟦x, y⟧) (hs x y)).
+  Definition SubsetsOfMors : UU := Π (x y : ob C), hsubtype (hSetpair (C⟦x, y⟧) (hs x y)).
 
   (** ** Localizing classes *)
 
@@ -336,24 +336,24 @@ Section def_roofs.
   Qed.
 
   (** We are interested in the equivalence classes of roofs. *)
-  (* Definition eqclass {X : UU} {r : eqrel X} : UU := Σ A : hsubtypes X, iseqclass r A. *)
+  (* Definition eqclass {X : UU} {r : eqrel X} : UU := Σ A : hsubtype X, iseqclass r A. *)
 
   Definition RoofEqclass (x y : ob C) : UU :=
-    Σ A : hsubtypes (Roof x y), iseqclass (eqrelpair _ (RoofEqrel x y)) A.
+    Σ A : hsubtype (Roof x y), iseqclass (eqrelpair _ (RoofEqrel x y)) A.
 
   Lemma isasetRoofEqclass (x y : ob C) : isaset (RoofEqclass x y).
   Proof.
     apply isaset_total2.
-    - apply isasethsubtypes.
+    - apply isasethsubtype.
     - intros x0.
       apply isasetaprop.
       apply isapropiseqclass.
   Defined.
 
-  Definition mk_RoofEqclass {x y : ob C} (A : hsubtypes (Roof x y))
+  Definition mk_RoofEqclass {x y : ob C} (A : hsubtype (Roof x y))
              (H : iseqclass (eqrelpair _ (RoofEqrel x y)) A) : RoofEqclass x y := tpair _ A H.
 
-  Definition RoofEqclassIn {x y : ob C} (RE : RoofEqclass x y) : hsubtypes (Roof x y) := pr1 RE.
+  Definition RoofEqclassIn {x y : ob C} (RE : RoofEqclass x y) : hsubtype (Roof x y) := pr1 RE.
 
   Definition RoofEqclassIs {x y : ob C} (RE : RoofEqclass x y) :
     iseqclass (eqrelpair _ (RoofEqrel x y)) (RoofEqclassIn RE) := pr2 RE.
