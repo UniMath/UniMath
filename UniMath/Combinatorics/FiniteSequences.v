@@ -322,10 +322,12 @@ Defined.
 Lemma Sequence_rect_compute_cons
       {X} {P : Sequence X ->UU} (p0 : P nil)
       (ind : Π (s : Sequence X) (x : X), P s -> P (append s x))
-      (x:X) (l:Sequence X) :
-  Sequence_rect p0 ind (append l x) = ind l x (Sequence_rect p0 ind l).
+      (p := Sequence_rect p0 ind) (x:X) (l:Sequence X) :
+  p (append l x) = ind l x (p l).
 Proof.
   intros.
+  cbn.
+
 
   (* proof in progress... *)
 
@@ -413,12 +415,12 @@ Qed.
 Definition partition {X : UU} {n : nat} (f : stn n -> nat) (x : stn (stnsum f) -> X) :
   Sequence (Sequence X).
 Proof.
-  intros. exists n. intro i. exists (f i). intro j. exact (x(inverse_lexicalEnumeration f (i,,j))).
+  intros. exists n. intro i. exists (f i). exact (lex_curry x i).
 Defined.
 
 Definition flatten {X : UU} : Sequence (Sequence X) -> Sequence X.
 Proof.
-  intros ? x. exists (stnsum (length ∘ x)). exact (λ j, uncurry (pr2 x) (lexicalEnumeration _ j)).
+  intros ? x. exists (stnsum (length ∘ x)). exact (lex_uncurry (λ i, x i)).
 Defined.
 
 Definition total2_step_f {n} (X:stn (S n) ->UU) :
@@ -585,19 +587,18 @@ Definition flattenStep {X n} (x: stn (S n) -> Sequence X) :
 Proof.
   intros.
   rewrite <- replace_dni_last.  (* replace it, because stnsum doesn't use it *)
-
-  unfold flatten.
+  unfold flatten at 1.
   simpl.
-
-
   apply pair_path_in2.
-  apply funextfun; intros i.
+  apply funextfun; intros k.
   simpl.
-
-
-
+  unfold weqfromcoprodofstn_invmap.
+  match goal with |- _ = coprod_rect _ _ _ (coprod_rect _ _ _ ?x) => induction x as [p|q] end.
+  - cbn.
+    admit.
+  - cbn.
+    admit.
 Abort.
-
 
 Definition isassoc_concatenate {X} (x y z:Sequence X) :
   concatenate (concatenate x y) z = concatenate x (concatenate y z).

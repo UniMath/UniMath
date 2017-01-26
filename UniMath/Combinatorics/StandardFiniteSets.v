@@ -426,21 +426,20 @@ Proof. intros ? i j. apply (invmaponpathsincl pr1). apply isinclstntonat. Define
 
 (** ***  Weak equivalence between the coproduct of [ stn n ] and [ stn m ] and [ stn ( n + m ) ] *)
 
-Local Lemma weqfromcoprodofstn_invmap_lt (n m : nat) (i : stn (n + m)) (H : 0 < m) : i - n < m.
+Local Lemma weqfromcoprodofstn_invmap_lt (n m i : nat) : (i < n + m) -> (i ≥ n) -> i - n < m.
 Proof.
-  intros n m i H.
+  intros n m i p H.
   induction (plusminusnmm m n).
-  use natlthandminusl.
-  - induction (natpluscomm n m). exact (stnlt i).
-  - induction (natpluscomm n m). apply natlthandplusm. exact H.
+  apply natlthandminusl.
+  - induction (natpluscomm n m). exact p.
+  - induction (natpluscomm n m). now apply (natlehlthtrans _ i).
 Qed.
 
-Local Lemma weqfromcoprodofstn_invmap_empty (n m : nat) (i : stn (n + m)) (i2 : i ≥ n) (H : 0 = m) :
-  empty.
+Local Lemma weqfromcoprodofstn_invmap_empty (n m i : nat) : (i < n + m) -> ( i ≥ n) -> 0 != m.
 Proof.
-  intros n m i i2 H.
+  intros n m i p i2 H.
   induction H. induction (! (natplusr0 n)).
-  exact (natlthtonegnatgeh i n (stnlt i) i2).
+  exact (natlthtonegnatgeh i n p i2).
 Qed.
 
 Definition weqfromcoprodofstn_invmap (n m : nat) : (stn (n + m)) -> (coprod (stn n) (stn m)).
@@ -448,9 +447,7 @@ Proof.
   intros n m i.
   induction (natlthorgeh i n) as [i1 | i2].
   - exact (ii1 (stnpair n i i1)).
-  - induction (natchoice0 m) as [H | H].
-    + exact (fromempty (weqfromcoprodofstn_invmap_empty n m i i2 H)).
-    + exact (ii2 (stnpair m (i - n) (weqfromcoprodofstn_invmap_lt n m i H))).
+  - exact (ii2 (stnpair m (i - n) (weqfromcoprodofstn_invmap_lt n m i (pr2 i) i2))).
 Defined.
 
 Definition weqfromcoprodofstn_map (n m : nat) : (coprod (stn n) (stn m)) -> (stn (n + m)).
@@ -736,11 +733,13 @@ Proof. intros . assert ( w : weq X ( total2 ( fun i : stn n => hfiber g i ) ) ) 
 (** lexical enumeration of pairs of natural numbers *)
 
 Definition lexicalEnumeration {n} (m:stn n->nat) := invweq (weqstnsum1 m) : stn (stnsum m) ≃ (Σ i : stn n, stn (m i)).
+
 Definition inverse_lexicalEnumeration {n} (m:stn n->nat) := weqstnsum1 m : (Σ i : stn n, stn (m i)) ≃ stn (stnsum m).
 
-Definition lex_curry {X n} (m:stn n->nat) : (stn (stnsum m) -> X) -> (Π (i:stn n), stn (m i) -> X).
+Definition lex_curry {X n} {m:stn n->nat} : (stn (stnsum m) -> X) -> (Π (i:stn n), stn (m i) -> X).
 Proof. intros ? ? ? f ? j. exact (f (inverse_lexicalEnumeration m (i,,j))). Defined.
-Definition lex_uncurry {X n} (m:stn n->nat) : (Π (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
+
+Definition lex_uncurry {X n} {m:stn n->nat} : (Π (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
 Proof. intros ? ? ? g ij. exact (uncurry g (lexicalEnumeration m ij)). Defined.
 
 (** two generalizations of stnsum, potentially useful *)
