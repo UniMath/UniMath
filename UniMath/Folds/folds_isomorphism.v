@@ -7,8 +7,8 @@ Contents of this file:
 
   - Definition of type of isomorphism [folds_iso a b] in a FOLDS precategory
     - consists of two families of isos and an iso, see [folds_iso_data]
-      - [ϕ₁ : Π x, x ⇒ a → x ⇒ b]
-      - [ϕ₂ : Π z, a ⇒ z → b ⇒ z]
+      - [ϕ₁ : ∏ x, x ⇒ a → x ⇒ b]
+      - [ϕ₂ : ∏ z, a ⇒ z → b ⇒ z]
       - [ϕ∙ :      a ⇒ a → b ⇒ b]
     - and a number of logical equivalences, see [folds_iso_prop]
   - Some lemmas expressing naturality of maps [ϕX]
@@ -51,8 +51,8 @@ Local Notation "'id' a" := (identity (C:=C') a) (at level 30).
 
 
 Definition folds_iso_data (a b : C) : UU :=
-  ((Π {x : C}, (x ⇒ a) ≃ (x ⇒ b))
- × (Π {z : C}, (a ⇒ z) ≃ (b ⇒ z)))
+  ((∏ {x : C}, (x ⇒ a) ≃ (x ⇒ b))
+ × (∏ {z : C}, (a ⇒ z) ≃ (b ⇒ z)))
 ×             ((a ⇒ a) ≃ (b ⇒ b)).
 
 Definition ϕ₁ {a b : C} (f : folds_iso_data a b) {x : C} : (x ⇒ a) ≃ (x ⇒ b) :=
@@ -65,14 +65,14 @@ Notation "ϕ∙" := ϕo. (* works as a notation, but not as an identifier *)
 
 
 Definition folds_iso_prop {a b : C} (i : folds_iso_data a b) : UU :=
-  ((((Π (x y : C) (f : x ⇒ y) (g : y ⇒ a) (h : x ⇒ a), T f g h ≃ T f ((ϕ₁ i) g) ((ϕ₁ i) h))
-   × (Π (x z : C) (f : x ⇒ a) (g : a ⇒ z) (h : x ⇒ z), T f g h ≃ T ((ϕ₁ i) f) ((ϕ₂ i) g) h))
-   × (Π (z w : C) (f : a ⇒ z) (g : z ⇒ w) (h : a ⇒ w), T f g h ≃ T ((ϕ₂ i) f) g ((ϕ₂ i) h)))
- × (((Π (x : C) (f : x ⇒ a) (g : a ⇒ a) (h : x ⇒ a),   T f g h ≃ T ((ϕ₁ i) f) ((ϕo i) g) ((ϕ₁ i) h))
-   × (Π (x : C) (f : a ⇒ x) (g : x ⇒ a) (h : a ⇒ a),   T f g h ≃ T ((ϕ₂ i) f) ((ϕ₁ i) g) ((ϕ∙ i) h)))
-  × ((Π (x : C) (f : a ⇒ a) (g h : a ⇒ x),             T f g h ≃ T ((ϕ∙ i) f) ((ϕ₂ i) g) ((ϕ₂ i) h))
-   × (Π f g h : a ⇒ a,                                 T f g h ≃ T ((ϕ∙ i) f) ((ϕ∙ i) g) ((ϕ∙ i) h)))))
-   × (Π f : a ⇒ a,                                     I f ≃ I ((ϕ∙ i) f)).
+  ((((∏ (x y : C) (f : x ⇒ y) (g : y ⇒ a) (h : x ⇒ a), T f g h ≃ T f ((ϕ₁ i) g) ((ϕ₁ i) h))
+   × (∏ (x z : C) (f : x ⇒ a) (g : a ⇒ z) (h : x ⇒ z), T f g h ≃ T ((ϕ₁ i) f) ((ϕ₂ i) g) h))
+   × (∏ (z w : C) (f : a ⇒ z) (g : z ⇒ w) (h : a ⇒ w), T f g h ≃ T ((ϕ₂ i) f) g ((ϕ₂ i) h)))
+ × (((∏ (x : C) (f : x ⇒ a) (g : a ⇒ a) (h : x ⇒ a),   T f g h ≃ T ((ϕ₁ i) f) ((ϕo i) g) ((ϕ₁ i) h))
+   × (∏ (x : C) (f : a ⇒ x) (g : x ⇒ a) (h : a ⇒ a),   T f g h ≃ T ((ϕ₂ i) f) ((ϕ₁ i) g) ((ϕ∙ i) h)))
+  × ((∏ (x : C) (f : a ⇒ a) (g h : a ⇒ x),             T f g h ≃ T ((ϕ∙ i) f) ((ϕ₂ i) g) ((ϕ₂ i) h))
+   × (∏ f g h : a ⇒ a,                                 T f g h ≃ T ((ϕ∙ i) f) ((ϕ∙ i) g) ((ϕ∙ i) h)))))
+   × (∏ f : a ⇒ a,                                     I f ≃ I ((ϕ∙ i) f)).
 
 Definition isaprop_folds_iso_prop (a b : C) (i : folds_iso_data a b) : isaprop (folds_iso_prop i).
 Proof.
@@ -80,7 +80,7 @@ Proof.
    repeat (apply impred; intro); apply isapropweqtoprop; apply pr2.
 Qed.
 
-Definition folds_iso (a b : C) := Σ i : folds_iso_data a b, folds_iso_prop i.
+Definition folds_iso (a b : C) := ∑ i : folds_iso_data a b, folds_iso_prop i.
 
 Definition folds_iso_data_from_folds_iso {a b : C} : folds_iso a b → folds_iso_data a b
   := λ i, pr1 i.
@@ -192,7 +192,7 @@ Variables i i' : folds_iso a b.
 
 Hypothesis H : ϕ₁ i (id _ ) = ϕ₁ i' (id _ ).
 
-Lemma ϕ₂_determined : Π x (f : a ⇒ x) , ϕ₂ i f = ϕ₂ i' f.
+Lemma ϕ₂_determined : ∏ x (f : a ⇒ x) , ϕ₂ i f = ϕ₂ i' f.
 Proof.
   intros x f.
   rewrite (ϕ₂_is_comp i).
@@ -209,7 +209,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma ϕo_determined : Π f, ϕ∙ i f = ϕ∙ i' f.
+Lemma ϕo_determined : ∏ f, ϕ∙ i f = ϕ∙ i' f.
 Proof.
   intro f.
   do 2 rewrite ϕo_ϕ₁_ϕ₂.

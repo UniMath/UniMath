@@ -31,12 +31,12 @@ Section def_zero.
   (** Construction of isZero for an object c from the conditions that the space
     of all morphisms from c to any object d is contractible and and the space of
     all morphisms from any object d to c is contractible. *)
-  Definition mk_isZero (c : C) (H : (Π (d : C), iscontr (c --> d))
-                                      × (Π (d : C), iscontr (d --> c))) :
+  Definition mk_isZero (c : C) (H : (∏ (d : C), iscontr (c --> d))
+                                      × (∏ (d : C), iscontr (d --> c))) :
     isZero c := mk_isInitial c (dirprod_pr1 H),,mk_isTerminal c (dirprod_pr2 H).
 
   (** Definition of Zero. *)
-  Definition Zero : UU := Σ c : C, isZero c.
+  Definition Zero : UU := ∑ c : C, isZero c.
   Definition mk_Zero (c : C) (H : isZero c) : Zero := tpair _ c H.
   Definition ZeroObject (Z : Zero) : C := pr1 Z.
 

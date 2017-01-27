@@ -39,7 +39,7 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Section Monad_def.
 
 Definition functor_with_μ (C : precategory) : UU
-  := Σ F : functor C C, F □ F ⟶ F.
+  := ∑ F : functor C C, F □ F ⟶ F.
 
 Coercion functor_from_functor_with_μ (C : precategory) (F : functor_with_μ C)
   : functor C C := pr1 F.
@@ -47,7 +47,7 @@ Coercion functor_from_functor_with_μ (C : precategory) (F : functor_with_μ C)
 Definition μ {C : precategory} (F : functor_with_μ C) : F□F ⟶ F := pr2 F.
 
 Definition Monad_data (C : precategory) : UU :=
-   Σ F : functor_with_μ C, functor_identity C ⟶ F.
+   ∑ F : functor_with_μ C, functor_identity C ⟶ F.
 
 Coercion functor_with_μ_from_Monad_data (C : precategory) (F : Monad_data C)
   : functor_with_μ C := pr1 F.
@@ -57,11 +57,11 @@ Definition η {C : precategory} (F : Monad_data C)
 
 Definition Monad_laws {C : precategory} (T : Monad_data C) : UU :=
     (
-      (Π c : C, η T (T c) ;; μ T c = identity (T c))
+      (∏ c : C, η T (T c) ;; μ T c = identity (T c))
         ×
-      (Π c : C, #T (η T c) ;; μ T c = identity (T c)))
+      (∏ c : C, #T (η T c) ;; μ T c = identity (T c)))
       ×
-    (Π c : C, #T (μ T c) ;; μ T c = μ T (T c) ;; μ T c).
+    (∏ c : C, #T (μ T c) ;; μ T c = μ T (T c) ;; μ T c).
 
 Lemma isaprop_Monad_laws (C : precategory) (hs : has_homsets C) (T : Monad_data C) :
    isaprop (Monad_laws T).
@@ -70,21 +70,21 @@ Proof.
   apply impred; intro c; apply hs.
 Qed.
 
-Definition Monad (C : precategory) : UU := Σ T : Monad_data C, Monad_laws T.
+Definition Monad (C : precategory) : UU := ∑ T : Monad_data C, Monad_laws T.
 
 Coercion Monad_data_from_Monad (C : precategory) (T : Monad C) : Monad_data C := pr1 T.
 
-Lemma Monad_law1 {C : precategory} {T : Monad C} : Π c : C, η T (T c) ;; μ T c = identity (T c).
+Lemma Monad_law1 {C : precategory} {T : Monad C} : ∏ c : C, η T (T c) ;; μ T c = identity (T c).
 Proof.
 exact (pr1 (pr1 (pr2 T))).
 Qed.
 
-Lemma Monad_law2 {C : precategory} {T : Monad C} : Π c : C, #T (η T c) ;; μ T c = identity (T c).
+Lemma Monad_law2 {C : precategory} {T : Monad C} : ∏ c : C, #T (η T c) ;; μ T c = identity (T c).
 Proof.
 exact (pr2 (pr1 (pr2 T))).
 Qed.
 
-Lemma Monad_law3 {C : precategory} {T : Monad C} : Π c : C, #T (μ T c) ;; μ T c = μ T (T c) ;; μ T c.
+Lemma Monad_law3 {C : precategory} {T : Monad C} : ∏ c : C, #T (μ T c) ;; μ T c = μ T (T c) ;; μ T c.
 Proof.
 exact (pr2 (pr2 T)).
 Qed.
@@ -96,8 +96,8 @@ Section Monad_precategory.
 
 Definition Monad_Mor_laws {C : precategory} {T T' : Monad_data C} (α : T ⟶ T')
   : UU :=
-  (Π a : C, μ T a ;; α a = α (T a) ;; #T' (α a) ;; μ T' a) ×
-  (Π a : C, η T a ;; α a = η T' a).
+  (∏ a : C, μ T a ;; α a = α (T a) ;; #T' (α a) ;; μ T' a) ×
+  (∏ a : C, η T a ;; α a = η T' a).
 
 Lemma isaprop_Monad_Mor_laws (C : precategory) (hs : has_homsets C)
   (T T' : Monad_data C) (α : T ⟶ T')
@@ -108,19 +108,19 @@ Proof.
 Qed.
 
 Definition Monad_Mor {C : precategory} (T T' : Monad C) : UU
-  := Σ α : T ⟶ T', Monad_Mor_laws α.
+  := ∑ α : T ⟶ T', Monad_Mor_laws α.
 
 Coercion nat_trans_from_monad_mor (C : precategory) (T T' : Monad C) (s : Monad_Mor T T')
   : T ⟶ T' := pr1 s.
 
 Definition Monad_Mor_η {C : precategory} {T T' : Monad C} (α : Monad_Mor T T')
-  : Π a : C, η T a ;; α a = η T' a.
+  : ∏ a : C, η T a ;; α a = η T' a.
 Proof.
   exact (pr2 (pr2 α)).
 Qed.
 
 Definition Monad_Mor_μ {C : precategory} {T T' : Monad C} (α : Monad_Mor T T')
-  : Π a : C, μ T a ;; α a = α (T a) ;; #T' (α a) ;; μ T' a.
+  : ∏ a : C, μ T a ;; α a = α (T a) ;; #T' (α a) ;; μ T' a.
 Proof.
   exact (pr1 (pr2 α)).
 Qed.

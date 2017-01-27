@@ -27,10 +27,10 @@ Section def_epi.
 
   (** Definition and construction of isEpi. *)
   Definition isEpi {x y : C} (f : x --> y) : UU :=
-    Π (z : C) (g h : y --> z), f ;; g = f ;; h -> g = h.
+    ∏ (z : C) (g h : y --> z), f ;; g = f ;; h -> g = h.
 
   Definition mk_isEpi {x y : C} (f : x --> y)
-             (H : Π (z : C) (g h : y --> z), f ;; g = f ;; h -> g = h) : isEpi f := H.
+             (H : ∏ (z : C) (g h : y --> z), f ;; g = f ;; h -> g = h) : isEpi f := H.
 
   Lemma isapropisEpi {y z : C} (f : y --> z) : isaprop (isEpi f).
   Proof.
@@ -42,7 +42,7 @@ Section def_epi.
   Qed.
 
   (** Definition and construction of Epi. *)
-  Definition Epi (x y : C) : UU := Σ f : x --> y, isEpi f.
+  Definition Epi (x y : C) : UU := ∑ f : x --> y, isEpi f.
   Definition mk_Epi {x y : C} (f : x --> y) (H : isEpi f) :
     Epi x y := tpair _ f H.
 
@@ -127,7 +127,7 @@ Section epis_subcategory.
 
   Definition hsubtype_obs_isEpi : hsubtype C := (fun c : C => hProppair _ isapropunit).
 
-  Definition hsubtype_mors_isEpi : Π (a b : C), hsubtype (C⟦a, b⟧) :=
+  Definition hsubtype_mors_isEpi : ∏ (a b : C), hsubtype (C⟦a, b⟧) :=
     (fun a b : C => (fun f : C⟦a, b⟧ => hProppair _ (isapropisEpi C hs f))).
 
   Definition subprecategory_of_epis : sub_precategories C.
@@ -158,7 +158,7 @@ End epis_subcategory.
 Section epis_functorcategories.
 
   Lemma is_nat_trans_epi_from_pointwise_epis (C D : precategory) (hs : has_homsets D)
-        (F G : ob (functor_precategory C D hs)) (α : F --> G) (H : Π a : ob C, isEpi (pr1 α a)) :
+        (F G : ob (functor_precategory C D hs)) (α : F --> G) (H : ∏ a : ob C, isEpi (pr1 α a)) :
     isEpi α.
   Proof.
     intros G' β η H'.

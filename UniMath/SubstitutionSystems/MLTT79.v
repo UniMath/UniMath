@@ -69,11 +69,11 @@ Section MLTT79.
 
 (** This is the syntax as presented on page 158:
 <<
-Pi types           (Πx:A)B                     [0,1]
+Pi types           (∏x:A)B                     [0,1]
 lambda             (λx)b                       [1]
 application        (c)a                        [0,0]
 
-Sigma types        (Σx:A)B                     [0,1]
+Sigma types        (∑x:A)B                     [0,1]
 pair               (a,b)                       [0,0]
 pair-elim          (Ex,y)(c,d)                 [0,2]
 
@@ -149,7 +149,7 @@ Definition FinSigConstructors (n : nat) : stn n -> list nat := fun _ => [].
 (* Defined. *)
 
 (** Uncurried version of the FinSig family *)
-Definition FinSigFun : (Σ n : nat, unit ⨿ (stn n ⨿ unit)) → list nat.
+Definition FinSigFun : (∑ n : nat, unit ⨿ (stn n ⨿ unit)) → list nat.
 Proof.
 induction 1 as [n p].
 induction p as [_|p].
@@ -159,7 +159,7 @@ induction p as [_|p].
   + apply (FinSigElim n).
 Defined.
 
-Lemma isdeceqFinSig : isdeceq (Σ n, unit ⨿ (stn n ⨿ unit)).
+Lemma isdeceqFinSig : isdeceq (∑ n, unit ⨿ (stn n ⨿ unit)).
 Proof.
 intros [n p] [m q].
 induction (isdeceqnat n m) as [h|h].

@@ -45,13 +45,13 @@ Section EffectiveEpi.
   Definition kernel_pair := Pullback  f f.
 
   Definition isEffective :=
-    Σ  g:kernel_pair,
+    ∑  g:kernel_pair,
          (isCoequalizer (PullbackPr1 g)
                         (PullbackPr2 g) f (PullbackSqrCommutes g)).
 End EffectiveEpi.
 
 Definition EpisAreEffective (C:precategory) :=
-  Π (A B:C) (f:C⟦A,B⟧), isEpi f -> isEffective f.
+  ∏ (A B:C) (f:C⟦A,B⟧), isEpi f -> isEffective f.
 
 
 
@@ -97,7 +97,7 @@ Section IsEffectivePw.
 
   Context {X Y :functor C D } {a:X⟶Y}.
 
-  Lemma isEffectivePw : (Π (x:C), isEffective (a x)) -> isEffective (C:=CD) a.
+  Lemma isEffectivePw : (∏ (x:C), isEffective (a x)) -> isEffective (C:=CD) a.
   Proof.
     intros h.
     red.
@@ -157,7 +157,7 @@ Section PointwiseEpi.
   Defined.
 
   Lemma Pushouts_pw_epi (colimD : graphs.pushouts.Pushouts D) (A B : functor C D)
-       (a: A⟶B)  (epia:isEpi (C:=CD) a) : Π (x:C), isEpi (a x).
+       (a: A⟶B)  (epia:isEpi (C:=CD) a) : ∏ (x:C), isEpi (a x).
   Proof.
     intro  x; simpl.
     apply (epi_to_pushout (C:=CD)) in epia.

@@ -58,8 +58,8 @@ Proof.
 Defined.
 
 Definition folds_id_comp_from_precat_data : folds_id_T :=
-  tpair (λ C : folds_ob_mor, (Π a : C, a ⇒ a → hProp)
-                           × (Π (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp))
+  tpair (λ C : folds_ob_mor, (∏ a : C, a ⇒ a → hProp)
+                           × (∏ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp))
         (pr1 C) (dirprodpair (@id_pred) (@comp_pred)).
 
 End data.

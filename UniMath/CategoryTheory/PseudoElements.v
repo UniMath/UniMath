@@ -86,7 +86,7 @@ Section def_pseudo_element.
 
   (** ** Definition of pseudo elements *)
 
-  Definition PseudoElem (c : A) : UU := Σ d : A, d --> c.
+  Definition PseudoElem (c : A) : UU := ∑ d : A, d --> c.
 
   Definition mk_PseudoElem {c d : A} (f : d --> c) : PseudoElem c := tpair _ d f.
 
@@ -100,7 +100,7 @@ Section def_pseudo_element.
 
   (** Pseudo equality *)
   Definition PEq {c : A} (PE1 PE2 : PseudoElem c) : UU :=
-    Σ (Y : ob A) (E1 : Epi A Y (PseudoOb PE2)) (E2 : Epi A Y (PseudoOb PE1)), E1 ;; PE2 = E2 ;; PE1.
+    ∑ (Y : ob A) (E1 : Epi A Y (PseudoOb PE2)) (E2 : Epi A Y (PseudoOb PE1)), E1 ;; PE2 = E2 ;; PE1.
 
   Definition mk_PEq {c : A} (PE1 PE2 : PseudoElem c) {Y : ob A} (E1 : Epi A Y (PseudoOb PE2))
              (E2 : Epi A Y (PseudoOb PE1)) (H : E1 ;; PE2 = E2 ;; PE1) : PEq PE1 PE2 :=
@@ -211,7 +211,7 @@ Section def_pseudo_element.
   (** *** Pseudo fiber *)
 
   Definition PFiber {c d : ob A} (f : c --> d) (b : PseudoElem d) : UU :=
-    Σ (a : PseudoElem c), PEq (PseudoIm a f) b.
+    ∑ (a : PseudoElem c), PEq (PseudoIm a f) b.
 
   Definition mk_PFiber {c d : ob A} (f : c --> d) (b : PseudoElem d) (a : PseudoElem c)
              (H : PEq (PseudoIm a f) b) : PFiber f b := tpair _ a H.
@@ -340,7 +340,7 @@ Section def_pseudo_element.
 
   (** *** Zero criteria *)
   Lemma PEq_ZeroArrow {c d : ob A} (f : c --> d) :
-    f = ZeroArrow to_Zero _ _ <-> (Π (a : PseudoElem c), a ;; f = ZeroArrow to_Zero _ _).
+    f = ZeroArrow to_Zero _ _ <-> (∏ (a : PseudoElem c), a ;; f = ZeroArrow to_Zero _ _).
   Proof.
     split.
     - intros H. intros a. rewrite H. apply ZeroArrow_comp_right.
@@ -351,7 +351,7 @@ Section def_pseudo_element.
   (** *** isMonic criteria *)
 
   Lemma PEq_isMonic {c d : ob A} (f : c --> d) :
-    isMonic f <-> (Π (d' : ob A) (a : PseudoElem c),
+    isMonic f <-> (∏ (d' : ob A) (a : PseudoElem c),
                  PEq (PseudoIm a f) (PZero d') -> ZeroArrow to_Zero _ _ = a).
   Proof.
     split.
@@ -366,7 +366,7 @@ Section def_pseudo_element.
   Qed.
 
   Lemma PEq_isMonic' {c d : ob A} (f : c --> d) :
-    isMonic f <-> (Π (a a' : PseudoElem c), PEq (PseudoIm a f) (PseudoIm a' f) -> PEq a a').
+    isMonic f <-> (∏ (a a' : PseudoElem c), PEq (PseudoIm a f) (PseudoIm a' f) -> PEq a a').
   Proof.
     split.
     - intros isM. intros a a' X.
@@ -385,7 +385,7 @@ Section def_pseudo_element.
 
   (** *** isEpi criteria *)
 
-  Lemma PEq_isEpi {c d : ob A} (f : c --> d) : isEpi f <-> (Π (b : PseudoElem d), PFiber f b).
+  Lemma PEq_isEpi {c d : ob A} (f : c --> d) : isEpi f <-> (∏ (b : PseudoElem d), PFiber f b).
   Proof.
     split.
     - intros isE b.
@@ -414,7 +414,7 @@ Section def_pseudo_element.
 
   Lemma PEq_isExact {x y z : ob A} (f : x --> y) (g : y --> z) (H : f ;; g = ZeroArrow to_Zero _ _) :
     isExact A hs f g H <->
-    Π (b : PseudoElem y) (H : b ;; g = ZeroArrow to_Zero _ _), PFiber f b.
+    ∏ (b : PseudoElem y) (H : b ;; g = ZeroArrow to_Zero _ _), PFiber f b.
   Proof.
     split.
     - intros isK b H'. unfold isExact in isK.
@@ -484,14 +484,14 @@ Section def_pseudo_element.
   (** **** Data for Difference *)
   Definition PDiff {x y : ob A} {a a' : PseudoElem x} (f : x --> y)
              (H : PEq (PseudoIm a f) (PseudoIm a' f)) : UU :=
-    Σ (a'' : PseudoElem x) (H' : a'' ;; f = ZeroArrow to_Zero _ _),
-    Π (z : ob A) (g : x --> z),
+    ∑ (a'' : PseudoElem x) (H' : a'' ;; f = ZeroArrow to_Zero _ _),
+    ∏ (z : ob A) (g : x --> z),
     a ;; g = ZeroArrow to_Zero _ _ -> PEq (PseudoIm a' g) (PseudoIm a'' g).
 
   Definition mk_PDiff {x y : ob A} {a a' : PseudoElem x} (f : x --> y)
              (H : PEq (PseudoIm a f) (PseudoIm a' f)) (a'' : PseudoElem x)
              (H' : a'' ;; f = ZeroArrow to_Zero _ _)
-             (H'' : Π (z : ob A) (g : x --> z),
+             (H'' : ∏ (z : ob A) (g : x --> z),
                     a ;; g = ZeroArrow to_Zero _ _ -> PEq (PseudoIm a' g) (PseudoIm a'' g)) :
     PDiff f H := (a'',,(H',,H'')).
 
@@ -505,7 +505,7 @@ Section def_pseudo_element.
 
   Definition PDiffEq {x y : ob A} {a a' : PseudoElem x} {f : x --> y}
              {H : PEq (PseudoIm a f) (PseudoIm a' f)} (PD : PDiff f H) :
-    Π (z : ob A) (g : x --> z),
+    ∏ (z : ob A) (g : x --> z),
     a ;; g = ZeroArrow to_Zero _ _ -> PEq (PseudoIm a' g) (PseudoIm PD g) := pr2 (pr2 PD).
 
   (** **** Difference criteria *)
@@ -597,7 +597,7 @@ Section def_pseudo_element.
 
   Definition PEq_Pullback {x y z : ob A} (f : x --> z) (g : y --> z) (Pb : Pullback f g)
              (a : PseudoElem x) (b : PseudoElem y) (H : PEq (PseudoIm a f) (PseudoIm b g)) :
-    Σ (d : PseudoElem Pb), (PEq (PseudoIm d (PullbackPr1 Pb)) a)
+    ∑ (d : PseudoElem Pb), (PEq (PseudoIm d (PullbackPr1 Pb)) a)
                              × (PEq (PseudoIm d (PullbackPr2 Pb))) b.
   Proof.
     set (mor1 := PEqEpi1 H ;; b). set (mor2 := PEqEpi2 H ;; a).

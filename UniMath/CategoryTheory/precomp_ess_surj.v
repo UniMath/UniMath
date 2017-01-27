@@ -81,10 +81,10 @@ Section preimage.
 Local Definition X (b : B) := total2 (
  fun ck :
   total2 (fun c : C =>
-                Π a : A,
+                ∏ a : A,
                      iso (H a) b -> iso (F a) c) =>
-    Π t t' : total2 (fun a : A => iso (H a) b),
-          Π f : pr1 t --> pr1 t',
+    ∏ t t' : total2 (fun a : A => iso (H a) b),
+          ∏ f : pr1 t --> pr1 t',
              (#H f ;; pr2 t' = pr2 t ->
                     #F f ;; pr2 ck (pr1 t') (pr2 t') = pr2 ck (pr1 t) (pr2 t))).
 
@@ -93,7 +93,7 @@ Local Definition kX {b : B} (t : X b) := (pr2 (pr1 t)).
 (** The following is the third component of the center of [X b] *)
 
 Lemma X_aux_type_center_of_contr_proof (b : B) (anot : A) (hnot : iso (H anot) b) :
-  Π (t t' : total2 (fun a :  A => iso (H a) b))
+  ∏ (t t' : total2 (fun a :  A => iso (H a) b))
     (f : pr1 t --> pr1 t'),
   #H f;; pr2 t' = pr2 t ->
   #F f;;
@@ -137,7 +137,7 @@ Defined.
 (** Any inhabitant of [X b] is equal to the center of [X b]. *)
 
 Lemma X_aux_type_contr_eq (b : B) (anot : A) (hnot : iso (H anot) b) :
-   Π t : X b, t = X_aux_type_center_of_contr b anot hnot.
+   ∏ t : X b, t = X_aux_type_center_of_contr b anot hnot.
 Proof.
   intro t.
   assert (Hpr1 : pr1 (X_aux_type_center_of_contr b anot hnot) = pr1 t).
@@ -186,7 +186,7 @@ Qed.
 
 (** Putting everything together: [X b] is contractible. *)
 
-Definition iscontr_X : Π b : B, iscontr (X b).
+Definition iscontr_X : ∏ b : B, iscontr (X b).
 Proof.
   intro b.
   assert (HH : isaprop (iscontr (X b))).
@@ -206,7 +206,7 @@ Definition Go : B -> C :=
    fun b : B => pr1 (pr1 (pr1 (iscontr_X b))).
 
 Local Definition k (b : B) :
-     Π a : A, iso (H a) b -> iso (F a) (Go b) :=
+     ∏ a : A, iso (H a) b -> iso (F a) (Go b) :=
               pr2 (pr1 (pr1 (iscontr_X b))).
 
 Local Definition q (b : B) := pr2 (pr1 (iscontr_X b)).
@@ -224,7 +224,7 @@ Defined.
        modulo transport along [Xphi b t]. *)
 
 Definition Xkphi_transp (b : B) (t : X b) :
-     Π a : A, Π h : iso (H a) b,
+     ∏ a : A, ∏ h : iso (H a) b,
   transportf _ (Xphi b t) (kX t) a h =  k b a h.
 Proof.
   unfold k.
@@ -237,7 +237,7 @@ Qed.
     as [k b], modulo postcomposition with an isomorphism. *)
 
 Definition Xkphi_idtoiso (b : B) (t : X b) :
-    Π a : A, Π h : iso (H a) b,
+    ∏ a : A, ∏ h : iso (H a) b,
    k b a h ;; idtoiso (!Xphi b t) = kX t a h.
 Proof.
   intros a h.
@@ -251,7 +251,7 @@ Qed.
 (*
 Lemma k_transport (b : ob B) (*t : X b*) (c : ob C)
    (p : pr1 (pr1 t) = c) (a : ob A) (h : iso (pr1 H a) b):
-transportf (fun c' : ob C => Π a : ob A, iso (pr1 H a) b ->
+transportf (fun c' : ob C => ∏ a : ob A, iso (pr1 H a) b ->
                           iso ((pr1 F) a) c')
    p (k) a h = (k b) b a h ;; idtoiso p .
 *)
@@ -264,16 +264,16 @@ transportf (fun c' : ob C => Π a : ob A, iso (pr1 H a) b ->
 
 Local Definition Y {b b' : B} (f : b --> b') :=
   total2 (fun g : Go b --> Go b' =>
-      Π a : A,
-        Π h : iso (H a) b,
-          Π a' : A,
-            Π h' : iso (H a') b',
-              Π l : a --> a',
+      ∏ a : A,
+        ∏ h : iso (H a) b,
+          ∏ a' : A,
+            ∏ h' : iso (H a') b',
+              ∏ l : a --> a',
                 #H l ;; h' = h ;; f -> #F l ;; k b' a' h' = k b a h ;; g).
 
 Lemma Y_inhab_proof (b b' : B) (f : b --> b') (a0 : A) (h0 : iso (H a0) b)
     (a0' : A) (h0' : iso (H a0') b') :
-  Π (a : A) (h : iso (H a) b) (a' : A) (h' : iso (H a') b')
+  ∏ (a : A) (h : iso (H a) b) (a' : A) (h' : iso (H a') b')
     (l : a --> a'),
   #H l;; h' = h;; f ->
   #F l;; k b' a' h' =
@@ -371,7 +371,7 @@ Defined.
 Lemma Y_contr_eq (b b' : B) (f : b --> b')
      (a0 : A) (h0 : iso (H a0) b)
      (a0' : A) (h0' : iso (H a0') b') :
-  Π t : Y f, t = Y_inhab b b' f a0 h0 a0' h0'.
+  ∏ t : Y f, t = Y_inhab b b' f a0 h0 a0' h0'.
 Proof.
   intro t.
   apply pathsinv0.
@@ -430,7 +430,7 @@ Proof.
   split. unfold functor_idax. simpl.
   intro b.
 
-  assert (PR2 : Π (a : A) (h : iso (H a) b) (a' : A)
+  assert (PR2 : ∏ (a : A) (h : iso (H a) b) (a' : A)
           (h' : iso (H a') b)
     (l : a --> a'),
   #H l;; h' = h;; identity b ->
@@ -487,7 +487,7 @@ Proof.
     repeat rewrite assoc; apply idpath.
 
 
-  assert (PR2 : Π (a : A) (h : iso (H a) b)(a' : A)
+  assert (PR2 : ∏ (a : A) (h : iso (H a) b)(a' : A)
           (h' : iso (H a') b') (l : a --> a'),
            #H l;; h' = h;; f ->
            #F l;; k b' a' h' =
@@ -577,7 +577,7 @@ Proof.
     apply idpath.
 
   clear PR2.
-  assert (PR2 : Π (a : A) (h : iso (H a) b') (a' : A)
+  assert (PR2 : ∏ (a : A) (h : iso (H a) b') (a' : A)
             (h' : iso (H a') b'') (l : a --> a'),
          #H l;; h' = h;; f' ->
            #F l;; k b'' a' h' =
@@ -654,7 +654,7 @@ Proof.
     apply idpath.
 
   clear PR2.
-  assert (PR2 : Π (a : A) (h : iso (H a) b) (a' : A)
+  assert (PR2 : ∏ (a : A) (h : iso (H a) b) (a' : A)
              (h' : iso (H a') b'') (l : a --> a'),
           #H l;; h' = h;; (f;; f') ->
           #F l;; k b'' a' h' =
@@ -755,7 +755,7 @@ Definition GG : [B, C, pr2 Ccat] := tpair _ preimage_functor_data
    This allows to prove [G (H a) = F a]. *)
 
 Lemma qF (a0 : A) :
-  Π (t t' : total2 (fun a :  A => iso (H a) (H a0)))
+  ∏ (t t' : total2 (fun a :  A => iso (H a) (H a0)))
     (f : pr1 t --> pr1 t'),
   #H f;; pr2 t' = pr2 t ->
   #F f;; #F (fH^-1 (pr2 t')) =
@@ -775,7 +775,7 @@ Proof.
 Qed.
 
 
-Definition kFa (a0 : A) : Π a : A,
+Definition kFa (a0 : A) : ∏ a : A,
   iso (H a) (H a0) -> iso (F a) (F a0) :=
  fun (a : A) (h : iso (H a) (H a0)) =>
    functor_on_iso F
@@ -814,7 +814,7 @@ Proof.
   rewrite <- idtoiso_precompose.
   rewrite idtoiso_inv.
   rewrite <- assoc.
-  assert (PSIf : Π (a : A) (h : iso (H a) (H a0)) (a' : A)
+  assert (PSIf : ∏ (a : A) (h : iso (H a) (H a0)) (a' : A)
   (h' : iso (H a') (H a0')) (l : a --> a'),
          #H l;; h' = h;; #H f ->
          #F l;; k (H a0') a' h' =

@@ -77,7 +77,7 @@ Let CPEndEndC:= BinCoproducts_functor_precat _ _ CPEndC hsEndC: BinCoproducts En
 
 Let one : C :=  @TerminalObject C terminal.
 
-Variable KanExt : Π Z : precategory_Ptd C hs,
+Variable KanExt : ∏ Z : precategory_Ptd C hs,
    RightKanExtension.GlobalRightKanExtensionExists C C
      (U Z) C hs hs.
 
@@ -415,8 +415,8 @@ Qed.
 Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
   (f : Ptd ⟦ Z, ptd_from_alg LamE_algebra_on_Lam ⟧)
  :
-   Π
-   t : Σ
+   ∏
+   t : ∑
        h : [C, C, hs]
            ⟦ functor_composite (U Z)
                (` LamE_algebra_on_Lam),

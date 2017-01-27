@@ -65,7 +65,7 @@ Variable A : UU.
 Variable R0 : hrel A.
 
 Lemma isaprop_eqrel_from_hrel a b :
-  isaprop (Π R : eqrel A, (Π x y, R0 x y -> R x y) -> R a b).
+  isaprop (∏ R : eqrel A, (∏ x y, R0 x y -> R x y) -> R a b).
 Proof.
   apply impred; intro R; apply impred_prop.
 Qed.
@@ -87,8 +87,8 @@ now intros H R HR; apply HR.
 Qed.
 
 (* eqrel_from_hrel is the *smallest* relation containing R0 *)
-Lemma minimal_eqrel_from_hrel (R : eqrel A) (H : Π a b, R0 a b -> R a b) :
-  Π a b, eqrel_from_hrel a b -> R a b.
+Lemma minimal_eqrel_from_hrel (R : eqrel A) (H : ∏ a b, R0 a b -> R a b) :
+  ∏ a b, eqrel_from_hrel a b -> R a b.
 Proof.
 now intros a b H'; apply (H' _ H).
 Qed.
@@ -104,11 +104,11 @@ Section colimits.
 Variable g : graph.
 Variable D : diagram g HSET.
 
-Local Definition cobase : UU := Σ j : vertex g, pr1hSet (dob D j).
+Local Definition cobase : UU := ∑ j : vertex g, pr1hSet (dob D j).
 
 (* Theory about hprop is in UniMath.Foundations.Propositions *)
 Local Definition rel0 : hrel cobase := λ (ia jb : cobase),
-  hProppair (ishinh (Σ f : edge (pr1 ia) (pr1 jb), dmor D f (pr2 ia) = pr2 jb))
+  hProppair (ishinh (∑ f : edge (pr1 ia) (pr1 jb), dmor D f (pr2 ia) = pr2 jb))
             (isapropishinh _).
 
 Local Definition rel : hrel cobase := eqrel_from_hrel rel0.
@@ -211,7 +211,7 @@ use mk_cocone.
 Defined.
 
 Definition ColimHSETArrow (c : HSET) (cc : cocone D c) :
-  Σ x : HSET ⟦ colimHSET, c ⟧, Π v : vertex g, injections v ;; x = coconeIn cc v.
+  ∑ x : HSET ⟦ colimHSET, c ⟧, ∏ v : vertex g, injections v ;; x = coconeIn cc v.
 Proof.
 exists (from_colimHSET _ cc).
 abstract (intro i; simpl; unfold injections, compose, from_colimHSET; simpl;
@@ -272,7 +272,7 @@ Proof.
 intros A.
 use mk_CoproductCocone.
 - mkpair.
-  + apply (Σ i, pr1 (A i)).
+  + apply (∑ i, pr1 (A i)).
   + eapply (isaset_total2 _ HI); intro i; apply setproperty.
 - simpl; apply tpair.
 - apply (mk_isCoproductCocone _ _ has_homsets_HSET).
@@ -322,8 +322,8 @@ Variable g : graph.
 Variable D : diagram g HSET.
 
 Definition limset_UU : UU :=
-  Σ (f : Π u : vertex g, pr1hSet (dob D u)),
-    Π u v (e : edge u v), dmor D e (f u) = f v.
+  ∑ (f : ∏ u : vertex g, pr1hSet (dob D u)),
+    ∏ u v (e : edge u v), dmor D e (f u) = f v.
 
 Definition limset : HSET.
 Proof.
@@ -375,8 +375,8 @@ Variable J : precategory.
 Variable D : functor J HSET.
 
 Definition cats_limset_UU : UU :=
-  Σ (f : Π u, pr1hSet (D u)),
-    Π u v (e : J⟦u,v⟧), # D e (f u) = f v.
+  ∑ (f : ∏ u, pr1hSet (D u)),
+    ∏ u v (e : J⟦u,v⟧), # D e (f u) = f v.
 
 Definition cats_limset : HSET.
 Proof.
@@ -445,7 +445,7 @@ Lemma ProductsHSET (I : UU) : Products I HSET.
 Proof.
 intros A.
 use mk_ProductCone.
-- apply (tpair _ (Π i, pr1 (A i))); apply isaset_forall_hSet.
+- apply (tpair _ (∏ i, pr1 (A i))); apply isaset_forall_hSet.
 - simpl; intros i f; apply (f i).
 - apply (mk_isProductCone _ _ has_homsets_HSET).
   intros C f; simpl in *.
@@ -490,7 +490,7 @@ End TerminalHSET_from_Lims.
 Definition PullbackHSET_ob {A B C : HSET} (f : HSET⟦B,A⟧) (g : HSET⟦C,A⟧) : HSET.
 Proof.
 simpl in *.
-exists (Σ (xy : B × C), f (pr1 xy) = g (pr2 xy)).
+exists (∑ (xy : B × C), f (pr1 xy) = g (pr2 xy)).
 abstract (apply isaset_total2; [ apply isasetdirprod; apply setproperty
                                | intros xy; apply isasetaprop, setproperty ]).
 Defined.
@@ -741,7 +741,7 @@ Definition hfiber_fun (X : HSET) (f : HSET / X) : HSET / X → HSET / X.
 Proof.
 intros g.
 mkpair.
-- exists (Σ x, HSET⟦hfiber_hSet (pr2 f) x,hfiber_hSet (pr2 g) x⟧).
+- exists (∑ x, HSET⟦hfiber_hSet (pr2 f) x,hfiber_hSet (pr2 g) x⟧).
   abstract (apply isaset_total2; [ apply setproperty | intros x; apply has_homsets_HSET ]).
 - now apply pr1.
 Defined.
@@ -852,7 +852,7 @@ Proof.
 intros F.
 use mk_ProductCone.
 + mkpair.
-  - exists (Σ x : pr1 X, Π i : I, hfiber_hSet (pr2 (F i)) x).
+  - exists (∑ x : pr1 X, ∏ i : I, hfiber_hSet (pr2 (F i)) x).
     abstract (apply isaset_total2; [apply setproperty|];
               now intros x; apply impred_isaset; intro i; apply setproperty).
   - apply pr1.
@@ -925,7 +925,7 @@ Lemma pullback_HSET_univprop_elements {P A B C : HSET}
     {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
     (ep : p1 ;; f = p2 ;; g)
     (pb : isPullback f g p1 p2 ep)
-  : (Π a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
+  : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
 Proof.
   intros a b e.
   set (Pb := (mk_Pullback _ _ _ _ _ _ pb)).
@@ -975,7 +975,7 @@ enjoyed by surjections (univ_surj)
     intros.
     red.
     intros C u equ.
-    assert (hcompat :   Π x y : pr1 A, f x = f y → u x = u y).
+    assert (hcompat :   ∏ x y : pr1 A, f x = f y → u x = u y).
     {
       intros x y eqfxy.
       assert (hpb:=pullback_HSET_univprop_elements

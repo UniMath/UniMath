@@ -81,16 +81,16 @@ Section def_grothendiecktopology.
 
   (** ** Grothendieck topology *)
 
-  Definition collection_of_sieves : UU := Π (c : C), hsubtype (sieve c).
+  Definition collection_of_sieves : UU := ∏ (c : C), hsubtype (sieve c).
 
   Definition isGrothendieckTopology_maximal_sieve (COS : collection_of_sieves) : UU :=
-    Π (c : C), COS c (SubobjectsPrecategory_ob
+    ∏ (c : C), COS c (SubobjectsPrecategory_ob
                         (functor_precategory (opp_precat C) HSET has_homsets_HSET)
                         (functor_category_has_homsets (opp_precat C) HSET has_homsets_HSET)
                         (identity (yoneda C hs c)) (identity_isMonic _)).
 
   Definition isGrothendieckTopology_stability (COS : collection_of_sieves) : UU :=
-    Π (c c' : C) (h : c' --> c) (s : sieve c),
+    ∏ (c c' : C) (h : c' --> c) (s : sieve c),
     COS c s ->
     COS c' (PullbackSubobject
               _ _
@@ -98,8 +98,8 @@ Section def_grothendiecktopology.
               s (yoneda_morphisms C hs _ _ h)).
 
   Definition isGrothendieckTopology_transitivity (COS : collection_of_sieves) : UU :=
-    Π (c : C) (s : sieve c),
-    (Π (c' : C) (h : c' --> c),
+    ∏ (c : C) (s : sieve c),
+    (∏ (c' : C) (h : c' --> c),
      COS c' (PullbackSubobject
                _ _
                (FunctorPrecategoryPullbacks (opp_precat C) HSET has_homsets_HSET HSET_Pullbacks)
@@ -112,7 +112,7 @@ Section def_grothendiecktopology.
       × (isGrothendieckTopology_transitivity COS).
 
   Definition GrothendieckTopology : UU :=
-    Σ COS : collection_of_sieves, isGrothendieckTopology COS.
+    ∑ COS : collection_of_sieves, isGrothendieckTopology COS.
 
   (** Accessor functions *)
   Definition GrothendieckTopology_COS (GT : GrothendieckTopology) : collection_of_sieves := pr1 GT.
@@ -132,9 +132,9 @@ Section def_grothendiecktopology.
 
   (** This is a formalization of the definition on page 122 *)
   Definition isSheaf (P : Presheaf) (GT : GrothendieckTopology) : UU :=
-    Π (c : C) (S : sieve c) (isCOS : GrothendieckTopology_COS GT c S)
+    ∏ (c : C) (S : sieve c) (isCOS : GrothendieckTopology_COS GT c S)
       (τ : nat_trans (sieve_functor S) (PresheafToFunctor P)),
-    iscontr (Σ η : nat_trans (FunctorPrecatObToFunctor (yoneda C hs c)) (PresheafToFunctor P),
+    iscontr (∑ η : nat_trans (FunctorPrecatObToFunctor (yoneda C hs c)) (PresheafToFunctor P),
                    nat_trans_comp _ _ _ (sieve_nat_trans S) η = τ).
 
   Lemma isaprop_isSheaf (GT : GrothendieckTopology) (P : Presheaf) : isaprop(isSheaf P GT).
@@ -171,7 +171,7 @@ Section def_grothendiecktopos.
   (** Here (pr1 D) is the precategory which is equivalent to the precategory of sheaves on the
       Grothendieck topology (pr2 D). *)
   Definition GrothendieckTopos : UU :=
-    Σ D' : (Σ D : precategory × (GrothendieckTopology C hs),
+    ∑ D' : (∑ D : precategory × (GrothendieckTopology C hs),
                   functor (pr1 D) (PrecategoryOfSheaves C hs (pr2 D))),
            (adj_equivalence_of_precats (pr2 D')).
 

@@ -13,7 +13,7 @@ Module Test_stn.
   Goal (stnel(6,3) ≠ stnel(6,4)). easy. Defined.
   Goal ¬(stnel(6,3) ≠ stnel(6,3)). easy. Defined.
 
-  Goal Π m n (i:m≤n) (j:stn m), pr1 (stnmtostnn m n i j) = pr1 j.
+  Goal ∏ m n (i:m≤n) (j:stn m), pr1 (stnmtostnn m n i j) = pr1 j.
     intros. induction j as [j J]. reflexivity.
   Defined.
 
@@ -138,15 +138,15 @@ Module Test_stn.
   End Test2.
 
   (* confirm that [stnsum] is associative in the same way as the parser, which is left associative *)
-  Goal Π (f : stn 3 -> nat), stnsum f =  f(●0) + f(●1)  +  f(●2). reflexivity. Defined.
-  Goal Π (f : stn 3 -> nat), stnsum f = (f(●0) + f(●1)) +  f(●2). reflexivity. Defined.
+  Goal ∏ (f : stn 3 -> nat), stnsum f =  f(●0) + f(●1)  +  f(●2). reflexivity. Defined.
+  Goal ∏ (f : stn 3 -> nat), stnsum f = (f(●0) + f(●1)) +  f(●2). reflexivity. Defined.
 
   Module Test_weqstnsum.
     (* this module exports nothing *)
     Let X := stnset 7.
     Let f (x:X) : nat := pr1 x.
 
-    Let h  : stn _ <- Σ x, stnset (f x) := weqstnsum_map f.
+    Let h  : stn _ <- ∑ x, stnset (f x) := weqstnsum_map f.
     Goal h(●1,,●0) = ●0. reflexivity. Defined.
     Goal h(●4,,●0) = ●6. reflexivity. Defined.
     Goal h(●1,,●0) = ●0. reflexivity. Defined.
@@ -159,7 +159,7 @@ Module Test_stn.
     Goal h(●5,,●0) = ●10. reflexivity. Defined.
     Goal h(●6,,●0) = ●15. reflexivity. Defined.
 
-    Let h' : stn _ -> Σ x, stnset (f x) := weqstnsum_invmap f.
+    Let h' : stn _ -> ∑ x, stnset (f x) := weqstnsum_invmap f.
     Goal h'(●0) = (●1,,●0). reflexivity. Defined.
     Goal h'(●1) = (●2,,●0). reflexivity. Defined.
     Goal h'(●2) = (●2,,●1). reflexivity. Defined.
@@ -176,7 +176,7 @@ Module Test_stn.
     (* this module exports nothing *)
     Let X := stnset 6.
     Let Y (x:X) := stnset (pr1 x).
-    Let W := Σ x, Y x.
+    Let W := ∑ x, Y x.
     Let w := (●3,,●2) : W.
     Let w' := (●4,,●2) : W.
     Let f : W ≃ stn 15 := weqstnsum1 _.
@@ -208,7 +208,7 @@ Module Test_stn.
   End Test_weqfromprodofstn.
 
   (* confirm that [stnprod] is associative in the same way as the parser *)
-  Goal Π (f : stn 3 -> nat), stnprod f = f(●0) * f(●1) * f(●2).
+  Goal ∏ (f : stn 3 -> nat), stnprod f = f(●0) * f(●1) * f(●2).
   Proof. reflexivity. Defined.
 
 
@@ -225,7 +225,7 @@ Module Test_stn.
           * contradicts (negnatlthn0 n) b.
     Defined.
 
-  Goal Π n, testfun n < 5.
+  Goal ∏ n, testfun n < 5.
     Proof.
       intros.
       induction n as [i c].
@@ -267,7 +267,7 @@ Module Test_fin.
   (* Eval compute in (carddneg _  (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O)))))). *)
   (* Eval lazy in   (pr1 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))). *)
 
-  Goal Π X (fin : finstruct X) (f : X -> nat),
+  Goal ∏ X (fin : finstruct X) (f : X -> nat),
     finsum (hinhpr fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
   Proof. reflexivity. Qed.
 
@@ -333,7 +333,7 @@ Module Test_fin.
     (* test isfinitetotal2 *)
 
     Let Y' (x:X) : hSet := Y.
-    Let W := Σ x, Y' x.
+    Let W := ∑ x, Y' x.
     Let eqW : DecidableRelation W :=
       isfinite_to_DecidableEquality (isfinitetotal2 Y' finX (λ _, finY)).
     Goal decide (eqW (x,,y) (x',,y')) = false.
@@ -341,7 +341,7 @@ Module Test_fin.
     Defined.
 
     (* test isfiniteforall *)
-    Let T := Π x, Y' x.
+    Let T := ∏ x, Y' x.
     Let eqT : DecidableRelation T :=
       isfinite_to_DecidableEquality (isfiniteforall Y' finX (λ _, finY)).
     Goal decide (eqT (λ _, y) (λ _, y)) = true.
@@ -387,7 +387,7 @@ Module Test_ord.
     Let R := λ (x x':X), (pr1 x ≤ pr1 x')%dnat.
     Let Y := λ x:X, stnset (pr1 x).
     Let S := λ (x:X) (y y':Y x), (pr1 y ≤ pr1 y')%dnat.
-    Let Z := Σ x, Y x.
+    Let Z := ∑ x, Y x.
     Let T := lexicographicOrder X Y R S.
 
     Let x2 := ●2 : X.
@@ -413,7 +413,7 @@ Module Test_ord.
 
     Goal choice (i < j)%foset true false = true. reflexivity. Defined.
 
-    Let X := (Σ i:⟦ 4 ⟧, ⟦ pr1 i ⟧)%foset.
+    Let X := (∑ i:⟦ 4 ⟧, ⟦ pr1 i ⟧)%foset.
     Let x := ( ●2 ,, ●1 ):X.
     Let y := ( ●3 ,, ●1 ):X.
 
@@ -442,7 +442,7 @@ Module Test_ord.
 
   End TestLex2.
 
-  Goal Π X (lt:hrel X), iscotrans lt <-> iswklin lt.
+  Goal ∏ X (lt:hrel X), iscotrans lt <-> iswklin lt.
   Proof.
     intros. unfold iscotrans, iswklin. split.
     { intros i x1 x3 x2. apply i. }

@@ -5,7 +5,7 @@ Unset Automatic Introduction.
 (* end of move upstream *)
 
 
-Definition Sequence X := Σ n, stn n -> X.
+Definition Sequence X := ∑ n, stn n -> X.
 
 Notation seq := Sequence.
 
@@ -27,7 +27,7 @@ Definition transport_stn m n i (b:i<m) (p:m=n) :
 Proof. intros. induction p. reflexivity. Defined.
 
 Definition sequenceEquality {X m n} (f:stn m->X) (g:stn n->X) (p:m=n) :
-  (Π i, f i = g (transportf stn p i))
+  (∏ i, f i = g (transportf stn p i))
   -> transportf (λ m, stn m->X) p f = g.
 Proof. intros ? ? ? ? ? ? e. induction p. apply funextfun. exact e. Defined.
 
@@ -61,7 +61,7 @@ Defined.
 
 Definition seq_key_eq_lemma' {X :UU} (g g' : seq X) :
   seq_len g = seq_len g' ->
-  (Π i, Σ ltg : i < seq_len g, Σ ltg' : i < seq_len g',
+  (∏ i, ∑ ltg : i < seq_len g, ∑ ltg' : i < seq_len g',
                                         g (i ,, ltg) = g' (i ,, ltg')) ->
   g=g'.
 Proof.
@@ -151,7 +151,7 @@ Defined.
 
 (* Three ways.  Use induction: *)
 
-Definition iscontr_rect' X (i : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : Π x:X, P x.
+Definition iscontr_rect' X (i : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : ∏ x:X, P x.
 Proof. intros. induction (pr1 (isapropifcontr i x0 x)). exact p0. Defined.
 
 Definition iscontr_rect_compute' X (i : iscontr X) (x : X) (P : X ->UU) (p : P x) :
@@ -166,7 +166,7 @@ Defined.
 
 (* ... or use weqsecovercontr, but specializing x to pr1 i: *)
 
-Definition iscontr_rect'' X (i : iscontr X) (P : X ->UU) (p0 : P (pr1 i)) : Π x:X, P x.
+Definition iscontr_rect'' X (i : iscontr X) (P : X ->UU) (p0 : P (pr1 i)) : ∏ x:X, P x.
 Proof. intros. exact (invmap (weqsecovercontr P i) p0 x). Defined.
 
 Definition iscontr_rect_compute'' X (i : iscontr X) (P : X ->UU) (p : P(pr1 i)) :
@@ -181,7 +181,7 @@ Definition iscontr_adjointness X (is:iscontr X) (x:X) : pr1 (isapropifcontr is x
    the weq [unit ≃ X] would give it to us, in the case where x is [pr1 is] *)
 Proof. intros. now apply isasetifcontr. Defined.
 
-Definition iscontr_rect X (is : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : Π x:X, P x.
+Definition iscontr_rect X (is : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : ∏ x:X, P x.
 Proof. intros. exact (transportf P (pr1 (isapropifcontr is x0 x)) p0). Defined.
 
 Definition iscontr_rect_compute X (is : iscontr X) (x : X) (P : X ->UU) (p : P x) :
@@ -189,11 +189,11 @@ Definition iscontr_rect_compute X (is : iscontr X) (x : X) (P : X ->UU) (p : P x
 Proof. intros. unfold iscontr_rect. now rewrite iscontr_adjointness. Defined.
 
 Corollary weqsecovercontr':     (* reprove weqsecovercontr, move upstream *)
-  Π (X:UU) (P:X->UU) (is:iscontr X), (Π x:X, P x) ≃ P (pr1 is).
+  ∏ (X:UU) (P:X->UU) (is:iscontr X), (∏ x:X, P x) ≃ P (pr1 is).
 Proof.
   intros.
   set (x0 := pr1 is).
-  set (secs := Π x : X, P x).
+  set (secs := ∏ x : X, P x).
   set (fib  := P x0).
   set (destr := (λ f, f x0) : secs->fib).
   set (constr:= iscontr_rect X is x0 P : fib->secs).
@@ -297,7 +297,7 @@ Defined.
 
 Definition Sequence_rect {X} {P : Sequence X ->UU}
            (p0 : P nil)
-           (ind : Π (x : Sequence X) (y : X), P x -> P (append x y))
+           (ind : ∏ (x : Sequence X) (y : X), P x -> P (append x y))
            (x : Sequence X) : P x.
 Proof. intros. induction x as [n x]. induction n as [|n IH].
   - exact (transportf P (nil_unique x) p0).
@@ -308,7 +308,7 @@ Proof. intros. induction x as [n x]. induction n as [|n IH].
 Defined.
 
 Lemma Sequence_rect_compute_nil {X} {P : Sequence X ->UU} (p0 : P nil)
-      (ind : Π (s : Sequence X) (x : X), P s -> P (append s x)) :
+      (ind : ∏ (s : Sequence X) (x : X), P s -> P (append s x)) :
   Sequence_rect p0 ind nil = p0.
 Proof.
   intros.
@@ -321,7 +321,7 @@ Defined.
 
 Lemma Sequence_rect_compute_cons
       {X} {P : Sequence X ->UU} (p0 : P nil)
-      (ind : Π (s : Sequence X) (x : X), P s -> P (append s x))
+      (ind : ∏ (s : Sequence X) (x : X), P s -> P (append s x))
       (x:X) (l:Sequence X) :
   Sequence_rect p0 ind (append l x) = ind l x (Sequence_rect p0 ind l).
 Proof.
@@ -422,9 +422,9 @@ Proof.
 Defined.
 
 Definition total2_step_f {n} (X:stn (S n) ->UU) :
-  (Σ i, X i)
+  (∑ i, X i)
     ->
-  (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
+  (∑ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
 Proof.
   intros ? ? [[j J] x].
   induction (natlehchoice4 j n J) as [J'|K].
@@ -441,9 +441,9 @@ Proof.
 Defined.
 
 Definition total2_step_b {n} (X:stnset (S n) ->UU) :
-  (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _)
+  (∑ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _)
     ->
-  (Σ i, X i).
+  (∑ i, X i).
 Proof.
   intros ? ? x.
   induction x as [jx|x].
@@ -474,12 +474,12 @@ Proof.
 Defined.
 
 Definition total2_step {n} (X:stnset (S n) ->UU) :
-  (Σ i, X i) ≃ (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
+  (∑ i, X i) ≃ (∑ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
 Proof.
   intros. set (f := weqdnicoprod n (lastelement _)).
-  intermediate_weq (Σ x : stn n ⨿ unit, X (f x)).
+  intermediate_weq (∑ x : stn n ⨿ unit, X (f x)).
   { apply invweq. apply weqfp. }
-  intermediate_weq ((Σ i, X (f (ii1 i))) ⨿ Σ t, X (f (ii2 t))).
+  intermediate_weq ((∑ i, X (f (ii1 i))) ⨿ ∑ t, X (f (ii2 t))).
   { apply weqtotal2overcoprod. }
   apply weqcoprodf. { apply weqfibtototal; intro i. apply idweq. }
   apply weqtotal2overunit.
@@ -526,14 +526,14 @@ Proof.
 Defined.
 
 Corollary total2_step' {n} (f:stn (S n) -> nat) :
-  (Σ i, stn (f i))
+  (∑ i, stn (f i))
     ≃
-  (Σ (i:stn n), stn (f (dni _ (lastelement _) i))) ⨿ stn (f (lastelement _)).
+  (∑ (i:stn n), stn (f (dni _ (lastelement _) i))) ⨿ stn (f (lastelement _)).
 Proof. intros. apply (total2_step (stn ∘ f)). Defined.
 
-Definition weqstnsum1' {n} (f:stn (S n)->nat ) : (Σ i, stn (f i)) ≃ stn (stnsum f).
+Definition weqstnsum1' {n} (f:stn (S n)->nat ) : (∑ i, stn (f i)) ≃ stn (stnsum f).
 Proof. intros.
-  intermediate_weq ((Σ (i:stn n), stn (f (dni _ (lastelement _) i))) ⨿ stn (f (lastelement _))).
+  intermediate_weq ((∑ (i:stn n), stn (f (dni _ (lastelement _) i))) ⨿ stn (f (lastelement _))).
   { apply total2_step'. }
   intermediate_weq (stn (stnsum (f ∘ dni n (lastelement n))) ⨿ stn (f (lastelement n))).
   { apply weqcoprodf. { apply weqstnsum1. } apply idweq. }

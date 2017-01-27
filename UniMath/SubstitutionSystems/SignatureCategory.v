@@ -62,7 +62,7 @@ Definition Signature_category_mor_diagram : UU := f1 ;; f2 = g1 ;; g2.
 
 (** Special comparison lemma that speeds things up a lot *)
 Lemma Signature_category_mor_diagram_pointwise
-  (Hc : Π c, pr1 f1 c ;; pr1 f2 c = pr1 (α X) ((pr1 Y) c) ;; pr1 g2 c) :
+  (Hc : ∏ c, pr1 f1 c ;; pr1 f2 c = pr1 (α X) ((pr1 Y) c) ;; pr1 g2 c) :
    Signature_category_mor_diagram.
 Proof.
 apply (nat_trans_eq hsC); intro c; simpl.
@@ -76,7 +76,7 @@ Proof.
 intros Ht Ht'.
 use total2.
 + apply (nat_trans Ht Ht').
-+ intros α; apply (Π X Y, Signature_category_mor_diagram Ht Ht' α X Y).
++ intros α; apply (∏ X Y, Signature_category_mor_diagram Ht Ht' α X Y).
 Defined.
 
 Lemma SignatureMor_eq (Ht Ht' : Signature C hsC) (f g : SignatureMor Ht Ht') :
@@ -289,7 +289,7 @@ mkpair.
 Defined.
 
 Lemma CoproductArrow_diagram (Hti : I → Signature_precategory C)
-  (Ht : Signature C hsC) (F : Π i : I, SignatureMor C (Hti i) Ht) X Y :
+  (Ht : Signature C hsC) (F : ∏ i : I, SignatureMor C (Hti i) Ht) X Y :
   Signature_category_mor_diagram C (Sum_of_Signatures I C hsC CC Hti) Ht
     (CoproductArrow I _ (CCC _) (λ i, pr1 (F i))) X Y.
 Proof.
