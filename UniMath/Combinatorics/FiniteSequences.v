@@ -3,6 +3,12 @@ Unset Automatic Introduction.
 
 (* move upstream *)
 
+Definition total2_base_map {S T:UU} {P: T -> UU} (f : S->T) : (Σ i, P(f i)) -> (Σ j, P j).
+Proof.
+  intros ? ? ? ? x.
+  exact (f(pr1 x),,pr2 x).
+Defined.
+
 Ltac set_id_type v := match goal with |- @paths ?ID _ _ => set (v := ID); simpl in v end.
 
 Local Arguments dni {_} _.
@@ -26,6 +32,22 @@ Proof.
   + exact (f j).
   + exact (g k).
 Defined.
+
+Definition weqstnsum_invmap_last { n : nat } (m : stn n -> nat) : stn (stnsum m) -> (Σ i, stn (m i)).
+Proof.
+  intros ? ?.
+  intros l.
+  induction n as [|n IH].
+  { abstract (induction (negstn0 l)). }
+  set (m' := m ∘ dni lastelement).
+  set (len' := stnsum m').
+  induction (natlthorgeh (stntonat _ l) len') as [I|I].
+  - exact (total2_base_map (dni lastelement) (IH _ (stnpair _ _ I))).
+  - exact (lastelement,,(stnpair _ (l-len') (nat_split len' _ _ (stnlt l) I))).
+Defined.
+
+Definition flatten' {X n} {m:stn n->nat} : (Π (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
+Proof. intros ? ? ? g. exact (funcomp' (weqstnsum_invmap_last m) (uncurry g)). Defined.
 
 (* end of move upstream *)
 
@@ -435,15 +457,9 @@ Proof.
            ++ apply proofirrelevance. apply propproperty.
 Qed.
 
-Definition partition {X : UU} {n : nat} (f : stn n -> nat) (x : stn (stnsum f) -> X) :
-  Sequence (Sequence X).
-Proof.
-  intros. exists n. intro i. exists (f i). exact (lex_curry x i).
-Defined.
-
 Definition flatten {X : UU} : Sequence (Sequence X) -> Sequence X.
 Proof.
-  intros ? x. exists (stnsum (length ∘ x)). exact (lex_uncurry (funcomp' x sequenceToFunction)).
+  intros ? x. exists (stnsum (length ∘ x)). exact (flatten' (funcomp' x sequenceToFunction)).
 Defined.
 
 Definition total2_step_f {n} (X:stn (S n) ->UU) :
@@ -602,16 +618,21 @@ Proof.
   change (pr2 (tpair (λ i, stn(f i)) k p)) with p.
   change (pr1 (tpair (λ i, stn(f i)) k p)) with k.
 
-  (* perhaps also prove this is by equipping everything in sight with a well-ordering, preserved by all the equivalences involved *)
+  (* perhaps also prove this by equipping everything in sight with a well-ordering, preserved by all the equivalences involved *)
 Abort.
 
 Definition flattenStep' {X n}
-           (xlens : stn (S n) → nat)
-           (xvals : Π i : stn (S n), stn (xlens i) → X)
-           (xlens' := xlens ∘ dni lastelement)
-           (xvals' := λ j : stn n, xvals (dni lastelement j)) :
-  lex_uncurry xvals = concatenate' (lex_uncurry xvals') (xvals lastelement).
+           (m : stn (S n) → nat)
+           (x : Π i : stn (S n), stn (m i) → X)
+           (m' := m ∘ dni lastelement)
+           (x' := funcomp' (dni lastelement) x) :
+  flatten' x = concatenate' (flatten' x') (x lastelement).
 Proof.
+  intros.
+  apply funextfun; intro i.
+  unfold flatten'.
+  unfold weqstnsum_invmap_last at 1.
+
 Admitted.
 
 Definition flattenStep {X} (x: NonemptySequence (Sequence X)) :
@@ -630,22 +651,11 @@ Proof.
   change (pr1 x) with n in xlens, xvals, xlens', xvals'.
   change (@paths
                  (stn (stnsum xlens' + lastValue xlens) -> X)
-                 (lex_uncurry xvals)
-                 (concatenate' (lex_uncurry xvals') (xvals lastelement))).
+                 (flatten' xvals)
+                 (concatenate' (flatten' xvals') (xvals lastelement))).
   (* ... then apply the corresponding lemma about functions *)
-  apply flattenStep'.
+  exact (flattenStep' xlens xvals).
 Defined.
-
-Definition isassoc_concatenate {X} (x y z:Sequence X) :
-  concatenate (concatenate x y) z = concatenate x (concatenate y z).
-Proof.
-  intros.
-  simple refine (total2_paths _ _).
-  - simpl. apply natplusassoc.
-  - apply sequenceEquality; intros i.
-
-
-Abort.
 
 Definition isassoc_concatenate {X : UU} (x y z : Sequence X) :
   concatenate (concatenate x y) z = concatenate x (concatenate y z).

@@ -2178,3 +2178,12 @@ Proof.
   intros. rewrite <- (natplusr0 i).
   rewrite natplusassoc. apply natlthandplusl. reflexivity.
 Defined.
+
+Lemma nat_split (n m i : nat) : (i < n + m) -> (i ≥ n) -> i - n < m.
+Proof.
+  intros n m i p H.
+  induction (plusminusnmm m n).
+  apply natlthandminusl.
+  - induction (natpluscomm n m). exact p.
+  - induction (natpluscomm n m). now apply (natlehlthtrans _ i).
+Qed.
