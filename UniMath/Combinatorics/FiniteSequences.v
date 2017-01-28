@@ -5,11 +5,11 @@ Unset Automatic Introduction.
 
 Ltac set_id_type v := match goal with |- @paths ?ID _ _ => set (v := ID); simpl in v end.
 
-Arguments dni {_} _.
+Local Arguments dni {_} _.
 
-Arguments firstelement {_}.
+Local Arguments firstelement {_}. (* make non local *)
 
-Arguments lastelement {_}.
+Local Arguments lastelement {_}. (* make non local *)
 
 Definition firstValue {X n} : (stn (S n) -> X) -> X
   := λ x, x firstelement.
@@ -29,9 +29,9 @@ Defined.
 
 (* end of move upstream *)
 
-Definition Sequence X := Σ n, stn n -> X.
+Definition Sequence (X:UU) := Σ n, stn n -> X.
 
-Definition NonemptySequence X := Σ n, stn (S n) -> X.
+Definition NonemptySequence (X:UU) := Σ n, stn (S n) -> X.
 
 Definition length {X} : Sequence X -> nat := pr1.
 
@@ -605,82 +605,36 @@ Proof.
   (* perhaps also prove this is by equipping everything in sight with a well-ordering, preserved by all the equivalences involved *)
 Abort.
 
+Definition flattenStep' {X n}
+           (xlens : stn (S n) → nat)
+           (xvals : Π i : stn (S n), stn (xlens i) → X)
+           (xlens' := xlens ∘ dni lastelement)
+           (xvals' := λ j : stn n, xvals (dni lastelement j)) :
+  lex_uncurry xvals = concatenate' (lex_uncurry xvals') (xvals lastelement).
+Proof.
+Admitted.
+
 Definition flattenStep {X} (x: NonemptySequence (Sequence X)) :
   flatten x = concatenate (flatten (composeSequence x dni_lastelement)) (lastValue x).
 Proof.
   intros.
   rewrite <- replace_dni_last.  (* replace it, because stnsum doesn't use it *)
-  (* we have arranged for the lengths to be definitionally equal, so check it: *)
-  match goal with |- ?x = ?y => assert(E : length x = length y) end.
-  { reflexivity. }
-  (* thus it suffices to check the functions are equal, so let's work to get a clean statement about them *)
-  induction x as [n x].
+  apply pair_path_in2.
+  (* first carefully remove sequences from the goal *)
+  set (n := pr1 x).
   set (xlens := λ i, length(x i)).
   set (xvals := λ i, λ j:stn (xlens i), x i j).
-  Check (lex_uncurry xvals).
   set (xlens' := xlens ∘ dni lastelement).
   set (xvals' := λ j, xvals (dni lastelement j)).
-  match goal with |- ?x = ?y => assert(F : sequenceToFunction x = sequenceToFunction y) end.
-  {
-    set_id_type W.              (* now the equation is between elements of type W *)
-    change (stnsum _) with (stnsum xlens') in W.
-    change ((length ∘ x) lastelement) with (lastValue xlens) in W.
-    unfold flatten.
-    change (lastValue _) with (lastValue x).
-    unfold funcomp'.
-    unfold sequenceToFunction.
-    rewrite rewrite_pr2_tpair.
-    change (lex_uncurry _) with (lex_uncurry xvals) at 1.
-    change (lex_uncurry _) with (lex_uncurry xvals') at 2.
-    unfold concatenate.
-    unfold functionToSequence.
-    rewrite rewrite_pr2_tpair.
-
-
-
-(*     rewrite rewrite_pr2_tpair. *)
-(*     change (length _) with (S n). *)
-(*     unfold NonemptySequenceToSequence, functionToSequence, length'. *)
-(*     Set Printing All. *)
-(*     idtac. *)
-
-
-(* rewrite (rewrite_pr1_tpair n). *)
-
-(* rewrite rewrite_pr2_tpair. *)
-
-
-(*   apply pair_path_in2. *)
-
-
-(*   unfold flatten at 1. *)
-(*   simpl. *)
-(*   change (length _ + length _) with (length (flatten x)). *)
-
-(*   apply funextfun; intros k. *)
-(*   cbn. *)
-(*   unfold length'. *)
-(*   (* unfold weqfromcoprodofstn_invmap. *) *)
-(*   cbn. *)
-
-
-(*   match goal with |- _ = coprod_rect _ _ _ ?x => induction x as [p|q] end. (* oops, bad induction *) *)
-(*   - cbn. *)
-(*     induction x as [n x]. *)
-(*     cbn. *)
-(*     set (m := λ i, length(x i)). *)
-(*     set (y := λ i, λ j:stn (m i), x i j). *)
-(*     Check (lex_uncurry y). *)
-(*     change (sequenceToFunction ∘ x) with y. *)
-(*     match goal with |- lex_uncurry _ _ = lex_uncurry ?t _ => change t with (y ∘ dni lastelement) end. *)
-
-(*     change (sequenceToFunction ∘ (x ∘ dni lastelement)) with (y ∘ dni lastelement). *)
-
-(*     admit. *)
-(*   - cbn. *)
-(*     admit. *)
-(* Defined. *)
-Abort.
+  change (length' x) with (S n) in xlens, xvals, xlens', xvals'.
+  change (pr1 x) with n in xlens, xvals, xlens', xvals'.
+  change (@paths
+                 (stn (stnsum xlens' + lastValue xlens) -> X)
+                 (lex_uncurry xvals)
+                 (concatenate' (lex_uncurry xvals') (xvals lastelement))).
+  (* ... then apply the corresponding lemma about functions *)
+  apply flattenStep'.
+Defined.
 
 Definition isassoc_concatenate {X} (x y z:Sequence X) :
   concatenate (concatenate x y) z = concatenate x (concatenate y z).
