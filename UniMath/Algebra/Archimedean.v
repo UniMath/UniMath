@@ -81,7 +81,7 @@ Proof.
   induction n as [|n IHn] ; intros m x.
   - reflexivity.
   - simpl (_ * _)%nat.
-    assert (S n = (n + 1)%nat).
+    assert (H : S n = (n + 1)%nat).
     { rewrite <- plus_n_Sm, <- plus_n_O.
       reflexivity. }
     rewrite H ; clear H.
@@ -108,7 +108,7 @@ Proof.
   - rewrite lunax.
     reflexivity.
   - rewrite natmultS, assocax, IHn, <- (assocax _ y).
-    assert (y + natmult n x = natmult n x + y)%addmonoid.
+    assert (X1 : (y + natmult n x = natmult n x + y)%addmonoid).
     { clear IHn.
       induction n as [|n IHn].
       - rewrite lunax, runax.
@@ -287,7 +287,7 @@ Proof.
   intros (c1,Hc1) (c2,Hc2).
   exists (c1 * c2)%multmonoid.
   eapply Hr'.
-  assert (natmult (n1 + n2) (pr1 y1) * pr1 x * natmult (n1 + n2) (pr2 y2) * (c1 * c2) = (natmult n1 (pr1 y1 * pr2 y2) * pr1 x * c1) * (natmult n2 (pr1 y1 * pr2 y2) * c2))%multmonoid.
+  assert (X0 : (natmult (n1 + n2) (pr1 y1) * pr1 x * natmult (n1 + n2) (pr2 y2) * (c1 * c2) = (natmult n1 (pr1 y1 * pr2 y2) * pr1 x * c1) * (natmult n2 (pr1 y1 * pr2 y2) * c2))%multmonoid).
   { rewrite !natmult_op, !natmult_plus, !assocax.
     apply maponpaths.
     rewrite commax, !assocax.
@@ -308,7 +308,7 @@ Proof.
   rewrite X0 ; clear X0.
   apply (pr2 Hr).
   apply Hc1.
-  assert (natmult (n1 + n2) (pr1 y2) * (natmult (n1 + n2) (pr2 y1) * pr2 x) * (c1 * c2) = (natmult n1 (pr1 y2 * pr2 y1) * c1) * (natmult n2 (pr1 y2 * pr2 y1) * pr2 x * c2))%multmonoid.
+  assert (X0 : (natmult (n1 + n2) (pr1 y2) * (natmult (n1 + n2) (pr2 y1) * pr2 x) * (c1 * c2) = (natmult n1 (pr1 y2 * pr2 y1) * c1) * (natmult n2 (pr1 y2 * pr2 y1) * pr2 x * c2))%multmonoid).
   { rewrite !natmult_op, !natmult_plus, !assocax.
     apply maponpaths.
     rewrite commax, !assocax.
@@ -575,7 +575,7 @@ Proof.
   intros X R Hop1 H.
   repeat split.
   - intros y1 y2 Hy.
-    assert (R (y1 - y2)%rng 0%rng).
+    assert (X0 : R (y1 - y2)%rng 0%rng).
     abstract (apply (pr2 (isinvbinophrelgr X Hop1)) with y2 ;
                change BinaryOperations.op with (@BinaryOperations.op1 X) ;
                rewrite rngassoc1, rnglinvax1, rnglunax1, rngrunax1 ;

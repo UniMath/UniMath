@@ -402,7 +402,7 @@ Lemma isapropsubtype {X : UU} (A : hsubtype X)
 Proof.
   intros. apply invproofirrelevance.
   intros x x'.
-  assert (isincl (@pr1 _ A)).
+  assert (X0 : isincl (@pr1 _ A)).
   {
     apply isinclpr1.
     intro x0.

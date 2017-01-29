@@ -1222,7 +1222,7 @@ Theorem isdecpropfibseq1 {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
 Proof.
   intros X Y Z f g z fs isx isz.
   assert (isc : iscontr Z) by apply (iscontraprop1 isz z).
-  assert (isweq f) by apply (isweqfinfibseq f g z fs isc).
+  assert (X0 : isweq f) by apply (isweqfinfibseq f g z fs isc).
   apply (isdecpropweqf (weqpair _ X0) isx).
 Defined.
 
