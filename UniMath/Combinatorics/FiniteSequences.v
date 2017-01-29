@@ -28,7 +28,7 @@ Proof.
 Defined.
 
 Definition flatten' {X n} {m:stn n->nat} : (Π (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
-Proof. intros ? ? ? g. exact (funcomp' (weqstnsum_invmap_last m) (uncurry g)). Defined.
+Proof. intros ? ? ? g. exact (funcomp' (weqstnsum_invmap m) (uncurry g)). Defined.
 
 (* end of move upstream *)
 
@@ -552,9 +552,10 @@ Proof.
   intros.
   apply funextfun; intro i.
   unfold flatten', funcomp'.
-  unfold weqstnsum_invmap_last at 1.
+  (* we want to treat the inductions from weqfromcoprodofstn_invmap and weqstnsum_invmap simultaneously *)
+  unfold weqstnsum_invmap at 1.
   unfold concatenate', weqfromcoprodofstn_invmap.
-  unfold nat_rect, coprod_rect, empty_rect.
+  unfold nat_rect, coprod_rect.
   change (natlthorgeh _ _) with (natlthorgeh i (stnsum m')) at 1 4.
   induction (natlthorgeh i (stnsum m')); reflexivity.
 Defined.
@@ -565,19 +566,8 @@ Proof.
   intros.
   rewrite <- replace_dni_last.  (* replace it, because stnsum doesn't use it *)
   apply pair_path_in2.
-  (* first carefully remove sequences from the goal *)
-  set (n := pr1 x).
   set (xlens := λ i, length(x i)).
   set (xvals := λ i, λ j:stn (xlens i), x i j).
-  set (xlens' := xlens ∘ dni lastelement).
-  set (xvals' := λ j, xvals (dni lastelement j)).
-  change (length' x) with (S n) in xlens, xvals, xlens', xvals'.
-  change (pr1 x) with n in xlens, xvals, xlens', xvals'.
-  change (@paths
-                 (stn (stnsum xlens' + lastValue xlens) -> X)
-                 (flatten' xvals)
-                 (concatenate' (flatten' xvals') (xvals lastelement))).
-  (* ... then apply the corresponding lemma about functions *)
   exact (flattenStep' xlens xvals).
 Defined.
 

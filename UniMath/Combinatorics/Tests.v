@@ -159,18 +159,7 @@ Module Test_stn.
     Goal h(●5,,●0) = ●10. reflexivity. Defined.
     Goal h(●6,,●0) = ●15. reflexivity. Defined.
 
-    Let k : stn _ -> Σ x, stnset (f x) := weqstnsum_invmap_first f.
-    Goal k(●0) = (●1,,●0). reflexivity. Defined.
-    Goal k(●1) = (●2,,●0). reflexivity. Defined.
-    Goal k(●2) = (●2,,●1). reflexivity. Defined.
-    Goal k(●3) = (●3,,●0). reflexivity. Defined.
-    Goal k(●4) = (●3,,●1). reflexivity. Defined.
-    Goal k(●5) = (●3,,●2). reflexivity. Defined.
-    Goal k(●6) = (●4,,●0). reflexivity. Defined.
-    Goal k(●10) = (●5,,●0). reflexivity. Defined.
-    Goal k(●15) = (●6,,●0). reflexivity. Defined.
-
-    Let r : stn _ -> Σ x, stnset (f x) := weqstnsum_invmap_last f.
+    Let r : stn _ -> Σ x, stnset (f x) := weqstnsum_invmap f.
     Goal r(●15) = (●6,,●0). reflexivity. Defined.
     Goal r(●10) = (●5,,●0). reflexivity. Defined.
     Goal r(●6) = (●4,,●0). reflexivity. Defined.

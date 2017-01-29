@@ -170,6 +170,12 @@ Proof.
   intros. apply subtypeEquality_prop. induction e. reflexivity.
 Defined.
 
+Definition stn_left' m n : m ≤ n -> stn m -> stn n.
+Proof.
+  intros ? ? le i.
+  exact (stnpair _ _ (natlthlehtrans _ _ _ (stnlt i) le)).
+Defined.
+
 (** ** "Boundary" maps [ dni : stn n -> stn ( S n ) ] and their properties . *)
 
 Definition dni ( n : nat ) ( i : stn ( S n ) ) : stn n -> stn ( S n ) .
@@ -664,7 +670,7 @@ Proof.
   exact (total2_base_map (dni _ (lastelement _)) (IH _ (stnpair _ _ I))).
 Defined.
 
-Definition weqstnsum_invmap_last { n : nat } (m : stn n -> nat) : stn (stnsum m) -> (Σ i, stn (m i)).
+Definition weqstnsum_invmap {n : nat} (m : stn n -> nat) : stn (stnsum m) -> (Σ i, stn (m i)).
 Proof.
   intros ?.
   induction n as [|n IH].
@@ -672,30 +678,20 @@ Proof.
   intros ? l.
   set (m' := m ∘ dni _ (lastelement n)).
   set (len' := stnsum m').
-  induction (natlthorgeh (stntonat _ l) len') as [I|J].
+  induction (natlthorgeh l len') as [I|J].
   - exact (_b_ IH m l I).
   - exact (lastelement _,,stnpair (m (lastelement _)) (l-len') (_a_ IH m l J)).
 Defined.
 
-Definition weqstnsum_invmap_first { n : nat } (f : stn n -> nat) : (Σ i, stn (f i)) <- stn (stnsum f).
+Lemma isweq_weqstnsum_invmap {n : nat} (m : stn n -> nat) : isweq (weqstnsum_invmap m).
 Proof.
-  intros ? ?. induction n as [|n IH].
-  { intros l. induction (negstn0 l). }
-  intros l. induction l as [l L].
-  choose (l < f (firstelement _))%dnat a b.
-  { exact (firstelement _,, (l,,a)). }
-  assert (b' : f (firstelement _) ≤ l). { exact (negnatgthtoleh b). } clear b.
-  rewrite (stnsum_dni _ (firstelement _)) in L.
-  rewrite natpluscomm in L.
-  assert ( c := minusplusnmm l (f (firstelement _)) b'); clear b'.
-  rewrite natpluscomm in c.
-  rewrite <- c in L; clear c.
-  assert ( d := natlthandpluslinv _ _ _ L); clear L.
-  set (l' := (l - f (firstelement n),,d) : stn _).
-  assert ( e := IH (f ∘ dni n (firstelement n)) l' ).
-  induction e as [r s].
-  exact (dni _ (firstelement _) r,,s).
-Defined.
+  intros.
+  intro ij.
+  use tpair.
+  - use tpair.
+    +
+
+Abort.
 
 Lemma stn_right_first n i : stn_right i (S n) (firstelement n) = stnpair (i + S n) i (natltplusS n i).
 Proof.
@@ -705,28 +701,22 @@ Proof.
   apply natplusr0.
 Defined.
 
-Definition weqstnsum_map { n : nat } (f : stn n -> nat) : (Σ i, stn (f i)) -> stn (stnsum f).
+Definition weqstnsum_map { n : nat } (m : stn n -> nat) : (Σ i, stn (m i)) -> stn (stnsum m).
 Proof.
-  intros ? ? ij; induction ij as [i j]; induction i as [i I]; induction j as [j J].
-  (* assert (I' := natlthtoleh _ _ I). *)
-  assert (e : i + S (n - i - 1) = n).
-  { intermediate_path (S i + (n - i - 1)).
-    { change (S i) with (1+i). rewrite (natpluscomm 1 i). rewrite natplusassoc. reflexivity. }
-    { change (S i) with (1 + i). rewrite (natpluscomm 1 i). rewrite natpluscomm.
-      assert (t : n-i - 1 = n-(i+1)). { apply natminusminus. }
-      rewrite t. apply minusplusnmm. rewrite natpluscomm. now apply natlthtolehsn. } }
-  rewrite (transport_stnsum e).
-  set (f' := λ l : stn (i + S(n - i - 1)), f (transportf stn e l)).
-  exists (stnsum (f' ∘ (stn_left i (S(n - i - 1)))) + j).
-  rewrite (stnsum_left_right _ _ f'). apply natlthandplusl.
-  assert (K := stnsum_pos_0 (f' ∘ stn_right i (S (n - i - 1)))).
-  assert (M : j < (f' ∘ stn_right i (S (n - i - 1))) (firstelement (n - i - 1))).
-  { assert (D : f (i,, I) = (f' ∘ stn_right i (S (n - i - 1))) (firstelement (n - i - 1))).
-    { unfold f', funcomp. apply maponpaths. apply subtypeEquality_prop. simpl.
-      rewrite stn_right_first. rewrite transport_stn. simpl. reflexivity. }
-    now rewrite (!D). }
-  exact (natlthlehtrans j _ _ M K).
-Defined.
+  intros ? ? ij.
+  set (i := pr1 ij).
+  set (j := pr2 ij).
+  set (m1 := m ∘ stn_left' i n (natlthtoleh _ _ (stnlt i))).
+  set (len1 := stnsum m1).
+  exists (len1 + j).
+  induction n as [|n I].
+  - induction (negstn0 i).
+  - set (m' := m ∘ (dni _ (lastelement _))).
+    set (len' := stnsum m').
+    change (stnsum m) with (stnsum m' + m(lastelement _)).
+
+
+Admitted.
 
 Theorem weqstnsum1 { n : nat } (f : stn n -> nat) : (Σ i, stn (f i)) ≃ stn (stnsum f).
 Proof.
