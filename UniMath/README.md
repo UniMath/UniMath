@@ -44,7 +44,8 @@ less fragile and to make the files have a more uniform and pleasing appearance.
 * Use `as` to name all new variables introduced by `induction` or
   `destruct`, if the corresponding type is defined in a remote location,
   because different names might be used by Coq when the definition of the type
-  is changed.
+  is changed.  Name all variables introduced by `assert`, if they are used by
+  name later, with `as` or to the left of a colon.
 * Do not end a proof with `Qed.`, except with `Goal`, for that may prevent later computations.
 * Start all proofs with `Proof.` on a separate line and end it with
   `Defined.` on a separate line, as this makes it possible for us to generate
