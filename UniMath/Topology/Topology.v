@@ -190,7 +190,7 @@ Proof.
       apply isapropimpl.
       apply propproperty. }
     set (Q := λ A : T → hProp, isOpen A ∧ (hProppair (Π y : T, A y → P y) (H A))).
-    assert (P = (union Q)).
+    assert (X : P = (union Q)).
     { apply funextfun.
       intros x.
       apply hPropUnivalence.
