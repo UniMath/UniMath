@@ -596,11 +596,13 @@ Proof.
   - apply (pr2 (pr2 (pr2 La))).
     intros n.
     simpl in X0.
+    unfold concatenate' in X0.
     specialize (X0 (weqfromcoprodofstn_map (length (pr1 La)) (length (pr1 Lb)) (ii1 n))).
     now rewrite (weqfromcoprodofstn_eq1 _ _) , coprod_rect_compute_1 in X0.
   - apply (pr2 (pr2 (pr2 Lb))).
     intros n.
     simpl in X0.
+    unfold concatenate' in X0.
     specialize (X0 (weqfromcoprodofstn_map (length (pr1 La)) (length (pr1 Lb)) (ii2 n))).
     now rewrite (weqfromcoprodofstn_eq1 _ _), coprod_rect_compute_2 in X0.
 Qed.

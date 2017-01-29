@@ -3,12 +3,6 @@ Unset Automatic Introduction.
 
 (* move upstream *)
 
-Definition total2_base_map {S T:UU} {P: T -> UU} (f : S->T) : (Σ i, P(f i)) -> (Σ j, P j).
-Proof.
-  intros ? ? ? ? x.
-  exact (f(pr1 x),,pr2 x).
-Defined.
-
 Ltac set_id_type v := match goal with |- @paths ?ID _ _ => set (v := ID); simpl in v end.
 
 Local Arguments dni {_} _.
@@ -31,19 +25,6 @@ Proof.
   induction (weqfromcoprodofstn_invmap _ _ i) as [j | k].
   + exact (f j).
   + exact (g k).
-Defined.
-
-Definition weqstnsum_invmap_last { n : nat } (m : stn n -> nat) : stn (stnsum m) -> (Σ i, stn (m i)).
-Proof.
-  intros ? ?.
-  intros l.
-  induction n as [|n IH].
-  { abstract (induction (negstn0 l)). }
-  set (m' := m ∘ dni lastelement).
-  set (len' := stnsum m').
-  induction (natlthorgeh (stntonat _ l) len') as [I|I].
-  - exact (total2_base_map (dni lastelement) (IH _ (stnpair _ _ I))).
-  - exact (lastelement,,(stnpair _ (l-len') (nat_split len' _ _ (stnlt l) I))).
 Defined.
 
 Definition flatten' {X n} {m:stn n->nat} : (Π (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
@@ -381,10 +362,7 @@ Lemma Sequence_rect_compute_cons
 Proof.
   intros.
   cbn.
-
-
-  (* proof in progress... *)
-
+  (* proof needed to complete induction for sequences *)
 Abort.
 
 Lemma append_length {X} (x:Sequence X) (y:X) :
@@ -397,33 +375,6 @@ Definition concatenate {X : UU} : binop (Sequence X)
 Definition concatenate_length {X} (x y:Sequence X) :
   length (concatenate x y) = length x + length y.
 Proof. intros. reflexivity. Defined.
-
-(** Versions of concatenate_0 for the alternative concatenate *)
-Definition concatenate_0 {X : UU} (s : Sequence X) (t : stn 0 -> X) : concatenate s (0,,t) = s.
-Proof.
-  intros.
-  use seq_key_eq_lemma.
-  - apply natplusr0.
-  - intros i ltg ltg'. cbn. unfold coprod_rect.
-    unfold concatenate', weqfromcoprodofstn_invmap.
-    match goal with |- coprod_rect _ _ _ (coprod_rect _ _ _ ?x) = _ => induction x as [H | H]; cbn end.
-    + apply maponpaths. now apply subtypeEquality_prop.
-    + apply fromempty. apply (natlthtonegnatgeh _ _ ltg' H).
-Qed.
-
-Definition concatenate_0' {X : UU} (s : Sequence X) (t : stn 0 -> X) : concatenate (0,,t) s = s.
-Proof.
-  intros. apply pathsinv0. induction s as [s l].
-  use seq_key_eq_lemma.
-  - apply idpath.
-  - intros i ltg ltg'. cbn. unfold coprod_rect.
-    induction (natchoice0 s) as [H | H].
-    + apply fromempty. cbn in ltg'. rewrite <- H in ltg'. apply (nopathsfalsetotrue ltg').
-    + apply maponpaths.
-      use total2_paths.
-      * cbn. apply pathsinv0. apply natminuseqn.
-      * apply proofirrelevance. apply propproperty.
-Qed.
 
 Definition concatenateStep {X : UU} (x : Sequence X) {n : nat} (y : stn (S n) -> X) :
   concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni_lastelement)) (y lastelement).
@@ -516,6 +467,7 @@ Defined.
 
 Definition total2_step {n} (X:stnset (S n) ->UU) :
   (Σ i, X i) ≃ (Σ (i:stn n), X (dni lastelement i)) ⨿ X lastelement.
+(* this should be homotopic to total2_step_f *)
 Proof.
   intros. set (f := weqdnicoprod n lastelement).
   intermediate_weq (Σ x : stn n ⨿ unit, X (f x)).
@@ -534,12 +486,6 @@ Definition total2_step_compute_2 {n} (X:stnset (S n) ->UU) :
 Proof.
   intros. intros [[i x]|y]; reflexivity. (* amazingly easy, why? *)
 Defined.
-
-Definition total2_step_compute_1 {n} (X:stnset (S n) ->UU) :
-  total2_step X ~ total2_step_f X.
-Proof. intros. intros [i x].
-       try reflexivity.
-Abort.
 
 Definition isinjinvmap {X Y} (v w:X≃Y) : invmap v ~ invmap w -> v ~ w.
 Proof. intros ? ? ? ? h x.
@@ -596,31 +542,6 @@ Proof.
   reflexivity.
 Defined.
 
-Definition weqstnsum1_step {n} (f:stn (S n) -> nat) :
-  weqstnsum1 f = weqstnsum1' f.
-Proof.
-  intros.
-  apply isinjpr1weq.
-  apply funextfun; intros [k p].
-  unfold weqstnsum1'.
-  unfold total2_step', total2_step.
-  rewrite 4? weqcomp_to_funcomp.
-  unfold funcomp.
-  change (((invweq
-                  (weqfp (weqdnicoprod n lastelement)
-                         (λ i : stn (S n), stn (f i)))) (k,, p)))
-            with ((invmap
-                  (weqfp (weqdnicoprod n lastelement)
-                     (λ i : stn (S n), stn (f i)))) (k,, p)).
-  rewrite weqfp_compute_2.
-  unfold weqdnicoprod at 11.
-  unfold weqfp_invmap.
-  change (pr2 (tpair (λ i, stn(f i)) k p)) with p.
-  change (pr1 (tpair (λ i, stn(f i)) k p)) with k.
-
-  (* perhaps also prove this by equipping everything in sight with a well-ordering, preserved by all the equivalences involved *)
-Abort.
-
 Definition flattenStep' {X n}
            (m : stn (S n) → nat)
            (x : Π i : stn (S n), stn (m i) → X)
@@ -630,10 +551,13 @@ Definition flattenStep' {X n}
 Proof.
   intros.
   apply funextfun; intro i.
-  unfold flatten'.
+  unfold flatten', funcomp'.
   unfold weqstnsum_invmap_last at 1.
-
-Admitted.
+  unfold concatenate', weqfromcoprodofstn_invmap.
+  unfold nat_rect, coprod_rect, empty_rect.
+  change (natlthorgeh _ _) with (natlthorgeh i (stnsum m')) at 1 4.
+  induction (natlthorgeh i (stnsum m')); reflexivity.
+Defined.
 
 Definition flattenStep {X} (x: NonemptySequence (Sequence X)) :
   flatten x = concatenate (flatten (composeSequence x dni_lastelement)) (lastValue x).

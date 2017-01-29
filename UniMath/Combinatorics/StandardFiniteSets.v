@@ -639,6 +639,44 @@ Proof.
   apply (istransnatleh W); clear W. apply natlehnplusnm.
 Defined.
 
+Local Definition _a_
+      {n : nat}
+      (IH : Π m : stn n → nat, stn (stnsum m) → Σ i : stn n, stn (m i))
+      (m : stn (S n) → nat)
+      (l : stn (stnsum m))
+      (len' := stnsum (m ∘ dni n (lastelement n)))
+      (J : l ≥ len') : l - len' < m (lastelement n).
+Proof.
+  intros.
+  exact (nat_split len' _ _ (stnlt l) J).
+Defined.
+
+Local Definition _b_
+      {n : nat}
+      (IH : Π m : stn n → nat, stn (stnsum m) → Σ i : stn n, stn (m i))
+      (m : stn (S n) → nat)
+      (l : stn (stnsum m))
+      (m' := m ∘ dni n (lastelement n) : stn n → nat)
+      (len' := stnsum m' : nat)
+      (I : l < len') : Σ i : stn (S n), stn (m i).
+Proof.
+  intros.
+  exact (total2_base_map (dni _ (lastelement _)) (IH _ (stnpair _ _ I))).
+Defined.
+
+Definition weqstnsum_invmap_last { n : nat } (m : stn n -> nat) : stn (stnsum m) -> (Σ i, stn (m i)).
+Proof.
+  intros ?.
+  induction n as [|n IH].
+  { intros ? l. induction (negstn0 l). }
+  intros ? l.
+  set (m' := m ∘ dni _ (lastelement n)).
+  set (len' := stnsum m').
+  induction (natlthorgeh (stntonat _ l) len') as [I|J].
+  - exact (_b_ IH m l I).
+  - exact (lastelement _,,stnpair (m (lastelement _)) (l-len') (_a_ IH m l J)).
+Defined.
+
 Definition weqstnsum_invmap_first { n : nat } (f : stn n -> nat) : (Σ i, stn (f i)) <- stn (stnsum f).
 Proof.
   intros ? ?. induction n as [|n IH].

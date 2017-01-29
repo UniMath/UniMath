@@ -836,6 +836,11 @@ Proof.
   apply idpath.
 Defined.
 
+Definition total2_base_map {S T:UU} {P: T -> UU} (f : S->T) : (Σ i, P(f i)) -> (Σ j, P j).
+Proof.
+  intros ? ? ? ? x.
+  exact (f(pr1 x),,pr2 x).
+Defined.
 
 (** *** Lemmas about transport adapted from the HoTT library and the HoTT book *)
 

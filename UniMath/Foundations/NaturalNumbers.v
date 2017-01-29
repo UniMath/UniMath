@@ -1424,7 +1424,7 @@ Proof.
         { apply is. }
         { apply H. }
       * apply natlthtoleh. apply is'.
-Qed.
+Defined.
 
 (*
 Definition natgehandminuslinv (n m k : nat) (is' : natgeh k n)
@@ -2186,4 +2186,4 @@ Proof.
   apply natlthandminusl.
   - induction (natpluscomm n m). exact p.
   - induction (natpluscomm n m). now apply (natlehlthtrans _ i).
-Qed.
+Defined.

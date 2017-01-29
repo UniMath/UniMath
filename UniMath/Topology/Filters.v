@@ -1021,6 +1021,7 @@ Proof.
   exists (concatenate (pr1 Ha) (pr1 Hb)).
   split.
   + simpl ; intros m.
+    unfold concatenate'.
     set (Hm := (weqfromcoprodofstn_invmap (length (pr1 Ha)) (length (pr1 Hb))) m).
     change ((weqfromcoprodofstn_invmap (length (pr1 Ha)) (length (pr1 Hb))) m) with Hm.
     induction Hm as [Hm | Hm].
@@ -1028,7 +1029,9 @@ Proof.
       apply (pr1 (pr2 Ha)).
     * rewrite coprod_rect_compute_2.
       apply (pr1 (pr2 Hb)).
-  + intros x Hx ; simpl in Hx.
+  + intros x Hx.
+    simpl in Hx.
+    unfold concatenate' in Hx.
     split.
     * apply (pr2 (pr2 Ha)).
       intros m.
