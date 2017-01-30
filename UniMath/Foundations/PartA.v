@@ -164,7 +164,7 @@ Definition termfun {X : UU} (x : X) : unit -> X := fun (t : unit) => x.
 
 Definition idfun (T : UU) := λ t:T, t.
 
-Definition funcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z) := λ x, g (f x).
+Definition funcomp {X Y : UU} {Z:Y->UU} (f : X -> Y) (g : Π y:Y, Z y) := λ x, g (f x).
 
 Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity).
 
