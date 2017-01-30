@@ -30,25 +30,66 @@ Section elems_slice_equiv.
     fun p => # (pr1 P) f (pr1 p) ,,
                pr2 (pr1 F) (X ,, (pr1 p)) (Y,, # (pr1 P) f (pr1 p)) (f ,, idpath (# (pr1 P) f (pr1 p))) (pr2 p).
 
+  (*
+  Definition pshf_to_slice_ob_funct_mor' (F : pshf (el P)) {Y : el P} (p : Σ X , X --> Y) :
+    Σ X , (pr1 F) X --> (pr1 F) Y :=
+    (pr1 p) ,, # (pr1 F) (pr2 p).
+
+  Definition pshf_to_slice_ob_funct_mor'' (F : pshf (el P)) {Y : C^op}
+   *)
+
+  Local Definition ap_pshf {X : Precategory} := fun (P : pshf X) (x : X) => pr1 ((pr1 P) x).
+  Local Notation "##" := ap_pshf.
+
+  Definition Fmod' (F : pshf (el P)) (X : el P) (q : Σ Y , X --> Y) :
+    Σ Y , (pr1 F) Y --> (pr1 F) X := pr1 q ,, # (pr1 F) (pr2 q).
+
+  Definition Fmod (F : pshf (el P)) (X : el P) (q : Σ p : ##P (pr1 X) , ((pr1 X ,, p) : el P) --> X) :
+    Σ p : ##P (pr1 X) , (pr1 F) X --> (pr1 F) (pr1 X ,, p) := pr1 q ,, # (pr1 F) (pr2 q).
+
   Definition pshf_to_slice_ob_funct_data (F : pshf (el P)) : functor_data C^op SET :=
     pshf_to_slice_ob_funct_fun F ,, @pshf_to_slice_ob_funct_mor F.
 
   Definition pshf_to_slice_ob_is_funct (F : pshf (el P)) : is_functor (pshf_to_slice_ob_funct_data F).
   Proof.
-    intros [[Ffun Fmor] [Fid Fcomp]].
+    intros F.
     split.
     + intro a. simpl.
-      unfold identity.
       unfold pshf_to_slice_ob_funct_mor. simpl.
-      induction P as [[Pfun Pmor] [Pid Pcomp]]; simpl.
+      (*induction P as [[Pfun Pmor] [Pid Pcomp]]; simpl.*)
       apply funextsec; intro p.
-      induction p as [p Fp]; simpl.
-      apply (total2_paths2 (apevalat p (Pid a))).
-      induction ((Pid a)).
-      unfold transportf.
-      unfold constr1. simpl.
-      unfold idfun.
+      set (F' := (Fmod F (a ,, pr1 p) (# (pr1 P) (identity a) (pr1 p) ,, (identity a ,, idpath _)))).
+      simpl in F'.
+
+      assert (idEq : F' = pr1 p ,, identity ((pr1 F) (a ,, pr1 p))).
       admit.
+
+      unfold F' in idEq. unfold Fmod in idEq. simpl in idEq.
+
+      inversion idEq.
+
+      apply (total2_paths2 (apevalat (pr1 p) ((pr1 (pr2 P)) a))).
+      apply funextsec; intro x.
+      unfold identity. simpl.
+
+
+
+      destruct p as [p Fp]; simpl.
+
+      apply (ap_total2_paths2 (Pid a)).
+      destruct (Pid a).
+      unfold transportf.
+      unfold constr1.
+      unfold idfun. simpl.
+
+      assert (F' : forall p' (q : (Σ x : (Σ a : C^op , pr1 (Pfun a)) , (Σ f : pr1 p' --> a , pr1 p' = (Fmor _ _ ( f ,, idpath (Pmor _ _ f (pr1 p')))) a))) , Σ x : (Σ a : C^op ,pr1 (Pfun a)) , Ffun p' --> Ffun x).
+
+      apply (total2_paths2 (apevalat p (Pid a))).
+      destruct (apevalat p (Pid a)).  (* somehow stuff doesn't typecheck now *)
+      unfold transportf.
+      unfold constr1.
+      unfold idfun. simpl.
+      Admit.
     + intros a b c f g.
       unfold pshf_to_slice_ob_funct_data; simpl.
       unfold pshf_to_slice_ob_funct_mor; simpl.
