@@ -67,7 +67,7 @@ Definition isasymm_StrongOrder : isasymm R :=
 
 End so_pty.
 
-Lemma isStrongOrder_fun {X Y : UU} (f : Y → X) (gt : hrel X) :
+Lemma isStrongOrder_bck {X Y : UU} (f : Y → X) (gt : hrel X) :
   isStrongOrder gt → isStrongOrder (λ x y : Y, gt (f x) (f y)).
 Proof.
   intros X Y H gt is.
@@ -79,14 +79,8 @@ Proof.
   - intros x.
     apply (pr2 (pr2 is)).
 Qed.
-Definition StrongOrder_fun {X Y : UU} (f : Y → X) (gt : StrongOrder X) : StrongOrder Y :=
-  (λ x y : Y, gt (f x) (f y)) ,, isStrongOrder_fun f _ (pr2 gt).
-
-Definition isStrongOrder_weq {X Y : UU} (H : weq Y X) (gt : hrel X) :
-  isStrongOrder gt → isStrongOrder (λ x y : Y, gt (H x) (H y)) :=
-  isStrongOrder_fun H gt.
-Definition StrongOrder_weq {X Y : UU} (H : weq Y X) (gt : StrongOrder X) : StrongOrder Y :=
-  (λ x y : Y, gt (H x) (H y)) ,, isStrongOrder_weq H _ (pr2 gt).
+Definition StrongOrder_bck {X Y : UU} (f : Y → X) (gt : StrongOrder X) : StrongOrder Y :=
+  (λ x y : Y, gt (f x) (f y)) ,, isStrongOrder_bck f _ (pr2 gt).
 
 Lemma isStrongOrder_setquot {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
   isStrongOrder L → isStrongOrder (quotrel is).
@@ -100,7 +94,8 @@ Qed.
 Definition StrongOrder_setquot {X : UU} {R : eqrel X} {L : StrongOrder X} (is : iscomprelrel R L) : StrongOrder (setquot R) :=
   quotrel is,, isStrongOrder_setquot is (pr2 L).
 
-Lemma isStrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (gt : hrel X) (Hgt : ispartbinophrel Y gt) :
+Lemma isStrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (gt : hrel X)
+      (Hgt : ispartbinophrel Y gt) :
   isStrongOrder gt → isStrongOrder (abmonoidfracrel X Y Hgt).
 Proof.
   intros X Y gt Hgt H.
@@ -109,10 +104,12 @@ Proof.
   - apply iscotransabmonoidfracrel, (pr1 (pr2 H)).
   - apply isirreflabmonoidfracrel, (pr2 (pr2 H)).
 Qed.
-Definition StrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (gt : StrongOrder X) (Hgt : ispartbinophrel Y gt) : StrongOrder (abmonoidfrac X Y) :=
+Definition StrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (gt : StrongOrder X)
+           (Hgt : ispartbinophrel Y gt) : StrongOrder (abmonoidfrac X Y) :=
   abmonoidfracrel X Y Hgt,, isStrongOrder_abmonoidfrac Y gt Hgt (pr2 gt).
 
-Lemma isStrongOrder_abgrdiff {X : abmonoid} (gt : hrel X) (Hgt : isbinophrel gt) :
+Lemma isStrongOrder_abgrdiff {X : abmonoid} (gt : hrel X)
+      (Hgt : isbinophrel gt) :
   isStrongOrder gt → isStrongOrder (abgrdiffrel X Hgt).
 Proof.
   intros X gt Hgt H.
@@ -121,25 +118,26 @@ Proof.
   - apply iscotransabgrdiffrel, (pr1 (pr2 H)).
   - apply isirreflabgrdiffrel, (pr2 (pr2 H)).
 Qed.
-Definition StrongOrder_abgrdiff {X : abmonoid} (gt : StrongOrder X) (Hgt : isbinophrel gt) : StrongOrder (abgrdiff X) :=
+Definition StrongOrder_abgrdiff {X : abmonoid} (gt : StrongOrder X)
+           (Hgt : isbinophrel gt) : StrongOrder (abgrdiff X) :=
   abgrdiffrel X Hgt,, isStrongOrder_abgrdiff gt Hgt (pr2 gt).
 
 Lemma StrongOrder_correct_commrngfrac (X : commrng) (Y : @subabmonoid (rngmultabmonoid X))
       (gt : StrongOrder X)
       Hgt Hle Hmult Hpos :
-  Π (x y : commrngfrac X Y),
-  commrngfracgt X Y (R := gt) Hle Hmult Hpos x y
-  <-> StrongOrder_abmonoidfrac Y gt Hgt x y.
+  commrngfracgt X Y (R := gt) Hle Hmult Hpos = StrongOrder_abmonoidfrac Y gt Hgt.
 Proof.
-  intros X Y is Hgt Hle Hmult Hpos.
-  simpl.
-  simple refine (setquotuniv2prop (eqrelabmonoidfrac (rngmultabmonoid X) Y) (λ _ _, hProppair _ _) _).
-  - apply isapropdirprod ;
-    apply isapropimpl, propproperty.
-  - intros x y.
-    unfold commrngfracgt, abmonoidfracrel, quotrel.
-    do 2 rewrite setquotuniv2comm.
-    split ; intros H ; apply H.
+  intros X Y gt Hgt Hle Hmult Hpos.
+  apply funextfun ; intros x.
+  apply funextfun ; intros y.
+  apply (maponpaths (λ H, abmonoidfracrel (rngmultabmonoid X) Y H x y)).
+  assert (H : isaprop (ispartbinophrel Y gt)).
+  { apply isapropdirprod ;
+    apply impred_isaprop ; intros a ;
+    apply impred_isaprop ; intros b ;
+    apply impred_isaprop ; intros c ;
+    apply isapropimpl, isapropimpl, (pr2 (gt _ _)). }
+  apply H.
 Qed.
 
 (** ** Definition *)
@@ -673,7 +671,7 @@ Section lattice_abmonoid.
 
 Context {X : abmonoid}
         (is : lattice X)
-        (is0 : Π x y z : X, y + x = z + x → y = z)
+        (is0 : isinvbinophrel (λ x y, hProppair (x = y) ((pr2 (pr1 (pr1 X))) _ _)))
         (is2 : isrdistr (Lmin is) op).
 
 Lemma op_le_r :
@@ -687,7 +685,7 @@ Lemma op_le_r' :
   Π k x y : X, Lle is (x + k) (y + k) → Lle is x y.
 Proof.
   intros k x y H.
-  apply (is0 k).
+  apply (pr2 is0 _ _ k).
   now rewrite is2, H.
 Qed.
 
@@ -709,7 +707,7 @@ Qed.
 Definition extruncminus {X : abmonoid} (is : lattice X) :=
   Σ minus : binop X, istruncminus is minus.
 Lemma isaprop_extruncminus {X : abmonoid} (is : lattice X)
-      (Hop : Π x y z : X, y + x = z + x → y = z) :
+      (Hop : isinvbinophrel (λ x y, hProppair (x = y) ((pr2 (pr1 (pr1 X))) _ _))) :
   isaprop (extruncminus is).
 Proof.
   intros X is Hop.
@@ -725,7 +723,7 @@ Proof.
     apply isaprop_istruncminus.
   - apply weqfunextsec ; intros x.
     apply weqfunextsec ; intros y.
-    apply (Hop y).
+    apply (pr2 Hop _ _ y).
     rewrite (pr2 minus1).
     apply pathsinv0, (pr2 minus2).
   - apply isaprop_istruncminus.
@@ -746,7 +744,7 @@ Section truncminus_pty.
 Context {X : abmonoid}
         {is : lattice X}
         (ex : extruncminus is)
-        (is1 : Π x y z : X, y + x = z + x → y = z)
+        (is1 : isinvbinophrel (λ x y, hProppair (x = y) ((pr2 (pr1 (pr1 X))) _ _)))
         (is2 : isrdistr (Lmax is) op)
         (is3 : isrdistr (Lmin is) op)
         (is4 : isrdistr (Lmin is) (Lmax is))
@@ -764,9 +762,13 @@ Lemma truncminus_eq_0 :
   Π x y : X, Lle is x y → truncminus ex x y = 0.
 Proof.
   intros x y H.
-  apply (is1 y).
-  rewrite istruncminus_ex, lunax.
+  apply (pr2 is1 _ _ y).
+  simpl.
+  refine (pathscomp0 _ _).
+  apply istruncminus_ex.
+  refine (pathscomp0 _ _).
   apply Lmax_le_eq_r, H.
+  apply pathsinv0, (lunax X).
 Qed.
 
 Lemma truncminus_0_l_ge0 :
@@ -817,8 +819,11 @@ Lemma truncminus_truncminus :
   Π x y, Lle is 0 x → Lle is x y → truncminus ex y (truncminus ex y x) = x.
 Proof.
   intros x y Hx Hxy.
-  apply (is1 (truncminus ex y x)).
-  rewrite (commax _ x), !istruncminus_ex.
+  apply (pr2 is1 _ _ (truncminus ex y x)).
+  simpl.
+  rewrite (commax _ x), istruncminus_ex.
+  refine (pathscomp0 _ _).
+  apply istruncminus_ex.
   rewrite !Lmax_le_eq_l.
   - reflexivity.
   - exact Hxy.
@@ -833,18 +838,24 @@ Lemma truncminus_le_r :
   Π k x y : X, Lle is x y → Lle is (truncminus ex x k) (truncminus ex y k).
 Proof.
   intros k x y <-.
-  apply (is1 k).
-  rewrite is3, !istruncminus_ex.
+  apply (pr2 is1 _ _ k).
+  simpl.
+  rewrite is3, 2!istruncminus_ex.
   rewrite is4, isassoc_Lmin, Lmin_id.
-  reflexivity.
+  rewrite <- is4.
+  apply pathsinv0, istruncminus_ex.
 Qed.
 Lemma truncminus_le_l :
   Π k x y : X, Lle is y x → Lle is (truncminus ex k x) (truncminus ex k y).
 Proof.
   intros k x y H.
-  apply (is1 y).
+  apply (pr2 is1 _ _ y).
+  change ((Lmin is (truncminus ex k x) (truncminus ex k y) * y)%multmonoid =
+     (truncminus ex k x * y)%multmonoid).
   rewrite is3, istruncminus_ex.
-  apply (is1 x).
+  apply (pr2 is1 _ _ x).
+  change ((Lmin is (truncminus ex k x * y) (Lmax is k y) * x)%multmonoid =
+     (truncminus ex k x * y * x)%multmonoid).
   rewrite is3, assocax, (commax _ y), <- assocax, istruncminus_ex.
   rewrite !is2, (commax _ y), <- is4, !(commax _ k), <- is3, H.
   reflexivity.
@@ -855,7 +866,9 @@ Lemma truncminus_Lmax_l :
   truncminus ex (Lmax is x y) k = Lmax is (truncminus ex x k) (truncminus ex y k).
 Proof.
   intros k x y.
-  apply (is1 k).
+  apply (pr2 is1 _ _ k).
+  change ((truncminus ex (Lmax is x y) k * k)%multmonoid =
+     (Lmax is (truncminus ex x k) (truncminus ex y k) * k)%multmonoid).
   rewrite is2, !istruncminus_ex.
   rewrite !isassoc_Lmax, (iscomm_Lmax _ k), isassoc_Lmax, Lmax_id.
   reflexivity.
@@ -866,7 +879,9 @@ Lemma truncminus_Lmax_r :
   truncminus ex k (Lmax is x y) = Lmin is (truncminus ex k x) (truncminus ex k y).
 Proof.
   intros k x y H.
-  apply (is1 (Lmax is x y)).
+  apply (pr2 is1 _ _ (Lmax is x y)).
+  change ((truncminus ex k (Lmax is x y) * Lmax is x y)%multmonoid =
+     (Lmin is (truncminus ex k x) (truncminus ex k y) * Lmax is x y)%multmonoid).
   rewrite is3, istruncminus_ex.
   rewrite !(commax _ _ (Lmax _ _ _)), !is2.
   rewrite !(commax _ _ (truncminus _ _ _)), !istruncminus_ex.
@@ -874,12 +889,21 @@ Proof.
   rewrite !isassoc_Lmax, !(iscomm_Lmax _ k).
   rewrite <- is4.
 
-  apply (is1 x).
+  apply (pr2 is1 _ _ x).
+  change ((Lmax is (Lmax is x y) k * x)%multmonoid =
+     (Lmax is
+        (Lmin is (Lmax is x (truncminus ex k x * y))
+           (Lmax is y (truncminus ex k y * x))) k * x)%multmonoid).
   rewrite !is2, is3, !is2.
   rewrite assocax, (commax _ y x), <- assocax.
   rewrite istruncminus_ex, is2.
 
-  apply (is1 y).
+  apply (pr2 is1 _ _ y).
+  change ((Lmax is (Lmax is (x * x) (x * y)) (k * x) * y)%multmonoid =
+     (Lmax is
+        (Lmin is (Lmax is (x * x) (Lmax is (k * y) (x * y)))
+           (Lmax is (x * y) (truncminus ex k y * x * x)))
+        (k * x) * y)%multmonoid).
   rewrite !is2, is3, !is2.
   rewrite !assocax, (commax _ (truncminus _ _ _)), !assocax, (commax _ _ (truncminus _ _ _)).
   rewrite istruncminus_ex.
@@ -907,8 +931,10 @@ Lemma truncminus_Lmin_l :
   Π k x y : X, truncminus ex (Lmin is x y) k = Lmin is (truncminus ex x k) (truncminus ex y k).
 Proof.
   intros k x y.
-  apply (is1 k).
-  rewrite is3, !istruncminus_ex.
+  apply (pr2 is1 _ _ k).
+  simpl.
+  rewrite is3, 2!istruncminus_ex.
+  apply (pathscomp0 (istruncminus_ex _ _ _)).
   apply is4.
 Qed.
 
@@ -1079,7 +1105,7 @@ Qed.
 
 Lemma islatticewithgtrel_weq {X Y : hSet} (H : weq Y X) {gt : StrongOrder X} (is : lattice X) :
   islatticewithgtrel is gt →
-  islatticewithgtrel (lattice_weq H is) (StrongOrder_weq H gt).
+  islatticewithgtrel (lattice_weq H is) (StrongOrder_bck H gt).
 Proof.
   intros X Y H gt is Hgt.
   split ; split.
@@ -1111,7 +1137,7 @@ Definition latticewithgt_weq {X Y : hSet} (H : weq Y X) (is : latticewithgt X) :
   latticewithgt Y.
 Proof.
   intros X Y H is.
-  exists (lattice_weq H is), (StrongOrder_weq H (Lgt is)).
+  exists (lattice_weq H is), (StrongOrder_bck H (Lgt is)).
   apply islatticewithgtrel_weq.
   apply (pr2 (pr2 is)).
 Defined.
