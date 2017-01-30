@@ -158,7 +158,8 @@ Proof.
       intermediate_path (sequenceProduct (n,, y ∘ dni_lastelement ∘ g')).
       { apply IH. }
       { change ((_ ∘ _) ∘ _) with (y ∘ (dni_lastelement ∘ g')).
-        apply maponpaths; apply maponpaths; apply (maponpaths (λ g, _ ∘ g)).
+        apply maponpaths; apply maponpaths.
+        apply (maponpaths (λ h i, y(h i))).
         apply funextfun; intros i.
         unfold funcomp. apply isinjstntonat. rewrite pr1_dni_lastelement. unfold g'.
         rewrite 3? weqcomp_to_funcomp_app. rewrite inv_weqdnicompl_compute_last. rewrite pr1_h.
