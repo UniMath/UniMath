@@ -71,8 +71,8 @@ Proof.
   * intros.
     induction (r i) as [ p [ q e ]].
     simple refine (_ @ e @ _).
-    - apply maponpaths, maponpaths. apply propproperty.
-    - apply maponpaths, maponpaths. apply propproperty.
+    - now apply maponpaths, isinjstntonat.
+    - now apply maponpaths, isinjstntonat.
 Defined.
 
 Local Definition empty_fun {X} : stn 0 -> X.
@@ -358,25 +358,20 @@ Proof.
   - intros i ltg ltg'. cbn. unfold coprod_rect.
     unfold weqfromcoprodofstn_invmap. unfold coprod_rect. cbn.
     induction (natlthorgeh i (seq_len s)) as [H | H].
-    + apply maponpaths.
-      use total2_paths.
-      * apply idpath.
-      * apply proofirrelevance. apply propproperty.
-    + apply fromempty. apply (natlthtonegnatgeh i (seq_len s) ltg' H).
+    + apply maponpaths. now apply isinjstntonat.
+    + apply fromempty. apply (natlthtonegnatgeh _ _ ltg' H).
 Qed.
 
 Definition concatenate_0' {X : UU} (s : Sequence X) (t : stn 0 -> X) : concatenate (0,,t) s = s.
 Proof.
-  intros. apply pathsinv0. induction s as [s l].
-  use seq_key_eq_lemma.
-  - apply idpath.
-  - intros i ltg ltg'. cbn. unfold coprod_rect.
-    induction (natchoice0 s) as [H | H].
-    + apply fromempty. cbn in ltg'. rewrite <- H in ltg'. apply (nopathsfalsetotrue ltg').
-    + apply maponpaths.
-      use total2_paths.
-      * cbn. apply pathsinv0. apply natminuseqn.
-      * apply proofirrelevance. apply propproperty.
+  intros. induction s as [s l].
+  apply pair_path_in2.
+  apply funextfun; intro i.
+  cbn in i. cbn.
+  induction (natchoice0 s) as [H | H].
+  + apply fromempty. rewrite <- H in i. now apply negstn0.
+  + cbn. apply maponpaths. apply isinjstntonat.
+    induction i as [i k]; cbn. apply natminuseqn.
 Qed.
 
 Definition concatenateStep {X : UU} (x : Sequence X) {n : nat} (y : stn (S n) -> X) :
@@ -400,14 +395,9 @@ Proof.
         -- induction (natchoice0 n) as [H3 | H3].
            ++ apply fromempty. induction H3. rewrite natplusr0 in H'.
               use (natlthtonegnatgeh i x H' H).
-           ++ unfold funcomp. apply maponpaths.
-              use total2_paths.
-              ** apply idpath.
-              ** apply proofirrelevance. apply propproperty.
-        -- apply maponpaths.
-           use total2_paths.
-           ++ cbn. rewrite H'. rewrite natpluscomm. apply plusminusnmm.
-           ++ apply proofirrelevance. apply propproperty.
+           ++ unfold funcomp. apply maponpaths. now apply isinjstntonat.
+        -- apply maponpaths. apply isinjstntonat. cbn. rewrite H'.
+           rewrite natpluscomm. apply plusminusnmm.
 Qed.
 
 Definition partition {X : UU} {n : nat} (f : stn n -> nat) (x : stn (stnsum f) -> X) :
@@ -615,7 +605,7 @@ Definition isassoc_concatenate {X : UU} (x y z : Sequence X) :
 Proof.
   intros X x y z.
   use seq_key_eq_lemma.
-  - cbn. rewrite natplusassoc. apply idpath.
+  - cbn. apply natplusassoc.
   - intros i ltg ltg'. cbn. unfold weqfromcoprodofstn_invmap. unfold coprod_rect. cbn.
     induction (natlthorgeh i (seq_len x + seq_len y)) as [H | H].
     + induction (natlthorgeh (stnpair (seq_len x + seq_len y) i H) (seq_len x)) as [H1 | H1].
@@ -670,14 +660,13 @@ Definition reverse {X : UU} (x : Sequence X) : Sequence X :=
 
 Lemma reversereverse {X : UU} (x : Sequence X) : reverse (reverse x) = x.
 Proof.
-  intros X x.
-  use seq_key_eq_lemma.
-  - apply idpath.
-  - intros i ltg ltg'. unfold reverse, dualelement, coprod_rect. cbn.
-    set (e := natgthtogehm1 (seq_len x) i ltg').
-    induction (natchoice0 (seq_len x)) as [H | H].
-    + apply maponpaths. apply isinjstntonat. cbn. apply (minusminusmmn _ _ e).
-    + apply maponpaths. apply isinjstntonat. cbn. apply (minusminusmmn _ _ e).
+  intros X x. induction x as [n x].
+  apply pair_path_in2.
+  apply funextfun; intro i.
+  unfold reverse, dualelement, coprod_rect. cbn.
+  induction (natchoice0 n) as [H | H].
+  + apply fromempty. rewrite <- H in i. now apply negstn0.
+  + cbn. apply maponpaths. apply isinjstntonat. apply minusminusmmn. apply natgthtogehm1. apply stnlt.
 Qed.
 
 Lemma reverse_index {X : UU} (x : Sequence X) (i : stn (seq_len x)) :
