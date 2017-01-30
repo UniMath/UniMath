@@ -17,8 +17,6 @@ Definition firstValue {X n} : (stn (S n) -> X) -> X
 Definition lastValue {X n} : (stn (S n) -> X) -> X
   := λ x, x lastelement.
 
-Definition funcomp' {X Y: UU} {Z:Y->UU} (f : X -> Y) (g : Π y:Y, Z y) := λ i, g (f i). (* rename to funcomp when moving upstream *)
-
 Definition concatenate' {X:UU} {m n} (f : stn m -> X) (g : stn n -> X) : stn (m+n) -> X.
 Proof.
   intros ? ? ? ? ? i.
@@ -28,7 +26,7 @@ Proof.
 Defined.
 
 Definition flatten' {X n} {m:stn n->nat} : (Π (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
-Proof. intros ? ? ? g. exact (funcomp' (weqstnsum_invmap m) (uncurry g)). Defined.
+Proof. intros ? ? ? g. exact (uncurry g ∘ weqstnsum_invmap m). Defined.
 
 (* end of move upstream *)
 
@@ -400,7 +398,7 @@ Qed.
 
 Definition flatten {X : UU} : Sequence (Sequence X) -> Sequence X.
 Proof.
-  intros ? x. exists (stnsum (length ∘ x)). exact (flatten' (funcomp' x sequenceToFunction)).
+  intros ? x. exists (stnsum (length ∘ x)). exact (flatten' (sequenceToFunction ∘ x)).
 Defined.
 
 Definition total2_step_f {n} (X:stn (S n) ->UU) :
@@ -536,16 +534,16 @@ Definition flattenStep' {X n}
            (m : stn (S n) → nat)
            (x : Π i : stn (S n), stn (m i) → X)
            (m' := m ∘ dni lastelement)
-           (x' := funcomp' (dni lastelement) x) :
+           (x' := x ∘ dni lastelement) :
   flatten' x = concatenate' (flatten' x') (x lastelement).
 Proof.
   intros.
   apply funextfun; intro i.
-  unfold flatten', funcomp'.
+  unfold flatten'.
   (* we want to treat the inductions from weqfromcoprodofstn_invmap and weqstnsum_invmap simultaneously *)
   unfold weqstnsum_invmap at 1.
   unfold concatenate', weqfromcoprodofstn_invmap.
-  unfold nat_rect, coprod_rect.
+  unfold nat_rect, coprod_rect, funcomp.
   change (natlthorgeh _ _) with (natlthorgeh i (stnsum m')) at 1 4.
   induction (natlthorgeh i (stnsum m')); reflexivity.
 Defined.
