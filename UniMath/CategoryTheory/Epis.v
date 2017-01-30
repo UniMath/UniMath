@@ -125,17 +125,17 @@ Section epis_subcategory.
   Variable C : precategory.
   Hypothesis hs : has_homsets C.
 
-  Definition hsubtypes_obs_isEpi : hsubtypes C := (fun c : C => hProppair _ isapropunit).
+  Definition hsubtype_obs_isEpi : hsubtype C := (fun c : C => hProppair _ isapropunit).
 
-  Definition hsubtypes_mors_isEpi : Π (a b : C), hsubtypes (C⟦a, b⟧) :=
+  Definition hsubtype_mors_isEpi : Π (a b : C), hsubtype (C⟦a, b⟧) :=
     (fun a b : C => (fun f : C⟦a, b⟧ => hProppair _ (isapropisEpi C hs f))).
 
   Definition subprecategory_of_epis : sub_precategories C.
   Proof.
     use tpair.
     split.
-    - exact hsubtypes_obs_isEpi.
-    - exact hsubtypes_mors_isEpi.
+    - exact hsubtype_obs_isEpi.
+    - exact hsubtype_mors_isEpi.
     - cbn. unfold is_sub_precategory. cbn.
       split.
       + intros a tt. exact (identity_isEpi C).

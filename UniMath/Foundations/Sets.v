@@ -291,32 +291,32 @@ Defined.
 
 (** *** General definitions *)
 
-Definition hsubtypes (X : UU) : UU := X -> hProp.
-Identity Coercion id_hsubtypes :  hsubtypes >-> Funclass.
-Definition carrier {X : UU} (A : hsubtypes X) := total2 A.
-Coercion carrier : hsubtypes >-> Sortclass.
-Definition carrierpair {X : UU} (A : hsubtypes X) :
+Definition hsubtype (X : UU) : UU := X -> hProp.
+Identity Coercion id_hsubtype :  hsubtype >-> Funclass.
+Definition carrier {X : UU} (A : hsubtype X) := total2 A.
+Coercion carrier : hsubtype >-> Sortclass.
+Definition carrierpair {X : UU} (A : hsubtype X) :
    Π t : X, A t → Σ x : X, A x := tpair A.
-Definition pr1carrier {X : UU} (A : hsubtypes X) := @pr1 _ _  : carrier A -> X.
+Definition pr1carrier {X : UU} (A : hsubtype X) := @pr1 _ _  : carrier A -> X.
 
-Lemma isinclpr1carrier {X : UU} (A : hsubtypes X) : isincl (@pr1carrier X A).
+Lemma isinclpr1carrier {X : UU} (A : hsubtype X) : isincl (@pr1carrier X A).
 Proof. intros. apply (isinclpr1 A (fun x : _ => pr2 (A x))). Defined.
 
-Lemma isasethsubtypes (X : UU) : isaset (hsubtypes X).
+Lemma isasethsubtype (X : UU) : isaset (hsubtype X).
 Proof.
   intro X.
-  change (isofhlevel 2 (hsubtypes X)).
+  change (isofhlevel 2 (hsubtype X)).
   apply impred; intro x.
   exact isasethProp.
 Defined.
 
-Definition totalsubtype (X : UU) : hsubtypes X := fun x => htrue.
+Definition totalsubtype (X : UU) : hsubtype X := fun x => htrue.
 
 Definition weqtotalsubtype (X : UU) : totalsubtype X ≃ X.
 Proof. intro. apply weqpr1. intro. apply iscontrunit. Defined.
 
 Definition weq_subtypes {X Y : UU} (w : X ≃ Y)
-           (S : hsubtypes X) (T : hsubtypes Y) :
+           (S : hsubtype X) (T : hsubtype Y) :
            (Π x, S x <-> T (w x)) -> carrier S ≃ carrier T.
 Proof.
   intros ? ? ? ? ? eq. apply (weqbandf w). intro x. apply weqiff.
@@ -325,18 +325,18 @@ Proof.
   - apply propproperty.
 Defined.
 
-Definition DecidableSubtype_to_hsubtypes {X : UU} (P : DecidableSubtype X) :
-  hsubtypes X
+Definition DecidableSubtype_to_hsubtype {X : UU} (P : DecidableSubtype X) :
+  hsubtype X
   := λ x, DecidableProposition_to_hProp (P x).
-Coercion DecidableSubtype_to_hsubtypes : DecidableSubtype >-> hsubtypes.
+Coercion DecidableSubtype_to_hsubtype : DecidableSubtype >-> hsubtype.
 
 (** *** Direct product of two subtypes *)
 
-Definition subtypesdirprod {X Y : UU} (A : hsubtypes X) (B : hsubtypes Y) :
-  hsubtypes (dirprod X Y) := fun xy : _ => hconj (A (pr1 xy)) (B (pr2 xy)).
+Definition subtypesdirprod {X Y : UU} (A : hsubtype X) (B : hsubtype Y) :
+  hsubtype (dirprod X Y) := fun xy : _ => hconj (A (pr1 xy)) (B (pr2 xy)).
 
 Definition fromdsubtypesdirprodcarrier {X Y : UU}
-           (A : hsubtypes X) (B : hsubtypes Y)
+           (A : hsubtype X) (B : hsubtype Y)
            (xyis : subtypesdirprod A B) : dirprod A B.
 Proof.
   intros.
@@ -347,7 +347,7 @@ Proof.
 Defined.
 
 Definition tosubtypesdirprodcarrier {X Y : UU}
-           (A : hsubtypes X) (B : hsubtypes Y)
+           (A : hsubtype X) (B : hsubtype Y)
            (xisyis : dirprod A B) : subtypesdirprod A B.
 Proof.
   intros.
@@ -358,7 +358,7 @@ Proof.
   apply (tpair (subtypesdirprod A B) (dirprodpair x y) (dirprodpair isx isy)).
 Defined.
 
-Lemma weqsubtypesdirprod {X Y : UU} (A : hsubtypes X) (B : hsubtypes Y) :
+Lemma weqsubtypesdirprod {X Y : UU} (A : hsubtype X) (B : hsubtype Y) :
   subtypesdirprod A B ≃ A × B.
 Proof.
   intros.
@@ -384,7 +384,7 @@ Proof.
   apply (gradth _ _ egf efg).
 Defined.
 
-Lemma ishinhsubtypesdirprod  {X Y : UU} (A : hsubtypes X) (B : hsubtypes Y)
+Lemma ishinhsubtypedirprod  {X Y : UU} (A : hsubtype X) (B : hsubtype Y)
       (isa : ishinh A) (isb : ishinh B) : ishinh (subtypesdirprod A B).
 Proof.
   intros.
@@ -397,12 +397,12 @@ Defined.
 (** *** A subtype with paths between any two elements is an [hProp]. *)
 
 
-Lemma isapropsubtype {X : UU} (A : hsubtypes X)
+Lemma isapropsubtype {X : UU} (A : hsubtype X)
       (is : Π (x1 x2 : X), A x1 -> A x2 -> x1 = x2) : isaprop (carrier A).
 Proof.
   intros. apply invproofirrelevance.
   intros x x'.
-  assert (isincl (@pr1 _ A)).
+  assert (X0 : isincl (@pr1 _ A)).
   {
     apply isinclpr1.
     intro x0.
@@ -1206,25 +1206,25 @@ Ltac confirm_equal_absurd i := match goal with |- ?x = ?y → ∅ => confirm_no 
 
 (** *** Restriction of a relation to a subtype *)
 
-Definition resrel {X : UU} (L : hrel X) (P : hsubtypes X) : hrel P
+Definition resrel {X : UU} (L : hrel X) (P : hsubtype X) : hrel P
   := fun p1 p2 => L (pr1 p1) (pr1 p2).
 
-Definition istransresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition istransresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : istrans L) : istrans (resrel L P).
 Proof.
   intros. intros x1 x2 x3 r12 r23.
   apply (isl _ (pr1 x2) _ r12 r23).
 Defined.
 
-Definition isreflresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isreflresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : isrefl L) : isrefl (resrel L P).
 Proof. intros. intro x. apply isl. Defined.
 
-Definition issymmresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition issymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : issymm L) : issymm (resrel L P).
 Proof. intros. intros x1 x2 r12. apply isl. apply r12. Defined.
 
-Definition isporesrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isporesrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : ispreorder L) : ispreorder (resrel L P).
 Proof.
   intros.
@@ -1232,56 +1232,56 @@ Proof.
                      (isreflresrel L P (pr2 isl))).
 Defined.
 
-Definition iseqrelresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition iseqrelresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : iseqrel L) : iseqrel (resrel L P).
 Proof.
   intros.
   apply (dirprodpair (isporesrel L P (pr1 isl)) (issymmresrel L P (pr2 isl))).
 Defined.
 
-Definition isirreflresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isirreflresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : isirrefl L) : isirrefl (resrel L P).
 Proof. intros. intros x r. apply (isl _ r). Defined.
 
-Definition isasymmresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isasymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : isasymm L) : isasymm (resrel L P).
 Proof. intros. intros x1 x2 r12 r21. apply (isl _ _ r12 r21). Defined.
 
-Definition iscoasymmresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition iscoasymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : iscoasymm L) : iscoasymm (resrel L P).
 Proof. intros. intros x1 x2 r12. apply (isl _ _ r12). Defined.
 
-Definition istotalresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition istotalresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : istotal L) : istotal (resrel L P).
 Proof. intros. intros x1 x2. apply isl. Defined.
 
-Definition iscotransresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition iscotransresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : iscotrans L) : iscotrans (resrel L P).
 Proof. intros. intros x1 x2 x3 r13. apply (isl _ _ _ r13). Defined.
 
-Definition isdecrelresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isdecrelresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : isdecrel L) : isdecrel (resrel L P).
 Proof. intros. intros x1 x2. apply isl. Defined.
 
-Definition isnegrelresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isnegrelresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : isnegrel L) : isnegrel (resrel L P).
 Proof. intros. intros x1 x2 nnr. apply (isl _ _ nnr). Defined.
 
-Definition isantisymmresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isantisymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : isantisymm L) : isantisymm (resrel L P).
 Proof.
   intros. intros x1 x2 r12 r21.
   apply (invmaponpathsincl _ (isinclpr1carrier _) _ _ (isl _ _ r12 r21)).
 Defined.
 
-Definition isantisymmnegresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isantisymmnegresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : isantisymmneg L) : isantisymmneg (resrel L P).
 Proof.
   intros. intros x1 x2 nr12 nr21.
   apply (invmaponpathsincl _ (isinclpr1carrier _) _ _ (isl _ _ nr12 nr21)).
 Defined.
 
-Definition iscoantisymmresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition iscoantisymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : iscoantisymm L) : iscoantisymm (resrel L P).
 Proof.
   intros. intros x1 x2 r12. destruct (isl _ _ r12) as [ l | e ].
@@ -1289,7 +1289,7 @@ Proof.
   - apply ii2. apply (invmaponpathsincl _ (isinclpr1carrier _) _ _ e).
 Defined.
 
-Definition  neqchoiceresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition  neqchoiceresrel {X : UU} (L : hrel X) (P : hsubtype X)
             (isl : neqchoice L) : neqchoice (resrel L P).
 Proof.
   intros. intros x1 x2 ne.
@@ -1303,26 +1303,26 @@ Defined.
 
 
 
-Definition iseqclass {X : UU} (R : hrel X) (A : hsubtypes X) : UU
+Definition iseqclass {X : UU} (R : hrel X) (A : hsubtype X) : UU
   := dirprod (ishinh (carrier A))
              (dirprod (Π x1 x2 : X, R x1 x2 -> A x1 -> A x2)
                       (Π x1 x2 : X, A x1 ->  A x2 -> R x1 x2)).
-Definition iseqclassconstr {X : UU} (R : hrel X) {A : hsubtypes X}
+Definition iseqclassconstr {X : UU} (R : hrel X) {A : hsubtype X}
            (ax0 : ishinh (carrier A))
            (ax1 : Π x1 x2 : X, R x1 x2 -> A x1 -> A x2)
            (ax2 : Π x1 x2 : X, A x1 ->  A x2 -> R x1 x2) : iseqclass R A
   := dirprodpair ax0 (dirprodpair ax1 ax2).
 
-Definition eqax0 {X : UU} {R : hrel X} {A : hsubtypes X} :
+Definition eqax0 {X : UU} {R : hrel X} {A : hsubtype X} :
   iseqclass R A -> ishinh (carrier A) := fun is : iseqclass R A => pr1 is.
-Definition eqax1 {X : UU} {R : hrel X} {A : hsubtypes X} :
+Definition eqax1 {X : UU} {R : hrel X} {A : hsubtype X} :
   iseqclass R A -> Π x1 x2 : X, R x1 x2 -> A x1 -> A x2
   := fun is : iseqclass R A => pr1 (pr2 is).
-Definition eqax2 {X : UU} {R : hrel X} {A : hsubtypes X} :
+Definition eqax2 {X : UU} {R : hrel X} {A : hsubtype X} :
   iseqclass R A -> Π x1 x2 : X, A x1 -> A x2 -> R x1 x2
   := fun is : iseqclass R A => pr2 (pr2 is).
 
-Lemma isapropiseqclass {X : UU} (R : hrel X) (A : hsubtypes X) :
+Lemma isapropiseqclass {X : UU} (R : hrel X) (A : hsubtype X) :
   isaprop (iseqclass R A).
 Proof.
 intros X R A.
@@ -1339,7 +1339,7 @@ Defined.
 (** *** Direct product of equivalence classes *)
 
 Lemma iseqclassdirprod {X Y : UU} {R : hrel X} {Q : hrel Y}
-      {A : hsubtypes X} {B : hsubtypes Y}
+      {A : hsubtype X} {B : hsubtype Y}
       (isa : iseqclass R A) (isb : iseqclass Q B) :
   iseqclass (hreldirprod R Q) (subtypesdirprod A B).
 Proof.
@@ -1347,7 +1347,7 @@ Proof.
   set (XY := dirprod X Y).
   set (AB := subtypesdirprod A B).
   set (RQ := hreldirprod R Q).
-  set (ax0 := ishinhsubtypesdirprod A B (eqax0 isa) (eqax0 isb)).
+  set (ax0 := ishinhsubtypedirprod A B (eqax0 isa) (eqax0 isb)).
   assert (ax1 : Π xy1 xy2 : XY, RQ xy1 xy2 -> AB xy1 -> AB xy2).
   {
     intros xy1 xy2 rq ab1.
@@ -1560,11 +1560,11 @@ be considered in the section about types of h-level 3.
 
 Definition setquot {X : UU} (R : hrel X) : UU
   := total2 (fun A : _ => iseqclass R A).
-Definition setquotpair {X : UU} (R : hrel X) (A : hsubtypes X)
+Definition setquotpair {X : UU} (R : hrel X) (A : hsubtype X)
            (is : iseqclass R A) : setquot R := tpair _ A is.
-Definition pr1setquot {X : UU} (R : hrel X) : setquot R -> (hsubtypes X)
+Definition pr1setquot {X : UU} (R : hrel X) : setquot R -> (hsubtype X)
   := @pr1 _ (fun A : _ => iseqclass R A).
-Coercion pr1setquot : setquot >-> hsubtypes.
+Coercion pr1setquot : setquot >-> hsubtype.
 
 Lemma isinclpr1setquot {X : UU} (R : hrel X) : isincl (pr1setquot R).
 Proof.
@@ -1578,7 +1578,7 @@ Coercion setquottouu0 : setquot >-> Sortclass.
 Theorem isasetsetquot {X : UU} (R : hrel X) : isaset (setquot R).
 Proof.
   intros X R.
-  apply (isasetsubset (@pr1 _ _) (isasethsubtypes X)).
+  apply (isasetsubset (@pr1 _ _) (isasethsubtype X)).
   apply isinclpr1; intro x.
   now apply isapropiseqclass.
 Defined.
@@ -2474,10 +2474,10 @@ Definition decquotrel {X : UU} {R : eqrel X} (L : decrel X)
 (** *** Subtypes of quotients and quotients of subtypes *)
 
 
-Definition reseqrel {X : UU} (R : eqrel X) (P : hsubtypes X) : eqrel P :=
+Definition reseqrel {X : UU} (R : eqrel X) (P : hsubtype X) : eqrel P :=
   eqrelpair _ (iseqrelresrel R P (pr2 R)).
 
-Lemma iseqclassresrel {X : UU} (R : hrel X) (P Q : hsubtypes X)
+Lemma iseqclassresrel {X : UU} (R : hrel X) (P Q : hsubtype X)
       (is : iseqclass R Q) (is' : Π x, Q x -> P x) :
   iseqclass (resrel R P) (fun x : P => Q (pr1 x)).
 Proof.
@@ -2490,7 +2490,7 @@ Proof.
     + intros p1 p2 q1 q2. apply ((pr2 (pr2 is)) _ _ q1 q2).
 Defined.
 
-Definition fromsubquot {X : UU} (R : eqrel X) (P : hsubtypes (setquot R))
+Definition fromsubquot {X : UU} (R : eqrel X) (P : hsubtype (setquot R))
            (p : P) : setquot (resrel R (funcomp (setquotpr R) P)).
 Proof.
   intros.
@@ -2500,7 +2500,7 @@ Proof.
   simpl in e. unfold funcomp. rewrite e. apply (pr2 p).
 Defined.
 
-Definition tosubquot {X : UU} (R : eqrel X) (P : hsubtypes (setquot R)) :
+Definition tosubquot {X : UU} (R : eqrel X) (P : hsubtype (setquot R)) :
   setquot (resrel R (funcomp (setquotpr R) P)) -> P.
 Proof.
   intros X R P.
@@ -2518,7 +2518,7 @@ Proof.
   simpl. apply (iscompsetquotpr). apply rp12.
 Defined.
 
-Definition weqsubquot {X : UU} (R : eqrel X) (P : hsubtypes (setquot R)) :
+Definition weqsubquot {X : UU} (R : eqrel X) (P : hsubtype (setquot R)) :
   weq P (setquot (resrel R (funcomp (setquotpr R) P))).
 Proof.
   intros.
@@ -2571,7 +2571,7 @@ Defined.
 (** Comment: unfortunetely [weqsubquot] is not as useful as it should be at
   moment due to the failure of the following code to work:
 
-  [Lemma test (X : UU) (R : eqrel X) (P : hsubtypes (setquot R)) (x : X)
+  [Lemma test (X : UU) (R : eqrel X) (P : hsubtype (setquot R)) (x : X)
    (is : P (setquotpr R x)) :
      paths (setquotpr (reseqrel R (funcomp (setquotpr R) P)) (tpair _ x is))
            (fromsubquot R P (tpair _ (setquotpr R x) is)).

@@ -219,7 +219,7 @@ Proof.
 Defined.
 
 Definition rngpossubmonoid (X : rng) {R : hrel X} (is1 : isrngmultgt X R) (is2 : R 1 0) :
-  @submonoids (rngmultmonoid X).
+  @submonoid (rngmultmonoid X).
 Proof.
   intros. split with (fun x => R x 0). split.
   - intros x1 x2. apply is1. apply (pr2 x1). apply (pr2 x2).
@@ -411,7 +411,7 @@ Defined.
 
 (** **** Multiplicative submonoid of non-zero elements *)
 
-Definition intdomnonzerosubmonoid (X : intdom) : @subabmonoids (rngmultabmonoid X).
+Definition intdomnonzerosubmonoid (X : intdom) : @subabmonoid (rngmultabmonoid X).
 Proof.
   intros. split with (fun x : X => hProppair _ (isapropneg (paths x 0))). split.
   - intros a b. simpl in *. intro e.
@@ -534,7 +534,7 @@ Definition fldfracmultinv0 (X : intdom) (is : isdeceq X)
            (x : commrngfrac X (intdomnonzerosubmonoid X)) :
   commrngfrac X (intdomnonzerosubmonoid X) := setquotfun _ _ _ (fldfracmultinvintcomp X is) x.
 
-Lemma nonzeroincommrngfrac (X : commrng) (S : @submonoids (rngmultmonoid X)) (xa : dirprod X S)
+Lemma nonzeroincommrngfrac (X : commrng) (S : @submonoid (rngmultmonoid X)) (xa : dirprod X S)
       (ne : neg (paths (setquotpr (eqrelcommrngfrac X S) xa)
                        (setquotpr _ (dirprodpair 0 (unel S))))) : neg (paths (pr1 xa) 0).
 Proof.
@@ -548,7 +548,7 @@ Proof.
 Defined.
 Opaque nonzeroincommrngfrac.
 
-Lemma zeroincommrngfrac (X : intdom) (S : @submonoids (rngmultmonoid X))
+Lemma zeroincommrngfrac (X : intdom) (S : @submonoid (rngmultmonoid X))
       (is : Π s : S, neg (paths (pr1 s) 0)) (x : X) (aa : S)
       (e : paths (setquotpr (eqrelcommrngfrac X S) (dirprodpair x aa))
                  (setquotpr _ (dirprodpair 0 (unel S)))) : paths x 0.
