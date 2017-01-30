@@ -1594,7 +1594,7 @@ Proof.
   intros.
   unfold isweq.
   intro y.
-  assert (iscontr (hfiber (f ∘ g) y)).
+  assert (X0 : iscontr (hfiber (f ∘ g) y)).
   assert (efg' : Π y : Y, y = f (g y)).
   { intro y0.
     apply pathsinv0.

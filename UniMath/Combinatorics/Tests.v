@@ -1,5 +1,22 @@
 Unset Automatic Introduction.
 
+Module Test_list.
+
+  Require Import UniMath.Combinatorics.Lists.
+
+  Local Notation "[]" := nil (at level 0, format "[]").
+  Local Infix "::" := cons.
+
+  Goal concatenate (1::2::[]) (3::4::5::[]) = (1::2::3::4::5::[]).
+    reflexivity.
+  Defined.
+
+  Goal flatten ((1::2::[])::(3::4::5::[])::(6::[])::[]) = (1::2::3::4::5::6::[]).
+    reflexivity.
+  Defined.
+
+End Test_list.
+
 Module Test_stn.
 
   Require Import UniMath.Combinatorics.StandardFiniteSets.

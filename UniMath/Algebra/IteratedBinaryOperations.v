@@ -1,3 +1,4 @@
+Require Export UniMath.Combinatorics.Lists.
 Require Export UniMath.Combinatorics.FiniteSequences.
 Require Export UniMath.Algebra.Monoids_and_Groups.
 Require Export UniMath.Foundations.UnivalenceAxiom.
@@ -13,6 +14,9 @@ Local Arguments lastelement {_}. (* make non local *)
 
 (* end of move upstream *)
 
+Local Notation "[]" := nil (at level 0, format "[]").
+Local Infix "::" := cons.
+
 (** general associativity for monoids *)
 
 Local Open Scope multmonoid.
@@ -26,6 +30,13 @@ Proof.
   { exact (sequenceProduct (pr2 (drop (S n,,x) (negpathssx0 _))) * x lastelement). }
 Defined.
 
+(* alternate versions with ' attempted with lists instead of sequences *)
+Definition monoidProduct {M:monoid} : list M -> M.
+Proof.
+  intros ?.
+  exact (foldr op 1).
+Defined.
+
 Definition doubleProduct {M:monoid} : Sequence (Sequence M) -> M.
 Proof.
   intros ? [n x].
@@ -34,11 +45,27 @@ Proof.
   { exact ((doubleProduct (x ∘ dni_lastelement) * sequenceProduct (x lastelement))). }
 Defined.
 
+Definition doubleProduct' {M:monoid} : list (list M) -> M.
+Proof.
+  intros M.
+  apply list_ind.
+  + exact 1.
+  + intros x _ m. exact (monoidProduct x * m).
+Defined.
+
 (* some rewriting rules *)
 
 Definition sequenceProductStep {M:monoid} {n} (x:stn (S n) -> M) :
   sequenceProduct (S n,,x) = sequenceProduct (n,,x ∘ dni_lastelement) * x lastelement.
 Proof. intros. reflexivity. Defined.
+
+Definition sequenceProductStep' {M:monoid} (x:M) (xs:list M) :
+  monoidProduct (x::xs) = x * monoidProduct xs.
+Proof.
+  intros.
+  induction xs.
+  reflexivity.
+Defined.
 
 Local Definition sequenceProduct_append {M:monoid} (x:Sequence M) (m:M) :
   sequenceProduct (append x m) = sequenceProduct x * m.
@@ -60,6 +87,7 @@ Local Definition doubleProductStep {M:monoid} {n} (x:stn (S n) -> Sequence M) :
 Proof. intros. reflexivity. Defined.
 
 (* The general associativity theorem. *)
+
 
 Theorem associativityOfProducts {M:monoid} (x:Sequence (Sequence M)) :
   sequenceProduct (flatten x) = doubleProduct x.
@@ -85,6 +113,37 @@ Proof.
 (*       apply IHm. } } *)
 (* Defined. *)
 Abort.
+
+Theorem associativityOfProducts {M:monoid} (x:list (list M)) :
+  monoidProduct (Lists.flatten x) = doubleProduct' x.
+Proof.
+  (** This proof comes from the Associativity theorem, % \cite[section 1.3, Theorem 1, page 4]{BourbakiAlgebraI}. \par % *)
+  (* this proof comes from the Associativity theorem, Bourbaki, Algebra, § 1.3, Theorem 1, page 4. *)
+  intros M.
+  simple refine (list_ind _ _ _).
+  - simpl.
+    reflexivity.
+  - intros x xs ind.
+    simpl in ind.
+    cbn beta.
+    unfold Lists.flatten, doubleProduct'.
+    rewrite 2 list_ind_compute_2.
+    fold (doubleProduct' xs).
+    fold (Lists.flatten xs).
+    intermediate_path (monoidProduct x * monoidProduct (Lists.flatten xs)).
+    + generalize (Lists.flatten xs) as y; clear xs ind; intro y.
+      generalize x; clear x.
+      apply list_ind.
+      * cbn. apply pathsinv0, lunax.
+      * intros x xs e.
+        rewrite Lists.concatenateStep.
+        rewrite 2 sequenceProductStep'.
+        rewrite assocax.
+        apply maponpaths.
+        exact e.
+    + apply maponpaths.
+      exact ind.
+Defined.
 
 (** commutativity *)
 

@@ -106,8 +106,8 @@ Proof.
   * intros.
     induction (r i) as [ p [ q e ]].
     simple refine (_ @ e @ _).
-    - apply maponpaths, maponpaths. apply propproperty.
-    - apply maponpaths, maponpaths. apply propproperty.
+    - now apply maponpaths, isinjstntonat.
+    - now apply maponpaths, isinjstntonat.
 Defined.
 
 Local Definition empty_fun {X} : stn 0 -> X.
@@ -566,7 +566,7 @@ Definition isassoc_concatenate {X : UU} (x y z : Sequence X) :
 Proof.
   intros X x y z.
   use seq_key_eq_lemma.
-  - cbn. rewrite natplusassoc. apply idpath.
+  - cbn. apply natplusassoc.
   - intros i ltg ltg'. cbn. unfold concatenate'. unfold weqfromcoprodofstn_invmap. unfold coprod_rect. cbn.
     induction (natlthorgeh i (length x + length y)) as [H | H].
     + induction (natlthorgeh (stnpair (length x + length y) i H) (length x)) as [H1 | H1].
@@ -621,14 +621,13 @@ Definition reverse {X : UU} (x : Sequence X) : Sequence X :=
 
 Lemma reversereverse {X : UU} (x : Sequence X) : reverse (reverse x) = x.
 Proof.
-  intros X x.
-  use seq_key_eq_lemma.
-  - apply idpath.
-  - intros i ltg ltg'. unfold reverse, dualelement, coprod_rect. cbn.
-    set (e := natgthtogehm1 (length x) i ltg').
-    induction (natchoice0 (length x)) as [H | H].
-    + apply maponpaths. apply isinjstntonat. cbn. apply (minusminusmmn _ _ e).
-    + apply maponpaths. apply isinjstntonat. cbn. apply (minusminusmmn _ _ e).
+  intros X x. induction x as [n x].
+  apply pair_path_in2.
+  apply funextfun; intro i.
+  unfold reverse, dualelement, coprod_rect. cbn.
+  induction (natchoice0 n) as [H | H].
+  + apply fromempty. rewrite <- H in i. now apply negstn0.
+  + cbn. apply maponpaths. apply isinjstntonat. apply minusminusmmn. apply natgthtogehm1. apply stnlt.
 Qed.
 
 Lemma reverse_index {X : UU} (x : Sequence X) (i : stn (length x)) :
