@@ -379,33 +379,23 @@ Proof. intros. reflexivity. Defined.
 Definition concatenateStep {X : UU} (x : Sequence X) {n : nat} (y : stn (S n) -> X) :
   concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni_lastelement)) (y lastelement).
 Proof.
-  intros X x. induction x as [x l]. intros n y.
+  intros X m. induction m as [m l]. intros n y.
   use seq_key_eq_lemma.
   - cbn. apply natplusnsm.
-  - intros i ltg ltg'. cbn. unfold append_fun. unfold coprod_rect. cbn.
-    unfold concatenate'.
-    unfold weqfromcoprodofstn_invmap. cbn. unfold coprod_rect.
-    induction (natlthorgeh i x) as [H | H].
-    + induction (natlehchoice4 i (x + n) ltg') as [H1 | H1].
-      * apply idpath.
-      * apply fromempty. rewrite H1 in H.
-        set (tmp := natlehnplusnm x n).
+  - intros i r s.
+    unfold concatenate, concatenate', weqfromcoprodofstn_invmap; cbn.
+    unfold append_fun, coprod_rect, funcomp; cbn.
+    induction (natlthorgeh i m) as [H | H].
+    + induction (natlehchoice4 i (m + n) s) as [H1 | H1].
+      * reflexivity.
+      * apply fromempty. induction (!H1); clear H1.
+        set (tmp := natlehnplusnm m n).
         set (tmp2 := natlehlthtrans _ _ _ tmp H).
-        use (isirrefl_natneq x). exact (natlthtoneq _ _ tmp2).
-    + induction (natchoice0 (S n)) as [H2 | H2].
-      * apply fromempty. use (negpaths0sx n). exact H2.
-      * induction (natlehchoice4 i (x + n) ltg') as [H' | H'].
-        -- induction (natchoice0 n) as [H3 | H3].
-           ++ apply fromempty. induction H3. rewrite natplusr0 in H'.
-              use (natlthtonegnatgeh i x H' H).
-           ++ unfold funcomp. apply maponpaths.
-              use total2_paths.
-              ** apply idpath.
-              ** apply proofirrelevance. apply propproperty.
-        -- apply maponpaths.
-           use total2_paths.
-           ++ cbn. rewrite H'. rewrite natpluscomm. apply plusminusnmm.
-           ++ apply proofirrelevance. apply propproperty.
+        exact (isirreflnatlth _ tmp2).
+    + induction (natlehchoice4 i (m + n) s) as [I|J].
+      * now apply maponpaths, subtypeEquality_prop.
+      * apply maponpaths, subtypeEquality_prop. simpl.
+        induction (!J). rewrite natpluscomm. apply plusminusnmm.
 Qed.
 
 Definition flatten {X : UU} : Sequence (Sequence X) -> Sequence X.
