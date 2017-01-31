@@ -568,7 +568,7 @@ Defined.
 (** *)
 
 Definition isabsorb {X : hSet} (opp1 opp2 : binop X) : UU :=
-  Π x y : X, opp1 x (opp2 x y) = x.
+  ∏ x y : X, opp1 x (opp2 x y) = x.
 
 Lemma isapropisabsorb {X : hSet} (opp1 opp2 : binop X) :
   isaprop (isabsorb opp1 opp2).
