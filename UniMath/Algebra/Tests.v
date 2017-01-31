@@ -12,14 +12,14 @@ Module Test_assoc.
   Open Scope multmonoid.
 
   Goal Π (M:monoid) (f:stn 3 -> M),
-         sequenceProduct(3,,f) = 1 * f(●O) * f(●1%nat) * f(●2).
+         product_seq_mon(3,,f) = 1 * f(●O) * f(●1%nat) * f(●2).
   Proof. reflexivity. Defined.
 
   Goal Π (M:monoid) (f:stn 3 -> Sequence M),
-         doubleProduct(3,,f) =
-            1 * sequenceProduct (f(●0))
-              * sequenceProduct (f(●1%nat))
-              * sequenceProduct (f(●2)).
+         prodprod_seq_mon(3,,f) =
+            1 * product_seq_mon (f(●0))
+              * product_seq_mon (f(●1%nat))
+              * product_seq_mon (f(●2)).
   Proof. reflexivity. Defined.
 
   (* demonstrate that the Coq parser is left-associative with "*" *)
