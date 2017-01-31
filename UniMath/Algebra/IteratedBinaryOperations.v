@@ -14,7 +14,7 @@ Local Arguments lastelement {_}. (* make non local *)
 
 (* end of move upstream *)
 
-Local Notation "[]" := nil (at level 0, format "[]").
+Local Notation "[]" := Lists.nil (at level 0, format "[]").
 Local Infix "::" := cons.
 
 (** general associativity for binary operations on types *)
@@ -23,19 +23,29 @@ Section BinaryOperations.
 
   Context {X:UU} (unit:X) (op:binop X).
 
-  (* eventually fix the following three definitions so that products have a superfluous unit factor *)
+  (* we use an extra induction step in each of the following definitions so
+     we don't end up with superfluous unit factors *)
 
   Definition product_list : list X -> X.
   Proof.
-    exact (foldr op unit).
+    intro k.
+    simple refine (list_ind (λ _, X) _ _ k).
+    - simpl. exact unit.
+    - intros x m _.
+      generalize x; clear x.
+      simple refine (list_ind (λ _, X -> X) _ _ m).
+      + simpl. intro x. exact x.
+      + simpl. intros y _ z x. exact (op x (z y)).
   Defined.
 
   Definition product_fun {n} (x:stn n->X) : X.
   Proof.
     intros.
-    induction n as [|n I].
+    induction n as [|n _].
     { exact unit. }
-    { exact (op (I (x ∘ dni_lastelement)) (x lastelement)). }
+    { induction n as [|n I].
+      { exact (x firstelement). }
+      { exact (op (I (x ∘ dni_lastelement)) (x lastelement)). }}
   Defined.
 
   Definition product_seq : Sequence X -> X.
@@ -48,17 +58,14 @@ Section BinaryOperations.
 
   Definition prodprod_list : list(list X) -> X.
   Proof.
-    apply list_ind.
-    + exact unit.
-    + intros x _ m. exact (op (product_list x) m).
+    intros w.
+    exact (product_list (map product_list w)).
   Defined.
 
   Definition prodprod_fun {n} {m:stn n -> nat} : (Π i (j:stn (m i)), X) -> X.
   Proof.
     intros ? ? x.
-    induction n as [|n I].
-    { exact unit. }
-    { exact ((op (I _ (x ∘ dni_lastelement)) (product_fun (x lastelement)))). }
+    exact (product_fun (λ i, product_fun (x i))).
   Defined.
 
   Definition prodprod_seq : Sequence (Sequence X) -> X.
@@ -108,41 +115,51 @@ Defined.
 Definition prodprod_list_mon {M:monoid} : list (list M) -> M.
 Proof.
   intros ? x.
-  exact (prodprod_list (unel M) (@op M) x).
+  exact (product_list_mon (map product_list_mon x)).
 Defined.
 
 (* some rewriting rules *)
 
-Definition product_seq_monStep {M:monoid} {n} (x:stn (S n) -> M) :
+Definition product_seq_mon_step {M:monoid} {n} (x:stn (S n) -> M) :
   product_seq_mon (S n,,x) = product_seq_mon (n,,x ∘ dni_lastelement) * x lastelement.
-Proof. intros. reflexivity. Defined.
-
-Definition product_seq_monStep' {M:monoid} (x:M) (xs:list M) :
-  product_list_mon (x::xs) = x * product_list_mon xs.
 Proof.
   intros.
-  induction xs.
+  induction n as [|n _].
+  { apply pathsinv0, lunax. }
+  reflexivity.
+Defined.
+
+Definition product_list_mon_step {M:monoid} (x:M) (xs:list M) :
+  product_list_mon (x::xs) = x * product_list_mon xs.
+Proof.
+  intros M x xs.
+  generalize x; clear x.
+  apply (list_ind (λ xs, Π x : M, product_list_mon (x :: xs) = x * product_list_mon xs)).
+  { intro x. simpl. apply pathsinv0,runax. }
+  intros y rest IH x.
   reflexivity.
 Defined.
 
 Local Definition product_seq_mon_append {M:monoid} (x:Sequence M) (m:M) :
   product_seq_mon (append x m) = product_seq_mon x * m.
-Proof. intros ? [n x] ?. unfold append. rewrite product_seq_monStep.
-       unfold funcomp, lastelement.
-       Local Opaque product_seq_mon. simpl. Transparent product_seq_mon.
-       induction (natlehchoice4 n n (natgthsnn n)) as [p|p].
-       { contradicts (isirreflnatlth n) p. }
-       { change ((n,, natgthsnn n):stn (S n)) with (@lastelement n).
-         rewrite append_fun_compute_2.
-         apply (maponpaths (λ a, a * m)).
-         apply (maponpaths (λ x, product_seq_mon (n,,x))).
-         apply funextfun; intros [i b]; simpl.
-         now rewrite append_fun_compute_1. }
+Proof.
+   intros ? [n x] ?. unfold append. rewrite product_seq_mon_step.
+   rewrite append_fun_compute_2.
+   apply (maponpaths (λ a, a * m)).
+   apply (maponpaths (λ x, product_seq_mon (n,,x))).
+   apply funextfun; intros [i b]; simpl.
+   unfold funcomp.
+   now rewrite append_fun_compute_1.
 Defined.
 
-Local Definition doubleProductStep {M:monoid} {n} (x:stn (S n) -> Sequence M) :
+Local Definition prodprod_step {M:monoid} {n} (x:stn (S n) -> Sequence M) :
   prodprod_seq_mon (S n,,x) = prodprod_seq_mon (n,,x ∘ dni_lastelement) * product_seq_mon (x lastelement).
-Proof. intros. reflexivity. Defined.
+Proof.
+  intros.
+  induction n as [|n _].
+  - simpl. apply pathsinv0,lunax.
+  - reflexivity.
+Defined.
 
 (* The general associativity theorem. *)
 
@@ -155,7 +172,7 @@ Proof.
   intros ? [n x].
   induction n as [|n IHn].
   { reflexivity. }
-  (* { rewrite flattenStep, doubleProductStep. *)
+  (* { rewrite flattenStep, prodprod_step. *)
   (*   generalize (x lastelement) as z. *)
   (*   generalize (x ∘ dni_lastelement) as y. *)
   (*   intros y [m z]. *)
@@ -163,7 +180,7 @@ Proof.
   (*   { change (product_seq_mon (0,, z)) with (unel M). rewrite runax. *)
 (*       change (concatenate (flatten (n,, y)) (0,, z)) with (flatten (n,, y)). *)
 (*       exact (IHn y). } *)
-(*     { rewrite product_seq_monStep, concatenateStep. *)
+(*     { rewrite product_seq_mon_step, concatenateStep. *)
 (*       generalize (z lastelement) as w; generalize (z ∘ dni _ lastelement) as v; intros. *)
 (*       rewrite <- assocax. *)
 (*       rewrite product_seq_mon_append. *)
@@ -178,16 +195,12 @@ Proof.
   (** This proof comes from the Associativity theorem, % \cite[section 1.3, Theorem 1, page 4]{BourbakiAlgebraI}. \par % *)
   (* this proof comes from the Associativity theorem, Bourbaki, Algebra, § 1.3, Theorem 1, page 4. *)
   intros M.
-  simple refine (list_ind _ _ _).
-  - simpl.
-    reflexivity.
-  - intros x xs ind.
-    simpl in ind.
-    cbn beta.
-    unfold Lists.flatten, prodprod_list_mon, prodprod_list.
-    rewrite 2 list_ind_compute_2.
-    fold (prodprod_list_mon xs).
-    fold (Lists.flatten xs).
+  apply list_ind.
+  - simpl. reflexivity.
+  - intros x xs ind. simpl in ind. cbn beta.
+    rewrite Lists.flattenStep.
+    unfold prodprod_list. unfold prodprod_list_mon.
+    rewrite mapStep. rewrite product_list_mon_step.
     intermediate_path (product_list_mon x * product_list_mon (Lists.flatten xs)).
     + generalize (Lists.flatten xs) as y; clear xs ind; intro y.
       generalize x; clear x.
@@ -195,12 +208,9 @@ Proof.
       * cbn. apply pathsinv0, lunax.
       * intros x xs e.
         rewrite Lists.concatenateStep.
-        rewrite 2 product_seq_monStep'.
-        rewrite assocax.
-        apply maponpaths.
-        exact e.
-    + apply maponpaths.
-      exact ind.
+        rewrite product_list_mon_step. rewrite product_list_mon_step.
+        rewrite assocax. apply maponpaths. exact e.
+    + apply maponpaths. exact ind.
 Defined.
 
 (** commutativity *)
@@ -217,7 +227,7 @@ Proof.
   - reflexivity.
   - assert (specialcase : Π (y:stn _->M) (g : stn _ ≃ stn _), g lastelement = lastelement ->
         product_seq_mon (S n,, y) = product_seq_mon (S n,, y ∘ g)).
-    { intros ? ? a. rewrite 2? product_seq_monStep. change ((_ ∘ _) _) with (y (g lastelement)).
+    { intros ? ? a. rewrite 2? product_seq_mon_step. change ((_ ∘ _) _) with (y (g lastelement)).
       rewrite a. apply (maponpaths (λ m, m * _)). change (_ ∘ _ ∘ _) with (y ∘ (g ∘ dni_lastelement)).
       set (h := eqweqmap (maponpaths stn_compl a)).
       assert (pr1_h : Π i, pr1 (pr1 (h i)) = pr1 (pr1 i)). { intros. induction a. reflexivity. }

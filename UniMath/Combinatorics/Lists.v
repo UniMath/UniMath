@@ -90,6 +90,12 @@ Section more_lists.
 Definition map {A B : UU} (f : A -> B) : list A -> list B :=
   foldr (λ a l, cons (f a) l) nil.
 
+Lemma mapStep {A B : UU} (f : A -> B) (a:A) (x:list A) : map f (cons a x) = cons (f a) (map f x).
+Proof.
+  induction x as [n x].
+  reflexivity.
+Defined.
+
 (** Various unfolding lemmas *)
 Lemma foldr_cons {A B : UU} (f : A -> B -> B) (b : B) (x : A) (xs : list A) :
   foldr f b (cons x xs) = f x (foldr f b xs).
@@ -146,4 +152,11 @@ Proof.
   apply list_ind.
   + exact [].
   + intros s _ f. exact (concatenate s f).
+Defined.
+
+Lemma flattenStep {X} (x:list X) (m : list(list X)) : flatten (x::m) = concatenate x (flatten m).
+Proof.
+  unfold flatten.
+  rewrite list_ind_compute_2.
+  reflexivity.
 Defined.

@@ -5,19 +5,30 @@ Module Test_assoc.
   Require Import UniMath.Algebra.IteratedBinaryOperations.
   Require Import UniMath.Foundations.NaturalNumbers.
 
-  (* verify that our associativity matches that of the parser, with an extra "1" *)
+  (* verify that our associativity matches that of the parser, without an extra "1" *)
+
+  Local Notation "[]" := Lists.nil (at level 0, format "[]").
+  Local Infix "::" := cons.
+
+  Section Test.
+    Context (X:UU) (e:X) (op:binop X) (w x y z:X).
+    Goal product_list e op [] = e. reflexivity. Qed.
+    Goal product_list e op (x::[]) = x. reflexivity. Qed.
+    Goal product_list e op (x::y::[]) = op x y. reflexivity. Qed.
+    Goal product_list e op (w::x::y::z::[]) = op w (op x (op y z)). reflexivity. Qed.
+  End Test.
 
   Open Scope stn.
 
   Open Scope multmonoid.
 
   Goal Π (M:monoid) (f:stn 3 -> M),
-         product_seq_mon(3,,f) = 1 * f(●O) * f(●1%nat) * f(●2).
+         product_seq_mon(3,,f) = f(●O) * f(●1%nat) * f(●2).
   Proof. reflexivity. Defined.
 
   Goal Π (M:monoid) (f:stn 3 -> Sequence M),
          prodprod_seq_mon(3,,f) =
-            1 * product_seq_mon (f(●0))
+                product_seq_mon (f(●0))
               * product_seq_mon (f(●1%nat))
               * product_seq_mon (f(●2)).
   Proof. reflexivity. Defined.
