@@ -84,7 +84,7 @@ Proof.
 Defined.
 
 Lemma is_omega_cocont_App_H
-  (hE : Π x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C CP hs) x)) :
+  (hE : ∏ x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C CP hs) x)) :
   is_omega_cocont App_H.
 Proof.
 unfold App_H, square_functor.
@@ -103,7 +103,7 @@ Defined.
 (* Definition Abs_H_ob (X: EndC): functor C C := functor_composite (option_functor _ CC terminal) X. *)
 
 (* (* works only with -type-in-type: *)
-(* Definition Abs_H_mor_nat_trans_data (X X': EndC)(α: X --> X'): Π c, Abs_H_ob X c --> Abs_H_ob X' c. *)
+(* Definition Abs_H_mor_nat_trans_data (X X': EndC)(α: X --> X'): ∏ c, Abs_H_ob X c --> Abs_H_ob X' c. *)
 (* Proof. *)
 (*   intro. *)
 (*   unfold Abs_H_ob. *)
@@ -111,7 +111,7 @@ Defined.
 (* Defined. *)
 (* *) *)
 
-(* Definition Abs_H_mor_nat_trans_data (X X': functor C C)(α: nat_trans X X'): Π c, Abs_H_ob X c --> Abs_H_ob X' c. *)
+(* Definition Abs_H_mor_nat_trans_data (X X': functor C C)(α: nat_trans X X'): ∏ c, Abs_H_ob X c --> Abs_H_ob X' c. *)
 (* Proof. *)
 (*   intro. *)
 (*   apply α. *)
@@ -225,7 +225,7 @@ Definition Flat_H : functor [C, C, hs] [C, C, hs] := tpair _ _ is_functor_Flat_H
 (** here definition of suitable θ's together with their strength laws  *)
 
 
-Definition App_θ_data: Π XZ, (θ_source App_H)XZ --> (θ_target App_H)XZ.
+Definition App_θ_data: ∏ XZ, (θ_source App_H)XZ --> (θ_target App_H)XZ.
 Proof.
   intro XZ.
   apply nat_trans_id.
@@ -323,7 +323,7 @@ Proof.
 Qed.
 
 
-Definition Abs_θ_data_data: Π XZ A, ((θ_source Abs_H)XZ: functor C C) A --> ((θ_target Abs_H)XZ: functor C C) A.
+Definition Abs_θ_data_data: ∏ XZ A, ((θ_source Abs_H)XZ: functor C C) A --> ((θ_target Abs_H)XZ: functor C C) A.
 Proof.
   intro XZ.
 (*
@@ -345,7 +345,7 @@ Proof.
   + exact (# (pr1 (pr2 XZ)) (BinCoproductIn2 _ (CC (TerminalObject terminal) A))).
 Defined.
 
-Lemma is_nat_trans_Abs_θ_data_data: Π XZ, is_nat_trans _ _ (Abs_θ_data_data XZ).
+Lemma is_nat_trans_Abs_θ_data_data: ∏ XZ, is_nat_trans _ _ (Abs_θ_data_data XZ).
 Proof.
 
   intro XZ.
@@ -431,7 +431,7 @@ Focus 2.
 Qed.
 
 
-Definition Abs_θ_data: Π XZ, (θ_source Abs_H)XZ --> (θ_target Abs_H)XZ.
+Definition Abs_θ_data: ∏ XZ, (θ_source Abs_H)XZ --> (θ_target Abs_H)XZ.
 Proof.
   intro XZ.
   exact (tpair _ _ (is_nat_trans_Abs_θ_data_data XZ)).
@@ -556,7 +556,7 @@ Focus 2.
 Qed.
 
 
-Definition Flat_θ_data: Π XZ, (θ_source Flat_H)XZ --> (θ_target Flat_H)XZ.
+Definition Flat_θ_data: ∏ XZ, (θ_source Flat_H)XZ --> (θ_target Flat_H)XZ.
 Proof.
   intro XZ.
 (*  destruct XZ as [X [Z e]].
@@ -668,7 +668,7 @@ Definition Lam_Sig: Signature C hs :=
   BinSum_of_Signatures C hs CC App_Sig Abs_Sig.
 
 Lemma is_omega_cocont_Lam
-  (hE : Π x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C CP hs) x))
+  (hE : ∏ x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C CP hs) x))
   (LC : Colims_of_shape nat_graph C) : is_omega_cocont (Signature_Functor _ _ Lam_Sig).
 Proof.
 apply is_omega_cocont_BinCoproduct_of_functors.

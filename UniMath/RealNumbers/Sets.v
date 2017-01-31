@@ -24,9 +24,9 @@ Definition makeSubset {X : hSet} {Hsub : hsubtype X} (x : X) (Hx : Hsub x) : sub
 Definition unop (X : UU) := X → X.
 
 Definition islinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : subset exinv -> X) :=
-  Π (x : X) (Hx : exinv x), op (inv (x ,, Hx)) x = x1.
+  ∏ (x : X) (Hx : exinv x), op (inv (x ,, Hx)) x = x1.
 Definition isrinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : subset exinv -> X) :=
-  Π (x : X) (Hx : exinv x), op x (inv (x ,, Hx)) = x1.
+  ∏ (x : X) (Hx : exinv x), op x (inv (x ,, Hx)) = x1.
 Definition isinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtype X) (inv : subset exinv -> X)  :=
   islinv' x1 op exinv inv × isrinv' x1 op exinv inv.
 
@@ -47,7 +47,7 @@ End po_pty.
 (** ** Strong Order *)
 
 Definition isStrongOrder {X : UU} (R : hrel X) := istrans R × iscotrans R × isirrefl R.
-Definition StrongOrder (X : UU) := Σ R : hrel X, isStrongOrder R.
+Definition StrongOrder (X : UU) := ∑ R : hrel X, isStrongOrder R.
 Definition pairStrongOrder {X : UU} (R : hrel X) (is : isStrongOrder R) : StrongOrder X :=
   tpair (fun R : hrel X => isStrongOrder R ) R is.
 Definition pr1StrongOrder {X : UU} : StrongOrder X → hrel X := pr1.
@@ -107,7 +107,7 @@ Qed.
 Definition po_reverse {X : UU} (l : po X) :=
   popair (hrel_reverse l) (ispreorder_reverse l (pr2 l)).
 Lemma po_reverse_correct {X : UU} (l : po X) :
-  Π x y : X, po_reverse l x y = l y x.
+  ∏ x y : X, po_reverse l x y = l y x.
 Proof.
   intros X l x y.
   now apply paths_refl.
@@ -131,7 +131,7 @@ Qed.
 Definition eqrel_reverse {X : UU} (l : eqrel X) :=
   eqrelpair (hrel_reverse l) (iseqrel_reverse l (pr2 l)).
 Lemma eqrel_reverse_correct {X : UU} (l : eqrel X) :
-  Π x y : X, eqrel_reverse l x y = l y x.
+  ∏ x y : X, eqrel_reverse l x y = l y x.
 Proof.
   intros X l x y.
   now apply paths_refl.
@@ -162,7 +162,7 @@ Qed.
 Definition StrongOrder_reverse {X : UU} (l : StrongOrder X) :=
   pairStrongOrder (hrel_reverse l) (isStrongOrder_reverse l (pr2 l)).
 Lemma StrongOrder_reverse_correct {X : UU} (l : StrongOrder X) :
-  Π x y : X, StrongOrder_reverse l x y = l y x.
+  ∏ x y : X, StrongOrder_reverse l x y = l y x.
 Proof.
   intros X l x y.
   now apply paths_refl.
@@ -194,16 +194,16 @@ Qed.
 
 Definition isEffectiveOrder {X : UU} (le lt : hrel X) :=
   dirprod ((ispreorder le) × (isStrongOrder lt))
-          ((Π x y : X, (¬ lt x y) <-> (le y x))
-          × (Π x y z : X, lt x y -> le y z -> lt x z)
-          × (Π x y z : X, le x y -> lt y z -> lt x z)).
+          ((∏ x y : X, (¬ lt x y) <-> (le y x))
+          × (∏ x y z : X, lt x y -> le y z -> lt x z)
+          × (∏ x y z : X, le x y -> lt y z -> lt x z)).
 Definition EffectiveOrder (X : UU) :=
-  Σ le lt : hrel X, isEffectiveOrder le lt.
+  ∑ le lt : hrel X, isEffectiveOrder le lt.
 Definition pairEffectiveOrder {X : UU} (le lt : hrel X) (is : isEffectiveOrder le lt) : EffectiveOrder X :=
   (le,,lt,,is).
 
 Definition EffectivelyOrderedSet :=
-  Σ X : hSet, EffectiveOrder X.
+  ∑ X : hSet, EffectiveOrder X.
 Definition pairEffectivelyOrderedSet {X : hSet} (is : EffectiveOrder X) : EffectivelyOrderedSet
   := tpair _ X is.
 Definition pr1EffectivelyOrderedSet : EffectivelyOrderedSet → hSet := pr1.
@@ -250,44 +250,44 @@ Context {X : EffectivelyOrderedSet}.
 Open Scope eo_scope.
 
 Lemma not_EOlt_le :
-  Π x y : X, (¬ (x < y)) <-> (y <= x).
+  ∏ x y : X, (¬ (x < y)) <-> (y <= x).
 Proof.
   exact (pr1 (pr2 (pr2 (pr2 (pr2 X))))).
 Qed.
 Lemma EOge_le:
-  Π x y : X, (x >= y) <-> (y <= x).
+  ∏ x y : X, (x >= y) <-> (y <= x).
 Proof.
   now split.
 Qed.
 Lemma EOgt_lt:
-  Π x y : X, (x > y) <-> (y < x).
+  ∏ x y : X, (x > y) <-> (y < x).
 Proof.
   now split.
 Qed.
 
 Definition isrefl_EOle:
-  Π x : X, x <= x
+  ∏ x : X, x <= x
   := isrefl_po EOle.
 Definition istrans_EOle:
-  Π x y z : X, x <= y -> y <= z -> x <= z
+  ∏ x y z : X, x <= y -> y <= z -> x <= z
   := istrans_po EOle.
 
 Definition isirrefl_EOgt:
-  Π x : X, ¬ (x > x)
+  ∏ x : X, ¬ (x > x)
   := isirrefl_StrongOrder EOgt.
 Definition istrans_EOgt:
-  Π x y z : X, x > y -> y > z -> x > z
+  ∏ x y z : X, x > y -> y > z -> x > z
   := istrans_StrongOrder EOgt.
 
 Definition isirrefl_EOlt:
-  Π x : X, ¬ (x < x)
+  ∏ x : X, ¬ (x < x)
   := isirrefl_StrongOrder EOlt.
 Definition istrans_EOlt:
-  Π x y z : X, x < y -> y < z -> x < z
+  ∏ x y z : X, x < y -> y < z -> x < z
   := istrans_StrongOrder EOlt.
 
 Lemma EOlt_le :
-  Π x y : X, x < y -> x <= y.
+  ∏ x y : X, x < y -> x <= y.
 Proof.
   intros x y Hxy.
   apply not_EOlt_le.
@@ -299,25 +299,25 @@ Proof.
 Qed.
 
 Lemma istrans_EOlt_le:
-  Π x y z : X, x < y -> y <= z -> x < z.
+  ∏ x y z : X, x < y -> y <= z -> x < z.
 Proof.
   exact (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 X)))))).
 Qed.
 Lemma istrans_EOle_lt:
-  Π x y z : X, x <= y -> y < z -> x < z.
+  ∏ x y z : X, x <= y -> y < z -> x < z.
 Proof.
   exact (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 X)))))).
 Qed.
 
 Lemma EOlt_noteq :
-  Π x y : X, x < y -> x != y.
+  ∏ x y : X, x < y -> x != y.
 Proof.
   intros x y Hgt Heq.
   rewrite Heq in Hgt.
   now apply isirrefl_EOgt in Hgt.
 Qed.
 Lemma EOgt_noteq :
-  Π x y : X, x > y -> x != y.
+  ∏ x y : X, x > y -> x != y.
 Proof.
   intros x y Hgt Heq.
   rewrite Heq in Hgt.
@@ -334,11 +334,11 @@ Definition isConstructiveTotalEffectiveOrder {X : UU} (ap le lt : hrel X) :=
   istightap ap
   × isEffectiveOrder le lt
   × (isantisymm le)
-  × (Π x y : X, ap x y <-> (lt x y) ⨿ (lt y x)).
+  × (∏ x y : X, ap x y <-> (lt x y) ⨿ (lt y x)).
 Definition ConstructiveTotalEffectiveOrder X :=
-  Σ ap lt le : hrel X, isConstructiveTotalEffectiveOrder ap lt le.
+  ∑ ap lt le : hrel X, isConstructiveTotalEffectiveOrder ap lt le.
 Definition ConstructiveTotalEffectivellyOrderedSet :=
-  Σ X : hSet, ConstructiveTotalEffectiveOrder X.
+  ∑ X : hSet, ConstructiveTotalEffectiveOrder X.
 
 (** ** Complete Ordered Space *)
 
@@ -348,14 +348,14 @@ Context {X : PreorderedSet}.
 Local Notation "x <= y" := (pr1 (pr2 X) x y).
 
 Definition isUpperBound (E : hsubtype X) (ub : X) : UU :=
-  Π x : X, E x -> x <= ub.
+  ∏ x : X, E x -> x <= ub.
 Definition isSmallerThanUpperBounds (E : hsubtype X) (lub : X) : UU :=
-  Π ub : X, isUpperBound E ub -> lub <= ub.
+  ∏ ub : X, isUpperBound E ub -> lub <= ub.
 
 Definition isLeastUpperBound (E : hsubtype X) (lub : X) : UU :=
   dirprod (isUpperBound E lub) (isSmallerThanUpperBounds E lub).
 Definition LeastUpperBound (E : hsubtype X) : UU :=
-  Σ lub : X, isLeastUpperBound E lub.
+  ∑ lub : X, isLeastUpperBound E lub.
 Definition pairLeastUpperBound (E : hsubtype X) (lub : X)
            (is : isLeastUpperBound E lub) : LeastUpperBound E :=
   tpair (isLeastUpperBound E) lub is.
@@ -393,14 +393,14 @@ Context {X : PreorderedSet}.
 Local Notation "x >= y" := (pr1 (pr2 X) y x).
 
 Definition isLowerBound (E : hsubtype X) (ub : X) : UU :=
-  Π x : X, E x -> x >= ub.
+  ∏ x : X, E x -> x >= ub.
 Definition isBiggerThanLowerBounds (E : hsubtype X) (lub : X) : UU :=
-  Π ub : X, isLowerBound E ub -> lub >= ub.
+  ∏ ub : X, isLowerBound E ub -> lub >= ub.
 
 Definition isGreatestLowerBound (E : hsubtype X) (glb : X) : UU :=
   dirprod (isLowerBound E glb) (isBiggerThanLowerBounds E glb).
 Definition GreatestLowerBound (E : hsubtype X) : UU :=
-  Σ glb : X, isGreatestLowerBound E glb.
+  ∑ glb : X, isGreatestLowerBound E glb.
 Definition pairGreatestLowerBound (E : hsubtype X) (glb : X)
            (is : isGreatestLowerBound E glb) : GreatestLowerBound E :=
   tpair (isGreatestLowerBound E) glb is.
@@ -433,9 +433,9 @@ Qed.
 End GreatestLowerBound.
 
 Definition isCompleteSpace (X : PreorderedSet) :=
-  Π E : hsubtype X,
+  ∏ E : hsubtype X,
     hexists (isUpperBound E) -> hexists E -> LeastUpperBound E.
 Definition CompleteSpace  :=
-  Σ X : PreorderedSet, isCompleteSpace X.
+  ∑ X : PreorderedSet, isCompleteSpace X.
 Definition pr1CompleteSpace : CompleteSpace → UU := pr1.
 Coercion pr1CompleteSpace : CompleteSpace >-> UU.

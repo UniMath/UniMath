@@ -20,7 +20,7 @@ Section def_morphismpair.
 
   Variable C : precategory.
 
-  Definition MorphismPair : UU := Σ (a b c : C), (a --> b × b --> c).
+  Definition MorphismPair : UU := ∑ (a b c : C), (a --> b × b --> c).
 
   Definition mk_MorphismPair {a b c : C} (f : a --> b) (g : b --> c) : MorphismPair.
   Proof.
@@ -69,7 +69,7 @@ Section def_morphismpair.
   Definition MPComm2 {MP1 MP2 : MorphismPair} {MPM : MPMorMors MP1 MP2} (MPMC : MPMorComms MPM) :
     MPMors2 MPM ;; Mor2 MP2 = Mor2 MP1 ;; MPMors3 MPM := dirprod_pr2 MPMC.
 
-  Definition MPMorphism (MP1 MP2 : MorphismPair) : UU := Σ MPM : MPMorMors MP1 MP2, MPMorComms MPM.
+  Definition MPMorphism (MP1 MP2 : MorphismPair) : UU := ∑ MPM : MPMorMors MP1 MP2, MPMorComms MPM.
 
   Definition MPMorphism_MPMorMors {MP1 MP2 : MorphismPair} (MPM : MPMorphism MP1 MP2) :
     MPMorMors MP1 MP2 := pr1 MPM.
@@ -126,7 +126,7 @@ Section def_shortshortexactdata.
     morphism. *)
 
   Definition ShortShortExactData : UU :=
-    Σ MP : MorphismPair C, Mor1 MP ;; Mor2 MP = ZeroArrow Z _ _.
+    ∑ MP : MorphismPair C, Mor1 MP ;; Mor2 MP = ZeroArrow Z _ _.
 
   Definition mk_ShortShortExactData (MP : MorphismPair C)
              (H : Mor1 MP ;; Mor2 MP = ZeroArrow Z _ _) : ShortShortExactData := tpair _ MP H.

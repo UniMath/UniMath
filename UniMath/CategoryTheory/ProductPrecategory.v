@@ -25,9 +25,9 @@ Variables C : I -> precategory.
 Definition product_precategory_ob_mor : precategory_ob_mor.
 Proof.
 mkpair.
-- apply (Π (i : I), ob (C i)).
+- apply (∏ (i : I), ob (C i)).
 - intros f g.
-  apply (Π i, f i --> g i).
+  apply (∏ i, f i --> g i).
 Defined.
 
 Definition product_precategory_data : precategory_data.
@@ -52,7 +52,7 @@ Qed.
 Definition product_precategory : precategory
   := tpair _ _ is_precategory_product_precategory_data.
 
-Definition has_homsets_product_precategory (hsC : Π (i:I), has_homsets (C i)) :
+Definition has_homsets_product_precategory (hsC : ∏ (i:I), has_homsets (C i)) :
   has_homsets product_precategory.
 Proof.
 intros a b; simpl.
@@ -84,7 +84,7 @@ End power_precategory.
 Section functors.
 
 Definition family_functor_data (I : UU) {A B : I -> precategory}
-  (F : Π (i : I), functor (A i) (B i)) :
+  (F : ∏ (i : I), functor (A i) (B i)) :
   functor_data (product_precategory I A)
                (product_precategory I B).
 Proof.
@@ -94,7 +94,7 @@ mkpair.
 Defined.
 
 Definition family_functor (I : UU) {A B : I -> precategory}
-  (F : Π (i : I), functor (A i) (B i)) :
+  (F : ∏ (i : I), functor (A i) (B i)) :
   functor (product_precategory I A)
           (product_precategory I B).
 Proof.

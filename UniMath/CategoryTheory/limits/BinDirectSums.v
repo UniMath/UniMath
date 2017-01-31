@@ -108,7 +108,7 @@ Section def_bindirectsums.
 
   (** Definition of BinDirectSums. *)
   Definition BinDirectSumCone (a b : A) : UU :=
-    Σ coab : (Σ co : A, a --> co × b --> co × co --> a × co --> b),
+    ∑ coab : (∑ co : A, a --> co × b --> co × co --> a × co --> b),
              isBinDirectSumCone a b (pr1 coab) (pr1 (pr2 coab)) (pr1 (pr2 (pr2 coab)))
                                 (pr1 (pr2 (pr2 (pr2 coab)))) (pr2 (pr2 (pr2 (pr2 coab)))).
 
@@ -118,7 +118,7 @@ Section def_bindirectsums.
     BinDirectSumCone a b := tpair _ (tpair _ co (i1,,(i2,,(p1,,p2)))) H.
 
   (** BinDirectSum in categories. *)
-  Definition BinDirectSums : UU := Π (a b : A), BinDirectSumCone a b.
+  Definition BinDirectSums : UU := ∏ (a b : A), BinDirectSumCone a b.
 
   Definition has_BinDirectSums : UU := ishinh BinDirectSums.
 
@@ -166,28 +166,28 @@ Section def_bindirectsums.
 
   (** Commutativity of BinDirectSum. *)
   Definition BinDirectSumIn1Commutes {a b : A} (B : BinDirectSumCone a b) :
-    Π (c : A) (f : a --> c) (g : b --> c), (to_In1 B) ;; (FromBinDirectSum B f g) = f.
+    ∏ (c : A) (f : a --> c) (g : b --> c), (to_In1 B) ;; (FromBinDirectSum B f g) = f.
   Proof.
     intros c f g.
     apply (BinCoproductIn1Commutes A a b (BinDirectSum_BinCoproduct B) c f g).
   Qed.
 
   Definition BinDirectSumIn2Commutes {a b : A} (B : BinDirectSumCone a b) :
-    Π (c : A) (f : a --> c) (g : b --> c), (to_In2 B) ;; (FromBinDirectSum B f g) = g.
+    ∏ (c : A) (f : a --> c) (g : b --> c), (to_In2 B) ;; (FromBinDirectSum B f g) = g.
   Proof.
     intros c f g.
     apply (BinCoproductIn2Commutes A a b (BinDirectSum_BinCoproduct B) c f g).
   Qed.
 
   Definition BinDirectSumPr1Commutes {a b : A} (B : BinDirectSumCone a b) :
-    Π (c : A) (f : c --> a) (g : c --> b), (ToBinDirectSum B f g) ;; (to_Pr1 B) = f.
+    ∏ (c : A) (f : c --> a) (g : c --> b), (ToBinDirectSum B f g) ;; (to_Pr1 B) = f.
   Proof.
     intros c f g.
     apply (BinProductPr1Commutes A a b (BinDirectSum_BinProduct B) c f g).
   Qed.
 
   Definition BinDirectSumPr2Commutes {a b : A} (B : BinDirectSumCone a b) :
-    Π (c : A) (f : c --> a) (g : c --> b), (ToBinDirectSum B f g) ;; (to_Pr2 B) = g.
+    ∏ (c : A) (f : c --> a) (g : c --> b), (ToBinDirectSum B f g) ;; (to_Pr2 B) = g.
   Proof.
     intros c f g.
     apply (BinProductPr2Commutes A a b (BinDirectSum_BinProduct B) c f g).
