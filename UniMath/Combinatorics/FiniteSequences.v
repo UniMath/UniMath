@@ -539,11 +539,11 @@ Definition flattenStep' {X n}
 Proof.
   intros.
   apply funextfun; intro i.
-  unfold flatten', funcomp.
+  unfold flatten'.
   (* we want to treat the inductions from weqfromcoprodofstn_invmap and weqstnsum_invmap simultaneously *)
   unfold weqstnsum_invmap at 1.
   unfold concatenate', weqfromcoprodofstn_invmap.
-  unfold nat_rect, coprod_rect.
+  unfold nat_rect, coprod_rect, funcomp.
   change (natlthorgeh _ _) with (natlthorgeh i (stnsum m')) at 1 4.
   induction (natlthorgeh i (stnsum m')); reflexivity.
 Defined.
