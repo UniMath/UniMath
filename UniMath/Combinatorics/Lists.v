@@ -54,7 +54,7 @@ Defined.
 Lemma list_ind_compute_2
       (P : list -> UU)
       (p0 : P nil)
-      (ind : Π (x : A) (xs : list), P xs -> P (x :: xs))
+      (ind : ∏ (x : A) (xs : list), P xs -> P (x :: xs))
       (x : A) (xs : list)
       (f := list_ind P p0 ind) :
   f (x::xs) = ind x xs (f xs).
