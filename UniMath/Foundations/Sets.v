@@ -481,6 +481,9 @@ Definition DecidableRelation_to_hrel {X : UU} (P : DecidableRelation X) : hrel X
   := λ x y, DecidableProposition_to_hProp(P x y).
 Coercion DecidableRelation_to_hrel : DecidableRelation >-> hrel.
 
+Definition fun_hrel_comp {X Y : UU} (f : X → Y) (gt : hrel Y) : hrel X :=
+  λ x y : X, gt (f x) (f y).
+
 (** *** Standard properties of relations *)
 
 

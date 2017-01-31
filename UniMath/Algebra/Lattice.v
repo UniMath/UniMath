@@ -68,7 +68,7 @@ Definition isasymm_StrongOrder : isasymm R :=
 End so_pty.
 
 Lemma isStrongOrder_bck {X Y : UU} (f : Y → X) (gt : hrel X) :
-  isStrongOrder gt → isStrongOrder (λ x y : Y, gt (f x) (f y)).
+  isStrongOrder gt → isStrongOrder (fun_hrel_comp f gt).
 Proof.
   intros X Y H gt is.
   split ; [ | split].
@@ -80,7 +80,7 @@ Proof.
     apply (pr2 (pr2 is)).
 Qed.
 Definition StrongOrder_bck {X Y : UU} (f : Y → X) (gt : StrongOrder X) : StrongOrder Y :=
-  (λ x y : Y, gt (f x) (f y)) ,, isStrongOrder_bck f _ (pr2 gt).
+  (fun_hrel_comp f gt) ,, isStrongOrder_bck f _ (pr2 gt).
 
 Lemma isStrongOrder_setquot {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
   isStrongOrder L → isStrongOrder (quotrel is).
@@ -1016,11 +1016,12 @@ Defined.
 (** *** Value of [Lle] *)
 
 Lemma Lle_correct_weq {X Y : hSet} (H : weq Y X) (is : lattice X) :
-  Π (x y : Y),
-  Lle is (H x) (H y) <-> Lle (lattice_weq H is) x y.
+  fun_hrel_comp H (Lle is) = Lle (lattice_weq H is).
 Proof.
-  intros X Y H is x y.
-  split ; intros Hle.
+  intros X Y H is.
+  apply funextfun ; intros x.
+  apply funextfun ; intros y.
+  apply hPropUnivalence ; intros Hle.
   - apply pathsinv0, pathsweq1, pathsinv0.
     apply Hle.
   - apply pathsinv0, pathsweq1', pathsinv0.
@@ -1047,13 +1048,13 @@ Proof.
     apply pathsinv0, pathsweq1', pathsinv0.
     apply Hle.
   - simpl ; intros x y z Hx Hy.
-    unfold binop_weq_bck.
+    unfold binop_weq_bck, fun_hrel_comp.
     rewrite homotweqinvweq.
     apply (pr1 (pr2 Hgt)).
     exact Hx.
     exact Hy.
   - unfold Lmax ; simpl ; intros x y z Hx Hy.
-    unfold binop_weq_bck.
+    unfold binop_weq_bck, fun_hrel_comp.
     rewrite homotweqinvweq.
     apply (pr2 (pr2 Hgt)).
     exact Hx.
