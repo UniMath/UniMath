@@ -115,7 +115,7 @@ Defined.
 Definition prodprod_list_mon {M:monoid} : list (list M) -> M.
 Proof.
   intros ? x.
-  exact (product_list_mon (map product_list_mon x)).
+  exact (prodprod_list (unel M) (@op M) x).
 Defined.
 
 (* some rewriting rules *)
@@ -199,8 +199,10 @@ Proof.
   - simpl. reflexivity.
   - intros x xs ind. simpl in ind. cbn beta.
     rewrite Lists.flattenStep.
-    unfold prodprod_list. unfold prodprod_list_mon.
-    rewrite mapStep. rewrite product_list_mon_step.
+    unfold prodprod_list_mon. unfold prodprod_list.
+    rewrite mapStep.
+    change (product_list (@unel M) (@op M)) with (@product_list_mon M).
+    rewrite product_list_mon_step.
     intermediate_path (product_list_mon x * product_list_mon (Lists.flatten xs)).
     + generalize (Lists.flatten xs) as y; clear xs ind; intro y.
       generalize x; clear x.
