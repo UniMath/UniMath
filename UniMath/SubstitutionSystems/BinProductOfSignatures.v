@@ -63,7 +63,7 @@ Definition H : functor [C, C, hsC] [C, C, hsC] :=
   BinProduct_of_functors _ _ CCC H1 H2.
 
 Local Definition θ_ob_fun (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) :
-   Π c : C,
+   ∏ c : C,
     (functor_composite_data (pr1 Z)
      (BinProduct_of_functors_data C C PC (H1 X) (H2 X))) c
    --> (BinProduct_of_functors_data C C PC (H1 (functor_composite (pr1 Z) X))
@@ -86,7 +86,7 @@ Proof.
   * apply (nat_trans_ax (θ2 (X ⊗ Z))).
 Qed.
 
-Definition θ_ob : Π XZ, θ_source H XZ --> θ_target H XZ.
+Definition θ_ob : ∏ XZ, θ_source H XZ --> θ_target H XZ.
 Proof.
   intro XZ.
   exists (θ_ob_fun (pr1 XZ) (pr2 XZ)).
@@ -196,7 +196,7 @@ Defined.
 
 Lemma is_omega_cocont_BinProduct_of_Signatures (S1 S2 : Signature C hsC)
   (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2)
-  (hE : Π x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C PC hsC) x)) :
+  (hE : ∏ x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C PC hsC) x)) :
   is_omega_cocont (BinProduct_of_Signatures S1 S2).
 Proof.
 destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.

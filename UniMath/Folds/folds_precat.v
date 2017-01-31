@@ -23,7 +23,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 
 (** ** Objects and a dependent type of morphisms *)
 
-Definition folds_ob_mor := Σ a : UU, a → a → UU.
+Definition folds_ob_mor := ∑ a : UU, a → a → UU.
 Definition folds_ob_mor_pair (ob : UU)(mor : ob → ob → UU) :
     folds_ob_mor := tpair _ ob mor.
 
@@ -33,28 +33,28 @@ Coercion ob : folds_ob_mor >-> UU.
 Definition folds_morphisms {C : folds_ob_mor} : C → C → UU := pr2 C.
 Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
 
-Definition has_folds_homsets (C : folds_ob_mor) : UU := Π a b: C, isaset (a ⇒ b).
+Definition has_folds_homsets (C : folds_ob_mor) : UU := ∏ a b: C, isaset (a ⇒ b).
 
 (** ** Identity and composition, given through predicates *)
 
-Definition folds_id_T := Σ C : folds_ob_mor,
-    (Π a : C, a ⇒ a → hProp)
- ×  (Π (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp).
+Definition folds_id_T := ∑ C : folds_ob_mor,
+    (∏ a : C, a ⇒ a → hProp)
+ ×  (∏ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp).
 
 Definition folds_ob_mor_from_folds_id_comp (C : folds_id_T) : folds_ob_mor := pr1 C.
 Coercion folds_ob_mor_from_folds_id_comp : folds_id_T >-> folds_ob_mor.
 
-Definition I {C : folds_id_T} : Π {a : C}, a ⇒ a → hProp
+Definition I {C : folds_id_T} : ∏ {a : C}, a ⇒ a → hProp
   := pr1 (pr2 C).
-Definition T {C : folds_id_T} : Π {a b c : C}, (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp
+Definition T {C : folds_id_T} : ∏ {a b c : C}, (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp
   := pr2 (pr2 C).
 
 (** **  The axioms for identity *)
 
 Definition folds_ax_I (C : folds_id_T) :=
-     (Π a : C, ∥ Σ f : a ⇒ a, I f ∥ )  (* there is an id *)
-  × ((Π (a b : C) (f : a ⇒ b)(i : b ⇒ b), I i → T f i f) (* id is post neutral *)
-   × (Π (a b : C) (f : a ⇒ b)(i : a ⇒ a), I i → T i f f)). (* id is pre neutral *)
+     (∏ a : C, ∥ ∑ f : a ⇒ a, I f ∥ )  (* there is an id *)
+  × ((∏ (a b : C) (f : a ⇒ b)(i : b ⇒ b), I i → T f i f) (* id is post neutral *)
+   × (∏ (a b : C) (f : a ⇒ b)(i : a ⇒ a), I i → T i f f)). (* id is pre neutral *)
 
 Lemma isaprop_folds_ax_id C : isaprop (folds_ax_I C).
 Proof.
@@ -65,10 +65,10 @@ Proof.
 Qed.
 
 Definition folds_ax_T (C : folds_id_T) :=
-     (Π {a b c : C} (f : a ⇒ b) (g : b ⇒ c), ∥ Σ h : a ⇒ c, T f g h ∥ ) (* there is a composite *)
- ×  ((Π {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
+     (∏ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h ∥ ) (* there is a composite *)
+ ×  ((∏ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
                   T f g h → T f g k → h = k )       (* composite is unique *)
-  ×  (Π {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
+  ×  (∏ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
                   (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d),
                T f g fg → T g h gh →
                   T fg h fg_h → T f gh f_gh → f_gh = fg_h)). (* composition is assoc *)
@@ -82,7 +82,7 @@ Proof.
 Qed.
 
 
-Definition folds_precat := Σ C : folds_id_T, folds_ax_I C × folds_ax_T C.
+Definition folds_precat := ∑ C : folds_id_T, folds_ax_I C × folds_ax_T C.
 
 Definition folds_id_comp_from_folds_precat (C : folds_precat) : folds_id_T := pr1 C.
 Coercion folds_id_comp_from_folds_precat : folds_precat >-> folds_id_T.
@@ -98,7 +98,7 @@ Section some_lemmas_about_folds_precats.
 
 Variable C : folds_precat.
 
-Lemma I_unique : Π (a : C) (i i' : a ⇒ a), I i → I i' → i = i'.
+Lemma I_unique : ∏ (a : C) (i i' : a ⇒ a), I i → I i' → i = i'.
 Proof.
   intros a i i' Hi Hi'.
   destruct C as [CC [Cid Ccomp]]; simpl in *.
@@ -109,11 +109,11 @@ Proof.
   apply (pr1 (pr2 Ccomp) _ _ _ _ _ _ _ H1 H2).
 Qed.
 
-Lemma I_contr : Π a : C, iscontr (Σ f : a ⇒ a, I f).
+Lemma I_contr : ∏ a : C, iscontr (∑ f : a ⇒ a, I f).
 Proof.
   intro a.
   set (H := pr1 (pr1 (pr2 C)) a).
-  set (H' := hProppair (iscontr (Σ f : a ⇒ a, I f))
+  set (H' := hProppair (iscontr (∑ f : a ⇒ a, I f))
                       (isapropiscontr _ )).
   apply (H H'); simpl.
   intro t; exists t.
@@ -131,10 +131,10 @@ Proof.
   apply (pr2 (pr1 (I_contr a))).
 Defined.
 
-Lemma T_contr : Π (a b c : C) (f : a ⇒ b) (g : b ⇒ c), iscontr (Σ h, T f g h).
+Lemma T_contr : ∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), iscontr (∑ h, T f g h).
 Proof.
   intros a b c f g.
-  set (H' := hProppair (iscontr (Σ h : a ⇒ c, T f g h))
+  set (H' := hProppair (iscontr (∑ h : a ⇒ c, T f g h))
                       (isapropiscontr _ )).
   apply (pr1 (pr2 (pr2 C)) a b c f g H').
   simpl; intro t; exists t.

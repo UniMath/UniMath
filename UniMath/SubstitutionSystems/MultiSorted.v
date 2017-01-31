@@ -74,7 +74,7 @@ Let post_comp := post_composition_functor (SET / sort) _ _
 
 (** Definition of multi sorted signatures *)
 Definition MultiSortedSig : UU :=
-  Σ (I : hSet), I → list (list sort × sort) × sort.
+  ∑ (I : hSet), I → list (list sort × sort) × sort.
 
 Definition ops (M : MultiSortedSig) : hSet := pr1 M.
 Definition arity (M : MultiSortedSig) : ops M → list (list sort × sort) × sort :=
@@ -422,7 +422,7 @@ Defined.
 
 (** Definition of multi sorted signatures *)
 Definition MultiSortedSig : UU :=
-  Π (s : sort), Σ (I : UU), (I → list (list sort × sort)). (* × (isaset I). *)
+  ∏ (s : sort), ∑ (I : UU), (I → list (list sort × sort)). (* × (isaset I). *)
 
 Definition indices (M : MultiSortedSig) : sort → UU := fun s => pr1 (M s).
 
@@ -519,7 +519,7 @@ Defined.
 
 (* H follows if C has exponentials? *)
 (* Lemma is_omega_cocont_exp_functors (xs : list (list sort × sort)) *)
-(*   (H : Π x : [sortToC, C], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x)) *)
+(*   (H : ∏ x : [sortToC, C], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x)) *)
 (*   (H2 : Colims_of_shape nat_graph sortToC) : *)
 (*   is_omega_cocont (exp_functors xs). *)
 (* Proof. *)
@@ -567,7 +567,7 @@ Defined.
 
 
 (* Lemma is_omega_cocont_MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory) *)
-(*   (F : functor E1 [C1,[D,E2]]) (HF : Π s, is_omega_cocont (F s)) : *)
+(*   (F : functor E1 [C1,[D,E2]]) (HF : ∏ s, is_omega_cocont (F s)) : *)
 (*   is_omega_cocont (MultiSortedSigToFunctor_helper C1 D E1 E2 F). *)
 (* Proof. *)
 (* apply is_omega_cocont_functor_composite. *)
@@ -585,7 +585,7 @@ Defined.
 (* apply functor_identity. *)
 (* Defined. *)
 
-Local Definition MultiSortedSigToFunctor_fun (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C)
+Local Definition MultiSortedSigToFunctor_fun (M : MultiSortedSig) (CC : ∏ s, Coproducts (indices M s) C)
   : [sort_cat, [[sortToC, sortToC], [sortToC, C]]].
 Proof.
 (* As we're defining a functor out of a discrete category it suffices to give a function: *)
@@ -596,12 +596,12 @@ use (coproduct_of_functors (indices M s)).
 Defined.
 
 (* Lemma is_omega_cocont_MultiSortedSigToFunctor_fun *)
-(*   (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C) *)
-(*   (CP : Π s, Products (indices M s) C) *)
-(*   (hs : Π s, isdeceq (indices M s)) *)
-(*   (H : Π x : [sortToC, C], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x)) *)
+(*   (M : MultiSortedSig) (CC : ∏ s, Coproducts (indices M s) C) *)
+(*   (CP : ∏ s, Products (indices M s) C) *)
+(*   (hs : ∏ s, isdeceq (indices M s)) *)
+(*   (H : ∏ x : [sortToC, C], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x)) *)
 (*   (H2 : Colims_of_shape nat_graph sortToC) : *)
-(*   Π s, is_omega_cocont (pr1 (MultiSortedSigToFunctor_fun M CC) s). *)
+(*   ∏ s, is_omega_cocont (pr1 (MultiSortedSigToFunctor_fun M CC) s). *)
 (* Proof. *)
 (* intros s. *)
 (* apply is_omega_cocont_coproduct_of_functors; try apply homset_property. *)
@@ -613,7 +613,7 @@ Defined.
 (* Defined. *)
 
 (** * The functor constructed from a multisorted binding signature *)
-Definition MultiSortedSigToFunctor (M : MultiSortedSig) (CC : Π s, Coproducts (indices M s) C) :
+Definition MultiSortedSigToFunctor (M : MultiSortedSig) (CC : ∏ s, Coproducts (indices M s) C) :
   functor [sortToC,sortToC] [sortToC,sortToC].
 Proof.
 (* First reorganize so that the last sort argument is first: *)
@@ -623,10 +623,10 @@ apply (F x).
 Defined.
 
 (* Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig) *)
-(*   (CC : Π s, Coproducts (indices M s) C) *)
-(*   (PC : Π s, Products (indices M s) C) *)
-(*   (Hi : Π s, isdeceq (indices M s)) *)
-(*   (H : Π x : [sortToC, C], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x)) : *)
+(*   (CC : ∏ s, Coproducts (indices M s) C) *)
+(*   (PC : ∏ s, Products (indices M s) C) *)
+(*   (Hi : ∏ s, isdeceq (indices M s)) *)
+(*   (H : ∏ x : [sortToC, C], is_omega_cocont (constprod_functor1 BinProductsSortToCToC x)) : *)
 (*    is_omega_cocont (MultiSortedSigToFunctor M CC). *)
 (* Proof. *)
 (* apply is_omega_cocont_functor_composite. *)

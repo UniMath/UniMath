@@ -50,7 +50,7 @@ Local Notation "'chain'" := (diagram nat_graph).
 Section BindingSig.
 
 (** A binding signature is a collection of lists of natural numbers indexed by types I *)
-Definition BindingSig : UU := Σ (I : UU) (h : isdeceq I), I → list nat.
+Definition BindingSig : UU := ∑ (I : UU) (h : isdeceq I), I → list nat.
 
 Definition BindingSigIndex : BindingSig -> UU := pr1.
 Definition BindingSigIsdeceq (s : BindingSig) : isdeceq (BindingSigIndex s) :=
@@ -138,7 +138,7 @@ Let constprod_functor1 := constprod_functor1 (BPC2 BPC).
 (** The H assumption follows directly if [C,C] has exponentials *)
 Lemma is_omega_cocont_Arity_to_Signature
   (TC : Terminal C) (CLC : Colims_of_shape nat_graph C)
-  (H : Π (F : [C,C]), is_omega_cocont (constprod_functor1 F))
+  (H : ∏ (F : [C,C]), is_omega_cocont (constprod_functor1 F))
   (xs : list nat) :
   is_omega_cocont (Arity_to_Signature TC xs).
 Proof.
@@ -166,7 +166,7 @@ Defined.
 
 Lemma is_omega_cocont_BindingSigToSignature
   (TC : Terminal C) (CLC : Colims_of_shape nat_graph C)
-  (HF : Π (F : [C,C]), is_omega_cocont (constprod_functor1 F))
+  (HF : ∏ (F : [C,C]), is_omega_cocont (constprod_functor1 F))
   (sig : BindingSig)
   (CC : Coproducts (BindingSigIndex sig) C) (PC : Products (BindingSigIndex sig) C) :
   is_omega_cocont (BindingSigToSignature TC sig CC).
@@ -229,7 +229,7 @@ Defined.
 (** ** Function from binding signatures to monads *)
 Definition BindingSigToMonad
   (TC : Terminal C) (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
-  (HF : Π (F : [C,C]), is_omega_cocont (constprod_functor1 F))
+  (HF : ∏ (F : [C,C]), is_omega_cocont (constprod_functor1 F))
   (sig : BindingSig)
   (PC : Products (BindingSigIndex sig) C)
   (CC : Coproducts (BindingSigIndex sig) C) :

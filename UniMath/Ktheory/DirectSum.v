@@ -15,7 +15,7 @@ Require UniMath.Ktheory.RawMatrix.
 Local Open Scope cat.
 
 Definition identity_matrix {C:Precategory} (h:hasZeroMaps C)
-           {I} (d:I -> ob C) (dec : isdeceq I) : Π i j, Hom C (d j) (d i).
+           {I} (d:I -> ob C) (dec : isdeceq I) : ∏ i j, Hom C (d j) (d i).
 Proof. intros. induction (dec i j) as [ eq | ne ].
        { induction eq. apply identity. }
        { apply h. }
@@ -31,11 +31,11 @@ Proof. intros. apply RawMatrix.from_matrix. apply identity_matrix.
 Record DirectSum {C:Precategory} (h:hasZeroMaps C) I (dec : isdeceq I) (c : I -> ob C) :=
   make_DirectSum {
       ds : C;
-      ds_pr : Π i, Hom C ds (c i);
-      ds_in : Π i, Hom C (c i) ds;
-      ds_id : Π i j, ds_pr i ∘ ds_in j = identity_matrix h c dec i j;
-      ds_isprod : Π c, isweq (λ f : Hom C c ds, λ i, ds_pr i ∘ f);
-      ds_issum  : Π c, isweq (λ f : Hom C ds c, λ i, f ∘ ds_in i) }.
+      ds_pr : ∏ i, Hom C ds (c i);
+      ds_in : ∏ i, Hom C (c i) ds;
+      ds_id : ∏ i j, ds_pr i ∘ ds_in j = identity_matrix h c dec i j;
+      ds_isprod : ∏ c, isweq (λ f : Hom C c ds, λ i, ds_pr i ∘ f);
+      ds_issum  : ∏ c, isweq (λ f : Hom C ds c, λ i, f ∘ ds_in i) }.
 Definition toDirectSum {C:Precategory} (h:hasZeroMaps C) {I} (dec : isdeceq I) (d:I -> ob C)
            (B:Sum d) (D:Product d)
            (is: is_isomorphism (identity_map h dec B D)) : DirectSum h I dec d.
@@ -56,7 +56,7 @@ Proof. intros. set (id := identity_map h dec B D).
                       (pr2 (universalProperty B c))). }
 Defined.
 Definition FiniteDirectSums (C:Precategory) :=
-             Σ h : hasZeroMaps C,
-             Π I : FiniteSet,
-             Π d : I -> ob C,
+             ∑ h : hasZeroMaps C,
+             ∏ I : FiniteSet,
+             ∏ d : I -> ob C,
                DirectSum h I (isfinite_isdeceq I (pr2 I)) d.

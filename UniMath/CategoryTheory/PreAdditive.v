@@ -36,25 +36,25 @@ Section def_preadditive.
       morphism yields a morphism of abelian groups. Classically one says that
       composition is bilinear with respect to the abelian groups? *)
   Definition isPreAdditive (PA : PrecategoryWithAbgrops) : UU :=
-    (Π (x y z : PA) (f : x --> y), ismonoidfun (to_premor z f))
-      × (Π (x y z : PA) (f : y --> z), ismonoidfun (to_postmor x f)).
+    (∏ (x y z : PA) (f : x --> y), ismonoidfun (to_premor z f))
+      × (∏ (x y z : PA) (f : y --> z), ismonoidfun (to_postmor x f)).
 
   Definition mk_isPreAdditive (PA : PrecategoryWithAbgrops)
-             (H1 : Π (x y z : PA) (f : x --> y), ismonoidfun (to_premor z f))
-             (H2 : Π (x y z : PA) (f : y --> z), ismonoidfun (to_postmor x f)) :
+             (H1 : ∏ (x y z : PA) (f : x --> y), ismonoidfun (to_premor z f))
+             (H2 : ∏ (x y z : PA) (f : y --> z), ismonoidfun (to_postmor x f)) :
     isPreAdditive PA.
   Proof.
     exact (H1,,H2).
   Defined.
 
   Definition to_premor_monoid {PWA : PrecategoryWithAbgrops} (iPA : isPreAdditive PWA) :
-    Π (x y z : PWA) (f : x --> y), ismonoidfun (to_premor z f) := dirprod_pr1 iPA.
+    ∏ (x y z : PWA) (f : x --> y), ismonoidfun (to_premor z f) := dirprod_pr1 iPA.
 
   Definition to_postmor_monoid {PWA : PrecategoryWithAbgrops} (iPA : isPreAdditive PWA) :
-    Π (x y z : PWA) (f : y --> z), ismonoidfun (to_postmor x f) := dirprod_pr2 iPA.
+    ∏ (x y z : PWA) (f : y --> z), ismonoidfun (to_postmor x f) := dirprod_pr2 iPA.
 
   (** Definition of preadditive categories *)
-  Definition PreAdditive : UU := Σ PA : PrecategoryWithAbgrops, isPreAdditive PA.
+  Definition PreAdditive : UU := ∑ PA : PrecategoryWithAbgrops, isPreAdditive PA.
 
   Definition PreAdditive_PrecategoryWithAbgrops (A : PreAdditive) : PrecategoryWithAbgrops := pr1 A.
   Coercion PreAdditive_PrecategoryWithAbgrops : PreAdditive >-> PrecategoryWithAbgrops.
@@ -299,7 +299,7 @@ Section preadditive_quotient.
   Variable PA : PreAdditive.
 
   (** For every set morphisms we have a subgroup. *)
-  Definition PreAdditiveSubabgrs : UU := Π (x y : ob PA), @subabgr (to_abgrop x y).
+  Definition PreAdditiveSubabgrs : UU := ∏ (x y : ob PA), @subabgr (to_abgrop x y).
 
   Hypothesis PAS : PreAdditiveSubabgrs.
 
@@ -307,10 +307,10 @@ Section preadditive_quotient.
       This is important since we want pre- and postcomposition with unit element to be
       the unit element in the new precategory. *)
   Definition PreAdditiveComps : UU :=
-    Π (x y : ob PA),
-    (Π (z : ob PA) (f : x --> y) (inf : pr1submonoid _ (PAS x y) f) (g : y --> z),
+    ∏ (x y : ob PA),
+    (∏ (z : ob PA) (f : x --> y) (inf : pr1submonoid _ (PAS x y) f) (g : y --> z),
      pr1submonoid _ (PAS x z) (f ;; g))
-      × (Π (z : ob PA) (f : x --> y) (g : y --> z) (ing : pr1submonoid _ (PAS y z) g),
+      × (∏ (z : ob PA) (f : x --> y) (g : y --> z) (ing : pr1submonoid _ (PAS y z) g),
          pr1submonoid _ (PAS x z) (f ;; g)).
 
   Hypothesis PAC : PreAdditiveComps.
@@ -333,7 +333,7 @@ Section preadditive_quotient.
   Qed.
 
   Local Lemma grinvop (Y : gr) :
-    Π y1 y2 : Y, grinv Y (@op Y y1 y2) = @op Y (grinv Y y2) (grinv Y y1).
+    ∏ y1 y2 : Y, grinv Y (@op Y y1 y2) = @op Y (grinv Y y2) (grinv Y y1).
   Proof.
     intros y1 y2.
     apply (grrcan Y y1).
@@ -352,7 +352,7 @@ Section preadditive_quotient.
     - apply idpath.
   Qed.
 
-  Local Lemma funeqpaths {X Y : UU} {f g : X -> Y} (e : f = g) : Π (x : X), f x = g x.
+  Local Lemma funeqpaths {X Y : UU} {f g : X -> Y} (e : f = g) : ∏ (x : X), f x = g x.
   Proof.
     induction e. intros x. apply idpath.
   Qed.
@@ -533,8 +533,8 @@ Section preadditive_quotient.
       It shows that composition is well defined in QuotPrecategory_ob_mor. *)
   Lemma QuotPrecategory_comp_iscontr {A B C : ob PA} (f : QuotPrecategory_ob_mor⟦A, B⟧)
              (g : QuotPrecategory_ob_mor⟦B, C⟧) :
-    iscontr (Σ h : QuotPrecategory_ob_mor⟦A, C⟧,
-                   (Π (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f)
+    iscontr (∑ h : QuotPrecategory_ob_mor⟦A, C⟧,
+                   (∏ (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f)
                       (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g), setquotpr _ (f' ;; g') = h)).
   Proof.
     cbn in *.

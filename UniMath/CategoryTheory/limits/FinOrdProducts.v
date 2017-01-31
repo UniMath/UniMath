@@ -21,7 +21,7 @@ Section def_FinOrdProducts.
   Variable C : precategory.
 
   Definition FinOrdProducts : UU :=
-    Π (n : nat) (a : stn n -> C), ProductCone (stn n) C a.
+    ∏ (n : nat) (a : stn n -> C), ProductCone (stn n) C a.
   Definition hasFinOrdProducts := ishinh FinOrdProducts.
 
 End def_FinOrdProducts.
@@ -35,7 +35,7 @@ Section FinOrdProduct_criteria.
 
   (** Case n = 0 of the theorem. *)
   Lemma TerminalToProduct (T : Terminal C):
-    Π (a : stn 0 -> C), ProductCone (stn 0) C a.
+    ∏ (a : stn 0 -> C), ProductCone (stn 0) C a.
   Proof.
     intros a.
     use (mk_ProductCone _ _ _ T
@@ -51,7 +51,7 @@ Section FinOrdProduct_criteria.
 
   (** Case n = 1 of the theorem. *)
   Lemma identity_to_product:
-    Π (a : stn 1 -> C), ProductCone (stn 1) C a.
+    ∏ (a : stn 1 -> C), ProductCone (stn 1) C a.
   Proof.
     intros a.
     set (stn1ob := invweq(weqstn1tounit) tt).

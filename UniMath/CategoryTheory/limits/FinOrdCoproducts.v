@@ -21,7 +21,7 @@ Section def_FinOrdCoproducts.
   Variable C : precategory.
 
   Definition FinOrdCoproducts : UU :=
-    Π (n : nat) (a : stn n -> C), CoproductCocone (stn n) C a.
+    ∏ (n : nat) (a : stn n -> C), CoproductCocone (stn n) C a.
   Definition hasFinOrdCoproducts := ishinh FinOrdCoproducts.
 
 End def_FinOrdCoproducts.
@@ -35,7 +35,7 @@ Section FinOrdCoproduct_criteria.
 
   (** Case n = 0 of the theorem. *)
   Lemma InitialToCoproduct (I : Initial C):
-    Π (a : stn 0 -> C), CoproductCocone (stn 0) C a.
+    ∏ (a : stn 0 -> C), CoproductCocone (stn 0) C a.
   Proof.
     intros a.
     use (mk_CoproductCocone _ _ _ I
@@ -51,7 +51,7 @@ Section FinOrdCoproduct_criteria.
 
   (** Case n = 1 of the theorem. *)
   Lemma ObjectToCoproduct:
-    Π (a : stn 1 -> C), CoproductCocone (stn 1) C a.
+    ∏ (a : stn 1 -> C), CoproductCocone (stn 1) C a.
   Proof.
     intros a.
     set (stn1ob := invweq(weqstn1tounit) tt).

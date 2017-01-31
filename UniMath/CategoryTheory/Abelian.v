@@ -72,13 +72,13 @@ Section def_abelian.
 
   (** This definition contains the data that every monic is a kernel of some morphism. *)
   Definition AbelianMonicKernelsData (C : precategory) (AD : Data1 C) : UU :=
-    Π (x y : C) (M : Monic C x y),
-    (Σ D2 : (Σ D1 : (Σ z : C, y --> z), M ;; (pr2 D1) = ZeroArrow (pr1 AD) x (pr1 D1)),
+    ∏ (x y : C) (M : Monic C x y),
+    (∑ D2 : (∑ D1 : (∑ z : C, y --> z), M ;; (pr2 D1) = ZeroArrow (pr1 AD) x (pr1 D1)),
             isKernel (Data1_Zero AD) M (pr2 (pr1 D2)) (pr2 D2)).
 
   Definition mk_AbelianMonicKernelsData {C : precategory} (AD1 : Data1 C)
-             (H : Π (x y : C) (M : Monic C x y),
-                  (Σ D2 : (Σ D1 : (Σ z : C, y --> z), M ;; (pr2 D1) = ZeroArrow (pr1 AD1) x (pr1 D1)),
+             (H : ∏ (x y : C) (M : Monic C x y),
+                  (∑ D2 : (∑ D1 : (∑ z : C, y --> z), M ;; (pr2 D1) = ZeroArrow (pr1 AD1) x (pr1 D1)),
                           isKernel (Data1_Zero AD1) M (pr2 (pr1 D2)) (pr2 D2))) :
     AbelianMonicKernelsData C AD1 := H.
 
@@ -102,13 +102,13 @@ Section def_abelian.
   (** This definition contains the data that every epi is a cokernel of some
       morphism. *)
   Definition AbelianEpiCokernelsData (C : precategory) (AD : Data1 C) : UU :=
-    (Π (y z : C) (E : Epi C y z),
-     (Σ D2 : (Σ D1 : (Σ x : C, x --> y), (pr2 D1) ;; E = ZeroArrow (pr1 AD) (pr1 D1) z),
+    (∏ (y z : C) (E : Epi C y z),
+     (∑ D2 : (∑ D1 : (∑ x : C, x --> y), (pr2 D1) ;; E = ZeroArrow (pr1 AD) (pr1 D1) z),
              isCokernel (Data1_Zero AD) (pr2 (pr1 D2)) E (pr2 D2))).
 
    Definition mk_AbelianEpiCokernelsData {C : precategory} (AD1 : Data1 C)
-              (H : (Π (y z : C) (E : Epi C y z),
-                    (Σ D2 : (Σ D1 : (Σ x : C, x --> y),
+              (H : (∏ (y z : C) (E : Epi C y z),
+                    (∑ D2 : (∑ D1 : (∑ x : C, x --> y),
                                    (pr2 D1) ;; E = ZeroArrow (pr1 AD1) (pr1 D1) z),
                             isCokernel (Data1_Zero AD1) (pr2 (pr1 D2)) E (pr2 D2)))) :
      AbelianEpiCokernelsData C AD1 := H.
@@ -139,7 +139,7 @@ Section def_abelian.
     AbelianData C AD1 := (H1,,(H2,,H3)).
 
   (** Definition of abelian categories. *)
-  Definition AbelianPreCat : UU := Σ A : (Σ C : precategory, Data1 C), AbelianData (pr1 A) (pr2 A).
+  Definition AbelianPreCat : UU := ∑ A : (∑ C : precategory, Data1 C), AbelianData (pr1 A) (pr2 A).
 
   Definition precategory_of_AbelianPreCat (A : AbelianPreCat) : precategory := pr1 (pr1 A).
   Coercion precategory_of_AbelianPreCat : AbelianPreCat >-> precategory.

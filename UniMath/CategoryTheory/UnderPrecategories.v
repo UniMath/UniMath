@@ -14,7 +14,7 @@ Section def_underprecategories.
   Variable c : ob C.
 
   (* Objects *)
-  Definition Under_ob : UU := Σ d, C⟦c, d⟧.
+  Definition Under_ob : UU := ∑ d, C⟦c, d⟧.
 
   Definition mk_Under_ob {d : ob C} (f : C⟦c, d⟧) : Under_ob := tpair _ d f.
 
@@ -25,7 +25,7 @@ Section def_underprecategories.
 
   (* Morphisms *)
   Definition Under_mor (X Y : Under_ob) : UU :=
-    Σ f : C⟦Under_ob_cod X, Under_ob_cod Y⟧, Under_ob_mor X ;; f = Under_ob_mor Y.
+    ∑ f : C⟦Under_ob_cod X, Under_ob_cod Y⟧, Under_ob_mor X ;; f = Under_ob_mor Y.
 
   Definition mk_Under_mor (X Y : Under_ob) (f : C⟦Under_ob_cod X, Under_ob_cod Y⟧)
              (H : Under_ob_mor X ;; f = Under_ob_mor Y) : Under_mor X Y := tpair _ f H.

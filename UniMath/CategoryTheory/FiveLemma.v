@@ -201,8 +201,8 @@ Section five_lemma_data.
   (** *** Define row for [FiveLemma] *)
 
   Definition FiveRow : UU :=
-    Σ (FRO : FiveRowObs),
-    (Σ (FRD : FiveRowDiffs FRO), (Σ (FRDE : FiveRowDiffsEq FRD), FiveRowExacts FRDE)).
+    ∑ (FRO : FiveRowObs),
+    (∑ (FRD : FiveRowDiffs FRO), (∑ (FRDE : FiveRowDiffsEq FRD), FiveRowExacts FRDE)).
 
   Definition mk_FiveRow (FRO : FiveRowObs) (FRD : FiveRowDiffs FRO) (FRDE : FiveRowDiffsEq FRD)
              (FRE : FiveRowExacts FRDE) : FiveRow := (FRO,,(FRD,,(FRDE,,FRE))).
@@ -280,7 +280,7 @@ Section five_lemma_data.
   (** *** Morphism of rows *)
 
   Definition FiveRowMorphism (FR1 FR2 : FiveRow) : UU :=
-    Σ (FRMs : FiveRowMors FR1 FR2), FiveRowMorsComm FRMs.
+    ∑ (FRMs : FiveRowMors FR1 FR2), FiveRowMorsComm FRMs.
 
   Definition mk_FiveRowMorphism (FR1 FR2 : FiveRow) (FRMs : FiveRowMors FR1 FR2)
              (FRMC : FiveRowMorsComm FRMs) : FiveRowMorphism FR1 FR2 := (FRMs,,FRMC).

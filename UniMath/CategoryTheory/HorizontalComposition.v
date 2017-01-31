@@ -56,7 +56,7 @@ Qed.
 
 Lemma horcomp_id_left (C D : precategory) (X : functor C C) (Z Z' : functor C D)(f : nat_trans Z Z')
   :
-  Π c : C, horcomp (nat_trans_id X) f c = f (X c).
+  ∏ c : C, horcomp (nat_trans_id X) f c = f (X c).
 Proof.
   intro c; simpl.
   now rewrite functor_id, id_right.
