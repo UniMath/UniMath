@@ -44,7 +44,7 @@ Section BinaryOperations.
     induction n as [|n _].
     { exact unit. }
     { induction n as [|n I].
-      { exact (x firstelement). }
+      { exact (x lastelement). }
       { exact (op (I (x ∘ dni_lastelement)) (x lastelement)). }}
   Defined.
 
@@ -97,6 +97,19 @@ Section BinaryOperations.
     { intro x. simpl. apply pathsinv0,runax. }
     intros y rest IH x.
     reflexivity.
+  Defined.
+
+  Definition product_fun_step (lunax : islunit op unit) {m} (xs:stn m -> X) (x:X) :
+    product_fun (append_fun xs x) = op (product_fun xs) x.
+  Proof.
+    intros lunax ? ? ?.
+    unfold product_fun at 1.
+    simpl.
+    induction m as [|m _].
+    - simpl. rewrite append_fun_compute_2. apply pathsinv0. apply lunax.
+    - simpl. rewrite append_fun_compute_2.
+      apply (maponpaths (λ y, op y x)). apply maponpaths.
+      apply append_and_drop_fun.
   Defined.
 
 End BinaryOperations.
@@ -160,7 +173,7 @@ Proof.
    now rewrite append_fun_compute_1.
 Defined.
 
-Local Definition prodprod_step {M:monoid} {n} (x:stn (S n) -> Sequence M) :
+Local Definition prodprod_seq_mon_step {M:monoid} {n} (x:stn (S n) -> Sequence M) :
   prodprod_seq_mon (S n,,x) = prodprod_seq_mon (n,,x ∘ dni_lastelement) * product_seq_mon (x lastelement).
 Proof.
   intros.
@@ -171,21 +184,24 @@ Defined.
 
 (* The general associativity theorem. *)
 
-
 Theorem associativityOfProducts {M:monoid} (x:Sequence (Sequence M)) :
   product_seq_mon (flatten x) = prodprod_seq_mon x.
 Proof.
   (** This proof comes from the Associativity theorem, % \cite[section 1.3, Theorem 1, page 4]{BourbakiAlgebraI}. \par % *)
   (* this proof comes from the Associativity theorem, Bourbaki, Algebra, § 1.3, Theorem 1, page 4. *)
-  intros ? [n x].
+  intros ? x. induction x as [n x].
   induction n as [|n IHn].
   { reflexivity. }
-  (* { rewrite flattenStep, prodprod_step. *)
-  (*   generalize (x lastelement) as z. *)
-  (*   generalize (x ∘ dni_lastelement) as y. *)
-  (*   intros y [m z]. *)
-  (*   induction m as [|m IHm]. *)
-  (*   { change (product_seq_mon (0,, z)) with (unel M). rewrite runax. *)
+  {
+    unfold flatten.
+    change (flatten' _) with (flatten' x). rewrite flattenStep'.
+    unfold prodprod_seq_mon. unfold prodprod_seq. simpl.
+(*     rewrite prodprod_fun_step. *)
+(*     generalize (x lastelement) as z. *)
+(*     generalize (x ∘ dni_lastelement) as y. *)
+(*     intros y [m z]. *)
+(*     induction m as [|m IHm]. *)
+(*     { change (product_seq_mon (0,, z)) with (unel M). rewrite runax. *)
 (*       change (concatenate (flatten (n,, y)) (0,, z)) with (flatten (n,, y)). *)
 (*       exact (IHn y). } *)
 (*     { rewrite product_seq_mon_step, concatenateStep. *)
@@ -197,28 +213,26 @@ Proof.
 (* Defined. *)
 Abort.
 
-Theorem associativityOfProducts {M:monoid} (x:list (list M)) :
-  product_list_mon (Lists.flatten x) = prodprod_list_mon x.
+Theorem associativityOfProducts (M:monoid) : isAssociative_list (unel M) (@op M).
 Proof.
   (** This proof comes from the Associativity theorem, % \cite[section 1.3, Theorem 1, page 4]{BourbakiAlgebraI}. \par % *)
   (* this proof comes from the Associativity theorem, Bourbaki, Algebra, § 1.3, Theorem 1, page 4. *)
-  intros M.
+  intros M. unfold isAssociative_list.
   apply list_ind.
   - simpl. reflexivity.
-  - intros x xs ind. simpl in ind. cbn beta.
+  - intros x xs I. simpl in I.
     rewrite Lists.flattenStep.
-    unfold prodprod_list_mon. unfold prodprod_list.
-    rewrite mapStep.
+    unfold prodprod_list_mon. unfold prodprod_list. rewrite mapStep.
     rewrite (product_list_step _ _ (runax M)).
-    intermediate_path (product_list_mon x * product_list_mon (Lists.flatten xs)).
-    + generalize (Lists.flatten xs) as y; clear xs ind; intro y.
+    intermediate_path (product_list 1 op x * product_list 1 op (Lists.flatten xs)).
+    + generalize (Lists.flatten xs) as y; clear xs I; intro y.
       generalize x; clear x.
       apply list_ind.
       * cbn. apply pathsinv0, lunax.
-      * intros x xs e. rewrite Lists.concatenateStep.
-        rewrite product_list_mon_step. rewrite product_list_mon_step.
-        rewrite assocax. apply maponpaths. exact e.
-    + apply maponpaths. exact ind.
+      * intros x xs J. rewrite Lists.concatenateStep.
+        rewrite 2 (product_list_step _ _ (runax M)).
+        rewrite assocax. apply maponpaths. exact J.
+    + apply maponpaths. exact I.
 Defined.
 
 (** commutativity *)

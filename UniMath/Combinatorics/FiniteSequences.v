@@ -259,11 +259,23 @@ Defined.
 Definition drop' {X} (x:Sequence X) : x != nil -> Sequence X.
 Proof. intros ? ? h. exact (drop x (pr2 (logeqnegs (nil_length x)) h)). Defined.
 
-Definition drop_and_append {X n} (x : stn (S n) -> X) :
-  append (n,,x ∘ dni_lastelement) (x lastelement) = (S n,, x).
+Lemma append_and_drop_fun {X n} (x : stn n -> X) y :
+  (append_fun x y) ∘ dni_lastelement = x.
 Proof.
   intros.
-  apply (maponpaths (tpair _ (S n))).
+  apply funextsec; intros i.
+  unfold funcomp.
+  unfold append_fun.
+  induction (natlehchoice4 (pr1 (dni_lastelement i)) n (pr2 (dni_lastelement i))) as [I|J].
+  - simpl. apply maponpaths. apply subtypeEquality_prop. simpl. reflexivity.
+  - apply fromempty. simpl in J. induction i as [i r]. simpl in J. induction J.
+    exact (isirreflnatlth _ r).
+Defined.
+
+Lemma drop_and_append_fun {X n} (x : stn (S n) -> X) :
+  append_fun (x ∘ dni_lastelement) (x lastelement) = x.
+Proof.
+  intros.
   apply funextfun; intros [i b].
   simpl.
   induction (natlehchoice4 i n b) as [p|p].
@@ -280,9 +292,17 @@ Proof.
     * simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity.
 Defined.
 
+Definition drop_and_append {X n} (x : stn (S n) -> X) :
+  append (n,,x ∘ dni_lastelement) (x lastelement) = (S n,, x).
+Proof.
+  intros. apply pair_path_in2. apply drop_and_append_fun.
+Defined.
+
 Definition drop_and_append' {X n} (x : stn (S n) -> X) :
   append (drop (S n,,x) (negpathssx0 _)) (x lastelement) = (S n,, x).
-Proof. intros. apply drop_and_append. Defined.
+Proof.
+  intros. simpl. apply pair_path_in2. apply drop_and_append_fun.
+Defined.
 
 Definition disassembleSequence {X} : Sequence X -> coprod unit (X × Sequence X).
 Proof.
