@@ -171,7 +171,7 @@ Lemma is_omega_cocont_BindingSigToSignature
   (CC : Coproducts (BindingSigIndex sig) C) (PC : Products (BindingSigIndex sig) C) :
   is_omega_cocont (BindingSigToSignature TC sig CC).
 Proof.
-apply (is_omega_cocont_Sum_of_Signatures _ (BindingSigIsdeceq sig)).
+apply is_omega_cocont_Sum_of_Signatures.
 - intro i; apply is_omega_cocont_Arity_to_Signature, HF; assumption.
 - apply PC.
 Defined.
@@ -265,7 +265,7 @@ Defined.
 Lemma is_omega_cocont_BindingSigToSignatureHSET (sig : BindingSig) :
   is_omega_cocont (BindingSigToSignatureHSET sig).
 Proof.
-apply (is_omega_cocont_Sum_of_Signatures _ (BindingSigIsdeceq sig)).
+apply is_omega_cocont_Sum_of_Signatures.
 - intro i; apply is_omega_cocont_Arity_to_Signature.
   + apply ColimsHSET_of_shape.
   + intros F.
