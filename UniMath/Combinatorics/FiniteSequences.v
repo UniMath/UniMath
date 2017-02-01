@@ -3,6 +3,27 @@ Unset Automatic Introduction.
 
 (* move upstream *)
 
+Local Open Scope transport.
+
+Lemma two_arg_paths_f {X:UU} {Y:X->UU} {Z:UU} (f : ∏ x, Y x -> Z)
+      (x x':X) (y:Y x) (y':Y x') (p:x=x') (q:transportf Y p y=y') : f x y = f x' y'.
+Proof.
+  intros. induction p. change _ with (y=y') in q. induction q. reflexivity.
+Defined.
+
+Lemma two_arg_paths_b {X:UU} {Y:X->UU} {Z:UU} (f : ∏ x, Y x -> Z)
+      (x x':X) (y:Y x) (y':Y x') (p:x=x') (q:transportb Y p y'=y) : f x y = f x' y'.
+Proof.
+  intros. induction p. change _ with (y'=y) in q. induction q. reflexivity.
+Defined.
+
+Lemma two_arg_paths_2 {X:UU} {Y:X->UU} {Z:UU}
+      (x x':X) (f:Y x'->Z) (p:x=x') (y:Y x) :
+  f (transportf Y p y) = transportb (λ x, Y x->Z) p f y.
+Proof.
+  intros. now induction p.
+Defined.
+
 Ltac set_id_type v := match goal with |- @paths ?ID _ _ => set (v := ID); simpl in v end.
 
 Local Arguments dni {_} _ _.
@@ -23,6 +44,20 @@ Proof.
   induction (weqfromcoprodofstn_invmap _ _ i) as [j | k].
   + exact (f j).
   + exact (g k).
+Defined.
+
+Definition concatenate'_r0 {X:UU} {m} (f : stn m -> X) (g : stn 0 -> X) :
+  concatenate' f g = transportb (λ n, stn n -> X) (natplusr0 m) f.
+Proof.
+  intros. apply funextfun; intro i. unfold concatenate'.
+  rewrite weqfromcoprodofstn_invmap_r0; simpl. clear g.
+  apply two_arg_paths_2.
+Defined.
+
+Definition concatenate'_r0' {X:UU} {m} (f : stn m -> X) (g : stn 0 -> X) (i : stn (m+0)) :
+  concatenate' f g i = f (transportf stn (natplusr0 m) i).
+Proof.
+  intros. unfold concatenate'. now rewrite weqfromcoprodofstn_invmap_r0.
 Defined.
 
 Definition flatten' {X n} {m:stn n->nat} : (∏ (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
@@ -64,6 +99,13 @@ Definition sequenceEquality {X m n} (f:stn m->X) (g:stn n->X) (p:m=n) :
   (∏ i, f i = g (transportf stn p i))
   -> transportf (λ m, stn m->X) p f = g.
 Proof. intros ? ? ? ? ? ? e. induction p. apply funextfun. exact e. Defined.
+
+Definition sequenceEquality2 {X} (f g:Sequence X) (p:length f=length g) :
+  (∏ i, f i = g (transportf stn p i)) -> f = g.
+Proof.
+  intros ? ? ? ? e. induction f as [m f]. induction g as [n g]. simpl in p.
+  apply (total2_paths2 p). now apply sequenceEquality.
+Defined.
 
 (** The following two lemmas are the key lemmas that allow to prove (transportational) equality of
  sequences whose lengths are not definitionally equal. In particular, these lemmas can be used in
@@ -393,6 +435,19 @@ Definition concatenate {X : UU} : binop (Sequence X)
 Definition concatenate_length {X} (x y:Sequence X) :
   length (concatenate x y) = length x + length y.
 Proof. intros. reflexivity. Defined.
+
+Definition concatenate_0 {X} (s t:Sequence X) : length t = 0 -> concatenate s t = s.
+Proof.
+  induction s as [m s]. induction t as [n t].
+  intro e; simpl in e. induction (!e).
+  simple refine (sequenceEquality2 _ _ _ _).
+  - simpl. apply natplusr0.
+  - intro i; simpl in i. simpl.
+    unfold concatenate'.
+    rewrite weqfromcoprodofstn_invmap_r0.
+    simpl.
+    reflexivity.
+Defined.
 
 Definition concatenateStep {X : UU} (x : Sequence X) {n : nat} (y : stn (S n) -> X) :
   concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni_lastelement)) (y lastelement).

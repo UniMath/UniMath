@@ -440,6 +440,19 @@ Proof.
   - exact (ii2 (stnpair m (i - n) (nat_split n m i (pr2 i) i2))).
 Defined.
 
+Lemma weqfromcoprodofstn_invmap_r0 n (i : stn (n+0)) :
+  weqfromcoprodofstn_invmap n 0 i = ii1 (transportf stn (natplusr0 n) i).
+Proof.
+  intros.
+  unfold weqfromcoprodofstn_invmap.
+  simpl.
+  induction (natlthorgeh i n) as [I|J].
+  - simpl. apply maponpaths. apply subtypeEquality_prop. simpl.
+    induction (natplusr0 n). reflexivity.
+  - simpl. apply fromempty. induction (! natplusr0 n).
+    exact (natgehtonegnatlth _ _ J (stnlt i)).
+Defined.
+
 Definition weqfromcoprodofstn_map (n m : nat) : (coprod (stn n) (stn m)) -> (stn (n + m)).
 Proof.
   intros n m i.

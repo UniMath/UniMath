@@ -88,6 +88,12 @@ Section BinaryOperations.
     exact (assoc _ _ (λ i j, x i j)).
   Defined.
 
+  Lemma assoc_seq_to_fun : isAssociative_seq -> isAssociative_fun.
+  Proof.
+    intros assoc n m x.
+    exact (assoc (functionToSequence (λ i, functionToSequence (x i)))).
+  Defined.
+
   Definition product_list_step (runax : isrunit op unit) (x:X) (xs:list X) :
     product_list (x::xs) = op x (product_list xs).
   Proof.
@@ -99,7 +105,7 @@ Section BinaryOperations.
     reflexivity.
   Defined.
 
-  Definition product_fun_step (lunax : islunit op unit) {m} (xs:stn m -> X) (x:X) :
+  Definition product_fun_step' (lunax : islunit op unit) {m} (xs:stn m -> X) (x:X) :
     product_fun (append_fun xs x) = op (product_fun xs) x.
   Proof.
     intros lunax ? ? ?.
@@ -111,6 +117,21 @@ Section BinaryOperations.
       apply (maponpaths (λ y, op y x)). apply maponpaths.
       apply append_and_drop_fun.
   Defined.
+
+  Definition product_fun_step (lunax : islunit op unit) {m} (x:stn(S m) -> X) :
+    product_fun x = op (product_fun (x ∘ dni_lastelement)) (x lastelement).
+  Proof.
+    intros.
+    unfold product_fun at 1.
+    simpl.
+    induction m as [|m _].
+    - simpl. apply pathsinv0, lunax.
+    - simpl. reflexivity.
+  Defined.
+
+  (* Definition product_fun_step (lunax : islunit op unit) {m} (x:stn(S m) -> X) : *)
+  (*   product_fun x = op (product_fun (x ∘ dni_lastelement)) (x lastelement). *)
+
 
 End BinaryOperations.
 
@@ -184,36 +205,7 @@ Defined.
 
 (* The general associativity theorem. *)
 
-Theorem associativityOfProducts {M:monoid} (x:Sequence (Sequence M)) :
-  product_seq_mon (flatten x) = prodprod_seq_mon x.
-Proof.
-  (** This proof comes from the Associativity theorem, % \cite[section 1.3, Theorem 1, page 4]{BourbakiAlgebraI}. \par % *)
-  (* this proof comes from the Associativity theorem, Bourbaki, Algebra, § 1.3, Theorem 1, page 4. *)
-  intros ? x. induction x as [n x].
-  induction n as [|n IHn].
-  { reflexivity. }
-  {
-    unfold flatten.
-    change (flatten' _) with (flatten' x). rewrite flattenStep'.
-    unfold prodprod_seq_mon. unfold prodprod_seq. simpl.
-(*     rewrite prodprod_fun_step. *)
-(*     generalize (x lastelement) as z. *)
-(*     generalize (x ∘ dni_lastelement) as y. *)
-(*     intros y [m z]. *)
-(*     induction m as [|m IHm]. *)
-(*     { change (product_seq_mon (0,, z)) with (unel M). rewrite runax. *)
-(*       change (concatenate (flatten (n,, y)) (0,, z)) with (flatten (n,, y)). *)
-(*       exact (IHn y). } *)
-(*     { rewrite product_seq_mon_step, concatenateStep. *)
-(*       generalize (z lastelement) as w; generalize (z ∘ dni _ lastelement) as v; intros. *)
-(*       rewrite <- assocax. *)
-(*       rewrite product_seq_mon_append. *)
-(*       apply (maponpaths (λ u, u*w)). *)
-(*       apply IHm. } } *)
-(* Defined. *)
-Abort.
-
-Theorem associativityOfProducts (M:monoid) : isAssociative_list (unel M) (@op M).
+Theorem associativityOfProducts_list (M:monoid) : isAssociative_list (unel M) (@op M).
 Proof.
   (** This proof comes from the Associativity theorem, % \cite[section 1.3, Theorem 1, page 4]{BourbakiAlgebraI}. \par % *)
   (* this proof comes from the Associativity theorem, Bourbaki, Algebra, § 1.3, Theorem 1, page 4. *)
@@ -234,6 +226,37 @@ Proof.
         rewrite assocax. apply maponpaths. exact J.
     + apply maponpaths. exact I.
 Defined.
+
+Theorem associativityOfProducts_seq (M:monoid) : isAssociative_seq (unel M) (@op M).
+Proof.
+  (** This proof comes from the Associativity theorem, % \cite[section 1.3, Theorem 1, page 4]{BourbakiAlgebraI}. \par % *)
+  (* this proof comes from the Associativity theorem, Bourbaki, Algebra, § 1.3, Theorem 1, page 4. *)
+  intros M. unfold isAssociative_seq; intros. induction x as [n x].
+  induction n as [|n IHn].
+  { reflexivity. }
+  { change (flatten _) with (flatten ((n,,x): NonemptySequence _)).
+    rewrite flattenStep.
+    change (lastValue _) with (x lastelement).
+    unfold prodprod_seq. simpl.
+    unfold prodprod_fun.
+    rewrite (product_fun_step _ _ (lunax M)).
+    generalize (x lastelement) as z; intro z.
+    unfold product_seq.
+    induction z as [m z].
+    induction m as [|m IHm].
+    { simpl. rewrite runax.
+      simple refine (_ @ IHn (x ∘ dni_lastelement)).
+      rewrite concatenate'_r0.
+      now apply (two_arg_paths_b _ _ _ _ _ (natplusr0 (stnsum (length ∘ (x ∘ dni_lastelement))))).
+      }
+(*     { rewrite product_seq_mon_step, concatenateStep. *)
+(*       generalize (z lastelement) as w; generalize (z ∘ dni _ lastelement) as v; intros. *)
+(*       rewrite <- assocax. *)
+(*       rewrite product_seq_mon_append. *)
+(*       apply (maponpaths (λ u, u*w)). *)
+(*       apply IHm. } } *)
+(* Defined. *)
+Abort.
 
 (** commutativity *)
 
