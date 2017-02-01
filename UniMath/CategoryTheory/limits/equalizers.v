@@ -22,13 +22,13 @@ Section def_equalizers.
   (** Definition and construction of isEqualizer. *)
   Definition isEqualizer {x y z : C} (f g : y --> z) (e : x --> y)
              (H : e ;; f = e ;; g) : UU :=
-    Π (w : C) (h : w --> y) (H : h ;; f = h ;; g),
-      iscontr (Σ φ : w --> x, φ ;; e = h).
+    ∏ (w : C) (h : w --> y) (H : h ;; f = h ;; g),
+      iscontr (∑ φ : w --> x, φ ;; e = h).
 
   Definition mk_isEqualizer {x y z : C} (f g : y --> z) (e : x --> y)
              (H : e ;; f = e ;; g) :
-    (Π (w : C) (h : w --> y) (H' : h ;; f = h ;; g),
-        iscontr (Σ ψ : w --> x, ψ ;; e = h)) -> isEqualizer f g e H.
+    (∏ (w : C) (h : w --> y) (H' : h ;; f = h ;; g),
+        iscontr (∑ ψ : w --> x, ψ ;; e = h)) -> isEqualizer f g e H.
   Proof.
     intros X. unfold isEqualizer. exact X.
   Defined.
@@ -69,8 +69,8 @@ Section def_equalizers.
 
   (** Definition and construction of equalizers. *)
   Definition Equalizer {y z : C} (f g : y --> z) : UU :=
-    Σ e : (Σ w : C, w --> y),
-          (Σ H : (pr2 e) ;; f = (pr2 e) ;; g, isEqualizer f g (pr2 e) H).
+    ∑ e : (∑ w : C, w --> y),
+          (∑ H : (pr2 e) ;; f = (pr2 e) ;; g, isEqualizer f g (pr2 e) H).
 
   Definition mk_Equalizer {x y z : C} (f g : y --> z) (e : x --> y)
              (H : e ;; f = e ;; g) (isE : isEqualizer f g e H) :
@@ -84,9 +84,9 @@ Section def_equalizers.
   Defined.
 
   (** Equalizers in precategories. *)
-  Definition Equalizers : UU := Π (y z : C) (f g : y --> z), Equalizer f g.
+  Definition Equalizers : UU := ∏ (y z : C) (f g : y --> z), Equalizer f g.
 
-  Definition hasEqualizers : UU := Π (y z : C) (f g : y --> z),
+  Definition hasEqualizers : UU := ∏ (y z : C) (f g : y --> z),
       ishinh (Equalizer f g).
 
   (** Returns the equalizer object. *)
@@ -154,7 +154,7 @@ Section def_equalizers.
     equalities. *)
   Definition identity_is_EqualizerIn {y z : C} {f g : y --> z}
              (E : Equalizer f g) :
-    Σ φ : C⟦E, E⟧, φ ;; (EqualizerArrow E) = (EqualizerArrow E).
+    ∑ φ : C⟦E, E⟧, φ ;; (EqualizerArrow E) = (EqualizerArrow E).
   Proof.
     exists (identity E).
     apply id_left.

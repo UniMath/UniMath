@@ -27,7 +27,7 @@ Require Import UniMath.CategoryTheory.limits.coequalizers.
 Lemma is_pointwise_epi_from_set_nat_trans_epi (C:precategory)
       (F G : functor C hset_precategory) (f:nat_trans F G)
       (h:isEpi (C:=functor_precategory C _ has_homsets_HSET) f)
-  : Π (x:C), isEpi (f x).
+  : ∏ (x:C), isEpi (f x).
 Proof.
   apply (Pushouts_pw_epi (D:=hset_Precategory)).
   apply PushoutsHSET_from_Colims.
@@ -61,7 +61,7 @@ Section LiftEpiNatTrans.
   Context {A B C:functor CC HSET} (p:nat_trans A B)
           (f:nat_trans A C).
 
-  Hypothesis (comp_epi: Π (X:CC)  (x y: pr1hSet (A X)),
+  Hypothesis (comp_epi: ∏ (X:CC)  (x y: pr1hSet (A X)),
                         p X x =  p X y -> f X x = f X y).
 
   Hypothesis (surjectivep : isEpi (C:=C_SET) p).
@@ -113,7 +113,7 @@ Section LiftEpiNatTrans.
     now rewrite <- univ_surj_nt_ax.
   Qed.
 
-  Lemma univ_surj_nt_unique : Π g  (H : nat_trans_comp _ _ _ p  g = f)
+  Lemma univ_surj_nt_unique : ∏ g  (H : nat_trans_comp _ _ _ p  g = f)
                                 b, g b = univ_surj_nt b.
   Proof.
     intros g hg b.
@@ -145,10 +145,10 @@ Section QuotientFunctor.
   Variable (R:functor D HSET).
 
   (** This is ~_X *)
-  Variable (hequiv : Π (d:D),eqrel (pr1hSet (R d))).
+  Variable (hequiv : ∏ (d:D),eqrel (pr1hSet (R d))).
 
   (** The relations satisfied by hequiv (~_X) *)
-  Hypothesis (congru: Π (x y:D) (f:D⟦ x,  y⟧), iscomprelrelfun (hequiv x) (hequiv y) (#R f)).
+  Hypothesis (congru: ∏ (x y:D) (f:D⟦ x,  y⟧), iscomprelrelfun (hequiv x) (hequiv y) (#R f)).
 
   (** Definition of the quotient functor *)
   (* not using setquotinset directly because as isasetsetquot is not opaque it would make
@@ -186,7 +186,7 @@ Section QuotientFunctor.
 
   Definition quot_functor  : functor D HSET := tpair _ _ is_functor_quot_functor_data.
 
-  Definition pr_quot_functor_data : Π x , HSET ⟦R x, quot_functor x⟧ :=
+  Definition pr_quot_functor_data : ∏ x , HSET ⟦R x, quot_functor x⟧ :=
     fun x a => setquotpr _ a.
 
   Lemma is_nat_trans_pr_quot_functor : is_nat_trans _ _ pr_quot_functor_data.

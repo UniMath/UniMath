@@ -144,8 +144,8 @@ Require Export UniMath.Foundations.Preamble.
 
 (** *** Canonical functions from [ empty ] and to [ unit ] *)
 
-Definition fromempty  : Π X : UU , empty -> X. (* type this in emacs in agda-input method
-with \Pi *)
+Definition fromempty  : ∏ X : UU , empty -> X. (* type this in emacs in agda-input method
+with \prod *)
 Proof.
   intro X.
   intro H.
@@ -164,19 +164,19 @@ Definition termfun {X : UU} (x : X) : unit -> X := fun (t : unit) => x.
 
 Definition idfun (T : UU) := λ t:T, t.
 
-Definition funcomp {X Y : UU} {Z:Y->UU} (f : X -> Y) (g : Π y:Y, Z y) := λ x, g (f x).
+Definition funcomp {X Y : UU} {Z:Y->UU} (f : X -> Y) (g : ∏ y:Y, Z y) := λ x, g (f x).
 
 Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity).
 
 (** back and forth between functions of pairs and functions returning
   functions *)
 
-Definition curry {X Z : UU} {Y : X -> UU} (f : (Σ x : X, Y x) -> Z) :
-  Π x, Y x -> Z.
+Definition curry {X Z : UU} {Y : X -> UU} (f : (∑ x : X, Y x) -> Z) :
+  ∏ x, Y x -> Z.
 Proof. intros ? ? ? ? ? y. exact (f (x,,y)). Defined.
 
-Definition uncurry {X Z : UU} {Y : X -> UU} (g : Π x : X, Y x -> Z) :
-  (Σ x, Y x) -> Z.
+Definition uncurry {X Z : UU} {Y : X -> UU} (g : ∏ x : X, Y x -> Z) :
+  (∑ x, Y x) -> Z.
 Proof. intros ? ? ? ? xy. exact (g (pr1 xy) (pr2 xy)). Defined.
 
 (** *** Definition of binary operation *)
@@ -202,7 +202,7 @@ Definition adjev2 {X Y : UU} (phi : ((X -> Y) -> Y) -> Y) : X -> Y :=
 
 (** *** Pairwise direct products *)
 
-Definition dirprod (X Y : UU) := Σ x:X, Y.
+Definition dirprod (X Y : UU) := ∑ x:X, Y.
 
 Notation "A × B" := (dirprod A B) (at level 75, right associativity) : type_scope.
 
@@ -323,12 +323,12 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma uncurry_curry {X Z : UU} {Y : X -> UU} (f : (Σ x : X, Y x) -> Z) :
-  Π p, uncurry (curry f) p = f p.
+Lemma uncurry_curry {X Z : UU} {Y : X -> UU} (f : (∑ x : X, Y x) -> Z) :
+  ∏ p, uncurry (curry f) p = f p.
 Proof. intros. induction p as [x y]. reflexivity. Defined.
 
-Lemma curry_uncurry {X Z : UU} {Y : X -> UU} (g : Π x : X, Y x -> Z) :
-  Π x y, curry (uncurry g) x y = g x y.
+Lemma curry_uncurry {X Z : UU} {Y : X -> UU} (g : ∏ x : X, Y x -> Z) :
+  ∏ x y, curry (uncurry g) x y = g x y.
 Proof. reflexivity. Defined.
 
 
@@ -487,8 +487,8 @@ Defined.
 
 (** *** Homotopy between functions *)
 
-Definition homot {X : UU} {P : X -> UU} (f g : Π x : X, P x) :=
-  Π x : X , f x = g x.
+Definition homot {X : UU} {P : X -> UU} (f g : ∏ x : X, P x) :=
+  ∏ x : X , f x = g x.
 
 Notation "f ~ g" := (homot f g) (at level 70, no associativity).
 
@@ -507,10 +507,10 @@ Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
 
 (** *** Equality between functions defines a homotopy *)
 
-Definition toforallpaths {T:UU} (P:T->UU) (f g:Π t:T, P t) : f = g -> f ~ g.
+Definition toforallpaths {T:UU} (P:T->UU) (f g:∏ t:T, P t) : f = g -> f ~ g.
 Proof. intros ? ? ? ? h t. induction h.  apply (idpath _). Defined.
 
-Definition eqtohomot     {T:UU} {P:T->UU} {f g:Π t:T, P t} : f = g -> f ~ g.
+Definition eqtohomot     {T:UU} {P:T->UU} {f g:∏ t:T, P t} : f = g -> f ~ g.
 (* the same as toforallpaths, but with different implicit arguments *)
 Proof.
   intros ? ? ? ? e t. induction e. reflexivity.
@@ -528,10 +528,10 @@ equivalence. *)
 [ homot f ( idfun X ) ] *)
 
 Definition maponpathshomidinv {X : UU} (f : X -> X)
-           (h : Π x : X, f x = x) (x x' : X) (e : f x = f x') :
+           (h : ∏ x : X, f x = x) (x x' : X) (e : f x = f x') :
   x = x' := ! (h x) @ e @ (h x').
 
-Lemma maponpathshomid1 {X : UU} (f : X -> X) (h: Π x : X, f x = x)
+Lemma maponpathshomid1 {X : UU} (f : X -> X) (h: ∏ x : X, f x = x)
       {x x' : X} (e : x = x') : maponpaths f e = (h x) @ e @ (! h x').
 Proof.
   intros. induction e. simpl.
@@ -539,7 +539,7 @@ Proof.
   apply pathsinv0r.
 Defined.
 
-Lemma maponpathshomid2 {X : UU} (f : X -> X) (h : Π x : X, f x = x)
+Lemma maponpathshomid2 {X : UU} (f : X -> X) (h : ∏ x : X, f x = x)
       (x x' : X) (e: f x = f x') :
   maponpaths f (maponpathshomidinv f h _ _ e) = e.
 Proof.
@@ -547,7 +547,7 @@ Proof.
   unfold maponpathshomidinv.
   apply (pathscomp0 (maponpathshomid1 f h (! h x @ e @ h x'))).
 
-  assert (l : Π (X : UU) (a b c d : X) (p : a = b) (q : a = c) (r : c = d),
+  assert (l : ∏ (X : UU) (a b c d : X) (p : a = b) (q : a = c) (r : c = d),
               p @ (!p @ q @ r) @ !r = q).
   { intros. induction p. induction q. induction r. apply idpath. }
 
@@ -561,7 +561,7 @@ Defined.
 [ homot ( funcomp s p ) ( idfun X ) ] *)
 
 Definition pathssec1 {X Y : UU} (s : X -> Y) (p : Y -> X)
-           (eps : Π (x : X) , p (s x) = x)
+           (eps : ∏ (x : X) , p (s x) = x)
            (x : X) (y : Y) (e : s x = y) : x = p y.
 Proof.
   intros.
@@ -570,7 +570,7 @@ Proof.
 Defined.
 
 Definition pathssec2 {X Y : UU} (s : X -> Y) (p : Y -> X)
-           (eps : Π (x : X), p (s x) = x)
+           (eps : ∏ (x : X), p (s x) = x)
            (x x' : X) (e : s x = s x') : x = x'.
 Proof.
   intros.
@@ -579,19 +579,19 @@ Proof.
 Defined.
 
 Definition pathssec2id {X Y : UU} (s : X -> Y) (p : Y -> X)
-           (eps : Π x : X, p (s x) = x)
+           (eps : ∏ x : X, p (s x) = x)
            (x : X) : pathssec2 s p eps _ _ (idpath (s x)) = idpath x.
 Proof.
   intros.
   unfold pathssec2. unfold pathssec1. simpl.
-  assert (e : Π X : UU, Π a b : X,
-                                Π p : a = b, (! p @ idpath _) @ p = idpath _).
+  assert (e : ∏ X : UU, ∏ a b : X,
+                                ∏ p : a = b, (! p @ idpath _) @ p = idpath _).
   { intros. induction p0. simpl. apply idpath. }
   apply e.
 Defined.
 
 Definition pathssec3 {X Y : UU} (s : X -> Y) (p : Y -> X)
-           (eps : Π x : X, p (s x) = x) {x x' : X} (e : x = x') :
+           (eps : ∏ x : X, p (s x) = x) {x x' : X} (e : x = x') :
   pathssec2 s p eps  _ _ (maponpaths s e) = e.
 Proof.
   intros. induction e. simpl.
@@ -611,9 +611,9 @@ Proof.
 Defined.
 
 Definition constr1 {X : UU} (P : X -> UU) {x x' : X} (e : x = x') :
-  Σ (f : P x -> P x'),
-  Σ (ee : Π p : P x, tpair _ x p = tpair _ x' (f p)),
-  Π (pp : P x), maponpaths pr1 (ee pp) = e.
+  ∑ (f : P x -> P x'),
+  ∑ (ee : ∏ p : P x, tpair _ x p = tpair _ x' (f p)),
+  ∏ (pp : P x), maponpaths pr1 (ee pp) = e.
 Proof.
   intros. induction e.
   split with (idfun (P x)).
@@ -685,14 +685,14 @@ Proof.
   intros. induction e'. induction e. reflexivity.
 Defined.
 
-Definition transport_map {X : UU} {P Q : X -> UU} (f : Π x, P x -> Q x)
+Definition transport_map {X : UU} {P Q : X -> UU} (f : ∏ x, P x -> Q x)
            {x : X} {y : X} (e : x = y) (p : P x) :
   transportf Q e (f x p) = f y (transportf P e p).
 Proof.
   intros. induction e. reflexivity.
 Defined.
 
-Definition transport_section {X : UU} {P:X -> UU} (f : Π x, P x)
+Definition transport_section {X : UU} {P:X -> UU} (f : ∏ x, P x)
            {x : X} {y : X} (e : x = y) :
   transportf P e (f x) = f y.
 Proof.
@@ -746,7 +746,7 @@ Proof.
   apply maponpaths; assumption.
 Defined.
 
-Lemma total2_paths {A : UU} {B : A -> UU} {s s' : Σ x, B x}
+Lemma total2_paths {A : UU} {B : A -> UU} {s s' : ∑ x, B x}
       (p : pr1 s = pr1 s')
       (q : transportf B p (pr2 s) = pr2 s') : s = s'.
 Proof.
@@ -758,7 +758,7 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma total2_paths_b {A : UU} {B : A -> UU} {s s' : Σ x, B x}
+Lemma total2_paths_b {A : UU} {B : A -> UU} {s s' : ∑ x, B x}
       (p : pr1 s = pr1 s')
       (q : pr2 s = transportb B p (pr2 s')) : s = s'.
 Proof.
@@ -794,14 +794,14 @@ Proof.
   intros. now apply maponpaths.
 Defined.
 
-Definition fiber_paths {A : UU} {B : A -> UU} {u v : Σ x, B x} (p : u = v) :
+Definition fiber_paths {A : UU} {B : A -> UU} {u v : ∑ x, B x} (p : u = v) :
   transportf (fun x => B x) (base_paths _ _ p) (pr2 u) = pr2 v.
 Proof.
   induction p.
   apply idpath.
 Defined.
 
-Lemma total2_fiber_paths {A : UU} {B : A -> UU} {x y : Σ x, B x} (p : x = y) :
+Lemma total2_fiber_paths {A : UU} {B : A -> UU} {x y : ∑ x, B x} (p : x = y) :
   total2_paths  _ (fiber_paths p) = p.
 Proof.
   induction p.
@@ -809,7 +809,7 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma base_total2_paths {A : UU} {B : A -> UU} {x y : Σ x, B x}
+Lemma base_total2_paths {A : UU} {B : A -> UU} {x y : ∑ x, B x}
       {p : pr1 x = pr1 y} (q : transportf _ p (pr2 x) = pr2 y) :
   (base_paths _ _ (total2_paths _ q)) = p.
 Proof.
@@ -823,7 +823,7 @@ Defined.
 
 
 Lemma transportf_fiber_total2_paths {A : UU} (B : A -> UU)
-      (x y : Σ x, B x)
+      (x y : ∑ x, B x)
       (p : pr1 x = pr1 y) (q : transportf _ p (pr2 x) = pr2 y) :
   transportf (fun p' : pr1 x = pr1 y => transportf _ p' (pr2 x) = pr2 y)
              (base_total2_paths q)  (fiber_paths (total2_paths _ q)) = q.
@@ -836,7 +836,7 @@ Proof.
   apply idpath.
 Defined.
 
-Definition total2_base_map {S T:UU} {P: T -> UU} (f : S->T) : (Σ i, P(f i)) -> (Σ j, P j).
+Definition total2_base_map {S T:UU} {P: T -> UU} (f : S->T) : (∑ i, P(f i)) -> (∑ j, P j).
 Proof.
   intros ? ? ? ? x.
   exact (f(pr1 x),,pr2 x).
@@ -844,7 +844,7 @@ Defined.
 
 (** *** Lemmas about transport adapted from the HoTT library and the HoTT book *)
 
-Definition transportD {A : UU} (B : A -> UU) (C : Π a : A, B a -> UU)
+Definition transportD {A : UU} (B : A -> UU) (C : ∏ a : A, B a -> UU)
            {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C x1 y) :
   C x2 (transportf _ p y).
 Proof.
@@ -854,9 +854,9 @@ Proof.
 Defined.
 
 
-Definition transportf_total2 {A : UU} {B : A -> UU} {C : Π a:A, B a -> UU}
-           {x1 x2 : A} (p : x1 = x2) (yz : Σ y : B x1, C x1 y) :
-  transportf (fun x => Σ y : B x, C x y) p yz =
+Definition transportf_total2 {A : UU} {B : A -> UU} {C : ∏ a:A, B a -> UU}
+           {x1 x2 : A} (p : x1 = x2) (yz : ∑ y : B x1, C x1 y) :
+  transportf (fun x => ∑ y : B x, C x y) p yz =
   tpair (fun y => C x2 y) (transportf _ p  (pr1 yz))
         (transportD _ _ p (pr1 yz) (pr2 yz)).
 Proof.
@@ -867,7 +867,7 @@ Proof.
 Defined.
 
 Definition transportf_dirprod (A : UU) (B B' : A -> UU)
-           (x x' : Σ a, B a × B' a) (p : pr1 x = pr1 x') :
+           (x x' : ∑ a, B a × B' a) (p : pr1 x = pr1 x') :
   transportf (fun a => dirprod (B a) (B' a)) p (pr2 x) =
   dirprodpair (transportf (fun a => B a) p (pr1 (pr2 x)))
               (transportf (fun a => B' a) p (pr2 (pr2 x))).
@@ -877,7 +877,7 @@ Proof.
 Defined.
 
 Definition transportb_dirprod (A : UU) (B B' : A -> UU)
-  (x x' : Σ a,  B a × B' a)  (p : pr1 x = pr1 x') :
+  (x x' : ∑ a,  B a × B' a)  (p : pr1 x = pr1 x') :
   transportb (fun a => dirprod (B a) (B' a)) p (pr2 x') =
     dirprodpair (transportb (fun a => B a) p (pr1 (pr2 x')))
                 (transportb (fun a => B' a) p (pr2 (pr2 x'))).
@@ -937,20 +937,20 @@ Defined.
 
 (** *** Contractibility [ iscontr ] *)
 
-Definition iscontr (T:UU) : UU := Σ cntr:T, Π t:T, t=cntr.
+Definition iscontr (T:UU) : UU := ∑ cntr:T, ∏ t:T, t=cntr.
 
 Notation "'∃!' x .. y , P"
-  := (iscontr (Σ x, .. (Σ y, P) ..))
+  := (iscontr (∑ x, .. (∑ y, P) ..))
        (at level 200, x binder, y binder, right associativity) : type_scope.
 (* type this in emacs in agda-input method with \ex ! *)
 
-Definition iscontrpair {T : UU} : Π x : T, (Π t : T, t = x) -> iscontr T
+Definition iscontrpair {T : UU} : ∏ x : T, (∏ t : T, t = x) -> iscontr T
   := tpair _.
 
 Definition iscontrpr1 {T : UU} : iscontr T -> T := pr1.
 
 Lemma iscontrretract {X Y : UU} (p : X -> Y) (s : Y -> X)
-      (eps : Π y : Y, p (s y) = y) (is : iscontr X) : iscontr Y.
+      (eps : ∏ y : Y, p (s y) = y) (is : iscontr X) : iscontr Y.
 Proof.
   intros.
   induction is as [x fe].
@@ -977,7 +977,7 @@ Defined.
 
 (** *** Homotopy fibers [ hfiber ] *)
 
-Definition hfiber {X Y : UU}  (f : X -> Y) (y : Y) : UU := Σ x:X, f x = y.
+Definition hfiber {X Y : UU}  (f : X -> Y) (y : Y) : UU := ∑ x:X, f x = y.
 
 Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
            (x : X) (e : f x = y) : hfiber f y :=
@@ -1062,14 +1062,14 @@ Defined.
 
 (** *** Coconuses: spaces of paths that begin [ coconusfromt ] or end [ coconustot ] at a given point *)
 
-Definition coconusfromt (T : UU) (t : T) := Σ t' : T, t = t'.
+Definition coconusfromt (T : UU) (t : T) := ∑ t' : T, t = t'.
 
 Definition coconusfromtpair (T : UU) {t t' : T} (e: t = t') : coconusfromt T t
   := tpair _ t' e.
 
 Definition coconusfromtpr1 (T : UU) (t : T) : coconusfromt T t -> T := pr1.
 
-Definition coconustot (T : UU) (t : T) := Σ t' : T, t' = t.
+Definition coconustot (T : UU) (t : T) := ∑ t' : T, t' = t.
 
 Definition coconustotpair (T : UU) {t t' : T} (e: t' = t) : coconustot T t
   := tpair _ t' e.
@@ -1122,7 +1122,7 @@ Defined.
 
 The definitions differ by the (non) associativity of the [ total2 ].  *)
 
-Definition pathsspace (T : UU) := Σ t:T, coconusfromt T t.
+Definition pathsspace (T : UU) := ∑ t:T, coconusfromt T t.
 
 Definition pathsspacetriple (T : UU) {t1 t2 : T}
            (e : t1 = t2) : pathsspace T := tpair _ t1 (coconusfromtpair T e).
@@ -1130,12 +1130,12 @@ Definition pathsspacetriple (T : UU) {t1 t2 : T}
 Definition deltap (T : UU) : T -> pathsspace T :=
   fun (t : T) => pathsspacetriple T (idpath t).
 
-Definition pathsspace' (T : UU) := Σ xy : dirprod T T, pr1 xy = pr2 xy.
+Definition pathsspace' (T : UU) := ∑ xy : dirprod T T, pr1 xy = pr2 xy.
 
 
 (** *** Coconus of a function: the total space of the family of h-fibers *)
 
-Definition coconusf {X Y : UU} (f : X -> Y) := Σ y:Y, hfiber f y.
+Definition coconusf {X Y : UU} (f : X -> Y) := ∑ y:Y, hfiber f y.
 
 Definition fromcoconusf {X Y : UU} (f : X -> Y) : coconusf f -> X :=
   fun (yxe : coconusf f) => pr1 (pr2 yxe).
@@ -1144,7 +1144,7 @@ Definition tococonusf {X Y : UU} (f : X -> Y) : X -> coconusf f :=
   fun (x : _) => tpair _ (f x) (hfiberpair f x (idpath _)).
 
 Lemma homottofromcoconusf {X Y : UU} (f : X -> Y) :
-  Π yxe : coconusf f, tococonusf f (fromcoconusf f yxe) = yxe.
+  ∏ yxe : coconusf f, tococonusf f (fromcoconusf f yxe) = yxe.
 Proof.
   intros.
   induction yxe as [y xe].
@@ -1157,7 +1157,7 @@ Proof.
 Defined.
 
 Lemma homotfromtococonusf {X Y : UU} (f : X -> Y) :
-  Π x : X, fromcoconusf f (tococonusf f x) = x.
+  ∏ x : X, fromcoconusf f (tococonusf f x) = x.
 Proof.
   intros.
   unfold fromcoconusf.
@@ -1172,7 +1172,7 @@ Defined.
 (** *** Basics - [ isweq ] and [ weq ] *)
 
 Definition isweq {X Y : UU} (f : X -> Y) : UU :=
-  Π y : Y, iscontr (hfiber f y).
+  ∏ y : Y, iscontr (hfiber f y).
 
 Lemma idisweq (T : UU) : isweq (idfun T).
 Proof.
@@ -1185,7 +1185,7 @@ Proof.
   apply idpath.
 Defined.
 
-Definition weq (X Y : UU) : UU := Σ f:X->Y, isweq f.
+Definition weq (X Y : UU) : UU := ∑ f:X->Y, isweq f.
 
 Notation "X ≃ Y" := (weq X Y) (at level 80, no associativity) : type_scope.
 (* written \simeq in Agda input method *)
@@ -1201,7 +1201,7 @@ Proof.
 Defined.
 
 Definition weqccontrhfiber2 {X Y : UU} (w : X ≃ Y) (y : Y) :
-  Π x : hfiber w y, x = weqccontrhfiber w y.
+  ∏ x : hfiber w y, x = weqccontrhfiber w y.
 Proof.
   intros. unfold weqccontrhfiber. apply (pr2 (pr2 w y)).
 Defined.
@@ -1240,7 +1240,7 @@ Definition invmap {X Y : UU} (w : X ≃ Y) : Y -> X :=
     corrected in order for lemma [ homotweqinvweqweq ] to hold. *)
 
 Definition homotweqinvweq {X Y : UU} (w : X ≃ Y) :
-  Π y : Y, w (invmap w y) = y.
+  ∏ y : Y, w (invmap w y) = y.
 Proof.
   intros.
   unfold invmap.
@@ -1248,7 +1248,7 @@ Proof.
 Defined.
 
 Definition homotinvweqweq0 {X Y : UU} (w : X ≃ Y) :
-  Π x : X, x = invmap w (w x).
+  ∏ x : X, x = invmap w (w x).
 Proof.
   intros.
   unfold invmap.
@@ -1259,7 +1259,7 @@ Proof.
 Defined.
 
 Definition homotinvweqweq {X Y : UU} (w : X ≃ Y) :
-  Π x : X, invmap w (w x) = x
+  ∏ x : X, invmap w (w x) = x
   := fun (x : X) => ! (homotinvweqweq0 w x).
 
 Definition invmaponpathsweq {X Y : UU} (w : X ≃ Y) (x x' : X) :
@@ -1397,7 +1397,7 @@ Ltac intermediate_iscontr Y' := apply (iscontrweqb (Y := Y')).
 (** [ unit ] is contractible (recall that [ tt ] is the name of the
     canonical term of the type [ unit ]). *)
 
-Lemma isconnectedunit : Π x x' : unit, x = x'.
+Lemma isconnectedunit : ∏ x x' : unit, x = x'.
 Proof.
   intros. induction x. induction x'. apply idpath.
 Defined.
@@ -1412,12 +1412,12 @@ Proof.
   intro cp. induction cp as [x t]. induction x. apply t.
 Defined.
 
-Lemma unitl2: Π e : tt = tt, unitl1 (unitl0 e) = e.
+Lemma unitl2: ∏ e : tt = tt, unitl1 (unitl0 e) = e.
 Proof.
   intros. unfold unitl0. simpl. apply idpath.
 Defined.
 
-Lemma unitl3: Π e : tt = tt, e = idpath tt.
+Lemma unitl3: ∏ e : tt = tt, e = idpath tt.
 Proof.
   intros.
 
@@ -1488,8 +1488,8 @@ Definition hfibersgftog {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
   hfiberpair g (f (pr1 xe)) (pr2 xe).
 
 Lemma constr2 {X Y : UU} (f : X -> Y) (g : Y -> X)
-      (efg: Π y : Y, f (g y) = y) (x0 : X) (xe : hfiber g x0) :
-  Σ xe' : hfiber (g ∘ f) x0, xe = hfibersgftog f g x0 xe'.
+      (efg: ∏ y : Y, f (g y) = y) (x0 : X) (xe : hfiber g x0) :
+  ∑ xe' : hfiber (g ∘ f) x0, xe = hfibersgftog f g x0 xe'.
 Proof.
   intros.
   induction xe as [y0 e].
@@ -1505,7 +1505,7 @@ Proof.
 Defined.
 
 Lemma iscontrhfiberl1 {X Y : UU} (f : X -> Y) (g : Y -> X)
-      (efg: Π y : Y, f (g y) = y) (x0 : X)
+      (efg: ∏ y : Y, f (g y) = y) (x0 : X)
       (is : iscontr (hfiber (g ∘ f) x0)) : iscontr (hfiber g x0).
 Proof.
   intros.
@@ -1544,7 +1544,7 @@ Proof.
   simpl.
 
   (* A little lemma: *)
-  assert (ee : Π a b c : Y, Π p : a = b, Π q : b = c,
+  assert (ee : ∏ a b c : Y, ∏ p : a = b, ∏ q : b = c,
                                                !p @ (p @ q) = q).
   { intros. induction p. induction q. apply idpath. }
 
@@ -1588,14 +1588,14 @@ Proof.
 Defined.
 
 Theorem gradth {X Y : UU} (f : X -> Y) (g : Y -> X)
-        (egf: Π x : X, g (f x) = x)
-        (efg: Π y : Y, f (g y) = y) : isweq f.
+        (egf: ∏ x : X, g (f x) = x)
+        (efg: ∏ y : Y, f (g y) = y) : isweq f.
 Proof.
   intros.
   unfold isweq.
   intro y.
   assert (X0 : iscontr (hfiber (f ∘ g) y)).
-  assert (efg' : Π y : Y, y = f (g y)).
+  assert (efg' : ∏ y : Y, y = f (g y)).
   { intro y0.
     apply pathsinv0.
     apply (efg y0). }
@@ -1605,12 +1605,12 @@ Proof.
 Defined.
 
 Definition weqgradth {X Y : UU} (f : X -> Y) (g : Y -> X)
-           (egf: Π x : X, g (f x) = x)
-           (efg: Π y : Y, f (g y) = y) : X ≃ Y :=
+           (egf: ∏ x : X, g (f x) = x)
+           (efg: ∏ y : Y, f (g y) = y) : X ≃ Y :=
   weqpair _ (gradth _ _ egf efg).
 
 Definition bijective {X Y:UU} (f:X->Y) :=
-  (Π y, Σ x, f x = y) × (Π x x', f x = f x' -> x = x').
+  (∏ y, ∑ x, f x = y) × (∏ x x', f x = f x' -> x = x').
 
 Corollary bijection_to_weq {X Y:UU} (f:X->Y) : bijective f -> isweq f.
 Proof.
@@ -1628,9 +1628,9 @@ Defined.
 Corollary isweqinvmap {X Y : UU} (w : weq X Y) : isweq (invmap w).
 Proof.
   intros.
-  assert (efg : Π (y : Y), w (invmap w y) = y).
+  assert (efg : ∏ (y : Y), w (invmap w y) = y).
   apply homotweqinvweq.
-  assert (egf : Π (x : X), invmap w (w x) = x).
+  assert (egf : ∏ (x : X), invmap w (w x) = x).
   apply homotinvweqweq.
   apply (gradth _ _ efg egf).
 Defined.
@@ -1654,8 +1654,8 @@ Defined.
     http://github.com/HoTT/HoTT.
  *)
 
-Definition PathPair {A : UU} {B : A -> UU} (x y : Σ x, B x) :=
-  Σ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y.
+Definition PathPair {A : UU} {B : A -> UU} (x y : ∑ x, B x) :=
+  ∑ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y.
 
 Notation "a ╝ b" := (PathPair a b) (at level 70, no associativity) : type_scope.
 (* the two horizontal lines represent an equality in the base and
@@ -1663,7 +1663,7 @@ Notation "a ╝ b" := (PathPair a b) (at level 70, no associativity) : type_scop
 (* in agda input mode use \--= and select the 6-th one in the first set,
    or use \chimney *)
 
-Theorem total2_paths_equiv {A : UU} (B : A -> UU) (x y : Σ x, B x) :
+Theorem total2_paths_equiv {A : UU} (B : A -> UU) (x y : ∑ x, B x) :
   x = y  ≃  x ╝ y.
 Proof.
   intros A B x y.
@@ -1671,7 +1671,7 @@ Proof.
             tpair (fun p : pr1 x = pr1 y => transportf _ p (pr2 x) = pr2 y)
                   (base_paths _ _ r) (fiber_paths r)).
   apply (gradth _
-                (fun (pq : Σ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y) =>
+                (fun (pq : ∑ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y) =>
                    total2_paths (pr1 pq) (pr2 pq))).
   - intro p.
     apply total2_fiber_paths.
@@ -1688,9 +1688,9 @@ Proof.
   set (f := fun (t : unit) => pr1 is).
   set (g := fun (x : X) => tt).
   split with f.
-  assert (egf : Π t : unit, g (f t) = t).
+  assert (egf : ∏ t : unit, g (f t) = t).
   { intro. induction t. apply idpath. }
-  assert (efg : Π x : X, f (g x) = x).
+  assert (efg : ∏ x : X, f (g x) = x).
   { intro. apply (! (pr2 is x)). }
   apply (gradth _ _ egf efg).
 Defined.
@@ -1731,9 +1731,9 @@ Proof.
   intros.
   set (f := fun (e : x = x') => e @ e').
   set (g := fun (e'' : x = x'') => e'' @ (! e')).
-  assert (egf : Π e : _, g (f e) = e).
+  assert (egf : ∏ e : _, g (f e) = e).
   { intro e. induction e. induction e'. apply idpath. }
-  assert (efg : Π e : _, f (g e) = e).
+  assert (efg : ∏ e : _, f (g e) = e).
   { intro e. induction e. induction e'. apply idpath. }
   apply (gradth f g egf efg).
 Defined.
@@ -1762,9 +1762,9 @@ Corollary isweqdeltap (T : UU) : isweq (deltap T).
 Proof.
   intros.
   set (ff := deltap T). set (gg := fun (z : pathsspace T) => pr1 z).
-  assert (egf : Π t : T, gg (ff t) = t).
+  assert (egf : ∏ t : T, gg (ff t) = t).
   { intro. apply idpath. }
-  assert (efg : Π (tte : _), ff (gg tte) = tte).
+  assert (efg : ∏ (tte : _), ff (gg tte) = tte).
   { intro tte. induction tte as [t c].
     induction c as [x e]. induction e.
     apply idpath.
@@ -1779,9 +1779,9 @@ Proof.
   set (f := fun (a : pathsspace' T) => pr1 (pr1 a)).
   set (g := fun (t : T) =>
               tpair _ (dirprodpair t t) (idpath t) : pathsspace' T).
-  assert (efg : Π t : T, f (g t) = t).
+  assert (efg : ∏ t : T, f (g t) = t).
   { intros t. unfold f. unfold g. simpl. apply idpath. }
-  assert (egf : Π a : _, g (f a) = a).
+  assert (egf : ∏ a : _, g (f a) = a).
   { intros a. induction a as [xy e].
     induction xy as [x y]. simpl in e.
     induction e. unfold f. unfold g.
@@ -1801,7 +1801,7 @@ Proof.
 
   split with ff.
 
-  assert (effgg : Π xe : _, ff (gg xe) = xe).
+  assert (effgg : ∏ xe : _, ff (gg xe) = xe).
   {
     intro xe.
     induction xe as [x e].
@@ -1813,7 +1813,7 @@ Proof.
     apply (hfibertriangle2 g xe1 xe2 (idpath x) eee).
   }
 
-  assert (eggff : Π xe : _, gg (ff xe) = xe).
+  assert (eggff : ∏ xe : _, gg (ff xe) = xe).
   {
     intro xe.
     induction xe as [x e].
@@ -1845,7 +1845,7 @@ Proof.
 
   set (invf := invgf ∘ g).
 
-  assert (efinvf : Π y : Y, f (invf y) = y).
+  assert (efinvf : ∏ y : Y, f (invf y) = y).
   {
     intro y.
     assert (int1 : g (f (invf y)) = g y).
@@ -1853,7 +1853,7 @@ Proof.
     apply (invmaponpathsweq gw _ _  int1).
   }
 
-  assert (einvff: Π x : X, invf (f x) = x).
+  assert (einvff: ∏ x : X, invf (f x) = x).
   { intro. unfold invf. apply (homotinvweqweq gfw x). }
 
   apply (gradth f invf einvff efinvf).
@@ -1870,10 +1870,10 @@ Proof.
 
   set (invg := f ∘ invgf).
 
-  assert (eginvg : Π z : Z, g (invg z) = z).
+  assert (eginvg : ∏ z : Z, g (invg z) = z).
   { intro. unfold invg. apply (homotweqinvweq wgf z). }
 
-  assert (einvgg : Π y : Y, invg (g y) = y).
+  assert (einvgg : ∏ y : Y, invg (g y) = y).
   { intro. unfold invg.
 
     assert (isinvf: isweq invf).
@@ -1910,7 +1910,7 @@ Proof.
 Defined.
 
 Lemma isweql3 {X Y : UU} (f : X -> Y) (g : Y -> X)
-      (egf : Π x : X, g (f x) = x) : isweq f -> isweq g.
+      (egf : ∏ x : X, g (f x) = x) : isweq f -> isweq g.
 Proof.
   intros X Y f g egf w.
   assert (int1 : isweq (g ∘ f)).
@@ -1933,7 +1933,7 @@ Proof.
   set (gf := g ∘ f).
   set (invgf := invf ∘ invg).
 
-  assert (egfinvgf : Π x : X, invgf (gf x) = x).
+  assert (egfinvgf : ∏ x : X, invgf (gf x) = x).
   {
     intros x.
     assert (int1 : invf (invg (g (f x))) = invf (f x)).
@@ -1944,7 +1944,7 @@ Proof.
     apply int2.
   }
 
-  assert (einvgfgf : Π z : Z, gf (invgf z) = z).
+  assert (einvgfgf : ∏ z : Z, gf (invgf z) = z).
   {
     intros z.
     assert (int1 : g (f (invgf z)) = g (invg z)).
@@ -2079,10 +2079,10 @@ Theorem isweqdirprodf {X Y X' Y' : UU} (w : X ≃ Y) (w' : weq X' Y') :
 Proof.
   intros.
   set (f := dirprodf w w'). set (g := dirprodf (invweq w) (invweq w')).
-  assert (egf : Π a : _, (g (f a)) = a).
+  assert (egf : ∏ a : _, (g (f a)) = a).
   intro a. induction a as [ x x' ].  simpl. apply pathsdirprod.
   apply (homotinvweqweq w x).  apply (homotinvweqweq w' x').
-  assert (efg : Π a : _, (f (g a)) = a).
+  assert (efg : ∏ a : _, (f (g a)) = a).
   intro a. induction a as [ x x' ].  simpl. apply pathsdirprod.
   apply (homotweqinvweq w x). apply (homotweqinvweq w' x').
   apply (gradth _ _ egf efg).
@@ -2099,8 +2099,8 @@ Proof.
   set (f := fun x : X => dirprodpair x tt).
   split with f.
   set (g := fun xu : dirprod X unit => pr1 xu).
-  assert (egf : Π x : X, (g (f x)) = x). intro. apply idpath.
-  assert (efg : Π xu : _, (f (g xu)) = xu). intro. induction xu as [ t x ].
+  assert (egf : ∏ x : X, (g (f x)) = x). intro. apply idpath.
+  assert (efg : ∏ xu : _, (f (g xu)) = xu). intro. induction xu as [ t x ].
   induction x. apply idpath.
   apply (gradth f g egf efg).
 Defined.
@@ -2109,7 +2109,7 @@ Defined.
 (** *** Associativity of [ total2 ] as a weak equivalence *)
 
 Lemma total2asstor {X : UU} (P : X -> UU) (Q : total2 P -> UU) :
-  total2 Q ->  Σ x:X, Σ p : P x, Q (tpair P x p).
+  total2 Q ->  ∑ x:X, ∑ p : P x, Q (tpair P x p).
 Proof.
   intros X P Q xpq.
   exists (pr1 (pr1 xpq)).
@@ -2120,7 +2120,7 @@ Proof.
 Defined.
 
 Lemma total2asstol {X : UU} (P : X -> UU) (Q : total2 P -> UU) :
-  (Σ x : X, Σ p : P x, Q (tpair P x p)) -> total2 Q.
+  (∑ x : X, ∑ p : P x, Q (tpair P x p)) -> total2 Q.
 Proof.
   intros X P Q xpq.
   mkpair.
@@ -2134,20 +2134,20 @@ Defined.
 
 
 Theorem weqtotal2asstor {X : UU} (P : X -> UU) (Q : total2 P -> UU) :
-  weq (total2 Q) (Σ x : X, Σ p : P x, Q (tpair P x p)).
+  weq (total2 Q) (∑ x : X, ∑ p : P x, Q (tpair P x p)).
 Proof.
   intros.
   set (f := total2asstor P Q). set (g:= total2asstol P Q).
   split with f.
-  assert (egf : Π xpq : _ , (g (f xpq)) = xpq).
+  assert (egf : ∏ xpq : _ , (g (f xpq)) = xpq).
   intro. induction xpq as [ xp q ]. induction xp as [ x p ]. apply idpath.
-  assert (efg : Π xpq : _ , (f (g xpq)) = xpq).
+  assert (efg : ∏ xpq : _ , (f (g xpq)) = xpq).
   intro. induction xpq as [ x pq ]. induction pq as [ p q ]. apply idpath.
   apply (gradth _ _ egf efg).
 Defined.
 
 Definition weqtotal2asstol {X : UU} (P : X -> UU) (Q : total2 P -> UU) :
-  weq (Σ x : X, Σ p : P x, Q (tpair P x p)) (total2 Q)
+  weq (∑ x : X, ∑ p : P x, Q (tpair P x p)) (total2 Q)
   := invweq (weqtotal2asstor P Q).
 
 (** *** Associativity and commutativity of direct products as weak equivalences *)
@@ -2167,15 +2167,15 @@ Proof.
   intros.
   set (f := fun xy : dirprod X Y => dirprodpair (pr2 xy) (pr1 xy)).
   set (g := fun yx : dirprod Y X => dirprodpair (pr2 yx) (pr1 yx)).
-  assert (egf : Π xy : _, (g (f xy)) = xy).
+  assert (egf : ∏ xy : _, (g (f xy)) = xy).
   intro. induction xy. apply idpath.
-  assert (efg : Π yx : _, (f (g yx)) = yx).
+  assert (efg : ∏ yx : _, (f (g yx)) = yx).
   intro. induction yx. apply idpath.
   split with f. apply (gradth _ _ egf efg).
 Defined.
 
 Definition weqtotal2dirprodcomm {X Y : UU} (P : X × Y -> UU) :
-  (Σ xy : X × Y, P xy) ≃ (Σ xy : Y × X, P (weqdirprodcomm _ _ xy)).
+  (∑ xy : X × Y, P xy) ≃ (∑ xy : Y × X, P (weqdirprodcomm _ _ xy)).
 Proof.
   intros.
   use weqgradth.
@@ -2190,7 +2190,7 @@ Proof.
 Defined.
 
 Definition weqtotal2dirprodassoc  {X Y : UU} (P : X × Y -> UU) :
-  (Σ xy : X × Y, P xy) ≃ (Σ (x : X) (y : Y), P (x,,y)).
+  (∑ xy : X × Y, P xy) ≃ (∑ (x : X) (y : Y), P (x,,y)).
   intros.
   simple refine (weqgradth _ _ _ _).
   - intros xyp. induction xyp as [xy p]. induction xy as [x y].
@@ -2204,7 +2204,7 @@ Definition weqtotal2dirprodassoc  {X Y : UU} (P : X × Y -> UU) :
 Defined.
 
 Definition weqtotal2dirprodassoc' {X Y : UU} (P : X × Y -> UU) :
-  (Σ xy : X × Y, P xy) ≃ (Σ (y : Y) (x : X), P (x,,y)).
+  (∑ xy : X × Y, P xy) ≃ (∑ (y : Y) (x : X), P (x,,y)).
 Proof.
   intros.
   simple refine (weqgradth _ _ _ _).
@@ -2219,7 +2219,7 @@ Proof.
 Defined.
 
 Definition weqtotal2comm12 {X} (P Q : X -> UU) :
-  (Σ (w : Σ x, P x), Q (pr1 w)) ≃ (Σ (w : Σ x, Q x), P (pr1 w)).
+  (∑ (w : ∑ x, P x), Q (pr1 w)) ≃ (∑ (w : ∑ x, Q x), P (pr1 w)).
 Proof.
   intros.
   simple refine (weqgradth _ _ _ _).
@@ -2261,11 +2261,11 @@ Proof.
   intros.
   set (f := rdistrtoprod X Y Z). set (g := rdistrtocoprod X Y Z).
 
-  assert (egf: Π a:_, (g (f a)) = a).
+  assert (egf: ∏ a:_, (g (f a)) = a).
   intro. induction a as [ d | d ]. induction d. apply idpath. induction d.
   apply idpath.
 
-  assert (efg: Π a:_, (f (g a)) = a). intro. induction a as [ t x ].
+  assert (efg: ∏ a:_, (f (g a)) = a). intro. induction a as [ t x ].
   induction x. apply idpath. apply idpath.
 
   apply (gradth f g egf efg).
@@ -2283,7 +2283,7 @@ Definition weqrdistrtocoprod (X Y Z : UU)
 (** *** Total space of a family over a coproduct *)
 
 Definition fromtotal2overcoprod {X Y : UU} (P : X ⨿ Y -> UU) (xyp : total2 P) :
-  coprod (Σ x : X, P (ii1 x)) (Σ y : Y, P (ii2 y)).
+  coprod (∑ x : X, P (ii1 x)) (∑ y : Y, P (ii2 y)).
 Proof.
   intros.
   set (PX := fun x : X => P (ii1 x)). set (PY := fun y : Y => P (ii2 y)).
@@ -2292,7 +2292,7 @@ Proof.
 Defined.
 
 Definition tototal2overcoprod {X Y : UU} (P : X ⨿ Y -> UU)
-           (xpyp : coprod (Σ x : X, P (ii1 x)) (Σ y : Y, P (ii2 y))) : total2 P.
+           (xpyp : coprod (∑ x : X, P (ii1 x)) (∑ y : Y, P (ii2 y))) : total2 P.
 Proof.
   intros.
   induction xpyp as [ xp | yp ]. induction xp as [ x p ].
@@ -2301,12 +2301,12 @@ Proof.
 Defined.
 
 Theorem weqtotal2overcoprod {X Y : UU} (P : X ⨿ Y -> UU) :
-  (Σ xy, P xy) ≃ (Σ x : X, P (ii1 x)) ⨿ (Σ y : Y, P (ii2 y)).
+  (∑ xy, P xy) ≃ (∑ x : X, P (ii1 x)) ⨿ (∑ y : Y, P (ii2 y)).
 Proof.
   intros.
   set (f := fromtotal2overcoprod P). set (g := tototal2overcoprod P).
   split with f.
-  assert (egf : Π a : _ , (g (f a)) = a).
+  assert (egf : ∏ a : _ , (g (f a)) = a).
   { intro a.
     induction a as [ xy p ].
     induction xy as [ x | y ].
@@ -2314,7 +2314,7 @@ Proof.
     apply idpath.
     simpl.
     apply idpath. }
-  assert (efg : Π a : _ , (f (g a)) = a).
+  assert (efg : ∏ a : _ , (f (g a)) = a).
   { intro a.
     induction a as [ xp | yp ].
     induction xp as [ x p ].
@@ -2362,10 +2362,10 @@ Defined.
 Theorem isweqcoprodasstor (X Y Z : UU): isweq (coprodasstor X Y Z).
 Proof.
   intros. set (f := coprodasstor X Y Z). set (g := coprodasstol X Y Z).
-  assert (egf : Π xyz:_, (g (f xyz)) = xyz).
+  assert (egf : ∏ xyz:_, (g (f xyz)) = xyz).
   intro xyz. induction xyz as [ c | z ].  induction c.
   apply idpath. apply idpath. apply idpath.
-  assert (efg : Π xyz:_, (f (g xyz)) = xyz). intro xyz.
+  assert (efg : ∏ xyz:_, (f (g xyz)) = xyz). intro xyz.
   induction xyz as [ x | c ].  apply idpath. induction c.
   apply idpath. apply idpath.
   apply (gradth f g egf efg).
@@ -2385,9 +2385,9 @@ Theorem isweqcoprodcomm (X Y : UU) : isweq (coprodcomm X Y).
 Proof.
   intros.
   set (f := coprodcomm X Y). set (g := coprodcomm Y X).
-  assert (egf : Π xy : _, (g (f xy)) = xy). intro.
+  assert (egf : ∏ xy : _, (g (f xy)) = xy). intro.
   induction xy. apply idpath. apply idpath.
-  assert (efg : Π yx : _, (f (g yx)) = yx). intro.
+  assert (efg : ∏ yx : _, (f (g yx)) = yx). intro.
   induction yx. apply idpath. apply idpath.
   apply (gradth f g egf efg).
 Defined.
@@ -2404,8 +2404,8 @@ Proof.
                               | ii1 x => x
                               | ii2 y => fromempty (nf y)
                               end).
-  assert (egf : Π x : X, (g (f x)) = x). intro. apply idpath.
-  assert (efg : Π xy : X ⨿ Y, (f (g xy)) = xy). intro.
+  assert (egf : ∏ x : X, (g (f x)) = x). intro. apply idpath.
+  assert (efg : ∏ xy : X ⨿ Y, (f (g xy)) = xy). intro.
   induction xy as [ x | y ]. apply idpath. apply (fromempty (nf y)).
   apply (gradth f g egf efg).
 Defined.
@@ -2421,8 +2421,8 @@ Proof.
                              | ii1 x => fromempty (nf x)
                              | ii2 y => y
                              end).
-  assert (egf : Π y : Y, (g (f y)) = y). intro. apply idpath.
-  assert (efg : Π xy : X ⨿ Y, (f (g xy)) = xy). intro.
+  assert (egf : ∏ y : Y, (g (f y)) = y). intro. apply idpath.
+  assert (efg : ∏ xy : X ⨿ Y, (f (g xy)) = xy). intro.
   induction xy as [ x | y ]. apply (fromempty (nf x)). apply idpath.
   apply (gradth f g egf efg).
 Defined.
@@ -2465,11 +2465,11 @@ Proof.
   intros.
   set (finv := invmap w). set (ginv := invmap w').
   set (ff := coprodf w w'). set (gg := coprodf finv ginv).
-  assert (egf : Π xy : X ⨿ Y, (gg (ff xy)) = xy).
+  assert (egf : ∏ xy : X ⨿ Y, (gg (ff xy)) = xy).
   intro. induction xy as [ x | y ]. simpl.
   apply (maponpaths (@ii1 X Y) (homotinvweqweq w x)).
   apply (maponpaths (@ii2 X Y) (homotinvweqweq w' y)).
-  assert (efg : Π xy' : coprod X' Y', (ff (gg xy')) = xy').
+  assert (efg : ∏ xy' : coprod X' Y', (ff (gg xy')) = xy').
   intro. induction xy' as [ x | y ]. simpl.
   apply (maponpaths (@ii1 X' Y') (homotweqinvweq w x)).
   apply (maponpaths (@ii2 X' Y') (homotweqinvweq w' y)).
@@ -2554,11 +2554,11 @@ Proof.
   split with f.
   set (g := fun t:bool => match t with true => ii1 tt | false => ii2 tt end).
 
-  assert (egf : Π xx : _, g (f xx) = xx).
+  assert (egf : ∏ xx : _, g (f xx) = xx).
   intro xx. induction xx as [ u | u ]. induction u. apply idpath.
   induction u. apply idpath.
 
-  assert (efg : Π t : _, f (g t) = t). induction t. apply idpath.
+  assert (efg : ∏ t : _, f (g t) = t). induction t. apply idpath.
   apply idpath.
 
   apply (gradth f g egf efg).
@@ -2595,9 +2595,9 @@ Theorem isweqcoprodtoboolsum (X Y : UU) : isweq (coprodtoboolsum X Y).
 Proof.
   intros.
   set (f := coprodtoboolsum X Y). set (g := boolsumtocoprod X Y).
-  assert (egf : Π xy : X ⨿ Y , (g (f xy)) = xy).
+  assert (egf : ∏ xy : X ⨿ Y , (g (f xy)) = xy).
   induction xy. apply idpath. apply idpath.
-  assert (efg : Π xy : total2 (boolsumfun X Y), (f (g xy)) = xy).
+  assert (efg : ∏ xy : total2 (boolsumfun X Y), (f (g xy)) = xy).
   intro. induction xy as [ t x ]. induction t. apply idpath. apply idpath.
   apply (gradth f g egf efg).
 Defined.
@@ -2613,7 +2613,7 @@ Definition weqboolsumtocoprod (X Y : UU) := weqpair _ (isweqboolsumtocoprod X Y)
 (** *** Splitting of [ X ] into a coproduct defined by a function [ X -> Y ⨿ Z ] *)
 
 Definition weqcoprodsplit {X Y Z : UU} (f : X -> coprod Y Z) :
-  X ≃ (Σ y : Y, hfiber f (ii1 y)) ⨿ (Σ z : Z, hfiber f (ii2 z)).
+  X ≃ (∑ y : Y, hfiber f (ii1 y)) ⨿ (∑ z : Z, hfiber f (ii2 z)).
 Proof.
   intros.
   set (w1 := weqtococonusf f).
@@ -2665,12 +2665,12 @@ space is weakly equivalent to this fiber. *)
 (* The current proof added by P. L. Lumsdaine, 2016 *)
 
 Theorem onefiber {X : UU} (P : X -> UU) (x : X)
-        (c : Π x' : X, (x = x') ⨿ ¬ P x') : isweq (λ p, tpair P x p).
+        (c : ∏ x' : X, (x = x') ⨿ ¬ P x') : isweq (λ p, tpair P x p).
 Proof.
   intros.
   set (f := fun p : P x => tpair _ x p).
   set (cx := c x).
-  transparent assert (cnew : (Π x' : X, (x = x') ⨿ ¬ P x')).
+  transparent assert (cnew : (∏ x' : X, (x = x') ⨿ ¬ P x')).
   { intro x'. refine (coprod_rect (fun _ => _) _ _ (cx)).
     - intro x0. refine (coprod_rect (fun _ => _) _ _ (c x')).
       + intro ee. apply ii1; exact (pathscomp0 (pathsinv0 x0) ee).
@@ -2685,7 +2685,7 @@ Proof.
               end).
 
 
-  assert (efg : Π pp : total2 P, (f (g pp)) = pp).
+  assert (efg : ∏ pp : total2 P, (f (g pp)) = pp).
   intro. induction pp as [ t x0 ]. set (cnewt := cnew t).
   unfold g. unfold f. simpl. change (cnew t) with cnewt.
   induction cnewt as [ x1 | y ].
@@ -2699,7 +2699,7 @@ Proof.
   assert (e : (cnewx) = (ii1  (idpath x))).
   apply (maponpaths (@ii1 (x = x) (P x -> empty)) (pathsinv0l x0)).
 
-  assert (egf : Π p: P x, (g (f p)) = p). intro. simpl in g.
+  assert (egf : ∏ p: P x, (g (f p)) = p). intro. simpl in g.
   unfold g. unfold f. simpl.
 
   set (ff := fun cc:coprod (x = x) (P x -> empty) =>
@@ -2733,7 +2733,7 @@ important computational toolboxes of homotopy theory.
 Given a pair of functions [ (f : X -> Y) (g : Y -> Z) ] and a point [ z : Z ] ,
 a structure of the complex on such a triple is a homotopy from the composition
 [ funcomp f g ] to the constant function [ X -> Z ] corresponding to [ z ] i.e.
-a term [ ez : Π x : X, (g (f x)) = z ]. Specifing such a structure is
+a term [ ez : ∏ x : X, (g (f x)) = z ]. Specifing such a structure is
 essentially equivalent to specifing a structure of the form
 [ ezmap : X -> hfiber g z ]. The mapping in one direction is given in the
 definition of [ ezmap ] below. The mapping in another is given by
@@ -2792,7 +2792,7 @@ functions [ (f : X -> Y) (g : Y -> Z) ] and any terms
   [ (f : X -> Y) (g : Y -> Z) ] relative to a term [ z : Z ]. *)
 
 Definition complxstr {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
-  := Π x : X, (g (f x)) = z.
+  := ∏ x : X, (g (f x)) = z.
 
 
 (** The structure of a fibration sequence on a complex. *)
@@ -2805,7 +2805,7 @@ Definition isfibseq {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
            (ez : complxstr f g z) := isweq (ezmap f g z ez).
 
 Definition fibseqstr {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
-  := Σ ez : complxstr f g z, isfibseq f g z ez.
+  := ∑ ez : complxstr f g z, isfibseq f g z ez.
 Definition fibseqstrpair {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
   := tpair (fun ez : complxstr f g z => isfibseq f g z ez).
 Definition fibseqstrtocomplxstr {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z) :
@@ -2851,11 +2851,11 @@ Theorem isweqezmap1 {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
 Proof.
   intros.
   set (ff := ezmap1 f g z fs y). set (gg := invezmap1 f g z (pr1 fs) y).
-  assert (egf : Π e : _, (gg (ff e)) = e).
+  assert (egf : ∏ e : _, (gg (ff e)) = e).
   intro. simpl.
   apply (hfibertriangle1inv0 g (homotweqinvweq (ezweq f g z fs)
                                                (hfiberpair g y e))).
-  assert (efg : Π xe : _, (ff (gg xe)) = xe).
+  assert (efg : ∏ xe : _, (ff (gg xe)) = xe).
   intro. induction xe as [ x e ]. induction e. simpl.
   unfold ff. unfold ezmap1. unfold d1.
   change (hfiberpair g (f x) (pr1 fs x)) with (ezmap f g z fs x).
@@ -2924,9 +2924,9 @@ Definition isweqezmappr1 {Z : UU} (P : Z -> UU) (z : Z) :
   isweq (ezmappr1 P z).
 Proof.
   intros.
-  assert (egf : Π x: P z , (invezmappr1 _ z ((ezmappr1 P z) x)) = x).
+  assert (egf : ∏ x: P z , (invezmappr1 _ z ((ezmappr1 P z) x)) = x).
   intro. unfold ezmappr1. unfold invezmappr1. simpl. apply idpath.
-  assert (efg : Π x: hfiber (@pr1 Z P) z ,
+  assert (efg : ∏ x: hfiber (@pr1 Z P) z ,
                      (ezmappr1 _ z (invezmappr1 P z x)) = x).
   intros. induction x as [ x t0 ]. induction t0. simpl in x. simpl.
   induction x. simpl. unfold transportf. unfold ezmappr1. apply idpath.
@@ -2964,7 +2964,7 @@ Theorem isfibseqg {Y Z : UU} (g : Y -> Z) (z : Z) :
   isfibseq (hfiberpr1 g z) g z (fun ye: _ => pr2 ye).
 Proof.
   intros.
-  assert (Y0 : Π ye' : hfiber g z,
+  assert (Y0 : ∏ ye' : hfiber g z,
                        ye' = (ezmap (hfiberpr1 g z) g z (fun ye: _ => pr2 ye)
                                     ye')).
   intro. apply tppr. apply (isweqhomot _ _ Y0 (idisweq _)).
@@ -3104,11 +3104,11 @@ Theorem isweqezmaphf {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
 Proof.
   intros.
   set (ff := ezmaphf f g z ye). set (gg := invezmaphf f g z ye).
-  assert (egf : Π xe : _ , (gg (ff xe)) = xe).
+  assert (egf : ∏ xe : _ , (gg (ff xe)) = xe).
   induction ye as [ y e ]. induction e. intro xe.
   apply (hfibertriangle2 f (gg (ff xe)) xe (idpath (pr1 xe))).
   induction xe as [ x ex ]. simpl in ex. induction ex. simpl. apply idpath.
-  assert (efg : Π xee' : _ , (ff (gg xee')) = xee').
+  assert (efg : ∏ xee' : _ , (ff (gg xee')) = xee').
   induction ye as [ y e ]. induction e. intro xee'.
   assert (hint : (ff (gg xee'))
                  = (ffgg f g (g y) (hfiberpair g y (idpath _)) xee')).
@@ -3155,12 +3155,12 @@ equivalences. *)
 
 *)
 
-Definition totalfun {X : UU} (P Q : X -> UU) (f : Π x : X, P x -> Q x)
+Definition totalfun {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x)
   := (fun z: total2 P => tpair Q (pr1 z) (f (pr1 z) (pr2 z))).
 
 
-Theorem isweqtotaltofib {X : UU} (P Q : X -> UU) (f : Π x : X, P x -> Q x):
-  isweq (totalfun _ _ f) -> Π x : X, isweq (f x).
+Theorem isweqtotaltofib {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x):
+  isweq (totalfun _ _ f) -> ∏ x : X, isweq (f x).
 Proof.
   intros X P Q f X0 x.
   set (totp := total2 P). set (totq := total2 Q).
@@ -3178,19 +3178,19 @@ Proof.
   assert (is2 : isweq h).
   apply (twooutof3c ip hfx (isweqezmappr1 P x) H).
   set (h':= fun p: P x => iq ((f x) p)).
-  assert (ee : Π p:P x, (h p) = (h' p)). intro. apply idpath.
+  assert (ee : ∏ p:P x, (h p) = (h' p)). intro. apply idpath.
   assert (X2 : isweq h'). apply (isweqhomot h h' ee is2).
   apply (twooutof3a (f x) iq X2).
   apply (isweqezmappr1 Q x).
 Defined.
 
 
-Definition weqtotaltofib {X : UU} (P Q : X -> UU) (f : Π x : X , P x -> Q x)
+Definition weqtotaltofib {X : UU} (P Q : X -> UU) (f : ∏ x : X , P x -> Q x)
            (is : isweq (totalfun _ _ f)) (x : X) : weq (P x) (Q x)
   := weqpair _ (isweqtotaltofib P Q f is x).
 
 
-Theorem isweqfibtototal {X : UU} (P Q : X -> UU) (f : Π x : X, weq (P x) (Q x)) :
+Theorem isweqfibtototal {X : UU} (P Q : X -> UU) (f : ∏ x : X, weq (P x) (Q x)) :
   isweq (totalfun _ _ f).
 Proof.
   intros X P Q f.
@@ -3213,8 +3213,8 @@ Proof.
   apply (iscontrweqf (weqpair intmap (isweqinvezmaphf fpq pr1q x xqe)) isint).
 Defined.
 
-Definition weqfibtototal {X : UU} (P Q : X -> UU) (f : Π x, P x ≃ Q x) :
-  (Σ x, P x) ≃ (Σ x, Q x) := weqpair _ (isweqfibtototal P Q f).
+Definition weqfibtototal {X : UU} (P Q : X -> UU) (f : ∏ x, P x ≃ Q x) :
+  (∑ x, P x) ≃ (∑ x, Q x) := weqpair _ (isweqfibtototal P Q f).
 
 
 (** *** Function [ fpmap ] between the total spaces from a function between the bases
@@ -3227,10 +3227,10 @@ particular, if  [ f ] is a weak equivalence then so is [ fpmap ]. *)
 
 
 Definition fpmap {X Y : UU} (f : X -> Y) (P : Y -> UU) :
-  (Σ x, P (f x)) -> (Σ y, P y) := λ z, tpair P (f (pr1 z)) (pr2 z).
+  (∑ x, P (f x)) -> (∑ y, P y) := λ z, tpair P (f (pr1 z)) (pr2 z).
 
 Definition hffpmap2 {X Y : UU} (f : X -> Y) (P : Y -> UU) :
-  (Σ x, P (f x)) -> Σ u : total2 P, hfiber f (pr1 u).
+  (∑ x, P (f x)) -> ∑ u : total2 P, hfiber f (pr1 u).
 Proof.
   intros X Y f P X0.
   set (u:= fpmap f P X0).
@@ -3250,13 +3250,13 @@ Proof.
   set (g := fun z: total2 (fun u: coconusfromt X x => P (pr1 u))
             => transportf P (pathsinv0 (pr2 (pr1 z))) (pr2 z)).
 
-  assert (efg : Π z : total2 (fun u : coconusfromt X x => P (pr1 u)),
+  assert (efg : ∏ z : total2 (fun u : coconusfromt X x => P (pr1 u)),
                       (f (g z)) = z).
   intro.
   induction z as [ t x0 ]. induction t as [ t x1 ].
   simpl. induction x1. simpl. apply idpath.
 
-  assert (egf : Π p : P x , (g (f p)) = p). intro. apply idpath.
+  assert (egf : ∏ p : P x , (g (f p)) = p). intro. apply idpath.
 
   apply (gradth f g egf efg).
 Defined.
@@ -3279,13 +3279,13 @@ Proof.
                            (tpair P (pr1 (pr1 (pr2 z))) (pr2 (pr2 z)))
                            (hfiberpair f (pr1 z) (pr2 (pr1 (pr2 z))))).
 
-  assert (fromto : Π u : (total2 (fun u : total2 P => hfiber f (pr1 u))),
+  assert (fromto : ∏ u : (total2 (fun u : total2 P => hfiber f (pr1 u))),
                          (fromint (toint u)) = u).
   simpl in toint. simpl in fromint. simpl.
   intro u. induction u as [ t x ]. induction x. induction t as [ p0 p1 ].
   simpl. unfold toint. unfold fromint. simpl. apply idpath.
 
-  assert (tofrom : Π u : int, (toint (fromint u)) = u).
+  assert (tofrom : ∏ u : int, (toint (fromint u)) = u).
   intro. induction u as [ t x ]. induction x as [ t0 x ]. induction t0.
   simpl in x. simpl. unfold fromint. unfold toint. simpl. apply idpath.
 
@@ -3295,7 +3295,7 @@ Proof.
   set (h := fun u : total2 (fun x : X => P (f x)) => toint ((hffpmap2 f P) u)).
   simpl in h.
 
-  assert (l1 : Π x : X, isweq (fun p: P (f x) =>
+  assert (l1 : ∏ x : X, isweq (fun p: P (f x) =>
                                  tpair (fun u : coconusfromt _ (f x) => P (pr1 u))
                                        (coconusfromtpair _ (idpath (f x))) p)).
   intro. apply (centralfiber P (f x)).
@@ -3316,7 +3316,7 @@ Definition hfiberfpmap {X Y : UU} (f : X -> Y) (P : Y -> UU) (yp : total2 P) :
 Proof.
   intros X Y f P yp X0.
   set (int1:= hfibersgftog (hffpmap2 f P)
-                           (fun u : (Σ u : total2 P, hfiber f (pr1  u))
+                           (fun u : (∑ u : total2 P, hfiber f (pr1  u))
                             => (pr1 u)) yp).
   set (phi := invezmappr1 (fun u:total2 P => hfiber f (pr1 u)) yp).
   apply (phi (int1 X0)).
@@ -3356,13 +3356,13 @@ Proof.
 Defined.
 
 Definition weqfp_map {X Y : UU} (w : X ≃ Y) (P : Y -> UU) :
-  (Σ x, P(w x)) -> (Σ y, P y).
+  (∑ x, P(w x)) -> (∑ y, P y).
 Proof.
   intros ? ? ? ? xp. exact (w (pr1 xp),,pr2 xp).
 Defined.
 
 Definition weqfp_invmap {X Y : UU} (w : X ≃ Y) (P : Y -> UU) :
-  (Σ y, P y) -> (Σ x, P(w x)).
+  (∑ y, P y) -> (∑ x, P(w x)).
 Proof.
   intros ? ? ? ? yp.
   exact (invmap w (pr1 yp),,
@@ -3370,7 +3370,7 @@ Proof.
 Defined.
 
 Definition weqfp {X Y : UU} (w : X ≃ Y) (P : Y -> UU) :
-  (Σ x : X, P (w x)) ≃ (Σ y, P y).
+  (∑ x : X, P (w x)) ≃ (∑ y, P y).
 Proof.
   intros.
   exists (weqfp_map w P).
@@ -3407,38 +3407,38 @@ Defined.
 Definition tototal2overunit (P : unit -> UU) (p : P tt) : total2 P
   := tpair P tt p.
 
-Theorem weqtotal2overunit (P : unit -> UU) : (Σ u, P u) ≃ P tt.
+Theorem weqtotal2overunit (P : unit -> UU) : (∑ u, P u) ≃ P tt.
 Proof.
   intro.
   set (f := fromtotal2overunit P). set (g := tototal2overunit P).
   split with f.
-  assert (egf : Π a : _ , (g (f a)) = a).
+  assert (egf : ∏ a : _ , (g (f a)) = a).
   intro a. induction a as [ t p ]. induction t. apply idpath.
-  assert (efg : Π a : _ , (f (g a)) = a).
+  assert (efg : ∏ a : _ , (f (g a)) = a).
   intro a. apply idpath. apply (gradth _ _ egf efg).
 Defined.
 
 (** *** The function on the total spaces from functions on the bases and on the fibers *)
 
 Definition bandfmap {X Y : UU} (f : X -> Y) (P : X -> UU) (Q : Y -> UU)
-           (fm : Π x : X, P x -> (Q (f x))) :
-  (Σ x, P x) -> (Σ x, Q x) := λ xp, f (pr1 xp) ,, fm (pr1 xp) (pr2 xp).
+           (fm : ∏ x : X, P x -> (Q (f x))) :
+  (∑ x, P x) -> (∑ x, Q x) := λ xp, f (pr1 xp) ,, fm (pr1 xp) (pr2 xp).
 
 Theorem isweqbandfmap {X Y : UU} (w : X ≃ Y) (P : X -> UU) (Q : Y -> UU)
-        (fw : Π x : X, weq (P x) (Q (w x))) : isweq (bandfmap  _ P Q fw).
+        (fw : ∏ x : X, weq (P x) (Q (w x))) : isweq (bandfmap  _ P Q fw).
 Proof.
   intros.
   set (f1 := totalfun P _ fw).
   set (is1 := isweqfibtototal P (fun x:X => Q (w x)) fw).
   set (f2:= fpmap w Q).
   set (is2:= isweqfpmap w Q).
-  assert (h: Π xp: total2 P, (f2 (f1 xp)) = (bandfmap w P Q fw xp)).
+  assert (h: ∏ xp: total2 P, (f2 (f1 xp)) = (bandfmap w P Q fw xp)).
   intro. induction xp. apply idpath.
   apply (isweqhomot _ _ h (twooutof3c f1 f2 is1 is2)).
 Defined.
 
 Definition weqbandf {X Y : UU} (w : X ≃ Y) (P : X -> UU) (Q : Y -> UU)
-           (fw : Π x : X, weq (P x) (Q (w x)))
+           (fw : ∏ x : X, weq (P x) (Q (w x)))
   := weqpair _ (isweqbandfmap w P Q fw).
 
 
@@ -3448,7 +3448,7 @@ Definition weqbandf {X Y : UU} (w : X ≃ Y) (P : X -> UU) (Q : Y -> UU)
 (** *** Homotopy commutative squares *)
 
 Definition commsqstr {X X' Y Z : UU} (g' : Z -> X') (f' : X' -> Y) (g : Z -> X)
-           (f : X -> Y) := Π (z : Z), (f' (g' z)) = (f (g z)).
+           (f : X -> Y) := ∏ (z : Z), (f' (g' z)) = (f (g z)).
 
 Definition hfibersgtof' {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y) (g : Z -> X)
            (g' : Z -> X') (h : commsqstr g' f' g f) (x : X) (ze : hfiber g x) :
@@ -3507,12 +3507,12 @@ Definition commsqZtohfp {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y)
 
 Definition commsqZtohfphomot {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y)
            (g : Z -> X) (g' : Z -> X') (h : commsqstr g' f' g f) :
-  Π z : Z, (hfpg _ _ (commsqZtohfp _ _ _ _ h z)) = (g z)
+  ∏ z : Z, (hfpg _ _ (commsqZtohfp _ _ _ _ h z)) = (g z)
   := fun z : _ => idpath _.
 
 Definition commsqZtohfphomot' {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y)
            (g : Z -> X) (g' : Z -> X') (h : commsqstr g' f' g f) :
-  Π z : Z, (hfpg' _ _ (commsqZtohfp _ _ _ _ h z)) = (g' z)
+  ∏ z : Z, (hfpg' _ _ (commsqZtohfp _ _ _ _ h z)) = (g' z)
   := fun z : _ => idpath _.
 
 
@@ -3587,20 +3587,20 @@ Proof.
   set (ff := hfibertohfp f y).
   set (gg := hfptohfiber f y).
   split with ff.
-  assert (egf : Π xe : _, (gg (ff xe)) = xe).
+  assert (egf : ∏ xe : _, (gg (ff xe)) = xe).
   intro. induction xe. apply idpath.
-  assert (efg : Π hf : _, (ff (gg hf)) = hf).
+  assert (efg : ∏ hf : _, (ff (gg hf)) = hf).
   intro.
   induction hf as [ tx e ]. induction tx as [ t x ].
   induction t. apply idpath. apply (gradth _ _ egf efg).
 Defined.
 
 Lemma hfp_left {X Y Z : UU} (f : X -> Z) (g : Y -> Z) :
-  hfp f g ≃ Σ x, hfiber g (f x).
+  hfp f g ≃ ∑ x, hfiber g (f x).
 Proof. intros. apply weqtotal2dirprodassoc. Defined.
 
 Definition hfp_right {X Y Z : UU} (f : X -> Z) (g : Y -> Z) :
-  hfp f g ≃ Σ y, hfiber f (g y).
+  hfp f g ≃ ∑ y, hfiber f (g y).
 Proof.
   intros. simple refine (weqgradth _ _ _ _).
   - intros [[x y] e]. exact (y,,x,,!e).
@@ -3610,7 +3610,7 @@ Proof.
 Defined.
 
 Definition hfiber_comm {X Y Z : UU} (f : X -> Z) (g : Y -> Z) :
-  (Σ x, hfiber g (f x)) ≃ (Σ y, hfiber f (g y)).
+  (∑ x, hfiber g (f x)) ≃ (∑ y, hfiber f (g y)).
 Proof.
   intros. simple refine (weqgradth _ _ _ _).
   - intros [x [y e]]. exact (y,,x,,!e).
@@ -3656,7 +3656,7 @@ Proof.
   set (d := weqhfptohfpoverX f f').
   set (b0 := totalfun _ _ (hfibersgtof' f f' g g' h)).
 
-  assert (h1 : Π z : Z, (d (c z)) = (b0 (a z))).
+  assert (h1 : ∏ z : Z, (d (c z)) = (b0 (a z))).
   intro. simpl. unfold b0. unfold a. unfold weqtococonusf. unfold tococonusf.
   simpl. unfold totalfun, total2asstor, hfibersgtof'; simpl.
   assert (e : (h z) = (pathscomp0 (h z) (idpath (f (g z))))).
@@ -3677,7 +3677,7 @@ Definition weqhfibersgtof' {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y)
 
 Lemma ishfsqweqhfibersgtof' {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y)
       (g : Z -> X) (g' : Z -> X') (h : commsqstr g' f' g f)
-      (is : Π x : X, isweq (hfibersgtof' f f' g g' h x)) : hfsqstr f f' g g'.
+      (is : ∏ x : X, isweq (hfibersgtof' f f' g g' h x)) : hfsqstr f f' g g'.
 Proof.
   intros. split with h.
   set (a := weqtococonusf g).
@@ -3685,7 +3685,7 @@ Proof.
   set (d := weqhfptohfpoverX f f').
   set (b := weqfibtototal _ _ (fun x : X => weqpair _ (is x))).
 
-  assert (h1 : Π z : Z, (d (c0 z)) = (b (a z))).
+  assert (h1 : ∏ z : Z, (d (c0 z)) = (b (a z))).
   intro. simpl. unfold b. unfold a. unfold weqtococonusf. unfold tococonusf.
   simpl. unfold totalfun, total2asstor, hfibersgtof'; simpl.
   assert (e : (h z) = (pathscomp0 (h z) (idpath (f (g z))))).
@@ -3710,7 +3710,7 @@ Proof.
   set (d' := weqhfptohfpoverX' f f').
   set (b0' := totalfun _ _ (hfibersg'tof f f' g g' h)).
 
-  assert (h1 : Π z : Z, (d' (c' z)) = (b0' (a' z))).
+  assert (h1 : ∏ z : Z, (d' (c' z)) = (b0' (a' z))).
   intro. unfold b0'. unfold a'. unfold weqtococonusf. unfold tococonusf.
   unfold totalfun, hfibersg'tof; simpl.
   assert (e : (pathsinv0 (h z))
@@ -3731,7 +3731,7 @@ Definition weqhfibersg'tof {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y)
 
 Lemma ishfsqweqhfibersg'tof {X X' Y Z : UU} (f : X -> Y) (f' : X' -> Y)
       (g : Z -> X) (g' : Z -> X') (h : commsqstr g' f' g f)
-      (is : Π x' : X', isweq (hfibersg'tof f f' g g' h x')) : hfsqstr f f' g g'.
+      (is : ∏ x' : X', isweq (hfibersg'tof f f' g g' h x')) : hfsqstr f f' g g'.
 Proof.
   intros.
   split with h.
@@ -3740,7 +3740,7 @@ Proof.
   set (d' := weqhfptohfpoverX' f f').
   set (b' := weqfibtototal _ _ (fun x' : X' => weqpair _ (is x'))).
 
-  assert (h1 : Π z : Z, (d' (c0' z)) = (b' (a' z))).
+  assert (h1 : ∏ z : Z, (d' (c0' z)) = (b' (a' z))).
   intro. simpl. unfold b'. unfold a'. unfold weqtococonusf. unfold tococonusf.
   unfold totalfun, total2asstor, hfibersg'tof; simpl.
   assert (e : (pathsinv0 (h z)) =
@@ -3762,7 +3762,7 @@ Proof.
   set (th := transposcommsqstr f f' g g' h).
   split with th.
   set (w1 := weqhfpcomm f f').
-  assert (h1 : Π z : Z, (w1 (commsqZtohfp f f' g g' h z))
+  assert (h1 : ∏ z : Z, (w1 (commsqZtohfp f f' g g' h z))
                         = (commsqZtohfp f' f g' g th z)).
   intro. unfold commsqZtohfp. simpl. unfold fpmap. unfold totalfun.
   simpl. apply idpath.

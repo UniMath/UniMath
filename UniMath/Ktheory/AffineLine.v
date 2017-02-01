@@ -28,33 +28,33 @@ Open Scope hz_scope.
 (** ** Recursion for ℤ *)
 
 Definition ℤRecursionData0 (P:ℤ->Type) (p0:P zero)
-      (IH :Π n, P(  toℤ n) -> P(  toℤ (S n)))
-      (IH':Π n, P(- toℤ n) -> P(- toℤ (S n))) := fun
-          f:Π i, P i =>
+      (IH :∏ n, P(  toℤ n) -> P(  toℤ (S n)))
+      (IH':∏ n, P(- toℤ n) -> P(- toℤ (S n))) := fun
+          f:∏ i, P i =>
             (f zero = p0) ×
-            (Π n, f(  toℤ (S n)) = IH  n (f (  toℤ n))) ×
-            (Π n, f(- toℤ (S n)) = IH' n (f (- toℤ n))).
+            (∏ n, f(  toℤ (S n)) = IH  n (f (  toℤ n))) ×
+            (∏ n, f(- toℤ (S n)) = IH' n (f (- toℤ n))).
 
 Definition ℤRecursionData (P:ℤ->Type)
-      (IH :Π n, P(  toℤ n) -> P(  toℤ (S n)))
-      (IH':Π n, P(- toℤ n) -> P(- toℤ (S n))) := fun
-             f:Π i, P i =>
-               (Π n, f(  toℤ (S n)) = IH  n (f (  toℤ n))) ×
-               (Π n, f(- toℤ (S n)) = IH' n (f (- toℤ n))).
+      (IH :∏ n, P(  toℤ n) -> P(  toℤ (S n)))
+      (IH':∏ n, P(- toℤ n) -> P(- toℤ (S n))) := fun
+             f:∏ i, P i =>
+               (∏ n, f(  toℤ (S n)) = IH  n (f (  toℤ n))) ×
+               (∏ n, f(- toℤ (S n)) = IH' n (f (- toℤ n))).
 
 Lemma ℤRecursionUniq (P:ℤ->Type) (p0:P zero)
-      (IH :Π n, P(  toℤ n) -> P(  toℤ (S n)))
-      (IH':Π n, P(- toℤ n) -> P(- toℤ (S n))) :
+      (IH :∏ n, P(  toℤ n) -> P(  toℤ (S n)))
+      (IH':∏ n, P(- toℤ n) -> P(- toℤ (S n))) :
   iscontr (total2 (ℤRecursionData0 P p0 IH IH')).
 Proof. intros.
        unfold ℤRecursionData0.
        (* use hNatRecursion_weq *)
        apply (iscontrweqb (Y :=
-            Σ f:Π w, P (negpos w),
+            ∑ f:∏ w, P (negpos w),
               (f (ii2 O) = p0) ×
-              (Π n : nat, f (ii2 (S n)) = IH n (f (ii2 n))) ×
+              (∏ n : nat, f (ii2 (S n)) = IH n (f (ii2 n))) ×
               (f (ii1 O) = IH' O (f (ii2 O))) ×
-              (Π n : nat, f (ii1 (S n)) = IH' (S n) (f (ii1 n))))).
+              (∏ n : nat, f (ii1 (S n)) = IH' (S n) (f (ii1 n))))).
        { apply (weqbandf (weqonsecbase _ negpos)). intro f.
          simple refine (weqpair _ (gradth _ _ _ _)).
          { intros [h0 [hp hn]]. simple refine (_,,_,,_,,_).
@@ -68,51 +68,51 @@ Proof. intros.
            { apply funextsec; intros [|n']; reflexivity; reflexivity. } }
          { intros [h0 [h1' [hp hn]]]. reflexivity. } }
        intermediate_iscontr (
-             Σ f : (Π n, P (negpos (ii1 n))) ×
-                 (Π n, P (negpos (ii2 n))),
+             ∑ f : (∏ n, P (negpos (ii1 n))) ×
+                 (∏ n, P (negpos (ii2 n))),
                 (pr2 f O = p0) ×
-                (Π n : nat, pr2 f (S n) = IH n (pr2 f n)) ×
+                (∏ n : nat, pr2 f (S n) = IH n (pr2 f n)) ×
                 (pr1 f O = IH' O (pr2 f O)) ×
-                (Π n : nat, pr1 f (S n) = IH' (S n) (pr1 f n))).
+                (∏ n : nat, pr1 f (S n) = IH' (S n) (pr1 f n))).
        { apply (weqbandf (weqsecovercoprodtoprod (fun w => P (negpos w)))).
          intro f. apply idweq. }
        intermediate_iscontr (
-              Σ f : (Π n, P (negpos (ii2 n))) ×
-                    (Π n, P (negpos (ii1 n))),
+              ∑ f : (∏ n, P (negpos (ii2 n))) ×
+                    (∏ n, P (negpos (ii1 n))),
                 (pr1 f O = p0) ×
-                (Π n : nat, pr1 f (S n) = IH n (pr1 f n)) ×
+                (∏ n : nat, pr1 f (S n) = IH n (pr1 f n)) ×
                 (pr2 f O = IH' O (pr1 f O)) ×
-                (Π n : nat, pr2 f (S n) = IH' (S n) (pr2 f n))).
+                (∏ n : nat, pr2 f (S n) = IH' (S n) (pr2 f n))).
        { apply (weqbandf (weqdirprodcomm _ _)). intro f. apply idweq. }
        intermediate_iscontr (
-                Σ (f2 : Π n : nat, P (negpos (ii2 n)))
-                  (f1 : Π n : nat, P (negpos (ii1 n))),
+                ∑ (f2 : ∏ n : nat, P (negpos (ii2 n)))
+                  (f1 : ∏ n : nat, P (negpos (ii1 n))),
                      (f2 O = p0) ×
-                     (Π n : nat, f2 (S n) = IH n (f2 n)) ×
+                     (∏ n : nat, f2 (S n) = IH n (f2 n)) ×
                      (f1 O = IH' O (f2 O)) ×
-                     (Π n : nat, f1 (S n) = IH' (S n) (f1 n))).
+                     (∏ n : nat, f1 (S n) = IH' (S n) (f1 n))).
        { apply weqtotal2asstor. }
        intermediate_iscontr (
-            Σ f2 : Π n : nat, P (negpos (ii2 n)),
+            ∑ f2 : ∏ n : nat, P (negpos (ii2 n)),
                  (f2 O = p0) ×
-            Σ f1 : Π n : nat, P (negpos (ii1 n)),
-                 (Π n : nat, f2 (S n) = IH n (f2 n)) ×
+            ∑ f1 : ∏ n : nat, P (negpos (ii1 n)),
+                 (∏ n : nat, f2 (S n) = IH n (f2 n)) ×
                  (f1 O = IH' O (f2 O)) ×
-                 (Π n : nat, f1 (S n) = IH' (S n) (f1 n))).
+                 (∏ n : nat, f1 (S n) = IH' (S n) (f1 n))).
        { apply weqfibtototal; intro f2. apply weq_total2_prod. }
        intermediate_iscontr (
-            Σ f2 : Π n : nat, P (negpos (ii2 n)),
+            ∑ f2 : ∏ n : nat, P (negpos (ii2 n)),
                  (f2 O = p0) ×
-                 (Π n : nat, f2 (S n) = IH n (f2 n)) ×
-            Σ f1 : Π n : nat, P (negpos (ii1 n)),
+                 (∏ n : nat, f2 (S n) = IH n (f2 n)) ×
+            ∑ f1 : ∏ n : nat, P (negpos (ii1 n)),
                  (f1 O = IH' O (f2 O)) ×
-                 (Π n : nat, f1 (S n) = IH' (S n) (f1 n))).
+                 (∏ n : nat, f1 (S n) = IH' (S n) (f1 n))).
        { apply weqfibtototal; intro f2. apply weqfibtototal; intro.
          apply weq_total2_prod. }
        intermediate_iscontr (
-            Σ f2 : Π n : nat, P (negpos (ii2 n)),
+            ∑ f2 : ∏ n : nat, P (negpos (ii2 n)),
                  (f2 O = p0) ×
-                 (Π n : nat, f2 (S n) = IH n (f2 n))).
+                 (∏ n : nat, f2 (S n) = IH n (f2 n))).
        { apply weqfibtototal; intro f2. apply weqfibtototal; intro h0.
          apply weqpr1; intro ih2.
          exact (Nat.Uniqueness.hNatRecursionUniq
@@ -123,8 +123,8 @@ Proof. intros.
 Defined.
 
 Lemma A (P:ℤ->Type) (p0:P zero)
-      (IH :Π n, P(  toℤ n) -> P(  toℤ (S n)))
-      (IH':Π n, P(- toℤ n) -> P(- toℤ (S n))) :
+      (IH :∏ n, P(  toℤ n) -> P(  toℤ (S n)))
+      (IH':∏ n, P(- toℤ n) -> P(- toℤ (S n))) :
   weq (total2 (ℤRecursionData0 P p0 IH IH'))
       (@hfiber
          (total2 (ℤRecursionData P IH IH'))
@@ -139,15 +139,15 @@ Proof. intros.
        { intros [[f h] h0]. reflexivity. } Defined.
 
 Lemma ℤRecursion_weq (P:ℤ->Type)
-      (IH :Π n, P(  toℤ n) -> P(  toℤ (S n)))
-      (IH':Π n, P(- toℤ n) -> P(- toℤ (S n))) :
+      (IH :∏ n, P(  toℤ n) -> P(  toℤ (S n)))
+      (IH':∏ n, P(- toℤ n) -> P(- toℤ (S n))) :
   weq (total2 (ℤRecursionData P IH IH')) (P 0).
 Proof. intros. exists (fun f => pr1 f zero). intro p0.
        apply (iscontrweqf (A _ _ _ _)). apply ℤRecursionUniq. Defined.
 
 Lemma ℤRecursion_weq_compute (P:ℤ->Type)
-      (IH :Π n, P(  toℤ n) -> P(  toℤ (S n)))
-      (IH':Π n, P(- toℤ n) -> P(- toℤ (S n)))
+      (IH :∏ n, P(  toℤ n) -> P(  toℤ (S n)))
+      (IH':∏ n, P(- toℤ n) -> P(- toℤ (S n)))
       (fh : total2 (ℤRecursionData P IH IH')) :
   ℤRecursion_weq P IH IH' fh = pr1 fh zero.
 Proof. reflexivity.             (* don't change the proof *)
@@ -155,16 +155,16 @@ Defined.
 
 (** ** Bidirectional recursion for ℤ *)
 
-Definition ℤBiRecursionData (P:ℤ->Type) (IH :Π i, P(i) -> P(1+i)) :=
-  fun f:Π i, P i => Π i, f(1+i)=IH i (f i).
+Definition ℤBiRecursionData (P:ℤ->Type) (IH :∏ i, P(i) -> P(1+i)) :=
+  fun f:∏ i, P i => ∏ i, f(1+i)=IH i (f i).
 
-Definition ℤBiRecursion_weq (P:ℤ->Type) (IH :Π i, weq (P i) (P(1+i))) :
+Definition ℤBiRecursion_weq (P:ℤ->Type) (IH :∏ i, weq (P i) (P(1+i))) :
   weq (total2 (ℤBiRecursionData P IH)) (P 0).
 Proof. intros.
-       assert (k : Π n, one + toℤ n = toℤ (S n)).
+       assert (k : ∏ n, one + toℤ n = toℤ (S n)).
        { intro. rewrite nattohzandS. reflexivity. }
        set (l := fun n : nat => weq_transportf P (k n)).
-       assert (k' : Π n, - toℤ n = one + (- toℤ (S n))).
+       assert (k' : ∏ n, - toℤ n = one + (- toℤ (S n))).
        { intros. unfold one, toℤ. rewrite nattohzand1.
          rewrite nattohzandS. rewrite hzminusplus. rewrite <- (hzplusassoc one).
          rewrite (hzpluscomm one). rewrite hzlminus. rewrite hzplusl0.
@@ -191,7 +191,7 @@ Proof. intros.
            reflexivity. } } Defined.
 
 Definition ℤBiRecursion_weq_compute (P:ℤ->Type)
-           (IH :Π i, weq (P i) (P(1+i)))
+           (IH :∏ i, weq (P i) (P(1+i)))
       (fh : total2 (ℤBiRecursionData P IH)) :
   ℤBiRecursion_weq P IH fh = pr1 fh 0.
 Proof. reflexivity.             (* don't change the proof *)
@@ -204,25 +204,25 @@ Open Scope action_scope.
 (** ** Bidirectional recursion for ℤ-torsors *)
 
 Definition GuidedSection {T:Torsor ℤ}
-           (P:T->Type) (IH:Π t, weq (P t) (P (one + t))) := fun
+           (P:T->Type) (IH:∏ t, weq (P t) (P (one + t))) := fun
      f:Section P =>
-       Π t, f (one + t) = IH t (f t).
+       ∏ t, f (one + t) = IH t (f t).
 
 Definition ℤTorsorRecursion_weq {T:Torsor ℤ} (P:T->Type)
-      (IH:Π t, weq (P t) (P (one + t))) (t0:T) :
+      (IH:∏ t, weq (P t) (P (one + t))) (t0:T) :
   weq (total2 (GuidedSection P IH)) (P t0).
 Proof. intros. exists (fun fh => pr1 fh t0). intro q.
        set (w := triviality_isomorphism T t0).
-       assert (k0 : Π i, one + w i = w (1+i)%hz).
+       assert (k0 : ∏ i, one + w i = w (1+i)%hz).
        { intros. simpl. unfold right_mult, ac_mult. rewrite act_assoc.
          reflexivity. }
        set (l0 := (fun i => eqweqmap (ap P (k0 i)))
-               : Π i, weq (P(one + w i)) (P(w(1+i)%hz))).
+               : ∏ i, weq (P(one + w i)) (P(w(1+i)%hz))).
        assert( e : right_mult t0 zero = t0 ). { apply act_unit. }
-       set (H := fun f => Π t : T, f (one + t) = (IH t) (f t)).
+       set (H := fun f => ∏ t : T, f (one + t) = (IH t) (f t)).
        set ( IH' := (fun i => weqcomp (IH (w i)) (l0 i))
-                    : Π i:ℤ, weq (P (w i)) (P (w(1+i)%hz))).
-       set (J := fun f => Π i : ℤ, f (1 + i)%hz = (IH' i) (f i)).
+                    : ∏ i:ℤ, weq (P (w i)) (P (w(1+i)%hz))).
+       set (J := fun f => ∏ i : ℤ, f (1 + i)%hz = (IH' i) (f i)).
        simple refine (iscontrweqb (@weq_over_sections ℤ T w 0 t0 e P q (e#'q) _ H J _) _).
        { apply transportfbinv. }
        { intro. apply invweq. unfold H,J,maponsec1. simple refine (weqonsec _ _ w _).
@@ -235,13 +235,13 @@ Proof. intros. exists (fun fh => pr1 fh t0). intro q.
 Defined.
 
 Definition ℤTorsorRecursion_compute {T:Torsor ℤ} (P:T->Type)
-      (IH:Π t, weq (P t) (P (one + t))) t h :
+      (IH:∏ t, weq (P t) (P (one + t))) t h :
   ℤTorsorRecursion_weq P IH t h = pr1 h t.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
 Definition ℤTorsorRecursion_inv_compute {T:Torsor ℤ} (P:T->Type)
-      (IH:Π t, weq (P t) (P (one + t)))
+      (IH:∏ t, weq (P t) (P (one + t)))
       (t0:T) (h0:P t0) :
   pr1 (invmap (ℤTorsorRecursion_weq P IH t0) h0) t0 = h0.
 Proof. intros.
@@ -251,7 +251,7 @@ Proof. intros.
                 homotweqinvweq (ℤTorsorRecursion_weq P IH t0) h0). Defined.
 
 Definition ℤTorsorRecursion_transition {T:Torsor ℤ} (P:T->Type)
-      (IH:Π t, weq (P t) (P (one + t)))
+      (IH:∏ t, weq (P t) (P (one + t)))
       (t:T)
       (h:total2 (GuidedSection P IH)) :
   ℤTorsorRecursion_weq P IH (one+t) h
@@ -260,9 +260,9 @@ Definition ℤTorsorRecursion_transition {T:Torsor ℤ} (P:T->Type)
 Proof. intros. rewrite 2!ℤTorsorRecursion_compute. exact (pr2 h t). Defined.
 
 Definition ℤTorsorRecursion_transition_inv {T:Torsor ℤ} (P:T->Type)
-      (IH:Π t, weq (P t) (P (one + t)))
+      (IH:∏ t, weq (P t) (P (one + t)))
       (t:T) :
-  Π h0,
+  ∏ h0,
   invmap (ℤTorsorRecursion_weq P IH t) h0
   =
   invmap (ℤTorsorRecursion_weq P IH (one+t)) (IH t h0).
@@ -273,7 +273,7 @@ Proof. intros.
        rewrite homotinvweqweq. reflexivity. Defined.
 
 Definition ℤTorsorRecursion {T:Torsor ℤ} (P:T->Type)
-      (IH:Π t, weq (P t) (P (one + t)))
+      (IH:∏ t, weq (P t) (P (one + t)))
       (t t':T) :
   weq (P t) (P t').
 Proof. intros.
@@ -294,10 +294,10 @@ Proof. intros.
 
  *)
 
-Definition target_paths {Y} {T:Torsor ℤ} (f:T->Y) := Π t, f t=f(one + t).
+Definition target_paths {Y} {T:Torsor ℤ} (f:T->Y) := ∏ t, f t=f(one + t).
 
 Definition GHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) := fun
-        y:Y => Σ h:nullHomotopyFrom f y, Π n, h(one + n) = h n @ s n.
+        y:Y => ∑ h:nullHomotopyFrom f y, ∏ n, h(one + n) = h n @ s n.
 
 Definition GuidedHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) :=
   total2 (GHomotopy f s).
@@ -319,7 +319,7 @@ Definition GH_equations {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f)
            (yhp : GuidedHomotopy f s)
      := pr2 (pr2 yhp)
      : let h := GH_homotopy yhp in
-       Π n, h(one + n) = h n @ s n.
+       ∏ n, h(one + n) = h n @ s n.
 
 Theorem iscontrGuidedHomotopy {Y} (T:Torsor ℤ) (f:T->Y) (s:target_paths f) :
   iscontr (GuidedHomotopy f s).
@@ -328,20 +328,20 @@ Proof. intros. apply (squash_to_prop (torsor_nonempty T)).
        (* A better proof would construct the center explicitly now
           using [makeGuidedHomotopy] below.  Or we could replace this theorem
           by a corollary of it, with the new center. *)
-       apply ( iscontrweqb (Y := Σ y:Y, y = f t0)).
+       apply ( iscontrweqb (Y := ∑ y:Y, y = f t0)).
        { apply weqfibtototal; intro y.
          exact (ℤTorsorRecursion_weq _ (fun t => weq_pathscomp0r _ _) t0). }
        apply iscontrcoconustot. Defined.
 
 Corollary proofirrGuidedHomotopy {Y} (T:Torsor ℤ) (f:T->Y) (s:target_paths f) :
-  Π v w : GuidedHomotopy f s, v=w.
+  ∏ v w : GuidedHomotopy f s, v=w.
 Proof. (* later give a more direct proof *)
        intros. apply proofirrelevancecontr. apply iscontrGuidedHomotopy. Defined.
 
 Definition iscontrGuidedHomotopy_comp_1 {Y} :
   let T := trivialTorsor ℤ in
   let t0 := 0 : T in
-    Π (f:T->Y) (s:target_paths f),
+    ∏ (f:T->Y) (s:target_paths f),
       GH_point (thePoint (iscontrGuidedHomotopy T f s)) = f t0.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
@@ -349,7 +349,7 @@ Defined.
 Definition iscontrGuidedHomotopy_comp_2 {Y} :
   let T := trivialTorsor ℤ in
   let t0 := 0 : T in
-    Π (f:T->Y) (s:target_paths f),
+    ∏ (f:T->Y) (s:target_paths f),
         (GH_homotopy (thePoint (iscontrGuidedHomotopy T f s)) t0) =
         (idpath (f t0)).
 Proof. intros.
@@ -386,7 +386,7 @@ Defined.
 (* Definition iscontrGuidedHomotopy_comp_3 {Y} : *)
 (*   let T := trivialTorsor ℤ in  *)
 (*   let t0 := 0 : T in *)
-(*     Π (f:T->Y) (s:target_paths f), *)
+(*     ∏ (f:T->Y) (s:target_paths f), *)
 (*       GH_to_cone t0 (thePoint (iscontrGuidedHomotopy T f s)) = f t0,, idpath (f t0). *)
 (* Proof. intros. *)
 
@@ -477,11 +477,11 @@ Proof. intros ? ? ? ? t'.
        exact (makeGuidedHomotopy1 f s t). Defined.
 
 Definition map_path {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
-  Π t, map f s (squash_element t) = map f s (squash_element (one + t)).
+  ∏ t, map f s (squash_element t) = map f s (squash_element (one + t)).
 Proof. intros. exact (makeGuidedHomotopy_diagonalPath f s t). Defined.
 
 Definition map_path_check {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
-  Π t, Π p : map f s (squash_element t) =
+  ∏ t, ∏ p : map f s (squash_element t) =
                        map f s (squash_element (one + t)),
     ap pr1 p = s t.
 Proof. intros. set (q := map_path f s t). assert (k : q=p).

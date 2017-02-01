@@ -109,7 +109,7 @@ apply is_omega_cocont_pre_composition_functor, CC.
 Defined.
 
 Definition SpecializedGMIt (Z : Ptd) (X : EndC) :
-  Π (G : functor [C, C, hsC] [C, C, hsC]) (ρ : [C, C, hsC] ⟦ G X, X ⟧)
+  ∏ (G : functor [C, C, hsC] [C, C, hsC]) (ρ : [C, C, hsC] ⟦ G X, X ⟧)
     (θ : functor_composite Id_H (ℓ (U Z)) ⟶ functor_composite (ℓ (U Z)) G),
   ∃! h : [C, C, hsC] ⟦ ℓ (U Z) (alg_carrier _ InitAlg), X ⟧,
     # (ℓ (U Z)) (alg_map Id_H InitAlg) ;; h =
@@ -339,7 +339,7 @@ now apply whole_from_parts, bracket_Thm15_ok.
 Qed.
 
 Local Lemma bracket_unique (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
- Π t : Σ h : [C, C, hsC] ⟦ functor_composite (U Z) (pr1  InitAlg),
+ ∏ t : ∑ h : [C, C, hsC] ⟦ functor_composite (U Z) (pr1  InitAlg),
                             pr1 InitAlg ⟧, bracket_property f h,
    t = tpair _ ⦃f⦄ (bracket_Thm15_ok_cor Z f).
 Proof.
@@ -640,7 +640,7 @@ pathvia (pr1 (pr1 X)).
       now apply (nat_trans_eq_pointwise Hyp c).
 Qed.
 
-Definition hss_InitMor : Π T' : hss CP H, hssMor InitHSS T'.
+Definition hss_InitMor : ∏ T' : hss CP H, hssMor InitHSS T'.
 Proof.
 intro T'.
 exists (InitialArrow IA (pr1 T')).
@@ -648,7 +648,7 @@ apply ishssMor_InitAlg.
 Defined.
 
 Lemma hss_InitMor_unique (T' : hss_precategory CP H):
-  Π t : hss_precategory CP H ⟦ InitHSS, T' ⟧, t = hss_InitMor T'.
+  ∏ t : hss_precategory CP H ⟦ InitHSS, T' ⟧, t = hss_InitMor T'.
 Proof.
 intro t.
 apply (invmap (hssMor_eq1 _ _ _ _ _ _ _ _ )).

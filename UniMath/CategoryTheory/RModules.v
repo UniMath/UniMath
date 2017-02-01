@@ -48,7 +48,7 @@ Section RModule_def.
 
 
 Definition RModule_data (D:precategory) : UU
-  := Σ F : functor B D, F □ M ⟶ F.
+  := ∑ F : functor B D, F □ M ⟶ F.
 
 Coercion functor_from_RModule_data (C : precategory) (F : RModule_data C)
   : functor B C := pr1 F.
@@ -56,8 +56,8 @@ Coercion functor_from_RModule_data (C : precategory) (F : RModule_data C)
 Definition σ {C : precategory} (F : RModule_data C) : F□M ⟶ F := pr2 F.
 
 Definition RModule_laws  {C:precategory} (T : RModule_data C) : UU :=
-      (Π c : B, #T (η M c) ;; σ T c = identity (T c))
-        × (Π c : B, #T ((μ M) c) ;; σ T c = σ T (M c) ;; σ T c).
+      (∏ c : B, #T (η M c) ;; σ T c = identity (T c))
+        × (∏ c : B, #T ((μ M) c) ;; σ T c = σ T (M c) ;; σ T c).
 
 Lemma isaprop_RModule_laws (C : precategory) (hs : has_homsets C) (T : RModule_data C) :
    isaprop (RModule_laws T).
@@ -66,18 +66,18 @@ Proof.
   apply impred; intro c; apply hs.
 Qed.
 
-Definition RModule (C : precategory) : UU := Σ T : RModule_data C, RModule_laws T.
+Definition RModule (C : precategory) : UU := ∑ T : RModule_data C, RModule_laws T.
 
 Coercion RModule_data_from_RModule (C : precategory) (T : RModule C) : RModule_data C := pr1 T.
 
 
-Lemma RModule_law1 {C : precategory} {T : RModule C} : Π c : B, #T (η M c) ;; σ T c = identity (T c).
+Lemma RModule_law1 {C : precategory} {T : RModule C} : ∏ c : B, #T (η M c) ;; σ T c = identity (T c).
 Proof.
 exact ( (pr1 (pr2 T))).
 Qed.
 
 Lemma RModule_law2 {C : precategory} {T : RModule C} :
-  Π c : B, #T ((μ M) c) ;; σ T c = σ T (M c) ;; σ T c.
+  ∏ c : B, #T ((μ M) c) ;; σ T c = σ T (M c) ;; σ T c.
 Proof.
 exact (pr2 ( (pr2 T))).
 Qed.
@@ -89,7 +89,7 @@ Section RModule_precategory.
 
 Definition RModule_Mor_laws {C : precategory} {T T' : RModule_data C} (α : T ⟶ T')
   : UU :=
-  Π a : B, α (M a) ;; σ T' a = σ T a ;; α a.
+  ∏ a : B, α (M a) ;; σ T' a = σ T a ;; α a.
 
 
 Lemma isaprop_RModule_Mor_laws (C : precategory) (hs : has_homsets C)
@@ -100,14 +100,14 @@ Proof.
 Qed.
 
 Definition RModule_Mor {C : precategory} (T T' : RModule C) : UU
-  := Σ α : T ⟶ T', RModule_Mor_laws α.
+  := ∑ α : T ⟶ T', RModule_Mor_laws α.
 
 
 Coercion nat_trans_from_module_mor (C : precategory) (T T' : RModule C) (s : RModule_Mor T T')
    : T ⟶ T' := pr1 s.
 
 Definition RModule_Mor_σ {C : precategory} {T T' : RModule C} (α : RModule_Mor T T')
-           : Π a : B, α (M a) ;; σ T' a = σ T a ;; α a
+           : ∏ a : B, α (M a) ;; σ T' a = σ T a ;; α a
   := pr2 α.
 
 Lemma RModule_identity_laws {C : precategory} (T : RModule C)
@@ -228,7 +228,7 @@ Section Pullback_module.
 
   Definition pb_RModule_σ : T □ M ⟶ T :=  nat_trans_comp _ _ _ (T ∘ m)  (σ _ T).
 
-  Definition pb_RModule_data : Σ F : functor B C, F □ M ⟶ F :=
+  Definition pb_RModule_data : ∑ F : functor B C, F □ M ⟶ F :=
     tpair _ (T:functor B C) pb_RModule_σ.
 
   Lemma pb_RModule_laws : RModule_laws M pb_RModule_data.

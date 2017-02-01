@@ -42,7 +42,7 @@ Section def_additive.
   Defined.
 
   (** Definition of additive categories *)
-  Definition Additive : UU := Σ PA : PreAdditive, isAdditive PA.
+  Definition Additive : UU := ∑ PA : PreAdditive, isAdditive PA.
 
   Definition Additive_PreAdditive (A : Additive) : PreAdditive := pr1 A.
   Coercion Additive_PreAdditive : Additive >-> PreAdditive.
@@ -386,7 +386,7 @@ Section monics_and_epis_in_additive.
   Variable A : Additive.
 
   Lemma to_isMonic {x y : ob A} (f : x --> y)
-        (H : Π (z : ob A) (g : z --> x) (H : g ;; f = ZeroArrow (to_Zero A) _ _),
+        (H : ∏ (z : ob A) (g : z --> x) (H : g ;; f = ZeroArrow (to_Zero A) _ _),
              g = ZeroArrow (to_Zero A) _ _ ) : isMonic f.
   Proof.
     use mk_isMonic.
@@ -400,7 +400,7 @@ Section monics_and_epis_in_additive.
   Qed.
 
   Lemma to_isEpi {x y : ob A} (f : x --> y)
-        (H : Π (z : ob A) (g : y --> z) (H : f ;; g = ZeroArrow (to_Zero A) _ _),
+        (H : ∏ (z : ob A) (g : y --> z) (H : f ;; g = ZeroArrow (to_Zero A) _ _),
              g = ZeroArrow (to_Zero A) _ _ ) : isEpi f.
   Proof.
     use mk_isEpi.

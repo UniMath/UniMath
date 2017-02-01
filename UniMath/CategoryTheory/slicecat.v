@@ -267,7 +267,7 @@ now rewrite assoc, <- (pr2 h).
 Qed.
 
 Definition slicecat_functor_data : functor_data (C / x) (C / y) :=
-  tpair (λ F, Π a b, C/x⟦a,b⟧ → C/y⟦F a,F b⟧) slicecat_functor_ob
+  tpair (λ F, ∏ a b, C/x⟦a,b⟧ → C/y⟦F a,F b⟧) slicecat_functor_ob
         (λ a b h, (pr1 h,,slicecat_functor_subproof _ _ h)).
 
 Lemma is_functor_slicecat_functor : is_functor slicecat_functor_data.
@@ -347,7 +347,7 @@ assert (H1 : transportf (fun x : C / z => pr1 x --> b)
                  (fun p => tpair _ a p = tpair _ a _) (idpath (tpair _ a _))
                  (assoc fax f g)) h = h).
   case (assoc fax f g); apply idpath.
-assert (H2 : Π h', h' = h ->
+assert (H2 : ∏ h', h' = h ->
              transportf (fun x : C / z => a --> pr1 x)
                         (Foundations.PartA.internal_paths_rew_r _ _ _
                            (fun p => tpair _ b p = tpair _ b _) (idpath _)
@@ -649,7 +649,7 @@ Defined.
 *)
 Section dependent_product.
 
-Context (H : Π {c c' : C} (g : C⟦c,c'⟧), is_left_adjoint (base_change_functor g)).
+Context (H : ∏ {c c' : C} (g : C⟦c,c'⟧), is_left_adjoint (base_change_functor g)).
 
 Let dependent_product_functor {c c' : C} (g : C⟦c,c'⟧) :
   functor (C / c) (C / c') := right_adjoint (H c c' g).

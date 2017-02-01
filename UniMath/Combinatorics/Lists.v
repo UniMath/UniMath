@@ -24,7 +24,7 @@ Section lists.
 Context {A : UU}.
 
 (** The type of lists *)
-Definition list : UU := Σ n, iterprod n A.
+Definition list : UU := ∑ n, iterprod n A.
 
 (** The empty list *)
 Definition nil : list := (0,,tt).
@@ -36,10 +36,10 @@ Definition cons (x : A) (xs : list) : list :=
 Local Notation "[]" := nil (at level 0, format "[]").
 Local Infix "::" := cons.
 
-Lemma list_ind : Π (P : list -> UU),
+Lemma list_ind : ∏ (P : list -> UU),
      P nil
-  -> (Π (x : A) (xs : list), P xs -> P (x :: xs))
-  -> Π xs, P xs.
+  -> (∏ (x : A) (xs : list), P xs -> P (x :: xs))
+  -> ∏ xs, P xs.
 Proof.
 intros P Hnil Hcons xs.
 induction xs as [n xs].
@@ -54,7 +54,7 @@ Defined.
 Lemma list_ind_compute_2
       (P : list -> UU)
       (p0 : P nil)
-      (ind : Π (x : A) (xs : list), P xs -> P (x :: xs))
+      (ind : ∏ (x : A) (xs : list), P xs -> P (x :: xs))
       (x : A) (xs : list)
       (f := list_ind P p0 ind) :
   f (x::xs) = ind x xs (f xs).

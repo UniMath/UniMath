@@ -78,16 +78,16 @@ Definition action_op G X := G -> X -> X.
 Record ActionStructure (G:gr) (X:hSet) :=
   make {
       act_mult : action_op G X;
-      act_unit : Π x, act_mult (unel _) x = x;
-      act_assoc : Π g h x, act_mult (op g h) x = act_mult g (act_mult h x)
+      act_unit : ∏ x, act_mult (unel _) x = x;
+      act_assoc : ∏ g h x, act_mult (op g h) x = act_mult g (act_mult h x)
     }.
 Arguments act_mult {G _} _ g x.
 
 Module Pack.
   Definition ActionStructure' (G:gr) (X:hSet) :=
-         Σ act_mult : action_op G X,
-         Σ act_unit : Π x, act_mult (unel _) x = x,
-      (* act_assoc : *) Π g h x, act_mult (op g h) x = act_mult g (act_mult h x).
+         ∑ act_mult : action_op G X,
+         ∑ act_unit : ∏ x, act_mult (unel _) x = x,
+      (* act_assoc : *) ∏ g h x, act_mult (op g h) x = act_mult g (act_mult h x).
   Definition pack {G:gr} {X:hSet} : ActionStructure' G X -> ActionStructure G X
     := fun ac => make G X (pr1 ac) (pr1 (pr2 ac)) (pr2 (pr2 ac)).
   Definition unpack {G:gr} {X:hSet} : ActionStructure G X -> ActionStructure' G X
@@ -124,13 +124,13 @@ Definition ac_mult {G:gr} (X:Action G) := act_mult (pr2 X).
 Delimit Scope action_scope with action.
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Open Scope action_scope.
-Definition ac_assoc {G:gr} (X:Action G) := act_assoc _ _ (pr2 X) : Π g h x, (op g h)*x = g*(h*x).
+Definition ac_assoc {G:gr} (X:Action G) := act_assoc _ _ (pr2 X) : ∏ g h x, (op g h)*x = g*(h*x).
 
 Definition right_mult {G:gr} {X:Action G} (x:X) := fun g => g*x.
 Definition left_mult {G:gr} {X:Action G} (g:G) := fun x:X => g*x.
 
 Definition is_equivariant {G:gr} {X Y:Action G} (f:X->Y) :=
-  Π g x, f (g*x) = g*(f x).
+  ∏ g x, f (g*x) = g*(f x).
 
 Definition is_equivariant_isaprop {G:gr} {X Y:Action G} (f:X->Y) :
   isaprop (is_equivariant f).
@@ -187,7 +187,7 @@ Proof. intros ? ? ? ? [p i] [q j]. exists (funcomp p q).
        apply is_equivariant_comp. assumption. assumption. Defined.
 
 Definition ActionIso {G:gr} (X Y:Action G) :=
-  Σ f:weq (ac_set X) (ac_set Y), is_equivariant f.
+  ∑ f:weq (ac_set X) (ac_set Y), is_equivariant f.
 
 Definition underlyingIso {G:gr} {X Y:Action G} (e:ActionIso X Y) := pr1 e : X ≃ Y.
 
@@ -272,7 +272,7 @@ Proof. intros. exact (eqtohomot
 (** ** Torsors *)
 
 Definition is_torsor {G:gr} (X:Action G) :=
-  nonempty X × Π x:X, isweq (right_mult x).
+  nonempty X × ∏ x:X, isweq (right_mult x).
 
 Lemma is_torsor_isaprop {G:gr} (X:Action G) : isaprop (is_torsor X).
 Proof. intros. apply isapropdirprod. { apply propproperty. }
@@ -315,7 +315,7 @@ Definition underlyingAction_injectivity_inv_comp {G:gr} {X Y:Torsor G}
   ap underlyingAction (invmap underlyingAction_injectivity f) = f.
 Proof. intros. apply (homotweqinvweq underlyingAction_injectivity f). Defined.
 
-Definition PointedTorsor (G:gr) := Σ X:Torsor G, X.
+Definition PointedTorsor (G:gr) := ∑ X:Torsor G, X.
 Definition underlyingTorsor {G} (X:PointedTorsor G) := pr1 X : Torsor G.
 Coercion underlyingTorsor : PointedTorsor >-> Torsor.
 Definition underlyingPoint {G} (X:PointedTorsor G) := pr2 X : X.
@@ -449,7 +449,7 @@ Definition torsor_eqweq_to_path {G:gr} {X Y:Torsor G} : ActionIso X Y -> X = Y.
 Proof. intros ? ? ? f. exact ((invweq Torsor_univalence) f). Defined.
 
 Definition PointedActionIso {G:gr} (X Y:PointedTorsor G)
-    := Σ f:ActionIso X Y, f (underlyingPoint X) = underlyingPoint Y.
+    := ∑ f:ActionIso X Y, f (underlyingPoint X) = underlyingPoint Y.
 
 Definition pointed_triviality_isomorphism {G:gr} (X:PointedTorsor G) :
   PointedActionIso (pointedTrivialTorsor G) X.

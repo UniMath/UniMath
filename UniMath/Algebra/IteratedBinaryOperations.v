@@ -62,7 +62,7 @@ Section BinaryOperations.
     exact (product_list (map product_list w)).
   Defined.
 
-  Definition prodprod_fun {n} {m:stn n -> nat} : (Π i (j:stn (m i)), X) -> X.
+  Definition prodprod_fun {n} {m:stn n -> nat} : (∏ i (j:stn (m i)), X) -> X.
   Proof.
     intros ? ? x.
     exact (product_fun (λ i, product_fun (x i))).
@@ -74,13 +74,13 @@ Section BinaryOperations.
     exact (prodprod_fun (λ i j, x i j)).
   Defined.
 
-  Definition isAssociative_list := Π (x:list (list X)), product_list (Lists.flatten x) = prodprod_list x.
+  Definition isAssociative_list := ∏ (x:list (list X)), product_list (Lists.flatten x) = prodprod_list x.
 
   Definition isAssociative_fun :=
-    Π n (m:stn n -> nat) (x : Π i (j:stn (m i)), X), product_fun (FiniteSequences.flatten' x) = prodprod_fun x.
+    ∏ n (m:stn n -> nat) (x : ∏ i (j:stn (m i)), X), product_fun (FiniteSequences.flatten' x) = prodprod_fun x.
 
   Definition isAssociative_seq :=
-    Π (x : Sequence (Sequence X)), product_seq (FiniteSequences.flatten x) = prodprod_seq x.
+    ∏ (x : Sequence (Sequence X)), product_seq (FiniteSequences.flatten x) = prodprod_seq x.
 
   Lemma assoc_fun_to_seq : isAssociative_fun -> isAssociative_seq.
   Proof.
@@ -93,7 +93,7 @@ Section BinaryOperations.
   Proof.
     intros runax x xs.
     generalize x; clear x.
-    apply (list_ind (λ xs, Π x : X, product_list (x :: xs) = op x (product_list xs))).
+    apply (list_ind (λ xs, ∏ x : X, product_list (x :: xs) = op x (product_list xs))).
     { intro x. simpl. apply pathsinv0,runax. }
     intros y rest IH x.
     reflexivity.
@@ -233,12 +233,12 @@ Proof.
   intros.
   induction n as [|n IH].
   - reflexivity.
-  - assert (specialcase : Π (y:stn _->M) (g : stn _ ≃ stn _), g lastelement = lastelement ->
+  - assert (specialcase : ∏ (y:stn _->M) (g : stn _ ≃ stn _), g lastelement = lastelement ->
         product_seq_mon (S n,, y) = product_seq_mon (S n,, y ∘ g)).
     { intros ? ? a. rewrite 2? product_seq_mon_step. change ((_ ∘ _) _) with (y (g lastelement)).
       rewrite a. apply (maponpaths (λ m, m * _)). change (_ ∘ _ ∘ _) with (y ∘ (g ∘ dni_lastelement)).
       set (h := eqweqmap (maponpaths stn_compl a)).
-      assert (pr1_h : Π i, pr1 (pr1 (h i)) = pr1 (pr1 i)). { intros. induction a. reflexivity. }
+      assert (pr1_h : ∏ i, pr1 (pr1 (h i)) = pr1 (pr1 i)). { intros. induction a. reflexivity. }
       set (wc := weqdnicompl n lastelement).
       set (g' := (invweq wc ∘ (h ∘ (weqoncompl_ne g lastelement (stnneq _) (stnneq _) ∘ wc))) %weq).
       intermediate_path (product_seq_mon (n,, y ∘ dni_lastelement ∘ g')).

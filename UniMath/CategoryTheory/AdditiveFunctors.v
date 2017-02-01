@@ -45,10 +45,10 @@ Section def_additivefunctor.
   (** ** isAdditiveFunctor *)
 
   Definition isAdditiveFunctor {A B : Additive} (F : functor A B) : UU :=
-    Π (a1 a2 : A), @ismonoidfun (to_abgrop a1 a2) (to_abgrop (F a1) (F a2)) (# F).
+    ∏ (a1 a2 : A), @ismonoidfun (to_abgrop a1 a2) (to_abgrop (F a1) (F a2)) (# F).
 
   Definition mk_isAdditiveFunctor {A B : Additive} (F : functor A B)
-             (H : Π (a1 a2 : A),
+             (H : ∏ (a1 a2 : A),
                   @ismonoidfun (to_abgrop a1 a2) (to_abgrop (F a1) (F a2)) (# F)) :
     isAdditiveFunctor F.
   Proof.
@@ -57,9 +57,9 @@ Section def_additivefunctor.
   Qed.
 
   Definition mk_isAdditiveFunctor' {A B : Additive} (F : functor A B)
-             (H1 : Π (a1 a2 : A), (# F (ZeroArrow (to_Zero A) a1 a2)) =
+             (H1 : ∏ (a1 a2 : A), (# F (ZeroArrow (to_Zero A) a1 a2)) =
                                   ZeroArrow (to_Zero B) (F a1) (F a2))
-             (H2 : Π (a1 a2 : A) (f g : A⟦a1, a2⟧), # F (to_binop _ _ f g) =
+             (H2 : ∏ (a1 a2 : A) (f g : A⟦a1, a2⟧), # F (to_binop _ _ f g) =
                                                     to_binop _ _ (# F f) (# F g)) :
     isAdditiveFunctor F.
   Proof.
@@ -84,7 +84,7 @@ Section def_additivefunctor.
 
   (** ** Additive functor *)
 
-  Definition AdditiveFunctor (A B : Additive) : UU := Σ F : (functor A B), isAdditiveFunctor F.
+  Definition AdditiveFunctor (A B : Additive) : UU := ∑ F : (functor A B), isAdditiveFunctor F.
 
   Definition mk_AdditiveFunctor {A B : Additive} (F : functor A B) (H : isAdditiveFunctor F) :
     AdditiveFunctor A B := tpair _ F H.
@@ -107,7 +107,7 @@ End def_additivefunctor.
 Section additivefunctor_preserves_bindirectsums.
 
   Definition PreservesBinDirectSums {A B : Additive} (F : functor A B) : UU :=
-    Π (a1 a2 : A) (DS : BinDirectSumCone A a1 a2),
+    ∏ (a1 a2 : A) (DS : BinDirectSumCone A a1 a2),
     isBinDirectSumCone B (F a1) (F a2) (F DS)
                        (# F (to_In1 A DS)) (# F (to_In2 A DS))
                        (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS)).
