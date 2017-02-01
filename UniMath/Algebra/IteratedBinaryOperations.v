@@ -88,6 +88,17 @@ Section BinaryOperations.
     exact (assoc _ _ (λ i j, x i j)).
   Defined.
 
+  Definition product_list_step (runax : isrunit op unit) (x:X) (xs:list X) :
+    product_list (x::xs) = op x (product_list xs).
+  Proof.
+    intros runax x xs.
+    generalize x; clear x.
+    apply (list_ind (λ xs, Π x : X, product_list (x :: xs) = op x (product_list xs))).
+    { intro x. simpl. apply pathsinv0,runax. }
+    intros y rest IH x.
+    reflexivity.
+  Defined.
+
 End BinaryOperations.
 
 (** general associativity for monoids *)
@@ -133,11 +144,8 @@ Definition product_list_mon_step {M:monoid} (x:M) (xs:list M) :
   product_list_mon (x::xs) = x * product_list_mon xs.
 Proof.
   intros M x xs.
-  generalize x; clear x.
-  apply (list_ind (λ xs, Π x : M, product_list_mon (x :: xs) = x * product_list_mon xs)).
-  { intro x. simpl. apply pathsinv0,runax. }
-  intros y rest IH x.
-  reflexivity.
+  apply product_list_step.
+  apply runax.
 Defined.
 
 Local Definition product_seq_mon_append {M:monoid} (x:Sequence M) (m:M) :
@@ -201,15 +209,13 @@ Proof.
     rewrite Lists.flattenStep.
     unfold prodprod_list_mon. unfold prodprod_list.
     rewrite mapStep.
-    change (product_list (@unel M) (@op M)) with (@product_list_mon M).
-    rewrite product_list_mon_step.
+    rewrite (product_list_step _ _ (runax M)).
     intermediate_path (product_list_mon x * product_list_mon (Lists.flatten xs)).
     + generalize (Lists.flatten xs) as y; clear xs ind; intro y.
       generalize x; clear x.
       apply list_ind.
       * cbn. apply pathsinv0, lunax.
-      * intros x xs e.
-        rewrite Lists.concatenateStep.
+      * intros x xs e. rewrite Lists.concatenateStep.
         rewrite product_list_mon_step. rewrite product_list_mon_step.
         rewrite assocax. apply maponpaths. exact e.
     + apply maponpaths. exact ind.
