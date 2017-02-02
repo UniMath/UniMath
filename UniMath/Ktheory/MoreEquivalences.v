@@ -21,7 +21,7 @@ Abort.
 
 Definition Equivalence_to_invweq X Y : Equivalence X Y -> Y ≃ X.
 Proof. intros ? ? [f [g [p [q h]]]]. exists g. unfold isweq. intro x.
-       exists (f x,,q x). intros [y []]. apply (total2_paths2 (!p y)).
+       exists (f x,,q x). intros [y []]. apply (two_arg_paths_f (!p y)).
        admit.
 Abort.
 

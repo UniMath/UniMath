@@ -270,7 +270,7 @@ Proof.
     { abstract (
           intros F G q; simpl in F, G; simpl;
           apply funextsec; intro w;
-          unshelve refine (total2_paths2 _ _);
+          unshelve refine (two_arg_paths_f (f := tpair _) _ _);
           [ apply funextsec; intro b;
             unfold φ_map, φ_map_1, θ_map_1; simpl;
             unfold θ_map_1; simpl;
@@ -302,7 +302,7 @@ Proof.
               | intro G;
                 simpl;
                 apply funextsec; intro w;
-                unshelve refine (total2_paths2 _ _);
+                unshelve refine (two_arg_paths_f (f := tpair _) _ _);
                 [ unfold φ_map, φ_map_1; simpl;
                   apply funextsec; intro b;
                   apply pathsinv0, nattrans_nattrans_arrow_assoc

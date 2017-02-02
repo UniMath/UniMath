@@ -41,7 +41,7 @@ Ltac eqn_logic :=
           try apply homset_property;
           try apply isasetunit;
           try apply isapropunit;
-          try refine (total2_paths2 _ _);
+          try refine (two_arg_paths_f _ _);
           try refine (total2_paths _ _);
           try refine (nat_trans_ax _ _ _ _);
           try refine (! nat_trans_ax _ _ _ _);

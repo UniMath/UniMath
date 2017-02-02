@@ -788,8 +788,23 @@ Proof.
     (tpair (fun x => B x) a1 b1) (tpair (fun x => B x) a2 b2) p q).
 Defined.
 
+Lemma two_arg_paths_f {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 : A} {b1 : B a1}
+      {a2 : A} {b2 : B a2} (p : a1 = a2)
+      (q : transportf B p b1 = b2) : f a1 b1 = f a2 b2.
+Proof.
+  intros. induction p. induction q. reflexivity.
+Defined.
+
+Lemma two_arg_paths_b {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 : A} {b1 : B a1}
+  {a2 : A} {b2 : B a2} (p : a1 = a2)
+  (q : b1 = transportb B p b2) : f a1 b1 = f a2 b2.
+Proof.
+  intros. induction p. change _ with (b1 = b2) in q. induction q. reflexivity.
+Defined.
+
 Definition pair_path_in2 {X : UU} (P : X -> UU) {x : X} {p q : P x} (e : p = q) :
   x,,p = x,,q.
+(* this function is probably not needed *)
 Proof.
   intros. now apply maponpaths.
 Defined.
@@ -1462,7 +1477,7 @@ Proof.
   induction ha as [x e].
   unfold hc. unfold hfiberpair. unfold isconnectedunit.
   simpl.
-  apply (fun q => total2_paths2 (h x) q).
+  apply (fun q => two_arg_paths_f (h x) q).
   apply ifcontrthenunitl0.
 Defined.
 
@@ -1494,7 +1509,7 @@ Proof.
   unfold hfibersgftog.
   unfold hfiberpair.
   simpl.
-  apply (total2_paths2 eint).
+  apply (two_arg_paths_f eint).
   induction eint.
   apply idpath.
 Defined.
@@ -1671,7 +1686,7 @@ Proof.
   - intro p.
     apply total2_fiber_paths.
   - intros [p q]. simpl in *.
-    apply (total2_paths2 (base_total2_paths q)).
+    apply (two_arg_paths_f (base_total2_paths q)).
     apply transportf_fiber_total2_paths.
 Defined.
 

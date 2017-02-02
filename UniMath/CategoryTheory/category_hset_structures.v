@@ -791,7 +791,7 @@ use mk_nat_trans.
   * abstract (now apply funextsec).
 + intros [g Hg] [h Hh] [w Hw].
   apply (eq_mor_slicecat has_homsets_HSET), funextsec; intro x1.
-  apply (total2_paths2 (!toforallpaths _ _ _ Hw x1)), funextsec; intro y.
+  apply (two_arg_paths_f (!toforallpaths _ _ _ Hw x1)), funextsec; intro y.
   repeat (apply subtypeEquality; [intros x; apply setproperty|]); cbn in *.
   now induction (! toforallpaths _ _ (λ x : g, Hh (w x)) _ _).
 Defined.

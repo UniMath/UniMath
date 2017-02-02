@@ -272,12 +272,12 @@ Definition pair_path_in2_comp1 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) :
 Proof. intros. destruct e. reflexivity. Defined.
 
 Definition total2_paths2_comp1 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
-           (p:x = x') (q:p#y = y') : ap pr1 (total2_paths2 p q) = p.
+           (p:x = x') (q:p#y = y') : ap pr1 (two_arg_paths_f (f := tpair Y) p q) = p.
 Proof. intros. destruct p. destruct q. reflexivity. Defined.
 
 Definition total2_paths2_comp2 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
            (p:x = x') (q:p#y = y') :
-  ! app (total2_paths2_comp1 p q) y @ fiber_paths (total2_paths2 p q) = q.
+  ! app (total2_paths2_comp1 p q) y @ fiber_paths (two_arg_paths_f p q) = q.
 Proof. intros. destruct p, q. reflexivity. Defined.
 
 (** ** Maps from pair types *)

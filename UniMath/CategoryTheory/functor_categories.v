@@ -189,11 +189,11 @@ Proof.
   apply (invmaponpathsweq (total2_paths_equiv _ _ _ )); simpl.
   assert (H' : base_paths _ _ p = base_paths _ _ q).
   { apply (invmaponpathsweq (total2_paths_equiv _ _ _ )); simpl.
-    apply (total2_paths2 H), uip.
+    apply (two_arg_paths_f H), uip.
     apply impred_isaset; intro a; apply impred_isaset; intro b; apply impred_isaset; intro f.
     apply hs.
   }
-  apply (total2_paths2 H'), uip, isasetaprop, isaprop_is_functor, hs.
+  apply (two_arg_paths_f H'), uip, isasetaprop, isaprop_is_functor, hs.
 Defined.
 
 Definition functor_id {C C' : precategory_data}(F : functor C C'):

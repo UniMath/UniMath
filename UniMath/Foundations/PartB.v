@@ -576,7 +576,7 @@ Proof.
   intros. simple refine (weqgradth _ _ _ _).
   + intros [x [t e]]. exact (x,,!e).
   + intros [x e]. exact (x,,tt,,!e).
-  + intros [x [t e]]. apply maponpaths. simple refine (total2_paths2 _ _).
+  + intros [x [t e]]. apply maponpaths. simple refine (two_arg_paths_f _ _).
     * apply isapropunit.
     * simpl. induction e. rewrite pathsinv0inv0. induction t. reflexivity.
   + intros [x e]. apply maponpaths. apply pathsinv0inv0.
@@ -823,13 +823,13 @@ Defined.
 Definition subtypePairEquality {X : UU} {P : X -> UU} (is : isPredicate P)
            {x y : X} {p : P x} {q : P y} :
   x = y -> (x,,p) = (y,,q).
-Proof. intros X P is x y p q e. apply (total2_paths2 e). apply is. Defined.
+Proof. intros X P is x y p q e. apply (two_arg_paths_f e). apply is. Defined.
 
 Definition subtypePairEquality' {X : UU} {P : X -> UU}
            {x y : X} {p : P x} {q : P y} :
   x = y -> isaprop(P y) -> (x,,p) = (y,,q).
 (* This variant of subtypePairEquality is never needed. *)
-Proof. intros X P x y p q e is. apply (total2_paths2 e). apply is. Defined.
+Proof. intros X P x y p q e is. apply (two_arg_paths_f e). apply is. Defined.
 
 Theorem samehfibers {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (is1 : isincl g)
         (y : Y) :  hfiber f y ≃ hfiber (g ∘ f) (g y).

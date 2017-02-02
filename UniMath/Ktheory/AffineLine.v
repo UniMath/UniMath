@@ -420,7 +420,7 @@ Definition makeGuidedHomotopy_verticalPath {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y=f t0)
            {y':Y} (p:y' = y) :
   makeGuidedHomotopy f s t0 (p@h0) = makeGuidedHomotopy f s t0 h0.
-Proof. intros. apply (total2_paths2 p). destruct p. reflexivity. Defined.
+Proof. intros. apply (two_arg_paths_f p). destruct p. reflexivity. Defined.
 
 Definition makeGuidedHomotopy_verticalPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y=f t0)

@@ -213,9 +213,9 @@ Lemma eq_in_sub_precategory2 (C : precategory)(C':sub_precategories C)
       (tpair (fun f => sub_precategory_predicate_morphisms _ _ _ f) g pg).
 Proof.
   intro H.
-  apply (total2_paths2 H).
+  apply (two_arg_paths_f H).
   destruct H.
-  apply (total2_paths2 (idpath _ )).
+  apply (two_arg_paths_f (idpath _ )).
 *)
 
 Definition is_precategory_sub_category (C : precategory)(C':sub_precategories C) :
@@ -434,7 +434,7 @@ Proof.
   destruct F as [F Fax].
   simpl.
   destruct F as [Fob Fmor]; simpl in *.
-  apply (total2_paths2 (H)).
+  apply (two_arg_paths_f (H)).
   unfold functor_full_img_factorization_ob in H.
   simpl in *.
   apply dep_funextfun.
