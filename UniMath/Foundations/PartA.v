@@ -766,31 +766,15 @@ Proof.
   induction s as [a b].
   induction s' as [a' b']; simpl in *.
   induction p.
-  induction (!q).
+  change _ with (b=b') in q.
+  induction q.
   reflexivity.
-Defined.
-
-Lemma total2_paths2 {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1}
-      {a2 : A} {b2 : B a2} (p : a1 = a2)
-      (q : transportf B p b1 = b2) : a1,,b1 = a2,,b2.
-Proof.
-  intros.
-  apply (@total2_paths _ _ (tpair (fun x => B x) a1 b1)
-                       (tpair (fun x => B x) a2 b2) p q).
-Defined.
-
-Lemma total2_paths2_b {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1}
-  {a2 : A} {b2 : B a2} (p : a1 = a2)
-  (q : b1 = transportb B p b2) : a1,,b1 = a2,,b2.
-Proof.
-  intros.
-  apply (@total2_paths_b _ _
-    (tpair (fun x => B x) a1 b1) (tpair (fun x => B x) a2 b2) p q).
 Defined.
 
 Lemma two_arg_paths_f {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 : A} {b1 : B a1}
       {a2 : A} {b2 : B a2} (p : a1 = a2)
       (q : transportf B p b1 = b2) : f a1 b1 = f a2 b2.
+(* This lemma replaced [total2_paths2], which is the special case f := tpair _ *)
 Proof.
   intros. induction p. induction q. reflexivity.
 Defined.
@@ -798,6 +782,7 @@ Defined.
 Lemma two_arg_paths_b {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 : A} {b1 : B a1}
   {a2 : A} {b2 : B a2} (p : a1 = a2)
   (q : b1 = transportb B p b2) : f a1 b1 = f a2 b2.
+(* This lemma replaced [total2_paths2_b], which is the special case f := tpair _ *)
 Proof.
   intros. induction p. change _ with (b1 = b2) in q. induction q. reflexivity.
 Defined.

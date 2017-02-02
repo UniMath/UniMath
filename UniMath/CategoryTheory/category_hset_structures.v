@@ -905,7 +905,7 @@ mkpair.
       abstract (now apply funextsec).
     * abstract (intros Y Z F; apply (eq_mor_slicecat has_homsets_HSET);
                 apply funextsec; intro y;
-                use total2_paths2; [apply (toforallpaths _ _ _ (!pr2 F) y)|];
+                use (two_arg_paths_f (f:=tpair _)); [apply (toforallpaths _ _ _ (!pr2 F) y)|];
                 cbn in *; induction (toforallpaths _ _ _ _ _);
                 now rewrite idpath_transportf).
   + use mk_nat_trans.
