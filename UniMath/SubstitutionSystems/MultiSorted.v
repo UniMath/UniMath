@@ -342,7 +342,7 @@ Defined.
 
 (** The functor obtained from a multisorted binding signature is omega-cocontinuous *)
 Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig)
-  (Heq : isdeceq (ops M)) (H : Colims_of_shape nat_graph SET_over_sort) :
+  (H : Colims_of_shape nat_graph SET_over_sort) :
   is_omega_cocont (MultiSortedSigToFunctor M).
 Proof.
 apply is_omega_cocont_coproduct_of_functors; try apply homset_property.
