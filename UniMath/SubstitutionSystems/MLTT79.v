@@ -115,16 +115,16 @@ Local Notation "[0,0,2]" := (0 :: 0 :: 2 :: []).
 Local Notation "[0,1,1]" := (0 :: 1 :: 1 :: []).
 
 Definition PiSig : BindingSig :=
-  mkBindingSig (isdeceqstn 3) (three_rec [0,1] [1] [0,0]).
+  mkBindingSig (isasetstn 3) (three_rec [0,1] [1] [0,0]).
 
 Definition SigmaSig : BindingSig :=
-  mkBindingSig (isdeceqstn 3) (three_rec [0,1] [0,0] [0,2]).
+  mkBindingSig (isasetstn 3) (three_rec [0,1] [0,0] [0,2]).
 
 Definition SumSig : BindingSig :=
-  mkBindingSig (isdeceqstn 4) (four_rec [0,0] [0] [0] [0,1,1]).
+  mkBindingSig (isasetstn 4) (four_rec [0,0] [0] [0] [0,1,1]).
 
 Definition IdSig : BindingSig :=
-  mkBindingSig (isdeceqstn 3) (three_rec [0,0,0] [] [0,0]).
+  mkBindingSig (isasetstn 3) (three_rec [0,0,0] [] [0,0]).
 
 (** Define the arity of the eliminators for Fin by recursion *)
 Definition FinSigElim (n : nat) : list nat.
@@ -159,32 +159,49 @@ induction p as [_|p].
   + apply (FinSigElim n).
 Defined.
 
-Lemma isdeceqFinSig : isdeceq (∑ n, unit ⨿ (stn n ⨿ unit)).
+Lemma isasetFinSig : isaset (∑ n, unit ⨿ (stn n ⨿ unit)).
 Proof.
-intros [n p] [m q].
-induction (isdeceqnat n m) as [h|h].
-- induction h.
-   + destruct (isdeceqcoprod isdecequnit
-                (isdeceqcoprod (isdeceqstn n) isdecequnit) p q) as [Hpq|Hpq].
-     * now rewrite Hpq; apply inl.
-     * apply inr; intro H.
-       assert (Hid : maponpaths pr1 H = idpath _).
-       { apply isasetnat. }
-       generalize (fiber_paths H); unfold base_paths.
-       rewrite Hid, idpath_transportf; intro H'.
-       apply (Hpq H').
-- apply inr; intro H; apply (h (maponpaths pr1 H)).
+  apply isaset_total2.
+  - apply isasetnat.
+  - intros. repeat apply isasetcoprod; try apply isasetunit.
+    apply isasetstn.
+Qed.
+
+(* General lemma. TODO: upstream to general lemmas on [isdeceq] *)
+Lemma isdeceq_total2 {X : UU} {P : X -> UU}
+  : isdeceq X -> (∏ x : X, isdeceq (P x)) → isdeceq (∑ x : X, P x).
+Proof.
+  intros HX HP.
+  intros xp yq.
+  destruct (HX (pr1 xp) (pr1 yq)) as [e_xy | ne_xy].
+  - destruct ((HP _) (transportf _ e_xy (pr2 xp)) (pr2 yq)) as [e_pq | ne_pq].
+    + apply inl. exact (total2_paths e_xy e_pq).
+    + apply inr. intro e_xpyq. apply ne_pq.
+      set (e_pq := fiber_paths e_xpyq).
+      refine (_ @ e_pq).
+      refine (maponpaths (fun e => transportf _ e _) _).
+  (* NOTE: want [maponpaths_2] from the [TypeTheory] library here. Upstream it to [Foundations], perhaps? *)
+      apply isasetifdeceq, HX.
+  - apply inr. intros e_xypq. apply ne_xy, base_paths, e_xypq.
 Defined.
 
-Definition FinSig : BindingSig := mkBindingSig isdeceqFinSig FinSigFun.
+Lemma isdeceqFinSig : isdeceq (∑ n, unit ⨿ (stn n ⨿ unit)).
+Proof.
+  apply isdeceq_total2.
+  - apply isdeceqnat.
+  - intros. repeat apply isdeceqcoprod; try apply isdecequnit.
+    apply isdeceqstn.
+Defined.
+
+Definition FinSig : BindingSig := mkBindingSig isasetFinSig FinSigFun.
 
 Definition NatSig : BindingSig :=
-  mkBindingSig (isdeceqstn 4) (four_rec [] [] [0] [0,0,2]).
+  mkBindingSig (isasetstn 4) (four_rec [] [] [0] [0,0,2]).
 
 Definition WSig : BindingSig :=
-  mkBindingSig (isdeceqstn 3) (three_rec [0,1] [0,0] [0,3]).
+  mkBindingSig (isasetstn 3) (three_rec [0,1] [0,0] [0,3]).
 
-Definition USig : BindingSig := mkBindingSig isdeceqnat (fun _ => []).
+Definition USig : BindingSig := mkBindingSig isasetnat (fun _ => []).
 
 Let SigHSET := Signature HSET has_homsets_HSET.
 
