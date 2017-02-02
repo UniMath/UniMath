@@ -129,6 +129,19 @@ Section BinaryOperations.
     - simpl. reflexivity.
   Defined.
 
+  Definition product_fun_append (lunax : islunit op unit) {m} (x:stn m -> X) (y:X) :
+    product_fun (append_fun x y) = op (product_fun x) y.
+  Proof.
+    intros lunax. intros.
+    rewrite (product_fun_step lunax).
+    rewrite append_fun_compute_2.
+    apply (maponpaths (λ x, op (product_fun x) y)).
+    apply funextfun; intro i.
+    unfold funcomp.
+    rewrite append_fun_compute_1.
+    reflexivity.
+  Defined.
+
   (* Definition product_fun_step (lunax : islunit op unit) {m} (x:stn(S m) -> X) : *)
   (*   product_fun x = op (product_fun (x ∘ dni_lastelement)) (x lastelement). *)
 
@@ -234,29 +247,28 @@ Proof.
   intros M. unfold isAssociative_seq; intros. induction x as [n x].
   induction n as [|n IHn].
   { reflexivity. }
-  { change (flatten _) with (flatten ((n,,x): NonemptySequence _)).
-    rewrite flattenStep.
-    change (lastValue _) with (x lastelement).
-    unfold prodprod_seq. simpl.
-    unfold prodprod_fun.
-    rewrite (product_fun_step _ _ (lunax M)).
-    generalize (x lastelement) as z; intro z.
-    unfold product_seq.
-    induction z as [m z].
-    induction m as [|m IHm].
-    { simpl. rewrite runax.
-      simple refine (_ @ IHn (x ∘ dni_lastelement)).
-      rewrite concatenate'_r0.
-      now apply (two_arg_paths_b _ _ _ _ _ (natplusr0 (stnsum (length ∘ (x ∘ dni_lastelement))))).
-      }
-(*     { rewrite product_seq_mon_step, concatenateStep. *)
-(*       generalize (z lastelement) as w; generalize (z ∘ dni _ lastelement) as v; intros. *)
-(*       rewrite <- assocax. *)
-(*       rewrite product_seq_mon_append. *)
-(*       apply (maponpaths (λ u, u*w)). *)
-(*       apply IHm. } } *)
-(* Defined. *)
-Abort.
+  change (flatten _) with (flatten ((n,,x): NonemptySequence _)).
+  rewrite flattenStep.
+  change (lastValue _) with (x lastelement).
+  unfold prodprod_seq. simpl.
+  unfold prodprod_fun.
+  rewrite (product_fun_step _ _ (lunax M)).
+  generalize (x lastelement) as z; intro z.
+  unfold product_seq.
+  induction z as [m z].
+  induction m as [|m IHm].
+  { simpl. rewrite runax.
+    simple refine (_ @ IHn (x ∘ dni_lastelement)).
+    rewrite concatenate'_r0.
+    now apply (two_arg_paths_b _ _ _ _ _ (natplusr0 (stnsum (length ∘ (x ∘ dni_lastelement))))). }
+  change (length (S m,, z)) with (S m). change (sequenceToFunction (S m,,z)) with z.
+  rewrite (product_fun_step _ _ (lunax M)). rewrite concatenateStep.
+  generalize (z lastelement) as w; intros.
+  rewrite <- assocax. unfold append.
+  Opaque product_fun. simpl. Transparent product_fun.
+  rewrite (product_fun_append _ _ (lunax M)).
+  apply (maponpaths (λ u, u*w)). simpl in IHm. apply IHm.
+Defined.
 
 (** commutativity *)
 
