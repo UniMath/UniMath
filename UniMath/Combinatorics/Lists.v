@@ -244,8 +244,7 @@ Proof.
       induction i as [|i IHi].
       * unfold nth', functionToList'; simpl. apply maponpaths. now apply subtypeEquality_prop.
       * change (hProptoType (i<n)) in I.
-        simple refine (_ @ N _ _).
-        use nth'_step.
+        exact (nth'_step _ (functionToList' _ _) _ _ @ N _ _).
 Defined.
 
 Corollary weqlistfun {A} n : weq (iterprod n A) (stn n -> A).
