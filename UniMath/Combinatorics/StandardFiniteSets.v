@@ -433,9 +433,7 @@ assert ( efg : ∏ b : _ , paths ( f ( g b ) ) b ) . intro b .  unfold g .  dest
 apply ( gradth _ _ egf efg ) . Defined .
 
 Lemma isinjstntonat n : isInjectiveFunction (pr1 : stnset n -> natset).
-Proof. intros ? i j. apply (invmaponpathsincl pr1). apply isinclstntonat. Defined.
-
-
+Proof. intros ? i j. apply subtypeEquality_prop. Defined.
 
 (** ***  Weak equivalence between the coproduct of [ stn n ] and [ stn m ] and [ stn ( n + m ) ] *)
 
