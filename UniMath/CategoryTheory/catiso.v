@@ -222,7 +222,7 @@ Lemma transport_id {A0 B0 : UU} (p0 : A0 = B0)
   : forall a : A0,
     (transportb (X := total2 (fun T => T -> T -> UU))
                 (fun T => forall a, (pr2 T) a a)
-                (two_arg_paths_b (f:=tpair _) p0 p1) idB) a
+                (total2_paths2_b p0 p1) idB) a
   = (eqweqmap (  (transport_mor B1 p0 _ _)
                @ !weqtoforallpaths _ _ _ (weqtoforallpaths _ _ _ p1 a) a))
     (idB (eqweqmap p0 a)).
@@ -254,8 +254,7 @@ Lemma catiso_to_precategory_id_path {A B : precategory}
   : forall a : A,
     (transportb (X := total2 (fun T => T -> T -> UU))
                 (fun T => forall a, (pr2 T) a a)
-                (two_arg_paths_b (f:=tpair _)
-                                 (catiso_to_precategory_ob_path F)
+                (total2_paths2_b (catiso_to_precategory_ob_path F)
                                  (catiso_to_precategory_mor_path_funext F))
      identity) a
    = identity a.
@@ -328,7 +327,7 @@ Lemma transport_comp {A0 B0 : UU} (p0 : A0 = B0)
   : forall a a' a'' : A0,
       (transportb (X := total2 (fun T => T -> T -> UU))
                   (fun T => forall a b c, (pr2 T) a b -> (pr2 T) b c -> (pr2 T) a c)
-                  (two_arg_paths_b (f:=tpair _) p0 p1) compB)
+                  (total2_paths2_b p0 p1) compB)
         a a' a''
     = transport_comp_target p0 A1 B1 p1 a a' a''
         (compB (eqweqmap p0 a) (eqweqmap p0 a') (eqweqmap p0 a'')).
@@ -360,8 +359,7 @@ Lemma catiso_to_precategory_comp_path {A B : precategory}
   : forall a a' a'' : A,
     (transportb (X := total2 (fun T => T -> T -> UU))
                 (fun T => forall a b c : (pr1 T), (pr2 T) a b -> (pr2 T) b c -> (pr2 T) a c)
-                (two_arg_paths_b (f:=tpair _)
-                                 (catiso_to_precategory_ob_path F)
+                (total2_paths2_b (catiso_to_precategory_ob_path F)
                                  (catiso_to_precategory_mor_path_funext F))
      (@compose B)) a a' a''
    = (@compose A a a' a'').

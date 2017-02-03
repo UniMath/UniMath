@@ -93,7 +93,7 @@ Proof. intros.
        apply Equivalence_to_weq.
        simple refine (makeEquivalence _ _ _ _ _ _ _).
        { exact pr1. } { intro x. exact (x,,sec x). } { intro x. reflexivity. }
-       { intros [x p]. simpl. apply pair_path_in2. apply irr. }
+       { intros [x p]. simpl. apply maponpaths. apply irr. }
        { intros [x p]. simpl. apply pair_path_in2_comp1. } Defined.
 
 Definition invweqpr1_irr_sec {X} {P:X->Type}
@@ -104,7 +104,7 @@ Proof. intros.
        apply Equivalence_to_weq.
        simple refine (makeEquivalence _ _ _ _ _ _ _).
        { intro x. exact (x,,sec x). } { exact pr1. }
-       { intros [x p]. simpl. apply pair_path_in2. apply irr. }
+       { intros [x p]. simpl. apply maponpaths. apply irr. }
        { intro x. reflexivity. }
        { intro x'. simpl. rewrite (irrel_paths (irr _) (irr _ _ _) (idpath (sec x'))).
          reflexivity. } Defined.
@@ -122,7 +122,7 @@ Definition homotinvweqweq'_comp {X} {P:X->Type}
   let w' := invweq f x in
   @identity (w' = w)
             (homotinvweqweq' irr sec w)
-            (pair_path_in2 P (irr x (sec x) (pr2 w))).
+            (maponpaths _ (irr x (sec x) (pr2 w))).
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
@@ -134,7 +134,7 @@ Definition homotinvweqweq_comp {X} {P:X->Type}
   let w' := invweq f x in
   @identity (w' = w)
             (homotinvweqweq f w)
-            (pair_path_in2 P (irr x (sec x) (pr2 w))).
+            (maponpaths _ (irr x (sec x) (pr2 w))).
 Proof.
   try reflexivity.              (* this worked above but doesn't work here *)
 Abort.
@@ -148,7 +148,7 @@ Definition homotinvweqweq_comp_3 {X} {P:X->Type}
   let w' := g x in
   @identity (w' = w)
             (homotweqinvweq g w)    (* !! *)
-            (pair_path_in2 P (irr x (sec x) (pr2 w))).
+            (maponpaths _ (irr x (sec x) (pr2 w))).
 Proof. reflexivity. Defined.
 
 Definition loop_correspondence {T X Y}

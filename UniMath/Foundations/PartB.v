@@ -804,7 +804,7 @@ Defined.
 Corollary subtypeEquality' {A : UU} {B : A -> UU}
    {s s' : total2 (fun x => B x)} : pr1 s = pr1 s' -> isaprop (B (pr1 s')) -> s = s'.
 (* This variant of subtypeEquality is not often needed. *)
-Proof. intros ? ? ? ? e is. apply (total2_paths e). apply is. Defined.
+Proof. intros ? ? ? ? e is. apply (total2_paths_f e). apply is. Defined.
 
 (* This corollary of subtypeEquality is used for categories. *)
 Corollary unique_exists {A : UU} {B : A -> UU} (x : A) (b : B x)
@@ -956,7 +956,7 @@ Proof.
   unshelve refine (_,,_).
   - exists (pr1 (sur y)). exact (pr2 (sur y)).
   - intro w.
-    unshelve refine (total2_paths _ _).
+    unshelve refine (total2_paths_f _ _).
     + simpl. apply inj. intermediate_path y.
       * exact (pr2 w).
       * exact (! pr2 (sur y)).

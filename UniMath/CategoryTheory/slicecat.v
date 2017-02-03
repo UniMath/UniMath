@@ -143,7 +143,7 @@ Qed.
 
 Lemma eq_mor_slicecat (af bg : C / x) (f g : C/x⟦af,bg⟧) : pr1 f = pr1 g -> f = g.
 Proof.
-now intro heq; apply (total2_paths heq); apply hsC.
+now intro heq; apply (total2_paths_f heq); apply hsC.
 Qed.
 
 Lemma eq_iso_slicecat (af bg : C / x) (f g : iso af bg) : pr1 f = pr1 g -> f = g.

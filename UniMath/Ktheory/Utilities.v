@@ -268,7 +268,7 @@ Proof. intros. destruct p. destruct q. apply idpath. Defined.
 (** ** Projections from pair types *)
 
 Definition pair_path_in2_comp1 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) :
-  ap pr1 (pair_path_in2 P e) = idpath x.
+  ap pr1 (maponpaths (tpair P _) e) = idpath x.
 Proof. intros. destruct e. reflexivity. Defined.
 
 Definition total2_paths2_comp1 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}

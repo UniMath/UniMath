@@ -431,7 +431,7 @@ Proof. intros. apply total2_paths2_comp1. Defined.
 Definition makeGuidedHomotopy_transPath {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y=f t0) :
   makeGuidedHomotopy f s t0 h0 = makeGuidedHomotopy f s (one+t0) (h0 @ s t0).
-Proof. intros. apply pair_path_in2.
+Proof. intros. apply (maponpaths (tpair _ _)).
        exact (ℤTorsorRecursion_transition_inv
                 _ (fun t => weq_pathscomp0r y (s t)) _ _). Defined.
 

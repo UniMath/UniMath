@@ -882,7 +882,7 @@ Lemma eqweqmap_pathscomp0 {A B C : UU} (p : A = B) (q : B = C)
 Proof.
   induction p.
   induction q.
-  eapply total2_paths.
+  eapply total2_paths_f.
     apply isapropisweq.
     Unshelve.
   reflexivity.
@@ -892,7 +892,7 @@ Lemma inv_idweq_is_idweq {A : UU} :
   idweq A = invweq (idweq A).
 Proof.
   intros A.
-  eapply total2_paths.
+  eapply total2_paths_f.
   apply isapropisweq.
   Unshelve.
   reflexivity.

@@ -199,7 +199,7 @@ Proof.
   intro H.
   destruct f as [f p].
   destruct g as [g p'].
-  apply (total2_paths H).
+  apply (total2_paths_f H).
   apply proofirrelevance.
   apply pr2.
 Qed.

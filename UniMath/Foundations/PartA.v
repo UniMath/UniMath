@@ -746,16 +746,41 @@ Proof.
   apply maponpaths; assumption.
 Defined.
 
-Lemma total2_paths {A : UU} {B : A -> UU} {s s' : ∑ x, B x}
+Lemma two_arg_paths {A B C:UU} {f : A -> B -> C} {a1 b1 a2 b2} (p : a1 = a2)
+      (q : b1 = b2) : f a1 b1 = f a2 b2.
+Proof.
+  intros. induction p. induction q. reflexivity.
+Defined.
+
+Lemma two_arg_paths_f {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 b1 a2  b2}
+      (p : a1 = a2) (q : transportf B p b1 = b2) : f a1 b1 = f a2 b2.
+(* This lemma generalizes [total2_paths2_f], which is the special case f := tpair _ *)
+Proof.
+  intros. induction p. induction q. reflexivity.
+Defined.
+
+Lemma two_arg_paths_b {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 b1 a2 b2}
+      (p : a1 = a2) (q : b1 = transportb B p b2) : f a1 b1 = f a2 b2.
+(* This lemma generalizes [total2_paths2_b], which is the special case f := tpair _ *)
+Proof.
+  intros. induction p. change _ with (b1 = b2) in q. induction q. reflexivity.
+Defined.
+
+Lemma dirprod_paths {A : UU} {B :  UU} {s s' : A × B}
+      (p : pr1 s = pr1 s') (q : pr2 s = pr2 s') : s = s'.
+Proof.
+  intros.
+  induction s as [a b]; induction s' as [a' b']; simpl in *.
+  exact (two_arg_paths p q).
+Defined.
+
+Lemma total2_paths_f {A : UU} {B : A -> UU} {s s' : ∑ x, B x}
       (p : pr1 s = pr1 s')
       (q : transportf B p (pr2 s) = pr2 s') : s = s'.
 Proof.
   intros.
-  induction s as [a b].
-  induction s' as [a' b']; simpl in *.
-  induction p.
-  induction q.
-  apply idpath.
+  induction s as [a b]; induction s' as [a' b']; simpl in *.
+  exact (two_arg_paths_f p q).
 Defined.
 
 Lemma total2_paths_b {A : UU} {B : A -> UU} {s s' : ∑ x, B x}
@@ -763,33 +788,35 @@ Lemma total2_paths_b {A : UU} {B : A -> UU} {s s' : ∑ x, B x}
       (q : pr2 s = transportb B p (pr2 s')) : s = s'.
 Proof.
   intros.
-  induction s as [a b].
-  induction s' as [a' b']; simpl in *.
-  induction p.
-  change _ with (b=b') in q.
-  induction q.
-  reflexivity.
+  induction s as [a b]; induction s' as [a' b']; simpl in *.
+  exact (two_arg_paths_b p q).
 Defined.
 
-Lemma two_arg_paths_f {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 : A} {b1 : B a1}
+Lemma total2_paths2 {A : UU} {B : UU} {a1 a2:A} {b1 b2:B}
+      (p : a1 = a2) (q : b1 = b2) : a1,,b1 = a2,,b2.
+Proof.
+  intros. exact (two_arg_paths p q).
+Defined.
+
+Lemma total2_paths2_f {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1}
       {a2 : A} {b2 : B a2} (p : a1 = a2)
-      (q : transportf B p b1 = b2) : f a1 b1 = f a2 b2.
-(* This lemma replaced [total2_paths2], which is the special case f := tpair _ *)
+      (q : transportf B p b1 = b2) : a1,,b1 = a2,,b2.
 Proof.
-  intros. induction p. induction q. reflexivity.
+  intros. exact (two_arg_paths_f p q).
 Defined.
 
-Lemma two_arg_paths_b {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 : A} {b1 : B a1}
+Lemma total2_paths2_b {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1}
   {a2 : A} {b2 : B a2} (p : a1 = a2)
-  (q : b1 = transportb B p b2) : f a1 b1 = f a2 b2.
-(* This lemma replaced [total2_paths2_b], which is the special case f := tpair _ *)
+  (q : b1 = transportb B p b2) : a1,,b1 = a2,,b2.
 Proof.
-  intros. induction p. change _ with (b1 = b2) in q. induction q. reflexivity.
+  intros. exact (two_arg_paths_b p q).
 Defined.
 
 Definition pair_path_in2 {X : UU} (P : X -> UU) {x : X} {p q : P x} (e : p = q) :
   x,,p = x,,q.
-(* this function is probably not needed *)
+(* this function can often replaced by [maponpaths _] or by [maponpaths (tpair _ _)],
+   except when the pairs in the goal have not been simplified enough to make the
+   equality of their first parts evident, in which case this can be useful *)
 Proof.
   intros. now apply maponpaths.
 Defined.
@@ -802,7 +829,7 @@ Proof.
 Defined.
 
 Lemma total2_fiber_paths {A : UU} {B : A -> UU} {x y : ∑ x, B x} (p : x = y) :
-  total2_paths  _ (fiber_paths p) = p.
+  total2_paths_f  _ (fiber_paths p) = p.
 Proof.
   induction p.
   induction x.
@@ -811,7 +838,7 @@ Defined.
 
 Lemma base_total2_paths {A : UU} {B : A -> UU} {x y : ∑ x, B x}
       {p : pr1 x = pr1 y} (q : transportf _ p (pr2 x) = pr2 y) :
-  (base_paths _ _ (total2_paths _ q)) = p.
+  (base_paths _ _ (total2_paths_f _ q)) = p.
 Proof.
   induction x as [x H].
   induction y as [y K].
@@ -826,7 +853,7 @@ Lemma transportf_fiber_total2_paths {A : UU} (B : A -> UU)
       (x y : ∑ x, B x)
       (p : pr1 x = pr1 y) (q : transportf _ p (pr2 x) = pr2 y) :
   transportf (fun p' : pr1 x = pr1 y => transportf _ p' (pr2 x) = pr2 y)
-             (base_total2_paths q)  (fiber_paths (total2_paths _ q)) = q.
+             (base_total2_paths q)  (fiber_paths (total2_paths_f _ q)) = q.
 Proof.
   induction x as [x H].
   induction y as [y K].
@@ -1667,7 +1694,7 @@ Proof.
                   (base_paths _ _ r) (fiber_paths r)).
   apply (gradth _
                 (fun (pq : ∑ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y) =>
-                   total2_paths (pr1 pq) (pr2 pq))).
+                   total2_paths_f (pr1 pq) (pr2 pq))).
   - intro p.
     apply total2_fiber_paths.
   - intros [p q]. simpl in *.
@@ -3370,12 +3397,12 @@ Proof.
   intros.
   exists (weqfp_map w P).
   refine (gradth _ (weqfp_invmap w P) _ _).
-  { intros xp. use total2_paths.
+  { intros xp. use total2_paths_f.
     { simpl. apply homotinvweqweq. }
     simpl. rewrite <- weq_transportf_adjointness.
     rewrite transport_f_f. rewrite pathsinv0l.
     reflexivity. }
-  { intros yp. simple refine (total2_paths _ _).
+  { intros yp. simple refine (total2_paths_f _ _).
     { simpl. apply homotweqinvweq. }
     simpl. rewrite transport_f_f. rewrite pathsinv0l. reflexivity. }
 Defined.

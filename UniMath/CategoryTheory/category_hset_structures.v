@@ -766,12 +766,12 @@ use mk_functor.
 + split.
   - intros x; apply (eq_mor_slicecat has_homsets_HSET); simpl.
     apply funextsec; intros [y hy].
-    use total2_paths; [ apply idpath |].
+    use total2_paths_f; [ apply idpath |].
     apply funextsec; intros w; apply subtypeEquality; [|apply idpath].
     now intros XX; apply setproperty.
   - intros x y z g h; apply (eq_mor_slicecat has_homsets_HSET); simpl.
     apply funextsec; intros [w hw].
-    use total2_paths; [ apply idpath |].
+    use total2_paths_f; [ apply idpath |].
     apply funextsec; intros w'.
     apply subtypeEquality; [|apply idpath].
     now intros XX; apply setproperty.
@@ -822,7 +822,7 @@ use mk_are_adjoints.
   + intros x; apply eq_mor_slicecat, funextsec; intro x1.
     now apply subtypeEquality; [intro y; apply setproperty|]; rewrite tppr.
   + intros x; apply eq_mor_slicecat, funextsec; intro x1; simpl.
-    use total2_paths; [apply idpath|]; cbn.
+    use total2_paths_f; [apply idpath|]; cbn.
     apply funextsec; intro y.
     now apply subtypeEquality; [intro z; apply setproperty|]; simpl; rewrite <- tppr.
 Defined.
@@ -872,7 +872,7 @@ use mk_ProductCone.
   - abstract (now intros i; apply eq_mor_slicecat, funextsec).
   - abstract (now intros g; apply impred_isaprop; intro i; apply has_homsets_slice_precat).
   - abstract (simpl; intros [y1 y2] Hy; apply eq_mor_slicecat, funextsec; intro x;
-    use total2_paths; [apply (toforallpaths _ _ _ (!y2) x)|];
+    use total2_paths_f; [apply (toforallpaths _ _ _ (!y2) x)|];
     apply funextsec; intro i; apply subtypeEquality; [intros w; apply setproperty|];
     destruct f as [f Hf]; cbn in *;
     induction (toforallpaths (λ _ : f, X) (λ x0 : f, pr1 (y1 x0)) Hf (! y2) x);
@@ -905,7 +905,7 @@ mkpair.
       abstract (now apply funextsec).
     * abstract (intros Y Z F; apply (eq_mor_slicecat has_homsets_HSET);
                 apply funextsec; intro y;
-                use (two_arg_paths_f (f:=tpair _)); [apply (toforallpaths _ _ _ (!pr2 F) y)|];
+                use total2_paths2_f; [apply (toforallpaths _ _ _ (!pr2 F) y)|];
                 cbn in *; induction (toforallpaths _ _ _ _ _);
                 now rewrite idpath_transportf).
   + use mk_nat_trans.
