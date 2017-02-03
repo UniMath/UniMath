@@ -1,4 +1,5 @@
 Require Export UniMath.Combinatorics.StandardFiniteSets.
+Require Export UniMath.Combinatorics.Lists.
 Unset Automatic Introduction.
 
 (* move upstream *)
@@ -90,6 +91,13 @@ Coercion NonemptySequenceToSequence : NonemptySequence >-> Sequence.
 
 Definition composeSequence {X m n} (f:stn n -> X) (g:stn m -> stn n) : Sequence X
   := functionToSequence (f ∘ g).
+
+Definition weqListSequence {X} : list X ≃ Sequence X.
+Proof.
+  intros.
+  apply weqfibtototal; intro n.
+  apply weqlistfun.
+Defined.
 
 Definition transport_stn m n i (b:i<m) (p:m=n) :
   transportf stn p (i,,b) = (i,,transportf (λ m,i<m) p b).

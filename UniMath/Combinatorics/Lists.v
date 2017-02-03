@@ -95,6 +95,12 @@ Proof.
   exact (nth'' n (pr1 i) (pr2 i) x).
 Defined.
 
+Lemma nth'_step n (x:iterprod (S n) A) i (I:i<n) :
+  nth' (S n) x (stnpair (S n) (S i) I) = nth' n (pr2 x) (stnpair n i I).
+Proof.
+  reflexivity.
+Defined.
+
 Definition nth x : stn(length x) -> A.
 Proof.
   intros i. exact (nth' (length x) (pr2 x) i).
@@ -139,22 +145,6 @@ Proof.
   simpl in *.
   now induction p, q.
 Defined.
-
-Lemma isweqlistfun n : isweq (nth' n).
-Proof.
-  simple refine (gradth _ (functionToList' _) _ _).
-  - intros.
-    induction n as [|n N].
-    + apply isapropunit.
-    + simpl in x.
-      induction x as [a x].
-      apply dirprodEquality.
-      * simpl. reflexivity.
-      * simpl. apply N.
-  - intros.
-
-
-Abort.
 
 End lists.
 
@@ -235,4 +225,30 @@ Proof.
   unfold flatten.
   rewrite list_ind_compute_2.
   reflexivity.
+Defined.
+
+(** weq between lists and functions  *)
+
+Lemma isweqlistfun {A} n : isweq (@nth' A n).
+Proof.
+  simple refine (gradth _ (functionToList' _) _ _).
+  - intros. induction n as [|n N].
+    + apply isapropunit.
+    + simpl in x. induction x as [a x]. apply dirprodEquality.
+      * simpl. reflexivity.
+      * simpl. apply N.
+  - intros. apply funextfun; intro i.
+    induction n as [|n N].
+    + apply fromempty. now apply negstn0.
+    + induction i as [i I].
+      induction i as [|i IHi].
+      * unfold nth', functionToList'; simpl. apply maponpaths. now apply subtypeEquality_prop.
+      * change (hProptoType (i<n)) in I.
+        simple refine (nth'_step n (functionToList' (S n) y) i I @ _).
+        apply N.
+Defined.
+
+Corollary weqlistfun {A} n : weq (iterprod n A) (stn n -> A).
+Proof.
+  exact (weqpair _ (isweqlistfun _)).
 Defined.
