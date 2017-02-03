@@ -165,8 +165,6 @@ Module Test_stn.
 
     Let h  : stn _ <- ∑ x, stnset (f x) := weqstnsum_map f.
     Goal h(●1,,●0) = ●0. reflexivity. Defined.
-    Goal h(●4,,●0) = ●6. reflexivity. Defined.
-    Goal h(●1,,●0) = ●0. reflexivity. Defined.
     Goal h(●2,,●0) = ●1. reflexivity. Defined.
     Goal h(●2,,●1) = ●2. reflexivity. Defined.
     Goal h(●3,,●0) = ●3. reflexivity. Defined.
