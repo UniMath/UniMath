@@ -176,6 +176,13 @@ Proof.
   exact (stnpair _ _ (natlthlehtrans _ _ _ (stnlt i) le)).
 Defined.
 
+Lemma stn_left_compare m n (r : m ≤ m+n) : stn_left' m (m+n) r = stn_left m n.
+Proof.
+  intros.
+  apply funextfun; intro i.
+  now apply subtypeEquality_prop.
+Defined.
+
 (** ** "Boundary" maps [ dni : stn n -> stn ( S n ) ] and their properties . *)
 
 Definition dni ( n : nat ) ( i : stn ( S n ) ) : stn n -> stn ( S n ) .
@@ -571,7 +578,8 @@ Lemma stnsum_left_right m n (f:stn(m+n)->nat) :
 Proof.
   (* why is this proof so obnoxious and fragile? *)
   intros. induction n as [|n IHn].
-  { change (stnsum (f ∘ stn_right m 0)) with 0. rewrite natplusr0. assert (e := ! natplusr0 m).
+  { change (stnsum _) with 0 at 3. rewrite natplusr0.
+    assert (e := ! natplusr0 m).
     rewrite (transport_stnsum e). apply stnsum_eq; intro i. unfold funcomp.
     apply maponpaths. apply pathsinv0. apply stn_left_0. }
   rewrite stnsum_step. assert (e : S (m+n) = m + S n).
@@ -586,6 +594,20 @@ Proof.
       rewrite stn_right_compute. unfold stntonat. induction e.
       rewrite idpath_transportf. rewrite 2? dni_last. reflexivity. } }
   unfold funcomp. apply maponpaths. apply subtypeEquality_prop. induction e. reflexivity.
+Defined.
+
+Corollary stnsum_left_le m n (f:stn(m+n)->nat) : stnsum (f ∘ stn_left m n) ≤ stnsum f.
+Proof.
+  intros. rewrite stnsum_left_right. apply natlehnplusnm.
+Defined.
+
+Corollary stnsum_left_le' {m n} (f:stn n->nat) (r:m≤n) : stnsum (f ∘ stn_left' m n r) ≤ stnsum f.
+Proof.
+  intros. assert (s := minusplusnmm n m r). rewrite (natpluscomm (n-m) m) in s.
+  generalize r f; clear r f. rewrite <- s; clear s.
+  set (k := n-m). generalize k; clear k; intros k r f.
+  induction (natpluscomm m k). rewrite stn_left_compare. rewrite stnsum_left_right.
+  apply natlehnplusnm.
 Defined.
 
 Lemma stnsum_dni {n} (f:stn (S n)->nat) (j:stn (S n)) : stnsum f = stnsum (f ∘ dni n j) + f j.
@@ -714,22 +736,56 @@ Proof.
   apply natplusr0.
 Defined.
 
+Lemma two_arg_paths_f {X:UU} {Y:X->UU} {Z:UU} (f : ∏ x, Y x -> Z)
+      (x x':X) (y:Y x) (y':Y x') (p:x=x') (q:transportf Y p y=y') : f x y = f x' y'.
+Proof.
+  intros. induction p. change _ with (y=y') in q. induction q. reflexivity.
+Defined.
+
+Lemma two_arg_paths_b {X:UU} {Y:X->UU} {Z:UU} (f : ∏ x, Y x -> Z)
+      (x x':X) (y:Y x) (y':Y x') (p:x=x') (q:transportb Y p y'=y) : f x y = f x' y'.
+Proof.
+  intros. induction p. change _ with (y'=y) in q. induction q. reflexivity.
+Defined.
+
 Definition weqstnsum_map { n : nat } (m : stn n -> nat) : (∑ i, stn (m i)) -> stn (stnsum m).
 Proof.
   intros ? ? ij.
-  set (i := pr1 ij).
-  set (j := pr2 ij).
-  set (m1 := m ∘ stn_left' i n (natlthtoleh _ _ (stnlt i))).
-  set (len1 := stnsum m1).
-  exists (len1 + j).
-  induction n as [|n I].
-  - induction (negstn0 i).
-  - set (m' := m ∘ (dni _ (lastelement _))).
-    set (len' := stnsum m').
-    change (stnsum m) with (stnsum m' + m(lastelement _)).
-
-
-Admitted.
+  set (m1 := m ∘ stn_left' (pr1 ij) n (natlthtoleh _ _ (stnlt (pr1 ij)))).
+  exists (stnsum m1 + pr2 ij).
+  induction ij as [i j].
+  induction i as [i I].
+  induction j as [j J].
+  simpl in m1.
+  change (stnsum m1 + j < stnsum m).
+  assert (I' := I : S i ≤ n).
+  assert (s := stnsum_left_le' m I').
+  simple refine (natlthlehtrans _ _ _ _ s).
+  induction n as [|n _].
+  { induction (negnatlthn0 _ I). }
+  assert (t : stnsum m1 + j < stnsum m1 + m (i,,I)).
+  { apply natlthandplusl. exact J. }
+  apply (natlthlehtrans _ _ _ t).
+  assert (K : ∏ m n, m = n -> m ≤ n).
+  { intros a b e. induction e. apply isreflnatleh. }
+  apply K.
+  rewrite stnsum_step.
+  clear j J t.
+  unfold m1 ; clear m1.
+  assert (U : ∏ X Y Z (f:X->Y->Z) x x' y y' (p:x=x') (q:y=y'), f x y = f x' y').
+  (* move upstream *)
+  { intros. now induction p, q. }
+  apply U.
+  + apply stnsum_eq. intro l. induction l as [l L].
+    unfold funcomp. apply maponpaths.
+    apply subtypeEquality_prop.
+    simpl.
+    unfold di.
+    induction (natlthorgeh l i) as [_|P].
+    - reflexivity.
+    - apply fromempty. exact (natgehtonegnatlth _ _ P L).
+  + unfold funcomp. apply maponpaths. apply subtypeEquality_prop. simpl. reflexivity.
+Defined.
 
 Theorem weqstnsum1 { n : nat } (f : stn n -> nat) : (∑ i, stn (f i)) ≃ stn (stnsum f).
 Proof.
