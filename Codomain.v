@@ -36,9 +36,9 @@ Context (C:Precategory).
 
 Definition cod_disp_ob_mor : disp_precat_ob_mor C.
 Proof.
-  exists (fun x : C => Σ y, y --> x).
+  exists (fun x : C => ∑ y, y --> x).
   simpl; intros x y xx yy f. 
-    exact (Σ ff : pr1 xx --> pr1 yy, ff ;; pr2 yy = pr2 xx ;; f).
+    exact (∑ ff : pr1 xx --> pr1 yy, ff ;; pr2 yy = pr2 xx ;; f).
 Defined.
 
 Definition cod_id_comp : disp_precat_id_comp _ cod_disp_ob_mor.

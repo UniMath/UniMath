@@ -30,7 +30,7 @@ Local Set Automatic Introduction.
 
 Definition is_cartesian_functor_over {C C' : Precategory} {F : functor C C'}
            {D : disp_precat C} {D' : disp_precat C'} (FF : functor_over F D D') : UU
-  := Π  {c c' : C} {f : c' --> c}
+  := ∏  {c c' : C} {f : c' --> c}
     {d : D c} {d' : D c'} (ff : d' -->[f] d),
      is_cartesian ff -> is_cartesian (#FF ff).
 
@@ -41,7 +41,7 @@ Section fix_category.
 Context {C : Precategory}.
 
 Definition comprehension_cat : UU 
-  := Σ (D : disp_precat C) (H : is_fibration D)
+  := ∑ (D : disp_precat C) (H : is_fibration D)
      (F : functor_over (functor_identity _ ) D (cod_disp C)),
      is_cartesian_functor_over F.
 

@@ -30,14 +30,14 @@ Section SIP.
 Variable C : Precategory.
 Variable univC : is_category C.
 Variable P : ob C -> UU.
-Variable Pisset : Π x, isaset (P x).
-Variable H : Π (x y : C), P x → P y → C⟦x,y⟧ → UU.
+Variable Pisset : ∏ x, isaset (P x).
+Variable H : ∏ (x y : C), P x → P y → C⟦x,y⟧ → UU.
 Arguments H {_ _} _ _ _ .
-Variable Hisprop : Π x y a b (f : C⟦x,y⟧), isaprop (H a b f).
-Variable Hid : Π (x : C) (a : P x), H a a (identity _ ).
-Variable Hcomp : Π (x y z : C) a b c (f : C⟦x,y⟧) (g : C⟦y,z⟧),
+Variable Hisprop : ∏ x y a b (f : C⟦x,y⟧), isaprop (H a b f).
+Variable Hid : ∏ (x : C) (a : P x), H a a (identity _ ).
+Variable Hcomp : ∏ (x y z : C) a b c (f : C⟦x,y⟧) (g : C⟦y,z⟧),
                  H a b f → H b c g → H a c (f ;; g).
-Variable Hstandard : Π (x : C) (a a' : P x),
+Variable Hstandard : ∏ (x : C) (a a' : P x),
                      H a a' (identity _ ) → H a' a (identity _ ) → a = a'.
 
 (** ** A displayed precategory from the data *)

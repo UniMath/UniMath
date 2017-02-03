@@ -40,7 +40,7 @@ there’s some object d' in D c', and an iso φbar : d' =~ d over φ.
 Definition is_isofibration {C : Precategory} (D : disp_precat C) : UU
 := 
   forall (c c' : C) (i : iso c' c) (d : D c),
-          Σ d' : D c', iso_disp i d' d.
+          ∑ d' : D c', iso_disp i d' d.
 
 Definition is_uncloven_isofibration {C : Precategory} (D : disp_precat C) : UU
 := 
@@ -52,7 +52,7 @@ Definition is_uncloven_isofibration {C : Precategory} (D : disp_precat C) : UU
 Definition is_op_isofibration {C : Precategory} (D : disp_precat C) : UU
 := 
   forall (c c' : C) (i : iso c c') (d : D c),
-          Σ d' : D c', iso_disp i d d'.
+          ∑ d' : D c', iso_disp i d d'.
 
 Lemma is_isofibration_iff_is_op_isofibration 
     {C : Precategory} (D : disp_precat C)
@@ -139,7 +139,7 @@ Qed.
 Definition cartesian_lift {C : Precategory} {D : disp_precat C}
     {c} (d : D c) {c' : C} (f : c' --> c)
   : UU
-:= Σ (d' : D c') (ff : d' -->[f] d), is_cartesian ff.
+:= ∑ (d' : D c') (ff : d' -->[f] d), is_cartesian ff.
 
 Definition object_of_cartesian_lift  {C : Precategory} {D : disp_precat C}
     {c} (d : D c) {c' : C} (f : c' --> c)
@@ -293,8 +293,8 @@ End Fibrations.
 
 (** a proof principle for use with discrete fibrations *)
 (** TODO: upstream *)
-Lemma eq_exists_unique (A : UU) (B : A → UU) (H : iscontr (Σ a : A, B a)) 
-  : Π a, B a → a = pr1 (iscontrpr1 H).
+Lemma eq_exists_unique (A : UU) (B : A → UU) (H : iscontr (∑ a : A, B a)) 
+  : ∏ a, B a → a = pr1 (iscontrpr1 H).
 Proof.
   intros a b.
   assert (g : ((a,,b) : total2 B) 
@@ -314,7 +314,7 @@ Definition is_discrete_fibration {C : Precategory} (D : disp_precat C) : UU
   (forall c, isaset (D c)).
 
 Definition discrete_fibration C : UU
-  := Σ D : disp_precat C, is_discrete_fibration D.
+  := ∑ D : disp_precat C, is_discrete_fibration D.
 
 Coercion disp_precat_from_discrete_fibration C (D : discrete_fibration C)
   : disp_precat C := pr1 D.
@@ -335,12 +335,12 @@ Proof.
 Defined.
 
 Lemma disp_mor_unique_disc_fib C (D : discrete_fibration C) 
-  : Π (c c' : C) (f : c --> c') (d : D c) (d' : D c')
+  : ∏ (c c' : C) (f : c --> c') (d : D c) (d' : D c')
       (ff ff' : d -->[f] d'), ff = ff'.
 Proof.
   intros.
   assert (XR := unique_lift f d').
-  assert (foo : ((d,,ff) : Σ d0, d0 -->[f] d') = (d,,ff')).
+  assert (foo : ((d,,ff) : ∑ d0, d0 -->[f] d') = (d,,ff')).
   { apply proofirrelevance. 
     apply isapropifcontr. apply XR.
   } 
@@ -362,9 +362,9 @@ Proof.
       set (d'' := pr1 (iscontrpr1 (unique_lift (g;;f) d))) in *.
       set (gg := pr2 (iscontrpr1 (unique_lift g d'))). cbn in gg.
       set (d3 := pr1 (iscontrpr1 (unique_lift g d'))) in *. 
-      assert (XR : ((d'',, ggff) : Σ r, r -->[g;;f] d) = (db,,hh)).
+      assert (XR : ((d'',, ggff) : ∑ r, r -->[g;;f] d) = (db,,hh)).
       { apply proofirrelevance. apply isapropifcontr. apply (pr2 D). }
-      assert (XR1 : ((d'',, ggff) : Σ r, r -->[g;;f] d) = (d3 ,,gg;;ff)).
+      assert (XR1 : ((d'',, ggff) : ∑ r, r -->[g;;f] d) = (d3 ,,gg;;ff)).
       { apply proofirrelevance. apply isapropifcontr. apply (pr2 D). }      
       assert (XT := maponpaths pr1 XR). cbn in XT.
       assert (XT1 := maponpaths pr1 XR1). cbn in XT1.

@@ -33,8 +33,8 @@ Lemma weq_subtypes'
     {S : X -> UU} {T : Y -> UU}
     (HS : isPredicate S)
     (HT : isPredicate T)
-    (HST : Π x : X, S x <-> T (w x))
-  : (Σ x, S x) ≃ (Σ y, T y).
+    (HST : ∏ x : X, S x <-> T (w x))
+  : (∑ x, S x) ≃ (∑ y, T y).
 Proof.
   apply (weqbandf w).
   intros. apply weqiff.
@@ -48,8 +48,8 @@ Lemma weq_subtypes_iff
     {X : UU} {S T : X -> UU}
     (HS : isPredicate S)
     (HT : isPredicate T)
-    (HST : Π x, S x <-> T x)
-  : (Σ x, S x) ≃ (Σ x, T x).
+    (HST : ∏ x, S x <-> T x)
+  : (∑ x, S x) ≃ (∑ x, T x).
 Proof.
   apply (weq_subtypes' (idweq X)); assumption.
 Defined.
@@ -82,7 +82,7 @@ Definition DM_disp_ob_mor : disp_precat_ob_mor CC.
 Proof.
   exists (fun Γ => DM_over D Γ).
   simpl; intros Γ Δ p q f. 
-  exact (Σ ff : ob_from_DM_over p --> ob_from_DM_over q,
+  exact (∑ ff : ob_from_DM_over p --> ob_from_DM_over q,
            ff ;; q = p ;; f).
 Defined.
 

@@ -38,7 +38,7 @@ Definition fiber_functor_ess_split_surj
     {Y : is_op_isofibration D}
   (* TODO: change to [is_isofibration], once [is_isofibration_iff_is_op_isofibration] is provided *)
     (x : C)
-  : Π yy : D'[{F x}], Σ xx : D[{x}], 
+  : ∏ yy : D'[{F x}], ∑ xx : D[{x}], 
                 iso (fiber_functor FF _ xx) yy.
 Proof.
   intro yy.
@@ -85,7 +85,7 @@ We give the “bidirectional” version first, and then the “handed” version
 (* TODO: consider carefully the graph of coercions in this section; make them more systematic, and whatever we decide on, DOCUMENT the system clearly. *) 
 
 Definition adjunction_over_id_data {C} (D D' : disp_precat C) : UU
-:= Σ (FF : functor_over (functor_identity _) D D')
+:= ∑ (FF : functor_over (functor_identity _) D D')
      (GG : functor_over (functor_identity _) D' D),
      (nat_trans_over (nat_trans_id _) 
             (functor_over_identity _) (functor_over_composite FF GG))
@@ -127,7 +127,7 @@ Definition triangle_1_statement_over_id  {C} {D D' : disp_precat C}
     (η := unit_over_id A)
     (ε := counit_over_id A)
   : UU
-:= Π x xx, #FF ( η x xx) ;;  ε _ (FF _ xx) 
+:= ∏ x xx, #FF ( η x xx) ;;  ε _ (FF _ xx) 
             = transportb _ (id_left _ ) (id_disp _) .
 
 Definition triangle_2_statement_over_id  {C} {D D' : disp_precat C}
@@ -136,7 +136,7 @@ Definition triangle_2_statement_over_id  {C} {D D' : disp_precat C}
     (η := unit_over_id A)
     (ε := counit_over_id A)
   : UU
-:= Π x xx, η _ (GG x xx) ;; # GG (ε _ xx)
+:= ∏ x xx, η _ (GG x xx) ;; # GG (ε _ xx)
            = transportb _ (id_left _ ) (id_disp _).
 
 Definition form_adjunction_over_id {C} {D D' : disp_precat C}
@@ -145,7 +145,7 @@ Definition form_adjunction_over_id {C} {D D' : disp_precat C}
 := triangle_1_statement_over_id A × triangle_2_statement_over_id A.
 
 Definition adjunction_over_id {C} (D D' : disp_precat C) : UU
-:= Σ A : adjunction_over_id_data D D', form_adjunction_over_id A.
+:= ∑ A : adjunction_over_id_data D D', form_adjunction_over_id A.
 
 Definition data_of_adjunction_over_id {C} {D D' : disp_precat C}
   (A : adjunction_over_id D D')
@@ -169,7 +169,7 @@ Our choice here does _not_ agree with that of the base UniMath category theory l
 
 Definition right_adjoint_over_id_data {C} {D D' : disp_precat C}
   (FF : functor_over (functor_identity _) D D') : UU
-:= Σ (GG : functor_over (functor_identity _) D' D),
+:= ∑ (GG : functor_over (functor_identity _) D' D),
      (nat_trans_over (nat_trans_id _) 
             (functor_over_identity _) (functor_over_composite FF GG))
    × (nat_trans_over (nat_trans_id _ )
@@ -197,7 +197,7 @@ Definition right_adjoint_of_adjunction_over_id_data {C} {D D' : disp_precat C}
 
 Definition right_adjoint_over_id {C} {D D' : disp_precat C}
   (FF : functor_over (functor_identity _) D D') : UU
-:= Σ GG : right_adjoint_over_id_data FF,
+:= ∑ GG : right_adjoint_over_id_data FF,
    form_adjunction_over_id GG.
 
 Definition data_of_right_adjoint_over_id {C} {D D' : disp_precat C}
@@ -229,8 +229,8 @@ Definition form_equiv_over_id {C} {D D' : disp_precat C}
     (η := unit_over_id A)
     (ε := counit_over_id A)
   : UU
-:= (Π x xx, is_iso_disp (identity_iso _ ) (η x xx)) 
- × (Π x xx, is_iso_disp (identity_iso _ ) (ε x xx)).
+:= (∏ x xx, is_iso_disp (identity_iso _ ) (η x xx)) 
+ × (∏ x xx, is_iso_disp (identity_iso _ ) (ε x xx)).
 
 Definition is_iso_unit_over_id {C} {D D' : disp_precat C}
   {A : adjunction_over_id_data D D'}
@@ -243,7 +243,7 @@ Definition is_iso_counit_over_id {C} {D D' : disp_precat C}
 := pr2 E.
 
 Definition equiv_over_id {C} (D D' : disp_precat C) : UU
-:= Σ A : adjunction_over_id D D', form_equiv_over_id A.
+:= ∑ A : adjunction_over_id D D', form_equiv_over_id A.
 
 Definition adjunction_of_equiv_over_id {C} {D D' : disp_precat C}
   (A : equiv_over_id D D')
@@ -259,7 +259,7 @@ Coercion axioms_of_equiv_over_id
 
 Definition is_equiv_over_id {C} {D D' : disp_precat C}
   (FF : functor_over (functor_identity _) D D') : UU
-:= Σ GG : right_adjoint_over_id FF,
+:= ∑ GG : right_adjoint_over_id FF,
    form_equiv_over_id GG.
 
 Definition right_adjoint_of_is_equiv_over_id {C} {D D' : disp_precat C}
@@ -669,7 +669,7 @@ Section Nat_Trans_Disp_Inv.
 Context {C : Precategory} {D' D : disp_precat C}
         {FF GG : functor_over (functor_identity _) D' D}
         (alpha : nat_trans_over (nat_trans_id _ ) FF GG)
-        (Ha : Π x xx, is_iso_disp (identity_iso _ ) (alpha x xx)).
+        (Ha : ∏ x xx, is_iso_disp (identity_iso _ ) (alpha x xx)).
 
 (*
 Lemma inv_ax : nat_trans_over_axioms

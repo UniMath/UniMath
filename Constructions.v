@@ -38,8 +38,8 @@ Proof.
 Defined.
 
 (* TODO: perhaps upstream; consider name *)
-Lemma total2_reassoc_paths {A} {B : A → UU} {C : (Σ a, B a) -> UU}
-    (BC : A -> UU := fun a => Σ b, C (a,,b))
+Lemma total2_reassoc_paths {A} {B : A → UU} {C : (∑ a, B a) -> UU}
+    (BC : A -> UU := fun a => ∑ b, C (a,,b))
     {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
     (ea : a1 = a2)
     (eb : transportf _ ea (pr1 bc1) = pr1 bc2)
@@ -52,8 +52,8 @@ Proof.
 Defined.
 
 (* TODO: as for non-primed version above *)
-Lemma total2_reassoc_paths' {A} {B : A → UU} {C : (Σ a, B a) -> UU}
-    (BC : A -> UU := fun a => Σ b, C (a,,b))
+Lemma total2_reassoc_paths' {A} {B : A → UU} {C : (∑ a, B a) -> UU}
+    (BC : A -> UU := fun a => ∑ b, C (a,,b))
     {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
     (ea : a1 = a2)
     (eb : pr1 bc1 = transportb _ ea (pr1 bc2))
@@ -66,7 +66,7 @@ Proof.
 Defined.
 
 Lemma transportf_pathsinv0_var :
-Π {X : UU} {P : X → UU} {x y : X} {p : x = y} {u : P x} 
+∏ {X : UU} {P : X → UU} {x y : X} {p : x = y} {u : P x} 
 {v : P y}, transportf P p u = v → transportf P (!p) v = u.
 Proof.
   intros. induction p. apply (!X0).
@@ -178,9 +178,9 @@ Context {C : Precategory}
 
 Definition sigma_disp_precat_ob_mor : disp_precat_ob_mor C.
 Proof.
-  exists (fun c => Σ (d : D c), (E (c,,d))).
+  exists (fun c => ∑ (d : D c), (E (c,,d))).
   intros x y xx yy f.
-  exact (Σ (fD : pr1 xx -->[f] pr1 yy), 
+  exact (∑ (fD : pr1 xx -->[f] pr1 yy), 
                 (pr2 xx -->[f,,fD] pr2 yy)).
 Defined.
 
@@ -351,7 +351,7 @@ Defined.
 Definition sigma_disp_iso_map
     {x y} (xx : sigma_disp_precat x) (yy : sigma_disp_precat y)
     (f : iso x y)
-  : (Σ ff : iso_disp f (pr1 xx) (pr1 yy),
+  : (∑ ff : iso_disp f (pr1 xx) (pr1 yy),
        iso_disp (@total_iso _ _ (_,,_) (_,,_) f ff) (pr2 xx) (pr2 yy))
   -> iso_disp f xx yy
 := fun ff => sigma_disp_iso _ _ (pr1 ff) (pr2 ff).
@@ -375,21 +375,21 @@ Proof.
   intros x xx yy.
   use weqhomot.
   - destruct xx as [xx xxx], yy as [yy yyy].
-     use (@weqcomp _ (Σ ee : xx = yy, transportf (fun r => E (x,,r)) ee xxx = yyy) _ _ _).
+     use (@weqcomp _ (∑ ee : xx = yy, transportf (fun r => E (x,,r)) ee xxx = yyy) _ _ _).
       refine (total2_paths_equiv _ _ _).
     set (i := fun (ee : xx = yy) => (total2_paths2 (idpath _) ee)).
     apply @weqcomp with
-        (Σ ee : xx = yy, transportf _ (i ee) xxx = yyy).
+        (∑ ee : xx = yy, transportf _ (i ee) xxx = yyy).
       apply weqfibtototal; intros ee.
       refine (_ ,, isweqpathscomp0l _ _).
       (* TODO: a pure transport lemma; maybe break out? *)
       destruct ee; apply idpath.
-    apply @weqcomp with (Σ ee : xx = yy,
+    apply @weqcomp with (∑ ee : xx = yy,
              iso_disp (@idtoiso (total_precat _) (_,,_) (_,,_) (i ee)) xxx yyy).
       apply weqfibtototal; intros ee.
       exists (fun (eee : transportf _ (i ee) xxx = yyy) => idtoiso_disp _ eee).
       apply EE.
-    apply @weqcomp with (Σ ee : xx = yy, iso_disp 
+    apply @weqcomp with (∑ ee : xx = yy, iso_disp 
          (@total_iso _ D (_,,_) (_,,_) _ (idtoiso_disp (idpath _) ee)) xxx yyy).
       apply weqfibtototal; intros ee.
       mkpair.
@@ -399,7 +399,7 @@ Proof.
       (* Note: [abstract] here is to speed up a [cbn] below. *)
         destruct ee. abstract (apply eq_iso, idpath).
       exact (isweqtransportf (fun I => iso_disp I xxx yyy) _).    
-    apply (@weqcomp _ (Σ f : iso_disp (identity_iso x) xx yy,
+    apply (@weqcomp _ (∑ f : iso_disp (identity_iso x) xx yy,
                       (iso_disp (@total_iso _ D (_,,_) (_,,_) _ f) xxx yyy)) _).
       refine (weqfp (weqpair _ _) _). refine (DD _ _ (idpath _) _ _).
     apply (sigma_disp_iso_equiv (_,,_) (_,,_) _).
@@ -648,7 +648,7 @@ Lemma is_nat_trans_over_pointwise_inv
   (xx : disp_functor_precat x)
   (yy : disp_functor_precat y)
   (FF : xx -->[ f] yy)
-  (H : Π (x' : C') (xx' : D' x'),
+  (H : ∏ (x' : C') (xx' : D' x'),
       is_iso_disp (pointwise_iso_from_nat_iso f x') (pr1 FF x' xx'))
   (x' x0 : C')
   (f0 : x' --> x0)
@@ -905,7 +905,7 @@ Let idto2 (a b : fiber_precategory) : a = b -> iso_disp (identity_iso c) a b
   funcomp (λ p : a = b, idtoiso p) (iso_disp_iso_fiber a b).
 
 Lemma eq_idto1_idto2 (a b : fiber_precategory) 
-  : Π p : a = b, idto1 _ _ p = idto2 _ _ p.
+  : ∏ p : a = b, idto1 _ _ p = idto2 _ _ p.
 Proof.
   intro p. induction p.
   apply eq_iso_disp.
