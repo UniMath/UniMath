@@ -143,7 +143,7 @@ Proof.
   assert (Hpr1 : pr1 (X_aux_type_center_of_contr b anot hnot) = pr1 t).
   set (w := isotoid _ Ccat ((pr2 (pr1 t)) anot hnot) :
           pr1 (pr1 (X_aux_type_center_of_contr b anot hnot)) = pr1 (pr1 t)).
-  apply (total2_paths w).
+  apply (total2_paths_f w).
   simpl.
   destruct t as [[c1 k1] q1].
   simpl in *.
@@ -176,7 +176,7 @@ Proof.
   apply quack.
 
   apply pathsinv0.
-  apply (total2_paths Hpr1).
+  apply (total2_paths_f Hpr1).
   apply proofirrelevance.
 
   repeat (apply impred; intro).
@@ -388,7 +388,7 @@ Proof.
     repeat rewrite <- assoc.
     rewrite iso_after_iso_inv, id_right.
     apply idpath.
-  apply (total2_paths Hpr).
+  apply (total2_paths_f Hpr).
   apply proofirrelevance.
   repeat (apply impred; intro).
   apply (pr2 Ccat).
@@ -803,7 +803,7 @@ Defined.
 Lemma is_preimage_for_pre_composition : functor_composite H GG = F.
 Proof.
   apply (functor_eq _ _  (pr2 Ccat) (functor_composite H GG) F).
-  apply (total2_paths extphi).
+  apply (total2_paths_f extphi).
   apply funextsec; intro a0;
   apply funextsec; intro a0';
   apply funextsec; intro f.

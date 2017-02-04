@@ -39,7 +39,7 @@ Proof. intros ? ? ? r. apply (squash_to_prop r).
 
 Definition map_path {Y} {f:ℕ->Y} (s:target_paths f) :
   ∏ n, map s (squash_element n) = map s (squash_element (S n)).
-Proof. intros. apply (total2_paths2 (s n)).
+Proof. intros. apply (two_arg_paths_f (s n)).
        simpl. reflexivity. Defined.
 
 Definition map_path_check {Y} {f:ℕ->Y} (s:target_paths f) (n:ℕ) :

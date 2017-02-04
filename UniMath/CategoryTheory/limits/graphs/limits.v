@@ -347,7 +347,7 @@ apply impred; intro g; apply impred; intro cc.
 apply invproofirrelevance; intros Hccx Hccy.
 apply subtypeEquality.
 - intro; apply isaprop_isLimCone.
-- apply (total2_paths (isotoid _ H (iso_from_lim_to_lim Hccx Hccy))).
+- apply (total2_paths_f (isotoid _ H (iso_from_lim_to_lim Hccx Hccy))).
   set (B c := ∏ v, C⟦c,dob cc v⟧).
   set (C' (c : C) f := ∏ u v (e : edge u v), @compose _ c _ _ (f u) (dmor cc e) = f v).
   rewrite (@transportf_total2 _ B C').

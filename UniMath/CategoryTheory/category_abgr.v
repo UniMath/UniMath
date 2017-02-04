@@ -77,7 +77,7 @@ Section ABGR_precategory.
   Definition idabgrfun_left (A B : abgr) (f : monoidfun A B) : monoidfuncomp (idabgrfun A) f = f.
   Proof.
     unfold monoidfuncomp. unfold idabgrfun.
-    use total2_paths.
+    use total2_paths_f.
     - cbn. unfold funcomp. apply maponpaths. apply idpath.
     - apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -85,7 +85,7 @@ Section ABGR_precategory.
   Definition idabgrfun_right (A B : abgr) (f : monoidfun A B) : monoidfuncomp f (idabgrfun B) = f.
   Proof.
     unfold monoidfuncomp, idabgrfun.
-    use total2_paths.
+    use total2_paths_f.
     - cbn. unfold funcomp. apply idpath.
     - apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -95,7 +95,7 @@ Section ABGR_precategory.
              (h : monoidfun C D) :
     monoidfuncomp (monoidfuncomp f g) h = monoidfuncomp f (monoidfuncomp g h).
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - cbn. unfold funcomp. apply funextfun. intros x. apply idpath.
     - apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -173,13 +173,13 @@ Section ABGR_category.
     apply (is_iso_qinv (C:=ABGR) _ (monoidfunconstr (pr2 (invmonoidiso f)))).
     split; cbn.
     - unfold monoidfuncomp, compose, idabgrfun, identity.
-      use total2_paths.
+      use total2_paths_f.
       + cbn. apply funextfun. intros x.
         apply homotinvweqweq.
-      + cbn. use total2_paths.
+      + cbn. use total2_paths_f.
         * apply proofirrelevance. apply isapropisbinopfun.
         * apply proofirrelevance. apply (setproperty A).
-    - use total2_paths.
+    - use total2_paths_f.
       + apply funextfun. intros x. apply homotweqinvweq.
       + apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -198,7 +198,7 @@ Section ABGR_category.
     apply (gradth _ (abgr_equiv_iso A B)).
     - intro; apply eq_iso. apply maponpaths.
       unfold abgr_equiv_iso, abgrp_iso_equiv. cbn.
-      use total2_paths.
+      use total2_paths_f.
       + cbn. unfold monoidfunconstr.
         apply subtypeEquality. intros y. apply isapropismonoidfun.
         apply maponpaths. apply subtypeEquality.
@@ -206,7 +206,7 @@ Section ABGR_category.
         * apply idpath.
       + apply proofirrelevance. apply isaprop_is_iso.
     - intros y. unfold abgrp_iso_equiv, abgr_equiv_iso. cbn.
-      use total2_paths.
+      use total2_paths_f.
       + unfold monoidfunconstr. apply subtypeEquality.
         intros x. apply isapropisweq. apply idpath.
       + apply proofirrelevance. apply isapropismonoidfun.
@@ -225,11 +225,11 @@ Section ABGR_category.
     - intros x. apply subtypeEquality.
       + intros y. apply isapropismonoidfun.
       + unfold abgr_equiv_iso, abgrp_iso_equiv. cbn.
-        use total2_paths.
+        use total2_paths_f.
         * apply idpath.
         * apply isapropisweq.
     - intros y. unfold abgr_equiv_iso, abgrp_iso_equiv. cbn.
-      use total2_paths.
+      use total2_paths_f.
       + unfold monoidfunconstr. cbn. apply subtypeEquality.
         * intros x. apply isapropismonoidfun.
         * apply idpath.
@@ -400,14 +400,14 @@ Section ABGR_zero.
     use mk_isZero.
     - intros a. use iscontrpair.
       + exact (ABGR_zero_to a).
-      + intros t. use total2_paths.
+      + intros t. use total2_paths_f.
         * apply funextfun. intros x.
           unfold ABGR_zero_to. cbn.
           rewrite (isconnectedunit x (unel ABGR_zero)). apply (pr2 (pr2 t)).
         * apply proofirrelevance. apply isapropismonoidfun.
     - intros a. use iscontrpair.
       + exact (ABGR_zero_from a).
-      + intros t. use total2_paths.
+      + intros t. use total2_paths_f.
         * apply funextfun. intros x. apply isconnectedunit.
         * apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -438,7 +438,7 @@ Section ABGR_zero.
     unfold ZeroArrow.
     rewrite ABGR_has_zero_from.
     rewrite ABGR_has_zero_to.
-    use total2_paths.
+    use total2_paths_f.
     - cbn. unfold funcomp. apply idpath.
     - apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -479,7 +479,7 @@ Section ABGR_preadditive.
   Definition ABGR_hombinop_runax (X Y : ABGR) (f : ABGR⟦X, Y⟧) :
     ABGR_hombinop X Y f (ABGR_zero_arrow X Y) = f.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - cbn. apply funextfun. intros x.
       rewrite (runax (abgrtoabmonoid Y)). apply idpath.
     - apply proofirrelevance. apply isapropismonoidfun.
@@ -488,7 +488,7 @@ Section ABGR_preadditive.
   Definition ABGR_hombinop_lunax (X Y : ABGR) (f : ABGR⟦X, Y⟧) :
     ABGR_hombinop X Y (ABGR_zero_arrow X Y) f = f.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - cbn. apply funextfun. intros x.
       rewrite (lunax (abgrtoabmonoid Y)). apply idpath.
     - apply proofirrelevance. apply isapropismonoidfun.
@@ -498,7 +498,7 @@ Section ABGR_preadditive.
   Definition ABGR_hombinop_comm (X Y : ABGR) :
     ∏ (f g : ABGR⟦X, Y⟧), @ABGR_hombinop X Y f g = @ABGR_hombinop X Y g f.
   Proof.
-    intros f g. use total2_paths.
+    intros f g. use total2_paths_f.
     - cbn. apply funextfun. intros x. rewrite (pr2 (pr2 Y)). apply idpath.
     - apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -528,7 +528,7 @@ Section ABGR_preadditive.
   Definition ABGR_hombinop_linvax (X Y : ABGR) :
     ∏ f : ABGR⟦X, Y⟧, ABGR_hombinop X Y (ABGR_hombinop_inv X Y f) f  = ABGR_zero_arrow X Y.
   Proof.
-    intros f. use total2_paths.
+    intros f. use total2_paths_f.
     - cbn. apply funextfun. intros x. apply (grlinvax (abgrtogr Y)).
     - apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -536,7 +536,7 @@ Section ABGR_preadditive.
   Definition ABGR_hombinop_rinvax (X Y : ABGR) :
     ∏ f : ABGR⟦X, Y⟧, ABGR_hombinop X Y f (ABGR_hombinop_inv X Y f) = ABGR_zero_arrow X Y.
   Proof.
-    intros f. use total2_paths.
+    intros f. use total2_paths_f.
     - cbn. apply funextfun. intros x. apply (grrinvax (abgrtogr Y)).
     - apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -545,7 +545,7 @@ Section ABGR_preadditive.
   Definition ABGR_hombinop_assoc (X Y : ABGR) (f g h : ABGR⟦X, Y⟧) :
     ABGR_hombinop X Y f (ABGR_hombinop X Y g h) = ABGR_hombinop X Y (ABGR_hombinop X Y f g) h.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - cbn. apply funextfun. intros x. rewrite (assocax (abgrtoabmonoid Y)). apply idpath.
     - apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -595,12 +595,12 @@ Section ABGR_preadditive.
       split.
       + intros g h.
         unfold to_premor.
-        use total2_paths.
+        use total2_paths_f.
         * cbn. apply funextfun.
           intros x. unfold funcomp. apply idpath.
         * apply proofirrelevance. apply isapropismonoidfun.
       + unfold to_premor.
-        use total2_paths.
+        use total2_paths_f.
         * cbn. apply funextfun.
           intros x. unfold funcomp. apply idpath.
         * apply proofirrelevance. apply isapropismonoidfun.
@@ -609,12 +609,12 @@ Section ABGR_preadditive.
       split.
       + intros g h.
         unfold to_premor.
-        use total2_paths.
+        use total2_paths_f.
         * cbn. apply funextfun.
           intros x. unfold funcomp. rewrite (pr1 (pr2 f)). apply idpath.
         * apply proofirrelevance. apply isapropismonoidfun.
       + unfold to_premor.
-        use total2_paths.
+        use total2_paths_f.
         * cbn. apply funextfun.
           intros x. unfold funcomp. apply (pr2 (pr2 f)).
         * apply proofirrelevance. apply isapropismonoidfun.
@@ -660,7 +660,7 @@ Section ABGR_Additive.
     - intros x x'. use dirprodeq.
       + apply idpath.
       + apply pathsinv0. apply (runax B).
-    - unfold dirprodpair. use total2_paths; apply idpath.
+    - unfold dirprodpair. use total2_paths_f; apply idpath.
   Qed.
 
   Definition ABGR_DirectSumIn1 (A B : abgr) : ABGR⟦A, abgrdirprod A B⟧ :=
@@ -673,7 +673,7 @@ Section ABGR_Additive.
     - intros x x'. use dirprodeq.
       + apply pathsinv0. apply (runax A).
       + apply idpath.
-    - unfold dirprodpair. use total2_paths; apply idpath.
+    - unfold dirprodpair. use total2_paths_f; apply idpath.
   Qed.
 
   Definition ABGR_DirectSumIn2 (A B : abgr) : ABGR⟦B, abgrdirprod A B⟧ :=
@@ -682,7 +682,7 @@ Section ABGR_Additive.
   Lemma ABGR_DirectSumIdIn1 (A B : abgr) :
     ABGR_DirectSumIn1 A B ;; ABGR_DirectSumPr1 A B = idabgrfun A.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - cbn. use funextfun. intros x. apply idpath.
     - apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -690,7 +690,7 @@ Section ABGR_Additive.
   Lemma ABGR_DirectSumIdIn2 (A B : abgr) :
     ABGR_DirectSumIn2 A B ;; ABGR_DirectSumPr2 A B = idabgrfun B.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - cbn. use funextfun. intros x. apply idpath.
     - apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -698,7 +698,7 @@ Section ABGR_Additive.
   Lemma ABGR_DirectSumUnel1 (A B : abgr) :
     ABGR_DirectSumIn1 A B ;; ABGR_DirectSumPr2 A B = ABGR_zero_arrow A B.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - cbn. use funextfun. intros x. apply idpath.
     - apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -706,7 +706,7 @@ Section ABGR_Additive.
   Lemma ABGR_DirectSumUnel2 (A B : abgr) :
     ABGR_DirectSumIn2 A B ;; ABGR_DirectSumPr1 A B = ABGR_zero_arrow B A.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - cbn. use funextfun. intros x. apply idpath.
     - apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -715,7 +715,7 @@ Section ABGR_Additive.
     ABGR_hombinop _ _ (ABGR_DirectSumPr1 A B ;; ABGR_DirectSumIn1 A B)
                   (ABGR_DirectSumPr2 A B ;; ABGR_DirectSumIn2 A B) = idabgrfun _.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - cbn. use funextfun. intros x.
       apply dirprodeq.
       + apply (runax A).
@@ -754,12 +754,12 @@ Section ABGR_Additive.
              apply (runax (abgrtoabmonoid Z)).
         (* Commutativity of the morphism. *)
         * split.
-          -- use total2_paths.
+          -- use total2_paths_f.
              ++ cbn. apply funextfun. intros x.
                 unfold funcomp. cbn. set (HHg := pr2 (pr2 g)). cbn in HHg. rewrite HHg.
                 apply (runax (abgrtoabmonoid Z)).
              ++ apply proofirrelevance. apply isapropismonoidfun.
-          -- use total2_paths.
+          -- use total2_paths_f.
              ++ cbn. apply funextfun. intros x.
                 unfold funcomp. cbn. set (HHf := pr2 (pr2 f)). cbn in HHf. rewrite HHf.
                 apply (lunax (abgrtoabmonoid Z)).
@@ -767,7 +767,7 @@ Section ABGR_Additive.
         (* Equality on equality of homsets *)
         * intros y. apply isapropdirprod; apply has_homsets_ABGR.
         (* Uniqueness *)
-        * intros y z. use total2_paths.
+        * intros y z. use total2_paths_f.
           -- cbn. apply funextfun. intros x.
              unfold funcomp. rewrite <- (idabgrfun_left _ _ y).
              rewrite <- (ABGR_DirectSumId X Y). cbn. unfold funcomp.
@@ -799,18 +799,18 @@ Section ABGR_Additive.
                    apply (lunax (abgrtoabmonoid Y)).
         (* Commutativity of the morphism. *)
         * split.
-          -- use total2_paths.
+          -- use total2_paths_f.
              ++ cbn. apply funextfun. intros x.
                 unfold funcomp. cbn. rewrite (runax (abgrtoabmonoid X)). apply idpath.
              ++ apply proofirrelevance. apply isapropismonoidfun.
-          -- use total2_paths.
+          -- use total2_paths_f.
              ++ cbn. apply funextfun. intros x.
                 unfold funcomp. cbn. rewrite (lunax (abgrtoabmonoid Y)). apply idpath.
              ++ apply proofirrelevance. apply isapropismonoidfun.
         (* Equality on equality of homsets *)
         * intros y. apply isapropdirprod; apply has_homsets_ABGR.
         (* Uniqueness *)
-        * intros y z. use total2_paths.
+        * intros y z. use total2_paths_f.
           -- cbn. apply funextfun. intros x.
              rewrite <- (idabgrfun_right _ _ y).
              rewrite <- (ABGR_DirectSumId X Y). cbn.
@@ -818,23 +818,23 @@ Section ABGR_Additive.
              apply idpath.
           -- apply proofirrelevance. apply isapropismonoidfun.
       (* Id1 *)
-      + use total2_paths.
+      + use total2_paths_f.
         * apply funextfun. intros x. cbn. apply idpath.
         * apply proofirrelevance. apply isapropismonoidfun.
       (* Id2 *)
-      + use total2_paths.
+      + use total2_paths_f.
         * apply funextfun. intros x. cbn. apply idpath.
         * apply proofirrelevance. apply isapropismonoidfun.
       (* Unit1 *)
-      + use total2_paths.
+      + use total2_paths_f.
         * apply funextfun. intros x. cbn. apply idpath.
         * apply proofirrelevance. apply isapropismonoidfun.
       (* Unit2 *)
-      + use total2_paths.
+      + use total2_paths_f.
         * apply funextfun. intros x. cbn. apply idpath.
         * apply proofirrelevance. apply isapropismonoidfun.
       (* Id *)
-      + use total2_paths.
+      + use total2_paths_f.
         * apply funextfun. intros x. induction x.
           cbn. apply dirprodeq.
           -- cbn. apply (runax (abgrtoabmonoid X)).
@@ -902,7 +902,7 @@ Section ABGR_kernels.
   Definition ABGR_Kernel_eq {A B : abgr} (f : monoidfun A B) :
     ABGR_kernel_monoidfun f ;; f = ZeroArrow ABGR_has_zero _ _.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - apply funextfun. intros x. induction x as [t p]. cbn.
       unfold funcomp, pr1carrier. cbn in p. cbn.
       use (squash_to_prop p).
@@ -926,10 +926,10 @@ Section ABGR_kernels.
       apply (funeqpaths H c).
     (* ismonoidfun *)
     - split.
-      + intros y y'. cbn. use total2_paths.
+      + intros y y'. cbn. use total2_paths_f.
         * cbn. rewrite (pr1 (pr2 h)). apply idpath.
         * apply proofirrelevance. cbn. apply isapropishinh.
-      + use total2_paths.
+      + use total2_paths_f.
         * cbn. apply (pr2 (pr2 h)).
         * apply proofirrelevance. cbn. apply isapropishinh.
   Defined.
@@ -946,15 +946,15 @@ Section ABGR_kernels.
     - rewrite (ABGR_has_zero_arrow_eq _ _) in H'.
       apply (ABGR_KernelArrowIn _ f H').
     (* Commutativity of the kernel arrow *)
-    - use total2_paths.
+    - use total2_paths_f.
       + apply funextfun. intros x. cbn. apply idpath.
       + apply proofirrelevance. apply isapropismonoidfun.
     (* Equality of equalities of morphisms *)
     - intros y. apply has_homsets_ABGR.
     (* Uniqueness *)
     - intros y t3. induction y as [t1 p1]. apply base_paths in t3. cbn in *.
-      unfold pr1carrier, funcomp in t3. cbn in t3. use total2_paths.
-      + cbn. apply funextfun. intros x. use total2_paths.
+      unfold pr1carrier, funcomp in t3. cbn in t3. use total2_paths_f.
+      + cbn. apply funextfun. intros x. use total2_paths_f.
         * cbn. exact (funeqpaths t3 x).
         * apply proofirrelevance. apply isapropishinh.
       + apply proofirrelevance. apply isapropismonoidfun.
@@ -1083,7 +1083,7 @@ Section ABGR_kernels.
     f ;; ABGR_cokernel_monoidfun f = ZeroArrow ABGR_has_zero A (ABGR_cokernel_abgr f).
   Proof.
     rewrite ABGR_has_zero_arrow_eq.
-    use total2_paths.
+    use total2_paths_f.
     - apply funextfun. intros a. apply (iscompsetquotpr (ABGR_cokernel_eqrel f)).
       unfold ABGR_cokernel_eqrel.
       intros P X. cbn in *. apply X. refine (tpair _ a _).
@@ -1170,14 +1170,14 @@ Section ABGR_kernels.
         * cbn. set (XXh := pr2 (pr2 h)). cbn in XXh. rewrite <- XXh.
           apply maponpaths. apply idpath.
       (* Commutativity *)
-    - use total2_paths.
+    - use total2_paths_f.
       + cbn. apply funextfun. intros b. apply idpath.
       + apply proofirrelevance. apply isapropismonoidfun.
     (* Equality on equality of morphisms *)
     - intros y. cbn. intros x x'. apply (has_homsets_ABGR).
     (* Uniqueness *)
     - intros y. induction y as [t p]. intros  t0. cbn in t0.
-      use total2_paths.
+      use total2_paths_f.
       + cbn. apply funextfun. intros z. cbn in *.
         set (surj := issurjsetquotpr (ABGR_cokernel_eqrel f)).
         unfold issurjective in surj. cbn in surj.
@@ -1438,7 +1438,7 @@ Section ABGR_monics.
         (H : f a1 = f a2) : monoidfuncomp (ABGR_natset_dirprod_map_monoidfun a1) f =
                             monoidfuncomp (ABGR_natset_dirprod_map_monoidfun a2) f.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - cbn. unfold funcomp. apply funextfun.
       intros x. induction x as [t p]. induction t as [|t IHt].
       + induction p as [|p IHp].
@@ -1471,7 +1471,7 @@ Section ABGR_monics.
     monoidfuncomp g f1 = monoidfuncomp g f2 -> f1 = f2.
   Proof.
     intros X.
-    use total2_paths.
+    use total2_paths_f.
     - apply funextfun. intros x. apply base_paths in X. cbn in X. unfold funcomp in X.
       unfold issurjective in H.
       use (squash_to_prop (H x)). use (setproperty C).
@@ -1485,7 +1485,7 @@ Section ABGR_monics.
     monoidfuncomp ABGR_natset_to_Z_monoidfun (ABGR_integer_map_monoidfun a) =
     ABGR_natset_dirprod_map_monoidfun a.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - cbn. apply funextfun. intros x. unfold funcomp. use setquotunivcomm.
     - apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -1530,7 +1530,7 @@ Section ABGR_monics.
   Proof.
     intros b h1 h2.
     use iscontrpair.
-    - use total2_paths.
+    - use total2_paths_f.
       + unfold isMonic in isM. cbn in *.
         set (p := pr2 h1). cbn in p.
         set (p' := pr2 h2). cbn in p'.
@@ -1603,7 +1603,7 @@ Section ABGR_monic_kernels.
     apply (iscontrpair (hfiberpair (pr1 f) (pr1 X) (pr2 X))).
     (* Equality in hfibers *)
     intros t.
-    use total2_paths.
+    use total2_paths_f.
     - cbn.
       assert (e : pr1 f (pr1 t) = pr1 f (pr1 X)).
       {
@@ -1734,7 +1734,7 @@ Section ABGR_monic_kernels.
     (* KernelIn *)
     - apply (ABGR_monic_kernel_in_monoidfun f isM w h H').
     (* Commutativity *)
-    - cbn. use total2_paths.
+    - cbn. use total2_paths_f.
       + cbn. unfold funcomp. apply funextfun.
         intros x. cbn. unfold ABGR_monic_kernel_in.
         set (tmp := pr2 ((ABGR_monic_kernel_in_hfiber f isM w x h H'))).
@@ -1745,7 +1745,7 @@ Section ABGR_monic_kernels.
     (* Uniqueness *)
     - intros y H. cbn in H.
       unfold isMonic in isM. apply isM. cbn. rewrite H.
-      use total2_paths.
+      use total2_paths_f.
       + cbn. apply funextfun. intros x.
         apply pathsinv0. unfold funcomp. unfold ABGR_monic_kernel_in.
         apply (pr2 ((ABGR_monic_kernel_in_hfiber f isM w x h H'))).
@@ -1989,7 +1989,7 @@ Section ABGR_monic_kernels.
     (* Arrow *)
     - exact (ABGR_epi_cokernel_out_monoidfun f isE w h H).
     (* Commutativity *)
-    - cbn. use total2_paths.
+    - cbn. use total2_paths_f.
       + cbn. unfold funcomp. apply funextfun.
         intros x. apply pathsinv0. unfold ABGR_epi_cokernel_out_map.
         apply (pr2 ((ABGR_epi_cokernel_out_data (pr1 f x) f isE w h H))
@@ -1999,7 +1999,7 @@ Section ABGR_monic_kernels.
     - intros y. apply has_homsets_ABGR.
     (* Uniqueness *)
     - intros y T. cbn in T. unfold isEpi in isE. apply isE. cbn. rewrite T.
-      use total2_paths.
+      use total2_paths_f.
       + cbn. unfold funcomp. apply funextfun. intros x. unfold ABGR_epi_cokernel_out_map.
         apply (pr2 ((ABGR_epi_cokernel_out_data (pr1 f x) f isE w h H))
                    (@hfiberpair _ _ (pr1 f) (pr1 f x) x (idpath _))).
