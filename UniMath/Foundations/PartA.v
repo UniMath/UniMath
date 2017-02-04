@@ -748,20 +748,26 @@ Defined.
 
 Lemma two_arg_paths {A B C:UU} {f : A -> B -> C} {a1 b1 a2 b2} (p : a1 = a2)
       (q : b1 = b2) : f a1 b1 = f a2 b2.
+(* This lemma is an analogue of [maponpaths] for functions of two arguments. *)
 Proof.
   intros. induction p. induction q. reflexivity.
 Defined.
 
 Lemma two_arg_paths_f {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 b1 a2  b2}
       (p : a1 = a2) (q : transportf B p b1 = b2) : f a1 b1 = f a2 b2.
-(* This lemma generalizes [total2_paths2_f], which is the special case f := tpair _ *)
+(* This lemma is a replacement for and a generalization of [total2_paths2_f], formerly called
+   [total2_paths2], which does not refer to [total2].  The lemma [total2_paths2_f] can be obtained
+   as the special case [f := tpair _], and Coq can often infer the value for [f], which is declared
+   as an implicit argument. *)
 Proof.
   intros. induction p. induction q. reflexivity.
 Defined.
 
 Lemma two_arg_paths_b {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 b1 a2 b2}
       (p : a1 = a2) (q : b1 = transportb B p b2) : f a1 b1 = f a2 b2.
-(* This lemma generalizes [total2_paths2_b], which is the special case f := tpair _ *)
+(* This lemma is a replacement for and a generalization of [total2_paths2_b], which does not refer
+   to [total2].  The lemma [total2_paths2_b] can be obtained as the special case [f := tpair _],
+   and Coq can often infer the value for [f], which is declared as an implicit argument. *)
 Proof.
   intros. induction p. change _ with (b1 = b2) in q. induction q. reflexivity.
 Defined.
