@@ -270,7 +270,7 @@ Section def_po.
       - intro; apply isofhleveltotal2.
         + apply hsC.
         + intros; apply isaprop_isPushout.
-      - apply (total2_paths
+      - apply (total2_paths_f
                  (isotoid _ H (iso_from_Pushout_to_Pushout Pb Pb' ))).
         rewrite transportf_dirprod, transportf_isotoid', transportf_isotoid'.
         fold (PushoutIn1 Pb). fold (PushoutIn2 Pb).

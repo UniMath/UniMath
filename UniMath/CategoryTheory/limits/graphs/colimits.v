@@ -391,7 +391,7 @@ apply impred; intro g; apply impred; intro cc.
 apply invproofirrelevance; intros Hccx Hccy.
 apply subtypeEquality.
 - intro; apply isaprop_isColimCocone.
-- apply (total2_paths (isotoid _ H (iso_from_colim_to_colim Hccx Hccy))).
+- apply (total2_paths_f (isotoid _ H (iso_from_colim_to_colim Hccx Hccy))).
   set (B c := ∏ v, C⟦dob cc v,c⟧).
   set (C' (c : C) f := ∏ u v (e : edge u v), @compose _ _ _ c (dmor cc e) (f v) = f u).
   rewrite (@transportf_total2 _ B C').

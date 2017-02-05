@@ -32,7 +32,7 @@ Section BINOPS_precategory.
     binopfuncomp (idbinopfun A) f = f.
   Proof.
     unfold binopfuncomp. unfold idbinopfun.
-    use total2_paths. cbn. unfold funcomp. apply maponpaths.
+    use total2_paths_f. cbn. unfold funcomp. apply maponpaths.
     apply idpath. apply proofirrelevance. apply isapropisbinopfun.
   Defined.
 
@@ -41,7 +41,7 @@ Section BINOPS_precategory.
     binopfuncomp f (idbinopfun B) = f.
   Proof.
     unfold binopfuncomp. unfold idbinopfun.
-    use total2_paths. cbn. unfold funcomp. apply maponpaths.
+    use total2_paths_f. cbn. unfold funcomp. apply maponpaths.
     apply idpath. apply proofirrelevance. apply isapropisbinopfun.
   Defined.
 
@@ -121,11 +121,11 @@ Section BINOP_category.
     apply (is_iso_qinv (C:=BINOP) _ (binopfunpair (pr1 (pr1 (invbinopiso f)))
                                                   (pr2 (invbinopiso f)))).
     split; cbn. unfold compose, identity. cbn. unfold binopfuncomp, idbinopfun.
-    cbn. use total2_paths. cbn. apply funextfun. intros x.
+    cbn. use total2_paths_f. cbn. apply funextfun. intros x.
     apply homotinvweqweq. cbn. apply impred_isaprop. intros t.
     apply impred_isaprop. intros t0. apply (pr2 (pr1 A)).
 
-    use total2_paths. cbn. apply funextfun. intros x.
+    use total2_paths_f. cbn. apply funextfun. intros x.
     apply homotweqinvweq. cbn. apply impred_isaprop. intros yt.
     apply impred_isaprop. intros t0. apply (pr2 (pr1 B)).
   Defined.
@@ -144,7 +144,7 @@ Section BINOP_category.
     apply (gradth _ (binop_equiv_iso A B)).
     intro; apply eq_iso. apply maponpaths.
     unfold binop_equiv_iso, binop_iso_equiv. cbn.
-    use total2_paths. cbn. unfold binopfunpair.
+    use total2_paths_f. cbn. unfold binopfunpair.
     apply subtypeEquality. intros y. apply isapropisbinopfun.
     apply maponpaths. apply subtypeEquality.
     unfold isPredicate.
@@ -156,7 +156,7 @@ Section BINOP_category.
     apply isaprop_is_iso.
 
     intros y. unfold binop_iso_equiv, binop_equiv_iso. cbn.
-    use total2_paths. cbn. unfold binopfunpair.
+    use total2_paths_f. cbn. unfold binopfunpair.
     apply subtypeEquality. intros x. apply isapropisweq.
     apply idpath.
 
@@ -177,11 +177,11 @@ Section BINOP_category.
     intros y. apply isapropisbinopfun.
 
     unfold binop_equiv_iso, binop_iso_equiv. cbn.
-    use total2_paths. cbn. apply idpath.
+    use total2_paths_f. cbn. apply idpath.
     apply isapropisweq.
 
     intros y. unfold binop_equiv_iso, binop_iso_equiv. cbn.
-    use total2_paths. cbn. unfold binopfunpair. cbn.
+    use total2_paths_f. cbn. unfold binopfunpair. cbn.
     apply subtypeEquality. intros x. apply isapropisbinopfun.
     apply idpath. apply proofirrelevance.
     apply isaprop_is_iso.
