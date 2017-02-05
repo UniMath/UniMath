@@ -779,34 +779,12 @@ Proof.
   - exact (lastelement _,,stnpair (m (lastelement _)) (l-len') (_a_ IH m l J)).
 Defined.
 
-Lemma isweq_weqstnsum_invmap {n : nat} (m : stn n -> nat) : isweq (weqstnsum_invmap m).
-Proof.
-  intros.
-  intro ij.
-  use tpair.
-  - use tpair.
-    +
-
-Abort.
-
 Lemma stn_right_first n i : stn_right i (S n) (firstelement n) = stnpair (i + S n) i (natltplusS n i).
 Proof.
   intros.
   apply subtypeEquality_prop.
   simpl.
   apply natplusr0.
-Defined.
-
-Lemma two_arg_paths_f {X:UU} {Y:X->UU} {Z:UU} (f : ∏ x, Y x -> Z)
-      (x x':X) (y:Y x) (y':Y x') (p:x=x') (q:transportf Y p y=y') : f x y = f x' y'.
-Proof.
-  intros. induction p. change _ with (y=y') in q. induction q. reflexivity.
-Defined.
-
-Lemma two_arg_paths_b {X:UU} {Y:X->UU} {Z:UU} (f : ∏ x, Y x -> Z)
-      (x x':X) (y:Y x) (y':Y x') (p:x=x') (q:transportb Y p y'=y) : f x y = f x' y'.
-Proof.
-  intros. induction p. change _ with (y'=y) in q. induction q. reflexivity.
 Defined.
 
 Definition weqstnsum_map { n : nat } (m : stn n -> nat) : (∑ i, stn (m i)) -> stn (stnsum m).
@@ -833,10 +811,7 @@ Proof.
   rewrite stnsum_step.
   clear j J t.
   unfold m1 ; clear m1.
-  assert (U : ∏ X Y Z (f:X->Y->Z) x x' y y' (p:x=x') (q:y=y'), f x y = f x' y').
-  (* move upstream *)
-  { intros. now induction p, q. }
-  apply U.
+  apply two_arg_paths.
   + apply stnsum_eq. intro l. induction l as [l L].
     unfold funcomp. apply maponpaths.
     apply subtypeEquality_prop.
@@ -847,6 +822,18 @@ Proof.
     - apply fromempty. exact (natgehtonegnatlth _ _ P L).
   + unfold funcomp. apply maponpaths. apply subtypeEquality_prop. simpl. reflexivity.
 Defined.
+
+Theorem weqstnsum1' { n : nat } (f : stn n -> nat) : (∑ i, stn (f i)) ≃ stn (stnsum f).
+(* This version will be more computable that weqstnsum1, below.  We have successfully used the map
+  [weqstnsum_invmap] to define and prove generalized associativity in a monoid.  *)
+Proof.
+  intros.
+  simple refine (weqpair _ (gradth (weqstnsum_map _) (weqstnsum_invmap _) _ _)).
+  - intros.
+    admit.
+  - intros.
+    admit.
+Abort.
 
 Theorem weqstnsum1 { n : nat } (f : stn n -> nat) : (∑ i, stn (f i)) ≃ stn (stnsum f).
 Proof.
@@ -1320,19 +1307,15 @@ Proof.
   exact i.
 Defined.
 
-Lemma funcomp_dist {X Y:UU} (f g:X → nat) (h : Y → X) :
-  (λ x, f x + g x) ∘ h = (λ y, f (h y) + g (h y)).
-(* move upstream *)
-Proof.
-  reflexivity.
-Defined.
-
 Lemma stnsum_add {m} (f g : ⟦m⟧ → nat) : stnsum (λ i, f i + g i) = stnsum f + stnsum g.
 Proof.
   intros.
   induction m as [|m I].
   - reflexivity.
-  - rewrite 3 stnsum_step. rewrite funcomp_dist. rewrite I. rewrite natplusassoc.
+  - rewrite 3 stnsum_step.
+    change ((λ i : ⟦ S m ⟧, f i + g i) ∘ dni m lastelement)
+    with (λ y : ⟦ m ⟧, f (dni m lastelement y) + g (dni m lastelement y)).
+    rewrite I. rewrite natplusassoc.
     rewrite natplusassoc. unfold funcomp. apply maponpaths. rewrite natpluscomm.
     rewrite natplusassoc. apply maponpaths. rewrite natpluscomm. reflexivity.
 Defined.

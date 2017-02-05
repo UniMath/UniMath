@@ -291,7 +291,7 @@ Proof.
   { simpl. rewrite runax.
     simple refine (_ @ IHn (x ∘ dni_lastelement)).
     rewrite concatenate'_r0.
-    now apply (two_arg_paths_b _ _ _ _ _ (natplusr0 (stnsum (length ∘ (x ∘ dni_lastelement))))). }
+    now apply (two_arg_paths_b (natplusr0 (stnsum (length ∘ (x ∘ dni_lastelement))))). }
   change (length (S m,, z)) with (S m). change (sequenceToFunction (S m,,z)) with z.
   rewrite (iterop_fun_step _ _ (lunax M)). rewrite concatenateStep.
   generalize (z lastelement) as w; intros.
