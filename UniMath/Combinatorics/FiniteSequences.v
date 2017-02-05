@@ -6,25 +6,6 @@ Unset Automatic Introduction.
 
 Local Open Scope transport.
 
-Lemma two_arg_paths_f {X:UU} {Y:X->UU} {Z:UU} (f : ∏ x, Y x -> Z)
-      (x x':X) (y:Y x) (y':Y x') (p:x=x') (q:transportf Y p y=y') : f x y = f x' y'.
-Proof.
-  intros. induction p. change _ with (y=y') in q. induction q. reflexivity.
-Defined.
-
-Lemma two_arg_paths_b {X:UU} {Y:X->UU} {Z:UU} (f : ∏ x, Y x -> Z)
-      (x x':X) (y:Y x) (y':Y x') (p:x=x') (q:transportb Y p y'=y) : f x y = f x' y'.
-Proof.
-  intros. induction p. change _ with (y'=y) in q. induction q. reflexivity.
-Defined.
-
-Lemma two_arg_paths_2 {X:UU} {Y:X->UU} {Z:UU}
-      (x x':X) (f:Y x'->Z) (p:x=x') (y:Y x) :
-  f (transportf Y p y) = transportb (λ x, Y x->Z) p f y.
-Proof.
-  intros. now induction p.
-Defined.
-
 Ltac set_id_type v := match goal with |- @paths ?ID _ _ => set (v := ID); simpl in v end.
 
 Local Arguments dni {_} _ _.
@@ -32,37 +13,6 @@ Local Arguments dni {_} _ _.
 Local Arguments firstelement {_}. (* make non local *)
 
 Local Arguments lastelement {_}. (* make non local *)
-
-Definition firstValue {X n} : (stn (S n) -> X) -> X
-  := λ x, x firstelement.
-
-Definition lastValue {X n} : (stn (S n) -> X) -> X
-  := λ x, x lastelement.
-
-Definition concatenate' {X:UU} {m n} (f : stn m -> X) (g : stn n -> X) : stn (m+n) -> X.
-Proof.
-  intros ? ? ? ? ? i.
-  induction (weqfromcoprodofstn_invmap _ _ i) as [j | k].
-  + exact (f j).
-  + exact (g k).
-Defined.
-
-Definition concatenate'_r0 {X:UU} {m} (f : stn m -> X) (g : stn 0 -> X) :
-  concatenate' f g = transportb (λ n, stn n -> X) (natplusr0 m) f.
-Proof.
-  intros. apply funextfun; intro i. unfold concatenate'.
-  rewrite weqfromcoprodofstn_invmap_r0; simpl. clear g.
-  apply two_arg_paths_2.
-Defined.
-
-Definition concatenate'_r0' {X:UU} {m} (f : stn m -> X) (g : stn 0 -> X) (i : stn (m+0)) :
-  concatenate' f g i = f (transportf stn (natplusr0 m) i).
-Proof.
-  intros. unfold concatenate'. now rewrite weqfromcoprodofstn_invmap_r0.
-Defined.
-
-Definition flatten' {X n} {m:stn n->nat} : (∏ (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
-Proof. intros ? ? ? g. exact (uncurry g ∘ weqstnsum_invmap m). Defined.
 
 (* end of move upstream *)
 
@@ -112,7 +62,7 @@ Definition sequenceEquality2 {X} (f g:Sequence X) (p:length f=length g) :
   (∏ i, f i = g (transportf stn p i)) -> f = g.
 Proof.
   intros ? ? ? ? e. induction f as [m f]. induction g as [n g]. simpl in p.
-  apply (total2_paths2 p). now apply sequenceEquality.
+  apply (total2_paths2_f p). now apply sequenceEquality.
 Defined.
 
 (** The following two lemmas are the key lemmas that allow to prove (transportational) equality of

@@ -137,6 +137,12 @@ Proof.
   reflexivity.
 Defined.
 
+Definition firstValue {X n} : (stn (S n) -> X) -> X
+  := λ x, x (firstelement _).
+
+Definition lastValue {X n} : (stn (S n) -> X) -> X
+  := λ x, x (lastelement _).
+
 (** Dual of i in stn n, is n - 1 - i *)
 Local Lemma dualelement_0_empty {n : nat} (i : stn n) (e : 0 = n) : empty.
 Proof.
@@ -1164,6 +1170,33 @@ Ltac inductive_reflexivity i b :=
   induction i as [|i];
   [ try apply isinjstntonat ; reflexivity |
     contradicts (negnatlthn0 i) b || inductive_reflexivity i b ].
+
+(** concatenation and flattening of functions *)
+
+Definition concatenate' {X:UU} {m n} (f : stn m -> X) (g : stn n -> X) : stn (m+n) -> X.
+Proof.
+  intros ? ? ? ? ? i.
+  induction (weqfromcoprodofstn_invmap _ _ i) as [j | k].
+  + exact (f j).
+  + exact (g k).
+Defined.
+
+Definition concatenate'_r0 {X:UU} {m} (f : stn m -> X) (g : stn 0 -> X) :
+  concatenate' f g = transportb (λ n, stn n -> X) (natplusr0 m) f.
+Proof.
+  intros. apply funextfun; intro i. unfold concatenate'.
+  rewrite weqfromcoprodofstn_invmap_r0; simpl. clear g.
+  apply transportb_fun'.
+Defined.
+
+Definition concatenate'_r0' {X:UU} {m} (f : stn m -> X) (g : stn 0 -> X) (i : stn (m+0)) :
+  concatenate' f g i = f (transportf stn (natplusr0 m) i).
+Proof.
+  intros. unfold concatenate'. now rewrite weqfromcoprodofstn_invmap_r0.
+Defined.
+
+Definition flatten' {X n} {m:stn n->nat} : (∏ (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
+Proof. intros ? ? ? g. exact (uncurry g ∘ weqstnsum_invmap m). Defined.
 
 (** general associativity for addition in nat *)
 

@@ -701,9 +701,16 @@ Defined.
 
 Definition transportf_fun {X Y : UU}(P : X -> UU)
            {x1 x2 : X}(e : x1 = x2)(f : P x1 -> Y) :
-  transportf (fun x => (P x -> Y)) e f = funcomp (transportb P e) f .
+  transportf (fun x => (P x -> Y)) e f = f ∘ transportb P e .
 Proof.
   intros. induction e. apply idpath .
+Defined.
+
+Lemma transportb_fun' {X:UU} {P:X->UU} {Z:UU}
+      {x x':X} (f:P x'->Z) (p:x=x') (y:P x) :
+  f (transportf P p y) = transportb (λ x, P x->Z) p f y.
+Proof.
+  intros. now induction p.
 Defined.
 
 Definition transportf_const {X : UU}{x1 x2 : X}(e : x1 = x2)(Y : UU) :

@@ -77,7 +77,7 @@ Section BinaryOperations.
   Definition isAssociative_list := ∏ (x:list (list X)), iterop_list (Lists.flatten x) = iterop_list_list x.
 
   Definition isAssociative_fun :=
-    ∏ n (m:stn n -> nat) (x : ∏ i (j:stn (m i)), X), iterop_fun (FiniteSequences.flatten' x) = iterop_fun_fun x.
+    ∏ n (m:stn n -> nat) (x : ∏ i (j:stn (m i)), X), iterop_fun (StandardFiniteSets.flatten' x) = iterop_fun_fun x.
 
   Definition isAssociative_seq :=
     ∏ (x : Sequence (Sequence X)), iterop_seq (FiniteSequences.flatten x) = iterop_seq_seq x.
