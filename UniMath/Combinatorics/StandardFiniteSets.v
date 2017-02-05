@@ -1294,6 +1294,24 @@ Proof.
     clear J. induction J'. apply isreflnatleh.
 Defined.
 
+Lemma is_incr_impl_strincr {m} (f : ⟦m⟧→nat) :
+  isincl f -> is_stn_increasing f -> is_stn_strictly_increasing f.
+Proof.
+  intros ? ? incl incr i j e.
+  assert (d : i ≤ j).
+  { now apply natlthtoleh. }
+  assert (c := incr _ _ d); clear d.
+  assert (b : i != j).
+  { intro p. induction p. exact (isirreflnatlth _ e). }
+  induction (natlehchoice _ _ c) as [T|U].
+  - exact T.
+  - apply fromempty.
+    unfold isincl,isofhlevel,isofhlevelf in incl.
+    assert (V := invmaponpathsincl f incl i j U).
+    induction V.
+    exact (isirreflnatlth _ e).
+Defined.
+
 Lemma stnsum_ge1 {m} (f : ⟦m⟧ → nat) : ( ∏ i, f i ≥ 1 ) → stnsum f ≥ m.
 Proof.
   intros ? ? G.
