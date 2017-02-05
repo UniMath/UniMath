@@ -174,16 +174,6 @@ Proof.
   { exact y. }
 Defined.
 
-Definition compute_pr1_dni_last n (i:stn n) : pr1 (dni lastelement i) = pr1 i.
-Proof.
-  intros. unfold dni,di; simpl. induction (natlthorgeh i n) as [q|q].
-  - reflexivity.
-  - contradicts (pr2 i) (natlehneggth q).
-Defined.
-
-Definition replace_dni_last n : dni lastelement = @dni_lastelement n.
-Proof. intros. apply funextfun; intros i. apply isinjstntonat. exact (compute_pr1_dni_last n i). Defined.
-
 Definition append_fun_compute_1 {X n} (s:stn n->X) (x:X) i : append_fun s x (dni_lastelement i) = s i.
 Proof.
   intros.

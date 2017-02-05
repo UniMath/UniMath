@@ -562,6 +562,17 @@ Proof.
 
 Abort.
 
+Theorem isasetFiniteOrderedSet : isaset FiniteOrderedSet.
+(* This theorem will be useful for formalizing simplicial objects, which are contravariant functors
+  from the category [Ord] to another category.  There are two definitions of [Ord]: in the first,
+  the set of objects in [nat].  In the second, the set of objects is the type of nonempty finite
+  ordered sets.  This theorem is part of showing those definitions are equivalent.  The second
+  definition is more convenient, for if A and B are objects, so is [coprod A B], where the elements
+  of A come before the elements of B. *)
+Proof.
+
+Abort.
+
 (** * computably ordered sets *)
 
 (* Here we abstract from Chapter 11 of the HoTT book just the order

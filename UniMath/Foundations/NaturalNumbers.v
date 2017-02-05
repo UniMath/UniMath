@@ -1244,6 +1244,13 @@ Proof.
     + apply (IHm n).
 Defined.
 
+Definition minuseq0' (n : nat) : n - n = 0.
+Proof.
+  induction n as [|n I].
+  - reflexivity.
+  - simpl. exact I.
+Defined.
+
 Definition minusgth0 (n m : nat) (is : n > m) : n - m > 0.
 Proof.
   intro n. induction n as [ | n IHn ].
@@ -2186,4 +2193,17 @@ Proof.
   apply natlthandminusl.
   - induction (natpluscomm n m). exact p.
   - induction (natpluscomm n m). now apply (natlehlthtrans _ i).
+Defined.
+
+Lemma natplusminusle {a b c} : b ≥ c -> a+(b-c) = (a+b)-c.
+Proof.
+  intros ? ? ? e. assert (E := minusplusnmm b c e). rewrite <- E. clear E e.
+  rewrite <- natplusassoc. rewrite plusminusnmm. rewrite plusminusnmm. reflexivity.
+Defined.
+
+Lemma natdiffplusdiff {a b c} : a ≥ b -> b ≥ c -> a-c = (a-b) + (b-c).
+Proof.
+  intros ? ? ? r s. apply (natplusrcan _ _ c). rewrite natplusassoc.
+  rewrite (minusplusnmm _ _ s). rewrite (minusplusnmm _ _ (istransnatleh s r)).
+  exact (! minusplusnmm _ _ r).
 Defined.

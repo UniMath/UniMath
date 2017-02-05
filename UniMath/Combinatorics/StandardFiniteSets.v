@@ -35,6 +35,9 @@ Notation " 'stnel' ( i , j ) " := ( (j,,idpath _) : stn i ) ( at level 70 ) .
 
 Delimit Scope stn with stn.
 
+Notation "⟦ n ⟧" := (stn n) (at level 0) : stn.
+(* in agda-mode \[[ n \]] *)
+
 Notation "● x" := (x ,, idpath _) (at level 35) : stn.
 
 Lemma isinclstntonat ( n : nat ) : isincl ( stntonat n ) .
@@ -121,8 +124,18 @@ Defined.
 Definition lastelement ( n : nat ) : stn ( S n ) .
 Proof. intro .   split with n .  apply ( natgthsnn n ) .  Defined .
 
+Lemma lastelement_ge {n} : ∏ i : stn (S n), lastelement n ≥ i.
+Proof.
+  intros. apply natlthsntoleh. unfold lastelement. apply stnlt.
+Defined.
+
 Definition firstelement (n:nat) : stn(S n).
 Proof. intro. exists 0. apply natgthsn0. Defined.
+
+Lemma firstelement_le {n} : ∏ i : stn (S n), firstelement n ≤ i.
+Proof.
+  reflexivity.
+Defined.
 
 (** Dual of i in stn n, is n - 1 - i *)
 Local Lemma dualelement_0_empty {n : nat} (i : stn n) (e : 0 = n) : empty.
@@ -192,6 +205,18 @@ Proof. intros n i x . exists (di i x). unfold di.
        - exact (pr2 x).
 Defined.
 
+Definition compute_pr1_dni_last n (i:stn n) : pr1 (dni _ (lastelement _) i) = pr1 i.
+Proof.
+  intros. unfold dni,di; simpl. induction (natlthorgeh i n) as [q|q].
+  - reflexivity.
+  - contradicts (pr2 i) (natlehneggth q).
+Defined.
+
+Definition compute_pr1_dni_first n (i:stn n) : pr1 (dni _ (firstelement _) i) = S (pr1 i).
+Proof.
+  reflexivity.
+Defined.
+
 Lemma dni_last n (i:stn n) : pr1 (dni n (lastelement n) i) = i.
 Proof.
   intros. induction i as [i I]. unfold dni,di. simpl. induction (natlthorgeh i n) as [g|g].
@@ -204,9 +229,28 @@ Proof.
   reflexivity.
 Defined.
 
+Definition dni_firstelement {n} : stn n -> stn (S n).
+(* this definition is simpler than that of [dni n (firstelement n)], since no choice is involved, so it's useful in special situations *)
+Proof. intros ? h. exact (S (pr1 h),, pr2 h). Defined.
+
+Definition replace_dni_first n : dni n (firstelement n) = dni_firstelement.
+Proof. intros. apply funextfun; intros i. apply subtypeEquality_prop. exact (compute_pr1_dni_first n i). Defined.
+
 Definition dni_lastelement {n} : stn n -> stn (S n).
 (* this definition is simpler than that of [dni n (lastelement n)], since no choice is involved, so it's useful in special situations *)
-Proof. intros ? h. exists (pr1 h). exact (natlthtolths _ _ (pr2 h)). Defined.
+Proof.
+  intros ? h. exists (pr1 h). exact (natlthtolths _ _ (pr2 h)).
+Defined.
+
+Definition replace_dni_last n : dni n (lastelement n) = dni_lastelement.
+Proof.
+  intros. apply funextfun; intros i. apply subtypeEquality_prop. exact (compute_pr1_dni_last n i).
+Defined.
+
+Lemma dni_lastelement_ord {n} : ∏ i j:stn n, i≤j -> dni_lastelement i ≤ dni_lastelement j.
+Proof.
+  intros ? ? ? e. exact e.
+Defined.
 
 Definition pr1_dni_lastelement {n} {i:stn n} : pr1 (dni_lastelement i) = pr1 i.
 Proof. reflexivity. Defined.
@@ -660,8 +704,21 @@ Proof. intros. exact (stnsum_pos f (firstelement _)). Defined.
 
 Lemma stnsum_1 n : stnsum(λ i:stn n, 1) = n.
 Proof.
-  intros. induction n as [|n IH]. { reflexivity. } simpl. rewrite natpluscomm. apply maponpaths.
+  intros.
+  induction n as [|n IH].
+  { reflexivity. }
+  simpl.
+  simple refine (natpluscomm _ _ @ _).
+  apply maponpaths.
   exact IH.
+Defined.
+
+Lemma stnsum_const {m c} : stnsum (λ i:⟦m⟧, c) = m*c.
+Proof.
+  intros.
+  induction m as [|m I].
+  - reflexivity.
+  - exact (maponpaths (λ i, i+c) I).
 Defined.
 
 Lemma stnsum_last_le {n} (f:stn (S n) -> nat) : f(lastelement _) ≤ stnsum f.
@@ -1196,3 +1253,117 @@ Proof.
   induction n as [_|n _]. eapply stn_predicate. apply c.
   induction (nopathsfalsetotrue p).
 Defined.
+
+(** ordered bijections are unique *)
+
+Local Arguments firstelement {_}. (* make non local *)
+
+Local Arguments lastelement {_}. (* make non local *)
+
+Definition is_stn_increasing {m} (f : ⟦m⟧→nat) := ∏ (i j:⟦m⟧), i ≤ j → f i ≤ f j.
+
+Definition is_stn_strictly_increasing {m} (f : ⟦m⟧→nat) := ∏ (i j:⟦m⟧), i < j → f i < f j.
+
+Lemma is_strincr_impl_incr {m} (f : ⟦m⟧→nat) :
+  is_stn_strictly_increasing f -> is_stn_increasing f.
+Proof.
+  intros ? ? inc ? ? e. induction (natlehchoice _ _ e) as [I|J]; clear e.
+  + apply natlthtoleh. apply inc. exact I.
+  + assert (J' : i = j).
+    { apply subtypeEquality_prop. exact J. }
+    clear J. induction J'. apply isreflnatleh.
+Defined.
+
+Lemma stnsum_ge1 {m} (f : ⟦m⟧ → nat) : ( ∏ i, f i ≥ 1 ) → stnsum f ≥ m.
+Proof.
+  intros ? ? G.
+  set (g := λ i:⟦m⟧, 1).
+  assert (E : stnsum g = m).
+  { apply stnsum_1. }
+  assert (F : stnsum g ≤ stnsum f).
+  { apply stnsum_le. exact G. }
+  generalize E F; generalize (stnsum g); clear E F g; intros s e i.
+  induction e.
+  exact i.
+Defined.
+
+Lemma funcomp_dist {X Y:UU} (f g:X → nat) (h : Y → X) :
+  (λ x, f x + g x) ∘ h = (λ y, f (h y) + g (h y)).
+(* move upstream *)
+Proof.
+  reflexivity.
+Defined.
+
+Lemma stnsum_add {m} (f g : ⟦m⟧ → nat) : stnsum (λ i, f i + g i) = stnsum f + stnsum g.
+Proof.
+  intros.
+  induction m as [|m I].
+  - reflexivity.
+  - rewrite 3 stnsum_step. rewrite funcomp_dist. rewrite I. rewrite natplusassoc.
+    rewrite natplusassoc. unfold funcomp. apply maponpaths. rewrite natpluscomm.
+    rewrite natplusassoc. apply maponpaths. rewrite natpluscomm. reflexivity.
+Defined.
+
+Lemma stnsum_lt {m} (f g : ⟦m⟧ → nat) : ( ∏ i, f i < g i ) → stnsum g ≥ stnsum f + m.
+Proof.
+  intros. set (h := λ i, f i + 1).
+  assert (E : stnsum h = stnsum f + m).
+  { unfold h; clear h. rewrite stnsum_add. rewrite stnsum_1. reflexivity. }
+  rewrite <- E. apply stnsum_le. intros i. unfold h. apply natlthtolehp1. apply X.
+Defined.
+
+Local Arguments dni {_} _ _.
+
+Lemma stnsum_diffs {m} (f : ⟦S m⟧ → nat) : is_stn_increasing f ->
+  stnsum (λ i, f (dni_firstelement i) - f (dni_lastelement i)) = f lastelement - f firstelement.
+Proof.
+  intros ? ? e.
+  induction m as [|m I].
+  - change (0 = f firstelement - f firstelement).
+    apply pathsinv0.
+    apply minuseq0'.
+  - rewrite stnsum_step.
+    change (f (dni_firstelement lastelement)) with (f lastelement).
+    rewrite natpluscomm.
+    simple refine (_ @ ! @natdiffplusdiff
+                     (f lastelement)
+                     (f (dni_lastelement lastelement))
+                     (f firstelement) _ _).
+    + apply maponpaths.
+      simple refine (_ @ I (f ∘ dni_lastelement) _ @ _).
+      * unfold funcomp. apply stnsum_eq; intros i. rewrite replace_dni_last. reflexivity.
+      * intros i j s. unfold funcomp. apply e. apply s.
+      * reflexivity.
+    + apply e. apply lastelement_ge.
+    + apply e. apply firstelement_le.
+Defined.
+
+Lemma stn_ord_incl {m} (f : ⟦S m⟧ → nat) :
+  is_stn_strictly_increasing f  →  f lastelement ≥ f firstelement + m.
+Proof.
+  intros ? ? strinc.
+  assert (inc := is_strincr_impl_incr _ strinc).
+  set (d := λ i : ⟦ m ⟧, f (dni_firstelement i) - f (dni_lastelement i)).
+  assert (E := stnsum_diffs f inc).
+  change (stnsum d = f lastelement - f firstelement) in E.
+  assert (F : ∏ i, f (dni_firstelement i) > f (dni_lastelement i)).
+  { intros i. apply strinc. change (stntonat _ i < S(stntonat _ i)). apply natlthnsn. }
+  assert (G : ∏ i, d i ≥ 1).
+  { intros i. apply natgthtogehsn. apply minusgth0. apply F. }
+  clear F.
+  assert (H := stnsum_ge1 _ G). clear G.
+  rewrite E in H. clear E d.
+  assert (I : f lastelement ≥ f firstelement).
+  { apply inc. reflexivity. }
+  assert (J := minusplusnmm _ _ I); clear I.
+  rewrite <- J; clear J.
+  rewrite natpluscomm.
+  apply natgehandplusl.
+  exact H.
+Defined.
+
+Lemma stn_ord_bij {n} (f : ⟦ n ⟧ ≃ ⟦ n ⟧) :
+  (∏ (i j:⟦n⟧), i ≤ j → f i ≤ f j) -> pr1weq f = idfun _.
+Proof.
+  intros.
+Abort.
