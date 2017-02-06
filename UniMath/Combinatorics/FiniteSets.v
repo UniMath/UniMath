@@ -310,3 +310,46 @@ Definition isfinite_to_DecidableEquality {X} : isfinite X -> DecidableRelation X
                                (isfinite_isaset X fin x y)
                                (isfinite_isdeceq X fin x y))).
 Defined.
+
+Lemma subsetFiniteness {X} (is : isfinite X) (P : DecidableSubtype X) :
+  isfinite (decidableSubtypeCarrier P).
+Proof.
+  intros.
+  assert (fin : isfinite (decidableSubtypeCarrier' P)).
+  { now apply isfinitedecsubset. }
+  refine (isfiniteweqf _ fin).
+  apply decidableSubtypeCarrier_weq.
+Defined.
+
+Definition subsetFiniteSet {X:FiniteSet} (P:DecidableSubtype X) : FiniteSet.
+Proof. intros X P. exact (isfinite_to_FiniteSet (subsetFiniteness (pr2 X) P)). Defined.
+
+Definition fincard_subset {X} (is : isfinite X) (P : DecidableSubtype X) : nat.
+Proof. intros ? fin ?. exact (fincard (subsetFiniteness fin P)). Defined.
+
+Definition fincard_standardSubset {n} (P : DecidableSubtype (stn n)) : nat.
+Proof. intros. exact (fincard (subsetFiniteness (isfinitestn n) P)). Defined.
+
+Local Definition bound01 (P:DecidableProposition) : ((choice P 1 0) ≤ 1)%nat.
+Proof.
+  intros. unfold choice. choose P p q; reflexivity.
+Defined.
+
+Definition tallyStandardSubset {n} (P: DecidableSubtype (stn n)) : stn (S n).
+Proof. intros. exists (stnsum (λ x, choice (P x) 1 0)). apply natlehtolthsn.
+       apply (istransnatleh (m := stnsum(λ _ : stn n, 1))).
+       { apply stnsum_le; intro i. apply bound01. }
+       assert ( p : ∏ r s, r = s -> (r ≤ s)%nat). { intros ? ? e. destruct e. apply isreflnatleh. }
+       apply p. apply stnsum_1.
+Defined.
+
+Definition tallyStandardSubsetSegment {n} (P: DecidableSubtype (stn n))
+           (i:stn n) : stn n.
+  (* count how many elements less than i satisfy P *)
+  intros.
+  assert (k := tallyStandardSubset
+                 (λ j:stn i, P (stnmtostnn i n (natlthtoleh i n (pr2 i)) j))).
+  apply (stnmtostnn (S i) n).
+  { apply natlthtolehsn. exact (pr2 i). }
+  exact k.
+Defined.

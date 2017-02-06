@@ -5,75 +5,6 @@ Unset Automatic Introduction.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Local Open Scope poset.
 
-Lemma subsetFiniteness {X} (is : isfinite X) (P : DecidableSubtype X) :
-  isfinite (decidableSubtypeCarrier P).
-Proof.
-  intros.
-  assert (fin : isfinite (decidableSubtypeCarrier' P)).
-  { now apply isfinitedecsubset. }
-  refine (isfiniteweqf _ fin).
-  apply decidableSubtypeCarrier_weq.
-Defined.
-
-Definition subsetFiniteSet {X:FiniteSet} (P:DecidableSubtype X) : FiniteSet.
-Proof. intros X P. exact (isfinite_to_FiniteSet (subsetFiniteness (pr2 X) P)). Defined.
-
-Definition fincard_subset {X} (is : isfinite X) (P : DecidableSubtype X) : nat.
-Proof. intros ? fin ?. exact (fincard (subsetFiniteness fin P)). Defined.
-
-Definition fincard_standardSubset {n} (P : DecidableSubtype (stn n)) : nat.
-Proof. intros. exact (fincard (subsetFiniteness (isfinitestn n) P)). Defined.
-
-Local Definition bound01 (P:DecidableProposition) : ((choice P 1 0) ≤ 1)%nat.
-Proof.
-  intros. unfold choice. choose P p q; reflexivity.
-Defined.
-
-Definition tallyStandardSubset {n} (P: DecidableSubtype (stn n)) : stn (S n).
-Proof. intros. exists (stnsum (λ x, choice (P x) 1 0)). apply natlehtolthsn.
-       apply (istransnatleh (m := stnsum(λ _ : stn n, 1))).
-       { apply stnsum_le; intro i. apply bound01. }
-       assert ( p : ∏ r s, r = s -> (r ≤ s)%nat). { intros ? ? e. destruct e. apply isreflnatleh. }
-       apply p. apply stnsum_1.
-Defined.
-
-Definition tallyStandardSubsetSegment {n} (P: DecidableSubtype (stn n))
-           (i:stn n) : stn n.
-  (* count how many elements less than i satisfy P *)
-  intros.
-  assert (k := tallyStandardSubset
-                 (λ j:stn i, P (stnmtostnn i n (natlthtoleh i n (pr2 i)) j))).
-  apply (stnmtostnn (S i) n).
-  { apply natlthtolehsn. exact (pr2 i). }
-  exact k.
-Defined.
-
-(* types and univalence *)
-
-Theorem UU_rect (X Y : UU) (P : X ≃ Y -> UU) :
-  (∏ e : X=Y, P (univalence _ _ e)) -> ∏ f, P f.
-Proof.
-  intros ? ? ? ih ?.
-  set (p := ih (invmap (univalence _ _) f)).
-  set (h := homotweqinvweq (univalence _ _) f).
-  exact (transportf P h p).
-Defined.
-
-Ltac type_induction f e := generalize f; apply UU_rect; intro e; clear f.
-
-Theorem hSet_rect (X Y : hSet) (P : X ≃ Y -> UU) :
-  (∏ e : X=Y, P (hSet_univalence _ _ e)) -> ∏ f, P f.
-Proof.
-  intros ? ? ? ih ?.
-  Set Printing Coercions.
-  set (p := ih (invmap (hSet_univalence _ _) f)).
-  set (h := homotweqinvweq (hSet_univalence _ _) f).
-  exact (transportf P h p).
-  Unset Printing Coercions.
-Defined.
-
-Ltac hSet_induction f e := generalize f; apply UU_rect; intro e; clear f.
-
 (** partially ordered sets and ordered sets *)
 
 Definition Poset_univalence_map {X Y:Poset} : X=Y -> PosetEquivalence X Y.
@@ -347,6 +278,16 @@ Defined.
 Definition height {X:FiniteOrderedSet} : X -> nat.
   intros ? x. exact (cardinalityFiniteSet (FiniteOrderedSet_segment x)).
 Defined.
+
+Definition height_stn {X:FiniteOrderedSet} : X -> stn (cardinalityFiniteSet X).
+Proof.
+  intros ? x.
+  exists (height x).
+
+
+
+(* Defined. *)
+Abort.
 
 (** making finite ordered sets in various ways *)
 

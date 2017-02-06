@@ -381,11 +381,8 @@ Module Test_seq.
 
 End Test_seq.
 
-Module Test_ord.
-
-  Require Import UniMath.Combinatorics.OrderedSets.
-  Require Import UniMath.Combinatorics.StandardFiniteSets.
-
+Module Test_finite_sets.
+  Require Import UniMath.Combinatorics.FiniteSets.
   Open Scope stn.
 
   Goal 3 = fincard_standardSubset (λ i:stn 10, 2*i < 6)%dnat. Proof. reflexivity. Defined.
@@ -393,6 +390,15 @@ Module Test_ord.
   Goal 6 = tallyStandardSubset (λ i:stn 10, 3 ≤ i ∧ i ≤ 8)%dnat%declog. Proof. reflexivity. Defined.
 
   Goal 6 = tallyStandardSubsetSegment (λ i:stn 14, 2*i ≠ 4)%dnat (●7). Proof. reflexivity. Defined.
+
+End Test_finite_sets.
+
+Module Test_ord.
+
+  Require Import UniMath.Combinatorics.OrderedSets.
+  Require Import UniMath.Combinatorics.StandardFiniteSets.
+
+  Open Scope stn.
 
   Goal 3 = height ( ●3 : ⟦ 8 ⟧ %foset ). reflexivity. Defined.
 
@@ -434,20 +440,25 @@ Module Test_ord.
 
     (* we want these to work: *)
 
-    Goal choice (x < y)%foset true false = true.
+    Goal choice (x < y) true false = true.
       reflexivity.                (* fixed *)
     Defined.
 
-    Goal choice (x = y)%foset true false = true.
+    Goal choice (x ≤ y) true false = true.
+      reflexivity.
+    Defined.
+
+    Goal choice (x = y) true false = true.
       try reflexivity.            (* fix *)
       unfold choice.
       Unset Printing Notations.
+      idtac.
       unfold decidabilityProperty.
       (* Print Assumptions FiniteOrderedSetDecidableEquality. *)
       (* uses: funextfun funextemptyAxiom *)
     Abort.
 
-    Goal choice (x ≠ y)%foset true false = false.
+    Goal choice (x ≠ y) true false = false.
       try reflexivity.            (* fix *)
     Abort.
 

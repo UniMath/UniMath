@@ -2987,4 +2987,17 @@ Proof.
   Unset Printing Coercions.
 Defined.
 
+Theorem hSet_rect (X Y : hSet) (P : X ≃ Y -> UU) :
+  (∏ e : X=Y, P (hSet_univalence _ _ e)) -> ∏ f, P f.
+Proof.
+  intros ? ? ? ih ?.
+  Set Printing Coercions.
+  set (p := ih (invmap (hSet_univalence _ _) f)).
+  set (h := homotweqinvweq (hSet_univalence _ _) f).
+  exact (transportf P h p).
+  Unset Printing Coercions.
+Defined.
+
+Ltac hSet_induction f e := generalize f; apply UU_rect; intro e; clear f.
+
 (* End of the file hSet.v *)
