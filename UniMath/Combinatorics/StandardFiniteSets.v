@@ -43,6 +43,8 @@ Notation "● x" := (x ,, idpath _) (at level 35) : stn.
 Lemma isinclstntonat ( n : nat ) : isincl ( stntonat n ) .
 Proof. intro .  refine (isinclpr1 _ _) .  intro x .  apply ( pr2 ( natlth x n ) ) .  Defined.
 
+Definition stntonat_incl n := inclpair (stntonat n) (isinclstntonat n).
+
 Lemma isdecinclstntonat ( n : nat ) : isdecincl ( stntonat n ) .
 Proof. intro . refine ( isdecinclpr1 _ _) .  intro x . apply isdecpropif . apply ( pr2 _ ) .   apply isdecrelnatgth .  Defined .
 
@@ -260,6 +262,13 @@ Defined.
 
 Definition pr1_dni_lastelement {n} {i:stn n} : pr1 (dni_lastelement i) = pr1 i.
 Proof. reflexivity. Defined.
+
+Lemma dni_last_lt {n} (j : ⟦ n ⟧) : dni n (lastelement n) j < lastelement n.
+Proof.
+  intros. induction j as [j J]. simpl. unfold di. induction (natlthorgeh j n) as [L|M].
+  - exact J.
+  - apply fromempty. exact (natlthtonegnatgeh _ _ J M).
+Defined.
 
 Lemma dnicommsq ( n : nat ) ( i : stn ( S n ) ) : commsqstr( dni n i )  ( stntonat ( S n ) ) ( stntonat n ) ( di i )  .
 Proof. intros . intro x . unfold dni . unfold di . destruct ( natlthorgeh x i ) .  simpl .  apply idpath . simpl .  apply idpath . Defined .
@@ -1397,7 +1406,24 @@ Proof.
 Defined.
 
 Lemma stn_ord_bij {n} (f : ⟦ n ⟧ ≃ ⟦ n ⟧) :
-  (∏ (i j:⟦n⟧), i ≤ j → f i ≤ f j) -> pr1weq f = idfun _.
+  (∏ (i j:⟦n⟧), i ≤ j → f i ≤ f j) -> ∏ i, f i = i.
 Proof.
-  intros.
+  intros ? ? inc ?.
+  assert (strincr : is_stn_strictly_increasing (pr1weq f)).
+  { apply is_incr_impl_strincr.
+    { simple refine (isinclcomp (weqtoincl _ _ f) (stntonat_incl _)). }
+    { exact inc. } }
+  induction n as [|n I].
+  - apply fromempty. now apply negstn0.
+  - assert (M : stntonat _ (f lastelement) = n).
+    { apply isantisymmnatgeh.
+      * assert (N : f lastelement ≥ f firstelement + n).
+        { exact (stn_ord_incl (pr1weq f) strincr). }
+        simple refine (istransnatgeh _ _ _ N _).
+        apply natgehplusnmm.
+      * exact (stnlt (f lastelement)). }
+    assert (L : ∏ j, f (dni_lastelement j) < n).
+    { intros. induction M. apply strincr. exact (stnlt j). }
+    set (f' := λ j : ⟦n⟧, stnpair n (stntonat _ (f (dni_lastelement j))) (L j)).
+
 Abort.
