@@ -1308,6 +1308,19 @@ Proof.
   intro X. intro is. intros x x'. apply (isaproppathsfromisolated X x (is x)).
 Defined.
 
+Lemma isdecsum {X:UU} {Y:X→UU} : isdeceq X → (∏ x, isdeceq(Y x)) → isdeceq(∑ x, Y x).
+Proof.
+  intros ? ? dx dy.
+  intros z z'.
+  unfold decidable.
+  induction (dx (pr1 z) (pr1 z')) as [e|e'].
+  - induction (dy (pr1 z') (transportf _ e (pr2 z)) (pr2 z')) as [s|s'].
+    + apply ii1. exact (total2_paths_f e s).
+    + apply ii2. intro w. apply s'. clear s'. simple refine (_ @ fiber_paths w).
+      apply (maponpaths (λ r, transportf _ r _)). apply uip. apply isasetifdeceq. exact dx.
+  - apply ii2. intro e. apply e'. apply maponpaths. exact e.
+Defined.
+
 (** *** Construction of functions with specified values at a few isolated points *)
 
 Definition isolfun1 {X Y:UU} (x1:X) (i1 : isisolated _ x1) (y1 y':Y) : X → Y.
