@@ -553,7 +553,7 @@ Proof.
   - intro; apply isofhleveltotal2.
     + apply hs.
     + intros; apply isaprop_isPullback.
-  - apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))).
+  - apply (total2_paths_f  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))).
     rewrite transportf_dirprod, transportf_isotoid.
     rewrite inv_from_iso_iso_from_Pullback.
     rewrite transportf_isotoid.

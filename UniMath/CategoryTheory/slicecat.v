@@ -143,7 +143,7 @@ Qed.
 
 Lemma eq_mor_slicecat (af bg : C / x) (f g : C/x⟦af,bg⟧) : pr1 f = pr1 g -> f = g.
 Proof.
-now intro heq; apply (total2_paths heq); apply hsC.
+now intro heq; apply (total2_paths_f heq); apply hsC.
 Qed.
 
 Lemma eq_iso_slicecat (af bg : C / x) (f g : iso af bg) : pr1 f = pr1 g -> f = g.
@@ -300,7 +300,7 @@ Lemma slicecat_functor_identity (x : C) :
   slicecat_functor _ (identity x) = functor_identity (C / x).
 Proof.
 apply (functor_eq _ _ (has_homsets_slice_precat _ _)); simpl.
-apply (total2_paths2 (slicecat_functor_identity_ob _)).
+apply (two_arg_paths_f (slicecat_functor_identity_ob _)).
 apply funextsec; intros [a f].
 apply funextsec; intros [b g].
 apply funextsec; intros [h hh].
@@ -331,7 +331,7 @@ Proof.
 apply (functor_eq _ _ (has_homsets_slice_precat _ _)); simpl.
 unfold slicecat_functor_data; simpl.
 unfold functor_composite_data; simpl.
-apply (total2_paths2 (slicecat_functor_comp_ob _ _)).
+apply (two_arg_paths_f (slicecat_functor_comp_ob _ _)).
 apply funextsec; intros [a fax].
 apply funextsec; intros [b fbx].
 apply funextsec; intros [h hh].

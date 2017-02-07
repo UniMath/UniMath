@@ -136,7 +136,7 @@ Defined.
 
 Definition nil_unique {X} (x : stn 0 -> X) : nil = (0,,x).
 Proof.
-  intros. apply pair_path_in2. apply isapropifcontr. apply stn0_fun_iscontr.
+  intros. unfold nil. apply maponpaths. apply isapropifcontr. apply stn0_fun_iscontr.
 Defined.
 
 Definition isaset_transportf {X : hSet} (P : X ->UU) {x : X} (e : x = x) (p : P x) :
@@ -450,13 +450,13 @@ Proof.
   unfold total2_step_b, total2_step_f.
   induction (natlehchoice4 j n J) as [J'|K].
   + simpl.
-    simple refine (total2_paths _ _).
+    simple refine (total2_paths_f _ _).
     * simpl. rewrite replace_dni_last. apply isinjstntonat. reflexivity.
     * rewrite replace_dni_last. unfold dni_lastelement.  simpl.
       change (λ x0 : stn (S n), X x0) with X.
       rewrite transport_f_b. apply (isaset_transportf X).
   + induction (!K). simpl.
-    simple refine (total2_paths _ _).
+    simple refine (total2_paths_f _ _).
     * simpl. now apply isinjstntonat.
     * simpl. assert (d : idpath n = K).
       { apply isasetnat. }
@@ -593,7 +593,7 @@ Definition isassoc_concatenate {X} (x y z:Sequence X) :
   concatenate (concatenate x y) z = concatenate x (concatenate y z).
 Proof.
   intros.
-  simple refine (total2_paths _ _).
+  simple refine (total2_paths_f _ _).
   - simpl. apply natplusassoc.
   - apply sequenceEquality; intros i.
 

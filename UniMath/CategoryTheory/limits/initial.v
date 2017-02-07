@@ -83,7 +83,7 @@ Lemma isaprop_Initial : isaprop Initial.
 Proof.
   apply invproofirrelevance.
   intros O O'.
-  apply (total2_paths (isotoid _ H (iso_Initials O O')) ).
+  apply (total2_paths_f (isotoid _ H (iso_Initials O O')) ).
   apply proofirrelevance.
   unfold isInitial.
   apply impred.

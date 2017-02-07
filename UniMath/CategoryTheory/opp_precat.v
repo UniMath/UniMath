@@ -79,7 +79,7 @@ Defined.
 
 Lemma opp_opp_precat (C : precategory) (hs : has_homsets C) : C = C^op^op.
 Proof.
-  use total2_paths.
+  use total2_paths_f.
   - apply opp_opp_precat_data.
   - apply (isaprop_is_precategory _ hs).
 Qed.

@@ -83,7 +83,7 @@ Qed.
 Definition Cone_eq (a b : Cone) : pr1 a = pr1 b -> a = b.
 Proof.
   intro H.
-  apply (total2_paths H).
+  apply (total2_paths_f H).
   apply proofirrelevance.
   apply isaprop_ConeProp.
 Defined.
@@ -111,7 +111,7 @@ Lemma Cone_Mor_eq (M N : Cone) (f g : Cone_Mor M N) :
    ConeConnect f = ConeConnect g -> f = g.
 Proof.
   intro H.
-  apply (total2_paths H).
+  apply (total2_paths_f H).
   apply proofirrelevance.
   apply impred; intro; apply hs.
 Qed.
@@ -224,7 +224,7 @@ Hypothesis is_cat_C : is_category C.
 Definition isotoid_CONE_pr1 (a b : CONE) : iso a b -> pr1 a = pr1 b.
 Proof.
   intro f.
-  apply (total2_paths (isotoid _ is_cat_C (ConeConnectIso f))).
+  apply (total2_paths_f (isotoid _ is_cat_C (ConeConnectIso f))).
   pathvia ((fun c : J =>
      idtoiso (!isotoid C is_cat_C (ConeConnectIso f));; pr2 (pr1 a) c)).
   apply transportf_isotoid_dep'.
