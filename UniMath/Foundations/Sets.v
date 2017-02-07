@@ -2987,4 +2987,13 @@ Proof.
   Unset Printing Coercions.
 Defined.
 
+(** Axioms of choice *)
+
+(* We write these as types rather than as axioms, to force them to be mentioned as
+   explicit hypotheses whenever they are used. *)
+
+Definition AxiomOfChoice (X Y:hSet) (f:X→Y) := issurjective f → ∃ g, f ∘ g ~ idfun Y.
+
+Definition AxiomOfChoice2 (Y:UU) : ∃ (X:hSet) (f:X→Y), issurjective f.
+
 (* End of the file hSet.v *)
