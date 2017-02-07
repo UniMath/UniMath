@@ -234,7 +234,7 @@ Defined.
 
 Definition Action_univalence_prelim_comp {G:gr} {X Y:Action G} (p:X = Y) :
    Action_univalence_prelim p = path_to_ActionIso p.
-Proof. intros. destruct p. apply pair_path_in2. apply funextsec; intro g.
+Proof. intros. destruct p. apply (maponpaths (tpair _ _)). apply funextsec; intro g.
        apply funextsec; intro x. apply setproperty. Defined.
 
 Lemma path_to_ActionIso_isweq {G:gr} {X Y:Action G}  :

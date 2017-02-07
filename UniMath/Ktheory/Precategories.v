@@ -41,8 +41,8 @@ Ltac eqn_logic :=
           try apply homset_property;
           try apply isasetunit;
           try apply isapropunit;
-          try refine (total2_paths2 _ _);
-          try refine (total2_paths _ _);
+          try refine (two_arg_paths_f _ _);
+          try refine (total2_paths_f _ _);
           try refine (nat_trans_ax _ _ _ _);
           try refine (! nat_trans_ax _ _ _ _);
           try apply functor_id;
@@ -436,10 +436,10 @@ Proof.
   { simpl. unshelve refine (gradth _ _ _ _).
     { exact (functor_opp : B^op ==> C^op -> B ==> C). }
     { abstract (intros H; simpl; apply (functor_eq _ _ (homset_property C));
-                unshelve refine (total2_paths _ _); reflexivity) using _L_. }
+                unshelve refine (total2_paths_f _ _); reflexivity) using _L_. }
     { abstract (intros H; simpl; apply functor_eq;
                 [ exact (homset_property C^op)
-                | unshelve refine (total2_paths _ _); reflexivity]). } }
+                | unshelve refine (total2_paths_f _ _); reflexivity]). } }
 Defined.
 
 Definition functorOpEmb {B C:Precategory} : PrecategoryEmbedding [B, C]^op [B^op, C^op]
@@ -450,7 +450,7 @@ Lemma functor_op_rm_op_eq {C D:Precategory} (F : C^op ==> D^op) :
 Proof.
   apply functor_eq.
   { apply homset_property. }
-  unshelve refine (total2_paths _ _); reflexivity.
+  unshelve refine (total2_paths_f _ _); reflexivity.
 Qed.
 
 Lemma functor_rm_op_op_eq {C D:Precategory} (F : C ==> D) :
@@ -458,7 +458,7 @@ Lemma functor_rm_op_op_eq {C D:Precategory} (F : C ==> D) :
 Proof.
   apply functor_eq.
   { apply homset_property. }
-  unshelve refine (total2_paths _ _); reflexivity.
+  unshelve refine (total2_paths_f _ _); reflexivity.
 Qed.
 
 Lemma functor_op_op_eq {C D:Precategory} (F : C ==> D) :
@@ -466,7 +466,7 @@ Lemma functor_op_op_eq {C D:Precategory} (F : C ==> D) :
 Proof.
   apply functor_eq.
   { apply homset_property. }
-  unshelve refine (total2_paths _ _); reflexivity.
+  unshelve refine (total2_paths_f _ _); reflexivity.
 Qed.
 
 (*  *)
@@ -579,9 +579,9 @@ Definition hasZeroMaps_opp (C:Precategory) : hasZeroMaps C -> hasZeroMaps C^op
 Definition hasZeroMaps_opp_opp (C:Precategory) (zero:hasZeroMaps C) :
   hasZeroMaps_opp C^op (hasZeroMaps_opp C zero) = zero.
 Proof.
-  unshelve refine (total2_paths _ _).
+  unshelve refine (total2_paths_f _ _).
   - reflexivity.
-  - unshelve refine (total2_paths _ _); reflexivity.
+  - unshelve refine (total2_paths_f _ _); reflexivity.
 Defined.
 
       (*  *)

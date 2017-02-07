@@ -139,7 +139,7 @@ Section def_complexes.
       (λ x : ∑ D : hz → A, ∏ i : hz, A ⟦ D i, D (i + 1) ⟧,
                                  ∏ i : hz, pr2 x i ;; pr2 x (i + 1) =
                                            ZeroArrow (Additive.to_Zero A) _ _)
-      (total2_paths (funextfun (pr1 (pr1 C1)) (pr1 (pr1 C2)) (λ i : hz, H i))
+      (total2_paths_f (funextfun (pr1 (pr1 C1)) (pr1 (pr1 C2)) (λ i : hz, H i))
                     (ComplexEq' C1 C2 H H1)) (pr2 C1) = pr2 C2.
   Proof.
     apply proofirrelevance. apply impred_isaprop. intros t. apply to_has_homsets.
@@ -151,8 +151,8 @@ Section def_complexes.
                          (transportf (λ x : A, x --> C1 (i + 1)) (H i) (Diff C1 i)) =
               Diff C2 i) : C1 = C2.
   Proof.
-    use total2_paths.
-    - use total2_paths.
+    use total2_paths_f.
+    - use total2_paths_f.
       + use funextfun. intros i. exact (H i).
       + exact (ComplexEq' C1 C2 H H1).
     - exact (ComplexEq'' C1 C2 H H1).
@@ -215,7 +215,7 @@ Section def_complexes.
   Lemma MorphismEq {C1 C2 : Complex} (M1 M2 : Morphism C1 C2) (H : ∏ i : hz, M1 i = M2 i) :
     M1 = M2.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - use funextsec. intros i. exact (H i).
     - use proofirrelevance. apply impred_isaprop. intros t. apply to_has_homsets.
   Qed.
@@ -2823,7 +2823,7 @@ Section translation_functor.
 
   Lemma transportf_total2_base {AA : UU} {B : AA -> UU} {BB : AA -> UU} (s s' : ∑ x : AA, B x)
         (p : pr1 s = pr1 s') (q : transportf B p (pr2 s) = pr2 s') (x : BB (pr1 s)) :
-    transportf (λ x' : ∑ x : AA, B x, BB (pr1 x')) (total2_paths p q) x =
+    transportf (λ x' : ∑ x : AA, B x, BB (pr1 x')) (total2_paths_f p q) x =
     transportf (λ x : AA, BB x) p x.
   Proof.
     induction s as [s1 s2]. induction s' as [s1' s2']. cbn in *.
@@ -2849,7 +2849,7 @@ Section translation_functor.
     set (e := (funextfun (pr1 (pr1 C2)) (pr1 (pr1 C2')) (λ x0 : pr1 hz, H x0))).
     cbn. cbn in e. fold e.
     set (tmp := @transportf_total2_base _ _ (λ x0 : _ , A ⟦ pr1 (pr1 C1) i, (pr1 x0) i ⟧) C2 C2'
-                                        (total2_paths e (ComplexEq' A C2 C2' H H1))
+                                        (total2_paths_f e (ComplexEq' A C2 C2' H H1))
                                         (ComplexEq'' A C2 C2' H H1) (f i)).
     cbn beta in tmp.
     use (pathscomp0 tmp). clear tmp.
@@ -3022,7 +3022,7 @@ Section translation_functor.
              {f : (ComplexHomot_Additive A)⟦C1, C2⟧} (h h' : TranslationFunctorHIm f)
              (e : TranslationFunctorHImMor h = TranslationFunctorHImMor h') : h = h'.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - exact e.
     - apply proofirrelevance. apply impred_isaprop. intros t0.
       apply impred_isaprop. intros H0. apply has_homsets_ComplexHomot_Additive.
@@ -3238,7 +3238,7 @@ Section translation_functor.
              {f : (ComplexHomot_Additive A)⟦C1, C2⟧} (h h' : InvTranslationFunctorHIm f)
              (e : InvTranslationFunctorHImMor h = InvTranslationFunctorHImMor h') : h = h'.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - exact e.
     - apply proofirrelevance. apply impred_isaprop. intros t0.
       apply impred_isaprop. intros H0. apply has_homsets_ComplexHomot_Additive.

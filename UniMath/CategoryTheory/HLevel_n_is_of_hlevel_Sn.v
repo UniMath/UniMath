@@ -126,7 +126,7 @@ Proof.
     apply funextfun.
     simpl. intro x.
     apply (pr2 pY).
-  apply (total2_paths H').
+  apply (total2_paths_f H').
   apply proofirrelevance.
   apply isapropisweq.
 Defined.

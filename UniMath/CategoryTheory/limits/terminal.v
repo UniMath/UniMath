@@ -75,7 +75,7 @@ Lemma isaprop_Terminal : isaprop Terminal.
 Proof.
   apply invproofirrelevance.
   intros T T'.
-  apply (total2_paths (isotoid _ H (iso_Terminals T T')) ).
+  apply (total2_paths_f (isotoid _ H (iso_Terminals T T')) ).
   apply proofirrelevance.
   unfold isTerminal.
   apply impred.

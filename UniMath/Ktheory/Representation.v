@@ -580,12 +580,12 @@ Proof.
         simpl; rewrite <- 2? assoc; apply maponpaths; exact (pr2 w)) using _M_.
   - abstract (intros t; simpl; apply funextsec; intro w;
               induction w as [w eq]; induction w as [p q];
-              simpl in *; unshelve refine (total2_paths2 _ _);
+              simpl in *; unshelve refine (two_arg_paths_f _ _);
               [ rewrite 2? id_left; reflexivity
               | apply proofirrelevance; apply homset_property]) using _N_.
   - abstract (
         intros r s t p q; simpl in *; apply funextsec; intro w;
-        unshelve refine (total2_paths2 _ _);
+        unshelve refine (total2_paths2_f _ _);
         [ simpl; rewrite 2? assoc; reflexivity
         | apply proofirrelevance; apply homset_property]) using _P_.
 Defined.
@@ -689,12 +689,12 @@ Proof.
               apply maponpaths; exact (pr2 fxe)) using _M_.
   - abstract (intro b; apply funextsec; intro w;
               induction w as [w e]; induction w as [f x]; simpl;
-              unshelve refine (total2_paths2 _ _);
+              unshelve refine (two_arg_paths_f _ _);
               [ apply dirprodeq; [ apply id_left | apply arrow_mor_id ]
               | apply setproperty]) using _R_.
   - abstract (intros b b' b'' g g''; apply funextsec; intro w;
               induction w as [w e]; induction w as [f x]; simpl;
-              unshelve refine (total2_paths2 _ _);
+              unshelve refine (total2_paths2_f _ _);
               [ apply dirprodeq;
                 [ apply pathsinv0, assoc | apply arrow_mor_mor_assoc ]
               | apply setproperty ]) using _T_.
@@ -847,7 +847,7 @@ Proof.
                       apply (maponpaths (λ k, X ▭ f ⟳ k));
                       apply pathsinv0;
                       exact (universalMapProperty (r b) (pr1 x' b)) ]) using _R_. } }
-      { abstract (unshelve refine (total2_paths _ _);
+      { abstract (unshelve refine (total2_paths_f _ _);
         [ simpl; apply funextsec; intro b; unshelve refine (universalMapProperty _ _)
         | apply funextsec; intro b;
           apply funextsec; intro b';
@@ -927,7 +927,7 @@ Proof.
       { abstract (intros b b' f; simpl;
                   apply dirprodeq; ( simpl; apply nattrans_naturality )) using _L_. } }
     { abstract (intros w;
-                unshelve refine (total2_paths _ _);
+                unshelve refine (total2_paths_f _ _);
                 [ apply funextsec; intro b; apply pathsinv0, tppr
                 | (apply funextsec; intro b;
                    apply funextsec; intro b';

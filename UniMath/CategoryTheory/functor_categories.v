@@ -92,7 +92,7 @@ Lemma functor_data_eq {C C' : precategory_ob_mor} (F F' : functor_data C C')
                        (transportf (λ x : C', x --> pr1 F C2) (H C1) (pr2 F C1 C2 f)) =
             pr2 F' C1 C2 f) : F = F'.
 Proof.
-  use total2_paths.
+  use total2_paths_f.
   - use funextfun. intros c. exact (H c).
   - use funextsec. intros C1. use funextsec. intros C2. use funextsec. intros f.
     assert (e : transportf (λ x : C → C', ∏ a b : C, a --> b → x a --> x b)
@@ -158,7 +158,7 @@ Lemma functor_eq (C C' : precategory_data) (hs: has_homsets C') (F F': functor C
     pr1 F = pr1 F' -> F = F'.
 Proof.
   intro H.
-  apply (total2_paths H).
+  apply (total2_paths_f H).
   apply proofirrelevance.
   apply isaprop_is_functor.
   apply hs.
@@ -189,11 +189,11 @@ Proof.
   apply (invmaponpathsweq (total2_paths_equiv _ _ _ )); simpl.
   assert (H' : base_paths _ _ p = base_paths _ _ q).
   { apply (invmaponpathsweq (total2_paths_equiv _ _ _ )); simpl.
-    apply (total2_paths2 H), uip.
+    apply (two_arg_paths_f H), uip.
     apply impred_isaset; intro a; apply impred_isaset; intro b; apply impred_isaset; intro f.
     apply hs.
   }
-  apply (total2_paths2 H'), uip, isasetaprop, isaprop_is_functor, hs.
+  apply (two_arg_paths_f H'), uip, isasetaprop, isaprop_is_functor, hs.
 Defined.
 
 Definition functor_id {C C' : precategory_data}(F : functor C C'):
@@ -528,7 +528,7 @@ Proof.
   intro d.
   apply invproofirrelevance.
   intros [c e] [c' e'].
-  simple refine (total2_paths _ _ ).
+  simple refine (total2_paths_f _ _ ).
   - simpl.
     set (X := idtoiso (e @ ! e')).
     (* set (X' := invmap (@weq_ff_functor_on_iso _ _ _ HF _ _ ) X). *)
@@ -788,7 +788,7 @@ Proof.
   intro H.
   assert (H' : pr1 a = pr1 a').
   { now apply funextsec. }
-  apply (total2_paths H'), proofirrelevance, isaprop_is_nat_trans, hs.
+  apply (total2_paths_f H'), proofirrelevance, isaprop_is_nat_trans, hs.
 Qed.
 
 Definition nat_trans_eq_pointwise {C C' : precategory_data}
@@ -1124,7 +1124,7 @@ Definition pr1_functor_eq_from_functor_iso (C : precategory_data) (D : precatego
    iso F G -> pr1 F = pr1 G.
 Proof.
   intro A.
-  apply (total2_paths (pr1_pr1_functor_eq_from_functor_iso C D _ H F G A)).
+  apply (total2_paths_f (pr1_pr1_functor_eq_from_functor_iso C D _ H F G A)).
   unfold pr1_pr1_functor_eq_from_functor_iso.
   apply funextsec; intro a.
   apply funextsec; intro b.

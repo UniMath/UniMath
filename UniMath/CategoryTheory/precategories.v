@@ -630,7 +630,7 @@ Proof.
   apply invproofirrelevance.
   intros g g'.
   set (Hpr1 := inverse_unique_precat _ _ _ _ _ _ (pr2 g) (pr2 g')).
-  apply (total2_paths Hpr1).
+  apply (total2_paths_f Hpr1).
   destruct g as [g [eta eps]].
   destruct g' as [g' [eta' eps']].
   simpl in *.
@@ -644,7 +644,7 @@ Lemma eq_z_iso (C : precategory)(hs: has_homsets C) (a b : ob C)
    (f g : z_iso a b) : pr1 f = pr1 g -> f = g.
 Proof.
   intro H.
-  apply (total2_paths H).
+  apply (total2_paths_f H).
   apply proofirrelevance.
   apply isaprop_is_z_isomorphism, hs.
 Defined.

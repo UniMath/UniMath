@@ -1149,7 +1149,7 @@ Section def_cohomology_homotopy.
              (h : CohomologyFunctorHIm f) (h' : CohomologyFunctorHIm f)
              (e : CohomologyFunctorHImMor h = CohomologyFunctorHImMor h') : h = h'.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - exact e.
     - apply proofirrelevance. apply impred_isaprop. intros t0.
       apply impred_isaprop. intros H0. apply has_homsets_ComplexPreCat.
@@ -1243,8 +1243,8 @@ Section def_cohomology_homotopy.
     functor_composite (ComplexHomotFunctor (AbelianToAdditive A hs)) CohomologyFunctorH =
     (CohomologyFunctor A hs).
   Proof.
-    use total2_paths.
-    - use total2_paths.
+    use total2_paths_f.
+    - use total2_paths_f.
       + apply idpath.
       + rewrite idpath_transportf.
         use funextsec. intros C1.
@@ -1597,7 +1597,7 @@ Section def_kernel_cokernel_complex.
     CokernelKernelMorphism_comm3 C i,, CokernelKernelMorphism_comm2' C i.
   Proof.
     intros t. induction t as [t1 t2]. induction t2 as [t21 t22].
-    use total2_paths.
+    use total2_paths_f.
     - cbn. use KernelInsEq. rewrite KernelCommutes.
       use CokernelOutsEq. rewrite CokernelCommutes.
       rewrite assoc.

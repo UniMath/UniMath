@@ -28,7 +28,7 @@ Module Uniqueness.
            { simpl. rewrite <- path_assoc. simple refine (_ @ pathscomp0rid _).
              rewrite <- maponpathscomp0. rewrite IHn. rewrite pathsinv0l.
              simpl. reflexivity. } }
-         { intros [h0 h']. apply pair_path_in2. apply funextsec; intro n; simpl.
+         { intros [h0 h']. apply maponpaths. apply funextsec; intro n; simpl.
            rewrite <- path_assoc. rewrite <- maponpathscomp0. rewrite pathsinv0r.
            apply pathscomp0rid. } Defined.
 

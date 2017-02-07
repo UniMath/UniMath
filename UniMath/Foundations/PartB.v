@@ -576,7 +576,7 @@ Proof.
   intros. simple refine (weqgradth _ _ _ _).
   + intros [x [t e]]. exact (x,,!e).
   + intros [x e]. exact (x,,tt,,!e).
-  + intros [x [t e]]. apply maponpaths. simple refine (total2_paths2 _ _).
+  + intros [x [t e]]. apply maponpaths. simple refine (two_arg_paths_f _ _).
     * apply isapropunit.
     * simpl. induction e. rewrite pathsinv0inv0. induction t. reflexivity.
   + intros [x e]. apply maponpaths. apply pathsinv0inv0.
@@ -804,7 +804,7 @@ Defined.
 Corollary subtypeEquality' {A : UU} {B : A -> UU}
    {s s' : total2 (fun x => B x)} : pr1 s = pr1 s' -> isaprop (B (pr1 s')) -> s = s'.
 (* This variant of subtypeEquality is not often needed. *)
-Proof. intros ? ? ? ? e is. apply (total2_paths e). apply is. Defined.
+Proof. intros ? ? ? ? e is. apply (total2_paths_f e). apply is. Defined.
 
 (* This corollary of subtypeEquality is used for categories. *)
 Corollary unique_exists {A : UU} {B : A -> UU} (x : A) (b : B x)
@@ -823,13 +823,13 @@ Defined.
 Definition subtypePairEquality {X : UU} {P : X -> UU} (is : isPredicate P)
            {x y : X} {p : P x} {q : P y} :
   x = y -> (x,,p) = (y,,q).
-Proof. intros X P is x y p q e. apply (total2_paths2 e). apply is. Defined.
+Proof. intros X P is x y p q e. apply (two_arg_paths_f e). apply is. Defined.
 
 Definition subtypePairEquality' {X : UU} {P : X -> UU}
            {x y : X} {p : P x} {q : P y} :
   x = y -> isaprop(P y) -> (x,,p) = (y,,q).
 (* This variant of subtypePairEquality is never needed. *)
-Proof. intros X P x y p q e is. apply (total2_paths2 e). apply is. Defined.
+Proof. intros X P x y p q e is. apply (two_arg_paths_f e). apply is. Defined.
 
 Theorem samehfibers {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (is1 : isincl g)
         (y : Y) :  hfiber f y ≃ hfiber (g ∘ f) (g y).
@@ -956,7 +956,7 @@ Proof.
   unshelve refine (_,,_).
   - exists (pr1 (sur y)). exact (pr2 (sur y)).
   - intro w.
-    unshelve refine (total2_paths _ _).
+    unshelve refine (total2_paths_f _ _).
     + simpl. apply inj. intermediate_path y.
       * exact (pr2 w).
       * exact (! pr2 (sur y)).

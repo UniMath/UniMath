@@ -362,7 +362,7 @@ Section def_roofs.
              (H1 : ∏ (R : Roof x y) (H : (pr1 RE1) R), (pr1 RE2) R)
              (H2 : ∏ (R : Roof x y) (H : (pr1 RE2) R), (pr1 RE1) R) : RE1 = RE2.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - use funextfun. intros g.
       apply hPropUnivalence.
       + apply H1.
@@ -689,7 +689,7 @@ Section def_roofs.
         exact X.
     (* Uniqueness *)
     - intros t.
-      use total2_paths.
+      use total2_paths_f.
       + use RoofEqclassEq.
         * intros R HR. cbn.
           set (tmp1 := eqax2 (pr2 (pr1 t))). apply tmp1.
@@ -1619,7 +1619,7 @@ Section def_roofs.
     functor_composite FunctorToLocalization (LocalizationUniversalFunctor D hsD F H') = F.
   Proof.
     use (functor_eq _ _ hsD).
-    use total2_paths.
+    use total2_paths_f.
     - apply idpath.
     - cbn.
       use funextsec. intros a.
@@ -1645,7 +1645,7 @@ Section def_roofs.
     y = (LocalizationUniversalFunctor D hsD F H').
   Proof.
     use (functor_eq _ _ hsD).
-    use total2_paths.
+    use total2_paths_f.
     - induction T. apply idpath.
     - use funextsec. intros a.
       use funextsec. intros b.
