@@ -436,6 +436,21 @@ Module Test_ord.
     Let x := ( ●2 ,, ●1 ):X.
     Let y := ( ●3 ,, ●1 ):X.
 
+    Lemma d : isdeceq X.
+    Proof.
+      apply isdecsum.
+      - apply isdeceqstn.
+      - intro i. apply isdeceqstn.
+    Defined.
+
+    Definition which {X} : X ⨿ ¬X -> bool.
+    Proof.
+      intros X c.
+      induction c.
+      - exact true.
+      - exact false.
+    Defined.
+
     (* we want these to work: *)
 
     Goal choice (x < y)%foset true false = true.
@@ -454,18 +469,32 @@ Module Test_ord.
       reflexivity.
     Defined.
 
-    Goal choice (x ≐ y)%foset true false = true.
-      try reflexivity.            (* fix *)
-      (* Print Assumptions FiniteOrderedSetDecidableEquality. *)
-      (* uses: isweqtoforallpathsAxiom funextemptyAxiom funcontrAxiom *)
-    Abort.
+    Goal choice (x ≐ y)%foset true false = false.
+      reflexivity.
+    Defined.
 
-    Goal choice (x ≠ y)%foset true false = false.
-      try reflexivity.            (* fix *)
+    Goal choice (x ≐ x)%foset true false = true.
+      reflexivity.
+    Defined.
+
+    Goal which (d x y) = false.
+      reflexivity.
+    Defined.
+
+    Goal which (d x x) = true.
+      reflexivity.
+    Defined.
+
+    Goal choice (x ≠ y)%foset true false = true.
+      reflexivity.
+    Defined.
+
+    Goal which (isdeceqnat 2 (height x)) = true.
+      try reflexivity.          (* fix *)
     Abort.
 
     Goal 2 = height x.
-      try reflexivity.                (* does not work *)
+      try reflexivity.                (* fix *)
     Abort.
 
   End TestLex2.

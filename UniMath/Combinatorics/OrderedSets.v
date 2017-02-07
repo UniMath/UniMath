@@ -209,7 +209,7 @@ Coercion underlyingPoset : OrderedSet >-> Poset.
 
 Delimit Scope oset with oset.
 
-Definition Poset_lessthan {X:Poset} (x y:X) := (x ≤ y) ∧ (hneg (x = y)).
+Definition Poset_lessthan {X:Poset} (x y:X) := ∥ x ≤ y  ×  x != y ∥.
 
 Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) : oset.
 Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) : oset.
@@ -259,7 +259,7 @@ Defined.
 Corollary isdeceq_isdec_lessthan (X:OrderedSet) :
   isdeceq X -> ∏ (x y:X), decidable (x < y).
 Proof.
-  intros ? i ? ?. apply decidable_dirprod.
+  intros ? i ? ?. unfold Poset_lessthan. apply decidable_ishinh. apply decidable_dirprod.
   - now apply isdeceq_isdec_ordering.
   - apply neg_isdecprop.
     apply isdecpropif.

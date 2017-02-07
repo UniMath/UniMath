@@ -265,6 +265,19 @@ Proof.
   apply (is1P f).
 Defined.
 
+(** [ishinh] and decidability  *)
+
+Lemma decidable_ishinh {X} : decidable X → decidable(∥X∥).
+Proof.
+  intros ? d.
+  unfold decidable in *.
+  induction d as [x|x'].
+  - apply ii1. now apply hinhpr.
+  - apply ii2. intros p.
+    apply (squash_to_prop p).
+    + exact isapropempty.
+    + exact x'.
+Defined.
 
 (** ** Images and surjectivity for functions between types
 (both depend only on the behavior of the corresponding function between the sets
