@@ -220,14 +220,14 @@ Defined.
 Definition idtomor {C : precategory_data}
    (a b : C) (H : a = b) : a --> b.
 Proof.
-  destruct H.
+  induction H.
   exact (identity a).
 Defined.
 
 Definition idtomor_inv {C : precategory_data}
     (a b : C) (H : a = b) : b --> a.
 Proof.
-  destruct H.
+  induction H.
   exact (identity a).
 Defined.
 
@@ -235,7 +235,7 @@ Lemma cancel_postcomposition (C : precategory_data) (a b c: C)
    (f f' : a --> b) (g : b --> c) : f = f' -> f ;; g = f' ;; g.
 Proof.
   intro H.
-  destruct H.
+  induction H.
   apply idpath.
 Defined.
 
@@ -708,6 +708,16 @@ Proof.
   apply isapropdirprod; apply hs.
 Qed.
 
+Lemma is_z_isomorphism_mor_eq {C : precategory} {a b : C} {f g : a --> b}
+      (e : f = g) (I1 : is_z_isomorphism f) (I2 : is_z_isomorphism g) :
+  is_z_isomorphism_mor I1 = is_z_isomorphism_mor I2.
+Proof.
+  use inverse_unique_precat.
+  - exact f.
+  - exact I1.
+  - rewrite e. exact I2.
+Qed.
+
 Definition z_iso {C : precategory_data} (a b :ob C) := total2
     (fun f : a --> b => is_z_isomorphism f).
 
@@ -1067,14 +1077,13 @@ Definition idtoiso {C : precategory} {a b : ob C}:
       a = b -> iso a b.
 Proof.
   intro H.
-  destruct H.
+  induction H.
   exact (identity_iso a).
 Defined.
 
 (* use eta expanded version to force printing of object arguments *)
 Definition is_category (C : precategory) :=
-  dirprod (Π (a b : ob C), isweq (fun p : a = b => idtoiso p))
-          (has_homsets C).
+  dirprod (Π (a b : ob C), isweq (fun p : a = b => idtoiso p)) (has_homsets C).
 
 Lemma eq_idtoiso_idtomor {C:precategory} (a b:ob C) (e:a = b) :
     pr1 (idtoiso e) = idtomor _ _ e.
@@ -1097,7 +1106,7 @@ Proof.
     apply isapropisaset.
 Qed.
 
-Definition category := total2 (fun C : precategory => is_category C).
+Definition category : UU := total2 (fun C : precategory => is_category C).
 
 Definition category_to_Precategory (C : category) : Precategory.
 Proof.
@@ -1107,8 +1116,9 @@ Defined.
 Coercion category_to_Precategory : category >-> Precategory.
 
 
-Definition category_has_homsets ( C : category )
-  := pr2 (pr2 C).
+Definition category_has_homsets (C : category) := pr2 (pr2 C).
+
+Definition category_is_category (C : category) : is_category C := pr2 C.
 
 Lemma category_has_groupoid_ob (C : category): isofhlevel 3 (ob C).
 Proof.
@@ -1119,7 +1129,6 @@ Proof.
   apply isaset_iso.
   apply (pr2 (pr2 C)).
 Qed.
-
 
 (** ** Definition of [isotoid] *)
 

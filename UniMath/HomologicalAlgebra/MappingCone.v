@@ -707,7 +707,7 @@ Section mapping_cone_of_id.
       rewrite (@to_linvax' A (Additive.to_Zero A)). rewrite to_runax''. apply idpath.
   Qed.
 
-  Lemma IDMappingCone_is_iso_with_inv (C : Complex A) :
+  Lemma IDMappingCone_is_z_isomorphism_inverses (C : Complex A) :
     is_inverse_in_precat
       (ZeroArrow (Additive.to_Zero (ComplexHomot_Additive A))
                  ((ComplexHomotFunctor A) (Additive.to_Zero (ComplexPreCat_Additive A)))
@@ -726,7 +726,7 @@ Section mapping_cone_of_id.
       exact (! (IDMappingConeEq C)).
   Qed.
 
-  Lemma IDMappingCone_is_iso_with_inv_data (C : Complex A) :
+  Lemma IDMappingCone_is_z_isomorphism (C : Complex A) :
     is_z_isomorphism
       (ZeroArrow (Additive.to_Zero (ComplexHomot_Additive A))
                  ((ComplexHomotFunctor A) (Additive.to_Zero (ComplexPreCat_Additive A)))
@@ -735,7 +735,7 @@ Section mapping_cone_of_id.
   Proof.
     use mk_is_z_isomorphism.
     - exact (ZeroArrow (Additive.to_Zero (ComplexHomot_Additive A)) _ _).
-    - exact (IDMappingCone_is_iso_with_inv C).
+    - exact (IDMappingCone_is_z_isomorphism_inverses C).
   Defined.
 
 End mapping_cone_of_id.
@@ -1216,7 +1216,7 @@ Section rotation_mapping_cone.
       + exact (RotMorphismIsoEq2''_3 f i).
   Qed.
 
-  Lemma RotMorphism_is_iso_with_inv {C1 C2 : Complex A} (f : Morphism C1 C2) :
+  Lemma RotMorphism_is_z_isomorphism_inverses {C1 C2 : Complex A} (f : Morphism C1 C2) :
     is_inverse_in_precat (# (ComplexHomotFunctor A) (RotMorphism f))
                          (# (ComplexHomotFunctor A) (RotMorphismInv f)).
   Proof.
@@ -1232,12 +1232,12 @@ Section rotation_mapping_cone.
       + exact (RotMorphismIsoEq2'' f).
   Qed.
 
-  Lemma RotMorphism_is_iso_with_inv_data {C1 C2 : Complex A} (f : Morphism C1 C2) :
+  Lemma RotMorphism_is_z_isomorphism {C1 C2 : Complex A} (f : Morphism C1 C2) :
     is_z_isomorphism (# (ComplexHomotFunctor A) (RotMorphism f)).
   Proof.
     use mk_is_z_isomorphism.
     - exact (# (ComplexHomotFunctor A) (RotMorphismInv f)).
-    - exact (RotMorphism_is_iso_with_inv f).
+    - exact (RotMorphism_is_z_isomorphism_inverses f).
   Defined.
 
   (** Commutativity of the middle square *)
@@ -2992,7 +2992,7 @@ Section inv_rotation_mapping_cone.
     - exact (InvRotMorphismIso'_eq2' f).
   Qed.
 
-  Lemma InvRotMorphism_is_iso_with_inv {C1 C2 : Complex A} (f : Morphism C1 C2) :
+  Lemma InvRotMorphism_is_z_isomorphism_inverses {C1 C2 : Complex A} (f : Morphism C1 C2) :
     is_inverse_in_precat (# (ComplexHomotFunctor A) (InvRotMorphismInv f))
                          (# (ComplexHomotFunctor A) (InvRotMorphism f)).
   Proof.
@@ -3003,14 +3003,14 @@ Section inv_rotation_mapping_cone.
       exact (InvRotMorphism_is_iso_with_inv_eq2 f).
   Qed.
 
-  Definition InvRotMorphism_is_iso_with_inv_data {C1 C2 : Complex A} (f : Morphism C1 C2) :
+  Definition InvRotMorphism_is_z_isomorphism {C1 C2 : Complex A} (f : Morphism C1 C2) :
     @is_z_isomorphism (ComplexHomot_Additive A) _ _
                       (# (ComplexHomotFunctor A)
                          (((InvRotMorphismInv f) : (ComplexPreCat_Additive A)⟦_, _⟧))).
   Proof.
     use mk_is_z_isomorphism.
     - exact (# (ComplexHomotFunctor A) (InvRotMorphism f)).
-    - exact (InvRotMorphism_is_iso_with_inv f).
+    - exact (InvRotMorphism_is_z_isomorphism_inverses f).
   Defined.
 
   Definition InvRotMorphismInvComm1Homot {C1 C2 : Complex A} (f : Morphism C1 C2)  :
@@ -3034,8 +3034,8 @@ Section inv_rotation_mapping_cone.
       (MappingConeIn2 A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f))
                                 ;; (z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) C1)))).
   Proof.
-    use (post_comp_with_z_iso_inv_is_inj (InvRotMorphism_is_iso_with_inv_data f)).
-    unfold is_z_isomorphism_mor. unfold InvRotMorphism_is_iso_with_inv_data.
+    use (post_comp_with_z_iso_inv_is_inj (InvRotMorphism_is_z_isomorphism f)).
+    unfold is_z_isomorphism_mor. unfold InvRotMorphism_is_z_isomorphism.
     set (tmp := functor_comp (ComplexHomotFunctor A) _ _ _
                              ((f : (ComplexPreCat_Additive A)⟦_, _⟧) ;; InvRotMorphismInv f)
                              (InvRotMorphism f)).
@@ -3045,7 +3045,7 @@ Section inv_rotation_mapping_cone.
                              (((InvRotMorphismInv f) : (ComplexPreCat_Additive A)⟦_, _⟧)
                                 ;; (InvRotMorphism f))).
     use (pathscomp0 tmp). clear tmp.
-    set (tmp := is_inverse_in_precat1 (InvRotMorphism_is_iso_with_inv_data f)).
+    set (tmp := is_inverse_in_precat1 (InvRotMorphism_is_z_isomorphism f)).
     cbn beta in tmp. cbn beta.
     set (tmp' := functor_comp (ComplexHomotFunctor A) _ _ _
                               (((InvRotMorphismInv f) : (ComplexPreCat_Additive A)⟦_, _⟧))
@@ -3083,6 +3083,310 @@ Section inv_rotation_mapping_cone.
   Qed.
 
 End inv_rotation_mapping_cone.
+
+
+(** Different fibers of the same morphism give isomorphic mapping cones *)
+Section fiber_ext.
+
+  Variable A : Additive.
+
+  Definition FiberExtMor {C1 C2 : Complex A} (f g : Morphism C1 C2) (H : ComplexHomot A C1 C2)
+             (i : hz) : A ⟦ (MappingCone A f) i, (MappingCone A g) i ⟧.
+  Proof.
+    cbn.
+    use to_binop.
+    - use compose.
+      + exact (C1 (i + 1)).
+      + exact (to_Pr1 A (to_BinDirectSums A (C1 (i + 1)) (C2 i))).
+      + exact (to_In1 A (to_BinDirectSums A (C1 (i + 1)) (C2 i))).
+    - use to_binop.
+      + use compose.
+        * exact (C1 (i + 1)).
+        * exact (to_Pr1 A (to_BinDirectSums A (C1 (i + 1)) (C2 i))).
+        * use compose.
+          -- exact (C2 i).
+          -- exact (transportf (precategory_morphisms (C1 (i + 1)))
+                               (maponpaths C2 (hzrplusminus i 1)) (H (i + 1))).
+          -- exact (to_In2 A (to_BinDirectSums A (C1 (i + 1)) (C2 i))).
+      + use compose.
+        * exact (C2 i).
+        * exact (to_Pr2 A (to_BinDirectSums A (C1 (i + 1)) (C2 i))).
+        * exact (to_In2 A (to_BinDirectSums A (C1 (i + 1)) (C2 i))).
+  Defined.
+
+  Lemma FiberExtComm {C1 C2 : Complex A} (f g : Morphism C1 C2) (H : ComplexHomot A C1 C2)
+             (Comm : to_binop _ _ ((f : (ComplexPreCat_Additive A)⟦_, _⟧))
+                              (to_inv ((g : (ComplexPreCat_Additive A)⟦_, _⟧))) =
+                     ComplexHomotMorphism A H) (i : hz) :
+    FiberExtMor f g H i ;; Diff (MappingCone A g) i =
+    Diff (MappingCone A f) i ;; FiberExtMor f g H (i + 1).
+  Proof.
+    set (Comm' := MorphismEq' A _ _ Comm). cbn in Comm'. cbn.
+    unfold FiberExtMor. unfold MappingConeDiff. cbn.
+    unfold MappingConeDiff1, MappingConeDiff2, MappingConeDiff3. cbn.
+    unfold FiberExtMor. cbn.
+    set (DS1 := to_BinDirectSums A (C1 (i + 1)) (C2 i)).
+    set (DS4 := to_BinDirectSums A (C1 (i + 1 + 1)) (C2 (i + 1))).
+    rewrite to_premor_linear'. rewrite to_premor_linear'. rewrite to_premor_linear'.
+    rewrite to_premor_linear'.
+    rewrite to_postmor_linear'. rewrite to_postmor_linear'. rewrite to_postmor_linear'.
+    rewrite to_postmor_linear'. rewrite to_postmor_linear'. rewrite to_postmor_linear'.
+    rewrite to_postmor_linear'. rewrite to_postmor_linear'. rewrite to_postmor_linear'.
+    rewrite to_postmor_linear'. rewrite to_postmor_linear'. rewrite to_postmor_linear'.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite <- (assoc _ _ (to_Pr2 A DS4)). rewrite <- (assoc _ _ (to_Pr2 A DS4)).
+    rewrite <- (assoc _ _ (to_Pr2 A DS4)). rewrite <- (assoc _ _ (to_Pr1 A DS4)).
+    rewrite <- (assoc _ _ (to_Pr1 A DS4)). rewrite <- (assoc _ _ (to_Pr1 A DS4)).
+    rewrite (to_IdIn1 A DS4). rewrite (to_IdIn2 A DS4).
+    rewrite (to_Unel1' DS4). rewrite (to_Unel2' DS4). unfold DiffTranslationComplex.
+    rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right.
+    rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left.
+    rewrite id_right. rewrite id_right. rewrite id_right.
+    rewrite to_lunax''. rewrite to_runax''. rewrite to_runax''. rewrite to_lunax''.
+    rewrite <- (assoc _ _ (to_Pr2 A DS1)). rewrite <- (assoc _ _ (to_Pr2 A DS1)).
+    rewrite <- (assoc _ _ (to_Pr2 A DS1)).
+    rewrite <- (assoc _ _ (to_Pr1 A DS1)). rewrite <- (assoc _ _ (to_Pr1 A DS1)).
+    rewrite <- (assoc _ _ (to_Pr1 A DS1)).
+    rewrite (to_IdIn1 A DS1). rewrite (to_IdIn2 A DS1).
+    rewrite (to_Unel1' DS1). rewrite (to_Unel2' DS1).
+    rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right.
+    rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left.
+    rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left.
+    rewrite id_right. rewrite id_right. rewrite id_right.
+    rewrite to_runax''. rewrite to_runax''. rewrite to_runax''. rewrite to_lunax''.
+    apply maponpaths.
+    rewrite <- to_postmor_linear'. rewrite <- to_postmor_linear'.
+    rewrite <- to_postmor_linear'. rewrite <- to_postmor_linear'.
+    rewrite <- to_postmor_linear'. apply cancel_postcomposition.
+    rewrite <- to_assoc. rewrite to_postmor_linear'.
+    rewrite to_commax'. rewrite (to_commax' _ _ (to_Pr2 A DS1 ;; Diff C2 i)).
+    rewrite (to_commax' _ _ (to_Pr2 A DS1 ;; Diff C2 i)).
+    rewrite to_assoc. apply maponpaths.
+    rewrite <- assoc. rewrite <- assoc. rewrite <- to_premor_linear'. rewrite <- to_premor_linear'.
+    apply cancel_precomposition.
+    apply (to_rcan A (to_inv (g (i + 1)))). rewrite to_assoc. rewrite to_assoc.
+    rewrite (Comm' (i + 1)). rewrite (@to_rinvax' A (Additive.to_Zero A)). rewrite to_runax''.
+    rewrite <- transport_target_postcompose. rewrite <- PreAdditive_invlcomp.
+    rewrite <- transport_target_to_inv. rewrite to_commax'. rewrite to_assoc.
+    rewrite (@to_rinvax' A (Additive.to_Zero A)). rewrite to_runax''.
+    rewrite transport_compose. rewrite transport_target_postcompose.
+    apply cancel_precomposition.
+    set (tmp := transport_hz_section A C2 1 (Diff C2) _ _ (hzrplusminus i 1)).
+    rewrite <- maponpathsinv0.
+    use (pathscomp0 (! tmp)). clear tmp. use transportf_paths.
+    apply maponpaths. apply isasethz.
+  Qed.
+
+  Definition FiberExt {C1 C2 : Complex A} (f g : Morphism C1 C2) (H : ComplexHomot A C1 C2)
+    (Comm : to_binop _ _ ((f : (ComplexPreCat_Additive A)⟦_, _⟧))
+                              (to_inv ((g : (ComplexPreCat_Additive A)⟦_, _⟧))) =
+                     ComplexHomotMorphism A H) :
+    Morphism (MappingCone A f) (MappingCone A g).
+  Proof.
+    use mk_Morphism.
+    - intros i. exact (FiberExtMor f g H i).
+    - intros i. exact (FiberExtComm f g H Comm i).
+  Defined.
+
+  Definition InvHomot {C1 C2 : Complex A} (H : ComplexHomot A C1 C2) :
+    ComplexHomot A C1 C2.
+  Proof.
+    intros i. exact (to_inv (H i)).
+  Defined.
+
+  Lemma InvHomotEq {C1 C2 : Complex A} (f g : Morphism C1 C2) (H : ComplexHomot A C1 C2)
+    (Comm : to_binop _ _ ((f : (ComplexPreCat_Additive A)⟦_, _⟧))
+                              (to_inv ((g : (ComplexPreCat_Additive A)⟦_, _⟧))) =
+            ComplexHomotMorphism A H) :
+    to_binop _ _ ((g : (ComplexPreCat_Additive A)⟦_, _⟧))
+                              (to_inv ((f : (ComplexPreCat_Additive A)⟦_, _⟧))) =
+    ComplexHomotMorphism A (InvHomot H).
+  Proof.
+    set (Comm' := MorphismEq' A _ _ Comm). cbn in Comm'.
+    use MorphismEq. intros i. cbn. unfold InvHomot.
+    rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
+    rewrite <- transport_target_to_inv. rewrite <- transport_target_to_inv.
+    rewrite to_binop_inv_inv. rewrite <- (Comm' i).
+    rewrite <- to_binop_inv_comm_1. rewrite to_commax'. apply idpath.
+  Qed.
+
+  Lemma FiberExt_eq1 {C1 C2 : Complex A} (f g : Morphism C1 C2) (H : ComplexHomot A C1 C2)
+    (Comm : to_binop _ _ ((f : (ComplexPreCat_Additive A)⟦_, _⟧))
+                              (to_inv ((g : (ComplexPreCat_Additive A)⟦_, _⟧))) =
+            ComplexHomotMorphism A H) :
+    (((FiberExt f g H Comm) : (ComplexPreCat_Additive A)⟦_, _⟧)
+       ;; ((FiberExt g f (InvHomot H) (InvHomotEq f g H Comm)) :
+             (ComplexPreCat_Additive A)⟦_, _⟧)) = (identity _).
+  Proof.
+    use MorphismEq. intros i. cbn. unfold FiberExtMor. unfold InvHomot. cbn.
+    set (DS1 := to_BinDirectSums A (C1 (i + 1)) (C2 i)).
+    set (DS4 := to_BinDirectSums A (C1 (i + 1 + 1)) (C2 (i + 1))).
+    rewrite <- (to_BinOpId A DS1).
+    rewrite to_premor_linear'. rewrite to_premor_linear'. rewrite to_postmor_linear'.
+    rewrite to_postmor_linear'. rewrite to_postmor_linear'. rewrite to_postmor_linear'.
+    rewrite to_postmor_linear'. rewrite to_postmor_linear'.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite assoc.
+    rewrite <- (assoc _ _ (to_Pr2 A DS1)). rewrite <- (assoc _ _ (to_Pr2 A DS1)).
+    rewrite <- (assoc _ _ (to_Pr2 A DS1)). rewrite <- (assoc _ _ (to_Pr1 A DS1)).
+    rewrite <- (assoc _ _ (to_Pr1 A DS1)). rewrite <- (assoc _ _ (to_Pr1 A DS1)).
+    rewrite (to_IdIn1 A DS1). rewrite (to_IdIn2 A DS1).
+    rewrite (to_Unel1' DS1). rewrite (to_Unel2' DS1). unfold DiffTranslationComplex.
+    rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right.
+    rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left.
+    rewrite id_right. rewrite id_right. rewrite id_right.
+    rewrite to_runax''. rewrite to_runax''. rewrite to_runax''. rewrite to_lunax''.
+    apply maponpaths. rewrite <- transport_target_to_inv. rewrite <- PreAdditive_invrcomp.
+    rewrite <- PreAdditive_invlcomp. rewrite <- to_assoc.
+    rewrite (@to_linvax' A (Additive.to_Zero A)). rewrite to_lunax''. apply idpath.
+  Qed.
+
+  Lemma FiberExt_eq2 {C1 C2 : Complex A} (f g : Morphism C1 C2) (H : ComplexHomot A C1 C2)
+    (Comm : to_binop _ _ ((f : (ComplexPreCat_Additive A)⟦_, _⟧))
+                              (to_inv ((g : (ComplexPreCat_Additive A)⟦_, _⟧))) =
+            ComplexHomotMorphism A H) :
+    (((FiberExt g f (InvHomot H) (InvHomotEq f g H Comm)) : (ComplexPreCat_Additive A)⟦_, _⟧)
+       ;; ((FiberExt f g H Comm) : (ComplexPreCat_Additive A)⟦_, _⟧)) = (identity _).
+  Proof.
+    use MorphismEq. intros i. cbn. unfold FiberExtMor. unfold InvHomot. cbn.
+    set (DS1 := to_BinDirectSums A (C1 (i + 1)) (C2 i)).
+    set (DS4 := to_BinDirectSums A (C1 (i + 1 + 1)) (C2 (i + 1))).
+    rewrite <- (to_BinOpId A DS1).
+    rewrite to_premor_linear'. rewrite to_premor_linear'. rewrite to_postmor_linear'.
+    rewrite to_postmor_linear'. rewrite to_postmor_linear'. rewrite to_postmor_linear'.
+    rewrite to_postmor_linear'. rewrite to_postmor_linear'.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite assoc.
+    rewrite <- (assoc _ _ (to_Pr2 A DS1)). rewrite <- (assoc _ _ (to_Pr2 A DS1)).
+    rewrite <- (assoc _ _ (to_Pr2 A DS1)). rewrite <- (assoc _ _ (to_Pr1 A DS1)).
+    rewrite <- (assoc _ _ (to_Pr1 A DS1)). rewrite <- (assoc _ _ (to_Pr1 A DS1)).
+    rewrite (to_IdIn1 A DS1). rewrite (to_IdIn2 A DS1).
+    rewrite (to_Unel1' DS1). rewrite (to_Unel2' DS1). unfold DiffTranslationComplex.
+    rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right.
+    rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left.
+    rewrite id_right. rewrite id_right. rewrite id_right.
+    rewrite to_runax''. rewrite to_runax''. rewrite to_runax''. rewrite to_lunax''.
+    apply maponpaths. rewrite <- transport_target_to_inv. rewrite <- PreAdditive_invrcomp.
+    rewrite <- PreAdditive_invlcomp. rewrite <- to_assoc.
+    rewrite (@to_rinvax' A (Additive.to_Zero A)). rewrite to_lunax''. apply idpath.
+  Qed.
+
+  Lemma FiberExt_inverses' {C1 C2 : Complex A} (f g : Morphism C1 C2)
+             (H : ComplexHomot A C1 C2)
+             (Comm : to_binop _ _ ((f : (ComplexPreCat_Additive A)⟦_, _⟧))
+                              (to_inv ((g : (ComplexPreCat_Additive A)⟦_, _⟧))) =
+            ComplexHomotMorphism A H) :
+    @is_inverse_in_precat (ComplexPreCat_Additive A) _ _ ((FiberExt f g H Comm))
+                          ((FiberExt g f (InvHomot H) (InvHomotEq f g H Comm))).
+  Proof.
+    use mk_is_inverse_in_precat.
+    - exact (FiberExt_eq1 f g H Comm).
+    - exact (FiberExt_eq2 f g H Comm).
+  Qed.
+
+  Lemma FiberExt_inverses {C1 C2 : Complex A} (f g : Morphism C1 C2)
+             (H : ComplexHomot A C1 C2)
+             (Comm : to_binop _ _ ((f : (ComplexPreCat_Additive A)⟦_, _⟧))
+                              (to_inv ((g : (ComplexPreCat_Additive A)⟦_, _⟧))) =
+            ComplexHomotMorphism A H) :
+    is_inverse_in_precat (# (ComplexHomotFunctor A) (FiberExt f g H Comm))
+                         (# (ComplexHomotFunctor A) (FiberExt g f (InvHomot H)
+                                                              (InvHomotEq f g H Comm))).
+  Proof.
+    use mk_is_inverse_in_precat.
+    - rewrite <- functor_id. rewrite <- functor_comp. apply maponpaths.
+      exact (FiberExt_eq1 f g H Comm).
+    - rewrite <- functor_id. rewrite <- functor_comp. apply maponpaths.
+      exact (FiberExt_eq2 f g H Comm).
+  Qed.
+
+  Definition FiberExt_is_z_isomorphism {C1 C2 : Complex A} (f g : Morphism C1 C2)
+             (H : ComplexHomot A C1 C2)
+             (Comm : to_binop _ _ ((f : (ComplexPreCat_Additive A)⟦_, _⟧))
+                              (to_inv ((g : (ComplexPreCat_Additive A)⟦_, _⟧))) =
+            ComplexHomotMorphism A H) :
+    @is_z_isomorphism (ComplexHomot_Additive A) _ _
+                      (# (ComplexHomotFunctor A)
+                         (((FiberExt f g H Comm) : (ComplexPreCat_Additive A)⟦_, _⟧))).
+  Proof.
+    use mk_is_z_isomorphism.
+    - exact (# (ComplexHomotFunctor A) ((FiberExt g f (InvHomot H) (InvHomotEq f g H Comm)) :
+                                          (ComplexPreCat_Additive A)⟦_, _⟧)).
+    - exact (FiberExt_inverses f g H Comm).
+  Defined.
+
+  Lemma FiberExt_Comm2 {C1 C2 : Complex A} (f g : Morphism C1 C2)
+        (H : ComplexHomot A C1 C2)
+        (Comm : to_binop _ _ ((f : (ComplexPreCat_Additive A)⟦_, _⟧))
+                         (to_inv ((g : (ComplexPreCat_Additive A)⟦_, _⟧))) =
+                ComplexHomotMorphism A H) :
+    ((MappingConeIn2 A f) : (ComplexPreCat_Additive A)⟦_, _⟧) ;; (FiberExt f g H Comm) =
+    (MappingConeIn2 A g).
+  Proof.
+    use MorphismEq. intros i. cbn.
+    unfold FiberExtMor.
+    set (DS1 := to_BinDirectSums A (C1 (i + 1)) (C2 i)).
+    set (DS2 := to_BinDirectSums A (C1 (i + 1 + 1)) (C2 (i + 1))).
+    rewrite to_premor_linear'. rewrite to_premor_linear'.
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite (to_IdIn2 A DS1). rewrite (to_Unel2' DS1).
+    rewrite id_left. rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left.
+    rewrite ZeroArrow_comp_left. rewrite to_lunax''. rewrite to_lunax''.
+    apply idpath.
+  Qed.
+
+  Lemma FiberExt_Comm2H {C1 C2 : Complex A} (f g : Morphism C1 C2)
+        (H : ComplexHomot A C1 C2)
+        (Comm : to_binop _ _ ((f : (ComplexPreCat_Additive A)⟦_, _⟧))
+                         (to_inv ((g : (ComplexPreCat_Additive A)⟦_, _⟧))) =
+                ComplexHomotMorphism A H) :
+    (# (ComplexHomotFunctor A) (MappingConeIn2 A f))
+      ;; (# (ComplexHomotFunctor A) (FiberExt f g H Comm)) =
+    # (ComplexHomotFunctor A) (MappingConeIn2 A g).
+  Proof.
+    rewrite <- functor_comp. apply maponpaths. exact (FiberExt_Comm2 f g H Comm).
+  Qed.
+
+  Lemma FiberExt_Comm3 {C1 C2 : Complex A} (f g : Morphism C1 C2)
+        (H : ComplexHomot A C1 C2)
+        (Comm : to_binop _ _ ((f : (ComplexPreCat_Additive A)⟦_, _⟧))
+                         (to_inv ((g : (ComplexPreCat_Additive A)⟦_, _⟧))) =
+                ComplexHomotMorphism A H) :
+    ((MappingConePr1 A f) : (ComplexPreCat_Additive A)⟦_, _⟧) =
+    ((FiberExt f g H Comm) : (ComplexPreCat_Additive A)⟦_, _⟧) ;; (MappingConePr1 A g).
+  Proof.
+    use MorphismEq. intros i. cbn.
+    unfold FiberExtMor.
+    set (DS1 := to_BinDirectSums A (C1 (i + 1)) (C2 i)).
+    set (DS2 := to_BinDirectSums A (C1 (i + 1 + 1)) (C2 (i + 1))).
+    rewrite to_postmor_linear'. rewrite to_postmor_linear'.
+    rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
+    rewrite (to_IdIn1 A DS1). rewrite (to_Unel2' DS1).
+    rewrite id_right. rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right.
+    rewrite ZeroArrow_comp_right. rewrite to_lunax''. rewrite to_runax''.
+    apply idpath.
+  Qed.
+
+  Lemma FiberExt_Comm3H {C1 C2 : Complex A} (f g : Morphism C1 C2)
+        (H : ComplexHomot A C1 C2)
+        (Comm : to_binop _ _ ((f : (ComplexPreCat_Additive A)⟦_, _⟧))
+                         (to_inv ((g : (ComplexPreCat_Additive A)⟦_, _⟧))) =
+                ComplexHomotMorphism A H) :
+    # (ComplexHomotFunctor A) (MappingConePr1 A f) =
+    # (ComplexHomotFunctor A) (FiberExt f g H Comm)
+      ;; # (ComplexHomotFunctor A) (MappingConePr1 A g).
+  Proof.
+    rewrite <- functor_comp. apply maponpaths. exact (FiberExt_Comm3 f g H Comm).
+  Qed.
+
+End fiber_ext.
 
 
 (** * Extension of morphisms *)

@@ -962,7 +962,7 @@ Section translation_functor.
     use total2_paths.
     - exact e.
     - apply proofirrelevance. apply impred_isaprop. intros t0.
-      apply impred_isaprop. intros H0. apply has_homsets_ComplexHomot_Additive.
+      apply impred_isaprop. intros H0. use to_has_homsets.
   Qed.
 
 
@@ -1035,9 +1035,9 @@ Section translation_functor.
       ;; (TranslationFunctorHImMor (iscontrpr1 (TranslationFunctorH_Mor g))) .
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
-    apply has_homsets_ComplexHomot_Additive. intros f'.
+    use to_has_homsets. intros f'.
     use (squash_to_prop (ComplexHomotFunctor_issurj A g)).
-    apply has_homsets_ComplexHomot_Additive. intros g'.
+    use to_has_homsets. intros g'.
     rewrite (TranslationFunctorHImEq (iscontrpr1 (TranslationFunctorH_Mor f)) _ (hfiberpr2 _ _ f')).
     rewrite (TranslationFunctorHImEq (iscontrpr1 (TranslationFunctorH_Mor g)) _ (hfiberpr2 _ _ g')).
     set (tmp := functor_comp (ComplexHomotFunctor A) _ _ _
@@ -1178,7 +1178,7 @@ Section translation_functor.
     use total2_paths.
     - exact e.
     - apply proofirrelevance. apply impred_isaprop. intros t0.
-      apply impred_isaprop. intros H0. apply has_homsets_ComplexHomot_Additive.
+      apply impred_isaprop. intros H0. use to_has_homsets.
   Qed.
 
 
@@ -1252,9 +1252,9 @@ Section translation_functor.
       ;; (InvTranslationFunctorHImMor (iscontrpr1 (InvTranslationFunctorH_Mor g))) .
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
-    apply has_homsets_ComplexHomot_Additive. intros f'.
+    use to_has_homsets. intros f'.
     use (squash_to_prop (ComplexHomotFunctor_issurj A g)).
-    apply has_homsets_ComplexHomot_Additive. intros g'.
+    use to_has_homsets. intros g'.
     rewrite (InvTranslationFunctorHImEq
                (iscontrpr1 (InvTranslationFunctorH_Mor f)) _ (hfiberpr2 _ _ f')).
     rewrite (InvTranslationFunctorHImEq
@@ -1393,11 +1393,11 @@ Section translation_functor.
         * intros i. cbn. exact (TranslationInvTranslation_eq1 C i).
       + intros C1 C2 f. cbn beta.
         use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
-        apply has_homsets_ComplexHomot_Additive. intros f'. cbn.
+        use to_has_homsets. intros f'. cbn.
         rewrite (TranslationFunctorH_Mor_unique _ f').
         use (squash_to_prop (ComplexHomotFunctor_issurj
                                A (TranslationFunctorHImMor (TranslationFunctorH_Mor_data f f')))).
-        apply has_homsets_ComplexHomot_Additive. intros f''.
+        use (@to_has_homsets (ComplexHomot_Additive A)). intros f''.
         rewrite (InvTranslationFunctorH_Mor_unique _ f'').
         rewrite <- (hfiberpr2 _ _ f').
         rewrite <- (TranslationInvTranslation_eq2 (hfiberpr1 # (ComplexHomotFunctor A) f f')).
@@ -1432,12 +1432,12 @@ Section translation_functor.
         * intros i. cbn. exact (InvTranslationTranslation_eq1 C i).
       + intros C1 C2 f. cbn beta.
         use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
-        apply has_homsets_ComplexHomot_Additive. intros f'. cbn.
+        use to_has_homsets.  intros f'. cbn.
         rewrite (InvTranslationFunctorH_Mor_unique _ f').
         use (squash_to_prop
                (ComplexHomotFunctor_issurj
                   A (InvTranslationFunctorHImMor (InvTranslationFunctorH_Mor_data f f')))).
-        apply has_homsets_ComplexHomot_Additive. intros f''.
+        use (@to_has_homsets (ComplexHomot_Additive A)). intros f''.
         rewrite (TranslationFunctorH_Mor_unique _ f'').
         rewrite <- (hfiberpr2 _ _ f').
         rewrite <- (InvTranslationTranslation_eq2 (hfiberpr1 # (ComplexHomotFunctor A) f f')).
@@ -1474,7 +1474,7 @@ Section translation_functor.
           ComplexHomotFunctor compose InvTranslationFunctorH TranslationFunctorH
           TranslationFunctor InvTranslationFunctor.
     use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
-    apply has_homsets_ComplexHomot_Additive. intros f'.
+    use to_has_homsets. intros f'.
     cbn. set (tmp := TranslationFunctorH_Mor_Im f f'). cbn in tmp. rewrite tmp. clear tmp.
     set (f'' := @hfiberpair
                   _ _ (# (ComplexHomotFunctor A))
@@ -1525,7 +1525,7 @@ Section translation_functor.
           ComplexHomotFunctor compose InvTranslationFunctorH TranslationFunctorH
           TranslationFunctor InvTranslationFunctor.
     use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
-    apply has_homsets_ComplexHomot_Additive. intros f'.
+    use to_has_homsets. intros f'.
     cbn. set (tmp := InvTranslationFunctorH_Mor_Im f f'). cbn in tmp. rewrite tmp. clear tmp.
     set (f'' := @hfiberpair
                   _ _ (# (ComplexHomotFunctor A))

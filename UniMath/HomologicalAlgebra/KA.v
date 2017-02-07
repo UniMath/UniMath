@@ -43,9 +43,10 @@ Require Import UniMath.CategoryTheory.AdditiveFunctors.
 Require Import UniMath.HomologicalAlgebra.Complexes.
 
 Unset Kernel Term Sharing.
+Global Opaque hz.
 
 Open Scope hz_scope.
-Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow.
+Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow ishinh.
 
 (** * Homotopies of complexes and K(A), the naive homotopy category of A. *)
 (** ** Introduction
@@ -131,7 +132,7 @@ Section complexes_homotopies.
   Proof.
     use mk_Morphism.
     - intros i.
-      use to_binop.
+      use (@to_binop A (C1 i) (C2 i)).
       + exact (transportf _ (maponpaths C2 (hzrminusplus i 1)) ((H i) ;; (Diff C2 (i - 1)))).
       + exact (transportf _ (maponpaths C2 (hzrplusminus i 1)) ((Diff C1 i) ;; (H (i + 1)))).
     - intros i. exact (ComplexHomotMorphism_comm H i).
@@ -151,11 +152,11 @@ Section complexes_homotopies.
   Proof.
     use tpair.
     - use tpair.
-      + intros f g P X. induction f as [f1 f2]. induction g as [g1 g2].
+      + intros f g. induction f as [f1 f2]. induction g as [g1 g2].
         use (squash_to_prop f2). apply propproperty. intros f3.
         use (squash_to_prop g2). apply propproperty. intros g3.
         induction f3 as [f3 f4]. induction g3 as [g3 g4].
-        apply X. clear P X. cbn.
+        use hinhpr. cbn.
         use tpair.
         * intros i.
           use to_binop.
@@ -206,7 +207,7 @@ Section complexes_homotopies.
           apply maponpaths.
           apply tmp'.
       (* ZeroMorphisms *)
-      + cbn. intros P X. apply X. clear X P.
+      + use hinhpr.
         use tpair.
         * intros i. exact (ZeroArrow (Additive.to_Zero A) _ _).
         * cbn. use MorphismEq. intros i. cbn. rewrite ZeroArrow_comp_left.
@@ -214,7 +215,7 @@ Section complexes_homotopies.
           rewrite ZeroArrow_comp_right. rewrite transport_target_ZeroArrow.
           rewrite <- PreAdditive_unel_zero. rewrite to_lunax'. apply idpath.
     - intros f H. use (squash_to_prop H). apply propproperty. intros H'. clear H.
-      induction H' as [homot eq]. intros P X. apply X. clear P X.
+      induction H' as [homot eq]. use hinhpr.
       use tpair.
       + intros i. exact (grinv (to_abgrop (C1 i) (C2 (i - 1))) (homot i)).
       + cbn. rewrite <- eq. use MorphismEq. intros i. cbn.
@@ -264,9 +265,9 @@ Section complexes_homotopies.
         (f : ((ComplexPreCat_Additive A)⟦C2, C3⟧)) (H : ComplexHomotSubset C2 C3 f) :
     Π (g : ((ComplexPreCat_Additive A)⟦C1, C2⟧)), ComplexHomotSubset C1 C3 (g ;; f).
   Proof.
-    intros g P X.
+    intros g.
     use (squash_to_prop H). apply propproperty. intros HH.
-    apply X. clear P X.
+    use hinhpr.
     induction HH as [homot eq].
     use tpair.
     - intros i. exact ((MMor g i) ;; (homot i)).
@@ -282,9 +283,9 @@ Section complexes_homotopies.
         (f : ((ComplexPreCat_Additive A)⟦C1, C2⟧)) (H : ComplexHomotSubset C1 C2 f) :
     Π (g : ((ComplexPreCat_Additive A)⟦C2, C3⟧)), ComplexHomotSubset C1 C3 (f ;; g).
   Proof.
-    intros g P X.
+    intros g.
     use (squash_to_prop H). apply propproperty. intros HH.
-    apply X. clear P X.
+    use hinhpr.
     induction HH as [homot eq].
     use tpair.
     - intros i. exact ((homot i) ;; (MMor g (i - 1))).
@@ -329,34 +330,20 @@ Section complexes_homotopies.
   Qed.
 
   (** Here we construct K(A). *)
-  Definition ComplexHomot_Additive : Additive.
-  Proof.
-    use QuotPrecategory_Additive.
-    - exact (ComplexPreCat_Additive A).
-    - intros C1 C2. exact (ComplexHomotSubgrp C1 C2).
-    - exact (ComplexHomot_Additive_Comp).
-  Defined.
+  Definition ComplexHomot_Additive : Additive :=
+    QuotPrecategory_Additive
+      (ComplexPreCat_Additive A) ComplexHomotSubgrp ComplexHomot_Additive_Comp.
 
-  Lemma has_homsets_ComplexHomot_Additive : has_homsets ComplexHomot_Additive.
-  Proof.
-    apply to_has_homsets.
-  Qed.
-
-  Lemma ComplexHomot_Mor_issurj {c d : ComplexHomot_Additive} (f : ComplexHomot_Additive⟦c, d⟧) :
-    ∥ hfiber (setquotpr (binopeqrel_subgr_eqrel (ComplexHomotSubgrp c d))) f ∥.
-  Proof.
-    use issurjsetquotpr.
-  Qed.
-
-  Definition ComplexHomotFunctor : AdditiveFunctor (ComplexPreCat_Additive A) ComplexHomot_Additive.
-  Proof.
-    apply QuotPrecategoryAdditiveFunctor.
-  Defined.
+  Definition ComplexHomotFunctor :
+    AdditiveFunctor (ComplexPreCat_Additive A) ComplexHomot_Additive :=
+    QuotPrecategoryAdditiveFunctor
+      (ComplexPreCat_Additive A) ComplexHomotSubgrp ComplexHomot_Additive_Comp.
+  Arguments ComplexHomotFunctor : simpl never.
 
   Lemma ComplexHomotFunctor_issurj {C1 C2 : ComplexPreCat_Additive A}
         (f : ComplexHomot_Additive⟦C1, C2⟧) : ∥ hfiber (# ComplexHomotFunctor) f ∥.
   Proof.
-    apply ComplexHomot_Mor_issurj.
+    apply issurjsetquotpr.
   Qed.
 
   Lemma ComplexHomotFunctor_rel_mor {C1 C2 : ComplexPreCat_Additive A}
@@ -372,13 +359,15 @@ Section complexes_homotopies.
     # ComplexHomotFunctor f = # ComplexHomotFunctor g.
   Proof.
     apply ComplexHomotFunctor_rel_mor.
-    intros P X. apply X. clear X P. use tpair.
+    use hinhpr.
+    use tpair.
     - cbn. use tpair.
       + exact (ComplexHomotMorphism H).
-      + intros P X. apply X. clear P X. use tpair.
+      + use hinhpr.
+        use tpair.
         * exact H.
         * apply idpath.
-    - cbn. apply pathsinv0. apply H'.
+    - exact (! H').
   Qed.
 
   Lemma ComplexHomotFunctor_mor_rel {C1 C2 : ComplexPreCat_Additive A}
@@ -398,10 +387,11 @@ Section complexes_homotopies.
     use (squash_to_prop (ComplexHomotFunctor_mor_rel f g H) (propproperty _)). intros h.
     induction h as [b hh]. cbn in b. unfold ComplexHomotSubset in b.
     use (squash_to_prop (pr2 b) (propproperty _)). intros hhh.
-    induction hhh as [H1 H2]. cbn in hh. cbn in H2. rewrite hh in H2.
-    intros P X. apply X. clear P X. use tpair.
+    induction hhh as [H1 H2]. cbn in hh. cbn in H2.
+    use hinhpr.
+    use tpair.
     - exact H1.
-    - exact H2.
+    - exact (H2 @ hh).
   Qed.
 
   Lemma ComplexHomotPreCompHomot {C1 C2 C3 : ComplexPreCat_Additive A}
@@ -432,7 +422,6 @@ Section complexes_homotopies.
 
   (** Commutativity of squares *)
 
-  Local Transparent hfiber.
   Lemma ComplexHomotComm2 {C1 C2 C3 C4 : ob ComplexHomot_Additive}
         {f1 : C1 --> C2} {f2 : C2 --> C4} {g1 : C1 --> C3} {g2 : C3 --> C4}
         (f1' : hfiber (# ComplexHomotFunctor) f1) (f2' : hfiber (# ComplexHomotFunctor) f2)

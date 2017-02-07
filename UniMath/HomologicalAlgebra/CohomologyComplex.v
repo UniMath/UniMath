@@ -55,7 +55,7 @@ Require Import UniMath.HomologicalAlgebra.Complexes.
 Require Import UniMath.HomologicalAlgebra.KA.
 
 Open Scope hz_scope.
-Local Opaque hz isdecrelhzeq hzplus iscommrngops.
+Local Opaque hz isdecrelhzeq hzplus iscommrngops ishinh.
 
 (** * Cohomology functor *)
 (** ** Introduction

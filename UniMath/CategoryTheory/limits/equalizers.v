@@ -202,6 +202,27 @@ Section def_equalizers.
              (E E' : Equalizer f g) : iso E E' :=
     tpair _ _ (isiso_from_Equalizer_to_Equalizer E E').
 
+  Lemma z_iso_from_Equalizer_to_Equalizer_inverses {y z : C} {f g : y --> z}
+        (E E' : Equalizer f g) :
+    is_inverse_in_precat (from_Equalizer_to_Equalizer E E') (from_Equalizer_to_Equalizer E' E).
+  Proof.
+    use mk_is_inverse_in_precat.
+    - apply pathsinv0. use EqualizerEndo_is_identity.
+      rewrite <- assoc. unfold from_Equalizer_to_Equalizer. rewrite EqualizerCommutes.
+      rewrite EqualizerCommutes. apply idpath.
+    - apply pathsinv0. use EqualizerEndo_is_identity.
+      rewrite <- assoc. unfold from_Equalizer_to_Equalizer. rewrite EqualizerCommutes.
+      rewrite EqualizerCommutes. apply idpath.
+  Qed.
+
+  Definition z_iso_from_Equalizer_to_Equalizer {y z : C} {f g : y --> z}
+             (E E' : Equalizer f g) : z_iso E E'.
+  Proof.
+    use mk_z_iso.
+    - exact (from_Equalizer_to_Equalizer E E').
+    - exact (from_Equalizer_to_Equalizer E' E).
+    - exact (z_iso_from_Equalizer_to_Equalizer_inverses E E').
+  Defined.
 
   (** We prove that EqualizerArrow is a monic. *)
   Lemma EqualizerArrowisMonic {y z : C} {f g : y --> z} (E : Equalizer f g ) :

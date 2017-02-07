@@ -582,11 +582,9 @@ Section bindirectsums_in_quot.
       use unique_exists.
       + exact (to_quot_mor A PAS (FromBinDirectSum A (BD x y) f1 g1)).
       + cbn beta. split.
-        * use (pathscomp0 (@QuotPrecategory_comp_linear' A PAS PAC _ _ _ (to_In1 A (BD x y))
-                                                         (FromBinDirectSum A (BD x y) f1 g1))).
+        * use (pathscomp0 (QuotPrecategory_comp_linear A PAS PAC _ _)).
           rewrite BinDirectSumIn1Commutes. exact f2.
-        * use (pathscomp0 (@QuotPrecategory_comp_linear' A PAS PAC _ _ _ (to_In2 A (BD x y))
-                                                         (FromBinDirectSum A (BD x y) f1 g1))).
+        * use (pathscomp0 (QuotPrecategory_comp_linear A PAS PAC _ _)).
           rewrite BinDirectSumIn2Commutes. exact g2.
       + intros y0. apply isapropdirprod; apply has_homsets_QuotPrecategory.
       + intros y0 T. cbn beta in T. induction T as [T1 T2].
@@ -642,13 +640,9 @@ Section bindirectsums_in_quot.
       use unique_exists.
       + exact (to_quot_mor A PAS (ToBinDirectSum A (BD x y) f1 g1)).
       + cbn beta. split.
-        * use (pathscomp0 (@QuotPrecategory_comp_linear' A PAS PAC _ _ _
-                                                         (ToBinDirectSum A (BD x y) f1 g1)
-                                                         (to_Pr1 A (BD x y)))).
+        * use (pathscomp0 (QuotPrecategory_comp_linear A PAS PAC _ _)).
           rewrite BinDirectSumPr1Commutes. exact f2.
-        * use (pathscomp0 (@QuotPrecategory_comp_linear' A PAS PAC _ _ _
-                                                         (ToBinDirectSum A (BD x y) f1 g1)
-                                                         (to_Pr2 A (BD x y)))).
+        * use (pathscomp0 (QuotPrecategory_comp_linear A PAS PAC _ _)).
           rewrite BinDirectSumPr2Commutes. exact g2.
       + intros y0. apply isapropdirprod; apply has_homsets_QuotPrecategory.
       + intros y0 T. cbn beta in T. induction T as [T1 T2].

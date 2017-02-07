@@ -8,6 +8,7 @@
  - K(A) pretriangulated
 - K(A) triangulated
 *)
+
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
@@ -100,35 +101,175 @@ Section KAPreTriangulated.
 
   Context {A : Additive}.
 
-  Definition MappingConeData {x y : ob (ComplexPreCat_Additive A)} (f : x --> y) :
-    @MCone (ComplexHomot_Additive A) (TranslationHEquiv A) x y.
+  Local Opaque ComplexHomotFunctor ComplexHomotSubset QuotPrecategory identity
+        MappingConePr1 MappingConeIn2 RotMorphism RotMorphismInv InvRotMorphism InvRotMorphismInv
+        to_inv compose pathsinv0 pathscomp0 ishinh to_abgrop.
+
+  Definition MappingConeTri {x y : ob (ComplexHomot_Additive A)} (f : x --> y)
+             (f' : hfiber (# (ComplexHomotFunctor A)) f) :
+    @Tri (ComplexHomot_Additive A) (TranslationHEquiv A).
   Proof.
-    use mk_MCone.
-    - exact (MappingCone A f).
-    - exact (# (ComplexHomotFunctor A) (MappingConeIn2 A f)).
-    - exact (# (ComplexHomotFunctor A) (MappingConePr1 A f)).
+    use mk_Tri.
+    - exact x.
+    - exact y.
+    - exact (MappingCone A (hfiberpr1 _ _ f')).
+    - exact f.
+    - exact (# (ComplexHomotFunctor A) (MappingConeIn2 A (hfiberpr1 _ _ f'))).
+    - exact (# (ComplexHomotFunctor A) (MappingConePr1 A (hfiberpr1 _ _ f'))).
   Defined.
+
+  Definition KADTriData (T : @Tri (ComplexHomot_Additive A) (TranslationHEquiv A)) : UU :=
+    Σ D : (Σ M : @Morphisms.Morphism (ComplexHomot_Additive A),
+                 hfiber (# (ComplexHomotFunctor A)) M),
+          TriIso T (MappingConeTri (pr1 D) (pr2 D)).
+
+  Definition mk_KADTriData {T : @Tri (ComplexHomot_Additive A) (TranslationHEquiv A)}
+             (M : @Morphisms.Morphism (ComplexHomot_Additive A))
+             (M' : hfiber (# (ComplexHomotFunctor A)) M)
+             (I : TriIso T (MappingConeTri M M')) : KADTriData T :=
+    ((M,,M'),,I).
+
+  Definition KADTriDataMor {T : @Tri (ComplexHomot_Additive A) (TranslationHEquiv A)}
+    (D : KADTriData T) : @Morphisms.Morphism (ComplexHomot_Additive A) := pr1 (pr1 D).
+
+  Definition KADTriDataFiber {T : @Tri (ComplexHomot_Additive A) (TranslationHEquiv A)}
+             (D : KADTriData T) : hfiber (# (ComplexHomotFunctor A)) (KADTriDataMor D) :=
+    pr2 (pr1 D).
+
+  Definition KADTriDataIso {T : @Tri (ComplexHomot_Additive A) (TranslationHEquiv A)}
+             (D : KADTriData T) : TriIso T (MappingConeTri (KADTriDataMor D) (KADTriDataFiber D)) :=
+    pr2 D.
+
+  Definition KAisDTri (T : @Tri (ComplexHomot_Additive A) (TranslationHEquiv A)) : hProp :=
+    ∥ KADTriData T ∥.
 
   Definition KAPreTriangData : PreTriangData.
   Proof.
     use mk_PreTriangData.
     - exact (ComplexHomot_Additive A).
     - exact (TranslationHEquiv A).
-    - intros x y f. exact (hfiber (# (ComplexHomotFunctor A)) f).
-    - intros x y f f'. exact (MappingConeData (hfiberpr1 _ _ f')).
+    - intros T. exact (KAisDTri T).
   Defined.
+
+  Lemma KAFiberisDTri (M : @Morphisms.Morphism (ComplexHomot_Additive A))
+        (M' : hfiber (# (ComplexHomotFunctor A)) M) :
+    @isDTri KAPreTriangData (MappingConeTri M M').
+  Proof.
+    use hinhpr.
+    use mk_KADTriData.
+    - exact M.
+    - exact M'.
+    - exact (TriIsoId _).
+  Qed.
+
+  Definition KADTriDataDTri {T : @Tri (ComplexHomot_Additive A) (TranslationHEquiv A)}
+             (D : KADTriData T) : @DTri KAPreTriangData.
+  Proof.
+    use mk_DTri'.
+    - exact (MappingConeTri (KADTriDataMor D) (KADTriDataFiber D)).
+    - exact (KAFiberisDTri (KADTriDataMor D) (KADTriDataFiber D)).
+  Defined.
+
+  (** Different fibers of a same morphism induce an isomorphism *)
+
+  Local Lemma KAIdComml {x y : ob KAPreTriangData} (f g : x --> y) (e : f = g) :
+    identity _ ;; f =  g.
+  Proof.
+    rewrite id_left. exact e.
+  Qed.
+
+  Local Lemma KAIdCommr {x y : ob KAPreTriangData} (f g : x --> y) (e : f = g) :
+    f ;; identity _ =  g.
+  Proof.
+    rewrite id_right. exact e.
+  Qed.
+
+  Local Lemma KAIdComm {x y : ob KAPreTriangData} (f g : x --> y) (e : f = g) :
+    f ;; identity _ = identity _ ;; g.
+  Proof.
+    rewrite id_left. rewrite id_right. exact e.
+  Qed.
+
+  Definition KAFiber {x y : ob (ComplexPreCat_Additive A)} (f : x --> y) :
+    hfiber (# (ComplexHomotFunctor A)) (# (ComplexHomotFunctor A) f) :=
+    hfiberpair (# (ComplexHomotFunctor A)) f (idpath _).
+
+  Definition KAFiberIsoMor3 {x y : KAPreTriangData} {f : x --> y}
+             (f' f'' : hfiber (# (ComplexHomotFunctor A)) f)
+             (f1 := hfiberpr1 _ _ f') (f2 := hfiberpr1 _ _ f'')
+             (Ho : ComplexHomot A x y)
+             (e : to_binop _ _ f1 (to_inv f2) = ComplexHomotMorphism A Ho) :
+    KAPreTriangData ⟦ MappingCone A f1, MappingCone A f2 ⟧ :=
+    # (ComplexHomotFunctor A) (FiberExt A f1 f2 Ho e).
+
+  Definition KAFiberIsoMor {x y : KAPreTriangData} {f : x --> y}
+             (f' f'' : hfiber (# (ComplexHomotFunctor A)) f)
+             (f1 := hfiberpr1 _ _ f') (f2 := hfiberpr1 _ _ f'')
+             (Ho : ComplexHomot A x y)
+             (e : to_binop _ _ f1 (to_inv f2) = ComplexHomotMorphism A Ho) :
+    MPMorMors (MappingConeTri f f') (MappingConeTri f f'').
+  Proof.
+    use mk_MPMorMors.
+    - exact (identity _).
+    - exact (identity _).
+    - exact (KAFiberIsoMor3 f' f'' Ho e).
+  Defined.
+
+  Lemma KAFiberIsoMorComms {x y : KAPreTriangData} {f : x --> y}
+             (f' f'' : hfiber (# (ComplexHomotFunctor A)) f)
+             (f1 := hfiberpr1 _ _ f') (f2 := hfiberpr1 _ _ f'')
+             (Ho : ComplexHomot A x y)
+             (e : to_binop _ _ f1 (to_inv f2) = ComplexHomotMorphism A Ho) :
+    MPMorComms (KAFiberIsoMor f' f'' Ho e).
+  Proof.
+    use mk_MPMorComms.
+    - exact (! (KAIdComm _ _ (idpath _))).
+    - use KAIdComml.
+      exact (! (FiberExt_Comm2H A f1 f2 Ho e)).
+  Qed.
+
+  Lemma KAFiberIsoMorComm3 {x y : KAPreTriangData} {f : x --> y}
+        (f' f'' : hfiber (# (ComplexHomotFunctor A)) f)
+        (f1 := hfiberpr1 _ _ f') (f2 := hfiberpr1 _ _ f'')
+        (Ho : ComplexHomot A x y)
+        (e : to_binop _ _ f1 (to_inv f2) = ComplexHomotMorphism A Ho) :
+    (MPMor3 (mk_MPMor (KAFiberIsoMor f' f'' Ho e) (KAFiberIsoMorComms f' f'' Ho e)))
+      ;; Mor3 (MappingConeTri f f'') =
+    (Mor3 (MappingConeTri f f'))
+      ;; (# (AddEquiv1 (@Trans KAPreTriangData))
+            (MPMor1 (mk_MPMor (KAFiberIsoMor f' f'' Ho e) (KAFiberIsoMorComms f' f'' Ho e)))).
+  Proof.
+    cbn. rewrite functor_id. use (! (KAIdCommr _ _ _)).
+    exact (FiberExt_Comm3H A f1 f2 Ho e).
+  Qed.
+
+  Definition KAFiberIso {x y : KAPreTriangData} {f : x --> y}
+             (f' f'' : hfiber (# (ComplexHomotFunctor A)) f)
+             (f1 := hfiberpr1 _ _ f') (f2 := hfiberpr1 _ _ f'')
+             (Ho : ComplexHomot A x y)
+             (e : to_binop _ _ f1 (to_inv f2) = ComplexHomotMorphism A Ho) :
+    TriIso (MappingConeTri f f') (MappingConeTri f f'').
+  Proof.
+    use mk_TriIso.
+    - use mk_TriMor.
+      + use mk_MPMor.
+        * exact (KAFiberIsoMor f' f'' Ho e).
+        * exact (KAFiberIsoMorComms f' f'' Ho e).
+      + exact (KAFiberIsoMorComm3 f' f'' Ho e).
+    - use mk_TriMor_is_iso.
+      + exact (is_z_isomorphism_identity _).
+      + exact (is_z_isomorphism_identity _).
+      + exact (FiberExt_is_z_isomorphism A f1 f2 Ho e).
+  Defined.
+
 
   (** ** Trivial triangle is distinguished *)
 
-  Local Opaque ComplexHomotFunctor ComplexHomotSubset QuotPrecategory identity ZeroArrow
-        MappingConePr1 MappingConeIn2 RotMorphism RotMorphismInv InvRotMorphism InvRotMorphismInv
-        to_inv compose.
-
-  Definition KAPreTriang1_MPMorMors (x : ob KAPreTriangData)
+  Definition KATrivialDistinguished_MPMorMors (x : ob KAPreTriangData)
              (i' := @hfiberpair _ _ (# (ComplexHomotFunctor A)) _ _
                                 (functor_id (ComplexHomotFunctor A) x)) :
     @MPMorMors KAPreTriangData (@TrivialTri _ (@Trans KAPreTriangData) x)
-              (ConeTri (identity x) (@MConeOf KAPreTriangData _ _ (identity x) i')).
+               (MappingConeTri (identity x) i').
   Proof.
     use mk_MPMorMors.
     - exact (# (ComplexHomotFunctor A) (identity _)).
@@ -136,8 +277,9 @@ Section KAPreTriangulated.
     - exact (ZeroArrow (to_Zero _) _ _).
   Defined.
 
-  Local Lemma KAPreTriang1_MPMorsComm (x : ob (ComplexPreCat_Additive A)) :
-    MPMorComms (KAPreTriang1_MPMorMors x).
+
+  Local Lemma KATrivialDistinguished_MPMorsComm (x : ob (ComplexPreCat_Additive A)) :
+    MPMorComms (KATrivialDistinguished_MPMorMors x).
   Proof.
     use mk_MPMorComms.
     - apply idpath.
@@ -148,467 +290,631 @@ Section KAPreTriangulated.
       exact (MappingConeIn2Eq A x).
   Qed.
 
-  Definition KAPreTriang1_TriMor (x : ob KAPreTriangData)
+  Definition KATrivialDistinguished_TriMor (x : ob KAPreTriangData)
              (i' := @hfiberpair _ _ (# (ComplexHomotFunctor A)) _ _
                                 (functor_id (ComplexHomotFunctor A) x)) :
-    TriMor (TrivialTri x) (ConeTri (identity x) (MConeOf (identity x) i')).
+    TriMor (TrivialTri x) (MappingConeTri (identity x) i').
   Proof.
     use mk_TriMor.
-    - exact (mk_MPMor (KAPreTriang1_MPMorMors x) (KAPreTriang1_MPMorsComm x)).
+    - exact (mk_MPMor (KATrivialDistinguished_MPMorMors x)
+                      (KATrivialDistinguished_MPMorsComm x)).
     - cbn. rewrite (@ZeroArrow_comp_left (ComplexHomot_Additive A)).
       rewrite (@ZeroArrow_comp_left (ComplexHomot_Additive A)). apply idpath.
   Defined.
 
-  Lemma KAPreTriang1 : Π x : KAPreTriangData, isDTri (TrivialTri x).
+  Lemma KATrivialDistinguished : Π x : KAPreTriangData, isDTri (TrivialTri x).
   Proof.
-    intros x. intros P X. apply X. clear X P.
-    use tpair.
+    intros x.
+    set (i' := @hfiberpair _ _ (# (ComplexHomotFunctor A)) _ _
+                           (functor_id (ComplexHomotFunctor A) x)).
+    use hinhpr.
+    use mk_KADTriData.
     - exact (Morphisms.mk_Morphism (identity x)).
-    - set (i' := @hfiberpair _ _ (# (ComplexHomotFunctor A)) _ _
-                             (functor_id (ComplexHomotFunctor A) x)).
-      intros P X. apply X. clear X P.
-      use mk_ConeIso.
-      + exact i'.
-      + exact (KAPreTriang1_TriMor x).
+    - exact i'.
+    - use mk_TriIso.
+      + exact (KATrivialDistinguished_TriMor x).
       + use mk_TriMor_is_iso.
-        * cbn. rewrite (@functor_id _ _ (ComplexHomotFunctor A)).
-          exact (is_z_isomorphism_identity ((ComplexHomotFunctor A) x)).
-        * cbn. rewrite (@functor_id _ _ (ComplexHomotFunctor A)).
-          exact (is_z_isomorphism_identity ((ComplexHomotFunctor A) x)).
-        * cbn. exact (IDMappingCone_is_iso_with_inv_data A x).
+        * exact (functor_on_is_z_isomorphism
+                   (ComplexHomotFunctor A)
+                   (@is_z_isomorphism_identity (ComplexPreCat_Additive A) (x : Complex A))).
+        * exact (functor_on_is_z_isomorphism
+                   (ComplexHomotFunctor A)
+                   (@is_z_isomorphism_identity (ComplexPreCat_Additive A) (x : Complex A))).
+        * exact (IDMappingCone_is_z_isomorphism A x).
   Qed.
 
 
   (** ** Rotation of distinguished triangles *)
 
-  Local Lemma KAPreTriang2_Comm1 {x y : ob KAPreTriangData} (f : x --> y) :
-    f ;; identity _ = identity _ ;; f.
+  Local Lemma KARotDTris_Comm2 (D : @DTri KAPreTriangData) (I : KADTriData D)
+    (I' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I) (KADTriDataFiber I)) :
+    identity _ ;; # (ComplexHomotFunctor A) (MappingConeIn2 A (MappingConeIn2 A I')) =
+    # (ComplexHomotFunctor A) (MappingConePr1 A I') ;; # (ComplexHomotFunctor A) (RotMorphism A I').
   Proof.
-    rewrite id_left. rewrite id_right. apply idpath.
+    use (pathscomp0 (id_left _)).
+    use (pathscomp0 _ ((functor_comp (ComplexHomotFunctor A) _ _ _
+                                     (MappingConePr1 A I') (RotMorphism A I')))).
+    exact (! (RotMorphism_comm A I')).
   Qed.
 
-  Local Lemma KAPreTriang2_Comm2 (D : DTri) (M : @Morphisms.Morphism KAPreTriangData)
-        (I' : ConeIso D M) (M' := hfiberpr1 _ _ (ConeIsoFiber I')) :
-    (# (ComplexHomotFunctor A) (MappingConePr1 A M'))
-      ;; (# (ComplexHomotFunctor A) (RotMorphism A M')) =
-    (identity _) ;; (# (ComplexHomotFunctor A) (MappingConeIn2 A (MappingConeIn2 A M'))).
+  Local Lemma KARotDTris_Comm3 (D : @DTri KAPreTriangData) (I : KADTriData D)
+    (I' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I) (KADTriDataFiber I)) :
+    # (ComplexHomotFunctor A) (RotMorphism A I')
+      ;; # (ComplexHomotFunctor A) (MappingConePr1 A (MappingConeIn2 A I')) =
+    to_inv (# (AddEquiv1 (TranslationHEquiv A)) (KADTriDataMor I))
+           ;; # (AddEquiv1 (TranslationHEquiv A)) (identity (Target (KADTriDataMor I))).
   Proof.
-    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _
-                                       (MappingConePr1 A M') (RotMorphism A M')))).
-    use (pathscomp0 (RotMorphism_comm A M')).
-    apply pathsinv0. apply id_left.
-  Qed.
-
-  Local Lemma KAPreTriang2_Comm3 (D : DTri) (M : @Morphisms.Morphism KAPreTriangData)
-        (I' : ConeIso D M) (M' := hfiberpr1 _ _ (ConeIsoFiber I')) :
-    to_inv (# (AddEquiv1 Trans) M) ;; # (AddEquiv1 Trans) (identity (Target M)) =
-    (# (ComplexHomotFunctor A) (RotMorphism A M'))
-      ;; (# (ComplexHomotFunctor A) (MappingConePr1 A (MappingConeIn2 A M'))).
-  Proof.
-    use (pathscomp0 _ (functor_comp (ComplexHomotFunctor A) _ _ _
-                                    (RotMorphism A M')
-                                    (MappingConePr1 A (MappingConeIn2 A M')))).
-    set (tmp' := RotMorphism_comm2 A M').
-    apply (maponpaths (# (ComplexHomotFunctor A))) in tmp'. use (pathscomp0 _ tmp'). clear tmp'.
+    use (pathscomp0
+           (! (functor_comp (ComplexHomotFunctor A) _ _ _ (RotMorphism A I')
+                            (MappingConePr1 A (MappingConeIn2 A I'))))).
+    use (pathscomp0 (! (maponpaths (# (ComplexHomotFunctor A)) (RotMorphism_comm2 A I')))).
     rewrite functor_id. rewrite id_right.
     rewrite (AdditiveFunctorInv (ComplexHomotFunctor A)). apply maponpaths.
-    apply TranslationFunctorHImEq. exact (hfiberpr2 _ _ (ConeIsoFiber I')).
+    apply pathsinv0. apply TranslationFunctorHImEq. exact (hfiberpr2 _ _ (KADTriDataFiber I)).
   Qed.
 
-  Lemma KAPreTriang2 : Π D : DTri, @isDTri KAPreTriangData (RotTri D).
+  Definition KARotDTris_Iso (D : @DTri KAPreTriangData) (I : KADTriData D)
+             (I' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I) (KADTriDataFiber I)) :
+    TriIso (RotTri D)
+           (MappingConeTri
+              (Morphisms.mk_Morphism (Mor2 (MappingConeTri (KADTriDataMor I) (KADTriDataFiber I))))
+              (KAFiber (MappingConeIn2 A I'))).
+  Proof.
+    use (TriIso_comp (RotTriIso (KADTriDataIso I))).
+    use mk_TriIso.
+    - use mk_TriMor.
+      + use mk_MPMor.
+        * use mk_MPMorMors.
+          -- exact (identity _).
+          -- exact (identity _).
+          -- exact (# (ComplexHomotFunctor A) (RotMorphism A I')).
+        * use mk_MPMorComms.
+          -- exact (! (KAIdComm _ _ (idpath _))).
+          -- exact (KARotDTris_Comm2 D I).
+      + exact (KARotDTris_Comm3 D I).
+    - use mk_TriMor_is_iso.
+      + exact (is_z_isomorphism_identity _).
+      + exact (is_z_isomorphism_identity _).
+      + exact (RotMorphism_is_z_isomorphism A _).
+  Defined.
+
+  Lemma KARotDTris : Π D : DTri, @isDTri KAPreTriangData (RotTri D).
   Proof.
     intros D.
-    use (squash_to_prop (DTriIso D) (propproperty _)). intros I.
-    use (squash_to_prop (pr2 I) (propproperty _)). intros I'.
-    exact (@mk_RotDTris
-           KAPreTriangData
-           D (pr1 I) I' (Morphisms.mk_Morphism
-                           (# (ComplexHomotFunctor A)
-                              (MappingConeIn2 A (hfiberpr1 _ _ (ConeIsoFiber I')))))
-           (hfiberpair (# (ComplexHomotFunctor A))
-                       (MappingConeIn2 A (hfiberpr1 _ _ (ConeIsoFiber I'))) (idpath _))
-           (identity _) (identity _)
-           (# (ComplexHomotFunctor A) (RotMorphism A (hfiberpr1 _ _ (ConeIsoFiber I'))))
-           (is_z_isomorphism_identity _) (is_z_isomorphism_identity _)
-           (RotMorphism_is_iso_with_inv_data _ _)
-           (KAPreTriang2_Comm1 (# (ComplexHomotFunctor A)
-                                  (MappingConeIn2 A (hfiberpr1 _ _ (ConeIsoFiber I')))))
-           (KAPreTriang2_Comm2 D (pr1 I) I') (KAPreTriang2_Comm3 D (pr1 I) I')).
+    use (squash_to_prop (DTriisDTri D) (propproperty _)). intros I.
+    use hinhpr.
+    use mk_KADTriData.
+    - exact (Morphisms.mk_Morphism (Mor2 (MappingConeTri (KADTriDataMor I) (KADTriDataFiber I)))).
+    - exact (KAFiber (MappingConeIn2 A (hfiberpr1 _ _ (KADTriDataFiber I)))).
+    - exact (KARotDTris_Iso D I).
   Qed.
 
   (** ** Inverse rotation of distinguished triangles *)
 
-  Local Lemma KAPreTriang3_1' {x y : ob KAPreTriangData} (f g : x --> y) (e : f = g) :
-    f ;; identity _ = identity _ ;; g.
+  Lemma KAInvRotDTris_Comm1 (D : @DTri KAPreTriangData) (I : KADTriData D)
+        (I' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I) (KADTriDataFiber I)) :
+    (identity _) ;; (# (ComplexHomotFunctor A)
+                       ((to_inv (# (InvTranslationFunctor A) (MappingConePr1 A I')))
+                          ;; TranslationEquivUnitInv A (Source (KADTriDataMor I)))) =
+    (to_inv (# (AddEquiv2 (TranslationHEquiv A)) (# (ComplexHomotFunctor A) (MappingConePr1 A I'))))
+      ;; # (ComplexHomotFunctor A) (TranslationEquivUnitInv A (Source (KADTriDataMor I)))
+      ;; identity (Source (KADTriDataMor I)).
   Proof.
-    rewrite id_left. rewrite id_right. exact e.
-  Qed.
-
-  Lemma KAPreTriang3_1 (D : DTri) (M : @Morphisms.Morphism KAPreTriangData) (I' : ConeIso D M)
-        (M' := hfiberpr1 _ _ (ConeIsoFiber I')) :
-    (@to_inv (ComplexHomot_Additive A) _ _
-             (# (AddEquiv2 (TranslationHEquiv A))
-                (# (ComplexHomotFunctor A) (MappingConePr1 A M'))))
-      ;; AddEquivUnitInvMor (TranslationHEquiv A) (Source M) ;; identity (Source M) =
-    (identity _)
-      ;; (# (ComplexHomotFunctor A)
-            ((to_inv (# (InvTranslationFunctor A) (MappingConePr1 A M')))
-               ;; z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) (Source M)))).
-  Proof.
-    use KAPreTriang3_1'.
-    set (tmp''' := functor_comp
-                     (ComplexHomotFunctor A) _ _ _
-                     (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A M')))
-                     (z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) (Source M)))).
-    use (pathscomp0 _ (! tmp''')). clear tmp'''.
+    use (! (KAIdComm _ _ _)).
+    use (pathscomp0 _ (! (functor_comp
+                            (ComplexHomotFunctor A) _ _ _
+                            (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A I')))
+                            (z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                                                            (Source (KADTriDataMor I))))))).
     set (tmp''' := @AdditiveFunctorInv
                      _ _ (ComplexHomotFunctor A)
-                     _ _ (# (InvTranslationFunctor A) (MappingConePr1 A M'))).
+                     _ _ (# (InvTranslationFunctor A) (MappingConePr1 A I'))).
     apply (maponpaths
              (postcompose
                 (# (ComplexHomotFunctor A)
-                   (z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) (Source M)))))) in tmp'''.
+                   (z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) (Source (KADTriDataMor I)))))))
+      in tmp'''.
     use (pathscomp0 _ (! tmp''')). clear tmp'''. unfold postcompose.
-    assert (e : z_iso_inv_mor (AddEquivUnitIso Trans (Source M)) =
-                # (ComplexHomotFunctor A)
-                  (z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) (Source M)))).
-    {
-      apply idpath.
-    }
-    apply (maponpaths
-             (compose (to_inv (# (ComplexHomotFunctor A)
-                                 (# (InvTranslationFunctor A) (MappingConePr1 A M')))))) in e.
-    use (pathscomp0 _ e). clear e. apply cancel_postcomposition.
-    apply maponpaths. use InvTranslationFunctorHImEq. apply idpath.
+    apply cancel_postcomposition. apply maponpaths.
+    use InvTranslationFunctorHImEq. apply idpath.
   Qed.
 
-  Local Lemma KAPreTriang3_2' {x y : ob KAPreTriangData} (f g : x --> y) (e : f = g) :
-    f = identity _ ;; g.
-  Proof.
-    rewrite id_left. exact e.
-  Qed.
-
-  Lemma KAPreTriang3_2 (D : DTri) (M : @Morphisms.Morphism KAPreTriangData) (I' : ConeIso D M)
-    (M' := hfiberpr1 _ _ (ConeIsoFiber I')) :
-    M ;; # (ComplexHomotFunctor A) (InvRotMorphismInv A M') =
-    (identity (Source M))
+  Lemma KAInvRotDTris_Comm2 (D : @DTri KAPreTriangData) (I : KADTriData D)
+        (I' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I) (KADTriDataFiber I)) :
+    (identity (Source (KADTriDataMor I)))
       ;; (# (ComplexHomotFunctor A)
-            (MappingConeIn2
-               A ((to_inv (# (InvTranslationFunctor A) (MappingConePr1 A M')))
-                    ;; z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) (Source M))))).
+            (MappingConeIn2 A ((to_inv (# (InvTranslationFunctor A) (MappingConePr1 A I')))
+                                 ;; TranslationEquivUnitInv A (Source (KADTriDataMor I))))) =
+    KADTriDataMor I ;; # (ComplexHomotFunctor A) (InvRotMorphismInv A I').
   Proof.
-    use KAPreTriang3_2'.
-    set (tmp''' := hfiberpr2 _ _ (ConeIsoFiber I')).
-    apply (maponpaths
-             (postcompose (# (ComplexHomotFunctor A)
-                             (InvRotMorphismInv A M')))) in tmp'''.
-    use (pathscomp0 (! tmp''')). clear tmp'''. unfold postcompose.
-    set (tmp''' := functor_comp (ComplexHomotFunctor A) _ _ _ M'
-                                (InvRotMorphismInv A M')).
-    use (pathscomp0 (! tmp''')). clear tmp'''.
-    exact (InvRotMorphismInvComm1 A M').
+    rewrite id_left. use (pathscomp0 (! (InvRotMorphismInvComm1 A I'))).
+    use (pathscomp0 (functor_comp (ComplexHomotFunctor A) _ _ _ _ _)).
+    use cancel_postcomposition.
+    exact (hfiberpr2 _ _ (KADTriDataFiber I)).
   Qed.
 
-  Lemma KAPreTriang3_3 (D : DTri) (M : @Morphisms.Morphism KAPreTriangData) (I' : ConeIso D M)
-    (M' := hfiberpr1 _ _ (ConeIsoFiber I')) :
-    (# (ComplexHomotFunctor A) (MappingConeIn2 A M'))
-      ;; (AddEquivCounitInvMor
-            (TranslationHEquiv A) (MappingCone A M'))
-      ;; (# (AddEquiv1 (TranslationHEquiv A))
-            (identity ((AddEquiv2 (TranslationHEquiv A)) (MappingCone A M')))) =
-    (# (ComplexHomotFunctor A) (InvRotMorphismInv A M'))
+  Lemma KAInvRotDTris_Comm3 (D : @DTri KAPreTriangData) (I : KADTriData D)
+        (I' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I) (KADTriDataFiber I)) :
+    (# (ComplexHomotFunctor A) (InvRotMorphismInv A I'))
       ;; (# (ComplexHomotFunctor A)
             (MappingConePr1
-               A (to_inv (# (InvTranslationFunctor A)
-                            (MappingConePr1 A M'))
-                         ;; z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) (Source M))))).
+               A ((to_inv (# (InvTranslationFunctor A) (MappingConePr1 A I')))
+                    ;; TranslationEquivUnitInv A (Source (KADTriDataMor I))))) =
+    (# (ComplexHomotFunctor A) (MappingConeIn2 A I'))
+      ;; # (ComplexHomotFunctor A) (TranslationEquivCounitInv A (MappingCone A I'))
+      ;; (# (AddEquiv1 (TranslationHEquiv A))
+            (identity ((AddEquiv2 (TranslationHEquiv A)) (MappingCone A I')))).
   Proof.
-    rewrite functor_id. rewrite id_right.
-    set (tmp''' := functor_comp (ComplexHomotFunctor A) _ _ _
-                                (InvRotMorphismInv A M')
-                                (MappingConePr1
-                                   A ((to_inv (# (InvTranslationFunctor A)
-                                                 (MappingConePr1 A M'))
-                                              ;; z_iso_inv_mor
-                                              (AddEquivUnitIso (TranslationEquiv A) (Source M)))))).
-    use (pathscomp0 _ tmp'''). clear tmp'''.
-    set (tmp''' := functor_comp (ComplexHomotFunctor A) _ _ _
-                                (MappingConeIn2 A M')
-                                (TranslationEquivCounitInv
-                                   A (MappingCone A M'))).
-    use (pathscomp0 (! tmp''')). clear tmp'''. apply maponpaths.
-    exact (InvRotMorphismInvComm2 A M').
+    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _ _ _))).
+    use (pathscomp0 (maponpaths # (ComplexHomotFunctor A) (! (InvRotMorphismInvComm2 A I')))).
+    rewrite functor_id. use (pathscomp0 _ (! (id_right _))).
+    exact (functor_comp (ComplexHomotFunctor A) _ _ _ _ _).
   Qed.
 
-  Lemma KAPreTriang3 : Π D : DTri, @isDTri KAPreTriangData (InvRotTri D).
+  Local Opaque AddEquiv1 AddEquiv2.
+
+  Definition KAInvRotDTris_Iso (D : @DTri KAPreTriangData) (I : KADTriData D)
+             (I' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I) (KADTriDataFiber I)) :
+    TriIso (InvRotTri D)
+           (MappingConeTri
+              (Morphisms.mk_Morphism
+                 (# (ComplexHomotFunctor A)
+                    ((to_inv (# (InvTranslationFunctor A) (MappingConePr1 A I')))
+                       ;; z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                                                         (Source (KADTriDataMor I))))))
+              (KAFiber
+                 ((to_inv (# (InvTranslationFunctor A) (MappingConePr1 A I')))
+                    ;; z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                                                      (Source (KADTriDataMor I)))))).
+  Proof.
+    use (TriIso_comp (InvRotTriIso (KADTriDataIso I))).
+    use mk_TriIso.
+    - use mk_TriMor.
+      + use mk_MPMor.
+        * use mk_MPMorMors.
+          -- exact (identity _).
+          -- exact (identity _).
+          -- exact (# (ComplexHomotFunctor A) (InvRotMorphismInv A I')).
+        * use mk_MPMorComms.
+          -- exact (KAInvRotDTris_Comm1 D I).
+          -- exact (KAInvRotDTris_Comm2 D I).
+      + exact (KAInvRotDTris_Comm3 D I).
+    - use mk_TriMor_is_iso.
+      + exact (is_z_isomorphism_identity _).
+      + exact (is_z_isomorphism_identity _).
+      + exact (InvRotMorphism_is_z_isomorphism A _).
+  Defined.
+
+  Lemma KAInvRotDTris : Π D : DTri, @isDTri KAPreTriangData (InvRotTri D).
   Proof.
     intros D.
-    use (squash_to_prop (DTriIso D) (propproperty _)). intros I.
-    induction I as [M I].
-    use (squash_to_prop I (propproperty _)). intros I'.
-    set (M' := hfiberpr1 _ _ (ConeIsoFiber I')).
-    set (MM1 := to_inv (# (InvTranslationFunctor A)
-                          (MappingConePr1 A M')) ;;
-                       z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) (Source M))).
-    set (MM1' := hfiberpair (# (ComplexHomotFunctor A)) MM1 (idpath _)).
-    exact (@mk_InvRotDTris KAPreTriangData
-                           D M I' (Morphisms.mk_Morphism (# (ComplexHomotFunctor A) MM1)) MM1'
-                           (identity _) (identity _)
-                           (# (ComplexHomotFunctor A) (InvRotMorphismInv A M'))
-                           (is_z_isomorphism_identity (Ob1 (InvRotTri (ConeIsoTri I'))))
-                           (is_z_isomorphism_identity (Ob2 (InvRotTri (ConeIsoTri I'))))
-                           (InvRotMorphism_is_iso_with_inv_data _ _) (KAPreTriang3_1 D M I')
-                           (KAPreTriang3_2 D M I') (KAPreTriang3_3 D M I')).
+    use (squash_to_prop (DTriisDTri D) (propproperty _)). intros I.
+    set (i' := hfiberpr1 _ _ (KADTriDataFiber I)).
+    use hinhpr.
+    use mk_KADTriData.
+    - exact (Morphisms.mk_Morphism
+               (# (ComplexHomotFunctor A)
+                  (to_inv (# (InvTranslationFunctor A)
+                             (MappingConePr1 A i')) ;;
+                          z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                                                         (Source (KADTriDataMor I)))))).
+    - exact (KAFiber (to_inv (# (InvTranslationFunctor A)
+                             (MappingConePr1 A i')) ;;
+                             z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
+                                                            (Source (KADTriDataMor I))))).
+    - exact (KAInvRotDTris_Iso D I).
+  Qed.
+
+  (** ** Completion to distinguished triangle *)
+
+  Local Opaque TranslationFunctor TranslationFunctorH.
+
+  Lemma KAConeDTri :
+    Π (x y : KAPreTriangData) (f : KAPreTriangData ⟦ x, y ⟧),
+    ∃ D : ConeData Trans x y, isDTri (ConeTri f D).
+  Proof.
+    intros x y f.
+    use (squash_to_prop (ComplexHomotFunctor_issurj A f) (propproperty _)). intros f'.
+    set (f'' := hfiberpr1 _ _ f').
+    use hinhpr.
+    use tpair.
+    - use mk_ConeData.
+      + exact ((ComplexHomotFunctor A) (MappingCone A f'')).
+      + exact (# (ComplexHomotFunctor A) (MappingConeIn2 A f'')).
+      + exact (# (ComplexHomotFunctor A) (MappingConePr1 A f'')).
+    - use hinhpr.
+      use mk_KADTriData.
+      + exact (Morphisms.mk_Morphism f).
+      + exact f'.
+      + use mk_TriIso.
+        * use mk_TriMor.
+          -- use mk_MPMor.
+             ++ use mk_MPMorMors.
+                ** exact (identity _).
+                ** exact (identity _).
+                ** exact (identity _).
+             ++ use mk_MPMorComms.
+                ** exact (! (KAIdComm _ _ (idpath _))).
+                ** exact (! (KAIdComm _ _ (idpath _))).
+          -- cbn. rewrite id_left.
+             use (pathscomp0 (! (id_right _))). apply cancel_precomposition.
+             apply (! (functor_id _ _)).
+        * use mk_TriMor_is_iso.
+          -- exact (is_z_isomorphism_identity _).
+          -- exact (is_z_isomorphism_identity _).
+          -- exact (is_z_isomorphism_identity _).
   Qed.
 
   (** ** Extension of squares *)
 
-  Local Opaque binopeqrel_subgr_eqrel.
-
-  Lemma KAPreTriang4_1 (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
+  Lemma KAExt_Comm1 (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
         (g2 : KAPreTriangData ⟦ Ob2 D1, Ob2 D2 ⟧) (H : g1 ;; Mor1 D2 = Mor1 D1 ;; g2)
-        (M1 : Morphisms.Morphism) (M2 : Morphisms.Morphism)
-        (I1' : ConeIso D1 M1) (I2' : ConeIso D2 M2)
-        (k1' : hfiber # (ComplexHomotFunctor A) (MPMor1 (ConeIsoMor I2')))
-        (k2' : hfiber # (ComplexHomotFunctor A) (MPMor2 (ConeIsoMor I2')))
-        (g1' : hfiber # (ComplexHomotFunctor A) g1)
-        (g2' : hfiber # (ComplexHomotFunctor A) g2)
-        (invh1' : hfiber # (ComplexHomotFunctor A) (MPMor1 (ConeIsoMorInv I1')))
-        (invh2' : hfiber # (ComplexHomotFunctor A) (MPMor2 (ConeIsoMorInv I1')))
-        (M1' := hfiberpr1 _ _ (ConeIsoFiber I1')) (M2' := hfiberpr1 _ _ (ConeIsoFiber I2')) :
-    # (ComplexHomotFunctor A)
-      ((hfiberpr1 _ _ invh1') ;; (hfiberpr1 _ _ g1') ;; (hfiberpr1 _ _  k1') ;; M2') =
-    # (ComplexHomotFunctor A)
-      (M1' ;; (hfiberpr1 _ _ invh2') ;; (hfiberpr1 _ _ g2') ;; (hfiberpr1 _ _ k2')).
+        (I1 : KADTriData D1) (I2 : KADTriData D2) :
+    ((MPMor1 (TriIsoInv (KADTriDataIso I1)))
+       ;; g1 ;; (MPMor1 (KADTriDataIso I2)) ;; (KADTriDataMor I2)) =
+    ((KADTriDataMor I1)
+       ;; (MPMor2 (TriIsoInv (KADTriDataIso I1))) ;; g2 ;; (MPMor2 (KADTriDataIso I2))).
   Proof.
-    use (ComplexHomotComm4 A invh1' g1' k1' (ConeIsoFiber I2') (ConeIsoFiber I1') invh2' g2' k2').
-    apply pathsinv0. set (comm1 := ! (MPComm1 (ConeIsoMorInv I1'))).
-    apply (maponpaths (fun gg : _ => gg ;; g2 ;; MPMor2 (ConeIsoMor I2'))) in comm1.
-    use (pathscomp0 comm1). clear comm1.
-    apply pathsinv0 in H.
-    apply (maponpaths
-             (fun gg : _ => is_z_isomorphism_mor (TriMor_is_iso1 (ConeIsoMor_is_iso I1')) ;;
-                                              gg ;; MPMor2 (ConeIsoMor I2'))) in H.
-    rewrite assoc in H. rewrite assoc in H. use (pathscomp0 H).
-    set (comm3 := MPComm1 (ConeIsoMor I2')).
-    apply pathsinv0 in comm3.
-    apply (maponpaths
-             (fun gg : _ => is_z_isomorphism_mor (TriMor_is_iso1 (ConeIsoMor_is_iso I1'))
-                                              ;; g1 ;; gg)) in comm3.
-    rewrite assoc in comm3. rewrite assoc in comm3.
-    exact comm3.
+    set (tmp := MPComm1 (TriIsoInv (KADTriDataIso I1))).
+    apply (maponpaths (postcompose (g2 ;; MPMor2 (KADTriDataIso I2)))) in tmp.
+    unfold postcompose in tmp. rewrite assoc in tmp. rewrite assoc in tmp. use (pathscomp0 _ tmp).
+    clear tmp.
+    rewrite <- (assoc (MPMor1 (TriIsoInv (KADTriDataIso I1)))).
+    rewrite <- (assoc (MPMor1 (TriIsoInv (KADTriDataIso I1)))).
+    rewrite <- (assoc (MPMor1 (TriIsoInv (KADTriDataIso I1)))).
+    rewrite <- (assoc (MPMor1 (TriIsoInv (KADTriDataIso I1)))).
+    apply cancel_precomposition.
+    apply (maponpaths (postcompose (MPMor2 (KADTriDataIso I2)))) in H.
+    unfold postcompose in H. use (pathscomp0 _ H). clear H.
+    rewrite <- (assoc g1). rewrite <- (assoc g1). apply cancel_precomposition.
+    exact (MPComm1 (KADTriDataIso I2)).
   Qed.
 
-  Lemma KAPreTriang4_2 (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
-        (g2 : KAPreTriangData ⟦ Ob2 D1, Ob2 D2 ⟧) (H : g1 ;; Mor1 D2 = Mor1 D1 ;; g2)
-        (M1 : Morphisms.Morphism) (M2 : Morphisms.Morphism)
-        (I1' : ConeIso D1 M1) (I2' : ConeIso D2 M2)
-        (M1' := hfiberpr1 _ _ (ConeIsoFiber I1')) (M2' := hfiberpr1 _ _ (ConeIsoFiber I2'))
-        (k1' : hfiber # (ComplexHomotFunctor A) (MPMor1 (ConeIsoMor I2')))
-        (k2' : hfiber # (ComplexHomotFunctor A) (MPMor2 (ConeIsoMor I2')))
-        (g1' : hfiber # (ComplexHomotFunctor A) g1)
-        (g2' : hfiber # (ComplexHomotFunctor A) g2)
-        (invh1' : hfiber # (ComplexHomotFunctor A) (MPMor1 (ConeIsoMorInv I1')))
-        (invh2' : hfiber # (ComplexHomotFunctor A) (MPMor2 (ConeIsoMorInv I1')))
-        (HH1 : ComplexHomot A (Ob1 (ConeTri M1 (MConeOf M1 (ConeIsoFiber I1')))) (Target M2))
-        (HH2 : MorphismOp
-                 A (hfiberpr1 # (ComplexHomotFunctor A) M1 (ConeIsoFiber I1')
-                              ;; (hfiberpr1 # (ComplexHomotFunctor A)
-                                            (is_z_isomorphism_mor
-                                               (TriMor_is_iso2 (ConeIsoMor_is_iso I1')))
-                                            invh2'
-                                            ;; hfiberpr1 # (ComplexHomotFunctor A) g2 g2'
-                                            ;; hfiberpr1 # (ComplexHomotFunctor A)
-                                            (MPMor2 (ConeIsoMor I2')) k2'))
-                 (to_inv
-                    (hfiberpr1
-                       # (ComplexHomotFunctor A)
-                       (is_z_isomorphism_mor (TriMor_is_iso1 (ConeIsoMor_is_iso I1'))) invh1'
-                       ;; hfiberpr1 # (ComplexHomotFunctor A) g1 g1'
-                       ;; hfiberpr1 # (ComplexHomotFunctor A) (MPMor1 (ConeIsoMor I2')) k1'
-                       ;; hfiberpr1 # (ComplexHomotFunctor A) M2 (ConeIsoFiber I2'))) =
-               ComplexHomotMorphism A HH1) :
-    # (ComplexHomotFunctor A) (MappingConeIn2 A M1') ;;
-      # (ComplexHomotFunctor A)
-      (MappingConeMorExt
-         A M1' M2'
-         ((hfiberpr1 _ _ invh1') ;; (hfiberpr1 _ _ g1') ;; (hfiberpr1 _ _ k1'))
-         ((hfiberpr1 _ _ invh2') ;; (hfiberpr1 _ _ g2') ;; (hfiberpr1 _ _ k2'))
-         HH1 HH2) =
-    (is_z_isomorphism_mor (TriMor_is_iso2 (ConeIsoMor_is_iso I1')))
-      ;; g2 ;; MPMor2 (ConeIsoMor I2')
-      ;; # (ComplexHomotFunctor A) (MappingConeIn2 A M2').
+  Lemma KAExt_MorEq (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
+             (g2 : KAPreTriangData ⟦ Ob2 D1, Ob2 D2 ⟧) (H : g1 ;; Mor1 D2 = Mor1 D1 ;; g2)
+             (I1 : KADTriData D1) (I2 : KADTriData D2)
+             (h1 : hfiber # (ComplexHomotFunctor A)
+                          (MPMor1 (TriIsoInv (KADTriDataIso I1)) ;; g1 ;; MPMor1 (KADTriDataIso I2)))
+             (h2 : hfiber # (ComplexHomotFunctor A)
+                          (MPMor2 (TriIsoInv (KADTriDataIso I1)) ;; g2 ;; MPMor2 (KADTriDataIso I2)))
+             (I1' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I1) (KADTriDataFiber I1))
+             (I2' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I2) (KADTriDataFiber I2))
+             (h1' := hfiberpr1 _ _ h1) (h2' := hfiberpr1 _ _ h2) :
+    # (ComplexHomotFunctor A) (I1' ;; h2') = # (ComplexHomotFunctor A) (h1' ;; I2').
   Proof.
-    set (tmp'' := MappingConeMorExt
-                    A M1' M2'
-                    ((hfiberpr1 _ _ invh1') ;; (hfiberpr1 _ _ g1') ;; (hfiberpr1 _ _ k1'))
-                    ((hfiberpr1 _ _ invh2') ;; (hfiberpr1 _ _ g2') ;; (hfiberpr1 _ _ k2'))
-                    HH1 HH2).
-    set (comm1 := MappingConeMorExtComm1
-                    A M1' M2'
-                    ((hfiberpr1 _ _ invh1') ;; (hfiberpr1 _ _ g1') ;; (hfiberpr1 _ _ k1'))
-                    ((hfiberpr1 _ _ invh2') ;; (hfiberpr1 _ _ g2') ;; (hfiberpr1 _ _ k2'))
-                    HH1 HH2).
-    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _ (MappingConeIn2 A M1') tmp''))).
-    apply (maponpaths (# (ComplexHomotFunctor A))) in comm1.
-    use (pathscomp0 comm1). clear comm1.
-    rewrite functor_comp. rewrite functor_comp. rewrite functor_comp.
-    apply cancel_postcomposition.
-    set (tmp''' := hfiberpr2 _ _ k2').
-    apply (maponpaths
-             (compose
-                (is_z_isomorphism_mor
-                   (TriMor_is_iso2 (ConeIsoMor_is_iso I1')) ;; g2))) in tmp'''.
-    use (pathscomp0 _ tmp'''). clear tmp'''. apply cancel_postcomposition.
-    set (tmp''' := hfiberpr2 _ _ g2').
-    apply (maponpaths
-             (compose
-                (is_z_isomorphism_mor
-                   (TriMor_is_iso2 (ConeIsoMor_is_iso I1'))))) in tmp'''.
-    use (pathscomp0 _ tmp'''). clear tmp'''. apply cancel_postcomposition.
-    exact (hfiberpr2 _ _ invh2').
+    rewrite functor_comp. rewrite functor_comp.
+    unfold I1'. rewrite hfiberpr2. unfold h2'. rewrite hfiberpr2.
+    unfold I2'. rewrite hfiberpr2. unfold h1'. rewrite hfiberpr2.
+    rewrite assoc. rewrite assoc.
+    exact (! (KAExt_Comm1 D1 D2 g1 g2 H I1 I2)).
   Qed.
 
-  Lemma KAPreTriang4_3 (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
+  Lemma KAExt_Comm2_1 (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
         (g2 : KAPreTriangData ⟦ Ob2 D1, Ob2 D2 ⟧) (H : g1 ;; Mor1 D2 = Mor1 D1 ;; g2)
-        (M1 : Morphisms.Morphism) (M2 : Morphisms.Morphism)
-        (I1' : ConeIso D1 M1) (I2' : ConeIso D2 M2)
-        (M1' := hfiberpr1 _ _ (ConeIsoFiber I1')) (M2' := hfiberpr1 _ _ (ConeIsoFiber I2'))
-        (k1' : hfiber # (ComplexHomotFunctor A) (MPMor1 (ConeIsoMor I2')))
-        (k2' : hfiber # (ComplexHomotFunctor A) (MPMor2 (ConeIsoMor I2')))
-        (g1' : hfiber # (ComplexHomotFunctor A) g1)
-        (g2' : hfiber # (ComplexHomotFunctor A) g2)
-        (invh1' : hfiber # (ComplexHomotFunctor A) (MPMor1 (ConeIsoMorInv I1')))
-        (invh2' : hfiber # (ComplexHomotFunctor A) (MPMor2 (ConeIsoMorInv I1')))
-        (HH1 : ComplexHomot A (Ob1 (ConeTri M1 (MConeOf M1 (ConeIsoFiber I1')))) (Target M2))
-        (HH2 : MorphismOp
-                 A (hfiberpr1 # (ComplexHomotFunctor A) M1 (ConeIsoFiber I1')
-                              ;; (hfiberpr1 # (ComplexHomotFunctor A)
-                                            (is_z_isomorphism_mor
-                                               (TriMor_is_iso2 (ConeIsoMor_is_iso I1')))
-                                            invh2' ;; hfiberpr1
-                                            # (ComplexHomotFunctor A) g2 g2'
-                                            ;; hfiberpr1 # (ComplexHomotFunctor A)
-                                            (MPMor2 (ConeIsoMor I2')) k2'))
-                 (to_inv
-                    (hfiberpr1 # (ComplexHomotFunctor A)
-                               (is_z_isomorphism_mor
-                                  (TriMor_is_iso1 (ConeIsoMor_is_iso I1'))) invh1' ;;
-                               hfiberpr1 # (ComplexHomotFunctor A) g1 g1'
-                               ;; hfiberpr1 # (ComplexHomotFunctor A)
-                               (MPMor1 (ConeIsoMor I2')) k1'
-                               ;; hfiberpr1 # (ComplexHomotFunctor A) M2 (ConeIsoFiber I2'))) =
-               ComplexHomotMorphism A HH1) :
-    (# (ComplexHomotFunctor A)
-       (MappingConeMorExt
-          A M1' M2'
-          ((hfiberpr1 _ _ invh1') ;; (hfiberpr1 _ _ g1') ;; (hfiberpr1 _ _ k1'))
-          ((hfiberpr1 _ _ invh2') ;; (hfiberpr1 _ _ g2') ;; (hfiberpr1 _ _ k2'))
-          HH1 HH2))
-      ;; (# (ComplexHomotFunctor A) (MappingConePr1 A M2')) =
-    (# (ComplexHomotFunctor A) (MappingConePr1 A M1'))
-      ;; (# (AddEquiv1 Trans)
-            ((is_z_isomorphism_mor (TriMor_is_iso1 (ConeIsoMor_is_iso I1')))
-               ;; g1 ;; MPMor1 (ConeIsoMor I2'))).
+        (I1 : KADTriData D1) (I2 : KADTriData D2)
+        (h1 : hfiber # (ComplexHomotFunctor A)
+                     (MPMor1 (TriIsoInv (KADTriDataIso I1)) ;; g1 ;; MPMor1 (KADTriDataIso I2)))
+        (h2 : hfiber # (ComplexHomotFunctor A)
+                     (MPMor2 (TriIsoInv (KADTriDataIso I1)) ;; g2 ;; MPMor2 (KADTriDataIso I2)))
+        (I1' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I1) (KADTriDataFiber I1))
+        (I2' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I2) (KADTriDataFiber I2))
+        (h1' := hfiberpr1 # (ComplexHomotFunctor A)
+                          (is_z_isomorphism_mor (TriMor_is_iso1 (KADTriDataIso I1))
+                                                ;; g1 ;; MPMor1 (KADTriDataIso I2)) h1)
+        (h2' := hfiberpr1 # (ComplexHomotFunctor A)
+                          (is_z_isomorphism_mor (TriMor_is_iso2 (KADTriDataIso I1))
+                                                ;; g2 ;; MPMor2 (KADTriDataIso I2)) h2)
+        (HH1 : ComplexHomot A (Source (KADTriDataMor I1))
+                            (Ob2 (MappingConeTri (KADTriDataMor I2) (KADTriDataFiber I2))))
+        (HH2 : ComplexHomotMorphism A HH1 =
+               @to_binop (ComplexPreCat_Additive A) (Source (KADTriDataMor I1))
+                         (Ob2 (MappingConeTri (KADTriDataMor I2) (KADTriDataFiber I2)))
+                         (I1' ;; h2') (to_inv (h1';; I2'))) :
+    Mor2 D1 ;; (MPMor3 (KADTriDataIso I1)
+                       ;; (# (ComplexHomotFunctor A)
+                             (MappingConeMorExt A I1' I2' h1' h2' HH1 (! HH2))
+                             ;; is_z_isomorphism_mor
+                             (TriMor_is_iso3 (KADTriDataIso I2)))) =
+    MPMor2 (KADTriDataIso I1)
+           ;; (Mor2 (MappingConeTri (KADTriDataMor I1) (KADTriDataFiber I1)) ;;
+                    # (ComplexHomotFunctor A) (MappingConeMorExt A I1' I2' h1' h2' HH1 (! HH2)))
+           ;; is_z_isomorphism_mor (TriMor_is_iso3 (KADTriDataIso I2)).
   Proof.
-    set (tmp'' := MappingConeMorExt
-                    A M1' M2'
-                    ((hfiberpr1 _ _ invh1') ;; (hfiberpr1 _ _ g1') ;; (hfiberpr1 _ _ k1'))
-                    ((hfiberpr1 _ _ invh2') ;; (hfiberpr1 _ _ g2') ;; (hfiberpr1 _ _ k2'))
-                    HH1 HH2).
-    set (comm2 := MappingConeMorExtComm2
-                    A M1' M2'
-                    ((hfiberpr1 _ _ invh1') ;; (hfiberpr1 _ _ g1') ;; (hfiberpr1 _ _ k1'))
-                    ((hfiberpr1 _ _ invh2') ;; (hfiberpr1 _ _ g2') ;; (hfiberpr1 _ _ k2'))
-                    HH1 HH2).
-    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _
-                                     tmp'' (MappingConePr1 A M2')))).
+    rewrite assoc.
+    set (tmp := MPComm2 (KADTriDataIso I1)).
+    apply (maponpaths
+             (postcompose
+                ((# (ComplexHomotFunctor A)
+                    (MappingConeMorExt A I1' I2' h1' h2' HH1 (! HH2)) ;;
+                    is_z_isomorphism_mor (TriMor_is_iso3 (KADTriDataIso I2))))))
+      in tmp.
+    use (pathscomp0 (! tmp)). clear tmp. unfold postcompose. rewrite assoc.
+    rewrite <- (assoc _ (Mor2 (MappingConeTri (KADTriDataMor I1) (KADTriDataFiber I1)))).
+    apply idpath.
+  Qed.
+
+  Lemma KAExt_Comm2_2 (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
+        (g2 : KAPreTriangData ⟦ Ob2 D1, Ob2 D2 ⟧) (H : g1 ;; Mor1 D2 = Mor1 D1 ;; g2)
+        (I1 : KADTriData D1) (I2 : KADTriData D2)
+        (h1 : hfiber # (ComplexHomotFunctor A)
+                     (MPMor1 (TriIsoInv (KADTriDataIso I1)) ;; g1 ;; MPMor1 (KADTriDataIso I2)))
+        (h2 : hfiber # (ComplexHomotFunctor A)
+                     (MPMor2 (TriIsoInv (KADTriDataIso I1)) ;; g2 ;; MPMor2 (KADTriDataIso I2)))
+        (I1' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I1) (KADTriDataFiber I1))
+        (I2' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I2) (KADTriDataFiber I2))
+        (h1' := hfiberpr1 # (ComplexHomotFunctor A)
+                          (is_z_isomorphism_mor (TriMor_is_iso1 (KADTriDataIso I1))
+                                                ;; g1 ;; MPMor1 (KADTriDataIso I2)) h1)
+        (h2' := hfiberpr1 # (ComplexHomotFunctor A)
+                          (is_z_isomorphism_mor (TriMor_is_iso2 (KADTriDataIso I1))
+                                                ;; g2 ;; MPMor2 (KADTriDataIso I2)) h2)
+        (HH1 : ComplexHomot A (Source (KADTriDataMor I1))
+                            (Ob2 (MappingConeTri (KADTriDataMor I2) (KADTriDataFiber I2))))
+        (HH2 : ComplexHomotMorphism A HH1 =
+               @to_binop (ComplexPreCat_Additive A) (Source (KADTriDataMor I1))
+                         (Ob2 (MappingConeTri (KADTriDataMor I2) (KADTriDataFiber I2)))
+                         (I1' ;; h2') (to_inv (h1';; I2'))) :
+    (MPMor2 (KADTriDataIso I1))
+      ;; ((is_z_isomorphism_mor (TriMor_is_iso2 (KADTriDataIso I1)))
+            ;; g2 ;; MPMor2 (KADTriDataIso I2)
+            ;; # (ComplexHomotFunctor A) (MappingConeIn2 A I2'))
+      ;; is_z_isomorphism_mor (TriMor_is_iso3 (KADTriDataIso I2)) = g2 ;; Mor2 D2.
+  Proof.
+    rewrite assoc. rewrite assoc. rewrite assoc. cbn.
+    set (tmp := is_inverse_in_precat1 (TriMor_is_iso2 (KADTriDataIso I1))).
+    apply (maponpaths
+             (postcompose
+                (g2 ;; MPMor2 (KADTriDataIso I2)
+                    ;; (# (ComplexHomotFunctor A) (MappingConeIn2 A I2'))
+                    ;; is_z_isomorphism_mor (TriMor_is_iso3 (KADTriDataIso I2))))) in tmp.
+    unfold postcompose in tmp. rewrite assoc in tmp. rewrite assoc in tmp.
+    rewrite assoc in tmp. use (pathscomp0 tmp). clear tmp. rewrite id_left.
+    rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition. cbn.
+    rewrite assoc. set (tmp := MPComm2 (KADTriDataIso I2)). cbn in tmp.
+    apply (maponpaths (postcompose (is_z_isomorphism_mor
+                                      (TriMor_is_iso3 (KADTriDataIso I2))))) in tmp.
+    use (pathscomp0 tmp). clear tmp. unfold postcompose. rewrite <- assoc.
+    set (tmp := is_inverse_in_precat1 (TriMor_is_iso3 (KADTriDataIso I2))).
+    apply (maponpaths (compose (Mor2 D2))) in tmp. use (pathscomp0 tmp).
+    apply id_right.
+  Qed.
+
+  Lemma KAExt_Comm2 (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
+        (g2 : KAPreTriangData ⟦ Ob2 D1, Ob2 D2 ⟧) (H : g1 ;; Mor1 D2 = Mor1 D1 ;; g2)
+        (I1 : KADTriData D1) (I2 : KADTriData D2)
+        (h1 : hfiber # (ComplexHomotFunctor A)
+                     (MPMor1 (TriIsoInv (KADTriDataIso I1)) ;; g1 ;; MPMor1 (KADTriDataIso I2)))
+        (h2 : hfiber # (ComplexHomotFunctor A)
+                     (MPMor2 (TriIsoInv (KADTriDataIso I1)) ;; g2 ;; MPMor2 (KADTriDataIso I2)))
+        (I1' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I1) (KADTriDataFiber I1))
+        (I2' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I2) (KADTriDataFiber I2))
+        (h1' := hfiberpr1 # (ComplexHomotFunctor A)
+                          (is_z_isomorphism_mor (TriMor_is_iso1 (KADTriDataIso I1))
+                                                ;; g1 ;; MPMor1 (KADTriDataIso I2)) h1)
+        (h2' := hfiberpr1 # (ComplexHomotFunctor A)
+                          (is_z_isomorphism_mor (TriMor_is_iso2 (KADTriDataIso I1))
+                                                ;; g2 ;; MPMor2 (KADTriDataIso I2)) h2)
+        (HH1 : ComplexHomot A (Source (KADTriDataMor I1))
+                            (Ob2 (MappingConeTri (KADTriDataMor I2) (KADTriDataFiber I2))))
+        (HH2 : ComplexHomotMorphism A HH1 =
+               @to_binop (ComplexPreCat_Additive A) (Source (KADTriDataMor I1))
+                         (Ob2 (MappingConeTri (KADTriDataMor I2) (KADTriDataFiber I2)))
+                         (I1' ;; h2') (to_inv (h1';; I2'))) :
+    Mor2 D1 ;; (MPMor3 (KADTriDataIso I1)
+                       ;; (# (ComplexHomotFunctor A)
+                             (MappingConeMorExt A I1' I2' h1' h2' HH1 (! HH2))
+                             ;; is_z_isomorphism_mor
+                             (TriMor_is_iso3 (KADTriDataIso I2)))) = g2 ;; Mor2 D2.
+  Proof.
+    use (pathscomp0 (KAExt_Comm2_1 D1 D2 g1 g2 H I1 I2 h1 h2 HH1 HH2)).
+    set (comm1 := maponpaths (# (ComplexHomotFunctor A))
+                             (MappingConeMorExtComm1 A I1' I2' h1' h2' HH1 (! HH2))).
+    rewrite functor_comp in comm1. rewrite functor_comp in comm1.
+    unfold h2' in comm1. rewrite hfiberpr2 in comm1.
+    apply (maponpaths (compose (MPMor2 (KADTriDataIso I1)))) in comm1.
+    apply (maponpaths (postcompose (is_z_isomorphism_mor (TriMor_is_iso3 (KADTriDataIso I2)))))
+      in comm1.
+    use (pathscomp0 comm1). clear comm1.
+    exact (KAExt_Comm2_2 D1 D2 g1 g2 H I1 I2 h1 h2 HH1 HH2).
+  Qed.
+
+  Lemma KAExt_Comm3_1 (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
+        (g2 : KAPreTriangData ⟦ Ob2 D1, Ob2 D2 ⟧) (H : g1 ;; Mor1 D2 = Mor1 D1 ;; g2)
+        (I1 : KADTriData D1) (I2 : KADTriData D2)
+        (h1 : hfiber # (ComplexHomotFunctor A)
+                     (MPMor1 (TriIsoInv (KADTriDataIso I1)) ;; g1 ;; MPMor1 (KADTriDataIso I2)))
+        (h2 : hfiber # (ComplexHomotFunctor A)
+                     (MPMor2 (TriIsoInv (KADTriDataIso I1)) ;; g2 ;; MPMor2 (KADTriDataIso I2)))
+        (I1' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I1) (KADTriDataFiber I1))
+        (I2' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I2) (KADTriDataFiber I2))
+        (h1' := hfiberpr1 # (ComplexHomotFunctor A)
+                          (is_z_isomorphism_mor (TriMor_is_iso1 (KADTriDataIso I1))
+                                                ;; g1 ;; MPMor1 (KADTriDataIso I2)) h1)
+        (h2' := hfiberpr1 # (ComplexHomotFunctor A)
+                          (is_z_isomorphism_mor (TriMor_is_iso2 (KADTriDataIso I1))
+                                                ;; g2 ;; MPMor2 (KADTriDataIso I2)) h2)
+        (HH1 : ComplexHomot A (Source (KADTriDataMor I1))
+                            (Ob2 (MappingConeTri (KADTriDataMor I2) (KADTriDataFiber I2))))
+        (HH2 : ComplexHomotMorphism A HH1 =
+               @to_binop (ComplexPreCat_Additive A) (Source (KADTriDataMor I1))
+                         (Ob2 (MappingConeTri (KADTriDataMor I2) (KADTriDataFiber I2)))
+                         (I1' ;; h2') (to_inv (h1' ;; I2'))) :
+    (MPMor3 (KADTriDataIso I1))
+      ;; (# (ComplexHomotFunctor A) (MappingConeMorExt A I1' I2' h1' h2' HH1 (! HH2))
+            ;; Mor3 (MappingConeTri (KADTriDataMor I2) (KADTriDataFiber I2))) ;;
+      # (AddEquiv1 (TranslationHEquiv A)) (MPMor1 (TriIsoInv (KADTriDataIso I2))) =
+    (MPMor3 (KADTriDataIso I1))
+      ;; (# (ComplexHomotFunctor A) (MappingConeMorExt A I1' I2' h1' h2' HH1 (! HH2))
+            ;; MPMor3 (TriIsoInv (KADTriDataIso I2))) ;; Mor3 D2.
+  Proof.
+    rewrite <- assoc. rewrite <- assoc. rewrite assoc.
+    set (tmp := DComm3 (TriIsoInv (KADTriDataIso I2))).
+    apply (maponpaths
+             (compose
+                ((MPMor3 (KADTriDataIso I1))
+                   ;; (# (ComplexHomotFunctor A)
+                         (MappingConeMorExt A I1' I2' h1' h2' HH1 (! HH2)))))) in tmp.
+    use (pathscomp0 (! tmp)). clear tmp. rewrite assoc.
+    rewrite <- (assoc _ (# (ComplexHomotFunctor A)
+                          (MappingConeMorExt A I1' I2' h1' h2' HH1 (! HH2)))).
+    apply idpath.
+  Qed.
+
+  Lemma KAExt_Comm3_2 (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
+        (g2 : KAPreTriangData ⟦ Ob2 D1, Ob2 D2 ⟧) (H : g1 ;; Mor1 D2 = Mor1 D1 ;; g2)
+        (I1 : KADTriData D1) (I2 : KADTriData D2)
+        (h1 : hfiber # (ComplexHomotFunctor A)
+                     (MPMor1 (TriIsoInv (KADTriDataIso I1)) ;; g1 ;; MPMor1 (KADTriDataIso I2)))
+        (h2 : hfiber # (ComplexHomotFunctor A)
+                     (MPMor2 (TriIsoInv (KADTriDataIso I1)) ;; g2 ;; MPMor2 (KADTriDataIso I2)))
+        (I1' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I1) (KADTriDataFiber I1))
+        (I2' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I2) (KADTriDataFiber I2))
+        (h1' := hfiberpr1 # (ComplexHomotFunctor A)
+                          (is_z_isomorphism_mor (TriMor_is_iso1 (KADTriDataIso I1))
+                                                ;; g1 ;; MPMor1 (KADTriDataIso I2)) h1)
+        (h2' := hfiberpr1 # (ComplexHomotFunctor A)
+                          (is_z_isomorphism_mor (TriMor_is_iso2 (KADTriDataIso I1))
+                                                ;; g2 ;; MPMor2 (KADTriDataIso I2)) h2)
+        (HH1 : ComplexHomot A (Source (KADTriDataMor I1))
+                            (Ob2 (MappingConeTri (KADTriDataMor I2) (KADTriDataFiber I2))))
+        (HH2 : ComplexHomotMorphism A HH1 =
+               @to_binop (ComplexPreCat_Additive A) (Source (KADTriDataMor I1))
+                         (Ob2 (MappingConeTri (KADTriDataMor I2) (KADTriDataFiber I2)))
+                         (I1' ;; h2') (to_inv (h1' ;; I2'))) :
+    Mor3 D1 ;; # (AddEquiv1 Trans) g1 =
+    (MPMor3 (KADTriDataIso I1))
+      ;; # (ComplexHomotFunctor A) (MappingConePr1 A I1')
+      ;; # (ComplexHomotFunctor A) (# (TranslationFunctor A) h1')
+      ;; # (AddEquiv1 (TranslationHEquiv A))
+      (is_z_isomorphism_mor (TriMor_is_iso1 (KADTriDataIso I2))).
+  Proof.
+    set (tmp := DComm3 (KADTriDataIso I1)).
+    apply (maponpaths (postcompose
+                         (# (ComplexHomotFunctor A)
+                            (TranslationMorphism
+                               A (Source (KADTriDataMor I1)) (Source (KADTriDataMor I2))
+                               h1') ;;
+                            # (AddEquiv1 (TranslationHEquiv A))
+                            (is_z_isomorphism_mor (TriMor_is_iso1 (KADTriDataIso I2)))))) in tmp.
+    unfold postcompose in tmp. rewrite assoc in tmp. rewrite assoc in tmp. cbn in tmp.
+    use (pathscomp0 _ (! tmp)). clear tmp.
+    rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+    assert (e : # (ComplexHomotFunctor A)
+                  (TranslationMorphism
+                     A (Source (KADTriDataMor I1)) (Source (KADTriDataMor I2)) h1') =
+                # (AddEquiv1 (TranslationHEquiv A)) (# (ComplexHomotFunctor A) h1')).
+    {
+      Local Transparent AddEquiv1.
+      unfold AddEquiv1. unfold TranslationHEquiv. cbn. apply pathsinv0.
+      apply TranslationFunctorHImEq. apply idpath.
+    }
+    apply (maponpaths (postcompose
+                         (# (AddEquiv1 (TranslationHEquiv A))
+                            (is_z_isomorphism_mor
+                               (TriMor_is_iso1 (KADTriDataIso I2)))))) in e.
+    apply (maponpaths (compose (# (AddEquiv1 (TranslationHEquiv A)) (MPMor1 (KADTriDataIso I1)))))
+      in e.
+    use (pathscomp0 _ (! e)). clear e. unfold postcompose.
+    set (f1 := MPMor1 (KADTriDataIso I1)).
+    set (f2 := # (ComplexHomotFunctor A) h1').
+    set (f3 := (is_z_isomorphism_mor (TriMor_is_iso1 (KADTriDataIso I2)))). rewrite assoc.
+    set (tmp := functor_comp (AddEquiv1 (TranslationHEquiv A)) _ _ _ f1 f2).
+    apply (maponpaths (postcompose (# (AddEquiv1 (TranslationHEquiv A)) f3))) in tmp.
+    unfold postcompose in tmp.
+    use (pathscomp0 _ tmp). clear tmp.
+    set (tmp := functor_comp (AddEquiv1 (TranslationHEquiv A)) _ _ _ (f1 ;; f2) f3).
+    use (pathscomp0 _ tmp). clear tmp.
+    apply maponpaths. unfold f2. unfold h1'. rewrite hfiberpr2.
+    unfold f1. rewrite assoc. rewrite assoc.
+    rewrite (is_inverse_in_precat1 (TriMor_is_iso1 (KADTriDataIso I1))). rewrite id_left.
+    unfold f3. rewrite <- assoc.
+    set (tmp := is_inverse_in_precat1 (TriMor_is_iso1 (KADTriDataIso I2))).
+    apply (maponpaths (compose g1)) in tmp. use (pathscomp0 _ (! tmp)). clear tmp.
+    apply (! (id_right _ )).
+  Qed.
+
+  Lemma KAExt_Comm3 (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
+        (g2 : KAPreTriangData ⟦ Ob2 D1, Ob2 D2 ⟧) (H : g1 ;; Mor1 D2 = Mor1 D1 ;; g2)
+        (I1 : KADTriData D1) (I2 : KADTriData D2)
+        (h1 : hfiber # (ComplexHomotFunctor A)
+                     (MPMor1 (TriIsoInv (KADTriDataIso I1)) ;; g1 ;; MPMor1 (KADTriDataIso I2)))
+        (h2 : hfiber # (ComplexHomotFunctor A)
+                     (MPMor2 (TriIsoInv (KADTriDataIso I1)) ;; g2 ;; MPMor2 (KADTriDataIso I2)))
+        (I1' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I1) (KADTriDataFiber I1))
+        (I2' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I2) (KADTriDataFiber I2))
+        (h1' := hfiberpr1 # (ComplexHomotFunctor A)
+                          (is_z_isomorphism_mor (TriMor_is_iso1 (KADTriDataIso I1))
+                                                ;; g1 ;; MPMor1 (KADTriDataIso I2)) h1)
+        (h2' := hfiberpr1 # (ComplexHomotFunctor A)
+                          (is_z_isomorphism_mor (TriMor_is_iso2 (KADTriDataIso I1))
+                                                ;; g2 ;; MPMor2 (KADTriDataIso I2)) h2)
+        (HH1 : ComplexHomot A (Source (KADTriDataMor I1))
+                            (Ob2 (MappingConeTri (KADTriDataMor I2) (KADTriDataFiber I2))))
+        (HH2 : ComplexHomotMorphism A HH1 =
+               @to_binop (ComplexPreCat_Additive A) (Source (KADTriDataMor I1))
+                         (Ob2 (MappingConeTri (KADTriDataMor I2) (KADTriDataFiber I2)))
+                         (I1' ;; h2') (to_inv (h1' ;; I2'))) :
+    Mor3 D1 ;; # (AddEquiv1 Trans) g1 =
+    (MPMor3 (KADTriDataIso I1))
+      ;; (# (ComplexHomotFunctor A) (MappingConeMorExt A I1' I2' h1' h2' HH1 (! HH2))
+            ;; MPMor3 (TriIsoInv (KADTriDataIso I2))) ;; Mor3 D2.
+  Proof.
+    use (pathscomp0 _ (KAExt_Comm3_1 D1 D2 g1 g2 H I1 I2 h1 h2 HH1 HH2)). cbn.
+    set (comm2 := MappingConeMorExtComm2 A I1' I2' h1' h2' HH1 (! HH2)).
     apply (maponpaths (# (ComplexHomotFunctor A))) in comm2.
-    use (pathscomp0 (! comm2)). clear comm2.
-    rewrite functor_comp. apply cancel_precomposition.
-    apply pathsinv0. use TranslationFunctorHImEq.
-    set (tmp''' := functor_comp (ComplexHomotFunctor A) _ _ _
-                                ((hfiberpr1 _ _ invh1') ;; (hfiberpr1 _ _ g1'))
-                                (hfiberpr1 _ _ k1')).
-    use (pathscomp0 tmp'''). clear tmp'''.
-    set (tmp''' := hfiberpr2 _ _ k1').
-    apply (maponpaths (compose (is_z_isomorphism_mor
-                                  (TriMor_is_iso1 (ConeIsoMor_is_iso I1')) ;; g1))) in tmp'''.
-    use (pathscomp0 _ tmp'''). clear tmp'''. apply cancel_postcomposition.
-    set (tmp''' := functor_comp (ComplexHomotFunctor A) _ _ _
-                                (hfiberpr1 _ _ invh1') (hfiberpr1 _ _ g1')).
-    use (pathscomp0 tmp'''). clear tmp'''.
-    set (tmp''' := hfiberpr2 _ _ g1').
-    apply (maponpaths (compose (is_z_isomorphism_mor
-                                  (TriMor_is_iso1 (ConeIsoMor_is_iso I1'))))) in tmp'''.
-    use (pathscomp0 _ tmp'''). clear tmp'''. apply cancel_postcomposition.
-    exact (hfiberpr2 _ _ invh1').
+    rewrite functor_comp in comm2. rewrite functor_comp in comm2.
+    cbn in comm2. apply (maponpaths (compose (MPMor3 (KADTriDataIso I1)))) in comm2.
+    apply (maponpaths
+             (postcompose
+                (# (AddEquiv1 (TranslationHEquiv A))
+                   (is_z_isomorphism_mor (TriMor_is_iso1 (KADTriDataIso I2))))))
+      in comm2.
+    unfold postcompose in comm2. use (pathscomp0 _ comm2). clear comm2. rewrite assoc.
+    exact (KAExt_Comm3_2 D1 D2 g1 g2 H I1 I2 h1 h2 HH1 HH2).
   Qed.
 
-  Lemma KAPreTriang4 :
+  Lemma KAExt :
     Π (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
       (g2 : KAPreTriangData ⟦ Ob2 D1, Ob2 D2 ⟧) (H : g1 ;; Mor1 D2 = Mor1 D1 ;; g2), ∥ TExt H ∥.
   Proof.
     intros D1 D2 g1 g2 H.
-    use (squash_to_prop (ComplexHomotFunctor_issurj A (Mor2 D1)) (propproperty _)). intros ii1'.
-    use (squash_to_prop (ComplexHomotFunctor_issurj A (Mor2 D2)) (propproperty _)). intros ii2'.
-    use (squash_to_prop (ComplexHomotFunctor_issurj A g1) (propproperty _)). intros g1'.
-    use (squash_to_prop (ComplexHomotFunctor_issurj A g2) (propproperty _)). intros g2'.
-    use (squash_to_prop (DTriIso D1) (propproperty _)). intros I1.
-    induction I1 as [M1 I1].
-    use (squash_to_prop I1 (propproperty _)). intros I1'.
-    set (M1' := hfiberpr1 _ _ (ConeIsoFiber I1')). cbn in M1'.
-    set (I1'' := ConeIsoMorInv I1').
-    use (squash_to_prop (DTriIso D2) (propproperty _)). intros I2.
-    induction I2 as [M2 I2].
-    use (squash_to_prop I2 (propproperty _)). intros I2'.
-    set (M2' := hfiberpr1 _ _ (ConeIsoFiber I2')). cbn in M2'.
-    set (I2'' := ConeIsoMorInv I2').
+    use (squash_to_prop (DTriisDTri D1) (propproperty _)). intros I1.
+    set (I1' := hfiberpr1 _ _ (KADTriDataFiber I1)).
+    use (squash_to_prop (DTriisDTri D2) (propproperty _)). intros I2.
+    set (I2' := hfiberpr1 _ _ (KADTriDataFiber I2)).
     use (squash_to_prop
-           (ComplexHomotFunctor_issurj A (MPMor1 (ConeIsoMor I1'))) (propproperty _)). intros h1'.
+           (ComplexHomotFunctor_issurj
+              A (MPMor1 (TriIsoInv (KADTriDataIso I1)) ;; g1 ;; MPMor1 (KADTriDataIso I2)))
+           (propproperty _)). intros h1.
+    set (h1' := hfiberpr1 _ _ h1).
     use (squash_to_prop
-           (ComplexHomotFunctor_issurj A (MPMor2 (ConeIsoMor I1'))) (propproperty _)). intros h2'.
+           (ComplexHomotFunctor_issurj
+              A (MPMor2 (TriIsoInv (KADTriDataIso I1)) ;; g2 ;; MPMor2 (KADTriDataIso I2)))
+           (propproperty _)). intros h2.
+    set (h2' := hfiberpr1 _ _ h2).
     use (squash_to_prop
-           (ComplexHomotFunctor_issurj A (MPMor3 (ConeIsoMor I1'))) (propproperty _)). intros h3'.
-    use (squash_to_prop
-           (ComplexHomotFunctor_issurj A (MPMor1 I1'')) (propproperty _)). intros invh1'.
-    use (squash_to_prop
-           (ComplexHomotFunctor_issurj A (MPMor2 I1'')) (propproperty _)). intros invh2'.
-    use (squash_to_prop
-           (ComplexHomotFunctor_issurj A (MPMor3 I1'')) (propproperty _)). intros invh3'.
-    use (squash_to_prop
-           (ComplexHomotFunctor_issurj A (MPMor1 (ConeIsoMor I2'))) (propproperty _)). intros k1'.
-    use (squash_to_prop
-           (ComplexHomotFunctor_issurj A (MPMor2 (ConeIsoMor I2'))) (propproperty _)). intros k2'.
-    use (squash_to_prop
-           (ComplexHomotFunctor_issurj A (MPMor3 (ConeIsoMor I2'))) (propproperty _)). intros k3'.
-    use (squash_to_prop
-           (ComplexHomotFunctor_issurj A (MPMor1 I2'')) (propproperty _)). intros invk1'.
-    use (squash_to_prop
-           (ComplexHomotFunctor_issurj A (MPMor2 I2'')) (propproperty _)). intros invk2'.
-    use (squash_to_prop
-           (ComplexHomotFunctor_issurj A (MPMor3 I2'')) (propproperty _)). intros invk3'.
-    set (e := KAPreTriang4_1 D1 D2 g1 g2 H M1 M2 I1' I2' k1' k2' g1' g2' invh1' invh2').
-    set (tmp := ComplexHomotFunctor_im_to_homot A _ _ (! e)).
-    use (squash_to_prop tmp (propproperty _ )). intros HH.
-    induction HH as [HH1 HH2].
-    rewrite <- (assoc (hfiberpr1 _ _ (ConeIsoFiber I1'))) in HH2.
-    rewrite <- (assoc _ _ (hfiberpr1 # (ComplexHomotFunctor A) (MPMor2 (ConeIsoMor I2')) k2'))
-      in HH2.
-    intros P X. apply X. clear P X.
-    use mk_TExts.
-    - exact M1.
-    - exact I1'.
-    - exact M2.
-    - exact I2'.
-    - exact (# (ComplexHomotFunctor A)
-               (MappingConeMorExt
-                  A M1' M2'
-                  ((hfiberpr1 _ _ invh1') ;; (hfiberpr1 _ _ g1') ;; (hfiberpr1 _ _ k1'))
-                  ((hfiberpr1 _ _ invh2') ;; (hfiberpr1 _ _ g2') ;; (hfiberpr1 _ _ k2'))
-                  HH1 (! HH2))).
-    - exact (KAPreTriang4_2 D1 D2 g1 g2 H M1 M2 I1' I2' k1' k2' g1' g2' invh1' invh2' HH1 (! HH2)).
-    - exact (KAPreTriang4_3 D1 D2 g1 g2 H M1 M2 I1' I2' k1' k2' g1' g2' invh1' invh2' HH1 (! HH2)).
+           (ComplexHomotFunctor_im_to_homot A _ _ (KAExt_MorEq D1 D2 g1 g2 H I1 I2 h1 h2))
+           (propproperty _ )). intros HH.
+    use hinhpr.
+    use mk_TExt.
+    - use (compose (MPMor3 (KADTriDataIso I1))).
+      use (postcompose (MPMor3 (TriIsoInv (KADTriDataIso I2)))).
+      exact (# (ComplexHomotFunctor A)
+               (MappingConeMorExt A I1' I2' h1' h2' (pr1 HH) (! (pr2 HH)))).
+    - exact (KAExt_Comm2 D1 D2 g1 g2 H I1 I2 h1 h2 (pr1 HH) (pr2 HH)).
+    - exact (KAExt_Comm3 D1 D2 g1 g2 H I1 I2 h1 h2 (pr1 HH) (pr2 HH)).
+  Qed.
+
+  Definition KADTrisIsos :
+    Π T1 T2 : Tri, TriIso T1 T2 → @isDTri KAPreTriangData T1 → @isDTri KAPreTriangData T2.
+  Proof.
+    intros T1 T2 I X0.
+    use (squash_to_prop X0 (propproperty _)). intros I1. clear X0.
+    use hinhpr.
+    use mk_KADTriData.
+    - exact (KADTriDataMor I1).
+    - exact (KADTriDataFiber I1).
+    - exact (TriIso_comp (TriIsoInv I) (KADTriDataIso I1)).
   Qed.
 
   Definition KAPreTriang : PreTriang.
@@ -616,13 +922,16 @@ Section KAPreTriangulated.
     use mk_PreTriang.
     - exact KAPreTriangData.
     - use mk_isPreTriang.
-      + exact KAPreTriang1.
-      + exact KAPreTriang2.
-      + exact KAPreTriang3.
-      + exact KAPreTriang4.
+      + exact KATrivialDistinguished.
+      + exact KADTrisIsos.
+      + exact KARotDTris.
+      + exact KAInvRotDTris.
+      + exact KAConeDTri.
+      + exact KAExt.
   Defined.
 
 End KAPreTriangulated.
+
 
 
 (** * K(A) as a triangulated category *)
@@ -630,296 +939,68 @@ Section KATriangulated.
 
   Context {A : Additive}.
 
-  Definition KATriangOctaTriIsoTri {x y z : ob (ComplexPreCat_Additive A)} (f1 : Morphism x y)
-             (f2 : Morphism y z) :
-    @Tri (@KAPreTriang A) Trans.
-  Proof.
-    use mk_Tri.
-    - exact (MappingCone _ f1).
-    - exact (MappingCone _ (MorphismComp f1 f2)).
-    - exact (MappingCone _ f2).
-    - exact (# (ComplexHomotFunctor A) (KAOctaMor1 f1 f2)).
-    - exact (# (ComplexHomotFunctor A) (KAOctaMor2 f1 f2)).
-    - exact (# (ComplexHomotFunctor A)
-               (MorphismComp (MappingConePr1 _ f2)
-                             (# (TranslationFunctor A) (MappingConeIn2 _ f1)))).
-  Defined.
-
-  Definition KAFiberTri {x y : @KAPreTriang A} (f : Morphism x y) : @Tri (@KAPreTriang A) Trans.
-  Proof.
-    use (@ConeTri (@KAPreTriang A) _ _ (# (ComplexHomotFunctor A) f)).
-    use MConeOf.
-    - exact (# (ComplexHomotFunctor A) f).
-    - use hfiberpair.
-      + exact f.
-      + exact (idpath _).
-  Defined.
-
-  Local Opaque ComplexHomotFunctor ComplexHomotSubset QuotPrecategory identity ZeroArrow
+  Local Opaque ComplexHomotFunctor ComplexHomotSubset QuotPrecategory identity
         MappingConePr1 MappingConeIn2 RotMorphism RotMorphismInv InvRotMorphism InvRotMorphismInv
-        to_inv compose to_abgrop.
+        to_inv compose to_abgrop pathsinv0 pathscomp0 ishinh.
 
-  Local Lemma KAFiberDTriIsoMPComms {x y : @KAPreTriang A} (f : Morphism x y) :
-    MPMorComms
-      (mk_MPMorMors (identity (Ob1 (KAFiberTri f))) (identity (Ob2 (KAFiberTri f)))
-                    (identity (Ob3 (KAFiberTri f)))).
-  Proof.
-    use mk_MPMorComms.
-    - cbn. rewrite id_left. rewrite id_right. apply idpath.
-    - cbn. rewrite id_left. rewrite id_right. apply idpath.
-  Qed.
-
-  Local Lemma KAFiberDTriIsoComm3 {x y : @KAPreTriang A} (f : Morphism x y) :
-    @identity
-      (QuotPrecategory (ComplexPreCat_PreAdditive A)
-                       (λ C1 C2 : Complex A, ComplexHomotSubgrp A C1 C2)
-                       (KA.ComplexHomot_Additive_Comp A))
-      (@MappingCone A ((ComplexHomotFunctor A) x) ((ComplexHomotFunctor A) y) f)
-      ;; (# (ComplexHomotFunctor A)
-            (@MappingConePr1 A ((ComplexHomotFunctor A) x) ((ComplexHomotFunctor A) y) f)) =
-    # (ComplexHomotFunctor A)
-      (@MappingConePr1 A ((ComplexHomotFunctor A) x) ((ComplexHomotFunctor A) y) f)
-      ;; # (@AddEquiv1 (ComplexHomot_Additive A) (ComplexHomot_Additive A)
-                       (@Trans (@KAPreTriangData A)))
-      (@identity
-         (QuotPrecategory (ComplexPreCat_PreAdditive A)
-                          (λ C1 C2 : Complex A, ComplexHomotSubgrp A C1 C2)
-                          (KA.ComplexHomot_Additive_Comp A)) ((ComplexHomotFunctor A) x)).
-  Proof.
-    rewrite id_left. rewrite functor_id. rewrite id_right. apply idpath.
-  Qed.
-
-  Lemma KAFiberDTriIso {x y : @KAPreTriang A} (f : Morphism x y) :
-    ∃ M : Morphisms.Morphism, ∥ ConeIso (KAFiberTri f) M ∥.
-  Proof.
-    intros P X. apply X. clear P X.
-    use tpair.
-    - exact (Morphisms.mk_Morphism (# (ComplexHomotFunctor A) f)).
-    - intros P X. apply X. clear P X.
-      use mk_ConeIso.
-      + use hfiberpair.
-        * exact f.
-        * exact (idpath _).
-      + use mk_TriMor.
-        * use mk_MPMor.
-          -- use mk_MPMorMors.
-             ++ exact (identity _).
-             ++ exact (identity _).
-             ++ exact (identity _).
-          -- exact (KAFiberDTriIsoMPComms f).
-        * exact (KAFiberDTriIsoComm3 f).
-      + use mk_TriMor_is_iso.
-        * exact (is_z_isomorphism_identity _).
-        * exact (is_z_isomorphism_identity _).
-        * exact (is_z_isomorphism_identity _).
-  Qed.
-
-  Definition KAFiberDTri {x y : @KAPreTriang A} (f : Morphism x y) : @DTri (@KAPreTriang A).
-  Proof.
-    use mk_DTri'.
-    - exact (KAFiberTri f).
-    - exact (KAFiberDTriIso f).
-  Defined.
-
-  Definition KATriangOctaTriIso1MPMors {x y z : ob (ComplexPreCat_Additive A)} (f1 : Morphism x y)
-             (f2 : Morphism y z) :
-    MPMorMors (KATriangOctaTriIsoTri f1 f2) (KAFiberTri (KAOctaMor1 f1 f2)).
-  Proof.
-    use mk_MPMorMors.
-    - exact (identity _).
-    - exact (identity _).
-    - exact (# (ComplexHomotFunctor A) (KAOctaMor3 f1 f2)).
-  Defined.
-
-  Local Lemma KATriangOctaTriIso1MPMorsComm {x y z : ob (ComplexPreCat_Additive A)}
-        (f1 : Morphism x y) (f2 : Morphism y z) : MPMorComms (KATriangOctaTriIso1MPMors f1 f2).
-  Proof.
-    use mk_MPMorComms.
-    - exact (! (KAPreTriang2_Comm1 _)).
-    - exact (KAOctaComm2' f1 f2).
-  Qed.
-
-  Local Lemma KATriangOctaTriIso1MPMorsComm3 {x y z : ob (ComplexPreCat_Additive A)}
-        (f1 : Morphism x y) (f2 : Morphism y z) :
-    # (ComplexHomotFunctor A) (KAOctaMor3 f1 f2) ;;
-      # (ComplexHomotFunctor A) (MappingConePr1 A (KAOctaMor1 f1 f2)) =
-    # (ComplexHomotFunctor A)
-      (MorphismComp (MappingConePr1 A f2)
-                    (TranslationMorphism A y (MappingCone A f1) (MappingConeIn2 A f1)))
-      ;; # (AddEquiv1 Trans) (identity ((MappingCone A f1) : KAPreTriang)).
-  Proof.
-    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _ _ _))).
-    set (tmp := KAOctaComm3 f1 f2).
-    apply (maponpaths (# (ComplexHomotFunctor A))) in tmp.
-    use (pathscomp0 tmp). clear tmp. rewrite functor_id. rewrite id_right.
-    apply idpath.
-  Qed.
-
-  Definition KATriangOctaTriIso1 {x y z : KAPreTriang} (f1 : x --> y) (f2 : y --> z)
-             (f1' : hfiber # (ComplexHomotFunctor A) f1) (f2' : hfiber # (ComplexHomotFunctor A) f2)
-             (f1'' := (hfiberpr1 _ _ f1')) (f2'' := (hfiberpr1 _ _ f2')) :
-    TriIso (KATriangOctaTriIsoTri f1'' f2'') (KAFiberTri (KAOctaMor1 f1'' f2'')).
+  Definition KATriangOcta_TriIso {x y z : ob (@KAPreTriang A)} {f1 : x --> y} {g1 : y --> z}
+             (f1' : hfiber # (ComplexHomotFunctor A) f1)
+             (g1' : hfiber # (ComplexHomotFunctor A) g1)
+             (f1'' := hfiberpr1 _ _ f1') (g1'' := hfiberpr1 _ _ g1')
+             (i' := hfiberpair # (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1'')
+                               (idpath (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1'')))) :
+        TriIso
+      (@mk_Tri KAPreTriang Trans _ _ _
+               (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1''))
+               (# (ComplexHomotFunctor A) (KAOctaMor2 f1'' g1''))
+               (# (ComplexHomotFunctor A) (MappingConePr1 A g1'')
+                  ;; # (AddEquiv1 (@Trans KAPreTriang))
+                  (# (ComplexHomotFunctor A) (MappingConeIn2 A f1''))))
+      (MappingConeTri (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1'')) i').
   Proof.
     use mk_TriIso.
-    - use mk_TriMor.
-      + use mk_MPMor.
-        * exact (KATriangOctaTriIso1MPMors f1'' f2'').
-        * exact (KATriangOctaTriIso1MPMorsComm f1'' f2'').
-      + exact (KATriangOctaTriIso1MPMorsComm3 f1'' f2'').
-    - use mk_TriMor_is_iso.
-      + exact (is_z_isomorphism_identity _).
-      + exact (is_z_isomorphism_identity _).
-      + exact (KAOctaMor3Iso f1'' f2'').
+    * use mk_TriMor.
+      -- use mk_MPMor.
+         ++ use mk_MPMorMors.
+            ** exact (identity _).
+            ** exact (identity _).
+            ** exact (# (ComplexHomotFunctor A) (KAOctaMor3 f1'' g1'')).
+         ++ use mk_MPMorComms.
+            ** exact (! (KAIdComm _ _ (idpath _))).
+            ** exact (KAOctaComm2' f1'' g1'').
+      -- exact (KAOctaComm3' f1'' g1'').
+    * use mk_TriMor_is_iso.
+      ++ exact (is_z_isomorphism_identity _).
+      ++ exact (is_z_isomorphism_identity _).
+      ++ exact (KAOctaMor3Iso f1'' g1'').
   Defined.
 
-  Definition KATriangOctaFiberIso {x y z : KAPreTriang} {f1 : x --> y} {f2 : y --> z}
-             {f3 : z --> (AddEquiv1 Trans x)} (f1' : hfiber # (ComplexHomotFunctor A) f1)
-             (H : ∥ Σ M : Morphisms.Morphism, ∥ ConeIso (mk_Tri f1 f2 f3) M ∥ ∥)
-             (f1'' := (hfiberpr1 _ _ f1'))
-             (e : identity x ;; # (ComplexHomotFunctor A) f1'' = f1 ;; identity y)
-             (T : @TExt KAPreTriang (mk_DTri' _ H) (KAFiberDTri f1'') _ _ e) :
-    TriIso (mk_Tri f1 f2 f3) (KAFiberTri f1'').
+  Definition KATriangOcta_KADTriData {x y z : ob (@KAPreTriang A)} {f1 : x --> y} {g1 : y --> z}
+             (f1' : hfiber # (ComplexHomotFunctor A) f1)
+             (g1' : hfiber # (ComplexHomotFunctor A) g1)
+             (f1'' := hfiberpr1 _ _ f1') (g1'' := hfiberpr1 _ _ g1')  :
+    KADTriData
+      (@mk_Tri KAPreTriang Trans _ _ _
+               (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1''))
+               (# (ComplexHomotFunctor A) (KAOctaMor2 f1'' g1''))
+               (# (ComplexHomotFunctor A) (MappingConePr1 A g1'')
+                  ;; # (AddEquiv1 (@Trans KAPreTriang))
+                  (# (ComplexHomotFunctor A) (MappingConeIn2 A f1'')))).
   Proof.
-    use mk_TriIso.
-    - use mk_TriMor.
-      + use mk_MPMor.
-        * use mk_MPMorMors.
-          -- exact (identity _).
-          -- exact (identity _).
-          -- exact T.
-        * use mk_MPMorComms.
-          -- exact e.
-          -- exact (! (TExtComm1 T)).
-      + exact (! (TExtComm2 T)).
-    - use mk_TriMor_is_iso.
-      + exact (is_z_isomorphism_identity _).
-      + exact (is_z_isomorphism_identity _).
-      + use (@TriangulatedFiveLemma KAPreTriang (mk_DTri' _ H) (KAFiberDTri f1'')).
-        * exact (is_z_isomorphism_identity _).
-        * exact (is_z_isomorphism_identity _).
+    use mk_KADTriData.
+    + exact (Morphisms.mk_Morphism (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1''))).
+    + exact (hfiberpair (# (ComplexHomotFunctor A)) (KAOctaMor1 f1'' g1'') (idpath _)).
+    + exact (KATriangOcta_TriIso f1' g1').
   Defined.
 
-  Local Definition KATriangOctaFiberComp {x y z : ob (ComplexPreCat_Additive A)}
-        (f1 : Morphism x y) (f2 : Morphism y z) :
-    MPMorMors
-      (mk_MorphismPair (# (ComplexHomotFunctor A) f1 ;; # (ComplexHomotFunctor A) f2)
-                       (# (ComplexHomotFunctor A) (MappingConeIn2 A (MorphismComp f1 f2))))
-      (mk_MorphismPair (# (ComplexHomotFunctor A) (MorphismComp f1 f2))
-                       (# (ComplexHomotFunctor A) (MappingConeIn2 A (MorphismComp f1 f2)))).
+  Lemma KATriangOcta_hfiber_comp_eq {x y z : ob (@KAPreTriang A)} (f : x --> y) (g : y --> z)
+        (f' : hfiber (# (ComplexHomotFunctor A)) f) (g' : hfiber (# (ComplexHomotFunctor A)) g)
+        (f'' := hfiberpr1 # (ComplexHomotFunctor A) f f')
+        (g'' := hfiberpr1 # (ComplexHomotFunctor A) g g'):
+    # (ComplexHomotFunctor A) (f'' ;;  g'') = f ;; g.
   Proof.
-    use mk_MPMorMors.
-    - exact (identity _).
-    - exact (identity _).
-    - exact (identity _).
-  Defined.
-
-  Local Lemma KATriangOctaFiberCompConeComms {x y z : ob (ComplexPreCat_Additive A)}
-        (f1 : Morphism x y) (f2 : Morphism y z) :
-    @MPMorComms KAPreTriang _ _ (KATriangOctaFiberComp f1 f2).
-  Proof.
-    use mk_MPMorComms.
-    - exact (! (KAPreTriang3_1' _ _ (! (functor_comp
-                                          (ComplexHomotFunctor A) _ _ _ f1 f2)))).
-    - exact (! (KAPreTriang2_Comm1 _)).
-  Qed.
-
-  Local Lemma KATriangOctaFiberCompCone {x y z : ob (ComplexPreCat_Additive A)}
-        (f1 : Morphism x y) (f2 : Morphism y z) :
-    isDTri (@mk_Tri (@KAPreTriang A) (@Trans (@KAPreTriang A)) x z
-                    (@MappingCone A x z (MorphismComp f1 f2))
-                    (# (ComplexHomotFunctor A) f1 ;; # (ComplexHomotFunctor A) f2)
-                    (# (ComplexHomotFunctor A) (@MappingConeIn2 A x z (MorphismComp f1 f2)))
-                    (# (ComplexHomotFunctor A) (@MappingConePr1 A x z (MorphismComp f1 f2)))).
-  Proof.
-    intros P X. apply X. clear P X.
-    use tpair.
-    - exact (Morphisms.mk_Morphism (# (ComplexHomotFunctor A) (MorphismComp f1 f2))).
-    - intros P X. apply X. clear P X. use mk_ConeIso.
-      + cbn. use hfiberpair.
-        * exact (MorphismComp f1 f2).
-        * apply idpath.
-      + use mk_TriMor.
-        * use mk_MPMor.
-          -- exact (KATriangOctaFiberComp f1 f2).
-          -- exact (KATriangOctaFiberCompConeComms f1 f2).
-        * cbn. rewrite functor_id. exact (! (KAPreTriang2_Comm1 _)).
-      + use mk_TriMor_is_iso.
-        * exact (is_z_isomorphism_identity _).
-        * exact (is_z_isomorphism_identity _).
-        * exact (is_z_isomorphism_identity _).
-  Qed.
-
-  Definition KATriangOctaFiberIso'Mor {x y y' z : KAPreTriang} {f1 : x --> y'} {g1 : y' --> y}
-             {h2 : y --> z} {h3 : z --> (AddEquiv1 Trans x)}
-             (f1' : hfiber # (ComplexHomotFunctor A) f1) (g1' : hfiber # (ComplexHomotFunctor A) g1)
-             (H : isDTri (mk_Tri (f1 ;; g1) h2 h3))
-             (f1'' := (hfiberpr1 _ _ f1')) (g1'' := (hfiberpr1 _ _ g1'))
-             (e : identity x ;; # (ComplexHomotFunctor A) (f1'' ;; g1'') = f1 ;; g1 ;; identity y)
-             (T : @TExt KAPreTriang (mk_DTri' _ H) (KAFiberDTri (f1'' ;; g1'')) _ _ e) :
-    TriMor (mk_Tri (f1 ;; g1) h2 h3)
-           (@mk_Tri (@KAPreTriang A) (@Trans (@KAPreTriang A)) _ _ _
-                    (# (ComplexHomotFunctor A) f1'' ;; # (ComplexHomotFunctor A) g1'')
-                    (# (ComplexHomotFunctor A) (MappingConeIn2 A (f1'' ;; g1'')))
-                    (# (ComplexHomotFunctor A) (MappingConePr1 A (f1'' ;; g1'')))).
-  Proof.
-    use mk_TriMor.
-      + use mk_MPMor.
-        * use mk_MPMorMors.
-          -- exact (identity _).
-          -- exact (identity _).
-          -- exact T.
-        * use mk_MPMorComms.
-          -- cbn. rewrite <- (functor_comp (ComplexHomotFunctor A)). exact e.
-          -- exact (! (TExtComm1 T)).
-      + exact (! (TExtComm2 T)).
-  Defined.
-
-  Definition KATriangOctaFiberIso' {x y y' z : KAPreTriang} {f1 : x --> y'} {g1 : y' --> y}
-             {h2 : y --> z} {h3 : z --> (AddEquiv1 Trans x)}
-             (f1' : hfiber # (ComplexHomotFunctor A) f1) (g1' : hfiber # (ComplexHomotFunctor A) g1)
-             (H : isDTri (mk_Tri (f1 ;; g1) h2 h3))
-             (f1'' := (hfiberpr1 _ _ f1')) (g1'' := (hfiberpr1 _ _ g1'))
-             (e : identity x ;; # (ComplexHomotFunctor A) (f1'' ;; g1'') = f1 ;; g1 ;; identity y)
-             (T : @TExt KAPreTriang (mk_DTri' _ H) (KAFiberDTri (f1'' ;; g1'')) _ _ e) :
-    TriIso (mk_Tri (f1 ;; g1) h2 h3)
-           (@mk_Tri (@KAPreTriang A) (@Trans (@KAPreTriang A)) _ _ _
-                    (# (ComplexHomotFunctor A) f1'' ;; # (ComplexHomotFunctor A) g1'')
-                    (# (ComplexHomotFunctor A) (MappingConeIn2 A (f1'' ;; g1'')))
-                    (# (ComplexHomotFunctor A) (MappingConePr1 A (f1'' ;; g1'')))).
-  Proof.
-    use mk_TriIso.
-    - exact (KATriangOctaFiberIso'Mor f1' g1' H e T).
-    - use mk_TriMor_is_iso.
-      + exact (is_z_isomorphism_identity _).
-      + exact (is_z_isomorphism_identity _).
-      + use (@TriangulatedFiveLemma
-               KAPreTriang (mk_DTri' _ H) (mk_DTri' _ (KATriangOctaFiberCompCone f1'' g1''))
-               (KATriangOctaFiberIso'Mor f1' g1' H e T)).
-        * exact (is_z_isomorphism_identity _).
-        * exact (is_z_isomorphism_identity _).
-  Defined.
-
-  Definition KATriangOctaMPMors {x y z : ob (ComplexPreCat_Additive A)}
-             (f : Morphism x y) (g : Morphism y z) :
-    MPMorMors
-      (mk_MorphismPair (# (ComplexHomotFunctor A) (KAOctaMor1 f g))
-                       (# (ComplexHomotFunctor A) (KAOctaMor2 f g)))
-      (mk_MorphismPair (# (ComplexHomotFunctor A) (KAOctaMor1 f g))
-                       (# (ComplexHomotFunctor A) (MappingConeIn2 A (KAOctaMor1 f g)))).
-  Proof.
-    use mk_MPMorMors.
-    - exact (identity _).
-    - exact (identity _).
-    - exact (# (ComplexHomotFunctor A) (KAOctaMor3 f g)).
-  Defined.
-
-  Lemma KATriangOctaMPMorsComm {x y z : ob (ComplexPreCat_Additive A)}
-             (f : Morphism x y) (g : Morphism y z) :
-    @MPMorComms (ComplexHomot_Additive A) _ _ (KATriangOctaMPMors f g).
-  Proof.
-    use mk_MPMorComms.
-    - exact (! (KAPreTriang2_Comm1 _)).
-    - exact (KAOctaComm2' f g).
+    unfold f'', g''.
+    rewrite functor_comp. rewrite hfiberpr2. rewrite hfiberpr2. apply idpath.
   Qed.
 
   Lemma KATriangOcta {x1 x2 y1 y2 z1 z2 : ob (@KAPreTriang A)}
@@ -930,75 +1011,61 @@ Section KATriangulated.
              (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)) :
     ∥ Octa H1 H2 H3 ∥.
   Proof.
-    use (squash_to_prop H1 (propproperty _)). intros H1'.
-    use (squash_to_prop H2 (propproperty _)). intros H2'.
-    use (squash_to_prop H3 (propproperty _)). intros H3'.
-    induction H1' as [M1 I1']. induction H2' as [M2 I2']. induction H3' as [M3 I3'].
-    use (squash_to_prop I1' (propproperty _)). intros I1.
-    use (squash_to_prop I2' (propproperty _)). intros I2.
-    use (squash_to_prop I3' (propproperty _)). intros I3.
     use (squash_to_prop (ComplexHomotFunctor_issurj A f1) (propproperty _)). intros f1'.
-    set (f1'' := hfiberpr1 _ _ f1').
     use (squash_to_prop (ComplexHomotFunctor_issurj A g1) (propproperty _)). intros g1'.
-    set (g1'' := hfiberpr1 _ _ g1').
-    set (Ext1 := DExt KAPreTriang
-                      (mk_DTri' _ H1) (KAFiberDTri f1'') (identity _) (identity _)
-                      (! (KAPreTriang3_1' _ _ (! (hfiberpr2 _ _ f1'))))).
-    set (Ext2 := DExt KAPreTriang
-                      (mk_DTri' _ H2) (KAFiberDTri g1'') (identity _) (identity _)
-                      (! (KAPreTriang3_1' _ _ (! (hfiberpr2 _ _ g1'))))).
-    assert (ee : # (ComplexHomotFunctor A) (f1'' ;; g1'') = f1 ;; g1).
-    {
-      rewrite functor_comp. unfold f1''. rewrite (hfiberpr2 _ _ f1').
-      unfold g1''. rewrite (hfiberpr2 _ _ g1'). apply idpath.
-    }
-    set (Ext3 := DExt KAPreTriang
-                      (mk_DTri' _ H3) (KAFiberDTri (f1'' ;; g1'')) (identity _) (identity _)
-                      (! (KAPreTriang3_1' _ _ (! ee)))).
-    use (squash_to_prop Ext1 (propproperty _)). intros Ext1'.
-    use (squash_to_prop Ext2 (propproperty _)). intros Ext2'.
-    use (squash_to_prop Ext3 (propproperty _)). intros Ext3'.
-    intros P PX. apply PX. clear P PX.
-    use (@OctaConeIso
-           (@KAPreTriang A) x1 x2 y1 y2 z1 z2 f1 f2 f3 g1 g2 g3 h2 h3 H1 H2 H3 x1
-           (MappingCone A g1'') y1 (MappingCone A (f1'' ;; g1'')) z1
-           (MappingCone A f1'') (# (ComplexHomotFunctor A) f1'')
-           (# (ComplexHomotFunctor A) (MappingConeIn2 A f1''))
-           (# (ComplexHomotFunctor A) (MappingConePr1 A f1''))
-           (# (ComplexHomotFunctor A) g1'')
-           (# (ComplexHomotFunctor A) (MappingConeIn2 A g1''))
-           (# (ComplexHomotFunctor A) (MappingConePr1 A g1''))
-           (# (ComplexHomotFunctor A) (MappingConeIn2 A (f1'' ;; g1'')))
-           (# (ComplexHomotFunctor A) (MappingConePr1 A (f1'' ;; g1'')))
-           (KAFiberDTriIso f1'') (KAFiberDTriIso g1'')
-           (KATriangOctaFiberCompCone f1'' g1'')
-           (KATriangOctaFiberIso f1' H1 (! (KAPreTriang3_1' _ _ (! (hfiberpr2 _ _ f1')))) Ext1')
-           (KATriangOctaFiberIso g1' H2 (! (KAPreTriang3_1' _ _ (! (hfiberpr2 _ _ g1')))) Ext2')
-           (KATriangOctaFiberIso' f1' g1' H3 (! (KAPreTriang3_1' _ _ (! ee))) Ext3')
-           (idpath _) (idpath _) (idpath _)).
-    clear Ext1' Ext2' Ext3' Ext3 ee Ext2 Ext1.
+    set (f1'' := hfiberpr1 _ _ f1'). set (g1'' := hfiberpr1 _ _ g1').
+    set (fg1' := hfiberpair (# (ComplexHomotFunctor A)) (f1'' ;; g1'')
+                            (KATriangOcta_hfiber_comp_eq f1 g1 f1' g1')).
+    set (H1' := KAFiberisDTri (Morphisms.mk_Morphism f1) f1').
+    set (H2' := KAFiberisDTri (Morphisms.mk_Morphism g1) g1').
+    set (H3' := KAFiberisDTri (Morphisms.mk_Morphism (f1 ;; g1)) fg1').
+    use (squash_to_prop
+           (DExt KAPreTriang (mk_DTri' _ H1)
+                 (mk_DTri' _ (KAFiberisDTri (Morphisms.mk_Morphism f1) f1'))
+                 (identity _) (identity _) (! (KAIdComm _ _ (idpath _))))
+           (propproperty _)). intros Ext1.
+    set (I1' := mk_TriIso
+                  (TExtMor Ext1)
+                  (@mk_TriMor_is_iso
+                     KAPreTriang Trans _ _ (TExtMor Ext1) (is_z_isomorphism_identity _)
+                     (is_z_isomorphism_identity _)
+                     (TriangulatedFiveLemma (TExtMor Ext1) (is_z_isomorphism_identity _)
+                                            (is_z_isomorphism_identity _)))).
+    use (squash_to_prop
+           (DExt KAPreTriang (mk_DTri' _ H2)
+                 (mk_DTri' _ (KAFiberisDTri (Morphisms.mk_Morphism g1) g1'))
+                 (identity _) (identity _) (! (KAIdComm _ _ (idpath _))))
+           (propproperty _)). intros Ext2.
+    set (I2' := mk_TriIso
+                  (TExtMor Ext2)
+                  (@mk_TriMor_is_iso
+                     KAPreTriang Trans _ _  (TExtMor Ext2) (is_z_isomorphism_identity _)
+                     (is_z_isomorphism_identity _)
+                     (TriangulatedFiveLemma (TExtMor Ext2) (is_z_isomorphism_identity _)
+                                            (is_z_isomorphism_identity _)))).
+    use (squash_to_prop
+           (DExt KAPreTriang (mk_DTri' _ H3)
+                 (mk_DTri' _ (KAFiberisDTri (Morphisms.mk_Morphism (f1 ;; g1)) fg1'))
+                 (identity _) (identity _) (! (KAIdComm _ _ (idpath _))))
+           (propproperty _)). intros Ext3.
+    set (I3' := mk_TriIso (TExtMor Ext3)
+                          (@mk_TriMor_is_iso
+                             KAPreTriang Trans _ _
+                             (TExtMor Ext3) (is_z_isomorphism_identity _)
+                             (is_z_isomorphism_identity _)
+                             (TriangulatedFiveLemma (TExtMor Ext3) (is_z_isomorphism_identity _)
+                                                    (is_z_isomorphism_identity _)))).
+    use hinhpr.
+    use (OctaIso H1 H2 H3 H1' H2' H3' I1' I2' I3' (idpath _) (idpath _) (idpath _)).
+    clear I3' Ext3 I2' Ext2 I1' Ext1.
     use mk_Octa.
     - exact (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1'')).
     - exact (# (ComplexHomotFunctor A) (KAOctaMor2 f1'' g1'')).
-    - intros P PX. apply PX. clear P PX.
-      use tpair.
-      + exact (Morphisms.mk_Morphism (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1''))).
-      + intros P PX. apply PX. clear P PX.
-        * use mk_ConeIso.
-          -- use hfiberpair.
-             ++ exact (KAOctaMor1 f1'' g1'').
-             ++ apply idpath.
-          -- use mk_TriMor.
-             ++ use mk_MPMor.
-                ** exact (KATriangOctaMPMors f1'' g1'').
-                ** exact (KATriangOctaMPMorsComm f1'' g1'').
-             ++ exact (KAOctaComm3' f1'' g1'').
-          -- use mk_TriMor_is_iso.
-             ++ exact (is_z_isomorphism_identity _).
-             ++ exact (is_z_isomorphism_identity _).
-             ++ exact (KAOctaMor3Iso f1'' g1'').
-    - exact (KAOctaComm5' f1'' g1'').
-    - exact (KAOctaComm4' f1'' g1'').
+    - exact (hinhpr (KATriangOcta_KADTriData f1' g1')).
+    - use (pathscomp0 (KAOctaComm5' f1'' g1'')).
+      apply cancel_postcomposition. exact (hfiberpr2 _ _ g1').
+    - use (pathscomp0 (KAOctaComm4' f1'' g1'')).
+      apply cancel_precomposition. apply maponpaths. exact (hfiberpr2 _ _ f1').
   Qed.
 
   Definition KATriang : Triang.

@@ -98,6 +98,7 @@ for triangulated categories. Thus, our definition of pretriangulated category sa
 Formalization of (TR6), the octahedral axiom, is the same as above.
  *)
 
+Local Opaque ishinh.
 
 (** * Basic notions *)
 (** ** Introduction
@@ -158,6 +159,36 @@ Section def_triangles.
   Definition DComm3 {D1 D2 : Tri} (TM : TriMor D1 D2) :
     (MPMor3 TM) ;; (Mor3 D2) = (Mor3 D1) ;; (# (AddEquiv1 T) (MPMor1 TM)) := pr2 TM.
 
+  Local Lemma TriMor_comp_comms {D1 D2 D3 : Tri} (TM1 : TriMor D1 D2) (TM2 : TriMor D2 D3) :
+    MPMorComms (mk_MPMorMors (MPMor1 TM1 ;; MPMor1 TM2) (MPMor2 TM1 ;; MPMor2 TM2)
+                             (MPMor3 TM1 ;; MPMor3 TM2)).
+  Proof.
+    use mk_MPMorComms.
+    - cbn. rewrite <- assoc. rewrite (MPComm1 TM2). rewrite assoc. rewrite (MPComm1 TM1).
+      rewrite assoc. apply idpath.
+    - cbn. rewrite <- assoc. rewrite (MPComm2 TM2). rewrite assoc. rewrite (MPComm2 TM1).
+      rewrite assoc. apply idpath.
+  Qed.
+
+  Local Lemma TriMor_comp_comm3 {D1 D2 D3 : Tri} (TM1 : TriMor D1 D2) (TM2 : TriMor D2 D3) :
+    MPMor3 TM1 ;; MPMor3 TM2 ;; Mor3 D3 = Mor3 D1 ;; # (AddEquiv1 T) (MPMor1 TM1 ;; MPMor1 TM2).
+  Proof.
+    rewrite <- assoc. rewrite (DComm3 TM2). rewrite assoc. rewrite (DComm3 TM1).
+    rewrite <- assoc. rewrite <- functor_comp. apply idpath.
+  Qed.
+
+  Definition TriMor_comp {D1 D2 D3 : Tri} (TM1 : TriMor D1 D2) (TM2 : TriMor D2 D3) : TriMor D1 D3.
+  Proof.
+    use mk_TriMor.
+    - use mk_MPMor.
+      + use mk_MPMorMors.
+        * exact (MPMor1 TM1 ;; MPMor1 TM2).
+        * exact (MPMor2 TM1 ;; MPMor2 TM2).
+        * exact (MPMor3 TM1 ;; MPMor3 TM2).
+      + exact (TriMor_comp_comms TM1 TM2).
+    - exact (TriMor_comp_comm3 TM1 TM2).
+  Defined.
+
   (** The fourth morphism is automatically an ismorphism because functors preserve isomorphisms *)
   Definition TriMor_is_iso {D1 D2 : Tri} (M : TriMor D1 D2) : UU :=
     (is_z_isomorphism (MPMor1 M)) × (is_z_isomorphism (MPMor2 M))
@@ -177,6 +208,21 @@ Section def_triangles.
              (H2 : is_z_isomorphism (MPMor2 M))
              (H3 : is_z_isomorphism (MPMor3 M)) :
     TriMor_is_iso M := (H1,,(H2,,H3)).
+
+  Definition TriMor_is_iso_comp {D1 D2 D3 : Tri} {M1 : TriMor D1 D2} {M2 : TriMor D2 D3}
+             (i1 : TriMor_is_iso M1) (i2 : TriMor_is_iso M2) : TriMor_is_iso (TriMor_comp M1 M2).
+  Proof.
+    use mk_TriMor_is_iso.
+    - use is_z_isomorphism_comp.
+      + exact (TriMor_is_iso1 i1).
+      + exact (TriMor_is_iso1 i2).
+    - use is_z_isomorphism_comp.
+      + exact (TriMor_is_iso2 i1).
+      + exact (TriMor_is_iso2 i2).
+    - use is_z_isomorphism_comp.
+      + exact (TriMor_is_iso3 i1).
+      + exact (TriMor_is_iso3 i2).
+  Defined.
 
   Local Lemma TriMor_is_iso_to_inv_Comm {D1 D2 : Tri} {M : TriMor D1 D2} (Ti : TriMor_is_iso M) :
     MPMorComms (mk_MPMorMors (is_z_isomorphism_mor (TriMor_is_iso1 Ti))
@@ -260,7 +306,32 @@ Section def_triangles.
   Coercion TriIsoMor : TriIso >-> TriMor.
 
   Definition TriIso_is_iso {D1 D2 : Tri} (I : TriIso D1 D2) : TriMor_is_iso I := pr2 I.
+  Coercion TriIso_is_iso : TriIso >-> TriMor_is_iso.
 
+  Definition TriIso_comp {D1 D2 D3 : Tri} (M1 : TriIso D1 D2) (M2 : TriIso D2 D3) :
+    TriIso D1 D3.
+  Proof.
+    use mk_TriIso.
+    - exact (TriMor_comp M1 M2).
+    - exact (TriMor_is_iso_comp (TriIso_is_iso M1) (TriIso_is_iso M2)).
+  Defined.
+
+  Definition TriIsoInv {D1 D2 : Tri} (I : TriIso D1 D2) : TriIso D2 D1.
+  Proof.
+    use mk_TriIso.
+    - exact (TriMor_is_iso_inv (TriIso_is_iso I)).
+    - exact (TriMor_is_iso_inv_is_iso (TriIso_is_iso I)).
+  Defined.
+
+  Definition TriIsoId (D : Tri) : TriIso D D.
+  Proof.
+    use mk_TriIso.
+    - exact (TriMorId D).
+    - use mk_TriMor_is_iso.
+      + exact (is_z_isomorphism_identity _).
+      + exact (is_z_isomorphism_identity _).
+      + exact (is_z_isomorphism_identity _).
+  Defined.
 
   (** ** Trivial triangle, rotated triangle, and inv rotated triangle *)
 
@@ -297,24 +368,125 @@ Section def_triangles.
     - exact (Mor2 D ;; (z_iso_inv_mor (AddEquivCounitIso T (Ob3 D)))).
   Defined.
 
+
+  (** ** Rotation of morphisms *)
+
+  Local Lemma RotTriMor_Comm3 {D1 D2 : Tri} (M : TriMor D1 D2)  :
+    # (AddEquiv1 T) (MPMor1 M) ;; to_inv (# (AddEquiv1 T) (Mor1 D2)) =
+    to_inv (# (AddEquiv1 T) (Mor1 D1)) ;; # (AddEquiv1 T) (MPMor2 M).
+  Proof.
+    rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp. apply maponpaths.
+    rewrite <- functor_comp. rewrite <- functor_comp. apply maponpaths.
+    exact (MPComm1 M).
+  Qed.
+
+  Definition RotTriMor {D1 D2 : Tri} (M : TriMor D1 D2) : TriMor (RotTri D1) (RotTri D2).
+  Proof.
+    use mk_TriMor.
+    - use mk_MPMor.
+      + use mk_MPMorMors.
+        * exact (MPMor2 M).
+        * exact (MPMor3 M).
+        * exact (# (AddEquiv1 T) (MPMor1 M)).
+      + use mk_MPMorComms.
+        * exact (MPComm2 M).
+        * exact (DComm3 M).
+    - exact (RotTriMor_Comm3 M).
+  Defined.
+
+  Local Lemma InvRotTriMor_Comm1 {D1 D2 : Tri} (M : TriMor D1 D2) :
+    (# (AddEquiv2 T) (MPMor3 M))
+      ;; ((to_inv (# (AddEquiv2 T) (Mor3 D2)))
+            ;; z_iso_inv_mor (AddEquivUnitIso T (Ob1 D2))) =
+    (to_inv (# (AddEquiv2 T) (Mor3 D1)))
+      ;; z_iso_inv_mor (AddEquivUnitIso T (Ob1 D1)) ;; MPMor1 M.
+  Proof.
+    rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
+    rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
+    apply maponpaths. rewrite assoc. rewrite <- functor_comp.
+    set (tmp := maponpaths (# (AddEquiv2 T)) (DComm3 M)). rewrite tmp. clear tmp.
+    rewrite functor_comp. rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+    set (tmp := AddEquivUnitComm T _ _ (MPMor1 M)). cbn in tmp.
+    use (! AddEquivUnitInv T (MPMor1 M)).
+  Qed.
+
+  Local Lemma InvRotTriMor_Comm3 {D1 D2 : Tri} (M : TriMor D1 D2)  :
+    MPMor2 M ;; (Mor2 D2 ;; z_iso_inv_mor (AddEquivCounitIso T (Ob3 D2))) =
+    Mor2 D1 ;; z_iso_inv_mor (AddEquivCounitIso T (Ob3 D1))
+         ;; # (AddEquiv1 T) (# (AddEquiv2 T) (MPMor3 M)).
+  Proof.
+    set (tmp := MPComm2 M). rewrite assoc. rewrite tmp. clear tmp.
+    rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+    use (! AddEquivCounitInv T (MPMor3 M)).
+  Qed.
+
+  Definition InvRotTriMor {D1 D2 : Tri} (M : TriMor D1 D2) :
+    TriMor (InvRotTri D1) (InvRotTri D2).
+  Proof.
+    use mk_TriMor.
+    - use mk_MPMor.
+      + use mk_MPMorMors.
+        * exact (# (AddEquiv2 T) (MPMor3 M)).
+        * exact (MPMor1 M).
+        * exact (MPMor2 M).
+      + use mk_MPMorComms.
+        * exact (InvRotTriMor_Comm1 M).
+        * exact (MPComm1 M).
+    - exact (InvRotTriMor_Comm3 M).
+  Defined.
+
+  Definition RotTriMor_is_iso {D1 D2 : Tri} {M : TriMor D1 D2} (H : TriMor_is_iso M) :
+    TriMor_is_iso (RotTriMor M).
+  Proof.
+    use mk_TriMor_is_iso.
+    - exact (TriMor_is_iso2 H).
+    - exact (TriMor_is_iso3 H).
+    - exact (functor_on_is_z_isomorphism (AddEquiv1 T) (TriMor_is_iso1 H)).
+  Defined.
+
+  Definition RotTriIso {D1 D2 : Tri} (M : TriIso D1 D2) :
+    TriIso (RotTri D1) (RotTri D2).
+  Proof.
+    use mk_TriIso.
+    - exact (RotTriMor M).
+    - exact (RotTriMor_is_iso (TriIso_is_iso M)).
+  Defined.
+
+  Definition InvRotTriMor_is_iso {D1 D2 : Tri} {M : TriMor D1 D2} (H : TriMor_is_iso M) :
+    TriMor_is_iso (InvRotTriMor M).
+  Proof.
+    use mk_TriMor_is_iso.
+    - exact (functor_on_is_z_isomorphism (AddEquiv2 T) (TriMor_is_iso3 H)).
+    - exact (TriMor_is_iso1 H).
+    - exact (TriMor_is_iso2 H).
+  Defined.
+
+  Definition InvRotTriIso {D1 D2 : Tri} (M : TriIso D1 D2) :
+    TriIso (InvRotTri D1) (InvRotTri D2).
+  Proof.
+    use mk_TriIso.
+    - exact (InvRotTriMor M).
+    - exact (InvRotTriMor_is_iso (TriIso_is_iso M)).
+  Defined.
+
   (** ** Cones
      In K(A) cone is given by mapping cone.
    *)
 
-  Definition MCone {A : Additive} (T : AddEquiv A A) (x y : ob A) : UU :=
+  Definition ConeData {A : Additive} (T : AddEquiv A A) (x y : ob A) : UU :=
     Σ (z : ob A), A⟦y, z⟧ × A⟦z, (AddEquiv1 T x)⟧.
 
-  Definition mk_MCone {A : Additive} (T : AddEquiv A A) {x y z : ob A} (g : y --> z)
-             (h : z --> (AddEquiv1 T x)) : MCone T x y := (z,,(g,,h)).
+  Definition mk_ConeData {A : Additive} (T : AddEquiv A A) {x y z : ob A} (g : y --> z)
+             (h : z --> (AddEquiv1 T x)) : ConeData T x y := (z,,(g,,h)).
 
-  Definition MConeOb {A : Additive} {T : AddEquiv A A} {x y : ob A} (C : MCone T x y) :
+  Definition ConeDataOb {A : Additive} {T : AddEquiv A A} {x y : ob A} (C : ConeData T x y) :
     ob A := pr1 C.
-  Coercion MConeOb : MCone >-> ob.
+  Coercion ConeDataOb : ConeData >-> ob.
 
-  Definition MCone1 {A : Additive} {T : AddEquiv A A} {x y : ob A} (C : MCone T x y) :
+  Definition ConeData1 {A : Additive} {T : AddEquiv A A} {x y : ob A} (C : ConeData T x y) :
     A⟦y, C⟧ := dirprod_pr1 (pr2 C).
 
-  Definition MCone2 {A : Additive} {T : AddEquiv A A} {x y : ob A} (C : MCone T x y) :
+  Definition ConeData2 {A : Additive} {T : AddEquiv A A} {x y : ob A} (C : ConeData T x y) :
     A⟦C, (AddEquiv1 T x)⟧ := dirprod_pr2 (pr2 C).
 
 End def_triangles.
@@ -329,33 +501,24 @@ Section def_pretriang_data.
   (** ** PreTriangData *)
 
   Definition PreTriangData : UU :=
-    Σ D : (Σ A : (Additive), (AddEquiv A A) × (Π (x y : ob A) (f : x --> y), UU)),
-          Π (x y : ob (pr1 (pr1 D))) (f : x --> y) (f' : dirprod_pr2 (pr2 D) x y f),
-          MCone (dirprod_pr1 (pr2 D)) x y.
+    Σ D : (Σ A : (Additive), (AddEquiv A A)), Π T : (@Tri (pr1 D) (pr2 D)), hProp.
 
-  Definition mk_PreTriangData (A : Additive) (T : AddEquiv A A)
-             (P : Π (x y : ob A) (f : x --> y), UU)
-             (H : Π (x y : ob A) (f : x --> y) (f' : P x y f), MCone T x y) : PreTriangData.
+  Definition mk_PreTriangData (A : Additive) (T : AddEquiv A A) (H : Π T : (@Tri A T), hProp) :
+    PreTriangData.
   Proof.
     use tpair.
     - use tpair.
       + exact A.
-      + use tpair.
-        * exact T.
-        * exact P.
+      + exact T.
     - exact H.
   Defined.
 
   Definition PreTriangData_Additive (PTD : PreTriangData) : Additive := pr1 (pr1 PTD).
   Coercion PreTriangData_Additive : PreTriangData >-> Additive.
 
-  Definition Trans {PTD : PreTriangData} : AddEquiv PTD PTD := dirprod_pr1 (pr2 (pr1 PTD)).
+  Definition Trans {PTD : PreTriangData} : AddEquiv PTD PTD := pr2 (pr1 PTD).
 
-  Definition ConeType {PTD : PreTriangData} :
-    Π (x y : ob PTD) (f : x --> y), UU := dirprod_pr2 (pr2 (pr1 PTD)).
-
-  Definition MConeOf {PTD : PreTriangData} {x y : ob PTD} (f : x --> y) (f' : ConeType x y f) :
-    MCone Trans x y := (pr2 PTD) x y f f'.
+  Definition isDTri {PTD : PreTriangData} (T : @Tri PTD Trans) : hProp := (pr2 PTD) T.
 
 End def_pretriang_data.
 
@@ -367,50 +530,19 @@ K(A) is pretriangulated.
 *)
 Section def_pretriangulated_data.
 
-  Definition ConeTri {PTD : PreTriangData} {x y : ob PTD} (f : x --> y) (Cf : MCone Trans x y) :
+  Definition ConeTri {PTD : PreTriangData} {x y : ob PTD} (f : x --> y) (D : ConeData Trans x y) :
     @Tri _ (@Trans PTD).
   Proof.
     use mk_Tri.
     - exact x.
     - exact y.
-    - exact Cf.
+    - exact D.
     - exact f.
-    - exact (MCone1 Cf).
-    - exact (MCone2 Cf).
+    - exact (ConeData1 D).
+    - exact (ConeData2 D).
   Defined.
 
-  (** Isomorphism to a cone triangle *)
-  Definition ConeIso {PTD : PreTriangData} (T : Tri) (M : Morphism) : UU :=
-    Σ D : (Σ (f' : ConeType (Source M) (Target M) M),
-           TriMor T (ConeTri M (@MConeOf PTD _ _ M f'))), TriMor_is_iso (pr2 D).
-
-  Definition mk_ConeIso {PTD : PreTriangData} {T : Tri} {x y : ob PTD} {f : x --> y}
-             (f' : ConeType x y f) (M : TriMor T (ConeTri f (@MConeOf PTD _ _ f f')))
-             (I : TriMor_is_iso M) : ConeIso T (mk_Morphism f) := ((f',,M),,I).
-
-  Definition ConeIsoFiber {PTD : PreTriangData} {T : Tri} {M : Morphism} (CI : ConeIso T M) :
-    @ConeType PTD (Source M) (Target M) M := pr1 (pr1 CI).
-
-  Definition ConeIsoTri {PTD : PreTriangData} {T : Tri} {M : Morphism} (CI : ConeIso T M) :
-    Tri := ConeTri M (@MConeOf PTD _ _ M (ConeIsoFiber CI)).
-
-  Definition ConeIsoMor {PTD : PreTriangData} {T : Tri} {M : Morphism} (CI : ConeIso T M) :
-    TriMor T (ConeTri M (@MConeOf PTD _ _ M (ConeIsoFiber CI))) := pr2 (pr1 CI).
-
-  Definition ConeIsoMor_is_iso {PTD : PreTriangData} {T : Tri} {M : Morphism} (CI : ConeIso T M) :
-    TriMor_is_iso (@ConeIsoMor PTD _ _ CI) := pr2 CI.
-
-  Definition ConeIsoMorInv {PTD : PreTriangData} {T : Tri} {M : Morphism} (CI : ConeIso T M) :
-    TriMor (ConeTri M (@MConeOf PTD _ _ M (ConeIsoFiber CI))) T :=
-    TriMor_is_iso_inv (ConeIsoMor_is_iso CI).
-
-  Definition ConeIsoMorInv_is_iso {PTD : PreTriangData} {T : Tri} {M : Morphism} (CI : ConeIso T M) :
-    TriMor_is_iso (ConeIsoMorInv CI) := TriMor_is_iso_inv_is_iso (@ConeIsoMor_is_iso PTD _ _ CI).
-
   (** ** Distinguished triangles *)
-
-  Definition isDTri {PTD : PreTriangData} (T : @Tri _ (@Trans PTD)) : UU :=
-    ∥ Σ M : Morphism, ∥ ConeIso T M ∥ ∥.
 
   Definition DTri {PTD : PreTriangData} : UU :=
     Σ (T : @Tri _ (@Trans PTD)), isDTri T.
@@ -425,26 +557,8 @@ Section def_pretriangulated_data.
   Definition DTriTri {PTD : PreTriangData} (D : @DTri PTD) : Tri := pr1 D.
   Coercion DTriTri : DTri >-> Tri.
 
-  Definition DTriIso {PTD : PreTriangData} (D : @DTri PTD) : isDTri D := pr2 D.
+  Definition DTriisDTri {PTD : PreTriangData} (D : @DTri PTD) : isDTri D := pr2 D.
 
-  Definition ConeDTri {PTD : PreTriangData} {x y : ob PTD} (f : x --> y) (f' : ConeType x y f)
-             (Cf : MCone Trans x y) :
-    @DTri PTD.
-  Proof.
-    use mk_DTri'.
-    - exact (ConeTri f (MConeOf f f')).
-    - intros P X. apply X. clear P X.
-      use tpair.
-      + exact (Morphisms.mk_Morphism f).
-      + intros P X. apply X. clear P X.
-        use mk_ConeIso.
-        * exact f'.
-        * exact (TriMorId _).
-        * use mk_TriMor_is_iso.
-          -- exact (is_z_isomorphism_identity _).
-          -- exact (is_z_isomorphism_identity _).
-          -- exact (is_z_isomorphism_identity _).
-  Defined.
 
   Context {PTD : PreTriangData}.
 
@@ -488,313 +602,38 @@ Section def_pretriangulated_data.
     - exact (! TExtComm2 TE).
   Defined.
 
-
-  (** ** The following is used to prove rotations of DTris in K(A) *)
-  Definition mk_RotDTris_MPMorMors (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-             (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
-             (f1 : PTD⟦Ob1 (RotTri (ConeIsoTri I1)), Source M2⟧)
-             (f2 : PTD⟦Ob2 (RotTri (ConeIsoTri I1)), Target M2⟧)
-             (f3 : PTD⟦Ob3 (RotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧) :
-    MPMorMors (RotTri D) (ConeTri M2 (MConeOf M2 M2')).
-  Proof.
-    use mk_MPMorMors.
-    - exact ((MPMor2 (ConeIsoMor I1)) ;; f1).
-    - exact ((MPMor3 (ConeIsoMor I1)) ;; f2).
-    - exact (# (AddEquiv1 Trans) (MPMor1 (ConeIsoMor I1)) ;; f3).
-  Defined.
-
-  Lemma mk_RotDTris_MPMorComms (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-        (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
-        (f1 : PTD⟦Ob1 (RotTri (ConeIsoTri I1)), Source M2⟧)
-        (f2 : PTD⟦Ob2 (RotTri (ConeIsoTri I1)), Target M2⟧)
-        (f3 : PTD⟦Ob3 (RotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
-        (is1 : is_z_isomorphism f1) (is2 : is_z_isomorphism f2)
-        (is3 : is_z_isomorphism f3)
-        (H1 : Mor1 (RotTri (ConeIsoTri I1)) ;; f2 = f1 ;; M2)
-        (H2 : Mor2 (RotTri (ConeIsoTri I1)) ;; f3 = f2 ;; MCone1 (MConeOf M2 M2'))
-        (H3 : Mor3 (RotTri (ConeIsoTri I1)) ;; (# (AddEquiv1 Trans) f1) =
-              f3 ;; MCone2 (MConeOf M2 M2')) :
-    MPMorComms (mk_RotDTris_MPMorMors D M1 I1 M2 M2' f1 f2 f3).
-  Proof.
-    use mk_MPMorComms.
-    - apply (maponpaths (compose (MPMor2 (ConeIsoMor I1)))) in H1.
-      rewrite assoc in H1. rewrite assoc in H1. use (pathscomp0 (! H1)). clear H1.
-      cbn. rewrite assoc. apply cancel_postcomposition. exact (MPComm2 (ConeIsoMor I1)).
-    - apply (maponpaths (compose (MPMor3 (ConeIsoMor I1)))) in H2.
-      rewrite assoc in H2. rewrite assoc in H2. use (pathscomp0 (! H2)). clear H2.
-      cbn. rewrite assoc. apply cancel_postcomposition. exact (DComm3 (ConeIsoMor I1)).
-  Qed.
-
-  Lemma mk_RotDTris_DComm3 (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-        (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
-        (f1 : PTD⟦Ob1 (RotTri (ConeIsoTri I1)), Source M2⟧)
-        (f2 : PTD⟦Ob2 (RotTri (ConeIsoTri I1)), Target M2⟧)
-        (f3 : PTD⟦Ob3 (RotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
-        (is1 : is_z_isomorphism f1) (is2 : is_z_isomorphism f2)
-        (is3 : is_z_isomorphism f3)
-        (H1 : Mor1 (RotTri (ConeIsoTri I1)) ;; f2 = f1 ;; M2)
-        (H2 : Mor2 (RotTri (ConeIsoTri I1)) ;; f3 = f2 ;; MCone1 (MConeOf M2 M2'))
-        (H3 : Mor3 (RotTri (ConeIsoTri I1)) ;; (# (AddEquiv1 Trans) f1) =
-              f3 ;; MCone2 (MConeOf M2 M2')) :
-    # (AddEquiv1 Trans) (MPMor1 (ConeIsoMor I1)) ;; f3 ;; MCone2 (MConeOf M2 M2') =
-    to_inv (# (AddEquiv1 Trans) (Mor1 D)) ;; # (AddEquiv1 Trans) (MPMor2 (ConeIsoMor I1) ;; f1).
-  Proof.
-    apply (maponpaths (fun gg : _ => # (AddEquiv1 Trans) (MPMor1 (ConeIsoMor I1)) ;; gg)) in H3.
-    rewrite assoc in H3. rewrite assoc in H3. use (pathscomp0 (! H3)). clear H3.
-    rewrite functor_comp. rewrite assoc. apply cancel_postcomposition.
-    cbn. rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp. apply maponpaths.
-    rewrite <- functor_comp. rewrite <- functor_comp. apply maponpaths.
-    exact (MPComm1 (ConeIsoMor I1)).
-  Qed.
-
-  Lemma mk_RotDTris (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-        (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
-        (f1 : PTD⟦Ob1 (RotTri (ConeIsoTri I1)), Source M2⟧)
-        (f2 : PTD⟦Ob2 (RotTri (ConeIsoTri I1)), Target M2⟧)
-        (f3 : PTD⟦Ob3 (RotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
-        (is1 : is_z_isomorphism f1) (is2 : is_z_isomorphism f2)
-        (is3 : is_z_isomorphism f3)
-        (H1 : Mor1 (RotTri (ConeIsoTri I1)) ;; f2 = f1 ;; M2)
-        (H2 : Mor2 (RotTri (ConeIsoTri I1)) ;; f3 = f2 ;; MCone1 (MConeOf M2 M2'))
-        (H3 : Mor3 (RotTri (ConeIsoTri I1)) ;; (# (AddEquiv1 Trans) f1) =
-              f3 ;; MCone2 (MConeOf M2 M2')) :
-    ∥ Σ M : Morphisms.Morphism, ∥ @ConeIso PTD (RotTri D) M ∥ ∥.
-  Proof.
-    intros P X. apply X. clear P X.
-    use tpair.
-    - exact M2.
-    - intros P X. apply X. clear P X.
-      use mk_ConeIso.
-      + exact M2'.
-      + use mk_TriMor.
-        * use mk_MPMor.
-          -- exact (mk_RotDTris_MPMorMors D M1 I1 M2 M2' f1 f2 f3).
-          -- exact (mk_RotDTris_MPMorComms D M1 I1 M2 M2' f1 f2 f3 is1 is2 is3 H1 H2 H3).
-        * exact (mk_RotDTris_DComm3 D M1 I1 M2 M2' f1 f2 f3 is1 is2 is3 H1 H2 H3).
-      + use mk_TriMor_is_iso.
-        * use is_z_isomorphism_comp.
-          -- exact (TriMor_is_iso2 (ConeIsoMor_is_iso I1)).
-          -- exact is1.
-        * use is_z_isomorphism_comp.
-          -- exact (TriMor_is_iso3 (ConeIsoMor_is_iso I1)).
-          -- exact is2.
-        * use is_z_isomorphism_comp.
-          -- exact (functor_on_is_z_isomorphism
-                      (AddEquiv1 Trans) (TriMor_is_iso1 (ConeIsoMor_is_iso I1))).
-          -- exact is3.
-  Qed.
-
-  (** ** The following is used to prove inverse rotations of DTris in K(A) *)
-
-  Definition mk_InvRotDTris_MPMorMors (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-        (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
-        (f1 : PTD⟦Ob1 (InvRotTri (ConeIsoTri I1)), Source M2⟧)
-        (f2 : PTD⟦Ob2 (InvRotTri (ConeIsoTri I1)), Target M2⟧)
-        (f3 : PTD⟦Ob3 (InvRotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧) :
-    MPMorMors (InvRotTri D) (ConeTri M2 (MConeOf M2 M2')).
-  Proof.
-    use mk_MPMorMors.
-    - exact (# (AddEquiv2 Trans) (MPMor3 (ConeIsoMor I1)) ;; f1).
-    - exact ((MPMor1 (ConeIsoMor I1)) ;; f2).
-    - exact ((MPMor2 (ConeIsoMor I1)) ;; f3).
-  Defined.
-
-  Lemma mk_InvRotDTris_MPMorComms (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-        (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
-        (f1 : PTD⟦Ob1 (InvRotTri (ConeIsoTri I1)), Source M2⟧)
-        (f2 : PTD⟦Ob2 (InvRotTri (ConeIsoTri I1)), Target M2⟧)
-        (f3 : PTD⟦Ob3 (InvRotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
-        (is1 : is_z_isomorphism f1) (is2 : is_z_isomorphism f2)
-        (is3 : is_z_isomorphism f3)
-        (H1 : Mor1 (InvRotTri (ConeIsoTri I1)) ;; f2 = f1 ;; M2)
-        (H2 : Mor2 (InvRotTri (ConeIsoTri I1)) ;; f3 = f2 ;; MCone1 (MConeOf M2 M2'))
-        (H3 : Mor3 (InvRotTri (ConeIsoTri I1)) ;; (# (AddEquiv1 Trans) f1) =
-              f3 ;; MCone2 (MConeOf M2 M2')) :
-    MPMorComms (mk_InvRotDTris_MPMorMors D M1 I1 M2 M2' f1 f2 f3).
-  Proof.
-    use mk_MPMorComms.
-    - cbn. rewrite <- assoc.
-      apply (maponpaths (compose (# (AddEquiv2 Trans) (MPMor3 (ConeIsoMor I1))))) in H1.
-      use (pathscomp0 (! H1)). clear H1. rewrite assoc. rewrite assoc.
-      apply cancel_postcomposition. cbn.
-      rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
-      rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp. apply maponpaths.
-      rewrite assoc. rewrite <- functor_comp.
-      set (tmp := DComm3 (ConeIsoMor I1)).
-      apply (maponpaths (fun gg : _ => (# (AddEquiv2 Trans) gg)
-                                      ;; (AddEquivUnitInvMor Trans (Source M1)))) in tmp.
-      use (pathscomp0 tmp). clear tmp. rewrite functor_comp. rewrite <- assoc.
-      rewrite <- assoc. apply cancel_precomposition.
-      exact (! (AddEquivUnitInv Trans (MPMor1 (ConeIsoMor I1)))).
-    - cbn. rewrite assoc. set (tmp := MPComm1 (ConeIsoMor I1)).
-      apply (maponpaths (fun gg : _ => gg ;; f3)) in tmp.
-      use (pathscomp0 _ tmp). rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition. exact (! H2).
-  Qed.
-
-  Lemma InvRotDTrisComm3 (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-        (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
-        (f1 : PTD⟦Ob1 (InvRotTri (ConeIsoTri I1)), Source M2⟧)
-        (f2 : PTD⟦Ob2 (InvRotTri (ConeIsoTri I1)), Target M2⟧)
-        (f3 : PTD⟦Ob3 (InvRotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
-        (is1 : is_z_isomorphism f1) (is2 : is_z_isomorphism f2)
-        (is3 : is_z_isomorphism f3)
-        (H1 : Mor1 (InvRotTri (ConeIsoTri I1)) ;; f2 = f1 ;; M2)
-        (H2 : Mor2 (InvRotTri (ConeIsoTri I1)) ;; f3 = f2 ;; MCone1 (MConeOf M2 M2'))
-        (H3 : Mor3 (InvRotTri (ConeIsoTri I1)) ;; (# (AddEquiv1 Trans) f1) =
-              f3 ;; MCone2 (MConeOf M2 M2')) :
-    MPMor2 (ConeIsoMor I1) ;; f3 ;; MCone2 (MConeOf _ M2') =
-    (Mor2 D)
-      ;; AddEquivCounitInvMor Trans (Ob3 D)
-      ;; # (AddEquiv1 Trans) (# (AddEquiv2 Trans) (MPMor3 (ConeIsoMor I1)) ;; f1).
-  Proof.
-    apply (maponpaths (compose (MPMor2 (ConeIsoMor I1)))) in H3.
-    rewrite <- assoc. use (pathscomp0 (! H3)). clear H3.
-    set (tmp := MPComm2 (ConeIsoMor I1)). cbn.
-    cbn in tmp. rewrite assoc. rewrite assoc. rewrite tmp. clear tmp.
-    rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
-    apply cancel_precomposition. rewrite functor_comp. rewrite assoc. rewrite assoc.
-    apply cancel_postcomposition.
-    exact (! (AddEquivCounitInv Trans (MPMor3 (ConeIsoMor I1)))).
-  Qed.
-
-  Lemma mk_InvRotDTris (D : DTri) (M1 : Morphism) (I1 : ConeIso D M1)
-        (M2 : Morphism) (M2' : ConeType (Source M2) (Target M2) M2)
-        (f1 : PTD⟦Ob1 (InvRotTri (ConeIsoTri I1)), Source M2⟧)
-        (f2 : PTD⟦Ob2 (InvRotTri (ConeIsoTri I1)), Target M2⟧)
-        (f3 : PTD⟦Ob3 (InvRotTri (ConeIsoTri I1)), (MConeOf M2 M2')⟧)
-        (is1 : is_z_isomorphism f1) (is2 : is_z_isomorphism f2)
-        (is3 : is_z_isomorphism f3)
-        (H1 : Mor1 (InvRotTri (ConeIsoTri I1)) ;; f2 = f1 ;; M2)
-        (H2 : Mor2 (InvRotTri (ConeIsoTri I1)) ;; f3 = f2 ;; MCone1 (MConeOf M2 M2'))
-        (H3 : Mor3 (InvRotTri (ConeIsoTri I1)) ;; (# (AddEquiv1 Trans) f1) =
-              f3 ;; MCone2 (MConeOf M2 M2')) :
-    isDTri (InvRotTri D).
-  Proof.
-    intros P X. apply X. clear P X.
-    use tpair.
-    - exact M2.
-    - intros P X. apply X. clear P X.
-      use mk_ConeIso.
-      + exact M2'.
-      + use mk_TriMor.
-        * use mk_MPMor.
-          -- exact (mk_InvRotDTris_MPMorMors D M1 I1 M2 M2' f1 f2 f3).
-          -- exact (mk_InvRotDTris_MPMorComms D M1 I1 M2 M2' f1 f2 f3 is1 is2 is3 H1 H2 H3).
-        * exact (InvRotDTrisComm3 D M1 I1 M2 M2' f1 f2 f3 is1 is2 is3 H1 H2 H3).
-      + use mk_TriMor_is_iso.
-        * use is_z_isomorphism_comp.
-          -- exact (functor_on_is_z_isomorphism
-                      (AddEquiv2 Trans) (TriMor_is_iso3 (ConeIsoMor_is_iso I1))).
-          -- exact is1.
-        * use is_z_isomorphism_comp.
-          -- exact (TriMor_is_iso1 (ConeIsoMor_is_iso I1)).
-          -- exact is2.
-        * use is_z_isomorphism_comp.
-          -- exact (TriMor_is_iso2 (ConeIsoMor_is_iso I1)).
-          -- exact is3.
-  Qed.
-
-  (** ** The following is used to construct TExt in K(A) *)
-
-  Local Lemma mk_TExts_comm1 {D1 D2 : DTri} {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2}
-             (M1 : Morphism) (I1 : ConeIso D1 M1) (M2 : Morphism) (I2 : ConeIso D2 M2)
-             (E : PTD⟦Ob3 (ConeIsoTri I1), Ob3 (ConeIsoTri I2)⟧)
-             (Comm1 : Mor2 (ConeIsoTri I1) ;; E =
-                      MPMor2 (ConeIsoMorInv I1) ;; f2 ;; MPMor2 (ConeIsoMor I2)
-                             ;; Mor2 (ConeIsoTri I2))
-             (Comm2 : E ;; Mor3 (ConeIsoTri I2) =
-                      (Mor3 (ConeIsoTri I1))
-                        ;; (# (AddEquiv1 Trans) ((MPMor1 (ConeIsoMorInv I1))
-                                                   ;; f1 ;; MPMor1 (ConeIsoMor I2)))) :
-    Mor2 D1 ;; (MPMor3 (ConeIsoMor I1) ;; E ;; MPMor3 (ConeIsoMorInv I2)) = f2 ;; Mor2 D2.
-  Proof.
-    use (pre_comp_with_z_iso_is_inj (TriMor_is_iso2 (ConeIsoMorInv_is_iso I1))).
-    use (post_comp_with_z_iso_is_inj (TriMor_is_iso3 (ConeIsoMor_is_iso I2))).
-    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
-    set (comm2 := MPComm2 (ConeIsoMor I2)). rewrite <- (assoc _ (Mor2 D2)).
-    rewrite <- comm2. clear comm2. rewrite assoc. unfold ConeIsoTri in Comm1. rewrite <- Comm1.
-    clear Comm1.
-    use (post_comp_with_z_iso_is_inj (TriMor_is_iso3 (ConeIsoMorInv_is_iso I2))).
-    rewrite <- (assoc _ (MPMor3 (ConeIsoMor I2))). cbn.
-    set (tmp := is_inverse_in_precat1 (TriMor_is_iso3 (ConeIsoMor_is_iso I2))). cbn in tmp.
-    rewrite tmp. clear tmp. rewrite id_right. apply cancel_postcomposition.
-    apply cancel_postcomposition.
-    set (comm2 := MPComm2 (ConeIsoMor I1)). rewrite <- assoc. cbn. cbn in comm2. rewrite <- comm2.
-    clear comm2. rewrite assoc.
-    set (tmp := is_inverse_in_precat2 (TriMor_is_iso2 (ConeIsoMor_is_iso I1))). cbn in tmp.
-    rewrite tmp. clear tmp. apply id_left.
-  Qed.
-
-  Local Lemma mk_TExts_comm2 {D1 D2 : DTri} {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2}
-             (M1 : Morphism) (I1 : ConeIso D1 M1) (M2 : Morphism) (I2 : ConeIso D2 M2)
-             (E : PTD⟦Ob3 (ConeIsoTri I1), Ob3 (ConeIsoTri I2)⟧)
-             (Comm1 : Mor2 (ConeIsoTri I1) ;; E =
-                      MPMor2 (ConeIsoMorInv I1) ;; f2 ;; MPMor2 (ConeIsoMor I2)
-                             ;; Mor2 (ConeIsoTri I2))
-             (Comm2 : E ;; Mor3 (ConeIsoTri I2) =
-                      (Mor3 (ConeIsoTri I1))
-                        ;; (# (AddEquiv1 Trans) ((MPMor1 (ConeIsoMorInv I1))
-                                                   ;; f1 ;; MPMor1 (ConeIsoMor I2)))) :
-    Mor3 D1 ;; # (AddEquiv1 Trans) f1 =
-    MPMor3 (ConeIsoMor I1) ;; E ;; MPMor3 (ConeIsoMorInv I2) ;; Mor3 D2.
-  Proof.
-    use (post_comp_with_z_iso_is_inj
-           (functor_on_is_z_isomorphism
-              (AddEquiv1 Trans) (TriMor_is_iso1 (ConeIsoMor_is_iso I2)))).
-    rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
-    rewrite <- (DComm3 (ConeIsoMor I2)).
-    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
-    rewrite <- (assoc _ _ (MPMor3 (ConeIsoMor I2))).
-    set (tmp := (is_inverse_in_precat2 (TriMor_is_iso3 (ConeIsoMor_is_iso I2)))).
-    cbn. cbn in tmp. rewrite tmp. clear tmp. rewrite id_right. cbn in Comm2.
-    rewrite <- assoc. rewrite <- assoc. rewrite Comm2. rewrite assoc. rewrite assoc.
-    rewrite functor_comp. rewrite functor_comp. rewrite assoc. rewrite assoc.
-    apply cancel_postcomposition. apply cancel_postcomposition.
-    set (comm3 := DComm3 (ConeIsoMor I1)). cbn in comm3. rewrite comm3. clear comm3.
-    rewrite <- assoc. rewrite <- functor_comp.
-    set (tmp := (is_inverse_in_precat1 (TriMor_is_iso1 (ConeIsoMor_is_iso I1)))). cbn in tmp.
-    rewrite tmp. clear tmp. rewrite functor_id. rewrite id_right. apply idpath.
-  Qed.
-
-  Definition mk_TExts {D1 D2 : DTri} {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2}
-             (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2)
-             (M1 : Morphism) (I1 : ConeIso D1 M1) (M2 : Morphism) (I2 : ConeIso D2 M2)
-             (E : PTD⟦Ob3 (ConeIsoTri I1), Ob3 (ConeIsoTri I2)⟧)
-             (Comm1 : Mor2 (ConeIsoTri I1) ;; E =
-                      MPMor2 (ConeIsoMorInv I1) ;; f2 ;; MPMor2 (ConeIsoMor I2)
-                             ;; Mor2 (ConeIsoTri I2))
-             (Comm2 : E ;; Mor3 (ConeIsoTri I2) =
-                      (Mor3 (ConeIsoTri I1))
-                        ;; (# (AddEquiv1 Trans) ((MPMor1 (ConeIsoMorInv I1))
-                                                   ;; f1 ;; MPMor1 (ConeIsoMor I2)))) : TExt H.
-  Proof.
-    use mk_TExt.
-    - exact (MPMor3 (ConeIsoMor I1) ;; E ;; MPMor3 (ConeIsoMorInv I2)).
-    - exact (mk_TExts_comm1 M1 I1 M2 I2 E Comm1 Comm2).
-    - exact (mk_TExts_comm2 M1 I1 M2 I2 E Comm1 Comm2).
-  Defined.
-
 End def_pretriangulated_data.
 
 
 (** * PreTriangulated categories *)
 Section def_pretrangulated.
 
+  (** *** isPreTriang
+   - Trivial triangles are distinguished
+   - Distinguished triangles are closed under isomorphism
+   - Rotation of a distinguished triangle is distinguished
+   - Inverse rotation of a distinguished triangle is distinguished
+   - For every morphism f, there exists a completion to distinguished triangle
+   - Commutative squares to morphisms of distinguished triangles
+   *)
   Definition isPreTriang (PTD : PreTriangData) : UU :=
     (Π (x : ob PTD), isDTri (TrivialTri x))
+      × (Π (T1 T2 : @Tri PTD Trans) (I : TriIso T1 T2), isDTri T1 -> isDTri T2)
       × (Π (D : DTri), @isDTri PTD (RotTri D))
       × (Π (D : DTri), @isDTri PTD (InvRotTri D))
+      × (Π (x y : ob PTD) (f : x --> y), ∥ Σ D : ConeData Trans x y, isDTri (ConeTri f D) ∥)
       × (Π (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
            (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2), ∥ @TExt PTD _ _ _ _ H ∥).
 
   Definition mk_isPreTriang {PTD : PreTriangData}
              (H1 : (Π (x : ob PTD), isDTri (TrivialTri x)))
-             (H2 : Π (D : DTri), isDTri (RotTri D))
-             (H3 : Π (D : DTri), isDTri (InvRotTri D))
-             (H4 : Π (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
+             (H2 : Π (T1 T2 : @Tri PTD Trans) (I : TriIso T1 T2), isDTri T1 -> isDTri T2)
+             (H3 : Π (D : DTri), isDTri (RotTri D))
+             (H4 : Π (D : DTri), isDTri (InvRotTri D))
+             (H5 : Π (x y : ob PTD) (f : x --> y), ∥ Σ D : ConeData Trans x y, isDTri (ConeTri f D) ∥)
+             (H6 : Π (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
                      (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2), ∥ (@TExt PTD _ _ _ _ H) ∥) :
-    isPreTriang PTD := (H1,,(H2,,(H3,,H4))).
+    isPreTriang PTD := (H1,,(H2,,(H3,,(H4,,(H5,,H6))))).
 
   Definition TrivialDTrisData {PTD : PreTriangData} (iPT : isPreTriang PTD) :
     Π (x : ob PTD), isDTri (TrivialTri x) := dirprod_pr1 iPT.
@@ -807,8 +646,12 @@ Section def_pretrangulated.
                    (ZeroArrow (to_Zero PTD) _ (AddEquiv1 Trans x)) TDT).
   Defined.
 
+  Definition DTrisUnderIso {PTD : PreTriangData} (iPT : isPreTriang PTD) :
+    Π (T1 T2 : @Tri PTD Trans) (I : TriIso T1 T2), isDTri T1 -> isDTri T2 :=
+    dirprod_pr1 (dirprod_pr2 iPT).
+
   Definition RotDTris {PTD : PreTriangData} (iPT : isPreTriang PTD) (D : @DTri PTD) :
-    isDTri (RotTri D) := dirprod_pr1 (dirprod_pr2 iPT) D.
+    isDTri (RotTri D) := dirprod_pr1 (dirprod_pr2 (dirprod_pr2 iPT)) D.
 
   Definition RotDTri {PTD : PreTriangData} (iPT : isPreTriang PTD) (D : @DTri PTD) : @DTri PTD.
   Proof.
@@ -817,7 +660,7 @@ Section def_pretrangulated.
   Defined.
 
   Definition InvRotDTris {PTD : PreTriangData} (iPT : isPreTriang PTD) (D : @DTri PTD) :
-    isDTri (InvRotTri D) := dirprod_pr1 (dirprod_pr2 (dirprod_pr2 iPT)) D.
+    isDTri (InvRotTri D) := dirprod_pr1 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 iPT))) D.
 
   Definition InvRotDTri {PTD : PreTriangData} (iPT : isPreTriang PTD) (D : @DTri PTD) : @DTri PTD.
   Proof.
@@ -825,10 +668,14 @@ Section def_pretrangulated.
     exact (mk_DTri' (InvRotTri D) D').
   Defined.
 
+  Definition DCompletion {PTD : PreTriangData} (iPT : isPreTriang PTD) :
+    Π (x y : ob PTD) (f : x --> y), ∥ Σ D : ConeData Trans x y, isDTri (ConeTri f D) ∥ :=
+    dirprod_pr1 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 iPT)))).
+
   Definition DExts {PTD : PreTriangData} (iPT : isPreTriang PTD) :
     Π (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
       (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2), ∥ @TExt PTD _ _ _ _ H ∥ :=
-    dirprod_pr2 (dirprod_pr2 (dirprod_pr2 iPT)).
+    dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 iPT)))).
 
   Definition DExt {PTD : PreTriangData} (iPT : isPreTriang PTD) (D1 D2 : DTri)
              (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2) (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2) :
@@ -953,7 +800,7 @@ Section def_triangulated.
 End def_triangulated.
 
 
-(** ** Rotations, Extensions, and ... *)
+(** ** Rotations and inv rotations of morphisms, Extensions, and DTris *)
 Section rotation_isos.
 
   Context {PT : PreTriang}.
@@ -1214,7 +1061,8 @@ Section rotation_isos.
                          ;; z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2)))
                       (ExtMor2_Comm D1 D2 f3 f4 H)).
     use (squash_to_prop Ext' (propproperty _)). intros Ext.
-    set (Mor := TExtMor Ext). intros P X. apply X. clear X P.
+    set (Mor := TExtMor Ext).
+    use hinhpr.
     use mk_TriMor.
     - use mk_MPMor.
       + use mk_MPMorMors.
@@ -1229,72 +1077,14 @@ Section rotation_isos.
     - exact (ExtMor2_Comm3 D1 D2 Mor).
   Defined.
 
-  (** ** Rotation of morphisms *)
 
-  Local Lemma RotTriMor_Comm3 {D1 D2 : @DTri PT} (M : TriMor D1 D2)  :
-    # (AddEquiv1 Trans) (MPMor1 M) ;; to_inv (# (AddEquiv1 Trans) (Mor1 D2)) =
-    to_inv (# (AddEquiv1 Trans) (Mor1 D1)) ;; # (AddEquiv1 Trans) (MPMor2 M).
-  Proof.
-    rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp. apply maponpaths.
-    rewrite <- functor_comp. rewrite <- functor_comp. apply maponpaths.
-    exact (MPComm1 M).
-  Qed.
+  (** ** Rotations of DTris *)
 
-  Definition RotTriMor {D1 D2 : @DTri PT} (M : TriMor D1 D2) :
-    TriMor (RotDTri PT D1) (RotDTri PT D2).
-  Proof.
-    use mk_TriMor.
-    - use mk_MPMor.
-      + use mk_MPMorMors.
-        * exact (MPMor2 M).
-        * exact (MPMor3 M).
-        * exact (# (AddEquiv1 Trans) (MPMor1 M)).
-      + use mk_MPMorComms.
-        * exact (MPComm2 M).
-        * exact (DComm3 M).
-    - exact (RotTriMor_Comm3 M).
-  Defined.
+  Definition RotDTriMor {D1 D2 : @DTri PT} (M : TriMor D1 D2) :
+    TriMor (@RotDTri PT PT D1) (@RotDTri PT PT D2) := RotTriMor M.
 
-  Local Lemma InvRotTriMor_Comm1 {D1 D2 : @DTri PT} (M : TriMor D1 D2) :
-    (# (AddEquiv2 Trans) (MPMor3 M))
-      ;; ((to_inv (# (AddEquiv2 Trans) (Mor3 D2)))
-            ;; z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2))) =
-    (to_inv (# (AddEquiv2 Trans) (Mor3 D1)))
-      ;; z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D1)) ;; MPMor1 M.
-  Proof.
-    rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
-    rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
-    apply maponpaths. rewrite assoc. rewrite <- functor_comp.
-    set (tmp := maponpaths (# (AddEquiv2 Trans)) (DComm3 M)). rewrite tmp. clear tmp.
-    rewrite functor_comp. rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
-    set (tmp := AddEquivUnitComm Trans _ _ (MPMor1 M)). cbn in tmp.
-    use (! AddEquivUnitInv Trans (MPMor1 M)).
-  Qed.
-
-  Local Lemma InvRotTriMor_Comm3 {D1 D2 : @DTri PT} (M : TriMor D1 D2)  :
-    MPMor2 M ;; (Mor2 D2 ;; z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D2))) =
-    Mor2 D1 ;; z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D1))
-         ;; # (AddEquiv1 Trans) (# (AddEquiv2 Trans) (MPMor3 M)).
-  Proof.
-    set (tmp := MPComm2 M). rewrite assoc. rewrite tmp. clear tmp.
-    rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
-    use (! AddEquivCounitInv Trans (MPMor3 M)).
-  Qed.
-
-  Definition InvRotTriMor {D1 D2 : @DTri PT} (M : TriMor D1 D2) :
-    TriMor (InvRotDTri PT D1) (InvRotDTri PT D2).
-  Proof.
-    use mk_TriMor.
-    - use mk_MPMor.
-      + use mk_MPMorMors.
-        * exact (# (AddEquiv2 Trans) (MPMor3 M)).
-        * exact (MPMor1 M).
-        * exact (MPMor2 M).
-      + use mk_MPMorComms.
-        * exact (InvRotTriMor_Comm1 M).
-        * exact (MPComm1 M).
-    - exact (InvRotTriMor_Comm3 M).
-  Defined.
+  Definition InvRotDTriMor {D1 D2 : @DTri PT} (M : TriMor D1 D2) :
+    TriMor (@InvRotDTri PT PT D1) (@InvRotDTri PT PT D2) := InvRotTriMor M.
 
 End rotation_isos.
 
@@ -1384,7 +1174,7 @@ Section short_short_exact_sequences.
                          (ZeroArrow (Additive.to_Zero PT) _ _) e).
       use (squash_to_prop Ext' (propproperty _)). intros Ext. clear Ext'.
       set (Mor := ExtMor1 D' D y (ZeroArrow (Additive.to_Zero PT) _ _) e Ext).
-      intros P X'. apply X'. clear P X'.
+      use hinhpr.
       use tpair.
       + exact (((factorization1_epi
                    ABGR_AbelianPreCat has_homsets_ABGR
@@ -1458,7 +1248,7 @@ Section short_short_exact_sequences.
       set (Ext' := DExt PT D D' (ZeroArrow (Additive.to_Zero PT) _ _) y e).
       use (squash_to_prop Ext' (propproperty _)). intros Ext. clear Ext'.
       set (Mor := TExtMor Ext).
-      intros P X'. apply X'. clear X' P.
+      use hinhpr.
       use tpair.
       + exact (((factorization1_epi
                    ABGR_AbelianPreCat has_homsets_ABGR
@@ -1745,7 +1535,7 @@ Section triangulated_five_lemma.
     is_z_isomorphism (MPMor2 M).
   Proof.
     exact (TriangulatedFiveLemma
-             (InvRotTriMor M) (functor_on_is_z_isomorphism (AddEquiv2 Trans) H2) H1).
+             (InvRotDTriMor M) (functor_on_is_z_isomorphism (AddEquiv2 Trans) H2) H1).
   Qed.
 
   Lemma TriangulatedFiveLemma1 {D1 D2 : @DTri PT} (M : TriMor D1 D2)
@@ -1753,7 +1543,7 @@ Section triangulated_five_lemma.
     is_z_isomorphism (MPMor1 M).
   Proof.
     exact (TriangulatedFiveLemma
-             (InvRotTriMor (InvRotTriMor M))
+             (InvRotDTriMor (InvRotDTriMor M))
              (functor_on_is_z_isomorphism (AddEquiv2 Trans) H1)
              (functor_on_is_z_isomorphism (AddEquiv2 Trans) H2)).
   Qed.
@@ -1761,10 +1551,11 @@ Section triangulated_five_lemma.
 End triangulated_five_lemma.
 
 
-(** ** The following is used to prove octahedral axiom in K(A) *)
-Section KA_Octa.
 
-  Definition OctaConeIsoMPMorMors {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
+(** ** Switch triangles in octa along isomorphisms *)
+Section Octa_isomorphisms.
+
+  Lemma OctaIsoMPMorMors {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
@@ -1779,92 +1570,54 @@ Section KA_Octa.
              (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
              (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
              (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
-             (II12 : MPMor1 I2 = MPMor2 I1) (O : Octa H1' H2' H3')
-             (M : Morphism) (II' : ConeIso (OctaDTri O) M) :
+             (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
+             (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
     MPMorMors
-      (mk_Tri (MPMor3 I1 ;; OctaMor1 O ;; is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I3)))
-              (MPMor3 I3 ;; OctaMor2 O ;; is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I2)))
-              (g3 ;; # (AddEquiv1 Trans) f2))
-      (ConeTri M (MConeOf _ (ConeIsoFiber II'))).
+      (mk_MorphismPair (MPMor3 I1 ;; OctaMor1 O ;; is_z_isomorphism_mor (TriMor_is_iso3 I3))
+                       (MPMor3 I3 ;; OctaMor2 O ;; is_z_isomorphism_mor (TriMor_is_iso3 I2)))
+      (mk_MorphismPair (dirprod_pr1 (pr1 O)) (dirprod_pr2 (pr1 O))).
   Proof.
     use mk_MPMorMors.
-    - exact (MPMor3 I1 ;; MPMor1 (ConeIsoMor II')).
-    - exact (MPMor3 I3 ;; MPMor2 (ConeIsoMor II')).
-    - exact (MPMor3 I2 ;; MPMor3 (ConeIsoMor II')).
+    - exact (MPMor3 I1).
+    - exact (MPMor3 I3).
+    - exact (MPMor3 I2).
   Defined.
 
-  Definition OctaConeIsoMPMorMorsComm {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
-             {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
-             {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
-             {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-             (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
-             {x1' x2' y1' y2' z1' z2' : ob PT}
-             {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
-             {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
-             {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
-             (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
-             (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
-             (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
-             (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
-             (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
-             (II12 : MPMor1 I2 = MPMor2 I1) (O : Octa H1' H2' H3')
-             (M : Morphism) (II' : ConeIso (OctaDTri O) M) :
-    MPMorComms (OctaConeIsoMPMorMors H1 H2 H3 H1' H2' H3' I1 I2 I3 II12 O M II').
+  Lemma OctaIsoMorComms {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
+        {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
+        {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
+        {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
+        (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
+        (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
+        {x1' x2' y1' y2' z1' z2' : ob PT}
+        {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
+        {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
+        {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
+        (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
+        (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
+        (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
+        (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
+        (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
+        (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
+        (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
+    MPMorComms (OctaIsoMPMorMors H1 H2 H3 H1' H2' H3' I1 I2 I3 II12 II13 II23 O).
   Proof.
     use mk_MPMorComms.
-    - cbn. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition. use (pathscomp0 (MPComm1 (ConeIsoMor II'))).
-      apply cancel_precomposition. rewrite assoc.
-      set (tmp := is_inverse_in_precat2 (TriMor_is_iso3 (TriIso_is_iso I3))).
-      apply (maponpaths (postcompose (MPMor2 (ConeIsoMor II')))) in tmp.
-      use (pathscomp0 _ (! tmp)). clear tmp. unfold postcompose. rewrite id_left.
-      apply idpath.
-    - cbn. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition. use (pathscomp0 (MPComm2 (ConeIsoMor II'))).
-      apply cancel_precomposition. rewrite assoc.
-      set (tmp := is_inverse_in_precat2 (TriMor_is_iso3 (TriIso_is_iso I2))).
-      apply (maponpaths (postcompose (MPMor3 (ConeIsoMor II')))) in tmp.
-      use (pathscomp0 _ (! tmp)). clear tmp. unfold postcompose. rewrite id_left.
-      apply idpath.
+    - cbn. rewrite <- assoc. rewrite <- assoc.
+      apply cancel_precomposition.
+      set (tmp := is_inverse_in_precat2 (TriMor_is_iso3 I3)).
+      apply (maponpaths (compose (OctaMor1 O))) in tmp.
+      use (pathscomp0 _ (! tmp)). clear tmp.
+      rewrite id_right. apply idpath.
+    - cbn. rewrite <- assoc. rewrite <- assoc.
+      apply cancel_precomposition.
+      set (tmp := is_inverse_in_precat2 (TriMor_is_iso3 I2)).
+      apply (maponpaths (compose (OctaMor2 O))) in tmp.
+      use (pathscomp0 _ (! tmp)). clear tmp.
+      rewrite id_right. apply idpath.
   Qed.
 
-  Local Lemma OctaConeIsoComm3 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
-        {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
-        {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
-        {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-        (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-        (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
-        {x1' x2' y1' y2' z1' z2' : ob PT}
-        {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
-        {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
-        {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
-        (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
-        (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
-        (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
-        (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
-        (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
-        (II12 : MPMor1 I2 = MPMor2 I1) (O : Octa H1' H2' H3')
-        (M : Morphism) (II' : ConeIso (OctaDTri O) M) :
-    MPMor3 I2 ;; MPMor3 (ConeIsoMor II') ;; MCone2 (MConeOf _ (ConeIsoFiber II')) =
-    g3 ;; # (AddEquiv1 Trans) f2 ;; # (AddEquiv1 Trans) (MPMor3 I1 ;; MPMor1 (ConeIsoMor II')).
-  Proof.
-    set (tmp := DComm3 (ConeIsoMor II')).
-    rewrite <- assoc. apply (maponpaths (compose (MPMor3 I2))) in tmp.
-    use (pathscomp0 tmp). clear tmp. rewrite functor_comp.
-    rewrite assoc. rewrite assoc. apply cancel_postcomposition.
-    set (tmp := DComm3 I2).
-    apply (maponpaths (postcompose (# (AddEquiv1 Trans) f2'))) in tmp.
-    unfold postcompose in tmp.
-    cbn. rewrite assoc. use (pathscomp0 tmp). clear tmp.
-    rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
-    rewrite <- functor_comp. rewrite <- functor_comp.
-    set (tmp := MPComm2 I1). cbn in tmp. rewrite <- tmp. clear tmp.
-    rewrite functor_comp. rewrite functor_comp. apply cancel_postcomposition.
-    cbn. apply maponpaths. exact II12.
-  Qed.
-
-  Lemma OctaConeIsoOctaComm1 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
+  Lemma OctaIsoComm3 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
         {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
         {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
         {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
@@ -1881,60 +1634,18 @@ Section KA_Octa.
         (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
         (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
         (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
-    f2 ;; (MPMor3 I1 ;; OctaMor1 O ;; is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I3))) =
-    g1 ;; h2.
+    MPMor3 I2 ;; (g3' ;; # (AddEquiv1 Trans) f2') =
+    g3 ;; # (AddEquiv1 Trans) f2 ;; # (AddEquiv1 Trans) (MPMor3 I1).
   Proof.
-    set (tmp := OctaComm1 O). cbn. cbn in tmp.
-    rewrite assoc. rewrite assoc.
-    set (tmp' := MPComm2 I1). cbn in tmp'. rewrite <- tmp'. clear tmp'.
-    rewrite <- (assoc _ f2'). rewrite tmp. clear tmp. rewrite assoc.
-    cbn in II12. rewrite <- II12.
-    set (tmp := MPComm1 I2). cbn in tmp. rewrite tmp. clear tmp.
+    cbn. rewrite assoc.
+    set (tmp := DComm3 I2). cbn in tmp. rewrite tmp. clear tmp.
     rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
-    rewrite assoc. set (tmp := MPComm2 I3). cbn in tmp. cbn in II23. rewrite II23. rewrite tmp.
-    clear tmp. set (tmp := is_inverse_in_precat1 (TriMor_is_iso3 (TriIso_is_iso I3))).
-    rewrite <- assoc. cbn in tmp. rewrite tmp. clear tmp. rewrite id_right. apply idpath.
+    rewrite <- functor_comp. rewrite <- functor_comp. apply maponpaths.
+    set (tmp := MPComm2 I1). cbn in tmp. rewrite <- tmp. apply cancel_postcomposition.
+    exact II12.
   Qed.
 
-  Lemma OctaConeIsoOctaComm2 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
-        {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
-        {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
-        {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
-        (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-        (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
-        {x1' x2' y1' y2' z1' z2' : ob PT}
-        {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
-        {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
-        {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
-        (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
-        (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
-        (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
-        (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
-        (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
-        (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
-        (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
-    MPMor3 I3 ;; OctaMor2 O ;; is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I2)) ;; g3 =
-    h3 ;; # (AddEquiv1 Trans) f1.
-  Proof.
-    set (tmp := OctaComm2 O).
-    rewrite <- assoc. rewrite <- assoc.
-    set (tmp' := DComm3 I2). cbn in tmp'.
-    apply (maponpaths (compose (is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I2)))))
-      in tmp'.
-    set (tmp'' := functor_on_is_z_isomorphism
-                    (AddEquiv1 Trans) (TriMor_is_iso1 (TriIso_is_iso I2))).
-    use (post_comp_with_z_iso_is_inj tmp''). clear tmp''.
-    rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. cbn. cbn in tmp'. rewrite <- tmp'.
-    clear tmp'. set (tmp'' := is_inverse_in_precat2 (TriMor_is_iso3 (TriIso_is_iso I2))).
-    rewrite (assoc _ (MPMor3 I2)). cbn in tmp''. cbn. rewrite tmp''. clear tmp''.
-    rewrite id_left. rewrite tmp. clear tmp.
-    set (tmp := DComm3 I3). cbn in tmp. rewrite assoc. rewrite tmp. clear tmp.
-    rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
-    cbn in II13. rewrite <- II13. rewrite <- functor_comp. rewrite <- functor_comp.
-    apply maponpaths. set (tmp := MPComm1 I1). cbn in tmp. cbn in II12. rewrite II12. exact tmp.
-  Qed.
-
-  Definition OctaConeIso {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
+  Definition OctaIso {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
@@ -1957,32 +1668,46 @@ Section KA_Octa.
     use mk_Octa.
     - exact (MPMor3 I1 ;; OctaMor1 O ;; is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I3))).
     - exact (MPMor3 I3 ;; OctaMor2 O ;; is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I2))).
-    - use (squash_to_prop (DTriIso (OctaDTri O)) (propproperty _)). intros MM.
-      induction MM as [M II].
-      intros P X. apply X. clear X P.
-      use tpair.
-      + exact M.
-      + use (squash_to_prop II (propproperty _)). intros II'.
-        intros P X. apply X. clear X P.
-        use mk_ConeIso.
-        * exact (ConeIsoFiber II').
-        * use mk_TriMor.
-          -- use mk_MPMor.
-             ++ exact (OctaConeIsoMPMorMors H1 H2 H3 H1' H2' H3' I1 I2 I3 II12 O M II').
-             ++ exact (OctaConeIsoMPMorMorsComm H1 H2 H3 H1' H2' H3' I1 I2 I3 II12 O M II').
-          -- exact (OctaConeIsoComm3 H1 H2 H3 H1' H2' H3' I1 I2 I3 II12 O M II').
-        * use mk_TriMor_is_iso.
-          -- use is_z_isomorphism_comp.
-             ++ exact (TriMor_is_iso3 (TriIso_is_iso I1)).
-             ++ exact (TriMor_is_iso1 (ConeIsoMor_is_iso II')).
-          -- use is_z_isomorphism_comp.
-             ++ exact (TriMor_is_iso3 (TriIso_is_iso I3)).
-             ++ exact (TriMor_is_iso2 (ConeIsoMor_is_iso II')).
-          -- use is_z_isomorphism_comp.
-             ++ exact (TriMor_is_iso3 (TriIso_is_iso I2)).
-             ++ exact (TriMor_is_iso3 (ConeIsoMor_is_iso II')).
-    - exact (OctaConeIsoOctaComm1 H1 H2 H3 H1' H2' H3' I1 I2 I3 II12 II13 II23 O).
-    - exact (OctaConeIsoOctaComm2 H1 H2 H3 H1' H2' H3' I1 I2 I3 II12 II13 II23 O).
-  Defined.
+    - use (DTrisUnderIso PT (OctaDTri O) _ _ (DTriisDTri (OctaDTri O))).
+      use TriIsoInv.
+      use mk_TriIso.
+      + use mk_TriMor.
+        * use mk_MPMor.
+          -- exact (OctaIsoMPMorMors H1 H2 H3 H1' H2' H3' I1 I2 I3 II12 II13 II23 O).
+          -- exact (OctaIsoMorComms H1 H2 H3 H1' H2' H3' I1 I2 I3 II12 II13 II23 O).
+        * exact (OctaIsoComm3 H1 H2 H3 H1' H2' H3' I1 I2 I3 II12 II13 II23 O).
+      + use mk_TriMor_is_iso.
+        * exact (TriMor_is_iso3 I1).
+        * exact (TriMor_is_iso3 I3).
+        * exact (TriMor_is_iso3 I2).
+    - cbn. rewrite assoc. rewrite assoc.
+      set (tmp := MPComm2 I1). cbn in tmp. rewrite <- tmp. clear tmp.
+      set (tmp := OctaComm1 O). rewrite <- (assoc _ f2'). rewrite tmp. clear tmp.
+      rewrite assoc.
+      set (tmp := MPComm1 I2). cbn in tmp. cbn in II12. rewrite <- II12. rewrite tmp. clear tmp.
+      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+      cbn in II23. rewrite II23. rewrite assoc.
+      set (tmp := MPComm2 I3). cbn in tmp. rewrite tmp. clear tmp.
+      rewrite <- assoc. set (tmp := is_inverse_in_precat1 (TriMor_is_iso3 I3)). cbn in tmp.
+      rewrite tmp. apply id_right.
+    - rewrite <- assoc.
+      set (tmp := DComm3 (TriIsoInv I2)). cbn in tmp. cbn. rewrite tmp. clear tmp.
+      set (tmp := OctaComm2 O). rewrite <- (assoc _ (OctaMor2 O)). rewrite (assoc (OctaMor2 O)).
+      rewrite tmp. clear tmp. rewrite <- assoc. rewrite <- functor_comp.
+      set (tmp := MPComm1 (TriIsoInv I1)). cbn in tmp.
+      assert (e : is_z_isomorphism_mor (TriMor_is_iso1 I2) =
+                  is_z_isomorphism_mor (TriMor_is_iso2 I1)).
+      {
+        use is_z_isomorphism_mor_eq. exact II12.
+      }
+      cbn in e. rewrite e. clear e. rewrite <- tmp. clear tmp.
+      rewrite functor_comp. rewrite assoc. rewrite assoc. apply cancel_postcomposition.
+      set (tmp := DComm3 I3). cbn in tmp. rewrite tmp. clear tmp.
+      cbn. use (pathscomp0 _ (id_right _)). rewrite <- assoc. apply cancel_precomposition.
+      rewrite <- functor_id.
+      use (pathscomp0 (! (functor_comp (AddEquiv1 Trans) _ _ _ _ _))). apply maponpaths.
+      cbn in II13. rewrite <- II13.
+      exact (is_inverse_in_precat1 (TriMor_is_iso1 I1)).
+  Qed.
 
-End KA_Octa.
+End Octa_isomorphisms.

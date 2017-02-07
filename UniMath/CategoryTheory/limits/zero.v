@@ -18,6 +18,13 @@ Section def_zero.
   Definition isZero (b : C) : UU :=
     (Π a : C, iscontr (b --> a)) × (Π a : C, iscontr (a --> b)).
 
+  Lemma isaprop_isZero (b : C) : isaprop (isZero b).
+  Proof.
+    apply isapropdirprod.
+    - apply impred. intros t. apply isapropiscontr.
+    - apply impred. intros t. apply isapropiscontr.
+  Qed.
+
   Definition Zero : UU := total2 (fun a => isZero a).
 
   Definition ZeroObject (Z : Zero) : C := pr1 Z.
@@ -92,6 +99,16 @@ Section def_zero.
 
   Definition iso_Zeros (Z Z' : Zero) : iso Z Z' :=
     tpair _ (ZeroArrowTo Z' Z) (isiso_from_Zero_to_Zero Z' Z).
+
+  Definition z_iso_Zeros (Z Z' : Zero) : z_iso Z Z'.
+  Proof.
+    use mk_z_iso.
+    - exact (ZeroArrowTo Z' Z).
+    - exact (ZeroArrowTo Z Z').
+    - use mk_is_inverse_in_precat.
+      + apply ArrowsFromZero.
+      + apply ArrowsFromZero.
+  Defined.
 
   Lemma ZerosArrowEq (Z Z' : Zero) (a b : C) : ZeroArrow Z a b = ZeroArrow Z' a b.
   Proof.
