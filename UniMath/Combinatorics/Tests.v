@@ -429,6 +429,8 @@ Module Test_ord.
     Let j := ●3 : ⟦ 4 ⟧.
 
     Goal choice (i < j)%foset true false = true. reflexivity. Defined.
+    Goal choice (i ≤ j)%foset true false = true. reflexivity. Defined.
+    Goal choice (i ≐ j)%foset true false = false. reflexivity. Defined.
 
     Let X := (∑ i:⟦ 4 ⟧, ⟦ pr1 i ⟧)%foset.
     Let x := ( ●2 ,, ●1 ):X.
@@ -440,13 +442,22 @@ Module Test_ord.
       reflexivity.                (* fixed *)
     Defined.
 
-    Goal choice (x = y)%foset true false = true.
+    Goal choice (x ≤ y)%foset true false = true.
+      reflexivity.
+    Defined.
+
+    Goal choice (y < x)%foset true false = false.
+      reflexivity.
+    Defined.
+
+    Goal choice (y ≤ x)%foset true false = false.
+      reflexivity.
+    Defined.
+
+    Goal choice (x ≐ y)%foset true false = true.
       try reflexivity.            (* fix *)
-      unfold choice.
-      Unset Printing Notations.
-      unfold decidabilityProperty.
       (* Print Assumptions FiniteOrderedSetDecidableEquality. *)
-      (* uses: funextfun funextemptyAxiom *)
+      (* uses: isweqtoforallpathsAxiom funextemptyAxiom funcontrAxiom *)
     Abort.
 
     Goal choice (x ≠ y)%foset true false = false.

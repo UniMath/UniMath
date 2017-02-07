@@ -391,6 +391,7 @@ Proof.
 Defined.
 
 Definition hneg (P : UU) : hProp := hProppair (¬ P) (isapropneg P).
+(* uses funextemptyAxiom *)
 
 (* use scope "logic" for notations that might conflict with others *)
 
@@ -769,21 +770,6 @@ Proof.
   - contradicts nnp (λ p, n p q).
 Defined.
 
-Definition decidable (X : hProp) : hProp :=
-  (* uses [funextemptyAxiom] *)
-  hProppair (X ⨿ ¬X) (isapropdec X (propproperty X)).
-
-Definition decidable_dirprod (X Y : hProp) :
-  decidable X -> decidable Y -> decidable (X ∧ Y).
-Proof.
-  intros ? ? b c.
-  induction b as [b|b].
-  - induction c as [c|c].
-    + now apply ii1.
-    + apply ii2. intro k. refine (c _). exact (pr2 k).
-  - apply ii2. intro k. refine (b _). exact (pr1 k).
-Defined.
-
 (* Law of Excluded Middle
 
    We don't state LEM as an axiom, because we want to force it
@@ -795,7 +781,9 @@ Lemma LEM_for_sets (X : UU) : LEM -> isaset X -> isdeceq X.
 Proof. intros X lem is x y. exact (lem (hProppair (x = y) (is x y))). Defined.
 
 Lemma isaprop_LEM : isaprop LEM.
-Proof. apply impred_prop. Defined.
+Proof.
+  unfold LEM. apply impred_isaprop; intro P. apply isapropdec. apply propproperty.
+Defined.
 
 Lemma dneg_LEM (P : hProp) : LEM -> ¬¬ P -> P.
 Proof. intros P lem. exact (dnegelim ((λ p np, np p),,lem P)). Defined.

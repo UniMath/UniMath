@@ -996,9 +996,10 @@ Definition neqPred {X:UU} (x  :X) := ∏ y,       negProp (x=y).
 
 Definition neqReln (X:UU)         := ∏ (x y:X), negProp (x=y).
 
-(** Complementary propositions  *)
+(** Complementary types *)
 
 Definition complementary P Q := (P -> Q -> ∅) × (P ⨿ Q).
+
 Definition complementary_to_neg_iff {P Q} : complementary P Q -> ¬P <-> Q.
 Proof.
   intros ? ? c.
@@ -1009,6 +1010,26 @@ Proof.
   - intro q. induction c as [p|_].
     * intros _. exact (n p q).
     * intros p. exact (n p q).
+Defined.
+
+Definition decidable (X:UU) := X ⨿ ¬X.
+
+Definition decidable_to_complementary {X} : decidable X -> complementary X (¬X).
+Proof.
+  intros ? d. split.
+  - intros x n. exact (n x).
+  - exact d.
+Defined.
+
+Definition decidable_dirprod (X Y : UU) :
+  decidable X -> decidable Y -> decidable (X × Y).
+Proof.
+  intros ? ? b c.
+  induction b as [b|b'].
+  - induction c as [c|c'].
+    + now apply ii1.
+    + apply ii2. clear b. intro k. apply c'. exact (pr2 k).
+  - clear c. apply ii2. intro k. apply b'. exact (pr1 k).
 Defined.
 
 Lemma negProp_to_complementary P (Q:negProp P) : P ⨿ Q <-> complementary P Q.
@@ -1114,7 +1135,7 @@ Defined.
 
 (** *** Types with decidable equality *)
 
-Definition isdeceq (X:UU) : UU := ∏ (x x':X), (x=x') ⨿ (x!=x').
+Definition isdeceq (X:UU) : UU := ∏ (x x':X), decidable (x=x').
 
 Lemma isdeceqweqf {X Y : UU} (w : weq X Y) (is : isdeceq X) : isdeceq Y.
 Proof.
