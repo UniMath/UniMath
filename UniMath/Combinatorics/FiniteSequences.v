@@ -112,7 +112,7 @@ Definition sequenceEquality2 {X} (f g:Sequence X) (p:length f=length g) :
   (∏ i, f i = g (transportf stn p i)) -> f = g.
 Proof.
   intros ? ? ? ? e. induction f as [m f]. induction g as [n g]. simpl in p.
-  apply (total2_paths2 p). now apply sequenceEquality.
+  apply (total2_paths2_f p). now apply sequenceEquality.
 Defined.
 
 (** The following two lemmas are the key lemmas that allow to prove (transportational) equality of
