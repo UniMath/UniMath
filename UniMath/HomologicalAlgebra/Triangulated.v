@@ -1559,8 +1559,68 @@ Section triangulated_five_lemma.
 End triangulated_five_lemma.
 
 
+(** ** Change triangles in extension using isomorphisms *)
+Section Ext_isomorphisms.
 
-(** ** Switch triangles in octa along isomorphisms *)
+  Lemma DExtIso_Comm1 {PT : PreTriangData} {D1 D2 : DTri} (D1' D2' : Tri)
+        (I1 : TriIso D1 D1') (I2 : TriIso D2 D2')
+        {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2} (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2)
+        (h : Ob3 D1' --> Ob3 D2')
+        (comm1 : Mor2 D1' ;; h = MPMor2 (TriIsoInv I1) ;; f2 ;; MPMor2 I2 ;; Mor2 D2')
+        (comm2 : Mor3 D1' ;; (# (AddEquiv1 (@Trans PT))
+                                (MPMor1 (TriIsoInv I1) ;; f1 ;; MPMor1 I2)) = h ;; Mor3 D2') :
+    Mor2 D1 ;; (MPMor3 I1 ;; h ;; MPMor3 (TriIsoInv I2)) = f2 ;; Mor2 D2.
+  Proof.
+    rewrite assoc. rewrite assoc. rewrite <- (MPComm2 I1).
+    rewrite <- (assoc _ (Mor2 D1')). rewrite comm1. rewrite assoc. rewrite assoc.
+    rewrite assoc. cbn. rewrite (is_inverse_in_precat1 (TriMor_is_iso2 I1)).
+    rewrite id_left. rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+    rewrite assoc. rewrite (MPComm2 I2). rewrite <- assoc.
+    rewrite (is_inverse_in_precat1 (TriMor_is_iso3 I2)). apply id_right.
+  Qed.
+
+  Lemma DExtIso_Comm2 {PT : PreTriangData} {D1 D2 : DTri} (D1' D2' : Tri)
+        (I1 : TriIso D1 D1') (I2 : TriIso D2 D2')
+        {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2} (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2)
+        (h : Ob3 D1' --> Ob3 D2')
+        (comm1 : Mor2 D1' ;; h = MPMor2 (TriIsoInv I1) ;; f2 ;; MPMor2 I2 ;; Mor2 D2')
+        (comm2 : Mor3 D1' ;; (# (AddEquiv1 (@Trans PT))
+                                (MPMor1 (TriIsoInv I1) ;; f1 ;; MPMor1 I2)) = h ;; Mor3 D2') :
+    Mor3 D1 ;; # (AddEquiv1 Trans) f1 = MPMor3 I1 ;; h ;; MPMor3 (TriIsoInv I2) ;; Mor3 D2.
+  Proof.
+    rewrite functor_comp in comm2. rewrite functor_comp in comm2. rewrite assoc in comm2.
+    rewrite assoc in comm2. rewrite <- (DComm3 (TriIsoInv I1)) in comm2.
+    rewrite <- assoc. rewrite (DComm3 (TriIsoInv I2)).
+    use (pre_comp_with_z_iso_inv_is_inj (TriMor_is_iso3 I1)).
+    use (post_comp_with_z_iso_is_inj
+           (functor_on_is_z_isomorphism (AddEquiv1 Trans) (TriMor_is_iso1 I2))).
+    rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
+    rewrite <- assoc. rewrite <- functor_comp. rewrite <- functor_comp.
+    cbn. rewrite (is_inverse_in_precat2 (TriMor_is_iso1 I2)). rewrite functor_id.
+    rewrite id_right. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite (is_inverse_in_precat2 (TriMor_is_iso3 I1)). rewrite id_left.
+    rewrite <- comm2. rewrite functor_comp. rewrite assoc. apply idpath.
+  Qed.
+
+  Definition DExtIso {PT : PreTriangData} {D1 D2 : DTri} (D1' D2' : Tri)
+             (I1 : TriIso D1 D1') (I2 : TriIso D2 D2')
+             {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2} (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2)
+             (h : Ob3 D1' --> Ob3 D2')
+             (comm1 : Mor2 D1' ;; h = MPMor2 (TriIsoInv I1) ;; f2 ;; MPMor2 I2 ;; Mor2 D2')
+             (comm2 : Mor3 D1' ;; (# (AddEquiv1 (@Trans PT))
+                                     (MPMor1 (TriIsoInv I1) ;; f1 ;; MPMor1 I2)) = h ;; Mor3 D2') :
+    TExt H.
+  Proof.
+    use mk_TExt.
+    - exact (MPMor3 I1 ;; h ;; MPMor3 (TriIsoInv I2)).
+    - exact (DExtIso_Comm1 D1' D2' I1 I2 H h comm1 comm2).
+    - exact (DExtIso_Comm2 D1' D2' I1 I2 H h comm1 comm2).
+  Defined.
+
+End Ext_isomorphisms.
+
+
+(** ** Change triangles in octa using isomorphisms *)
 Section Octa_isomorphisms.
 
   Lemma OctaIsoMPMorMors {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
