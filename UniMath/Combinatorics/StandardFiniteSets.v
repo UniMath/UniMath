@@ -779,13 +779,53 @@ Definition weqstnsum_invmap {n : nat} (m : stn n -> nat) : stn (stnsum m) -> (�
 Proof.
   intros ?.
   induction n as [|n IH].
-  { intros ? l. induction (negstn0 l). }
+  { intros ? l. apply fromempty. now apply negstn0. }
   intros ? l.
   set (m' := m ∘ dni _ (lastelement n)).
   set (len' := stnsum m').
   induction (natlthorgeh l len') as [I|J].
   - exact (_b_ IH m l I).
   - exact (lastelement _,,stnpair (m (lastelement _)) (l-len') (_a_ IH m l J)).
+Defined.
+
+Lemma partial_sum_prop {n : nat} {m : stn n → nat} l : l < stnsum m  ->
+  isaprop (∑ (i:stn n) (j:stn(m i)), l = stnsum (m ∘ stn_left' i n (natlthtoleh _ _ (stnlt i))) + j).
+Proof.
+Admitted.
+
+Lemma partial_sum_slot {n : nat} {m : stn n → nat} l : l < stnsum m  ->
+  ∃! (i:stn n) (j:stn(m i)), l = stnsum (m ∘ stn_left' i n (natlthtoleh _ _ (stnlt i))) + j.
+Proof.
+  intros ? ? ? lt.
+  set (len := stnsum m).
+  induction n as [|n IH].
+  { apply fromempty. change (hProptoType(l < 0)) in lt. exact (negnatlthn0 _ lt). }
+  set (m' := m ∘ dni_lastelement).
+  set (len' := stnsum m').
+  induction (natlthorgeh l len') as [I|J].
+  - assert (IH' := IH m' I); clear IH.
+    induction IH' as [ijJ Q]. induction ijJ as [i jJ]. induction jJ as [j J].
+    use tpair.
+    + exists (dni_lastelement i). exists j.
+      abstract (simple refine (J @ _); apply (maponpaths (λ x, x+j)); apply stnsum_eq; intro r;
+      unfold m'; unfold funcomp; apply maponpaths; now apply subtypeEquality_prop).
+    + intro t. now apply partial_sum_prop.
+  - clear IH. set (j := l - len').
+    apply iscontraprop1.
+    { now apply partial_sum_prop. }
+    assert (K := minusplusnmm _ _ J). change (l-len') with j in K.
+    exists (lastelement _).
+    use tpair.
+    * exists j. apply (natlthandpluslinv _ _ len'). rewrite natpluscomm.
+      induction (!K); clear K J j.
+      assert(C : len = len' + m (lastelement n)).
+      { simple refine (stnsum_step _ @ _). unfold len', m'; clear m' len'.
+        rewrite replace_dni_last. reflexivity. }
+      induction C. exact lt.
+    * simpl. intermediate_path (stnsum m' + j).
+      -- rewrite natpluscomm. exact (!K).
+      -- apply (maponpaths (λ x, x+j)). apply stnsum_eq; intro i.
+         unfold m'. unfold funcomp. apply maponpaths. now apply subtypeEquality_prop.
 Defined.
 
 Lemma stn_right_first n i : stn_right i (S n) (firstelement n) = stnpair (i + S n) i (natltplusS n i).
@@ -796,11 +836,11 @@ Proof.
   apply natplusr0.
 Defined.
 
-Definition weqstnsum_map { n : nat } (m : stn n -> nat) : (∑ i, stn (m i)) -> stn (stnsum m).
+Lemma _c_ {n} {m:⟦ n ⟧ → nat} (ij : ∑ i : ⟦ n ⟧, ⟦ m i ⟧)
+      (m1 := m ∘ stn_left' (pr1 ij) n (natlthtoleh (pr1 ij) n (stnlt (pr1 ij)))) :
+  stnsum m1 + pr2 ij < stnsum m.
 Proof.
-  intros ? ? ij.
-  set (m1 := m ∘ stn_left' (pr1 ij) n (natlthtoleh _ _ (stnlt (pr1 ij)))).
-  exists (stnsum m1 + pr2 ij).
+  intros.
   induction ij as [i j].
   induction i as [i I].
   induction j as [j J].
@@ -832,15 +872,34 @@ Proof.
   + unfold funcomp. apply maponpaths. apply subtypeEquality_prop. simpl. reflexivity.
 Defined.
 
-Theorem weqstnsum1' { n : nat } (f : stn n -> nat) : (∑ i, stn (f i)) ≃ stn (stnsum f).
+Definition weqstnsum_map { n : nat } (m : stn n -> nat) : (∑ i, stn (m i)) -> stn (stnsum m).
+Proof.
+  intros ? ? ij.
+  set (m1 := m ∘ stn_left' (pr1 ij) n (natlthtoleh _ _ (stnlt (pr1 ij)))).
+  exists (stnsum m1 + pr2 ij).
+  apply _c_.
+Defined.
+
+Lemma nat_rect_step (P : nat → UU) (p0 : P 0) (IH : ∏ n, P n → P (S n)) n :
+  nat_rect P p0 IH (S n) = IH n (nat_rect P p0 IH n).
+Proof.
+  reflexivity.
+Defined.
+
+Theorem weqstnsum1' { n : nat } (m : stn n -> nat) : (∑ i, stn (m i)) ≃ stn (stnsum m).
 (* This version will be more computable that weqstnsum1, below.  We have successfully used the map
   [weqstnsum_invmap] to define and prove generalized associativity in a monoid.  *)
 Proof.
   intros.
   simple refine (weqpair _ (gradth (weqstnsum_map _) (weqstnsum_invmap _) _ _)).
   - intros.
-    admit.
-  - intros.
+    induction n as [|n IH].
+    + apply fromempty. apply negstn0. exact (pr1 x).
+    +
+      unfold weqstnsum_invmap.
+      rewrite nat_rect_step.
+      match goal with |- coprod_rect _ _ _ ?x = _ => induction x as [K|K'] end.
+      * rewrite coprod_rect_compute_1.
     admit.
 Abort.
 
