@@ -140,13 +140,13 @@ Coercion underlyingPoset : OrderedSet >-> Poset.
 
 Delimit Scope oset with oset.
 
-Definition Poset_lessthan {X:Poset} (x y:X) := (x ≤ y) ∧ (hneg (x = y)).
+Definition Poset_lessthan {X:Poset} (x y:X) := ∥ x ≤ y  ×  x != y ∥.
 
 Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) : oset.
 Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) : oset.
 Notation "m <= n" := (posetRelation _ m n) (no associativity, at level 70) : oset.
 Notation "m < n" := (Poset_lessthan m n) :oset.
-Notation "n \ge m" := (posetRelation _ m n) (no associativity, at level 70) : oset.
+Notation "n ≥ m" := (posetRelation _ m n) (no associativity, at level 70) : oset.
 Notation "n >= m" := (posetRelation _ m n) (no associativity, at level 70) : oset.
 Notation "n > m" := (Poset_lessthan m n) :oset.
 
@@ -165,11 +165,22 @@ Definition OrderedSet_istotal {X:OrderedSet} (x y:X): x ≤ y ∨ y ≤ x :=
 Lemma isdeceq_isdec_ordering (X:OrderedSet) : isdeceq X -> isdec_ordering X.
 Proof.
   intros ? deceq ? ?.
-  refine (OrderedSet_istotal x y _ _); intro s. induction s as [s|s].
-  { now apply ii1. }
+  assert (tot := OrderedSet_istotal x y).
   induction (deceq x y) as [j|j].
-  { apply ii1. rewrite <- j. apply OrderedSet_isrefl. }
-  apply ii2. intro le. apply j. now apply OrderedSet_isantisymm.
+  - apply ii1. induction j. unwrap_OrderedSet X. apply refl.
+  - assert (c : (y ≥ x) ⨿ (x ≥ y)).
+    { assert (d : isaprop ((y ≥ x) ⨿ (x ≥ y))).
+      { apply isapropcoprod.
+        * apply propproperty.
+        * apply propproperty.
+        * intros r s. apply j; clear j. unwrap_OrderedSet X. now apply antisymm. }
+      apply (squash_to_prop tot).
+      + exact d.
+      + intro e. exact e.
+      }
+    induction c as [c|c'].
+    + now apply ii1.
+    + apply ii2. intro le. apply j. now apply OrderedSet_isantisymm.
 Defined.
 
 Corollary isfinite_isdec_ordering (X:OrderedSet) : isfinite X -> isdec_ordering X.
@@ -179,7 +190,7 @@ Defined.
 Corollary isdeceq_isdec_lessthan (X:OrderedSet) :
   isdeceq X -> ∏ (x y:X), decidable (x < y).
 Proof.
-  intros ? i ? ?. apply decidable_dirprod.
+  intros ? i ? ?. unfold Poset_lessthan. apply decidable_ishinh. apply decidable_dirprod.
   - now apply isdeceq_isdec_ordering.
   - apply neg_isdecprop.
     apply isdecpropif.
@@ -260,11 +271,11 @@ Definition FiniteOrderedSetDecidableLessThan (X:FiniteOrderedSet) : DecidableRel
   - apply isfinite_isdec_lessthan. apply finitenessProperty.
 Defined.
 
-Notation "x = y" := (FiniteOrderedSetDecidableEquality _ x y) (at level 70, no associativity) : foset.
-Notation "x ≠ y" := (FiniteOrderedSetDecidableInequality _ x y) (at level 70, no associativity) : foset.
-Notation " x ≤ y " := ( FiniteOrderedSetDecidableOrdering _ x y ) (at level 70, no associativity) : foset.
+Notation "x ≐ y" := (FiniteOrderedSetDecidableEquality _ x y) (at level 70, no associativity) : foset. (* in agda mode, \doteq *)
+Notation "x ≠ y" := (FiniteOrderedSetDecidableInequality _ x y) (at level 70, no associativity) : foset. (* in agda mode, \ne *)
+Notation " x ≤ y " := ( FiniteOrderedSetDecidableOrdering _ x y ) (at level 70, no associativity) : foset. (* in agda mode, \le *)
 Notation " x <= y " := ( FiniteOrderedSetDecidableOrdering _ x y ) (at level 70, no associativity) : foset.
-Notation " x ≥ y " := ( FiniteOrderedSetDecidableOrdering _ y x ) (at level 70, no associativity) : foset.
+Notation " x ≥ y " := ( FiniteOrderedSetDecidableOrdering _ y x ) (at level 70, no associativity) : foset. (* in agda mode, \ge *)
 Notation " x >= y " := ( FiniteOrderedSetDecidableOrdering _ y x ) (at level 70, no associativity) : foset.
 Notation " x < y " := ( FiniteOrderedSetDecidableLessThan _ x y ) (at level 70, no associativity) : foset.
 Notation " x > y " := ( FiniteOrderedSetDecidableLessThan _ y x ) (at level 70, no associativity) : foset.
@@ -343,14 +354,14 @@ Definition lexicographicOrder
            (R:hrel X) (S : ∏ x, hrel (Y x)) : hrel (∑ x, Y x)%set.
   intros ? ? ? ? u u'.
   set (x := pr1 u). set (y := pr2 u). set (x' := pr1 u'). set (y' := pr2 u').
-  exact ((x != x' ∧ R x x') ∨ (∃ e : x = x', S x' (transportf Y e y) y'))%set.
+  exact ((x != x' × R x x') ∨ (∑ e : x = x', S x' (transportf Y e y) y')).
 Defined.
 
 Lemma lex_isrefl (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∏ x, hrel (Y x)) :
   (∏ x, isrefl(S x)) -> isrefl (lexicographicOrder X Y R S).
 Proof.
   intros ? ? ? ? Srefl u. induction u as [x y]. apply hdisj_in2; simpl.
-  apply hinhpr. exists (idpath x). apply Srefl.
+  exists (idpath x). apply Srefl.
 Defined.
 
 Lemma lex_istrans (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∏ x, hrel (Y x)) :
@@ -369,21 +380,21 @@ Proof.
       assert (k := Ranti x x' pl ql).
       contradicts pn k.
       exact (Rtrans x x' x'' pl ql).
-    + apply q; clear q; intro q; simpl in q. induction q as [e l].
+    + induction q as [e l].
       apply hinhpr; simpl.
       apply ii1.
       induction e.
       exact (pn,,pl).
-  - apply p; clear p; intro p. induction p as [e s].
+  - induction p as [e s].
     induction e; unfold transportf in s; simpl in s; unfold idfun in s.
     refine (q _ _); clear q; intro q; simpl in q.
     induction q as [q|q].
     + induction q as [n r].
       apply hdisj_in1; simpl.
       exact (n,,r).
-    + apply q; clear q; intro q. induction q as [e' s']. induction e'.
+    + induction q as [e' s']. induction e'.
       unfold transportf in s'; simpl in s'; unfold idfun in s'.
-      apply hdisj_in2; simpl. apply hinhpr.
+      apply hdisj_in2; simpl.
       exists (idpath x).
       exact (Strans x y y' y'' s s').
 Defined.
@@ -399,14 +410,15 @@ Proof.
   unwrap a. unwrap b. induction a as [[m r]|a].
   - induction b as [[n s]|b].
     + assert (eq := Ranti x x' r s). contradicts m eq.
-    + unwrap b. induction b as [eq s]. contradicts (!eq) m.
-  - unwrap a. induction a as [eq s]. induction b as [[n r]|b].
+    + induction b as [eq s]. contradicts (!eq) m.
+  - induction a as [eq s]. induction b as [[n r]|b].
     { contradicts n (!eq). }
-    unwrap b. induction b as [eq' s']. assert ( c : eq = !eq' ).
+    induction b as [eq' s']. assert ( c : eq = !eq' ).
     { apply setproperty. }
     induction (!c); clear c. induction eq'. assert ( t : y = y' ).
     { apply (Santi x' y y' s s'). }
-    induction t. reflexivity. Defined.
+    induction t. reflexivity.
+Defined.
 
 Lemma lex_istotal (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∏ x, hrel (Y x)) :
   isdeceq X -> istotal R -> (∏ x, istotal(S x)) -> istotal (lexicographicOrder X Y R S).
@@ -414,12 +426,13 @@ Proof.
   intros ? ? ? ? Xdec Rtot Stot u u'. induction u as [x y]. induction u' as [x' y'].
   induction (Xdec x x') as [eq|ne].
   { refine (Stot x' (transportf Y eq y) y' _ _); intro P. induction P as [P|P].
-    { apply hdisj_in1. unfold lexicographicOrder; simpl. apply hdisj_in2. apply hinhpr. exact (eq,,P). }
-    { apply hdisj_in2. unfold lexicographicOrder; simpl. apply hdisj_in2. apply hinhpr.
+    { apply hdisj_in1. unfold lexicographicOrder; simpl. apply hdisj_in2. exact (eq,,P). }
+    { apply hdisj_in2. unfold lexicographicOrder; simpl. apply hdisj_in2.
       induction eq. exact (idpath _,,P). }}
   { refine (Rtot x x' _ _); intro P. induction P as [P|P].
     { apply hdisj_in1. apply hdisj_in1. simpl. exact (ne,,P). }
-    { apply hdisj_in2. apply hdisj_in1. simpl. exact (ne ∘ pathsinv0,,P). }} Defined.
+    { apply hdisj_in2. apply hdisj_in1. simpl. exact (ne ∘ pathsinv0,,P). }}
+Defined.
 
 Definition concatenateFiniteOrderedSets
            {X:FiniteOrderedSet} (Y:X->FiniteOrderedSet) : FiniteOrderedSet.

@@ -170,6 +170,7 @@ Definition FiniteSet := ∑ X:UU, isfinite X.
 Definition isfinite_to_FiniteSet {X:UU} (f:isfinite X) : FiniteSet := X,,f.
 
 Lemma isfinite_isdeceq X : isfinite X -> isdeceq X.
+(* uses funextemptyAxiom *)
 Proof. intros ? isfin.
        apply (isfin (hProppair _ (isapropisdeceq X))); intro f; clear isfin; simpl.
        apply (isdeceqweqf (pr2 f)).

@@ -443,10 +443,27 @@ Module Test_ord.
     Let j := ●3 : ⟦ 4 ⟧.
 
     Goal choice (i < j)%foset true false = true. reflexivity. Defined.
+    Goal choice (i ≤ j)%foset true false = true. reflexivity. Defined.
+    Goal choice (i ≐ j)%foset true false = false. reflexivity. Defined.
 
     Let X := (∑ i:⟦ 4 ⟧, ⟦ pr1 i ⟧)%foset.
     Let x := ( ●2 ,, ●1 ):X.
     Let y := ( ●3 ,, ●1 ):X.
+
+    Lemma d : isdeceq X.
+    Proof.
+      apply isdecsum.
+      - apply isdeceqstn.
+      - intro i. apply isdeceqstn.
+    Defined.
+
+    Definition which {X} : X ⨿ ¬X -> bool.
+    Proof.
+      intros X c.
+      induction c.
+      - exact true.
+      - exact false.
+    Defined.
 
     (* we want these to work: *)
 
@@ -454,26 +471,44 @@ Module Test_ord.
       reflexivity.                (* fixed *)
     Defined.
 
-    Goal choice (x ≤ y) true false = true.
+    Goal choice (x ≤ y)%foset true false = true.
       reflexivity.
     Defined.
 
-    Goal choice (x = y) true false = true.
-      try reflexivity.            (* fix *)
-      unfold choice.
-      Unset Printing Notations.
-      idtac.
-      unfold decidabilityProperty.
-      (* Print Assumptions FiniteOrderedSetDecidableEquality. *)
-      (* uses: funextfun funextemptyAxiom *)
-    Abort.
+    Goal choice (y < x)%foset true false = false.
+      reflexivity.
+    Defined.
 
-    Goal choice (x ≠ y) true false = false.
-      try reflexivity.            (* fix *)
+    Goal choice (y ≤ x)%foset true false = false.
+      reflexivity.
+    Defined.
+
+    Goal choice (x ≐ y)%foset true false = false.
+      reflexivity.
+    Defined.
+
+    Goal choice (x ≐ x)%foset true false = true.
+      reflexivity.
+    Defined.
+
+    Goal which (d x y) = false.
+      reflexivity.
+    Defined.
+
+    Goal which (d x x) = true.
+      reflexivity.
+    Defined.
+
+    Goal choice (x ≠ y)%foset true false = true.
+      reflexivity.
+    Defined.
+
+    Goal which (isdeceqnat 2 (height x)) = true.
+      try reflexivity.          (* fix *)
     Abort.
 
     Goal 2 = height x.
-      try reflexivity.                (* does not work *)
+      try reflexivity.                (* fix *)
     Abort.
 
   End TestLex2.

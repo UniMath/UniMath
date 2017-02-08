@@ -788,12 +788,14 @@ Defined.
 
 
 Theorem isapropisisolated (X : UU) (x : X) : isaprop (isisolated X x).
+(* uses funextemptyAxiom *)
 Proof.
   intros. apply isofhlevelsn. intro is. apply impred. intro x'.
   apply (isapropdec _ (isaproppathsfromisolated X x is x')).
 Defined.
 
 Theorem isapropisdeceq (X : UU) : isaprop (isdeceq X).
+(* uses funextemptyAxiom *)
 Proof.
   intro. apply (isofhlevelsn 0). intro is. unfold isdeceq. apply impred.
   intro x. apply (isapropisisolated X x).
