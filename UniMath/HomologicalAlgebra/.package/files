@@ -4,5 +4,6 @@ KA.v
 TranslationFunctors.v
 MappingCone.v
 MappingCylinder.v
+KAPreTriangulated.v
 KATriangulated.v
 CohomologyComplex.v
