@@ -500,8 +500,13 @@ Section def_pretriang_data.
 
   (** ** PreTriangData *)
 
+  (** Data for pretriangulated category consists of
+   - An additive category A
+   - An additive equivalence T : A -> A
+   - A subtype for triangles in (A, T), called the distinguished triangles.
+   *)
   Definition PreTriangData : UU :=
-    ∑ D : (∑ A : (Additive), (AddEquiv A A)), ∏ T : (@Tri (pr1 D) (pr2 D)), hProp.
+    ∑ D : (∑ A : (Additive), (AddEquiv A A)), hsubtype (@Tri (pr1 D) (pr2 D)).
 
   Definition mk_PreTriangData (A : Additive) (T : AddEquiv A A) (H : ∏ T : (@Tri A T), hProp) :
     PreTriangData.
@@ -618,7 +623,7 @@ Section def_pretrangulated.
    *)
   Definition isPreTriang (PTD : PreTriangData) : UU :=
     (∏ (x : ob PTD), isDTri (TrivialTri x))
-      × (∏ (T1 T2 : @Tri PTD Trans) (I : TriIso T1 T2), isDTri T1 -> isDTri T2)
+      × (∏ (T1 T2 : @Tri PTD Trans) (I : ∥ TriIso T1 T2 ∥), isDTri T1 -> isDTri T2)
       × (∏ (D : DTri), @isDTri PTD (RotTri D))
       × (∏ (D : DTri), @isDTri PTD (InvRotTri D))
       × (∏ (x y : ob PTD) (f : x --> y), ∥ ∑ D : ConeData Trans x y, isDTri (ConeTri f D) ∥)
@@ -627,10 +632,11 @@ Section def_pretrangulated.
 
   Definition mk_isPreTriang {PTD : PreTriangData}
              (H1 : (∏ (x : ob PTD), isDTri (TrivialTri x)))
-             (H2 : ∏ (T1 T2 : @Tri PTD Trans) (I : TriIso T1 T2), isDTri T1 -> isDTri T2)
+             (H2 : ∏ (T1 T2 : @Tri PTD Trans) (I : ∥ TriIso T1 T2 ∥), isDTri T1 -> isDTri T2)
              (H3 : ∏ (D : DTri), isDTri (RotTri D))
              (H4 : ∏ (D : DTri), isDTri (InvRotTri D))
-             (H5 : ∏ (x y : ob PTD) (f : x --> y), ∥ ∑ D : ConeData Trans x y, isDTri (ConeTri f D) ∥)
+             (H5 : ∏ (x y : ob PTD) (f : x --> y),
+                   ∥ ∑ D : ConeData Trans x y, isDTri (ConeTri f D) ∥)
              (H6 : ∏ (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
                      (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2), ∥ (@TExt PTD _ _ _ _ H) ∥) :
     isPreTriang PTD := (H1,,(H2,,(H3,,(H4,,(H5,,H6))))).
@@ -647,7 +653,7 @@ Section def_pretrangulated.
   Defined.
 
   Definition DTrisUnderIso {PTD : PreTriangData} (iPT : isPreTriang PTD) :
-    ∏ (T1 T2 : @Tri PTD Trans) (I : TriIso T1 T2), isDTri T1 -> isDTri T2 :=
+    ∏ (T1 T2 : @Tri PTD Trans) (I : ∥ TriIso T1 T2 ∥), isDTri T1 -> isDTri T2 :=
     dirprod_pr1 (dirprod_pr2 iPT).
 
   Definition RotDTris {PTD : PreTriangData} (iPT : isPreTriang PTD) (D : @DTri PTD) :
@@ -988,8 +994,10 @@ Section rotation_isos.
             ;; # (AddEquiv2 Trans) f4 ;; AddEquivUnitInvMor Trans (Ob1 D2)).
   Proof.
     intros D1' D2'. rewrite assoc. rewrite assoc. rewrite assoc.
-    rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
-    rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
+    rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp.
+    rewrite <- PreAdditive_invlcomp.
+    rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
+    rewrite <- PreAdditive_invlcomp.
     apply maponpaths. apply cancel_postcomposition.
     rewrite <- functor_comp. apply (maponpaths (# (AddEquiv2 Trans))) in H. use (pathscomp0 H).
     rewrite functor_comp. apply cancel_postcomposition. rewrite <- assoc.
@@ -1669,6 +1677,7 @@ Section Octa_isomorphisms.
     - exact (MPMor3 I1 ;; OctaMor1 O ;; is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I3))).
     - exact (MPMor3 I3 ;; OctaMor2 O ;; is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I2))).
     - use (DTrisUnderIso PT (OctaDTri O) _ _ (DTriisDTri (OctaDTri O))).
+      use hinhpr.
       use TriIsoInv.
       use mk_TriIso.
       + use mk_TriMor.

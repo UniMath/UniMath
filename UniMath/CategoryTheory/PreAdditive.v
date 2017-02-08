@@ -526,6 +526,7 @@ Section preadditive_quotient.
   (** *** Composition of morphisms in the quotient precategory *)
 
   (** **** Structure for composition *)
+
   Definition QuotPrecategoryComp {A B C : ob PA} (f : QuotPrecategory_ob_mor⟦A, B⟧)
              (g : QuotPrecategory_ob_mor⟦B, C⟧) : UU :=
     ∑ h : QuotPrecategory_ob_mor⟦A, C⟧,
@@ -547,7 +548,9 @@ Section preadditive_quotient.
     ∏ (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f) (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g),
     setquotpr _ (f' ;; g') = QuotPrecategoryCompMor QPC := pr2 QPC.
 
-  (** **** Structure for composition *)
+
+  (** **** Composition for quotient category *)
+
   Local Lemma QuotPrecategory_comp_iscontr_PAS_eq {A : abgr} {a b c : A}
         (e : a = (b * (grinv A c))%multmonoid) : b = (a * c)%multmonoid.
   Proof.
@@ -579,9 +582,6 @@ Section preadditive_quotient.
       + apply (dirprod_pr2 (PAC A B) C f1 (pr1 t') (pr2 t')).
     - apply (dirprod_pr1 (PAC A B) C (pr1 t) (pr2 t) g1).
   Qed.
-
-  (** [QuotPrecategory_comp_iscontr] is used to define composition of morphisms in the quotient
-      precategory. It shows that composition is well defined in QuotPrecategory_ob_mor. *)
 
   Local Lemma QuotPrecategory_comp_iscontr_eq {A B C : ob PA} (f : QuotPrecategory_ob_mor⟦A, B⟧)
         (g : QuotPrecategory_ob_mor⟦B, C⟧)  (f'1 : PA ⟦ A, B ⟧) (f''1 : setquotpr _ f'1 = f)

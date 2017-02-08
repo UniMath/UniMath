@@ -412,7 +412,8 @@ Section KAPreTriangulated.
     apply (maponpaths
              (postcompose
                 (# (ComplexHomotFunctor A)
-                   (z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) (Source (KADTriDataMor I)))))))
+                   (z_iso_inv_mor
+                      (AddEquivUnitIso (TranslationEquiv A) (Source (KADTriDataMor I)))))))
       in tmp'''.
     use (pathscomp0 _ (! tmp''')). clear tmp'''. unfold postcompose.
     apply cancel_postcomposition. apply maponpaths.
@@ -574,9 +575,11 @@ Section KAPreTriangulated.
              (g2 : KAPreTriangData ⟦ Ob2 D1, Ob2 D2 ⟧) (H : g1 ;; Mor1 D2 = Mor1 D1 ;; g2)
              (I1 : KADTriData D1) (I2 : KADTriData D2)
              (h1 : hfiber # (ComplexHomotFunctor A)
-                          (MPMor1 (TriIsoInv (KADTriDataIso I1)) ;; g1 ;; MPMor1 (KADTriDataIso I2)))
+                          (MPMor1 (TriIsoInv (KADTriDataIso I1))
+                                  ;; g1 ;; MPMor1 (KADTriDataIso I2)))
              (h2 : hfiber # (ComplexHomotFunctor A)
-                          (MPMor2 (TriIsoInv (KADTriDataIso I1)) ;; g2 ;; MPMor2 (KADTriDataIso I2)))
+                          (MPMor2 (TriIsoInv (KADTriDataIso I1))
+                                  ;; g2 ;; MPMor2 (KADTriDataIso I2)))
              (I1' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I1) (KADTriDataFiber I1))
              (I2' := hfiberpr1 # (ComplexHomotFunctor A) (KADTriDataMor I2) (KADTriDataFiber I2))
              (h1' := hfiberpr1 _ _ h1) (h2' := hfiberpr1 _ _ h2) :
@@ -792,9 +795,8 @@ Section KAPreTriangulated.
     apply (maponpaths (postcompose
                          (# (ComplexHomotFunctor A)
                             (TranslationMorphism
-                               A (Source (KADTriDataMor I1)) (Source (KADTriDataMor I2))
-                               h1') ;;
-                            # (AddEquiv1 (TranslationHEquiv A))
+                               A (Source (KADTriDataMor I1)) (Source (KADTriDataMor I2)) h1')
+                            ;; # (AddEquiv1 (TranslationHEquiv A))
                             (is_z_isomorphism_mor (TriMor_is_iso1 (KADTriDataIso I2)))))) in tmp.
     unfold postcompose in tmp. rewrite assoc in tmp. rewrite assoc in tmp. cbn in tmp.
     use (pathscomp0 _ (! tmp)). clear tmp.
@@ -906,15 +908,16 @@ Section KAPreTriangulated.
   Qed.
 
   Definition KADTrisIsos :
-    ∏ T1 T2 : Tri, TriIso T1 T2 → @isDTri KAPreTriangData T1 → @isDTri KAPreTriangData T2.
+    ∏ T1 T2 : Tri, ∥ TriIso T1 T2 ∥ → @isDTri KAPreTriangData T1 → @isDTri KAPreTriangData T2.
   Proof.
     intros T1 T2 I X0.
+    use (squash_to_prop I (propproperty _)). intros I'.
     use (squash_to_prop X0 (propproperty _)). intros I1. clear X0.
     use hinhpr.
     use mk_KADTriData.
     - exact (KADTriDataMor I1).
     - exact (KADTriDataFiber I1).
-    - exact (TriIso_comp (TriIsoInv I) (KADTriDataIso I1)).
+    - exact (TriIso_comp (TriIsoInv I') (KADTriDataIso I1)).
   Qed.
 
   Definition KAPreTriang : PreTriang.
