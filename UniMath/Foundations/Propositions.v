@@ -104,17 +104,17 @@ Coercion negProp_to_hProp : negProp >-> hProp.
    arguments: *)
 
 Corollary subtypeInjectivity_prop {A : UU} (B : A -> hProp) :
-  Π (x y : total2 B), (x = y) ≃ (pr1 x = pr1 y).
+  ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1 y).
 Proof. intros. apply subtypeInjectivity. intro. apply propproperty. Defined.
 
 Corollary subtypeEquality_prop {A : UU} {B : A -> hProp}
    {s s' : total2 (fun x => B x)} : pr1 s = pr1 s' -> s = s'.
 Proof. intros A B s s'. apply invmap. apply subtypeInjectivity_prop. Defined.
 
-Corollary impred_prop {T : UU} (P : T -> hProp) : isaprop (Π t : T, P t).
+Corollary impred_prop {T : UU} (P : T -> hProp) : isaprop (∏ t : T, P t).
 Proof. intros. apply impred; intro. apply propproperty. Defined.
 
-Corollary isaprop_total2 (X : hProp) (Y : X -> hProp) : isaprop (Σ x, Y x).
+Corollary isaprop_total2 (X : hProp) (Y : X -> hProp) : isaprop (∑ x, Y x).
 Proof.
   intros.
   apply (isofhleveltotal2 1).
@@ -122,16 +122,16 @@ Proof.
   - intro x. apply propproperty.
 Defined.
 
-Lemma isaprop_forall_hProp (X : UU) (Y : X -> hProp) : isaprop (Π x, Y x).
+Lemma isaprop_forall_hProp (X : UU) (Y : X -> hProp) : isaprop (∏ x, Y x).
 Proof. intros. apply impred_isaprop. intro x. apply propproperty. Defined.
 
 Definition forall_hProp {X : UU} (Y : X -> hProp) : hProp
-  := hProppair (Π x, Y x) (isaprop_forall_hProp X Y).
+  := hProppair (∏ x, Y x) (isaprop_forall_hProp X Y).
 
 Notation "∀  x .. y , P"
   := (forall_hProp (fun x => .. (forall_hProp (fun y => P))..))
        (at level 200, x binder, y binder, right associativity) : type_scope.
-  (* type this in emacs in agda-input method with \Pi *)
+  (* type this in emacs in agda-input method with \prod *)
 
 (** The following re-definitions should make proofs easier in the future when
   the unification algorithms in Coq are improved. At the moment they create more
@@ -169,7 +169,7 @@ Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
 
 
 
-Definition ishinh_UU (X : UU) : UU := Π P : hProp, ((X -> P) -> P).
+Definition ishinh_UU (X : UU) : UU := ∏ P : hProp, ((X -> P) -> P).
 
 Lemma isapropishinh (X : UU) : isaprop (ishinh_UU X).
 Proof.
@@ -273,10 +273,10 @@ of connected components) **)
 Definition image {X Y : UU} (f : X -> Y) : UU
   := total2 (fun y : Y => ishinh (hfiber f y)).
 Definition imagepair {X Y : UU} (f : X -> Y) :
-  Π (t : Y), (λ y : Y, ∥ hfiber f y ∥) t → Σ y : Y, ∥ hfiber f y ∥
+  ∏ (t : Y), (λ y : Y, ∥ hfiber f y ∥) t → ∑ y : Y, ∥ hfiber f y ∥
   := tpair (fun y : Y => ishinh (hfiber f y)).
 Definition pr1image {X Y : UU} (f : X -> Y) :
-  (Σ y : Y, ∥ hfiber f y ∥) → Y
+  (∑ y : Y, ∥ hfiber f y ∥) → Y
   := @pr1 _  (fun y : Y => ishinh (hfiber f y)).
 
 Definition prtoimage {X Y : UU} (f : X -> Y) : X -> image f.
@@ -285,7 +285,7 @@ Proof.
   apply (imagepair _ (f X0) (hinhpr (hfiberpair f X0 (idpath _)))).
 Defined.
 
-Definition issurjective {X Y : UU} (f : X -> Y) := Π y : Y, ishinh (hfiber f y).
+Definition issurjective {X Y : UU} (f : X -> Y) := ∏ y : Y, ishinh (hfiber f y).
 
 Lemma isapropissurjective {X Y : UU} (f : X -> Y) : isaprop (issurjective f).
 Proof.
@@ -411,7 +411,7 @@ Local Open Scope logic.
 Definition hexists {X : UU} (P : X -> UU) := ∥ total2 P ∥.
 
 Notation "'∃' x .. y , P"
-  := (ishinh (Σ x ,.. (Σ y , P)..))
+  := (ishinh (∑ x ,.. (∑ y , P)..))
        (at level 200, x binder, y binder, right associativity) : type_scope.
   (* in agda-input method, type \ex *)
 
@@ -470,23 +470,23 @@ Defined.
 (** *** Negation and quantification.
 
 There are four standard implications in classical logic which can be summarized
-as (neg (Π P)) <-> (exists (neg P)) and (neg (exists P)) <-> (Π (neg P)). Of
+as (neg (∏ P)) <-> (exists (neg P)) and (neg (exists P)) <-> (∏ (neg P)). Of
 these four implications three are provable in the intuitionistic logic. The
-remaining implication (neg (Π P)) -> (exists (neg P)) is not provable in
+remaining implication (neg (∏ P)) -> (exists (neg P)) is not provable in
 general. For a proof in the case of bounded quantification of decidable
 predicates on natural numbers see hnat.v. For some other cases when these
 implications hold see ???. *)
 
 Lemma hexistsnegtonegforall {X : UU} (F : X -> UU) :
-  (∃ x : X, neg (F x)) -> neg (Π x : X, F x).
+  (∃ x : X, neg (F x)) -> neg (∏ x : X, F x).
 Proof.
   intros X F. simpl.
-  apply (@hinhuniv _ (hProppair _ (isapropneg (Π x : X, F x)))).
+  apply (@hinhuniv _ (hProppair _ (isapropneg (∏ x : X, F x)))).
   simpl. intros t2 f2. destruct t2 as [ x d2 ]. apply (d2 (f2 x)).
 Defined.
 
 Lemma forallnegtoneghexists {X : UU} (F : X -> UU) :
-  (Π x : X, neg (F x)) -> neg (∃ x, F x).
+  (∏ x : X, neg (F x)) -> neg (∃ x, F x).
 Proof.
   intros X F nf.
   change ((ishinh_UU (total2 F)) -> hfalse).
@@ -494,14 +494,14 @@ Proof.
 Defined.
 
 Lemma neghexisttoforallneg {X : UU} (F : X -> UU) :
-  ¬ (∃ x, F x) -> Π x : X, ¬ (F x).
+  ¬ (∃ x, F x) -> ∏ x : X, ¬ (F x).
 Proof.
   intros X F nhe x. intro fx.
   apply (nhe (hinhpr (tpair F x fx))).
 Defined.
 
 Definition weqforallnegtonegexists {X : UU} (F : X -> UU) :
-  weq (Π x : X, ¬ F x) (¬ ∃ x, F x).
+  weq (∏ x : X, ¬ F x) (¬ ∃ x, F x).
 Proof.
   intros.
   apply (weqimplimpl (forallnegtoneghexists F) (neghexisttoforallneg F)).
@@ -634,7 +634,7 @@ Definition hinhimplinhdneg (X : UU) (inx1 : ishinh X) : isinhdneg X
 
 (** ** Decidability *)
 
-Definition ComplementaryPair : UU := Σ (P Q : UU), complementary P Q.
+Definition ComplementaryPair : UU := ∑ (P Q : UU), complementary P Q.
 Definition Part1 (C : ComplementaryPair) : UU := pr1 C.
 Definition Part2 (C : ComplementaryPair) : UU := pr1 (pr2 C).
 Definition pair_contradiction (C : ComplementaryPair) : Part1 C -> Part2 C -> ∅
@@ -789,7 +789,7 @@ Defined.
    We don't state LEM as an axiom, because we want to force it
    to be a hypothesis of any corollaries of any theorems that
    appeal to it. *)
-Definition LEM : UU := Π P : hProp, decidable P.
+Definition LEM : UU := ∏ P : hProp, decidable P.
 
 Lemma LEM_for_sets (X : UU) : LEM -> isaset X -> isdeceq X.
 Proof. intros X lem is x y. exact (lem (hProppair (x = y) (is x y))). Defined.
@@ -811,7 +811,7 @@ Defined.
 
 (* all of this will be redone: *)
 
-Definition DecidableProposition : UU := Σ X : UU, isdecprop X.
+Definition DecidableProposition : UU := ∑ X : UU, isdecprop X.
 
 Definition isdecprop_to_DecidableProposition {X : UU} (i : isdecprop X) :
   DecidableProposition := X,,i.
@@ -929,7 +929,7 @@ Proof.
 Defined.
 
 Definition decidableSubtypeCarrier {X : UU} : DecidableSubtype X -> UU.
-Proof. intros ? S. exact (Σ x, S x). Defined.
+Proof. intros ? S. exact (∑ x, S x). Defined.
 
 Definition decidableSubtypeCarrier' {X : UU} : DecidableSubtype X -> UU.
 Proof. intros ? P.
@@ -964,7 +964,7 @@ Defined.
 
 (** ** Univalence for hProp *)
 
-Theorem hPropUnivalence : Π (P Q : hProp), (P -> Q) -> (Q -> P) -> P = Q.
+Theorem hPropUnivalence : ∏ (P Q : hProp), (P -> Q) -> (Q -> P) -> P = Q.
   (* this theorem replaced a former axiom, with the same statement, called
      "uahp" *)
 Proof.
@@ -1004,7 +1004,7 @@ Proof.
                              @eqweqmaphProp (pr1 XY) (pr2 XY)): Z1 -> Z2)).
   set (g := (totalfun _ _ (fun XY : hProp × hProp =>
                              @weqtopathshProp (pr1 XY) (pr2 XY)): Z2 -> Z1)).
-  assert (efg : Π z2 : Z2 , paths (f (g z2)) z2).
+  assert (efg : ∏ z2 : Z2 , paths (f (g z2)) z2).
   {
     intros. induction z2 as [ XY w].
     exact (maponpaths (fun w : weq (pr1 XY) (pr2 XY) => tpair P2 XY w)
@@ -1012,9 +1012,9 @@ Proof.
   }
 
   set (h := fun a1 : Z1 => (pr1 (pr1 a1))).
-  assert (egf0 : Π a1 : Z1, paths (pr1 (g (f a1))) (pr1 a1))
+  assert (egf0 : ∏ a1 : Z1, paths (pr1 (g (f a1))) (pr1 a1))
          by (intro; apply idpath).
-  assert (egf1 : Π a1 a1' : Z1, paths (pr1 a1') (pr1 a1) -> paths a1' a1).
+  assert (egf1 : ∏ a1 a1' : Z1, paths (pr1 a1') (pr1 a1) -> paths a1' a1).
   {
     intros ? ? X.
     set (X' := maponpaths (@pr1 _ _) X).

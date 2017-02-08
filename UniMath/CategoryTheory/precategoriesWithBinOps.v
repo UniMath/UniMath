@@ -14,9 +14,9 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Section def_precategory_with_binops.
 
   (** Definition of precategories such that homs are binops. *)
-  Definition precategoryWithBinOpsData (C : precategory) : UU := Π (x y : C), binop (C⟦x, y⟧).
+  Definition precategoryWithBinOpsData (C : precategory) : UU := ∏ (x y : C), binop (C⟦x, y⟧).
 
-  Definition precategoryWithBinOps : UU := Σ C : precategory, precategoryWithBinOpsData C.
+  Definition precategoryWithBinOps : UU := ∑ C : precategory, precategoryWithBinOpsData C.
 
   Definition precategoryWithBinOps_precategory (P : precategoryWithBinOps) : precategory := pr1 P.
   Coercion precategoryWithBinOps_precategory : precategoryWithBinOps >-> precategory.

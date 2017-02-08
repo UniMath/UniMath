@@ -79,7 +79,7 @@ Defined.
 
 Lemma opp_opp_precat (C : precategory) (hs : has_homsets C) : C = C^op^op.
 Proof.
-  use total2_paths.
+  use total2_paths_f.
   - apply opp_opp_precat_data.
   - apply (isaprop_is_precategory _ hs).
 Qed.
@@ -136,7 +136,7 @@ Proof. intros a b; apply hsC. Qed.
 
 Definition functor_opp_data {C D : precategory} (F : functor C D) :
   functor_data C^op D^op :=
-    tpair (fun F : C^op -> D^op => Π a b, C^op ⟦a, b⟧ -> D^op ⟦F a, F b⟧) F
+    tpair (fun F : C^op -> D^op => ∏ a b, C^op ⟦a, b⟧ -> D^op ⟦F a, F b⟧) F
           (fun (a b : C) (f : C⟦b, a⟧) => functor_on_morphisms F f).
 
 Lemma is_functor_functor_opp {C D : precategory} (F : functor C D) :
@@ -171,7 +171,7 @@ Lemma opp_functor_essentially_surjective :
 Proof.
   intros HF d.
   set (TH := HF d).
-  set (X:=@hinhuniv  (Σ a : C, iso (F a) d)).
+  set (X:=@hinhuniv  (∑ a : C, iso (F a) d)).
   refine (X _ _ TH).
   intro H. clear TH. clear X.
   apply hinhpr.

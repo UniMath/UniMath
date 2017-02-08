@@ -39,16 +39,16 @@ Section def_ptd.
 Variable C : precategory.
 Hypothesis hs : has_homsets C.
 
-Definition ptd_obj : UU := Σ F : functor C C, functor_identity C ⟶ F.
+Definition ptd_obj : UU := ∑ F : functor C C, functor_identity C ⟶ F.
 
 Coercion functor_from_ptd_obj (F : ptd_obj) : functor C C := pr1 F.
 
 Definition ptd_pt (F : ptd_obj) : functor_identity C ⟶ F := pr2 F.
 
-Definition is_ptd_mor {F G : ptd_obj}(α: F ⟶ G) : UU := Π c : C, ptd_pt F c ;; α c = ptd_pt G c.
+Definition is_ptd_mor {F G : ptd_obj}(α: F ⟶ G) : UU := ∏ c : C, ptd_pt F c ;; α c = ptd_pt G c.
 
 Definition ptd_mor (F G : ptd_obj) : UU :=
-  Σ α : F ⟶ G, is_ptd_mor α.
+  ∑ α : F ⟶ G, is_ptd_mor α.
 
 Coercion nat_trans_from_ptd_mor {F G : ptd_obj} (a : ptd_mor F G) : nat_trans F G := pr1 a.
 
@@ -62,7 +62,7 @@ Proof.
 Defined.
 
 Definition ptd_mor_commutes {F G : ptd_obj} (α : ptd_mor F G)
-  : Π c : C, ptd_pt F c ;; α c = ptd_pt G c.
+  : ∏ c : C, ptd_pt F c ;; α c = ptd_pt G c.
 Proof.
   exact (pr2 α).
 Qed.

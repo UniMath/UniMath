@@ -32,9 +32,9 @@ Defined.
 
 Definition isInitial (a : C) :=
   isColimCocone initDiagram a (initCocone a).
- (* Π b : C, iscontr (a --> b). *)
+ (* ∏ b : C, iscontr (a --> b). *)
 
-Definition mk_isInitial (a : C) (H : Π (b : C), iscontr (a --> b)) :
+Definition mk_isInitial (a : C) (H : ∏ (b : C), iscontr (a --> b)) :
   isInitial a.
 Proof.
 intros b cb.
@@ -106,7 +106,7 @@ Definition hasInitial := ishinh Initial.
 (* Proof. *)
 (*   apply invproofirrelevance. *)
 (*   intros O O'. *)
-(*   apply (total2_paths (isotoid _ H (iso_Initials O O')) ). *)
+(*   apply (total2_paths_f (isotoid _ H (iso_Initials O O')) ). *)
 (*   apply proofirrelevance. *)
 (*   unfold isInitial. *)
 (*   apply impred. *)

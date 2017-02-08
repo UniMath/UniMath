@@ -448,17 +448,17 @@ Section translation_functor.
 
   (** ** Translation functor is an isomorphism, with inverse the inverse translation. *)
 
-  Lemma transportf_total2_base {AA : UU} {B : AA -> UU} {BB : AA -> UU} (s s' : Σ x : AA, B x)
+  Lemma transportf_total2_base {AA : UU} {B : AA -> UU} {BB : AA -> UU} (s s' : ∑ x : AA, B x)
         (p : pr1 s = pr1 s') (q : transportf B p (pr2 s) = pr2 s') (x : BB (pr1 s)) :
-    transportf (λ x' : Σ x : AA, B x, BB (pr1 x')) (total2_paths p q) x =
+    transportf (λ x' : ∑ x : AA, B x, BB (pr1 x')) (total2_paths_f p q) x =
     transportf (λ x : AA, BB x) p x.
   Proof.
     induction s as [s1 s2]. induction s' as [s1' s2']. cbn in *.
     induction p. induction q. apply idpath.
   Qed.
 
-  Lemma ComplexEq_transport_target {C1 C2 C2' : Complex A} (H : Π (i : hz), C2 i = C2' i)
-        (H1 : Π (i : hz),
+  Lemma ComplexEq_transport_target {C1 C2 C2' : Complex A} (H : ∏ (i : hz), C2 i = C2' i)
+        (H1 : ∏ (i : hz),
               transportf (λ x : A, C2' i --> x) (H (i + 1))
                          (transportf (λ x : A, x --> C2 (i + 1)) (H i) (Diff C2 i)) =
               Diff C2' i) (f : Morphism C1 C2) (i : hz) :
@@ -476,15 +476,15 @@ Section translation_functor.
     set (e := (funextfun (pr1 (pr1 C2)) (pr1 (pr1 C2')) (λ x0 : pr1 hz, H x0))).
     cbn. cbn in e. fold e.
     set (tmp := @transportf_total2_base _ _ (λ x0 : _ , A ⟦ pr1 (pr1 C1) i, (pr1 x0) i ⟧) C2 C2'
-                                        (total2_paths e (ComplexEq' A C2 C2' H H1))
+                                        (total2_paths_f e (ComplexEq' A C2 C2' H H1))
                                         (ComplexEq'' A C2 C2' H H1) (f i)).
     cbn beta in tmp.
     use (pathscomp0 tmp). clear tmp.
     use transportf_total2_base.
   Qed.
 
-  Lemma ComplexEq_transport_source {C1 C1' C2 : Complex A} (H : Π (i : hz), C1' i = C1 i)
-        (H1 : Π (i : hz),
+  Lemma ComplexEq_transport_source {C1 C1' C2 : Complex A} (H : ∏ (i : hz), C1' i = C1 i)
+        (H1 : ∏ (i : hz),
               transportf (λ x : A, C1 i --> x) (H (i + 1))
                          (transportf (λ x : A, x --> C1' (i + 1)) (H i) (Diff C1' i)) =
               Diff C1 i) (f : Morphism C1' C2) (i : hz) :
@@ -620,7 +620,7 @@ Section translation_functor.
   (** *** Natural transformation for equivalence consisting of the translations *)
 
   Local Lemma TranslationTranslationInvNatTrans_Eq1 (x : Complex A):
-    Π i : hz,
+    ∏ i : hz,
           transportf (precategory_morphisms (x i))
                      (maponpaths x (! hzrminusplus i 1)) (identity (x i)) ;;
                      Diff (InvTranslationComplex (TranslationComplex x)) i =
@@ -676,7 +676,7 @@ Section translation_functor.
   Defined.
 
   Local Lemma InvTranslationTranslationNatTrans_Eq1 (x : Complex A) :
-    Π i : hz,
+    ∏ i : hz,
           (transportf (precategory_morphisms (x (i + 1 - 1))) (maponpaths x (hzrplusminus i 1))
                       (identity (x (i + 1 - 1)))) ;; Diff x i =
           (Diff (TranslationComplex (InvTranslationComplex x)) i)
@@ -933,8 +933,8 @@ Section translation_functor.
 
   Definition TranslationFunctorHIm {C1 C2 : ComplexHomot_Additive A}
              (f : (ComplexHomot_Additive A)⟦C1, C2⟧) : UU :=
-    Σ (h : (ComplexHomot_Additive A)⟦TranslationComplex C1, TranslationComplex C2⟧),
-    Π (f' : (ComplexPreCat_Additive A)⟦C1, C2⟧) (H : # (ComplexHomotFunctor A) f' = f),
+    ∑ (h : (ComplexHomot_Additive A)⟦TranslationComplex C1, TranslationComplex C2⟧),
+    ∏ (f' : (ComplexPreCat_Additive A)⟦C1, C2⟧) (H : # (ComplexHomotFunctor A) f' = f),
     h = # (ComplexHomotFunctor A) (# TranslationFunctor f').
 
 
@@ -950,7 +950,7 @@ Section translation_functor.
   Definition mk_TranslationFunctorHIm {C1 C2 : ComplexHomot_Additive A}
              {f : (ComplexHomot_Additive A)⟦C1, C2⟧}
              (h : (ComplexHomot_Additive A)⟦TranslationComplex C1, TranslationComplex C2⟧)
-             (HH : Π (f' : (ComplexPreCat_Additive A)⟦C1, C2⟧)
+             (HH : ∏ (f' : (ComplexPreCat_Additive A)⟦C1, C2⟧)
                      (H : # (ComplexHomotFunctor A) f' = f),
                    h = # (ComplexHomotFunctor A) (# TranslationFunctor f')) :
     TranslationFunctorHIm f := tpair _ h HH.
@@ -959,7 +959,7 @@ Section translation_functor.
              {f : (ComplexHomot_Additive A)⟦C1, C2⟧} (h h' : TranslationFunctorHIm f)
              (e : TranslationFunctorHImMor h = TranslationFunctorHImMor h') : h = h'.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - exact e.
     - apply proofirrelevance. apply impred_isaprop. intros t0.
       apply impred_isaprop. intros H0. use to_has_homsets.
@@ -1149,8 +1149,8 @@ Section translation_functor.
 
   Definition InvTranslationFunctorHIm {C1 C2 : ComplexHomot_Additive A}
              (f : (ComplexHomot_Additive A)⟦C1, C2⟧) : UU :=
-    Σ (h : (ComplexHomot_Additive A)⟦InvTranslationComplex C1, InvTranslationComplex C2⟧),
-    Π (f' : (ComplexPreCat_Additive A)⟦C1, C2⟧) (H : # (ComplexHomotFunctor A) f' = f),
+    ∑ (h : (ComplexHomot_Additive A)⟦InvTranslationComplex C1, InvTranslationComplex C2⟧),
+    ∏ (f' : (ComplexPreCat_Additive A)⟦C1, C2⟧) (H : # (ComplexHomotFunctor A) f' = f),
     h = # (ComplexHomotFunctor A) (# InvTranslationFunctor f').
 
   Definition InvTranslationFunctorHImMor {C1 C2 : ComplexHomot_Additive A}
@@ -1166,7 +1166,7 @@ Section translation_functor.
   Definition mk_InvTranslationFunctorHIm {C1 C2 : ComplexHomot_Additive A}
              {f : (ComplexHomot_Additive A)⟦C1, C2⟧}
              (h : (ComplexHomot_Additive A)⟦InvTranslationComplex C1, InvTranslationComplex C2⟧)
-             (HH : Π (f' : (ComplexPreCat_Additive A)⟦C1, C2⟧)
+             (HH : ∏ (f' : (ComplexPreCat_Additive A)⟦C1, C2⟧)
                      (H : # (ComplexHomotFunctor A) f' = f),
                    h = # (ComplexHomotFunctor A) (# InvTranslationFunctor f')) :
     InvTranslationFunctorHIm f := tpair _ h HH.
@@ -1175,7 +1175,7 @@ Section translation_functor.
              {f : (ComplexHomot_Additive A)⟦C1, C2⟧} (h h' : InvTranslationFunctorHIm f)
              (e : InvTranslationFunctorHImMor h = InvTranslationFunctorHImMor h') : h = h'.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - exact e.
     - apply proofirrelevance. apply impred_isaprop. intros t0.
       apply impred_isaprop. intros H0. use to_has_homsets.

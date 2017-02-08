@@ -257,7 +257,7 @@ Section def_shortexactseqs.
    *)
 
   Definition ShortShortExact : UU :=
-    Σ SSED : ShortShortExactData A to_Zero,
+    ∑ SSED : ShortShortExactData A to_Zero,
              isKernel to_Zero (KernelArrow (Image SSED)) (Mor2 SSED) (Image_Eq SSED).
 
   Definition mk_ShortShortExact (SSED : ShortShortExactData A to_Zero)
@@ -295,7 +295,7 @@ Section def_shortexactseqs.
                             0 -> A -> B -> C
   *)
 
-  Definition LeftShortExact : UU := Σ SSE : ShortShortExact, isMonic (Mor1 SSE).
+  Definition LeftShortExact : UU := ∑ SSE : ShortShortExact, isMonic (Mor1 SSE).
 
   Definition mk_LeftShortExact (SSE : ShortShortExact) (isM : isMonic (Mor1 SSE)) :
     LeftShortExact := tpair _ SSE isM.
@@ -312,7 +312,7 @@ Section def_shortexactseqs.
                                A -> B -> C -> 0
    *)
 
-  Definition RightShortExact : UU := Σ SSE : ShortShortExact, isEpi (Mor2 SSE).
+  Definition RightShortExact : UU := ∑ SSE : ShortShortExact, isEpi (Mor2 SSE).
 
   Definition mk_RightShortExact (SSE : ShortShortExact) (isE : isEpi (Mor2 SSE)) :
     RightShortExact := tpair _ SSE isE.
@@ -331,7 +331,7 @@ Section def_shortexactseqs.
   *)
 
   Definition ShortExact : UU :=
-    Σ SSE : ShortShortExact, Monics.isMonic (Mor1 SSE) × Epis.isEpi (Mor2 SSE).
+    ∑ SSE : ShortShortExact, Monics.isMonic (Mor1 SSE) × Epis.isEpi (Mor2 SSE).
 
   Definition mk_ShortExact (SSE : ShortShortExact) (isM : Monics.isMonic (Mor1 SSE))
              (isE : Epis.isEpi (Mor2 SSE)) : ShortExact := (SSE,,(isM,,isE)).

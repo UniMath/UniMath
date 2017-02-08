@@ -57,7 +57,7 @@ Defined.
 (** A natural transformation of functors is given by a family of morphisms *)
 Definition is_nat_trans_discrete_precategory {D : precategory} (Dhom : has_homsets D)
            {f g : functor_precategory discrete_precategory D Dhom}
-           (F : Π x : A , (pr1 f) x --> (pr1 g) x)
+           (F : ∏ x : A , (pr1 f) x --> (pr1 g) x)
   : is_nat_trans (pr1 f) (pr1 g) F.
 Proof.
   intros x y h.

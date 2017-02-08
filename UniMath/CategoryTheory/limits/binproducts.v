@@ -35,7 +35,7 @@ Section binproduct_def.
 Variable C : precategory.
 
 Definition isBinProductCone (c d p : C) (p1 : p --> c) (p2 : p --> d) :=
-  Π (a : C) (f : a --> c) (g : a --> d),
+  ∏ (a : C) (f : a --> c) (g : a --> d),
   iscontr (total2 (fun fg : a --> p => dirprod (fg ;; p1 = f) (fg ;; p2 = g))).
 
 Lemma isaprop_isBinProductCone (c d p : C) (p1 : p --> c) (p2 : p --> d) :
@@ -52,7 +52,7 @@ Definition BinProductCone (c d : C) :=
              isBinProductCone c d (pr1 pp1p2) (pr1 (pr2 pp1p2)) (pr2 (pr2 pp1p2))).
 
 
-Definition BinProducts := Π (c d : C), BinProductCone c d.
+Definition BinProducts := ∏ (c d : C), BinProductCone c d.
 Definition hasBinProducts := ishinh BinProducts.
 
 Definition BinProductObject {c d : C} (P : BinProductCone c d) : C := pr1 (pr1 P).
@@ -74,14 +74,14 @@ Proof.
 Defined.
 
 Lemma BinProductPr1Commutes (c d : C) (P : BinProductCone c d):
-     Π (a : C) (f : a --> c) g, BinProductArrow P f g ;; BinProductPr1 P = f.
+     ∏ (a : C) (f : a --> c) g, BinProductArrow P f g ;; BinProductPr1 P = f.
 Proof.
   intros a f g.
   exact (pr1 (pr2 (pr1 (isBinProductCone_BinProductCone P _ f g)))).
 Qed.
 
 Lemma BinProductPr2Commutes (c d : C) (P : BinProductCone c d):
-     Π (a : C) (f : a --> c) g, BinProductArrow P f g ;; BinProductPr2 P = g.
+     ∏ (a : C) (f : a --> c) g, BinProductArrow P f g ;; BinProductPr2 P = g.
 Proof.
   intros a f g.
   exact (pr2 (pr2 (pr1 (isBinProductCone_BinProductCone P _ f g)))).
@@ -116,7 +116,7 @@ Proof.
 Qed.
 
 Definition mk_BinProductCone (a b : C) :
-  Π (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
+  ∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
    isBinProductCone _ _ _ f g -> BinProductCone a b.
 Proof.
   intros.
@@ -129,7 +129,7 @@ Defined.
 
 Definition mk_isBinProductCone (hsC : has_homsets C) (a b p : C)
   (pa : C⟦p,a⟧) (pb : C⟦p,b⟧) :
-  (Π (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
+  (∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
     ∃! k : C⟦c,p⟧, k ;; pa = f × k ;; pb = g) ->
   isBinProductCone a b p pa pb.
 Proof.
@@ -427,7 +427,7 @@ Proof.
 now apply (functor_eq _ _ hsD).
 Defined.
 
-Definition binproduct_nat_trans_pr1_data : Π c, BinProduct_of_functors c --> F c
+Definition binproduct_nat_trans_pr1_data : ∏ c, BinProduct_of_functors c --> F c
   := λ c : C, BinProductPr1 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_binproduct_nat_trans_pr1_data
@@ -445,7 +445,7 @@ Definition binproduct_nat_trans_pr1 : nat_trans _ _
   := tpair _ _ is_nat_trans_binproduct_nat_trans_pr1_data.
 
 
-Definition binproduct_nat_trans_pr2_data : Π c, BinProduct_of_functors c --> G c
+Definition binproduct_nat_trans_pr2_data : ∏ c, BinProduct_of_functors c --> G c
   := λ c : C, BinProductPr2 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_binproduct_nat_trans_pr2_data
@@ -471,7 +471,7 @@ Variable A : functor C D.
 Variable f : A ⟶ F.
 Variable g : A ⟶ G.
 
-Definition binproduct_nat_trans_data : Π c,  A c --> BinProduct_of_functors c.
+Definition binproduct_nat_trans_data : ∏ c,  A c --> BinProduct_of_functors c.
 Proof.
   intro c.
   apply BinProductArrow.
@@ -523,8 +523,8 @@ End vertex.
 
 Lemma binproduct_nat_trans_univ_prop (A : [C, D, hsD])
   (f : (A --> (F:[C,D,hsD]))) (g : A --> (G:[C,D,hsD])) :
-   Π
-   t : Σ fg : A --> (BinProduct_of_functors:[C,D,hsD]),
+   ∏
+   t : ∑ fg : A --> (BinProduct_of_functors:[C,D,hsD]),
        fg ;; (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D,hsD]) --> F) = f
       ×
        fg ;; (binproduct_nat_trans_pr2 : (BinProduct_of_functors:[C,D,hsD]) --> G) = g,

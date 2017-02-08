@@ -33,7 +33,7 @@ Context {C : precategory} (hsC : has_homsets C).
 
 Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
         (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2;; g) : UU :=
-   Π e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g ),
+   ∏ e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g ),
       iscontr (total2 (fun hk : e --> d => dirprod (hk ;; p1 = h)(hk ;; p2 = k))).
 
 Lemma isaprop_isPullback {a b c d : C} (f : b --> a) (g : c --> a)
@@ -63,10 +63,10 @@ Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
          total2 (fun H : pr1 (pr2 pfg) ;; f = pr2 (pr2 pfg) ;; g =>
         isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
 
-Definition Pullbacks := Π (a b c : C)(f : b --> a)(g : c --> a),
+Definition Pullbacks := ∏ (a b c : C)(f : b --> a)(g : c --> a),
        Pullback f g.
 
-Definition hasPullbacks := Π (a b c : C) (f : b --> a) (g : c --> a),
+Definition hasPullbacks := ∏ (a b c : C) (f : b --> a) (g : c --> a),
          ishinh (Pullback f g).
 
 
@@ -138,7 +138,7 @@ Defined.
 
 Definition mk_isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
            (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) :
-  (Π e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h ;; f = k ;; g ),
+  (∏ e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h ;; f = k ;; g ),
       iscontr (total2 (fun hk : C⟦e,d⟧ => dirprod (hk ;; p1 = h)(hk ;; p2 = k))))
   →
   isPullback f g p1 p2 H.
@@ -338,7 +338,7 @@ Proof.
   - intro; apply isofhleveltotal2.
     + apply hsC.
     + intros; apply isaprop_isPullback.
-  - apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))).
+  - apply (total2_paths_f  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))).
     rewrite transportf_dirprod, transportf_isotoid.
     rewrite inv_from_iso_iso_from_Pullback.
     rewrite transportf_isotoid.
@@ -530,7 +530,7 @@ Defined.
 
 Definition pb_of_section (isPb : isPullback _ _ _ _ H)
   (s : C⟦a,c⟧) (K : s ;; g = identity _ )
-  : Σ s' : C⟦b, d⟧, s' ;; h = identity _ .
+  : ∑ s' : C⟦b, d⟧, s' ;; h = identity _ .
 Proof.
   simple refine (tpair _ _ _ ).
   - simple refine (PullbackArrow (mk_Pullback _ _ _ _ _ _ isPb) b (identity _ )
@@ -545,9 +545,9 @@ Ltac mk_pair := simple refine (tpair _ _ _ ).
 (** Diagonal morphisms are equivalent to sections *)
 
 Definition section_from_diagonal (isPb : isPullback _ _ _ _ H)
-  : (Σ x : C⟦b, c⟧, x ;; g = f)
+  : (∑ x : C⟦b, c⟧, x ;; g = f)
     ->
-    Σ s' : C⟦b, d⟧, s' ;; h = identity _ .
+    ∑ s' : C⟦b, d⟧, s' ;; h = identity _ .
 Proof.
   intro X.
   mk_pair.
@@ -557,9 +557,9 @@ Proof.
 Defined.
 
 Definition diagonal_from_section (isPb : isPullback _ _ _ _ H)
-  : (Σ x : C⟦b, c⟧, x ;; g = f)
+  : (∑ x : C⟦b, c⟧, x ;; g = f)
     <-
-    Σ s' : C⟦b, d⟧, s' ;; h = identity _ .
+    ∑ s' : C⟦b, d⟧, s' ;; h = identity _ .
 Proof.
   intro X.
   exists (pr1 X ;; k).
@@ -567,9 +567,9 @@ Proof.
 Defined.
 
 Definition weq_section_from_diagonal (isPb : isPullback _ _ _ _ H)
-  : (Σ x : C⟦b, c⟧, x ;; g = f)
+  : (∑ x : C⟦b, c⟧, x ;; g = f)
     ≃
-    Σ s' : C⟦b, d⟧, s' ;; h = identity _ .
+    ∑ s' : C⟦b, d⟧, s' ;; h = identity _ .
 Proof.
   exists (section_from_diagonal isPb).
   apply (gradth _ (diagonal_from_section isPb )).
@@ -904,7 +904,7 @@ Definition maps_pb_square_to_pb_square
   isPullback _ _ _ _ H -> isPullback _ _ _ _ (functor_on_square H).
 
 Definition maps_pb_squares_to_pb_squares :=
-   Π {a b c d : C}
+   ∏ {a b c d : C}
      {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
      (H : h ;; f = k ;; g),
      maps_pb_square_to_pb_square H.
@@ -937,15 +937,15 @@ Arguments mk_Pullback {_ _ _ _ _ _ _ _ _ _ } _ .
 
 Let Hcommx x := nat_trans_eq_pointwise Hcomm x.
 
-Local Definition g (T : Π x, isPullback _ _ _ _ (Hcommx x))
+Local Definition g (T : ∏ x, isPullback _ _ _ _ (Hcommx x))
   E (h : CD ⟦ E, G ⟧) (k : CD ⟦ E, H ⟧)
-  (Hhk : h ;; a = k ;; b) : Π x, D ⟦ pr1 E x, pr1 J x ⟧.
+  (Hhk : h ;; a = k ;; b) : ∏ x, D ⟦ pr1 E x, pr1 J x ⟧.
 Proof.
 intro x; apply (PullbackArrow (mk_Pullback (T x)) _ (pr1 h x) (pr1 k x)).
 abstract (apply (nat_trans_eq_pointwise Hhk)).
 Defined.
 
-Local Lemma is_nat_trans_g (T : Π x, isPullback _ _ _ _ (Hcommx x))
+Local Lemma is_nat_trans_g (T : ∏ x, isPullback _ _ _ _ (Hcommx x))
   E (h : CD ⟦ E, G ⟧) (k : CD ⟦ E, H ⟧)
   (Hhk : h ;; a = k ;; b) : is_nat_trans _ _ (λ x : C, g T E h k Hhk x).
 Proof.
@@ -959,7 +959,7 @@ apply (MorphismsIntoPullbackEqual (T y)).
   now rewrite (PullbackArrow_PullbackPr2 (mk_Pullback (T x))), (nat_trans_ax k).
 Qed.
 
-Lemma pb_if_pointwise_pb : (Π x, isPullback _ _ _ _ (Hcommx x)) ->
+Lemma pb_if_pointwise_pb : (∏ x, isPullback _ _ _ _ (Hcommx x)) ->
   isPullback _ _ _ _ Hcomm.
 Proof.
 intro T.

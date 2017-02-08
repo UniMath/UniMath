@@ -96,7 +96,7 @@ Section set_slice_fam_equiv.
   Definition slice_counit_fun (f : slice X) :
     (functor_composite_data slice_to_fam_data fam_to_slice_data) f --> (functor_identity_data _) f.
   Proof.
-    exists (fun h : (Σ x : X, hfiber (pr2 f) x) => pr1 (pr2 h)).
+    exists (fun h : (∑ x : X, hfiber (pr2 f) x) => pr1 (pr2 h)).
     simpl.
     apply funextsec.
     intro p.

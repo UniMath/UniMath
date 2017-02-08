@@ -119,7 +119,7 @@ Section KAPreTriangulated.
   Defined.
 
   Definition KADTriData (T : @Tri (ComplexHomot_Additive A) (TranslationHEquiv A)) : UU :=
-    Σ D : (Σ M : @Morphisms.Morphism (ComplexHomot_Additive A),
+    ∑ D : (∑ M : @Morphisms.Morphism (ComplexHomot_Additive A),
                  hfiber (# (ComplexHomotFunctor A)) M),
           TriIso T (MappingConeTri (pr1 D) (pr2 D)).
 
@@ -302,7 +302,7 @@ Section KAPreTriangulated.
       rewrite (@ZeroArrow_comp_left (ComplexHomot_Additive A)). apply idpath.
   Defined.
 
-  Lemma KATrivialDistinguished : Π x : KAPreTriangData, isDTri (TrivialTri x).
+  Lemma KATrivialDistinguished : ∏ x : KAPreTriangData, isDTri (TrivialTri x).
   Proof.
     intros x.
     set (i' := @hfiberpair _ _ (# (ComplexHomotFunctor A)) _ _
@@ -378,7 +378,7 @@ Section KAPreTriangulated.
       + exact (RotMorphism_is_z_isomorphism A _).
   Defined.
 
-  Lemma KARotDTris : Π D : DTri, @isDTri KAPreTriangData (RotTri D).
+  Lemma KARotDTris : ∏ D : DTri, @isDTri KAPreTriangData (RotTri D).
   Proof.
     intros D.
     use (squash_to_prop (DTriisDTri D) (propproperty _)). intros I.
@@ -485,7 +485,7 @@ Section KAPreTriangulated.
       + exact (InvRotMorphism_is_z_isomorphism A _).
   Defined.
 
-  Lemma KAInvRotDTris : Π D : DTri, @isDTri KAPreTriangData (InvRotTri D).
+  Lemma KAInvRotDTris : ∏ D : DTri, @isDTri KAPreTriangData (InvRotTri D).
   Proof.
     intros D.
     use (squash_to_prop (DTriisDTri D) (propproperty _)). intros I.
@@ -510,7 +510,7 @@ Section KAPreTriangulated.
   Local Opaque TranslationFunctor TranslationFunctorH.
 
   Lemma KAConeDTri :
-    Π (x y : KAPreTriangData) (f : KAPreTriangData ⟦ x, y ⟧),
+    ∏ (x y : KAPreTriangData) (f : KAPreTriangData ⟦ x, y ⟧),
     ∃ D : ConeData Trans x y, isDTri (ConeTri f D).
   Proof.
     intros x y f.
@@ -874,7 +874,7 @@ Section KAPreTriangulated.
   Qed.
 
   Lemma KAExt :
-    Π (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
+    ∏ (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
       (g2 : KAPreTriangData ⟦ Ob2 D1, Ob2 D2 ⟧) (H : g1 ;; Mor1 D2 = Mor1 D1 ;; g2), ∥ TExt H ∥.
   Proof.
     intros D1 D2 g1 g2 H.
@@ -906,7 +906,7 @@ Section KAPreTriangulated.
   Qed.
 
   Definition KADTrisIsos :
-    Π T1 T2 : Tri, TriIso T1 T2 → @isDTri KAPreTriangData T1 → @isDTri KAPreTriangData T2.
+    ∏ T1 T2 : Tri, TriIso T1 T2 → @isDTri KAPreTriangData T1 → @isDTri KAPreTriangData T2.
   Proof.
     intros T1 T2 I X0.
     use (squash_to_prop X0 (propproperty _)). intros I1. clear X0.

@@ -143,7 +143,7 @@ Qed.
 
 Lemma eq_mor_slicecat (af bg : C / x) (f g : C/x⟦af,bg⟧) : pr1 f = pr1 g -> f = g.
 Proof.
-now intro heq; apply (total2_paths heq); apply hsC.
+now intro heq; apply (total2_paths_f heq); apply hsC.
 Qed.
 
 Lemma eq_iso_slicecat (af bg : C / x) (f g : iso af bg) : pr1 f = pr1 g -> f = g.
@@ -267,7 +267,7 @@ now rewrite assoc, <- (pr2 h).
 Qed.
 
 Definition slicecat_functor_data : functor_data (C / x) (C / y) :=
-  tpair (λ F, Π a b, C/x⟦a,b⟧ → C/y⟦F a,F b⟧) slicecat_functor_ob
+  tpair (λ F, ∏ a b, C/x⟦a,b⟧ → C/y⟦F a,F b⟧) slicecat_functor_ob
         (λ a b h, (pr1 h,,slicecat_functor_subproof _ _ h)).
 
 Lemma is_functor_slicecat_functor : is_functor slicecat_functor_data.
@@ -300,7 +300,7 @@ Lemma slicecat_functor_identity (x : C) :
   slicecat_functor _ (identity x) = functor_identity (C / x).
 Proof.
 apply (functor_eq _ _ (has_homsets_slice_precat _ _)); simpl.
-apply (total2_paths2 (slicecat_functor_identity_ob _)).
+apply (two_arg_paths_f (slicecat_functor_identity_ob _)).
 apply funextsec; intros [a f].
 apply funextsec; intros [b g].
 apply funextsec; intros [h hh].
@@ -331,7 +331,7 @@ Proof.
 apply (functor_eq _ _ (has_homsets_slice_precat _ _)); simpl.
 unfold slicecat_functor_data; simpl.
 unfold functor_composite_data; simpl.
-apply (total2_paths2 (slicecat_functor_comp_ob _ _)).
+apply (two_arg_paths_f (slicecat_functor_comp_ob _ _)).
 apply funextsec; intros [a fax].
 apply funextsec; intros [b fbx].
 apply funextsec; intros [h hh].
@@ -347,7 +347,7 @@ assert (H1 : transportf (fun x : C / z => pr1 x --> b)
                  (fun p => tpair _ a p = tpair _ a _) (idpath (tpair _ a _))
                  (assoc fax f g)) h = h).
   case (assoc fax f g); apply idpath.
-assert (H2 : Π h', h' = h ->
+assert (H2 : ∏ h', h' = h ->
              transportf (fun x : C / z => a --> pr1 x)
                         (Foundations.PartA.internal_paths_rew_r _ _ _
                            (fun p => tpair _ b p = tpair _ b _) (idpath _)
@@ -649,7 +649,7 @@ Defined.
 *)
 Section dependent_product.
 
-Context (H : Π {c c' : C} (g : C⟦c,c'⟧), is_left_adjoint (base_change_functor g)).
+Context (H : ∏ {c c' : C} (g : C⟦c,c'⟧), is_left_adjoint (base_change_functor g)).
 
 Let dependent_product_functor {c c' : C} (g : C⟦c,c'⟧) :
   functor (C / c) (C / c') := right_adjoint (H c c' g).

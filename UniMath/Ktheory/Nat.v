@@ -14,10 +14,10 @@ Definition ℕ := nat.
 
 Module Uniqueness.
 
-  Lemma helper_A (P:nat->Type) (p0:P 0) (IH:Π n, P n->P(S n))
-        (f:Π n, P n) :
-    weq (Π n, f n = nat_rect P p0 IH n)
-        (f 0=p0 × Π n, f(S n)=IH n (f n)).
+  Lemma helper_A (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n))
+        (f:∏ n, P n) :
+    weq (∏ n, f n = nat_rect P p0 IH n)
+        (f 0=p0 × ∏ n, f(S n)=IH n (f n)).
   Proof. intros. simple refine (_,,gradth _ _ _ _).
          { intros h. split.
            { exact (h 0). } { intros. exact (h (S n) @ ap (IH n) (! h n)). } }
@@ -28,33 +28,33 @@ Module Uniqueness.
            { simpl. rewrite <- path_assoc. simple refine (_ @ pathscomp0rid _).
              rewrite <- maponpathscomp0. rewrite IHn. rewrite pathsinv0l.
              simpl. reflexivity. } }
-         { intros [h0 h']. apply pair_path_in2. apply funextsec; intro n; simpl.
+         { intros [h0 h']. apply maponpaths. apply funextsec; intro n; simpl.
            rewrite <- path_assoc. rewrite <- maponpathscomp0. rewrite pathsinv0r.
            apply pathscomp0rid. } Defined.
 
-  Lemma helper_B (P:nat->Type) (p0:P 0) (IH:Π n, P n->P(S n))
-        (f:Π n, P n) :
+  Lemma helper_B (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n))
+        (f:∏ n, P n) :
     weq (f = nat_rect P p0 IH)
-        ((f 0=p0) × (Π n, f(S n)=IH n (f n))).
+        ((f 0=p0) × (∏ n, f(S n)=IH n (f n))).
   Proof. intros.
          exact (weqcomp (weqtoforallpaths _ _ _) (helper_A _ _ _ _)). Defined.
 
-  Lemma helper_C (P:nat->Type) (p0:P 0) (IH:Π n, P n->P(S n)) :
-    (Σ f:Π n, P n, f = nat_rect P p0 IH)
+  Lemma helper_C (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n)) :
+    (∑ f:∏ n, P n, f = nat_rect P p0 IH)
       ≃
-    (Σ f:Π n, P n, f 0=p0 × Π n, f(S n)=IH n (f n)).
+    (∑ f:∏ n, P n, f 0=p0 × ∏ n, f(S n)=IH n (f n)).
   Proof. intros. apply weqfibtototal. intros f. apply helper_B. Defined.
 
-  Lemma hNatRecursionUniq (P:nat->Type) (p0:P 0) (IH:Π n, P n->P(S n)) :
-    ∃! (f:Π n, P n), f 0=p0 × Π n, f(S n) = IH n (f n).
+  Lemma hNatRecursionUniq (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n)) :
+    ∃! (f:∏ n, P n), f 0=p0 × ∏ n, f(S n) = IH n (f n).
   Proof. intros. exact (iscontrweqf (helper_C _ _ _) (iscontrcoconustot _ _)).
   Defined.
 
-  Lemma helper_D (P:nat->Type) (p0:P 0) (IH:Π n, P n->P(S n)) :
-     (Σ f:Π n, P n, (f 0=p0) × (Π n, f(S n)=IH n (f n)))
+  Lemma helper_D (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n)) :
+     (∑ f:∏ n, P n, (f 0=p0) × (∏ n, f(S n)=IH n (f n)))
        ≃
         (@hfiber
-           (Σ (f:Π n, P n), Π n, f(S n)=IH n (f n))
+           (∑ (f:∏ n, P n), ∏ n, f(S n)=IH n (f n))
            (P 0)
            (fun fh => pr1 fh 0)
            p0).
@@ -65,8 +65,8 @@ Module Uniqueness.
          { intros [[f h'] h0]. reflexivity. }
   Defined.
 
-  Lemma hNatRecursion_weq (P:nat->Type) (IH:Π n, P n->P(S n)) :
-    weq (total2 (fun f:Π n, P n => Π n, f(S n)=IH n (f n))) (P 0).
+  Lemma hNatRecursion_weq (P:nat->Type) (IH:∏ n, P n->P(S n)) :
+    weq (total2 (fun f:∏ n, P n => ∏ n, f(S n)=IH n (f n))) (P 0).
   Proof. intros. exists (fun f => pr1 f 0). intro p0.
          apply (iscontrweqf (helper_D _ _ _)). apply hNatRecursionUniq.
   Defined.
@@ -88,7 +88,7 @@ Module Discern.
       | S m, 0 => empty
       | 0, 0 => unit end.
 
-  Goal Π m n, nat_discern m n -> nat_discern (S m) (S n).
+  Goal ∏ m n, nat_discern m n -> nat_discern (S m) (S n).
   Proof. intros ? ? e. exact e. Defined.
 
   Lemma nat_discern_inj m n : nat_discern (S m) (S n) -> nat_discern m n.
@@ -130,7 +130,7 @@ Module Discern.
            { simpl. intro i. assert(b := helper_B _ _ i); clear i.
              destruct b. reflexivity. } } Defined.
 
-  Goal Π m n (e:nat_discern m n), ap S (helper_B m n e) = helper_B (S m) (S n) e.
+  Goal ∏ m n (e:nat_discern m n), ap S (helper_B m n e) = helper_B (S m) (S n) e.
   Proof. reflexivity. Defined.
 
   Fixpoint helper_C m n : m = n -> nat_discern m n.
@@ -215,7 +215,7 @@ Proof. intros ? ? ? i j.
        rewrite <- (minusplusnmm _ _ i). rewrite j. reflexivity. Defined.
 
 Definition nat_dist_between_le m n a b : m ≤ n -> nat_dist m n = a + b ->
-  Σ x, nat_dist x m = a × nat_dist x n = b.
+  ∑ x, nat_dist x m = a × nat_dist x n = b.
 Proof. intros ? ? ? ? i j. exists (m+a). split.
        { apply nat_dist_plus. }
        { rewrite (nat_dist_le m n i) in j.
@@ -225,7 +225,7 @@ Proof. intros ? ? ? ? i j. exists (m+a). split.
          rewrite (natplusassoc m a b) in l. rewrite <- k in l. exact l. } Defined.
 
 Definition nat_dist_between_ge m n a b :
-  n ≤ m -> nat_dist m n = a + b -> Σ x:nat, nat_dist x m = a × nat_dist x n = b.
+  n ≤ m -> nat_dist m n = a + b -> ∑ x:nat, nat_dist x m = a × nat_dist x n = b.
 Proof. intros ? ? ? ? i j.
        rewrite nat_dist_symm in j.
        rewrite natpluscomm in j.
@@ -235,7 +235,7 @@ Proof. intros ? ? ? ? i j.
 Defined.
 
 Definition nat_dist_between m n a b :
-  nat_dist m n = a + b -> Σ x:nat, nat_dist x m = a × nat_dist x n = b.
+  nat_dist m n = a + b -> ∑ x:nat, nat_dist x m = a × nat_dist x n = b.
 Proof. intros ? ? ? ? j.
        induction (natgthorleh m n) as [r|s].
        { apply nat_dist_between_ge. apply natlthtoleh. exact r. exact j. }

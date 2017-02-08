@@ -1121,9 +1121,9 @@ Section def_cohomology_homotopy.
 
   Definition CohomologyFunctorHIm {C1 C2 : ComplexHomot_Additive (AbelianToAdditive A hs)}
              (f : ComplexHomot_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧) : UU :=
-    Σ (h : (ComplexPreCat_Additive (AbelianToAdditive A hs))⟦CohomologyComplex A hs C1,
+    ∑ (h : (ComplexPreCat_Additive (AbelianToAdditive A hs))⟦CohomologyComplex A hs C1,
                                                              CohomologyComplex A hs C2⟧),
-    Π (f' : ComplexPreCat_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
+    ∏ (f' : ComplexPreCat_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
       (H : # (ComplexHomotFunctor (AbelianToAdditive A hs)) f' = f),
     h = # (CohomologyFunctor A hs) f'.
 
@@ -1144,7 +1144,7 @@ Section def_cohomology_homotopy.
              (f : (ComplexHomot_Additive (AbelianToAdditive A hs))⟦C1, C2⟧)
              (h : (ComplexPreCat_Additive (AbelianToAdditive A hs))⟦CohomologyComplex A hs C1,
                                                                     CohomologyComplex A hs C2⟧)
-             (HH : Π (f' : ComplexPreCat_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
+             (HH : ∏ (f' : ComplexPreCat_Additive (AbelianToAdditive A hs) ⟦C1, C2⟧)
                      (H : # (ComplexHomotFunctor (AbelianToAdditive A hs)) f' = f),
                    h = # (CohomologyFunctor A hs) f') : CohomologyFunctorHIm f :=
     tpair _ h HH.
@@ -1154,7 +1154,7 @@ Section def_cohomology_homotopy.
              (h : CohomologyFunctorHIm f) (h' : CohomologyFunctorHIm f)
              (e : CohomologyFunctorHImMor h = CohomologyFunctorHImMor h') : h = h'.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - exact e.
     - apply proofirrelevance. apply impred_isaprop. intros t0.
       apply impred_isaprop. intros H0. apply has_homsets_ComplexPreCat.
@@ -1248,8 +1248,8 @@ Section def_cohomology_homotopy.
     functor_composite (ComplexHomotFunctor (AbelianToAdditive A hs)) CohomologyFunctorH =
     (CohomologyFunctor A hs).
   Proof.
-    use total2_paths.
-    - use total2_paths.
+    use total2_paths_f.
+    - use total2_paths_f.
       + apply idpath.
       + rewrite idpath_transportf.
         use funextsec. intros C1.
@@ -1584,7 +1584,7 @@ Section def_kernel_cokernel_complex.
   Qed.
 
   Local Lemma CokernelKernelMorphism_uni (C : Complex (AbelianToAdditive A hs)) (i : hz) :
-    Π t : Σ f : A ⟦Cokernel (Diff C (i - 1)), Kernel (Diff C (i + 1))⟧,
+    ∏ t : ∑ f : A ⟦Cokernel (Diff C (i - 1)), Kernel (Diff C (i + 1))⟧,
                 (KernelIn to_Zero (Kernel (Diff C (i + 1))) (C i) (Diff C i)
                           (DSq (AbelianToAdditive A hs) C i) =
                  transportf (λ i0 : pr1 hz, A ⟦ C i0, Cokernel (Diff C (i - 1)) ⟧)
@@ -1602,7 +1602,7 @@ Section def_kernel_cokernel_complex.
     CokernelKernelMorphism_comm3 C i,, CokernelKernelMorphism_comm2' C i.
   Proof.
     intros t. induction t as [t1 t2]. induction t2 as [t21 t22].
-    use total2_paths.
+    use total2_paths_f.
     - cbn. use KernelInsEq. rewrite KernelCommutes.
       use CokernelOutsEq. rewrite CokernelCommutes.
       rewrite assoc.
@@ -1624,7 +1624,7 @@ Section def_kernel_cokernel_complex.
   Qed.
 
   Definition CokernelKernelMorphism (C : Complex (AbelianToAdditive A hs)) (i : hz) :
-    iscontr (Σ f : A⟦(CokernelComplex C) i, (KernelComplex C) i⟧,
+    iscontr (∑ f : A⟦(CokernelComplex C) i, (KernelComplex C) i⟧,
                    ((KernelIn to_Zero (Kernel (Diff C (i + 1))) (C i) (Diff C i) (DSq _ C i)) =
                     (transportf (fun (i0 : hz) => A⟦C i0, (Cokernel (Diff C (i - 1)))⟧)
                                 (hzrminusplus i 1)

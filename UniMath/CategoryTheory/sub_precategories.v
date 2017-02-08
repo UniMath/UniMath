@@ -57,21 +57,21 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 *)
 
 Definition is_sub_precategory {C : precategory}
-    (C' : hsubtypes C)
-    (Cmor' : Π a b : C, hsubtypes (a --> b)) :=
- dirprod (Π a : C, C' a ->  Cmor' _ _ (identity a ))
-         (Π (a b c : C) (f: a --> b) (g : b --> c),
+    (C' : hsubtype C)
+    (Cmor' : ∏ a b : C, hsubtype (a --> b)) :=
+ dirprod (∏ a : C, C' a ->  Cmor' _ _ (identity a ))
+         (∏ (a b c : C) (f: a --> b) (g : b --> c),
                    Cmor' _ _ f -> Cmor' _ _  g -> Cmor' _ _  (f ;; g)).
 
 Definition sub_precategories (C : precategory) := total2 (
-   fun C' : dirprod (hsubtypes (ob C))
-                    (Π a b:ob C, hsubtypes (a --> b)) =>
+   fun C' : dirprod (hsubtype (ob C))
+                    (∏ a b:ob C, hsubtype (a --> b)) =>
         is_sub_precategory (pr1 C') (pr2 C')).
 
 (** A full subcategory has the true predicate on morphisms *)
 
 Lemma is_sub_precategory_full (C : precategory)
-         (C':hsubtypes (ob C)) :
+         (C':hsubtype (ob C)) :
         is_sub_precategory C' (fun a b => fun f => htrue).
 Proof.
   split;
@@ -79,7 +79,7 @@ Proof.
 Defined.
 
 Definition full_sub_precategory {C : precategory}
-         (C': hsubtypes (ob C)) :
+         (C': hsubtype (ob C)) :
    sub_precategories C :=
   tpair _  (dirprodpair C' (fun a b f => htrue)) (is_sub_precategory_full C C').
 
@@ -93,14 +93,14 @@ Definition full_sub_precategory {C : precategory}
 
 Definition sub_precategory_predicate_objects {C : precategory}
      (C': sub_precategories C):
-       hsubtypes (ob C) := pr1 (pr1 C').
+       hsubtype (ob C) := pr1 (pr1 C').
 
 Definition sub_ob {C : precategory}(C': sub_precategories C): UU :=
      (*carrier*) (sub_precategory_predicate_objects C').
 
 
 Definition sub_precategory_predicate_morphisms {C : precategory}
-        (C':sub_precategories C) (a b : C) : hsubtypes (a --> b) := pr2 (pr1 C') a b.
+        (C':sub_precategories C) (a b : C) : hsubtype (a --> b) := pr2 (pr1 C') a b.
 
 Definition sub_precategory_morphisms {C : precategory}(C':sub_precategories C)
       (a b : C) : UU :=  sub_precategory_predicate_morphisms C' a b.
@@ -110,13 +110,13 @@ Definition sub_precategory_morphisms {C : precategory}(C':sub_precategories C)
 *)
 
 Definition sub_precategory_id (C : precategory)(C':sub_precategories C) :
-   Π a : ob C,
+   ∏ a : ob C,
        sub_precategory_predicate_objects C' a ->
        sub_precategory_predicate_morphisms  C' _ _ (identity a) :=
          pr1 (pr2 C').
 
 Definition sub_precategory_comp (C : precategory)(C':sub_precategories C) :
-   Π (a b c: ob C) (f: a --> b) (g : b --> c),
+   ∏ (a b c: ob C) (f: a --> b) (g : b --> c),
           sub_precategory_predicate_morphisms C' _ _ f ->
           sub_precategory_predicate_morphisms C' _ _ g ->
           sub_precategory_predicate_morphisms C' _ _  (f ;; g) :=
@@ -199,7 +199,7 @@ Proof.
   intro H.
   destruct f as [f p].
   destruct g as [g p'].
-  apply (total2_paths H).
+  apply (total2_paths_f H).
   apply proofirrelevance.
   apply pr2.
 Qed.
@@ -213,9 +213,9 @@ Lemma eq_in_sub_precategory2 (C : precategory)(C':sub_precategories C)
       (tpair (fun f => sub_precategory_predicate_morphisms _ _ _ f) g pg).
 Proof.
   intro H.
-  apply (total2_paths2 H).
+  apply (two_arg_paths_f H).
   destruct H.
-  apply (total2_paths2 (idpath _ )).
+  apply (two_arg_paths_f (idpath _ )).
 *)
 
 Definition is_precategory_sub_category (C : precategory)(C':sub_precategories C) :
@@ -324,19 +324,19 @@ Definition functor_full_img {C D: precategory}
 (** does of course not need the category hypothesis *)
 
 Definition hom_in_subcat_from_hom_in_precat (C : precategory)
- (C' : hsubtypes (ob C))
+ (C' : hsubtype (ob C))
   (a b : ob (full_sub_precategory C'))
       (f : pr1 a --> pr1 b) : a --> b :=
        tpair _ f tt.
 
 Definition hom_in_precat_from_hom_in_full_subcat (C : precategory)
- (C' : hsubtypes (ob C))
+ (C' : hsubtype (ob C))
   (a b : ob (full_sub_precategory C')) :
      a --> b -> pr1 a --> pr1 b := @pr1 _ _ .
 
 
 Lemma isweq_hom_in_precat_from_hom_in_full_subcat (C : precategory)
- (C' : hsubtypes (ob C))
+ (C' : hsubtype (ob C))
     (a b : ob (full_sub_precategory C')):
  isweq (hom_in_precat_from_hom_in_full_subcat _ _ a b).
 Proof.
@@ -350,7 +350,7 @@ Proof.
 Defined.
 
 Lemma isweq_hom_in_subcat_from_hom_in_precat (C : precategory)
- (C' : hsubtypes (ob C))
+ (C' : hsubtype (ob C))
     (a b : ob (full_sub_precategory C')):
  isweq (hom_in_subcat_from_hom_in_precat  _ _ a b).
 Proof.
@@ -365,7 +365,7 @@ Proof.
 Defined.
 
 Definition weq_hom_in_subcat_from_hom_in_precat (C : precategory)
-     (C' : hsubtypes (ob C))
+     (C' : hsubtype (ob C))
     (a b : ob (full_sub_precategory C')): weq (pr1 a --> pr1 b) (a-->b) :=
   tpair _ _ (isweq_hom_in_subcat_from_hom_in_precat C C' a b).
 
@@ -434,7 +434,7 @@ Proof.
   destruct F as [F Fax].
   simpl.
   destruct F as [Fob Fmor]; simpl in *.
-  apply (total2_paths2 (H)).
+  apply (two_arg_paths_f (H)).
   unfold functor_full_img_factorization_ob in H.
   simpl in *.
   apply dep_funextfun.
@@ -473,7 +473,7 @@ Section full_sub_cat.
 Variable C : precategory.
 Hypothesis H : is_category C.
 
-Variable C' : hsubtypes (ob C).
+Variable C' : hsubtype (ob C).
 
 
 (** *** Isos in the full subcategory are equivalent to isos in the precategory *)

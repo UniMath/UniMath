@@ -22,7 +22,7 @@ Section def_po.
 
   Definition isPushout {a b c d : C} (f : a --> b) (g : a --> c)
              (in1 : b --> d) (in2 : c --> d) (H : f ;; in1 = g ;; in2) : UU :=
-    Π e (h : b --> e) (k : c --> e)(H : f ;; h = g ;; k),
+    ∏ e (h : b --> e) (k : c --> e)(H : f ;; h = g ;; k),
     iscontr (total2 (fun hk : d --> e => dirprod (in1 ;; hk = h) (in2 ;; hk = k))).
 
   Lemma isaprop_isPushout {a b c d : C} (f : a --> b) (g : a --> c)
@@ -52,10 +52,10 @@ Section def_po.
               total2 (fun H : f ;; pr1 (pr2 pfg) = g ;; pr2 (pr2 pfg) =>
                         isPushout f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
 
-  Definition Pushouts := Π (a b c : C) (f : a --> b) (g : a --> c),
+  Definition Pushouts := ∏ (a b c : C) (f : a --> b) (g : a --> c),
       Pushout f g.
 
-  Definition hasPushouts := Π (a b c : C) (f : a --> b) (g : a --> c),
+  Definition hasPushouts := ∏ (a b c : C) (f : a --> b) (g : a --> c),
       ishinh (Pushout f g).
 
 
@@ -121,7 +121,7 @@ Section def_po.
 
   Definition mk_isPushout {a b c d : C} (f : C ⟦a, b⟧) (g : C ⟦a, c⟧)
              (in1 : C⟦b,d⟧) (in2 : C⟦c,d⟧) (H : f ;; in1 = g ;; in2) :
-    (Π e (h : C ⟦b, e⟧) (k : C⟦c,e⟧)(Hk : f ;; h = g ;; k),
+    (∏ e (h : C ⟦b, e⟧) (k : C⟦c,e⟧)(Hk : f ;; h = g ;; k),
         iscontr (total2 (fun hk : C⟦d,e⟧ =>
                            dirprod (in1 ;; hk = h)(in2 ;; hk = k))))
     →
@@ -270,7 +270,7 @@ Section def_po.
       - intro; apply isofhleveltotal2.
         + apply hsC.
         + intros; apply isaprop_isPushout.
-      - apply (total2_paths
+      - apply (total2_paths_f
                  (isotoid _ H (iso_from_Pushout_to_Pushout Pb Pb' ))).
         rewrite transportf_dirprod, transportf_isotoid', transportf_isotoid'.
         fold (PushoutIn1 Pb). fold (PushoutIn2 Pb).

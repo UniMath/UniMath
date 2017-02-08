@@ -22,7 +22,7 @@ Definition natneqtwist n (p : ¬ (0 = n)) : ¬ (n = 0) :=
   fun f => p (pathsinv0 f).
 
 Definition nat_plus_perm021 :
-  Π n0 n1 n2,
+  ∏ n0 n1 n2,
     n0 + n1 + n2 = n0 + n2 + n1 :=
   fun n0 n1 n2 =>
     pathscomp0
@@ -32,30 +32,30 @@ Definition nat_plus_perm021 :
       (pathsinv0 (natplusassoc n0 n2 n1)).
 
 Definition nat_plus_perm102 :
-  Π n0 n1 n2,
+  ∏ n0 n1 n2,
     n0 + n1 + n2 = n1 + n0 + n2 :=
   fun n0 n1 n2 => maponpaths (fun z => z + n2) (natpluscomm n0 n1).
 
 Definition nat_plus_perm120 :
-  Π n0 n1 n2,
+  ∏ n0 n1 n2,
     n0 + n1 + n2 = n2 + n0 + n1 :=
   fun n0 n1 n2 =>
     pathscomp0 (natpluscomm (n0 + n1) n2) (pathsinv0 (natplusassoc n2 n0 n1)).
 
 Definition nat_plus_perm201 :
-  Π n0 n1 n2,
+  ∏ n0 n1 n2,
     n0 + n1 + n2 = n1 + n2 + n0 :=
   fun n0 n1 n2 =>
     pathscomp0 (natplusassoc n0 n1 n2) (natpluscomm n0 (n1 + n2)).
 
 Definition nat_plus_perm210 :
-  Π n0 n1 n2,
+  ∏ n0 n1 n2,
     n0 + n1 + n2 = n2 + n1 + n0 :=
   fun n0 n1 n2 =>
     pathscomp0 (nat_plus_perm102 n0 n1 n2) (nat_plus_perm120 n1 n0 n2).
 
 Definition nat_mult_perm021 :
-  Π n0 n1 n2,
+  ∏ n0 n1 n2,
     n0 * n1 * n2 = n0 * n2 * n1 :=
   fun n0 n1 n2 =>
     pathscomp0
@@ -65,29 +65,29 @@ Definition nat_mult_perm021 :
       (pathsinv0 (natmultassoc n0 n2 n1)).
 
 Definition nat_mult_perm102 :
-  Π n0 n1 n2,
+  ∏ n0 n1 n2,
     n0 * n1 * n2 = n1 * n0 * n2 :=
   fun n0 n1 n2 => maponpaths (fun z => z * n2) (natmultcomm n0 n1).
 
 Definition nat_mult_perm120 :
-  Π n0 n1 n2,
+  ∏ n0 n1 n2,
     n0 * n1 * n2 = n2 * n0 * n1 :=
   fun n0 n1 n2 =>
     pathscomp0 (natmultcomm (n0 * n1) n2) (pathsinv0 (natmultassoc n2 n0 n1)).
 
 Definition nat_mult_perm201 :
-  Π n0 n1 n2,
+  ∏ n0 n1 n2,
     n0 * n1 * n2 = n1 * n2 * n0 :=
   fun n0 n1 n2 =>
     pathscomp0 (natmultassoc n0 n1 n2) (natmultcomm n0 (n1 * n2)).
 
 Definition nat_mult_perm210 :
-  Π n0 n1 n2,
+  ∏ n0 n1 n2,
     n0 * n1 * n2 = n2 * n1 * n0 :=
   fun n0 n1 n2 =>
     pathscomp0 (nat_mult_perm102 n0 n1 n2) (nat_mult_perm120 n1 n0 n2).
 
-Definition minus0r : Π n, n - 0 = n :=
+Definition minus0r : ∏ n, n - 0 = n :=
   fun n => match n with
              | 0 => (idpath _)
              | S _ => (idpath _)
@@ -911,7 +911,7 @@ Ltac nat_simple :=
 Ltac nat_intros :=
   repeat match goal with
            | |- ?x -> ?y => intro
-           | |- Π _, _ => intro
+           | |- ∏ _, _ => intro
          end.
 
 Ltac nat_try :=

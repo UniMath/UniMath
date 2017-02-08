@@ -37,7 +37,7 @@ Section Algebra_Definition.
 
 Context {C : precategory} (F : functor C C).
 
-Definition algebra_ob : UU := Σ X : C, F X --> X.
+Definition algebra_ob : UU := ∑ X : C, F X --> X.
 
 (* this coercion causes confusion, and it is not inserted when parsing most of the time
    thus removing coercion globally
@@ -51,7 +51,7 @@ Definition is_algebra_mor (X Y : algebra_ob) (f : alg_carrier X --> alg_carrier 
   := alg_map X ;; f = #F f ;; alg_map Y.
 
 Definition algebra_mor (X Y : algebra_ob) : UU :=
-  Σ f : X --> Y, is_algebra_mor X Y f.
+  ∑ f : X --> Y, is_algebra_mor X Y f.
 
 Coercion mor_from_algebra_mor (X Y : algebra_ob) (f : algebra_mor X Y) : X --> Y := pr1 f.
 
@@ -147,7 +147,7 @@ Section FunctorAlg_saturated.
 Hypothesis H : is_category C.
 
 Definition algebra_eq_type (X Y : FunctorAlg (pr2 H)) : UU
-  := Σ p : iso (pr1 X) (pr1 Y), pr2 X ;; p = #F p ;; pr2 Y.
+  := ∑ p : iso (pr1 X) (pr1 Y), pr2 X ;; p = #F p ;; pr2 Y.
 
 Definition algebra_ob_eq (X Y : FunctorAlg (pr2 H)) :
   (X = Y) ≃ algebra_eq_type X Y.
@@ -221,7 +221,7 @@ Proof.
 Defined.
 
 Definition algebra_iso_first_iso {X Y : FunctorAlg (pr2 H)}
-  : iso X Y ≃ Σ f : X --> Y, is_iso (pr1 f).
+  : iso X Y ≃ ∑ f : X --> Y, is_iso (pr1 f).
 Proof.
   apply (weqbandf (idweq _ )).
   intro f.
@@ -248,7 +248,7 @@ Proof.
 Defined.
 
 Definition algebra_iso_rearrange {X Y : FunctorAlg (pr2 H)}
-  : (Σ f : X --> Y, is_iso (pr1 f)) ≃ algebra_eq_type X Y.
+  : (∑ f : X --> Y, is_iso (pr1 f)) ≃ algebra_eq_type X Y.
 Proof.
   eapply weqcomp.
   - apply weqtotal2asstor.

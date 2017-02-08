@@ -76,7 +76,7 @@ Section complexes_homotopies.
 
   Variable A : Additive.
 
-  Definition ComplexHomot (C1 C2 : Complex A) : UU := Π (i : hz), A⟦C1 i, C2 (i - 1)⟧.
+  Definition ComplexHomot (C1 C2 : Complex A) : UU := ∏ (i : hz), A⟦C1 i, C2 (i - 1)⟧.
 
   (** This lemma shows that the squares of the morphism map, defined by the homotopy H, commute. *)
   Local Lemma ComplexHomotMorphism_comm {C1 C2 : Complex A} (H : ComplexHomot C1 C2) (i : hz) :
@@ -142,7 +142,7 @@ Section complexes_homotopies.
       which have a path to a morphism induced by a homotopy H by [ComplexHomotMorphism]. Our goal is
       to show that this subset is an abelian subgroup, and thus we can form the quotient group. *)
   Definition ComplexHomotSubset (C1 C2 : Complex A) :
-    @hsubtypes ((ComplexPreCat_Additive A)⟦C1, C2⟧) :=
+    @hsubtype ((ComplexPreCat_Additive A)⟦C1, C2⟧) :=
     (fun (f : ((ComplexPreCat_Additive A)⟦C1, C2⟧)) =>
        ∃ (H : ComplexHomot C1 C2), ComplexHomotMorphism H = f).
 
@@ -253,7 +253,7 @@ Section complexes_homotopies.
   Qed.
 
   Definition ComplexHomotSubgrp (C1 C2 : Complex A) :
-    @subabgrs (@to_abgrop (ComplexPreCat_Additive A) C1 C2).
+    @subabgr (@to_abgrop (ComplexPreCat_Additive A) C1 C2).
   Proof.
     use subgrconstr.
     - exact (ComplexHomotSubset C1 C2).
@@ -263,7 +263,7 @@ Section complexes_homotopies.
   (** Pre- and postcomposition with morphisms in ComplexHomotSubset is in ComplexHomotSubset. *)
   Lemma ComplexHomotSubgrop_comp_left (C1 : Complex A) {C2 C3 : Complex A}
         (f : ((ComplexPreCat_Additive A)⟦C2, C3⟧)) (H : ComplexHomotSubset C2 C3 f) :
-    Π (g : ((ComplexPreCat_Additive A)⟦C1, C2⟧)), ComplexHomotSubset C1 C3 (g ;; f).
+    ∏ (g : ((ComplexPreCat_Additive A)⟦C1, C2⟧)), ComplexHomotSubset C1 C3 (g ;; f).
   Proof.
     intros g.
     use (squash_to_prop H). apply propproperty. intros HH.
@@ -281,7 +281,7 @@ Section complexes_homotopies.
 
   Lemma ComplexHomotSubgrop_comp_right {C1 C2 : Complex A} (C3 : Complex A)
         (f : ((ComplexPreCat_Additive A)⟦C1, C2⟧)) (H : ComplexHomotSubset C1 C2 f) :
-    Π (g : ((ComplexPreCat_Additive A)⟦C2, C3⟧)), ComplexHomotSubset C1 C3 (f ;; g).
+    ∏ (g : ((ComplexPreCat_Additive A)⟦C2, C3⟧)), ComplexHomotSubset C1 C3 (f ;; g).
   Proof.
     intros g.
     use (squash_to_prop H). apply propproperty. intros HH.
@@ -382,7 +382,7 @@ Section complexes_homotopies.
   Lemma ComplexHomotFunctor_im_to_homot {C1 C2 : ComplexPreCat_Additive A}
         (f g : (ComplexPreCat_Additive A)⟦C1, C2⟧)
         (H : # ComplexHomotFunctor f = # ComplexHomotFunctor g) :
-    ∥ Σ h : ComplexHomot C1 C2, ComplexHomotMorphism h = to_binop _ _ f (to_inv g) ∥.
+    ∥ ∑ h : ComplexHomot C1 C2, ComplexHomotMorphism h = to_binop _ _ f (to_inv g) ∥.
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_mor_rel f g H) (propproperty _)). intros h.
     induction h as [b hh]. cbn in b. unfold ComplexHomotSubset in b.
@@ -397,7 +397,7 @@ Section complexes_homotopies.
   Lemma ComplexHomotPreCompHomot {C1 C2 C3 : ComplexPreCat_Additive A}
         (f1 : (ComplexPreCat_Additive A)⟦C1, C2⟧) (f2 f3 : (ComplexPreCat_Additive A)⟦C2, C3⟧)
         (H : # ComplexHomotFunctor f2 = # ComplexHomotFunctor f3) :
-    ∥ Σ (h : ComplexHomot C1 C3),
+    ∥ ∑ (h : ComplexHomot C1 C3),
     ComplexHomotMorphism h = to_binop _ _ (f1 ;; f2) (to_inv (f1 ;; f3)) ∥.
   Proof.
     assert (e : # ComplexHomotFunctor (f1 ;; f2) = # ComplexHomotFunctor (f1 ;; f3)).
@@ -410,7 +410,7 @@ Section complexes_homotopies.
   Lemma ComplexHomotPostCompHomot {C1 C2 C3 : ComplexPreCat_Additive A}
         (f1 f2 : (ComplexPreCat_Additive A)⟦C1, C2⟧) (f3 : (ComplexPreCat_Additive A)⟦C2, C3⟧)
         (H : # ComplexHomotFunctor f1 = # ComplexHomotFunctor f2) :
-    ∥ Σ (h : ComplexHomot C1 C3),
+    ∥ ∑ (h : ComplexHomot C1 C3),
     ComplexHomotMorphism h = to_binop _ _ (f1 ;; f3) (to_inv (f2 ;; f3)) ∥.
   Proof.
     assert (e : # ComplexHomotFunctor (f1 ;; f3) = # ComplexHomotFunctor (f2 ;; f3)).

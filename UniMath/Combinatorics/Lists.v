@@ -24,7 +24,7 @@ Section lists.
 Context {A : UU}.
 
 (** The type of lists *)
-Definition list : UU := Σ n, iterprod n A.
+Definition list : UU := ∑ n, iterprod n A.
 
 (** The empty list *)
 Definition nil : list := (0,,tt).
@@ -36,18 +36,31 @@ Definition cons (x : A) (xs : list) : list :=
 Local Notation "[]" := nil (at level 0, format "[]").
 Local Infix "::" := cons.
 
-Lemma list_ind : Π (P : list -> UU),
+Lemma list_ind : ∏ (P : list -> UU),
      P nil
-  -> (Π (x : A) (xs : list), P xs -> P (x :: xs))
-  -> Π xs, P xs.
+  -> (∏ (x : A) (xs : list), P xs -> P (x :: xs))
+  -> ∏ xs, P xs.
 Proof.
 intros P Hnil Hcons xs.
 induction xs as [n xs].
 induction n as [|n IHn].
 - induction xs.
   apply Hnil.
-- induction xs as [x xs].
+- simpl in xs.
+  induction xs as [x xs].
   apply (Hcons x (n,,xs) (IHn xs)).
+Defined.
+
+Lemma list_ind_compute_2
+      (P : list -> UU)
+      (p0 : P nil)
+      (ind : ∏ (x : A) (xs : list), P xs -> P (x :: xs))
+      (x : A) (xs : list)
+      (f := list_ind P p0 ind) :
+  f (x::xs) = ind x xs (f xs).
+Proof.
+  induction xs as [n s].  (* once we get primitive projections working, we should be able to omit this *)
+  reflexivity.
 Defined.
 
 Definition foldr {B : UU} (f : A -> B -> B) (b : B) : list -> B :=
@@ -108,3 +121,29 @@ apply idpath.
 Qed.
 
 End more_lists.
+
+Local Notation "[]" := nil (at level 0, format "[]").
+Local Infix "::" := cons.
+
+(** concatenate two lists  *)
+
+Definition concatenate {X} : list X -> list X -> list X
+  := λ r s, foldr cons s r.
+
+Lemma concatenateStep {X} (x:X) (r s:list X) :
+  concatenate (x::r) s = x :: concatenate r s.
+Proof.
+  unfold concatenate at 1.
+  unfold foldr.
+  rewrite list_ind_compute_2.
+  reflexivity.
+Defined.
+
+(** flatten lists of lists  *)
+
+Definition flatten {X} : list (list X) → list X.
+Proof.
+  apply list_ind.
+  + exact [].
+  + intros s _ f. exact (concatenate s f).
+Defined.

@@ -22,7 +22,7 @@ Section def_morphismpair.
 
   (** ** Morphism **)
 
-  Definition Morphism : UU := Σ (a b : C), a --> b.
+  Definition Morphism : UU := ∑ (a b : C), a --> b.
 
   Definition mk_Morphism {a b : C} (f : a --> b) : Morphism := (a,,(b,,f)).
 
@@ -36,7 +36,7 @@ Section def_morphismpair.
 
   (** ** MorphismPair **)
 
-  Definition MorphismPair : UU := Σ (a b c : C), (a --> b × b --> c).
+  Definition MorphismPair : UU := ∑ (a b c : C), (a --> b × b --> c).
 
   Definition mk_MorphismPair {a b c : C} (f : a --> b) (g : b --> c) : MorphismPair.
   Proof.
@@ -93,7 +93,7 @@ Section def_morphismpair.
   Definition MPComm2 {MP1 MP2 : MorphismPair} {MPM : MPMorMors MP1 MP2} (MPMC : MPMorComms MPM) :
     MPMor2 MPM ;; Mor2 MP2 = Mor2 MP1 ;; MPMor3 MPM := dirprod_pr2 MPMC.
 
-  Definition MPMor (MP1 MP2 : MorphismPair) : UU := Σ MPM : MPMorMors MP1 MP2, MPMorComms MPM.
+  Definition MPMor (MP1 MP2 : MorphismPair) : UU := ∑ MPM : MPMorMors MP1 MP2, MPMorComms MPM.
 
   Definition mk_MPMor {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) (MPMC : MPMorComms MPM) :
     MPMor MP1 MP2 := (MPM,,MPMC).
@@ -149,7 +149,7 @@ Section def_shortshortexactdata.
     morphism. *)
 
   Definition ShortShortExactData : UU :=
-    Σ MP : MorphismPair, Mor1 MP ;; Mor2 MP = ZeroArrow Z _ _.
+    ∑ MP : MorphismPair, Mor1 MP ;; Mor2 MP = ZeroArrow Z _ _.
 
   Definition mk_ShortShortExactData (MP : MorphismPair)
              (H : Mor1 MP ;; Mor2 MP = ZeroArrow Z _ _) : ShortShortExactData := tpair _ MP H.

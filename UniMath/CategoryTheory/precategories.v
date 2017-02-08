@@ -23,7 +23,7 @@ Contents :  Definition of
                   Analogue to [gradth]: [is_iso_qinv]
 
                 Isomorphisms II: [z_iso]
-                  Definition: [is_z_iso f := Σ g, ...]
+                  Definition: [is_z_iso f := ∑ g, ...]
                   Relationship between [z_iso] and [iso]
 
                 Categories have groupoid as objects
@@ -70,15 +70,15 @@ Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 *)
 
 Definition precategory_id_comp (C : precategory_ob_mor) :=
-     dirprod (Π c : C, c --> c) (* identities *)
-             (Π a b c : C,
+     dirprod (∏ c : C, c --> c) (* identities *)
+             (∏ a b c : C,
                  a --> b -> b --> c -> a --> c).
 
 Definition precategory_data := total2 precategory_id_comp.
 
 Definition precategory_data_pair (C : precategory_ob_mor)
-    (id : Π c : C, c --> c)
-    (comp: Π a b c : C,
+    (id : ∏ c : C, c --> c)
+    (comp: ∏ a b c : C,
          a --> b -> b --> c -> a --> c) : precategory_data :=
    tpair _ C (dirprodpair id comp).
 
@@ -88,7 +88,7 @@ Coercion precategory_ob_mor_from_precategory_data :
   precategory_data >-> precategory_ob_mor.
 
 Definition identity { C : precategory_data } :
-    Π c : C, c --> c :=
+    ∏ c : C, c --> c :=
          pr1 (pr2 C).
 
 Definition compose { C : precategory_data }
@@ -107,15 +107,15 @@ Definition postcompose  {C : precategory_data} {a b c : C} (g : b --> c) (f : a 
 *)
 
 Definition is_precategory (C : precategory_data) :=
-   dirprod (dirprod (Π (a b : C) (f : a --> b),
+   dirprod (dirprod (∏ (a b : C) (f : a --> b),
                          identity a ;; f = f)
-                     (Π (a b : C) (f : a --> b),
+                     (∏ (a b : C) (f : a --> b),
                          f ;; identity b = f))
-            (Π (a b c d : C)
+            (∏ (a b c d : C)
                     (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) = (f ;; g) ;; h).
 (*
-Definition is_hs_precategory_data (C : precategory_data) := Π (a b : C), isaset (a --> b).
+Definition is_hs_precategory_data (C : precategory_data) := ∏ (a b : C), isaset (a --> b).
 *)
 (*
 Definition hs_precategory_data := total2 is_hs_precategory_data.
@@ -128,7 +128,7 @@ Coercion precategory_data_from_hs_precategory_data : hs_precategory_data >-> pre
 Definition precategory := total2 is_precategory.
 
 Definition hs_precategory := total2 (fun C : precategory_data =>
-  dirprod (is_precategory C) (Π a b : C, isaset (a --> b))).
+  dirprod (is_precategory C) (∏ a b : C, isaset (a --> b))).
 
 Definition hs_precategory_has_homsets (C : hs_precategory) := pr2 (pr2 C).
 
@@ -144,7 +144,7 @@ Definition precategory_from_hs_precategory (C : hs_precategory) : precategory :=
   tpair _ (pr1 C) (pr1 (pr2 C)).
 Coercion precategory_from_hs_precategory : hs_precategory >-> precategory.
 
-Definition has_homsets (C : precategory_ob_mor) := Π a b : C, isaset (a --> b).
+Definition has_homsets (C : precategory_ob_mor) := ∏ a b : C, isaset (a --> b).
 
 Lemma isaprop_has_homsets (C : precategory_ob_mor) : isaprop (has_homsets C).
 Proof.
@@ -152,7 +152,7 @@ Proof.
   apply isapropisaset.
 Qed.
 
-Definition Precategory := Σ C:precategory, has_homsets C.
+Definition Precategory := ∑ C:precategory, has_homsets C.
 Definition Precategory_pair C h : Precategory := C,,h.
 Definition Precategory_to_precategory : Precategory -> precategory := pr1.
 Coercion Precategory_to_precategory : Precategory >-> precategory.
@@ -169,15 +169,15 @@ Qed.
 
 
 Definition id_left (C : precategory) :
-   Π (a b : C) (f : a --> b),
+   ∏ (a b : C) (f : a --> b),
            identity a ;; f = f := pr1 (pr1 (pr2 C)).
 
 Definition id_right (C : precategory) :
-   Π (a b : C) (f : a --> b),
+   ∏ (a b : C) (f : a --> b),
            f ;; identity b = f := pr2 (pr1 (pr2 C)).
 
 Definition assoc (C : precategory) :
-   Π (a b c d : C)
+   ∏ (a b c d : C)
           (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) = (f ;; g) ;; h := pr2 (pr2 C).
 
@@ -287,7 +287,7 @@ Definition precomp_with {C : precategory_data} {a b : C} (f : a --> b) {c} (g : 
    f ;; g.
 
 Definition is_iso {C : precategory_data} {a b : C} (f : a --> b) :=
-  Π c, isweq (precomp_with f (c:=c)).
+  ∏ c, isweq (precomp_with f (c:=c)).
 
 Definition is_isomorphism {C: precategory_data}{a b : C} (f : a --> b) := is_iso f.
 
@@ -439,7 +439,7 @@ Qed.
 (** Stability under composition, inverses etc *)
 
 Definition isweqhomot' {X Y} (f g : X -> Y) (H : isweq f)
-      (homot : Π x, f x = g x) : isweq g.
+      (homot : ∏ x, f x = g x) : isweq g.
 Proof.
   apply (isweqhomot f g homot H).
 Defined.
@@ -701,7 +701,7 @@ Proof.
   apply invproofirrelevance.
   intros g g'.
   set (Hpr1 := inverse_unique_precat _ _ _ _ _ _ (pr2 g) (pr2 g')).
-  apply (total2_paths Hpr1).
+  apply (total2_paths_f Hpr1).
   destruct g as [g [eta eps]].
   destruct g' as [g' [eta' eps']].
   simpl in *.
@@ -776,7 +776,7 @@ Proof.
 Defined.
 
 Lemma post_comp_with_z_iso_is_inj {C : precategory} {a' a b : C} {f : a --> b} {g : b --> a}
-      (i : is_inverse_in_precat f g) : Π (f' g' : a' --> a), f' ;; f = g' ;; f -> f' = g'.
+      (i : is_inverse_in_precat f g) : ∏ (f' g' : a' --> a), f' ;; f = g' ;; f -> f' = g'.
 Proof.
   intros f' g' H.
   apply (maponpaths (postcompose g)) in H. unfold postcompose in H.
@@ -786,7 +786,7 @@ Proof.
 Qed.
 
 Lemma post_comp_with_z_iso_inv_is_inj {C : precategory} {a b b' : C} {f : a --> b} {g : b --> a}
-      (i : is_inverse_in_precat f g) : Π (f' g' : b' --> b), f' ;; g = g' ;; g -> f' = g'.
+      (i : is_inverse_in_precat f g) : ∏ (f' g' : b' --> b), f' ;; g = g' ;; g -> f' = g'.
 Proof.
   intros f' g' H.
   apply (maponpaths (postcompose f)) in H. unfold postcompose in H.
@@ -796,7 +796,7 @@ Proof.
 Qed.
 
 Lemma pre_comp_with_z_iso_is_inj {C : precategory} {a b b' : C} {f : a --> b} {g : b --> a}
-      (i : is_inverse_in_precat f g) : Π (f' g' : b --> b'), f ;; f' = f ;; g' -> f' = g'.
+      (i : is_inverse_in_precat f g) : ∏ (f' g' : b --> b'), f ;; f' = f ;; g' -> f' = g'.
 Proof.
   intros f' g' H.
   apply (maponpaths (compose g)) in H.
@@ -806,7 +806,7 @@ Proof.
 Qed.
 
 Lemma pre_comp_with_z_iso_inv_is_inj {C : precategory} {a' a b : C} {f : a --> b} {g : b --> a}
-      (i : is_inverse_in_precat f g) : Π (f' g' : a --> a'), g ;; f' = g ;; g' -> f' = g'.
+      (i : is_inverse_in_precat f g) : ∏ (f' g' : a --> a'), g ;; f' = g ;; g' -> f' = g'.
 Proof.
   intros f' g' H.
   apply (maponpaths (compose f)) in H.
@@ -818,7 +818,7 @@ Qed.
 Lemma z_iso_eq {C : Precategory} {a b : C} (i i' : z_iso a b) (e : z_iso_mor i = z_iso_mor i') :
   i = i'.
 Proof.
-  use total2_paths.
+  use total2_paths_f.
   - exact e.
   - use proofirrelevance. apply isaprop_is_z_isomorphism. apply homset_property.
 Qed.
@@ -840,7 +840,7 @@ Lemma eq_z_iso (C : precategory)(hs: has_homsets C) (a b : ob C)
    (f g : z_iso a b) : pr1 f = pr1 g -> f = g.
 Proof.
   intro H.
-  apply (total2_paths H).
+  apply (total2_paths_f H).
   apply proofirrelevance.
   apply isaprop_is_z_isomorphism, hs.
 Defined.
@@ -1083,7 +1083,7 @@ Defined.
 
 (* use eta expanded version to force printing of object arguments *)
 Definition is_category (C : precategory) :=
-  dirprod (Π (a b : ob C), isweq (fun p : a = b => idtoiso p)) (has_homsets C).
+  dirprod (∏ (a b : ob C), isweq (fun p : a = b => idtoiso p)) (has_homsets C).
 
 Lemma eq_idtoiso_idtomor {C:precategory} (a b:ob C) (e:a = b) :
     pr1 (idtoiso e) = idtomor _ _ e.
@@ -1123,7 +1123,7 @@ Definition category_is_category (C : category) : is_category C := pr2 C.
 Lemma category_has_groupoid_ob (C : category): isofhlevel 3 (ob C).
 Proof.
   change (isofhlevel 3 C) with
-        (Π a b : C, isofhlevel 2 (a = b)).
+        (∏ a b : C, isofhlevel 2 (a = b)).
   intros a b.
   apply (isofhlevelweqb _ (tpair _ _ (pr1 (pr2 C) a b))).
   apply isaset_iso.
@@ -1288,8 +1288,8 @@ Proof.
 Qed.
 
 Lemma transportf_isotoid_dep (C : precategory)
-   (a a' : C) (p : a = a') (f : Π c, a --> c) :
- transportf (fun x : C => Π c, x --> c) p f = fun c => idtoiso (!p) ;; f c.
+   (a a' : C) (p : a = a') (f : ∏ c, a --> c) :
+ transportf (fun x : C => ∏ c, x --> c) p f = fun c => idtoiso (!p) ;; f c.
 Proof.
   destruct p.
   simpl.
@@ -1300,16 +1300,16 @@ Proof.
 Qed.
 
 Lemma transportf_isotoid_dep' (J : UU) (C : precategory) (F : J -> C)
-  (a a' : C) (p : a = a') (f : Π c, a --> F c) :
-  transportf (fun x : C => Π c, x --> F c) p f = fun c => idtoiso (!p) ;; f c.
+  (a a' : C) (p : a = a') (f : ∏ c, a --> F c) :
+  transportf (fun x : C => ∏ c, x --> F c) p f = fun c => idtoiso (!p) ;; f c.
 Proof.
   now destruct p; apply funextsec; intro x; rewrite id_left.
 Defined.
 
 (* This and the above name is not very good... *)
  Lemma transportf_isotoid_dep'' (J : UU) (C : precategory) (F : J -> C)
-   (a a' : C) (p : a = a') (f : Π c, F c --> a) :
-   transportf (fun x : C => Π c, F c --> x) p f = fun c => f c ;; idtoiso p.
+   (a a' : C) (p : a = a') (f : ∏ c, F c --> a) :
+   transportf (fun x : C => ∏ c, F c --> x) p f = fun c => f c ;; idtoiso p.
 Proof.
   now destruct p; apply funextsec; intro x; rewrite id_right.
 Defined.
@@ -1353,7 +1353,7 @@ Definition precategory_total_id (C : precategory_data) :
       fun c => tpair _ (dirprodpair c c) (identity c).
 
 Definition precategory_total_comp'' (C : precategory_data) :
-      Π f g : total_morphisms C,
+      ∏ f g : total_morphisms C,
         precategory_target C f = precategory_source C g ->
          total_morphisms C.
 Proof.
@@ -1368,7 +1368,7 @@ Proof.
 Defined.
 
 Definition precategory_total_comp (C : precategory_data) :
-      Π f g : total_morphisms C,
+      ∏ f g : total_morphisms C,
         precategory_target C f = precategory_source C g ->
          total_morphisms C :=
   fun f g e =>
@@ -1423,8 +1423,8 @@ Proof.
   induction e. intros H. apply H.
 Qed.
 
-Lemma transport_source_target {X : UU} {C : precategory} {x y : X} (P : Π (x' : X), ob C)
-      (P' : Π (x' : X), ob C) (f : Π (x' : X), (P x') --> (P' x')) (e : x = y) :
+Lemma transport_source_target {X : UU} {C : precategory} {x y : X} (P : ∏ (x' : X), ob C)
+      (P' : ∏ (x' : X), ob C) (f : ∏ (x' : X), (P x') --> (P' x')) (e : x = y) :
   transportf (fun (x' : X) => (P x') --> (P' x')) e (f x) =
   transportf (fun (x' : X) => precategory_morphisms (P x') (P' y)) e
              (transportf (precategory_morphisms (P x)) (maponpaths P' e) (f x)).
@@ -1433,8 +1433,8 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma transport_target_source {X : UU} {C : precategory} {x y : X} (P : Π (x' : X), ob C)
-      (P' : Π (x' : X), ob C) (f : Π (x' : X), (P x') --> (P' x')) (e : x = y) :
+Lemma transport_target_source {X : UU} {C : precategory} {x y : X} (P : ∏ (x' : X), ob C)
+      (P' : ∏ (x' : X), ob C) (f : ∏ (x' : X), (P x') --> (P' x')) (e : x = y) :
   transportf (fun (x' : X) => (P x') --> (P' x')) e (f x) =
   transportf (precategory_morphisms (P y)) (maponpaths P' e)
              (transportf (fun (x' : X) => precategory_morphisms (P x') (P' x)) e (f x)).
@@ -1457,7 +1457,7 @@ Qed.
 (** *** Transport a morphism using funextfun *)
 
 Definition transport_source_funextfun {X : UU} {C : precategory_ob_mor} (F F' : X -> ob C)
-           (H : Π (x : X), F x = F' x) {x : X} (c : ob C) (f : F x --> c) :
+           (H : ∏ (x : X), F x = F' x) {x : X} (c : ob C) (f : F x --> c) :
   transportf (λ x0 : X → C, x0 x --> c) (funextfun F F' H) f =
   transportf (λ x0 : C, x0 --> c) (H x) f.
 Proof.
@@ -1465,7 +1465,7 @@ Proof.
 Qed.
 
 Definition transport_target_funextfun {X : UU} {C : precategory_ob_mor} (F F' : X -> ob C)
-           (H : Π (x : X), F x = F' x) {x : X} {c : ob C} (f : c --> F x)  :
+           (H : ∏ (x : X), F x = F' x) {x : X} {c : ob C} (f : c --> F x)  :
   transportf (λ x0 : X → C, c --> x0 x) (funextfun F F' H) f =
   transportf (λ x0 : C, c --> x0) (H x) f.
 Proof.
@@ -1473,7 +1473,7 @@ Proof.
 Qed.
 
 Lemma transport_mor_funextfun {X : UU} {C : precategory_ob_mor} (F F' : X -> ob C)
-           (H : Π (x : X), F x = F' x) {x1 x2 : X} (f : F x1 --> F x2) :
+           (H : ∏ (x : X), F x = F' x) {x1 x2 : X} (f : F x1 --> F x2) :
   transportf (λ x : X → C, x x1 --> x x2) (funextfun F F' H) f =
   transportf (λ x : X → C, F' x1 --> x x2)
              (funextfun F F' (λ x : X, H x))

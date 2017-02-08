@@ -141,7 +141,7 @@ Let D' Ze Ze' :=
  (nat_trans_comp (post_whisker (δ Ze) (pr1 Ze'))
                  (α_functor G (pr1 Ze) (pr1 Ze'))))).
 
-Definition δ_law2 : UU := Π Ze Ze', δ (Ze p• Ze') = D' Ze Ze'.
+Definition δ_law2 : UU := ∏ Ze Ze', δ (Ze p• Ze') = D' Ze Ze'.
 Hypothesis H2 : δ_law2.
 
 Lemma θ_Strength2_int_from_δ : θ_Strength2_int θ_from_δ.
@@ -156,7 +156,7 @@ eapply pathscomp0;
 apply functor_comp.
 Qed.
 
-Definition θ_precompG : Σ θ : θ_source precompG ⟶ θ_target precompG,
+Definition θ_precompG : ∑ θ : θ_source precompG ⟶ θ_target precompG,
                               θ_Strength1_int θ × θ_Strength2_int θ :=
   tpair _ θ_from_δ (θ_Strength1_int_from_δ,,θ_Strength2_int_from_δ).
 
@@ -406,7 +406,7 @@ Section id_signature.
 
 Variable (C : precategory) (hsC : has_homsets C).
 
-Definition θ_functor_identity : Σ
+Definition θ_functor_identity : ∑
   θ : θ_source (functor_identity [C,C,hsC]) ⟶ θ_target (functor_identity [C,C,hsC]),
   θ_Strength1_int θ × θ_Strength2_int θ.
 Proof.

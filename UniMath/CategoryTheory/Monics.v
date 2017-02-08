@@ -23,10 +23,10 @@ Section def_monic.
 
   (** Definition and construction of isMonic. *)
   Definition isMonic {y z : C} (f : y --> z) : UU :=
-    Π (x : C) (g h : x --> y), g ;; f = h ;; f -> g = h.
+    ∏ (x : C) (g h : x --> y), g ;; f = h ;; f -> g = h.
 
   Definition mk_isMonic {y z : C} (f : y --> z)
-             (H : Π (x : C) (g h : x --> y), g ;; f = h ;; f -> g = h) : isMonic f := H.
+             (H : ∏ (x : C) (g h : x --> y), g ;; f = h ;; f -> g = h) : isMonic f := H.
 
   Lemma isapropisMonic {y z : C} (f : y --> z) : isaprop (isMonic f).
   Proof.
@@ -38,7 +38,7 @@ Section def_monic.
   Qed.
 
   (** Definition and construction of Monic. *)
-  Definition Monic (y z : C) : UU := Σ f : y --> z, isMonic f.
+  Definition Monic (y z : C) : UU := ∑ f : y --> z, isMonic f.
 
   Definition mk_Monic {y z : C} (f : y --> z) (H : isMonic f) : Monic y z := tpair _ f H.
 
@@ -122,17 +122,17 @@ Section monics_subcategory.
   Variable C : precategory.
   Hypothesis hs : has_homsets C.
 
-  Definition hsubtypes_obs_isMonic : hsubtypes C := (fun c : C => hProppair _ isapropunit).
+  Definition hsubtype_obs_isMonic : hsubtype C := (fun c : C => hProppair _ isapropunit).
 
-  Definition hsubtypes_mors_isMonic : Π (a b : C), hsubtypes (C⟦a, b⟧) :=
+  Definition hsubtype_mors_isMonic : ∏ (a b : C), hsubtype (C⟦a, b⟧) :=
     (fun a b : C => (fun f : C⟦a, b⟧ => hProppair _ (isapropisMonic C hs f))).
 
   Definition subprecategory_of_monics : sub_precategories C.
   Proof.
     use tpair.
     split.
-    - exact hsubtypes_obs_isMonic.
-    - exact hsubtypes_mors_isMonic.
+    - exact hsubtype_obs_isMonic.
+    - exact hsubtype_mors_isMonic.
     - cbn. unfold is_sub_precategory. cbn.
       split.
       + intros a tt. exact (identity_isMonic C).
@@ -159,7 +159,7 @@ End monics_subcategory.
 Section monics_functorcategories.
 
   Lemma is_nat_trans_monic_from_pointwise_monics (C D : precategory) (hs : has_homsets D)
-        (F G : ob (functor_precategory C D hs)) (α : F --> G) (H : Π a : ob C, isMonic (pr1 α a)) :
+        (F G : ob (functor_precategory C D hs)) (α : F --> G) (H : ∏ a : ob C, isMonic (pr1 α a)) :
     isMonic α.
   Proof.
     intros G' β η H'.

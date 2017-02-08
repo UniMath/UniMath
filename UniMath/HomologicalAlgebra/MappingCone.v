@@ -3876,7 +3876,7 @@ Section mapping_cone_octa.
   Defined.
 
   Definition KAOctaMor3InvMor {x y z : Complex A} (f1 : Morphism x y) (f2 : Morphism y z) :
-    Π i : hz, A ⟦ (MappingCone A (KAOctaMor1 f1 f2)) i, (MappingCone A f2) i ⟧.
+    ∏ i : hz, A ⟦ (MappingCone A (KAOctaMor1 f1 f2)) i, (MappingCone A f2) i ⟧.
   Proof.
     intros i. cbn.
     use to_binop.

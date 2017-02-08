@@ -81,11 +81,11 @@ Section def_complexes.
 
   (** Complex *)
   Definition Complex : UU :=
-    Σ D' : (Σ D : (Π i : hz, ob A), (Π i : hz, A⟦D i, D (i + 1)⟧)),
-           Π i : hz, (pr2 D' i) ;; (pr2 D' (i + 1)) = ZeroArrow (Additive.to_Zero A) _ _.
+    ∑ D' : (∑ D : (∏ i : hz, ob A), (∏ i : hz, A⟦D i, D (i + 1)⟧)),
+           ∏ i : hz, (pr2 D' i) ;; (pr2 D' (i + 1)) = ZeroArrow (Additive.to_Zero A) _ _.
 
-  Definition mk_Complex (D : Π i : hz, ob A) (D' : Π i : hz, A⟦D i, D (i + 1)⟧)
-             (D'' : Π i : hz, (D' i) ;; (D' (i + 1)) = ZeroArrow (Additive.to_Zero A) _ _) :
+  Definition mk_Complex (D : ∏ i : hz, ob A) (D' : ∏ i : hz, A⟦D i, D (i + 1)⟧)
+             (D'' : ∏ i : hz, (D' i) ;; (D' (i + 1)) = ZeroArrow (Additive.to_Zero A) _ _) :
     Complex := ((D,,D'),,D'').
 
   (** Accessor functions *)
@@ -97,17 +97,17 @@ Section def_complexes.
   Definition DSq (C : Complex) (i : hz) :
     (Diff C i) ;; (Diff C (i + 1)) = ZeroArrow (Additive.to_Zero A) _ _ := pr2 C i.
 
-  Lemma ComplexEq' (C1 C2 : Complex) (H : Π (i : hz), C1 i = C2 i)
-        (H1 : Π (i : hz),
+  Lemma ComplexEq' (C1 C2 : Complex) (H : ∏ (i : hz), C1 i = C2 i)
+        (H1 : ∏ (i : hz),
               transportf (λ x : A, C2 i --> x) (H (i + 1))
                          (transportf (λ x : A, x --> C1 (i + 1)) (H i) (Diff C1 i)) =
               Diff C2 i) :
-    transportf (λ x : hz → A, Π i : hz, A ⟦ x i, x (i + 1) ⟧)
+    transportf (λ x : hz → A, ∏ i : hz, A ⟦ x i, x (i + 1) ⟧)
                (funextfun C1 C2 (λ i : hz, H i)) (Diff C1) =
     Diff C2.
   Proof.
     use funextsec. intros i.
-    assert (e : transportf (λ x : hz → A, Π i0 : hz, A ⟦ x i0, x (i0 + 1) ⟧)
+    assert (e : transportf (λ x : hz → A, ∏ i0 : hz, A ⟦ x i0, x (i0 + 1) ⟧)
                            (funextfun C1 C2 (λ i0 : hz, H i0))
                            (Diff C1) i =
                 transportf (λ x : hz → A, A ⟦ x i, x (i + 1) ⟧)
@@ -123,29 +123,29 @@ Section def_complexes.
     exact (H1 i).
   Qed.
 
-  Lemma ComplexEq'' (C1 C2 : Complex) (H : Π (i : hz), C1 i = C2 i)
-        (H1 : Π (i : hz),
+  Lemma ComplexEq'' (C1 C2 : Complex) (H : ∏ (i : hz), C1 i = C2 i)
+        (H1 : ∏ (i : hz),
               transportf (λ x : A, C2 i --> x) (H (i + 1))
                          (transportf (λ x : A, x --> C1 (i + 1)) (H i) (Diff C1 i)) =
               Diff C2 i) :
     transportf
-      (λ x : Σ D : hz → A, Π i : hz, A ⟦ D i, D (i + 1) ⟧,
-                                 Π i : hz, pr2 x i ;; pr2 x (i + 1) =
+      (λ x : ∑ D : hz → A, ∏ i : hz, A ⟦ D i, D (i + 1) ⟧,
+                                 ∏ i : hz, pr2 x i ;; pr2 x (i + 1) =
                                            ZeroArrow (Additive.to_Zero A) _ _)
-      (total2_paths (funextfun C1 C2 (λ i : hz, H i))
+      (total2_paths_f (funextfun C1 C2 (λ i : hz, H i))
                     (ComplexEq' C1 C2 H H1)) (DSq C1) = DSq C2.
   Proof.
     apply proofirrelevance. apply impred_isaprop. intros t. apply to_has_homsets.
   Qed.
 
-  Lemma ComplexEq (C1 C2 : Complex) (H : Π (i : hz), C1 i = C2 i)
-        (H1 : Π (i : hz),
+  Lemma ComplexEq (C1 C2 : Complex) (H : ∏ (i : hz), C1 i = C2 i)
+        (H1 : ∏ (i : hz),
               transportf (λ x : A, C2 i --> x) (H (i + 1))
                          (transportf (λ x : A, x --> C1 (i + 1)) (H i) (Diff C1 i)) =
               Diff C2 i) : C1 = C2.
   Proof.
-    use total2_paths.
-    - use total2_paths.
+    use total2_paths_f.
+    - use total2_paths_f.
       + use funextfun. intros i. exact (H i).
       + exact (ComplexEq' C1 C2 H H1).
     - exact (ComplexEq'' C1 C2 H H1).
@@ -190,10 +190,10 @@ Section def_complexes.
 
   (** Morphism of complexes *)
   Definition Morphism (C1 C2 : Complex) : UU :=
-    Σ D : (Π i : hz, A⟦C1 i, C2 i⟧), Π i : hz, (D i) ;; (Diff C2 i) = (Diff C1 i) ;; (D (i + 1)).
+    ∑ D : (∏ i : hz, A⟦C1 i, C2 i⟧), ∏ i : hz, (D i) ;; (Diff C2 i) = (Diff C1 i) ;; (D (i + 1)).
 
-  Definition mk_Morphism (C1 C2 : Complex) (Mors : Π i : hz, A⟦C1 i, C2 i⟧)
-             (Comm : Π i : hz, (Mors i) ;; (Diff C2 i) = (Diff C1 i) ;; (Mors (i + 1))) :
+  Definition mk_Morphism (C1 C2 : Complex) (Mors : ∏ i : hz, A⟦C1 i, C2 i⟧)
+             (Comm : ∏ i : hz, (Mors i) ;; (Diff C2 i) = (Diff C1 i) ;; (Mors (i + 1))) :
     Morphism C1 C2 := tpair _ Mors Comm.
 
   (** Accessor functions *)
@@ -204,16 +204,16 @@ Section def_complexes.
     (M i) ;; (Diff C2 i) = (Diff C1 i) ;; (M (i + 1)) := pr2 M i.
 
   (** A lemma to show that two morphisms are the same *)
-  Lemma MorphismEq {C1 C2 : Complex} (M1 M2 : Morphism C1 C2) (H : Π i : hz, M1 i = M2 i) :
+  Lemma MorphismEq {C1 C2 : Complex} (M1 M2 : Morphism C1 C2) (H : ∏ i : hz, M1 i = M2 i) :
     M1 = M2.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - use funextsec. intros i. exact (H i).
     - use proofirrelevance. apply impred_isaprop. intros t. apply to_has_homsets.
   Qed.
 
   Lemma MorphismEq' {C1 C2 : Complex} (M1 M2 : Morphism C1 C2) (H : M1 = M2) :
-    Π i : hz, M1 i = M2 i.
+    ∏ i : hz, M1 i = M2 i.
   Proof.
     induction H.
     intros i.
@@ -660,7 +660,7 @@ Section transport_section'.
 
   Variable C : precategory.
 
-  Lemma transport_hz_source_target (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧)
+  Lemma transport_hz_source_target (f : hz -> ob C) (n : hz) (H : ∏ (i : hz), C⟦f i, f (i + n)⟧)
         (i i' : hz) (e1 : i = i') :
     H i' = transportf (fun (x : ob C) => C⟦x, f (i' + n)⟧) (maponpaths f e1)
                       (transportf (precategory_morphisms (f i))
@@ -669,7 +669,7 @@ Section transport_section'.
     induction e1. apply idpath.
   Qed.
 
-  Lemma transport_hz_target_source (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧)
+  Lemma transport_hz_target_source (f : hz -> ob C) (n : hz) (H : ∏ (i : hz), C⟦f i, f (i + n)⟧)
         (i i' : hz) (e1 : i = i') :
     H i' = transportf (precategory_morphisms (f i'))
                       (maponpaths f (hzplusradd i i' n e1))
@@ -678,7 +678,7 @@ Section transport_section'.
     induction e1. apply idpath.
   Qed.
 
-  Lemma transport_hz_section (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f i, f (i + n)⟧)
+  Lemma transport_hz_section (f : hz -> ob C) (n : hz) (H : ∏ (i : hz), C⟦f i, f (i + n)⟧)
         (i i' : hz) (e1 : i = i') :
     transportf (precategory_morphisms (f i)) (maponpaths f (hzplusradd i i' n e1)) (H i) =
     transportf (fun (x : ob C) => C⟦x, f (i' + n)⟧) (maponpaths f (! e1)) (H i').
@@ -686,7 +686,7 @@ Section transport_section'.
     induction e1. apply idpath.
   Qed.
 
-  Lemma transport_hz_section' (f : hz -> ob C) (n : hz) (H : Π (i : hz), C⟦f (i + n), f i⟧)
+  Lemma transport_hz_section' (f : hz -> ob C) (n : hz) (H : ∏ (i : hz), C⟦f (i + n), f i⟧)
         (i i' : hz) (e1 : i + n = i' + n) (e2 : i = i') :
     transportf (precategory_morphisms (f (i + n))) (maponpaths f e2) (H i) =
     transportf (fun (x : ob C) => C⟦x, f i'⟧) (maponpaths f (! e1)) (H i').
@@ -694,7 +694,7 @@ Section transport_section'.
     induction e2. assert (e : e1 = idpath _) by apply isasethz. rewrite e. clear e. apply idpath.
   Qed.
 
-  Lemma transport_hz_double_section (f f' : hz -> ob C) (H : Π (i : hz), C⟦f i, f' i⟧)
+  Lemma transport_hz_double_section (f f' : hz -> ob C) (H : ∏ (i : hz), C⟦f i, f' i⟧)
         (i i' : hz) (e : i = i') :
     transportf (precategory_morphisms (f i)) (maponpaths f' e) (H i) =
     transportf (fun (x : ob C) => C⟦x, f' i'⟧) (maponpaths f (! e)) (H i').
@@ -702,7 +702,7 @@ Section transport_section'.
     induction e. apply idpath.
   Qed.
 
-  Lemma transport_hz_double_section_source_target (f f' : hz -> ob C) (H : Π (i : hz), C⟦f i, f' i⟧)
+  Lemma transport_hz_double_section_source_target (f f' : hz -> ob C) (H : ∏ (i : hz), C⟦f i, f' i⟧)
         (i i' : hz) (e : i = i') :
     H i' = transportf (precategory_morphisms (f i')) (maponpaths f' e)
                       (transportf (fun (x : ob C) => C⟦x, f' i⟧) (maponpaths f e) (H i)).
@@ -729,7 +729,7 @@ Section acyclic_complexes.
   Defined.
 
   Definition ComplexFromObject_mors (X : ob A) (i : hz) :
-    Π i0 : hz, A ⟦ComplexFromObject_obs X i i0, ComplexFromObject_obs X i (i0 + 1)⟧.
+    ∏ i0 : hz, A ⟦ComplexFromObject_obs X i i0, ComplexFromObject_obs X i (i0 + 1)⟧.
   Proof.
     intros i0.
     exact (ZeroArrow (Additive.to_Zero A) (ComplexFromObject_obs X i i0)
@@ -737,7 +737,7 @@ Section acyclic_complexes.
   Defined.
 
   Local Lemma ComplexFromObject_comm (X : ob A) (i : hz) :
-    Π i0 : hz, (ComplexFromObject_mors X i i0) ;; (ComplexFromObject_mors X i (i0 + 1)) =
+    ∏ i0 : hz, (ComplexFromObject_mors X i i0) ;; (ComplexFromObject_mors X i (i0 + 1)) =
                ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     intros i0. apply ZeroArrow_comp_left.
@@ -753,7 +753,7 @@ Section acyclic_complexes.
 
   (** A morphism in A induces a morphisms of ComplexFromObjects *)
   Definition ObjectMorToComplexMor_mors {a b : ob A} (f : a --> b) (i : hz) :
-    Π i0 : hz, A ⟦(ComplexFromObject a i) i0, (ComplexFromObject b i) i0⟧.
+    ∏ i0 : hz, A ⟦(ComplexFromObject a i) i0, (ComplexFromObject b i) i0⟧.
   Proof.
     intros i0.
     unfold ComplexFromObject. cbn. unfold ComplexFromObject_obs. cbn. unfold coprod_rect.
@@ -763,7 +763,7 @@ Section acyclic_complexes.
   Defined.
 
   Local Lemma ObjectMorToComplexMor_comm {a b : ob A} (f : a --> b) (i : hz) :
-    Π i0 : hz, (ObjectMorToComplexMor_mors f i i0) ;; (Diff (ComplexFromObject b i) i0) =
+    ∏ i0 : hz, (ObjectMorToComplexMor_mors f i i0) ;; (Diff (ComplexFromObject b i) i0) =
                (Diff (ComplexFromObject a i) i0) ;; (ObjectMorToComplexMor_mors f i (i0 + 1)).
   Proof.
     intros i0.
@@ -803,7 +803,7 @@ Section acyclic_complexes.
   Defined.
 
   Definition AcyclicComplexFromObject_mors (a : ob A) (i : hz) :
-    Π i0 : hz, A ⟦AcyclicComplexFromObject_obs a i i0, AcyclicComplexFromObject_obs a i (i0 + 1)⟧.
+    ∏ i0 : hz, A ⟦AcyclicComplexFromObject_obs a i i0, AcyclicComplexFromObject_obs a i (i0 + 1)⟧.
   Proof.
     intros i0. unfold AcyclicComplexFromObject_obs. cbn. unfold coprod_rect.
     induction (isdecrelhzeq i i0) as [e | n].
@@ -826,7 +826,7 @@ Section acyclic_complexes.
   Defined.
 
   Local Lemma AcyclicComplexFromObject_diff (a : ob A) (i : hz) :
-    Π i0 : hz, (AcyclicComplexFromObject_mors a i i0)
+    ∏ i0 : hz, (AcyclicComplexFromObject_mors a i i0)
                  ;; (AcyclicComplexFromObject_mors a i (i0 + 1)) =
                ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
@@ -882,7 +882,7 @@ Section acyclic_complexes.
    *)
 
   Definition FromAcyclicComplexFromObject_mors {a : ob A} {C : Complex A} {i : hz}
-             (f : a --> (C i)) : Π i0 : hz, A ⟦(AcyclicComplexFromObject a i) i0, C i0⟧.
+             (f : a --> (C i)) : ∏ i0 : hz, A ⟦(AcyclicComplexFromObject a i) i0, C i0⟧.
   Proof.
     intros i0.
     unfold AcyclicComplexFromObject. unfold AcyclicComplexFromObject_obs.
@@ -922,7 +922,7 @@ Section acyclic_complexes.
 
   Local Lemma FromAcyclicComplexFromObject_comm {a : ob A} {C : Complex A} {i : hz}
         (f : a --> (C i)) :
-    Π i0 : hz, (FromAcyclicComplexFromObject_mors f i0) ;; (Diff C i0) =
+    ∏ i0 : hz, (FromAcyclicComplexFromObject_mors f i0) ;; (Diff C i0) =
                (Diff (AcyclicComplexFromObject a i) i0)
                  ;; (FromAcyclicComplexFromObject_mors f (i0 + 1)).
   Proof.
@@ -964,7 +964,7 @@ Section acyclic_complexes.
    *)
 
   Definition ToAcyclicComplexFromObject_mors {a : ob A} {C : Complex A} {i : hz}
-             (f : (C i) --> a) : Π i0 : hz, A ⟦C i0, (AcyclicComplexFromObject a (i - 1)) i0⟧.
+             (f : (C i) --> a) : ∏ i0 : hz, A ⟦C i0, (AcyclicComplexFromObject a (i - 1)) i0⟧.
   Proof.
     intros i0.
     unfold AcyclicComplexFromObject. unfold AcyclicComplexFromObject_obs.
@@ -1025,7 +1025,7 @@ Section acyclic_complexes.
 
   Local Lemma ToAcyclicComplexFromObject_mors_comm {a : ob A} {C : Complex A} {i : hz}
         (f : (C i) --> a) :
-    Π i0 : hz, (ToAcyclicComplexFromObject_mors f i0)
+    ∏ i0 : hz, (ToAcyclicComplexFromObject_mors f i0)
                  ;; (Diff (AcyclicComplexFromObject a (i - 1)) i0) =
                (Diff C i0) ;; (ToAcyclicComplexFromObject_mors f (i0 + 1)).
   Proof.
@@ -1162,7 +1162,7 @@ Section complexes_precat.
   Qed.
 
   Lemma ComplexMonicIndexMonic {C1 C2 : Complex A} (M : Monic ComplexPreCat C1 C2) :
-    Π i : hz, isMonic (@MMor A C1 C2 (MonicArrow _ M) i).
+    ∏ i : hz, isMonic (@MMor A C1 C2 (MonicArrow _ M) i).
   Proof.
     intros i a g h H.
     set (tmp := ComplexMonicIndexMonic_eq M i g h H).
@@ -1174,7 +1174,7 @@ Section complexes_precat.
   Qed.
 
   Lemma ComplexMonicIndexMonic' {C1 C2 : Complex A} (f : Morphism C1 C2)
-        (H : Π i : hz, isMonic (f i)) : isMonic (f : ComplexPreCat⟦_, _⟧).
+        (H : ∏ i : hz, isMonic (f i)) : isMonic (f : ComplexPreCat⟦_, _⟧).
   Proof.
     use mk_isMonic.
     intros x g h X.
@@ -1243,7 +1243,7 @@ Section complexes_precat.
   Qed.
 
   Lemma ComplexEpiIndexEpi {C1 C2 : Complex A} (E : Epi ComplexPreCat C1 C2) :
-    Π i : hz, isEpi (@MMor A C1 C2 (EpiArrow _ E) i).
+    ∏ i : hz, isEpi (@MMor A C1 C2 (EpiArrow _ E) i).
   Proof.
     intros i a g h H.
     set (tmp := ComplexEpiIndexEpi_eq E i g h H).
@@ -1256,7 +1256,7 @@ Section complexes_precat.
   Qed.
 
   Lemma ComplexEpiIndexEpi' {C1 C2 : Complex A} (f : Morphism C1 C2)
-        (H : Π i : hz, isEpi (f i)) : isEpi (f : ComplexPreCat⟦_, _⟧).
+        (H : ∏ i : hz, isEpi (f i)) : isEpi (f : ComplexPreCat⟦_, _⟧).
   Proof.
     use mk_isEpi.
     intros z g h X.
@@ -1268,7 +1268,7 @@ Section complexes_precat.
   (** ** An morphism in complexes is an isomorphism if it is so indexwise *)
 
   Lemma ComplexIsoIndexIso {C1 C2 : Complex A} (f : ComplexPreCat⟦C1, C2⟧)
-        (H : Π (i : hz), is_iso (MMor f i)) : is_iso f.
+        (H : ∏ (i : hz), is_iso (MMor f i)) : is_iso f.
   Proof.
     use is_iso_qinv.
     - use mk_Morphism.

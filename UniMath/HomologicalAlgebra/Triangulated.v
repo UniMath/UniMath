@@ -110,7 +110,7 @@ Section def_triangles.
   Context {T : AddEquiv A A}.
 
   (** ** Triangles *)
-  Definition Tri : UU := Σ MP : MorphismPair, A⟦Ob3 MP, (AddEquiv1 T) (Ob1 MP)⟧.
+  Definition Tri : UU := ∑ MP : MorphismPair, A⟦Ob3 MP, (AddEquiv1 T) (Ob1 MP)⟧.
 
   Definition mk_Tri {x y z : ob A} (f : x --> y) (g : y --> z) (h : A⟦z, (AddEquiv1 T x)⟧) : Tri :=
     (mk_MorphismPair f g),,h.
@@ -122,7 +122,7 @@ Section def_triangles.
   Definition Mor3 (D : Tri) : A⟦Ob3 D, (AddEquiv1 T) (Ob1 D)⟧ := pr2 D.
 
   Definition TriMor (D1 D2 : Tri) : UU :=
-    Σ (M : MPMor D1 D2), (MPMor3 M) ;; (Mor3 D2) = (Mor3 D1) ;; (# (AddEquiv1 T) (MPMor1 M)).
+    ∑ (M : MPMor D1 D2), (MPMor3 M) ;; (Mor3 D2) = (Mor3 D1) ;; (# (AddEquiv1 T) (MPMor1 M)).
 
   Definition mk_TriMor {D1 D2 : Tri} (M : MPMor D1 D2)
              (H : (MPMor3 M) ;; (Mor3 D2) = (Mor3 D1) ;; (# (AddEquiv1 T) (MPMor1 M))) :
@@ -297,7 +297,7 @@ Section def_triangles.
     - cbn. exact (is_z_isomorphism_inv (TriMor_is_iso3 Ti)).
   Defined.
 
-  Definition TriIso (D1 D2 : Tri) : UU := Σ M : TriMor D1 D2, TriMor_is_iso M.
+  Definition TriIso (D1 D2 : Tri) : UU := ∑ M : TriMor D1 D2, TriMor_is_iso M.
 
   Definition mk_TriIso {D1 D2 : Tri} (M : TriMor D1 D2) (H : TriMor_is_iso M) : TriIso D1 D2 :=
     (M,,H).
@@ -474,7 +474,7 @@ Section def_triangles.
    *)
 
   Definition ConeData {A : Additive} (T : AddEquiv A A) (x y : ob A) : UU :=
-    Σ (z : ob A), A⟦y, z⟧ × A⟦z, (AddEquiv1 T x)⟧.
+    ∑ (z : ob A), A⟦y, z⟧ × A⟦z, (AddEquiv1 T x)⟧.
 
   Definition mk_ConeData {A : Additive} (T : AddEquiv A A) {x y z : ob A} (g : y --> z)
              (h : z --> (AddEquiv1 T x)) : ConeData T x y := (z,,(g,,h)).
@@ -501,9 +501,9 @@ Section def_pretriang_data.
   (** ** PreTriangData *)
 
   Definition PreTriangData : UU :=
-    Σ D : (Σ A : (Additive), (AddEquiv A A)), Π T : (@Tri (pr1 D) (pr2 D)), hProp.
+    ∑ D : (∑ A : (Additive), (AddEquiv A A)), ∏ T : (@Tri (pr1 D) (pr2 D)), hProp.
 
-  Definition mk_PreTriangData (A : Additive) (T : AddEquiv A A) (H : Π T : (@Tri A T), hProp) :
+  Definition mk_PreTriangData (A : Additive) (T : AddEquiv A A) (H : ∏ T : (@Tri A T), hProp) :
     PreTriangData.
   Proof.
     use tpair.
@@ -545,7 +545,7 @@ Section def_pretriangulated_data.
   (** ** Distinguished triangles *)
 
   Definition DTri {PTD : PreTriangData} : UU :=
-    Σ (T : @Tri _ (@Trans PTD)), isDTri T.
+    ∑ (T : @Tri _ (@Trans PTD)), isDTri T.
 
   Definition mk_DTri {PTD : PreTriangData} {x y z : ob PTD} (f : x --> y) (g : y --> z)
              (h : z --> (AddEquiv1 Trans x)) (H : isDTri (mk_Tri f g h)) :
@@ -566,7 +566,7 @@ Section def_pretriangulated_data.
 
   Definition TExt {D1 D2 : DTri} {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2}
              (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2) : UU :=
-    Σ f3 : Ob3 D1 --> Ob3 D2, (Mor2 D1 ;; f3 = f2 ;; Mor2 D2)
+    ∑ f3 : Ob3 D1 --> Ob3 D2, (Mor2 D1 ;; f3 = f2 ;; Mor2 D2)
                               × (Mor3 D1 ;; (# (AddEquiv1 (@Trans PTD)) f1) = f3 ;; Mor3 D2).
 
   Definition mk_TExt {D1 D2 : DTri} {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2}
@@ -617,26 +617,26 @@ Section def_pretrangulated.
    - Commutative squares to morphisms of distinguished triangles
    *)
   Definition isPreTriang (PTD : PreTriangData) : UU :=
-    (Π (x : ob PTD), isDTri (TrivialTri x))
-      × (Π (T1 T2 : @Tri PTD Trans) (I : TriIso T1 T2), isDTri T1 -> isDTri T2)
-      × (Π (D : DTri), @isDTri PTD (RotTri D))
-      × (Π (D : DTri), @isDTri PTD (InvRotTri D))
-      × (Π (x y : ob PTD) (f : x --> y), ∥ Σ D : ConeData Trans x y, isDTri (ConeTri f D) ∥)
-      × (Π (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
+    (∏ (x : ob PTD), isDTri (TrivialTri x))
+      × (∏ (T1 T2 : @Tri PTD Trans) (I : TriIso T1 T2), isDTri T1 -> isDTri T2)
+      × (∏ (D : DTri), @isDTri PTD (RotTri D))
+      × (∏ (D : DTri), @isDTri PTD (InvRotTri D))
+      × (∏ (x y : ob PTD) (f : x --> y), ∥ ∑ D : ConeData Trans x y, isDTri (ConeTri f D) ∥)
+      × (∏ (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
            (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2), ∥ @TExt PTD _ _ _ _ H ∥).
 
   Definition mk_isPreTriang {PTD : PreTriangData}
-             (H1 : (Π (x : ob PTD), isDTri (TrivialTri x)))
-             (H2 : Π (T1 T2 : @Tri PTD Trans) (I : TriIso T1 T2), isDTri T1 -> isDTri T2)
-             (H3 : Π (D : DTri), isDTri (RotTri D))
-             (H4 : Π (D : DTri), isDTri (InvRotTri D))
-             (H5 : Π (x y : ob PTD) (f : x --> y), ∥ Σ D : ConeData Trans x y, isDTri (ConeTri f D) ∥)
-             (H6 : Π (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
+             (H1 : (∏ (x : ob PTD), isDTri (TrivialTri x)))
+             (H2 : ∏ (T1 T2 : @Tri PTD Trans) (I : TriIso T1 T2), isDTri T1 -> isDTri T2)
+             (H3 : ∏ (D : DTri), isDTri (RotTri D))
+             (H4 : ∏ (D : DTri), isDTri (InvRotTri D))
+             (H5 : ∏ (x y : ob PTD) (f : x --> y), ∥ ∑ D : ConeData Trans x y, isDTri (ConeTri f D) ∥)
+             (H6 : ∏ (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
                      (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2), ∥ (@TExt PTD _ _ _ _ H) ∥) :
     isPreTriang PTD := (H1,,(H2,,(H3,,(H4,,(H5,,H6))))).
 
   Definition TrivialDTrisData {PTD : PreTriangData} (iPT : isPreTriang PTD) :
-    Π (x : ob PTD), isDTri (TrivialTri x) := dirprod_pr1 iPT.
+    ∏ (x : ob PTD), isDTri (TrivialTri x) := dirprod_pr1 iPT.
 
   (** Accessor functions *)
   Definition TrivialDTri {PTD : PreTriangData} (iPT : isPreTriang PTD) (x : ob PTD) : @DTri PTD.
@@ -647,7 +647,7 @@ Section def_pretrangulated.
   Defined.
 
   Definition DTrisUnderIso {PTD : PreTriangData} (iPT : isPreTriang PTD) :
-    Π (T1 T2 : @Tri PTD Trans) (I : TriIso T1 T2), isDTri T1 -> isDTri T2 :=
+    ∏ (T1 T2 : @Tri PTD Trans) (I : TriIso T1 T2), isDTri T1 -> isDTri T2 :=
     dirprod_pr1 (dirprod_pr2 iPT).
 
   Definition RotDTris {PTD : PreTriangData} (iPT : isPreTriang PTD) (D : @DTri PTD) :
@@ -669,11 +669,11 @@ Section def_pretrangulated.
   Defined.
 
   Definition DCompletion {PTD : PreTriangData} (iPT : isPreTriang PTD) :
-    Π (x y : ob PTD) (f : x --> y), ∥ Σ D : ConeData Trans x y, isDTri (ConeTri f D) ∥ :=
+    ∏ (x y : ob PTD) (f : x --> y), ∥ ∑ D : ConeData Trans x y, isDTri (ConeTri f D) ∥ :=
     dirprod_pr1 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 iPT)))).
 
   Definition DExts {PTD : PreTriangData} (iPT : isPreTriang PTD) :
-    Π (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
+    ∏ (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
       (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2), ∥ @TExt PTD _ _ _ _ H ∥ :=
     dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 iPT)))).
 
@@ -683,7 +683,7 @@ Section def_pretrangulated.
 
   (** ** Pretriangulated category *)
 
-  Definition PreTriang : UU := Σ PTD : PreTriangData, isPreTriang PTD.
+  Definition PreTriang : UU := ∑ PTD : PreTriangData, isPreTriang PTD.
 
   Definition mk_PreTriang (PTD : PreTriangData) (H : isPreTriang PTD) := (PTD,,H).
 
@@ -708,7 +708,7 @@ Section def_triangulated.
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
              (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)) : UU :=
-    Σ D : ((z2 --> y2) × (y2 --> x2)),
+    ∑ D : ((z2 --> y2) × (y2 --> x2)),
           (isDTri (mk_Tri (dirprod_pr1 D) (dirprod_pr2 D) (g3 ;; (# (AddEquiv1 Trans) f2))))
             × (f2 ;; dirprod_pr1 D = g1 ;; h2)
             × (dirprod_pr2 D ;; g3 = h3 ;; (# (AddEquiv1 Trans) f1)).
@@ -771,15 +771,15 @@ Section def_triangulated.
 
   (** Triangulated category *)
   Definition Triang : UU :=
-    Σ PT : PreTriang,
-           (Π (x1 x2 y1 y2 z1 z2 : ob PT)
+    ∑ PT : PreTriang,
+           (∏ (x1 x2 y1 y2 z1 z2 : ob PT)
               (f1 : x1 --> y1) (f2 : y1 --> z2) (f3 : z2 --> (AddEquiv1 Trans x1))
               (g1 : y1 --> z1) (g2 : z1 --> x2) (g3 : x2 --> (AddEquiv1 Trans y1))
               (h2 : z1 --> y2) (h3 : y2 --> (AddEquiv1 Trans x1))
               (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
               (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)),∥ Octa H1 H2 H3 ∥).
 
-  Definition mk_Triang {PT : PreTriang} (H : Π (x1 x2 y1 y2 z1 z2 : ob PT)
+  Definition mk_Triang {PT : PreTriang} (H : ∏ (x1 x2 y1 y2 z1 z2 : ob PT)
               (f1 : x1 --> y1) (f2 : y1 --> z2) (f3 : z2 --> (AddEquiv1 Trans x1))
               (g1 : y1 --> z1) (g2 : z1 --> x2) (g3 : x2 --> (AddEquiv1 Trans y1))
               (h2 : z1 --> y2) (h3 : y2 --> (AddEquiv1 Trans x1))

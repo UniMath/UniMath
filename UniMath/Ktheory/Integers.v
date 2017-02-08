@@ -39,8 +39,8 @@ Lemma hzsign_hzsign (i:hz) : - - i = i.
 Proof. apply (grinvinv ℤ). Defined.
 
 Definition hz_normal_form (i:ℤ) :=
-  coprod (Σ n, natnattohz n 0 = i)
-         (Σ n, natnattohz 0 (S n) = i).
+  coprod (∑ n, natnattohz n 0 = i)
+         (∑ n, natnattohz 0 (S n) = i).
 
 Definition hznf_pos n := _,, inl (n,,idpath _) : total2 hz_normal_form.
 
@@ -76,13 +76,13 @@ Proof. apply isweqpr1; intro i.
        exists (hz_to_normal_form i).
        generalize (hz_to_normal_form i) as s.
        intros [[m p]|[m p]] [[n q]|[n q]].
-       { apply (ap (@ii1 (Σ n, natnattohz n 0 = i)
-                         (Σ n, natnattohz 0 (S n) = i))).
+       { apply (ap (@ii1 (∑ n, natnattohz n 0 = i)
+                         (∑ n, natnattohz 0 (S n) = i))).
          apply (proofirrelevance _ (isinclnattohz i)). }
        { apply fromempty. assert (r := p@!q); clear p q. apply (hzdichot r). }
        { apply fromempty. assert (r := q@!p); clear p q. apply (hzdichot r). }
-       { apply (ap (@ii2 (Σ n, natnattohz n 0 = i)
-                         (Σ n, natnattohz 0 (S n) = i))).
+       { apply (ap (@ii2 (∑ n, natnattohz n 0 = i)
+                         (∑ n, natnattohz 0 (S n) = i))).
          assert (p' := ap hzsign p). assert (q' := ap hzsign q).
          change (- natnattohz O (S m)) with  (nattohz (S m)) in p'.
          change (- natnattohz O (S n)) with  (nattohz (S n)) in q'.

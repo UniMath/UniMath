@@ -111,7 +111,7 @@ Defined.
 Definition setcoprod (X Y : hSet) : hSet.
 Proof. intros. exists (X ⨿ Y). apply isasetcoprod; apply setproperty. Defined.
 
-Lemma isaset_total2_hSet (X : hSet) (Y : X -> hSet) : isaset (Σ x, Y x).
+Lemma isaset_total2_hSet (X : hSet) (Y : X -> hSet) : isaset (∑ x, Y x).
 Proof.
   intros. apply isaset_total2.
   - apply setproperty.
@@ -119,28 +119,28 @@ Proof.
 Defined.
 
 Definition total2_hSet {X : hSet} (Y : X -> hSet) : hSet
-  := hSetpair (Σ x, Y x) (isaset_total2_hSet X Y).
+  := hSetpair (∑ x, Y x) (isaset_total2_hSet X Y).
 
 Definition hfiber_hSet {X : hSet} {Y : hSet} (f : X → Y) (y : Y) : hSet
   := hSetpair (hfiber f y) (isaset_hfiber f y (pr2 X) (pr2 Y)).
 
 Delimit Scope set with set.
 
-Notation "'Σ' x .. y , P" := (total2_hSet (fun x =>.. (total2_hSet (fun y => P))..))
+Notation "'∑' x .. y , P" := (total2_hSet (fun x =>.. (total2_hSet (fun y => P))..))
   (at level 200, x binder, y binder, right associativity) : set.
-  (* type this in emacs in agda-input method with \Sigma *)
+  (* type this in emacs in agda-input method with \sum *)
 
-Lemma isaset_forall_hSet (X : UU) (Y : X -> hSet) : isaset (Π x, Y x).
+Lemma isaset_forall_hSet (X : UU) (Y : X -> hSet) : isaset (∏ x, Y x).
 Proof. intros. apply impred_isaset. intro x. apply setproperty. Defined.
 
 Definition forall_hSet {X : UU} (Y : X -> hSet) : hSet
-  := hSetpair (Π x, Y x) (isaset_forall_hSet X Y).
+  := hSetpair (∏ x, Y x) (isaset_forall_hSet X Y).
 
-Notation "'Π' x .. y , P" := (forall_hSet (fun x =>.. (forall_hSet (fun y => P))..))
+Notation "'∏' x .. y , P" := (forall_hSet (fun x =>.. (forall_hSet (fun y => P))..))
   (at level 200, x binder, y binder, right associativity) : set.
-  (* type this in emacs in agda-input method with \Sigma *)
+  (* type this in emacs in agda-input method with \sum *)
 
-Lemma isaset_total2_subset (X : hSet) (Y : X -> hProp) : isaset (Σ x, Y x).
+Lemma isaset_total2_subset (X : hSet) (Y : X -> hProp) : isaset (∑ x, Y x).
 Proof.
   intros. apply isaset_total2.
   - apply setproperty.
@@ -148,12 +148,12 @@ Proof.
 Defined.
 
 Definition total2_subset {X : hSet} (Y : X -> hProp) : hSet
-  := hSetpair (Σ x, Y x) (isaset_total2_subset X Y).
+  := hSetpair (∑ x, Y x) (isaset_total2_subset X Y).
 
-Notation "'Σ' x .. y , P"
+Notation "'∑' x .. y , P"
   := (total2_subset (fun x =>.. (total2_subset (fun y => P))..))
   (at level 200, x binder, y binder, right associativity) : subset.
-  (* type this in emacs in agda-input method with \Sigma *)
+  (* type this in emacs in agda-input method with \sum *)
 
 Delimit Scope subset with subset.
 
@@ -186,7 +186,7 @@ Definition boolset : hSet := hSetpair bool isasetbool.
 
 Definition isInjectiveFunction {X Y : hSet} (f : X -> Y) : hProp.
 Proof.
-  intros. exists (Π (x x': X), f x = f x' -> x = x').
+  intros. exists (∏ (x x': X), f x = f x' -> x = x').
   abstract (
       intros; apply impred; intro x; apply impred; intro y;
       apply impred; intro e; apply setproperty)
@@ -219,7 +219,7 @@ to satisfy weak axiom of choice.
 *)
 
 Definition ischoicebase_uu1 (X : UU)
-  := Π P : X -> UU, (Π x : X, ishinh (P x)) -> ishinh (Π x : X, P x).
+  := ∏ P : X -> UU, (∏ x : X, ishinh (P x)) -> ishinh (∏ x : X, P x).
 
 (** Uses RR1 *)
 Lemma isapropischoicebase (X : UU) : isaprop (ischoicebase_uu1 X).
@@ -291,33 +291,33 @@ Defined.
 
 (** *** General definitions *)
 
-Definition hsubtypes (X : UU) : UU := X -> hProp.
-Identity Coercion id_hsubtypes :  hsubtypes >-> Funclass.
-Definition carrier {X : UU} (A : hsubtypes X) := total2 A.
-Coercion carrier : hsubtypes >-> Sortclass.
-Definition carrierpair {X : UU} (A : hsubtypes X) :
-   Π t : X, A t → Σ x : X, A x := tpair A.
-Definition pr1carrier {X : UU} (A : hsubtypes X) := @pr1 _ _  : carrier A -> X.
+Definition hsubtype (X : UU) : UU := X -> hProp.
+Identity Coercion id_hsubtype :  hsubtype >-> Funclass.
+Definition carrier {X : UU} (A : hsubtype X) := total2 A.
+Coercion carrier : hsubtype >-> Sortclass.
+Definition carrierpair {X : UU} (A : hsubtype X) :
+   ∏ t : X, A t → ∑ x : X, A x := tpair A.
+Definition pr1carrier {X : UU} (A : hsubtype X) := @pr1 _ _  : carrier A -> X.
 
-Lemma isinclpr1carrier {X : UU} (A : hsubtypes X) : isincl (@pr1carrier X A).
+Lemma isinclpr1carrier {X : UU} (A : hsubtype X) : isincl (@pr1carrier X A).
 Proof. intros. apply (isinclpr1 A (fun x : _ => pr2 (A x))). Defined.
 
-Lemma isasethsubtypes (X : UU) : isaset (hsubtypes X).
+Lemma isasethsubtype (X : UU) : isaset (hsubtype X).
 Proof.
   intro X.
-  change (isofhlevel 2 (hsubtypes X)).
+  change (isofhlevel 2 (hsubtype X)).
   apply impred; intro x.
   exact isasethProp.
 Defined.
 
-Definition totalsubtype (X : UU) : hsubtypes X := fun x => htrue.
+Definition totalsubtype (X : UU) : hsubtype X := fun x => htrue.
 
 Definition weqtotalsubtype (X : UU) : totalsubtype X ≃ X.
 Proof. intro. apply weqpr1. intro. apply iscontrunit. Defined.
 
 Definition weq_subtypes {X Y : UU} (w : X ≃ Y)
-           (S : hsubtypes X) (T : hsubtypes Y) :
-           (Π x, S x <-> T (w x)) -> carrier S ≃ carrier T.
+           (S : hsubtype X) (T : hsubtype Y) :
+           (∏ x, S x <-> T (w x)) -> carrier S ≃ carrier T.
 Proof.
   intros ? ? ? ? ? eq. apply (weqbandf w). intro x. apply weqiff.
   - apply eq.
@@ -325,18 +325,18 @@ Proof.
   - apply propproperty.
 Defined.
 
-Definition DecidableSubtype_to_hsubtypes {X : UU} (P : DecidableSubtype X) :
-  hsubtypes X
+Definition DecidableSubtype_to_hsubtype {X : UU} (P : DecidableSubtype X) :
+  hsubtype X
   := λ x, DecidableProposition_to_hProp (P x).
-Coercion DecidableSubtype_to_hsubtypes : DecidableSubtype >-> hsubtypes.
+Coercion DecidableSubtype_to_hsubtype : DecidableSubtype >-> hsubtype.
 
 (** *** Direct product of two subtypes *)
 
-Definition subtypesdirprod {X Y : UU} (A : hsubtypes X) (B : hsubtypes Y) :
-  hsubtypes (dirprod X Y) := fun xy : _ => hconj (A (pr1 xy)) (B (pr2 xy)).
+Definition subtypesdirprod {X Y : UU} (A : hsubtype X) (B : hsubtype Y) :
+  hsubtype (dirprod X Y) := fun xy : _ => hconj (A (pr1 xy)) (B (pr2 xy)).
 
 Definition fromdsubtypesdirprodcarrier {X Y : UU}
-           (A : hsubtypes X) (B : hsubtypes Y)
+           (A : hsubtype X) (B : hsubtype Y)
            (xyis : subtypesdirprod A B) : dirprod A B.
 Proof.
   intros.
@@ -347,7 +347,7 @@ Proof.
 Defined.
 
 Definition tosubtypesdirprodcarrier {X Y : UU}
-           (A : hsubtypes X) (B : hsubtypes Y)
+           (A : hsubtype X) (B : hsubtype Y)
            (xisyis : dirprod A B) : subtypesdirprod A B.
 Proof.
   intros.
@@ -358,14 +358,14 @@ Proof.
   apply (tpair (subtypesdirprod A B) (dirprodpair x y) (dirprodpair isx isy)).
 Defined.
 
-Lemma weqsubtypesdirprod {X Y : UU} (A : hsubtypes X) (B : hsubtypes Y) :
+Lemma weqsubtypesdirprod {X Y : UU} (A : hsubtype X) (B : hsubtype Y) :
   subtypesdirprod A B ≃ A × B.
 Proof.
   intros.
   set (f := fromdsubtypesdirprodcarrier A B).
   set (g := tosubtypesdirprodcarrier A B).
   split with f.
-  assert (egf : Π a : _, paths (g (f a)) a).
+  assert (egf : ∏ a : _, paths (g (f a)) a).
   {
     intro a.
     destruct a as [ xy is ].
@@ -373,7 +373,7 @@ Proof.
     destruct is as [ isx isy ].
     apply idpath.
   }
-  assert (efg : Π a : _, paths (f (g a)) a).
+  assert (efg : ∏ a : _, paths (f (g a)) a).
   {
     intro a.
     destruct a as [ xis yis ].
@@ -384,7 +384,7 @@ Proof.
   apply (gradth _ _ egf efg).
 Defined.
 
-Lemma ishinhsubtypesdirprod  {X Y : UU} (A : hsubtypes X) (B : hsubtypes Y)
+Lemma ishinhsubtypedirprod  {X Y : UU} (A : hsubtype X) (B : hsubtype Y)
       (isa : ishinh A) (isb : ishinh B) : ishinh (subtypesdirprod A B).
 Proof.
   intros.
@@ -397,12 +397,12 @@ Defined.
 (** *** A subtype with paths between any two elements is an [hProp]. *)
 
 
-Lemma isapropsubtype {X : UU} (A : hsubtypes X)
-      (is : Π (x1 x2 : X), A x1 -> A x2 -> x1 = x2) : isaprop (carrier A).
+Lemma isapropsubtype {X : UU} (A : hsubtype X)
+      (is : ∏ (x1 x2 : X), A x1 -> A x2 -> x1 = x2) : isaprop (carrier A).
 Proof.
   intros. apply invproofirrelevance.
   intros x x'.
-  assert (isincl (@pr1 _ A)).
+  assert (X0 : isincl (@pr1 _ A)).
   {
     apply isinclpr1.
     intro x0.
@@ -416,10 +416,10 @@ Proof.
 Defined.
 
 Definition squash_pairs_to_set {Y : UU} (F : Y -> UU) :
-  (isaset Y) -> (Π y y', F y -> F y' -> y = y') -> (∃ y, F y) -> Y.
+  (isaset Y) -> (∏ y y', F y -> F y' -> y = y') -> (∃ y, F y) -> Y.
 Proof.
   intros ? ? is e.
-  set (P := Σ y, ∥ F y ∥).
+  set (P := ∑ y, ∥ F y ∥).
   assert (iP : isaprop P).
   {
     apply isapropsubtype. intros y y' f f'.
@@ -438,10 +438,10 @@ Proof.
 Defined.
 
 Definition squash_to_set {X Y : UU} (is : isaset Y) (f : X -> Y) :
-          (Π x x', f x = f x') -> ∥ X ∥ -> Y.
+          (∏ x x', f x = f x') -> ∥ X ∥ -> Y.
 Proof.
   intros ? ? ? ? e w.
-  set (P := Σ y, ∃ x, f x = y).
+  set (P := ∑ y, ∃ x, f x = y).
   assert (j : isaprop P).
   {
     apply isapropsubtype; intros y y' j j'.
@@ -486,13 +486,13 @@ Coercion DecidableRelation_to_hrel : DecidableRelation >-> hrel.
 
 
 Definition istrans {X : UU} (R : hrel X) : UU
-  := Π (x1 x2 x3 : X), R x1 x2 -> R x2 x3 -> R x1 x3.
+  := ∏ (x1 x2 x3 : X), R x1 x2 -> R x2 x3 -> R x1 x3.
 
 Definition isrefl {X : UU} (R : hrel X) : UU
-  := Π x : X, R x x.
+  := ∏ x : X, R x x.
 
 Definition issymm {X : UU} (R : hrel X) : UU
-  := Π (x1 x2 : X), R x1 x2 -> R x2 x1.
+  := ∏ (x1 x2 : X), R x1 x2 -> R x2 x1.
 
 Definition ispreorder {X : UU} (R : hrel X) : UU := istrans R × isrefl R.
 
@@ -501,27 +501,27 @@ Definition iseqrelconstr {X : UU} {R : hrel X}
            (trans0 : istrans R) (refl0 : isrefl R) (symm0 : issymm R) :
   iseqrel R := dirprodpair (dirprodpair trans0 refl0) symm0.
 
-Definition isirrefl {X : UU} (R : hrel X) : UU := Π x : X, ¬ R x x.
+Definition isirrefl {X : UU} (R : hrel X) : UU := ∏ x : X, ¬ R x x.
 
 Definition isasymm {X : UU} (R : hrel X) : UU
-  := Π (x1 x2 : X), R x1 x2 -> R x2 x1 -> empty.
+  := ∏ (x1 x2 : X), R x1 x2 -> R x2 x1 -> empty.
 
-Definition iscoasymm {X : UU} (R : hrel X) : UU := Π x1 x2, ¬ R x1 x2 -> R x2 x1.
+Definition iscoasymm {X : UU} (R : hrel X) : UU := ∏ x1 x2, ¬ R x1 x2 -> R x2 x1.
 
-Definition istotal {X : UU} (R : hrel X) : UU := Π x1 x2, R x1 x2 ∨ R x2 x1.
+Definition istotal {X : UU} (R : hrel X) : UU := ∏ x1 x2, R x1 x2 ∨ R x2 x1.
 
-Definition isdectotal {X : UU} (R : hrel X) : UU := Π x1 x2, R x1 x2 ⨿ R x2 x1.
+Definition isdectotal {X : UU} (R : hrel X) : UU := ∏ x1 x2, R x1 x2 ⨿ R x2 x1.
 
 Definition iscotrans {X : UU} (R : hrel X) : UU
-  := Π x1 x2 x3, R x1 x3 -> R x1 x2 ∨ R x2 x3.
+  := ∏ x1 x2 x3, R x1 x3 -> R x1 x2 ∨ R x2 x3.
 
 Definition isdeccotrans {X : UU} (R : hrel X) : UU
-  := Π x1 x2 x3, R x1 x3 -> R x1 x2 ⨿ R x2 x3.
+  := ∏ x1 x2 x3, R x1 x3 -> R x1 x2 ⨿ R x2 x3.
 
-Definition isdecrel {X : UU} (R : hrel X) : UU := Π x1 x2, R x1 x2 ⨿ ¬ R x1 x2.
+Definition isdecrel {X : UU} (R : hrel X) : UU := ∏ x1 x2, R x1 x2 ⨿ ¬ R x1 x2.
 
 Definition isnegrel {X : UU} (R : hrel X) : UU
-  := Π x1 x2, ¬ ¬ R x1 x2 -> R x1 x2.
+  := ∏ x1 x2, ¬ ¬ R x1 x2 -> R x1 x2.
 
 (** Note that the property of being (co-)antisymmetric is different from other
   properties of relations which we consider due to the presence of [paths] in
@@ -530,7 +530,7 @@ Definition isnegrel {X : UU} (R : hrel X) : UU
   the original relation was not. *)
 
 Definition isantisymm {X : UU} (R : hrel X) : UU
-  := Π (x1 x2 : X), R x1 x2 -> R x2 x1 -> x1 = x2.
+  := ∏ (x1 x2 : X), R x1 x2 -> R x2 x1 -> x1 = x2.
 
 Definition isPartialOrder {X : UU} (R : hrel X) : UU
   := ispreorder R × isantisymm R.
@@ -539,17 +539,17 @@ Ltac unwrap_isPartialOrder i :=
   induction i as [transrefl antisymm]; induction transrefl as [trans refl].
 
 Definition isantisymmneg {X : UU} (R : hrel X) : UU
-  := Π (x1 x2 : X), ¬ R x1 x2 -> ¬ R x2 x1 -> x1 = x2.
+  := ∏ (x1 x2 : X), ¬ R x1 x2 -> ¬ R x2 x1 -> x1 = x2.
 
 Definition iscoantisymm {X : UU} (R : hrel X) : UU
-  := Π x1 x2, ¬ R x1 x2 -> R x2 x1 ⨿ (x1 = x2).
+  := ∏ x1 x2, ¬ R x1 x2 -> R x2 x1 ⨿ (x1 = x2).
 
 (** Note that the following condition on a relation is different from all the
   other which we have considered since it is not a property but a structure,
   i.e. it is in general unclear whether [isaprop (neqchoice R)] is provable. *)
 
 Definition neqchoice {X : UU} (R : hrel X) : UU
-  := Π x1 x2, x1 != x2 -> R x1 x2 ⨿ R x2 x1.
+  := ∏ x1 x2, x1 != x2 -> R x1 x2 ⨿ R x2 x1.
 
 (** proofs that the properties are propositions  *)
 
@@ -638,27 +638,27 @@ Proof. intros. intro e. rewrite e in r. apply (is b r). Defined.
 (** *** Standard properties of relations and logical equivalences *)
 
 Definition hrellogeq {X : UU} (L R : hrel X) : UU
-  := Π x1 x2, (L x1 x2 <-> R x1 x2).
+  := ∏ x1 x2, (L x1 x2 <-> R x1 x2).
 
 Definition istranslogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : istrans L) : istrans R.
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : istrans L) : istrans R.
 Proof.
   intros. intros x1 x2 x3 r12 r23.
   apply ((pr1 (lg _ _)) (isl _ _ _ ((pr2 (lg _ _)) r12) ((pr2 (lg _ _)) r23))).
 Defined.
 
 Definition isrefllogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : isrefl L) : isrefl R.
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isrefl L) : isrefl R.
 Proof. intros. intro x. apply (pr1 (lg _ _) (isl x)). Defined.
 
 Definition issymmlogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : issymm L) : issymm R.
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : issymm L) : issymm R.
 Proof.
   intros. intros x1 x2 r12.
   apply (pr1 (lg _ _) (isl _ _ (pr2 (lg _ _) r12))).
 Defined.
 
-Definition ispologeqf {X : UU} {L R : hrel X} (lg : Π x1 x2, L x1 x2 <-> R x1 x2)
+Definition ispologeqf {X : UU} {L R : hrel X} (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2)
            (isl : ispreorder L) : ispreorder R.
 Proof.
   intros.
@@ -666,32 +666,32 @@ Proof.
 Defined.
 
 Definition iseqrellogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : iseqrel L) : iseqrel R.
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : iseqrel L) : iseqrel R.
 Proof.
   intros.
   apply (dirprodpair (ispologeqf lg (pr1 isl)) (issymmlogeqf lg (pr2 isl))).
 Defined.
 
 Definition isirrefllogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : isirrefl L) : isirrefl R.
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isirrefl L) : isirrefl R.
 Proof. intros. intros x r. apply (isl _ (pr2 (lg x x) r)). Defined.
 
 Definition isasymmlogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : isasymm L) : isasymm R.
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isasymm L) : isasymm R.
 Proof.
   intros. intros x1 x2 r12 r21.
   apply (isl _ _ (pr2 (lg _ _) r12) (pr2 (lg _ _) r21)).
 Defined.
 
 Definition iscoasymmlogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : iscoasymm L) : iscoasymm R.
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : iscoasymm L) : iscoasymm R.
 Proof.
   intros. intros x1 x2 r12.
   apply ((pr1 (lg _ _)) (isl _ _ (negf (pr1 (lg _ _)) r12))).
 Defined.
 
 Definition istotallogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : istotal L) : istotal R.
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : istotal L) : istotal R.
 Proof.
   intros. intros x1 x2. set (int := isl x1 x2).
   generalize int. clear int. simpl. apply hinhfun.
@@ -699,7 +699,7 @@ Proof.
 Defined.
 
 Definition iscotranslogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : iscotrans L) : iscotrans R.
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : iscotrans L) : iscotrans R.
 Proof.
   intros. intros x1 x2 x3 r13.
   set (int := isl x1 x2 x3 (pr2 (lg _ _) r13)). generalize int.
@@ -708,7 +708,7 @@ Proof.
 Defined.
 
 Definition isdecrellogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : isdecrel L) : isdecrel R.
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isdecrel L) : isdecrel R.
 Proof.
   intros. intros x1 x2.
   destruct (isl x1 x2) as [ l | nl ].
@@ -717,14 +717,14 @@ Proof.
 Defined.
 
 Definition isnegrellogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : isnegrel L) : isnegrel R.
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isnegrel L) : isnegrel R.
 Proof.
   intros. intros x1 x2 nnr.
   apply ((pr1 (lg _ _)) (isl _ _ (negf (negf (pr2 (lg _ _))) nnr))).
 Defined.
 
 Definition isantisymmlogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : isantisymm L) :
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isantisymm L) :
   isantisymm R.
 Proof.
   intros. intros x1 x2 r12 r21.
@@ -732,7 +732,7 @@ Proof.
 Defined.
 
 Definition isantisymmneglogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : isantisymmneg L) :
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isantisymmneg L) :
   isantisymmneg R.
 Proof.
   intros. intros x1 x2 nr12 nr21.
@@ -740,7 +740,7 @@ Proof.
 Defined.
 
 Definition iscoantisymmlogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : iscoantisymm L) :
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : iscoantisymm L) :
   iscoantisymm R.
 Proof.
   intros. intros x1 x2 r12.
@@ -749,7 +749,7 @@ Proof.
 Defined.
 
 Definition neqchoicelogeqf {X : UU} {L R : hrel X}
-           (lg : Π x1 x2, L x1 x2 <-> R x1 x2) (isl : neqchoice L) : neqchoice R.
+           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : neqchoice L) : neqchoice R.
 Proof.
   intros. intros x1 x2 ne.
   apply (coprodf (pr1 (lg x1 x2)) (pr1 (lg x2 x1)) (isl _ _ ne)).
@@ -760,13 +760,13 @@ Defined.
 (** *** Preorderings, partial orderings, and associated types. *)
 
 (* preoderings *)
-Definition po (X : UU) : UU := Σ R : hrel X, ispreorder R.
+Definition po (X : UU) : UU := ∑ R : hrel X, ispreorder R.
 Definition popair {X : UU} (R : hrel X) (is : ispreorder R) : po X
   := tpair ispreorder R is.
 Definition carrierofpo (X : UU) : po X -> (X -> X -> hProp) := @pr1 _ ispreorder.
 Coercion carrierofpo : po >-> Funclass.
 
-Definition PreorderedSet : UU := Σ X : hSet, po X.
+Definition PreorderedSet : UU := ∑ X : hSet, po X.
 Definition PreorderedSetPair (X : hSet) (R :po X) : PreorderedSet
   := tpair _ X R.
 Definition carrierofPreorderedSet : PreorderedSet -> hSet := pr1.
@@ -774,14 +774,14 @@ Coercion carrierofPreorderedSet : PreorderedSet >-> hSet.
 Definition PreorderedSetRelation (X : PreorderedSet) : hrel X := pr1 (pr2 X).
 
 (* partial orderings *)
-Definition PartialOrder (X : hSet) : UU := Σ R : hrel X, isPartialOrder R.
+Definition PartialOrder (X : hSet) : UU := ∑ R : hrel X, isPartialOrder R.
 Definition PartialOrderpair {X : hSet} (R : hrel X) (is : isPartialOrder R) :
   PartialOrder X
   := tpair isPartialOrder R is.
 Definition carrierofPartialOrder {X : hSet} : PartialOrder X -> hrel X := pr1.
 Coercion carrierofPartialOrder : PartialOrder >-> hrel.
 
-Definition Poset : UU := Σ X, PartialOrder X.
+Definition Poset : UU := ∑ X, PartialOrder X.
 Definition Posetpair (X : hSet) (R : PartialOrder X) : Poset
   := tpair PartialOrder X R.
 Definition carrierofposet : Poset -> hSet := pr1.
@@ -801,18 +801,18 @@ Delimit Scope poset with poset.
 Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) :
                       poset.
 Definition isaposetmorphism {X Y : Poset} (f : X -> Y)
-  := (Π x x' : X, x ≤ x' -> f x ≤ f x')%poset.
+  := (∏ x x' : X, x ≤ x' -> f x ≤ f x')%poset.
 Definition posetmorphism (X Y : Poset) : UU
   := total2 (fun f : X -> Y => isaposetmorphism f).
 Definition posetmorphismpair (X Y : Poset) :
-  Π t : X → Y, isaposetmorphism t → Σ f : X → Y, isaposetmorphism f
+  ∏ t : X → Y, isaposetmorphism t → ∑ f : X → Y, isaposetmorphism f
   := tpair (fun f : X -> Y => isaposetmorphism f).
 Definition carrierofposetmorphism (X Y : Poset) : posetmorphism X Y -> (X -> Y)
   := @pr1 _ _.
 Coercion carrierofposetmorphism : posetmorphism >-> Funclass.
 
 Definition isdec_ordering (X : Poset) : UU
-  := Π (x y : X), decidable (x ≤ y)%poset.
+  := ∏ (x y : X), decidable (x ≤ y)%poset.
 
 Lemma isaprop_isaposetmorphism {X Y : Poset} (f : X -> Y) :
   isaprop (isaposetmorphism f).
@@ -858,7 +858,7 @@ Proof.
 Defined.
 
 Definition PosetEquivalence (X Y : Poset) : UU
-  := Σ f : X ≃ Y, isPosetEquivalence f.
+  := ∑ f : X ≃ Y, isPosetEquivalence f.
 
 Local Open Scope poset.
 Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) :
@@ -884,10 +884,10 @@ Defined.
 (** poset concepts *)
 
 Notation "m < n" := (m ≤ n × m != n)%poset (only parsing) : poset.
-Definition isMinimal {X : Poset} (x : X) : UU := Π y, x ≤ y.
-Definition isMaximal {X : Poset} (x : X) : UU := Π y, y ≤ x.
+Definition isMinimal {X : Poset} (x : X) : UU := ∏ y, x ≤ y.
+Definition isMaximal {X : Poset} (x : X) : UU := ∏ y, y ≤ x.
 Definition consecutive {X : Poset} (x y : X) : UU
-  := x < y × Π z, ¬ (x < z × z < y).
+  := x < y × ∏ z, ¬ (x < z × z < y).
 
 Lemma isaprop_isMinimal {X : Poset} (x : X) : isaprop (isMaximal x).
 Proof.
@@ -1206,25 +1206,25 @@ Ltac confirm_equal_absurd i := match goal with |- ?x = ?y → ∅ => confirm_no 
 
 (** *** Restriction of a relation to a subtype *)
 
-Definition resrel {X : UU} (L : hrel X) (P : hsubtypes X) : hrel P
+Definition resrel {X : UU} (L : hrel X) (P : hsubtype X) : hrel P
   := fun p1 p2 => L (pr1 p1) (pr1 p2).
 
-Definition istransresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition istransresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : istrans L) : istrans (resrel L P).
 Proof.
   intros. intros x1 x2 x3 r12 r23.
   apply (isl _ (pr1 x2) _ r12 r23).
 Defined.
 
-Definition isreflresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isreflresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : isrefl L) : isrefl (resrel L P).
 Proof. intros. intro x. apply isl. Defined.
 
-Definition issymmresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition issymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : issymm L) : issymm (resrel L P).
 Proof. intros. intros x1 x2 r12. apply isl. apply r12. Defined.
 
-Definition isporesrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isporesrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : ispreorder L) : ispreorder (resrel L P).
 Proof.
   intros.
@@ -1232,56 +1232,56 @@ Proof.
                      (isreflresrel L P (pr2 isl))).
 Defined.
 
-Definition iseqrelresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition iseqrelresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : iseqrel L) : iseqrel (resrel L P).
 Proof.
   intros.
   apply (dirprodpair (isporesrel L P (pr1 isl)) (issymmresrel L P (pr2 isl))).
 Defined.
 
-Definition isirreflresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isirreflresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : isirrefl L) : isirrefl (resrel L P).
 Proof. intros. intros x r. apply (isl _ r). Defined.
 
-Definition isasymmresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isasymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : isasymm L) : isasymm (resrel L P).
 Proof. intros. intros x1 x2 r12 r21. apply (isl _ _ r12 r21). Defined.
 
-Definition iscoasymmresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition iscoasymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : iscoasymm L) : iscoasymm (resrel L P).
 Proof. intros. intros x1 x2 r12. apply (isl _ _ r12). Defined.
 
-Definition istotalresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition istotalresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : istotal L) : istotal (resrel L P).
 Proof. intros. intros x1 x2. apply isl. Defined.
 
-Definition iscotransresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition iscotransresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : iscotrans L) : iscotrans (resrel L P).
 Proof. intros. intros x1 x2 x3 r13. apply (isl _ _ _ r13). Defined.
 
-Definition isdecrelresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isdecrelresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : isdecrel L) : isdecrel (resrel L P).
 Proof. intros. intros x1 x2. apply isl. Defined.
 
-Definition isnegrelresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isnegrelresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : isnegrel L) : isnegrel (resrel L P).
 Proof. intros. intros x1 x2 nnr. apply (isl _ _ nnr). Defined.
 
-Definition isantisymmresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isantisymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : isantisymm L) : isantisymm (resrel L P).
 Proof.
   intros. intros x1 x2 r12 r21.
   apply (invmaponpathsincl _ (isinclpr1carrier _) _ _ (isl _ _ r12 r21)).
 Defined.
 
-Definition isantisymmnegresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition isantisymmnegresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : isantisymmneg L) : isantisymmneg (resrel L P).
 Proof.
   intros. intros x1 x2 nr12 nr21.
   apply (invmaponpathsincl _ (isinclpr1carrier _) _ _ (isl _ _ nr12 nr21)).
 Defined.
 
-Definition iscoantisymmresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition iscoantisymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : iscoantisymm L) : iscoantisymm (resrel L P).
 Proof.
   intros. intros x1 x2 r12. destruct (isl _ _ r12) as [ l | e ].
@@ -1289,7 +1289,7 @@ Proof.
   - apply ii2. apply (invmaponpathsincl _ (isinclpr1carrier _) _ _ e).
 Defined.
 
-Definition  neqchoiceresrel {X : UU} (L : hrel X) (P : hsubtypes X)
+Definition  neqchoiceresrel {X : UU} (L : hrel X) (P : hsubtype X)
             (isl : neqchoice L) : neqchoice (resrel L P).
 Proof.
   intros. intros x1 x2 ne.
@@ -1303,26 +1303,26 @@ Defined.
 
 
 
-Definition iseqclass {X : UU} (R : hrel X) (A : hsubtypes X) : UU
+Definition iseqclass {X : UU} (R : hrel X) (A : hsubtype X) : UU
   := dirprod (ishinh (carrier A))
-             (dirprod (Π x1 x2 : X, R x1 x2 -> A x1 -> A x2)
-                      (Π x1 x2 : X, A x1 ->  A x2 -> R x1 x2)).
-Definition iseqclassconstr {X : UU} (R : hrel X) {A : hsubtypes X}
+             (dirprod (∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2)
+                      (∏ x1 x2 : X, A x1 ->  A x2 -> R x1 x2)).
+Definition iseqclassconstr {X : UU} (R : hrel X) {A : hsubtype X}
            (ax0 : ishinh (carrier A))
-           (ax1 : Π x1 x2 : X, R x1 x2 -> A x1 -> A x2)
-           (ax2 : Π x1 x2 : X, A x1 ->  A x2 -> R x1 x2) : iseqclass R A
+           (ax1 : ∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2)
+           (ax2 : ∏ x1 x2 : X, A x1 ->  A x2 -> R x1 x2) : iseqclass R A
   := dirprodpair ax0 (dirprodpair ax1 ax2).
 
-Definition eqax0 {X : UU} {R : hrel X} {A : hsubtypes X} :
+Definition eqax0 {X : UU} {R : hrel X} {A : hsubtype X} :
   iseqclass R A -> ishinh (carrier A) := fun is : iseqclass R A => pr1 is.
-Definition eqax1 {X : UU} {R : hrel X} {A : hsubtypes X} :
-  iseqclass R A -> Π x1 x2 : X, R x1 x2 -> A x1 -> A x2
+Definition eqax1 {X : UU} {R : hrel X} {A : hsubtype X} :
+  iseqclass R A -> ∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2
   := fun is : iseqclass R A => pr1 (pr2 is).
-Definition eqax2 {X : UU} {R : hrel X} {A : hsubtypes X} :
-  iseqclass R A -> Π x1 x2 : X, A x1 -> A x2 -> R x1 x2
+Definition eqax2 {X : UU} {R : hrel X} {A : hsubtype X} :
+  iseqclass R A -> ∏ x1 x2 : X, A x1 -> A x2 -> R x1 x2
   := fun is : iseqclass R A => pr2 (pr2 is).
 
-Lemma isapropiseqclass {X : UU} (R : hrel X) (A : hsubtypes X) :
+Lemma isapropiseqclass {X : UU} (R : hrel X) (A : hsubtype X) :
   isaprop (iseqclass R A).
 Proof.
 intros X R A.
@@ -1339,7 +1339,7 @@ Defined.
 (** *** Direct product of equivalence classes *)
 
 Lemma iseqclassdirprod {X Y : UU} {R : hrel X} {Q : hrel Y}
-      {A : hsubtypes X} {B : hsubtypes Y}
+      {A : hsubtype X} {B : hsubtype Y}
       (isa : iseqclass R A) (isb : iseqclass Q B) :
   iseqclass (hreldirprod R Q) (subtypesdirprod A B).
 Proof.
@@ -1347,14 +1347,14 @@ Proof.
   set (XY := dirprod X Y).
   set (AB := subtypesdirprod A B).
   set (RQ := hreldirprod R Q).
-  set (ax0 := ishinhsubtypesdirprod A B (eqax0 isa) (eqax0 isb)).
-  assert (ax1 : Π xy1 xy2 : XY, RQ xy1 xy2 -> AB xy1 -> AB xy2).
+  set (ax0 := ishinhsubtypedirprod A B (eqax0 isa) (eqax0 isb)).
+  assert (ax1 : ∏ xy1 xy2 : XY, RQ xy1 xy2 -> AB xy1 -> AB xy2).
   {
     intros xy1 xy2 rq ab1.
     apply (dirprodpair (eqax1 isa _ _ (pr1 rq) (pr1 ab1))
                        (eqax1 isb _ _ (pr2 rq) (pr2 ab1))).
   }
-  assert (ax2 : Π xy1 xy2 : XY, AB xy1 -> AB xy2 -> RQ xy1 xy2).
+  assert (ax2 : ∏ xy1 xy2 : XY, AB xy1 -> AB xy2 -> RQ xy1 xy2).
   {
     intros xy1 xy2 ab1 ab2.
     apply (dirprodpair (eqax2 isa _ _ (pr1 ab1) (pr1 ab2))
@@ -1369,7 +1369,7 @@ Defined.
 
 Theorem surjectionisepitosets {X Y Z : UU} (f : X -> Y) (g1 g2 : Y -> Z)
         (is1 : issurjective f) (is2 : isaset Z)
-        (isf : Π x : X, g1 (f x) = g2 (f x)) : Π y : Y, g1 y = g2 y.
+        (isf : ∏ x : X, g1 (f x) = g2 (f x)) : ∏ y : Y, g1 y = g2 y.
 Proof.
   intros.
   set (P1:= hProppair (paths (g1 y) (g2 y)) (is2 (g1 y) (g2 y))).
@@ -1412,14 +1412,14 @@ Qed.
 TODO find a proof without univalence for propositions (if possible)
 *)
 Lemma epiissurjectiontosets {A B : UU} (p : A -> B) (isB:isaset B)
-      (epip : Π (C:hSet) (g1 g2:B->C), (Π x : A, g1 (p x) = g2 (p x)) ->
-                               (Π y : B, g1 y = g2 y)) :   issurjective p.
+      (epip : ∏ (C:hSet) (g1 g2:B->C), (∏ x : A, g1 (p x) = g2 (p x)) ->
+                               (∏ y : B, g1 y = g2 y)) :   issurjective p.
 Proof.
   intros.
   assert(pred_set : isaset (B -> hProp)).
   { apply (isaset_set_fun_space _ (hSetpair _ isasethProp)). }
   specialize (epip (hSetpair _ pred_set)
-                   (fun b x => ∥ Σ y : hfiber p b, x = p (pr1 y) ∥ )
+                   (fun b x => ∥ ∑ y : hfiber p b, x = p (pr1 y) ∥ )
                    (fun b x => hProppair (x = b) (isB x b))
                ).
   lapply epip.
@@ -1473,11 +1473,11 @@ Section LiftSurjection.
   Hypothesis hsc:isaset C.
   Variables (p : A -> B ) (f: A -> C ).
 
-  Hypothesis comp_f_epi: Π x y, p x =  p y -> f x = f y.
+  Hypothesis comp_f_epi: ∏ x y, p x =  p y -> f x = f y.
   Hypothesis surjectivep : issurjective p.
 
   (* Reformulation of the previous hypothesis *)
-  Lemma surjective_iscontr_im : Π b : B, iscontr
+  Lemma surjective_iscontr_im : ∏ b : B, iscontr
                                         (image (fun (x:hfiber p b) => f (pr1 x))).
   Proof.
     intro b.
@@ -1502,7 +1502,7 @@ Section LiftSurjection.
   Definition univ_surj : B -> C :=
     fun b => (pr1 (pr1 (surjective_iscontr_im b))).
 
-  Lemma univ_surj_ax : Π x,  univ_surj (p x) = f x.
+  Lemma univ_surj_ax : ∏ x,  univ_surj (p x) = f x.
   Proof.
     intro x.
     apply pathsinv0.
@@ -1515,7 +1515,7 @@ Section LiftSurjection.
     apply (pr2 r).
   Qed.
 
-  Lemma univ_surj_unique : Π (g : B -> C) (H : Π a : A, g (p a) = f a)
+  Lemma univ_surj_unique : ∏ (g : B -> C) (H : ∏ a : A, g (p a) = f a)
                             (b : B), g b = univ_surj b.
   Proof.
     intros g H b.
@@ -1560,11 +1560,11 @@ be considered in the section about types of h-level 3.
 
 Definition setquot {X : UU} (R : hrel X) : UU
   := total2 (fun A : _ => iseqclass R A).
-Definition setquotpair {X : UU} (R : hrel X) (A : hsubtypes X)
+Definition setquotpair {X : UU} (R : hrel X) (A : hsubtype X)
            (is : iseqclass R A) : setquot R := tpair _ A is.
-Definition pr1setquot {X : UU} (R : hrel X) : setquot R -> (hsubtypes X)
+Definition pr1setquot {X : UU} (R : hrel X) : setquot R -> (hsubtype X)
   := @pr1 _ (fun A : _ => iseqclass R A).
-Coercion pr1setquot : setquot >-> hsubtypes.
+Coercion pr1setquot : setquot >-> hsubtype.
 
 Lemma isinclpr1setquot {X : UU} (R : hrel X) : isincl (pr1setquot R).
 Proof.
@@ -1578,7 +1578,7 @@ Coercion setquottouu0 : setquot >-> Sortclass.
 Theorem isasetsetquot {X : UU} (R : hrel X) : isaset (setquot R).
 Proof.
   intros X R.
-  apply (isasetsubset (@pr1 _ _) (isasethsubtypes X)).
+  apply (isasetsubset (@pr1 _ _) (isasethsubtype X)).
   apply isinclpr1; intro x.
   now apply isapropiseqclass.
 Defined.
@@ -1639,7 +1639,7 @@ Defined.
 
 
 Definition iscomprelfun {X Y : UU} (R : hrel X) (f : X -> Y) : UU
-  := Π x x' : X, R x x' -> f x = f x'.
+  := ∏ x x' : X, R x x' -> f x = f x'.
 
 Lemma iscomprelfunlogeqf {X Y : UU} {R L : hrel X} (lg : hrellogeq L R)
       (f : X -> Y) (is : iscomprelfun L f) : iscomprelfun R f.
@@ -1682,7 +1682,7 @@ Defined.
 
 Theorem setquotunivcomm {X : UU} (R : eqrel X) (Y : hSet) (f : X -> Y)
         (is : iscomprelfun R f) :
-  Π x : X, setquotuniv R Y f is (setquotpr R x) = f x.
+  ∏ x : X, setquotuniv R Y f is (setquotpr R x) = f x.
 Proof.
   intros. unfold setquotuniv. unfold setquotpr.
   simpl. apply idpath.
@@ -1709,7 +1709,7 @@ Defined.
 
 
 Definition iscomprelrelfun {X Y : UU} (RX : hrel X) (RY : hrel Y) (f : X -> Y)
-  : UU := Π x x' : X, RX x x' -> RY (f x) (f x').
+  : UU := ∏ x x' : X, RX x x' -> RY (f x) (f x').
 
 Lemma iscomprelfunlogeqf1 {X Y : UU} {LX RX : hrel X} (RY : hrel Y)
       (lg : hrellogeq LX RX) (f : X -> Y) (is : iscomprelrelfun LX RY f) :
@@ -1737,7 +1737,7 @@ Defined.
 
 Definition setquotfuncomm {X Y : UU} (RX : eqrel X) (RY : eqrel Y)
            (f : X -> Y) (is : iscomprelrelfun RX RY f) :
-  Π x : X, setquotfun RX RY f is (setquotpr RX x) = setquotpr RY (f x).
+  ∏ x : X, setquotfun RX RY f is (setquotpr RX x) = setquotpr RY (f x).
 Proof. intros. simpl. apply idpath. Defined.
 
 
@@ -1745,7 +1745,7 @@ Proof. intros. simpl. apply idpath. Defined.
 (** *** Universal property of [setquot] for predicates of one and several variables *)
 
 Theorem setquotunivprop {X : UU} (R : eqrel X) (P : setquot (pr1 R) -> hProp)
-  (ps : Π x : X, pr1 (P (setquotpr R x))) : Π c : setquot (pr1 R), pr1 (P c).
+  (ps : ∏ x : X, pr1 (P (setquotpr R x))) : ∏ c : setquot (pr1 R), pr1 (P c).
 Proof.
 intros X R P ps c.
 apply (@hinhuniv (carrier (pr1 c)) (P c)).
@@ -1758,11 +1758,11 @@ Defined.
 
 Theorem setquotuniv2prop {X : UU} (R : eqrel X)
         (P : setquot R -> setquot R -> hProp)
-        (is : Π x x' : X, P (setquotpr R x) (setquotpr R x')) :
-  Π c c' : setquot R, P c c'.
+        (is : ∏ x x' : X, P (setquotpr R x) (setquotpr R x')) :
+  ∏ c c' : setquot R, P c c'.
 Proof.
   intros.
-  assert (int1 : Π c0' : _, P c c0').
+  assert (int1 : ∏ c0' : _, P c c0').
   {
     apply (setquotunivprop R (fun c0' => P c c0')).
     intro x. apply (setquotunivprop R (fun c0 : _ => P c0 (setquotpr R x))).
@@ -1773,12 +1773,12 @@ Defined.
 
 Theorem setquotuniv3prop {X : UU} (R : eqrel X)
         (P : setquot R -> setquot R -> setquot R -> hProp)
-        (is : Π x x' x'' : X, P (setquotpr R x) (setquotpr R x')
+        (is : ∏ x x' x'' : X, P (setquotpr R x) (setquotpr R x')
                                 (setquotpr R x'')) :
-  Π c c' c'' : setquot R, P c c' c''.
+  ∏ c c' c'' : setquot R, P c c' c''.
 Proof.
   intros.
-  assert (int1 : Π c0' c0'' : _, P c c0' c0'').
+  assert (int1 : ∏ c0' c0'' : _, P c c0' c0'').
   {
     apply (setquotuniv2prop R (fun c0' c0'' => P c c0' c0'')).
     intros x x'.
@@ -1791,12 +1791,12 @@ Defined.
 
 Theorem setquotuniv4prop {X : UU} (R : eqrel X)
         (P : setquot R -> setquot R ->  setquot R -> setquot R -> hProp)
-        (is : Π x x' x'' x''' : X, P (setquotpr R x) (setquotpr R x')
+        (is : ∏ x x' x'' x''' : X, P (setquotpr R x) (setquotpr R x')
                                      (setquotpr R x'') (setquotpr R x''')) :
-  Π c c' c'' c''' : setquot R, P c c' c'' c'''.
+  ∏ c c' c'' c''' : setquot R, P c c' c'' c'''.
 Proof.
   intros.
-  assert (int1 : Π c0 c0' c0'' : _, P c c0 c0' c0'').
+  assert (int1 : ∏ c0 c0' c0'' : _, P c c0 c0' c0'').
   {
     apply (setquotuniv3prop R (fun c0 c0' c0'' => P c c0 c0' c0'')).
     intros x x' x''.
@@ -1841,13 +1841,13 @@ Defined.
 
 Lemma isinclsetquotfun {X Y : UU} (RX : eqrel X) (RY : eqrel Y) (f : X -> Y)
       (is1 : iscomprelrelfun RX RY f)
-      (is2 : Π x x' : X, RY (f x) (f x') -> RX x x') :
+      (is2 : ∏ x x' : X, RY (f x) (f x') -> RX x x') :
   isincl (setquotfun RX RY f is1).
 Proof.
   intros. apply isinclbetweensets.
   - apply isasetsetquot.
   - apply isasetsetquot.
-  - assert (is : Π (x x' : setquot RX),
+  - assert (is : ∏ (x x' : setquot RX),
                  isaprop (paths (setquotfun RX RY f is1 x)
                                 (setquotfun RX RY f is1 x') -> paths x x')).
     {
@@ -1863,32 +1863,32 @@ Defined.
 
 Definition setquotincl {X Y : UU} (RX : eqrel X) (RY : eqrel Y) (f : X -> Y)
            (is1 : iscomprelrelfun RX RY f)
-           (is2 : Π x x' : X, RY (f x) (f x') -> RX x x') :
+           (is2 : ∏ x x' : X, RY (f x) (f x') -> RX x x') :
   incl (setquot RX) (setquot RY)
   := inclpair (setquotfun RX RY f is1) (isinclsetquotfun RX RY f is1 is2).
 
 Definition  weqsetquotweq {X Y : UU} (RX : eqrel X) (RY : eqrel Y) (f : weq X Y)
             (is1 : iscomprelrelfun RX RY f)
-            (is2 : Π x x' : X, RY (f x) (f x') -> RX x x') :
+            (is2 : ∏ x x' : X, RY (f x) (f x') -> RX x x') :
   weq (setquot RX) (setquot RY).
 Proof.
   intros.
   set (ff := setquotfun RX RY f is1). split with ff.
-  assert (is2' : Π y y' : Y, RY y y' -> RX (invmap f y) (invmap f y')).
+  assert (is2' : ∏ y y' : Y, RY y y' -> RX (invmap f y) (invmap f y')).
   intros y y'.
   rewrite (pathsinv0 (homotweqinvweq f y)).
   rewrite (pathsinv0 (homotweqinvweq f y')).
   rewrite (homotinvweqweq f (invmap f y)).
   rewrite (homotinvweqweq f (invmap f y')).
   apply (is2 _ _). set (gg := setquotfun RY RX (invmap f) is2').
-  assert (egf : Π a, paths (gg (ff a)) a).
+  assert (egf : ∏ a, paths (gg (ff a)) a).
   {
     apply (setquotunivprop
              RX (fun a0 => hProppair _ (isasetsetquot RX (gg (ff a0)) a0))).
     simpl. intro x. unfold ff. unfold gg.
     apply (maponpaths (setquotpr RX) (homotinvweqweq f x)).
   }
-  assert (efg : Π a, paths (ff (gg a)) a).
+  assert (efg : ∏ a, paths (ff (gg a)) a).
   {
     apply (setquotunivprop
              RY (fun a0 => hProppair _ (isasetsetquot RY (ff (gg a0)) a0))).
@@ -1900,7 +1900,7 @@ Defined.
 
 Definition weqsetquotsurj {X Y : UU} (RX : eqrel X) (RY : eqrel Y) (f : X -> Y)
            (is : issurjective f) (is1 : iscomprelrelfun RX RY f)
-           (is2 : Π x x' : X, RY (f x) (f x') -> RX x x') :
+           (is2 : ∏ x x' : X, RY (f x) (f x') -> RX x x') :
   weq (setquot RX) (setquot RY).
 Proof.
   intros.
@@ -1949,7 +1949,7 @@ Proof.
   set (f := setquottodirprod RX RY).
   set (g := dirprodtosetquot RX RY).
   split with f.
-  assert (egf : Π a : _, paths (g (f a)) a).
+  assert (egf : ∏ a : _, paths (g (f a)) a).
   {
     apply (setquotunivprop _ (fun a : _ => (hProppair _ (isasetsetquot _ (g (f a))
                                                                     a)))).
@@ -1958,7 +1958,7 @@ Proof.
     simpl. apply funextsec. intro xy'.
     destruct xy' as [ x' y' ]. apply idpath.
   }
-  assert (efg : Π a : _, paths (f (g a)) a).
+  assert (efg : ∏ a : _, paths (f (g a)) a).
   {
     intro a. destruct a as [ ax ay ]. apply pathsdirprod.
     generalize ax. clear ax.
@@ -1983,11 +1983,11 @@ Defined.
 (** *** Universal property of [setquot] for functions of two variables *)
 
 Definition iscomprelfun2 {X Y : UU} (R : hrel X) (f : X -> X -> Y) : UU
-  := Π x x' x0 x0' : X, R x x' -> R x0 x0' -> f x x0 = f x' x0'.
+  := ∏ x x' x0 x0' : X, R x x' -> R x0 x0' -> f x x0 = f x' x0'.
 
 Lemma iscomprelfun2if {X Y : UU} (R : hrel X) (f : X -> X -> Y)
-      (is1 : Π x x' x0 : X, R x x' -> f x x0 = f x' x0)
-      (is2 : Π x x0 x0' : X, R x0 x0' -> f x x0 = f x x0') : iscomprelfun2 R f.
+      (is1 : ∏ x x' x0 : X, R x x' -> f x x0 = f x' x0)
+      (is2 : ∏ x x0 x0' : X, R x0 x0' -> f x x0 = f x x0') : iscomprelfun2 R f.
 Proof.
   intros. intros x x' x0 x0'. intros r r'.
   set (e := is1 x x' x0 r).
@@ -2024,7 +2024,7 @@ Defined.
 
 Theorem setquotuniv2comm {X : UU} (R : eqrel X) (Y : hSet) (f : X -> X -> Y)
         (is : iscomprelfun2 R f) :
-  Π x x' : X, setquotuniv2 R Y f is (setquotpr R x) (setquotpr R x') = f x x'.
+  ∏ x x' : X, setquotuniv2 R Y f is (setquotpr R x) (setquotpr R x') = f x x'.
 Proof. intros. apply idpath. Defined.
 
 
@@ -2034,12 +2034,12 @@ Proof. intros. apply idpath. Defined.
 
 Definition iscomprelrelfun2 {X Y : UU} (RX : hrel X) (RY : hrel Y)
            (f : X -> X -> Y) : UU
-  := Π x x' x0 x0' : X, RX x x' -> RX x0 x0' -> RY (f x x0) (f x' x0').
+  := ∏ x x' x0 x0' : X, RX x x' -> RX x0 x0' -> RY (f x x0) (f x' x0').
 
 Lemma iscomprelrelfun2if {X Y : UU} (RX : hrel X) (RY : eqrel Y)
       (f : X -> X -> Y)
-      (is1 : Π x x' x0 : X, RX x x' -> RY (f x x0) (f x' x0))
-      (is2 : Π x x0 x0' : X, RX x0 x0' -> RY (f x x0) (f x x0')) :
+      (is1 : ∏ x x' x0 : X, RX x x' -> RY (f x x0) (f x' x0))
+      (is2 : ∏ x x0 x0' : X, RX x0 x0' -> RY (f x x0) (f x x0')) :
   iscomprelrelfun2 RX RY f.
 Proof.
   intros. intros x x' x0 x0'. intros r r'.
@@ -2085,7 +2085,7 @@ Defined.
 
 Theorem setquotfun2comm {X Y : UU} (RX : eqrel X) (RY : eqrel Y)
         (f : X -> X -> Y) (is : iscomprelrelfun2 RX RY f) :
-  Π (x x' : X), setquotfun2 RX RY f is (setquotpr RX x) (setquotpr RX x')
+  ∏ (x x' : X), setquotfun2 RX RY f is (setquotpr RX x) (setquotpr RX x')
                 = setquotpr RY (f x x').
 Proof. intros. apply idpath. Defined.
 
@@ -2095,7 +2095,7 @@ Proof. intros. apply idpath. Defined.
 
 
 Theorem isdeceqsetquot_non_constr {X : UU} (R : eqrel X)
-        (is : Π x x' : X, isdecprop (R x x')) : isdeceq (setquot R).
+        (is : ∏ x x' : X, isdecprop (R x x')) : isdeceq (setquot R).
 Proof.
   intros. apply isdeceqif. intros x x'.
   apply (setquotuniv2prop
@@ -2105,11 +2105,11 @@ Proof.
 Defined.
 
 Definition setquotbooleqint {X : UU} (R : eqrel X)
-           (is : Π x x' : X, isdecprop (R x x')) (x x' : X) : bool.
+           (is : ∏ x x' : X, isdecprop (R x x')) (x x' : X) : bool.
 Proof. intros. destruct (pr1 (is x x')). apply true. apply false. Defined.
 
 Lemma setquotbooleqintcomp {X : UU} (R : eqrel X)
-      (is : Π x x' : X, isdecprop (R x x')) :
+      (is : ∏ x x' : X, isdecprop (R x x')) :
   iscomprelfun2 R (setquotbooleqint R is).
 Proof.
   intros. unfold iscomprelfun2.
@@ -2129,17 +2129,17 @@ Defined.
 
 
 Definition setquotbooleq {X : UU} (R : eqrel X)
-           (is : Π x x' : X, isdecprop (R x x')) :
+           (is : ∏ x x' : X, isdecprop (R x x')) :
   setquot R -> setquot R -> bool
   := setquotuniv2 R (hSetpair _ (isasetbool)) (setquotbooleqint R is)
                   (setquotbooleqintcomp R is).
 
 Lemma setquotbooleqtopaths {X : UU} (R : eqrel X)
-      (is : Π x x' : X, isdecprop (R x x')) (x x' : setquot R) :
+      (is : ∏ x x' : X, isdecprop (R x x')) (x x' : setquot R) :
   setquotbooleq R is x x' = true  -> x = x'.
 Proof.
   intros X R is.
-  assert (isp : Π (x x' : setquot R),
+  assert (isp : ∏ (x x' : setquot R),
                 isaprop (paths (setquotbooleq R is x x') true  -> paths x x')).
   {
     intros x x'. apply impred. intro. apply (isasetsetquot R x x').
@@ -2154,7 +2154,7 @@ Proof.
 Defined.
 
 Lemma setquotpathstobooleq {X : UU} (R : eqrel X)
-      (is : Π x x' : X, isdecprop (R x x')) (x x' : setquot R) :
+      (is : ∏ x x' : X, isdecprop (R x x')) (x x' : setquot R) :
   x = x' -> setquotbooleq R is x x' = true.
 Proof.
   intros X R is x x' e. destruct e. generalize x.
@@ -2168,7 +2168,7 @@ Proof.
 Defined.
 
 Definition isdeceqsetquot {X : UU} (R : eqrel X)
-           (is : Π x x' : X, isdecprop (R x x')) : isdeceq (setquot R).
+           (is : ∏ x x' : X, isdecprop (R x x')) : isdeceq (setquot R).
 Proof.
   intros. intros x x'.
   destruct (boolchoice (setquotbooleq R is x x')) as [ i | ni ].
@@ -2189,8 +2189,8 @@ Definition iscomprelrel {X : UU} (R : hrel X) (L : hrel X) : UU
   := iscomprelfun2 R L.
 
 Lemma iscomprelrelif {X : UU} {R : hrel X} (L : hrel X) (isr : issymm R)
-      (i1 : Π x x' y, R x x' -> L x y -> L x' y)
-      (i2 : Π x y y', R y y' -> L x y -> L x y') : iscomprelrel R L.
+      (i1 : ∏ x x' y, R x x' -> L x y -> L x' y)
+      (i2 : ∏ x y y', R y y' -> L x y -> L x y') : iscomprelrel R L.
 Proof.
   intros. intros x x' y y' rx ry.
   set (rx' := isr _ _ rx). set (ry' := isr _ _ ry).
@@ -2230,7 +2230,7 @@ Lemma istransquotrel {X : UU} {R : eqrel X} {L : hrel X}
       (is : iscomprelrel R L) (isl : istrans L) : istrans (quotrel is).
 Proof.
   intros. unfold istrans.
-  assert (int : Π (x1 x2 x3 : setquot R),
+  assert (int : ∏ (x1 x2 x3 : setquot R),
                 isaprop (quotrel is x1 x2 -> quotrel is x2 x3
                          -> quotrel is x1 x3)).
   {
@@ -2248,7 +2248,7 @@ Lemma issymmquotrel {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L)
       (isl : issymm L) : issymm (quotrel is).
 Proof.
   intros. unfold issymm.
-  assert (int : Π (x1 x2 : setquot R),
+  assert (int : ∏ (x1 x2 : setquot R),
                 isaprop (quotrel is x1 x2 -> quotrel is x2 x1)).
   {
     intros x1 x2.
@@ -2293,7 +2293,7 @@ Lemma isasymmquotrel {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L)
       (isl : isasymm L) : isasymm (quotrel is).
 Proof.
   intros. unfold isasymm.
-  assert (int : Π (x1 x2 : setquot R),
+  assert (int : ∏ (x1 x2 : setquot R),
                 isaprop (quotrel is x1 x2 -> quotrel is x2 x1 -> empty)).
   {
     intros x1 x2.
@@ -2310,7 +2310,7 @@ Lemma iscoasymmquotrel {X : UU} {R : eqrel X} {L : hrel X}
       (is : iscomprelrel R L) (isl : iscoasymm L) : iscoasymm (quotrel is).
 Proof.
   intros. unfold iscoasymm.
-  assert (int : Π (x1 x2 : setquot R),
+  assert (int : ∏ (x1 x2 : setquot R),
                 isaprop (neg (quotrel is x1 x2) -> quotrel is x2 x1)).
   {
     intros x1 x2.
@@ -2335,7 +2335,7 @@ Lemma iscotransquotrel {X : UU} {R : eqrel X} {L : hrel X}
       (is : iscomprelrel R L) (isl : iscotrans L) : iscotrans (quotrel is).
 Proof.
   intros. unfold iscotrans.
-  assert (int : Π (x1 x2 x3 : setquot R),
+  assert (int : ∏ (x1 x2 x3 : setquot R),
                 isaprop (quotrel is x1 x3 -> hdisj (quotrel is x1 x2)
                                                   (quotrel is x2 x3))).
   {
@@ -2352,7 +2352,7 @@ Lemma isantisymmquotrel {X : UU} {R : eqrel X} {L : hrel X}
       (is : iscomprelrel R L) (isl : isantisymm L) : isantisymm (quotrel is).
 Proof.
   intros. unfold isantisymm.
-  assert (int : Π (x1 x2 : setquot R),
+  assert (int : ∏ (x1 x2 : setquot R),
                 isaprop (quotrel is x1 x2 -> quotrel is x2 x1 -> paths x1 x2)).
   {
     intros x1 x2.
@@ -2370,7 +2370,7 @@ Lemma isantisymmnegquotrel {X : UU} {R : eqrel X} {L : hrel X}
   isantisymmneg (quotrel is).
 Proof.
   intros. unfold isantisymmneg.
-  assert (int : Π (x1 x2 : setquot R),
+  assert (int : ∏ (x1 x2 : setquot R),
                 isaprop (neg (quotrel is x1 x2) -> neg (quotrel is x2 x1)
                          -> paths x1 x2)).
   {
@@ -2393,11 +2393,11 @@ question.*)
 
 
 Lemma quotrelimpl {X : UU} {R : eqrel X} {L L' : hrel X} (is : iscomprelrel R L)
-      (is' : iscomprelrel R L') (impl : Π x x', L x x' -> L' x x')
+      (is' : iscomprelrel R L') (impl : ∏ x x', L x x' -> L' x x')
       (x x' : setquot R) (ql : quotrel is x x') : quotrel is' x x'.
 Proof.
   intros. generalize x x' ql.
-  assert (int : Π (x0 x0' : setquot R),
+  assert (int : ∏ (x0 x0' : setquot R),
                 isaprop (quotrel is x0 x0' -> quotrel is' x0 x0')).
   {
     intros x0 x0'.
@@ -2411,7 +2411,7 @@ Defined.
 
 Lemma quotrellogeq {X : UU} {R : eqrel X} {L L' : hrel X}
       (is : iscomprelrel R L) (is' : iscomprelrel R L')
-      (lg : Π x x', L x x' <-> L' x x') (x x' : setquot R) :
+      (lg : ∏ x x', L x x' <-> L' x x') (x x' : setquot R) :
   (quotrel is x x') <-> (quotrel is' x x').
 Proof.
   intros. split.
@@ -2453,7 +2453,7 @@ Definition quotdecrelintlogeq {X : UU} {R : eqrel X} (L : decrel X)
   breltodecrel (quotdecrelint L is) x x' <-> quotrel is x x'.
 Proof.
   intros X R L is.
-  assert (int : Π (x x' : setquot R),
+  assert (int : ∏ (x x' : setquot R),
                 isaprop (paths (quotdecrelint L is x x') true
                          <-> (quotrel is x x'))).
   {
@@ -2485,11 +2485,11 @@ Definition decquotrel {X : UU} {R : eqrel X} (L : decrel X)
 (** *** Subtypes of quotients and quotients of subtypes *)
 
 
-Definition reseqrel {X : UU} (R : eqrel X) (P : hsubtypes X) : eqrel P :=
+Definition reseqrel {X : UU} (R : eqrel X) (P : hsubtype X) : eqrel P :=
   eqrelpair _ (iseqrelresrel R P (pr2 R)).
 
-Lemma iseqclassresrel {X : UU} (R : hrel X) (P Q : hsubtypes X)
-      (is : iseqclass R Q) (is' : Π x, Q x -> P x) :
+Lemma iseqclassresrel {X : UU} (R : hrel X) (P Q : hsubtype X)
+      (is : iseqclass R Q) (is' : ∏ x, Q x -> P x) :
   iseqclass (resrel R P) (fun x : P => Q (pr1 x)).
 Proof.
   intros. split.
@@ -2501,7 +2501,7 @@ Proof.
     + intros p1 p2 q1 q2. apply ((pr2 (pr2 is)) _ _ q1 q2).
 Defined.
 
-Definition fromsubquot {X : UU} (R : eqrel X) (P : hsubtypes (setquot R))
+Definition fromsubquot {X : UU} (R : eqrel X) (P : hsubtype (setquot R))
            (p : P) : setquot (resrel R (funcomp (setquotpr R) P)).
 Proof.
   intros.
@@ -2511,7 +2511,7 @@ Proof.
   simpl in e. unfold funcomp. rewrite e. apply (pr2 p).
 Defined.
 
-Definition tosubquot {X : UU} (R : eqrel X) (P : hsubtypes (setquot R)) :
+Definition tosubquot {X : UU} (R : eqrel X) (P : hsubtype (setquot R)) :
   setquot (resrel R (funcomp (setquotpr R) P)) -> P.
 Proof.
   intros X R P.
@@ -2529,7 +2529,7 @@ Proof.
   simpl. apply (iscompsetquotpr). apply rp12.
 Defined.
 
-Definition weqsubquot {X : UU} (R : eqrel X) (P : hsubtypes (setquot R)) :
+Definition weqsubquot {X : UU} (R : eqrel X) (P : hsubtype (setquot R)) :
   weq P (setquot (resrel R (funcomp (setquotpr R) P))).
 Proof.
   intros.
@@ -2540,12 +2540,12 @@ Proof.
     - apply (setproperty (setquotinset R)).
     - refine (isinclpr1carrier _).
   }
-  assert (egf : Π (a : P), paths (g (f a)) a).
+  assert (egf : ∏ (a : P), paths (g (f a)) a).
   {
     intros a. destruct a as [ p isp ].
     generalize isp. generalize p. clear isp. clear p.
-    assert (int : Π (p : setquot R),
-                  isaprop (Π isp : P p, paths (g (f (tpair _ p isp)))
+    assert (int : ∏ (p : setquot R),
+                  isaprop (∏ isp : P p, paths (g (f (tpair _ p isp)))
                                               (tpair _ p isp))).
     {
       intro p.
@@ -2556,10 +2556,10 @@ Proof.
     simpl. intros x isp. apply (invmaponpathsincl _ (isinclpr1carrier P) _ _).
     apply idpath.
   }
-  assert (efg : Π (a : setquot (resrel R (P ∘ setquotpr R))),
+  assert (efg : ∏ (a : setquot (resrel R (P ∘ setquotpr R))),
                 paths (f (g a)) a).
   {
-    assert (int : Π a, isaprop (paths (f (g a)) a)).
+    assert (int : ∏ a, isaprop (paths (f (g a)) a)).
     {
       intro a.
       apply (setproperty (setquotinset (resrel R (funcomp (setquotpr R) P)))).
@@ -2582,7 +2582,7 @@ Defined.
 (** Comment: unfortunetely [weqsubquot] is not as useful as it should be at
   moment due to the failure of the following code to work:
 
-  [Lemma test (X : UU) (R : eqrel X) (P : hsubtypes (setquot R)) (x : X)
+  [Lemma test (X : UU) (R : eqrel X) (P : hsubtype (setquot R)) (x : X)
    (is : P (setquotpr R x)) :
      paths (setquotpr (reseqrel R (funcomp (setquotpr R) P)) (tpair _ x is))
            (fromsubquot R P (tpair _ (setquotpr R x) is)).
@@ -2595,14 +2595,14 @@ Defined.
   places in the work with quotients. It can be traced back first to the failure
   of [invmaponpathsincl] to map [idpath] to [idpath] and then to the fact that
   for [(X : UU) (is : isaprop X)] the term
-  [t := proofirrelevance is : Π x1 x2 : X, paths x1 x2] does not satisfy
+  [t := proofirrelevance is : ∏ x1 x2 : X, paths x1 x2] does not satisfy
   (definitionally) the condition [t x x == idpath x].
 
   It can and probably should be fixed by the addition of a new componenet to
   CIC in the form of a term constructor:
 
-  tfc (X : UU) (E : X -> UU) (is : Π x, iscontr (E x)) (x0 : X) (e0 : E x0) :
-     Π x : X, E x.
+  tfc (X : UU) (E : X -> UU) (is : ∏ x, iscontr (E x)) (x0 : X) (e0 : E x0) :
+     ∏ x : X, E x.
 
   and a computation rule
 
@@ -2614,9 +2614,9 @@ Defined.
   as far as I can see, provide any problems for normalization or for the
   decidability of typing. Using tfc one can give a construction of
   [proofirrelevance] as follows (recall that
-  [isaprop := Π x1 x2, iscontr (paths x1 x2)]) :
+  [isaprop := ∏ x1 x2, iscontr (paths x1 x2)]) :
 
-  Lemma proofirrelevance {X : UU} (is : isaprop X) : Π x1 x2, paths x1 x2.
+  Lemma proofirrelevance {X : UU} (is : isaprop X) : ∏ x1 x2, paths x1 x2.
   Proof.
    intros X is x1.
    apply (tfc X (fun x2 => paths x1 x2) is x1 (idpath x1)).
@@ -2702,7 +2702,7 @@ Definition pr1compfun (X : UU) (R : hrel X) (S : UU) :
 Coercion pr1compfun : compfun >-> Funclass.
 
 Definition compevmapset {X : UU} (R : hrel X) :
-  X -> Π S : hSet, (compfun R S) -> S
+  X -> ∏ S : hSet, (compfun R S) -> S
   := fun x : X => fun S : _ => fun f : compfun R S => pr1 f x.
 
 Definition compfuncomp {X : UU} (R : hrel X) {S S' : UU} (f : compfun R S)
@@ -2730,7 +2730,7 @@ Definition Fv {X Y : UU} (R : hrel X) (f : compfun R Y) (phi : F X Y R) : Y
 
 Definition qeq {X Y : UU} (R : hrel X)
 := total2 (fun phi : F X Y R =>
-                     Π psi : F X Y R -> Y,
+                     ∏ psi : F X Y R -> Y,
                              paths (psi phi)
                                    (Fv R (compfuncomp
                                            R (compfunpair R _ (iscompFi R)) psi)
@@ -2738,7 +2738,7 @@ Definition qeq {X Y : UU} (R : hrel X)
 
 Lemma isinclpr1qeq {X : UU} (R : hrel X) (Y : hSet) :
     isincl (@pr1 _ (fun phi : F X Y R =>
-                            Π psi : F X Y R -> Y,
+                            ∏ psi : F X Y R -> Y,
                                   paths
                                     (psi phi)
                                      (Fv R (compfuncomp
@@ -2836,8 +2836,8 @@ Proof.
 Defined.
 
 Inductive try0 (T : UU) (t : T) :
-   Π (t1 t2 : T) (e1 : paths t t1) (e2 : paths t t2), UU
-   := idconstr : Π (t' : T) (e' : paths t t'), try0 T t t' t' e' e'.
+   ∏ (t1 t2 : T) (e1 : paths t t1) (e2 : paths t t2), UU
+   := idconstr : ∏ (t' : T) (e' : paths t t'), try0 T t t' t' e' e'.
 
 Definition try0map1 (T : UU) (t : T) (t1 t2 : T) (e1 : paths t t1)
    (e2 : paths t t2) (X : try0 T t t1 t2 e1 e2) : paths t1 t2.
@@ -2880,7 +2880,7 @@ Definition setquot2 {X : UU} (R : hrel X) : UU := image (compevmapset R).
 Theorem isasetsetquot2 {X : UU} (R : hrel X) : isaset (setquot2 R).
 Proof.
   intros.
-  assert (is1: isofhlevel 2 (Π S : hSet, (compfun R S) -> S)).
+  assert (is1: isofhlevel 2 (∏ S : hSet, (compfun R S) -> S)).
   {
     apply impred. intro.
     apply impred. intro X0.

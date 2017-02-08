@@ -47,10 +47,10 @@ Section def_additivefunctor.
   (** ** isAdditiveFunctor *)
 
   Definition isAdditiveFunctor {A B : Additive} (F : functor A B) : UU :=
-    Π (a1 a2 : A), @ismonoidfun (to_abgrop a1 a2) (to_abgrop (F a1) (F a2)) (# F).
+    ∏ (a1 a2 : A), @ismonoidfun (to_abgrop a1 a2) (to_abgrop (F a1) (F a2)) (# F).
 
   Definition mk_isAdditiveFunctor {A B : Additive} (F : functor A B)
-             (H : Π (a1 a2 : A),
+             (H : ∏ (a1 a2 : A),
                   @ismonoidfun (to_abgrop a1 a2) (to_abgrop (F a1) (F a2)) (# F)) :
     isAdditiveFunctor F.
   Proof.
@@ -59,9 +59,9 @@ Section def_additivefunctor.
   Qed.
 
   Definition mk_isAdditiveFunctor' {A B : Additive} (F : functor A B)
-             (H1 : Π (a1 a2 : A), (# F (ZeroArrow (to_Zero A) a1 a2)) =
+             (H1 : ∏ (a1 a2 : A), (# F (ZeroArrow (to_Zero A) a1 a2)) =
                                   ZeroArrow (to_Zero B) (F a1) (F a2))
-             (H2 : Π (a1 a2 : A) (f g : A⟦a1, a2⟧), # F (to_binop _ _ f g) =
+             (H2 : ∏ (a1 a2 : A) (f g : A⟦a1, a2⟧), # F (to_binop _ _ f g) =
                                                     to_binop _ _ (# F f) (# F g)) :
     isAdditiveFunctor F.
   Proof.
@@ -86,7 +86,7 @@ Section def_additivefunctor.
 
   (** ** Additive functor *)
 
-  Definition AdditiveFunctor (A B : Additive) : UU := Σ F : (functor A B), isAdditiveFunctor F.
+  Definition AdditiveFunctor (A B : Additive) : UU := ∑ F : (functor A B), isAdditiveFunctor F.
 
   Definition mk_AdditiveFunctor {A B : Additive} (F : functor A B) (H : isAdditiveFunctor F) :
     AdditiveFunctor A B := tpair _ F H.
@@ -151,7 +151,7 @@ End def_additivefunctor.
 Section additivefunctor_preserves_bindirectsums.
 
   Definition PreservesBinDirectSums {A B : Additive} (F : functor A B) : UU :=
-    Π (a1 a2 : A) (DS : BinDirectSumCone A a1 a2),
+    ∏ (a1 a2 : A) (DS : BinDirectSumCone A a1 a2),
     isBinDirectSumCone B (F a1) (F a2) (F DS)
                        (# F (to_In1 A DS)) (# F (to_In2 A DS))
                        (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS)).
@@ -720,15 +720,15 @@ End def_additive_quot_functor.
 Section def_additive_equivalence.
 
   Definition AddEquiv (A1 A2 : Additive) : UU :=
-    Σ D : (Σ F : (AdditiveFunctor A1 A2 × AdditiveFunctor A2 A1),
+    ∑ D : (∑ F : (AdditiveFunctor A1 A2 × AdditiveFunctor A2 A1),
                  are_adjoints (dirprod_pr1 F) (dirprod_pr2 F)),
-          (Π a : A1, is_z_isomorphism (unit_from_left_adjoint (pr2 D) a))
-            × (Π b : A2, is_z_isomorphism (counit_from_left_adjoint (pr2 D) b)).
+          (∏ a : A1, is_z_isomorphism (unit_from_left_adjoint (pr2 D) a))
+            × (∏ b : A2, is_z_isomorphism (counit_from_left_adjoint (pr2 D) b)).
 
   Definition mk_AddEquiv {A1 A2 : Additive} (F : AdditiveFunctor A1 A2)
              (G : AdditiveFunctor A2 A1) (H : are_adjoints F G)
-             (H1 : Π a : A1, is_z_isomorphism (unit_from_left_adjoint H a))
-             (H2 : Π b : A2, is_z_isomorphism (counit_from_left_adjoint H b)) :
+             (H1 : ∏ a : A1, is_z_isomorphism (unit_from_left_adjoint H a))
+             (H2 : ∏ b : A2, is_z_isomorphism (counit_from_left_adjoint H b)) :
     AddEquiv A1 A2 := (((F,,G),,H),,(H1,,H2)).
 
   (** Accessor functions *)
@@ -793,23 +793,23 @@ Section def_additive_equivalence.
   Defined.
 
   Definition AddEquivLeftTriangle {A1 A2 : Additive} (AE : AddEquiv A1 A2) :
-    Π (a : ob A1), # (AddEquiv1 AE) (AddEquivUnitIso AE a)
+    ∏ (a : ob A1), # (AddEquiv1 AE) (AddEquivUnitIso AE a)
                      ;; AddEquivCounitIso AE (AddEquiv1 AE a) =
                    identity (AddEquiv1 AE a) := triangle_id_left_ad AE.
 
   Definition AddEquivRightTriangle {A1 A2 : Additive} (AE : AddEquiv A1 A2) :
-    Π (b : ob A2), (AddEquivUnitIso AE (AddEquiv2 AE b))
+    ∏ (b : ob A2), (AddEquivUnitIso AE (AddEquiv2 AE b))
                      ;; # (AddEquiv2 AE) (AddEquivCounitIso AE b) =
                    identity (AddEquiv2 AE b) := triangle_id_right_ad AE.
 
   Definition AddEquivUnitComm {A1 A2 : Additive} (AE : AddEquiv A1 A2) :
-    Π (x x' : ob A1) (f : x --> x'),
+    ∏ (x x' : ob A1) (f : x --> x'),
     f ;; (AddEquivUnitIso AE x') =
     (AddEquivUnitIso AE x) ;; # (functor_composite (AddEquiv1 AE) (AddEquiv2 AE)) f :=
     nat_trans_ax (AddEquivUnit AE).
 
   Definition AddEquivCounitComm {A1 A2 : Additive} (AE : AddEquiv A1 A2) :
-    Π (x x' : A2) (f : x --> x'),
+    ∏ (x x' : A2) (f : x --> x'),
     # (functor_composite (AddEquiv2 AE) (AddEquiv1 AE)) f ;; (AddEquivCounitIso AE x') =
     (AddEquivCounitIso AE x) ;; f := nat_trans_ax (AddEquivCounit AE).
 

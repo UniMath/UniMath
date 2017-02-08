@@ -8,9 +8,9 @@ Require Export UniMath.Ktheory.Precategories.
 Local Open Scope cat.
 
 Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
-  intros. exists (Σ c:ob C, X c : hSet).
+  intros. exists (∑ c:ob C, X c : hSet).
   intros a b.
-  exact (Σ f : pr1 a --> pr1 b, #X f (pr2 a) = (pr2 b)).
+  exact (∑ f : pr1 a --> pr1 b, #X f (pr2 a) = (pr2 b)).
 Defined.
 
 Definition cat_data {C} (X:C==>SET) : precategory_data.
