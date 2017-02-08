@@ -189,22 +189,32 @@ Module Test_stn.
 
   Module Test_weqstnsum_2.
     (* this module exports nothing *)
-    Let X := stnset 6.
+    Let X := stnset 7.
     Let Y (x:X) := stnset (pr1 x).
     Let W := ∑ x, Y x.
-    Let w := (●3,,●2) : W.
-    Let w' := (●4,,●2) : W.
-    Let f : W ≃ stn 15 := weqstnsum1 _.
-    Let f' : stn 15 -> W := invmap f.
+    Let f : W ≃ stn _ := weqstnsum1 _.
+    Let f' : stn _ ≃ W := invweq f.
     Goal f(●1,,●0) = ●0. reflexivity. Defined. (* fixed! (formerly, it failed quickly) *)
+    Goal f(●2,,●0) = ●1. reflexivity. Defined.
+    Goal f(●2,,●1) = ●2. reflexivity. Defined.
+    Goal f(●3,,●0) = ●3. reflexivity. Defined.
+    Goal f(●3,,●1) = ●4. reflexivity. Defined.
+    Goal f(●3,,●2) = ●5. reflexivity. Defined.
+    Goal f(●4,,●0) = ●6. reflexivity. Defined.
+    Goal f(●5,,●0) = ●10. reflexivity. Defined.
+    Goal f(●6,,●0) = ●15. reflexivity. Defined.
 
-    Goal f'(●0) = (●1,,●0). try reflexivity. Abort. (* fix; fails quickly *)
-    (* let's extract the problematic component: *)
-    (* Statement of Goal fails
-    Goal (pr2 (pr2 (f'(●0)))) = idpath true.
-      try reflexivity. (* fix; fails quickly; might be a Coq bug *)
-    Abort.
-     *)
+    Goal (pr2 (pr2 (f'(●0)))) = idpath true. reflexivity. Defined. (* fixed, Coq bug? *)
+    Goal f'(●0) = (●1,,●0). reflexivity. Defined. (* fixed, Coq bug? *)
+    Goal f'(●0) = (●1,,●0). reflexivity. Defined.
+    Goal f'(●1) = (●2,,●0). reflexivity. Defined.
+    Goal f'(●2) = (●2,,●1). reflexivity. Defined.
+    Goal f'(●3) = (●3,,●0). reflexivity. Defined.
+    Goal f'(●4) = (●3,,●1). reflexivity. Defined.
+    Goal f'(●5) = (●3,,●2). reflexivity. Defined.
+    Goal f'(●6) = (●4,,●0). reflexivity. Defined.
+    Goal f'(●10) = (●5,,●0). reflexivity. Defined.
+    Goal f'(●15) = (●6,,●0). reflexivity. Defined.
 
   End Test_weqstnsum_2.
 
