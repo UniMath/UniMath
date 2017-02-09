@@ -4756,4 +4756,31 @@ Section mapping_cone_octa.
     apply maponpaths. exact (! (KAOctaComm5 f1 f2)).
   Qed.
 
+  Lemma KAOctaMor1Comm {x y z : Complex A} (f1 : Morphism x y) (g1 : Morphism y z) :
+    ((KAOctaMor1 f1 g1) : ((ComplexPreCat_Additive A)⟦_, _⟧))
+      ;; MappingConePr1 A ((f1 : ((ComplexPreCat_Additive A)⟦_, _⟧)) ;; g1) = MappingConePr1 A f1.
+  Proof.
+    use MorphismEq. intros i. cbn.
+    set (DS1 := to_BinDirectSums A (x (i + 1)) (z i)).
+    set (DS2 := to_BinDirectSums A (x (i + 1)) (y i)).
+    rewrite to_postmor_linear'. rewrite <- assoc. rewrite (to_IdIn1 A DS1). rewrite id_right.
+    rewrite <- assoc. rewrite (to_Unel2' DS1). rewrite ZeroArrow_comp_right.
+    rewrite to_runax''. apply idpath.
+  Qed.
+
+  Lemma KAOctaMor2Comm {x y z : Complex A} (f1 : Morphism x y) (g1 : Morphism y z) :
+    ((MappingConeIn2 A ((f1 : ((ComplexPreCat_Additive A)⟦_, _⟧)) ;; g1))
+     : ((ComplexPreCat_Additive A)⟦_, _⟧))
+      ;; ((KAOctaMor2 f1 g1) : ((ComplexPreCat_Additive A)⟦_, _⟧)) =
+    MappingConeIn2 A g1.
+  Proof.
+    use MorphismEq. intros i. cbn.
+    set (DS1 := to_BinDirectSums A (x (i + 1)) (z i)).
+    set (DS2 := to_BinDirectSums A (y (i + 1)) (y i)).
+    rewrite to_premor_linear'. rewrite assoc. rewrite assoc. rewrite assoc.
+    rewrite (to_IdIn2 A DS1). rewrite id_left.
+    rewrite (to_Unel2' DS1). rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left.
+    rewrite to_lunax''. apply idpath.
+  Qed.
+    
 End mapping_cone_octa.

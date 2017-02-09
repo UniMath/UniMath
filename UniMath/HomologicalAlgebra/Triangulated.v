@@ -716,6 +716,8 @@ Section def_triangulated.
              (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)) : UU :=
     ∑ D : ((z2 --> y2) × (y2 --> x2)),
           (isDTri (mk_Tri (dirprod_pr1 D) (dirprod_pr2 D) (g3 ;; (# (AddEquiv1 Trans) f2))))
+            × (dirprod_pr1 D ;; h3 = f3)
+            × (h2 ;; dirprod_pr2 D = g2)
             × (f2 ;; dirprod_pr1 D = g1 ;; h2)
             × (dirprod_pr2 D ;; g3 = h3 ;; (# (AddEquiv1 Trans) f1)).
 
@@ -727,9 +729,10 @@ Section def_triangulated.
              (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
              (φ1 : z2 --> y2) (φ2 : y2 --> x2)
              (H4 : isDTri (mk_Tri φ1 φ2 (g3 ;; (# (AddEquiv1 Trans) f2))))
-             (Comm1 : f2 ;; φ1 = g1 ;; h2)
-             (Comm2 : φ2 ;; g3 = h3 ;; (# (AddEquiv1 Trans) f1)) : Octa H1 H2 H3 :=
-    ((φ1,,φ2),,(H4,,(Comm1,,Comm2))).
+             (Comm1 : φ1 ;; h3 = f3) (Comm2 : h2 ;; φ2 = g2)
+             (Comm3 : f2 ;; φ1 = g1 ;; h2)
+             (Comm4 : φ2 ;; g3 = h3 ;; (# (AddEquiv1 Trans) f1)) : Octa H1 H2 H3 :=
+    ((φ1,,φ2),,(H4,,(Comm1,,(Comm2,,(Comm3,,Comm4))))).
 
   (** Accessor functions *)
 
@@ -763,7 +766,7 @@ Section def_triangulated.
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
              {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
-             (O : Octa H1 H2 H3) : f2 ;; (OctaMor1 O) = g1 ;; h2 :=
+             (O : Octa H1 H2 H3) : (OctaMor1 O) ;; h3 = f3 :=
     dirprod_pr1 (dirprod_pr2 (pr2 O)).
 
   Definition OctaComm2 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
@@ -772,8 +775,26 @@ Section def_triangulated.
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
              {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
+             (O : Octa H1 H2 H3) : h2 ;; (OctaMor2 O) = g2 :=
+    dirprod_pr1 (dirprod_pr2 (dirprod_pr2 (pr2 O))).
+
+  Definition OctaComm3 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
+             {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
+             {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
+             {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
+             {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
+             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
+             (O : Octa H1 H2 H3) : f2 ;; (OctaMor1 O) = g1 ;; h2 :=
+    dirprod_pr1 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (pr2 O)))).
+
+  Definition OctaComm4 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
+             {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
+             {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
+             {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
+             {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
+             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
              (O : Octa H1 H2 H3) : (OctaMor2 O) ;; g3 = h3 ;; (# (AddEquiv1 Trans) f1) :=
-    dirprod_pr2 (dirprod_pr2 (pr2 O)).
+    dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (pr2 O)))).
 
   (** Triangulated category *)
   Definition Triang : UU :=
@@ -1729,10 +1750,9 @@ Section Octa_isomorphisms.
              (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
              (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
              (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
-             (II23 : MPMor2 I2 = MPMor2 I3) :
-    Octa H1' H2' H3' -> Octa H1 H2 H3.
+             (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
+    Octa H1 H2 H3.
   Proof.
-    intros O.
     use mk_Octa.
     - exact (MPMor3 I1 ;; OctaMor1 O ;; is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I3))).
     - exact (MPMor3 I3 ;; OctaMor2 O ;; is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I2))).
@@ -1749,9 +1769,23 @@ Section Octa_isomorphisms.
         * exact (TriMor_is_iso3 I1).
         * exact (TriMor_is_iso3 I3).
         * exact (TriMor_is_iso3 I2).
+    - set (tmp := DComm3 (TriIsoInv I3)). cbn in tmp. rewrite <- assoc.
+      cbn. rewrite tmp. clear tmp.
+      rewrite assoc. rewrite <- (assoc _ (OctaMor1 O)). rewrite (OctaComm1 O).
+      set (tmp := DComm3 I1). cbn in tmp. rewrite tmp. clear tmp.
+      rewrite <- assoc. rewrite <- functor_comp. cbn in II13. rewrite II13.
+      set (tmp := is_inverse_in_precat1 (TriMor_is_iso1 I3)). cbn in tmp.
+      rewrite tmp. clear tmp. rewrite functor_id. apply id_right.
+    - rewrite assoc. rewrite assoc. set (tmp := MPComm2 I3). cbn in tmp.
+      cbn. rewrite <- tmp. clear tmp. rewrite <- (assoc _ h2'). rewrite (OctaComm2 O).
+      set (tmp := MPComm2 (TriIsoInv I2)). cbn in tmp.
+      rewrite <- (assoc _ g2'). rewrite <- tmp. clear tmp. rewrite assoc.
+      cbn in II23. rewrite <- II23.
+      set (tmp := is_inverse_in_precat1 (TriMor_is_iso2 I2)). cbn in tmp.
+      rewrite tmp. clear tmp. apply id_left.
     - cbn. rewrite assoc. rewrite assoc.
       set (tmp := MPComm2 I1). cbn in tmp. rewrite <- tmp. clear tmp.
-      set (tmp := OctaComm1 O). rewrite <- (assoc _ f2'). rewrite tmp. clear tmp.
+      set (tmp := OctaComm3 O). rewrite <- (assoc _ f2'). rewrite tmp. clear tmp.
       rewrite assoc.
       set (tmp := MPComm1 I2). cbn in tmp. cbn in II12. rewrite <- II12. rewrite tmp. clear tmp.
       rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
@@ -1761,7 +1795,7 @@ Section Octa_isomorphisms.
       rewrite tmp. apply id_right.
     - rewrite <- assoc.
       set (tmp := DComm3 (TriIsoInv I2)). cbn in tmp. cbn. rewrite tmp. clear tmp.
-      set (tmp := OctaComm2 O). rewrite <- (assoc _ (OctaMor2 O)). rewrite (assoc (OctaMor2 O)).
+      set (tmp := OctaComm4 O). rewrite <- (assoc _ (OctaMor2 O)). rewrite (assoc (OctaMor2 O)).
       rewrite tmp. clear tmp. rewrite <- assoc. rewrite <- functor_comp.
       set (tmp := MPComm1 (TriIsoInv I1)). cbn in tmp.
       assert (e : is_z_isomorphism_mor (TriMor_is_iso1 I2) =
