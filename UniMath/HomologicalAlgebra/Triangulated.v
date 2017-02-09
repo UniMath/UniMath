@@ -508,7 +508,7 @@ Section def_pretriang_data.
   Definition PreTriangData : UU :=
     ∑ D : (∑ A : (Additive), (AddEquiv A A)), hsubtype (@Tri (pr1 D) (pr2 D)).
 
-  Definition mk_PreTriangData (A : Additive) (T : AddEquiv A A) (H : ∏ T : (@Tri A T), hProp) :
+  Definition mk_PreTriangData (A : Additive) (T : AddEquiv A A) (H : hsubtype (@Tri A T)) :
     PreTriangData.
   Proof.
     use tpair.
