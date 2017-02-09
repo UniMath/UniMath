@@ -1135,7 +1135,13 @@ Section comp_zero.
 
   Lemma DTriCompZero' (D : @DTri PT) : Mor2 D ;; Mor3 D = ZeroArrow (to_Zero PT) _ _.
   Proof.
-    set (D' := RotDTri PT D). exact (DTriCompZero D').
+    exact (DTriCompZero (RotDTri PT D)).
+  Qed.
+
+  Lemma DTriCompZero'' (D : @DTri PT) :
+    Mor3 D ;; to_inv (# (AddEquiv1 Trans) (Mor1 D)) = ZeroArrow (to_Zero PT) _ _.
+  Proof.
+    exact (DTriCompZero (RotDTri PT (RotDTri PT D))).
   Qed.
 
 End comp_zero.
