@@ -86,15 +86,15 @@ and these data must satisfy the following conditions
 
                               X1 ----f----> Y1 ----g----> Z2 ----h----> X1[1]
                               ||            |             |              ||
-                              ||    f ;; f' |        f''' |              ||
+                              ||         f' |        f''' |              ||
                               ||            |             |              ||
-                              X1  ---f'-->  Z1  ---g'-->  Y2 ----h'---> X1[1]
+                              X1  -f;;f'->  Z1  --g''-->  Y2 ----h''---> X1[1]
                                             |             |              |
-                                        g'' |        g''' |         f[1] |
+                                         g' |        g''' |         f[1] |
                                             |             |              |
-                                            X2  ========  X2 ----h''---> Y1[1]
+                                            X2  ========  X2 ----h'----> Y1[1]
                                             |             |
-                                        h'' |   h'';;g[1] |
+                                         h' |    h';;g[1] |
                                             |             |
                                          Y1[1] --g[1]-> Z2[1]
 
@@ -771,7 +771,27 @@ Arguments Trans [PTD] : simpl never.
 (** * Triangulated categories **)
 Section def_triangulated.
 
-  (** Octahedral axiom *)
+  (** ** Octahedral data *)
+
+  (** (Octahedral axiom). Suppose you have 3 distinguished triangles (X1, Y1, Z2, f1, f2, f3),
+      (Y1, Z1, X2, g1, g2, g3), and (X1, Z1, Y2, f1 ;; g1, h2, h3). Then there exists a
+      distinguished triangle (Z2, Y2, X2, φ1, φ2, g3 ;; f2[1]) such that the following diagram
+      is commutative
+
+                              X1 ----f1----> Y1 ----f2----> Z2 ----f3----> X1[1]
+                              ||            |             |              ||
+                              ||         g1 |          φ1 |              ||
+                              ||            |             |              ||
+                              X1 -f1;;g1->  Z1  ---h2-->  Y2 ----h3---> X1[1]
+                                            |             |              |
+                                         g2 |          φ2 |         f[1] |
+                                            |             |              |
+                                            X2  ========  X2 ----h''---> Y1[1]
+                                            |             |
+                                         g3 |   g3;;f2[1] |
+                                            |             |
+                                         Y1[1] --f2[1]-> Z2[1]
+   *)
   Definition Octa {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
@@ -860,7 +880,7 @@ Section def_triangulated.
              (O : Octa H1 H2 H3) : (OctaMor2 O) ;; g3 = h3 ;; (# (AddEquiv1 Trans) f1) :=
     dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (pr2 O)))).
 
-  (** Triangulated category *)
+  (** ** Triangulated category *)
   Definition Triang : UU :=
     ∑ PT : PreTriang,
            (∏ (x1 x2 y1 y2 z1 z2 : ob PT)
@@ -868,7 +888,7 @@ Section def_triangulated.
               (g1 : y1 --> z1) (g2 : z1 --> x2) (g3 : x2 --> (AddEquiv1 Trans y1))
               (h2 : z1 --> y2) (h3 : y2 --> (AddEquiv1 Trans x1))
               (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-              (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)),∥ Octa H1 H2 H3 ∥).
+              (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)), ∥ Octa H1 H2 H3 ∥).
 
   Definition mk_Triang {PT : PreTriang} (H : ∏ (x1 x2 y1 y2 z1 z2 : ob PT)
               (f1 : x1 --> y1) (f2 : y1 --> z2) (f3 : z2 --> (AddEquiv1 Trans x1))
