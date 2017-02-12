@@ -34,9 +34,9 @@ Module Test_stn.
     intros. induction j as [j J]. reflexivity.
   Defined.
 
-  Goal @sni 6 (●3) (dni 6 (●3) (●2)) = ●2. reflexivity. Defined.
-  Goal @sni 6 (●3) (dni 6 (●3) (●3)) = ●3. reflexivity. Defined.
-  Goal @sni 6 (●3) (dni 6 (●3) (●4)) = ●4. reflexivity. Defined.
+  Goal @sni 6 (●3) (@dni 6 (●3) (●2)) = ●2. reflexivity. Defined.
+  Goal @sni 6 (●3) (@dni 6 (●3) (●3)) = ●3. reflexivity. Defined.
+  Goal @sni 6 (●3) (@dni 6 (●3) (●4)) = ●4. reflexivity. Defined.
 
 
   Goal @sni 6 (●3) (●2) = ●2. reflexivity. Defined.
@@ -67,15 +67,15 @@ Module Test_stn.
   End Test_weqdnicompl.
 
   Module Test2.
-    Goal weqdnicoprod 4 (firstelement _) (ii1 (●0)) = ●1. reflexivity. Defined.
-    Goal weqdnicoprod 4 (firstelement _) (ii1 (●3)) = ●4. reflexivity. Defined.
-    Goal invmap (weqdnicoprod 4 (firstelement _)) (●1) = (ii1 (●0)). reflexivity. Defined.
-    Goal invmap (weqdnicoprod 4 (firstelement _)) (●4) = (ii1 (●3)). reflexivity. Defined.
-    Goal weqdnicoprod 4 (lastelement _) (ii1 (●3)) = ●3. reflexivity. Defined.
-    Goal weqdnicoprod 4 (lastelement _) (ii2 tt) = ●4. reflexivity. Defined.
-    Goal invmap (weqdnicoprod 4 (lastelement _)) (●1) = (ii1 (●1)). reflexivity. Defined.
-    Goal invmap (weqdnicoprod 4 (lastelement _)) (●4) = (ii2 tt). reflexivity. Defined.
-    Goal homotweqinvweq (weqdnicoprod 4 (lastelement 4)) (● 0) = idpath _. reflexivity. Defined. (* fixed! *)
+    Goal weqdnicoprod 4 firstelement (ii1 (●0)) = ●1. reflexivity. Defined.
+    Goal weqdnicoprod 4 firstelement (ii1 (●3)) = ●4. reflexivity. Defined.
+    Goal invmap (weqdnicoprod 4 firstelement) (●1) = (ii1 (●0)). reflexivity. Defined.
+    Goal invmap (weqdnicoprod 4 firstelement) (●4) = (ii1 (●3)). reflexivity. Defined.
+    Goal weqdnicoprod 4 lastelement (ii1 (●3)) = ●3. reflexivity. Defined.
+    Goal weqdnicoprod 4 lastelement (ii2 tt) = ●4. reflexivity. Defined.
+    Goal invmap (weqdnicoprod 4 lastelement) (●1) = (ii1 (●1)). reflexivity. Defined.
+    Goal invmap (weqdnicoprod 4 lastelement) (●4) = (ii2 tt). reflexivity. Defined.
+    Goal homotweqinvweq (weqdnicoprod 4 lastelement) (● 0) = idpath _. reflexivity. Defined. (* fixed! *)
     Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii2 tt) = idpath _. reflexivity. Defined.
     Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (●1)) = idpath _.
       reflexivity.                (* fixed; 5 seconds *)
@@ -84,22 +84,22 @@ Module Test_stn.
     (* here's an example that shows complications need not impede that sort of computability: *)
     Local Definition w : unit ≃ stn 1.
       simple refine (weqgradth _ _ _ _).
-      { intro. exact (firstelement _). }
+      { intro. exact firstelement. }
       { intro. exact tt. }
       { intro u. simpl. induction u. reflexivity. }
       { intro i. simpl. apply subtypeEquality_prop.
         simpl. induction i as [i I]. simpl. apply pathsinv0. apply natlth1tois0. exact I. }
     Defined.
-    Goal w tt = firstelement 0. reflexivity. Defined.
-    Goal invmap w (firstelement 0) = tt. reflexivity. Defined.
-    Goal homotweqinvweq w (firstelement 0) = idpath _. reflexivity. Defined.
+    Goal w tt = firstelement. reflexivity. Defined.
+    Goal invmap w firstelement = tt. reflexivity. Defined.
+    Goal homotweqinvweq w firstelement = idpath _. reflexivity. Defined.
     Goal homotinvweqweq w tt = idpath _. reflexivity. Defined.
 
     Local Definition w' := invweq w.
-    Goal w' (firstelement 0) = tt. reflexivity. Defined.
-    Goal invmap w' tt= (firstelement 0). reflexivity. Defined.
+    Goal w' firstelement = tt. reflexivity. Defined.
+    Goal invmap w' tt= firstelement. reflexivity. Defined.
     Goal homotweqinvweq w' tt = idpath _. reflexivity. Defined.
-    Goal homotinvweqweq w' (firstelement 0) = idpath _. reflexivity. Defined.
+    Goal homotinvweqweq w' firstelement = idpath _. reflexivity. Defined.
 
     Definition ww' := weqcomp w w'.
     Goal ww' tt = tt. reflexivity. Defined.
@@ -108,9 +108,9 @@ Module Test_stn.
     Goal homotinvweqweq ww' tt = idpath _. reflexivity. Defined.
 
     Definition w_w := weqcoprodf w w.
-    Goal w_w (ii1 tt) = ii1 (firstelement 0). reflexivity. Defined.
-    Goal invmap w_w (ii2 (firstelement 0)) = ii2 tt. reflexivity. Defined.
-    Goal homotweqinvweq w_w (ii2 (firstelement 0)) = idpath _. reflexivity. Defined.
+    Goal w_w (ii1 tt) = ii1 firstelement. reflexivity. Defined.
+    Goal invmap w_w (ii2 firstelement) = ii2 tt. reflexivity. Defined.
+    Goal homotweqinvweq w_w (ii2 firstelement) = idpath _. reflexivity. Defined.
     Goal homotinvweqweq w_w (ii1 tt) = idpath _. reflexivity. Defined.
 
     Definition i := ●1 : stn 4.

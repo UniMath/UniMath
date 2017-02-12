@@ -91,14 +91,14 @@ Proof.
   { exact y. }
 Defined.
 
-Definition compute_pr1_dni_last n i : pr1 (dni n (lastelement _) i) = pr1 i.
+Definition compute_pr1_dni_last n i : pr1 (@dni n lastelement i) = pr1 i.
 Proof.
   intros. unfold dni,di; simpl. induction (natlthorgeh i n) as [q|q].
   - reflexivity.
   - contradicts (pr2 i) (natlehneggth q).
 Defined.
 
-Definition replace_dni_last n : dni n (lastelement _) = dni_lastelement.
+Definition replace_dni_last n : @dni n lastelement = dni_lastelement.
 Proof. intros. apply funextfun; intros i. apply isinjstntonat. exact (compute_pr1_dni_last n i). Defined.
 
 Definition append_fun_compute_1 {X n} (s:stn n->X) (x:X) i : append_fun s x (dni_lastelement i) = s i.
@@ -112,7 +112,7 @@ Proof.
   - simpl. destruct p. induction (isirreflnatlth i b).
 Defined.
 
-Definition append_fun_compute_2 {X n} (s:stn n->X) (x:X) : append_fun s x (lastelement _) = x.
+Definition append_fun_compute_2 {X n} (s:stn n->X) (x:X) : append_fun s x lastelement = x.
 Proof.
   intros.
   unfold append_fun; simpl.
@@ -227,7 +227,7 @@ Definition drop' {X} (x:Sequence X) : x != nil -> Sequence X.
 Proof. intros ? ? h. exact (drop x (pr2 (logeqnegs (nil_length x)) h)). Defined.
 
 Definition drop_and_append {X n} (x : stn (S n) -> X) :
-  append (n,,x ∘ dni_lastelement) (x (lastelement _)) = (S n,, x).
+  append (n,,x ∘ dni_lastelement) (x lastelement) = (S n,, x).
 Proof.
   intros.
   apply (maponpaths (tpair _ (S n))).
@@ -248,7 +248,7 @@ Proof.
 Defined.
 
 Definition drop_and_append' {X n} (x : stn (S n) -> X) :
-  append (drop (S n,,x) (negpathssx0 _)) (x (lastelement _)) = (S n,, x).
+  append (drop (S n,,x) (negpathssx0 _)) (x lastelement) = (S n,, x).
 Proof. intros. apply drop_and_append. Defined.
 
 Definition disassembleSequence {X} : Sequence X -> coprod unit (X × Sequence X).
@@ -257,7 +257,7 @@ Proof.
   induction x as [n x].
   induction n as [|n].
   - exact (ii1 tt).
-  - exact (ii2(x(lastelement _),,(n,,x ∘ dni_lastelement))).
+  - exact (ii2(x lastelement,,(n,,x ∘ dni_lastelement))).
 Defined.
 
 Definition assembleSequence {X} : coprod unit (X × Sequence X) -> Sequence X.
@@ -303,7 +303,7 @@ Proof. intros. induction x as [n x]. induction n as [|n IH].
   - exact (transportf P (nil_unique x) p0).
   - exact (transportf P (drop_and_append x)
                       (ind (n,,x ∘ dni_lastelement)
-                           (x (lastelement _))
+                           (x lastelement)
                            (IH (x ∘ dni_lastelement)))).
 Defined.
 
@@ -375,7 +375,7 @@ Proof.
 Qed.
 
 Definition concatenateStep {X : UU} (x : Sequence X) {n : nat} (y : stn (S n) -> X) :
-  concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni_lastelement)) (y (lastelement _)).
+  concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni_lastelement)) (y lastelement).
 Proof.
   intros X x. induction x as [x l]. intros n y.
   use seq_key_eq_lemma.
@@ -414,31 +414,31 @@ Defined.
 Definition total2_step_f {n} (X:stn (S n) ->UU) :
   (∑ i, X i)
     ->
-  (∑ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
+  (∑ (i:stn n), X (dni lastelement i)) ⨿ X lastelement.
 Proof.
   intros ? ? [[j J] x].
   induction (natlehchoice4 j n J) as [J'|K].
   - apply ii1.
     exists (j,,J').
-    assert (e : (dni n (lastelement n) (j,, J')) = (j,, J) ).
+    assert (e : (dni lastelement (j,, J')) = (j,, J) ).
     { apply isinjstntonat. rewrite replace_dni_last. reflexivity. }
     exact (transportb _ e x).
   - apply ii2.
     induction (!K); clear K.
-    assert (e : (n,, J) = (lastelement n)).
+    assert (e : (n,, J) = @lastelement n).
     { apply isinjstntonat. reflexivity. }
     exact (transportf _ e x).
 Defined.
 
 Definition total2_step_b {n} (X:stnset (S n) ->UU) :
-  (∑ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _)
+  (∑ (i:stn n), X (dni lastelement i)) ⨿ X lastelement
     ->
   (∑ i, X i).
 Proof.
   intros ? ? x.
   induction x as [jx|x].
-  - exact (dni _ (lastelement _) (pr1 jx),,pr2 jx).
-  - exact (lastelement _,,x).
+  - exact (dni lastelement (pr1 jx),,pr2 jx).
+  - exact (lastelement,,x).
 Defined.
 
 Definition total2_step_bf {n} (X:stnset (S n) ->UU) :
@@ -464,9 +464,9 @@ Proof.
 Defined.
 
 Definition total2_step {n} (X:stnset (S n) ->UU) :
-  (∑ i, X i) ≃ (∑ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
+  (∑ i, X i) ≃ (∑ (i:stn n), X (dni lastelement i)) ⨿ X lastelement.
 Proof.
-  intros. set (f := weqdnicoprod n (lastelement _)).
+  intros. set (f := weqdnicoprod n lastelement).
   intermediate_weq (∑ x : stn n ⨿ unit, X (f x)).
   { apply invweq. apply weqfp. }
   intermediate_weq ((∑ i, X (f (ii1 i))) ⨿ ∑ t, X (f (ii2 t))).
@@ -518,14 +518,14 @@ Defined.
 Corollary total2_step' {n} (f:stn (S n) -> nat) :
   (∑ i, stn (f i))
     ≃
-  (∑ (i:stn n), stn (f (dni _ (lastelement _) i))) ⨿ stn (f (lastelement _)).
+  (∑ (i:stn n), stn (f (dni lastelement i))) ⨿ stn (f lastelement).
 Proof. intros. apply (total2_step (stn ∘ f)). Defined.
 
 Definition weqstnsum1' {n} (f:stn (S n)->nat ) : (∑ i, stn (f i)) ≃ stn (stnsum f).
 Proof. intros.
-  intermediate_weq ((∑ (i:stn n), stn (f (dni _ (lastelement _) i))) ⨿ stn (f (lastelement _))).
+  intermediate_weq ((∑ (i:stn n), stn (f (dni lastelement i))) ⨿ stn (f lastelement)).
   { apply total2_step'. }
-  intermediate_weq (stn (stnsum (f ∘ dni n (lastelement n))) ⨿ stn (f (lastelement n))).
+  intermediate_weq (stn (stnsum (f ∘ dni lastelement)) ⨿ stn (f lastelement)).
   { apply weqcoprodf. { apply weqstnsum1. } apply idweq. }
   apply weqfromcoprodofstn.
 Defined.
@@ -556,10 +556,10 @@ Proof.
   rewrite 4? weqcomp_to_funcomp.
   unfold funcomp.
   change (((invweq
-                  (weqfp (weqdnicoprod n (lastelement n))
+                  (weqfp (weqdnicoprod n lastelement)
                          (λ i : stn (S n), stn (f i)))) (k,, p)))
             with ((invmap
-                  (weqfp (weqdnicoprod n (lastelement n))
+                  (weqfp (weqdnicoprod n lastelement)
                      (λ i : stn (S n), stn (f i)))) (k,, p)).
   rewrite weqfp_compute_2.
   unfold weqdnicoprod at 11.
@@ -571,7 +571,7 @@ Proof.
 Abort.
 
 Definition flattenStep {X n} (x: stn (S n) -> Sequence X) :
-  flatten (S n,,x) = concatenate (flatten (n,,x ∘ dni_lastelement)) (x (lastelement _)).
+  flatten (S n,,x) = concatenate (flatten (n,,x ∘ dni_lastelement)) (x lastelement).
 Proof.
   intros.
   rewrite <- replace_dni_last.  (* replace it, because stnsum doesn't use it *)
