@@ -789,12 +789,12 @@ Proof.
 Defined.
 
 Lemma partial_sum_prop {n : nat} {m : stn n → nat} l : l < stnsum m  ->
-  isaprop (∑ (i:stn n) (j:stn(m i)), l = stnsum (m ∘ stn_left' i n (natlthtoleh _ _ (stnlt i))) + j).
+  isaprop (∑ (i:stn n) (j:stn(m i)), stnsum (m ∘ stn_left' i n (natlthtoleh _ _ (stnlt i))) + j = l).
 Proof.
 Admitted.
 
 Lemma partial_sum_slot {n : nat} {m : stn n → nat} l : l < stnsum m  ->
-  ∃! (i:stn n) (j:stn(m i)), l = stnsum (m ∘ stn_left' i n (natlthtoleh _ _ (stnlt i))) + j.
+  ∃! (i:stn n) (j:stn(m i)), stnsum (m ∘ stn_left' i n (natlthtoleh _ _ (stnlt i))) + j = l.
 Proof.
   intros ? ? ? lt.
   set (len := stnsum m).
@@ -807,7 +807,7 @@ Proof.
     induction IH' as [ijJ Q]. induction ijJ as [i jJ]. induction jJ as [j J].
     use tpair.
     + exists (dni_lastelement i). exists j.
-      abstract (simple refine (J @ _); apply (maponpaths (λ x, x+j)); apply stnsum_eq; intro r;
+      abstract (simple refine (_ @ J); apply (maponpaths (λ x, x+j)); apply stnsum_eq; intro r;
       unfold m'; unfold funcomp; apply maponpaths; now apply subtypeEquality_prop).
     + intro t. now apply partial_sum_prop.
   - clear IH. set (j := l - len').
@@ -823,9 +823,9 @@ Proof.
         rewrite replace_dni_last. reflexivity. }
       induction C. exact lt.
     * simpl. intermediate_path (stnsum m' + j).
-      -- rewrite natpluscomm. exact (!K).
       -- apply (maponpaths (λ x, x+j)). apply stnsum_eq; intro i.
          unfold m'. unfold funcomp. apply maponpaths. now apply subtypeEquality_prop.
+      -- rewrite natpluscomm. exact (K).
 Defined.
 
 Lemma stn_right_first n i : stn_right i (S n) (firstelement n) = stnpair (i + S n) i (natltplusS n i).
@@ -901,6 +901,34 @@ Proof.
       match goal with |- coprod_rect _ _ _ ?x = _ => induction x as [K|K'] end.
       * rewrite coprod_rect_compute_1.
     admit.
+Abort.
+
+Theorem weqstnsum1' { n : nat } (m : stn n -> nat) : (∑ i, stn (m i)) ≃ stn (stnsum m).
+(* This version will be more computable that weqstnsum1, below.  We have successfully used the map
+  [weqstnsum_invmap] to define and prove generalized associativity in a monoid.  *)
+Proof.
+  intros.
+  exists (weqstnsum_map _).
+  intro l.
+  unfold hfiber.
+  set (X' := partial_sum_slot (stntonat _ l) (stnlt l)
+          : ∃! (i : ⟦ n ⟧) (j : ⟦ m i ⟧), pr1 (weqstnsum_map m (i,,j)) = pr1 l ).
+  assert (X : ∃! ij : ∑ i : ⟦ n ⟧, ⟦ m i ⟧, stntonat _ (weqstnsum_map m ij) = stntonat _ l).
+  { admit. }
+  use tpair.
+  - set (ij := weqstnsum_invmap m l).
+    assert(e : pr1 ij = pr1 (pr1 X')).
+    { apply subtypeEquality_prop.
+      admit. }
+    assert(e' : ij = (pr1 (pr1 X'),, pr1 (pr2 (pr1 X')))).
+    { try reflexivity. admit. }
+    exists (weqstnsum_invmap m l).
+    + induction n as [|n I].
+      * apply fromempty. apply negstn0. exact l.
+      *
+
+
+(* Defined. *)
 Abort.
 
 Theorem weqstnsum1 { n : nat } (f : stn n -> nat) : (∑ i, stn (f i)) ≃ stn (stnsum f).
