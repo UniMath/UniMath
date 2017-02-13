@@ -1268,6 +1268,14 @@ Defined.
 Definition weqtoempty2 {X Y : UU} (f : X -> Y) (is : ¬ Y) :=
   weqpair _ (isweqtoempty2 f is).
 
+Definition weqempty {X Y : UU} : ¬X → ¬Y → X≃Y.
+Proof.
+  intros ? ? nx ny.
+  use weqpair.
+  - intro x. now apply fromempty, nx.
+  - intro y. now apply fromempty, ny.
+Defined.
+
 Definition invmap {X Y : UU} (w : X ≃ Y) : Y -> X :=
   fun (y : Y) => pr1 (weqccontrhfiber w y).
 
@@ -2365,7 +2373,6 @@ Proof.
   apply (gradth _ _ egf efg).
 Defined.
 
-
 (** *** Pairwise sum of functions, coproduct associativity and commutativity  *)
 
 Definition sumofmaps {X Y Z : UU} (fx : X -> Z)(fy : Y -> Z) :
@@ -2521,6 +2528,15 @@ Proof.
   intros ? ? ? ? w1 w2. exact (weqpair _ (isweqcoprodf w1 w2)).
 Defined.
 
+Definition weqcoprodf1 {X Y X' : UU} : X ≃ X' -> X ⨿ Y ≃ X' ⨿ Y.
+Proof.
+  intros ? ? ? w. exact (weqcoprodf w (idweq Y)).
+Defined.
+
+Definition weqcoprodf2 {X Y Y' : UU} : Y ≃ Y' -> X ⨿ Y ≃ X ⨿ Y'.
+Proof.
+  intros ? ? ? w. exact (weqcoprodf (idweq X) w).
+Defined.
 
 (** *** The [ equality_cases ] construction and four applications to [ ii1 ] and [ ii2 ] *)
 
@@ -3435,6 +3451,13 @@ Definition weqfp_compute_2 {X Y : UU} (w : X ≃ Y) (P : Y -> UU) :
   invmap (weqfp w P) ~ weqfp_invmap w P.
 Proof.
   intros. intros yp. reflexivity.
+Defined.
+
+Definition weqtotal2overcoprod' {W X Y : UU} (P : W -> UU) (f : X ⨿ Y ≃ W) :
+  (∑ w, P w) ≃ (∑ x : X, P (f (ii1 x))) ⨿ (∑ y : Y, P (f (ii2 y))).
+Proof.
+  intros.
+  exact (weqcomp (invweq (weqfp f _)) (weqtotal2overcoprod (P ∘ f))).
 Defined.
 
 (** *** Total spaces of families over a contractible base *)

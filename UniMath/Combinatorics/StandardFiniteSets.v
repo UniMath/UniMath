@@ -417,6 +417,15 @@ Proof.
   apply weqproperty.
 Defined.
 
+Definition weqoverdnicoprod {n} (P : ⟦S n⟧→UU) : (∑ i:⟦S n⟧, P i) ≃ (∑ j:⟦n⟧, P(dni n (lastelement n) j)) ⨿ P (lastelement _).
+Proof.
+  intros.
+  simple refine (weqcomp (weqtotal2overcoprod' P (weqdnicoprod n (lastelement n))) _).
+  apply weqcoprodf.
+  - apply idweq.
+  - apply weqtotal2overunit.
+Defined.
+
 Definition weqdnicoprod_invmap {n} (j : stn(S n)) : stn n ⨿ unit <- stn (S n).
   (* perhaps use this to improve weqdnicoprod *)
   intros n j i.
@@ -800,13 +809,12 @@ Proof.
   induction n as [|n IH].
   { intros ? l. now apply fromempty, negstn0. }
   intros ? l.
-  set (m' := m ∘ dni _ (lastelement _)).
-  set (len' := stnsum m').
-  change (⟦ stnsum m' + m (lastelement n) ⟧) in l.
+  change (⟦ stnsum (m ∘ dni _ (lastelement _)) + m (lastelement n) ⟧) in l.
+  (* we are careful to use weqfromcoprodofstn_invmap both here and in concatenate' *)
   assert (ls := weqfromcoprodofstn_invmap _ _ l).
   induction ls as [j|k].
   - exact (total2_base_map (dni _ (lastelement _)) (IH _ j)).
-  - simple refine (lastelement _,,stnpair (m (lastelement _)) (stntonat _ k) (stnlt k)).
+  - exact (lastelement n,,k).
 Defined.
 
 Lemma partial_sum_prop {n : nat} {m : stn n → nat} l : l < stnsum m  ->
@@ -888,36 +896,40 @@ Proof.
   exists (weqstnsum_map _).
   intro l.
   unfold hfiber.
-  set (X' := partial_sum_slot (stntonat _ l) (stnlt l)
-          : ∃! (i : ⟦ n ⟧) (j : ⟦ m i ⟧), pr1 (weqstnsum_map m (i,,j)) = pr1 l ).
-  assert (X : ∃! ij : ∑ i : ⟦ n ⟧, ⟦ m i ⟧, stntonat _ (weqstnsum_map m ij) = stntonat _ l).
-  { admit. }
   use tpair.
-  - set (ij := weqstnsum_invmap m l).
-    assert(e : pr1 ij = pr1 (pr1 X')).
-    { apply subtypeEquality_prop.
-      admit. }
-    assert(e' : ij = (pr1 (pr1 X'),, pr1 (pr2 (pr1 X')))).
-    { try reflexivity. admit. }
-    exists (weqstnsum_invmap m l).
+  - exists (weqstnsum_invmap m l).
     + induction n as [|n I].
-      * apply fromempty. apply negstn0. exact l.
-      *
-
-
+      * now apply fromempty, negstn0.
+      * apply subtypeEquality_prop.
+        induction l as [l lt].
+        unfold weqstnsum_map.
+        unfold stnpair.
+        rewrite 2 rewrite_pr1_tpair.
+        unfold weqstnsum_invmap.
+        unfold nat_rect.
+        set (m' := m ∘ dni n (lastelement n)).
+        induction (weqfromcoprodofstn_invmap (stnsum m') (m (lastelement n)) (l,, lt)) as [j|k].
+        -- simple refine (_ @ maponpaths pr1 (I m' j) @ _).
+           ++ simpl.
+              apply two_arg_paths.
+              ** admit.
+              ** admit.
+           ++
 (* Defined. *)
 Abort.
 
 Theorem weqstnsum1 { n : nat } (f : stn n -> nat) : (∑ i, stn (f i)) ≃ stn (stnsum f).
 Proof.
-  intros. induction n as [ | n IHn ].
-  { simpl. apply weqtoempty2. { exact pr1. } exact negstn0. }
-  refine (_ ∘ weqtotal2overcoprod _ ∘ invweq (weqfp (weqdnicoprod n (lastelement n)) (λ i, stn (f i))))%weq.
-  intermediate_weq (stn (stnsum (λ i, f (weqdnicoprod n (lastelement n) (ii1 i)))) ⨿ stn (f(lastelement n))).
-  { apply weqcoprodf.
-    { apply IHn. }
-    { apply weqtotal2overunit. } }
-  exact (weqfromcoprodofstn _ _).
+  intros n.
+  induction n as [ | n' IHn ].
+  { intros f. apply weqempty.
+    - exact (negstn0 ∘ pr1).
+    - exact negstn0. }
+  intros f. change (⟦ stnsum f ⟧) with (⟦ stnsum (f ∘ dni _ (lastelement _)) + f (lastelement n') ⟧).
+  simple refine (weqcomp _ (weqfromcoprodofstn _ _)).
+  simple refine (weqcomp (weqoverdnicoprod _) _).
+  apply weqcoprodf1.
+  apply IHn.
 Defined.
 
 Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat) :
@@ -929,8 +941,13 @@ Proof.
   - apply weqstnsum1.
 Defined.
 
-Corollary weqstnsum2 { X : UU } ( n : nat ) ( f : stn n -> nat ) ( g : X -> stn n ) ( ww : ∏ i : stn n , weq ( stn ( f i ) ) ( hfiber g i ) ) : weq X ( stn ( stnsum f ) ) .
-Proof. intros . assert ( w : weq X ( total2 ( fun i : stn n => hfiber g i ) ) ) . apply weqtococonusf . apply ( weqcomp w ( weqstnsum ( fun i : stn n => hfiber g i ) f ww ) ) .   Defined .
+Corollary weqstnsum2 { X : UU } {n} (f : stn n -> nat) (g : X -> stn n) :
+  (∏ i, ⟦f i⟧ ≃ hfiber g i) -> X ≃ ⟦stnsum f⟧.
+Proof.
+  intros ? ? ? ? w.
+  simple refine (weqcomp _ (weqstnsum _ _ w)).
+  apply weqtococonusf.
+Defined.
 
 (** lexical enumeration of pairs of natural numbers *)
 
@@ -1236,6 +1253,7 @@ Ltac inductive_reflexivity i b :=
 Definition concatenate' {X:UU} {m n} (f : stn m -> X) (g : stn n -> X) : stn (m+n) -> X.
 Proof.
   intros ? ? ? ? ? i.
+  (* we are careful to use weqfromcoprodofstn_invmap both here and in weqstnsum_invmap *)
   induction (weqfromcoprodofstn_invmap _ _ i) as [j | k].
   + exact (f j).
   + exact (g k).
