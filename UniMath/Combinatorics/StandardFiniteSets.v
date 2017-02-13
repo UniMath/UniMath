@@ -802,9 +802,11 @@ Proof.
   intros ? l.
   set (m' := m ∘ dni _ (lastelement _)).
   set (len' := stnsum m').
-  induction (natlthorgeh l len') as [I|J].
-  - exact (total2_base_map (dni _ (lastelement _)) (IH _ (stnpair _ _ I))).
-  - exact (lastelement _,,stnpair (m (lastelement _)) (l-len') (nat_split (stnlt l) J)).
+  change (⟦ stnsum m' + m (lastelement n) ⟧) in l.
+  assert (ls := weqfromcoprodofstn_invmap _ _ l).
+  induction ls as [j|k].
+  - exact (total2_base_map (dni _ (lastelement _)) (IH _ j)).
+  - simple refine (lastelement _,,stnpair (m (lastelement _)) (stntonat _ k) (stnlt k)).
 Defined.
 
 Lemma partial_sum_prop {n : nat} {m : stn n → nat} l : l < stnsum m  ->

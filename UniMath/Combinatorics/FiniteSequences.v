@@ -563,12 +563,15 @@ Proof.
   intros.
   apply funextfun; intro i.
   unfold flatten'.
-  (* we want to treat the inductions from weqfromcoprodofstn_invmap and weqstnsum_invmap simultaneously *)
+  unfold funcomp.
   unfold weqstnsum_invmap at 1.
-  unfold concatenate'. unfold weqfromcoprodofstn_invmap.
+  unfold concatenate'.
   unfold nat_rect, coprod_rect, funcomp.
-  change (natlthorgeh _ _) with (natlthorgeh i (stnsum m')) at 1 3.
-  induction (natlthorgeh i (stnsum m')); reflexivity.
+  change (weqfromcoprodofstn_invmap (stnsum (λ r : stn n, m (dni lastelement r))))
+  with (weqfromcoprodofstn_invmap (stnsum m')) at 1 2.
+  induction (weqfromcoprodofstn_invmap (stnsum m')) as [B|C].
+  - reflexivity.
+  - now induction C.            (* not needed with primitive projections *)
 Defined.
 
 Definition flattenStep {X} (x: NonemptySequence (Sequence X)) :
