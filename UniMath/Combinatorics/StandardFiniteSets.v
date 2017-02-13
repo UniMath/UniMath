@@ -197,6 +197,12 @@ Proof.
   exact (stnpair _ _ (natlthlehtrans _ _ _ (stnlt i) le)).
 Defined.
 
+Definition stn_left'' {m n} : m < n -> stn m -> stn n.
+Proof.
+  intros ? ? le i.
+  exact (stnpair _ _ (istransnatlth _ _ _ (stnlt i) le)).
+Defined.
+
 Lemma stn_left_compare m n (r : m ≤ m+n) : stn_left' m (m+n) r = stn_left m n.
 Proof.
   intros.
@@ -501,7 +507,7 @@ Proof.
   intros n m i.
   induction (natlthorgeh i n) as [i1 | i2].
   - exact (ii1 (stnpair n i i1)).
-  - exact (ii2 (stnpair m (i - n) (nat_split n m i (pr2 i) i2))).
+  - exact (ii2 (stnpair m (i - n) (nat_split (pr2 i) i2))).
 Defined.
 
 Lemma weqfromcoprodofstn_invmap_r0 n (i : stn (n+0)) :
@@ -750,51 +756,64 @@ Proof.
   apply (istransnatleh W); clear W. apply natlehnplusnm.
 Defined.
 
-Local Definition _a_
-      {n : nat}
-      (IH : ∏ m : stn n → nat, stn (stnsum m) → ∑ i : stn n, stn (m i))
-      (m : stn (S n) → nat)
-      (l : stn (stnsum m))
-      (len' := stnsum (m ∘ dni n (lastelement n)))
-      (J : l ≥ len') : l - len' < m (lastelement n).
+Lemma _c_ {n} {m:⟦ n ⟧ → nat} (ij : ∑ i : ⟦ n ⟧, ⟦ m i ⟧) :
+  stnsum (m ∘ stn_left'' (stnlt (pr1 ij))) + pr2 ij < stnsum m.
 Proof.
   intros.
-  exact (nat_split len' _ _ (stnlt l) J).
+  set (m1 := m ∘ stn_left'' (stnlt (pr1 ij))).
+  induction ij as [i j].
+  induction i as [i I].
+  induction j as [j J].
+  simpl in m1.
+  change (stnsum m1 + j < stnsum m).
+  assert (s := stnsum_left_le' m (I : S i ≤ n)).
+  simple refine (natlthlehtrans _ _ _ _ s).
+  clear s.
+  induction n as [|n _].
+  { induction (negnatlthn0 _ I). }
+  assert (t : stnsum m1 + j < stnsum m1 + m (i,,I)).
+  { apply natlthandplusl. exact J. }
+  apply (natlthlehtrans _ _ _ t).
+  assert (K : ∏ m n, m = n -> m ≤ n).
+  { intros a b e. induction e. apply isreflnatleh. }
+  apply K; clear K.
+  rewrite stnsum_step.
+  clear j J t.
+  unfold m1 ; clear m1.
+  apply two_arg_paths.
+  + apply stnsum_eq. intro l.
+    unfold funcomp. apply maponpaths.
+    apply subtypeEquality_prop; simpl.
+    apply pathsinv0, di_eq1, stnlt.
+  + unfold funcomp. apply maponpaths. apply subtypeEquality_prop. simpl. reflexivity.
 Defined.
 
-Local Definition _b_
-      {n : nat}
-      (IH : ∏ m : stn n → nat, stn (stnsum m) → ∑ i : stn n, stn (m i))
-      (m : stn (S n) → nat)
-      (l : stn (stnsum m))
-      (m' := m ∘ dni n (lastelement n) : stn n → nat)
-      (len' := stnsum m' : nat)
-      (I : l < len') : ∑ i : stn (S n), stn (m i).
+Definition weqstnsum_map { n : nat } (m : stn n -> nat) : (∑ i, stn (m i)) -> stn (stnsum m).
 Proof.
-  intros.
-  exact (total2_base_map (dni _ (lastelement _)) (IH _ (stnpair _ _ I))).
+  intros ? ? ij.
+  exact (stnpair _ (stnsum (m ∘ stn_left'' (stnlt (pr1 ij))) + pr2 ij) (_c_ ij)).
 Defined.
 
 Definition weqstnsum_invmap {n : nat} (m : stn n -> nat) : stn (stnsum m) -> (∑ i, stn (m i)).
 Proof.
   intros ?.
   induction n as [|n IH].
-  { intros ? l. apply fromempty. now apply negstn0. }
+  { intros ? l. now apply fromempty, negstn0. }
   intros ? l.
-  set (m' := m ∘ dni _ (lastelement n)).
+  set (m' := m ∘ dni _ (lastelement _)).
   set (len' := stnsum m').
   induction (natlthorgeh l len') as [I|J].
-  - exact (_b_ IH m l I).
-  - exact (lastelement _,,stnpair (m (lastelement _)) (l-len') (_a_ IH m l J)).
+  - exact (total2_base_map (dni _ (lastelement _)) (IH _ (stnpair _ _ I))).
+  - exact (lastelement _,,stnpair (m (lastelement _)) (l-len') (nat_split (stnlt l) J)).
 Defined.
 
 Lemma partial_sum_prop {n : nat} {m : stn n → nat} l : l < stnsum m  ->
-  isaprop (∑ (i:stn n) (j:stn(m i)), stnsum (m ∘ stn_left' i n (natlthtoleh _ _ (stnlt i))) + j = l).
+  isaprop (∑ (i:stn n) (j:stn(m i)), stnsum (m ∘ stn_left'' (stnlt i)) + j = l).
 Proof.
 Admitted.
 
 Lemma partial_sum_slot {n : nat} {m : stn n → nat} l : l < stnsum m  ->
-  ∃! (i:stn n) (j:stn(m i)), stnsum (m ∘ stn_left' i n (natlthtoleh _ _ (stnlt i))) + j = l.
+  ∃! (i:stn n) (j:stn(m i)), stnsum (m ∘ stn_left'' (stnlt i)) + j = l.
 Proof.
   intros ? ? ? lt.
   set (len := stnsum m).
@@ -834,50 +853,6 @@ Proof.
   apply subtypeEquality_prop.
   simpl.
   apply natplusr0.
-Defined.
-
-Lemma _c_ {n} {m:⟦ n ⟧ → nat} (ij : ∑ i : ⟦ n ⟧, ⟦ m i ⟧)
-      (m1 := m ∘ stn_left' (pr1 ij) n (natlthtoleh (pr1 ij) n (stnlt (pr1 ij)))) :
-  stnsum m1 + pr2 ij < stnsum m.
-Proof.
-  intros.
-  induction ij as [i j].
-  induction i as [i I].
-  induction j as [j J].
-  simpl in m1.
-  change (stnsum m1 + j < stnsum m).
-  assert (I' := I : S i ≤ n).
-  assert (s := stnsum_left_le' m I').
-  simple refine (natlthlehtrans _ _ _ _ s).
-  induction n as [|n _].
-  { induction (negnatlthn0 _ I). }
-  assert (t : stnsum m1 + j < stnsum m1 + m (i,,I)).
-  { apply natlthandplusl. exact J. }
-  apply (natlthlehtrans _ _ _ t).
-  assert (K : ∏ m n, m = n -> m ≤ n).
-  { intros a b e. induction e. apply isreflnatleh. }
-  apply K.
-  rewrite stnsum_step.
-  clear j J t.
-  unfold m1 ; clear m1.
-  apply two_arg_paths.
-  + apply stnsum_eq. intro l. induction l as [l L].
-    unfold funcomp. apply maponpaths.
-    apply subtypeEquality_prop.
-    simpl.
-    unfold di.
-    induction (natlthorgeh l i) as [_|P].
-    - reflexivity.
-    - apply fromempty. exact (natgehtonegnatlth _ _ P L).
-  + unfold funcomp. apply maponpaths. apply subtypeEquality_prop. simpl. reflexivity.
-Defined.
-
-Definition weqstnsum_map { n : nat } (m : stn n -> nat) : (∑ i, stn (m i)) -> stn (stnsum m).
-Proof.
-  intros ? ? ij.
-  set (m1 := m ∘ stn_left' (pr1 ij) n (natlthtoleh _ _ (stnlt (pr1 ij)))).
-  exists (stnsum m1 + pr2 ij).
-  apply _c_.
 Defined.
 
 Lemma nat_rect_step (P : nat → UU) (p0 : P 0) (IH : ∏ n, P n → P (S n)) n :

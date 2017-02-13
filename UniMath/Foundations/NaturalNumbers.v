@@ -2038,6 +2038,22 @@ Definition di (i : nat) (x : nat) : nat :=
   | ii2 _ => S x
   end.
 
+Lemma di_eq1 {i x} : x < i → di i x = x.
+Proof.
+  intros ? ? lt. unfold di.
+  induction (natlthorgeh x i) as [_|P].
+  - reflexivity.
+  - apply fromempty. exact (natgehtonegnatlth _ _ P lt).
+Defined.
+
+Lemma di_eq2 {i x} : x ≥ i → di i x = S x.
+Proof.
+  intros ? ? lt. unfold di.
+  induction (natlthorgeh x i) as [P|_].
+  - apply fromempty. exact (natlthtonegnatgeh _ _ P lt).
+  - reflexivity.
+Defined.
+
 Lemma di_neq_i (i x : nat) : i ≠ di i x.
 Proof.
   intros. apply nat_nopath_to_neq. intro eq.
@@ -2186,7 +2202,7 @@ Proof.
   rewrite natplusassoc. apply natlthandplusl. reflexivity.
 Defined.
 
-Lemma nat_split (n m i : nat) : (i < n + m) -> (i ≥ n) -> i - n < m.
+Lemma nat_split {n m i : nat} : (i < n + m) -> (i ≥ n) -> i - n < m.
 Proof.
   intros n m i p H.
   induction (plusminusnmm m n).

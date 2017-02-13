@@ -567,7 +567,7 @@ Proof.
   unfold weqstnsum_invmap at 1.
   unfold concatenate'. unfold weqfromcoprodofstn_invmap.
   unfold nat_rect, coprod_rect, funcomp.
-  change (natlthorgeh _ _) with (natlthorgeh i (stnsum m')) at 1 4.
+  change (natlthorgeh _ _) with (natlthorgeh i (stnsum m')) at 1 3.
   induction (natlthorgeh i (stnsum m')); reflexivity.
 Defined.
 
