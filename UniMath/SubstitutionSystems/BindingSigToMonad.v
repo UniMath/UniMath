@@ -50,15 +50,15 @@ Local Notation "'chain'" := (diagram nat_graph).
 Section BindingSig.
 
 (** A binding signature is a collection of lists of natural numbers indexed by types I *)
-Definition BindingSig : UU := ∑ (I : UU) (h : isdeceq I), I → list nat.
+Definition BindingSig : UU := ∑ (I : UU) (h : isaset I), I → list nat.
 
 Definition BindingSigIndex : BindingSig -> UU := pr1.
-Definition BindingSigIsdeceq (s : BindingSig) : isdeceq (BindingSigIndex s) :=
+Definition BindingSigIsaset (s : BindingSig) : isaset (BindingSigIndex s) :=
   pr1 (pr2 s).
 Definition BindingSigMap (s : BindingSig) : BindingSigIndex s -> list nat :=
   pr2 (pr2 s).
 
-Definition mkBindingSig {I : UU} (h : isdeceq I) (f : I -> list nat) : BindingSig := (I,,h,,f).
+Definition mkBindingSig {I : UU} (h : isaset I) (f : I -> list nat) : BindingSig := (I,,h,,f).
 
 (** Sum of binding signatures *)
 Definition SumBindingSig : BindingSig -> BindingSig -> BindingSig.
@@ -67,7 +67,7 @@ intros s1 s2.
 mkpair.
 - apply (BindingSigIndex s1 ⨿ BindingSigIndex s2).
 - mkpair.
-  + apply (isdeceqcoprod (BindingSigIsdeceq s1) (BindingSigIsdeceq s2)).
+  + apply (isasetcoprod _ _ (BindingSigIsaset s1) (BindingSigIsaset s2)).
   + induction 1 as [i|i]; [ apply (BindingSigMap s1 i) | apply (BindingSigMap s2 i) ].
 Defined.
 
@@ -171,7 +171,7 @@ Lemma is_omega_cocont_BindingSigToSignature
   (CC : Coproducts (BindingSigIndex sig) C) (PC : Products (BindingSigIndex sig) C) :
   is_omega_cocont (BindingSigToSignature TC sig CC).
 Proof.
-apply (is_omega_cocont_Sum_of_Signatures _ (BindingSigIsdeceq sig)).
+apply is_omega_cocont_Sum_of_Signatures.
 - intro i; apply is_omega_cocont_Arity_to_Signature, HF; assumption.
 - apply PC.
 Defined.
@@ -259,13 +259,13 @@ use BindingSigToSignature.
 - apply BinCoproductsHSET.
 - apply TerminalHSET.
 - apply sig.
-- apply CoproductsHSET, (isasetifdeceq _ (BindingSigIsdeceq sig)).
+- apply CoproductsHSET, (BindingSigIsaset sig).
 Defined.
 
 Lemma is_omega_cocont_BindingSigToSignatureHSET (sig : BindingSig) :
   is_omega_cocont (BindingSigToSignatureHSET sig).
 Proof.
-apply (is_omega_cocont_Sum_of_Signatures _ (BindingSigIsdeceq sig)).
+apply is_omega_cocont_Sum_of_Signatures.
 - intro i; apply is_omega_cocont_Arity_to_Signature.
   + apply ColimsHSET_of_shape.
   + intros F.
@@ -299,7 +299,7 @@ intros sig; use (BindingSigToMonad _ _ _ _ _ _ _ sig).
   apply has_exponentials_functor_HSET, has_homsets_HSET.
 - apply ProductsHSET.
 - apply CoproductsHSET.
-  exact (isasetifdeceq _ (BindingSigIsdeceq sig)).
+  apply BindingSigIsaset.
 Defined.
 
 End BindingSigToMonadHSET.
