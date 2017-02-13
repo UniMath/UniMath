@@ -175,7 +175,7 @@ Proof.
   intros xp yq.
   destruct (HX (pr1 xp) (pr1 yq)) as [e_xy | ne_xy].
   - destruct ((HP _) (transportf _ e_xy (pr2 xp)) (pr2 yq)) as [e_pq | ne_pq].
-    + apply inl. exact (total2_paths e_xy e_pq).
+    + apply inl. exact (total2_paths_f e_xy e_pq).
     + apply inr. intro e_xpyq. apply ne_pq.
       set (e_pq := fiber_paths e_xpyq).
       refine (_ @ e_pq).
