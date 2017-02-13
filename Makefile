@@ -97,14 +97,15 @@ MODIFIERS := $(MODIFIERS)Local\|
 MODIFIERS := $(MODIFIERS)Private\|
 MODIFIERS := $(MODIFIERS)Program\|
 
-COQDEFS := --language=none												\
-	-r '/^[[:space:]]*\(\($(MODIFIERS)\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:]'\''_]+\)/\4/'	\
-	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:]]+\)'/\1/"								\
-	-r '/^[[:space:]]*Tactic Notation.* "\([[:alnum:]]+\)" /\1/'
+COQDEFS := --language=none																\
+	-r '/^[[:space:]]*\(\($(MODIFIERS)\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:]'\''_]+\)/\4/'					\
+	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:]'\''_]+\)'/\1/"											\
+	-r '/^[[:space:]]*Tactic[[:space:]]+Notation.*[[:space:]]"\([[:alnum:]'\''_]+\)"[[:space:]]/\1/'										\
+	-r '/^[[:space:]]*Delimit[[:space:]]+Scope[[:space:]]+[[:alnum:]'\''_]+[[:space:]]+with[[:space:]]+\([[:alnum:]'\''_]+\)[[:space:]]*\./\1/'
 
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
 $(VFILES:.v=.vo) : $(COQBIN)coqc
-TAGS : $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
+TAGS : Makefile $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
 $(foreach P,$(PACKAGES),$(eval $P: check-first $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\)=UniMath/$P/\1o=" )))
 install:all
