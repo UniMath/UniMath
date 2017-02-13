@@ -59,6 +59,13 @@ Alternatively, you can specify the value of the BUILD_COQIDE option more
 permanently by following the instructions in the file
 build/Makefile-configuration-template.
 
+Later on, after running the command `make install` as instructed below, in
+order to run the program ```coqide```, you may use the following command.
+
+```bash
+$ sub/coq/bin/coqide -indices-matter -type-in-type -Q UniMath UniMath
+```
+
 To create the standard HTML documentation provided by coqdoc:
 ```bash
 $ make html
