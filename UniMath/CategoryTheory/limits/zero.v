@@ -117,7 +117,7 @@ Section def_zero.
     Proof.
       apply invproofirrelevance.
       intros Z Z'.
-      apply (total2_paths (isotoid _ H (iso_Zeros Z Z'))).
+      apply (total2_paths_f (isotoid _ H (iso_Zeros Z Z'))).
       apply proofirrelevance.
       unfold isZero.
       apply isapropdirprod; apply impred; intros t; apply isapropiscontr.

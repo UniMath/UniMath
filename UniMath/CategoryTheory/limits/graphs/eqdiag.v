@@ -113,7 +113,7 @@ Lemma eq_diag_is_eq {C : Precategory} {g : graph} (d d' : diagram g C) :
   eq_diag d d' -> d = d'.
 Proof.
   intros [eqv autreq].
-  use total2_paths.
+  use total2_paths_f.
   - apply funextfun.
     intro v.
     apply eqv.

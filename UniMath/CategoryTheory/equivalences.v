@@ -335,7 +335,7 @@ Proof.
   destruct x' as [a' f'].
   set (fminusf := iso_comp f (iso_inv_from_iso f')).
   set (g := iso_from_fully_faithful_reflection HF fminusf).
-  apply (total2_paths2 (B:=fun a' => iso ((pr1 F) a') b) (isotoid _ HA g)).
+  apply (two_arg_paths_f (B:=fun a' => iso ((pr1 F) a') b) (isotoid _ HA g)).
   pathvia (iso_comp (iso_inv_from_iso
     (functor_on_iso F (idtoiso (isotoid _ HA g)))) f).
     generalize (isotoid _ HA g).

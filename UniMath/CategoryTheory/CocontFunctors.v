@@ -1769,7 +1769,7 @@ transparent assert (cc : (cocone d c)).
     + abstract (now apply funextsec; intro z;
                 apply (toforallpaths _ _ _ (pr2 (coconeIn ccL n)) z)).
   - abstract (intros m n e; apply eq_mor_slicecat, funextsec; intro z;
-    use total2_paths;
+    use total2_paths_f;
       [ apply (maponpaths _ (toforallpaths _ _ _
                  (maponpaths pr1 (coconeInCommutes ccL m n e)) z))|];
     cbn in *; induction (maponpaths _ _);
@@ -1795,7 +1795,7 @@ assert (Hk : (∏ n, colimIn CC n ;; k = coconeIn cc n)).
 { intros n.
   apply subtypeEquality; [intros x; apply setproperty|].
   apply funextsec; intro z.
-  use total2_paths; [apply idpath|].
+  use total2_paths_f; [apply idpath|].
   now rewrite idpath_transportf; cbn; rewrite <- (toforallpaths _ _ _ (Hf n) z).
 }
 apply (maponpaths dirprod_pr2
