@@ -1372,6 +1372,20 @@ Proof.
   apply (! e4 @ e5 @ e1).
 Defined.
 
+Lemma homotweqinv  {X Y Z} (f:X->Z) (w:X≃Y) (g:Y->Z) : f ~ g ∘ w -> f ∘ invmap w ~ g.
+Proof.
+  intros ? ? ? ? ? ? p y.
+  simple refine (p (invmap w y) @ _); clear p.
+  unfold funcomp. apply maponpaths. apply homotweqinvweq.
+Defined.
+
+Lemma homotweqinv' {X Y Z} (f:X->Z) (w:X≃Y) (g:Y->Z) : f ~ g ∘ w <- f ∘ invmap w ~ g.
+Proof.
+  intros ? ? ? ? ? ? q x.
+  simple refine (_ @ q (w x)).
+  unfold funcomp. apply maponpaths, pathsinv0. apply homotinvweqweq.
+Defined.
+
 (** *** Adjointness property of a weak equivalence and its inverse *)
 
 Lemma diaglemma2 {X Y : UU} (f : X -> Y) {x x' : X}
@@ -2479,13 +2493,22 @@ Definition weqii2withneg {X : UU} (Y : UU) (nf : ¬ X)
 
 (** *** Coproduct of two functions *)
 
-Definition coprodf {X Y X' Y' : UU} (f : X -> X') (g : Y-> Y') :
-  X ⨿ Y -> coprod X' Y'
+Definition coprodf {X Y X' Y' : UU} (f : X -> X') (g : Y-> Y') : X ⨿ Y -> X' ⨿ Y'
   := fun xy: X ⨿ Y =>
        match xy with
        | ii1 x => ii1 (f x)
        | ii2 y => ii2 (g y)
        end.
+
+Definition coprodf1 {X Y X' : UU} : (X -> X') -> X ⨿ Y -> X' ⨿ Y.
+Proof.
+  intros ? ? ? f. exact (coprodf f (idfun Y)).
+Defined.
+
+Definition coprodf2 {X Y Y' : UU} : (Y -> Y') -> X ⨿ Y -> X ⨿ Y'.
+Proof.
+  intros ? ? ? g. exact (coprodf (idfun X) g).
+Defined.
 
 Definition homotcoprodfcomp {X X' Y Y' Z Z' : UU} (f : X -> Y)
            (f' : X' -> Y') (g : Y -> Z) (g' : Y' -> Z') :
