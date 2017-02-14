@@ -1672,7 +1672,7 @@ Proof.
   reflexivity.
 Defined.
 
-Corollary weqhomot2 {X Y : UU} (f:X≃Y) (h:Y->X) : invmap f ~ h -> X≃Y.
+Corollary weqhomotinv {X Y : UU} (f:X≃Y) (h:Y->X) : invmap f ~ h -> X≃Y.
 (* this lemma may be used to replace an equivalence by one whose inverse map is simpler,
    leaving the forward map the same, judgmentally *)
 Proof.
@@ -1682,13 +1682,13 @@ Proof.
   exact (iscontr_move_point p (weqproperty f y)).
 Defined.
 
-Lemma weqhomot2_eq {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : pr1weq (weqhomot2 f h e) = pr1weq f.
+Lemma weqhomotinv_eq {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : pr1weq (weqhomotinv f h e) = pr1weq f.
 (* check the claim in the comment above *)
 Proof.
   reflexivity.
 Defined.
 
-Lemma weqhomot2_eq' {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : invmap (weqhomot2 f h e) = h.
+Lemma weqhomotinv_eq' {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : invmap (weqhomotinv f h e) = h.
 (* check the claim in the comment above *)
 Proof.
   reflexivity.
