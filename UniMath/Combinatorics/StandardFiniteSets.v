@@ -35,7 +35,7 @@ Notation " 'stnel' ( i , j ) " := ( (j,,idpath _) : stn i ) ( at level 70 ) .
 
 Delimit Scope stn with stn.
 
-Notation "⟦ n ⟧" := (stn n) (at level 0) : stn.
+Notation "⟦ n ⟧" := (stn n) (at level 50) : stn.
 (* in agda-mode \[[ n \]] *)
 
 Notation "● x" := (x ,, idpath _) (at level 35) : stn.
@@ -917,13 +917,13 @@ Proof.
     rewrite 2 weqcomp_to_funcomp_app.
     unfold weqcoprodf1.
     change (pr1weq (weqcoprodf (weqstnsum1_prelim (λ i, f (dni n (lastelement n) i)))
-                               (idweq ⟦ f (lastelement n) ⟧)))
+                               (idweq (⟦ f (lastelement n) ⟧))))
     with (coprodf (weqstnsum1_prelim (λ i, f (dni n (lastelement n) i)))
-                  (idfun ⟦ f (lastelement n) ⟧)).
+                  (idfun (⟦ f (lastelement n) ⟧))).
     intermediate_path
       ((weqfromcoprodofstn (stnsum (f ∘ dni n (lastelement n))) (f (lastelement n)))
          (coprodf (weqstnsum_map (λ i, f (dni n (lastelement n) i)))
-                  (idfun ⟦ f (lastelement n) ⟧) ((weqoverdnicoprod (λ i, ⟦ f i ⟧)) ij))).
+                  (idfun (⟦ f (lastelement n) ⟧)) ((weqoverdnicoprod (λ i, ⟦ f i ⟧)) ij))).
     + apply maponpaths.
       apply homotcoprodfhomot.
       * apply I.
@@ -979,10 +979,10 @@ Proof.
   - intros f. rewrite weqstnsum1_step.
     intros k. rewrite 2 invweqcomp. rewrite 2 weqcomp_to_funcomp_app. rewrite 3 pr1_invweq.
     unfold weqcoprodf1.
-    change (invmap (weqcoprodf (weqstnsum1_prelim (λ i, f (dni n (lastelement n) i))) (idweq ⟦ f (lastelement n) ⟧)))
-    with (coprodf (invweq (weqstnsum1_prelim (λ i, f (dni n (lastelement n) i)))) (idweq ⟦ f (lastelement n) ⟧)).
+    change (invmap (weqcoprodf (weqstnsum1_prelim (λ i, f (dni n (lastelement n) i))) (idweq (⟦ f (lastelement n) ⟧))))
+    with (coprodf (invweq (weqstnsum1_prelim (λ i, f (dni n (lastelement n) i)))) (idweq (⟦ f (lastelement n) ⟧))).
     intermediate_path (invmap (weqoverdnicoprod (λ i : ⟦ S n ⟧, ⟦ f i ⟧))
-                              (coprodf (weqstnsum_invmap (λ i : ⟦ n ⟧, f (dni n (lastelement n) i))) (idweq ⟦ f (lastelement n) ⟧)
+                              (coprodf (weqstnsum_invmap (λ i : ⟦ n ⟧, f (dni n (lastelement n) i))) (idweq (⟦ f (lastelement n) ⟧))
                                        (invmap (weqfromcoprodofstn (stnsum (f ∘ dni n (lastelement n))) (f (lastelement n))) k))).
     + apply maponpaths.
       change (invmap _ k)
@@ -997,7 +997,7 @@ Proof.
       simple refine (homotweqinv
                 (λ c, invmap (weqoverdnicoprod (λ i, ⟦ f i ⟧))
                              (coprodf (weqstnsum_invmap (λ i, f (dni n (lastelement n) i)))
-                                      (idweq ⟦ f (lastelement n) ⟧)
+                                      (idweq (⟦ f (lastelement n) ⟧))
                                       c))
                 (weqfromcoprodofstn (stnsum (f ∘ dni n (lastelement n))) (f (lastelement n)))
                 _ _).

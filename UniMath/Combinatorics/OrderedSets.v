@@ -309,7 +309,7 @@ Proof.
   - apply isfinitestn.
 Defined.
 
-Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0) : foset.
+Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 50) : foset.
 (* in agda-mode \[[ n \]] *)
 
 Lemma inducedPartialOrder {X Y} (f:X->Y) (incl:isInjective f) (R:hrel Y) (po:isPartialOrder R) :
@@ -339,11 +339,11 @@ Proof.
       + unfold PartialOrder; simpl. simple refine (_,,_).
         { intros x y. exact (w x ≤ w y). }
         apply inducedPartialOrder_weq.
-        exact (pr2 (pr2 (pr1 (pr1 ⟦ n ⟧)))).
-    * intros x y. apply (pr2 (pr1 ⟦ n ⟧)).
+        exact (pr2 (pr2 (pr1 (pr1 (⟦ n ⟧))))).
+    * intros x y. apply (pr2 (pr1 (⟦ n ⟧))).
   - simpl.
     apply (isfiniteweqb w).
-    exact (pr2 ⟦ n ⟧).
+    exact (pr2 (⟦ n ⟧)).
 Defined.
 Close Scope foset.
 

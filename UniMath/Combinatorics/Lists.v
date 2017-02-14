@@ -123,7 +123,7 @@ Defined.
 
 Section Test.
 
-  Open Scope stn.
+  Local Open Scope stn.
 
   Context {a b c d:A}.
   Let x := a::b::c::d::[].

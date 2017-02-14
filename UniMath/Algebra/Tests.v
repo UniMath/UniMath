@@ -18,7 +18,7 @@ Module Test_assoc.
     Goal iterop_list e op (w::x::y::z::[]) = op w (op x (op y z)). reflexivity. Qed.
   End Test.
 
-  Open Scope stn.
+  Local Open Scope stn.
 
   Open Scope multmonoid.
 

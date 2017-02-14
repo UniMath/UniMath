@@ -21,7 +21,7 @@ Module Test_stn.
 
   Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-  Open Scope stn.
+  Local Open Scope stn.
 
   Goal stn 6. exact (stnel(6,3)). Qed.
   Goal stn 6. exact (stnpr 3). Qed.
@@ -317,7 +317,7 @@ Module Test_fin.
        and funextemptyAxiom, so here we do an experiment to see if that impedes
        computability of equality using it. *)
 
-    Open Scope stn.
+    Local Open Scope stn.
 
     Let X := stnset 5.
     Let finX : isfinite X := isfinitestn _.
@@ -381,7 +381,7 @@ Module Test_seq.
 
   Require Import UniMath.Combinatorics.FiniteSequences.
 
-  Open Scope stn.
+  Local Open Scope stn.
 
   Goal @total2_step 0 (λ _,unit) (●0,,tt) = ii2 tt. reflexivity. Defined.
   Goal @total2_step 1 (λ _,unit) (●1,,tt) = ii2 tt. reflexivity. Defined.
@@ -393,7 +393,7 @@ End Test_seq.
 
 Module Test_finite_sets.
   Require Import UniMath.Combinatorics.FiniteSets.
-  Open Scope stn.
+  Local Open Scope stn.
 
   Goal 3 = fincard_standardSubset (λ i:stn 10, 2*i < 6)%dnat. Proof. reflexivity. Defined.
 
@@ -408,7 +408,7 @@ Module Test_ord.
   Require Import UniMath.Combinatorics.OrderedSets.
   Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-  Open Scope stn.
+  Local Open Scope stn.
 
   Goal 3 = height ( ●3 : ⟦ 8 ⟧ %foset ). reflexivity. Defined.
 

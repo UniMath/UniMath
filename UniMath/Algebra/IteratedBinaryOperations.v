@@ -176,8 +176,8 @@ Proof.
     apply (maponpaths ((λ f, uncurry x ∘ f)
                        : (stn (stnsum m) → ∑ i : stn n, stn (m i)) → stn (stnsum m) → nat )).
     change (invmap (weqstnsum1 m) = weqstnsum_invmap m).
-    (* we need to construct weqstnsum1 with weqstnsum_invmap *)
-Abort.
+    reflexivity.
+Defined.
 
 (** general associativity for monoids *)
 
