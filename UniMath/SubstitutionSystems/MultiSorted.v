@@ -69,6 +69,19 @@ exists (SET / sort).
 now apply has_homsets_slice_precat.
 Defined.
 
+(* will not be needed: *)
+Local Definition BinCoproducts_SET_over_sort: BinCoproducts SET_over_sort.
+Proof.
+apply BinCoproducts_slice_precat.
+exact BinCoproductsHSET.
+Defined.
+
+Local Definition BinCoproducts_SET_div_sort: BinCoproducts (SET / sort).
+Proof.
+apply BinCoproducts_slice_precat.
+exact BinCoproductsHSET.
+Defined.
+
 Let post_comp := post_composition_functor (SET / sort) _ _
                    (homset_property SET_over_sort) has_homsets_HSET.
 
@@ -109,44 +122,24 @@ mkpair.
             apply subtypeEquality; try (intro x; apply has_homsets_HSET)).
 Defined.
 
-Local Definition option_fun : sort -> SET / sort -> SET / sort.
+Definition sorted_variable (s: sort) : SET / sort.
 Proof.
-  simpl; intros s Xf.
   mkpair.
   + mkpair.
-    - exact (pr1 (pr1 Xf) ⨿ unit).
-    - apply isasetcoprod; [apply setproperty| apply isasetunit].
-  + exact (sumofmaps (pr2 Xf) (termfun s)).
+   - exact unit.
+   - apply isasetunit.
+  + intros _. exact s.
 Defined.
 
-Local Definition option_functor_data (s : sort) : functor_data (SET / sort) (SET / sort).
-Proof.
-exists (option_fun s).
-intros X Y f.
-mkpair.
-- intros F.
-  induction F as [t|t]; [apply (ii1 (pr1 f t)) | apply (ii2 t)].
-- abstract (apply funextsec; intros [t|t]; trivial; apply (toforallpaths _ _ _ (pr2 f) t)).
-Defined.
+Definition sorted_option_functor (s : sort) : functor (SET / sort) (SET / sort) :=
+  constcoprod_functor1 BinCoproducts_SET_div_sort (sorted_variable s).
 
-Local Lemma is_functor_option_functor (s : sort) : is_functor (option_functor_data s).
-Proof.
-split; simpl.
-+ intros X; apply (eq_mor_slicecat has_homsets_HSET), funextsec; intros t.
-  now induction t.
-+ intros X Y Z f g; apply (eq_mor_slicecat has_homsets_HSET), funextsec; intros t.
-  now induction t.
-Qed.
-
-Local Definition option_functor (s : sort) : functor (SET / sort) (SET / sort) :=
-  tpair _ _ (is_functor_option_functor s).
-
-(** option_functor for lists (also called option in the note) *)
+(** sorted option functor for lists (also called option in the note) *)
 Local Definition option_list (xs : list sort) : functor (SET / sort) (SET / sort).
 Proof.
 use (foldr _ _ xs).
 + intros s F.
-  apply (functor_composite (option_functor s) F).
+  apply (functor_composite (sorted_option_functor s) F).
 + apply functor_identity.
 Defined.
 
