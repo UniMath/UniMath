@@ -167,24 +167,6 @@ Proof.
     apply isasetstn.
 Qed.
 
-(* General lemma. TODO: upstream to general lemmas on [isdeceq] *)
-Lemma isdeceq_total2 {X : UU} {P : X -> UU}
-  : isdeceq X -> (∏ x : X, isdeceq (P x)) → isdeceq (∑ x : X, P x).
-Proof.
-  intros HX HP.
-  intros xp yq.
-  destruct (HX (pr1 xp) (pr1 yq)) as [e_xy | ne_xy].
-  - destruct ((HP _) (transportf _ e_xy (pr2 xp)) (pr2 yq)) as [e_pq | ne_pq].
-    + apply inl. exact (total2_paths_f e_xy e_pq).
-    + apply inr. intro e_xpyq. apply ne_pq.
-      set (e_pq := fiber_paths e_xpyq).
-      refine (_ @ e_pq).
-      refine (maponpaths (fun e => transportf _ e _) _).
-  (* NOTE: want [maponpaths_2] from the [TypeTheory] library here. Upstream it to [Foundations], perhaps? *)
-      apply isasetifdeceq, HX.
-  - apply inr. intros e_xypq. apply ne_xy, base_paths, e_xypq.
-Defined.
-
 Lemma isdeceqFinSig : isdeceq (∑ n, unit ⨿ (stn n ⨿ unit)).
 Proof.
   apply isdeceq_total2.
