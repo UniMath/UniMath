@@ -44,11 +44,15 @@ Section fix_a_category.
 Variable C : precategory.
 Variable hs : has_homsets C.
 
+(** in the original definition, this second category was the same as the first one *)
+Variable D : precategory.
+Variable hsD : has_homsets D.
+
 
 Section about_signatures.
 
-(** [H] is a rank-2 endofunctor on endofunctors *)
-Variable H : functor [C, C, hs] [C, C, hs].
+(** [H] is a rank-2 functor: a functor between functor categories *)
+Variable H : functor [C, C, hs] [C, D, hsD].
 
 (** The forgetful functor from pointed endofunctors to endofunctors *)
 Local Notation "'U'" := (functor_ptd_forget C hs).
@@ -63,13 +67,13 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 
 
 (** Source is given by [(X,Z) => H(X)∙U(Z)] *)
-Definition θ_source_ob (FX : EndC XX Ptd) : [C, C, hs] := H (pr1 FX) • U (pr2 FX).
+Definition θ_source_ob (FX : EndC XX Ptd) : [C, D, hsD] := H (pr1 FX) • U (pr2 FX).
 
 Definition θ_source_mor {FX FX' : EndC XX Ptd} (αβ : FX --> FX')
   : θ_source_ob FX --> θ_source_ob FX' := horcomp (#U (pr2 αβ)) (#H (pr1 αβ)).
 
 
-Definition θ_source_functor_data : functor_data (EndC XX Ptd) EndC.
+Definition θ_source_functor_data : functor_data (EndC XX Ptd) [C, D, hsD].
 Proof.
   exists θ_source_ob.
   exact (@θ_source_mor).
@@ -80,7 +84,7 @@ Proof.
   split; simpl.
   - intro FX.
     apply nat_trans_eq.
-    + apply hs.
+    + apply hsD.
     + intro c. simpl.
       rewrite functor_id.
       rewrite id_right.
@@ -88,7 +92,7 @@ Proof.
       rewrite HH. apply idpath.
   - intros FX FX' FX'' α β.
     apply nat_trans_eq.
-    + apply hs.
+    + apply hsD.
     + destruct FX as [F X].
       destruct FX' as [F' X'].
       destruct FX'' as [F'' X''].
@@ -119,13 +123,13 @@ Definition θ_source : functor _ _ := tpair _ _ is_functor_θ_source.
 
 (** Target is given by [(X,Z) => H(X∙U(Z))] *)
 
-Definition θ_target_ob (FX : EndC XX Ptd) : EndC := H (pr1 FX • U (pr2 FX)).
+Definition θ_target_ob (FX : EndC XX Ptd) : [C, D, hsD] := H (pr1 FX • U (pr2 FX)).
 
 Definition θ_target_mor (FX FX' : EndC XX Ptd) (αβ : FX --> FX')
   : θ_target_ob FX --> θ_target_ob FX'
   := #H (pr1 αβ ∙∙ #U(pr2 αβ)).
 
-Definition θ_target_functor_data : functor_data (EndC XX Ptd) EndC.
+Definition θ_target_functor_data : functor_data (EndC XX Ptd) [C, D, hsD].
 Proof.
   exists θ_target_ob.
   exact θ_target_mor.
@@ -192,6 +196,7 @@ Definition θ_Strength1 : UU := ∏ X : EndC,
 
 Section Strength_law_1_intensional.
 
+  (* does not typecheck in the heterogeneous formulation *)
 Definition θ_Strength1_int : UU
   := ∏ X : EndC,
      θ (X ⊗ (id_Ptd C hs)) ;; # H (λ_functor _) = λ_functor _.
@@ -241,7 +246,7 @@ Definition θ_Strength2 : UU := ∏ (X : EndC) (Z Z' : Ptd) (Y : EndC)
        # H (α : functor_compose hs hs (U Z) (X • (U Z')) --> Y).
 
 Section Strength_law_2_intensional.
-
+ (* does not typecheck in the heterogeneous formulation *)
 Definition θ_Strength2_int : UU
   := ∏ (X : EndC) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z'))  ;; #H (α_functor (U Z) (U Z') X )  =
