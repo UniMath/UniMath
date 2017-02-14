@@ -992,11 +992,8 @@ Definition iscontrpr1 {T : UU} : iscontr T -> T := pr1.
 Lemma iscontrretract {X Y : UU} (p : X -> Y) (s : Y -> X)
       (eps : ∏ y : Y, p (s y) = y) (is : iscontr X) : iscontr Y.
 Proof.
-  intros.
-  induction is as [x fe].
-  split with (p x).
-  intro t.
-  apply (! (eps t) @ maponpaths p (fe (s t))).
+  intros. set (x := iscontrpr1 is). set (fe := pr2 is). split with (p x).
+  intro t. apply (! (eps t) @ maponpaths p (fe (s t))).
 Defined.
 
 Lemma proofirrelevancecontr {X : UU} (is : iscontr X) (x x' : X) : x = x'.
@@ -1237,7 +1234,7 @@ Definition weqproperty {X Y} (f:X≃Y) : isweq f := pr2 f.
 
 Definition weqccontrhfiber {X Y : UU} (w : X ≃ Y) (y : Y) : hfiber w y.
 Proof.
-  intros. apply (pr1 (pr2 w y)).
+  intros. apply (iscontrpr1 (weqproperty w y)).
 Defined.
 
 Definition weqccontrhfiber2 {X Y : UU} (w : X ≃ Y) (y : Y) :
@@ -1277,7 +1274,7 @@ Proof.
 Defined.
 
 Definition invmap {X Y : UU} (w : X ≃ Y) : Y -> X :=
-  fun (y : Y) => pr1 (weqccontrhfiber w y).
+  fun (y : Y) => hfiberpr1 _ _ (weqccontrhfiber w y).
 
 (** *** Weak equivalences and paths spaces (more results in further sections) *)
 
@@ -1581,14 +1578,18 @@ Defined.
 Definition homothfiber1 {X Y : UU} (f g : X -> Y)
            (h : f ~ g) (y : Y) (xe : hfiber f y) : hfiber g y.
 Proof.
-  intros. induction xe as [x e].
+  intros.
+  set (x := pr1 xe).
+  set (e := pr2 xe).
   apply (hfiberpair g x (!(h x) @ e)).
 Defined.
 
 Definition homothfiber2 {X Y : UU} (f g : X -> Y)
            (h : f ~ g) (y : Y) (xe : hfiber g y) : hfiber f y.
 Proof.
-  intros. induction xe as [x e].
+  intros.
+  set (x := pr1 xe).
+  set (e := pr2 xe).
   apply (hfiberpair f x (h x @ e)).
 Defined.
 
@@ -1631,6 +1632,61 @@ Proof.
   intro y.
   apply (iscontrhfiberl2 f1 f2 h).
   apply x0.
+Defined.
+
+Corollary weqhomot {X Y : UU} {f1:X≃Y} {f2:X->Y} : f1 ~ f2 -> X≃Y.
+(* this lemma may be used to replace an equivalence by one whose forward map has a simpler definition,
+   keeping the same inverse map, judgmentally *)
+Proof.
+  intros ? ? ? ? e.
+  exact (f2 ,, isweqhomot f1 f2 e (weqproperty f1)).
+Defined.
+
+Lemma weqhomot_eq {X Y : UU} (f1:X≃Y) (f2:X->Y) (e:f1~f2) : pr1weq (weqhomot e) = f2.
+(* check the claim in the comment above *)
+Proof.
+  reflexivity.
+Defined.
+
+Lemma weqhomot_eq' {X Y : UU} (f1:X≃Y) (f2:X->Y) (e:f1~f2) : invmap (weqhomot e) = invmap f1.
+(* check the claim in the comment above *)
+Proof.
+  reflexivity.
+Defined.
+
+Lemma iscontr_move_point {X} : X -> iscontr X -> iscontr X.
+Proof.
+  intros ? x i.
+  exists x.
+  intro y.
+  now apply proofirrelevancecontr.
+Defined.
+
+Lemma iscontr_move_point_eq {X} (x:X) (i:iscontr X) : iscontrpr1 (iscontr_move_point x i) = x.
+Proof.
+  reflexivity.
+Defined.
+
+Corollary weqhomot2 {X Y : UU} (f:X≃Y) (h:Y->X) : invmap f ~ h -> X≃Y.
+(* this lemma may be used to replace an equivalence by one whose inverse map is simpler,
+   leaving the forward map the same, judgmentally *)
+Proof.
+  intros ? ? ? ? e. exists f. intro y.
+  assert (p : hfiber f y).
+  { exists (h y). apply pathsweq1', pathsinv0. apply e. }
+  exact (iscontr_move_point p (weqproperty f y)).
+Defined.
+
+Lemma weqhomot2_eq {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : pr1weq (weqhomot2 f h e) = pr1weq f.
+(* check the claim in the comment above *)
+Proof.
+  reflexivity.
+Defined.
+
+Lemma weqhomot2_eq' {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : invmap (weqhomot2 f h e) = h.
+(* check the claim in the comment above *)
+Proof.
+  reflexivity.
 Defined.
 
 Corollary isweqhomot_iff {X Y : UU} (f1 f2 : X -> Y)
