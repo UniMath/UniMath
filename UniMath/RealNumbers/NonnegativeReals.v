@@ -233,7 +233,7 @@ Qed.
 
 Lemma isstpo_Dcuts_lt_rel : isStrongOrder Dcuts_lt_rel.
 Proof.
-  repeat split.
+  apply mkStrongOrder.
   exact istrans_Dcuts_lt_rel.
   exact iscotrans_Dcuts_lt_rel.
   exact isirrefl_Dcuts_lt_rel.

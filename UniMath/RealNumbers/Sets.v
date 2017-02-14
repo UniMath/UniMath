@@ -122,10 +122,10 @@ Lemma isStrongOrder_reverse {X : UU} (l : hrel X) :
   isStrongOrder l → isStrongOrder (hrel_reverse l).
 Proof.
   intros X l H.
-  repeat split.
-  now apply istrans_reverse, (pr1 H).
-  now apply iscotrans_reverse, (pr1 (pr2 H)).
-  now apply isirrefl_reverse, (pr2 (pr2 H)).
+  apply mkStrongOrder.
+  - apply istrans_reverse, (istrans_StrongOrder (_,,H)).
+  - apply iscotrans_reverse,(iscotrans_StrongOrder (_,,H)).
+  - apply isirrefl_reverse, (isirrefl_StrongOrder (_,,H)).
 Qed.
 Definition StrongOrder_reverse {X : UU} (l : StrongOrder X) :=
   pairStrongOrder (hrel_reverse l) (isStrongOrder_reverse l (pr2 l)).
