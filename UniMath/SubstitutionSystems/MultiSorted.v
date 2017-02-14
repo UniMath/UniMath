@@ -111,15 +111,12 @@ Defined.
 
 Local Definition option_fun : sort -> SET / sort -> SET / sort.
 Proof.
-simpl; intros s Xf.
-mkpair.
-+ exists (hfiber (sumofmaps (pr2 Xf) (termfun s)) s).
-  abstract (apply isaset_total2;
-              [apply isasetcoprod; [apply setproperty| apply isasetunit]
-              |intros []; simpl; intro x; apply isasetaprop, setproperty]).
-+ intros F; induction (pr1 F) as [t|t].
-  - apply (pr2 Xf t).
-  - apply s.
+  simpl; intros s Xf.
+  mkpair.
+  + mkpair.
+    - exact (pr1 (pr1 Xf) ⨿ unit).
+    - apply isasetcoprod; [apply setproperty| apply isasetunit].
+  + exact (sumofmaps (pr2 Xf) (termfun s)).
 Defined.
 
 Local Definition option_functor_data (s : sort) : functor_data (SET / sort) (SET / sort).
@@ -128,21 +125,16 @@ exists (option_fun s).
 intros X Y f.
 mkpair.
 - intros F.
-  mkpair.
-  * induction (pr1 F) as [t|t]; [apply (ii1 (pr1 f t)) | apply (ii2 t)].
-  * abstract (induction F as [[t|t] h]; trivial; rewrite <- h;
-              apply (toforallpaths _ _ _ (! pr2 f) t)).
-- abstract (apply funextsec; intros [[t|t] h]; trivial; apply (toforallpaths _ _ _ (pr2 f) t)).
+  induction F as [t|t]; [apply (ii1 (pr1 f t)) | apply (ii2 t)].
+- abstract (apply funextsec; intros [t|t]; trivial; apply (toforallpaths _ _ _ (pr2 f) t)).
 Defined.
 
 Local Lemma is_functor_option_functor (s : sort) : is_functor (option_functor_data s).
 Proof.
 split; simpl.
-+ intros X; apply (eq_mor_slicecat has_homsets_HSET), funextsec; intros [t Ht].
-  apply subtypeEquality; [intros x; apply setproperty|]; simpl.
++ intros X; apply (eq_mor_slicecat has_homsets_HSET), funextsec; intros t.
   now induction t.
-+ intros X Y Z f g; apply (eq_mor_slicecat has_homsets_HSET), funextsec; intros [t Ht].
-  apply subtypeEquality; [intros x; apply setproperty|]; simpl.
++ intros X Y Z f g; apply (eq_mor_slicecat has_homsets_HSET), funextsec; intros t.
   now induction t.
 Qed.
 
@@ -342,12 +334,10 @@ Defined.
 
 (** The functor obtained from a multisorted binding signature is omega-cocontinuous *)
 Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig)
-  (Heq : isdeceq (ops M)) (H : Colims_of_shape nat_graph SET_over_sort) :
+  (H : Colims_of_shape nat_graph SET_over_sort) :
   is_omega_cocont (MultiSortedSigToFunctor M).
 Proof.
 apply is_omega_cocont_coproduct_of_functors; try apply homset_property.
-+ apply Products_functor_precat, Products_HSET_slice.
-+ apply Heq.
 + intros op; apply is_omega_cocont_hat_exp_functor_list, H.
 Defined.
 
