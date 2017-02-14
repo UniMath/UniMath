@@ -427,6 +427,18 @@ Proof.
   - apply weqtotal2overunit.
 Defined.
 
+Lemma weqoverdnicoprod_eq1 {n} (P:⟦S n⟧→UU) j p :
+  invmap (weqoverdnicoprod P) (ii1 (j,,p)) = ( dni n (lastelement n) j ,, p ).
+Proof.
+  intros. simpl in p. reflexivity.
+Defined.
+
+Lemma weqoverdnicoprod_eq2 {n} (P:⟦S n⟧→UU) p :
+  invmap (weqoverdnicoprod P) (ii2 p) = ( lastelement n ,, p ).
+Proof.
+  intros. reflexivity.
+Defined.
+
 Definition weqdnicoprod_invmap {n} (j : stn(S n)) : stn n ⨿ unit <- stn (S n).
   (* perhaps use this to improve weqdnicoprod *)
   intros n j i.
@@ -537,8 +549,8 @@ Definition weqfromcoprodofstn_map (n m : nat) : (coprod (stn n) (stn m)) -> (stn
 Proof.
   intros n m i.
   induction i as [i | i].
-  - exact (stnpair (n + m) i (natlthlehtrans _ _ _ (stnlt i) (natlehnplusnm n m))).
-  - exact (stnpair (n + m) (n + i) (natgthandplusl _ _ _ (stnlt i))).
+  - now apply stn_left.
+  - now apply stn_right.
 Defined.
 
 Lemma weqfromcoprodofstn_eq1 (n m : nat) :
@@ -547,16 +559,14 @@ Proof.
   intros n m x.
   unfold weqfromcoprodofstn_map, weqfromcoprodofstn_invmap. unfold coprod_rect.
   induction x as [x | x].
-  - cbn. induction (natlthorgeh x n) as [H | H].
+  - induction (natlthorgeh (stn_left n m x) n) as [H | H].
     + apply maponpaths. apply isinjstntonat. apply idpath.
     + apply fromempty. apply (natlthtonegnatgeh x n (stnlt x) H).
-  - cbn. induction (natlthorgeh (n + x) n) as [H | H].
+  - induction (natlthorgeh (stn_right n m x) n) as [H | H].
     + apply fromempty.
       set (tmp := natlehlthtrans n (n + x) n (natlehnplusnm n x) H).
       use (isirrefl_natneq n (natlthtoneq _ _ tmp)).
-    + induction (natchoice0 m) as [H1 | H1].
-      * apply fromempty. apply (negnatlthn0 x). rewrite H1. exact (stnlt x).
-      * apply maponpaths. apply isinjstntonat. cbn. rewrite natpluscomm. apply plusminusnmm.
+    + apply maponpaths. apply isinjstntonat. cbn. rewrite natpluscomm. apply plusminusnmm.
 Qed.
 
 Lemma weqfromcoprodofstn_eq2 (n m : nat) :
@@ -944,13 +954,12 @@ Proof.
   reflexivity.
 Defined.
 
-Lemma weqstnsum1_eq { n : nat } (f : stn n -> nat) : pr1weq (weqstnsum1 f) ~ weqstnsum_map f.
+Lemma weqstnsum1_eq { n : nat } (f : stn n -> nat) : weqstnsum1 f ~ weqstnsum_map f.
 Proof.
   intros n.
   induction n as [|n I].
   - intros f ij. apply fromempty, negstn0. exact (pr1 ij).
   - intros f.
-    Local Set Printing Coercions.
     rewrite weqstnsum1_step.
     intros ij.
     rewrite 2 weqcomp_to_funcomp_app.
@@ -967,7 +976,8 @@ Proof.
       apply homotcoprodfhomot.
       * apply I.
       * intro x. reflexivity.
-    + apply pathsinv0.
+    + clear I.
+      apply pathsinv0.
       generalize ij ; clear ij.
       apply (homotweqinv' (weqstnsum_map f)
                           (weqoverdnicoprod (λ i : ⟦ S n ⟧, ⟦ f i ⟧))
@@ -977,12 +987,37 @@ Proof.
             ).
       intros c.
       unfold funcomp.
-      apply subtypeEquality_prop.
+      set (P := λ i, ⟦ f i ⟧).
+      change (pr1weq (weqfromcoprodofstn (stnsum (λ x : ⟦ n ⟧, f (dni n (lastelement n) x))) (f (lastelement n))))
+      with (weqfromcoprodofstn_map (stnsum (λ x : ⟦ n ⟧, f (dni n (lastelement n) x))) (f (lastelement n))).
       induction c as [jk|k].
-      * admit.
-      * admit.
-(* Defined. *)
-Abort.
+      * unfold coprodf.
+        induction jk as [j k].
+        change (invmap (weqoverdnicoprod P) (ii1 (j,,k))) with (tpair P (dni n (lastelement n) j) k).
+        unfold weqfromcoprodofstn_map. unfold coprod_rect. unfold weqstnsum_map.
+        apply subtypeEquality_prop.
+        induction k as [k K]. simpl.
+        apply (maponpaths (λ x, x+k)). unfold funcomp. unfold stntonat. unfold di.
+        clear K k.
+        induction (natlthorgeh (pr1 j) n) as [G|G'].
+        -- simpl. apply stnsum_eq; intro k. apply maponpaths.
+           apply subtypeEquality_prop. simpl.
+           apply pathsinv0, di_eq1.
+           exact (istransnatlth _ _ _ (stnlt k) G).
+        -- apply fromempty. exact (natlthtonegnatgeh _ _ (stnlt j) G').
+      * change (invmap (weqoverdnicoprod P) (ii2 k)) with (tpair P (lastelement n) k).
+        unfold coprodf, idfun. unfold weqfromcoprodofstn_map. unfold coprod_rect.
+        unfold weqstnsum_map.
+        apply subtypeEquality_prop.
+        induction k as [k K]. simpl.
+        apply (maponpaths (λ x, x+k)).
+        apply maponpaths.
+        apply funextfun; intro i. induction i as [i I].
+        unfold funcomp. apply maponpaths.
+        apply subtypeEquality_prop.
+        simpl.
+        now apply pathsinv0, di_eq1.
+Defined.
 
 Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat) :
   (∏ i, stn (f i) ≃ P i) -> total2 P ≃ stn (stnsum f).
