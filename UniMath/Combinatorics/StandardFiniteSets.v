@@ -433,6 +433,12 @@ Proof.
   intros. simpl in p. reflexivity.
 Defined.
 
+Lemma weqoverdnicoprod_eq1' {n} (P:⟦S n⟧→UU) jp :
+  invmap (weqoverdnicoprod P) (ii1 jp) = (total2_base_map (dni _ (lastelement _)) jp).
+Proof.
+  intros. induction jp. reflexivity.
+Defined.
+
 Lemma weqoverdnicoprod_eq2 {n} (P:⟦S n⟧→UU) p :
   invmap (weqoverdnicoprod P) (ii2 p) = ( lastelement n ,, p ).
 Proof.
@@ -461,33 +467,6 @@ Definition weqdnicoprod_invmap {n} (j : stn(S n)) : stn n ⨿ unit <- stn (S n).
       { induction b.
         induction (ne (@subtypeEquality_prop _ _ (stnpair _ j I) (stnpair _ j J) (idpath j))). } } }
 Defined.
-
-Definition weqdnicoprod_new n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
-Proof.
-  (* in progress *)
-  (* this version might be more computable than weqdnicoprod *)
-  intros n j.
-  apply (weqgradth (weqdnicoprod_map j) (weqdnicoprod_invmap j)).
-  { intro x. induction x as [i|t].
-    { try reflexivity.
-      induction i as [i I]. induction j as [j J].
-      try reflexivity.
-      unfold weqdnicoprod_map, dni, di; simpl.
-      induction (natlthorgeh i j) as [a|a].
-      { simpl. unfold weqdnicoprod_invmap.
-        induction
-          (isdeceqstn (S n) (stnpair (S n) i (natgthtogths n i I))
-                      (@tpair nat
-                              (fun m : nat =>
-                                 @paths bool
-                                        match m return bool with
-                                          | O => true
-                                          | S m0 => natgtb n m0
-                                        end true) j J)) as [b|b].
-        { simpl. assert (b' := maponpaths (stntonat _) b); simpl in b'.
-          induction b'. induction (isirreflnatlth _ a). }
-        {
-Abort.
 
 (** *** Weak equivalences from [ stn n ] for [ n = 0 , 1 , 2 ] to [ empty ] , [ unit ] and [ bool ] ( see also the section on [ nelstruct ] in finitesets.v ) . *)
 
@@ -828,6 +807,26 @@ Proof.
   - exact (lastelement n,,k).
 Defined.
 
+Definition weqstnsum_invmap_step1 {n} (f : stn (S n) -> nat)
+           (j : stn (stnsum (λ x, f (dni n (lastelement n) x)))) :
+  weqstnsum_invmap f (weqfromcoprodofstn_map (stnsum (λ x, f (dni n (lastelement n) x))) (f (lastelement n)) (ii1 j))
+  =
+  total2_base_map (dni _ (lastelement _)) (weqstnsum_invmap (f ∘ dni _ (lastelement _)) j).
+Proof.
+  intros. unfold weqstnsum_invmap at 1. unfold nat_rect at 1.
+  rewrite weqfromcoprodofstn_eq1. reflexivity.
+Defined.
+
+Definition weqstnsum_invmap_step2 {n} (f : stn (S n) -> nat)
+           (k : stn (f (lastelement n))) :
+  weqstnsum_invmap f (weqfromcoprodofstn_map (stnsum (λ x, f (dni n (lastelement n) x))) (f (lastelement n)) (ii2 k))
+  =
+  (lastelement n,,k).
+Proof.
+  intros. unfold weqstnsum_invmap at 1. unfold nat_rect at 1.
+  rewrite weqfromcoprodofstn_eq1. reflexivity.
+Defined.
+
 Lemma partial_sum_prop {n : nat} {m : stn n → nat} l : l < stnsum m  ->
   isaprop (∑ (i:stn n) (j:stn(m i)), stnsum (m ∘ stn_left'' (stnlt i)) + j = l).
 Proof.
@@ -882,54 +881,7 @@ Proof.
   reflexivity.
 Defined.
 
-Theorem weqstnsum1' { n : nat } (m : stn n -> nat) : (∑ i, stn (m i)) ≃ stn (stnsum m).
-(* This version will be more computable that weqstnsum1, below.  We have successfully used the map
-  [weqstnsum_invmap] to define and prove generalized associativity in a monoid.  *)
-Proof.
-  intros.
-  simple refine (weqpair _ (gradth (weqstnsum_map _) (weqstnsum_invmap _) _ _)).
-  - intros.
-    induction n as [|n IH].
-    + apply fromempty. apply negstn0. exact (pr1 x).
-    +
-      unfold weqstnsum_invmap.
-      rewrite nat_rect_step.
-      match goal with |- coprod_rect _ _ _ ?x = _ => induction x as [K|K'] end.
-      * rewrite coprod_rect_compute_1.
-    admit.
-Abort.
-
-Theorem weqstnsum1' { n : nat } (m : stn n -> nat) : (∑ i, stn (m i)) ≃ stn (stnsum m).
-(* This version will be more computable that weqstnsum1, below.  We have successfully used the map
-  [weqstnsum_invmap] to define and prove generalized associativity in a monoid.  *)
-Proof.
-  intros.
-  exists (weqstnsum_map _).
-  intro l.
-  unfold hfiber.
-  use tpair.
-  - exists (weqstnsum_invmap m l).
-    + induction n as [|n I].
-      * now apply fromempty, negstn0.
-      * apply subtypeEquality_prop.
-        induction l as [l lt].
-        unfold weqstnsum_map.
-        unfold stnpair.
-        rewrite 2 rewrite_pr1_tpair.
-        unfold weqstnsum_invmap.
-        unfold nat_rect.
-        set (m' := m ∘ dni n (lastelement n)).
-        induction (weqfromcoprodofstn_invmap (stnsum m') (m (lastelement n)) (l,, lt)) as [j|k].
-        -- simple refine (_ @ maponpaths pr1 (I m' j) @ _).
-           ++ simpl.
-              apply two_arg_paths.
-              ** admit.
-              ** admit.
-           ++
-(* Defined. *)
-Abort.
-
-Theorem weqstnsum1 {n} (f : stn n -> nat) : (∑ i, stn (f i)) ≃ stn (stnsum f).
+Definition weqstnsum1_prelim {n} (f : stn n -> nat) : (∑ i, stn (f i)) ≃ stn (stnsum f).
 Proof.
   intros n.
   induction n as [ | n' IHn ].
@@ -945,16 +897,16 @@ Defined.
 
 Lemma weqstnsum1_step {n} (f : ⟦S n⟧ -> nat)
   : (
-      weqstnsum1 f
+      weqstnsum1_prelim f
       =
       weqfromcoprodofstn (stnsum (funcomp (dni n (lastelement n)) f)) (f (lastelement n))
-      ∘ (weqcoprodf1 (weqstnsum1 (λ i, f (dni n (lastelement n) i)))
+      ∘ (weqcoprodf1 (weqstnsum1_prelim (λ i, f (dni n (lastelement n) i)))
          ∘ weqoverdnicoprod (λ i, ⟦ f i ⟧))) % weq.
 Proof.
   reflexivity.
 Defined.
 
-Lemma weqstnsum1_eq { n : nat } (f : stn n -> nat) : weqstnsum1 f ~ weqstnsum_map f.
+Lemma weqstnsum1_prelim_eq { n : nat } (f : stn n -> nat) : weqstnsum1_prelim f ~ weqstnsum_map f.
 Proof.
   intros n.
   induction n as [|n I].
@@ -964,9 +916,9 @@ Proof.
     intros ij.
     rewrite 2 weqcomp_to_funcomp_app.
     unfold weqcoprodf1.
-    change (pr1weq (weqcoprodf (weqstnsum1 (λ i, f (dni n (lastelement n) i)))
+    change (pr1weq (weqcoprodf (weqstnsum1_prelim (λ i, f (dni n (lastelement n) i)))
                                (idweq ⟦ f (lastelement n) ⟧)))
-    with (coprodf (weqstnsum1 (λ i, f (dni n (lastelement n) i)))
+    with (coprodf (weqstnsum1_prelim (λ i, f (dni n (lastelement n) i)))
                   (idfun ⟦ f (lastelement n) ⟧)).
     intermediate_path
       ((weqfromcoprodofstn (stnsum (f ∘ dni n (lastelement n))) (f (lastelement n)))
@@ -1019,7 +971,7 @@ Proof.
         now apply pathsinv0, di_eq1.
 Defined.
 
-Lemma weqstnsum1_eq' { n : nat } (f : stn n -> nat) : invweq (weqstnsum1 f) ~ weqstnsum_invmap f.
+Lemma weqstnsum1_prelim_eq' { n : nat } (f : stn n -> nat) : invweq (weqstnsum1_prelim f) ~ weqstnsum_invmap f.
 Proof.
   intros n.
   induction n as [|n I].
@@ -1027,8 +979,8 @@ Proof.
   - intros f. rewrite weqstnsum1_step.
     intros k. rewrite 2 invweqcomp. rewrite 2 weqcomp_to_funcomp_app. rewrite 3 pr1_invweq.
     unfold weqcoprodf1.
-    change (invmap (weqcoprodf (weqstnsum1 (λ i, f (dni n (lastelement n) i))) (idweq ⟦ f (lastelement n) ⟧)))
-    with (coprodf (invweq (weqstnsum1 (λ i, f (dni n (lastelement n) i)))) (idweq ⟦ f (lastelement n) ⟧)).
+    change (invmap (weqcoprodf (weqstnsum1_prelim (λ i, f (dni n (lastelement n) i))) (idweq ⟦ f (lastelement n) ⟧)))
+    with (coprodf (invweq (weqstnsum1_prelim (λ i, f (dni n (lastelement n) i)))) (idweq ⟦ f (lastelement n) ⟧)).
     intermediate_path (invmap (weqoverdnicoprod (λ i : ⟦ S n ⟧, ⟦ f i ⟧))
                               (coprodf (weqstnsum_invmap (λ i : ⟦ n ⟧, f (dni n (lastelement n) i))) (idweq ⟦ f (lastelement n) ⟧)
                                        (invmap (weqfromcoprodofstn (stnsum (f ∘ dni n (lastelement n))) (f (lastelement n))) k))).
@@ -1040,7 +992,8 @@ Proof.
       apply homotcoprodfhomot.
       * apply I.
       * apply homotrefl.
-    + generalize k; clear k.
+    + clear I.
+      generalize k; clear k.
       simple refine (homotweqinv
                 (λ c, invmap (weqoverdnicoprod (λ i, ⟦ f i ⟧))
                              (coprodf (weqstnsum_invmap (λ i, f (dni n (lastelement n) i)))
@@ -1051,15 +1004,38 @@ Proof.
       unfold funcomp.
       intro c.
       induction c as [r|s].
-      * simpl.
+      * unfold coprodf.
+        change (pr1weq (weqfromcoprodofstn (stnsum (λ x, f (dni n (lastelement n) x))) (f (lastelement n))))
+        with (weqfromcoprodofstn_map (stnsum (λ x, f (dni n (lastelement n) x))) (f (lastelement n))).
+        set (P := (λ i : ⟦ S n ⟧, ⟦ f i ⟧)).
+        rewrite weqstnsum_invmap_step1.
+        change (λ i : ⟦ n ⟧, f (dni n (lastelement n) i)) with (f ∘ dni n (lastelement n)).
+        generalize (weqstnsum_invmap (f ∘ dni n (lastelement n)) r); intro ij.
+        induction ij as [i j].
+        reflexivity.
+      * unfold coprodf.
+        change (pr1weq (idweq _) s) with s.
+        set (P := (λ i : ⟦ S n ⟧, ⟦ f i ⟧)).
+        change (pr1weq _)
+        with (weqfromcoprodofstn_map (stnsum (λ x : ⟦ n ⟧, f (dni n (lastelement n) x))) (f (lastelement n))).
+        rewrite weqstnsum_invmap_step2.
+        reflexivity.
+Defined.
 
+Definition weqstnsum1 {n} (f : stn n -> nat) : (∑ i, stn (f i)) ≃ stn (stnsum f).
+Proof.
+  intros. simple refine (remakeweqboth (weqstnsum1_prelim_eq _) (weqstnsum1_prelim_eq' _)).
+Defined.
 
+Lemma weqstnsum1_eq {n} (f : stn n -> nat) : pr1weq (weqstnsum1 f) = weqstnsum_map f.
+Proof.
+  reflexivity.
+Defined.
 
-        admit.
-      * simpl.
-        admit.
-(* Defined. *)
-Abort.
+Lemma weqstnsum1_eq' {n} (f : stn n -> nat) : invmap (weqstnsum1 f) = weqstnsum_invmap f.
+Proof.
+  reflexivity.
+Defined.
 
 Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat) :
   (∏ i, stn (f i) ≃ P i) -> total2 P ≃ stn (stnsum f).

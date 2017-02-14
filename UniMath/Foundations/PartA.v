@@ -1639,21 +1639,21 @@ Proof.
   apply x0.
 Defined.
 
-Corollary weqhomot {X Y : UU} {f1:X≃Y} {f2:X->Y} : f1 ~ f2 -> X≃Y.
+Corollary remakeweq {X Y : UU} {f:X≃Y} {g:X->Y} : f ~ g -> X≃Y.
 (* this lemma may be used to replace an equivalence by one whose forward map has a simpler definition,
    keeping the same inverse map, judgmentally *)
 Proof.
   intros ? ? ? ? e.
-  exact (f2 ,, isweqhomot f1 f2 e (weqproperty f1)).
+  exact (g ,, isweqhomot f g e (weqproperty f)).
 Defined.
 
-Lemma weqhomot_eq {X Y : UU} (f1:X≃Y) (f2:X->Y) (e:f1~f2) : pr1weq (weqhomot e) = f2.
+Lemma remakeweq_eq {X Y : UU} (f1:X≃Y) (f2:X->Y) (e:f1~f2) : pr1weq (remakeweq e) = f2.
 (* check the claim in the comment above *)
 Proof.
   reflexivity.
 Defined.
 
-Lemma weqhomot_eq' {X Y : UU} (f1:X≃Y) (f2:X->Y) (e:f1~f2) : invmap (weqhomot e) = invmap f1.
+Lemma remakeweq_eq' {X Y : UU} (f1:X≃Y) (f2:X->Y) (e:f1~f2) : invmap (remakeweq e) = invmap f1.
 (* check the claim in the comment above *)
 Proof.
   reflexivity.
@@ -1672,7 +1672,7 @@ Proof.
   reflexivity.
 Defined.
 
-Corollary weqhomotinv {X Y : UU} (f:X≃Y) (h:Y->X) : invmap f ~ h -> X≃Y.
+Corollary remakeweqinv {X Y : UU} {f:X≃Y} {h:Y->X} : invmap f ~ h -> X≃Y.
 (* this lemma may be used to replace an equivalence by one whose inverse map is simpler,
    leaving the forward map the same, judgmentally *)
 Proof.
@@ -1682,14 +1682,33 @@ Proof.
   exact (iscontr_move_point p (weqproperty f y)).
 Defined.
 
-Lemma weqhomotinv_eq {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : pr1weq (weqhomotinv f h e) = pr1weq f.
+Lemma remakeweqinv_eq {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : pr1weq (remakeweqinv e) = pr1weq f.
 (* check the claim in the comment above *)
 Proof.
   reflexivity.
 Defined.
 
-Lemma weqhomotinv_eq' {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : invmap (weqhomotinv f h e) = h.
+Lemma remakeweqinv_eq' {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : invmap (remakeweqinv e) = h.
 (* check the claim in the comment above *)
+Proof.
+  reflexivity.
+Defined.
+
+Corollary remakeweqboth {X Y : UU} {f:X≃Y} {g:X->Y} {h:Y->X} : f ~ g -> invmap f ~ h -> X≃Y.
+(* this lemma may be used to replace an equivalence by one whose two maps are simpler *)
+Proof.
+  intros ? ? ? ? ? r s.
+  simple refine (remakeweqinv (f := remakeweq r) s).
+Defined.
+
+Lemma remakeweqboth_eq {X Y : UU} (f:X≃Y) (g:X->Y) (h:Y->X) (r:f~g) (s:invmap f ~ h) :
+  pr1weq (remakeweqboth r s) = g.
+Proof.
+  reflexivity.
+Defined.
+
+Lemma remakeweqboth_eq' {X Y : UU} (f:X≃Y) (g:X->Y) (h:Y->X) (r:f~g) (s:invmap f ~ h) :
+  invmap (remakeweqboth r s) = h.
 Proof.
   reflexivity.
 Defined.
