@@ -122,17 +122,15 @@ mkpair.
             apply subtypeEquality; try (intro x; apply has_homsets_HSET)).
 Defined.
 
-Definition sorted_variable (s: sort) : SET / sort.
+(** The object (1,λ _,s) in SET/sort that can be seen as a sorted variable *)
+Local Definition constHSET_slice (s : sort) : SET / sort.
 Proof.
-  mkpair.
-  + mkpair.
-   - exact unit.
-   - apply isasetunit.
-  + intros _. exact s.
+exists (TerminalObject TerminalHSET); simpl.
+apply (λ x, s).
 Defined.
 
 Definition sorted_option_functor (s : sort) : functor (SET / sort) (SET / sort) :=
-  constcoprod_functor1 BinCoproducts_SET_div_sort (sorted_variable s).
+  constcoprod_functor1 BinCoproducts_SET_div_sort (constHSET_slice s).
 
 (** sorted option functor for lists (also called option in the note) *)
 Local Definition option_list (xs : list sort) : functor (SET / sort) (SET / sort).
@@ -192,13 +190,6 @@ End functor.
 
 (** * Proof that the functor obtained from a multisorted signature is omega-cocontinuous *)
 Section omega_cocont.
-
-(** The object (1,λ _,s) in SET/sort *)
-Local Definition constHSET_slice (s : sort) : SET / sort.
-Proof.
-exists (TerminalObject TerminalHSET); simpl.
-apply (λ x, s).
-Defined.
 
 (** The proj functor is naturally isomorphic to the following functor which is a left adjoint: *)
 Local Definition proj_functor' (s : sort) : functor (SET / sort) SET :=
