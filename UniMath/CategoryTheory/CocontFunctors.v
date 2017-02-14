@@ -815,22 +815,26 @@ Lemma isColimCocone_in_product_precategory
 Proof.
   intros b' cc'.
   apply iscontraprop1.
-  - apply invproofirrelevance; intros f1 f2.
-    apply subtypeEquality.
-      intros f; apply impred_isaprop; intros v.
-      apply has_homsets_product_precategory, hsB.
-    apply funextsec; intros i.
-    assert (MM := M i _ (mapcocone (pr_functor I B i) _ cc')).
-    assert (H := proofirrelevance _ (isapropifcontr MM)).
+  - abstract (
+    apply invproofirrelevance; intros f1 f2;
+    apply subtypeEquality;
+    [ intros f; apply impred_isaprop; intros v;
+      apply has_homsets_product_precategory, hsB | ];
+    apply funextsec; intros i;
+    assert (MM := M i _ (mapcocone (pr_functor I B i) _ cc'));
+    assert (H := proofirrelevance _ (isapropifcontr MM));
     refine (maponpaths pr1 (H (pr1 f1 i,,_) (pr1 f2 i,,_)));
-      clear MM H; intros v.
-    + exact (toforallpaths _ _ _ (pr2 f1 v) i).
-    + exact (toforallpaths _ _ _ (pr2 f2 v) i).
+      clear MM H; intros v ;
+      [ exact (toforallpaths _ _ _ (pr2 f1 v) i) |
+        exact (toforallpaths _ _ _ (pr2 f2 v) i) ]
+      ) .
   - mkpair.
     + intros i.
       refine (pr1 (pr1 (M i _ (mapcocone (pr_functor I B i) _ cc')))).
-    + intros v. apply funextsec; intros i.
-      refine (pr2 (pr1 (M i _ (mapcocone (pr_functor I B i) _ cc'))) v).
+    + abstract (
+          intros v; apply funextsec; intros i;
+          refine (pr2 (pr1 (M i _ (mapcocone (pr_functor I B i) _ cc'))) v)
+        ).
 Defined.
 
 Lemma is_cocont_functor_into_product_precategory
