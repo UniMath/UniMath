@@ -196,7 +196,7 @@ Definition θ_Strength1 : UU := ∏ X : EndC,
 
 Section Strength_law_1_intensional.
 
-  (* does not typecheck in the heterogeneous formulation *)
+(** needs the heterogeneous formulation of the monoidal operation to type-check *)
 Definition θ_Strength1_int : UU
   := ∏ X : EndC,
      θ (X ⊗ (id_Ptd C hs)) ;; # H (λ_functor _) = λ_functor _.
@@ -250,7 +250,9 @@ Section Strength_law_2_intensional.
 Definition θ_Strength2_int : UU
   := ∏ (X : EndC) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z'))  ;; #H (α_functor (U Z) (U Z') X )  =
-      (α_functor (U Z) (U Z') (H X) : functor_compose hs hs _ _  --> _ ) ;;
+      (α_functor (U Z) (U Z') (H X) : functor_compose hs hs _ _  --> _
+      (* does not work as replacement:   functor_composite _ _  ⟶ _    *)
+      ) ;;
       θ (X ⊗ Z') •• (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) .
 
 Lemma θ_Strength2_int_implies_θ_Strength2 : θ_Strength2_int → θ_Strength2.

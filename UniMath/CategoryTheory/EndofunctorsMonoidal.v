@@ -33,25 +33,27 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 *)
 Section Monoidal_Structure_on_Endofunctors.
 
-Context {C : precategory}.
+(** while this is normally used for endofunctors, it can be done more generally *)
 
-Definition ρ_functor (X : functor C C) :
-  nat_trans (functor_composite X (functor_identity C)) X := nat_trans_functor_id_right X.
+Context {C D : precategory}.
 
-Definition ρ_functor_inv (X : functor C C) :
-  nat_trans X (functor_composite X (functor_identity C)) := ρ_functor X.
+Definition ρ_functor (X : functor C D) :
+  nat_trans (functor_composite X (functor_identity D)) X := nat_trans_functor_id_right X.
 
-Definition λ_functor (X : functor C C) :
+Definition ρ_functor_inv (X : functor C D) :
+  nat_trans X (functor_composite X (functor_identity D)) := ρ_functor X.
+
+Definition λ_functor (X : functor C D) :
   nat_trans (functor_composite (functor_identity C) X) X := ρ_functor X.
 
-Definition λ_functor_inv (X : functor C C) :
+Definition λ_functor_inv (X : functor C D) :
   nat_trans X (functor_composite (functor_identity C) X) := ρ_functor X.
 
-Definition α_functor (X Y Z : functor C C) :
+Definition α_functor (X Y : functor C C)(Z : functor C D) :
   nat_trans (functor_composite (functor_composite X Y) Z)
             (functor_composite X (functor_composite Y Z)) := nat_trans_functor_assoc X Y Z.
 
-Definition α_functor_inv (X Y Z : functor C C) :
+Definition α_functor_inv (X Y : functor C C)(Z : functor C D) :
   nat_trans (functor_composite X (functor_composite Y Z))
             (functor_composite (functor_composite X Y) Z) := α_functor X Y Z.
 
