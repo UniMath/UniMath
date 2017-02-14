@@ -69,19 +69,6 @@ exists (SET / sort).
 now apply has_homsets_slice_precat.
 Defined.
 
-(* will not be needed: *)
-Local Definition BinCoproducts_SET_over_sort: BinCoproducts SET_over_sort.
-Proof.
-apply BinCoproducts_slice_precat.
-exact BinCoproductsHSET.
-Defined.
-
-Local Definition BinCoproducts_SET_div_sort: BinCoproducts (SET / sort).
-Proof.
-apply BinCoproducts_slice_precat.
-exact BinCoproductsHSET.
-Defined.
-
 Let post_comp := post_composition_functor (SET / sort) _ _
                    (homset_property SET_over_sort) has_homsets_HSET.
 
@@ -130,7 +117,7 @@ apply (λ x, s).
 Defined.
 
 Definition sorted_option_functor (s : sort) : functor (SET / sort) (SET / sort) :=
-  constcoprod_functor1 BinCoproducts_SET_div_sort (constHSET_slice s).
+  constcoprod_functor1 (BinCoproducts_HSET_slice sort) (constHSET_slice s).
 
 (** sorted option functor for lists (also called option in the note) *)
 Local Definition option_list (xs : list sort) : functor (SET / sort) (SET / sort).
