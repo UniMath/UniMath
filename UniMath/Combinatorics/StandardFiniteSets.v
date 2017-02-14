@@ -1019,6 +1019,48 @@ Proof.
         now apply pathsinv0, di_eq1.
 Defined.
 
+Lemma weqstnsum1_eq' { n : nat } (f : stn n -> nat) : invweq (weqstnsum1 f) ~ weqstnsum_invmap f.
+Proof.
+  intros n.
+  induction n as [|n I].
+  - intros f k. apply fromempty, negstn0. exact k.
+  - intros f. rewrite weqstnsum1_step.
+    intros k. rewrite 2 invweqcomp. rewrite 2 weqcomp_to_funcomp_app. rewrite 3 pr1_invweq.
+    unfold weqcoprodf1.
+    change (invmap (weqcoprodf (weqstnsum1 (λ i, f (dni n (lastelement n) i))) (idweq ⟦ f (lastelement n) ⟧)))
+    with (coprodf (invweq (weqstnsum1 (λ i, f (dni n (lastelement n) i)))) (idweq ⟦ f (lastelement n) ⟧)).
+    intermediate_path (invmap (weqoverdnicoprod (λ i : ⟦ S n ⟧, ⟦ f i ⟧))
+                              (coprodf (weqstnsum_invmap (λ i : ⟦ n ⟧, f (dni n (lastelement n) i))) (idweq ⟦ f (lastelement n) ⟧)
+                                       (invmap (weqfromcoprodofstn (stnsum (f ∘ dni n (lastelement n))) (f (lastelement n))) k))).
+    + apply maponpaths.
+      change (invmap _ k)
+      with (invmap (weqfromcoprodofstn (stnsum (f ∘ dni n (lastelement n))) (f (lastelement n))) k).
+      generalize (invmap (weqfromcoprodofstn (stnsum (f ∘ dni n (lastelement n))) (f (lastelement n))) k).
+      intro c.
+      apply homotcoprodfhomot.
+      * apply I.
+      * apply homotrefl.
+    + generalize k; clear k.
+      simple refine (homotweqinv
+                (λ c, invmap (weqoverdnicoprod (λ i, ⟦ f i ⟧))
+                             (coprodf (weqstnsum_invmap (λ i, f (dni n (lastelement n) i)))
+                                      (idweq ⟦ f (lastelement n) ⟧)
+                                      c))
+                (weqfromcoprodofstn (stnsum (f ∘ dni n (lastelement n))) (f (lastelement n)))
+                _ _).
+      unfold funcomp.
+      intro c.
+      induction c as [r|s].
+      * simpl.
+
+
+
+        admit.
+      * simpl.
+        admit.
+(* Defined. *)
+Abort.
+
 Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat) :
   (∏ i, stn (f i) ≃ P i) -> total2 P ≃ stn (stnsum f).
 Proof.

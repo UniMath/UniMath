@@ -492,6 +492,11 @@ Definition homot {X : UU} {P : X -> UU} (f g : ∏ x : X, P x) :=
 
 Notation "f ~ g" := (homot f g) (at level 70, no associativity).
 
+Definition homotrefl {X Y : UU} {f: X -> Y} : f ~ f.
+Proof.
+  intros ? ? ? x. reflexivity.
+Defined.
+
 Definition homotcomp {X Y : UU} {f f' f'' : X -> Y}
            (h : f ~ f') (h' : f' ~ f'') : f ~ f'' := fun (x : X) => h x @ h' x.
 
@@ -1756,10 +1761,16 @@ Defined.
 Definition invweq {X Y : UU} (w : weq X Y) : weq Y X :=
   weqpair (invmap w) (isweqinvmap w).
 
-Corollary invinv {X Y : UU} (w : weq X Y) (x : X) :
+Lemma invinv {X Y : UU} (w : weq X Y) (x : X) :
   invmap (invweq w) x = w x.
 Proof.
-  intros. apply idpath.
+  reflexivity.
+Defined.
+
+Lemma pr1_invweq {X Y : UU} (w : weq X Y) : pr1weq (invweq w) = invmap w.
+(* useful for rewriting *)
+Proof.
+  reflexivity.
 Defined.
 
 Corollary iscontrweqf {X Y : UU} (w : weq X Y) (is : iscontr X) : iscontr Y.
@@ -2150,7 +2161,6 @@ Proof. reflexivity. Defined.
 Definition invmap_weqcomp_expand {X Y Z : UU} {f : X ≃ Y} {g : Y ≃ Z} :
   invmap (weqcomp f g) = invmap f ∘ invmap g.
 Proof. reflexivity. Defined.
-
 
 (** *** The 2-out-of-6 (two-out-of-six) property of weak equivalences *)
 
