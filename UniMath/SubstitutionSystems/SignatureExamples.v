@@ -247,26 +247,26 @@ Qed.
 
 End δ_mul.
 
-(* Construct the δ when G = option *)
-Section option_sig.
+(** Construct the δ when G is generalized option *)
+Section genoption_sig.
 
-Variables (C : precategory) (hsC : has_homsets C) (TC : Terminal C) (CC : BinCoproducts C).
+Variables (C : precategory) (hsC : has_homsets C) (A : C) (CC : BinCoproducts C).
 
 Local Notation "'Ptd'" := (precategory_Ptd C hsC).
 
-Let opt := option_functor CC TC.
+Let genopt := constcoprod_functor1 CC A.
 
-Definition δ_option_mor (Ze : Ptd) (c : C) :  C ⟦ BinCoproductObject C (CC TC (pr1 Ze c)),
-                                                  pr1 Ze (BinCoproductObject C (CC TC c)) ⟧.
+Definition δ_genoption_mor (Ze : Ptd) (c : C) :  C ⟦ BinCoproductObject C (CC A (pr1 Ze c)),
+                                                  pr1 Ze (BinCoproductObject C (CC A c)) ⟧.
 Proof.
-apply (@BinCoproductArrow _ _ _ (CC TC (pr1 Ze c)) (pr1 Ze (BinCoproductObject C (CC TC c)))).
-- apply (BinCoproductIn1 _ (CC TC c) ;; pr2 Ze (BinCoproductObject _ (CC TC c))).
-- apply (# (pr1 Ze) (BinCoproductIn2 _ (CC TC c))).
+apply (@BinCoproductArrow _ _ _ (CC A (pr1 Ze c)) (pr1 Ze (BinCoproductObject C (CC A c)))).
+- apply (BinCoproductIn1 _ (CC A c) ;; pr2 Ze (BinCoproductObject _ (CC A c))).
+- apply (# (pr1 Ze) (BinCoproductIn2 _ (CC A c))).
 Defined.
 
-Lemma is_nat_trans_δ_option_mor (Ze : Ptd) :
-  is_nat_trans (δ_source C hsC opt Ze : functor C C) (δ_target C hsC opt Ze : functor C C)
-     (δ_option_mor Ze).
+Lemma is_nat_trans_δ_genoption_mor (Ze : Ptd) :
+  is_nat_trans (δ_source C hsC genopt Ze : functor C C) (δ_target C hsC genopt Ze : functor C C)
+     (δ_genoption_mor Ze).
 Proof.
 intros a b f; simpl.
 destruct Ze as [Z e].
@@ -293,14 +293,14 @@ apply pathsinv0, BinCoproductArrowUnique.
   now apply maponpaths, BinCoproductOfArrowsIn2.
 Qed.
 
-Lemma is_nat_trans_δ_option_mor_nat_trans : is_nat_trans (δ_source_functor_data C hsC opt)
-     (δ_target_functor_data C hsC opt)
-     (λ Ze : Ptd, δ_option_mor Ze,, is_nat_trans_δ_option_mor Ze).
+Lemma is_nat_trans_δ_genoption_mor_nat_trans : is_nat_trans (δ_source_functor_data C hsC genopt)
+     (δ_target_functor_data C hsC genopt)
+     (λ Ze : Ptd, δ_genoption_mor Ze,, is_nat_trans_δ_genoption_mor Ze).
 Proof.
 intros [Z e] [Z' e'] [α X]; simpl in *.
 apply (nat_trans_eq hsC); intro c; simpl.
 rewrite id_left, functor_id, id_right.
-unfold BinCoproduct_of_functors_mor, BinCoproduct_of_functors_ob, δ_option_mor; simpl.
+unfold BinCoproduct_of_functors_mor, BinCoproduct_of_functors_ob, δ_genoption_mor; simpl.
 rewrite precompWithBinCoproductArrow.
 apply pathsinv0, BinCoproductArrowUnique.
 - rewrite id_left, assoc.
@@ -314,29 +314,29 @@ apply pathsinv0, BinCoproductArrowUnique.
   now apply nat_trans_ax.
 Qed.
 
-Definition δ_option : δ_source C hsC opt ⟶ δ_target C hsC opt.
+Definition δ_genoption : δ_source C hsC genopt ⟶ δ_target C hsC genopt.
 Proof.
 mkpair.
 - intro Ze.
-  apply (tpair _ (δ_option_mor Ze) (is_nat_trans_δ_option_mor Ze)).
-- apply is_nat_trans_δ_option_mor_nat_trans.
+  apply (tpair _ (δ_genoption_mor Ze) (is_nat_trans_δ_genoption_mor Ze)).
+- apply is_nat_trans_δ_genoption_mor_nat_trans.
 Defined.
 
-Lemma δ_law1_option : δ_law1 C hsC opt δ_option.
+Lemma δ_law1_genoption : δ_law1 C hsC genopt δ_genoption.
 Proof.
 apply (nat_trans_eq hsC); intro c; simpl.
-unfold δ_option_mor, BinCoproduct_of_functors_ob; simpl.
+unfold δ_genoption_mor, BinCoproduct_of_functors_ob; simpl.
 rewrite id_right.
 apply pathsinv0, BinCoproduct_endo_is_identity.
 - apply BinCoproductIn1Commutes.
 - apply BinCoproductIn2Commutes.
 Qed.
 
-Lemma δ_law2_option : δ_law2 C hsC opt δ_option.
+Lemma δ_law2_genoption : δ_law2 C hsC genopt δ_genoption.
 Proof.
 intros [Z e] [Z' e'].
 apply (nat_trans_eq hsC); intro c; simpl.
-unfold δ_option_mor, BinCoproduct_of_functors_ob; simpl.
+unfold δ_genoption_mor, BinCoproduct_of_functors_ob; simpl.
 rewrite !id_left, id_right.
 apply pathsinv0, BinCoproductArrowUnique.
 - rewrite assoc.
@@ -358,8 +358,26 @@ apply pathsinv0, BinCoproductArrowUnique.
   now apply maponpaths, BinCoproductIn2Commutes.
 Qed.
 
-Definition precomp_option_Signature : Signature C hsC :=
-  θ_from_δ_Signature _ hsC opt δ_option δ_law1_option δ_law2_option.
+Definition precomp_genoption_Signature : Signature C hsC :=
+  θ_from_δ_Signature _ hsC genopt δ_genoption δ_law1_genoption δ_law2_genoption.
+
+
+End genoption_sig.
+
+
+(** trivially instantiate previous section to option functor *)
+Section option_sig.
+
+  Variables (C : precategory) (hsC : has_homsets C) (TC : Terminal C) (CC : BinCoproducts C).
+  Let opt := option_functor CC TC.
+  Definition δ_option: δ_source C hsC opt ⟶ δ_target C hsC opt :=
+    δ_genoption C hsC TC CC.
+
+  Definition δ_law1_option :=  δ_law1_genoption C hsC TC CC.
+  Definition δ_law2_option :=  δ_law2_genoption C hsC TC CC.
+
+  Definition precomp_option_Signature : Signature C hsC :=
+    precomp_genoption_Signature C hsC TC CC.
 
 End option_sig.
 
