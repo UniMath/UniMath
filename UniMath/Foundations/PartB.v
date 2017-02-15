@@ -1205,6 +1205,7 @@ induction ab as [a|b]; induction ab' as [a'|b'].
   + apply inr; intro H; apply (p (ii2_injectivity _ _ H)).
 Defined.
 
+
 (** *** Isolated points *)
 
 Definition isisolated (X:UU) (x:X) := ∏ x':X, (x = x') ⨿ (x != x').
@@ -1308,18 +1309,24 @@ Proof.
   intro X. intro is. intros x x'. apply (isaproppathsfromisolated X x (is x)).
 Defined.
 
-Lemma isdecsum {X:UU} {Y:X→UU} : isdeceq X → (∏ x, isdeceq(Y x)) → isdeceq(∑ x, Y x).
+(** *** Decidable equality on a sigma type *)
+Lemma isdeceq_total2 {X : UU} {P : X -> UU}
+  : isdeceq X -> (∏ x : X, isdeceq (P x)) → isdeceq (∑ x : X, P x).
 Proof.
-  intros ? ? dx dy.
-  intros z z'.
-  unfold decidable.
-  induction (dx (pr1 z) (pr1 z')) as [e|e'].
-  - induction (dy (pr1 z') (transportf _ e (pr2 z)) (pr2 z')) as [s|s'].
-    + apply ii1. exact (total2_paths_f e s).
-    + apply ii2. intro w. apply s'. clear s'. simple refine (_ @ fiber_paths w).
-      apply (maponpaths (λ r, transportf _ r _)). apply uip. apply isasetifdeceq. exact dx.
-  - apply ii2. intro e. apply e'. apply maponpaths. exact e.
+  intros X P HX HP.
+  intros xp yq.
+  induction (HX (pr1 xp) (pr1 yq)) as [e_xy | ne_xy].
+  - induction ((HP _) (transportf _ e_xy (pr2 xp)) (pr2 yq)) as [e_pq | ne_pq].
+    + apply inl. exact (total2_paths_f e_xy e_pq).
+    + apply inr. intro e_xpyq. apply ne_pq.
+      set (e_pq := fiber_paths e_xpyq).
+      refine (_ @ e_pq).
+      refine (maponpaths (fun e => transportf _ e _) _).
+  (* NOTE: want [maponpaths_2] from the [TypeTheory] library here. Upstream it to [Foundations], perhaps? *)
+      apply isasetifdeceq, HX.
+  - apply inr. intros e_xypq. apply ne_xy, base_paths, e_xypq.
 Defined.
+
 
 (** *** Construction of functions with specified values at a few isolated points *)
 

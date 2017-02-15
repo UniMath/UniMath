@@ -115,16 +115,16 @@ Local Notation "[0,0,2]" := (0 :: 0 :: 2 :: []).
 Local Notation "[0,1,1]" := (0 :: 1 :: 1 :: []).
 
 Definition PiSig : BindingSig :=
-  mkBindingSig (isdeceqstn 3) (three_rec [0,1] [1] [0,0]).
+  mkBindingSig (isasetstn 3) (three_rec [0,1] [1] [0,0]).
 
 Definition SigmaSig : BindingSig :=
-  mkBindingSig (isdeceqstn 3) (three_rec [0,1] [0,0] [0,2]).
+  mkBindingSig (isasetstn 3) (three_rec [0,1] [0,0] [0,2]).
 
 Definition SumSig : BindingSig :=
-  mkBindingSig (isdeceqstn 4) (four_rec [0,0] [0] [0] [0,1,1]).
+  mkBindingSig (isasetstn 4) (four_rec [0,0] [0] [0] [0,1,1]).
 
 Definition IdSig : BindingSig :=
-  mkBindingSig (isdeceqstn 3) (three_rec [0,0,0] [] [0,0]).
+  mkBindingSig (isasetstn 3) (three_rec [0,0,0] [] [0,0]).
 
 (** Define the arity of the eliminators for Fin by recursion *)
 Definition FinSigElim (n : nat) : list nat.
@@ -159,32 +159,31 @@ induction p as [_|p].
   + apply (FinSigElim n).
 Defined.
 
+Lemma isasetFinSig : isaset (∑ n, unit ⨿ (stn n ⨿ unit)).
+Proof.
+  apply isaset_total2.
+  - apply isasetnat.
+  - intros. repeat apply isasetcoprod; try apply isasetunit.
+    apply isasetstn.
+Qed.
+
 Lemma isdeceqFinSig : isdeceq (∑ n, unit ⨿ (stn n ⨿ unit)).
 Proof.
-intros [n p] [m q].
-induction (isdeceqnat n m) as [h|h].
-- induction h.
-   + destruct (isdeceqcoprod isdecequnit
-                (isdeceqcoprod (isdeceqstn n) isdecequnit) p q) as [Hpq|Hpq].
-     * now rewrite Hpq; apply inl.
-     * apply inr; intro H.
-       assert (Hid : maponpaths pr1 H = idpath _).
-       { apply isasetnat. }
-       generalize (fiber_paths H); unfold base_paths.
-       rewrite Hid, idpath_transportf; intro H'.
-       apply (Hpq H').
-- apply inr; intro H; apply (h (maponpaths pr1 H)).
+  apply isdeceq_total2.
+  - apply isdeceqnat.
+  - intros. repeat apply isdeceqcoprod; try apply isdecequnit.
+    apply isdeceqstn.
 Defined.
 
-Definition FinSig : BindingSig := mkBindingSig isdeceqFinSig FinSigFun.
+Definition FinSig : BindingSig := mkBindingSig isasetFinSig FinSigFun.
 
 Definition NatSig : BindingSig :=
-  mkBindingSig (isdeceqstn 4) (four_rec [] [] [0] [0,0,2]).
+  mkBindingSig (isasetstn 4) (four_rec [] [] [0] [0,0,2]).
 
 Definition WSig : BindingSig :=
-  mkBindingSig (isdeceqstn 3) (three_rec [0,1] [0,0] [0,3]).
+  mkBindingSig (isasetstn 3) (three_rec [0,1] [0,0] [0,3]).
 
-Definition USig : BindingSig := mkBindingSig isdeceqnat (fun _ => []).
+Definition USig : BindingSig := mkBindingSig isasetnat (fun _ => []).
 
 Let SigHSET := Signature HSET has_homsets_HSET.
 
