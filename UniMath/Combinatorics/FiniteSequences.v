@@ -564,7 +564,8 @@ Proof.
   apply funextfun; intro i.
   unfold flatten'.
   unfold funcomp.
-  unfold weqstnsum_invmap at 1.
+  rewrite 2 weqstnsum1_eq'.
+  unfold StandardFiniteSets.weqstnsum_invmap at 1.
   unfold concatenate'.
   unfold nat_rect, coprod_rect, funcomp.
   change (weqfromcoprodofstn_invmap (stnsum (λ r : stn n, m (dni lastelement r))))

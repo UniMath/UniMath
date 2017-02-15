@@ -787,13 +787,13 @@ Proof.
   + unfold funcomp. apply maponpaths. apply subtypeEquality_prop. simpl. reflexivity.
 Defined.
 
-Definition weqstnsum_map { n : nat } (m : stn n -> nat) : (∑ i, stn (m i)) -> stn (stnsum m).
+Local Definition weqstnsum_map { n : nat } (m : stn n -> nat) : (∑ i, stn (m i)) -> stn (stnsum m).
 Proof.
   intros ? ? ij.
   exact (stnpair _ (stnsum (m ∘ stn_left'' (stnlt (pr1 ij))) + pr2 ij) (_c_ ij)).
 Defined.
 
-Definition weqstnsum_invmap {n : nat} (m : stn n -> nat) : stn (stnsum m) -> (∑ i, stn (m i)).
+Local Definition weqstnsum_invmap {n : nat} (m : stn n -> nat) : stn (stnsum m) -> (∑ i, stn (m i)).
 Proof.
   intros ?.
   induction n as [|n IH].
@@ -1379,29 +1379,9 @@ Proof.
 Defined.
 
 Definition flatten' {X n} {m:stn n->nat} : (∏ (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
-Proof. intros ? ? ? g. exact (uncurry g ∘ weqstnsum_invmap m). Defined.
-
-(** general associativity for addition in nat *)
-
-Theorem nat_plus_associativity {n} {m:stn n->nat} (k:∏ (ij : ∑ i, stn (m i)), nat) :
-  stnsum (λ i, stnsum (curry k i)) = stnsum (k ∘ lexicalEnumeration m).
 Proof.
-  intros. apply weqtoeqstn.
-  intermediate_weq (∑ i, stn (stnsum (curry k i))).
-  { apply invweq. apply weqstnsum1. }
-  intermediate_weq (∑ i j, stn (curry k i j)).
-  { apply weqfibtototal; intro i. apply invweq. apply weqstnsum1. }
-  intermediate_weq (∑ ij, stn (k ij)).
-  { exact (weqtotal2asstol (stn ∘ m) (stn ∘ k)). }
-  intermediate_weq (∑ ij, stn (k (lexicalEnumeration m ij))).
-  { apply (weqbandf (inverse_lexicalEnumeration m)). intro ij. apply eqweqmap.
-    apply (maponpaths stn), (maponpaths k). apply pathsinv0, homotinvweqweq. }
-  { apply inverse_lexicalEnumeration. }
+  intros ? ? ? g. exact (uncurry g ∘ invmap (weqstnsum1 m)).
 Defined.
-
-Corollary nat_plus_associativity' n (m:stn n->nat) (k:∏ i, stn (m i) -> nat) :
-  stnsum (λ i, stnsum (k i)) = stnsum (uncurry k ∘ lexicalEnumeration m).
-Proof. intros. exact (nat_plus_associativity (uncurry k)). Defined.
 
 (** general commutativity for addition in nat *)
 

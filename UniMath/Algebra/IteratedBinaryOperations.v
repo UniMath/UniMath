@@ -144,39 +144,45 @@ Section BinaryOperations.
 
 End BinaryOperations.
 
-(** general associativity for nat *)
+(** general associativity for addition in nat *)
+
+Theorem nat_plus_associativity {n} {m:stn n->nat} (k:∏ (ij : ∑ i, stn (m i)), nat) :
+  stnsum (λ i, stnsum (curry k i)) = stnsum (k ∘ lexicalEnumeration m).
+Proof.
+  intros. apply weqtoeqstn.
+  intermediate_weq (∑ i, stn (stnsum (curry k i))).
+  { apply invweq. apply weqstnsum1. }
+  intermediate_weq (∑ i j, stn (curry k i j)).
+  { apply weqfibtototal; intro i. apply invweq. apply weqstnsum1. }
+  intermediate_weq (∑ ij, stn (k ij)).
+  { exact (weqtotal2asstol (stn ∘ m) (stn ∘ k)). }
+  intermediate_weq (∑ ij, stn (k (lexicalEnumeration m ij))).
+  { apply (weqbandf (inverse_lexicalEnumeration m)). intro ij. apply eqweqmap.
+    apply (maponpaths stn), (maponpaths k). apply pathsinv0, homotinvweqweq. }
+  apply inverse_lexicalEnumeration.
+Defined.
+
+Corollary nat_plus_associativity' n (m:stn n->nat) (k:∏ i, stn (m i) -> nat) :
+  stnsum (λ i, stnsum (k i)) = stnsum (uncurry k ∘ lexicalEnumeration m).
+Proof. intros. exact (nat_plus_associativity (uncurry k)). Defined.
 
 Lemma iterop_fun_nat {n:nat} (x:stn n->nat) : iterop_fun 0 Nat.add x = stnsum x.
 Proof.
-  intros.
-  induction n as [|n I].
+  intros. induction n as [|n I].
   - reflexivity.
   - induction n as [|n J].
     + reflexivity.
     + simple refine (iterop_fun_step 0 Nat.add natplusl0 _ @ _ @ ! stnsum_step _).
       apply (maponpaths (λ i, i + x lastelement)).
-      rewrite replace_dni_last.
-      apply I.
+      rewrite replace_dni_last. apply I.
 Defined.
 
 Theorem associativityNat : isAssociative_fun 0 Nat.add.
 Proof.
-  intros n m x.
-  unfold iterop_fun_fun.
-  apply pathsinv0.
-  rewrite 2 iterop_fun_nat.
+  intros n m x. unfold iterop_fun_fun. apply pathsinv0. rewrite 2 iterop_fun_nat.
   intermediate_path (stnsum (λ i : stn n, stnsum (x i))).
-  - apply maponpaths.
-    apply funextfun; intro.
-    apply iterop_fun_nat.
-  - simple refine (nat_plus_associativity' _ _ _ @ _).
-    apply maponpaths.
-    unfold flatten'.
-    unfold lexicalEnumeration.
-    apply (maponpaths ((λ f, uncurry x ∘ f)
-                       : (stn (stnsum m) → ∑ i : stn n, stn (m i)) → stn (stnsum m) → nat )).
-    change (invmap (weqstnsum1 m) = weqstnsum_invmap m).
-    reflexivity.
+  - apply maponpaths. apply funextfun; intro. apply iterop_fun_nat.
+  - now apply nat_plus_associativity'.
 Defined.
 
 (** general associativity for monoids *)

@@ -161,35 +161,6 @@ Module Test_stn.
   Module Test_weqstnsum.
     (* this module exports nothing *)
     Let X := stnset 7.
-    Let f (x:X) : nat := pr1 x.
-
-    Let h  : stn _ <- ∑ x, stnset (f x) := weqstnsum_map f.
-    Goal h(●1,,●0) = ●0. reflexivity. Defined.
-    Goal h(●2,,●0) = ●1. reflexivity. Defined.
-    Goal h(●2,,●1) = ●2. reflexivity. Defined.
-    Goal h(●3,,●0) = ●3. reflexivity. Defined.
-    Goal h(●3,,●1) = ●4. reflexivity. Defined.
-    Goal h(●3,,●2) = ●5. reflexivity. Defined.
-    Goal h(●4,,●0) = ●6. reflexivity. Defined.
-    Goal h(●5,,●0) = ●10. reflexivity. Defined.
-    Goal h(●6,,●0) = ●15. reflexivity. Defined.
-
-    Let h' : stn _ -> ∑ x, stnset (f x) := weqstnsum_invmap f.
-    Goal h'(●0) = (●1,,●0). reflexivity. Defined.
-    Goal h'(●1) = (●2,,●0). reflexivity. Defined.
-    Goal h'(●2) = (●2,,●1). reflexivity. Defined.
-    Goal h'(●3) = (●3,,●0). reflexivity. Defined.
-    Goal h'(●4) = (●3,,●1). reflexivity. Defined.
-    Goal h'(●5) = (●3,,●2). reflexivity. Defined.
-    Goal h'(●6) = (●4,,●0). reflexivity. Defined.
-    Goal h'(●10) = (●5,,●0). reflexivity. Defined.
-    Goal h'(●15) = (●6,,●0). reflexivity. Defined.
-
-  End Test_weqstnsum.
-
-  Module Test_weqstnsum_2.
-    (* this module exports nothing *)
-    Let X := stnset 7.
     Let Y (x:X) := stnset (pr1 x).
     Let W := ∑ x, Y x.
     Let f : W ≃ stn _ := weqstnsum1 _.
@@ -216,7 +187,7 @@ Module Test_stn.
     Goal f'(●10) = (●5,,●0). reflexivity. Defined.
     Goal f'(●15) = (●6,,●0). reflexivity. Defined.
 
-  End Test_weqstnsum_2.
+  End Test_weqstnsum.
 
   Module Test_weqfromprodofstn.
     (* verify computability in both directions *)
