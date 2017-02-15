@@ -261,7 +261,7 @@ End BinProducts.
 (** * Coproducts in the category of signatures *)
 Section Coproducts.
 
-Variables (I : UU) (HI : isdeceq I).
+Variables (I : UU).
 Variables (C D : Precategory) (CD : Coproducts I D).
 
 Let hsC : has_homsets C := homset_property C.
