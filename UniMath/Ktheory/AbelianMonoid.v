@@ -8,15 +8,15 @@ Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
 Close Scope multmonoid_scope.
 Open Scope addmonoid_scope.
 Local Notation Hom := monoidfun.
-Definition dni_first n : stn n -> stn (S n) := dni n (firstelement n).
-Definition dni_last  n : stn n -> stn (S n) := dni n (lastelement n).
+Definition dni_first n : stn n -> stn (S n) := @dni n firstelement.
+Definition dni_last  n : stn n -> stn (S n) := @dni n lastelement.
 Definition finiteOperation0 (X:abmonoid) n (x:stn n->X) : X.
 Proof. (* return (...((x0*x1)*x2)*...)  *)
   intros. induction n as [|n x'].
-  { exact (unel _). } { exact ((x' (funcomp (dni_last n) x)) + x (lastelement n)). } Defined.
+  { exact (unel _). } { exact ((x' (funcomp (dni_last n) x)) + x lastelement). } Defined.
 Goal ∏ (X:abmonoid) n (x:stn (S n)->X),
      finiteOperation0 X (S n) x
-  = finiteOperation0 X n (funcomp (dni_last n) x) + x (lastelement n).
+  = finiteOperation0 X n (funcomp (dni_last n) x) + x lastelement.
 Proof. reflexivity. Qed.
 Lemma same_n {I m n} (f:nelstruct m I) (g:nelstruct n I) : m = n.
 Proof. intros. apply weqtoeqstn. exact (weqcomp f (invweq g)). Qed.
@@ -26,7 +26,7 @@ Proof. reflexivity. Defined.
 Lemma nelstructoncomplmap  {X:UU} {n}
       (x:X) (sx:nelstruct (S n) X) :
     pr1compl X x ∘ pr1 (nelstructoncompl x sx)
-  = pr1weq sx ∘ dni n (invmap sx x).
+  = pr1weq sx ∘ dni (invmap sx x).
 Proof. intros.
        try reflexivity.
        try reflexivity.
@@ -34,7 +34,7 @@ Abort.
 Lemma nelstructoncomplmap'  {I:UU} {n}
       (i:stn(S n)) (sx:nelstruct (S n) I) :
     pr1compl I (pr1weq sx i) ∘ pr1 (nelstructoncompl (pr1weq sx i) sx)
-  = pr1weq sx ∘ dni n (invmap sx (pr1weq sx i)).
+  = pr1weq sx ∘ dni (invmap sx (pr1weq sx i)).
 Proof.
   try reflexivity.
   try reflexivity.
@@ -42,9 +42,9 @@ Abort.
 Lemma nelstructoncomplmap''  {I:UU} {n}
       (i:stn(S n)) (sx:nelstruct (S n) I) :
     pr1compl I (pr1weq sx i) ∘ pr1 (nelstructoncompl (pr1weq sx i) sx)
-  = pr1weq sx ∘ dni n i.
+  = pr1weq sx ∘ dni i.
 Proof. intros.
-       intermediate_path (pr1weq sx ∘ dni n (invmap sx (pr1weq sx i))).
+       intermediate_path (pr1weq sx ∘ dni (invmap sx (pr1weq sx i))).
        { try reflexivity.
          try reflexivity.
 (*        } *)
@@ -52,7 +52,7 @@ Proof. intros.
 (* Defined. *)
 Abort.
 Lemma nelstructoncomplmap'''  {I:UU} {n} (sx:nelstruct (S n) I) :
-    pr1compl I (pr1weq sx (lastelement n)) ∘ pr1 (nelstructoncompl (pr1weq sx (lastelement n)) sx)
+    pr1compl I (pr1weq sx lastelement) ∘ pr1 (nelstructoncompl (pr1weq sx lastelement) sx)
   = pr1weq sx ∘ dni_last n.
 Proof. intros.
 (*        apply nelstructoncomplmap''. *)
@@ -291,19 +291,19 @@ Proof.
   intros ? ?. induction n as [|n IH].
   { reflexivity. }
   { intros.
-    assert (dec : decidable_type (pr1 f (lastelement n) = pr1 g (lastelement n))).
+    assert (dec : decidable_type (pr1 f lastelement = pr1 g lastelement)).
     { apply (isdeceqweqf f). apply isdeceqstn. }
     induction dec as [e|b].
     { apply (aptwice (fun x y => x + y)).
       { rewrite <- 2 ! fun_assoc.
-        set (f' := nelstructoncompl (pr1 f (lastelement n)) f).
-        set (g' := nelstructoncompl (pr1 g (lastelement n)) g).
+        set (f' := nelstructoncompl (pr1 f lastelement) f).
+        set (g' := nelstructoncompl (pr1 g lastelement) g).
     (*     set (p' := nelstructoncomplmap''' f). *)
     (*     set (q' := nelstructoncomplmap''' g). *)
     (*     unfold pr1weq in p', q'. *)
     (*     induction p', q', e. *)
-    (*     apply (IH (compl I (pr1 f (lastelement n))) *)
-    (*               f' g' (x ∘ pr1compl I (pr1 f (lastelement n)))). } *)
+    (*     apply (IH (compl I (pr1 f lastelement)) *)
+    (*               f' g' (x ∘ pr1compl I (pr1 f lastelement))). } *)
     (*   { exact (ap x e). } } *)
     (* { *)
 

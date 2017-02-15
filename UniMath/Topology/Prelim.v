@@ -266,7 +266,7 @@ Proof.
       assert (H : Hm = natlthtolths m n Hm' ).
       { apply (pr2 (natlth m (S n))). }
       now rewrite H.
-      assert (H : (lastelement n) = (n,, Hm)).
+      assert (H : lastelement = (n,, Hm)).
       { now apply subtypeEquality_prop. }
       rewrite <- H.
       exact (pr1 Hx).

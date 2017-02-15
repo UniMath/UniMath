@@ -17,7 +17,7 @@ Proof.
   intros ? [n x].
   induction n as [|n sequenceProduct].
   { exact 1. }
-  { exact (sequenceProduct (pr2 (drop (S n,,x) (negpathssx0 _))) * x (lastelement _)). }
+  { exact (sequenceProduct (pr2 (drop (S n,,x) (negpathssx0 _))) * x lastelement). }
 Defined.
 
 (* alternate versions with ' attempted with lists instead of sequences *)
@@ -32,7 +32,7 @@ Proof.
   intros ? [n x].
   induction n as [|n doubleProduct].
   { exact 1. }
-  { exact ((doubleProduct (x ∘ dni_lastelement) * sequenceProduct (x (lastelement _)))). }
+  { exact ((doubleProduct (x ∘ dni_lastelement) * sequenceProduct (x lastelement))). }
 Defined.
 
 Definition doubleProduct' {M:monoid} : list (list M) -> M.
@@ -46,7 +46,7 @@ Defined.
 (* some rewriting rules *)
 
 Definition sequenceProductStep {M:monoid} {n} (x:stn (S n) -> M) :
-  sequenceProduct (S n,,x) = sequenceProduct (n,,x ∘ dni_lastelement) * x (lastelement _).
+  sequenceProduct (S n,,x) = sequenceProduct (n,,x ∘ dni_lastelement) * x lastelement.
 Proof. intros. reflexivity. Defined.
 
 Definition sequenceProductStep' {M:monoid} (x:M) (xs:list M) :
@@ -64,7 +64,7 @@ Proof. intros ? [n x] ?. unfold append. rewrite sequenceProductStep.
        Local Opaque sequenceProduct. simpl. Transparent sequenceProduct.
        induction (natlehchoice4 n n (natgthsnn n)) as [p|p].
        { contradicts (isirreflnatlth n) p. }
-       { change ((n,, natgthsnn n):stn (S n)) with (lastelement n).
+       { change ((n,, natgthsnn n):stn (S n)) with (@lastelement n).
          rewrite append_fun_compute_2.
          apply (maponpaths (λ a, a * m)).
          apply (maponpaths (λ x, sequenceProduct (n,,x))).
@@ -73,7 +73,7 @@ Proof. intros ? [n x] ?. unfold append. rewrite sequenceProductStep.
 Defined.
 
 Local Definition doubleProductStep {M:monoid} {n} (x:stn (S n) -> Sequence M) :
-  doubleProduct (S n,,x) = doubleProduct (n,,x ∘ dni_lastelement) * sequenceProduct (x (lastelement _)).
+  doubleProduct (S n,,x) = doubleProduct (n,,x ∘ dni_lastelement) * sequenceProduct (x lastelement).
 Proof. intros. reflexivity. Defined.
 
 (* The general associativity theorem. *)
@@ -88,7 +88,7 @@ Proof.
   induction n as [|n IHn].
   { reflexivity. }
   (* { rewrite flattenStep, doubleProductStep. *)
-  (*   generalize (x (lastelement _)) as z. *)
+  (*   generalize (x lastelement) as z. *)
   (*   generalize (x ∘ dni_lastelement) as y. *)
   (*   intros y [m z]. *)
   (*   induction m as [|m IHm]. *)
@@ -96,7 +96,7 @@ Proof.
 (*       change (concatenate (flatten (n,, y)) (0,, z)) with (flatten (n,, y)). *)
 (*       exact (IHn y). } *)
 (*     { rewrite sequenceProductStep, concatenateStep. *)
-(*       generalize (z (lastelement m)) as w; generalize (z ∘ dni _ (lastelement _)) as v; intros. *)
+(*       generalize (z (lastelement m)) as w; generalize (z ∘ dni _ lastelement) as v; intros. *)
 (*       rewrite <- assocax. *)
 (*       rewrite sequenceProduct_append. *)
 (*       apply (maponpaths (λ u, u*w)). *)
@@ -147,14 +147,14 @@ Proof.
   intros.
   induction n as [|n IH].
   - reflexivity.
-  - assert (specialcase : ∏ (y:stn _->M) (g : stn _ ≃ stn _), g (lastelement n) = lastelement n ->
+  - assert (specialcase : ∏ (y:stn _->M) (g : stn _ ≃ stn _), g lastelement = lastelement ->
         sequenceProduct (S n,, y) = sequenceProduct (S n,, y ∘ g)).
-    { intros ? ? a. rewrite 2? sequenceProductStep. change ((_ ∘ _) _) with (y (g (lastelement n))).
+    { intros ? ? a. rewrite 2? sequenceProductStep. change ((_ ∘ _) _) with (y (g lastelement)).
       rewrite a. apply (maponpaths (λ m, m * _)). change (_ ∘ _ ∘ _) with (y ∘ (g ∘ dni_lastelement)).
       set (h := eqweqmap (maponpaths stn_compl a)).
       assert (pr1_h : ∏ i, pr1 (pr1 (h i)) = pr1 (pr1 i)). { intros. induction a. reflexivity. }
-      set (wc := weqdnicompl n (lastelement n)).
-      set (g' := (invweq wc ∘ (h ∘ (weqoncompl_ne g (lastelement n) (stnneq _) (stnneq _) ∘ wc))) %weq).
+      set (wc := weqdnicompl n lastelement).
+      set (g' := (invweq wc ∘ (h ∘ (weqoncompl_ne g lastelement (stnneq _) (stnneq _) ∘ wc))) %weq).
       intermediate_path (sequenceProduct (n,, y ∘ dni_lastelement ∘ g')).
       { apply IH. }
       { change ((_ ∘ _) ∘ _) with (y ∘ (dni_lastelement ∘ g')).
@@ -185,7 +185,7 @@ Proof.
         (* reflexivity. *)
         admit.
       }}
-    set (j := f (lastelement n)).
+    set (j := f lastelement).
     induction j as [j jlt].
     assert (jle := natlthsntoleh _ _ jlt).
     Local Open Scope nat.
