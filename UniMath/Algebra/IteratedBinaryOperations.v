@@ -82,6 +82,11 @@ Section BinaryOperations.
   Definition isAssociative_seq :=
     ∏ (x : Sequence (Sequence X)), iterop_seq (FiniteSequences.flatten x) = iterop_seq_seq x.
 
+  Local Open Scope stn.
+
+  Definition isCommutative_fun :=
+    ∏ n (x:⟦n⟧ -> X) (f:⟦n⟧≃⟦n⟧), iterop_fun (x ∘ f) = iterop_fun x.
+
   Lemma assoc_fun_to_seq : isAssociative_fun -> isAssociative_seq.
   Proof.
     intros assoc x.
@@ -144,131 +149,101 @@ Section BinaryOperations.
 
 End BinaryOperations.
 
-(** general associativity for addition in nat *)
-
-Theorem nat_plus_associativity {n} {m:stn n->nat} (k:∏ (ij : ∑ i, stn (m i)), nat) :
-  stnsum (λ i, stnsum (curry k i)) = stnsum (k ∘ lexicalEnumeration m).
-Proof.
-  intros. apply weqtoeqstn.
-  intermediate_weq (∑ i, stn (stnsum (curry k i))).
-  { apply invweq. apply weqstnsum1. }
-  intermediate_weq (∑ i j, stn (curry k i j)).
-  { apply weqfibtototal; intro i. apply invweq. apply weqstnsum1. }
-  intermediate_weq (∑ ij, stn (k ij)).
-  { exact (weqtotal2asstol (stn ∘ m) (stn ∘ k)). }
-  intermediate_weq (∑ ij, stn (k (lexicalEnumeration m ij))).
-  { apply (weqbandf (inverse_lexicalEnumeration m)). intro ij. apply eqweqmap.
-    apply (maponpaths stn), (maponpaths k). apply pathsinv0, homotinvweqweq. }
-  apply inverse_lexicalEnumeration.
-Defined.
-
-Corollary nat_plus_associativity' n (m:stn n->nat) (k:∏ i, stn (m i) -> nat) :
-  stnsum (λ i, stnsum (k i)) = stnsum (uncurry k ∘ lexicalEnumeration m).
-Proof. intros. exact (nat_plus_associativity (uncurry k)). Defined.
-
-Lemma iterop_fun_nat {n:nat} (x:stn n->nat) : iterop_fun 0 Nat.add x = stnsum x.
-Proof.
-  intros. induction n as [|n I].
-  - reflexivity.
-  - induction n as [|n J].
-    + reflexivity.
-    + simple refine (iterop_fun_step 0 Nat.add natplusl0 _ @ _ @ ! stnsum_step _).
-      apply (maponpaths (λ i, i + x lastelement)).
-      rewrite replace_dni_last. apply I.
-Defined.
-
-Theorem associativityNat : isAssociative_fun 0 Nat.add.
-Proof.
-  intros n m x. unfold iterop_fun_fun. apply pathsinv0. rewrite 2 iterop_fun_nat.
-  intermediate_path (stnsum (λ i : stn n, stnsum (x i))).
-  - apply maponpaths. apply funextfun; intro. apply iterop_fun_nat.
-  - now apply nat_plus_associativity'.
-Defined.
-
 (** general associativity for monoids *)
 
 Local Open Scope multmonoid.
 
-Definition iterop_list_mon {M:monoid} : list M -> M.
-Proof.
-  intros ? x.
-  exact (iterop_list (unel M) (@op M) x).
-Defined.
+Section Monoids.
 
-Definition iterop_seq_mon {M:monoid} : Sequence M -> M.
-Proof.
-  intros ? x.
-  exact (iterop_seq (unel M) (@op M) x).
-Defined.
+  Context {M:monoid}.
 
-Definition iterop_seq_seq_mon {M:monoid} : Sequence (Sequence M) -> M.
-Proof.
-  intros ? x.
-  exact (iterop_seq_seq (unel M) (@op M) x).
-Defined.
+  Let oo := @op M.
 
-Definition iterop_list_list_mon {M:monoid} : list (list M) -> M.
-Proof.
-  intros ? x.
-  exact (iterop_list_list (unel M) (@op M) x).
-Defined.
+  Let uu := unel M.
 
-(* some rewriting rules *)
+  Definition iterop_fun_mon {n} (x:stn n->M) : M := iterop_fun uu oo x.
 
-Lemma iterop_seq_mon_len1 {M:monoid} (x : stn 1 -> M) :
-  iterop_seq_mon (functionToSequence x) = x lastelement.
-Proof.
-  reflexivity.
-Defined.
+  Definition iterop_list_mon : list M -> M := iterop_list uu oo.
 
-Definition iterop_seq_mon_step {M:monoid} {n} (x:stn (S n) -> M) :
-  iterop_seq_mon (S n,,x) = iterop_seq_mon (n,,x ∘ dni lastelement) * x lastelement.
-Proof.
-  intros.
-  induction n as [|n _].
-  { apply pathsinv0, lunax. }
-  reflexivity.
-Defined.
+  Definition iterop_seq_mon : Sequence M -> M := iterop_seq uu oo.
 
-Definition iterop_list_mon_step {M:monoid} (x:M) (xs:list M) :
-  iterop_list_mon (x::xs) = x * iterop_list_mon xs.
-Proof.
-  intros M x xs.
-  apply iterop_list_step.
-  apply runax.
-Defined.
+  Definition iterop_seq_seq_mon : Sequence (Sequence M) -> M := iterop_seq_seq uu oo.
 
-Local Definition iterop_seq_mon_append {M:monoid} (x:Sequence M) (m:M) :
-  iterop_seq_mon (append x m) = iterop_seq_mon x * m.
-Proof.
-   intros ? [n x] ?. unfold append. rewrite iterop_seq_mon_step.
-   rewrite append_fun_compute_2.
-   apply (maponpaths (λ a, a * m)).
-   apply (maponpaths (λ x, iterop_seq_mon (n,,x))).
-   apply funextfun; intros [i b]; simpl.
-   unfold funcomp.
-   now rewrite append_fun_compute_1.
-Defined.
+  Definition iterop_list_list_mon : list (list M) -> M := iterop_list_list uu oo.
 
-Local Definition iterop_seq_seq_mon_step {M:monoid} {n} (x:stn (S n) -> Sequence M) :
-  iterop_seq_seq_mon (S n,,x) = iterop_seq_seq_mon (n,,x ∘ dni lastelement) * iterop_seq_mon (x lastelement).
-Proof.
-  intros.
-  induction n as [|n _].
-  - simpl. apply pathsinv0,lunax.
-  - reflexivity.
-Defined.
+  (* some rewriting rules *)
 
-Lemma iterop_seq_mon_homot {M:monoid} {n} (x y : stn n -> M) :
-  x ~ y -> iterop_seq_mon(n,,x) = iterop_seq_mon(n,,y).
-Proof.
-  intros M n. induction n as [|n N].
-  - reflexivity.
-  - intros x y h. rewrite 2 iterop_seq_mon_step.
-    apply two_arg_paths.
-    + apply N. apply funhomot. exact h.
-    + apply h.
-Defined.
+  Lemma iterop_seq_mon_len1 (x : stn 1 -> M) :
+    iterop_seq_mon (functionToSequence x) = x lastelement.
+  Proof.
+    reflexivity.
+  Defined.
+
+  Definition iterop_seq_mon_step {n} (x:stn (S n) -> M) :
+    iterop_seq_mon (S n,,x) = iterop_seq_mon (n,,x ∘ dni lastelement) * x lastelement.
+  Proof.
+    intros. induction n as [|n _].
+    - cbn. apply pathsinv0, lunax.
+    - reflexivity.
+  Defined.
+
+  Definition iterop_list_mon_step (x:M) (xs:list M) :
+    iterop_list_mon (x::xs) = x * iterop_list_mon xs.
+  Proof.
+    intros x xs. apply iterop_list_step. apply runax.
+  Defined.
+
+  Local Definition iterop_seq_mon_append (x:Sequence M) (m:M) :
+    iterop_seq_mon (append x m) = iterop_seq_mon x * m.
+  Proof.
+     intros [n x] ?. unfold append. rewrite iterop_seq_mon_step.
+     rewrite append_fun_compute_2.
+     apply (maponpaths (λ a, a * m)).
+     apply (maponpaths (λ x, iterop_seq_mon (n,,x))).
+     apply funextfun; intros [i b]; simpl.
+     unfold funcomp.
+     now rewrite append_fun_compute_1.
+  Defined.
+
+  Local Definition iterop_seq_seq_mon_step {n} (x:stn (S n) -> Sequence M) :
+    iterop_seq_seq_mon (S n,,x) = iterop_seq_seq_mon (n,,x ∘ dni lastelement) * iterop_seq_mon (x lastelement).
+  Proof.
+    intros.
+    induction n as [|n _].
+    - simpl. apply pathsinv0,lunax.
+    - reflexivity.
+  Defined.
+
+  Lemma iterop_seq_mon_homot {n} (x y : stn n -> M) :
+    x ~ y -> iterop_seq_mon(n,,x) = iterop_seq_mon(n,,y).
+  Proof.
+    intros n. induction n as [|n N].
+    - reflexivity.
+    - intros x y h. rewrite 2 iterop_seq_mon_step.
+      apply two_arg_paths.
+      + apply N. apply funhomot. exact h.
+      + apply h.
+  Defined.
+
+End Monoids.
+
+Section Monoids2.
+
+  Context (M:monoid).
+
+  Let op := @op M.
+
+  Let unel := unel M.
+
+  Definition isAssociative_list_mon := isAssociative_list unel op.
+
+  Definition isAssociative_fun_mon := isAssociative_fun unel op.
+
+  Definition isAssociative_seq_mon := isAssociative_seq unel op.
+
+  Definition isCommutative_fun_mon := isCommutative_fun unel op.
+
+End Monoids2.
 
 (** The general associativity theorem. *)
 
@@ -454,3 +429,93 @@ Proof.
     rewrite (IH (x ∘ dni i') h).
     now apply iterop_seq_mon_homot.
 Defined.
+
+(** finite products (or sums) in monoids *)
+
+Section NatCard.
+
+  Require Export UniMath.Combinatorics.FiniteSets.
+  Require Export UniMath.Foundations.NaturalNumbers.
+
+  (** first a warm-up with addition in nat, based on cardinatities of standard finite sets *)
+
+  Theorem nat_plus_associativity {n} {m:stn n->nat} (k:∏ (ij : ∑ i, stn (m i)), nat) :
+    stnsum (λ i, stnsum (curry k i)) = stnsum (k ∘ lexicalEnumeration m).
+  Proof.
+    intros. apply weqtoeqstn.
+    intermediate_weq (∑ i, stn (stnsum (curry k i))).
+    { apply invweq. apply weqstnsum1. }
+    intermediate_weq (∑ i j, stn (curry k i j)).
+    { apply weqfibtototal; intro i. apply invweq. apply weqstnsum1. }
+    intermediate_weq (∑ ij, stn (k ij)).
+    { exact (weqtotal2asstol (stn ∘ m) (stn ∘ k)). }
+    intermediate_weq (∑ ij, stn (k (lexicalEnumeration m ij))).
+    { apply (weqbandf (inverse_lexicalEnumeration m)). intro ij. apply eqweqmap.
+      apply (maponpaths stn), (maponpaths k). apply pathsinv0, homotinvweqweq. }
+    apply inverse_lexicalEnumeration.
+  Defined.
+
+  Corollary nat_plus_associativity' n (m:stn n->nat) (k:∏ i, stn (m i) -> nat) :
+    stnsum (λ i, stnsum (k i)) = stnsum (uncurry k ∘ lexicalEnumeration m).
+  Proof. intros. exact (nat_plus_associativity (uncurry k)). Defined.
+
+  Lemma iterop_fun_nat {n:nat} (x:stn n->nat) : iterop_fun 0 Nat.add x = stnsum x.
+  Proof.
+    (* these are different because iterop_fun is careful to not add 0 in the case where n=1 *)
+    intros. induction n as [|n I].
+    - reflexivity.
+    - induction n as [|n _].
+      + reflexivity.
+      + simple refine (iterop_fun_step 0 Nat.add natplusl0 _ @ _ @ ! stnsum_step _).
+        apply (maponpaths (λ i, i + x lastelement)). apply I.
+  Defined.
+
+  Theorem associativityNat : isAssociative_fun 0 Nat.add.
+  Proof.
+    intros n m x. unfold iterop_fun_fun. apply pathsinv0. rewrite 2 iterop_fun_nat.
+    intermediate_path (stnsum (λ i : stn n, stnsum (x i))).
+    - apply maponpaths. apply funextfun; intro. apply iterop_fun_nat.
+    - now apply nat_plus_associativity'.
+  Defined.
+
+  Theorem nat_plus_commutativity : isCommutative_fun_mon nat_add_abmonoid.
+  Proof.
+    intros ? ? ?. apply weqtoeqstn.
+    intermediate_weq (∑ i, stn (x i)).
+    - intermediate_weq (∑ i, stn (x(f i))).
+      + apply invweq. rewrite iterop_fun_nat. apply weqstnsum1.
+      + apply (weqfp _ (stn∘x)).
+    - rewrite iterop_fun_nat. apply weqstnsum1.
+  Defined.
+
+  Arguments nat_plus_commutativity {_} _ _.
+
+  Definition finsum {X} (fin : isfinite X) (f : X -> nat) : nat.
+  Proof.
+    intros.
+    unfold isfinite,finstruct,nelstruct in fin.
+    simple refine (squash_to_set
+                     isasetnat
+                     (λ (x : ∑ n, stn n ≃ X), iterop_fun_mon (M := nat_add_abmonoid) (f ∘ pr2 x))
+                     _ fin).
+    intros.
+    induction x as [n x].
+    induction x' as [n' x'].
+    assert (p := weqtoeqstn (invweq x' ∘ x)%weq).
+    induction p.
+    assert (w := nat_plus_commutativity (f ∘ x') (invweq x' ∘ x)%weq).
+    simple refine (_ @ w).
+    unfold iterop_fun_mon.
+    apply maponpaths. rewrite weqcomp_to_funcomp. apply funextfun; intro i.
+    unfold funcomp. apply maponpaths. exact (! homotweqinvweq x' (x i)).
+  Defined.
+
+  (* A shorter definition: *)
+  Definition finsum' {X} (fin : isfinite X) (f : X -> nat) : nat.
+  Proof.
+    intros. exact (fincard (isfinitetotal2 (stn∘f) fin (λ i, isfinitestn (f i)))).
+  Defined.
+
+End NatCard.
+
+(* exercise : show finsum = finsum' *)

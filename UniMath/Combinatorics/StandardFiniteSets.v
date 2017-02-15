@@ -1369,19 +1369,6 @@ Proof.
   intros ? ? ? g. exact (uncurry g ∘ invmap (weqstnsum1 m)).
 Defined.
 
-(** general commutativity for addition in nat *)
-
-Theorem nat_plus_commutativity {n} (x:stn n -> nat)
-        (f:stn n ≃ stn n) : stnsum x = stnsum (x∘f).
-Proof.
-  intros. apply weqtoeqstn. intermediate_weq (∑ i, stn (x i)).
-  { apply invweq. apply weqstnsum1. }
-  intermediate_weq (∑ i, stn (x(f i))).
-  { apply invweq. apply (weqfp _ (stn∘x)). }
-  apply weqstnsum1.
-Defined.
-
-
 Definition stn_predicate {n : nat} (P : stn n -> UU)
            (k : nat) (h h' : k < n) :
            P (k,,h) -> P (k,,h').
@@ -1437,10 +1424,6 @@ Proof.
 Defined.
 
 (** ordered bijections are unique *)
-
-Local Arguments firstelement {_}. (* make non local *)
-
-Local Arguments lastelement {_}. (* make non local *)
 
 Definition is_stn_increasing {m} (f : ⟦m⟧→nat) := ∏ (i j:⟦m⟧), i ≤ j → f i ≤ f j.
 

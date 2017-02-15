@@ -271,38 +271,6 @@ Proof. intros. *)
 
 (* The cardinality of finite sets defined using the "impredicative" ishinh *)
 
-(** finite sums of natural numbers *)
-
-Definition finsum {X} (fin : isfinite X) (f : X -> nat) : nat.
-Proof.
-  intros.
-  unfold isfinite in fin.
-  unfold finstruct in fin.
-  unfold nelstruct in fin.
-  set (sum := λ (x : ∑ n, stn n ≃ X), stnsum (f ∘ pr2 x)).
-  apply (squash_to_set isasetnat sum).
-  { intros.
-    induction x as [n x].
-    induction x' as [n' x'].
-    assert (p := weqtoeqstn (invweq x' ∘ x)%weq).
-    induction p.
-    unfold sum; simpl.
-    set (k := nat_plus_commutativity (f ∘ x') (invweq x' ∘ x)%weq).
-    assert (e : f ∘ x' ∘ (invweq x' ∘ x)%weq = f ∘ x).
-    { rewrite weqcomp_to_funcomp. apply funextfun.
-      intro i. unfold funcomp. apply maponpaths.
-      exact (homotweqinvweq x' (x i)). }
-    rewrite e in k.
-    exact (!k). }
-  assumption.
-Defined.
-
-(* A simpler definition: *)
-Definition finsum' {X} (fin : isfinite X) (f : X -> nat) : nat.
-Proof.
-  intros. exact (fincard (isfinitetotal2 (stn∘f) fin (λ i, isfinitestn (f i)))).
-Defined.
-
 Definition isfinite_to_DecidableEquality {X} : isfinite X -> DecidableRelation X.
   intros ? fin x y.
   exact (@isdecprop_to_DecidableProposition

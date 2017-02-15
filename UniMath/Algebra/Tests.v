@@ -44,6 +44,36 @@ Module Test_assoc.
 
 End Test_assoc.
 
+Module Test_finsum.
+
+  Require Import UniMath.Algebra.IteratedBinaryOperations.
+  Require Import UniMath.Combinatorics.FiniteSets.
+
+  Goal ∏ X (fin : finstruct X) (f : X -> nat),
+    finsum (hinhpr fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
+  Proof.
+    intros.
+    intermediate_path (iterop_fun_mon (M := nat_add_abmonoid) (f ∘ pr1weq (pr2 fin))).
+    - reflexivity.
+    - apply iterop_fun_nat.
+  Qed.
+
+  Goal 15 = finsum (isfinitestn _) (λ i:stn 6, i). reflexivity. Qed.
+  Goal 20 = finsum isfinitebool (λ i:bool, 10). reflexivity. Qed.
+  Goal 21 = finsum (isfinitecoprod isfinitebool isfinitebool)
+                   (coprod_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
+    reflexivity.            (* fixed *)
+  Qed.
+
+  Goal 10 = finsum' (isfinitestn _) (λ i:stn 5, i). reflexivity. Defined. (* fixed! *)
+  Goal 20 = finsum' isfinitebool (λ i:bool, 10). reflexivity. Qed.
+  Goal 21 = finsum' (isfinitecoprod isfinitebool isfinitebool)
+                   (coprod_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
+    try reflexivity.            (* fails, for some reason *)
+  Abort.
+
+End Test_finsum.
+
 (*
 Local Variables:
 compile-command: "make -C ../../.. TAGS UniMath/Foundations/Algebra/Tests.vo"

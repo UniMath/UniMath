@@ -263,23 +263,6 @@ Module Test_fin.
   (* Eval compute in (carddneg _  (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O)))))). *)
   (* Eval lazy in   (pr1 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))). *)
 
-  Goal ∏ X (fin : finstruct X) (f : X -> nat),
-    finsum (hinhpr fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
-  Proof. reflexivity. Qed.
-
-  Goal 15 = finsum (isfinitestn _) (λ i:stn 6, i). reflexivity. Qed.
-  Goal 20 = finsum isfinitebool (λ i:bool, 10). reflexivity. Qed.
-  Goal 21 = finsum (isfinitecoprod isfinitebool isfinitebool)
-                   (coprod_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
-    cbn. unfold weqfromcoprodofstn_invmap. cbn. unfold coprod_rect.
-    induction (natchoice0 2) as [F | T].
-    - apply fromempty.
-      assert (e : 0 < 2) by apply idpath. induction F. apply (negnatlthn0 0 e).
-    - apply idpath.
-  Qed.
-
-  Goal 10 = finsum' (isfinitestn _) (λ i:stn 5, i). reflexivity. Defined. (* fixed! *)
-
   Module Test_isfinite_isdeceq.
 
     (* This module exports nothing. *)
