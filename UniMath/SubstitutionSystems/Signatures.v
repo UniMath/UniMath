@@ -250,8 +250,7 @@ Section Strength_law_2_intensional.
 Definition θ_Strength2_int : UU
   := ∏ (X : EndC) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z'))  ;; #H (α_functor (U Z) (U Z') X )  =
-      (α_functor (U Z) (U Z') (H X) : functor_compose hs hs _ _  --> _
-      (* does not work as replacement:   functor_composite _ _  ⟶ _    *)
+      (α_functor (U Z) (U Z') (H X) : [C, D, hsD] ⟦ functor_compose hs hsD (functor_composite (U Z) (U Z')) (H X), functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧
       ) ;;
       θ (X ⊗ Z') •• (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) .
 
@@ -329,7 +328,7 @@ Hypothesis θ_strength2 : θ_Strength2.
     naturality in each component here *)
 
 Lemma θ_nat_1 (X X' : EndC) (α : X --> X') (Z : Ptd)
-  : compose(C:=EndC) (# H α ∙∙ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
+  : compose(C:=[C, D, hsD]) (# H α ∙∙ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
         θ (X ⊗ Z);; # H (α ∙∙ nat_trans_id (pr1 (U Z))).
 Proof.
   set (t:=nat_trans_ax θ).
@@ -352,7 +351,7 @@ Lemma θ_nat_1_pointwise (X X' : EndC) (α : X --> X') (Z : Ptd) (c : C)
        pr1 (θ (X ⊗ Z)) c;; pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
 Proof.
   set (t := θ_nat_1 _ _ α Z).
-  set (t' := nat_trans_eq_weq hs _ _ t c);
+  set (t' := nat_trans_eq_weq hsD _ _ t c);
   clearbody t';  simpl in t'.
   set (H':= functor_id (H X') (pr1 (pr1 Z) c));
   clearbody H'; simpl in H'.
@@ -366,7 +365,7 @@ Proof.
 Qed.
 
 Lemma θ_nat_2 (X : EndC) (Z Z' : Ptd) (f : Z --> Z')
-  : compose (C:=EndC) (identity (H X) ∙∙ pr1 f) (θ (X ⊗ Z')) =
+  : compose (C:=[C, D, hsD]) (identity (H X) ∙∙ pr1 f) (θ (X ⊗ Z')) =
        θ (X ⊗ Z);; # H (identity X ∙∙ pr1 f).
 Proof.
   set (t := nat_trans_ax θ).
@@ -386,7 +385,7 @@ Lemma θ_nat_2_pointwise (X : EndC) (Z Z' : Ptd) (f : Z --> Z') (c : C)
        pr1 (θ (X ⊗ Z)) c;; pr1 (# H (identity X ∙∙ pr1 f)) c .
 Proof.
   set (t:=θ_nat_2 X _ _ f).
-  set (t':=nat_trans_eq_weq hs _ _ t c).
+  set (t':=nat_trans_eq_weq hsD _ _ t c).
   clearbody t'; clear t.
   simpl in t'.
   rewrite id_left in t'.
@@ -402,7 +401,7 @@ End Strength_laws.
 
 Definition Signature (*C : precategory) (hs : has_homsets C*) : UU
   :=
-  ∑ H : functor [C, C, hs] [C, C, hs] ,
+  ∑ H : functor [C, C, hs] [C, D, hsD] ,
      ∑ θ : nat_trans (θ_source H) (θ_target H) , θ_Strength1_int H θ × θ_Strength2_int H θ.
 
 Coercion Signature_Functor (S : Signature) : functor _ _ := pr1 S.
@@ -417,4 +416,4 @@ End fix_a_category.
 
 
 
-Arguments theta {_ _} _ .
+Arguments theta {_ _ _ _} _ .

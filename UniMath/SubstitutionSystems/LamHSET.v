@@ -38,7 +38,7 @@ Require Import UniMath.CategoryTheory.CocontFunctors.
 
 Section LamHSET.
 
-Let Lam_S : Signature HSET has_homsets_HSET :=
+Let Lam_S : Signature HSET has_homsets_HSET _ _ :=
   Lam_Sig HSET has_homsets_HSET TerminalHSET BinCoproductsHSET BinProductsHSET.
 
 Local Notation "'EndHSET'":= ([HSET, HSET, has_homsets_HSET]) .

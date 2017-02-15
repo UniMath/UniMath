@@ -186,7 +186,7 @@ Definition WSig : BindingSig :=
 
 Definition USig : BindingSig := mkBindingSig isdeceqnat (fun _ => []).
 
-Let SigHSET := Signature HSET has_homsets_HSET.
+Let SigHSET := Signature HSET has_homsets_HSET HSET has_homsets_HSET.
 
 (** The binding signature of MLTT79 *)
 Definition MLTT79Sig := PiSig ++ SigmaSig ++ SumSig ++ IdSig ++

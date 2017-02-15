@@ -160,7 +160,7 @@ Definition θ_precompG : ∑ θ : θ_source precompG ⟶ θ_target precompG,
                               θ_Strength1_int θ × θ_Strength2_int θ :=
   tpair _ θ_from_δ (θ_Strength1_int_from_δ,,θ_Strength2_int_from_δ).
 
-Definition θ_from_δ_Signature : Signature C hsC :=
+Definition θ_from_δ_Signature : Signature C hsC C hsC :=
   tpair _ precompG θ_precompG.
 
 End θ_from_δ.
@@ -358,7 +358,7 @@ apply pathsinv0, BinCoproductArrowUnique.
   now apply maponpaths, BinCoproductIn2Commutes.
 Qed.
 
-Definition precomp_genoption_Signature : Signature C hsC :=
+Definition precomp_genoption_Signature : Signature C hsC C hsC :=
   θ_from_δ_Signature _ hsC genopt δ_genoption δ_law1_genoption δ_law2_genoption.
 
 
@@ -376,7 +376,7 @@ Section option_sig.
   Definition δ_law1_option :=  δ_law1_genoption C hsC TC CC.
   Definition δ_law2_option :=  δ_law2_genoption C hsC TC CC.
 
-  Definition precomp_option_Signature : Signature C hsC :=
+  Definition precomp_option_Signature : Signature C hsC C hsC :=
     precomp_genoption_Signature C hsC TC CC.
 
 End option_sig.
@@ -442,7 +442,7 @@ mkpair; simpl.
 Defined.
 
 (** Signature for the Id functor *)
-Definition IdSignature : Signature C hsC :=
+Definition IdSignature : Signature C hsC C hsC :=
   tpair _ (functor_identity _) θ_functor_identity.
 
 End id_signature.
