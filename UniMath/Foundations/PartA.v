@@ -1388,6 +1388,18 @@ Proof.
   unfold funcomp. apply maponpaths, pathsinv0. apply homotinvweqweq.
 Defined.
 
+Definition isinjinvmap {X Y} (v w:X≃Y) : invmap v ~ invmap w -> v ~ w.
+Proof. intros ? ? ? ? h x.
+  intermediate_path (w ((invmap w) (v x))).
+  { apply pathsinv0. apply homotweqinvweq. }
+  rewrite <- h. rewrite homotinvweqweq. reflexivity. Defined.
+
+Definition isinjinvmap' {X Y} (v w:X->Y) (v' w':Y->X) : w ∘ w' ~ idfun Y -> v' ∘ v ~ idfun X -> v' ~ w' -> v ~ w.
+Proof. intros ? ? ? ? ? ? p q h x .
+  intermediate_path (w (w' (v x))).
+  { apply pathsinv0. apply p. }
+  apply maponpaths. rewrite <- h. apply q. Defined.
+
 (** *** Adjointness property of a weak equivalence and its inverse *)
 
 Lemma diaglemma2 {X Y : UU} (f : X -> Y) {x x' : X}

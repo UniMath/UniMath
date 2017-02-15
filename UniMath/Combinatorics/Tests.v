@@ -354,12 +354,6 @@ Module Test_seq.
 
   Local Open Scope stn.
 
-  Goal @total2_step 0 (λ _,unit) (●0,,tt) = ii2 tt. reflexivity. Defined.
-  Goal @total2_step 1 (λ _,unit) (●1,,tt) = ii2 tt. reflexivity. Defined.
-  Goal @total2_step 1 (λ _,unit) (●0,,tt) = ii1 (●0,,tt).
-    reflexivity. (* fixed, failed quickly before *)
-  Defined.
-
 End Test_seq.
 
 Module Test_finite_sets.
