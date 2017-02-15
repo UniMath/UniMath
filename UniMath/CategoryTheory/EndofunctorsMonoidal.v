@@ -7,6 +7,7 @@ SubstitutionSystems
 2015
 
 Modified by: Anders Mörtberg, 2016
+             Ralph Matthes, 2017
 
 ************************************************************)
 
@@ -16,6 +17,7 @@ Modified by: Anders Mörtberg, 2016
 Contents :
 
 - Definition of the (weak) monoidal structure on endofunctors
+  (however, the definitions are not confined to endofunctors)
 
 
 ************************************************************)
@@ -49,11 +51,14 @@ Definition λ_functor (X : functor C D) :
 Definition λ_functor_inv (X : functor C D) :
   nat_trans X (functor_composite (functor_identity C) X) := ρ_functor X.
 
-Definition α_functor (X Y : functor C C)(Z : functor C D) :
+
+Context {E F: precategory}.
+
+Definition α_functor (X : functor C D)(Y : functor D E)(Z : functor E F) :
   nat_trans (functor_composite (functor_composite X Y) Z)
             (functor_composite X (functor_composite Y Z)) := nat_trans_functor_assoc X Y Z.
 
-Definition α_functor_inv (X Y : functor C C)(Z : functor C D) :
+Definition α_functor_inv (X : functor C D)(Y : functor D E)(Z : functor E F) :
   nat_trans (functor_composite X (functor_composite Y Z))
             (functor_composite (functor_composite X Y) Z) := α_functor X Y Z.
 

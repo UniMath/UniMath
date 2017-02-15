@@ -446,3 +446,116 @@ Definition IdSignature : Signature C hsC C hsC :=
   tpair _ (functor_identity _) θ_functor_identity.
 
 End id_signature.
+
+(** Transform a signature with strength θ with underlying functor H into a signature with strength Gθ for
+    the functor that comes from post-composition of all HX with a functor G
+
+    G need not be an endofunctor, which is why the strength concept had to be given more heterogeneously
+    than only on endofunctors on endofunctor categories
+ *)
+Section θ_for_postcomposition.
+
+Variable C : precategory.
+Variable hsC : has_homsets C.
+Variable D : precategory.
+Variable hsD : has_homsets D.
+Variable E : precategory.
+Variable hsE : has_homsets E.
+
+(** The precategory of pointed endofunctors on [C] *)
+Local Notation "'Ptd'" := (precategory_Ptd C hsC).
+(** The category of endofunctors on [C] *)
+Local Notation "'EndC'":= ([C, C, hsC]) .
+
+Variable S: Signature C hsC D hsD.
+Let H : functor [C, C, hsC] [C, D, hsD] := Signature_Functor _ _ _ _ S.
+Let θ : nat_trans (θ_source H) (θ_target H) := theta S.
+Let θ_strength1 := Sig_strength_law1 _ _ _ _ S.
+Let θ_strength2 := Sig_strength_law2 _ _ _ _ S.
+Variable G : functor D E.
+
+Let GH : functor [C, C, hsC] [C, E, hsE] := functor_composite H (post_composition_functor _ _ _ _ _ G).
+
+Definition Gθ_mor (XZe : [C, C, hsC] XX Ptd) :
+  [C, E, hsE] ⟦ θ_source GH XZe, θ_target GH XZe ⟧.
+Proof.
+set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
+set (F1 := α_functor_inv Z (H X) G).
+set (F2 := post_whisker (θ XZe) G).
+apply (nat_trans_comp F1 F2).
+Defined.
+
+Lemma is_nat_trans_Gθ_mor :
+   is_nat_trans (θ_source GH) (θ_target GH) Gθ_mor.
+Proof.
+intros [F1 X1] [F2 X2] [α X]; simpl in *.
+apply (nat_trans_eq hsE); intro c; simpl.
+do 2 rewrite <- assoc.
+do 2 rewrite id_left.
+eapply pathscomp0.
+  + eapply maponpaths, pathsinv0, functor_comp.
+  + eapply pathscomp0.
+    - eapply pathsinv0, functor_comp.
+    - apply pathsinv0. eapply pathscomp0.
+      * eapply pathsinv0, functor_comp.
+      * eapply maponpaths.
+        apply pathsinv0.
+        rewrite assoc.
+        generalize (nat_trans_eq_pointwise (nat_trans_ax θ (F1,,X1)(F2,,X2) (α,,X)) c); simpl.
+        intro Hyp.
+        eapply pathscomp0.
+        ++ eapply Hyp.
+        ++ apply idpath.
+Qed.
+
+Definition Gθ : θ_source GH ⟶ θ_target GH :=
+  tpair _ _ is_nat_trans_Gθ_mor.
+
+
+Lemma Gθ_Strength1_int : θ_Strength1_int Gθ.
+Proof.
+intro F.
+apply (nat_trans_eq hsE); intro c; simpl.
+rewrite <- assoc.
+rewrite id_left.
+eapply pathscomp0.
+  + eapply pathsinv0, functor_comp.
+  + apply pathsinv0. eapply pathscomp0.
+    * eapply pathsinv0, functor_id.
+    * eapply maponpaths.
+      generalize (nat_trans_eq_pointwise (θ_strength1 F) c); simpl.
+      intro Hyp.
+      eapply pathscomp0.
+        ++ eapply pathsinv0, Hyp.
+        ++ apply idpath.
+Qed.
+
+Lemma Gθ_Strength2_int : θ_Strength2_int Gθ.
+Proof.
+intros F Ze Ze'; simpl.
+set (Z := pr1 Ze); set (Z' := pr1 Ze').
+apply (nat_trans_eq hsE); intro c; simpl.
+do 4 rewrite id_left.
+eapply pathscomp0.
+  + eapply pathsinv0, functor_comp.
+  + apply pathsinv0. eapply pathscomp0.
+    * eapply pathsinv0, functor_comp.
+    * eapply maponpaths.
+      generalize (nat_trans_eq_pointwise (θ_strength2 F Ze Ze') c); simpl.
+      rewrite id_left.
+      intro Hyp.
+      eapply pathscomp0.
+        ++ eapply pathsinv0, Hyp.
+        ++ apply idpath.
+Qed.
+
+
+Definition Gθ_with_laws : ∑ θ : θ_source GH ⟶ θ_target GH,
+                              θ_Strength1_int θ × θ_Strength2_int θ :=
+  tpair _ Gθ (Gθ_Strength1_int,,Gθ_Strength2_int).
+
+Definition Gθ_Signature : Signature C hsC E hsE :=
+  tpair _ GH Gθ_with_laws.
+
+
+End θ_for_postcomposition.
