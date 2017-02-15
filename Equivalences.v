@@ -385,8 +385,7 @@ Proof.
     apply maponpaths. exact (iso_disp_after_inv_mor _). (*7b*)
   etrans. apply transport_f_f.
   unfold transportb. apply maponpaths_2, homset_property.
-(* Time Qed. *)
-Admitted.
+Time Qed. 
 (* TODO: [Qed.] takes about 30sec!  [etrans_dep] + [etrans_disp] make it shorter and more readable (see commit 7c1f411a), but make the typechecking time even worse. *) 
 
 Lemma triangle_1_from_2_for_equiv_over_id

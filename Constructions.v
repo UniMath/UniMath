@@ -27,7 +27,7 @@ Local Set Automatic Introduction.
 
 Section Auxiliary.
 
-(** Compare [total2_paths2], [total2_paths_b]. *)
+(** Compare [total2_paths_f2], [total2_paths_b]. *)
 (* TODO: perhaps upstream. *)
 Lemma total2_paths2_b {A : UU} {B : A → UU} 
     {a1 : A} {b1 : B a1} {a2 : A} {b2 : B a2}
@@ -43,7 +43,7 @@ Lemma total2_reassoc_paths {A} {B : A → UU} {C : (∑ a, B a) -> UU}
     {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
     (ea : a1 = a2)
     (eb : transportf _ ea (pr1 bc1) = pr1 bc2)
-    (ec : transportf C (total2_paths2 ea eb) (pr2 bc1) = pr2 bc2)
+    (ec : transportf C (two_arg_paths_f (*was total2_paths2*) ea eb) (pr2 bc1) = pr2 bc2)
   : transportf _ ea bc1 = bc2.
 Proof.
   destruct ea, bc1 as [b1 c1], bc2 as [b2 c2].
@@ -257,7 +257,7 @@ Qed.
 Lemma pr2_transportf_sigma_disp {x y : C} {f f' : x --> y} (e : f = f')
     {xxx : sigma_disp_precat x} {yyy} (fff : xxx -->[f] yyy)
   : pr2 (transportf _ e fff)
-  = transportf _ (total2_paths2 e (! pr1_transportf_sigma_disp e fff))
+  = transportf (fun ff => pr2 xxx -->[ff] _ ) (two_arg_paths_f (*total2_paths2*) e (! pr1_transportf_sigma_disp e fff))
       (pr2 fff).
 Proof.
   destruct e. apply pathsinv0.
@@ -297,7 +297,7 @@ Lemma is_iso_sigma_disp_aux2
     = transportb _ (iso_inv_after_iso f) (id_disp xxx).
 Proof.
   split.
-  - use total2_paths.
+  - use total2_paths_f.
     + abstract ( etrans; 
         [ apply iso_disp_after_inv_mor
         | apply pathsinv0, pr1_transportf_sigma_disp]).
@@ -310,7 +310,7 @@ Proof.
       etrans. eapply transportf_bind.
         apply (iso_disp_after_inv_mor iii).
       apply maponpaths_2, (@homset_property (total_precat D)).
-  - use total2_paths; cbn.
+  - use total2_paths_f; cbn.
     + abstract ( etrans;
         [ apply inv_mor_after_iso_disp
         | apply pathsinv0, pr1_transportf_sigma_disp ]).
@@ -361,13 +361,16 @@ Lemma sigma_disp_iso_isweq
     (f : iso x y)
   : isweq (sigma_disp_iso_map xx yy f).
 Proof.
-Admitted.
+Abort.
 
+(*
 Definition sigma_disp_iso_equiv 
     {x y} (xx : sigma_disp_precat x) (yy : sigma_disp_precat y)
     (f : iso x y)
 := weqpair _ (sigma_disp_iso_isweq xx yy f).
+*)
 
+(*
 Lemma is_category_sigma_disp (DD : is_category_disp D) (EE : is_category_disp E)
   : is_category_disp sigma_disp_precat.
 Proof.
@@ -419,6 +422,7 @@ Proof.
       apply isaset_iso, homset_property.
    apply (@homset_property (total_precat _) (_,,_) (_,,_)).
 Qed.
+*)
 
 End Sigma.
 

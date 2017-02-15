@@ -257,7 +257,7 @@ Definition isaprop_cartesian_lifts
   : isaprop (cartesian_lift d f).
 Proof.
   apply invproofirrelevance; intros fd fd'.
-  use total2_paths.
+  use total2_paths_f.
   { apply (isotoid_disp D_cat (idpath _)); cbn.
     apply cartesian_lifts_iso. }
   apply subtypeEquality.
@@ -432,17 +432,17 @@ Proof.
   repeat split; intros.
   - apply subtypeEquality.
     { intro. apply isaprop_functor_over_axioms. } 
-    use total2_paths.
+    use total2_paths_f.
     + apply idpath.
     + apply idpath.
   - apply subtypeEquality.
     { intro. apply isaprop_functor_over_axioms. } 
-    use total2_paths.
+    use total2_paths_f.
     + apply idpath.
     + apply idpath.
   - apply subtypeEquality.
     { intro. apply isaprop_functor_over_axioms. } 
-    use total2_paths.
+    use total2_paths_f.
     + apply idpath.
     + apply idpath.
 Qed.
@@ -648,7 +648,7 @@ Proof.
   - intros c c' f. cbn in *.
     apply subtypeEquality. { intro. apply isaprop_functor_over_axioms. }
     cbn.
-    use total2_paths.
+    use total2_paths_f.
     + cbn. apply idpath.
     + cbn. 
       do 6 (apply funextsec; intro). 

@@ -781,7 +781,7 @@ Lemma total_precat_is_precat : is_precategory (total_precat_data).
 Proof.
   repeat apply tpair; simpl.
   - intros xx yy ff; cbn.
-    use total2_paths; simpl.
+    use total2_paths_f; simpl.
     apply id_left.
     eapply pathscomp0.
       apply maponpaths, id_left_disp.
@@ -789,13 +789,13 @@ Proof.
   We currently can’t import that, due to notation clashes. *)
     apply transportfbinv. 
   - intros xx yy ff; cbn.
-    use total2_paths; simpl.
+    use total2_paths_f; simpl.
     apply id_right.
     eapply pathscomp0.
       apply maponpaths, id_right_disp.
     apply transportfbinv. 
   - intros xx yy zz ww ff gg hh.
-    use total2_paths; simpl.
+    use total2_paths_f; simpl.
     apply assoc.
     eapply pathscomp0.
       apply maponpaths, assoc_disp.
@@ -842,11 +842,11 @@ Proof.
   apply is_iso_from_is_z_iso.
   exists (inv_from_iso fi,, pr1 ii).
   split.
-  - use total2_paths.
+  - use total2_paths_f.
     apply (iso_inv_after_iso fi).
     etrans. apply maponpaths. apply (inv_mor_after_iso_disp ii). 
     apply transportfbinv.
-  - use total2_paths.
+  - use total2_paths_f.
     apply (iso_after_iso_inv fi).
     etrans. apply maponpaths. apply (iso_disp_after_inv_mor ii).
     apply transportfbinv.
@@ -936,7 +936,7 @@ Proof.
   (* Could de-opacify [is_iso_total] and then use [inv_from_iso_from_is_z_iso].  If de-opacfying [is_iso_total] would make its inverse compute definitionally, that’d be wonderful, but for the sake of just this one lemma, it’s probably not worth it.  So we prove this the hard way. *)
   apply cancel_precomposition_iso with (total_iso f ff).
   etrans. apply iso_inv_after_iso. apply pathsinv0.
-  use total2_paths; cbn.
+  use total2_paths_f; cbn.
   - apply iso_inv_after_iso.
   - etrans. apply maponpaths, inv_mor_after_iso_disp. 
     apply transportfbinv.
@@ -952,7 +952,7 @@ Definition total_iso_isweq (xx yy : total_precat)
 Proof.
   use gradth.
   - intros ff. exists (iso_base_from_total ff). apply iso_disp_from_total.
-  - intros [f ff]. use total2_paths.
+  - intros [f ff]. use total2_paths_f.
     + apply eq_iso, idpath.
     + apply eq_iso_disp.
       etrans. apply transportf_iso_disp.
@@ -1139,11 +1139,11 @@ Definition lifted_functor_axioms {C C' : Precategory} {D : disp_precat C}
   : is_functor (lifted_functor_data FF).
 Proof.
   split.
-  - intros x. use total2_paths; simpl.
+  - intros x. use total2_paths_f; simpl.
     apply functor_id.
     eapply pathscomp0. apply maponpaths, (section_disp_id FF).
     cbn. apply transportfbinv.
-  - intros x y z f g. use total2_paths; simpl.
+  - intros x y z f g. use total2_paths_f; simpl.
     apply functor_comp.
     eapply pathscomp0. apply maponpaths, (section_disp_comp FF).
     cbn. apply transportfbinv.
@@ -1537,11 +1537,11 @@ Definition total_functor_axioms {C' C} {F}
   : is_functor (total_functor_data FF).
 Proof.
   split.
-  - intros xx; use total2_paths.
+  - intros xx; use total2_paths_f.
       apply functor_id.
     etrans. apply maponpaths, functor_over_id.
     apply transportfbinv.
-  - intros xx yy zz ff gg; use total2_paths; simpl.
+  - intros xx yy zz ff gg; use total2_paths_f; simpl.
       apply functor_comp.
     etrans. apply maponpaths, functor_over_comp.
     apply transportfbinv.
