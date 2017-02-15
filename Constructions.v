@@ -27,7 +27,7 @@ Local Set Automatic Introduction.
 
 Section Auxiliary.
 
-(** Compare [total2_paths_f2], [total2_paths_b]. *)
+(** Compare [total2_paths_f], [total2_paths_b]. *)
 (* TODO: perhaps upstream. *)
 Lemma total2_paths2_b {A : UU} {B : A → UU} 
     {a1 : A} {b1 : B a1} {a2 : A} {b2 : B a2}
