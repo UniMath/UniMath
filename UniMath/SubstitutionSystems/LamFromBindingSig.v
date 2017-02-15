@@ -72,7 +72,7 @@ Local Notation "'1'" := (functor_identity HSET).
 
 (** The signature of the lambda calculus: { [0,0], [1] } *)
 Definition LamSig : BindingSig :=
-  mkBindingSig isdeceqbool (fun b => if b then 0 :: 0 :: [] else 1 :: [])%nat.
+  mkBindingSig isasetbool (fun b => if b then 0 :: 0 :: [] else 1 :: [])%nat.
 
 (** The signature with strength for the lambda calculus *)
 Definition LamSignature : Signature HSET has_homsets_HSET _ _ :=
@@ -172,7 +172,7 @@ rewrite assoc.
 eapply pathscomp0.
   eapply cancel_postcomposition, cancel_postcomposition.
   apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
-          (CoproductsHSET _ (isasetifdeceq _ isdeceqbool))
+          (CoproductsHSET _ isasetbool)
           _ (λ i, pr1 (Arity_to_Signature has_homsets_HSET BinProductsHSET
                          BinCoproductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))).
 rewrite <- assoc.
@@ -202,7 +202,7 @@ rewrite assoc.
 eapply pathscomp0.
   eapply cancel_postcomposition, cancel_postcomposition.
   apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
-          (CoproductsHSET _ (isasetifdeceq _ isdeceqbool))
+          (CoproductsHSET _ isasetbool)
           _ (λ i, pr1 (Arity_to_Signature has_homsets_HSET BinProductsHSET
                          BinCoproductsHSET TerminalHSET (BindingSigMap LamSig i)) `LC_alg))).
 rewrite <- assoc.
