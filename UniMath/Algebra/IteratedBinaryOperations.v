@@ -323,10 +323,10 @@ Proof.
         iterop_seq_mon (S n,, y) = iterop_seq_mon (S n,, y ∘ g)).
     { intros ? ? a. rewrite 2 iterop_seq_mon_step. change ((_ ∘ _) _) with (y (g lastelement)).
       rewrite a. apply (maponpaths (λ m, m * _)). change (_ ∘ _ ∘ _) with (y ∘ (g ∘ dni lastelement)).
-      set (wc := weqdnicompl n lastelement).
+      set (wc := weqdnicompl (n:=n) lastelement).
       assert (K : pr1 ∘ pr1weq wc ~ dni lastelement).
       { intros i. apply subtypeEquality_prop. reflexivity. }
-      set (wc' := weqdnicompl n (g lastelement)).
+      set (wc' := weqdnicompl (g lastelement)).
       set (p := weqoncompl_ne g lastelement (stnneq _) (stnneq _)).
       set (g' := (invweq wc' ∘ (p ∘ wc)) %weq).
       intermediate_path (iterop_seq_mon (n,, y ∘ dni lastelement ∘ g')).
@@ -340,6 +340,7 @@ Proof.
         rewrite replace_dni_last.
         rewrite pr1_dni_lastelement.
         rewrite 2 weqcomp_to_funcomp_app.
+        unfold wc'.
         admit.
       }}
     set (j := f lastelement).

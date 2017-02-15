@@ -347,7 +347,7 @@ Proof.
   apply (iscontrweqb w). apply iscontrhfiberdni. exact (pr2 jni).
 Defined.
 
-Definition weqdnicompl n (i:stn(S n)): stn n ≃ stn_compl i.
+Definition weqdnicompl {n} (i:stn(S n)): stn n ≃ stn_compl i.
 Proof.
   intros.
   set (w := weqdicompl (stntonat _ i)).
@@ -364,23 +364,9 @@ Proof.
   refine (weqtotal2comm12 _ _).
 Defined.
 
-Definition weqdnicompl_compute_last n i : pr1 (pr1 (weqdnicompl n (lastelement n) i)) = pr1 i.
+Definition weqdnicompl_compute {n} j : pr1compl_ne _ _ _ ∘ weqdnicompl j ~ dni n j.
 Proof.
-  intros. induction i as [i b]. simpl. unfold di; simpl.
-  induction (natlthorgeh i n) as [p|p].
-  { reflexivity. }
-  { contradicts (natlehneggth p) b. }
-Defined.
-
-Definition weqdnicompl_compute_first n i : pr1 (pr1 (weqdnicompl n (firstelement n) i)) = S (pr1 i).
-Proof.
-  intros. induction i as [i b]. simpl. unfold di; simpl. reflexivity.
-Defined.
-
-Definition inv_weqdnicompl_compute_last n i : pr1 (invweq (weqdnicompl n (lastelement n)) i) = pr1 (pr1 i).
-Proof.
-  intros.
-  exact ( ! (weqdnicompl_compute_last _ _) @ (maponpaths pr1 (maponpaths pr1 (homotweqinvweq _ i)))).
+  intros. intro i. apply subtypeEquality_prop. reflexivity.
 Defined.
 
 (** *** Weak equivalence from [ coprod ( stn n ) unit ] to [ stn ( S n ) ] defined by [ dni n i ] *)
@@ -388,7 +374,7 @@ Defined.
 Definition weqdnicoprod_provisional n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
 Proof.
   intros.
-  apply (weqcomp (weqcoprodf (weqdnicompl n j) (idweq unit))
+  apply (weqcomp (weqcoprodf (weqdnicompl j) (idweq unit))
                  (weqrecompl_ne (stn (S n)) j (isdeceqstn (S n) j) (stnneq j))).
 Defined.
 

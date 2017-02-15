@@ -50,7 +50,7 @@ Definition nelstructoncoprodwithunit { X : UU } { n : nat } ( sx : nelstruct n X
 Definition nelstructoncompl {X} {n} (x:X) : nelstruct (S n) X -> nelstruct n (compl X x).
 Proof.
   intros ? ? ? sx.
-  refine (invweq ( weqoncompl ( invweq sx ) x) ∘ _ ∘ weqdnicompl n (invweq sx x))%weq.
+  refine (invweq ( weqoncompl ( invweq sx ) x) ∘ _ ∘ weqdnicompl (invweq sx x))%weq.
   apply compl_weq_compl_ne.
 Defined.
 

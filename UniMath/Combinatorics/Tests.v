@@ -50,7 +50,7 @@ Module Test_stn.
     Let X := stn n.
     Let i := ●3 : stn (S n).
     Let Y := @stn_compl (S n) i.
-    Let v := weqdnicompl n i : X ≃ Y.
+    Let v := weqdnicompl i : X ≃ Y.
     Let j := ●4 : X.
     Let jni := ●5,,tt : Y.
 
