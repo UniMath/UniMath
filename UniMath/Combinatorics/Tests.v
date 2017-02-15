@@ -417,7 +417,7 @@ Module Test_ord.
 
     Lemma d : isdeceq X.
     Proof.
-      apply isdecsum.
+      apply isdeceq_total2.
       - apply isdeceqstn.
       - intro i. apply isdeceqstn.
     Defined.

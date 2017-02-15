@@ -459,6 +459,26 @@ Proof.
   exact (flattenStep' xlens xvals).
 Defined.
 
+(* partitions *)
+
+Definition partition' {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) : stn n -> Sequence X.
+Proof. intros ? ? ? ? i. exists (f i). intro j. exact (x(inverse_lexicalEnumeration f (i,,j))).
+Defined.
+
+Definition partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) : Sequence (Sequence X).
+Proof. intros. exists n. exact (partition' f x).
+Defined.
+
+Definition flatten_partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) :
+  flatten (partition f x) ~ x.
+Proof.
+  intros. intro i.
+  change (x (weqstnsum1 f (pr1 (invmap (weqstnsum1 f) i),, pr2 (invmap (weqstnsum1 f) i))) = x i).
+  rewrite <- tppr. apply maponpaths. apply subtypeEquality_prop. now rewrite homotweqinvweq.
+Defined.
+
+(* associativity of "concatenate" *)
+
 Definition isassoc_concatenate {X : UU} (x y z : Sequence X) :
   concatenate (concatenate x y) z = concatenate x (concatenate y z).
 Proof.

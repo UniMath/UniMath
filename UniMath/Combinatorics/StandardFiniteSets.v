@@ -364,9 +364,9 @@ Proof.
   refine (weqtotal2comm12 _ _).
 Defined.
 
-Definition weqdnicompl_compute {n} j : pr1compl_ne _ _ _ ∘ weqdnicompl j ~ dni n j.
+Definition weqdnicompl_compute {n} j i : pr1 (weqdnicompl j i) = dni n j i.
 Proof.
-  intros. intro i. apply subtypeEquality_prop. reflexivity.
+  intros. apply subtypeEquality_prop. reflexivity.
 Defined.
 
 (** *** Weak equivalence from [ coprod ( stn n ) unit ] to [ stn ( S n ) ] defined by [ dni n i ] *)

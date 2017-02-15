@@ -215,6 +215,12 @@ Defined.
 
 (* some rewriting rules *)
 
+Lemma iterop_seq_mon_len1 {M:monoid} (x : stn 1 -> M) :
+  iterop_seq_mon (functionToSequence x) = x lastelement.
+Proof.
+  reflexivity.
+Defined.
+
 Definition iterop_seq_mon_step {M:monoid} {n} (x:stn (S n) -> M) :
   iterop_seq_mon (S n,,x) = iterop_seq_mon (n,,x ∘ dni lastelement) * x lastelement.
 Proof.
@@ -251,6 +257,17 @@ Proof.
   induction n as [|n _].
   - simpl. apply pathsinv0,lunax.
   - reflexivity.
+Defined.
+
+Lemma iterop_seq_mon_homot {M:monoid} {n} (x y : stn n -> M) :
+  x ~ y -> iterop_seq_mon(n,,x) = iterop_seq_mon(n,,y).
+Proof.
+  intros M n. induction n as [|n N].
+  - reflexivity.
+  - intros x y h. rewrite 2 iterop_seq_mon_step.
+    apply two_arg_paths.
+    + apply N. apply funhomot. exact h.
+    + apply h.
 Defined.
 
 (** The general associativity theorem. *)
@@ -307,64 +324,133 @@ Proof.
   apply (maponpaths (λ u, u*w)). simpl in IHm. apply IHm.
 Defined.
 
-(** commutativity *)
+Corollary associativityOfProducts' {M:monoid} {n} (f:stn n -> nat) (x:stn (stnsum f) -> M) :
+  iterop_seq_mon (stnsum f,,x) = iterop_seq_seq_mon (partition f x).
+Proof.
+  intros. refine (_ @ associativityOfProducts_seq M (partition f x)).
+  assert (L := flatten_partition f x). apply pathsinv0. exact (iterop_seq_mon_homot _ _ L).
+Defined.
+
+(** generalized commutativity *)
 
 Local Notation "s □ x" := (append s x) (at level 64, left associativity).
+
+Ltac change_lhs a := match goal with |- @paths ?T ?x ?y
+                                     => change (@paths T x y) with (@paths T a y) end.
+Ltac change_rhs a := match goal with |- @paths ?T ?x ?y
+                                     => change (@paths T x y) with (@paths T x a) end.
+
+Local Open Scope stn.
+
+Lemma commutativityOfProducts_helper {M:abmonoid} {n} (x:stn (S n) -> M) (j:stn (S n)) :
+  iterop_seq_mon (S n,,x) = iterop_seq_mon (n,,x ∘ dni j) * x j.
+Proof.
+  induction j as [j jlt].
+  assert (jle := natlthsntoleh _ _ jlt).
+  Local Open Scope transport.
+  set (f := nil □ j □ S O □ n-j : stn 3 -> nat).
+  assert (B : stnsum f = S n).
+  { unfold stnsum, f; simpl. repeat unfold append_fun; simpl. rewrite natplusassoc.
+    rewrite (natpluscomm 1). rewrite <- natplusassoc.
+    rewrite natpluscomm. apply (maponpaths S). rewrite natpluscomm. now apply minusplusnmm. }
+  set (r := weqfibtototal _ _ (λ k, eqweqmap (maponpaths (λ n, k < n : UU) B) ) :
+              stn (stnsum f) ≃ stn (S n)).
+  set (x' := x ∘ r).
+  intermediate_path (iterop_seq_mon (stnsum f,, x')).
+  { induction B. apply iterop_seq_mon_homot. intros i. unfold x'.
+    unfold funcomp. apply maponpaths.
+    apply ( invmaponpathsincl _ ( isinclstntonat _ ) _ _).
+    reflexivity. }
+  unfold iterop_seq_mon. unfold iterop_seq.
+  refine (associativityOfProducts' f x' @ _).
+  unfold partition.
+  rewrite 3 iterop_seq_seq_mon_step.
+  change (iterop_seq_seq_mon (0,,_)) with (unel M); rewrite lunax.
+  unfold funcomp at 1 2.
+  set (s0 := dni lastelement (dni lastelement (@lastelement 0))).
+  unfold funcomp at 1.
+  set (s1 := dni lastelement (@lastelement 1)).
+  set (s2 := @lastelement 2).
+  unfold partition'. unfold inverse_lexicalEnumeration.
+  change (f s0) with j; change (f s1) with (S O); change (f s2) with (n-j).
+  set (f' := nil □ j □ n-j : stn 2 -> nat).
+  assert (B' : stnsum f' = n).
+  { unfold stnsum, f'; simpl. repeat unfold append_fun; simpl.
+    rewrite natpluscomm. now apply minusplusnmm. }
+  set (r' := weqfibtototal _ _ (λ k, eqweqmap (maponpaths (λ n, k < n : UU) B') ) :
+              stn (stnsum f') ≃ stn n).
+  set (x'' := x ∘ dni (j,, jlt) ∘ r').
+  intermediate_path (iterop_seq_mon (stnsum f',, x'') * x (j,, jlt)).
+  { assert (L := iterop_seq_mon_len1 (λ j0 : stn 1, x' ((weqstnsum1 f) (s1,, j0)))).
+    unfold functionToSequence in L.
+    rewrite L. rewrite assocax. refine (transportf (λ k, _*k=_) (commax _ _ _) _).
+    rewrite <- assocax.
+    apply two_arg_paths.
+    { refine (_ @ !associativityOfProducts' f' x'').
+      unfold partition.
+      rewrite 2 iterop_seq_seq_mon_step.
+      change (iterop_seq_seq_mon (0,,_)) with (unel M); rewrite lunax.
+      apply two_arg_paths.
+      { unfold funcomp. set (s0' := dni lastelement (@lastelement 0)).
+        unfold partition'. change (f' s0') with j.
+        apply iterop_seq_mon_homot. intro i. unfold x', x'', funcomp. apply maponpaths.
+        apply subtypeEquality_prop.
+        change_lhs (stntonat _ i).
+        unfold dni. unfold di.
+        unfold stntonat; rewrite rewrite_pr1_tpair.
+        match goal with |- context [ match ?x with _ => _ end ]
+                        => induction x as [c|c] end.
+        { reflexivity. }
+        { apply fromempty. assert (P := c : i ≥ j); clear c.
+          exact (natlthtonegnatgeh _ _ (stnlt i) P). } }
+      { unfold partition'. change (f' lastelement) with (n-j).
+        apply iterop_seq_mon_homot. intro i. unfold x', x'', funcomp. apply maponpaths.
+        apply subtypeEquality_prop. change_lhs (j+1+i). unfold dni, di.
+        unfold stntonat; rewrite rewrite_pr1_tpair.
+        match goal with |- context [ match ?x with _ => _ end ]
+                        => induction x as [c|c] end.
+        { apply fromempty. exact (negnatlthplusnmn j i c). }
+        { change_rhs (1 + (j + i)). rewrite <- natplusassoc. rewrite (natpluscomm j 1).
+          reflexivity. } } }
+    unfold x'. unfold funcomp. apply maponpaths.
+    apply subtypeEquality_prop. change (j+0 = j). apply natplusr0. }
+  { apply (maponpaths (λ k, k * _)). induction (!B').
+    change_rhs (iterop_seq_mon (n,, x ∘ dni (j,, jlt))).
+    apply iterop_seq_mon_homot; intros i.
+    unfold x''. unfold funcomp. apply maponpaths.
+    apply ( invmaponpathsincl _ ( isinclstntonat _ ) _ _).
+    reflexivity. }
+Qed.
 
 Theorem commutativityOfProducts {M:abmonoid} {n} (x:stn n->M) (f:stn n ≃ stn n) :
   iterop_seq_mon (n,,x) = iterop_seq_mon (n,,x∘f).
 Proof.
-  (** This proof comes from % \cite[section 1.5, Theorem 2, page 9]{BourbakiAlgebraI}. \par % *)
   (* this proof comes from Bourbaki, Algebra, § 1.5, Theorem 2, page 9 *)
-  intros.
-  induction n as [|n IH].
+  intros. induction n as [|n IH].
   - reflexivity.
-  - assert (specialcase : ∏ (y:stn _->M) (g : stn _ ≃ stn _), g lastelement = lastelement ->
-        iterop_seq_mon (S n,, y) = iterop_seq_mon (S n,, y ∘ g)).
-    { intros ? ? a. rewrite 2 iterop_seq_mon_step. change ((_ ∘ _) _) with (y (g lastelement)).
-      rewrite a. apply (maponpaths (λ m, m * _)). change (_ ∘ _ ∘ _) with (y ∘ (g ∘ dni lastelement)).
-      set (wc := weqdnicompl (n:=n) lastelement).
-      assert (K : pr1 ∘ pr1weq wc ~ dni lastelement).
-      { intros i. apply subtypeEquality_prop. reflexivity. }
-      set (wc' := weqdnicompl (g lastelement)).
-      set (p := weqoncompl_ne g lastelement (stnneq _) (stnneq _)).
-      set (g' := (invweq wc' ∘ (p ∘ wc)) %weq).
-      intermediate_path (iterop_seq_mon (n,, y ∘ dni lastelement ∘ g')).
-      { apply IH. }
-      { change ((_ ∘ _) ∘ _) with (y ∘ (dni lastelement ∘ g')).
-        apply maponpaths; apply maponpaths.
-        apply (maponpaths (λ h i, y(h i))).
-        unfold g'.
-        apply funextfun; intros i.
-        unfold funcomp. apply isinjstntonat.
-        rewrite replace_dni_last.
-        rewrite pr1_dni_lastelement.
-        rewrite 2 weqcomp_to_funcomp_app.
-        unfold wc'.
-        admit.
-      }}
-    set (j := f lastelement).
-    induction j as [j jlt].
-    assert (jle := natlthsntoleh _ _ jlt).
-    Local Open Scope nat.
-    set (m := nil □ j □ 1 □ n-j).
-    set (m' := nil □ j □ n-j □ 1).
-    set (sw := (nil □ ●0 □ ●2 □ ●1 : Sequence (stn 3)) % stn).
-    assert (B : stnsum m = S n).
-    { unfold stnsum; simpl. repeat unfold append_fun; simpl. rewrite natplusassoc. rewrite (natpluscomm 1). rewrite <- natplusassoc.
-      rewrite natpluscomm. apply (maponpaths S). rewrite natpluscomm. now apply minusplusnmm. }
-    assert (B' : stnsum m' = S n).
-    { unfold stnsum; simpl. rewrite natplusassoc. rewrite (natpluscomm _ 1). rewrite <- natplusassoc. apply B. }
-    assert (C : m' ∘ sw ~ m).
-    { intro i. change (pr1 sw) with 3 in i.
-      induction i as [i b]. inductive_reflexivity i b. }
-    assert (isweqsw : isweq sw).
-    { refine (gradth sw sw _ _); ( intros [i b]; inductive_reflexivity i b). }
-    set (w := weqstnsum1 m). rewrite B in w. change (pr1 m) with 3 in w.
-    set (w' := weqstnsum1 m'). rewrite B' in w'. change (pr1 m') with 3 in w'.
-
-    induction (isdeceqstn (S n) (f lastelement) lastelement) as [p|p].
-    + now apply specialcase.
-    +
-
-Abort.
+  - set (i := @lastelement n); set (i' := f i).
+    rewrite (iterop_seq_mon_step (x ∘ f)).
+    change ((x ∘ f) lastelement) with (x i').
+    rewrite (commutativityOfProducts_helper x i').
+    apply (maponpaths (λ k, k*_)).
+    set (f' := weqoncompl_ne f i (stnneq i) (stnneq i') : stn_compl i ≃ stn_compl i').
+    set (g := weqdnicompl i); set (g' := weqdnicompl i').
+    apply pathsinv0.
+    set (h := (invweq g' ∘ f' ∘ g)%weq).
+    assert (L : x ∘ f ∘ dni lastelement ~ x ∘ dni i' ∘ h).
+    { intro j. unfold funcomp. apply maponpaths.
+      apply (invmaponpathsincl _ ( isinclstntonat _ ) _ _).
+      unfold h. rewrite 2 weqcomp_to_funcomp_app. rewrite pr1_invweq.
+      induction j as [j J]. unfold g, i, f', g', stntonat.
+      rewrite <- (weqdnicompl_compute i').
+      unfold pr1compl_ne.
+      unfold funcomp.
+      rewrite homotweqinvweq.
+      rewrite (weqoncompl_ne_compute f i (stnneq i) (stnneq i') _).
+      apply maponpaths, maponpaths.
+      apply subtypeEquality_prop.
+      unfold stntonat.
+      now rewrite weqdnicompl_compute. }
+    rewrite (IH (x ∘ dni i') h).
+    now apply iterop_seq_mon_homot.
+Defined.
