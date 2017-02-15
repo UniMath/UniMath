@@ -734,18 +734,6 @@ Proof.
   apply natplusr0.
 Defined.
 
-Lemma two_arg_paths_f {X:UU} {Y:X->UU} {Z:UU} (f : ∏ x, Y x -> Z)
-      (x x':X) (y:Y x) (y':Y x') (p:x=x') (q:transportf Y p y=y') : f x y = f x' y'.
-Proof.
-  intros. induction p. change _ with (y=y') in q. induction q. reflexivity.
-Defined.
-
-Lemma two_arg_paths_b {X:UU} {Y:X->UU} {Z:UU} (f : ∏ x, Y x -> Z)
-      (x x':X) (y:Y x) (y':Y x') (p:x=x') (q:transportb Y p y'=y) : f x y = f x' y'.
-Proof.
-  intros. induction p. change _ with (y'=y) in q. induction q. reflexivity.
-Defined.
-
 Definition weqstnsum_map { n : nat } (m : stn n -> nat) : (∑ i, stn (m i)) -> stn (stnsum m).
 Proof.
   intros ? ? ij.
