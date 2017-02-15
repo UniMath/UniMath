@@ -122,11 +122,12 @@ Proof.
   { exact y. }
 Defined.
 
-Definition append_fun_compute_1 {X n} (s:stn n->X) (x:X) i : append_fun s x (dni_lastelement i) = s i.
+Definition append_fun_compute_1 {X n} (s:stn n->X) (x:X) i : append_fun s x (dni lastelement i) = s i.
 Proof.
   intros.
   unfold dni_lastelement; simpl.
   induction i as [i b]; simpl.
+  rewrite replace_dni_last.
   unfold append_fun; simpl.
   induction (natlehchoice4 i n (natlthtolths i n b)) as [p|p].
   - simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity.
@@ -248,15 +249,19 @@ Definition drop' {X} (x:Sequence X) : x != nil -> Sequence X.
 Proof. intros ? ? h. exact (drop x (pr2 (logeqnegs (nil_length x)) h)). Defined.
 
 Lemma append_and_drop_fun {X n} (x : stn n -> X) y :
-  (append_fun x y) ∘ dni_lastelement = x.
+  append_fun x y ∘ dni lastelement = x.
 Proof.
   intros.
   apply funextsec; intros i.
   unfold funcomp.
   unfold append_fun.
-  induction (natlehchoice4 (pr1 (dni_lastelement i)) n (pr2 (dni_lastelement i))) as [I|J].
-  - simpl. apply maponpaths. apply subtypeEquality_prop. simpl. reflexivity.
-  - apply fromempty. simpl in J. induction i as [i r]. simpl in J. induction J.
+  induction (natlehchoice4 (pr1 (dni lastelement i)) n (pr2 (dni lastelement i))) as [I|J].
+  - simpl. apply maponpaths. apply subtypeEquality_prop. simpl. apply di_eq1. exact (stnlt i).
+  - apply fromempty. simpl in J.
+    assert (P : di n i = i).
+    { apply di_eq1. exact (stnlt i). }
+    induction (!P); clear P.
+    induction i as [i r]. simpl in J. induction J.
     exact (isirreflnatlth _ r).
 Defined.
 
@@ -396,7 +401,7 @@ Proof.
 Defined.
 
 Definition concatenateStep {X : UU} (x : Sequence X) {n : nat} (y : stn (S n) -> X) :
-  concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni_lastelement)) (y lastelement).
+  concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni lastelement)) (y lastelement).
 Proof.
   intros X m. induction m as [m l]. intros n y.
   use seq_key_eq_lemma.
@@ -412,7 +417,7 @@ Proof.
         set (tmp2 := natlehlthtrans _ _ _ tmp H).
         exact (isirreflnatlth _ tmp2).
     + induction (natlehchoice4 i (m + n) s) as [I|J].
-      * now apply maponpaths, subtypeEquality_prop.
+      * apply maponpaths, subtypeEquality_prop. rewrite replace_dni_last. reflexivity.
       * apply maponpaths, subtypeEquality_prop. simpl.
         induction (!J). rewrite natpluscomm. apply plusminusnmm.
 Qed.
@@ -445,10 +450,9 @@ Proof.
 Defined.
 
 Definition flattenStep {X} (x: NonemptySequence (Sequence X)) :
-  flatten x = concatenate (flatten (composeSequence x dni_lastelement)) (lastValue x).
+  flatten x = concatenate (flatten (composeSequence x (dni lastelement))) (lastValue x).
 Proof.
   intros.
-  rewrite <- replace_dni_last.  (* replace it, because stnsum doesn't use it *)
   apply pair_path_in2.
   set (xlens := λ i, length(x i)).
   set (xvals := λ i, λ j:stn (xlens i), x i j).

@@ -45,7 +45,7 @@ Section BinaryOperations.
     { exact unit. }
     { induction n as [|n I].
       { exact (x lastelement). }
-      { exact (op (I (x ∘ dni_lastelement)) (x lastelement)). }}
+      { exact (op (I (x ∘ dni lastelement)) (x lastelement)). }}
   Defined.
 
   Definition iterop_seq : Sequence X -> X.
@@ -119,7 +119,7 @@ Section BinaryOperations.
   Defined.
 
   Definition iterop_fun_step (lunax : islunit op unit) {m} (x:stn(S m) -> X) :
-    iterop_fun x = op (iterop_fun (x ∘ dni_lastelement)) (x lastelement).
+    iterop_fun x = op (iterop_fun (x ∘ dni lastelement)) (x lastelement).
   Proof.
     intros.
     unfold iterop_fun at 1.
@@ -216,7 +216,7 @@ Defined.
 (* some rewriting rules *)
 
 Definition iterop_seq_mon_step {M:monoid} {n} (x:stn (S n) -> M) :
-  iterop_seq_mon (S n,,x) = iterop_seq_mon (n,,x ∘ dni_lastelement) * x lastelement.
+  iterop_seq_mon (S n,,x) = iterop_seq_mon (n,,x ∘ dni lastelement) * x lastelement.
 Proof.
   intros.
   induction n as [|n _].
@@ -245,7 +245,7 @@ Proof.
 Defined.
 
 Local Definition iterop_seq_seq_mon_step {M:monoid} {n} (x:stn (S n) -> Sequence M) :
-  iterop_seq_seq_mon (S n,,x) = iterop_seq_seq_mon (n,,x ∘ dni_lastelement) * iterop_seq_mon (x lastelement).
+  iterop_seq_seq_mon (S n,,x) = iterop_seq_seq_mon (n,,x ∘ dni lastelement) * iterop_seq_mon (x lastelement).
 Proof.
   intros.
   induction n as [|n _].
@@ -295,9 +295,9 @@ Proof.
   induction z as [m z].
   induction m as [|m IHm].
   { simpl. rewrite runax.
-    simple refine (_ @ IHn (x ∘ dni_lastelement)).
+    simple refine (_ @ IHn (x ∘ dni lastelement)).
     rewrite concatenate'_r0.
-    now apply (two_arg_paths_b (natplusr0 (stnsum (length ∘ (x ∘ dni_lastelement))))). }
+    now apply (two_arg_paths_b (natplusr0 (stnsum (length ∘ (x ∘ dni lastelement))))). }
   change (length (S m,, z)) with (S m). change (sequenceToFunction (S m,,z)) with z.
   rewrite (iterop_fun_step _ _ (lunax M)). rewrite concatenateStep.
   generalize (z lastelement) as w; intros.
@@ -321,40 +321,25 @@ Proof.
   - reflexivity.
   - assert (specialcase : ∏ (y:stn _->M) (g : stn _ ≃ stn _), g lastelement = lastelement ->
         iterop_seq_mon (S n,, y) = iterop_seq_mon (S n,, y ∘ g)).
-    { intros ? ? a. rewrite 2? iterop_seq_mon_step. change ((_ ∘ _) _) with (y (g lastelement)).
-      rewrite a. apply (maponpaths (λ m, m * _)). change (_ ∘ _ ∘ _) with (y ∘ (g ∘ dni_lastelement)).
-      set (h := eqweqmap (maponpaths stn_compl a)).
-      assert (pr1_h : ∏ i, pr1 (pr1 (h i)) = pr1 (pr1 i)). { intros. induction a. reflexivity. }
+    { intros ? ? a. rewrite 2 iterop_seq_mon_step. change ((_ ∘ _) _) with (y (g lastelement)).
+      rewrite a. apply (maponpaths (λ m, m * _)). change (_ ∘ _ ∘ _) with (y ∘ (g ∘ dni lastelement)).
       set (wc := weqdnicompl n lastelement).
-      set (g' := (invweq wc ∘ (h ∘ (weqoncompl_ne g lastelement (stnneq _) (stnneq _) ∘ wc))) %weq).
-      intermediate_path (iterop_seq_mon (n,, y ∘ dni_lastelement ∘ g')).
+      assert (K : pr1 ∘ pr1weq wc ~ dni lastelement).
+      { intros i. apply subtypeEquality_prop. reflexivity. }
+      set (wc' := weqdnicompl n (g lastelement)).
+      set (p := weqoncompl_ne g lastelement (stnneq _) (stnneq _)).
+      set (g' := (invweq wc' ∘ (p ∘ wc)) %weq).
+      intermediate_path (iterop_seq_mon (n,, y ∘ dni lastelement ∘ g')).
       { apply IH. }
-      { change ((_ ∘ _) ∘ _) with (y ∘ (dni_lastelement ∘ g')).
+      { change ((_ ∘ _) ∘ _) with (y ∘ (dni lastelement ∘ g')).
         apply maponpaths; apply maponpaths.
         apply (maponpaths (λ h i, y(h i))).
+        unfold g'.
         apply funextfun; intros i.
-        unfold funcomp. apply isinjstntonat. rewrite pr1_dni_lastelement. unfold g'.
-        rewrite 3? weqcomp_to_funcomp_app. rewrite inv_weqdnicompl_compute_last. rewrite pr1_h.
-        unfold pr1weq.
-        unfold weqoncompl_ne.
-        (* change (pr1 *)
-        (*    (weqpair *)
-        (*       (maponcomplweq_ne g lastelement  *)
-        (*          (stnneq lastelement) (stnneq (pr1 g lastelement))) *)
-        (*       (isweqmaponcompl_ne g lastelement *)
-        (*          (stnneq lastelement) (stnneq (pr1 g lastelement)))) *)
-        (*    (pr1 wc i)) *)
-        (* with (maponcomplweq_ne g lastelement  *)
-        (*                        (stnneq lastelement) (stnneq (pr1 g lastelement)) *)
-        (*                        (pr1 wc i) *)
-        (*      ). *)
-        (* unfold wc. *)
-        (* unfold weqdnicompl. *)
-
-        (* induction (natlthorgeh j lastelement) as [t|t]. *)
-
-        (* rewrite weqdnicompl_compute_last. *) (* rewrite pr1_dni_lastelement. *)
-        (* reflexivity. *)
+        unfold funcomp. apply isinjstntonat.
+        rewrite replace_dni_last.
+        rewrite pr1_dni_lastelement.
+        rewrite 2 weqcomp_to_funcomp_app.
         admit.
       }}
     set (j := f lastelement).
@@ -377,10 +362,8 @@ Proof.
     set (w := weqstnsum1 m). rewrite B in w. change (pr1 m) with 3 in w.
     set (w' := weqstnsum1 m'). rewrite B' in w'. change (pr1 m') with 3 in w'.
 
-(*
     induction (isdeceqstn (S n) (f lastelement) lastelement) as [p|p].
     + now apply specialcase.
     +
-*)
 
 Abort.
