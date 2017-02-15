@@ -45,7 +45,7 @@ Definition nelstructoncontr { X : UU } ( is : iscontr X ) : nelstruct 1 X := weq
 
 Definition nelstructonbool : nelstruct 2 bool := weqstn2tobool .
 
-Definition nelstructoncoprodwithunit { X : UU } { n : nat } ( sx : nelstruct n X ) : nelstruct ( S n ) ( coprod X unit ) :=  weqcomp ( invweq ( weqdnicoprod n ( lastelement n ) ) ) ( weqcoprodf sx ( idweq unit ) ) .
+Definition nelstructoncoprodwithunit { X : UU } { n : nat } ( sx : nelstruct n X ) : nelstruct ( S n ) ( coprod X unit ) :=  weqcomp ( invweq ( weqdnicoprod n lastelement ) ) ( weqcoprodf sx ( idweq unit ) ) .
 
 Definition nelstructoncompl {X} {n} (x:X) : nelstruct (S n) X -> nelstruct n (compl X x).
 Proof.

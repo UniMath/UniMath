@@ -112,7 +112,7 @@ Proof.
   induction n as [|n I].
   - exact tt.
   - exists (f (●0))%stn.
-    exact (I(f ∘ dni _ (●0)))%stn.
+    exact (I(f ∘ dni (●0)))%stn.
 Defined.
 
 Definition functionToList n : (stn n -> A) -> list.

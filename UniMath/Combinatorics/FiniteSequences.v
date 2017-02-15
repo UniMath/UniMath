@@ -6,12 +6,6 @@ Unset Automatic Introduction.
 
 Local Open Scope transport.
 
-Local Arguments dni {_} _ _.
-
-Local Arguments firstelement {_}. (* make non local *)
-
-Local Arguments lastelement {_}. (* make non local *)
-
 (* end of move upstream *)
 
 Definition Sequence (X:UU) := ∑ n, stn n -> X.
@@ -125,7 +119,6 @@ Defined.
 Definition append_fun_compute_1 {X n} (s:stn n->X) (x:X) i : append_fun s x (dni lastelement i) = s i.
 Proof.
   intros.
-  unfold dni_lastelement; simpl.
   induction i as [i b]; simpl.
   rewrite replace_dni_last.
   unfold append_fun; simpl.
