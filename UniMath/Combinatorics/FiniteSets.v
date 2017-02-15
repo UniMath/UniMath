@@ -29,6 +29,10 @@ Require Export UniMath.Combinatorics.StandardFiniteSets .
 
 Definition nelstruct ( n : nat ) ( X : UU ) := weq ( stn n ) X .
 
+Definition nelstructToFunction {n} {X} (S : nelstruct n X) : stn n -> X := pr1weq S.
+
+Coercion nelstructToFunction : nelstruct >-> Funclass.
+
 Definition nelstructonstn ( n : nat ) : nelstruct n ( stn n ) := idweq _ .
 
 Definition nelstructweqf { X Y : UU } { n : nat } ( w : weq X Y ) ( sx : nelstruct n X ) : nelstruct n Y := weqcomp sx w .
@@ -118,6 +122,11 @@ Definition isofnelonweq { X : UU } { n : nat } ( sx : isofnel n X ) : isofnel ( 
 
 
 Definition finstruct  ( X : UU ) := total2 ( fun n : nat => nelstruct n X ) .
+
+Definition finstructToFunction {X} (S : finstruct X) := pr2 S : nelstruct (pr1 S) X.
+
+Coercion finstructToFunction : finstruct >-> nelstruct.
+
 Definition finstructpair  ( X : UU )  := tpair ( fun n : nat => nelstruct n X ) .
 
 Definition finstructonstn ( n : nat ) : finstruct ( stn n ) := tpair _ n ( nelstructonstn n ) .

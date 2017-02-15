@@ -437,7 +437,7 @@ Section NatCard.
   Require Export UniMath.Combinatorics.FiniteSets.
   Require Export UniMath.Foundations.NaturalNumbers.
 
-  (** first a warm-up with addition in nat, based on cardinatities of standard finite sets *)
+  (** first a toy warm-up with addition in nat, based on cardinalities of standard finite sets *)
 
   Theorem nat_plus_associativity {n} {m:stn n->nat} (k:∏ (ij : ∑ i, stn (m i)), nat) :
     stnsum (λ i, stnsum (curry k i)) = stnsum (k ∘ lexicalEnumeration m).
@@ -516,6 +516,28 @@ Section NatCard.
     intros. exact (fincard (isfinitetotal2 (stn∘f) fin (λ i, isfinitestn (f i)))).
   Defined.
 
+  (* exercise : show finsum = finsum' *)
+
 End NatCard.
 
-(* exercise : show finsum = finsum' *)
+Definition iterop_finseq_mon {M:abmonoid} : UnorderedSequence M -> M.
+(* iterate the monoid operation over a finite sequence of elements of M *)
+Proof.
+  intros ? m.
+  induction m as [J m].
+  induction J as [I fin].
+  simpl in m.
+  unfold isfinite, finstruct in fin.
+  simple refine (squash_to_set
+                   (setproperty M)
+                   (λ (g : finstruct I), iterop_fun_mon (m ∘ g : _ -> M))
+                   _
+                   fin).
+  intros. induction x as [n x]. induction x' as [n' x'].
+  assert (p := weqtoeqstn (invweq x' ∘ x)%weq).
+  induction p.
+  assert (w := commutativityOfProducts (m ∘ x') (invweq x' ∘ x)%weq).
+  simple refine (_ @ ! w); clear w. unfold iterop_seq_mon, iterop_fun_mon, iterop_seq.
+  apply maponpaths. rewrite weqcomp_to_funcomp. apply funextfun; intro i.
+  unfold funcomp. simpl. apply maponpaths. exact (! homotweqinvweq x' (x i)).
+Defined.
