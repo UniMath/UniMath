@@ -42,7 +42,7 @@ Arguments θ_Strength2_int {_ _ _} _ .
 
 Section sum_of_signatures.
 
-Variables (I : UU) (HI : isdeceq I) (C : precategory) (hsC : has_homsets C).
+Variables (I : UU) (C : precategory) (hsC : has_homsets C).
 Variables (CC : Coproducts I C).
 
 Section construction.
@@ -144,8 +144,6 @@ Lemma is_omega_cocont_Sum_of_Signatures (S : I -> Signature C hsC)
   is_omega_cocont (Sum_of_Signatures S).
 Proof.
 apply is_omega_cocont_coproduct_of_functors; try assumption.
-- apply (Products_functor_precat _ _ _ PC).
-- apply functor_category_has_homsets.
 - apply functor_category_has_homsets.
 Defined.
 

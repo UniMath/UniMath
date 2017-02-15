@@ -27,12 +27,6 @@ Defined.
 
 Ltac set_id_type v := match goal with |- @paths ?ID _ _ => set (v := ID); simpl in v end.
 
-Local Arguments dni {_} _ _.
-
-Local Arguments firstelement {_}. (* make non local *)
-
-Local Arguments lastelement {_}. (* make non local *)
-
 Definition firstValue {X n} : (stn (S n) -> X) -> X
   := λ x, x firstelement.
 

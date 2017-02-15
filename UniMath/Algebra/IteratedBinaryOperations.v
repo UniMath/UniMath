@@ -6,12 +6,6 @@ Unset Automatic Introduction.
 
 (* move upstream *)
 
-Local Arguments dni {_} _ _.
-
-Local Arguments firstelement {_}. (* make non local *)
-
-Local Arguments lastelement {_}. (* make non local *)
-
 (* end of move upstream *)
 
 Local Notation "[]" := Lists.nil (at level 0, format "[]").
