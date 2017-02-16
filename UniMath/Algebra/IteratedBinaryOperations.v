@@ -21,16 +21,16 @@ Local Infix "::" := cons.
 
 Section BinaryOperations.
 
-  Context {X:UU} (unit:X) (op:binop X).
+  Context {X:UU} (unel:X) (op:binop X).
 
   (* we use an extra induction step in each of the following definitions so
-     we don't end up with superfluous unit factors *)
+     we don't end up with superfluous unel factors *)
 
   Definition iterop_list : list X -> X.
   Proof.
     intro k.
     simple refine (list_ind (λ _, X) _ _ k).
-    - simpl. exact unit.
+    - simpl. exact unel.
     - intros x m _.
       generalize x; clear x.
       simple refine (list_ind (λ _, X -> X) _ _ m).
@@ -42,7 +42,7 @@ Section BinaryOperations.
   Proof.
     intros.
     induction n as [|n _].
-    { exact unit. }
+    { exact unel. }
     { induction n as [|n I].
       { exact (x lastelement). }
       { exact (op (I (x ∘ dni lastelement)) (x lastelement)). }}
@@ -94,7 +94,7 @@ Section BinaryOperations.
     exact (assoc (functionToSequence (λ i, functionToSequence (x i)))).
   Defined.
 
-  Definition iterop_list_step (runax : isrunit op unit) (x:X) (xs:list X) :
+  Definition iterop_list_step (runax : isrunit op unel) (x:X) (xs:list X) :
     iterop_list (x::xs) = op x (iterop_list xs).
   Proof.
     intros runax x xs.
@@ -105,7 +105,7 @@ Section BinaryOperations.
     reflexivity.
   Defined.
 
-  Definition iterop_fun_step' (lunax : islunit op unit) {m} (xs:stn m -> X) (x:X) :
+  Definition iterop_fun_step' (lunax : islunit op unel) {m} (xs:stn m -> X) (x:X) :
     iterop_fun (append_fun xs x) = op (iterop_fun xs) x.
   Proof.
     intros lunax ? ? ?.
@@ -118,7 +118,7 @@ Section BinaryOperations.
       apply append_and_drop_fun.
   Defined.
 
-  Definition iterop_fun_step (lunax : islunit op unit) {m} (x:stn(S m) -> X) :
+  Definition iterop_fun_step (lunax : islunit op unel) {m} (x:stn(S m) -> X) :
     iterop_fun x = op (iterop_fun (x ∘ dni lastelement)) (x lastelement).
   Proof.
     intros.
@@ -129,7 +129,7 @@ Section BinaryOperations.
     - simpl. reflexivity.
   Defined.
 
-  Definition iterop_fun_append (lunax : islunit op unit) {m} (x:stn m -> X) (y:X) :
+  Definition iterop_fun_append (lunax : islunit op unel) {m} (x:stn m -> X) (y:X) :
     iterop_fun (append_fun x y) = op (iterop_fun x) y.
   Proof.
     intros lunax. intros.
