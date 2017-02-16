@@ -20,10 +20,21 @@ Definition unorderedSequenceToFunction {X} (x:UnorderedSequence X) := pr2 x : pr
 
 Coercion unorderedSequenceToFunction : UnorderedSequence >-> Funclass.
 
+Definition sequenceToUnorderedSequence {X} : Sequence X -> UnorderedSequence X.
+Proof.
+  intros X x.
+  exists (standardFiniteSet (length x)).
+  exact x.
+Defined.
+
+Coercion sequenceToUnorderedSequence : Sequence >-> UnorderedSequence.
+
 Definition length'{X} : NonemptySequence X -> nat := λ x, S(pr1 x).
 
 Definition functionToSequence {X n} (f:stn n -> X) : Sequence X
   := (n,,f).
+
+Definition functionToUnorderedSequence {X} {I : FiniteSet} (f:I -> X) : UnorderedSequence X := (I,,f).
 
 Definition NonemptySequenceToFunction {X} (x:NonemptySequence X) := pr2 x : stn (length' x) -> X.
 
@@ -33,8 +44,13 @@ Definition NonemptySequenceToSequence {X} (x:NonemptySequence X) := functionToSe
 
 Coercion NonemptySequenceToSequence : NonemptySequence >-> Sequence.
 
-Definition composeSequence {X m n} (f:stn n -> X) (g:stn m -> stn n) : Sequence X
+Definition composeSequence {X Y} (f:X->Y) : Sequence X -> Sequence Y := λ x, functionToSequence (f ∘ x).
+
+Definition composeSequence' {X m n} (f:stn n -> X) (g:stn m -> stn n) : Sequence X
   := functionToSequence (f ∘ g).
+
+Definition composeUnorderedSequence {X Y} (f:X->Y) : UnorderedSequence X -> UnorderedSequence Y
+  := λ x, functionToUnorderedSequence(f ∘ x).
 
 Definition weqListSequence {X} : list X ≃ Sequence X.
 Proof.
@@ -422,6 +438,14 @@ Proof.
   intros ? x. exists (stnsum (length ∘ x)). exact (flatten' (sequenceToFunction ∘ x)).
 Defined.
 
+Definition flattenUnorderedSequence {X : UU} : UnorderedSequence (UnorderedSequence X) -> UnorderedSequence X.
+Proof.
+  intros ? x.
+  use tpair.
+  - exact ((∑ i, pr1 (x i))%finset).
+  - intros ij. exact (x (pr1 ij) (pr2 ij)). (* could also have used (uncurry (unorderedSequenceToFunction x)) here *)
+Defined.
+
 Definition flattenStep' {X n}
            (m : stn (S n) → nat)
            (x : ∏ i : stn (S n), stn (m i) → X)
@@ -445,7 +469,7 @@ Proof.
 Defined.
 
 Definition flattenStep {X} (x: NonemptySequence (Sequence X)) :
-  flatten x = concatenate (flatten (composeSequence x (dni lastelement))) (lastValue x).
+  flatten x = concatenate (flatten (composeSequence' x (dni lastelement))) (lastValue x).
 Proof.
   intros.
   apply pair_path_in2.

@@ -236,6 +236,20 @@ Definition isfinitecoprod { X  Y : UU } ( sx : isfinite X ) ( sy : isfinite Y ) 
 Definition isfinitetotal2 { X : UU } ( P : X -> UU ) ( sx : isfinite X ) ( fs : ∏ x : X , isfinite ( P x ) ) : isfinite ( total2 P ) .
 Proof . intros . set ( fs' := ischoicebasefiniteset sx _ fs ) .  apply ( hinhfun2 ( fun fx0 : ∏ x : X , finstruct ( P x )  => fun sx0 : _ => finstructontotal2 P sx0 fx0 ) fs' sx ) .  Defined .
 
+Definition FiniteSetSum {I:FiniteSet} (X : I -> FiniteSet) : FiniteSet.
+Proof.
+  intros. exists (∑ i, X i).
+  apply isfinitetotal2.
+  - exact (pr2 I).
+  - intros i. exact (pr2 (X i)).
+Defined.
+
+Delimit Scope finset with finset.
+
+Notation "'∑' x .. y , P" := (FiniteSetSum (fun x =>.. (FiniteSetSum (fun y => P))..))
+  (at level 200, x binder, y binder, right associativity) : finset.
+  (* type this in emacs in agda-input method with \sum *)
+
 Definition isfinitedirprod { X Y : UU } ( sx : isfinite X ) ( sy : isfinite Y ) : isfinite ( dirprod X Y ) := hinhfun2 ( fun sx0 : _ => fun sy0 : _ => finstructondirprod sx0 sy0 ) sx sy .
 
 Definition isfinitedecsubset { X : UU } ( f : X -> bool ) ( sx : isfinite X ) : isfinite ( hfiber f true ) := hinhfun ( fun sx0 : _ =>  finstructondecsubset f sx0 ) sx .
@@ -246,8 +260,6 @@ Definition isfiniteforall { X : UU } ( P : X -> UU ) ( sx : isfinite X ) ( fs : 
 Proof . intros . set ( fs' := ischoicebasefiniteset sx _ fs ) .  apply ( hinhfun2 ( fun fx0 : ∏ x : X , finstruct ( P x )  => fun sx0 : _ => finstructonforall P sx0 fx0 ) fs' sx ) .  Defined .
 
 Definition isfiniteweq { X : UU } ( sx : isfinite X ) : isfinite ( weq X X ) := hinhfun ( fun sx0 : _ =>  finstructonweq sx0 ) sx .
-
-
 
 
 

@@ -38,7 +38,7 @@ Module Test_assoc.
   Goal ∏ (M:monoid) (x y z:M), x*y*z = x*(y*z). Proof. apply assocax. Defined.
 
   (* demonstrate that the Coq parser is left-associative with "+" *)
-  Open Scope addmonoid.
+  Local Open Scope addmonoid.
   Goal ∏ (M:monoid) (x y z:M), x+y+z = (x+y)+z. Proof. reflexivity. Defined.
   Goal ∏ (M:monoid) (x y z:M), x+y+z = x+(y+z). Proof. apply assocax. Defined.
 
@@ -71,6 +71,27 @@ Module Test_finsum.
                    (coprod_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
     try reflexivity.            (* fails, for some reason *)
   Abort.
+
+  Section Iteration.
+    Local Notation "s □ x" := (append s x) (at level 64, left associativity).
+    Context (G:abgr) (R:rng) (S:commrng) (g g' g'':G) (r r' r'':R) (s s' s'':S).
+    Local Open Scope multmonoid.
+    Goal iterop_unoseq_abgr (nil : Sequence G) = 1. reflexivity. Qed.
+    Goal iterop_unoseq_abgr (nil □ g □ g') = g*g'. reflexivity. Qed.
+    Goal iterop_unoseq_abgr (nil □ g □ g' □ g'') = g*g'*g''. reflexivity. Qed.
+    Goal iterop_unoseq_unoseq_mon (M:=G) (sequenceToUnorderedSequence(nil □ sequenceToUnorderedSequence(nil □ g □ g') □ sequenceToUnorderedSequence(nil □ g □ g' □ g''))) = (g*g') * (g*g'*g''). reflexivity. Qed.
+    Goal iterop_unoseq_unoseq_mon (M:=G) (sequenceToUnorderedSequence(nil □ sequenceToUnorderedSequence(nil □ g) □ sequenceToUnorderedSequence(nil))) = g * 1. reflexivity. Qed.
+    Goal iterop_unoseq_unoseq_mon (M:=G) (sequenceToUnorderedSequence(nil □ sequenceToUnorderedSequence(nil) □ sequenceToUnorderedSequence(nil □ g))) = 1 * g. reflexivity. Qed.
+    Close Scope multmonoid.
+
+    Local Open Scope rng.
+    Goal sum_unoseq_rng (nil : Sequence R) = 0. reflexivity. Qed.
+    Goal sum_unoseq_rng (nil □ r □ r') = r+r'. reflexivity. Qed.
+    Goal sum_unoseq_rng (nil □ r □ r' □ r'') = r+r'+r''. reflexivity. Qed.
+    Goal product_unoseq_rng (nil : Sequence S) = 1. reflexivity. Qed.
+    Goal product_unoseq_rng (nil □ s □ s') = s*s'. reflexivity. Qed.
+    Goal product_unoseq_rng (nil □ s □ s' □ s'') = s*s'*s''. reflexivity. Qed.
+  End Iteration.
 
 End Test_finsum.
 

@@ -1,6 +1,6 @@
 Require Export UniMath.Combinatorics.Lists.
 Require Export UniMath.Combinatorics.FiniteSequences.
-Require Export UniMath.Algebra.Monoids_and_Groups.
+Require Export UniMath.Algebra.Rigs_and_Rings.
 Require Export UniMath.Foundations.UnivalenceAxiom.
 Unset Automatic Introduction.
 
@@ -514,8 +514,25 @@ Section NatCard.
 
 End NatCard.
 
-Definition iterop_finseq_mon {M:abmonoid} : UnorderedSequence M -> M.
-(* iterate the monoid operation over a finite sequence of elements of M *)
+Definition MultipleOperation (X:UU) : UU := UnorderedSequence X -> X.
+
+Section Mult.
+
+  Context {X:UU} (op : MultipleOperation X).
+
+  Definition composeMultipleOperation : UnorderedSequence (UnorderedSequence X) -> X.
+  Proof.
+    intros s. exact (op (composeUnorderedSequence op s)).
+  Defined.
+
+  Definition isAssociativeMultipleOperation := ∏ x, op (flattenUnorderedSequence x) = composeMultipleOperation x.
+
+End Mult.
+
+Definition AssociativeMultipleOperation {X} := ∑ op:MultipleOperation X, isAssociativeMultipleOperation op.
+
+Definition iterop_unoseq_mon {M:abmonoid} : MultipleOperation M.
+(* iterate the monoid operation over an unordered finite sequence of elements of M *)
 Proof.
   intros ? m.
   induction m as [J m].
@@ -535,3 +552,32 @@ Proof.
   apply maponpaths. rewrite weqcomp_to_funcomp. apply funextfun; intro i.
   unfold funcomp. simpl. apply maponpaths. exact (! homotweqinvweq x' (x i)).
 Defined.
+
+Definition iterop_unoseq_abgr {G:abgr} : MultipleOperation G.
+Proof.
+  intros G. exact (iterop_unoseq_mon (M:=G)).
+Defined.
+
+Definition sum_unoseq_rng {R:rng} : MultipleOperation R.
+Proof.
+  intros R. exact (iterop_unoseq_mon (M:=R)).
+Defined.
+
+Definition product_unoseq_rng {R:commrng} : MultipleOperation R.
+Proof.
+  intros R. exact (iterop_unoseq_mon (M:=rngmultabmonoid R)).
+Defined.
+
+Definition iterop_unoseq_unoseq_mon {M:abmonoid} : UnorderedSequence (UnorderedSequence M) -> M.
+Proof.
+  intros M s. exact (composeMultipleOperation iterop_unoseq_mon s).
+Defined.
+
+Definition abmonoidMultipleOperation {M:abmonoid} (op := @iterop_unoseq_mon M) : MultipleOperation M
+  := iterop_unoseq_mon.
+
+Theorem isAssociativeMultipleOperation_abmonoid {M:abmonoid}
+  : isAssociativeMultipleOperation (@iterop_unoseq_mon M).
+Proof.
+
+Abort.
