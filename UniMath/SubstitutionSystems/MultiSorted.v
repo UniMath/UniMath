@@ -48,6 +48,8 @@ Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 (* Require Import UniMath.SubstitutionSystems.LiftingInitial_alt. *)
 (* Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems. *)
+Require Import UniMath.SubstitutionSystems.Notation.
+Require Import UniMath.SubstitutionSystems.SignatureExamples.
 
 Local Notation "[ C , D ]" := (functor_Precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -69,8 +71,10 @@ exists (SET / sort).
 now apply has_homsets_slice_precat.
 Defined.
 
+Let hs: has_homsets (SET / sort) := homset_property SET_over_sort.
+
 Let post_comp := post_composition_functor (SET / sort) _ _
-                   (homset_property SET_over_sort) has_homsets_HSET.
+                   hs has_homsets_HSET.
 
 (** Definition of multi sorted signatures *)
 Definition MultiSortedSig : UU :=
@@ -133,7 +137,7 @@ Local Lemma exp_functor (lt : list sort × sort) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
 Proof.
 eapply functor_composite.
-- apply (pre_composition_functor _ _ _ (homset_property SET_over_sort) _ (option_list (pr1 lt))).
+- apply (pre_composition_functor _ _ _ hs _ (option_list (pr1 lt))).
 - apply post_comp, (proj_functor (pr2 lt)).
 Defined.
 
@@ -174,6 +178,74 @@ use (coproduct_of_functors (ops M)).
 Defined.
 
 End functor.
+
+
+(** * Construction of the strength for the endofunctor on [SET/sort,SET/sort] derived from a multisorted signature *)
+Section strength.
+
+(* the DL for sorted_option_functor *)
+Local Definition DL_sorted_option_functor (s : sort) : DistributiveLaw _ hs :=
+    genoption_DistributiveLaw _ hs (constHSET_slice s)(BinCoproducts_HSET_slice sort).
+
+Lemma functor_in_DL_sorted_option_functor_ok (s : sort) : DistributiveLaw_Functor _ _ (DL_sorted_option_functor s) = sorted_option_functor s.
+Proof.
+  apply idpath.
+Qed.
+
+(* the DL for option_list *)
+Local Definition DL_option_list (xs : list sort) : DistributiveLaw _ hs.
+Proof.
+use (foldr _ _ xs).
++ intros s DL.
+  apply (DL_comp _ _ (DL_sorted_option_functor s) DL).
++ apply DL_id.
+Defined.
+
+Lemma functor_in_DL_option_list_ok (xs : list sort) : DistributiveLaw_Functor _ _ (DL_option_list xs) = option_list xs.
+Proof.
+apply (list_ind (fun xs => DistributiveLaw_Functor _ _ (DL_option_list xs) = option_list xs)).
++ apply idpath.
++ intros s xs' IH.
+  unfold option_list.
+  rewrite foldr_cons.
+  unfold DL_option_list.
+  rewrite foldr_cons.
+  unfold option_list in IH.
+  rewrite <- IH.
+  apply idpath.
+Qed.
+
+(* the signature for exp_functor *)
+Local Definition Sig_exp_functor (lt : list sort × sort) : Signature _ hs _ has_homsets_HSET.
+Proof.
+set (Sig_option_list := θ_from_δ_Signature _ hs (DL_option_list (pr1 lt))).
+apply (Gθ_Signature _ _ _ _ _ _ Sig_option_list (proj_functor (pr2 lt))).
+Defined.
+
+Lemma functor_in_Sig_exp_functor_ok (lt : list sort × sort) : Signature_Functor _ _ _ _ (Sig_exp_functor lt) = exp_functor lt.
+Proof.
+  simpl.
+  rewrite functor_in_DL_option_list_ok.
+  apply idpath.
+Qed.
+
+(* the signature for exp_functor_list *)
+Local Definition Sig_exp_functor_list (xs : list (list sort × sort)) : Signature _ hs _ has_homsets_HSET.
+Proof.
+Admitted.
+
+(* the signature for hat_exp_functor_list *)
+Local Definition Sig_hat_exp_functor_list (xst : list (list sort × sort) × sort) : Signature _ hs _ hs.
+Proof.
+apply (Gθ_Signature _ _ _ _ _ _ (Sig_exp_functor_list (pr1 xst)) (hat_functor (pr2 xst))).
+Defined.
+
+
+(* the signature for MultiSortedSigToFunctor *)
+
+(* UNFINISHED *)
+
+End strength.
 
 (** * Proof that the functor obtained from a multisorted signature is omega-cocontinuous *)
 Section omega_cocont.
@@ -287,8 +359,7 @@ Defined.
 
 Local Lemma is_omega_cocont_post_comp_hat_functor (s : sort) :
   is_omega_cocont (post_composition_functor SET_over_sort  _ _
-       (homset_property SET) (homset_property SET_over_sort)
-       (hat_functor s)).
+       (homset_property SET) hs (hat_functor s)).
 Proof.
 apply is_omega_cocont_post_composition_functor, is_left_adjoint_hat.
 Defined.

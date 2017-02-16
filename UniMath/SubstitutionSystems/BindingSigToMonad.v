@@ -118,7 +118,7 @@ destruct n; simpl.
 + mkpair.
   * apply functor_identity.
   * apply θ_functor_identity.
-+ apply (θ_from_δ_Signature C hsC (DL_iter_functor1 C hsC (precomp_option_DistributiveLaw C hsC TC BCC) n)).
++ apply (θ_from_δ_Signature C hsC (DL_iter_functor1 C hsC (option_DistributiveLaw C hsC TC BCC) n)).
 Defined.
 
 Lemma functor_in_precomp_option_iter_Signature_ok  (BCC : BinCoproducts C)

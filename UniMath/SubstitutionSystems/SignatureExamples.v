@@ -130,6 +130,35 @@ Definition distributive_law2 (DL : DistributiveLaw) : δ_law2 _ _ := pr2 (pr2 (p
 
 End def_of_δ.
 
+Section δ_for_id.
+
+Definition delta_functor_identity : ∑
+  δ : δ_source (functor_identity C) ⟶ δ_target (functor_identity C),
+  δ_law1 _ δ  × δ_law2 _ δ.
+Proof.
+mkpair; simpl.
++ mkpair; simpl.
+  * intro x.
+    { mkpair.
+      - intro y; simpl; apply identity.
+      - abstract (now intros y y' f; rewrite id_left, id_right).
+    }
+  * abstract (now intros y y' f; apply (nat_trans_eq hsC); intro z;
+                  simpl; rewrite id_left, id_right, id_left, functor_id, id_right; apply idpath).
++ split.
+  * apply (nat_trans_eq hsC); intro c; simpl; apply idpath.
+  * intros Ze Ze'; apply (nat_trans_eq hsC); intro c; simpl. do 3 rewrite id_left. rewrite id_right. apply pathsinv0. apply functor_id.
+Defined.
+
+Definition DL_id : DistributiveLaw.
+Proof.
+  mkpair.
+  + apply functor_identity.
+  + exact delta_functor_identity.
+Defined.
+
+End δ_for_id.
+
 (** Construct θ in a Signature in the case when the functor is
     precomposition with a functor G from a family of simpler
     distributive laws δ *)
@@ -400,7 +429,7 @@ apply pathsinv0, BinCoproductArrowUnique.
   now apply maponpaths, BinCoproductIn2Commutes.
 Qed.
 
-Definition precomp_genoption_DistributiveLaw : DistributiveLaw.
+Definition genoption_DistributiveLaw : DistributiveLaw.
 Proof.
   mkpair.
   + exact genopt.
@@ -411,7 +440,7 @@ Proof.
 Defined.
 
 Definition precomp_genoption_Signature : Signature C hsC C hsC :=
-  θ_from_δ_Signature precomp_genoption_DistributiveLaw.
+  θ_from_δ_Signature genoption_DistributiveLaw.
 
 
 End genoption_sig.
@@ -429,8 +458,8 @@ Section option_sig.
   Definition δ_law2_option :=  δ_law2_genoption TC CC.
 
 
-  Definition precomp_option_DistributiveLaw : DistributiveLaw :=
-    precomp_genoption_DistributiveLaw TC CC.
+  Definition option_DistributiveLaw : DistributiveLaw :=
+    genoption_DistributiveLaw TC CC.
   Definition precomp_option_Signature : Signature C hsC C hsC :=
     precomp_genoption_Signature TC CC.
 
