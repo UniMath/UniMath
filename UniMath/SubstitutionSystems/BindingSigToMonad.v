@@ -114,15 +114,22 @@ Defined.
 Definition precomp_option_iter_Signature (BCC : BinCoproducts C)
   (TC : Terminal C) (n : nat) : Signature C hsC C hsC.
 Proof.
-mkpair.
-- apply (precomp_option_iter BCC TC n).
-- destruct n; simpl.
-  + apply θ_functor_identity.
-  + set (F := δ_iter_functor1 _ _ _ (δ_option _ hsC TC BCC)).
-    apply (θ_precompG _ hsC (iter_functor1 _ (option_functor BCC TC) n) (F n)).
-    * apply δ_law1_iter_functor1, δ_law1_option.
-    * apply δ_law2_iter_functor1, δ_law2_option.
+destruct n; simpl.
++ mkpair.
+  * apply functor_identity.
+  * apply θ_functor_identity.
++ apply (θ_from_δ_Signature C hsC (DL_iter_functor1 C hsC (precomp_option_DistributiveLaw C hsC TC BCC) n)).
 Defined.
+
+Lemma functor_in_precomp_option_iter_Signature_ok  (BCC : BinCoproducts C)
+      (TC : Terminal C) (n : nat) : Signature_Functor _ _ _ _ (precomp_option_iter_Signature BCC TC n) = precomp_option_iter BCC TC n.
+Proof.
+destruct n; simpl.
++ apply idpath.
++ rewrite functor_in_DL_iter_functor1_ok.
+  apply idpath.
+Qed.
+
 
 (* From here on all constructions need these hypotheses *)
 Context (BPC : BinProducts C) (BCC : BinCoproducts C).
@@ -146,9 +153,12 @@ destruct xs as [[|n] xs].
 - destruct xs; apply (is_omega_cocont_functor_identity has_homsets_C2).
 - induction n as [|n IHn].
   + destruct xs as [m []]; simpl.
+    unfold Arity_to_Signature. simpl.
+    rewrite functor_in_precomp_option_iter_Signature_ok.
     apply is_omega_cocont_precomp_option_iter, CLC.
   + destruct xs as [m [k xs]].
-    apply is_omega_cocont_BinProduct_of_Signatures.
+    apply is_omega_cocont_BinProduct_of_Signatures. simpl.
+    rewrite functor_in_precomp_option_iter_Signature_ok.
     * apply is_omega_cocont_precomp_option_iter, CLC.
     * apply (IHn (k,,xs)).
     * assumption.
