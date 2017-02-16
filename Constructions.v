@@ -27,16 +27,6 @@ Local Set Automatic Introduction.
 
 Section Auxiliary.
 
-(** Compare [total2_paths_f], [total2_paths_b]. *)
-(* TODO: perhaps upstream. *)
-Lemma total2_paths2_b {A : UU} {B : A → UU} 
-    {a1 : A} {b1 : B a1} {a2 : A} {b2 : B a2}
-    (p : a1 = a2) (q : b1 = transportb B p b2)
-  : (a1,,b1) = (a2,,b2).
-Proof.
-  exact (@total2_paths_b _ _ (_,,_) (_,,_) p q).
-Defined.
-
 (* TODO: perhaps upstream; consider name *)
 Lemma total2_reassoc_paths {A} {B : A → UU} {C : (∑ a, B a) -> UU}
     (BC : A -> UU := fun a => ∑ b, C (a,,b))
