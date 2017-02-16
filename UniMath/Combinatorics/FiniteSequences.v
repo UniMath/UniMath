@@ -1,22 +1,24 @@
-Require Export UniMath.Combinatorics.StandardFiniteSets.
+Require Export UniMath.Combinatorics.FiniteSets.
 Require Export UniMath.Combinatorics.Lists.
 Unset Automatic Introduction.
 
-(* move upstream *)
-
 Local Open Scope transport.
-
-(* end of move upstream *)
 
 Definition Sequence (X:UU) := ∑ n, stn n -> X.
 
 Definition NonemptySequence (X:UU) := ∑ n, stn (S n) -> X.
+
+Definition UnorderedSequence (X:UU) := ∑ I:FiniteSet, I -> X.
 
 Definition length {X} : Sequence X -> nat := pr1.
 
 Definition sequenceToFunction {X} (x:Sequence X) := pr2 x : stn (length x) -> X.
 
 Coercion sequenceToFunction : Sequence >-> Funclass.
+
+Definition unorderedSequenceToFunction {X} (x:UnorderedSequence X) := pr2 x : pr1 (pr1 x) -> X.
+
+Coercion unorderedSequenceToFunction : UnorderedSequence >-> Funclass.
 
 Definition length'{X} : NonemptySequence X -> nat := λ x, S(pr1 x).
 
