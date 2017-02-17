@@ -1185,7 +1185,7 @@ Proof.
           simple refine (hinhuniv _ _).
           3: apply IHl.
           intros C.
-          generalize (Hl (lastelement _)) ; simpl.
+          generalize (Hl lastelement) ; simpl.
           rewrite append_fun_compute_2.
           apply hinhfun.
           apply sumofmaps ; [intros Fl | intros ->].
