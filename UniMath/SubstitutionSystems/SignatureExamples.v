@@ -491,29 +491,10 @@ Definition IdSignature : Signature C hsC C hsC :=
   tpair _ (functor_identity _) θ_functor_identity.
 
 
-(** an alternative approach would be to go through θ_from_δ_Signature, based on the following observtions *)
-Lemma aux_functor_identity_is_precomp_with_id (F: functor_precategory_data C C) : (pr1 (functor_identity_data (functor_precategory_data C C))) F = (pr1 (pre_composition_functor_data C C C hsC hsC (functor_identity C))) F.
-Proof.
-  simpl.
-  unfold functor_compose.
-  apply pathsinv0, functor_identity_left.
-Defined.
-
-(* the following lemma cannot be proved and rather should not be considered - the two functors are certainly isomorphic but are not convertible
-Lemma functor_identity_is_precomp_with_id: functor_identity [C,C,hsC] = pre_composition_functor _ _ _ hsC hsC (functor_identity C).
-Proof.
-  apply functor_eq.
-  apply functor_category_has_homsets.
-  simpl.
-  apply (functor_data_eq _ _ aux_functor_identity_is_precomp_with_id).
-  intros F1 F2 σ.
-  simpl.
-  unfold aux_functor_identity_is_precomp_with_id.
-  apply (nat_trans_eq hsC).
-  intro c.
-  simpl.
-  (* no remaining idea *)
-*)
+(** an alternative approach would be to go through θ_from_δ_Signature, based on the
+observation that functor_identity [C,C,hsC] and
+pre_composition_functor _ _ _ hsC hsC (functor_identity C) are isomorphic;
+however, they are probably not propositionally equal, and so the benefit is marginal *)
 
 End id_signature.
 
@@ -602,9 +583,7 @@ eapply pathscomp0.
         rewrite assoc.
         generalize (nat_trans_eq_pointwise (nat_trans_ax θ (F1,,X1)(F2,,X2) (α,,X)) c); simpl.
         intro Hyp.
-        eapply pathscomp0.
-        ++ eapply Hyp.
-        ++ apply idpath.
+        apply Hyp.
 Qed.
 
 Definition Gθ : θ_source GH ⟶ θ_target GH :=
@@ -624,9 +603,7 @@ eapply pathscomp0.
     * eapply maponpaths.
       generalize (nat_trans_eq_pointwise (θ_strength1 F) c); simpl.
       intro Hyp.
-      eapply pathscomp0.
-        ++ eapply pathsinv0, Hyp.
-        ++ apply idpath.
+      apply pathsinv0, Hyp.
 Qed.
 
 Lemma Gθ_Strength2_int : θ_Strength2_int Gθ.
@@ -643,9 +620,7 @@ eapply pathscomp0.
       generalize (nat_trans_eq_pointwise (θ_strength2 F Ze Ze') c); simpl.
       rewrite id_left.
       intro Hyp.
-      eapply pathscomp0.
-        ++ eapply pathsinv0, Hyp.
-        ++ apply idpath.
+      apply pathsinv0, Hyp.
 Qed.
 
 

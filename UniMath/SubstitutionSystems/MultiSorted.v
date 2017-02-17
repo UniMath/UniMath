@@ -134,11 +134,6 @@ use (foldr _ _ xs).
 + apply functor_identity.
 Defined.
 
-Lemma option_list_cons (s: sort)(xs : list sort) : option_list (cons s xs) = functor_composite (sorted_option_functor s) (option_list xs).
-Proof.
-  now destruct xs.
-Qed.
-
 (** Define a functor F^(l,t)(X) := proj_functor(t) ∘ X ∘ option_functor(l) *)
 Local Lemma exp_functor (lt : list sort × sort) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
