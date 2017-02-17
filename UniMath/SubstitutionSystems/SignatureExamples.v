@@ -43,12 +43,9 @@ Local Notation "'Ptd'" := (precategory_Ptd C hsC).
 (** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C, hsC]) .
 
-
 (** distributivity with laws as a simple form the strength with laws,
     for endofunctors on the base category *)
 Section def_of_δ.
-
-Section about_δ.
 
 Variable G : functor C C.
 
@@ -114,27 +111,20 @@ Definition δ_law2 : UU := ∏ Ze Ze', δ (Ze p• Ze') = D' Ze Ze'.
 
 End δ_laws.
 
-End about_δ.
-
 Definition DistributiveLaw : UU :=
-  ∑ G : functor C C,
-        ∑ δ : nat_trans (δ_source G) (δ_target G) , δ_law1 G δ × δ_law2 G δ.
+        ∑ δ : nat_trans δ_source δ_target , δ_law1 δ × δ_law2 δ.
 
-Coercion DistributiveLaw_Functor (DL : DistributiveLaw) : functor _ _ := pr1 DL.
+Definition δ (DL : DistributiveLaw) : nat_trans δ_source δ_target := pr1 DL.
 
-Definition δ (DL : DistributiveLaw) : nat_trans (δ_source DL) (δ_target DL) := pr1 (pr2 DL).
+Definition distributive_law1 (DL : DistributiveLaw) : δ_law1 _ := pr1 (pr2 DL).
 
-Definition distributive_law1 (DL : DistributiveLaw) : δ_law1 _ _ := pr1 (pr2 (pr2 DL)).
-
-Definition distributive_law2 (DL : DistributiveLaw) : δ_law2 _ _ := pr2 (pr2 (pr2 DL)).
+Definition distributive_law2 (DL : DistributiveLaw) : δ_law2 _ := pr2 (pr2 DL).
 
 End def_of_δ.
 
 Section δ_for_id.
 
-Definition delta_functor_identity : ∑
-  δ : δ_source (functor_identity C) ⟶ δ_target (functor_identity C),
-  δ_law1 _ δ  × δ_law2 _ δ.
+Definition DL_id : DistributiveLaw (functor_identity C).
 Proof.
 mkpair; simpl.
 + mkpair; simpl.
@@ -150,13 +140,6 @@ mkpair; simpl.
   * intros Ze Ze'; apply (nat_trans_eq hsC); intro c; simpl. do 3 rewrite id_left. rewrite id_right. apply pathsinv0. apply functor_id.
 Defined.
 
-Definition DL_id : DistributiveLaw.
-Proof.
-  mkpair.
-  + apply functor_identity.
-  + exact delta_functor_identity.
-Defined.
-
 End δ_for_id.
 
 (** Construct θ in a Signature in the case when the functor is
@@ -164,9 +147,8 @@ End δ_for_id.
     distributive laws δ *)
 Section θ_from_δ.
 
-Variable DL : DistributiveLaw.
-
-Let G := DistributiveLaw_Functor DL.
+Variable G : functor C C.
+Variable DL : DistributiveLaw G.
 
 Let precompG := (pre_composition_functor _ _ _ hsC hsC G).
 
@@ -175,7 +157,7 @@ Definition θ_from_δ_mor (XZe : [C, C, hsC] XX Ptd) :
 Proof.
 set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
 set (F1 := α_functor G Z X).
-set (F2 := post_whisker (δ DL (pr2 XZe)) X).
+set (F2 := post_whisker (δ G DL (pr2 XZe)) X).
 set (F3 := α_functor_inv Z G X).
 apply (nat_trans_comp F3 (nat_trans_comp F2 F1)).
 Defined.
@@ -185,7 +167,7 @@ Lemma is_nat_trans_θ_from_δ_mor :
 Proof.
 intros [F1 X1] [F2 X2] [α X]; simpl in *.
 apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_right, !id_left.
-generalize (nat_trans_eq_pointwise (nat_trans_ax (δ DL) X1 X2 X) c); simpl.
+generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G DL) X1 X2 X) c); simpl.
 rewrite id_left, functor_id, id_right.
 intros H.
 rewrite <- assoc.
@@ -208,7 +190,7 @@ intro F.
 apply (nat_trans_eq hsC); intro c; simpl.
 rewrite id_left, !id_right.
 eapply pathscomp0;
-  [eapply maponpaths, (nat_trans_eq_pointwise (distributive_law1 DL) c)|].
+  [eapply maponpaths, (nat_trans_eq_pointwise (distributive_law1 G DL) c)|].
 apply functor_id.
 Qed.
 
@@ -218,7 +200,7 @@ Proof.
 intros F Ze Ze'; simpl.
 set (Z := pr1 Ze); set (Z' := pr1 Ze').
 apply (nat_trans_eq hsC); intro c; simpl.
-generalize (nat_trans_eq_pointwise (distributive_law2 DL Ze Ze') c); simpl.
+generalize (nat_trans_eq_pointwise (distributive_law2 G DL Ze Ze') c); simpl.
 rewrite !id_left, !id_right; intro H.
 eapply pathscomp0;
   [eapply maponpaths, H|].
@@ -237,23 +219,26 @@ End θ_from_δ.
 (* Composition of δ's *)
 Section δ_mul.
 
-Variable DL1 DL2: DistributiveLaw.
+  Variable G1 : functor C C.
+  Variable DL1 : DistributiveLaw G1.
+  Variable G2 : functor C C.
+  Variable DL2 : DistributiveLaw G2.
 
 Definition δ_comp_mor (Ze : ptd_obj C) :
-       functor_composite_data (pr1 Ze) (functor_composite_data DL1 DL2)
-   ⟶ functor_composite_data (functor_composite_data DL1 DL2) (pr1 Ze).
+       functor_composite_data (pr1 Ze) (functor_composite_data G1 G2)
+   ⟶ functor_composite_data (functor_composite_data G1 G2) (pr1 Ze).
 Proof.
 set (Z := pr1 Ze).
-set (F1 := α_functor_inv Z DL1 DL2).
-set (F2 := post_whisker (δ DL1 Ze) DL2).
-set (F3 := α_functor DL1 Z DL2).
-set (F4 := pre_whisker DL1 (δ DL2 Ze)).
-set (F5 := α_functor_inv DL1 DL2 Z).
+set (F1 := α_functor_inv Z G1 G2).
+set (F2 := post_whisker (δ G1 DL1 Ze) G2).
+set (F3 := α_functor G1 Z G2).
+set (F4 := pre_whisker G1 (δ G2 DL2 Ze)).
+set (F5 := α_functor_inv G1 G2 Z).
 exact (nat_trans_comp F1 (nat_trans_comp F2 (nat_trans_comp F3 (nat_trans_comp F4 F5)))).
 Defined.
 
-Lemma is_nat_trans_δ_comp_mor : is_nat_trans (δ_source (DL2 • DL1 : [C,C,hsC]))
-                                             (δ_target (DL2 • DL1 : [C,C,hsC])) δ_comp_mor.
+Lemma is_nat_trans_δ_comp_mor : is_nat_trans (δ_source (G2 • G1 : [C,C,hsC]))
+                                             (δ_target (G2 • G1 : [C,C,hsC])) δ_comp_mor.
 Proof.
 intros [Z e] [Z' e'] [α X]; simpl in *.
 apply (nat_trans_eq hsC); intro c; simpl; rewrite functor_id, !id_right, !id_left.
@@ -262,39 +247,39 @@ eapply pathscomp0.
   eapply cancel_postcomposition, pathsinv0, functor_comp.
 eapply pathscomp0.
   eapply cancel_postcomposition, maponpaths.
-  generalize (nat_trans_eq_pointwise (nat_trans_ax (δ DL1) (Z,,e) (Z',, e') (α,,X)) c).
+  generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G1 DL1) (Z,,e) (Z',, e') (α,,X)) c).
   simpl; rewrite id_left, functor_id, id_right; intro H1.
   apply H1.
 rewrite functor_comp, <- assoc.
 eapply pathscomp0.
   eapply maponpaths.
-  generalize (nat_trans_eq_pointwise (nat_trans_ax (δ DL2) (Z,,e) (Z',, e') (α,,X)) (DL1 c)).
+  generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G2 DL2) (Z,,e) (Z',, e') (α,,X)) (G1 c)).
   simpl; rewrite id_left, functor_id, id_right; intro H2.
   apply H2.
 now rewrite assoc.
 Qed.
 
-Definition δ_comp : δ_source (DL2 • DL1 : [C,C,hsC]) ⟶ δ_target (DL2 • DL1 : [C,C,hsC]) :=
+Definition δ_comp : δ_source (G2 • G1 : [C,C,hsC]) ⟶ δ_target (G2 • G1 : [C,C,hsC]) :=
   tpair _ δ_comp_mor is_nat_trans_δ_comp_mor.
 
-Lemma δ_comp_law1 : δ_law1 (DL2 • DL1 : [C,C,hsC]) δ_comp.
+Lemma δ_comp_law1 : δ_law1 (G2 • G1 : [C,C,hsC]) δ_comp.
 Proof.
 apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_left, id_right.
 eapply pathscomp0.
-  eapply maponpaths, (nat_trans_eq_pointwise (distributive_law1 DL2) (DL1 c)).
+  eapply maponpaths, (nat_trans_eq_pointwise (distributive_law1 G2 DL2) (G1 c)).
 eapply pathscomp0.
-  eapply cancel_postcomposition, maponpaths, (nat_trans_eq_pointwise (distributive_law1 DL1) c).
+  eapply cancel_postcomposition, maponpaths, (nat_trans_eq_pointwise (distributive_law1  G1 DL1) c).
 now rewrite id_right; apply functor_id.
 Qed.
 
-Lemma δ_comp_law2 : δ_law2 (DL2 • DL1 : [C,C,hsC]) δ_comp.
+Lemma δ_comp_law2 : δ_law2 (G2 • G1 : [C,C,hsC]) δ_comp.
 Proof.
 intros Ze Ze'.
 apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_left, !id_right.
 eapply pathscomp0.
-  eapply cancel_postcomposition, maponpaths, (nat_trans_eq_pointwise (distributive_law2 DL1 Ze Ze') c).
+  eapply cancel_postcomposition, maponpaths, (nat_trans_eq_pointwise (distributive_law2 G1 DL1 Ze Ze') c).
 eapply pathscomp0.
-  eapply maponpaths, (nat_trans_eq_pointwise (distributive_law2 DL2 Ze Ze') (DL1 c)).
+  eapply maponpaths, (nat_trans_eq_pointwise (distributive_law2 G2 DL2 Ze Ze') (G1 c)).
 simpl; rewrite !id_left, !id_right.
 eapply pathscomp0.
   eapply cancel_postcomposition, functor_comp.
@@ -302,16 +287,14 @@ rewrite <- !assoc.
 apply maponpaths.
 rewrite assoc.
 eapply pathscomp0.
-  eapply cancel_postcomposition, (nat_trans_ax (δ DL2 Ze') _ _ (pr1 (δ DL1 Ze) c)).
+  eapply cancel_postcomposition, (nat_trans_ax (δ G2 DL2 Ze') _ _ (pr1 (δ G1 DL1 Ze) c)).
 simpl; rewrite <- !assoc.
 now apply maponpaths, pathsinv0, functor_comp.
 Qed.
 
-Definition DL_comp : DistributiveLaw.
+Definition DL_comp : DistributiveLaw (G2 • G1 : [C,C,hsC]).
 Proof.
 mkpair.
-+ exact (DL2 • DL1 : [C,C,hsC]).
-+ mkpair.
   * exact δ_comp.
   * split.
     - exact δ_comp_law1.
@@ -429,18 +412,16 @@ apply pathsinv0, BinCoproductArrowUnique.
   now apply maponpaths, BinCoproductIn2Commutes.
 Qed.
 
-Definition genoption_DistributiveLaw : DistributiveLaw.
+Definition genoption_DistributiveLaw : DistributiveLaw genopt.
 Proof.
-  mkpair.
-  + exact genopt.
-  + exists δ_genoption.
+exists δ_genoption.
     split.
     * exact δ_law1_genoption.
     * exact δ_law2_genoption.
 Defined.
 
 Definition precomp_genoption_Signature : Signature C hsC C hsC :=
-  θ_from_δ_Signature genoption_DistributiveLaw.
+  θ_from_δ_Signature genopt genoption_DistributiveLaw.
 
 
 End genoption_sig.
@@ -458,7 +439,7 @@ Section option_sig.
   Definition δ_law2_option :=  δ_law2_genoption TC CC.
 
 
-  Definition option_DistributiveLaw : DistributiveLaw :=
+  Definition option_DistributiveLaw : DistributiveLaw opt :=
     genoption_DistributiveLaw TC CC.
   Definition precomp_option_Signature : Signature C hsC C hsC :=
     precomp_genoption_Signature TC CC.
@@ -468,9 +449,10 @@ End option_sig.
 (** Define δ for G = F^n *)
 Section iter1_dl.
 
-Variable DL : DistributiveLaw.
+Variable G : functor C C.
+Variable DL : DistributiveLaw G.
 
-Definition DL_iter_functor1 (n: nat) : DistributiveLaw.
+Definition DL_iter_functor1 (n: nat) : DistributiveLaw (iter_functor1 G n).
 Proof.
 induction n as [|n IHn].
 - exact DL.
@@ -478,13 +460,6 @@ induction n as [|n IHn].
   + apply IHn.
   + exact DL.
 Defined.
-
-Lemma functor_in_DL_iter_functor1_ok n: DistributiveLaw_Functor (DL_iter_functor1 n) = iter_functor1 DL n.
-Proof.
-induction n as [|n IHn].
-- apply idpath.
-- simpl. rewrite IHn. apply idpath.
-Qed.
 
 End iter1_dl.
 
@@ -515,7 +490,59 @@ Defined.
 Definition IdSignature : Signature C hsC C hsC :=
   tpair _ (functor_identity _) θ_functor_identity.
 
+
+(** an alternative approach would be to go through θ_from_δ_Signature, based on the following observtions *)
+Lemma aux_functor_identity_is_precomp_with_id (F: functor_precategory_data C C) : (pr1 (functor_identity_data (functor_precategory_data C C))) F = (pr1 (pre_composition_functor_data C C C hsC hsC (functor_identity C))) F.
+Proof.
+  simpl.
+  unfold functor_compose.
+  apply pathsinv0, functor_identity_left.
+Defined.
+
+(* the following lemma cannot be proved and rather should not be considered - the two functors are certainly isomorphic but are not convertible
+Lemma functor_identity_is_precomp_with_id: functor_identity [C,C,hsC] = pre_composition_functor _ _ _ hsC hsC (functor_identity C).
+Proof.
+  apply functor_eq.
+  apply functor_category_has_homsets.
+  simpl.
+  apply (functor_data_eq _ _ aux_functor_identity_is_precomp_with_id).
+  intros F1 F2 σ.
+  simpl.
+  unfold aux_functor_identity_is_precomp_with_id.
+  apply (nat_trans_eq hsC).
+  intro c.
+  simpl.
+  (* no remaining idea *)
+*)
+
 End id_signature.
+
+Section constantly_constant_signature.
+
+  Variable (C D : Precategory).
+  Variable (d : D).
+
+  Let H := constant_functor (functor_Precategory C C) (functor_Precategory C D) (constant_functor C D d).
+
+  Definition θ_const_const : ∑
+  θ : θ_source H  ⟶ θ_target H, θ_Strength1_int θ × θ_Strength2_int θ.
+Proof.
+mkpair; simpl.
++ mkpair; simpl.
+  * intro x.
+    { mkpair.
+      - intro y; simpl; apply identity.
+      - abstract (now intros y y' f; rewrite id_left, id_right).
+    }
+  * abstract (now intros y y' f; apply (nat_trans_eq (homset_property D)); intro z;
+                  simpl; rewrite id_left, id_right).
++ now split; intros x; intros; apply (nat_trans_eq (homset_property D)); intro c; simpl; rewrite !id_left.
+Defined.
+
+Definition ConstConstSignature : Signature _ (homset_property C) _ (homset_property D) :=
+  tpair _ H θ_const_const.
+
+  End constantly_constant_signature.
 
 (** Transform a signature with strength θ with underlying functor H into
     a signature with strength Gθ for the functor that comes from

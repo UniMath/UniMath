@@ -132,6 +132,11 @@ use (foldr _ _ xs).
 + apply functor_identity.
 Defined.
 
+Lemma option_list_cons (s: sort)(xs : list sort) : option_list (cons s xs) = functor_composite (sorted_option_functor s) (option_list xs).
+Proof.
+  now destruct xs.
+Qed.
+
 (** Define a functor F^(l,t)(X) := proj_functor(t) ∘ X ∘ option_functor(l) *)
 Local Lemma exp_functor (lt : list sort × sort) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
@@ -146,13 +151,12 @@ Defined.
 Local Definition exp_functor_list (xs : list (list sort × sort)) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
 Proof.
-(* Apply the exp functor to every element of the list *)
-set (XS := map exp_functor xs).
 (* If the list is empty we output the constant functor *)
 set (T := constant_functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET]
                            (constant_functor SET_over_sort HSET TerminalHSET)).
 (* TODO: Maybe use indexed finite products instead of a fold? *)
-use (foldr1 (fun F G => BinProduct_of_functors _ _ _ F G) T XS).
+(* foldr1 was used previously *)
+use (foldr (fun F G => BinProduct_of_functors _ _ _ (exp_functor F) G) T xs).
 apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
 
@@ -184,55 +188,49 @@ End functor.
 Section strength.
 
 (* the DL for sorted_option_functor *)
-Local Definition DL_sorted_option_functor (s : sort) : DistributiveLaw _ hs :=
+Local Definition DL_sorted_option_functor (s : sort) : DistributiveLaw _ hs (sorted_option_functor s) :=
     genoption_DistributiveLaw _ hs (constHSET_slice s)(BinCoproducts_HSET_slice sort).
 
-Lemma functor_in_DL_sorted_option_functor_ok (s : sort) : DistributiveLaw_Functor _ _ (DL_sorted_option_functor s) = sorted_option_functor s.
-Proof.
-  apply idpath.
-Qed.
-
 (* the DL for option_list *)
-Local Definition DL_option_list (xs : list sort) : DistributiveLaw _ hs.
+Local Definition DL_option_list (xs : list sort) : DistributiveLaw _ hs (option_list xs).
 Proof.
-use (foldr _ _ xs).
-+ intros s DL.
-  apply (DL_comp _ _ (DL_sorted_option_functor s) DL).
+apply (list_ind (fun xs => DistributiveLaw _ hs (option_list xs))).
 + apply DL_id.
++ intros s xs' IH. destruct xs'. (* therefore no need to use Lemma option_list_cons *)
+  apply (DL_comp _ _ _ (DL_sorted_option_functor s) _ IH).
 Defined.
-
-Lemma functor_in_DL_option_list_ok (xs : list sort) : DistributiveLaw_Functor _ _ (DL_option_list xs) = option_list xs.
-Proof.
-apply (list_ind (fun xs => DistributiveLaw_Functor _ _ (DL_option_list xs) = option_list xs)).
-+ apply idpath.
-+ intros s xs' IH.
-  unfold option_list.
-  rewrite foldr_cons.
-  unfold DL_option_list.
-  rewrite foldr_cons.
-  unfold option_list in IH.
-  rewrite <- IH.
-  apply idpath.
-Qed.
 
 (* the signature for exp_functor *)
 Local Definition Sig_exp_functor (lt : list sort × sort) : Signature _ hs _ has_homsets_HSET.
 Proof.
-set (Sig_option_list := θ_from_δ_Signature _ hs (DL_option_list (pr1 lt))).
+set (Sig_option_list := θ_from_δ_Signature _ hs (option_list (pr1 lt)) (DL_option_list (pr1 lt))).
 apply (Gθ_Signature _ _ _ _ _ _ Sig_option_list (proj_functor (pr2 lt))).
 Defined.
 
 Lemma functor_in_Sig_exp_functor_ok (lt : list sort × sort) : Signature_Functor _ _ _ _ (Sig_exp_functor lt) = exp_functor lt.
 Proof.
-  simpl.
-  rewrite functor_in_DL_option_list_ok.
   apply idpath.
 Qed.
 
 (* the signature for exp_functor_list *)
 Local Definition Sig_exp_functor_list (xs : list (list sort × sort)) : Signature _ hs _ has_homsets_HSET.
 Proof.
-Admitted.
+set (T := (ConstConstSignature SET_over_sort SET  TerminalHSET) :  Signature _ hs _ has_homsets_HSET).
+use (foldr (fun F G => BinProduct_of_Signatures  _ _ _ _ _ (Sig_exp_functor F) G) T xs).
+apply BinProductsHSET.
+Defined.
+
+Lemma functor_in_Sig_exp_functor_list_ok (xs : list (list sort × sort)) : Signature_Functor _ _ _ _ (Sig_exp_functor_list xs) = exp_functor_list xs.
+Proof.
+apply (list_ind (fun xs => Signature_Functor _ _ _ _ (Sig_exp_functor_list xs) = exp_functor_list xs)).
++ apply idpath.
++ clear xs; intros x xs IH.
+  unfold Sig_exp_functor_list, exp_functor_list.
+  do 2 rewrite foldr_cons.
+  simpl.
+  apply maponpaths.
+  apply IH.
+Qed.
 
 (* the signature for hat_exp_functor_list *)
 Local Definition Sig_hat_exp_functor_list (xst : list (list sort × sort) × sort) : Signature _ hs _ hs.
@@ -240,8 +238,15 @@ Proof.
 apply (Gθ_Signature _ _ _ _ _ _ (Sig_exp_functor_list (pr1 xst)) (hat_functor (pr2 xst))).
 Defined.
 
+Lemma functor_in_Sig_hat_exp_functor_list_ok (xst : list (list sort × sort) × sort) : Signature_Functor _ _ _ _ (Sig_hat_exp_functor_list xst) = hat_exp_functor_list xst.
+Proof.
+  simpl.
+  rewrite functor_in_Sig_exp_functor_list_ok.
+  apply idpath.
+Qed.
 
 (* the signature for MultiSortedSigToFunctor *)
+Definition MultiSortedSigToSignature
 
 (* UNFINISHED *)
 
