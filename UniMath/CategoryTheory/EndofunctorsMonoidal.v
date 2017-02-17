@@ -28,16 +28,16 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-(** There is a monoidal structure on endofunctors, given by composition.  While
+(** There is a monoidal structure on endofunctors, given by composition. While
     this is considered to be strict in set-theoretic category theory, it ain't
-    strict in type theory with respect to convertibility.  So we consider it to
+    strict in type theory with respect to convertibility. So we consider it to
     be a weak monoidal structure instead. However, pointwise, it suffices to
     take the identity for all those natural transformations (the identity is
     also behind the definition of nat_trans_functor_assoc).
 
     To understand the need for this structure even better, notice that the
     proofs of functor axioms for one composition in the unitality and
-    associativity properties are slightly different from the proofs for another
+    associativity properties are slightly different from the proofs for the other
     and because of it the composition of functors is not strictly unital or
     associative. However, these proofs are not used in the definition of natural
     transformations, to be precise only functor_data is used, and the
@@ -73,5 +73,41 @@ Definition α_functor (X : functor C D)(Y : functor D E)(Z : functor E F) :
 Definition α_functor_inv (X : functor C D)(Y : functor D E)(Z : functor E F) :
   nat_trans (functor_composite X (functor_composite Y Z))
             (functor_composite (functor_composite X Y) Z) := α_functor X Y Z.
+
+
+
+(** we show that, propositionally, both functors are equal, for each of the three pairs of functors *)
+Lemma motivation_ρ_functor (hsD : has_homsets D)(X : functor C D) : functor_composite X (functor_identity D) = X.
+Proof.
+  apply functor_eq.
+  exact hsD.
+  simpl.
+  destruct X as [data laws].
+  destruct data as [onobs onmorphs].
+  apply idpath.
+Qed.
+
+Lemma motivation_λ_functor (hsD : has_homsets D)(X : functor C D) : functor_composite (functor_identity C) X = X.
+Proof.
+  apply functor_eq.
+  exact hsD.
+  simpl.
+  destruct X as [data laws].
+  destruct data as [onobs onmorphs].
+  apply idpath.
+Qed.
+
+Lemma motivation_α_functor (hsF : has_homsets F)(X : functor C D)(Y : functor D E)(Z : functor E F) :
+  functor_composite (functor_composite X Y) Z = functor_composite X (functor_composite Y Z).
+Proof.
+  apply functor_eq.
+  exact hsF.
+  simpl.
+  destruct X as [data laws].
+  destruct data as [onobs onmorphs].
+  apply idpath.
+Qed.
+
+(** these laws do not help in type-checking definitions which is why the above transformations are needed *)
 
 End Monoidal_Structure_on_Endofunctors.
