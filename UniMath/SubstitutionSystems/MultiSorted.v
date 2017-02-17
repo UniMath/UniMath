@@ -13,6 +13,8 @@ Written by: Anders Mörtberg, 2016. The formalization follows a note
 written by Benedikt Ahrens and Ralph Matthes, and is also inspired by
 discussions with them and Vladimir Voevodsky.
 
+Strength calculation added by Ralph Matthes, 2017.
+
 *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
