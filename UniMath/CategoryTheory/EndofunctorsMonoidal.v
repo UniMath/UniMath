@@ -76,7 +76,10 @@ Definition α_functor_inv (X : functor C D)(Y : functor D E)(Z : functor E F) :
 
 
 
-(** we show that, propositionally, both functors are equal, for each of the three pairs of functors *)
+(** as a motivation, we show here that, propositionally, both functors are equal, for each
+    of the three pairs of functors; the extra assumption on having homsets is only used in order
+    to have simple proofs, it is not necessary, as shown in Section "functor_equalities" in
+    functor_categories.v: Lemmas functor_identity_left, functor_identity_right and functor_assoc *)
 Lemma motivation_ρ_functor (hsD : has_homsets D)(X : functor C D) : functor_composite X (functor_identity D) = X.
 Proof.
   apply functor_eq.
@@ -108,6 +111,6 @@ Proof.
   apply idpath.
 Qed.
 
-(** these laws do not help in type-checking definitions which is why the above transformations are needed *)
+(** these laws do not help in type-checking definitions which is why the transformations further above are needed *)
 
 End Monoidal_Structure_on_Endofunctors.
