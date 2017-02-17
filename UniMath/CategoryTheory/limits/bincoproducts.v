@@ -941,15 +941,30 @@ Defined.
 
 End def_functor_pointwise_coprod.
 
+
+Section generalized_option_functors.
+
+Context {C : precategory} (CC : BinCoproducts C).
+
+(* The functors "a + _" and "_ + a" *)
+Definition constcoprod_functor1 (a : C) : functor C C :=
+  BinCoproduct_of_functors C C CC (constant_functor C C a) (functor_identity C).
+
+Definition constcoprod_functor2 (a : C) : functor C C :=
+  BinCoproduct_of_functors C C CC (functor_identity C) (constant_functor C C a).
+
+
 Section option_functor.
 
-Context {C : precategory} (CC : BinCoproducts C) (TC : Terminal C).
+Context (TC : Terminal C).
 Let one : C := TerminalObject TC.
 
 Definition option_functor : functor C C :=
-  BinCoproduct_of_functors C C CC (constant_functor _ _ one) (functor_identity C).
+  constcoprod_functor1 one.
 
 End option_functor.
+
+End generalized_option_functors.
 
 (** ** Construction of isBinCoproduct from an isomorphism to BinCoproduct. *)
 Section BinCoproduct_from_iso.

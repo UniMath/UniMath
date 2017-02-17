@@ -42,10 +42,10 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
-Arguments θ_source {_ _} _ .
-Arguments θ_target {_ _} _ .
-Arguments θ_Strength1 {_ _ _} _ .
-Arguments θ_Strength2 {_ _ _} _ .
+Arguments θ_source {_ _ _ _} _ .
+Arguments θ_target {_ _ _ _} _ .
+Arguments θ_Strength1 {_ _ _ _ _} _ .
+Arguments θ_Strength2 {_ _ _ _ _} _ .
 
 Section Preparations.
 
@@ -637,7 +637,7 @@ Qed.
 
 (** finally, constitute the 3 signatures *)
 
-Definition App_Sig: Signature C hs.
+Definition App_Sig: Signature C hs C hs.
 Proof.
   exists App_H.
   exists App_θ.
@@ -646,7 +646,7 @@ Proof.
   + exact App_θ_strength2_int.
 Defined.
 
-Definition Abs_Sig: Signature C hs.
+Definition Abs_Sig: Signature C hs C hs.
 Proof.
   exists Abs_H.
   exists Abs_θ.
@@ -655,7 +655,7 @@ Proof.
   + exact Abs_θ_strength2_int.
 Defined.
 
-Definition Flat_Sig: Signature C hs.
+Definition Flat_Sig: Signature C hs C hs.
 Proof.
   exists Flat_H.
   exists Flat_θ.
@@ -664,12 +664,12 @@ Proof.
   + exact Flat_θ_strength2_int.
 Defined.
 
-Definition Lam_Sig: Signature C hs :=
-  BinSum_of_Signatures C hs CC App_Sig Abs_Sig.
+Definition Lam_Sig: Signature C hs C hs :=
+  BinSum_of_Signatures C hs C hs CC App_Sig Abs_Sig.
 
 Lemma is_omega_cocont_Lam
   (hE : ∏ x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C CP hs) x))
-  (LC : Colims_of_shape nat_graph C) : is_omega_cocont (Signature_Functor _ _ Lam_Sig).
+  (LC : Colims_of_shape nat_graph C) : is_omega_cocont (Signature_Functor _ _ _ _ Lam_Sig).
 Proof.
 apply is_omega_cocont_BinCoproduct_of_functors.
 - apply (BinProducts_functor_precat _ _ CP).
@@ -679,7 +679,7 @@ apply is_omega_cocont_BinCoproduct_of_functors.
 - apply (is_omega_cocont_Abs_H LC).
 Defined.
 
-Definition LamE_Sig: Signature C hs :=
-  BinSum_of_Signatures C hs CC Lam_Sig Flat_Sig.
+Definition LamE_Sig: Signature C hs C hs :=
+  BinSum_of_Signatures C hs C hs CC Lam_Sig Flat_Sig.
 
 End Lambda.
