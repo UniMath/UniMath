@@ -54,15 +54,7 @@ Require Import UniMath.SubstitutionSystems.Notation.
 
 Local Coercion alg_carrier : algebra_ob >-> ob.
 
-
-Arguments θ_source {_ _ _ _} _ .
-Arguments θ_target {_ _ _ _} _ .
-Arguments θ_Strength1 {_ _ _ _ _} _ .
-Arguments θ_Strength2 {_ _ _ _ _} _ .
-
 Section Precategory_Algebra.
-
-
 
 Variable C : precategory.
 Variable hs : has_homsets C.

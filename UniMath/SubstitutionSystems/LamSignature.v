@@ -42,10 +42,6 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
-Arguments θ_source {_ _ _ _} _ .
-Arguments θ_target {_ _ _ _} _ .
-Arguments θ_Strength1 {_ _ _ _ _} _ .
-Arguments θ_Strength2 {_ _ _ _ _} _ .
 
 Section Preparations.
 
