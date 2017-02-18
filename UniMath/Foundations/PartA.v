@@ -869,6 +869,12 @@ Proof.
   apply idpath.
 Defined.
 
+Lemma total2_section_path {X:UU} {Y:X->UU} (a:X) (b:Y a) (e:∏ x, Y x) : (a,,e a) = (a,,b) -> e a = b.
+(* this is called "Voldemort's theorem" by David McAllester, https://arxiv.org/pdf/1407.7274.pdf *)
+Proof.
+  intros ? ? ? ? ? p. simple refine (_ @ fiber_paths p). unfold base_paths. simpl.
+  apply pathsinv0, transport_section.
+Defined.
 
 (** *** Lemmas about transport adapted from the HoTT library and the HoTT book *)
 
