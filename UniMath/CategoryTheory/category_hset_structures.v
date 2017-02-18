@@ -732,6 +732,12 @@ Proof.
 now apply BinProducts_slice_precat, PullbacksHSET.
 Defined.
 
+Lemma BinCoproducts_HSET_slice X : BinCoproducts (HSET / X).
+Proof.
+now apply BinCoproducts_slice_precat, BinCoproductsHSET.
+Defined.
+
+
 (** Direct proof that HSET/X has exponentials using explicit formula in example 2.2 of:
 
     https://ncatlab.org/nlab/show/locally+cartesian+closed+category#in_category_theory
