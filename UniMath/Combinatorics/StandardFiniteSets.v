@@ -35,7 +35,7 @@ Notation " 'stnel' ( i , j ) " := ( (j,,idpath _) : stn i ) ( at level 70 ) .
 
 Delimit Scope stn with stn.
 
-Notation "● x" := (x ,, idpath _) (at level 35) : stn.
+Notation "● i" := (i ,, (idpath _ : natgtb _ _ = _)) (at level 35) : stn.
 
 Lemma isinclstntonat ( n : nat ) : isincl ( stntonat n ) .
 Proof. intro .  refine (isinclpr1 _ _) .  intro x .  apply ( pr2 ( natlth x n ) ) .  Defined.
