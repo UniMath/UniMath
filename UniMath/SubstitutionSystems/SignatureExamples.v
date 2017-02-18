@@ -67,7 +67,7 @@ split; simpl.
 - intro Ze.
   apply (nat_trans_eq hsC).
   now intro c; simpl; rewrite functor_id, id_right.
-- intros [Z e] [Z' e'] [Z'' e''] [α a] [β b].
+- intros H1 H2 H3 H4 H5; induction H1 as [Z e]; induction H2 as [Z' e']; induction H3 as [Z'' e'']; induction H4 as [α a]; induction H5 as [β b].
   apply (nat_trans_eq hsC); intro c; simpl in *.
   now rewrite !id_left, functor_comp.
 Qed.
@@ -90,7 +90,7 @@ split; simpl.
 - intro Ze.
   apply (nat_trans_eq hsC).
   now intro c; simpl; rewrite functor_id, id_right.
-- intros [Z e] [Z' e'] [Z'' e''] [α a] [β b].
+- intros H1 H2 H3 H4 H5; induction H1 as [Z e]; induction H2 as [Z' e']; induction H3 as [Z'' e'']; induction H4 as [α a]; induction H5 as [β b].
   apply (nat_trans_eq hsC); intro c; simpl in *.
   now rewrite !functor_id, !id_right.
 Qed.
@@ -167,7 +167,7 @@ Defined.
 Lemma is_nat_trans_θ_from_δ_mor :
    is_nat_trans (θ_source precompG) (θ_target precompG) θ_from_δ_mor.
 Proof.
-intros [F1 X1] [F2 X2] [α X]; simpl in *.
+intros H1 H2 H3; induction H1 as [F1 X1]; induction H2 as [F2 X2];induction H3 as [α X]; simpl in *.
 apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_right, !id_left.
 generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G DL) X1 X2 X) c); simpl.
 rewrite id_left, functor_id, id_right.
@@ -242,7 +242,7 @@ Defined.
 Lemma is_nat_trans_δ_comp_mor : is_nat_trans (δ_source (G2 • G1 : [C,C,hsC]))
                                              (δ_target (G2 • G1 : [C,C,hsC])) δ_comp_mor.
 Proof.
-intros [Z e] [Z' e'] [α X]; simpl in *.
+intros Ze Z'e' αX; induction Ze as [Z e]; induction Z'e' as [Z' e']; induction αX as [α X]; simpl in *.
 apply (nat_trans_eq hsC); intro c; simpl; rewrite functor_id, !id_right, !id_left.
 eapply pathscomp0.
   rewrite assoc.
@@ -325,7 +325,7 @@ Lemma is_nat_trans_δ_genoption_mor (Ze : Ptd) :
      (δ_genoption_mor Ze).
 Proof.
 intros a b f; simpl.
-destruct Ze as [Z e].
+induction Ze as [Z e].
 unfold BinCoproduct_of_functors_mor; simpl.
 eapply pathscomp0.
   apply precompWithBinCoproductArrow.
@@ -353,7 +353,7 @@ Lemma is_nat_trans_δ_genoption_mor_nat_trans : is_nat_trans (δ_source_functor_
      (δ_target_functor_data genopt)
      (λ Ze : Ptd, δ_genoption_mor Ze,, is_nat_trans_δ_genoption_mor Ze).
 Proof.
-intros [Z e] [Z' e'] [α X]; simpl in *.
+intro Ze; induction Ze as [Z e]; intro Z'e'; induction Z'e' as [Z' e']; intro αX; induction αX as [α X]; simpl in *.
 apply (nat_trans_eq hsC); intro c; simpl.
 rewrite id_left, functor_id, id_right.
 unfold BinCoproduct_of_functors_mor, BinCoproduct_of_functors_ob, δ_genoption_mor; simpl.
@@ -390,7 +390,7 @@ Qed.
 
 Lemma δ_law2_genoption : δ_law2 genopt δ_genoption.
 Proof.
-intros [Z e] [Z' e'].
+intros Ze Z'e'; induction Ze as [Z e]; induction Z'e' as [Z' e'].
 apply (nat_trans_eq hsC); intro c; simpl.
 unfold δ_genoption_mor, BinCoproduct_of_functors_ob; simpl.
 rewrite !id_left, id_right.
@@ -570,7 +570,7 @@ Defined.
 Lemma is_nat_trans_Gθ_mor :
    is_nat_trans (θ_source GH) (θ_target GH) Gθ_mor.
 Proof.
-intros [F1 X1] [F2 X2] [α X]; simpl in *.
+intros H1 H2 H3; induction H1 as [F1 X1]; induction H2 as [F2 X2]; induction H3 as [α X]; simpl in *.
 apply (nat_trans_eq hsE); intro c; simpl.
 do 2 rewrite <- assoc.
 do 2 rewrite id_left.
@@ -583,7 +583,7 @@ eapply pathscomp0.
       * eapply maponpaths.
         apply pathsinv0.
         rewrite assoc.
-        generalize (nat_trans_eq_pointwise (nat_trans_ax θ (F1,,X1)(F2,,X2) (α,,X)) c); simpl.
+        generalize (nat_trans_eq_pointwise (nat_trans_ax θ (F1,,X1)(F2,,X2)(α,,X)) c); simpl.
         intro Hyp.
         apply Hyp.
 Qed.
