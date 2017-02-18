@@ -230,8 +230,7 @@ Proof.
       * apply funextfun; intro f.
         eapply pathscomp0.
         { apply ϕ₁_is_comp. }
-        symmetry
-        .
+        symmetry.
         eapply pathscomp0.
         { apply ϕ₁_is_comp. }
         rewrite H. apply idpath.
