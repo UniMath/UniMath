@@ -30,12 +30,6 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
 
-Arguments θ_source {_ _ _ _} _ .
-Arguments θ_target {_ _ _ _} _ .
-Arguments θ_Strength1 {_ _ _ _ _} _ .
-Arguments θ_Strength2 {_ _ _ _ _} _ .
-Arguments θ_Strength1_int {_ _ _ _ _} _ .
-Arguments θ_Strength2_int {_ _ _ _ _} _ .
 
 Section binproduct_of_signatures.
 

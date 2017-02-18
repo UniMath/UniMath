@@ -258,34 +258,29 @@ Lemma θ_Strength2_int_implies_θ_Strength2 : θ_Strength2_int → θ_Strength2.
 Proof.
   unfold θ_Strength2_int, θ_Strength2.
   intros T X Z Z' Y a.
-  assert (TXZZ' := T X Z Z').
   apply nat_trans_eq; try assumption.
   intro c.
-  simpl.
+
+  assert (TXZZ' := T X Z Z').
   assert (TXZZ'c := nat_trans_eq_pointwise TXZZ' c).
   simpl in TXZZ'c.
   clear T TXZZ'.
   rewrite id_left in TXZZ'c.
-  rewrite <- TXZZ'c.
+  simpl. rewrite <- TXZZ'c; clear TXZZ'c.
   rewrite <- assoc.
   apply maponpaths.
-  clear TXZZ'c.
   assert (functor_comp_H := functor_comp H _ _ _ (α_functor (pr1 Z) (pr1 Z') X)
            (a : functor_compose hs hs (U Z) (functor_composite (U Z') X) --> Y)).
   assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
   simpl in functor_comp_H_c.
   eapply pathscomp0.
-Focus 2.
-  apply functor_comp_H_c.
+    Focus 2. apply functor_comp_H_c.
   clear functor_comp_H functor_comp_H_c.
   revert c.
   apply nat_trans_eq_pointwise.
   apply maponpaths.
   apply nat_trans_eq; try assumption.
-  intro c.
-  simpl.
-  rewrite id_left.
-  apply idpath.
+  intro c; apply pathsinv0, id_left.
 Qed.
 
 (* for curiosity also the other direction *)
@@ -312,10 +307,8 @@ Proof.
   revert c.
   apply nat_trans_eq_pointwise.
   apply maponpaths.
-  apply nat_trans_eq; try assumption.
-  intro c.
-  simpl.
-  apply idpath.
+  apply nat_trans_eq; try assumption;
+  intro c; apply idpath.
 Qed.
 
 End Strength_law_2_intensional.
@@ -353,8 +346,8 @@ Proof.
   set (t := θ_nat_1 _ _ α Z).
   set (t' := nat_trans_eq_weq hsD _ _ t c);
   clearbody t';  simpl in t'.
-  set (H':= functor_id (H X') (pr1 (pr1 Z) c));
-  clearbody H'; simpl in H'.
+  assert (H':= functor_id (H X') (pr1 (pr1 Z) c));
+  simpl in H'.
   match goal with |[H1 : ?f ;; _ ;; ?g = _ , H2 : ?x = _ |- _ ] =>
                         pathvia (f ;; x ;; g) end.
   - repeat rewrite <- assoc.
@@ -417,3 +410,9 @@ End fix_a_category.
 
 
 Arguments theta {_ _ _ _} _ .
+Arguments θ_source {_ _ _ _ } _ .
+Arguments θ_target {_ _ _ _ } _ .
+Arguments θ_Strength1 {_ _ _ _ _ } _ .
+Arguments θ_Strength2 {_ _ _ _ _ } _ .
+Arguments θ_Strength1_int {_ _ _ _ _} _ .
+Arguments θ_Strength2_int {_ _ _ _ _} _ .
