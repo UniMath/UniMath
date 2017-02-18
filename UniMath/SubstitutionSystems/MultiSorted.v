@@ -511,7 +511,7 @@ split.
   rewrite !id_left; apply BinCoproductArrowUnique.
   * now rewrite BinCoproductIn1Commutes, assoc.
   * now rewrite BinCoproductIn2Commutes, id_left.
-Qed .(* match expressions in the term *)
+Qed. (* match expressions in the term *)
 
 (* This is Definition 3 (sorted context extension) from the note *)
 Local Definition option_functor (s : sort) : functor sortToC sortToC :=
