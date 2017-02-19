@@ -96,7 +96,7 @@ Definition eqset {X : hSet} (x x' : X) : hProp
 Notation "a = b" := (eqset a b) (at level 70, no associativity) : set.
 
 Definition neqset {X : hSet} (x x' : X) : hProp
-  := hProppair (x != x') (isapropneg _).
+  := hProppair (x != x') (isapropneg _). (* uses funextemptyAxiom *)
 Notation "a != b" := (neqset a b) (at level 70, no associativity) : set.
 Delimit Scope set with set.
 
@@ -2986,5 +2986,18 @@ Proof.
   - apply univalenceAxiom.
   Unset Printing Coercions.
 Defined.
+
+Theorem hSet_rect (X Y : hSet) (P : X ≃ Y -> UU) :
+  (∏ e : X=Y, P (hSet_univalence _ _ e)) -> ∏ f, P f.
+Proof.
+  intros ? ? ? ih ?.
+  Set Printing Coercions.
+  set (p := ih (invmap (hSet_univalence _ _) f)).
+  set (h := homotweqinvweq (hSet_univalence _ _) f).
+  exact (transportf P h p).
+  Unset Printing Coercions.
+Defined.
+
+Ltac hSet_induction f e := generalize f; apply UU_rect; intro e; clear f.
 
 (* End of the file hSet.v *)

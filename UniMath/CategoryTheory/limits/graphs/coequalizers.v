@@ -22,7 +22,7 @@ Section def_coequalizers.
   Variable C : precategory.
   Variable hs: has_homsets C.
 
-  Open Scope stn.
+  Local Open Scope stn.
   Definition One : two := ● 0.
   Definition Two : two := ● 1.
 

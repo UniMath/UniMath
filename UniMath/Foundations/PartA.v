@@ -211,6 +211,11 @@ Definition dirprod_pr2 {X Y : UU} := pr2 : X × Y -> Y.
 
 Definition dirprodpair {X Y : UU} := tpair (fun x : X => Y).
 
+Lemma dirprodEquality {X Y} {w w':X × Y} : pr1 w = pr1 w' -> pr2 w = pr2 w' -> w = w'.
+Proof.
+  intros ? ? ? ? p q. induction w as [x y]. induction w' as [x' y']. simpl in *. now induction p, q.
+Defined.
+
 Definition dirprodadj {X Y Z : UU} (f : dirprod X Y -> Z) : X -> Y -> Z :=
   (fun (x : X) => (fun (y : Y) => f (dirprodpair x y))).
 
@@ -492,6 +497,11 @@ Definition homot {X : UU} {P : X -> UU} (f g : ∏ x : X, P x) :=
 
 Notation "f ~ g" := (homot f g) (at level 70, no associativity).
 
+Definition homotrefl {X Y : UU} {f: X -> Y} : f ~ f.
+Proof.
+  intros ? ? ? x. reflexivity.
+Defined.
+
 Definition homotcomp {X Y : UU} {f f' f'' : X -> Y}
            (h : f ~ f') (h' : f' ~ f'') : f ~ f'' := fun (x : X) => h x @ h' x.
 
@@ -701,9 +711,16 @@ Defined.
 
 Definition transportf_fun {X Y : UU}(P : X -> UU)
            {x1 x2 : X}(e : x1 = x2)(f : P x1 -> Y) :
-  transportf (fun x => (P x -> Y)) e f = funcomp (transportb P e) f .
+  transportf (fun x => (P x -> Y)) e f = f ∘ transportb P e .
 Proof.
   intros. induction e. apply idpath .
+Defined.
+
+Lemma transportb_fun' {X:UU} {P:X->UU} {Z:UU}
+      {x x':X} (f:P x'->Z) (p:x=x') (y:P x) :
+  f (transportf P p y) = transportb (λ x, P x->Z) p f y.
+Proof.
+  intros. now induction p.
 Defined.
 
 Definition transportf_const {X : UU}{x1 x2 : X}(e : x1 = x2)(Y : UU) :
@@ -869,6 +886,12 @@ Proof.
   apply idpath.
 Defined.
 
+Definition total2_base_map {S T:UU} {P: T -> UU} (f : S->T) : (∑ i, P(f i)) -> (∑ j, P j).
+Proof.
+  intros ? ? ? ? x.
+  exact (f(pr1 x),,pr2 x).
+Defined.
+
 Lemma total2_section_path {X:UU} {Y:X->UU} (a:X) (b:Y a) (e:∏ x, Y x) : (a,,e a) = (a,,b) -> e a = b.
 (* this is called "Voldemort's theorem" by David McAllester, https://arxiv.org/pdf/1407.7274.pdf *)
 Proof.
@@ -986,11 +1009,8 @@ Definition iscontrpr1 {T : UU} : iscontr T -> T := pr1.
 Lemma iscontrretract {X Y : UU} (p : X -> Y) (s : Y -> X)
       (eps : ∏ y : Y, p (s y) = y) (is : iscontr X) : iscontr Y.
 Proof.
-  intros.
-  induction is as [x fe].
-  split with (p x).
-  intro t.
-  apply (! (eps t) @ maponpaths p (fe (s t))).
+  intros. set (x := iscontrpr1 is). set (fe := pr2 is). split with (p x).
+  intro t. apply (! (eps t) @ maponpaths p (fe (s t))).
 Defined.
 
 Lemma proofirrelevancecontr {X : UU} (is : iscontr X) (x x' : X) : x = x'.
@@ -1231,7 +1251,7 @@ Definition weqproperty {X Y} (f:X≃Y) : isweq f := pr2 f.
 
 Definition weqccontrhfiber {X Y : UU} (w : X ≃ Y) (y : Y) : hfiber w y.
 Proof.
-  intros. apply (pr1 (pr2 w y)).
+  intros. apply (iscontrpr1 (weqproperty w y)).
 Defined.
 
 Definition weqccontrhfiber2 {X Y : UU} (w : X ≃ Y) (y : Y) :
@@ -1262,8 +1282,16 @@ Defined.
 Definition weqtoempty2 {X Y : UU} (f : X -> Y) (is : ¬ Y) :=
   weqpair _ (isweqtoempty2 f is).
 
+Definition weqempty {X Y : UU} : ¬X → ¬Y → X≃Y.
+Proof.
+  intros ? ? nx ny.
+  use weqpair.
+  - intro x. now apply fromempty, nx.
+  - intro y. now apply fromempty, ny.
+Defined.
+
 Definition invmap {X Y : UU} (w : X ≃ Y) : Y -> X :=
-  fun (y : Y) => pr1 (weqccontrhfiber w y).
+  fun (y : Y) => hfiberpr1 _ _ (weqccontrhfiber w y).
 
 (** *** Weak equivalences and paths spaces (more results in further sections) *)
 
@@ -1357,6 +1385,32 @@ Proof.
 
   apply (! e4 @ e5 @ e1).
 Defined.
+
+Lemma homotweqinv  {X Y Z} (f:X->Z) (w:X≃Y) (g:Y->Z) : f ~ g ∘ w -> f ∘ invmap w ~ g.
+Proof.
+  intros ? ? ? ? ? ? p y.
+  simple refine (p (invmap w y) @ _); clear p.
+  unfold funcomp. apply maponpaths. apply homotweqinvweq.
+Defined.
+
+Lemma homotweqinv' {X Y Z} (f:X->Z) (w:X≃Y) (g:Y->Z) : f ~ g ∘ w <- f ∘ invmap w ~ g.
+Proof.
+  intros ? ? ? ? ? ? q x.
+  simple refine (_ @ q (w x)).
+  unfold funcomp. apply maponpaths, pathsinv0. apply homotinvweqweq.
+Defined.
+
+Definition isinjinvmap {X Y} (v w:X≃Y) : invmap v ~ invmap w -> v ~ w.
+Proof. intros ? ? ? ? h x.
+  intermediate_path (w ((invmap w) (v x))).
+  { apply pathsinv0. apply homotweqinvweq. }
+  rewrite <- h. rewrite homotinvweqweq. reflexivity. Defined.
+
+Definition isinjinvmap' {X Y} (v w:X->Y) (v' w':Y->X) : w ∘ w' ~ idfun Y -> v' ∘ v ~ idfun X -> v' ~ w' -> v ~ w.
+Proof. intros ? ? ? ? ? ? p q h x .
+  intermediate_path (w (w' (v x))).
+  { apply pathsinv0. apply p. }
+  apply maponpaths. rewrite <- h. apply q. Defined.
 
 (** *** Adjointness property of a weak equivalence and its inverse *)
 
@@ -1553,14 +1607,18 @@ Defined.
 Definition homothfiber1 {X Y : UU} (f g : X -> Y)
            (h : f ~ g) (y : Y) (xe : hfiber f y) : hfiber g y.
 Proof.
-  intros. induction xe as [x e].
+  intros.
+  set (x := pr1 xe).
+  set (e := pr2 xe).
   apply (hfiberpair g x (!(h x) @ e)).
 Defined.
 
 Definition homothfiber2 {X Y : UU} (f g : X -> Y)
            (h : f ~ g) (y : Y) (xe : hfiber g y) : hfiber f y.
 Proof.
-  intros. induction xe as [x e].
+  intros.
+  set (x := pr1 xe).
+  set (e := pr2 xe).
   apply (hfiberpair f x (h x @ e)).
 Defined.
 
@@ -1603,6 +1661,80 @@ Proof.
   intro y.
   apply (iscontrhfiberl2 f1 f2 h).
   apply x0.
+Defined.
+
+Corollary remakeweq {X Y : UU} {f:X≃Y} {g:X->Y} : f ~ g -> X≃Y.
+(* this lemma may be used to replace an equivalence by one whose forward map has a simpler definition,
+   keeping the same inverse map, judgmentally *)
+Proof.
+  intros ? ? ? ? e.
+  exact (g ,, isweqhomot f g e (weqproperty f)).
+Defined.
+
+Lemma remakeweq_eq {X Y : UU} (f1:X≃Y) (f2:X->Y) (e:f1~f2) : pr1weq (remakeweq e) = f2.
+(* check the claim in the comment above *)
+Proof.
+  reflexivity.
+Defined.
+
+Lemma remakeweq_eq' {X Y : UU} (f1:X≃Y) (f2:X->Y) (e:f1~f2) : invmap (remakeweq e) = invmap f1.
+(* check the claim in the comment above *)
+Proof.
+  reflexivity.
+Defined.
+
+Lemma iscontr_move_point {X} : X -> iscontr X -> iscontr X.
+Proof.
+  intros ? x i.
+  exists x.
+  intro y.
+  now apply proofirrelevancecontr.
+Defined.
+
+Lemma iscontr_move_point_eq {X} (x:X) (i:iscontr X) : iscontrpr1 (iscontr_move_point x i) = x.
+Proof.
+  reflexivity.
+Defined.
+
+Corollary remakeweqinv {X Y : UU} {f:X≃Y} {h:Y->X} : invmap f ~ h -> X≃Y.
+(* this lemma may be used to replace an equivalence by one whose inverse map is simpler,
+   leaving the forward map the same, judgmentally *)
+Proof.
+  intros ? ? ? ? e. exists f. intro y.
+  assert (p : hfiber f y).
+  { exists (h y). apply pathsweq1', pathsinv0. apply e. }
+  exact (iscontr_move_point p (weqproperty f y)).
+Defined.
+
+Lemma remakeweqinv_eq {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : pr1weq (remakeweqinv e) = pr1weq f.
+(* check the claim in the comment above *)
+Proof.
+  reflexivity.
+Defined.
+
+Lemma remakeweqinv_eq' {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : invmap (remakeweqinv e) = h.
+(* check the claim in the comment above *)
+Proof.
+  reflexivity.
+Defined.
+
+Corollary remakeweqboth {X Y : UU} {f:X≃Y} {g:X->Y} {h:Y->X} : f ~ g -> invmap f ~ h -> X≃Y.
+(* this lemma may be used to replace an equivalence by one whose two maps are simpler *)
+Proof.
+  intros ? ? ? ? ? r s.
+  simple refine (remakeweqinv (f := remakeweq r) s).
+Defined.
+
+Lemma remakeweqboth_eq {X Y : UU} (f:X≃Y) (g:X->Y) (h:Y->X) (r:f~g) (s:invmap f ~ h) :
+  pr1weq (remakeweqboth r s) = g.
+Proof.
+  reflexivity.
+Defined.
+
+Lemma remakeweqboth_eq' {X Y : UU} (f:X≃Y) (g:X->Y) (h:Y->X) (r:f~g) (s:invmap f ~ h) :
+  invmap (remakeweqboth r s) = h.
+Proof.
+  reflexivity.
 Defined.
 
 Corollary isweqhomot_iff {X Y : UU} (f1 f2 : X -> Y)
@@ -1672,10 +1804,16 @@ Defined.
 Definition invweq {X Y : UU} (w : weq X Y) : weq Y X :=
   weqpair (invmap w) (isweqinvmap w).
 
-Corollary invinv {X Y : UU} (w : weq X Y) (x : X) :
+Lemma invinv {X Y : UU} (w : weq X Y) (x : X) :
   invmap (invweq w) x = w x.
 Proof.
-  intros. apply idpath.
+  reflexivity.
+Defined.
+
+Lemma pr1_invweq {X Y : UU} (w : weq X Y) : pr1weq (invweq w) = invmap w.
+(* useful for rewriting *)
+Proof.
+  reflexivity.
 Defined.
 
 Corollary iscontrweqf {X Y : UU} (w : weq X Y) (is : iscontr X) : iscontr Y.
@@ -2067,7 +2205,6 @@ Definition invmap_weqcomp_expand {X Y Z : UU} {f : X ≃ Y} {g : Y ≃ Z} :
   invmap (weqcomp f g) = invmap f ∘ invmap g.
 Proof. reflexivity. Defined.
 
-
 (** *** The 2-out-of-6 (two-out-of-six) property of weak equivalences *)
 
 Theorem twooutofsixu {X Y Z K : UU} {u : X -> Y} {v : Y -> Z} {w : Z -> K}
@@ -2359,7 +2496,6 @@ Proof.
   apply (gradth _ _ egf efg).
 Defined.
 
-
 (** *** Pairwise sum of functions, coproduct associativity and commutativity  *)
 
 Definition sumofmaps {X Y Z : UU} (fx : X -> Z)(fy : Y -> Z) :
@@ -2466,13 +2602,22 @@ Definition weqii2withneg {X : UU} (Y : UU) (nf : ¬ X)
 
 (** *** Coproduct of two functions *)
 
-Definition coprodf {X Y X' Y' : UU} (f : X -> X') (g : Y-> Y') :
-  X ⨿ Y -> coprod X' Y'
+Definition coprodf {X Y X' Y' : UU} (f : X -> X') (g : Y-> Y') : X ⨿ Y -> X' ⨿ Y'
   := fun xy: X ⨿ Y =>
        match xy with
        | ii1 x => ii1 (f x)
        | ii2 y => ii2 (g y)
        end.
+
+Definition coprodf1 {X Y X' : UU} : (X -> X') -> X ⨿ Y -> X' ⨿ Y.
+Proof.
+  intros ? ? ? f. exact (coprodf f (idfun Y)).
+Defined.
+
+Definition coprodf2 {X Y Y' : UU} : (Y -> Y') -> X ⨿ Y -> X ⨿ Y'.
+Proof.
+  intros ? ? ? g. exact (coprodf (idfun X) g).
+Defined.
 
 Definition homotcoprodfcomp {X X' Y Y' Z Z' : UU} (f : X -> Y)
            (f' : X' -> Y') (g : Y -> Z) (g' : Y' -> Z') :
@@ -2515,6 +2660,15 @@ Proof.
   intros ? ? ? ? w1 w2. exact (weqpair _ (isweqcoprodf w1 w2)).
 Defined.
 
+Definition weqcoprodf1 {X Y X' : UU} : X ≃ X' -> X ⨿ Y ≃ X' ⨿ Y.
+Proof.
+  intros ? ? ? w. exact (weqcoprodf w (idweq Y)).
+Defined.
+
+Definition weqcoprodf2 {X Y Y' : UU} : Y ≃ Y' -> X ⨿ Y ≃ X ⨿ Y'.
+Proof.
+  intros ? ? ? w. exact (weqcoprodf (idweq X) w).
+Defined.
 
 (** *** The [ equality_cases ] construction and four applications to [ ii1 ] and [ ii2 ] *)
 
@@ -3429,6 +3583,13 @@ Definition weqfp_compute_2 {X Y : UU} (w : X ≃ Y) (P : Y -> UU) :
   invmap (weqfp w P) ~ weqfp_invmap w P.
 Proof.
   intros. intros yp. reflexivity.
+Defined.
+
+Definition weqtotal2overcoprod' {W X Y : UU} (P : W -> UU) (f : X ⨿ Y ≃ W) :
+  (∑ w, P w) ≃ (∑ x : X, P (f (ii1 x))) ⨿ (∑ y : Y, P (f (ii2 y))).
+Proof.
+  intros.
+  exact (weqcomp (invweq (weqfp f _)) (weqtotal2overcoprod (P ∘ f))).
 Defined.
 
 (** *** Total spaces of families over a contractible base *)

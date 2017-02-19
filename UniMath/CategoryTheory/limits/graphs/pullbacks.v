@@ -15,7 +15,7 @@ Section def_pb.
 Variable C : precategory.
 Variable hs: has_homsets C.
 
-Open Scope stn.
+Local Open Scope stn.
 Definition One : three := ● 0.
 Definition Two : three := ● 1.
 Definition Three : three := ● 2.

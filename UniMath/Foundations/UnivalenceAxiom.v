@@ -435,3 +435,16 @@ Proof.
   - use transportf_paths. exact XR.
   - induction e. apply idpath.
 Defined.
+
+(** induction tactic for the universe *)
+
+Theorem UU_rect (X Y : UU) (P : X ≃ Y -> UU) :
+  (∏ e : X=Y, P (univalence _ _ e)) -> ∏ f, P f.
+Proof.
+  intros ih ?.
+  set (p := ih (invmap (univalence _ _) f)).
+  set (h := homotweqinvweq (univalence _ _) f).
+  exact (transportf P h p).
+Defined.
+
+Ltac type_induction f e := generalize f; apply UU_rect; intro e; clear f.
