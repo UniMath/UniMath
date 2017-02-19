@@ -211,6 +211,11 @@ Definition dirprod_pr2 {X Y : UU} := pr2 : X × Y -> Y.
 
 Definition dirprodpair {X Y : UU} := tpair (fun x : X => Y).
 
+Lemma dirprodEquality {X Y} {w w':X × Y} : pr1 w = pr1 w' -> pr2 w = pr2 w' -> w = w'.
+Proof.
+  intros ? ? ? ? p q. induction w as [x y]. induction w' as [x' y']. simpl in *. now induction p, q.
+Defined.
+
 Definition dirprodadj {X Y Z : UU} (f : dirprod X Y -> Z) : X -> Y -> Z :=
   (fun (x : X) => (fun (y : Y) => f (dirprodpair x y))).
 
@@ -885,6 +890,13 @@ Definition total2_base_map {S T:UU} {P: T -> UU} (f : S->T) : (∑ i, P(f i)) ->
 Proof.
   intros ? ? ? ? x.
   exact (f(pr1 x),,pr2 x).
+Defined.
+
+Lemma total2_section_path {X:UU} {Y:X->UU} (a:X) (b:Y a) (e:∏ x, Y x) : (a,,e a) = (a,,b) -> e a = b.
+(* this is called "Voldemort's theorem" by David McAllester, https://arxiv.org/pdf/1407.7274.pdf *)
+Proof.
+  intros ? ? ? ? ? p. simple refine (_ @ fiber_paths p). unfold base_paths. simpl.
+  apply pathsinv0, transport_section.
 Defined.
 
 (** *** Lemmas about transport adapted from the HoTT library and the HoTT book *)

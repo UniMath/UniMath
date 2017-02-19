@@ -136,16 +136,6 @@ Section Test.
 
 End Test.
 
-Lemma dirprodEquality {X Y} {w w':X × Y} : pr1 w = pr1 w' -> pr2 w = pr2 w' -> w = w'.
-(* move upstream *)
-Proof.
-  intros p q.
-  induction w as [x y].
-  induction w' as [x' y'].
-  simpl in *.
-  now induction p, q.
-Defined.
-
 End lists.
 
 (** Make the type not implicit for list *)
