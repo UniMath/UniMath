@@ -507,7 +507,7 @@ Proof. intros. apply iscontraprop1. { apply propproperty. }
        exact (torsor_nonempty T). Defined.
 
 Lemma affine_line_path {T:Torsor ℤ} (t u:affine_line T) : t = u.
-Proof. intros. apply proofirrelevance. exact (iscontr_affine_line _). Defined.
+Proof. intros. apply proofirrelevance, isapropifcontr, iscontr_affine_line. Defined.
 
 Definition affine_line_map {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
   affine_line T -> Y.
