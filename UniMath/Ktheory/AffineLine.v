@@ -205,7 +205,7 @@ Open Scope action_scope.
 
 Definition GuidedSection {T:Torsor ℤ}
            (P:T->Type) (IH:∏ t, weq (P t) (P (one + t))) := fun
-     f:Section P =>
+     f:∏ t, P t =>
        ∏ t, f (one + t) = IH t (f t).
 
 Definition ℤTorsorRecursion_weq {T:Torsor ℤ} (P:T->Type)
