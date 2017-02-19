@@ -98,7 +98,7 @@ mkpair.
 - exists (proj_fun s).
   intros X Y f p.
   exists (pr1 f (pr1 p)).
-  abstract (now destruct f as [h hh]; destruct p as [x hx]; simpl in *; rewrite <- hx, hh).
+  abstract (now induction f as [h hh]; induction p as [x hx]; simpl in *; rewrite <- hx, hh).
 - abstract (split; [intros X|intros X Y Z f g];
             apply funextsec; intro p; apply subtypeEquality; trivial;
             intros x; apply setproperty).
@@ -193,7 +193,7 @@ Local Definition DL_option_list (xs : list sort) : DistributiveLaw _ hs (option_
 Proof.
 apply (list_ind (fun xs => DistributiveLaw _ hs (option_list xs))).
 + apply DL_id.
-+ intros s xs' IH. destruct xs'. (* therefore no need to use Lemma option_list_cons *)
++ intros s xs' IH. induction xs'. (* the latter seems to be needed *)
   apply (DL_comp _ _ _ (DL_sorted_option_functor s) _ IH).
 Defined.
 
@@ -225,7 +225,7 @@ Proof.
     * apply (pr2 T).
     * clear xs; intros x xs' IH.
       set (IH_Sig := (tpair _ (exp_functor_list xs') IH) : Signature (slice_precat SET sort (homset_property SET)) hs HSET has_homsets_HSET).
-      destruct xs'. (* needed for typechecking the next term *)
+      induction xs'. (* needed for typechecking the next term *)
       exact (pr2 (BinProduct_of_Signatures  _ _ _ _ _ (Sig_exp_functor x) IH_Sig)).
 Defined.
 
@@ -296,7 +296,7 @@ use is_iso_qinv.
 + abstract (split;
   [ apply subtypeEquality; [intros x; apply isaprop_is_nat_trans, has_homsets_HSET|];
     apply funextsec; intro x; apply funextsec; intro y; cbn;
-    now rewrite pathsinv0inv0; induction y as [[[] y2] y3]
+    now rewrite pathsinv0inv0; induction y as [y' y3]; induction y' as [y'' y2]; induction y''
   | apply (nat_trans_eq has_homsets_HSET); simpl; intros x;
     apply funextsec; intros z; simpl in *;
     now apply subtypeEquality; trivial; intros w; apply setproperty]).
@@ -365,7 +365,7 @@ Proof.
     * apply is_omega_cocont_constprod_functor1; try apply functor_category_has_homsets.
       apply has_exponentials_functor_HSET, homset_property.
     * apply is_omega_cocont_exp_functor, H.
-    * destruct xs. apply IH.
+    * induction xs. apply IH.
 Defined.
 
 Local Lemma is_omega_cocont_post_comp_hat_functor (s : sort) :
@@ -497,7 +497,7 @@ mkpair.
     { apply (BinCoproductOfArrows _ _ _ (α t) (identity _)). }
     { apply α. }
   * abstract (now intros t1 t2 []; cbn; induction (eq s t1); simpl; rewrite id_left, id_right).
-Defined.
+Defined. (* plenty of match in the term *)
 
 Local Lemma is_functor_option_functor s : is_functor (option_functor_data s).
 Proof.
@@ -511,7 +511,7 @@ split.
   rewrite !id_left; apply BinCoproductArrowUnique.
   * now rewrite BinCoproductIn1Commutes, assoc.
   * now rewrite BinCoproductIn2Commutes, id_left.
-Qed.
+Qed. (* match expressions in the term *)
 
 (* This is Definition 3 (sorted context extension) from the note *)
 Local Definition option_functor (s : sort) : functor sortToC sortToC :=

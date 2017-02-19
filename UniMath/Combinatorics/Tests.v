@@ -21,7 +21,7 @@ Module Test_stn.
 
   Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-  Open Scope stn.
+  Local Open Scope stn.
 
   Goal stn 6. exact (stnel(6,3)). Qed.
   Goal stn 6. exact (stnpr 3). Qed.
@@ -50,7 +50,7 @@ Module Test_stn.
     Let X := stn n.
     Let i := ●3 : stn (S n).
     Let Y := @stn_compl (S n) i.
-    Let v := weqdnicompl n i : X ≃ Y.
+    Let v := weqdnicompl i : X ≃ Y.
     Let j := ●4 : X.
     Let jni := ●5,,tt : Y.
 
@@ -161,54 +161,33 @@ Module Test_stn.
   Module Test_weqstnsum.
     (* this module exports nothing *)
     Let X := stnset 7.
-    Let f (x:X) : nat := pr1 x.
-
-    Let h  : stn _ <- ∑ x, stnset (f x) := weqstnsum_map f.
-    Goal h(●1,,●0) = ●0. reflexivity. Defined.
-    Goal h(●4,,●0) = ●6. reflexivity. Defined.
-    Goal h(●1,,●0) = ●0. reflexivity. Defined.
-    Goal h(●2,,●0) = ●1. reflexivity. Defined.
-    Goal h(●2,,●1) = ●2. reflexivity. Defined.
-    Goal h(●3,,●0) = ●3. reflexivity. Defined.
-    Goal h(●3,,●1) = ●4. reflexivity. Defined.
-    Goal h(●3,,●2) = ●5. reflexivity. Defined.
-    Goal h(●4,,●0) = ●6. reflexivity. Defined.
-    Goal h(●5,,●0) = ●10. reflexivity. Defined.
-    Goal h(●6,,●0) = ●15. reflexivity. Defined.
-
-    Let h' : stn _ -> ∑ x, stnset (f x) := weqstnsum_invmap f.
-    Goal h'(●0) = (●1,,●0). reflexivity. Defined.
-    Goal h'(●1) = (●2,,●0). reflexivity. Defined.
-    Goal h'(●2) = (●2,,●1). reflexivity. Defined.
-    Goal h'(●3) = (●3,,●0). reflexivity. Defined.
-    Goal h'(●4) = (●3,,●1). reflexivity. Defined.
-    Goal h'(●5) = (●3,,●2). reflexivity. Defined.
-    Goal h'(●6) = (●4,,●0). reflexivity. Defined.
-    Goal h'(●10) = (●5,,●0). reflexivity. Defined.
-    Goal h'(●15) = (●6,,●0). reflexivity. Defined.
-
-  End Test_weqstnsum.
-
-  Module Test_weqstnsum_2.
-    (* this module exports nothing *)
-    Let X := stnset 6.
     Let Y (x:X) := stnset (pr1 x).
     Let W := ∑ x, Y x.
-    Let w := (●3,,●2) : W.
-    Let w' := (●4,,●2) : W.
-    Let f : W ≃ stn 15 := weqstnsum1 _.
-    Let f' : stn 15 -> W := invmap f.
+    Let f : W ≃ stn _ := weqstnsum1 _.
+    Let f' : stn _ ≃ W := invweq f.
     Goal f(●1,,●0) = ●0. reflexivity. Defined. (* fixed! (formerly, it failed quickly) *)
+    Goal f(●2,,●0) = ●1. reflexivity. Defined.
+    Goal f(●2,,●1) = ●2. reflexivity. Defined.
+    Goal f(●3,,●0) = ●3. reflexivity. Defined.
+    Goal f(●3,,●1) = ●4. reflexivity. Defined.
+    Goal f(●3,,●2) = ●5. reflexivity. Defined.
+    Goal f(●4,,●0) = ●6. reflexivity. Defined.
+    Goal f(●5,,●0) = ●10. reflexivity. Defined.
+    Goal f(●6,,●0) = ●15. reflexivity. Defined.
 
-    Goal f'(●0) = (●1,,●0). try reflexivity. Abort. (* fix; fails quickly *)
-    (* let's extract the problematic component: *)
-    (* Statement of Goal fails
-    Goal (pr2 (pr2 (f'(●0)))) = idpath true.
-      try reflexivity. (* fix; fails quickly; might be a Coq bug *)
-    Abort.
-     *)
+    Goal (pr2 (pr2 (f'(●0)))) = idpath true. reflexivity. Defined. (* fixed, Coq bug? *)
+    Goal f'(●0) = (●1,,●0). reflexivity. Defined. (* fixed, Coq bug? *)
+    Goal f'(●0) = (●1,,●0). reflexivity. Defined.
+    Goal f'(●1) = (●2,,●0). reflexivity. Defined.
+    Goal f'(●2) = (●2,,●1). reflexivity. Defined.
+    Goal f'(●3) = (●3,,●0). reflexivity. Defined.
+    Goal f'(●4) = (●3,,●1). reflexivity. Defined.
+    Goal f'(●5) = (●3,,●2). reflexivity. Defined.
+    Goal f'(●6) = (●4,,●0). reflexivity. Defined.
+    Goal f'(●10) = (●5,,●0). reflexivity. Defined.
+    Goal f'(●15) = (●6,,●0). reflexivity. Defined.
 
-  End Test_weqstnsum_2.
+  End Test_weqstnsum.
 
   Module Test_weqfromprodofstn.
     (* verify computability in both directions *)
@@ -284,23 +263,6 @@ Module Test_fin.
   (* Eval compute in (carddneg _  (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O)))))). *)
   (* Eval lazy in   (pr1 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))). *)
 
-  Goal ∏ X (fin : finstruct X) (f : X -> nat),
-    finsum (hinhpr fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
-  Proof. reflexivity. Qed.
-
-  Goal 15 = finsum (isfinitestn _) (λ i:stn 6, i). reflexivity. Qed.
-  Goal 20 = finsum isfinitebool (λ i:bool, 10). reflexivity. Qed.
-  Goal 21 = finsum (isfinitecoprod isfinitebool isfinitebool)
-                   (coprod_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
-    cbn. unfold weqfromcoprodofstn_invmap. cbn. unfold coprod_rect.
-    induction (natchoice0 2) as [F | T].
-    - apply fromempty.
-      assert (e : 0 < 2) by apply idpath. induction F. apply (negnatlthn0 0 e).
-    - apply idpath.
-  Qed.
-
-  Goal 10 = finsum' (isfinitestn _) (λ i:stn 5, i). reflexivity. Defined. (* fixed! *)
-
   Module Test_isfinite_isdeceq.
 
     (* This module exports nothing. *)
@@ -309,7 +271,7 @@ Module Test_fin.
        and funextemptyAxiom, so here we do an experiment to see if that impedes
        computability of equality using it. *)
 
-    Open Scope stn.
+    Local Open Scope stn.
 
     Let X := stnset 5.
     Let finX : isfinite X := isfinitestn _.
@@ -373,28 +335,28 @@ Module Test_seq.
 
   Require Import UniMath.Combinatorics.FiniteSequences.
 
-  Open Scope stn.
-
-  Goal @total2_step 0 (λ _,unit) (●0,,tt) = ii2 tt. reflexivity. Defined.
-  Goal @total2_step 1 (λ _,unit) (●1,,tt) = ii2 tt. reflexivity. Defined.
-  Goal @total2_step 1 (λ _,unit) (●0,,tt) = ii1 (●0,,tt).
-    reflexivity. (* fixed, failed quickly before *)
-  Defined.
+  Local Open Scope stn.
 
 End Test_seq.
 
-Module Test_ord.
-
-  Require Import UniMath.Combinatorics.OrderedSets.
-  Require Import UniMath.Combinatorics.StandardFiniteSets.
-
-  Open Scope stn.
+Module Test_finite_sets.
+  Require Import UniMath.Combinatorics.FiniteSets.
+  Local Open Scope stn.
 
   Goal 3 = fincard_standardSubset (λ i:stn 10, 2*i < 6)%dnat. Proof. reflexivity. Defined.
 
   Goal 6 = tallyStandardSubset (λ i:stn 10, 3 ≤ i ∧ i ≤ 8)%dnat%declog. Proof. reflexivity. Defined.
 
   Goal 6 = tallyStandardSubsetSegment (λ i:stn 14, 2*i ≠ 4)%dnat (●7). Proof. reflexivity. Defined.
+
+End Test_finite_sets.
+
+Module Test_ord.
+
+  Require Import UniMath.Combinatorics.OrderedSets.
+  Require Import UniMath.Combinatorics.StandardFiniteSets.
+
+  Local Open Scope stn.
 
   Goal 3 = height ( ●3 : ⟦ 8 ⟧ %foset ). reflexivity. Defined.
 
@@ -429,32 +391,72 @@ Module Test_ord.
     Let j := ●3 : ⟦ 4 ⟧.
 
     Goal choice (i < j)%foset true false = true. reflexivity. Defined.
+    Goal choice (i ≤ j)%foset true false = true. reflexivity. Defined.
+    Goal choice (i ≐ j)%foset true false = false. reflexivity. Defined.
 
     Let X := (∑ i:⟦ 4 ⟧, ⟦ pr1 i ⟧)%foset.
     Let x := ( ●2 ,, ●1 ):X.
     Let y := ( ●3 ,, ●1 ):X.
 
+    Lemma d : isdeceq X.
+    Proof.
+      apply isdeceq_total2.
+      - apply isdeceqstn.
+      - intro i. apply isdeceqstn.
+    Defined.
+
+    Definition which {X} : X ⨿ ¬X -> bool.
+    Proof.
+      intros X c.
+      induction c.
+      - exact true.
+      - exact false.
+    Defined.
+
     (* we want these to work: *)
 
-    Goal choice (x < y)%foset true false = true.
+    Goal choice (x < y) true false = true.
       reflexivity.                (* fixed *)
     Defined.
 
-    Goal choice (x = y)%foset true false = true.
-      try reflexivity.            (* fix *)
-      unfold choice.
-      Unset Printing Notations.
-      unfold decidabilityProperty.
-      (* Print Assumptions FiniteOrderedSetDecidableEquality. *)
-      (* uses: funextfun funextemptyAxiom *)
-    Abort.
+    Goal choice (x ≤ y)%foset true false = true.
+      reflexivity.
+    Defined.
 
-    Goal choice (x ≠ y)%foset true false = false.
-      try reflexivity.            (* fix *)
+    Goal choice (y < x)%foset true false = false.
+      reflexivity.
+    Defined.
+
+    Goal choice (y ≤ x)%foset true false = false.
+      reflexivity.
+    Defined.
+
+    Goal choice (x ≐ y)%foset true false = false.
+      reflexivity.
+    Defined.
+
+    Goal choice (x ≐ x)%foset true false = true.
+      reflexivity.
+    Defined.
+
+    Goal which (d x y) = false.
+      reflexivity.
+    Defined.
+
+    Goal which (d x x) = true.
+      reflexivity.
+    Defined.
+
+    Goal choice (x ≠ y)%foset true false = true.
+      reflexivity.
+    Defined.
+
+    Goal which (isdeceqnat 2 (height x)) = true.
+      try reflexivity.          (* fix *)
     Abort.
 
     Goal 2 = height x.
-      try reflexivity.                (* does not work *)
+      try reflexivity.                (* fix *)
     Abort.
 
   End TestLex2.

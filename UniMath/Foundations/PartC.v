@@ -105,7 +105,7 @@ Proof.
 Defined.
 
 
-Theorem isapropdec (X : UU) : isaprop X -> isaprop (X ⨿ ¬X).
+Theorem isapropdec (X : UU) : isaprop X -> isaprop (decidable X).
 (* uses [funextemptyAxiom] *)
 Proof.
   intros ? i. apply isapropcoprod.
