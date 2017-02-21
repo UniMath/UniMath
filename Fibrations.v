@@ -376,7 +376,7 @@ Proof.
       intros gg XR1 XR0.
       apply iscontraprop1.
       * apply invproofirrelevance.
-        intros. apply subtypeEquality.
+        intros x x'. apply subtypeEquality.
         { intro. apply homsets_disp. }
         apply disp_mor_unique_disc_fib.
       * exists gg.
