@@ -426,7 +426,7 @@ Definition makeGuidedHomotopy_verticalPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y=f t0)
            {y':Y} (p:y' = y) :
   maponpaths pr1 (makeGuidedHomotopy_verticalPath f s t0 h0 p) = p.
-Proof. intros. apply total2_paths2_comp1. Defined.
+Proof. intros. apply total2_paths2_f_comp1. Defined.
 
 Definition makeGuidedHomotopy_transPath {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y=f t0) :

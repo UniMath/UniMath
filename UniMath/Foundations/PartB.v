@@ -612,7 +612,7 @@ Proof.
   intros ? ee x x'. apply isapropifcontr. exists x. intros t. exact (ee t x).
 Defined.
 
-Lemma isProofIrrelevantPath {X} (irr:isProofIrrelevant X) {x y:X} : isProofIrrelevant (x=y).
+Lemma isProofIrrelevant_paths {X} (irr:isProofIrrelevant X) {x y:X} : isProofIrrelevant (x=y).
 Proof.
   intros ? ? ? ? p q. assert (r := invproofirrelevance X irr x y). exact (pr2 r p @ ! pr2 r q).
 Defined.

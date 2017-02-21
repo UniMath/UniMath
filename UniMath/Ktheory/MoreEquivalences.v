@@ -106,7 +106,7 @@ Proof. intros.
        { intro x. exact (x,,sec x). } { exact pr1. }
        { intros [x p]. simpl. apply maponpaths. apply irr. }
        { intro x. reflexivity. }
-       { intro x'. simpl. rewrite (isProofIrrelevantPath (irr _) (irr _ _ _) (idpath (sec x'))).
+       { intro x'. simpl. rewrite (isProofIrrelevant_paths (irr _) (irr _ _ _) (idpath (sec x'))).
          reflexivity. } Defined.
 
 Definition homotinvweqweq' {X} {P:X->Type}

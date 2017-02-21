@@ -118,7 +118,7 @@ Proof. intros.
        change (makeGuidedHomotopy2 T0 (λ _:T0, y) (λ _:T0, l))
        with (sec l T0).
        change (idpath y) with (maponpaths pr1 (idpath (sec l T0))).
-       apply (maponpaths (maponpaths pr1)). apply isProofIrrelevantPath. apply (irr l). Defined.
+       apply (maponpaths (maponpaths pr1)). apply isProofIrrelevant_paths. apply (irr l). Defined.
 
 (** ** Various paths in GH *)
 

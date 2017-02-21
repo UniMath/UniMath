@@ -223,7 +223,7 @@ Module Presentation.
 
   Fixpoint reassemble {X I} (R:I->reln X) (v:wordop X) : evalword (wordop X) v = v.
   Proof. intros ? ? ? [|x|v w]. { reflexivity. } { reflexivity. }
-         { exact (aptwice word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
+         { exact (map_on_two_paths word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
 
   (** ** adequate relations over R *)
 
@@ -387,7 +387,7 @@ Module Presentation.
          { exact (unitproperty f). }
          { exact (map_mark f x). }
          { exact (multproperty f (evalwordMM M v) (evalwordMM M w)
-                  @ aptwice (fun r s => r * s)
+                  @ map_on_two_paths (fun r s => r * s)
                             (MarkedMonoidMap_compat _ _ _ _ _ f v)
                             (MarkedMonoidMap_compat _ _ _ _ _ f w)). } Qed.
   Lemma MarkedMonoidMap_compat2 {X I} {R:I->reln X}
@@ -444,7 +444,7 @@ Defined.
              @ _ @ !
                multproperty g (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)).
-           apply (aptwice (fun r s => r * s)).
+           apply (map_on_two_paths (fun r s => r * s)).
            { apply agreement_on_gens0. assumption. }
            { apply agreement_on_gens0. assumption. } } Qed.
   Lemma agreement_on_gens {X I} {R:I->reln X} {M:monoid}

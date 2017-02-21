@@ -294,7 +294,7 @@ Proof.
     assert (dec : decidable_type (pr1 f lastelement = pr1 g lastelement)).
     { apply (isdeceqweqf f). apply isdeceqstn. }
     induction dec as [e|b].
-    { apply (aptwice (fun x y => x + y)).
+    { apply (map_on_two_paths (fun x y => x + y)).
       { rewrite <- 2 ! fun_assoc.
         set (f' := nelstructoncompl (pr1 f lastelement) f).
         set (g' := nelstructoncompl (pr1 g lastelement) g).
@@ -362,7 +362,7 @@ Module Presentation.
 
   Fixpoint reassemble {X I} (R:I->reln X) (v:wordop X) : evalword (wordop X) v = v.
   Proof. intros ? ? ? [|x|v w]. { reflexivity. } { reflexivity. }
-         { exact (aptwice word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
+         { exact (map_on_two_paths word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
 
   (** ** adequate relations over R *)
 
@@ -537,7 +537,7 @@ Module Presentation.
          { exact (Monoid.unitproperty f). }
          { exact (map_mark f x). }
          { exact (Monoid.multproperty f (evalwordMM M v) (evalwordMM M w)
-                  @ aptwice (fun r s => r + s)
+                  @ map_on_two_paths (fun r s => r + s)
                             (MarkedAbelianMonoidMap_compat _ _ _ _ _ f v)
                             (MarkedAbelianMonoidMap_compat _ _ _ _ _ f w)). } Qed.
   Lemma MarkedAbelianMonoidMap_compat2 {X I} {R:I->reln X}
@@ -594,7 +594,7 @@ Module Presentation.
              @ _ @ !
                Monoid.multproperty g (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)).
-           apply (aptwice (fun r s => r + s)).
+           apply (map_on_two_paths (fun r s => r + s)).
            { apply agreement_on_gens0. assumption. }
            { apply agreement_on_gens0. assumption. } } Qed.
   Lemma agreement_on_gens {X I} {R:I->reln X} {M:abmonoid}
@@ -664,7 +664,7 @@ Module NN_agreement.
          induction n as [|n IHn].
          { exact (Monoid.unitproperty f @ !Monoid.unitproperty g). }
          { exact (Monoid.multproperty f 1 n
-                @ aptwice (fun x y => x+y) e IHn
+                @ map_on_two_paths (fun x y => x+y) e IHn
                 @ !Monoid.multproperty g 1 n). } Qed.
   Definition weq_NN_nataddabmonoid : NN ≃ nataddabmonoid.
   Proof.

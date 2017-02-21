@@ -12,165 +12,17 @@ Open Scope transport.
 
 (* some jargon reminders: *)
 Goal ∏ X (i:isaprop X) (x x':X), x = x'.
-Proof. apply proofirrelevance. Defined.
+Proof. intros. now apply proofirrelevance. Defined.
 
 Goal ∏ X (i:iscontr X) (x x':X), x = x'.
-Proof. intros. apply proofirrelevancecontr. assumption. Defined.
+Proof. intros. now apply proofirrelevancecontr. Defined.
 
 Goal ∏ X Y (f:X->Y) (x x':X), isincl f -> f x = f x' -> x = x'.
-Proof. intros ? ? ? ? ? inj. exact (invmaponpathsincl _ inj _ _). Defined.
-
-(* paths *)
-Definition path_start {X} {x x':X} (p:x = x') := x.
-Definition path_end {X} {x x':X} (p:x = x') := x'.
-
-Definition cast {T U:Type} : T = U -> T -> U.
-Proof. intros ? ? p t. induction p. exact t. Defined.
-
-Definition app {X} {P:X->Type} {x x':X} {e e':x = x'} (q:e = e') (p:P x) : e#p = e'#p.
-Proof. intros. induction q. reflexivity. Defined.
-
-(** ** Paths *)
-
-Definition loop_power_nat {Y} {y:Y} (l:y = y) (n:nat) : y = y.
-Proof. intros. induction n as [|n p].
-       { exact (idpath _). } { exact (p@l). } Defined.
-
-(** ** Projections from pair types *)
-
-Definition pair_path_in2_comp1 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) :
-  maponpaths pr1 (maponpaths (tpair P _) e) = idpath x.
-Proof. intros. induction e. reflexivity. Defined.
-
-Definition total2_paths2_comp1 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
-           (p:x = x') (q:p#y = y') : maponpaths pr1 (two_arg_paths_f (f := tpair Y) p q) = p.
-Proof. intros. induction p. induction q. reflexivity. Defined.
-
-Definition total2_paths2_comp2 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
-           (p:x = x') (q:p#y = y') :
-  ! app (total2_paths2_comp1 p q) y @ fiber_paths (two_arg_paths_f p q) = q.
-Proof. intros. induction p, q. reflexivity. Defined.
-
-(** ** Maps from pair types *)
-
-Definition from_total2 {X} {P:X->Type} {Y} : (∏ x, P x->Y) -> total2 P -> Y.
-Proof. intros ? ? ? f [x p]. exact (f x p). Defined.
-
-(** ** Sections and functions *)
-
-Definition apfun {X Y} {f f':X->Y} (p:f = f') {x x'} (q:x = x') : f x = f' x'.
-  intros. induction q. exact (eqtohomot p x). Defined.
-
-Definition aptwice {X Y Z} (f:X->Y->Z) {a a' b b'} (p:a = a') (q:b = b') : f a b = f a' b'.
-  intros. exact (apfun (maponpaths f p) q). Defined.
-
-Definition fromemptysec { X : empty -> UU } (nothing:empty) : X nothing.
-(* compare with [fromempty] in u00 *)
-Proof. intros X H.  induction H. Defined.
-
-Definition maponpaths_idpath {X Y} {f:X->Y} {x:X} : maponpaths f (idpath x) = idpath (f x).
-Proof. intros. reflexivity. Defined.
+Proof. intros ? ? ? ? ? inj. now apply invmaponpathsincl. Defined.
 
 (** ** Transport *)
 
-Definition transport_type_path {X Y:Type} (p:X = Y) (x:X) :
-  transportf (fun T:Type => T) p x = cast p x.
-Proof. intros. induction p. reflexivity. Defined.
-
-Definition transport_fun_path {X Y} {f g:X->Y} {x x':X} {p:x = x'} {e:f x = g x} {e':f x' = g x'} :
-  e @ maponpaths g p = maponpaths f p @ e' ->
-  transportf (fun x => f x = g x) p e = e'.
-Proof. intros ? ? ? ? ? ? ? ? ? k. induction p. rewrite maponpaths_idpath in k. rewrite maponpaths_idpath in k.
-       rewrite pathscomp0rid in k. exact k. Defined.
-
-Definition transportf_pathsinv0 {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
-  !p # v = u -> p # u = v.
-Proof. intros ? ? ? ? ? ? ? e. induction p, e. reflexivity. Defined.
-
-Definition transportf_pathsinv0' {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
-  p # u = v -> !p # v = u.
-Proof. intros ? ? ? ? ? ? ? e. induction p, e. reflexivity. Defined.
-
-Lemma transport_idfun {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) :
-  transportf P p u = transportf (idfun _) (maponpaths P p) u.
-(* same as HoTT.PathGroupoids.transport_idmap_ap *)
-Proof. intros. induction p. reflexivity. Defined.
-
-Lemma transport_functions {X} {Y:X->Type} {Z:∏ x (y:Y x), Type}
-      {f f':∏ x : X, Y x} (p:f = f') (z:∏ x, Z x (f x)) x :
-    transportf (fun f => ∏ x, Z x (f x)) p z x =
-    transportf (Z x) (toforallpaths _ _ _ p x) (z x).
-Proof. intros. induction p. reflexivity. Defined.
-
-Definition transport_funapp {T} {X Y:T->Type}
-           (f:∏ t, X t -> Y t) (x:∏ t, X t)
-           {t t':T} (p:t = t') :
-  transportf _ p ((f t)(x t))
-  = (transportf (fun t => X t -> Y t) p (f t)) (transportf _ p (x t)).
-Proof. intros. induction p. reflexivity. Defined.
-
-Definition helper_A {T} {Y} (P:T->Y->Type) {y y':Y} (k:∏ t, P t y) (e:y = y') t :
-  transportf (fun y => P t y) e (k t)
-  =
-  (transportf (fun y => ∏ t, P t y) e k) t.
-Proof. intros. induction e. reflexivity. Defined.
-
-Definition helper_B {T} {Y} (f:T->Y) {y y':Y} (k:∏ t, y = f t) (e:y = y') t :
-  transportf (fun y => y = f t) e (k t)
-  =
-  (transportf (fun y => ∏ t, y = f t) e k) t.
-Proof. intros. exact (helper_A _ k e t). Defined.
-
-Definition transport_invweq {T} {X Y:T->Type} (f:∏ t, weq (X t) (Y t))
-           {t t':T} (p:t = t') :
-  transportf (fun t => weq (Y t) (X t)) p (invweq (f t))
-  =
-  invweq (transportf (fun t => weq (X t) (Y t)) p (f t)).
-Proof. intros. induction p. reflexivity. Defined.
-
-Definition transport_invmap {T} {X Y:T->Type} (f:∏ t, weq (X t) (Y t))
-           {t t':T} (p:t=t') :
-  transportf (fun t => Y t -> X t) p (invmap (f t))
-  =
-  invmap (transportf (fun t => weq (X t) (Y t)) p (f t)).
-Proof. intros. induction p. reflexivity. Defined.
-
-  (** *** Double transport *)
-
-  Definition transportf2 {X} {Y:X->Type} (Z:∏ x, Y x->Type)
-             {x x'} (p:x = x')
-             (y:Y x) (z:Z x y) : Z x' (p#y).
-  Proof. intros. induction p. exact z. Defined.
-
-  Definition transportb2 {X} {Y:X->Type} (Z:∏ x, Y x->Type)
-             {x x'} (p:x=x')
-             (y':Y x') (z':Z x' y') : Z x (p#'y').
-  Proof. intros. induction p. exact z'. Defined.
-
-  Definition maponpaths_pr1_pr2 {X} {P:X->UU} {Q:∏ x, P x->Type}
-             {w w': ∑ x p, Q x p}
-             (p : w = w') :
-    transportf P (maponpaths pr1 p) (pr1 (pr2 w)) = pr1 (pr2 w').
-  Proof. intros. induction p. reflexivity. Defined.
-
   (** *** Transport a pair *)
-
-  (* replace this with transportf_total2 (?) : *)
-  Definition transportf_pair X (Y:X->Type) (Z:∏ x, Y x->Type)
-             x x' (p:x = x') (y:Y x) (z:Z x y) :
-    transportf (fun x => total2 (Z x)) p (tpair (Z x) y z)
-    =
-    tpair (Z x') (transportf Y p y) (transportf2 _ p y z).
-  Proof. intros. induction p. reflexivity. Defined.
-
-  Definition transportb_pair X (Y:X->Type) (Z:∏ x, Y x->Type)
-             x x' (p:x = x')
-             (y':Y x') (z':Z x' y')
-             (z' : (Z x' y')) :
-    transportb (fun x => total2 (Z x)) p (tpair (Z x') y' z')
-    =
-    tpair (Z x) (transportb Y p y') (transportb2 _ p y' z').
-  Proof. intros. induction p. reflexivity. Defined.
 
 (** ** h-levels and paths *)
 

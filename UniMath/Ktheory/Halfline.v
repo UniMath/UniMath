@@ -48,7 +48,7 @@ Definition map_path_check {Y} {f:ℕ->Y} (s:target_paths f) (n:ℕ) :
 Proof. intros. set (q := map_path s n).
        assert (path_inverse_to_right : q=p).
        { apply (hlevelntosn 1). apply (hlevelntosn 0). apply iscontrGuidedHomotopy. }
-       destruct path_inverse_to_right. apply total2_paths2_comp1. Defined.
+       destruct path_inverse_to_right. apply total2_paths2_f_comp1. Defined.
 
 (** ** universal property for the half line *)
 
