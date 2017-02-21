@@ -100,8 +100,7 @@ Proof.
       destruct α as [α a].
       destruct β as [β b]. simpl in *.
       rewrite functor_comp.
-      set (HH:=functor_comp H).
-      rewrite HH; simpl; clear HH.
+      rewrite (functor_comp H); simpl.
       repeat rewrite <- assoc.
       apply maponpaths.
       rewrite <- nat_trans_ax.
@@ -153,7 +152,7 @@ Proof.
     intros α β.
     unfold θ_target_functor_data. simpl in *.
     unfold θ_target_mor.
-    set (T:=functor_comp H _ _ _ (pr1 α ∙∙ # U (pr2 α)) (pr1 β ∙∙ # U (pr2 β))).
+    set (T:=functor_comp H (pr1 α ∙∙ # U (pr2 α)) (pr1 β ∙∙ # U (pr2 β))).
     simpl in *.
     eapply pathscomp0.
 (*    match goal with |[ H :  ?f = _ |- _ ] => transitivity f end. *)
@@ -269,7 +268,7 @@ Proof.
   simpl. rewrite <- TXZZ'c; clear TXZZ'c.
   rewrite <- assoc.
   apply maponpaths.
-  assert (functor_comp_H := functor_comp H _ _ _ (α_functor (pr1 Z) (pr1 Z') X)
+  assert (functor_comp_H := functor_comp H (α_functor (pr1 Z) (pr1 Z') X)
            (a : functor_compose hs hs (U Z) (functor_composite (U Z') X) --> Y)).
   assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
   simpl in functor_comp_H_c.

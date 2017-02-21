@@ -201,10 +201,9 @@ Definition functor_id {C C' : precategory_data}(F : functor C C'):
 
 
 Definition functor_comp {C C' : precategory_data}
-      (F : functor C C'):
-       ∏ a b c : ob C, ∏ f : a --> b,
-                 ∏ g : b --> c,
-                #F (f ;; g) = #F f ;; #F g := pr2 (pr2 F).
+           (F : functor C C') {a b c : C} (f : a --> b) (g : b --> c)
+  : #F (f ;; g) = #F f ;; #F g
+  := pr2 (pr2 F) _ _ _ _ _ .
 
 
 Lemma functor_id_id (A B : precategory) (G : functor A B) (a : A) (f : a --> a)
@@ -663,8 +662,8 @@ Proof.
   apply ( ( maponpaths ( # F' ) e1 ) @ e2 ) .
 
   unfold functor_compax .  intros .
-  assert ( e1 := functor_comp F _ _ _ f g ) .
-  assert ( e2 := functor_comp F' _ _ _ ( # F f ) ( # F g ) ) .
+  assert ( e1 := functor_comp F f g ) .
+  assert ( e2 := functor_comp F' ( # F f ) ( # F g ) ) .
   apply ( ( maponpaths ( # F' ) e1 ) @ e2 ) .
 Defined.
 
