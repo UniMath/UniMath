@@ -4,6 +4,7 @@ Require Import UniMath.Foundations.Basics.Sets
         UniMath.CategoryTheory.category_hset
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.opp_precat
+        UniMath.CategoryTheory.yoneda
         UniMath.Ktheory.ElementsOp
         UniMath.CategoryTheory.UnicodeNotations.
 
@@ -22,28 +23,120 @@ Section elems_slice_equiv.
   Variable (C : Precategory).
   Variable (P : pshf C).
 
+
+  Local Definition ap_pshf {X : Precategory} := fun (P : pshf X) (x : X) => pr1 ((pr1 P) x).
+  Local Notation "##" := ap_pshf.
+
+  Definition pshf_to_slice_ob_funct_fun (F : pshf (el P)) : C^op → SET :=
+    fun X : ob C =>
+      total2_hSet (fun p : pr1hSet (nat_trans (pr1 (yoneda C (pr2 C) X)) (pr1 P) ,,
+                                              isaset_nat_trans_yoneda C (pr2 C) X P) =>
+                     nat_trans (pr1 (yoneda (el P) (pr2 (el P)) (X ,, (pr1 p) X (identity X)))) (pr1 F) ,,
+                               isaset_nat_trans_yoneda (el P) (pr2 (el P)) (X ,, (pr1 p) X (identity X)) F).
+
+
+  Definition pshf_to_slice_ob_funct_mor (F : pshf (el P))  {X Y : C^op} (f : X --> Y) :
+    pshf_to_slice_ob_funct_fun F X --> pshf_to_slice_ob_funct_fun F Y.
+    intros F X Y f.
+    refine (fun p' =>
+              match p' with
+              | p ,, q => nat_trans_comp _ _ _ (yoneda_morphisms C (pr2 C) _ _ f) p ,,
+                                         nat_trans_comp _ _ _ (yoneda_morphisms (el P) (pr2 (el P)) _ _ _) q
+              end). simpl in *.
+    refine (f ,, pathscomp0 _ (toforallpaths _ _ _ ((pr2 p) X Y f) (identity X))).
+    unfold yoneda_morphisms_data. simpl. unfold compose. simpl.
+    set (idl := id_left f). set (idr := id_right f).
+    unfold compose in idl, idr.
+    rewrite idl , idr. reflexivity.
+  Defined.
+
+  Definition pshf_to_slice_ob_funct_data (F : pshf (el P)) : functor_data C^op SET :=
+    pshf_to_slice_ob_funct_fun F ,, @pshf_to_slice_ob_funct_mor F.
+
+  Definition pshf_to_slice_ob_is_funct (F : pshf (el P)) : is_functor (pshf_to_slice_ob_funct_data F).
+  Proof.
+    intros F.
+    split.
+    + intro X; simpl.
+      apply funextfun. intros [p q]. unfold identity. simpl.
+      set (peq := nat_trans_eq
+                    has_homsets_HSET _ _
+                    (nat_trans_comp (yoneda_ob_functor_data C (pr2 C) X) (yoneda_ob_functor_data C (pr2 C) X) (pr1 P) (yoneda_morphisms C (pr2 C) X X (identity X)) p)
+                    p
+                    (fun x => funextfun _ _ (fun f => maponpaths (p x) (id_right f)))).
+      refine (total2_paths2 peq _).
+      apply (nat_trans_eq has_homsets_HSET).
+      intro x.
+
+
+
+
+
+
+
+
+  Definition Fmod' (F : pshf (el P)) (X : el P) (q : Σ Y , X --> Y) :
+    Σ Y , (pr1 F) Y --> (pr1 F) X := pr1 q ,, # (pr1 F) (pr2 q).
+
+  Definition Fmod (F : pshf (el P)) (Y : C) (B : el P) (q : Σ p : ##P Y , ((Y ,, p) : el P) --> B) :
+    Σ p : ##P Y , (pr1 F) B --> (pr1 F) (Y ,, p) := pr1 q ,, # (pr1 F) (pr2 q).
+
   Definition pshf_to_slice_ob_funct_fun (F : pshf (el P)) : C^op → SET :=
     fun X => total2_hSet (fun (p : pr1 ((pr1 P) X)) => ((pr1 F) (X ,, p))).
 
-
-  Definition pshf_to_slice_ob_funct_mor (F : pshf (el P)) {X Y : C^op} (f : X --> Y) :
+  Definition pshf_to_slice_ob_funct_mor' (F : pshf (el P)) {X Y : C^op} (f : X --> Y) :
     pshf_to_slice_ob_funct_fun F X --> pshf_to_slice_ob_funct_fun F Y :=
     fun p => # (pr1 P) f (pr1 p) ,,
                pr2 (pr1 F) (X ,, (pr1 p)) (Y,, # (pr1 P) f (pr1 p)) (f ,, idpath (# (pr1 P) f (pr1 p))) (pr2 p).
 
+  Definition pshf_to_slice_ob_funct_mor (F : pshf (el P)) {X Y : C^op} (f : X --> Y) :
+    pshf_to_slice_ob_funct_fun F X --> pshf_to_slice_ob_funct_fun F Y :=
+    fun p => # (pr1 P) f (pr1 p) ,,
+              (pr2 (Fmod F Y (X ,, (pr1 p)) (# (pr1 P) f (pr1 p) ,, (f ,, idpath (# (pr1 P) f (pr1 p)))))) (pr2 p).
+
+
   Definition pshf_to_slice_ob_funct_mor_MOD (F : pshf (el P)) {X Y : C^op} (f : X --> Y) :
-    Π (x : pr1 ((pr1 P) Y)) ,
-    (hfiber_hSet (fun p : pr1hSet (pshf_to_slice_ob_funct_fun F X) => # (pr1 P) f (pr1 p)) x : SET)
+    (total2_hSet (fun x => hfiber_hSet (fun p : pr1hSet (pshf_to_slice_ob_funct_fun F X) => # (pr1 P) f (pr1 p)) x) : SET)
       --> pshf_to_slice_ob_funct_fun F Y :=
-    fun x p' => match p' with
-              | (p ,, peq) => (x ,, pr2 (pr1 F) (X ,, (pr1 p)) (Y,, x) (f ,, ! peq) (pr2 p))
+       fun p'' => match p'' with
+                    | (x ,, p') => match p' with
+                                   | (p ,, peq) => (x ,, pr2 (pr1 F) (X ,, (pr1 p)) (Y,, x) (f ,, ! peq) (pr2 p))
+                                   end
+                  end.
+
+  Definition obj_incl (F : pshf (el P)) {X Y : C^op} (f : X --> Y) :
+    pr1hSet (pshf_to_slice_ob_funct_fun F X) -> total2 (fun x => hfiber_hSet (fun p : pr1hSet (pshf_to_slice_ob_funct_fun F X) => # (pr1 P) f (pr1 p)) x) :=
+    fun p' => match p' with
+              | p ,, q => (# (pr1 P) f p ,, (p ,, q) ,, idpath (# (pr1 P) f p))
               end.
 
+  (* actually do on morphism type *)
+  Lemma isincl_obj_incl (F : pshf (el P)) {X Y : C^op} (f : X --> Y) : isincl (obj_incl F f).
+  Proof.
+    intros F X Y f. unfold isincl. unfold isofhlevelf. Print hfiber.
+  Admitted.
+
+  Definition mor_incl (F : pshf (el P)) {X Y : C^op} (f : X --> Y) :
+    pshf_to_slice_ob_funct_fun F X --> pshf_to_slice_ob_funct_fun F Y
+    ->  (total2_hSet (fun x => hfiber_hSet (fun p : pr1hSet (pshf_to_slice_ob_funct_fun F X) => # (pr1 P) f (pr1 p)) x) : SET)
+          --> pshf_to_slice_ob_funct_fun F Y :=
+    fun g x => match x with
+               | (_ ,, x') => match x' with
+                              | (x'' ,, _) => g x''
+                              end
+               end.
+
+  Lemma isincl_mor_incl (F : pshf (el P)) {X Y : C^op} (f : X --> Y) : isincl (mor_incl F f).
+  Proof.
+    intros F X Y f.
+  Admitted.
+
+  (*
   Definition mor_translate (F : pshf (el P)) {X Y : C^op} (f : X --> Y) :
     (Σ mor : (pshf_to_slice_ob_funct_fun F X --> pshf_to_slice_ob_funct_fun F Y) , mor = pshf_to_slice_ob_funct_mor F f)
     ->  (Π (x : pr1 ((pr1 P) Y)) ,
     (hfiber_hSet (fun p : pr1hSet (pshf_to_slice_ob_funct_fun F X) => # (pr1 P) f (pr1 p)) x : SET)
-      --> pshf_to_slice_ob_funct_fun F Y) := fun _ => pshf_to_slice_ob_funct_mor_MOD F f.
+      --> pshf_to_slice_ob_funct_fun F Y) := fun _ => pshf_to_slice_ob_funct_mor_MOD' F f.
 
   Lemma isincl_mor_translate (F : pshf (el P)) {X Y : C^op} (f : X --> Y) : isincl (mor_translate F f).
   Proof.
@@ -57,8 +150,9 @@ Section elems_slice_equiv.
 
 
     unfold isofhlevel. simpl.
-    intros [[x e1] e2] [[x' e1'] e2'].
-
+    (*intros [[x e1] e2] [[x' e1'] e2'].*)
+    Admitted.
+   *)
 
   (*
   Definition pshf_to_slice_ob_funct_mor' (F : pshf (el P)) {Y : el P} (p : Σ X , X --> Y) :
@@ -67,15 +161,6 @@ Section elems_slice_equiv.
 
   Definition pshf_to_slice_ob_funct_mor'' (F : pshf (el P)) {Y : C^op}
    *)
-
-  Local Definition ap_pshf {X : Precategory} := fun (P : pshf X) (x : X) => pr1 ((pr1 P) x).
-  Local Notation "##" := ap_pshf.
-
-  Definition Fmod' (F : pshf (el P)) (X : el P) (q : Σ Y , X --> Y) :
-    Σ Y , (pr1 F) Y --> (pr1 F) X := pr1 q ,, # (pr1 F) (pr2 q).
-
-  Definition Fmod (F : pshf (el P)) (X : el P) (q : Σ p : ##P (pr1 X) , ((pr1 X ,, p) : el P) --> X) :
-    Σ p : ##P (pr1 X) , (pr1 F) X --> (pr1 F) (pr1 X ,, p) := pr1 q ,, # (pr1 F) (pr2 q).
 
   Definition mor_helper (F : pshf (el P)) {X : C^op} (f : Σ Y , X --> Y) :
     Σ Y , pshf_to_slice_ob_funct_fun F X --> pshf_to_slice_ob_funct_fun F Y :=
@@ -108,13 +193,28 @@ Section elems_slice_equiv.
     reflexivity.
   Qed.
 
+
+  Definition is_funct_helper (F : pshf (el P)) (A : el P) :
+    match A with
+    | (X ,, p) =>
+      Fmod F X (X ,, p) (# (pr1 P) (identity X) p ,, (identity X ,, idpath (# (pr1 P) (identity X) p)))
+      = p,, identity ((pr1 F) (X ,,p))
+    end.
+  Proof.
+
+    intros F [X p].
+    unfold Fmod; simpl.
+    set (e := toforallpaths _ _ _ ((pr1 (pr2 P)) X) p); unfold identity in e; simpl in e.
+    induction (!e).
+    apply (total2_paths2 e).
+    unfold identity. simpl.
+
+
   Definition pshf_to_slice_ob_is_funct (F : pshf (el P)) : is_functor (pshf_to_slice_ob_funct_data F).
   Proof.
     intros F.
     split.
     + intro X; simpl.
-      apply funextsec; intros [p q]; simpl.
-      set (e := toforallpaths _ _ _ ((pr1 (pr2 P)) X) p); simpl in e.
 
 
       (*
@@ -123,7 +223,15 @@ Section elems_slice_equiv.
       intro p. induction (e p).
        *)
 
-      assert (mod_prf : pshf_to_slice_ob_funct_mor_MOD F (identity X) p ((p ,, q) ,, e) = p ,, q).
+      apply (invmaponpathsincl (mor_incl F (identity X)) (isincl_mor_incl F (identity X))).
+
+      apply funextsec; intros [p' [[p q] e]]. simpl.
+      refine (total2_paths2 _ _).
+      Unshelve.
+
+      set (e := toforallpaths _ _ _ ((pr1 (pr2 P)) X) p); simpl in e.
+
+      assert (mod_prf : (pshf_to_slice_ob_funct_mor_MOD F (identity X)) (p ,, (p ,, q) ,, e) = (mor_incl F (identity X) (identity (pshf_to_slice_ob_funct_fun F X))) (p ,, (p ,, q) ,, e)).
       {
         unfold pshf_to_slice_ob_funct_mor_MOD. simpl.
         apply pair_path_in2.
@@ -131,7 +239,27 @@ Section elems_slice_equiv.
         unfold "# _" in Feq. unfold identity in Feq. simpl in Feq.
         refine (_ @ Feq).
         apply mor_equality_to_homot. reflexivity.
-      }
+      } unfold pshf_to_slice_ob_funct_mor_MOD in mod_prf; simpl in mod_prf.
+
+
+      Check (pshf_to_slice_ob_funct_mor F (identity X) (p,, q)).
+
+      generalize dependent q. intros q.
+      generalize dependent
+
+
+      unfold isincl in H. unfold isofhlevelf in H.
+
+
+      apply (total2_paths2 e).
+
+      Check transport_map.
+      Check (transport_map (fun (x : ##P X) (px : Σ p' : ##P X , (pr1 F) (X ,, (pr1 (p ,, q))) --> (pr1 F) (X ,, p')) => (pr2 px) (pr2 (p ,, q)))).
+
+      generalize (# (pr1 P) (identity X) (pr1 (p ,, q : pr1hSet (pshf_to_slice_ob_funct_fun F X)))).
+
+
+
 
         set (Feq' := functor_id F (X ,, p)).
         unfold "# _" in Feq'. unfold identity in Feq'. simpl in Feq'.
@@ -385,6 +513,9 @@ Section elems_slice_equiv.
     simpl in *.
     unfold pshf_to_slice_ob ,  slice_to_pshf_ob.
     unfold slice_to_pshf_ob_funct_data , pshf_to_slice_ob_funct_data.
+  Admitted.
+
+End elems_slice_equiv._data.
   Admitted.
 
 End elems_slice_equiv.
