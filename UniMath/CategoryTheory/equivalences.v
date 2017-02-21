@@ -3,26 +3,16 @@
 Benedikt Ahrens, Chris Kapulkin, Mike Shulman
 january 2013
 
-Extended by: Anders Mörtberg, 2016
-
 ************************************************************)
 
 
 (** **********************************************************
 
-Contents :  Definition of adjunction
+Contents:
 
-	    Definition of equivalence of precategories
-
-	    Equivalence of categories yields weak equivalence
-            of object types
-
-            A fully faithful and ess. surjective functor induces
-            equivalence of precategories, if the source
-            is a category.
-
-            Post-composition with a left adjoint is a left
-            adjoint ([is_left_adjoint_post_composition_functor])
+- Definition of equivalence of precategories
+- Equivalence of categories yields weak equivalence of object types
+- A fully faithful and ess. surjective functor induces equivalence of precategories, if the source is a category.
 
 ************************************************************)
 
