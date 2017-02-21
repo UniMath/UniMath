@@ -32,10 +32,23 @@ consequences of univalence, rather than the theorems giving the implications.
 
 Require Export UniMath.Foundations.PartB.
 
-(* everything related to eta correction is obsolete *)
-
 Definition eqweqmap { T1 T2 : UU } : T1 = T2 -> T1 ≃ T2.
 Proof. intro e. induction e. apply idweq. Defined.
+
+Definition eqweqmap_ap {T} (P:T->Type) {t t':T} (e:t = t') (f:∏ t:T, P t) :
+  eqweqmap (maponpaths P e) (f t) = f t'. (* move near eqweqmap *)
+Proof. intros. induction e. reflexivity. Defined.
+
+Definition eqweqmap_ap' {T} (P:T->Type) {t t':T} (e:t = t') (f:∏ t:T, P t) :
+  invmap (eqweqmap (maponpaths P e)) (f t') = f t. (* move near eqweqmap *)
+Proof. intros. induction e. reflexivity. Defined.
+
+Definition pr1_eqweqmap { X Y } ( e: X = Y ) : cast e = pr1 (eqweqmap e).
+Proof. intros. induction e. reflexivity. Defined.
+
+Definition pr1_eqweqmap2 { X Y } ( e: X = Y ) :
+  pr1 (eqweqmap e) = transportf (fun T:Type => T) e.
+Proof. intros. induction e. reflexivity. Defined.
 
 Definition sectohfiber { X : UU } (P:X -> UU): (∏ x:X, P x) -> (hfiber (fun f:_ => fun x:_ => pr1  (f x)) (fun x:X => x)) := (fun a : ∏ x:X, P x => tpair _ (fun x:_ => tpair _ x (a x)) (idpath (fun x:X => x))).
 
@@ -448,3 +461,15 @@ Proof.
 Defined.
 
 Ltac type_induction f e := generalize f; apply UU_rect; intro e; clear f.
+
+
+Definition weqpath_transport {X Y} (w:X ≃ Y) (x:X) :
+  transportf (fun T => T) (weqtopaths w) = pr1 w.
+Proof.
+  intros. exact (!pr1_eqweqmap2 _ @ maponpaths pr1 (weqpathsweq w)).
+Defined.
+
+Definition weqpath_cast {X Y} (w:X ≃ Y) (x:X) : cast (weqtopaths w) = w.
+Proof.
+  intros. exact (pr1_eqweqmap _ @ maponpaths pr1 (weqpathsweq w)).
+Defined.

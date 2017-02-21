@@ -63,7 +63,7 @@ Proof. intros.
          { intros [h0 [hp [h1' hn]]]. simple refine (_,,_,,_).
            { exact h0. } { exact hp. }
            { intros [|n']. { exact h1'. } { exact (hn n'). } } }
-         { intros [h0 [hp hn]]. simpl. apply paths3.
+         { intros [h0 [hp hn]]. simpl. apply dirprodeq3.
            { reflexivity. } { reflexivity. }
            { apply funextsec; intros [|n']; reflexivity; reflexivity. } }
          { intros [h0 [h1' [hp hn]]]. reflexivity. } }

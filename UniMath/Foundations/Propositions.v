@@ -364,6 +364,16 @@ Proof.
   exact (pr2 z).
 Defined.
 
+Definition isconnected X := ∏ (x y:X), ∥ x = y ∥.
+
+Lemma base_connected {X} (t:X) : (∏ y:X, ∥ t = y ∥) -> isconnected X.
+Proof.
+  intros ? ? p x y. assert (a := p x). assert (b := p y). clear p.
+  apply (squash_to_prop a). apply propproperty. clear a. intros a.
+  apply (squash_to_prop b). apply propproperty. clear b. intros b.
+  apply hinhpr. exact (!a@b).
+Defined.
+
 (** *** The two-out-of-three properties of surjections *)
 
 Lemma issurjcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
@@ -1158,3 +1168,17 @@ Defined.
 
 Goal ∏ X Y (y:Y) (f:X->Y) (e:∏ m:X, f m = y), f = funcomp hinhpr (cone_squash_map f y e).
 Proof. reflexivity. Qed.
+
+Ltac prop_logic :=
+  (* try to prove something is a proposition *)
+  abstract (intros; simpl;
+            repeat (try (apply isapropdirprod);try (apply isapropishinh);apply impred ;intro);
+            try (apply isapropiscontr); try assumption) using _L_.
+
+Ltac isaprop_goal x :=
+  (* assert the goal is a proposition *)
+  match goal with |- ?G => assert (x : isaprop(G)) end.
+
+(* less fancy than [isaprop_goal ig.] is this: [apply isaprop_goal; intro ig.] *)
+Definition isaprop_goal X (ig:isaprop X) (f:isaprop X -> X) : X.
+Proof. intros. exact (f ig). Defined.

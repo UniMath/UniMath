@@ -342,6 +342,7 @@ Defined.
 Hint Resolve @pathscomp0 : pathshints.
 
 Ltac intermediate_path x := apply (pathscomp0 (b := x)).
+
 Ltac etrans := eapply pathscomp0.
 
 (** Notation [p @ q] added by B.A., oct 2014 *)
@@ -445,6 +446,15 @@ Proof.
   apply idpath.
 Defined.
 
+Definition dirprodeq3 {X Y Z} {x x':X} {y y':Y} {z z':Z} :
+  x = x' -> y = y' -> z = z' -> @paths (_×_×_) (x,,y,,z) (x',,y',,z').
+Proof. intros ? ? ? ? ? ? ? ? ? p q r. induction p, q, r. reflexivity.
+Defined.
+
+Definition dirprodeq4 {W X Y Z} {w w':W} {x x':X} {y y':Y} {z z':Z} :
+  w = w' -> x = x' -> y = y' -> z = z' -> @paths (_×_×_×_) (w,,x,,y,,z) (w',,x',,y',,z').
+Proof. intros ? ? ? ? ? ? ? ? ? ? ? ? o p q r. induction o, p, q, r. reflexivity.
+Defined.
 
 (** *** The function [ maponpaths ] between paths types defined by a function between ambient types
 
@@ -460,13 +470,6 @@ Definition maponpaths_idpath {X Y} {f:X->Y} {x:X} : maponpaths f (idpath x) = id
 (* can be used with "rewrite" *)
 Proof.
   intros. reflexivity.
-Defined.
-
-Definition loop_power_nat {Y} {y:Y} (l:y = y) (n:nat) : y = y.
-Proof.
-  intros. induction n as [|n p].
-  { exact (idpath _). }
-  { exact (p@l). }
 Defined.
 
 Definition map_on_two_paths {X Y Z : UU} (f:X->Y->Z) {x x' y y'} (ex:x=x') (ey:y=y') :
@@ -511,6 +514,17 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
+Local Definition post_cat {X} {x y z:X} {p:y = z} : x = y -> x = z.
+Proof. intros ? ? ? ? ? q. exact (pathscomp0 q p). Defined.
+
+Local Definition pre_cat {X} {x y z:X} {p:x = y} : y = z -> x = z.
+Proof. intros ? ? ? ? ? q. exact (pathscomp0 p q). Defined.
+
+Ltac maponpaths_pre_post_cat :=
+  (* try standard path identities to prove two reduce an equation between paths to a simpler form *)
+  repeat rewrite path_assoc; repeat apply (maponpaths post_cat); repeat rewrite <- path_assoc;
+  repeat apply (maponpaths pre_cat); repeat rewrite path_assoc; repeat rewrite maponpathsinv0;
+  try reflexivity.
 
 (** *** [ maponpaths ] for the identity functions and compositions of functions *)
 
@@ -672,9 +686,6 @@ Defined.
 Definition transportf {X : UU} (P : X -> UU) {x x' : X}
            (e : x = x') : P x -> P x' := pr1 (constr1 P e).
 
-Definition transportf_eq {X : UU} (P : X -> UU) {x x' : X} (e : x = x') ( p : P x ) :
-  tpair _ x p = tpair  _ x' ( transportf P e p ) := ( pr1 ( pr2 ( constr1 P e ))) p .
-
 Definition transportb {X : UU} (P : X -> UU) {x x' : X}
            (e : x = x') : P x' -> P x := transportf P (!e).
 
@@ -682,7 +693,11 @@ Notation "p # x" := (transportf _ p x)
   (right associativity, at level 65, only parsing) : transport.
 Notation "p #' x" := (transportb _ p x)
   (right associativity, at level 65, only parsing) : transport.
+
 Delimit Scope transport with transport.
+
+Definition transportf_eq {X : UU} (P : X -> UU) {x x' : X} (e : x = x') ( p : P x ) :
+  tpair _ x p = tpair  _ x' ( transportf P e p ) := ( pr1 ( pr2 ( constr1 P e ))) p .
 
 Definition idpath_transportf {X : UU} (P : X -> UU) {x : X} (p : P x) :
   transportf P (idpath x) p = p.
@@ -941,7 +956,7 @@ Proof.
 Defined.
 
 Definition pair_path_in2_comp1 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) :
-  maponpaths pr1 (@pair_path_in2 X P x p q e) = idpath x.
+  maponpaths pr1 (maponpaths (tpair P _) e) = idpath x.
 Proof. intros. induction e. reflexivity. Defined.
 
 Definition fiber_paths {A : UU} {B : A -> UU} {u v : ∑ x, B x} (p : u = v) :
@@ -1372,6 +1387,15 @@ Definition weqpair {X Y : UU} (f : X -> Y) (is: isweq f) : X ≃ Y :=
 
 Definition idweq (X : UU) : X ≃ X :=
   tpair (fun (f : X -> X) => isweq f) (fun (x : X) => x) (idisweq X).
+
+Definition weq_transportf {X} (P:X->Type) {x y:X} (p:x = y) : P x ≃ P y.
+Proof.
+  intros. induction p. apply idweq.
+Defined.
+
+Definition weq_transportf_comp {X} (P:X->Type) {x y:X} (p:x = y) (f:∏ x, P x) :
+  weq_transportf P p (f x) = f y.
+Proof. intros. induction p. reflexivity. Defined.
 
 Definition isweqtoempty {X : UU} (f : X -> empty) : isweq f.
 Proof.
@@ -1935,6 +1959,12 @@ Proof.
   intros. apply (iscontrweqb (invweq w) is).
 Defined.
 
+Definition switch_weq {X Y} (f:X ≃ Y) {x y} : y = f x -> invweq f y = x.
+Proof. intros ? ? ? ? ? p. exact (maponpaths (invweq f) p @ homotinvweqweq f x). Defined.
+
+Definition switch_weq' {X Y} (f:X ≃ Y) {x y} : invweq f y = x -> y = f x.
+Proof. intros ? ? ? ? ? p. exact (! homotweqinvweq f y @ maponpaths f p). Defined.
+
 Definition transport_invweq {T} {X Y:T->Type} (f:∏ t, weq (X t) (Y t))
            {t t':T} (p:t = t') :
   transportf (fun t => weq (Y t) (X t)) p (invweq (f t))
@@ -2001,8 +2031,12 @@ Proof.
                 (@pathsweq4 _ _ w x x')).
 Defined.
 
-Definition weqonpaths {X Y : UU} (w : weq X Y) (x x' : X) :=
-  weqpair _ (isweqmaponpaths w x x').
+Definition weqonpaths {X Y : UU} (w : X ≃ Y) (x x' : X) : x = x' ≃ w x = w x'
+  := weqpair _ (isweqmaponpaths w x x').
+
+Definition weqonpaths2 {X Y} (w:X ≃ Y) {x x':X} {y y':Y} :
+  w x = y -> w x' = y' -> x = x' ≃ y = y'.
+Proof. intros ? ? ? ? ? ? ? p q. induction p,q. apply weqonpaths. Defined.
 
 (** The inverse path and the composition with a path functions are weak equivalences *)
 
@@ -2510,6 +2544,15 @@ Proof.
     reflexivity.
 Defined.
 
+(* associativity of ∑ *)
+Definition totalAssociativity {X:UU} {Y: ∏ (x:X), UU} (Z: ∏ (x:X) (y:Y x), UU) : (∑ (x:X) (y:Y x), Z x y) ≃ (∑ (p:∑ (x:X), Y x), Z (pr1 p) (pr2 p)).
+Proof.
+  intros. simple refine (_,,gradth _ _ _ _).
+  { intros [x [y z]]. exact ((x,,y),,z). }
+  { intros [[x y] z]. exact (x,,(y,,z)). }
+  { intros [x [y z]]. reflexivity. }
+  { intros [[x y] z]. reflexivity. } Defined.
+
 Definition weqtotal2comm12 {X} (P Q : X -> UU) :
   (∑ (w : ∑ x, P x), Q (pr1 w)) ≃ (∑ (w : ∑ x, Q x), P (pr1 w)).
 Proof.
@@ -2520,6 +2563,14 @@ Proof.
   - intros [[x p] q]. reflexivity.
   - intros [[x q] p]. reflexivity.
 Defined.
+
+Definition weq_total2_prod {X Y} (Z:Y->Type) : (∑ y, X × Z y) ≃ (X × ∑ y, Z y).
+Proof.                          (* move upstream *)
+       intros. simple refine (weqpair _ (gradth _ _ _ _)).
+       { intros [y [x z]]. exact (x,,y,,z). }
+       { intros [x [y z]]. exact (y,,x,,z). }
+       { intros [y [x z]]. reflexivity. }
+       { intros [x [y z]]. reflexivity. } Defined.
 
 (** ** Binary coproducts and their basic properties *)
 
@@ -3755,9 +3806,18 @@ Defined.
 
 Definition weqbandf {X Y : UU} (w : X ≃ Y) (P : X -> UU) (Q : Y -> UU)
            (fw : ∏ x : X, weq (P x) (Q (w x)))
+  : (∑ x : X, P x) ≃ (∑ x : Y, Q x)
   := weqpair _ (isweqbandfmap w P Q fw).
 
 
+Definition weqbandfrel {X Y T}
+           (e:Y->T) (t:T) (f : X ≃ Y)
+           (P:X -> Type) (Q: Y -> Type)
+           (g:∏ x:X, P x ≃ Q (f x)) :
+    hfiber (fun xp:total2 P => e(f(pr1 xp))) t
+         ≃
+    hfiber (fun yq:total2 Q => e(  pr1 yq )) t.
+Proof. intros. refine (weqbandf (weqbandf f _ _ g) _ _ _). intros [x p]. simpl. apply idweq. Defined.
 
 (** ** Homotopy fiber squares *)
 
@@ -4138,5 +4198,33 @@ Lemma iscontr_paths_to {X} (x:X) : iscontr (paths_to x).
 Proof. apply iscontrcoconustot. Defined.
 Lemma iscontr_paths_from {X} (x:X) : iscontr (paths_from x).
 Proof. apply iscontrcoconusfromt. Defined.
+
+
+(** ** Pointed types *)
+
+Definition PointedType := ∑ X, X.
+
+Definition pointedType X x := X,,x : PointedType.
+
+Definition underlyingType (X:PointedType) := pr1 X.
+
+Coercion underlyingType : PointedType >-> Sortclass.
+
+Definition basepoint (X:PointedType) := pr2 X.
+
+Definition loopSpace (X:PointedType) :=
+  pointedType (basepoint X = basepoint X) (idpath _).
+
+Definition underlyingLoop {X:PointedType} (l:loopSpace X) : basepoint X = basepoint X.
+Proof. intros. exact l. Defined.
+
+Definition Ω := loopSpace.
+
+Definition loop_power_nat {Y} {y:Y} (l:y = y) (n:nat) : y = y.
+Proof.
+  intros. induction n as [|n p].
+  { exact (idpath _). }
+  { exact (p@l). }
+Defined.
 
 (* End of the file PartA.v *)

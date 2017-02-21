@@ -136,6 +136,9 @@ Proof. intros. apply impred_isaset. intro x. apply setproperty. Defined.
 Definition forall_hSet {X : UU} (Y : X -> hSet) : hSet
   := hSetpair (∏ x, Y x) (isaset_forall_hSet X Y).
 
+Definition funset (X:UU) (Y:hSet) : hSet
+  := forall_hSet (λ _:X,Y).
+
 Notation "'∏' x .. y , P" := (forall_hSet (fun x =>.. (forall_hSet (fun y => P))..))
   (at level 200, x binder, y binder, right associativity) : set.
   (* type this in emacs in agda-input method with \sum *)
@@ -3021,5 +3024,11 @@ Ltac hSet_induction f e := generalize f; apply UU_rect; intro e; clear f.
 Lemma isaset_NullHomotopyTo {X Y} (i:isaset Y) (f:X->Y) : isaset (NullHomotopyTo f).
 Proof. intros. apply (isofhleveltotal2 2). { apply i. }
        intros y. apply impred; intros x. apply isasetaprop. apply i. Defined.
+
+(* assert the current goal is a set *)
+Ltac isaset_goal x :=
+  match goal with |- ?G => assert (x : isaset(G)) end.
+
+
 
 (* End of the file hSet.v *)

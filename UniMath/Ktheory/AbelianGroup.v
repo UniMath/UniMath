@@ -4,7 +4,6 @@
 
 Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.NumberSystems.Integers
-               UniMath.Ktheory.Tactics
                UniMath.Ktheory.Utilities
                UniMath.CategoryTheory.functor_categories
                UniMath.Ktheory.Representation

@@ -318,7 +318,6 @@ Defined.
 Definition weqonsecfibers {X : UU} (P Q : X -> UU) (f : ∏ x : X, weq (P x) (Q x))
   := weqpair _ (isweqmaponsec P Q f).
 
-
 (** *** Composition of functions with a weak equivalence on the right *)
 
 Definition weqffun (X : UU) {Y Z : UU} (w : weq Y Z) : weq (X -> Y) (X -> Z)
@@ -418,6 +417,35 @@ Defined.
 Definition weqonsecbase {X Y : UU} (P : Y -> UU) (f : weq X Y)
   : weq (∏ y : Y, P y) (∏ x : X, P (f x))
   := weqpair _ (isweqmaponsec1 P f).
+
+Definition weqonsec {X Y} (P:X->Type) (Q:Y->Type)
+           (f:X ≃ Y) (g:∏ x, weq (P x) (Q (f x))) :
+  weq (∏ x:X, P x) (∏ y:Y, Q y).
+Proof.
+  intros. exact (weqcomp (weqonsecfibers P (fun x => Q(f x)) g) (invweq (weqonsecbase Q f))).
+Defined.
+
+Local Open Scope transport.
+
+Definition weq_over_sections {S T} (w:S ≃ T)
+           {s0:S} {t0:T} (k:w s0 = t0)
+           {P:T->Type}
+           (p0:P t0) (pw0:P(w s0)) (l:k#pw0 = p0)
+           (H:(∏ t, P t) -> UU)
+           (J:(∏ s, P(w s)) -> UU)
+           (g:∏ f:(∏ t, P t), H f ≃ J (maponsec1 P w f)) :
+    hfiber (fun fh:total2 H => pr1 fh t0) p0
+    ≃
+    hfiber (fun fh:total2 J => pr1 fh s0) pw0.
+Proof.
+  intros. simple refine (weqbandf _ _ _ _).
+  { simple refine (weqbandf _ _ _ _).
+    { exact (weqonsecbase P w). }
+    { unfold weqonsecbase; simpl. exact g. } }
+  { intros [f h]. simpl. unfold maponsec1; simpl.
+    induction k, l; simpl. unfold transportf; simpl.
+    unfold idfun; simpl. apply idweq. }
+Defined.
 
 
 (** *** Composition of functions with a weak equivalence on the left *)

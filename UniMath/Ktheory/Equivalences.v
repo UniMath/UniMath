@@ -1,10 +1,6 @@
 (** * Equivalences *)
 
-Unset Automatic Introduction.
-
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.UnivalenceAxiom.
-Require Import UniMath.Ktheory.Tactics.
+Require Import UniMath.Ktheory.Utilities.
 
 Definition Equivalence X Y :=
   ∑ (f:X->Y) (g:Y->X) (p:∏ y, f(g y) = y) (q:∏ x, g(f x) = x),
@@ -86,6 +82,7 @@ Abort.
 
 (* another proof *)
 Definition weq_to_Equivalence' X Y : X ≃ Y -> Equivalence X Y.
+Proof.
   intros ? ? [f r].
   unfold isweq in r.
   set (g := fun y => hfiberpr1 f y (pr1 (r y))).
@@ -313,7 +310,7 @@ Proof. intros. apply pathsinv0.
          rewrite maponpathsidfun in r. unfold funcomp in *; simpl in *.
          repeat rewrite <- (maponpathscomp g f) in r.
          repeat rewrite (path_assoc _ _ (p y)). rewrite r.
-         repeat rewrite <- (path_assoc _ _ (p y)). apply (maponpaths pre_cat). clear r.
+         repeat rewrite <- (path_assoc _ _ (p y)). apply (maponpaths (pathscomp0 _)). clear r.
          assert (r := maponpaths_fun_fun_natl p p y); simpl in r.
          rewrite maponpathsidfun in r.
          repeat rewrite <- (maponpathscomp g f) in r. exact r. }
