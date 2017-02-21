@@ -23,7 +23,8 @@ Definition cat_data {C} (X:C^op==>SET) : precategory_data.
                     (eqtohomot (!((functor_id X) (pr1 a))) (pr2 a))). }
   { intros a b c f g.
     exact (pr1 g ∘ pr1 f,,
-           ((pr2 f) @ !ap (#X (pr1 f)) (!(pr2 g))) @ (!(eqtohomot (((functor_comp X) _ _ _ (pr1 g) (pr1 f))) (pr2 c)))). } Defined.
+               ((pr2 f) @ ap (#X (pr1 f)) (pr2 g))
+               @ ((eqtohomot (!((functor_comp X) _ _ _ (pr1 g) (pr1 f))) (pr2 c)))). } Defined.
 
 Lemma has_homsets_cat_ob_mor {C:Precategory} (X:C^op==>SET) :
    has_homsets (cat_data X).
