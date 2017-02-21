@@ -9,9 +9,6 @@ Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.functor_categories.
-(*
-Require Import UniMath.CategoryTheory.HLevel_n_is_of_hlevel_Sn.
-*)
 
 Section BINOPS_precategory.
 
