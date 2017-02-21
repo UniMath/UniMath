@@ -411,7 +411,7 @@ Proof.
       apply (!H1).
   - set (B:= τ T).
     match goal with | [|- _ ;; # ?H (?f ;; _ ) ;; _ = _ ] => set (F:=f : (*TtimesTthenT'*) T•T² --> _ ) end.
-    assert (H3:= functor_comp H _ _ _ F μ_2).
+    assert (H3:= functor_comp H F μ_2).
     unfold functor_compose in H3.
     eapply pathscomp0. apply cancel_postcomposition. apply maponpaths. apply H3.
     clear H3.

@@ -540,7 +540,7 @@ pathvia (pr1 (pr1 X)).
       rewrite <- !assoc.
       eapply pathscomp0;
         [| eapply pathsinv0, cancel_postcomposition,
-           (nat_trans_eq_pointwise (functor_comp H _ _ _ t β) c)].
+           (nat_trans_eq_pointwise (functor_comp H t β) c)].
       simpl; rewrite <- assoc.
       apply maponpaths, BinCoproductIn2Commutes_left_in_ctx_dir.
       assert (Hyp_c := nat_trans_eq_pointwise (τ_part_of_alg_mor _ hsC CP _ _ _ (InitialArrow IA (pr1 T'))) c).

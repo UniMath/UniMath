@@ -739,7 +739,7 @@ Definition functor_on_square : #F h ;; #F f = #F k ;; #F g.
 Proof.
   eapply pathscomp0; [ | apply functor_comp].
   eapply pathscomp0; [ | apply maponpaths ; apply H].
-  apply (! functor_comp _ _ _ _ _ _ ).
+  apply (! functor_comp _ _ _ ).
 Defined.
 
 Variable X : isPullback _ _ _ _ functor_on_square.
@@ -749,11 +749,11 @@ Proof.
   refine (mk_isPullback _ _ _ _ _ _ ).
   intros e x y Hxy.
   set (T := maponpaths (#F) Hxy).
-  set (T' := !functor_comp _ _ _ _ _ _
+  set (T' := !functor_comp _ _ _
                  @
                  T
                  @
-                 functor_comp _ _ _ _ _ _ ).
+                 functor_comp _ _ _ ).
   set (TH := X _ _ _ T').
   set (FxFy := pr1 (pr1 TH)).
   set (HFxFy := pr2 (pr1 TH)). simpl in HFxFy.
@@ -800,10 +800,10 @@ Proof.
       destruct (pr2 t) as [H1 H2].
       split.
       * assert (X1:= maponpaths (#F) H1).
-        eapply pathscomp0. apply (!functor_comp _ _ _ _ _ _ ).
+        eapply pathscomp0. apply (!functor_comp _ _ _ ).
         apply X1.
       * assert (X2:= maponpaths (#F) H2).
-        eapply pathscomp0. apply (!functor_comp _ _ _ _ _ _ ).
+        eapply pathscomp0. apply (!functor_comp _ _ _).
         apply X2.
 Defined.
 

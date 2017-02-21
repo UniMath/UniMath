@@ -98,7 +98,7 @@ Definition Functor_obmor {C D} (F:functor C D) := pr1 F.
 Definition Functor_obj {C D} (F:functor C D) := pr1 (pr1 F).
 Definition Functor_mor {C D} (F:functor C D) := pr2 (pr1 F).
 Definition Functor_identity {C D} (F:functor C D) := functor_id F.
-Definition Functor_compose {C D} (F:functor C D) := functor_comp F.
+Definition Functor_compose {C D} (F:functor C D) := @functor_comp _ _ F.
 
 Definition category_pair (C:precategory) (i:is_category C) : category := C,,i.
 
@@ -236,7 +236,7 @@ Definition arrow_mor_id {C:Precategory} {c:C} {X:[C^op,SET]} (x:c⇒X) :
 Definition arrow_mor_mor_assoc {C:Precategory} {c c' c'':C} {X:[C^op,SET]}
            (g:c''-->c') (f:c'-->c) (x:c⇒X) :
   x ⟲ (f ∘ g) = (x ⟲ f) ⟲ g
-  := eqtohomot (functor_comp X c c' c'' f g) x.
+  := eqtohomot (functor_comp X f g) x.
 
 Definition nattrans_naturality {B C:Precategory} {F F':[B, C]} {b b':B}
            (p : F --> F') (f : b --> b') :
@@ -271,7 +271,7 @@ Proof. exact (functor_id F b). Defined.
 
 Lemma functor_on_comp {B C:Precategory} (F:[B,C]) {b b' b'':B} (g:b'-->b'') (f:b-->b') :
   F ▭ (g ∘ f) = F ▭ g ∘ F ▭ f.
-Proof. exact (functor_comp F _ _ _ f g). Defined.
+Proof. exact (functor_comp F f g). Defined.
 
 (*  *)
 

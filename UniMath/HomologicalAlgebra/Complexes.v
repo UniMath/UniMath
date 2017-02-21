@@ -3103,11 +3103,11 @@ Section translation_functor.
     apply has_homsets_ComplexHomot_Additive. intros g'.
     rewrite (TranslationFunctorHImEq (iscontrpr1 (TranslationFunctorH_Mor f)) _ (hfiberpr2 _ _ f')).
     rewrite (TranslationFunctorHImEq (iscontrpr1 (TranslationFunctorH_Mor g)) _ (hfiberpr2 _ _ g')).
-    set (tmp := functor_comp (ComplexHomotFunctor A) _ _ _
+    set (tmp := functor_comp (ComplexHomotFunctor A)
                              (# TranslationFunctor (hfiberpr1 # (ComplexHomotFunctor A) f f'))
                              (# TranslationFunctor (hfiberpr1 # (ComplexHomotFunctor A) g g'))).
     use (pathscomp0 _ tmp). clear tmp.
-    set (tmp := functor_comp TranslationFunctor _ _ _ (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
+    set (tmp := functor_comp TranslationFunctor (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
     apply (maponpaths (# (ComplexHomotFunctor A))) in tmp.
     use (pathscomp0 _ tmp). clear tmp.
     use (TranslationFunctorHImEq (iscontrpr1 (TranslationFunctorH_Mor (f ;; g)))).
@@ -3322,11 +3322,11 @@ Section translation_functor.
                (iscontrpr1 (InvTranslationFunctorH_Mor f)) _ (hfiberpr2 _ _ f')).
     rewrite (InvTranslationFunctorHImEq
                (iscontrpr1 (InvTranslationFunctorH_Mor g)) _ (hfiberpr2 _ _ g')).
-    set (tmp := functor_comp (ComplexHomotFunctor A) _ _ _
+    set (tmp := functor_comp (ComplexHomotFunctor A)
                              (# InvTranslationFunctor (hfiberpr1 # (ComplexHomotFunctor A) f f'))
                              (# InvTranslationFunctor (hfiberpr1 # (ComplexHomotFunctor A) g g'))).
     use (pathscomp0 _ tmp). clear tmp.
-    set (tmp := functor_comp InvTranslationFunctor _ _ _ (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
+    set (tmp := functor_comp InvTranslationFunctor (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
     apply (maponpaths (# (ComplexHomotFunctor A))) in tmp.
     use (pathscomp0 _ tmp). clear tmp.
     use (InvTranslationFunctorHImEq (iscontrpr1 (InvTranslationFunctorH_Mor (f ;; g)))).

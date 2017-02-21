@@ -720,7 +720,7 @@ Proof.
         apply BinCoproductIn2Commutes_left_in_ctx_dir.
         apply BinCoproductIn2Commutes_right_in_ctx_dir.
         simpl.
-        assert (H_nat_inst := functor_comp H _ _ _ t β).
+        assert (H_nat_inst := functor_comp H t β).
         assert (H_nat_inst_c := nat_trans_eq_pointwise H_nat_inst c); clear H_nat_inst.
         {
           match goal with |[ H1 : _  = ?f |- _ = _;; ?g ;; ?h  ] =>

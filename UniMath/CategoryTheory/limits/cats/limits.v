@@ -323,7 +323,7 @@ mkpair.
     [ intro x; simpl;
       apply (toforallpaths _ _ _ (maponpaths pr1 (functor_id D x)) a)
     | intros x y z f g; simpl;
-      apply (toforallpaths _ _ _ (maponpaths pr1 (functor_comp D x y z f g)) a)]).
+      apply (toforallpaths _ _ _ (maponpaths pr1 (functor_comp D f g)) a)]).
 Defined.
 
 Variable (HCg : ∏ (a : A), LimCone (functor_pointwise a)).
