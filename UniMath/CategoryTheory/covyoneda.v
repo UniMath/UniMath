@@ -16,9 +16,9 @@ Contents : Definition of the covariant Yoneda functor
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -82,7 +82,7 @@ Definition covyoneda_objects (C : precategory) (hs: has_homsets C) (c : C^op) :
 (** ** On morphisms *)
 
 Definition covyoneda_morphisms_data (C : precategory) (hs: has_homsets C) (c c' : C^op)
-    (f : C^op⟦c,c'⟧) : Π a : C,
+    (f : C^op⟦c,c'⟧) : ∏ a : C,
          HSET⟦covyoneda_objects C hs c a,covyoneda_objects C hs c' a⟧.
 Proof.
 simpl in f; intros a g.

@@ -21,11 +21,11 @@ Contents :
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
-Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.UnivalenceAxiom.
+Require Import UniMath.Foundations.NaturalNumbers.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -36,13 +36,6 @@ Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 
 (** * Precategory of hSets *)
 Section HSET_precategory.
-
-Lemma isaset_set_fun_space (A B : hSet) : isaset (A -> B).
-Proof.
-  change isaset with (isofhlevel 2).
-  apply impred.
-  apply (fun _ => (pr2 B)).
-Qed.
 
 Definition hset_fun_space (A B : hSet) : hSet :=
   hSetpair _ (isaset_set_fun_space A B).
@@ -71,7 +64,9 @@ Proof. intros a b; apply isaset_set_fun_space. Qed.
 
 (*
   Canonical Structure hset_precategory. :-)
-*)
+ *)
+
+Definition hset_Precategory : Precategory := (HSET ,, has_homsets_HSET).
 
 End HSET_precategory.
 

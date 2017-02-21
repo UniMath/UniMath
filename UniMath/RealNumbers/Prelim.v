@@ -6,8 +6,8 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** ** for RationalNumbers.v *)
 
-Require Export UniMath.Foundations.NumberSystems.RationalNumbers.
-Require Export UniMath.Foundations.Algebra.Archimedean.
+Require Export UniMath.NumberSystems.RationalNumbers.
+Require Export UniMath.Algebra.Archimedean.
 
 Open Scope hq_scope.
 
@@ -53,7 +53,7 @@ Proof.
 Qed.
 
 Lemma hqgth_hqneq :
-  Π x y : hq, x > y -> hqneq x y.
+  ∏ x y : hq, x > y -> hqneq x y.
 Proof.
   intros x y Hlt Heq.
   rewrite Heq in Hlt.
@@ -61,20 +61,20 @@ Proof.
 Qed.
 
 Lemma hqldistr :
-  Π x y z, x * (y + z) = x * y + x * z.
+  ∏ x y z, x * (y + z) = x * y + x * z.
 Proof.
   intros x y z.
   now apply rngldistr.
 Qed.
 
 Lemma hqmult2r :
-  Π x : hq, x * 2 = x + x.
+  ∏ x : hq, x * 2 = x + x.
 Proof.
   intros x.
   now rewrite hq2eq1plus1, hqldistr, (hqmultr1 x).
 Qed.
 
-Lemma hqplusdiv2 : Π x : hq, x = (x + x) / 2.
+Lemma hqplusdiv2 : ∏ x : hq, x = (x + x) / 2.
   intros x.
   apply hqmultrcan with 2.
   now apply hqgth_hqneq, hq2_gt0.
@@ -87,7 +87,7 @@ Lemma hqplusdiv2 : Π x : hq, x = (x + x) / 2.
 Qed.
 
 Lemma hqlth_between :
-  Π x y : hq, x < y -> total2 (fun z => dirprod (x < z) (z < y)).
+  ∏ x y : hq, x < y -> total2 (fun z => dirprod (x < z) (z < y)).
 Proof.
   assert (H0 : / 2 > 0).
   { apply hqgthandmultlinv with 2.
@@ -114,7 +114,7 @@ Proof.
 Qed.
 
 Lemma hq0lehandplus:
-  Π n m : hq,
+  ∏ n m : hq,
     0 <= n -> 0 <= m -> 0 <= (n + m).
 Proof.
   intros n m Hn Hm.
@@ -123,14 +123,14 @@ Proof.
 Qed.
 
 Lemma hq0lehandmult:
-  Π n m : hq, 0 <= n -> 0 <= m -> 0 <= n * m.
+  ∏ n m : hq, 0 <= n -> 0 <= m -> 0 <= n * m.
 Proof.
   intros n m.
   exact hqmultgeh0geh0.
 Qed.
 
 Lemma hq0leminus :
-  Π r q : hq, r <= q -> 0 <= q - r.
+  ∏ r q : hq, r <= q -> 0 <= q - r.
 Proof.
   intros r q Hr.
   apply hqlehandplusrinv with r.
@@ -153,7 +153,7 @@ Proof.
 Qed.
 
 Lemma hztohqandleh':
-  Π n m : hz, (hztohq n <= hztohq m)%hq → hzleh n m.
+  ∏ n m : hz, (hztohq n <= hztohq m)%hq → hzleh n m.
 Proof.
   intros n m Hle Hlt.
   simple refine (Hle _).
@@ -161,7 +161,7 @@ Proof.
   exact Hlt.
 Qed.
 Lemma hztohqandlth':
-  Π n m : hz, (hztohq n < hztohq m)%hq -> hzlth n m.
+  ∏ n m : hz, (hztohq n < hztohq m)%hq -> hzlth n m.
 Proof.
   intros n m Hlt.
   apply neghzgehtolth.

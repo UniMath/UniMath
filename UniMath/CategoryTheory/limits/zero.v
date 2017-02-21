@@ -1,7 +1,7 @@
 (** Direct definition of zero objects *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
@@ -16,7 +16,7 @@ Section def_zero.
   Variable C : precategory.
 
   Definition isZero (b : C) : UU :=
-    (Π a : C, iscontr (b --> a)) × (Π a : C, iscontr (a --> b)).
+    (∏ a : C, iscontr (b --> a)) × (∏ a : C, iscontr (a --> b)).
 
   Definition Zero : UU := total2 (fun a => isZero a).
 
@@ -28,13 +28,14 @@ Section def_zero.
     exists b; exact H.
   Defined.
 
-  Definition mk_isZero (b : C) (H : Π (a : C), iscontr (b --> a))
-             (H' : Π (a : C), iscontr (a --> b)) : isZero b.
+  Definition mk_isZero (b : C) (H : ∏ (a : C), iscontr (b --> a))
+             (H' : ∏ (a : C), iscontr (a --> b)) : isZero b.
   Proof.
     unfold isZero.  exact ((H,,H')).
   Defined.
 
   Definition ZeroArrowFrom (Z : Zero) (b : C) : Z --> b := pr1 (pr1 (pr2 Z) b).
+
   Definition ZeroArrowTo (Z : Zero) (b : C) : b --> Z := pr1 (pr2 (pr2 Z) b).
 
   Lemma ArrowsToZero (Z : Zero) (b : C) (f g : b --> Z) : f = g.
@@ -42,19 +43,18 @@ Section def_zero.
     apply proofirrelevance.
     apply isapropifcontr.
     apply (pr2 (pr2 Z) _).
-  Defined.
+  Qed.
 
   Lemma ArrowsFromZero (Z : Zero) (b : C) (f g : Z --> b) : f = g.
   Proof.
     apply proofirrelevance.
     apply isapropifcontr.
     apply (pr1 (pr2 Z) _).
-  Defined.
+  Qed.
 
   (** For any pair of objects, there exists a unique arrow which factors
     through the zero object *)
-  Definition ZeroArrow (Z : Zero) (a b : C) : C⟦a, b⟧
-    := (ZeroArrowTo Z a) ;; (ZeroArrowFrom Z b).
+  Definition ZeroArrow (Z : Zero) (a b : C) : C⟦a, b⟧ := (ZeroArrowTo Z a) ;; (ZeroArrowFrom Z b).
 
   Lemma ZeroArrowEq (Z : Zero) (a b : C) (f1 : C⟦a, Z⟧) (g1 : C⟦Z, b⟧) :
     f1 ;; g1 = ZeroArrow Z a b.
@@ -62,36 +62,51 @@ Section def_zero.
     rewrite (ArrowsToZero Z a f1 (ZeroArrowTo Z a)).
     rewrite (ArrowsFromZero Z b g1 (ZeroArrowFrom Z b)).
     apply idpath.
-  Defined.
+  Qed.
 
   Lemma ZeroArrow_comp_left (Z : Zero) (a b c : C) (f : C⟦b, c⟧) :
     ZeroArrow Z a b ;; f = ZeroArrow Z a c.
   Proof.
     unfold ZeroArrow at 1. rewrite <- assoc.
     apply ZeroArrowEq.
-  Defined.
+  Qed.
 
   Lemma ZeroArrow_comp_right (Z : Zero) (a b c : C) (f : C⟦a, b⟧) :
     f ;; ZeroArrow Z b c = ZeroArrow Z a c.
   Proof.
     unfold ZeroArrow at 1. rewrite assoc.
     apply ZeroArrowEq.
-  Defined.
+  Qed.
 
   Lemma ZeroEndo_is_identity (Z : Zero) (f : Z --> Z) : identity Z = f.
   Proof.
     apply ArrowsToZero.
-  Defined.
+  Qed.
 
   Lemma isiso_from_Zero_to_Zero (Z Z' : Zero) :
     is_isomorphism (ZeroArrowTo Z Z').
   Proof.
     apply (is_iso_qinv _ (ZeroArrowTo Z' Z)).
     split; apply pathsinv0; apply ZeroEndo_is_identity.
-  Defined.
+  Qed.
 
   Definition iso_Zeros (Z Z' : Zero) : iso Z Z' :=
     tpair _ (ZeroArrowTo Z' Z) (isiso_from_Zero_to_Zero Z' Z).
+
+  Lemma ZerosArrowEq (Z Z' : Zero) (a b : C) : ZeroArrow Z a b = ZeroArrow Z' a b.
+  Proof.
+    set (i := iso_Zeros Z Z').
+    unfold ZeroArrow.
+    assert (e : ZeroArrowTo Z a ;; identity _ = ZeroArrowTo Z a) by apply id_right.
+    rewrite <- e. clear e.
+    rewrite <- (iso_inv_after_iso i). rewrite assoc.
+    assert (e1 : ZeroArrowTo Z a ;; i = ZeroArrowTo Z' a) by apply ArrowsToZero.
+    rewrite e1. clear e1.
+    assert (e2 : inv_from_iso i ;; ZeroArrowFrom Z b = ZeroArrowFrom Z' b)
+      by apply ArrowsFromZero.
+    rewrite <- assoc. rewrite e2. clear e2.
+    apply idpath.
+  Qed.
 
   Definition hasZero := ishinh Zero.
 
@@ -102,7 +117,7 @@ Section def_zero.
     Proof.
       apply invproofirrelevance.
       intros Z Z'.
-      apply (total2_paths (isotoid _ H (iso_Zeros Z Z'))).
+      apply (total2_paths_f (isotoid _ H (iso_Zeros Z Z'))).
       apply proofirrelevance.
       unfold isZero.
       apply isapropdirprod; apply impred; intros t; apply isapropiscontr.
@@ -115,7 +130,7 @@ Section def_zero.
   Proof.
     unfold isZero, isInitial, isTerminal.
     split; intros H; apply H.
-  Defined.
+  Qed.
 
   Definition IsoToisZero {A : C} (Z : Zero) (i : iso A Z) :
     isZero A.
@@ -140,14 +155,14 @@ Section def_zero.
 
 
   (** ** Transport of ZeroArrow *)
-  Lemma transportf_ZeroArrow {a b c : C} (Z : Zero) (e : b = c) :
+  Lemma transport_target_ZeroArrow {a b c : C} (Z : Zero) (e : b = c) :
     transportf _ e (ZeroArrow Z a b) = ZeroArrow Z a c.
   Proof.
     induction e. apply idpath.
   Qed.
 
-  Lemma transportb_ZeroArrow {a b c : C} (Z : Zero) (e : a = b) :
-    transportb (fun (a' : ob C) => precategory_morphisms a' c) e (ZeroArrow Z b c) = ZeroArrow Z a c.
+  Lemma transport_source_ZeroArrow {a b c : C} (Z : Zero) (e : b = a) :
+    transportf (fun (a' : ob C) => precategory_morphisms a' c) e (ZeroArrow Z b c) = ZeroArrow Z a c.
   Proof.
     induction e. apply idpath.
   Qed.

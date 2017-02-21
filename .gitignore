@@ -16,3 +16,4 @@
 /latex/*.fdb_latexmk
 /latex/*.fls
 /latex/coqdoc.sty
+/COQC.log

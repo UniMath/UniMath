@@ -1,6 +1,6 @@
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -26,7 +26,7 @@ Definition constprod_functor2 (a : C) : functor C C :=
 
 Definition is_exponentiable (a : C) : UU := is_left_adjoint (constprod_functor1 a).
 
-Definition has_exponentials : UU := Π (a : C), is_exponentiable a.
+Definition has_exponentials : UU := ∏ (a : C), is_exponentiable a.
 
 Definition nat_trans_constprod_functor1 (a : C) :
   nat_trans (constprod_functor1 a) (constprod_functor2 a).
@@ -87,15 +87,16 @@ Definition flip_iso a : @iso [C,C,hsC] (constprod_functor1 a) (constprod_functor
   tpair _ _ (is_iso_constprod_functor1 a).
 
 Variable (a : C).
-Variable (H : is_left_adjoint (constprod_functor1 a)).
+Variable (HF : is_left_adjoint (constprod_functor1 a)).
 
 Local Notation F := (constprod_functor1 a).
 Local Notation F' := (constprod_functor2 a).
-Let G := right_adjoint H.
+Let G := right_adjoint HF.
+Let H := pr2 HF : are_adjoints F G.
 Let eta : [C,C,hsC]⟦functor_identity C,functor_composite F G⟧ := unit_from_left_adjoint H.
 Let eps : [C,C,hsC]⟦functor_composite G F,functor_identity C⟧ := counit_from_left_adjoint H.
-Let H1 := triangle_id_left_ad _ _ _ H.
-Let H2 := triangle_id_right_ad _ _ _ H.
+Let H1 := triangle_id_left_ad H.
+Let H2 := triangle_id_right_ad H.
 
 Arguments constprod_functor1 : simpl never.
 Arguments constprod_functor2 : simpl never.

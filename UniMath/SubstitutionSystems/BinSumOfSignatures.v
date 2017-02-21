@@ -18,7 +18,7 @@ Contents:
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -37,24 +37,19 @@ Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
 
-Arguments θ_source {_ _} _ .
-Arguments θ_target {_ _} _ .
-Arguments θ_Strength1 {_ _ _} _ .
-Arguments θ_Strength2 {_ _ _} _ .
-Arguments θ_Strength1_int {_ _ _} _ .
-Arguments θ_Strength2_int {_ _ _} _ .
-
 Section binsum_of_signatures.
 
 Variable C : precategory.
-Variable hs : has_homsets C.
-Variable CC : BinCoproducts C.
+Variable hsC : has_homsets C.
+Variable D : precategory.
+Variable hs : has_homsets D.
+Variable CD : BinCoproducts D.
 
 Section construction.
 
-Local Notation "'CCC'" := (BinCoproducts_functor_precat C C CC hs : BinCoproducts [C, C, hs]).
+Local Notation "'CCD'" := (BinCoproducts_functor_precat C D CD hs : BinCoproducts [C, D, hs]).
 
-Variables H1 H2 : functor [C, C, hs] [C, C, hs].
+Variables H1 H2 : functor [C, C, hsC] [C, D, hs].
 
 Variable θ1 : θ_source H1 ⟶ θ_target H1.
 Variable θ2 : θ_source H2 ⟶ θ_target H2.
@@ -66,16 +61,16 @@ Variable S22 : θ_Strength2 θ2.
 
 (** * Definition of the data of the sum of two signatures *)
 
-Definition H : functor [C, C, hs] [C, C, hs] := BinCoproduct_of_functors _ _ CCC H1 H2.
+Definition H : functor [C, C, hsC] [C, D, hs] := BinCoproduct_of_functors _ _ CCD H1 H2.
 
 (* This becomes too slow: *)
 (* Definition H : functor [C, C, hs] [C, C, hs] := BinCoproduct_of_functors_alt CCC H1 H2. *)
 
-Local Definition θ_ob_fun (X : [C, C, hs]) (Z : precategory_Ptd C hs) :
-   Π c : C,
+Local Definition θ_ob_fun (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) :
+   ∏ c : C,
     (functor_composite_data (pr1 Z)
-     (BinCoproduct_of_functors_data C C CC (H1 X) (H2 X))) c
-   --> (BinCoproduct_of_functors_data C C CC (H1 (functor_composite (pr1 Z) X))
+     (BinCoproduct_of_functors_data C D CD (H1 X) (H2 X))) c
+   --> (BinCoproduct_of_functors_data C D CD (H1 (functor_composite (pr1 Z) X))
        (H2 (functor_composite (pr1 Z) X))) c.
 Proof.
   intro c.
@@ -84,7 +79,7 @@ Proof.
   - exact (pr1 (θ2 (X ⊗ Z)) c).
 Defined.
 
-Local Lemma is_nat_trans_θ_ob_fun (X : [C, C, hs]) (Z : precategory_Ptd C hs):
+Local Lemma is_nat_trans_θ_ob_fun (X : [C, C, hsC]) (Z : precategory_Ptd C hsC):
    is_nat_trans _ _ (θ_ob_fun X Z).
 Proof.
   intros x x' f.
@@ -95,7 +90,7 @@ Proof.
   * apply (nat_trans_ax (θ2 (X ⊗ Z))).
 Qed.
 
-Definition θ_ob : Π XF, θ_source H XF --> θ_target H XF.
+Definition θ_ob : ∏ XF, θ_source H XF --> θ_target H XF.
 Proof.
   intros [X Z].
   exists (θ_ob_fun X Z).
@@ -103,7 +98,7 @@ Proof.
 Defined.
 
 Local Lemma is_nat_trans_θ_ob :
-  is_nat_trans (θ_source_functor_data C hs H) (θ_target_functor_data C hs H) θ_ob.
+  is_nat_trans (θ_source_functor_data C hsC D hs H) (θ_target_functor_data C hsC D hs H) θ_ob.
 Proof.
   intros XZ X'Z' αβ.
   assert (Hyp1:= nat_trans_ax θ1 _ _ αβ).
@@ -223,7 +218,7 @@ Qed.
 
 End construction.
 
-Definition BinSum_of_Signatures (S1 S2 : Signature C hs) : Signature C hs.
+Definition BinSum_of_Signatures (S1 S2 : Signature C hsC D hs) : Signature C hsC D hs.
 Proof.
   destruct S1 as [H1 [θ1 [S11' S12']]].
   destruct S2 as [H2 [θ2 [S21' S22']]].
@@ -234,7 +229,7 @@ Proof.
   + apply SumStrength2'; assumption.
 Defined.
 
-Lemma is_omega_cocont_BinSum_of_Signatures (S1 S2 : Signature C hs)
+Lemma is_omega_cocont_BinSum_of_Signatures (S1 S2 : Signature C hsC D hs)
   (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2) (PC : BinProducts C) :
   is_omega_cocont (BinSum_of_Signatures S1 S2).
 Proof.

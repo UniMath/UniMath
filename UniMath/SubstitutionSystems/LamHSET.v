@@ -6,7 +6,7 @@ Written by: Anders Mörtberg, 2016
 
 *)
 
-Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -38,7 +38,7 @@ Require Import UniMath.CategoryTheory.CocontFunctors.
 
 Section LamHSET.
 
-Let Lam_S : Signature HSET has_homsets_HSET :=
+Let Lam_S : Signature HSET has_homsets_HSET _ _ :=
   Lam_Sig HSET has_homsets_HSET TerminalHSET BinCoproductsHSET BinProductsHSET.
 
 Local Notation "'EndHSET'":= ([HSET, HSET, has_homsets_HSET]) .
@@ -68,7 +68,7 @@ use colimAlgInitial.
 - apply ColimsFunctorCategory_of_shape; apply ColimsHSET_of_shape.
 Defined.
 
-(* Lemma KanExt_HSET : Π Z : precategory_Ptd HSET has_homsets_HSET, *)
+(* Lemma KanExt_HSET : ∏ Z : precategory_Ptd HSET has_homsets_HSET, *)
 (*    RightKanExtension.GlobalRightKanExtensionExists HSET HSET *)
 (*      (U Z) HSET has_homsets_HSET has_homsets_HSET. *)
 (* Proof. *)

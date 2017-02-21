@@ -24,7 +24,7 @@ Contents:
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -152,12 +152,12 @@ End fix_T.
 Lemma RightKanExtension_from_limits : GlobalRightKanExtensionExists _ _ K _ hsC hsA.
 Proof.
 unfold GlobalRightKanExtensionExists.
-use adjunction_from_partial.
+use left_adjoint_from_partial.
 - apply R_functor.
 - apply eps.
 - intros T S α; simpl in *.
 
-  transparent assert (cc : (Π c, cone (QT T c) (S c))).
+  transparent assert (cc : (∏ c, cone (QT T c) (S c))).
   { intro c.
     use mk_cone.
     + intro mf; apply (# S (pr2 mf) ;; α (pr1 mf)).
@@ -166,13 +166,13 @@ use adjunction_from_partial.
                 simpl; rewrite assoc, <- functor_comp; apply cancel_postcomposition, maponpaths, (pr2 h)).
   }
 
-  transparent assert (σ : (Π c, A ⟦ S c, R T c ⟧)).
+  transparent assert (σ : (∏ c, A ⟦ S c, R T c ⟧)).
   { intro c; apply (limArrow _ _ (cc c)). }
 
   set (lambda' := fun c' mf' => limOut (LA (c' ↓ K) (QT T c')) mf').
 
   (* this is the conclusion from the big diagram (8) in MacLane's proof *)
-  assert (H : Π c c' (g : C ⟦ c, c' ⟧) (mf' : c' ↓ K),
+  assert (H : ∏ c c' (g : C ⟦ c, c' ⟧) (mf' : c' ↓ K),
                 # S g ;; σ c' ;; lambda' _ mf' = σ c ;; Rmor T c c' g ;; lambda' _ mf').
   { intros c c' g mf'.
     rewrite <- !assoc.

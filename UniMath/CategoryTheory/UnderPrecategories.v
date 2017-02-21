@@ -1,7 +1,7 @@
 (** Undercategories *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -14,7 +14,7 @@ Section def_underprecategories.
   Variable c : ob C.
 
   (* Objects *)
-  Definition Under_ob : UU := Σ d, C⟦c, d⟧.
+  Definition Under_ob : UU := ∑ d, C⟦c, d⟧.
 
   Definition mk_Under_ob {d : ob C} (f : C⟦c, d⟧) : Under_ob := tpair _ d f.
 
@@ -25,7 +25,7 @@ Section def_underprecategories.
 
   (* Morphisms *)
   Definition Under_mor (X Y : Under_ob) : UU :=
-    Σ f : C⟦Under_ob_cod X, Under_ob_cod Y⟧, Under_ob_mor X ;; f = Under_ob_mor Y.
+    ∑ f : C⟦Under_ob_cod X, Under_ob_cod Y⟧, Under_ob_mor X ;; f = Under_ob_mor Y.
 
   Definition mk_Under_mor (X Y : Under_ob) (f : C⟦Under_ob_cod X, Under_ob_cod Y⟧)
              (H : Under_ob_mor X ;; f = Under_ob_mor Y) : Under_mor X Y := tpair _ f H.

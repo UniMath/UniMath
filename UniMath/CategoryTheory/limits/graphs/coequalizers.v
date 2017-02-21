@@ -3,11 +3,11 @@
 - Definition of coequalizers
 - Coincides with the direct definition
 *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
@@ -22,7 +22,7 @@ Section def_coequalizers.
   Variable C : precategory.
   Variable hs: has_homsets C.
 
-  Open Scope stn.
+  Local Open Scope stn.
   Definition One : two := ● 0.
   Definition Two : two := ● 1.
 
@@ -69,7 +69,7 @@ Section def_coequalizers.
 
   Definition mk_isCoequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧)
              (H : f ;; h = g ;; h) :
-    (Π e (h' : C⟦b, e⟧) (H' : f ;; h' = g ;; h'),
+    (∏ e (h' : C⟦b, e⟧) (H' : f ;; h' = g ;; h'),
      iscontr (total2 (fun hk : C⟦d, e⟧ => h ;; hk = h'))) ->
     isCoequalizer f g d h H.
   Proof.
@@ -109,9 +109,9 @@ Section def_coequalizers.
     - exact isCEq.
   Defined.
 
-  Definition Coequalizers : UU := Π (a b : C) (f g : C⟦a, b⟧), Coequalizer f g.
+  Definition Coequalizers : UU := ∏ (a b : C) (f g : C⟦a, b⟧), Coequalizer f g.
 
-  Definition hasCoequalizers : UU := Π (a b : C) (f g : C⟦a, b⟧), ishinh (Coequalizer f g).
+  Definition hasCoequalizers : UU := ∏ (a b : C) (f g : C⟦a, b⟧), ishinh (Coequalizer f g).
 
   Definition CoequalizerObject {a b : C} {f g : C⟦a, b⟧} :
     Coequalizer f g -> C := fun H => colim H.

@@ -22,9 +22,9 @@ TODO: this file needs cleanup
 ************************************************************)
 
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -95,7 +95,7 @@ Definition yoneda_objects (C : precategory) (hs: has_homsets C) (c : C) :
 (** ** On morphisms *)
 
 Definition yoneda_morphisms_data (C : precategory)(hs: has_homsets C) (c c' : C)
-    (f : hom C c c') : Π a : ob C^op,
+    (f : hom C c c') : ∏ a : ob C^op,
          hom _ (yoneda_objects C hs c a) ( yoneda_objects C hs c' a) :=
             fun a g => g ;; f.
 

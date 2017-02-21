@@ -2,7 +2,7 @@
 (** Date: Spring 2015.*)
 (** Description: Some tactics for abelian monoids.*)
 
-Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
+Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Tactics.Utilities
                UniMath.Tactics.Monoids_Tactics.
 
@@ -17,8 +17,8 @@ Definition abmonoid_to_absemigr (M : abmonoid) : isabsemigrop (@op M) :=
   dirprodpair (@assocax M) (@commax M).
 
 Definition absemigr_perm021 :
-  Π X : hSet, Π opp : binop X, Π is : isabsemigrop opp,
-  Π n0 n1 n2,
+  ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
+  ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n0 n2) n1 :=
   fun X opp is n0 n1 n2 =>
     pathscomp0
@@ -31,8 +31,8 @@ Definition abmonoid_perm021 :=
   fun M : abmonoid => absemigr_perm021 M (@op M) (abmonoid_to_absemigr M).
 
 Definition absemigr_perm102 :
-  Π X : hSet, Π opp : binop X, Π is : isabsemigrop opp,
-  Π n0 n1 n2,
+  ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
+  ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n1 n0) n2 :=
   fun X opp is n0 n1 n2 => maponpaths (fun z => opp z n2) ((pr2 is) n0 n1).
 
@@ -40,8 +40,8 @@ Definition abmonoid_perm102 :=
   fun M : abmonoid => absemigr_perm102 M (@op M) (abmonoid_to_absemigr M).
 
 Definition absemigr_perm120 :
-  Π X : hSet, Π opp : binop X, Π is : isabsemigrop opp,
-  Π n0 n1 n2,
+  ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
+  ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n2 n0) n1 :=
   fun X opp is n0 n1 n2 =>
     pathscomp0 ((pr2 is) (opp n0 n1) n2) (pathsinv0 ((pr1 is) n2 n0 n1)).
@@ -50,8 +50,8 @@ Definition abmonoid_perm120 :=
   fun M : abmonoid => absemigr_perm120 M (@op M) (abmonoid_to_absemigr M).
 
 Definition absemigr_perm201 :
-  Π X : hSet, Π opp : binop X, Π is : isabsemigrop opp,
-  Π n0 n1 n2,
+  ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
+  ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n1 n2) n0 :=
   fun X opp is n0 n1 n2 =>
     pathscomp0 ((pr1 is) n0 n1 n2) ((pr2 is) n0 (opp n1 n2)).
@@ -60,8 +60,8 @@ Definition abmonoid_perm201 :=
   fun M : abmonoid => absemigr_perm201 M (@op M) (abmonoid_to_absemigr M).
 
 Definition absemigr_perm210 :
-  Π X : hSet, Π opp : binop X, Π is : isabsemigrop opp,
-  Π n0 n1 n2,
+  ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
+  ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n2 n1) n0 :=
   fun X opp is n0 n1 n2 =>
     pathscomp0 (absemigr_perm102 X opp is n0 n1 n2)

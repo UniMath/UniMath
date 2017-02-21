@@ -24,7 +24,7 @@ Contents :
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -91,8 +91,8 @@ Variable L : functor C C'.
 
 Variable is_left_adj_L : is_left_adjoint L.
 
-Let φ := @φ_adj _ _ _ is_left_adj_L.
-Let φ_inv := @φ_adj_inv _ _ _ is_left_adj_L.
+Let φ := @φ_adj _ _ _ _ (pr2 is_left_adj_L).
+Let φ_inv := @φ_adj_inv _ _ _ _ (pr2 is_left_adj_L).
 Let R : functor _ _ := right_adjoint is_left_adj_L.
 Let η : nat_trans _ _ := unit_from_left_adjoint is_left_adj_L.
 Let ε : nat_trans _ _ := counit_from_left_adjoint is_left_adj_L.
@@ -134,14 +134,14 @@ Qed.
 
 Lemma φ_ψ_μF_eq (h: L μF --> X): φ (ψ μF h) = #F (φ h) ;; φ(ψ (R X) (ε X)).
 Proof.
-  rewrite <- φ_adj_natural_precomp.
+  rewrite <- (φ_adj_natural_precomp (pr2 is_left_adj_L)).
   apply maponpaths.
   eapply pathscomp0.
 Focus 2.
   apply ψ_naturality.
   apply maponpaths.
   rewrite truth_about_ε.
-  rewrite <- (φ_adj_inv_natural_precomp _ _ _ is_left_adj_L).
+  rewrite <- (φ_adj_inv_natural_precomp (pr2 is_left_adj_L)).
   rewrite id_right.
   apply pathsinv0.
   change (φ_inv(φ h) = h).
@@ -157,7 +157,7 @@ Proof.
   apply maponpaths.
   exact Hyp.
 *)
-  apply (invmaponpathsweq (adjunction_hom_weq _ _ _ is_left_adj_L _ _)).
+  apply (invmaponpathsweq (adjunction_hom_weq (pr2 is_left_adj_L) _ _)).
   exact Hyp.
 Qed.
 
@@ -165,15 +165,15 @@ Lemma preIt_ok : # L inF;; preIt = ψ μF preIt.
 Proof.
     apply cancel_φ.
     rewrite φ_ψ_μF_eq.
-    rewrite (φ_adj_natural_precomp _ _ _ is_left_adj_L).
+    rewrite (φ_adj_natural_precomp (pr2 is_left_adj_L)).
     unfold preIt.
-    rewrite φ_adj_after_φ_adj_inv.
-    rewrite (φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L).
+    rewrite (φ_adj_after_φ_adj_inv (pr2 is_left_adj_L)).
+    rewrite (φ_adj_after_φ_adj_inv (pr2 is_left_adj_L)).
     assert (iter_eq := algebra_mor_commutes _ _ _ (InitialArrow μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)).
     exact iter_eq.
 Qed.
 
-Lemma preIt_uniq (t : Σ h : L μF --> X, # L inF;; h = ψ μF h):
+Lemma preIt_uniq (t : ∑ h : L μF --> X, # L inF;; h = ψ μF h):
     t = tpair (λ h : L μF --> X, # L inF;; h = ψ μF h) preIt preIt_ok.
 Proof.
     destruct t as [h h_rec_eq]; simpl.
@@ -189,14 +189,14 @@ Focus 2.
 
     apply cancel_φ.
     unfold preIt.
-    rewrite (φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L).
+    rewrite (φ_adj_after_φ_adj_inv (pr2 is_left_adj_L)).
     (* assert (iter_uniq := algebra_mor_commutes _ _ _ *)
     (*                        (InitialArrow μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)). *)
     (* simpl in iter_uniq. *)
     assert(φh_is_alg_mor: inF ;; φ h = #F(φ h) ;; φ (ψ (R X) (ε X))).
       (* remark: I am missing a definition of the algebra morphism property in UniMath.CategoryTheory.FunctorAlgebras *)
     + rewrite <- φ_ψ_μF_eq.
-      rewrite <- φ_adj_natural_precomp.
+      rewrite <- (φ_adj_natural_precomp (pr2 is_left_adj_L)).
       apply maponpaths.
       exact h_rec_eq.
     + (* set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial --> ⟨ R X, φ (ψ (R X) (ε X)) ⟩). *)
@@ -205,7 +205,7 @@ Focus 2.
        * apply (maponpaths pr1 (InitialArrowUnique _ _ X0)).
 Qed.
 
-Theorem GenMendlerIteration : iscontr (Σ h : L μF --> X, #L inF ;; h = ψ μF h).
+Theorem GenMendlerIteration : iscontr (∑ h : L μF --> X, #L inF ;; h = ψ μF h).
 Proof.
   simple refine (tpair _ _ _ ).
   - exists preIt.
@@ -260,7 +260,7 @@ Section special_case.
 
   Definition SpecialGenMendlerIteration :
     iscontr
-      (Σ h : L μF --> X, # L inF ;; h = θ μF ;; #G h ;; ρ)
+      (∑ h : L μF --> X, # L inF ;; h = θ μF ;; #G h ;; ρ)
     := GenMendlerIteration ψ_from_comps.
 
 End special_case.

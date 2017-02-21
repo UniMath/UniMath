@@ -20,9 +20,9 @@ Contents :
 ************************************************************)
 
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -43,9 +43,9 @@ Variable hsM : has_homsets M.
 Variable K : functor M C.
 Variable c : C.
 
-Definition ccomma_object : UU := Σ m, C⟦c, K m⟧.
+Definition ccomma_object : UU := ∑ m, C⟦c, K m⟧.
 Definition ccomma_morphism (a b : ccomma_object) : UU
-  := Σ f : _ ⟦pr1 a, pr1 b⟧, pr2 a ;; #K f = pr2 b.
+  := ∑ f : _ ⟦pr1 a, pr1 b⟧, pr2 a ;; #K f = pr2 b.
 
 Definition isaset_ccomma_morphism a b : isaset (ccomma_morphism a b).
 Proof.

@@ -11,9 +11,18 @@ Contents:
 - Limits ([LimsHSET])
 - Binary products ([BinProductsHSET])
 - General indexed products ([ProductsHSET]
+- Pullbacks ([PullbacksHSET])
 - Terminal object ([TerminalHSET])
 - Exponentials ([has_exponentials_HSET])
-- Construction of exponentials for functors into HSET ([has_exponentials_functor_HSET])
+- Construction of exponentials for functors into HSET
+  ([has_exponentials_functor_HSET])
+- Locally cartesian closed ([Terminal_HSET_slice],
+  [BinProducts_HSET_slice] and [has_exponentials_HSET_slice])
+- Products in Set/X ([Products_HSET_slice])
+- Forgetful functor Set/X to Set is left adjoint
+  ([is_left_adjoint_slicecat_to_cat])
+- kernel pairs
+- effective epis
 
 Written by: Benedikt Ahrens, Anders Mörtberg
 
@@ -21,9 +30,9 @@ October 2015 - January 2016
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -37,12 +46,15 @@ Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.covyoneda.
+Require Import UniMath.CategoryTheory.slicecat.
 
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+Require Import UniMath.CategoryTheory.EpiFacts.
+
+
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (* This should be moved upstream. Constructs the smallest eqrel
@@ -53,7 +65,7 @@ Variable A : UU.
 Variable R0 : hrel A.
 
 Lemma isaprop_eqrel_from_hrel a b :
-  isaprop (Π R : eqrel A, (Π x y, R0 x y -> R x y) -> R a b).
+  isaprop (∏ R : eqrel A, (∏ x y, R0 x y -> R x y) -> R a b).
 Proof.
   apply impred; intro R; apply impred_prop.
 Qed.
@@ -75,8 +87,8 @@ now intros H R HR; apply HR.
 Qed.
 
 (* eqrel_from_hrel is the *smallest* relation containing R0 *)
-Lemma minimal_eqrel_from_hrel (R : eqrel A) (H : Π a b, R0 a b -> R a b) :
-  Π a b, eqrel_from_hrel a b -> R a b.
+Lemma minimal_eqrel_from_hrel (R : eqrel A) (H : ∏ a b, R0 a b -> R a b) :
+  ∏ a b, eqrel_from_hrel a b -> R a b.
 Proof.
 now intros a b H'; apply (H' _ H).
 Qed.
@@ -92,11 +104,11 @@ Section colimits.
 Variable g : graph.
 Variable D : diagram g HSET.
 
-Local Definition cobase : UU := Σ j : vertex g, pr1hSet (dob D j).
+Local Definition cobase : UU := ∑ j : vertex g, pr1hSet (dob D j).
 
-(* Theory about hprop is in UniMath.Foundations.Basics.Propositions *)
+(* Theory about hprop is in UniMath.Foundations.Propositions *)
 Local Definition rel0 : hrel cobase := λ (ia jb : cobase),
-  hProppair (ishinh (Σ f : edge (pr1 ia) (pr1 jb), dmor D f (pr2 ia) = pr2 jb))
+  hProppair (ishinh (∑ f : edge (pr1 ia) (pr1 jb), dmor D f (pr2 ia) = pr2 jb))
             (isapropishinh _).
 
 Local Definition rel : hrel cobase := eqrel_from_hrel rel0.
@@ -108,7 +120,7 @@ Qed.
 
 Local Definition eqr : eqrel cobase := eqrelpair _ iseqrel_rel.
 
-(* Defined in UniMath.Foundations.Basics.Sets *)
+(* Defined in UniMath.Foundations.Sets *)
 Definition colimHSET : HSET :=
   hSetpair (setquot eqr) (isasetsetquot _).
 
@@ -189,7 +201,7 @@ End from_colim.
 
 Definition colimCoconeHSET : cocone D colimHSET.
 Proof.
-simple refine (mk_cocone _ _).
+use mk_cocone.
 - now apply injections.
 - abstract (intros u v e;
             apply funextfun; intros Fi; simpl;
@@ -199,7 +211,7 @@ simple refine (mk_cocone _ _).
 Defined.
 
 Definition ColimHSETArrow (c : HSET) (cc : cocone D c) :
-  Σ x : HSET ⟦ colimHSET, c ⟧, Π v : vertex g, injections v ;; x = coconeIn cc v.
+  ∑ x : HSET ⟦ colimHSET, c ⟧, ∏ v : vertex g, injections v ;; x = coconeIn cc v.
 Proof.
 exists (from_colimHSET _ cc).
 abstract (intro i; simpl; unfold injections, compose, from_colimHSET; simpl;
@@ -238,14 +250,14 @@ Defined.
 Lemma BinCoproductsHSET : BinCoproducts HSET.
 Proof.
 intros A B.
-simple refine (mk_BinCoproductCocone _ _ _ _ _ _ _).
+use mk_BinCoproductCocone.
 - simpl in *; apply (tpair _ (coprod A B)).
   abstract (apply isasetcoprod; apply setproperty).
 - simpl in *; apply ii1.
 - simpl in *; intros x; apply (ii2 x).
 - apply (mk_isBinCoproductCocone _ has_homsets_HSET).
   intros C f g; simpl in *.
-  simple refine (tpair _ _ _).
+  mkpair.
   * apply (tpair _ (sumofmaps f g)); abstract (split; apply idpath).
   * abstract (intros h; apply subtypeEquality;
     [ intros x; apply isapropdirprod; apply has_homsets_HSET
@@ -255,12 +267,12 @@ simple refine (mk_BinCoproductCocone _ _ _ _ _ _ _).
                case x; intros; apply idpath]).
 Defined.
 
-Lemma Coproducts_HSET (I : UU) (HI : isaset I) : Coproducts I HSET.
+Lemma CoproductsHSET (I : UU) (HI : isaset I) : Coproducts I HSET.
 Proof.
 intros A.
-simple refine (mk_CoproductCocone _ _ _ _ _ _).
+use mk_CoproductCocone.
 - mkpair.
-  + apply (Σ i, pr1 (A i)).
+  + apply (∑ i, pr1 (A i)).
   + eapply (isaset_total2 _ HI); intro i; apply setproperty.
 - simpl; apply tpair.
 - apply (mk_isCoproductCocone _ _ has_homsets_HSET).
@@ -288,7 +300,7 @@ Lemma InitialHSET : Initial HSET.
 Proof.
 apply (mk_Initial emptyHSET).
 apply mk_isInitial; intro a.
-simple refine (tpair _ _ _).
+mkpair.
 - simpl; intro e; induction e.
 - abstract (intro f; apply funextfun; intro e; induction e).
 Defined.
@@ -310,8 +322,8 @@ Variable g : graph.
 Variable D : diagram g HSET.
 
 Definition limset_UU : UU :=
-  Σ (f : Π u : vertex g, pr1hSet (dob D u)),
-    Π u v (e : edge u v), dmor D e (f u) = f v.
+  ∑ (f : ∏ u : vertex g, pr1hSet (dob D u)),
+    ∏ u v (e : edge u v), dmor D e (f u) = f v.
 
 Definition limset : HSET.
 Proof.
@@ -324,7 +336,7 @@ Defined.
 
 Lemma LimConeHSET : LimCone D.
 Proof.
-simple refine (mk_LimCone _ _ _ _ ).
+use mk_LimCone.
 - apply limset.
 - apply (tpair _ (fun u f => pr1 f u)).
   abstract (intros u v e; simpl; apply funextfun; intro f; simpl; apply (pr2 f)).
@@ -363,8 +375,8 @@ Variable J : precategory.
 Variable D : functor J HSET.
 
 Definition cats_limset_UU : UU :=
-  Σ (f : Π u, pr1hSet (D u)),
-    Π u v (e : J⟦u,v⟧), # D e (f u) = f v.
+  ∑ (f : ∏ u, pr1hSet (D u)),
+    ∏ u v (e : J⟦u,v⟧), # D e (f u) = f v.
 
 Definition cats_limset : HSET.
 Proof.
@@ -377,7 +389,7 @@ Defined.
 
 Lemma cats_LimConeHSET : cats.limits.LimCone D.
 Proof.
-simple refine (mk_LimCone _ _ _ _ ).
+use mk_LimCone.
 - apply cats_limset.
 - apply (tpair _ (fun u f => pr1 f u)).
   abstract (intros u v e; apply funextfun; intro f; apply (pr2 f)).
@@ -408,18 +420,18 @@ Defined.
 
 (** end of alternative def *)
 
-(* Direct construction of binary products in HSET *)
+(** Direct construction of binary products in HSET *)
 Lemma BinProductsHSET : BinProducts HSET.
 Proof.
 intros A B.
-simple refine (mk_BinProductCone _ _ _ _ _ _ _).
+use mk_BinProductCone.
 - simpl in *; apply (tpair _ (dirprod A B)).
   abstract (apply isasetdirprod; apply setproperty).
 - simpl in *; apply pr1.
 - simpl in *; intros x; apply (pr2 x).
 - apply (mk_isBinProductCone _ has_homsets_HSET).
   intros C f g; simpl in *.
-  simple refine (tpair _ _ _).
+  mkpair.
   * apply (tpair _ (prodtofuntoprod (f ,, g))); abstract (split; apply idpath).
   * abstract (intros h; apply subtypeEquality;
     [ intros x; apply isapropdirprod; apply has_homsets_HSET
@@ -429,11 +441,11 @@ simple refine (mk_BinProductCone _ _ _ _ _ _ _).
                now case (t x)]).
 Defined.
 
-Lemma Products_HSET (I : UU) : Products I HSET.
+Lemma ProductsHSET (I : UU) : Products I HSET.
 Proof.
 intros A.
-simple refine (mk_ProductCone _ _ _ _ _ _).
-- apply (tpair _ (Π i, pr1 (A i))); apply isaset_forall_hSet.
+use mk_ProductCone.
+- apply (tpair _ (∏ i, pr1 (A i))); apply isaset_forall_hSet.
 - simpl; intros i f; apply (f i).
 - apply (mk_isProductCone _ _ has_homsets_HSET).
   intros C f; simpl in *.
@@ -475,12 +487,39 @@ Defined.
 
 End TerminalHSET_from_Lims.
 
+Definition PullbackHSET_ob {A B C : HSET} (f : HSET⟦B,A⟧) (g : HSET⟦C,A⟧) : HSET.
+Proof.
+simpl in *.
+exists (∑ (xy : B × C), f (pr1 xy) = g (pr2 xy)).
+abstract (apply isaset_total2; [ apply isasetdirprod; apply setproperty
+                               | intros xy; apply isasetaprop, setproperty ]).
+Defined.
+
+Lemma PullbacksHSET : Pullbacks HSET.
+Proof.
+intros A B C f g.
+use mk_Pullback.
++ apply (PullbackHSET_ob f g).
++ intros xy; apply (pr1 (pr1 xy)).
++ intros xy; apply (pr2 (pr1 xy)).
++ abstract (apply funextsec; intros [[x y] Hxy]; apply Hxy).
++ use mk_isPullback.
+  intros X f1 f2 Hf12; cbn.
+  use unique_exists.
+  - intros x.
+    exists (f1 x,,f2 x); abstract (apply (toforallpaths _ _ _ Hf12)).
+  - abstract (now split).
+  - abstract (now intros h; apply isapropdirprod; apply has_homsets_HSET).
+  - abstract (intros h [H1 H2]; apply funextsec; intro x;
+    apply subtypeEquality; [intros H; apply setproperty|]; simpl;
+    now rewrite <- (toforallpaths _ _ _ H1 x), <- (toforallpaths _ _ _ H2 x), <- tppr).
+Defined.
 
 Section PullbacksHSET_from_Lims.
 
   Require UniMath.CategoryTheory.limits.graphs.pullbacks.
 
-  Lemma PullbacksHSET : graphs.pullbacks.Pullbacks HSET.
+  Lemma PullbacksHSET_from_Lims : graphs.pullbacks.Pullbacks HSET.
   Proof.
     apply (graphs.pullbacks.Pullbacks_from_Lims HSET LimsHSET).
   Defined.
@@ -491,16 +530,26 @@ Section EqualizersHSET_from_Lims.
 
   Require UniMath.CategoryTheory.limits.graphs.equalizers.
 
-  Lemma EqualizersHSET : graphs.equalizers.Equalizers HSET.
+  Lemma EqualizersHSET_from_Lims : graphs.equalizers.Equalizers HSET.
   Proof.
     apply (graphs.equalizers.Equalizers_from_Lims HSET LimsHSET).
   Defined.
 
 End EqualizersHSET_from_Lims.
 
+Section PushoutsHSET_from_colims.
+  Require UniMath.CategoryTheory.limits.graphs.pushouts.
+  Lemma PushoutsHSET_from_Colims : graphs.pushouts.Pushouts HSET.
+  Proof.
+    red.
+    intros .
+    apply ColimsHSET_of_shape.
+  Qed.
+End PushoutsHSET_from_colims.
+
 Section exponentials.
 
-(* Define the functor: A -> _^A *)
+(** Define the functor: A -> _^A *)
 Definition exponential_functor (A : HSET) : functor HSET HSET.
 Proof.
 mkpair.
@@ -513,12 +562,7 @@ Defined.
 
 Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := fun x y => f y x.
 
-Lemma paireta {A B : UU} (p : A × B) : p = (pr1 p,, pr2 p).
-Proof.
-destruct p; apply idpath.
-Defined.
-
-(* This checks that if we use constprod_functor2 the flip is not necessary *)
+(** This checks that if we use constprod_functor2 the flip is not necessary *)
 Lemma are_adjoints_constprod_functor2 A :
   are_adjoints (constprod_functor2 BinProductsHSET A) (exponential_functor A).
 Proof.
@@ -531,7 +575,7 @@ mkpair.
     * intros X fx; apply (pr1 fx (pr2 fx)).
     * abstract (intros x y f; apply idpath).
 - abstract (mkpair;
-  [ intro x; simpl; apply funextfun; intro ax; now rewrite (paireta ax)
+  [ intro x; simpl; apply funextfun; intro ax; now rewrite (tppr ax)
   | intro b; apply funextfun; intro f; apply idpath]).
 Defined.
 
@@ -548,7 +592,7 @@ mkpair.
     * intros x xf; simpl in *; apply (pr2 xf (pr1 xf)).
     * abstract (intros x y f; apply idpath).
 - abstract (mkpair;
-  [ now intro x; simpl; apply funextfun; intro ax; rewrite (paireta ax)
+  [ now intro x; simpl; apply funextfun; intro ax; rewrite (tppr ax)
   | now intro b; apply funextfun; intro f]).
 Defined.
 
@@ -595,12 +639,12 @@ mkpair.
 Defined.
 
 Local Definition eval (P Q : functor C HSET) :
- nat_trans (BinProductObject _ (CP P (exponential_functor_cat P Q)) : functor _ _) Q.
+  nat_trans (BinProductObject _ (CP P (exponential_functor_cat P Q)) : functor _ _) Q.
 Proof.
 mkpair.
 - intros c ytheta; set (y := pr1 ytheta); set (theta := pr2 ytheta);
   simpl in *.
-  simple refine (theta c _).
+  use (theta c).
   exact (identity c,,y).
 - abstract (
     intros c c' f; simpl;
@@ -617,41 +661,36 @@ Defined.
 Lemma has_exponentials_functor_HSET : has_exponentials CP.
 Proof.
 intro P.
-use adjunction_from_partial.
+use left_adjoint_from_partial.
 - apply (exponential_functor_cat P).
 - intro Q; simpl; apply eval.
 - intros Q R φ; simpl in *.
   mkpair.
   + mkpair.
-    * { mkpair.
+    * { use mk_nat_trans.
         - intros c u; simpl.
-          mkpair.
+          use mk_nat_trans.
           + simpl; intros d fx.
             apply (φ d (dirprodpair (pr2 fx) (# R (pr1 fx) u))).
-          + abstract (
-              intros a b f; simpl; cbn; unfold prodtofuntoprod;
-              apply funextsec; intro x;
-              eapply pathscomp0;
+          + intros a b f; simpl; cbn; unfold prodtofuntoprod.
+            apply funextsec; intro x.
+            etrans;
               [|apply (toforallpaths _ _ _ (nat_trans_ax φ _ _ f)
-                                     (dirprodpair (pr2 x) (# R (pr1 x) u)))]; cbn;
-              unfold prodtofuntoprod;
-              apply maponpaths, maponpaths;
-              assert (H : # R (pr1 x ;; f) = # R (pr1 x) ;; #R f);
-              [apply functor_comp|];
-              apply (toforallpaths _ _ _ H u)).
-        - abstract (
-            intros a b f; cbn;
-            apply funextsec; intros x; cbn; simpl;
-            apply subtypeEquality;
-            [intros xx; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|];
-            simpl; apply funextsec; intro y; cbn;
-            apply funextsec; intro z;
-            apply maponpaths, maponpaths;
-            unfold covyoneda_morphisms_data;
-            assert (H : # R (f ;; pr1 z) = # R f ;; # R (pr1 z));
-              [apply functor_comp|];
-            apply pathsinv0;
-            now eapply pathscomp0; [apply (toforallpaths _ _ _ H x)|]).
+                                     (dirprodpair (pr2 x) (# R (pr1 x) u)))]; cbn.
+              repeat (apply maponpaths).
+              assert (H : # R (pr1 x ;; f) = # R (pr1 x) ;; #R f).
+              { apply functor_comp. }
+              apply (toforallpaths _ _ _ H u).
+        - intros a b f; cbn.
+          apply funextsec; intros x; cbn.
+          apply subtypeEquality;
+            [intros xx; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|].
+          apply funextsec; intro y; apply funextsec; intro z; cbn.
+          repeat apply maponpaths;  unfold covyoneda_morphisms_data.
+          assert (H : # R (f ;; pr1 z) = # R f ;; # R (pr1 z)).
+          { apply functor_comp. }
+          apply pathsinv0.
+          now etrans; [apply (toforallpaths _ _ _ H x)|].
       }
     * abstract (
         apply (nat_trans_eq has_homsets_HSET); cbn; intro x;
@@ -677,3 +716,316 @@ use adjunction_from_partial.
 Qed.
 
 End exponentials_functor_cat.
+
+(** * Various results on Set/X *)
+Section set_slicecat.
+
+Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
+
+Lemma Terminal_HSET_slice X : Terminal (HSET / X).
+Proof.
+now apply Terminal_slice_precat.
+Defined.
+
+Lemma BinProducts_HSET_slice X : BinProducts (HSET / X).
+Proof.
+now apply BinProducts_slice_precat, PullbacksHSET.
+Defined.
+
+Lemma BinCoproducts_HSET_slice X : BinCoproducts (HSET / X).
+Proof.
+now apply BinCoproducts_slice_precat, BinCoproductsHSET.
+Defined.
+
+
+(** Direct proof that HSET/X has exponentials using explicit formula in example 2.2 of:
+
+    https://ncatlab.org/nlab/show/locally+cartesian+closed+category#in_category_theory
+*)
+
+Definition hfiber_fun (X : HSET) (f : HSET / X) : HSET / X → HSET / X.
+Proof.
+intros g.
+mkpair.
+- exists (∑ x, HSET⟦hfiber_hSet (pr2 f) x,hfiber_hSet (pr2 g) x⟧).
+  abstract (apply isaset_total2; [ apply setproperty | intros x; apply has_homsets_HSET ]).
+- now apply pr1.
+Defined.
+
+Definition hfiber_functor (X : HSET) (f : HSET / X) :
+  functor (HSET / X) (HSET / X).
+Proof.
+use mk_functor.
++ mkpair.
+  * apply (hfiber_fun _ f).
+  * simpl; intros a b g.
+    { mkpair; simpl.
+    - intros h.
+      exists (pr1 h).
+      intros fx.
+      mkpair.
+      * apply (pr1 g), (pr1 (pr2 h fx)).
+      * abstract (etrans; [ apply (!toforallpaths _ _ _ (pr2 g) (pr1 (pr2 h fx)))|];
+                  apply (pr2 (pr2 h fx))).
+    - abstract (now apply funextsec).
+    }
++ split.
+  - intros x; apply (eq_mor_slicecat has_homsets_HSET); simpl.
+    apply funextsec; intros [y hy].
+    use total2_paths_f; [ apply idpath |].
+    apply funextsec; intros w; apply subtypeEquality; [|apply idpath].
+    now intros XX; apply setproperty.
+  - intros x y z g h; apply (eq_mor_slicecat has_homsets_HSET); simpl.
+    apply funextsec; intros [w hw].
+    use total2_paths_f; [ apply idpath |].
+    apply funextsec; intros w'.
+    apply subtypeEquality; [|apply idpath].
+    now intros XX; apply setproperty.
+Defined.
+
+Local Definition eta X (f : HSET / X) :
+  nat_trans (functor_identity (HSET / X))
+            (functor_composite (constprod_functor1 (BinProducts_HSET_slice X) f) (hfiber_functor X f)).
+Proof.
+use mk_nat_trans.
++ intros g; simpl.
+  mkpair.
+  * intros y; simpl.
+    exists (pr2 g y); intros fgy.
+    exists ((pr1 fgy,,y),,(pr2 fgy)).
+    abstract (now apply (pr2 fgy)).
+  * abstract (now apply funextsec).
++ intros [g Hg] [h Hh] [w Hw].
+  apply (eq_mor_slicecat has_homsets_HSET), funextsec; intro x1.
+  apply (two_arg_paths_f (!toforallpaths _ _ _ Hw x1)), funextsec; intro y.
+  repeat (apply subtypeEquality; [intros x; apply setproperty|]); cbn in *.
+  now induction (! toforallpaths _ _ (λ x : g, Hh (w x)) _ _).
+Defined.
+
+Local Definition eps X (f : HSET / X) :
+  nat_trans (functor_composite (hfiber_functor X f) (constprod_functor1 (BinProducts_HSET_slice X) f))
+            (functor_identity (HSET / X)).
+Proof.
+use mk_nat_trans.
++ intros g; simpl.
+  mkpair.
+  * intros H; apply (pr1 ((pr2 (pr2 (pr1 H))) (pr1 (pr1 H),,pr2 H))).
+  * abstract (apply funextsec; intros [[x1 [x2 x3]] x4]; simpl in *;
+              now rewrite (pr2 (x3 (x1,,x4))), x4).
++ intros g h w; simpl.
+  apply (eq_mor_slicecat has_homsets_HSET), funextsec; intro x1; cbn.
+  now repeat apply maponpaths; apply setproperty.
+Defined.
+
+Lemma has_exponentials_HSET_slice (X : HSET) : has_exponentials (BinProducts_HSET_slice X).
+Proof.
+intros f.
+exists (hfiber_functor _ f).
+use mk_are_adjoints.
+- apply eta.
+- apply eps.
+- split.
+  + intros x; apply eq_mor_slicecat, funextsec; intro x1.
+    now apply subtypeEquality; [intro y; apply setproperty|]; rewrite tppr.
+  + intros x; apply eq_mor_slicecat, funextsec; intro x1; simpl.
+    use total2_paths_f; [apply idpath|]; cbn.
+    apply funextsec; intro y.
+    now apply subtypeEquality; [intro z; apply setproperty|]; simpl; rewrite <- tppr.
+Defined.
+
+(** * Products in Set/X *)
+Section products_set_slice.
+
+(* The following is an experiment which computes what the product in Set/X
+   should be from the one in [X,Set] using the equivalence between Set/X
+   and [X,Set] *)
+(* Require Import UniMath.CategoryTheory.set_slice_fam_equiv. *)
+(* Require Import UniMath.CategoryTheory.DiscretePrecategory. *)
+
+(* Lemma Products_HSET_slice I X : Products I (HSET / X). *)
+(* Proof. *)
+(* intros F. *)
+(* set (foo1 := Products_functor_precat I (discrete_precategory (pr1 X)) HSET (ProductsHSET I) has_homsets_HSET). *)
+(* set (XHSET := [discrete_precategory (pr1 X), HSET, has_homsets_HSET]). *)
+(* set (G := λ i, slice_to_fam X (F i) : XHSET). *)
+(* set (foo2 := ProductObject I XHSET (foo1 G)). *)
+(* set (goal := pr1 (pr1 (fam_to_slice _ foo2))). *)
+(* cbn in goal. *)
+
+(** Products in Set/X *)
+Lemma Products_HSET_slice I X : Products I (HSET / X).
+Proof.
+intros F.
+use mk_ProductCone.
++ mkpair.
+  - exists (∑ x : pr1 X, ∏ i : I, hfiber_hSet (pr2 (F i)) x).
+    abstract (apply isaset_total2; [apply setproperty|];
+              now intros x; apply impred_isaset; intro i; apply setproperty).
+  - apply pr1.
++ intros i.
+  mkpair.
+  - intros H; apply (pr1 (pr2 H i)).
+  - abstract (now apply funextsec; intros H; apply (!pr2 (pr2 H i))).
++ intros f H.
+  use unique_exists.
+  - mkpair; simpl.
+    * intros x.
+      exists (pr2 f x).
+      intros i.
+      exists (pr1 (H i) x).
+      abstract (exact (!toforallpaths _ _ _ (pr2 (H i)) x)).
+    * abstract (now apply funextsec).
+  - abstract (now intros i; apply eq_mor_slicecat, funextsec).
+  - abstract (now intros g; apply impred_isaprop; intro i; apply has_homsets_slice_precat).
+  - abstract (simpl; intros [y1 y2] Hy; apply eq_mor_slicecat, funextsec; intro x;
+    use total2_paths_f; [apply (toforallpaths _ _ _ (!y2) x)|];
+    apply funextsec; intro i; apply subtypeEquality; [intros w; apply setproperty|];
+    destruct f as [f Hf]; cbn in *;
+    induction (toforallpaths (λ _ : f, X) (λ x0 : f, pr1 (y1 x0)) Hf (! y2) x);
+    now rewrite idpath_transportf, <- (Hy i)).
+Defined.
+
+End products_set_slice.
+
+Lemma is_left_adjoint_slicecat_to_cat_HSET (X : HSET) :
+  is_left_adjoint (slicecat_to_cat has_homsets_HSET X).
+Proof.
+mkpair.
+- use mk_functor.
+  + mkpair.
+    * intro Y.
+      exists (X × Y)%set; simpl.
+      apply pr1.
+    * intros A B f.
+      exists (λ xa, pr1 xa,,f (pr2 xa)).
+      abstract (now apply funextsec).
+  + abstract (split;
+    [ intros A; simpl; apply subtypeEquality; [intros x; apply setproperty|];
+      now apply funextsec; intros [x a]
+    | intros A B C f g; apply subtypeEquality; [intros x; apply setproperty|];
+      now apply funextsec; intros [x a]]).
+- use mk_are_adjoints.
+  + use mk_nat_trans.
+    * simpl; intros F.
+      exists (λ f, (pr2 F f,,f)).
+      abstract (now apply funextsec).
+    * abstract (intros Y Z F; apply (eq_mor_slicecat has_homsets_HSET);
+                apply funextsec; intro y;
+                use total2_paths2_f; [apply (toforallpaths _ _ _ (!pr2 F) y)|];
+                cbn in *; induction (toforallpaths _ _ _ _ _);
+                now rewrite idpath_transportf).
+  + use mk_nat_trans.
+    * intros Y xy; apply (pr2 xy).
+    * now intros Y Z f.
+  + split.
+    * now intros.
+    * intros Y; apply eq_mor_slicecat; simpl.
+      now apply funextsec; intros f; cbn; rewrite tppr.
+Defined.
+
+End set_slicecat.
+
+(* proof by Peter, copied from TypeTheory.Auxiliary.Auxiliary *)
+Lemma pullback_HSET_univprop_elements {P A B C : HSET}
+    {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
+    {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
+    (ep : p1 ;; f = p2 ;; g)
+    (pb : isPullback f g p1 p2 ep)
+  : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
+Proof.
+  intros a b e.
+  set (Pb := (mk_Pullback _ _ _ _ _ _ pb)).
+  apply iscontraprop1.
+  - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
+    apply subtypeEquality; simpl.
+      intros x; apply isapropdirprod; apply setproperty.
+    refine (@toforallpaths unitset _ (fun _ => ab) (fun _ => ab') _ tt).
+    refine (MorphismsIntoPullbackEqual pb _ _ _ _ );
+    apply funextsec; intros []; cbn;
+    (eapply @pathscomp0; [ eassumption | apply pathsinv0; eassumption]).
+  - simple refine (_,,_).
+    refine (_ tt).
+    refine (PullbackArrow Pb (unitset : HSET)
+      (fun _ => a) (fun _ => b) _).
+    apply funextsec; intro; exact e.
+    simpl; split.
+    + generalize tt; apply toforallpaths.
+      apply (PullbackArrow_PullbackPr1 Pb unitset).
+    + generalize tt; apply toforallpaths.
+      apply (PullbackArrow_PullbackPr2 Pb unitset).
+Defined.
+
+(**
+The set category has kernel pairs
+*)
+Section kernel_pair_Set.
+
+  Context  {A B:HSET}.
+  Variable (f: HSET ⟦A,B⟧).
+
+
+  Definition kernel_pair_HSET : kernel_pair f.
+    red.
+    apply PullbacksHSET.
+  Defined.
+
+  Local Notation g := kernel_pair_HSET.
+
+  (**
+ Formulation in the categorical language of the universal property
+enjoyed by surjections (univ_surj)
+   *)
+  Lemma isCoeqKernelPairSet (hf:issurjective f) :
+    isCoequalizer _ _ _ (PullbackSqrCommutes g).
+  Proof.
+    intros.
+    red.
+    intros C u equ.
+    assert (hcompat :   ∏ x y : pr1 A, f x = f y → u x = u y).
+    {
+      intros x y eqfxy.
+      assert (hpb:=pullback_HSET_univprop_elements
+                     (PullbackSqrCommutes g) (isPullback_Pullback g) x y eqfxy).
+      assert( hpb' := pr2 (pr1 hpb)); simpl in hpb'.
+      etrans.
+      eapply pathsinv0.
+      apply maponpaths.
+      exact (pr1 hpb').
+      eapply pathscomp0.
+      apply toforallpaths in equ.
+      apply equ.
+      cbn.
+      apply maponpaths.
+      exact (pr2 hpb').
+    }
+    use (unique_exists (univ_surj (setproperty C) _ _ _ hf)).
+    - exact u.
+    - exact hcompat.
+    - simpl.
+      apply funextfun.
+      intros ?.
+      apply univ_surj_ax.
+    - intros ?. apply has_homsets_HSET.
+    - intros ??; simpl.
+      apply funextfun.
+      use univ_surj_unique.
+      simpl in X.
+      apply toforallpaths in X.
+      exact X.
+  Qed.
+End kernel_pair_Set.
+
+
+Lemma EffectiveEpis_HSET : EpisAreEffective HSET.
+Proof.
+  red.
+  clear.
+  intros A B f epif.
+  exists (kernel_pair_HSET f).
+  apply isCoeqKernelPairSet.
+  apply epiissurjectiontosets; [apply setproperty|].
+  intros C g1 g2 h .
+  apply toforallpaths.
+  apply (epif C g1 g2).
+  now apply funextfun.
+Qed.

@@ -13,14 +13,14 @@ Open Scope Dcuts_scope.
 (** ** Definition *)
 
 Lemma isboolDcuts_isaprop (x : Dcuts) :
-  isaprop (Π r, (r ∈ x) ∨ (neg (r ∈ x))).
+  isaprop (∏ r, (r ∈ x) ∨ (neg (r ∈ x))).
 Proof.
   intros x.
   apply impred_isaprop.
   intros r.
   apply pr2.
 Qed.
-Definition isboolDcuts : hsubtypes Dcuts :=
+Definition isboolDcuts : hsubtype Dcuts :=
   (fun x : Dcuts => hProppair _ (isboolDcuts_isaprop x)).
 
 Lemma isaset_boolDcuts : isaset isboolDcuts.
@@ -36,11 +36,11 @@ Proof.
   apply (hSetpair (carrier isboolDcuts)).
   exact isaset_boolDcuts.
 Defined.
-Definition mk_boolDcuts (x : Dcuts) (Hdec : Π r : NonnegativeRationals, (r ∈ x) ⨿ ¬ (r ∈ x)) : boolDcuts :=
+Definition mk_boolDcuts (x : Dcuts) (Hdec : ∏ r : NonnegativeRationals, (r ∈ x) ⨿ ¬ (r ∈ x)) : boolDcuts :=
   x,, (λ r : NonnegativeRationals, hinhpr (Hdec r)).
 
 Lemma is_zero_dec :
-  Π x : Dcuts, isboolDcuts x -> (x = 0) ∨ (¬ (x = 0)).
+  ∏ x : Dcuts, isboolDcuts x -> (x = 0) ∨ (¬ (x = 0)).
 Proof.
   intros x Hx.
   generalize (Hx 0%NRat) ; apply hinhfun ; apply sumofmaps ; intros Hx0.

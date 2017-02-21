@@ -15,7 +15,7 @@ package, add its path to that file.
 ## Adding a new package
 
 Create a subdirectory of this directory, populate it with your files, add a
-README (or README.md) file, and add a file .packages/files, listing the *.v
+README (or README.md) file, and add a file .package/files, listing the *.v
 files of your package, as above.  Then add the name of your package to the head
 of the list assigned to "PACKAGES" in the file "./Makefile", or, alternatively,
 if you'd like to test your package with modifying "./Makefile", which you might
@@ -44,7 +44,8 @@ less fragile and to make the files have a more uniform and pleasing appearance.
 * Use `as` to name all new variables introduced by `induction` or
   `destruct`, if the corresponding type is defined in a remote location,
   because different names might be used by Coq when the definition of the type
-  is changed.
+  is changed.  Name all variables introduced by `assert`, if they are used by
+  name later, with `as` or to the left of a colon.
 * Do not end a proof with `Qed.`, except with `Goal`, for that may prevent later computations.
 * Start all proofs with `Proof.` on a separate line and end it with
   `Defined.` on a separate line, as this makes it possible for us to generate

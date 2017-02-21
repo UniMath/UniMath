@@ -16,10 +16,10 @@ Contents of this file:
 *)
 
 Require Import UniMath.Folds.UnicodeNotations.
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 
@@ -58,8 +58,8 @@ Proof.
 Defined.
 
 Definition folds_id_comp_from_precat_data : folds_id_T :=
-  tpair (λ C : folds_ob_mor, (Π a : C, a ⇒ a → hProp)
-                           × (Π (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp))
+  tpair (λ C : folds_ob_mor, (∏ a : C, a ⇒ a → hProp)
+                           × (∏ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp))
         (pr1 C) (dirprodpair (@id_pred) (@comp_pred)).
 
 End data.

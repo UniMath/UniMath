@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets
-               UniMath.Foundations.Algebra.Monoids_and_Groups
+Require Import UniMath.Combinatorics.StandardFiniteSets
+               UniMath.Algebra.Monoids_and_Groups
 	       UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Magma UniMath.Ktheory.QuotientSet.
@@ -34,7 +34,7 @@ Proof. intros. exists (zero_map A zero).
 
 Module Presentation'.
 
-  Require Import UniMath.Foundations.Combinatorics.FiniteSequences.
+  Require Import UniMath.Combinatorics.FiniteSequences.
 
   Definition word X := Sequence X.
   Definition word_length {X} : word X -> nat := length.
@@ -62,14 +62,14 @@ Module Presentation'.
   Definition make_reln {X} : word X -> word X -> reln X := fun v w => v,,w.
 
   Definition isAdequateRelation {X I} (R:I->reln X) (r : eqrel (word X)) :=
-        (* base         *) (Π i, r (lhs (R i)) (rhs (R i))) ×
-        (* left_compat  *) (Π u v w, r v w -> r (word_op u v) (word_op u w)) ×
-        (* right_compat *) (Π u v w, r u v -> r (word_op u w) (word_op v w)).
+        (* base         *) (∏ i, r (lhs (R i)) (rhs (R i))) ×
+        (* left_compat  *) (∏ u v w, r v w -> r (word_op u v) (word_op u w)) ×
+        (* right_compat *) (∏ u v w, r u v -> r (word_op u w) (word_op v w)).
   Definition base         {X I} {R:I->reln X} {r} (ad : isAdequateRelation R r) := pr1 ad.
   Definition left_compat  {X I} {R:I->reln X} {r} (ad : isAdequateRelation R r) := pr1(pr2 ad).
   Definition right_compat {X I} {R:I->reln X} {r} (ad : isAdequateRelation R r) := pr2(pr2 ad).
 
-  Definition AdequateRelation {X I} (R:I->reln X) := Σ r, isAdequateRelation R r.
+  Definition AdequateRelation {X I} (R:I->reln X) := ∑ r, isAdequateRelation R r.
   Definition toeqrel {X I} (R:I->reln X) : AdequateRelation R -> eqrel (word X) := pr1.
   Coercion toeqrel : AdequateRelation >-> eqrel.
 
@@ -79,7 +79,7 @@ Module Presentation'.
     simple refine (_,,_).
     { simple refine (_,,_).
       { intros v w.
-        exists (Π r, isAdequateRelation R r -> r v w).
+        exists (∏ r, isAdequateRelation R r -> r v w).
         apply impred; intros r; apply impred_prop. }
       { simple refine (_,,_).
         { simple refine (_,,_).
@@ -229,15 +229,15 @@ Module Presentation.
 
   Record AdequateRelation {X I} (R:I->reln X) (r : hrel (word X)) :=
     make_AdequateRelation {
-        base: Π i, r (lhs (R i)) (rhs (R i));
-        reflex : Π w, r w w;
-        symm : Π v w, r v w -> r w v;
-        trans : Π u v w, r u v -> r v w -> r u w;
-        left_compat : Π u v w, r v w -> r (word_op u v) (word_op u w);
-        right_compat: Π u v w, r u v -> r (word_op u w) (word_op v w);
-        left_unit : Π w, r (word_op word_unit w) w;
-        right_unit : Π w, r (word_op w word_unit) w;
-        assoc : Π u v w, r (word_op (word_op u v) w) (word_op u (word_op v w))
+        base: ∏ i, r (lhs (R i)) (rhs (R i));
+        reflex : ∏ w, r w w;
+        symm : ∏ v w, r v w -> r w v;
+        trans : ∏ u v w, r u v -> r v w -> r u w;
+        left_compat : ∏ u v w, r v w -> r (word_op u v) (word_op u w);
+        right_compat: ∏ u v w, r u v -> r (word_op u w) (word_op v w);
+        left_unit : ∏ w, r (word_op word_unit w) w;
+        right_unit : ∏ w, r (word_op w word_unit) w;
+        assoc : ∏ u v w, r (word_op (word_op u v) w) (word_op u (word_op v w))
       }.
   Arguments make_AdequateRelation {X I} R r _ _ _ _ _ _ _ _ _.
   Arguments base {X I R r} _ _.
@@ -254,7 +254,7 @@ Module Presentation.
 
   Definition smallestAdequateRelation0 {X I} (R:I->reln X) : hrel (word X).
     intros ? ? ? v w.
-    exists (Π r: hrel (word X), AdequateRelation R r -> r v w).
+    exists (∏ r: hrel (word X), AdequateRelation R r -> r v w).
     abstract (apply impred; intro r; apply impred_prop).
   Defined.
   Lemma adequacy {X I} (R:I->reln X) :
@@ -346,7 +346,7 @@ Module Presentation.
     make_MarkedMonoid {
         m_base :> monoid;
         m_mark : X -> m_base;
-        m_reln : Π i, evalword (toMarkedPreMonoid R m_base m_mark) (lhs (R i)) =
+        m_reln : ∏ i, evalword (toMarkedPreMonoid R m_base m_mark) (lhs (R i)) =
                            evalword (toMarkedPreMonoid R m_base m_mark) (rhs (R i)) }.
   Arguments make_MarkedMonoid {X I} R _ _ _.
   Arguments m_base {X I R} _.
@@ -371,7 +371,7 @@ Module Presentation.
   Record MarkedMonoidMap {X I} {R:I->reln X} (M N:MarkedMonoid R) :=
     make_MarkedMonoidMap {
         map_base :> Hom M N;
-        map_mark : Π x, map_base (m_mark M x) = m_mark N x }.
+        map_mark : ∏ x, map_base (m_mark M x) = m_mark N x }.
   Arguments map_base {X I R M N} m.
   Arguments map_mark {X I R M N} m x.
   Lemma MarkedMonoidMapEquality {X I} {R:I->reln X} {M N:MarkedMonoid R}
@@ -429,7 +429,7 @@ Defined.
                 (universalMarkedMonoid3 R).
   Fixpoint agreement_on_gens0 {X I} {R:I->reln X} {M:monoid}
         (f g:Hom (universalMarkedMonoid R) M)
-        (p:Π i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
+        (p:∏ i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i)))
         (w:word X) :
           pr1 f (setquotpr (smallestAdequateRelation R) w) =
@@ -449,7 +449,7 @@ Defined.
            { apply agreement_on_gens0. assumption. } } Qed.
   Lemma agreement_on_gens {X I} {R:I->reln X} {M:monoid}
         (f g:Hom (universalMarkedMonoid R) M) :
-        (Π i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
+        (∏ i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i)))
           -> f = g.
     intros ? ? ? ? ? ? p. apply funEquality.
@@ -506,13 +506,13 @@ Module Product.
   Definition Proj {I} (X:I->monoid) (i:I) : Hom (make X) (X i).
     intros. exists (pr1 (Magma.Product.Proj X i)). split.
     exact (pr2 (Magma.Product.Proj X i)). simpl. reflexivity. Defined.
-  Definition Fun {I} (X:I->monoid) (T:monoid) (g: Π i, Hom T (X i))
+  Definition Fun {I} (X:I->monoid) (T:monoid) (g: ∏ i, Hom T (X i))
              : Hom T (make X).
     intros.  exists (pr1 (Magma.Product.Fun X T g)).
     exists (pr2 (Magma.Product.Fun X T g)). apply funextsec; intro i.
     exact (pr2 (pr2 (g i))). Defined.
-  Definition Eqn {I} (X:I->monoid) (T:monoid) (g: Π i, Hom T (X i))
-             : Π i, Proj X i ∘ Fun X T g = g i.
+  Definition Eqn {I} (X:I->monoid) (T:monoid) (g: ∏ i, Hom T (X i))
+             : ∏ i, Proj X i ∘ Fun X T g = g i.
     intros. apply funEquality. reflexivity. Qed.
   Lemma issurjective_projection {I} (X:I->monoid) (i:I) :
     isdeceq I -> issurjective (Proj X i).

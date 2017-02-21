@@ -4,16 +4,15 @@
 Require Export UniMath.CategoryTheory.precategories
                UniMath.CategoryTheory.functor_categories
                UniMath.CategoryTheory.opp_precat
-               UniMath.Foundations.Basics.Sets
-               UniMath.Ktheory.Utilities.
+               UniMath.Foundations.Sets.
 Require Export UniMath.Ktheory.Precategories.
 
 Local Open Scope cat.
 
 Definition cat_ob_mor {C} (X:C^op==>SET) : precategory_ob_mor.
-  intros. exists (Σ c:ob C, X c : hSet).
+  intros. exists (∑ c:ob C, X c : hSet).
   intros a b.
-  exact (Σ f : pr1 a --> pr1 b, (pr2 a) = #X f (pr2 b)).
+  exact (∑ f : pr1 a --> pr1 b, (pr2 a) = #X f (pr2 b)).
 Defined.
 
 
@@ -21,10 +20,10 @@ Definition cat_data {C} (X:C^op==>SET) : precategory_data.
   intros. exists (cat_ob_mor X). split.
   { intro a.
     exact (identity (pr1 a),,
-                    (apevalat (pr2 a) (!((functor_id X) (pr1 a))))). }
+                    (eqtohomot (!((functor_id X) (pr1 a))) (pr2 a))). }
   { intros a b c f g.
     exact (pr1 g ∘ pr1 f,,
-           ((pr2 f) @ !ap (#X (pr1 f)) (!(pr2 g))) @ (!(apevalat (pr2 c) (((functor_comp X) _ _ _ (pr1 g) (pr1 f)))))). } Defined.
+           ((pr2 f) @ !ap (#X (pr1 f)) (!(pr2 g))) @ (!(eqtohomot (((functor_comp X) _ _ _ (pr1 g) (pr1 f))) (pr2 c)))). } Defined.
 
 Lemma has_homsets_cat_ob_mor {C:Precategory} (X:C^op==>SET) :
    has_homsets (cat_data X).
@@ -76,7 +75,7 @@ Proof. intros.
        exists (fun a => pr1 a,, p (pr1 a) (pr2 a)).
        exact (fun b c f => (pr1 f,,
                                 (ap ((pr1 p) (pr1 b)) (pr2 f))
-                                @ (apevalat (pr2 c) (pr2 p (pr1 c) (pr1 b) (pr1 f))))).
+                                @ (eqtohomot (pr2 p (pr1 c) (pr1 b) (pr1 f)) (pr2 c)))).
 Defined.
 
 Lemma cat_on_nat_trans_is_nat_trans {C:Precategory} {X Y:C^op==>SET} (p:X ⟶ Y) :
@@ -114,11 +113,11 @@ Module pr1.
     destruct f as [f i]. destruct H as [f' j].
     assert (i' : y = #X f' x).
          + intermediate_path (#X (identity d) y).
-         - exact (apevalat y (!functor_id X d)).
+         - exact (eqtohomot (!functor_id X d) y).
          - intermediate_path (#X (f ∘ f') y).
-           -- exact (apevalat y (!ap #X (pr2 j))).
+           -- exact (eqtohomot (!ap #X (pr2 j)) y).
            -- intermediate_path (#X f' (#X f y)).
-              --- exact (apevalat y (functor_comp X _ _ _ f f')).
+              --- exact (eqtohomot (functor_comp X _ _ _ f f') y).
               --- exact (ap (#X f') (!i)).
          + exists (f',, i'). split.
          - apply mor_equality. exact (pr1 j).

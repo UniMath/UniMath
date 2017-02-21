@@ -7,10 +7,10 @@ Written by: Anders Mörtberg, 2016
 
 *)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets.
-Require Import UniMath.Foundations.Combinatorics.Lists.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -69,11 +69,11 @@ Section MLTT79.
 
 (** This is the syntax as presented on page 158:
 <<
-Pi types           (Πx:A)B                     [0,1]
+Pi types           (∏x:A)B                     [0,1]
 lambda             (λx)b                       [1]
 application        (c)a                        [0,0]
 
-Sigma types        (Σx:A)B                     [0,1]
+Sigma types        (∑x:A)B                     [0,1]
 pair               (a,b)                       [0,0]
 pair-elim          (Ex,y)(c,d)                 [0,2]
 
@@ -115,16 +115,16 @@ Local Notation "[0,0,2]" := (0 :: 0 :: 2 :: []).
 Local Notation "[0,1,1]" := (0 :: 1 :: 1 :: []).
 
 Definition PiSig : BindingSig :=
-  mkBindingSig (isdeceqstn 3) (three_rec [0,1] [1] [0,0]).
+  mkBindingSig (isasetstn 3) (three_rec [0,1] [1] [0,0]).
 
 Definition SigmaSig : BindingSig :=
-  mkBindingSig (isdeceqstn 3) (three_rec [0,1] [0,0] [0,2]).
+  mkBindingSig (isasetstn 3) (three_rec [0,1] [0,0] [0,2]).
 
 Definition SumSig : BindingSig :=
-  mkBindingSig (isdeceqstn 4) (four_rec [0,0] [0] [0] [0,1,1]).
+  mkBindingSig (isasetstn 4) (four_rec [0,0] [0] [0] [0,1,1]).
 
 Definition IdSig : BindingSig :=
-  mkBindingSig (isdeceqstn 3) (three_rec [0,0,0] [] [0,0]).
+  mkBindingSig (isasetstn 3) (three_rec [0,0,0] [] [0,0]).
 
 (** Define the arity of the eliminators for Fin by recursion *)
 Definition FinSigElim (n : nat) : list nat.
@@ -149,7 +149,7 @@ Definition FinSigConstructors (n : nat) : stn n -> list nat := fun _ => [].
 (* Defined. *)
 
 (** Uncurried version of the FinSig family *)
-Definition FinSigFun : (Σ n : nat, unit ⨿ (stn n ⨿ unit)) → list nat.
+Definition FinSigFun : (∑ n : nat, unit ⨿ (stn n ⨿ unit)) → list nat.
 Proof.
 induction 1 as [n p].
 induction p as [_|p].
@@ -159,34 +159,33 @@ induction p as [_|p].
   + apply (FinSigElim n).
 Defined.
 
-Lemma isdeceqFinSig : isdeceq (Σ n, unit ⨿ (stn n ⨿ unit)).
+Lemma isasetFinSig : isaset (∑ n, unit ⨿ (stn n ⨿ unit)).
 Proof.
-intros [n p] [m q].
-induction (isdeceqnat n m) as [h|h].
-- induction h.
-   + destruct (isdeceqcoprod isdecequnit
-                (isdeceqcoprod (isdeceqstn n) isdecequnit) p q) as [Hpq|Hpq].
-     * now rewrite Hpq; apply inl.
-     * apply inr; intro H.
-       assert (Hid : maponpaths pr1 H = idpath _).
-       { apply isasetnat. }
-       generalize (fiber_paths H); unfold base_paths.
-       rewrite Hid, idpath_transportf; intro H'.
-       apply (Hpq H').
-- apply inr; intro H; apply (h (maponpaths pr1 H)).
+  apply isaset_total2.
+  - apply isasetnat.
+  - intros. repeat apply isasetcoprod; try apply isasetunit.
+    apply isasetstn.
+Qed.
+
+Lemma isdeceqFinSig : isdeceq (∑ n, unit ⨿ (stn n ⨿ unit)).
+Proof.
+  apply isdeceq_total2.
+  - apply isdeceqnat.
+  - intros. repeat apply isdeceqcoprod; try apply isdecequnit.
+    apply isdeceqstn.
 Defined.
 
-Definition FinSig : BindingSig := mkBindingSig isdeceqFinSig FinSigFun.
+Definition FinSig : BindingSig := mkBindingSig isasetFinSig FinSigFun.
 
 Definition NatSig : BindingSig :=
-  mkBindingSig (isdeceqstn 4) (four_rec [] [] [0] [0,0,2]).
+  mkBindingSig (isasetstn 4) (four_rec [] [] [0] [0,0,2]).
 
 Definition WSig : BindingSig :=
-  mkBindingSig (isdeceqstn 3) (three_rec [0,1] [0,0] [0,3]).
+  mkBindingSig (isasetstn 3) (three_rec [0,1] [0,0] [0,3]).
 
-Definition USig : BindingSig := mkBindingSig isdeceqnat (fun _ => []).
+Definition USig : BindingSig := mkBindingSig isasetnat (fun _ => []).
 
-Let SigHSET := Signature HSET has_homsets_HSET.
+Let SigHSET := Signature HSET has_homsets_HSET HSET has_homsets_HSET.
 
 (** The binding signature of MLTT79 *)
 Definition MLTT79Sig := PiSig ++ SigmaSig ++ SumSig ++ IdSig ++

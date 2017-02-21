@@ -7,9 +7,9 @@ Direct implementation of coequalizers together with:
 Written by Tomi Pannila
 
 *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -22,13 +22,13 @@ Section def_coequalizers.
   (** Definition and construction of isCoequalizer. *)
   Definition isCoequalizer {x y z : C} (f g : x --> y) (e : y --> z)
              (H : f ;; e = g ;; e) : UU :=
-    Π (w : C) (h : y --> w) (H : f ;; h = g ;; h),
-      iscontr (Σ φ : z --> w, e ;; φ  = h).
+    ∏ (w : C) (h : y --> w) (H : f ;; h = g ;; h),
+      iscontr (∑ φ : z --> w, e ;; φ  = h).
 
   Definition mk_isCoequalizer {y z w : C} (f g : y --> z) (e : z --> w)
              (H : f ;; e = g ;; e) :
-    (Π (w0 : C) (h : z --> w0) (H' : f ;; h = g ;; h),
-        iscontr (Σ ψ : w --> w0, e ;; ψ = h)) -> isCoequalizer f g e H.
+    (∏ (w0 : C) (h : z --> w0) (H' : f ;; h = g ;; h),
+        iscontr (∑ ψ : w --> w0, e ;; ψ = h)) -> isCoequalizer f g e H.
   Proof.
     intros X. unfold isCoequalizer. exact X.
   Defined.
@@ -39,6 +39,19 @@ Section def_coequalizers.
   Proof.
     repeat (apply impred; intro).
     apply isapropiscontr.
+  Defined.
+
+  Lemma isCoequalizer_path {hs : has_homsets C} {x y z : C} {f g : x --> y} {e : y --> z}
+        {H H' : f ;; e = g ;; e} (iC : isCoequalizer f g e H) :
+    isCoequalizer f g e H'.
+  Proof.
+    use mk_isCoequalizer.
+    intros w0 h H'0.
+    use unique_exists.
+    - exact (pr1 (pr1 (iC w0 h H'0))).
+    - exact (pr2 (pr1 (iC w0 h H'0))).
+    - intros y0. apply hs.
+    - intros y0 X. exact (base_paths _ _ (pr2 (iC w0 h H'0) (tpair _ y0 X))).
   Defined.
 
   (** Proves that the arrow from the coequalizer object with the right
@@ -56,8 +69,8 @@ Section def_coequalizers.
 
   (** Definition and construction of coequalizers. *)
   Definition Coequalizer {y z : C} (f g : y --> z) : UU :=
-    Σ e : (Σ w : C, z --> w),
-          (Σ H : f ;; (pr2 e) = g ;; (pr2 e), isCoequalizer f g (pr2 e) H).
+    ∑ e : (∑ w : C, z --> w),
+          (∑ H : f ;; (pr2 e) = g ;; (pr2 e), isCoequalizer f g (pr2 e) H).
 
   Definition mk_Coequalizer {y z w : C} (f g : y --> z) (e : z --> w)
              (H : f ;; e = g ;; e) (isE : isCoequalizer f g e H) :
@@ -71,10 +84,10 @@ Section def_coequalizers.
   Defined.
 
   (** Coequalizers in precategories. *)
-  Definition Coequalizers := Π (y z : C) (f g : y --> z),
+  Definition Coequalizers := ∏ (y z : C) (f g : y --> z),
       Coequalizer f g.
 
-  Definition hasCoequalizers := Π (y z : C) (f g : y --> z),
+  Definition hasCoequalizers := ∏ (y z : C) (f g : y --> z),
       ishinh (Coequalizer f g).
 
   (** Returns the coequalizer object. *)
@@ -143,7 +156,7 @@ Section def_coequalizers.
     equalities. *)
   Definition identity_is_CoequalizerOut {y z : C} {f g : y --> z}
              (E : Coequalizer f g) :
-    Σ φ : C⟦E, E⟧, (CoequalizerArrow E) ;; φ = (CoequalizerArrow E).
+    ∑ φ : C⟦E, E⟧, (CoequalizerArrow E) ;; φ = (CoequalizerArrow E).
   Proof.
     exists (identity E).
     apply id_right.

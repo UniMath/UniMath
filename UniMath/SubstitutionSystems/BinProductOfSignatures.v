@@ -11,7 +11,7 @@ Written by Anders Mörtberg, 2016 (adapted from SumOfSignatures.v)
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -30,24 +30,20 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
 
-Arguments θ_source {_ _} _ .
-Arguments θ_target {_ _} _ .
-Arguments θ_Strength1 {_ _ _} _ .
-Arguments θ_Strength2 {_ _ _} _ .
-Arguments θ_Strength1_int {_ _ _} _ .
-Arguments θ_Strength2_int {_ _ _} _ .
 
 Section binproduct_of_signatures.
 
 Variable C : precategory.
 Variable hsC : has_homsets C.
-Variable PC : BinProducts C.
+Variable D : precategory.
+Variable hs : has_homsets D.
+Variable PD : BinProducts D.
 
 Section construction.
 
-Local Notation "'CCC'" := (BinProducts_functor_precat C C PC hsC : BinProducts [C, C, hsC]).
+Local Notation "'PCD'" := (BinProducts_functor_precat C D PD hs : BinProducts [C, D, hs]).
 
-Variables H1 H2 : functor [C, C, hsC] [C, C, hsC].
+Variables H1 H2 : functor [C, C, hsC] [C, D, hs].
 
 Variable θ1 : θ_source H1 ⟶ θ_target H1.
 Variable θ2 : θ_source H2 ⟶ θ_target H2.
@@ -59,14 +55,14 @@ Variable S22 : θ_Strength2 θ2.
 
 (** * Definition of the data of the product of two signatures *)
 
-Definition H : functor [C, C, hsC] [C, C, hsC] :=
-  BinProduct_of_functors _ _ CCC H1 H2.
+Definition H : functor [C, C, hsC] [C, D, hs] :=
+  BinProduct_of_functors _ _ PCD H1 H2.
 
 Local Definition θ_ob_fun (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) :
-   Π c : C,
+   ∏ c : C,
     (functor_composite_data (pr1 Z)
-     (BinProduct_of_functors_data C C PC (H1 X) (H2 X))) c
-   --> (BinProduct_of_functors_data C C PC (H1 (functor_composite (pr1 Z) X))
+     (BinProduct_of_functors_data C D PD (H1 X) (H2 X))) c
+   --> (BinProduct_of_functors_data C D PD (H1 (functor_composite (pr1 Z) X))
        (H2 (functor_composite (pr1 Z) X))) c.
 Proof.
   intro c.
@@ -86,7 +82,7 @@ Proof.
   * apply (nat_trans_ax (θ2 (X ⊗ Z))).
 Qed.
 
-Definition θ_ob : Π XZ, θ_source H XZ --> θ_target H XZ.
+Definition θ_ob : ∏ XZ, θ_source H XZ --> θ_target H XZ.
 Proof.
   intro XZ.
   exists (θ_ob_fun (pr1 XZ) (pr2 XZ)).
@@ -94,11 +90,11 @@ Proof.
 Defined.
 
 Local Lemma is_nat_trans_θ_ob :
- is_nat_trans (θ_source_functor_data C hsC H) (θ_target_functor_data C hsC H)
+ is_nat_trans (θ_source_functor_data C hsC D hs H) (θ_target_functor_data C hsC D hs H)
      θ_ob.
 Proof.
   intros [X Z] [X' Z'] [α β].
-  apply (nat_trans_eq hsC); intro c; simpl.
+  apply (nat_trans_eq hs); intro c; simpl.
   eapply pathscomp0; [ | eapply pathsinv0, BinProductOfArrows_comp].
   eapply pathscomp0; [ apply cancel_postcomposition, BinProductOfArrows_comp |].
   eapply pathscomp0; [ apply BinProductOfArrows_comp |].
@@ -118,7 +114,7 @@ Defined.
 Lemma ProductStrength1 : θ_Strength1 θ.
 Proof.
   intro X.
-  apply (nat_trans_eq hsC); intro x.
+  apply (nat_trans_eq hs); intro x.
   eapply pathscomp0; [apply BinProductOfArrows_comp|].
   apply pathsinv0, BinProduct_endo_is_identity.
   + rewrite BinProductOfArrowsPr1.
@@ -132,7 +128,7 @@ Qed.
 Lemma ProductStrength2 : θ_Strength2 θ.
 Proof.
   intros X Z Z' Y α.
-  apply (nat_trans_eq hsC); intro x.
+  apply (nat_trans_eq hs); intro x.
   eapply pathscomp0; [ apply BinProductOfArrows_comp |].
   apply pathsinv0.
   eapply pathscomp0; [ apply cancel_postcomposition; simpl; apply BinProductOfArrows_comp|].
@@ -152,7 +148,7 @@ Variable S22' : θ_Strength2_int θ2.
 Lemma ProductStrength1' : θ_Strength1_int θ.
 Proof.
   clear S11 S12 S21 S22 S12' S22'; intro X.
-  apply (nat_trans_eq hsC); intro x.
+  apply (nat_trans_eq hs); intro x.
   eapply pathscomp0; [ apply BinProductOfArrows_comp |].
   apply pathsinv0, BinProduct_endo_is_identity.
   + rewrite BinProductOfArrowsPr1.
@@ -166,7 +162,7 @@ Qed.
 Lemma ProductStrength2' : θ_Strength2_int θ.
 Proof.
   clear S11 S12 S21 S22 S11' S21'; intros X Z Z'.
-  apply (nat_trans_eq hsC); intro x; simpl.
+  apply (nat_trans_eq hs); intro x; simpl.
   rewrite id_left.
   eapply pathscomp0; [apply BinProductOfArrows_comp|].
   apply pathsinv0.
@@ -183,7 +179,7 @@ Qed.
 End construction.
 
 (** Binary product of signatures *)
-Definition BinProduct_of_Signatures (S1 S2 : Signature C hsC) : Signature C hsC.
+Definition BinProduct_of_Signatures (S1 S2 : Signature C hsC D hs) : Signature C hsC D hs.
 Proof.
   (* destruct S1 as [H1 [θ1 [S11' S12']]]. *)
   (* destruct S2 as [H2 [θ2 [S21' S22']]]. *)
@@ -194,9 +190,9 @@ Proof.
   + apply ProductStrength2'; [apply (pr2 (pr2 (pr2 S1)))|apply (pr2 (pr2 (pr2 S2)))].
 Defined.
 
-Lemma is_omega_cocont_BinProduct_of_Signatures (S1 S2 : Signature C hsC)
-  (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2)
-  (hE : Π x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C PC hsC) x)) :
+Lemma is_omega_cocont_BinProduct_of_Signatures (S1 S2 : Signature C hsC D hs)
+  (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2) (PC: BinProducts C)
+  (hE : ∏ x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C D PD hs) x)) :
   is_omega_cocont (BinProduct_of_Signatures S1 S2).
 Proof.
 destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.

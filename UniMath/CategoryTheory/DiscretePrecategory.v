@@ -8,9 +8,9 @@ Written by: Anders Mörtberg, 2016
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -52,6 +52,19 @@ mkpair.
   - apply f.
   - intros s t []; apply identity.
 + abstract (now split; [intro|intros a b c [] []; simpl; rewrite id_left]).
+Defined.
+
+(** A natural transformation of functors is given by a family of morphisms *)
+Definition is_nat_trans_discrete_precategory {D : precategory} (Dhom : has_homsets D)
+           {f g : functor_precategory discrete_precategory D Dhom}
+           (F : ∏ x : A , (pr1 f) x --> (pr1 g) x)
+  : is_nat_trans (pr1 f) (pr1 g) F.
+Proof.
+  intros x y h.
+  rewrite h.
+  rewrite (pr1 (pr2 f)) , (pr1 (pr2 g)).
+  rewrite (id_left (F y)) , (id_right (F y)).
+  reflexivity.
 Defined.
 
 End DiscretePrecategory.

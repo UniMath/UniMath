@@ -1,7 +1,7 @@
 (** Definition of initial object as a colimit *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
@@ -32,9 +32,9 @@ Defined.
 
 Definition isInitial (a : C) :=
   isColimCocone initDiagram a (initCocone a).
- (* Π b : C, iscontr (a --> b). *)
+ (* ∏ b : C, iscontr (a --> b). *)
 
-Definition mk_isInitial (a : C) (H : Π (b : C), iscontr (a --> b)) :
+Definition mk_isInitial (a : C) (H : ∏ (b : C), iscontr (a --> b)) :
   isInitial a.
 Proof.
 intros b cb.
@@ -106,7 +106,7 @@ Definition hasInitial := ishinh Initial.
 (* Proof. *)
 (*   apply invproofirrelevance. *)
 (*   intros O O'. *)
-(*   apply (total2_paths (isotoid _ H (iso_Initials O O')) ). *)
+(*   apply (total2_paths_f (isotoid _ H (iso_Initials O O')) ). *)
 (*   apply proofirrelevance. *)
 (*   unfold isInitial. *)
 (*   apply impred. *)

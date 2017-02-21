@@ -14,7 +14,7 @@ Written by: Anders Mörtberg, 2016 (adapted from LiftingInitial.v)
 
 Set Kernel Term Sharing.
 
-Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -42,16 +42,11 @@ Require Import UniMath.SubstitutionSystems.Notation.
 
 Local Coercion alg_carrier : algebra_ob >-> ob.
 
-Arguments θ_source {_ _} _ .
-Arguments θ_target {_ _} _ .
-Arguments θ_Strength1 {_ _ _} _ .
-Arguments θ_Strength2 {_ _ _} _ .
-
 Section Precategory_Algebra.
 
 Variables (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C) (BPC : BinProducts C).
 Variables (IC : Initial C) (CC : Colims_of_shape nat_graph C).
-Variables (H : Signature C hsC) (HH : is_omega_cocont H).
+Variables (H : Signature C hsC C hsC) (HH : is_omega_cocont H).
 
 Local Notation "'EndC'":= ([C, C, hsC]) .
 Local Notation "'Ptd'" := (precategory_Ptd C hsC).
@@ -109,7 +104,7 @@ apply is_omega_cocont_pre_composition_functor, CC.
 Defined.
 
 Definition SpecializedGMIt (Z : Ptd) (X : EndC) :
-  Π (G : functor [C, C, hsC] [C, C, hsC]) (ρ : [C, C, hsC] ⟦ G X, X ⟧)
+  ∏ (G : functor [C, C, hsC] [C, C, hsC]) (ρ : [C, C, hsC] ⟦ G X, X ⟧)
     (θ : functor_composite Id_H (ℓ (U Z)) ⟶ functor_composite (ℓ (U Z)) G),
   ∃! h : [C, C, hsC] ⟦ ℓ (U Z) (alg_carrier _ InitAlg), X ⟧,
     # (ℓ (U Z)) (alg_map Id_H InitAlg) ;; h =
@@ -134,7 +129,7 @@ Local Lemma aux_iso_1_is_nat_trans (Z : Ptd) :
       BinCoproductOfArrows [C, C, hsC]
         (CPEndC (functor_composite (U Z) (functor_identity C))
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
-        (ρ_functor C (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
+        (ρ_functor (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
 intros X X' α.
 apply (nat_trans_eq hsC); intro c; simpl.
@@ -152,7 +147,7 @@ Definition aux_iso_1 (Z : Ptd)
 Proof.
 mkpair.
 - intro X.
-  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (ρ_functor _ (U Z))
+  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (ρ_functor (U Z))
            (nat_trans_id (θ_source H (X⊗Z):functor C C))).
 - exact (aux_iso_1_is_nat_trans Z).
 Defined.
@@ -167,7 +162,7 @@ Local Lemma aux_iso_1_inv_is_nat_trans (Z : Ptd) :
       BinCoproductOfArrows [C, C, hsC]
         (CPEndC (functor_composite (functor_identity C) (U Z))
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
-        (λ_functor C (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
+        (λ_functor (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
 intros X X' α.
 apply (nat_trans_eq hsC); intro c; simpl.
@@ -185,7 +180,7 @@ Local Definition aux_iso_1_inv (Z: Ptd)
 Proof.
 mkpair.
 - intro X.
-  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (λ_functor _ (U Z))
+  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (λ_functor (U Z))
          (nat_trans_id (θ_source H (X⊗Z):functor C C))).
 - exact (aux_iso_1_inv_is_nat_trans Z).
 Defined.
@@ -339,7 +334,7 @@ now apply whole_from_parts, bracket_Thm15_ok.
 Qed.
 
 Local Lemma bracket_unique (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
- Π t : Σ h : [C, C, hsC] ⟦ functor_composite (U Z) (pr1  InitAlg),
+ ∏ t : ∑ h : [C, C, hsC] ⟦ functor_composite (U Z) (pr1  InitAlg),
                             pr1 InitAlg ⟧, bracket_property f h,
    t = tpair _ ⦃f⦄ (bracket_Thm15_ok_cor Z f).
 Proof.
@@ -629,7 +624,7 @@ pathvia (pr1 (pr1 X)).
       rewrite assoc.
       apply cancel_postcomposition.
       apply (nat_trans_eq hsC); intro c.
-      assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hsC H θ _ _ β Z c).
+      assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hsC _ hsC H θ _ _ β Z c).
       eapply pathscomp0 ; [exact θ_nat_1_pointwise_inst | ].
       clear θ_nat_1_pointwise_inst.
       simpl.
@@ -640,7 +635,7 @@ pathvia (pr1 (pr1 X)).
       now apply (nat_trans_eq_pointwise Hyp c).
 Qed.
 
-Definition hss_InitMor : Π T' : hss CP H, hssMor InitHSS T'.
+Definition hss_InitMor : ∏ T' : hss CP H, hssMor InitHSS T'.
 Proof.
 intro T'.
 exists (InitialArrow IA (pr1 T')).
@@ -648,7 +643,7 @@ apply ishssMor_InitAlg.
 Defined.
 
 Lemma hss_InitMor_unique (T' : hss_precategory CP H):
-  Π t : hss_precategory CP H ⟦ InitHSS, T' ⟧, t = hss_InitMor T'.
+  ∏ t : hss_precategory CP H ⟦ InitHSS, T' ⟧, t = hss_InitMor T'.
 Proof.
 intro t.
 apply (invmap (hssMor_eq1 _ _ _ _ _ _ _ _ )).

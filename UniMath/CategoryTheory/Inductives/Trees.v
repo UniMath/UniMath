@@ -6,10 +6,10 @@ tree functor.
 Written by: Anders Mörtberg (2016)
 
 *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.NaturalNumbers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
@@ -130,11 +130,11 @@ Transparent foldr_map.
 (** This defines the induction principle for trees using foldr *)
 Section tree_induction.
 
-Variables (P : pr1 Tree -> UU) (PhSet : Π l, isaset (P l)).
+Variables (P : pr1 Tree -> UU) (PhSet : ∏ l, isaset (P l)).
 Variables (P0 : P leaf)
-          (Pc : Π (a : pr1 A) (l1 l2 : pr1 Tree), P l1 -> P l2 -> P (node (a,,l1,,l2))).
+          (Pc : ∏ (a : pr1 A) (l1 l2 : pr1 Tree), P l1 -> P l2 -> P (node (a,,l1,,l2))).
 
-Let P' : UU := Σ l, P l.
+Let P' : UU := ∑ l, P l.
 Let P0' : P' := (leaf,, P0).
 Let Pc' : pr1 A × P' × P' -> P'.
 Proof.
@@ -182,8 +182,8 @@ Defined.
 
 End tree_induction.
 
-Lemma treeIndProp (P : pr1 Tree -> UU) (HP : Π l, isaprop (P l)) :
-  P leaf -> (Π a l1 l2, P l1 → P l2 → P (node (a,,l1,,l2))) -> Π l, P l.
+Lemma treeIndProp (P : pr1 Tree -> UU) (HP : ∏ l, isaprop (P l)) :
+  P leaf -> (∏ a l1 l2, P l1 → P l2 → P (node (a,,l1,,l2))) -> ∏ l, P l.
 Proof.
 intros Pnil Pcons.
 apply treeInd; try assumption.
@@ -210,7 +210,7 @@ Definition map (f : nat -> nat) (l : pr1 (Tree natHSET)) : pr1 (Tree natHSET) :=
   foldr natHSET (Tree natHSET) (leaf natHSET)
       (λ a, node natHSET (f (pr1 a),, pr1 (pr2 a),, pr2 (pr2 a))) l.
 
-Lemma size_map (f : nat -> nat) : Π l, size (map f l) = size l.
+Lemma size_map (f : nat -> nat) : ∏ l, size (map f l) = size l.
 Proof.
 apply treeIndProp.
 - intros l. apply isasetnat.

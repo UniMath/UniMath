@@ -1,7 +1,7 @@
 (** Binary products via limits *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
@@ -41,7 +41,7 @@ Definition isBinProductCone (c d p : C) (p1 : C⟦p,c⟧) (p2 : C⟦p,d⟧) :=
 
 Definition mk_isBinProductCone (hsC : has_homsets C) (a b p : C)
   (pa : C⟦p,a⟧) (pb : C⟦p,b⟧) :
-  (Π (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
+  (∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
     ∃! k : C⟦c,p⟧, k ;; pa = f × k ;; pb = g) ->
   isBinProductCone a b p pa pb.
 Proof.
@@ -60,7 +60,7 @@ Defined.
 Definition BinProductCone (a b : C) := LimCone (binproduct_diagram a b).
 
 Definition mk_BinProductCone (a b : C) :
-  Π (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
+  ∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
    isBinProductCone _ _ _ f g -> BinProductCone a b.
 Proof.
   intros.
@@ -70,7 +70,7 @@ Proof.
   - apply X.
 Defined.
 
-Definition BinProducts := Π (a b : C), BinProductCone a b.
+Definition BinProducts := ∏ (a b : C), BinProductCone a b.
 
 (* What is the best definition of this? *)
 (* Definition hasBinProducts (C : precategory) := ishinh (BinProducts C). *)
@@ -95,14 +95,14 @@ simple refine (mk_cone _ _).
 Defined.
 
 Lemma BinProductPr1Commutes (a b : C) (P : BinProductCone a b):
-     Π (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧), BinProductArrow P f g ;; BinProductPr1 P = f.
+     ∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧), BinProductArrow P f g ;; BinProductPr1 P = f.
 Proof.
 intros c f g.
 apply (limArrowCommutes P c (ProdCone f g) true).
 Qed.
 
 Lemma BinProductPr2Commutes (a b : C) (P : BinProductCone a b):
-     Π (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧), BinProductArrow P f g ;; BinProductPr2 P = g.
+     ∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧), BinProductArrow P f g ;; BinProductPr2 P = g.
 Proof.
 intros c f g.
 apply (limArrowCommutes P c (ProdCone f g) false).

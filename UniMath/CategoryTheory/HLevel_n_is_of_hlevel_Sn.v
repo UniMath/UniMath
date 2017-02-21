@@ -11,8 +11,8 @@
    the type of types of hlevel n is itself of hlevel n+1.
 *)
 
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.UnivalenceAxiom.
 
 
 
@@ -46,7 +46,7 @@ Defined.
     the hProposition [P] with this fibration.
 *)
 
-Lemma ident_is_prop : Π (P : UU -> hProp) (X X' : UU)
+Lemma ident_is_prop : ∏ (P : UU -> hProp) (X X' : UU)
       (pX : P X) (pX' : P X') (w : X = X'),
    isaprop (transportf (fun X => P X) w pX = pX').
 Proof.
@@ -126,7 +126,7 @@ Proof.
     apply funextfun.
     simpl. intro x.
     apply (pr2 pY).
-  apply (total2_paths H').
+  apply (total2_paths_f H').
   apply proofirrelevance.
   apply isapropisweq.
 Defined.
@@ -135,7 +135,7 @@ Defined.
 
 (** *** The case [n = S n'] *)
 
-Lemma isofhlevelSnpathspace : Π n : nat, Π X Y : UU,
+Lemma isofhlevelSnpathspace : ∏ n : nat, ∏ X Y : UU,
       isofhlevel (S n) Y -> isofhlevel (S n) (X = Y).
 Proof.
   intros n X Y pY.
@@ -154,7 +154,7 @@ Defined.
 
 (** ** The lemma itself *)
 
-Lemma isofhlevelpathspace : Π n : nat, Π X Y : UU,
+Lemma isofhlevelpathspace : ∏ n : nat, ∏ X Y : UU,
       isofhlevel n X -> isofhlevel n Y -> isofhlevel n (X = Y).
 Proof.
   intros n.
@@ -178,7 +178,7 @@ Definition HLevel n := total2 (fun X : UU => isofhlevel n X).
 
 (** * Main theorem: [HLevel n] is of hlevel [S n] *)
 
-Lemma hlevel_of_hlevels : Π n,
+Lemma hlevel_of_hlevels : ∏ n,
       isofhlevel (S n) (HLevel n).
 Proof.
   intro n.
@@ -210,7 +210,7 @@ Proof.
   exact (weqcomp f g).
 Defined.
 
-Corollary UA_for_HLevels : Π (n : nat)
+Corollary UA_for_HLevels : ∏ (n : nat)
       (X X' : HLevel n),
      weq (X = X') (weq (pr1 X) (pr1 X')).
 Proof.
