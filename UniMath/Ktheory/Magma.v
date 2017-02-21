@@ -18,12 +18,12 @@ Definition zero : magma.
 
     See Bourbaki Algebra, Chapter I, page 2 *)
 Module Product.
-  Lemma i1 {I} (X:I->magma) : isaset(Section X).
+  Lemma i1 {I} (X:I->magma) : isaset(∏ i, X i).
   Proof. intros. apply (impred 2); intros i. apply pr2. Qed.
   (** construction of the product *)
   Definition make {I} (X:I->magma) : magma.
     intros.
-    exists (Section X,,i1 X). exact (fun v w i => v i * w i). Defined.
+    exists ((∏ i, X i),,i1 X). exact (fun v w i => v i * w i). Defined.
   (** the projection maps *)
   Definition Proj {I} (X:I->setwithbinop) : ∏ i:I, Hom (make X) (X i).
     intros. exists (fun y => y i). intros a b. reflexivity. Defined.
