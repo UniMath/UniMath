@@ -510,7 +510,6 @@ Proof.
   intros x x'.
   apply iscontrpathsinunit.
 Defined.
-Coercion isapropifcontr : iscontr >-> isaprop.
 
 Theorem hlevelntosn (n : nat) (T : UU) (is : isofhlevel n T) : isofhlevel (S n) T.
 Proof.

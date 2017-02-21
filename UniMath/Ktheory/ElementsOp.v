@@ -23,7 +23,7 @@ Definition cat_data {C} (X:C^op==>SET) : precategory_data.
                     (eqtohomot (!((functor_id X) (pr1 a))) (pr2 a))). }
   { intros a b c f g.
     exact (pr1 g ∘ pr1 f,,
-           ((pr2 f) @ !maponpaths (#X (pr1 f)) (!(pr2 g))) @ (!(eqtohomot (((functor_comp X) _ _ _ (pr1 g) (pr1 f))) (pr2 c)))). } Defined.
+           ((pr2 f) @ !maponpaths (#X (pr1 f)) (!(pr2 g))) @ (!(eqtohomot (((functor_comp X) (pr1 g) (pr1 f))) (pr2 c)))). } Defined.
 
 Lemma has_homsets_cat_ob_mor {C:Precategory} (X:C^op==>SET) :
    has_homsets (cat_data X).
@@ -117,7 +117,7 @@ Module pr1.
          - intermediate_path (#X (f ∘ f') y).
            -- exact (eqtohomot (!maponpaths #X (pr2 j)) y).
            -- intermediate_path (#X f' (#X f y)).
-              --- exact (eqtohomot (functor_comp X _ _ _ f f') y).
+              --- exact (eqtohomot (functor_comp X f f') y).
               --- exact (maponpaths (#X f') (!i)).
          + exists (f',, i'). split.
          - apply mor_equality. exact (pr1 j).
