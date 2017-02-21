@@ -211,11 +211,6 @@ Definition dirprod_pr2 {X Y : UU} := pr2 : X × Y -> Y.
 
 Definition dirprodpair {X Y : UU} := tpair (fun x : X => Y).
 
-Lemma dirprodEquality {X Y} {w w':X × Y} : pr1 w = pr1 w' -> pr2 w = pr2 w' -> w = w'.
-Proof.
-  intros ? ? ? ? p q. induction w as [x y]. induction w' as [x' y']. simpl in *. now induction p, q.
-Defined.
-
 Definition dirprodadj {X Y Z : UU} (f : dirprod X Y -> Z) : X -> Y -> Z :=
   (fun (x : X) => (fun (y : Y) => f (dirprodpair x y))).
 

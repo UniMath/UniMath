@@ -224,7 +224,7 @@ Proof.
   simple refine (gradth _ (functionToList' _) _ _).
   - intros. induction n as [|n N].
     + apply isapropunit.
-    + simpl in x. induction x as [a x]. apply dirprodEquality.
+    + simpl in x. induction x as [a x]. apply dirprodeq.
       * simpl. reflexivity.
       * simpl. apply N.
   - intros. apply funextfun; intro i.
