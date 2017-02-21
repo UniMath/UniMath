@@ -1,10 +1,30 @@
+
+(** **********************************************************
+
+Anders Mörtberg, 2016
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents:
+
+- Definition of the functors given by binary product with
+  a fixed object
+- Definition of exponentials
+
+
+************************************************************)
+
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.binproducts.

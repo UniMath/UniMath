@@ -6,6 +6,7 @@ opp_precat.v
 PrecategoryBinProduct.v
 ProductPrecategory.v
 whiskering.v
+Adjunctions.v
 equivalences.v
 AdjunctionHomTypesWeq.v
 sub_precategories.v
