@@ -211,11 +211,6 @@ Definition dirprod_pr2 {X Y : UU} := pr2 : X × Y -> Y.
 
 Definition dirprodpair {X Y : UU} := tpair (fun x : X => Y).
 
-Lemma dirprodEquality {X Y} {w w':X × Y} : pr1 w = pr1 w' -> pr2 w = pr2 w' -> w = w'.
-Proof.
-  intros ? ? ? ? p q. induction w as [x y]. induction w' as [x' y']. simpl in *. now induction p, q.
-Defined.
-
 Definition dirprodadj {X Y Z : UU} (f : dirprod X Y -> Z) : X -> Y -> Z :=
   (fun (x : X) => (fun (y : Y) => f (dirprodpair x y))).
 
@@ -490,30 +485,31 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
-(** *** Homotopy between functions *)
+(** *** Homotopy between sections *)
 
-Definition homot {X : UU} {P : X -> UU} (f g : ∏ x : X, P x) :=
-  ∏ x : X , f x = g x.
+Definition homot {X : UU} {P : X -> UU} (f g : ∏ x : X, P x) := ∏ x : X , f x = g x.
 
 Notation "f ~ g" := (homot f g) (at level 70, no associativity).
 
-Definition homotrefl {X Y : UU} {f: X -> Y} : f ~ f.
+Definition homotrefl {X : UU} {P : X -> UU} (f: ∏ x : X, P x) : f ~ f.
 Proof.
   intros ? ? ? x. reflexivity.
 Defined.
 
-Definition homotcomp {X Y : UU} {f f' f'' : X -> Y}
+Definition homotcomp {X:UU} {Y:X->UU} {f f' f'' : ∏ x : X, Y x}
            (h : f ~ f') (h' : f' ~ f'') : f ~ f'' := fun (x : X) => h x @ h' x.
 
-Definition invhomot {X Y : UU} {f f' : X -> Y}
+Definition invhomot {X:UU} {Y:X->UU} {f f' : ∏ x : X, Y x}
            (h : f ~ f') : f' ~ f := fun (x : X) => !(h x).
 
-Definition funhomot {X Y Z : UU} (f : X -> Y) {g g' : Y -> Z}
+Definition funhomot {X Y Z:UU} (f : X -> Y) {g g' : Y -> Z}
+           (h : g ~ g') : (g ∘ f) ~ (g' ∘ f) := fun (x : X) => h (f x).
+
+Definition funhomotsec {X Y:UU} {Z:Y->UU} (f : X -> Y) {g g' : ∏ y:Y, Z y}
            (h : g ~ g') : (g ∘ f) ~ (g' ∘ f) := fun (x : X) => h (f x).
 
 Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
            (g : Y -> Z) : (g ∘ f) ~ (g ∘ f') := fun (x : X) => maponpaths g (h x).
-
 
 (** *** Equality between functions defines a homotopy *)
 
@@ -1005,6 +1001,9 @@ Definition iscontrpair {T : UU} : ∏ x : T, (∏ t : T, t = x) -> iscontr T
   := tpair _.
 
 Definition iscontrpr1 {T : UU} : iscontr T -> T := pr1.
+
+Definition iscontr_uniqueness {T} (i:iscontr T) (t:T) : t = iscontrpr1 i
+  := pr2 i t.
 
 Lemma iscontrretract {X Y : UU} (p : X -> Y) (s : Y -> X)
       (eps : ∏ y : Y, p (s y) = y) (is : iscontr X) : iscontr Y.

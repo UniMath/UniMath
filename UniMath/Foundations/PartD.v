@@ -827,7 +827,6 @@ Defined.
 Corollary isapropisaset (X : UU) : isaprop (isaset X).
 Proof. intro. apply (isapropisofhlevel (S (S O))). Defined.
 
-
 Theorem isapropisofhlevelf (n : nat) {X Y : UU} (f : X -> Y) :
   isaprop (isofhlevelf n f).
 Proof.
