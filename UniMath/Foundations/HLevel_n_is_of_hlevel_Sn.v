@@ -123,9 +123,9 @@ Proof.
   exists (isofhlevel0weq _ _ pX pY ).
   intro f.
   assert (H' : pr1 f = pr1 (isofhlevel0weq X Y pX pY)).
-    apply funextfun.
+  { apply funextfun.
     simpl. intro x.
-    apply (pr2 pY).
+    apply (pr2 pY). }
   apply (total2_paths_f H').
   apply proofirrelevance.
   apply isapropisweq.
@@ -142,11 +142,11 @@ Proof.
   set (H:=isofhlevelweqb (S n) (tpair _ _ (univalenceAxiom X Y))).
   apply H.
   assert (H' : isofhlevel (S n) (X -> Y)).
-    apply impred.
-    intro x. assumption.
+  {  apply impred.
+     intro x. assumption. }
   assert (H2 : isincl (@pr1 (X -> Y) (fun f => isweq f))).
-    apply isofhlevelfpr1.
-    intro f. apply isapropisweq.
+  { apply isofhlevelfpr1.
+    intro f. apply isapropisweq. }
   apply (isofhlevelsninclb _ _ H2).
   assumption.
 Defined.
@@ -159,10 +159,10 @@ Lemma isofhlevelpathspace : ∏ n : nat, ∏ X Y : UU,
 Proof.
   intros n.
   case n.
-    intros X Y pX pY.
+  - intros X Y pX pY.
     apply isofhlevel0pathspace;
     assumption.
-    intros.
+  - intros.
     apply isofhlevelSnpathspace;
     assumption.
 Defined.
