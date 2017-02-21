@@ -682,6 +682,8 @@ Corollary impredfun (n : nat) (X Y : UU) (is : isofhlevel n Y) :
   isofhlevel n (X -> Y).
 Proof. intros. apply (impred n (fun x :_ => Y) (fun x : X => is)). Defined.
 
+Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
+Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.
 
 Theorem impredtech1 (n : nat) (X Y : UU) :
   (X -> isofhlevel n Y) -> isofhlevel n (X -> Y).

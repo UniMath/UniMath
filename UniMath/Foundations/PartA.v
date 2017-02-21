@@ -195,7 +195,9 @@ Defined.
 
 (** *** Basic constructions related to the adjoint evaluation function [ X -> ((X -> Y) -> Y) ] *)
 
-Definition adjev {X Y : UU} (x : X) (f : X -> Y) : Y := f x.
+Definition Section {X:UU} (P:X->UU) := ∏ x:X, P x.
+
+Definition adjev {X : UU} {Y:X->UU} (x : X) (f : Section Y) : Y x := f x.
 
 Definition adjev2 {X Y : UU} (phi : ((X -> Y) -> Y) -> Y) : X -> Y :=
   fun  (x : X) => phi (fun (f : X -> Y) => f x).
@@ -469,6 +471,24 @@ Proof.
   intros. induction e1. induction e2. apply idpath.
 Defined.
 
+Definition maponpaths_naturality {X Y : UU} {f : X -> Y}
+           {x x' x'' : X} {p : x = x'} {q : x' = x''}
+           {p': f x = f x'} {q': f x' = f x''}
+           (r : maponpaths f p = p') (s : maponpaths f q = q') :
+  maponpaths f (p @ q) = p' @ q'.
+Proof.
+  intros. induction r, s. apply maponpathscomp0.
+Defined.
+
+Definition maponpaths_naturality' {X Y : UU} {f : X -> Y}
+           {x x' x'' : X} {p : x' = x} {q : x' = x''}
+           {p' : f x' = f x} {q' : f x' = f x''}
+           (r : maponpaths f p = p') (s : maponpaths f q = q') :
+  maponpaths f (!p @ q) = (!p') @ q'.
+Proof.
+  intros. induction r, s, p, q. reflexivity.
+Defined.
+
 Definition maponpathsinv0 {X Y : UU} (f : X -> Y)
            {x1 x2 : X} (e : x1 = x2) : maponpaths f (! e) = ! (maponpaths f e).
 Proof.
@@ -490,30 +510,28 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
-(** *** Homotopy between functions *)
+(** *** Homotopy between sections *)
 
-Definition homot {X : UU} {P : X -> UU} (f g : ∏ x : X, P x) :=
-  ∏ x : X , f x = g x.
+Definition homot {X : UU} {P : X -> UU} (f g : Section P) := ∏ x : X , f x = g x.
 
 Notation "f ~ g" := (homot f g) (at level 70, no associativity).
 
 Definition homotrefl {X Y : UU} {f: X -> Y} : f ~ f.
 Proof.
-  intros ? ? ? x. reflexivity.
+  unfold homot. reflexivity.
 Defined.
 
 Definition homotcomp {X Y : UU} {f f' f'' : X -> Y}
            (h : f ~ f') (h' : f' ~ f'') : f ~ f'' := fun (x : X) => h x @ h' x.
 
-Definition invhomot {X Y : UU} {f f' : X -> Y}
+Definition invhomot {X:UU} {Y:X->UU} {f f' : Section Y}
            (h : f ~ f') : f' ~ f := fun (x : X) => !(h x).
 
-Definition funhomot {X Y Z : UU} (f : X -> Y) {g g' : Y -> Z}
+Definition funhomot {X Y:UU} {Z:Y->UU} (f : X -> Y) {g g' : Section Z}
            (h : g ~ g') : (g ∘ f) ~ (g' ∘ f) := fun (x : X) => h (f x).
 
 Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
            (g : Y -> Z) : (g ∘ f) ~ (g ∘ f') := fun (x : X) => maponpaths g (h x).
-
 
 (** *** Equality between functions defines a homotopy *)
 
@@ -1005,6 +1023,9 @@ Definition iscontrpair {T : UU} : ∏ x : T, (∏ t : T, t = x) -> iscontr T
   := tpair _.
 
 Definition iscontrpr1 {T : UU} : iscontr T -> T := pr1.
+
+Definition iscontr_uniqueness {T} (i:iscontr T) (t:T) : t = iscontrpr1 i
+  := pr2 i t.
 
 Lemma iscontrretract {X Y : UU} (p : X -> Y) (s : Y -> X)
       (eps : ∏ y : Y, p (s y) = y) (is : iscontr X) : iscontr Y.
@@ -3987,5 +4008,35 @@ Proof.
   set (gg := weqhfibertohfp g z).
   apply (twooutof3a ff gg (pr2 ggff) (pr2 gg)).
 Defined.
+
+(** null homotopies *)
+
+Definition nullHomotopyTo {X Y} (f:X->Y) (y:Y) := ∏ x:X, f x = y.
+Definition NullHomotopyTo {X Y} (f:X->Y) := total2 (nullHomotopyTo f).
+Definition NullHomotopyTo_center {X Y} (f:X->Y) : NullHomotopyTo f -> Y := pr1.
+Definition NullHomotopyTo_path {X Y} {f:X->Y} (r:NullHomotopyTo f) := pr2 r.
+
+Definition nullHomotopyFrom {X Y} (f:X->Y) (y:Y) := ∏ x:X, y = f x.
+Definition NullHomotopyFrom {X Y} (f:X->Y) := total2 (nullHomotopyFrom f).
+Definition NullHomotopyFrom_center {X Y} (f:X->Y) : NullHomotopyFrom f -> Y := pr1.
+Definition NullHomotopyFrom_path {X Y} {f:X->Y} (r:NullHomotopyFrom f) := pr2 r.
+
+Definition nullHomotopyTo_transport {X Y} {f:X->Y} {y:Y} (h : nullHomotopyTo f y)
+           {y':Y} (p:y = y') (x:X) : (transportf _ p h) x = h x @ p.
+Proof. intros. destruct p. apply pathsinv0. apply pathscomp0rid. Defined.
+
+(** ** Variants on paths and coconus *)
+
+Definition paths_from {X} (x:X) := coconusfromt X x.
+Definition point_to {X} {x:X} : paths_from x -> X := coconusfromtpr1 _ _.
+Definition paths_from_path {X} {x:X} (w:paths_from x) := pr2 w.
+Definition paths_to {X} (x:X) := coconustot X x.
+Definition point_from {X} {x:X} : paths_to x -> X := coconustotpr1 _ _.
+Definition paths_to_path {X} {x:X} (w:paths_to x) := pr2 w.
+
+Lemma iscontr_paths_to {X} (x:X) : iscontr (paths_to x).
+Proof. apply iscontrcoconustot. Defined.
+Lemma iscontr_paths_from {X} (x:X) : iscontr (paths_from x).
+Proof. apply iscontrcoconusfromt. Defined.
 
 (* End of the file PartA.v *)

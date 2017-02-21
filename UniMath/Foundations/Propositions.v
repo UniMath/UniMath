@@ -188,6 +188,16 @@ Notation "∥ A ∥" := (ishinh A) (at level 20) : type_scope.
 Definition hinhpr {X : UU} : X -> ∥ X ∥
   := fun x : X => fun P : hProp => fun f : X -> P => f x.
 
+Lemma squash_path {X : UU} (x:X) (x':∥ X ∥) : hinhpr x = x'.
+Proof.
+  intros. apply propproperty.
+Defined.
+
+Lemma squash_path2 {X : UU} (x x':X) : hinhpr x = hinhpr x'.
+Proof.
+  intros. apply propproperty.
+Defined.
+
 Definition hinhfun {X Y : UU} (f : X -> Y) : ∥ X ∥ -> ∥ Y ∥ :=
   fun isx : ∥ X ∥ => fun P : _ => fun yp : Y -> P => isx P (fun x : X => yp (f x)).
 
@@ -202,8 +212,40 @@ Definition hinhuniv {X : UU} {P : hProp} (f : X -> P) (wit : ∥ X ∥) : P
 Corollary factor_through_squash {X Q : UU} : isaprop Q -> (X -> Q) -> ∥ X ∥ -> Q.
 Proof. intros ? ? i f h. exact (@hinhuniv X (Q,,i) f h). Defined.
 
+Goal ∏ X Q (i:isaprop Q) (f:X -> Q) (x:X), factor_through_squash i f (hinhpr x) = f x.
+Proof. reflexivity. Defined.
+
 Corollary squash_to_prop {X Q : UU} : ∥ X ∥ -> isaprop Q -> (X -> Q) -> Q.
 Proof. intros ? ? h i f. exact (@hinhuniv X (Q,,i) f h). Defined.
+
+Lemma factor_through_squash_hProp {X} : ∏ hQ:hProp, (X -> hQ) -> ∥ X ∥ -> hQ.
+Proof. intros ? [Q i] f h. refine (h _ _). assumption. Defined.
+
+Lemma factor_dep_through_squash {X} {Q:∥ X ∥->UU} :
+  (∏ h, isaprop (Q h)) -> (∏ x, Q(hinhpr x)) -> (∏ h, Q h).
+Proof.
+  intros ? ? i f ?.  apply (h (hProppair (Q h) (i h))).
+  intro x. simpl. induction (squash_path x h). exact (f x).
+Defined.
+
+Lemma squash_map_uniqueness {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) :
+  g ∘ hinhpr ~ g' ∘ hinhpr -> g ~ g'.
+Proof.
+  intros ? ? ? ? ? h.
+  set ( Q := fun y => g y = g' y ).
+  unfold homot.
+  apply (@factor_dep_through_squash X). intros y. apply ip.
+  intro x. apply h.
+Defined.
+
+Lemma squash_map_epi {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) :
+  g ∘ hinhpr = g'∘ hinhpr -> g = g'.
+Proof.
+  intros ? ? ? ? ? e.
+  apply funextsec.
+  apply squash_map_uniqueness. exact ip.
+  intro x. destruct e. apply idpath.
+Qed.
 
 Definition hinhand {X Y : UU} (inx1 : ∥ X ∥) (iny1 : ∥ Y ∥) : ∥ X × Y ∥
   := fun P : _ => ddualand (inx1 P) (iny1 P).
@@ -1070,3 +1112,49 @@ Proof.
   apply subtypeInjectivity.
   intro a. apply (pr2 (B a)).
 Defined.
+
+
+
+(** null homotopies *)
+
+Lemma isaprop_nullHomotopyTo {X Y} (is:isaset Y) (f:X->Y) (y:Y) :
+  isaprop (nullHomotopyTo f y).
+Proof. intros ? ? ? ? ?. apply impred; intros x. apply is. Defined.
+
+Lemma isaprop_NullHomotopyTo_0 {X} {Y} (is:isaset Y) (f:X->Y) :
+  X -> isaprop (NullHomotopyTo f).
+(** The point of X is needed, for when X is empty, then NullHomotopyTo f is
+    equivalent to Y. *)
+Proof. intros ? ? ? ? x. apply invproofirrelevance. intros [r i] [s j].
+       apply subtypePairEquality.
+       - intros n. apply (isaprop_nullHomotopyTo is).
+       - exact (!i x @ j x).
+Defined.
+
+Lemma isaprop_NullHomotopyTo {X} {Y} (is:isaset Y) (f:X->Y) :
+  ∥ X ∥ -> isaprop (NullHomotopyTo f).
+Proof.
+       intros ? ? ? ?.
+       apply factor_through_squash.
+       apply isapropisaprop.
+       apply isaprop_NullHomotopyTo_0. exact is.
+Defined.
+
+Definition paths_to_prop {X} (x:X) :=
+  hProppair (coconustot _ x) (isapropifcontr (iscontr_paths_to x)).
+
+Definition paths_from_prop {X} (x:X) :=
+  hProppair (coconusfromt _ x) (isapropifcontr (iscontr_paths_from x)).
+
+Definition cone_squash_map {X Y} (f:X->Y) (y:Y) :
+  nullHomotopyTo f y -> ∥ X ∥ -> Y.
+Proof.
+  intros ? ? ? ? e h.
+  exact (coconustotpr1 _ _ (h (paths_to_prop y) (fun x => f x,,e x))).
+Defined.
+
+(* We can get a map from '∥ X ∥' to any type 'Y' provided paths are given that allow us to map first
+    into a cone in 'Y', demonstrating the utility of null homotopies. *)
+
+Goal ∏ X Y (y:Y) (f:X->Y) (e:∏ m:X, f m = y), f = funcomp hinhpr (cone_squash_map f y e).
+Proof. reflexivity. Qed.

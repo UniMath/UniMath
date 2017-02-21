@@ -20,9 +20,9 @@ Module Uniqueness.
         (f 0=p0 × ∏ n, f(S n)=IH n (f n)).
   Proof. intros. simple refine (_,,gradth _ _ _ _).
          { intros h. split.
-           { exact (h 0). } { intros. exact (h (S n) @ ap (IH n) (! h n)). } }
+           { exact (h 0). } { intros. exact (h (S n) @ maponpaths (IH n) (! h n)). } }
          { intros [h0 h'] ?. induction n as [|n' IHn'].
-           { exact h0. } { exact (h' n' @ ap (IH n') IHn'). } }
+           { exact h0. } { exact (h' n' @ maponpaths (IH n') IHn'). } }
          { simpl. intros h. apply funextsec; intros n; simpl. induction n as [|n IHn].
            { simpl. reflexivity. }
            { simpl. rewrite <- path_assoc. simple refine (_ @ pathscomp0rid _).
@@ -110,7 +110,7 @@ Module Discern.
   Proof. intros m. induction m as [|m IHm]. { reflexivity. } { simpl. apply IHm. } Defined.
 
   Lemma nat_discern_iscontr m : iscontr (nat_discern m m).
-  Proof. intros m. apply iscontr_if_inhab_prop.
+  Proof. intros m. apply iscontraprop1.
          { apply nat_discern_isaprop. }
          { induction m as [|m IHm]. { exact tt. } { simpl. exact IHm. } } Defined.
 
@@ -130,7 +130,7 @@ Module Discern.
            { simpl. intro i. assert(b := helper_B _ _ i); clear i.
              destruct b. reflexivity. } } Defined.
 
-  Goal ∏ m n (e:nat_discern m n), ap S (helper_B m n e) = helper_B (S m) (S n) e.
+  Goal ∏ m n (e:nat_discern m n), maponpaths S (helper_B m n e) = helper_B (S m) (S n) e.
   Proof. reflexivity. Defined.
 
   Fixpoint helper_C m n : m = n -> nat_discern m n.
@@ -141,7 +141,7 @@ Module Discern.
          exact (cast (! nat_discern_unit m) tt).
   Defined.
 
-  Lemma apSC m n (e:m=n) : helper_C m n e = helper_C (S m) (S n) (ap S e).
+  Lemma apSC m n (e:m=n) : helper_C m n e = helper_C (S m) (S n) (maponpaths S e).
   Proof. intros. apply proofirrelevance. apply nat_discern_isaprop. Defined.
 
   Definition helper_D m n : isweq (helper_B m n).
@@ -150,8 +150,8 @@ Module Discern.
            apply proofirrelevancecontr. apply nat_discern_iscontr. }
          { intro e. destruct e. induction m as [|m IHm].
            { reflexivity. }
-           { exact (  ap (helper_B (S m) (S m)) (! apSC _ _ (idpath m))
-                    @ ap (ap S) IHm). } } Defined.
+           { exact (  maponpaths (helper_B (S m) (S m)) (! apSC _ _ (idpath m))
+                    @ maponpaths (maponpaths S) IHm). } } Defined.
 
   Definition E m n : weq (nat_discern m n) (m = n).
   Proof. intros. exact (weqpair (helper_B _ _) (helper_D _ _)). Defined.
@@ -204,7 +204,7 @@ Proof. intros ? ?. destruct m as [|m'].
          apply fromempty. apply nopathsfalsetotrue. exact x. }
        { intro i. simpl.
          destruct n as [|n'].
-         { apply (ap S). apply nat_dist_m0. }
+         { apply (maponpaths S). apply nat_dist_m0. }
          { simpl. apply nat_dist_gt. exact i. } } Defined.
 
 Definition nat_dist_S m n : nat_dist (S m) (S n) = nat_dist m n.

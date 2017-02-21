@@ -216,7 +216,7 @@ Proof. intros. exists (fun fh => pr1 fh t0). intro q.
        assert (k0 : ∏ i, one + w i = w (1+i)%hz).
        { intros. simpl. unfold right_mult, ac_mult. rewrite act_assoc.
          reflexivity. }
-       set (l0 := (fun i => eqweqmap (ap P (k0 i)))
+       set (l0 := (fun i => eqweqmap (maponpaths P (k0 i)))
                : ∏ i, weq (P(one + w i)) (P(w(1+i)%hz))).
        assert( e : right_mult t0 zero = t0 ). { apply act_unit. }
        set (H := fun f => ∏ t : T, f (one + t) = (IH t) (f t)).
@@ -334,15 +334,15 @@ Proof. intros. apply (squash_to_prop (torsor_nonempty T)).
        apply iscontrcoconustot. Defined.
 
 Corollary proofirrGuidedHomotopy {Y} (T:Torsor ℤ) (f:T->Y) (s:target_paths f) :
-  ∏ v w : GuidedHomotopy f s, v=w.
+  isProofIrrelevant (GuidedHomotopy f s).
 Proof. (* later give a more direct proof *)
-       intros. apply proofirrelevancecontr. apply iscontrGuidedHomotopy. Defined.
+       intros. unfold isProofIrrelevant. apply proofirrelevancecontr. apply iscontrGuidedHomotopy. Defined.
 
 Definition iscontrGuidedHomotopy_comp_1 {Y} :
   let T := trivialTorsor ℤ in
   let t0 := 0 : T in
     ∏ (f:T->Y) (s:target_paths f),
-      GH_point (thePoint (iscontrGuidedHomotopy T f s)) = f t0.
+      GH_point (iscontrpr1 (iscontrGuidedHomotopy T f s)) = f t0.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
@@ -350,7 +350,7 @@ Definition iscontrGuidedHomotopy_comp_2 {Y} :
   let T := trivialTorsor ℤ in
   let t0 := 0 : T in
     ∏ (f:T->Y) (s:target_paths f),
-        (GH_homotopy (thePoint (iscontrGuidedHomotopy T f s)) t0) =
+        (GH_homotopy (iscontrpr1 (iscontrGuidedHomotopy T f s)) t0) =
         (idpath (f t0)).
 Proof. intros.
        assert (a2 := fiber_paths (iscontrweqb_compute
@@ -360,9 +360,9 @@ Proof. intros.
                                                               (fun t : T => weq_pathscomp0r y (s t)) t0))
                       (iscontrcoconustot Y (f t0)))
                 : @paths (GHomotopy f s (f t0)) _ _).
-       simple refine (eqtohomot (ap pr1 ((idpath _ :
+       simple refine (eqtohomot (maponpaths pr1 ((idpath _ :
                          (pr2
-                            (thePoint
+                            (iscontrpr1
                                (iscontrweqb
                                   (weqfibtototal (GHomotopy f s) (fun y : Y => y = f t0)
                                                  (fun y : Y =>
@@ -372,7 +372,7 @@ Proof. intros.
                            =
                          (path_start a2)) @ a2)) t0 @ _).
        simple refine (eqtohomot
-                  (ap pr1
+                  (maponpaths pr1
                      (compute_pr2_invmap_weqfibtototal
                         (fun y : Y =>
                            ℤTorsorRecursion_weq
@@ -387,7 +387,7 @@ Defined.
 (*   let T := trivialTorsor ℤ in  *)
 (*   let t0 := 0 : T in *)
 (*     ∏ (f:T->Y) (s:target_paths f), *)
-(*       GH_to_cone t0 (thePoint (iscontrGuidedHomotopy T f s)) = f t0,, idpath (f t0). *)
+(*       GH_to_cone t0 (iscontrpr1 (iscontrGuidedHomotopy T f s)) = f t0,, idpath (f t0). *)
 (* Proof. intros. *)
 
 
@@ -413,7 +413,7 @@ Proof. intros. destruct q. reflexivity. Defined.
 
 Definition makeGuidedHomotopy_localPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0 h0':y=f t0) (q:h0=h0') :
-  ap pr1 (makeGuidedHomotopy_localPath f s t0 h0 h0' q) = idpath y.
+  maponpaths pr1 (makeGuidedHomotopy_localPath f s t0 h0 h0' q) = idpath y.
 Proof. intros. destruct q. reflexivity. Defined.
 
 Definition makeGuidedHomotopy_verticalPath {T:Torsor ℤ} {Y} (f:T->Y)
@@ -425,7 +425,7 @@ Proof. intros. apply (two_arg_paths_f p). destruct p. reflexivity. Defined.
 Definition makeGuidedHomotopy_verticalPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y=f t0)
            {y':Y} (p:y' = y) :
-  ap pr1 (makeGuidedHomotopy_verticalPath f s t0 h0 p) = p.
+  maponpaths pr1 (makeGuidedHomotopy_verticalPath f s t0 h0 p) = p.
 Proof. intros. apply total2_paths2_comp1. Defined.
 
 Definition makeGuidedHomotopy_transPath {T:Torsor ℤ} {Y} (f:T->Y)
@@ -437,7 +437,7 @@ Proof. intros. apply (maponpaths (tpair _ _)).
 
 Definition makeGuidedHomotopy_transPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y=f t0) :
-  ap pr1 (makeGuidedHomotopy_transPath f s t0 h0) = idpath y.
+  maponpaths pr1 (makeGuidedHomotopy_transPath f s t0 h0) = idpath y.
 Proof. intros.
        unfold makeGuidedHomotopy_transPath.
        exact (pair_path_in2_comp1 _
@@ -459,7 +459,7 @@ Defined.
 
 Definition makeGuidedHomotopy_diagonalPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) (t0:T) :
-  ap pr1 (makeGuidedHomotopy_diagonalPath f s t0) = s t0.
+  maponpaths pr1 (makeGuidedHomotopy_diagonalPath f s t0) = s t0.
 Proof. intros.
        unfold makeGuidedHomotopy_diagonalPath.
        simple refine (maponpaths_naturality (makeGuidedHomotopy_transPath_comp _ _ _ _) _).
@@ -477,13 +477,13 @@ Proof. intros ? ? ? ? t'.
        exact (makeGuidedHomotopy1 f s t). Defined.
 
 Definition map_path {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
-  ∏ t, map f s (squash_element t) = map f s (squash_element (one + t)).
+  ∏ t, map f s (hinhpr t) = map f s (hinhpr (one + t)).
 Proof. intros. exact (makeGuidedHomotopy_diagonalPath f s t). Defined.
 
 Definition map_path_check {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
-  ∏ t, ∏ p : map f s (squash_element t) =
-                       map f s (squash_element (one + t)),
-    ap pr1 p = s t.
+  ∏ t, ∏ p : map f s (hinhpr t) =
+                       map f s (hinhpr (one + t)),
+    maponpaths pr1 p = s t.
 Proof. intros. set (q := map_path f s t). assert (k : q=p).
        { apply (hlevelntosn 1). apply (hlevelntosn 0).
          apply iscontrGuidedHomotopy. }
@@ -514,25 +514,25 @@ Definition affine_line_map {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
 Proof. intros ? ? ? ? t'. exact (pr1 (map f s t')). Defined.
 
 Definition check_values {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) t :
-  affine_line_map f s (squash_element t) = f t.
+  affine_line_map f s (hinhpr t) = f t.
 Proof. reflexivity.              (* don't change the proof *)
 Defined.
 
 Definition check_paths {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) (t:T) :
-  ap (affine_line_map f s) (squash_path t (one + t)) = s t.
+  maponpaths (affine_line_map f s) (squash_path2 t (one + t)) = s t.
 Proof. intros. unshelve refine (_ @ map_path_check f s t _).
-       - apply maponpaths. apply squash_path.
+       - apply maponpaths. apply squash_path2.
        - apply pathsinv0. apply maponpathscomp. Defined.
 
 Definition check_paths_any {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) (t:T)
-           (p : squash_element t = squash_element (one + t)) :
-  ap (affine_line_map f s) p = s t.
-Proof. intros. set (p' := squash_path t (one + t)).
+           (p : hinhpr t = hinhpr (one + t)) :
+  maponpaths (affine_line_map f s) p = s t.
+Proof. intros. set (p' := squash_path2 t (one + t)).
        assert (e : p' = p). { apply (hlevelntosn 1). apply propproperty. }
        destruct e. apply check_paths. Defined.
 
 Definition add_one {T:Torsor ℤ} : affine_line T -> affine_line T.
-Proof. intros ?. exact (squash_fun (fun t => one + t)). Defined.
+Proof. intros ?. exact (hinhfun (fun t => one + t)). Defined.
 
 (** ** The image of the mere point in an affine line
 

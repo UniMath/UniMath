@@ -60,12 +60,12 @@ Proof. intros. destruct (hzlthorgeh i 0) as [r|s].
        { apply inl. exists (hzabsval i). exact (hzabsvalgeh0 s). } Defined.
 
 Lemma nattohz_inj {m n} : nattohz m = nattohz n -> m = n.
-Proof. exact (an_inclusion_is_injective _ isinclnattohz). Defined.
+Proof. exact (invmaponpathsincl _ isinclnattohz). Defined.
 
 Lemma hzdichot {m n} : neg (nattohz m = - nattohz (S n)).
-Proof. intros. intro e. assert (d := ap hzsign e); clear e.
+Proof. intros. intro e. assert (d := maponpaths hzsign e); clear e.
        rewrite hzsign_hzsign in d.
-       assert( f := ap (fun i => nattohz m + i) d); simpl in f; clear d.
+       assert( f := maponpaths (fun i => nattohz m + i) d); simpl in f; clear d.
        change (nattohz m + - nattohz m) with (nattohz m - nattohz m) in f.
        rewrite hzrminus in f. change (0 = nattohz (m + S n)) in f.
        assert (g := nattohz_inj f); clear f. rewrite natpluscomm in g.
@@ -76,18 +76,18 @@ Proof. apply isweqpr1; intro i.
        exists (hz_to_normal_form i).
        generalize (hz_to_normal_form i) as s.
        intros [[m p]|[m p]] [[n q]|[n q]].
-       { apply (ap (@ii1 (∑ n, natnattohz n 0 = i)
+       { apply (maponpaths (@ii1 (∑ n, natnattohz n 0 = i)
                          (∑ n, natnattohz 0 (S n) = i))).
          apply (proofirrelevance _ (isinclnattohz i)). }
        { apply fromempty. assert (r := p@!q); clear p q. apply (hzdichot r). }
        { apply fromempty. assert (r := q@!p); clear p q. apply (hzdichot r). }
-       { apply (ap (@ii2 (∑ n, natnattohz n 0 = i)
+       { apply (maponpaths (@ii2 (∑ n, natnattohz n 0 = i)
                          (∑ n, natnattohz 0 (S n) = i))).
-         assert (p' := ap hzsign p). assert (q' := ap hzsign q).
+         assert (p' := maponpaths hzsign p). assert (q' := maponpaths hzsign q).
          change (- natnattohz O (S m)) with  (nattohz (S m)) in p'.
          change (- natnattohz O (S n)) with  (nattohz (S n)) in q'.
          assert (c := proofirrelevance _ (isinclnattohz (-i)) (S m,,p') (S n,,q')).
-         assert (d := ap pr1 c); simpl in d.
+         assert (d := maponpaths pr1 c); simpl in d.
          assert (e := invmaponpathsS _ _ d); clear d.
          apply subtypeEquality.
          - intro; apply setproperty.

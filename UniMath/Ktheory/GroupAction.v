@@ -82,13 +82,13 @@ Proof. intros. apply impred; intro g. apply impred; intro x.
 
 Definition is_equivariant_identity {G:gr} {X Y:Action G}
            (p:ac_set X = ac_set Y) :
-  weq (p # ac_str X = ac_str Y) (is_equivariant (cast (ap pr1hSet p))).
+  weq (p # ac_str X = ac_str Y) (is_equivariant (cast (maponpaths pr1hSet p))).
 Proof. intros ? [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
        (* should just apply hPropUnivalence at this point, as in Poset_univalence_prelim! *)
        simpl in p. destruct p; simpl. unfold transportf; simpl. unfold idfun; simpl.
        simple refine (weqpair _ _).
        { intros p g x. simpl in x. simpl.
-         exact (eqtohomot (eqtohomot (ap act_mult p) g) x). }
+         exact (eqtohomot (eqtohomot (maponpaths act_mult p) g) x). }
        simple refine (gradth _ _ _ _).
        { unfold cast; simpl.
          intro i.
@@ -107,7 +107,7 @@ Proof. intros ? [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
 Definition is_equivariant_comp {G:gr} {X Y Z:Action G}
            (p:X->Y) (i:is_equivariant p)
            (q:Y->Z) (j:is_equivariant q) : is_equivariant (funcomp p q).
-Proof. intros. intros g x. exact (ap q (i g x) @ j g (p x)). Defined.
+Proof. intros. intros g x. exact (maponpaths q (i g x) @ j g (p x)). Defined.
 
 Definition ActionMap {G:gr} (X Y:Action G) := total2 (@is_equivariant _ X Y).
 
@@ -165,7 +165,7 @@ Proof. intros.
        simple refine (weqbandf _ _ _ _).
        { apply hSet_univalence. }
        simpl. intro p. simple refine (weqcomp (is_equivariant_identity p) _).
-       exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap pr1hSet p)))).
+       exact (eqweqmap (maponpaths is_equivariant (pr1_eqweqmap (maponpaths pr1hSet p)))).
 Defined.
 
 Definition Action_univalence_prelim_comp {G:gr} {X Y:Action G} (p:X = Y) :
@@ -200,8 +200,8 @@ Proof. intros.
 Definition Action_univalence_inv_comp_eval {G:gr} {X Y:Action G} (f:ActionIso X Y) (x:X) :
   castAction (Action_univalence_inv f) x = f x.
 Proof. intros. exact (eqtohomot
-                        (ap pr1weq
-                            (ap underlyingIso
+                        (maponpaths pr1weq
+                            (maponpaths underlyingIso
                                 (Action_univalence_inv_comp f)))
                         x). Defined.
 
@@ -227,7 +227,7 @@ Definition torsor_update_nonempty {G} (X:Torsor G) (x:nonempty X) : Torsor G.
 Proof. intros ? X new.
        exact (underlyingAction X,,(new,,pr2(is_torsor_prop X))). Defined.
 Definition castTorsor {G} {T T':Torsor G} (q:T = T') : T -> T'.
-Proof. intros ? ? ? ?. exact (castAction (ap underlyingAction q)). Defined.
+Proof. intros ? ? ? ?. exact (castAction (maponpaths underlyingAction q)). Defined.
 
 Lemma underlyingAction_incl {G:gr} :
   isincl (underlyingAction : Torsor G -> Action G).
@@ -238,17 +238,17 @@ Lemma underlyingAction_injectivity {G:gr} {X Y:Torsor G} :
 Proof. intros. apply weqonpathsincl. apply underlyingAction_incl. Defined.
 
 Definition underlyingAction_injectivity_comp {G:gr} {X Y:Torsor G} (p:X = Y) :
-  underlyingAction_injectivity p = ap underlyingAction p.
+  underlyingAction_injectivity p = maponpaths underlyingAction p.
 Proof. reflexivity. Defined.
 
 Definition underlyingAction_injectivity_comp' {G:gr} {X Y:Torsor G} :
      pr1weq (@underlyingAction_injectivity G X Y)
-  = @ap (Torsor G) (Action G) (@underlyingAction G) X Y.
+  = @maponpaths (Torsor G) (Action G) (@underlyingAction G) X Y.
 Proof. reflexivity. Defined.
 
 Definition underlyingAction_injectivity_inv_comp {G:gr} {X Y:Torsor G}
            (f:underlyingAction X = underlyingAction Y) :
-  ap underlyingAction (invmap underlyingAction_injectivity f) = f.
+  maponpaths underlyingAction (invmap underlyingAction_injectivity f) = f.
 Proof. intros. apply (homotweqinvweq underlyingAction_injectivity f). Defined.
 
 Definition PointedTorsor (G:gr) := ∑ X:Torsor G, X.
@@ -259,15 +259,15 @@ Definition underlyingPoint {G} (X:PointedTorsor G) := pr2 X : X.
 Lemma is_quotient {G} (X:Torsor G) (y x:X) : ∃! g, g*x = y.
 Proof. intros. exact (pr2 (is_torsor_prop X) x y). Defined.
 
-Definition quotient {G} (X:Torsor G) (y x:X) := pr1 (thePoint (is_quotient X y x)) : G.
+Definition quotient {G} (X:Torsor G) (y x:X) := pr1 (iscontrpr1 (is_quotient X y x)) : G.
 Local Notation "y / x" := (quotient _ y x) : action_scope.
 
 Lemma quotient_times {G} (X:Torsor G) (y x:X) : (y/x)*x = y.
-Proof. intros. exact (pr2 (thePoint (is_quotient _ y x))). Defined.
+Proof. intros. exact (pr2 (iscontrpr1 (is_quotient _ y x))). Defined.
 
 Lemma quotient_uniqueness {G} (X:Torsor G) (y x:X) (g:G) : g*x = y -> g = y/x.
 Proof. intros ? ? ? ? ? e.
-       exact (ap pr1 (uniqueness (is_quotient _ y x) (g,,e))). Defined.
+       exact (maponpaths pr1 (iscontr_uniqueness (is_quotient _ y x) (g,,e))). Defined.
 
 Lemma quotient_mult {G} (X:Torsor G) (g:G) (x:X) : (g*x)/x = g.
 Proof. intros. apply pathsinv0. apply quotient_uniqueness. reflexivity. Defined.
@@ -279,7 +279,7 @@ Defined.
 Lemma quotient_product {G} (X:Torsor G) (z y x:X) : op (z/y) (y/x) = z/x.
 Proof. intros. apply quotient_uniqueness.
        exact (ac_assoc _ _ _ _
-            @ ap (left_mult (z/y)) (quotient_times _ y x)
+            @ maponpaths (left_mult (z/y)) (quotient_times _ y x)
             @ quotient_times _ z y). Defined.
 
 Definition trivialTorsor (G:gr) : Torsor G.
@@ -289,8 +289,8 @@ Proof.
          fun x => gradth
            (fun g => op g x)
            (fun g => op g (grinv _ x))
-           (fun g => assocax _ g x (grinv _ x) @ ap (op g) (grrinvax G x) @ runax _ g)
-           (fun g => assocax _ g (grinv _ x) x @ ap (op g) (grlinvax G x) @ runax _ g)).
+           (fun g => assocax _ g x (grinv _ x) @ maponpaths (op g) (grrinvax G x) @ runax _ g)
+           (fun g => assocax _ g (grinv _ x) x @ maponpaths (op g) (grlinvax G x) @ runax _ g)).
 Defined.
 
 Definition pointedTrivialTorsor (G:gr) : PointedTorsor G.
@@ -314,8 +314,8 @@ Proof. intros.
 
 Definition trivialTorsor_weq (G:gr) (g:G) : weq (trivialTorsor G) (trivialTorsor G).
 Proof. intros. exists (fun h => op h g). apply (gradth _ (fun h => op h (grinv G g))).
-       { exact (fun h => assocax _ _ _ _ @ ap (op _) (grrinvax _ _) @ runax _ _). }
-       { exact (fun h => assocax _ _ _ _ @ ap (op _) (grlinvax _ _) @ runax _ _). }
+       { exact (fun h => assocax _ _ _ _ @ maponpaths (op _) (grrinvax _ _) @ runax _ _). }
+       { exact (fun h => assocax _ _ _ _ @ maponpaths (op _) (grlinvax _ _) @ runax _ _). }
 Defined.
 
 Definition trivialTorsorAuto (G:gr) (g:G) :
@@ -331,7 +331,7 @@ Proof. intros. exists (trivialTorsorAuto G). simple refine (gradth _ _ _ _).
        { intro f. exact (f (unel G)). } { intro g; simpl. exact (lunax _ g). }
        { intro f; simpl. apply (invweq (underlyingIso_injectivity _ _)); simpl.
          apply (invweq (pr1weq_injectivity _ _)). apply funextsec; intro g.
-         simpl. exact ((! (pr2 f) g (unel G)) @ (ap (pr1 f) (runax G g))).
+         simpl. exact ((! (pr2 f) g (unel G)) @ (maponpaths (pr1 f) (runax G g))).
        } Defined.
 
 Definition autos_comp (G:gr) (g:G) :
@@ -370,7 +370,7 @@ Proof. intros. simple refine (weqcomp underlyingAction_injectivity _).
        apply Action_univalence. Defined.
 
 Definition Torsor_univalence_comp {G:gr} {X Y:Torsor G} (p:X = Y) :
-   Torsor_univalence p = path_to_ActionIso (ap underlyingAction p).
+   Torsor_univalence p = path_to_ActionIso (maponpaths underlyingAction p).
 Proof. reflexivity. Defined.
 
 Definition Torsor_univalence_inv_comp_eval {G:gr} {X Y:Torsor G}

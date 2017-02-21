@@ -10,8 +10,8 @@ Definition pre_cat {X} {x y z:X} {p:x = y} : y = z -> x = z.
 Proof. intros q. exact (pathscomp0 p q). Defined.
 
 Ltac maponpaths_pre_post_cat :=
-  repeat rewrite path_assoc; repeat apply (ap post_cat); repeat rewrite <- path_assoc;
-  repeat apply (ap pre_cat); repeat rewrite path_assoc; repeat rewrite maponpathsinv0;
+  repeat rewrite path_assoc; repeat apply (maponpaths post_cat); repeat rewrite <- path_assoc;
+  repeat apply (maponpaths pre_cat); repeat rewrite path_assoc; repeat rewrite maponpathsinv0;
   try reflexivity.
 
 Ltac prop_logic :=

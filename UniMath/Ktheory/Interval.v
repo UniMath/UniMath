@@ -5,7 +5,7 @@ Require Import UniMath.Ktheory.Utilities.
 Definition interval := ∥ bool ∥.
 Definition left := hinhpr true : interval.
 Definition right := hinhpr false : interval.
-Definition interval_path : left = right := squash_path true false.
+Definition interval_path : left = right := squash_path2 true false.
 Definition interval_map {Y} {y y':Y} : y = y' -> interval -> Y.
 Proof. intros ? ? ? e. set (f := fun t:bool => if t then y else y').
        refine (cone_squash_map f (f false) _).

@@ -414,7 +414,7 @@ Defined.
   Lemma universalMarkedMonoid2 {X I} (R:I->reln X) (w:word X) :
     setquotpr (smallestAdequateRelation R) w = evalword (universalMarkedMonoid1 R) w.
   Proof. intros.
-    exact (! (ap (setquotpr (smallestAdequateRelation R)) (reassemble R w))
+    exact (! (maponpaths (setquotpr (smallestAdequateRelation R)) (reassemble R w))
            @ pr_eval_compat R w). Qed.
   Definition universalMarkedMonoid3 {X I} (R:I->reln X) (i:I) :
     evalword (universalMarkedMonoid1 R) (lhs (R i)) =
@@ -487,8 +487,8 @@ Defined.
     apply funEquality. apply funextsec; intro v.
     isaprop_goal ig. { apply setproperty. }
     apply (squash_to_prop (lift R v) ig); intros [w []].
-    exact ((ap f (universalMarkedMonoid2 R w))
-         @ MarkedMonoidMap_compat2 f g w @ !(ap g (universalMarkedMonoid2 R w))).
+    exact ((maponpaths f (universalMarkedMonoid2 R w))
+         @ MarkedMonoidMap_compat2 f g w @ !(maponpaths g (universalMarkedMonoid2 R w))).
   Defined.
 End Presentation.
 Module Free.
