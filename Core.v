@@ -1208,7 +1208,7 @@ Definition functor_over_axioms {C' C : Precategory} {F : functor C' C}
   × (∏ x y z (xx : D' x) yy zz (f : x --> y) (g : y --> z)
         (ff : xx -->[f] yy) (gg : yy -->[g] zz),
       # FF (ff ;; gg)
-      = transportb _ (functor_comp F _ _ _ f g) (# FF ff ;; # FF gg)).
+      = transportb _ (functor_comp F f g) (# FF ff ;; # FF gg)).
 
 Lemma isaprop_functor_over_axioms {C' C : Precategory} {F : functor C' C}
   {D' : disp_precat C'} {D : disp_precat C} (FF : functor_over_data F D' D)
@@ -1243,7 +1243,7 @@ Definition functor_over_comp {C' C} {F} {D' : disp_precat C'} {D : disp_precat C
     {x y z} {xx : D' x} {yy} {zz} {f : x --> y} {g : y --> z}
     (ff : xx -->[f] yy) (gg : yy -->[g] zz)
   : # FF (ff ;; gg)
-    = transportb _ (functor_comp F _ _ _ f g) (# FF ff ;; # FF gg)
+    = transportb _ (functor_comp F f g) (# FF ff ;; # FF gg)
 := pr2 (pr2 FF) _ _ _ _ _ _ _ _ ff gg.
 
 (** variant access function *)
@@ -1251,7 +1251,7 @@ Definition functor_over_comp_var {C' C} {F} {D' : disp_precat C'} {D : disp_prec
     (FF : functor_over F D' D)
     {x y z} {xx : D' x} {yy} {zz} {f : x --> y} {g : y --> z}
     (ff : xx -->[f] yy) (gg : yy -->[g] zz)
-  : transportf _ (functor_comp F _ _ _ f g) (# FF (ff ;; gg)) 
+  : transportf _ (functor_comp F f g) (# FF (ff ;; gg)) 
      = # FF ff ;; # FF gg.
 Proof.
   apply Utilities.transportf_pathsinv0.
@@ -1463,7 +1463,7 @@ Qed.
 Lemma functor_over_ff_inv_compose {x y z : C} {f : x --> y} {g : y --> z}
     {xx} {yy} {zz}
     (ff : FF _ xx -->[#F f] FF _ yy) (gg : FF _ yy -->[#F g] FF _ zz)
-  : functor_over_ff_inv (transportb _ (functor_comp F _ _ _ _ _ ) (ff ;; gg)) 
+  : functor_over_ff_inv (transportb _ (functor_comp F _ _ ) (ff ;; gg)) 
   = functor_over_ff_inv ff ;; functor_over_ff_inv gg.
 Proof.
   apply invmap_eq. cbn.
