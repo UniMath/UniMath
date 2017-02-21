@@ -4,6 +4,7 @@
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
