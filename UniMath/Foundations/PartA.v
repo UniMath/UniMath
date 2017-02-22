@@ -169,7 +169,7 @@ Definition funcomp {X Y : UU} {Z:Y->UU} (f : X -> Y) (g : ∏ y:Y, Z y) := λ x,
 Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity).
 (* in agda mode: \circ *)
 
-Notation "f ⇴ g" := (funcomp f g) (at level 50, left associativity).
+Notation "f ⇴ g" := (funcomp f g) (at level 50, left associativity, only parsing).
 (* in agda mode: \dcirc *)
 
 (** back and forth between functions of pairs and functions returning
