@@ -35,7 +35,7 @@ Proof. intros. apply isasetifdeceq. apply tree_deceq. Qed.
 
 Definition step (T:Tree) {x z:T} (ne:x != z) : T := pr1 (mt_step _ x z ne).
 
-Definition tree_induction (T:Tree) (x:T) (P:T->Type)
+Definition tree_induction (T:Tree) (x:T) (P:T->UU)
            (p0 : P x)
            (pn : ∏ z (ne:x != z), P (step T ne) -> P z) :
   ∏ z, P z.

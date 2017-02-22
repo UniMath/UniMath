@@ -27,7 +27,7 @@ Open Scope hz_scope.
 
 (** ** Recursion for ℤ *)
 
-Definition ℤRecursionData0 (P:ℤ->Type) (p0:P zero)
+Definition ℤRecursionData0 (P:ℤ->UU) (p0:P zero)
       (IH :∏ n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':∏ n, P(- toℤ n) -> P(- toℤ (S n))) := fun
           f:∏ i, P i =>
@@ -35,14 +35,14 @@ Definition ℤRecursionData0 (P:ℤ->Type) (p0:P zero)
             (∏ n, f(  toℤ (S n)) = IH  n (f (  toℤ n))) ×
             (∏ n, f(- toℤ (S n)) = IH' n (f (- toℤ n))).
 
-Definition ℤRecursionData (P:ℤ->Type)
+Definition ℤRecursionData (P:ℤ->UU)
       (IH :∏ n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':∏ n, P(- toℤ n) -> P(- toℤ (S n))) := fun
              f:∏ i, P i =>
                (∏ n, f(  toℤ (S n)) = IH  n (f (  toℤ n))) ×
                (∏ n, f(- toℤ (S n)) = IH' n (f (- toℤ n))).
 
-Lemma ℤRecursionUniq (P:ℤ->Type) (p0:P zero)
+Lemma ℤRecursionUniq (P:ℤ->UU) (p0:P zero)
       (IH :∏ n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':∏ n, P(- toℤ n) -> P(- toℤ (S n))) :
   iscontr (total2 (ℤRecursionData0 P p0 IH IH')).
@@ -122,7 +122,7 @@ Proof. intros.
        apply Nat.Uniqueness.hNatRecursionUniq.
 Defined.
 
-Lemma A (P:ℤ->Type) (p0:P zero)
+Lemma A (P:ℤ->UU) (p0:P zero)
       (IH :∏ n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':∏ n, P(- toℤ n) -> P(- toℤ (S n))) :
   weq (total2 (ℤRecursionData0 P p0 IH IH'))
@@ -138,14 +138,14 @@ Proof. intros.
        { intros [f [h0 h]]. reflexivity. }
        { intros [[f h] h0]. reflexivity. } Defined.
 
-Lemma ℤRecursion_weq (P:ℤ->Type)
+Lemma ℤRecursion_weq (P:ℤ->UU)
       (IH :∏ n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':∏ n, P(- toℤ n) -> P(- toℤ (S n))) :
   weq (total2 (ℤRecursionData P IH IH')) (P 0).
 Proof. intros. exists (fun f => pr1 f zero). intro p0.
        apply (iscontrweqf (A _ _ _ _)). apply ℤRecursionUniq. Defined.
 
-Lemma ℤRecursion_weq_compute (P:ℤ->Type)
+Lemma ℤRecursion_weq_compute (P:ℤ->UU)
       (IH :∏ n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':∏ n, P(- toℤ n) -> P(- toℤ (S n)))
       (fh : total2 (ℤRecursionData P IH IH')) :
@@ -155,10 +155,10 @@ Defined.
 
 (** ** Bidirectional recursion for ℤ *)
 
-Definition ℤBiRecursionData (P:ℤ->Type) (IH :∏ i, P(i) -> P(1+i)) :=
+Definition ℤBiRecursionData (P:ℤ->UU) (IH :∏ i, P(i) -> P(1+i)) :=
   fun f:∏ i, P i => ∏ i, f(1+i)=IH i (f i).
 
-Definition ℤBiRecursion_weq (P:ℤ->Type) (IH :∏ i, weq (P i) (P(1+i))) :
+Definition ℤBiRecursion_weq (P:ℤ->UU) (IH :∏ i, weq (P i) (P(1+i))) :
   weq (total2 (ℤBiRecursionData P IH)) (P 0).
 Proof. intros.
        assert (k : ∏ n, one + toℤ n = toℤ (S n)).
@@ -190,7 +190,7 @@ Proof. intros.
            unfold l'. rewrite weq_transportf_comp.
            reflexivity. } } Defined.
 
-Definition ℤBiRecursion_weq_compute (P:ℤ->Type)
+Definition ℤBiRecursion_weq_compute (P:ℤ->UU)
            (IH :∏ i, weq (P i) (P(1+i)))
       (fh : total2 (ℤBiRecursionData P IH)) :
   ℤBiRecursion_weq P IH fh = pr1 fh 0.
@@ -204,11 +204,11 @@ Open Scope action_scope.
 (** ** Bidirectional recursion for ℤ-torsors *)
 
 Definition GuidedSection {T:Torsor ℤ}
-           (P:T->Type) (IH:∏ t, weq (P t) (P (one + t))) := fun
+           (P:T->UU) (IH:∏ t, weq (P t) (P (one + t))) := fun
      f:∏ t, P t =>
        ∏ t, f (one + t) = IH t (f t).
 
-Definition ℤTorsorRecursion_weq {T:Torsor ℤ} (P:T->Type)
+Definition ℤTorsorRecursion_weq {T:Torsor ℤ} (P:T->UU)
       (IH:∏ t, weq (P t) (P (one + t))) (t0:T) :
   weq (total2 (GuidedSection P IH)) (P t0).
 Proof. intros. exists (fun fh => pr1 fh t0). intro q.
@@ -234,13 +234,13 @@ Proof. intros. exists (fun fh => pr1 fh t0). intro q.
        exact (pr2 (ℤBiRecursion_weq (fun i => P(w i)) IH') (e #' q)).
 Defined.
 
-Definition ℤTorsorRecursion_compute {T:Torsor ℤ} (P:T->Type)
+Definition ℤTorsorRecursion_compute {T:Torsor ℤ} (P:T->UU)
       (IH:∏ t, weq (P t) (P (one + t))) t h :
   ℤTorsorRecursion_weq P IH t h = pr1 h t.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
-Definition ℤTorsorRecursion_inv_compute {T:Torsor ℤ} (P:T->Type)
+Definition ℤTorsorRecursion_inv_compute {T:Torsor ℤ} (P:T->UU)
       (IH:∏ t, weq (P t) (P (one + t)))
       (t0:T) (h0:P t0) :
   pr1 (invmap (ℤTorsorRecursion_weq P IH t0) h0) t0 = h0.
@@ -250,7 +250,7 @@ Proof. intros.
                 @
                 homotweqinvweq (ℤTorsorRecursion_weq P IH t0) h0). Defined.
 
-Definition ℤTorsorRecursion_transition {T:Torsor ℤ} (P:T->Type)
+Definition ℤTorsorRecursion_transition {T:Torsor ℤ} (P:T->UU)
       (IH:∏ t, weq (P t) (P (one + t)))
       (t:T)
       (h:total2 (GuidedSection P IH)) :
@@ -259,7 +259,7 @@ Definition ℤTorsorRecursion_transition {T:Torsor ℤ} (P:T->Type)
   IH t (ℤTorsorRecursion_weq P IH t h).
 Proof. intros. rewrite 2!ℤTorsorRecursion_compute. exact (pr2 h t). Defined.
 
-Definition ℤTorsorRecursion_transition_inv {T:Torsor ℤ} (P:T->Type)
+Definition ℤTorsorRecursion_transition_inv {T:Torsor ℤ} (P:T->UU)
       (IH:∏ t, weq (P t) (P (one + t)))
       (t:T) :
   ∏ h0,
@@ -272,7 +272,7 @@ Proof. intros.
        rewrite homotweqinvweq in a. rewrite <- a.
        rewrite homotinvweqweq. reflexivity. Defined.
 
-Definition ℤTorsorRecursion {T:Torsor ℤ} (P:T->Type)
+Definition ℤTorsorRecursion {T:Torsor ℤ} (P:T->UU)
       (IH:∏ t, weq (P t) (P (one + t)))
       (t t':T) :
   weq (P t) (P t').

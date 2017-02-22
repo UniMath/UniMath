@@ -328,7 +328,7 @@ Abort.
 
 (** * abelian monoids by generators and relations *)
 Module Presentation.
-  Inductive word X : Type :=
+  Inductive word X : UU :=
     | word_unit : word X
     | word_gen : X -> word X
     | word_op : word X -> word X -> word X.
@@ -643,7 +643,7 @@ Module Presentation.
 End Presentation.
 Module Free.
   Import Presentation.
-  Definition make (X:Type) := @universalMarkedAbelianMonoid X empty fromempty.
+  Definition make (X:UU) := @universalMarkedAbelianMonoid X empty fromempty.
 End Free.
 Definition NN := Free.make unit.
 

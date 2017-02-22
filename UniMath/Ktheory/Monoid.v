@@ -189,7 +189,7 @@ Module Presentation.
          A pre-monoid over X modulo an adequate relation over R will be a
          monoid M equipped with a map X -> M that respects the relations R. *)
 
-  Inductive word X : Type :=
+  Inductive word X : UU :=
     | word_unit : word X
     | word_gen : X -> word X
     | word_op : word X -> word X -> word X.
@@ -493,7 +493,7 @@ Defined.
 End Presentation.
 Module Free.
   Import Presentation.
-  Definition make (X:Type) := @universalMarkedMonoid X empty fromempty.
+  Definition make (X:UU) := @universalMarkedMonoid X empty fromempty.
 End Free.
 Definition NN := Free.make unit.
 Module Product.

@@ -252,7 +252,7 @@ Proof. intros. assert (p := pr1_GH_weq_compute l).
 (** *** The induction principle (dependent functions) *)
 
 
-Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)}
+Definition circle_map' {Y:circle->UU} {y:Y(basepoint circle)}
            (l:circle_loop#y = y) : ∏ c:circle, Y c.
 Proof. (** (not proved yet) *)
 Abort.

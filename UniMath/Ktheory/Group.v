@@ -14,7 +14,7 @@ Definition zero : gr.
 (** * groups by generators and relations *)
 
 Module Presentation.
-  Inductive word X : Type :=
+  Inductive word X : UU :=
     | word_unit : word X
     | word_gen : X -> word X
     | word_inv : word X -> word X
@@ -384,7 +384,7 @@ Module Product.
 End Product.
 Module Free.
   Import Presentation.
-  Definition make (X:Type) := @universalMarkedGroup X empty fromempty.
+  Definition make (X:UU) := @universalMarkedGroup X empty fromempty.
 End Free.
 Definition ZZ := Free.make unit.
 Require Import UniMath.NumberSystems.Integers.

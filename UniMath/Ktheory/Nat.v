@@ -14,7 +14,7 @@ Definition ℕ := nat.
 
 Module Uniqueness.
 
-  Lemma helper_A (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n))
+  Lemma helper_A (P:nat->UU) (p0:P 0) (IH:∏ n, P n->P(S n))
         (f:∏ n, P n) :
     weq (∏ n, f n = nat_rect P p0 IH n)
         (f 0=p0 × ∏ n, f(S n)=IH n (f n)).
@@ -32,25 +32,25 @@ Module Uniqueness.
            rewrite <- path_assoc. rewrite <- maponpathscomp0. rewrite pathsinv0r.
            apply pathscomp0rid. } Defined.
 
-  Lemma helper_B (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n))
+  Lemma helper_B (P:nat->UU) (p0:P 0) (IH:∏ n, P n->P(S n))
         (f:∏ n, P n) :
     weq (f = nat_rect P p0 IH)
         ((f 0=p0) × (∏ n, f(S n)=IH n (f n))).
   Proof. intros.
          exact (weqcomp (weqtoforallpaths _ _ _) (helper_A _ _ _ _)). Defined.
 
-  Lemma helper_C (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n)) :
+  Lemma helper_C (P:nat->UU) (p0:P 0) (IH:∏ n, P n->P(S n)) :
     (∑ f:∏ n, P n, f = nat_rect P p0 IH)
       ≃
     (∑ f:∏ n, P n, f 0=p0 × ∏ n, f(S n)=IH n (f n)).
   Proof. intros. apply weqfibtototal. intros f. apply helper_B. Defined.
 
-  Lemma hNatRecursionUniq (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n)) :
+  Lemma hNatRecursionUniq (P:nat->UU) (p0:P 0) (IH:∏ n, P n->P(S n)) :
     ∃! (f:∏ n, P n), f 0=p0 × ∏ n, f(S n) = IH n (f n).
   Proof. intros. exact (iscontrweqf (helper_C _ _ _) (iscontrcoconustot _ _)).
   Defined.
 
-  Lemma helper_D (P:nat->Type) (p0:P 0) (IH:∏ n, P n->P(S n)) :
+  Lemma helper_D (P:nat->UU) (p0:P 0) (IH:∏ n, P n->P(S n)) :
      (∑ f:∏ n, P n, (f 0=p0) × (∏ n, f(S n)=IH n (f n)))
        ≃
         (@hfiber
@@ -65,7 +65,7 @@ Module Uniqueness.
          { intros [[f h'] h0]. reflexivity. }
   Defined.
 
-  Lemma hNatRecursion_weq (P:nat->Type) (IH:∏ n, P n->P(S n)) :
+  Lemma hNatRecursion_weq (P:nat->UU) (IH:∏ n, P n->P(S n)) :
     weq (total2 (fun f:∏ n, P n => ∏ n, f(S n)=IH n (f n))) (P 0).
   Proof. intros. exists (fun f => pr1 f 0). intro p0.
          apply (iscontrweqf (helper_D _ _ _)). apply hNatRecursionUniq.

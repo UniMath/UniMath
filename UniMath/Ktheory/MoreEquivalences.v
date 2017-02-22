@@ -39,25 +39,25 @@ Definition iscontrweqb_compute {X Y} (w:X ≃ Y) (is:iscontr Y) :
 Proof. intros. unfold iscontrweqb. rewrite iscontrretract_compute.
        reflexivity. Defined.
 
-Definition compute_iscontrweqb_weqfibtototal_1 {T} {P Q:T->Type}
+Definition compute_iscontrweqb_weqfibtototal_1 {T} {P Q:T->UU}
            (f:∏ t, weq (P t) (Q t))
            (is:iscontr (total2 Q)) :
   pr1 (iscontrpr1 (iscontrweqb (weqfibtototal P Q f) is)) = pr1 (iscontrpr1 is).
 Proof. intros. destruct is as [ctr uni]. reflexivity. Defined.
 
-Definition compute_pr1_invmap_weqfibtototal {T} {P Q:T->Type}
+Definition compute_pr1_invmap_weqfibtototal {T} {P Q:T->UU}
            (f:∏ t, weq (P t) (Q t))
            (w:total2 Q) :
   pr1 (invmap (weqfibtototal P Q f) w) = pr1 w.
 Proof. intros. reflexivity. Defined.
 
-Definition compute_pr2_invmap_weqfibtototal {T} {P Q:T->Type}
+Definition compute_pr2_invmap_weqfibtototal {T} {P Q:T->UU}
            (f:∏ t, weq (P t) (Q t))
            (w:total2 Q) :
   pr2 (invmap (weqfibtototal P Q f) w) = invmap (f (pr1 w)) (pr2 w).
 Proof. intros. reflexivity. Defined.
 
-Definition compute_iscontrweqb_weqfibtototal_3 {T} {P Q:T->Type}
+Definition compute_iscontrweqb_weqfibtototal_3 {T} {P Q:T->UU}
            (f:∏ t, weq (P t) (Q t))
            (is:iscontr (total2 Q)) :
   maponpaths pr1 (iscontrweqb_compute (weqfibtototal P Q f) is)
@@ -69,23 +69,23 @@ Definition iscontrcoconustot_comp {X} {x:X} :
   iscontrpr1 (iscontrcoconustot X x) = x,,idpath x.
 Proof. reflexivity. Defined.
 
-Definition funfibtototal {X} (P Q:X->Type) (f:∏ x:X, P x -> Q x) :
+Definition funfibtototal {X} (P Q:X->UU) (f:∏ x:X, P x -> Q x) :
   total2 P -> total2 Q.
 Proof. intros ? ? ? ? [x p]. exact (x,,f x p). Defined.
 
-Definition weqfibtototal_comp {X} (P Q:X->Type) (f:∏ x:X, weq (P x) (Q x)) :
+Definition weqfibtototal_comp {X} (P Q:X->UU) (f:∏ x:X, weq (P x) (Q x)) :
   invmap (weqfibtototal P Q f) = funfibtototal Q P (fun x => invmap (f x)).
 Proof. intros. apply funextsec; intros [x q]. reflexivity. Defined.
 
-Definition eqweqmapap_inv {T} (P:T->Type) {t u:T} (e:t = u) (p:P u) :
+Definition eqweqmapap_inv {T} (P:T->UU) {t u:T} (e:t = u) (p:P u) :
   (eqweqmap (maponpaths P e)) ((eqweqmap (maponpaths P (!e))) p) = p.
 Proof. intros. destruct e. reflexivity. Defined.
 
-Definition eqweqmapap_inv' {T} (P:T->Type) {t u:T} (e:t = u) (p:P t) :
+Definition eqweqmapap_inv' {T} (P:T->UU) {t u:T} (e:t = u) (p:P t) :
   (eqweqmap (maponpaths P (!e))) ((eqweqmap (maponpaths P e)) p) = p.
 Proof. intros. destruct e. reflexivity. Defined.
 
-Definition weqpr1_irr_sec {X} {P:X->Type}
+Definition weqpr1_irr_sec {X} {P:X->UU}
            (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x) : weq (total2 P) X.
 (* compare with weqpr1 *)
 Proof. intros.
@@ -96,7 +96,7 @@ Proof. intros.
        { intros [x p]. simpl. apply maponpaths. apply irr. }
        { intros [x p]. simpl. apply pair_path_in2_comp1. } Defined.
 
-Definition invweqpr1_irr_sec {X} {P:X->Type}
+Definition invweqpr1_irr_sec {X} {P:X->UU}
            (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x) : X ≃ (total2 P).
 (* compare with weqpr1 *)
 Proof. intros.
@@ -109,12 +109,12 @@ Proof. intros.
        { intro x'. simpl. rewrite (isProofIrrelevant_paths (irr _) (irr _ _ _) (idpath (sec x'))).
          reflexivity. } Defined.
 
-Definition homotinvweqweq' {X} {P:X->Type}
+Definition homotinvweqweq' {X} {P:X->UU}
            (irr:∏ x (p q:P x), p = q) (s:∏ x, P x) (w:total2 P) :
   invmap (weqpr1_irr_sec irr s) (weqpr1_irr_sec irr s w) = w.
 Proof. intros ? ? ? ? [x p]. apply pair_path_in2. apply irr. Defined.
 
-Definition homotinvweqweq'_comp {X} {P:X->Type}
+Definition homotinvweqweq'_comp {X} {P:X->UU}
            (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x)
            (x:X) (p:P x) :
   let f := weqpr1_irr_sec irr sec in
@@ -126,7 +126,7 @@ Definition homotinvweqweq'_comp {X} {P:X->Type}
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
-Definition homotinvweqweq_comp {X} {P:X->Type}
+Definition homotinvweqweq_comp {X} {P:X->UU}
            (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x)
            (x:X) (p:P x) :
   let f := weqpr1_irr_sec irr sec in
@@ -139,7 +139,7 @@ Proof.
   try reflexivity.              (* this worked above but doesn't work here *)
 Abort.
 
-Definition homotinvweqweq_comp_3 {X} {P:X->Type}
+Definition homotinvweqweq_comp_3 {X} {P:X->UU}
            (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x)
            (x:X) (p:P x) :
   let f := weqpr1_irr_sec irr sec in
@@ -161,7 +161,7 @@ Definition loop_correspondence {T X Y}
 Proof. intros. destruct ni, mi, l. simpl. rewrite pathscomp0rid. reflexivity.
 Defined.
 
-Definition loop_correspondence' {X Y} {P:X->Type}
+Definition loop_correspondence' {X Y} {P:X->UU}
            (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x)
            (g:total2 P->Y)
            {w w':total2 P} {l:w = w'}

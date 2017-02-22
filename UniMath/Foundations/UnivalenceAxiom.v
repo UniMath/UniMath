@@ -35,11 +35,11 @@ Require Export UniMath.Foundations.PartB.
 Definition eqweqmap { T1 T2 : UU } : T1 = T2 -> T1 ≃ T2.
 Proof. intro e. induction e. apply idweq. Defined.
 
-Definition eqweqmap_ap {T} (P:T->Type) {t t':T} (e:t = t') (f:∏ t:T, P t) :
+Definition eqweqmap_ap {T} (P:T->UU) {t t':T} (e:t = t') (f:∏ t:T, P t) :
   eqweqmap (maponpaths P e) (f t) = f t'. (* move near eqweqmap *)
 Proof. intros. induction e. reflexivity. Defined.
 
-Definition eqweqmap_ap' {T} (P:T->Type) {t t':T} (e:t = t') (f:∏ t:T, P t) :
+Definition eqweqmap_ap' {T} (P:T->UU) {t t':T} (e:t = t') (f:∏ t:T, P t) :
   invmap (eqweqmap (maponpaths P e)) (f t') = f t. (* move near eqweqmap *)
 Proof. intros. induction e. reflexivity. Defined.
 
@@ -47,7 +47,7 @@ Definition pr1_eqweqmap { X Y } ( e: X = Y ) : cast e = pr1 (eqweqmap e).
 Proof. intros. induction e. reflexivity. Defined.
 
 Definition pr1_eqweqmap2 { X Y } ( e: X = Y ) :
-  pr1 (eqweqmap e) = transportf (fun T:Type => T) e.
+  pr1 (eqweqmap e) = transportf (fun T:UU => T) e.
 Proof. intros. induction e. reflexivity. Defined.
 
 Definition sectohfiber { X : UU } (P:X -> UU): (∏ x:X, P x) -> (hfiber (fun f:_ => fun x:_ => pr1  (f x)) (fun x:X => x)) := (fun a : ∏ x:X, P x => tpair _ (fun x:_ => tpair _ x (a x)) (idpath (fun x:X => x))).

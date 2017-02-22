@@ -418,7 +418,7 @@ Definition weqonsecbase {X Y : UU} (P : Y -> UU) (f : weq X Y)
   : weq (∏ y : Y, P y) (∏ x : X, P (f x))
   := weqpair _ (isweqmaponsec1 P f).
 
-Definition weqonsec {X Y} (P:X->Type) (Q:Y->Type)
+Definition weqonsec {X Y} (P:X->UU) (Q:Y->UU)
            (f:X ≃ Y) (g:∏ x, weq (P x) (Q (f x))) :
   weq (∏ x:X, P x) (∏ y:Y, Q y).
 Proof.
@@ -429,7 +429,7 @@ Local Open Scope transport.
 
 Definition weq_over_sections {S T} (w:S ≃ T)
            {s0:S} {t0:T} (k:w s0 = t0)
-           {P:T->Type}
+           {P:T->UU}
            (p0:P t0) (pw0:P(w s0)) (l:k#pw0 = p0)
            (H:(∏ t, P t) -> UU)
            (J:(∏ s, P(w s)) -> UU)

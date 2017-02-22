@@ -16,7 +16,7 @@ Proof. intros ? ? ? e. set (f := fun t:bool => if t then y else y').
        truncation, but notice that propositional truncation uses functional
        extensionality for functions, already. *)
 
-Definition funextsec2 X (Y:X->Type) (f g:∏ x,Y x) :
+Definition funextsec2 X (Y:X->UU) (f g:∏ x,Y x) :
            (∏ x, f x = g x) -> f = g.
 Proof. intros ? ? ? ? e.
        exact (maponpaths (fun h x => interval_map (e x) h) interval_path).

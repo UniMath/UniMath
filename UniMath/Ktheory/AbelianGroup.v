@@ -40,7 +40,7 @@ Definition addproperty {G H:abgr} (p:Hom_abgr G H) (g g':G) : p(g + g') = p g + 
       Reduce the duplication later, if possible. *)
 
 Module Presentation.
-  Inductive word X : Type :=
+  Inductive word X : UU :=
     | word_unit : word X
     | word_gen : X -> word X
     | word_inv : word X -> word X
@@ -405,7 +405,7 @@ Module Presentation.
 End Presentation.
 Module Free.
   Import Presentation.
-  Definition make (X:Type) := @universalMarkedAbelianGroup X empty fromempty.
+  Definition make (X:UU) := @universalMarkedAbelianGroup X empty fromempty.
 End Free.
 Definition ZZ := Free.make unit.
 Module Product.
@@ -430,7 +430,7 @@ End Product.
 Module Sum.                   (* coproducts *)
   Import Presentation.
   Definition X {I} (G:I->abgr) := total2 G. (* the generators *)
-  Inductive J {I} (G:I->abgr) : Type := (* index set for the relations *)
+  Inductive J {I} (G:I->abgr) : UU := (* index set for the relations *)
     | J_zero : I -> J G                 (* (i,0) ~  ; redundant relation *)
     | J_sum : (∑ i, G i × G i) -> J G.  (* (i,g)+(i,h) ~ (i,g+h) *)
   Definition R {I} (G:I->abgr) : J G -> reln (X G).
@@ -464,7 +464,7 @@ Module Sum.                   (* coproducts *)
     { intros [i g]. exact (maponpaths (adjev g) (maponpaths pr1 (e i))). }
   Qed.
 End Sum.
-Definition power (I:Type) (X:abgr) : abgr.
+Definition power (I:UU) (X:abgr) : abgr.
   intros. exact (Product.make (fun _:I => Z)). Defined.
 
 (** ** the category of abelian groups *)
