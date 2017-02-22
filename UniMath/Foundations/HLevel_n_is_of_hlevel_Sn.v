@@ -35,8 +35,8 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 *)
 
 Local Lemma weq1  (P : UU -> hProp) (X X' : UU) (pX : P X) (pX' : P X') :
-   ( (X,, pX) = tpair (fun x => P x) X' pX') ≃
-       (∑ w : X = X', transportf (fun x => P x) w pX = pX').
+   ( (X,, pX) = tpair P X' pX') ≃
+       (∑ w : X = X', transportf P w pX = pX').
 Proof.
   apply total2_paths_equiv.
 Defined.
@@ -49,7 +49,7 @@ Defined.
 
 Local Lemma ident_is_prop : ∏ (P : UU -> hProp) (X X' : UU)
       (pX : P X) (pX' : P X') (w : X = X'),
-   isaprop (transportf (fun X => P X) w pX = pX').
+   isaprop (transportf P w pX = pX').
 Proof.
   intros P X X' pX pX' w.
   apply isapropifcontr.
@@ -66,10 +66,9 @@ Defined.
 
 Local Lemma weq2 (P : UU -> hProp) (X X' : UU)
       (pX : P X) (pX' : P X') :
-  (∑ w : X = X', transportf (fun x => P x) w pX = pX') ≃ (X = X').
+  (∑ w : X = X', transportf P w pX = pX') ≃ (X = X').
 Proof.
-  exists (@pr1 (X = X') (fun w : X = X' =>
-            (transportf (fun x : UU => P x) w pX)  = pX' )).
+  exists (@pr1 (X = X') (fun w : X = X' => transportf P w pX = pX' )).
   apply isweqpr1.
   intros ? .
   apply (pr2 (P X')).
@@ -81,7 +80,7 @@ Defined.
 
 Local Lemma Id_p_weq_Id (P : UU -> hProp) (X X' : UU)
       (pX : P X) (pX' : P X') :
- (tpair _ X pX) = (tpair (fun x => P x) X' pX') ≃ (X = X').
+ (tpair _ X pX) = (tpair P X' pX') ≃ (X = X').
 Proof.
   set (f := weq1 P X X' pX pX').
   set (g := weq2 P X X' pX pX').
@@ -201,7 +200,7 @@ Defined.
 
 Lemma UA_for_Predicates (P : UU -> hProp) (X X' : UU)
      (pX : P X) (pX' : P X') :
-  (tpair _ X pX) = (tpair (fun x => P x) X' pX') ≃ (X ≃ X').
+  (tpair _ X pX) = (tpair P X' pX') ≃ (X ≃ X').
 Proof.
   set (f := Id_p_weq_Id P X X' pX pX').
   set (g := tpair _ _ (univalenceAxiom X X')).
