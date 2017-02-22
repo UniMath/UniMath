@@ -514,10 +514,10 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
-Local Definition post_cat {X} {x y z:X} {p:y = z} : x = y -> x = z.
+Local Definition post_cat {X:UU} {x y z:X} {p:y = z} : x = y -> x = z.
 Proof. intros ? ? ? ? ? q. exact (pathscomp0 q p). Defined.
 
-Local Definition pre_cat {X} {x y z:X} {p:x = y} : y = z -> x = z.
+Local Definition pre_cat {X:UU} {x y z:X} {p:x = y} : y = z -> x = z.
 Proof. intros ? ? ? ? ? q. exact (pathscomp0 p q). Defined.
 
 Ltac maponpaths_pre_post_cat :=
@@ -796,61 +796,61 @@ Opaque transportf_paths.
 
 Local Open Scope transport.
 
-Definition transportbfinv {T} (P:T->UU) {t u:T} (e:t = u) (p:P t) : e#'e#p = p.
+Definition transportbfinv {T:UU} (P:T->UU) {t u:T} (e:t = u) (p:P t) : e#'e#p = p.
 Proof. intros. destruct e. reflexivity. Defined.
 
-Definition transportfbinv {T} (P:T->UU) {t u:T} (e:t = u) (p:P u) : e#e#'p = p.
+Definition transportfbinv {T:UU} (P:T->UU) {t u:T} (e:t = u) (p:P u) : e#e#'p = p.
 Proof. intros. destruct e. reflexivity. Defined.
 
 Definition transport_type_path {X Y:UU} (p:X = Y) (x:X) :
   transportf (λ T:UU, T) p x = cast p x.
 Proof. intros. induction p. reflexivity. Defined.
 
-Definition transport_fun_path {X Y} {f g:X->Y} {x x':X} {p:x = x'} {e:f x = g x} {e':f x' = g x'} :
+Definition transport_fun_path {X Y:UU} {f g:X->Y} {x x':X} {p:x = x'} {e:f x = g x} {e':f x' = g x'} :
   e @ maponpaths g p = maponpaths f p @ e' ->
   transportf (fun x => f x = g x) p e = e'.
 Proof. intros ? ? ? ? ? ? ? ? ? k. induction p. rewrite maponpaths_idpath in k. rewrite maponpaths_idpath in k.
        rewrite pathscomp0rid in k. exact k. Defined.
 
-Definition transportf_pathsinv0 {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
+Definition transportf_pathsinv0 {X:UU} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
   !p # v = u -> p # u = v.
 Proof. intros ? ? ? ? ? ? ? e. induction p, e. reflexivity. Defined.
 
-Definition transportf_pathsinv0' {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
+Definition transportf_pathsinv0' {X:UU} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
   p # u = v -> !p # v = u.
 Proof. intros ? ? ? ? ? ? ? e. induction p, e. reflexivity. Defined.
 
-Lemma transport_idfun {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) :
+Lemma transport_idfun {X:UU} (P:X->UU) {x y:X} (p:x = y) (u:P x) :
   transportf P p u = transportf (idfun _) (maponpaths P p) u.
 (* same as HoTT.PathGroupoids.transport_idmap_ap *)
 Proof. intros. induction p. reflexivity. Defined.
 
-Lemma transport_functions {X} {Y:X->UU} {Z:∏ x (y:Y x), Type}
+Lemma transport_functions {X:UU} {Y:X->UU} {Z:∏ x (y:Y x), Type}
       {f f':∏ x : X, Y x} (p:f = f') (z:∏ x, Z x (f x)) x :
     transportf (fun f => ∏ x, Z x (f x)) p z x =
     transportf (Z x) (toforallpaths _ _ _ p x) (z x).
 Proof. intros. induction p. reflexivity. Defined.
 
-Definition transport_funapp {T} {X Y:T->UU}
+Definition transport_funapp {T:UU} {X Y:T->UU}
            (f:∏ t, X t -> Y t) (x:∏ t, X t)
            {t t':T} (p:t = t') :
   transportf _ p ((f t)(x t))
   = (transportf (fun t => X t -> Y t) p (f t)) (transportf _ p (x t)).
 Proof. intros. induction p. reflexivity. Defined.
 
-Definition helper_A {T} {Y} (P:T->Y->UU) {y y':Y} (k:∏ t, P t y) (e:y = y') t :
+Definition helper_A {T Y:UU} (P:T->Y->UU) {y y':Y} (k:∏ t, P t y) (e:y = y') t :
   transportf (fun y => P t y) e (k t)
   =
   (transportf (fun y => ∏ t, P t y) e k) t.
 Proof. intros. induction e. reflexivity. Defined.
 
-Definition helper_B {T} {Y} (f:T->Y) {y y':Y} (k:∏ t, y = f t) (e:y = y') t :
+Definition helper_B {T Y:UU} (f:T->Y) {y y':Y} (k:∏ t, y = f t) (e:y = y') t :
   transportf (fun y => y = f t) e (k t)
   =
   (transportf (fun y => ∏ t, y = f t) e k) t.
 Proof. intros. exact (helper_A _ k e t). Defined.
 
-Definition maponpaths_pr1_pr2 {X} {P:X->UU} {Q:∏ x, P x->UU}
+Definition maponpaths_pr1_pr2 {X:UU} {P:X->UU} {Q:∏ x, P x->UU}
            {w w': ∑ x p, Q x p}
            (p : w = w') :
   transportf P (maponpaths pr1 p) (pr1 (pr2 w)) = pr1 (pr2 w').
@@ -939,11 +939,11 @@ Proof.
   intros. exact (two_arg_paths_b p q).
 Defined.
 
-Definition total2_paths2_f_comp1 {X} {Y:X->UU} {x} {y:Y x} {x'} {y':Y x'}
+Definition total2_paths2_f_comp1 {X:UU} {Y:X->UU} {x} {y:Y x} {x'} {y':Y x'}
            (p:x = x') (q:transportf _ p y = y') : maponpaths pr1 (total2_paths2_f p q) = p.
 Proof. intros. induction p. induction q. reflexivity. Defined.
 
-Definition map_transportf {X} {P:X->UU} {x x':X} {e e':x = x'} (q:e = e') (p:P x) : transportf P e p = transportf P e' p.
+Definition map_transportf {X:UU} {P:X->UU} {x x':X} {e e':x = x'} (q:e = e') (p:P x) : transportf P e p = transportf P e' p.
 Proof. intros. induction q. reflexivity. Defined.
 
 Definition pair_path_in2 {X : UU} (P : X -> UU) {x : X} {p q : P x} (e : p = q) :
@@ -955,7 +955,7 @@ Proof.
   intros. now apply maponpaths.
 Defined.
 
-Definition pair_path_in2_comp1 {X} (P:X->UU) {x:X} {p q:P x} (e:p = q) :
+Definition pair_path_in2_comp1 {X:UU} (P:X->UU) {x:X} {p q:P x} (e:p = q) :
   maponpaths pr1 (maponpaths (tpair P _) e) = idpath x.
 Proof. intros. induction e. reflexivity. Defined.
 
@@ -974,7 +974,7 @@ Proof.
   apply idpath.
 Defined.
 
-Definition total2_paths2_f_comp2 {X} {Y:X->UU} {x} {y:Y x} {x'} {y':Y x'}
+Definition total2_paths2_f_comp2 {X:UU} {Y:X->UU} {x} {y:Y x} {x'} {y':Y x'}
            (p:x = x') (q:transportf _ p y = y') :
   ! map_transportf (total2_paths2_f_comp1 p q) y @ fiber_paths (two_arg_paths_f p q) = q.
 Proof.
@@ -1023,12 +1023,12 @@ Defined.
 (** *** Lemmas about transport adapted from the HoTT library and the HoTT book *)
 
 
-Definition transportf2 {X} {Y:X->UU} (Z:∏ x, Y x->UU)
+Definition transportf2 {X:UU} {Y:X->UU} (Z:∏ x, Y x->UU)
            {x x'} (p:x = x')
            (y:Y x) (z:Z x y) : Z x' (p#y).
 Proof. intros. induction p. exact z. Defined.
 
-Definition transportb2 {X} {Y:X->UU} (Z:∏ x, Y x->UU)
+Definition transportb2 {X:UU} {Y:X->UU} (Z:∏ x, Y x->UU)
            {x x'} (p:x=x')
            (y':Y x') (z':Z x' y') : Z x (p#'y').
 Proof. intros. induction p. exact z'. Defined.
@@ -1125,7 +1125,7 @@ Definition iscontrpair {T : UU} : ∏ x : T, (∏ t : T, t = x) -> iscontr T
 
 Definition iscontrpr1 {T : UU} : iscontr T -> T := pr1.
 
-Definition iscontr_uniqueness {T} (i:iscontr T) (t:T) : t = iscontrpr1 i
+Definition iscontr_uniqueness {T:UU} (i:iscontr T) (t:T) : t = iscontrpr1 i
   := pr2 i t.
 
 Lemma iscontrretract {X Y : UU} (p : X -> Y) (s : Y -> X)
@@ -1388,12 +1388,12 @@ Definition weqpair {X Y : UU} (f : X -> Y) (is: isweq f) : X ≃ Y :=
 Definition idweq (X : UU) : X ≃ X :=
   tpair (fun (f : X -> X) => isweq f) (fun (x : X) => x) (idisweq X).
 
-Definition weq_transportf {X} (P:X->UU) {x y:X} (p:x = y) : P x ≃ P y.
+Definition weq_transportf {X:UU} (P:X->UU) {x y:X} (p:x = y) : P x ≃ P y.
 Proof.
   intros. induction p. apply idweq.
 Defined.
 
-Definition weq_transportf_comp {X} (P:X->UU) {x y:X} (p:x = y) (f:∏ x, P x) :
+Definition weq_transportf_comp {X:UU} (P:X->UU) {x y:X} (p:x = y) (f:∏ x, P x) :
   weq_transportf P p (f x) = f y.
 Proof. intros. induction p. reflexivity. Defined.
 
@@ -1424,7 +1424,7 @@ Defined.
 Definition invmap {X Y : UU} (w : X ≃ Y) : Y -> X :=
   fun (y : Y) => hfiberpr1 _ _ (weqccontrhfiber w y).
 
-Definition transport_invmap {T} {X Y:T->UU} (f:∏ t, X t ≃ Y t)
+Definition transport_invmap {T:UU} {X Y:T->UU} (f:∏ t, X t ≃ Y t)
            {t t':T} (p:t=t') :
   transportf (λ t, Y t -> X t) p (invmap (f t))
   =
