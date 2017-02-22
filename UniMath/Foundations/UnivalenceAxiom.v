@@ -36,11 +36,11 @@ Definition eqweqmap { T1 T2 : UU } : T1 = T2 -> T1 ≃ T2.
 Proof. intro e. induction e. apply idweq. Defined.
 
 Definition eqweqmap_ap {T} (P:T->UU) {t t':T} (e:t = t') (f:∏ t:T, P t) :
-  eqweqmap (maponpaths P e) (f t) = f t'. (* move near eqweqmap *)
+  eqweqmap (maponpaths P e) (f t) = f t'.
 Proof. intros. induction e. reflexivity. Defined.
 
 Definition eqweqmap_ap' {T} (P:T->UU) {t t':T} (e:t = t') (f:∏ t:T, P t) :
-  invmap (eqweqmap (maponpaths P e)) (f t') = f t. (* move near eqweqmap *)
+  invmap (eqweqmap (maponpaths P e)) (f t') = f t.
 Proof. intros. induction e. reflexivity. Defined.
 
 Definition pr1_eqweqmap { X Y } ( e: X = Y ) : cast e = pr1 (eqweqmap e).
