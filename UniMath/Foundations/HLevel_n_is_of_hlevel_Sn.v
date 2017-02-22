@@ -158,7 +158,7 @@ Lemma isofhlevelpathspace : ∏ n : nat, ∏ X Y : UU,
       isofhlevel n X -> isofhlevel n Y -> isofhlevel n (X = Y).
 Proof.
   intros n.
-  case n.
+  induction n.
   - intros X Y pX pY.
     apply isofhlevel0pathspace;
     assumption.
