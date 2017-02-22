@@ -10,11 +10,14 @@ Unset Automatic Introduction.
 
 (* Preamble *)
 
-Require Export UniMath.Foundations.FiniteSets.
+Require Export UniMath.Combinatorics.FiniteSets.
+(* Require Export UniMath.Combinatorics.OrderedSets. *)
 Require Export UniMath.CategoryTheory.precategories.
 Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.functor_categories.
-
+Require Export UniMath.CategoryTheory.opp_precat.
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 (* To upstream files *)
 
@@ -22,98 +25,58 @@ Require Export UniMath.CategoryTheory.functor_categories.
 
 (* The pre-category data for the category Delta *)
 
+Local Open Scope stn.
 
-Definition monfunstn ( n m : nat ) : UU :=
-  total2 ( fun f : stn n -> stn m => forall ( x y : stn n ) ( is : x < y ) ,
-                                                         f x < f y ) .
-Definition monfunstnpair { n m : nat } :=
-  tpair ( fun f : stn n -> stn m => forall ( x y : stn n ) ( is : x < y ) ,
-                                                         f x < f y ) .
+Definition monfunstn ( n m : nat ) : UU := ∑ f : ⟦ S n ⟧ -> ⟦ S m ⟧, ∏ (x y: ⟦S n⟧), x < y -> f x < f y.
+Definition monfunstnpair { m n : nat } f is := (f,,is) : monfunstn m n.
+Definition monfunstnpr1 {n m : nat} : monfunstn n m  -> ⟦ S n ⟧ -> ⟦ S m ⟧ := pr1.
 
-Definition monfunstnpr1 ( n m : nat ) :
-  monfunstn n m  -> ( stn n -> stn m ) := pr1 .
-Coercion monfunstnpr1 : monfunstn >-> Funclass .
-
-Lemma isasetmonfunstn ( n m : nat ) : isaset ( monfunstn n m ) .
+Lemma monfunstnpr1_isInjective {m n} (f g : monfunstn m n) : monfunstnpr1 f = monfunstnpr1 g -> f = g.
 Proof.
-  intros . apply ( isofhleveltotal2 2 ) .
-  apply impred .
-  intro . apply isasetstn .
-  intro f . apply impred .  intro .  apply impred . intro . apply impred . intro .
-  apply isasetaprop.
-  exact ( pr2 ( f t < f t0 ) ) .
+  intros ? ? ? ? e.
+  apply subtypeEquality.
+  { intros h. apply impred; intro i. apply impred; intro j. apply impred; intro l.
+    apply propproperty. }
+  exact e.
 Defined.
 
+Coercion monfunstnpr1 : monfunstn >-> Funclass .
+
+Lemma isasetmonfunstn n m : isaset ( monfunstn n m ) .
+Proof.
+  intros . apply ( isofhleveltotal2 2 ) .
+  { apply impred. intro t. apply isasetstn. }
+  intro f. apply impred; intro i.  apply impred; intro j. apply impred; intro l.
+  apply isasetaprop, propproperty.
+Defined.
+
+Definition monfunstnid n : monfunstn n n := monfunstnpair (idfun _) (λ x y is, is).
 
 Definition monfunstncomp { n m k : nat } ( f : monfunstn n m ) ( g : monfunstn m k ) :
   monfunstn n k .
 Proof.
-  intros . split with ( funcomp f g ) . intros . unfold funcomp . apply ( pr2 g ) .
-  apply ( pr2 f ) . apply is .
+  intros . exists ( g ∘ f ) . intros i j l. unfold funcomp.
+  apply ( pr2 g ). apply ( pr2 f ) . assumption.
 Defined.
-
-Lemma monfunstncompassoc { n m k l } ( f : monfunstn n m ) ( g : monfunstn m k )
-      ( h : monfunstn k l ) :  ( monfunstncomp f ( monfunstncomp g h ) ) =
-                               ( monfunstncomp ( monfunstncomp f g ) h ) .
-Proof.
-  intros . apply idpath .
-Defined.
-
-Definition monfunstnid ( n : nat ) : monfunstn n n :=
-  monfunstnpair ( idfun ( stn n ) ) ( fun x : stn n => fun y : stn n => fun is : x < y => is ) .
-
-Lemma monfunstncompidr { n m : nat } ( f : monfunstn n m ) : ( monfunstncomp f ( monfunstnid m ) )
-                                                             = f .
-Proof.
-  intros .  unfold monfunstnid . unfold monfunstncomp.  unfold funcomp . simpl .
-  induction f as [ f isf ] . apply idpath .
-Defined.
-
-Lemma monfunstncompidl { n m : nat } ( f : monfunstn n m ) : ( monfunstncomp ( monfunstnid n ) f )
-                                                             = f .
-Proof.
-  intros .  unfold monfunstnid . unfold monfunstncomp.  unfold funcomp . simpl .
-  induction f as [ f isf ] . apply idpath .
-Defined.
-
 
 Definition precatDelta : precategory .
 Proof.
-  refine ( tpair _ _ _ ) .
-  refine ( tpair _ _ _ ) .
-  refine ( tpair _ _ _ ) .
-  exact nat .
-  intros n m . (* split with ( monfunstn n m ) . apply isasetmonfunstn .
-  refine ( tpair _ _ _ ) .
-  intros . simpl in * .  apply monfunstnid .
-  intros ? ? ? f g .  simpl in * . apply ( monfunstncomp f g ) .
-  simpl .
-  refine ( tpair _ _ _ ) .
-  refine ( tpair _ _ _ ) .
-  intros . simpl in * .  apply monfunstncompidl .
-  intros . simpl in * .  apply monfunstncompidr .
-  intros . simpl in * .  apply monfunstncompassoc .
-Defined. *)
-Admitted.
-
-
-
-
-(* Definition of a simplicial hset *)
+  use tpair.
+  { use tpair.
+    { exists nat. exact monfunstn. }
+    { split.
+      { intros m. apply monfunstnid. }
+      { intros l m n f g. exact (monfunstncomp f g). } } }
+  simpl. split.
+  { simpl. split.
+    { intros m n f. now apply monfunstnpr1_isInjective. }
+    { intros m n f. now apply monfunstnpr1_isInjective. } }
+  { simpl. intros m n o p f g h. now apply monfunstnpr1_isInjective. }
+Defined.
 
 Definition sSet := [ precatDelta^op , HSET, pr2 is_category_HSET ] .
-
 (* V.V. with Sasha Vishik, Nov. 23, 2014 *)
 
 
+(* End of file *)
 
-
-
-
-
-
-
-
-
-
-(* End of the file sSet.v *)
