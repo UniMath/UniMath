@@ -1,7 +1,6 @@
 total2_paths.v
 precategories.v
 functor_categories.v
-SimplicialSets.v
 UnicodeNotations.v
 opp_precat.v
 PrecategoryBinProduct.v
@@ -51,6 +50,7 @@ limits/graphs/eqdiag.v
 EpiFacts.v
 HLevel_n_is_of_hlevel_Sn.v
 category_hset.v
+SimplicialSets.v
 yoneda.v
 Monads.v
 RModules.v
