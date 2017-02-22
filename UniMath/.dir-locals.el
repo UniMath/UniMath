@@ -14,8 +14,8 @@
 	     (modify-syntax-entry ?_ "w")
 	     (if (not (memq 'agda-input features))
 		 (load (concat unimath-topdir "emacs/agda/agda-input")))
-	     (if (not (member '("chimney" "╝") agda-input-user-translations))
+	     (if (not (member '("dcirc" "⇴") agda-input-user-translations))
 		 (progn
-		   (setq agda-input-user-translations (cons '("chimney" "╝") agda-input-user-translations))
+		   (setq agda-input-user-translations (append '(("dcirc" "⇴") ("chimney" "╝")) agda-input-user-translations))
 		   (agda-input-setup)))
 	     (set-input-method "Agda"))))))
