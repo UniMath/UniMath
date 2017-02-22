@@ -27,7 +27,7 @@ Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Local Open Scope stn.
 
-Definition monfunstn ( n m : nat ) : UU := ∑ f : ⟦ S n ⟧ -> ⟦ S m ⟧, ∏ (x y: ⟦S n⟧), x < y -> f x < f y.
+Definition monfunstn ( n m : nat ) : UU := ∑ f : ⟦ S n ⟧ -> ⟦ S m ⟧, ∏ (x y: ⟦S n⟧), x ≤ y -> f x ≤ f y.
 Definition monfunstnpair { m n : nat } f is := (f,,is) : monfunstn m n.
 Definition monfunstnpr1 {n m : nat} : monfunstn n m  -> ⟦ S n ⟧ -> ⟦ S m ⟧ := pr1.
 
