@@ -443,7 +443,6 @@ Defined.
 Lemma squash_pairs_to_set_compute {Y : UU} {F : Y -> UU}
       (i:isaset Y) (e:∏ y y', F y -> F y' -> y = y') {y} (f : F y) :
   squash_pairs_to_set _ i e (hinhpr (y,,f)) = y.
-(* upstream *)
 Proof.
   reflexivity.
 Defined.
@@ -472,7 +471,6 @@ Defined.
 Lemma squash_to_set_compute {X Y : UU} (is : isaset Y) (f : X -> Y)
       (e:∏ x x', f x = f x') x :
   squash_to_set is f e (hinhpr x) = f x.
-(* upstream *)
 Proof.
   reflexivity.
 Defined.
