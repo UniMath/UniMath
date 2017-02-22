@@ -26,7 +26,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Foundations.NaturalNumbers.
-Require Import UniMath.Foundations.HLevel_n_is_of_hlevel_Sn.
+Require Import UniMath.Foundations.HLevels.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
