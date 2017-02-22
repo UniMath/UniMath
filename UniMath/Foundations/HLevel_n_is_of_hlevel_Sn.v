@@ -35,11 +35,12 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 *)
 
 Local Lemma weq1  (P : UU -> hProp) (X X' : UU) (pX : P X) (pX' : P X') :
-   weq (tpair _ X pX = tpair (fun x => P x) X' pX')
-       (total2 (fun w : X = X' => transportf (fun x => P x) w pX = pX')).
+   ( (X,, pX) = tpair (fun x => P x) X' pX') ≃
+       (∑ w : X = X', transportf (fun x => P x) w pX = pX').
 Proof.
   apply total2_paths_equiv.
 Defined.
+
 
 (** This helper lemma is needed to show that our fibration
     is indeed a predicate, so that we can instantiate
@@ -65,9 +66,7 @@ Defined.
 
 Local Lemma weq2 (P : UU -> hProp) (X X' : UU)
       (pX : P X) (pX' : P X') :
-  weq (total2 (fun w : X = X' =>
-              transportf (fun x => P x) w pX = pX'))
-      (X = X').
+  (∑ w : X = X', transportf (fun x => P x) w pX = pX') ≃ (X = X').
 Proof.
   exists (@pr1 (X = X') (fun w : X = X' =>
             (transportf (fun x : UU => P x) w pX)  = pX' )).
@@ -82,7 +81,7 @@ Defined.
 
 Local Lemma Id_p_weq_Id (P : UU -> hProp) (X X' : UU)
       (pX : P X) (pX' : P X') :
- weq ((tpair _ X pX) = (tpair (fun x => P x) X' pX')) (X = X').
+ (tpair _ X pX) = (tpair (fun x => P x) X' pX') ≃ (X = X').
 Proof.
   set (f := weq1 P X X' pX pX').
   set (g := weq2 P X X' pX pX').
@@ -174,12 +173,11 @@ Defined.
 
 (** We define the type [HLevel n] of types of hlevel n. *)
 
-Definition HLevel n := total2 (fun X : UU => isofhlevel n X).
+Definition HLevel n := ∑ X : UU, isofhlevel n X.
 
 (** * Main theorem: [HLevel n] is of hlevel [S n] *)
 
-Lemma hlevel_of_hlevels : ∏ n,
-      isofhlevel (S n) (HLevel n).
+Lemma hlevel_of_hlevels : ∏ n, isofhlevel (S n) (HLevel n).
 Proof.
   intro n.
   simpl.
@@ -203,16 +201,15 @@ Defined.
 
 Lemma UA_for_Predicates (P : UU -> hProp) (X X' : UU)
      (pX : P X) (pX' : P X') :
-  weq ((tpair _ X pX) = (tpair (fun x => P x) X' pX')) (weq X X').
+  (tpair _ X pX) = (tpair (fun x => P x) X' pX') ≃ (X ≃ X').
 Proof.
   set (f := Id_p_weq_Id P X X' pX pX').
   set (g := tpair _ _ (univalenceAxiom X X')).
   exact (weqcomp f g).
 Defined.
 
-Corollary UA_for_HLevels : ∏ (n : nat)
-      (X X' : HLevel n),
-     weq (X = X') (weq (pr1 X) (pr1 X')).
+Corollary UA_for_HLevels : ∏ (n : nat) (X X' : HLevel n),
+   (X = X') ≃ (pr1 X ≃ pr1 X').
 Proof.
   intros n [X pX] [X' pX'].
   simpl.
