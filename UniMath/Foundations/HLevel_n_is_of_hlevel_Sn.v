@@ -142,7 +142,7 @@ Proof.
   assert (H' : isofhlevel (S n) (X -> Y)).
   {  apply impred.
      intro x. assumption. }
-  assert (H2 : isincl (@pr1 (X -> Y) (fun f => isweq f))).
+  assert (H2 : isincl (@pr1 (X -> Y) isweq)).
   { apply isofhlevelfpr1.
     intro f. apply isapropisweq. }
   apply (isofhlevelsninclb _ _ H2).
@@ -182,7 +182,7 @@ Proof.
   simpl.
   intros [X pX] [X' pX'].
   set (H := isofhlevelweqb n
-       (Id_p_weq_Id (fun X => tpair (fun X => isaprop X) (isofhlevel n X)
+       (Id_p_weq_Id (fun X => tpair isaprop (isofhlevel n X)
                                (isapropisofhlevel _ _)) X X' pX pX')).
   apply H.
   apply isofhlevelpathspace;
@@ -213,6 +213,6 @@ Proof.
   intros n [X pX] [X' pX'].
   simpl.
   apply (UA_for_Predicates
-       (fun X => tpair (fun X => isaprop X) (isofhlevel n X)
+       (fun X => tpair isaprop (isofhlevel n X)
                                       (isapropisofhlevel _ _))).
 Defined.
