@@ -34,7 +34,7 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
    is called [weq2].
 *)
 
-Lemma weq1  (P : UU -> hProp) (X X' : UU) (pX : P X) (pX' : P X') :
+Local Lemma weq1  (P : UU -> hProp) (X X' : UU) (pX : P X) (pX' : P X') :
    weq (tpair _ X pX = tpair (fun x => P x) X' pX')
        (total2 (fun w : X = X' => transportf (fun x => P x) w pX = pX')).
 Proof.
@@ -46,7 +46,7 @@ Defined.
     the hProposition [P] with this fibration.
 *)
 
-Lemma ident_is_prop : ∏ (P : UU -> hProp) (X X' : UU)
+Local Lemma ident_is_prop : ∏ (P : UU -> hProp) (X X' : UU)
       (pX : P X) (pX' : P X') (w : X = X'),
    isaprop (transportf (fun X => P X) w pX = pX').
 Proof.
@@ -63,7 +63,7 @@ Defined.
     a weak equivalence.
 *)
 
-Lemma weq2 (P : UU -> hProp) (X X' : UU)
+Local Lemma weq2 (P : UU -> hProp) (X X' : UU)
       (pX : P X) (pX' : P X') :
   weq (total2 (fun w : X = X' =>
               transportf (fun x => P x) w pX = pX'))
@@ -80,7 +80,7 @@ Defined.
      weak equivalence.
 *)
 
-Lemma Id_p_weq_Id (P : UU -> hProp) (X X' : UU)
+Local Lemma Id_p_weq_Id (P : UU -> hProp) (X X' : UU)
       (pX : P X) (pX' : P X') :
  weq ((tpair _ X pX) = (tpair (fun x => P x) X' pX')) (X = X').
 Proof.
@@ -158,7 +158,7 @@ Lemma isofhlevelpathspace : ∏ n : nat, ∏ X Y : UU,
       isofhlevel n X -> isofhlevel n Y -> isofhlevel n (X = Y).
 Proof.
   intros n.
-  induction n.
+  induction n as [| n _ ].
   - intros X Y pX pY.
     apply isofhlevel0pathspace;
     assumption.
