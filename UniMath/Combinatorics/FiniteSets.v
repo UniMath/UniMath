@@ -207,7 +207,6 @@ Defined.
 Definition cardinalityFiniteSet (X:FiniteSet) : nat := fincard (pr2 X).
 
 Lemma fincard_compute {n} {F:FiniteSet} : nelstruct n F -> cardinalityFiniteSet F = n.
-(* upstream *)
 Proof.
   intros ? ? w. induction F as [F s]; simpl in w. now induction (squash_path (n,,w) s).
 Defined.
