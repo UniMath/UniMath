@@ -47,7 +47,7 @@ Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.covyoneda.
 Require Import UniMath.CategoryTheory.slicecat.
@@ -731,6 +731,12 @@ Lemma BinProducts_HSET_slice X : BinProducts (HSET / X).
 Proof.
 now apply BinProducts_slice_precat, PullbacksHSET.
 Defined.
+
+Lemma BinCoproducts_HSET_slice X : BinCoproducts (HSET / X).
+Proof.
+now apply BinCoproducts_slice_precat, BinCoproductsHSET.
+Defined.
+
 
 (** Direct proof that HSET/X has exponentials using explicit formula in example 2.2 of:
 

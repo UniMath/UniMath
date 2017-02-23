@@ -1244,6 +1244,13 @@ Proof.
     + apply (IHm n).
 Defined.
 
+Definition minuseq0' (n : nat) : n - n = 0.
+Proof.
+  induction n as [|n I].
+  - reflexivity.
+  - simpl. exact I.
+Defined.
+
 Definition minusgth0 (n m : nat) (is : n > m) : n - m > 0.
 Proof.
   intro n. induction n as [ | n IHn ].
@@ -1424,7 +1431,7 @@ Proof.
         { apply is. }
         { apply H. }
       * apply natlthtoleh. apply is'.
-Qed.
+Defined.
 
 (*
 Definition natgehandminuslinv (n m k : nat) (is' : natgeh k n)
@@ -2031,6 +2038,22 @@ Definition di (i : nat) (x : nat) : nat :=
   | ii2 _ => S x
   end.
 
+Lemma di_eq1 {i x} : x < i → di i x = x.
+Proof.
+  intros ? ? lt. unfold di.
+  induction (natlthorgeh x i) as [_|P].
+  - reflexivity.
+  - apply fromempty. exact (natgehtonegnatlth _ _ P lt).
+Defined.
+
+Lemma di_eq2 {i x} : x ≥ i → di i x = S x.
+Proof.
+  intros ? ? lt. unfold di.
+  induction (natlthorgeh x i) as [P|_].
+  - apply fromempty. exact (natlthtonegnatgeh _ _ P lt).
+  - reflexivity.
+Defined.
+
 Lemma di_neq_i (i x : nat) : i ≠ di i x.
 Proof.
   intros. apply nat_nopath_to_neq. intro eq.
@@ -2177,4 +2200,26 @@ Lemma natltplusS (n i : nat) : i < i + S n.
 Proof.
   intros. rewrite <- (natplusr0 i).
   rewrite natplusassoc. apply natlthandplusl. reflexivity.
+Defined.
+
+Lemma nat_split {n m i : nat} : (i < n + m) -> (i ≥ n) -> i - n < m.
+Proof.
+  intros n m i p H.
+  induction (plusminusnmm m n).
+  apply natlthandminusl.
+  - induction (natpluscomm n m). exact p.
+  - induction (natpluscomm n m). now apply (natlehlthtrans _ i).
+Defined.
+
+Lemma natplusminusle {a b c} : b ≥ c -> a+(b-c) = (a+b)-c.
+Proof.
+  intros ? ? ? e. assert (E := minusplusnmm b c e). rewrite <- E. clear E e.
+  rewrite <- natplusassoc. rewrite plusminusnmm. rewrite plusminusnmm. reflexivity.
+Defined.
+
+Lemma natdiffplusdiff {a b c} : a ≥ b -> b ≥ c -> a-c = (a-b) + (b-c).
+Proof.
+  intros ? ? ? r s. apply (natplusrcan _ _ c). rewrite natplusassoc.
+  rewrite (minusplusnmm _ _ s). rewrite (minusplusnmm _ _ (istransnatleh s r)).
+  exact (! minusplusnmm _ _ r).
 Defined.

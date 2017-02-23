@@ -26,6 +26,7 @@ Section def_equalizers.
   Open Scope stn.
   Definition One : two := ● 0.
   Definition Two : two := ● 1.
+  Close Scope stn.
 
   Definition Equalizer_graph : graph.
   Proof.

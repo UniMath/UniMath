@@ -54,12 +54,12 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP hs.
 
-Variable H : Signature C hs.
+Variable H : Signature C hs C hs.
 
 Let θ := theta H.
 
-Let θ_strength1_int := Sig_strength_law1 _ _ H.
-Let θ_strength2_int := Sig_strength_law2 _ _ H.
+Let θ_strength1_int := Sig_strength_law1 _ _ _ _ H.
+Let θ_strength2_int := Sig_strength_law2 _ _ _ _ H.
 
 Let Id_H
 : functor EndC EndC
@@ -324,12 +324,12 @@ Proof.
   apply fbracket_unique_pointwise.
   - simpl. intro c.
     rewrite assoc.
-    set (H':=nat_trans_ax (eta_from_alg T)).
+    pose proof (nat_trans_ax (eta_from_alg T)) as H'.
     simpl in H'.
     rewrite <- H'; clear H'.
     rewrite <- assoc.
     apply maponpaths.
-    set (X:= nat_trans_eq_weq hs _ _  (fbracket_η T g)).
+    pose proof (nat_trans_eq_weq hs _ _  (fbracket_η T g)) as X.
     simpl in X. exact (X _ ).
   - intro c; simpl.
     assert (H':=nat_trans_ax (tau_from_alg T)).
@@ -354,7 +354,7 @@ Proof.
     clear X.
     set (A:=θ_nat_2_pointwise).
     simpl in *.
-    set (A':= A _ hs H θ (`T) Z Z').
+    set (A':= A _ hs _ hs H θ (`T) Z Z').
     simpl in A'.
     set (A2:= A' f).
     clearbody A2; clear A'; clear A.
@@ -364,11 +364,9 @@ Proof.
     simpl.
     repeat rewrite assoc.
     apply cancel_postcomposition.
-    set (A := functor_comp H).
-    simpl in A.
-    rewrite A.
+    rewrite (functor_comp H).
     apply cancel_postcomposition.
-    clear A. clear H'.
+    clear H'.
     set (A:=horcomp_id_postwhisker C _ _ hs hs).
     rewrite A.
     apply idpath.
@@ -604,9 +602,7 @@ Proof.
   rewrite functor_comp.
   rewrite assoc.
   apply cancel_postcomposition.
-  set (H2:=functor_comp (pre_composition_functor _ _ C _ hs (U Z)) ).
-  apply pathsinv0.
-  apply H2.
+  apply pathsinv0, (functor_comp (pre_composition_functor _ _ C _ hs (U Z)) ).
 Qed.
 
 Definition hssMor_comp {T T' T'' : hss} (β : hssMor T T') (γ : hssMor T' T'')

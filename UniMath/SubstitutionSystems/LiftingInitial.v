@@ -54,15 +54,7 @@ Require Import UniMath.SubstitutionSystems.Notation.
 
 Local Coercion alg_carrier : algebra_ob >-> ob.
 
-
-Arguments θ_source {_ _} _ .
-Arguments θ_target {_ _} _ .
-Arguments θ_Strength1 {_ _ _} _ .
-Arguments θ_Strength2 {_ _ _} _ .
-
 Section Precategory_Algebra.
-
-
 
 Variable C : precategory.
 Variable hs : has_homsets C.
@@ -80,7 +72,7 @@ Let CPEndEndC:= BinCoproducts_functor_precat _ _ CPEndC hsEndC: BinCoproducts En
 
 Variable KanExt : ∏ Z : Ptd, GlobalRightKanExtensionExists _ _ (U Z) _ hs hs.
 
-Variable H : Signature C hs.
+Variable H : Signature C hs C hs.
 Let θ := theta H.
 
 Definition Const_plus_H (X : EndC) : functor EndC EndC
@@ -728,7 +720,7 @@ Proof.
         apply BinCoproductIn2Commutes_left_in_ctx_dir.
         apply BinCoproductIn2Commutes_right_in_ctx_dir.
         simpl.
-        assert (H_nat_inst := functor_comp H _ _ _ t β).
+        assert (H_nat_inst := functor_comp H t β).
         assert (H_nat_inst_c := nat_trans_eq_pointwise H_nat_inst c); clear H_nat_inst.
         {
           match goal with |[ H1 : _  = ?f |- _ = _;; ?g ;; ?h  ] =>
@@ -843,7 +835,7 @@ Proof.
       fold θ.
       apply nat_trans_eq; try (exact hs).
       intro c.
-      assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hs H θ _ _ β Z c).
+      assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hs _ hs H θ _ _ β Z c).
       eapply pathscomp0 ; [exact θ_nat_1_pointwise_inst | ].
       clear θ_nat_1_pointwise_inst.
       simpl.
