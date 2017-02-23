@@ -230,7 +230,7 @@ Proof.
   + intros d d' d'' f g.
     unfold functor_fix_fst_arg_data; simpl.
     unfold functor_fix_fst_arg_mor; simpl.
-    assert (functor_comp_inst := functor_comp F (dirprodpair c d) (dirprodpair c d') (dirprodpair c d'')).
+    assert (functor_comp_inst := @functor_comp _ _ F (dirprodpair c d) (dirprodpair c d') (dirprodpair c d'')).
     rewrite <- functor_comp_inst.
     apply maponpaths.
     unfold compose at 2.
@@ -298,7 +298,7 @@ Proof.
   + intros c c' c'' f g.
     unfold functor_fix_snd_arg_data; simpl.
     unfold functor_fix_snd_arg_mor; simpl.
-    assert (functor_comp_inst := functor_comp F (dirprodpair c d) (dirprodpair c' d) (dirprodpair c'' d)).
+    assert (functor_comp_inst := @functor_comp _ _ F (dirprodpair c d) (dirprodpair c' d) (dirprodpair c'' d)).
     rewrite <- functor_comp_inst.
     apply maponpaths.
     unfold compose at 2.

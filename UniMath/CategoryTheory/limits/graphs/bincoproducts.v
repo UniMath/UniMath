@@ -48,7 +48,7 @@ Definition isBinCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
   isColimCocone (bincoproduct_diagram a b) co (CopCocone ia ib).
 
 Definition mk_isBinCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a --> co) (ib : b --> co) :
-   (Π (c : C) (f : a --> c) (g : b --> c),
+   (∏ (c : C) (f : a --> c) (g : b --> c),
     ∃! k : C ⟦co, c⟧,
       ia ;; k = f ×
       ib ;; k = g)
@@ -72,7 +72,7 @@ Definition BinCoproductCocone (a b : C) :=
   ColimCocone (bincoproduct_diagram a b).
 
 Definition mk_BinCoproductCocone (a b : C) :
-  Π (c : C) (f : a --> c) (g : b --> c),
+  ∏ (c : C) (f : a --> c) (g : b --> c),
    isBinCoproductCocone _ _ _ f g →  BinCoproductCocone a b.
 Proof.
   intros.
@@ -82,7 +82,7 @@ Proof.
   - apply X.
 Defined.
 
-Definition BinCoproducts := Π (a b : C), BinCoproductCocone a b.
+Definition BinCoproducts := ∏ (a b : C), BinCoproductCocone a b.
 Definition hasBinCoproducts := ishinh BinCoproducts.
 
 Definition BinCoproductObject {a b : C} (CC : BinCoproductCocone a b) : C := colim CC.
@@ -104,7 +104,7 @@ Proof.
 Defined.
 
 Lemma BinCoproductIn1Commutes (a b : C) (CC : BinCoproductCocone a b):
-     Π (c : C) (f : a --> c) g, BinCoproductIn1 CC ;; BinCoproductArrow CC f g  = f.
+     ∏ (c : C) (f : a --> c) g, BinCoproductIn1 CC ;; BinCoproductArrow CC f g  = f.
 Proof.
   intros c f g.
   unfold BinCoproductIn1.
@@ -113,7 +113,7 @@ Proof.
 Qed.
 
 Lemma BinCoproductIn2Commutes (a b : C) (CC : BinCoproductCocone a b):
-     Π (c : C) (f : a --> c) g, BinCoproductIn2 CC ;; BinCoproductArrow CC f g = g.
+     ∏ (c : C) (f : a --> c) g, BinCoproductIn2 CC ;; BinCoproductArrow CC f g = g.
 Proof.
   intros c f g.
   unfold BinCoproductIn1.
@@ -267,7 +267,7 @@ Proof.
   + intros.
     unfold isColimCocone.
     do 2 (apply impred; intro); apply isapropiscontr.
-  + apply (total2_paths (isotoid _ H (iso_from_BinCoproduct_to_BinCoproduct CC CC'))).
+  + apply (total2_paths_f (isotoid _ H (iso_from_BinCoproduct_to_BinCoproduct CC CC'))).
     rewrite transportf_dirprod.
     rewrite transportf_isotoid'. simpl.
     rewrite transportf_isotoid'.

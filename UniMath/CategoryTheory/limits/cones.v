@@ -24,7 +24,7 @@ Variable hs: has_homsets C.
 Variable F : functor J C.
 
 Definition ConeData := total2 (
-  fun a : C => Π j : J, a --> F j).
+  fun a : C => ∏ j : J, a --> F j).
 
 Definition ConeTop (a : ConeData) : C := pr1 a.
 Definition ConeMor (a : ConeData) (j : J) : ConeTop a --> F j := (pr2 a) j.
@@ -40,7 +40,7 @@ Proof.
 Defined.
 
 Definition ConeProp (a : ConeData) :=
-  Π j j' (f : j --> j'), ConeMor a j ;; #F f = ConeMor a j'.
+  ∏ j j' (f : j --> j'), ConeMor a j ;; #F f = ConeMor a j'.
 
 Lemma isaprop_ConeProp (a : ConeData) : isaprop (ConeProp a).
 Proof.
@@ -75,7 +75,7 @@ Coercion ConeProp_from_Cone : Cone >-> ConeProp.
 
 
 Lemma cone_prop (a : Cone) :
-  Π j j' (f : j --> j'), ConeMor a j ;; #F f = ConeMor a j'.
+  ∏ j j' (f : j --> j'), ConeMor a j ;; #F f = ConeMor a j'.
 Proof.
   exact (pr2 a).
 Qed.
@@ -83,14 +83,14 @@ Qed.
 Definition Cone_eq (a b : Cone) : pr1 a = pr1 b -> a = b.
 Proof.
   intro H.
-  apply (total2_paths H).
+  apply (total2_paths_f H).
   apply proofirrelevance.
   apply isaprop_ConeProp.
 Defined.
 
 Definition Cone_Mor (M N : Cone) :=
   total2 (fun f : ConeTop M --> ConeTop N =>
-        Π j : J, f ;; ConeMor N j = ConeMor M j).
+        ∏ j : J, f ;; ConeMor N j = ConeMor M j).
 
 
 Lemma isaset_Cone_Mor (M N : Cone) : isaset (Cone_Mor M N).
@@ -111,13 +111,13 @@ Lemma Cone_Mor_eq (M N : Cone) (f g : Cone_Mor M N) :
    ConeConnect f = ConeConnect g -> f = g.
 Proof.
   intro H.
-  apply (total2_paths H).
+  apply (total2_paths_f H).
   apply proofirrelevance.
   apply impred; intro; apply hs.
 Qed.
 
 Lemma cone_mor_prop M N (f : Cone_Mor M N) :
-    Π j : J, ConeConnect f ;; ConeMor N j = ConeMor M j.
+    ∏ j : J, ConeConnect f ;; ConeMor N j = ConeMor M j.
 Proof.
   exact (pr2 f).
 Qed.
@@ -224,7 +224,7 @@ Hypothesis is_cat_C : is_category C.
 Definition isotoid_CONE_pr1 (a b : CONE) : iso a b -> pr1 a = pr1 b.
 Proof.
   intro f.
-  apply (total2_paths (isotoid _ is_cat_C (ConeConnectIso f))).
+  apply (total2_paths_f (isotoid _ is_cat_C (ConeConnectIso f))).
   pathvia ((fun c : J =>
      idtoiso (!isotoid C is_cat_C (ConeConnectIso f));; pr2 (pr1 a) c)).
   apply transportf_isotoid_dep'.
@@ -285,7 +285,7 @@ Proof.
 Defined.
 
 
-Lemma isotoid_CONE_idtoiso (M N : CONE) : Π p : M = N, isotoid_CONE (idtoiso p) = p.
+Lemma isotoid_CONE_idtoiso (M N : CONE) : ∏ p : M = N, isotoid_CONE (idtoiso p) = p.
 Proof.
   intro p.
   induction p.
@@ -302,7 +302,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma idtoiso_isotoid_CONE (M N : CONE) : Π f : iso M N, idtoiso (isotoid_CONE f) = f.
+Lemma idtoiso_isotoid_CONE (M N : CONE) : ∏ f : iso M N, idtoiso (isotoid_CONE f) = f.
 Proof.
   intro f.
   apply eq_iso.

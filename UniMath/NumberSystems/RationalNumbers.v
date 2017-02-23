@@ -57,7 +57,7 @@ Notation " x * y " := ( hqmult x y ) : hq_scope .
 Delimit Scope hq_scope with hq .
 
 
-(** *** Properties of equlaity on [ hq ] *)
+(** *** Properties of equality on [ hq ] *)
 
 Definition isdeceqhq : isdeceq hq := isdeceqfldfrac hzintdom isdeceqhz .
 
@@ -120,7 +120,7 @@ Definition hqinvmaponpathsminus { a b : hq } ( e :  paths ( - a ) ( - b ) ) : pa
 
 
 
-(** *** Proparties of multiplication on [ hq ] *)
+(** *** Properties of multiplication on [ hq ] *)
 
 
 Lemma hqmultr1 ( x : hq ) : paths ( x * 1 ) x .
@@ -663,7 +663,7 @@ Proof . intros . apply ( intdomrcan hq _ _ _ ne e ) . Defined .
 
 (** *** Positive rationals *)
 
-Definition hqpos : @subabmonoids hqmultabmonoid .
+Definition hqpos : @subabmonoid hqmultabmonoid .
 Proof . split with ( fun x => hqgth x 0 ) . split .  intros x1 x2 . apply ( isrngmulthqgth ) . apply ( pr2 x1 ) .  apply ( pr2 x2 ) .  apply ( ct ( hqgth , isdecrelhqgth , 1 , 0 ) ) . Defined .
 
 

@@ -34,7 +34,7 @@ Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
-Require Import UniMath.CategoryTheory.equivalences. (* for adjunctions *)
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
@@ -173,7 +173,7 @@ Proof.
     exact iter_eq.
 Qed.
 
-Lemma preIt_uniq (t : Σ h : L μF --> X, # L inF;; h = ψ μF h):
+Lemma preIt_uniq (t : ∑ h : L μF --> X, # L inF;; h = ψ μF h):
     t = tpair (λ h : L μF --> X, # L inF;; h = ψ μF h) preIt preIt_ok.
 Proof.
     destruct t as [h h_rec_eq]; simpl.
@@ -205,7 +205,7 @@ Focus 2.
        * apply (maponpaths pr1 (InitialArrowUnique _ _ X0)).
 Qed.
 
-Theorem GenMendlerIteration : iscontr (Σ h : L μF --> X, #L inF ;; h = ψ μF h).
+Theorem GenMendlerIteration : iscontr (∑ h : L μF --> X, #L inF ;; h = ψ μF h).
 Proof.
   simple refine (tpair _ _ _ ).
   - exists preIt.
@@ -260,7 +260,7 @@ Section special_case.
 
   Definition SpecialGenMendlerIteration :
     iscontr
-      (Σ h : L μF --> X, # L inF ;; h = θ μF ;; #G h ;; ρ)
+      (∑ h : L μF --> X, # L inF ;; h = θ μF ;; #G h ;; ρ)
     := GenMendlerIteration ψ_from_comps.
 
 End special_case.

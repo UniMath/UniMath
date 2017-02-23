@@ -90,9 +90,9 @@ Arguments ii2 {A B} _ : rename.
 Notation "X ⨿ Y" := (coprod X Y) (at level 50, left associativity).
   (* type this in emacs with C-X 8 RET AMALGAMATION OR COPRODUCT *)
 
-Notation "'Π'  x .. y , P" := (forall x, .. (forall y, P) ..)
+Notation "'∏'  x .. y , P" := (forall x, .. (forall y, P) ..)
   (at level 200, x binder, y binder, right associativity) : type_scope.
-  (* type this in emacs in agda-input method with \Pi *)
+  (* type this in emacs in agda-input method with \prod *)
 
 Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
   (at level 200, x binder, y binder, right associativity).
@@ -100,15 +100,15 @@ Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
 
 Definition coprod_rect_compute_1
            (A B : UU) (P : A ⨿ B -> UU)
-           (f : Π (a : A), P (ii1 a))
-           (g : Π (b : B), P (ii2 b)) (a:A) :
+           (f : ∏ (a : A), P (ii1 a))
+           (g : ∏ (b : B), P (ii2 b)) (a:A) :
   coprod_rect P f g (ii1 a) = f a.
 Proof. reflexivity. Defined.
 
 Definition coprod_rect_compute_2
            (A B : UU) (P : A ⨿ B -> UU)
-           (f : Π a : A, P (ii1 a))
-           (g : Π b : B, P (ii2 b)) (b:B) :
+           (f : ∏ a : A, P (ii1 a))
+           (g : ∏ b : B, P (ii2 b)) (b:B) :
   coprod_rect P f g (ii2 b) = g b.
 Proof. reflexivity. Defined.
 
@@ -142,7 +142,7 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
 (* or total2 as an inductive type:  *)
 
-    (* Inductive total2 { T: Type } ( P: T -> Type ) := tpair : Π (__t__:T) (__p__:P __t__), total2 P. *)
+    (* Inductive total2 { T: Type } ( P: T -> Type ) := tpair : ∏ (__t__:T) (__p__:P __t__), total2 P. *)
 
     (* (* Do not use "induction" without specifying names; seeing __t__ or __p__ will indicate that you *) *)
     (* (*    did that.  This will prepare for the use of primitive projections, when the names will be pr1 *) *)
@@ -175,15 +175,15 @@ Defined.
 
 Print whether_primitive_projections.
 
-Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
+Notation "'∑'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
-  (* type this in emacs in agda-input method with \Sigma *)
+  (* type this in emacs in agda-input method with \sum *)
 
 Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser than '+' *)
 
 Ltac mkpair := (simple refine (tpair _ _ _ ) ; [| cbn]).
 
-Goal Π X (Y : X -> UU) (x : X) (y : Y x), Σ x, Y x.
+Goal ∏ X (Y : X -> UU) (x : X) (y : Y x), ∑ x, Y x.
   intros X Y x y.
   mkpair.
   - apply x.
@@ -191,7 +191,7 @@ Goal Π X (Y : X -> UU) (x : X) (y : Y x), Σ x, Y x.
 Defined.
 
 (* print out this theorem to see whether "induction" compiles to "match" *)
-Goal Π X (Y:X->UU) (w:Σ x, Y x), X.
+Goal ∏ X (Y:X->UU) (w:∑ x, Y x), X.
   intros.
   induction w as [x y].
   exact x.
@@ -199,7 +199,7 @@ Defined.
 
 (* Step through this proof to demonstrate eta expansion for pairs, if primitive
    projections are on: *)
-Goal Π X (Y:X->UU) (w:Σ x, Y x), w = (pr1 w,, pr2 w).
+Goal ∏ X (Y:X->UU) (w:∑ x, Y x), w = (pr1 w,, pr2 w).
 Proof. try reflexivity. Abort.
 
 Definition rewrite_pr1_tpair {X} {P:X->UU} x p : pr1 (tpair P x p) = x.

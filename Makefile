@@ -30,6 +30,7 @@ COQBIN ?=
 COQIDE_OPTION ?= no
 ifeq "$(BUILD_COQ)" "yes"
 COQBIN=sub/coq/bin/
+all: check-first
 all: build-coq
 build-coq: sub/coq/bin/coqc
 ifeq "$(BUILD_COQIDE)" "yes"
@@ -51,7 +52,6 @@ include build/CoqMakefile.make
 endif
 everything: TAGS all html install
 check-first: enforce-linear-ordering check-travis
-all: check-first
 OTHERFLAGS += $(MOREFLAGS)
 OTHERFLAGS += -indices-matter -type-in-type -w none
 ifeq ($(VERBOSE),yes)
@@ -97,14 +97,15 @@ MODIFIERS := $(MODIFIERS)Local\|
 MODIFIERS := $(MODIFIERS)Private\|
 MODIFIERS := $(MODIFIERS)Program\|
 
-COQDEFS := --language=none												\
-	-r '/^[[:space:]]*\(\($(MODIFIERS)\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:]'\''_]+\)/\4/'	\
-	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:]]+\)'/\1/"								\
-	-r '/^[[:space:]]*Tactic Notation.* "\([[:alnum:]]+\)" /\1/'
+COQDEFS := --language=none																\
+	-r '/^[[:space:]]*\(\($(MODIFIERS)\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:]'\''_]+\)/\4/'					\
+	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:]'\''_]+\)'/\1/"											\
+	-r '/^[[:space:]]*Tactic[[:space:]]+Notation.*[[:space:]]"\([[:alnum:]'\''_]+\)"[[:space:]]/\1/'										\
+	-r '/^[[:space:]]*Delimit[[:space:]]+Scope[[:space:]]+[[:alnum:]'\''_]+[[:space:]]+with[[:space:]]+\([[:alnum:]'\''_]+\)[[:space:]]*\./\1/'
 
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
 $(VFILES:.v=.vo) : $(COQBIN)coqc
-TAGS : $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
+TAGS : Makefile $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
 $(foreach P,$(PACKAGES),$(eval $P: check-first $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\)=UniMath/$P/\1o=" )))
 install:all
@@ -219,31 +220,33 @@ SHELL = bash
 enforce-linear-ordering:
 	: --- $@ ---
 	@set -e ;\
-	declare -A seqnum ;\
-	n=0 ;\
-	for i in $(VOFILES) ;\
-	do n=$$(( $$n + 1 )) ;\
-	   seqnum[$$i]=$$n ;\
-	done ;\
-	for i in $(VFILES:.v=.v.d); \
-	do head -1 $$i ;\
-	done \
-	| sed -e 's/[^ ]*\.\(glob\|v\.beautified\|v\)\([ :]\|$$\)/\2/g' -e 's/ *: */ /' \
-	| while read line ;\
-	  do for i in $$line ; do echo $$i ; done \
-	     | ( read target ; \
-		 [ "$${seqnum[$$target]}" ] || (echo unknown target: $$target >&2 ; false) ;\
-	         while read prereq ; \
-		 do [ "$${seqnum[$$prereq]}" ] || (echo unknown prereq of $$target : $$prereq >&2 ; false) ;\
-		    echo "$$(($${seqnum[$$target]} > $${seqnum[$$prereq]})) error: *** $$target should not require $$prereq" ;\
-		 done ) ;\
-	  done | grep ^0 | sed 's/^0 //' | \
-	  ( haderror= ; \
-	    while read line ; \
-	    do if [ ! "$$haderror" ] ; then haderror=1 ; fi ; \
-	       echo "$$line" ;\
-	    done ;\
-	    [ ! "$$haderror" ] )
+	if declare -A seqnum 2>/dev/null ;\
+	then n=0 ;\
+	     for i in $(VOFILES) ;\
+	     do n=$$(( $$n + 1 )) ;\
+		seqnum[$$i]=$$n ;\
+	     done ;\
+	     for i in $(VFILES:.v=.v.d); \
+	     do head -1 $$i ;\
+	     done \
+	     | sed -E -e 's/[^ ]*\.(glob|v\.beautified|v)([ :]|$$)/\2/g' -e 's/ *: */ /' \
+	     | while read line ;\
+	       do for i in $$line ; do echo $$i ; done \
+		  | ( read target ; \
+		      [ "$${seqnum[$$target]}" ] || (echo unknown target: $$target; false) >&2 ;\
+		      while read prereq ; \
+		      do [ "$${seqnum[$$prereq]}" ] || (echo "unknown prereq of $$target : $$prereq" ; false) >&2 ;\
+			 echo "$$(($${seqnum[$$target]} > $${seqnum[$$prereq]})) error: *** $$target should not require $$prereq" ;\
+		      done ) ;\
+	       done | grep ^0 | sed 's/^0 //' | \
+	       ( haderror= ; \
+		 while read line ; \
+		 do if [ ! "$$haderror" ] ; then haderror=1 ; fi ; \
+		    echo "$$line" ;\
+		 done ;\
+		 [ ! "$$haderror" ] ) ;\
+	else echo "make: *** skipping enforcement of linear ordering of packages, because 'bash' is too old" ;\
+	fi
 
 # here we ensure that the travis script checks every package
 check-travis:

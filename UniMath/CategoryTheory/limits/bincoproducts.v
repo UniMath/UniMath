@@ -37,8 +37,8 @@ Section coproduct_def.
 Variable C : precategory.
 
 Definition isBinCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
-  Π (c : C) (f : a --> c) (g : b --> c),
-  iscontr (Σ fg : co --> c, (ia ;; fg = f) × (ib ;; fg = g)).
+  ∏ (c : C) (f : a --> c) (g : b --> c),
+  iscontr (∑ fg : co --> c, (ia ;; fg = f) × (ib ;; fg = g)).
 
 Lemma isaprop_isBinCoproductCocone {a b co : C} {ia : a --> co} {ib : b --> co} :
   isaprop (isBinCoproductCocone a b co ia ib).
@@ -50,11 +50,11 @@ Proof.
 Qed.
 
 Definition BinCoproductCocone (a b : C) :=
-   Σ coiaib : (Σ co : C, a --> co × b --> co),
+   ∑ coiaib : (∑ co : C, a --> co × b --> co),
       isBinCoproductCocone a b (pr1 coiaib) (pr1 (pr2 coiaib)) (pr2 (pr2 coiaib)).
 
 
-Definition BinCoproducts := Π (a b : C), BinCoproductCocone a b.
+Definition BinCoproducts := ∏ (a b : C), BinCoproductCocone a b.
 Definition hasBinCoproducts := ishinh BinCoproducts.
 
 Definition BinCoproductObject {a b : C} (CC : BinCoproductCocone a b) : C := pr1 (pr1 CC).
@@ -76,14 +76,14 @@ Proof.
 Defined.
 
 Lemma BinCoproductIn1Commutes (a b : C) (CC : BinCoproductCocone a b):
-     Π (c : C) (f : a --> c) g, BinCoproductIn1 CC ;; BinCoproductArrow CC f g  = f.
+     ∏ (c : C) (f : a --> c) g, BinCoproductIn1 CC ;; BinCoproductArrow CC f g  = f.
 Proof.
   intros c f g.
   exact (pr1 (pr2 (pr1 (isBinCoproductCocone_BinCoproductCocone CC _ f g)))).
 Qed.
 
 Lemma BinCoproductIn2Commutes (a b : C) (CC : BinCoproductCocone a b):
-     Π (c : C) (f : a --> c) g, BinCoproductIn2 CC ;; BinCoproductArrow CC f g = g.
+     ∏ (c : C) (f : a --> c) g, BinCoproductIn2 CC ;; BinCoproductArrow CC f g = g.
 Proof.
   intros c f g.
   exact (pr2 (pr2 (pr1 (isBinCoproductCocone_BinCoproductCocone CC _ f g)))).
@@ -149,7 +149,7 @@ Qed.
 
 
 Definition mk_BinCoproductCocone (a b : C) :
-  Π (c : C) (f : a --> c) (g : b --> c),
+  ∏ (c : C) (f : a --> c) (g : b --> c),
    isBinCoproductCocone _ _ _ f g →  BinCoproductCocone a b.
 Proof.
   intros.
@@ -162,7 +162,7 @@ Defined.
 
 Definition mk_isBinCoproductCocone (hsC : has_homsets C) (a b co : C)
    (ia : a --> co) (ib : b --> co) :
-   (Π (c : C) (f : a --> c) (g : b --> c),
+   (∏ (c : C) (f : a --> c) (g : b --> c),
     ∃! k : C ⟦co, c⟧,
       ia ;; k = f ×
       ib ;; k = g)
@@ -224,7 +224,7 @@ Lemma BinCoproduct_endo_is_identity (CC : BinCoproductCocone a b)
   : identity _ = k.
 Proof.
   set (H' := pr2 CC _ (BinCoproductIn1 CC) (BinCoproductIn2 CC) ); simpl in *.
-  set (X := (Σ fg : pr1 (pr1 CC) --> BinCoproductObject CC,
+  set (X := (∑ fg : pr1 (pr1 CC) --> BinCoproductObject CC,
           pr1 (pr2 (pr1 CC));; fg = BinCoproductIn1 CC
           × pr2 (pr2 (pr1 CC));; fg = BinCoproductIn2 CC)).
   set (t1 := tpair _ k (dirprodpair H1 H2) : X).
@@ -282,7 +282,7 @@ Proof.
   apply subtypeEquality.
   + intros.
     intro. do 3 (apply impred; intro); apply isapropiscontr.
-  + apply (total2_paths (isotoid _ H (iso_from_BinCoproduct_to_BinCoproduct CC CC'))).
+  + apply (total2_paths_f (isotoid _ H (iso_from_BinCoproduct_to_BinCoproduct CC CC'))).
     rewrite transportf_dirprod.
     rewrite transportf_isotoid'. simpl.
     rewrite transportf_isotoid'.
@@ -771,7 +771,7 @@ Proof.
 now apply (functor_eq _ _ hsD).
 Defined.
 
-Definition coproduct_nat_trans_in1_data : Π c, F c --> BinCoproduct_of_functors c
+Definition coproduct_nat_trans_in1_data : ∏ c, F c --> BinCoproduct_of_functors c
   := λ c : C, BinCoproductIn1 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_coproduct_nat_trans_in1_data
@@ -792,7 +792,7 @@ Qed.
 Definition coproduct_nat_trans_in1 : nat_trans _ _
   := tpair _ _ is_nat_trans_coproduct_nat_trans_in1_data.
 
-Definition coproduct_nat_trans_in2_data : Π c, G c --> BinCoproduct_of_functors c
+Definition coproduct_nat_trans_in2_data : ∏ c, G c --> BinCoproduct_of_functors c
   := λ c : C, BinCoproductIn2 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_coproduct_nat_trans_in2_data
@@ -822,7 +822,7 @@ Variable A : functor C D.
 Variable f : F ⟶ A.
 Variable g : G ⟶ A.
 
-Definition coproduct_nat_trans_data : Π c, BinCoproduct_of_functors c --> A c.
+Definition coproduct_nat_trans_data : ∏ c, BinCoproduct_of_functors c --> A c.
 Proof.
   intro c.
   apply BinCoproductArrow.
@@ -876,8 +876,8 @@ End vertex.
 
 Lemma coproduct_nat_trans_univ_prop (A : [C, D, hsD])
   (f : (F : [C,D,hsD]) --> A) (g : (G : [C,D,hsD]) --> A) :
-   Π
-   t : Σ fg : (BinCoproduct_of_functors:[C,D,hsD]) --> A,
+   ∏
+   t : ∑ fg : (BinCoproduct_of_functors:[C,D,hsD]) --> A,
        (coproduct_nat_trans_in1 : (F:[C,D,hsD]) --> BinCoproduct_of_functors);; fg = f
       ×
        (coproduct_nat_trans_in2: (G : [C,D,hsD]) --> BinCoproduct_of_functors);; fg = g,
@@ -941,15 +941,30 @@ Defined.
 
 End def_functor_pointwise_coprod.
 
+
+Section generalized_option_functors.
+
+Context {C : precategory} (CC : BinCoproducts C).
+
+(* The functors "a + _" and "_ + a" *)
+Definition constcoprod_functor1 (a : C) : functor C C :=
+  BinCoproduct_of_functors C C CC (constant_functor C C a) (functor_identity C).
+
+Definition constcoprod_functor2 (a : C) : functor C C :=
+  BinCoproduct_of_functors C C CC (functor_identity C) (constant_functor C C a).
+
+
 Section option_functor.
 
-Context {C : precategory} (CC : BinCoproducts C) (TC : Terminal C).
+Context (TC : Terminal C).
 Let one : C := TerminalObject TC.
 
 Definition option_functor : functor C C :=
-  BinCoproduct_of_functors C C CC (constant_functor _ _ one) (functor_identity C).
+  constcoprod_functor1 one.
 
 End option_functor.
+
+End generalized_option_functors.
 
 (** ** Construction of isBinCoproduct from an isomorphism to BinCoproduct. *)
 Section BinCoproduct_from_iso.

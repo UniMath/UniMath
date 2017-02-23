@@ -36,7 +36,7 @@ to work with [natleh] than with [le].
 
 Inductive leF {T : UU} (F : T -> T) (t : T) : T -> UU :=
 | leF_O : leF F t t
-| leF_S : Π t' : T, leF F t t' -> leF F t (F t').
+| leF_S : ∏ t' : T, leF F t t' -> leF F t (F t').
 
 Lemma leFiter {T : UU} (F : T -> T) (t : T) (n : nat) : leF F t (iteration F n t).
 Proof.
@@ -78,7 +78,7 @@ Proof.
   intros.
   set (f := leFtototal2withnat F t t').
   set (g := total2withnattoleF  F t t').
-  assert (egf : Π x : _, paths (g (f x)) x).
+  assert (egf : ∏ x : _, paths (g (f x)) x).
   {
     intro x. induction x as [ | y H0 IHH0 ].
     - apply idpath.
@@ -87,7 +87,7 @@ Proof.
       destruct e. simpl. simpl in IHH0.
       apply (@maponpaths _ _ (leF_S F t (iteration F m t)) _ _ IHH0).
   }
-  assert (efg : Π x : _, paths (f (g x)) x).
+  assert (efg : ∏ x : _, paths (f (g x)) x).
   {
     intro x. destruct x as [ n e ]. destruct e. simpl.
     apply leFtototal2withnat_l0.
@@ -104,9 +104,9 @@ Definition weqleFtototalwithnat { T : UU } (F : T -> T) (t t' : T) :
 
 Definition le (n : nat) : nat -> UU := leF S n.
 
-Definition le_n : Π t : nat, leF S t t := leF_O S.
+Definition le_n : ∏ t : nat, leF S t t := leF_O S.
 
-Definition le_S : Π t t' : nat, leF S t t' → leF S t (S t') := leF_S S.
+Definition le_S : ∏ t t' : nat, leF S t t' → leF S t (S t') := leF_S S.
 
 Theorem isaprople (n m : nat) : isaprop (le n m).
 Proof.

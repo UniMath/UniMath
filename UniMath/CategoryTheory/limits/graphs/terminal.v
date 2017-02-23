@@ -35,7 +35,7 @@ Defined.
 Definition isTerminal (a : C) :=
   isLimCone termDiagram a (termCone a).
 
-Definition mk_isTerminal (b : C) (H : Π (a : C), iscontr (a --> b)) :
+Definition mk_isTerminal (b : C) (H : ∏ (a : C), iscontr (a --> b)) :
   isTerminal b.
 Proof.
 intros a ca.
@@ -107,7 +107,7 @@ Definition hasTerminal := ishinh Terminal.
 (* Proof. *)
 (*   apply invproofirrelevance. *)
 (*   intros T T'. *)
-(*   apply (total2_paths (isotoid _ H (iso_Terminals T T')) ). *)
+(*   apply (total2_paths_f (isotoid _ H (iso_Terminals T T')) ). *)
 (*   apply proofirrelevance. *)
 (*   unfold isTerminal. *)
 (*   apply impred. *)

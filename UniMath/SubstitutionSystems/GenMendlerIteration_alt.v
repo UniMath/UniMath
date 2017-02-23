@@ -57,7 +57,7 @@ Let chnF := initChain IC F.
 Let μF_Initial : Initial AF := colimAlgInitial hsC IC HF (CC chnF).
 Let μF : C := alg_carrier _ (InitialObject μF_Initial).
 Let inF : C⟦F μF,μF⟧ := alg_map _ (InitialObject μF_Initial).
-Let e : Π (n : nat), C⟦iter_functor F n IC,μF⟧ := colimIn (CC chnF).
+Let e : ∏ (n : nat), C⟦iter_functor F n IC,μF⟧ := colimIn (CC chnF).
 Let cocone_μF : cocone chnF μF := colimCocone (CC chnF).
 
 Local Lemma e_comm (n : nat) : e (S n) = # F (e n) ;; inF.
@@ -158,12 +158,12 @@ induction n.
 Qed.
 
 (* The direction ** -> * *)
-Local Lemma SS_imp_S (H : Π n, # L (e n) ;; preIt = Pow n IC z) : # L inF ;; preIt = ψ μF preIt.
+Local Lemma SS_imp_S (H : ∏ n, # L (e n) ;; preIt = Pow n IC z) : # L inF ;; preIt = ψ μF preIt.
 Proof.
 assert (H'' : # L inF ;; # L inF_inv = identity _).
 { rewrite <- functor_comp,  <- functor_id.
    apply maponpaths, (iso_inv_after_iso inF_iso). }
-assert (H' : Π n, # L (e (S n)) ;; # L inF_inv ;; ψ μF preIt = pr1 (Pow (S n)) _ z).
+assert (H' : ∏ n, # L (e (S n)) ;; # L inF_inv ;; ψ μF preIt = pr1 (Pow (S n)) _ z).
 { intro n.
   rewrite e_comm, functor_comp.
   eapply pathscomp0;
@@ -190,7 +190,7 @@ Proof.
 now apply SS_imp_S; intro n; apply eqSS.
 Qed.
 
-Lemma preIt_uniq (t : Σ h, # L inF ;; h = ψ μF h) : t = (preIt,,preIt_ok).
+Lemma preIt_uniq (t : ∑ h, # L inF ;; h = ψ μF h) : t = (preIt,,preIt_ok).
 Proof.
 apply subtypeEquality; [intros f; apply hsD|]; simpl.
 destruct t as [f Hf]; simpl.

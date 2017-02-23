@@ -21,7 +21,7 @@ Definition nat_to_hr (n : nat) : hr_commrng :=
   NR_to_hr (nat_to_NonnegativeReals n,,0).
 
 Lemma NR_to_hr_inside :
-  Π x : NonnegativeReals × NonnegativeReals, pr1 (NR_to_hr x) x.
+  ∏ x : NonnegativeReals × NonnegativeReals, pr1 (NR_to_hr x) x.
 Proof.
   intros x.
   apply hinhpr ; simpl.
@@ -29,7 +29,7 @@ Proof.
 Qed.
 
 Local Lemma iscomprelfun_NRminus :
-  Π x y : NonnegativeReals × NonnegativeReals,
+  ∏ x y : NonnegativeReals × NonnegativeReals,
     pr1 x + pr2 y = pr1 y + pr2 x
     → pr1 x - pr2 x = pr1 y - pr2 y.
 Proof.
@@ -77,7 +77,7 @@ Definition hr_to_NRpos (x : hr_commrng) : NonnegativeReals := pr1 (hr_to_NR x).
 Definition hr_to_NRneg (x : hr_commrng) : NonnegativeReals := pr2 (hr_to_NR x).
 
 Lemma hr_to_NR_correct :
-  Π (x : hr_commrng), pr1 x (hr_to_NR x).
+  ∏ (x : hr_commrng), pr1 x (hr_to_NR x).
 Proof.
   intros X.
   generalize (pr1 (pr2 X)).
@@ -99,7 +99,7 @@ Proof.
 Qed.
 
 Lemma hr_to_NRpos_NR_to_hr :
-  Π (x : NonnegativeReals × NonnegativeReals),
+  ∏ (x : NonnegativeReals × NonnegativeReals),
     hr_to_NRpos (NR_to_hr x) = pr1 x - pr2 x.
 Proof.
   intros x.
@@ -107,7 +107,7 @@ Proof.
   now rewrite setquotunivcomm.
 Qed.
 Lemma hr_to_NRneg_NR_to_hr :
-  Π (x : NonnegativeReals × NonnegativeReals),
+  ∏ (x : NonnegativeReals × NonnegativeReals),
     hr_to_NRneg (NR_to_hr x) = pr2 x - pr1 x.
 Proof.
   intros x.
@@ -116,7 +116,7 @@ Proof.
 Qed.
 
 Lemma hr_to_NR_bij :
-  Π x : hr_commrng, NR_to_hr (hr_to_NR x) = x.
+  ∏ x : hr_commrng, NR_to_hr (hr_to_NR x) = x.
 Proof.
   intros x.
   unfold NR_to_hr.
@@ -125,7 +125,7 @@ Proof.
 Qed.
 
 Lemma hr_to_NRposneg_zero :
-  Π x : hr_commrng, 0 < hr_to_NRpos x -> hr_to_NRneg x = 0.
+  ∏ x : hr_commrng, 0 < hr_to_NRpos x -> hr_to_NRneg x = 0.
 Proof.
   intros x.
   rewrite <- (hr_to_NR_bij x).
@@ -138,7 +138,7 @@ Proof.
   exact Hx.
 Qed.
 Lemma hr_to_NRnegpos_zero :
-  Π x : hr_commrng, 0 < hr_to_NRneg x -> hr_to_NRpos x = 0.
+  ∏ x : hr_commrng, 0 < hr_to_NRneg x -> hr_to_NRpos x = 0.
 Proof.
   intros x.
   rewrite <- (hr_to_NR_bij x).
@@ -152,7 +152,7 @@ Proof.
 Qed.
 
 Lemma hr_to_NRpos_NR_to_hr_std :
-  Π (x : NonnegativeReals × NonnegativeReals),
+  ∏ (x : NonnegativeReals × NonnegativeReals),
     (0 < pr1 x -> pr2 x = 0) ->
     hr_to_NRpos (NR_to_hr x) = pr1 x.
 Proof.
@@ -163,7 +163,7 @@ Proof.
   now apply max_plusNonnegativeReals.
 Qed.
 Lemma hr_to_NRneg_NR_to_hr_std :
-  Π (x : NonnegativeReals × NonnegativeReals),
+  ∏ (x : NonnegativeReals × NonnegativeReals),
     (0 < pr1 x -> pr2 x = 0) ->
     hr_to_NRneg (NR_to_hr x) = pr2 x.
 Proof.
@@ -178,7 +178,7 @@ Qed.
 (** Caracterisation of equality *)
 
 Lemma NR_to_hr_eq :
-  Π x y : NonnegativeReals × NonnegativeReals,
+  ∏ x y : NonnegativeReals × NonnegativeReals,
     pr1 x + pr2 y = pr1 y + pr2 x <-> NR_to_hr x = NR_to_hr y.
 Proof.
   intros x y.
@@ -228,7 +228,7 @@ Qed.
 (** plus *)
 
 Lemma NR_to_hr_plus :
-  Π x y : NonnegativeReals × NonnegativeReals,
+  ∏ x y : NonnegativeReals × NonnegativeReals,
     (NR_to_hr x + NR_to_hr y)%rng = NR_to_hr (pr1 x + pr1 y ,, pr2 x + pr2 y).
 Proof.
   intros x y.
@@ -241,7 +241,7 @@ Qed.
 (** opp *)
 
 Lemma NR_to_hr_opp :
-  Π x : NonnegativeReals × NonnegativeReals,
+  ∏ x : NonnegativeReals × NonnegativeReals,
     (- NR_to_hr x)%rng = NR_to_hr (pr2 x ,, pr1 x).
 Proof.
   intros x.
@@ -252,7 +252,7 @@ Proof.
 Qed.
 
 Lemma hr_to_NR_opp :
-  Π x : hr_commrng,
+  ∏ x : hr_commrng,
     hr_to_NR (- x)%rng = (hr_to_NRneg x ,, hr_to_NRpos x).
 Proof.
   intros x.
@@ -264,7 +264,7 @@ Proof.
   reflexivity.
 Qed.
 Lemma hr_to_NRpos_opp :
-  Π x : hr_commrng,
+  ∏ x : hr_commrng,
     hr_to_NRpos (- x)%rng = hr_to_NRneg x.
 Proof.
   intros x.
@@ -272,7 +272,7 @@ Proof.
   now rewrite hr_to_NR_opp.
 Qed.
 Lemma hr_to_NRneg_opp :
-  Π x : hr_commrng,
+  ∏ x : hr_commrng,
     hr_to_NRneg (- x)%rng = hr_to_NRpos x.
 Proof.
   intros x.
@@ -283,7 +283,7 @@ Qed.
 (** minus *)
 
 Lemma NR_to_hr_minus :
-  Π x y : NonnegativeReals × NonnegativeReals,
+  ∏ x y : NonnegativeReals × NonnegativeReals,
     (NR_to_hr x - NR_to_hr y)%rng = NR_to_hr (pr1 x + pr2 y ,, pr2 x + pr1 y).
 Proof.
   intros x y.
@@ -292,7 +292,7 @@ Proof.
 Qed.
 
 Lemma hr_opp_minus :
-  Π x y : hr_commrng,
+  ∏ x y : hr_commrng,
     (x - y = - ((- x) - (- y)))%rng.
 Proof.
   intros x y.
@@ -302,7 +302,7 @@ Proof.
 Qed.
 
 Lemma hr_to_NRpos_minus :
-  Π x y : hr_commrng,
+  ∏ x y : hr_commrng,
     hr_to_NRpos x - hr_to_NRpos y <= hr_to_NRpos (x - y)%rng.
 Proof.
   intros X Y.
@@ -331,7 +331,7 @@ Proof.
   apply maxNonnegativeReals_le_r.
 Qed.
 Lemma hr_to_NRneg_minus :
-  Π x y : hr_commrng,
+  ∏ x y : hr_commrng,
     hr_to_NRneg x - hr_to_NRneg y <= hr_to_NRneg (x - y)%rng.
 Proof.
   intros x y.
@@ -349,7 +349,7 @@ Qed.
 (** mult *)
 
 Lemma NR_to_hr_mult :
-  Π x y : NonnegativeReals × NonnegativeReals,
+  ∏ x y : NonnegativeReals × NonnegativeReals,
     (NR_to_hr x * NR_to_hr y)%rng = NR_to_hr (pr1 x * pr1 y + pr2 x * pr2 y ,, pr1 x * pr2 y + pr2 x * pr1 y).
 Proof.
   intros x y.
@@ -375,7 +375,7 @@ Definition hr_lt_rel : hrel hr_commrng
   := rigtorngrel NonnegativeReals isbinophrel_ltNonnegativeReals.
 
 Lemma NR_to_hr_lt :
-  Π x y : NonnegativeReals × NonnegativeReals,
+  ∏ x y : NonnegativeReals × NonnegativeReals,
     pr1 x + pr2 y < pr1 y + pr2 x
     <-> hr_lt_rel (NR_to_hr x) (NR_to_hr y).
 Proof.
@@ -404,7 +404,7 @@ Definition hr_le_rel : hrel hr_commrng
   := rigtorngrel NonnegativeReals isbinophrel_leNonnegativeReals.
 
 Lemma NR_to_hr_le :
-  Π x y : NonnegativeReals × NonnegativeReals,
+  ∏ x y : NonnegativeReals × NonnegativeReals,
     pr1 x + pr2 y <= pr1 y + pr2 x
     <-> hr_le_rel (NR_to_hr x) (NR_to_hr y).
 Proof.
@@ -421,7 +421,7 @@ Qed.
 (** Theorems about order *)
 
 Lemma hr_notlt_le :
-  Π X Y, ¬ hr_lt_rel X Y <-> hr_le_rel Y X.
+  ∏ X Y, ¬ hr_lt_rel X Y <-> hr_le_rel Y X.
 Proof.
   intros x y.
   rewrite <- (hr_to_NR_bij x), <- (hr_to_NR_bij y).
@@ -440,7 +440,7 @@ Proof.
 Qed.
 
 Lemma hr_lt_le :
-  Π X Y, hr_lt_rel X Y -> hr_le_rel X Y.
+  ∏ X Y, hr_lt_rel X Y -> hr_le_rel X Y.
 Proof.
   intros x y.
   rewrite <- (hr_to_NR_bij x), <- (hr_to_NR_bij y).
@@ -478,7 +478,7 @@ Proof.
 Qed.
 
 Lemma hr_to_NR_nonnegative :
-  Π x : hr_commrng,
+  ∏ x : hr_commrng,
     (hr_to_NRneg x = 0) <-> hr_le_rel 0%rng x.
 Proof.
   intros x.
@@ -501,7 +501,7 @@ Proof.
 Qed.
 
 Lemma hr_to_NR_positive :
-  Π x : hr_commrng,
+  ∏ x : hr_commrng,
     (hr_to_NRpos x ≠ 0 × hr_to_NRneg x = 0) <-> hr_lt_rel 0%rng x.
 Proof.
   intros x.
@@ -526,7 +526,7 @@ Proof.
 Qed.
 
 Lemma hr_to_NR_nonpositive :
-  Π x : hr_commrng,
+  ∏ x : hr_commrng,
     (hr_to_NRpos x = 0) <-> hr_le_rel x 0%rng.
 Proof.
   intros x.
@@ -550,7 +550,7 @@ Proof.
 Qed.
 
 Lemma hr_to_NR_negative :
-  Π x : hr_commrng,
+  ∏ x : hr_commrng,
     (hr_to_NRpos x = 0 × hr_to_NRneg x ≠ 0) <-> hr_lt_rel x 0%rng.
 Proof.
   intros x.
@@ -573,7 +573,7 @@ Proof.
 Qed.
 
 Lemma hr_plus_ltcompat_l :
-  Π x y z : hr_commrng, hr_lt_rel y z <-> hr_lt_rel (y+x)%rng (z+x)%rng.
+  ∏ x y z : hr_commrng, hr_lt_rel y z <-> hr_lt_rel (y+x)%rng (z+x)%rng.
 Proof.
   intros X Y Z.
   rewrite <- (hr_to_NR_bij X), <- (hr_to_NR_bij Y), <- (hr_to_NR_bij Z).
@@ -593,7 +593,7 @@ Proof.
     now apply_pr2_in NR_to_hr_lt Hlt.
 Qed.
 Lemma hr_plus_ltcompat_r :
-  Π x y z : hr_commrng, hr_lt_rel y z <-> hr_lt_rel (x + y)%rng (x + z)%rng.
+  ∏ x y z : hr_commrng, hr_lt_rel y z <-> hr_lt_rel (x + y)%rng (x + z)%rng.
 Proof.
   intros x y z.
   rewrite !(rngcomm1 _ x).
@@ -601,7 +601,7 @@ Proof.
 Qed.
 
 Lemma hr_plus_lecompat_l :
-  Π x y z : hr_commrng, hr_le_rel y z <-> hr_le_rel (y + x)%rng (z + x)%rng.
+  ∏ x y z : hr_commrng, hr_le_rel y z <-> hr_le_rel (y + x)%rng (z + x)%rng.
 Proof.
   intros x y z ; split ; intro Hle.
   - apply hr_notlt_le.
@@ -616,7 +616,7 @@ Proof.
     exact Hlt.
 Qed.
 Lemma hr_plus_lecompat_r :
-  Π x y z : hr_commrng, hr_le_rel y z <-> hr_le_rel (x + y)%rng (x + z)%rng.
+  ∏ x y z : hr_commrng, hr_le_rel y z <-> hr_le_rel (x + y)%rng (x + z)%rng.
 Proof.
   intros x y z.
   rewrite !(rngcomm1 _ x).
@@ -624,7 +624,7 @@ Proof.
 Qed.
 
 Lemma hr_mult_ltcompat_l :
-  Π x y z : hr_commrng, hr_lt_rel 0%rng x -> hr_lt_rel y z -> hr_lt_rel (y * x)%rng (z * x)%rng.
+  ∏ x y z : hr_commrng, hr_lt_rel 0%rng x -> hr_lt_rel y z -> hr_lt_rel (y * x)%rng (z * x)%rng.
 Proof.
   intros X Y Z Hx0 Hlt.
   apply_pr2_in hr_to_NR_positive Hx0.
@@ -642,7 +642,7 @@ Proof.
   now rewrite !hr_to_NR_bij.
 Qed.
 Lemma hr_mult_ltcompat_l' :
-  Π x y z : hr_commrng, hr_le_rel 0%rng x -> hr_lt_rel (y * x)%rng (z * x)%rng -> hr_lt_rel y z.
+  ∏ x y z : hr_commrng, hr_le_rel 0%rng x -> hr_lt_rel (y * x)%rng (z * x)%rng -> hr_lt_rel y z.
 Proof.
   intros X Y Z Hx0.
   apply_pr2_in hr_to_NR_nonnegative Hx0.
@@ -658,7 +658,7 @@ Proof.
   now apply_pr2_in NR_to_hr_lt Hlt.
 Qed.
 Lemma hr_mult_ltcompat_r' :
-  Π x y z : hr_commrng, hr_le_rel 0%rng x -> hr_lt_rel (x * y)%rng (x * z)%rng -> hr_lt_rel y z.
+  ∏ x y z : hr_commrng, hr_le_rel 0%rng x -> hr_lt_rel (x * y)%rng (x * z)%rng -> hr_lt_rel y z.
 Proof.
   intros x y z.
   rewrite !(rngcomm2 _ x).
@@ -666,7 +666,7 @@ Proof.
 Qed.
 
 Lemma hr_mult_lecompat_l :
-  Π x y z : hr_commrng, hr_le_rel 0%rng x -> hr_le_rel y z -> hr_le_rel (y * x)%rng (z * x)%rng.
+  ∏ x y z : hr_commrng, hr_le_rel 0%rng x -> hr_le_rel y z -> hr_le_rel (y * x)%rng (z * x)%rng.
 Proof.
   intros x y z Hx0 Hle.
   apply hr_notlt_le.
@@ -677,7 +677,7 @@ Proof.
   exact Hlt.
 Qed.
 Lemma hr_mult_lecompat_l' :
-  Π x y z : hr_commrng, hr_lt_rel 0%rng x -> hr_le_rel (y * x)%rng (z * x)%rng -> hr_le_rel y z.
+  ∏ x y z : hr_commrng, hr_lt_rel 0%rng x -> hr_le_rel (y * x)%rng (z * x)%rng -> hr_le_rel y z.
 Proof.
   intros x y z Hx0 Hle.
   apply hr_notlt_le.
@@ -688,14 +688,14 @@ Proof.
   exact Hlt.
 Qed.
 Lemma hr_mult_lecompat_r :
-  Π x y z : hr_commrng, hr_le_rel 0%rng x -> hr_le_rel y z -> hr_le_rel (x * y)%rng (x * z)%rng.
+  ∏ x y z : hr_commrng, hr_le_rel 0%rng x -> hr_le_rel y z -> hr_le_rel (x * y)%rng (x * z)%rng.
 Proof.
   intros x y z.
   rewrite !(rngcomm2 _ x).
   apply hr_mult_lecompat_l.
 Qed.
 Lemma hr_mult_lecompat_r' :
-  Π x y z : hr_commrng, hr_lt_rel 0%rng x -> hr_le_rel (x * y)%rng (x * z)%rng -> hr_le_rel y z.
+  ∏ x y z : hr_commrng, hr_lt_rel 0%rng x -> hr_le_rel (x * y)%rng (x * z)%rng -> hr_le_rel y z.
 Proof.
   intros x y z.
   rewrite !(rngcomm2 _ x).
@@ -717,7 +717,7 @@ Definition hr_ap_rel : hrel hr_commrng
   := rigtorngrel NonnegativeReals isbinophrel_apNonnegativeReals.
 
 Lemma NR_to_hr_ap :
-  Π x y : NonnegativeReals × NonnegativeReals,
+  ∏ x y : NonnegativeReals × NonnegativeReals,
     pr1 x + pr2 y ≠ pr1 y + pr2 x
     <-> hr_ap_rel (NR_to_hr x) (NR_to_hr y).
 Proof.
@@ -734,7 +734,7 @@ Qed.
 (** Theorems about apartness *)
 
 Lemma hr_ap_lt :
-  Π X Y : hr_commrng, hr_ap_rel X Y <-> (hr_lt_rel X Y) ⨿ (hr_lt_rel Y X).
+  ∏ X Y : hr_commrng, hr_ap_rel X Y <-> (hr_lt_rel X Y) ⨿ (hr_lt_rel Y X).
 Proof.
   intros X Y.
   rewrite <-  (hr_to_NR_bij X), <- (hr_to_NR_bij Y).
@@ -823,7 +823,7 @@ Proof.
   rewrite <- (hr_to_NR_bij X), <- (hr_to_NR_bij Y), <- (hr_to_NR_bij Z), !NR_to_hr_mult.
   intros Hap.
   apply_pr2_in NR_to_hr_ap Hap ; simpl in Hap.
-  cut (Π Y Z, (pr1 (hr_to_NR Z) * pr1 (hr_to_NR X) + pr2 (hr_to_NR Z) * pr2 (hr_to_NR X) + (pr1 (hr_to_NR Y) * pr2 (hr_to_NR X) + pr2 (hr_to_NR Y) * pr1 (hr_to_NR X)))
+  cut (∏ Y Z, (pr1 (hr_to_NR Z) * pr1 (hr_to_NR X) + pr2 (hr_to_NR Z) * pr2 (hr_to_NR X) + (pr1 (hr_to_NR Y) * pr2 (hr_to_NR X) + pr2 (hr_to_NR Y) * pr1 (hr_to_NR X)))
        = (pr1 (hr_to_NR Z) + pr2 (hr_to_NR Y)) * pr1 (hr_to_NR X) + (pr2 (hr_to_NR Z) + pr1 (hr_to_NR Y)) * pr2 (hr_to_NR X)).
   intro H ; simpl in H,Hap ; rewrite !H in Hap ; clear H.
   apply ap_plusNonnegativeReals in Hap.
@@ -864,7 +864,7 @@ Proof.
 Qed.
 
 Lemma hr_islinv_neg :
-  Π (x : hr_commrng) (Hap : hr_lt_rel x 0%rng),
+  ∏ (x : hr_commrng) (Hap : hr_lt_rel x 0%rng),
    (NR_to_hr (0%NR,, invNonnegativeReals (hr_to_NRneg x) (pr2 (pr2 (hr_to_NR_negative _) Hap))) * x)%rng = 1%rng.
 Proof.
   intros x Hap.
@@ -883,7 +883,7 @@ Proof.
   apply (pr1 (pr2 (hr_to_NR_negative x) Hap)).
 Qed.
 Lemma hr_isrinv_neg :
-  Π (x : hr_commrng) (Hap : hr_lt_rel x 0%rng),
+  ∏ (x : hr_commrng) (Hap : hr_lt_rel x 0%rng),
    (x * NR_to_hr (0%NR,, invNonnegativeReals (hr_to_NRneg x) (pr2 (pr2 (hr_to_NR_negative _) Hap))))%rng = 1%rng.
 Proof.
   intros x Hap.
@@ -892,7 +892,7 @@ Proof.
 Qed.
 
 Lemma hr_islinv_pos :
-  Π (x : hr_commrng) (Hap : hr_lt_rel 0%rng x),
+  ∏ (x : hr_commrng) (Hap : hr_lt_rel 0%rng x),
    (NR_to_hr (invNonnegativeReals (hr_to_NRpos x) (pr1 (pr2 (hr_to_NR_positive _) Hap)) ,, 0%NR) * x)%rng = 1%rng.
 Proof.
   intros x Hap.
@@ -911,7 +911,7 @@ Proof.
   apply (pr2 (pr2 (hr_to_NR_positive x) Hap)).
 Qed.
 Lemma hr_isrinv_pos :
-  Π (x : hr_commrng) (Hap : hr_lt_rel 0%rng x),
+  ∏ (x : hr_commrng) (Hap : hr_lt_rel 0%rng x),
    (x * NR_to_hr (invNonnegativeReals (hr_to_NRpos x) (pr1 (pr2 (hr_to_NR_positive _) Hap)) ,, 0%NR))%rng = 1%rng.
 Proof.
   intros x Hap.
@@ -920,7 +920,7 @@ Proof.
 Qed.
 
 Lemma hr_ex_inv :
-  Π x : hr_commrng,
+  ∏ x : hr_commrng,
     hr_ap_rel x 0%rng -> multinvpair hr_commrng x.
 Proof.
   intros x Hap.
@@ -955,7 +955,7 @@ Definition hr_abs (x : hr_ConstructiveField) : NonnegativeReals :=
   maxNonnegativeReals (hr_to_NRpos x) (hr_to_NRneg x).
 
 Lemma NR_to_hr_abs :
-  Π x : NonnegativeReals × NonnegativeReals,
+  ∏ x : NonnegativeReals × NonnegativeReals,
     hr_abs (NR_to_hr x) <= maxNonnegativeReals (pr1 x) (pr2 x).
 Proof.
   intros x.
@@ -969,7 +969,7 @@ Proof.
 Qed.
 
 Lemma hr_abs_opp :
-  Π x : hr_ConstructiveField, hr_abs (- x)%rng = hr_abs x.
+  ∏ x : hr_ConstructiveField, hr_abs (- x)%rng = hr_abs x.
 Proof.
   intros x.
   unfold hr_abs.
@@ -978,7 +978,7 @@ Proof.
 Qed.
 
 Lemma istriangle_hr_abs :
-  Π x y : hr_ConstructiveField,
+  ∏ x y : hr_ConstructiveField,
     hr_abs (x + y)%rng <= hr_abs x + hr_abs y.
 Proof.
   intros x y.
@@ -995,7 +995,7 @@ Proof.
 Qed.
 
 Lemma istriangle_hr_abs' :
-  Π x y : hr_ConstructiveField,
+  ∏ x y : hr_ConstructiveField,
     hr_abs x - hr_abs y <= hr_abs (x + y)%rng.
 Proof.
   intros x y.
@@ -1011,7 +1011,7 @@ Proof.
 Qed.
 
 Lemma hr_abs_minus :
-  Π x y : hr_ConstructiveField,
+  ∏ x y : hr_ConstructiveField,
     hr_abs x - hr_abs y <= hr_abs (x - y)%rng.
 Proof.
   intros x y.
@@ -1020,14 +1020,14 @@ Proof.
 Qed.
 
 Lemma multNonnegativeReals_lecompat :
-  Π x y z t : NonnegativeReals, x <= y -> z <= t -> x * z <= y * t.
+  ∏ x y z t : NonnegativeReals, x <= y -> z <= t -> x * z <= y * t.
 Proof.
   intros x y z t H H0.
   eapply istrans_leNonnegativeReals, multNonnegativeReals_lecompat_l', H.
   apply multNonnegativeReals_lecompat_r', H0.
 Qed.
 Lemma ispositive_multNonnegativeReals :
-  Π x y : NonnegativeReals, 0 < x ∧ 0 < y <-> 0 < x * y.
+  ∏ x y : NonnegativeReals, 0 < x ∧ 0 < y <-> 0 < x * y.
 Proof.
   intros x y.
   split.
@@ -1045,7 +1045,7 @@ Proof.
     exact H.
 Qed.
 Lemma maxNonnegativeReals_lt' :
-  Π x y z : NonnegativeReals,
+  ∏ x y z : NonnegativeReals,
     z < maxNonnegativeReals x y -> z < x ∨ z < y.
 Proof.
   intros x y z.
@@ -1066,7 +1066,7 @@ Proof.
 Qed.
 
 Lemma hr_abs_mult :
-  Π x y : hr_ConstructiveField, hr_abs (x * y)%rng = hr_abs x * hr_abs y.
+  ∏ x y : hr_ConstructiveField, hr_abs (x * y)%rng = hr_abs x * hr_abs y.
 Proof.
   intros x y.
   pattern x at 1 ; rewrite <- (hr_to_NR_bij x) ;
@@ -1131,7 +1131,7 @@ Proof.
 Qed.
 
 Lemma nat_to_hr_S :
-  Π n : nat, nat_to_hr (S n) = (1 + nat_to_hr n)%rng.
+  ∏ n : nat, nat_to_hr (S n) = (1 + nat_to_hr n)%rng.
 Proof.
   intros n.
   unfold nat_to_hr.
@@ -1204,7 +1204,7 @@ Qed.
 Definition Cauchy_seq (u : nat → hr_ConstructiveField) : hProp.
 Proof.
   intro u.
-  apply (hProppair (Π c : NonnegativeReals, 0 < c -> ∃ N : nat, Π n m : nat, N ≤ n -> N ≤ m -> hr_abs (u m - u n)%rng < c)).
+  apply (hProppair (∏ c : NonnegativeReals, 0 < c -> ∃ N : nat, ∏ n m : nat, N ≤ n -> N ≤ m -> hr_abs (u m - u n)%rng < c)).
   apply impred_isaprop ; intro.
   apply isapropimpl.
   apply pr2.
@@ -1216,7 +1216,7 @@ Lemma Cauchy_seq_pr1 (u : nat → hr_ConstructiveField) :
 Proof.
   intros u x.
   set (y := λ n : nat, hr_to_NRneg (u n)).
-  assert (Hxy : Π n, NR_to_hr (x n ,, y n) = u n).
+  assert (Hxy : ∏ n, NR_to_hr (x n ,, y n) = u n).
   { intros n.
     unfold x, y, hr_to_NRpos, hr_to_NRneg.
     tryif primitive_projections then idtac else rewrite <- tppr.
@@ -1253,7 +1253,7 @@ Lemma Cauchy_seq_pr2 (u : nat → hr_ConstructiveField) :
 Proof.
   intros u y.
   set (x := λ n : nat, hr_to_NRpos (u n)).
-  assert (Hxy : Π n, NR_to_hr (x n ,, y n) = u n).
+  assert (Hxy : ∏ n, NR_to_hr (x n ,, y n) = u n).
   { intros n.
     unfold x, y, hr_to_NRpos, hr_to_NRneg.
     tryif primitive_projections then idtac else rewrite <- tppr.
@@ -1288,12 +1288,12 @@ Qed.
 Definition is_lim_seq (u : nat → hr_ConstructiveField) (l : hr_ConstructiveField) : hProp.
 Proof.
   intros u l.
-  apply (hProppair (Π c : NonnegativeReals, 0 < c -> ∃ N : nat, Π n : nat, N ≤ n -> hr_abs (u n - l)%rng < c)).
+  apply (hProppair (∏ c : NonnegativeReals, 0 < c -> ∃ N : nat, ∏ n : nat, N ≤ n -> hr_abs (u n - l)%rng < c)).
   apply impred_isaprop ; intro.
   apply isapropimpl.
   apply pr2.
 Defined.
-Definition ex_lim_seq (u : nat → hr_ConstructiveField) := Σ l, is_lim_seq u l.
+Definition ex_lim_seq (u : nat → hr_ConstructiveField) := ∑ l, is_lim_seq u l.
 
 Lemma Cauchy_seq_impl_ex_lim_seq (u : nat → hr_ConstructiveField) :
   Cauchy_seq u → ex_lim_seq u.
@@ -1301,7 +1301,7 @@ Proof.
   intros u Cu.
   set (x := λ n, hr_to_NRpos (u n)).
   set (y := λ n, hr_to_NRneg (u n)).
-  assert (Hxy : Π n, NR_to_hr (x n ,, y n) = u n).
+  assert (Hxy : ∏ n, NR_to_hr (x n ,, y n) = u n).
   { intros n.
     unfold x, y, hr_to_NRpos, hr_to_NRneg.
     tryif primitive_projections then idtac else rewrite <- tppr.
@@ -1369,8 +1369,8 @@ Definition Rminus : binop Reals := CFminus.
 
 Definition Rone : Reals := CFone.
 Definition Rmult : binop Reals := CFmult.
-Definition Rinv : Π x : Reals, (Rap x Rzero) -> Reals := CFinv.
-Definition Rdiv : Reals -> Π y : Reals, (Rap y Rzero) -> Reals := CFdiv.
+Definition Rinv : ∏ x : Reals, (Rap x Rzero) -> Reals := CFinv.
+Definition Rdiv : Reals -> ∏ y : Reals, (Rap y Rzero) -> Reals := CFdiv.
 
 Definition Rtwo : Reals := Rplus Rone Rone.
 Definition Rabs : Reals → NonnegativeReals := hr_abs.
@@ -1400,7 +1400,7 @@ Notation "x / y" := (Rdiv x (pr1 y) (pr2 y)) : R_scope.
 (** ** NRNRtoR and RtoNRNR *)
 
 Lemma NRNRtoR_RtoNRNR :
-  Π x : Reals, NRNRtoR (pr1 (RtoNRNR x)) (pr2 (RtoNRNR x)) = x.
+  ∏ x : Reals, NRNRtoR (pr1 (RtoNRNR x)) (pr2 (RtoNRNR x)) = x.
 Proof.
   intros X.
   unfold NRNRtoR.
@@ -1409,7 +1409,7 @@ Proof.
 Qed.
 
 Lemma RtoNRNR_NRNRtoR :
-  Π x y : NonnegativeReals,
+  ∏ x y : NonnegativeReals,
     (RtoNRNR (NRNRtoR x y)) = ((x - y)%NR ,, (y - x)%NR).
 Proof.
   intros X Y.
@@ -1419,7 +1419,7 @@ Proof.
 Qed.
 
 Lemma NRNRtoR_inside :
-  Π x y : NonnegativeReals, pr1 (NRNRtoR x y) (x,,y).
+  ∏ x y : NonnegativeReals, pr1 (NRNRtoR x y) (x,,y).
 Proof.
   intros x y.
   apply hinhpr.
@@ -1447,7 +1447,7 @@ Proof.
 Qed.
 
 Lemma NRNRtoR_eq :
-  Π x x' y y' : NonnegativeReals,
+  ∏ x x' y y' : NonnegativeReals,
     (x + y' = x' + y)%NR <->
     NRNRtoR x y = NRNRtoR x' y'.
 Proof.
@@ -1455,7 +1455,7 @@ Proof.
   apply (NR_to_hr_eq (x,,y) (x' ,, y')).
 Qed.
 Lemma NRNRtoR_ap :
-  Π x x' y y' : NonnegativeReals,
+  ∏ x x' y y' : NonnegativeReals,
     (x + y' ≠ x' + y)%NR <->
     NRNRtoR x y ≠ NRNRtoR x' y'.
 Proof.
@@ -1463,7 +1463,7 @@ Proof.
   apply (NR_to_hr_ap (x,,y) (x' ,, y')).
 Qed.
 Lemma NRNRtoR_lt :
-  Π x x' y y' : NonnegativeReals,
+  ∏ x x' y y' : NonnegativeReals,
     (x + y' < x' + y)%NR <->
     NRNRtoR x y < NRNRtoR x' y'.
 Proof.
@@ -1471,7 +1471,7 @@ Proof.
   apply (NR_to_hr_lt (x,,y) (x' ,, y')).
 Qed.
 Lemma NRNRtoR_le :
-  Π x x' y y' : NonnegativeReals,
+  ∏ x x' y y' : NonnegativeReals,
     (x + y' <= x' + y)%NR <->
     NRNRtoR x y <= NRNRtoR x' y'.
 Proof.
@@ -1480,31 +1480,31 @@ Proof.
 Qed.
 
 Lemma NRNRtoR_plus :
-  Π x x' y y' : NonnegativeReals, NRNRtoR (x + x')%NR (y + y')%NR = NRNRtoR x y + NRNRtoR x' y'.
+  ∏ x x' y y' : NonnegativeReals, NRNRtoR (x + x')%NR (y + y')%NR = NRNRtoR x y + NRNRtoR x' y'.
 Proof.
   intros x x' y y'.
   apply pathsinv0, NR_to_hr_plus.
 Qed.
 Lemma NRNRtoR_opp :
-  Π x y : NonnegativeReals, NRNRtoR y x = - NRNRtoR x y.
+  ∏ x y : NonnegativeReals, NRNRtoR y x = - NRNRtoR x y.
 Proof.
   intros x y.
   apply pathsinv0, NR_to_hr_opp.
 Qed.
 Lemma NRNRtoR_minus :
-  Π x x' y y' : NonnegativeReals, NRNRtoR (x + y')%NR (y + x')%NR = NRNRtoR x y - NRNRtoR x' y'.
+  ∏ x x' y y' : NonnegativeReals, NRNRtoR (x + y')%NR (y + x')%NR = NRNRtoR x y - NRNRtoR x' y'.
 Proof.
   intros x x' y y'.
   apply pathsinv0, NR_to_hr_minus.
 Qed.
 Lemma NRNRtoR_mult :
-  Π x x' y y' : NonnegativeReals, NRNRtoR (x * x' + y * y')%NR (x * y' + y * x')%NR = NRNRtoR x y * NRNRtoR x' y'.
+  ∏ x x' y y' : NonnegativeReals, NRNRtoR (x * x' + y * y')%NR (x * y' + y * x')%NR = NRNRtoR x y * NRNRtoR x' y'.
 Proof.
   intros x x' y y'.
   apply pathsinv0, NR_to_hr_mult.
 Qed.
 Lemma NRNRtoR_inv_pos :
-  Π (x : NonnegativeReals) Hrn Hr,
+  ∏ (x : NonnegativeReals) Hrn Hr,
     NRNRtoR (invNonnegativeReals x Hrn) 0%NR = Rinv (NRNRtoR x 0%NR) Hr.
 Proof.
   intros x Hrn Hr.
@@ -1521,7 +1521,7 @@ Proof.
   apply NRNRtoR_one.
 Qed.
 Lemma NRNRtoR_inv_neg :
-  Π (x : NonnegativeReals) Hrn Hr,
+  ∏ (x : NonnegativeReals) Hrn Hr,
     NRNRtoR 0%NR (invNonnegativeReals x Hrn) = Rinv (NRNRtoR 0%NR x) Hr.
 Proof.
   intros x Hrn Hr.
@@ -1539,7 +1539,7 @@ Proof.
 Qed.
 
 Lemma Rabs_pr1RtoNRNR :
-  Π x : Reals,
+  ∏ x : Reals,
     (pr1 (RtoNRNR x) <= Rabs x)%NR.
 Proof.
   intros x.
@@ -1548,7 +1548,7 @@ Proof.
   apply maxNonnegativeReals_le_l.
 Qed.
 Lemma Rabs_pr2RtoNRNR :
-  Π x : Reals,
+  ∏ x : Reals,
     (pr2 (RtoNRNR x) <= Rabs x)%NR.
 Proof.
   intros x.
@@ -1569,45 +1569,45 @@ Proof.
 Qed.
 
 Lemma isirrefl_Rlt :
-  Π x : Reals, ¬ (x < x).
+  ∏ x : Reals, ¬ (x < x).
 Proof.
   exact (pr2 (pr2 isStrongOrder_hr_lt)).
 Qed.
 Lemma istrans_Rlt :
-  Π x y z : Reals, x < y -> y < z -> x < z.
+  ∏ x y z : Reals, x < y -> y < z -> x < z.
 Proof.
   exact (pr1 isStrongOrder_hr_lt).
 Qed.
 Lemma iscotrans_Rlt :
-  Π (x y z : Reals), (x < z) -> (x < y) ∨ (y < z).
+  ∏ (x y z : Reals), (x < z) -> (x < y) ∨ (y < z).
 Proof.
   exact iscotrans_hr_lt.
 Qed.
 
 Lemma Rplus_ltcompat_l:
-  Π x y z : Reals, y < z <-> (y + x) < (z + x).
+  ∏ x y z : Reals, y < z <-> (y + x) < (z + x).
 Proof.
   exact hr_plus_ltcompat_l.
 Qed.
 Lemma Rplus_ltcompat_r:
-  Π x y z : Reals, y < z <-> (x + y) < (x + z).
+  ∏ x y z : Reals, y < z <-> (x + y) < (x + z).
 Proof.
   exact hr_plus_ltcompat_r.
 Qed.
 Lemma Rmult_ltcompat_l:
-  Π x y z : Reals,
+  ∏ x y z : Reals,
     0 < x -> y < z -> (y * x) < (z * x).
 Proof.
   exact hr_mult_ltcompat_l.
 Qed.
 Lemma Rmult_ltcompat_l':
-  Π x y z : Reals,
+  ∏ x y z : Reals,
     0 <= x -> (y * x) < (z * x) -> y < z.
 Proof.
   exact hr_mult_ltcompat_l'.
 Qed.
 Lemma Rmult_ltcompat_r:
-  Π x y z : Reals,
+  ∏ x y z : Reals,
     0 < x -> y < z -> (x * y) < (x * z).
 Proof.
   intros x y z.
@@ -1615,25 +1615,25 @@ Proof.
   now apply Rmult_ltcompat_l.
 Qed.
 Lemma Rmult_ltcompat_r':
-  Π x y z : Reals,
+  ∏ x y z : Reals,
     0 <= x -> (x * y) < (x * z) -> y < z.
 Proof.
   exact hr_mult_ltcompat_r'.
 Qed.
 
 Lemma Rarchimedean:
-  Π x : Reals, ∃ n : nat, x < nattorng n.
+  ∏ x : Reals, ∃ n : nat, x < nattorng n.
 Proof.
   exact hr_archimedean.
 Qed.
 
 Lemma notRlt_Rle :
-  Π x y : Reals, ¬ (x < y) <-> (y <= x).
+  ∏ x y : Reals, ¬ (x < y) <-> (y <= x).
 Proof.
   exact hr_notlt_le.
 Qed.
 Lemma Rlt_Rle :
-  Π x y : Reals, x < y -> x <= y.
+  ∏ x y : Reals, x < y -> x <= y.
 Proof.
   intros x y H.
   apply notRlt_Rle.
@@ -1644,12 +1644,12 @@ Proof.
   exact H0.
 Qed.
 Lemma isantisymm_Rle :
-  Π x y : Reals, x <= y -> y <= x -> x = y.
+  ∏ x y : Reals, x <= y -> y <= x -> x = y.
 Proof.
   exact isantisymm_hr_le.
 Qed.
 Lemma istrans_Rle :
-  Π x y z : Reals, x <= y -> y <= z -> x <= z.
+  ∏ x y z : Reals, x <= y -> y <= z -> x <= z.
 Proof.
   intros x y z Hxy Hyz.
   apply notRlt_Rle ; intro H.
@@ -1663,7 +1663,7 @@ Proof.
     exact Hxy.
 Qed.
 Lemma istrans_Rle_lt :
-  Π x y z : Reals, x <= y -> y < z -> x < z.
+  ∏ x y z : Reals, x <= y -> y < z -> x < z.
 Proof.
   intros x y z Hxy Hyz.
   generalize (iscotrans_Rlt _ x _ Hyz).
@@ -1676,7 +1676,7 @@ Proof.
   exact H.
 Qed.
 Lemma istrans_Rlt_le :
-  Π x y z : Reals, x < y -> y <= z -> x < z.
+  ∏ x y z : Reals, x < y -> y <= z -> x < z.
 Proof.
   intros x y z Hxy Hyz.
   generalize (iscotrans_Rlt _ z _ Hxy).
@@ -1690,42 +1690,42 @@ Proof.
 Qed.
 
 Lemma Rplus_lecompat_l:
-  Π x y z : Reals, y <= z <-> (y + x) <= (z + x).
+  ∏ x y z : Reals, y <= z <-> (y + x) <= (z + x).
 Proof.
   exact hr_plus_lecompat_l.
 Qed.
 Lemma Rplus_lecompat_r:
-  Π x y z : Reals, y <= z <-> (x + y) <= (x + z).
+  ∏ x y z : Reals, y <= z <-> (x + y) <= (x + z).
 Proof.
   exact hr_plus_lecompat_r.
 Qed.
 Lemma Rmult_lecompat_l:
-  Π x y z : Reals,
+  ∏ x y z : Reals,
     0 <= x -> y <= z -> (y * x) <= (z * x).
 Proof.
   exact hr_mult_lecompat_l.
 Qed.
 Lemma Rmult_lecompat_l':
-  Π x y z : Reals,
+  ∏ x y z : Reals,
     0 < x -> (y * x) <= (z * x) -> y <= z.
 Proof.
   exact hr_mult_lecompat_l'.
 Qed.
 Lemma Rmult_lecompat_r:
-  Π x y z : Reals,
+  ∏ x y z : Reals,
     0 <= x -> y <= z -> (x * y) <= (x * z).
 Proof.
   exact hr_mult_lecompat_r.
 Qed.
 Lemma Rmult_lecompat_r':
-  Π x y z : Reals,
+  ∏ x y z : Reals,
     0 < x -> (x * y) <= (x * z) -> y <= z.
 Proof.
   exact hr_mult_lecompat_r'.
 Qed.
 
 Lemma Rap_Rlt:
-  Π x y : Reals, x ≠ y <-> (x < y) ⨿ (y < x).
+  ∏ x y : Reals, x ≠ y <-> (x < y) ⨿ (y < x).
 Proof.
   exact hr_ap_lt.
 Qed.
@@ -1736,75 +1736,75 @@ Proof.
 Qed.
 
 Lemma isirrefl_Rap :
-  Π x : Reals, ¬ (x ≠ x).
+  ∏ x : Reals, ¬ (x ≠ x).
 Proof.
   exact isirrefl_CFap.
 Qed.
 Lemma issymm_Rap :
-  Π (x y : Reals), (x ≠ y) -> (y ≠ x).
+  ∏ (x y : Reals), (x ≠ y) -> (y ≠ x).
 Proof.
   exact issymm_CFap.
 Qed.
 Lemma iscotrans_Rap :
-  Π (x y z : Reals), (x ≠ z) -> (x ≠ y) ∨ (y ≠ z).
+  ∏ (x y z : Reals), (x ≠ z) -> (x ≠ y) ∨ (y ≠ z).
 Proof.
   exact iscotrans_CFap.
 Qed.
 Lemma istight_Rap :
-  Π (x y : Reals), ¬ (x ≠ y) -> x = y.
+  ∏ (x y : Reals), ¬ (x ≠ y) -> x = y.
 Proof.
   exact istight_CFap.
 Qed.
 
 Lemma apRplus :
-  Π (x x' y y' : Reals),
+  ∏ (x x' y y' : Reals),
     (x + y ≠ x' + y') -> (x ≠ x') ∨ (y ≠ y').
 Proof.
   exact apCFplus.
 Qed.
 Lemma Rplus_apcompat_l :
-  Π x y z : Reals,
+  ∏ x y z : Reals,
     y + x ≠ z + x <-> y ≠ z.
 Proof.
   exact CFplus_apcompat_l.
 Qed.
 Lemma Rplus_apcompat_r :
-  Π x y z : Reals,
+  ∏ x y z : Reals,
     x + y ≠ x + z <-> y ≠ z.
 Proof.
   exact CFplus_apcompat_r.
 Qed.
 
 Lemma apRmult:
-  Π (x x' y y' : Reals),
+  ∏ (x x' y y' : Reals),
   (x * y ≠ x' * y') -> (x ≠ x') ∨ (y ≠ y').
 Proof.
   apply apCFmult.
 Qed.
 Lemma Rmult_apcompat_l:
-  Π (x y z : Reals), (y * x ≠ z * x) -> (y ≠ z).
+  ∏ (x y z : Reals), (y * x ≠ z * x) -> (y ≠ z).
 Proof.
   exact CFmult_apcompat_l.
 Qed.
 Lemma Rmult_apcompat_l':
-  Π (x y z : Reals),
+  ∏ (x y z : Reals),
     (x ≠ 0) -> (y ≠ z) -> (y * x ≠ z * x).
 Proof.
   exact CFmult_apcompat_l'.
 Qed.
 Lemma Rmult_apcompat_r:
-  Π (x y z : Reals), (x * y ≠ x * z) -> (y ≠ z).
+  ∏ (x y z : Reals), (x * y ≠ x * z) -> (y ≠ z).
 Proof.
   exact CFmult_apcompat_r.
 Qed.
 Lemma Rmult_apcompat_r':
-  Π (x y z : Reals),
+  ∏ (x y z : Reals),
     (x ≠ 0) -> (y ≠ z) -> (x * y ≠ x * z).
 Proof.
   exact CFmult_apcompat_r'.
 Qed.
 Lemma RmultapRzero:
-  Π (x y : Reals),
+  ∏ (x y : Reals),
     (x * y ≠ 0) -> (x ≠ 0) ∧ (y ≠ 0).
 Proof.
   exact CFmultapCFzero.
@@ -1813,85 +1813,85 @@ Qed.
 (** ** Algrebra *)
 
 Lemma islunit_Rzero_Rplus :
-  Π x : Reals, 0 + x = x.
+  ∏ x : Reals, 0 + x = x.
 Proof.
   exact islunit_CFzero_CFplus.
 Qed.
 Lemma isrunit_Rzero_Rplus :
-  Π x : Reals, x + 0 = x.
+  ∏ x : Reals, x + 0 = x.
 Proof.
   exact isrunit_CFzero_CFplus.
 Qed.
 Lemma isassoc_Rplus :
-  Π x y z : Reals, x + y + z = x + (y + z).
+  ∏ x y z : Reals, x + y + z = x + (y + z).
 Proof.
   exact isassoc_CFplus.
 Qed.
 Lemma islinv_Ropp :
-  Π x : Reals, - x + x = 0.
+  ∏ x : Reals, - x + x = 0.
 Proof.
   exact islinv_CFopp.
 Qed.
 Lemma isrinv_Ropp :
-  Π x : Reals, x + - x = 0.
+  ∏ x : Reals, x + - x = 0.
 Proof.
   exact isrinv_CFopp.
 Qed.
 
 Lemma iscomm_Rplus :
-  Π x y : Reals, x + y = y + x.
+  ∏ x y : Reals, x + y = y + x.
 Proof.
   exact iscomm_CFplus.
 Qed.
 Lemma islunit_Rone_Rmult :
-  Π x : Reals, 1 * x = x.
+  ∏ x : Reals, 1 * x = x.
 Proof.
   exact islunit_CFone_CFmult.
 Qed.
 Lemma isrunit_Rone_Rmult :
-  Π x : Reals, x * 1 = x.
+  ∏ x : Reals, x * 1 = x.
 Proof.
   exact isrunit_CFone_CFmult.
 Qed.
 Lemma isassoc_Rmult :
-  Π x y z : Reals, x * y * z = x * (y * z).
+  ∏ x y z : Reals, x * y * z = x * (y * z).
 Proof.
   exact isassoc_CFmult.
 Qed.
 Lemma iscomm_Rmult :
-  Π x y : Reals, x * y = y * x.
+  ∏ x y : Reals, x * y = y * x.
 Proof.
   exact iscomm_CFmult.
 Qed.
 Lemma islinv_Rinv :
-  Π (x : Reals) (Hx0 : x ≠ 0),
+  ∏ (x : Reals) (Hx0 : x ≠ 0),
     (Rinv x Hx0) * x = 1.
 Proof.
   exact islinv_CFinv.
 Qed.
 Lemma isrinv_Rinv :
-  Π (x : Reals) (Hx0 : x ≠ 0),
+  ∏ (x : Reals) (Hx0 : x ≠ 0),
     x * (Rinv x Hx0) = 1.
 Proof.
   exact isrinv_CFinv.
 Qed.
 Lemma islabsorb_Rzero_Rmult :
-  Π x : Reals, 0 * x = 0.
+  ∏ x : Reals, 0 * x = 0.
 Proof.
   exact islabsorb_CFzero_CFmult.
 Qed.
 Lemma israbsorb_Rzero_Rmult :
-  Π x : Reals, x * 0 = 0.
+  ∏ x : Reals, x * 0 = 0.
 Proof.
   exact israbsorb_CFzero_CFmult.
 Qed.
 Lemma isldistr_Rplus_Rmult :
-  Π x y z : Reals, z * (x + y) = z * x + z * y.
+  ∏ x y z : Reals, z * (x + y) = z * x + z * y.
 Proof.
   exact isldistr_CFplus_CFmult.
 Qed.
 Lemma isrdistr_Rplus_Rmult :
-  Π x y z : Reals, (x + y) * z = x * z + y * z.
+  ∏ x y z : Reals, (x + y) * z = x * z + y * z.
 Proof.
   exact isrdistr_CFplus_CFmult.
 Qed.
@@ -1899,24 +1899,24 @@ Qed.
 (** ** Rabs *)
 
 Lemma istriangle_Rabs :
-  Π x y : Reals, (Rabs (x + y)%R <= Rabs x + Rabs y)%NR.
+  ∏ x y : Reals, (Rabs (x + y)%R <= Rabs x + Rabs y)%NR.
 Proof.
   exact istriangle_hr_abs.
 Qed.
 Lemma istriangle_Rabs' :
-  Π x y : Reals, (Rabs x - Rabs y <= Rabs (x + y)%R)%NR.
+  ∏ x y : Reals, (Rabs x - Rabs y <= Rabs (x + y)%R)%NR.
 Proof.
   exact istriangle_hr_abs'.
 Qed.
 
 Lemma Rabs_Rmult :
-  Π x y : Reals, (Rabs (x * y)%R = Rabs x * Rabs y)%NR.
+  ∏ x y : Reals, (Rabs (x * y)%R = Rabs x * Rabs y)%NR.
 Proof.
   exact hr_abs_mult.
 Qed.
 
 Lemma Rabs_Ropp :
-  Π x : Reals, (Rabs (- x)%R = Rabs x).
+  ∏ x : Reals, (Rabs (- x)%R = Rabs x).
 Proof.
   intros x.
   rewrite <- (NRNRtoR_RtoNRNR x).

@@ -31,27 +31,27 @@ Section def_roofs.
   Variable C : precategory.
   Hypothesis hs : has_homsets C.
 
-  Definition SubsetsOfMors : UU := Π (x y : ob C), hsubtypes (hSetpair (C⟦x, y⟧) (hs x y)).
+  Definition SubsetsOfMors : UU := ∏ (x y : ob C), hsubtype (hSetpair (C⟦x, y⟧) (hs x y)).
 
   (** ** Localizing classes *)
 
   (** *** Identities and compositions are in the subset of morphisms *)
   Definition isLocalizingClass1 (SOM : SubsetsOfMors) : UU :=
-    (Π (x : ob C), SOM x x (identity x))
-      × (Π (x y z : ob C) (f : x --> y) (e1 : SOM x y f) (g : y --> z) (e2 : SOM y z g),
+    (∏ (x : ob C), SOM x x (identity x))
+      × (∏ (x y z : ob C) (f : x --> y) (e1 : SOM x y f) (g : y --> z) (e2 : SOM y z g),
          SOM x z (f ;; g)).
 
   Definition isLocClassIs {SOM : SubsetsOfMors} (H : isLocalizingClass1 SOM) :
-    Π (x : ob C), SOM x x (identity x) := pr1 H.
+    ∏ (x : ob C), SOM x x (identity x) := pr1 H.
 
   Definition isLocClassComp {SOM : SubsetsOfMors} (H : isLocalizingClass1 SOM) :
-    Π (x y z : ob C) (f : x --> y) (e1 : SOM x y f) (g : y --> z) (e2 : SOM y z g),
+    ∏ (x y z : ob C) (f : x --> y) (e1 : SOM x y f) (g : y --> z) (e2 : SOM y z g),
     SOM x z (f ;; g) := pr2 H.
 
   (** **** Squares *)
   Definition LocSqr1 (SOM : SubsetsOfMors) {x y z : ob C} (s : x --> y) (e1 : SOM x y s)
              (f : x --> z) : UU :=
-    Σ D : (Σ (w : ob C), C⟦y, w⟧ × C⟦z, w⟧),
+    ∑ D : (∑ (w : ob C), C⟦y, w⟧ × C⟦z, w⟧),
           (SOM z (pr1 D) (dirprod_pr2 (pr2 D)))
             × (s ;; (dirprod_pr1 (pr2 D)) = f ;; (dirprod_pr2 (pr2 D))).
 
@@ -75,7 +75,7 @@ Section def_roofs.
 
   Definition LocSqr2 (SOM : SubsetsOfMors) {y z w : ob C} (s : y --> w) (e1 : SOM y w s)
              (f : z --> w) : UU :=
-    Σ D : (Σ (x : ob C), C⟦x, y⟧ × C⟦x, z⟧),
+    ∑ D : (∑ (x : ob C), C⟦x, y⟧ × C⟦x, z⟧),
           (SOM (pr1 D) z (dirprod_pr2 (pr2 D)))
             × ((dirprod_pr1 (pr2 D)) ;; s = (dirprod_pr2 (pr2 D)) ;; f).
 
@@ -99,21 +99,21 @@ Section def_roofs.
 
   (** *** Completion to squares *)
   Definition isLocalizingClass2 (SOM : SubsetsOfMors) : UU :=
-    (Π (x y z : ob C) (s : x --> y) (e1 : SOM x y s) (f : x --> z), (LocSqr1 SOM s e1 f))
-      × (Π (y z w : ob C) (s : y --> w) (e1 : SOM y w s) (f : z --> w), (LocSqr2 SOM s e1 f)).
+    (∏ (x y z : ob C) (s : x --> y) (e1 : SOM x y s) (f : x --> z), (LocSqr1 SOM s e1 f))
+      × (∏ (y z w : ob C) (s : y --> w) (e1 : SOM y w s) (f : z --> w), (LocSqr2 SOM s e1 f)).
 
   Definition isLocClassSqr1 {SOM : SubsetsOfMors} (H : isLocalizingClass2 SOM) :
-    Π (x y z : ob C) (s : x --> y) (e1 : SOM x y s) (f : x --> z), LocSqr1 SOM s e1 f :=
+    ∏ (x y z : ob C) (s : x --> y) (e1 : SOM x y s) (f : x --> z), LocSqr1 SOM s e1 f :=
     dirprod_pr1 H.
 
   Definition isLocClassSqr2 {SOM : SubsetsOfMors} (H : isLocalizingClass2 SOM) :
-    Π (y z w : ob C) (s : y --> w) (e1 : SOM y w s) (f : z --> w), LocSqr2 SOM s e1 f :=
+    ∏ (y z w : ob C) (s : y --> w) (e1 : SOM y w s) (f : z --> w), LocSqr2 SOM s e1 f :=
     dirprod_pr2 H.
 
   (** **** Pre- and post switch *)
   Definition PreSwitch (SOM : SubsetsOfMors) {x y z : ob C} (s : x --> y) (e : SOM x y s)
              (f g : y --> z) (H : s ;; f = s ;; g) : UU :=
-    Σ D : (Σ (w : ob C), C⟦z, w⟧), (SOM z (pr1 D) (pr2 D)) × (f ;; (pr2 D) = g ;; (pr2 D)).
+    ∑ D : (∑ (w : ob C), C⟦z, w⟧), (SOM z (pr1 D) (pr2 D)) × (f ;; (pr2 D) = g ;; (pr2 D)).
 
   Definition PreSwitchOb {SOM : SubsetsOfMors} {x y z : ob C} {s : x --> y} {e : SOM x y s}
              {f g : y --> z} {H : s ;; f = s ;; g} (PreS : PreSwitch SOM s e f g H) : ob C :=
@@ -136,7 +136,7 @@ Section def_roofs.
 
   Definition PostSwitch (SOM : SubsetsOfMors) {y z w : ob C} (f g : y --> z) (s : z --> w)
              (e : SOM z w s) (H : f ;; s = g ;; s) : UU :=
-    Σ D : (Σ (x : ob C), C⟦x, y⟧), (SOM (pr1 D) y (pr2 D)) × ((pr2 D) ;; f = (pr2 D) ;; g).
+    ∑ D : (∑ (x : ob C), C⟦x, y⟧), (SOM (pr1 D) y (pr2 D)) × ((pr2 D) ;; f = (pr2 D) ;; g).
 
   Definition PostSwitchOb {SOM : SubsetsOfMors} {y z w : ob C} {f g : y --> z} {s : z --> w}
              {e : SOM z w s} {H : f ;; s = g ;; s} (PostS : PostSwitch SOM f g s e H) : ob C :=
@@ -157,17 +157,17 @@ Section def_roofs.
 
   (** *** Pre- and postcomposition with morphisms in the subset *)
   Definition isLocalizingClass3 (SOM : SubsetsOfMors) : UU :=
-    (Π (x y z : ob C) (s : x --> y) (e : SOM x y s) (f g : y --> z) (H : s ;; f = s ;; g),
+    (∏ (x y z : ob C) (s : x --> y) (e : SOM x y s) (f g : y --> z) (H : s ;; f = s ;; g),
      PreSwitch SOM s e f g H)
-      × (Π (y z w : ob C) (f g : y --> z) (s : z --> w) (e : SOM z w s) (H : f ;; s = g ;; s),
+      × (∏ (y z w : ob C) (f g : y --> z) (s : z --> w) (e : SOM z w s) (H : f ;; s = g ;; s),
          PostSwitch SOM f g s e H).
 
   Definition isLocClassPre {SOM : SubsetsOfMors} (H : isLocalizingClass3 SOM) :
-    Π (x y z : ob C) (s : x --> y) (e : SOM x y s) (f g : y --> z) (H : s ;; f = s ;; g),
+    ∏ (x y z : ob C) (s : x --> y) (e : SOM x y s) (f g : y --> z) (H : s ;; f = s ;; g),
     PreSwitch SOM s e f g H := dirprod_pr1 H.
 
   Definition isLocClassPost {SOM : SubsetsOfMors} (H : isLocalizingClass3 SOM) :
-    Π (y z w : ob C) (f g : y --> z) (s : z --> w) (e : SOM z w s) (H : f ;; s = g ;; s),
+    ∏ (y z w : ob C) (f g : y --> z) (s : z --> w) (e : SOM z w s) (H : f ;; s = g ;; s),
     PostSwitch SOM f g s e H := dirprod_pr2 H.
 
   (** *** Localizing class *)
@@ -197,7 +197,7 @@ Section def_roofs.
 
   (** ** Roofs *)
   Definition Roof (x y : ob C) : UU :=
-    Σ D : (Σ z : ob C, C⟦z, x⟧ × C⟦z, y⟧), (SOM (pr1 D) x (dirprod_pr1 (pr2 D))).
+    ∑ D : (∑ z : ob C, C⟦z, x⟧ × C⟦z, y⟧), (SOM (pr1 D) x (dirprod_pr1 (pr2 D))).
 
   Definition mk_Roof (x y z : ob C) (s : z --> x) (f : z --> y) (e : SOM z x s) : Roof x y :=
     tpair _ (tpair _ z (s,,f)) e.
@@ -213,7 +213,7 @@ Section def_roofs.
 
   (** ** Coroofs *)
   Definition Coroof (x y : ob C) : UU :=
-    Σ D : (Σ z : ob C, C⟦x, z⟧ × C⟦y, z⟧), (SOM y (pr1 D) (dirprod_pr2 (pr2 D))).
+    ∑ D : (∑ z : ob C, C⟦x, z⟧ × C⟦y, z⟧), (SOM y (pr1 D) (dirprod_pr2 (pr2 D))).
 
   Definition mk_Coroof (x y z : ob C) (f : x --> z) (s : y --> z) (e : SOM y z s) : Coroof x y :=
     tpair _ (tpair _ z (f,,s)) e.
@@ -240,7 +240,7 @@ Section def_roofs.
   (** ** RoofTop *)
   (** These are used to define an equivalence relation between roofs *)
   Definition RoofTop {x y : ob C} (R1 R2 : Roof x y) : UU :=
-    Σ D : (Σ w : ob C, C⟦w, R1⟧ × C⟦w, R2⟧),
+    ∑ D : (∑ w : ob C, C⟦w, R1⟧ × C⟦w, R2⟧),
           (SOM (pr1 D) x ((dirprod_pr1 (pr2 D)) ;; (RoofMor1 R1)))
             × ((dirprod_pr1 (pr2 D)) ;; (RoofMor1 R1) = (dirprod_pr2 (pr2 D)) ;; (RoofMor1 R2))
             × ((dirprod_pr1 (pr2 D)) ;; (RoofMor2 R1) = (dirprod_pr2 (pr2 D)) ;; (RoofMor2 R2)).
@@ -336,33 +336,33 @@ Section def_roofs.
   Qed.
 
   (** We are interested in the equivalence classes of roofs. *)
-  (* Definition eqclass {X : UU} {r : eqrel X} : UU := Σ A : hsubtypes X, iseqclass r A. *)
+  (* Definition eqclass {X : UU} {r : eqrel X} : UU := ∑ A : hsubtype X, iseqclass r A. *)
 
   Definition RoofEqclass (x y : ob C) : UU :=
-    Σ A : hsubtypes (Roof x y), iseqclass (eqrelpair _ (RoofEqrel x y)) A.
+    ∑ A : hsubtype (Roof x y), iseqclass (eqrelpair _ (RoofEqrel x y)) A.
 
   Lemma isasetRoofEqclass (x y : ob C) : isaset (RoofEqclass x y).
   Proof.
     apply isaset_total2.
-    - apply isasethsubtypes.
+    - apply isasethsubtype.
     - intros x0.
       apply isasetaprop.
       apply isapropiseqclass.
   Defined.
 
-  Definition mk_RoofEqclass {x y : ob C} (A : hsubtypes (Roof x y))
+  Definition mk_RoofEqclass {x y : ob C} (A : hsubtype (Roof x y))
              (H : iseqclass (eqrelpair _ (RoofEqrel x y)) A) : RoofEqclass x y := tpair _ A H.
 
-  Definition RoofEqclassIn {x y : ob C} (RE : RoofEqclass x y) : hsubtypes (Roof x y) := pr1 RE.
+  Definition RoofEqclassIn {x y : ob C} (RE : RoofEqclass x y) : hsubtype (Roof x y) := pr1 RE.
 
   Definition RoofEqclassIs {x y : ob C} (RE : RoofEqclass x y) :
     iseqclass (eqrelpair _ (RoofEqrel x y)) (RoofEqclassIn RE) := pr2 RE.
 
   Definition RoofEqclassEq {x y : ob C} (RE1 RE2 : RoofEqclass x y)
-             (H1 : Π (R : Roof x y) (H : (pr1 RE1) R), (pr1 RE2) R)
-             (H2 : Π (R : Roof x y) (H : (pr1 RE2) R), (pr1 RE1) R) : RE1 = RE2.
+             (H1 : ∏ (R : Roof x y) (H : (pr1 RE1) R), (pr1 RE2) R)
+             (H2 : ∏ (R : Roof x y) (H : (pr1 RE2) R), (pr1 RE1) R) : RE1 = RE2.
   Proof.
-    use total2_paths.
+    use total2_paths_f.
     - use funextfun. intros g.
       apply hPropUnivalence.
       + apply H1.
@@ -483,7 +483,7 @@ Section def_roofs.
 
   (** Construct a "commutative coroof" from RoofTop *)
   Definition RoofTopToCoroof {x y : ob C} {R1 R2 : Roof x y} (T : RoofTop R1 R2) :
-    Σ CR : Coroof x y, (RoofMor1 R1 ;; CoroofMor1 CR = RoofMor2 R1 ;; CoroofMor2 CR)
+    ∑ CR : Coroof x y, (RoofMor1 R1 ;; CoroofMor1 CR = RoofMor2 R1 ;; CoroofMor2 CR)
                          × (RoofMor1 R2 ;; CoroofMor1 CR = RoofMor2 R2 ;; CoroofMor2 CR).
   Proof.
     set (sqr1 := isLocClassSqr1 iLC _ _ _ (RoofMor1 R1) (RoofMor1Is R1) (RoofMor2 R1)).
@@ -640,8 +640,8 @@ Section def_roofs.
   Qed.
 
   Lemma roof_comp_iscontr (x y z : ob C) (e1 : RoofEqclass x y) (e2 : RoofEqclass y z) :
-    iscontr (Σ e3 : RoofEqclass x z,
-                    Π (f : Roof x y) (s1 : (RoofEqclassIn e1) f)
+    iscontr (∑ e3 : RoofEqclass x z,
+                    ∏ (f : Roof x y) (s1 : (RoofEqclassIn e1) f)
                       (g : Roof y z) (s2 : (RoofEqclassIn e2) g),
                     (RoofEqclassIn e3) (roof_comp f g)).
   Proof.
@@ -689,7 +689,7 @@ Section def_roofs.
         exact X.
     (* Uniqueness *)
     - intros t.
-      use total2_paths.
+      use total2_paths_f.
       + use RoofEqclassEq.
         * intros R HR. cbn.
           set (tmp1 := eqax2 (pr2 (pr1 t))). apply tmp1.
@@ -1247,7 +1247,7 @@ Section def_roofs.
   (** This definition is the map used by the unique localization functor to map morphisms.
       It sends a roof (s, f) to the composite (# F s)^{-1} ;; (# F f). *)
   Definition MorMap (D : precategory) (hsD : has_homsets D) (F : functor C D) (x y : ob C)
-             (H : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
+             (H : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
     Roof x y -> D⟦F x, F y⟧.
   Proof.
     intros R.
@@ -1277,7 +1277,7 @@ Section def_roofs.
 
   (** These two lemmas are used in the proof of [MorMap_iscomprelfun]. *)
   Lemma MorMap_top_mor1_is_iso (D : precategory) (hsD : has_homsets D) (F : functor C D)
-        (x y : ob C) (H : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f))
+        (x y : ob C) (H : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f))
         (R1 R2 : Roof x y) (T : RoofTop R1 R2) : is_iso (# F (RoofTopMor1 T)).
   Proof.
     use (@is_iso_pre D).
@@ -1288,7 +1288,7 @@ Section def_roofs.
   Qed.
 
   Lemma MorMap_top_mor2_is_iso (D : precategory) (hsD : has_homsets D) (F : functor C D)
-        (x y : ob C) (H : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f))
+        (x y : ob C) (H : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f))
         (R1 R2 : Roof x y) (T : RoofTop R1 R2) : is_iso (# F (RoofTopMor2 T)).
   Proof.
     use (@is_iso_pre D).
@@ -1310,7 +1310,7 @@ Section def_roofs.
   (** MorMap is compatible with equivalence relation of roofs when one assumes that all the
       morpsisms in SOM are mapped to isomorphisms. *)
   Lemma MorMap_iscomprelfun (D : precategory) (hsD : has_homsets D) (F : functor C D) (x y : ob C)
-             (H : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
+             (H : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
     iscomprelfun (eqrelpair _ (RoofEqrel x y)) (MorMap D hsD F x y H).
   Proof.
     intros R1 R2 T'.
@@ -1344,10 +1344,10 @@ Section def_roofs.
       eqclass are mapped to. This uses the assumption H' which says that all morphisms in SOM
       are mapped to isomorphisms in D. *)
   Lemma MorMap_iscontr (D : precategory) (hsD : has_homsets D) (F : functor C D)
-        (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f))
+        (H' : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f))
         (x y : C) (eqclass : RoofEqclass x y) :
-    iscontr (Σ g : D⟦F x, F y⟧,
-                   Π (R : Roof x y) (H1 : RoofEqclassIn (eqclass) R), g = MorMap D hsD F x y H' R).
+    iscontr (∑ g : D⟦F x, F y⟧,
+                   ∏ (R : Roof x y) (H1 : RoofEqclassIn (eqclass) R), g = MorMap D hsD F x y H' R).
   Proof.
     use (squash_to_prop (pr1 (RoofEqclassIs eqclass))). apply isapropiscontr. intros R.
     induction R as [R1 R2].
@@ -1367,7 +1367,7 @@ Section def_roofs.
 
   (** MorMap equality from MorMap_iscontr *)
   Lemma MorMap_iscontr_eq (D : precategory) (hsD : has_homsets D) (F : functor C D)
-        (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f))
+        (H' : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f))
         (x y : C) (eqclass : RoofEqclass x y) (R : Roof x y) (H1 : RoofEqclassIn eqclass R) :
     pr1 (pr1 (MorMap_iscontr D hsD F H' x y eqclass)) = MorMap D hsD F x y H' R.
   Proof.
@@ -1401,7 +1401,7 @@ Section def_roofs.
 
   (** MorMap is linear with respect to composition in D *)
   Lemma MorMap_compose (D : precategory) (hsD : has_homsets D) (F : functor C D)
-        (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f))
+        (H' : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f))
         {x y z : ob C} (R1 : Roof x y) (R2 : Roof y z) :
     MorMap D hsD F x z H' (roof_comp R1 R2) = MorMap D hsD F x y H' R1 ;; MorMap D hsD F y z H' R2.
   Proof.
@@ -1566,7 +1566,7 @@ Section def_roofs.
       indeed a functor. *)
   Lemma LocalizationUniversalFunctor_isfunctor
     (D : precategory) (hsD : has_homsets D) (F : functor C D)
-    (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
+    (H' : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
     @is_functor loc_precategory_data D
       (functor_data_constr
          loc_precategory_ob_mor D (λ x : C, F x)
@@ -1602,7 +1602,7 @@ Section def_roofs.
 
   (** The universal functor which we use to factor F through loc_precategory *)
   Definition LocalizationUniversalFunctor (D : precategory) (hsD : has_homsets D) (F : functor C D)
-             (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
+             (H' : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
     functor loc_precategory D.
   Proof.
     use mk_functor.
@@ -1615,11 +1615,11 @@ Section def_roofs.
   (** We show that LocalizationUniversalFunctor satisfies the commutativity required for the
       universal functor. *)
   Definition LocalizationUniversalFunctorComm (D : precategory) (hsD : has_homsets D)
-             (F : functor C D) (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
+             (F : functor C D) (H' : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
     functor_composite FunctorToLocalization (LocalizationUniversalFunctor D hsD F H') = F.
   Proof.
     use (functor_eq _ _ hsD).
-    use total2_paths.
+    use total2_paths_f.
     - apply idpath.
     - cbn.
       use funextsec. intros a.
@@ -1640,12 +1640,12 @@ Section def_roofs.
 
   (** This lemma shows uniqueness of the functor LocalizationUniversalFunctor *)
   Lemma LocalizationUniversalFunctorUnique (D : precategory) (hsD : has_homsets D) (F : functor C D)
-        (H' : Π (x y : C) (f : C ⟦ x, y ⟧), SOM x y f → is_iso (# F f))
+        (H' : ∏ (x y : C) (f : C ⟦ x, y ⟧), SOM x y f → is_iso (# F f))
         (y : functor loc_precategory D) (T : functor_composite FunctorToLocalization y = F) :
     y = (LocalizationUniversalFunctor D hsD F H').
   Proof.
     use (functor_eq _ _ hsD).
-    use total2_paths.
+    use total2_paths_f.
     - induction T. apply idpath.
     - use funextsec. intros a.
       use funextsec. intros b.
@@ -1682,8 +1682,8 @@ Section def_roofs.
 
   (** The following lemma only applies when the objects of D satisfy isaset. *)
   Lemma LocalizationUniversalProperty (D : precategory) (hsD : has_homsets D) (hssD : isaset D)
-        (F : functor C D) (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
-    iscontr (Σ H : functor loc_precategory D, functor_composite FunctorToLocalization H = F).
+        (F : functor C D) (H' : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
+    iscontr (∑ H : functor loc_precategory D, functor_composite FunctorToLocalization H = F).
   Proof.
     use unique_exists.
     (* The functor *)
@@ -1699,7 +1699,7 @@ Section def_roofs.
 
   (** The functor FunctorToLocalization maps morphisms in SOM to isomorphisms *)
   Definition FunctorToLocalization_is_iso :
-    Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# FunctorToLocalization f).
+    ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# FunctorToLocalization f).
   Proof.
     intros x y f s. cbn.
     use (@is_iso_qinv loc_precategory).
@@ -1753,13 +1753,13 @@ Section def_roofs.
   (** Localization of categories is unique up to isomorphism of categories and loc_precategory is
       one such precategory. *)
   Lemma LocalizationUniversalCategory (CC : precategory) (hss : has_homsets CC)
-        (In : functor C CC) (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# In f))
-        (HH : Π (D : precategory) (hsD : has_homsets D)
-                (F : functor C D) (H' : Π (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)),
-              Σ HH : functor CC D, (functor_composite In HH = F)
-                                     × (Π (yy : functor CC D) (comm : functor_composite In yy = F),
+        (In : functor C CC) (H' : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# In f))
+        (HH : ∏ (D : precategory) (hsD : has_homsets D)
+                (F : functor C D) (H' : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)),
+              ∑ HH : functor CC D, (functor_composite In HH = F)
+                                     × (∏ (yy : functor CC D) (comm : functor_composite In yy = F),
                                         yy = HH)) :
-    Σ D : (functor CC loc_precategory × functor loc_precategory CC),
+    ∑ D : (functor CC loc_precategory × functor loc_precategory CC),
           (functor_composite (dirprod_pr1 D) (dirprod_pr2 D) = (functor_identity _))
             × (functor_composite (dirprod_pr2 D) (dirprod_pr1 D) = (functor_identity _)).
   Proof.

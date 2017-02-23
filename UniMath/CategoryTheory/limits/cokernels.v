@@ -27,7 +27,7 @@ Section def_cokernels.
 
   (** Definition and construction of Cokernels *)
   Definition isCokernel {x y z : C} (f : x --> y) (g : y --> z) (H : f ;; g = (ZeroArrow Z x z)) : UU :=
-    Π (w : C) (h : y --> w) (H : f ;; h = ZeroArrow Z x w), iscontr (Σ φ : z --> w, g ;; φ = h).
+    ∏ (w : C) (h : y --> w) (H : f ;; h = ZeroArrow Z x w), iscontr (∑ φ : z --> w, g ;; φ = h).
 
   Lemma isCokernel_paths  {x y z : C} (f : x --> y) (g : y --> z) (H H' : f ;; g = (ZeroArrow Z x z))
         (isC : isCokernel f g H) : isCokernel f g H'.
@@ -38,17 +38,17 @@ Section def_cokernels.
 
   Local Lemma mk_isCokernel_uniqueness {x y z : C} (f : x --> y) (g : y --> z)
         (H1 : f ;; g = ZeroArrow Z x z)
-        (H2 : Π (w : C) (h : C ⟦ y, w ⟧),
+        (H2 : ∏ (w : C) (h : C ⟦ y, w ⟧),
               f ;; h = ZeroArrow Z x w → ∃! ψ : C ⟦ z, w ⟧, g ;; ψ = h)
         (w : C) (h : y --> w) (H' : f ;; h = ZeroArrow Z x w) :
-    Π y0 : C ⟦ z, w ⟧, g ;; y0 = h → y0 = pr1 (iscontrpr1 (H2 w h H')).
+    ∏ y0 : C ⟦ z, w ⟧, g ;; y0 = h → y0 = pr1 (iscontrpr1 (H2 w h H')).
   Proof.
     intros y0 H. apply (base_paths _ _ ((pr2 (H2 w h H')) (tpair _ y0 H))).
   Qed.
 
   Definition mk_isCokernel {x y z : C} (f : x --> y) (g : y --> z) (H1 : f ;; g = ZeroArrow Z x z)
-             (H2 : Π (w : C) (h : y --> w) (H' : f ;; h = ZeroArrow Z x w),
-                   iscontr (Σ ψ : z --> w, g ;; ψ = h)) : isCokernel f g H1.
+             (H2 : ∏ (w : C) (h : y --> w) (H' : f ;; h = ZeroArrow Z x w),
+                   iscontr (∑ ψ : z --> w, g ;; ψ = h)) : isCokernel f g H1.
   Proof.
     unfold isCokernel.
     intros w h H'.
@@ -60,15 +60,15 @@ Section def_cokernels.
   Defined.
 
   Definition Cokernel {x y : C} (f : x --> y) : UU :=
-    Σ D : (Σ z : ob C, y --> z),
-          Σ (e : f ;; (pr2 D) = ZeroArrow Z x (pr1 D)), isCokernel f (pr2 D) e.
+    ∑ D : (∑ z : ob C, y --> z),
+          ∑ (e : f ;; (pr2 D) = ZeroArrow Z x (pr1 D)), isCokernel f (pr2 D) e.
 
   Definition mk_Cokernel {x y z : C} (f : x --> y) (g : y --> z) (H : f ;; g = (ZeroArrow Z x z))
              (isCK : isCokernel f g H) : Cokernel f := ((z,,g),,(H,,isCK)).
 
-  Definition Cokernels : UU := Π (x y : C) (f : x --> y), Cokernel f.
+  Definition Cokernels : UU := ∏ (x y : C) (f : x --> y), Cokernel f.
 
-  Definition hasCokernels : UU := Π (x y : C) (f : x --> y), ishinh (Cokernel f).
+  Definition hasCokernels : UU := ∏ (x y : C) (f : x --> y), ishinh (Cokernel f).
 
   Definition CokernelOb {x y : C} {f : x --> y} (CK : Cokernel f) : ob C := pr1 (pr1 CK).
   Coercion CokernelOb : Cokernel >-> ob.
@@ -119,7 +119,7 @@ Section def_cokernels.
 
   (** Results on morphisms between Cokernels. *)
   Definition identity_is_CokernelOut {x y : C} {f : x --> y} (CK : Cokernel f) :
-    Σ φ : C⟦CK, CK⟧, (CokernelArrow CK) ;; φ = (CokernelArrow CK).
+    ∑ φ : C⟦CK, CK⟧, (CokernelArrow CK) ;; φ = (CokernelArrow CK).
   Proof.
     exists (identity CK).
     apply id_right.

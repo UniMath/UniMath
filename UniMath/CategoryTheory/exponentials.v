@@ -1,10 +1,30 @@
+
+(** **********************************************************
+
+Anders Mörtberg, 2016
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents:
+
+- Definition of the functors given by binary product with
+  a fixed object
+- Definition of exponentials
+
+
+************************************************************)
+
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -26,7 +46,7 @@ Definition constprod_functor2 (a : C) : functor C C :=
 
 Definition is_exponentiable (a : C) : UU := is_left_adjoint (constprod_functor1 a).
 
-Definition has_exponentials : UU := Π (a : C), is_exponentiable a.
+Definition has_exponentials : UU := ∏ (a : C), is_exponentiable a.
 
 Definition nat_trans_constprod_functor1 (a : C) :
   nat_trans (constprod_functor1 a) (constprod_functor2 a).

@@ -30,7 +30,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
@@ -157,7 +157,7 @@ use left_adjoint_from_partial.
 - apply eps.
 - intros T S α; simpl in *.
 
-  transparent assert (cc : (Π c, cone (QT T c) (S c))).
+  transparent assert (cc : (∏ c, cone (QT T c) (S c))).
   { intro c.
     use mk_cone.
     + intro mf; apply (# S (pr2 mf) ;; α (pr1 mf)).
@@ -166,13 +166,13 @@ use left_adjoint_from_partial.
                 simpl; rewrite assoc, <- functor_comp; apply cancel_postcomposition, maponpaths, (pr2 h)).
   }
 
-  transparent assert (σ : (Π c, A ⟦ S c, R T c ⟧)).
+  transparent assert (σ : (∏ c, A ⟦ S c, R T c ⟧)).
   { intro c; apply (limArrow _ _ (cc c)). }
 
   set (lambda' := fun c' mf' => limOut (LA (c' ↓ K) (QT T c')) mf').
 
   (* this is the conclusion from the big diagram (8) in MacLane's proof *)
-  assert (H : Π c c' (g : C ⟦ c, c' ⟧) (mf' : c' ↓ K),
+  assert (H : ∏ c c' (g : C ⟦ c, c' ⟧) (mf' : c' ↓ K),
                 # S g ;; σ c' ;; lambda' _ mf' = σ c ;; Rmor T c c' g ;; lambda' _ mf').
   { intros c c' g mf'.
     rewrite <- !assoc.

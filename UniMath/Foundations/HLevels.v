@@ -34,21 +34,22 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
    is called [weq2].
 *)
 
-Lemma weq1  (P : UU -> hProp) (X X' : UU) (pX : P X) (pX' : P X') :
-   weq (tpair _ X pX = tpair (fun x => P x) X' pX')
-       (total2 (fun w : X = X' => transportf (fun x => P x) w pX = pX')).
+Local Lemma weq1  (P : UU -> hProp) (X X' : UU) (pX : P X) (pX' : P X') :
+   ( (X,, pX) = tpair P X' pX') ≃
+       (∑ w : X = X', transportf P w pX = pX').
 Proof.
   apply total2_paths_equiv.
 Defined.
+
 
 (** This helper lemma is needed to show that our fibration
     is indeed a predicate, so that we can instantiate
     the hProposition [P] with this fibration.
 *)
 
-Lemma ident_is_prop : Π (P : UU -> hProp) (X X' : UU)
+Local Lemma ident_is_prop : ∏ (P : UU -> hProp) (X X' : UU)
       (pX : P X) (pX' : P X') (w : X = X'),
-   isaprop (transportf (fun X => P X) w pX = pX').
+   isaprop (transportf P w pX = pX').
 Proof.
   intros P X X' pX pX' w.
   apply isapropifcontr.
@@ -63,14 +64,11 @@ Defined.
     a weak equivalence.
 *)
 
-Lemma weq2 (P : UU -> hProp) (X X' : UU)
+Local Lemma weq2 (P : UU -> hProp) (X X' : UU)
       (pX : P X) (pX' : P X') :
-  weq (total2 (fun w : X = X' =>
-              transportf (fun x => P x) w pX = pX'))
-      (X = X').
+  (∑ w : X = X', transportf P w pX = pX') ≃ (X = X').
 Proof.
-  exists (@pr1 (X = X') (fun w : X = X' =>
-            (transportf (fun x : UU => P x) w pX)  = pX' )).
+  exists (@pr1 (X = X') (fun w : X = X' => transportf P w pX = pX' )).
   apply isweqpr1.
   intros ? .
   apply (pr2 (P X')).
@@ -80,9 +78,9 @@ Defined.
      weak equivalence.
 *)
 
-Lemma Id_p_weq_Id (P : UU -> hProp) (X X' : UU)
+Local Lemma Id_p_weq_Id (P : UU -> hProp) (X X' : UU)
       (pX : P X) (pX' : P X') :
- weq ((tpair _ X pX) = (tpair (fun x => P x) X' pX')) (X = X').
+ (tpair _ X pX) = (tpair P X' pX') ≃ (X = X').
 Proof.
   set (f := weq1 P X X' pX pX').
   set (g := weq2 P X X' pX pX').
@@ -123,10 +121,10 @@ Proof.
   exists (isofhlevel0weq _ _ pX pY ).
   intro f.
   assert (H' : pr1 f = pr1 (isofhlevel0weq X Y pX pY)).
-    apply funextfun.
+  { apply funextfun.
     simpl. intro x.
-    apply (pr2 pY).
-  apply (total2_paths H').
+    apply (pr2 pY). }
+  apply (total2_paths_f H').
   apply proofirrelevance.
   apply isapropisweq.
 Defined.
@@ -135,18 +133,18 @@ Defined.
 
 (** *** The case [n = S n'] *)
 
-Lemma isofhlevelSnpathspace : Π n : nat, Π X Y : UU,
+Lemma isofhlevelSnpathspace : ∏ n : nat, ∏ X Y : UU,
       isofhlevel (S n) Y -> isofhlevel (S n) (X = Y).
 Proof.
   intros n X Y pY.
   set (H:=isofhlevelweqb (S n) (tpair _ _ (univalenceAxiom X Y))).
   apply H.
   assert (H' : isofhlevel (S n) (X -> Y)).
-    apply impred.
-    intro x. assumption.
-  assert (H2 : isincl (@pr1 (X -> Y) (fun f => isweq f))).
-    apply isofhlevelfpr1.
-    intro f. apply isapropisweq.
+  {  apply impred.
+     intro x. assumption. }
+  assert (H2 : isincl (@pr1 (X -> Y) isweq)).
+  { apply isofhlevelfpr1.
+    intro f. apply isapropisweq. }
   apply (isofhlevelsninclb _ _ H2).
   assumption.
 Defined.
@@ -154,15 +152,15 @@ Defined.
 
 (** ** The lemma itself *)
 
-Lemma isofhlevelpathspace : Π n : nat, Π X Y : UU,
+Lemma isofhlevelpathspace : ∏ n : nat, ∏ X Y : UU,
       isofhlevel n X -> isofhlevel n Y -> isofhlevel n (X = Y).
 Proof.
   intros n.
-  case n.
-    intros X Y pX pY.
+  induction n as [| n _ ].
+  - intros X Y pX pY.
     apply isofhlevel0pathspace;
     assumption.
-    intros.
+  - intros.
     apply isofhlevelSnpathspace;
     assumption.
 Defined.
@@ -174,18 +172,17 @@ Defined.
 
 (** We define the type [HLevel n] of types of hlevel n. *)
 
-Definition HLevel n := total2 (fun X : UU => isofhlevel n X).
+Definition HLevel n := ∑ X : UU, isofhlevel n X.
 
 (** * Main theorem: [HLevel n] is of hlevel [S n] *)
 
-Lemma hlevel_of_hlevels : Π n,
-      isofhlevel (S n) (HLevel n).
+Lemma hlevel_of_hlevels : ∏ n, isofhlevel (S n) (HLevel n).
 Proof.
   intro n.
   simpl.
   intros [X pX] [X' pX'].
   set (H := isofhlevelweqb n
-       (Id_p_weq_Id (fun X => tpair (fun X => isaprop X) (isofhlevel n X)
+       (Id_p_weq_Id (fun X => tpair isaprop (isofhlevel n X)
                                (isapropisofhlevel _ _)) X X' pX pX')).
   apply H.
   apply isofhlevelpathspace;
@@ -203,20 +200,19 @@ Defined.
 
 Lemma UA_for_Predicates (P : UU -> hProp) (X X' : UU)
      (pX : P X) (pX' : P X') :
-  weq ((tpair _ X pX) = (tpair (fun x => P x) X' pX')) (weq X X').
+  (tpair _ X pX) = (tpair P X' pX') ≃ (X ≃ X').
 Proof.
   set (f := Id_p_weq_Id P X X' pX pX').
   set (g := tpair _ _ (univalenceAxiom X X')).
   exact (weqcomp f g).
 Defined.
 
-Corollary UA_for_HLevels : Π (n : nat)
-      (X X' : HLevel n),
-     weq (X = X') (weq (pr1 X) (pr1 X')).
+Corollary UA_for_HLevels : ∏ (n : nat) (X X' : HLevel n),
+   (X = X') ≃ (pr1 X ≃ pr1 X').
 Proof.
   intros n [X pX] [X' pX'].
   simpl.
   apply (UA_for_Predicates
-       (fun X => tpair (fun X => isaprop X) (isofhlevel n X)
+       (fun X => tpair isaprop (isofhlevel n X)
                                       (isapropisofhlevel _ _))).
 Defined.

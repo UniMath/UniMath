@@ -26,6 +26,7 @@ Section def_equalizers.
   Open Scope stn.
   Definition One : two := ● 0.
   Definition Two : two := ● 1.
+  Close Scope stn.
 
   Definition Equalizer_graph : graph.
   Proof.
@@ -68,7 +69,7 @@ Section def_equalizers.
     UU := isLimCone (Equalizer_diagram f g) d (Equalizer_cone f g d h H).
 
   Definition mk_isEqualizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧) (H : h ;; f = h ;; g) :
-    (Π e (h' : C⟦e, a⟧) (H' : h' ;; f = h' ;; g),
+    (∏ e (h' : C⟦e, a⟧) (H' : h' ;; f = h' ;; g),
      iscontr (total2 (fun hk : C⟦e, d⟧ => hk ;; h = h'))) -> isEqualizer f g d h H.
   Proof.
     intros H' x cx.
@@ -109,9 +110,9 @@ Section def_equalizers.
     - exact isEq.
   Defined.
 
-  Definition Equalizers : UU := Π (a b : C) (f g : C⟦a, b⟧), Equalizer f g.
+  Definition Equalizers : UU := ∏ (a b : C) (f g : C⟦a, b⟧), Equalizer f g.
 
-  Definition hasEqualizers : UU := Π (a b : C) (f g : C⟦a, b⟧), ishinh (Equalizer f g).
+  Definition hasEqualizers : UU := ∏ (a b : C) (f g : C⟦a, b⟧), ishinh (Equalizer f g).
 
   Definition EqualizerObject {a b : C} {f g : C⟦a, b⟧} : Equalizer f g -> C := fun H => lim H.
 

@@ -21,7 +21,7 @@ Definition natmultabmonoid : abmonoid :=
 
 (** *** Submonoid of non-zero elements in [nat] *)
 
-Definition natnonzero : @subabmonoids natmultabmonoid.
+Definition natnonzero : @subabmonoid natmultabmonoid.
 Proof.
   split with (λ a, a ≠ 0). unfold issubmonoid. split.
   - unfold issubsetwithbinop. intros a a'.
@@ -56,7 +56,7 @@ Proof.
 Defined.
 
 Lemma nattorig_nat :
-  Π n : nat, nattorig (X := natcommrig) n = n.
+  ∏ n : nat, nattorig (X := natcommrig) n = n.
 Proof.
   induction n as [|n IHn].
   reflexivity.
@@ -201,7 +201,7 @@ Defined.
 (** *** [nat] is an archimedean rig *)
 
 Lemma isarchnat_diff :
-  Π (y1 y2 : nat),
+  ∏ (y1 y2 : nat),
   y1 > y2 → ∃ n : nat, n * y1 > 1 + n * y2.
 Proof.
   intros y1 y2 Hy.
@@ -218,7 +218,7 @@ Proof.
 Defined.
 
 Lemma isarchnat_gth :
-  Π x : nat, ∃ n : nat, n > x.
+  ∏ x : nat, ∃ n : nat, n > x.
 Proof.
   intros n.
   apply hinhpr.
@@ -227,7 +227,7 @@ Proof.
 Defined.
 
 Lemma isarchnat_pos :
-  Π x : nat, ∃ n : nat, n + x > 0.
+  ∏ x : nat, ∃ n : nat, n + x > 0.
 Proof.
   intros n.
   apply hinhpr.

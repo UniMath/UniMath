@@ -47,20 +47,8 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 
-Require Import UniMath.CategoryTheory.Epis.
-
-Require Import UniMath.CategoryTheory.limits.EffectiveEpis.
-
-Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.pushouts.
-Require Import UniMath.CategoryTheory.limits.graphs.coequalizers.
-Require Import UniMath.CategoryTheory.limits.pushouts.
-Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.kernels.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.coequalizers.
 
 Set Automatic Introduction.
 
@@ -72,7 +60,7 @@ Proof.
 Qed.
 
 
-Lemma transport_swap: Π {X Y : UU} (P : X -> Y → UU) {x x':X} {y  y' : Y}
+Lemma transport_swap: ∏ {X Y : UU} (P : X -> Y → UU) {x x':X} {y  y' : Y}
                         (e : x = x') (e' : y = y') (p : P x y),
                   transportf (fun a => P _ a) e' (transportf (fun a => P a _) e p) =
                   transportf (fun a => P a _) e (transportf (fun a => P _ a) e' p) .
@@ -108,7 +96,7 @@ Proof.
 Qed.
 
 Definition eq_diag  {C : Precategory} {g : graph} (d d' : diagram g C) :=
-  Σ (eq_v : Π v: vertex g, dob d v = dob d' v), Π (v v':vertex g) (f:edge v v'),
+  ∑ (eq_v : ∏ v: vertex g, dob d v = dob d' v), ∏ (v v':vertex g) (f:edge v v'),
   transportf (fun obj => C⟦obj, dob d v'⟧)  (eq_v v) (dmor d f) =
   transportb (fun obj => C⟦_, obj⟧) (eq_v v') (dmor d' f).
 
@@ -125,12 +113,12 @@ Lemma eq_diag_is_eq {C : Precategory} {g : graph} (d d' : diagram g C) :
   eq_diag d d' -> d = d'.
 Proof.
   intros [eqv autreq].
-  use total2_paths.
+  use total2_paths_f.
   - apply funextfun.
     intro v.
     apply eqv.
   - rewrite (transportf2_comp
-               (λ x y : vertex g → C, Π a b : vertex g, edge a b →
+               (λ x y : vertex g → C, ∏ a b : vertex g, edge a b →
                                                         C ⟦ y a, x b ⟧)).
     match goal with |- transportf ?Pf ?x1 (transportf ?Pf2 ?s1 ?s2 )  = _ =>
                     set (e := x1);
@@ -200,7 +188,7 @@ Proof.
 Defined.
 
 Lemma eq_diag_mkcocone  :
-  Π {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : Precategory} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (heq_d: eq_diag d d')
     {c : C} (cc:cocone d c),
@@ -233,7 +221,7 @@ Defined.
 
 (* The dual proof *)
 Lemma eq_diag_mkcone  :
-  Π {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : Precategory} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (heq_d: eq_diag d d')
     {c : C} (cc:cone d c),
@@ -268,7 +256,7 @@ Defined.
 
 
 Lemma eq_diag_islimcone:
-  Π {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : Precategory} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (eq_d : eq_diag d d')
     {c : C} {cc:cone d c}
@@ -320,7 +308,7 @@ This proof could be deduced from the previous if there was a lemma
 stating that colimits are limits in the dual category.
  *)
 Lemma eq_diag_iscolimcocone:
-  Π {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : Precategory} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (eq_d : eq_diag d d')
     {c : C} {cc:cocone d c}

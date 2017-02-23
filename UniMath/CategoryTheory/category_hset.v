@@ -26,11 +26,12 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.Foundations.HLevels.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.HLevel_n_is_of_hlevel_Sn.
+
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 
@@ -64,7 +65,9 @@ Proof. intros a b; apply isaset_set_fun_space. Qed.
 
 (*
   Canonical Structure hset_precategory. :-)
-*)
+ *)
+
+Definition hset_Precategory : Precategory := (HSET ,, has_homsets_HSET).
 
 End HSET_precategory.
 

@@ -21,7 +21,7 @@ Section def_FinOrdCoproducts.
   Variable C : precategory.
 
   Definition FinOrdCoproducts : UU :=
-    Π (n : nat) (a : stn n -> C), CoproductCocone (stn n) C a.
+    ∏ (n : nat) (a : stn n -> C), CoproductCocone (stn n) C a.
   Definition hasFinOrdCoproducts := ishinh FinOrdCoproducts.
 
 End def_FinOrdCoproducts.
@@ -35,7 +35,7 @@ Section FinOrdCoproduct_criteria.
 
   (** Case n = 0 of the theorem. *)
   Lemma InitialToCoproduct (I : Initial C):
-    Π (a : stn 0 -> C), CoproductCocone (stn 0) C a.
+    ∏ (a : stn 0 -> C), CoproductCocone (stn 0) C a.
   Proof.
     intros a.
     use (mk_CoproductCocone _ _ _ I
@@ -51,7 +51,7 @@ Section FinOrdCoproduct_criteria.
 
   (** Case n = 1 of the theorem. *)
   Lemma ObjectToCoproduct:
-    Π (a : stn 1 -> C), CoproductCocone (stn 1) C a.
+    ∏ (a : stn 1 -> C), CoproductCocone (stn 1) C a.
   Proof.
     intros a.
     set (stn1ob := invweq(weqstn1tounit) tt).
@@ -86,7 +86,7 @@ Section FinOrdCoproduct_criteria.
     intros a.
     set (a1 := fun (i : stn n) => a (dni_lastelement i)).
     set (Cone1 := IHn a1).
-    set (a2 := (fun _ : stn 1 => a (lastelement n))).
+    set (a2 := (fun _ : stn 1 => a lastelement)).
     set (Cone2 := ObjectToCoproduct a2). (* Case n = 1 *)
     set (Cone1In := CoproductIn _ _ Cone1).
     set (Cone2In := CoproductIn _ _ Cone2).
@@ -113,19 +113,19 @@ Section FinOrdCoproduct_criteria.
     set (g1 := fun i : stn n => g(dni_lastelement i)).
     set (ar1 := CoproductArrow _ _ Cone1 g1).
     set (com1 := BinCoproductIn1Commutes  _ _ _ BinCone c ar1
-                                          (g(lastelement n))).
+                                          (g lastelement)).
     set (com2 := BinCoproductIn2Commutes _ _ _ BinCone c ar1
-                                         (g(lastelement n))).
+                                         (g lastelement)).
     set (com3 := CoproductInCommutes _ _ _ Cone1 _ g1).
     set (com4 := CoproductInCommutes _ _ _ Cone2 _
-                                     (fun _ : stn 1 => g(lastelement n))).
+                                     (fun _ : stn 1 => g lastelement)).
 
     use (unique_exists).
 
     (* Construction of the unique arrow from BinCone to c. *)
     use (BinCoproductArrow _ BinCone).
     use (CoproductArrow _ _ Cone1). intros i. exact (g (dni_lastelement i)).
-    use (CoproductArrow _ _ Cone2). intros i. exact (g (lastelement n)).
+    use (CoproductArrow _ _ Cone2). intros i. exact (g lastelement).
 
     (* First commutativity. *)
     intros i. unfold coprod_rect. induction (natlehchoice4 (pr1 i) n (pr2 i)) as [a0|b].
@@ -143,7 +143,7 @@ Section FinOrdCoproduct_criteria.
     apply remove_id_left. apply idpath.
 
     unfold m2. unfold in2. rewrite <- assoc. fold g1. fold ar1.
-    use (pathscomp0 (maponpaths (fun f : _ => Cone2In (lastelement 0) ;; f) com2)).
+    use (pathscomp0 (maponpaths (fun f : _ => Cone2In lastelement ;; f) com2)).
     rewrite com4. apply idpath.
 
 
@@ -182,9 +182,9 @@ Section FinOrdCoproduct_criteria.
 
     (* From stn 1 *)
     apply CoproductArrowUnique.
-    intros i. rewrite <- (X (lastelement n)). rewrite assoc.
+    intros i. rewrite <- (X lastelement). rewrite assoc.
     apply cancel_postcomposition.
-    induction (natlehchoice4 (pr1 (lastelement n)) n (pr2 (lastelement n))) as [a0|b].
+    induction (natlehchoice4 (pr1 lastelement) n (pr2 lastelement)) as [a0|b].
 
     (* This case is false because of a0 *)
     apply fromempty. cbn in a0. apply (isirreflnatlth _ a0).
@@ -195,12 +195,12 @@ Section FinOrdCoproduct_criteria.
     (* This case makes sense *)
     set (e := isconnectedstn1 i (invweq(weqstn1tounit) tt)).
     use (pathscomp0 _ (CoproductIn_idtoiso (stn 1) C
-                                           (fun _ : _ => a(lastelement n))
+                                           (fun _ : _ => a lastelement)
                                            Cone2 e)).
     apply cancel_postcomposition.
     apply maponpaths. apply maponpaths. (* Why we need maponpaths twice? *)
-    fold (@funcomp (stn 1) _ _ (fun _ : stn 1 => lastelement n) a).
-    rewrite <- (maponpathscomp (fun _ : stn 1 => lastelement n) a).
+    fold (@funcomp (stn 1) _ _ (fun _ : stn 1 => lastelement) a).
+    rewrite <- (maponpathscomp (fun _ : stn 1 => lastelement) a).
     apply maponpaths. apply isasetstn.
   Defined.
 End FinOrdCoproduct_criteria.

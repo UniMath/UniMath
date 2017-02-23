@@ -22,7 +22,7 @@ Section def_po.
   Variable C : precategory.
   Variable hs: has_homsets C.
 
-  Open Scope stn.
+  Local Open Scope stn.
   Definition One : three := ● 0.
   Definition Two : three := ● 1.
   Definition Three : three := ● 2.
@@ -83,7 +83,7 @@ Section def_po.
 
   Definition mk_isPushout {a b c d : C} (f : C ⟦a, b⟧) (g : C ⟦a, c⟧)
              (i1 : C⟦b, d⟧) (i2 : C⟦c, d⟧) (H : f ;; i1 = g ;; i2) :
-    (Π e (h : C ⟦b, e⟧) (k : C⟦c, e⟧)(Hk : f ;; h = g ;; k ),
+    (∏ e (h : C ⟦b, e⟧) (k : C⟦c, e⟧)(Hk : f ;; h = g ;; k ),
      iscontr (total2 (fun hk : C⟦d, e⟧ => dirprod (i1 ;; hk = h)(i2 ;; hk = k)))) →
     isPushout f g i1 i2 H.
   Proof.
@@ -131,9 +131,9 @@ Section def_po.
     - apply ispo.
   Defined.
 
-  Definition Pushouts : UU := Π (a b c : C) (f : C⟦a, b⟧)(g : C⟦a, c⟧), Pushout f g.
+  Definition Pushouts : UU := ∏ (a b c : C) (f : C⟦a, b⟧)(g : C⟦a, c⟧), Pushout f g.
 
-  Definition hasPushouts : UU := Π (a b c : C) (f : C⟦a, b⟧) (g : C⟦a, c⟧), ishinh (Pushout f g).
+  Definition hasPushouts : UU := ∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦a, c⟧), ishinh (Pushout f g).
 
   Definition PushoutObject {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}:
     Pushout f g -> C := fun H => colim H.

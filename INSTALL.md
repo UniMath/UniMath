@@ -1,12 +1,13 @@
 Installation of UniMath
 =======================
 
-Prepare for installation by installing the OCAML compiler on your system.
-Under Mac OS X, the most convenient way to do that is with "Homebrew",
-available from http://brew.sh/, with the following command:
+Prepare for installation by installing the OCAML compiler and a more modern
+version of `bash` on your system.  Under Mac OS X, the most convenient way to
+do that is with "Homebrew", available from http://brew.sh/, with the following
+command:
 
 ```bash
-$ brew install objective-caml camlp5 camlp4 lablgtk
+$ brew install objective-caml camlp5 camlp4 lablgtk bash
 ```
 
 Also install "ocamlfind" using "homebrew" with the following commands.
@@ -57,6 +58,13 @@ $ make BUILD_COQIDE=yes
 Alternatively, you can specify the value of the BUILD_COQIDE option more
 permanently by following the instructions in the file
 build/Makefile-configuration-template.
+
+Later on, after running the command `make install` as instructed below, in
+order to run the program ```coqide```, you may use the following command.
+
+```bash
+$ sub/coq/bin/coqide -indices-matter -type-in-type -Q UniMath UniMath
+```
 
 To create the standard HTML documentation provided by coqdoc:
 ```bash

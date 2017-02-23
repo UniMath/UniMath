@@ -6,10 +6,10 @@ Require UniMath.CategoryTheory.precategories.
 Require UniMath.Ktheory.Nat.
 Notation ℕ := nat.
 
-Definition target_paths {Y} (f:ℕ->Y) := Π n, f n=f(S n).
+Definition target_paths {Y} (f:ℕ->Y) := ∏ n, f n=f(S n).
 
 Definition gHomotopy {Y} (f:ℕ->Y) (s:target_paths f) := fun
-     y:Y => Σ (h:nullHomotopyFrom f y), Π n, h(S n) = h n @ s n.
+     y:Y => ∑ (h:nullHomotopyFrom f y), ∏ n, h(S n) = h n @ s n.
 
 Definition GuidedHomotopy {Y} (f:ℕ->Y) (s:target_paths f) :=
   total2 (gHomotopy f s).
@@ -17,7 +17,7 @@ Definition GuidedHomotopy {Y} (f:ℕ->Y) (s:target_paths f) :=
 Theorem iscontrGuidedHomotopy {Y} {f:ℕ->Y} (s:target_paths f) :
   iscontr (GuidedHomotopy f s).
 Proof. intros. unfold GuidedHomotopy, nullHomotopyFrom.
-       refine (@iscontrweqb _ (Σ y, y=f 0) _ _).
+       refine (@iscontrweqb _ (∑ y, y=f 0) _ _).
        { apply weqfibtototal. intro y.
          exact (Nat.Uniqueness.hNatRecursion_weq
                   (fun n => y = f n) (fun n hn => hn @ s n)). }
@@ -38,12 +38,12 @@ Proof. intros ? ? ? r. apply (squash_to_prop r).
          { exact (transportf (gHomotopy f s) (s n) IHn). } } Defined.
 
 Definition map_path {Y} {f:ℕ->Y} (s:target_paths f) :
-  Π n, map s (squash_element n) = map s (squash_element (S n)).
-Proof. intros. apply (total2_paths2 (s n)).
+  ∏ n, map s (squash_element n) = map s (squash_element (S n)).
+Proof. intros. apply (two_arg_paths_f (s n)).
        simpl. reflexivity. Defined.
 
 Definition map_path_check {Y} {f:ℕ->Y} (s:target_paths f) (n:ℕ) :
-  Π p : map s (squash_element n) = map s (squash_element (S n)),
+  ∏ p : map s (squash_element n) = map s (squash_element (S n)),
     ap pr1 p = s n.
 Proof. intros. set (q := map_path s n).
        assert (path_inverse_to_right : q=p).

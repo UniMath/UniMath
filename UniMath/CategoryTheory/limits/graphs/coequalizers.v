@@ -22,7 +22,7 @@ Section def_coequalizers.
   Variable C : precategory.
   Variable hs: has_homsets C.
 
-  Open Scope stn.
+  Local Open Scope stn.
   Definition One : two := ● 0.
   Definition Two : two := ● 1.
 
@@ -69,7 +69,7 @@ Section def_coequalizers.
 
   Definition mk_isCoequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧)
              (H : f ;; h = g ;; h) :
-    (Π e (h' : C⟦b, e⟧) (H' : f ;; h' = g ;; h'),
+    (∏ e (h' : C⟦b, e⟧) (H' : f ;; h' = g ;; h'),
      iscontr (total2 (fun hk : C⟦d, e⟧ => h ;; hk = h'))) ->
     isCoequalizer f g d h H.
   Proof.
@@ -109,9 +109,9 @@ Section def_coequalizers.
     - exact isCEq.
   Defined.
 
-  Definition Coequalizers : UU := Π (a b : C) (f g : C⟦a, b⟧), Coequalizer f g.
+  Definition Coequalizers : UU := ∏ (a b : C) (f g : C⟦a, b⟧), Coequalizer f g.
 
-  Definition hasCoequalizers : UU := Π (a b : C) (f g : C⟦a, b⟧), ishinh (Coequalizer f g).
+  Definition hasCoequalizers : UU := ∏ (a b : C) (f g : C⟦a, b⟧), ishinh (Coequalizer f g).
 
   Definition CoequalizerObject {a b : C} {f g : C⟦a, b⟧} :
     Coequalizer f g -> C := fun H => colim H.

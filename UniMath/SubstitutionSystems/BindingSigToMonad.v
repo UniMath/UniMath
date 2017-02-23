@@ -50,15 +50,15 @@ Local Notation "'chain'" := (diagram nat_graph).
 Section BindingSig.
 
 (** A binding signature is a collection of lists of natural numbers indexed by types I *)
-Definition BindingSig : UU := Σ (I : UU) (h : isdeceq I), I → list nat.
+Definition BindingSig : UU := ∑ (I : UU) (h : isaset I), I → list nat.
 
 Definition BindingSigIndex : BindingSig -> UU := pr1.
-Definition BindingSigIsdeceq (s : BindingSig) : isdeceq (BindingSigIndex s) :=
+Definition BindingSigIsaset (s : BindingSig) : isaset (BindingSigIndex s) :=
   pr1 (pr2 s).
 Definition BindingSigMap (s : BindingSig) : BindingSigIndex s -> list nat :=
   pr2 (pr2 s).
 
-Definition mkBindingSig {I : UU} (h : isdeceq I) (f : I -> list nat) : BindingSig := (I,,h,,f).
+Definition mkBindingSig {I : UU} (h : isaset I) (f : I -> list nat) : BindingSig := (I,,h,,f).
 
 (** Sum of binding signatures *)
 Definition SumBindingSig : BindingSig -> BindingSig -> BindingSig.
@@ -67,7 +67,7 @@ intros s1 s2.
 mkpair.
 - apply (BindingSigIndex s1 ⨿ BindingSigIndex s2).
 - mkpair.
-  + apply (isdeceqcoprod (BindingSigIsdeceq s1) (BindingSigIsdeceq s2)).
+  + apply (isasetcoprod _ _ (BindingSigIsaset s1) (BindingSigIsaset s2)).
   + induction 1 as [i|i]; [ apply (BindingSigMap s1 i) | apply (BindingSigMap s2 i) ].
 Defined.
 
@@ -112,24 +112,29 @@ destruct n; simpl.
 Defined.
 
 Definition precomp_option_iter_Signature (BCC : BinCoproducts C)
-  (TC : Terminal C) (n : nat) : Signature C hsC.
+  (TC : Terminal C) (n : nat) : Signature C hsC C hsC.
 Proof.
-mkpair.
-- apply (precomp_option_iter BCC TC n).
-- destruct n; simpl.
-  + apply θ_functor_identity.
-  + set (F := δ_iter_functor1 _ _ _ (δ_option _ hsC TC BCC)).
-    apply (θ_precompG _ hsC (iter_functor1 _ (option_functor BCC TC) n) (F n)).
-    * apply δ_law1_iter_functor1, δ_law1_option.
-    * apply δ_law2_iter_functor1, δ_law2_option.
+  mkpair.
+  - exact (precomp_option_iter BCC TC n).
+  - destruct n; simpl.
+    + apply θ_functor_identity.
+    + exact (pr2 (θ_from_δ_Signature C hsC _ (DL_iter_functor1 C hsC (option_functor BCC TC) (option_DistributiveLaw C hsC TC BCC) n))).
 Defined.
+
+(* will not be used, is just a confirmation of proper construction *)
+Local Lemma functor_in_precomp_option_iter_Signature_ok  (BCC : BinCoproducts C)
+      (TC : Terminal C) (n : nat) : Signature_Functor _ _ _ _ (precomp_option_iter_Signature BCC TC n) = precomp_option_iter BCC TC n.
+Proof.
+apply idpath.
+Qed.
+
 
 (* From here on all constructions need these hypotheses *)
 Context (BPC : BinProducts C) (BCC : BinCoproducts C).
 
 (** [nat] to a Signature *)
-Definition Arity_to_Signature (TC : Terminal C) (xs : list nat) : Signature C hsC :=
-     foldr1 (BinProduct_of_Signatures _ _ BPC) (IdSignature _ _)
+Definition Arity_to_Signature (TC : Terminal C) (xs : list nat) : Signature C hsC C hsC :=
+     foldr1 (BinProduct_of_Signatures _ _ _ _ BPC) (IdSignature _ _)
         (map (precomp_option_iter_Signature BCC TC) xs).
 
 Let BPC2 BPC := BinProducts_functor_precat C _ BPC hsC.
@@ -138,7 +143,7 @@ Let constprod_functor1 := constprod_functor1 (BPC2 BPC).
 (** The H assumption follows directly if [C,C] has exponentials *)
 Lemma is_omega_cocont_Arity_to_Signature
   (TC : Terminal C) (CLC : Colims_of_shape nat_graph C)
-  (H : Π (F : [C,C]), is_omega_cocont (constprod_functor1 F))
+  (H : ∏ (F : [C,C]), is_omega_cocont (constprod_functor1 F))
   (xs : list nat) :
   is_omega_cocont (Arity_to_Signature TC xs).
 Proof.
@@ -146,18 +151,20 @@ destruct xs as [[|n] xs].
 - destruct xs; apply (is_omega_cocont_functor_identity has_homsets_C2).
 - induction n as [|n IHn].
   + destruct xs as [m []]; simpl.
+    unfold Arity_to_Signature.
     apply is_omega_cocont_precomp_option_iter, CLC.
   + destruct xs as [m [k xs]].
     apply is_omega_cocont_BinProduct_of_Signatures.
     * apply is_omega_cocont_precomp_option_iter, CLC.
     * apply (IHn (k,,xs)).
+    * assumption.
     * intro x; apply (H x).
 Defined.
 
 (** ** Binding signature to a signature with strength *)
 Definition BindingSigToSignature (TC : Terminal C)
   (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C) :
-  Signature C hsC.
+  Signature C hsC C hsC.
 Proof.
 apply (Sum_of_Signatures (BindingSigIndex sig)).
 - apply CC.
@@ -166,12 +173,12 @@ Defined.
 
 Lemma is_omega_cocont_BindingSigToSignature
   (TC : Terminal C) (CLC : Colims_of_shape nat_graph C)
-  (HF : Π (F : [C,C]), is_omega_cocont (constprod_functor1 F))
+  (HF : ∏ (F : [C,C]), is_omega_cocont (constprod_functor1 F))
   (sig : BindingSig)
   (CC : Coproducts (BindingSigIndex sig) C) (PC : Products (BindingSigIndex sig) C) :
   is_omega_cocont (BindingSigToSignature TC sig CC).
 Proof.
-apply (is_omega_cocont_Sum_of_Signatures _ (BindingSigIsdeceq sig)).
+apply is_omega_cocont_Sum_of_Signatures.
 - intro i; apply is_omega_cocont_Arity_to_Signature, HF; assumption.
 - apply PC.
 Defined.
@@ -182,7 +189,7 @@ Let FunctorAlg F := FunctorAlg F has_homsets_C2.
 (** ** Construction of initial algebra for a signature with strength *)
 Definition SignatureInitialAlgebra
   (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
-  (H : Signature C hsC) (Hs : is_omega_cocont H) :
+  (H : Signature C hsC C hsC) (Hs : is_omega_cocont H) :
   Initial (FunctorAlg (Id_H H)).
 Proof.
 use colimAlgInitial.
@@ -196,7 +203,7 @@ Let HSS := @hss_precategory C hsC BCC.
 (* Redefine this here so that it uses the arguments above *)
 Let InitialHSS
   (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
-  (H : Signature C hsC) (Hs : is_omega_cocont H) :
+  (H : Signature C hsC C hsC) (Hs : is_omega_cocont H) :
   Initial (HSS H).
 Proof.
 apply InitialHSS; assumption.
@@ -205,7 +212,7 @@ Defined.
 (** ** Signature with strength and initial algebra to a HSS *)
 Definition SignatureToHSS
   (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
-  (H : Signature C hsC) (Hs : is_omega_cocont H) :
+  (H : Signature C hsC C hsC) (Hs : is_omega_cocont H) :
   HSS H.
 Proof.
 now apply InitialHSS; assumption.
@@ -214,14 +221,14 @@ Defined.
 (** The above HSS is initial *)
 Definition SignatureToHSSisInitial
   (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
-  (H : Signature C hsC) (Hs : is_omega_cocont H) :
+  (H : Signature C hsC C hsC) (Hs : is_omega_cocont H) :
   isInitial _ (SignatureToHSS IC CLC H Hs).
 Proof.
 now unfold SignatureToHSS; destruct InitialHSS.
 Qed.
 
 (* Redefine this here so that it uses the arguments above *)
-Let Monad_from_hss (H : Signature C hsC) : HSS H → Monad C.
+Let Monad_from_hss (H : Signature C hsC C hsC) : HSS H → Monad C.
 Proof.
 exact (Monad_from_hss _ _ BCC H).
 Defined.
@@ -229,7 +236,7 @@ Defined.
 (** ** Function from binding signatures to monads *)
 Definition BindingSigToMonad
   (TC : Terminal C) (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
-  (HF : Π (F : [C,C]), is_omega_cocont (constprod_functor1 F))
+  (HF : ∏ (F : [C,C]), is_omega_cocont (constprod_functor1 F))
   (sig : BindingSig)
   (PC : Products (BindingSigIndex sig) C)
   (CC : Coproducts (BindingSigIndex sig) C) :
@@ -252,20 +259,20 @@ apply functor_category_has_homsets.
 Defined.
 
 (** ** Binding signature to signature with strength for HSET *)
-Definition BindingSigToSignatureHSET (sig : BindingSig) : Signature HSET has_homsets_HSET.
+Definition BindingSigToSignatureHSET (sig : BindingSig) : Signature HSET has_homsets_HSET HSET has_homsets_HSET.
 Proof.
 use BindingSigToSignature.
 - apply BinProductsHSET.
 - apply BinCoproductsHSET.
 - apply TerminalHSET.
 - apply sig.
-- apply CoproductsHSET, (isasetifdeceq _ (BindingSigIsdeceq sig)).
+- apply CoproductsHSET, (BindingSigIsaset sig).
 Defined.
 
 Lemma is_omega_cocont_BindingSigToSignatureHSET (sig : BindingSig) :
   is_omega_cocont (BindingSigToSignatureHSET sig).
 Proof.
-apply (is_omega_cocont_Sum_of_Signatures _ (BindingSigIsdeceq sig)).
+apply is_omega_cocont_Sum_of_Signatures.
 - intro i; apply is_omega_cocont_Arity_to_Signature.
   + apply ColimsHSET_of_shape.
   + intros F.
@@ -275,7 +282,7 @@ apply (is_omega_cocont_Sum_of_Signatures _ (BindingSigIsdeceq sig)).
 Defined.
 
 (** ** Construction of initial algebra for a signature with strength for HSET *)
-Definition SignatureInitialAlgebraHSET (s : Signature HSET has_homsets_HSET) (Hs : is_omega_cocont s) :
+Definition SignatureInitialAlgebraHSET (s : Signature HSET has_homsets_HSET _ _) (Hs : is_omega_cocont s) :
   Initial (FunctorAlg (Id_H _ _ BinCoproductsHSET s) has_homsets_HSET2).
 Proof.
 apply SignatureInitialAlgebra; try assumption.
@@ -299,7 +306,7 @@ intros sig; use (BindingSigToMonad _ _ _ _ _ _ _ sig).
   apply has_exponentials_functor_HSET, has_homsets_HSET.
 - apply ProductsHSET.
 - apply CoproductsHSET.
-  exact (isasetifdeceq _ (BindingSigIsdeceq sig)).
+  apply BindingSigIsaset.
 Defined.
 
 End BindingSigToMonadHSET.

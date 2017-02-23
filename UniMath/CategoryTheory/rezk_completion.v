@@ -73,13 +73,13 @@ End rezk.
 (** * Universal property of the Rezk completion *)
 
 Definition functor_from (C : precategory) : UU
-  := Σ D : category, functor C D.
+  := ∑ D : category, functor C D.
 
 Coercion target_category (C : precategory) (X : functor_from C) : category := pr1 X.
 Definition func_functor_from {C : precategory} (X : functor_from C) : functor C X := pr2 X.
 
 Definition is_initial_functor_from (C : precategory) (X : functor_from C) : UU
-  := Π X' : functor_from C,
+  := ∏ X' : functor_from C,
      ∃! H : functor X X',
        functor_composite (func_functor_from X) H = func_functor_from X'.
 
@@ -160,7 +160,7 @@ Defined.
 
 Definition Rezk_completion_endo_is_identity (D : functor_from A)
            (DH : is_initial_functor_from A D)
-  : Π X : functor D D, functor_composite (func_functor_from D) X = func_functor_from D
+  : ∏ X : functor D D, functor_composite (func_functor_from D) X = func_functor_from D
         ->
         X = functor_identity D.
 Proof.

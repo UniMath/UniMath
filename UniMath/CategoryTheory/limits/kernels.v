@@ -29,7 +29,7 @@ Section def_kernels.
 
   (** Definition and construction of Kernels *)
   Definition isKernel {x y z : C} (f : x --> y) (g : y --> z) (H : f ;; g = ZeroArrow Z x z) : UU :=
-    Π (w : C) (h : w --> y) (H : h ;; g = ZeroArrow Z w z), iscontr (Σ φ : w --> x, φ ;; f = h).
+    ∏ (w : C) (h : w --> y) (H : h ;; g = ZeroArrow Z w z), iscontr (∑ φ : w --> x, φ ;; f = h).
 
   Lemma isKernel_paths {x y z : C} (f : x --> y) (g : y --> z) (H H' : f ;; g = (ZeroArrow Z x z))
         (isK : isKernel f g H) : isKernel f g H'.
@@ -39,8 +39,8 @@ Section def_kernels.
   Qed.
 
   Definition mk_isKernel {x y z : C} (f : x --> y) (g : y --> z) (H1 : f ;; g = ZeroArrow Z x z)
-             (H2 : Π (w : C) (h : w --> y) (H' : h ;; g = ZeroArrow Z w z),
-                   iscontr (Σ ψ : w --> x, ψ ;; f = h)) : isKernel f g H1.
+             (H2 : ∏ (w : C) (h : w --> y) (H' : h ;; g = ZeroArrow Z w z),
+                   iscontr (∑ ψ : w --> x, ψ ;; f = h)) : isKernel f g H1.
   Proof.
     unfold isKernel.
     intros w h H.
@@ -52,15 +52,15 @@ Section def_kernels.
   Defined.
 
   Definition Kernel {y z : C} (g : y --> z) : UU :=
-    Σ D : (Σ x : ob C, x --> y),
-          Σ (e : (pr2 D) ;; g = ZeroArrow Z (pr1 D) z), isKernel (pr2 D) g e.
+    ∑ D : (∑ x : ob C, x --> y),
+          ∑ (e : (pr2 D) ;; g = ZeroArrow Z (pr1 D) z), isKernel (pr2 D) g e.
 
   Definition mk_Kernel {x y z : C} (f : x --> y) (g : y --> z) (H : f ;; g = (ZeroArrow Z x z))
              (isE : isKernel f g H) : Kernel g := ((x,,f),,(H,,isE)).
 
-  Definition Kernels : UU := Π (y z : C) (g : y --> z), Kernel g.
+  Definition Kernels : UU := ∏ (y z : C) (g : y --> z), Kernel g.
 
-  Definition hasKernels : UU := Π (y z : C) (g : y --> z), ishinh (Kernel g).
+  Definition hasKernels : UU := ∏ (y z : C) (g : y --> z), ishinh (Kernel g).
 
   (** Accessor functions *)
   Definition KernelOb {y z : C} {g : y --> z} (K : Kernel g) : C := pr1 (pr1 K).
@@ -114,7 +114,7 @@ Section def_kernels.
 
   (** Results on morphisms between Kernels. *)
   Definition identity_is_KernelIn {y z : C} {g : y --> z} (K : Kernel g) :
-    Σ φ : C⟦K, K⟧, φ ;; (KernelArrow K) = (KernelArrow K).
+    ∑ φ : C⟦K, K⟧, φ ;; (KernelArrow K) = (KernelArrow K).
   Proof.
     exists (identity K).
     apply id_left.

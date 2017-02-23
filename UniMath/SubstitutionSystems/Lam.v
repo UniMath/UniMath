@@ -46,11 +46,6 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 
 
-Arguments θ_source {_ _} _ .
-Arguments θ_target {_ _} _ .
-Arguments θ_Strength1 {_ _ _} _ .
-Arguments θ_Strength2 {_ _ _} _ .
-
 Section Lambda.
 
 Variable C : precategory.
@@ -77,13 +72,13 @@ Let CPEndEndC:= BinCoproducts_functor_precat _ _ CPEndC hsEndC: BinCoproducts En
 
 Let one : C :=  @TerminalObject C terminal.
 
-Variable KanExt : Π Z : precategory_Ptd C hs,
+Variable KanExt : ∏ Z : precategory_Ptd C hs,
    RightKanExtension.GlobalRightKanExtensionExists C C
      (U Z) C hs hs.
 
 
-Let Lam_S : Signature _ _ := Lam_Sig C hs terminal CC CP.
-Let LamE_S : Signature _ _ := LamE_Sig C hs terminal CC CP.
+Let Lam_S : Signature _ _ _ _ := Lam_Sig C hs terminal CC CP.
+Let LamE_S : Signature _ _ _ _ := LamE_Sig C hs terminal CC CP.
 
 (* assume initial algebra for signature Lam *)
 
@@ -128,7 +123,7 @@ Defined.
 
 
 Definition Lam_App_Abs :  [C, C, hs]
-   ⟦ (H C hs CC (App_H C hs CP) (Abs_H C hs terminal CC)) `Lam , `Lam ⟧.
+   ⟦ (H C hs C hs CC (App_H C hs CP) (Abs_H C hs terminal CC)) `Lam , `Lam ⟧.
 Proof.
   exact (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) ;; alg_map _ Lam).
 Defined.
@@ -415,8 +410,8 @@ Qed.
 Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
   (f : Ptd ⟦ Z, ptd_from_alg LamE_algebra_on_Lam ⟧)
  :
-   Π
-   t : Σ
+   ∏
+   t : ∑
        h : [C, C, hs]
            ⟦ functor_composite (U Z)
                (` LamE_algebra_on_Lam),
