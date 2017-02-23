@@ -200,9 +200,7 @@ Defined.
 (* Step through this proof to demonstrate eta expansion for pairs, if primitive
    projections are on: *)
 Goal ∏ X (Y:X->UU) (w:∑ x, Y x), w = (pr1 w,, pr2 w).
-Proof.
-  intros. induction w as [x y]. exact (idpath (x,,y)).
-Defined.
+Proof. try reflexivity. Abort.
 
 Definition rewrite_pr1_tpair {X} {P:X->UU} x p : pr1 (tpair P x p) = x.
 reflexivity. Defined.
