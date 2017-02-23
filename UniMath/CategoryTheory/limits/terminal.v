@@ -14,6 +14,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.Monics.
 
 Local Open Scope cat.
 
@@ -194,3 +195,16 @@ use mk_Terminal.
 Defined.
 
 End TerminalFunctorCat.
+
+(** Morphisms from the terminal object are monic *)
+Section monics_terminal.
+
+Context {C : precategory} (TC : Terminal C).
+
+Lemma from_terminal_isMonic (a : C) (f : C⟦TC,a⟧) : isMonic f.
+Proof.
+apply mk_isMonic; intros b g h H.
+now apply ArrowsToTerminal.
+Qed.
+
+End monics_terminal.

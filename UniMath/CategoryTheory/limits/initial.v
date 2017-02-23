@@ -13,7 +13,9 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories
-               UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Epis.
+
 Local Open Scope cat.
 
 Section def_initial.
@@ -183,3 +185,16 @@ use mk_Initial.
 Defined.
 
 End InitialFunctorCat.
+
+(** Morphisms to the initial object are epis *)
+Section epis_initial.
+
+Context {C : precategory} (IC : Initial C).
+
+Lemma to_initial_isEpi (a : C) (f : C⟦a,IC⟧) : isEpi f.
+Proof.
+apply mk_isEpi; intros b g h H.
+now apply InitialArrowEq.
+Qed.
+
+End epis_initial.
