@@ -225,7 +225,7 @@ Proof.
     * apply (pr2 T).
     * clear xs; intros x xs' IH.
       set (IH_Sig := (tpair _ (exp_functor_list xs') IH) : Signature (slice_precat SET sort (homset_property SET)) hs HSET has_homsets_HSET).
-      induction xs'. (* needed for typechecking the next term *)
+      induction xs' as [x' s']. (* needed for typechecking the next term *)
       exact (pr2 (BinProduct_of_Signatures  _ _ _ _ _ (Sig_exp_functor x) IH_Sig)).
 Defined.
 

@@ -918,7 +918,12 @@ Section def_cohomology_functor_additive.
   Variable A : AbelianPreCat.
   Variable hs : has_homsets A.
 
-  Local Lemma CohomologyFunctor_isAdditive : isAdditiveFunctor (CohomologyFunctor A hs).
+  Local Lemma CohomologyFunctor_isAdditive :
+    @isAdditiveFunctor (ComplexPreCat_Additive (AbelianToAdditive A hs)) (ComplexPreCat_Additive (AbelianToAdditive A hs))
+                       (CohomologyFunctor A hs).
+  (* note: with primitive projections off, the goal can be written more simply as
+            isAdditiveFunctor (CohomologyFunctor A hs)
+   *)
   Proof.
     use mk_isAdditiveFunctor.
     intros C1 C2.
