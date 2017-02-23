@@ -33,33 +33,27 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
 
-Arguments θ_source {_ _} _ .
-Arguments θ_target {_ _} _ .
-Arguments θ_Strength1 {_ _ _} _ .
-Arguments θ_Strength2 {_ _ _} _ .
-Arguments θ_Strength1_int {_ _ _} _ .
-Arguments θ_Strength2_int {_ _ _} _ .
 
 Section sum_of_signatures.
 
-Variables (I : UU) (HI : isdeceq I) (C : precategory) (hsC : has_homsets C).
-Variables (CC : Coproducts I C).
+Variables (I : UU) (C : precategory) (hsC : has_homsets C) (D : precategory) (hsD : has_homsets D).
+Variables (CD : Coproducts I D).
 
 Section construction.
 
-Local Notation "'CCC'" := (Coproducts_functor_precat I C C CC hsC : Coproducts I [C, C, hsC]).
+Local Notation "'CCD'" := (Coproducts_functor_precat I C D CD hsD : Coproducts I [C, D, hsD]).
 
-Variables H1 : I -> functor [C, C, hsC] [C, C, hsC].
+Variables H1 : I -> functor [C, C, hsC] [C, D, hsD].
 
 Variable θ1 : ∏ i, θ_source (H1 i) ⟶ θ_target (H1 i).
 
-(** * Definition of the data of the sum of two signatures *)
+(** * Definition of the data of the sum of signatures *)
 
-Local Definition H : functor [C, C, hsC] [C, C, hsC] := coproduct_of_functors _ _ _ CCC H1.
+Local Definition H : functor [C, C, hsC] [C, D, hsD] := coproduct_of_functors _ _ _ CCD H1.
 
 Local Definition θ_ob_fun (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) (x : C) :
-   C ⟦ coproduct_of_functors_ob _ _ _ CC (λ i, H1 i X) (pr1 Z x),
-       coproduct_of_functors_ob _ _ _ CC (λ i, H1 i (functor_composite (pr1 Z) X)) x ⟧.
+   D ⟦ coproduct_of_functors_ob _ _ _ CD (λ i, H1 i X) (pr1 Z x),
+       coproduct_of_functors_ob _ _ _ CD (λ i, H1 i (functor_composite (pr1 Z) X)) x ⟧.
 Proof.
 apply CoproductOfArrows; intro i.
 exact (pr1 (θ1 i (X ⊗ Z)) x).
@@ -67,8 +61,8 @@ Defined.
 
 Local Lemma is_nat_trans_θ_ob_fun (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) :
   is_nat_trans (functor_composite_data (pr1 Z)
-                 (coproduct_of_functors_data _ _ _  CC (λ i, H1 i X)))
-                 (coproduct_of_functors_data _ _ _ CC (λ i, H1 i (functor_composite (pr1 Z) X)))
+                 (coproduct_of_functors_data _ _ _  CD (λ i, H1 i X)))
+                 (coproduct_of_functors_data _ _ _ CD (λ i, H1 i (functor_composite (pr1 Z) X)))
                (θ_ob_fun X Z).
 Proof.
 intros x x' f.
@@ -84,10 +78,10 @@ intros [X Z]; exists (θ_ob_fun X Z); apply is_nat_trans_θ_ob_fun.
 Defined.
 
 Local Lemma is_nat_trans_θ_ob :
-  is_nat_trans (θ_source_functor_data C hsC H) (θ_target_functor_data C hsC H) θ_ob.
+  is_nat_trans (θ_source_functor_data C hsC D hsD H) (θ_target_functor_data C hsC D hsD H) θ_ob.
 Proof.
 intros [X Z] [X' Z'] αβ.
-apply (nat_trans_eq hsC); intro c.
+apply (nat_trans_eq hsD); intro c.
 eapply pathscomp0; [ | eapply pathsinv0, CoproductOfArrows_comp].
 eapply pathscomp0; [ apply cancel_postcomposition, CoproductOfArrows_comp |].
 eapply pathscomp0; [ apply CoproductOfArrows_comp |].
@@ -105,11 +99,11 @@ Variable S12' : ∏ i, θ_Strength2_int (θ1 i).
 Lemma SumStrength1' : θ_Strength1_int θ.
 Proof.
 intro X.
-apply (nat_trans_eq hsC); intro x; simpl.
+apply (nat_trans_eq hsD); intro x; simpl.
 eapply pathscomp0; [apply CoproductOfArrows_comp|].
 apply pathsinv0, Coproduct_endo_is_identity; intro i.
 eapply pathscomp0.
-  apply (CoproductOfArrowsIn _ _ (CC (λ i, pr1 (pr1 (H1 i) X) x))).
+  apply (CoproductOfArrowsIn _ _ (CD (λ i, pr1 (pr1 (H1 i) X) x))).
 eapply pathscomp0; [ | apply id_left].
 apply cancel_postcomposition, (nat_trans_eq_pointwise (S11' i X) x).
 Qed.
@@ -117,7 +111,7 @@ Qed.
 Lemma SumStrength2' : θ_Strength2_int θ.
 Proof.
 intros X Z Z'.
-apply (nat_trans_eq hsC); intro x; simpl; rewrite id_left.
+apply (nat_trans_eq hsD); intro x; simpl; rewrite id_left.
 eapply pathscomp0; [apply CoproductOfArrows_comp|].
 apply pathsinv0.
 eapply pathscomp0; [apply CoproductOfArrows_comp|].
@@ -128,24 +122,22 @@ Qed.
 
 End construction.
 
-Definition Sum_of_Signatures (S : I -> Signature C hsC) : Signature C hsC.
+Definition Sum_of_Signatures (S : I -> Signature C hsC D hsD) : Signature C hsC D hsD.
 Proof.
 mkpair.
 - apply H; intro i.
   apply (S i).
 - exists (θ (fun i => S i) (fun i => theta (S i))).
   split.
-  + apply SumStrength1'; intro i; apply (Sig_strength_law1 _ _ (S i)).
-  + apply SumStrength2'; intro i; apply (Sig_strength_law2 _ _ (S i)).
+  + apply SumStrength1'; intro i; apply (Sig_strength_law1 _ _ _ _ (S i)).
+  + apply SumStrength2'; intro i; apply (Sig_strength_law2 _ _ _ _ (S i)).
 Defined.
 
-Lemma is_omega_cocont_Sum_of_Signatures (S : I -> Signature C hsC)
+Lemma is_omega_cocont_Sum_of_Signatures (S : I -> Signature C hsC D hsD)
   (h : ∏ i, is_omega_cocont (S i)) (PC : Products I C) :
   is_omega_cocont (Sum_of_Signatures S).
 Proof.
 apply is_omega_cocont_coproduct_of_functors; try assumption.
-- apply (Products_functor_precat _ _ _ PC).
-- apply functor_category_has_homsets.
 - apply functor_category_has_homsets.
 Defined.
 

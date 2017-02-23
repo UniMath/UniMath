@@ -36,6 +36,7 @@ Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
@@ -3036,18 +3037,18 @@ Section inv_rotation_mapping_cone.
   Proof.
     use (post_comp_with_z_iso_inv_is_inj (InvRotMorphism_is_z_isomorphism f)).
     unfold is_z_isomorphism_mor. unfold InvRotMorphism_is_z_isomorphism.
-    set (tmp := functor_comp (ComplexHomotFunctor A) _ _ _
+    set (tmp := functor_comp (ComplexHomotFunctor A)
                              ((f : (ComplexPreCat_Additive A)⟦_, _⟧) ;; InvRotMorphismInv f)
                              (InvRotMorphism f)).
     use (pathscomp0 (! tmp)). clear tmp. rewrite <- assoc.
-    set (tmp := functor_comp (ComplexHomotFunctor A) _ _ _
+    set (tmp := functor_comp (ComplexHomotFunctor A)
                              ((f : (ComplexPreCat_Additive A)⟦_, _⟧))
                              (((InvRotMorphismInv f) : (ComplexPreCat_Additive A)⟦_, _⟧)
                                 ;; (InvRotMorphism f))).
     use (pathscomp0 tmp). clear tmp.
     set (tmp := is_inverse_in_precat1 (InvRotMorphism_is_z_isomorphism f)).
     cbn beta in tmp. cbn beta.
-    set (tmp' := functor_comp (ComplexHomotFunctor A) _ _ _
+    set (tmp' := functor_comp (ComplexHomotFunctor A)
                               (((InvRotMorphismInv f) : (ComplexPreCat_Additive A)⟦_, _⟧))
                               (((InvRotMorphism f) : (ComplexPreCat_Additive A)⟦_, _⟧))).
     cbn beta in tmp'. rewrite tmp'. clear tmp'.
@@ -4706,7 +4707,7 @@ Section mapping_cone_octa.
       ;; # (ComplexHomotFunctor A) (KAOctaMor3 f1 f2).
   Proof.
     rewrite id_left.
-    use (pathscomp0 _ ((functor_comp (ComplexHomotFunctor A) _ _ _ _ _))).
+    use (pathscomp0 _ ((functor_comp (ComplexHomotFunctor A) _ _))).
     exact (! (KAOctaComm2 f1 f2)).
   Qed.
 
@@ -4720,11 +4721,11 @@ Section mapping_cone_octa.
       (identity ((ComplexHomotFunctor A) (MappingCone A f1))).
   Proof.
     rewrite functor_id. rewrite id_right.
-    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _ _ _))).
+    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A)  _ _))).
     set (tmp := KAOctaComm3 f1 f2).
     apply (maponpaths (# (ComplexHomotFunctor A))) in tmp.
     use (pathscomp0 tmp). clear tmp.
-    use (pathscomp0 ((functor_comp (ComplexHomotFunctor A) _ _ _ _ _))).
+    use (pathscomp0 ((functor_comp (ComplexHomotFunctor A) _ _))).
     apply cancel_precomposition.
     unfold AddEquiv1, TranslationHEquiv. cbn. apply pathsinv0.
     use TranslationFunctorHImEq. apply idpath.
@@ -4736,11 +4737,11 @@ Section mapping_cone_octa.
     # (ComplexHomotFunctor A) (MappingConePr1 A (MorphismComp f1 f2))
       ;; # (AddEquiv1 (TranslationHEquiv A)) (# (ComplexHomotFunctor A) f1).
   Proof.
-    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _ _ _))).
+    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _))).
     set (tmp := (KAOctaComm4 f1 f2)).
     apply (maponpaths (# (ComplexHomotFunctor A))) in tmp.
     use (pathscomp0 tmp). clear tmp.
-    use (pathscomp0 ((functor_comp (ComplexHomotFunctor A) _ _ _ _ _))).
+    use (pathscomp0 ((functor_comp (ComplexHomotFunctor A) _ _))).
     apply cancel_precomposition. unfold AddEquiv1, TranslationHEquiv. cbn. apply pathsinv0.
     use TranslationFunctorHImEq. apply idpath.
   Qed.
@@ -4751,8 +4752,8 @@ Section mapping_cone_octa.
     # (ComplexHomotFunctor A) f2
       ;; # (ComplexHomotFunctor A) (MappingConeIn2 A (MorphismComp f1 f2)).
   Proof.
-    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _ _ _))).
-    use (pathscomp0 _ ((functor_comp (ComplexHomotFunctor A) _ _ _ _ _))).
+    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _))).
+    use (pathscomp0 _ ((functor_comp (ComplexHomotFunctor A) _ _))).
     apply maponpaths. exact (! (KAOctaComm5 f1 f2)).
   Qed.
 
@@ -4782,5 +4783,5 @@ Section mapping_cone_octa.
     rewrite (to_Unel2' DS1). rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left.
     rewrite to_lunax''. apply idpath.
   Qed.
-    
+
 End mapping_cone_octa.

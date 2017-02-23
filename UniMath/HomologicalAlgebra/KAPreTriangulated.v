@@ -326,7 +326,7 @@ Section KAPreTriangulated.
     # (ComplexHomotFunctor A) (MappingConePr1 A I') ;; # (ComplexHomotFunctor A) (RotMorphism A I').
   Proof.
     use (pathscomp0 (id_left _)).
-    use (pathscomp0 _ ((functor_comp (ComplexHomotFunctor A) _ _ _
+    use (pathscomp0 _ ((functor_comp (ComplexHomotFunctor A)
                                      (MappingConePr1 A I') (RotMorphism A I')))).
     exact (! (RotMorphism_comm A I')).
   Qed.
@@ -339,7 +339,7 @@ Section KAPreTriangulated.
            ;; # (AddEquiv1 (TranslationHEquiv A)) (identity (Target (KADTriDataMor I))).
   Proof.
     use (pathscomp0
-           (! (functor_comp (ComplexHomotFunctor A) _ _ _ (RotMorphism A I')
+           (! (functor_comp (ComplexHomotFunctor A) (RotMorphism A I')
                             (MappingConePr1 A (MappingConeIn2 A I'))))).
     use (pathscomp0 (! (maponpaths (# (ComplexHomotFunctor A)) (RotMorphism_comm2 A I')))).
     rewrite functor_id. rewrite id_right.
@@ -396,7 +396,7 @@ Section KAPreTriangulated.
   Proof.
     use (! (KAIdComm _ _ _)).
     use (pathscomp0 _ (! (functor_comp
-                            (ComplexHomotFunctor A) _ _ _
+                            (ComplexHomotFunctor A)
                             (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A I')))
                             (z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A)
                                                             (Source (KADTriDataMor I))))))).
@@ -423,7 +423,7 @@ Section KAPreTriangulated.
     KADTriDataMor I ;; # (ComplexHomotFunctor A) (InvRotMorphismInv A I').
   Proof.
     rewrite id_left. use (pathscomp0 (! (InvRotMorphismInvComm1 A I'))).
-    use (pathscomp0 (functor_comp (ComplexHomotFunctor A) _ _ _ _ _)).
+    use (pathscomp0 (functor_comp (ComplexHomotFunctor A) _ _)).
     use cancel_postcomposition.
     exact (hfiberpr2 _ _ (KADTriDataFiber I)).
   Qed.
@@ -440,10 +440,10 @@ Section KAPreTriangulated.
       ;; (# (AddEquiv1 (TranslationHEquiv A))
             (identity ((AddEquiv2 (TranslationHEquiv A)) (MappingCone A I')))).
   Proof.
-    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _ _ _))).
+    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _))).
     use (pathscomp0 (maponpaths # (ComplexHomotFunctor A) (! (InvRotMorphismInvComm2 A I')))).
     rewrite functor_id. use (pathscomp0 _ (! (id_right _))).
-    exact (functor_comp (ComplexHomotFunctor A) _ _ _ _ _).
+    exact (functor_comp (ComplexHomotFunctor A) _ _).
   Qed.
 
   Local Opaque AddEquiv1 AddEquiv2.
@@ -613,8 +613,8 @@ Section KAPreTriangulated.
     apply (maponpaths (postcompose (Mor2 (MappingConeTri (KADTriDataMor I2) (KADTriDataFiber I2)))))
       in tmp.
     use (pathscomp0 _ tmp). clear tmp. cbn. unfold postcompose.
-    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _ _ _))).
-    use (pathscomp0 _ (functor_comp (ComplexHomotFunctor A) _ _ _ _ _)).
+    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _))).
+    use (pathscomp0 _ (functor_comp (ComplexHomotFunctor A) _ _)).
     apply maponpaths.
     exact (MappingConeMorExtComm1 A I1' I2' h1' h2' HH1 (! HH2)).
   Qed.
@@ -647,11 +647,11 @@ Section KAPreTriangulated.
     # (ComplexHomotFunctor A) (MappingConeMorExt A I1' I2' h1' h2' HH1 (! HH2))
       ;; # (ComplexHomotFunctor A) (MappingConePr1 A I2').
   Proof.
-    use (pathscomp0 _ (functor_comp (ComplexHomotFunctor A) _ _ _ _ _)).
+    use (pathscomp0 _ (functor_comp (ComplexHomotFunctor A) _ _)).
     use (pathscomp0
            _ (maponpaths # (ComplexHomotFunctor A)
                          (MappingConeMorExtComm2 A I1' I2' h1' h2' HH1 (! HH2)))).
-    use (pathscomp0 _ (! (functor_comp (ComplexHomotFunctor A) _ _ _ _ _))).
+    use (pathscomp0 _ (! (functor_comp (ComplexHomotFunctor A) _ _))).
     apply cancel_precomposition. use TranslationFunctorHImEq.
     exact (hfiberpr2 _ _ h1).
   Qed.

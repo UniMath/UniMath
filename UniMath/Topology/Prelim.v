@@ -266,7 +266,7 @@ Proof.
       assert (H : Hm = natlthtolths m n Hm' ).
       { apply (pr2 (natlth m (S n))). }
       now rewrite H.
-      assert (H : (lastelement n) = (n,, Hm)).
+      assert (H : lastelement = (n,, Hm)).
       { now apply subtypeEquality_prop. }
       rewrite <- H.
       exact (pr1 Hx).
@@ -282,11 +282,13 @@ Proof.
   apply funextfun ; intro x.
   apply maponpaths.
   apply map_on_two_paths.
-  induction L as [n L] ; simpl.
-  apply maponpaths.
-  apply funextfun ; intro m.
-  apply append_fun_compute_1.
-  reflexivity.
+  - induction L as [n L] ; simpl.
+    apply maponpaths.
+    apply funextfun ; intro m.
+    unfold funcomp.
+    rewrite <- replace_dni_last.
+    apply append_fun_compute_1.
+  - reflexivity.
 Qed.
 
 Lemma finite_intersection_hProp {X : UU} :

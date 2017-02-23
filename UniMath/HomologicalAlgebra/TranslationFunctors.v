@@ -35,6 +35,7 @@ Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
@@ -1040,11 +1041,11 @@ Section translation_functor.
     use to_has_homsets. intros g'.
     rewrite (TranslationFunctorHImEq (iscontrpr1 (TranslationFunctorH_Mor f)) _ (hfiberpr2 _ _ f')).
     rewrite (TranslationFunctorHImEq (iscontrpr1 (TranslationFunctorH_Mor g)) _ (hfiberpr2 _ _ g')).
-    set (tmp := functor_comp (ComplexHomotFunctor A) _ _ _
+    set (tmp := functor_comp (ComplexHomotFunctor A)
                              (# TranslationFunctor (hfiberpr1 # (ComplexHomotFunctor A) f f'))
                              (# TranslationFunctor (hfiberpr1 # (ComplexHomotFunctor A) g g'))).
     use (pathscomp0 _ tmp). clear tmp.
-    set (tmp := functor_comp TranslationFunctor _ _ _ (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
+    set (tmp := functor_comp TranslationFunctor (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
     apply (maponpaths (# (ComplexHomotFunctor A))) in tmp.
     use (pathscomp0 _ tmp). clear tmp.
     use (TranslationFunctorHImEq (iscontrpr1 (TranslationFunctorH_Mor (f ;; g)))).
@@ -1259,11 +1260,11 @@ Section translation_functor.
                (iscontrpr1 (InvTranslationFunctorH_Mor f)) _ (hfiberpr2 _ _ f')).
     rewrite (InvTranslationFunctorHImEq
                (iscontrpr1 (InvTranslationFunctorH_Mor g)) _ (hfiberpr2 _ _ g')).
-    set (tmp := functor_comp (ComplexHomotFunctor A) _ _ _
+    set (tmp := functor_comp (ComplexHomotFunctor A)
                              (# InvTranslationFunctor (hfiberpr1 # (ComplexHomotFunctor A) f f'))
                              (# InvTranslationFunctor (hfiberpr1 # (ComplexHomotFunctor A) g g'))).
     use (pathscomp0 _ tmp). clear tmp.
-    set (tmp := functor_comp InvTranslationFunctor _ _ _ (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
+    set (tmp := functor_comp InvTranslationFunctor (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
     apply (maponpaths (# (ComplexHomotFunctor A))) in tmp.
     use (pathscomp0 _ tmp). clear tmp.
     use (InvTranslationFunctorHImEq (iscontrpr1 (InvTranslationFunctorH_Mor (f ;; g)))).
@@ -1487,7 +1488,7 @@ Section translation_functor.
                                   (TranslationTranslationInvNatTrans_Mor x)))) in tmp.
     use (pathscomp0 _ (! tmp)). clear tmp. cbn.
     set (tmp := functor_comp
-                  (ComplexHomotFunctor A) _ _ _
+                  (ComplexHomotFunctor A)
                   (TranslationTranslationInvNatTrans_Mor x)
                   (# InvTranslationFunctor
                      (# TranslationFunctor (hfiberpr1 # (ComplexHomotFunctor A) f f')))).
@@ -1537,7 +1538,7 @@ Section translation_functor.
     apply (maponpaths (postcompose (# (ComplexHomotFunctor A)
                                       (InvTranslationTranslationNatTrans_Mor y)))) in tmp.
     use (pathscomp0 tmp). clear tmp. cbn. unfold postcompose.
-    set (tmp := functor_comp (ComplexHomotFunctor A) _ _ _
+    set (tmp := functor_comp (ComplexHomotFunctor A)
                              (# TranslationFunctor
                                 (# InvTranslationFunctor (hfiberpr1 # (ComplexHomotFunctor A) f f')))
                              (InvTranslationTranslationNatTrans_Mor y)).
@@ -1596,7 +1597,6 @@ Section translation_functor.
     set (tmp := TranslationFunctorH_Mor_Im _ id').
     use (pathscomp0 _ (! tmp)). clear tmp. cbn. clear id'.
     set (tmp := functor_comp (ComplexHomotFunctor A)
-                             _ _ _
                              (# TranslationFunctor (TranslationTranslationInvNatTrans_Mor x))
                              (InvTranslationTranslationNatTrans_Mor (TranslationFunctorH x))).
     use (pathscomp0 (! tmp)). clear tmp. apply maponpaths.
@@ -1633,7 +1633,6 @@ Section translation_functor.
     set (tmp := InvTranslationFunctorH_Mor_Im _ id').
     use (pathscomp0 _ (! tmp)). clear tmp. cbn. clear id'.
     set (tmp := functor_comp (ComplexHomotFunctor A)
-                             _ _ _
                              (TranslationTranslationInvNatTrans_Mor (InvTranslationFunctorH x))
                              (# InvTranslationFunctor
                                 (InvTranslationTranslationNatTrans_Mor x))).
@@ -1661,7 +1660,7 @@ Section translation_functor.
     identity ((functor_identity (ComplexHomot_Additive A)) x).
   Proof.
     cbn.
-    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _
+    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A)
                                      (TranslationTranslationInvNatTrans_Mor x)
                                      (TranslationEquivUnitInv x)))).
     use (pathscomp0 _ (functor_id (ComplexHomotFunctor A) x)).
@@ -1679,7 +1678,7 @@ Section translation_functor.
     identity _.
   Proof.
     cbn.
-    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _
+    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A)
                                      (TranslationEquivUnitInv x)
                                      (TranslationTranslationInvNatTrans_Mor x)))).
     use (pathscomp0 _ (functor_id (ComplexHomotFunctor A) _)).
@@ -1709,7 +1708,7 @@ Section translation_functor.
     identity _.
   Proof.
     cbn.
-    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _
+    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A)
                                      (InvTranslationTranslationNatTrans_Mor x)
                                      (TranslationEquivCounitInv x)))).
     use (pathscomp0 _ (functor_id (ComplexHomotFunctor A) _)).
@@ -1726,7 +1725,7 @@ Section translation_functor.
                TranslationHInvTranslationH_adjunction)) x = identity _.
   Proof.
     cbn.
-    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _
+    use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A)
                                      (TranslationEquivCounitInv x)
                                      (InvTranslationTranslationNatTrans_Mor x)))).
     use (pathscomp0 _ (functor_id (ComplexHomotFunctor A) _)).

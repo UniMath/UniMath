@@ -33,6 +33,7 @@ Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import UniMath.CategoryTheory.Abelian.
@@ -184,9 +185,9 @@ Section KATriangulated.
     - exact (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1'')).
     - exact (# (ComplexHomotFunctor A) (KAOctaMor2 f1'' g1'')).
     - exact (hinhpr (KATriangOcta_KADTriData f1' g1')).
-    - use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _ _ _))).
+    - use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _))).
       apply maponpaths. exact (KAOctaMor1Comm f1'' g1'').
-    - use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _ _ _ _))).
+    - use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _))).
       apply maponpaths. exact (KAOctaMor2Comm f1'' g1'').
     - use (pathscomp0 (KAOctaComm5' f1'' g1'')).
       apply cancel_postcomposition. exact (hfiberpr2 _ _ g1').

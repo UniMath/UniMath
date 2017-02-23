@@ -97,7 +97,6 @@ Notation "1" := (unel _) : multmonoid_scope.
 
 Delimit Scope multmonoid_scope with multmonoid.
 
-
 (** **** Functions between monoids compatible with structure (homomorphisms) and their properties *)
 
 Definition ismonoidfun {X Y : monoid} (f : X -> Y) : UU :=
@@ -2049,5 +2048,12 @@ Opaque iscomptoabgrdiff.
 
 Close Scope addmonoid_scope.
 
+(** simple examples *)
+
+Require Export UniMath.Foundations.NaturalNumbers.
+
+Definition nat_add_abmonoid : abmonoid := (natset,, Nat.add),, (natplusassoc,, 0,, natplusl0,, natplusr0),, natpluscomm.
+
+Definition nat_mul_abmonoid : abmonoid := (natset,, mul),, (natmultassoc,, 1,, natmultl1,, natmultr1),, natmultcomm.
 
 (* End of the file algebra1b.v *)

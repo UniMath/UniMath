@@ -1213,7 +1213,7 @@ Section def_cohomology_homotopy.
     apply has_homsets_ComplexPreCat. intros g'.
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor f)) _ (hfiberpr2 _ _ f')).
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor g)) _ (hfiberpr2 _ _ g')).
-    set (tmp := functor_comp (CohomologyFunctor A hs) _ _ _ (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
+    set (tmp := functor_comp (CohomologyFunctor A hs) (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
     use (pathscomp0 _ tmp). clear tmp.
     use (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor (f ;; g)))).
     rewrite functor_comp. rewrite (hfiberpr2 _ _ f'). rewrite (hfiberpr2 _ _ g'). apply idpath.

@@ -1945,7 +1945,7 @@ Section Octa_isomorphisms.
     set (tmp := DComm3 I3). cbn in tmp. rewrite tmp. clear tmp.
     cbn. use (pathscomp0 _ (id_right _)). rewrite <- assoc. apply cancel_precomposition.
     rewrite <- functor_id.
-    use (pathscomp0 (! (functor_comp (AddEquiv1 Trans) _ _ _ _ _))). apply maponpaths.
+    use (pathscomp0 (! (functor_comp (AddEquiv1 Trans) _ _))). apply maponpaths.
     cbn in II13. rewrite <- II13.
     exact (is_inverse_in_precat1 (TriMor_is_iso1 I1)).
   Qed.
