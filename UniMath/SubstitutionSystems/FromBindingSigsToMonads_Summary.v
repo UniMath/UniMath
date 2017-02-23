@@ -172,7 +172,7 @@ Defined.
 
 (** Lemma 32: Left adjoints preserve colimits *)
 Lemma left_adjoint_cocont :
-  ∏ (C D : precategory) (F : functor C D), is_left_adjoint F
+  ∏ (C D : precategory) (F : functor C D), Adjunctions.is_left_adjoint F
   → has_homsets C → has_homsets D → is_cocont F.
 Proof.
 exact @UniMath.CategoryTheory.CocontFunctors.left_adjoint_cocont.
