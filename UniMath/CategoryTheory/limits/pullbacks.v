@@ -10,7 +10,7 @@ Direct implementation of pullbacks together with:
   ([Pullbacks_from_Equalizers_BinProducts])
 - A fully faithful functor reflects limits ([isPullback_preimage_square])
 - A fully faithfull and essentially surjects functor preserves pullbacks ([isPullback_image_square])
-- Pullbacks in functor categories ([pb_if_pointwise_pb])
+- Pullbacks in functor categories ([FunctorPrecategoryPullbacks])
 - Construction of binary products from pullbacks ([BinProductsFromPullbacks])
 
 *)
