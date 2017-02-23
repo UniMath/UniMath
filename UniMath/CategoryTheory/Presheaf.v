@@ -14,7 +14,7 @@ Contents:
 - Terminal object ([Terminal_Psh])
 - Pullbacks ([Pullbacks_Psh])
 - Exponentials ([has_exponentials_Psh])
-- Definition of the subobject classifier (without proof) ([Ω_Psh])
+- Definition of the subobject classifier (without proof) ([Ω_Psh], [Ω_mor])
 
 
 Written by: Anders Mörtberg, 2017
@@ -42,6 +42,7 @@ Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Monics.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
@@ -137,7 +138,21 @@ use isaset_total2.
 - intros S; simpl; repeat (apply impred_isaset; intro); apply isasetaprop, propproperty.
 Qed.
 
+(* If I use HSET here the coercion isn't triggered later and I need to insert pr1 explicitly *)
 Definition sieve (c : C) : hSet := (sieve_def c,,isaset_sieve c).
+
+Lemma sieve_eq (c : C) (s t : sieve c) (H : pr1 s = pr1 t) : s = t.
+Proof.
+apply subtypeEquality; try assumption.
+now intros x; repeat (apply impred; intros); apply propproperty.
+Qed.
+
+Definition maximal_sieve (c : C) : sieve c.
+Proof.
+mkpair.
+- apply (λ _ _, htrue).
+- apply (λ _ _ _ _ _, tt).
+Defined.
 
 Definition sieve_mor a b (f : C⟦b,a⟧) : sieve a → sieve b.
 Proof.
@@ -164,5 +179,19 @@ split.
 Qed.
 
 Definition Ω_Psh : Psh C := (Ω_Psh_data,,is_functor_Ω_Psh_data).
+
+Definition Ω_mor : (Psh C)⟦Terminal_Psh,Ω_Psh⟧.
+Proof.
+use mk_nat_trans.
+- simpl; apply (λ c _, maximal_sieve c).
+- intros x y f; simpl in *; apply funextfun; cbn; intros _.
+  apply sieve_eq; simpl.
+  now repeat (apply funextsec; intros).
+Defined.
+
+Lemma isMonic_Ω_mor : isMonic Ω_mor.
+Proof.
+now apply from_terminal_isMonic.
+Qed.
 
 End Ω_Psh.
