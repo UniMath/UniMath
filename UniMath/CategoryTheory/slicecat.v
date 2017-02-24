@@ -26,6 +26,9 @@ Contents:
 - Coproducts in slice categories of categories with coproducts
   ([Coproducts_slice_precat])
 
+- Initial object in slice categories with initial object
+  ([Initial_slice_precat])
+
 - Terminal object in slice categories ([Terminal_slice_precat])
 
 - Base change functor ([base_change_functor]) and proof that
@@ -45,8 +48,9 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
@@ -428,7 +432,7 @@ Defined.
 End slicecat_colimits.
 
 Lemma slice_precat_colims_of_shape {C : precategory} (hsC : has_homsets C)
-  {g : graph} (d : diagram g C) (x : C) (CC : Colims_of_shape g C) :
+  {g : graph} (x : C) (CC : Colims_of_shape g C) :
   Colims_of_shape g (slice_precat C x hsC).
 Proof.
 now intros y; apply slice_precat_ColimCocone, CC.
@@ -533,6 +537,28 @@ use mk_CoproductCocone.
 Defined.
 
 End slicecat_coproducts.
+
+Section slicecat_initial.
+
+Context {C : precategory} (hsC : has_homsets C) (IC : Initial C).
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Lemma Initial_slice_precat (x : C) : Initial (C / x).
+Proof.
+use mk_Initial.
+- mkpair.
+  + apply (InitialObject IC).
+  + apply InitialArrow.
+- intros y.
+  use unique_exists; simpl.
+  * apply InitialArrow.
+  * abstract (now apply pathsinv0, InitialArrowUnique).
+  * abstract (now intros f; apply hsC).
+  * abstract (now intros f Hf; apply InitialArrowUnique).
+Defined.
+
+End slicecat_initial.
 
 Section slicecat_terminal.
 

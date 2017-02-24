@@ -21,8 +21,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
+Require Import UniMath.CategoryTheory.Adjunctions.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
