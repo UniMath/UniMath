@@ -164,6 +164,20 @@ Section def_precategory_with_abgrops.
     rewrite <- (linvax (to_binop x y f g)). apply maponpaths. apply to_commax'.
   Qed.
 
+  Lemma to_binop_inv_comm_1 {x y : PA} (f g : PA⟦x, y⟧) :
+    to_binop _ _ (to_inv f) g = to_inv (to_binop _ _ f (to_inv g)).
+  Proof.
+    apply (to_rcan (to_binop x y f (to_inv g))). rewrite linvax.
+    rewrite (to_commax' f). rewrite to_assoc. rewrite <- (to_assoc g).
+    rewrite rinvax. rewrite to_lunax'. rewrite linvax. apply idpath.
+  Qed.
+
+  Lemma to_binop_inv_comm_2 {x y : PA} (f g : PA⟦x, y⟧) :
+    to_binop _ _ f (to_inv g) = to_inv (to_binop _ _ (to_inv f) g).
+  Proof.
+    rewrite to_commax'. rewrite (to_commax' _ g). apply to_binop_inv_comm_1.
+  Qed.
+
 End def_precategory_with_abgrops.
 Arguments to_has_homsets [PA] _ _ _ _ _ _.
 Arguments to_homset [PA] _ _.
