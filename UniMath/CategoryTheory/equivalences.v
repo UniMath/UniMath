@@ -44,8 +44,7 @@ Definition equivalence_of_precats (A B : precategory) : UU
 (** * Equivalence of (pre)categories *)
 
 Definition adj_equivalence_of_precats {A B : precategory} (F : functor A B) : UU :=
-   ∑ (H : is_left_adjoint F),
-     forms_equivalence H.
+   ∑ (H : is_left_adjoint F), forms_equivalence H.
 
 Definition adj_equivalence_inv {A B : precategory}
   {F : functor A B} (HF : adj_equivalence_of_precats F) : functor B A :=
