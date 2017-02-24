@@ -29,6 +29,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
+Local Notation "F ∙ G" := (functor_composite F G) (at level 35).
 
 
 (** * Sloppy equivalence of (pre)categories *)
@@ -39,6 +40,9 @@ Definition forms_equivalence {A B : precategory} (X : adjunction_data A B)
 
 Definition equivalence_of_precats (A B : precategory) : UU
   := ∑ (X : adjunction_data A B), forms_equivalence X.
+
+Coercion adjunction_data_from_equivalence_of_precats {A B}
+         (X : equivalence_of_precats A B) : adjunction_data A B := pr1 X.
 
 
 (** * Equivalence of (pre)categories *)
@@ -92,6 +96,186 @@ Proof.
   apply functor_iso_if_pointwise_iso.
   apply (pr2 (pr2 HF)).
 Defined.
+
+(** * Adjointification of a sloppy equivalence *)
+
+
+(** ** One triangle equality is enough *)
+
+(** Proof ported from Peter Lumsdaine's proof of the analog for displayed categories
+    see UniMath/TypeTheory
+*)
+Lemma triangle_2_from_1 {C D}
+  (A : adjunction_data C D)
+  (E : forms_equivalence A)
+: triangle_1_statement A -> triangle_2_statement A.
+Proof.
+  destruct A as [F [G [η ε]]].
+  destruct E as [Hη Hε]; cbn in Hη, Hε.
+  unfold triangle_1_statement, triangle_2_statement; cbn.
+  intros T1 x.
+  assert (etaH := nat_trans_ax η); cbn in etaH.
+  assert (epsH := nat_trans_ax ε); cbn in epsH.
+
+  (* Algebraically, this goes as follows:
+  η G ; G ε
+  = G ε^ ; η^ G ; η G ; G ε ; η G ; G ε          [by inverses, 1]
+  = G ε^ ; η^ G ; η G ; η G F G ; G F G ε ; G ε  [by naturality, 2]
+  = G ε^ ; η^ G ; η G ; η G F G ; G ε F G ; G ε  [by naturality, 3]
+  = G ε^ ; η^ G ; η G ; G F η G ; G ε F G ; G ε  [by naturality, 4]
+  = G ε^ ; η^ G ; η G ; G (F η ; ε F ) G ; G ε   [by functoriality, 5]
+  = G ε^ ; η^ G ; η G ; G ε                      [by T1, 6]
+  = 1                                            [by inverses, 7]
+*)
+
+  apply (invmaponpathsweq (weqpair _ (iso_comp_left_isweq (isopair _ (Hη _ )) _ ))).
+  cbn.
+  apply pathsinv0. etrans. apply id_left. etrans. apply (! id_right _ ).
+  apply pathsinv0.
+  apply (iso_inv_to_left _ _ _ _  (isopair _ (Hη _ ))).
+  apply (invmaponpathsweq (weqpair _ (iso_comp_left_isweq (functor_on_iso G (isopair _ (Hε _ ))) _ ))).
+  cbn.
+  set (XR := functor_on_iso_is_iso _ _ G _ _ (isopair _ (Hε x))).
+  set (XR' := isopair (#G (ε x)) XR). cbn in XR'.
+  apply pathsinv0. etrans. apply id_left. etrans. apply (! id_right _ ).
+  apply pathsinv0.
+  apply (iso_inv_to_left _ _ _  _ XR').
+  unfold XR', XR; clear XR' XR.
+
+  repeat rewrite assoc.
+  match goal with |[ |- ?i1 ;; ?i2 ;; _ ;; _ ;; _ ;; _ = _ ] =>
+                   set (i := i1); set (i':= i2) end.
+
+  etrans. apply cancel_postcomposition. repeat rewrite <- assoc.
+          rewrite etaH. apply idpath.
+  etrans. repeat rewrite <- assoc. rewrite <- functor_comp.
+          rewrite (epsH). rewrite functor_comp. apply idpath.
+  etrans. apply maponpaths. apply maponpaths. repeat rewrite assoc. rewrite etaH.
+          apply cancel_postcomposition. rewrite <- assoc. rewrite <- functor_comp.
+          rewrite T1. rewrite functor_id. apply id_right.
+  etrans. apply maponpaths. rewrite assoc. apply cancel_postcomposition.
+          use (iso_after_iso_inv (isopair _ (Hη _ ))).
+  rewrite id_left.
+  apply (iso_after_iso_inv ).
+Defined.
+
+
+(** ** Adjointification *)
+
+Section adjointification.
+
+Context {C D : Precategory} (E : equivalence_of_precats C D).
+Let F : functor C D := left_functor E.
+Let G : functor D C := right_functor E.
+(*
+Let ηiso c : iso c (G (F c))
+  := isopair (pr1 (pr2 E) c) (pr1 (pr2 (pr2 (pr2 E))) c).
+Let εiso d : iso (F (G d)) d
+  := isopair (pr1 (pr2 (pr2 isE)) d) (pr2 (pr2 (pr2 (pr2 isE))) d).
+*)
+
+Let ηntiso : iso (C:= [C,C,homset_property _ ]) (functor_identity _ ) (F ∙ G).
+Proof.
+  use functor_iso_from_pointwise_iso.
+  use (adjunit E).
+  apply (pr1 (pr2 E)).
+Defined.
+
+Let εntiso : iso (C:= [D,D,homset_property _ ]) (G ∙ F) (functor_identity _ ).
+Proof.
+  use functor_iso_from_pointwise_iso.
+  use (adjcounit E).
+  apply (pr2 (pr2 E)).
+Defined.
+
+(*
+Definition ε'ntiso : iso (C:= [D,D,homset_property _ ]) (G ∙ F) (functor_identity _ ).
+Proof.
+  eapply iso_comp.
+  eapply iso_inv_from_iso.
+  eapply (functor_on_iso (pre_composition_functor _ _ _ (homset_property _ ) (homset_property _ ) G)).
+    set (XR := (functor_on_iso (pre_composition_functor _ _ _ (homset_property _ ) (homset_property _ ) F) εntiso)).
+    simpl in XR.
+    apply XR.
+     eapply (functor_on_iso pre_whisker F).
+     apply εntiso.
+*)
+
+Let FF : functor [D,D,homset_property _ ] [C, D, homset_property _ ]
+  := (pre_composition_functor _ _ _ (homset_property _ ) (homset_property _ ) F).
+
+Let GG : functor [C,D,homset_property _ ] [D, D, homset_property _ ]
+  := (pre_composition_functor _ _ _ (homset_property _ ) (homset_property _ ) G).
+
+
+Definition ε'isont : iso (C:= [D,D,homset_property _ ]) (G ∙ F) (functor_identity _ ).
+Proof.
+  eapply iso_comp.
+    set (XR := functor_on_iso GG (functor_on_iso FF εntiso)).
+    set (XR':= iso_inv_from_iso XR). apply XR'.
+  eapply iso_comp.
+     Focus 2. apply εntiso.
+  set (XR := functor_on_iso (pre_composition_functor _ _ _ (homset_property _) (homset_property _ ) G) (iso_inv_from_iso ηntiso)).
+  set (XR':= functor_on_iso (post_composition_functor _ _ _ (homset_property _ )(homset_property _ ) F) XR).
+  apply XR'.
+Defined.
+
+
+Definition adjointification_triangle_1
+  : triangle_1_statement (F,,G,,pr1 ηntiso,,pr1 ε'isont).
+Proof.
+  intro x. cbn. rewrite id_right. rewrite id_right. rewrite id_right. rewrite id_right.
+              repeat rewrite assoc.
+  assert (ηinvH := nat_trans_ax (inv_from_iso ηntiso)).
+  cbn in ηinvH. simpl in ηinvH.
+  assert (εinvH := nat_trans_ax (inv_from_iso εntiso)).
+  cbn in εinvH. simpl in εinvH.
+  etrans. apply cancel_postcomposition. apply cancel_postcomposition.
+          etrans. apply maponpaths. apply (! (id_right _ )).
+          apply εinvH.
+          rewrite id_right.
+  repeat rewrite assoc. rewrite assoc4.
+  apply id_conjugation.
+  - etrans. eapply pathsinv0. apply functor_comp.
+    etrans. apply maponpaths. etrans. apply maponpaths. eapply pathsinv0. apply id_right.
+            apply ηinvH.
+    etrans. apply maponpaths.
+    apply (nat_trans_inv_pointwise_inv_before _ _ _ _ _ ηntiso (pr2 ηntiso)).
+    apply functor_id.
+  - assert (XR := nat_trans_inv_pointwise_inv_before _ _ _ _ _ εntiso (pr2 εntiso)).
+    cbn in XR.
+    etrans. apply cancel_postcomposition. eapply pathsinv0. apply id_right. apply XR.
+Qed.
+
+Lemma forms_equivalence_adjointification :
+  forms_equivalence (F,, G,, pr1 ηntiso,, pr1 ε'isont).
+Proof.
+  split.
+  - cbn. apply (is_functor_iso_pointwise_if_iso _ _ _ _ _ ηntiso (pr2 ηntiso)).
+  - cbn. apply (is_functor_iso_pointwise_if_iso _ _ _ _ _ ε'isont (pr2 ε'isont)).
+Qed.
+
+Definition adjointification_triangle_2
+  : triangle_2_statement (F,,G,,pr1 ηntiso,,pr1 ε'isont).
+Proof.
+  use triangle_2_from_1.
+  - apply forms_equivalence_adjointification.
+  - apply adjointification_triangle_1.
+Qed.
+
+Definition adjointificiation : adj_equivalence_of_precats F.
+Proof.
+  mkpair.
+  - mkpair.
+    + apply G.
+    + mkpair. mkpair. apply ηntiso. apply ε'isont.
+      exists adjointification_triangle_1.
+      apply adjointification_triangle_2.
+  - apply forms_equivalence_adjointification.
+Defined.
+
+End adjointification.
+
 
 (** * Identity functor is an adjoint equivalence *)
 
