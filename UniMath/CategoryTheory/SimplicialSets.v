@@ -27,9 +27,9 @@ Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Local Open Scope stn.
 
-Definition monfunstn ( n m : nat ) : UU := ∑ f : ⟦ S n ⟧ -> ⟦ S m ⟧, ∏ (x y: ⟦S n⟧), x ≤ y -> f x ≤ f y.
+Definition monfunstn ( n m : nat ) : UU := ∑ f : ⟦ n ⟧ -> ⟦ m ⟧, ∏ (x y: ⟦n⟧), x ≤ y -> f x ≤ f y.
 Definition monfunstnpair { m n : nat } f is := (f,,is) : monfunstn m n.
-Definition monfunstnpr1 {n m : nat} : monfunstn n m  -> ⟦ S n ⟧ -> ⟦ S m ⟧ := pr1.
+Definition monfunstnpr1 {n m : nat} : monfunstn n m  -> ⟦ n ⟧ -> ⟦ m ⟧ := pr1.
 
 Lemma monfunstnpr1_isInjective {m n} (f g : monfunstn m n) : monfunstnpr1 f = monfunstnpr1 g -> f = g.
 Proof.
@@ -63,7 +63,7 @@ Definition precatDelta : precategory .
 Proof.
   use tpair.
   { use tpair.
-    { exists nat. exact monfunstn. }
+    { exists nat. intros m n. exact (monfunstn (S m) (S n)). }
     { split.
       { intros m. apply monfunstnid. }
       { intros l m n f g. exact (monfunstncomp f g). } } }
