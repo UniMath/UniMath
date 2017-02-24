@@ -337,7 +337,7 @@ Lemma rad_form_adjunction : form_adjunction F rad rad_eta_trans rad_eps_trans.
 Proof.
   split; simpl.
   - intro a.
-    unfold rad_eta.
+    cbn; unfold rad_eta.
     inv_functor a (rad_ob (pr1 F a)).
     apply iso_after_iso_inv.
   - intro b.

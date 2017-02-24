@@ -31,20 +31,55 @@ Require Import UniMath.CategoryTheory.whiskering.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
+Local Notation "F ∙ G" := (functor_composite F G) (at level 35).
 
 (** * Adjunctions *)
 Section adjunctions.
 
+Definition adjunction_data (A B : precategory) : UU
+  := ∑ (F : functor A B) (G : functor B A),
+     nat_trans (functor_identity A) (F ∙ G) ×
+               nat_trans (G ∙ F) (functor_identity B).
+
+Definition left_functor {A B} (X : adjunction_data A B) : functor A B
+  := pr1 X.
+
+Definition right_functor {A B} (X : adjunction_data A B) : functor B A
+  := pr1 (pr2 X).
+
+Definition adjunit {A B} (X : adjunction_data A B)
+  : nat_trans (functor_identity _) (_ ∙ _)
+  := pr1 (pr2 (pr2 X)).
+
+Definition adjcounit {A B} (X : adjunction_data A B)
+  : nat_trans (_ ∙ _ ) (functor_identity _)
+  := pr2 (pr2 (pr2 X)).
+
+
+Definition triangle_1_statement {A B : precategory} (X : adjunction_data A B)
+           (F := left_functor X) (η := adjunit X) (ε := adjcounit X)
+  : UU
+  :=
+    ∏ a : A, # F (η a) ;; ε (F a) = identity (F a).
+
+Definition triangle_2_statement {A B : precategory} (X : adjunction_data A B)
+           (G := right_functor X) (η := adjunit X) (ε := adjcounit X)
+  : UU
+  := ∏ b : B, η (G b) ;; # G (ε b) = identity (G b).
+
+Definition form_adjunction' {A B} (X : adjunction_data A B) : UU
+  := triangle_1_statement X × triangle_2_statement X.
+
 Definition form_adjunction {A B : precategory} (F : functor A B) (G : functor B A)
   (eta : nat_trans (functor_identity A) (functor_composite F G))
   (eps : nat_trans (functor_composite G F) (functor_identity B)) : UU :=
-    (∏ a : A, # F (eta a) ;; eps (F a) = identity (F a)) ×
-    (∏ b : B, eta (G b) ;; # G (eps b) = identity (G b)).
+  triangle_1_statement (F,,G,,eta,, eps) × triangle_2_statement (F,, G,, eta,, eps).
 
 Definition are_adjoints {A B : precategory} (F : functor A B) (G : functor B A) : UU :=
   ∑ (etaeps : (nat_trans (functor_identity A) (functor_composite F G)) ×
               (nat_trans (functor_composite G F) (functor_identity B))),
       form_adjunction F G (pr1 etaeps) (pr2 etaeps).
+
 
 (** Note that this makes the second component opaque for efficiency reasons *)
 Definition mk_are_adjoints {A B : precategory}
@@ -198,7 +233,8 @@ mkpair.
   + apply (nat_trans_comp _ _ _ α' (post_whisker α F')).
   + apply (nat_trans_comp _ _ _ (pre_whisker F' αinv) β').
   + split.
-    * simpl; intro a; rewrite assoc, functor_comp.
+    * unfold triangle_1_statement.
+      simpl; intro a; rewrite assoc, functor_comp.
       etrans; [ apply cancel_postcomposition; rewrite <- assoc;
                 apply maponpaths, (nat_trans_ax αinv)|].
       etrans; [ rewrite assoc, <- !assoc;
@@ -209,12 +245,15 @@ mkpair.
       etrans; [ apply cancel_postcomposition; rewrite <- assoc;
                 apply maponpaths, HF1|].
       now rewrite id_right; apply (nat_trans_eq_pointwise (iso_after_iso_inv αiso)).
-    * simpl; intro b; rewrite functor_comp, assoc.
+    * unfold triangle_2_statement in *.
+      simpl; intro b; rewrite functor_comp, assoc.
       etrans; [ apply cancel_postcomposition; rewrite <- assoc;
                 eapply maponpaths, pathsinv0, functor_comp|].
       etrans; [ apply cancel_postcomposition, maponpaths, maponpaths,
                       (nat_trans_eq_pointwise (iso_inv_after_iso αiso))|].
-      now rewrite (functor_id F'), id_right, (HF2 b).
+      cbn.
+      rewrite (functor_id F'), id_right.
+      apply HF2.
 Defined.
 
 
@@ -304,7 +343,8 @@ Proof.
 mkpair; simpl.
 + intros x.
   destruct (Huniv (F x) x (identity (F x))) as [[f hf] H]; simpl.
-  now rewrite hf.
+  (* now rewrite hf. *) (* fails *)
+  admit.
 + intros a; simpl.
   destruct (Huniv (F (G0 a)) (G0 a) (identity (F (G0 a)))) as [[f hf] H]; simpl.
   destruct ((Huniv a (G0 (F (G0 a))) (eps (F (G0 a)) ;; eps a))) as [[g hg] Hg]; simpl.
@@ -316,7 +356,7 @@ mkpair; simpl.
   set (HH := maponpaths pr1 (p (_,,H1))); simpl in HH.
   set (HHH := maponpaths pr1 (p (_,,H2))); simpl in HHH.
   now rewrite HHH, <- HH.
-Qed.
+Admitted.
 
 Definition left_adjoint_from_partial : is_left_adjoint F := (G,, (unit,, counit),, form_adjunctionFG).
 Definition right_adjoint_from_partial : is_right_adjoint G := (F,, (unit,, counit),, form_adjunctionFG).

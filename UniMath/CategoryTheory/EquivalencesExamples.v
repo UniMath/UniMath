@@ -51,12 +51,13 @@ mkpair.
     * simpl; intro x; split; [ apply BinProductPr1 | apply BinProductPr2 ].
     * abstract (intros p q f; unfold precatbinprodmor, compose; simpl;
                 now rewrite BinProductOfArrowsPr1, BinProductOfArrowsPr2).
-- abstract (split; simpl; intro x;
+- abstract (
+      split; simpl; intro x;
   [ unfold precatbinprodmor, compose; simpl;
-    now rewrite BinProductPr1Commutes, BinProductPr2Commutes
-  | rewrite postcompWithBinProductArrow, !id_left;
+    now rewrite BinProductPr1Commutes, BinProductPr2Commutes |];
+    cbn; rewrite postcompWithBinProductArrow, !id_left;
     apply pathsinv0, BinProduct_endo_is_identity;
-      [ apply BinProductPr1Commutes | apply BinProductPr2Commutes ]]).
+      [ apply BinProductPr1Commutes | apply BinProductPr2Commutes]).
 Defined.
 
 End bindelta_functor_adjunction.
@@ -84,7 +85,7 @@ mkpair.
                 now rewrite ProductOfArrowsPr).
 - abstract (split; simpl; intro x;
     [ apply funextsec; intro i; apply (ProductPrCommutes _ _ (fun _ => x))
-    | rewrite postcompWithProductArrow;
+    | cbn; rewrite postcompWithProductArrow;
       apply pathsinv0, Product_endo_is_identity; intro i;
       eapply pathscomp0; [|apply (ProductPrCommutes I C _ (PC x))];
       apply cancel_postcomposition, maponpaths, funextsec; intro j; apply id_left]).
@@ -113,7 +114,7 @@ mkpair.
                 now rewrite precompWithBinCoproductArrow, postcompWithBinCoproductArrow,
                             id_right, id_left).
 - abstract (split; simpl; intro x;
-  [ rewrite precompWithBinCoproductArrow, !id_right;
+  [ cbn; rewrite precompWithBinCoproductArrow, !id_right;
     apply pathsinv0, BinCoproduct_endo_is_identity;
       [ apply BinCoproductIn1Commutes | apply BinCoproductIn2Commutes ]
   | unfold precatbinprodmor, compose; simpl;
@@ -144,7 +145,7 @@ mkpair.
                             postcompWithCoproductArrow,
                             id_right, id_left).
 - abstract (split; simpl; intro x;
-    [ rewrite precompWithCoproductArrow;
+    [ cbn; rewrite precompWithCoproductArrow;
       apply pathsinv0, Coproduct_endo_is_identity; intro i;
       eapply pathscomp0; [|apply CoproductInCommutes];
       apply maponpaths, maponpaths, funextsec; intro j; apply id_right
