@@ -6,6 +6,7 @@ opp_precat.v
 PrecategoryBinProduct.v
 ProductPrecategory.v
 whiskering.v
+Adjunctions.v
 equivalences.v
 AdjunctionHomTypesWeq.v
 sub_precategories.v
@@ -48,7 +49,6 @@ limits/FinOrdCoproducts.v
 limits/Opp.v
 limits/graphs/eqdiag.v
 EpiFacts.v
-HLevel_n_is_of_hlevel_Sn.v
 category_hset.v
 SimplicialSets.v
 yoneda.v
