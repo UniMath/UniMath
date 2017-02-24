@@ -6,7 +6,9 @@ Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Foundations.NaturalNumbers
                UniMath.Foundations.UnivalenceAxiom
                UniMath.CategoryTheory.total2_paths
-               UniMath.Ktheory.Utilities.
+               UniMath.Preliminaries.Utilities.
+
+Local Unset Automatic Introduction.
 
 (** ** Definitions *)
 

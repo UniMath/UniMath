@@ -1,9 +1,6 @@
-Tactics.v
-
 # move upstream?:
 Equivalences.v
 
-Utilities.v
 Interval.v
 Precategories.v
 StandardCategories.v

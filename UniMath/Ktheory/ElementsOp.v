@@ -28,7 +28,7 @@ Definition cat_data {C} (X:C^op==>SET) : precategory_data.
 Lemma has_homsets_cat_ob_mor {C:Precategory} (X:C^op==>SET) :
    has_homsets (cat_data X).
 Proof.
-  intros C X a b. simpl. apply (isofhleveltotal2 2).
+  intros a b. simpl. apply (isofhleveltotal2 2).
   - apply homset_property.
   - intro f. apply isasetaprop, setproperty.
 Qed.
@@ -37,7 +37,7 @@ Definition get_mor {C} {X:C^op==>SET} {x y:ob (cat_data X)} (f:x --> y) := pr1 f
 
 Lemma mor_equality {C} (X:C^op==>SET) (x y:ob (cat_data X)) (f g:x --> y) :
       get_mor f = get_mor g -> f = g.
-Proof. intros ? ? ? ? ? ? p. apply subtypeEquality.
+Proof. intros p. apply subtypeEquality.
        - intro r. apply setproperty.
        - exact p.
 Qed.
@@ -107,7 +107,7 @@ Module pr1.
 
 
   Lemma func_reflects_isos {C:Precategory} (X:C^op==>SET) : Precategories.reflects_isos (func X).
-  Proof. intros C X [c x] [d y] f Hf.
+  Proof. intros [c x] [d y] f Hf.
     apply is_iso_from_is_z_iso.
     set (H := is_z_iso_from_is_iso _ Hf). clearbody H. clear Hf.
     destruct f as [f i]. destruct H as [f' j].

@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.Algebra.BinaryOperations
-        UniMath.Ktheory.Utilities.
+        UniMath.Preliminaries.Utilities.
 Local Notation "x * y" := (op x y).
 Local Notation "g ∘ f" := (binopfuncomp f g) (at level 50, left associativity, only parsing).
 Local Notation magma := setwithbinop.
@@ -9,7 +9,7 @@ Local Notation Hom := binopfun.
 (** maps between magmas are equal if their underlying functions are equal *)
 Definition funEquality G H (p q : Hom G H)
            (v : pr1 p = pr1 q) : p = q.
-  intros ? ? [p i] [q j] v. simpl in v. destruct v.
+  induction p as [p i], q as [q j]. simpl in v. destruct v.
   destruct (pr1 (isapropisbinopfun p i j)). reflexivity. Qed.
 (** the trivial magma *)
 Definition zero : magma.

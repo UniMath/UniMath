@@ -3,7 +3,7 @@
 Require Export UniMath.Foundations.Sets.
 Require Export UniMath.Combinatorics.FiniteSequences.
 Require Export UniMath.Foundations.NaturalNumbers.
-Require Import UniMath.Ktheory.Utilities.
+Require Import UniMath.Preliminaries.Utilities.
 
 Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
 

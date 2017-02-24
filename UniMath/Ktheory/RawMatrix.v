@@ -10,7 +10,7 @@ Require Import
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Representation
-        UniMath.Ktheory.Utilities
+        UniMath.Preliminaries.Utilities
         UniMath.Ktheory.Precategories.
 Local Open Scope cat.
 

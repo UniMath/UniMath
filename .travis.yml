@@ -18,7 +18,7 @@ install:
 env:
   - PACKAGES="Foundations Combinatorics Algebra NumberSystems"
   - PACKAGES=CategoryTheory
-  - PACKAGES=Ktheory
+  - PACKAGES="Preliminaries Ktheory"
   - PACKAGES=Topology
   - PACKAGES=RealNumbers
   - PACKAGES=SubstitutionSystems

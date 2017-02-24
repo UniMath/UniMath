@@ -13,7 +13,7 @@ Unset Kernel Term Sharing.
 
 Require UniMath.Ktheory.Nat.
 Require Export UniMath.Foundations.Sets.
-Require Import UniMath.Ktheory.Utilities
+Require Import UniMath.Preliminaries.Utilities
                UniMath.Algebra.Monoids_and_Groups
                UniMath.Foundations.UnivalenceAxiom
                UniMath.Ktheory.GroupAction
@@ -21,6 +21,7 @@ Require Import UniMath.Ktheory.Utilities
                UniMath.Ktheory.Integers
                UniMath.Ktheory.Nat
                UniMath.Ktheory.MoreEquivalences.
+Unset Automatic Introduction.
 
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Open Scope hz_scope.
