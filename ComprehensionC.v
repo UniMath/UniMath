@@ -1,5 +1,5 @@
 
-(** * Displayed category from a category with display maps
+(** * Displayed Category from a category with display maps
 
 Definition of the displayed category of display maps over a category [C]
 
@@ -28,40 +28,40 @@ Local Set Automatic Introduction.
 
 (** * Definition of a cartesian displayed functor *)
 
-Definition is_cartesian_functor_over {C C' : Precategory} {F : functor C C'}
-           {D : disp_precat C} {D' : disp_precat C'} (FF : functor_over F D D') : UU
-  := ∏  {c c' : C} {f : c' --> c}
-    {d : D c} {d' : D c'} (ff : d' -->[f] d),
-     is_cartesian ff -> is_cartesian (#FF ff).
+(* TODO: upstream to with definition of fibrations/cartesianness *)
+Definition is_cartesian_functor_over
+  {C C' : Precategory} {F : functor C C'}
+  {D : disp_precat C} {D' : disp_precat C'} (FF : functor_over F D D') : UU
+:= ∏  {c c' : C} {f : c' --> c}
+      {d : D c} {d' : D c'} (ff : d' -->[f] d),
+  is_cartesian ff -> is_cartesian (#FF ff).
 
-
-
-Section fix_category.
-
-Context {C : Precategory}.
-
-Definition comprehension_cat : UU 
+Definition comprehension_cat_structure (C : Precategory) : UU 
   := ∑ (D : disp_precat C) (H : is_fibration D)
      (F : functor_over (functor_identity _ ) D (cod_disp C)),
      is_cartesian_functor_over F.
 
+Arguments comprehension_cat_structure _ : clear implicits.
 
+Section Comp_Cat_of_DM_Structure.
+
+Context {C : Precategory}.
+
+(* TODO: change name [dm_sub_pb] to something more comprehensible, e.g. [dm_struct]. *)
 Variable (H : dm_sub_pb C).
 
-Let X : disp_precat C := DM_disp H.
-
-Let Y : disp_precat C := cod_disp C.
-
-Definition U_data : functor_over_data (functor_identity C) X Y.
+Definition comprehension_of_dm_structure_data
+  : functor_over_data (functor_identity C) (DM_disp H) (cod_disp C).
 Proof.
   use tpair.
   + intros x d. cbn in *.
     exact (pr1 d).
-  + cbn. intros. 
-    exact X0.
+  + cbn. intros x y xx yy f ff. 
+    exact ff.
 Defined.
 
-Definition U_prop : functor_over_axioms U_data.
+Definition comprehension_of_dm_structure_axioms
+  : functor_over_axioms comprehension_of_dm_structure_data.
 Proof.
   cbn; repeat split; cbn.
   + intros.
@@ -74,58 +74,34 @@ Proof.
     apply idpath.
 Qed.
 
-Definition U : functor_over _ _ _ := _ ,, U_prop.
+Definition comprehension_of_dm_structure
+  : functor_over _ _ _ := _ ,, comprehension_of_dm_structure_axioms.
 
-Definition totalU : functor _ _ := total_functor U.
+Lemma is_cartesian_comprehension_of_dm_structure
+  : is_cartesian_functor_over comprehension_of_dm_structure.
+Proof.
+  (* sketch:
+  - show that for a fubctor out of a (cloven) fibration, it’s enough to show that *some* (resp. the chosen) cartesian lifts are preserved
+  - show that the chosen ones are preserved here, using [pullback_cartesian_in_cod_disp].
+  *)
+  intros c c' f d d' ff G.
+  apply pullback_cartesian_in_cod_disp.
+  try refine (isPullback_of_dm_sub_pb _ _ _).
+Abort.
 
-Lemma comprehensionC_triangle_commutes 
-: functor_composite totalU (pr1_precat _) = pr1_precat _ . 
+Definition total_comprehension_of_dm_structure
+  : functor _ _ := total_functor comprehension_of_dm_structure.
+
+Lemma comprehension_of_dm_structure_triangle_commutes 
+: functor_composite total_comprehension_of_dm_structure (pr1_precat _)
+  = pr1_precat _ . 
 Proof. 
   apply subtypeEquality.
   { intro. apply isaprop_is_functor. apply homset_property. }
   apply idpath.
 Qed.
 
-(*
-Lemma foo : is_cartesian_functor_over U.
-Proof.
-  intros c c' f d d' ff G.
-  cbn in *.
-  intros c'' g d'' hh.
-  destruct d as [[d k] H1].
-  destruct d' as [[d' k'] H2].
-  cbn in *.
-  destruct ff as [f' H3].
-  cbn in *.
-  unfold is_cartesian in G. cbn in G.
-  destruct d'' as [d'' k''].
-  cbn in *.
-  destruct hh as [h H4]. cbn in *.
+End Comp_Cat_of_DM_Structure.
 
-Lemma foo : is_cartesian_functor_over U.
-Proof.
-  intros c c' f d d' ff G.
-  cbn in *.
-  intros c'' g d'' hh.
-  specialize (G c'' g).
-  transparent assert (XR : (X c'')).
-  { cbn.  unfold DM_over. 
-    use tpair.
-    - use tpair.
-      + use (@pb_ob_of_DM _ H _ _ d' _ g).
-      + cbn. use (@pb_mor_of_DM _ H _ _ d' _ g).
-    - cbn.    
-      apply (pr2 (@pb_DM_of_DM _ H _ _ _ _ _ )).
-  } 
-  specialize (G XR).
-  cbn in G.
-  
-  * 
-    pb_DM_of_DM
-  apply G.
-Abort.  
-*)
-
-End fix_category.
 
 

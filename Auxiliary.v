@@ -348,5 +348,34 @@ Defined.
 Tactic Notation "etrans_dep" := eapply @pathscomp0_dep.
 
 
+(** A couple of lemmas for giving weak equivalences between subtypes of types *)
+
+(* Morally the same as [weq_subtypes] in library, but it’s not clear to me how to easily get this using that. *)
+Lemma weq_subtypes'
+    {X Y : UU} (w : X ≃ Y)
+    {S : X -> UU} {T : Y -> UU}
+    (HS : isPredicate S)
+    (HT : isPredicate T)
+    (HST : ∏ x : X, S x <-> T (w x))
+  : (∑ x, S x) ≃ (∑ y, T y).
+Proof.
+  apply (weqbandf w).
+  intros. apply weqiff.
+  - apply HST.
+  - apply HS.
+  - apply HT.
+Defined.
+
+(* Specialisation of [weq_subtypes'] *)
+Lemma weq_subtypes_iff
+    {X : UU} {S T : X -> UU}
+    (HS : isPredicate S)
+    (HT : isPredicate T)
+    (HST : ∏ x, S x <-> T x)
+  : (∑ x, S x) ≃ (∑ x, T x).
+Proof.
+  apply (weq_subtypes' (idweq X)); assumption.
+Defined.
+
 End Miscellaneous.
 

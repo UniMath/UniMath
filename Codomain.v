@@ -12,12 +12,14 @@ A typical use for displayed categories is for constructing categories of structu
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Require Import TypeTheory.Displayed_Cats.Auxiliary.
 Require Import TypeTheory.Displayed_Cats.Core.
+Require Import TypeTheory.Displayed_Cats.Fibrations.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
@@ -30,6 +32,7 @@ the components of the objects and morphisms will be arranged differently
 
 *)
 
+(* TODO: perhaps rename [slice_disp], and make [C] implicit? *)
 Section Codomain_Disp.
 
 Context (C:Precategory).
@@ -97,4 +100,42 @@ Definition cod_disp : disp_precat C
   := (cod_disp_data ,, cod_disp_axioms).
 
 End Codomain_Disp.
+
+Section Pullbacks_Cartesian.
+
+Context {C:Precategory}.
+
+Definition pullback_cartesian_in_cod_disp
+    { Γ Γ' : C } {f : Γ' --> Γ}
+    {p : cod_disp _ Γ} {p' : cod_disp _ Γ'} (ff : p' -->[f] p)
+  : (isPullback _ _ _ _ (pr2 ff)) -> is_cartesian ff.
+Proof.
+  intros Hpb Δ g q hh.
+  eapply iscontrweqf.
+  Focus 2. { 
+    use Hpb.
+    + exact (pr1 q).
+    + exact (pr1 hh).
+    + simpl in q. refine (pr2 q ;; g).
+    + etrans. apply (pr2 hh). apply assoc.
+  } Unfocus.
+  eapply weqcomp.
+  Focus 2. apply weqtotal2asstol.
+  apply weq_subtypes_iff.
+  - intro. apply isapropdirprod; apply homset_property.
+  - intro. apply (isofhleveltotal2 1). 
+    + apply homset_property.
+    + intros. apply homsets_disp.
+  - intros gg; split; intros H.
+    + exists (pr2 H).
+      apply subtypeEquality.
+        intro; apply homset_property.
+      exact (pr1 H).
+    + split.
+      * exact (maponpaths pr1 (pr2 H)).
+      * exact (pr1 H).
+Qed.
+
+End Pullbacks_Cartesian.
+
 

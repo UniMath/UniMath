@@ -25,37 +25,6 @@ Require Import TypeTheory.OtherDefs.DM.
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
-Section Auxiliary.
-
-(* Morally the same as [weq_subtypes], but it’s not clear to me how to easily get this using that. *)
-Lemma weq_subtypes'
-    {X Y : UU} (w : X ≃ Y)
-    {S : X -> UU} {T : Y -> UU}
-    (HS : isPredicate S)
-    (HT : isPredicate T)
-    (HST : ∏ x : X, S x <-> T (w x))
-  : (∑ x, S x) ≃ (∑ y, T y).
-Proof.
-  apply (weqbandf w).
-  intros. apply weqiff.
-  - apply HST.
-  - apply HS.
-  - apply HT.
-Defined.
-
-(* Specialisation of [weq_subtypes'] *)
-Lemma weq_subtypes_iff
-    {X : UU} {S T : X -> UU}
-    (HS : isPredicate S)
-    (HT : isPredicate T)
-    (HST : ∏ x, S x <-> T x)
-  : (∑ x, S x) ≃ (∑ x, T x).
-Proof.
-  apply (weq_subtypes' (idweq X)); assumption.
-Defined.
-
-End Auxiliary.
-
 (** ** Displayed category induced by a display map category
 
 The total category associated to this displayed category is going to be isomorphic to
@@ -143,6 +112,7 @@ Definition DM_disp : disp_precat CC
   := (DM_disp_data ,, DM_disp_axioms).
 
 (* TODO: check what naming conventions suggest for this. *)
+(* TODO: once [DM_disp] is defined as a full subcat of [cod_disp], this should be from [pullback_is_cartesian_in_cod_disp] together with lemma about cartesianness in full subcats. *)
 Definition pullback_is_cartesian
     { Γ Γ' : CC } {f : Γ' --> Γ}
     {p : DM_disp Γ} {p' : DM_disp Γ'} (ff : p' -->[f] p)
