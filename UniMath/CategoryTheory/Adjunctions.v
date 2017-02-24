@@ -282,28 +282,28 @@ Section adjunctions.
       mkpair.
       * intro x.
         apply (pr1 (pr1 (Huniv (F x) x (identity _)))).
-      * abstract (intros x y f; simpl;
-                  destruct (Huniv (F y) y (identity (F y))) as [t p], t as [t p0]; simpl;
-                  destruct (Huniv (F x) x (identity (F x))) as [t0 p1], t0 as [t0 p2]; simpl;
-                  destruct
-                    (Huniv (F y) (G0 (F x)) (eps (F x) ;; # F f)) as [t1 p3], t1 as [t1 p4]; simpl;
-                  assert (H1 : # F f = # F (t0 ;; t1) ;; eps (F y));
-                  [now rewrite functor_comp, <- assoc, <- p4, assoc, <- p2, id_left|];
-                  destruct (Huniv (F y) x (# F f)) as [t2 p5];
-                  set (HH := (maponpaths pr1 (p5 (_,,H1))));
-                  simpl in HH; rewrite HH;
-                  assert (H2 : # F f = # F (f ;; t) ;; eps (F y));
-                  [now rewrite functor_comp, <- assoc, <- p0, id_right|];
-                  set (HHH := (maponpaths pr1 (p5 (_,,H2)))); simpl in HHH;
-                  now rewrite HHH).
+      * abstract
+          (intros x y f; simpl;
+           destruct (Huniv (F y) y (identity (F y))) as [t p], t as [t p0]; simpl;
+           destruct (Huniv (F x) x (identity (F x))) as [t0 p1], t0 as [t0 p2]; simpl;
+           destruct
+             (Huniv (F y) (G0 (F x)) (eps (F x) ;; # F f)) as [t1 p3], t1 as [t1 p4]; simpl;
+           assert (H1 : # F f = # F (t0 ;; t1) ;; eps (F y));
+           [now rewrite functor_comp, <- assoc, <- p4, assoc, <- p2, id_left|];
+           destruct (Huniv (F y) x (# F f)) as [t2 p5];
+           set (HH := (maponpaths pr1 (p5 (_,,H1))));
+           simpl in HH; rewrite HH;
+           assert (H2 : # F f = # F (f ;; t) ;; eps (F y));
+           [now rewrite functor_comp, <- assoc, <- p0, id_right|];
+           set (HHH := (maponpaths pr1 (p5 (_,,H2)))); simpl in HHH;
+           now rewrite HHH).
     Defined.
 
     Local Definition counit :  nat_trans (functor_composite G F) (functor_identity A).
     Proof.
       mkpair.
       * apply eps.
-      * abstract (intros a b f; simpl; apply (pathsinv0 (pr2 (pr1 (Huniv b (G0 a)
-                                                                         (eps a ;; f)))))).
+      * abstract (intros a b f; simpl; apply (pathsinv0 (pr2 (pr1 (Huniv b (G0 a) (eps a ;; f)))))).
     Defined.
 
     Local Lemma form_adjunctionFG : form_adjunction F G unit counit.
@@ -353,18 +353,18 @@ Section adjunctions.
       - split.
         + use mk_nat_trans.
           * simpl; intros F'.
-            apply (nat_trans_comp
-                     _ _ _
-                     (nat_trans_comp _ _ _ (nat_trans_functor_id_right_inv F') (pre_whisker F' η))
-                     (nat_trans_functor_assoc_inv _ _ _)).
+            apply (nat_trans_comp _ _ _
+                                  (nat_trans_comp _ _ _ (nat_trans_functor_id_right_inv F')
+                                                  (pre_whisker F' η))
+                                  (nat_trans_functor_assoc_inv _ _ _)).
           * abstract (intros F1 F2 α; apply (nat_trans_eq hsD); intro c; simpl in *;
                       now rewrite !id_right, !id_left; apply (nat_trans_ax η (F1 c) _ (α c))).
         + use mk_nat_trans.
           * simpl; intros F'.
-            apply (nat_trans_comp
-                     _ _ _
-                     (nat_trans_functor_assoc _ _ _)
-                     (nat_trans_comp _ _ _ (pre_whisker F' ε) (nat_trans_functor_id_left _))).
+            apply (nat_trans_comp _ _ _
+                                  (nat_trans_functor_assoc _ _ _)
+                                  (nat_trans_comp _ _ _ (pre_whisker F' ε)
+                                                  (nat_trans_functor_id_left _))).
           * abstract (intros F1 F2 α; apply (nat_trans_eq hsE); intro c; simpl in *;
                       now rewrite !id_right, !id_left; apply (nat_trans_ax ε _ _ (α c))).
       - abstract (split; simpl; intro F';
@@ -377,3 +377,104 @@ Section adjunctions.
   End postcomp.
 
 End adjunctions.
+
+
+Section HomSetIso_from_Adjunction.
+
+  Context {C D : precategory} {F : functor C D} {G : functor D C} (H : are_adjoints F G).
+
+  Let η := unit_from_are_adjoints H.
+  Let ε := counit_from_are_adjoints H.
+
+  (** * Definition of the maps on hom-types *)
+
+  Definition φ_adj {A : C} {B : D} : F A --> B → A --> G B
+    := λ f : F A --> B, η _ ;; #G f.
+
+  Definition φ_adj_inv {A : C} {B : D} : A --> G B → F A --> B
+    := λ g : A --> G B, #F g ;; ε _ .
+
+  (** * Proof that those maps are inverse to each other *)
+
+  Lemma φ_adj_after_φ_adj_inv {A : C} {B : D} (g : A --> G B)
+    : φ_adj (φ_adj_inv g) = g.
+  Proof.
+    unfold φ_adj.
+    unfold φ_adj_inv.
+    assert (X':=triangle_id_right_ad H).
+    rewrite functor_comp.
+    rewrite assoc.
+    assert (X2 := nat_trans_ax η). simpl in X2.
+    rewrite <- X2; clear X2.
+    rewrite <- assoc.
+    pathvia (g ;; identity _).
+    - apply maponpaths.
+      apply X'.
+    - apply id_right.
+  Qed.
+
+  Lemma φ_adj_inv_after_φ_adj {A : C} {B : D} (f : F A --> B)
+    : φ_adj_inv (φ_adj f) = f.
+  Proof.
+    unfold φ_adj, φ_adj_inv.
+    rewrite functor_comp.
+    assert (X2 := nat_trans_ax ε); simpl in *.
+    rewrite <- assoc.
+    rewrite X2; clear X2.
+    rewrite assoc.
+    pathvia (identity _ ;; f).
+    - apply cancel_postcomposition.
+      apply triangle_id_left_ad.
+    - apply id_left.
+  Qed.
+
+  Definition adjunction_hom_weq (A : C) (B : D) : F A --> B ≃ A --> G B.
+  Proof.
+    exists φ_adj.
+    apply (gradth _ φ_adj_inv).
+    - apply φ_adj_inv_after_φ_adj.
+    - apply φ_adj_after_φ_adj_inv.
+  Defined.
+
+  (** * Proof of the equations (naturality squares) of the adjunction *)
+
+  Lemma φ_adj_natural_precomp (A : C) (B : D) (f : F A --> B) (X : C) (h : X --> A)
+    : φ_adj (#F h ;; f) = h ;; φ_adj f.
+  Proof.
+    unfold φ_adj.
+    rewrite functor_comp.
+    set (T:=nat_trans_ax η); simpl in T.
+    rewrite assoc.
+    rewrite <- T.
+    apply pathsinv0, assoc.
+  Qed.
+
+  Lemma φ_adj_natural_postcomp (A : C) (B : D) (f : F A --> B) (Y : D) (k : B --> Y)
+    : φ_adj (f ;; k) = φ_adj f ;; #G k.
+  Proof.
+    unfold φ_adj.
+    rewrite <- assoc.
+    apply maponpaths.
+    apply (functor_comp G).
+  Qed.
+
+  Lemma φ_adj_inv_natural_precomp (A : C) (B : D) (g : A --> G B) (X : C) (h : X --> A)
+    : φ_adj_inv (h ;; g) = #F h ;; φ_adj_inv g.
+  Proof.
+    unfold φ_adj_inv.
+    rewrite functor_comp.
+    apply pathsinv0, assoc.
+  Qed.
+
+  Lemma φ_adj_inv_natural_postcomp (A : C) (B : D) (g : A --> G B) (Y : D) (k : B --> Y)
+    : φ_adj_inv (g ;; #G k) = φ_adj_inv g ;; k.
+  Proof.
+    unfold φ_adj_inv.
+    rewrite functor_comp.
+    set (T:=nat_trans_ax ε); simpl in T.
+    rewrite <- assoc.
+    rewrite T.
+    apply assoc.
+  Qed.
+
+End HomSetIso_from_Adjunction.
