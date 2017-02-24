@@ -49,7 +49,7 @@ Section temp.
 Context (C : precategory).
 
 (** a and b are related if there merely exists an iso between them *)
-Definition iso_rel : hrel C := λ a b, hProppair (∥iso a b∥) (isapropishinh _).
+Definition iso_rel : hrel C := λ a b, ∥iso a b∥.
 
 Lemma iseqrel_iso_rel : iseqrel iso_rel.
 Proof.
@@ -76,7 +76,7 @@ Definition SubObj (c : C) : HSET :=
 Definition mono_rel c : hrel (ob (SubobjectsPrecategory hsC c)).
 Proof.
 intros f g.
-apply (hProppair (∥ ∑ (h : C⟦_,_⟧), pr1 (pr2 f) = h ;; pr1 (pr2 g) ∥) (isapropishinh _)).
+apply (∥ ∑ (h : C⟦_,_⟧), pr1 (pr2 f) = h ;; pr1 (pr2 g) ∥).
 Defined.
 
 Lemma mono_preorder c : ispreorder (mono_rel c).
@@ -114,7 +114,11 @@ use mk_functor.
     * intros S.
       apply setquotpr.
       apply (PullbackSubobject hsC PC S f).
-    * admit.
+    * intros x y g.
+      apply (iscompsetquotpr (iso_eqrel (SubobjectsPrecategory hsC d))).
+      apply g; clear g; intro g.
+      intros P H; apply H; clear P H.
+      admit.
     + admit.
 Admitted.
 
