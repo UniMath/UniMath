@@ -31,11 +31,21 @@ Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 
+(** * Sloppy equivalence of (pre)categories *)
+
+Definition forms_equivalence {A B : precategory} (X : adjunction_data A B)
+  (η := adjunit X) (ε := adjcounit X) : UU
+  := (∏ a, is_iso (η a)) × (∏ b, is_iso (ε b)).
+
+Definition equivalence_of_precats (A B : precategory) : UU
+  := ∑ (X : adjunction_data A B), forms_equivalence X.
+
+
 (** * Equivalence of (pre)categories *)
 
 Definition adj_equivalence_of_precats {A B : precategory} (F : functor A B) : UU :=
-   ∑ (H : is_left_adjoint F), (∏ a, is_isomorphism (unit_from_left_adjoint H a)) ×
-                              (∏ b, is_isomorphism (counit_from_left_adjoint H b)).
+   ∑ (H : is_left_adjoint F),
+     forms_equivalence H.
 
 Definition adj_equivalence_inv {A B : precategory}
   {F : functor A B} (HF : adj_equivalence_of_precats F) : functor B A :=

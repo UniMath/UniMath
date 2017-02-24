@@ -73,7 +73,7 @@ Definition form_adjunction' {A B} (X : adjunction_data A B) : UU
 Definition form_adjunction {A B : precategory} (F : functor A B) (G : functor B A)
   (eta : nat_trans (functor_identity A) (functor_composite F G))
   (eps : nat_trans (functor_composite G F) (functor_identity B)) : UU :=
-  triangle_1_statement (F,,G,,eta,, eps) × triangle_2_statement (F,, G,, eta,, eps).
+  form_adjunction' (F,,G,,eta,,eps).
 
 Definition are_adjoints {A B : precategory} (F : functor A B) (G : functor B A) : UU :=
   ∑ (etaeps : (nat_trans (functor_identity A) (functor_composite F G)) ×
@@ -104,6 +104,11 @@ Definition counit_from_are_adjoints {A B : precategory}
 
 Definition is_left_adjoint {A B : precategory} (F : functor A B) : UU :=
   ∑ (G : functor B A), are_adjoints F G.
+
+Coercion adjunction_data_from_is_left_adjoint {A B : precategory}
+           {F : functor A B} (HF : is_left_adjoint F)
+  : adjunction_data A B
+  := (F,, _ ,,unit_from_are_adjoints (pr2 HF) ,,counit_from_are_adjoints (pr2 HF) ).
 
 Definition is_right_adjoint {A B : precategory} (G : functor B A) : UU :=
   ∑ (F : functor A B), are_adjoints F G.
@@ -139,7 +144,7 @@ Defined.
 Definition unit_from_left_adjoint {A B : precategory}
    {F : functor A B}  (H : is_left_adjoint F) :
   nat_trans (functor_identity A) (functor_composite F (right_adjoint H))
-  := unit_from_are_adjoints (pr2 H).
+  := adjunit H.
 
 Definition unit_from_right_adjoint {A B : precategory}
    {G : functor B A}  (H : is_right_adjoint G) :
@@ -341,10 +346,10 @@ Defined.
 Local Lemma form_adjunctionFG : form_adjunction F G unit counit.
 Proof.
 mkpair; simpl.
-+ intros x.
++ unfold triangle_1_statement. cbn. intros x.
   destruct (Huniv (F x) x (identity (F x))) as [[f hf] H]; simpl.
-  (* now rewrite hf. *) (* fails *)
-  admit.
+  cbn.
+  apply (!hf).
 + intros a; simpl.
   destruct (Huniv (F (G0 a)) (G0 a) (identity (F (G0 a)))) as [[f hf] H]; simpl.
   destruct ((Huniv a (G0 (F (G0 a))) (eps (F (G0 a)) ;; eps a))) as [[g hg] Hg]; simpl.
@@ -356,7 +361,7 @@ mkpair; simpl.
   set (HH := maponpaths pr1 (p (_,,H1))); simpl in HH.
   set (HHH := maponpaths pr1 (p (_,,H2))); simpl in HHH.
   now rewrite HHH, <- HH.
-Admitted.
+Qed.
 
 Definition left_adjoint_from_partial : is_left_adjoint F := (G,, (unit,, counit),, form_adjunctionFG).
 Definition right_adjoint_from_partial : is_right_adjoint G := (F,, (unit,, counit),, form_adjunctionFG).
