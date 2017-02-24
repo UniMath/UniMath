@@ -163,6 +163,7 @@ Definition cartesian_lift_is_cartesian {C : Precategory} {D : disp_precat C}
 Coercion cartesian_lift_is_cartesian : cartesian_lift >-> is_cartesian.
 
 (* TODO: should the arguments be re-ordered as in [cartesian_lift]? If so, reorder in [isofibration] etc as well, for consistency. *)
+(* TODO: consider renaming to e.g. [cleaving] to follow convention that [is_] is reserved for hprops. *)
 Definition is_fibration {C : Precategory} (D : disp_precat C) : UU
 := 
   forall (c c' : C) (f : c' --> c) (d : D c), cartesian_lift d f.
