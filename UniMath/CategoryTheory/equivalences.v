@@ -167,12 +167,6 @@ Section adjointification.
 Context {C D : Precategory} (E : equivalence_of_precats C D).
 Let F : functor C D := left_functor E.
 Let G : functor D C := right_functor E.
-(*
-Let ηiso c : iso c (G (F c))
-  := isopair (pr1 (pr2 E) c) (pr1 (pr2 (pr2 (pr2 E))) c).
-Let εiso d : iso (F (G d)) d
-  := isopair (pr1 (pr2 (pr2 isE)) d) (pr2 (pr2 (pr2 (pr2 isE))) d).
-*)
 
 Let ηntiso : iso (C:= [C,C,homset_property _ ]) (functor_identity _ ) (F ∙ G).
 Proof.
@@ -187,19 +181,6 @@ Proof.
   use (adjcounit E).
   apply (pr2 (pr2 E)).
 Defined.
-
-(*
-Definition ε'ntiso : iso (C:= [D,D,homset_property _ ]) (G ∙ F) (functor_identity _ ).
-Proof.
-  eapply iso_comp.
-  eapply iso_inv_from_iso.
-  eapply (functor_on_iso (pre_composition_functor _ _ _ (homset_property _ ) (homset_property _ ) G)).
-    set (XR := (functor_on_iso (pre_composition_functor _ _ _ (homset_property _ ) (homset_property _ ) F) εntiso)).
-    simpl in XR.
-    apply XR.
-     eapply (functor_on_iso pre_whisker F).
-     apply εntiso.
-*)
 
 Let FF : functor [D,D,homset_property _ ] [C, D, homset_property _ ]
   := (pre_composition_functor _ _ _ (homset_property _ ) (homset_property _ ) F).
