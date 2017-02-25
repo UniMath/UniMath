@@ -8,6 +8,7 @@ endif
 endif
 ############################################
 # The packages, listed in order by dependency:
+PACKAGES += EssentialFoundations
 PACKAGES += Foundations
 PACKAGES += Combinatorics
 PACKAGES += Algebra

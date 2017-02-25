@@ -76,7 +76,7 @@ Definition makeRepresentation {C:Precategory} {c:C} {X:[C^op,SET]} (x:c ⇒ X) :
 Proof.
   intros bij. exists c. exists x. intros c'. apply set_bijection_to_weq.
   - exact (bij c').
-  - apply setproperty.
+  - exact (setproperty _).
 Defined.
 
 (* universal aspects of represented functors *)

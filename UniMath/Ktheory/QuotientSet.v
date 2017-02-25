@@ -18,7 +18,7 @@ Lemma setquotuniv_equal { X : UU } ( R : hrel X ) ( Y : hSet )
 Proof. intros. destruct p. apply funextsec; intro c.
        assert(ip : isaprop (iscomprelfun R f)). {
          apply impred; intro x; apply impred; intro x'.
-         apply impred; intro p. apply setproperty. }
+         apply impred; intro p. exact (setproperty _). }
        assert( q : is = is' ). { apply ip. }
        destruct q. reflexivity. Qed.
 Definition setquotuniv2 {X Y} (RX:hrel X) (RY:hrel Y)

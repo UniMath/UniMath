@@ -535,8 +535,8 @@ Lemma rngismultlcancelableif (X : rng) (x : X) (isl : ∏ y, paths (x * y) 0 -> 
 Proof.
   intros.
   apply (@isinclbetweensets X X).
-  - apply setproperty.
-  - apply setproperty.
+  - exact (setproperty _).
+  - exact (setproperty _).
   - intros x1 x2 e.
     set (e' := maponpaths (fun a => a + (x * (-x2))) e). simpl in e'.
     rewrite (pathsinv0 (rngldistr X _ _ x)) in e'.
@@ -557,8 +557,8 @@ Lemma rngismultrcancelableif (X : rng) (x : X) (isr : ∏ y, paths (y * x) 0 -> 
   isrcancelable op2 x.
 Proof.
   intros. apply (@isinclbetweensets X X).
-  - apply setproperty.
-  - apply setproperty.
+  - exact (setproperty _).
+  - exact (setproperty _).
   - intros x1 x2 e.
     set (e' := maponpaths (fun a => a + ((-x2) * x)) e).  simpl in e'.
     rewrite (pathsinv0 (rngrdistr X _ _ x)) in e'.
@@ -2082,7 +2082,7 @@ Proof.
     rewrite (rngrunax2 X). rewrite (rngrunax2 X).
     apply eq.
   - apply (isapropishinh _).
-  - apply (setproperty X).
+  - use_exact setproperty.
 Defined.
 Opaque weqhrelhrel0abmonoidfrac.
 

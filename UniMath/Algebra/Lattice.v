@@ -634,7 +634,7 @@ Proof.
   intros X is minus.
   apply impred_isaprop ; intros x.
   apply impred_isaprop ; intros y.
-  apply (pr2 (pr1 (pr1 X))).
+  use (pr2 (pr1 (pr1 X))).
 Qed.
 
 Definition extruncminus {X : abmonoid} (is : lattice X) :=

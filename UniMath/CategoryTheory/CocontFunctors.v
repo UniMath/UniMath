@@ -1781,7 +1781,7 @@ use unique_exists.
   apply funextsec; intro x; cbn.
   now etrans; [apply maponpaths,
                  (toforallpaths _ _ _ (maponpaths pr1 (colimArrowCommutes CC c cc n)) x)|].
-- intros z; apply impred_isaprop; intro n; apply setproperty.
+- intros z; apply impred_isaprop; intro n; exact (setproperty _).
 - simpl; intros f Hf.
 apply funextsec; intro l.
 transparent assert (k : (HSET/X⟦colim CC,c⟧)).

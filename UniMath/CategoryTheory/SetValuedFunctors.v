@@ -205,7 +205,7 @@ Section QuotientFunctor.
     intro x.
     eapply surjectionisepitosets.
     apply  issurjsetquotpr.
-    apply setproperty.
+    exact (setproperty _).
     intro u.
     apply toforallpaths in eqfg.
     apply eqfg.

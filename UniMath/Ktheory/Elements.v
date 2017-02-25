@@ -37,7 +37,7 @@ Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x --> y) := pr1 f.
 Lemma mor_equality {C} (X:C==>SET) (x y:ob (cat_data X)) (f g:x --> y) :
       get_mor f = get_mor g -> f = g.
 Proof. intros ? ? ? ? ? ? p. apply subtypeEquality.
-       - intro r. apply setproperty.
+       - intro r. exact (setproperty _).
        - exact p.
 Qed.
 

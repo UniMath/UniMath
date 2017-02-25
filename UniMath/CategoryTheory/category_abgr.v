@@ -2226,7 +2226,7 @@ Section ABGR_corollaries.
       + cbn.
         apply (isweqonpathsincl _ (ABGR_monic_isincl f isM)).
         cbn in H2. cbn. rewrite H2. rewrite T2. apply idpath.
-      + apply proofirrelevance. apply setproperty.
+      + apply proofirrelevance. exact (setproperty _).
   Qed.
 
   Definition ABGR_isKernel {X Y Z : ABGR} (f : X --> Y) (g : Y --> Z)

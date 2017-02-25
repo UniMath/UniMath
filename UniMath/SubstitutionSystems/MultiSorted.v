@@ -288,7 +288,7 @@ use mk_nat_trans.
 - intros x y f.
   apply funextsec; intro w.
   apply subtypeEquality; trivial.
-  intro z; apply setproperty.
+  intro z; exact (setproperty _).
 Defined.
 
 Local Lemma is_iso_nat_trans_proj_functor (s : sort) :
@@ -338,7 +338,7 @@ use mk_are_adjoints.
 + use mk_nat_trans.
   - intros X; simpl; intros x; apply (x,,idpath s).
   - intros X Y f; simpl; apply funextsec; intro x; cbn.
-    now apply subtypeEquality; trivial; intros y; apply setproperty.
+    now apply subtypeEquality; trivial; intros y; exact (setproperty _).
 + use mk_nat_trans.
   - intros X; simpl in *.
     mkpair; simpl.
@@ -348,7 +348,7 @@ use mk_are_adjoints.
 + split.
   - now intros X; apply (eq_mor_slicecat has_homsets_HSET).
   - intros X; apply funextsec; intro x.
-    now apply subtypeEquality; trivial; intros x'; apply setproperty.
+    now apply subtypeEquality; trivial; intros x'; exact (setproperty _).
 Defined.
 
 Local Lemma is_omega_cocont_exp_functor (a : list sort × sort)

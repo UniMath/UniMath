@@ -105,17 +105,17 @@ Definition setproperty (X : hSet) := pr2 X.
 Definition setdirprod (X Y : hSet) : hSet.
 Proof.
   intros. exists (X × Y).
-  apply (isofhleveldirprod 2); apply setproperty.
+  apply (isofhleveldirprod 2); use_exact setproperty.
 Defined.
 
 Definition setcoprod (X Y : hSet) : hSet.
-Proof. intros. exists (X ⨿ Y). apply isasetcoprod; apply setproperty. Defined.
+Proof. intros. exists (X ⨿ Y). apply isasetcoprod; exact (setproperty _). Defined.
 
 Lemma isaset_total2_hSet (X : hSet) (Y : X -> hSet) : isaset (∑ x, Y x).
 Proof.
   intros. apply isaset_total2.
-  - apply setproperty.
-  - intro x. apply setproperty.
+  - exact (setproperty _).
+  - intro x. exact (setproperty _).
 Defined.
 
 Definition total2_hSet {X : hSet} (Y : X -> hSet) : hSet
@@ -131,7 +131,7 @@ Notation "'∑' x .. y , P" := (total2_hSet (fun x =>.. (total2_hSet (fun y => P
   (* type this in emacs in agda-input method with \sum *)
 
 Lemma isaset_forall_hSet (X : UU) (Y : X -> hSet) : isaset (∏ x, Y x).
-Proof. intros. apply impred_isaset. intro x. apply setproperty. Defined.
+Proof. intros. apply impred_isaset. intro x. exact (setproperty _). Defined.
 
 Definition forall_hSet {X : UU} (Y : X -> hSet) : hSet
   := hSetpair (∏ x, Y x) (isaset_forall_hSet X Y).
@@ -143,7 +143,7 @@ Notation "'∏' x .. y , P" := (forall_hSet (fun x =>.. (forall_hSet (fun y => P
 Lemma isaset_total2_subset (X : hSet) (Y : X -> hProp) : isaset (∑ x, Y x).
 Proof.
   intros. apply isaset_total2.
-  - apply setproperty.
+  - exact (setproperty _).
   - intro x. apply isasetaprop, propproperty.
 Defined.
 
@@ -189,7 +189,7 @@ Proof.
   intros. exists (∏ (x x': X), f x = f x' -> x = x').
   abstract (
       intros; apply impred; intro x; apply impred; intro y;
-      apply impred; intro e; apply setproperty)
+      apply impred; intro e; exact (setproperty _ _ _))
            using isaprop_isInjectiveFunction.
 Defined.
 
@@ -423,8 +423,8 @@ Proof.
   assert (iP : isaprop P).
   {
     apply isapropsubtype. intros y y' f f'.
-    apply (squash_to_prop f). apply is. clear f; intro f.
-    apply (squash_to_prop f'). apply is. clear f'; intro f'.
+    apply (squash_to_prop f). exact (is _ _). clear f; intro f.
+    apply (squash_to_prop f'). exact (is _ _). clear f'; intro f'.
     now apply e.
   }
   intros w.
@@ -445,8 +445,8 @@ Proof.
   assert (j : isaprop P).
   {
     apply isapropsubtype; intros y y' j j'.
-    apply (squash_to_prop j). apply is. clear j; intros [j k].
-    apply (squash_to_prop j'). apply is. clear j'; intros [j' k'].
+    apply (squash_to_prop j). exact (is _ _). clear j; intros [j k].
+    apply (squash_to_prop j'). exact (is _ _). clear j'; intros [j' k'].
     intermediate_path (f j). exact (!k).
     intermediate_path (f j'). apply e. exact k'.
   }
@@ -574,7 +574,7 @@ Defined.
 Lemma isaprop_isantisymm {X : hSet} (R : hrel X) : isaprop (isantisymm R).
 Proof.
   intros. unfold isantisymm. apply impred; intro x. apply impred; intro y.
-  apply impred; intro r. apply impred; intro s. apply setproperty.
+  apply impred; intro r. apply impred; intro s. exact (setproperty _ _ _).
 Defined.
 
 Lemma isaprop_ispreorder {X : hSet} (R : hrel X) : isaprop (ispreorder R).
@@ -1174,8 +1174,8 @@ Notation " 'ct' ( R , is , x , y ) " := (ctlong R is x y (idpath true))
 
 Definition deceq_to_decrel {X:UU} : isdeceq X -> decrel X.
 Proof. intros ? i. use decrelpair.
-       - intros x y. exists (x=y). now apply isasetifdeceq.
-       - exact i.
+       - intros x y. exists (x=y). exact (isasetifdeceq X i x y).
+       - easy.
 Defined.
 
 Definition confirm_equal {X : UU} (i : isdeceq X) (x x' : X)
@@ -1853,7 +1853,7 @@ Proof.
     {
       intros.
       apply impred. intro.
-      apply isasetsetquot.
+      exact (isasetsetquot _ _ _).
     }
     apply (setquotuniv2prop RX (fun x x' => hProppair _ (is x x'))).
     simpl. intros x x'. intro e.
@@ -2459,7 +2459,7 @@ Proof.
   {
     intros x x'. apply isapropdirprod.
     - apply impred. intro. apply (pr2 (quotrel _ _ _)).
-    - apply impred. intro. apply isasetbool.
+    - apply impred. intro. exact (isasetbool _ _).
   }
   apply (setquotuniv2prop R (fun x x' => hProppair _ (int x x'))).
   intros x x'. simpl. split.
@@ -2562,7 +2562,7 @@ Proof.
     assert (int : ∏ a, isaprop (paths (f (g a)) a)).
     {
       intro a.
-      apply (setproperty (setquotinset (resrel R (funcomp (setquotpr R) P)))).
+      exact (setproperty (setquotinset (resrel R (funcomp (setquotpr R) P))) _ _).
     }
     set (Q := reseqrel R (funcomp (setquotpr R) P)).
     apply (setquotunivprop
@@ -2951,7 +2951,7 @@ Proof.
                            (weqpathssetquot2l1 R x)).
   intro e. change (pr1 (int (setquot2pr R x'))). destruct e.
   change (R x x). apply (eqrelrefl R). apply (pr2 (R x x')).
-  apply (isasetsetquot2).
+  exact (isasetsetquot2 _ _ _).
 Defined.
 
 

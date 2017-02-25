@@ -47,7 +47,7 @@ Proof.
   { apply (pr1 (poTransport_logeq _ _ _)). }
   { apply (pr2 (poTransport_logeq _ _ _)). }
   { apply isaprop_isPosetEquivalence. }
-  { apply isaset_PartialOrder. }
+  { exact (isaset_PartialOrder _ _ _). }
 Defined.
 
 Local Lemma posetTransport_weq (X Y:Poset) : X╝Y ≃ X≅Y.
@@ -194,7 +194,7 @@ Proof.
   - now apply isdeceq_isdec_ordering.
   - apply neg_isdecprop.
     apply isdecpropif.
-    * apply setproperty.
+    * exact (setproperty _ _ _).
     * apply i.
 Defined.
 
@@ -261,7 +261,7 @@ Definition FiniteOrderedSetDecidableInequality (X:FiniteOrderedSet) : DecidableR
   unfold decidable; simpl.
   apply neg_isdecprop.
   apply decidable_to_isdecprop_2.
-  { apply setproperty. }
+  { exact (setproperty _ _ _). }
   apply FiniteOrderedSet_isdeceq.
 Defined.
 
@@ -335,7 +335,7 @@ Proof.
   simple refine (_,,_).
   - simple refine (_,,_).
     * simple refine (_,,_).
-    + exists X. apply (isofhlevelweqb 2 w). apply setproperty.
+    + exists X. apply (isofhlevelweqb 2 w). exact (setproperty _).
       + unfold PartialOrder; simpl. simple refine (_,,_).
         { intros x y. exact (w x ≤ w y). }
         apply inducedPartialOrder_weq.
@@ -400,7 +400,7 @@ Proof.
 Defined.
 
 Local Ltac unwrap a := apply (squash_to_prop a);
-    [ apply isaset_total2_hSet | simpl; clear a; intro a; simpl in a ].
+    [ use_exact isaset_total2_hSet | simpl; clear a; intro a; simpl in a ].
 
 Lemma lex_isantisymm (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∏ x, hrel (Y x)) :
   isantisymm R -> (∏ x, isantisymm(S x)) -> isantisymm (lexicographicOrder X Y R S).
@@ -414,7 +414,7 @@ Proof.
   - induction a as [eq s]. induction b as [[n r]|b].
     { contradicts n (!eq). }
     induction b as [eq' s']. assert ( c : eq = !eq' ).
-    { apply setproperty. }
+    { apply iscontrpr1. use setproperty. }
     induction (!c); clear c. induction eq'. assert ( t : y = y' ).
     { apply (Santi x' y y' s s'). }
     induction t. reflexivity.

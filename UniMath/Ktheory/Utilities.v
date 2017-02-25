@@ -416,7 +416,7 @@ Proof. intros ? f. apply isaprop_wma_inhab. intro x. apply isapropifcontr.
        apply (f x). Qed.
 
 Goal ∏ (X:hSet) (x y:X) (p q:x = y), p = q.
-Proof. intros. apply setproperty. Defined.
+Proof. intros. exact (setproperty _). Defined.
 
 Goal ∏ (X:Type) (x y:X) (p q:x = y), isaset X -> p = q.
 Proof. intros ? ? ? ? ? is. apply is. Defined.

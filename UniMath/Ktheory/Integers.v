@@ -90,7 +90,7 @@ Proof. apply isweqpr1; intro i.
          assert (d := ap pr1 c); simpl in d.
          assert (e := invmaponpathsS _ _ d); clear d.
          apply subtypeEquality.
-         - intro; apply setproperty.
+         - intro; exact (setproperty _).
          - exact (!e). }
 Defined.
 

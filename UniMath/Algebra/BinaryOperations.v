@@ -172,7 +172,7 @@ Lemma isapropisrinv {X : hSet} (opp : binop X) (un0 : X) (inv0 : X -> X) :
 Proof.
   intros.
   apply impred. intro x.
-  apply (setproperty X).
+  exact (setproperty X _ _).
 Defined.
 
 Definition isinv {X : hSet} (opp : binop X) (un0 : X) (inv0 : X -> X) : UU :=
@@ -576,7 +576,7 @@ Proof.
   intros X opp1 opp2.
   apply impred_isaprop ; intros x.
   apply impred_isaprop ; intros y.
-  apply (setproperty X).
+  exact (setproperty X _ _).
 Defined.
 
 (** *)
@@ -625,9 +625,9 @@ Proof.
       * apply isapropismonoidop.
     + intro x. apply (isofhleveldirprod 1).
       * apply impred. intro x'.
-        apply (setproperty X).
+        exact (setproperty X _ _).
       * apply impred. intro x'.
-        apply (setproperty X).
+        exact (setproperty X _ _).
   - apply isapropisdistr.
 Defined.
 
@@ -1342,7 +1342,7 @@ Proof.
   intros.
   apply impred. intro x.
   apply impred. intro x'.
-  apply (setproperty Y).
+  exact (setproperty Y _ _).
 Defined.
 
 Definition binopfun (X Y : setwithbinop) : UU := total2 (fun f : X -> Y => isbinopfun f).
@@ -2015,10 +2015,10 @@ Proof.
   intros. apply isofhleveldirprod.
   - apply impred. intro x.
     apply impred. intro x'.
-    apply (setproperty Y).
+    exact (setproperty Y _ _).
   - apply impred. intro x.
     apply impred. intro x'.
-    apply (setproperty Y).
+    exact (setproperty Y _ _).
 Defined.
 
 Definition twobinopfun (X Y : setwith2binop) : UU := total2 (fun f : X -> Y => istwobinopfun f).

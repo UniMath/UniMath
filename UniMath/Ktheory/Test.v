@@ -45,7 +45,7 @@ Proof.
       { simpl. exact (maponpaths (HomPair_1 _ _ _) ee). }
       { simpl. exact (maponpaths (HomPair_2 _ _ _) ee). } } }
   { apply isapropdirprod; apply (homset_property C). }
-  { apply setproperty. }
+  { exact (setproperty _). }
 Defined.
 
 Definition CoproductCocone (a b : C) := BinarySum a b.

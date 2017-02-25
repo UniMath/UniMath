@@ -307,7 +307,7 @@ Qed.
 Lemma to_ListK (A : HSET) : ∏ y : List A, to_List A (to_list A y) = y.
 Proof.
 apply listIndProp.
-* intro l; apply setproperty.
+* intro l; exact (setproperty _).
 * now unfold to_list; rewrite foldr_nil.
 * unfold to_list, to_List; intros a l IH.
   rewrite foldr_cons; simpl.

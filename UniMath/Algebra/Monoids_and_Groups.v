@@ -106,7 +106,7 @@ Lemma isapropismonoidfun {X Y : monoid} (f : X -> Y) : isaprop (ismonoidfun f).
 Proof.
   intros. apply isofhleveldirprod.
   - apply isapropisbinopfun.
-  - apply (setproperty Y).
+  - use_exact (setproperty Y).
 Defined.
 
 Definition monoidfun (X Y : monoid) : UU := total2 (fun f : X -> Y => ismonoidfun f).
@@ -604,7 +604,7 @@ Proof.
   apply (invmaponpathsincl _ (iscanc a) _ _ eq).
   intro eq. apply hinhpr. split with (unel A). rewrite (runax X).
   rewrite (runax X). apply eq. apply (isapropishinh _).
-  apply (setproperty X).
+  use_exact (setproperty X).
 Defined.
 
 Lemma isinclprabmonoidfrac (X : abmonoid) (A : @submonoid X)

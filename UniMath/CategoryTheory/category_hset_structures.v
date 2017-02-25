@@ -154,7 +154,7 @@ Defined.
 Local Definition from_cobase_rel : hrel cobase.
 Proof.
 intros x x'; exists (from_cobase x = from_cobase x').
-now apply setproperty.
+now exact (setproperty _).
 Defined.
 
 Local Definition from_cobase_eqrel : eqrel cobase.
@@ -271,7 +271,7 @@ intros A.
 use mk_CoproductCocone.
 - mkpair.
   + apply (∑ i, pr1 (A i)).
-  + eapply (isaset_total2 _ HI); intro i; apply setproperty.
+  + eapply (isaset_total2 _ HI); intro i; exact (setproperty _).
 - simpl; apply tpair.
 - apply (mk_isCoproductCocone _ _ has_homsets_HSET).
   intros C f; simpl in *.
@@ -772,13 +772,13 @@ use mk_functor.
     apply funextsec; intros [y hy].
     use total2_paths_f; [ apply idpath |].
     apply funextsec; intros w; apply subtypeEquality; [|apply idpath].
-    now intros XX; apply setproperty.
+    now intros XX; exact (setproperty _).
   - intros x y z g h; apply (eq_mor_slicecat has_homsets_HSET); simpl.
     apply funextsec; intros [w hw].
     use total2_paths_f; [ apply idpath |].
     apply funextsec; intros w'.
     apply subtypeEquality; [|apply idpath].
-    now intros XX; apply setproperty.
+    now intros XX; exact (setproperty _).
 Defined.
 
 Local Definition eta X (f : HSET / X) :
@@ -812,7 +812,7 @@ use mk_nat_trans.
               now rewrite (pr2 (x3 (x1,,x4))), x4).
 + intros g h w; simpl.
   apply (eq_mor_slicecat has_homsets_HSET), funextsec; intro x1; cbn.
-  now repeat apply maponpaths; apply setproperty.
+  now repeat apply maponpaths; exact (setproperty _).
 Defined.
 
 Lemma has_exponentials_HSET_slice (X : HSET) : has_exponentials (BinProducts_HSET_slice X).
@@ -936,7 +936,7 @@ Proof.
   apply iscontraprop1.
   - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
     apply subtypeEquality; simpl.
-      intros x; apply isapropdirprod; apply setproperty.
+      intros x; apply isapropdirprod; exact (setproperty _).
     refine (@toforallpaths unitset _ (fun _ => ab) (fun _ => ab') _ tt).
     refine (MorphismsIntoPullbackEqual pb _ _ _ _ );
     apply funextsec; intros []; cbn;
