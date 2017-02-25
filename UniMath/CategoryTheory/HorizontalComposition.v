@@ -16,8 +16,6 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Local Open Scope cat.
 
-Local Notation "G □ F" := (functor_composite F G) (at level 35).
-
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Section horizontal_composition.

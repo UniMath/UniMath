@@ -29,11 +29,6 @@ Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.limits.products.
 
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
-
-
 Section sum_of_signatures.
 
 Variables (I : UU) (C : precategory) (hsC : has_homsets C) (D : precategory) (hsD : has_homsets D).

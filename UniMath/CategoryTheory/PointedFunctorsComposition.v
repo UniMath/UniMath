@@ -29,8 +29,6 @@ Local Open Scope cat.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
-Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
-
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Section def_ptd.

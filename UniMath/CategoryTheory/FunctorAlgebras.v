@@ -29,8 +29,6 @@ Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.initial.
 
-Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
-
 Section Algebra_Definition.
 
 Context {C : precategory} (F : functor C C).

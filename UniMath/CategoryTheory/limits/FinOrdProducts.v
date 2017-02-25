@@ -168,7 +168,7 @@ Section FinOrdProduct_criteria.
 
     set (e := dni_lastelement_is_inj (dni_lastelement_eq n (dni_lastelement i)
                                                          a0)).
-    use (pathscomp0 _ (ProductPr_idtoiso (stn n) C (a ∘ dni_lastelement) Cone1
+    use (pathscomp0 _ (ProductPr_idtoiso (stn n) C (a ∘ dni_lastelement)%functions Cone1
                                          (!e))).
     rewrite maponpathsinv0.
     apply cancel_precomposition.

@@ -11,10 +11,10 @@ Require Export UniMath.Foundations.Sets.
 Require Export UniMath.CategoryTheory.category_hset.
 
 Local Open Scope cat.
+
 Set Automatic Introduction.
 
 Notation "a <-- b" := (@precategory_morphisms (opp_precat _) a b) (at level 50) : cat.
-(* agda input \l- *)
 
 Definition src {C:precategory} {a b:C} (f:a-->b) : C := a.
 Definition tar {C:precategory} {a b:C} (f:a-->b) : C := b.
@@ -60,24 +60,7 @@ Proof.
   exists (opp_precat C). apply has_homsets_opp, homset_property.
 Defined.
 
-Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat.
-
-(* Open scope cat' to see what categories maps are in.  This helps
-   especially when a category and its opposite are both in play. *)
-Notation "C [ a , b ]" := (@precategory_morphisms C a b) (at level 50) : cat'.
-
-Notation "a ==> b" := (functor a b) (at level 50) : cat.
-
-Notation "F ⟶ G" := (nat_trans F G) (at level 39) : cat.
-(* agda-input \--> or \r-- or \r menu *)
-
-Notation "g ∘ f" := (precategories.compose f g) (at level 50, left associativity) : cat.
-(* agda input \circ *)
-
-Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
-
-Notation "G □ F" := (functor_composite (F:[_,_]) (G:[_,_]) : [_,_]) (at level 35) : cat.
-(* agda input \square *)
+Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat. (* this overwrites the previous definition *)
 
 Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HSET).
 
@@ -172,6 +155,8 @@ Definition makePrecategory
                  (fun i j => mor i j))
               identity compose)
            ((right,,left),,associativity)),,homsets.
+
+Local Open Scope cat_deprecated.
 
 Definition makeFunctor {C D:Precategory}
            (obj : C -> D)

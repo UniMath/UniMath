@@ -1086,7 +1086,7 @@ Section ABGR_kernels.
   (** The following result is used to show that map from setquot is a monoidfun. *)
   Definition isbinopfun_2of3 {A B C : setwithbinop} (f : (pr1 A) -> (pr1 B))
              (g : (pr1 B) -> (pr1 C)) (H : issurjective f) :
-    isbinopfun (g ∘ f) -> isbinopfun f -> isbinopfun g.
+    isbinopfun (g ∘ f)%functions -> isbinopfun f -> isbinopfun g.
   Proof.
     intros h f'.
     intros b1 b2.
@@ -1100,7 +1100,7 @@ Section ABGR_kernels.
     unfold hfiber in *. induction HH1 as [t p]. induction HH2 as [t0 p0].
     rewrite <- p. rewrite <- p0. rewrite <- f'. cbn.
 
-    assert (X : g (f (t * t0)%multmonoid) = (g ∘ f) (t * t0)%multmonoid).
+    assert (X : g (f (t * t0)%multmonoid) = (g ∘ f)%functions (t * t0)%multmonoid).
     {
       unfold funcomp. apply idpath.
     }

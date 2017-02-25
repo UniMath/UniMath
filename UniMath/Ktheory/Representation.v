@@ -10,6 +10,7 @@ Require Import
         UniMath.Ktheory.Bifunctor.
 Set Automatic Introduction.
 Local Open Scope cat.
+Local Open Scope Cat.
 
 Definition isUniversal {C:Precategory} {X:[C^op,SET]} {c:C} (x:c ⇒ X)
   := ∏ (c':C), isweq (λ f : c' --> c, x ⟲ f).
@@ -516,8 +517,6 @@ Defined.
 
 (** equalizers and coequalizers *)
 
-Local Open Scope cat'.
-
 Definition Equalization {C:Precategory} {c d:C} (f g:c-->d) :
   C^op ==> SET.
 Proof.
@@ -621,8 +620,6 @@ Definition po_eqn {C:Precategory} {a b c:C} {f:a-->c} {g:a-->c} (po : Pushout f 
   := pr2 (universalElement po).
 
 (** kernels and cokernels *)
-
-Local Open Scope cat'.
 
 Definition Annihilator (C:Precategory) (zero:hasZeroMaps C) {c d:C} (f:c --> d) :
   C^op ==> SET.

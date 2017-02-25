@@ -29,8 +29,6 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
-Local Notation "G □ F" := (functor_composite F G) (at level 35).
-
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 (** * Definition of monads *)

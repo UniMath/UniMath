@@ -59,14 +59,19 @@ Definition precategory_morphisms { C : precategory_ob_mor } :
 (** in order for this notation not to pollute subsequent files,
     we define this notation within the scope "cat" *)
 
-Delimit Scope cat with cat.
+Delimit Scope cat with cat.     (* for precategories *)
+
+Delimit Scope cat with Cat.     (* a slight enhancement for Precategories *)
+
+Delimit Scope cat_deprecated with cat_deprecated.
 
 Local Open Scope cat.
 
 Notation "a --> b" := (precategory_morphisms a b)(at level 50) : cat.
 
 Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50) : cat.
-  (* \[[ and \]] in Agda input method *)
+(* ⟦   to input: type "\[[" or "\(" with Agda input method
+   ⟧   to input: type "\]]" or "\)" with Agda input method *)
 
 (** ** [precategory_data] *)
 (** data of a precategory :
@@ -102,8 +107,13 @@ Definition compose { C : precategory_data }
   { a b c : C } :
     a --> b -> b --> c -> a --> c := pr2 (pr2 C) a b c.
 
-Notation "f ;; g" := (compose f g) (at level 50, left associativity, only parsing) : cat. (* deprecated *)
+Notation "f ;; g" := (compose f g) (at level 50, left associativity, only parsing) : cat_deprecated.
+
 Notation "f · g" := (compose f g) (at level 50, format "f  ·  g", left associativity) : cat.
+(* to input: type "\centerdot" or "\cdot" with Agda input method *)
+
+Notation "g ∘ f" := (compose f g) (at level 50, left associativity, only parsing) : cat.
+(* agda input \circ *)
 
 Definition postcompose  {C : precategory_data} {a b c : C} (g : b --> c) (f : a --> b) : a --> c :=
   compose f g.

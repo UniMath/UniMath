@@ -28,8 +28,6 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 
-Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
-
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 
