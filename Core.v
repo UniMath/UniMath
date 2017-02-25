@@ -616,6 +616,53 @@ Proof.
     apply (pr2 C). apply idpath.
 Defined.
 
+Lemma iso_disp_postcomp {C : Precategory} {D : disp_precat C}
+    {x y : C} (i : iso x y) 
+    {xx : D x} {yy} (ii : iso_disp i xx yy)
+  : forall (x' : C) (f' : x' --> x) (xx' : D x'), 
+          isweq (fun ff : xx' -->[ f' ] xx => ff ;; ii)%mor_disp.
+Proof.
+  intros y' f' yy'.
+  use gradth.
+  + intro X.
+    set (XR := X ;; (pr1 (pr2 ii))).
+    set (XR' := transportf (fun x => _ -->[ x ] _) (!assoc _ _ _   ) XR).
+    set (XRRT := transportf (fun x => _ -->[ x ] _ ) 
+           (maponpaths (fun xyz => ( _ ;; xyz)%mor) (iso_inv_after_iso _ )) 
+           XR').
+    set (XRRT' := transportf _ (id_right _ )                   
+           XRRT).
+    apply XRRT'.
+  + intros. simpl.
+    etrans. apply transport_f_f.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply assoc_disp_var.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply maponpaths. apply (pr2 (pr2 (pr2 ii))). 
+    etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply id_right_disp.
+    etrans. apply transport_f_f.
+    apply transportf_comp_lemma_hset.
+    apply (pr2 C). apply idpath.
+  + intros; simpl.
+    etrans. apply maponpaths_2. apply transport_f_f.
+    etrans. apply mor_disp_transportf_postwhisker.
+    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply assoc_disp_var.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply maponpaths. 
+    assert (XR := pr1 (pr2 (pr2 ii))). simpl in XR. apply XR.
+    etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply id_right_disp.
+    etrans. apply transport_f_f.
+    apply transportf_comp_lemma_hset.
+    apply (pr2 C). apply idpath.
+Defined.
+
+
 (* Useful when you want to prove [is_iso_disp], and you have some lemma [awesome_lemma] which gives that, but over a different (or just opaque) proof of [is_iso] in the base.  Then you can use [eapply is_iso_disp_independent_of_is_iso; apply awesome_lemma.]. *)  
 Lemma is_iso_disp_independent_of_is_iso
     {C : Precategory} {D : disp_precat_data C}

@@ -36,14 +36,6 @@ Definition is_cartesian_functor_over
       {d : D c} {d' : D c'} (ff : d' -->[f] d),
   is_cartesian ff -> is_cartesian (#FF ff).
 
-(* TODO: upstream to with [iso_disp_precomp] *)
-Lemma iso_disp_postcomp {C : Precategory} {D : disp_precat C}
-    {x y : C} (i : iso x y) 
-    {xx : D x} {yy} (ii : iso_disp i xx yy)
-  : forall (x' : C) (f' : x' --> x) (xx' : D x'), 
-          isweq (fun ff : xx' -->[ f' ] xx => ff ;; ii)%mor_disp.
-Proof.
-Admitted.
 
 (* TODO: upstream *)
 Lemma isaprop_is_cartesian
