@@ -101,7 +101,7 @@ Definition universalMap {C:Precategory} {X:[C^op,SET]} (r:Representation X) {c:C
 Notation "r \\ x" := (universalMap r x) (at level 50, left associativity) : cat.
 
 Definition universalMap' {C:Precategory} {X:[C^op^op,SET]} (r:Representation X) {c:C} :
-  X ⇐ c -> universalObject r --> c
+  X ⇐ c -> c <-- universalObject r
   := invmap (universalProperty _ _).
 
 Notation "x // r" := (universalMap' r x) (at level 50, left associativity) : cat.
