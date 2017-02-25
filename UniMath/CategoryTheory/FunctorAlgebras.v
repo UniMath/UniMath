@@ -25,12 +25,10 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.initial.
 
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
 
 Section Algebra_Definition.
@@ -48,7 +46,7 @@ Local Coercion alg_carrier : algebra_ob >-> ob.
 Definition alg_map (X : algebra_ob) : F X --> X := pr2 X.
 
 Definition is_algebra_mor (X Y : algebra_ob) (f : alg_carrier X --> alg_carrier Y) : UU
-  := alg_map X ;; f = #F f ;; alg_map Y.
+  := alg_map X · f = #F f · alg_map Y.
 
 Definition algebra_mor (X Y : algebra_ob) : UU :=
   ∑ f : X --> Y, is_algebra_mor X Y f.
@@ -73,7 +71,7 @@ Proof.
 Defined.
 
 Lemma algebra_mor_commutes (X Y : algebra_ob) (f : algebra_mor X Y)
-  : alg_map X ;; f = #F f ;; alg_map Y.
+  : alg_map X · f = #F f · alg_map Y.
 Proof.
   exact (pr2 f).
 Qed.
@@ -91,7 +89,7 @@ Defined.
 Definition algebra_mor_comp (X Y Z : algebra_ob) (f : algebra_mor X Y) (g : algebra_mor Y Z)
   : algebra_mor X Z.
 Proof.
-  exists (f ;; g).
+  exists (f · g).
   abstract (unfold is_algebra_mor;
             rewrite assoc;
             rewrite algebra_mor_commutes;
@@ -147,7 +145,7 @@ Section FunctorAlg_saturated.
 Hypothesis H : is_category C.
 
 Definition algebra_eq_type (X Y : FunctorAlg (pr2 H)) : UU
-  := ∑ p : iso (pr1 X) (pr1 Y), pr2 X ;; p = #F p ;; pr2 Y.
+  := ∑ p : iso (pr1 X) (pr1 Y), pr2 X · p = #F p · pr2 Y.
 
 Definition algebra_ob_eq (X Y : FunctorAlg (pr2 H)) :
   (X = Y) ≃ algebra_eq_type X Y.
@@ -317,8 +315,8 @@ Local Definition Ha' := algebra_mor_commutes _ _ _ Fa'.
 
 Lemma initialAlg_is_iso_subproof : is_inverse_in_precat a a'.
 Proof.
-assert (Ha'a : a' ;; a = identity A).
-  assert (algMor_a'a : is_algebra_mor _ _ _ (a' ;; a)).
+assert (Ha'a : a' · a = identity A).
+  assert (algMor_a'a : is_algebra_mor _ _ _ (a' · a)).
     unfold is_algebra_mor, a'; rewrite functor_comp.
     eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'].
     now apply assoc.

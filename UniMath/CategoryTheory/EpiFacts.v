@@ -11,10 +11,11 @@ Ambroise LAFONT January 2017
 
 
 Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
@@ -30,9 +31,6 @@ Require Import UniMath.CategoryTheory.limits.coequalizers.
 
 
 Require Import UniMath.CategoryTheory.Epis.
-
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-
 
 (** Definition of an effective epimorphism.
 An effective epimorphism p: A -> B is a morphism which has a kernel pair and which

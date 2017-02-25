@@ -25,6 +25,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -157,7 +158,6 @@ End coproduct_functor_adjunction.
 Section functor_swap.
 
 Local Notation "[ C , D ]" := (functor_Precategory C D).
-Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 
 Lemma functor_swap {C D : precategory} {E : Precategory} : functor C [D,E] → functor D [C,E].
 Proof.

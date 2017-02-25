@@ -7,7 +7,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
@@ -86,10 +86,10 @@ Section def_precategory_with_abgrops.
       with a morphism. Note that we have not required these to be abelian group morphisms of abelian
       groups. *)
   Definition to_premor {x y : PA} (z : PA) (f : x --> y) : to_abgrop y z -> to_abgrop x z :=
-    fun (g : (to_abgrop y z)) => f ;; g.
+    fun (g : (to_abgrop y z)) => f · g.
 
   Definition to_postmor (x : PA) {y z : PA} (f : y --> z) : to_abgrop x y -> to_abgrop x z :=
-    fun (g : (to_abgrop x y)) => g ;; f.
+    fun (g : (to_abgrop x y)) => g · f.
 
 
   (** Some equatios on inverses *)

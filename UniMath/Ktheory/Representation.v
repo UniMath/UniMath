@@ -101,7 +101,7 @@ Definition universalMap {C:Precategory} {X:[C^op,SET]} (r:Representation X) {c:C
 Notation "r \\ x" := (universalMap r x) (at level 50, left associativity) : cat.
 
 Definition universalMap' {C:Precategory} {X:[C^op^op,SET]} (r:Representation X) {c:C} :
-  X ⇐ c -> c <-- universalObject r
+  X ⇐ c -> universalObject r --> c
   := invmap (universalProperty _ _).
 
 Notation "x // r" := (universalMap' r x) (at level 50, left associativity) : cat.
@@ -910,7 +910,8 @@ Lemma BinaryProductFunctorAssoc {B C : Precategory}
       (F G : [B, C]) :
   iso (bifunctor_assoc (binaryProductFunctor F G)) (HomPair F G).
 Proof.
-  unshelve refine (makeNatiso _ _).
+  set (ISO := @iso).
+  unshelve refine (makeNatiso (C := [B, C]^op) _ _).
   { intro H. apply hset_equiv_iso.
     unshelve refine (weqgradth _ _ _ _).
     { intros w.

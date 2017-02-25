@@ -42,12 +42,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-
-
+Local Open Scope cat.
 
 (** * Sub-precategories *)
 
@@ -61,7 +56,7 @@ Definition is_sub_precategory {C : precategory}
     (Cmor' : ∏ a b : C, hsubtype (a --> b)) :=
  dirprod (∏ a : C, C' a ->  Cmor' _ _ (identity a ))
          (∏ (a b c : C) (f: a --> b) (g : b --> c),
-                   Cmor' _ _ f -> Cmor' _ _  g -> Cmor' _ _  (f ;; g)).
+                   Cmor' _ _ f -> Cmor' _ _  g -> Cmor' _ _  (f · g)).
 
 Definition sub_precategories (C : precategory) := total2 (
    fun C' : dirprod (hsubtype (ob C))
@@ -119,7 +114,7 @@ Definition sub_precategory_comp (C : precategory)(C':sub_precategories C) :
    ∏ (a b c: ob C) (f: a --> b) (g : b --> c),
           sub_precategory_predicate_morphisms C' _ _ f ->
           sub_precategory_predicate_morphisms C' _ _ g ->
-          sub_precategory_predicate_morphisms C' _ _  (f ;; g) :=
+          sub_precategory_predicate_morphisms C' _ _  (f · g) :=
         pr2 (pr2 C').
 
 (** the following lemma should be an instance of a general theorem saying that

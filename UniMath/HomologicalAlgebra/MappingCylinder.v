@@ -16,7 +16,7 @@ Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -57,7 +57,7 @@ Local Opaque hz isdecrelhzeq hzplus iscommrngops ZeroArrow.
 In this section we construct the mapping cylinder, which is a complex, of a morphism f : C_1 -> C_2
 of complexes. We denote mapping cylinder of f by Cyl(f). The objects of mapping cylinder are given
 by C_1^i ⊕ Cone(f)^i. The ith differential of Cyl(f) is given by
-         #  p_1 ;; d^i_X ;; i_1 - p_2 ;; p1 ;; i_1 + p_2 ;; d^i_C(f) ;; i_2 #
+         #  p_1 · d^i_X · i_1 - p_2 · p1 · i_1 + p_2 · d^i_C(f) · i_2 #
 
 Here d^i_C(F) is the ith differential of the mapping cone of f, see section [mapping_cone].
 We split the definition of the ith differential into a sum of 3 morphisms. These are constructed in
@@ -70,7 +70,7 @@ Section mapping_cylinder.
 
   Variable A : Additive.
 
-  (**  # p_1 ;; d^i_X ;; i_1 # *)
+  (**  # p_1 · d^i_X · i_1 # *)
   Definition MappingCylinderDiff1 {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
     let DS1' := to_BinDirectSums A (TranslationComplex A C1 i) (C2 i) in
     let DS1 := to_BinDirectSums A (C1 i) DS1' in
@@ -88,7 +88,7 @@ Section mapping_cylinder.
       + exact (to_In1 A DS2).
   Defined.
 
-  (**  # p_2 ;; (- p1) ;; i_1 # *)
+  (**  # p_2 · (- p1) · i_1 # *)
   Definition MappingCylinderDiff2 {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
     let DS1' := to_BinDirectSums A (TranslationComplex A C1 i) (C2 i) in
     let DS1 := to_BinDirectSums A (C1 i) DS1' in
@@ -106,7 +106,7 @@ Section mapping_cylinder.
       + exact (to_In1 A DS2).
   Defined.
 
-  (** p_2 ;; d^i_C(f) ;; i_2 *)
+  (** p_2 · d^i_C(f) · i_2 *)
   Definition MappingCylinderDiff3 {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
     let DS1' := to_BinDirectSums A (TranslationComplex A C1 i) (C2 i) in
     let DS1 := to_BinDirectSums A (C1 i) DS1' in
@@ -142,7 +142,7 @@ Section mapping_cylinder.
   Lemma MappingCylinder_Diff1_Diff1 {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
     let DS1 := to_BinDirectSums A (C1 i) (MappingCone A f i) in
     let DS2 := to_BinDirectSums A (C1 (i + 1)) (MappingCone A f i) in
-    (MappingCylinderDiff1 f i) ;; (MappingCylinderDiff1 f (i + 1)) =
+    (MappingCylinderDiff1 f i) · (MappingCylinderDiff1 f (i + 1)) =
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     intros DS1 DS2. unfold MappingCylinderDiff1. unfold MappingCylinderDiff2. cbn.
@@ -154,7 +154,7 @@ Section mapping_cylinder.
   Qed.
 
   Lemma MappingCylinder_Diff1_Diff2 {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
-    (MappingCylinderDiff1 f i) ;; (MappingCylinderDiff2 f (i + 1)) =
+    (MappingCylinderDiff1 f i) · (MappingCylinderDiff2 f (i + 1)) =
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     unfold MappingCylinderDiff1. unfold MappingCylinderDiff2. cbn.
@@ -165,7 +165,7 @@ Section mapping_cylinder.
   Qed.
 
   Lemma MappingCylinder_Diff1_Diff3 {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
-    (MappingCylinderDiff1 f i) ;; (MappingCylinderDiff3 f (i + 1)) =
+    (MappingCylinderDiff1 f i) · (MappingCylinderDiff3 f (i + 1)) =
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     unfold MappingCylinderDiff1. unfold MappingCylinderDiff3. cbn.
@@ -176,7 +176,7 @@ Section mapping_cylinder.
   Qed.
 
   Lemma MappingCylinder_Diff2_Diff2 {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
-    (MappingCylinderDiff2 f i) ;; (MappingCylinderDiff2 f (i + 1)) =
+    (MappingCylinderDiff2 f i) · (MappingCylinderDiff2 f (i + 1)) =
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     unfold MappingCylinderDiff2. cbn.
@@ -187,7 +187,7 @@ Section mapping_cylinder.
   Qed.
 
   Lemma MappingCylinder_Diff2_Diff3 {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
-    (MappingCylinderDiff2 f i) ;; (MappingCylinderDiff3 f (i + 1)) =
+    (MappingCylinderDiff2 f i) · (MappingCylinderDiff3 f (i + 1)) =
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     unfold MappingCylinderDiff2. unfold MappingCylinderDiff3. cbn.
@@ -198,7 +198,7 @@ Section mapping_cylinder.
   Qed.
 
   Lemma MapingCylinder_Diff3_Diff3 {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
-    (MappingCylinderDiff3 f i) ;; (MappingCylinderDiff3 f (i + 1)) =
+    (MappingCylinderDiff3 f i) · (MappingCylinderDiff3 f (i + 1)) =
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     unfold MappingCylinderDiff3. cbn.
@@ -210,7 +210,7 @@ Section mapping_cylinder.
   Qed.
 
   Lemma MappingCylinder_comp {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
-    MappingCylinderDiff f i ;; MappingCylinderDiff f (i + 1) =
+    MappingCylinderDiff f i · MappingCylinderDiff f (i + 1) =
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     unfold MappingCylinderDiff. cbn.
@@ -280,19 +280,19 @@ End mapping_cylinder.
 (** * Let f : X -> Y, then Y is isomorphic to Cyl(f) in K(A) *)
 (** ** Introduction
 We show that in K(A) Y and Cyl(f) are isomorphic. The isomorphism is given by the morphisms
-α := i_2 ;; i_2 and β := p_1 ;; f + p_2 ;; p_2. We have α ;; β = id in C(A), but
-β ;; α ≠ id_{Cyl(f)} in C(A). We define a homotopy by χ^i := p_1 ;; i_1 ;; i_2 : Cyl(f)^i -->
+α := i_2 · i_2 and β := p_1 · f + p_2 · p_2. We have α · β = id in C(A), but
+β · α ≠ id_{Cyl(f)} in C(A). We define a homotopy by χ^i := p_1 · i_1 · i_2 : Cyl(f)^i -->
 Cyl(f)^{i-1}. We show that
-       # id_{Cyl(f)} - β ;; α = χ^i ;; d^{i-1}_{Cyl(f)} + d^i_{Cyl(f)} ;; χ^{i-1} #
-       $ id_{Cyl(f)} - β ;; α = χ^i ;; d^{i-1}_{Cyl(f)} + d^i_{Cyl(f)} ;; χ^{i-1} $  ( * )
-This means that β ;; α = id_{Cyl(f)} in K(A) by the definition of homotopy of morphisms.
+       # id_{Cyl(f)} - β · α = χ^i · d^{i-1}_{Cyl(f)} + d^i_{Cyl(f)} · χ^{i-1} #
+       $ id_{Cyl(f)} - β · α = χ^i · d^{i-1}_{Cyl(f)} + d^i_{Cyl(f)} · χ^{i-1} $  ( * )
+This means that β · α = id_{Cyl(f)} in K(A) by the definition of homotopy of morphisms.
 Hence Y and C(f) are isomorphic.
 
 The morphisms α and β are defined in [MappingCylinderMor1_mor] and [MappingCylinderMor2_mor].
-The equality α ;; β = id is proven in [MappingCylinderIso_eq1]. The homotopy χ is constructed
+The equality α · β = id is proven in [MappingCylinderIso_eq1]. The homotopy χ is constructed
 in [MappingCylinderIsoHomot]. The equality ( * ) is proven in 4 steps. These steps are
 [MappingCylinderIsoHomot_eq1], [MappingCylinderIsoHomot_eq2], [MappingCylinderIsoHomot_eq3],
-and [MappingCylinderIsoHomot_eq4]. The equality β ;; α = id is proved in [MappingCylinderIso_eq2].
+and [MappingCylinderIsoHomot_eq4]. The equality β · α = id is proved in [MappingCylinderIso_eq2].
 The fact that Y and Cyl(f) are isomorphic in K(A) is proved in [MappingCylinderIso].
 *)
 Section mapping_cylinder_KA_iso.
@@ -314,8 +314,8 @@ Section mapping_cylinder_KA_iso.
 
   Lemma MappingCylinderMor1_comm {C1 C2 : Complex A} (f : (ComplexPreCat_Additive A)⟦C1, C2⟧)
         (i : hz) :
-    MappingCylinderMor1_mor f i ;; Diff (MappingCylinder A f) i =
-    Diff C2 i ;; MappingCylinderMor1_mor f (i + 1).
+    MappingCylinderMor1_mor f i · Diff (MappingCylinder A f) i =
+    Diff C2 i · MappingCylinderMor1_mor f (i + 1).
   Proof.
     unfold MappingCylinderMor1_mor. cbn.
     set (DS1 := to_BinDirectSums A (C1 (i + 1)) (C2 i)).
@@ -370,8 +370,8 @@ Section mapping_cylinder_KA_iso.
 
   Lemma MappingCylinderMor2_comm {C1 C2 : Complex A} (f : (ComplexPreCat_Additive A)⟦C1, C2⟧)
         (i : hz) :
-    MappingCylinderMor2_mor f i ;; Diff C2 i =
-    Diff (MappingCylinder A f) i ;; MappingCylinderMor2_mor f (i + 1).
+    MappingCylinderMor2_mor f i · Diff C2 i =
+    Diff (MappingCylinder A f) i · MappingCylinderMor2_mor f (i + 1).
   Proof.
     unfold MappingCylinderMor2_mor. cbn.
     set (DS1 := to_BinDirectSums A (C1 (i + 1)) (C2 i)).
@@ -418,7 +418,7 @@ Section mapping_cylinder_KA_iso.
   Defined.
 
   Lemma MappingCylinderIso_eq1' {C1 C2 : Complex A} (f : (ComplexPreCat_Additive A)⟦C1, C2⟧) :
-    (MappingCylinderMor1 f) ;; (MappingCylinderMor2 f) = identity _.
+    (MappingCylinderMor1 f) · (MappingCylinderMor2 f) = identity _.
   Proof.
     use MorphismEq. intros i. cbn. unfold MappingCylinderMor1_mor.
     unfold MappingCylinderMor2_mor. cbn.
@@ -434,7 +434,7 @@ Section mapping_cylinder_KA_iso.
 
   Lemma MappingCylinderIso_eq1 {C1 C2 : Complex A} (f : (ComplexPreCat_Additive A)⟦C1, C2⟧) :
     (# (ComplexHomotFunctor A) (MappingCylinderMor1 f))
-      ;; (# (ComplexHomotFunctor A) (MappingCylinderMor2 f)) = identity _.
+      · (# (ComplexHomotFunctor A) (MappingCylinderMor2 f)) = identity _.
   Proof.
     rewrite <- functor_comp. rewrite MappingCylinderIso_eq1'. rewrite functor_id.
     apply idpath.
@@ -502,7 +502,7 @@ Section mapping_cylinder_KA_iso.
                                A (to_BinDirectSums
                                     A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
                             (hzrminusplus i 1))
-                (MappingCylinderIsoHomot f i ;; MappingCylinderDiff A f (i - 1))) =
+                (MappingCylinderIsoHomot f i · MappingCylinderDiff A f (i - 1))) =
     MappingCylinderIsoHomot_mor1 f i.
   Proof.
     cbn. rewrite transport_target_postcompose.
@@ -590,8 +590,8 @@ Section mapping_cylinder_KA_iso.
                                 (hzrminusplus i 1))
                              (transportf (λ x' : A, A ⟦ x', DS6 ⟧)
                                          (maponpaths C1 (hzrminusplus i 1))
-                                         (Diff C1 (i - 1 + 1) ;; to_In1 A DS5 ;; to_In2 A DS6))) =
-                 (Diff C1 i ;; to_In1 A DS1 ;; to_In2 A DS2)).
+                                         (Diff C1 (i - 1 + 1) · to_In1 A DS5 · to_In2 A DS6))) =
+                 (Diff C1 i · to_In1 A DS1 · to_In2 A DS2)).
     {
       cbn. unfold DS2, DS1, DS6, DS5.
       set (tmp := fun i0 : hz => BinDirectSumConeOb
@@ -599,8 +599,8 @@ Section mapping_cylinder_KA_iso.
                                                                                 (C2 i0)))).
       set (tmp'' := (fun (i0 : hz) =>
                        (Diff C1 i0)
-                         ;; (to_In1 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
-                         ;; (to_In2 A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
+                         · (to_In1 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
+                         · (to_In2 A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                     (C2 i0)))))).
       set (tmp' := @transport_hz_double_section_source_target
                      A C1 tmp tmp'' _ _ (hzrminusplus i 1)).
@@ -615,8 +615,8 @@ Section mapping_cylinder_KA_iso.
                                                                               (C2 i0)))).
     set (tmp'' := (fun (i0 : hz) =>
                      (to_inv (MMor f i0))
-                       ;; (to_In2 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
-                       ;; (to_In2 A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
+                       · (to_In2 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
+                       · (to_In2 A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                   (C2 i0)))))).
     set (tmp' := @transport_hz_double_section_source_target A C1 tmp tmp'' _ _ (hzrminusplus i 1)).
     unfold tmp'' in tmp'.
@@ -662,7 +662,7 @@ Section mapping_cylinder_KA_iso.
                                A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                (C2 i0))))
                             (hzrplusminus i 1))
-                (MappingCylinderDiff A f i ;; MappingCylinderIsoHomot f (i + 1))) =
+                (MappingCylinderDiff A f i · MappingCylinderIsoHomot f (i + 1))) =
     MappingCylinderIsoHomot_mor2 f i.
   Proof.
     cbn. unfold MappingCylinderIsoHomot. unfold MappingCylinderIsoHomot_mor2. cbn.
@@ -692,10 +692,10 @@ Section mapping_cylinder_KA_iso.
                                    A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                    (C2 i0))))
                                 (hzrplusminus i 1))
-                             (to_Pr1 A DS2 ;; Diff C1 i ;; transportf (λ x' : A, A ⟦ x', DS5 ⟧)
+                             (to_Pr1 A DS2 · Diff C1 i · transportf (λ x' : A, A ⟦ x', DS5 ⟧)
                                      (maponpaths C1 (hzrminusplus (i + 1) 1))
-                                     (to_In1 A DS5) ;; to_inv (to_In2 A DS6))) =
-                 ((to_Pr1 A DS2) ;; (to_inv (Diff C1 i)) ;; (to_In1 A DS1) ;; (to_In2 A DS2))).
+                                     (to_In1 A DS5) · to_inv (to_In2 A DS6))) =
+                 ((to_Pr1 A DS2) · (to_inv (Diff C1 i)) · (to_In1 A DS1) · (to_In2 A DS2))).
     {
       rewrite transport_target_postcompose. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
       rewrite <- assoc. apply cancel_precomposition.
@@ -708,7 +708,7 @@ Section mapping_cylinder_KA_iso.
                                                                                 (C2 i0)))).
       set (tmp'' := (fun i0 : hz =>
                        (to_inv ((to_In1 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
-                                  ;; (to_In2 A (to_BinDirectSums
+                                  · (to_In2 A (to_BinDirectSums
                                                   A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                               (C2 i0)))))))).
       set (tmp' := @transport_hz_double_section_source_target
@@ -745,7 +745,7 @@ Section mapping_cylinder_KA_iso.
                                                                               (C2 i0)))).
     set (tmp'' := (fun i0 : hz =>
                      (to_In1 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
-                       ;; (to_In2 A (to_BinDirectSums
+                       · (to_In2 A (to_BinDirectSums
                                        A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))))).
     set (tmp' := @transport_hz_double_section_source_target
                    A (fun i0 : hz => C1 (i0 + 1)) tmp tmp'' _ _ (hzrplusminus i 1)).
@@ -771,9 +771,9 @@ Section mapping_cylinder_KA_iso.
     let DS1 := to_BinDirectSums A (C1 (i + 1)) (C2 i) in
     let DS2 := to_BinDirectSums A (C1 i) DS1 in
     to_binop DS2 DS2
-             (to_binop DS2 DS2 (to_Pr1 A DS2 ;; to_In1 A DS2)
-                       (to_Pr2 A DS2 ;; to_Pr1 A DS1 ;; to_In1 A DS1 ;; to_In2 A DS2))
-             (to_inv (to_Pr1 A DS2 ;; MMor f i ;; to_In2 A DS1 ;; to_In2 A DS2)) =
+             (to_binop DS2 DS2 (to_Pr1 A DS2 · to_In1 A DS2)
+                       (to_Pr2 A DS2 · to_Pr1 A DS1 · to_In1 A DS1 · to_In2 A DS2))
+             (to_inv (to_Pr1 A DS2 · MMor f i · to_In2 A DS1 · to_In2 A DS2)) =
     to_binop DS2 DS2 (MappingCylinderIsoHomot_mor1 f i) (MappingCylinderIsoHomot_mor2 f i).
   Proof.
     intros DS1 DS2.
@@ -782,7 +782,7 @@ Section mapping_cylinder_KA_iso.
     rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
     rewrite to_assoc. rewrite to_assoc. use to_rrw. rewrite to_commax'.
     rewrite (to_commax'
-               _ _ ((to_Pr1 A DS2) ;; (to_inv (MMor f i)) ;; (to_In2 A DS1) ;; (to_In2 A DS2))).
+               _ _ ((to_Pr1 A DS2) · (to_inv (MMor f i)) · (to_In2 A DS1) · (to_In2 A DS2))).
     rewrite to_assoc. rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp.
     rewrite <- PreAdditive_invlcomp. use to_rrw. rewrite <- to_assoc.
     rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp.
@@ -791,7 +791,7 @@ Section mapping_cylinder_KA_iso.
   Qed.
 
   Lemma MappingCylinderIsoHomot_eq {C1 C2 : Complex A} (f : (ComplexPreCat_Additive A)⟦C1, C2⟧) :
-    to_binop _ _ (identity _) (to_inv (MappingCylinderMor2 f ;; MappingCylinderMor1 f)) =
+    to_binop _ _ (identity _) (to_inv (MappingCylinderMor2 f · MappingCylinderMor1 f)) =
     ComplexHomotMorphism A (MappingCylinderIsoHomot f).
   Proof.
     use MorphismEq. intros i. cbn.
@@ -800,7 +800,7 @@ Section mapping_cylinder_KA_iso.
     set (DS2 := to_BinDirectSums A (C1 i) DS1).
     rewrite to_postmor_linear'. rewrite <- to_binop_inv_inv.
     rewrite <- (to_BinOpId A DS2).
-    assert (e : to_Pr2 A DS2 ;; to_In2 A DS2 = to_Pr2 A DS2 ;; identity _ ;; to_In2 A DS2).
+    assert (e : to_Pr2 A DS2 · to_In2 A DS2 = to_Pr2 A DS2 · identity _ · to_In2 A DS2).
     {
       rewrite id_right. apply idpath.
     }
@@ -808,9 +808,9 @@ Section mapping_cylinder_KA_iso.
     rewrite to_postmor_linear'. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
     rewrite to_assoc. rewrite to_assoc.
     rewrite (to_commax'
-               _ (to_inv (to_Pr1 A DS2 ;; MMor f i ;; to_In2 A DS1 ;; to_In2 A DS2))).
+               _ (to_inv (to_Pr1 A DS2 · MMor f i · to_In2 A DS1 · to_In2 A DS2))).
     rewrite <- (to_assoc
-                 _ _ _ (to_inv (to_Pr1 A DS2 ;; MMor f i ;; to_In2 A DS1 ;; to_In2 A DS2))).
+                 _ _ _ (to_inv (to_Pr1 A DS2 · MMor f i · to_In2 A DS1 · to_In2 A DS2))).
     rewrite (@to_rinvax' A (Additive.to_Zero A)). rewrite to_lunax''. rewrite <- to_assoc.
     use (pathscomp0 (MappingCylinderisoHomot_eq3 f i)).
     rewrite <- (MappingCylinderIsoHomot_eq1 f i). rewrite <- (MappyngCylinderIsoHomot_eq2 f i).
@@ -819,7 +819,7 @@ Section mapping_cylinder_KA_iso.
 
   Lemma MappingCylinderIso_eq2 {C1 C2 : Complex A} (f : (ComplexPreCat_Additive A)⟦C1, C2⟧) :
     (# (ComplexHomotFunctor A) (MappingCylinderMor2 f))
-      ;; (# (ComplexHomotFunctor A) (MappingCylinderMor1 f)) = identity _.
+      · (# (ComplexHomotFunctor A) (MappingCylinderMor1 f)) = identity _.
   Proof.
     rewrite <- functor_comp. rewrite <- functor_id. apply pathsinv0.
     use ComplexHomotFunctor_rel_mor'.

@@ -32,7 +32,7 @@ Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 Require Import UniMath.CategoryTheory.Monics.
@@ -669,7 +669,7 @@ Section ABGR_Additive.
     monoidfunconstr (ABGR_DirectSumIn2_ismonoidfun A B).
 
   Lemma ABGR_DirectSumIdIn1 (A B : abgr) :
-    ABGR_DirectSumIn1 A B ;; ABGR_DirectSumPr1 A B = idabgrfun A.
+    ABGR_DirectSumIn1 A B · ABGR_DirectSumPr1 A B = idabgrfun A.
   Proof.
     use total2_paths_f.
     - cbn. use funextfun. intros x. apply idpath.
@@ -677,7 +677,7 @@ Section ABGR_Additive.
   Qed.
 
   Lemma ABGR_DirectSumIdIn2 (A B : abgr) :
-    ABGR_DirectSumIn2 A B ;; ABGR_DirectSumPr2 A B = idabgrfun B.
+    ABGR_DirectSumIn2 A B · ABGR_DirectSumPr2 A B = idabgrfun B.
   Proof.
     use total2_paths_f.
     - cbn. use funextfun. intros x. apply idpath.
@@ -685,7 +685,7 @@ Section ABGR_Additive.
   Qed.
 
   Lemma ABGR_DirectSumUnel1 (A B : abgr) :
-    ABGR_DirectSumIn1 A B ;; ABGR_DirectSumPr2 A B = ABGR_zero_arrow A B.
+    ABGR_DirectSumIn1 A B · ABGR_DirectSumPr2 A B = ABGR_zero_arrow A B.
   Proof.
     use total2_paths_f.
     - cbn. use funextfun. intros x. apply idpath.
@@ -693,7 +693,7 @@ Section ABGR_Additive.
   Qed.
 
   Lemma ABGR_DirectSumUnel2 (A B : abgr) :
-    ABGR_DirectSumIn2 A B ;; ABGR_DirectSumPr1 A B = ABGR_zero_arrow B A.
+    ABGR_DirectSumIn2 A B · ABGR_DirectSumPr1 A B = ABGR_zero_arrow B A.
   Proof.
     use total2_paths_f.
     - cbn. use funextfun. intros x. apply idpath.
@@ -701,8 +701,8 @@ Section ABGR_Additive.
   Qed.
 
   Lemma ABGR_DirectSumId (A B : abgr) :
-    ABGR_hombinop _ _ (ABGR_DirectSumPr1 A B ;; ABGR_DirectSumIn1 A B)
-                  (ABGR_DirectSumPr2 A B ;; ABGR_DirectSumIn2 A B) = idabgrfun _.
+    ABGR_hombinop _ _ (ABGR_DirectSumPr1 A B · ABGR_DirectSumIn1 A B)
+                  (ABGR_DirectSumPr2 A B · ABGR_DirectSumIn2 A B) = idabgrfun _.
   Proof.
     use total2_paths_f.
     - cbn. use funextfun. intros x.
@@ -730,7 +730,7 @@ Section ABGR_Additive.
         use (unique_exists); cbn.
         (* Construction of the morphism from X ⊕ Y to Z. *)
         use monoidfunconstr.
-        * exact (pr1(ABGR_hombinop _ _ (ABGR_DirectSumPr1 X Y ;; f) (ABGR_DirectSumPr2 X Y ;; g))).
+        * exact (pr1(ABGR_hombinop _ _ (ABGR_DirectSumPr1 X Y · f) (ABGR_DirectSumPr2 X Y · g))).
         * split.
           -- intros x x'. cbn. unfold funcomp. cbn.
              rewrite (pr1 (pr2 f)). rewrite (pr1 (pr2 g)).
@@ -773,8 +773,8 @@ Section ABGR_Additive.
         use (unique_exists); cbn.
         (* Construction of the morphism from Z to X ⊕ Y. *)
         * use monoidfunconstr.
-          --  exact (pr1( ABGR_hombinop _ _ (f ;; ABGR_DirectSumIn1 X Y)
-                                        (g ;; ABGR_DirectSumIn2 X Y))).
+          --  exact (pr1( ABGR_hombinop _ _ (f · ABGR_DirectSumIn1 X Y)
+                                        (g · ABGR_DirectSumIn2 X Y))).
           -- split.
              ++ intros x x'. cbn. apply dirprodeq.
                 ** cbn. repeat rewrite (runax (abgrtoabmonoid X)).
@@ -889,7 +889,7 @@ Section ABGR_kernels.
 
   (** Hide equality for kernel behind Qed. *)
   Definition ABGR_Kernel_eq {A B : abgr} (f : monoidfun A B) :
-    ABGR_kernel_monoidfun f ;; f = ZeroArrow ABGR_has_zero _ _.
+    ABGR_kernel_monoidfun f · f = ZeroArrow ABGR_has_zero _ _.
   Proof.
     use total2_paths_f.
     - apply funextfun. intros x. induction x as [t p]. cbn.
@@ -904,7 +904,7 @@ Section ABGR_kernels.
 
   (** Construction of the unique arrow to the kernel object. *)
   Definition ABGR_KernelArrowIn {A B C : ABGR} (h : C --> A) (f : A --> B)
-             (H : h ;; f = ABGR_zero_arrow C B) :
+             (H : h · f = ABGR_zero_arrow C B) :
     ABGR⟦C, carrierofasubabgr (ABGR_kernel_subabgr f)⟧.
   Proof.
     use monoidfunconstr.
@@ -1069,7 +1069,7 @@ Section ABGR_kernels.
 
   (** ABGR Equality for cokernels. *)
   Definition ABGR_cokernel_eq {A B : abgr} (f : ABGR⟦A, B⟧) :
-    f ;; ABGR_cokernel_monoidfun f = ZeroArrow ABGR_has_zero A (ABGR_cokernel_abgr f).
+    f · ABGR_cokernel_monoidfun f = ZeroArrow ABGR_has_zero A (ABGR_cokernel_abgr f).
   Proof.
     rewrite ABGR_has_zero_arrow_eq.
     use total2_paths_f.
@@ -1401,7 +1401,7 @@ Section ABGR_monics.
     unfold isEpi in isE.
     set (tmp := isE (ABGR_cokernel_abgr f) (ABGR_cokernel_monoidfun f)
                     (ABGR_zero_arrow B (ABGR_cokernel_abgr f))).
-    assert (H : f ;; ABGR_cokernel_monoidfun f = f ;; ABGR_zero_arrow B (ABGR_cokernel_abgr f)).
+    assert (H : f · ABGR_cokernel_monoidfun f = f · ABGR_zero_arrow B (ABGR_cokernel_abgr f)).
     {
       rewrite ABGR_cokernel_eq.
       rewrite <- ABGR_has_zero_arrow_eq.
@@ -1558,7 +1558,7 @@ Section ABGR_monic_kernels.
   (** Construction of ishinh_UU hfiber. *)
   Definition ABGR_monic_kernel_hfiber_prop {A B : abgr} (f : ABGR⟦A, B⟧) (isM : isMonic f)
              (w : abgr) (x : w) (h: ABGR⟦w, B⟧)
-             (H : h ;; CokernelArrow (ABGR_Cokernel f) = ZeroArrow ABGR_has_zero _ _) :
+             (H : h · CokernelArrow (ABGR_Cokernel f) = ZeroArrow ABGR_has_zero _ _) :
     ishinh_UU (∑ a : pr1 A, pr1 f a = pr1 h x %multmonoid).
   Proof.
     rewrite ABGR_has_zero_arrow_eq in H.
@@ -1579,7 +1579,7 @@ Section ABGR_monic_kernels.
       the kernel of its cokernel. *)
   Definition ABGR_monic_kernel_in_hfiber_iscontr {A B : abgr} (f : ABGR⟦A, B⟧) (isM : isMonic f)
              (w : abgr) (h: ABGR⟦w, B⟧)
-             (H : h ;; CokernelArrow (ABGR_Cokernel f) = ZeroArrow ABGR_has_zero _ _) :
+             (H : h · CokernelArrow (ABGR_Cokernel f) = ZeroArrow ABGR_has_zero _ _) :
     ∏ x : w, iscontr (hfiber (pr1 f) (pr1 h x)).
   Proof.
     intros x.
@@ -1605,7 +1605,7 @@ Section ABGR_monic_kernels.
   (** We construct an hfiber for every element in the image of h. *)
   Definition ABGR_monic_kernel_in_hfiber {A B : abgr} (f : ABGR⟦A, B⟧) (isM : isMonic f)
              (w : abgr) (x : w) (h: ABGR⟦w, B⟧)
-             (H : h ;; CokernelArrow (ABGR_Cokernel f) = ZeroArrow ABGR_has_zero _ _) :
+             (H : h · CokernelArrow (ABGR_Cokernel f) = ZeroArrow ABGR_has_zero _ _) :
     hfiber (pr1 f) (pr1 h x).
   Proof.
     use (squash_to_prop (ABGR_monic_kernel_hfiber_prop f isM w x h H)).
@@ -1651,7 +1651,7 @@ Section ABGR_monic_kernels.
   (** We define the KernelIn as the morphism x : w ↦ pr1 (hfiber (pr1 f) (pr1 h x)) : A. *)
   Definition ABGR_monic_kernel_in {A B : abgr} (f : ABGR⟦A, B⟧) (isM : isMonic f) (w : abgr)
              (h: ABGR⟦w, B⟧)
-             (H : h ;; CokernelArrow (ABGR_Cokernel f) = ZeroArrow ABGR_has_zero _ _) : w -> A.
+             (H : h · CokernelArrow (ABGR_Cokernel f) = ZeroArrow ABGR_has_zero _ _) : w -> A.
   Proof.
     intros x.
     exact (pr1 (ABGR_monic_kernel_in_hfiber f isM w x h H)).
@@ -1660,7 +1660,7 @@ Section ABGR_monic_kernels.
   (** Hide ismonoidfun behind Qed. *)
   Definition ABGR_monic_kernel_in_ismonoidfun {A B : abgr} (f : ABGR⟦A, B⟧) (isM : isMonic f)
              (w : abgr) (h: ABGR⟦w, B⟧)
-             (H : h ;; CokernelArrow (ABGR_Cokernel f) = ZeroArrow ABGR_has_zero _ _) :
+             (H : h · CokernelArrow (ABGR_Cokernel f) = ZeroArrow ABGR_has_zero _ _) :
     ismonoidfun (ABGR_monic_kernel_in f isM w h H).
   Proof.
     unfold ABGR_monic_kernel_in. cbn in *.
@@ -1697,14 +1697,14 @@ Section ABGR_monic_kernels.
   (** We show that the KernelIn map is a monoidfun. *)
   Definition ABGR_monic_kernel_in_monoidfun {A B : abgr} (f : ABGR⟦A, B⟧) (isM : isMonic f)
              (w : abgr) (h: ABGR⟦w, B⟧)
-             (H : h ;; CokernelArrow (ABGR_Cokernel f) = ZeroArrow ABGR_has_zero _ _) :
+             (H : h · CokernelArrow (ABGR_Cokernel f) = ZeroArrow ABGR_has_zero _ _) :
     monoidfun w A := monoidfunconstr (ABGR_monic_kernel_in_ismonoidfun f isM w h H).
 
   (** ** We are ready to prove that Monics are Kernels. *)
 
   (** Hide equality behind Qed. *)
   Definition ABGR_Monic_Kernel_eq {A B : abgr} (f : ABGR⟦A, B⟧) (isM : isMonic f) :
-    f ;; CokernelArrow (ABGR_Cokernel f) = ZeroArrow ABGR_has_zero A (ABGR_Cokernel f).
+    f · CokernelArrow (ABGR_Cokernel f) = ZeroArrow ABGR_has_zero A (ABGR_Cokernel f).
   Proof.
     apply CokernelCompZero.
   Qed.
@@ -1767,7 +1767,7 @@ Section ABGR_monic_kernels.
   (** Equality we are going to need. *)
   Lemma ABGR_epi_cokernel_out_data_eq {A B : abgr} (f : ABGR⟦A, B⟧) (isE : isEpi f) (w : abgr)
         (h : ABGR⟦A,w⟧)
-        (H : KernelArrow (ABGR_Kernel f) ;; h = ZeroArrow ABGR_has_zero (ABGR_Kernel f) w) :
+        (H : KernelArrow (ABGR_Kernel f) · h = ZeroArrow ABGR_has_zero (ABGR_Kernel f) w) :
     ∏ x : ABGR_kernel_hsubtype f, pr1 h (pr1carrier (ABGR_kernel_hsubtype f) x) = 1%multmonoid.
   Proof.
     rewrite ABGR_has_zero_arrow_eq in H.
@@ -1794,7 +1794,7 @@ Section ABGR_monic_kernels.
   (** Equality on hfibers. *)
   Lemma ABGR_epi_cokernel_out_data_hfiber_eq {A B : abgr} (f : ABGR⟦A, B⟧) (isE : isEpi f)
         (w : abgr) (h : ABGR⟦A,w⟧)
-        (H : KernelArrow (ABGR_Kernel f) ;; h = ZeroArrow ABGR_has_zero _ _)
+        (H : KernelArrow (ABGR_Kernel f) · h = ZeroArrow ABGR_has_zero _ _)
         (b : B) (X : hfiber (pr1 f) b) :
     ∏ hfib : hfiber (pr1 f) b, pr1 h (pr1 hfib) = pr1 h (pr1 X).
   Proof.
@@ -1816,7 +1816,7 @@ Section ABGR_monic_kernels.
       kernel of f is zero. Then for all terms b of the domain of f, the space of terms of the target
       of h, such that all hfibers of b are mapped to the target, is contractible. *)
   Lemma ABGR_epi_cokernel_out_data_iscontr {A B : abgr} (f : ABGR⟦A, B⟧) (isE : isEpi f) (w : abgr)
-        (h : ABGR⟦A, w⟧) (H : KernelArrow (ABGR_Kernel f) ;; h = ZeroArrow ABGR_has_zero _ _) :
+        (h : ABGR⟦A, w⟧) (H : KernelArrow (ABGR_Kernel f) · h = ZeroArrow ABGR_has_zero _ _) :
     ∏ b : B, iscontr ( ∑ x : w, ∏ (hfib : hfiber (pr1 f) b), pr1 h (pr1 hfib) = x).
   Proof.
     intros b.
@@ -1837,7 +1837,7 @@ Section ABGR_monic_kernels.
   (** Using the above result we construct the unique term of w such that all the hfibers of b are
       mapped to it. *)
   Lemma ABGR_epi_cokernel_out_data {A B : abgr} (b : B) (f : ABGR⟦A, B⟧) (isE : isEpi f) (w : abgr)
-        (h : ABGR⟦A,w⟧) (H : KernelArrow (ABGR_Kernel f) ;; h = ZeroArrow ABGR_has_zero _ _) :
+        (h : ABGR⟦A,w⟧) (H : KernelArrow (ABGR_Kernel f) · h = ZeroArrow ABGR_has_zero _ _) :
     ( ∑ x : w, ∏ (hfib : hfiber (pr1 f) b), pr1 h (pr1 hfib) = x).
   Proof.
     use (squash_to_prop (ABGR_epi_issurjective f isE b)).
@@ -1856,7 +1856,7 @@ Section ABGR_monic_kernels.
   (** Construction of the cokernel out map. *)
   Definition ABGR_epi_cokernel_out_map {A B : abgr} (f : ABGR⟦A, B⟧) (isE : isEpi f) (w : abgr)
              (h : ABGR⟦A,w⟧)
-             (H : KernelArrow (ABGR_Kernel f) ;; h = ZeroArrow ABGR_has_zero _ _) : B -> w.
+             (H : KernelArrow (ABGR_Kernel f) · h = ZeroArrow ABGR_has_zero _ _) : B -> w.
   Proof.
     intros b.
     exact (pr1 (ABGR_epi_cokernel_out_data b f isE w h H)).
@@ -1865,7 +1865,7 @@ Section ABGR_monic_kernels.
   (** Hide equality behind Qed. *)
   Definition ABGR_epi_cokernel_out_data_mult_eq {A B : abgr} (b1 b2 : B) (f : ABGR⟦A, B⟧)
              (isE : isEpi f) (w : abgr) (h : ABGR⟦A, w⟧)
-             (H : KernelArrow (ABGR_Kernel f) ;; h = ZeroArrow ABGR_has_zero _ _)
+             (H : KernelArrow (ABGR_Kernel f) · h = ZeroArrow ABGR_has_zero _ _)
              (X : ∑ x : w, ∏ hfib : hfiber (pr1 f) b1, pr1 h (pr1 hfib) = x)
              (X0 : ∑ x : w, ∏ hfib : hfiber (pr1 f) b2, pr1 h (pr1 hfib) = x) :
     ∏ hfib : hfiber (pr1 f) (b1 * b2)%multmonoid, pr1 h (pr1 hfib) = (pr1 X * pr1 X0)%multmonoid.
@@ -1883,7 +1883,7 @@ Section ABGR_monic_kernels.
   (** This is used to verify that CokernelOut is a binopfun. *)
   Definition ABGR_epi_cokernel_out_data_mult {A B : abgr} (b1 b2 : B) (f : ABGR⟦A, B⟧)
              (isE : isEpi f) (w : abgr) (h : ABGR⟦A, w⟧)
-             (H : KernelArrow (ABGR_Kernel f) ;; h = ZeroArrow ABGR_has_zero _ _) :
+             (H : KernelArrow (ABGR_Kernel f) · h = ZeroArrow ABGR_has_zero _ _) :
     ( ∑ x : w, ∏ (hfib : hfiber (pr1 f) b1), pr1 h (pr1 hfib) = x) ->
     ( ∑ x : w, ∏ (hfib : hfiber (pr1 f) b2), pr1 h (pr1 hfib) = x) ->
     ( ∑ x : w, ∏ (hfib : hfiber (pr1 f) (b1 * b2)%multmonoid), pr1 h (pr1 hfib) = x).
@@ -1896,7 +1896,7 @@ Section ABGR_monic_kernels.
   (** Hide equality behind Qed. *)
   Definition ABGR_epi_cokernel_out_data_unel_eq {A B : abgr} (f : ABGR⟦A, B⟧) (isE : isEpi f)
              (w : abgr) (h : ABGR⟦A, w⟧)
-             (H : KernelArrow (ABGR_Kernel f) ;; h = ZeroArrow ABGR_has_zero _ _) :
+             (H : KernelArrow (ABGR_Kernel f) · h = ZeroArrow ABGR_has_zero _ _) :
     ∏ hfib : hfiber (pr1 f) 1%multmonoid, pr1 h (pr1 hfib) = 1%multmonoid.
   Proof.
     intros hfib.
@@ -1908,13 +1908,13 @@ Section ABGR_monic_kernels.
   (** Construction of a structure for unel. *)
   Definition ABGR_epi_cokernel_out_data_unel {A B : abgr} (f : ABGR⟦A, B⟧) (isE : isEpi f)
              (w : abgr) (h : ABGR⟦A, w⟧)
-             (H : KernelArrow (ABGR_Kernel f) ;; h = ZeroArrow ABGR_has_zero _ _) :
+             (H : KernelArrow (ABGR_Kernel f) · h = ZeroArrow ABGR_has_zero _ _) :
     ( ∑ x : w, ∏ (hfib : hfiber (pr1 f) 1%multmonoid),  pr1 h (pr1 hfib) = x) :=
     tpair _ 1%multmonoid (ABGR_epi_cokernel_out_data_unel_eq f isE w h H).
 
   (** We show that the cokernel_out_map ismonoidfun. *)
   Lemma ABGR_epi_cokernel_out_ismonoidfun {A B : abgr} (f : ABGR⟦A, B⟧) (isE : isEpi f) (w : abgr)
-        (h : ABGR⟦A,w⟧) (H : KernelArrow (ABGR_Kernel f) ;; h = ZeroArrow ABGR_has_zero _ _) :
+        (h : ABGR⟦A,w⟧) (H : KernelArrow (ABGR_Kernel f) · h = ZeroArrow ABGR_has_zero _ _) :
     ismonoidfun (ABGR_epi_cokernel_out_map f isE w h H).
   Proof.
     split.
@@ -1952,7 +1952,7 @@ Section ABGR_monic_kernels.
   (** Construction of the monoidfun cokernel_out. *)
   Definition ABGR_epi_cokernel_out_monoidfun {A B : abgr} (f : ABGR⟦A, B⟧) (isE : isEpi f)
              (w : abgr) (h : ABGR⟦A,w⟧)
-             (H : KernelArrow (ABGR_Kernel f) ;; h = ZeroArrow ABGR_has_zero _ _) :
+             (H : KernelArrow (ABGR_Kernel f) · h = ZeroArrow ABGR_has_zero _ _) :
     monoidfun B w := monoidfunconstr (ABGR_epi_cokernel_out_ismonoidfun f isE w h H).
 
 
@@ -1960,7 +1960,7 @@ Section ABGR_monic_kernels.
 
   (** Hide equality behind Qed. *)
   Definition ABGR_epi_cokernel_eq {A B : abgr} (f : ABGR⟦A, B⟧) (isE : isEpi f) :
-    KernelArrow (ABGR_Kernel f) ;; f = ZeroArrow ABGR_has_zero _ _.
+    KernelArrow (ABGR_Kernel f) · f = ZeroArrow ABGR_has_zero _ _.
   Proof.
     apply KernelCompZero.
   Qed.
@@ -2152,7 +2152,7 @@ Section ABGR_corollaries.
                    ((identity x) : to_abgrop x x)).
     set (mor2 := ((is_z_isomorphism_mor H2) : (monoidfun (to_abgrop y y) (to_abgrop y x)))
                    ((identity y) : to_abgrop y y)).
-    assert (Hx : f ;; mor1 = identity x).
+    assert (Hx : f · mor1 = identity x).
     {
       set (tmp := is_inverse_in_precat2 H1).
       apply base_paths in tmp.
@@ -2160,7 +2160,7 @@ Section ABGR_corollaries.
       set (tmp2 := funeqpaths tmp (identity x)). cbn in tmp2.
       apply tmp2.
     }
-    assert (Hy : mor2 ;; f = identity y).
+    assert (Hy : mor2 · f = identity y).
     {
       set (tmp := is_inverse_in_precat2 H2).
       apply base_paths in tmp. cbn in tmp.
@@ -2198,11 +2198,11 @@ Section ABGR_corollaries.
   Local Opaque ZeroArrow.
 
   Definition ABGR_isKernel_iscontr {X Y Z : ABGR} (f : X --> Y) (g : Y --> Z)
-             (ZA : f ;; g = @ZeroArrow ABGR_AbelianPreCat (@to_Zero ABGR_AbelianPreCat) _ _)
+             (ZA : f · g = @ZeroArrow ABGR_AbelianPreCat (@to_Zero ABGR_AbelianPreCat) _ _)
              (H : ∏ (D : (∑ y : pr1 Y, pr1 g y = 1%multmonoid)),
                   ∥ ∑ (x : abgrtogr X), monoidfuntobinopfun _ _ f x = (pr1 D) ∥)
              (isM : @isMonic ABGR _ _ f) (W : ABGR) (h : W --> Y)
-             (H' : h ;; g = @ZeroArrow ABGR (@to_Zero ABGR_AbelianPreCat) W Z) (w' : pr1 W) :
+             (H' : h · g = @ZeroArrow ABGR (@to_Zero ABGR_AbelianPreCat) W Z) (w' : pr1 W) :
     iscontr (∑ (x : abgrtogr X), monoidfuntobinopfun _ _ f x = pr1 h w').
   Proof.
     cbn in H'. rewrite <- (@PreAdditive_unel_zero (ABGR_PreAdditive)) in H'.
@@ -2230,7 +2230,7 @@ Section ABGR_corollaries.
   Qed.
 
   Definition ABGR_isKernel {X Y Z : ABGR} (f : X --> Y) (g : Y --> Z)
-             (ZA : f ;; g = @ZeroArrow ABGR_AbelianPreCat (@to_Zero ABGR_AbelianPreCat) _ _)
+             (ZA : f · g = @ZeroArrow ABGR_AbelianPreCat (@to_Zero ABGR_AbelianPreCat) _ _)
              (H : ∏ (D : (∑ y : pr1 Y, pr1 g y = 1%multmonoid)),
                   ∥ ∑ (x : abgrtogr X), monoidfuntobinopfun _ _ f x = (pr1 D) ∥)
              (isM : @isMonic ABGR _ _ f) :

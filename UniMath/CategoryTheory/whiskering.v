@@ -29,15 +29,9 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-(*Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).*)
-Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-
 
 Definition functor_compose {A B C : precategory} (hsB: has_homsets B)
                            (hsC: has_homsets C) (F : ob [A, B, hsB])

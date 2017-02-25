@@ -7,7 +7,7 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 
 Require Import UniMath.CategoryTheory.limits.coproducts.
@@ -94,17 +94,17 @@ Section FinOrdCoproduct_criteria.
                                (CoproductObject (stn 1) C Cone2)).
     set (in1 := BinCoproductIn1 _ BinCone).
     set (in2 := BinCoproductIn2 _ BinCone).
-    set (m1 := fun i1 : stn n => (Cone1In i1) ;; in1).
-    set (m2 := fun i2 : stn 1 => (Cone2In i2) ;; in2).
+    set (m1 := fun i1 : stn n => (Cone1In i1) · in1).
+    set (m2 := fun i2 : stn 1 => (Cone2In i2) · in2).
 
     use (mk_CoproductCocone (stn (S n)) C a (BinCoproductObject _ BinCone) _).
 
     (* Construction of the arrows from a i to BinCone *)
     intros i. induction (natlehchoice4 (pr1 i) _ (pr2 i)) as [a0|b].
     exact (idtoiso (maponpaths a (dni_lastelement_eq n i a0))
-                   ;; m1 (stnpair n (pr1 i) a0)).
+                   · m1 (stnpair n (pr1 i) a0)).
     exact (idtoiso (maponpaths a (lastelement_eq n i b))
-                   ;;  m2 (invweq(weqstn1tounit) tt)).
+                   ·  m2 (invweq(weqstn1tounit) tt)).
 
     (* Construction of isCoproductCocone. *)
     use (mk_isCoproductCocone _ _ hs).
@@ -133,7 +133,7 @@ Section FinOrdCoproduct_criteria.
     apply remove_id_left. apply idpath.
 
     unfold m1. unfold in1. rewrite <- assoc. fold g1. fold ar1.
-    use (pathscomp0 (maponpaths (fun f : _ => Cone1In (stnpair n (pr1 i) a0) ;; f)
+    use (pathscomp0 (maponpaths (fun f : _ => Cone1In (stnpair n (pr1 i) a0) · f)
                                 com1)).
     fold ar1 in com3. rewrite com3. unfold g1. apply idpath.
 
@@ -143,7 +143,7 @@ Section FinOrdCoproduct_criteria.
     apply remove_id_left. apply idpath.
 
     unfold m2. unfold in2. rewrite <- assoc. fold g1. fold ar1.
-    use (pathscomp0 (maponpaths (fun f : _ => Cone2In lastelement ;; f) com2)).
+    use (pathscomp0 (maponpaths (fun f : _ => Cone2In lastelement · f) com2)).
     rewrite com4. apply idpath.
 
 

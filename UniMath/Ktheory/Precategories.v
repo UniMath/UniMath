@@ -10,17 +10,8 @@ Require Export UniMath.Foundations.Preamble.
 Require Export UniMath.Foundations.Sets.
 Require Export UniMath.CategoryTheory.category_hset.
 
-Delimit Scope cat with cat.
 Local Open Scope cat.
 Set Automatic Introduction.
-
-(* move upstream *)
-
-Notation "a --> b" := (@precategory_morphisms _ a b) (at level 50) : cat.
-(* agda input \r- *)
-
-Notation "a <-- b" := (@precategory_morphisms (opp_precat _) a b) (at level 50) : cat.
-(* agda input \l- *)
 
 Definition src {C:precategory} {a b:C} (f:a-->b) : C := a.
 Definition tar {C:precategory} {a b:C} (f:a-->b) : C := b.

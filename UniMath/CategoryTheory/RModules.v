@@ -19,17 +19,13 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
 Require Import UniMath.CategoryTheory.Monads.
 
-
-
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Local Notation "G □ F" := (functor_composite F G) (at level 35).
 Local Notation "F ;;; G" := (nat_trans_comp _ _ _ F G) (at level 35).
 
@@ -56,8 +52,8 @@ Coercion functor_from_RModule_data (C : precategory) (F : RModule_data C)
 Definition σ {C : precategory} (F : RModule_data C) : F□M ⟶ F := pr2 F.
 
 Definition RModule_laws  {C:precategory} (T : RModule_data C) : UU :=
-      (∏ c : B, #T (η M c) ;; σ T c = identity (T c))
-        × (∏ c : B, #T ((μ M) c) ;; σ T c = σ T (M c) ;; σ T c).
+      (∏ c : B, #T (η M c) · σ T c = identity (T c))
+        × (∏ c : B, #T ((μ M) c) · σ T c = σ T (M c) · σ T c).
 
 Lemma isaprop_RModule_laws (C : precategory) (hs : has_homsets C) (T : RModule_data C) :
    isaprop (RModule_laws T).
@@ -71,13 +67,13 @@ Definition RModule (C : precategory) : UU := ∑ T : RModule_data C, RModule_law
 Coercion RModule_data_from_RModule (C : precategory) (T : RModule C) : RModule_data C := pr1 T.
 
 
-Lemma RModule_law1 {C : precategory} {T : RModule C} : ∏ c : B, #T (η M c) ;; σ T c = identity (T c).
+Lemma RModule_law1 {C : precategory} {T : RModule C} : ∏ c : B, #T (η M c) · σ T c = identity (T c).
 Proof.
 exact ( (pr1 (pr2 T))).
 Qed.
 
 Lemma RModule_law2 {C : precategory} {T : RModule C} :
-  ∏ c : B, #T ((μ M) c) ;; σ T c = σ T (M c) ;; σ T c.
+  ∏ c : B, #T ((μ M) c) · σ T c = σ T (M c) · σ T c.
 Proof.
 exact (pr2 ( (pr2 T))).
 Qed.
@@ -89,7 +85,7 @@ Section RModule_precategory.
 
 Definition RModule_Mor_laws {C : precategory} {T T' : RModule_data C} (α : T ⟶ T')
   : UU :=
-  ∏ a : B, α (M a) ;; σ T' a = σ T a ;; α a.
+  ∏ a : B, α (M a) · σ T' a = σ T a · α a.
 
 
 Lemma isaprop_RModule_Mor_laws (C : precategory) (hs : has_homsets C)
@@ -107,7 +103,7 @@ Coercion nat_trans_from_module_mor (C : precategory) (T T' : RModule C) (s : RMo
    : T ⟶ T' := pr1 s.
 
 Definition RModule_Mor_σ {C : precategory} {T T' : RModule C} (α : RModule_Mor T T')
-           : ∏ a : B, α (M a) ;; σ T' a = σ T a ;; α a
+           : ∏ a : B, α (M a) · σ T' a = σ T a · α a
   := pr2 α.
 
 Lemma RModule_identity_laws {C : precategory} (T : RModule C)
