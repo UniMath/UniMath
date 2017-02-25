@@ -155,9 +155,9 @@ distclean::          ; - $(MAKE) -C sub/lablgtk arch-clean
 
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
-sub/coq/configure sub/coq/configure.ml:
+sub/coq/configure.ml:
 	git submodule update --init sub/coq
-sub/coq/config/coq_config.ml: sub/coq/configure sub/coq/configure.ml
+sub/coq/config/coq_config.ml: sub/coq/configure.ml
 	: making $@ because of $?
 	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" -with-doc no -annotate -debug -local
 # instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"

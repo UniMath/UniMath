@@ -1353,6 +1353,8 @@ Definition binopfunpair {X Y : setwithbinop} (f : X -> Y) (is : isbinopfun f) : 
 Definition pr1binopfun (X Y : setwithbinop) : binopfun X Y -> (X -> Y) := @pr1 _ _.
 Coercion pr1binopfun : binopfun >-> Funclass.
 
+Definition binopfunisbinopfun {X Y : setwithbinop} (f : binopfun X Y) : isbinopfun f := pr2 f.
+
 Lemma isasetbinopfun  (X Y : setwithbinop) : isaset (binopfun X Y).
 Proof.
   intros.

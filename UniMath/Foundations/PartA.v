@@ -1030,7 +1030,7 @@ Defined.
 
 (** *** Homotopy fibers [ hfiber ] *)
 
-Definition hfiber {X Y : UU}  (f : X -> Y) (y : Y) : UU := ∑ x:X, f x = y.
+Definition hfiber {X Y : UU} (f : X -> Y) (y : Y) : UU := ∑ x : X, f x = y.
 
 Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
            (x : X) (e : f x = y) : hfiber f y :=
