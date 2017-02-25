@@ -13,7 +13,6 @@ Partial contents:
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
@@ -674,7 +673,7 @@ Proof.
 (*    Check (# (pr1 yy) ff ;; pr1 (H x0 xx0)). *)
     specialize (XR _  
        (
-        ((# (y : functor _ _ ))%mor f0 ;; inv_from_iso (pointwise_iso_from_nat_iso f x0))
+        ((# (y : functor _ _ ))%cat f0 ;; inv_from_iso (pointwise_iso_from_nat_iso f x0))
           %mor
          ) 
        ).

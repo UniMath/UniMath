@@ -31,7 +31,6 @@ Contents:
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
@@ -1178,7 +1177,7 @@ Definition lifted_functor_data {C C' : Precategory} {D : disp_precat C}
   : functor_data C' (total_precat D).
 Proof.
   exists (fun x => (F x ,, FF x)). 
-  intros x y f. exists (# F f)%mor. exact (# FF f).
+  intros x y f. exists (# F f)%cat. exact (# FF f).
 Defined.
 
 Definition lifted_functor_axioms {C C' : Precategory} {D : disp_precat C}
@@ -1315,7 +1314,7 @@ Lemma functor_over_transportf {C' C : Precategory}
   :
   # FF (transportf _ p ff)
   = 
-  transportf _ (maponpaths (#F)%mor p) (#FF ff) .
+  transportf _ (maponpaths (#F)%cat p) (#FF ff) .
 Proof.
   induction p.
   apply idpath.
@@ -1487,8 +1486,8 @@ Definition functor_over_ff_inv {x y} {xx} {yy} {f : x --> y}
 (* TODO: add a general version [functor_over_ff_inv_transportf], where the transportf on the LHS is arbitrary. *) 
 Lemma functor_over_ff_inv_transportf
     {x y : C} {f f' : x --> y} (e : f = f')
-    {xx : D x} {yy : D y} (ff : FF _ xx -->[#F f] FF _ yy)
-  : functor_over_ff_inv (transportf _ (maponpaths (# F )%mor e) ff) 
+    {xx : D x} {yy : D y} (ff : FF _ xx -->[(#F)%cat f] FF _ yy)
+  : functor_over_ff_inv (transportf _ (maponpaths (# F )%cat e) ff) 
     = 
     transportf _ e (functor_over_ff_inv ff).
 Proof.
@@ -1509,7 +1508,7 @@ Qed.
 (* TODO: move the transport to the RHS. *)
 Lemma functor_over_ff_inv_compose {x y z : C} {f : x --> y} {g : y --> z}
     {xx} {yy} {zz}
-    (ff : FF _ xx -->[#F f] FF _ yy) (gg : FF _ yy -->[#F g] FF _ zz)
+    (ff : FF _ xx -->[(#F)%cat f] FF _ yy) (gg : FF _ yy -->[(#F)%cat g] FF _ zz)
   : functor_over_ff_inv (transportb _ (functor_comp F _ _ ) (ff ;; gg)) 
   = functor_over_ff_inv ff ;; functor_over_ff_inv gg.
 Proof.
@@ -1576,7 +1575,7 @@ Definition total_functor_data {C' C} {F}
 Proof.
   mkpair.
   - intros xx. exists (F (pr1 xx)). exact (FF _ (pr2 xx)).
-  - intros xx yy ff. exists (# F (pr1 ff))%mor. exact (# FF (pr2 ff)).
+  - intros xx yy ff. exists (# F (pr1 ff))%cat. exact (# FF (pr2 ff)).
 Defined.
 
 Definition total_functor_axioms {C' C} {F}
