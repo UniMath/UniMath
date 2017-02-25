@@ -31,6 +31,7 @@ Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 
+
 (** * Equivalence of (pre)categories *)
 
 Definition adj_equivalence_of_precats {A B : precategory} (F : functor A B) : UU :=
