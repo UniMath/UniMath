@@ -103,7 +103,7 @@ COQDEFS := --language=none																\
 	-r '/^[[:space:]]*Tactic[[:space:]]+Notation.*[[:space:]]"\([[:alnum:]'\''_]+\)"[[:space:]]/\1/'										\
 	-r '/^[[:space:]]*Delimit[[:space:]]+Scope[[:space:]]+[[:alnum:]'\''_]+[[:space:]]+with[[:space:]]+\([[:alnum:]'\''_]+\)[[:space:]]*\./\1/'
 
-$(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
+$(foreach P,$(PACKAGES),$(eval TAGS-$P: Makefile $(filter UniMath/$P/%,$(VFILES)); etags $(COQDEFS) -o $$@ $$^))
 $(VFILES:.v=.vo) : $(COQBIN)coqc
 TAGS : Makefile $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
