@@ -17,3 +17,4 @@
 /latex/*.fls
 /latex/coqdoc.sty
 /COQC.log
+/.*.okay
