@@ -51,6 +51,17 @@ Coercion adjunction_data_from_equivalence_of_precats {A B}
 Definition adj_equivalence_of_precats {A B : precategory} (F : functor A B) : UU :=
    ∑ (H : is_left_adjoint F), forms_equivalence H.
 
+Definition mk_adj_equivalence_of_precats {A B : precategory} (F : functor A B)
+           (G : functor B A) η ε
+           (H1 : form_adjunction F G η ε)
+           (H2 : forms_equivalence ((F,,G,,η,,ε)))
+  : adj_equivalence_of_precats F.
+Proof.
+  mkpair.
+  - exists G. exists (η,,ε). apply H1.
+  - apply H2.
+Defined.
+
 Definition adj_equivalence_inv {A B : precategory}
   {F : functor A B} (HF : adj_equivalence_of_precats F) : functor B A :=
     right_adjoint (pr1 HF).
@@ -158,7 +169,7 @@ Proof.
           use (iso_after_iso_inv (isopair _ (Hη _ ))).
   rewrite id_left.
   apply (iso_after_iso_inv ).
-Defined.
+Qed.
 
 
 (** ** Adjointification *)
@@ -190,7 +201,7 @@ Let GG : functor [C,D,homset_property _ ] [D, D, homset_property _ ]
   := (pre_composition_functor _ _ _ (homset_property _ ) (homset_property _ ) G).
 
 
-Definition ε'isont : iso (C:= [D,D,homset_property _ ]) (G ∙ F) (functor_identity _ ).
+Definition ε'ntiso : iso (C:= [D,D,homset_property _ ]) (G ∙ F) (functor_identity _ ).
 Proof.
   eapply iso_comp.
     set (XR := functor_on_iso GG (functor_on_iso FF εntiso)).
@@ -204,7 +215,7 @@ Defined.
 
 
 Definition adjointification_triangle_1
-  : triangle_1_statement (F,,G,,pr1 ηntiso,,pr1 ε'isont).
+  : triangle_1_statement (F,,G,,pr1 ηntiso,,pr1 ε'ntiso).
 Proof.
   intro x. cbn. rewrite id_right. rewrite id_right. rewrite id_right. rewrite id_right.
               repeat rewrite assoc.
@@ -230,15 +241,15 @@ Proof.
 Qed.
 
 Lemma forms_equivalence_adjointification :
-  forms_equivalence (F,, G,, pr1 ηntiso,, pr1 ε'isont).
+  forms_equivalence (F,, G,, pr1 ηntiso,, pr1 ε'ntiso).
 Proof.
   split.
   - cbn. apply (is_functor_iso_pointwise_if_iso _ _ _ _ _ ηntiso (pr2 ηntiso)).
-  - cbn. apply (is_functor_iso_pointwise_if_iso _ _ _ _ _ ε'isont (pr2 ε'isont)).
+  - cbn. apply (is_functor_iso_pointwise_if_iso _ _ _ _ _ ε'ntiso (pr2 ε'ntiso)).
 Qed.
 
 Definition adjointification_triangle_2
-  : triangle_2_statement (F,,G,,pr1 ηntiso,,pr1 ε'isont).
+  : triangle_2_statement (F,,G,,pr1 ηntiso,,pr1 ε'ntiso).
 Proof.
   use triangle_2_from_1.
   - apply forms_equivalence_adjointification.
@@ -247,12 +258,12 @@ Qed.
 
 Definition adjointificiation : adj_equivalence_of_precats F.
 Proof.
-  mkpair.
-  - mkpair.
-    + apply G.
-    + mkpair. mkpair. apply ηntiso. apply ε'isont.
-      exists adjointification_triangle_1.
-      apply adjointification_triangle_2.
+  use mk_adj_equivalence_of_precats.
+  - exact G.
+  - apply ηntiso.
+  - apply ε'ntiso.
+  - exists adjointification_triangle_1.
+    apply adjointification_triangle_2.
   - apply forms_equivalence_adjointification.
 Defined.
 
