@@ -206,6 +206,11 @@ Defined.
 
 Definition cardinalityFiniteSet (X:FiniteSet) : nat := fincard (pr2 X).
 
+Lemma fincard_compute {n} {F:FiniteSet} : nelstruct n F -> cardinalityFiniteSet F = n.
+Proof.
+  intros ? ? w. induction F as [F s]; simpl in w. now induction (squash_path (n,,w) s).
+Defined.
+
 Theorem ischoicebasefiniteset { X : UU } ( is : isfinite X ) : ischoicebase X .
 Proof . intros . apply ( @hinhuniv ( finstruct X ) ( ischoicebase X ) ) .  intro nw . destruct nw as [ n w ] .   apply ( ischoicebaseweqf w ( ischoicebasestn n ) ) .  apply is .  Defined .
 

@@ -83,7 +83,7 @@ Proof. reflexivity. Defined.
                   pathToEq : (X=Y) -> PosetEquivalence X Y.
 
     PosetEquivalence_rect
-         : ∏ (X Y : Poset) (P : PosetEquivalence X Y -> Type),
+         : ∏ (X Y : Poset) (P : PosetEquivalence X Y -> UU),
            (∏ e : X = Y, P (pathToEq X Y e)) ->
            ∏ p : PosetEquivalence X Y, P p
 

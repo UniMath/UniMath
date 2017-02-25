@@ -136,6 +136,9 @@ Proof. intros. apply impred_isaset. intro x. apply setproperty. Defined.
 Definition forall_hSet {X : UU} (Y : X -> hSet) : hSet
   := hSetpair (∏ x, Y x) (isaset_forall_hSet X Y).
 
+Definition funset (X:UU) (Y:hSet) : hSet
+  := forall_hSet (λ _:X,Y).
+
 Notation "'∏' x .. y , P" := (forall_hSet (fun x =>.. (forall_hSet (fun y => P))..))
   (at level 200, x binder, y binder, right associativity) : set.
   (* type this in emacs in agda-input method with \sum *)
@@ -437,6 +440,13 @@ Proof.
   exact (pr1 p).
 Defined.
 
+Lemma squash_pairs_to_set_compute {Y : UU} {F : Y -> UU}
+      (i:isaset Y) (e:∏ y y', F y -> F y' -> y = y') {y} (f : F y) :
+  squash_pairs_to_set _ i e (hinhpr (y,,f)) = y.
+Proof.
+  reflexivity.
+Defined.
+
 Definition squash_to_set {X Y : UU} (is : isaset Y) (f : X -> Y) :
           (∏ x x', f x = f x') -> ∥ X ∥ -> Y.
 Proof.
@@ -456,6 +466,13 @@ Proof.
     exists (f x0). apply hinhpr. exists x0. reflexivity.
   }
   exact (pr1 p).
+Defined.
+
+Lemma squash_to_set_compute {X Y : UU} (is : isaset Y) (f : X -> Y)
+      (e:∏ x x', f x = f x') x :
+  squash_to_set is f e (hinhpr x) = f x.
+Proof.
+  reflexivity.
 Defined.
 
 (* End of "the type of monic subtypes of a type". *)
@@ -3010,5 +3027,17 @@ Proof.
 Defined.
 
 Ltac hSet_induction f e := generalize f; apply UU_rect; intro e; clear f.
+
+(* null homotopies *)
+
+Lemma isaset_NullHomotopyTo {X Y} (i:isaset Y) (f:X->Y) : isaset (NullHomotopyTo f).
+Proof. intros. apply (isofhleveltotal2 2). { apply i. }
+       intros y. apply impred; intros x. apply isasetaprop. apply i. Defined.
+
+(* assert the current goal is a set *)
+Ltac isaset_goal x :=
+  match goal with |- ?G => assert (x : isaset(G)) end.
+
+
 
 (* End of the file hSet.v *)

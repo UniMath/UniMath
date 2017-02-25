@@ -200,8 +200,8 @@ Proof.
   { apply ispositive_minusNonnegativeRationals.
     exact (pr2 (pr2 r')). }
   generalize (is_Dcuts_corr y _ Hr0) ; apply hinhuniv ; apply sumofmaps ; [intros Yq | intros q].
-  - apply Utilities.squash_element ;
-    right ; apply Utilities.squash_element.
+  - apply hinhpr ;
+    right ; apply hinhpr.
     exists (pr1 r') ; split.
     + intro H0 ; apply Yq.
       apply is_Dcuts_bot with (pr1 r').

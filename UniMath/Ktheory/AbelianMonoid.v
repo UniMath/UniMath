@@ -264,7 +264,7 @@ Proof.
   destruct n.
   { reflexivity. }
   { induction i as [i I].
-    apply (an_inclusion_is_injective _ (isinclstntonat _)).
+    apply (invmaponpathsincl _ (isinclstntonat _)).
     { simpl.
       intermediate_path (natrem i (S n)).
       { apply (natremplusden i (S n)). }
@@ -278,7 +278,7 @@ Proof.
   destruct n.
   { reflexivity. }
   { induction k as [k K].
-    apply (an_inclusion_is_injective _ (isinclstntonat _)).
+    apply (invmaponpathsincl _ (isinclstntonat _)).
     { simpl.
 Abort.
 
@@ -294,7 +294,7 @@ Proof.
     assert (dec : decidable_type (pr1 f lastelement = pr1 g lastelement)).
     { apply (isdeceqweqf f). apply isdeceqstn. }
     induction dec as [e|b].
-    { apply (aptwice (fun x y => x + y)).
+    { apply (map_on_two_paths (fun x y => x + y)).
       { rewrite <- 2 ! fun_assoc.
         set (f' := nelstructoncompl (pr1 f lastelement) f).
         set (g' := nelstructoncompl (pr1 g lastelement) g).
@@ -304,7 +304,7 @@ Proof.
     (*     induction p', q', e. *)
     (*     apply (IH (compl I (pr1 f lastelement)) *)
     (*               f' g' (x ∘ pr1compl I (pr1 f lastelement))). } *)
-    (*   { exact (ap x e). } } *)
+    (*   { exact (maponpaths x e). } } *)
     (* { *)
 
     (*   admit. } } *)
@@ -328,7 +328,7 @@ Abort.
 
 (** * abelian monoids by generators and relations *)
 Module Presentation.
-  Inductive word X : Type :=
+  Inductive word X : UU :=
     | word_unit : word X
     | word_gen : X -> word X
     | word_op : word X -> word X -> word X.
@@ -362,7 +362,7 @@ Module Presentation.
 
   Fixpoint reassemble {X I} (R:I->reln X) (v:wordop X) : evalword (wordop X) v = v.
   Proof. intros ? ? ? [|x|v w]. { reflexivity. } { reflexivity. }
-         { exact (aptwice word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
+         { exact (map_on_two_paths word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
 
   (** ** adequate relations over R *)
 
@@ -537,7 +537,7 @@ Module Presentation.
          { exact (Monoid.unitproperty f). }
          { exact (map_mark f x). }
          { exact (Monoid.multproperty f (evalwordMM M v) (evalwordMM M w)
-                  @ aptwice (fun r s => r + s)
+                  @ map_on_two_paths (fun r s => r + s)
                             (MarkedAbelianMonoidMap_compat _ _ _ _ _ f v)
                             (MarkedAbelianMonoidMap_compat _ _ _ _ _ f w)). } Qed.
   Lemma MarkedAbelianMonoidMap_compat2 {X I} {R:I->reln X}
@@ -564,7 +564,7 @@ Module Presentation.
   Lemma universalMarkedAbelianMonoid2 {X I} (R:I->reln X) (w:word X) :
     setquotpr (smallestAdequateRelation R) w = evalword (universalMarkedAbelianMonoid1 R) w.
   Proof. intros.
-    exact (! (ap (setquotpr (smallestAdequateRelation R)) (reassemble R w))
+    exact (! (maponpaths (setquotpr (smallestAdequateRelation R)) (reassemble R w))
            @ pr_eval_compat R w). Qed.
   Definition universalMarkedAbelianMonoid3 {X I} (R:I->reln X) (i:I) :
     evalword (universalMarkedAbelianMonoid1 R) (lhs (R i)) =
@@ -594,7 +594,7 @@ Module Presentation.
              @ _ @ !
                Monoid.multproperty g (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)).
-           apply (aptwice (fun r s => r + s)).
+           apply (map_on_two_paths (fun r s => r + s)).
            { apply agreement_on_gens0. assumption. }
            { apply agreement_on_gens0. assumption. } } Qed.
   Lemma agreement_on_gens {X I} {R:I->reln X} {M:abmonoid}
@@ -637,13 +637,13 @@ Module Presentation.
     apply Monoid.funEquality. apply funextsec; intro v.
     isaprop_goal ig. { apply setproperty. }
     apply (squash_to_prop (lift R v) ig); intros [w []].
-    exact ((ap f (universalMarkedAbelianMonoid2 R w))
-         @ MarkedAbelianMonoidMap_compat2 f g w @ !(ap g (universalMarkedAbelianMonoid2 R w))).
+    exact ((maponpaths f (universalMarkedAbelianMonoid2 R w))
+         @ MarkedAbelianMonoidMap_compat2 f g w @ !(maponpaths g (universalMarkedAbelianMonoid2 R w))).
   Defined.
 End Presentation.
 Module Free.
   Import Presentation.
-  Definition make (X:Type) := @universalMarkedAbelianMonoid X empty fromempty.
+  Definition make (X:UU) := @universalMarkedAbelianMonoid X empty fromempty.
 End Free.
 Definition NN := Free.make unit.
 
@@ -653,7 +653,7 @@ Module NN_agreement.
     intros. induction n as [|n IHn]. exact (unel _). exact (x + IHn). Defined.
   Local Notation "n * x" := ( mult n x ).
   Lemma mult_one (n:nat) : n * (1 : nataddabmonoid) = n.
-  Proof. intro. induction n as [|n IHn]. { reflexivity. } { exact (ap S IHn). } Qed.
+  Proof. intro. induction n as [|n IHn]. { reflexivity. } { exact (maponpaths S IHn). } Qed.
   Lemma mult_fun {X Y:abmonoid} (f:Hom X Y) (n:nat) (x:X) : f(n*x) = n*f x.
   Proof. intros. induction n as [|n IHn]. { exact (Monoid.unitproperty f). }
          { simple refine (Monoid.multproperty f x (n*x) @ _).
@@ -664,7 +664,7 @@ Module NN_agreement.
          induction n as [|n IHn].
          { exact (Monoid.unitproperty f @ !Monoid.unitproperty g). }
          { exact (Monoid.multproperty f 1 n
-                @ aptwice (fun x y => x+y) e IHn
+                @ map_on_two_paths (fun x y => x+y) e IHn
                 @ !Monoid.multproperty g 1 n). } Qed.
   Definition weq_NN_nataddabmonoid : NN ≃ nataddabmonoid.
   Proof.
@@ -672,7 +672,7 @@ Module NN_agreement.
     set (one := Presentation.m_mark NN tt).
     set (markednat :=
            make_MarkedAbelianMonoid R nataddabmonoid (fun _ => 1) fromemptysec).
-    exists (map_base (thePoint (iscontrMarkedAbelianMonoidMap markednat))).
+    exists (map_base (iscontrpr1 (iscontrMarkedAbelianMonoidMap markednat))).
     simple refine (gradth _ _ _ _).
     { intros m. { exact (m * one). } }
     { intros w.

@@ -19,8 +19,8 @@ Definition cat_data {C} (X:C==>SET) : precategory_data.
     exact (identity (pr1 a),, (eqtohomot ((functor_id X) (pr1 a))) (pr2 a)). }
   { intros a b c f g.
     exact (pr1 g ∘ pr1 f,,
-           ((eqtohomot ((functor_comp X) (pr1 f) (pr1 g)) (pr2 a))
-            @ (ap (#X (pr1 g)) (pr2 f) @ (pr2 g)))). } Defined.
+           ((eqtohomot (functor_comp X (pr1 f) (pr1 g)) (pr2 a))
+            @ (maponpaths (#X (pr1 g)) (pr2 f) @ (pr2 g)))). } Defined.
 
 Lemma has_homsets_cat_ob_mor {C:Precategory} (X:C==>SET) :
    has_homsets (cat_data X).
@@ -72,7 +72,7 @@ Proof. intros.
   exists (fun a => pr1 a,, p (pr1 a) (pr2 a)).
   exact (fun b c f => pr1 f,,
           ! (eqtohomot (pr2 p (pr1 b) (pr1 c) (pr1 f)) (pr2 b))
-          @ ap ((pr1 p) (pr1 c)) (pr2 f)). Defined.
+          @ maponpaths ((pr1 p) (pr1 c)) (pr2 f)). Defined.
 
 Lemma cat_on_nat_trans_is_nat_trans {C:Precategory} {X Y:C==>SET} (p:X ⟶ Y) :
   is_functor (cat_on_nat_trans_data p).
@@ -109,11 +109,11 @@ Module pr1.
     destruct f as [f i]. destruct H as [f' j].
         assert (i' : #X f' y = x).
     { intermediate_path (#X f' (#X f x)).
-      { exact (ap (#X f') (!i)). }
+      { exact (maponpaths (#X f') (!i)). }
       { intermediate_path (#X (f' ∘ f) x).
         { exact (eqtohomot (!functor_comp X f f') x). }
         { intermediate_path (#X (identity c) x).
-          { exact (eqtohomot (ap #X (pr1 j)) x). }
+          { exact (eqtohomot (maponpaths #X (pr1 j)) x). }
           { exact (eqtohomot (functor_id X c) x). }}}}
     { exists (f' ,, i'). split.
       { apply mor_equality.  exact (pr1 j). }

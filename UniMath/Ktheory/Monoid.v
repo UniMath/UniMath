@@ -189,7 +189,7 @@ Module Presentation.
          A pre-monoid over X modulo an adequate relation over R will be a
          monoid M equipped with a map X -> M that respects the relations R. *)
 
-  Inductive word X : Type :=
+  Inductive word X : UU :=
     | word_unit : word X
     | word_gen : X -> word X
     | word_op : word X -> word X -> word X.
@@ -223,7 +223,7 @@ Module Presentation.
 
   Fixpoint reassemble {X I} (R:I->reln X) (v:wordop X) : evalword (wordop X) v = v.
   Proof. intros ? ? ? [|x|v w]. { reflexivity. } { reflexivity. }
-         { exact (aptwice word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
+         { exact (map_on_two_paths word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
 
   (** ** adequate relations over R *)
 
@@ -387,7 +387,7 @@ Module Presentation.
          { exact (unitproperty f). }
          { exact (map_mark f x). }
          { exact (multproperty f (evalwordMM M v) (evalwordMM M w)
-                  @ aptwice (fun r s => r * s)
+                  @ map_on_two_paths (fun r s => r * s)
                             (MarkedMonoidMap_compat _ _ _ _ _ f v)
                             (MarkedMonoidMap_compat _ _ _ _ _ f w)). } Qed.
   Lemma MarkedMonoidMap_compat2 {X I} {R:I->reln X}
@@ -414,7 +414,7 @@ Defined.
   Lemma universalMarkedMonoid2 {X I} (R:I->reln X) (w:word X) :
     setquotpr (smallestAdequateRelation R) w = evalword (universalMarkedMonoid1 R) w.
   Proof. intros.
-    exact (! (ap (setquotpr (smallestAdequateRelation R)) (reassemble R w))
+    exact (! (maponpaths (setquotpr (smallestAdequateRelation R)) (reassemble R w))
            @ pr_eval_compat R w). Qed.
   Definition universalMarkedMonoid3 {X I} (R:I->reln X) (i:I) :
     evalword (universalMarkedMonoid1 R) (lhs (R i)) =
@@ -444,7 +444,7 @@ Defined.
              @ _ @ !
                multproperty g (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)).
-           apply (aptwice (fun r s => r * s)).
+           apply (map_on_two_paths (fun r s => r * s)).
            { apply agreement_on_gens0. assumption. }
            { apply agreement_on_gens0. assumption. } } Qed.
   Lemma agreement_on_gens {X I} {R:I->reln X} {M:monoid}
@@ -487,13 +487,13 @@ Defined.
     apply funEquality. apply funextsec; intro v.
     isaprop_goal ig. { apply setproperty. }
     apply (squash_to_prop (lift R v) ig); intros [w []].
-    exact ((ap f (universalMarkedMonoid2 R w))
-         @ MarkedMonoidMap_compat2 f g w @ !(ap g (universalMarkedMonoid2 R w))).
+    exact ((maponpaths f (universalMarkedMonoid2 R w))
+         @ MarkedMonoidMap_compat2 f g w @ !(maponpaths g (universalMarkedMonoid2 R w))).
   Defined.
 End Presentation.
 Module Free.
   Import Presentation.
-  Definition make (X:Type) := @universalMarkedMonoid X empty fromempty.
+  Definition make (X:UU) := @universalMarkedMonoid X empty fromempty.
 End Free.
 Definition NN := Free.make unit.
 Module Product.

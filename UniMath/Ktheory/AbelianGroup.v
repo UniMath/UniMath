@@ -4,7 +4,6 @@
 
 Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.NumberSystems.Integers
-               UniMath.Ktheory.Tactics
                UniMath.Ktheory.Utilities
                UniMath.CategoryTheory.functor_categories
                UniMath.Ktheory.Representation
@@ -41,7 +40,7 @@ Definition addproperty {G H:abgr} (p:Hom_abgr G H) (g g':G) : p(g + g') = p g + 
       Reduce the duplication later, if possible. *)
 
 Module Presentation.
-  Inductive word X : Type :=
+  Inductive word X : UU :=
     | word_unit : word X
     | word_gen : X -> word X
     | word_inv : word X -> word X
@@ -80,8 +79,8 @@ Module Presentation.
 
   Fixpoint reassemble {X I} (R:I->reln X) (v:wordop X) : evalword (wordop X) v = v.
   Proof. intros ? ? ? [|x|w|v w]. { reflexivity. } { reflexivity. }
-         { exact (ap word_inv (reassemble _ _ R w)). }
-         { exact (aptwice word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
+         { exact (maponpaths word_inv (reassemble _ _ R w)). }
+         { exact (map_on_two_paths word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
 
   (** ** adequate relations over R *)
 
@@ -229,7 +228,7 @@ Module Presentation.
     setquotpr (smallestAdequateRelation R) (evalword (wordop X) w)
     = evalword (universalMarkedPreAbelianGroup R) w.
   Proof. intros. destruct w as [|x|w|v w]. { reflexivity. } { reflexivity. }
-    { exact (ap (setquotpr (smallestAdequateRelation R)) (reassemble R (word_inv w))
+    { exact (maponpaths (setquotpr (smallestAdequateRelation R)) (reassemble R (word_inv w))
            @ !reassemble_pr R (word_inv w)). }
     { assert (p := !reassemble R (word_op v w)). destruct p.
       exact (!reassemble_pr R (word_op v w)). } Qed.
@@ -288,9 +287,9 @@ Module Presentation.
          { exact (Monoid.unitproperty f). }
          { exact (map_mark f x). }
          { exact (monoidfuninvtoinv f (evalwordMM M w)
-                @ ap (grinv N) (MarkedAbelianGroupMap_compat _ _ _ _ _ f w)). }
+                @ maponpaths (grinv N) (MarkedAbelianGroupMap_compat _ _ _ _ _ f w)). }
          { exact (Monoid.multproperty f (evalwordMM M v) (evalwordMM M w)
-                  @ aptwice (fun r s => r + s)
+                  @ map_on_two_paths (fun r s => r + s)
                             (MarkedAbelianGroupMap_compat _ _ _ _ _ f v)
                             (MarkedAbelianGroupMap_compat _ _ _ _ _ f w)). } Qed.
   Lemma MarkedAbelianGroupMap_compat2 {X I} {R:I->reln X}
@@ -324,7 +323,7 @@ Module Presentation.
   Lemma universalMarkedAbelianGroup2 {X I} (R:I->reln X) (w:word X) :
     setquotpr (smallestAdequateRelation R) w = evalword (universalMarkedAbelianGroup1 R) w.
   Proof. intros.
-    exact (! (ap (setquotpr (smallestAdequateRelation R)) (reassemble R w))
+    exact (! (maponpaths (setquotpr (smallestAdequateRelation R)) (reassemble R w))
            @ pr_eval_compat R w). Qed.
   Definition universalMarkedAbelianGroup3 {X I} (R:I->reln X) (i:I) :
     evalword (universalMarkedAbelianGroup1 R) (lhs (R i)) =
@@ -350,14 +349,14 @@ Module Presentation.
          (* compare duplication with the proof of MarkedAbelianGroupMap_compat *)
          { simple refine (monoidfuninvtoinv f (setquotpr (smallestAdequateRelation R) w)
              @ _ @ ! monoidfuninvtoinv g (setquotpr (smallestAdequateRelation R) w)).
-           apply (ap (grinv M)). apply agreement_on_gens0. assumption. }
+           apply (maponpaths (grinv M)). apply agreement_on_gens0. assumption. }
          { simple refine (
                Monoid.multproperty f (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)
              @ _ @ !
                Monoid.multproperty g (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)).
-           apply (aptwice (fun r s => r + s)).
+           apply (map_on_two_paths (fun r s => r + s)).
            { apply agreement_on_gens0. assumption. }
            { apply agreement_on_gens0. assumption. } } Qed.
   Lemma agreement_on_gens {X I} {R:I->reln X} {M:abgr}
@@ -400,13 +399,13 @@ Module Presentation.
     apply Monoid.funEquality. apply funextsec; intro v.
     isaprop_goal ig. { apply setproperty. }
     apply (squash_to_prop (lift R v) ig); intros [w []].
-    exact ((ap f (universalMarkedAbelianGroup2 R w))
-         @ MarkedAbelianGroupMap_compat2 f g w @ !(ap g (universalMarkedAbelianGroup2 R w))).
+    exact ((maponpaths f (universalMarkedAbelianGroup2 R w))
+         @ MarkedAbelianGroupMap_compat2 f g w @ !(maponpaths g (universalMarkedAbelianGroup2 R w))).
   Defined.
 End Presentation.
 Module Free.
   Import Presentation.
-  Definition make (X:Type) := @universalMarkedAbelianGroup X empty fromempty.
+  Definition make (X:UU) := @universalMarkedAbelianGroup X empty fromempty.
 End Free.
 Definition ZZ := Free.make unit.
 Module Product.
@@ -426,12 +425,12 @@ Module Product.
        (∏ i, Proj G i ∘ h = Proj G i ∘ h') -> h = h'.
     intros ? ? ? ? ? e. apply Monoid.funEquality.
     apply funextsec; intro t. apply funextsec; intro i.
-    exact (eqtohomot (ap pr1 (e i)) t). Qed.
+    exact (eqtohomot (maponpaths pr1 (e i)) t). Qed.
 End Product.
 Module Sum.                   (* coproducts *)
   Import Presentation.
   Definition X {I} (G:I->abgr) := total2 G. (* the generators *)
-  Inductive J {I} (G:I->abgr) : Type := (* index set for the relations *)
+  Inductive J {I} (G:I->abgr) : UU := (* index set for the relations *)
     | J_zero : I -> J G                 (* (i,0) ~  ; redundant relation *)
     | J_sum : (∑ i, G i × G i) -> J G.  (* (i,g)+(i,h) ~ (i,g+h) *)
   Definition R {I} (G:I->abgr) : J G -> reln (X G).
@@ -455,17 +454,17 @@ Module Sum.                   (* coproducts *)
       { simpl. apply addproperty. } } Defined.
   Definition Map {I} (G:I->abgr) (T:abgr) (f: ∏ i, Hom_abgr (G i) T) :
       Hom_abgr (make G) T.
-    intros. exact (thePoint (iscontrMarkedAbelianGroupMap (Map0 f))). Defined.
+    intros. exact (iscontrpr1 (iscontrMarkedAbelianGroupMap (Map0 f))). Defined.
   Lemma Eqn {I} (G:I->abgr) (T:abgr) (f: ∏ i, Hom_abgr (G i) T)
            : ∏ i, Map G T f ∘ Incl G i = f i.
     intros. apply Monoid.funEquality. reflexivity. Qed.
   Definition UniqueMap {I} (G:I->abgr) (T:abgr) (h h' : Hom_abgr (make G) T) :
        (∏ i, h ∘ Incl G i = h' ∘ Incl G i) -> h = h'.
     intros ? ? ? ? ? e. apply (agreement_on_gens h h').
-    { intros [i g]. exact (ap (evalat g) (ap pr1 (e i))). }
+    { intros [i g]. exact (maponpaths (adjev g) (maponpaths pr1 (e i))). }
   Qed.
 End Sum.
-Definition power (I:Type) (X:abgr) : abgr.
+Definition power (I:UU) (X:abgr) : abgr.
   intros. exact (Product.make (fun _:I => Z)). Defined.
 
 (** ** the category of abelian groups *)

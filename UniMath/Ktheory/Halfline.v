@@ -38,17 +38,17 @@ Proof. intros ? ? ? r. apply (squash_to_prop r).
          { exact (transportf (gHomotopy f s) (s n) IHn). } } Defined.
 
 Definition map_path {Y} {f:ℕ->Y} (s:target_paths f) :
-  ∏ n, map s (squash_element n) = map s (squash_element (S n)).
+  ∏ n, map s (hinhpr n) = map s (hinhpr (S n)).
 Proof. intros. apply (two_arg_paths_f (s n)).
        simpl. reflexivity. Defined.
 
 Definition map_path_check {Y} {f:ℕ->Y} (s:target_paths f) (n:ℕ) :
-  ∏ p : map s (squash_element n) = map s (squash_element (S n)),
-    ap pr1 p = s n.
+  ∏ p : map s (hinhpr n) = map s (hinhpr (S n)),
+    maponpaths pr1 p = s n.
 Proof. intros. set (q := map_path s n).
        assert (path_inverse_to_right : q=p).
        { apply (hlevelntosn 1). apply (hlevelntosn 0). apply iscontrGuidedHomotopy. }
-       destruct path_inverse_to_right. apply total2_paths2_comp1. Defined.
+       destruct path_inverse_to_right. apply total2_paths2_f_comp1. Defined.
 
 (** ** universal property for the half line *)
 
@@ -58,12 +58,12 @@ Proof. intros ? ? ? r. exact (pr1 (map s r)). Defined.
 
 Definition check_values {Y} {target_points:ℕ->Y}
            (s:target_paths target_points) (n:ℕ) :
-  halfline_map s (squash_element n) = target_points n.
+  halfline_map s (hinhpr n) = target_points n.
 Proof. reflexivity. Defined.
 
 Definition check_paths {Y} {target_points:ℕ->Y}
            (s:target_paths target_points) (n:ℕ) :
-  ap (halfline_map s) (squash_path n (S n)) = s n.
+  maponpaths (halfline_map s) (squash_path2 n (S n)) = s n.
 Proof. intros. refine (_ @ map_path_check s n _).
        apply pathsinv0. apply maponpathscomp. Defined.
 

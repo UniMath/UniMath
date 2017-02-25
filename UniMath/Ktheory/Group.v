@@ -14,7 +14,7 @@ Definition zero : gr.
 (** * groups by generators and relations *)
 
 Module Presentation.
-  Inductive word X : Type :=
+  Inductive word X : UU :=
     | word_unit : word X
     | word_gen : X -> word X
     | word_inv : word X -> word X
@@ -53,8 +53,8 @@ Module Presentation.
 
   Fixpoint reassemble {X I} (R:I->reln X) (v:wordop X) : evalword (wordop X) v = v.
   Proof. intros ? ? ? [|x|w|v w]. { reflexivity. } { reflexivity. }
-         { exact (ap word_inv (reassemble _ _ R w)). }
-         { exact (aptwice word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
+         { exact (maponpaths word_inv (reassemble _ _ R w)). }
+         { exact (map_on_two_paths word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
 
   (** ** adequate relations over R *)
 
@@ -194,7 +194,7 @@ Module Presentation.
     setquotpr (smallestAdequateRelation R) (evalword (wordop X) w)
     = evalword (universalMarkedPreGroup R) w.
   Proof. intros. destruct w as [|x|w|v w]. { reflexivity. } { reflexivity. }
-    { exact (ap (setquotpr (smallestAdequateRelation R)) (reassemble R (word_inv w))
+    { exact (maponpaths (setquotpr (smallestAdequateRelation R)) (reassemble R (word_inv w))
            @ !reassemble_pr R (word_inv w)). }
     { assert (p := !reassemble R (word_op v w)). destruct p.
       exact (!reassemble_pr R (word_op v w)). } Qed.
@@ -253,9 +253,9 @@ Module Presentation.
          { exact (Monoid.unitproperty f). }
          { exact (map_mark f x). }
          { exact (monoidfuninvtoinv f (evalwordMM M w)
-                @ ap (grinv N) (MarkedGroupMap_compat _ _ _ _ _ f w)). }
+                @ maponpaths (grinv N) (MarkedGroupMap_compat _ _ _ _ _ f w)). }
          { exact (Monoid.multproperty f (evalwordMM M v) (evalwordMM M w)
-                  @ aptwice (fun r s => r * s)
+                  @ map_on_two_paths (fun r s => r * s)
                             (MarkedGroupMap_compat _ _ _ _ _ f v)
                             (MarkedGroupMap_compat _ _ _ _ _ f w)). } Qed.
   Lemma MarkedGroupMap_compat2 {X I} {R:I->reln X}
@@ -288,7 +288,7 @@ Module Presentation.
   Lemma universalMarkedGroup2 {X I} (R:I->reln X) (w:word X) :
     setquotpr (smallestAdequateRelation R) w = evalword (universalMarkedGroup1 R) w.
   Proof. intros.
-    exact (! (ap (setquotpr (smallestAdequateRelation R)) (reassemble R w))
+    exact (! (maponpaths (setquotpr (smallestAdequateRelation R)) (reassemble R w))
            @ pr_eval_compat R w). Qed.
   Definition universalMarkedGroup3 {X I} (R:I->reln X) (i:I) :
     evalword (universalMarkedGroup1 R) (lhs (R i)) =
@@ -314,14 +314,14 @@ Module Presentation.
          (* compare duplication with the proof of MarkedGroupMap_compat *)
          { simple refine (monoidfuninvtoinv f (setquotpr (smallestAdequateRelation R) w)
              @ _ @ ! monoidfuninvtoinv g (setquotpr (smallestAdequateRelation R) w)).
-           apply (ap (grinv M)). apply agreement_on_gens0. assumption. }
+           apply (maponpaths (grinv M)). apply agreement_on_gens0. assumption. }
          { simple refine (
                Monoid.multproperty f (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)
              @ _ @ !
                Monoid.multproperty g (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)).
-           apply (aptwice (fun r s => r * s)).
+           apply (map_on_two_paths (fun r s => r * s)).
            { apply agreement_on_gens0. assumption. }
            { apply agreement_on_gens0. assumption. } } Qed.
   Lemma agreement_on_gens {X I} {R:I->reln X} {M:gr}
@@ -364,8 +364,8 @@ Module Presentation.
     apply Monoid.funEquality. apply funextsec; intro v.
     isaprop_goal ig. { apply setproperty. }
     apply (squash_to_prop (lift R v) ig); intros [w []].
-    exact ((ap f (universalMarkedGroup2 R w))
-         @ MarkedGroupMap_compat2 f g w @ !(ap g (universalMarkedGroup2 R w))).
+    exact ((maponpaths f (universalMarkedGroup2 R w))
+         @ MarkedGroupMap_compat2 f g w @ !(maponpaths g (universalMarkedGroup2 R w))).
   Defined.
 End Presentation.
 Module Product.
@@ -384,7 +384,7 @@ Module Product.
 End Product.
 Module Free.
   Import Presentation.
-  Definition make (X:Type) := @universalMarkedGroup X empty fromempty.
+  Definition make (X:UU) := @universalMarkedGroup X empty fromempty.
 End Free.
 Definition ZZ := Free.make unit.
 Require Import UniMath.NumberSystems.Integers.
