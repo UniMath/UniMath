@@ -103,7 +103,7 @@ COQDEFS := --language=none																\
 	-r '/^[[:space:]]*Tactic[[:space:]]+Notation.*[[:space:]]"\([[:alnum:]'\''_]+\)"[[:space:]]/\1/'										\
 	-r '/^[[:space:]]*Delimit[[:space:]]+Scope[[:space:]]+[[:alnum:]'\''_]+[[:space:]]+with[[:space:]]+\([[:alnum:]'\''_]+\)[[:space:]]*\./\1/'
 
-$(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
+$(foreach P,$(PACKAGES),$(eval TAGS-$P: Makefile $(filter UniMath/$P/%,$(VFILES)); etags $(COQDEFS) -o $$@ $$^))
 $(VFILES:.v=.vo) : $(COQBIN)coqc
 TAGS : Makefile $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
@@ -217,8 +217,10 @@ show-long-lines:
 
 # here we assume the shell is bash, which it usually is nowadays:
 SHELL = bash
-enforce-linear-ordering:
-	: --- $@ ---
+enforce-linear-ordering: .enforce-linear-ordering.okay
+clean::; rm -f .enforce-linear-ordering.okay
+.enforce-linear-ordering.okay: Makefile $(VFILES:.v=.v.d)
+	: --- enforce linear ordering ---
 	@set -e ;\
 	if declare -A seqnum 2>/dev/null ;\
 	then n=0 ;\
@@ -247,14 +249,18 @@ enforce-linear-ordering:
 		 [ ! "$$haderror" ] ) ;\
 	else echo "make: *** skipping enforcement of linear ordering of packages, because 'bash' is too old" ;\
 	fi
+	touch $@
 
 # here we ensure that the travis script checks every package
-check-travis:
-	: --- $@ ---
+check-travis:.check-travis.okay
+clean::; rm -f .check-travis.okay
+.check-travis.okay: Makefile .travis.yml
+	: --- check travis script ---
 	@set -e ;\
 	for p in $(PACKAGES) ;\
 	do grep -q "PACKAGES=.*$$p" .travis.yml || ( echo "package $$p not checked by .travis.yml" >&2 ; exit 1 ) ;\
 	done
+	touch "$@"
 
 #################################
 # targets best used with INCLUDE=no
