@@ -1660,7 +1660,7 @@ Proof.
   assert (r : R x1 x2) by apply (eqax2 iseq _ _ is1' is2').
   apply (pathscomp0 (pathsinv0 is1) (pathscomp0 (is _ _ r) is2)).
 Defined.
-
+Global Opaque isapropimeqclass.
 
 Theorem setquotuniv {X : UU} (R : hrel X) (Y : hSet) (f : X -> Y)
         (is : iscomprelfun R f) (c : setquot R) : Y.
@@ -2002,18 +2002,24 @@ Proof.
   apply (is _ _ _ _ ((pr2 (lg _ _)) r) ((pr2 (lg _ _)) r0)).
 Defined.
 
+Local Lemma setquotuniv2_iscomprelfun {X : UU} (R : hrel X) (Y : hSet) (f : X -> X -> Y)
+      (is : iscomprelfun2 R f) (c c0 : setquot R) :
+  iscomprelfun (hreldirprod R R) (fun xy : dirprod X X => f (pr1 xy) (pr2 xy)).
+Proof.
+  intros X R Y f is c c0.
+  intros xy x'y'. simpl. intro dp. destruct dp as [ r r'].
+  apply (is _ _ _ _ r r').
+Defined.
+Global Opaque setquotuniv2_iscomprelfun.
+
 Definition setquotuniv2 {X : UU} (R : hrel X) (Y : hSet) (f : X -> X -> Y)
            (is : iscomprelfun2 R f) (c c0 : setquot R) : Y.
 Proof.
   intros.
   set (ff := fun xy : dirprod X X => f (pr1 xy) (pr2 xy)).
   set (RR := hreldirprod R R).
-  assert (isff : iscomprelfun RR ff).
-  {
-    intros xy x'y'. simpl. intro dp. destruct dp as [ r r'].
-    apply (is _ _ _ _ r r').
-  }
-  apply (setquotuniv RR Y ff isff (dirprodtosetquot R R (dirprodpair c c0))).
+  apply (setquotuniv RR Y ff (setquotuniv2_iscomprelfun R Y f is c c0)
+                     (dirprodtosetquot R R (dirprodpair c c0))).
 Defined.
 
 Theorem setquotuniv2comm {X : UU} (R : eqrel X) (Y : hSet) (f : X -> X -> Y)
@@ -2057,19 +2063,24 @@ Proof.
   apply ((pr1 (lg _ _)) (is _ _ _ _ r r0)).
 Defined.
 
+Local Lemma setquotfun2_iscomprelfun2 {X Y : UU} (RX : hrel X) (RY : eqrel Y)
+           (f : X -> X -> Y) (is : iscomprelrelfun2 RX RY f)
+           (cx cx0 : setquot RX) : iscomprelfun2 RX (fun x x0 : X => setquotpr RY (f x x0)).
+Proof.
+  intros X Y RX RY f is cx cx0.
+  intros x x' x0 x0'. intros r r0.
+  apply (weqpathsinsetquot RY (f x x0) (f x' x0')).
+  apply is. apply r. apply r0.
+Defined.
+Global Opaque setquotfun2_iscomprelfun2.
+
 Definition setquotfun2 {X Y : UU} (RX : hrel X) (RY : eqrel Y)
            (f : X -> X -> Y) (is : iscomprelrelfun2 RX RY f)
            (cx cx0 : setquot RX) : setquot RY.
 Proof.
   intros.
   set (ff := fun x x0 : X => setquotpr RY (f x x0)).
-  assert (isff : iscomprelfun2 RX ff).
-  {
-    intros x x' x0 x0'. intros r r0.
-    apply (weqpathsinsetquot RY (f x x0) (f x' x0')).
-    apply is. apply r. apply r0.
-  }
-  apply (setquotuniv2 RX (setquotinset RY) ff isff cx cx0).
+  exact (setquotuniv2 RX (setquotinset RY) ff (setquotfun2_iscomprelfun2 RX RY f is cx cx0) cx cx0).
 Defined.
 
 Theorem setquotfun2comm {X Y : UU} (RX : eqrel X) (RY : eqrel Y)

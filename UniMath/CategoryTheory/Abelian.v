@@ -56,7 +56,7 @@ Require Import UniMath.CategoryTheory.PreAdditive.
 Section def_abelian.
 
   (** An abelian category has a zero object, binary (co)products, (co)kernels and every monic
-      (resp. epi) is a kernel (resp. cokernel). *)
+      (resp. epi) is a kernel (resp. cokernel) of an epi (resp. monic). *)
   Definition Data1 (C : precategory) : UU := Zero C × (BinProducts C) × (BinCoproducts C).
 
   Definition mk_Data1 {C : precategory} (H1 : Zero C) (H2 : BinProducts C) (H3 : BinCoproducts C) :
@@ -70,16 +70,19 @@ Section def_abelian.
   Definition mk_Data2 {C : precategory} (AD1 : Data1 C) (H1 : Kernels (Data1_Zero AD1))
              (H2 : Cokernels (Data1_Zero AD1)) : Data2 C AD1 := (H1,,H2).
 
-  (** This definition contains the data that every monic is a kernel of some morphism. *)
+  (** This definition contains the data that every monic is a kernel of some epi. *)
   Definition AbelianMonicKernelsData (C : precategory) (AD : Data1 C) : UU :=
     ∏ (x y : C) (M : Monic C x y),
-    (∑ D2 : (∑ D1 : (∑ z : C, y --> z), M ;; (pr2 D1) = ZeroArrow (pr1 AD) x (pr1 D1)),
-            isKernel (Data1_Zero AD) M (pr2 (pr1 D2)) (pr2 D2)).
+    (∑ D2 : (∑ D1 : (∑ z : C, y --> z), (isEpi (pr2 D1))
+                                        × (M ;; (pr2 D1) = ZeroArrow (pr1 AD) x (pr1 D1))),
+            isKernel (Data1_Zero AD) M (pr2 (pr1 D2)) (dirprod_pr2 (pr2 D2))).
 
   Definition mk_AbelianMonicKernelsData {C : precategory} (AD1 : Data1 C)
              (H : ∏ (x y : C) (M : Monic C x y),
-                  (∑ D2 : (∑ D1 : (∑ z : C, y --> z), M ;; (pr2 D1) = ZeroArrow (pr1 AD1) x (pr1 D1)),
-                          isKernel (Data1_Zero AD1) M (pr2 (pr1 D2)) (pr2 D2))) :
+                  (∑ D2 : (∑ D1 : (∑ z : C, y --> z),
+                                  (isEpi (pr2 D1))
+                                    × (M ;; (pr2 D1) = ZeroArrow (pr1 AD1) x (pr1 D1))),
+                          isKernel (Data1_Zero AD1) M (pr2 (pr1 D2)) (dirprod_pr2 (pr2 D2)))) :
     AbelianMonicKernelsData C AD1 := H.
 
   (** Accessor functions for AbelianMonicKernelsData. *)
@@ -90,27 +93,33 @@ Section def_abelian.
              (x y : C) (M : Monic C x y) : C⟦y, (AMKD_Ob AMKD x y M)⟧ :=
     pr2 (pr1 (pr1 (AMKD x y M))).
 
+  Definition AMKD_isEpi {C : precategory} {AD : Data1 C} (AMKD : AbelianMonicKernelsData C AD)
+             (x y : C) (M : Monic C x y) :
+    isEpi (AMKD_Mor AMKD x y M) := dirprod_pr1 (pr2 (pr1 (AMKD x y M))).
+
   Definition AMKD_Eq {C : precategory} {AD : Data1 C} (AMKD : AbelianMonicKernelsData C AD)
              (x y : C) (M : Monic C x y) :
     M ;; (AMKD_Mor AMKD x y M) = ZeroArrow (pr1 AD) x (AMKD_Ob AMKD x y M) :=
-    pr2 (pr1 (AMKD x y M)).
+    dirprod_pr2 (pr2 (pr1 (AMKD x y M))).
 
   Definition AMKD_isK {C : precategory} {AD : Data1 C} (AMKD : AbelianMonicKernelsData C AD)
              (x y : C) (M : Monic C x y) :
     isKernel (Data1_Zero AD) M (AMKD_Mor AMKD x y M) (AMKD_Eq AMKD x y M) := pr2 (AMKD x y M).
 
-  (** This definition contains the data that every epi is a cokernel of some
-      morphism. *)
+  (** This definition contains the data that every epi is a cokernel of some monic *)
   Definition AbelianEpiCokernelsData (C : precategory) (AD : Data1 C) : UU :=
     (∏ (y z : C) (E : Epi C y z),
-     (∑ D2 : (∑ D1 : (∑ x : C, x --> y), (pr2 D1) ;; E = ZeroArrow (pr1 AD) (pr1 D1) z),
-             isCokernel (Data1_Zero AD) (pr2 (pr1 D2)) E (pr2 D2))).
+     (∑ D2 : (∑ D1 : (∑ x : C, x --> y),
+                     (isMonic (pr2 D1))
+                       × ((pr2 D1) ;; E = ZeroArrow (pr1 AD) (pr1 D1) z)),
+             isCokernel (Data1_Zero AD) (pr2 (pr1 D2)) E (dirprod_pr2 (pr2 D2)))).
 
    Definition mk_AbelianEpiCokernelsData {C : precategory} (AD1 : Data1 C)
               (H : (∏ (y z : C) (E : Epi C y z),
                     (∑ D2 : (∑ D1 : (∑ x : C, x --> y),
-                                   (pr2 D1) ;; E = ZeroArrow (pr1 AD1) (pr1 D1) z),
-                            isCokernel (Data1_Zero AD1) (pr2 (pr1 D2)) E (pr2 D2)))) :
+                                    (isMonic (pr2 D1))
+                                      × ((pr2 D1) ;; E = ZeroArrow (pr1 AD1) (pr1 D1) z)),
+                            isCokernel (Data1_Zero AD1) (pr2 (pr1 D2)) E (dirprod_pr2 (pr2 D2))))) :
      AbelianEpiCokernelsData C AD1 := H.
 
   (** Accessor functions for AbelianEpiCokernelsData. *)
@@ -120,17 +129,21 @@ Section def_abelian.
   Definition AECD_Mor {C : precategory} {AD : Data1 C} (AECD : AbelianEpiCokernelsData C AD)
              (y z : C) (E : Epi C y z) : C⟦(AECD_Ob AECD y z E), y⟧ := pr2 (pr1 (pr1 (AECD y z E))).
 
+  Definition AECD_isMonic {C : precategory} {AD : Data1 C} (AECD : AbelianEpiCokernelsData C AD)
+             (y z : C) (E : Epi C y z) :
+    isMonic (AECD_Mor AECD y z E) := dirprod_pr1 (pr2 (pr1 (AECD y z E))).
+
   Definition AECD_Eq {C : precategory} {AD : Data1 C} (AECD : AbelianEpiCokernelsData C AD)
              (y z : C) (E : Epi C y z) :
     (AECD_Mor AECD y z E) ;; E = ZeroArrow (pr1 AD) (AECD_Ob AECD y z E) z :=
-    pr2 (pr1 (AECD y z E)).
+    dirprod_pr2 (pr2 (pr1 (AECD y z E))).
 
   Definition AECD_isC {C : precategory} {AD : Data1 C} (AECD : AbelianEpiCokernelsData C AD)
              (y z : C) (E : Epi C y z) :
     isCokernel (Data1_Zero AD) (AECD_Mor AECD y z E) E (AECD_Eq AECD y z E) := pr2 (AECD y z E).
 
-  (** Data which contains kernels, cokernels, the data that monics are kernels of some morphisms,
-      and the data that epis are cokernels of some morphisms. *)
+  (** Data which contains kernels, cokernels, the data that monics are kernels of some epis,
+      and the data that epis are cokernels of some monics. *)
   Definition AbelianData (C : precategory) (AD1 : Data1 C) : UU :=
     (Data2 C AD1) × (AbelianMonicKernelsData C AD1) × (AbelianEpiCokernelsData C AD1).
 
@@ -203,38 +216,51 @@ Section abelian_monic_epi_iso.
   Variable A : AbelianPreCat.
   Hypothesis hs : has_homsets A.
 
-  (** If a morphism is a monic and an epi, then it is an isomorphism. *)
-  Lemma monic_epi_is_iso {x y : A} {f : x --> y} : isMonic f -> isEpi f -> is_iso f.
+  Local Lemma monic_epi_is_iso_eq {x y : A} {f : x --> y} (iM : isMonic f) (iE : isEpi f) :
+    identity y ;; AMKD_Mor (to_AMKD A) x y (mk_Monic _ _ iM) =
+    ZeroArrow to_Zero y (AMKD_Ob (to_AMKD A) x y (mk_Monic _ _ iM)).
   Proof.
-    intros M E.
-    set (M1 := mk_Monic A f M).
-    set (E1 := mk_Epi A f E).
-    set (AMK := to_AMKD A x y M1).
+    set (E1 := mk_Epi A f iE).
     set (AEC := to_AECD A x y E1).
-    induction AMK as [t p]. induction t as [t p0]. induction t as [t p1].
-    induction AEC as [t0 p2]. induction t0 as [t0 p3]. induction t0 as [t0 p4].
-    unfold isKernel in p. unfold isCokernel in p2.
-    (* Construct the inverse of f *)
-    cbn in *. rewrite <- (ZeroArrow_comp_right _ _ _ _ _ f) in p0. apply E in p0.
-    set (p' := p y (identity _)).
-    set (t'1 := maponpaths (fun h : A⟦y, t⟧ => identity _ ;; h) p0).
-    cbn in t'1. rewrite (id_left (ZeroArrow _ _ _)) in t'1.
-    set (p'' := p' t'1).
-    induction p'' as [t1 p5]. induction t1 as [t1 p6].
-    (* Show that t1 is the inverse of f *)
-    use is_iso_qinv.
-    - exact t1.
-    - split.
-      + apply (pr2 M1). cbn. rewrite <- assoc. rewrite p6.
-        rewrite id_left. rewrite id_right. apply idpath.
-      + apply p6.
+    set (AMK := to_AMKD A x y (mk_Monic _ _ iM)).
+    set (p0 := dirprod_pr2 (pr2 (pr1 AMK))). cbn in p0.
+    rewrite <- (ZeroArrow_comp_right _ _ _ _ _ f) in p0. apply iE in p0.
+    set (t'1 := maponpaths (fun h : A⟦y, _⟧ => identity _ ;; h) p0). cbn in t'1.
+    rewrite ZeroArrow_comp_right in t'1. exact t'1.
   Qed.
 
-  (** Construction of the iso. *)
-  Lemma monic_epi_iso {x y : A} {f : x --> y} : isMonic f -> isEpi f -> iso x y.
+  Lemma monic_epi_is_iso_inverses {x y : A} {f : x --> y} (iM : isMonic f) (iE : isEpi f) :
+    is_inverse_in_precat
+      f (KernelIn to_Zero (monic_kernel A (mk_Monic A f iM)) y (identity y)
+                  (monic_epi_is_iso_eq iM iE)).
+  Proof.
+    use mk_is_inverse_in_precat.
+    - apply iM. cbn. rewrite <- assoc.
+      rewrite (KernelCommutes to_Zero (monic_kernel A (mk_Monic A f iM))).
+      rewrite id_right. rewrite id_left.
+      apply idpath.
+    - exact (KernelCommutes to_Zero (monic_kernel A (mk_Monic A f iM)) _ _ _).
+  Qed.
+
+  (** If a morphism is a monic and an epi, then it is an isomorphism. *)
+  Lemma monic_epi_is_iso {x y : A} {f : x --> y} : isMonic f -> isEpi f -> is_z_isomorphism f.
   Proof.
     intros iM iE.
-    exact (isopair f (monic_epi_is_iso iM iE)).
+    use mk_is_z_isomorphism.
+    - exact (KernelIn to_Zero (monic_kernel A (mk_Monic _ _ iM)) y (identity y)
+                      (monic_epi_is_iso_eq iM iE)).
+    - exact (monic_epi_is_iso_inverses iM iE).
+  Defined.
+
+  (** Construction of the iso. *)
+  Lemma monic_epi_z_iso {x y : A} {f : x --> y} : isMonic f -> isEpi f -> z_iso x y.
+  Proof.
+    intros iM iE.
+    use mk_z_iso.
+    - exact f.
+    - exact (KernelIn to_Zero (monic_kernel A (mk_Monic _ _ iM)) y (identity y)
+                      (monic_epi_is_iso_eq iM iE)).
+    - exact (monic_epi_is_iso_inverses iM iE).
   Defined.
 
 End abelian_monic_epi_iso.
@@ -930,7 +956,7 @@ Section abelian_monic_kernels.
     assert (e5 : is_iso (CoequalizerArrow Coeq)).
     {
       set (coker2 := KernelZeroMonic_cokernel e4 Coeq_coker).
-      apply (CokernelofZeroArrow_is_iso hs to_Zero coker2).
+      apply (is_iso_qinv _ _ (CokernelofZeroArrow_is_iso hs to_Zero coker2)).
     }
     set (isoar := isopair (CoequalizerArrow Coeq) e5).
     set (coeq_eq := CoequalizerEqAr Coeq).
@@ -1008,7 +1034,7 @@ Section abelian_monic_kernels.
     assert (e5 : is_iso (EqualizerArrow Eq)).
     {
       set (ker2 := CokernelZeroEpi_kernel e4 Eq_ker).
-      apply (KernelofZeroArrow_is_iso hs to_Zero ker2).
+      apply (is_iso_qinv _ _ (KernelofZeroArrow_is_iso hs to_Zero ker2)).
     }
     set (isoar := isopair (EqualizerArrow Eq) e5).
     set (Eq_eq := EqualizerEqAr Eq).
@@ -1107,7 +1133,7 @@ Section abelian_factorization.
 
   (** Here we show that the canonical morphism CoIm f --> Im f is an
     isomorphism. *)
-  Lemma CoIm_to_Im_is_iso {x y : A} (f : x --> y) : is_iso (CoIm_to_Im f).
+  Lemma CoIm_to_Im_is_iso {x y : A} (f : x --> y) : is_z_isomorphism (CoIm_to_Im f).
   Proof.
     (* It suffices to show that this morphism is monic and epi. *)
     use monic_epi_is_iso.
@@ -1364,7 +1390,8 @@ Section abelian_kernel_cokernel.
     apply (pr2 M).
   Qed.
 
-  Lemma MonicToKernel_is_iso {x y : A} (M : Monic A x y) : is_iso (factorization1_epi A hs M).
+  Lemma MonicToKernel_is_iso {x y : A} (M : Monic A x y) :
+    is_z_isomorphism (factorization1_epi A hs M).
   Proof.
     apply monic_epi_is_iso.
     apply (MonicToKernel_isMonic M).
@@ -1376,7 +1403,7 @@ Section abelian_kernel_cokernel.
   Definition MonicToKernel {x y : A} (M : Monic A x y) :
     kernels.Kernel to_Zero (CokernelArrow (Cokernel M)) :=
     Kernel_up_to_iso A hs to_Zero M (CokernelArrow (Cokernel M)) (Image M)
-                     (isopair (factorization1_epi A hs M) (MonicToKernel_is_iso M))
+                     (mk_z_iso (factorization1_epi A hs M) _ (MonicToKernel_is_iso M))
                      (factorization1 hs M).
 
   (** The following verifies that the monic M is indeed the KernelArrow. *)
@@ -1409,7 +1436,8 @@ Section abelian_kernel_cokernel.
     apply (pr2 E).
   Qed.
 
-  Lemma EpiToCokernel_is_iso {x y : A} (E : Epi A x y) : is_iso (factorization2_monic A hs E).
+  Lemma EpiToCokernel_is_iso {x y : A} (E : Epi A x y) :
+    is_z_isomorphism (factorization2_monic A hs E).
   Proof.
     apply monic_epi_is_iso.
     apply factorization2_is_monic.
@@ -1421,7 +1449,7 @@ Section abelian_kernel_cokernel.
   Definition EpiToCokernel {x y : A} (E : Epi A x y) :
     cokernels.Cokernel to_Zero (KernelArrow (Kernel E)) :=
     Cokernel_up_to_iso A hs to_Zero (KernelArrow (Kernel E)) E (CoImage E)
-                       (isopair (factorization2_monic A hs E) (EpiToCokernel_is_iso E))
+                       (mk_z_iso (factorization2_monic A hs E) _ (EpiToCokernel_is_iso E))
                        (factorization2 hs E).
 
   (** The following verifies that the epi E is indeed the CokernelArrow. *)
@@ -1473,6 +1501,14 @@ Section opp_abelian.
   Defined.
 
   Local Opaque ZeroArrow.
+  Lemma AbelianMonicKernelsData_opp_isMonic {AD1 : Data1 C} (AMKD : AbelianMonicKernelsData C AD1)
+        (y z : C^op) (E : Epi (opp_precat C) y z) :
+    @isMonic C^op _ _ (@AMKD_Mor C AD1 AMKD z y (@opp_Epi C y z E)).
+  Proof.
+    use opp_isEpi.
+    exact (AMKD_isEpi AMKD z y (opp_Epi _ E)).
+  Qed.
+
   Lemma AbelianMonicKernelsData_opp_eq {AD1 : Data1 C} (AMKD : AbelianMonicKernelsData C AD1)
         (y z : C^op) (E : Epi (opp_precat C) y z) :
     @compose C _ _ _ E (AMKD_Mor AMKD z y (opp_Epi C E))
@@ -1505,10 +1541,19 @@ Section opp_abelian.
       + use tpair.
         * exact (AMKD_Ob AMKD z y (opp_Epi C E)).
         * exact (AMKD_Mor AMKD z y (opp_Epi C E)).
-      + exact (AbelianMonicKernelsData_opp_eq AMKD y z E).
+      + use dirprodpair.
+        * exact (AbelianMonicKernelsData_opp_isMonic AMKD y z E).
+        * exact (AbelianMonicKernelsData_opp_eq AMKD y z E).
     - exact (AbelianMonicKernelsData_opp_isCokernel AMKD y z E).
   Defined.
 
+  Lemma AbelianEpiCokernelsData_opp_isEpi {AD1 : Data1 C} (AECD : AbelianEpiCokernelsData C AD1)
+        (y z : C^op) (M : Monic (opp_precat C) y z) :
+    @isEpi C^op _ _ (AECD_Mor AECD z y (opp_Monic C M)).
+  Proof.
+    use opp_isMonic.
+    exact (AECD_isMonic AECD z y (opp_Monic _ M)).
+  Qed.
 
   Lemma AbelianEpiCokernelsData_opp_eq {AD1 : Data1 C} (AECD : AbelianEpiCokernelsData C AD1)
         (y z : C^op) (M : Monic (opp_precat C) y z) :
@@ -1539,7 +1584,9 @@ Section opp_abelian.
       + use tpair.
         * exact (AECD_Ob AECD z y (opp_Monic C M) : ob C^op).
         * exact (AECD_Mor AECD z y (opp_Monic C M) : C^op⟦z, _⟧).
-      + exact (AbelianEpiCokernelsData_opp_eq AECD y z M).
+      + use dirprodpair.
+        * exact (AbelianEpiCokernelsData_opp_isEpi AECD y z M).
+        * exact (AbelianEpiCokernelsData_opp_eq AECD y z M).
     - exact (AbelianEpiCokernelsData_opp_isKernel AECD y z M).
   Defined.
 
