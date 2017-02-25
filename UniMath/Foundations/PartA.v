@@ -167,6 +167,10 @@ Definition idfun (T : UU) := λ t:T, t.
 Definition funcomp {X Y : UU} {Z:Y->UU} (f : X -> Y) (g : ∏ y:Y, Z y) := λ x, g (f x).
 
 Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity).
+(* in agda mode: \circ *)
+
+Notation "f ⇴ g" := (funcomp f g) (at level 50, left associativity, only parsing).
+(* in agda mode: \dcirc *)
 
 (** back and forth between functions of pairs and functions returning
   functions *)
@@ -503,13 +507,13 @@ Definition invhomot {X:UU} {Y:X->UU} {f f' : ∏ x : X, Y x}
            (h : f ~ f') : f' ~ f := fun (x : X) => !(h x).
 
 Definition funhomot {X Y Z:UU} (f : X -> Y) {g g' : Y -> Z}
-           (h : g ~ g') : (g ∘ f) ~ (g' ∘ f) := fun (x : X) => h (f x).
+           (h : g ~ g') : g ∘ f ~ g' ∘ f := fun (x : X) => h (f x).
 
 Definition funhomotsec {X Y:UU} {Z:Y->UU} (f : X -> Y) {g g' : ∏ y:Y, Z y}
-           (h : g ~ g') : (g ∘ f) ~ (g' ∘ f) := fun (x : X) => h (f x).
+           (h : g ~ g') : g ∘ f ~ g' ∘ f := fun (x : X) => h (f x).
 
 Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
-           (g : Y -> Z) : (g ∘ f) ~ (g ∘ f') := fun (x : X) => maponpaths g (h x).
+           (g : Y -> Z) : g ∘ f ~ g ∘ f' := fun (x : X) => maponpaths g (h x).
 
 (** *** Equality between functions defines a homotopy *)
 
@@ -2207,22 +2211,22 @@ Proof. reflexivity. Defined.
 (** *** The 2-out-of-6 (two-out-of-six) property of weak equivalences *)
 
 Theorem twooutofsixu {X Y Z K : UU} {u : X -> Y} {v : Y -> Z} {w : Z -> K}
-        (isuv : isweq (funcomp u v)) (isvw : isweq (funcomp v w)) : isweq u.
+        (isuv : isweq (u ⇴ v)) (isvw : isweq (v ⇴ w)) : isweq u.
 Proof.
   intros.
 
   set (invuv := invmap (weqpair _ isuv)).
-  set (pu := funcomp v invuv).
+  set (pu := v ⇴ invuv).
   set (hupu := homotinvweqweq (weqpair _ isuv)
-               : homot (funcomp u pu) (idfun X)).
+               : homot (u ⇴ pu) (idfun X)).
 
   set (invvw := invmap (weqpair _ isvw)).
-  set (pv := funcomp w invvw).
+  set (pv := w ⇴ invvw).
   set (hvpv := homotinvweqweq (weqpair _ isvw)
-               : homot (funcomp v pv) (idfun Y)).
+               : homot (v ⇴ pv) (idfun Y)).
 
   set (h0 := funhomot v (homotweqinvweq (weqpair _ isuv))).
-  set (h1 := funhomot (funcomp pu u) (invhomot hvpv)).
+  set (h1 := funhomot (pu ⇴ u) (invhomot hvpv)).
   set (h2 := homotfun h0 pv).
 
   set (hpuu := homotcomp (homotcomp h1 h2) hvpv).
@@ -2231,7 +2235,7 @@ Proof.
 Defined.
 
 Theorem twooutofsixv {X Y Z K : UU} {u : X -> Y} {v : Y -> Z} {w : Z -> K}
-        (isuv : isweq (funcomp u v))(isvw : isweq (funcomp v w)) : isweq v.
+        (isuv : isweq (u ⇴ v))(isvw : isweq (v ⇴ w)) : isweq v.
 Proof.
   intros. exact (twooutof3b _ _ (twooutofsixu isuv isvw) isuv).
 Defined.
