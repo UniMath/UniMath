@@ -772,7 +772,7 @@ Section translation_functor.
     form_adjunction TranslationFunctor_Additive InvTranslationFunctor_Additive
                     TranslationTranslationInvNatTrans InvTranslationTranslationNatTrans.
   Proof.
-    use mk_form_adjunction.
+    mkpair.
     - intros x. exact (TranslationInvTranslation_adjunction_eq1 x).
     - intros x. exact (TranslationInvTranslation_adjunction_eq2 x).
   Qed.
@@ -1647,7 +1647,7 @@ Section translation_functor.
                     InvTranslationFunctorH_AdditiveFunctor
                     TranslationHTranslationInvHNatTrans InvTranslationHTranslationHNatTrans.
   Proof.
-    use mk_form_adjunction.
+    mkpair.
     - intros x. exact (TranslationHInvTranslationH_adjunction_eq1 x).
     - intros x. exact (TranslationHInvTranslationH_adjunction_eq2 x).
   Qed.
