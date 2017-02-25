@@ -23,14 +23,9 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Adjunctions.
-
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-
-
 
 (** * Equivalence of (pre)categories *)
 
@@ -222,7 +217,7 @@ Defined.
 
 Definition rad_mor (b b' : ob B) (g : b --> b') : rad_ob b --> rad_ob b'.
 Proof.
-  set (epsgebs' := rad_eps b ;; g ;; iso_inv_from_iso (rad_eps b')).
+  set (epsgebs' := rad_eps b · g · iso_inv_from_iso (rad_eps b')).
   set (Gg := fully_faithful_inv_hom HF (rad_ob b) _ epsgebs').
   exact Gg.
 Defined.

@@ -44,7 +44,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -205,7 +205,7 @@ Proof.
       intros u v e; simpl;
       rewrite <- ( coconeInCommutes cc u v e);
       apply (pathscomp0 (b:=transportb (precategory_morphisms (dob d' u)) (heq v)
-                                       (dmor d' e) ;; (coconeIn cc v)));
+                                       (dmor d' e) · (coconeIn cc v)));
       [
         unfold transportb; (set (z:= ! heq v));
         rewrite <- (pathsinv0inv0 (heq v));

@@ -5,11 +5,9 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
-
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
 Section def_zero.
 
@@ -61,10 +59,10 @@ Section def_zero.
 
   (** For any pair of objects, there exists a unique arrow which factors
     through the zero object *)
-  Definition ZeroArrow (Z : Zero) (a b : C) : C⟦a, b⟧ := (ZeroArrowTo Z a) ;; (ZeroArrowFrom Z b).
+  Definition ZeroArrow (Z : Zero) (a b : C) : C⟦a, b⟧ := (ZeroArrowTo Z a) · (ZeroArrowFrom Z b).
 
   Lemma ZeroArrowEq (Z : Zero) (a b : C) (f1 : C⟦a, Z⟧) (g1 : C⟦Z, b⟧) :
-    f1 ;; g1 = ZeroArrow Z a b.
+    f1 · g1 = ZeroArrow Z a b.
   Proof.
     rewrite (ArrowsToZero Z a f1 (ZeroArrowTo Z a)).
     rewrite (ArrowsFromZero Z b g1 (ZeroArrowFrom Z b)).
@@ -72,14 +70,14 @@ Section def_zero.
   Qed.
 
   Lemma ZeroArrow_comp_left (Z : Zero) (a b c : C) (f : C⟦b, c⟧) :
-    ZeroArrow Z a b ;; f = ZeroArrow Z a c.
+    ZeroArrow Z a b · f = ZeroArrow Z a c.
   Proof.
     unfold ZeroArrow at 1. rewrite <- assoc.
     apply ZeroArrowEq.
   Qed.
 
   Lemma ZeroArrow_comp_right (Z : Zero) (a b c : C) (f : C⟦a, b⟧) :
-    f ;; ZeroArrow Z b c = ZeroArrow Z a c.
+    f · ZeroArrow Z b c = ZeroArrow Z a c.
   Proof.
     unfold ZeroArrow at 1. rewrite assoc.
     apply ZeroArrowEq.
@@ -114,12 +112,12 @@ Section def_zero.
   Proof.
     set (i := iso_Zeros Z Z').
     unfold ZeroArrow.
-    assert (e : ZeroArrowTo Z a ;; identity _ = ZeroArrowTo Z a) by apply id_right.
+    assert (e : ZeroArrowTo Z a · identity _ = ZeroArrowTo Z a) by apply id_right.
     rewrite <- e. clear e.
     rewrite <- (iso_inv_after_iso i). rewrite assoc.
-    assert (e1 : ZeroArrowTo Z a ;; i = ZeroArrowTo Z' a) by apply ArrowsToZero.
+    assert (e1 : ZeroArrowTo Z a · i = ZeroArrowTo Z' a) by apply ArrowsToZero.
     rewrite e1. clear e1.
-    assert (e2 : inv_from_iso i ;; ZeroArrowFrom Z b = ZeroArrowFrom Z' b)
+    assert (e2 : inv_from_iso i · ZeroArrowFrom Z b = ZeroArrowFrom Z' b)
       by apply ArrowsFromZero.
     rewrite <- assoc. rewrite e2. clear e2.
     apply idpath.
@@ -155,7 +153,7 @@ Section def_zero.
     use mk_isZero.
     - intros a.
       use tpair.
-      + exact (i ;; (ZeroArrowFrom Z a)).
+      + exact (i · (ZeroArrowFrom Z a)).
       + cbn. intros t.
         apply (pre_comp_with_iso_is_inj
                  C _ _ a (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
@@ -163,7 +161,7 @@ Section def_zero.
         apply ArrowsFromZero.
     - intros a.
       use tpair.
-      + exact ((ZeroArrowTo Z a) ;; (iso_inv_from_iso i)).
+      + exact ((ZeroArrowTo Z a) · (iso_inv_from_iso i)).
       + cbn. intros t.
         apply (post_comp_with_iso_is_inj C _ _ i (pr2 i)).
         rewrite <- assoc. rewrite (iso_after_iso_inv i). rewrite id_right.

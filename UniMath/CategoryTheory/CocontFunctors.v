@@ -63,7 +63,7 @@ Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
@@ -83,9 +83,6 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.CategoryTheory.slicecat.
-
-Local Notation "# F" := (functor_on_morphisms F) (at level 3).
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (** * Definition of cocontinuous functors *)
 Section cocont.
@@ -124,13 +121,13 @@ induction j as [|j IHj].
   destruct (negnatlthn0 0 Hi0).
 - intros Hij.
   destruct (natlehchoice4 _ _ Hij) as [|H].
-  + apply (IHj h ;; dmor c (idpath (S j))).
+  + apply (IHj h · dmor c (idpath (S j))).
   + apply dmor, (maponpaths S H).
 Defined.
 
 Lemma chain_mor_coconeIn {C : precategory} (c : chain C) (x : C)
   (cc : cocone c x) i : ∏ j (Hij : i < j),
-  chain_mor c Hij ;; coconeIn cc j = coconeIn cc i.
+  chain_mor c Hij · coconeIn cc j = coconeIn cc i.
 Proof.
 induction j as [|j IHj].
 - intros Hi0.
@@ -146,7 +143,7 @@ Qed.
 (** One of the hypotheses of this lemma is redundant, however when stated this way the lemma can be
 used for any two proofs making it easier to apply. *)
 Lemma chain_mor_right {C : precategory} {c : chain C} {i j} (Hij : i < j) (HSij : S i < j) :
-  dmor c (idpath (S i)) ;; chain_mor c HSij = chain_mor c Hij.
+  dmor c (idpath (S i)) · chain_mor c HSij = chain_mor c Hij.
 Proof.
 induction j as [|j IHj].
 - destruct (negnatlthn0 _ Hij).
@@ -162,7 +159,7 @@ Qed.
 
 (** See comment for [chain_mor_right] about the redundant hypothesis *)
 Lemma chain_mor_left {C : precategory} {c : chain C} {i j} (Hij : i < j) (HiSj : i < S j) :
-  chain_mor c Hij ;; dmor c (idpath (S j)) = chain_mor c HiSj.
+  chain_mor c Hij · dmor c (idpath (S j)) = chain_mor c HiSj.
 Proof.
 destruct j.
 - destruct (negnatlthn0 _ Hij).
@@ -318,7 +315,7 @@ Local Definition cocone_over_alg (n : nat) : C ⟦ dob Fchain n, A ⟧.
 Proof.
 induction n as [|n Fn]; simpl.
 - now apply InitialArrow.
-- now apply (# F Fn ;; a).
+- now apply (# F Fn · a).
 Defined.
 
 (* a_n : F^n 0 -> A *)
@@ -327,7 +324,7 @@ Local Notation an := cocone_over_alg.
 (* This makes Coq not unfold dmor during simpl *)
 Arguments dmor : simpl never.
 
-Lemma isCoconeOverAlg n Sn (e : edge n Sn) : dmor Fchain e ;; an Sn = an n.
+Lemma isCoconeOverAlg n Sn (e : edge n Sn) : dmor Fchain e · an Sn = an n.
 Proof.
 destruct e.
 induction n as [|n IHn].
@@ -424,14 +421,14 @@ Let Hα : is_iso α := pr2 αiso.
 Local Definition ccFy y (ccGy : cocone (mapdiagram G d) y) : cocone (mapdiagram F d) y.
 Proof.
 use mk_cocone.
-- intro v; apply (pr1 α (dob d v) ;; coconeIn ccGy v).
+- intro v; apply (pr1 α (dob d v) · coconeIn ccGy v).
 - abstract (simpl; intros u v e; rewrite <- (coconeInCommutes ccGy u v e), !assoc;
             apply cancel_postcomposition, nat_trans_ax).
 Defined.
 
 Lemma αinv_f_commutes y (ccGy : cocone (mapdiagram G d) y) (f : D⟦F L,y⟧)
-       (Hf : ∏ v,coconeIn (mapcocone F d cc) v ;; f = coconeIn (ccFy y ccGy) v) :
-       ∏ v, # G (coconeIn cc v) ;; (pr1 αinv L ;; f) = coconeIn ccGy v.
+       (Hf : ∏ v,coconeIn (mapcocone F d cc) v · f = coconeIn (ccFy y ccGy) v) :
+       ∏ v, # G (coconeIn cc v) · (pr1 αinv L · f) = coconeIn ccGy v.
 Proof.
 intro v; rewrite assoc.
 eapply pathscomp0; [apply cancel_postcomposition, nat_trans_ax|].
@@ -443,16 +440,16 @@ now rewrite id_left.
 Qed.
 
 Lemma αinv_f_unique y (ccGy : cocone (mapdiagram G d) y) (f : D⟦F L,y⟧)
-     (Hf : ∏ v,coconeIn (mapcocone F d cc) v ;; f = coconeIn (ccFy y ccGy) v)
-     (HHf : ∏ t : ∑ x, ∏ v, coconeIn (mapcocone F d cc) v ;; x = coconeIn _ v, t = f,, Hf)
-      f' (Hf' : ∏ v, # G (coconeIn cc v) ;; f' = coconeIn ccGy v) :
-      f' = pr1 αinv L ;; f.
+     (Hf : ∏ v,coconeIn (mapcocone F d cc) v · f = coconeIn (ccFy y ccGy) v)
+     (HHf : ∏ t : ∑ x, ∏ v, coconeIn (mapcocone F d cc) v · x = coconeIn _ v, t = f,, Hf)
+      f' (Hf' : ∏ v, # G (coconeIn cc v) · f' = coconeIn ccGy v) :
+      f' = pr1 αinv L · f.
 Proof.
 transparent assert (HH : (∑ x : D ⟦ F L, y ⟧,
             ∏ v : vertex g,
-            coconeIn (mapcocone F d cc) v ;; x = coconeIn (ccFy y ccGy) v)).
+            coconeIn (mapcocone F d cc) v · x = coconeIn (ccFy y ccGy) v)).
 { mkpair.
-  - apply (pr1 α L ;; f').
+  - apply (pr1 α L · f').
   - abstract (intro v; rewrite <- Hf', !assoc; apply cancel_postcomposition, nat_trans_ax).
 }
 apply pathsinv0.
@@ -470,7 +467,7 @@ intros HccL y ccGy.
 set (H := HF HccL y (ccFy y ccGy)).
 set (f := pr1 (pr1 H)); set (Hf := pr2 (pr1 H)); set (HHf := pr2 H).
 use unique_exists.
-- apply (pr1 αinv L ;; f).
+- apply (pr1 αinv L · f).
 - simpl; apply (αinv_f_commutes y ccGy f Hf).
 - abstract (intro; apply impred; intro; apply hsD).
 - abstract (simpl in *; intros f' Hf'; apply (αinv_f_unique y ccGy f Hf); trivial;
@@ -665,7 +662,7 @@ mkpair.
 - apply (tpair _ x1).
   abstract (intro n; apply (maponpaths pr1 (p1 n))).
 - intro t.
-  transparent assert (X : (∑ x0, ∏ v, coconeIn ccab v ;; x0 =
+  transparent assert (X : (∑ x0, ∏ v, coconeIn ccab v · x0 =
                                  precatbinprodmor (pr1 ccx v) (pr2 (pr1 ccab v)))).
   { mkpair.
     - split; [ apply (pr1 t) | apply (identity _) ].
@@ -709,7 +706,7 @@ mkpair.
 - apply (tpair _ x2).
   abstract (intro n; apply (maponpaths dirprod_pr2 (p1 n))).
 - intro t.
-  transparent assert (X : (∑ x0, ∏ v, coconeIn ccab v ;; x0 =
+  transparent assert (X : (∑ x0, ∏ v, coconeIn ccab v · x0 =
                                  precatbinprodmor (pr1 (pr1 ccab v)) (pr1 ccx v))).
   { mkpair.
     - split; [ apply (identity _) | apply (pr1 t) ].
@@ -966,7 +963,7 @@ mkpair.
     assert (hp : p = idpath i); [apply (isasetifdeceq _ HI)|];
     now rewrite hp, idpath_transportf).
 - intro t.
-  transparent assert (X : (∑ x0, ∏ n, coconeIn ccL n ;; x0 = coconeIn HHH n)).
+  transparent assert (X : (∑ x0, ∏ n, coconeIn ccL n · x0 = coconeIn HHH n)).
   { mkpair.
     - simpl; intro j; unfold ifI.
       destruct (HI i j).
@@ -1011,7 +1008,7 @@ mkpair.
              [ intro x; apply impred; intro; apply impred_isaset; intro i; apply hsB
              | destruct t as [f1 f2]; simpl in *;  apply funextsec; intro i;
                transparent assert (H : (∑ x : B ⟦ (F i) (ml i), xy i ⟧,
-                                       ∏ n, # (F i) (coconeIn ccml n i) ;; x =
+                                       ∏ n, # (F i) (coconeIn ccml n i) · x =
                                        coconeIn ccxy n i));
                 [apply (tpair _ (f1 i)); intro n; apply (toforallpaths _ _ _ (f2 n) i)|];
                apply (maponpaths pr1 (pr2 (X i) H))]).
@@ -1298,9 +1295,9 @@ Local Definition map_to_K (cAB : chain (precategory_binproduct C C)) (K : C)
   C⟦BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))), K⟧.
 Proof.
 destruct (natlthorgeh i j).
-- apply (fun_lt cAB _ _ h ;; coconeIn ccK j).
+- apply (fun_lt cAB _ _ h · coconeIn ccK j).
 - destruct (natgehchoice _ _ h) as [H|H].
-  * apply (fun_gt cAB _ _ H ;; coconeIn ccK i).
+  * apply (fun_gt cAB _ _ H · coconeIn ccK i).
   * destruct H; apply (coconeIn ccK i).
 Defined.
 
@@ -1309,7 +1306,7 @@ Local Lemma map_to_K_commutes (cAB : chain (precategory_binproduct C C)) (K : C)
   i j k (e : edge j k) :
    BinProduct_of_functors_mor C C PC (constant_functor C C (pr1 (pr1 cAB i)))
      (functor_identity C) (pr2 (dob cAB j)) (pr2 (dob cAB k))
-     (mor2 (dmor cAB e)) ;; map_to_K cAB K ccK i k =
+     (mor2 (dmor cAB e)) · map_to_K cAB K ccK i k =
    map_to_K cAB K ccK i j.
 Proof.
 destruct e; simpl.
@@ -1403,8 +1400,8 @@ Proof.
 Defined.
 
 Local Lemma fNat : ∏ i u v (e : edge u v),
-   dmor (mapchain (constprod_functor1 PC _) cB) e ;; f i v =
-   f i u ;; dmor (mapchain (constprod_functor1 PC _) cB) e.
+   dmor (mapchain (constprod_functor1 PC _) cB) e · f i v =
+   f i u · dmor (mapchain (constprod_functor1 PC _) cB) e.
 Proof.
   intros i j k e; destruct e; simpl.
   eapply pathscomp0; [apply BinProductOfArrows_comp|].
@@ -1436,7 +1433,7 @@ Qed.
 
 (* Define a cocone over K from the A_i * M chain *)
 Local Lemma ccAiM_K_subproof : ∏ u v (e : edge u v),
-   dmor (mapdiagram (constprod_functor2 PC M) cA) e ;;
+   dmor (mapdiagram (constprod_functor2 PC M) cA) e ·
    colimArrow (CCAiB v) K (ccAiB_K v) = colimArrow (CCAiB u) K (ccAiB_K u).
 Proof.
   intros i j e; destruct e; simpl.
@@ -1492,7 +1489,7 @@ Local Definition ccAiM_K := mk_cocone _ ccAiM_K_subproof.
 Local Lemma is_cocone_morphism :
  ∏ v : nat,
    BinProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
-     (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) ;;
+     (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) ·
    colimArrow HAiM K ccAiM_K = coconeIn ccK v.
 Proof.
   intro i.
@@ -1518,7 +1515,7 @@ Local Lemma is_unique_cocone_morphism :
  ∏ t : ∑ x : C ⟦ BinProductObject C (PC L M), K ⟧,
        ∏ v : nat,
        BinProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
-         (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) ;; x =
+         (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) · x =
        coconeIn ccK v, t = colimArrow HAiM K ccAiM_K,, is_cocone_morphism.
 Proof.
   intro t.
@@ -1558,7 +1555,7 @@ Qed.
 Local Definition isColimProductOfColims :  ∃! x : C ⟦ BinProductObject C (PC L M), K ⟧,
    ∏ v : nat,
    BinProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
-     (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) ;; x =
+     (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) · x =
    coconeIn ccK v.
 Proof.
 mkpair.
@@ -1794,7 +1791,7 @@ transparent assert (k : (HSET/X⟦colim CC,c⟧)).
     apply (f l').
   - abstract (now apply funextsec).
 }
-assert (Hk : (∏ n, colimIn CC n ;; k = coconeIn cc n)).
+assert (Hk : (∏ n, colimIn CC n · k = coconeIn cc n)).
 { intros n.
   apply subtypeEquality; [intros x; apply setproperty|].
   apply funextsec; intro z.

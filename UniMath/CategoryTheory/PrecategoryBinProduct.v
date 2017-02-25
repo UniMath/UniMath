@@ -35,11 +35,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
-
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G ∙ F" := (functor_composite _ _ _ F G) (at level 35).
+Local Open Scope cat.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -55,7 +51,7 @@ Proof.
   - intro cd.
     exact (dirprodpair (identity (pr1 cd)) (identity (pr2 cd))).
   - intros cd cd' cd'' fg fg'.
-    exact (dirprodpair (pr1 fg ;; pr1 fg') (pr2 fg ;; pr2 fg')).
+    exact (dirprodpair (pr1 fg · pr1 fg') (pr2 fg · pr2 fg')).
 Defined.
 
 Section precategory_binproduct.

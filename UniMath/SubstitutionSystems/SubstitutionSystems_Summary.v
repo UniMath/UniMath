@@ -17,7 +17,7 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -60,7 +60,7 @@ Definition GenMendlerIteration :
    Adjunctions.is_left_adjoint L
    → ∏ ψ : ψ_source C C' hsC' X L ⟶ ψ_target C F C' hsC' X L,
      ∃! h : C' ⟦ L ` (InitialObject μF_Initial), X ⟧,
-     # L (alg_map F (InitialObject μF_Initial)) ;; h =
+     # L (alg_map F (InitialObject μF_Initial)) · h =
      ψ ` (InitialObject μF_Initial) h.
 Proof.
   simpl.
@@ -86,7 +86,7 @@ Theorem fusion_law
               ⟶
             yoneda_objects C' hsC' X' • functor_opp L'),
        let T:= (` (InitialObject μF_Initial)) in
-       ψ T ;; Φ (F T) = Φ T ;; ψ' T
+       ψ T · Φ (F T) = Φ T · ψ' T
        →
        Φ T (It μF_Initial hsC' X L is_left_adj_L ψ) =
        It μF_Initial hsC' X' L' is_left_adj_L' ψ'.
@@ -104,7 +104,7 @@ Lemma fbracket_natural
        (H : Signature C hs C hs) (T : hss CP H) (Z Z' : precategory_Ptd C hs)
        (f : precategory_Ptd C hs ⟦ Z, Z' ⟧)
        (g : precategory_Ptd C hs ⟦ Z', ptd_from_alg T ⟧),
-       (`T ∘ # U f : [C,C,hs] ⟦ `T • U Z , `T • U Z' ⟧) ;; ⦃ g ⦄ = ⦃ f ;; g ⦄ .
+       (`T ∘ # U f : [C,C,hs] ⟦ `T • U Z , `T • U Z' ⟧) · ⦃ g ⦄ = ⦃ f · g ⦄ .
 Proof.
   apply fbracket_natural.
 Qed.
@@ -113,7 +113,7 @@ Lemma compute_fbracket
      : ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
        (H : Signature C hs C hs) (T : hss CP H) (Z : precategory_Ptd C hs)
        (f : precategory_Ptd C hs ⟦ Z, ptd_from_alg T ⟧),
-       ⦃ f ⦄ = (`T ∘ # U f : [C,C,hs] ⟦ `T • U Z , `T • U _ ⟧) ;; ⦃ identity (ptd_from_alg T) ⦄.
+       ⦃ f ⦄ = (`T ∘ # U f : [C,C,hs] ⟦ `T • U Z , `T • U _ ⟧) · ⦃ identity (ptd_from_alg T) ⦄.
 Proof.
   apply compute_fbracket.
 Qed.
@@ -180,7 +180,7 @@ Lemma bracket_Thm15_ok_η
        (Z : precategory_Ptd C hs)
        (f : precategory_Ptd C hs ⟦ Z, ptd_from_alg (InitAlg C hs CP H IA)⟧),
        # U f =
-       # (pr1 (ℓ (U Z))) (η (InitAlg C hs CP H IA)) ;;
+       # (pr1 (ℓ (U Z))) (η (InitAlg C hs CP H IA)) ·
        bracket_Thm15 C hs CP KanExt H IA Z f.
 Proof.
   apply bracket_Thm15_ok_part1.
@@ -193,11 +193,11 @@ Lemma bracket_Thm15_ok_τ
       (IA : Initial (FunctorAlg (Id_H C hs CP H) (functor_category_has_homsets C C hs)))
       (Z : precategory_Ptd C hs)
       (f : precategory_Ptd C hs ⟦ Z, ptd_from_alg (InitAlg C hs CP H IA) ⟧),
-    (theta H) (` (InitAlg C hs CP H IA) ⊗ Z) ;;
-    # H (bracket_Thm15 C hs CP KanExt H IA Z f) ;;
+    (theta H) (` (InitAlg C hs CP H IA) ⊗ Z) ·
+    # H (bracket_Thm15 C hs CP KanExt H IA Z f) ·
     τ (InitAlg C hs CP H IA)
     =
-    # (pr1 (ℓ (U Z))) (τ (InitAlg C hs CP H IA)) ;;
+    # (pr1 (ℓ (U Z))) (τ (InitAlg C hs CP H IA)) ·
       bracket_Thm15 C hs CP KanExt H IA Z f.
 Proof.
   apply bracket_Thm15_ok_part2.

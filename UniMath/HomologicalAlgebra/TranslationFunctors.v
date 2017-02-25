@@ -20,7 +20,7 @@ Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -87,7 +87,7 @@ Section translation_functor.
   (** ** Translation functor for C(A) *)
 
   Local Lemma TranslationFunctor_comp (C : Complex A) (i : hz) :
-    (to_inv (Diff C (i + 1))) ;; (to_inv (Diff C (i + 1 + 1))) =
+    (to_inv (Diff C (i + 1))) · (to_inv (Diff C (i + 1 + 1))) =
     ZeroArrow (Additive.to_Zero A) (C (i + 1)) (C (i + 1 + 1 + 1)).
   Proof.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
@@ -108,7 +108,7 @@ Section translation_functor.
   Global Transparent DiffTranslationComplex.
 
   Lemma DiffTranslationComplex_comp (C : Complex A) (i : hz) :
-    (DiffTranslationComplex C i) ;; (DiffTranslationComplex C (i + 1)) =
+    (DiffTranslationComplex C i) · (DiffTranslationComplex C (i + 1)) =
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     exact (TranslationFunctor_comp C i).
@@ -118,8 +118,8 @@ Section translation_functor.
     A⟦TranslationComplex C1 i, TranslationComplex C2 i⟧ := f (i + 1).
 
   Local Lemma TranslationFunctor_comm {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
-    (TranslationMorphism_mor f i) ;; (DiffTranslationComplex C2 i) =
-    (DiffTranslationComplex C1 i) ;; (TranslationMorphism_mor f (i + 1)).
+    (TranslationMorphism_mor f i) · (DiffTranslationComplex C2 i) =
+    (DiffTranslationComplex C1 i) · (TranslationMorphism_mor f (i + 1)).
   Proof.
     unfold DiffTranslationComplex.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
@@ -204,7 +204,7 @@ Section translation_functor.
                              (maponpaths C2 (maponpaths (λ i0 : pr1 hz, i0 + 1)
                                                         (hzrplusminus (i - 1 + 1) 1)))
                              ((Diff C1 (i - 1 + 1 + 1))
-                                ;; (transportf
+                                · (transportf
                                       (precategory_morphisms (C1 (i - 1 + 1 + 1 + 1)))
                                       (maponpaths C2
                                                   (hzrplusminus (i - 1 + 1 + 1) 1 @
@@ -212,7 +212,7 @@ Section translation_functor.
                                       (H (i - 1 + 1 + 1 + 1)))) =
                   (transportf (precategory_morphisms (C1 (i - 1 + 1 + 1)))
                               (maponpaths C2 (hzrplusminus (i - 1 + 1 + 1) 1))
-                              (Diff C1 (i - 1 + 1 + 1) ;; H (i - 1 + 1 + 1 + 1))))).
+                              (Diff C1 (i - 1 + 1 + 1) · H (i - 1 + 1 + 1 + 1))))).
     {
       rewrite transport_target_postcompose. rewrite transport_f_f. rewrite <- maponpathscomp0.
       set (tmp := ((hzrplusminus (i - 1 + 1 + 1) 1
@@ -265,7 +265,7 @@ Section translation_functor.
     (transportf (precategory_morphisms (C (i - 1)))
                 (maponpaths C (hzrminusplus i 1 @ ! hzrplusminus i 1))
                 (to_inv (Diff C (i - 1))))
-      ;; (transportf (precategory_morphisms (C (i + 1 - 1)))
+      · (transportf (precategory_morphisms (C (i + 1 - 1)))
                      (maponpaths C (hzrminusplus (i + 1) 1 @ ! hzrplusminus (i + 1) 1))
                      (to_inv (Diff C (i + 1 - 1)))) =
     ZeroArrow (Additive.to_Zero A) _ _.
@@ -296,7 +296,7 @@ Section translation_functor.
       (to_inv (Diff C (i - 1))).
 
   Lemma DiffInvTranslationComplex_comp (C : Complex A) (i : hz) :
-    (DiffInvTranslationComplex C i) ;; (DiffInvTranslationComplex C (i + 1)) =
+    (DiffInvTranslationComplex C i) · (DiffInvTranslationComplex C (i + 1)) =
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     exact (InvTranslationFunctor_comp C i).
@@ -306,8 +306,8 @@ Section translation_functor.
     A⟦InvTranslationComplex C1 i, InvTranslationComplex C2 i⟧ := f (i - 1).
 
   Local Lemma InvTranslationFunctor_comm {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
-    (InvTranslationMorphism_mor f i) ;; (DiffInvTranslationComplex C2 i) =
-    (DiffInvTranslationComplex C1 i) ;; (InvTranslationMorphism_mor f (i + 1)).
+    (InvTranslationMorphism_mor f i) · (DiffInvTranslationComplex C2 i) =
+    (DiffInvTranslationComplex C1 i) · (InvTranslationMorphism_mor f (i + 1)).
   Proof.
     unfold DiffInvTranslationComplex. rewrite <- transport_target_postcompose.
     unfold InvTranslationMorphism_mor. cbn. rewrite <- PreAdditive_invrcomp.
@@ -393,10 +393,10 @@ Section translation_functor.
     rewrite <- PreAdditive_invrcomp. rewrite inv_inv_eq.
     assert (e1 : transportf (precategory_morphisms (C1 (i + 1 - 1 - 1)))
                             (maponpaths C1 (hzrminusplus (i + 1 - 1) 1))
-                            (Diff C1 (i + 1 - 1 - 1)) ;; H (i + 1 - 1) =
+                            (Diff C1 (i + 1 - 1 - 1)) · H (i + 1 - 1) =
                  transportf (precategory_morphisms (C1 (i + 1 - 1 - 1)))
                             (maponpaths C2 (hzrplusminus (i + 1 - 1 - 1) 1))
-                            (Diff C1 (i + 1 - 1 - 1) ;; H (i + 1 - 1 - 1 + 1))).
+                            (Diff C1 (i + 1 - 1 - 1) · H (i + 1 - 1 - 1 + 1))).
     {
       rewrite transport_target_postcompose. rewrite transport_compose. apply cancel_precomposition.
       rewrite <- maponpathsinv0.
@@ -623,10 +623,10 @@ Section translation_functor.
   Local Lemma TranslationTranslationInvNatTrans_Eq1 (x : Complex A):
     ∏ i : hz,
           transportf (precategory_morphisms (x i))
-                     (maponpaths x (! hzrminusplus i 1)) (identity (x i)) ;;
+                     (maponpaths x (! hzrminusplus i 1)) (identity (x i)) ·
                      Diff (InvTranslationComplex (TranslationComplex x)) i =
           (Diff x i)
-            ;; (transportf (precategory_morphisms (x (i + 1)))
+            · (transportf (precategory_morphisms (x (i + 1)))
                            (maponpaths x (! hzrminusplus (i + 1) 1)) (identity (x (i + 1)))).
   Proof.
     intros i. cbn. rewrite inv_inv_eq.
@@ -679,9 +679,9 @@ Section translation_functor.
   Local Lemma InvTranslationTranslationNatTrans_Eq1 (x : Complex A) :
     ∏ i : hz,
           (transportf (precategory_morphisms (x (i + 1 - 1))) (maponpaths x (hzrplusminus i 1))
-                      (identity (x (i + 1 - 1)))) ;; Diff x i =
+                      (identity (x (i + 1 - 1)))) · Diff x i =
           (Diff (TranslationComplex (InvTranslationComplex x)) i)
-            ;; (transportf (precategory_morphisms (x (i + 1 + 1 - 1)))
+            · (transportf (precategory_morphisms (x (i + 1 + 1 - 1)))
                            (maponpaths x (hzrplusminus (i + 1) 1))
                            (identity (x (i + 1 + 1 - 1)))).
   Proof.
@@ -726,7 +726,7 @@ Section translation_functor.
 
   Lemma TranslationInvTranslation_adjunction_eq1 (x : ob (ComplexPreCat_Additive A)) :
     (# TranslationFunctor_Additive (TranslationTranslationInvNatTrans x))
-      ;; (InvTranslationTranslationNatTrans (TranslationFunctor_Additive x)) =
+      · (InvTranslationTranslationNatTrans (TranslationFunctor_Additive x)) =
     identity (TranslationFunctor_Additive x).
   Proof.
     use MorphismEq. intros i. cbn.
@@ -745,7 +745,7 @@ Section translation_functor.
 
   Lemma TranslationInvTranslation_adjunction_eq2 (x : ob (ComplexPreCat_Additive A)) :
     (TranslationTranslationInvNatTrans (InvTranslationFunctor_Additive x))
-      ;; (# InvTranslationFunctor_Additive (InvTranslationTranslationNatTrans x)) =
+      · (# InvTranslationFunctor_Additive (InvTranslationTranslationNatTrans x)) =
     identity (InvTranslationFunctor_Additive x).
   Proof.
     use MorphismEq. intros i. cbn.
@@ -779,11 +779,11 @@ Section translation_functor.
 
   Local Lemma TranslationEquivUnitInvComm (a : Complex A) (i : hz) :
     transportf (precategory_morphisms (a (i - 1 + 1))) (maponpaths a (hzrminusplus i 1))
-               (identity (a (i - 1 + 1))) ;; Diff a i =
+               (identity (a (i - 1 + 1))) · Diff a i =
     transportf (precategory_morphisms (a (i - 1 + 1)))
                (maponpaths (λ i0 : pr1 hz, a (i0 + 1)) (hzrminusplus i 1 @ ! hzrplusminus i 1))
                (to_inv (to_inv (Diff a (i - 1 + 1))))
-               ;; transportf (precategory_morphisms (a (i + 1 - 1 + 1)))
+               · transportf (precategory_morphisms (a (i + 1 - 1 + 1)))
                (maponpaths a (hzrminusplus (i + 1) 1))
                (identity (a (i + 1 - 1 + 1))).
   Proof.
@@ -817,7 +817,7 @@ Section translation_functor.
     ((unit_from_left_adjoint
           (mk_are_adjoints _ _ TranslationTranslationInvNatTrans InvTranslationTranslationNatTrans
                            TranslationInvTranslation_adjunction)) a)
-      ;; (TranslationEquivUnitInv a) = identity _.
+      · (TranslationEquivUnitInv a) = identity _.
   Proof.
     use MorphismEq. intros i. cbn. rewrite <- transport_target_postcompose.
     rewrite id_right. rewrite transport_f_f. rewrite <- maponpathscomp0.
@@ -826,7 +826,7 @@ Section translation_functor.
 
   Lemma TranslationEquiv_is_iso1_eq2 (a : ComplexPreCat_Additive A) :
     ((TranslationEquivUnitInv a) : (ComplexPreCat_Additive A)⟦_, _⟧)
-      ;; ((unit_from_left_adjoint
+      · ((unit_from_left_adjoint
             (mk_are_adjoints _ _ TranslationTranslationInvNatTrans
                              InvTranslationTranslationNatTrans
                              TranslationInvTranslation_adjunction)) a) =
@@ -852,13 +852,13 @@ Section translation_functor.
 
   Local Lemma TranslationEquivCounitInvComm (a : ComplexPreCat_Additive A) (i : hz) :
     transportf (precategory_morphisms ((a : Complex A) i))
-               (maponpaths (a : Complex A) (! hzrplusminus i 1)) (identity ((a : Complex A) i)) ;;
+               (maponpaths (a : Complex A) (! hzrplusminus i 1)) (identity ((a : Complex A) i)) ·
                to_inv
                (transportf (precategory_morphisms ((a : Complex A) (i + 1 - 1)))
                            (maponpaths (a : Complex A)
                                        (hzrminusplus (i + 1) 1 @ ! hzrplusminus (i + 1) 1))
                            (to_inv (Diff (a : Complex A) (i + 1 - 1)))) =
-    Diff a i ;; transportf (precategory_morphisms ((a : Complex A) (i + 1)))
+    Diff a i · transportf (precategory_morphisms ((a : Complex A) (i + 1)))
          (maponpaths (a : Complex A) (! hzrplusminus (i + 1) 1))
          (identity ((a : Complex A) (i + 1))).
   Proof.
@@ -886,14 +886,14 @@ Section translation_functor.
     ((counit_from_left_adjoint
         (mk_are_adjoints _ _ TranslationTranslationInvNatTrans InvTranslationTranslationNatTrans
                          TranslationInvTranslation_adjunction)) a)
-      ;; TranslationEquivCounitInv a = identity _.
+      · TranslationEquivCounitInv a = identity _.
   Proof.
     use MorphismEq. intros i. cbn. induction (hzrplusminus i 1). apply id_left.
   Qed.
 
   Lemma TranslationEquiv_is_iso2_eq2 (a : ComplexPreCat_Additive A) :
     ((TranslationEquivCounitInv a) : (ComplexPreCat_Additive A)⟦_, _⟧)
-      ;; ((counit_from_left_adjoint
+      · ((counit_from_left_adjoint
             (mk_are_adjoints _ _ TranslationTranslationInvNatTrans
                              InvTranslationTranslationNatTrans
                              TranslationInvTranslation_adjunction)) a) =
@@ -1031,9 +1031,9 @@ Section translation_functor.
 
   Lemma TranslationFunctorH_Mor_Comp {C1 C2 C3 : ComplexHomot_Additive A}
              (f : (ComplexHomot_Additive A)⟦C1, C2⟧) (g : (ComplexHomot_Additive A)⟦C2, C3⟧) :
-    (TranslationFunctorHImMor (iscontrpr1 (TranslationFunctorH_Mor (f ;; g)))) =
+    (TranslationFunctorHImMor (iscontrpr1 (TranslationFunctorH_Mor (f · g)))) =
     (TranslationFunctorHImMor (iscontrpr1 (TranslationFunctorH_Mor f)))
-      ;; (TranslationFunctorHImMor (iscontrpr1 (TranslationFunctorH_Mor g))) .
+      · (TranslationFunctorHImMor (iscontrpr1 (TranslationFunctorH_Mor g))) .
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
     use to_has_homsets. intros f'.
@@ -1048,7 +1048,7 @@ Section translation_functor.
     set (tmp := functor_comp TranslationFunctor (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
     apply (maponpaths (# (ComplexHomotFunctor A))) in tmp.
     use (pathscomp0 _ tmp). clear tmp.
-    use (TranslationFunctorHImEq (iscontrpr1 (TranslationFunctorH_Mor (f ;; g)))).
+    use (TranslationFunctorHImEq (iscontrpr1 (TranslationFunctorH_Mor (f · g)))).
     rewrite functor_comp. rewrite (hfiberpr2 _ _ f'). rewrite (hfiberpr2 _ _ g'). apply idpath.
   Qed.
 
@@ -1248,9 +1248,9 @@ Section translation_functor.
 
   Lemma InvTranslationFunctorH_Mor_Comp {C1 C2 C3 : ComplexHomot_Additive A}
              (f : (ComplexHomot_Additive A)⟦C1, C2⟧) (g : (ComplexHomot_Additive A)⟦C2, C3⟧) :
-    (InvTranslationFunctorHImMor (iscontrpr1 (InvTranslationFunctorH_Mor (f ;; g)))) =
+    (InvTranslationFunctorHImMor (iscontrpr1 (InvTranslationFunctorH_Mor (f · g)))) =
     (InvTranslationFunctorHImMor (iscontrpr1 (InvTranslationFunctorH_Mor f)))
-      ;; (InvTranslationFunctorHImMor (iscontrpr1 (InvTranslationFunctorH_Mor g))) .
+      · (InvTranslationFunctorHImMor (iscontrpr1 (InvTranslationFunctorH_Mor g))) .
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
     use to_has_homsets. intros f'.
@@ -1267,7 +1267,7 @@ Section translation_functor.
     set (tmp := functor_comp InvTranslationFunctor (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
     apply (maponpaths (# (ComplexHomotFunctor A))) in tmp.
     use (pathscomp0 _ tmp). clear tmp.
-    use (InvTranslationFunctorHImEq (iscontrpr1 (InvTranslationFunctorH_Mor (f ;; g)))).
+    use (InvTranslationFunctorHImEq (iscontrpr1 (InvTranslationFunctorH_Mor (f · g)))).
     rewrite functor_comp. rewrite (hfiberpr2 _ _ f'). rewrite (hfiberpr2 _ _ g'). apply idpath.
   Qed.
 
@@ -1570,7 +1570,7 @@ Section translation_functor.
 
 
   Lemma TranslationHInvTranslationH_adjunction_eq1 (x : ComplexHomot_Additive A) :
-    # TranslationFunctorH (# (ComplexHomotFunctor A) (TranslationTranslationInvNatTrans_Mor x)) ;;
+    # TranslationFunctorH (# (ComplexHomotFunctor A) (TranslationTranslationInvNatTrans_Mor x)) ·
       # (ComplexHomotFunctor A) (InvTranslationTranslationNatTrans_Mor (TranslationFunctorH x)) =
     identity (TranslationFunctorH x).
   Proof.
@@ -1606,7 +1606,7 @@ Section translation_functor.
   Qed.
 
   Lemma TranslationHInvTranslationH_adjunction_eq2 (x : ComplexHomot_Additive A) :
-    # (ComplexHomotFunctor A) (TranslationTranslationInvNatTrans_Mor (InvTranslationFunctorH x)) ;;
+    # (ComplexHomotFunctor A) (TranslationTranslationInvNatTrans_Mor (InvTranslationFunctorH x)) ·
       # InvTranslationFunctorH (# (ComplexHomotFunctor A)
                                   (InvTranslationTranslationNatTrans_Mor x)) =
     identity (InvTranslationFunctorH x).
@@ -1656,7 +1656,7 @@ Section translation_functor.
     (unit_from_left_adjoint
        (mk_are_adjoints _ _ TranslationHTranslationInvHNatTrans InvTranslationHTranslationHNatTrans
                         TranslationHInvTranslationH_adjunction))
-      x ;; # (ComplexHomotFunctor A) (TranslationEquivUnitInv x) =
+      x · # (ComplexHomotFunctor A) (TranslationEquivUnitInv x) =
     identity ((functor_identity (ComplexHomot_Additive A)) x).
   Proof.
     cbn.
@@ -1670,7 +1670,7 @@ Section translation_functor.
 
   Local Lemma TranslationHEquiv_is_iso1_eq2' (x : ComplexHomot_Additive A) :
     (# (ComplexHomotFunctor A) (TranslationEquivUnitInv x))
-      ;; (unit_from_left_adjoint
+      · (unit_from_left_adjoint
             (mk_are_adjoints
                _ _ TranslationHTranslationInvHNatTrans
                InvTranslationHTranslationHNatTrans
@@ -1704,7 +1704,7 @@ Section translation_functor.
     (counit_from_left_adjoint
        (mk_are_adjoints _ _ TranslationHTranslationInvHNatTrans InvTranslationHTranslationHNatTrans
                         TranslationHInvTranslationH_adjunction))
-      x ;; # (ComplexHomotFunctor A) (TranslationEquivCounitInv x) =
+      x · # (ComplexHomotFunctor A) (TranslationEquivCounitInv x) =
     identity _.
   Proof.
     cbn.
@@ -1718,7 +1718,7 @@ Section translation_functor.
 
   Local Lemma TranslationHEquiv_is_iso2_eq2' (x : ComplexHomot_Additive A) :
     (# (ComplexHomotFunctor A) (TranslationEquivCounitInv x))
-      ;; (counit_from_left_adjoint
+      · (counit_from_left_adjoint
             (mk_are_adjoints
                _ _ TranslationHTranslationInvHNatTrans
                InvTranslationHTranslationHNatTrans

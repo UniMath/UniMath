@@ -166,7 +166,11 @@ Definition idfun (T : UU) := λ t:T, t.
 
 Definition funcomp {X Y : UU} {Z:Y->UU} (f : X -> Y) (g : ∏ y:Y, Z y) := λ x, g (f x).
 
-Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity).
+Delimit Scope functions with functions.
+
+Open Scope functions.
+
+Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity) : functions.
 
 (** back and forth between functions of pairs and functions returning
   functions *)

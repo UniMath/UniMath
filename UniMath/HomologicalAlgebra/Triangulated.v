@@ -25,7 +25,7 @@ Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -80,21 +80,21 @@ and these data must satisfy the following conditions
                                 X' -f-> Y' -g-> Z' -h'-> X'[1].
       Such a commutative diagram is called a morphism of triangles.
 (TR6) (Octahedral axiom). Suppose you have 3 distinguished triangles (X1, Y1, Z2, f, g, h),
-      (Y1, Z1, X2, f', g', h'), and (X1, Z1, Y2, f ;; f', g'', h''). Then there exists a
-      distinguished triangle (Z2, Y2, X2, f''', g''', h'' ;; g[1]) such that the following diagram
+      (Y1, Z1, X2, f', g', h'), and (X1, Z1, Y2, f · f', g'', h''). Then there exists a
+      distinguished triangle (Z2, Y2, X2, f''', g''', h'' · g[1]) such that the following diagram
       is commutative
 
                               X1 ----f----> Y1 ----g----> Z2 ----h----> X1[1]
                               ||            |             |              ||
                               ||         f' |        f''' |              ||
                               ||            |             |              ||
-                              X1  -f;;f'->  Z1  --g''-->  Y2 ----h''---> X1[1]
+                              X1  -f·f'->  Z1  --g''-->  Y2 ----h''---> X1[1]
                                             |             |              |
                                          g' |        g''' |         f[1] |
                                             |             |              |
                                             X2  ========  X2 ----h'----> Y1[1]
                                             |             |
-                                         h' |    h';;g[1] |
+                                         h' |    h'·g[1] |
                                             |             |
                                          Y1[1] --g[1]-> Z2[1]
 
@@ -168,22 +168,22 @@ Section def_triangles.
   (** ** Morphisms of triangles *)
 
   Definition TriMor (D1 D2 : Tri) : UU :=
-    ∑ (M : MPMor D1 D2), (MPMor3 M) ;; (Mor3 D2) = (Mor3 D1) ;; (# (AddEquiv1 T) (MPMor1 M)).
+    ∑ (M : MPMor D1 D2), (MPMor3 M) · (Mor3 D2) = (Mor3 D1) · (# (AddEquiv1 T) (MPMor1 M)).
 
   Definition mk_TriMor {D1 D2 : Tri} (M : MPMor D1 D2)
-             (H : (MPMor3 M) ;; (Mor3 D2) = (Mor3 D1) ;; (# (AddEquiv1 T) (MPMor1 M))) :
+             (H : (MPMor3 M) · (Mor3 D2) = (Mor3 D1) · (# (AddEquiv1 T) (MPMor1 M))) :
     TriMor D1 D2 := (M,,H).
 
   Definition TriMor_Mors {D1 D2 : Tri} (DTM : TriMor D1 D2) : MPMor D1 D2 := pr1 DTM.
   Coercion TriMor_Mors : TriMor >-> MPMor.
 
-  Local Lemma TriMorId_comms {x y : ob A} (f : x --> y) : identity x ;; f = f ;; identity y.
+  Local Lemma TriMorId_comms {x y : ob A} (f : x --> y) : identity x · f = f · identity y.
   Proof.
     rewrite id_left. rewrite id_right. apply idpath.
   Qed.
 
   Local Lemma TriMorId_comm3 (D : Tri) :
-    identity (Ob3 D) ;; Mor3 D = Mor3 D ;; # (AddEquiv1 T) (identity (Ob1 D)).
+    identity (Ob3 D) · Mor3 D = Mor3 D · # (AddEquiv1 T) (identity (Ob1 D)).
   Proof.
     rewrite functor_id. rewrite id_left. rewrite id_right. apply idpath.
   Qed.
@@ -203,13 +203,13 @@ Section def_triangles.
   Defined.
 
   Definition DComm3 {D1 D2 : Tri} (TM : TriMor D1 D2) :
-    (MPMor3 TM) ;; (Mor3 D2) = (Mor3 D1) ;; (# (AddEquiv1 T) (MPMor1 TM)) := pr2 TM.
+    (MPMor3 TM) · (Mor3 D2) = (Mor3 D1) · (# (AddEquiv1 T) (MPMor1 TM)) := pr2 TM.
 
   (** *** Composition of morphisms is a morphism *)
 
   Local Lemma TriMor_comp_comms {D1 D2 D3 : Tri} (TM1 : TriMor D1 D2) (TM2 : TriMor D2 D3) :
-    MPMorComms (mk_MPMorMors (MPMor1 TM1 ;; MPMor1 TM2) (MPMor2 TM1 ;; MPMor2 TM2)
-                             (MPMor3 TM1 ;; MPMor3 TM2)).
+    MPMorComms (mk_MPMorMors (MPMor1 TM1 · MPMor1 TM2) (MPMor2 TM1 · MPMor2 TM2)
+                             (MPMor3 TM1 · MPMor3 TM2)).
   Proof.
     use mk_MPMorComms.
     - cbn. rewrite <- assoc. rewrite (MPComm1 TM2). rewrite assoc. rewrite (MPComm1 TM1).
@@ -219,7 +219,7 @@ Section def_triangles.
   Qed.
 
   Local Lemma TriMor_comp_comm3 {D1 D2 D3 : Tri} (TM1 : TriMor D1 D2) (TM2 : TriMor D2 D3) :
-    MPMor3 TM1 ;; MPMor3 TM2 ;; Mor3 D3 = Mor3 D1 ;; # (AddEquiv1 T) (MPMor1 TM1 ;; MPMor1 TM2).
+    MPMor3 TM1 · MPMor3 TM2 · Mor3 D3 = Mor3 D1 · # (AddEquiv1 T) (MPMor1 TM1 · MPMor1 TM2).
   Proof.
     rewrite <- assoc. rewrite (DComm3 TM2). rewrite assoc. rewrite (DComm3 TM1).
     rewrite <- assoc. rewrite <- functor_comp. apply idpath.
@@ -230,9 +230,9 @@ Section def_triangles.
     use mk_TriMor.
     - use mk_MPMor.
       + use mk_MPMorMors.
-        * exact (MPMor1 TM1 ;; MPMor1 TM2).
-        * exact (MPMor2 TM1 ;; MPMor2 TM2).
-        * exact (MPMor3 TM1 ;; MPMor3 TM2).
+        * exact (MPMor1 TM1 · MPMor1 TM2).
+        * exact (MPMor2 TM1 · MPMor2 TM2).
+        * exact (MPMor3 TM1 · MPMor3 TM2).
       + exact (TriMor_comp_comms TM1 TM2).
     - exact (TriMor_comp_comm3 TM1 TM2).
   Defined.
@@ -310,9 +310,9 @@ Section def_triangles.
          (mk_MPMorMors (is_z_isomorphism_mor (TriMor_is_iso1 Ti))
                        (is_z_isomorphism_mor (TriMor_is_iso2 Ti))
                        (is_z_isomorphism_mor (TriMor_is_iso3 Ti)))
-         (TriMor_is_iso_to_inv_Comm Ti)) ;; Mor3 D1 =
+         (TriMor_is_iso_to_inv_Comm Ti)) · Mor3 D1 =
     (Mor3 D2)
-      ;; (# (AddEquiv1 T)
+      · (# (AddEquiv1 T)
             (MPMor1 (mk_MPMor (mk_MPMorMors (is_z_isomorphism_mor (TriMor_is_iso1 Ti))
                                             (is_z_isomorphism_mor (TriMor_is_iso2 Ti))
                                             (is_z_isomorphism_mor (TriMor_is_iso3 Ti)))
@@ -429,9 +429,9 @@ Section def_triangles.
     - exact (AddEquiv2 T (Ob3 D)).
     - exact (Ob1 D).
     - exact (Ob2 D).
-    - exact (to_inv (# (AddEquiv2 T) (Mor3 D)) ;; (z_iso_inv_mor (AddEquivUnitIso T (Ob1 D)))).
+    - exact (to_inv (# (AddEquiv2 T) (Mor3 D)) · (z_iso_inv_mor (AddEquivUnitIso T (Ob1 D)))).
     - exact (Mor1 D).
-    - exact (Mor2 D ;; (z_iso_inv_mor (AddEquivCounitIso T (Ob3 D)))).
+    - exact (Mor2 D · (z_iso_inv_mor (AddEquivCounitIso T (Ob3 D)))).
   Defined.
 
 
@@ -439,8 +439,8 @@ Section def_triangles.
   (** *** See the diagram in the introduction *)
 
   Local Lemma RotTriMor_Comm3 {D1 D2 : Tri} (M : TriMor D1 D2)  :
-    # (AddEquiv1 T) (MPMor1 M) ;; to_inv (# (AddEquiv1 T) (Mor1 D2)) =
-    to_inv (# (AddEquiv1 T) (Mor1 D1)) ;; # (AddEquiv1 T) (MPMor2 M).
+    # (AddEquiv1 T) (MPMor1 M) · to_inv (# (AddEquiv1 T) (Mor1 D2)) =
+    to_inv (# (AddEquiv1 T) (Mor1 D1)) · # (AddEquiv1 T) (MPMor2 M).
   Proof.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp. apply maponpaths.
     rewrite <- functor_comp. rewrite <- functor_comp. apply maponpaths.
@@ -463,10 +463,10 @@ Section def_triangles.
 
   Local Lemma InvRotTriMor_Comm1 {D1 D2 : Tri} (M : TriMor D1 D2) :
     (# (AddEquiv2 T) (MPMor3 M))
-      ;; ((to_inv (# (AddEquiv2 T) (Mor3 D2)))
-            ;; z_iso_inv_mor (AddEquivUnitIso T (Ob1 D2))) =
+      · ((to_inv (# (AddEquiv2 T) (Mor3 D2)))
+            · z_iso_inv_mor (AddEquivUnitIso T (Ob1 D2))) =
     (to_inv (# (AddEquiv2 T) (Mor3 D1)))
-      ;; z_iso_inv_mor (AddEquivUnitIso T (Ob1 D1)) ;; MPMor1 M.
+      · z_iso_inv_mor (AddEquivUnitIso T (Ob1 D1)) · MPMor1 M.
   Proof.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
@@ -478,9 +478,9 @@ Section def_triangles.
   Qed.
 
   Local Lemma InvRotTriMor_Comm3 {D1 D2 : Tri} (M : TriMor D1 D2)  :
-    MPMor2 M ;; (Mor2 D2 ;; z_iso_inv_mor (AddEquivCounitIso T (Ob3 D2))) =
-    Mor2 D1 ;; z_iso_inv_mor (AddEquivCounitIso T (Ob3 D1))
-         ;; # (AddEquiv1 T) (# (AddEquiv2 T) (MPMor3 M)).
+    MPMor2 M · (Mor2 D2 · z_iso_inv_mor (AddEquivCounitIso T (Ob3 D2))) =
+    Mor2 D1 · z_iso_inv_mor (AddEquivCounitIso T (Ob3 D1))
+         · # (AddEquiv1 T) (# (AddEquiv2 T) (MPMor3 M)).
   Proof.
     set (tmp := MPComm2 M). rewrite assoc. rewrite tmp. clear tmp.
     rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
@@ -634,30 +634,30 @@ Section def_pretriangulated_data.
   (** ** Extensions *)
 
   Definition TExt {D1 D2 : DTri} {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2}
-             (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2) : UU :=
-    ∑ f3 : Ob3 D1 --> Ob3 D2, (Mor2 D1 ;; f3 = f2 ;; Mor2 D2)
-                              × (Mor3 D1 ;; (# (AddEquiv1 (@Trans PTD)) f1) = f3 ;; Mor3 D2).
+             (H : f1 · Mor1 D2 = Mor1 D1 · f2) : UU :=
+    ∑ f3 : Ob3 D1 --> Ob3 D2, (Mor2 D1 · f3 = f2 · Mor2 D2)
+                              × (Mor3 D1 · (# (AddEquiv1 (@Trans PTD)) f1) = f3 · Mor3 D2).
 
   Definition mk_TExt {D1 D2 : DTri} {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2}
-             {H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2} (f3 : Ob3 D1 --> Ob3 D2)
-             (H2 : Mor2 D1 ;; f3 = f2 ;; Mor2 D2)
-             (H3 : Mor3 D1 ;; (# (AddEquiv1 (@Trans PTD)) f1) = f3 ;; Mor3 D2) :
+             {H : f1 · Mor1 D2 = Mor1 D1 · f2} (f3 : Ob3 D1 --> Ob3 D2)
+             (H2 : Mor2 D1 · f3 = f2 · Mor2 D2)
+             (H3 : Mor3 D1 · (# (AddEquiv1 (@Trans PTD)) f1) = f3 · Mor3 D2) :
     TExt H := (f3,,(H2,,H3)).
 
   Definition TExt_Mor {D1 D2 : DTri} {f1 : Ob1 (DTriTri D1) --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2}
-             {H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2} (TE : TExt H) : PTD⟦Ob3 D1, Ob3 D2⟧ := pr1 TE.
+             {H : f1 · Mor1 D2 = Mor1 D1 · f2} (TE : TExt H) : PTD⟦Ob3 D1, Ob3 D2⟧ := pr1 TE.
   Coercion TExt_Mor : TExt >-> precategory_morphisms.
 
   Definition TExtComm1 {D1 D2 : DTri} {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2}
-             {H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2} (TE : TExt H) :
-    Mor2 D1 ;; TE = f2 ;; Mor2 D2 := dirprod_pr1 (pr2 TE).
+             {H : f1 · Mor1 D2 = Mor1 D1 · f2} (TE : TExt H) :
+    Mor2 D1 · TE = f2 · Mor2 D2 := dirprod_pr1 (pr2 TE).
 
   Definition TExtComm2 {D1 D2 : DTri} {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2}
-             {H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2} (TE : TExt H) :
-    (Mor3 D1 ;; (# (AddEquiv1 Trans) f1) = TE ;; Mor3 D2) := dirprod_pr2 (pr2 TE).
+             {H : f1 · Mor1 D2 = Mor1 D1 · f2} (TE : TExt H) :
+    (Mor3 D1 · (# (AddEquiv1 Trans) f1) = TE · Mor3 D2) := dirprod_pr2 (pr2 TE).
 
   Definition TExtMor {D1 D2 : DTri} {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2}
-             {H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2} (TE : TExt H) : TriMor D1 D2.
+             {H : f1 · Mor1 D2 = Mor1 D1 · f2} (TE : TExt H) : TriMor D1 D2.
   Proof.
     use mk_TriMor.
     - use mk_MPMor.
@@ -692,7 +692,7 @@ Section def_pretrangulated.
       × (∏ (D : DTri), @isDTri PTD (InvRotTri D))
       × (∏ (x y : ob PTD) (f : x --> y), ∥ ∑ D : ConeData Trans x y, isDTri (ConeTri f D) ∥)
       × (∏ (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
-           (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2), ∥ @TExt PTD _ _ _ _ H ∥).
+           (H : f1 · Mor1 D2 = Mor1 D1 · f2), ∥ @TExt PTD _ _ _ _ H ∥).
 
   Definition mk_isPreTriang {PTD : PreTriangData}
              (H1 : (∏ (x : ob PTD), isDTri (TrivialTri x)))
@@ -702,7 +702,7 @@ Section def_pretrangulated.
              (H5 : ∏ (x y : ob PTD) (f : x --> y),
                    ∥ ∑ D : ConeData Trans x y, isDTri (ConeTri f D) ∥)
              (H6 : ∏ (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
-                     (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2), ∥ (@TExt PTD _ _ _ _ H) ∥) :
+                     (H : f1 · Mor1 D2 = Mor1 D1 · f2), ∥ (@TExt PTD _ _ _ _ H) ∥) :
     isPreTriang PTD := (H1,,(H2,,(H3,,(H4,,(H5,,H6))))).
 
   (** *** Accessor functions *)
@@ -744,11 +744,11 @@ Section def_pretrangulated.
 
   Definition DExts {PTD : PreTriangData} (iPT : isPreTriang PTD) :
     ∏ (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
-      (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2), ∥ @TExt PTD _ _ _ _ H ∥ :=
+      (H : f1 · Mor1 D2 = Mor1 D1 · f2), ∥ @TExt PTD _ _ _ _ H ∥ :=
     dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 iPT)))).
 
   Definition DExt {PTD : PreTriangData} (iPT : isPreTriang PTD) (D1 D2 : DTri)
-             (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2) (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2) :
+             (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2) (H : f1 · Mor1 D2 = Mor1 D1 · f2) :
     ∥ TExt H ∥ := DExts iPT D1 D2 f1 f2 H.
 
   (** ** Pretriangulated category *)
@@ -774,21 +774,21 @@ Section def_triangulated.
   (** ** Octahedral data *)
 
   (** (Octahedral axiom). Suppose you have 3 distinguished triangles (X1, Y1, Z2, f1, f2, f3),
-      (Y1, Z1, X2, g1, g2, g3), and (X1, Z1, Y2, f1 ;; g1, h2, h3). Then there exists a
-      distinguished triangle (Z2, Y2, X2, φ1, φ2, g3 ;; f2[1]) such that the following diagram
+      (Y1, Z1, X2, g1, g2, g3), and (X1, Z1, Y2, f1 · g1, h2, h3). Then there exists a
+      distinguished triangle (Z2, Y2, X2, φ1, φ2, g3 · f2[1]) such that the following diagram
       is commutative
 
                               X1 ----f1----> Y1 ----f2----> Z2 ----f3----> X1[1]
                               ||            |             |              ||
                               ||         g1 |          φ1 |              ||
                               ||            |             |              ||
-                              X1 -f1;;g1->  Z1  ---h2-->  Y2 ----h3---> X1[1]
+                              X1 -f1·g1->  Z1  ---h2-->  Y2 ----h3---> X1[1]
                                             |             |              |
                                          g2 |          φ2 |         f[1] |
                                             |             |              |
                                             X2  ========  X2 ----h''---> Y1[1]
                                             |             |
-                                         g3 |   g3;;f2[1] |
+                                         g3 |   g3·f2[1] |
                                             |             |
                                          Y1[1] --f2[1]-> Z2[1]
    *)
@@ -797,25 +797,25 @@ Section def_triangulated.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)) : UU :=
+             (H3 : isDTri (mk_Tri (f1 · g1) h2 h3)) : UU :=
     ∑ D : ((z2 --> y2) × (y2 --> x2)),
-          (isDTri (mk_Tri (dirprod_pr1 D) (dirprod_pr2 D) (g3 ;; (# (AddEquiv1 Trans) f2))))
-            × (dirprod_pr1 D ;; h3 = f3)
-            × (h2 ;; dirprod_pr2 D = g2)
-            × (f2 ;; dirprod_pr1 D = g1 ;; h2)
-            × (dirprod_pr2 D ;; g3 = h3 ;; (# (AddEquiv1 Trans) f1)).
+          (isDTri (mk_Tri (dirprod_pr1 D) (dirprod_pr2 D) (g3 · (# (AddEquiv1 Trans) f2))))
+            × (dirprod_pr1 D · h3 = f3)
+            × (h2 · dirprod_pr2 D = g2)
+            × (f2 · dirprod_pr1 D = g1 · h2)
+            × (dirprod_pr2 D · g3 = h3 · (# (AddEquiv1 Trans) f1)).
 
   Definition mk_Octa {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
              {f1 : x1 --> y1} {f2 : y1 --> z2} {f3 : z2 --> (AddEquiv1 Trans x1)}
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
+             (H3 : isDTri (mk_Tri (f1 · g1) h2 h3))
              (φ1 : z2 --> y2) (φ2 : y2 --> x2)
-             (H4 : isDTri (mk_Tri φ1 φ2 (g3 ;; (# (AddEquiv1 Trans) f2))))
-             (Comm1 : φ1 ;; h3 = f3) (Comm2 : h2 ;; φ2 = g2)
-             (Comm3 : f2 ;; φ1 = g1 ;; h2)
-             (Comm4 : φ2 ;; g3 = h3 ;; (# (AddEquiv1 Trans) f1)) : Octa H1 H2 H3 :=
+             (H4 : isDTri (mk_Tri φ1 φ2 (g3 · (# (AddEquiv1 Trans) f2))))
+             (Comm1 : φ1 · h3 = f3) (Comm2 : h2 · φ2 = g2)
+             (Comm3 : f2 · φ1 = g1 · h2)
+             (Comm4 : φ2 · g3 = h3 · (# (AddEquiv1 Trans) f1)) : Octa H1 H2 H3 :=
     ((φ1,,φ2),,(H4,,(Comm1,,(Comm2,,(Comm3,,Comm4))))).
 
   (** Accessor functions *)
@@ -825,7 +825,7 @@ Section def_triangulated.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
-             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
+             {H3 : isDTri (mk_Tri (f1 · g1) h2 h3)}
              (O : Octa H1 H2 H3) : PT⟦z2, y2⟧ := dirprod_pr1 (pr1 O).
 
   Definition OctaMor2 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
@@ -833,7 +833,7 @@ Section def_triangulated.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
-             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
+             {H3 : isDTri (mk_Tri (f1 · g1) h2 h3)}
              (O : Octa H1 H2 H3) : PT⟦y2, x2⟧ := dirprod_pr2 (pr1 O).
 
   Definition OctaDTri {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
@@ -841,7 +841,7 @@ Section def_triangulated.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
-             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
+             {H3 : isDTri (mk_Tri (f1 · g1) h2 h3)}
              (O : Octa H1 H2 H3) : @DTri PT := mk_DTri' _ (dirprod_pr1 (pr2 O)).
 
   Definition OctaComm1 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
@@ -849,8 +849,8 @@ Section def_triangulated.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
-             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
-             (O : Octa H1 H2 H3) : (OctaMor1 O) ;; h3 = f3 :=
+             {H3 : isDTri (mk_Tri (f1 · g1) h2 h3)}
+             (O : Octa H1 H2 H3) : (OctaMor1 O) · h3 = f3 :=
     dirprod_pr1 (dirprod_pr2 (pr2 O)).
 
   Definition OctaComm2 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
@@ -858,8 +858,8 @@ Section def_triangulated.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
-             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
-             (O : Octa H1 H2 H3) : h2 ;; (OctaMor2 O) = g2 :=
+             {H3 : isDTri (mk_Tri (f1 · g1) h2 h3)}
+             (O : Octa H1 H2 H3) : h2 · (OctaMor2 O) = g2 :=
     dirprod_pr1 (dirprod_pr2 (dirprod_pr2 (pr2 O))).
 
   Definition OctaComm3 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
@@ -867,8 +867,8 @@ Section def_triangulated.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
-             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
-             (O : Octa H1 H2 H3) : f2 ;; (OctaMor1 O) = g1 ;; h2 :=
+             {H3 : isDTri (mk_Tri (f1 · g1) h2 h3)}
+             (O : Octa H1 H2 H3) : f2 · (OctaMor1 O) = g1 · h2 :=
     dirprod_pr1 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (pr2 O)))).
 
   Definition OctaComm4 {PT : PreTriang} {x1 x2 y1 y2 z1 z2 : ob PT}
@@ -876,8 +876,8 @@ Section def_triangulated.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
-             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)}
-             (O : Octa H1 H2 H3) : (OctaMor2 O) ;; g3 = h3 ;; (# (AddEquiv1 Trans) f1) :=
+             {H3 : isDTri (mk_Tri (f1 · g1) h2 h3)}
+             (O : Octa H1 H2 H3) : (OctaMor2 O) · g3 = h3 · (# (AddEquiv1 Trans) f1) :=
     dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (pr2 O)))).
 
   (** ** Triangulated category *)
@@ -888,14 +888,14 @@ Section def_triangulated.
               (g1 : y1 --> z1) (g2 : z1 --> x2) (g3 : x2 --> (AddEquiv1 Trans y1))
               (h2 : z1 --> y2) (h3 : y2 --> (AddEquiv1 Trans x1))
               (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-              (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)), ∥ Octa H1 H2 H3 ∥).
+              (H3 : isDTri (mk_Tri (f1 · g1) h2 h3)), ∥ Octa H1 H2 H3 ∥).
 
   Definition mk_Triang {PT : PreTriang} (H : ∏ (x1 x2 y1 y2 z1 z2 : ob PT)
               (f1 : x1 --> y1) (f2 : y1 --> z2) (f3 : z2 --> (AddEquiv1 Trans x1))
               (g1 : y1 --> z1) (g2 : z1 --> x2) (g3 : x2 --> (AddEquiv1 Trans y1))
               (h2 : z1 --> y2) (h3 : y2 --> (AddEquiv1 Trans x1))
               (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-              (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)), ∥ Octa H1 H2 H3 ∥) : Triang := (PT,,H).
+              (H3 : isDTri (mk_Tri (f1 · g1) h2 h3)), ∥ Octa H1 H2 H3 ∥) : Triang := (PT,,H).
 
   Definition Triang_PreTriang (TR : Triang) : PreTriang := pr1 TR.
   Coercion Triang_PreTriang : Triang >-> PreTriang.
@@ -905,7 +905,7 @@ Section def_triangulated.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              {H1 : isDTri (mk_Tri f1 f2 f3)} {H2 : isDTri (mk_Tri g1 g2 g3)}
-             {H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)} :
+             {H3 : isDTri (mk_Tri (f1 · g1) h2 h3)} :
     ∥ Octa H1 H2 H3 ∥ := (pr2 TR) x1 x2 y1 y2 z1 z2 f1 f2 f3 g1 g2 g3 h2 h3 H1 H2 H3.
 
 End def_triangulated.
@@ -921,9 +921,9 @@ Section rotation_isos.
 
   Local Lemma RotInvIso_Mor_Comm1 (D : DTri) :
     ((AddEquivUnitIso Trans (Ob1 D)) : PT⟦_, _⟧)
-      ;; ((to_inv (# (AddEquiv2 Trans) (to_inv (# (AddEquiv1 Trans) (Mor1 D)))))
-            ;; (z_iso_inv_mor (AddEquivUnitIso (@Trans PT) (Ob2 D)))) =
-    Mor1 D ;; identity (Ob2 D).
+      · ((to_inv (# (AddEquiv2 Trans) (to_inv (# (AddEquiv1 Trans) (Mor1 D)))))
+            · (z_iso_inv_mor (AddEquivUnitIso (@Trans PT) (Ob2 D)))) =
+    Mor1 D · identity (Ob2 D).
   Proof.
     rewrite AdditiveFunctorInv. rewrite inv_inv_eq. rewrite id_right.
     use (post_comp_with_z_iso_is_inj (AddEquivUnitIso Trans (Ob2 D))).
@@ -934,15 +934,15 @@ Section rotation_isos.
   Qed.
 
   Local Lemma RotInvIso_Mor_Comm2 (D : @DTri PT) :
-    identity (Ob2 D) ;; Mor2 D = Mor2 D ;; identity (Ob3 D).
+    identity (Ob2 D) · Mor2 D = Mor2 D · identity (Ob3 D).
   Proof.
     rewrite id_right. apply id_left.
   Qed.
 
   Local Lemma RotInvIso_Mor_Comm3 (D : DTri) :
     (identity (Ob3 D))
-      ;; ((Mor3 D) ;; (z_iso_inv_mor (AddEquivCounitIso Trans ((AddEquiv1 Trans) (Ob1 D))))) =
-    Mor3 D ;; # (AddEquiv1 (@Trans PT)) (AddEquivUnitIso Trans (Ob1 D)).
+      · ((Mor3 D) · (z_iso_inv_mor (AddEquivCounitIso Trans ((AddEquiv1 Trans) (Ob1 D))))) =
+    Mor3 D · # (AddEquiv1 (@Trans PT)) (AddEquivUnitIso Trans (Ob1 D)).
   Proof.
     rewrite id_left. apply cancel_precomposition. use AddEquivCounitUnit.
   Qed.
@@ -970,31 +970,31 @@ Section rotation_isos.
   Qed.
 
   Local Lemma InvRotIso_Mor_Comm1 (D : @DTri PT) :
-    identity (Ob1 D) ;; Mor1 D = Mor1 D ;; identity (Ob2 D).
+    identity (Ob1 D) · Mor1 D = Mor1 D · identity (Ob2 D).
   Proof.
     rewrite id_right. apply id_left.
   Qed.
 
   Local Lemma InvRotIso_Mor_Comm2 (D : @DTri PT) :
     (identity (Ob2 D))
-      ;; (Mor2 D ;; z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D))) =
-    Mor2 D ;; z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D)).
+      · (Mor2 D · z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D))) =
+    Mor2 D · z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D)).
   Proof.
     rewrite id_left. apply idpath.
   Qed.
 
   Local Lemma InvRotIso_Mor_Comm3 (D : @DTri PT) :
     (z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D)))
-      ;; (to_inv (# (AddEquiv1 Trans) ((to_inv (# (AddEquiv2 Trans) (Mor3 D)))
-                                         ;; z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D))))) =
-    Mor3 D ;; # (AddEquiv1 Trans) (identity (Ob1 D)).
+      · (to_inv (# (AddEquiv1 Trans) ((to_inv (# (AddEquiv2 Trans) (Mor3 D)))
+                                         · z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D))))) =
+    Mor3 D · # (AddEquiv1 Trans) (identity (Ob1 D)).
   Proof.
     rewrite functor_id. rewrite id_right. rewrite <- PreAdditive_invlcomp.
     rewrite AdditiveFunctorInv. rewrite inv_inv_eq. rewrite functor_comp.
     set (tmp := AddEquivCounitUnit' Trans (Ob1 D)). cbn in tmp. rewrite assoc. cbn.
     apply (maponpaths (fun g : _ => (z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D)))
-                                   ;; (# (AddEquiv1 Trans) (# (AddEquiv2 Trans) (Mor3 D)))
-                                   ;; g)) in tmp.
+                                   · (# (AddEquiv1 Trans) (# (AddEquiv2 Trans) (Mor3 D)))
+                                   · g)) in tmp.
     use (pathscomp0 (! tmp)). clear tmp.
     use (pre_comp_with_z_iso_is_inj (AddEquivCounitIso Trans (Ob3 D))).
     rewrite assoc. rewrite assoc. cbn.
@@ -1029,9 +1029,9 @@ Section rotation_isos.
   (** ** Extension of morphisms at 2 and 1 *)
 
   Local Lemma ExtMor'_Comm1 (D1 D2 : @DTri PT) (Mor : TriMor (RotDTri PT D1) (RotDTri PT D2)) :
-    (AddEquivUnit Trans) (Ob1 D1) ;; # (AddEquiv2 Trans) (MPMor3 Mor)
-                         ;; z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2))
-                         ;; Mor1 D2 = Mor1 D1 ;; MPMor1 Mor.
+    (AddEquivUnit Trans) (Ob1 D1) · # (AddEquiv2 Trans) (MPMor3 Mor)
+                         · z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2))
+                         · Mor1 D2 = Mor1 D1 · MPMor1 Mor.
   Proof.
     set (tmp := DComm3 Mor). cbn in tmp.
     rewrite <- PreAdditive_invlcomp in tmp. rewrite <- PreAdditive_invrcomp in tmp.
@@ -1042,7 +1042,7 @@ Section rotation_isos.
     use (pathscomp0 _ (! tmp)). clear tmp. cbn. rewrite functor_comp. rewrite functor_comp.
     set (tmp := AddEquivCounitUnit Trans (Ob1 D1)).
     apply (maponpaths
-             (fun gg : _ => gg ;; # (AddEquiv1 Trans) (# (AddEquiv2 Trans) (MPMor3 Mor)) ;;
+             (fun gg : _ => gg · # (AddEquiv1 Trans) (# (AddEquiv2 Trans) (MPMor3 Mor)) ·
                             # (AddEquiv1 Trans)
                             (z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2))))) in tmp.
     use (pathscomp0 (! tmp)). clear tmp. rewrite <- assoc. rewrite <- assoc.
@@ -1051,9 +1051,9 @@ Section rotation_isos.
   Qed.
 
   Local Lemma ExtMor'_Comm3 (D1 D2 : @DTri PT) (Mor : TriMor (RotDTri PT D1) (RotDTri PT D2)):
-    MPMor2 Mor ;; Mor3 D2 =
-    Mor3 D1 ;; # (AddEquiv1 Trans)
-         ((AddEquivUnit Trans) (Ob1 D1) ;; # (AddEquiv2 Trans) (MPMor3 Mor) ;;
+    MPMor2 Mor · Mor3 D2 =
+    Mor3 D1 · # (AddEquiv1 Trans)
+         ((AddEquivUnit Trans) (Ob1 D1) · # (AddEquiv2 Trans) (MPMor3 Mor) ·
                                z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2))).
   Proof.
     set (tmp := MPComm2 Mor). cbn in tmp. cbn. rewrite tmp. clear tmp.
@@ -1061,16 +1061,16 @@ Section rotation_isos.
     use (pathscomp0 (AddEquivCounitMorComm Trans (MPMor3 Mor))).
     set (tmp := AddEquivCounitUnit Trans (Ob1 D1)).
     apply (maponpaths
-             (fun gg : _ => gg ;; (# (functor_composite (AddEquiv2 Trans) (AddEquiv1 Trans))
+             (fun gg : _ => gg · (# (functor_composite (AddEquiv2 Trans) (AddEquiv1 Trans))
                                   (MPMor3 Mor))
-                            ;; (AddEquivCounit Trans) ((AddEquiv1 Trans) (Ob1 D2)))) in tmp.
+                            · (AddEquivCounit Trans) ((AddEquiv1 Trans) (Ob1 D2)))) in tmp.
     use (pathscomp0 tmp). clear tmp. rewrite <- assoc. rewrite <- assoc. rewrite functor_comp.
     apply cancel_precomposition. rewrite functor_comp. apply cancel_precomposition.
     exact (AddEquivCounitUnit' Trans (Ob1 D2)).
   Qed.
 
   Definition ExtMor1 (D1 D2 : @DTri PT) (f2 : Ob2 D1 --> Ob2 D2) (f3 : Ob3 D1 --> Ob3 D2)
-             (H : f2 ;; Mor2 D2 = Mor2 D1 ;; f3)
+             (H : f2 · Mor2 D2 = Mor2 D1 · f3)
              (Ext : @TExt _ (RotDTri PT D1) (RotDTri PT D2) f2 f3 H) : TriMor D1 D2.
   Proof.
     set (Mor := TExtMor Ext).
@@ -1078,8 +1078,8 @@ Section rotation_isos.
     - use mk_MPMor.
       + use mk_MPMorMors.
         * exact (((AddEquivUnitIso Trans (Ob1 D1)) : PT⟦_, _⟧)
-                   ;; (# (AddEquiv2 Trans) (MPMor3 Mor))
-                   ;; (z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2)))).
+                   · (# (AddEquiv2 Trans) (MPMor3 Mor))
+                   · (z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2)))).
         * exact (MPMor1 Mor).
         * exact (MPMor2 Mor).
       + use mk_MPMorComms.
@@ -1090,15 +1090,15 @@ Section rotation_isos.
 
   Local Lemma ExtMor2_Comm (D1 D2 : @DTri PT) (f3 : Ob3 D1 --> Ob3 D2)
              (f4 : (AddEquiv1 Trans (Ob1 D1)) --> (AddEquiv1 Trans (Ob1 D2)))
-             (H : f3 ;; Mor3 D2 = Mor3 D1 ;; f4) :
+             (H : f3 · Mor3 D2 = Mor3 D1 · f4) :
     let D1' := InvRotDTri PT D1 in
     let D2' := InvRotDTri PT D2 in
     (# (AddEquiv2 Trans) f3)
-      ;; (to_inv (# (AddEquiv2 Trans) (Mor3 D2)) ;; AddEquivUnitInvMor Trans (Ob1 D2)) =
+      · (to_inv (# (AddEquiv2 Trans) (Mor3 D2)) · AddEquivUnitInvMor Trans (Ob1 D2)) =
     (to_inv (# (AddEquiv2 Trans) (Mor3 D1)))
-      ;; AddEquivUnitInvMor Trans (Ob1 D1)
-      ;; (((AddEquivUnit Trans) (Ob1 D1))
-            ;; # (AddEquiv2 Trans) f4 ;; AddEquivUnitInvMor Trans (Ob1 D2)).
+      · AddEquivUnitInvMor Trans (Ob1 D1)
+      · (((AddEquivUnit Trans) (Ob1 D1))
+            · # (AddEquiv2 Trans) f4 · AddEquivUnitInvMor Trans (Ob1 D2)).
   Proof.
     intros D1' D2'. rewrite assoc. rewrite assoc. rewrite assoc.
     rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp.
@@ -1115,8 +1115,8 @@ Section rotation_isos.
 
   Local Lemma ExtMor2_Comm2 (D1 D2 : @DTri PT)
         (Mor : TriMor (InvRotDTri PT D1) (InvRotDTri PT D2)) :
-    MPMor3 Mor ;; Mor2 D2 =
-    Mor2 D1 ;; (AddEquivCounitInvMor Trans (Ob3 D1) ;; # (AddEquiv1 Trans) (MPMor1 Mor) ;;
+    MPMor3 Mor · Mor2 D2 =
+    Mor2 D1 · (AddEquivCounitInvMor Trans (Ob3 D1) · # (AddEquiv1 Trans) (MPMor1 Mor) ·
                                      (AddEquivCounit Trans) (Ob3 D2)).
   Proof.
     use (post_comp_with_z_iso_inv_is_inj (AddEquivCounitIso Trans (Ob3 D2))).
@@ -1131,15 +1131,15 @@ Section rotation_isos.
   Local Lemma ExtMor2_Comm3 (D1 D2 : @DTri PT)
         (Mor : TriMor (InvRotDTri PT D1) (InvRotDTri PT D2)) :
     (AddEquivCounitInvMor Trans (Ob3 D1))
-      ;; # (AddEquiv1 Trans) (MPMor1 Mor) ;; (AddEquivCounit Trans) (Ob3 D2) ;;  Mor3 D2 =
-    Mor3 D1 ;; # (AddEquiv1 Trans) (MPMor2 Mor).
+      · # (AddEquiv1 Trans) (MPMor1 Mor) · (AddEquivCounit Trans) (Ob3 D2) ·  Mor3 D2 =
+    Mor3 D1 · # (AddEquiv1 Trans) (MPMor2 Mor).
   Proof.
     use (pre_comp_with_z_iso_is_inj (AddEquivCounitIso Trans (Ob3 D1))).
     rewrite assoc. rewrite assoc. rewrite assoc.
     set (tmp' := is_inverse_in_precat1 (AddEquivCounitIso Trans (Ob3 D1))). cbn in tmp'.
     apply (maponpaths
              (postcompose ((# (AddEquiv1 Trans) (MPMor1 Mor))
-                             ;; (AddEquivCounit Trans) (Ob3 D2) ;; Mor3 D2))) in tmp'.
+                             · (AddEquivCounit Trans) (Ob3 D2) · Mor3 D2))) in tmp'.
     unfold postcompose in tmp'. rewrite assoc in tmp'. rewrite assoc in tmp'.
     use (pathscomp0 tmp'). clear tmp'. rewrite id_left. rewrite <- assoc.
     set (tmp' := AddEquivCounitComm Trans _ _ (Mor3 D2)).
@@ -1147,8 +1147,8 @@ Section rotation_isos.
     use (pathscomp0 (! tmp')). clear tmp'.
     set (tmp' := AddEquivCounitUnit' Trans (Ob1 D2)).
     apply (maponpaths (fun gg : _ => # (AddEquiv1 Trans) (MPMor1 Mor)
-                                    ;; (# (AddEquiv1 Trans) (# (AddEquiv2 Trans) (Mor3 D2))
-                                          ;; gg))) in tmp'.
+                                    · (# (AddEquiv1 Trans) (# (AddEquiv2 Trans) (Mor3 D2))
+                                          · gg))) in tmp'.
     use (pathscomp0 tmp'). clear tmp'.
     rewrite <- functor_comp. rewrite <- functor_comp. rewrite assoc. rewrite assoc.
     set (tmp' := AddEquivCounitComm Trans _ _ (Mor3 D1)).
@@ -1156,7 +1156,7 @@ Section rotation_isos.
     use (pathscomp0 _ tmp'). clear tmp'. unfold postcompose.
     set (tmp' := AddEquivCounitUnit' Trans (Ob1 D1)).
     apply (maponpaths (fun gg : _ => # (AddEquiv1 Trans) (# (AddEquiv2 Trans) (Mor3 D1))
-                                    ;; gg ;; # (AddEquiv1 Trans) (MPMor2 Mor))) in tmp'.
+                                    · gg · # (AddEquiv1 Trans) (MPMor2 Mor))) in tmp'.
     use (pathscomp0 _ (! tmp')). clear tmp'.
     rewrite <- functor_comp. rewrite <- functor_comp. apply maponpaths.
     set (tmp := MPComm1 Mor).
@@ -1167,13 +1167,13 @@ Section rotation_isos.
 
   Definition ExtMor2 (D1 D2 : @DTri PT) (f3 : Ob3 D1 --> Ob3 D2)
              (f4 : (AddEquiv1 Trans (Ob1 D1)) --> (AddEquiv1 Trans (Ob1 D2)))
-             (H : f3 ;; Mor3 D2 = Mor3 D1 ;; f4) : ∥ TriMor D1 D2 ∥.
+             (H : f3 · Mor3 D2 = Mor3 D1 · f4) : ∥ TriMor D1 D2 ∥.
   Proof.
     set (D1' := InvRotDTri PT D1). set (D2' := InvRotDTri PT D2).
     set (Ext' := DExt PT D1' D2' (# (AddEquiv2 Trans) f3)
                       (((AddEquivUnitIso Trans (Ob1 D1)) : PT⟦_, _⟧)
-                         ;; (# (AddEquiv2 Trans) f4)
-                         ;; z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2)))
+                         · (# (AddEquiv2 Trans) f4)
+                         · z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2)))
                       (ExtMor2_Comm D1 D2 f3 f4 H)).
     use (squash_to_prop Ext' (propproperty _)). intros Ext.
     set (Mor := TExtMor Ext).
@@ -1184,8 +1184,8 @@ Section rotation_isos.
         * exact (MPMor2 Mor).
         * exact (MPMor3 Mor).
         * exact ((z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D1)))
-                   ;; (# (AddEquiv1 Trans) (MPMor1 Mor))
-                   ;; (AddEquivCounitIso Trans (Ob3 D2))).
+                   · (# (AddEquiv1 Trans) (MPMor1 Mor))
+                   · (AddEquivCounitIso Trans (Ob3 D2))).
       + use mk_MPMorComms.
         * exact (MPComm2 Mor).
         * exact (ExtMor2_Comm2 D1 D2 Mor).
@@ -1212,7 +1212,7 @@ Section comp_zero.
 
   Context {PT : PreTriang}.
 
-  Lemma DTriCompZero (D : @DTri PT) : Mor1 D ;; Mor2 D = ZeroArrow (to_Zero PT) _ _.
+  Lemma DTriCompZero (D : @DTri PT) : Mor1 D · Mor2 D = ZeroArrow (to_Zero PT) _ _.
   Proof.
     set (D2 := TrivialDTri PT (Ob1 D)).
     set (Ext' := DExt PT D2 D (identity (Ob1 D)) (Mor1 D) (idpath _)).
@@ -1220,13 +1220,13 @@ Section comp_zero.
     set (M := TExtMor Ext). use (pathscomp0 (MPComm2 M)). cbn. apply ZeroArrow_comp_left.
   Qed.
 
-  Lemma DTriCompZero' (D : @DTri PT) : Mor2 D ;; Mor3 D = ZeroArrow (to_Zero PT) _ _.
+  Lemma DTriCompZero' (D : @DTri PT) : Mor2 D · Mor3 D = ZeroArrow (to_Zero PT) _ _.
   Proof.
     exact (DTriCompZero (RotDTri PT D)).
   Qed.
 
   Lemma DTriCompZero'' (D : @DTri PT) :
-    Mor3 D ;; to_inv (# (AddEquiv1 Trans) (Mor1 D)) = ZeroArrow (to_Zero PT) _ _.
+    Mor3 D · to_inv (# (AddEquiv1 Trans) (Mor1 D)) = ZeroArrow (to_Zero PT) _ _.
   Proof.
     exact (DTriCompZero (RotDTri PT (RotDTri PT D))).
   Qed.
@@ -1285,8 +1285,8 @@ Section short_short_exact_sequences.
     use ABGR_isKernel.
     - intros D0. induction D0 as [y yH].
       set (D' := TrivialDTri PT X).
-      assert (e : y ;; Mor2 D =
-                  ZeroArrow (to_Zero PT) _ (to_Zero PT) ;; ZeroArrow (to_Zero PT) _ _).
+      assert (e : y · Mor2 D =
+                  ZeroArrow (to_Zero PT) _ (to_Zero PT) · ZeroArrow (to_Zero PT) _ _).
       {
         cbn in yH. unfold to_postmor in yH. rewrite yH.
         rewrite ZeroArrow_comp_left. set (tmp := PreAdditive_unel_zero PT (to_Zero PT) X (Ob3 D)).
@@ -1358,7 +1358,7 @@ Section short_short_exact_sequences.
     use ABGR_isKernel.
     - intros D0. induction D0 as [y yH].
       set (D' := InvRotDTri PT (TrivialDTri PT X)).
-      assert (e : ZeroArrow (to_Zero PT) (Ob1 D) (Ob1 D') ;; Mor1 D' = Mor1 D ;; y).
+      assert (e : ZeroArrow (to_Zero PT) (Ob1 D) (Ob1 D') · Mor1 D' = Mor1 D · y).
       {
         rewrite ZeroArrow_comp_left.
         cbn in yH. unfold to_premor in yH. use (pathscomp0 _ (! yH)).
@@ -1674,12 +1674,12 @@ Section Ext_isomorphisms.
 
   Lemma DExtIso_Comm1 {PT : PreTriangData} {D1 D2 : DTri} (D1' D2' : Tri)
         (I1 : TriIso D1 D1') (I2 : TriIso D2 D2')
-        {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2} (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2)
+        {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2} (H : f1 · Mor1 D2 = Mor1 D1 · f2)
         (h : Ob3 D1' --> Ob3 D2')
-        (comm1 : Mor2 D1' ;; h = MPMor2 (TriIsoInv I1) ;; f2 ;; MPMor2 I2 ;; Mor2 D2')
-        (comm2 : Mor3 D1' ;; (# (AddEquiv1 (@Trans PT))
-                                (MPMor1 (TriIsoInv I1) ;; f1 ;; MPMor1 I2)) = h ;; Mor3 D2') :
-    Mor2 D1 ;; (MPMor3 I1 ;; h ;; MPMor3 (TriIsoInv I2)) = f2 ;; Mor2 D2.
+        (comm1 : Mor2 D1' · h = MPMor2 (TriIsoInv I1) · f2 · MPMor2 I2 · Mor2 D2')
+        (comm2 : Mor3 D1' · (# (AddEquiv1 (@Trans PT))
+                                (MPMor1 (TriIsoInv I1) · f1 · MPMor1 I2)) = h · Mor3 D2') :
+    Mor2 D1 · (MPMor3 I1 · h · MPMor3 (TriIsoInv I2)) = f2 · Mor2 D2.
   Proof.
     rewrite assoc. rewrite assoc. rewrite <- (MPComm2 I1).
     rewrite <- (assoc _ (Mor2 D1')). rewrite comm1. rewrite assoc. rewrite assoc.
@@ -1691,12 +1691,12 @@ Section Ext_isomorphisms.
 
   Lemma DExtIso_Comm2 {PT : PreTriangData} {D1 D2 : DTri} (D1' D2' : Tri)
         (I1 : TriIso D1 D1') (I2 : TriIso D2 D2')
-        {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2} (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2)
+        {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2} (H : f1 · Mor1 D2 = Mor1 D1 · f2)
         (h : Ob3 D1' --> Ob3 D2')
-        (comm1 : Mor2 D1' ;; h = MPMor2 (TriIsoInv I1) ;; f2 ;; MPMor2 I2 ;; Mor2 D2')
-        (comm2 : Mor3 D1' ;; (# (AddEquiv1 (@Trans PT))
-                                (MPMor1 (TriIsoInv I1) ;; f1 ;; MPMor1 I2)) = h ;; Mor3 D2') :
-    Mor3 D1 ;; # (AddEquiv1 Trans) f1 = MPMor3 I1 ;; h ;; MPMor3 (TriIsoInv I2) ;; Mor3 D2.
+        (comm1 : Mor2 D1' · h = MPMor2 (TriIsoInv I1) · f2 · MPMor2 I2 · Mor2 D2')
+        (comm2 : Mor3 D1' · (# (AddEquiv1 (@Trans PT))
+                                (MPMor1 (TriIsoInv I1) · f1 · MPMor1 I2)) = h · Mor3 D2') :
+    Mor3 D1 · # (AddEquiv1 Trans) f1 = MPMor3 I1 · h · MPMor3 (TriIsoInv I2) · Mor3 D2.
   Proof.
     rewrite functor_comp in comm2. rewrite functor_comp in comm2. rewrite assoc in comm2.
     rewrite assoc in comm2. rewrite <- (DComm3 (TriIsoInv I1)) in comm2.
@@ -1714,15 +1714,15 @@ Section Ext_isomorphisms.
 
   Definition DExtIso {PT : PreTriangData} {D1 D2 : DTri} (D1' D2' : Tri)
              (I1 : TriIso D1 D1') (I2 : TriIso D2 D2')
-             {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2} (H : f1 ;; Mor1 D2 = Mor1 D1 ;; f2)
+             {f1 : Ob1 D1 --> Ob1 D2} {f2 : Ob2 D1 --> Ob2 D2} (H : f1 · Mor1 D2 = Mor1 D1 · f2)
              (h : Ob3 D1' --> Ob3 D2')
-             (comm1 : Mor2 D1' ;; h = MPMor2 (TriIsoInv I1) ;; f2 ;; MPMor2 I2 ;; Mor2 D2')
-             (comm2 : Mor3 D1' ;; (# (AddEquiv1 (@Trans PT))
-                                     (MPMor1 (TriIsoInv I1) ;; f1 ;; MPMor1 I2)) = h ;; Mor3 D2') :
+             (comm1 : Mor2 D1' · h = MPMor2 (TriIsoInv I1) · f2 · MPMor2 I2 · Mor2 D2')
+             (comm2 : Mor3 D1' · (# (AddEquiv1 (@Trans PT))
+                                     (MPMor1 (TriIsoInv I1) · f1 · MPMor1 I2)) = h · Mor3 D2') :
     TExt H.
   Proof.
     use mk_TExt.
-    - exact (MPMor3 I1 ;; h ;; MPMor3 (TriIsoInv I2)).
+    - exact (MPMor3 I1 · h · MPMor3 (TriIsoInv I2)).
     - exact (DExtIso_Comm1 D1' D2' I1 I2 H h comm1 comm2).
     - exact (DExtIso_Comm2 D1' D2' I1 I2 H h comm1 comm2).
   Defined.
@@ -1738,21 +1738,21 @@ Section Octa_isomorphisms.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
+             (H3 : isDTri (mk_Tri (f1 · g1) h2 h3))
              {x1' x2' y1' y2' z1' z2' : ob PT}
              {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
              {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
              {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
              (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
-             (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
+             (H3' : isDTri (mk_Tri (f1' · g1') h2' h3'))
              (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
              (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
-             (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
+             (I3 : TriIso (mk_Tri (f1 · g1) h2 h3) (mk_Tri (f1' · g1') h2' h3'))
              (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
              (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
     MPMorMors
-      (mk_MorphismPair (MPMor3 I1 ;; OctaMor1 O ;; is_z_isomorphism_mor (TriMor_is_iso3 I3))
-                       (MPMor3 I3 ;; OctaMor2 O ;; is_z_isomorphism_mor (TriMor_is_iso3 I2)))
+      (mk_MorphismPair (MPMor3 I1 · OctaMor1 O · is_z_isomorphism_mor (TriMor_is_iso3 I3))
+                       (MPMor3 I3 · OctaMor2 O · is_z_isomorphism_mor (TriMor_is_iso3 I2)))
       (mk_MorphismPair (dirprod_pr1 (pr1 O)) (dirprod_pr2 (pr1 O))).
   Proof.
     use mk_MPMorMors.
@@ -1766,16 +1766,16 @@ Section Octa_isomorphisms.
         {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
         {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
         (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-        (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
+        (H3 : isDTri (mk_Tri (f1 · g1) h2 h3))
         {x1' x2' y1' y2' z1' z2' : ob PT}
         {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
         {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
         {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
         (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
-        (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
+        (H3' : isDTri (mk_Tri (f1' · g1') h2' h3'))
         (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
         (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
-        (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
+        (I3 : TriIso (mk_Tri (f1 · g1) h2 h3) (mk_Tri (f1' · g1') h2' h3'))
         (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
         (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
     MPMorComms (OctaIsoMPMorMors H1 H2 H3 H1' H2' H3' I1 I2 I3 II12 II13 II23 O).
@@ -1800,20 +1800,20 @@ Section Octa_isomorphisms.
         {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
         {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
         (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-        (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
+        (H3 : isDTri (mk_Tri (f1 · g1) h2 h3))
         {x1' x2' y1' y2' z1' z2' : ob PT}
         {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
         {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
         {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
         (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
-        (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
+        (H3' : isDTri (mk_Tri (f1' · g1') h2' h3'))
         (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
         (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
-        (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
+        (I3 : TriIso (mk_Tri (f1 · g1) h2 h3) (mk_Tri (f1' · g1') h2' h3'))
         (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
         (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
-    MPMor3 I2 ;; (g3' ;; # (AddEquiv1 Trans) f2') =
-    g3 ;; # (AddEquiv1 Trans) f2 ;; # (AddEquiv1 Trans) (MPMor3 I1).
+    MPMor3 I2 · (g3' · # (AddEquiv1 Trans) f2') =
+    g3 · # (AddEquiv1 Trans) f2 · # (AddEquiv1 Trans) (MPMor3 I1).
   Proof.
     cbn. rewrite assoc.
     set (tmp := DComm3 I2). cbn in tmp. rewrite tmp. clear tmp.
@@ -1828,19 +1828,19 @@ Section Octa_isomorphisms.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
+             (H3 : isDTri (mk_Tri (f1 · g1) h2 h3))
              {x1' x2' y1' y2' z1' z2' : ob PT}
              {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
              {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
              {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
              (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
-             (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
+             (H3' : isDTri (mk_Tri (f1' · g1') h2' h3'))
              (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
              (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
-             (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
+             (I3 : TriIso (mk_Tri (f1 · g1) h2 h3) (mk_Tri (f1' · g1') h2' h3'))
              (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
              (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
-    MPMor3 I1 ;; OctaMor1 O ;; is_z_isomorphism_mor (TriMor_is_iso3 I3) ;; h3 = f3.
+    MPMor3 I1 · OctaMor1 O · is_z_isomorphism_mor (TriMor_is_iso3 I3) · h3 = f3.
   Proof.
     set (tmp := DComm3 (TriIsoInv I3)). cbn in tmp. rewrite <- assoc.
     cbn. rewrite tmp. clear tmp.
@@ -1856,19 +1856,19 @@ Section Octa_isomorphisms.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
+             (H3 : isDTri (mk_Tri (f1 · g1) h2 h3))
              {x1' x2' y1' y2' z1' z2' : ob PT}
              {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
              {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
              {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
              (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
-             (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
+             (H3' : isDTri (mk_Tri (f1' · g1') h2' h3'))
              (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
              (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
-             (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
+             (I3 : TriIso (mk_Tri (f1 · g1) h2 h3) (mk_Tri (f1' · g1') h2' h3'))
              (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
              (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
-    h2 ;; (MPMor3 I3 ;; OctaMor2 O ;; is_z_isomorphism_mor (TriMor_is_iso3 I2)) = g2.
+    h2 · (MPMor3 I3 · OctaMor2 O · is_z_isomorphism_mor (TriMor_is_iso3 I2)) = g2.
   Proof.
     rewrite assoc. rewrite assoc. set (tmp := MPComm2 I3). cbn in tmp.
     cbn. rewrite <- tmp. clear tmp. rewrite <- (assoc _ h2'). rewrite (OctaComm2 O).
@@ -1884,19 +1884,19 @@ Section Octa_isomorphisms.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
+             (H3 : isDTri (mk_Tri (f1 · g1) h2 h3))
              {x1' x2' y1' y2' z1' z2' : ob PT}
              {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
              {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
              {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
              (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
-             (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
+             (H3' : isDTri (mk_Tri (f1' · g1') h2' h3'))
              (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
              (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
-             (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
+             (I3 : TriIso (mk_Tri (f1 · g1) h2 h3) (mk_Tri (f1' · g1') h2' h3'))
              (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
              (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
-    f2 ;; (MPMor3 I1 ;; OctaMor1 O ;; is_z_isomorphism_mor (TriMor_is_iso3 I3)) = g1 ;; h2.
+    f2 · (MPMor3 I1 · OctaMor1 O · is_z_isomorphism_mor (TriMor_is_iso3 I3)) = g1 · h2.
   Proof.
     cbn. rewrite assoc. rewrite assoc.
     set (tmp := MPComm2 I1). cbn in tmp. rewrite <- tmp. clear tmp.
@@ -1915,20 +1915,20 @@ Section Octa_isomorphisms.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
+             (H3 : isDTri (mk_Tri (f1 · g1) h2 h3))
              {x1' x2' y1' y2' z1' z2' : ob PT}
              {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
              {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
              {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
              (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
-             (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
+             (H3' : isDTri (mk_Tri (f1' · g1') h2' h3'))
              (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
              (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
-             (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
+             (I3 : TriIso (mk_Tri (f1 · g1) h2 h3) (mk_Tri (f1' · g1') h2' h3'))
              (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
              (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
-    MPMor3 I3 ;; OctaMor2 O ;; is_z_isomorphism_mor (TriMor_is_iso3 I2) ;; g3 =
-    h3 ;; # (AddEquiv1 Trans) f1.
+    MPMor3 I3 · OctaMor2 O · is_z_isomorphism_mor (TriMor_is_iso3 I2) · g3 =
+    h3 · # (AddEquiv1 Trans) f1.
   Proof.
     rewrite <- assoc.
     set (tmp := DComm3 (TriIsoInv I2)). cbn in tmp. cbn. rewrite tmp. clear tmp.
@@ -1955,23 +1955,23 @@ Section Octa_isomorphisms.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3))
+             (H3 : isDTri (mk_Tri (f1 · g1) h2 h3))
              {x1' x2' y1' y2' z1' z2' : ob PT}
              {f1' : x1' --> y1'} {f2' : y1' --> z2'} {f3' : z2' --> (AddEquiv1 Trans x1')}
              {g1' : y1' --> z1'} {g2' : z1' --> x2'} {g3' : x2' --> (AddEquiv1 Trans y1')}
              {h2' : z1' --> y2'} {h3' : y2' --> (AddEquiv1 Trans x1')}
              (H1' : isDTri (mk_Tri f1' f2' f3')) (H2' : isDTri (mk_Tri g1' g2' g3'))
-             (H3' : isDTri (mk_Tri (f1' ;; g1') h2' h3'))
+             (H3' : isDTri (mk_Tri (f1' · g1') h2' h3'))
              (I1 : TriIso (mk_Tri f1 f2 f3) (mk_Tri f1' f2' f3'))
              (I2 : TriIso (mk_Tri g1 g2 g3) (mk_Tri g1' g2' g3'))
-             (I3 : TriIso (mk_Tri (f1 ;; g1) h2 h3) (mk_Tri (f1' ;; g1') h2' h3'))
+             (I3 : TriIso (mk_Tri (f1 · g1) h2 h3) (mk_Tri (f1' · g1') h2' h3'))
              (II12 : MPMor1 I2 = MPMor2 I1) (II13 : MPMor1 I1 = MPMor1 I3)
              (II23 : MPMor2 I2 = MPMor2 I3) (O : Octa H1' H2' H3') :
     Octa H1 H2 H3.
   Proof.
     use mk_Octa.
-    - exact (MPMor3 I1 ;; OctaMor1 O ;; is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I3))).
-    - exact (MPMor3 I3 ;; OctaMor2 O ;; is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I2))).
+    - exact (MPMor3 I1 · OctaMor1 O · is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I3))).
+    - exact (MPMor3 I3 · OctaMor2 O · is_z_isomorphism_mor (TriMor_is_iso3 (TriIso_is_iso I2))).
     - use (DTrisUnderIso PT (OctaDTri O) _ _ (DTriisDTri (OctaDTri O))).
       use hinhpr.
       use TriIsoInv.
