@@ -45,6 +45,7 @@ Coercion adjunction_data_from_equivalence_of_precats {A B}
          (X : equivalence_of_precats A B) : adjunction_data A B := pr1 X.
 
 
+
 (** * Equivalence of (pre)categories *)
 
 Definition adj_equivalence_of_precats {A B : precategory} (F : functor A B) : UU :=

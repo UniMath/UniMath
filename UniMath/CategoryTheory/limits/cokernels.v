@@ -143,7 +143,7 @@ Section def_cokernels.
     use CokernelCompZero.
   Defined.
 
-  Lemma are_inverses_from_Cokernel_to_Cokernel {y z : C} {g : y --> z} {CK CK': Cokernel g} :
+  Lemma are_inverses_from_Cokernel_to_Cokernel {y z : C} {g : y --> z} (CK CK': Cokernel g) :
     is_inverse_in_precat (from_Cokernel_to_Cokernel CK CK')
                          (from_Cokernel_to_Cokernel CK' CK).
   Proof.
@@ -154,15 +154,9 @@ Section def_cokernels.
       rewrite assoc. rewrite CokernelCommutes. rewrite CokernelCommutes. apply idpath.
   Qed.
 
-  Lemma is_iso_from_Cokernel_to_Cokernel {y z : C} {g : y --> z} (CK CK' : Cokernel g) :
-    is_iso (from_Cokernel_to_Cokernel CK CK').
-  Proof.
-    apply (is_iso_qinv _ (from_Cokernel_to_Cokernel CK' CK)).
-    apply are_inverses_from_Cokernel_to_Cokernel.
-  Qed.
-
   Definition iso_from_Cokernel_to_Cokernel {y z : C} {g : y --> z} (CK CK' : Cokernel g) :
-    iso CK CK' := isopair _ (is_iso_from_Cokernel_to_Cokernel CK CK').
+    z_iso CK CK' := mk_z_iso (from_Cokernel_to_Cokernel CK CK') (from_Cokernel_to_Cokernel CK' CK)
+                             (are_inverses_from_Cokernel_to_Cokernel CK CK').
 
   (** Cokernel of the ZeroArrow is given by the identity. *)
   Lemma CokernelOfZeroArrow_isCokernel (x y : C) :
@@ -206,22 +200,19 @@ Section def_cokernels.
   (** More generally, the CokernelArrow of the cokernel of the ZeroArrow is an
     isomorphism. *)
   Lemma CokernelofZeroArrow_is_iso {x y : C} (CK : Cokernel (ZeroArrow Z x y)) :
-    is_iso (CokernelArrow CK).
+    is_inverse_in_precat (CokernelArrow CK)
+                         (from_Cokernel_to_Cokernel CK (CokernelofZeroArrow x y)).
   Proof.
-    set (CK' := CokernelofZeroArrow x y).
-    use is_iso_qinv.
-    - use (from_Cokernel_to_Cokernel CK CK').
-    - split.
-      + unfold from_Cokernel_to_Cokernel. rewrite CokernelCommutes. apply idpath.
-      + unfold from_Cokernel_to_Cokernel. cbn.
-        use CokernelOutsEq. rewrite assoc. rewrite CokernelCommutes.
-        rewrite id_left. rewrite id_right. apply idpath.
+    use mk_is_inverse_in_precat.
+    - unfold from_Cokernel_to_Cokernel. rewrite CokernelCommutes. apply idpath.
+    - unfold from_Cokernel_to_Cokernel. cbn.
+      use CokernelOutsEq. rewrite assoc. rewrite CokernelCommutes.
+      rewrite id_left. rewrite id_right. apply idpath.
   Qed.
 
-  Lemma CokernelofZeroArrow_iso (x y : C) (CK : Cokernel (ZeroArrow Z x y)) : iso y CK.
-  Proof.
-    exact (iso_from_Cokernel_to_Cokernel (CokernelofZeroArrow x y) CK).
-  Defined.
+  Definition CokernelofZeroArrow_iso (x y : C) (CK : Cokernel (ZeroArrow Z x y)) : z_iso y CK :=
+    mk_z_iso (CokernelArrow CK) (from_Cokernel_to_Cokernel CK (CokernelofZeroArrow x y))
+             (CokernelofZeroArrow_is_iso CK).
 
   (** It follows that CokernelArrow is an epi. *)
   Lemma CokernelArrowisEpi {y z : C} {g : y --> z} (CK : Cokernel g ) : isEpi (CokernelArrow CK).
@@ -336,7 +327,7 @@ Section cokernels_iso.
 
 
   Lemma Cokernel_up_to_iso_eq {x y z : C} (f : x --> y) (g : y --> z) (CK : Cokernel Z f)
-        (h : iso CK z) (H : g = (CokernelArrow CK) ;; h) : f ;; g = ZeroArrow Z x z.
+        (h : z_iso CK z) (H : g = (CokernelArrow CK) ;; h) : f ;; g = ZeroArrow Z x z.
   Proof.
     induction CK as [t p]. induction t as [t' p']. induction p as [t'' p''].
     unfold isCoequalizer in p''.
@@ -348,20 +339,21 @@ Section cokernels_iso.
   Qed.
 
   Lemma Cokernel_up_to_iso_isCokernel {x y z : C} (f : x --> y) (g : y --> z) (CK : Cokernel Z f)
-        (h : iso CK z) (H : g = (CokernelArrow CK) ;; h) (H'' : f ;; g = ZeroArrow Z x z) :
+        (h : z_iso CK z) (H : g = (CokernelArrow CK) ;; h) (H'' : f ;; g = ZeroArrow Z x z) :
     isCokernel Z f g H''.
   Proof.
     use (mk_isCokernel hs).
     intros w h0 H'.
     use unique_exists.
-    - exact ((inv_from_iso h) ;; (CokernelOut Z CK w h0 H')).
-    - cbn. rewrite H. rewrite assoc. rewrite <- (assoc _ h). rewrite iso_inv_after_iso.
+    - exact ((z_iso_inv_mor h) ;; (CokernelOut Z CK w h0 H')).
+    - cbn. rewrite H. rewrite assoc. rewrite <- (assoc _ h).
+      rewrite (is_inverse_in_precat1 h).
       rewrite id_right. use CokernelCommutes.
     - intros y0. apply hs.
     - intros y0 X. cbn beta in X.
-      use (pre_comp_with_iso_is_inj _ _ _ _ _ (pr2 h)). rewrite assoc.
+      use (pre_comp_with_z_iso_is_inj h). rewrite assoc.
       set (tmp := maponpaths (fun gg : _ => gg ;; CokernelOut Z CK w h0 H')
-                             (iso_inv_after_iso h)). cbn in tmp.
+                             (is_inverse_in_precat1 h)). cbn in tmp.
       use (pathscomp0 _ (! tmp)). clear tmp. rewrite id_left.
       use CokernelOutsEq. rewrite CokernelCommutes. rewrite assoc.
       rewrite <- X. apply cancel_postcomposition. rewrite H.
@@ -369,11 +361,11 @@ Section cokernels_iso.
   Qed.
 
   Definition Cokernel_up_to_iso {x y z : C} (f : x --> y) (g : y --> z) (CK : Cokernel Z f)
-             (h : iso CK z) (H : g = (CokernelArrow CK) ;; h) : Cokernel Z f :=
+             (h : z_iso CK z) (H : g = (CokernelArrow CK) ;; h) : Cokernel Z f :=
     mk_Cokernel Z f g (Cokernel_up_to_iso_eq f g CK h H)
                 (Cokernel_up_to_iso_isCokernel f g CK h H (Cokernel_up_to_iso_eq f g CK h H)).
 
-  Definition Cokernel_up_to_iso2_eq {x y z : C} (f1 : x --> z) (f2 : y --> z) (h : iso y x)
+  Definition Cokernel_up_to_iso2_eq {x y z : C} (f1 : x --> z) (f2 : y --> z) (h : z_iso y x)
              (H : h ;; f1 = f2) (CK : Cokernel Z f1) : f2 ;; CokernelArrow CK = ZeroArrow Z y CK.
   Proof.
     rewrite <- H. rewrite <- assoc. rewrite CokernelCompZero.
@@ -381,7 +373,7 @@ Section cokernels_iso.
   Qed.
 
   Definition Cokernel_up_to_iso2_isCoequalizer {x y z : C} (f1 : x --> z) (f2 : y --> z)
-             (h : iso y x) (H : h ;; f1 = f2) (CK : Cokernel Z f1) :
+             (h : z_iso y x) (H : h ;; f1 = f2) (CK : Cokernel Z f1) :
     isCokernel Z f2 (CokernelArrow CK) (Cokernel_up_to_iso2_eq f1 f2 h H CK).
   Proof.
     use (mk_isCokernel hs).
@@ -390,16 +382,15 @@ Section cokernels_iso.
     - use CokernelOut.
       + exact h0.
       + rewrite <- H in H'. rewrite <- (ZeroArrow_comp_right _ _ _ _ _ h) in H'.
-        rewrite <- assoc in H'. apply pre_comp_with_iso_is_inj in H'.
-        * exact H'.
-        * exact (pr2 h).
+        rewrite <- assoc in H'. apply (pre_comp_with_z_iso_is_inj h) in H'.
+        exact H'.
     - cbn. use CokernelCommutes.
     - intros y0. apply hs.
     - intros y0 X. cbn beta in X. use CokernelOutsEq. rewrite CokernelCommutes.
       exact X.
   Qed.
 
-  Definition Cokernel_up_to_iso2 {x y z : C} (f1 : x --> z) (f2 : y --> z) (h : iso y x)
+  Definition Cokernel_up_to_iso2 {x y z : C} (f1 : x --> z) (f2 : y --> z) (h : z_iso y x)
              (H : h ;; f1 = f2) (CK : Cokernel Z f1) : Cokernel Z f2 :=
     mk_Cokernel Z f2 (CokernelArrow CK) (Cokernel_up_to_iso2_eq f1 f2 h H CK)
                 (Cokernel_up_to_iso2_isCoequalizer f1 f2 h H CK).

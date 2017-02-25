@@ -272,8 +272,7 @@ Section def_bindirectsums.
       unfold PrecategoriesWithAbgrops.to_unel.
       rewrite XX. clear XX.
       apply (to_lunax c b).
-  Defined.
-  Opaque ToBinDirectSumFormulaUnique.
+  Qed.
 
   Lemma FromBinDirectSumFormulaUnique {a b : A} (B : BinDirectSumCone a b) {c : A} (f : a --> c)
         (g : b --> c) : FromBinDirectSumFormula B f g = FromBinDirectSum B f g.
@@ -296,8 +295,7 @@ Section def_bindirectsums.
       unfold to_unel.
       rewrite XX.
       apply (to_lunax b c).
-  Defined.
-  Opaque FromBinDirectSumFormulaUnique.
+  Qed.
 
   (** The following definitions give 2 ways to construct a morphisms a ⊕ c --> b ⊕ d from two
       morphisms f : a --> b and g : c --> d , by using the binary direct sums as a product and as a
@@ -324,8 +322,7 @@ Section def_bindirectsums.
     unfold ToBinDirectSumFormula.
     unfold BinDirectSumIndArFormula.
     apply idpath.
-  Defined.
-  Opaque BinDirectSumIndArEq1.
+  Qed.
 
   Lemma BinDirectSumIndArEq2 {a b c d : A} (f : a --> b) (g : c --> d)
              (B1 : BinDirectSumCone a c) (B2 : BinDirectSumCone b d) :
@@ -337,8 +334,7 @@ Section def_bindirectsums.
     unfold BinDirectSumIndArFormula.
     rewrite assoc. rewrite assoc.
     apply idpath.
-  Defined.
-  Opaque BinDirectSumIndArEq2.
+  Qed.
 
   (** Thus we have equality. *)
   Definition BinDirectSumIndArEq {a b c d : A} (f : a --> b) (g : c --> d)
@@ -348,8 +344,7 @@ Section def_bindirectsums.
     rewrite -> BinDirectSumIndArEq1.
     rewrite -> BinDirectSumIndArEq2.
     apply idpath.
-  Defined.
-  Opaque BinDirectSumIndArEq.
+  Qed.
 
   (** ** Composition of IndAr *)
   Lemma BinDirectSumIndArComp {a b c d e f : A} (f1 : a --> b) (f2 : b --> c)
@@ -587,9 +582,10 @@ Section bindirectsums_in_quot.
       use unique_exists.
       + exact (to_quot_mor A PAS (FromBinDirectSum A (BD x y) f1 g1)).
       + cbn beta. split.
-        * cbn.
+        * use (pathscomp0 (QuotPrecategory_comp_linear A PAS PAC _ _)).
           rewrite BinDirectSumIn1Commutes. exact f2.
-        * cbn. rewrite BinDirectSumIn2Commutes. exact g2.
+        * use (pathscomp0 (QuotPrecategory_comp_linear A PAS PAC _ _)).
+          rewrite BinDirectSumIn2Commutes. exact g2.
       + intros y0. apply isapropdirprod; apply has_homsets_QuotPrecategory.
       + intros y0 T. cbn beta in T. induction T as [T1 T2].
         * set (y'' := @issurjsetquotpr (@to_abgrop A (BD x y) c)
@@ -626,8 +622,7 @@ Section bindirectsums_in_quot.
           rewrite (to_BinOpId A (BD x y)).
           rewrite comp_eq. apply cancel_postcomposition.
           apply idpath.
-  Defined.
-  Opaque QuotPrecategory_isBinCoproductCocone.
+  Qed.
 
   Lemma QuotPrecategory_isBinProductCone (x y : A) :
     isBinProductCone (QuotPrecategory_PreAdditive A PAS PAC) x y (BD x y)
@@ -645,8 +640,10 @@ Section bindirectsums_in_quot.
       use unique_exists.
       + exact (to_quot_mor A PAS (ToBinDirectSum A (BD x y) f1 g1)).
       + cbn beta. split.
-        * cbn. rewrite BinDirectSumPr1Commutes. exact f2.
-        * cbn. rewrite BinDirectSumPr2Commutes. exact g2.
+        * use (pathscomp0 (QuotPrecategory_comp_linear A PAS PAC _ _)).
+          rewrite BinDirectSumPr1Commutes. exact f2.
+        * use (pathscomp0 (QuotPrecategory_comp_linear A PAS PAC _ _)).
+          rewrite BinDirectSumPr2Commutes. exact g2.
       + intros y0. apply isapropdirprod; apply has_homsets_QuotPrecategory.
       + intros y0 T. cbn beta in T. induction T as [T1 T2].
         * set (y'' := @issurjsetquotpr (@to_abgrop A c (BD x y))
@@ -683,8 +680,7 @@ Section bindirectsums_in_quot.
           rewrite (to_BinOpId A (BD x y)).
           rewrite comp_eq. apply cancel_precomposition.
           apply idpath.
-  Defined.
-  Opaque QuotPrecategory_isBinProductCone.
+  Qed.
 
   Opaque QuotPrecategory_PreAdditive. (* This speeds up the following proof significantly. *)
   Lemma QuotPrecategory_isBinDirectSumCone (x y : A) :
@@ -730,8 +726,7 @@ Section bindirectsums_in_quot.
       rewrite <- tmp. clear tmp.
       rewrite (to_BinOpId A (BD x y)).
       apply idpath.
-  Defined.
-  Opaque QuotPrecategory_isBinDirectSumCone.
+  Qed.
   Transparent QuotPrecategory_PreAdditive. (* Transparent again *)
 
   Definition QuotPrecategory_BinDirectSums : BinDirectSums (QuotPrecategory_PreAdditive A PAS PAC).

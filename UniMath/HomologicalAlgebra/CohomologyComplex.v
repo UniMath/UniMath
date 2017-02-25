@@ -18,11 +18,11 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.NaturalNumbers.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
-Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
@@ -50,11 +50,12 @@ Require Import UniMath.CategoryTheory.Additive.
 Require Import UniMath.CategoryTheory.Abelian.
 Require Import UniMath.CategoryTheory.AbelianToAdditive.
 Require Import UniMath.CategoryTheory.AdditiveFunctors.
-Require Import UniMath.HomologicalAlgebra.Complexes.
 
+Require Import UniMath.HomologicalAlgebra.Complexes.
+Require Import UniMath.HomologicalAlgebra.KA.
 
 Open Scope hz_scope.
-Local Opaque hz isdecrelhzeq hzplus iscommrngops.
+Local Opaque hz isdecrelhzeq hzplus iscommrngops ishinh.
 
 (** * Cohomology functor *)
 (** ** Introduction
@@ -786,7 +787,7 @@ Section def_cohomology'_complex.
                             (CohomologyComplexIso_isCokernel C i)).
     use (compose (CohomologyComplexIso_Mor7 C i)).
     use (compose (CohomologyComplexIso_Mor8 C i)).
-    exact (iso_inv_from_is_iso _ (CoIm_to_Im_is_iso A hs (φ1 ;; φ2))).
+    exact (iso_inv_from_is_iso _ (is_iso_qinv _ _ (CoIm_to_Im_is_iso A hs (φ1 ;; φ2)))).
   Defined.
 
   Local Lemma CohomologyComplexIso_Mor_comm (C : Complex (AbelianToAdditive A hs)) (i : hz) :
@@ -803,6 +804,8 @@ Section def_cohomology'_complex.
     - intros i. exact (CohomologyComplexIso_Mor_i C i).
     - intros i. exact (CohomologyComplexIso_Mor_comm C i).
   Defined.
+
+  Local Opaque is_iso_qinv.
 
   Lemma CohomologyComplexIso_is_iso_i (C : Complex (AbelianToAdditive A hs)) (i : hz) :
     is_iso (CohomologyComplexIso_Mor_i C i).
@@ -849,6 +852,8 @@ Section def_cohomology'_complex.
                                 K1 (Cokernel _) (Cokernel _)).
     - unfold CohomologyComplexIso_Mor1. apply CokernelOutPaths_is_iso.
   Qed.
+
+  Local Transparent is_iso_qinv.
 
   Local Lemma CohomologyComplexIso_is_iso (C : Complex (AbelianToAdditive A hs)) :
     is_iso (CohomologyComplexIso_Mor C).
@@ -2053,7 +2058,9 @@ Section def_kernel_cokernel_complex.
       rewrite transport_source_precompose. apply cancel_postcomposition. clear CK.
       rewrite transport_source_KernelIn. use KernelInsEq.
       rewrite KernelCommutes. rewrite KernelCommutes.
-      set (tmp := transport_Diff _ C i). cbn. cbn in tmp. apply tmp.
+      apply pathsinv0. rewrite <- maponpathsinv0.
+      use (pathscomp0 _ (transport_hz_section A C 1 (Diff C) _ _ (hzrplusminus i 1))).
+      use transportf_paths. apply maponpaths. apply isasethz.
   Qed.
 
   Definition CokernelKernelCohomology2_Mor1 (C : Complex (AbelianToAdditive A hs)) (i : hz) :
@@ -2087,7 +2094,9 @@ Section def_kernel_cokernel_complex.
       rewrite transport_source_KernelIn.
       use KernelInsEq.
       rewrite KernelCommutes. rewrite KernelCommutes. clear tmp.
-      set (tmp := transport_Diff _ C i). cbn. cbn in tmp. apply pathsinv0. apply tmp.
+      rewrite <- maponpathsinv0.
+      use (pathscomp0 _ (transport_hz_section A C 1 (Diff C) _ _ (hzrplusminus i 1))).
+      use transportf_paths. apply maponpaths. apply isasethz.
     }
     cbn in e0. cbn. rewrite e0. clear e0. rewrite tmp. clear tmp. cbn.
     rewrite transport_source_precompose. rewrite <- assoc. rewrite CokernelCompZero.
