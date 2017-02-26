@@ -192,7 +192,7 @@ Qed.
 
 Lemma preIt_uniq (t : ∑ h, # L inF · h = ψ μF h) : t = (preIt,,preIt_ok).
 Proof.
-apply subtypeEquality; [intros f; apply hsD|]; simpl.
+apply subtypeEquality; [intros f; use_exact hsD|]; simpl.
 destruct t as [f Hf]; simpl.
 apply (colimArrowUnique CC_LchnF); intro n.
 now apply S_imp_SS, Hf.

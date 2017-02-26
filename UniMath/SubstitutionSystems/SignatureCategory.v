@@ -85,7 +85,7 @@ Lemma SignatureMor_eq (Ht Ht' : Signature C hsC D hsD) (f g : SignatureMor Ht Ht
 Proof.
 intros H.
 apply subtypeEquality; trivial.
-now intros α; repeat (apply impred; intro); apply functor_category_has_homsets.
+now intros α; repeat (apply impred; intro); use_exact functor_category_has_homsets.
 Qed.
 
 Local Lemma SignatureMor_id_subproof (Ht : Signature C hsC D hsD) X Y :
@@ -144,7 +144,7 @@ apply (isofhleveltotal2 2).
 * intros α.
   apply isasetaprop.
   apply impred; intros X; apply impred; intros Y.
-  apply functor_category_has_homsets.
+  use_exact functor_category_has_homsets.
 Qed.
 
 Definition SignatureForgetfulFunctor : functor Signature_precategory [[C,C],[C,D]].
@@ -240,7 +240,7 @@ use unique_exists; simpl.
 - abstract (split;
     [ apply SignatureMor_eq, (BinProductPr1Commutes _ _ _ (BCD  _ _))
     | apply SignatureMor_eq, (BinProductPr2Commutes _ _ _ (BCD  _ _))]).
-- abstract (intros X; apply isapropdirprod; apply has_homsets_Signature_precategory).
+- abstract (intros X; apply isapropdirprod; use_exact has_homsets_Signature_precategory).
 - abstract (intros X H1H2; apply SignatureMor_eq; simpl;
     apply (BinProductArrowUnique _ _ _ (BCD  _ _));
       [ apply (maponpaths pr1 (pr1 H1H2)) | apply (maponpaths pr1 (pr2 H1H2)) ]).
@@ -316,7 +316,7 @@ use unique_exists; simpl.
   - apply (CoproductArrow I _ (CCD (λ j, pr1 (Hti j))) (λ i, pr1 (F i))).
   - apply CoproductArrow_diagram.
 + abstract (intro i; apply SignatureMor_eq, (CoproductInCommutes _ _ _ (CCD (λ j, pr1 (Hti j))))).
-+ abstract (intros X; apply impred; intro i; apply has_homsets_Signature_precategory).
++ abstract (intros X; apply impred; intro i; use_exact has_homsets_Signature_precategory).
 + abstract (intros X Hi;  apply SignatureMor_eq; simpl;
             apply (CoproductArrowUnique _ _ _ (CCD (λ j, pr1 (Hti j)))); intro i;
             apply (maponpaths pr1 (Hi i))).

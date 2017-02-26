@@ -199,7 +199,7 @@ Definition map (f : A -> A) : List -> List :=
 Lemma length_map (f : A -> A) : ∏ xs, length (map f xs) = length xs.
 Proof.
 apply listIndProp.
-- intros l; apply isasetnat.
+- intros l; use_exact isasetnat.
 - apply idpath.
 - simpl; unfold map, length; simpl; intros a l Hl.
   simpl.
@@ -307,7 +307,7 @@ Qed.
 Lemma to_ListK (A : HSET) : ∏ y : List A, to_List A (to_list A y) = y.
 Proof.
 apply listIndProp.
-* intro l; exact (setproperty _).
+* intro l; exact (setproperty _ _ _).
 * now unfold to_list; rewrite foldr_nil.
 * unfold to_list, to_List; intros a l IH.
   rewrite foldr_cons; simpl.
@@ -429,7 +429,7 @@ simple refine (tpair _ _ _).
 - abstract (
   destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
   intro t; apply subtypeEquality; simpl;
-  [ intro g; apply impred; intro; apply hsC
+  [ intro g; apply impred; intro; use_exact hsC
   | destruct t as [t p]; destruct ccL as [t0 p0]; unfold BinCoproduct_of_functors_mor in *; destruct t0 as [t0 p1]; simpl;
     apply BinCoproductArrowUnique;
     [ now rewrite <- (p 0), assoc, BinCoproductOfArrowsIn1, id_left
@@ -482,7 +482,7 @@ Definition nil_map : HSET⟦unitHSET,List⟧.
 Proof.
 simpl; intro x.
 refine (List_mor _).
-apply inl.
+apply ii1.
 exact x.
 Defined.
 
@@ -492,7 +492,7 @@ Definition cons_map : HSET⟦(A × List)%set,List⟧.
 Proof.
 intros xs.
 refine (List_mor _).
-exact (inr xs).
+exact (ii2 xs).
 Defined.
 
 Definition cons : pr1 A × pr1 List -> pr1 List := cons_map.
@@ -614,7 +614,7 @@ Definition map (f : pr1 A -> pr1 A) : pr1 List -> pr1 List :=
 Lemma length_map (f : pr1 A -> pr1 A) : ∏ xs, length (map f xs) = length xs.
 Proof.
 apply listIndProp.
-- intros l; apply isasetnat.
+- intros l; use_exact isasetnat.
 - apply idpath.
 - simpl; unfold map, length; simpl; intros a l Hl.
   simpl.

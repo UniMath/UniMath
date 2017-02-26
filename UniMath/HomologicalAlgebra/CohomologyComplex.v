@@ -535,7 +535,7 @@ Section def_cohomology'_complex.
         rewrite <- assoc. rewrite KernelCommutes.
         fold φ1. rewrite <- (KernelCommutes to_Zero K3 _ _ H').
         apply cancel_precomposition. apply idpath.
-      + intros y. apply hs.
+      + intros y. use_exact hs.
       + intros y X. cbn beta in X. apply (CohomologyComplexIso_isMonic C i). fold K1. rewrite X.
         use (KernelArrowisMonic to_Zero (Kernel (Diff C i))). unfold K1.
         rewrite <- assoc. rewrite KernelCommutes.
@@ -609,7 +609,7 @@ Section def_cohomology'_complex.
         unfold CK1. rewrite assoc. rewrite CokernelCommutes. fold φ2.
         rewrite <- (CokernelCommutes to_Zero CK3 _ _ H').
         apply cancel_postcomposition. apply idpath.
-      + intros y. apply hs.
+      + intros y. use_exact hs.
       + intros y X. cbn beta in X. apply (CohomologyComplexIso_isEpi C i). fold CK1. rewrite X.
         use (CokernelArrowisEpi to_Zero (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                               (maponpaths C (hzrminusplus i 1))
@@ -1108,10 +1108,10 @@ Section def_cohomology_homotopy.
     rewrite <- AdditiveFunctorInv.
     set (tmp := AdditiveFunctorLinear (CohomologyFunctor_Additive A hs) f (to_inv g)).
     apply pathsinv0 in tmp. use (pathscomp0 tmp). clear tmp.
-    use (squash_to_prop H). apply has_homsets_ComplexPreCat_AbelianPreCat.
+    use (squash_to_prop H). use_exact has_homsets_ComplexPreCat_AbelianPreCat.
     intros H'. induction H' as [H1 H2]. induction H1 as [H11 H12]. cbn in H11. cbn in H2.
     cbn. rewrite <- H2. clear H.
-    use (squash_to_prop H12). apply has_homsets_ComplexPreCat_AbelianPreCat.
+    use (squash_to_prop H12). use_exact has_homsets_ComplexPreCat_AbelianPreCat.
     intros G. induction G as [G1 G2]. rewrite <- G2. clear H11 H12 H2 G2.
     apply CohomologyFunctorHomotopy.
   Qed.
@@ -1157,7 +1157,7 @@ Section def_cohomology_homotopy.
     use total2_paths_f.
     - exact e.
     - apply proofirrelevance. apply impred_isaprop. intros t0.
-      apply impred_isaprop. intros H0. apply has_homsets_ComplexPreCat.
+      apply impred_isaprop. intros H0. use_exact has_homsets_ComplexPreCat.
   Qed.
 
   (** ** Construction of the functor and commutativity  *)
@@ -1208,9 +1208,9 @@ Section def_cohomology_homotopy.
       · (CohomologyFunctorHImMor (iscontrpr1 (CohomologyFunctorH_Mor g))) .
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A hs) f)).
-    apply has_homsets_ComplexPreCat. intros f'.
+    use_exact has_homsets_ComplexPreCat. intros f'.
     use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A hs) g)).
-    apply has_homsets_ComplexPreCat. intros g'.
+    use_exact has_homsets_ComplexPreCat. intros g'.
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor f)) _ (hfiberpr2 _ _ f')).
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor g)) _ (hfiberpr2 _ _ g')).
     set (tmp := functor_comp (CohomologyFunctor A hs) (hfiberpr1 _ _ f') (hfiberpr1 _ _ g')).
@@ -1300,9 +1300,9 @@ Section def_cohomology_homotopy.
              (# CohomologyFunctorH f) (# CohomologyFunctorH g).
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A hs) f)).
-    apply has_homsets_ComplexPreCat. intros f'.
+    use_exact has_homsets_ComplexPreCat. intros f'.
     use (squash_to_prop (ComplexHomotFunctor_issurj (AbelianToAdditive A hs) g)).
-    apply has_homsets_ComplexPreCat. intros g'.
+    use_exact has_homsets_ComplexPreCat. intros g'.
     cbn.
     rewrite (CohomologyFunctorHImEq (iscontrpr1 (CohomologyFunctorH_Mor f))
                                     (hfiberpr1 _ _ f') (hfiberpr2 _ _ f')).
@@ -1619,8 +1619,8 @@ Section def_kernel_cokernel_complex.
         cbn in e1. rewrite e1. clear e1. rewrite <- t21.
         rewrite KernelCommutes. apply idpath.
     - apply proofirrelevance. apply isapropdirprod.
-      + apply hs.
-      + apply hs.
+      + use_exact hs.
+      + use_exact hs.
   Qed.
 
   Definition CokernelKernelMorphism (C : Complex (AbelianToAdditive A hs)) (i : hz) :

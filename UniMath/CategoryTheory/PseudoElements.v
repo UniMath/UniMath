@@ -290,7 +290,7 @@ Section def_pseudo_element.
   Lemma PEq_Zero_Eq {c : A} (PE : PseudoElem c) :
     PEq_hrel PE (PZero (PseudoOb PE)) -> (PE : A⟦_,_⟧ ) = ZeroArrow to_Zero _ _.
   Proof.
-    intros H1. use (squash_to_prop H1). apply hs. intros X1. exact (PEq_Zero_Eq' _ PE X1).
+    intros H1. use (squash_to_prop H1). use_exact hs. intros X1. exact (PEq_Zero_Eq' _ PE X1).
   Qed.
 
   Definition PEq_Zeros' {c : A} (d1 d2 : A) : @PEq c (PZero d1) (PZero d2).
@@ -475,7 +475,7 @@ Section def_pseudo_element.
         use unique_exists.
         * exact (inv_from_iso (isopair (PullbackPr1 Pb) (is_iso_qinv _ _ i)) · PullbackPr2 Pb).
         * cbn. cbn in e1. rewrite <- e1. apply idpath.
-        * intros y0. apply hs.
+        * intros y0. use_exact hs.
         * intros y0 XX. cbn in XX.
           use (KernelArrowisMonic to_Zero (Abelian.Image f)). rewrite XX.
           apply e1.
