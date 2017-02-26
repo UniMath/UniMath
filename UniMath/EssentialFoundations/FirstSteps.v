@@ -6,11 +6,11 @@
 
 Notation "'∏'  x .. y , P" := (forall x, .. (forall y, P) ..)
   (at level 200, x binder, y binder, right associativity) : type_scope.
-  (* type this in emacs in agda-input method with \prod *)
+  (* to input: type "\prod" with Agda input method *)
 
 Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
   (at level 200, x binder, y binder, right associativity).
-  (* type this in emacs in agda-input method with \lambda *)
+  (* to input: type "\Gl" or "\lambda" or "\lamda" with Agda input method *)
 
 (** ** The universe *)
 
@@ -46,7 +46,7 @@ Defined.
 Definition neg (X : UU) : UU := X -> empty.
 
 Notation "'¬' X" := (neg X) (at level 35, right associativity).
-(* to input: type "\neg" or "\lnot" with Agda input method *)
+(** to input: type "\neg" or "\lnot" with Agda input method *)
 
 (** ** The unit type *)
 
@@ -75,7 +75,7 @@ Arguments ii1 {_ _} _.
 Arguments ii2 {_ _} _.
 
 Notation "X ⨿ Y" := (coprod X Y) (at level 50, left associativity).
-  (* to input: type "\union" with Agda input method and select it from the menu
+  (** to input: type "\union" with Agda input method and select it from the menu
      or use C-X 8 RET AMALGAMATION OR COPRODUCT
 
      should be changed to X ∐ Y :
@@ -91,7 +91,7 @@ Arguments pr2 {_ _} _.
 
 Notation "'∑'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
-  (* to input: type "\union" or "\sum" with Agda input method *)
+  (** to input: type "\union" or "\sum" with Agda input method *)
 
 Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity).
 
@@ -267,7 +267,7 @@ Definition iscontrpr1 {X : UU} : iscontr X -> X := pr1.
 Notation "'∃!' x .. y , P"
   := (iscontr (∑ x, .. (∑ y, P) ..))
        (at level 200, x binder, y binder, right associativity) : type_scope.
-(* to input: type "\exists" or "\ex" with Agda input method *)
+(** to input: type "\exists" or "\ex" with Agda input method *)
 
 (** **** Contractibility of [unit]  *)
 
@@ -336,9 +336,9 @@ Definition isweq {X Y : UU} (f : X -> Y) : UU :=
 Definition weq (X Y : UU) : UU := ∑ f:X->Y, isweq f.
 
 Notation "X ≃ Y" := (weq X Y) (at level 80, no associativity) : type_scope.
-(* written \simeq in Agda input method *)
+(** to input: type "\simeq" or "\~-" or "\eq" with Agda input method *)
 
-(** An identity funtion is a weak equivlanece. *)
+(** An identity function is a weak equivlanece. *)
 
 Lemma idisweq (X : UU) : isweq (idfun X).
 Proof.
@@ -353,3 +353,20 @@ Proof.
     induction p.
     reflexivity.
 Defined.
+
+Definition idweq (X : UU) : X ≃ X := (idfun X,,idisweq X).
+
+(** ** Paths in the universe *)
+
+(** A path in the universe between two types gives a weak equivalence between the two types,
+    i.e., equal types are equivalent. *)
+
+Definition eqweqmap { X Y : UU } : X = Y -> X ≃ Y.
+Proof.
+  intro p.
+  induction p.
+  apply idweq.
+Defined.
+
+(** The univalence axiom will assert that the map in the definition above is a weak
+    equivalence from [X=Y] to [X≃Y]. *)

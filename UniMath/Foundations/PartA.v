@@ -1081,9 +1081,6 @@ Defined.
 Definition weqpair {X Y : UU} (f : X -> Y) (is: isweq f) : X ≃ Y :=
   tpair (fun (f : X -> Y) => isweq f) f is.
 
-Definition idweq (X : UU) : X ≃ X :=
-  tpair (fun (f : X -> X) => isweq f) (fun (x : X) => x) (idisweq X).
-
 Definition isweqtoempty {X : UU} (f : X -> empty) : isweq f.
 Proof.
   intros. intro y. apply (fromempty y).

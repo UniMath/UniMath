@@ -34,9 +34,6 @@ Require Export UniMath.Foundations.PartB.
 
 (* everything related to eta correction is obsolete *)
 
-Definition eqweqmap { T1 T2 : UU } : T1 = T2 -> T1 ≃ T2.
-Proof. intro e. induction e. apply idweq. Defined.
-
 Definition sectohfiber { X : UU } (P:X -> UU): (∏ x:X, P x) -> (hfiber (fun f:_ => fun x:_ => pr1  (f x)) (fun x:X => x)) := (fun a : ∏ x:X, P x => tpair _ (fun x:_ => tpair _ x (a x)) (idpath (fun x:X => x))).
 
 Definition hfibertosec { X : UU } (P:X -> UU):
