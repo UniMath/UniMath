@@ -66,15 +66,15 @@ Section def_po.
     - use three_rec_dep; cbn; try assumption.
       apply (f · f').
     - use three_rec_dep; cbn; use three_rec_dep; cbn.
-      + exact (Empty_set_rect _).
+      + exact (empty_rect _).
       + intro. apply idpath.
       + intro. apply (! H).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
   Defined.
 
   Definition isPushout {a b c d : C} (f : C ⟦a, b⟧) (g : C ⟦a, c⟧)
@@ -160,15 +160,15 @@ Section def_po.
     - apply three_rec_dep; cbn; try assumption.
       + apply (f · h).
     - use three_rec_dep; cbn; use three_rec_dep; cbn.
-      + exact (Empty_set_rect _).
+      + exact (empty_rect _).
       + intro. apply idpath.
       + intro. apply (! H).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
   Defined.
 
   Lemma PushoutArrow_PushoutIn1 {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}  (Po : Pushout f g)

@@ -205,7 +205,7 @@ Definition θ_subset {B C:Precategory} {F : [B, C]} {X : [B, [C^op, SET]]}
 Proof.
   apply subtypeEquality.
   intros x. apply impred; intro b;apply impred; intro b'; apply impred; intro f.
-  exact (setproperty _).
+  exact (setproperty _ _ _).
 Defined.
 
 Definition θ_map_1 {B C:Precategory} {F' F:[B, C]} {X : [B, [C^op, SET]]} :

@@ -29,7 +29,7 @@ Lemma has_homsets_cat_ob_mor {C:Precategory} (X:C==>SET) :
 Proof.
   intros C X a b. simpl. apply (isofhleveltotal2 2).
   - apply homset_property.
-  - intro f. apply isasetaprop, setproperty.
+  - intro f. apply isasetaprop. use_exact setproperty.
 Qed.
 
 Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x --> y) := pr1 f.
@@ -37,7 +37,7 @@ Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x --> y) := pr1 f.
 Lemma mor_equality {C} (X:C==>SET) (x y:ob (cat_data X)) (f g:x --> y) :
       get_mor f = get_mor g -> f = g.
 Proof. intros ? ? ? ? ? ? p. apply subtypeEquality.
-       - intro r. exact (setproperty _).
+       - intro r. use_exact setproperty.
        - exact p.
 Qed.
 

@@ -287,7 +287,7 @@ split.
               now apply pathsinv0, (colimArrowEta (mk_ColimCocone D c cc H))).
   + abstract (simpl; intro k;
               apply subtypeEquality;
-                [ intro; now repeat (apply impred; intro); apply hsC
+                [ intro; now repeat (apply impred; intro); use_exact hsC
                 | destruct k as [k Hk]; simpl; apply funextsec; intro u;
                   now apply (colimArrowCommutes (mk_ColimCocone D c cc H))]).
 - intros H d cd.
@@ -295,11 +295,11 @@ split.
   + exists (invmap (weqpair _ (H d)) cd).
     abstract (intro u; now apply isColim_weq_subproof2).
   + abstract (intro t; apply subtypeEquality;
-                [ intro; now apply impred; intro; apply hsC
+                [ intro; now apply impred; intro; use_exact hsC
                 | destruct t as [t Ht]; simpl;
                   apply (invmaponpathsweq (weqpair _ (H d))); simpl;
                   apply subtypeEquality;
-                    [ intro; now repeat (apply impred; intro); apply hsC
+                    [ intro; now repeat (apply impred; intro); use_exact hsC
                     | simpl; apply pathsinv0, funextsec; intro u; rewrite Ht;
                       now apply isColim_weq_subproof2]]).
 Defined.
@@ -346,7 +346,7 @@ simple refine (tpair _ _ _).
     apply cancel_postcomposition, pathsinv0, z_iso_inv_on_left, pathsinv0, colimArrowCommutes.
 - intros p; destruct p as [f Hf].
   apply subtypeEquality.
-  + intro a; apply impred; intro u; apply hsC.
+  + intro a; apply impred; intro u; use_exact hsC.
   + simpl; apply pathsinv0, z_iso_inv_on_right; simpl.
     apply pathsinv0, colimArrowUnique; intro u.
     now rewrite <- (Hf u), assoc, colimArrowCommutes.
@@ -393,7 +393,7 @@ apply subtypeEquality.
   set (C' (c : C) f := ∏ u v (e : edge u v), @compose _ _ _ c (dmor cc e) (f v) = f u).
   rewrite (@transportf_total2 _ B C').
   apply subtypeEquality.
-  + intro; repeat (apply impred; intro); apply category_has_homsets.
+  + intro; repeat (apply impred; intro); use_exact category_has_homsets.
   + simpl; eapply pathscomp0; [apply transportf_isotoid_dep''|].
     apply funextsec; intro v.
     now rewrite idtoiso_isotoid; apply colimArrowCommutes.
@@ -483,7 +483,7 @@ simple refine (tpair _ _ _).
               now apply (colimArrowCommutes (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
             apply subtypeEquality; simpl;
-              [ intro; apply impred; intro u; apply functor_category_has_homsets
+              [ intro; apply impred; intro u; use_exact functor_category_has_homsets
               | apply (nat_trans_eq hsC); simpl; intro a;
                 apply colimArrowUnique; intro u;
                 now apply (nat_trans_eq_pointwise (t2 u))]).
@@ -589,18 +589,18 @@ apply (@iscontrweqb _ (∑ y : C ⟦ L, G M ⟧,
 - eapply (weqcomp (Y := ∑ y : C ⟦ L, G M ⟧,
     ∏ i, # F (coconeIn ccL i) · φ_adj_inv H y = coconeIn ccM i)).
   + apply (weqbandf (adjunction_hom_weq H L M)); simpl; intro f.
-    abstract (apply weqiff; try (apply impred; intro; apply hsD);
+    abstract (apply weqiff; try (apply impred; intro; use_exact hsD);
     now rewrite φ_adj_inv_after_φ_adj).
   + eapply (weqcomp (Y := ∑ y : C ⟦ L, G M ⟧,
       ∏ i, φ_adj_inv H (coconeIn ccL i · y) = coconeIn ccM i)).
     * apply weqfibtototal; simpl; intro f.
-    abstract (apply weqiff; try (apply impred; intro; apply hsD); split;
+    abstract (apply weqiff; try (apply impred; intro; use_exact hsD); split;
       [ intros HH i; rewrite φ_adj_inv_natural_precomp; apply HH
       | intros HH i; rewrite <- φ_adj_inv_natural_precomp; apply HH ]).
       (* apply weqonsecfibers; intro i. *)
       (* rewrite φ_adj_inv_natural_precomp; apply idweq. *)
     * apply weqfibtototal; simpl; intro f.
-    abstract (apply weqiff; [ | apply impred; intro; apply hsD | apply impred; intro; apply hsC ];
+    abstract (apply weqiff; [ | apply impred; intro; use_exact hsD | apply impred; intro; use_exact hsC ];
       split; intros HH i;
         [ now rewrite <- (HH i), φ_adj_after_φ_adj_inv
         | now rewrite (HH i),  φ_adj_inv_after_φ_adj ]).

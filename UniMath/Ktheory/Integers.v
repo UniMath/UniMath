@@ -42,9 +42,9 @@ Definition hz_normal_form (i:ℤ) :=
   coprod (∑ n, natnattohz n 0 = i)
          (∑ n, natnattohz 0 (S n) = i).
 
-Definition hznf_pos n := _,, inl (n,,idpath _) : total2 hz_normal_form.
+Definition hznf_pos n := _,, ii1 (n,,idpath _) : total2 hz_normal_form.
 
-Definition hznf_neg n := _,, inr (n,,idpath _) : total2 hz_normal_form.
+Definition hznf_neg n := _,, ii2 (n,,idpath _) : total2 hz_normal_form.
 
 Definition hznf_zero := hznf_pos 0.
 
@@ -52,12 +52,12 @@ Definition hznf_neg_one := hznf_neg 0.
 
 Definition hz_to_normal_form (i:ℤ) : hz_normal_form i.
 Proof. intros. destruct (hzlthorgeh i 0) as [r|s].
-       { apply inr. assert (a := hzabsvallth0 r). assert (b := hzlthtoneq _ _ r).
+       { apply ii2. assert (a := hzabsvallth0 r). assert (b := hzlthtoneq _ _ r).
          assert (c := hzabsvalneq0 b). assert (d := natneq0togth0 _ c).
          assert (f := natgthtogehsn _ _ d). assert (g := minusplusnmm _ _ f).
          rewrite natpluscomm in g. simpl in g. exists (hzabsval i - 1)%nat.
          rewrite g. apply hzinvmaponpathsminus. exact a. }
-       { apply inl. exists (hzabsval i). exact (hzabsvalgeh0 s). } Defined.
+       { apply ii1. exists (hzabsval i). exact (hzabsvalgeh0 s). } Defined.
 
 Lemma nattohz_inj {m n} : nattohz m = nattohz n -> m = n.
 Proof. exact (an_inclusion_is_injective _ isinclnattohz). Defined.
@@ -90,7 +90,7 @@ Proof. apply isweqpr1; intro i.
          assert (d := ap pr1 c); simpl in d.
          assert (e := invmaponpathsS _ _ d); clear d.
          apply subtypeEquality.
-         - intro; exact (setproperty _).
+         - intro; exact (setproperty _ _ _).
          - exact (!e). }
 Defined.
 
@@ -101,7 +101,7 @@ Proof. simple refine (weqpair _ (gradth _ _ _ _)).
        { intros [n'|n].
          { exact (natnattohz 0 (S n')). } { exact (natnattohz n 0). } }
        { intro i. destruct (hz_to_normal_form i) as [[n p]|[m q]].
-         { exact (inr n). } { exact (inl m). } }
+         { exact (ii2 n). } { exact (ii1 m). } }
        { intros [n'|n].
          { simpl. rewrite natminuseqn. reflexivity. }
          { simpl. rewrite hzabsvalnat. reflexivity. } }

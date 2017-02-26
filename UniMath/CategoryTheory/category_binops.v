@@ -121,11 +121,11 @@ Section BINOP_category.
     split; cbn. unfold compose, identity. cbn. unfold binopfuncomp, idbinopfun.
     cbn. use total2_paths_f. cbn. apply funextfun. intros x.
     apply homotinvweqweq. cbn. apply impred_isaprop. intros t.
-    apply impred_isaprop. intros t0. apply (pr2 (pr1 A)).
+    apply impred_isaprop. intros t0. use_exact (pr2 (pr1 A)).
 
     use total2_paths_f. cbn. apply funextfun. intros x.
     apply homotweqinvweq. cbn. apply impred_isaprop. intros yt.
-    apply impred_isaprop. intros t0. apply (pr2 (pr1 B)).
+    apply impred_isaprop. intros t0. use_exact (pr2 (pr1 B)).
   Defined.
 
   Lemma binop_equiv_iso (A B : BINOP) : binopiso A B -> iso A B.

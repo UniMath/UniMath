@@ -57,12 +57,12 @@ Section def_equalizers.
       + exact h.
       + exact (h · f).
     - use two_rec_dep; cbn; use two_rec_dep; cbn.
-      + exact (Empty_set_rect _).
+      + exact (empty_rect _).
       + intro e. unfold idfun. induction e.
         * apply idpath.
         * apply (! H).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
   Defined.
 
   Definition isEqualizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧) (H : h · f = h · g) :
@@ -89,7 +89,7 @@ Section def_equalizers.
          cbn. rewrite assoc. apply cancel_postcomposition.
          apply (pr2 (pr1 H2)).
     - intro t. apply subtypeEquality.
-      intros y. apply impred. intros t0. apply hs.
+      intros y. apply impred. intros t0. use_exact hs.
       induction t as [t p]. cbn.
       apply path_to_ctr.
       apply (p One).
@@ -136,12 +136,12 @@ Section def_equalizers.
       + exact h.
       + exact (h · f).
     - use two_rec_dep; cbn; use two_rec_dep; cbn.
-      + exact (Empty_set_rect _).
+      + exact (empty_rect _).
       + intros e0. unfold idfun. induction e0.
         * apply idpath.
         * apply (! H).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
   Defined.
 
   Lemma EqualizerArrowComm {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) (e : C) (h : C⟦e, a⟧)
@@ -173,7 +173,7 @@ Section def_equalizers.
     (* Commutativity *)
     - exact (EqualizerArrowComm E e h H).
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. use_exact hs.
     (* Uniqueness *)
     - intros y t. cbn in t.
       use EqualizerInUnique.
@@ -281,7 +281,7 @@ Section equalizers_coincide.
     (* Commutativity *)
     - exact (limits.equalizers.EqualizerCommutes E e' h' H').
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. use_exact hs.
     (* Uniqueness *)
     - intros y T. cbn in T.
       use (limits.equalizers.EqualizerInsEq E).
@@ -299,7 +299,7 @@ Section equalizers_coincide.
     (* Commutativity *)
     - exact (EqualizerArrowComm C E e' h' H').
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. use_exact hs.
     (* Uniqueness *)
     - intros y T. cbn in T.
       use (EqualizerInUnique C E).

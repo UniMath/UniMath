@@ -77,8 +77,8 @@ Lemma isaprop_folds_ax_T (C:folds_id_T) (hs: has_folds_homsets C): isaprop (fold
 Proof.
  repeat (apply isapropdirprod).
  - do 5 (apply impred; intro). apply isapropishinh.
- - repeat (apply impred; intro). apply hs.
- - repeat (apply impred; intro). apply hs.
+ - repeat (apply impred; intro). use_exact hs.
+ - repeat (apply impred; intro). use_exact hs.
 Qed.
 
 

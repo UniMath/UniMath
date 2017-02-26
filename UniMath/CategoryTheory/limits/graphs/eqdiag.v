@@ -289,7 +289,7 @@ Proof.
   - intro y.
     apply impred_isaprop.
     intro t.
-    apply homset_property.
+    use_exact homset_property.
   - intros y hy.
     apply (path_to_ctr _ _ islimcone).
     intro v; specialize (hy v).
@@ -343,7 +343,7 @@ Proof.
   - intro y.
     apply impred_isaprop.
     intro t.
-    apply homset_property.
+    use_exact homset_property.
   - intros y hy.
     apply (path_to_ctr _ _ islimcone).
     intro v; specialize (hy v).

@@ -400,7 +400,7 @@ Proof.
 Defined.
 
 Local Ltac unwrap a := apply (squash_to_prop a);
-    [ use_exact isaset_total2_hSet | simpl; clear a; intro a; simpl in a ].
+    [ exact (isaset_total2_hSet _ _ _ _) | simpl; clear a; intro a; simpl in a ].
 
 Lemma lex_isantisymm (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∏ x, hrel (Y x)) :
   isantisymm R -> (∏ x, isantisymm(S x)) -> isantisymm (lexicographicOrder X Y R S).

@@ -676,7 +676,7 @@ Proof.
     induction n as [n Hn].
     exact Hx.
   - intros y Hy.
-    now apply (Hy (0%nat,,paths_refl _)).
+    now apply (Hy (0%nat,,idpath _)).
 Qed.
 Lemma TopologyGenerated_smallest {X : UU} :
   ∏ (O : (X → hProp) → hProp) (T : isTopologicalSet X),

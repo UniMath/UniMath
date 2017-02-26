@@ -44,7 +44,7 @@ Section def_underprecategories.
     - apply hs.
     - intros x.
       apply hlevelntosn.
-      apply hs.
+      use_exact hs.
   Qed.
 
   Definition Under_mor_equality (X Y : Under_ob) (f f' : Under_mor X Y) : pr1 f = pr1 f' -> f = f'.
@@ -52,7 +52,7 @@ Section def_underprecategories.
     intro H.
     apply subtypeEquality.
     intro x.
-    apply hs.
+    use_exact hs.
     exact H.
   Qed.
 

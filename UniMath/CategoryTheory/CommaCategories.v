@@ -49,7 +49,7 @@ Proof.
   - apply hsM.
   - intro.
     apply hlevelntosn.
-    apply hsC.
+    use_exact hsC.
 Qed.
 
 Definition cComma_mor_eq a b (f f' : ccomma_morphism a b)
@@ -57,7 +57,7 @@ Definition cComma_mor_eq a b (f f' : ccomma_morphism a b)
 Proof.
   intro H.
   apply subtypeEquality.
-  intro. apply hsC.
+  intro. use_exact hsC.
   exact H.
 Qed.
 

@@ -27,8 +27,8 @@ Proof. intros ? ? ? e. destruct e. apply mt_refl. Qed.
 
 Lemma tree_deceq (T:Tree) : isdeceq T.
 Proof. intros. intros t u. induction (isdeceqnat (mt_dist T t u) 0) as [a|b].
-       { apply inl. apply mt_anti. assumption. }
-       { apply inr. intro e. apply b. destruct e. apply mt_refl. } Qed.
+       { apply ii1. apply mt_anti. assumption. }
+       { apply ii2. intro e. apply b. destruct e. apply mt_refl. } Qed.
 
 Corollary tree_isaset (T:Tree) : isaset T.
 Proof. intros. apply isasetifdeceq. apply tree_deceq. Qed.
@@ -45,7 +45,7 @@ Proof. intros ? ? ? ? ?.
          induction n as [|n IH].
          { intros. assert (k:x=z).
            { apply mt_anti. assumption. } destruct k. assumption. }
-         { intros.
+         { intros z H.
            assert (ne : x != z).
            { intros s. exact (negpaths0sx _ (! mt_path_refl _ _ _ s @ H)). }
            refine (pn z ne _).

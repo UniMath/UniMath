@@ -160,7 +160,7 @@ Proof.
        * intro H. unfold precategory_morphisms in f.
          set (H2 := pr2 (Hid a)). simpl in H2.
          apply (path_to_ctr). assumption.
-       * apply hs. (* apply (pr2 (precategory_morphisms _ _ )). *)
+       * use_exact hs. (* apply (pr2 (precategory_morphisms _ _ )). *)
        * apply (pr2 (Cid a f)).
    + apply funextsec; intro a.
      apply funextsec; intro b.
@@ -176,7 +176,7 @@ Proof.
          apply (pr2 (pr1 (Hcomp a b c f g))).
        * simpl. intro H. apply pathsinv0. apply path_to_ctr.
            assumption.
-       * simpl in *. apply hs. (* apply (pr2 (precategory_morphisms _ _ )). *)
+       * simpl in *. use_exact hs. (* apply (pr2 (precategory_morphisms _ _ )). *)
        * apply (pr2 (Ccomp _ _ _ _ _ _ )).
 Qed.
 

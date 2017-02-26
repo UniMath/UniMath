@@ -64,7 +64,7 @@ Proof.
               [ apply (pr1 T) | apply (pr2 T)]).
   - intros. abstract (intros;
               apply subtypeEquality;
-              [ intro; apply impred; intro; apply hsC
+              [ intro; apply impred; intro; use_exact hsC
               | apply path_to_ctr; split; [ apply (pr2 t true) | apply (pr2 t false)] ]).
 Defined.
 

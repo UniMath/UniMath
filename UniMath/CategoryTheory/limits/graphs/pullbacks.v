@@ -60,15 +60,15 @@ Proof.
   - use three_rec_dep; cbn; try assumption.
     apply (f' · f).
   - use three_rec_dep; cbn; use three_rec_dep; cbn.
-    + exact (Empty_set_rect _ ).
+    + exact (empty_rect _ ).
     + intro. apply idpath.
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
+    + exact (empty_rect _ ).
+    + exact (empty_rect _ ).
+    + exact (empty_rect _ ).
+    + exact (empty_rect _ ).
+    + exact (empty_rect _ ).
     + intro; apply (!H).
-    + exact (Empty_set_rect _ ).
+    + exact (empty_rect _ ).
 Defined.
 
 Definition isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
@@ -191,15 +191,15 @@ Proof.
   - use three_rec_dep; cbn; try assumption.
     apply (h · f).
   - use three_rec_dep; cbn; use three_rec_dep; cbn.
-    + exact (Empty_set_rect _ ).
+    + exact (empty_rect _ ).
     + intro. apply idpath.
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
+    + exact (empty_rect _ ).
+    + exact (empty_rect _ ).
+    + exact (empty_rect _ ).
+    + exact (empty_rect _ ).
+    + exact (empty_rect _ ).
     + intro; apply (!H).
-    + exact (Empty_set_rect _ ).
+    + exact (empty_rect _ ).
 Defined.
 
 Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}

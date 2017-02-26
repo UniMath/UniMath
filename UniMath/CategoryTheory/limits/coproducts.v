@@ -318,7 +318,7 @@ simple refine (mk_CoproductCocone _ _ _ _ _ _).
                 apply (CoproductInCommutes I D _ (HD (λ j, (F j) c)))).
     * abstract (
         intro t; apply subtypeEquality; simpl;
-          [intro; apply impred; intro; apply (isaset_nat_trans hsD)|];
+          [intro; apply impred; intro; exact (isaset_nat_trans hsD _ _ _ _)|];
         apply (nat_trans_eq hsD); intro c;
         apply CoproductArrowUnique; intro i;
         apply (nat_trans_eq_pointwise (pr2 t i))).
@@ -369,7 +369,7 @@ use mk_CoproductCocone.
     * simpl; intro i; apply Fic.
     * abstract (simpl; intros u v e; induction e).
   - abstract (simpl; intro i; apply (colimArrowCommutes HF)).
-  - abstract (intros y; apply impred; intro i; apply hsC).
+  - abstract (intros y; apply impred; intro i; use_exact hsC).
   - abstract (intros f Hf; apply colimArrowUnique; simpl in *; intros i; apply Hf).
 Defined.
 

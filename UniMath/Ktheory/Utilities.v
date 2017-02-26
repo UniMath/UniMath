@@ -26,11 +26,11 @@ Proof. intros. induction p. apply pathsinv0. apply pathscomp0rid. Defined.
 
 Lemma isaset_NullHomotopyTo {X Y} (i:isaset Y) (f:X->Y) : isaset (NullHomotopyTo f).
 Proof. intros. apply (isofhleveltotal2 2). { apply i. }
-       intros y. apply impred; intros x. apply isasetaprop. apply i. Defined.
+       intros y. apply impred; intros x. refine (isasetaprop _). exact (i _ _). Defined.
 
 Lemma isaprop_nullHomotopyTo {X Y} (is:isaset Y) (f:X->Y) (y:Y) :
   isaprop (nullHomotopyTo f y).
-Proof. intros ? ? ? ? ?. apply impred; intros x. apply is. Defined.
+Proof. intros ? ? ? ? ?. apply impred; intros x. use_exact is. Defined.
 
 Lemma isaprop_NullHomotopyTo_0 {X} {Y} (is:isaset Y) (f:X->Y) :
   X -> isaprop (NullHomotopyTo f).
@@ -123,7 +123,7 @@ Proof.
   intros ? ? ? ? ? h.
   set ( Q := fun y => g y = g' y ).
   unfold homot.
-  apply (@factor_dep_through_squash X). intros y. apply ip.
+  apply (@factor_dep_through_squash X). intros y. use_exact ip.
   intro x. apply h.
 Qed.
 
@@ -416,7 +416,7 @@ Proof. intros ? f. apply isaprop_wma_inhab. intro x. apply isapropifcontr.
        apply (f x). Qed.
 
 Goal ∏ (X:hSet) (x y:X) (p q:x = y), p = q.
-Proof. intros. exact (setproperty _). Defined.
+Proof. intros. apply iscontrpr1. apply setproperty. Defined.
 
 Goal ∏ (X:Type) (x y:X) (p q:x = y), isaset X -> p = q.
 Proof. intros ? ? ? ? ? is. apply is. Defined.

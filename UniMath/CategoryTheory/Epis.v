@@ -38,7 +38,7 @@ Section def_epi.
     apply impred_isaprop; intros g.
     apply impred_isaprop; intros h.
     apply impred_isaprop; intros H.
-    apply hs.
+    use_exact hs.
   Qed.
 
   (** Definition and construction of Epi. *)

@@ -102,10 +102,15 @@ Delimit Scope set with set.
 
 Definition setproperty (X : hSet) := pr2 X.
 
+Definition set_uip (X:hSet) {x y:X} (p q:x=y) : p=q.
+Proof.
+  intros. apply uip. apply setproperty.
+Defined.
+
 Definition setdirprod (X Y : hSet) : hSet.
 Proof.
   intros. exists (X × Y).
-  apply (isofhleveldirprod 2); use_exact setproperty.
+  apply (isofhleveldirprod 2); apply setproperty.
 Defined.
 
 Definition setcoprod (X Y : hSet) : hSet.

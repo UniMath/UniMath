@@ -798,7 +798,7 @@ Section def_roofs.
   Local Lemma loc_id_left {x y : loc_precategory_data} (f : loc_precategory_data⟦x, y⟧) :
     identity x · f = f.
   Proof.
-    use (squash_to_prop (pr1 (RoofEqclassIs f))). apply isasetRoofEqclass. intros f'.
+    use (squash_to_prop (pr1 (RoofEqclassIs f))). exact (isasetRoofEqclass _ _ _ _). intros f'.
     induction f' as [f1 f2].
     use RoofEqclassEq.
     - intros R HR.
@@ -838,7 +838,7 @@ Section def_roofs.
   Local Lemma loc_id_right {x y : loc_precategory_data} (f : loc_precategory_data⟦x, y⟧) :
     f · identity y = f.
   Proof.
-    use (squash_to_prop (pr1 (RoofEqclassIs f))). apply isasetRoofEqclass. intros f'.
+    use (squash_to_prop (pr1 (RoofEqclassIs f))). exact (isasetRoofEqclass _ _ _ _). intros f'.
     induction f' as [f1 f2].
     use RoofEqclassEq.
     - intros R HR.
@@ -1043,9 +1043,9 @@ Section def_roofs.
         (f : loc_precategory_data ⟦a, b⟧) (g : loc_precategory_data ⟦b, c⟧)
         (h : loc_precategory_data ⟦c, d⟧) : f · (g · h) = f · g · h.
   Proof.
-    use (squash_to_prop (pr1 (RoofEqclassIs f))). apply isasetRoofEqclass. intros f'.
-    use (squash_to_prop (pr1 (RoofEqclassIs g))). apply isasetRoofEqclass. intros g'.
-    use (squash_to_prop (pr1 (RoofEqclassIs h))). apply isasetRoofEqclass. intros h'.
+    use (squash_to_prop (pr1 (RoofEqclassIs f))). use_exact isasetRoofEqclass. intros f'.
+    use (squash_to_prop (pr1 (RoofEqclassIs g))). use_exact isasetRoofEqclass. intros g'.
+    use (squash_to_prop (pr1 (RoofEqclassIs h))). use_exact isasetRoofEqclass. intros h'.
     induction f' as [f1 f2]. induction g' as [g1 g2]. induction h' as [h1 h2].
     use RoofEqclassEq.
     - intros R HR.
@@ -1314,7 +1314,7 @@ Section def_roofs.
     iscomprelfun (eqrelpair _ (RoofEqrel x y)) (MorMap D hsD F x y H).
   Proof.
     intros R1 R2 T'.
-    use (squash_to_prop T'). apply hsD. intros T. clear T'.
+    use (squash_to_prop T'). use_exact hsD. intros T. clear T'.
     set (iso1 := isopair _ (H _ _ _ (RoofMor1Is R1))).
     set (iso2 := isopair _ (H _ _ _ (RoofMor1Is R2))).
     set (iso3 := isopair _ (MorMap_top_mor1_is_iso D hsD F x y H R1 R2 T)).
@@ -1361,7 +1361,7 @@ Section def_roofs.
     - intros y0.
       apply impred_isaprop. intros t.
       apply impred_isaprop. intros t0.
-      apply hsD.
+      use_exact hsD.
     - intros y0 T. cbn beta in T. exact (T R1 R2).
   Qed.
 
@@ -1586,9 +1586,9 @@ Section def_roofs.
       apply tmp.
       apply RoofEqclassFromRoofIn.
     - intros x y z R1 R2. cbn.
-      use (squash_to_prop (pr1 (RoofEqclassIs R1))). apply hsD. intros R1'.
+      use (squash_to_prop (pr1 (RoofEqclassIs R1))). use_exact hsD. intros R1'.
       induction R1' as [R1' R1''].
-      use (squash_to_prop (pr1 (RoofEqclassIs R2))). apply hsD. intros R2'.
+      use (squash_to_prop (pr1 (RoofEqclassIs R2))). use_exact hsD. intros R2'.
       induction R2' as [R2' R2''].
       rewrite (MorMap_iscontr_eq D hsD F H' x y R1 R1' R1'').
       rewrite (MorMap_iscontr_eq D hsD F H' y z R2 R2' R2'').
@@ -1651,7 +1651,7 @@ Section def_roofs.
       use funextsec. intros b.
       use funextsec. intros f.
       induction T. cbn. unfold idfun.
-      use (squash_to_prop (pr1 (RoofEqclassIs f))). apply hsD. intros f'. induction f' as [f1 f2].
+      use (squash_to_prop (pr1 (RoofEqclassIs f))). use_exact hsD. intros f'. induction f' as [f1 f2].
       rewrite (RoofEqclassEqRoof f f1 f2).
       use (pathscomp0 _ (! (pr2 (pr1 (MorMap_iscontr
                                         D hsD (functor_composite FunctorToLocalization y)
@@ -1691,7 +1691,7 @@ Section def_roofs.
     (* Commutativity of the functor *)
     - exact (LocalizationUniversalFunctorComm D hsD F H').
     (* Uniqueness of commutativity *)
-    - intros y. apply (functor_isaset _ _ hsD hssD).
+    - intros y. exact (functor_isaset _ _ hsD hssD _ _).
     (* Uniqueness of the functor *)
     - exact (LocalizationUniversalFunctorUnique D hsD F H').
   Defined.

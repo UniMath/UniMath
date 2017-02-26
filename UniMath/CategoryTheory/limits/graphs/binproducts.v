@@ -53,7 +53,7 @@ unshelve refine (tpair _ _ _).
   set (T := pr2 (pr1 H')); simpl in T.
   abstract (intro u; induction u; simpl; [exact (pr1 T)|exact (pr2 T)]).
 - abstract (intros; apply subtypeEquality;
-              [intro; apply impred;intro; apply hsC|]; simpl;
+              [intro; apply impred;intro; use_exact hsC|]; simpl;
             apply path_to_ctr; split; [ apply (pr2 t true) | apply (pr2 t false) ]).
 Defined.
 

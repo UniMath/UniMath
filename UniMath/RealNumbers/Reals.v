@@ -190,7 +190,7 @@ Proof.
     exact H.
   - generalize (invmap (weqpathsinsetquot _ _ _) H) ; clear H.
     apply hinhuniv'.
-    apply (pr2 (pr1 (pr1 (pr1 NonnegativeReals)))).
+    use_exact (pr2 (pr1 (pr1 (pr1 NonnegativeReals)))).
     intros (c,p); generalize p; clear p.
     apply plusNonnegativeReals_eqcompat_l.
 Qed.
