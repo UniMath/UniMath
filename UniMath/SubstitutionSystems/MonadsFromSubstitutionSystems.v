@@ -682,8 +682,7 @@ Lemma isaset_Monad_Mor (T T' : Monad C) : isaset (Monad_Mor T T').
 Proof.
   intros β β'.
   apply (isofhlevelweqb _ (Monad_Mor_equiv hs  _ _)).
-  apply isaset_nat_trans.
-  apply hs.
+  exact (isaset_nat_trans hs _ _ _ _).
 Qed.
 
 Definition hssMor_Monad_Mor_eq {T T' : hss CP H} (β β' : hssMor T T')

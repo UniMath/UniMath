@@ -247,7 +247,7 @@ Reserved Notation "q ⟳ x"  (at level 50, left associativity).
 Reserved Notation "p ◽ b"  (at level 40).
 (* to input: type "\sqw" or "\sq" with Agda input method *)
 
-Reserved Notation "F ⟹ X⟹"  (at level 50).
+Reserved Notation "F ⟹ X"  (at level 50).
 (* to input: type "\r" and select from the menu, row 2, spot 6, with Agda input method *)
 
 Reserved Notation "xe ⟲⟲ p"  (at level 50).

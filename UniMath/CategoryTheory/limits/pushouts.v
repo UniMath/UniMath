@@ -480,8 +480,8 @@ Section pushout_up_to_iso.
       + exact (PushoutArrow_PushoutIn1 Po e h k (isPushout_up_to_iso_eq f g h k Hk i)).
       + exact (PushoutArrow_PushoutIn2 Po e h k (isPushout_up_to_iso_eq f g h k Hk i)).
     - intros y. apply isapropdirprod.
-      + apply hs.
-      + apply hs.
+      + exact (hs _ _ _ _).
+      + exact (hs _ _ _ _).
     - intros y X. cbn in X.
       use PushoutArrowUnique.
       + exact (dirprod_pr1 X).
@@ -535,7 +535,7 @@ Section EpiPushoutId.
     induction hp.
     apply (unique_exists p1).
     - split; apply id_left.
-    - intros y. apply isapropdirprod; apply homset_property.
+    - intros y. apply isapropdirprod; exact (homset_property _ _ _ _ _).
     - intros y [h1 _].
       now rewrite id_left in h1.
   Qed.

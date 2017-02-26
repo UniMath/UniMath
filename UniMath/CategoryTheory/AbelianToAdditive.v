@@ -155,7 +155,7 @@ Section abelian_is_additive.
     (* commutativity *)
     - exact (KernelOfPr1_isKernel_comm X BinProd w h H').
     (* equality of equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. use_exact hs.
     (* uniqueness *)
     - exact (KernelOfPr1_isKernel_unique X BinProd w h H').
   Qed.
@@ -211,7 +211,7 @@ Section abelian_is_additive.
     (* Commutativity *)
     - exact (KernelOfPr2_isKernel_comm X BinProd w h H').
     (* Equality of equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. use_exact hs.
     (* Uniqueness *)
     - intros y H. exact (KernelOfPr2_isKernel_unique X BinProd w h H' y H).
   Qed.
@@ -278,7 +278,7 @@ Section abelian_is_additive.
         rewrite (BinProductPr1Commutes A _ _ BinProd _ (identity X) (identity X)).
         rewrite id_right. apply idpath.
       (* Equality on equalities of morphisms *)
-      + intros y. apply hs.
+      + intros y. use_exact hs.
       (* Uniqueness *)
       + intros y H. apply ArrowsToZero.
     (* isEpi *)
@@ -307,7 +307,7 @@ Section abelian_is_additive.
         apply CokernelArrowisEpi in com1. rewrite <- com1.
         apply ZeroArrow_comp_left.
       (* Equality on equalities of morphisms. *)
-      + intros y. apply hs.
+      + intros y. use_exact hs.
       (* Uniqueness *)
       + intros y H. apply ArrowsFromZero.
   Qed.

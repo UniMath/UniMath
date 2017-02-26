@@ -542,8 +542,7 @@ Proof.
   - apply hssMor_eq1.
   - apply subtypeInjectivity.
     intro.
-    apply isaset_nat_trans.
-    apply hs.
+    exact (isaset_nat_trans hs _ _ _ _).
 Defined.
 
 End hssMor_equality.
@@ -552,8 +551,7 @@ Lemma isaset_hssMor (T T' : hss) : isaset (hssMor T T').
 Proof.
   intros β β'.
   apply (isofhlevelweqb _ (hssMor_eq _ _ β β')).
-  apply isaset_nat_trans.
-  apply hs.
+  exact (isaset_nat_trans hs _ _ _ _).
 Qed.
 
 (** ** The precategory of hss *)

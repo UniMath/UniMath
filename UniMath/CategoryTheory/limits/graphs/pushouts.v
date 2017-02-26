@@ -109,7 +109,7 @@ Section def_po.
       * use (pathscomp0 _ (pr2 (pr2 (pr1 H2)))). apply idpath.
     + intro t.
        apply subtypeEquality.
-       * intro; apply impred; intro. apply hs.
+       * intro; apply impred; intro. apply (hs _ _ _ _).
        * destruct t as [t p0]; simpl.
          apply path_to_ctr.
          { split.
@@ -211,7 +211,7 @@ Section def_po.
         * apply PushoutArrow_PushoutIn2.
     - intro t.
       apply subtypeEquality.
-      + intro. apply isapropdirprod; apply hs.
+      + intro. apply isapropdirprod; apply (hs _ _ _ _).
       + destruct t as [t p]. simpl.
         refine (PushoutArrowUnique _ _ P _ _ _ _ _ _ _ ).
         * apply e.
@@ -376,7 +376,7 @@ Section pushout_coincide.
 
     apply (limits.pushouts.PushoutArrow_PushoutIn2 XR).
 
-    intros y. cbn beta. apply impred_isaprop. intros t. apply hs.
+    intros y. cbn beta. apply impred_isaprop. intros t. use_exact hs.
 
     intros y T. cbn in T.
     use limits.pushouts.PushoutArrowUnique.
@@ -397,7 +397,7 @@ Section pushout_coincide.
     split.
     exact (PushoutArrow_PushoutIn1 C XR R k h HH).
     exact (PushoutArrow_PushoutIn2 C XR R k h HH).
-    intros y. cbn beta. apply isapropdirprod; apply hs.
+    intros y. cbn beta. apply isapropdirprod; use_exact hs.
 
     intros y T. cbn in T.
     use (PushoutArrowUnique C _ _ XR).

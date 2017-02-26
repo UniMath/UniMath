@@ -436,7 +436,7 @@ Proof.
   apply subtypeEquality.
   - intro.
     unfold bracket_property.
-    apply isaset_nat_trans. exact hs.
+    exact (isaset_nat_trans hs _ _ _ _).
   - simpl.
     apply parts_from_whole in h'_eq.
 (*    destruct h'_eq as [h'_eq1 h'_eq2]. *)

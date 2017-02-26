@@ -117,12 +117,12 @@ Proof.
 repeat split; simpl.
 * intros a b f.
   case f; clear f; intros h hP.
-  apply subtypePairEquality; [ intro; apply hsC | apply id_left ].
+  apply subtypePairEquality; [ intro; exact (hsC _ _ _ _) | apply id_left ].
 * intros a b f.
   case f; clear f; intros h hP.
-  apply subtypePairEquality; [ intro; apply hsC | apply id_right ].
+  apply subtypePairEquality; [ intro; exact (hsC _ _ _ _) | apply id_right ].
 * intros a b c d f g h.
-  apply subtypePairEquality; [ intro; apply hsC | apply assoc ].
+  apply subtypePairEquality; [ intro; exact (hsC _ _ _ _) | apply assoc ].
 Qed.
 
 Definition slice_precat (hsC : has_homsets C) : precategory :=
@@ -141,13 +141,13 @@ Lemma has_homsets_slice_precat : has_homsets (C / x).
 Proof.
 intros a b.
 case a; clear a; intros a f; case b; clear b; intros b g; simpl.
-apply (isofhleveltotal2 2); [ apply hsC | intro h].
-now apply isasetaprop; apply hsC.
+apply (isofhleveltotal2 2); [ exact (hsC _ _) | intro h].
+now apply isasetaprop; exact (hsC _ _ _ _).
 Qed.
 
 Lemma eq_mor_slicecat (af bg : C / x) (f g : C/x⟦af,bg⟧) : pr1 f = pr1 g -> f = g.
 Proof.
-now intro heq; apply (total2_paths_f heq); apply hsC.
+ intro heq; apply (total2_paths_f heq); apply hsC.
 Qed.
 
 Lemma eq_iso_slicecat (af bg : C / x) (f g : iso af bg) : pr1 f = pr1 g -> f = g.
@@ -167,7 +167,7 @@ assert (pinv : hinv · pr2 af = pr2 bg).
 { now rewrite <- id_left, <- h2, <- assoc, (!(pr2 h)). }
 apply is_iso_from_is_z_iso.
 exists (hinv,,!pinv).
-now split; (apply subtypePairEquality; [ intro; apply hsC |]).
+now split; (apply subtypePairEquality; [ intro; exact (hsC _ _ _ _) |]).
 Qed.
 
 (** An iso in the slice category gives an iso in the base category *)
@@ -221,24 +221,27 @@ set (a := pr1 af); set (f := pr2 af); set (b := pr1 bg); set (g := pr2 bg).
 
 assert (weq1 : weq (af = bg)
                    (total2 (fun (p : a = b) => transportf _ p (pr2 af) = g))).
-  apply (total2_paths_equiv _ af bg).
+{  apply (total2_paths_equiv _ af bg). }
 
 assert (weq2 : weq (total2 (fun (p : a = b) => transportf _ p (pr2 af) = g))
                    (total2 (fun (p : a = b) => idtoiso (! p) · f = g))).
-  apply weqfibtototal; intro p.
+{  apply weqfibtototal; intro p.
   rewrite idtoiso_precompose.
-  apply idweq.
+  apply idweq. }
 
 assert (weq3 : weq (total2 (fun (p : a = b) => idtoiso (! p) · f = g))
                    (total2 (fun h : iso a b => f = h · g))).
-  apply (weqbandf (weqpair _ ((pr1 is_catC) a b))); intro p.
+{  apply (weqbandf (weqpair _ ((pr1 is_catC) a b))); intro p.
   rewrite idtoiso_inv; simpl.
   apply weqimplimpl; simpl; try apply (pr2 is_catC); intro Hp.
-    rewrite <- Hp, assoc, iso_inv_after_iso, id_left; apply idpath.
-  rewrite Hp, assoc, iso_after_iso_inv, id_left; apply idpath.
+  { rewrite <- Hp, assoc, iso_inv_after_iso, id_left; apply idpath. }
+  { rewrite Hp, assoc, iso_after_iso_inv, id_left; apply idpath. }
+  { intros k. exact (pr2 is_catC _ _ _ _ _ _). }
+  { intros k. exact (pr2 is_catC _ _ _ _ _ _). }
+}
 
 assert (weq4 : weq (total2 (fun h : iso a b => f = h · g)) (iso af bg)).
-  apply invweq; apply iso_weq.
+{  apply invweq; apply iso_weq. }
 
 apply (weqcomp weq1 (weqcomp weq2 (weqcomp weq3 weq4))).
 Defined.
@@ -311,7 +314,7 @@ apply funextsec; intros [h hh].
 rewrite transport_of_functor_map_is_pointwise; simpl in *.
 unfold slicecat_mor.
 rewrite transportf_total2.
-apply subtypePairEquality; [intro; apply hsC | ].
+apply subtypePairEquality; [intro; exact (hsC _ _ _ _) | ].
 rewrite transportf_total2; simpl.
 unfold slicecat_functor_identity_ob.
 rewrite toforallpaths_funextsec; simpl.
@@ -342,7 +345,7 @@ apply funextsec; intros [h hh].
 rewrite transport_of_functor_map_is_pointwise; simpl in *.
 unfold slicecat_mor.
 rewrite transportf_total2.
-apply subtypePairEquality; [intro; apply hsC | ].
+apply subtypePairEquality; [intro; exact (hsC _ _ _ _) | ].
 rewrite transportf_total2; simpl.
 unfold slicecat_functor_comp_ob.
 rewrite toforallpaths_funextsec; simpl.
@@ -387,9 +390,9 @@ use unique_exists.
               apply pathsinv0, (colimArrowUnique CC); intros u; simpl;
               eapply pathscomp0; [apply (!(pr2 (coconeIn cc u)))|];
               apply (pr2 (coconeIn ccy u))).
-+ abstract (intros u; apply subtypeEquality; [intros xx; apply hsC|]; simpl;
++ abstract (intros u; apply subtypeEquality; [intros xx; exact (hsC _ _ _ _)|]; simpl;
             apply (colimArrowCommutes CC)).
-+ abstract (intros f; simpl; apply impred; intro u; apply has_homsets_slice_precat).
++ abstract (intros f; simpl; apply impred; intro u; exact (has_homsets_slice_precat _ _ _ _ _ _)).
 + abstract (intros f; simpl; intros Hf;
             apply eq_mor_slicecat; simpl;
             apply (colimArrowUnique CC); intro u; cbn;
@@ -424,7 +427,7 @@ use mk_ColimCocone.
                 destruct ccy as [f Hf]; simpl; apply (! pr2 (f v))).
   + abstract (intro v; apply eq_mor_slicecat; simpl;
               apply (colimArrowCommutes _ _ (mapcocone U d ccy))).
-  + abstract (simpl; intros f; apply impred; intro v; apply has_homsets_slice_precat).
+  + abstract (simpl; intros f; apply impred; intro v; exact (has_homsets_slice_precat _ _ _ _ _ _)).
   + abstract (intros f Hf; apply eq_mor_slicecat; simpl in *; apply colimArrowUnique;
               intros v; apply (maponpaths pr1 (Hf v))).
 Defined.
@@ -467,7 +470,7 @@ use mk_BinProductCone.
     * abstract (now rewrite assoc, PullbackArrow_PullbackPr1, <- (pr2 f)).
   - abstract (split; apply eq_mor_slicecat; simpl;
              [ apply PullbackArrow_PullbackPr1 | apply PullbackArrow_PullbackPr2 ]).
-  - abstract (now intros h; apply isapropdirprod; apply has_homsets_slice_precat).
+  - abstract (now intros h; apply isapropdirprod; exact (has_homsets_slice_precat _ _ _ _ _ _)).
   - abstract (intros h [H1 H2]; apply eq_mor_slicecat, PullbackArrowUnique;
              [ apply (maponpaths pr1 H1) | apply (maponpaths pr1 H2) ]).
 Defined.
@@ -501,7 +504,7 @@ use mk_BinCoproductCocone.
       | now rewrite assoc, (BinCoproductIn2Commutes C _ _ (BC (pr1 a) (pr1 b))), (pr2 g)]).
   - abstract (split; apply eq_mor_slicecat; simpl;
              [ apply BinCoproductIn1Commutes | apply BinCoproductIn2Commutes ]).
-  - abstract (intros y; apply isapropdirprod; apply has_homsets_slice_precat).
+  - abstract (intros y; apply isapropdirprod; exact (has_homsets_slice_precat _ _ _ _ _ _)).
   - abstract (now intros y [<- <-]; apply eq_mor_slicecat, BinCoproductArrowUnique).
 Defined.
 
@@ -530,7 +533,7 @@ use mk_CoproductCocone.
               now rewrite assoc, (CoproductInCommutes _ _ _ (BC (λ i, pr1 (a i)))), (pr2 (f i))).
   - abstract (now intros i;
               apply eq_mor_slicecat, (CoproductInCommutes _ _ _ (BC (λ i0 : I, pr1 (a i0))))).
-  - abstract (now intros y; apply impred; intro i; apply has_homsets_slice_precat).
+  - abstract (now intros y; apply impred; intro i; exact (has_homsets_slice_precat _ _ _ _ _ _)).
   - abstract (simpl; intros y Hy;
               apply eq_mor_slicecat, CoproductArrowUnique;
               intros i; apply (maponpaths pr1 (Hy i))).
@@ -554,7 +557,7 @@ use mk_Initial.
   use unique_exists; simpl.
   * apply InitialArrow.
   * abstract (now apply pathsinv0, InitialArrowUnique).
-  * abstract (now intros f; apply hsC).
+  * abstract (now intros f; exact (hsC _ _ _ _)).
   * abstract (now intros f Hf; apply InitialArrowUnique).
 Defined.
 
@@ -576,7 +579,7 @@ use mk_Terminal.
   use unique_exists; simpl.
   * apply (pr2 y).
   * abstract (now rewrite id_right).
-  * abstract (now intros f; apply hsC).
+  * abstract (now intros f; exact (hsC _ _ _ _)).
   * abstract (now intros f ->; rewrite id_right).
 Defined.
 
@@ -686,7 +689,8 @@ Lemma const_prod_functor1_slicecat c (Af : C / c) :
   constprod_functor1 (BPC c) Af =
   functor_composite (base_change_functor (pr2 Af)) (slicecat_functor hsC (pr2 Af)).
 Proof.
-apply functor_eq; try apply has_homsets_slice_precat.
+  apply functor_eq.
+  { exact (has_homsets_slice_precat _ _). }
 use functor_data_eq; try trivial.
 intros x y f; apply (eq_mor_slicecat hsC); simpl.
 apply PullbackArrowUnique.

@@ -112,7 +112,7 @@ Proof.
     +  intro t.
        apply subtypeEquality.
        * simpl.
-         intro; apply impred; intro. apply hs.
+         intro; apply impred; intro. exact (hs _ _ _ _).
        * destruct t as [t p0]; simpl.
          apply path_to_ctr.
          { split.
@@ -250,7 +250,7 @@ Proof.
       * apply PullbackArrow_PullbackPr2.
   - intro t.
     apply subtypeEquality.
-    + intro. apply isapropdirprod; apply hs.
+    + intro. apply isapropdirprod; exact (hs _ _ _ _).
     + destruct t as [t p]. simpl.
       refine (PullbackArrowUnique _ _ P _ _ _ _ _ _ _ ).
       * apply e.
@@ -294,7 +294,7 @@ Proof.
   - abstract (
     intro t;
     apply subtypeEquality;
-    [intro; apply impred; intro; apply hs |];
+    [intro; apply impred; intro; exact (hs _ _ _ _) |];
     simpl; destruct t as [t HH];  simpl in *;
     apply limits.pullbacks.PullbackArrowUnique;
     [ apply (HH One) | apply (HH Three)] ).
@@ -339,7 +339,7 @@ Proof.
     + apply (PullbackArrow_PullbackPr2 XR).
   - abstract (
     intro t; apply subtypeEquality;
-    [ intro; apply isapropdirprod; apply hs |] ;
+    [ intro; apply isapropdirprod; exact (hs _ _ _ _) |] ;
     induction t as [x Hx]; simpl in * ;
     use (PullbackArrowUnique _ _ XR);
     [apply R | apply (pr1 Hx) | apply (pr2 Hx) ]
@@ -507,7 +507,7 @@ Proof.
   intro t.
   apply subtypeEquality.
   - intro a0. apply isapropdirprod;
-    apply hs.
+    exact (hs _ _ _ _).
   - simpl. destruct t as [t [Ht1 Ht2]].
     simpl in *.
     apply PullbackArrowUnique.
@@ -551,7 +551,7 @@ Proof.
   intros Pb Pb'.
   apply subtypeEquality.
   - intro; apply isofhleveltotal2.
-    + apply hs.
+    + exact (hs _ _ _ _).
     + intros; apply isaprop_isPullback.
   - apply (total2_paths_f  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))).
     rewrite transportf_dirprod, transportf_isotoid.

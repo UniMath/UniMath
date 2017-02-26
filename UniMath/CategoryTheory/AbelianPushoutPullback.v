@@ -210,8 +210,8 @@ Section pushout_monic_pullback_epi.
              rewrite assoc. rewrite assoc. apply pathsinv0.
              use CoequalizerEqAr.
         * intros y0. apply isapropdirprod.
-          -- apply hs.
-          -- apply hs.
+          -- apply (hs _ _ _).
+          -- apply (hs _ _ _).
         * intros y0 X. cbn in X.
           use (KernelArrowisMonic to_Zero K). rewrite KernelCommutes. exact (dirprod_pr1 X).
   Qed.
@@ -362,8 +362,8 @@ Section pushout_monic_pullback_epi.
              rewrite <- assoc. rewrite <- assoc. apply pathsinv0.
              use EqualizerEqAr.
         * intros y0. apply isapropdirprod.
-          -- apply hs.
-          -- apply hs.
+          -- apply (hs _ _ _).
+          -- apply (hs _ _ _).
         * intros y0 X. cbn in X.
           use (CokernelArrowisEpi to_Zero CK). rewrite CokernelCommutes. exact (dirprod_pr1 X).
   Qed.

@@ -2082,7 +2082,7 @@ Proof.
     rewrite (rngrunax2 X). rewrite (rngrunax2 X).
     apply eq.
   - apply (isapropishinh _).
-  - use_exact setproperty.
+  - apply (setproperty _ _).
 Defined.
 Opaque weqhrelhrel0abmonoidfrac.
 
