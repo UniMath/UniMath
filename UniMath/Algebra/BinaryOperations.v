@@ -161,7 +161,7 @@ Lemma isapropislinv {X : hSet} (opp : binop X) (un0 : X) (inv0 : X -> X) :
 Proof.
   intros.
   apply impred. intro x.
-  apply (setproperty X (opp (inv0 x) x) un0).
+  exact (setproperty X (opp (inv0 x) x) un0).
 Defined.
 
 Definition isrinv {X : hSet} (opp : binop X) (un0 : X) (inv0 : X -> X) : UU :=

@@ -1040,9 +1040,9 @@ Proof.
     destruct (is x x') as [ e' | ne' ].
     + apply e'.
     + destruct (nopathsfalsetotrue e).
-  - unfold isaprop. unfold isofhlevel. apply (isasetifdeceq X is x x').
+  - unfold isaprop. exact (isasetifdeceq X is x x').
   - unfold eqh. simpl. unfold isaprop. unfold isofhlevel.
-    apply (isasetbool _ true).
+    exact (isasetbool _ true).
 Defined.
 
 Definition weqneqh {X : UU} (is : isdeceq X) (x x' : X) :
@@ -1056,7 +1056,7 @@ Proof.
     + intro tf. destruct (nopathstruetofalse tf).
     + intro. exact ne.
   - apply (isapropneg).
-  - simpl. unfold isaprop. unfold isofhlevel. apply (isasetbool _ false).
+  - simpl. unfold isaprop. unfold isofhlevel. exact (isasetbool _ false).
 Defined.
 
 
@@ -2147,7 +2147,7 @@ Proof.
   assert (isp : ∏ (x x' : setquot R),
                 isaprop (paths (setquotbooleq R is x x') true  -> paths x x')).
   {
-    intros x x'. apply impred. intro. apply (isasetsetquot R x x').
+    intros x x'. apply impred. intro. exact (isasetsetquot R x x').
   }
   apply (setquotuniv2prop R (fun x x' => hProppair _ (isp x x'))). simpl.
   intros x x'.
@@ -2363,7 +2363,7 @@ Proof.
     intros x1 x2.
     apply impred. intro.
     apply impred. intro.
-    apply (isasetsetquot R x1 x2).
+    exact (isasetsetquot R x1 x2).
   }
   apply (setquotuniv2prop R (fun x1 x2 => hProppair _ (int x1 x2))).
   intros x x'. intros r r'.
@@ -2382,7 +2382,7 @@ Proof.
     intros x1 x2.
     apply impred. intro.
     apply impred. intro.
-    apply (isasetsetquot R x1 x2).
+    exact (isasetsetquot R x1 x2).
   }
   apply (setquotuniv2prop R (fun x1 x2 => hProppair _ (int x1 x2))).
   intros x x'. intros r r'.
@@ -2555,7 +2555,7 @@ Proof.
     {
       intro p.
       apply impred. intro.
-      apply (int0 _ _).
+      exact (int0 _ _).
     }
     apply (setquotunivprop _ (fun a =>  hProppair _ (int a))).
     simpl. intros x isp. apply (invmaponpathsincl _ (isinclpr1carrier P) _ _).
