@@ -232,6 +232,14 @@ Proof.
     + apply eq.
 Defined.
 
+Lemma id_conjugation {A : precategory} {a b : A} (f : a --> b)
+      (g : b --> a)  (x : b --> b)
+  : x = identity _ -> f · g = identity _ -> f · x · g = identity _ .
+Proof.
+  intros H H'.
+  rewrite H. rewrite id_right. apply H'.
+Qed.
+
 
 (** Any equality on objects a and b induces a morphism from a to b *)
 

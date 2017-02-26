@@ -142,7 +142,7 @@ mkpair.
     eapply pathscomp0; [apply maponpaths; rewrite assoc; apply cancel_postcomposition, H1|].
     rewrite id_left.
     apply (nat_trans_eq_pointwise (iso_after_iso_inv (flip_iso a)) x).
-+ intro x.
++ intro x; cbn.
   rewrite <- (H2 x), <- assoc, <- (functor_comp G).
   apply maponpaths, maponpaths.
   rewrite assoc.
