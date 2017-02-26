@@ -102,7 +102,7 @@ mkpair.
   abstract (now induction f as [h hh]; induction p as [x hx]; simpl in *; rewrite <- hx, hh).
 - abstract (split; [intros X|intros X Y Z f g];
             apply funextsec; intro p; apply subtypeEquality; trivial;
-            intros x; apply setproperty).
+            intros x; use_exact setproperty).
 Defined.
 
 (** The left adjoint to the proj_functor *)
@@ -112,8 +112,14 @@ mkpair.
 - mkpair.
   + intro A; apply (A,,λ _, t).
   + intros A B f; apply (tpair _ f), idpath.
-- abstract (now split; [intros A|intros A B C f g];
-            apply subtypeEquality; try (intro x; apply has_homsets_HSET)).
+- abstract(
+      split;
+      [ intros A; apply subtypeEquality; [
+         intros x; exact (has_homsets_HSET _ _ _ _)
+        | reflexivity]
+      | intros A B C f g;
+        apply subtypeEquality;
+          [ intro x; exact (has_homsets_HSET _ _ _ _) | reflexivity ]]).
 Defined.
 
 (** The object (1,λ _,s) in SET/sort that can be seen as a sorted variable *)
@@ -231,7 +237,7 @@ Proof.
     * clear xs; intros x xs' IH.
       set (IH_Sig := (tpair _ (exp_functor_list xs') IH) :
                        Signature (SET / sort) hs _ has_homsets_HSET).
-      induction xs'. (* needed for typechecking the next term *)
+      induction xs' as [x' s']. (* needed for typechecking the next term *)
       exact (pr2 (BinProduct_of_Signatures _ _ _ _ _ (Sig_exp_functor x) IH_Sig)).
 Defined.
 
@@ -288,7 +294,7 @@ use mk_nat_trans.
 - intros x y f.
   apply funextsec; intro w.
   apply subtypeEquality; trivial.
-  intro z; exact (setproperty _).
+  intro z; exact (setproperty _ _ _).
 Defined.
 
 Local Lemma is_iso_nat_trans_proj_functor (s : sort) :
@@ -300,14 +306,14 @@ use is_iso_qinv.
     exists (tt,,pr1 xy).
     apply (!pr2 xy).
   - abstract (intros X Y f; apply funextsec; intros x;
-              apply subtypeEquality; trivial; intros w; apply setproperty).
+              apply subtypeEquality; trivial; intros w; use_exact setproperty).
 + abstract (split;
-  [ apply subtypeEquality; [intros x; apply isaprop_is_nat_trans, has_homsets_HSET|];
+  [ apply subtypeEquality; [intros x; apply isaprop_is_nat_trans; use_exact has_homsets_HSET|];
     apply funextsec; intro x; apply funextsec; intro y; cbn;
     now rewrite pathsinv0inv0; induction y as [y' y3]; induction y' as [y'' y2]; induction y''
   | apply (nat_trans_eq has_homsets_HSET); simpl; intros x;
     apply funextsec; intros z; simpl in *;
-    now apply subtypeEquality; trivial; intros w; apply setproperty]).
+    now apply subtypeEquality; trivial; intros w; use_exact setproperty]).
 Defined.
 
 Local Lemma is_left_adjoint_proj_functor' (s : sort) : is_left_adjoint (proj_functor' s).
@@ -338,7 +344,7 @@ use mk_are_adjoints.
 + use mk_nat_trans.
   - intros X; simpl; intros x; apply (x,,idpath s).
   - intros X Y f; simpl; apply funextsec; intro x; cbn.
-    now apply subtypeEquality; trivial; intros y; exact (setproperty _).
+    now apply subtypeEquality; trivial; intros y; exact (setproperty _ _ _).
 + use mk_nat_trans.
   - intros X; simpl in *.
     mkpair; simpl.
@@ -348,7 +354,7 @@ use mk_are_adjoints.
 + split.
   - now intros X; apply (eq_mor_slicecat has_homsets_HSET).
   - intros X; apply funextsec; intro x.
-    now apply subtypeEquality; trivial; intros x'; exact (setproperty _).
+    now apply subtypeEquality; trivial; intros x'; exact (setproperty _ _ _).
 Defined.
 
 Local Lemma is_omega_cocont_exp_functor (a : list sort × sort)
