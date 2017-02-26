@@ -294,7 +294,7 @@ Proof.
   intro t.
   apply subtypeEquality.
   - intro a0. apply isapropdirprod;
-    apply hsC.
+    use_exact hsC.
   - simpl. destruct t as [t [Ht1 Ht2]].
     simpl in *.
     apply PullbackArrowUnique.
@@ -335,7 +335,7 @@ Proof.
   intros Pb Pb'.
   apply subtypeEquality.
   - intro; apply isofhleveltotal2.
-    + apply hsC.
+    + use_exact hsC.
     + intros; apply isaprop_isPullback.
   - apply (total2_paths_f  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))).
     rewrite transportf_dirprod, transportf_isotoid.
@@ -442,7 +442,7 @@ Section pb_criteria.
     exact (BinProductPr2Commutes C _ _ BinProd _ h k).
 
     (* Equality on equalities of morphisms. *)
-    intros y. apply isapropdirprod. apply hs. apply hs.
+    intros y. apply isapropdirprod. use_exact hs. use_exact hs.
 
     (* Uniqueness *)
     intros y H. induction H as [t p]. apply EqualizerInsEq. apply BinProductArrowsEq.
@@ -518,7 +518,7 @@ Proof.
       * apply (PullbackArrow_PullbackPr1 Pb).
   - cbn.
     intro t. apply subtypeEquality.
-    intros ? . apply isapropdirprod; apply hsC.
+    intros ? . apply isapropdirprod; use_exact hsC.
     destruct t as [t Ht].
     cbn; apply PullbackArrowUnique.
     + apply (pr2 Ht).
@@ -572,9 +572,9 @@ Definition weq_section_from_diagonal (isPb : isPullback _ _ _ _ H)
 Proof.
   exists (section_from_diagonal isPb).
   apply (gradth _ (diagonal_from_section isPb )).
-  - abstract (intro x; apply subtypeEquality; [intro; apply hsC  |];
+  - abstract (intro x; apply subtypeEquality; [intro; use_exact hsC  |];
               apply (PullbackArrow_PullbackPr2 (mk_Pullback f g d h k H isPb) )).
-  - abstract (intro y; apply subtypeEquality; [intro; apply hsC |];
+  - abstract (intro y; apply subtypeEquality; [intro; use_exact hsC |];
               destruct y as [y t2];
               apply pathsinv0, PullbackArrowUnique; [
                 apply t2 |
@@ -632,7 +632,7 @@ Proof.
       ).
   - abstract (
     intro t; apply subtypeEquality;
-              [ intro; apply isapropdirprod; apply hsC
+              [ intro; apply isapropdirprod; use_exact hsC
               |
               simpl; apply PullbackArrowUnique; [
                 apply (pr1 (pr2 t))
@@ -705,7 +705,7 @@ Proof.
         }
   - cbn. intro t.
     apply subtypeEquality.
-    + intros ? . apply isapropdirprod; apply hsC.
+    + intros ? . apply isapropdirprod; use_exact hsC.
     + cbn.
       destruct t as [t Ht]; cbn in *.
       apply iso_inv_on_left.
@@ -785,7 +785,7 @@ Proof.
   - simpl.
     intro t.
     apply subtypeEquality.
-    + intro kkkk. apply isapropdirprod; apply hsC.
+    + intro kkkk. apply isapropdirprod; use_exact hsC.
     + simpl.
       refine ( invmaponpathsweq (weqpair _ (Fff _ _ )) _ _ _ ).
       simpl.
@@ -866,7 +866,7 @@ Proof.
       rewrite TX; clear TX.
       unfold umor; rewrite umorPr2. apply idpath.
   - cbn. intro t. apply subtypeEquality ; [
-        intros ?; apply isapropdirprod; apply hsD | cbn ].
+        intros ?; apply isapropdirprod; use_exact hsD | cbn ].
     destruct t as [t [Htx Hty]]; cbn.
     apply (pre_comp_with_iso_is_inj _ _ _ _ i (pr2 i)).
     rewrite assoc. rewrite iso_inv_after_iso.
@@ -970,7 +970,7 @@ use unique_exists.
 - abstract (split; apply (nat_trans_eq hsD); intro x;
            [ apply (PullbackArrow_PullbackPr1 (mk_Pullback (T x)))
            | apply (PullbackArrow_PullbackPr2 (mk_Pullback (T x))) ]).
-- abstract (intro; apply isapropdirprod; apply functor_category_has_homsets).
+- abstract (intro; apply isapropdirprod; use_exact functor_category_has_homsets).
 - abstract (intros t [h1 h2]; destruct h as [h Hh];
             apply (nat_trans_eq hsD); intro x; apply PullbackArrowUnique;
             [ apply (nat_trans_eq_pointwise h1) | apply (nat_trans_eq_pointwise h2) ]).
@@ -1214,8 +1214,8 @@ Section pullback_up_to_iso.
       + exact (PullbackArrow_PullbackPr1 Pb e h k (isPullback_up_to_iso_eq f g h k Hk i)).
       + exact (PullbackArrow_PullbackPr2 Pb e h k (isPullback_up_to_iso_eq f g h k Hk i)).
     - intros y. apply isapropdirprod.
-      + apply hs.
-      + apply hs.
+      + use_exact hs.
+      + use_exact hs.
     - intros y X. cbn in X.
       use PullbackArrowUnique.
       + exact (dirprod_pr1 X).

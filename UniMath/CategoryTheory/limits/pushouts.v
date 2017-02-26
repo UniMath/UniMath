@@ -265,7 +265,7 @@ Section def_po.
       intros Pb Pb'.
       apply subtypeEquality.
       - intro; apply isofhleveltotal2.
-        + apply hsC.
+        + use_exact hsC.
         + intros; apply isaprop_isPushout.
       - apply (total2_paths_f
                  (isotoid _ H (iso_from_Pushout_to_Pushout Pb Pb' ))).
@@ -378,7 +378,7 @@ Section po_criteria.
     exact (BinCoproductIn2Commutes C _ _ BinCoprod _ h k).
 
     (* Equality on equalities of morphisms. *)
-    intros y. apply isapropdirprod. apply hs. apply hs.
+    intros y. apply isapropdirprod. use_exact hs. use_exact hs.
 
     (* Uniqueness *)
     intros y H. induction H as [t p]. apply CoequalizerOutsEq.
@@ -440,8 +440,8 @@ Section lemmas_on_pushouts.
       + apply (PushoutArrow_PushoutIn2 Po).
       + apply (PushoutArrow_PushoutIn1 Po).
     - intros y0. apply isapropdirprod.
-      + apply hsC.
-      + apply hsC.
+      + use_exact hsC.
+      + use_exact hsC.
     - intros y0. intros X. cbn in X.
       use PushoutArrowUnique.
       + exact (dirprod_pr2 X).

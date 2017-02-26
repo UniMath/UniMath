@@ -499,8 +499,7 @@ Definition isbracketMor {T T' : hss} (β : algebra_mor _ T T') : UU :=
 Lemma isaprop_isbracketMor (T T':hss) (β : algebra_mor _ T T') : isaprop (isbracketMor β).
 Proof.
   do 2 (apply impred; intro).
-  apply isaset_nat_trans.
-  apply hs.
+  exact (isaset_nat_trans hs _ _ _ _).
 Qed.
 
 (** A morphism of hss is a pointed morphism that is compatible with both

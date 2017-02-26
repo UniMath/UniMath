@@ -290,7 +290,7 @@ use mk_BinProductCone.
   - abstract (split;
       [ apply (limArrowCommutes LC c (BinproductCone f g) true)
       | apply (limArrowCommutes LC c (BinproductCone f g) false) ]).
-  - abstract (intros h; apply isapropdirprod; apply hsC).
+  - abstract (intros h; apply isapropdirprod; use_exact hsC).
   - abstract (now intros h [H1 H2]; apply limArrowUnique; intro x; induction x).
 Defined.
 
@@ -541,8 +541,8 @@ Proof.
   - intro.
     simpl.
     apply isapropdirprod;
-    apply isaset_nat_trans;
-    apply hsD.
+    use isaset_nat_trans;
+    use_exact hsD.
   - simpl.
     apply nat_trans_eq.
     + apply hsD.
@@ -627,7 +627,9 @@ Section BinProduct_from_iso.
     (* Commutativity *)
     - exact (iso_to_isBinProductCone_comm BP i w f g).
     (* Equality of equalities of morphisms. *)
-    - intros y0. apply isapropdirprod. apply hs. apply hs.
+    - intros y0. apply isapropdirprod.
+      + use_exact hs.
+      + use_exact hs.
     (* Uniqueness *)
     - intros y0 T. exact (iso_to_isBinProductCone_unique BP i w f g y0 T).
   Defined.

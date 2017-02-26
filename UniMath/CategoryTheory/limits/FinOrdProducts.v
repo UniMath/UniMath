@@ -45,7 +45,7 @@ Section FinOrdProduct_criteria.
 
     apply (TerminalArrow c).
     intros i. apply (fromempty (weqstn0toempty i)).
-    intros y. apply impred_isaprop. intros t. apply hs.
+    intros y. apply impred_isaprop. intros t. use_exact hs.
     intros y X. apply ArrowsToTerminal.
   Defined.
 
@@ -68,7 +68,7 @@ Section FinOrdProduct_criteria.
     intros i. rewrite <- (isconnectedstn1 stn1ob i). apply id_right.
 
     (* Equality of equalities of morphisms. *)
-    intros y. apply impred_isaprop. intros t. apply hs.
+    intros y. apply impred_isaprop. intros t. use_exact hs.
 
     (* Uniqueness. *)
     intros y X. rewrite <- (X stn1ob). apply pathsinv0. apply id_right.
@@ -149,7 +149,7 @@ Section FinOrdProduct_criteria.
 
 
     (* Equality on equalities of morphisms. *)
-    intros y. apply impred_isaprop. intros t. apply hs.
+    intros y. apply impred_isaprop. intros t. use_exact hs.
 
     (* Uniqueness *)
     unfold coprod_rect. intros k X.

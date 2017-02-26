@@ -63,7 +63,7 @@ Lemma isaprop_Monad_laws (C : precategory) (hs : has_homsets C) (T : Monad_data 
    isaprop (Monad_laws T).
 Proof.
   repeat apply isapropdirprod;
-  apply impred; intro c; apply hs.
+  apply impred; intro c; use_exact hs.
 Qed.
 
 Definition Monad (C : precategory) : UU := ∑ T : Monad_data C, Monad_laws T.
@@ -100,7 +100,7 @@ Lemma isaprop_Monad_Mor_laws (C : precategory) (hs : has_homsets C)
   : isaprop (Monad_Mor_laws α).
 Proof.
   apply isapropdirprod;
-  apply impred; intro c; apply hs.
+  apply impred; intro c; use_exact hs.
 Qed.
 
 Definition Monad_Mor {C : precategory} (T T' : Monad C) : UU
