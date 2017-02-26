@@ -120,6 +120,8 @@ Definition monoidfuntobinopfun (X Y : monoid) : monoidfun X Y -> binopfun X Y :=
   fun f => binopfunpair (pr1 f) (pr1 (pr2 f)).
 Coercion monoidfuntobinopfun : monoidfun >-> binopfun.
 
+Definition monoidfununel {X Y : monoid} (f : monoidfun X Y) : f (unel X) = (unel Y) := pr2 (pr2 f).
+
 Lemma isasetmonoidfun (X Y : monoid) : isaset (monoidfun X Y).
 Proof.
   intros. apply (isasetsubset (pr1monoidfun X Y)).
@@ -1304,6 +1306,16 @@ Proof.
   apply (pr2 is).
 Defined.
 
+Lemma grinvop (Y : gr) :
+  ∏ y1 y2 : Y, grinv Y (@op Y y1 y2) = @op Y (grinv Y y2) (grinv Y y1).
+Proof.
+  intros Y y1 y2.
+  apply (grrcan Y y1).
+  rewrite (assocax Y). rewrite (grlinvax Y). rewrite (runax Y).
+  apply (grrcan Y y2).
+  rewrite (grlinvax Y). rewrite (assocax Y). rewrite (grlinvax Y).
+  apply idpath.
+Qed.
 
 (** **** Relations on groups *)
 
@@ -1543,6 +1555,7 @@ Proof.
   intros. split with (isgrquot R).
   apply (pr2 (@isabmonoidquot X R)).
 Defined.
+Global Opaque isabgrquot.
 
 Definition abgrquot {X : abgr} (R : @binopeqrel X) : abgr.
 Proof. intros. split with (setwithbinopquot R). apply isabgrquot. Defined.

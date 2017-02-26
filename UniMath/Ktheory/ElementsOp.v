@@ -8,6 +8,7 @@ Require Export UniMath.CategoryTheory.precategories
 Require Export UniMath.Ktheory.Precategories.
 
 Local Open Scope cat.
+Local Open Scope cat_deprecated.
 
 Definition cat_ob_mor {C} (X:C^op==>SET) : precategory_ob_mor.
   intros. exists (∑ c:ob C, X c : hSet).

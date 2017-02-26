@@ -35,7 +35,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
@@ -53,9 +54,6 @@ Require Import UniMath.CategoryTheory.covyoneda.
 Require Import UniMath.CategoryTheory.slicecat.
 
 Require Import UniMath.CategoryTheory.EpiFacts.
-
-
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (* This should be moved upstream. Constructs the smallest eqrel
    containing a given relation *)
@@ -211,7 +209,7 @@ use mk_cocone.
 Defined.
 
 Definition ColimHSETArrow (c : HSET) (cc : cocone D c) :
-  ∑ x : HSET ⟦ colimHSET, c ⟧, ∏ v : vertex g, injections v ;; x = coconeIn cc v.
+  ∑ x : HSET ⟦ colimHSET, c ⟧, ∏ v : vertex g, injections v · x = coconeIn cc v.
 Proof.
 exists (from_colimHSET _ cc).
 abstract (intro i; simpl; unfold injections, compose, from_colimHSET; simpl;
@@ -623,7 +621,7 @@ mkpair.
     * abstract (apply (isaset_nat_trans has_homsets_HSET)).
   + simpl; intros a b f alpha.
     apply (BinProductOfArrows _ (CP (cy a) P) (CP (cy b) P)
-                           (# cy f) (identity _) ;; alpha).
+                           (# cy f) (identity _) · alpha).
 - abstract (
     split;
       [ intros c; simpl; apply funextsec; intro a;
@@ -678,7 +676,7 @@ use left_adjoint_from_partial.
               [|apply (toforallpaths _ _ _ (nat_trans_ax φ _ _ f)
                                      (dirprodpair (pr2 x) (# R (pr1 x) u)))]; cbn.
               repeat (apply maponpaths).
-              assert (H : # R (pr1 x ;; f) = # R (pr1 x) ;; #R f).
+              assert (H : # R (pr1 x · f) = # R (pr1 x) · #R f).
               { apply functor_comp. }
               apply (toforallpaths _ _ _ H u).
         - intros a b f; cbn.
@@ -687,7 +685,7 @@ use left_adjoint_from_partial.
             [intros xx; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|].
           apply funextsec; intro y; apply funextsec; intro z; cbn.
           repeat apply maponpaths;  unfold covyoneda_morphisms_data.
-          assert (H : # R (f ;; pr1 z) = # R f ;; # R (pr1 z)).
+          assert (H : # R (f · pr1 z) = # R f · # R (pr1 z)).
           { apply functor_comp. }
           apply pathsinv0.
           now etrans; [apply (toforallpaths _ _ _ H x)|].
@@ -929,7 +927,7 @@ End set_slicecat.
 Lemma pullback_HSET_univprop_elements {P A B C : HSET}
     {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
     {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
-    (ep : p1 ;; f = p2 ;; g)
+    (ep : p1 · f = p2 · g)
     (pb : isPullback f g p1 p2 ep)
   : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
 Proof.

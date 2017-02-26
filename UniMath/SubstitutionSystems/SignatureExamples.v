@@ -13,7 +13,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -316,7 +316,7 @@ Definition δ_genoption_mor (Ze : Ptd) (c : C) :  C ⟦ BinCoproductObject C (CC
                                                   pr1 Ze (BinCoproductObject C (CC A c)) ⟧.
 Proof.
 apply (@BinCoproductArrow _ _ _ (CC A (pr1 Ze c)) (pr1 Ze (BinCoproductObject C (CC A c)))).
-- apply (BinCoproductIn1 _ (CC A c) ;; pr2 Ze (BinCoproductObject _ (CC A c))).
+- apply (BinCoproductIn1 _ (CC A c) · pr2 Ze (BinCoproductObject _ (CC A c))).
 - apply (# (pr1 Ze) (BinCoproductIn2 _ (CC A c))).
 Defined.
 

@@ -7,7 +7,7 @@ Require Import UniMath.Algebra.BinaryOperations.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 
@@ -26,5 +26,11 @@ Section def_precategory_with_binops.
 
   (** Gives the binop of the homs from x to y. *)
   Definition to_binop {BC : precategoryWithBinOps} (x y : BC) : binop (BC⟦x, y⟧) := (pr2 BC) x y.
+
+  Lemma to_binop_eq {BC : precategoryWithBinOps} {x y : BC} {f1 f2 g1 g2 : x --> y}
+        (e1 : f1 = f2) (e2 : g1 = g2) : to_binop _ _ f1 g1 = to_binop _ _ f2 g2.
+  Proof.
+    induction e1, e2. apply idpath.
+  Qed.
 
 End def_precategory_with_binops.
