@@ -142,24 +142,6 @@ Require Export UniMath.Foundations.Preamble.
 
 (** ** Some standard constructions not using identity types (paths) *)
 
-(** *** Canonical functions from [ empty ] and to [ unit ] *)
-
-Definition fromempty  : ∏ X : UU , empty -> X. (* type this in emacs in agda-input method
-with \prod *)
-Proof.
-  intro X.
-  intro H.
-  induction H.
-Defined.
-
-Arguments fromempty { X } _.
-
-Definition tounit {X : UU} : X -> unit := fun (x : X) => tt.
-
-(** *** Functions from [ unit ] corresponding to terms *)
-
-Definition termfun {X : UU} (x : X) : unit -> X := fun (t : unit) => x.
-
 (** *** Identity functions and function composition, curry and uncurry *)
 
 (** back and forth between functions of pairs and functions returning
@@ -297,28 +279,6 @@ Ltac etrans := eapply pathscomp0.
 
 Hint Resolve @pathsinv0 : pathshints.
 
-Definition path_assoc {X} {a b c d:X}
-           (f : a = b) (g : b = c) (h : c = d)
-  : f @ (g @ h) = (f @ g) @ h.
-Proof.
-  intros. induction f. reflexivity.
-Defined.
-
-Definition pathsinv0l {X : UU} {a b : X} (e : a = b) : !e @ e = idpath _.
-Proof.
-  intros. induction e. apply idpath.
-Defined.
-
-Definition pathsinv0r {X : UU} {a b : X} (e : a = b) : e @ !e = idpath _.
-Proof.
-  intros. induction e. apply idpath.
-Defined.
-
-Definition pathsinv0inv0 {X : UU} {x x' : X} (e : x = x') : !(!e) = e.
-Proof.
-  intros. induction e. apply idpath.
-Defined.
-
 Lemma pathscomp_cancel_left {X : UU} {x y z : X} (p : x = y) (r s : y = z) :
   p @ r= p @ s -> r = s.
 Proof.
@@ -366,12 +326,6 @@ Defined.
 
 and its behavior relative to [ @ ] and [ ! ] *)
 
-Definition maponpaths {T1 T2 : UU} (f : T1 -> T2) {t1 t2 : T1}
-           (e: t1 = t2) : f t1 = f t2.
-Proof.
-  intros. induction e. apply idpath.
-Defined.
-
 (* useful with apply, to save typing *)
 Definition map_on_two_paths {X Y Z : UU} (f : X -> Y -> Z) {x x' y y'} (ex : x = x') (ey: y = y') :
   f x y = f x' y'.
@@ -379,34 +333,6 @@ Proof.
   intros. induction ex. induction ey. reflexivity.
 Defined.
 
-
-Definition maponpathscomp0 {X Y : UU} {x1 x2 x3 : X}
-           (f : X -> Y) (e1 : x1 = x2) (e2 : x2 = x3) :
-  maponpaths f (e1 @ e2) = maponpaths f e1 @ maponpaths f e2.
-Proof.
-  intros. induction e1. induction e2. apply idpath.
-Defined.
-
-Definition maponpathsinv0 {X Y : UU} (f : X -> Y)
-           {x1 x2 : X} (e : x1 = x2) : maponpaths f (! e) = ! (maponpaths f e).
-Proof.
-  intros. induction e. apply idpath.
-Defined.
-
-
-(** *** [ maponpaths ] for the identity functions and compositions of functions *)
-
-Lemma maponpathsidfun {X : UU} {x x' : X}
-      (e : x = x') : maponpaths (idfun _) e = e.
-Proof.
-  intros. induction e. apply idpath.
-Defined.
-
-Lemma maponpathscomp {X Y Z : UU} {x x' : X} (f : X -> Y) (g : Y -> Z)
-      (e : x = x') : maponpaths g (maponpaths f e) = maponpaths (g ∘ f) e.
-Proof.
-  intros. induction e. apply idpath.
-Defined.
 
 (** *** Homotopy between sections *)
 
@@ -944,8 +870,6 @@ Defined.
 
 (** *** Homotopy fibers [ hfiber ] *)
 
-Definition hfiber {X Y : UU} (f : X -> Y) (y : Y) : UU := ∑ x : X, f x = y.
-
 Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
            (x : X) (e : f x = y) : hfiber f y :=
   tpair _ x e.
@@ -1137,25 +1061,6 @@ Defined.
 (** ** Weak equivalences *)
 
 (** *** Basics - [ isweq ] and [ weq ] *)
-
-Definition isweq {X Y : UU} (f : X -> Y) : UU :=
-  ∏ y : Y, iscontr (hfiber f y).
-
-Lemma idisweq (T : UU) : isweq (idfun T).
-Proof.
-  intros. unfold isweq. intro y.
-  unfold iscontr.
-  split with (tpair (fun (x : T) => idfun T x = y) y (idpath y)).
-  intro t.
-  induction t as [x e].
-  induction e.
-  apply idpath.
-Defined.
-
-Definition weq (X Y : UU) : UU := ∑ f:X->Y, isweq f.
-
-Notation "X ≃ Y" := (weq X Y) (at level 80, no associativity) : type_scope.
-(* written \simeq in Agda input method *)
 
 Definition pr1weq {X Y : UU} := pr1 : X ≃ Y -> (X -> Y).
 Coercion pr1weq : weq >-> Funclass.
@@ -1428,11 +1333,6 @@ Proof.
   set (e1 := maponpaths unitl1 e0).
 
   apply (! (unitl2 e) @ (! e1) @ (unitl2 (idpath _))).
-Defined.
-
-Theorem iscontrunit: iscontr (unit).
-Proof.
-  split with tt. intros t. apply (isconnectedunit t tt).
 Defined.
 
 (** [ paths ] in [ unit ] are contractible. *)

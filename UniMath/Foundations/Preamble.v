@@ -78,8 +78,6 @@ Proof.
   tryif primitive_projections then exact true else exact false.
 Defined.
 
-Print whether_primitive_projections.
-
 Ltac mkpair := (simple refine (tpair _ _ _ ) ; [| cbn]).
 
 (* Step through this proof to demonstrate eta expansion for pairs, if primitive
@@ -101,14 +99,6 @@ Inductive Phant ( T : Type ) := phant : Phant T .
 
 
 *)
-
-
-
-(** The following command checks whether the flag [-indices-matter] which modifies the universe
-level assignment for inductive types has been set. With the flag it returns [ paths 0 0 : UUU
-]. Without the flag it returns [ paths 0 0 : Prop ]. *)
-
-Check (O = O) .
 
 (* notation *)
 
