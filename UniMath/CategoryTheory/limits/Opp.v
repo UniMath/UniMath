@@ -465,7 +465,7 @@ Section def_opposites'.
       use unique_exists.
       + rewrite <- ZeroArrow_opp in H'. exact (KernelIn Z K w h H').
       + cbn. use (KernelCommutes Z K).
-      + intros y0. apply (has_homsets_opp hs _ _ _ _).
+      + intros y0. exact (has_homsets_opp hs _ _ _ _).
       + cbn. intros y0 X. use (KernelInsEq Z K). rewrite KernelCommutes. exact X.
   Qed.
 
@@ -484,7 +484,7 @@ Section def_opposites'.
       use unique_exists.
       + rewrite <- ZeroArrow_opp in H'. exact (KernelIn Z K w h H').
       + cbn. use KernelCommutes.
-      + intros y0. apply (has_homsets_opp hs _ _ _ _).
+      + intros y0. exact (has_homsets_opp hs _ _ _ _).
       + cbn. intros y0 X. use KernelInsEq. rewrite KernelCommutes. exact X.
   Qed.
 
@@ -532,7 +532,7 @@ Section def_opposites'.
       use unique_exists.
       + rewrite <- ZeroArrow_opp in H'. exact (CokernelOut Z CK w h H').
       + cbn. use CokernelCommutes.
-      + intros y0. apply (has_homsets_opp hs _ _ _ _).
+      + intros y0. exact (has_homsets_opp hs _ _ _ _).
       + cbn. intros y0 X. use CokernelOutsEq. rewrite CokernelCommutes. exact X.
   Qed.
 

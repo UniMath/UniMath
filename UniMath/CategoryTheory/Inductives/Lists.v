@@ -378,7 +378,7 @@ simple refine (tpair _ _ _).
   [ intro g; apply impred; intro t;
     simple refine (let ff : HSET ⟦(x × dob hF t)%set,HcL⟧ := _ in _);
     [ simpl; apply (pr1 cc)
-    | apply (@has_homsets_HSET _ HcL _ ff) ]
+    | exact (@has_homsets_HSET _ HcL _ ff) ]
   | destruct p as [t p]; simpl;
     apply funextfun; intro xc; destruct xc as [x' c']; simpl;
     simple refine (let g : HSET⟦colim (mk_ColimCocone hF c L ccL),

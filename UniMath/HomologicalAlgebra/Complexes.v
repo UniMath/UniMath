@@ -135,7 +135,7 @@ Section def_complexes.
       (total2_paths_f (funextfun C1 C2 (λ i : hz, H i))
                     (ComplexEq' C1 C2 H H1)) (DSq C1) = DSq C2.
   Proof.
-    apply proofirrelevance. apply impred_isaprop. intros t. apply (to_has_homsets _ _ _).
+    apply proofirrelevance. apply impred_isaprop. intros t. exact (to_has_homsets _ _ _ _).
   Qed.
 
   Lemma ComplexEq (C1 C2 : Complex) (H : ∏ (i : hz), C1 i = C2 i)
@@ -209,7 +209,7 @@ Section def_complexes.
   Proof.
     use total2_paths_f.
     - use funextsec. intros i. exact (H i).
-    - use proofirrelevance. apply impred_isaprop. intros t. apply (to_has_homsets _ _ _).
+    - use proofirrelevance. apply impred_isaprop. intros t. exact (to_has_homsets _ _ _ _).
   Qed.
 
   Lemma MorphismEq' {C1 C2 : Complex} (M1 M2 : Morphism C1 C2) (H : M1 = M2) :
@@ -227,7 +227,7 @@ Section def_complexes.
     - apply impred_isaset.
       intros t. apply to_has_homsets.
     - intros x. apply impred_isaset.
-      intros t. apply isasetaprop. apply (to_has_homsets _ _ _).
+      intros t. apply isasetaprop. exact (to_has_homsets _ _ _ _).
   Qed.
 
   Definition Morphisms_hSet (C1 C2 : Complex) : hSet := hSetpair _ (Morphisms_isaset C1 C2).
@@ -1133,7 +1133,7 @@ Section complexes_precat.
     - apply impred_isaset.
       intros t. apply (to_has_homsets _ _).
     - intros x. apply impred_isaset.
-      intros t. apply isasetaprop. apply (to_has_homsets _ _ _).
+      intros t. apply isasetaprop. exact (to_has_homsets _ _ _ _).
   Qed.
 
 
@@ -1389,8 +1389,8 @@ Section complexes_additive.
           intros i. cbn.
           apply BinDirectSumIn2Commutes.
       + intros y. apply isapropdirprod.
-        * apply (has_homsets_ComplexPreCat _ _ _ _).
-        * apply (has_homsets_ComplexPreCat _ _ _ _).
+        * exact (has_homsets_ComplexPreCat _ _ _ _ _).
+        * exact (has_homsets_ComplexPreCat _ _ _ _ _).
       + intros y T. cbn beta in T.
         use MorphismEq.
         intros i. cbn.
@@ -1417,8 +1417,8 @@ Section complexes_additive.
           intros i. cbn.
           apply BinDirectSumPr2Commutes.
       + intros y. apply isapropdirprod.
-        * apply (has_homsets_ComplexPreCat _ _ _ _).
-        * apply (has_homsets_ComplexPreCat _ _ _ _).
+        * exact (has_homsets_ComplexPreCat _ _ _ _ _).
+        * exact (has_homsets_ComplexPreCat _ _ _ _ _).
       + intros y T. cbn beta in T.
         use MorphismEq.
         intros i. cbn.
@@ -1591,7 +1591,7 @@ Section complexes_abelian.
     use unique_exists.
     - exact (ComplexPreCat_KernelIn g h H').
     - cbn. use MorphismEq. intros i. use KernelCommutes.
-    - intros y. apply (has_homsets_ComplexPreCat _ _ _ _).
+    - intros y. exact (has_homsets_ComplexPreCat _ _ _ _ _).
     - intros y T. cbn beta in T.
       use MorphismEq.
       intros i. cbn.
@@ -1724,7 +1724,7 @@ Section complexes_abelian.
         * exact (ComplexPreCat_CokernelCompZero g h i H').
       + intros i. cbn. use ComplexPreCat_Cokernels_Eq.
     - cbn. use MorphismEq. intros i. use CokernelCommutes.
-    - intros y. apply (has_homsets_ComplexPreCat _ _ _ _).
+    - intros y. exact (has_homsets_ComplexPreCat _ _ _ _ _).
     - intros y T. cbn beta in T.
       use MorphismEq.
       intros i. cbn.
@@ -1912,7 +1912,7 @@ Section complexes_abelian.
     - cbn. use MorphismEq.
       intros i. cbn.
       apply (KernelCommutes _ (MonicToKernel A hs (mk_Monic A _ (isM i))) _ (MMor h i)).
-    - intros y0. apply (has_homsets_ComplexPreCat _ _ _ _).
+    - intros y0. exact (has_homsets_ComplexPreCat _ _ _ _ _).
     - intros y0 T. cbn in T.
       use MorphismEq.
       intros i. apply (isM i).
@@ -2096,7 +2096,7 @@ Section complexes_abelian.
     - cbn. use MorphismEq.
       intros i. cbn.
       apply (CokernelCommutes _ (EpiToCokernel A hs (mk_Epi A _ (isE i))) _ (MMor h i)).
-    - intros y0. apply (has_homsets_ComplexPreCat _ _ _ _).
+    - intros y0. exact (has_homsets_ComplexPreCat _ _ _ _ _).
     - intros y0 T. cbn in T.
       use MorphismEq.
       intros i. apply (isE i).

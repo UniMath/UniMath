@@ -144,7 +144,7 @@ Section additive_kernel_equalizers.
       + rewrite to_premor_linear'. rewrite H'. rewrite <- to_premor_linear'.
         rewrite (@to_rinvax' A (to_Zero A)). apply ZeroArrow_comp_right.
     - cbn. use KernelCommutes.
-    - intros y0. apply (to_has_homsets _ _ _ _).
+    - intros y0. exact (to_has_homsets _ _ _ _).
     - intros y0 X. cbn in X.
       use (KernelArrowisMonic _ K). rewrite KernelCommutes. exact X.
   Qed.
@@ -182,7 +182,7 @@ Section additive_kernel_equalizers.
           rewrite <- to_premor_linear'. rewrite (@to_rinvax' A (to_Zero A)).
           rewrite ZeroArrow_comp_right. exact H'.
       + cbn. use EqualizerCommutes.
-      + intros y0. apply (to_has_homsets _ _ _ _).
+      + intros y0. exact (to_has_homsets _ _ _ _).
       + intros y0 X. cbn in X.
         use (EqualizerArrowisMonic E).
         rewrite EqualizerCommutes.
@@ -226,7 +226,7 @@ Section additive_kernel_equalizers.
         * rewrite to_lunax''. rewrite <- to_postmor_linear'. rewrite to_assoc.
           rewrite (@to_linvax' A (to_Zero A)). rewrite to_runax''. apply H'.
     - cbn. use CokernelCommutes.
-    - intros y0. apply (to_has_homsets _ _ _ _).
+    - intros y0. exact (to_has_homsets _ _ _ _).
     - intros y0 X. cbn in X. cbn.
       use (CokernelArrowisEpi _ CK).
       rewrite CokernelCommutes.
@@ -266,7 +266,7 @@ Section additive_kernel_equalizers.
           rewrite <- to_postmor_linear'. rewrite (@to_rinvax' A (to_Zero A)).
           rewrite ZeroArrow_comp_left. exact H'.
       + cbn. use CoequalizerCommutes.
-      + intros y0. apply (to_has_homsets _ _ _ _).
+      + intros y0. exact (to_has_homsets _ _ _ _).
       + intros y0 X. cbn in X.
         use (CoequalizerArrowisEpi CE).
         rewrite CoequalizerCommutes.

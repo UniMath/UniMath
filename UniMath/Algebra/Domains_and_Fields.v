@@ -332,7 +332,7 @@ Proof.
   assert (int' : isaprop (neg (paths x 0) -> paths y 0)).
   {
     apply impred. intro.
-    apply (setproperty X _ _).
+    exact (setproperty X _ _).
   }
   generalize int. simpl.
   apply (@hinhuniv _ (hProppair _ int')).
@@ -348,7 +348,7 @@ Proof.
   assert (int' : isaprop (neg (paths y 0) -> paths x 0)).
   {
     apply impred. intro.
-    apply (setproperty X _ _).
+    exact (setproperty X _ _).
   }
   generalize int. simpl. apply (@hinhuniv _ (hProppair _ int')).
   intro ene. destruct ene as [ e'' | ne' ].
@@ -373,7 +373,7 @@ Proof.
   assert (int' : isaprop (neg (paths c 0) -> paths (a - b) 0)).
   {
     apply impred. intro.
-    apply (setproperty X _ _).
+    exact (setproperty X _ _).
   }
   generalize int. simpl. apply (@hinhuniv _ (hProppair _ int')).
   intro ene. destruct ene as [ e'' | ne' ].
@@ -392,7 +392,7 @@ Proof.
   assert (int' : isaprop (neg (paths c 0) -> paths (a - b) 0)).
   {
     apply impred. intro.
-    apply (setproperty X _ _).
+    exact (setproperty X _ _).
   }
   generalize int. simpl. apply (@hinhuniv _ (hProppair _ int')).
   intro ene. destruct ene as [ e'' | ne' ].
@@ -584,7 +584,7 @@ Proof.
   {
     intro x0.
     apply impred. intro.
-    apply (setproperty (commrngfrac X (intdomnonzerosubmonoid X)) (fldfracmultinv0 X is x0 * x0) _).
+    exact (setproperty (commrngfrac X (intdomnonzerosubmonoid X)) (fldfracmultinv0 X is x0 * x0) _).
   }
   apply (setquotunivprop _ (fun x0 => hProppair _ (int x0))).
   simpl. intros xa ne.

@@ -264,7 +264,7 @@ mkpair.
   * apply colimArrow, (unshiftCocone _ cc).
   * abstract (intro n; apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n))).
 + abstract (intros p; apply subtypeEquality;
-             [ intro f; apply impred; intro; apply (hsC _ _ _)
+             [ intro f; apply impred; intro; exact (hsC _ _ _ _)
              | apply colimArrowUnique; intro n;
                destruct n as [|n]; [ apply InitialArrowUnique | apply (pr2 p) ]]).
 Defined.
@@ -469,7 +469,7 @@ set (f := pr1 (pr1 H)); set (Hf := pr2 (pr1 H)); set (HHf := pr2 H).
 use unique_exists.
 - apply (pr1 αinv L · f).
 - simpl; apply (αinv_f_commutes y ccGy f Hf).
-- abstract (intro; apply impred; intro; apply (hsD _ _ _)).
+- abstract (intro; apply impred; intro; exact (hsD _ _ _ _)).
 - abstract (simpl in *; intros f' Hf'; apply (αinv_f_unique y ccGy f Hf); trivial;
             intro t; rewrite (HHf t); apply tppr).
 Defined.
@@ -503,7 +503,7 @@ mkpair.
   + apply (colimArrow CC), ccy.
   + abstract (simpl; intro n; apply (colimArrowCommutes CC)).
 - abstract (simpl; intro t; apply subtypeEquality;
-    [ simpl; intro v; apply impred; intro; apply (hsC _ _ _)
+    [ simpl; intro v; apply impred; intro; exact (hsC _ _ _ _)
     | apply (colimArrowUnique CC); intro n; apply (pr2 t)]).
 Defined.
 
@@ -539,7 +539,7 @@ mkpair.
   abstract (now intro u; generalize (coconeInCommutes ccy _ _ (conn u));
             rewrite !id_left; intro H; rewrite H).
 - abstract (intro p; apply subtypeEquality;
-              [ intro; apply impred; intro; apply (hsD _ _ _)
+              [ intro; apply impred; intro; exact (hsD _ _ _ _)
               | now destruct p as [p H]; rewrite <- (H v), id_left ]).
 Defined.
 
@@ -552,7 +552,7 @@ mkpair.
   abstract (intro n; rewrite id_left; destruct ccy as [f Hf]; simpl;
             now induction n as [|n IHn]; [apply idpath|]; rewrite IHn, <- (Hf n (S n) (idpath _)), id_left).
 - abstract (intro p; apply subtypeEquality;
-              [ intros f; apply impred; intro; apply (hsD _ _ _)
+              [ intros f; apply impred; intro; exact (hsD _ _ _ _)
               | now simpl; destruct p as [p H]; rewrite <- (H 0), id_left]).
 Defined.
 
@@ -579,7 +579,7 @@ mkpair.
   + apply (colimArrow CC), ccy.
   + abstract (simpl; intro v; apply (colimArrowCommutes CC)).
 - abstract (simpl; intro t; apply subtypeEquality;
-    [ intros f; apply impred; intro; apply (hsE _ _ _)
+    [ intros f; apply impred; intro; exact (hsE _ _ _ _)
     | simpl; apply (colimArrowUnique CC), (pr2 t) ]).
 Defined.
 
@@ -670,7 +670,7 @@ mkpair.
                  [ apply (pr2 t) | apply idpath ]).
   }
   abstract (apply subtypeEquality; simpl;
-            [ intro f; apply impred; intro; apply (hsA _ _ _)
+            [ intro f; apply impred; intro; exact (hsA _ _ _ _)
             | apply (maponpaths (fun x => pr1 (pr1 x)) (p2 X))]).
 Defined.
 
@@ -714,7 +714,7 @@ mkpair.
                  [ apply idpath | apply (pr2 t) ]).
   }
   abstract (apply subtypeEquality; simpl;
-              [ intro f; apply impred; intro; apply (hsB _ _ _)
+              [ intro f; apply impred; intro; exact (hsB _ _ _ _)
               | apply (maponpaths (fun x => dirprod_pr2 (pr1 x)) (p2 X)) ]).
 Defined.
 

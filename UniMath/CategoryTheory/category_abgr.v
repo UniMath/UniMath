@@ -178,7 +178,7 @@ Section ABGR_category.
         apply homotinvweqweq.
       + cbn. use total2_paths_f.
         * apply proofirrelevance. apply isapropisbinopfun.
-        * apply proofirrelevance. apply (setproperty A _ _).
+        * apply proofirrelevance. exact (setproperty _ _ _).
     - use total2_paths_f.
       + apply funextfun. intros x. apply homotweqinvweq.
       + apply proofirrelevance. apply isapropismonoidfun.
@@ -754,7 +754,7 @@ Section ABGR_Additive.
                 apply (lunax (abgrtoabmonoid Z)).
              ++ apply proofirrelevance. apply isapropismonoidfun.
         (* Equality on equality of homsets *)
-        * intros y. apply isapropdirprod; apply (has_homsets_ABGR _ _ _).
+        * intros y. apply isapropdirprod; exact (has_homsets_ABGR _ _ _ _).
         (* Uniqueness *)
         * intros y z. use total2_paths_f.
           -- cbn. apply funextfun. intros x.
@@ -797,7 +797,7 @@ Section ABGR_Additive.
                 unfold funcomp. cbn. rewrite (lunax (abgrtoabmonoid Y)). apply idpath.
              ++ apply proofirrelevance. apply isapropismonoidfun.
         (* Equality on equality of homsets *)
-        * intros y. apply isapropdirprod; apply (has_homsets_ABGR _ _ _).
+        * intros y. apply isapropdirprod; exact (has_homsets_ABGR _ _ _ _).
         (* Uniqueness *)
         * intros y z. use total2_paths_f.
           -- cbn. apply funextfun. intros x.
@@ -895,7 +895,7 @@ Section ABGR_kernels.
     - apply funextfun. intros x. induction x as [t p]. cbn.
       unfold funcomp, pr1carrier. cbn in p. cbn.
       use (squash_to_prop p).
-      + apply (setproperty B _).
+      + exact (setproperty _ _ _).
       + intros X. rewrite ABGR_has_zero_to. cbn.
         rewrite ABGR_has_zero_from. cbn.
         exact X.
@@ -939,7 +939,7 @@ Section ABGR_kernels.
       + apply funextfun. intros x. cbn. apply idpath.
       + apply proofirrelevance. apply isapropismonoidfun.
     (* Equality of equalities of morphisms *)
-    - intros y. apply (has_homsets_ABGR _ _ _).
+    - intros y. exact (has_homsets_ABGR _ _ _ _).
     (* Uniqueness *)
     - intros y t3. induction y as [t1 p1]. apply base_paths in t3. cbn in *.
       unfold pr1carrier, funcomp in t3. cbn in t3. use total2_paths_f.
@@ -1093,9 +1093,9 @@ Section ABGR_kernels.
     unfold issurjective in H. cbn in H.
     set (H1 := H b1).
     set (H2 := H b2).
-    use (squash_to_prop H1). apply (pr2 (pr1 C) _ _).
+    use (squash_to_prop H1). exact (pr2 (pr1 C) _ _).
     intros HH1.
-    use (squash_to_prop H2). apply (pr2 (pr1 C) _ _).
+    use (squash_to_prop H2). exact (pr2 (pr1 C) _ _).
     intros HH2.
     unfold hfiber in *. induction HH1 as [t p]. induction HH2 as [t0 p0].
     rewrite <- p. rewrite <- p0. rewrite <- f'. cbn.
@@ -1117,7 +1117,7 @@ Section ABGR_kernels.
                  (pr1 h).
   Proof.
     intros x x' X.
-    use (squash_to_prop X). apply (pr2 (pr1 (pr1 C)) _ _).
+    use (squash_to_prop X). exact (pr2 (pr1 (pr1 C)) _ _).
     intros X'. induction X' as [t p].
     set (Y := funeqpaths H t). cbn in Y.
     apply (maponpaths (pr1 h)) in p. cbn in *.
@@ -1170,7 +1170,7 @@ Section ABGR_kernels.
         set (surj := issurjsetquotpr (ABGR_cokernel_eqrel f)).
         unfold issurjective in surj. cbn in surj.
         set (surjz := surj z).
-        use (squash_to_prop surjz). apply (pr2 (pr1 (pr1 w)) _ _).
+        use (squash_to_prop surjz). exact (pr2 (pr1 (pr1 w)) _ _).
         intros surjz'. unfold hfiber in surjz'. induction surjz' as [t1 p0].
         rewrite <- p0. cbn. apply base_paths in t0. cbn in t0.
         unfold funcomp in t0. apply (funeqpaths t0 t1).
@@ -1315,19 +1315,19 @@ Section ABGR_monics.
   Proof.
     intros x. induction x as [t p]. induction p as [|p IHp].
     - intros x'. induction x' as [t0 p]. induction p as [|p IHp].
-      + intros H. cbn in *. use (squash_to_prop H). apply (setproperty A _).
+      + intros H. cbn in *. use (squash_to_prop H). exact (setproperty A _ _).
         intros H'. induction H' as [t1 p]. repeat rewrite natplusassoc in p. cbn in p.
         apply natplusrcan in p. rewrite p. apply idpath.
-      + intros H. cbn in *. use (squash_to_prop H). apply (setproperty A _).
+      + intros H. cbn in *. use (squash_to_prop H). exact (setproperty A _ _).
         intros H'. induction H' as [t1 p0]. rewrite (natplusassoc _ 0) in p0. cbn in p0.
         apply natplusrcan in p0. rewrite <- p0.
         rewrite ABGR_natset_dirprod_map_ind. apply idpath.
     - intros x'. induction x' as [t0 p0]. induction p0 as [|p0 IHp0].
-      + intros H. cbn in *. use (squash_to_prop H). apply (setproperty A _).
+      + intros H. cbn in *. use (squash_to_prop H). exact (setproperty A _ _).
         intros H'. induction H' as [t1 p0]. rewrite natplusassoc in p0. cbn in p0.
         apply natplusrcan in p0. rewrite p0.
         rewrite ABGR_natset_dirprod_map_ind. apply idpath.
-      + intros H. cbn in *. use (squash_to_prop H). apply (setproperty A _).
+      + intros H. cbn in *. use (squash_to_prop H). exact (setproperty A _ _).
         intros H'. induction H' as [t1 p1]. apply natplusrcan in p1.
         repeat rewrite natplusnsm in p1. cbn in p1.
         apply invmaponpathsS in p1.
@@ -1533,16 +1533,16 @@ Section ABGR_monics.
         rewrite <- (runax A). rewrite <- (runax A).
         use (pathscomp0 _ tmp3).
         rewrite (runax A). rewrite (runax A). apply idpath.
-      + apply proofirrelevance. apply (setproperty B _).
+      + apply proofirrelevance. exact (setproperty B _ _).
     - intros t1. apply proofirrelevance.
       assert (Hfiber: isaset (hfiber (pr1 f) b)).
       {
         unfold hfiber.
         apply isaset_total2.
         - apply (setproperty A).
-        - intros x. apply isasetaprop. apply (setproperty B _).
+        - intros x. apply isasetaprop. exact (setproperty B _ _).
       }
-      apply (Hfiber _).
+      exact (Hfiber _ _).
   Qed.
 
 End ABGR_monics.
@@ -1599,7 +1599,7 @@ Section ABGR_monic_kernels.
       }
       set (iw := (isweqonpathsincl _ (ABGR_monic_isincl f isM)) (pr1 t) (pr1 X) e).
       unfold hfiber in iw. unfold iscontr in iw. apply (pr1 (pr1 iw)).
-    - apply proofirrelevance. apply (setproperty B _).
+    - apply proofirrelevance. exact (setproperty B _ _).
   Qed.
 
   (** We construct an hfiber for every element in the image of h. *)
@@ -1727,7 +1727,7 @@ Section ABGR_monic_kernels.
         cbn in tmp. apply tmp.
       + apply proofirrelevance. apply isapropismonoidfun.
     (* Equality in equalities of morphisms *)
-    - intros y. apply (has_homsets_ABGR _ _ _).
+    - intros y. exact (has_homsets_ABGR _ _ _ _).
     (* Uniqueness *)
     - intros y H. cbn in H.
       unfold isMonic in isM. apply isM. cbn. rewrite H.
@@ -1829,7 +1829,7 @@ Section ABGR_monic_kernels.
     (* Equality of hfibers *)
     - cbn. apply (ABGR_epi_cokernel_out_data_hfiber_eq f isE w h H b X).
     (* Equality on equalities of elements. *)
-    - intros y. apply impred_isaprop. intros t. apply (setproperty w _).
+    - intros y. apply impred_isaprop. intros t. exact (setproperty w _ _).
     (* Uniqueness. *)
     - intros y T. apply (pathsinv0 (T X)).
   Qed.
@@ -1848,7 +1848,7 @@ Section ABGR_monic_kernels.
     (* Equality of hfibers *)
     - apply (ABGR_epi_cokernel_out_data_hfiber_eq f isE w h H b X).
     (* Equality on equalities of elements. *)
-    - intros y. apply impred_isaprop. intros t. apply (setproperty w _).
+    - intros y. apply impred_isaprop. intros t. exact (setproperty w _ _).
     (* Uniqueness *)
     - intros y T. apply (pathsinv0 (T X)).
   Qed.
@@ -1872,9 +1872,9 @@ Section ABGR_monic_kernels.
   Proof.
     intros hfib.
     use (squash_to_prop (ABGR_epi_issurjective f isE b1)).
-    apply (setproperty w _). intros X1.
+    exact (setproperty w _ _). intros X1.
     use (squash_to_prop (ABGR_epi_issurjective f isE b2)).
-    apply (setproperty w _). intros X2.
+    exact (setproperty w _ _). intros X2.
     rewrite <- ((pr2 X) X1). rewrite <- ((pr2 X0) X2). rewrite <- (pr1 (pr2 h)).
     exact (ABGR_epi_cokernel_out_data_hfiber_eq
              f isE w h H (b1 * b2)%multmonoid (hfiber_op f b1 b2 X1 X2) hfib).
@@ -1982,7 +1982,7 @@ Section ABGR_monic_kernels.
                    (@hfiberpair _ _ (pr1 f) (pr1 f x) x (idpath _))).
       + apply proofirrelevance. apply isapropismonoidfun.
     (* Equality of equalities of morphisms *)
-    - intros y. apply (has_homsets_ABGR _ _ _).
+    - intros y. exact (has_homsets_ABGR _ _ _ _).
     (* Uniqueness *)
     - intros y T. cbn in T. unfold isEpi in isE. apply isE. cbn. rewrite T.
       use total2_paths_f.
@@ -2265,7 +2265,7 @@ Section ABGR_corollaries.
              apply idpath.
       + use monoidfun_eq. cbn. unfold funcomp. intros x.
         exact (pr2 (iscontrpr1 (ABGR_isKernel_iscontr f g ZA H isM w h H' (x%multmonoid)))).
-      + intros y. apply (has_homsets_ABGR _ _ _).
+      + intros y. exact (has_homsets_ABGR _ _ _ _).
       + intros y T. cbn in T.
         use monoidfun_eq. cbn. intros x.
         apply (isweqonpathsincl _ (ABGR_monic_isincl f isM)).

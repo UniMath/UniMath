@@ -109,7 +109,7 @@ Section def_po.
       * use (pathscomp0 _ (pr2 (pr2 (pr1 H2)))). apply idpath.
     + intro t.
        apply subtypeEquality.
-       * intro; apply impred; intro. apply (hs _ _ _ _).
+       * intro; apply impred; intro. exact (hs _ _ _ _).
        * destruct t as [t p0]; simpl.
          apply path_to_ctr.
          { split.
@@ -211,7 +211,7 @@ Section def_po.
         * apply PushoutArrow_PushoutIn2.
     - intro t.
       apply subtypeEquality.
-      + intro. apply isapropdirprod; apply (hs _ _ _ _).
+      + intro. apply isapropdirprod; exact (hs _ _ _ _).
       + destruct t as [t p]. simpl.
         refine (PushoutArrowUnique _ _ P _ _ _ _ _ _ _ ).
         * apply e.
