@@ -923,13 +923,15 @@ Proof.
   exists (fiber_nat_trans η _,
           fiber_nat_trans ε _).
   mkpair; cbn.
-  + intros d.
+  + unfold triangle_1_statement.
+    intros d; cbn.
     set (thisax := pr1 axs c d); clearbody thisax; clear axs.
     etrans. apply maponpaths, thisax.
     etrans. apply transport_f_b.
     refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
     apply homset_property.
-  + intros d.
+  + unfold triangle_2_statement.
+    intros d; cbn.
     set (thisax := pr2 axs c d); clearbody thisax; clear axs.
     etrans. apply maponpaths, thisax.
     etrans. apply transport_f_b.
