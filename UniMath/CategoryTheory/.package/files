@@ -1,7 +1,6 @@
 total2_paths.v
 precategories.v
 functor_categories.v
-UnicodeNotations.v
 opp_precat.v
 PrecategoryBinProduct.v
 ProductPrecategory.v

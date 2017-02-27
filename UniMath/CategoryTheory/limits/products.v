@@ -16,14 +16,12 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.precategories
+               UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
-
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (** * Definition of indexed products of objects in a precategory *)
 Section product_def.
@@ -33,7 +31,7 @@ Variable (I : UU) (C : precategory).
 Definition isProductCone (c : ∏ (i : I), C) (p : C)
   (pi : ∏ i, p --> c i) :=
   ∏ (a : C) (f : ∏ i, a --> c i),
-    iscontr (total2 (fun (fap : a --> p) => ∏ i, fap ;; pi i = f i)).
+    iscontr (total2 (fun (fap : a --> p) => ∏ i, fap · pi i = f i)).
 
 Definition ProductCone (ci : ∏ i, C) :=
    total2 (fun pp1p2 : total2 (fun p : C => ∏ i, p --> ci i) =>
@@ -59,7 +57,7 @@ Proof.
 Defined.
 
 Lemma ProductPrCommutes (c : ∏ i, C) (P : ProductCone c) :
-     ∏ (a : C) (f : ∏ i, a --> c i) i, ProductArrow P f ;; ProductPr P i = f i.
+     ∏ (a : C) (f : ∏ i, a --> c i) i, ProductArrow P f · ProductPr P i = f i.
 Proof.
   intros a f i.
   apply (pr2 (pr1 (isProductCone_ProductCone P _ f)) i).
@@ -67,7 +65,7 @@ Qed.
 
 Lemma ProductPr_idtoiso {i1 i2 : I} (a : I -> C) (P : ProductCone a)
       (e : i1 = i2) :
-  ProductPr P i1 ;; idtoiso (maponpaths a e) = ProductPr P i2.
+  ProductPr P i1 · idtoiso (maponpaths a e) = ProductPr P i2.
 Proof.
   induction e.
   apply id_right.
@@ -75,7 +73,7 @@ Qed.
 
 Lemma ProductArrowUnique (c : ∏ i, C) (P : ProductCone c) (x : C)
     (f : ∏ i, x --> c i) (k : x --> ProductObject P)
-    (Hk : ∏ i, k ;; ProductPr P i = f i) : k = ProductArrow P f.
+    (Hk : ∏ i, k · ProductPr P i = f i) : k = ProductArrow P f.
 Proof.
   set (H' := pr2 (isProductCone_ProductCone P _ f) (k,,Hk)).
   apply (base_paths _ _ H').
@@ -90,7 +88,7 @@ Defined.
 
 Definition mk_isProductCone (hsC : has_homsets C) (a : I -> C) (p : C)
   (pa : ∏ i, C⟦p,a i⟧) : (∏ (c : C) (f : ∏ i, C⟦c,a i⟧),
-                                  ∃! k : C⟦c,p⟧, ∏ i, k ;; pa i = f i) ->
+                                  ∃! k : C⟦c,p⟧, ∏ i, k · pa i = f i) ->
                               isProductCone a p pa.
 Proof.
 intros H c cc; apply H.
@@ -98,7 +96,7 @@ Defined.
 
 Lemma ProductArrowEta (c : ∏ i, C) (P : ProductCone c) (x : C)
     (f : x --> ProductObject P) :
-    f = ProductArrow P (fun i => f ;; ProductPr P i).
+    f = ProductArrow P (fun i => f · ProductPr P i).
 Proof.
   now apply ProductArrowUnique.
 Qed.
@@ -106,11 +104,11 @@ Qed.
 Definition ProductOfArrows {c : ∏ i, C} (Pc : ProductCone c) {a : ∏ i, C}
     (Pa : ProductCone a) (f : ∏ i, a i --> c i) :
       ProductObject Pa --> ProductObject Pc :=
-    ProductArrow Pc (fun i => ProductPr Pa i ;; f i).
+    ProductArrow Pc (fun i => ProductPr Pa i · f i).
 
 Lemma ProductOfArrowsPr {c : ∏ i, C} (Pc : ProductCone c) {a : ∏ i, C}
     (Pa : ProductCone a) (f : ∏ i, a i --> c i) :
-    ∏ i, ProductOfArrows Pc Pa f ;; ProductPr Pc i = ProductPr Pa i ;; f i.
+    ∏ i, ProductOfArrows Pc Pa f · ProductPr Pc i = ProductPr Pa i · f i.
 Proof.
   unfold ProductOfArrows; intro i.
   now rewrite (ProductPrCommutes _ _ _ _ i).
@@ -119,8 +117,8 @@ Qed.
 Lemma postcompWithProductArrow {c : ∏ i, C} (Pc : ProductCone c) {a : ∏ i, C}
     (Pa : ProductCone a) (f : ∏ i, a i --> c i)
     {x : C} (k : ∏ i, x --> a i) :
-        ProductArrow Pa k ;; ProductOfArrows Pc Pa f =
-        ProductArrow Pc (fun i => k i ;; f i).
+        ProductArrow Pa k · ProductOfArrows Pc Pa f =
+        ProductArrow Pc (fun i => k i · f i).
 Proof.
 apply ProductArrowUnique; intro i.
 now rewrite <- assoc, ProductOfArrowsPr, assoc, ProductPrCommutes.
@@ -128,7 +126,7 @@ Qed.
 
 Lemma precompWithProductArrow {c : ∏ i, C} (Pc : ProductCone c)
   {a : C} (f : ∏ i, a --> c i) {x : C} (k : x --> a)  :
-       k ;; ProductArrow Pc f = ProductArrow Pc (fun i => k ;; f i).
+       k · ProductArrow Pc f = ProductArrow Pc (fun i => k · f i).
 Proof.
 apply ProductArrowUnique; intro i.
 now rewrite <- assoc, ProductPrCommutes.
@@ -142,8 +140,8 @@ Variables (I : UU) (C : precategory) (CC : Products I C).
 
 Definition ProductOfArrows_comp (a b c : ∏ (i : I), C)
   (f : ∏ i, a i --> b i) (g : ∏ i, b i --> c i)
-  : ProductOfArrows _ _ _ _ f ;; ProductOfArrows _ _ _ (CC _) g
-    = ProductOfArrows _ _ (CC _) (CC _) (fun i => f i ;; g i).
+  : ProductOfArrows _ _ _ _ f · ProductOfArrows _ _ _ (CC _) g
+    = ProductOfArrows _ _ (CC _) (CC _) (fun i => f i · g i).
 Proof.
 apply ProductArrowUnique; intro i.
 rewrite <- assoc, ProductOfArrowsPr.
@@ -169,7 +167,7 @@ Variables a : ∏ (i : I), C.
 
 Lemma Product_endo_is_identity (P : ProductCone _ _ a)
   (k : ProductObject _ _ P --> ProductObject _ _ P)
-  (H1 : ∏ i, k ;; ProductPr _ _ P i = ProductPr _ _ P i)
+  (H1 : ∏ i, k · ProductPr _ _ P i = ProductPr _ _ P i)
   : identity _ = k.
 Proof.
   apply pathsinv0.

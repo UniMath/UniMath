@@ -22,7 +22,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -32,10 +32,6 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-
-Local Notation "# F" := (functor_on_morphisms F) (at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
 
 Section binsum_of_signatures.
 

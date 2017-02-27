@@ -21,18 +21,11 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
-
-(* Local Notation "a --> b" := (precategory_morphisms a b)(at level 50). *)
-(* Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2). *)
-(* Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").*)
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "# F" := (functor_on_morphisms F) (at level 3).
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -44,7 +37,7 @@ Ltac unf := unfold identity,
 (** The following lemma is already in precategories.v . It should be transparent? *)
 
 (* Lemma iso_comp_left_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) : *)
-(*   isweq (fun f : hom _ c a => f ;; h). *)
+(*   isweq (fun f : hom _ c a => f · h). *)
 (* Proof. intros. apply (@iso_comp_right_isweq C^op b a (opp_iso h)). Qed. *)
 
 (** * Covariant Yoneda functor *)
@@ -57,14 +50,14 @@ Definition covyoneda_objects_ob (C : precategory) (c : C^op)
 (* Definition covyoneda_objects_mor (C : precategory) (c : C^op) *)
 (*     (d d' : C) (f : C⟦d,d'⟧) : *)
 (*    covyoneda_objects_ob C c d -> covyoneda_objects_ob C c d' := *)
-(*     fun g => g ;; f. *)
+(*     fun g => g · f. *)
 
 Definition covyoneda_ob_functor_data (C : precategory) (hs : has_homsets C) (c : C^op) :
     functor_data C HSET.
 Proof.
 exists (fun c' => hSetpair (covyoneda_objects_ob C c c') (hs c c')) .
 intros a b f g. unfold covyoneda_objects_ob in *. simpl in *.
-exact (g ;; f).
+exact (g · f).
 Defined.
 
 Lemma is_functor_covyoneda_functor_data (C : precategory) (hs: has_homsets C) (c : C^op) :
@@ -86,7 +79,7 @@ Definition covyoneda_morphisms_data (C : precategory) (hs: has_homsets C) (c c' 
          HSET⟦covyoneda_objects C hs c a,covyoneda_objects C hs c' a⟧.
 Proof.
 simpl in f; intros a g.
-apply (f ;; g).
+apply (f · g).
 Defined.
 
 Lemma is_nat_trans_covyoneda_morphisms_data (C : precategory) (hs: has_homsets C)
@@ -175,7 +168,7 @@ Definition covyoneda (C : precategory) (hs: has_homsets C) :
 (*   intro a'; simpl. *)
 (*   apply funextsec; intro f. *)
 (*   unfold yoneda_map_1. *)
-(*   pathvia ((alpha c ;; #F f) (identity c)). *)
+(*   pathvia ((alpha c · #F f) (identity c)). *)
 (*     apply idpath. *)
 (*   rewrite <- nat_trans_ax. *)
 (*   unf; apply maponpaths. *)

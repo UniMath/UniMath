@@ -16,7 +16,8 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -50,10 +51,10 @@ Section def_preadditive.
 
   Definition mk_isPreAdditive' (PA : PrecategoryWithAbgrops)
              (H1 : ∏ (x y z : PA) (f : x --> y) (g h : y --> z),
-                   f ;; (to_binop _ _ g h) = to_binop _ _ (f ;; g) (f ;; h))
+                   f · (to_binop _ _ g h) = to_binop _ _ (f · g) (f · h))
              (H1' : ∏ (x y z : PA) (f : x --> y), to_premor z f (to_unel y z) = to_unel x z)
              (H2 : ∏ (x y z : PA) (f : y --> z) (g h : x --> y),
-                   (to_binop _ _ g h) ;; f = to_binop _ _ (g ;; f) (h ;; f))
+                   (to_binop _ _ g h) · f = to_binop _ _ (g · f) (h · f))
              (H2' : ∏ (x y z : PA) (f : y --> z), to_premor z (to_unel x y) f = to_unel x z):
     isPreAdditive PA.
   Proof.
@@ -107,13 +108,13 @@ Section def_preadditive.
 
   (** Following versions are useful when one wants to rewrite equations *)
   Lemma to_premor_linear' {x y z : A} (f : x --> y) (g h : y --> z) :
-    f ;; (to_binop y z g h) = to_binop x z (f ;; g) (f ;; h).
+    f · (to_binop y z g h) = to_binop x z (f · g) (f · h).
   Proof.
     apply to_premor_linear.
   Qed.
 
   Lemma to_postmor_linear' {x y z : A} (g h : x --> y) (f : y --> z) :
-    (to_binop x y g h) ;; f = to_binop x z (g ;; f) (h ;; f).
+    (to_binop x y g h) · f = to_binop x z (g · f) (h · f).
   Proof.
     apply to_postmor_linear.
   Qed.
@@ -126,12 +127,12 @@ Section def_preadditive.
     to_postmor x f 1%multmonoid = 1%multmonoid := dirprod_pr2 (to_postmor_monoid A x y z f).
 
   (** Following versions are useful when one wants to rewrite equations *)
-  Lemma to_premor_unel' {x y : A} (z : A) (f : x --> y) : f ;; (to_unel y z) = to_unel x z.
+  Lemma to_premor_unel' {x y : A} (z : A) (f : x --> y) : f · (to_unel y z) = to_unel x z.
   Proof.
     apply to_premor_unel.
   Qed.
 
-  Lemma to_postmor_unel' (x : A) {y z : A} (f : y --> z) : (to_unel x y) ;; f = to_unel x z.
+  Lemma to_postmor_unel' (x : A) {y z : A} (f : y --> z) : (to_unel x y) · f = to_unel x z.
   Proof.
     apply to_postmor_unel.
   Qed.
@@ -207,9 +208,9 @@ Section preadditive_inv_comp.
   Variable A : PreAdditive.
 
   Lemma PreAdditive_invlcomp {x y z : A} (f : A⟦x, y⟧) (g : A⟦y, z⟧) :
-    (to_inv (f ;; g)) = (to_inv f) ;; g.
+    (to_inv (f · g)) = (to_inv f) · g.
   Proof.
-    use (grrcan (to_abgrop x z) (f ;; g)).
+    use (grrcan (to_abgrop x z) (f · g)).
     unfold to_inv at 1. rewrite grlinvax.
     use (pathscomp0 _ (to_postmor_linear' (to_inv f) f g)).
     rewrite linvax. rewrite to_postmor_unel'.
@@ -218,9 +219,9 @@ Section preadditive_inv_comp.
   Qed.
 
   Lemma PreAdditive_invrcomp {x y z : A} (f : A⟦x, y⟧) (g : A⟦y, z⟧) :
-    (to_inv (f ;; g)) = f ;; (to_inv g).
+    (to_inv (f · g)) = f · (to_inv g).
   Proof.
-    use (grrcan (to_abgrop x z) (f ;; g)).
+    use (grrcan (to_abgrop x z) (f · g)).
     unfold to_inv at 1. rewrite grlinvax.
     use (pathscomp0 _ (to_premor_linear' f (to_inv g) g)).
     rewrite linvax. rewrite to_premor_unel'.
@@ -248,8 +249,8 @@ Section def_additive_kernel_cokernel.
   Variable Z : Zero A.
 
   Local Lemma KernelInOp_Eq {x y z : A} (f1 f2 : A⟦x, y⟧) (g : A⟦y, z⟧)
-        (H1 : f1 ;; g = ZeroArrow Z _ _) (H2 : f2 ;; g = ZeroArrow Z _ _) :
-    (to_binop _ _ f1 f2 ;; g = ZeroArrow Z _ _).
+        (H1 : f1 · g = ZeroArrow Z _ _) (H2 : f2 · g = ZeroArrow Z _ _) :
+    (to_binop _ _ f1 f2 · g = ZeroArrow Z _ _).
   Proof.
     rewrite to_postmor_linear'. rewrite H1. rewrite H2.
     rewrite <- PreAdditive_unel_zero.
@@ -257,7 +258,7 @@ Section def_additive_kernel_cokernel.
   Qed.
 
   Lemma KernelInOp {x y z : A} (f1 f2 : A⟦x, y⟧) (g : A⟦y, z⟧) (K : Kernel Z g)
-        (H1 : f1 ;; g = ZeroArrow Z _ _) (H2 : f2 ;; g = ZeroArrow Z _ _) :
+        (H1 : f1 · g = ZeroArrow Z _ _) (H2 : f2 · g = ZeroArrow Z _ _) :
     KernelIn Z K _ (to_binop _ _ f1 f2) (KernelInOp_Eq f1 f2 g H1 H2) =
     to_binop _ _ (KernelIn Z K _ f1 H1) (KernelIn Z K _ f2 H2).
   Proof.
@@ -270,8 +271,8 @@ Section def_additive_kernel_cokernel.
   Qed.
 
   Local Lemma CokernelOutOp_Eq {x y z : A} (f1 f2 : A⟦y, z⟧) (g : A⟦x, y⟧)
-        (H1 : g ;; f1 = ZeroArrow Z _ _) (H2 : g ;; f2 = ZeroArrow Z _ _) :
-    g ;; (to_binop _ _ f1 f2) = ZeroArrow Z _ _.
+        (H1 : g · f1 = ZeroArrow Z _ _) (H2 : g · f2 = ZeroArrow Z _ _) :
+    g · (to_binop _ _ f1 f2) = ZeroArrow Z _ _.
   Proof.
     rewrite to_premor_linear'. rewrite H1. rewrite H2.
     rewrite <- PreAdditive_unel_zero.
@@ -279,7 +280,7 @@ Section def_additive_kernel_cokernel.
   Qed.
 
   Lemma CokernelOutOp {x y z : A} (f1 f2 : A⟦y, z⟧) (g : A⟦x, y⟧) (CK : Cokernel Z g)
-        (H1 : g ;; f1 = ZeroArrow Z _ _) (H2 : g ;; f2 = ZeroArrow Z _ _) :
+        (H1 : g · f1 = ZeroArrow Z _ _) (H2 : g · f2 = ZeroArrow Z _ _) :
     CokernelOut Z CK _ (to_binop _ _ f1 f2) (CokernelOutOp_Eq f1 f2 g H1 H2) =
     to_binop _ _ (CokernelOut Z CK _ f1 H1) (CokernelOut Z CK _ f2 H2).
   Proof.
@@ -341,10 +342,10 @@ Section preadditive_quotient.
     ∏ (x y : ob PA),
     (∏ (z : ob PA) (f : x --> y)
        (inf : pr1submonoid (@to_abgrop PA x y) (PAS x y) f) (g : y --> z),
-     pr1submonoid (@to_abgrop PA x z) (PAS x z) (f ;; g))
+     pr1submonoid (@to_abgrop PA x z) (PAS x z) (f · g))
       × (∏ (z : ob PA) (f : x --> y) (g : y --> z)
            (ing : pr1submonoid (@to_abgrop PA y z) (PAS y z) g),
-         pr1submonoid (@to_abgrop PA x z) (PAS x z) (f ;; g)).
+         pr1submonoid (@to_abgrop PA x z) (PAS x z) (f · g)).
 
   Hypothesis PAC : PreAdditiveComps.
 
@@ -531,12 +532,12 @@ Section preadditive_quotient.
              (g : QuotPrecategory_ob_mor⟦B, C⟧) : UU :=
     ∑ h : QuotPrecategory_ob_mor⟦A, C⟧,
           (∏ (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f)
-             (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g), setquotpr _ (f' ;; g') = h).
+             (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g), setquotpr _ (f' · g') = h).
 
   Definition mk_QuotPrecategoryComp {A B C : ob PA} {f : QuotPrecategory_ob_mor⟦A, B⟧}
              {g : QuotPrecategory_ob_mor⟦B, C⟧} (h : QuotPrecategory_ob_mor⟦A, C⟧)
              (H : ∏ (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f)
-                    (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g), setquotpr _ (f' ;; g') = h) :
+                    (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g), setquotpr _ (f' · g') = h) :
     QuotPrecategoryComp f g := tpair _ h H.
 
   Definition QuotPrecategoryCompMor {A B C : ob PA} {f : QuotPrecategory_ob_mor⟦A, B⟧}
@@ -546,7 +547,7 @@ Section preadditive_quotient.
   Definition QuotPrecategoryCompEq {A B C : ob PA} {f : QuotPrecategory_ob_mor⟦A, B⟧}
              {g : QuotPrecategory_ob_mor⟦B, C⟧} (QPC : QuotPrecategoryComp f g) :
     ∏ (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f) (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g),
-    setquotpr _ (f' ;; g') = QuotPrecategoryCompMor QPC := pr2 QPC.
+    setquotpr _ (f' · g') = QuotPrecategoryCompMor QPC := pr2 QPC.
 
 
   (** **** Composition for quotient category *)
@@ -561,7 +562,7 @@ Section preadditive_quotient.
         {f1 f'1 : PA⟦A, B⟧} {g1 g'1 : PA⟦B, C⟧}
         (p : pr1 t = to_binop A B f'1 (grinv (to_abgrop A B) f1))
         (p' : pr1 t' = to_binop B C g'1 (grinv (to_abgrop B C) g1)) :
-    pr1 (PAS A C) (to_binop A C (f1 ;; g1) (grinv (to_abgrop A C) (f'1 ;; g'1))).
+    pr1 (PAS A C) (to_binop A C (f1 · g1) (grinv (to_abgrop A C) (f'1 · g'1))).
   Proof.
     set (e1 := QuotPrecategory_comp_iscontr_PAS_eq p).
     set (e2 := QuotPrecategory_comp_iscontr_PAS_eq p').
@@ -569,11 +570,11 @@ Section preadditive_quotient.
     rewrite to_premor_linear'. rewrite to_postmor_linear'. rewrite to_postmor_linear'.
     set (ac := assocax (to_abgrop A C)). unfold isassoc in ac. cbn in ac.
     set (comm := commax (to_abgrop A C)). unfold iscomm in comm. cbn in comm.
-    rewrite (comm _ (f1 ;; g1)). rewrite <- (ac _ (f1 ;; g1) _).
-    rewrite (comm _ (f1 ;; g1)). rewrite ac. rewrite ac.
+    rewrite (comm _ (f1 · g1)). rewrite <- (ac _ (f1 · g1) _).
+    rewrite (comm _ (f1 · g1)). rewrite ac. rewrite ac.
     set (i := grinvop (to_abgrop A C)). cbn in i. rewrite i. repeat rewrite <- ac.
     rewrite comm. rewrite <- ac.
-    set (il := linvax _ (f1 ;; g1)). unfold to_inv in il. rewrite il. clear il.
+    set (il := linvax _ (f1 · g1)). unfold to_inv in il. rewrite il. clear il.
     set (lu := to_lunax A C). unfold islunit in lu. cbn in lu. unfold to_unel. rewrite lu.
     set (tmp := pr2 (pr2 (PAS A C))). cbn in tmp. apply tmp. clear tmp.
     use to_op_elem.
@@ -587,7 +588,7 @@ Section preadditive_quotient.
         (g : QuotPrecategory_ob_mor⟦B, C⟧)  (f'1 : PA ⟦ A, B ⟧) (f''1 : setquotpr _ f'1 = f)
         (g'1 : PA ⟦ B, C ⟧) (g''1 : setquotpr _ g'1 = g) :
     ∏ (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f) (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g),
-    setquotpr _ (f' ;; g') = setquotpr (binopeqrel_subgr_eqrel (PAS A C)) (f'1 ;; g'1).
+    setquotpr _ (f' · g') = setquotpr (binopeqrel_subgr_eqrel (PAS A C)) (f'1 · g'1).
   Proof.
     intros f1 Hf g1 Hg. cbn.
     apply (iscompsetquotpr (eqrelpair _ (iseqrel_subgrhrel (to_abgrop A C) (PAS A C)))).
@@ -605,7 +606,7 @@ Section preadditive_quotient.
     use hinhpr.
     use tpair.
     + use tpair.
-      * exact (to_binop A C (f1 ;; g1) (grinv (to_abgrop A C) (f'1 ;; g'1))).
+      * exact (to_binop A C (f1 · g1) (grinv (to_abgrop A C) (f'1 · g'1))).
       * apply (QuotPrecategory_comp_iscontr_PAS p p').
     + apply idpath.
   Qed.
@@ -617,7 +618,7 @@ Section preadditive_quotient.
     ∏ t : QuotPrecategoryComp f g,
           t = mk_QuotPrecategoryComp
                 (setquotpr (binopeqrel_subgr_eqrel (PAS A C))
-                           (hfiberpr1 _ _ f' ;; hfiberpr1 _ _ g'))
+                           (hfiberpr1 _ _ f' · hfiberpr1 _ _ g'))
                 (QuotPrecategory_comp_iscontr_eq
                    f g (hfiberpr1 (setquotpr (binopeqrel_subgr_eqrel (PAS A B))) f f')
                    (hfiberpr2 (setquotpr (binopeqrel_subgr_eqrel (PAS A B))) f f')
@@ -643,7 +644,7 @@ Section preadditive_quotient.
     use iscontrpair.
     - use mk_QuotPrecategoryComp.
       + exact (setquotpr
-                 (binopeqrel_subgr_eqrel (PAS A C)) ((hfiberpr1 _ _ f') ;; (hfiberpr1 _ _ g'))).
+                 (binopeqrel_subgr_eqrel (PAS A C)) ((hfiberpr1 _ _ f') · (hfiberpr1 _ _ g'))).
       + exact (QuotPrecategory_comp_iscontr_eq
                  f g (hfiberpr1 _ _ f') (hfiberpr2 _ _ f') (hfiberpr1 _ _ g') (hfiberpr2 _ _ g')).
     - exact (QuotPrecatetgory_comp_iscontr_univ f g f' g').
@@ -664,7 +665,7 @@ Section preadditive_quotient.
   (** ** Some equations on linearity, compositions, and binops *)
 
   Lemma QuotPrecategory_comp_linear {x y z : ob PA} (f : PA⟦x, y⟧) (g : PA⟦y, z⟧) :
-    QuotPrecategory_comp (to_quot_mor f) (to_quot_mor g) = to_quot_mor (f ;; g).
+    QuotPrecategory_comp (to_quot_mor f) (to_quot_mor g) = to_quot_mor (f · g).
   Proof.
     unfold to_quot_mor. unfold QuotPrecategory_comp.
     apply pathsinv0.
@@ -774,7 +775,7 @@ Section preadditive_quotient.
         (g1 : PA⟦b, c⟧) (g2 : setquotpr (binopeqrel_subgr_eqrel (PAS b c)) g1 = g)
         (h1 : PA⟦c, d⟧) (h2 : setquotpr (binopeqrel_subgr_eqrel (PAS c d)) h1 = h) :
     QuotPrecategory_comp f (QuotPrecategory_comp g h) =
-    setquotpr (binopeqrel_subgr_eqrel (PAS a d)) (f1 ;; (g1 ;; h1)).
+    setquotpr (binopeqrel_subgr_eqrel (PAS a d)) (f1 · (g1 · h1)).
   Proof.
     apply pathsinv0.
     set (ic2 := QuotPrecategory_comp_iscontr g h).
@@ -792,7 +793,7 @@ Section preadditive_quotient.
         (f1 : PA⟦a, b⟧) (f2 : setquotpr (binopeqrel_subgr_eqrel (PAS a b)) f1 = f)
         (g1 : PA⟦b, c⟧) (g2 : setquotpr (binopeqrel_subgr_eqrel (PAS b c)) g1 = g)
         (h1 : PA⟦c, d⟧) (h2 : setquotpr (binopeqrel_subgr_eqrel (PAS c d)) h1 = h) :
-    setquotpr (binopeqrel_subgr_eqrel (PAS a d)) ((f1 ;; g1) ;; h1) =
+    setquotpr (binopeqrel_subgr_eqrel (PAS a d)) ((f1 · g1) · h1) =
     QuotPrecategory_comp (QuotPrecategory_comp f g) h.
   Proof.
     set (ic1 := QuotPrecategory_comp_iscontr f g).
@@ -887,7 +888,7 @@ Section preadditive_quotient.
   Local Opaque to_abgrop.
   Local Lemma PreAdditive_pre_linear (x y z : ob QuotPrecategory_abgrops)
     (f : QuotPrecategory_abgrops⟦x, y⟧) (g h : QuotPrecategory_abgrops ⟦y, z⟧):
-    f ;; to_binop y z g h = to_binop x z (f ;; g) (f ;; h).
+    f · to_binop y z g h = to_binop x z (f · g) (f · h).
   Proof.
     use (squash_to_prop (QuotPrecategory_surj f)). apply to_has_homsets. intros f'.
     use (squash_to_prop (QuotPrecategory_surj g)). apply to_has_homsets. intros g'.
@@ -897,7 +898,7 @@ Section preadditive_quotient.
   Qed.
 
   Local Lemma PreAdditive_pre_unel (x y z : ob QuotPrecategory_abgrops)
-        (f : QuotPrecategory_abgrops⟦x, y⟧) : f ;; (@to_unel QuotPrecategory_abgrops y z) =
+        (f : QuotPrecategory_abgrops⟦x, y⟧) : f · (@to_unel QuotPrecategory_abgrops y z) =
                                               @to_unel QuotPrecategory_abgrops x z.
   Proof.
     use (squash_to_prop (QuotPrecategory_surj f)). apply (@to_has_homsets QuotPrecategory_abgrops).
@@ -907,7 +908,7 @@ Section preadditive_quotient.
 
   Local Lemma PreAdditive_post_linear (x y z : ob QuotPrecategory_abgrops)
     (f : QuotPrecategory_abgrops⟦y, z⟧) (g h : QuotPrecategory_abgrops ⟦x, y⟧):
-    to_binop x y g h ;; f = to_binop x z (g ;; f) (h ;; f).
+    to_binop x y g h · f = to_binop x z (g · f) (h · f).
   Proof.
     use (squash_to_prop (QuotPrecategory_surj f)). apply to_has_homsets. intros f'.
     use (squash_to_prop (QuotPrecategory_surj g)). apply to_has_homsets. intros g'.
@@ -917,7 +918,7 @@ Section preadditive_quotient.
   Qed.
 
   Local Lemma PreAdditive_post_unel (x y z : ob QuotPrecategory_abgrops)
-        (f : QuotPrecategory_abgrops⟦y, z⟧) : (@to_unel QuotPrecategory_abgrops x y) ;; f =
+        (f : QuotPrecategory_abgrops⟦y, z⟧) : (@to_unel QuotPrecategory_abgrops x y) · f =
                                               @to_unel QuotPrecategory_abgrops x z.
   Proof.
     use (squash_to_prop (QuotPrecategory_surj f)). apply (@to_has_homsets QuotPrecategory_abgrops).
@@ -949,7 +950,7 @@ Section preadditive_quotient.
   Qed.
 
   Lemma comp_eq {x y z : PA} (f : QuotPrecategory_PreAdditive⟦x, y⟧)
-        (g : QuotPrecategory_PreAdditive⟦y, z⟧) : QuotPrecategory_comp f g = f ;; g.
+        (g : QuotPrecategory_PreAdditive⟦y, z⟧) : QuotPrecategory_comp f g = f · g.
   Proof.
     apply idpath.
   Qed.

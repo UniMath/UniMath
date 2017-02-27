@@ -16,11 +16,10 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (** * Definition of indexed coproducts of objects in a precategory *)
 Section coproduct_def.
@@ -30,7 +29,7 @@ Variables (I : UU) (C : precategory).
 Definition isCoproductCocone (a : I -> C) (co : C)
   (ia : ∏ i, a i --> co) :=
   ∏ (c : C) (f : ∏ i, a i --> c),
-    iscontr (total2 (fun (g : co --> c) => ∏ i, ia i ;; g = f i)).
+    iscontr (total2 (fun (g : co --> c) => ∏ i, ia i · g = f i)).
 
 Definition CoproductCocone (a : I -> C) :=
    ∑ coia : (∑ co : C, ∏ i, a i --> co),
@@ -56,7 +55,7 @@ Proof.
 Defined.
 
 Lemma CoproductInCommutes (a : I -> C) (CC : CoproductCocone a) :
-     ∏ (c : C) (f : ∏ i, a i --> c) i, CoproductIn CC i ;; CoproductArrow CC f = f i.
+     ∏ (c : C) (f : ∏ i, a i --> c) i, CoproductIn CC i · CoproductArrow CC f = f i.
 Proof.
   intros c f i.
   exact (pr2 (pr1 (isCoproductCocone_CoproductCocone CC _ f)) i).
@@ -64,7 +63,7 @@ Qed.
 
 Lemma CoproductIn_idtoiso {i1 i2 : I} (a : I -> C) (CC : CoproductCocone a)
       (e : i1 = i2) :
-  idtoiso (maponpaths a e) ;; CoproductIn CC i2 = CoproductIn CC i1.
+  idtoiso (maponpaths a e) · CoproductIn CC i2 = CoproductIn CC i1.
 Proof.
   induction e.
   apply id_left.
@@ -72,7 +71,7 @@ Qed.
 
 Lemma CoproductArrowUnique (a : I -> C) (CC : CoproductCocone a) (x : C)
     (f : ∏ i, a i --> x) (k : CoproductObject CC --> x)
-    (Hk : ∏ i, CoproductIn CC i ;; k = f i) :
+    (Hk : ∏ i, CoproductIn CC i · k = f i) :
   k = CoproductArrow CC f.
 Proof.
   set (H' := pr2 (isCoproductCocone_CoproductCocone CC _ f) (k,,Hk)).
@@ -81,7 +80,7 @@ Qed.
 
 Lemma CoproductArrowEta (a : I -> C) (CC : CoproductCocone a) (x : C)
     (f : CoproductObject CC --> x) :
-    f = CoproductArrow CC (fun i => CoproductIn CC i ;; f).
+    f = CoproductArrow CC (fun i => CoproductIn CC i · f).
 Proof.
   now apply CoproductArrowUnique.
 Qed.
@@ -90,11 +89,11 @@ Qed.
 Definition CoproductOfArrows {a : I -> C} (CCab : CoproductCocone a) {c : I -> C}
     (CCcd : CoproductCocone c) (f : ∏ i, a i --> c i) :
           CoproductObject CCab --> CoproductObject CCcd :=
-    CoproductArrow CCab (fun i => f i ;; CoproductIn CCcd i).
+    CoproductArrow CCab (fun i => f i · CoproductIn CCcd i).
 
 Lemma CoproductOfArrowsIn {a : I -> C} (CCab : CoproductCocone a) {c : I -> C}
     (CCcd : CoproductCocone c) (f : ∏ i, a i --> c i) :
-    ∏ i, CoproductIn CCab i ;; CoproductOfArrows CCab CCcd f = f i ;; CoproductIn CCcd i.
+    ∏ i, CoproductIn CCab i · CoproductOfArrows CCab CCcd f = f i · CoproductIn CCcd i.
 Proof.
   unfold CoproductOfArrows; intro i.
   apply CoproductInCommutes.
@@ -111,7 +110,7 @@ Defined.
 
 Definition mk_isCoproductCocone (hsC : has_homsets C) (a : I -> C) (co : C)
   (f : ∏ i, a i --> co) : (∏ (c : C) (g : ∏ i, a i --> c),
-                                  ∃! k : C ⟦co, c⟧, ∏ i, f i ;; k = g i)
+                                  ∃! k : C ⟦co, c⟧, ∏ i, f i · k = g i)
    →    isCoproductCocone a co f.
 Proof.
   intros H c cc.
@@ -121,8 +120,8 @@ Defined.
 Lemma precompWithCoproductArrow {a : I -> C} (CCab : CoproductCocone a) {c : I -> C}
     (CCcd : CoproductCocone c) (f : ∏ i, a i --> c i)
     {x : C} (k : ∏ i, c i --> x) :
-        CoproductOfArrows CCab CCcd f ;; CoproductArrow CCcd k =
-         CoproductArrow CCab (fun i => f i ;; k i).
+        CoproductOfArrows CCab CCcd f · CoproductArrow CCcd k =
+         CoproductArrow CCab (fun i => f i · k i).
 Proof.
 apply CoproductArrowUnique; intro i.
 now rewrite assoc, CoproductOfArrowsIn, <- assoc, CoproductInCommutes.
@@ -130,7 +129,7 @@ Qed.
 
 Lemma postcompWithCoproductArrow {a : I -> C} (CCab : CoproductCocone a) {c : C}
     (f : ∏ i, a i --> c) {x : C} (k : c --> x)  :
-       CoproductArrow CCab f ;; k = CoproductArrow CCab (fun i => f i ;; k).
+       CoproductArrow CCab f · k = CoproductArrow CCab (fun i => f i · k).
 Proof.
 apply CoproductArrowUnique; intro i.
 now rewrite assoc, CoproductInCommutes.
@@ -138,7 +137,7 @@ Qed.
 
 Lemma Coproduct_endo_is_identity (a : I -> C) (CC : CoproductCocone a)
   (k : CoproductObject CC --> CoproductObject CC)
-  (H1 : ∏ i, CoproductIn CC i ;; k = CoproductIn CC i)
+  (H1 : ∏ i, CoproductIn CC i · k = CoproductIn CC i)
   : identity _ = k.
 Proof.
 apply pathsinv0.
@@ -164,8 +163,8 @@ Variables (I : UU) (C : precategory) (CC : Coproducts I C).
 
 Definition CoproductOfArrows_comp (a b c : I -> C)
   (f : ∏ i, a i --> b i) (g : ∏ i, b i --> c i) :
-   CoproductOfArrows _ _ _ _ f ;; CoproductOfArrows _ _ (CC _) (CC _) g
-   = CoproductOfArrows _ _ (CC _) (CC _)(fun i => f i ;; g i).
+   CoproductOfArrows _ _ _ _ f · CoproductOfArrows _ _ (CC _) (CC _) g
+   = CoproductOfArrows _ _ (CC _) (CC _)(fun i => f i · g i).
 Proof.
 apply CoproductArrowUnique; intro i.
 rewrite assoc, CoproductOfArrowsIn.

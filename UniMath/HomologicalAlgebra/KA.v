@@ -15,7 +15,7 @@ Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -53,12 +53,12 @@ Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow ishinh
    We define homotopy of complexes and the naive homotopy category K(A). A homotopy χ from complex
    X to a complex Y is a family of morphisms χ^i : X^i --> Y^{i-1}. Note that a homotopy χ induces
    a morphism of complexes h : X --> Y by setting
-                      # h^i = χ^i ;; d^{i-1}_Y + d^i_X ;; χ^{i+1}. #
-                      $ h^i = χ^i ;; d^{i-1}_Y + d^i_X ;; χ^{i+1}. $
+                      # h^i = χ^i · d^{i-1}_Y + d^i_X · χ^{i+1}. #
+                      $ h^i = χ^i · d^{i-1}_Y + d^i_X · χ^{i+1}. $
    The subset of morphisms in Mor(X, Y) which are of the form h form an abelian subgroup of
-   Mor(X, Y). Also, if f : Z_1 --> X and g : Y --> Z_2 are morphisms of complexes, then f ;; h and
-   h ;; g have paths to morphisms induced by homotopies. These are given (f^i ;; χ^i) and
-   (χ^i ;; g^{i-1}), respectively.
+   Mor(X, Y). Also, if f : Z_1 --> X and g : Y --> Z_2 are morphisms of complexes, then f · h and
+   h · g have paths to morphisms induced by homotopies. These are given (f^i · χ^i) and
+   (χ^i · g^{i-1}), respectively.
 
    These are the properties that are enough to form the quotient category of C(A) using
    [QuotPrecategory_Additive]. We call the resulting category the naive homotopy category of A, and
@@ -82,29 +82,29 @@ Section complexes_homotopies.
   Local Lemma ComplexHomotMorphism_comm {C1 C2 : Complex A} (H : ComplexHomot C1 C2) (i : hz) :
     to_binop (C1 i) (C2 i)
              (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i 1))
-                         (H i ;; Diff C2 (i - 1)))
+                         (H i · Diff C2 (i - 1)))
              (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrplusminus i 1))
-                         (Diff C1 i ;; H (i + 1))) ;;
+                         (Diff C1 i · H (i + 1))) ·
              Diff C2 i =
-    Diff C1 i ;; to_binop (C1 (i + 1)) (C2 (i + 1))
+    Diff C1 i · to_binop (C1 (i + 1)) (C2 (i + 1))
          (transportf (precategory_morphisms (C1 (i + 1))) (maponpaths C2 (hzrminusplus (i + 1) 1))
-                     (H (i + 1) ;; Diff C2 (i + 1 - 1)))
+                     (H (i + 1) · Diff C2 (i + 1 - 1)))
          (transportf (precategory_morphisms (C1 (i + 1))) (maponpaths C2 (hzrplusminus (i + 1) 1))
-                     (Diff C1 (i + 1) ;; H (i + 1 + 1))).
+                     (Diff C1 (i + 1) · H (i + 1 + 1))).
   Proof.
     (* First we get rid of the ZeroArrows *)
     rewrite to_postmor_linear'. rewrite to_premor_linear'.
     assert (e0 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i 1))
-                             (H i ;; Diff C2 (i - 1)) ;;
+                             (H i · Diff C2 (i - 1)) ·
                              Diff C2 i) = ZeroArrow (Additive.to_Zero A) _ _).
     {
       induction (hzrminusplus i 1). cbn. unfold idfun. rewrite <- assoc.
       rewrite (@DSq A C2 (i - 1)). apply ZeroArrow_comp_right.
     }
     rewrite e0. clear e0.
-    assert (e1 : (Diff C1 i ;; transportf (precategory_morphisms (C1 (i + 1)))
+    assert (e1 : (Diff C1 i · transportf (precategory_morphisms (C1 (i + 1)))
                        (maponpaths
-                          C2 (hzrplusminus (i + 1) 1)) (Diff C1 (i + 1) ;; H (i + 1 + 1))) =
+                          C2 (hzrplusminus (i + 1) 1)) (Diff C1 (i + 1) · H (i + 1 + 1))) =
                  ZeroArrow (Additive.to_Zero A) _ _).
     {
       rewrite <- transport_target_postcompose. rewrite assoc. rewrite (@DSq A C1 i).
@@ -124,7 +124,7 @@ Section complexes_homotopies.
 
   (** Every homotopy H of complexes induces a morphism of complexes. The morphism is defined by
       taking the map C1 i --> C2 i to be the sum
-                         (H i) ;; (Diff C2 (i - 1)) + (Diff C1 i) ;; (H (i + 1)).
+                         (H i) · (Diff C2 (i - 1)) + (Diff C1 i) · (H (i + 1)).
       Note that we need to use transportf because the targets are not definitionally equal. The
       target of the first is C2 (i - 1 + 1) and the second target is C2 (i + 1 - 1). We transport
       these to C2 i. *)
@@ -133,8 +133,8 @@ Section complexes_homotopies.
     use mk_Morphism.
     - intros i.
       use (@to_binop A (C1 i) (C2 i)).
-      + exact (transportf _ (maponpaths C2 (hzrminusplus i 1)) ((H i) ;; (Diff C2 (i - 1)))).
-      + exact (transportf _ (maponpaths C2 (hzrplusminus i 1)) ((Diff C1 i) ;; (H (i + 1)))).
+      + exact (transportf _ (maponpaths C2 (hzrminusplus i 1)) ((H i) · (Diff C2 (i - 1)))).
+      + exact (transportf _ (maponpaths C2 (hzrplusminus i 1)) ((Diff C1 i) · (H (i + 1)))).
     - intros i. exact (ComplexHomotMorphism_comm H i).
   Defined.
 
@@ -169,29 +169,29 @@ Section complexes_homotopies.
           rewrite to_postmor_linear'.
           rewrite to_premor_linear'.
           assert (e0 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrplusminus i 1))
-                                   (to_binop (C1 i) (C2 (i + 1 - 1)) (Diff C1 i ;; f3 (i + 1))
-                                             (Diff C1 i ;; g3 (i + 1)))) =
+                                   (to_binop (C1 i) (C2 (i + 1 - 1)) (Diff C1 i · f3 (i + 1))
+                                             (Diff C1 i · g3 (i + 1)))) =
                        to_binop (C1 i) (C2 i)
                                 (transportf (precategory_morphisms (C1 i))
                                             (maponpaths C2 (hzrplusminus i 1))
-                                            (Diff C1 i ;; f3 (i + 1)))
+                                            (Diff C1 i · f3 (i + 1)))
                                 (transportf (precategory_morphisms (C1 i))
                                             (maponpaths C2 (hzrplusminus i 1))
-                                            (Diff C1 i ;; g3 (i + 1)))).
+                                            (Diff C1 i · g3 (i + 1)))).
           {
             induction (hzrplusminus i 1). apply idpath.
           }
           cbn in e0. rewrite e0. clear e0.
           assert (e1 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i 1))
-                                   (to_binop (C1 i) (C2 (i - 1 + 1)) (f3 i ;; Diff C2 (i - 1))
-                                             (g3 i ;; Diff C2 (i - 1)))) =
+                                   (to_binop (C1 i) (C2 (i - 1 + 1)) (f3 i · Diff C2 (i - 1))
+                                             (g3 i · Diff C2 (i - 1)))) =
                        to_binop (C1 i) (C2 i)
                                 (transportf (precategory_morphisms (C1 i))
                                             (maponpaths C2 (hzrminusplus i 1))
-                                            (f3 i ;; Diff C2 (i - 1)))
+                                            (f3 i · Diff C2 (i - 1)))
                                 (transportf (precategory_morphisms (C1 i))
                                             (maponpaths C2 (hzrminusplus i 1))
-                                            (g3 i ;; Diff C2 (i - 1)))).
+                                            (g3 i · Diff C2 (i - 1)))).
           {
             induction (hzrminusplus i 1). apply idpath.
           }
@@ -203,7 +203,7 @@ Section complexes_homotopies.
           rewrite tmp'.
           rewrite (tmp' _ (transportf (precategory_morphisms (C1 i))
                                       (maponpaths C2 (hzrplusminus i 1))
-                                      (Diff C1 i ;; g3 (i + 1)))).
+                                      (Diff C1 i · g3 (i + 1)))).
           apply maponpaths.
           apply tmp'.
       (* ZeroMorphisms *)
@@ -224,20 +224,20 @@ Section complexes_homotopies.
         assert (e0 : (transportf (precategory_morphisms (C1 i))
                                  (maponpaths C2 (hzrplusminus i 1))
                                  (grinv (to_abgrop (C1 i) (C2 (i + 1 - 1)))
-                                        (Diff C1 i ;; homot (i + 1)))) =
+                                        (Diff C1 i · homot (i + 1)))) =
                      to_inv (transportf (precategory_morphisms (C1 i))
                                         (maponpaths C2 (hzrplusminus i 1))
-                                        (Diff C1 i ;; homot (i + 1)))).
+                                        (Diff C1 i · homot (i + 1)))).
         {
           unfold to_inv. cbn. induction (hzrplusminus i 1). apply idpath.
         }
         cbn in e0. rewrite e0. clear e0.
         assert (e1 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i 1))
                                  (grinv (to_abgrop (C1 i) (C2 (i - 1)))
-                                        (homot i) ;; Diff C2 (i - 1))) =
+                                        (homot i) · Diff C2 (i - 1))) =
                      to_inv (transportf (precategory_morphisms (C1 i))
                                         (maponpaths C2 (hzrminusplus i 1))
-                                        (homot i ;; Diff C2 (i - 1)))).
+                                        (homot i · Diff C2 (i - 1)))).
         {
           unfold to_inv. cbn. induction (hzrminusplus i 1). cbn. unfold idfun.
           set (tmp := @PreAdditive_invlcomp A (C1 i) (C2 (i - 1)) (C2 (i - 1 + 1))
@@ -263,14 +263,14 @@ Section complexes_homotopies.
   (** Pre- and postcomposition with morphisms in ComplexHomotSubset is in ComplexHomotSubset. *)
   Lemma ComplexHomotSubgrop_comp_left (C1 : Complex A) {C2 C3 : Complex A}
         (f : ((ComplexPreCat_Additive A)⟦C2, C3⟧)) (H : ComplexHomotSubset C2 C3 f) :
-    ∏ (g : ((ComplexPreCat_Additive A)⟦C1, C2⟧)), ComplexHomotSubset C1 C3 (g ;; f).
+    ∏ (g : ((ComplexPreCat_Additive A)⟦C1, C2⟧)), ComplexHomotSubset C1 C3 (g · f).
   Proof.
     intros g.
     use (squash_to_prop H). apply propproperty. intros HH.
     use hinhpr.
     induction HH as [homot eq].
     use tpair.
-    - intros i. exact ((MMor g i) ;; (homot i)).
+    - intros i. exact ((MMor g i) · (homot i)).
     - cbn. rewrite <- eq. use MorphismEq. intros i. cbn. rewrite assoc.
       rewrite <- (MComm g i). rewrite transport_target_postcompose.
       rewrite transport_target_postcompose.
@@ -281,28 +281,28 @@ Section complexes_homotopies.
 
   Lemma ComplexHomotSubgrop_comp_right {C1 C2 : Complex A} (C3 : Complex A)
         (f : ((ComplexPreCat_Additive A)⟦C1, C2⟧)) (H : ComplexHomotSubset C1 C2 f) :
-    ∏ (g : ((ComplexPreCat_Additive A)⟦C2, C3⟧)), ComplexHomotSubset C1 C3 (f ;; g).
+    ∏ (g : ((ComplexPreCat_Additive A)⟦C2, C3⟧)), ComplexHomotSubset C1 C3 (f · g).
   Proof.
     intros g.
     use (squash_to_prop H). apply propproperty. intros HH.
     use hinhpr.
     induction HH as [homot eq].
     use tpair.
-    - intros i. exact ((homot i) ;; (MMor g (i - 1))).
+    - intros i. exact ((homot i) · (MMor g (i - 1))).
     - cbn. rewrite <- eq. use MorphismEq. intros i. cbn. rewrite <- assoc.
       rewrite (MComm g (i - 1)). rewrite assoc. rewrite assoc.
       assert (e0 : (transportf (precategory_morphisms (C1 i)) (maponpaths C3 (hzrminusplus i 1))
-                               (homot i ;; Diff C2 (i - 1) ;; MMor g (i - 1 + 1))) =
+                               (homot i · Diff C2 (i - 1) · MMor g (i - 1 + 1))) =
                    (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i 1))
-                               (homot i ;; Diff C2 (i - 1))) ;; (MMor g i)).
+                               (homot i · Diff C2 (i - 1))) · (MMor g i)).
       {
         induction (hzrminusplus i 1). apply idpath.
       }
       cbn in e0. rewrite e0. clear e0.
       assert (e1 : (transportf (precategory_morphisms (C1 i)) (maponpaths C3 (hzrplusminus i 1))
-                               (Diff C1 i ;; homot (i + 1) ;; MMor g (i + 1 - 1))) =
+                               (Diff C1 i · homot (i + 1) · MMor g (i + 1 - 1))) =
                    (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrplusminus i 1))
-                               (Diff C1 i ;; homot (i + 1))) ;; (MMor g i)).
+                               (Diff C1 i · homot (i + 1))) · (MMor g i)).
       {
         induction (hzrplusminus i 1). apply idpath.
       }
@@ -398,26 +398,26 @@ Section complexes_homotopies.
         (f1 : (ComplexPreCat_Additive A)⟦C1, C2⟧) (f2 f3 : (ComplexPreCat_Additive A)⟦C2, C3⟧)
         (H : # ComplexHomotFunctor f2 = # ComplexHomotFunctor f3) :
     ∥ ∑ (h : ComplexHomot C1 C3),
-    ComplexHomotMorphism h = to_binop _ _ (f1 ;; f2) (to_inv (f1 ;; f3)) ∥.
+    ComplexHomotMorphism h = to_binop _ _ (f1 · f2) (to_inv (f1 · f3)) ∥.
   Proof.
-    assert (e : # ComplexHomotFunctor (f1 ;; f2) = # ComplexHomotFunctor (f1 ;; f3)).
+    assert (e : # ComplexHomotFunctor (f1 · f2) = # ComplexHomotFunctor (f1 · f3)).
     {
       rewrite functor_comp. rewrite H. rewrite functor_comp. apply idpath.
     }
-    exact (ComplexHomotFunctor_im_to_homot (f1 ;; f2) (f1 ;; f3) e).
+    exact (ComplexHomotFunctor_im_to_homot (f1 · f2) (f1 · f3) e).
   Qed.
 
   Lemma ComplexHomotPostCompHomot {C1 C2 C3 : ComplexPreCat_Additive A}
         (f1 f2 : (ComplexPreCat_Additive A)⟦C1, C2⟧) (f3 : (ComplexPreCat_Additive A)⟦C2, C3⟧)
         (H : # ComplexHomotFunctor f1 = # ComplexHomotFunctor f2) :
     ∥ ∑ (h : ComplexHomot C1 C3),
-    ComplexHomotMorphism h = to_binop _ _ (f1 ;; f3) (to_inv (f2 ;; f3)) ∥.
+    ComplexHomotMorphism h = to_binop _ _ (f1 · f3) (to_inv (f2 · f3)) ∥.
   Proof.
-    assert (e : # ComplexHomotFunctor (f1 ;; f3) = # ComplexHomotFunctor (f2 ;; f3)).
+    assert (e : # ComplexHomotFunctor (f1 · f3) = # ComplexHomotFunctor (f2 · f3)).
     {
       rewrite functor_comp. rewrite H. rewrite functor_comp. apply idpath.
     }
-    exact (ComplexHomotFunctor_im_to_homot (f1 ;; f3) (f2 ;; f3) e).
+    exact (ComplexHomotFunctor_im_to_homot (f1 · f3) (f2 · f3) e).
   Qed.
 
   (** Commutativity of squares *)
@@ -426,9 +426,9 @@ Section complexes_homotopies.
         {f1 : C1 --> C2} {f2 : C2 --> C4} {g1 : C1 --> C3} {g2 : C3 --> C4}
         (f1' : hfiber (# ComplexHomotFunctor) f1) (f2' : hfiber (# ComplexHomotFunctor) f2)
         (g1' : hfiber (# ComplexHomotFunctor) g1) (g2' : hfiber (# ComplexHomotFunctor) g2)
-        (H : f1 ;; f2 = g1 ;; g2) :
-    # ComplexHomotFunctor ((hfiberpr1 _ _ f1') ;; (hfiberpr1 _ _ f2')) =
-    # ComplexHomotFunctor ((hfiberpr1 _ _ g1') ;; (hfiberpr1 _ _ g2')).
+        (H : f1 · f2 = g1 · g2) :
+    # ComplexHomotFunctor ((hfiberpr1 _ _ f1') · (hfiberpr1 _ _ f2')) =
+    # ComplexHomotFunctor ((hfiberpr1 _ _ g1') · (hfiberpr1 _ _ g2')).
   Proof.
     rewrite functor_comp. rewrite functor_comp.
     rewrite (hfiberpr2 _ _ f1'). rewrite (hfiberpr2 _ _ f2').
@@ -443,9 +443,9 @@ Section complexes_homotopies.
         (f3' : hfiber (# ComplexHomotFunctor) f3)
         (g1' : hfiber (# ComplexHomotFunctor) g1) (g2' : hfiber (# ComplexHomotFunctor) g2)
         (g3' : hfiber (# ComplexHomotFunctor) g3)
-        (H : f1 ;; f2 ;; f3 = g1 ;; g2 ;; g3 ) :
-    # ComplexHomotFunctor ((hfiberpr1 _ _ f1') ;; (hfiberpr1 _ _ f2') ;; (hfiberpr1 _ _ f3')) =
-    # ComplexHomotFunctor ((hfiberpr1 _ _ g1') ;; (hfiberpr1 _ _ g2') ;; (hfiberpr1 _ _ g3')).
+        (H : f1 · f2 · f3 = g1 · g2 · g3 ) :
+    # ComplexHomotFunctor ((hfiberpr1 _ _ f1') · (hfiberpr1 _ _ f2') · (hfiberpr1 _ _ f3')) =
+    # ComplexHomotFunctor ((hfiberpr1 _ _ g1') · (hfiberpr1 _ _ g2') · (hfiberpr1 _ _ g3')).
   Proof.
     rewrite functor_comp. rewrite functor_comp. rewrite functor_comp. rewrite functor_comp.
     rewrite (hfiberpr2 _ _ f1'). rewrite (hfiberpr2 _ _ f2'). rewrite (hfiberpr2 _ _ f3').
@@ -460,11 +460,11 @@ Section complexes_homotopies.
         (f3' : hfiber (# ComplexHomotFunctor) f3) (f4' : hfiber (# ComplexHomotFunctor) f4)
         (g1' : hfiber (# ComplexHomotFunctor) g1) (g2' : hfiber (# ComplexHomotFunctor) g2)
         (g3' : hfiber (# ComplexHomotFunctor) g3) (g4' : hfiber (# ComplexHomotFunctor) g4)
-        (H : f1 ;; f2 ;; f3 ;; f4 = g1 ;; g2 ;; g3 ;; g4) :
-    # ComplexHomotFunctor ((hfiberpr1 _ _ f1') ;; (hfiberpr1 _ _ f2') ;; (hfiberpr1 _ _ f3')
-                                               ;; (hfiberpr1 _ _ f4')) =
-    # ComplexHomotFunctor ((hfiberpr1 _ _ g1') ;; (hfiberpr1 _ _ g2') ;; (hfiberpr1 _ _ g3')
-                                               ;; (hfiberpr1 _ _ g4')).
+        (H : f1 · f2 · f3 · f4 = g1 · g2 · g3 · g4) :
+    # ComplexHomotFunctor ((hfiberpr1 _ _ f1') · (hfiberpr1 _ _ f2') · (hfiberpr1 _ _ f3')
+                                               · (hfiberpr1 _ _ f4')) =
+    # ComplexHomotFunctor ((hfiberpr1 _ _ g1') · (hfiberpr1 _ _ g2') · (hfiberpr1 _ _ g3')
+                                               · (hfiberpr1 _ _ g4')).
   Proof.
     rewrite functor_comp. rewrite functor_comp. rewrite functor_comp. rewrite functor_comp.
     rewrite functor_comp. rewrite functor_comp.

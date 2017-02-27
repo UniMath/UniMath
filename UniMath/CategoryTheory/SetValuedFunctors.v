@@ -14,7 +14,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 
@@ -102,13 +103,13 @@ Section LiftEpiNatTrans.
     apply (CoequalizerCommutes coeq).
   Qed.
 
-  Lemma univ_surj_nt_ax_pw x  : p x ;; univ_surj_nt x = f x .
+  Lemma univ_surj_nt_ax_pw x  : p x · univ_surj_nt x = f x .
   Proof.
     now rewrite <- univ_surj_nt_ax.
   Qed.
 
 
-  Lemma univ_surj_nt_ax_pw_pw x c : (p x ;; univ_surj_nt x) c = f x c.
+  Lemma univ_surj_nt_ax_pw_pw x c : (p x · univ_surj_nt x) c = f x c.
   Proof.
     now rewrite <- univ_surj_nt_ax.
   Qed.

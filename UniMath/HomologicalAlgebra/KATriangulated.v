@@ -18,7 +18,7 @@ Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -77,7 +77,7 @@ Section KATriangulated.
                (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1''))
                (# (ComplexHomotFunctor A) (KAOctaMor2 f1'' g1''))
                (# (ComplexHomotFunctor A) (MappingConePr1 A g1'')
-                  ;; # (AddEquiv1 (@Trans KAPreTriang))
+                  · # (AddEquiv1 (@Trans KAPreTriang))
                   (# (ComplexHomotFunctor A) (MappingConeIn2 A f1''))))
       (MappingConeTri (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1'')) i').
   Proof.
@@ -107,7 +107,7 @@ Section KATriangulated.
                (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1''))
                (# (ComplexHomotFunctor A) (KAOctaMor2 f1'' g1''))
                (# (ComplexHomotFunctor A) (MappingConePr1 A g1'')
-                  ;; # (AddEquiv1 (@Trans KAPreTriang))
+                  · # (AddEquiv1 (@Trans KAPreTriang))
                   (# (ComplexHomotFunctor A) (MappingConeIn2 A f1'')))).
   Proof.
     use mk_KADTriData.
@@ -120,7 +120,7 @@ Section KATriangulated.
         (f' : hfiber (# (ComplexHomotFunctor A)) f) (g' : hfiber (# (ComplexHomotFunctor A)) g)
         (f'' := hfiberpr1 # (ComplexHomotFunctor A) f f')
         (g'' := hfiberpr1 # (ComplexHomotFunctor A) g g'):
-    # (ComplexHomotFunctor A) (f'' ;;  g'') = f ;; g.
+    # (ComplexHomotFunctor A) (f'' ·  g'') = f · g.
   Proof.
     unfold f'', g''.
     rewrite functor_comp. rewrite hfiberpr2. rewrite hfiberpr2. apply idpath.
@@ -131,17 +131,17 @@ Section KATriangulated.
              {g1 : y1 --> z1} {g2 : z1 --> x2} {g3 : x2 --> (AddEquiv1 Trans y1)}
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              (H1 : isDTri (mk_Tri f1 f2 f3)) (H2 : isDTri (mk_Tri g1 g2 g3))
-             (H3 : isDTri (mk_Tri (f1 ;; g1) h2 h3)) :
+             (H3 : isDTri (mk_Tri (f1 · g1) h2 h3)) :
     ∥ Octa H1 H2 H3 ∥.
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj A f1) (propproperty _)). intros f1'.
     use (squash_to_prop (ComplexHomotFunctor_issurj A g1) (propproperty _)). intros g1'.
     set (f1'' := hfiberpr1 _ _ f1'). set (g1'' := hfiberpr1 _ _ g1').
-    set (fg1' := hfiberpair (# (ComplexHomotFunctor A)) (f1'' ;; g1'')
+    set (fg1' := hfiberpair (# (ComplexHomotFunctor A)) (f1'' · g1'')
                             (KATriangOcta_hfiber_comp_eq f1 g1 f1' g1')).
     set (H1' := KAFiberisDTri (Morphisms.mk_Morphism f1) f1').
     set (H2' := KAFiberisDTri (Morphisms.mk_Morphism g1) g1').
-    set (H3' := KAFiberisDTri (Morphisms.mk_Morphism (f1 ;; g1)) fg1').
+    set (H3' := KAFiberisDTri (Morphisms.mk_Morphism (f1 · g1)) fg1').
     use (squash_to_prop
            (DExt KAPreTriang (mk_DTri' _ H1)
                  (mk_DTri' _ (KAFiberisDTri (Morphisms.mk_Morphism f1) f1'))
@@ -168,7 +168,7 @@ Section KATriangulated.
                                             (is_z_isomorphism_identity _)))).
     use (squash_to_prop
            (DExt KAPreTriang (mk_DTri' _ H3)
-                 (mk_DTri' _ (KAFiberisDTri (Morphisms.mk_Morphism (f1 ;; g1)) fg1'))
+                 (mk_DTri' _ (KAFiberisDTri (Morphisms.mk_Morphism (f1 · g1)) fg1'))
                  (identity _) (identity _) (! (KAIdComm _ _ (idpath _))))
            (propproperty _)). intros Ext3.
     set (I3' := mk_TriIso (TExtMor Ext3)

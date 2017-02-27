@@ -20,9 +20,8 @@ Require Import UniMath.Foundations.Propositions.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Open Scope cat.
 
 (** * The opposite precategory of a precategory *)
 
@@ -31,7 +30,7 @@ Definition opp_precat_ob_mor (C : precategory_ob_mor) : precategory_ob_mor :=
 
 Definition opp_precat_data (C : precategory_data) : precategory_data :=
   tpair _ _ (tpair _ (fun c : opp_precat_ob_mor C => identity c)
-                     (fun (a b c : opp_precat_ob_mor C) f g => g ;; f)).
+                     (fun (a b c : opp_precat_ob_mor C) f g => g · f)).
 
 Lemma is_precat_opp_precat_data (C : precategory) : is_precategory (opp_precat_data C).
 Proof.
@@ -44,8 +43,7 @@ Qed.
 Definition opp_precat (C : precategory) : precategory :=
   tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).
 
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-
+Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : cat.
 
 Definition opp_ob {C : precategory} (c : ob C) : ob C^op := c.
 
@@ -182,6 +180,8 @@ Proof.
 Qed.
 
 End opp_functor_properties.
+
+Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : cat.
 
 Lemma functor_opp_identity {C : precategory} (hsC : has_homsets C) :
   functor_opp (functor_identity C) = functor_identity C^op.
