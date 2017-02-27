@@ -103,6 +103,35 @@ Proof.
   - exact (pr2 (pr2 X) b).
 Defined.
 
+Definition adj_equiv (A B : precategory) : UU
+ := ∑ F : functor A B, adj_equivalence_of_precats F.                                        
+
+Coercion left_adjequiv (A B : precategory) (F : adj_equiv A B) 
+: functor A B := pr1 F.
+
+Coercion adj_equiv_of_precats_from_adj {A B : precategory} (E : adj_equiv A B)
+  : adj_equivalence_of_precats E := pr2 E.
+
+
+Coercion adj_from_adj_equiv {A B} (F : adj_equiv A B) : adjunction A B.
+Proof.
+  mkpair.
+  - mkpair.
+    + exact (pr1 F).
+    + exists (right_adjoint F).
+      exists (adjunit F).
+      exact (adjcounit F).
+  - exists (triangle_id_left_ad (pr2 (pr1 (pr2 F)))).
+    exact (triangle_id_right_ad (pr2 (pr1 (pr2 F)))).
+Defined.
+
+Coercion equiv_from_adj_equiv {A B} (F : adj_equiv A B) : equivalence_of_precats A B.
+Proof.
+  mkpair.
+  - exact F.
+  - exists (pr1 (pr2 (pr2 F))).
+    exact (pr2 (pr2 (pr2 F))).
+Defined.
 End adjunction.
 
 
@@ -250,25 +279,19 @@ Definition data_of_right_adjoint_over
 Coercion data_of_right_adjoint_over
   : right_adjoint_over >-> right_adjoint_over_data.
 
+Definition adjunction_of_right_adjoint_over {C C' : Precategory}
+           {X : adjunction C C'} {D : disp_precat C} {D' : disp_precat C'}
+           (FF : functor_over (left_functor X) D D')
+           (GG : right_adjoint_over FF)
+: adjunction_over X D D'
+:= (adjunction_of_right_adjoint_over_data GG ,, pr2 GG).
 
+Definition right_adjoint_of_adjunction_over {C C' : Precategory}
+           {X : adjunction C C'} {D : disp_precat C} {D' : disp_precat C'}
+           (A : adjunction_over X D D')
+: right_adjoint_over (left_adj_over A)
+:= (right_adjoint_of_adjunction_over_data A ,, pr2 A).
 
-Definition data_of_right_adjoint_over_id {C} {D D' : disp_precat C}
-  {FF : functor_over _ D D'}
-  (GG : right_adjoint_over_id FF)
-:= pr1 GG.
-Coercion data_of_right_adjoint_over_id
-  : right_adjoint_over_id >-> right_adjoint_over_id_data.
-
-Definition adjunction_of_right_adjoint_over_id {C} {D D' : disp_precat C}
-    {FF : functor_over _ D D'}
-    (GG : right_adjoint_over_id FF)
-  : adjunction_over_id D D'
-:= (adjunction_of_right_adjoint_over_id_data GG ,, pr2 GG).
-
-Definition right_adjoint_of_adjunction_over_id {C} {D D' : disp_precat C}
-    (A : adjunction_over_id D D')
-  : right_adjoint_over_id A
-:= (right_adjoint_of_adjunction_over_id_data A,, pr2 A).
 
 (* TODO: add the dual-handedness version, i.e. indexed over GG instead of FF. *)
 End Adjunctions.
@@ -277,50 +300,49 @@ Section Equivalences.
 (** ** Equivalences (adjoint and quasi) *)
 
 
-Definition form_equiv_over {C C' : Precategory} (A : equivalence_of_precats C C') {D D'}
-           (X : adjunction_over_data A D D') : UU
-  := ∏ x xx, is_iso_disp (adjunitiso A x) (unit_over X x xx)
+Definition form_equiv_over {C C' : Precategory} {X : equivalence_of_precats C C'} 
+           {D : disp_precat C} {D' : disp_precat C'}
+           (A : adjunction_over_data X D D') : UU
+  := (∏ x xx, is_iso_disp (adjunitiso X x) (unit_over A x xx))
      ×
-     ∏ x xx, is_iso_disp (adjcounitiso A x) (counit_over X x xx).
+     (∏ x xx, is_iso_disp (adjcounitiso X x) (counit_over A x xx)).
 
 
-Definition form_equiv_over_id {C} {D D' : disp_precat C}
-    (A : adjunction_over_id_data D D')
-    (η := unit_over_id A)
-    (ε := counit_over_id A)
-  : UU
-:= (∏ x xx, is_iso_disp (identity_iso _ ) (η x xx)) 
- × (∏ x xx, is_iso_disp (identity_iso _ ) (ε x xx)).
-
-Definition is_iso_unit_over_id {C} {D D' : disp_precat C}
-  {A : adjunction_over_id_data D D'}
-  (E : form_equiv_over_id A)
+Definition is_iso_unit_over
+           {C C' : Precategory} (A : equivalence_of_precats C C') {D D'}
+           (X : adjunction_over_data A D D')
+           (E : form_equiv_over X)
 := pr1 E.
 
-Definition is_iso_counit_over_id {C} {D D' : disp_precat C}
-  {A : adjunction_over_id_data D D'}
-  (E : form_equiv_over_id A)
+Definition is_iso_counit_over_id 
+           {C C' : Precategory} (A : equivalence_of_precats C C') {D D'}
+           (X : adjunction_over_data A D D')
+           (E : form_equiv_over X)
 := pr2 E.
 
-Definition equiv_over_id {C} (D D' : disp_precat C) : UU
-:= ∑ A : adjunction_over_id D D', form_equiv_over_id A.
+Definition equiv_over {C C' : Precategory} (A : adj_equiv C C') 
+           (D : disp_precat C) (D' : disp_precat C')
+         : UU
+:= ∑ E : adjunction_over A D D', @form_equiv_over _ _ A _  _ (pr1 E).
+(* argument A is not inferred *)
 
-Definition adjunction_of_equiv_over_id {C} {D D' : disp_precat C}
-  (A : equiv_over_id D D')
-:= pr1 A.
-Coercion adjunction_of_equiv_over_id
-  : equiv_over_id >-> adjunction_over_id.
+Coercion adjunction_of_equiv_over {C C' : Precategory} (A : adj_equiv C C')
+          {D : disp_precat C} {D': disp_precat C'} (E : equiv_over A D D')
+: adjunction_over _ _ _ := pr1 E.
 
-Definition axioms_of_equiv_over_id {C} {D D' : disp_precat C}
-  (A : equiv_over_id D D')
+
+Coercion axioms_of_equiv_over {C C' : Precategory} (A : adj_equiv C C')
+            {D : disp_precat C} {D': disp_precat C'} 
+            (E : equiv_over A D D')
 := pr2 A.
-Coercion axioms_of_equiv_over_id
-  : equiv_over_id >-> form_equiv_over_id.
 
-Definition is_equiv_over_id {C} {D D' : disp_precat C}
-  (FF : functor_over (functor_identity _) D D') : UU
-:= ∑ GG : right_adjoint_over_id FF,
-   form_equiv_over_id GG.
+Definition is_equiv_over {C C' : Precategory} (A : adj_equiv C C')
+           {D : disp_precat C} {D': disp_precat C'} 
+           (FF : functor_over (left_functor A) D D') : UU
+  := ∑ GG : @right_adjoint_over _ _ A _ _ FF, 
+            @form_equiv_over _ _ A _ _ GG.
+(* argument A is not inferred *)
+
 
 Definition right_adjoint_of_is_equiv_over_id {C} {D D' : disp_precat C}
   {FF : functor_over _ D D'}
