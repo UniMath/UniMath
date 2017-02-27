@@ -5,7 +5,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 
 Section def_underprecategories.
 
@@ -25,17 +25,17 @@ Section def_underprecategories.
 
   (* Morphisms *)
   Definition Under_mor (X Y : Under_ob) : UU :=
-    ∑ f : C⟦Under_ob_cod X, Under_ob_cod Y⟧, Under_ob_mor X ;; f = Under_ob_mor Y.
+    ∑ f : C⟦Under_ob_cod X, Under_ob_cod Y⟧, Under_ob_mor X · f = Under_ob_mor Y.
 
   Definition mk_Under_mor (X Y : Under_ob) (f : C⟦Under_ob_cod X, Under_ob_cod Y⟧)
-             (H : Under_ob_mor X ;; f = Under_ob_mor Y) : Under_mor X Y := tpair _ f H.
+             (H : Under_ob_mor X · f = Under_ob_mor Y) : Under_mor X Y := tpair _ f H.
 
   (* Accessor functions *)
   Definition Under_mor_mor {X Y : Under_ob} (M : Under_mor X Y) :
     C⟦Under_ob_cod X, Under_ob_cod Y⟧ := pr1 M.
 
   Definition Under_mor_eq {X Y : Under_ob} (M : Under_mor X Y) :
-    Under_ob_mor X ;; Under_mor_mor M = Under_ob_mor Y := pr2 M.
+    Under_ob_mor X · Under_mor_mor M = Under_ob_mor Y := pr2 M.
 
   (* An undercategory has_homsets *)
   Definition isaset_Under_mor (X Y : Under_ob) : isaset (Under_mor X Y).
@@ -59,7 +59,7 @@ Section def_underprecategories.
   Definition Under_id (X : Under_ob) : Under_mor X X := mk_Under_mor X X (identity _) (id_right _ ).
 
   Local Lemma Under_comp_eq {X Y Z : Under_ob} (f : Under_mor X Y) (g : Under_mor Y Z) :
-    Under_ob_mor X ;; (Under_mor_mor f ;; Under_mor_mor g) = Under_ob_mor Z.
+    Under_ob_mor X · (Under_mor_mor f · Under_mor_mor g) = Under_ob_mor Z.
   Proof.
     rewrite assoc.
     rewrite (Under_mor_eq f).
@@ -69,7 +69,7 @@ Section def_underprecategories.
   Definition Under_comp (X Y Z : Under_ob) : Under_mor X Y -> Under_mor Y Z -> Under_mor X Z.
   Proof.
     intros f g.
-    exact (mk_Under_mor X Z (Under_mor_mor f ;; Under_mor_mor g) (Under_comp_eq f g)).
+    exact (mk_Under_mor X Z (Under_mor_mor f · Under_mor_mor g) (Under_comp_eq f g)).
   Defined.
 
   Definition UnderPrecategory_ob_mor : precategory_ob_mor.
@@ -121,12 +121,12 @@ Section undercategories_morphisms.
   Proof.
     intro af.
     exists (pr1 af).
-    exact (h ;; pr2 af).
+    exact (h · pr2 af).
   Defined.
 
   Local Lemma Under_precategories_mor_mor_eq {c c' : C} (h : C⟦c, c'⟧)
              (af af' : c' / C) (g : (c' / C)⟦af, af'⟧) :
-    (Under_ob_mor C c (Under_precategories_mor_ob h af)) ;; (Under_mor_mor C c' g) =
+    (Under_ob_mor C c (Under_precategories_mor_ob h af)) · (Under_mor_mor C c' g) =
     (Under_ob_mor C c (Under_precategories_mor_ob h af')).
   Proof.
     cbn.

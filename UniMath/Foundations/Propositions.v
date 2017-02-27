@@ -176,7 +176,7 @@ Proof.
   intro. apply impred.
   intro P. apply impred.
   intro. apply (pr2 P).
-Defined.
+Qed.
 
 Definition ishinh (X : UU) : hProp := hProppair (ishinh_UU X) (isapropishinh X).
 

@@ -4,4 +4,3 @@ FiniteSets.v
 OrderedSets.v
 FiniteSequences.v
 Tests.v
-# SimplicialSets.v

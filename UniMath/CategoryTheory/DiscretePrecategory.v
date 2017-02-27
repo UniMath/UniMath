@@ -14,7 +14,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 
 (** * Discrete precategories *)
 Section DiscretePrecategory.

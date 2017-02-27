@@ -26,6 +26,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
@@ -36,7 +37,6 @@ Require Import UniMath.CategoryTheory.precomp_fully_faithful.
 Require Import UniMath.CategoryTheory.precomp_ess_surj.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (** * Construction of the Rezk completion via Yoneda *)
 
@@ -177,11 +177,7 @@ Defined.
 
 End rezk_universal_property.
 
-
-
 Section opp_rezk_universal_property.
-
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Variables A : precategory.
 Hypothesis hsA: has_homsets A.

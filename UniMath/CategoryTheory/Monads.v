@@ -24,14 +24,10 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
-
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G □ F" := (functor_composite F G) (at level 35).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -57,11 +53,11 @@ Definition η {C : precategory} (F : Monad_data C)
 
 Definition Monad_laws {C : precategory} (T : Monad_data C) : UU :=
     (
-      (∏ c : C, η T (T c) ;; μ T c = identity (T c))
+      (∏ c : C, η T (T c) · μ T c = identity (T c))
         ×
-      (∏ c : C, #T (η T c) ;; μ T c = identity (T c)))
+      (∏ c : C, #T (η T c) · μ T c = identity (T c)))
       ×
-    (∏ c : C, #T (μ T c) ;; μ T c = μ T (T c) ;; μ T c).
+    (∏ c : C, #T (μ T c) · μ T c = μ T (T c) · μ T c).
 
 Lemma isaprop_Monad_laws (C : precategory) (hs : has_homsets C) (T : Monad_data C) :
    isaprop (Monad_laws T).
@@ -74,17 +70,17 @@ Definition Monad (C : precategory) : UU := ∑ T : Monad_data C, Monad_laws T.
 
 Coercion Monad_data_from_Monad (C : precategory) (T : Monad C) : Monad_data C := pr1 T.
 
-Lemma Monad_law1 {C : precategory} {T : Monad C} : ∏ c : C, η T (T c) ;; μ T c = identity (T c).
+Lemma Monad_law1 {C : precategory} {T : Monad C} : ∏ c : C, η T (T c) · μ T c = identity (T c).
 Proof.
 exact (pr1 (pr1 (pr2 T))).
 Qed.
 
-Lemma Monad_law2 {C : precategory} {T : Monad C} : ∏ c : C, #T (η T c) ;; μ T c = identity (T c).
+Lemma Monad_law2 {C : precategory} {T : Monad C} : ∏ c : C, #T (η T c) · μ T c = identity (T c).
 Proof.
 exact (pr2 (pr1 (pr2 T))).
 Qed.
 
-Lemma Monad_law3 {C : precategory} {T : Monad C} : ∏ c : C, #T (μ T c) ;; μ T c = μ T (T c) ;; μ T c.
+Lemma Monad_law3 {C : precategory} {T : Monad C} : ∏ c : C, #T (μ T c) · μ T c = μ T (T c) · μ T c.
 Proof.
 exact (pr2 (pr2 T)).
 Qed.
@@ -96,8 +92,8 @@ Section Monad_precategory.
 
 Definition Monad_Mor_laws {C : precategory} {T T' : Monad_data C} (α : T ⟶ T')
   : UU :=
-  (∏ a : C, μ T a ;; α a = α (T a) ;; #T' (α a) ;; μ T' a) ×
-  (∏ a : C, η T a ;; α a = η T' a).
+  (∏ a : C, μ T a · α a = α (T a) · #T' (α a) · μ T' a) ×
+  (∏ a : C, η T a · α a = η T' a).
 
 Lemma isaprop_Monad_Mor_laws (C : precategory) (hs : has_homsets C)
   (T T' : Monad_data C) (α : T ⟶ T')
@@ -114,13 +110,13 @@ Coercion nat_trans_from_monad_mor (C : precategory) (T T' : Monad C) (s : Monad_
   : T ⟶ T' := pr1 s.
 
 Definition Monad_Mor_η {C : precategory} {T T' : Monad C} (α : Monad_Mor T T')
-  : ∏ a : C, η T a ;; α a = η T' a.
+  : ∏ a : C, η T a · α a = η T' a.
 Proof.
   exact (pr2 (pr2 α)).
 Qed.
 
 Definition Monad_Mor_μ {C : precategory} {T T' : Monad C} (α : Monad_Mor T T')
-  : ∏ a : C, μ T a ;; α a = α (T a) ;; #T' (α a) ;; μ T' a.
+  : ∏ a : C, μ T a · α a = α (T a) · #T' (α a) · μ T' a.
 Proof.
   exact (pr1 (pr2 α)).
 Qed.
@@ -238,9 +234,9 @@ Section bind.
 Context {C : precategory} {T : Monad C}.
 
 (** Definition of bind *)
-Definition bind {a b : C} (f : C⟦a,T b⟧) : C⟦T a,T b⟧ := # T f ;; μ T b.
+Definition bind {a b : C} (f : C⟦a,T b⟧) : C⟦T a,T b⟧ := # T f · μ T b.
 
-Lemma η_bind {a b : C} (f : C⟦a,T b⟧) : η T a ;; bind f = f.
+Lemma η_bind {a b : C} (f : C⟦a,T b⟧) : η T a · bind f = f.
 Proof.
 unfold bind.
 rewrite assoc.
@@ -257,7 +253,7 @@ apply Monad_law2.
 Qed.
 
 Lemma bind_bind {a b c : C} (f : C⟦a,T b⟧) (g : C⟦b,T c⟧) :
-  bind f ;; bind g = bind (f ;; bind g).
+  bind f · bind g = bind (f · bind g).
 Proof.
 unfold bind; rewrite <- assoc.
 eapply pathscomp0; [apply maponpaths; rewrite assoc;
