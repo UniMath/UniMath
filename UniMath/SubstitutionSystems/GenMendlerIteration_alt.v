@@ -20,7 +20,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
@@ -60,7 +60,7 @@ Let inF : C⟦F μF,μF⟧ := alg_map _ (InitialObject μF_Initial).
 Let e : ∏ (n : nat), C⟦iter_functor F n IC,μF⟧ := colimIn (CC chnF).
 Let cocone_μF : cocone chnF μF := colimCocone (CC chnF).
 
-Local Lemma e_comm (n : nat) : e (S n) = # F (e n) ;; inF.
+Local Lemma e_comm (n : nat) : e (S n) = # F (e n) · inF.
 Proof.
 apply pathsinv0,
       (colimArrowCommutes (mk_ColimCocone _ _ _ (HF _ _ _
@@ -100,14 +100,14 @@ induction n as [|n Pown].
 Defined.
 
 Local Lemma Pow_cocone_subproof n :
-  dmor LchnF (idpath (S n)) ;; pr1 (Pow (S n)) IC z = pr1 (Pow n) IC z.
+  dmor LchnF (idpath (S n)) · pr1 (Pow (S n)) IC z = pr1 (Pow n) IC z.
 Proof.
 induction n as [|n IHn].
 + cbn.
   apply (InitialArrowUnique ILD).
 + change (pr1 (Pow (S (S n))) _ z) with (ψ (iter_functor F (S n) 0) (Pow (S n) _ z)).
-  assert (H : dmor LchnF (idpath (S (S n))) ;; ψ ((iter_functor F (S n)) IC) ((Pow (S n)) IC z) =
-              ψ (iter_functor F n 0) (dmor LchnF (idpath (S n)) ;; pr1 (Pow (S n)) _ z)).
+  assert (H : dmor LchnF (idpath (S (S n))) · ψ ((iter_functor F (S n)) IC) ((Pow (S n)) IC z) =
+              ψ (iter_functor F n 0) (dmor LchnF (idpath (S n)) · pr1 (Pow (S n)) _ z)).
     apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (dmor chnF (idpath (S n))))).
   now rewrite H, IHn.
 Qed.
@@ -130,7 +130,7 @@ Defined.
 
 Definition preIt : D⟦L μF,X⟧ := colimArrow CC_LchnF X Pow_cocone.
 
-Local Lemma eqSS n : # L (e n) ;; preIt = Pow n IC z.
+Local Lemma eqSS n : # L (e n) · preIt = Pow n IC z.
 Proof.
 apply (colimArrowCommutes CC_LchnF).
 Qed.
@@ -145,36 +145,36 @@ Let inF_iso : iso (F μF) μF := isopair _ is_iso_inF.
 Let inF_inv : C⟦μF,F μF⟧ := inv_from_iso inF_iso.
 
 (* The direction * -> ** *)
-Lemma S_imp_SS h n : # L inF ;; h = ψ μF h → # L (e n) ;; h = Pow n IC z.
+Lemma S_imp_SS h n : # L inF · h = ψ μF h → # L (e n) · h = Pow n IC z.
 Proof.
 intros Hh.
 induction n.
 - cbn.
   apply (InitialArrowUnique ILD).
 - rewrite e_comm, functor_comp, <- assoc, Hh.
-  assert (H : # L (# F (e n)) ;; ψ μF h = ψ (iter_functor F n 0) (# L (e n) ;; h)).
+  assert (H : # L (# F (e n)) · ψ μF h = ψ (iter_functor F n 0) (# L (e n) · h)).
     apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (e n))).
   now rewrite H, IHn.
 Qed.
 
 (* The direction ** -> * *)
-Local Lemma SS_imp_S (H : ∏ n, # L (e n) ;; preIt = Pow n IC z) : # L inF ;; preIt = ψ μF preIt.
+Local Lemma SS_imp_S (H : ∏ n, # L (e n) · preIt = Pow n IC z) : # L inF · preIt = ψ μF preIt.
 Proof.
-assert (H'' : # L inF ;; # L inF_inv = identity _).
+assert (H'' : # L inF · # L inF_inv = identity _).
 { rewrite <- functor_comp,  <- functor_id.
    apply maponpaths, (iso_inv_after_iso inF_iso). }
-assert (H' : ∏ n, # L (e (S n)) ;; # L inF_inv ;; ψ μF preIt = pr1 (Pow (S n)) _ z).
+assert (H' : ∏ n, # L (e (S n)) · # L inF_inv · ψ μF preIt = pr1 (Pow (S n)) _ z).
 { intro n.
   rewrite e_comm, functor_comp.
   eapply pathscomp0;
    [apply cancel_postcomposition; rewrite <-assoc;  apply maponpaths, H''|].
   rewrite id_right.
-  assert (H1 : # L (# F (e n)) ;; ψ μF preIt = ψ (iter_functor F n 0) (# L (e n) ;; preIt)).
+  assert (H1 : # L (# F (e n)) · ψ μF preIt = ψ (iter_functor F n 0) (# L (e n) · preIt)).
   { apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (e n))). }
   eapply pathscomp0; [ apply H1|].
   now rewrite H.
 }
-assert (HH : preIt = # L inF_inv ;; ψ μF preIt).
+assert (HH : preIt = # L inF_inv · ψ μF preIt).
 { apply pathsinv0, (colimArrowUnique CC_LchnF); simpl; intro n.
   destruct n.
   - apply (InitialArrowUnique ILD).
@@ -185,12 +185,12 @@ eapply pathscomp0; [ apply maponpaths, HH|].
 now rewrite assoc, H'', id_left.
 Qed.
 
-Lemma preIt_ok : # L inF ;; preIt = ψ μF preIt.
+Lemma preIt_ok : # L inF · preIt = ψ μF preIt.
 Proof.
 now apply SS_imp_S; intro n; apply eqSS.
 Qed.
 
-Lemma preIt_uniq (t : ∑ h, # L inF ;; h = ψ μF h) : t = (preIt,,preIt_ok).
+Lemma preIt_uniq (t : ∑ h, # L inF · h = ψ μF h) : t = (preIt,,preIt_ok).
 Proof.
 apply subtypeEquality; [intros f; apply hsD|]; simpl.
 destruct t as [f Hf]; simpl.
@@ -198,7 +198,7 @@ apply (colimArrowUnique CC_LchnF); intro n.
 now apply S_imp_SS, Hf.
 Qed.
 
-Theorem GenMendlerIteration : ∃! (h : L μF --> X), #L inF ;; h = ψ μF h.
+Theorem GenMendlerIteration : ∃! (h : L μF --> X), #L inF · h = ψ μF h.
 Proof.
 mkpair.
 - apply (preIt,,preIt_ok).
@@ -222,7 +222,7 @@ Variables (θ : functor_composite F L ⟶ functor_composite L G).
 
 Lemma is_nat_trans_ψ_from_comps :
         is_nat_trans ψ_source ψ_target
-          (λ A (f : yoneda_objects_ob D X (L A)), θ A ;; # G f ;; ρ).
+          (λ A (f : yoneda_objects_ob D X (L A)), θ A · # G f · ρ).
 Proof.
 intros A B h; apply funextfun; intro f; cbn.
 rewrite functor_comp, !assoc.
@@ -234,12 +234,12 @@ Definition ψ_from_comps : ψ_source ⟶ ψ_target.
 Proof.
 mkpair.
 - intros A f.
-  exact (θ A ;; #G f ;; ρ).
+  exact (θ A · #G f · ρ).
 - apply is_nat_trans_ψ_from_comps.
 Defined.
 
 Definition SpecialGenMendlerIteration :
-  ∃! (h : L μF --> X), # L inF ;; h = θ μF ;; #G h ;; ρ
+  ∃! (h : L μF --> X), # L inF · h = θ μF · #G h · ρ
     := GenMendlerIteration ψ_from_comps.
 
 End special_case.
@@ -261,7 +261,7 @@ Variables (ψ' : ψ_source X' L' ⟶ ψ_target X' L').
 
 Variables (Φ : functor_composite (functor_opp L) Yon ⟶ functor_composite (functor_opp L') Yon').
 
-Variables (H : ψ μF ;; Φ (F μF) = Φ μF ;; ψ' μF).
+Variables (H : ψ μF · Φ (F μF) = Φ μF · ψ' μF).
 
 Theorem fusion_law : Φ μF (It X L IL HL ψ) = It X' L' IL' HL' ψ'.
 Proof.

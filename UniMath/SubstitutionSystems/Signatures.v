@@ -26,7 +26,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -100,8 +100,7 @@ Proof.
       destruct α as [α a].
       destruct β as [β b]. simpl in *.
       rewrite functor_comp.
-      set (HH:=functor_comp H).
-      rewrite HH; simpl; clear HH.
+      rewrite (functor_comp H); simpl.
       repeat rewrite <- assoc.
       apply maponpaths.
       rewrite <- nat_trans_ax.
@@ -153,7 +152,7 @@ Proof.
     intros α β.
     unfold θ_target_functor_data. simpl in *.
     unfold θ_target_mor.
-    set (T:=functor_comp H _ _ _ (pr1 α ∙∙ # U (pr2 α)) (pr1 β ∙∙ # U (pr2 β))).
+    set (T:=functor_comp H (pr1 α ∙∙ # U (pr2 α)) (pr1 β ∙∙ # U (pr2 β))).
     simpl in *.
     eapply pathscomp0.
 (*    match goal with |[ H :  ?f = _ |- _ ] => transitivity f end. *)
@@ -191,7 +190,7 @@ Hypothesis θ : θ_source ⟶ θ_target.
 (** [θ] is supposed to satisfy two strength laws *)
 
 Definition θ_Strength1 : UU := ∏ X : EndC,
-  (θ (X ⊗ (id_Ptd C hs))) ;; # H (identity X : functor_composite (functor_identity C) X ⟶ pr1 X)
+  (θ (X ⊗ (id_Ptd C hs))) · # H (identity X : functor_composite (functor_identity C) X ⟶ pr1 X)
           = nat_trans_id _ .
 
 Section Strength_law_1_intensional.
@@ -199,7 +198,7 @@ Section Strength_law_1_intensional.
 (** needs the heterogeneous formulation of the monoidal operation to type-check *)
 Definition θ_Strength1_int : UU
   := ∏ X : EndC,
-     θ (X ⊗ (id_Ptd C hs)) ;; # H (λ_functor _) = λ_functor _.
+     θ (X ⊗ (id_Ptd C hs)) · # H (λ_functor _) = λ_functor _.
 
 Lemma θ_Strength1_int_implies_θ_Strength1 : θ_Strength1_int → θ_Strength1.
 Proof.
@@ -241,18 +240,18 @@ Hypothesis θ_strength1 : θ_Strength1.
 
 Definition θ_Strength2 : UU := ∏ (X : EndC) (Z Z' : Ptd) (Y : EndC)
            (α : functor_compose hs hs (functor_composite (U Z) (U Z')) X --> Y),
-    θ (X ⊗ (Z p• Z' : Ptd)) ;; # H α =
-    θ (X ⊗ Z') •• (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) ;;
+    θ (X ⊗ (Z p• Z' : Ptd)) · # H α =
+    θ (X ⊗ Z') •• (U Z) · θ ((functor_compose hs hs (U Z') X) ⊗ Z) ·
        # H (α : functor_compose hs hs (U Z) (X • (U Z')) --> Y).
 
 Section Strength_law_2_intensional.
  (* does not typecheck in the heterogeneous formulation *)
 Definition θ_Strength2_int : UU
   := ∏ (X : EndC) (Z Z' : Ptd),
-      θ (X ⊗ (Z p• Z'))  ;; #H (α_functor (U Z) (U Z') X )  =
+      θ (X ⊗ (Z p• Z'))  · #H (α_functor (U Z) (U Z') X )  =
       (α_functor (U Z) (U Z') (H X) : [C, D, hsD] ⟦ functor_compose hs hsD (functor_composite (U Z) (U Z')) (H X), functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧
-      ) ;;
-      θ (X ⊗ Z') •• (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) .
+      ) ·
+      θ (X ⊗ Z') •• (U Z) · θ ((functor_compose hs hs (U Z') X) ⊗ Z) .
 
 Lemma θ_Strength2_int_implies_θ_Strength2 : θ_Strength2_int → θ_Strength2.
 Proof.
@@ -269,7 +268,7 @@ Proof.
   simpl. rewrite <- TXZZ'c; clear TXZZ'c.
   rewrite <- assoc.
   apply maponpaths.
-  assert (functor_comp_H := functor_comp H _ _ _ (α_functor (pr1 Z) (pr1 Z') X)
+  assert (functor_comp_H := functor_comp H (α_functor (pr1 Z) (pr1 Z') X)
            (a : functor_compose hs hs (U Z) (functor_composite (U Z') X) --> Y)).
   assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
   simpl in functor_comp_H_c.
@@ -322,7 +321,7 @@ Hypothesis θ_strength2 : θ_Strength2.
 
 Lemma θ_nat_1 (X X' : EndC) (α : X --> X') (Z : Ptd)
   : compose(C:=[C, D, hsD]) (# H α ∙∙ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
-        θ (X ⊗ Z);; # H (α ∙∙ nat_trans_id (pr1 (U Z))).
+        θ (X ⊗ Z)· # H (α ∙∙ nat_trans_id (pr1 (U Z))).
 Proof.
   set (t:=nat_trans_ax θ).
   set (t':=t (X ⊗ Z) (X' ⊗ Z)).
@@ -334,22 +333,22 @@ Qed.
 (* the following makes sense but is wrong
 Lemma θ_nat_1' (X X' : EndC) (α : X --> X') (Z : Ptd)
   : compose(C:=EndC) (# H α øø (U Z)) (θ (X' ⊗ Z)) =
-        θ (X ⊗ Z);; # H (α øø (U Z)).
+        θ (X ⊗ Z)· # H (α øø (U Z)).
 Proof.
 Abort.
 *)
 
 Lemma θ_nat_1_pointwise (X X' : EndC) (α : X --> X') (Z : Ptd) (c : C)
-  :  pr1 (# H α) ((pr1 Z) c);; pr1 (θ (X' ⊗ Z)) c =
-       pr1 (θ (X ⊗ Z)) c;; pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
+  :  pr1 (# H α) ((pr1 Z) c)· pr1 (θ (X' ⊗ Z)) c =
+       pr1 (θ (X ⊗ Z)) c· pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
 Proof.
   set (t := θ_nat_1 _ _ α Z).
   set (t' := nat_trans_eq_weq hsD _ _ t c);
   clearbody t';  simpl in t'.
   assert (H':= functor_id (H X') (pr1 (pr1 Z) c));
   simpl in H'.
-  match goal with |[H1 : ?f ;; _ ;; ?g = _ , H2 : ?x = _ |- _ ] =>
-                        pathvia (f ;; x ;; g) end.
+  match goal with |[H1 : ?f · _ · ?g = _ , H2 : ?x = _ |- _ ] =>
+                        pathvia (f · x · g) end.
   - repeat rewrite <- assoc.
     apply maponpaths.
     rewrite H'.
@@ -359,7 +358,7 @@ Qed.
 
 Lemma θ_nat_2 (X : EndC) (Z Z' : Ptd) (f : Z --> Z')
   : compose (C:=[C, D, hsD]) (identity (H X) ∙∙ pr1 f) (θ (X ⊗ Z')) =
-       θ (X ⊗ Z);; # H (identity X ∙∙ pr1 f).
+       θ (X ⊗ Z)· # H (identity X ∙∙ pr1 f).
 Proof.
   set (t := nat_trans_ax θ).
   set (t' := t (precatbinprodpair X Z) (precatbinprodpair X Z') (precatbinprodmor (identity _ ) f)).
@@ -374,8 +373,8 @@ Proof.
 Qed.
 
 Lemma θ_nat_2_pointwise (X : EndC) (Z Z' : Ptd) (f : Z --> Z') (c : C)
-  :  # (pr1 (H X)) ((pr1 f) c);; pr1 (θ (X ⊗ Z')) c =
-       pr1 (θ (X ⊗ Z)) c;; pr1 (# H (identity X ∙∙ pr1 f)) c .
+  :  # (pr1 (H X)) ((pr1 f) c)· pr1 (θ (X ⊗ Z')) c =
+       pr1 (θ (X ⊗ Z)) c· pr1 (# H (identity X ∙∙ pr1 f)) c .
 Proof.
   set (t:=θ_nat_2 X _ _ f).
   set (t':=nat_trans_eq_weq hsD _ _ t c).

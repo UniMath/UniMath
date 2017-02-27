@@ -13,13 +13,15 @@ Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
   exact (∑ f : pr1 a --> pr1 b, #X f (pr2 a) = (pr2 b)).
 Defined.
 
+Local Open Scope cat_deprecated.
+
 Definition cat_data {C} (X:C==>SET) : precategory_data.
   intros. exists (cat_ob_mor X). split.
   { intro a.
     exact (identity (pr1 a),, (eqtohomot ((functor_id X) (pr1 a))) (pr2 a)). }
   { intros a b c f g.
     exact (pr1 g ∘ pr1 f,,
-           ((eqtohomot ((functor_comp X) _ _ _ (pr1 f) (pr1 g)) (pr2 a))
+           ((eqtohomot ((functor_comp X) (pr1 f) (pr1 g)) (pr2 a))
             @ (ap (#X (pr1 g)) (pr2 f) @ (pr2 g)))). } Defined.
 
 Lemma has_homsets_cat_ob_mor {C:Precategory} (X:C==>SET) :
@@ -111,7 +113,7 @@ Module pr1.
     { intermediate_path (#X f' (#X f x)).
       { exact (ap (#X f') (!i)). }
       { intermediate_path (#X (f' ∘ f) x).
-        { exact (eqtohomot (!functor_comp X _ _ _ f f') x). }
+        { exact (eqtohomot (!functor_comp X f f') x). }
         { intermediate_path (#X (identity c) x).
           { exact (eqtohomot (ap #X (pr1 j)) x). }
           { exact (eqtohomot (functor_id X c) x). }}}}

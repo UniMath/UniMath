@@ -16,18 +16,13 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.precategories
+               UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
-
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-
 
 (** Definition of binary products *)
 Section binproduct_def.
@@ -36,7 +31,7 @@ Variable C : precategory.
 
 Definition isBinProductCone (c d p : C) (p1 : p --> c) (p2 : p --> d) :=
   ∏ (a : C) (f : a --> c) (g : a --> d),
-  iscontr (total2 (fun fg : a --> p => dirprod (fg ;; p1 = f) (fg ;; p2 = g))).
+  iscontr (total2 (fun fg : a --> p => dirprod (fg · p1 = f) (fg · p2 = g))).
 
 Lemma isaprop_isBinProductCone (c d p : C) (p1 : p --> c) (p2 : p --> d) :
   isaprop (isBinProductCone c d p p1 p2).
@@ -74,14 +69,14 @@ Proof.
 Defined.
 
 Lemma BinProductPr1Commutes (c d : C) (P : BinProductCone c d):
-     ∏ (a : C) (f : a --> c) g, BinProductArrow P f g ;; BinProductPr1 P = f.
+     ∏ (a : C) (f : a --> c) g, BinProductArrow P f g · BinProductPr1 P = f.
 Proof.
   intros a f g.
   exact (pr1 (pr2 (pr1 (isBinProductCone_BinProductCone P _ f g)))).
 Qed.
 
 Lemma BinProductPr2Commutes (c d : C) (P : BinProductCone c d):
-     ∏ (a : C) (f : a --> c) g, BinProductArrow P f g ;; BinProductPr2 P = g.
+     ∏ (a : C) (f : a --> c) g, BinProductArrow P f g · BinProductPr2 P = g.
 Proof.
   intros a f g.
   exact (pr2 (pr2 (pr1 (isBinProductCone_BinProductCone P _ f g)))).
@@ -89,7 +84,7 @@ Qed.
 
 Lemma BinProductArrowUnique (c d : C) (P : BinProductCone c d) (x : C)
     (f : x --> c) (g : x --> d) (k : x --> BinProductObject P) :
-    k ;; BinProductPr1 P = f -> k ;; BinProductPr2 P = g ->
+    k · BinProductPr1 P = f -> k · BinProductPr2 P = g ->
       k = BinProductArrow P f g.
 Proof.
   intros H1 H2.
@@ -100,13 +95,13 @@ Qed.
 
 Lemma BinProductArrowsEq (c d : C) (P : BinProductCone c d) (x : C)
       (k1 k2 : x --> BinProductObject P) :
-  k1 ;; BinProductPr1 P = k2 ;; BinProductPr1 P ->
-  k1 ;; BinProductPr2 P = k2 ;; BinProductPr2 P ->
+  k1 · BinProductPr1 P = k2 · BinProductPr1 P ->
+  k1 · BinProductPr2 P = k2 · BinProductPr2 P ->
   k1 = k2.
 Proof.
   intros H1 H2.
-  set (p1 := k1 ;; BinProductPr1 P).
-  set (p2 := k1 ;; BinProductPr2 P).
+  set (p1 := k1 · BinProductPr1 P).
+  set (p2 := k1 · BinProductPr2 P).
   rewrite (BinProductArrowUnique _ _ P _ p1 p2 k1).
   apply pathsinv0.
   apply BinProductArrowUnique.
@@ -130,7 +125,7 @@ Defined.
 Definition mk_isBinProductCone (hsC : has_homsets C) (a b p : C)
   (pa : C⟦p,a⟧) (pb : C⟦p,b⟧) :
   (∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
-    ∃! k : C⟦c,p⟧, k ;; pa = f × k ;; pb = g) ->
+    ∃! k : C⟦c,p⟧, k · pa = f × k · pb = g) ->
   isBinProductCone a b p pa pb.
 Proof.
   intros H c cc g.
@@ -139,7 +134,7 @@ Defined.
 
 Lemma BinProductArrowEta (c d : C) (P : BinProductCone c d) (x : C)
     (f : x --> BinProductObject P) :
-    f = BinProductArrow P (f ;; BinProductPr1 P) (f ;; BinProductPr2 P).
+    f = BinProductArrow P (f · BinProductPr1 P) (f · BinProductPr2 P).
 Proof.
   apply BinProductArrowUnique;
   apply idpath.
@@ -149,11 +144,11 @@ Qed.
 Definition BinProductOfArrows {c d : C} (Pcd : BinProductCone c d) {a b : C}
     (Pab : BinProductCone a b) (f : a --> c) (g : b --> d) :
           BinProductObject Pab --> BinProductObject Pcd :=
-    BinProductArrow Pcd (BinProductPr1 Pab ;; f) (BinProductPr2 Pab ;; g).
+    BinProductArrow Pcd (BinProductPr1 Pab · f) (BinProductPr2 Pab · g).
 
 Lemma BinProductOfArrowsPr1 {c d : C} (Pcd : BinProductCone c d) {a b : C}
     (Pab : BinProductCone a b) (f : a --> c) (g : b --> d) :
-    BinProductOfArrows Pcd Pab f g ;; BinProductPr1 Pcd = BinProductPr1 Pab ;; f.
+    BinProductOfArrows Pcd Pab f g · BinProductPr1 Pcd = BinProductPr1 Pab · f.
 Proof.
   unfold BinProductOfArrows.
   rewrite BinProductPr1Commutes.
@@ -162,7 +157,7 @@ Qed.
 
 Lemma BinProductOfArrowsPr2 {c d : C} (Pcd : BinProductCone c d) {a b : C}
     (Pab : BinProductCone a b) (f : a --> c) (g : b --> d) :
-    BinProductOfArrows Pcd Pab f g ;; BinProductPr2 Pcd = BinProductPr2 Pab ;; g.
+    BinProductOfArrows Pcd Pab f g · BinProductPr2 Pcd = BinProductPr2 Pab · g.
 Proof.
   unfold BinProductOfArrows.
   rewrite BinProductPr2Commutes.
@@ -173,8 +168,8 @@ Qed.
 Lemma postcompWithBinProductArrow {c d : C} (Pcd : BinProductCone c d) {a b : C}
     (Pab : BinProductCone a b) (f : a --> c) (g : b --> d)
     {x : C} (k : x --> a) (h : x --> b) :
-        BinProductArrow Pab k h ;; BinProductOfArrows Pcd Pab f g =
-         BinProductArrow Pcd (k ;; f) (h ;; g).
+        BinProductArrow Pab k h · BinProductOfArrows Pcd Pab f g =
+         BinProductArrow Pcd (k · f) (h · g).
 Proof.
   apply BinProductArrowUnique.
   - rewrite <- assoc, BinProductOfArrowsPr1.
@@ -188,7 +183,7 @@ Qed.
 
 Lemma precompWithBinProductArrow {c d : C} (Pcd : BinProductCone c d) {a : C}
     (f : a --> c) (g : a --> d) {x : C} (k : x --> a)  :
-       k ;; BinProductArrow Pcd f g  = BinProductArrow Pcd (k ;; f) (k ;; g).
+       k · BinProductArrow Pcd f g  = BinProductArrow Pcd (k · f) (k · g).
 Proof.
   apply BinProductArrowUnique.
   -  rewrite <- assoc, BinProductPr1Commutes;
@@ -207,10 +202,10 @@ Variable CC : BinProducts C.
 Variables a b c d x y : C.
 
 Definition BinProductOfArrows_comp (f : a --> c) (f' : b --> d) (g : c --> x) (g' : d --> y)
-  : BinProductOfArrows _ (CC c d) (CC a b) f f' ;;
+  : BinProductOfArrows _ (CC c d) (CC a b) f f' ·
     BinProductOfArrows _ (CC _ _) (CC _ _) g g'
     =
-    BinProductOfArrows _ (CC _ _) (CC _ _)(f ;; g) (f' ;; g').
+    BinProductOfArrows _ (CC _ _) (CC _ _)(f · g) (f' · g').
 Proof.
   apply BinProductArrowUnique.
   - rewrite <- assoc.
@@ -246,8 +241,8 @@ Variables a b : C.
 
 Lemma BinProduct_endo_is_identity (P : BinProductCone _ a b)
   (k : BinProductObject _ P --> BinProductObject _ P)
-  (H1 : k ;; BinProductPr1 _ P = BinProductPr1 _ P)
-  (H2 : k ;; BinProductPr2 _ P = BinProductPr2 _ P)
+  (H1 : k · BinProductPr1 _ P = BinProductPr1 _ P)
+  (H2 : k · BinProductPr2 _ P = BinProductPr2 _ P)
   : identity _ = k.
 Proof.
   apply pathsinv0.
@@ -525,15 +520,15 @@ Lemma binproduct_nat_trans_univ_prop (A : [C, D, hsD])
   (f : (A --> (F:[C,D,hsD]))) (g : A --> (G:[C,D,hsD])) :
    ∏
    t : ∑ fg : A --> (BinProduct_of_functors:[C,D,hsD]),
-       fg ;; (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D,hsD]) --> F) = f
+       fg · (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D,hsD]) --> F) = f
       ×
-       fg ;; (binproduct_nat_trans_pr2 : (BinProduct_of_functors:[C,D,hsD]) --> G) = g,
+       fg · (binproduct_nat_trans_pr2 : (BinProduct_of_functors:[C,D,hsD]) --> G) = g,
    t =
    tpair
      (λ fg : A --> (BinProduct_of_functors:[C,D,hsD]),
-      fg ;; (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D,hsD]) --> F) = f
+      fg · (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D,hsD]) --> F) = f
    ×
-      fg ;; (binproduct_nat_trans_pr2 : (BinProduct_of_functors:[C,D,hsD]) --> G) = g)
+      fg · (binproduct_nat_trans_pr2 : (BinProduct_of_functors:[C,D,hsD]) --> G) = g)
      (binproduct_nat_trans A f g)
      (dirprodpair (binproduct_nat_trans_Pr1Commutes A f g)
         (binproduct_nat_trans_Pr2Commutes A f g)).
@@ -597,8 +592,8 @@ Section BinProduct_from_iso.
 
   Local Lemma iso_to_isBinProductCone_comm {x y z : C} (BP : BinProductCone C x y)
         (i : iso z (BinProductObject C BP)) (w : C) (f : w --> x) (g : w --> y) :
-    (BinProductArrow C BP f g ;; inv_from_iso i ;; (i ;; BinProductPr1 C BP) = f)
-      × (BinProductArrow C BP f g ;; inv_from_iso i ;; (i ;; BinProductPr2 C BP) = g).
+    (BinProductArrow C BP f g · inv_from_iso i · (i · BinProductPr1 C BP) = f)
+      × (BinProductArrow C BP f g · inv_from_iso i · (i · BinProductPr2 C BP) = g).
   Proof.
     split.
     - rewrite <- assoc. rewrite (assoc _ i).
@@ -611,8 +606,8 @@ Section BinProduct_from_iso.
 
   Local Lemma iso_to_isBinProductCone_unique {x y z : C} (BP : BinProductCone C x y)
         (i : iso z (BinProductObject C BP)) (w : C) (f : C ⟦w, x⟧) (g : C ⟦w, y⟧) (y0 : C ⟦w, z⟧)
-        (T : y0 ;; (i ;; BinProductPr1 C BP) = f × y0 ;; (i ;; BinProductPr2 C BP) = g) :
-    y0 = BinProductArrow C BP f g ;; iso_inv_from_iso i.
+        (T : y0 · (i · BinProductPr1 C BP) = f × y0 · (i · BinProductPr2 C BP) = g) :
+    y0 = BinProductArrow C BP f g · iso_inv_from_iso i.
   Proof.
     apply (post_comp_with_iso_is_inj C _ _ i (pr2 i)).
     rewrite <- assoc. cbn. rewrite (iso_after_iso_inv i). rewrite id_right.
@@ -623,12 +618,12 @@ Section BinProduct_from_iso.
 
   Lemma iso_to_isBinProductCone {x y z : C} (BP : BinProductCone C x y)
         (i : iso z (BinProductObject C BP)) :
-    isBinProductCone C _ _ z (i ;; (BinProductPr1 C BP))  (i ;; (BinProductPr2 C BP)).
+    isBinProductCone C _ _ z (i · (BinProductPr1 C BP))  (i · (BinProductPr2 C BP)).
   Proof.
     intros w f g.
     use unique_exists.
     (* Arrow *)
-    - exact ((BinProductArrow C BP f g) ;; (iso_inv_from_iso i)).
+    - exact ((BinProductArrow C BP f g) · (iso_inv_from_iso i)).
     (* Commutativity *)
     - exact (iso_to_isBinProductCone_comm BP i w f g).
     (* Equality of equalities of morphisms. *)
@@ -641,8 +636,8 @@ Section BinProduct_from_iso.
   Definition iso_to_BinProductCone {x y z : C} (BP : BinProductCone C x y)
              (i : iso z (BinProductObject C BP)) :
     BinProductCone C x y := mk_BinProductCone C _ _ z
-                                              (i ;; (BinProductPr1 C BP))
-                                              (i ;; (BinProductPr2 C BP))
+                                              (i · (BinProductPr1 C BP))
+                                              (i · (BinProductPr2 C BP))
                                               (iso_to_isBinProductCone BP i).
 
 End BinProduct_from_iso.
