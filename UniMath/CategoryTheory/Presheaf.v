@@ -1,20 +1,20 @@
 (** **********************************************************
 
-Theory about set-valued presheafs. We write Psh C for [C^op,HSET].
+Theory about set-valued presheaves. We write PreShv C for [C^op,HSET].
 
 Contents:
 
-- Limits ([Lims_Psh], [Lims_Psh_of_shape])
-- Colimits ([Colims_Psh], [Colims_Psh_of_shape])
-- Binary products ([BinProducts_Psh])
-- Indexed products ([Products_Psh])
-- Binary coproducts ([BinCoproducts_Psh])
-- Indexed coproducts ([Coproducts_Psh])
-- Initial object ([Initial_Psh])
-- Terminal object ([Terminal_Psh])
-- Pullbacks ([Pullbacks_Psh])
-- Exponentials ([has_exponentials_Psh])
-- Definition of the subobject classifier (without proof) ([Ω_Psh], [Ω_mor])
+- Limits ([Lims_PreShv], [Lims_PreShv_of_shape])
+- Colimits ([Colims_PreShv], [Colims_PreShv_of_shape])
+- Binary products ([BinProducts_PreShv])
+- Indexed products ([Products_PreShv])
+- Binary coproducts ([BinCoproducts_PreShv])
+- Indexed coproducts ([Coproducts_PreShv])
+- Initial object ([Initial_PreShv])
+- Terminal object ([Terminal_PreShv])
+- Pullbacks ([Pullbacks_PreShv])
+- Exponentials ([has_exponentials_PreShv])
+- Definition of the subobject classifier (without proof) ([Ω_PreShv], [Ω_mor])
 
 
 Written by: Anders Mörtberg, 2017
@@ -28,7 +28,6 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.opp_precat.
@@ -44,73 +43,72 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Monics.
 
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-Local Notation "'Psh' C" := [C^op,HSET,has_homsets_HSET] (at level 3).
-Arguments nat_trans_comp {_ _ _ _ _} _ _.
+Local Open Scope cat.
 
-(** Various limits and colimits in Psh C *)
+Notation "'PreShv' C" := [C^op,HSET,has_homsets_HSET] (at level 3) : cat.
+
+(** Various limits and colimits in PreShv C *)
 Section limits.
 
 Context {C : precategory}.
 
-Lemma Lims_Psh : Lims (Psh C).
+Lemma Lims_PreShv : Lims (PreShv C).
 Proof.
 now apply LimsFunctorCategory, LimsHSET.
 Defined.
 
-Lemma Lims_Psh_of_shape (g : graph) : Lims_of_shape g (Psh C).
+Lemma Lims_PreShv_of_shape (g : graph) : Lims_of_shape g (PreShv C).
 Proof.
 now apply LimsFunctorCategory_of_shape, LimsHSET_of_shape.
 Defined.
 
-Lemma Colims_Psh : Colims (Psh C).
+Lemma Colims_PreShv : Colims (PreShv C).
 Proof.
 now apply ColimsFunctorCategory, ColimsHSET.
 Defined.
 
-Lemma Colims_Psh_of_shape (g : graph) : Colims_of_shape g (Psh C).
+Lemma Colims_PreShv_of_shape (g : graph) : Colims_of_shape g (PreShv C).
 Proof.
 now apply ColimsFunctorCategory_of_shape, ColimsHSET_of_shape.
 Defined.
 
-Lemma BinProducts_Psh : BinProducts (Psh C).
+Lemma BinProducts_PreShv : BinProducts (PreShv C).
 Proof.
 now apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
 
-Lemma Products_Psh I : Products I (Psh C).
+Lemma Products_PreShv I : Products I (PreShv C).
 Proof.
 now apply Products_functor_precat, ProductsHSET.
 Defined.
 
-Lemma BinCoproducts_Psh : BinCoproducts (Psh C).
+Lemma BinCoproducts_PreShv : BinCoproducts (PreShv C).
 Proof.
 now apply BinCoproducts_functor_precat, BinCoproductsHSET.
 Defined.
 
-Lemma Coproducts_Psh I (HI : isaset I) : Coproducts I (Psh C).
+Lemma Coproducts_PreShv I (HI : isaset I) : Coproducts I (PreShv C).
 Proof.
 now apply Coproducts_functor_precat, CoproductsHSET, HI.
 Defined.
 
-Lemma Initial_Psh : Initial (Psh C).
+Lemma Initial_PreShv : Initial (PreShv C).
 Proof.
 now apply Initial_functor_precat, InitialHSET.
 Defined.
 
-Lemma Terminal_Psh : Terminal (Psh C).
+Lemma Terminal_PreShv : Terminal (PreShv C).
 Proof.
 now apply Terminal_functor_precat, TerminalHSET.
 Defined.
 
-Lemma Pullbacks_Psh : Pullbacks (Psh C).
+Lemma Pullbacks_PreShv : Pullbacks (PreShv C).
 Proof.
 now apply FunctorPrecategoryPullbacks, PullbacksHSET.
 Defined.
 
-Lemma has_exponentials_Psh (hsC : has_homsets C) :
-  has_exponentials BinProducts_Psh.
+Lemma has_exponentials_PreShv (hsC : has_homsets C) :
+  has_exponentials BinProducts_PreShv.
 Proof.
 now apply has_exponentials_functor_HSET, has_homsets_opp, hsC.
 Defined.
@@ -119,7 +117,7 @@ End limits.
 
 (** Definition of the subobject classifier in a presheaf
     TODO: Prove that Ω actually is the subobject classifier  *)
-Section Ω_Psh.
+Section Ω_PreShv.
 
 Context {C : precategory}.
 
@@ -128,7 +126,7 @@ Proof.
 use total2.
 - apply (∏ (x : C) (f : C⟦x,c⟧), hProp).
 - intros S.
-  apply (∏ (x : C) (f : C⟦x,c⟧), S x f → ∏ (y : C) (f' : C⟦y,x⟧), S y (f' ;; f)).
+  apply (∏ (x : C) (f : C⟦x,c⟧), S x f → ∏ (y : C) (f' : C⟦y,x⟧), S y (f' · f)).
 Defined.
 
 Lemma isaset_sieve (c : C) : isaset (sieve_def c).
@@ -159,13 +157,13 @@ Proof.
 intros S.
 mkpair.
 - intros y g.
-  apply (pr1 S y (g ;; f)).
+  apply (pr1 S y (g · f)).
 - abstract (intros y g H z h; simpl; rewrite <- assoc; apply (pr2 S), H).
 Defined.
 
-Local Definition Ω_Psh_data : functor_data C^op HSET := (sieve,,sieve_mor).
+Local Definition Ω_PreShv_data : functor_data C^op HSET := (sieve,,sieve_mor).
 
-Local Lemma is_functor_Ω_Psh_data : is_functor Ω_Psh_data.
+Local Lemma is_functor_Ω_PreShv_data : is_functor Ω_PreShv_data.
 Proof.
 split.
 - intros x; apply funextfun; intros [S hS]; simpl.
@@ -178,9 +176,9 @@ split.
   + now repeat (apply funextsec; intro); rewrite <- assoc.
 Qed.
 
-Definition Ω_Psh : Psh C := (Ω_Psh_data,,is_functor_Ω_Psh_data).
+Definition Ω_PreShv : PreShv C := (Ω_PreShv_data,,is_functor_Ω_PreShv_data).
 
-Definition Ω_mor : (Psh C)⟦Terminal_Psh,Ω_Psh⟧.
+Definition Ω_mor : (PreShv C)⟦Terminal_PreShv,Ω_PreShv⟧.
 Proof.
 use mk_nat_trans.
 - simpl; apply (λ c _, maximal_sieve c).
@@ -194,4 +192,4 @@ Proof.
 now apply from_terminal_isMonic.
 Qed.
 
-End Ω_Psh.
+End Ω_PreShv.

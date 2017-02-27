@@ -13,6 +13,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.Monics.
 
@@ -166,15 +167,12 @@ End Terminal_and_EmptyProd.
 
 (* End Terminal_from_Lims. *)
 
-
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-
 (** * Construction of terminal object in a functor category *)
 Section TerminalFunctorCat.
 
 Variables (C D : precategory) (ID : Terminal D) (hsD : has_homsets D).
 
-Definition Terminal_functor_precat : Terminal [C, D, hsD].
+Definition Terminal_functor_precat : Terminal [C,D,hsD].
 Proof.
 use mk_Terminal.
 - use mk_functor.
