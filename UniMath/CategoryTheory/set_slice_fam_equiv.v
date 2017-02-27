@@ -17,9 +17,10 @@ Require Import UniMath.Foundations.Sets
         UniMath.CategoryTheory.functor_categories
         UniMath.CategoryTheory.category_hset
         UniMath.CategoryTheory.slicecat
+        UniMath.CategoryTheory.Adjunctions
         UniMath.CategoryTheory.equivalences
-        UniMath.CategoryTheory.DiscretePrecategory
-        UniMath.CategoryTheory.UnicodeNotations.
+        UniMath.CategoryTheory.DiscretePrecategory.
+Local Open Scope cat.
 
 Section set_slice_fam_equiv.
 

@@ -10,17 +10,11 @@ Require Export UniMath.Foundations.Preamble.
 Require Export UniMath.Foundations.Sets.
 Require Export UniMath.CategoryTheory.category_hset.
 
-Delimit Scope cat with cat.
 Local Open Scope cat.
+
 Set Automatic Introduction.
 
-(* move upstream *)
-
-Notation "a --> b" := (@precategory_morphisms _ a b) (at level 50) : cat.
-(* agda input \r- *)
-
 Notation "a <-- b" := (@precategory_morphisms (opp_precat _) a b) (at level 50) : cat.
-(* agda input \l- *)
 
 Definition src {C:precategory} {a b:C} (f:a-->b) : C := a.
 Definition tar {C:precategory} {a b:C} (f:a-->b) : C := b.
@@ -66,24 +60,7 @@ Proof.
   exists (opp_precat C). apply has_homsets_opp, homset_property.
 Defined.
 
-Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat.
-
-(* Open scope cat' to see what categories maps are in.  This helps
-   especially when a category and its opposite are both in play. *)
-Notation "C [ a , b ]" := (@precategory_morphisms C a b) (at level 50) : cat'.
-
-Notation "a ==> b" := (functor a b) (at level 50) : cat.
-
-Notation "F ⟶ G" := (nat_trans F G) (at level 39) : cat.
-(* agda-input \--> or \r-- or \r menu *)
-
-Notation "g ∘ f" := (precategories.compose f g) (at level 50, left associativity) : cat.
-(* agda input \circ *)
-
-Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
-
-Notation "G □ F" := (functor_composite (F:[_,_]) (G:[_,_]) : [_,_]) (at level 35) : cat.
-(* agda input \square *)
+Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat. (* this overwrites the previous definition *)
 
 Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HSET).
 
@@ -98,7 +75,7 @@ Definition Functor_obmor {C D} (F:functor C D) := pr1 F.
 Definition Functor_obj {C D} (F:functor C D) := pr1 (pr1 F).
 Definition Functor_mor {C D} (F:functor C D) := pr2 (pr1 F).
 Definition Functor_identity {C D} (F:functor C D) := functor_id F.
-Definition Functor_compose {C D} (F:functor C D) := functor_comp F.
+Definition Functor_compose {C D} (F:functor C D) := @functor_comp _ _ F.
 
 Definition category_pair (C:precategory) (i:is_category C) : category := C,,i.
 
@@ -179,6 +156,8 @@ Definition makePrecategory
               identity compose)
            ((right,,left),,associativity)),,homsets.
 
+Local Open Scope cat_deprecated.
+
 Definition makeFunctor {C D:Precategory}
            (obj : C -> D)
            (mor : ∏ c c' : C, c --> c' -> obj c --> obj c')
@@ -236,7 +215,7 @@ Definition arrow_mor_id {C:Precategory} {c:C} {X:[C^op,SET]} (x:c⇒X) :
 Definition arrow_mor_mor_assoc {C:Precategory} {c c' c'':C} {X:[C^op,SET]}
            (g:c''-->c') (f:c'-->c) (x:c⇒X) :
   x ⟲ (f ∘ g) = (x ⟲ f) ⟲ g
-  := eqtohomot (functor_comp X c c' c'' f g) x.
+  := eqtohomot (functor_comp X f g) x.
 
 Definition nattrans_naturality {B C:Precategory} {F F':[B, C]} {b b':B}
            (p : F --> F') (f : b --> b') :
@@ -271,7 +250,7 @@ Proof. exact (functor_id F b). Defined.
 
 Lemma functor_on_comp {B C:Precategory} (F:[B,C]) {b b' b'':B} (g:b'-->b'') (f:b-->b') :
   F ▭ (g ∘ f) = F ▭ g ∘ F ▭ f.
-Proof. exact (functor_comp F _ _ _ f g). Defined.
+Proof. exact (functor_comp F f g). Defined.
 
 (*  *)
 

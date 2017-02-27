@@ -28,15 +28,12 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.CommaCategories.
-
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (** * Definition of global right Kan extension as right adjoint to precomposition *)
 Section RightKanExtension.
@@ -88,10 +85,10 @@ use mk_cone.
   transparent assert (m1gf1 : (c ↓ K)).
   { mkpair.
     + apply (pr1 m1f1).
-    + apply (g ;; pr2 m1f1). }
+    + apply (g · pr2 m1f1). }
   exact (coneOut (lambda c) m1gf1).
 - intros x y f; simpl in *.
-  transparent assert (e : ((c ↓ K) ⟦ pr1 x,, g ;; pr2 x, pr1 y,, g ;; pr2 y ⟧)).
+  transparent assert (e : ((c ↓ K) ⟦ pr1 x,, g · pr2 x, pr1 y,, g · pr2 y ⟧)).
   { mkpair.
     + apply (pr1 f).
     + now rewrite <- assoc; rewrite (pr2 f). }
@@ -114,7 +111,7 @@ split.
   rewrite <- assoc; eapply pathscomp0.
   apply maponpaths, (limArrowCommutes _ _ (Rmor_cone c' c'' f')).
   eapply pathscomp0.
-  apply (limArrowCommutes _ _ (Rmor_cone c c' f) (pr1 x,,f' ;; pr2 x)).
+  apply (limArrowCommutes _ _ (Rmor_cone c c' f) (pr1 x,,f' · pr2 x)).
   destruct x.
   now rewrite <- assoc.
 Qed.
@@ -134,7 +131,7 @@ apply (limArrowCommutes (LA (K n' ↓ K) (QT (K n'))) (R (K n))
        (Rmor_cone (K n) (K n') (# K h)) (Kid n')).
 unfold eps_n; simpl.
 transparent assert (v : (K n ↓ K)).
-{ apply (n',, # K h ;; identity (K n')). }
+{ apply (n',, # K h · identity (K n')). }
 transparent assert (e : (K n ↓ K ⟦ Kid n, v ⟧)).
 { mkpair.
   + apply h.
@@ -160,7 +157,7 @@ use left_adjoint_from_partial.
   transparent assert (cc : (∏ c, cone (QT T c) (S c))).
   { intro c.
     use mk_cone.
-    + intro mf; apply (# S (pr2 mf) ;; α (pr1 mf)).
+    + intro mf; apply (# S (pr2 mf) · α (pr1 mf)).
     + abstract (intros fm fm' h; simpl; rewrite <- assoc;
                 eapply pathscomp0; [apply maponpaths, (pathsinv0 (nat_trans_ax α _ _ (pr1 h)))|];
                 simpl; rewrite assoc, <- functor_comp; apply cancel_postcomposition, maponpaths, (pr2 h)).
@@ -173,7 +170,7 @@ use left_adjoint_from_partial.
 
   (* this is the conclusion from the big diagram (8) in MacLane's proof *)
   assert (H : ∏ c c' (g : C ⟦ c, c' ⟧) (mf' : c' ↓ K),
-                # S g ;; σ c' ;; lambda' _ mf' = σ c ;; Rmor T c c' g ;; lambda' _ mf').
+                # S g · σ c' · lambda' _ mf' = σ c · Rmor T c c' g · lambda' _ mf').
   { intros c c' g mf'.
     rewrite <- !assoc.
     apply pathsinv0; eapply pathscomp0.
@@ -181,7 +178,7 @@ use left_adjoint_from_partial.
     apply pathsinv0; eapply pathscomp0.
     eapply maponpaths, (limArrowCommutes _ _ (cc c') mf').
     simpl; rewrite assoc, <- functor_comp.
-    set (mf := tpair _ (pr1 mf') (g ;; pr2 mf') : c ↓ K).
+    set (mf := tpair _ (pr1 mf') (g · pr2 mf') : c ↓ K).
     apply pathsinv0.
     exact (limArrowCommutes (LA (c ↓ K) (QT T c)) (S c) (cc c) mf).
   }
@@ -190,11 +187,11 @@ use left_adjoint_from_partial.
   { intros c c' g; simpl.
     transparent assert (ccc : (cone (QT T c') (S c))).
     { use mk_cone.
-      - intro mf'; apply (σ c ;; Rmor T c c' g ;; limOut (LA (c' ↓ K) (QT T c')) mf').
+      - intro mf'; apply (σ c · Rmor T c c' g · limOut (LA (c' ↓ K) (QT T c')) mf').
       - abstract (intros u v e; simpl; rewrite <- !assoc;
                   apply maponpaths, maponpaths, (limOutCommutes (LA (c' ↓ K) (QT T c')) u v e)).
     }
-    rewrite (limArrowUnique (LA (c' ↓ K) (QT T c')) _ ccc (# S g ;; σ c') (H _ _ _)).
+    rewrite (limArrowUnique (LA (c' ↓ K) (QT T c')) _ ccc (# S g · σ c') (H _ _ _)).
     now apply pathsinv0, limArrowUnique.
   }
 

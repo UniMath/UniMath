@@ -12,7 +12,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.initial.
@@ -108,7 +108,7 @@ Section def_zero.
 
   (** It follows that any morphism which factors through 0 is the ZeroArrow. *)
   Corollary ZeroArrowUnique (Z : Zero) (c d : C) (f : C⟦c, ZeroObject Z⟧)
-            (g : C⟦ZeroObject Z, d⟧) : f ;; g = ZeroArrow Z c d.
+            (g : C⟦ZeroObject Z, d⟧) : f · g = ZeroArrow Z c d.
   Proof.
     rewrite (ZeroArrowToUnique Z c f).
     rewrite (ZeroArrowFromUnique Z d g).
@@ -117,14 +117,14 @@ Section def_zero.
 
   (** Compose any morphism with the ZeroArrow and you get the ZeroArrow. *)
   Lemma precomp_with_ZeroArrow (Z : Zero) (a b c : C) (f : C⟦a, b⟧) :
-    f ;; ZeroArrow Z b c = ZeroArrow Z a c.
+    f · ZeroArrow Z b c = ZeroArrow Z a c.
   Proof.
     unfold ZeroArrow at 1. rewrite assoc.
     apply ZeroArrowUnique.
   Defined.
 
   Lemma postcomp_with_ZeroArrow (Z : Zero) (a b c : C) (f : C⟦b, c⟧) :
-    ZeroArrow Z a b ;; f = ZeroArrow Z a c.
+    ZeroArrow Z a b · f = ZeroArrow Z a c.
   Proof.
     unfold ZeroArrow at 1. rewrite <- assoc.
     apply ZeroArrowUnique.

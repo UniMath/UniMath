@@ -15,10 +15,8 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
-
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.bicategories.prebicategory.
-
-Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 
 (******************************************************************************)
 (* Lemmas for use in PreCat and Cat *)
@@ -185,16 +183,16 @@ Definition Catlike_pentagon ( a b c d e : precategory )
   forall k h g f,
   (Catlike_associator a b c e _ _ _)
      (precatbinprodpair k
-        (precatbinprodpair h ((functorial_composition c d e hsD _) (dirprodpair g f)))) ;;
+        (precatbinprodpair h ((functorial_composition c d e hsD _) (dirprodpair g f)))) ·
    (Catlike_associator a c d e _ _ _)
      (precatbinprodpair ((functorial_composition a b c hsB hsC) (dirprodpair k h))
         (precatbinprodpair g f))
   = (functor_on_morphisms (functorial_composition a b e hsB hsE)
       (precatbinprodmor (identity k)
-         ((Catlike_associator b c d e _ _ _) (precatbinprodpair h (precatbinprodpair g f)))) ;;
+         ((Catlike_associator b c d e _ _ _) (precatbinprodpair h (precatbinprodpair g f)))) ·
     (Catlike_associator a b d e _ _ _)
       (precatbinprodpair k
-         (precatbinprodpair ((functorial_composition b c d _ _) (dirprodpair h g)) f))) ;;
+         (precatbinprodpair ((functorial_composition b c d _ _) (dirprodpair h g)) f))) ·
    functor_on_morphisms (functorial_composition a d e _ _)
      (precatbinprodmor
         ((Catlike_associator a b c d _ _ _) (precatbinprodpair k (precatbinprodpair h g)))
@@ -219,7 +217,7 @@ Definition Catlike_triangle ( a b c : precategory )
    =
       (Catlike_associator a b b c hsB _ _
         (precatbinprodpair f (precatbinprodpair (functor_identity_as_ob b hsB) g)))
-   ;; functor_on_morphisms (functorial_composition a b c _ _)
+   · functor_on_morphisms (functorial_composition a b c _ _)
                            (precatbinprodmor (Catlike_right_unitor a b _ f) (identity g)).
 Proof.
   intros f g.

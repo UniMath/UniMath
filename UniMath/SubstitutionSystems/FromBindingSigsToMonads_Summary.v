@@ -22,7 +22,7 @@ Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
@@ -37,7 +37,6 @@ Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
-Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.exponentials.
@@ -172,7 +171,7 @@ Defined.
 
 (** Lemma 32: Left adjoints preserve colimits *)
 Lemma left_adjoint_cocont :
-  ∏ (C D : precategory) (F : functor C D), is_left_adjoint F
+  ∏ (C D : precategory) (F : functor C D), Adjunctions.is_left_adjoint F
   → has_homsets C → has_homsets D → is_cocont F.
 Proof.
 exact @UniMath.CategoryTheory.CocontFunctors.left_adjoint_cocont.

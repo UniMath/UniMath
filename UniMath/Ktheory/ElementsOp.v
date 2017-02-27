@@ -8,13 +8,13 @@ Require Export UniMath.CategoryTheory.precategories
 Require Export UniMath.Ktheory.Precategories.
 
 Local Open Scope cat.
+Local Open Scope cat_deprecated.
 
 Definition cat_ob_mor {C} (X:C^op==>SET) : precategory_ob_mor.
   intros. exists (∑ c:ob C, X c : hSet).
   intros a b.
   exact (∑ f : pr1 a --> pr1 b, (pr2 a) = #X f (pr2 b)).
 Defined.
-
 
 Definition cat_data {C} (X:C^op==>SET) : precategory_data.
   intros. exists (cat_ob_mor X). split.
@@ -118,7 +118,7 @@ Module pr1.
          - intermediate_path (#X (f ∘ f') y).
            -- exact (eqtohomot (!ap #X (pr2 j)) y).
            -- intermediate_path (#X f' (#X f y)).
-              --- exact (eqtohomot (functor_comp X _ _ _ f f') y).
+              --- exact (eqtohomot (functor_comp X f f') y).
               --- exact (ap (#X f') (!i)).
          + exists (f',, i'). split.
          - apply mor_equality. exact (pr1 j).

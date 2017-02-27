@@ -22,7 +22,7 @@ Require Import UniMath.CategoryTheory.limits.Opp.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Morphisms.
 Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
@@ -61,7 +61,7 @@ image is PZero.
 We construct such a pseudo element a' as follows. First, by using exactness at C_3, and the fact
 that a is mapped to Pzero by C_3 --> C_4 (because of commutativity of f_3 f_4 square and the fact
 that f_4 is a monic), we obtain by [PEq_isExact] a pseudo element b' of C_2 which is mapped to a.
-The image of b' under f_2 ;; D_2 --> D_3 is PZero by commutativity and the assumption that a is
+The image of b' under f_2 · D_2 --> D_3 is PZero by commutativity and the assumption that a is
 mapped to PZero. By [PEq_isExact] we obtain aa pseudo element b'' of D_1 which is mapped to the
 image of b' under f_2. By the fact that f_1 is an epi, we get a pseudo element a' which is mapped
 to b''. Now, using commutativity of the square f_1 f_2, and the fact that f_2 is a monic, we get
@@ -153,24 +153,24 @@ Section five_lemma_data.
   (** *** Composition of consecutive differentials is 0 *)
 
   Definition FiveRowDiffsEq {FRO : FiveRowObs} (FRD : FiveRowDiffs FRO) : UU :=
-    (FDiff1 FRD ;; FDiff2 FRD = ZeroArrow to_Zero _ _)
-      × (FDiff2 FRD ;; FDiff3 FRD = ZeroArrow to_Zero _ _)
-      × (FDiff3 FRD ;; FDiff4 FRD = ZeroArrow to_Zero _ _).
+    (FDiff1 FRD · FDiff2 FRD = ZeroArrow to_Zero _ _)
+      × (FDiff2 FRD · FDiff3 FRD = ZeroArrow to_Zero _ _)
+      × (FDiff3 FRD · FDiff4 FRD = ZeroArrow to_Zero _ _).
 
   Definition mk_FiveRowDiffsEq {FRO : FiveRowObs} (FRD : FiveRowDiffs FRO)
-             (H1 : FDiff1 FRD ;; FDiff2 FRD = ZeroArrow to_Zero _ _)
-             (H2 : FDiff2 FRD ;; FDiff3 FRD = ZeroArrow to_Zero _ _)
-             (H3 : FDiff3 FRD ;; FDiff4 FRD = ZeroArrow to_Zero _ _) : FiveRowDiffsEq FRD :=
+             (H1 : FDiff1 FRD · FDiff2 FRD = ZeroArrow to_Zero _ _)
+             (H2 : FDiff2 FRD · FDiff3 FRD = ZeroArrow to_Zero _ _)
+             (H3 : FDiff3 FRD · FDiff4 FRD = ZeroArrow to_Zero _ _) : FiveRowDiffsEq FRD :=
     (H1,,(H2,,H3)).
 
   Definition FEq1 {FRO : FiveRowObs} {FRD : FiveRowDiffs FRO} (FRDE : FiveRowDiffsEq FRD) :
-    FDiff1 FRD ;; FDiff2 FRD = ZeroArrow to_Zero _ _ := dirprod_pr1 FRDE.
+    FDiff1 FRD · FDiff2 FRD = ZeroArrow to_Zero _ _ := dirprod_pr1 FRDE.
 
   Definition FEq2 {FRO : FiveRowObs} {FRD : FiveRowDiffs FRO} (FRDE : FiveRowDiffsEq FRD) :
-    FDiff2 FRD ;; FDiff3 FRD = ZeroArrow to_Zero _ _ := dirprod_pr1 (dirprod_pr2 FRDE).
+    FDiff2 FRD · FDiff3 FRD = ZeroArrow to_Zero _ _ := dirprod_pr1 (dirprod_pr2 FRDE).
 
   Definition FEq3 {FRO : FiveRowObs} {FRD : FiveRowDiffs FRO} (FRDE : FiveRowDiffsEq FRD) :
-    FDiff3 FRD ;; FDiff4 FRD = ZeroArrow to_Zero _ _ := dirprod_pr2 (dirprod_pr2 FRDE).
+    FDiff3 FRD · FDiff4 FRD = ZeroArrow to_Zero _ _ := dirprod_pr2 (dirprod_pr2 FRDE).
 
   (** *** Row is exact *)
 
@@ -251,30 +251,30 @@ Section five_lemma_data.
   (** *** Commutativity of the squares *)
 
   Definition FiveRowMorsComm {FR1 FR2 : FiveRow} (FRMs : FiveRowMors FR1 FR2) : UU :=
-    (FDiff1 FR1 ;; FMor2 FRMs = FMor1 FRMs ;; FDiff1 FR2)
-      × (FDiff2 FR1 ;; FMor3 FRMs = FMor2 FRMs ;; FDiff2 FR2)
-      × (FDiff3 FR1 ;; FMor4 FRMs = FMor3 FRMs ;; FDiff3 FR2)
-      × (FDiff4 FR1 ;; FMor5 FRMs = FMor4 FRMs ;; FDiff4 FR2).
+    (FDiff1 FR1 · FMor2 FRMs = FMor1 FRMs · FDiff1 FR2)
+      × (FDiff2 FR1 · FMor3 FRMs = FMor2 FRMs · FDiff2 FR2)
+      × (FDiff3 FR1 · FMor4 FRMs = FMor3 FRMs · FDiff3 FR2)
+      × (FDiff4 FR1 · FMor5 FRMs = FMor4 FRMs · FDiff4 FR2).
 
   Definition mk_FiveRowMorsComm {FR1 FR2 : FiveRow} (FRMs : FiveRowMors FR1 FR2)
-    (H1 : FDiff1 FR1 ;; FMor2 FRMs = FMor1 FRMs ;; FDiff1 FR2)
-    (H2 : FDiff2 FR1 ;; FMor3 FRMs = FMor2 FRMs ;; FDiff2 FR2)
-    (H3 : FDiff3 FR1 ;; FMor4 FRMs = FMor3 FRMs ;; FDiff3 FR2)
-    (H4 : FDiff4 FR1 ;; FMor5 FRMs = FMor4 FRMs ;; FDiff4 FR2) : FiveRowMorsComm FRMs :=
+    (H1 : FDiff1 FR1 · FMor2 FRMs = FMor1 FRMs · FDiff1 FR2)
+    (H2 : FDiff2 FR1 · FMor3 FRMs = FMor2 FRMs · FDiff2 FR2)
+    (H3 : FDiff3 FR1 · FMor4 FRMs = FMor3 FRMs · FDiff3 FR2)
+    (H4 : FDiff4 FR1 · FMor5 FRMs = FMor4 FRMs · FDiff4 FR2) : FiveRowMorsComm FRMs :=
     (H1,,(H2,,(H3,,H4))).
 
   Definition FComm1 {FR1 FR2 : FiveRow} {FRMs : FiveRowMors FR1 FR2} (FRMC : FiveRowMorsComm FRMs) :
-    FDiff1 FR1 ;; FMor2 FRMs = FMor1 FRMs ;; FDiff1 FR2 := dirprod_pr1 FRMC.
+    FDiff1 FR1 · FMor2 FRMs = FMor1 FRMs · FDiff1 FR2 := dirprod_pr1 FRMC.
 
   Definition FComm2 {FR1 FR2 : FiveRow} {FRMs : FiveRowMors FR1 FR2} (FRMC : FiveRowMorsComm FRMs) :
-    FDiff2 FR1 ;; FMor3 FRMs = FMor2 FRMs ;; FDiff2 FR2 := dirprod_pr1 (dirprod_pr2 FRMC).
+    FDiff2 FR1 · FMor3 FRMs = FMor2 FRMs · FDiff2 FR2 := dirprod_pr1 (dirprod_pr2 FRMC).
 
   Definition FComm3 {FR1 FR2 : FiveRow} {FRMs : FiveRowMors FR1 FR2} (FRMC : FiveRowMorsComm FRMs) :
-    FDiff3 FR1 ;; FMor4 FRMs = FMor3 FRMs ;; FDiff3 FR2 :=
+    FDiff3 FR1 · FMor4 FRMs = FMor3 FRMs · FDiff3 FR2 :=
     dirprod_pr1 (dirprod_pr2 (dirprod_pr2 FRMC)).
 
   Definition FComm4 {FR1 FR2 : FiveRow} {FRMs : FiveRowMors FR1 FR2} (FRMC : FiveRowMorsComm FRMs) :
-    FDiff4 FR1 ;; FMor5 FRMs = FMor4 FRMs ;; FDiff4 FR2 :=
+    FDiff4 FR1 · FMor5 FRMs = FMor4 FRMs · FDiff4 FR2 :=
     dirprod_pr2 (dirprod_pr2 (dirprod_pr2 FRMC)).
 
   (** *** Morphism of rows *)
@@ -315,7 +315,7 @@ Section five_lemma_opp.
   Local Lemma FiveRowDiffsEq_opp1 {A : AbelianPreCat} {hs : has_homsets A} {FRO : @FiveRowObs A}
         {FRD : @FiveRowDiffs A FRO} (FRDE : @FiveRowDiffsEq A FRO FRD) :
     (@FDiff1 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD))
-      ;; (@FDiff2 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD)) = ZeroArrow to_Zero _ _.
+      · (@FDiff2 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD)) = ZeroArrow to_Zero _ _.
   Proof.
     use (pathscomp0 (FEq3 FRDE)). use ZeroArrow_opp.
   Qed.
@@ -323,7 +323,7 @@ Section five_lemma_opp.
   Local Lemma FiveRowDiffsEq_opp2 {A : AbelianPreCat} {hs : has_homsets A} {FRO : @FiveRowObs A}
         {FRD : @FiveRowDiffs A FRO} (FRDE : @FiveRowDiffsEq A FRO FRD) :
     (@FDiff2 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD))
-      ;; (@FDiff3 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD)) = ZeroArrow to_Zero _ _.
+      · (@FDiff3 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD)) = ZeroArrow to_Zero _ _.
   Proof.
     use (pathscomp0 (FEq2 FRDE)). use ZeroArrow_opp.
   Qed.
@@ -331,7 +331,7 @@ Section five_lemma_opp.
   Local Lemma FiveRowDiffsEq_opp3 {A : AbelianPreCat} {hs : has_homsets A} {FRO : @FiveRowObs A}
         {FRD : @FiveRowDiffs A FRO} (FRDE : @FiveRowDiffsEq A FRO FRD) :
     (@FDiff3 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD))
-      ;; (@FDiff4 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD)) = ZeroArrow to_Zero _ _.
+      · (@FDiff4 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD)) = ZeroArrow to_Zero _ _.
   Proof.
     use (pathscomp0 (FEq1 FRDE)). use ZeroArrow_opp.
   Qed.
@@ -382,13 +382,13 @@ In this section we prove the five lemma following the sketch of a proof on top o
 Section five_lemma.
 
   Lemma FiveLemma_isMonic {A : AbelianPreCat} {hs : has_homsets A} {FR1 FR2 : FiveRow hs}
-        (FRM : FiveRowMorphism hs FR1 FR2) (H1 : is_iso (FMor1 hs FRM)) (H2 : is_iso (FMor2 hs FRM))
-        (H4 : is_iso (FMor4 hs FRM)) (H5 : is_iso (FMor5 hs FRM)) :
-    isMonic (@FMor3 A hs FR1 FR2 FRM).
+        (FRM : FiveRowMorphism hs FR1 FR2) (H1 : is_z_isomorphism (FMor1 hs FRM))
+        (H2 : is_z_isomorphism (FMor2 hs FRM)) (H4 : is_z_isomorphism (FMor4 hs FRM))
+        (H5 : is_z_isomorphism (FMor5 hs FRM)) : isMonic (FMor3 hs FRM).
   Proof.
     use (dirprod_pr2 (PEq_isMonic hs (FMor3 hs FRM))).
     intros d' a X. apply pathsinv0. cbn in X. set (X' := PEq_Zero_Eq' _ _ X). cbn in X'.
-    assert (e1 : a ;; FDiff3 FR1 = ZeroArrow to_Zero _ _).
+    assert (e1 : a · FDiff3 FR1 = ZeroArrow to_Zero _ _).
     {
       set (comm := FComm3 hs FRM). use (is_iso_isMonic A _ H4).
       rewrite <- assoc. rewrite comm. clear comm. rewrite assoc.
@@ -397,7 +397,7 @@ Section five_lemma.
     }
     set (b := dirprod_pr1 (PEq_isExact hs _ _ (FEq2 FR1)) (FEx2 hs FR1) a e1).
     set (PE1 := PseudoIm b (FMor2 hs FRM)).
-    assert (e2 : PE1 ;; FDiff2 FR2 = ZeroArrow to_Zero _ _).
+    assert (e2 : PE1 · FDiff2 FR2 = ZeroArrow to_Zero _ _).
     {
       cbn. set (comm := FComm2 hs FRM). rewrite <- assoc. rewrite <- comm. clear comm.
       rewrite assoc. set (tmp := PEqEq (PFiber_Eq b)). cbn in tmp.
@@ -438,21 +438,23 @@ Section five_lemma.
   Variable hs : has_homsets A.
 
   Lemma FiveLemma_isEpi {FR1 FR2 : FiveRow hs} (FRM : FiveRowMorphism hs FR1 FR2)
-        (H1 : is_iso (FMor1 hs FRM)) (H2 : is_iso (FMor2 hs FRM)) (H4 : is_iso (FMor4 hs FRM))
-        (H5 : is_iso (FMor5 hs FRM)) : isEpi (@FMor3 A hs FR1 FR2 FRM).
+        (H1 : is_z_isomorphism (FMor1 hs FRM)) (H2 : is_z_isomorphism (FMor2 hs FRM))
+        (H4 : is_z_isomorphism (FMor4 hs FRM)) (H5 : is_z_isomorphism (FMor5 hs FRM)) :
+    isEpi (FMor3 hs FRM).
   Proof.
     use opp_isMonic.
-    set (H1' := opp_is_iso _ H1).
-    set (H2' := opp_is_iso _ H2).
-    set (H4' := opp_is_iso _ H4).
-    set (H5' := opp_is_iso _ H5).
+    set (H1' := opp_is_z_isomorphism _ H1).
+    set (H2' := opp_is_z_isomorphism _ H2).
+    set (H4' := opp_is_z_isomorphism _ H4).
+    set (H5' := opp_is_z_isomorphism _ H5).
     set (FRM' := FiveRowMorphism_opp FRM).
     exact (FiveLemma_isMonic FRM' H5' H4' H2' H1').
   Qed.
 
   Lemma FiveLemma {FR1 FR2 : FiveRow hs} (FRM : FiveRowMorphism hs FR1 FR2)
-        (H1 : is_iso (FMor1 hs FRM)) (H2 : is_iso (FMor2 hs FRM)) (H4 : is_iso (FMor4 hs FRM))
-        (H5 : is_iso (FMor5 hs FRM)) : is_iso (@FMor3 A hs _ _ FRM).
+        (H1 : is_z_isomorphism (FMor1 hs FRM)) (H2 : is_z_isomorphism (FMor2 hs FRM))
+        (H4 : is_z_isomorphism (FMor4 hs FRM)) (H5 : is_z_isomorphism (FMor5 hs FRM)) :
+    is_z_isomorphism (FMor3 hs FRM).
   Proof.
     use monic_epi_is_iso.
     - use FiveLemma_isMonic.
@@ -486,7 +488,7 @@ Section short_exact_five_lemma.
 
   (** ** Construction of the first row *)
 
-  Definition ShortExactObs1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactObs1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowObs A.
   Proof.
     use mk_FiveRowObs.
@@ -497,7 +499,7 @@ Section short_exact_five_lemma.
     - exact to_Zero.
   Defined.
 
-  Definition ShortExactDiffs1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactDiffs1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowDiffs A (ShortExactObs1 Mor).
   Proof.
     use mk_FiveRowDiffs.
@@ -507,7 +509,7 @@ Section short_exact_five_lemma.
     - exact (ZeroArrow to_Zero _ _).
   Defined.
 
-  Lemma ShortExactDiffsEq1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Lemma ShortExactDiffsEq1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowDiffsEq A _ (ShortExactDiffs1 Mor).
   Proof.
     use mk_FiveRowDiffsEq.
@@ -516,7 +518,7 @@ Section short_exact_five_lemma.
     - cbn. apply ZeroArrow_comp_right.
   Qed.
 
-  Lemma ShortExactExacts1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Lemma ShortExactExacts1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowExacts A hs _ _ (ShortExactDiffsEq1 Mor).
   Proof.
     use mk_FiveRowExacts.
@@ -525,7 +527,7 @@ Section short_exact_five_lemma.
     - cbn. use isExactisEpi. exact (ShortExactSequences.isEpi hs SSE1).
   Qed.
 
-  Definition ShortExactRow1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactRow1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRow A hs.
   Proof.
     use mk_FiveRow.
@@ -537,7 +539,7 @@ Section short_exact_five_lemma.
 
   (** ** Construction of the second row *)
 
-  Definition ShortExactObs2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactObs2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowObs A.
   Proof.
     use mk_FiveRowObs.
@@ -548,7 +550,7 @@ Section short_exact_five_lemma.
     - exact to_Zero.
   Defined.
 
-  Definition ShortExactDiffs2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactDiffs2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowDiffs A (ShortExactObs2 Mor).
   Proof.
     use mk_FiveRowDiffs.
@@ -558,7 +560,7 @@ Section short_exact_five_lemma.
     - exact (ZeroArrow to_Zero _ _).
   Defined.
 
-  Lemma ShortExactDiffsEq2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Lemma ShortExactDiffsEq2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowDiffsEq A _ (ShortExactDiffs2 Mor).
   Proof.
     use mk_FiveRowDiffsEq.
@@ -567,7 +569,7 @@ Section short_exact_five_lemma.
     - cbn. apply ZeroArrow_comp_right.
   Qed.
 
-  Lemma ShortExactExacts2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Lemma ShortExactExacts2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowExacts A hs _ _ (ShortExactDiffsEq2 Mor).
   Proof.
     use mk_FiveRowExacts.
@@ -576,7 +578,7 @@ Section short_exact_five_lemma.
     - cbn. use isExactisEpi. exact (ShortExactSequences.isEpi hs SSE2).
   Qed.
 
-  Definition ShortExactRow2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactRow2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRow A hs.
   Proof.
     use mk_FiveRow.
@@ -588,28 +590,28 @@ Section short_exact_five_lemma.
 
   (** ** Construction of the morphism between rows *)
 
-  Definition ShortExactMors {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactMors {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowMors A hs (ShortExactRow1 Mor) (ShortExactRow2 Mor).
   Proof.
     use mk_FiveRowMors.
     - exact (identity _).
-    - exact (MPMors1 A Mor).
-    - exact (MPMors2 A Mor).
-    - exact (MPMors3 A Mor).
+    - exact (MPMor1 Mor).
+    - exact (MPMor2 Mor).
+    - exact (MPMor3 Mor).
     - exact (identity _).
   Defined.
 
-  Lemma ShortExactMorComm {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Lemma ShortExactMorComm {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowMorsComm A hs _ _ (ShortExactMors Mor).
   Proof.
     use mk_FiveRowMorsComm.
     - cbn. rewrite ZeroArrow_comp_left. rewrite id_left. apply idpath.
-    - cbn. exact (! (MPComm1 A Mor)).
-    - cbn. exact (! (MPComm2 A Mor)).
+    - cbn. exact (! (MPComm1 Mor)).
+    - cbn. exact (! (MPComm2 Mor)).
     - cbn. rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_right. apply idpath.
   Qed.
 
-  Definition ShortExactMor {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2) :
+  Definition ShortExactMor {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowMorphism A hs (ShortExactRow1 Mor) (ShortExactRow2 Mor).
   Proof.
     use mk_FiveRowMorphism.
@@ -619,17 +621,18 @@ Section short_exact_five_lemma.
 
   (** ** FiveLemma for short exact sequences *)
 
-  Lemma ShortExactFiveLemma {SSE1 SSE2 : ShortExact A hs} (Mor : MPMorphism A SSE1 SSE2)
-        (H2 : is_iso (MPMors1 A Mor)) (H4 : is_iso (MPMors3 A Mor)) : is_iso (MPMors2 A Mor).
+  Lemma ShortExactFiveLemma {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2)
+        (H2 : is_z_isomorphism (MPMor1 Mor)) (H4 : is_z_isomorphism (MPMor3 Mor)) :
+    is_z_isomorphism (MPMor2 Mor).
   Proof.
     set (FR1 := ShortExactRow1 Mor).
     set (FR2 := ShortExactRow2 Mor).
     set (FM := ShortExactMor Mor).
     use (FiveLemma hs FM).
-    - cbn. use identity_is_iso.
+    - exact (is_z_isomorphism_identity _).
     - exact H2.
     - exact H4.
-    - cbn. use identity_is_iso.
+    - exact (is_z_isomorphism_identity _).
   Qed.
 
 End short_exact_five_lemma.
