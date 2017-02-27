@@ -16,7 +16,6 @@ Definition cat_ob_mor {C} (X:C^op==>SET) : precategory_ob_mor.
   exact (∑ f : pr1 a --> pr1 b, (pr2 a) = #X f (pr2 b)).
 Defined.
 
-
 Definition cat_data {C} (X:C^op==>SET) : precategory_data.
   intros. exists (cat_ob_mor X). split.
   { intro a.
