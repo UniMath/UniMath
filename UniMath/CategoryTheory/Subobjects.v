@@ -5,13 +5,14 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.sub_precategories.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
+
+Local Open Scope cat.
 
 (** * Definition of subobjects *)
 Section def_subobjects.
@@ -79,7 +80,7 @@ Definition SubObj (c : C) : HSET :=
 
 (* For f and g monics into c: f <= g := exists h, f = h ;; g *)
 Definition monorel c : hrel (SubobjectsPrecategory hsC c) :=
-  λ f g, ∃ h, pr1 (pr2 f) = h ;; pr1 (pr2 g).
+  λ f g, ∃ h, pr1 (pr2 f) = h · pr1 (pr2 g).
 
 Lemma isrefl_monorel (c : C) : isrefl (monorel c).
 Proof.
@@ -93,7 +94,7 @@ Proof.
 intros x y z h1.
 apply hinhuniv; intros h2; generalize h1; clear h1.
 apply hinhuniv; intros h1; apply hinhpr.
-exists (pr1 h1 ;; pr1 h2).
+exists (pr1 h1 · pr1 h2).
 now rewrite <- assoc, <- (pr2 h2), <- (pr2 h1).
 Qed.
 
@@ -122,7 +123,7 @@ destruct y2 as [[x4 []] [f4 Hf4]].
 destruct h1 as [[[H1 H2] H3] H4].
 destruct h2 as [[[G1 G2] G3] G4].
 simpl in *.
-exists (pr1 (pr1 h1_inv) ;; f ;; G1).
+exists (pr1 (pr1 h1_inv) · f · G1).
 set (XX := maponpaths pr1 G3).
 simpl in *.
 rewrite <-!assoc, <- XX, <- Hf.
@@ -205,34 +206,6 @@ Qed.
 Definition SubObjPoset (c : C) : Poset :=
   (SubObj c,,SubObj_rel c,,ispreorder_SubObj_rel c,,isantisymm_SubObj_rel c).
 
-
-
-
-
-Require Import UniMath.CategoryTheory.opp_precat.
-
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-Local Notation "'Psh' C" := [C^op,HSET,has_homsets_HSET] (at level 3).
-
-Definition FunctorSub (PC : Pullbacks C) : Psh C.
-Proof.
-simpl.
-use mk_functor.
-+ mkpair.
-  - apply SubObj.
-  - intros c d f.
-    use (setquotuniv (iso_eqrel (SubobjectsPrecategory hsC c))).
-    * intros S.
-      apply setquotpr.
-      apply (PullbackSubobject hsC PC S f).
-    * intros x y g.
-      apply (iscompsetquotpr (iso_eqrel (SubobjectsPrecategory hsC d))).
-      apply g; clear g; intro g.
-      intros P H; apply H; clear P H.
-      admit.
-    + admit.
-Admitted.
 
 (* Definition SubObj (c : C) : UU := ∥ ∑ (af : ∑ (a : C), C⟦a,c⟧), isMonic (pr2 af) ∥. *)
 
