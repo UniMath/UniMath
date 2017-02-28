@@ -574,8 +574,8 @@ Proof.
     apply maponpaths_2. apply homset_property.
 Qed.
 
-Definition FFinv_on_iso_is_iso   {x y} {xx : D' x} {yy : D' y} {f : iso x y}
-  (ff : FF _ xx -->[ f ] FF _ yy) (Hff: is_iso_disp f ff) 
+Definition FFinv_on_iso_is_iso {x y} {xx : D x} {yy : D y} {f : iso x y}
+  (ff : FF _ xx -->[ (#F)%cat f ] FF _ yy) (Hff: is_iso_disp (functor_on_iso F f) ff) 
   : is_iso_disp _ (FFinv ff).
 Proof.
   apply functor_over_id_ff_reflects_isos.
@@ -586,6 +586,8 @@ Qed.
 (** *** Converse functor *)
 
 (* TODO: does [Local Definition] actually keep it local?  It seems not — e.g. [Print GG_data] still works after the section closes. Is there a way to actually keep them local?  If not, find less generic names for [GG] and its components. *) 
+
+(*
 Local Definition GG_data : functor_over_data (functor_identity _ ) D D'.
 Proof.
   mkpair.
@@ -598,7 +600,9 @@ Proof.
     exact ((pr2 Hxx ;; ff) ;; inv_mor_disp_from_iso (pr2 Hyy)).
     cbn. etrans. apply id_right. apply id_left.
 Defined.
+*)
 
+(*
 Local Lemma GG_ax : functor_over_axioms GG_data.
 Proof.
   split; simpl.
@@ -655,14 +659,17 @@ Proof.
     apply maponpaths_2, homset_property.
     Unshelve. Focus 2. apply idpath.
 Qed.
-
+*)
+(*
 Definition GG : functor_over _ _ _ := (_ ,, GG_ax).
-
+*)
+(*
 Definition ε_ses_ff_data
   : nat_trans_over_data (nat_trans_id _ )
       (functor_over_composite GG FF) (functor_over_identity _ )
 := fun x xx => (pr2 (FF_split x xx)).
-
+*)
+(*
 Lemma ε_ses_ff_ax : nat_trans_over_axioms ε_ses_ff_data.
 Proof.
   intros x y f xx yy ff. cbn. unfold ε_ses_ff_data.
@@ -680,12 +687,14 @@ Proof.
   etrans. apply transport_f_f.
   unfold transportb. apply maponpaths_2, homset_property.
 Qed.
-
+*)
+(*
 Definition ε_ses_ff
   : nat_trans_over (nat_trans_id _ )
       (functor_over_composite GG FF) (functor_over_identity _ )
 := (ε_ses_ff_data,, ε_ses_ff_ax).
-
+*)
+(*
 Definition η_ses_ff_data
   : nat_trans_over_data (nat_trans_id _)
       (functor_over_identity _ ) (functor_over_composite FF GG).
@@ -694,7 +703,8 @@ Proof.
   apply FFinv.
   refine (inv_mor_disp_from_iso (pr2 (FF_split _ _))).
 Defined.
-
+*)
+(*
 Definition η_ses_ff_ax
   : nat_trans_over_axioms η_ses_ff_data.
 Proof.
@@ -729,15 +739,18 @@ Proof.
   etrans. apply (functor_over_ff_inv_compose _ FF_ff).
   apply maponpaths_2, homotinvweqweq.
 Qed.
-
+*)
+(*
 Definition η_ses_ff
   : nat_trans_over (nat_trans_id _)
       (functor_over_identity _ ) (functor_over_composite FF GG)
 := (_ ,, η_ses_ff_ax).
-
+*)
+(*
 Definition GGεη : right_adjoint_over_id_data FF
   := (GG,, (η_ses_ff,, ε_ses_ff)).
-
+*)
+(*
 Lemma form_equiv_GGεη : form_equiv_over_id GGεη.
 Proof.
   split; intros x xx; cbn.
@@ -748,7 +761,8 @@ Proof.
   - unfold ε_ses_ff_data.
     apply is_iso_disp_from_iso.
 Qed.
-
+*)
+(*
 Lemma tri_1_GGεη : triangle_1_statement_over_id GGεη.
 Proof.
   intros x xx; cbn.
@@ -757,25 +771,28 @@ Proof.
   etrans. exact (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
   apply maponpaths_2, homset_property.
 Qed.
-
+*)
+(*
 Lemma tri_2_GGεη : triangle_2_statement_over_id GGεη.
 Proof.
   apply triangle_2_from_1_for_equiv_over_id.
   apply form_equiv_GGεη.
   apply tri_1_GGεη.
 Qed.
-
+*)
+(*
 Theorem is_equiv_from_ff_ess_over_id : is_equiv_over_id FF.
 Proof.
   simple refine ((GGεη,, _) ,, _).
   split. apply tri_1_GGεη. apply tri_2_GGεη.
   apply form_equiv_GGεη.
 Defined.
-
+*)
 End Equiv_from_ff_plus_ess_split.
 
-(** ** Inverses and composition of adjunctions/equivalences *)
 
+(** ** Inverses and composition of adjunctions/equivalences *)
+(*
 Section Nat_Trans_Disp_Inv.
 
 Context {C : Precategory} {D' D : disp_precat C}
@@ -1015,25 +1032,32 @@ Proof.
 Defined.      
 
 End Displayed_Equiv_Inv.
+*)
 
+(*
 Section Displayed_Equiv_Compose.
 
 (* TODO: give composites of displayed equivalences. *)
 
 End Displayed_Equiv_Compose.
+*)
 
 (** ** Induced adjunctions/equivalences of fiber precats *)
 Section Equiv_Fibers.
 
-Context {C : Precategory}.
+Context {C C' : Precategory}.
 
-Definition fiber_is_left_adj {D D' : disp_precat C}
-  {FF : functor_over (functor_identity _) D D'}
-  (EFF : right_adjoint_over_id FF)
+Definition fiber_is_left_adj 
+  {A : adjunction C C'}
+  {D : disp_precat C} {D' : disp_precat C'}
+  {FF : functor_over (left_functor A) D D'}
+  (EFF : right_adjoint_over FF)
   (c : C)
 : is_left_adjoint (fiber_functor FF c).
 Proof.
   destruct EFF as [[GG [η ε]] axs]; simpl in axs.
+  mkpair. 
+  set (XR := fiber_functor GG (left_functor A c)).
   exists (fiber_functor GG _).
   exists (fiber_nat_trans η _,
           fiber_nat_trans ε _).
