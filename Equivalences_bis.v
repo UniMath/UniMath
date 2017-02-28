@@ -484,10 +484,11 @@ Time Qed.
 
 
 Lemma triangle_1_from_2_for_equiv_over_id
-  {C} {D D' : disp_precat C}
-  (A : adjunction_over_id_data D D')
-  (E : form_equiv_over_id A)
-: triangle_2_statement_over_id A -> triangle_1_statement_over_id A.
+      {C C' : Precategory} (E : adj_equiv C C')
+      {D : disp_precat C} {D' : disp_precat C'}
+      (AA : adjunction_over_data E D D')
+      (EE : form_equiv_over (E:=E) AA)
+: triangle_2_statement_over (A:=E) AA -> triangle_1_statement_over (A:=E) AA.
 Proof.
   (* dual to previous lemma *)
 Abort.
@@ -502,58 +503,75 @@ End Equivalences.
 Section Equiv_from_ff_plus_ess_split.
 (* TODO: consider naming throughout this section!  Especially: anything with [ses] should be fixed. *)
 
-Context {C : Precategory} {D' D : disp_precat C}
-        (FF : functor_over (functor_identity _) D' D)
+Context {C C' : Precategory} 
+        {F : functor C C'}
+        {D : disp_precat C} 
+        {D' : disp_precat C'}
+        (FF : functor_over F D D')
         (FF_split : functor_over_disp_ess_split_surj FF)
         (FF_ff : functor_over_ff FF).
 
 (** *** Utility lemmas from fullness+faithfulness *)
 
 (* TODO: inline throughout? *) 
-Let FFweq {x y} xx yy (f : x --> y) := functor_over_ff_weq _ FF_ff xx yy f. 
-Let FFinv {x y} {xx} {yy} {f}
+Let FFweq {x y} xx yy (f : x --> y) : xx -->[ f] yy ≃ FF x xx -->[ (# F)%Cat f] FF y yy
+  := functor_over_ff_weq _ FF_ff xx yy f. 
+Let FFinv {x y} {xx} {yy} {f} : FF x xx -->[ (# F)%Cat f] FF y yy → xx -->[ f] yy 
   := @functor_over_ff_inv _ _ _ _ _ _ FF_ff x y xx yy f.
 
 (* TODO: once [functor_over_ff_transportf_gen] is done, replace this with that. *) 
 Lemma FFinv_transportf
     {x y : C} {f f' : x --> y} (e : f = f')
-    {xx : D' x} {yy : D' y} (ff : FF _ xx -->[f] FF _ yy)
-  : FFinv (transportf _ e ff) = transportf _ e (FFinv ff).
+    {xx : D x} {yy : D y} (ff : FF _ xx -->[(#F)%cat f] FF _ yy)
+  : FFinv (transportf (fun f' => _ -->[ (#F)%Cat f'] _ ) e ff) = transportf _ e (FFinv ff).
 Proof.
   destruct e. apply idpath.
 Qed.
 
 (* TODO: once more general [functor_over_ff_reflects_isos] is done, kill this and replace it with that. *)
 Definition functor_over_id_ff_reflects_isos 
-  {x y} {xx : D' x} {yy : D' y} {f : iso x y}
-  (ff : xx -->[ f ] yy) (isiso: is_iso_disp f (# FF ff)) 
+  {x y} {xx : D x} {yy : D y} {f : iso x y}
+  (ff : xx -->[ f ] yy) (isiso: is_iso_disp (functor_on_iso F f) (# FF ff)) 
   : is_iso_disp _ ff.
 Proof.
-  set (FFffinv := inv_mor_disp_from_iso isiso). 
-  set (ffinv := FFinv FFffinv).
+  set (FFffinv := inv_mor_disp_from_iso isiso).
+  Search (inv_from_iso (functor_on_iso _ _ )).
+  set (FFffinv':= transportf (fun f' => _ -->[ _ ] _ ) (functor_on_inv_from_iso F f) FFffinv). cbn in FFffinv'. unfold precomp_with in FFffinv'.
+  set (FFffinv'' := transportf (fun f' => _ -->[f'] _ ) (id_right _ ) FFffinv').
+  cbn in FFffinv''.
+  set (ffinv := FFinv FFffinv'').
   exists ffinv.
   split.
-  - unfold ffinv. unfold FFffinv.
+  - unfold ffinv, FFffinv''; clear ffinv FFffinv''.
     apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
     etrans. apply (functor_over_comp FF).
     etrans. apply maponpaths. apply maponpaths_2. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
-    etrans. apply maponpaths. apply iso_disp_after_inv_mor.
+    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    unfold FFffinv'; clear FFffinv'.
+    etrans. apply maponpaths. eapply maponpaths_2. apply transportf_const.
+    etrans. apply maponpaths. unfold FFffinv. apply (iso_disp_after_inv_mor isiso).
     etrans. apply transport_f_f.
     apply pathsinv0.
     etrans. apply (functor_over_transportf _ FF).
     etrans. apply maponpaths. apply functor_over_id.
     etrans. apply transport_f_f.
-    apply transportf_ext. apply homset_property.
-  - apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
+    apply maponpaths_2. apply homset_property.
+  - unfold ffinv, FFffinv''; clear ffinv FFffinv''.
+    apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
     etrans. apply (functor_over_comp FF).
     etrans. apply maponpaths. apply maponpaths. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
-    etrans. apply maponpaths. apply inv_mor_after_iso_disp.
+        etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
+    etrans. apply transport_f_f.
+    unfold FFffinv'; clear FFffinv'.
+    etrans. apply maponpaths. eapply maponpaths. apply transportf_const.
+    etrans. apply maponpaths. unfold FFffinv. apply (inv_mor_after_iso_disp isiso).
     etrans. apply transport_f_f.
     apply pathsinv0.
     etrans. apply (functor_over_transportf _ FF).
     etrans. apply maponpaths. apply functor_over_id.
     etrans. apply transport_f_f.
-    apply transportf_ext. apply homset_property.
+    apply maponpaths_2. apply homset_property.
 Qed.
 
 Definition FFinv_on_iso_is_iso   {x y} {xx : D' x} {yy : D' y} {f : iso x y}
