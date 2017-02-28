@@ -45,6 +45,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Monics.
+Require Import UniMath.CategoryTheory.LatticeObject.
 
 Local Open Scope cat.
 
@@ -360,7 +361,9 @@ Qed.
 
 Definition Ω_PreShv : PreShv C := (Ω_PreShv_data,,is_functor_Ω_PreShv_data).
 
-Definition Ω_mor : (PreShv C)⟦Terminal_PreShv,Ω_PreShv⟧.
+Let Ω := Ω_PreShv.
+
+Definition Ω_mor : (PreShv C)⟦Terminal_PreShv,Ω⟧.
 Proof.
 use mk_nat_trans.
 - simpl; apply (λ c _, maximal_sieve c).
@@ -373,5 +376,57 @@ Lemma isMonic_Ω_mor : isMonic Ω_mor.
 Proof.
 now apply from_terminal_isMonic.
 Qed.
+
+Local Notation "c '⊗' d" := (BinProductObject _ (BinProducts_PreShv c d)) (at level 75) : cat.
+
+Definition Ω_meet : PreShv(C) ⟦Ω ⊗ Ω,Ω⟧.
+Proof.
+use mk_nat_trans.
++ intros c S1S2.
+  apply (intersection_sieve c (pr1 S1S2) (pr2 S1S2)).
++ intros x y f.
+  apply funextsec; cbn; intros [S1 S2].
+  now apply sieve_eq.
+Defined.
+
+Definition Ω_join : PreShv(C) ⟦Ω ⊗ Ω,Ω⟧.
+Proof.
+use mk_nat_trans.
++ intros c S1S2.
+  apply (union_sieve c (pr1 S1S2) (pr2 S1S2)).
++ intros x y f.
+  apply funextsec; cbn; intros [S1 S2].
+  now apply sieve_eq.
+Defined.
+
+Definition Ω_lattice : latticeob BinProducts_PreShv Ω_PreShv.
+Proof.
+use mklatticeob.
++ apply Ω_meet.
++ apply Ω_join.
++ repeat split.
+  - apply (nat_trans_eq has_homsets_HSET); intro c.
+    apply funextsec; intros S.
+    apply (isassoc_Lmin (sieve_lattice c)).
+  - unfold iscomm_cat.
+    rewrite id_left.
+    apply (nat_trans_eq has_homsets_HSET); intro c.
+    apply funextsec; intros S.
+    apply (iscomm_Lmin (sieve_lattice c)).
+  - apply (nat_trans_eq has_homsets_HSET); intro c.
+    apply funextsec; intros S.
+    apply (isassoc_Lmax (sieve_lattice c)).
+  - unfold iscomm_cat.
+    rewrite id_left.
+    apply (nat_trans_eq has_homsets_HSET); intro c.
+    apply funextsec; intros S.
+    apply (iscomm_Lmax (sieve_lattice c)).
+  - apply (nat_trans_eq has_homsets_HSET); intro c.
+    apply funextsec; intros S.
+    apply (Lmin_absorb (sieve_lattice c)).
+  - apply (nat_trans_eq has_homsets_HSET); intro c.
+    apply funextsec; intros S.
+    apply (Lmax_absorb (sieve_lattice c)).
+Defined.
 
 End Ω_PreShv.

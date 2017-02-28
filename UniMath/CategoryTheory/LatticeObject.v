@@ -19,6 +19,13 @@ Context {C : precategory} {BPC : BinProducts C}.
 Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
 Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 80) : cat.
 
+Let π1 {x y} : C⟦x ⊗ y,x⟧ := BinProductPr1 _ (BPC x y).
+Let π2 {x y} : C⟦x ⊗ y,y⟧ := BinProductPr2 _ (BPC x y).
+
+Definition binprod_assoc (x y z : C) : C⟦(x ⊗ y) ⊗ z,x ⊗ (y ⊗ z)⟧ :=
+  BinProductArrow _ _ (π1 · π1) (BinProductArrow _ _ (π1 · π2) π2).
+Let α {x y z} : C⟦(x ⊗ y) ⊗ z,x ⊗ (y ⊗ z)⟧ := binprod_assoc x y z.
+
 Definition binprod_delta (x : C) : C⟦x,x ⊗ x⟧ :=
   BinProductArrow _ _ (identity x) (identity x).
 Let δ {x} : C⟦x,x ⊗ x⟧ := binprod_delta x.
@@ -27,28 +34,27 @@ Definition binprod_swap (x y : C) : C⟦x ⊗ y,y ⊗ x⟧ :=
   BinProductArrow _ _ (BinProductPr2 _ _) (BinProductPr1 _ _).
 Let τ {x y} : C⟦x ⊗ y,y ⊗ x⟧ := binprod_swap x y.
 
-Let π1 {x y} : C⟦x ⊗ y,x⟧ := BinProductPr1 _ (BPC x y).
 
 Local Notation "1" := (identity _) : cat.
 
 
 (** Equation witnessing that a morphism is associative as illustrated by diagram:
 <<
-               1×f
- L ⊗ (L ⊗ L) -------> L ⊗ L
+               f×1
+ (L ⊗ L) ⊗ L -------> L ⊗ L
      |                  |
-   τ |                  |
+   α |                  |
      V                  |
- (L ⊗ L) ⊗ L            | f
+ L ⊗ (L ⊗ L)            | f
      |                  |
- f×1 |                  |
+ 1×f |                  |
      V                  V
    L ⊗ L ----------->   L
               f
 >>
 *)
 
-Definition isassoc_cat {L} (f : C⟦L ⊗ L,L⟧) : UU := (1 ×× f) · f = τ · (f ×× 1) · f.
+Definition isassoc_cat {L} (f : C⟦L ⊗ L,L⟧) : UU := (f ×× 1) · f = α · (1 ×× f) · f.
 
 
 (** Equation witnessing that a morphism is commutative as illustrated by diagram:
@@ -67,12 +73,12 @@ Definition iscomm_cat {L} (f : C⟦L ⊗ L,L⟧) : UU := 1 · f = τ · f.
 
 (** Equation witnessing the absorbtion law as illustrated by diagram:
 <<
-           δ×1                  τ
-   L ⊗ L ------> (L ⊗ L) ⊗ L ------> L ⊗ (L ⊗ L)
-     |                                   |
-  π1 |                                   | 1×g
-     V                                   V
-     L <------------------------------ L ⊗ L
+           δ×1                   α
+   L ⊗ L ------> (L ⊗ L) ⊗ L -------> L ⊗ (L ⊗ L)
+     |                                    |
+  π1 |                                    | 1×g
+     V                                    V
+     L <------------------------------- L ⊗ L
                        f
 >>
 
@@ -81,8 +87,7 @@ If f is ∧ and g is ∨ this expresses: x ∧ (x ∨ y) = x
 *)
 
 Definition isabsorb_cat {L} (f g : C⟦L ⊗ L,L⟧) : UU :=
-  (δ ×× 1) · τ · (1 ×× g) · f = π1.
-
+  (δ ×× 1) · α · (1 ×× g) · f = π1.
 
 Definition latticeop_cat {L} (meet_mor join_mor : C⟦L ⊗ L,L⟧) :=
     (isassoc_cat meet_mor × iscomm_cat meet_mor)
