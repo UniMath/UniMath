@@ -3019,6 +3019,6 @@ Ltac hSet_induction f e := generalize f; apply UU_rect; intro e; clear f.
 
 Definition AxiomOfChoice (X Y:hSet) (f:X→Y) := issurjective f → ∃ g, f ∘ g ~ idfun Y.
 
-Definition AxiomOfChoice2 (Y:UU) : ∃ (X:hSet) (f:X→Y), issurjective f.
+Definition AxiomOfChoice2 (Y:UU) := ∃ (X:hSet) (f:X→Y), issurjective f.
 
 (* End of the file hSet.v *)
