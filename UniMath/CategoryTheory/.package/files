@@ -48,6 +48,7 @@ limits/Opp.v
 limits/graphs/eqdiag.v
 EpiFacts.v
 category_hset.v
+SimplicialSets.v
 yoneda.v
 Monads.v
 RModules.v
