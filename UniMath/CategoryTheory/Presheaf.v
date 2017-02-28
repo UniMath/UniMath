@@ -26,6 +26,8 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.Algebra.Lattice.
+
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -170,6 +172,136 @@ mkpair.
 - apply (λ _ _, htrue).
 - apply (λ _ _ _ _ _, tt).
 Defined.
+
+Definition empty_sieve (c : C) : sieve c.
+Proof.
+mkpair.
+- apply (λ _ _, hfalse).
+- intros x f S y g; apply S.
+Defined.
+
+Definition intersection_sieve (c : C) : binop (sieve c).
+Proof.
+intros S1 S2.
+mkpair.
+- intros x f.
+  (* How can I get rid of the pr1's? *)
+  apply (pr1 S1 x f ∧ pr1 S2 x f).
+- simpl; intros x f S y f'.
+  split.
+  + apply (pr2 S1 _ _ (pr1 S)).
+  + apply (pr2 S2 _ _ (pr2 S)).
+Defined.
+
+Definition union_sieve (c : C) : binop (sieve c).
+Proof.
+intros S1 S2.
+mkpair.
+- intros x f.
+  (* How can I get rid of the pr1's? *)
+  apply (pr1 S1 x f ∨ pr1 S2 x f).
+- intros x f S y f'; apply S; clear S; intros S.
+  apply hinhpr.
+  induction S as [S|S].
+  + apply ii1, (pr2 S1 _ _ S).
+  + apply ii2, (pr2 S2 _ _ S).
+Defined.
+
+Lemma hconj_assoc (P Q R : hProp) : ((P ∧ Q) ∧ R) = (P ∧ (Q ∧ R)).
+Proof.
+apply hPropUnivalence.
+- intros PQR.
+  exact (pr1 (pr1 PQR),,(pr2 (pr1 PQR),,pr2 PQR)).
+- intros PQR.
+  exact ((pr1 PQR,,pr1 (pr2 PQR)),,pr2 (pr2 PQR)).
+Qed.
+
+Lemma hconj_comm (P Q : hProp) : (P ∧ Q) = (Q ∧ P).
+Proof.
+apply hPropUnivalence.
+- intros PQ.
+  exact (pr2 PQ,,pr1 PQ).
+- intros QP.
+  exact (pr2 QP,,pr1 QP).
+Qed.
+
+Lemma hdisj_assoc (P Q R : hProp) : ((P ∨ Q) ∨ R) = (P ∨ (Q ∨ R)).
+Proof.
+apply hPropUnivalence.
+- apply hinhuniv; intros hPQR.
+  induction hPQR as [hPQ|hR].
+  + use (hinhuniv _ hPQ); clear hPQ; intros hPQ.
+    induction hPQ as [hP|hQ].
+    * exact (hinhpr (ii1 hP)).
+    * exact (hinhpr (ii2 (hinhpr (ii1 hQ)))).
+  + exact (hinhpr (ii2 (hinhpr (ii2 hR)))).
+- apply hinhuniv; intros hPQR.
+  induction hPQR as [hP|hQR].
+  + exact (hinhpr (ii1 (hinhpr (ii1 hP)))).
+  + use (hinhuniv _ hQR); clear hQR; intros hQR.
+    induction hQR as [hQ|hR].
+    * exact (hinhpr (ii1 (hinhpr (ii2 hQ)))).
+    * exact (hinhpr (ii2 hR)).
+Qed.
+
+Lemma hdisj_comm (P Q : hProp) : (P ∨ Q) = (Q ∨ P).
+Proof.
+apply hPropUnivalence.
+- apply hinhuniv; intros PQ.
+  induction PQ as [hP|hQ].
+  + exact (hinhpr (ii2 hP)).
+  + exact (hinhpr (ii1 hQ)).
+- apply hinhuniv; intros PQ.
+  induction PQ as [hQ|hP].
+  + exact (hinhpr (ii2 hQ)).
+  + exact (hinhpr (ii1 hP)).
+Qed.
+
+Lemma hconj_absorb (P Q : hProp) : (P ∧ (P ∨ Q)) = P.
+Proof.
+apply hPropUnivalence.
+- intros hPPQ; apply (pr1 hPPQ).
+- intros hP.
+  split; [ apply hP | apply (hinhpr (ii1 hP)) ].
+Qed.
+
+Lemma hdisj_absorb (P Q : hProp) : (P ∨ (P ∧ Q)) = P.
+Proof.
+apply hPropUnivalence.
+- apply hinhuniv; intros hPPQ.
+  induction hPPQ as [hP|hPQ].
+  + exact hP.
+  + exact (pr1 hPQ).
+- intros hP; apply (hinhpr (ii1 hP)).
+Qed.
+
+Definition sieve_lattice (c : C) : lattice (sieve c).
+Proof.
+use mklattice.
+- apply intersection_sieve.
+- apply union_sieve.
+- repeat split.
+  + intros S1 S2 S3.
+    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
+    apply hconj_assoc.
+  + intros S1 S2.
+    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
+    apply hconj_comm.
+  + intros S1 S2 S3.
+    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
+    apply hdisj_assoc.
+  + intros S1 S2.
+    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
+    apply hdisj_comm.
+  + intros S1 S2.
+    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
+    apply hconj_absorb.
+  + intros S1 S2.
+    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
+    apply hdisj_absorb.
+Defined.
+
+(* TODO: Define the bounded lattice *)
 
 Definition sieve_mor a b (f : C⟦b,a⟧) : sieve a → sieve b.
 Proof.
