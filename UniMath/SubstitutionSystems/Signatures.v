@@ -185,12 +185,12 @@ Definition θ_target : functor _ _ := tpair _ _ is_functor_θ_target_functor_dat
 
 
 (** We assume a suitable (bi)natural transformation [θ] *)
-Hypothesis θ : θ_source ⟶ θ_target.
+Hypothesis θ : θ_source ⟹ θ_target.
 
 (** [θ] is supposed to satisfy two strength laws *)
 
 Definition θ_Strength1 : UU := ∏ X : EndC,
-  (θ (X ⊗ (id_Ptd C hs))) · # H (identity X : functor_composite (functor_identity C) X ⟶ pr1 X)
+  (θ (X ⊗ (id_Ptd C hs))) · # H (identity X : functor_composite (functor_identity C) X ⟹ pr1 X)
           = nat_trans_id _ .
 
 Section Strength_law_1_intensional.

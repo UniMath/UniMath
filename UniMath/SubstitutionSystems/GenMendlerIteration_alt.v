@@ -31,8 +31,6 @@ Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.whiskering.
 
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
 Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
@@ -83,7 +81,7 @@ Definition ψ_target : functor C^op HSET := functor_composite (functor_opp F) ψ
 
 Section general_case.
 
-Variable (ψ : ψ_source ⟶ ψ_target).
+Variable (ψ : ψ_source ⟹ ψ_target).
 
 Let LchnF : chain D := mapchain L chnF.
 Let z : D⟦L0,X⟧ := InitialArrow ILD X.
@@ -92,7 +90,7 @@ Local Definition Pow_source : functor C^op HSET := ψ_source.
 Local Definition Pow_target (n : nat) : functor C^op HSET :=
   functor_composite (functor_opp (iter_functor F n)) ψ_source.
 
-Local Definition Pow (n : nat) : Pow_source ⟶ Pow_target n.
+Local Definition Pow (n : nat) : Pow_source ⟹ Pow_target n.
 Proof.
 induction n as [|n Pown].
 - apply nat_trans_id.
@@ -218,7 +216,7 @@ End general_case.
 Section special_case.
 
 Variables (G : functor D D) (ρ : G X --> X).
-Variables (θ : functor_composite F L ⟶ functor_composite L G).
+Variables (θ : functor_composite F L ⟹ functor_composite L G).
 
 Lemma is_nat_trans_ψ_from_comps :
         is_nat_trans ψ_source ψ_target
@@ -230,7 +228,7 @@ assert (θ_nat_trans_ax := nat_trans_ax θ); simpl in θ_nat_trans_ax.
 now rewrite <- θ_nat_trans_ax.
 Qed.
 
-Definition ψ_from_comps : ψ_source ⟶ ψ_target.
+Definition ψ_from_comps : ψ_source ⟹ ψ_target.
 Proof.
 mkpair.
 - intros A f.
@@ -254,12 +252,12 @@ Let Yon : functor D^op HSET := yoneda_objects D hsD X.
 Let Yon' : functor D^op HSET := yoneda_objects D hsD X'.
 
 Variables (L : functor C D) (HL : is_omega_cocont L) (IL : isInitial D (L 0)).
-Variables (ψ : ψ_source X L ⟶ ψ_target X L).
+Variables (ψ : ψ_source X L ⟹ ψ_target X L).
 
 Variables (L' : functor C D) (HL' : is_omega_cocont L') (IL' : isInitial D (L' 0)).
-Variables (ψ' : ψ_source X' L' ⟶ ψ_target X' L').
+Variables (ψ' : ψ_source X' L' ⟹ ψ_target X' L').
 
-Variables (Φ : functor_composite (functor_opp L) Yon ⟶ functor_composite (functor_opp L') Yon').
+Variables (Φ : functor_composite (functor_opp L) Yon ⟹ functor_composite (functor_opp L') Yon').
 
 Variables (H : ψ μF · Φ (F μF) = Φ μF · ψ' μF).
 

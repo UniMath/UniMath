@@ -225,7 +225,7 @@ Proof.
                 Signature _ hs _ has_homsets_HSET).
     refine (list_ind (fun xs => ∑
       θ : θ_source_functor_data (SET / sort) _ _ _ (exp_functor_list xs)
-        ⟶ θ_target_functor_data (SET / sort) _ _ _ (exp_functor_list xs),
+        ⟹ θ_target_functor_data (SET / sort) _ _ _ (exp_functor_list xs),
           θ_Strength1_int θ × θ_Strength2_int θ) _ _ xs).
     * apply (pr2 T).
     * clear xs; intros x xs' IH.

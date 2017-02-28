@@ -58,7 +58,7 @@ Definition GenMendlerIteration :
    (μF_Initial : Initial (FunctorAlg F hsC)) (C' : precategory)
    (hsC' : has_homsets C') (X : C') (L : functor C C'),
    Adjunctions.is_left_adjoint L
-   → ∏ ψ : ψ_source C C' hsC' X L ⟶ ψ_target C F C' hsC' X L,
+   → ∏ ψ : ψ_source C C' hsC' X L ⟹ ψ_target C F C' hsC' X L,
      ∃! h : C' ⟦ L ` (InitialObject μF_Initial), X ⟧,
      # L (alg_map F (InitialObject μF_Initial)) · h =
      ψ ` (InitialObject μF_Initial) h.
@@ -78,12 +78,12 @@ Theorem fusion_law
        (C' : precategory) (hsC' : has_homsets C')
        (X X' : C') (L : functor C C')
        (is_left_adj_L : Adjunctions.is_left_adjoint L)
-       (ψ : ψ_source C C' hsC' X L ⟶ ψ_target C F C' hsC' X L)
+       (ψ : ψ_source C C' hsC' X L ⟹ ψ_target C F C' hsC' X L)
        (L' : functor C C')
        (is_left_adj_L' : Adjunctions.is_left_adjoint L')
-       (ψ' : ψ_source C C' hsC' X' L' ⟶ ψ_target C F C' hsC' X' L')
+       (ψ' : ψ_source C C' hsC' X' L' ⟹ ψ_target C F C' hsC' X' L')
        (Φ : yoneda_objects C' hsC' X • functor_opp L
-              ⟶
+              ⟹
             yoneda_objects C' hsC' X' • functor_opp L'),
        let T:= (` (InitialObject μF_Initial)) in
        ψ T · Φ (F T) = Φ T · ψ' T

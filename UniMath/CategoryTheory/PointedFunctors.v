@@ -35,21 +35,21 @@ Section def_ptd.
 Variable C : precategory.
 Hypothesis hs : has_homsets C.
 
-Definition ptd_obj : UU := ∑ F : functor C C, functor_identity C ⟶ F.
+Definition ptd_obj : UU := ∑ F : functor C C, functor_identity C ⟹ F.
 
 Coercion functor_from_ptd_obj (F : ptd_obj) : functor C C := pr1 F.
 
-Definition ptd_pt (F : ptd_obj) : functor_identity C ⟶ F := pr2 F.
+Definition ptd_pt (F : ptd_obj) : functor_identity C ⟹ F := pr2 F.
 
-Definition is_ptd_mor {F G : ptd_obj}(α: F ⟶ G) : UU := ∏ c : C, ptd_pt F c · α c = ptd_pt G c.
+Definition is_ptd_mor {F G : ptd_obj}(α: F ⟹ G) : UU := ∏ c : C, ptd_pt F c · α c = ptd_pt G c.
 
 Definition ptd_mor (F G : ptd_obj) : UU :=
-  ∑ α : F ⟶ G, is_ptd_mor α.
+  ∑ α : F ⟹ G, is_ptd_mor α.
 
 Coercion nat_trans_from_ptd_mor {F G : ptd_obj} (a : ptd_mor F G) : nat_trans F G := pr1 a.
 
 Lemma eq_ptd_mor {F G : ptd_obj} (a b : ptd_mor F G)
-  : a = b ≃ (a : F ⟶ G) = b.
+  : a = b ≃ (a : F ⟹ G) = b.
 Proof.
   apply subtypeInjectivity.
   intro x.
