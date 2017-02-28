@@ -275,6 +275,24 @@ apply hPropUnivalence.
 - intros hP; apply (hinhpr (ii1 hP)).
 Qed.
 
+Lemma hdisj_hfalse (P : hProp) : (∅ ∨ P) = P.
+Proof.
+apply hPropUnivalence.
+- apply hinhuniv; intros hPPQ.
+  induction hPPQ as [hF|hP].
+  + induction hF.
+  + exact hP.
+- intros hP; apply (hinhpr (ii2 hP)).
+Qed.
+
+Lemma hconj_htrue (P : hProp) : (htrue ∧ P) = P.
+Proof.
+apply hPropUnivalence.
+- intros hP; apply (pr2 hP).
+- intros hP.
+  split; [ apply tt | apply hP ].
+Qed.
+
 Definition sieve_lattice (c : C) : lattice (sieve c).
 Proof.
 use mklattice.
@@ -301,7 +319,20 @@ use mklattice.
     apply hdisj_absorb.
 Defined.
 
-(* TODO: Define the bounded lattice *)
+Definition sieve_bounded_lattice (c : C) : bounded_lattice (sieve c).
+Proof.
+use mkbounded_lattice.
+- apply sieve_lattice.
+- apply empty_sieve.
+- apply maximal_sieve.
+- split.
+  + intros S.
+    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
+    apply hdisj_hfalse.
+  + intros S.
+    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
+    apply hconj_htrue.
+Defined.
 
 Definition sieve_mor a b (f : C⟦b,a⟧) : sieve a → sieve b.
 Proof.
