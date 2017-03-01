@@ -1315,7 +1315,7 @@ Proof.
   apply (grrcan Y y2).
   rewrite (grlinvax Y). rewrite (assocax Y). rewrite (grlinvax Y).
   apply idpath.
-Qed.
+Defined.
 
 (** **** Relations on groups *)
 
