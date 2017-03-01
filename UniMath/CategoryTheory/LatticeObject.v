@@ -29,6 +29,7 @@ Context {C : precategory} {BPC : BinProducts C}.
 
 Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
 Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 80) : cat.
+Local Notation "1" := (identity _) : cat.
 
 Let π1 {x y} : C⟦x ⊗ y,x⟧ := BinProductPr1 _ (BPC x y).
 Let π2 {x y} : C⟦x ⊗ y,y⟧ := BinProductPr2 _ (BPC x y).
@@ -44,9 +45,6 @@ Let δ {x} : C⟦x,x ⊗ x⟧ := binprod_delta x.
 Definition binprod_swap (x y : C) : C⟦x ⊗ y,y ⊗ x⟧ :=
   BinProductArrow _ _ (BinProductPr2 _ _) (BinProductPr1 _ _).
 Let τ {x y} : C⟦x ⊗ y,y ⊗ x⟧ := binprod_swap x y.
-
-
-Local Notation "1" := (identity _) : cat.
 
 
 (** Equation witnessing that a morphism representing a binary operation is
@@ -127,10 +125,6 @@ Context {C : precategory} (BPC : BinProducts C) {L : C} (isL : latticeob BPC L).
 
 Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
 Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 80) : cat.
-Let δ {x} : C⟦x,x ⊗ x⟧ := binprod_delta x.
-Let τ {x y} : C⟦x ⊗ y,y ⊗ x⟧ := binprod_swap x y.
-Let π1 {x y} : C⟦x ⊗ y,x⟧ := BinProductPr1 _ (BPC x y).
-
 Local Notation "1" := (identity _) : cat.
 
 Definition isassoc_meet_mor : isassoc_cat (meet_mor isL) :=
