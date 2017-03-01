@@ -31,3 +31,43 @@ Proof.
       + now apply i.
       + assumption.
 Defined.
+
+Definition WellOrderedSet := ∑ X, isWellOrdered X.
+
+Definition WellOrderedSet_to_OrderedSet (X:WellOrderedSet) : OrderedSet := pr1 X.
+
+Coercion WellOrderedSet_to_OrderedSet : WellOrderedSet >-> OrderedSet.
+
+Lemma isdeceq_wellOrderedSet (X:WellOrderedSet) : isdeceq X.
+(* if this is true, then Zermelo's theorem needs [isdeceq X] as a hypothesis *)
+Proof.
+  intros x y.
+  (* make the doubleton subset containing x and y *)
+  set (S := λ z, ∥ (z=x) ⨿ (z=y) ∥).
+  assert (x' := hinhpr (ii1 (idpath _)) : S x).
+  assert (y' := hinhpr (ii2 (idpath _)) : S y).
+  assert (h : ∃ s, S s).
+  { apply hinhpr. exists x. exact x'. }
+  assert (q := pr2 X S h); clear h.
+  induction q as [s min], min as [h u].
+  apply (squash_to_prop h).
+  { apply isapropdec. (* uses funextemptyAxiom *) apply setproperty. }
+  clear h. intro d. induction d as [d|d].
+  - induction (!d); clear d.
+    assert (v := u y y').
+    (*
+      v : x ≤ y
+      ============================
+      decidable (x = y)
+     *)
+    admit.
+  - induction (!d); clear d.
+    assert (v := u x x').
+    (*
+      v : y ≤ x
+      ============================
+      decidable (x = y)
+     *)
+    admit.
+    (* it seems not to be true *)
+Abort.
