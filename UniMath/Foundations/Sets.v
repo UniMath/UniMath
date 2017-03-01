@@ -126,7 +126,7 @@ Defined.
 Definition total2_hSet {X : hSet} (Y : X -> hSet) : hSet
   := hSetpair (∑ x, Y x) (isaset_total2_hSet X Y).
 
-Definition hfiber_hSet {X : hSet} {Y : hSet} (f : X → Y) (y : Y) : hSet
+Definition hfiber_hSet {X Y : hSet} (f : X → Y) (y : Y) : hSet
   := hSetpair (hfiber f y) (isaset_hfiber f y (pr2 X) (pr2 Y)).
 
 Delimit Scope set with set.
@@ -148,7 +148,7 @@ Notation "'∏' x .. y , P" := (forall_hSet (fun x =>.. (forall_hSet (fun y => P
 Lemma isaset_total2_subset (X : hSet) (Y : X -> hProp) : isaset (∑ x, Y x).
 Proof.
   intros. apply isaset_total2.
-  - exact (setproperty _).
+  - apply setproperty.
   - intro x. apply isasetaprop, propproperty.
 Defined.
 
@@ -303,6 +303,23 @@ Coercion carrier : hsubtype >-> Sortclass.
 Definition carrierpair {X : UU} (A : hsubtype X) :
    ∏ t : X, A t → ∑ x : X, A x := tpair A.
 Definition pr1carrier {X : UU} (A : hsubtype X) := @pr1 _ _  : carrier A -> X.
+
+Lemma isaset_carrier_subset (X : hSet) (Y : hsubtype X) : isaset (∑ x, Y x).
+Proof.
+  intros. apply isaset_total2.
+  - apply setproperty.
+  - intro x. apply isasetaprop, propproperty.
+Defined.
+
+Definition carrier_subset {X : hSet} (Y : hsubtype X) : hSet
+  := hSetpair (∑ x, Y x) (isaset_carrier_subset X Y).
+
+Notation "'∑' x .. y , P"
+  := (carrier_subset (fun x =>.. (carrier_subset (fun y => P))..))
+  (at level 200, x binder, y binder, right associativity) : subset.
+  (* type this in emacs in agda-input method with \sum *)
+
+Delimit Scope subset with subset.
 
 Lemma isinclpr1carrier {X : UU} (A : hsubtype X) : isincl (@pr1carrier X A).
 Proof. intros. apply (isinclpr1 A (fun x : _ => pr2 (A x))). Defined.
