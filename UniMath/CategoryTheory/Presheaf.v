@@ -154,6 +154,17 @@ use mklattice.
   + intros P Q; apply hdisj_absorb_hconj.
 Defined.
 
+Definition hProp_bounded_lattice : bounded_lattice (hProp,,isasethProp).
+Proof.
+use mkbounded_lattice.
+- exact hProp_lattice.
+- exact hfalse.
+- exact htrue.
+- split.
+  + intros P; apply hfalse_hdisj.
+  + intros P; apply htrue_hconj.
+Defined.
+
 End hProp_lattice.
 
 (** Various limits and colimits in PreShv C *)
@@ -320,12 +331,12 @@ use mklattice.
 - apply union_sieve.
 - repeat split; intros S1; intros;
   apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-  + apply isassoc_hconj.
-  + apply iscomm_hconj.
-  + apply isassoc_hdisj.
-  + apply iscomm_hdisj.
-  + apply hconj_absorb_hdisj.
-  + apply hdisj_absorb_hconj.
+  + apply (isassoc_Lmin hProp_lattice).
+  + apply (iscomm_Lmin hProp_lattice).
+  + apply (isassoc_Lmax hProp_lattice).
+  + apply (iscomm_Lmax hProp_lattice).
+  + apply (Lmin_absorb hProp_lattice).
+  + apply (Lmax_absorb hProp_lattice).
 Defined.
 
 Definition sieve_bounded_lattice (c : C) : bounded_lattice (sieve c).
@@ -334,13 +345,9 @@ use mkbounded_lattice.
 - apply sieve_lattice.
 - apply empty_sieve.
 - apply maximal_sieve.
-- split.
-  + intros S.
-    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply hfalse_hdisj.
-  + intros S.
-    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply htrue_hconj.
+- split; intros S; apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
+  + apply (islunit_Lmax_Lbot hProp_bounded_lattice).
+  + apply (islunit_Lmin_Ltop hProp_bounded_lattice).
 Defined.
 
 Definition sieve_mor a b (f : C⟦b,a⟧) : sieve a → sieve b.
@@ -367,9 +374,7 @@ split.
   + now repeat (apply funextsec; intro); rewrite <- assoc.
 Qed.
 
-Definition Ω_PreShv : PreShv C := (Ω_PreShv_data,,is_functor_Ω_PreShv_data).
-
-Let Ω := Ω_PreShv.
+Definition Ω : PreShv C := (Ω_PreShv_data,,is_functor_Ω_PreShv_data).
 
 Definition Ω_mor : (PreShv C)⟦Terminal_PreShv,Ω⟧.
 Proof.
@@ -387,7 +392,7 @@ Qed.
 
 Local Notation "c '⊗' d" := (BinProductObject _ (BinProducts_PreShv c d)) (at level 75) : cat.
 
-Definition Ω_meet : PreShv(C) ⟦Ω ⊗ Ω,Ω⟧.
+Definition Ω_meet : PreShv(C)⟦Ω ⊗ Ω,Ω⟧.
 Proof.
 use mk_nat_trans.
 + intros c S1S2.
@@ -397,7 +402,7 @@ use mk_nat_trans.
   now apply sieve_eq.
 Defined.
 
-Definition Ω_join : PreShv(C) ⟦Ω ⊗ Ω,Ω⟧.
+Definition Ω_join : PreShv(C)⟦Ω ⊗ Ω,Ω⟧.
 Proof.
 use mk_nat_trans.
 + intros c S1S2.
@@ -407,9 +412,9 @@ use mk_nat_trans.
   now apply sieve_eq.
 Defined.
 
-Definition Ω_lattice : latticeob BinProducts_PreShv Ω_PreShv.
+Definition Ω_lattice : latticeob BinProducts_PreShv Ω.
 Proof.
-use mklatticeob.
+use mk_latticeob.
 + apply Ω_meet.
 + apply Ω_join.
 + repeat split; apply (nat_trans_eq has_homsets_HSET); intro c;
@@ -420,6 +425,32 @@ use mklatticeob.
   - apply (iscomm_Lmax (sieve_lattice c)).
   - apply (Lmin_absorb (sieve_lattice c)).
   - apply (Lmax_absorb (sieve_lattice c)).
+Defined.
+
+Definition Ω_bottom : PreShv(C)⟦Terminal_PreShv,Ω⟧.
+Proof.
+use mk_nat_trans.
++ intros c _; apply empty_sieve.
++ now intros x y f; apply funextsec; intros []; apply sieve_eq.
+Defined.
+
+Definition Ω_top : PreShv(C)⟦Terminal_PreShv,Ω⟧.
+Proof.
+use mk_nat_trans.
++ intros c _; apply maximal_sieve.
++ now intros x y f; apply funextsec; intros []; apply sieve_eq.
+Defined.
+
+Definition Ω_bounded_lattice : bounded_latticeob BinProducts_PreShv Terminal_PreShv Ω.
+Proof.
+use mk_bounded_latticeob.
+- exact Ω_lattice.
+- exact Ω_bottom.
+- exact Ω_top.
+- split; apply (nat_trans_eq has_homsets_HSET); intro c;
+         apply funextsec; cbn; intros S.
+  + apply (islunit_Lmax_Lbot (sieve_bounded_lattice c)).
+  + apply (islunit_Lmin_Ltop (sieve_bounded_lattice c)).
 Defined.
 
 End Ω_PreShv.

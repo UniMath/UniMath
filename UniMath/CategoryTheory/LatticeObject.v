@@ -109,7 +109,7 @@ Definition latticeop_cat {L} (meet_mor join_mor : C⟦L ⊗ L,L⟧) :=
 Definition latticeob (L : C) : UU :=
   ∑ (meet_mor join_mor : C⟦L ⊗ L,L⟧), latticeop_cat meet_mor join_mor.
 
-Definition mklatticeob {L : C} {meet_mor join_mor : C⟦L ⊗ L,L⟧} :
+Definition mk_latticeob {L : C} {meet_mor join_mor : C⟦L ⊗ L,L⟧} :
   latticeop_cat meet_mor join_mor → latticeob L :=
     λ (isL : latticeop_cat meet_mor join_mor), meet_mor,, join_mor ,, isL.
 
@@ -145,7 +145,7 @@ Definition bounded_latticeop_cat {L} (l : latticeob L) (bot top : C⟦TC,L⟧) :
 Definition bounded_latticeob (L : C) : UU :=
   ∑ (l : latticeob L) (bot top : C⟦TC,L⟧), bounded_latticeop_cat l bot top.
 
-Definition mkbounded_latticeob {L} {l : latticeob L} {bot top : C⟦TC,L⟧} :
+Definition mk_bounded_latticeob {L} {l : latticeob L} {bot top : C⟦TC,L⟧} :
   bounded_latticeop_cat l bot top → bounded_latticeob L := λ bl, l,, bot,, top,, bl.
 
 Definition bounded_latticeob_to_latticeob X : bounded_latticeob X → latticeob X := pr1.
@@ -281,7 +281,7 @@ Qed.
 
 Definition sub_latticeob : latticeob BPC M.
 Proof.
-use mklatticeob.
+use mk_latticeob.
 - apply meet_mor_M.
 - apply join_mor_M.
 - repeat split.
@@ -327,7 +327,7 @@ Qed.
 
 Definition sub_bounded_latticeob : bounded_latticeob BPC TC M.
 Proof.
-use mkbounded_latticeob.
+use mk_bounded_latticeob.
 - exact (sub_latticeob BPC Hi l Hmeet Hjoin).
 - exact bot_mor_M.
 - exact top_mor_M.
