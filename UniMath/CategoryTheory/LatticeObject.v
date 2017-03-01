@@ -146,94 +146,94 @@ Definition meet_mor_absorb_join_mor : isabsorb_cat (meet_mor isL) (join_mor isL)
 Definition join_mor_absorb_meet_mor : isabsorb_cat (join_mor isL) (meet_mor isL) :=
   pr2 (pr2 (pr2 (pr2 (pr2 isL)))).
 
-(** This corresponds to the equation: x ∧ x = x *)
-Lemma meet_mor_id : δ · meet_mor isL = 1.
-Proof.
-generalize isassoc_meet_mor.
-generalize iscomm_meet_mor.
-generalize isassoc_join_mor.
-generalize iscomm_join_mor.
-generalize meet_mor_absorb_join_mor.
-generalize join_mor_absorb_meet_mor.
-unfold isassoc_cat, iscomm_cat, isabsorb_cat.
-intros h1 h2 h3 h4 h5 h6.
-assert (H : δ · π1 = identity L).
-admit.
-rewrite <- H.
-Abort.
-
 End LatticeObject_theory.
 
 Section SublatticeObject.
 
-Context {C : precategory} (BPC : BinProducts C) (M L : C) (i : Monic _ M L)
+Context {C : precategory} (BPC : BinProducts C) (M L : C) (i : C⟦M,L⟧) (Hi : isMonic i)
         (isL : latticeob BPC L).
 
 Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
 Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 90) : cat.
 
-Let j : C⟦M,L⟧ := pr1 i.
-Let Hj : isMonic j := pr2 i.
-
 (* Is this the correct way of expressing this or is too strong? *)
 (* I think this asserts that i is a lattice morphism internally *)
-Variables (meet_mor_M : C⟦M ⊗ M,M⟧) (Hmeet : meet_mor_M · j = (j ×× j) · meet_mor isL).
-Variables (join_mor_M : C⟦M ⊗ M,M⟧) (Hjoin : join_mor_M · j = (j ×× j) · join_mor isL).
+Variables (meet_mor_M : C⟦M ⊗ M,M⟧) (Hmeet : meet_mor_M · i = (i ×× i) · meet_mor isL).
+Variables (join_mor_M : C⟦M ⊗ M,M⟧) (Hjoin : join_mor_M · i = (i ×× i) · join_mor isL).
 
-(* Notation "C ⟦ a ,, b ⟧" := (precategory_morphisms (C:=C) a b) (format "C ⟦ a ,, b ⟧", at level 50). *)
-
-Lemma Hid : identity M · j = j · identity L.
+Local Lemma identity_comm : identity M · i = i · identity L.
 Proof.
 now rewrite id_left, id_right.
 Qed.
 
-Lemma Hbinprod_assoc : ((j ×× j) ×× j) · @binprod_assoc _ BPC L L L =
-                       @binprod_assoc _ BPC M M M · (j ×× (j ×× j)).
+Local Lemma binprod_assoc_comm :
+  ((i ×× i) ×× i) · @binprod_assoc _ BPC L L L =
+  @binprod_assoc _ BPC M M M · (i ×× (i ×× i)).
 Proof.
-apply pathsinv0.
-etrans.
-    apply postcompWithBinProductArrow.
-    apply pathsinv0.
-    apply BinProductArrowUnique.
-    *
-    rewrite <-assoc.
-    etrans.
-    apply maponpaths.
-    apply BinProductPr1Commutes.
-    simpl.
-    now rewrite assoc, BinProductOfArrowsPr1, <- assoc, BinProductOfArrowsPr1, assoc.
-    * rewrite postcompWithBinProductArrow.
-      apply BinProductArrowUnique.
-      **
-        etrans.
-        apply cancel_postcomposition.
-        rewrite <-assoc.
-        apply maponpaths.
-        apply BinProductPr2Commutes.
-        rewrite <-assoc.
-        etrans.
-        apply maponpaths.
-        apply BinProductPr1Commutes.
-        now rewrite assoc, BinProductOfArrowsPr1, <- assoc, BinProductOfArrowsPr2, assoc.
-      ** etrans.
-         apply cancel_postcomposition.
-         rewrite <-assoc.
-         apply maponpaths.
-        apply BinProductPr2Commutes.
-        rewrite <-assoc.
-        etrans.
-        apply maponpaths.
-        apply BinProductPr2Commutes.
-        now rewrite BinProductOfArrowsPr2.
+unfold binprod_assoc; rewrite postcompWithBinProductArrow.
+apply BinProductArrowUnique.
+- rewrite <-assoc, BinProductPr1Commutes.
+  now rewrite assoc, BinProductOfArrowsPr1, <- assoc, BinProductOfArrowsPr1, assoc.
+- rewrite postcompWithBinProductArrow.
+  apply BinProductArrowUnique.
+  + etrans; [ apply cancel_postcomposition; rewrite <-assoc;
+              apply maponpaths, BinProductPr2Commutes |].
+    rewrite <- assoc, BinProductPr1Commutes.
+    now rewrite assoc, BinProductOfArrowsPr1, <- assoc, BinProductOfArrowsPr2, assoc.
+  + etrans; [ apply cancel_postcomposition; rewrite <-assoc;
+              apply maponpaths, BinProductPr2Commutes |].
+    now rewrite <- assoc, BinProductPr2Commutes, BinProductOfArrowsPr2.
 Qed.
 
-Lemma binprod_delta_comm : j · @binprod_delta _ BPC L = @binprod_delta _ BPC M · (j ×× j).
+Local Lemma binprod_delta_comm :
+  i · @binprod_delta _ BPC L = @binprod_delta _ BPC M · (i ×× i).
 Proof.
-unfold binprod_delta.
-rewrite postcompWithBinProductArrow.
+unfold binprod_delta; rewrite postcompWithBinProductArrow.
 apply BinProductArrowUnique.
-now rewrite <-assoc, BinProductPr1Commutes, Hid.
-now rewrite <-assoc, BinProductPr2Commutes, Hid.
+now rewrite <-assoc, BinProductPr1Commutes, identity_comm.
+now rewrite <-assoc, BinProductPr2Commutes, identity_comm.
+Qed.
+
+Local Lemma isassoc_cat_comm {f : C⟦M ⊗ M,M⟧} {g : C⟦L ⊗ L,L⟧} (Hfg : f · i = (i ×× i) · g) :
+  isassoc_cat g → isassoc_cat f.
+Proof.
+unfold isassoc_cat; intros H; apply Hi.
+rewrite <-!assoc, !Hfg, !assoc, BinProductOfArrows_comp, Hfg, <- !assoc, identity_comm.
+rewrite <- BinProductOfArrows_comp, <- assoc, H, !assoc.
+apply cancel_postcomposition.
+rewrite <-!assoc, BinProductOfArrows_comp, Hfg, identity_comm.
+now rewrite <- BinProductOfArrows_comp, !assoc, binprod_assoc_comm.
+Qed.
+
+Local Lemma iscomm_cat_comm {f : C⟦M ⊗ M,M⟧} {g : C⟦L ⊗ L,L⟧} (Hfg : f · i = (i ×× i) · g) :
+  iscomm_cat g → iscomm_cat f.
+Proof.
+unfold iscomm_cat; intros H; apply Hi.
+rewrite <- !assoc, !Hfg.
+etrans; [eapply maponpaths, H|].
+rewrite !assoc; apply cancel_postcomposition.
+unfold binprod_swap; rewrite postcompWithBinProductArrow.
+apply BinProductArrowUnique; rewrite <- assoc.
+* now rewrite BinProductPr1Commutes, BinProductOfArrowsPr2.
+* now rewrite BinProductPr2Commutes, BinProductOfArrowsPr1.
+Qed.
+
+Local Lemma isabsorb_cat_comm {f1 f2 : C⟦M ⊗ M,M⟧} {g1 g2 : C⟦L ⊗ L,L⟧}
+  (Hfg1 : f1 · i = (i ×× i) · g1) (Hfg2 : f2 · i = (i ×× i) · g2) :
+  isabsorb_cat g1 g2  → isabsorb_cat f1 f2.
+Proof.
+unfold isabsorb_cat; intros H; apply Hi.
+assert (HH : BinProductPr1 C (BPC M M) · i = (i ×× i) · BinProductPr1 C (BPC L L)).
+{ now rewrite BinProductOfArrowsPr1. }
+rewrite HH, <- H, <-!assoc, Hfg1, !assoc.
+apply cancel_postcomposition.
+rewrite <-!assoc, BinProductOfArrows_comp, Hfg2, identity_comm, !assoc.
+rewrite BinProductOfArrows_comp, <-identity_comm, binprod_delta_comm.
+etrans; [| eapply pathsinv0; do 2 apply cancel_postcomposition;
+           now rewrite <-BinProductOfArrows_comp].
+rewrite <-!assoc; apply maponpaths.
+rewrite assoc, binprod_assoc_comm, <-assoc; apply maponpaths.
+now rewrite identity_comm, BinProductOfArrows_comp.
 Qed.
 
 Definition sublatticeob : latticeob BPC M.
@@ -241,118 +241,13 @@ Proof.
 use mklatticeob.
 - apply meet_mor_M.
 - apply join_mor_M.
--
-  repeat split; apply Hj.
-  + set (H := isassoc_meet_mor _ isL).
-    unfold isassoc_cat in *.
-    simpl in *.
-    rewrite <-!assoc, !Hmeet.
-    rewrite !assoc.
-    rewrite !BinProductOfArrows_comp.
-    rewrite Hmeet.
-    rewrite <- !assoc.
-    rewrite Hid.
-    rewrite <- BinProductOfArrows_comp, <- assoc, H.
-    rewrite !assoc.
-    apply cancel_postcomposition.
-    rewrite <-!assoc.
-    rewrite BinProductOfArrows_comp, Hmeet, Hid.
-    rewrite <- BinProductOfArrows_comp.
-    rewrite !assoc.
-    apply cancel_postcomposition.
-    apply Hbinprod_assoc.
-  + rewrite <- !assoc, !Hmeet.
-    etrans; [eapply maponpaths, (iscomm_meet_mor _ isL)|].
-    rewrite !assoc; apply cancel_postcomposition.
-    unfold binprod_swap.
-    rewrite postcompWithBinProductArrow.
-    apply BinProductArrowUnique; rewrite <- assoc.
-    * now rewrite BinProductPr1Commutes, BinProductOfArrowsPr2.
-    * now rewrite BinProductPr2Commutes, BinProductOfArrowsPr1.
-  + set (H := isassoc_join_mor _ isL).
-    unfold isassoc_cat in *.
-    simpl in *.
-    rewrite <-!assoc, !Hjoin.
-    rewrite !assoc.
-    rewrite !BinProductOfArrows_comp.
-    rewrite Hjoin.
-    rewrite <- !assoc.
-    assert (HH : identity M · j = j · identity L).
-    { now rewrite id_left, id_right. }
-    rewrite HH.
-    rewrite <- BinProductOfArrows_comp, <- assoc, H.
-    rewrite !assoc.
-    apply cancel_postcomposition.
-    rewrite <-!assoc.
-    rewrite BinProductOfArrows_comp, Hjoin, HH.
-    rewrite <- BinProductOfArrows_comp.
-    rewrite !assoc.
-    apply cancel_postcomposition.
-    apply Hbinprod_assoc.
-  + rewrite <- !assoc, !Hjoin.
-    etrans; [eapply maponpaths, (iscomm_join_mor _ isL)|].
-    rewrite !assoc; apply cancel_postcomposition.
-    unfold binprod_swap.
-    rewrite postcompWithBinProductArrow.
-    apply BinProductArrowUnique; rewrite <- assoc.
-    * now rewrite BinProductPr1Commutes, BinProductOfArrowsPr2.
-    * now rewrite BinProductPr2Commutes, BinProductOfArrowsPr1.
-  + set (H := meet_mor_absorb_join_mor _ isL).
-    unfold isabsorb_cat in *.
-    assert (HH :  BinProductPr1 C (BPC M M) · j = (j ×× j) · BinProductPr1 C (BPC L L)).
-    { now rewrite BinProductOfArrowsPr1. }
-    rewrite HH.
-    rewrite <- H, <-!assoc.
-    rewrite Hmeet, !assoc.
-    apply cancel_postcomposition.
-    rewrite <-!assoc.
-    rewrite BinProductOfArrows_comp, Hjoin.
-    rewrite Hid.
-    rewrite !assoc.
-    rewrite BinProductOfArrows_comp.
-    rewrite <-Hid.
-    rewrite binprod_delta_comm.
-    etrans.
-    Focus 2.
-    eapply pathsinv0.
-    do 2apply cancel_postcomposition.
-    rewrite <-BinProductOfArrows_comp.
-    apply idpath.
-    rewrite <-!assoc.
-    apply maponpaths.
-    rewrite assoc.
-    rewrite Hbinprod_assoc, <-assoc.
-    apply maponpaths.
-    rewrite Hid.
-    now rewrite BinProductOfArrows_comp.
-  + set (H := join_mor_absorb_meet_mor _ isL).
-    unfold isabsorb_cat in *.
-    assert (HH :  BinProductPr1 C (BPC M M) · j = (j ×× j) · BinProductPr1 C (BPC L L)).
-    { now rewrite BinProductOfArrowsPr1. }
-    rewrite HH.
-    rewrite <- H, <-!assoc.
-    rewrite Hjoin, !assoc.
-    apply cancel_postcomposition.
-    rewrite <-!assoc.
-    rewrite BinProductOfArrows_comp, Hmeet.
-    rewrite Hid.
-    rewrite !assoc.
-    rewrite BinProductOfArrows_comp.
-    rewrite <-Hid.
-    rewrite binprod_delta_comm.
-    etrans.
-    Focus 2.
-    eapply pathsinv0.
-    do 2apply cancel_postcomposition.
-    rewrite <-BinProductOfArrows_comp.
-    apply idpath.
-    rewrite <-!assoc.
-    apply maponpaths.
-    rewrite assoc.
-    rewrite Hbinprod_assoc, <-assoc.
-    apply maponpaths.
-    rewrite Hid.
-    now rewrite BinProductOfArrows_comp.
+- repeat split.
+  + now apply (isassoc_cat_comm Hmeet), (isassoc_meet_mor _ isL).
+  + now apply (iscomm_cat_comm Hmeet), (iscomm_meet_mor _ isL).
+  + now apply (isassoc_cat_comm Hjoin), (isassoc_join_mor _ isL).
+  + now apply (iscomm_cat_comm Hjoin), (iscomm_join_mor _ isL).
+  + now apply (isabsorb_cat_comm Hmeet Hjoin), (meet_mor_absorb_join_mor _ isL).
+  + now apply (isabsorb_cat_comm Hjoin Hmeet), (join_mor_absorb_meet_mor _ isL).
 Qed.
 
 End SublatticeObject.
