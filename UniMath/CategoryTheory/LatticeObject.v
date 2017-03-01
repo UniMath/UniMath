@@ -51,7 +51,7 @@ Let τ {x y} : C⟦x ⊗ y,y ⊗ x⟧ := binprod_swap x y.
 
 
 (** Equation witnessing that a morphism representing a binary operation is
-    associative as illustrated by diagram:
+    associative as illustrated by the diagram:
 <<
                f×1
  (L ⊗ L) ⊗ L -------> L ⊗ L
@@ -70,7 +70,7 @@ Definition isassoc_cat {L} (f : C⟦L ⊗ L,L⟧) : UU := (f ×× 1) · f = α �
 
 
 (** Equation witnessing that a morphism representing a binary operation is
-    commutative as illustrated by diagram:
+    commutative as illustrated by the diagram:
 <<
    L ⊗ L
      |   \
@@ -85,7 +85,7 @@ Definition isassoc_cat {L} (f : C⟦L ⊗ L,L⟧) : UU := (f ×× 1) · f = α �
 Definition iscomm_cat {L} (f : C⟦L ⊗ L,L⟧) : UU := f = τ · f.
 
 
-(** Equation witnessing the absorbtion law as illustrated by diagram:
+(** Equation witnessing the absorbtion law as illustrated by the diagram:
 <<
            δ×1                   α
    L ⊗ L ------> (L ⊗ L) ⊗ L -------> L ⊗ (L ⊗ L)
@@ -125,7 +125,8 @@ Context {TC : Terminal C}.
 Let ι {x : C} : C⟦x,TC ⊗ x⟧ :=
   BinProductArrow _ _ (TerminalArrow _) (identity x).
 
-(** Given u : C⟦TC,L⟧ the equation witnessing the left unit law is given by the diagram:
+(** Given u : C⟦TC,L⟧ the equation witnessing the left unit law is given
+    by the diagram:
 <<
           ι
      L ------> 1 ⊗ L
@@ -135,9 +136,7 @@ Let ι {x : C} : C⟦x,TC ⊗ x⟧ :=
      L <------ L ⊗ L
           f
 >>
-
- *)
-
+*)
 Definition islunit_cat {L} (f : C⟦L ⊗ L,L⟧) (u : C⟦TC,L⟧) : UU :=
   ι · (u ×× 1) · f = 1.
 
