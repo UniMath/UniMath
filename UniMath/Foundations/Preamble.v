@@ -306,11 +306,11 @@ Reserved Notation "[ C , D ]" .
 Reserved Notation "C [ a , b ]"  (at level 50).
 
 Reserved Notation "X ⟶ Y"  (at level 39).
-(* to input: type "\r-->" with Agda input method *)
+(* to input: type "\-->" with Agda input method *)
 
 Reserved Notation "X ⟹ Y"  (at level 39).
 (* same parsing level as ⟶ *)
-(* to input: type "\r==>" with Agda input method *)
+(* to input: type "\==>" with Agda input method *)
 
 Reserved Notation "F ∙ G" (at level 35).
 (* to input: type "\." with Agda input method *)

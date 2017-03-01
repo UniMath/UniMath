@@ -198,6 +198,7 @@ Definition θ {B C:Precategory} (F : [B, C]) (X : [B, [C^op, SET]]) : hSet
   := ( ∑ x : θ_1 F X, θ_2 F X x ) % set.
 
 Local Notation "F ⟹ X" := (θ F X) (at level 39) : cat.
+(* to input: type "\==>" with Agda input method *)
 
 Definition θ_subset {B C:Precategory} {F : [B, C]} {X : [B, [C^op, SET]]}
            (t u : F ⟹ X) :
