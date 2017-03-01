@@ -374,9 +374,9 @@ split.
   + now repeat (apply funextsec; intro); rewrite <- assoc.
 Qed.
 
-Definition Ω : PreShv C := (Ω_PreShv_data,,is_functor_Ω_PreShv_data).
+Definition Ω_PreShv : PreShv C := (Ω_PreShv_data,,is_functor_Ω_PreShv_data).
 
-Definition Ω_mor : (PreShv C)⟦Terminal_PreShv,Ω⟧.
+Definition Ω_mor : (PreShv C)⟦Terminal_PreShv,Ω_PreShv⟧.
 Proof.
 use mk_nat_trans.
 - simpl; apply (λ c _, maximal_sieve c).
@@ -392,7 +392,7 @@ Qed.
 
 Local Notation "c '⊗' d" := (BinProductObject _ (BinProducts_PreShv c d)) (at level 75) : cat.
 
-Definition Ω_meet : PreShv(C)⟦Ω ⊗ Ω,Ω⟧.
+Definition Ω_PreShv_meet : PreShv(C)⟦Ω_PreShv ⊗ Ω_PreShv,Ω_PreShv⟧.
 Proof.
 use mk_nat_trans.
 + intros c S1S2.
@@ -402,7 +402,7 @@ use mk_nat_trans.
   now apply sieve_eq.
 Defined.
 
-Definition Ω_join : PreShv(C)⟦Ω ⊗ Ω,Ω⟧.
+Definition Ω_PreShv_join : PreShv(C)⟦Ω_PreShv ⊗ Ω_PreShv,Ω_PreShv⟧.
 Proof.
 use mk_nat_trans.
 + intros c S1S2.
@@ -412,11 +412,11 @@ use mk_nat_trans.
   now apply sieve_eq.
 Defined.
 
-Definition Ω_lattice : latticeob BinProducts_PreShv Ω.
+Definition Ω_PreShv_lattice : latticeob BinProducts_PreShv Ω_PreShv.
 Proof.
 use mk_latticeob.
-+ apply Ω_meet.
-+ apply Ω_join.
++ apply Ω_PreShv_meet.
++ apply Ω_PreShv_join.
 + repeat split; apply (nat_trans_eq has_homsets_HSET); intro c;
                 apply funextsec; intros S.
   - apply (isassoc_Lmin (sieve_lattice c)).
@@ -427,26 +427,27 @@ use mk_latticeob.
   - apply (Lmax_absorb (sieve_lattice c)).
 Defined.
 
-Definition Ω_bottom : PreShv(C)⟦Terminal_PreShv,Ω⟧.
+Definition Ω_PreShv_bottom : PreShv(C)⟦Terminal_PreShv,Ω_PreShv⟧.
 Proof.
 use mk_nat_trans.
 + intros c _; apply empty_sieve.
 + now intros x y f; apply funextsec; intros []; apply sieve_eq.
 Defined.
 
-Definition Ω_top : PreShv(C)⟦Terminal_PreShv,Ω⟧.
+Definition Ω_PreShv_top : PreShv(C)⟦Terminal_PreShv,Ω_PreShv⟧.
 Proof.
 use mk_nat_trans.
 + intros c _; apply maximal_sieve.
 + now intros x y f; apply funextsec; intros []; apply sieve_eq.
 Defined.
 
-Definition Ω_bounded_lattice : bounded_latticeob BinProducts_PreShv Terminal_PreShv Ω.
+Definition Ω_PreShv_bounded_lattice :
+  bounded_latticeob BinProducts_PreShv Terminal_PreShv Ω_PreShv.
 Proof.
 use mk_bounded_latticeob.
-- exact Ω_lattice.
-- exact Ω_bottom.
-- exact Ω_top.
+- exact Ω_PreShv_lattice.
+- exact Ω_PreShv_bottom.
+- exact Ω_PreShv_top.
 - split; apply (nat_trans_eq has_homsets_HSET); intro c;
          apply funextsec; cbn; intros S.
   + apply (islunit_Lmax_Lbot (sieve_bounded_lattice c)).
