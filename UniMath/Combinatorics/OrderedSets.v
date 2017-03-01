@@ -215,6 +215,32 @@ Proof.
   Unset Printing Coercions.
 Defined.
 
+Lemma smallestUniqueness (X:OrderedSet) (x y:X) : isSmallest x -> isSmallest y -> x = y.
+Proof.
+  intros ? ? ? i j. assert (q := OrderedSet_istotal x y). apply (squash_to_prop q).
+  { apply setproperty. }
+  intro c. induction c as [xley|ylex].
+  - apply OrderedSet_isantisymm.
+    + assumption.
+    + now apply j.
+  - apply OrderedSet_isantisymm.
+    + now apply i.
+    + assumption.
+Defined.
+
+Lemma biggestUniqueness (X:OrderedSet) (x y:X) : isBiggest x -> isBiggest y -> x = y.
+Proof.
+  intros ? ? ? i j. assert (q := OrderedSet_istotal x y). apply (squash_to_prop q).
+  { apply setproperty. }
+  intro c. induction c as [xley|ylex].
+  - apply OrderedSet_isantisymm.
+    + assumption.
+    + now apply i.
+  - apply OrderedSet_isantisymm.
+    + now apply j.
+    + assumption.
+Defined.
+
 Theorem OrderedSet_univalence (X Y:OrderedSet) : X=Y ≃ X≅Y.
 Proof. intros. exact ((Poset_univalence _ _) ∘ (underlyingPoset_weq _ _))%weq.
 Defined.

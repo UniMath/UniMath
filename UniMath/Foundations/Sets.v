@@ -818,6 +818,59 @@ Lemma isaprop_isaposetmorphism {X Y : Poset} (f : X -> Y) :
   isaprop (isaposetmorphism f).
 Proof. intros. apply impredtwice; intros. apply impred_prop. Defined.
 
+Definition Subposet (X:Poset) := hsubtype X. (* this seems simpler than the next one *)
+
+Definition Subposet' (X:Poset) := ∑ (S:Poset) (f:posetmorphism S X), isincl f.
+
+Definition Subposet'_to_Poset {X:Poset} (S:Subposet' X) := pr1 S.
+
+Coercion Subposet'_to_Poset : Subposet' >-> Poset.
+
+Definition Subposet_to_Subposet' {X:Poset} : Subposet X -> Subposet' X.
+Proof.
+  intros X S. use tpair.
+  - exists (carrier_subset S).
+    use tpair.
+    + intros s t. exact (pr1 s ≤ pr1 t)%poset.
+    + simpl. split.
+      { split.
+        { intros s t u. exact (istrans_posetRelation _ _ _ _). }
+        { intros s. exact (isrefl_posetRelation _ _). } }
+      { intros s t a b. apply subtypeEquality_prop. exact (isantisymm_posetRelation _ _ _ a b). }
+  - simpl. use tpair.
+    + exists (pr1carrier _).
+      intros s t a. simpl in s,t. exact a.
+    + simpl. apply isinclpr1carrier.
+Defined.
+
+Definition Subposet'_to_Subposet {X:Poset} : Subposet' X -> Subposet X.
+Proof.
+  intros X S x. set (f := pr1 (pr2 S)); simpl in f. exact (nonempty (hfiber f x)).
+Defined.
+
+Coercion Subposet_to_Subposet' : Subposet >-> Subposet'.
+
+Definition Subposet'_equiv_Subposet (X:Poset) : Subposet' X ≃ Subposet X.
+Proof.
+  intros.
+  exists Subposet'_to_Subposet.
+  apply set_bijection_to_weq.
+  - split.
+    + intros S.
+      exists (Subposet_to_Subposet' S).
+      apply funextfun; intro z.
+      apply hPropUnivalence.
+      * simple refine (hinhuniv _); intro w.
+        simpl in w. induction w as [s p]. induction s as [y q]; simpl in p.
+        induction p. exact q.
+      * intro h. apply hinhpr. exists (z,,h). reflexivity.
+    + intros S T p.
+      (* first develop univalence for posets and Poset_rect *)
+      admit.
+  - unfold Subposet.
+    apply isasethsubtype.
+Abort.
+
 (** the preorders on a set form a set *)
 
 Definition isaset_po (X : hSet) : isaset (po X).
@@ -884,19 +937,25 @@ Defined.
 (** poset concepts *)
 
 Notation "m < n" := (m ≤ n × m != n)%poset (only parsing) : poset.
-Definition isMinimal {X : Poset} (x : X) : UU := ∏ y, x ≤ y.
-Definition isMaximal {X : Poset} (x : X) : UU := ∏ y, y ≤ x.
-Definition consecutive {X : Poset} (x y : X) : UU
-  := x < y × ∏ z, ¬ (x < z × z < y).
 
-Lemma isaprop_isMinimal {X : Poset} (x : X) : isaprop (isMaximal x).
+Definition isSmallest {X : Poset} (x : X) : UU := ∏ y, x ≤ y.
+
+Definition isBiggest {X : Poset} (x : X) : UU := ∏ y, y ≤ x.
+
+Definition isMinimal {X : Poset} (x : X) : UU := ∏ y, y ≤ x -> x = y.
+
+Definition isMaximal {X : Poset} (x : X) : UU := ∏ y, x ≤ y -> x = y.
+
+Definition consecutive {X : Poset} (x y : X) : UU := x < y × ∏ z, ¬ (x < z × z < y).
+
+Lemma isaprop_isSmallest {X : Poset} (x : X) : isaprop (isSmallest x).
 Proof.
-  intros. unfold isMaximal. apply impred_prop.
+  intros. unfold isSmallest. apply impred_prop.
 Defined.
 
-Lemma isaprop_isMaximal {X : Poset} (x : X) : isaprop (isMaximal x).
+Lemma isaprop_isBiggest {X : Poset} (x : X) : isaprop (isBiggest x).
 Proof.
-  intros. unfold isMaximal. apply impred_prop.
+  intros. unfold isBiggest. apply impred_prop.
 Defined.
 
 Lemma isaprop_consecutive {X : Poset} (x y : X) : isaprop (consecutive x y).
