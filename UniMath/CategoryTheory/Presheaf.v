@@ -318,25 +318,14 @@ Proof.
 use mklattice.
 - apply intersection_sieve.
 - apply union_sieve.
-- repeat split.
-  + intros S1 S2 S3.
-    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply isassoc_hconj.
-  + intros S1 S2.
-    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply iscomm_hconj.
-  + intros S1 S2 S3.
-    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply isassoc_hdisj.
-  + intros S1 S2.
-    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply iscomm_hdisj.
-  + intros S1 S2.
-    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply hconj_absorb_hdisj.
-  + intros S1 S2.
-    apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply hdisj_absorb_hconj.
+- repeat split; intros S1; intros;
+  apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
+  + apply isassoc_hconj.
+  + apply iscomm_hconj.
+  + apply isassoc_hdisj.
+  + apply iscomm_hdisj.
+  + apply hconj_absorb_hdisj.
+  + apply hdisj_absorb_hconj.
 Defined.
 
 Definition sieve_bounded_lattice (c : C) : bounded_lattice (sieve c).
@@ -423,25 +412,14 @@ Proof.
 use mklatticeob.
 + apply Ω_meet.
 + apply Ω_join.
-+ repeat split.
-  - apply (nat_trans_eq has_homsets_HSET); intro c.
-    apply funextsec; intros S.
-    apply (isassoc_Lmin (sieve_lattice c)).
-  - apply (nat_trans_eq has_homsets_HSET); intro c.
-    apply funextsec; intros S.
-    apply (iscomm_Lmin (sieve_lattice c)).
-  - apply (nat_trans_eq has_homsets_HSET); intro c.
-    apply funextsec; intros S.
-    apply (isassoc_Lmax (sieve_lattice c)).
-  - apply (nat_trans_eq has_homsets_HSET); intro c.
-    apply funextsec; intros S.
-    apply (iscomm_Lmax (sieve_lattice c)).
-  - apply (nat_trans_eq has_homsets_HSET); intro c.
-    apply funextsec; intros S.
-    apply (Lmin_absorb (sieve_lattice c)).
-  - apply (nat_trans_eq has_homsets_HSET); intro c.
-    apply funextsec; intros S.
-    apply (Lmax_absorb (sieve_lattice c)).
++ repeat split; apply (nat_trans_eq has_homsets_HSET); intro c;
+                apply funextsec; intros S.
+  - apply (isassoc_Lmin (sieve_lattice c)).
+  - apply (iscomm_Lmin (sieve_lattice c)).
+  - apply (isassoc_Lmax (sieve_lattice c)).
+  - apply (iscomm_Lmax (sieve_lattice c)).
+  - apply (Lmin_absorb (sieve_lattice c)).
+  - apply (Lmax_absorb (sieve_lattice c)).
 Defined.
 
 End Ω_PreShv.
