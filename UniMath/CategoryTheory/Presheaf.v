@@ -51,6 +51,111 @@ Local Open Scope cat.
 
 Notation "'PreShv' C" := [C^op,HSET,has_homsets_HSET] (at level 3) : cat.
 
+(* TODO: upstream *)
+Section hProp_lattice.
+
+Lemma isassoc_hconj (P Q R : hProp) : ((P ∧ Q) ∧ R) = (P ∧ (Q ∧ R)).
+Proof.
+apply hPropUnivalence.
+- intros PQR.
+  exact (pr1 (pr1 PQR),,(pr2 (pr1 PQR),,pr2 PQR)).
+- intros PQR.
+  exact ((pr1 PQR,,pr1 (pr2 PQR)),,pr2 (pr2 PQR)).
+Qed.
+
+Lemma iscomm_hconj (P Q : hProp) : (P ∧ Q) = (Q ∧ P).
+Proof.
+apply hPropUnivalence.
+- intros PQ.
+  exact (pr2 PQ,,pr1 PQ).
+- intros QP.
+  exact (pr2 QP,,pr1 QP).
+Qed.
+
+Lemma isassoc_hdisj (P Q R : hProp) : ((P ∨ Q) ∨ R) = (P ∨ (Q ∨ R)).
+Proof.
+apply hPropUnivalence.
+- apply hinhuniv; intros hPQR.
+  induction hPQR as [hPQ|hR].
+  + use (hinhuniv _ hPQ); clear hPQ; intros hPQ.
+    induction hPQ as [hP|hQ].
+    * exact (hinhpr (ii1 hP)).
+    * exact (hinhpr (ii2 (hinhpr (ii1 hQ)))).
+  + exact (hinhpr (ii2 (hinhpr (ii2 hR)))).
+- apply hinhuniv; intros hPQR.
+  induction hPQR as [hP|hQR].
+  + exact (hinhpr (ii1 (hinhpr (ii1 hP)))).
+  + use (hinhuniv _ hQR); clear hQR; intros hQR.
+    induction hQR as [hQ|hR].
+    * exact (hinhpr (ii1 (hinhpr (ii2 hQ)))).
+    * exact (hinhpr (ii2 hR)).
+Qed.
+
+Lemma iscomm_hdisj (P Q : hProp) : (P ∨ Q) = (Q ∨ P).
+Proof.
+apply hPropUnivalence.
+- apply hinhuniv; intros PQ.
+  induction PQ as [hP|hQ].
+  + exact (hinhpr (ii2 hP)).
+  + exact (hinhpr (ii1 hQ)).
+- apply hinhuniv; intros PQ.
+  induction PQ as [hQ|hP].
+  + exact (hinhpr (ii2 hQ)).
+  + exact (hinhpr (ii1 hP)).
+Qed.
+
+Lemma hconj_absorb_hdisj (P Q : hProp) : (P ∧ (P ∨ Q)) = P.
+Proof.
+apply hPropUnivalence.
+- intros hPPQ; apply (pr1 hPPQ).
+- intros hP.
+  split; [ apply hP | apply (hinhpr (ii1 hP)) ].
+Qed.
+
+Lemma hdisj_absorb_hconj (P Q : hProp) : (P ∨ (P ∧ Q)) = P.
+Proof.
+apply hPropUnivalence.
+- apply hinhuniv; intros hPPQ.
+  induction hPPQ as [hP|hPQ].
+  + exact hP.
+  + exact (pr1 hPQ).
+- intros hP; apply (hinhpr (ii1 hP)).
+Qed.
+
+Lemma hfalse_hdisj (P : hProp) : (∅ ∨ P) = P.
+Proof.
+apply hPropUnivalence.
+- apply hinhuniv; intros hPPQ.
+  induction hPPQ as [hF|hP].
+  + induction hF.
+  + exact hP.
+- intros hP; apply (hinhpr (ii2 hP)).
+Qed.
+
+Lemma htrue_hconj (P : hProp) : (htrue ∧ P) = P.
+Proof.
+apply hPropUnivalence.
+- intros hP; apply (pr2 hP).
+- intros hP.
+  split; [ apply tt | apply hP ].
+Qed.
+
+Definition hProp_lattice : lattice (hProp,,isasethProp).
+Proof.
+use mklattice.
+- intros P Q; exact (P ∧ Q).
+- simpl; intros P Q; exact (P ∨ Q).
+- repeat split.
+  + intros P Q R; apply isassoc_hconj.
+  + intros P Q; apply iscomm_hconj.
+  + intros P Q R; apply isassoc_hdisj.
+  + intros P Q; apply iscomm_hdisj.
+  + intros P Q; apply hconj_absorb_hdisj.
+  + intros P Q; apply hdisj_absorb_hconj.
+Defined.
+
+End hProp_lattice.
+
 (** Various limits and colimits in PreShv C *)
 Section limits.
 
@@ -208,92 +313,6 @@ mkpair.
   + apply ii2, (pr2 S2 _ _ S).
 Defined.
 
-Lemma hconj_assoc (P Q R : hProp) : ((P ∧ Q) ∧ R) = (P ∧ (Q ∧ R)).
-Proof.
-apply hPropUnivalence.
-- intros PQR.
-  exact (pr1 (pr1 PQR),,(pr2 (pr1 PQR),,pr2 PQR)).
-- intros PQR.
-  exact ((pr1 PQR,,pr1 (pr2 PQR)),,pr2 (pr2 PQR)).
-Qed.
-
-Lemma hconj_comm (P Q : hProp) : (P ∧ Q) = (Q ∧ P).
-Proof.
-apply hPropUnivalence.
-- intros PQ.
-  exact (pr2 PQ,,pr1 PQ).
-- intros QP.
-  exact (pr2 QP,,pr1 QP).
-Qed.
-
-Lemma hdisj_assoc (P Q R : hProp) : ((P ∨ Q) ∨ R) = (P ∨ (Q ∨ R)).
-Proof.
-apply hPropUnivalence.
-- apply hinhuniv; intros hPQR.
-  induction hPQR as [hPQ|hR].
-  + use (hinhuniv _ hPQ); clear hPQ; intros hPQ.
-    induction hPQ as [hP|hQ].
-    * exact (hinhpr (ii1 hP)).
-    * exact (hinhpr (ii2 (hinhpr (ii1 hQ)))).
-  + exact (hinhpr (ii2 (hinhpr (ii2 hR)))).
-- apply hinhuniv; intros hPQR.
-  induction hPQR as [hP|hQR].
-  + exact (hinhpr (ii1 (hinhpr (ii1 hP)))).
-  + use (hinhuniv _ hQR); clear hQR; intros hQR.
-    induction hQR as [hQ|hR].
-    * exact (hinhpr (ii1 (hinhpr (ii2 hQ)))).
-    * exact (hinhpr (ii2 hR)).
-Qed.
-
-Lemma hdisj_comm (P Q : hProp) : (P ∨ Q) = (Q ∨ P).
-Proof.
-apply hPropUnivalence.
-- apply hinhuniv; intros PQ.
-  induction PQ as [hP|hQ].
-  + exact (hinhpr (ii2 hP)).
-  + exact (hinhpr (ii1 hQ)).
-- apply hinhuniv; intros PQ.
-  induction PQ as [hQ|hP].
-  + exact (hinhpr (ii2 hQ)).
-  + exact (hinhpr (ii1 hP)).
-Qed.
-
-Lemma hconj_absorb (P Q : hProp) : (P ∧ (P ∨ Q)) = P.
-Proof.
-apply hPropUnivalence.
-- intros hPPQ; apply (pr1 hPPQ).
-- intros hP.
-  split; [ apply hP | apply (hinhpr (ii1 hP)) ].
-Qed.
-
-Lemma hdisj_absorb (P Q : hProp) : (P ∨ (P ∧ Q)) = P.
-Proof.
-apply hPropUnivalence.
-- apply hinhuniv; intros hPPQ.
-  induction hPPQ as [hP|hPQ].
-  + exact hP.
-  + exact (pr1 hPQ).
-- intros hP; apply (hinhpr (ii1 hP)).
-Qed.
-
-Lemma hdisj_hfalse (P : hProp) : (∅ ∨ P) = P.
-Proof.
-apply hPropUnivalence.
-- apply hinhuniv; intros hPPQ.
-  induction hPPQ as [hF|hP].
-  + induction hF.
-  + exact hP.
-- intros hP; apply (hinhpr (ii2 hP)).
-Qed.
-
-Lemma hconj_htrue (P : hProp) : (htrue ∧ P) = P.
-Proof.
-apply hPropUnivalence.
-- intros hP; apply (pr2 hP).
-- intros hP.
-  split; [ apply tt | apply hP ].
-Qed.
-
 Definition sieve_lattice (c : C) : lattice (sieve c).
 Proof.
 use mklattice.
@@ -302,22 +321,22 @@ use mklattice.
 - repeat split.
   + intros S1 S2 S3.
     apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply hconj_assoc.
+    apply isassoc_hconj.
   + intros S1 S2.
     apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply hconj_comm.
+    apply iscomm_hconj.
   + intros S1 S2 S3.
     apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply hdisj_assoc.
+    apply isassoc_hdisj.
   + intros S1 S2.
     apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply hdisj_comm.
+    apply iscomm_hdisj.
   + intros S1 S2.
     apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply hconj_absorb.
+    apply hconj_absorb_hdisj.
   + intros S1 S2.
     apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply hdisj_absorb.
+    apply hdisj_absorb_hconj.
 Defined.
 
 Definition sieve_bounded_lattice (c : C) : bounded_lattice (sieve c).
@@ -329,10 +348,10 @@ use mkbounded_lattice.
 - split.
   + intros S.
     apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply hdisj_hfalse.
+    apply hfalse_hdisj.
   + intros S.
     apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
-    apply hconj_htrue.
+    apply htrue_hconj.
 Defined.
 
 Definition sieve_mor a b (f : C⟦b,a⟧) : sieve a → sieve b.
@@ -408,17 +427,13 @@ use mklatticeob.
   - apply (nat_trans_eq has_homsets_HSET); intro c.
     apply funextsec; intros S.
     apply (isassoc_Lmin (sieve_lattice c)).
-  - unfold iscomm_cat.
-    rewrite id_left.
-    apply (nat_trans_eq has_homsets_HSET); intro c.
+  - apply (nat_trans_eq has_homsets_HSET); intro c.
     apply funextsec; intros S.
     apply (iscomm_Lmin (sieve_lattice c)).
   - apply (nat_trans_eq has_homsets_HSET); intro c.
     apply funextsec; intros S.
     apply (isassoc_Lmax (sieve_lattice c)).
-  - unfold iscomm_cat.
-    rewrite id_left.
-    apply (nat_trans_eq has_homsets_HSET); intro c.
+  - apply (nat_trans_eq has_homsets_HSET); intro c.
     apply funextsec; intros S.
     apply (iscomm_Lmax (sieve_lattice c)).
   - apply (nat_trans_eq has_homsets_HSET); intro c.
