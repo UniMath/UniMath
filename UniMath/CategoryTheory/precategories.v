@@ -655,6 +655,28 @@ Definition iso_conjug_weq {C:precategory} {a b:C} (h:iso a b) :
  weq (a --> a) (b --> b) := weqcomp (iso_comp_left_weq h _ ) (iso_comp_right_weq (iso_inv_from_iso h) _ ).
 
 
+(** * Equivalence relation identifying isomorphic objects *)
+Section are_isomorphic.
+
+Context (C : precategory).
+
+(** a and b are related if there merely exists an iso between them *)
+Definition are_isomorphic : hrel C := λ a b, ∥iso a b∥.
+
+Lemma iseqrel_are_isomorphic : iseqrel are_isomorphic.
+Proof.
+repeat split.
+- intros x y z h1.
+  apply hinhuniv; intros h2; generalize h1; clear h1.
+  now apply hinhuniv; intros h1; apply hinhpr, (iso_comp h1 h2).
+- now intros x; apply hinhpr, identity_iso.
+- now intros x y; apply hinhuniv; intro h1; apply hinhpr, iso_inv_from_iso.
+Qed.
+
+Definition iso_eqrel : eqrel C := (are_isomorphic,,iseqrel_are_isomorphic).
+
+End are_isomorphic.
+
 
 (** * Isomorphisms in a precategory WITH HOM-SETS *)
 (** In a precategory with hom-sets, we can give the usual definition of
