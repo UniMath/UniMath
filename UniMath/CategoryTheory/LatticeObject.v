@@ -5,7 +5,9 @@ Internal lattice objects in a category
 Contents:
 
 - Lattice objects ([latticeob])
-- Proof that a subobject of a lattice object is a lattice object ([sublatticeob])
+- Bounded lattice objects ([bounded_latticeob])
+- Proof that a subobject of a (bounded) lattice object is a lattice object
+  ([sublatticeob], [sub_bounded_latticeob])
 
 Written by: Anders Mörtberg, 2017
 
@@ -199,8 +201,7 @@ Context {i : C⟦M,L⟧} (Hi : isMonic i) (l : latticeob BPC L).
 Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
 Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 90) : cat.
 
-(* Is this the correct way of expressing this or is too strong? *)
-(* I think this asserts that i is a lattice morphism internally *)
+(** This asserts that i is a lattice homomorphism internally *)
 Context {meet_mor_M : C⟦M ⊗ M,M⟧} (Hmeet : meet_mor_M · i = (i ×× i) · meet_mor l).
 Context {join_mor_M : C⟦M ⊗ M,M⟧} (Hjoin : join_mor_M · i = (i ×× i) · join_mor l).
 

@@ -1,4 +1,4 @@
-(** **********************************************************
+(** ****************************************************************************
 
 Theory about set-valued presheaves. We write PreShv C for [C^op,HSET].
 
@@ -16,11 +16,12 @@ Contents:
 - Exponentials ([has_exponentials_PreShv])
 - Constant presheaf ([constant_PreShv])
 - Definition of the subobject classifier (without proof) ([Ω_PreShv], [Ω_mor])
-
+- Proof that Ω_PreShv is a bounded lattice object ([Ω_PreShv_lattice],
+  [Ω_PreShv_bounded_lattice])
 
 Written by: Anders Mörtberg, 2017
 
-************************************************************)
+********************************************************************************)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
