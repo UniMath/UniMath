@@ -137,7 +137,7 @@ etrans; [ eapply cancel_postcomposition, (maponpaths pr1 (maponpaths pr1 Hh1)) |
 apply id_left.
 Qed.
 
-(** Lift the relation on monos to subobjects *)
+(** Construct a quotient relation on the Subobjects from the relation on monos *)
 Definition SubObj_rel (c : C) : hrel (pr1 (SubObj c)).
 Proof.
 use quotrel.
