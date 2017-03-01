@@ -311,9 +311,10 @@ Proof.
   - do 2 (apply impred; intro).
     apply isapropisaset.
   - do 9 (apply impred; intro).
-    apply (pr1 H).
+    use_exact (pr1 H).
   - do 15 (apply impred; intro).
-    apply H.
+    unfold is_folds_precategory in H.
+    use_exact (pr1 H).
 (* alternatively by hand
   apply invproofirrelevance.
   intros [p q] [p' q'].
@@ -382,7 +383,7 @@ Proof.
   intros a b f g.
   apply isweqimplimpl.
   - apply folds_2_iso_implies_identity.
-  - apply (pr1 H).
+  - use_exact (pr1 H).
   - apply isaprop_folds_2_iso.
 Qed.
 

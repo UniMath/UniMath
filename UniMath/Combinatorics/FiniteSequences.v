@@ -339,7 +339,7 @@ Proof.
   { unfold disassembleSequence; simpl. apply maponpaths.
     apply proofirrelevancecontr. apply iscontrunit. }
   induction p as [x y]. induction y as [n y].
-  apply (maponpaths (@inr unit (X × Sequence X))).
+  apply (maponpaths (@ii2 unit (X × Sequence X))).
   unfold append_fun, lastelement, funcomp; simpl.
   unfold append_fun. simpl.
   induction (natlehchoice4 n n (natgthsnn n)) as [e|e].

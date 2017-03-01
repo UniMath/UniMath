@@ -201,7 +201,7 @@ use left_adjoint_from_partial.
     generalize (limArrowCommutes (LA (K n ↓ K) (QT T (K n))) _ (cc _) (Kid n)); simpl.
     now rewrite functor_id, id_left.
   + intro x.
-    apply subtypeEquality; [intros xx; apply (isaset_nat_trans hsA)|].
+    apply subtypeEquality; [intros xx; exact (isaset_nat_trans hsA _ _ _ _)|].
     apply subtypeEquality; [intros xx; apply (isaprop_is_nat_trans _ _ hsA)|]; simpl.
     apply funextsec; intro c.
     apply limArrowUnique; intro u; simpl.

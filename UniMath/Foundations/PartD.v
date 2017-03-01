@@ -1155,11 +1155,11 @@ Proof.
         simpl. apply eee.
       }
       rewrite ee.
-      set (e := homottranspost2t1t1t2
+      assert (e := homottranspost2t1t1t2
                   t t' is is'
                   (recompl T t (coprodf w (fun x0 : unit => x0)
                                         (invmap (weqrecompl T t is) x)))).
-      unfold funcomp,idfun in e.
+      unfold funcomp in e. unfold idfun.
       rewrite e. unfold recompl, coprodf, invmap; simpl. unfold invrecompl.
       induction (is x) as [ etx | netx' ].
       * induction (netx etx).

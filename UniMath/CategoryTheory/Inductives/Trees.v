@@ -60,7 +60,7 @@ Definition leaf_map : HSET⟦unitHSET,Tree⟧.
 Proof.
 simpl; intro x.
 simple refine (Tree_mor _).
-apply inl, x.
+apply ii1, x.
 Defined.
 
 Definition leaf : pr1 Tree := leaf_map tt.
@@ -69,7 +69,7 @@ Definition node_map : HSET⟦(A × (Tree × Tree))%set,Tree⟧.
 Proof.
 intros xs.
 simple refine (Tree_mor _).
-exact (inr xs).
+exact (ii2 xs).
 Defined.
 
 Definition node : pr1 A × (pr1 Tree × pr1 Tree) -> pr1 Tree := node_map.
@@ -210,7 +210,7 @@ Definition map (f : nat -> nat) (l : pr1 (Tree natHSET)) : pr1 (Tree natHSET) :=
 Lemma size_map (f : nat -> nat) : ∏ l, size (map f l) = size l.
 Proof.
 apply treeIndProp.
-- intros l. apply isasetnat.
+- intros l. use_exact isasetnat.
 - apply idpath.
 - intros a l1 l2 ih1 ih2.
   unfold map.

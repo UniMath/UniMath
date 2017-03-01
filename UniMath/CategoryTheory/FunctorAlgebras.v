@@ -57,7 +57,7 @@ Proof.
   - apply hs.
   - intro f.
     apply isasetaprop.
-    apply hs.
+    use_exact hs.
 Qed.
 
 Definition algebra_mor_eq (hs : has_homsets C) {X Y : algebra_ob} {f g : algebra_mor X Y}
@@ -65,7 +65,7 @@ Definition algebra_mor_eq (hs : has_homsets C) {X Y : algebra_ob} {f g : algebra
 Proof.
   apply invweq.
   apply subtypeInjectivity.
-  intro a. apply hs.
+  intro a. use_exact hs.
 Defined.
 
 Lemma algebra_mor_commutes (X Y : algebra_ob) (f : algebra_mor X Y)
@@ -164,8 +164,8 @@ Proof.
       apply x.
     + simpl; rewrite functor_id, id_left, id_right.
       induction 1. apply idpath.
-    + apply (pr2 H).
-    + apply (pr2 H).
+    + use_exact (pr2 H).
+    + use_exact (pr2 H).
 Defined.
 
 Definition is_iso_from_is_algebra_iso (X Y : FunctorAlg (pr2 H)) (f : X --> Y)

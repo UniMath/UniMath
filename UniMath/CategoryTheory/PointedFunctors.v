@@ -54,7 +54,7 @@ Proof.
   apply subtypeInjectivity.
   intro x.
   apply impred; intros ?.
-  apply hs.
+  use_exact hs.
 Defined.
 
 Definition ptd_mor_commutes {F G : ptd_obj} (α : ptd_mor F G)

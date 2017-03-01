@@ -264,7 +264,7 @@ mkpair.
   * apply colimArrow, (unshiftCocone _ cc).
   * abstract (intro n; apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n))).
 + abstract (intros p; apply subtypeEquality;
-             [ intro f; apply impred; intro; apply hsC
+             [ intro f; apply impred; intro; exact (hsC _ _ _ _)
              | apply colimArrowUnique; intro n;
                destruct n as [|n]; [ apply InitialArrowUnique | apply (pr2 p) ]]).
 Defined.
@@ -469,7 +469,7 @@ set (f := pr1 (pr1 H)); set (Hf := pr2 (pr1 H)); set (HHf := pr2 H).
 use unique_exists.
 - apply (pr1 αinv L · f).
 - simpl; apply (αinv_f_commutes y ccGy f Hf).
-- abstract (intro; apply impred; intro; apply hsD).
+- abstract (intro; apply impred; intro; exact (hsD _ _ _ _)).
 - abstract (simpl in *; intros f' Hf'; apply (αinv_f_unique y ccGy f Hf); trivial;
             intro t; rewrite (HHf t); apply tppr).
 Defined.
@@ -503,7 +503,7 @@ mkpair.
   + apply (colimArrow CC), ccy.
   + abstract (simpl; intro n; apply (colimArrowCommutes CC)).
 - abstract (simpl; intro t; apply subtypeEquality;
-    [ simpl; intro v; apply impred; intro; apply hsC
+    [ simpl; intro v; apply impred; intro; exact (hsC _ _ _ _)
     | apply (colimArrowUnique CC); intro n; apply (pr2 t)]).
 Defined.
 
@@ -539,7 +539,7 @@ mkpair.
   abstract (now intro u; generalize (coconeInCommutes ccy _ _ (conn u));
             rewrite !id_left; intro H; rewrite H).
 - abstract (intro p; apply subtypeEquality;
-              [ intro; apply impred; intro; apply hsD
+              [ intro; apply impred; intro; exact (hsD _ _ _ _)
               | now destruct p as [p H]; rewrite <- (H v), id_left ]).
 Defined.
 
@@ -552,7 +552,7 @@ mkpair.
   abstract (intro n; rewrite id_left; destruct ccy as [f Hf]; simpl;
             now induction n as [|n IHn]; [apply idpath|]; rewrite IHn, <- (Hf n (S n) (idpath _)), id_left).
 - abstract (intro p; apply subtypeEquality;
-              [ intros f; apply impred; intro; apply hsD
+              [ intros f; apply impred; intro; exact (hsD _ _ _ _)
               | now simpl; destruct p as [p H]; rewrite <- (H 0), id_left]).
 Defined.
 
@@ -579,7 +579,7 @@ mkpair.
   + apply (colimArrow CC), ccy.
   + abstract (simpl; intro v; apply (colimArrowCommutes CC)).
 - abstract (simpl; intro t; apply subtypeEquality;
-    [ intros f; apply impred; intro; apply hsE
+    [ intros f; apply impred; intro; exact (hsE _ _ _ _)
     | simpl; apply (colimArrowUnique CC), (pr2 t) ]).
 Defined.
 
@@ -670,7 +670,7 @@ mkpair.
                  [ apply (pr2 t) | apply idpath ]).
   }
   abstract (apply subtypeEquality; simpl;
-            [ intro f; apply impred; intro; apply hsA
+            [ intro f; apply impred; intro; exact (hsA _ _ _ _)
             | apply (maponpaths (fun x => pr1 (pr1 x)) (p2 X))]).
 Defined.
 
@@ -714,7 +714,7 @@ mkpair.
                  [ apply idpath | apply (pr2 t) ]).
   }
   abstract (apply subtypeEquality; simpl;
-              [ intro f; apply impred; intro; apply hsB
+              [ intro f; apply impred; intro; exact (hsB _ _ _ _)
               | apply (maponpaths (fun x => dirprod_pr2 (pr1 x)) (p2 X)) ]).
 Defined.
 
@@ -751,7 +751,7 @@ mkpair.
   abstract (intro n; unfold precatbinprodmor, compose; simpl;
             now rewrite hf1, hg1, (tppr (coconeIn ccxy n))).
 - abstract (intro t; apply subtypeEquality; simpl;
-             [ intro x; apply impred; intro; apply isaset_dirprod; [ apply hsC | apply hsD ]
+             [ intro x; apply impred; intro; use isaset_dirprod; [ exact (hsC _ _) | exact (hsD _ _) ]
              | induction t as [[f1 f2] p]; simpl in *; apply pathsdirprod;
                [ apply (maponpaths pr1 (hf2 (f1,, (λ n, maponpaths pr1 (p n)))))
                | apply (maponpaths pr1 (hg2 (f2,, (λ n, maponpaths dirprod_pr2 (p n)))))]]).
@@ -785,7 +785,7 @@ Lemma mapcocone_functor_composite
   = mapcocone G _ (mapcocone F _ cc).
 Proof.
   apply subtypeEquality.
-  - intros x. repeat (apply impred_isaprop; intro). apply hsC.
+  - intros x. repeat (apply impred_isaprop; intro). use_exact hsC.
   - reflexivity.
 Qed.
 
@@ -815,7 +815,7 @@ Proof.
     apply invproofirrelevance; intros f1 f2;
     apply subtypeEquality;
     [ intros f; apply impred_isaprop; intros v;
-      apply has_homsets_product_precategory, hsB | ];
+      use has_homsets_product_precategory; use hsB | ];
     apply funextsec; intros i;
     assert (MM := M i _ (mapcocone (pr_functor I B i) _ cc'));
     assert (H := proofirrelevance _ (isapropifcontr MM));
@@ -973,7 +973,7 @@ mkpair.
           [ now destruct p; rewrite <- (pr2 t), !idpath_transportf
           | apply id_right ]).
   }
-  apply subtypeEquality; simpl; [intro f; apply impred; intro; apply hsA|].
+  apply subtypeEquality; simpl; [intro f; apply impred; intro; use hsA|].
   set (H := toforallpaths _ _ _ (maponpaths pr1 (p2 X)) i); simpl in H.
   rewrite <- H; clear H; unfold ifI_eq, ifI.
   destruct (HI i i) as [p|p]; [|destruct (p (idpath _))].
@@ -1005,7 +1005,7 @@ mkpair.
   + intro i; apply (pr1 (pr1 (X i))).
   + abstract (intro n; apply funextsec; intro j; apply (pr2 (pr1 (X j)) n)).
 - abstract (intro t; apply subtypeEquality; simpl;
-             [ intro x; apply impred; intro; apply impred_isaset; intro i; apply hsB
+             [ intro x; apply impred; intro; use impred_isaset; intro i; use_exact hsB
              | destruct t as [f1 f2]; simpl in *;  apply funextsec; intro i;
                transparent assert (H : (∑ x : B ⟦ (F i) (ml i), xy i ⟧,
                                        ∏ n, # (F i) (coconeIn ccml n i) · x =
@@ -1520,7 +1520,7 @@ Local Lemma is_unique_cocone_morphism :
 Proof.
   intro t.
   apply subtypeEquality; simpl.
-  + intro; apply impred; intros; apply hsC.
+  + intro; apply impred; intros; use_exact hsC.
   + apply (colimArrowUnique HAiM K ccAiM_K).
     induction t as [t p]; simpl; intro i.
     apply (colimArrowUnique (CCAiB i) K (ccAiB_K i)).
@@ -1781,7 +1781,7 @@ use unique_exists.
   apply funextsec; intro x; cbn.
   now etrans; [apply maponpaths,
                  (toforallpaths _ _ _ (maponpaths pr1 (colimArrowCommutes CC c cc n)) x)|].
-- intros z; apply impred_isaprop; intro n; apply setproperty.
+- intros z; apply impred_isaprop; intro n; exact (setproperty _ _ _).
 - simpl; intros f Hf.
 apply funextsec; intro l.
 transparent assert (k : (HSET/X⟦colim CC,c⟧)).
@@ -1793,7 +1793,7 @@ transparent assert (k : (HSET/X⟦colim CC,c⟧)).
 }
 assert (Hk : (∏ n, colimIn CC n · k = coconeIn cc n)).
 { intros n.
-  apply subtypeEquality; [intros x; apply setproperty|].
+  apply subtypeEquality; [intros x; use_exact setproperty|].
   apply funextsec; intro z.
   use total2_paths_f; [apply idpath|].
   now rewrite idpath_transportf; cbn; rewrite <- (toforallpaths _ _ _ (Hf n) z).

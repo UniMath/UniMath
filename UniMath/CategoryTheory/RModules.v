@@ -57,7 +57,7 @@ Lemma isaprop_RModule_laws (C : precategory) (hs : has_homsets C) (T : RModule_d
    isaprop (RModule_laws T).
 Proof.
   repeat apply isapropdirprod;
-  apply impred; intro c; apply hs.
+  apply impred; intro c; exact (hs _ _ _ _).
 Qed.
 
 Definition RModule (C : precategory) : UU := ∑ T : RModule_data C, RModule_laws T.
@@ -90,7 +90,7 @@ Lemma isaprop_RModule_Mor_laws (C : precategory) (hs : has_homsets C)
   (T T' : RModule_data C) (α : T ⟶ T')
   : isaprop (RModule_Mor_laws α).
 Proof.
-  apply impred; intro c; apply hs.
+  apply impred; intro c; exact (hs _ _ _ _).
 Qed.
 
 Definition RModule_Mor {C : precategory} (T T' : RModule C) : UU

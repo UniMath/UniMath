@@ -154,7 +154,7 @@ Defined.
 Local Definition from_cobase_rel : hrel cobase.
 Proof.
 intros x x'; exists (from_cobase x = from_cobase x').
-now apply setproperty.
+now exact (setproperty _ _ _).
 Defined.
 
 Local Definition from_cobase_eqrel : eqrel cobase.
@@ -221,7 +221,7 @@ Proof.
 apply (mk_ColimCocone _ colimHSET colimCoconeHSET); intros c cc.
 exists (ColimHSETArrow _ cc).
 abstract (intro f; apply subtypeEquality;
-           [ intro; now apply impred; intro i; apply has_homsets_HSET
+           [ intro; now apply impred; intro i; exact (has_homsets_HSET _ _ _ _)
            | apply funextfun; intro x; simpl;
              apply (surjectionisepitosets (setquotpr eqr));
                [now apply issurjsetquotpr | now apply pr2 | ];
@@ -258,7 +258,7 @@ use mk_BinCoproductCocone.
   mkpair.
   * apply (tpair _ (sumofmaps f g)); abstract (split; apply idpath).
   * abstract (intros h; apply subtypeEquality;
-    [ intros x; apply isapropdirprod; apply has_homsets_HSET
+    [ intros x; apply isapropdirprod; exact (has_homsets_HSET _ _ _ _)
     | destruct h as [t [ht1 ht2]]; simpl;
                apply funextfun; intro x;
                rewrite <- ht2, <- ht1; unfold compose; simpl;
@@ -271,14 +271,14 @@ intros A.
 use mk_CoproductCocone.
 - mkpair.
   + apply (∑ i, pr1 (A i)).
-  + eapply (isaset_total2 _ HI); intro i; apply setproperty.
+  + eapply (isaset_total2 _ HI); intro i; exact (setproperty _).
 - simpl; apply tpair.
 - apply (mk_isCoproductCocone _ _ has_homsets_HSET).
   intros C f; simpl in *.
   mkpair.
   * apply (tpair _ (fun X => f (pr1 X) (pr2 X))); abstract (intro i; apply idpath).
   * abstract (intros h; apply subtypeEquality; simpl;
-      [ intro; apply impred; intro; apply has_homsets_HSET
+      [ intro; apply impred; intro; exact (has_homsets_HSET _ _ _ _)
       | destruct h as [t ht]; simpl; apply funextfun;
         intro x; rewrite <- ht; destruct x; apply idpath]).
 Defined.
@@ -329,7 +329,7 @@ Proof.
   apply (isofhleveltotal2 2);
             [ apply impred; intro; apply pr2
             | intro f; repeat (apply impred; intro);
-              apply isasetaprop, setproperty ].
+              apply isasetaprop; exact (setproperty _ _ _) ].
 Defined.
 
 Lemma LimConeHSET : LimCone D.
@@ -345,9 +345,9 @@ use mk_LimCone.
       abstract (intros u v e; apply (toforallpaths _ _ _ (coneOutCommutes CC _ _ e))).
     * abstract (intro v; apply idpath).
   + abstract (intros [t p]; apply subtypeEquality;
-              [ intro; apply impred; intro; apply isaset_set_fun_space
+              [ intro; apply impred; intro; use_exact isaset_set_fun_space
               | apply funextfun; intro; apply subtypeEquality];
-                [ intro; repeat (apply impred; intro); apply setproperty
+                [ intro; repeat (apply impred; intro); use_exact setproperty
                 | apply funextsec; intro u; apply (toforallpaths _ _ _ (p u))]).
 Defined.
 
@@ -382,7 +382,7 @@ Proof.
   apply (isofhleveltotal2 2);
             [ apply impred; intro; apply pr2
             | intro f; repeat (apply impred; intro);
-              apply isasetaprop, setproperty ].
+              apply isasetaprop; exact (setproperty _ _ _) ].
 Defined.
 
 Lemma cats_LimConeHSET : cats.limits.LimCone D.
@@ -398,9 +398,9 @@ use mk_LimCone.
       abstract (intros u v e; apply (toforallpaths _ _ _ (coneOutCommutes CC _ _ e))).
     * abstract (intro v; apply idpath).
   + abstract (intros [t p]; apply subtypeEquality;
-     [ intro; apply impred; intro; apply isaset_set_fun_space
+     [ intro; apply impred; intro; use_exact isaset_set_fun_space
      | apply funextfun; intro x; apply subtypeEquality];
-       [ intro; repeat (apply impred; intro); apply setproperty
+       [ intro; repeat (apply impred; intro); exact (setproperty _ _ _)
        | simpl; apply funextsec; intro u; apply (toforallpaths _ _ _ (p u))]).
 Defined.
 
@@ -432,7 +432,7 @@ use mk_BinProductCone.
   mkpair.
   * apply (tpair _ (prodtofuntoprod (f ,, g))); abstract (split; apply idpath).
   * abstract (intros h; apply subtypeEquality;
-    [ intros x; apply isapropdirprod; apply has_homsets_HSET
+    [ intros x; apply isapropdirprod; exact (has_homsets_HSET _ _ _ _)
     | destruct h as [t [ht1 ht2]]; simpl; apply funextfun; intro x;
                rewrite <- ht2, <- ht1; unfold compose; simpl;
                unfold prodtofuntoprod;
@@ -450,7 +450,7 @@ use mk_ProductCone.
   mkpair.
   * apply (tpair _ (fun c i => f i c)); intro i; apply idpath.
    * abstract (intros h; apply subtypeEquality; simpl;
-       [ intro; apply impred; intro; apply has_homsets_HSET
+       [ intro; apply impred; intro; exact (has_homsets_HSET _ _ _ _)
        | destruct h as [t ht]; simpl; apply funextfun; intro x;
          apply funextsec; intro i; rewrite <- ht; apply idpath ]).
 Defined.
@@ -489,8 +489,8 @@ Definition PullbackHSET_ob {A B C : HSET} (f : HSET⟦B,A⟧) (g : HSET⟦C,A⟧
 Proof.
 simpl in *.
 exists (∑ (xy : B × C), f (pr1 xy) = g (pr2 xy)).
-abstract (apply isaset_total2; [ apply isasetdirprod; apply setproperty
-                               | intros xy; apply isasetaprop, setproperty ]).
+abstract (apply isaset_total2; [ apply isasetdirprod; use_exact setproperty
+                               | intros xy; apply isasetaprop; use_exact setproperty ]).
 Defined.
 
 Lemma PullbacksHSET : Pullbacks HSET.
@@ -507,9 +507,9 @@ use mk_Pullback.
   - intros x.
     exists (f1 x,,f2 x); abstract (apply (toforallpaths _ _ _ Hf12)).
   - abstract (now split).
-  - abstract (now intros h; apply isapropdirprod; apply has_homsets_HSET).
+  - abstract (now intros h; apply isapropdirprod; exact (has_homsets_HSET _ _ _ _)).
   - abstract (intros h [H1 H2]; apply funextsec; intro x;
-    apply subtypeEquality; [intros H; apply setproperty|]; simpl;
+    apply subtypeEquality; [intros H; exact (setproperty _ _ _)|]; simpl;
     now rewrite <- (toforallpaths _ _ _ H1 x), <- (toforallpaths _ _ _ H2 x), <- tppr).
 Defined.
 
@@ -700,7 +700,7 @@ use left_adjoint_from_partial.
         now apply pathsinv0; eapply pathscomp0; [apply (toforallpaths _ _ _ H p)|]).
   + abstract (
     intros [t p]; apply subtypeEquality; simpl;
-    [intros x; apply (isaset_nat_trans has_homsets_HSET)|];
+    [intros x; exact (isaset_nat_trans has_homsets_HSET _ _ _ _)|];
     apply (nat_trans_eq has_homsets_HSET); intros c;
     apply funextsec; intro rc;
     apply subtypeEquality;
@@ -772,13 +772,13 @@ use mk_functor.
     apply funextsec; intros [y hy].
     use total2_paths_f; [ apply idpath |].
     apply funextsec; intros w; apply subtypeEquality; [|apply idpath].
-    now intros XX; apply setproperty.
+    now intros XX; exact (setproperty _ _ _).
   - intros x y z g h; apply (eq_mor_slicecat has_homsets_HSET); simpl.
     apply funextsec; intros [w hw].
     use total2_paths_f; [ apply idpath |].
     apply funextsec; intros w'.
     apply subtypeEquality; [|apply idpath].
-    now intros XX; apply setproperty.
+    now intros XX; exact (setproperty _ _ _).
 Defined.
 
 Local Definition eta X (f : HSET / X) :
@@ -796,7 +796,7 @@ use mk_nat_trans.
 + intros [g Hg] [h Hh] [w Hw].
   apply (eq_mor_slicecat has_homsets_HSET), funextsec; intro x1.
   apply (two_arg_paths_f (!toforallpaths _ _ _ Hw x1)), funextsec; intro y.
-  repeat (apply subtypeEquality; [intros x; apply setproperty|]); cbn in *.
+  do 2 (apply subtypeEquality; [intros x; exact (setproperty _ _ _)|]); cbn in *.
   now induction (! toforallpaths _ _ (λ x : g, Hh (w x)) _ _).
 Defined.
 
@@ -812,7 +812,7 @@ use mk_nat_trans.
               now rewrite (pr2 (x3 (x1,,x4))), x4).
 + intros g h w; simpl.
   apply (eq_mor_slicecat has_homsets_HSET), funextsec; intro x1; cbn.
-  now repeat apply maponpaths; apply setproperty.
+  do 4 apply maponpaths; apply set_uip.
 Defined.
 
 Lemma has_exponentials_HSET_slice (X : HSET) : has_exponentials (BinProducts_HSET_slice X).
@@ -824,11 +824,11 @@ use mk_are_adjoints.
 - apply eps.
 - split.
   + intros x; apply eq_mor_slicecat, funextsec; intro x1.
-    now apply subtypeEquality; [intro y; apply setproperty|]; rewrite tppr.
+    now apply subtypeEquality; [intro y; exact (setproperty _ _ _)|]; rewrite tppr.
   + intros x; apply eq_mor_slicecat, funextsec; intro x1; simpl.
     use total2_paths_f; [apply idpath|]; cbn.
     apply funextsec; intro y.
-    now apply subtypeEquality; [intro z; apply setproperty|]; simpl; rewrite <- tppr.
+    now apply subtypeEquality; [intro z; exact (setproperty _ _ _)|]; simpl; rewrite <- tppr.
 Defined.
 
 (** * Products in Set/X *)
@@ -874,10 +874,10 @@ use mk_ProductCone.
       abstract (exact (!toforallpaths _ _ _ (pr2 (H i)) x)).
     * abstract (now apply funextsec).
   - abstract (now intros i; apply eq_mor_slicecat, funextsec).
-  - abstract (now intros g; apply impred_isaprop; intro i; apply has_homsets_slice_precat).
+  - abstract (now intros g; apply impred_isaprop; intro i; exact (has_homsets_slice_precat _ _ _ _ _ _)).
   - abstract (simpl; intros [y1 y2] Hy; apply eq_mor_slicecat, funextsec; intro x;
     use total2_paths_f; [apply (toforallpaths _ _ _ (!y2) x)|];
-    apply funextsec; intro i; apply subtypeEquality; [intros w; apply setproperty|];
+    apply funextsec; intro i; apply subtypeEquality; [intros w; exact (setproperty _ _ _)|];
     destruct f as [f Hf]; cbn in *;
     induction (toforallpaths (λ _ : f, X) (λ x0 : f, pr1 (y1 x0)) Hf (! y2) x);
     now rewrite idpath_transportf, <- (Hy i)).
@@ -898,9 +898,9 @@ mkpair.
       exists (λ xa, pr1 xa,,f (pr2 xa)).
       abstract (now apply funextsec).
   + abstract (split;
-    [ intros A; simpl; apply subtypeEquality; [intros x; apply setproperty|];
+    [ intros A; simpl; apply subtypeEquality; [intros x; exact (setproperty _ _ _)|];
       now apply funextsec; intros [x a]
-    | intros A B C f g; apply subtypeEquality; [intros x; apply setproperty|];
+    | intros A B C f g; apply subtypeEquality; [intros x; exact (setproperty _ _ _)|];
       now apply funextsec; intros [x a]]).
 - use mk_are_adjoints.
   + use mk_nat_trans.
@@ -936,7 +936,7 @@ Proof.
   apply iscontraprop1.
   - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
     apply subtypeEquality; simpl.
-      intros x; apply isapropdirprod; apply setproperty.
+      intros x; apply isapropdirprod; exact (setproperty _ _ _).
     refine (@toforallpaths unitset _ (fun _ => ab) (fun _ => ab') _ tt).
     refine (MorphismsIntoPullbackEqual pb _ _ _ _ );
     apply funextsec; intros []; cbn;
@@ -1003,7 +1003,7 @@ enjoyed by surjections (univ_surj)
       apply funextfun.
       intros ?.
       apply univ_surj_ax.
-    - intros ?. apply has_homsets_HSET.
+    - intros ?. exact (has_homsets_HSET _ _ _ _).
     - intros ??; simpl.
       apply funextfun.
       use univ_surj_unique.

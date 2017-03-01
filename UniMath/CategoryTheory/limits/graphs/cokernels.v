@@ -49,7 +49,7 @@ Section def_cokernels.
     (* Commutativity *)
     - use CokernelCommutes.
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. use_exact hs.
     (* Uniqueness *)
     - intros y T. cbn in T.
       use CokernelOutsEq. unfold CokernelArrow.
@@ -90,7 +90,7 @@ Section def_cokernels.
     (* Commutativity *)
     - use CokernelCommutes.
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. use_exact hs.
     (* Uniqueness *)
     - intros y T. cbn in T. use CokernelOutsEq. rewrite T. rewrite CokernelCommutes.
       apply idpath.

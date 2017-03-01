@@ -7,44 +7,15 @@ notations for constructions defined in Coq.Init library as well as the definitio
 
 *)
 
-
-
+Require Export UniMath.EssentialFoundations.All.
 
 (** Preamble. *)
 
 Unset Automatic Introduction.
 
-(** Universe structure *)
-
-Notation UUU := Set .
-
-Definition UU := Type.
-
 Identity Coercion fromUUtoType : UU >-> Sortclass.
 
-
-(** Empty type.  The empty type is introduced in Coq.Init.Datatypes by the line:
-
-[ Inductive Empty_set : Set := . ]
-
-*)
-
-Notation empty := Empty_set.
-Notation empty_rect := Empty_set_rect.
-Notation "∅" := Empty_set.
-
-(** Identity Types. Identity types are introduced in Coq.Init.Datatypes by the lines :
-
-[ Inductive identity ( A : Type ) ( a : A ) : A -> Type := identity_refl : identity _ a a .
-
-Hint Resolve identity_refl : core . ]
-
-*)
-
-Inductive paths {A:Type} (a:A) : A -> Type := paths_refl : paths a a.
-Hint Resolve paths_refl : core .
-Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
-Notation idpath := paths_refl .
+Hint Resolve idpath : core .
 
 (* When the goal is displayed as x=y and the types of x and y are hard to discern,
    use this tactic -- it will add the type to the context in simplified form. *)
@@ -55,48 +26,6 @@ on paths. By adding a constantin paths for the computation rule for paths_rect a
 both this constant and paths_rect itself opaque it is possible to check which of the
 constructions of the uu0 can be done with the weakened version of the Martin-Lof Type Theory
 that is interpreted by the Bezm-Coquand-Huber cubical set model of 2014. *)
-
-
-
-
-(** Coproducts .
-
-The coproduct of two types is introduced in Coq.Init.Datatypes by the lines:
-
-[ Inductive sum (A B:Type) : Type :=
-  | inl : A -> sum A B
-  | inr : B -> sum A B. ]
-*)
-
-(* Notation coprod := sum . *)
-(* Notation coprod_rect := sum_rect. *)
-
-Inductive coprod (__A__ __B__:Type) : Type :=
-  | inl : __A__ -> coprod __A__ __B__
-  | inr : __B__ -> coprod __A__ __B__.
-(* Do not use "induction" on an element of this type without specifying names; seeing __A__ or __B__
-   will indicate that you did that. *)
-
-Arguments coprod_rect {_ _} _ _ _ _.
-
-Notation ii1fun := inl .
-Notation ii2fun := inr .
-
-Notation ii1 := inl .
-Notation ii2 := inr .
-Arguments ii1 {A B} _ : rename.
-Arguments ii2 {A B} _ : rename.
-
-Notation "X ⨿ Y" := (coprod X Y) (at level 50, left associativity).
-  (* type this in emacs with C-X 8 RET AMALGAMATION OR COPRODUCT *)
-
-Notation "'∏'  x .. y , P" := (forall x, .. (forall y, P) ..)
-  (at level 200, x binder, y binder, right associativity) : type_scope.
-  (* type this in emacs in agda-input method with \prod *)
-
-Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
-  (at level 200, x binder, y binder, right associativity).
-  (* type this in emacs in agda-input method with \lambda *)
 
 Definition coprod_rect_compute_1
            (A B : UU) (P : A ⨿ B -> UU)
@@ -138,30 +67,6 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
     (* Set Nonrecursive Elimination Schemes. *)
 
-    (* Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }. *)
-
-(* or total2 as an inductive type:  *)
-
-    Inductive total2 { T: Type } ( P: T -> Type ) := tpair : ∏ (__t__:T) (__p__:P __t__), total2 P.
-
-    (* Do not use "induction" without specifying names; seeing __t__ or __p__ will indicate that you *)
-    (*    did that.  This will prepare for the use of primitive projections, when the names will be pr1 *)
-    (*    and pr2. *)
-
-    Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T .
-    Proof . intros .  induction t as [ t p ] . exact t . Defined.
-
-    Definition pr2 { T : Type } { P : T -> Type } ( t : total2 P ) : P ( pr1 t ) .
-    Proof . intros .  induction t as [ t p ] . exact p . Defined.
-
-(* end of two alternatives *)
-
-    Print total2.               (* log which definition of total2 is currently in use *)
-
-Arguments tpair {_} _ _ _.
-Arguments pr1 {_ _} _.
-Arguments pr2 {_ _} _.
-
 (* Now prepare tactics for writing proofs in two ways, depending on whether projections are primitive *)
 Ltac primitive_projections :=
   unify (fun (w : total2 (fun _:nat => nat)) => tpair _ (pr1 w) (pr2 w))
@@ -173,29 +78,7 @@ Proof.
   tryif primitive_projections then exact true else exact false.
 Defined.
 
-Print whether_primitive_projections.
-
-Notation "'∑'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
-  (at level 200, x binder, y binder, right associativity) : type_scope.
-  (* type this in emacs in agda-input method with \sum *)
-
-Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser than '+' *)
-
 Ltac mkpair := (simple refine (tpair _ _ _ ) ; [| cbn]).
-
-Goal ∏ X (Y : X -> UU) (x : X) (y : Y x), ∑ x, Y x.
-  intros X Y x y.
-  mkpair.
-  - apply x.
-  - apply y.
-Defined.
-
-(* print out this theorem to see whether "induction" compiles to "match" *)
-Goal ∏ X (Y:X->UU) (w:∑ x, Y x), X.
-  intros.
-  induction w as [x y].
-  exact x.
-Defined.
 
 (* Step through this proof to demonstrate eta expansion for pairs, if primitive
    projections are on: *)
@@ -216,14 +99,6 @@ Inductive Phant ( T : Type ) := phant : Phant T .
 
 
 *)
-
-
-
-(** The following command checks whether the flag [-indices-matter] which modifies the universe
-level assignment for inductive types has been set. With the flag it returns [ paths 0 0 : UUU
-]. Without the flag it returns [ paths 0 0 : Prop ]. *)
-
-Check (O = O) .
 
 (* notation *)
 
@@ -268,6 +143,24 @@ Ltac simple_rapply p :=
   simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).
 
 Tactic Notation "use" uconstr(p) := simple_rapply p.
+
+Ltac use_exact p :=
+  exact p ||
+  exact (p _) ||
+  exact (p _ _) ||
+  exact (p _ _ _) ||
+  exact (p _ _ _ _) ||
+  exact (p _ _ _ _ _) ||
+  exact (p _ _ _ _ _ _) ||
+  exact (p _ _ _ _ _ _ _) ||
+  exact (p _ _ _ _ _ _ _ _) ||
+  exact (p _ _ _ _ _ _ _ _ _) ||
+  exact (p _ _ _ _ _ _ _ _ _ _) ||
+  exact (p _ _ _ _ _ _ _ _ _ _ _) ||
+  exact (p _ _ _ _ _ _ _ _ _ _ _ _) ||
+  exact (p _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+  exact (p _ _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+  exact (p _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).
 
 Tactic Notation "transparent" "assert" "(" ident(name) ":" constr(type) ")" :=
   simple refine (let name := (_ : type) in _).
@@ -344,7 +237,7 @@ Reserved Notation "q ⟳ x"  (at level 50, left associativity).
 Reserved Notation "p ◽ b"  (at level 40).
 (* to input: type "\sqw" or "\sq" with Agda input method *)
 
-Reserved Notation "F ⟹ X⟹"  (at level 50).
+Reserved Notation "F ⟹ X"  (at level 50).
 (* to input: type "\r" and select from the menu, row 2, spot 6, with Agda input method *)
 
 Reserved Notation "xe ⟲⟲ p"  (at level 50).
@@ -353,3 +246,11 @@ Reserved Notation "xe ⟲⟲ p"  (at level 50).
 Reserved Notation "r \\ x"  (at level 50, left associativity).
 
 Reserved Notation "x // r"  (at level 50, left associativity).
+
+Reserved Notation "x ≠ y" (at level 70, no associativity).
+(* to input: type "\neq" or "\ne" or "\=n" or "\eqn" with Agda input method *)
+(* we use this notation for decidable propositions equivalent to [x != y] *)
+
+Reserved Notation "p @ q" (at level 60, right associativity).
+
+Reserved Notation "! p " (at level 50).

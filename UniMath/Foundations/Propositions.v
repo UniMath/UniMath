@@ -953,13 +953,13 @@ Proof.
     + apply logeq_both_true.
       * reflexivity.
       * assumption.
-    + apply isasetbool.
+    + exact (isasetbool _ _).
     + apply (propproperty (DecidableProposition_to_hProp _)).
   - simpl. apply weqiff.
     + apply logeq_both_false.
       * exact nopathsfalsetotrue.
       * assumption.
-    + apply isasetbool.
+    + exact (isasetbool _ _).
     + apply (propproperty (DecidableProposition_to_hProp _)).
 Defined.
 

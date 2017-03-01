@@ -181,7 +181,7 @@ Focus 2.
     apply subtypeEquality.
     + intro.
       simpl.
-      apply hsC'.
+      use_exact hsC'.
 Focus 2.
     simpl.
     exact same.

@@ -47,13 +47,6 @@ Require Export UniMath.Foundations.PartA.
 
 (** *** h-levels of types *)
 
-
-Fixpoint isofhlevel (n : nat) (X : UU) : UU
-  := match n with
-     | O => iscontr X
-     | S m => ∏ x : X, ∏ x' : X, (isofhlevel m (paths x x'))
-     end.
-
 (* induction induction *)
 
 Theorem hlevelretract (n : nat) {X Y : UU} (p : X -> Y) (s : Y -> X)
@@ -491,9 +484,6 @@ Proof. intros. apply isofhleveltotal2. assumption. intro. assumption. Defined.
 
 (** *** Basics about types of h-level 1 - "propositions" *)
 
-
-Definition isaprop := isofhlevel 1.
-
 Definition isPredicate {X : UU} (Y : X -> UU) := ∏ x : X, isaprop (Y x).
 
 Definition isapropunit : isaprop unit := iscontrpathsinunit.
@@ -598,13 +588,6 @@ Defined.
 Lemma iscontraprop1inv {X : UU} (f : X -> iscontr X) : isaprop X.
 Proof.
   intros X c. apply (isofhlevelsn O). intro x. exact (hlevelntosn O X (c x)).
-Defined.
-
-Definition isProofIrrelevant (X:UU) := ∏ x y:X, x = y.
-
-Lemma proofirrelevance (X : UU) : isaprop X -> isProofIrrelevant X.
-Proof.
-  intros ? is x x'. unfold isaprop in is. unfold isofhlevel in is. exact (iscontrpr1 (is x x')).
 Defined.
 
 Lemma invproofirrelevance (X : UU) : isProofIrrelevant X -> isaprop X.
@@ -840,10 +823,6 @@ Defined.
 
 (** *** Basics about types of h-level 2 - "sets" *)
 
-Definition isaset (X : UU) : UU := ∏ x x' : X, isaprop (x = x').
-
-(* Definition isaset := isofhlevel 2. *)
-
 Notation isasetdirprod := (isofhleveldirprod 2).
 
 Lemma isasetunit : isaset unit.
@@ -866,7 +845,7 @@ Corollary isaset_dirprod {X Y : UU} : isaset X -> isaset Y -> isaset (X × Y).
 Proof. intros. apply isaset_total2. assumption. intro. assumption. Defined.
 
 Corollary isaset_hfiber {X Y : UU} (f : X -> Y) (y : Y) : isaset X -> isaset Y -> isaset (hfiber f y).
-Proof. intros X Y f y isX isY. apply isaset_total2. assumption. intro. apply isasetaprop. apply isY. Defined.
+Proof. intros X Y f y isX isY. apply isaset_total2. assumption. intro. apply isasetaprop. exact (isY _ _). Defined.
 
 (** The following lemma asserts "uniqueness of identity proofs" (uip) for
   sets. *)
@@ -971,10 +950,12 @@ Coercion negProp_to_type : negProp >-> UU.
 Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop nP
   := pr1 (pr2 nP).
 
+Set Printing All.
+
 Definition negProp_to_iff {P} (nP : negProp P) : ¬P <-> nP
   := pr2 (pr2 nP).
 
-Definition negProp_to_neg {P} {nP : negProp P} : nP -> ¬P.
+Definition negProp_to_neg {P} {nP : negProp P} : (nP:UU) -> ¬P.
 Proof. intros ? ? np. exact (pr2 (negProp_to_iff nP) np). Defined.
 
 Coercion negProp_to_neg : negProp >-> Funclass.
@@ -1192,13 +1173,13 @@ Proof.
 intros A B h1 h2 ab ab'.
 induction ab as [a|b]; induction ab' as [a'|b'].
 - induction (h1 a a') as [p|p].
-  + apply inl, (maponpaths (@ii1 A B) p).
-  + apply inr; intro H; apply (p (ii1_injectivity _ _ H)).
-- apply inr, negpathsii1ii2.
-- apply inr, negpathsii2ii1.
+  + apply ii1, (maponpaths (@ii1 A B) p).
+  + apply ii2; intro H; apply (p (ii1_injectivity _ _ H)).
+- apply ii2, negpathsii1ii2.
+- apply ii2, negpathsii2ii1.
 - induction (h2 b b') as [p|p].
-  + apply inl, (maponpaths (@ii2 A B) p).
-  + apply inr; intro H; apply (p (ii2_injectivity _ _ H)).
+  + apply ii1, (maponpaths (@ii2 A B) p).
+  + apply ii2; intro H; apply (p (ii2_injectivity _ _ H)).
 Defined.
 
 
@@ -1313,14 +1294,14 @@ Proof.
   intros xp yq.
   induction (HX (pr1 xp) (pr1 yq)) as [e_xy | ne_xy].
   - induction ((HP _) (transportf _ e_xy (pr2 xp)) (pr2 yq)) as [e_pq | ne_pq].
-    + apply inl. exact (total2_paths_f e_xy e_pq).
-    + apply inr. intro e_xpyq. apply ne_pq.
+    + apply ii1. exact (total2_paths_f e_xy e_pq).
+    + apply ii2. intro e_xpyq. apply ne_pq.
       set (e_pq := fiber_paths e_xpyq).
       refine (_ @ e_pq).
       refine (maponpaths (fun e => transportf _ e _) _).
   (* NOTE: want [maponpaths_2] from the [TypeTheory] library here. Upstream it to [Foundations], perhaps? *)
       apply isasetifdeceq, HX.
-  - apply inr. intros e_xypq. apply ne_xy, base_paths, e_xypq.
+  - apply ii2. intros e_xypq. apply ne_xy, base_paths, e_xypq.
 Defined.
 
 

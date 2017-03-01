@@ -57,14 +57,14 @@ Section def_bindirectsums.
     - apply isapropdirprod.
       + apply isaprop_isBinProductCone.
       + apply isapropdirprod.
-        * apply hs.
+        * exact (hs _ _ _ _).
         * apply isapropdirprod.
-          -- apply hs.
+          -- exact (hs _ _ _ _).
           -- apply isapropdirprod.
-             ++ apply hs.
+             ++ exact (hs _ _ _ _).
              ++ apply isapropdirprod.
-                ** apply hs.
-                ** apply hs.
+                ** exact (hs _ _ _ _).
+                ** exact (hs _ _ _ _).
   Qed.
 
   Definition to_isBinCoproductCocone {a b co : A} {i1 : a --> co} {i2 : b --> co}
@@ -497,7 +497,7 @@ Section bindirectsums_criteria.
         rewrite id_left.
         rewrite <- PreAdditive_unel_zero.
         apply to_lunax.
-    - intros y. apply isapropdirprod. apply hs. apply hs.
+    - intros y. apply isapropdirprod. exact (hs _ _ _ _). exact (hs _ _ _ _).
     - intros y H. induction H as [t p]. rewrite <- t. rewrite <- p.
       rewrite assoc. rewrite assoc.
       rewrite <- to_postmor_linear'.
@@ -517,8 +517,8 @@ Section bindirectsums_criteria.
       + apply BinProductPr1Commutes.
       + apply BinProductPr2Commutes.
     - intros y. apply isapropdirprod.
-      + apply hs.
-      + apply hs.
+      + exact (hs _ _ _ _).
+      + exact (hs _ _ _ _).
     - intros y H. induction H as [t p]. rewrite <- t. rewrite <- p.
       rewrite <- precompWithBinProductArrow.
       apply BinProductArrowsEq.
@@ -586,11 +586,11 @@ Section bindirectsums_in_quot.
           rewrite BinDirectSumIn1Commutes. exact f2.
         * use (pathscomp0 (QuotPrecategory_comp_linear A PAS PAC _ _)).
           rewrite BinDirectSumIn2Commutes. exact g2.
-      + intros y0. apply isapropdirprod; apply has_homsets_QuotPrecategory.
+      + intros y0. apply isapropdirprod; exact (has_homsets_QuotPrecategory _ _ _ _ _ _ _).
       + intros y0 T. cbn beta in T. induction T as [T1 T2].
         * set (y'' := @issurjsetquotpr (@to_abgrop A (BD x y) c)
                                        (binopeqrel_subgr_eqrel (PAS (BD x y) c)) y0).
-          use (squash_to_prop y''). apply has_homsets_QuotPrecategory. intros y'. clear y''.
+          use (squash_to_prop y''). use_exact has_homsets_QuotPrecategory. intros y'. clear y''.
           induction y' as [y1 y2]. rewrite <- y2. rewrite <- y2 in T1. rewrite <- y2 in T2.
           cbn in y1.
           rewrite <- (@id_left (QuotPrecategory_PreAdditive A PAS PAC) _ _
@@ -644,11 +644,11 @@ Section bindirectsums_in_quot.
           rewrite BinDirectSumPr1Commutes. exact f2.
         * use (pathscomp0 (QuotPrecategory_comp_linear A PAS PAC _ _)).
           rewrite BinDirectSumPr2Commutes. exact g2.
-      + intros y0. apply isapropdirprod; apply has_homsets_QuotPrecategory.
+      + intros y0. apply isapropdirprod; use_exact has_homsets_QuotPrecategory.
       + intros y0 T. cbn beta in T. induction T as [T1 T2].
         * set (y'' := @issurjsetquotpr (@to_abgrop A c (BD x y))
                                        (binopeqrel_subgr_eqrel (PAS c (BD x y))) y0).
-          use (squash_to_prop y''). apply has_homsets_QuotPrecategory. intros y'. clear y''.
+          use (squash_to_prop y''). use_exact has_homsets_QuotPrecategory. intros y'. clear y''.
           induction y' as [y1 y2]. rewrite <- y2. rewrite <- y2 in T1. rewrite <- y2 in T2.
           cbn in y1.
           rewrite <- (@id_right (QuotPrecategory_PreAdditive A PAS PAC) _ _

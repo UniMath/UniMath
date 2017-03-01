@@ -390,8 +390,8 @@ Section abelian_monic_pullbacks.
         cbn in com'2. use (pathscomp0 com'2). rewrite <- H. use KernelCommutes.
     (* Equality of equalities of morphisms *)
     - intros y0. apply isapropdirprod.
-      + apply hs.
-      + apply hs.
+      + use_exact hs.
+      + use_exact hs.
     (* Uniqueness *)
     - intros y0 t. cbn in t. induction t as [t p].
       apply (KernelArrowisMonic to_Zero ker).
@@ -546,8 +546,8 @@ Section abelian_monic_pullbacks.
         use CokernelCommutes.
     (* Equality on equalities of morphisms *)
     - intros y0. apply isapropdirprod.
-      + apply hs.
-      + apply hs.
+      + use_exact hs.
+      + use_exact hs.
     (* Uniqueness *)
     - intros y0 t. cbn in t. induction t as [t p].
       apply (CokernelArrowisEpi to_Zero coker).
@@ -680,7 +680,7 @@ Section abelian_equalizers.
     (* Commutativity *)
     - apply (PullbackArrow_PullbackPr1 (Equalizer_Pullback f1 f2) w h h HH''').
     (* Equality on equalities of morphisms *)
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     (* Uniqueness *)
     - intros y0 t. apply PullbackArrowUnique.
       + apply t.
@@ -793,7 +793,7 @@ Section abelian_equalizers.
     (* commutativity *)
     - apply (PushoutArrow_PushoutIn1 (Coequalizer_Pushout f1 f2) w h h HH''').
     (* Equality of equality of morphisms *)
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     (* Uniqueness *)
     - intros y0 t. apply PushoutArrowUnique.
       + apply t.
@@ -864,7 +864,7 @@ Section abelian_monic_kernels.
     (* Commutativity *)
     - cbn. rewrite X. apply ZeroArrow_comp_left.
     (* Equality of equalities of morphisms *)
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     (* Uniqueness *)
     - intros y0 Y. apply ArrowsToZero.
   Qed.
@@ -890,7 +890,7 @@ Section abelian_monic_kernels.
     (* Commutativity *)
     - cbn. rewrite X. apply ZeroArrow_comp_right.
     (* Equality of equalities of morphisms *)
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     (* Uniqueness *)
     - intros y0 Y. apply ArrowsFromZero.
   Qed.
@@ -1396,7 +1396,7 @@ Section abelian_kernel_cokernel.
     apply monic_epi_is_iso.
     apply (MonicToKernel_isMonic M).
     apply factorization1_is_epi.
-    apply hs.
+    use_exact hs.
   Qed.
 
   (** Monic is a kernel of its cokernel. *)
@@ -1441,7 +1441,7 @@ Section abelian_kernel_cokernel.
   Proof.
     apply monic_epi_is_iso.
     apply factorization2_is_monic.
-    apply hs.
+    use_exact hs.
     apply (EpiToCokernel_isEpi E).
   Qed.
 

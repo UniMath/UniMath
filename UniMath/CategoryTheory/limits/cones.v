@@ -42,7 +42,7 @@ Definition ConeProp (a : ConeData) :=
 Lemma isaprop_ConeProp (a : ConeData) : isaprop (ConeProp a).
 Proof.
   repeat (apply impred; intro).
-  apply hs.
+  use_exact hs.
 Qed.
 
 Definition Cone := total2 (fun a : ConeData => ConeProp a).
@@ -98,7 +98,7 @@ Proof.
   apply hlevelntosn.
   apply impred.
   intros.
-  apply hs.
+  use_exact hs.
 Qed.
 
 Definition ConeConnect {M N : Cone} (f : Cone_Mor M N) :
@@ -110,7 +110,7 @@ Proof.
   intro H.
   apply (total2_paths_f H).
   apply proofirrelevance.
-  apply impred; intro; apply hs.
+  apply impred; intro; use_exact hs.
 Qed.
 
 Lemma cone_mor_prop M N (f : Cone_Mor M N) :

@@ -142,35 +142,7 @@ Require Export UniMath.Foundations.Preamble.
 
 (** ** Some standard constructions not using identity types (paths) *)
 
-(** *** Canonical functions from [ empty ] and to [ unit ] *)
-
-Definition fromempty  : ∏ X : UU , empty -> X. (* type this in emacs in agda-input method
-with \prod *)
-Proof.
-  intro X.
-  intro H.
-  induction H.
-Defined.
-
-Arguments fromempty { X } _.
-
-Definition tounit {X : UU} : X -> unit := fun (x : X) => tt.
-
-(** *** Functions from [ unit ] corresponding to terms *)
-
-Definition termfun {X : UU} (x : X) : unit -> X := fun (t : unit) => x.
-
 (** *** Identity functions and function composition, curry and uncurry *)
-
-Definition idfun (T : UU) := λ t:T, t.
-
-Definition funcomp {X Y : UU} {Z:Y->UU} (f : X -> Y) (g : ∏ y:Y, Z y) := λ x, g (f x).
-
-Delimit Scope functions with functions.
-
-Open Scope functions.
-
-Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity) : functions.
 
 (** back and forth between functions of pairs and functions returning
   functions *)
@@ -204,16 +176,7 @@ Definition adjev {X Y : UU} (x : X) (f : X -> Y) : Y := f x.
 Definition adjev2 {X Y : UU} (phi : ((X -> Y) -> Y) -> Y) : X -> Y :=
   fun  (x : X) => phi (fun (f : X -> Y) => f x).
 
-(** *** Pairwise direct products *)
-
-Definition dirprod (X Y : UU) := ∑ x:X, Y.
-
-Notation "A × B" := (dirprod A B) (at level 75, right associativity) : type_scope.
-
-Definition dirprod_pr1 {X Y : UU} := pr1 : X × Y -> X.
-Definition dirprod_pr2 {X Y : UU} := pr2 : X × Y -> Y.
-
-Definition dirprodpair {X Y : UU} := tpair (fun x : X => Y).
+(** *** more on pairwise direct products *)
 
 Definition dirprodadj {X Y Z : UU} (f : dirprod X Y -> Z) : X -> Y -> Z :=
   (fun (x : X) => (fun (y : Y) => f (dirprodpair x y))).
@@ -231,14 +194,7 @@ Proof.
   apply (X0 (dirprodpair x y)).
 Defined.
 
-(** *** Negation and double negation *)
-
-Definition neg (X : UU) : UU := X -> empty.
-
-Notation "'¬' X" := (neg X) (at level 35, right associativity).
-(* type this in emacs in agda-input method with \neg *)
-
-Notation "x != y" := (neg (x = y)) (at level 70).
+(** *** more on negation *)
 
 (* Apply this tactic to a proof of ([X] and [neg X]), in either order: *)
 Ltac contradicts a b := solve [ induction (a b) | induction (b a) ].
@@ -249,7 +205,6 @@ Definition dneg (X : UU) : UU := ¬ ¬ X.
 
 Notation "'¬¬' X" := (dneg X) (at level 35, right associativity).
 (* type this in emacs in agda-input method with \neg twice *)
-
 
 Definition dnegf {X Y : UU} (f : X -> Y) : dneg X -> dneg Y :=
   negf (negf f).
@@ -305,28 +260,6 @@ Proof. intros ? ? ? i j. exact (pr1 j ∘ pr1 i,, pr2 i ∘ pr2 j). Defined.
 
 Ltac intermediate_logeq Y' := apply (logeq_trans (Y := Y')).
 
-(* end of "Some standard constructions not using identity types (paths)". *)
-
-
-(** ** Paths and operations on [ paths ] *)
-
-(** *** Associativity of function composition and mutual invertibility of curry/uncurry  *)
-
-(** While the paths in two of the three following lemmas are trivial, having them as
-lemmas turns out to be convenient in some future proofs. They are used to apply a particular
-definitional equalities to modify the syntactic form of the goal in order to make the
-next tactic, which uses the syntactic form of the goal to guess how to proceed, to work.
-
-The same applies to other lemmas below whose proof is by immediate "reflexivity" or
-"idpath". *)
-
-Lemma funcomp_assoc {X Y Z W : UU} (f : X -> Y) (g : Y -> Z) (h : Z -> W)
-: h ∘ (g ∘ f) = (h ∘ g) ∘ f.
-Proof.
-  intros .
-  apply idpath.
-Defined.
-
 Lemma uncurry_curry {X Z : UU} {Y : X -> UU} (f : (∑ x : X, Y x) -> Z) :
   ∏ p, uncurry (curry f) p = f p.
 Proof. intros. induction p as [x y]. reflexivity. Defined.
@@ -338,67 +271,13 @@ Proof. reflexivity. Defined.
 
 (** *** Composition of paths and inverse paths *)
 
-Definition pathscomp0 {X : UU} {a b c : X} (e1 : a = b) (e2 : b = c) : a = c.
-Proof.
-  intros. induction e1. apply e2.
-Defined.
-
 Hint Resolve @pathscomp0 : pathshints.
 
 Ltac intermediate_path x := apply (pathscomp0 (b := x)).
+
 Ltac etrans := eapply pathscomp0.
 
-(** Notation [p @ q] added by B.A., oct 2014 *)
-
-Notation "p @ q" := (pathscomp0 p q) (at level 60, right associativity).
-
-
-Definition pathscomp0rid {X : UU} {a b : X} (e1 : a = b) : e1 @ idpath b = e1.
-Proof.
-  intros. induction e1. simpl. apply idpath.
-Defined.
-
-(** Note that we do not introduce [ pathscomp0lid ] since the corresponding
-    two terms are convertible to each other due to our definition of
-    [ pathscomp0 ]. If we defined it by inductioning [ e2 ] and
-    applying [ e1 ] then [ pathscomp0rid ] would be trivial but
-    [ pathscomp0lid ] would require a proof. Similarly we do not introduce a
-    lemma to connect [ pathsinv0 (idpath _) ] to [ idpath ].
- *)
-
-Definition pathsinv0 {X : UU} {a b : X} (e : a = b) : b = a.
-Proof.
-  intros. induction e. apply idpath.
-Defined.
-
 Hint Resolve @pathsinv0 : pathshints.
-
-Definition path_assoc {X} {a b c d:X}
-           (f : a = b) (g : b = c) (h : c = d)
-  : f @ (g @ h) = (f @ g) @ h.
-Proof.
-  intros. induction f. reflexivity.
-Defined.
-
-(** Notation [! p] added by B.A., oct 2014 *)
-
-Notation "! p " := (pathsinv0 p) (at level 50).
-
-
-Definition pathsinv0l {X : UU} {a b : X} (e : a = b) : !e @ e = idpath _.
-Proof.
-  intros. induction e. apply idpath.
-Defined.
-
-Definition pathsinv0r {X : UU} {a b : X} (e : a = b) : e @ !e = idpath _.
-Proof.
-  intros. induction e. apply idpath.
-Defined.
-
-Definition pathsinv0inv0 {X : UU} {x x' : X} (e : x = x') : !(!e) = e.
-Proof.
-  intros. induction e. apply idpath.
-Defined.
 
 Lemma pathscomp_cancel_left {X : UU} {x y z : X} (p : x = y) (r s : y = z) :
   p @ r= p @ s -> r = s.
@@ -447,12 +326,6 @@ Defined.
 
 and its behavior relative to [ @ ] and [ ! ] *)
 
-Definition maponpaths {T1 T2 : UU} (f : T1 -> T2) {t1 t2 : T1}
-           (e: t1 = t2) : f t1 = f t2.
-Proof.
-  intros. induction e. apply idpath.
-Defined.
-
 (* useful with apply, to save typing *)
 Definition map_on_two_paths {X Y Z : UU} (f : X -> Y -> Z) {x x' y y'} (ex : x = x') (ey: y = y') :
   f x y = f x' y'.
@@ -460,34 +333,6 @@ Proof.
   intros. induction ex. induction ey. reflexivity.
 Defined.
 
-
-Definition maponpathscomp0 {X Y : UU} {x1 x2 x3 : X}
-           (f : X -> Y) (e1 : x1 = x2) (e2 : x2 = x3) :
-  maponpaths f (e1 @ e2) = maponpaths f e1 @ maponpaths f e2.
-Proof.
-  intros. induction e1. induction e2. apply idpath.
-Defined.
-
-Definition maponpathsinv0 {X Y : UU} (f : X -> Y)
-           {x1 x2 : X} (e : x1 = x2) : maponpaths f (! e) = ! (maponpaths f e).
-Proof.
-  intros. induction e. apply idpath.
-Defined.
-
-
-(** *** [ maponpaths ] for the identity functions and compositions of functions *)
-
-Lemma maponpathsidfun {X : UU} {x x' : X}
-      (e : x = x') : maponpaths (idfun _) e = e.
-Proof.
-  intros. induction e. apply idpath.
-Defined.
-
-Lemma maponpathscomp {X Y Z : UU} {x x' : X} (f : X -> Y) (g : Y -> Z)
-      (e : x = x') : maponpaths g (maponpaths f e) = maponpaths (g ∘ f) e.
-Proof.
-  intros. induction e. apply idpath.
-Defined.
 
 (** *** Homotopy between sections *)
 
@@ -994,17 +839,8 @@ Defined.
 
 (** *** Contractibility [ iscontr ] *)
 
-Definition iscontr (T:UU) : UU := ∑ cntr:T, ∏ t:T, t=cntr.
-
-Notation "'∃!' x .. y , P"
-  := (iscontr (∑ x, .. (∑ y, P) ..))
-       (at level 200, x binder, y binder, right associativity) : type_scope.
-(* type this in emacs in agda-input method with \ex ! *)
-
 Definition iscontrpair {T : UU} : ∏ x : T, (∏ t : T, t = x) -> iscontr T
   := tpair _.
-
-Definition iscontrpr1 {T : UU} : iscontr T -> T := pr1.
 
 Definition iscontr_uniqueness {T} (i:iscontr T) (t:T) : t = iscontrpr1 i
   := pr2 i t.
@@ -1033,8 +869,6 @@ Defined.
 
 
 (** *** Homotopy fibers [ hfiber ] *)
-
-Definition hfiber {X Y : UU} (f : X -> Y) (y : Y) : UU := ∑ x : X, f x = y.
 
 Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
            (x : X) (e : f x = y) : hfiber f y :=
@@ -1228,25 +1062,6 @@ Defined.
 
 (** *** Basics - [ isweq ] and [ weq ] *)
 
-Definition isweq {X Y : UU} (f : X -> Y) : UU :=
-  ∏ y : Y, iscontr (hfiber f y).
-
-Lemma idisweq (T : UU) : isweq (idfun T).
-Proof.
-  intros. unfold isweq. intro y.
-  unfold iscontr.
-  split with (tpair (fun (x : T) => idfun T x = y) y (idpath y)).
-  intro t.
-  induction t as [x e].
-  induction e.
-  apply idpath.
-Defined.
-
-Definition weq (X Y : UU) : UU := ∑ f:X->Y, isweq f.
-
-Notation "X ≃ Y" := (weq X Y) (at level 80, no associativity) : type_scope.
-(* written \simeq in Agda input method *)
-
 Definition pr1weq {X Y : UU} := pr1 : X ≃ Y -> (X -> Y).
 Coercion pr1weq : weq >-> Funclass.
 
@@ -1265,9 +1080,6 @@ Defined.
 
 Definition weqpair {X Y : UU} (f : X -> Y) (is: isweq f) : X ≃ Y :=
   tpair (fun (f : X -> Y) => isweq f) f is.
-
-Definition idweq (X : UU) : X ≃ X :=
-  tpair (fun (f : X -> X) => isweq f) (fun (x : X) => x) (idisweq X).
 
 Definition isweqtoempty {X : UU} (f : X -> empty) : isweq f.
 Proof.
@@ -1518,11 +1330,6 @@ Proof.
   set (e1 := maponpaths unitl1 e0).
 
   apply (! (unitl2 e) @ (! e1) @ (unitl2 (idpath _))).
-Defined.
-
-Theorem iscontrunit: iscontr (unit).
-Proof.
-  split with tt. intros t. apply (isconnectedunit t tt).
 Defined.
 
 (** [ paths ] in [ unit ] are contractible. *)

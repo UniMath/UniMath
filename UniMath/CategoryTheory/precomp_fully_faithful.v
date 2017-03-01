@@ -63,7 +63,7 @@ Proof.
     + apply hsC.
     + intro b.
       assert (Heq : isaprop (gamma b = delta b)).
-      { apply hsC . }
+      { use_exact hsC . }
       apply (p b (tpair (fun x => isaprop x) (gamma b = delta b) Heq)).
       simpl in *; clear Heq.
       intros [a f].
@@ -116,11 +116,11 @@ Proof.
   intros x x'.
   apply subtypeEquality.
     intro; repeat (apply impred; intro).
-    apply hsC.
+    use_exact hsC.
   destruct x as [g q].
   destruct x' as [g' q'].
   simpl.
-    assert (T: isaprop (g = g')). { apply hsC. }
+    assert (T: isaprop (g = g')). { use_exact hsC. }
     apply (p b (hProppair (g = g') T  )).
     intro anoth.
     destruct anoth as [anot h].
@@ -226,7 +226,7 @@ Proof.
   intros b b' f.
   apply pathsinv0.
   assert (T: isaprop (pdelta b· #G f = #F f· pdelta b')).
-   { apply hsC. }
+   { use_exact hsC. }
   apply (p b (hProppair (pdelta b· #G f =
                          #F f· pdelta b') T )).
   intro t; destruct t as [a h].

@@ -1089,7 +1089,7 @@ Section translation_functor.
         use (squash_to_prop
                (ComplexHomotFunctor_issurj
                   A (# (ComplexHomotFunctor A) f))).
-        apply to_has_homsets. intros f'.
+        use_exact to_has_homsets. intros f'.
         set (im := TranslationFunctorH_Mor_data (# (ComplexHomotFunctor A) f) f').
         rewrite <- (@TranslationFunctorHImEq C1 C2 _ im f (idpath _)).
         use TranslationFunctorHImEq.
@@ -1120,9 +1120,9 @@ Section translation_functor.
       use AdditiveFunctorZeroArrow.
     - intros C1 C2 f g.
       use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
-      apply to_has_homsets. intros f'.
+      use_exact to_has_homsets. intros f'.
       use (squash_to_prop (ComplexHomotFunctor_issurj A g)).
-      apply to_has_homsets. intros g'.
+      use_exact to_has_homsets. intros g'.
       rewrite (TranslationFunctorH_Mor_Im f f').
       rewrite (TranslationFunctorH_Mor_Im g g').
       use (pathscomp0 _ (AdditiveFunctorLinear
@@ -1306,7 +1306,7 @@ Section translation_functor.
                     # (ComplexHomotFunctor A) (# InvTranslationFunctor f)) by apply idpath.
         rewrite e2. clear e2.
         use (squash_to_prop (ComplexHomotFunctor_issurj A (# (ComplexHomotFunctor A) f))).
-        apply to_has_homsets. intros f'.
+        use_exact to_has_homsets. intros f'.
         set (im := InvTranslationFunctorH_Mor_data (# (ComplexHomotFunctor A) f) f').
         rewrite <- (@InvTranslationFunctorHImEq C1 C2 _ im f (idpath _)).
         use InvTranslationFunctorHImEq.
@@ -1338,9 +1338,9 @@ Section translation_functor.
       use AdditiveFunctorZeroArrow.
     - intros C1 C2 f g.
       use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
-      apply to_has_homsets. intros f'.
+      use_exact to_has_homsets. intros f'.
       use (squash_to_prop (ComplexHomotFunctor_issurj A g)).
-      apply to_has_homsets. intros g'.
+      use_exact to_has_homsets. intros g'.
       rewrite (InvTranslationFunctorH_Mor_Im f f').
       rewrite (InvTranslationFunctorH_Mor_Im g g').
       use (pathscomp0 _ (AdditiveFunctorLinear

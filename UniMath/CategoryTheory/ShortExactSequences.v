@@ -160,7 +160,7 @@ Section def_shortexactseqs.
     (* Commutativity *)
     - apply CokernelCommutes.
     (* Equality on equalities of morphisms *)
-    - intros y'. apply hs.
+    - intros y'. exact (hs _ _ _ _).
     (* Uniqueness *)
     - intros y' T. cbn in T.
       apply CokernelOutsEq.
@@ -201,7 +201,7 @@ Section def_shortexactseqs.
     (* Commutativity *)
     - apply KernelCommutes.
     (* Equality on equalities of morphisms *)
-    - intros y'. apply hs.
+    - intros y'. exact (hs _ _ _ _).
     (* Uniqueness *)
     - intros y' T. cbn in T.
       apply KernelInsEq.
@@ -223,7 +223,7 @@ Section def_shortexactseqs.
         * rewrite <- (ZeroArrow_comp_left _ _ _ _ _ f) in H'. apply isM in H'.
           rewrite H'. apply ZeroArrow_comp_left.
       + cbn. use KernelCommutes.
-      + intros y'. apply hs.
+      + intros y'. exact (hs _ _ _ _).
       + intros y' X. cbn in X. cbn.
         use (KernelArrowisMonic to_Zero (Abelian.Image (ZeroArrow to_Zero to_Zero x))).
         rewrite X. apply pathsinv0. use KernelCommutes.
@@ -244,7 +244,7 @@ Section def_shortexactseqs.
           apply isE. rewrite CokernelCompZero. rewrite ZeroArrow_comp_right.
           apply idpath.
       + cbn. use KernelCommutes.
-      + intros y'. apply hs.
+      + intros y'. exact (hs _ _ _ _).
       + intros y' X. cbn. cbn in X.
         use (KernelArrowisMonic to_Zero (Abelian.Image f)).
         rewrite X. apply pathsinv0. use KernelCommutes.
@@ -426,7 +426,7 @@ Section shortshortexact_cokernel.
     (* Commutativity *)
     - apply CokernelCommutes.
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. exact (hs _ _ _ _).
     (* Uniqueness *)
     - intros y T. cbn in T.
       apply CokernelOutsEq.
@@ -490,7 +490,7 @@ Section shortshortexact_cokernel.
     (* Commutativity *)
     - apply KernelCommutes.
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. exact (hs _ _ _ _).
     (* Uniqueness *)
     - intros y T. cbn in T.
       apply KernelInsEq.
@@ -734,7 +734,7 @@ Section shortexact_correspondence.
     (* Commutativity *)
     - apply KernelCommutes.
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. exact (hs _ _ _ _).
     (* Uniqueness *)
     - intros y T. cbn in T. apply KernelInsEq.
       use (pathscomp0 T). apply pathsinv0.
@@ -837,7 +837,7 @@ Section shortexact_correspondence.
     (* Comutativity *)
     - apply KernelCommutes.
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. exact (hs _ _ _ _).
     (* Uniqueness *)
     - intros y T. apply KernelInsEq.
       rewrite T. apply pathsinv0.

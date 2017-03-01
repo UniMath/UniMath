@@ -55,7 +55,7 @@ Section def_cokernels.
     use unique_exists.
     - exact (pr1 (iscontrpr1 (H2 w h H'))).
     - exact (pr2 (iscontrpr1 (H2 w h H'))).
-    - intros y0. apply hs.
+    - intros y0. use hs.
     - intros y0 X. exact (base_paths _ _ ((pr2 (H2 w h H')) (tpair _ y0 X))).
   Defined.
 
@@ -167,7 +167,7 @@ Section def_cokernels.
     use unique_exists.
     - exact h.
     - exact (id_left _).
-    - intros y0. apply hs.
+    - intros y0. use hs.
     - intros y0 t. cbn in t. rewrite id_left in t. exact t.
   Qed.
 
@@ -184,7 +184,7 @@ Section def_cokernels.
     use unique_exists.
     - exact (ZeroArrowFrom w).
     - cbn. rewrite id_left in H'. rewrite H'. apply idpath.
-    - intros y. apply hs.
+    - intros y. use_exact hs.
     - intros y X. cbn in X. use ArrowsFromZero.
   Qed.
 
@@ -266,7 +266,7 @@ Section cokernels_coequalizers.
       + exact h.
       + rewrite H'. apply ZeroArrow_comp_left.
     - use CokernelCommutes.
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     - intros y0 X. use CokernelOutsEq. rewrite CokernelCommutes. exact X.
   Qed.
 
@@ -301,7 +301,7 @@ Section cokernels_coequalizers.
       + exact h.
       + rewrite ZeroArrow_comp_left. exact H'.
     - use CoequalizerCommutes.
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     - intros y0 X. use CoequalizerOutsEq. rewrite CoequalizerCommutes. exact X.
   Qed.
 
@@ -349,7 +349,7 @@ Section cokernels_iso.
     - cbn. rewrite H. rewrite assoc. rewrite <- (assoc _ h).
       rewrite (is_inverse_in_precat1 h).
       rewrite id_right. use CokernelCommutes.
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     - intros y0 X. cbn beta in X.
       use (pre_comp_with_z_iso_is_inj h). rewrite assoc.
       set (tmp := maponpaths (fun gg : _ => gg · CokernelOut Z CK w h0 H')
@@ -385,7 +385,7 @@ Section cokernels_iso.
         rewrite <- assoc in H'. apply (pre_comp_with_z_iso_is_inj h) in H'.
         exact H'.
     - cbn. use CokernelCommutes.
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     - intros y0 X. cbn beta in X. use CokernelOutsEq. rewrite CokernelCommutes.
       exact X.
   Qed.
@@ -484,7 +484,7 @@ Section cokernels_epis.
         * rewrite <- (ZeroArrow_comp_right _ _ _ _ _ E). rewrite <- assoc.
           apply cancel_precomposition. exact H'.
       + cbn. rewrite CokernelCommutes. apply idpath.
-      + intros y0. apply hs.
+      + intros y0. use_exact hs.
       + intros y0 X.
         apply pathsinv0. cbn in X.
         use (EpiisEpi C (mk_Epi _ _ (CokernelArrowisEpi Z CK))). cbn.

@@ -1216,7 +1216,7 @@ Section comp_zero.
   Proof.
     set (D2 := TrivialDTri PT (Ob1 D)).
     set (Ext' := DExt PT D2 D (identity (Ob1 D)) (Mor1 D) (idpath _)).
-    use (squash_to_prop Ext'). apply to_has_homsets. intros Ext. clear Ext'.
+    use (squash_to_prop Ext'). use_exact to_has_homsets. intros Ext. clear Ext'.
     set (M := TExtMor Ext). use (pathscomp0 (MPComm2 M)). cbn. apply ZeroArrow_comp_left.
   Qed.
 

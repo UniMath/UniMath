@@ -296,7 +296,7 @@ apply subtypeEquality.
   set (C' (c : C) f := ∏ u v (e : J⟦u,v⟧), @compose _ c _ _ (f u) (# F e) = f v).
   rewrite (@transportf_total2 _ B C').
   apply subtypeEquality.
-  + intro; repeat (apply impred; intro); apply (pr2 H).
+  + intro; repeat (apply impred; intro); use_exact (pr2 H).
   + abstract (now simpl; eapply pathscomp0; [apply transportf_isotoid_dep'|];
               apply funextsec; intro v; rewrite inv_isotoid, idtoiso_isotoid;
               cbn; unfold precomp_with; rewrite id_right; apply limArrowCommutes).
@@ -390,7 +390,7 @@ mkpair.
               now apply (limArrowCommutes (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
             apply subtypeEquality; simpl;
-              [ intro; apply impred; intro u; apply functor_category_has_homsets
+              [ intro; apply impred; intro u; use_exact functor_category_has_homsets
               | apply (nat_trans_eq hsC); simpl; intro a;
                 apply limArrowUnique; intro u;
                 now apply (nat_trans_eq_pointwise (t2 u))]).

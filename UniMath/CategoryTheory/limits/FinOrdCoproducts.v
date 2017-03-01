@@ -45,7 +45,7 @@ Section FinOrdCoproduct_criteria.
 
     apply (InitialArrow I c).
     intros i. apply (fromempty (weqstn0toempty i)).
-    intros y. apply impred_isaprop. intros t. apply hs.
+    intros y. apply impred_isaprop. intros t. use_exact hs.
     intros y X. apply InitialArrowUnique.
   Defined.
 
@@ -67,7 +67,7 @@ Section FinOrdCoproduct_criteria.
     intros i. rewrite <- (isconnectedstn1 stn1ob i). apply id_left.
 
     (* Equality of equalities of morphisms. *)
-    intros y. apply impred_isaprop. intros t. apply hs.
+    intros y. apply impred_isaprop. intros t. use_exact hs.
 
     (* Uniqueness. *)
     intros y X. rewrite <- (X stn1ob). apply pathsinv0. apply id_left.
@@ -148,7 +148,7 @@ Section FinOrdCoproduct_criteria.
 
 
     (* Equality on equalities of morphisms. *)
-    intros y. apply impred_isaprop. intros t. apply hs.
+    intros y. apply impred_isaprop. intros t. use_exact hs.
 
     (* Uniqueness *)
     unfold coprod_rect. intros k X.

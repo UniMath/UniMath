@@ -76,7 +76,7 @@ Definition makeRepresentation {C:Precategory} {c:C} {X:[C^op,SET]} (x:c ⇒ X) :
 Proof.
   intros bij. exists c. exists x. intros c'. apply set_bijection_to_weq.
   - exact (bij c').
-  - apply setproperty.
+  - exact (setproperty _).
 Defined.
 
 (* universal aspects of represented functors *)
@@ -524,18 +524,18 @@ Proof.
   - intro b. unshelve refine (_,,_).
     + exact (∑ p:b --> c, f∘p = g∘p).
     + abstract (apply isaset_total2;
-      [ apply homset_property
-      | intro; apply isasetaprop; apply homset_property]) using _L_.
+      [ use_exact homset_property
+      | intro; apply isasetaprop; use_exact homset_property]) using _L_.
   - intros b a e w; simpl in *. exists (pr1 w ∘ e).
     abstract (rewrite <- 2? assoc; apply maponpaths; exact (pr2 w)) using _M_.
   - abstract (
         intros b; apply funextsec; intro w; apply subtypeEquality;
-        [ intro; apply homset_property
+        [ intro; use homset_property
         | simpl; apply id_left]) using _N_.
   - abstract (
         intros a'' a' a r s; apply funextsec;
         intro w; apply subtypeEquality;
-        [ intro; apply homset_property
+        [ intro; use homset_property
         | apply pathsinv0, assoc ]) using _O_.
 Defined.
 
@@ -572,7 +572,7 @@ Proof.
     + exact (∑ (p: t --> a × t --> b), f ∘ pr1 p = g ∘ pr2 p).
     + abstract (apply isaset_total2;
       [ apply isasetdirprod; apply homset_property
-      | intro; apply isasetaprop; apply homset_property]) using _L_.
+      | intro; apply isasetaprop; use_exact homset_property]) using _L_.
   - intros t u p w; simpl in *.
     exists (pr1 (pr1 w) ∘ p,, pr2 (pr1 w) ∘ p).
     abstract (
@@ -581,12 +581,12 @@ Proof.
               induction w as [w eq]; induction w as [p q];
               simpl in *; unshelve refine (two_arg_paths_f _ _);
               [ rewrite 2? id_left; reflexivity
-              | apply proofirrelevance; apply homset_property]) using _N_.
+              | apply proofirrelevance; use_exact homset_property]) using _N_.
   - abstract (
         intros r s t p q; simpl in *; apply funextsec; intro w;
         unshelve refine (total2_paths2_f _ _);
         [ simpl; rewrite 2? assoc; reflexivity
-        | apply proofirrelevance; apply homset_property]) using _P_.
+        | apply proofirrelevance; use_exact homset_property]) using _P_.
 Defined.
 
 Definition Pullback {C:Precategory} {a b c:C} (f:a-->c) (g:b-->c) :=
@@ -628,7 +628,7 @@ Proof.
   { unshelve refine (_,,_).
     { intro b. exists (∑ g:Hom C b c, f ∘ g = pr1 zero b d).
       abstract (apply isaset_total2; [ apply setproperty |
-      intro g; apply isasetaprop; apply homset_property ]) using _L_. }
+      intro g; apply isasetaprop; use_exact homset_property ]) using _L_. }
     { intros a b p ge; simpl.
       exists (pr1 ge ∘ opp_mor p).
       { abstract (
@@ -637,11 +637,11 @@ Proof.
   { abstract (split;
     [ intros x; apply funextsec; intros [r rf0];
       apply subtypeEquality;
-      [ intro; apply homset_property
+      [ intro; use_exact homset_property
       | simpl; unfold opp_mor; apply id_left ]
     | intros w x y t u; apply funextsec; intros [r rf0];
       apply subtypeEquality;
-      [ intro; apply homset_property
+      [ intro; use_exact homset_property
       | simpl; unfold opp_mor; apply pathsinv0, assoc ] ]) using _N_. }
 Defined.
 
@@ -678,8 +678,8 @@ Proof.
   - intro b.
     exists (∑ fx : (b --> c) × (b ⇒ X), p ⟳ pr2 fx = y ⟲ pr1 fx).
     abstract (apply isaset_total2;
-        [ apply isaset_dirprod, setproperty; apply homset_property
-        | intros [f x]; apply isasetaprop; apply setproperty ]) using _K_.
+        [ apply isaset_dirprod, setproperty; use_exact homset_property
+        | intros [f x]; apply isasetaprop; use_exact setproperty ]) using _K_.
   - simpl; intros b b' g fxe.
     exists (pr1 (pr1 fxe) ∘ g,, pr2 (pr1 fxe) ⟲ g).
     abstract (simpl; rewrite nattrans_arrow_mor_assoc, arrow_mor_mor_assoc;
@@ -720,7 +720,7 @@ Proof.
     apply impred_isaprop; intro i;
     apply impred_isaprop; intro j;
     apply impred_isaprop; intro e.
-    apply homset_property. }
+    use_exact homset_property. }
   apply funextsec; intro i; apply h.
 Qed.
 
@@ -734,12 +734,12 @@ Proof.
         - intro c. exists (cone (C:=C) c D).
           abstract (
               apply isaset_total2;
-              [ apply impred_isaset; intro i; apply homset_property
+              [ apply impred_isaset; intro i; use_exact homset_property
               | intros φ;
                 apply impred_isaset; intro i;
                 apply impred_isaset; intro j;
                 apply impred_isaset; intro e; apply isasetaprop;
-                apply homset_property]) using LLL.
+                use_exact homset_property]) using LLL.
         - simpl; intros a b f φ.
           exists (λ i, pr1 φ i ∘ f).
           abstract (
@@ -869,7 +869,7 @@ Proof.
         + unfold θ_1; simpl. intro b. exact tt.
         + eqn_logic.
       - simpl. intros w. apply subtypeEquality.
-        { intros f. apply impred; intro b; apply impred; intro b'; apply impred; intro g. apply isasetunit. }
+        { intros f. apply impred; intro b; apply impred; intro b'; apply impred; intro g. use_exact isasetunit. }
         apply funextfun; intro b. apply isapropunit.
       - eqn_logic. }
     { eqn_logic. } }

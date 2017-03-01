@@ -180,9 +180,9 @@ Lemma isaprop_is_precategory (C : precategory_data)(hs: has_homsets C)
   : isaprop (is_precategory C).
 Proof.
   apply isofhleveltotal2.
-  { apply isofhleveltotal2. { repeat (apply impred; intro). apply hs. }
-    intros _. repeat (apply impred; intro); apply hs. }
-  intros _. repeat (apply impred; intro); apply hs.
+  { apply isofhleveltotal2. { repeat (apply impred; intro). use_exact hs. }
+    intros _. repeat (apply impred; intro); use_exact hs. }
+  intros _. repeat (apply impred; intro); use_exact hs.
 Qed.
 
 
@@ -687,7 +687,7 @@ End are_isomorphic.
 Lemma isaprop_is_inverse_in_precat (C : precategory_data) (hs: has_homsets C) (a b : ob C)
    (f : a --> b) (g : b --> a) : isaprop (is_inverse_in_precat f g).
 Proof.
-  apply isapropdirprod; apply hs.
+  apply isapropdirprod; use_exact hs.
 Qed.
 
 Lemma inverse_unique_precat (C : precategory) (a b : ob C)
@@ -753,7 +753,7 @@ Proof.
   destruct g as [g [eta eps]].
   destruct g' as [g' [eta' eps']].
   simpl in *.
-  apply isapropdirprod; apply hs.
+  apply isapropdirprod; use_exact hs.
 Qed.
 
 Lemma is_z_isomorphism_mor_eq {C : precategory} {a b : C} {f g : a --> b}

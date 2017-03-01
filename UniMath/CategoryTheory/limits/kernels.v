@@ -47,7 +47,7 @@ Section def_kernels.
     use unique_exists.
     - exact (pr1 (iscontrpr1 (H2 w h H))).
     - exact (pr2 (iscontrpr1 (H2 w h H))).
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     - intros y0 X. exact (base_paths _ _ (pr2 (H2 w h H) (tpair _ y0 X))).
   Defined.
 
@@ -170,7 +170,7 @@ Section def_kernels.
     use unique_exists.
     - exact h.
     - cbn. apply id_right.
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     - intros y0 X. cbn in X. rewrite id_right in X. exact X.
   Qed.
 
@@ -193,7 +193,7 @@ Section def_kernels.
     use unique_exists.
     - exact (ZeroArrowTo w).
     - cbn. rewrite id_right in H'. rewrite H'. apply idpath.
-    - intros y. apply hs.
+    - intros y. use_exact hs.
     - intros y X. cbn in X. use ArrowsToZero.
   Qed.
 
@@ -271,7 +271,7 @@ Section kernel_equalizers.
       + exact h.
       + rewrite ZeroArrow_comp_right in H'. exact H'.
     - cbn. use KernelCommutes.
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     - intros y0 X. use KernelInsEq. rewrite KernelCommutes. exact X.
   Qed.
 
@@ -303,7 +303,7 @@ Section kernel_equalizers.
       + exact h.
       + rewrite ZeroArrow_comp_right. exact H'.
     - use EqualizerCommutes.
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     - intros y0 X. use EqualizerInsEq. rewrite EqualizerCommutes. exact X.
   Qed.
 
@@ -351,7 +351,7 @@ Section kernels_iso.
     - cbn beta. rewrite H. rewrite assoc. rewrite <- (assoc _ _ h).
       cbn. rewrite (is_inverse_in_precat2 h). rewrite id_right.
       apply KernelCommutes.
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     - intros y0 X. cbn beta in X.
       use (post_comp_with_z_iso_is_inj h). rewrite <- assoc.
       use (pathscomp0 _ (! (maponpaths (fun gg : _ => KernelIn Z K w h0 H' · gg)
@@ -386,7 +386,7 @@ Section kernels_iso.
         rewrite assoc in H'. apply (post_comp_with_z_iso_is_inj h) in H'.
         exact H'.
     - cbn. use KernelCommutes.
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     - intros y0 H''. use KernelInsEq.
       rewrite H''. apply pathsinv0.
       apply KernelCommutes.
@@ -485,7 +485,7 @@ Section kernels_monics.
         * rewrite assoc. rewrite <- (ZeroArrow_comp_left _ _ _ _ _ M). apply cancel_postcomposition.
           exact H'.
       + cbn. rewrite KernelCommutes. apply idpath.
-      + intros y0. apply hs.
+      + intros y0. use_exact hs.
       + intros y0 X.
         apply pathsinv0. cbn in X.
         use (MonicisMonic C (mk_Monic _ _ (KernelArrowisMonic Z K))). cbn.

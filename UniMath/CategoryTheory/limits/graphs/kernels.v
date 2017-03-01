@@ -48,7 +48,7 @@ Section def_kernels.
     (* Commutativity *)
     - cbn. use KernelCommutes.
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. use_exact hs.
     (* Uniqueness *)
     - intros y X. cbn in X.
       use limits.kernels.KernelInsEq. unfold KernelArrow.
@@ -91,7 +91,7 @@ Section def_kernels.
     (* Commutativity *)
     - use EqualizerArrowComm.
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. use_exact hs.
     (* Uniqueness *)
     - intros y T. cbn in T.
       use EqualizerInUnique. exact T.

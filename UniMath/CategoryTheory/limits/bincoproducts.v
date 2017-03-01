@@ -626,7 +626,7 @@ use mk_BinCoproductCocone.
   - abstract (split;
       [ apply (colimArrowCommutes CC c (BinCoprodCocone f g) true)
       | apply (colimArrowCommutes CC c (BinCoprodCocone f g) false) ]).
-  - abstract (intros h; apply isapropdirprod; apply hsC).
+  - abstract (intros h; apply isapropdirprod; use_exact hsC).
   - abstract (now intros h [H1 H2]; apply colimArrowUnique; intro x; induction x).
 Defined.
 
@@ -895,7 +895,7 @@ Proof.
   apply subtypeEquality.
   - intro.
     apply isapropdirprod;
-    apply isaset_nat_trans;
+    use isaset_nat_trans;
     apply hsD.
   - simpl.
     apply nat_trans_eq.
@@ -1009,7 +1009,9 @@ Section BinCoproduct_from_iso.
     (* Commutativity *)
     - exact (iso_to_isBinCoproductCocone_comm BP i w f g).
     (* Equality on equalities of morphisms. *)
-    - intros y0. apply isapropdirprod. apply hs. apply hs.
+    - intros y0. apply isapropdirprod.
+      + use_exact hs.
+      + use_exact hs.
     (* Uniqueness *)
     - intros y0 T. exact (iso_to_isBinCoproductCocone_unique BP i w f g y0 T).
   Defined.

@@ -147,8 +147,8 @@ Definition precategory_binproduct_assoc (C0 C1 C2 : precategory)
   : functor (C0 × (C1 × C2)) ((C0 × C1) × C2).
 Proof.
   exists (precategory_binproduct_assoc_data _ _ _). split.
-  (* functor_id *) intros c. simpl; apply paths_refl.
-  (* functor_comp *) intros c0 c1 c2 f g. simpl; apply paths_refl.
+  (* functor_id *) intros c. simpl; apply idpath.
+  (* functor_comp *) intros c0 c1 c2 f g. simpl; apply idpath.
 Defined.
 
 Definition precategory_binproduct_unassoc_data (C0 C1 C2 : precategory_data)
@@ -164,8 +164,8 @@ Definition precategory_binproduct_unassoc (C0 C1 C2 : precategory)
   : functor ((C0 × C1) × C2) (C0 × (C1 × C2)).
 Proof.
   exists (precategory_binproduct_unassoc_data _ _ _). split.
-  (* functor_id *) intros c. simpl; apply paths_refl.
-  (* functor_comp *) intros c0 c1 c2 f g. simpl; apply paths_refl.
+  (* functor_id *) intros c. simpl; apply idpath.
+  (* functor_comp *) intros c0 c1 c2 f g. simpl; apply idpath.
 Defined.
 
 End assoc.
@@ -188,8 +188,8 @@ Proof.
   (* functor_on_objects *) intros; exact tt.
   (* functor_on_morphisms *) intros F a b; apply identity.
   split.
-  (* functor_id *) intros x; apply paths_refl.
-  (* functor_comp *) intros x y z w v; apply paths_refl.
+  (* functor_id *) intros x; apply idpath.
+  (* functor_comp *) intros x y z w v; apply idpath.
 Defined.
 
 End unit_precategory.

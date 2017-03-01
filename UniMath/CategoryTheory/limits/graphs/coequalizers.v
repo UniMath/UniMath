@@ -55,12 +55,12 @@ Section def_coequalizers.
       + exact (f · h).
       + exact h.
     - use two_rec_dep; cbn; use two_rec_dep; cbn.
-      + exact (Empty_set_rect _).
+      + exact (empty_rect _).
       + intro e. unfold idfun. induction e.
         * apply idpath.
         * apply (! H).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
   Defined.
 
   Definition isCoequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧)
@@ -89,7 +89,7 @@ Section def_coequalizers.
         apply (pr2 (pr1 H2)).
       + apply (pr2 (pr1 H2)).
     - intro t. apply subtypeEquality.
-      intros y. apply impred. intros t0. apply hs.
+      intros y. apply impred. intros t0. use_exact hs.
       induction t as [t p]. cbn.
       apply path_to_ctr.
       apply (p Two).
@@ -136,12 +136,12 @@ Section def_coequalizers.
       + exact (f · h).
       + exact h.
     - use two_rec_dep; cbn; use two_rec_dep; cbn.
-      + exact (Empty_set_rect _).
+      + exact (empty_rect _).
       + intro e0. unfold idfun. induction e0.
         * apply idpath.
         * apply (! H).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
+      + exact (empty_rect _).
+      + exact (empty_rect _).
   Defined.
 
   Lemma CoequalizerArrowComm {a b : C} {f g : C⟦a, b⟧} (E : Coequalizer f g) (e : C) (h : C⟦b, e⟧)
@@ -174,7 +174,7 @@ Section def_coequalizers.
     (* Commutativity *)
     - exact (CoequalizerArrowComm E e h H).
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. use_exact hs.
     (* Uniqueness *)
     - intros y t. cbn in t.
       use CoequalizerOutUnique.
@@ -284,7 +284,7 @@ Section coequalizers_coincide.
     (* Commutativity *)
     - exact (limits.coequalizers.CoequalizerCommutes E e' h' H').
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. use_exact hs.
     (* Uniqueness *)
     - intros y T. cbn in T.
       use (limits.coequalizers.CoequalizerOutsEq E).
@@ -302,7 +302,7 @@ Section coequalizers_coincide.
     (* Commutativity *)
     - exact (CoequalizerArrowComm C E e' h' H').
     (* Equality on equalities of morphisms *)
-    - intros y. apply hs.
+    - intros y. use_exact hs.
     (* Uniqueness *)
     - intros y T. cbn in T.
       use (CoequalizerOutUnique C E).

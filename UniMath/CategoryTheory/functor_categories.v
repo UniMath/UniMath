@@ -135,9 +135,9 @@ Lemma isaprop_is_functor (C C' : precategory_data) (hs: has_homsets C')
 Proof.
   apply isofhleveldirprod.
   apply impred; intro a.
-  apply hs.
+  use_exact hs.
   repeat (apply impred; intro).
-  apply hs.
+  use_exact hs.
 Qed.
 
 Definition functor (C C' : precategory_data) : UU :=
@@ -758,7 +758,7 @@ Lemma isaprop_is_nat_trans (C C' : precategory_data) (hs: has_homsets C')
   isaprop (is_nat_trans F F' t).
 Proof.
   repeat (apply impred; intro).
-  apply hs.
+  use_exact hs.
 Qed.
 
 Definition nat_trans {C C' : precategory_data} (F F' : functor_data C C') : UU :=

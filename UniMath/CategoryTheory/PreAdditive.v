@@ -633,7 +633,7 @@ Section preadditive_quotient.
       apply impred. intros H.
       apply impred. intros t0.
       apply impred. intros H0.
-      apply isasetsetquot.
+      exact (isasetsetquot _ _ _).
   Qed.
 
   Lemma QuotPrecategory_comp_iscontr {A B C : ob PA} (f : QuotPrecategory_ob_mor⟦A, B⟧)
@@ -814,7 +814,7 @@ Section preadditive_quotient.
       (* id left *)
       + intros a b f. apply pathsinv0. cbn. unfold QuotPrecategory_comp.
         set (f'' := @issurjsetquotpr (to_abgrop a b) (binopeqrel_subgr_eqrel (PAS a b)) f).
-        use (squash_to_prop f''). apply isasetsetquot. intros f'. clear f''.
+        use (squash_to_prop f''). exact (isasetsetquot _ _ _). intros f'. clear f''.
         induction f' as [f1 f2]. rewrite <- f2. cbn in f1, a, b.
         eapply pathscomp0.
         * apply maponpaths. exact (! (id_left f1)).
@@ -826,7 +826,7 @@ Section preadditive_quotient.
       (* id right *)
       + intros a b f. apply pathsinv0. cbn. unfold QuotPrecategory_comp.
         set (f'' := @issurjsetquotpr (to_abgrop a b) (binopeqrel_subgr_eqrel (PAS a b)) f).
-        use (squash_to_prop f''). apply isasetsetquot. intros f'. clear f''.
+        use (squash_to_prop f''). exact (isasetsetquot _ _ _). intros f'. clear f''.
         induction f' as [f1 f2]. rewrite <- f2. cbn in f1, a, b.
         eapply pathscomp0.
         * apply maponpaths. exact (! (id_right f1)).
@@ -838,11 +838,11 @@ Section preadditive_quotient.
     (* assoc *)
     - intros a b c d f g h. cbn.
       set (f'' := @issurjsetquotpr (to_abgrop a b) (binopeqrel_subgr_eqrel (PAS a b)) f).
-      use (squash_to_prop f''). apply isasetsetquot. intros f'. clear f''.
+      use (squash_to_prop f''). exact (isasetsetquot _ _ _). intros f'. clear f''.
       set (g'' := @issurjsetquotpr (to_abgrop b c) (binopeqrel_subgr_eqrel (PAS b c)) g).
-      use (squash_to_prop g''). apply isasetsetquot. intros g'. clear g''.
+      use (squash_to_prop g''). exact (isasetsetquot _ _ _). intros g'. clear g''.
       set (h'' := @issurjsetquotpr (to_abgrop c d) (binopeqrel_subgr_eqrel (PAS c d)) h).
-      use (squash_to_prop h''). apply isasetsetquot. intros h'. clear h''.
+      use (squash_to_prop h''). exact (isasetsetquot _ _ _). intros h'. clear h''.
       induction f' as [f1 f2]. induction g' as [g1 g2]. induction h' as [h1 h2].
       cbn in f1, g1, h1.
       rewrite (Quot_assoc1 f g h f1 f2 g1 g2 h1 h2).
@@ -855,7 +855,7 @@ Section preadditive_quotient.
 
   Lemma has_homsets_QuotPrecategory : has_homsets QuotPrecategory.
   Proof.
-    intros a b. apply isasetsetquot.
+    intros a b. exact (isasetsetquot _).
   Qed.
 
 
@@ -890,9 +890,9 @@ Section preadditive_quotient.
     (f : QuotPrecategory_abgrops⟦x, y⟧) (g h : QuotPrecategory_abgrops ⟦y, z⟧):
     f · to_binop y z g h = to_binop x z (f · g) (f · h).
   Proof.
-    use (squash_to_prop (QuotPrecategory_surj f)). apply to_has_homsets. intros f'.
-    use (squash_to_prop (QuotPrecategory_surj g)). apply to_has_homsets. intros g'.
-    use (squash_to_prop (QuotPrecategory_surj h)). apply to_has_homsets. intros h'.
+    use (squash_to_prop (QuotPrecategory_surj f)). use_exact to_has_homsets. intros f'.
+    use (squash_to_prop (QuotPrecategory_surj g)). use_exact to_has_homsets. intros g'.
+    use (squash_to_prop (QuotPrecategory_surj h)). use_exact to_has_homsets. intros h'.
     rewrite <- (hfiberpr2 _ _ f'). rewrite <- (hfiberpr2 _ _ g'). rewrite <- (hfiberpr2 _ _ h').
     exact (QuotPrecategory_premor (hfiberpr1 _ _ f') (hfiberpr1 _ _ g') (hfiberpr1 _ _ h')).
   Qed.
@@ -901,7 +901,7 @@ Section preadditive_quotient.
         (f : QuotPrecategory_abgrops⟦x, y⟧) : f · (@to_unel QuotPrecategory_abgrops y z) =
                                               @to_unel QuotPrecategory_abgrops x z.
   Proof.
-    use (squash_to_prop (QuotPrecategory_surj f)). apply (@to_has_homsets QuotPrecategory_abgrops).
+    use (squash_to_prop (QuotPrecategory_surj f)). use_exact (@to_has_homsets QuotPrecategory_abgrops).
     intros f'. rewrite <- (hfiberpr2 _ _ f').
     exact (@quot_comp_unel_left x y z (hfiberpr1 _ _ f')).
   Qed.
@@ -910,9 +910,9 @@ Section preadditive_quotient.
     (f : QuotPrecategory_abgrops⟦y, z⟧) (g h : QuotPrecategory_abgrops ⟦x, y⟧):
     to_binop x y g h · f = to_binop x z (g · f) (h · f).
   Proof.
-    use (squash_to_prop (QuotPrecategory_surj f)). apply to_has_homsets. intros f'.
-    use (squash_to_prop (QuotPrecategory_surj g)). apply to_has_homsets. intros g'.
-    use (squash_to_prop (QuotPrecategory_surj h)). apply to_has_homsets. intros h'.
+    use (squash_to_prop (QuotPrecategory_surj f)). use_exact to_has_homsets. intros f'.
+    use (squash_to_prop (QuotPrecategory_surj g)). use_exact to_has_homsets. intros g'.
+    use (squash_to_prop (QuotPrecategory_surj h)). use_exact to_has_homsets. intros h'.
     rewrite <- (hfiberpr2 _ _ f'). rewrite <- (hfiberpr2 _ _ g'). rewrite <- (hfiberpr2 _ _ h').
     exact (QuotPrecategory_postmor (hfiberpr1 _ _ f') (hfiberpr1 _ _ g') (hfiberpr1 _ _ h')).
   Qed.
@@ -921,7 +921,7 @@ Section preadditive_quotient.
         (f : QuotPrecategory_abgrops⟦y, z⟧) : (@to_unel QuotPrecategory_abgrops x y) · f =
                                               @to_unel QuotPrecategory_abgrops x z.
   Proof.
-    use (squash_to_prop (QuotPrecategory_surj f)). apply (@to_has_homsets QuotPrecategory_abgrops).
+    use (squash_to_prop (QuotPrecategory_surj f)). use_exact (@to_has_homsets QuotPrecategory_abgrops).
     intros f'. rewrite <- (hfiberpr2 _ _ f').
     exact (@quot_comp_unel_right x y z (hfiberpr1 _ _ f')).
   Qed.
@@ -994,7 +994,7 @@ Section preadditive_quotient.
       + exact (to_quot_mor (@ZeroArrowFrom PA Z a)).
       + cbn beta. intros t.
         set (t'1 := @issurjsetquotpr (to_abgrop Z a) (binopeqrel_subgr_eqrel (PAS Z a)) t).
-        use (squash_to_prop t'1). apply has_homsets_QuotPrecategory. intros t1. clear t'1.
+        use (squash_to_prop t'1). use_exact has_homsets_QuotPrecategory. intros t1. clear t'1.
         induction t1 as [t1 t2]. rewrite <- t2. unfold to_quot_mor. apply maponpaths.
         apply ArrowsFromZero.
     - intros a.
@@ -1002,7 +1002,7 @@ Section preadditive_quotient.
       + exact (to_quot_mor (@ZeroArrowTo PA Z a)).
       + cbn beta. intros t.
         set (t'1 := @issurjsetquotpr (to_abgrop a Z) (binopeqrel_subgr_eqrel (PAS a Z)) t).
-        use (squash_to_prop t'1). apply has_homsets_QuotPrecategory. intros t1. clear t'1.
+        use (squash_to_prop t'1). use_exact has_homsets_QuotPrecategory. intros t1. clear t'1.
         induction t1 as [t1 t2]. rewrite <- t2. unfold to_quot_mor. apply maponpaths.
         apply ArrowsToZero.
   Qed.

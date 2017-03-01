@@ -42,11 +42,11 @@ End Pack.
 Lemma isaset_ActionStructure (G:gr) (X:hSet) : isaset (ActionStructure G X).
 Proof. intros. apply (isofhlevelweqf 2 (Pack.weq G X)).
        apply isofhleveltotal2.
-       { apply impred; intro g. apply impred; intro x. apply setproperty. }
+       { apply impred; intro g. apply impred; intro x. exact (setproperty _). }
        intro op. apply isofhleveltotal2.
-       { apply impred; intro x. apply hlevelntosn. apply setproperty. }
+       { apply impred; intro x. apply hlevelntosn. exact (setproperty _ _ _). }
        intro un. apply impred; intro g. apply impred; intro h. apply impred; intro x.
-       apply hlevelntosn. apply setproperty. Qed.
+       apply hlevelntosn. exact (setproperty _ _ _). Qed.
 
 Definition Action (G:gr) := total2 (ActionStructure G).
 Definition makeAction {G:gr} (X:hSet) (ac:ActionStructure G X) :=
@@ -71,7 +71,7 @@ Definition is_equivariant {G:gr} {X Y:Action G} (f:X->Y) :=
 Definition is_equivariant_isaprop {G:gr} {X Y:Action G} (f:X->Y) :
   isaprop (is_equivariant f).
 Proof. intros. apply impred; intro g. apply impred; intro x.
-       apply setproperty. Defined.
+       exact (setproperty _ _ _). Defined.
 
 (** The following fact is fundamental: it shows that our definition of
     [is_equivariant] captures all of the structure.  The proof reduces to
@@ -96,10 +96,10 @@ Proof. intros ? [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
          { apply funextsec; intro g. apply funextsec; intro x; simpl in x.
            exact (i g x). }
          destruct p. clear i. assert (p:Xu=Yu).
-         { apply funextsec; intro x; simpl in x. apply setproperty. }
+         { apply funextsec; intro x; simpl in x. apply set_uip. }
          destruct p. assert (p:Xa=Ya).
          { apply funextsec; intro g. apply funextsec; intro h.
-           apply funextsec; intro x. apply setproperty. }
+           apply funextsec; intro x. apply set_uip. }
          destruct p. reflexivity. }
        { intro p. apply isaset_ActionStructure. }
        { intro is. apply is_equivariant_isaprop. } Defined.
@@ -171,7 +171,7 @@ Defined.
 Definition Action_univalence_prelim_comp {G:gr} {X Y:Action G} (p:X = Y) :
    Action_univalence_prelim p = path_to_ActionIso p.
 Proof. intros. destruct p. apply (maponpaths (tpair _ _)). apply funextsec; intro g.
-       apply funextsec; intro x. apply setproperty. Defined.
+       apply funextsec; intro x. apply set_uip. Defined.
 
 Lemma path_to_ActionIso_isweq {G:gr} {X Y:Action G}  :
    isweq (@path_to_ActionIso G X Y).

@@ -244,7 +244,7 @@ simple refine (tpair _ _ _).
     apply pathsinv0, limArrowCommutes.
 - intros p; destruct p as [f Hf].
   apply subtypeEquality.
-  + intro a; apply impred; intro u; apply hsC.
+  + intro a; apply impred; intro u; use_exact hsC.
   + simpl; apply  z_iso_inv_on_left; simpl.
     apply pathsinv0, limArrowUnique; intro u.
     cbn in *.
@@ -349,7 +349,7 @@ apply subtypeEquality.
   set (C' (c : C) f := ∏ u v (e : edge u v), @compose _ c _ _ (f u) (dmor cc e) = f v).
   rewrite (@transportf_total2 _ B C').
   apply subtypeEquality.
-  + intro; repeat (apply impred; intro); apply category_has_homsets.
+  + intro; repeat (apply impred; intro); use_exact category_has_homsets.
   + abstract (now simpl; eapply pathscomp0; [apply transportf_isotoid_dep'|];
               apply funextsec; intro v; rewrite inv_isotoid, idtoiso_isotoid;
               cbn; unfold precomp_with; rewrite id_right; apply limArrowCommutes).
@@ -429,7 +429,7 @@ mkpair.
               now apply (limArrowCommutes (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
             apply subtypeEquality; simpl;
-              [ intro; apply impred; intro u; apply functor_category_has_homsets
+              [ intro; apply impred; intro u; use_exact functor_category_has_homsets
               | apply (nat_trans_eq hsC); simpl; intro a;
                 apply limArrowUnique; intro u;
                 now apply (nat_trans_eq_pointwise (t2 u))]).
@@ -502,15 +502,15 @@ apply (@iscontrweqb _ (∑ y : C ⟦ G M, L ⟧,
 - eapply (weqcomp (Y := ∑ y : C ⟦ G M, L ⟧,
     ∏ i, φ_adj H y · # F (coneOut ccL i) = coneOut ccM i)).
   + apply invweq, (weqbandf (adjunction_hom_weq H M L)); simpl; intro f.
-    abstract (now apply weqiff; try (apply impred; intro; apply hsD)).
+    abstract (now apply weqiff; try (apply impred; intro; use_exact hsD)).
   + eapply (weqcomp (Y := ∑ y : C ⟦ G M, L ⟧,
       ∏ i, φ_adj H (y · coneOut ccL i) = coneOut ccM i)).
     * apply weqfibtototal; simpl; intro f.
-      abstract (apply weqiff; try (apply impred; intro; apply hsD); split; intros HH i;
+      abstract (apply weqiff; try (apply impred; intro; use_exact hsD); split; intros HH i;
                [ now rewrite φ_adj_natural_postcomp; apply HH
                | now rewrite <- φ_adj_natural_postcomp; apply HH ]).
     * apply weqfibtototal; simpl; intro f.
-      abstract (apply weqiff; [ | apply impred; intro; apply hsD | apply impred; intro; apply hsC ];
+      abstract (apply weqiff; [ | apply impred; intro; use_exact hsD | apply impred; intro; use_exact hsC ];
       split; intros HH i;
         [ now rewrite <- (HH i), φ_adj_inv_after_φ_adj
         | now rewrite (HH i),  φ_adj_after_φ_adj_inv ]).
@@ -842,7 +842,7 @@ simple refine (tpair _ _ _).
     apply pathsinv0, limArrowCommutes.
 - intros p; destruct p as [f Hf].
   apply subtypeEquality.
-  + intro a; apply impred; intro u; apply hsC.
+  + intro a; apply impred; intro u; use_exact hsC.
   + simpl; apply  z_iso_inv_on_left; simpl.
     apply pathsinv0, limArrowUnique; intro u.
     cbn in *.
@@ -917,7 +917,7 @@ use (mk_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x)).
         destruct ccF as [t p]; apply (toforallpaths _ _ _ (maponpaths pr1 (Hα u)) a)).
   + intro H; destruct H as [f Hf]; apply subtypeEquality.
     * abstract (intro β; repeat (apply impred; intro);
-        now apply (has_homsets_opp (functor_category_has_homsets A C hsC))).
+        now use_exact (has_homsets_opp (functor_category_has_homsets A C hsC))).
     * match goal with |[ H2 : ∏ _ : ?TT ,  _ = _ ,,_   |- _ ] =>
                        transparent assert (T : TT) end.
       (*

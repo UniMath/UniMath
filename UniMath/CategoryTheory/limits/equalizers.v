@@ -50,7 +50,7 @@ Section def_equalizers.
     use unique_exists.
     - exact (pr1 (pr1 (iC w0 h H'0))).
     - exact (pr2 (pr1 (iC w0 h H'0))).
-    - intros y0. apply hs.
+    - intros y0. use_exact hs.
     - intros y0 X. exact (base_paths _ _ (pr2 (iC w0 h H'0) (tpair _ y0 X))).
   Defined.
 

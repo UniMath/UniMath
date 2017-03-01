@@ -176,7 +176,7 @@ Proof.
   apply proofirrelevance.
 
   repeat (apply impred; intro).
-  apply (pr2 Ccat).
+  use_exact (pr2 Ccat).
 Qed.
 
 
@@ -387,7 +387,7 @@ Proof.
   apply (total2_paths_f Hpr).
   apply proofirrelevance.
   repeat (apply impred; intro).
-  apply (pr2 Ccat).
+  use_exact (pr2 Ccat).
 Qed.
 
 (** The type [Y b b' f] is contractible. *)
@@ -452,7 +452,7 @@ Proof.
 
   assert (HHHH : isaprop (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
                         pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f')))).
-    apply (pr2 Ccat).
+    use_exact (pr2 Ccat).
   apply (p b (tpair (fun x => isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
            pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
   intros [a0 h0]; simpl.

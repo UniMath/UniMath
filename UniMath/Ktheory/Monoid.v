@@ -122,7 +122,7 @@ Module Presentation'.
   (*   intros. *)
   (*   intros u' v' w'. *)
   (*   isaprop_goal ig. *)
-  (*   { apply setproperty. } *)
+  (*   { exact (setproperty _). } *)
   (*   apply (squash_to_prop ((issurjsetquotpr (smallestAdequateRelation R)) u') ig). *)
   (*   intros [u i]. destruct i. *)
   (*   apply (squash_to_prop ((issurjsetquotpr (smallestAdequateRelation R)) v') ig). *)
@@ -147,7 +147,7 @@ Module Presentation'.
   (*   { (* isassoc *) *)
   (*     intros u' v' w'. *)
   (*     isaprop_goal ig. *)
-  (*     { apply setproperty. } *)
+  (*     { exact (setproperty _). } *)
   (*     apply (squash_to_prop ((issurjsetquotpr (smallestAdequateRelation R)) u') ig). *)
   (*     intros [u i]. destruct i. *)
   (*     apply (squash_to_prop ((issurjsetquotpr (smallestAdequateRelation R)) v') ig). *)
@@ -162,7 +162,7 @@ Module Presentation'.
   (*     { (* islunit *) *)
   (*       intros w'. *)
   (*       isaprop_goal ig. *)
-  (*       { apply setproperty. } *)
+  (*       { exact (setproperty _). } *)
   (*       apply (squash_to_prop ((issurjsetquotpr (smallestAdequateRelation R)) w') ig). *)
   (*       intros [w k]. induction k. *)
   (*       apply (iscompsetquotpr); intros r ad; simpl. *)
@@ -170,7 +170,7 @@ Module Presentation'.
   (*     { (* isrunit *) *)
   (*       intros w'. *)
   (*       isaprop_goal ig. *)
-  (*       { apply setproperty. } *)
+  (*       { exact (setproperty _). } *)
   (*       apply (squash_to_prop ((issurjsetquotpr (smallestAdequateRelation R)) w') ig). *)
   (*       intros [w k]. induction k. *)
   (*       apply (iscompsetquotpr); intros r ad; simpl. *)
@@ -306,19 +306,19 @@ Module Presentation.
   Proof. intros. exact (issurjsetquotpr (smallestAdequateRelation R)). Qed.
   Lemma is_left_unit_univ_binop {X I} (R:I->reln X) (w:universalMarkedPreMonoid0 R) :
     ((univ_binop _) (setquotpr _ word_unit) w) = w.
-  Proof. intros ? ? ? w'. isaprop_goal ig. { apply setproperty. }
+  Proof. intros ? ? ? w'. isaprop_goal ig. { use_exact setproperty. }
     apply (squash_to_prop (lift R w') ig); intros [w []].
     exact (iscompsetquotpr (smallestAdequateRelation R) _ _
                            (fun r ra => left_unit R r ra w)). Qed.
   Lemma is_right_unit_univ_binop {X I} (R:I->reln X) (w:universalMarkedPreMonoid0 R) :
     ((univ_binop _) w (setquotpr _ word_unit)) = w.
-  Proof. intros ? ? ? w'. isaprop_goal ig. { apply setproperty. }
+  Proof. intros ? ? ? w'. isaprop_goal ig. { use_exact setproperty. }
     apply (squash_to_prop (lift R w') ig); intros [w []].
     exact (iscompsetquotpr (smallestAdequateRelation R) _ _
                            (fun r ra => right_unit R r ra w)). Qed.
   Lemma isassoc_univ_binop {X I} (R:I->reln X) : isassoc(univ_binop R).
   Proof. intros. set (e := smallestAdequateRelation R). intros u' v' w'.
-         isaprop_goal ig. { apply setproperty. }
+         isaprop_goal ig. { use_exact setproperty. }
          apply (squash_to_prop (lift R u') ig); intros [u i]; destruct i.
          apply (squash_to_prop (lift R v') ig); intros [v j]; destruct j.
          apply (squash_to_prop (lift R w') ig); intros [w []].
@@ -378,7 +378,7 @@ Module Presentation.
         (f g:MarkedMonoidMap M N) : map_base f = map_base g -> f = g.
   Proof. intros ? ? ? ? ? ? ? j.
          destruct f as [f ft], g as [g gt]; simpl in j. destruct j.
-         assert(k : ft = gt). { apply funextsec; intro x. apply setproperty. } destruct k.
+         assert(k : ft = gt). { apply funextsec; intro x. apply set_uip. } destruct k.
          reflexivity. Qed.
   Fixpoint MarkedMonoidMap_compat {X I} {R:I->reln X}
            {M N:MarkedMonoid R} (f:MarkedMonoidMap M N) (w:word X) :
@@ -455,7 +455,7 @@ Defined.
     intros ? ? ? ? ? ? p. apply funEquality.
     apply funextsec; intro t; simpl in t.
     apply (surjectionisepitosets _ _ _ (issurjsetquotpr _)).
-    { apply setproperty. } { apply agreement_on_gens0. assumption. } Qed.
+    { use_exact setproperty. } { apply agreement_on_gens0. assumption. } Qed.
   Definition universality0 {X I} {R:I->reln X} (M:MarkedMonoid R) :
     universalMarkedMonoid0 R -> M.
   Proof. intros ? ? ? ?.
@@ -465,7 +465,7 @@ Defined.
   Definition universality1 {X I} (R:I->reln X)
                            (M:MarkedMonoid R) (v w:universalMarkedMonoid0 R) :
     universality0 M (v * w) = universality0 M v * universality0 M w.
-  Proof. intros. isaprop_goal ig. { apply setproperty. }
+  Proof. intros. isaprop_goal ig. { use_exact setproperty. }
     apply (squash_to_prop (lift R v) ig); intros [v' j]; destruct j.
     apply (squash_to_prop (lift R w) ig); intros [w' []].
     reflexivity. Qed.
@@ -485,7 +485,7 @@ Defined.
                            (universality2 M) (fun x => idpath _)).
     exists g. intros f. apply MarkedMonoidMapEquality.
     apply funEquality. apply funextsec; intro v.
-    isaprop_goal ig. { apply setproperty. }
+    isaprop_goal ig. { use_exact setproperty. }
     apply (squash_to_prop (lift R v) ig); intros [w []].
     exact ((ap f (universalMarkedMonoid2 R w))
          @ MarkedMonoidMap_compat2 f g w @ !(ap g (universalMarkedMonoid2 R w))).
