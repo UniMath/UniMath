@@ -13,7 +13,8 @@ Require Import UniMath.Ktheory.AffineLine
                UniMath.Ktheory.Nat
                UniMath.Ktheory.Integers
                UniMath.Ktheory.MoreEquivalences.
-Require Import UniMath.Ktheory.Utilities.
+Require Import UniMath.Preliminaries.Utilities.
+Unset Automatic Introduction.
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
 Open Scope action_scope.

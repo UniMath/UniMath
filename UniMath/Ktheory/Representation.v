@@ -5,7 +5,7 @@ Require Import
         UniMath.CategoryTheory.functor_categories
         UniMath.CategoryTheory.category_hset.
 Require Import
-        UniMath.Ktheory.Tactics
+        UniMath.Preliminaries.Utilities
         UniMath.Ktheory.Precategories
         UniMath.Ktheory.Bifunctor.
 Set Automatic Introduction.

@@ -2,7 +2,8 @@
 
 Require Import UniMath.Algebra.Monoids_and_Groups
 	       UniMath.CategoryTheory.total2_paths
-               UniMath.Ktheory.Utilities.
+               UniMath.Preliminaries.Utilities.
+Unset Automatic Introduction.
 Require UniMath.Ktheory.Monoid.
 Local Notation Hom := monoidfun.
 Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, left associativity, only parsing).

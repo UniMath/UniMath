@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Export UniMath.Ktheory.Utilities.
+Require Export UniMath.Preliminaries.Utilities.
 Require Export UniMath.CategoryTheory.precategories. (* export its coercions, especially *)
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
@@ -501,7 +501,7 @@ Proof.
 Defined.
 
 Lemma identityFunction : ∏ (T:SET) (f:T-->T) (t:T:hSet), f = identity T -> f t = t.
-Proof. intros ? ? ? e. exact (eqtohomot e t). Defined.
+Proof. intros T f t e. exact (eqtohomot e t). Defined.
 
 Lemma identityFunction' : ∏ (T:SET) (t:T:hSet), identity T t = t.
 Proof. reflexivity. Defined.
@@ -562,5 +562,3 @@ Proof.
   - reflexivity.
   - unshelve refine (total2_paths_f _ _); reflexivity.
 Defined.
-
-      (*  *)

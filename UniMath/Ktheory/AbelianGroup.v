@@ -4,12 +4,12 @@
 
 Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.NumberSystems.Integers
-               UniMath.Ktheory.Tactics
-               UniMath.Ktheory.Utilities
+               UniMath.Preliminaries.Utilities
                UniMath.CategoryTheory.functor_categories
                UniMath.Ktheory.Representation
                UniMath.Ktheory.Precategories.
 Require UniMath.Ktheory.Group.
+Unset Automatic Introduction.
 
 Local Open Scope cat.
 

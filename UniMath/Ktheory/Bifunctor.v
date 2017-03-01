@@ -1,7 +1,7 @@
 Require Import
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
-        UniMath.Ktheory.Utilities
+        UniMath.Preliminaries.Utilities
         UniMath.Ktheory.Precategories.
 
 Require Export UniMath.CategoryTheory.precategories.
