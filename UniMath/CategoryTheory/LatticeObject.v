@@ -120,12 +120,12 @@ Definition join_mor {L : C} (isL : latticeob L) : C⟦L ⊗ L,L⟧ := pr1 (pr2 i
 
 Context {TC : Terminal C}.
 
-Definition ι_1 {x : C} : C⟦x,TC ⊗ x⟧ :=
+Let ι {x : C} : C⟦x,TC ⊗ x⟧ :=
   BinProductArrow _ _ (TerminalArrow _) (identity x).
 
 (** Given u : C⟦TC,L⟧ the equation witnessing the left unit law is given by the diagram:
 <<
-         ι_1
+          ι
      L ------> 1 ⊗ L
      |           |
    1 |           | u×1
@@ -136,37 +136,32 @@ Definition ι_1 {x : C} : C⟦x,TC ⊗ x⟧ :=
 
  *)
 
-Definition islunit_cat {L} (f : C⟦L ⊗ L,L⟧) (u : C⟦TC,L⟧) : UU := ι_1 · (u ×× 1) · f = 1.
+Definition islunit_cat {L} (f : C⟦L ⊗ L,L⟧) (u : C⟦TC,L⟧) : UU :=
+  ι · (u ×× 1) · f = 1.
 
+Definition bounded_latticeop_cat {L} (l : latticeob L) (bot top : C⟦TC,L⟧) :=
+  (islunit_cat (join_mor l) bot) × (islunit_cat (meet_mor l) top).
 
-Definition bounded_latticeop {X : hSet} (l : lattice X) (bot top : X) :=
-  (islunit (Lmax l) bot) × (islunit (Lmin l) top).
+Definition bounded_latticeob (L : C) : UU :=
+  ∑ (l : latticeob L) (bot top : C⟦TC,L⟧), bounded_latticeop_cat l bot top.
 
-Definition bounded_lattice (X : hSet) :=
-  ∑ (l : lattice X) (bot top : X), bounded_latticeop l bot top.
+Definition mkbounded_latticeob {L} {l : latticeob L} {bot top : C⟦TC,L⟧} :
+  bounded_latticeop_cat l bot top → bounded_latticeob L := λ bl, l,, bot,, top,, bl.
 
-Definition mkbounded_lattice {X : hSet} {l : lattice X} {bot top : X} :
-  bounded_latticeop l bot top → bounded_lattice X := λ bl, l,, bot,, top,, bl.
+Definition bounded_latticeob_to_latticeob X : bounded_latticeob X → latticeob X := pr1.
+Coercion bounded_latticeob_to_latticeob : bounded_latticeob >-> latticeob.
 
-Definition bounded_lattice_to_lattice X : bounded_lattice X → lattice X := pr1.
-Coercion bounded_lattice_to_lattice : bounded_lattice >-> lattice.
-
-Definition Lbot {X : hSet} (is : bounded_lattice X) : X := pr1 (pr2 is).
-Definition Ltop {X : hSet} (is : bounded_lattice X) : X := pr1 (pr2 (pr2 is)).
-
-
+Definition bot_mor {L} (isL : bounded_latticeob L) : C⟦TC,L⟧ := pr1 (pr2 isL).
+Definition top_mor {L} (isL : bounded_latticeob L) : C⟦TC,L⟧ := pr1 (pr2 (pr2 isL)).
 
 End LatticeObject_def.
 
 Arguments latticeob {_} _ _.
+Arguments bounded_latticeob {_} _ _ _.
 
-Section LatticeObject_theory.
+Section LatticeObject_accessors.
 
 Context {C : precategory} (BPC : BinProducts C) {L : C} (isL : latticeob BPC L).
-
-Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
-Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 80) : cat.
-Local Notation "1" := (identity _) : cat.
 
 Definition isassoc_meet_mor : isassoc_cat (meet_mor isL) :=
   pr1 (pr1 (pr2 (pr2 isL))).
@@ -181,20 +176,33 @@ Definition meet_mor_absorb_join_mor : isabsorb_cat (meet_mor isL) (join_mor isL)
 Definition join_mor_absorb_meet_mor : isabsorb_cat (join_mor isL) (meet_mor isL) :=
   pr2 (pr2 (pr2 (pr2 (pr2 isL)))).
 
-End LatticeObject_theory.
+End LatticeObject_accessors.
+
+Section BoundedLatticeObject_accessors.
+
+Context {C : precategory} (BPC : BinProducts C) (TC : Terminal C).
+Context {L : C} (l : bounded_latticeob BPC TC L).
+
+Definition islunit_join_mor_bot_mor : islunit_cat (join_mor l) (bot_mor l) :=
+  pr1 (pr2 (pr2 (pr2 l))).
+
+Definition islunit_meet_mor_top_mor : islunit_cat (meet_mor l) (top_mor l) :=
+  pr2 (pr2 (pr2 (pr2 l))).
+
+End BoundedLatticeObject_accessors.
 
 Section SublatticeObject.
 
-Context {C : precategory} (BPC : BinProducts C) (M L : C) (i : C⟦M,L⟧) (Hi : isMonic i)
-        (isL : latticeob BPC L).
+Context {C : precategory} (BPC : BinProducts C) {M L : C}.
+Context {i : C⟦M,L⟧} (Hi : isMonic i) (l : latticeob BPC L).
 
 Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
 Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 90) : cat.
 
 (* Is this the correct way of expressing this or is too strong? *)
 (* I think this asserts that i is a lattice morphism internally *)
-Variables (meet_mor_M : C⟦M ⊗ M,M⟧) (Hmeet : meet_mor_M · i = (i ×× i) · meet_mor isL).
-Variables (join_mor_M : C⟦M ⊗ M,M⟧) (Hjoin : join_mor_M · i = (i ×× i) · join_mor isL).
+Context {meet_mor_M : C⟦M ⊗ M,M⟧} (Hmeet : meet_mor_M · i = (i ×× i) · meet_mor l).
+Context {join_mor_M : C⟦M ⊗ M,M⟧} (Hjoin : join_mor_M · i = (i ×× i) · join_mor l).
 
 Local Lemma identity_comm : identity M · i = i · identity L.
 Proof.
@@ -271,18 +279,61 @@ rewrite assoc, binprod_assoc_comm, <-assoc; apply maponpaths.
 now rewrite identity_comm, BinProductOfArrows_comp.
 Qed.
 
-Definition sublatticeob : latticeob BPC M.
+Definition sub_latticeob : latticeob BPC M.
 Proof.
 use mklatticeob.
 - apply meet_mor_M.
 - apply join_mor_M.
 - repeat split.
-  + now apply (isassoc_cat_comm Hmeet), (isassoc_meet_mor _ isL).
-  + now apply (iscomm_cat_comm Hmeet), (iscomm_meet_mor _ isL).
-  + now apply (isassoc_cat_comm Hjoin), (isassoc_join_mor _ isL).
-  + now apply (iscomm_cat_comm Hjoin), (iscomm_join_mor _ isL).
-  + now apply (isabsorb_cat_comm Hmeet Hjoin), (meet_mor_absorb_join_mor _ isL).
-  + now apply (isabsorb_cat_comm Hjoin Hmeet), (join_mor_absorb_meet_mor _ isL).
-Qed.
+  + now apply (isassoc_cat_comm Hmeet), (isassoc_meet_mor _ l).
+  + now apply (iscomm_cat_comm Hmeet), (iscomm_meet_mor _ l).
+  + now apply (isassoc_cat_comm Hjoin), (isassoc_join_mor _ l).
+  + now apply (iscomm_cat_comm Hjoin), (iscomm_join_mor _ l).
+  + now apply (isabsorb_cat_comm Hmeet Hjoin), (meet_mor_absorb_join_mor _ l).
+  + now apply (isabsorb_cat_comm Hjoin Hmeet), (join_mor_absorb_meet_mor _ l).
+Defined.
 
 End SublatticeObject.
+
+Section SubboundedlatticeObject.
+
+Context {C : precategory} (BPC : BinProducts C) (TC : Terminal C).
+Context {M L : C} {i : C⟦M,L⟧} (Hi : isMonic i) (l : bounded_latticeob BPC TC L).
+
+Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
+Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 90) : cat.
+
+Context {meet_mor_M : C⟦M ⊗ M,M⟧} (Hmeet : meet_mor_M · i = (i ×× i) · meet_mor l).
+Context {join_mor_M : C⟦M ⊗ M,M⟧} (Hjoin : join_mor_M · i = (i ×× i) · join_mor l).
+Context {bot_mor_M : C⟦TC,M⟧} (Hbot : bot_mor_M · i = bot_mor l).
+Context {top_mor_M : C⟦TC,M⟧} (Htop : top_mor_M · i = top_mor l).
+
+Lemma islunit_cat_comm
+  {fM : C⟦M ⊗ M,M⟧} {fL : C⟦L ⊗ L,L⟧} (Hf : fM · i = (i ×× i) · fL)
+  {gM : C ⟦TC,M⟧} {gL : C⟦TC,L⟧} (Hg : gM · i = gL) :
+  islunit_cat fL gL → islunit_cat fM gM.
+Proof.
+unfold islunit_cat; intros H; apply Hi.
+rewrite <-!assoc.
+etrans; [ do 2 apply maponpaths; apply Hf |].
+rewrite identity_comm, <-H, postcompWithBinProductArrow, !assoc.
+apply cancel_postcomposition.
+rewrite !postcompWithBinProductArrow, <-assoc, Hg, !id_left.
+apply pathsinv0, BinProductArrowUnique.
+- rewrite <- assoc, BinProductPr1Commutes, assoc.
+  now apply cancel_postcomposition, TerminalArrowUnique.
+- now rewrite <- assoc, BinProductPr2Commutes, id_right.
+Qed.
+
+Definition sub_bounded_latticeob : bounded_latticeob BPC TC M.
+Proof.
+use mkbounded_latticeob.
+- exact (sub_latticeob BPC Hi l Hmeet Hjoin).
+- exact bot_mor_M.
+- exact top_mor_M.
+- split.
+  + now apply (islunit_cat_comm Hjoin Hbot), (islunit_join_mor_bot_mor BPC TC l).
+  + now apply (islunit_cat_comm Hmeet Htop), (islunit_meet_mor_top_mor BPC TC l).
+Defined.
+
+End SubboundedlatticeObject.
