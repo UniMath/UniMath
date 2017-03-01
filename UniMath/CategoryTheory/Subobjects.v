@@ -61,14 +61,14 @@ Section def_subobjects.
 End def_subobjects.
 
 (** * Equivalence relation identifying isomorphic objects *)
-Section iso_rel.
+Section are_isomorphic.
 
 Context (C : precategory).
 
 (** a and b are related if there merely exists an iso between them *)
-Definition iso_rel : hrel C := λ a b, ∥iso a b∥.
+Definition are_isomorphic : hrel C := λ a b, ∥iso a b∥.
 
-Lemma iseqrel_iso_rel : iseqrel iso_rel.
+Lemma iseqrel_are_isomorphic : iseqrel are_isomorphic.
 Proof.
 repeat split.
 - intros x y z h1.
@@ -78,9 +78,9 @@ repeat split.
 - now intros x y; apply hinhuniv; intro h1; apply hinhpr, iso_inv_from_iso.
 Qed.
 
-Definition iso_eqrel : eqrel C := (iso_rel,,iseqrel_iso_rel).
+Definition iso_eqrel : eqrel C := (are_isomorphic,,iseqrel_are_isomorphic).
 
-End iso_rel.
+End are_isomorphic.
 
 (** * Definition of subobjects as equivalence classes of monos *)
 Section subobj.
@@ -117,8 +117,8 @@ Proof.
 exact (istrans_monorel c,,isrefl_monorel c).
 Qed.
 
-Lemma iso_monorel {c : C} {x1 y1 x2 y2 : SubobjectsPrecategory hsC c}
-  (h1 : iso_rel _ x1 y1) (h2 : iso_rel _ x2 y2) :
+Lemma are_isomorphic_monorel {c : C} {x1 y1 x2 y2 : SubobjectsPrecategory hsC c}
+  (h1 : are_isomorphic _ x1 y1) (h2 : are_isomorphic _ x2 y2) :
   monorel c x1 x2 → monorel c y1 y2.
 Proof.
 apply hinhuniv; intros f.
@@ -144,9 +144,9 @@ use quotrel.
 - apply monorel.
 - intros x1 y1 x2 y2 h1 h2.
   apply hPropUnivalence.
-  + apply (iso_monorel h1 h2).
-  + apply (iso_monorel (eqrelsymm (iso_eqrel _) _ _ h1)
-                       (eqrelsymm (iso_eqrel _) _ _ h2)).
+  + apply (are_isomorphic_monorel h1 h2).
+  + apply (are_isomorphic_monorel (eqrelsymm (iso_eqrel _) _ _ h1)
+                                  (eqrelsymm (iso_eqrel _) _ _ h2)).
 Defined.
 
 Lemma istrans_SubObj_rel (c : C) : istrans (SubObj_rel c).
