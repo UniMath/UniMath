@@ -20,6 +20,7 @@ Require Import UniMath.Algebra.Lattice.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.terminal.
 
 Local Open Scope cat.
 
@@ -114,6 +115,46 @@ Definition mklatticeob {L : C} {meet_mor join_mor : C⟦L ⊗ L,L⟧} :
 
 Definition meet_mor {L : C} (isL : latticeob L) : C⟦L ⊗ L,L⟧ := pr1 isL.
 Definition join_mor {L : C} (isL : latticeob L) : C⟦L ⊗ L,L⟧ := pr1 (pr2 isL).
+
+(** Bounded lattice objects *)
+
+Context {TC : Terminal C}.
+
+Definition ι_1 {x : C} : C⟦x,TC ⊗ x⟧ :=
+  BinProductArrow _ _ (TerminalArrow _) (identity x).
+
+(** Given u : C⟦TC,L⟧ the equation witnessing the left unit law is given by the diagram:
+<<
+         ι_1
+     L ------> 1 ⊗ L
+     |           |
+   1 |           | u×1
+     V           V
+     L <------ L ⊗ L
+          f
+>>
+
+ *)
+
+Definition islunit_cat {L} (f : C⟦L ⊗ L,L⟧) (u : C⟦TC,L⟧) : UU := ι_1 · (u ×× 1) · f = 1.
+
+
+Definition bounded_latticeop {X : hSet} (l : lattice X) (bot top : X) :=
+  (islunit (Lmax l) bot) × (islunit (Lmin l) top).
+
+Definition bounded_lattice (X : hSet) :=
+  ∑ (l : lattice X) (bot top : X), bounded_latticeop l bot top.
+
+Definition mkbounded_lattice {X : hSet} {l : lattice X} {bot top : X} :
+  bounded_latticeop l bot top → bounded_lattice X := λ bl, l,, bot,, top,, bl.
+
+Definition bounded_lattice_to_lattice X : bounded_lattice X → lattice X := pr1.
+Coercion bounded_lattice_to_lattice : bounded_lattice >-> lattice.
+
+Definition Lbot {X : hSet} (is : bounded_lattice X) : X := pr1 (pr2 is).
+Definition Ltop {X : hSet} (is : bounded_lattice X) : X := pr1 (pr2 (pr2 is)).
+
+
 
 End LatticeObject_def.
 
