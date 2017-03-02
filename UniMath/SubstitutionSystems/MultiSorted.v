@@ -22,7 +22,6 @@ Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -53,6 +52,8 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
+
+Local Open Scope cat.
 
 Local Notation "[ C , D ]" := (functor_Precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -86,6 +87,10 @@ Definition MultiSortedSig : UU :=
 Definition ops (M : MultiSortedSig) : hSet := pr1 M.
 Definition arity (M : MultiSortedSig) : ops M → list (list sort × sort) × sort :=
   λ x, pr2 M x.
+
+Definition mkMultiSortedSig {I : hSet}
+  (ar : I → list (list sort × sort) × sort) : MultiSortedSig := (I,,ar).
+
 
 (** * Construction of an endofunctor on [SET/sort,SET/sort] from a multisorted signature *)
 Section functor.
