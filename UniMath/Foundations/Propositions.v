@@ -122,6 +122,15 @@ Proof.
   - intro x. apply propproperty.
 Defined.
 
+Definition total2_hProp {X : hProp} (Y : X -> hProp) : hProp
+  := hProppair (∑ x, Y x) (isaprop_total2 X Y).
+
+Delimit Scope prop with prop.
+
+Notation "'∑' x .. y , P" := (total2_hProp (fun x =>.. (total2_hProp (fun y => P))..))
+  (at level 200, x binder, y binder, right associativity) : prop.
+  (* type this in emacs in agda-input method with \sum *)
+
 Lemma isaprop_forall_hProp (X : UU) (Y : X -> hProp) : isaprop (∏ x, Y x).
 Proof. intros. apply impred_isaprop. intro x. apply propproperty. Defined.
 
