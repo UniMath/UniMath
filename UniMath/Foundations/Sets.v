@@ -538,6 +538,63 @@ Definition isPartialOrder {X : UU} (R : hrel X) : UU
 Ltac unwrap_isPartialOrder i :=
   induction i as [transrefl antisymm]; induction transrefl as [trans refl].
 
+Definition isTotalOrder {X : UU} (R : hrel X) : UU
+  := isPartialOrder R × istotal R.
+
+Definition mincondition {X : UU} (R : hrel X) : UU
+  := ∏ S : hsubtype X, (∃ s, S s) -> ∑ s:X, S s × ∏ t:X, S t -> R s t.
+
+Lemma iswellordering_istotal {X : UU} (R : hrel X) : mincondition R -> istotal R.
+Proof.
+  intros ? ? iswell x y.
+  (* make the doubleton subset containing x and y *)
+  set (S := λ z, ∥ (z=x) ⨿ (z=y) ∥).
+  assert (x' := hinhpr (ii1 (idpath _)) : S x).
+  assert (y' := hinhpr (ii2 (idpath _)) : S y).
+  assert (h : ∃ s, S s).
+  { apply hinhpr. exists x. exact x'. }
+  assert (q := iswell S h); clear h iswell.
+  induction q as [s min], min as [h issmallest].
+  apply (squash_to_prop h).
+  { apply propproperty. }
+  clear h. intro d. apply hinhpr. induction d as [d|d].
+  - induction (!d); clear d. now apply ii1, issmallest.
+  - induction (!d); clear d. now apply ii2, issmallest.
+Defined.
+
+Lemma isaprop_assume_it_is {X : UU} : (X -> isaprop X) -> isaprop X.
+(* upstream near iscontraprop1inv *)
+Proof.
+  intros X f. apply invproofirrelevance; intros x y.
+  apply proofirrelevance. now apply f.
+Defined.
+
+Lemma isaprop_mincondition {X : hSet} (R : hrel X) : isantisymm R -> isaprop (mincondition R).
+Proof.
+  intros ? ? antisymm.
+  apply isaprop_assume_it_is; intro min.
+  assert (istot := iswellordering_istotal R min).
+  apply impred. intro S. apply impred. intros _.
+  apply invproofirrelevance. intros s t.
+  apply subtypeEquality.
+  * intros x. apply isapropdirprod.
+    + apply propproperty.
+    + apply impred; intro y. apply impred; intros _. apply propproperty.
+  * induction s as [x i], t as [y j], i as [I i], j as [J j]; simpl.
+    apply (squash_to_prop (istot x y)).
+    { apply setproperty. }
+    intro c. induction c as [c|c].
+    - apply antisymm.
+      + exact c.
+      + now apply j.
+    - apply antisymm.
+      + now apply i.
+      + exact c.
+Defined.
+
+Definition isWellOrder {X : UU} (R : hrel X) : UU
+  := isTotalOrder R × isdeceq X × mincondition R.
+
 Definition isantisymmneg {X : UU} (R : hrel X) : UU
   := ∏ (x1 x2 : X), ¬ R x1 x2 -> ¬ R x2 x1 -> x1 = x2.
 
@@ -594,6 +651,27 @@ Proof.
   apply isapropdirprod.
   { apply isaprop_ispreorder. }
   { apply isaprop_isantisymm. }
+Defined.
+
+Lemma isaprop_isTotalOrder {X : hSet} (R : hrel X) : isaprop (isTotalOrder R).
+Proof.
+  intros. apply isapropdirprod.
+  - apply isaprop_isPartialOrder.
+  - apply isaprop_istotal.
+Defined.
+
+Lemma isaprop_isWellOrder {X : hSet} (R : hrel X) : isaprop (isWellOrder R).
+Proof.
+  intros.
+  apply isaprop_assume_it_is; intro iswell.
+  induction iswell as [istot i]. induction i as [isdec hasmin].
+  induction istot as [ispo istot].
+  unwrap_isPartialOrder ispo.
+  apply isapropdirprod.
+  { apply isaprop_isTotalOrder. }
+  apply isapropdirprod.
+  { apply isapropisdeceq. }
+  now apply isaprop_mincondition.
 Defined.
 
 (** the relations on a set form a set *)
