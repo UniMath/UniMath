@@ -28,6 +28,32 @@ Defined.
 
 Coercion WellOrderedSet_to_OrderedSet : WellOrderedSet >-> OrderedSet.
 
+Definition SubsetWithWellOrdering (X:hSet) :=
+  ∑ (S:hsubtype X) (R : hrel S), isWellOrder R.
+
+Definition SubsetWithWellOrdering_to_subtype {X:hSet} : SubsetWithWellOrdering X -> hsubtype X
+  := pr1.
+
+Coercion SubsetWithWellOrdering_to_subtype : SubsetWithWellOrdering >-> hsubtype.
+
+Local Definition rel {X:hSet} (S : SubsetWithWellOrdering X) : hrel S
+  := pr1 (pr2 S).
+
+Definition isClosed {X:hSet} (S T:SubsetWithWellOrdering X) : hProp.
+(* condition:
+   S should be a subset of T
+   the ordering on S should be induced by the ordering on T
+   S should be a closed subset of T, i.e., an initial portion
+ *)
+Proof.
+  use tpair.
+  - use dirprod.
+    + exact (∏ x, S x -> T x).
+    + use dirprod.
+
+Abort.
+
+
 Definition isClosedSubposet {W:Poset} (Y X:hsubtype W) : hProp.
 Proof.
   exists (
