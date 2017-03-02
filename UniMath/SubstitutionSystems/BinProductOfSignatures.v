@@ -40,8 +40,8 @@ Local Notation "'PCD'" := (BinProducts_functor_precat C D PD hs : BinProducts [C
 
 Variables H1 H2 : functor [C, C, hsC] [C, D, hs].
 
-Variable θ1 : θ_source H1 ⟶ θ_target H1.
-Variable θ2 : θ_source H2 ⟶ θ_target H2.
+Variable θ1 : θ_source H1 ⟹ θ_target H1.
+Variable θ2 : θ_source H2 ⟹ θ_target H2.
 
 Variable S11 : θ_Strength1 θ1.
 Variable S12 : θ_Strength2 θ1.
@@ -98,7 +98,7 @@ Proof.
   + exact (nat_trans_eq_pointwise (nat_trans_ax θ2 _ _ (α,,β)) c).
 Qed.
 
-Local Definition θ : θ_source H ⟶ θ_target H.
+Local Definition θ : θ_source H ⟹ θ_target H.
 Proof.
   exists θ_ob.
   apply is_nat_trans_θ_ob.

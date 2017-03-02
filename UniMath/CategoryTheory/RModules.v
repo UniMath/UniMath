@@ -42,12 +42,12 @@ Section RModule_def.
 
 
 Definition RModule_data (D:precategory) : UU
-  := ∑ F : functor B D, F □ M ⟶ F.
+  := ∑ F : functor B D, F □ M ⟹ F.
 
 Coercion functor_from_RModule_data (C : precategory) (F : RModule_data C)
   : functor B C := pr1 F.
 
-Definition σ {C : precategory} (F : RModule_data C) : F□M ⟶ F := pr2 F.
+Definition σ {C : precategory} (F : RModule_data C) : F□M ⟹ F := pr2 F.
 
 Definition RModule_laws  {C:precategory} (T : RModule_data C) : UU :=
       (∏ c : B, #T (η M c) · σ T c = identity (T c))
@@ -81,24 +81,24 @@ End RModule_def.
 (** * Monad precategory *)
 Section RModule_precategory.
 
-Definition RModule_Mor_laws {C : precategory} {T T' : RModule_data C} (α : T ⟶ T')
+Definition RModule_Mor_laws {C : precategory} {T T' : RModule_data C} (α : T ⟹ T')
   : UU :=
   ∏ a : B, α (M a) · σ T' a = σ T a · α a.
 
 
 Lemma isaprop_RModule_Mor_laws (C : precategory) (hs : has_homsets C)
-  (T T' : RModule_data C) (α : T ⟶ T')
+  (T T' : RModule_data C) (α : T ⟹ T')
   : isaprop (RModule_Mor_laws α).
 Proof.
   apply impred; intro c; apply hs.
 Qed.
 
 Definition RModule_Mor {C : precategory} (T T' : RModule C) : UU
-  := ∑ α : T ⟶ T', RModule_Mor_laws α.
+  := ∑ α : T ⟹ T', RModule_Mor_laws α.
 
 
 Coercion nat_trans_from_module_mor (C : precategory) (T T' : RModule C) (s : RModule_Mor T T')
-   : T ⟶ T' := pr1 s.
+   : T ⟹ T' := pr1 s.
 
 Definition RModule_Mor_σ {C : precategory} {T T' : RModule C} (α : RModule_Mor T T')
            : ∏ a : B, α (M a) · σ T' a = σ T a · α a
@@ -220,9 +220,9 @@ Section Pullback_module.
   Variable (T:RModule M' C).
   Notation "Z ∘ α" := (post_whisker α Z) (at level 50, left associativity).
 
-  Definition pb_RModule_σ : T □ M ⟶ T :=  nat_trans_comp _ _ _ (T ∘ m)  (σ _ T).
+  Definition pb_RModule_σ : T □ M ⟹ T :=  nat_trans_comp _ _ _ (T ∘ m)  (σ _ T).
 
-  Definition pb_RModule_data : ∑ F : functor B C, F □ M ⟶ F :=
+  Definition pb_RModule_data : ∑ F : functor B C, F □ M ⟹ F :=
     tpair _ (T:functor B C) pb_RModule_σ.
 
   Lemma pb_RModule_laws : RModule_laws M pb_RModule_data.

@@ -143,7 +143,8 @@ Qed.
 Definition functor (C C' : precategory_data) : UU :=
   total2 ( fun F : functor_data C C' => is_functor F ).
 
-Notation "a ==> b" := (functor a b) (at level 50) : cat.
+Notation "a ⟶ b" := (functor a b) (at level 39) : cat.
+(* to input: type "\-->" with Agda input method *)
 
 (** Note that this makes the second component opaque for efficiency reasons *)
 Definition mk_functor {C C' : precategory_data} (F : functor_data C C') (H : is_functor F) :
@@ -764,8 +765,8 @@ Qed.
 Definition nat_trans {C C' : precategory_data} (F F' : functor_data C C') : UU :=
   total2 (fun t : ∏ x : ob C, F x -->  F' x => is_nat_trans F F' t).
 
-Notation "F ⟶ G" := (nat_trans F G) (at level 39) : cat.
-(* to input: type "\r--" or "\r" or "\-->" with Agda input method *)
+Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
+(* to input: type "\==>" with Agda input method *)
 
 (** Note that this makes the second component opaque for efficiency reasons *)
 Definition mk_nat_trans {C C' : precategory_data} (F F' : functor_data C C')
@@ -1458,8 +1459,8 @@ Notation "[ C , D , hs ]" := (functor_precategory C D hs) : cat.
 
 Notation "[ C , D ]" := (functor_Precategory C D) : cat.
 
-Notation "F ⟶ G" := (nat_trans F G) (at level 39) : cat.
-(* to input: type "\r--" or "\r" or "\-->" with Agda input method *)
+Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
+(* to input: type "\==>" with Agda input method *)
 
 Notation "F ∙ G" := (functor_composite F G) (at level 35) : cat.
 (* to input: type "\." with Agda input method *)
@@ -1471,4 +1472,5 @@ Notation "G □ F" := (functor_composite F G) (at level 35, only parsing) : cat.
 Notation "G □ F" := (functor_composite (F:[_,_]) (G:[_,_]) : [_,_]) (at level 35) : Cat.
 (* to input: type "\Box" or "\square" or "\sqw" or "\sq" with Agda input method *)
 
-Notation "a ==> b" := (functor a b) (at level 50) : cat.
+Notation "a ⟶ b" := (functor a b) (at level 39) : cat.
+(* to input: type "\-->" with Agda input method *)

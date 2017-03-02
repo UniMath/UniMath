@@ -36,8 +36,6 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.Adjunctions.
 
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
 Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
@@ -109,7 +107,7 @@ Definition ψ_target : functor C^op HSET := functor_composite (functor_opp F) ψ
 
 Section general_case.
 
-Variable ψ : ψ_source ⟶ ψ_target.
+Variable ψ : ψ_source ⟹ ψ_target.
 
 Definition preIt : L μF --> X := φ_inv (iter (φ (ψ (R X) (ε X)))).
 
@@ -226,7 +224,7 @@ Section special_case.
 
   Variable G : functor C' C'.
   Variable ρ : G X --> X.
-  Variable θ : functor_composite F L ⟶ functor_composite L G.
+  Variable θ : functor_composite F L ⟹ functor_composite L G.
 
 
   Lemma is_nat_trans_ψ_from_comps
@@ -247,7 +245,7 @@ Section special_case.
       apply idpath.
    Qed.
 
-  Definition ψ_from_comps : ψ_source ⟶ ψ_target.
+  Definition ψ_from_comps : ψ_source ⟹ ψ_target.
   Proof.
     simple refine (tpair _ _ _ ).
     - intro A. simpl. intro f.
@@ -273,12 +271,12 @@ Let Yon : functor C'^op HSET := yoneda_objects C' hsC' X.
 Let Yon' : functor C'^op HSET := yoneda_objects C' hsC' X'.
 Variable L : functor C C'.
 Variable is_left_adj_L : is_left_adjoint L.
-Variable ψ : ψ_source X L ⟶ ψ_target X L.
+Variable ψ : ψ_source X L ⟹ ψ_target X L.
 Variable L' : functor C C'.
 Variable is_left_adj_L' : is_left_adjoint L'.
-Variable ψ' : ψ_source X' L' ⟶ ψ_target X' L'.
+Variable ψ' : ψ_source X' L' ⟹ ψ_target X' L'.
 
-Variable Φ : functor_composite (functor_opp L) Yon ⟶ functor_composite (functor_opp L') Yon'.
+Variable Φ : functor_composite (functor_opp L) Yon ⟹ functor_composite (functor_opp L') Yon'.
 
 Section fusion_law.
 

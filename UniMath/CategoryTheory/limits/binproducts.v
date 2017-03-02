@@ -463,8 +463,8 @@ Section vertex.
 (** The product morphism of a diagram with vertex [A] *)
 
 Variable A : functor C D.
-Variable f : A ⟶ F.
-Variable g : A ⟶ G.
+Variable f : A ⟹ F.
+Variable g : A ⟹ G.
 
 Definition binproduct_nat_trans_data : ∏ c,  A c --> BinProduct_of_functors c.
 Proof.

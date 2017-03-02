@@ -244,7 +244,7 @@ Section nat_trans_fix_fst_arg.
 
 Variable C D E : precategory.
 Variable F F': functor (precategory_binproduct C D) E.
-Variable α: F ⟶ F'.
+Variable α: F ⟹ F'.
 Variable c: C.
 
 Definition nat_trans_fix_fst_arg_data (d:D): functor_fix_fst_arg C D E F c d --> functor_fix_fst_arg C D E F' c d := α (tpair _ c d).
@@ -259,7 +259,7 @@ Proof.
   apply nat_trans_ax_inst.
 Qed.
 
-Definition nat_trans_fix_fst_arg: functor_fix_fst_arg C D E F c ⟶ functor_fix_fst_arg C D E F' c
+Definition nat_trans_fix_fst_arg: functor_fix_fst_arg C D E F c ⟹ functor_fix_fst_arg C D E F' c
   := tpair _ nat_trans_fix_fst_arg_data nat_trans_fix_fst_arg_ax.
 
 End nat_trans_fix_fst_arg.
@@ -315,7 +315,7 @@ Section nat_trans_fix_snd_arg.
 
 Variable C D E : precategory.
 Variable F F': functor (precategory_binproduct C D) E.
-Variable α: F ⟶ F'.
+Variable α: F ⟹ F'.
 Variable d: D.
 
 Definition nat_trans_fix_snd_arg_data (c:C): functor_fix_snd_arg C D E F d c --> functor_fix_snd_arg C D E F' d c := α (tpair _ c d).
@@ -330,7 +330,7 @@ Proof.
   apply nat_trans_ax_inst.
 Qed.
 
-Definition nat_trans_fix_snd_arg: functor_fix_snd_arg C D E F d ⟶ functor_fix_snd_arg C D E F' d
+Definition nat_trans_fix_snd_arg: functor_fix_snd_arg C D E F d ⟹ functor_fix_snd_arg C D E F' d
   := tpair _ nat_trans_fix_snd_arg_data nat_trans_fix_snd_arg_ax.
 
 End nat_trans_fix_snd_arg.

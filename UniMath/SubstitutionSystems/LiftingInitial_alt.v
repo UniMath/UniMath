@@ -105,7 +105,7 @@ Defined.
 
 Definition SpecializedGMIt (Z : Ptd) (X : EndC) :
   ∏ (G : functor [C, C, hsC] [C, C, hsC]) (ρ : [C, C, hsC] ⟦ G X, X ⟧)
-    (θ : functor_composite Id_H (ℓ (U Z)) ⟶ functor_composite (ℓ (U Z)) G),
+    (θ : functor_composite Id_H (ℓ (U Z)) ⟹ functor_composite (ℓ (U Z)) G),
   ∃! h : [C, C, hsC] ⟦ ℓ (U Z) (alg_carrier _ InitAlg), X ⟧,
     # (ℓ (U Z)) (alg_map Id_H InitAlg) · h =
     θ (alg_carrier _ InitAlg) · # G h · ρ
@@ -114,7 +114,7 @@ Definition SpecializedGMIt (Z : Ptd) (X : EndC) :
 
 Definition θ_in_first_arg (Z: Ptd)
   : functor_fix_snd_arg [C, C,hsC] Ptd [C, C, hsC] (θ_source H) Z
-    ⟶
+    ⟹
     functor_fix_snd_arg [C, C, hsC] Ptd [C, C, hsC] (θ_target H) Z
   := nat_trans_fix_snd_arg _ _ _ _ _ θ Z.
 
@@ -270,7 +270,7 @@ Proof.
 apply (nat_trans_eq hsC); intro c.
 assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
 assert (h_eq' := maponpaths (fun m =>
-               (((aux_iso_1_inv Z):(_⟶_)) _)· m) h_eq); clear h_eq.
+               (((aux_iso_1_inv Z):(_⟹_)) _)· m) h_eq); clear h_eq.
 assert (h_eq1' := maponpaths (fun m =>
                (BinCoproductIn1 EndC (CPEndC _ _))· m) h_eq'); clear h_eq'.
 assert (h_eq1'_inst := nat_trans_eq_pointwise h_eq1' c); clear h_eq1'.
@@ -296,7 +296,7 @@ Proof.
 apply (nat_trans_eq hsC); intro c.
 assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
 assert (h_eq' := maponpaths (fun m =>
-                (((aux_iso_1_inv Z):(_⟶_)) _)· m) h_eq); clear h_eq.
+                (((aux_iso_1_inv Z):(_⟹_)) _)· m) h_eq); clear h_eq.
 (* until here same as in previous lemma *)
 assert (h_eq2' := maponpaths (fun m =>
                 (BinCoproductIn2 EndC (CPEndC _ _))· m) h_eq');  clear h_eq'.
@@ -471,7 +471,7 @@ Let Yon (X : EndC) : functor EndC^op HSET := yoneda_objects EndC hsEndC X.
 
 Definition Phi_fusion (Z : Ptd) (X : EndC) (b : pr1 InitAlg --> X) :
   functor_composite (functor_opp (ℓ (U Z))) (Yon (pr1 InitAlg))
-   ⟶
+   ⟹
   functor_composite (functor_opp (ℓ (U Z))) (Yon X) .
 Proof.
 mkpair.

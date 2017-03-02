@@ -25,8 +25,8 @@ Variables C D E : precategory.
 Variables F F' : functor C D.
 Variables G G' : functor D E.
 
-Variable α : F ⟶ F'.
-Variable β : G ⟶ G'.
+Variable α : F ⟹ F'.
+Variable β : G ⟹ G'.
 
 Lemma is_nat_trans_horcomp : is_nat_trans (G □ F) (G' □ F')
   (λ c : C, β (F c) · #G' (α _ )).
