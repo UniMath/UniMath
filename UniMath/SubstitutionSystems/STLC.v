@@ -140,16 +140,61 @@ Let STLC_mor : SET_over_sort2⟦STLC_Functor STLC,STLC⟧ :=
 Let STLC_alg : algebra_ob STLC_Functor :=
   InitialObject STLC_Functor_Initial.
 
+
+
+Lemma foo : BinProducts [SET_over_sort,SET].
+Proof.
+apply BinProducts_functor_precat, BinProductsHSET.
+Defined.
+
 Local Notation "'1'" := (functor_identity SET_over_sort).
-Local Notation "x ⊗ y" := (BinProductObject _ (BinProducts_SET_over_sort2 x y)) (at level 10).
+Local Notation "x ⊗ y" := (BinProductObject _ (foo x y)) (at level 10).
+
 
 Definition var_map : SET_over_sort2⟦1,STLC⟧ :=
   BinCoproductIn1 SET_over_sort2 _ · STLC_mor.
 
-Definition app_map : SET_over_sort2⟦STLC ⊗ STLC,STLC⟧.
+Definition app_source (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
+  (STLC ∙ proj_functor sort (arr s t)) ⊗ (STLC ∙ proj_functor sort s) ∙ hat_functor sort t.
+(* Proof. *)
+(* eapply (@functor_composite _ SET). *)
+(* + use (_ ⊗ _). *)
+(*   use (functor_composite X (proj_functor _ (arr s t))). *)
+(*   use (functor_composite X (proj_functor _ s)). *)
+(* + apply (hat_functor _ t). *)
+(* Defined. *)
+
+(* How to write this nicer? *)
+Definition asdf (s t : sort) (X : SET_over_sort2) : SET_over_sort2.
 Proof.
-use (_ · BinCoproductIn2 _ _ · STLC_mor).
-Admitted.
+apply (functor_compose has_homsets_HSET (has_homsets_slice_precat has_homsets_HSET sort)
+         (BinProduct_of_functors_ob
+            [SET / sort, slice_precat HSET sort has_homsets_HSET, has_homsets_slice_precat has_homsets_HSET sort]
+            [SET / sort, HSET, has_homsets_HSET]
+            (BinProducts_functor_precat (slice_precat HSET sort has_homsets_HSET) HSET BinProductsHSET
+               has_homsets_HSET) (MultiSorted.exp_functor sort ([],, arr s t))
+            (BinProduct_of_functors
+               [SET / sort, slice_precat HSET sort has_homsets_HSET,
+               has_homsets_slice_precat has_homsets_HSET sort] [SET / sort, HSET, has_homsets_HSET]
+               (BinProducts_functor_precat (slice_precat HSET sort has_homsets_HSET) HSET BinProductsHSET
+                  has_homsets_HSET) (MultiSorted.exp_functor sort ([],, s))
+               (constant_functor
+                  [SET / sort, slice_precat HSET sort has_homsets_HSET,
+                  has_homsets_slice_precat has_homsets_HSET sort] [SET / sort, HSET, has_homsets_HSET]
+                  (constant_functor (slice_precat HSET sort has_homsets_HSET) HSET 1%CS))) X)
+         (hat_functor sort t)).
+Defined.
+
+Lemma bar : Coproducts ((sort × sort) + (sort × sort))%set SET_over_sort2.
+Proof.
+apply Coproducts_functor_precat, Coproducts_slice_precat, CoproductsHSET.
+apply setproperty.
+Defined.
+
+Definition app_map (s t : sort) : SET_over_sort2⟦asdf s t STLC,STLC⟧.
+Proof.
+use (CoproductIn _ _ (bar _) (ii1 (s,,t)) · BinCoproductIn2 _ _ · STLC_mor).
+Defined.
 
 (* := *)
 (*   CoproductIn bool HSET2 (Coproducts_functor_precat _ _ _ _ _ _) true · *)

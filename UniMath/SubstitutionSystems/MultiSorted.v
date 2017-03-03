@@ -98,7 +98,7 @@ Section functor.
 Local Definition proj_fun (s : sort) : SET / sort -> SET :=
   λ p, hfiber_hSet (pr2 p) s.
 
-Local Definition proj_functor (s : sort) : functor (SET / sort) SET.
+Definition proj_functor (s : sort) : functor (SET / sort) SET.
 Proof.
 mkpair.
 - exists (proj_fun s).
@@ -111,7 +111,7 @@ mkpair.
 Defined.
 
 (** The left adjoint to the proj_functor *)
-Local Definition hat_functor (t : sort) : functor SET (SET / sort).
+Definition hat_functor (t : sort) : functor SET (SET / sort).
 Proof.
 mkpair.
 - mkpair.
