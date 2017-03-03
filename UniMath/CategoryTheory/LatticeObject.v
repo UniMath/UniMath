@@ -26,6 +26,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 
 Local Open Scope cat.
 
+(** * Definition of lattice objects and bounded lattice objects *)
 Section LatticeObject_def.
 
 Context {C : precategory} {BPC : BinProducts C}.
@@ -192,6 +193,8 @@ Definition islunit_meet_mor_top_mor : islunit_cat (meet_mor l) (top_mor l) :=
 
 End BoundedLatticeObject_accessors.
 
+
+(** * Definition of sublattice objects  *)
 Section SublatticeObject.
 
 Context {C : precategory} (BPC : BinProducts C) {M L : C}.
