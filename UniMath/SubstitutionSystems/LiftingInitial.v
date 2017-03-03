@@ -89,7 +89,7 @@ Variable IA : Initial Alg.
 Definition SpecializedGMIt (Z : Ptd) (X : EndC)
   :  ∏ (G : functor [C, C, hs] [C, C, hs])
        (ρ : [C, C, hs] ⟦ G X, X ⟧)
-       (θ : functor_composite Id_H (ℓ (U Z)) ⟶ functor_composite (ℓ (U Z)) G),
+       (θ : functor_composite Id_H (ℓ (U Z)) ⟹ functor_composite (ℓ (U Z)) G),
      ∃! h : [C, C, hs] ⟦ ℓ (U Z) (` (InitialObject IA)), X ⟧,
             # (ℓ (U Z)) (alg_map Id_H (InitialObject IA)) · h
             =
@@ -100,7 +100,7 @@ Definition SpecializedGMIt (Z : Ptd) (X : EndC)
 
 Definition θ_in_first_arg (Z: Ptd)
   : functor_fix_snd_arg [C, C,hs] Ptd [C, C, hs] (θ_source H) Z
-    ⟶
+    ⟹
     functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_target H) Z
   := nat_trans_fix_snd_arg _ _ _ _ _ θ Z.
 
@@ -295,7 +295,7 @@ Proof.
   intro c.
   assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
   assert (h_eq' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ =>
-               (((aux_iso_1_inv Z):(_⟶_)) _)· m) h_eq);
+               (((aux_iso_1_inv Z):(_ ⟹ _)) _)· m) h_eq);
   clear h_eq.
   simpl in h_eq'.
   assert (h_eq1' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ =>
@@ -349,7 +349,7 @@ Proof.
   intro c.
   assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
   assert (h_eq' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ =>
-                  (((aux_iso_1_inv Z):(_⟶_)) _)· m) h_eq);
+                  (((aux_iso_1_inv Z):(_⟹_)) _)· m) h_eq);
   clear h_eq.
  (*        simpl in h_eq'. (* until here same as in previous lemma *) *)
 
@@ -620,7 +620,7 @@ Let Yon (X : EndC) : functor EndC^op HSET := yoneda_objects EndC hsEndC X.
 
 Definition Phi_fusion (Z : Ptd) (X : EndC) (b : pr1 InitAlg --> X) :
   functor_composite (functor_opp (ℓ (U Z))) (Yon (pr1 InitAlg))
-   ⟶
+   ⟹
   functor_composite (functor_opp (ℓ (U Z))) (Yon X) .
 Proof.
   simple refine (tpair _ _ _ ).
