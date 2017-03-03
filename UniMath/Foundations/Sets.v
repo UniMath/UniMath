@@ -593,7 +593,7 @@ Proof.
 Defined.
 
 Definition isWellOrder {X : UU} (R : hrel X) : UU
-  := isTotalOrder R × isdeceq X × mincondition R.
+  := isTotalOrder R × mincondition R.
 
 Definition isantisymmneg {X : UU} (R : hrel X) : UU
   := ∏ (x1 x2 : X), ¬ R x1 x2 -> ¬ R x2 x1 -> x1 = x2.
@@ -664,13 +664,11 @@ Lemma isaprop_isWellOrder {X : hSet} (R : hrel X) : isaprop (isWellOrder R).
 Proof.
   intros.
   apply isaprop_assume_it_is; intro iswell.
-  induction iswell as [istot i]. induction i as [isdec hasmin].
+  induction iswell as [istot hasmin].
   induction istot as [ispo istot].
   unwrap_isPartialOrder ispo.
   apply isapropdirprod.
   { apply isaprop_isTotalOrder. }
-  apply isapropdirprod.
-  { apply isapropisdeceq. }
   now apply isaprop_mincondition.
 Defined.
 

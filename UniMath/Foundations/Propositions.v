@@ -424,7 +424,7 @@ Delimit Scope logic with logic.
 Definition himpl (P : UU) (Q : hProp) : hProp.
 Proof. intros. split with (P -> Q). apply impred. intro. apply (pr2 Q). Defined.
 
-Local Notation "A ⇒ B" := (himpl A B) (at level 95, no associativity) : logic.
+Notation "A ⇒ B" := (himpl A B) (at level 95, no associativity) : logic.
   (* precedence same as <-> *)
   (* in agda-input method, type \r= or \Rightarrow or \=> *)
   (* can't make it global, because it's defined differently in
