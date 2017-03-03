@@ -3011,4 +3011,72 @@ Defined.
 
 Ltac hSet_induction f e := generalize f; apply UU_rect; intro e; clear f.
 
-(* End of the file hSet.v *)
+(** Axioms of choice *)
+
+(* We write these as types rather than as axioms, to force them to be mentioned as
+   explicit hypotheses whenever they are used. *)
+
+Definition AxiomOfChoice := ∏ (X Y:hSet) (f:X→Y), issurjective f → ∃ g, f ∘ g ~ idfun Y.
+
+Definition AxiomOfChoice2 := ∏ (Y:UU), ∃ (X:hSet) (f:X→Y), issurjective f.
+
+Theorem AC_to_LEM : AxiomOfChoice -> LEM.
+Proof.
+  (* this is essentially the proof in the HoTT Book.  The idea is to define an equivalence
+     relation E on bool by setting [E true false := P], to use AC to split the
+     surjection f from bool to its quotient by E with a function g, and then to consider
+     the 4 possibilities for the function [g ∘ f : bool -> bool].  It's constant iff P. *)
+  intros AC P.
+  set (ifb := bool_rect (λ _:bool, hProp)).
+  set (R := λ x y, ifb (ifb htrue P y) (ifb P htrue y) x); simpl in R.
+  assert (e : iseqrel R).
+  { repeat split.
+    { intros x y z a b.
+      induction x.
+      - induction y.
+        + induction z; exact b.
+        + induction z.
+          * exact tt.
+          * exact a.
+      - induction y.
+        + induction z.
+          * exact a.
+          * exact tt.
+        + induction z; exact b. }
+    { intros x. induction x; exact tt. }
+    { intros x y a. induction x; induction y; exact a. } }
+  set (E := R,,e : eqrel bool).
+  set (Y := setquotinset E).
+  set (f := setquotpr E : bool -> Y).
+  assert (surj := issurjsetquotpr E : issurjective f).
+  assert (q := AC boolset Y f surj).
+  apply (squash_to_prop q).
+  { apply isapropdec. apply propproperty. }
+  clear q.
+  intro sec.
+  induction sec as [g h].
+  assert (coll : P <-> g (f true) = g (f false)).
+  { split.
+    { intro p. apply maponpaths. apply iscompsetquotpr. exact p. }
+    { intro q.
+      assert (r : f true = f false).
+      { intermediate_path (f (g (f true))).
+        { apply pathsinv0, h. }
+        intermediate_path (f (g (f false))).
+        { apply maponpaths, q. }
+        { apply h. } }
+      change (E true false).
+      apply (invmap (weqpathsinsetquot _ _ _)).
+      change (f true = f false).
+      exact r. } }
+  induction coll as [A B].
+  induction (g (f true)).
+  - induction (g (f false)).
+    + now apply ii1, B.
+    + apply ii2. exact (nopathstruetofalse ∘ A).
+  - induction (g (f false)).
+    + apply ii2. exact (nopathsfalsetotrue ∘ A).
+    + now apply ii1, B.
+Defined.
+
+(* end of file *)
