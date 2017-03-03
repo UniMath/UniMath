@@ -165,7 +165,7 @@ Definition app_source (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
 (* Defined. *)
 
 (* How to write this nicer? *)
-Definition asdf (s t : sort) (X : SET_over_sort2) : SET_over_sort2.
+Definition app_source' (s t : sort) (X : SET_over_sort2) : SET_over_sort2.
 Proof.
 apply (functor_compose has_homsets_HSET (has_homsets_slice_precat has_homsets_HSET sort)
          (BinProduct_of_functors_ob
@@ -185,42 +185,58 @@ apply (functor_compose has_homsets_HSET (has_homsets_slice_precat has_homsets_HS
          (hat_functor sort t)).
 Defined.
 
-Lemma bar : Coproducts ((sort × sort) + (sort × sort))%set SET_over_sort2.
+Lemma Coproducts_SET_over_sort2 : Coproducts ((sort × sort) + (sort × sort))%set SET_over_sort2.
 Proof.
 apply Coproducts_functor_precat, Coproducts_slice_precat, CoproductsHSET.
 apply setproperty.
 Defined.
 
-Definition app_map (s t : sort) : SET_over_sort2⟦asdf s t STLC,STLC⟧.
+Definition app_map (s t : sort) : SET_over_sort2⟦app_source' s t STLC,STLC⟧.
 Proof.
-use (CoproductIn _ _ (bar _) (ii1 (s,,t)) · BinCoproductIn2 _ _ · STLC_mor).
+use (CoproductIn _ _ _ (ii1 (s,,t)) · BinCoproductIn2 _ _ · STLC_mor).
 Defined.
 
-(* := *)
-(*   CoproductIn bool HSET2 (Coproducts_functor_precat _ _ _ _ _ _) true · *)
-(*               BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · *)
-(*               LC_mor. *)
+(* How to write this nicer? *)
+Definition lam_source' (s t : sort) (X : SET_over_sort2) : SET_over_sort2.
+Proof.
+apply (functor_compose has_homsets_HSET (has_homsets_slice_precat has_homsets_HSET sort)
+         (BinProduct_of_functors_ob
+            [SET / sort, slice_precat HSET sort has_homsets_HSET, has_homsets_slice_precat has_homsets_HSET sort]
+            [SET / sort, HSET, has_homsets_HSET]
+            (BinProducts_functor_precat (slice_precat HSET sort has_homsets_HSET) HSET BinProductsHSET
+               has_homsets_HSET) (MultiSorted.exp_functor sort ((s :: []),, t))
+            (constant_functor
+               [SET / sort, slice_precat HSET sort has_homsets_HSET,
+               has_homsets_slice_precat has_homsets_HSET sort] [SET / sort, HSET, has_homsets_HSET]
+               (constant_functor (slice_precat HSET sort has_homsets_HSET) HSET 1%CS)) X)
+         (hat_functor sort (arr s t))).
+Defined.
 
-(* Definition lam_map : HSET2⟦LC + 1,LC⟧ := *)
-(*   CoproductIn bool HSET2 (Coproducts_functor_precat _ _ _ _ _ _) false · *)
-(*   BinCoproductIn2 HSET2 (BinCoproducts_functor_precat _ _ _ _ _ _) · LC_mor. *)
+Definition lam_map (s t : sort) : SET_over_sort2⟦lam_source' s t STLC,STLC⟧.
+Proof.
+use (CoproductIn _ _ _ (ii2 (s,,t)) · BinCoproductIn2 _ _ · STLC_mor).
+Defined.
 
-(* Definition mk_lambdaAlgebra X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) : *)
-(*   algebra_ob LamFunctor. *)
-(* Proof. *)
-(* apply (tpair _ X). *)
-(* use (BinCoproductArrow _ _ fvar). *)
-(* use CoproductArrow. *)
-(* intro b; induction b. *)
-(* - apply fapp. *)
-(* - apply flam. *)
-(* Defined. *)
+Definition mk_STLC_Algebra X (fvar : SET_over_sort2⟦1,X⟧)
+  (fapp : ∏ s t, SET_over_sort2⟦app_source' s t X,X⟧)
+  (flam : ∏ s t, SET_over_sort2⟦lam_source' s t X,X⟧) :
+    algebra_ob STLC_Functor.
+Proof.
+apply (tpair _ X).
+use (BinCoproductArrow _ _ fvar).
+use CoproductArrow.
+intro b; induction b as [st|st]; induction st as [s t].
+- apply (fapp s t).
+- apply (flam s t).
+Defined.
 
-(* Definition foldr_map X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) : *)
-(*   algebra_mor _ LC_alg (mk_lambdaAlgebra X fvar fapp flam). *)
-(* Proof. *)
-(* apply (InitialArrow lambdaFunctor_Initial (mk_lambdaAlgebra X fvar fapp flam)). *)
-(* Defined. *)
+Definition foldr_map X (fvar : SET_over_sort2⟦1,X⟧)
+  (fapp : ∏ s t, SET_over_sort2⟦app_source' s t X,X⟧)
+  (flam : ∏ s t, SET_over_sort2⟦lam_source' s t X,X⟧) :
+  algebra_mor _ STLC_alg (mk_STLC_Algebra X fvar fapp flam).
+Proof.
+apply (InitialArrow STLC_Functor_Initial (mk_STLC_Algebra X fvar fapp flam)).
+Defined.
 
 (* Lemma foldr_var X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) : *)
 (*   var_map · foldr_map X fvar fapp flam = fvar. *)
