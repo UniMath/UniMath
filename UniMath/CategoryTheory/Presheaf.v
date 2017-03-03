@@ -4,8 +4,8 @@ Theory about set-valued presheaves. We write PreShv C for [C^op,HSET].
 
 Contents:
 
-- Limits ([Lims_PreShv], [Lims_PreShv_of_shape])
-- Colimits ([Colims_PreShv], [Colims_PreShv_of_shape])
+- Limits ([Lims_PreShv_of_shape])
+- Colimits ([Colims_PreShv_of_shape])
 - Binary products ([BinProducts_PreShv])
 - Indexed products ([Products_PreShv])
 - Binary coproducts ([BinCoproducts_PreShv])
@@ -173,20 +173,22 @@ Section limits.
 
 Context {C : precategory}.
 
-Lemma Lims_PreShv : Lims (PreShv C).
-Proof.
-now apply LimsFunctorCategory, LimsHSET.
-Defined.
+(* This should be only small limits *)
+(* Lemma Lims_PreShv : Lims (PreShv C). *)
+(* Proof. *)
+(* now apply LimsFunctorCategory, LimsHSET. *)
+(* Defined. *)
 
 Lemma Lims_PreShv_of_shape (g : graph) : Lims_of_shape g (PreShv C).
 Proof.
 now apply LimsFunctorCategory_of_shape, LimsHSET_of_shape.
 Defined.
 
-Lemma Colims_PreShv : Colims (PreShv C).
-Proof.
-now apply ColimsFunctorCategory, ColimsHSET.
-Defined.
+(* This should be only small colimits *)
+(* Lemma Colims_PreShv : Colims (PreShv C). *)
+(* Proof. *)
+(* now apply ColimsFunctorCategory, ColimsHSET. *)
+(* Defined. *)
 
 Lemma Colims_PreShv_of_shape (g : graph) : Colims_of_shape g (PreShv C).
 Proof.
@@ -254,8 +256,11 @@ Definition empty_PreShv : PreShv C := constant_PreShv emptyHSET.
 
 End presheaves.
 
-(** Definition of the subobject classifier in a presheaf
-    TODO: Prove that Ω actually is the subobject classifier  *)
+(** * Definition of the subobject classifier in a presheaf. *)
+(**
+See: "Sheaves in Geometry and Logic" by Mac Lane and Moerdijk (page 37)
+*)
+(* TODO: Prove that Ω actually is the subobject classifier  *)
 Section Ω_PreShv.
 
 Context {C : precategory}.

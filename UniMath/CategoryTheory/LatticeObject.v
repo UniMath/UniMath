@@ -9,6 +9,8 @@ Contents:
 - Proof that a subobject of a (bounded) lattice object is a lattice object
   ([sublatticeob], [sub_bounded_latticeob])
 
+Based on "Sheaves in Geometry and Logic" by Mac Lane and Moerdijk (Section IV.8, page 198)
+
 Written by: Anders Mörtberg, 2017
 
 *********************************************************************************)
