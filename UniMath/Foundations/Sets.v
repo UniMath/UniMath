@@ -3025,13 +3025,24 @@ Definition AxiomOfChoice : hProp
 Definition AxiomOfChoice_surj : hProp
   := ∀ X (Y:hSet) (f:X→Y), issurjective f ⇒ ∃ g, ∀ y, f (g y) = y.
 
-Lemma AC_impl2 : AxiomOfChoice ⇒ AxiomOfChoice_surj.
+Lemma AC_impl2 : AxiomOfChoice ⇔ AxiomOfChoice_surj.
 Proof.
-  intros AC X Y f surj.
-  apply (squash_to_prop (AC _ _ surj) (propproperty _)).
-  intro s. apply hinhpr.
-  exists (λ y, hfiberpr1 f y (s y)).
-  exact  (λ y, hfiberpr2 f y (s y)).
+  split.
+  - intros AC X Y f surj.
+    apply (squash_to_prop (AC _ _ surj) (propproperty _)).
+    intro s. apply hinhpr.
+    exists (λ y, hfiberpr1 f y (s y)).
+    exact  (λ y, hfiberpr2 f y (s y)).
+  - intros AC X P ne.
+    set (T := (∑ x, P x)%type).
+    set (f := pr1 : T -> X).
+    assert (k : issurjective f).
+    { intros x. simple refine (hinhuniv _ (ne x)); intro p. apply hinhpr. exists (x,,p). reflexivity. }
+    simple refine (hinhuniv _ (AC T X f k)).
+    intro sec. induction sec as [g e]. apply hinhpr. intro x.
+    assert (e' := e x); simpl in e'; clear e.
+    induction (g x) as [x' p]; simpl in e'.
+    induction e'. exact p.
 Defined.
 
 Theorem AC_to_LEM : AxiomOfChoice ⇒ LEM.
@@ -3043,8 +3054,9 @@ Proof.
       Berlin, 1972.
 
       The idea is to define an equivalence relation E on bool by setting [E true false := P], to use
-      AC to split the surjection f from bool to its quotient by E with a function g, and then to
-      consider the 4 possibilities for the function [g ∘ f : bool -> bool].  It's constant iff P. *)
+      AC to split the surjection f from bool to its quotient by E with a function g, and to observe
+      that the function [g ∘ f : bool -> bool] is constant iff P, and to observe that being constant is
+      decidable, because equality in [bool] is decidable. *)
   intros AC P.
   set (ifb := bool_rect (λ _:bool, hProp)).
   set (R := λ x y, ifb (ifb htrue P y) (ifb P htrue y) x); simpl in R.
@@ -3063,14 +3075,16 @@ Proof.
         + induction z; exact b. }
     { intros x. induction x; exact tt. }
     { intros x y a. induction x; induction y; exact a. } }
-  set (E := R,,e : eqrel bool). set (Y := setquotinset E). set (f := setquotpr E : bool -> Y).
-  assert (surj := issurjsetquotpr E : issurjective f).
-  assert (q := AC_impl2 AC boolset Y f surj).
+  set (E := R,,e : eqrel bool).
+  set (Y := setquotinset E).
+  set (f := setquotpr E : bool -> Y).
+  assert (q := pr1 AC_impl2 AC boolset Y f (issurjsetquotpr E)).
   apply (squash_to_prop q).
   { apply isapropdec. apply propproperty. }
   clear q.
   intro sec.
   induction sec as [g h].
+  (* prove P iff [g ∘ f] is constant *)
   assert (coll : P <-> g (f true) = g (f false)).
   { split.
     { intro p. apply maponpaths. apply iscompsetquotpr. exact p. }
@@ -3085,14 +3099,9 @@ Proof.
       apply (invmap (weqpathsinsetquot _ _ _)).
       change (f true = f false).
       exact r. } }
-  induction coll as [A B].
-  induction (g (f true)).
-  - induction (g (f false)).
-    + now apply ii1, B.
-    + apply ii2. exact (nopathstruetofalse ∘ A).
-  - induction (g (f false)).
-    + apply ii2. exact (nopathsfalsetotrue ∘ A).
-    + now apply ii1, B.
+  (* the equation is decidable, and thus P is decidable, by the lemma above *)
+  apply (logeq_dec (issymm_logeq _ _ coll)).
+  apply isdeceqbool.
 Defined.
 
 (* end of file *)

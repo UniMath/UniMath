@@ -175,6 +175,8 @@ Defined.
 
 Print whether_primitive_projections.
 
+Delimit Scope type_scope with type.
+
 Notation "'∑'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
   (* type this in emacs in agda-input method with \sum *)
