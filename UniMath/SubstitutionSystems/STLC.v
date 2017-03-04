@@ -167,7 +167,7 @@ Definition app_source (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
 (* Get rid of constant_functor? *)
 Definition app_source' (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
          (1 ∙ X ∙ proj_functor sort (arr s t)) ⊗
-         ((1 ∙ X ∙ proj_functor sort s) ⊗ (constant_functor _ _ 1%CS))
+         (1 ∙ X ∙ proj_functor sort s)
        ∙ hat_functor sort t.
 
 Lemma Coproducts_SET_over_sort2 : Coproducts ((sort × sort) + (sort × sort))%set SET_over_sort2.
@@ -184,8 +184,7 @@ Defined.
 (* How to write this nicer? *)
 Definition lam_source' (s t : sort) (X : SET_over_sort2) : SET_over_sort2.
 Proof.
-set (F := (((sorted_option_functor sort s ∙ 1 ∙ X) ∙ proj_functor sort t)
-         ⊗ (constant_functor _ _ 1%CS))
+set (F := ((sorted_option_functor sort s ∙ 1 ∙ X) ∙ proj_functor sort t)
          ∙ hat_functor sort (arr s t)).
 unfold sorted_option_functor in F.
 cbn in F.

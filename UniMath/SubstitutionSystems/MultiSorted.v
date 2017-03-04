@@ -136,7 +136,7 @@ Local Definition option_list (xs : list sort) : functor (SET / sort) (SET / sort
 Proof.
 use (foldr _ _ xs).
 + intros s F.
-  apply (functor_composite (sorted_option_functor s) F).
+  apply (sorted_option_functor s ∙ F).
 + apply functor_identity.
 Defined.
 
@@ -159,9 +159,9 @@ set (T := constant_functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET]
                            (constant_functor SET_over_sort HSET TerminalHSET)).
 (* TODO: Maybe use indexed finite products instead of a fold? *)
 (* foldr1 was used previously *)
-(* set (XS := map exp_functor xs). *)
-(* use (foldr1 (fun F G => BinProduct_of_functors _ _ _ F G) T XS). *)
-use (foldr (fun F G => BinProduct_of_functors _ _ _ (exp_functor F) G) T xs).
+set (XS := map exp_functor xs).
+use (foldr1 (fun F G => BinProduct_of_functors _ _ _ F G) T XS).
+(* use (foldr (fun F G => BinProduct_of_functors _ _ _ (exp_functor F) G) T xs). *)
 apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
 
@@ -221,25 +221,25 @@ Proof.
   apply idpath.
 Qed.
 
-(* the signature for exp_functor_list, complications arise since the underlying functor should be
+(* The signature for exp_functor_list, complications arise since the underlying functor should be
    the right one w.r.t. convertibility *)
 Local Definition Sig_exp_functor_list (xs : list (list sort × sort)) :
   Signature _ hs _ has_homsets_HSET.
 Proof.
-  mkpair.
-  + exact (exp_functor_list xs).
-  + set (T := ConstConstSignature SET_over_sort SET TerminalHSET :
+mkpair.
+- exact (exp_functor_list xs).
+- set (T := ConstConstSignature SET_over_sort SET TerminalHSET :
                 Signature _ hs _ has_homsets_HSET).
-    refine (list_ind (fun xs => ∑
-      θ : θ_source_functor_data (SET / sort) _ _ _ (exp_functor_list xs)
-        ⟹ θ_target_functor_data (SET / sort) _ _ _ (exp_functor_list xs),
-          θ_Strength1_int θ × θ_Strength2_int θ) _ _ xs).
-    * apply (pr2 T).
-    * clear xs; intros x xs' IH.
-      set (IH_Sig := (tpair _ (exp_functor_list xs') IH) :
+  induction xs as [[|n] xs].
+  + induction xs.
+    apply (pr2 T).
+  + induction n as [|n IH].
+    * induction xs as [m []].
+      apply (pr2 (Sig_exp_functor m)).
+    * induction xs as [m [k xs]].
+      set (IH_Sig := (tpair _ _ (IH (k,,xs))) :
                        Signature (SET / sort) hs _ has_homsets_HSET).
-      induction xs'. (* needed for typechecking the next term *)
-      exact (pr2 (BinProduct_of_Signatures _ _ _ _ _ (Sig_exp_functor x) IH_Sig)).
+      exact (pr2 (BinProduct_of_Signatures _ _ _ _ _ (Sig_exp_functor _) IH_Sig)).
 Defined.
 
 Local Lemma functor_in_Sig_exp_functor_list_ok (xs : list (list sort × sort)) :
@@ -372,15 +372,33 @@ Local Lemma is_omega_cocont_exp_functor_list (xs : list (list sort × sort))
   (H : Colims_of_shape nat_graph SET_over_sort) :
   is_omega_cocont (exp_functor_list xs).
 Proof.
-  apply (list_ind (fun xs => is_omega_cocont (exp_functor_list xs))).
-  + apply is_omega_cocont_constant_functor, functor_category_has_homsets.
-  + clear xs; intros x xs IH.
+
+
+induction xs as [[|n] xs].
+- induction xs.
+  apply is_omega_cocont_constant_functor, functor_category_has_homsets.
+- induction n as [|n IHn].
+  + induction xs as [m []].
+    apply is_omega_cocont_exp_functor, H.
+  + induction xs as [m [k xs]].
     apply is_omega_cocont_BinProduct_of_functors; try apply homset_property.
     * apply BinProducts_functor_precat, BinProducts_slice_precat, PullbacksHSET.
     * apply is_omega_cocont_constprod_functor1; try apply functor_category_has_homsets.
       apply has_exponentials_functor_HSET, homset_property.
     * apply is_omega_cocont_exp_functor, H.
-    * induction xs. apply IH.
+    * apply (IHn (k,,xs)).
+
+
+
+  (* apply (list_ind (fun xs => is_omega_cocont (exp_functor_list xs))). *)
+  (* + apply is_omega_cocont_constant_functor, functor_category_has_homsets. *)
+  (* + clear xs; intros x xs IH. *)
+  (*   apply is_omega_cocont_BinProduct_of_functors; try apply homset_property. *)
+  (*   * apply BinProducts_functor_precat, BinProducts_slice_precat, PullbacksHSET. *)
+  (*   * apply is_omega_cocont_constprod_functor1; try apply functor_category_has_homsets. *)
+  (*     apply has_exponentials_functor_HSET, homset_property. *)
+  (*   * apply is_omega_cocont_exp_functor, H. *)
+  (*   * induction xs. apply IH. *)
 Defined.
 
 Local Lemma is_omega_cocont_post_comp_hat_functor (s : sort) :
