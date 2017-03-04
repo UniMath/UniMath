@@ -144,16 +144,16 @@ Defined.
 Definition exp_functor (lt : list sort × sort) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
 Proof.
-(* induction lt as [l t]. *)
-(* use (list_ind _ _ _ l); clear l. *)
-(* - apply post_comp, (proj_functor t). *)
-(* - intros s l _; simpl. *)
-(*   eapply functor_composite. *)
-(*   + exact (pre_composition_functor _ _ _ hs hs (option_list (cons s l))). *)
-(*   + apply post_comp, (proj_functor t). *)
-eapply functor_composite.
-+ exact (pre_composition_functor _ _ _ hs hs (option_list (pr1 lt))).
-+ apply post_comp, (proj_functor (pr2 lt)).
+induction lt as [l t].
+use (list_ind _ _ _ l); clear l.
+- apply post_comp, (proj_functor t).
+- intros s l _; simpl.
+  eapply functor_composite.
+  + exact (pre_composition_functor _ _ _ hs hs (option_list (cons s l))).
+  + apply post_comp, (proj_functor t).
+(* eapply functor_composite. *)
+(* + exact (pre_composition_functor _ _ _ hs hs (option_list (pr1 lt))). *)
+(* + apply post_comp, (proj_functor (pr2 lt)). *)
 Defined.
 
 (** This defines F^lts where lts is a list of (l,t). Outputs a product of
@@ -165,7 +165,6 @@ Proof.
 set (T := constant_functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET]
                            (constant_functor SET_over_sort HSET TerminalHSET)).
 (* TODO: Maybe use indexed finite products instead of a fold? *)
-(* foldr1 was used previously *)
 set (XS := map exp_functor xs).
 use (foldr1 (fun F G => BinProduct_of_functors _ _ _ F G) T XS).
 (* use (foldr (fun F G => BinProduct_of_functors _ _ _ (exp_functor F) G) T xs). *)
@@ -223,16 +222,17 @@ Proof.
 (*   apply (DL_comp _ _ _ (DL_sorted_option_functor s) _ IH). *)
 Defined.
 
-(* Lemma temp (t : sort) :    ∑ *)
-(*   θ : θ_source (post_comp (proj_functor t)) *)
-(*       ⟹ θ_target (post_comp (proj_functor t)), *)
-(*   θ_Strength1_int θ × θ_Strength2_int θ. *)
-(* Admitted. *)
+Lemma temp lt : ∑ θ : θ_source (exp_functor lt) ⟹ θ_target (exp_functor lt),
+  θ_Strength1_int θ × θ_Strength2_int θ.
+Admitted.
 
 (* the signature for exp_functor *)
 Local Definition Sig_exp_functor (lt : list sort × sort) :
   Signature _ hs _ has_homsets_HSET.
 Proof.
+exists (exp_functor lt).
+apply temp.
+
 (* induction lt as [l t]. *)
 (* use (list_ind _ _ _ l); clear l. *)
 (* - simpl. *)
@@ -243,8 +243,9 @@ Proof.
 (* - intros s l _. *)
 (*   set (Sig_option_list := θ_from_δ_Signature _ hs (option_list (cons s l)) (DL_option_list (cons s l))). *)
 (*   use (Gθ_Signature _ _ _ _ _ _ Sig_option_list (proj_functor t)). *)
-set (Sig_option_list := θ_from_δ_Signature _ hs (option_list (pr1 lt)) (DL_option_list (pr1 lt))).
-use (Gθ_Signature _ _ _ _ _ _ Sig_option_list (proj_functor (pr2 lt))).
+
+(* set (Sig_option_list := θ_from_δ_Signature _ hs (option_list (pr1 lt)) (DL_option_list (pr1 lt))). *)
+(* use (Gθ_Signature _ _ _ _ _ _ Sig_option_list (proj_functor (pr2 lt))). *)
 Defined.
 
 Local Lemma functor_in_Sig_exp_functor_ok (lt : list sort × sort) :
@@ -397,10 +398,31 @@ Local Lemma is_omega_cocont_exp_functor (a : list sort × sort)
   (H : Colims_of_shape nat_graph SET_over_sort) :
   is_omega_cocont (exp_functor a).
 Proof.
-apply is_omega_cocont_functor_composite.
-+ apply functor_category_has_homsets.
-+ apply is_omega_cocont_pre_composition_functor, H.
-+ apply is_omega_cocont_post_comp_proj.
+induction a as [xs t].
+induction xs as [[|n] xs].
+- induction xs.
+  apply is_omega_cocont_post_comp_proj.
+-
+destruct n as [|n].
+  + induction xs as [m []].
+use (@is_omega_cocont_functor_composite _ _ _ _ (ℓ (sorted_option_functor m))).
+* apply functor_category_has_homsets.
+* apply is_omega_cocont_pre_composition_functor, H.
+* apply is_omega_cocont_post_comp_proj.
++
+
+induction xs as [m k].
+simpl.
+use (@is_omega_cocont_functor_composite _ _ _ _ (ℓ (option_list _))).
+* simpl.
+  apply (functor_category_has_homsets (SET / sort) HSET has_homsets_HSET).
+* apply is_omega_cocont_pre_composition_functor, H.
+* apply is_omega_cocont_post_comp_proj.
+
+(* apply is_omega_cocont_functor_composite. *)
+(* + apply functor_category_has_homsets. *)
+(* + apply is_omega_cocont_pre_composition_functor, H. *)
+(* + apply is_omega_cocont_post_comp_proj. *)
 Defined.
 
 Local Lemma is_omega_cocont_exp_functor_list (xs : list (list sort × sort))

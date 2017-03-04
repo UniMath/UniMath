@@ -160,8 +160,8 @@ Definition app_source (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
 
 (* This is what it is: *)
 Definition app_source' (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
-         (1 ∙ X ∙ proj_functor sort (arr s t)) ⊗
-         (1 ∙ X ∙ proj_functor sort s)
+         (X ∙ proj_functor sort (arr s t)) ⊗
+         (X ∙ proj_functor sort s)
        ∙ hat_functor sort t.
 
 Lemma Coproducts_SET_over_sort2 : Coproducts ((sort × sort) + (sort × sort))%set SET_over_sort2.
