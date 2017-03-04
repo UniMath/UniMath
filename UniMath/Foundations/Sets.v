@@ -3023,7 +3023,9 @@ Definition AxiomOfChoice : hProp
   := ∀ (X:hSet), ischoicebase X.
 
 Definition AxiomOfChoice_surj : hProp
-  := ∀ X (Y:hSet) (f:X→Y), issurjective f ⇒ ∃ g, ∀ y, f (g y) = y.
+  := ∀ (X:hSet) (Y:UU) (f:Y→X), issurjective f ⇒ ∃ g, ∀ x, f (g x) = x.
+(** notice that the equation is a proposition only because X is a set,
+    which is not required in the previous formulation *)
 
 Lemma AC_impl2 : AxiomOfChoice ⇔ AxiomOfChoice_surj.
 Proof.
@@ -3038,7 +3040,7 @@ Proof.
     set (f := pr1 : T -> X).
     assert (k : issurjective f).
     { intros x. simple refine (hinhuniv _ (ne x)); intro p. apply hinhpr. exists (x,,p). reflexivity. }
-    simple refine (hinhuniv _ (AC T X f k)).
+    simple refine (hinhuniv _ (AC X T f k)).
     intro sec. induction sec as [g e]. apply hinhpr. intro x.
     assert (e' := e x); simpl in e'; clear e.
     induction (g x) as [x' p]; simpl in e'.
@@ -3078,7 +3080,7 @@ Proof.
   set (E := R,,e : eqrel bool).
   set (Y := setquotinset E).
   set (f := setquotpr E : bool -> Y).
-  assert (q := pr1 AC_impl2 AC boolset Y f (issurjsetquotpr E)).
+  assert (q := pr1 AC_impl2 AC Y boolset f (issurjsetquotpr E)).
   apply (squash_to_prop q).
   { apply isapropdec. apply propproperty. }
   clear q.
