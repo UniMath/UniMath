@@ -224,7 +224,24 @@ Defined.
 
 Lemma temp lt : ∑ θ : θ_source (exp_functor lt) ⟹ θ_target (exp_functor lt),
   θ_Strength1_int θ × θ_Strength2_int θ.
-Admitted.
+Proof.
+induction lt as [l t].
+simpl.
+  induction l as [[|n] xs].
+  + induction xs.
+use (pr2 (Gθ_Signature _ _ _ _ _ _ (IdSignature _ _) (proj_functor t))).
+    (* apply DL_id. *)
+  + induction n as [|n IH].
+    * induction xs as [m []].
+simpl.
+cbn.
+  set (Sig_option_list := θ_from_δ_Signature _ hs (option_list (cons m _)) (DL_option_list (cons m (0,,tt)))).
+  use (pr2 (Gθ_Signature _ _ _ _ _ _ Sig_option_list (proj_functor t))).
+    * induction xs as [m xs].
+simpl.
+  set (Sig_option_list := θ_from_δ_Signature _ hs (option_list (cons m _)) (DL_option_list (cons m (S n,,xs)))).
+  use (pr2 (Gθ_Signature _ _ _ _ _ _ Sig_option_list (proj_functor t))).
+Defined.
 
 (* the signature for exp_functor *)
 Local Definition Sig_exp_functor (lt : list sort × sort) :
@@ -232,7 +249,6 @@ Local Definition Sig_exp_functor (lt : list sort × sort) :
 Proof.
 exists (exp_functor lt).
 apply temp.
-
 (* induction lt as [l t]. *)
 (* use (list_ind _ _ _ l); clear l. *)
 (* - simpl. *)
