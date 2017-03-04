@@ -5,8 +5,8 @@
        them "raw" to distinguish them from matrices formed from direct
        sum decompositions. *)
 
+Require Import UniMath.MoreFoundations.All.
 Require Import
-        UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Representation

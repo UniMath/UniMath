@@ -1,13 +1,12 @@
 (* -*- coding: utf-8 -*- *)
 
+Require Import UniMath.MoreFoundations.All.
 Require Export UniMath.Ktheory.Utilities.
 Require Export UniMath.CategoryTheory.precategories. (* export its coercions, especially *)
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
                UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.functor_categories.
-Require Export UniMath.Foundations.Preamble.
-Require Export UniMath.Foundations.Sets.
 Require Export UniMath.CategoryTheory.category_hset.
 
 Local Open Scope cat.
