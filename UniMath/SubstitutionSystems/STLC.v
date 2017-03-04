@@ -178,7 +178,7 @@ Defined.
 (* How to write this nicer? *)
 Definition lam_source' (s t : sort) (X : SET_over_sort2) : SET_over_sort2.
 Proof.
-set (F := ((sorted_option_functor sort s ∙ 1 ∙ X) ∙ proj_functor sort t)
+set (F := ((sorted_option_functor sort s ∙ X) ∙ proj_functor sort t)
          ∙ hat_functor sort (arr s t)).
 unfold sorted_option_functor in F.
 cbn in F.

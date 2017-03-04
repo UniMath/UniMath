@@ -134,19 +134,26 @@ Definition sorted_option_functor (s : sort) : functor (SET / sort) (SET / sort) 
 (** sorted option functor for lists (also called option in the note) *)
 Local Definition option_list (xs : list sort) : functor (SET / sort) (SET / sort).
 Proof.
-use (foldr _ _ xs).
-+ intros s F.
-  apply (sorted_option_functor s ∙ F).
-+ apply functor_identity.
+use (foldr1 (fun F G => F ∙ G) (functor_identity _) (map sorted_option_functor xs)).
+(* + intros s F. *)
+(*   apply (sorted_option_functor s ∙ F). *)
+(* + apply functor_identity. *)
 Defined.
 
 (** Define a functor F^(l,t)(X) := proj_functor(t) ∘ X ∘ option_functor(l) *)
 Definition exp_functor (lt : list sort × sort) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
 Proof.
+(* induction lt as [l t]. *)
+(* use (list_ind _ _ _ l); clear l. *)
+(* - apply post_comp, (proj_functor t). *)
+(* - intros s l _; simpl. *)
+(*   eapply functor_composite. *)
+(*   + exact (pre_composition_functor _ _ _ hs hs (option_list (cons s l))). *)
+(*   + apply post_comp, (proj_functor t). *)
 eapply functor_composite.
-- apply (pre_composition_functor _ _ _ hs _ (option_list (pr1 lt))).
-- apply post_comp, (proj_functor (pr2 lt)).
++ exact (pre_composition_functor _ _ _ hs hs (option_list (pr1 lt))).
++ apply post_comp, (proj_functor (pr2 lt)).
 Defined.
 
 (** This defines F^lts where lts is a list of (l,t). Outputs a product of
@@ -199,26 +206,54 @@ Local Definition DL_sorted_option_functor (s : sort) :
     genoption_DistributiveLaw _ hs (constHSET_slice s)(BinCoproducts_HSET_slice sort).
 
 (* the DL for option_list *)
-Local Definition DL_option_list (xs : list sort) : DistributiveLaw _ hs (option_list xs).
+Local Definition DL_option_list (xs : list sort) :
+  DistributiveLaw _ hs (option_list xs).
 Proof.
-apply (list_ind (fun xs => DistributiveLaw _ hs (option_list xs))).
-+ apply DL_id.
-+ intros s xs' IH. induction xs'. (* the latter seems to be needed *)
-  apply (DL_comp _ _ _ (DL_sorted_option_functor s) _ IH).
+  induction xs as [[|n] xs].
+  + induction xs.
+    apply DL_id.
+  + induction n as [|n IH].
+    * induction xs as [m []].
+      apply DL_sorted_option_functor.
+    * induction xs as [m [k xs]].
+      apply (DL_comp _ _ _ (DL_sorted_option_functor m) _ (IH (k,,xs))).
+(* apply (list_ind (fun xs => DistributiveLaw _ hs (option_list xs))). *)
+(* + apply DL_id. *)
+(* + intros s xs' IH. induction xs'. (* the latter seems to be needed *) *)
+(*   apply (DL_comp _ _ _ (DL_sorted_option_functor s) _ IH). *)
 Defined.
+
+(* Lemma temp (t : sort) :    ∑ *)
+(*   θ : θ_source (post_comp (proj_functor t)) *)
+(*       ⟹ θ_target (post_comp (proj_functor t)), *)
+(*   θ_Strength1_int θ × θ_Strength2_int θ. *)
+(* Admitted. *)
 
 (* the signature for exp_functor *)
 Local Definition Sig_exp_functor (lt : list sort × sort) :
   Signature _ hs _ has_homsets_HSET.
 Proof.
+(* induction lt as [l t]. *)
+(* use (list_ind _ _ _ l); clear l. *)
+(* - simpl. *)
+(*   exists (post_comp (proj_functor t)). *)
+(*   apply temp. *)
+(*   (* This does not give the same thing: *) *)
+(*   (* use (Gθ_Signature _ _ _ _ _ _ (IdSignature _ _) (proj_functor t)). *) *)
+(* - intros s l _. *)
+(*   set (Sig_option_list := θ_from_δ_Signature _ hs (option_list (cons s l)) (DL_option_list (cons s l))). *)
+(*   use (Gθ_Signature _ _ _ _ _ _ Sig_option_list (proj_functor t)). *)
 set (Sig_option_list := θ_from_δ_Signature _ hs (option_list (pr1 lt)) (DL_option_list (pr1 lt))).
-apply (Gθ_Signature _ _ _ _ _ _ Sig_option_list (proj_functor (pr2 lt))).
+use (Gθ_Signature _ _ _ _ _ _ Sig_option_list (proj_functor (pr2 lt))).
 Defined.
 
 Local Lemma functor_in_Sig_exp_functor_ok (lt : list sort × sort) :
   Signature_Functor _ _ _ _ (Sig_exp_functor lt) = exp_functor lt.
 Proof.
-  apply idpath.
+apply idpath.
+(* induction lt as [l t]. *)
+(* induction l as [n l]. *)
+(* induction n as [|n _]; induction l; apply idpath. *)
 Qed.
 
 (* The signature for exp_functor_list, complications arise since the underlying functor should be
