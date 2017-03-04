@@ -8,43 +8,10 @@ Require Import UniMath.Combinatorics.OrderedSets.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.UnivalenceAxiom.
+
 Local Open Scope poset.
 
-Local Open Scope subset.
-
-Definition isIn {X:UU} {S:hsubtype X} (s:S) (T:hsubtype X) := T (pr1 s).
-
-Local Notation " s ∈ T " := (isIn s T) (at level 95) : subset.
-
-Local Notation " s ∉ T " := (¬ (isIn s T)) (at level 95) : subset.
-
-Definition containedIn {X:UU} (S T : hsubtype X) : hProp.
-Proof.
-  exists (∏ s:S, s ∈ T). apply impred; intros x. apply propproperty.
-Defined.
-
-Local Notation " S ⊆ T " := (containedIn S T) (at level 95) : subset.
-
-Definition notContainedIn {X:UU} (S T : hsubtype X) : hProp := ∃ s:S, s ∉ T.
-
-Local Notation " S ⊈ T " := (notContainedIn S T) (at level 95) : subset.
-
-Definition smallerThan {X:UU} (S T : hsubtype X) : hProp := (S ⊆ T) ∧ (T ⊈ S).
-
-Local Notation " S ⊊ T " := (smallerThan S T) (at level 95) : subset.
-
-Definition equal {X:UU} (S T : hsubtype X) : hProp := (S ⊆ T) ∧ (T ⊆ S).
-
-Local Notation " S ≡ T " := (equal S T) (at level 95) : subset.
-
-Definition notEqual {X:UU} (S T : hsubtype X) : hProp := (S ⊈ T) ∨ (T ⊈ S).
-
-Local Notation " S ≢ T " := (notEqual S T) (at level 95) : subset.
-
-Local Definition inc {X:UU} {S T : hsubtype X} : S ⊆ T -> S -> T.
-Proof.
-  intros le s. exact (pr1 s,, le s).
-Defined.
+Local Open Scope subtype.
 
 Notation "'pr11' x" := (pr1 (pr1 x)) (at level 9).
 Notation "'pr12' x" := (pr1 (pr2 x)) (at level 9).
@@ -227,7 +194,7 @@ Open Scope logic.
 Open Scope prop.
 
 Definition subposet {X:hSet} (S T:SubsetWithWellOrdering X) : hProp
-  := ∑ (le : S ⊆ T), ∀ s s' : S, s ≤ s' ⇒ inc le s ≤ inc le s'.
+  := ∑ (le : S ⊆ T), ∀ s s' : S, s ≤ s' ⇒ subtype_inc le s ≤ subtype_inc le s'.
 
 Notation " S ⊑ T " := (subposet S T) (at level 95) : wosubset.
 
