@@ -4,14 +4,11 @@
 
 (** In this file our goal is to prove Zorn's Lemma and Zermelo's Well-Ordering Theorem. *)
 
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.OrderedSets.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.UnivalenceAxiom.
-
 Local Open Scope poset.
-
 Local Open Scope subtype.
+Local Open Scope logic.
 
 Notation "'pr11' x" := (pr1 (pr1 x)) (at level 9).
 Notation "'pr12' x" := (pr1 (pr2 x)) (at level 9).
@@ -142,35 +139,6 @@ Notation "'pr222212' x" := (pr2 (pr2 (pr2 (pr2 (pr1 (pr2 x)))))) (at level 9).
 Notation "'pr222221' x" := (pr2 (pr2 (pr2 (pr2 (pr2 (pr1 x)))))) (at level 9).
 Notation "'pr222222' x" := (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 x)))))) (at level 9).
 
-(* Definition isClosedSubposet {W:Poset} (Y X:hsubtype W) : hProp. *)
-(* Proof. *)
-(*   exists ( *)
-(*       (∏ x:W, Y x -> X x) *)
-(*         × *)
-(*         (∏ (x y:W), Y y -> X x -> x ≤ y -> Y x)). *)
-(*   apply isapropdirprod. *)
-(*   - apply impred; intro y; apply impred; intro h. apply propproperty. *)
-(*   - apply impred; intro x; apply impred; intro y; apply impred; intro k; *)
-(*       apply impred; intro h; apply impred; intro le. *)
-(*     apply propproperty. *)
-(* Defined. *)
-
-(* Definition WellOrderedSet := (∑ (X:hSet) (R:hrel X), isWellOrder R)%type. *)
-
-(* Definition WellOrderedSet_to_OrderedSet (X:WellOrderedSet) : OrderedSet. *)
-(* Proof. *)
-(*   unfold WellOrderedSet in X. unfold isWellOrder in X. unfold isTotalOrder in X. *)
-(*   use tpair. *)
-(*   - use tpair. *)
-(*     + exact (pr1 X). *)
-(*     + simpl. use tpair. *)
-(*       * exact (pr12 X). *)
-(*       * simpl. exact (pr1122 X). *)
-(*   - simpl. exact (pr2122 X). *)
-(* Defined. *)
-
-(* Coercion WellOrderedSet_to_OrderedSet : WellOrderedSet >-> OrderedSet. *)
-
 Definition SubsetWithWellOrdering (X:hSet) :=
   (∑ (S:hsubtype X) (R : hrel S), isWellOrder R)%type.
 
@@ -187,7 +155,9 @@ Open Scope wosubset.
 
 Delimit Scope wosubset with wosubset.
 
-Notation " s ≤ s' " := (rel _ s s') : wosubset.
+Notation "s ≤ s'" := (rel _ s s') : wosubset.
+
+Notation "s < s'" := ((s ≤ s') ∧ ¬ (s = s')) : wosubset.
 
 Open Scope logic.
 
@@ -205,7 +175,7 @@ Definition subposet_to_subtype {X:hSet} {S T:SubsetWithWellOrdering X} : S ⊑ T
 
 Local Definition inc' {X} {S T : SubsetWithWellOrdering X} : (S ⊑ T) -> S -> T.
 Proof.
-  intros le s. exact (pr1 s,, subposet_to_subtype le s).
+  intros le s. exact (subtype_inc (subposet_to_subtype le) s).
 Defined.
 
 Definition subposet_reflect {X:hSet} {S T:SubsetWithWellOrdering X} (le : S ⊑ T)
@@ -233,3 +203,15 @@ Definition isclosed {X:hSet} (S T:SubsetWithWellOrdering X) : hProp
   := ∑ (le : S ⊑ T), ∀ (s:S) (t:T), t ≤ inc' le s ⇒ (t ∈ S).
 
 Notation "S ≼ T" := (isclosed S T) (at level 95) : wosubset.
+
+Definition isclosed_smaller {X:hSet} (S T:SubsetWithWellOrdering X) : hProp := (S ≼ T) ∧ (T ⊊ S).
+
+Notation "S ≺ T" := (isclosed_smaller S T) (at level 95) : wosubset.
+
+Definition upto {X:hSet} {S:SubsetWithWellOrdering X} (s:S) : hsubtype X
+  := λ x, ∑ h:S x, (x,,h) < s.
+
+Definition isInterval {X:hSet} (S T:SubsetWithWellOrdering X) : S ≺ T -> ∑ t:T, S ≡ upto t.
+Proof.
+  intro lt.
+Abort.

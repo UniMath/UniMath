@@ -7,6 +7,102 @@ Local Open Scope poset.
 
 (** partially ordered sets and ordered sets *)
 
+Definition isTotalOrder {X : UU} (R : hrel X) : UU
+  := isPartialOrder R × istotal R.
+
+Definition mincondition {X : UU} (R : hrel X) : UU
+  := ∏ S : hsubtype X, (∃ s, S s) -> ∑ s:X, S s × ∏ t:X, S t -> R s t.
+
+Lemma iswellordering_istotal {X : UU} (R : hrel X) : mincondition R -> istotal R.
+Proof.
+  intros ? ? iswell x y.
+  (* make the doubleton subset containing x and y *)
+  set (S := λ z, ∥ (z=x) ⨿ (z=y) ∥).
+  assert (x' := hinhpr (ii1 (idpath _)) : S x).
+  assert (y' := hinhpr (ii2 (idpath _)) : S y).
+  assert (h : ∃ s, S s).
+  { apply hinhpr. exists x. exact x'. }
+  assert (q := iswell S h); clear h iswell.
+  induction q as [s min], min as [h issmallest].
+  apply (squash_to_prop h).
+  { apply propproperty. }
+  clear h. intro d. apply hinhpr. induction d as [d|d].
+  - induction (!d); clear d. now apply ii1, issmallest.
+  - induction (!d); clear d. now apply ii2, issmallest.
+Defined.
+
+Lemma isaprop_assume_it_is {X : UU} : (X -> isaprop X) -> isaprop X.
+(* upstream near iscontraprop1inv *)
+Proof.
+  intros X f. apply invproofirrelevance; intros x y.
+  apply proofirrelevance. now apply f.
+Defined.
+
+Lemma isaprop_mincondition {X : hSet} (R : hrel X) : isantisymm R -> isaprop (mincondition R).
+Proof.
+  intros ? ? antisymm.
+  apply isaprop_assume_it_is; intro min.
+  assert (istot := iswellordering_istotal R min).
+  apply impred. intro S. apply impred. intros _.
+  apply invproofirrelevance. intros s t.
+  apply subtypeEquality.
+  * intros x. apply isapropdirprod.
+    + apply propproperty.
+    + apply impred; intro y. apply impred; intros _. apply propproperty.
+  * induction s as [x i], t as [y j], i as [I i], j as [J j]; simpl.
+    apply (squash_to_prop (istot x y)).
+    { apply setproperty. }
+    intro c. induction c as [c|c].
+    - apply antisymm.
+      + exact c.
+      + now apply j.
+    - apply antisymm.
+      + now apply i.
+      + exact c.
+Defined.
+
+Definition isWellOrder {X : UU} (R : hrel X) : UU
+  := isTotalOrder R × mincondition R.
+
+Lemma isaprop_isTotalOrder {X : hSet} (R : hrel X) : isaprop (isTotalOrder R).
+Proof.
+  intros. apply isapropdirprod.
+  - apply isaprop_isPartialOrder.
+  - apply isaprop_istotal.
+Defined.
+
+Lemma isaprop_isWellOrder {X : hSet} (R : hrel X) : isaprop (isWellOrder R).
+Proof.
+  intros.
+  apply isaprop_assume_it_is; intro iswell.
+  induction iswell as [istot hasmin].
+  induction istot as [ispo istot].
+  unwrap_isPartialOrder ispo.
+  apply isapropdirprod.
+  { apply isaprop_isTotalOrder. }
+  now apply isaprop_mincondition.
+Defined.
+
+Definition isSmallest {X : Poset} (x : X) : UU := ∏ y, x ≤ y.
+
+Definition isBiggest {X : Poset} (x : X) : UU := ∏ y, y ≤ x.
+
+Definition isMinimal {X : Poset} (x : X) : UU := ∏ y, y ≤ x -> x = y.
+
+Definition isMaximal {X : Poset} (x : X) : UU := ∏ y, x ≤ y -> x = y.
+
+Definition consecutive {X : Poset} (x y : X) : UU := x < y × ∏ z, ¬ (x < z × z < y).
+
+Lemma isaprop_isSmallest {X : Poset} (x : X) : isaprop (isSmallest x).
+Proof.
+  intros. unfold isSmallest. apply impred_prop.
+Defined.
+
+Lemma isaprop_isBiggest {X : Poset} (x : X) : isaprop (isBiggest x).
+Proof.
+  intros. unfold isBiggest. apply impred_prop.
+Defined.
+
 Definition Poset_univalence_map {X Y:Poset} : X=Y -> PosetEquivalence X Y.
 Proof. intros ? ? e. induction e. apply identityPosetEquivalence.
 Defined.

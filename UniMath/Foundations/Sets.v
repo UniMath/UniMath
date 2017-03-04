@@ -297,74 +297,6 @@ Notation "'∑' x .. y , P"
   (at level 200, x binder, y binder, right associativity) : subset.
   (* type this in emacs in agda-input method with \sum *)
 
-Delimit Scope subtype with subtype.
-
-Local Open Scope subtype.
-
-Definition subtype_isIn {X:UU} {S:hsubtype X} (s:S) (T:hsubtype X) : hProp := T (pr1 s).
-
-Notation " s ∈ T " := (subtype_isIn s T) (at level 95) : subtype.
-
-Notation " s ∉ T " := (¬ (subtype_isIn s T)) (at level 95) : subtype.
-
-Definition subtype_containedIn {X:UU} (S T : hsubtype X) : hProp.
-Proof.
-  intros. exists (∏ s:S, s ∈ T). apply impred; intros x. apply propproperty.
-Defined.
-
-Notation " S ⊆ T " := (subtype_containedIn S T) (at level 95) : subtype.
-
-Definition subtype_notContainedIn {X:UU} (S T : hsubtype X) : hProp := ∃ s:S, s ∉ T.
-
-Notation " S ⊈ T " := (subtype_notContainedIn S T) (at level 95) : subtype.
-
-Definition subtype_smallerThan {X:UU} (S T : hsubtype X) : hProp := (S ⊆ T) ∧ (T ⊈ S).
-
-Notation " S ⊊ T " := (subtype_smallerThan S T) (at level 95) : subtype.
-
-Local Open Scope logic.
-
-Definition subtype_equal {X:UU} (S T : hsubtype X) : hProp := ∀ x, S x ⇔ T x.
-
-Notation " S ≡ T " := (subtype_equal S T) (at level 95) : subtype.
-
-Definition subtype_notEqual {X:UU} (S T : hsubtype X) : hProp := (S ⊈ T) ∨ (T ⊈ S).
-
-Notation " S ≢ T " := (subtype_notEqual S T) (at level 95) : subtype.
-
-Definition subtype_inc {X:UU} {S T : hsubtype X} : S ⊆ T -> S -> T.
-Proof.
-  intros ? ? ? le s. exact (pr1 s,, le s).
-Defined.
-
-Lemma subtype_equal_cond {X:UU} (S T : hsubtype X) : ((S ⊆ T) ∧ (T ⊆ S)) ⇔ (S ≡ T).
-Proof.
-  split.
-  - intros c x. induction c as [st ts].
-    split.
-    + intro s. exact (st (x,,s)).
-    + intro t. exact (ts (x,,t)).
-  - intro e. split.
-    + intro s. exact (pr1 (e (pr1 s)) (pr2 s)).
-    + intro t. exact (pr2 (e (pr1 t)) (pr2 t)).
-Defined.
-
-Theorem hsubtype_univalence {X:UU} (S T : hsubtype X) : (S = T) ≃ (S ≡ T).
-Proof.
-  intros. intermediate_weq (∏ x, S x = T x).
-  - apply weqtoforallpaths.
-  - unfold subtype_equal. apply weqonsecfibers; intro x.
-    apply weqlogeq.
-Defined.
-
-Theorem hsubtype_rect {X:UU} (S T : hsubtype X) (P : S ≡ T -> UU) :
-  (∏ e : S=T, P (hsubtype_univalence S T e)) ≃ ∏ f, P f.
-Proof.
-  intros. apply weqinvweq, weqonsecbase.
-Defined.
-
-Ltac hsubtype_induction f e := generalize f; apply hsubtype_rect; intro e; clear f.
-
 Delimit Scope subset with subset.
 
 Lemma isinclpr1carrier {X : UU} (A : hsubtype X) : isincl (@pr1carrier X A).
@@ -606,63 +538,6 @@ Definition isPartialOrder {X : UU} (R : hrel X) : UU
 Ltac unwrap_isPartialOrder i :=
   induction i as [transrefl antisymm]; induction transrefl as [trans refl].
 
-Definition isTotalOrder {X : UU} (R : hrel X) : UU
-  := isPartialOrder R × istotal R.
-
-Definition mincondition {X : UU} (R : hrel X) : UU
-  := ∏ S : hsubtype X, (∃ s, S s) -> ∑ s:X, S s × ∏ t:X, S t -> R s t.
-
-Lemma iswellordering_istotal {X : UU} (R : hrel X) : mincondition R -> istotal R.
-Proof.
-  intros ? ? iswell x y.
-  (* make the doubleton subset containing x and y *)
-  set (S := λ z, ∥ (z=x) ⨿ (z=y) ∥).
-  assert (x' := hinhpr (ii1 (idpath _)) : S x).
-  assert (y' := hinhpr (ii2 (idpath _)) : S y).
-  assert (h : ∃ s, S s).
-  { apply hinhpr. exists x. exact x'. }
-  assert (q := iswell S h); clear h iswell.
-  induction q as [s min], min as [h issmallest].
-  apply (squash_to_prop h).
-  { apply propproperty. }
-  clear h. intro d. apply hinhpr. induction d as [d|d].
-  - induction (!d); clear d. now apply ii1, issmallest.
-  - induction (!d); clear d. now apply ii2, issmallest.
-Defined.
-
-Lemma isaprop_assume_it_is {X : UU} : (X -> isaprop X) -> isaprop X.
-(* upstream near iscontraprop1inv *)
-Proof.
-  intros X f. apply invproofirrelevance; intros x y.
-  apply proofirrelevance. now apply f.
-Defined.
-
-Lemma isaprop_mincondition {X : hSet} (R : hrel X) : isantisymm R -> isaprop (mincondition R).
-Proof.
-  intros ? ? antisymm.
-  apply isaprop_assume_it_is; intro min.
-  assert (istot := iswellordering_istotal R min).
-  apply impred. intro S. apply impred. intros _.
-  apply invproofirrelevance. intros s t.
-  apply subtypeEquality.
-  * intros x. apply isapropdirprod.
-    + apply propproperty.
-    + apply impred; intro y. apply impred; intros _. apply propproperty.
-  * induction s as [x i], t as [y j], i as [I i], j as [J j]; simpl.
-    apply (squash_to_prop (istot x y)).
-    { apply setproperty. }
-    intro c. induction c as [c|c].
-    - apply antisymm.
-      + exact c.
-      + now apply j.
-    - apply antisymm.
-      + now apply i.
-      + exact c.
-Defined.
-
-Definition isWellOrder {X : UU} (R : hrel X) : UU
-  := isTotalOrder R × mincondition R.
-
 Definition isantisymmneg {X : UU} (R : hrel X) : UU
   := ∏ (x1 x2 : X), ¬ R x1 x2 -> ¬ R x2 x1 -> x1 = x2.
 
@@ -719,25 +594,6 @@ Proof.
   apply isapropdirprod.
   { apply isaprop_ispreorder. }
   { apply isaprop_isantisymm. }
-Defined.
-
-Lemma isaprop_isTotalOrder {X : hSet} (R : hrel X) : isaprop (isTotalOrder R).
-Proof.
-  intros. apply isapropdirprod.
-  - apply isaprop_isPartialOrder.
-  - apply isaprop_istotal.
-Defined.
-
-Lemma isaprop_isWellOrder {X : hSet} (R : hrel X) : isaprop (isWellOrder R).
-Proof.
-  intros.
-  apply isaprop_assume_it_is; intro iswell.
-  induction iswell as [istot hasmin].
-  induction istot as [ispo istot].
-  unwrap_isPartialOrder ispo.
-  apply isapropdirprod.
-  { apply isaprop_isTotalOrder. }
-  now apply isaprop_mincondition.
 Defined.
 
 (** the relations on a set form a set *)
@@ -962,59 +818,6 @@ Lemma isaprop_isaposetmorphism {X Y : Poset} (f : X -> Y) :
   isaprop (isaposetmorphism f).
 Proof. intros. apply impredtwice; intros. apply impred_prop. Defined.
 
-Definition Subposet (X:Poset) := hsubtype X. (* this seems simpler than the next one *)
-
-Definition Subposet' (X:Poset) := ∑ (S:Poset) (f:posetmorphism S X), isincl f.
-
-Definition Subposet'_to_Poset {X:Poset} (S:Subposet' X) := pr1 S.
-
-Coercion Subposet'_to_Poset : Subposet' >-> Poset.
-
-Definition Subposet_to_Subposet' {X:Poset} : Subposet X -> Subposet' X.
-Proof.
-  intros X S. use tpair.
-  - exists (carrier_subset S).
-    use tpair.
-    + intros s t. exact (pr1 s ≤ pr1 t)%poset.
-    + simpl. split.
-      { split.
-        { intros s t u. exact (istrans_posetRelation _ _ _ _). }
-        { intros s. exact (isrefl_posetRelation _ _). } }
-      { intros s t a b. apply subtypeEquality_prop. exact (isantisymm_posetRelation _ _ _ a b). }
-  - simpl. use tpair.
-    + exists (pr1carrier _).
-      intros s t a. simpl in s,t. exact a.
-    + simpl. apply isinclpr1carrier.
-Defined.
-
-Definition Subposet'_to_Subposet {X:Poset} : Subposet' X -> Subposet X.
-Proof.
-  intros X S x. set (f := pr1 (pr2 S)); simpl in f. exact (nonempty (hfiber f x)).
-Defined.
-
-Coercion Subposet_to_Subposet' : Subposet >-> Subposet'.
-
-Definition Subposet'_equiv_Subposet (X:Poset) : Subposet' X ≃ Subposet X.
-Proof.
-  intros.
-  exists Subposet'_to_Subposet.
-  apply set_bijection_to_weq.
-  - split.
-    + intros S.
-      exists (Subposet_to_Subposet' S).
-      apply funextfun; intro z.
-      apply hPropUnivalence.
-      * simple refine (hinhuniv _); intro w.
-        simpl in w. induction w as [s p]. induction s as [y q]; simpl in p.
-        induction p. exact q.
-      * intro h. apply hinhpr. exists (z,,h). reflexivity.
-    + intros S T p.
-      (* first develop univalence for posets and Poset_rect *)
-      admit.
-  - unfold Subposet.
-    apply isasethsubtype.
-Abort.
-
 (** the preorders on a set form a set *)
 
 Definition isaset_po (X : hSet) : isaset (po X).
@@ -1058,7 +861,6 @@ Definition PosetEquivalence (X Y : Poset) : UU
   := ∑ f : X ≃ Y, isPosetEquivalence f.
 
 Local Open Scope poset.
-
 Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) :
                       poset.
 (* written \cong in Agda input method *)
@@ -1082,25 +884,19 @@ Defined.
 (** poset concepts *)
 
 Notation "m < n" := (m ≤ n × m != n)%poset (only parsing) : poset.
+Definition isMinimal {X : Poset} (x : X) : UU := ∏ y, x ≤ y.
+Definition isMaximal {X : Poset} (x : X) : UU := ∏ y, y ≤ x.
+Definition consecutive {X : Poset} (x y : X) : UU
+  := x < y × ∏ z, ¬ (x < z × z < y).
 
-Definition isSmallest {X : Poset} (x : X) : UU := ∏ y, x ≤ y.
-
-Definition isBiggest {X : Poset} (x : X) : UU := ∏ y, y ≤ x.
-
-Definition isMinimal {X : Poset} (x : X) : UU := ∏ y, y ≤ x -> x = y.
-
-Definition isMaximal {X : Poset} (x : X) : UU := ∏ y, x ≤ y -> x = y.
-
-Definition consecutive {X : Poset} (x y : X) : UU := x < y × ∏ z, ¬ (x < z × z < y).
-
-Lemma isaprop_isSmallest {X : Poset} (x : X) : isaprop (isSmallest x).
+Lemma isaprop_isMinimal {X : Poset} (x : X) : isaprop (isMaximal x).
 Proof.
-  intros. unfold isSmallest. apply impred_prop.
+  intros. unfold isMaximal. apply impred_prop.
 Defined.
 
-Lemma isaprop_isBiggest {X : Poset} (x : X) : isaprop (isBiggest x).
+Lemma isaprop_isMaximal {X : Poset} (x : X) : isaprop (isMaximal x).
 Proof.
-  intros. unfold isBiggest. apply impred_prop.
+  intros. unfold isMaximal. apply impred_prop.
 Defined.
 
 Lemma isaprop_consecutive {X : Poset} (x y : X) : isaprop (consecutive x y).
@@ -3202,7 +2998,6 @@ Proof.
   Unset Printing Coercions.
 Defined.
 
-
 Theorem hSet_rect (X Y : hSet) (P : X ≃ Y -> UU) :
   (∏ e : X=Y, P (hSet_univalence _ _ e)) -> ∏ f, P f.
 Proof.
@@ -3214,6 +3009,6 @@ Proof.
   Unset Printing Coercions.
 Defined.
 
-Ltac hSet_induction f e := generalize f; apply hSet_rect; intro e; clear f.
+Ltac hSet_induction f e := generalize f; apply UU_rect; intro e; clear f.
 
 (* End of the file hSet.v *)
