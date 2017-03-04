@@ -154,17 +154,11 @@ Local Notation "x ⊗ y" := (BinProductObject _ (foo x y)) (at level 10).
 Definition var_map : SET_over_sort2⟦1,STLC⟧ :=
   BinCoproductIn1 SET_over_sort2 _ · STLC_mor.
 
+(* This is what I want the source of app to be: *)
 Definition app_source (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
   (X ∙ proj_functor sort (arr s t)) ⊗ (X ∙ proj_functor sort s) ∙ hat_functor sort t.
-(* Proof. *)
-(* eapply (@functor_composite _ SET). *)
-(* + use (_ ⊗ _). *)
-(*   use (functor_composite X (proj_functor _ (arr s t))). *)
-(*   use (functor_composite X (proj_functor _ s)). *)
-(* + apply (hat_functor _ t). *)
-(* Defined. *)
 
-(* Get rid of constant_functor? *)
+(* This is what it is: *)
 Definition app_source' (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
          (1 ∙ X ∙ proj_functor sort (arr s t)) ⊗
          (1 ∙ X ∙ proj_functor sort s)
