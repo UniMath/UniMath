@@ -89,7 +89,7 @@ Local Notation "C / X" := (slicecat_ob C X).
 Local Notation "C / X" := (slice_precat_data C X).
 Local Notation "C / X" := (slice_precat C X (homset_property C)).
 
-Print STLC_Sig.
+(* Print STLC_Sig. *)
 
 Let SET : Precategory := (HSET,,has_homsets_HSET).
 Local Definition SET_over_sort : Precategory.
@@ -155,7 +155,7 @@ Definition var_map : SET_over_sort2⟦1,STLC⟧ :=
   BinCoproductIn1 SET_over_sort2 _ · STLC_mor.
 
 Definition app_source (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
-  (STLC ∙ proj_functor sort (arr s t)) ⊗ (STLC ∙ proj_functor sort s) ∙ hat_functor sort t.
+  (X ∙ proj_functor sort (arr s t)) ⊗ (X ∙ proj_functor sort s) ∙ hat_functor sort t.
 (* Proof. *)
 (* eapply (@functor_composite _ SET). *)
 (* + use (_ ⊗ _). *)
@@ -164,26 +164,11 @@ Definition app_source (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
 (* + apply (hat_functor _ t). *)
 (* Defined. *)
 
-(* How to write this nicer? *)
-Definition app_source' (s t : sort) (X : SET_over_sort2) : SET_over_sort2.
-Proof.
-apply (functor_compose has_homsets_HSET (has_homsets_slice_precat has_homsets_HSET sort)
-         (BinProduct_of_functors_ob
-            [SET / sort, slice_precat HSET sort has_homsets_HSET, has_homsets_slice_precat has_homsets_HSET sort]
-            [SET / sort, HSET, has_homsets_HSET]
-            (BinProducts_functor_precat (slice_precat HSET sort has_homsets_HSET) HSET BinProductsHSET
-               has_homsets_HSET) (MultiSorted.exp_functor sort ([],, arr s t))
-            (BinProduct_of_functors
-               [SET / sort, slice_precat HSET sort has_homsets_HSET,
-               has_homsets_slice_precat has_homsets_HSET sort] [SET / sort, HSET, has_homsets_HSET]
-               (BinProducts_functor_precat (slice_precat HSET sort has_homsets_HSET) HSET BinProductsHSET
-                  has_homsets_HSET) (MultiSorted.exp_functor sort ([],, s))
-               (constant_functor
-                  [SET / sort, slice_precat HSET sort has_homsets_HSET,
-                  has_homsets_slice_precat has_homsets_HSET sort] [SET / sort, HSET, has_homsets_HSET]
-                  (constant_functor (slice_precat HSET sort has_homsets_HSET) HSET 1%CS))) X)
-         (hat_functor sort t)).
-Defined.
+(* Get rid of constant_functor? *)
+Definition app_source' (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
+         (1 ∙ X ∙ proj_functor sort (arr s t)) ⊗
+         ((1 ∙ X ∙ proj_functor sort s) ⊗ (constant_functor _ _ 1%CS))
+       ∙ hat_functor sort t.
 
 Lemma Coproducts_SET_over_sort2 : Coproducts ((sort × sort) + (sort × sort))%set SET_over_sort2.
 Proof.
@@ -199,17 +184,12 @@ Defined.
 (* How to write this nicer? *)
 Definition lam_source' (s t : sort) (X : SET_over_sort2) : SET_over_sort2.
 Proof.
-apply (functor_compose has_homsets_HSET (has_homsets_slice_precat has_homsets_HSET sort)
-         (BinProduct_of_functors_ob
-            [SET / sort, slice_precat HSET sort has_homsets_HSET, has_homsets_slice_precat has_homsets_HSET sort]
-            [SET / sort, HSET, has_homsets_HSET]
-            (BinProducts_functor_precat (slice_precat HSET sort has_homsets_HSET) HSET BinProductsHSET
-               has_homsets_HSET) (MultiSorted.exp_functor sort ((s :: []),, t))
-            (constant_functor
-               [SET / sort, slice_precat HSET sort has_homsets_HSET,
-               has_homsets_slice_precat has_homsets_HSET sort] [SET / sort, HSET, has_homsets_HSET]
-               (constant_functor (slice_precat HSET sort has_homsets_HSET) HSET 1%CS)) X)
-         (hat_functor sort (arr s t))).
+set (F := (((sorted_option_functor sort s ∙ 1 ∙ X) ∙ proj_functor sort t)
+         ⊗ (constant_functor _ _ 1%CS))
+         ∙ hat_functor sort (arr s t)).
+unfold sorted_option_functor in F.
+cbn in F.
+apply F.
 Defined.
 
 Definition lam_map (s t : sort) : SET_over_sort2⟦lam_source' s t STLC,STLC⟧.

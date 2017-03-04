@@ -141,7 +141,7 @@ use (foldr _ _ xs).
 Defined.
 
 (** Define a functor F^(l,t)(X) := proj_functor(t) ∘ X ∘ option_functor(l) *)
-Local Lemma exp_functor (lt : list sort × sort) :
+Definition exp_functor (lt : list sort × sort) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
 Proof.
 eapply functor_composite.
@@ -159,6 +159,8 @@ set (T := constant_functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET]
                            (constant_functor SET_over_sort HSET TerminalHSET)).
 (* TODO: Maybe use indexed finite products instead of a fold? *)
 (* foldr1 was used previously *)
+(* set (XS := map exp_functor xs). *)
+(* use (foldr1 (fun F G => BinProduct_of_functors _ _ _ F G) T XS). *)
 use (foldr (fun F G => BinProduct_of_functors _ _ _ (exp_functor F) G) T xs).
 apply BinProducts_functor_precat, BinProductsHSET.
 Defined.

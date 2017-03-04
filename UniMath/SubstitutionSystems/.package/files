@@ -20,3 +20,4 @@ LamFromBindingSig.v
 MLTT79.v
 FromBindingSigsToMonads_Summary.v
 MultiSorted.v
+STLC.v
