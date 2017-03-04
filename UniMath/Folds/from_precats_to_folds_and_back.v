@@ -28,7 +28,7 @@ Require Import UniMath.Folds.folds_precat.
 
 Local Open Scope cat.
 
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
+Local Notation "a ⇒ b" := (precategory_morphisms a b).
 
 (** * From precategories to FOLDS precategories *)
 

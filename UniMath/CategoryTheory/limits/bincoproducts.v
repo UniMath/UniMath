@@ -816,8 +816,8 @@ Section vertex.
 (** The coproduct morphism of a diagram with vertex [A] *)
 
 Variable A : functor C D.
-Variable f : F ⟶ A.
-Variable g : G ⟶ A.
+Variable f : F ⟹ A.
+Variable g : G ⟹ A.
 
 Definition coproduct_nat_trans_data : ∏ c, BinCoproduct_of_functors c --> A c.
 Proof.

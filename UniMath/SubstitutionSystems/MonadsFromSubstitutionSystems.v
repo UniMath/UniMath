@@ -95,7 +95,7 @@ Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
 Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
 
 
-Definition μ_0 : functor_identity C ⟶ functor_data_from_functor _ _ `T := η T. (*ptd_pt _ (pr1 (pr1 T)).*)
+Definition μ_0 : functor_identity C ⟹ functor_data_from_functor _ _ `T := η T. (*ptd_pt _ (pr1 (pr1 T)).*)
 
 Definition μ_0_ptd : id_Ptd C hs --> p T.
 Proof.
@@ -103,7 +103,7 @@ Proof.
   intro c. simpl. apply id_left.
 Defined.
 
-Definition μ_1 : functor_composite (U (id_Ptd C hs)) (`T) ⟶ functor_data_from_functor _ _ `T
+Definition μ_1 : functor_composite (U (id_Ptd C hs)) (`T) ⟹ functor_data_from_functor _ _ `T
   := fbracket _ μ_0_ptd.
 
 
@@ -156,7 +156,7 @@ Qed.
 
 (** This is the multiplication of the monad to be constructed *)
 
-Definition μ_2 : functor_composite (`T) (`T) ⟶ pr1 (`T)
+Definition μ_2 : functor_composite (`T) (`T) ⟹ pr1 (`T)
   := fbracket T (identity _ ).
 
 

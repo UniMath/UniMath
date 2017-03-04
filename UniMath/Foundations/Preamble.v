@@ -176,6 +176,8 @@ Defined.
 
 Print whether_primitive_projections.
 
+Delimit Scope type_scope with type.
+
 Notation "'∑'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
   (* type this in emacs in agda-input method with \sum *)
@@ -298,8 +300,6 @@ Reserved Notation "g ∘ f"  (at level 50, left associativity).
 
 Reserved Notation "p #' x" (right associativity, at level 65, only parsing).
 
-Reserved Notation "a ==> b"  (at level 50).
-
 Reserved Notation "C '^op'" (at level 3, format "C ^op").
 
 Reserved Notation "a <-- b" (at level 50).
@@ -308,8 +308,12 @@ Reserved Notation "[ C , D ]" .
 
 Reserved Notation "C [ a , b ]"  (at level 50).
 
-Reserved Notation "F ⟶ G"  (at level 39).
-(* to input: type "\r--" or "\r" or "\-->" with Agda input method *)
+Reserved Notation "X ⟶ Y"  (at level 39).
+(* to input: type "\-->" with Agda input method *)
+
+Reserved Notation "X ⟹ Y"  (at level 39).
+(* same parsing level as ⟶ *)
+(* to input: type "\==>" with Agda input method *)
 
 Reserved Notation "F ∙ G" (at level 35).
 (* to input: type "\." with Agda input method *)
@@ -327,11 +331,8 @@ Reserved Notation "F ◾ b"  (at level 40, left associativity).
 Reserved Notation "F ▭ f"  (at level 40, left associativity). (* \rew1 *)
 (* to input: type "\rew" or "\re" with Agda input method *)
 
-(* conflict:
-    Reserved Notation "A ⇒ B" (at level 95, no associativity).
-    Reserved Notation "c ⇒ X" (at level 50).
-    (* to input: type "\Rightarrow" or "\r=" or "\r" or "\Longrightarrow" or "\=>" with Agda input method *)
-*)
+Reserved Notation "A ⇒ B" (at level 95, no associativity).
+(* to input: type "\Rightarrow" or "\r=" or "\r" or "\Longrightarrow" or "\=>" with Agda input method *)
 
 Reserved Notation "X ⇐ c"   (at level 50).
 (* to input: type "\Leftarrow" or "\Longleftarrow" or "\l=" or "\l" with Agda input method *)
@@ -344,9 +345,6 @@ Reserved Notation "q ⟳ x"  (at level 50, left associativity).
 
 Reserved Notation "p ◽ b"  (at level 40).
 (* to input: type "\sqw" or "\sq" with Agda input method *)
-
-Reserved Notation "F ⟹ X⟹"  (at level 50).
-(* to input: type "\r" and select from the menu, row 2, spot 6, with Agda input method *)
 
 Reserved Notation "xe ⟲⟲ p"  (at level 50).
 (* to input: type "\l" and select from the menu, row 4, spot 2, with Agda input method *)

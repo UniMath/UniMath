@@ -62,7 +62,7 @@ Section IsEffectivePw.
   Local Notation CD := (@functor_Precategory C D).
 
   Lemma eq_pb_pw {X Y Z:functor C D}
-        (a: X ⟶ Z) (b: Y ⟶ Z)
+        (a: X ⟹ Z) (b: Y ⟹ Z)
         (c:C)
     : eq_diag
         (pullback_diagram D (a c)  (b c))
@@ -76,7 +76,7 @@ Section IsEffectivePw.
       exact (Empty_set_rect _ ) ||  (exact (fun _ => idpath _)).
   Defined.
 
-  Lemma eq_coeq_pw {X Y: functor C D} (a b:X ⟶ Y) (c:C) :
+  Lemma eq_coeq_pw {X Y: functor C D} (a b:X ⟹ Y) (c:C) :
     eq_diag
       (Coequalizer_diagram D (a c) (b c))
       (diagram_pointwise (homset_property D)
@@ -93,7 +93,7 @@ Section IsEffectivePw.
     apply idpath.
   Defined.
 
-  Context {X Y :functor C D } {a:X⟶Y}.
+  Context {X Y :functor C D } {a:X ⟹ Y}.
 
   Lemma isEffectivePw : (∏ (x:C), isEffective (a x)) -> isEffective (C:=CD) a.
   Proof.
@@ -142,7 +142,7 @@ Section PointwiseEpi.
 
   Local Notation CD := (functor_Precategory C D).
 
-  Lemma eq_po_pw {X Y Z :functor C D} {a: X ⟶ Y } {b: X ⟶ Z} x  :
+  Lemma eq_po_pw {X Y Z :functor C D} {a: X ⟹ Y } {b: X ⟹ Z} x  :
     eq_diag
       (pushout_diagram D (a x) (b x))
       (diagram_pointwise (homset_property D)
@@ -155,7 +155,7 @@ Section PointwiseEpi.
   Defined.
 
   Lemma Pushouts_pw_epi (colimD : graphs.pushouts.Pushouts D) (A B : functor C D)
-       (a: A⟶B)  (epia:isEpi (C:=CD) a) : ∏ (x:C), isEpi (a x).
+       (a: A ⟹ B)  (epia:isEpi (C:=CD) a) : ∏ (x:C), isEpi (a x).
   Proof.
     intro  x; simpl.
     apply (epi_to_pushout (C:=CD)) in epia.

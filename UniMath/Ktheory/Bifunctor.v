@@ -84,7 +84,7 @@ Proof.
     intros i; simpl. eqn_logic. }
 Qed.
 
-Definition bifunctor_comm (A B C:Precategory) : [A,[B,C]] ==> [B,[A,C]].
+Definition bifunctor_comm (A B C:Precategory) : [A,[B,C]] ⟶ [B,[A,C]].
 Proof.
   exists (comm_functor_data_2 A B C).
   apply isfunctor_comm_functor_data_2.
@@ -197,7 +197,8 @@ Definition θ_2 {B C:Precategory} (F : [B, C]) (X : [B, [C^op, SET]])
 Definition θ {B C:Precategory} (F : [B, C]) (X : [B, [C^op, SET]]) : hSet
   := ( ∑ x : θ_1 F X, θ_2 F X x ) % set.
 
-Notation "F ⟹ X" := (θ F X) (at level 50) : cat.
+Local Notation "F ⟹ X" := (θ F X) (at level 39) : cat.
+(* to input: type "\==>" with Agda input method *)
 
 Definition θ_subset {B C:Precategory} {F : [B, C]} {X : [B, [C^op, SET]]}
            (t u : F ⟹ X) :
@@ -250,7 +251,7 @@ Definition φ_map {B C:Precategory} {F:[B, C]} {X' X: [B, [C^op, SET]]} :
   F ⟹ X -> X --> X' -> F ⟹ X'
   := λ x p, φ_map_1 x p,, φ_map_2 x p.
 
-Definition bifunctor_assoc {B C:Precategory} : [B, [C^op,SET]] ==> [[B,C]^op,SET].
+Definition bifunctor_assoc {B C:Precategory} : [B, [C^op,SET]] ⟶ [[B,C]^op,SET].
 Proof.
   unshelve refine (makeFunctor _ _ _ _).
   { intros X.

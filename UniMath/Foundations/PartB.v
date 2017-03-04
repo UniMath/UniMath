@@ -1017,6 +1017,14 @@ Proof.
   - exact d.
 Defined.
 
+Lemma logeq_dec {X Y} : (X <-> Y) -> decidable X -> decidable Y.
+Proof.
+  intros X Y iff decX. induction iff as [XtoY YtoX].
+  induction decX as [x|nx].
+  - now apply ii1, XtoY.
+  - now apply ii2, (negf YtoX).
+Defined.
+
 Definition decidable_dirprod (X Y : UU) :
   decidable X -> decidable Y -> decidable (X × Y).
 Proof.
