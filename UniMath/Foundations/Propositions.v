@@ -267,6 +267,8 @@ Defined.
 
 (** [ishinh] and decidability  *)
 
+Definition decidable_prop (X:hProp) := hProppair (decidable X) (isapropdec X (pr2 X)).
+
 Lemma decidable_ishinh {X} : decidable X → decidable(∥X∥).
 Proof.
   intros ? d.
@@ -421,6 +423,10 @@ Local Notation "A ⇒ B" := (himpl A B) (at level 95, no associativity) : logic.
   (* can't make it global, because it's defined differently in
      CategoryTheory/UnicodeNotations.v *)
 Local Open Scope logic.
+
+Definition hequiv (P Q:hProp) : hProp := (P ⇒ Q) ∧ (Q ⇒ P).
+
+Notation "A ⇔ B" := (hequiv A B) (at level 95, no associativity) : logic.
 
 Definition hexists {X : UU} (P : X -> UU) := ∥ total2 P ∥.
 
@@ -788,7 +794,8 @@ Defined.
    We don't state LEM as an axiom, because we want to force it
    to be a hypothesis of any corollaries of any theorems that
    appeal to it. *)
-Definition LEM : UU := ∏ P : hProp, decidable P.
+
+Definition LEM : hProp := ∀ P : hProp, decidable_prop P.
 
 Lemma LEM_for_sets (X : UU) : LEM -> isaset X -> isdeceq X.
 Proof. intros X lem is x y. exact (lem (hProppair (x = y) (is x y))). Defined.

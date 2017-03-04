@@ -3016,23 +3016,37 @@ Ltac hSet_induction f e := generalize f; apply UU_rect; intro e; clear f.
 (* We write these as types rather than as axioms, to force them to be mentioned as
    explicit hypotheses whenever they are used. *)
 
-Definition AxiomOfChoice := ∏ (X Y:hSet) (f:X→Y), issurjective f → ∃ g, f ∘ g ~ idfun Y.
+Local Open Scope logic.
+Local Open Scope set.
 
-Definition AxiomOfChoice2 := ∏ (Y:UU), ∃ (X:hSet) (f:X→Y), issurjective f.
+Definition AxiomOfChoice : hProp
+  := ∀ (X:hSet), ischoicebase X.
 
-Theorem AC_to_LEM : AxiomOfChoice -> LEM.
+Definition AxiomOfChoice_surj : hProp
+  := ∀ X (Y:hSet) (f:X→Y), issurjective f ⇒ ∃ g, ∀ y, f (g y) = y.
+
+Lemma AC_impl2 : AxiomOfChoice ⇒ AxiomOfChoice_surj.
 Proof.
-  (* this is essentially the proof in the HoTT Book.  The idea is to define an equivalence
-     relation E on bool by setting [E true false := P], to use AC to split the
-     surjection f from bool to its quotient by E with a function g, and then to consider
-     the 4 possibilities for the function [g ∘ f : bool -> bool].  It's constant iff P. *)
+  intros AC X Y f surj.
+  apply (squash_to_prop (AC _ _ surj) (propproperty _)).
+  intro s. apply hinhpr.
+  exists (λ y, hfiberpr1 f y (s y)).
+  exact  (λ y, hfiberpr2 f y (s y)).
+Defined.
+
+Theorem AC_to_LEM : AxiomOfChoice ⇒ LEM.
+Proof.
+  (** This result is due to Radu Diaconescu, "Axiom of choice and complementation", Proceedings of
+      the American Mathematical Society, 51 176–178, 1975, and is covered in the HoTT Book.  The
+      idea is to define an equivalence relation E on bool by setting [E true false := P], to use AC
+      to split the surjection f from bool to its quotient by E with a function g, and then to
+      consider the 4 possibilities for the function [g ∘ f : bool -> bool].  It's constant iff P. *)
   intros AC P.
   set (ifb := bool_rect (λ _:bool, hProp)).
   set (R := λ x y, ifb (ifb htrue P y) (ifb P htrue y) x); simpl in R.
   assert (e : iseqrel R).
   { repeat split.
-    { intros x y z a b.
-      induction x.
+    { intros x y z a b. induction x.
       - induction y.
         + induction z; exact b.
         + induction z.
@@ -3045,11 +3059,9 @@ Proof.
         + induction z; exact b. }
     { intros x. induction x; exact tt. }
     { intros x y a. induction x; induction y; exact a. } }
-  set (E := R,,e : eqrel bool).
-  set (Y := setquotinset E).
-  set (f := setquotpr E : bool -> Y).
+  set (E := R,,e : eqrel bool). set (Y := setquotinset E). set (f := setquotpr E : bool -> Y).
   assert (surj := issurjsetquotpr E : issurjective f).
-  assert (q := AC boolset Y f surj).
+  assert (q := AC_impl2 AC boolset Y f surj).
   apply (squash_to_prop q).
   { apply isapropdec. apply propproperty. }
   clear q.
