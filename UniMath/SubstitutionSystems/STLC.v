@@ -154,15 +154,8 @@ Local Notation "x ⊗ y" := (BinProductObject _ (foo x y)) (at level 10).
 Definition var_map : SET_over_sort2⟦1,STLC⟧ :=
   BinCoproductIn1 SET_over_sort2 _ · STLC_mor.
 
-(* This is what I want the source of app to be: *)
 Definition app_source (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
   (X ∙ proj_functor sort (arr s t)) ⊗ (X ∙ proj_functor sort s) ∙ hat_functor sort t.
-
-(* This is what it is: *)
-Definition app_source' (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
-         (X ∙ proj_functor sort (arr s t)) ⊗
-         (X ∙ proj_functor sort s)
-       ∙ hat_functor sort t.
 
 Lemma Coproducts_SET_over_sort2 : Coproducts ((sort × sort) + (sort × sort))%set SET_over_sort2.
 Proof.
@@ -170,29 +163,22 @@ apply Coproducts_functor_precat, Coproducts_slice_precat, CoproductsHSET.
 apply setproperty.
 Defined.
 
-Definition app_map (s t : sort) : SET_over_sort2⟦app_source' s t STLC,STLC⟧.
+Definition app_map (s t : sort) : SET_over_sort2⟦app_source s t STLC,STLC⟧.
 Proof.
 use (CoproductIn _ _ _ (ii1 (s,,t)) · BinCoproductIn2 _ _ · STLC_mor).
 Defined.
 
-(* How to write this nicer? *)
-Definition lam_source' (s t : sort) (X : SET_over_sort2) : SET_over_sort2.
-Proof.
-set (F := ((sorted_option_functor sort s ∙ X) ∙ proj_functor sort t)
-         ∙ hat_functor sort (arr s t)).
-unfold sorted_option_functor in F.
-cbn in F.
-apply F.
-Defined.
+Definition lam_source (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
+  ((sorted_option_functor sort s ∙ X) ∙ proj_functor sort t) ∙ hat_functor sort (arr s t).
 
-Definition lam_map (s t : sort) : SET_over_sort2⟦lam_source' s t STLC,STLC⟧.
+Definition lam_map (s t : sort) : SET_over_sort2⟦lam_source s t STLC,STLC⟧.
 Proof.
 use (CoproductIn _ _ _ (ii2 (s,,t)) · BinCoproductIn2 _ _ · STLC_mor).
 Defined.
 
 Definition mk_STLC_Algebra X (fvar : SET_over_sort2⟦1,X⟧)
-  (fapp : ∏ s t, SET_over_sort2⟦app_source' s t X,X⟧)
-  (flam : ∏ s t, SET_over_sort2⟦lam_source' s t X,X⟧) :
+  (fapp : ∏ s t, SET_over_sort2⟦app_source s t X,X⟧)
+  (flam : ∏ s t, SET_over_sort2⟦lam_source s t X,X⟧) :
     algebra_ob STLC_Functor.
 Proof.
 apply (tpair _ X).
@@ -204,26 +190,28 @@ intro b; induction b as [st|st]; induction st as [s t].
 Defined.
 
 Definition foldr_map X (fvar : SET_over_sort2⟦1,X⟧)
-  (fapp : ∏ s t, SET_over_sort2⟦app_source' s t X,X⟧)
-  (flam : ∏ s t, SET_over_sort2⟦lam_source' s t X,X⟧) :
+  (fapp : ∏ s t, SET_over_sort2⟦app_source s t X,X⟧)
+  (flam : ∏ s t, SET_over_sort2⟦lam_source s t X,X⟧) :
   algebra_mor _ STLC_alg (mk_STLC_Algebra X fvar fapp flam).
 Proof.
 apply (InitialArrow STLC_Functor_Initial (mk_STLC_Algebra X fvar fapp flam)).
 Defined.
 
-(* Lemma foldr_var X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) : *)
-(*   var_map · foldr_map X fvar fapp flam = fvar. *)
-(* Proof. *)
-(* assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · x) *)
-(*                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))). *)
-(* rewrite assoc in F. *)
-(* eapply pathscomp0; [apply F|]. *)
-(* rewrite assoc. *)
-(* eapply pathscomp0; [eapply cancel_postcomposition, BinCoproductOfArrowsIn1|]. *)
-(* rewrite <- assoc. *)
-(* eapply pathscomp0; [eapply maponpaths, BinCoproductIn1Commutes|]. *)
-(* apply id_left. *)
-(* Defined. *)
+Lemma foldr_var X (fvar : SET_over_sort2⟦1,X⟧)
+  (fapp : ∏ s t, SET_over_sort2⟦app_source s t X,X⟧)
+  (flam : ∏ s t, SET_over_sort2⟦lam_source s t X,X⟧) :
+  var_map · foldr_map X fvar fapp flam = fvar.
+Proof.
+assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · x)
+                        (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
+rewrite assoc in F.
+eapply pathscomp0; [apply F|].
+rewrite assoc.
+eapply pathscomp0; [eapply cancel_postcomposition, BinCoproductOfArrowsIn1|].
+rewrite <- assoc.
+eapply pathscomp0; [eapply maponpaths, BinCoproductIn1Commutes|].
+apply id_left.
+Defined.
 
 (* (* Lemma foldr_var_pt X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) (A : HSET) (x : pr1 A) : *) *)
 (* (*   pr1 (pr1 (foldr_map X fvar fapp flam)) A (pr1 var_map A x) = pr1 fvar A x. *) *)
