@@ -180,7 +180,7 @@ Definition functor_mor_application {B C:Precategory} {b b':B} (F:[B,C]) :
 Notation "F ▭ f" := (functor_mor_application F f) (at level 40, left associativity) : cat. (* \rew1 *)
 
 Definition arrow {C:Precategory} (c : C) (X : [C^op,SET]) : hSet := X ◾ c.
-Notation "c ⇒ X" := (arrow c X)  (at level 50) : cat. (* \r= *)
+Notation "c ⇒ X" := (arrow c X) : cat. (* \r= *)
 
 Definition arrow' {C:Precategory} (c : C) (X : [C^op^op,SET]) : hSet := X ◾ c.
 Notation "X ⇐ c" := (arrow' c X)  (at level 50) : cat. (* \l= *)

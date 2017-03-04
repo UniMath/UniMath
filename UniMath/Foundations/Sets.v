@@ -3036,10 +3036,14 @@ Defined.
 
 Theorem AC_to_LEM : AxiomOfChoice ⇒ LEM.
 Proof.
-  (** This result is due to Radu Diaconescu, "Axiom of choice and complementation", Proceedings of
-      the American Mathematical Society, 51 176–178, 1975, and is covered in the HoTT Book.  The
-      idea is to define an equivalence relation E on bool by setting [E true false := P], to use AC
-      to split the surjection f from bool to its quotient by E with a function g, and then to
+  (** This result is covered in the HoTT book, is due to Radu Diaconescu, "Axiom of choice and
+      complementation", Proceedings of the American Mathematical Society, 51 (1975) 176–178, and was
+      first mentioned on page 4 in F. W. Lawvere, "Toposes, algebraic geometry and logic (Conf.,
+      Dalhousie Univ., Halifax, N.S., 1971)", pp. 1–12, Lecture Notes in Math., Vol. 274, Springer,
+      Berlin, 1972.
+
+      The idea is to define an equivalence relation E on bool by setting [E true false := P], to use
+      AC to split the surjection f from bool to its quotient by E with a function g, and then to
       consider the 4 possibilities for the function [g ∘ f : bool -> bool].  It's constant iff P. *)
   intros AC P.
   set (ifb := bool_rect (λ _:bool, hProp)).

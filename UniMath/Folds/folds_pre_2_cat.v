@@ -67,7 +67,7 @@ Definition ob (C : folds_3_ob_mor) : UU := @pr1 _ _ C.
 Coercion ob : folds_3_ob_mor >-> UU.
 
 Definition folds_3_morphisms {C : folds_3_ob_mor} : C → C → UU := pr2 C.
-Local Notation "a ⇒ b" := (folds_3_morphisms a b)(at level 50).
+Local Notation "a ⇒ b" := (folds_3_morphisms a b).
 
 Definition double_transport {C : folds_3_ob_mor} {a a' b b' : ob C}
    (p : a = a') (q : b = b') (f : a ⇒ b) : a' ⇒ b' :=
