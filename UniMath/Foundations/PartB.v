@@ -38,6 +38,7 @@ Unset Automatic Introduction.
 (** Imports *)
 
 Require Export UniMath.Foundations.PartA.
+Require Import UniMath.Foundations.UnivalenceAxiom.
 
 
 
@@ -100,6 +101,17 @@ Proof.
     by (intro X2; induction X2; apply (is x)).
   apply (isofhlevelsn n X1).
 Defined.
+
+(* closure of h-levels under products of families of types *)
+
+Definition hlevel_prod_of_fam {n : nat} {A : UU} {B : A -> UU} (is : ∏ x : A, isofhlevel n (B x)) : isofhlevel n (∏ x : A, B x).
+Proof.
+  induction n. intros A B is. refine (tpair _ (λ x : A, pr1 (is x)) _). intro. apply funextsec. intro x. exact (pr2 (is x) (t x)).
+  intros A B is f g . apply (isofhlevelweqb n (weqtoforallpaths B f g)). unfold homot. apply (IHn A (λ x : A, f x = g x)). intro x.
+  exact (is x (f x) (g x)).
+Defined.
+
+
 
 
 
