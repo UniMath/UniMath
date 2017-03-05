@@ -28,7 +28,11 @@ Delimit Scope wosubset with wosubset.
 
 Notation "s ≤ s'" := (rel _ s s') : wosubset.
 
-Notation "s < s'" := ((s ≤ s') ∧ ¬ (s = s')) : wosubset.
+(* Coercion rel : SubsetWithWellOrdering >-> hrel. *)
+
+Local Definition lt {X:hSet} {S : SubsetWithWellOrdering X} (s s' : S) := (s ≤ s') ∧ ¬ (s = s').
+
+Notation "s < s'" := (lt s s') : wosubset.
 
 Open Scope logic.
 
@@ -80,7 +84,7 @@ Definition isclosed {X:hSet} (S T:SubsetWithWellOrdering X) : hProp
 
 Notation "S ≼ T" := (isclosed S T) (at level 95) : wosubset.
 
-Definition isclosed_smaller {X:hSet} (S T:SubsetWithWellOrdering X) : hProp := (S ≼ T) ∧ (nonempty (T - S)).
+Definition isclosed_smaller {X:hSet} (S T:SubsetWithWellOrdering X) : hProp := (S ≼ T) ∧ (∃ t:T, t ∉ S).
 
 Notation "S ≺ T" := (isclosed_smaller S T) (at level 95) : wosubset.
 
@@ -91,79 +95,58 @@ Definition upto {X:hSet} {S:SubsetWithWellOrdering X} (s:S) : hsubtype X
 Definition upto' {X:hSet} {S:SubsetWithWellOrdering X} (s:S) : hsubtype X
   := λ x, ∑ h:S x, ¬ (s ≤ (x,,h)).
 
-Lemma upto_to_upto' {X:hSet} {S:SubsetWithWellOrdering X} (s:S) : upto s ⊆ upto' s.
+Lemma ord_nge_to_lt {X:hSet} (S : SubsetWithWellOrdering X) (x y:S) :
+  ¬ (x ≤ y) <-> y < x.
 Proof.
-  intro x. induction x as [x lt]. induction lt as [xinS lt]. induction lt as [le ne].
-  simpl. exists xinS. intro le'. assert (anti := pr21122 S); simpl in anti.
-  assert (anti' := anti s (x,,xinS) le' le); clear le' anti.
-  apply ne, pathsinv0, anti'.
+  assert (tot := pr2122 S); simpl in tot.
+  assert (refl := pr211122 S); simpl in refl.
+  assert (anti := pr21122 S); simpl in anti.
+  split.
+  { intros nle. split.
+    - assert (q := tot x y). simple refine (hinhuniv _ q); intro q'; clear q.
+      induction q' as [Rxy|Ryx].
+      + apply fromempty, nle, Rxy.
+      + exact Ryx.
+    - intros ne. induction ne. apply nle; clear nle. exact (refl y). }
+  { intros yltx xley. induction yltx as [ylex neq].
+    apply neq; clear neq.
+    now apply anti. }
 Defined.
 
-Lemma upto'_to_upto {X:hSet} {S:SubsetWithWellOrdering X} (s:S) : isdeceq X -> upto' s ⊆ upto s.
+Lemma upto'_eq_upto {X:hSet} {S:SubsetWithWellOrdering X} (s:S) : upto' s ≡ upto s.
 Proof.
-  intros dec x. simpl in x.
-  induction x as [x nle]. induction nle as [xinS nle].
-  induction (subtype_deceq S dec s (x,,xinS)) as [eq|ne].
-  - induction (!eq); clear eq. simpl. exists xinS. split.
-    + exact (pr211122 S _).
-    + apply fromempty, nle. exact (pr211122 S _).
-  - exists xinS. change ((x,,xinS) < s).
-    split.
-    + assert (tot := pr2122 S); simpl in tot.
-      assert (tot' := tot (x,,xinS) s); clear tot.
-      simple refine (hinhuniv _ tot'); clear tot'; intro tot. induction tot as [slex|xles].
-      * exact slex.
-      * apply fromempty, nle, xles.
-    + intro eq. apply ne, pathsinv0, eq.
-Defined.
-
-Lemma upto'_eq_upto {X:hSet} {S:SubsetWithWellOrdering X} (s:S) : isdeceq X -> upto' s ≡ upto s.
-Proof.
-  intro dec. apply subtype_equal_cond. split.
-  - now apply upto'_to_upto.
-  - now apply upto_to_upto'.
+  apply subtype_equal_cond. split.
+  { intros x. simpl in x. induction x as [x nle]. induction nle as [xinS nle]. simpl.
+    exists xinS. exact (pr1 (ord_nge_to_lt _ _ _) nle). }
+  { intro x. induction x as [x lt]. induction lt as [xinS lt]. induction lt as [le ne].
+    simpl. exists xinS. intro le'. assert (anti := pr21122 S); simpl in anti.
+    assert (anti' := anti s (x,,xinS) le' le); clear le' anti.
+    apply ne, pathsinv0, anti'. }
 Defined.
 
 Local Open Scope prop.
 
-Definition isInterval {X:hSet} (S T:SubsetWithWellOrdering X) : S ≺ T -> ∑ t:T, S ≡ upto t.
+Definition isInterval {X:hSet} (S T:SubsetWithWellOrdering X) : LEM -> S ≺ T -> ∑ t:T, S ≡ upto t.
 Proof.
-  set (R := rel T).
-  set (U := T-S : hsubtype X).
-  assert (i := subtype_difference_containedIn T S). fold U in i.
-  intro lt.
-  unfold isclosed_smaller in lt. induction lt as [le ne]. fold U in ne.
+  set (R := rel T). intros lem lt.
+  unfold isclosed_smaller in lt. induction lt as [le ne].
   assert (min := pr222 T); simpl in min; fold R in min.
   unfold mincondition in min.
-  (* U is a nonempty subtype of X, but min requires a nonempty subtype of T *)
-  (* this next bit might be worth abstracting to a lemma *)
-  set (U' := (λ t:T, t ∉ S)%type : hsubtype T).
-  assert (ne' : nonempty U').
-  { simple refine (hinhuniv _ ne); intro u. apply hinhpr.
-    use tpair.
-    - exact (subtype_inc i u).
-    - simpl. unfold U in u. unfold subtype_difference in u. unfold carrier in u.
-      exact (pr22 u). }
-  clear ne. assert (minU := min U' ne'); clear min ne'.
+  set (U := (λ t:T, t ∉ S) : hsubtype T).
+  assert (ne' : nonempty U).
+  { simple refine (hinhuniv _ ne); intro u. apply hinhpr. exact u. }
+  clear ne. assert (minU := min U ne'); clear min ne'.
   induction minU as [u minu]. fold (SubsetWithWellOrdering_to_subtype T) in u.
-  (* minu says that u is the smallest element of T in U' *)
+  induction minu as [uinU minu].
+  (* minu says that u is the smallest element of T not in S *)
   exists u. intro y. split.
   - intro yinS. set (s := (y ,, yinS) : S). set (s' := subtype_inc (pr11 le) s).
-    unfold upto. exists (pr2 s'). change (s' < u).
-    assert (tot := pr2122 T s' u).
-    simple refine (hinhuniv _ tot); intro tot'; clear tot.
-    induction tot' as [sleu | ules].
-    + split.
-      * exact sleu.
-      * intro e. clear sleu. assert (e' := maponpaths pr1 (!e)). simpl in e'. induction e'.
-        admit.
-   + apply fromempty. assert (q := pr2 le s u ules); clear ules.
-     assert (q' := pr1 minu). simpl in q'. exact (q' q).
-  - intro lt. unfold upto in lt. induction lt as [yinT lt].
-
-
-
-unfold SubsetWithWellOrdering,isWellOrder,isTotalOrder,isPartialOrder in T.
-
-
-Abort.
+    unfold upto. exists (pr2 s'). set (y' := y ,, pr2 s'). apply ord_nge_to_lt. intro ules.
+    assert (q := pr2 le s u ules); clear ules.
+    apply uinU. exact q.
+  - intro yltu. induction yltu as [yinT yltu].
+    apply (dneg_LEM _ lem).     (* we prove that y is in S by contradiction *)
+    intro bc.
+    assert (nuley := pr2 (ord_nge_to_lt _ _ _) yltu). apply nuley; clear nuley.
+    exact (minu (y,,yinT) bc).
+Defined.
