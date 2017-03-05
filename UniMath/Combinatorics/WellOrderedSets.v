@@ -92,11 +92,9 @@ Notation "S ≺ T" := (isclosed_smaller S T) (at level 95) : wosubset.
 Definition upto {X:hSet} {S:SubsetWithWellOrdering X} (s:S) : hsubtype X
   := λ x, ∑ h:S x, (x,,h) < s.
 
-Definition upto' {X:hSet} {S:SubsetWithWellOrdering X} (s:S) : hsubtype X
-  := λ x, ∑ h:S x, ¬ (s ≤ (x,,h)).
-
-Lemma ord_nge_to_lt {X:hSet} (S : SubsetWithWellOrdering X) (x y:S) :
+Lemma ord_nge_iff_lt {X:hSet} (S : SubsetWithWellOrdering X) (x y:S) :
   ¬ (x ≤ y) <-> y < x.
+(* this is actually a fact about total orderings and could be moved upstream *)
 Proof.
   assert (tot := pr2122 S); simpl in tot.
   assert (refl := pr211122 S); simpl in refl.
@@ -108,20 +106,7 @@ Proof.
       + apply fromempty, nle, Rxy.
       + exact Ryx.
     - intros ne. induction ne. apply nle; clear nle. exact (refl y). }
-  { intros yltx xley. induction yltx as [ylex neq].
-    apply neq; clear neq.
-    now apply anti. }
-Defined.
-
-Lemma upto'_eq_upto {X:hSet} {S:SubsetWithWellOrdering X} (s:S) : upto' s ≡ upto s.
-Proof.
-  apply subtype_equal_cond. split.
-  { intros x. simpl in x. induction x as [x nle]. induction nle as [xinS nle]. simpl.
-    exists xinS. exact (pr1 (ord_nge_to_lt _ _ _) nle). }
-  { intro x. induction x as [x lt]. induction lt as [xinS lt]. induction lt as [le ne].
-    simpl. exists xinS. intro le'. assert (anti := pr21122 S); simpl in anti.
-    assert (anti' := anti s (x,,xinS) le' le); clear le' anti.
-    apply ne, pathsinv0, anti'. }
+  { intros yltx xley. induction yltx as [ylex neq]. apply neq; clear neq. now apply anti. }
 Defined.
 
 Local Open Scope prop.
@@ -141,12 +126,12 @@ Proof.
   (* minu says that u is the smallest element of T not in S *)
   exists u. intro y. split.
   - intro yinS. set (s := (y ,, yinS) : S). set (s' := subtype_inc (pr11 le) s).
-    unfold upto. exists (pr2 s'). set (y' := y ,, pr2 s'). apply ord_nge_to_lt. intro ules.
+    unfold upto. exists (pr2 s'). set (y' := y ,, pr2 s'). apply ord_nge_iff_lt. intro ules.
     assert (q := pr2 le s u ules); clear ules.
     apply uinU. exact q.
   - intro yltu. induction yltu as [yinT yltu].
     apply (dneg_LEM _ lem).     (* we prove that y is in S by contradiction *)
     intro bc.
-    assert (nuley := pr2 (ord_nge_to_lt _ _ _) yltu). apply nuley; clear nuley.
+    assert (nuley := pr2 (ord_nge_iff_lt _ _ _) yltu). apply nuley; clear nuley.
     exact (minu (y,,yinT) bc).
 Defined.
