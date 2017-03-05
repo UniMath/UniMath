@@ -88,8 +88,10 @@ Definition isSmallest {X : Poset} (x : X) : UU := ∏ y, x ≤ y.
 Definition isBiggest {X : Poset} (x : X) : UU := ∏ y, y ≤ x.
 
 Definition isMinimal {X : Poset} (x : X) : UU := ∏ y, y ≤ x -> x = y.
+(* the definition in Sets.v is wrong *)
 
 Definition isMaximal {X : Poset} (x : X) : UU := ∏ y, x ≤ y -> x = y.
+(* the definition in Sets.v is wrong *)
 
 Definition consecutive {X : Poset} (x y : X) : UU := x < y × ∏ z, ¬ (x < z × z < y).
 

@@ -5,11 +5,13 @@ Delimit Scope subtype with subtype.
 
 Local Open Scope subtype.
 
+Local Open Scope logic.
+
 Definition subtype_isIn {X:UU} {S:hsubtype X} (s:S) (T:hsubtype X) : hProp := T (pr1 s).
 
 Notation " s ∈ T " := (subtype_isIn s T) (at level 95) : subtype.
 
-Notation " s ∉ T " := (¬ (subtype_isIn s T)) (at level 95) : subtype.
+Notation " s ∉ T " := (¬ (subtype_isIn s T) : hProp) (at level 95) : subtype.
 
 Definition subtype_containedIn {X:UU} (S T : hsubtype X) : hProp.
 Proof.
@@ -19,6 +21,11 @@ Defined.
 Notation " S ⊆ T " := (subtype_containedIn S T) (at level 95) : subtype.
 
 Definition subtype_notContainedIn {X:UU} (S T : hsubtype X) : hProp := ∃ s:S, s ∉ T.
+
+Definition subtype_inc {X:UU} {S T : hsubtype X} : S ⊆ T -> S -> T.
+Proof.
+  intros le s. exact (pr1 s,, le s).
+Defined.
 
 Notation " S ⊈ T " := (subtype_notContainedIn S T) (at level 95) : subtype.
 
@@ -36,9 +43,13 @@ Definition subtype_notEqual {X:UU} (S T : hsubtype X) : hProp := (S ⊈ T) ∨ (
 
 Notation " S ≢ T " := (subtype_notEqual S T) (at level 95) : subtype.
 
-Definition subtype_inc {X:UU} {S T : hsubtype X} : S ⊆ T -> S -> T.
+Definition subtype_difference {X:UU} (S T : hsubtype X) : hsubtype X := λ x, S x ∧ ¬ (T x).
+
+Notation " S - T " := (subtype_difference S T) : subtype.
+
+Definition subtype_difference_containedIn {X:UU} (S T : hsubtype X) : (S - T) ⊆ S.
 Proof.
-  intros le s. exact (pr1 s,, le s).
+  intro u. exact (pr12 u).
 Defined.
 
 Lemma subtype_equal_cond {X:UU} (S T : hsubtype X) : ((S ⊆ T) ∧ (T ⊆ S)) ⇔ (S ≡ T).
@@ -69,3 +80,9 @@ Defined.
 
 Ltac hsubtype_induction f e := generalize f; apply hsubtype_rect; intro e; clear f.
 
+Lemma subtype_deceq {X} (S:hsubtype X) : isdeceq X -> isdeceq S.
+Proof.
+  intro i. intros s t. induction (i (pr1 s) (pr1 t)) as [eq|ne].
+  - apply ii1, subtypeEquality_prop, eq.
+  - apply ii2. intro eq. apply ne. apply maponpaths. exact eq.
+Defined.
