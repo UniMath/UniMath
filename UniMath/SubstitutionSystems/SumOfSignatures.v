@@ -40,7 +40,7 @@ Local Notation "'CCD'" := (Coproducts_functor_precat I C D CD hsD : Coproducts I
 
 Variables H1 : I -> functor [C, C, hsC] [C, D, hsD].
 
-Variable θ1 : ∏ i, θ_source (H1 i) ⟶ θ_target (H1 i).
+Variable θ1 : ∏ i, θ_source (H1 i) ⟹ θ_target (H1 i).
 
 (** * Definition of the data of the sum of signatures *)
 
@@ -84,7 +84,7 @@ apply CoproductOfArrows_eq, funextsec; intro i.
 apply (nat_trans_eq_pointwise (nat_trans_ax (θ1 i) (X,,Z) (X',,Z') αβ) c).
 Qed.
 
-Local Definition θ : θ_source H ⟶ θ_target H := tpair _ _ is_nat_trans_θ_ob.
+Local Definition θ : θ_source H ⟹ θ_target H := tpair _ _ is_nat_trans_θ_ob.
 
 (** * Proof of the strength laws of the sum of two signatures *)
 

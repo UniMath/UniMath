@@ -9,7 +9,7 @@ Require Export UniMath.Ktheory.Precategories.
 
 Local Open Scope cat.
 
-Definition cat_ob_mor {C} (X:C^op==>SET) : precategory_ob_mor.
+Definition cat_ob_mor {C} (X:C^op⟶SET) : precategory_ob_mor.
   intros. exists (∑ c:ob C, X c : hSet).
   intros a b.
   exact (∑ f : pr1 a --> pr1 b, (pr2 a) = #X f (pr2 b)).
@@ -17,7 +17,7 @@ Defined.
 
 Local Open Scope cat_deprecated.
 
-Definition cat_data {C} (X:C^op==>SET) : precategory_data.
+Definition cat_data {C} (X:C^op⟶SET) : precategory_data.
   intros. exists (cat_ob_mor X). split.
   { intro a.
     exact (identity (pr1 a),,
@@ -27,7 +27,7 @@ Definition cat_data {C} (X:C^op==>SET) : precategory_data.
                ((pr2 f) @ ap (#X (pr1 f)) (pr2 g))
                @ ((eqtohomot (!((functor_comp X) (pr1 g) (pr1 f))) (pr2 c)))). } Defined.
 
-Lemma has_homsets_cat_ob_mor {C:Precategory} (X:C^op==>SET) :
+Lemma has_homsets_cat_ob_mor {C:Precategory} (X:C^op⟶SET) :
    has_homsets (cat_data X).
 Proof.
   intros C X a b. simpl. apply (isofhleveltotal2 2).
@@ -35,35 +35,35 @@ Proof.
   - intro f. apply isasetaprop, setproperty.
 Qed.
 
-Definition get_mor {C} {X:C^op==>SET} {x y:ob (cat_data X)} (f:x --> y) := pr1 f.
+Definition get_mor {C} {X:C^op⟶SET} {x y:ob (cat_data X)} (f:x --> y) := pr1 f.
 
-Lemma mor_equality {C} (X:C^op==>SET) (x y:ob (cat_data X)) (f g:x --> y) :
+Lemma mor_equality {C} (X:C^op⟶SET) (x y:ob (cat_data X)) (f g:x --> y) :
       get_mor f = get_mor g -> f = g.
 Proof. intros ? ? ? ? ? ? p. apply subtypeEquality.
        - intro r. apply setproperty.
        - exact p.
 Qed.
 
-Lemma isPrecategory {C:Precategory} (X:C^op==>SET) : is_precategory (cat_data X).
+Lemma isPrecategory {C:Precategory} (X:C^op⟶SET) : is_precategory (cat_data X).
 Proof. intros. split.
        { split.
          { intros.  apply mor_equality. apply id_left. }
          { intros. apply mor_equality. apply id_right. } }
        { intros. apply mor_equality. apply assoc. } Qed.
 
-Definition cat {C:Precategory} (X:C^op==>SET) : Precategory
+Definition cat {C:Precategory} (X:C^op⟶SET) : Precategory
   := ((cat_data X,,isPrecategory X),,has_homsets_cat_ob_mor X).
 
-Definition get_ob {C:Precategory} {X:C^op==>SET} (x:ob (cat X)) := pr1 x.
+Definition get_ob {C:Precategory} {X:C^op⟶SET} (x:ob (cat X)) := pr1 x.
 
-Definition get_el {C:Precategory} {X:C^op==>SET} (x:ob (cat X)) := pr2 x.
+Definition get_el {C:Precategory} {X:C^op⟶SET} (x:ob (cat X)) := pr2 x.
 
-Definition get_eqn {C} {X:C^op==>SET} {x y:ob (cat_data X)} (f:x --> y) := pr2 f.
+Definition get_eqn {C} {X:C^op⟶SET} {x y:ob (cat_data X)} (f:x --> y) := pr2 f.
 
-Definition make_ob {C:Precategory} (X:C^op==>SET) (c:ob C) (x:X c:hSet) : ob (cat X)
+Definition make_ob {C:Precategory} (X:C^op⟶SET) (c:ob C) (x:X c:hSet) : ob (cat X)
   := (c,,x).
 
-Definition make_mor {C:Precategory} (X:C^op==>SET) (r s : ob (cat X))
+Definition make_mor {C:Precategory} (X:C^op⟶SET) (r s : ob (cat X))
            (f : Hom C (pr1 r) (pr1 s))
            (i : pr2 r = #X f (pr2 s)) : Hom _ r s
   := (f,,i).
@@ -71,7 +71,7 @@ Definition make_mor {C:Precategory} (X:C^op==>SET) (r s : ob (cat X))
 
 (** *** functoriality of the construction of the category of elements *)
 
-Definition cat_on_nat_trans_data {C:Precategory} {X Y:C^op==>SET} (p:X ⟶ Y) :
+Definition cat_on_nat_trans_data {C:Precategory} {X Y:C^op⟶SET} (p:X ⟹ Y) :
   functor_data (cat X) (cat Y).
 Proof. intros.
        exists (fun a => pr1 a,, p (pr1 a) (pr2 a)).
@@ -80,35 +80,35 @@ Proof. intros.
                                 @ (eqtohomot (pr2 p (pr1 c) (pr1 b) (pr1 f)) (pr2 c)))).
 Defined.
 
-Lemma cat_on_nat_trans_is_nat_trans {C:Precategory} {X Y:C^op==>SET} (p:X ⟶ Y) :
+Lemma cat_on_nat_trans_is_nat_trans {C:Precategory} {X Y:C^op⟶SET} (p:X ⟹ Y) :
   is_functor (cat_on_nat_trans_data p).
 Proof. intros. split.
   { intros a . apply mor_equality. reflexivity. }
   { intros a b c f g . apply mor_equality. reflexivity. } Qed.
 
-Definition cat_on_nat_trans {C:Precategory} {X Y:C^op==>SET} (p:X ⟶ Y) :
-  cat X ==> cat Y.
+Definition cat_on_nat_trans {C:Precategory} {X Y:C^op⟶SET} (p:X ⟹ Y) :
+  cat X ⟶ cat Y.
 Proof.
   intros.
   exact (cat_on_nat_trans_data p,, cat_on_nat_trans_is_nat_trans p). Defined.
 
-(* maybe make a functor [C,SET] ==> [category of Precategories] *)
+(* maybe make a functor [C,SET] ⟶ [category of Precategories] *)
 
 
 (** *** properties of projection to the original category *)
 
 Module pr1.
 
-  Definition fun_data {C:Precategory} (X:C^op==>SET) :
+  Definition fun_data {C:Precategory} (X:C^op⟶SET) :
       functor_data (Precategories.Precategory_obmor (cat X)) (Precategories.Precategory_obmor C).
     intros. exists pr1. intros x x'. exact pr1. Defined.
 
-  Definition func {C:Precategory} (X:C^op==>SET) : cat X ==> C.
+  Definition func {C:Precategory} (X:C^op⟶SET) : cat X ⟶ C.
     intros. exists (fun_data _).
     split. { intros a . reflexivity. } { intros a b c f g . reflexivity. } Defined.
 
 
-  Lemma func_reflects_isos {C:Precategory} (X:C^op==>SET) : Precategories.reflects_isos (func X).
+  Lemma func_reflects_isos {C:Precategory} (X:C^op⟶SET) : Precategories.reflects_isos (func X).
   Proof. intros C X [c x] [d y] f Hf.
     apply is_iso_from_is_z_iso.
     set (H := is_z_iso_from_is_iso _ Hf). clearbody H. clear Hf.

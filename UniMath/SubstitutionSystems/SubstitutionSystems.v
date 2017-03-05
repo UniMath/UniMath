@@ -259,7 +259,7 @@ Notation "⦃ f ⦄" := (fbracket _ f)(at level 0).
 (** The bracket operation [fbracket] is unique *)
 
 Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
-  : ∏ (α : functor_composite (U Z) `T ⟶ pr1 `T),
+  : ∏ (α : functor_composite (U Z) `T ⟹ pr1 `T),
      (∏ c : C, pr1 (#U f) c = pr1 (η T) (pr1 (U Z) c) · α c) →
      (∏ c : C, pr1 (θ (`T ⊗ Z))  c · pr1 (#H α) c · pr1 (τ T) c =
         pr1 (τ T) (pr1 (U Z) c) · α c)

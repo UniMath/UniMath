@@ -81,10 +81,10 @@ Definition category_pair (C:precategory) (i:is_category C) : category := C,,i.
 
 Definition theUnivalenceProperty (C:category) := pr2 C : is_category C.
 
-Definition reflects_isos {C D} (X:C==>D) :=
+Definition reflects_isos {C D} (X:C⟶D) :=
   ∏ c c' (f : c --> c'), is_isomorphism (#X f) -> is_isomorphism f.
 
-Lemma isaprop_reflects_isos {C D} (X:C==>D) : isaprop (reflects_isos X).
+Lemma isaprop_reflects_isos {C D} (X:C⟶D) : isaprop (reflects_isos X).
 Proof.
   apply impred; intros. apply impred; intros. apply impred; intros.
   apply impred; intros. apply isaprop_is_isomorphism. Qed.
@@ -104,13 +104,13 @@ Defined.
 Definition PrecategoryEmbedding (B C:Precategory) := ∑ F:[B,C], fully_faithful F.
 
 Definition embeddingToFunctor (B C:Precategory) :
-  PrecategoryEmbedding B C -> B ==> C
+  PrecategoryEmbedding B C -> B ⟶ C
   := pr1.
 
 Coercion embeddingToFunctor : PrecategoryEmbedding >-> functor.
 
 Definition PrecategoryIsomorphism (B C:Precategory) :=
-  ∑ F:PrecategoryEmbedding B C, isweq ((pr1 F : B ==> C) : ob B -> ob C).
+  ∑ F:PrecategoryEmbedding B C, isweq ((pr1 F : B ⟶ C) : ob B -> ob C).
 
 Definition isomorphismToEmbedding (B C:Precategory) :
   PrecategoryIsomorphism B C -> PrecategoryEmbedding B C
@@ -164,19 +164,19 @@ Definition makeFunctor {C D:Precategory}
            (identity : ∏ c, mor c c (identity c) = identity (obj c))
            (compax : ∏ (a b c : C) (f : a --> b) (g : b --> c),
                        mor a c (g ∘ f) = mor b c g ∘ mor a b f) :
-  C ==> D
+  C ⟶ D
   := (obj,, mor),, identity,, compax.
 
 (** notation for dealing with functors, natural transformations, etc.  *)
 
 Definition functor_object_application {B C:Precategory} (F : [B,C]) (b:B) : C
-  := (F:_==>_) b.
+  := (F:_⟶_) b.
 Notation "F ◾ b" := (functor_object_application F b) (at level 40, left associativity) : cat.
 (* \sqb3 *)
 
 Definition functor_mor_application {B C:Precategory} {b b':B} (F:[B,C]) :
   b --> b'  ->  F ◾ b --> F ◾ b'
-  := λ f, # (F:_==>_) f.
+  := λ f, # (F:_⟶_) f.
 Notation "F ▭ f" := (functor_mor_application F f) (at level 40, left associativity) : cat. (* \rew1 *)
 
 Definition arrow {C:Precategory} (c : C) (X : [C^op,SET]) : hSet := X ◾ c.
@@ -187,7 +187,7 @@ Notation "X ⇐ c" := (arrow' c X)  (at level 50) : cat. (* \l= *)
 
 Definition arrow_morphism_composition {C:Precategory} {c' c:C} {X:[C^op,SET]} :
   c'-->c -> c⇒X -> c'⇒X
-  := λ f x, # (X:_==>_) f x.
+  := λ f x, # (X:_⟶_) f x.
 Notation "x ⟲ f" := (arrow_morphism_composition f x) (at level 50, left associativity) : cat.
 (* ⟲ agda-input \l C-N C-N C-N 2 the first time, \l the second time *)
 (* motivation for the notation:
@@ -195,7 +195,7 @@ Notation "x ⟲ f" := (arrow_morphism_composition f x) (at level 50, left associ
 
 Definition nattrans_arrow_composition {C:Precategory} {X X':[C^op,SET]} {c:C} :
   c⇒X -> X-->X' -> c⇒X'
-  := λ x q, (q:_⟶_) c (x:(X:_==>_) c:hSet).
+  := λ x q, (q:_ ⟹ _) c (x:(X:_⟶_) c:hSet).
 Notation "q ⟳ x" := (nattrans_arrow_composition x q) (at level 50, left associativity) : cat.
 (* ⟳ agda-input \r C-N C-N C-N 3 the first time, \r the second time *)
 (* motivation for the notation:
@@ -204,7 +204,7 @@ Notation "q ⟳ x" := (nattrans_arrow_composition x q) (at level 50, left associ
 
 Definition nattrans_object_application {B C:Precategory} {F F' : [B,C]} (b:B) :
   F --> F'  ->  F ◾ b --> F' ◾ b
-  := λ p, (p:_⟶_) b.
+  := λ p, (p:_ ⟹ _) b.
 Notation "p ◽ b" := (nattrans_object_application b p) (at level 40) : cat.
 (* agda input : \sqw3 *)
 
@@ -317,7 +317,7 @@ Defined.
 
 (* opposite categories *)
 
-Definition functor_to_opp_opp {C:Precategory} : C ==> C^op^op
+Definition functor_to_opp_opp {C:Precategory} : C ⟶ C^op^op
   := makeFunctor (λ c,c) (λ a b f,f) (λ c, idpath _) (λ a b c f g, idpath _).
 
 Definition makeFunctor_op {C D:Precategory}
@@ -326,7 +326,7 @@ Definition makeFunctor_op {C D:Precategory}
            (identity : ∏ c, mor c c (identity c) = identity (obj c))
            (compax : ∏ (a b c : C) (f : b --> a) (g : c --> b),
                        mor a c (f ∘ g) = mor b c g ∘ mor a b f) :
-  C^op ==> D
+  C^op ⟶ D
   := (obj,, mor),, identity,, compax.
 
 Definition opp_ob {C:Precategory} : ob C -> ob C^op
@@ -362,7 +362,7 @@ Proof.
   reflexivity.
 Qed.
 
-Definition functorOp {B C : Precategory} : [B, C] ^op ==> [B ^op, C ^op].
+Definition functorOp {B C : Precategory} : [B, C] ^op ⟶ [B ^op, C ^op].
 Proof.
   unshelve refine (makeFunctor _ _ _ _).
   { exact functor_opp. }
@@ -372,12 +372,12 @@ Proof.
   { abstract (intros H J K p q; now apply (nat_trans_eq (homset_property _))). }
 Defined.
 
-Definition functorOp' {B C:Precategory} : [B,C] ==> [B^op,C^op]^op.
+Definition functorOp' {B C:Precategory} : [B,C] ⟶ [B^op,C^op]^op.
 Proof.
   exact (functorOp functorOp).
 Defined.
 
-Definition functorRmOp {B C : Precategory} : [B ^op, C ^op] ==> [B, C] ^op.
+Definition functorRmOp {B C : Precategory} : [B ^op, C ^op] ⟶ [B, C] ^op.
 Proof.
   unshelve refine (makeFunctor _ _ _ _).
   { exact functor_opp. }
@@ -387,7 +387,7 @@ Proof.
   { abstract (intros H J K p q; now apply (nat_trans_eq (homset_property _))). }
 Defined.
 
-Definition functorMvOp {B C:Precategory} : [B,C^op] ==> [B^op,C]^op.
+Definition functorMvOp {B C:Precategory} : [B,C^op] ⟶ [B^op,C]^op.
 Proof.
   unshelve refine (makeFunctor _ _ _ _).
   { exact functor_opp. }
@@ -413,7 +413,7 @@ Proof.
                   [ apply homset_property
                   | intro b; reflexivity ]) using _L_. }}}
   { simpl. unshelve refine (gradth _ _ _ _).
-    { exact (functor_opp : B^op ==> C^op -> B ==> C). }
+    { exact (functor_opp : B^op ⟶ C^op -> B ⟶ C). }
     { abstract (intros H; simpl; apply (functor_eq _ _ (homset_property C));
                 unshelve refine (total2_paths_f _ _); reflexivity) using _L_. }
     { abstract (intros H; simpl; apply functor_eq;
@@ -424,7 +424,7 @@ Defined.
 Definition functorOpEmb {B C:Precategory} : PrecategoryEmbedding [B, C]^op [B^op, C^op]
   := pr1 functorOpIso.
 
-Lemma functor_op_rm_op_eq {C D:Precategory} (F : C^op ==> D^op) :
+Lemma functor_op_rm_op_eq {C D:Precategory} (F : C^op ⟶ D^op) :
   functorOp (functorRmOp F) = F.
 Proof.
   apply functor_eq.
@@ -432,7 +432,7 @@ Proof.
   unshelve refine (total2_paths_f _ _); reflexivity.
 Qed.
 
-Lemma functor_rm_op_op_eq {C D:Precategory} (F : C ==> D) :
+Lemma functor_rm_op_op_eq {C D:Precategory} (F : C ⟶ D) :
   functorRmOp (functorOp F) = F.
 Proof.
   apply functor_eq.
@@ -440,7 +440,7 @@ Proof.
   unshelve refine (total2_paths_f _ _); reflexivity.
 Qed.
 
-Lemma functor_op_op_eq {C D:Precategory} (F : C ==> D) :
+Lemma functor_op_op_eq {C D:Precategory} (F : C ⟶ D) :
   functorOp (functorOp F) = F.
 Proof.
   apply functor_eq.
@@ -479,7 +479,7 @@ Proof.
 Defined.
 
 Definition functorWithStructures {C:Precategory} {P Q:ob C -> UU}
-           (F : ∏ c, P c -> Q c) : categoryWithStructure C P ==> categoryWithStructure C Q.
+           (F : ∏ c, P c -> Q c) : categoryWithStructure C P ⟶ categoryWithStructure C Q.
 Proof.
   unshelve refine (makeFunctor _ _ _ _).
   (* transport the structure: *)
@@ -491,7 +491,7 @@ Proof.
 Defined.
 
 Definition addStructure {B C:Precategory} {P:ob C -> UU}
-           (F:B==>C) (h : ∏ b, P(F b)) : B ==> categoryWithStructure C P.
+           (F:B⟶C) (h : ∏ b, P(F b)) : B ⟶ categoryWithStructure C P.
 Proof.
   unshelve refine (makeFunctor _ _ _ _).
   - intros b. exact (F b,,h b).
@@ -525,8 +525,8 @@ Defined.
 
 (*  *)
 
-Definition functor_composite_functor {A B C:Precategory} (F:A==>B) :
-  [B,C] ==> [A,C].
+Definition functor_composite_functor {A B C:Precategory} (F:A⟶B) :
+  [B,C] ⟶ [A,C].
 Proof.
   unshelve refine (makeFunctor _ _ _ _).
   - exact (λ G, G □ F).

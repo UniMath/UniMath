@@ -67,9 +67,9 @@ Delimit Scope cat_deprecated with cat_deprecated.
 
 Local Open Scope cat.
 
-Notation "a --> b" := (precategory_morphisms a b)(at level 50) : cat.
+Notation "a --> b" := (precategory_morphisms a b) : cat.
 
-Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50) : cat.
+Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) : cat.
 (* ⟦   to input: type "\[[" or "\(" with Agda input method
    ⟧   to input: type "\]]" or "\)" with Agda input method *)
 
@@ -107,12 +107,12 @@ Definition compose { C : precategory_data }
   { a b c : C } :
     a --> b -> b --> c -> a --> c := pr2 (pr2 C) a b c.
 
-Notation "f ;; g" := (compose f g) (at level 50, left associativity, only parsing) : cat_deprecated.
+Notation "f ;; g" := (compose f g) : cat_deprecated.
 
-Notation "f · g" := (compose f g) (at level 50, format "f  ·  g", left associativity) : cat.
+Notation "f · g" := (compose f g) : cat.
 (* to input: type "\centerdot" or "\cdot" with Agda input method *)
 
-Notation "g ∘ f" := (compose f g) (at level 50, left associativity, only parsing) : cat.
+Notation "g ∘ f" := (compose f g) (only parsing) : cat.
 (* agda input \circ *)
 
 Definition postcompose  {C : precategory_data} {a b c : C} (g : b --> c) (f : a --> b) : a --> c :=
@@ -654,6 +654,28 @@ Definition iso_comp_left_weq {C:precategory} {a b:C} (h:iso a b) (c:C) :
 Definition iso_conjug_weq {C:precategory} {a b:C} (h:iso a b) :
  weq (a --> a) (b --> b) := weqcomp (iso_comp_left_weq h _ ) (iso_comp_right_weq (iso_inv_from_iso h) _ ).
 
+
+(** * Equivalence relation identifying isomorphic objects *)
+Section are_isomorphic.
+
+Context (C : precategory).
+
+(** a and b are related if there merely exists an iso between them *)
+Definition are_isomorphic : hrel C := λ a b, ∥iso a b∥.
+
+Lemma iseqrel_are_isomorphic : iseqrel are_isomorphic.
+Proof.
+repeat split.
+- intros x y z h1.
+  apply hinhuniv; intros h2; generalize h1; clear h1.
+  now apply hinhuniv; intros h1; apply hinhpr, (iso_comp h1 h2).
+- now intros x; apply hinhpr, identity_iso.
+- now intros x y; apply hinhuniv; intro h1; apply hinhpr, iso_inv_from_iso.
+Qed.
+
+Definition iso_eqrel : eqrel C := (are_isomorphic,,iseqrel_are_isomorphic).
+
+End are_isomorphic.
 
 
 (** * Isomorphisms in a precategory WITH HOM-SETS *)
