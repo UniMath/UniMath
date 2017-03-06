@@ -5,8 +5,12 @@ This file contains a fomalization of multisorted binding signatures:
 - Definition of multisorted binding signatures ([MultiSortedSig])
 - Construction of a functor from a multisorted binding signature
   ([MultiSortedSigToFunctor])
+- Construction of signature with strength from a multisorted binding
+  signature ([MultiSortedSigToSignature])
 - Proof that the functor obtained from a multisorted binding signature
   is omega-cocontinuous ([is_omega_cocont_MultiSortedSigToFunctor])
+- Construction of a monad on Set/sort from a multisorterd signature
+  ([MultiSortedSigToMonad])
 
 
 Written by: Anders Mörtberg, 2016. The formalization follows a note
@@ -14,6 +18,11 @@ written by Benedikt Ahrens and Ralph Matthes, and is also inspired by
 discussions with them and Vladimir Voevodsky.
 
 Strength calculation added by Ralph Matthes, 2017.
+
+
+In the end of the file there is a module with an alternative version
+using [X,SET] instead of SET/X. There is no proof that the
+functor we obtain using this approach is omega-cocontinuous yet.
 
 *)
 Require Import UniMath.Foundations.PartD.
@@ -43,7 +52,6 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.slicecat.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
-(* Require Import UniMath.SubstitutionSystems.SignatureExamples. *)
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
@@ -55,12 +63,21 @@ Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 
 Local Open Scope cat.
 
-Local Notation "[ C , D ]" := (functor_Precategory C D).
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "C / X" := (slicecat_ob C X).
 Local Notation "C / X" := (slice_precat_data C X).
 Local Notation "C / X" := (slice_precat C X (homset_property C)).
 Local Notation "C / X ⟦ a , b ⟧" := (slicecat_mor C X a b) (at level 50, format "C / X ⟦ a , b ⟧").
+
+(* These should be global *)
+Arguments post_composition_functor {_ _ _} _ _ _.
+Arguments pre_composition_functor {_ _ _} _ _ _.
+Arguments Gθ_Signature {_ _ _ _ _ _} _ _.
+Arguments Signature_Functor {_ _ _ _} _.
+Arguments BinProduct_of_functors {_ _} _ _ _.
+Arguments DL_comp {_ _ _} _ {_} _.
+Arguments θ_from_δ_Signature {_ _ _} _.
+Arguments BinProduct_of_Signatures {_ _ _ _} _ _ _.
+Arguments Sum_of_Signatures _ {_ _ _ _} _ _.
 
 (** * Definition of multisorted binding signatures *)
 Section MBindingSig.
@@ -76,9 +93,6 @@ now apply has_homsets_slice_precat.
 Defined.
 
 Let hs : has_homsets (SET / sort) := homset_property SET_over_sort.
-
-Let post_comp := post_composition_functor (SET / sort) _ _
-                   hs has_homsets_HSET.
 
 (** Definition of multi sorted signatures *)
 Definition MultiSortedSig : UU :=
@@ -131,29 +145,35 @@ Defined.
 Definition sorted_option_functor (s : sort) : functor (SET / sort) (SET / sort) :=
   constcoprod_functor1 (BinCoproducts_HSET_slice sort) (constHSET_slice s).
 
-(** sorted option functor for lists (also called option in the note) *)
+(** Sorted option functor for lists (also called option in the note) *)
 Local Definition option_list (xs : list sort) : functor (SET / sort) (SET / sort).
 Proof.
+(* This should be foldr1 in order to avoid composing with the
+   identity functor in the base case *)
 use (foldr1 (fun F G => F ∙ G) (functor_identity _) (map sorted_option_functor xs)).
-(* + intros s F. *)
-(*   apply (sorted_option_functor s ∙ F). *)
-(* + apply functor_identity. *)
 Defined.
 
-(** Define a functor F^(l,t)(X) := proj_functor(t) ∘ X ∘ option_functor(l) *)
+(** Define a functor
+
+F^(l,t)(X) := proj_functor(t) ∘ X ∘ option_functor(l)
+
+if l is nonempty and
+
+F^(l,t)(X) := proj_functor(t) ∘ X
+
+otherwise
+ *)
 Definition exp_functor (lt : list sort × sort) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET].
 Proof.
 induction lt as [l t].
+(* use list_ind to do a case on whether l is empty or not *)
 use (list_ind _ _ _ l); clear l.
-- apply post_comp, (proj_functor t).
+- exact (post_composition_functor _ _ (proj_functor t)).
 - intros s l _; simpl.
   eapply functor_composite.
-  + exact (pre_composition_functor _ _ _ hs hs (option_list (cons s l))).
-  + apply post_comp, (proj_functor t).
-(* eapply functor_composite. *)
-(* + exact (pre_composition_functor _ _ _ hs hs (option_list (pr1 lt))). *)
-(* + apply post_comp, (proj_functor (pr2 lt)). *)
+  + exact (pre_composition_functor hs hs (option_list (cons s l))).
+  + exact (post_composition_functor _ has_homsets_HSET (proj_functor t)).
 Defined.
 
 (** This defines F^lts where lts is a list of (l,t). Outputs a product of
@@ -166,30 +186,24 @@ set (T := constant_functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET]
                            (constant_functor SET_over_sort HSET TerminalHSET)).
 (* TODO: Maybe use indexed finite products instead of a fold? *)
 set (XS := map exp_functor xs).
-use (foldr1 (fun F G => BinProduct_of_functors _ _ _ F G) T XS).
-(* use (foldr (fun F G => BinProduct_of_functors _ _ _ (exp_functor F) G) T xs). *)
+(* This should be foldr1 in order to avoid composing with the
+   constant functor in the base case *)
+use (foldr1 (fun F G => BinProduct_of_functors _ F G) T XS).
 apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
 
 Local Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
-  functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET_over_sort].
-Proof.
-eapply functor_composite.
-+ apply (exp_functor_list (pr1 xst)).
-+ eapply post_composition_functor.
-  apply (hat_functor (pr2 xst)).
-Defined.
+  functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET_over_sort] :=
+    exp_functor_list (pr1 xst) ∙ post_composition_functor _ _ (hat_functor (pr2 xst)).
 
 (** The function from multisorted signatures to functors *)
 Definition MultiSortedSigToFunctor (M : MultiSortedSig) :
   functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET_over_sort].
 Proof.
 use (coproduct_of_functors (ops M)).
-+ apply Coproducts_functor_precat.
-  apply Coproducts_slice_precat.
-  apply CoproductsHSET, setproperty.
++ apply Coproducts_functor_precat, Coproducts_slice_precat, CoproductsHSET, setproperty.
 + intros op.
-  apply (hat_exp_functor_list (arity M op)).
+  exact (hat_exp_functor_list (arity M op)).
 Defined.
 
 End functor.
@@ -199,135 +213,99 @@ End functor.
       multisorted signature *)
 Section strength.
 
-(* the DL for sorted_option_functor *)
+(* The DL for sorted_option_functor *)
 Local Definition DL_sorted_option_functor (s : sort) :
   DistributiveLaw _ hs (sorted_option_functor s) :=
     genoption_DistributiveLaw _ hs (constHSET_slice s)(BinCoproducts_HSET_slice sort).
 
-(* the DL for option_list *)
+(* The DL for option_list *)
 Local Definition DL_option_list (xs : list sort) :
   DistributiveLaw _ hs (option_list xs).
 Proof.
-  induction xs as [[|n] xs].
-  + induction xs.
-    apply DL_id.
-  + induction n as [|n IH].
-    * induction xs as [m []].
-      apply DL_sorted_option_functor.
-    * induction xs as [m [k xs]].
-      apply (DL_comp _ _ _ (DL_sorted_option_functor m) _ (IH (k,,xs))).
-(* apply (list_ind (fun xs => DistributiveLaw _ hs (option_list xs))). *)
-(* + apply DL_id. *)
-(* + intros s xs' IH. induction xs'. (* the latter seems to be needed *) *)
-(*   apply (DL_comp _ _ _ (DL_sorted_option_functor s) _ IH). *)
+induction xs as [[|n] xs].
++ induction xs.
+  apply DL_id.
++ induction n as [|n IH].
+  * induction xs as [m []].
+    apply DL_sorted_option_functor.
+  * induction xs as [m [k xs]].
+    apply (DL_comp (DL_sorted_option_functor m) (IH (k,,xs))).
 Defined.
 
-Lemma temp lt : ∑ θ : θ_source (exp_functor lt) ⟹ θ_target (exp_functor lt),
-  θ_Strength1_int θ × θ_Strength2_int θ.
-Proof.
-induction lt as [l t].
-simpl.
-  induction l as [[|n] xs].
-  + induction xs.
-use (pr2 (Gθ_Signature _ _ _ _ _ _ (IdSignature _ _) (proj_functor t))).
-    (* apply DL_id. *)
-  + induction n as [|n IH].
-    * induction xs as [m []].
-simpl.
-cbn.
-  set (Sig_option_list := θ_from_δ_Signature _ hs (option_list (cons m _)) (DL_option_list (cons m (0,,tt)))).
-  use (pr2 (Gθ_Signature _ _ _ _ _ _ Sig_option_list (proj_functor t))).
-    * induction xs as [m xs].
-simpl.
-  set (Sig_option_list := θ_from_δ_Signature _ hs (option_list (cons m _)) (DL_option_list (cons m (S n,,xs)))).
-  use (pr2 (Gθ_Signature _ _ _ _ _ _ Sig_option_list (proj_functor t))).
-Defined.
-
-(* the signature for exp_functor *)
+(* The signature for exp_functor *)
 Local Definition Sig_exp_functor (lt : list sort × sort) :
   Signature _ hs _ has_homsets_HSET.
 Proof.
 exists (exp_functor lt).
-apply temp.
-(* induction lt as [l t]. *)
-(* use (list_ind _ _ _ l); clear l. *)
-(* - simpl. *)
-(*   exists (post_comp (proj_functor t)). *)
-(*   apply temp. *)
-(*   (* This does not give the same thing: *) *)
-(*   (* use (Gθ_Signature _ _ _ _ _ _ (IdSignature _ _) (proj_functor t)). *) *)
-(* - intros s l _. *)
-(*   set (Sig_option_list := θ_from_δ_Signature _ hs (option_list (cons s l)) (DL_option_list (cons s l))). *)
-(*   use (Gθ_Signature _ _ _ _ _ _ Sig_option_list (proj_functor t)). *)
-
-(* set (Sig_option_list := θ_from_δ_Signature _ hs (option_list (pr1 lt)) (DL_option_list (pr1 lt))). *)
-(* use (Gθ_Signature _ _ _ _ _ _ Sig_option_list (proj_functor (pr2 lt))). *)
+induction lt as [l t].
+induction l as [[|n] xs].
++ induction xs.
+  exact (pr2 (Gθ_Signature (IdSignature _ _) (proj_functor t))).
++ induction n as [|n IH].
+  * induction xs as [m []].
+    set (Sig_option_list := θ_from_δ_Signature (DL_option_list (cons m (0,,tt)))).
+    exact (pr2 (Gθ_Signature Sig_option_list (proj_functor t))).
+  * induction xs as [m xs].
+    set (Sig_option_list := θ_from_δ_Signature (DL_option_list (cons m (S n,,xs)))).
+    exact (pr2 (Gθ_Signature Sig_option_list (proj_functor t))).
 Defined.
 
 Local Lemma functor_in_Sig_exp_functor_ok (lt : list sort × sort) :
-  Signature_Functor _ _ _ _ (Sig_exp_functor lt) = exp_functor lt.
+  Signature_Functor (Sig_exp_functor lt) = exp_functor lt.
 Proof.
 apply idpath.
-(* induction lt as [l t]. *)
-(* induction l as [n l]. *)
-(* induction n as [|n _]; induction l; apply idpath. *)
 Qed.
 
-(* The signature for exp_functor_list, complications arise since the underlying functor should be
-   the right one w.r.t. convertibility *)
+(* The signature for exp_functor_list *)
 Local Definition Sig_exp_functor_list (xs : list (list sort × sort)) :
   Signature _ hs _ has_homsets_HSET.
 Proof.
-mkpair.
-- exact (exp_functor_list xs).
-- set (T := ConstConstSignature SET_over_sort SET TerminalHSET :
-                Signature _ hs _ has_homsets_HSET).
-  induction xs as [[|n] xs].
-  + induction xs.
-    apply (pr2 T).
-  + induction n as [|n IH].
-    * induction xs as [m []].
-      apply (pr2 (Sig_exp_functor m)).
-    * induction xs as [m [k xs]].
-      set (IH_Sig := (tpair _ _ (IH (k,,xs))) :
-                       Signature (SET / sort) hs _ has_homsets_HSET).
-      exact (pr2 (BinProduct_of_Signatures _ _ _ _ _ (Sig_exp_functor _) IH_Sig)).
+exists (exp_functor_list xs).
+induction xs as [[|n] xs].
+- induction xs.
+  exact (pr2 (ConstConstSignature SET_over_sort SET TerminalHSET)).
+- induction n as [|n IH].
+  + induction xs as [m []].
+    exact (pr2 (Sig_exp_functor m)).
+  + induction xs as [m [k xs]].
+    exact (pr2 (BinProduct_of_Signatures _ (Sig_exp_functor _) (tpair _ _ (IH (k,,xs))))).
 Defined.
 
 Local Lemma functor_in_Sig_exp_functor_list_ok (xs : list (list sort × sort)) :
-  Signature_Functor _ _ _ _ (Sig_exp_functor_list xs) = exp_functor_list xs.
+  Signature_Functor (Sig_exp_functor_list xs) = exp_functor_list xs.
 Proof.
-  apply idpath.
+apply idpath.
 Qed.
 
 (* the signature for hat_exp_functor_list *)
 Local Definition Sig_hat_exp_functor_list (xst : list (list sort × sort) × sort) :
   Signature _ hs _ hs.
 Proof.
-apply (Gθ_Signature _ _ _ _ _ _ (Sig_exp_functor_list (pr1 xst)) (hat_functor (pr2 xst))).
+apply (Gθ_Signature (Sig_exp_functor_list (pr1 xst)) (hat_functor (pr2 xst))).
 Defined.
 
 Local Lemma functor_in_Sig_hat_exp_functor_list_ok (xst : list (list sort × sort) × sort) :
-  Signature_Functor _ _ _ _ (Sig_hat_exp_functor_list xst) = hat_exp_functor_list xst.
+  Signature_Functor (Sig_hat_exp_functor_list xst) = hat_exp_functor_list xst.
 Proof.
-  apply idpath.
+apply idpath.
 Qed.
 
-(* the signature for MultiSortedSigToFunctor *)
+(* The signature for MultiSortedSigToFunctor *)
 Definition MultiSortedSigToSignature (M : MultiSortedSig) : Signature _ hs _ hs.
 Proof.
 set (Hyps := fun (op : ops M) => Sig_hat_exp_functor_list (arity M op)).
-refine (Sum_of_Signatures (ops M) _ _ _ _ _ Hyps).
+refine (Sum_of_Signatures (ops M) _ Hyps).
 apply Coproducts_slice_precat, CoproductsHSET, setproperty.
 Defined.
 
 Local Lemma functor_in_MultiSortedSigToSignature_ok (M : MultiSortedSig) :
-  Signature_Functor _ _ _ _ (MultiSortedSigToSignature M) = MultiSortedSigToFunctor M.
+  Signature_Functor (MultiSortedSigToSignature M) = MultiSortedSigToFunctor M.
 Proof.
-  apply idpath.
+apply idpath.
 Qed.
 
 End strength.
+
 
 (** * Proof that the functor obtained from a multisorted signature is omega-cocontinuous *)
 Section omega_cocont.
@@ -383,7 +361,7 @@ apply is_left_adjoint_proj_functor'.
 Defined.
 
 Local Lemma is_omega_cocont_post_comp_proj (s : sort) :
-  is_omega_cocont (post_comp (proj_functor s)).
+  is_omega_cocont (@post_composition_functor (SET/sort) _ _ hs has_homsets_HSET (proj_functor s)).
 Proof.
 apply is_omega_cocont_post_composition_functor.
 apply is_left_adjoint_proj_functor.
@@ -418,35 +396,23 @@ induction a as [xs t].
 induction xs as [[|n] xs].
 - induction xs.
   apply is_omega_cocont_post_comp_proj.
--
-destruct n as [|n].
+- induction n as [|n].
   + induction xs as [m []].
-use (@is_omega_cocont_functor_composite _ _ _ _ (ℓ (sorted_option_functor m))).
-* apply functor_category_has_homsets.
-* apply is_omega_cocont_pre_composition_functor, H.
-* apply is_omega_cocont_post_comp_proj.
-+
-
-induction xs as [m k].
-simpl.
-use (@is_omega_cocont_functor_composite _ _ _ _ (ℓ (option_list _))).
-* simpl.
-  apply (functor_category_has_homsets (SET / sort) HSET has_homsets_HSET).
-* apply is_omega_cocont_pre_composition_functor, H.
-* apply is_omega_cocont_post_comp_proj.
-
-(* apply is_omega_cocont_functor_composite. *)
-(* + apply functor_category_has_homsets. *)
-(* + apply is_omega_cocont_pre_composition_functor, H. *)
-(* + apply is_omega_cocont_post_comp_proj. *)
+    use is_omega_cocont_functor_composite.
+    * apply functor_category_has_homsets.
+    * apply is_omega_cocont_pre_composition_functor, H.
+    * apply is_omega_cocont_post_comp_proj.
+  + induction xs as [m k]; simpl.
+    use (@is_omega_cocont_functor_composite _ _ _ _ (ℓ (option_list _))).
+    * apply (functor_category_has_homsets (SET / sort) HSET has_homsets_HSET).
+    * apply is_omega_cocont_pre_composition_functor, H.
+    * apply is_omega_cocont_post_comp_proj.
 Defined.
 
 Local Lemma is_omega_cocont_exp_functor_list (xs : list (list sort × sort))
   (H : Colims_of_shape nat_graph SET_over_sort) :
   is_omega_cocont (exp_functor_list xs).
 Proof.
-
-
 induction xs as [[|n] xs].
 - induction xs.
   apply is_omega_cocont_constant_functor, functor_category_has_homsets.
@@ -460,22 +426,10 @@ induction xs as [[|n] xs].
       apply has_exponentials_functor_HSET, homset_property.
     * apply is_omega_cocont_exp_functor, H.
     * apply (IHn (k,,xs)).
-
-
-
-  (* apply (list_ind (fun xs => is_omega_cocont (exp_functor_list xs))). *)
-  (* + apply is_omega_cocont_constant_functor, functor_category_has_homsets. *)
-  (* + clear xs; intros x xs IH. *)
-  (*   apply is_omega_cocont_BinProduct_of_functors; try apply homset_property. *)
-  (*   * apply BinProducts_functor_precat, BinProducts_slice_precat, PullbacksHSET. *)
-  (*   * apply is_omega_cocont_constprod_functor1; try apply functor_category_has_homsets. *)
-  (*     apply has_exponentials_functor_HSET, homset_property. *)
-  (*   * apply is_omega_cocont_exp_functor, H. *)
-  (*   * induction xs. apply IH. *)
 Defined.
 
 Local Lemma is_omega_cocont_post_comp_hat_functor (s : sort) :
-  is_omega_cocont (post_composition_functor SET_over_sort  _ _
+  is_omega_cocont (@post_composition_functor SET_over_sort  _ _
        (homset_property SET) hs (hat_functor s)).
 Proof.
 apply is_omega_cocont_post_composition_functor, is_left_adjoint_hat.
@@ -497,7 +451,7 @@ Lemma is_omega_cocont_MultiSortedSigToFunctor (M : MultiSortedSig)
   is_omega_cocont (MultiSortedSigToFunctor M).
 Proof.
 apply is_omega_cocont_coproduct_of_functors; try apply homset_property.
-+ intros op; apply is_omega_cocont_hat_exp_functor_list, H.
+intros op; apply is_omega_cocont_hat_exp_functor_list, H.
 Defined.
 
 Lemma is_omega_cocont_MultiSortedSigToSignature
@@ -509,6 +463,8 @@ Defined.
 
 End omega_cocont.
 
+
+(** * Construction of a monad from a multisorted signature *)
 Section monad.
 
 Let Id_H := Id_H (SET / sort) hs (BinCoproducts_HSET_slice sort).
@@ -520,7 +476,7 @@ Defined.
 
 Let FunctorAlg F := FunctorAlg F has_homsets_SetSort2.
 
-(* ** Construction of initial algebra for a signature with strength on Set / sort*)
+(* ** Construction of initial algebra for a signature with strength on Set / sort *)
 Definition SignatureInitialAlgebraSetSort
   (H : Signature _ hs _ hs) (Hs : is_omega_cocont H) :
   Initial (FunctorAlg (Id_H H)).
@@ -555,7 +511,7 @@ Proof.
 now unfold MultiSortedSigToHSS, SignatureToHSS; destruct InitialHSS.
 Qed.
 
-(** ** Function from binding signatures to monads *)
+(** ** Function from multisorted binding signatures to monads *)
 Definition MultiSortedSigToMonad (sig : MultiSortedSig) : Monad (SET / sort).
 Proof.
 use Monad_from_hss.
@@ -702,7 +658,7 @@ Defined.
 Local Lemma exp_functor (a : list sort × sort) : functor [sortToC,sortToC] [sortToC,C].
 Proof.
 eapply functor_composite.
-- apply (pre_composition_functor _ _ _ has_homsets_sortToC _ (option_list (pr1 a))).
+- apply (pre_composition_functor has_homsets_sortToC _ (option_list (pr1 a))).
 - apply post_composition_functor, (projSortToC (pr2 a)).
 Defined.
 
@@ -729,7 +685,7 @@ set (XS := map exp_functor xs).
 set (T := constant_functor [sortToC,sortToC] [sortToC,C]
                            (constant_functor sortToC C TC)).
 (* TODO: Maybe use indexed finite products instead of a fold? *)
-apply (foldr1 (fun F G => BinProduct_of_functors _ _ BinProductsSortToCToC F G) T XS).
+apply (foldr1 (fun F G => BinProduct_of_functors BinProductsSortToCToC F G) T XS).
 Defined.
 
 (* H follows if C has exponentials? *)
