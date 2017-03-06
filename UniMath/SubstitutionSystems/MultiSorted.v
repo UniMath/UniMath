@@ -66,8 +66,6 @@ Section MBindingSig.
 
 Variables (sort : hSet).
 
-Let SET : Precategory := (HSET,,has_homsets_HSET).
-
 Local Definition SET_over_sort : Precategory.
 Proof.
 exists (SET / sort).
