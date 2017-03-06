@@ -49,16 +49,18 @@ Definition hset_precategory_data : precategory_data :=
 Lemma is_precategory_hset_precategory_data :
   is_precategory hset_precategory_data.
 Proof.
-  repeat split; simpl.
+repeat split.
 Qed.
 
 Definition hset_precategory : precategory :=
   tpair _ _ is_precategory_hset_precategory_data.
 
-Notation HSET := hset_precategory.
+Local Notation "'HSET'" := (hset_precategory) : cat.
 
 Lemma has_homsets_HSET : has_homsets HSET.
-Proof. intros a b; apply isaset_set_fun_space. Qed.
+Proof.
+intros a b; apply isaset_set_fun_space.
+Qed.
 
 (*
   Canonical Structure hset_precategory. :-)
@@ -68,7 +70,8 @@ Definition hset_Precategory : Precategory := (HSET ,, has_homsets_HSET).
 
 End HSET_precategory.
 
-Notation HSET := hset_precategory.
+Notation "'HSET'" := hset_precategory : cat.
+Notation "'SET'" := hset_Precategory : cat.
 
 (** * The precategory of hSets is a category. *)
 
@@ -231,4 +234,3 @@ abstract (apply isasetnat).
 Defined.
 
 End HSETs.
-

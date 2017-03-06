@@ -1,11 +1,11 @@
 (* Modification of UniMath.Ktheory.Elements to use
    over presheaves instead of covariant functors *)
 
-Require Export UniMath.CategoryTheory.precategories
-               UniMath.CategoryTheory.functor_categories
-               UniMath.CategoryTheory.opp_precat
-               UniMath.Foundations.Sets.
-Require Export UniMath.Ktheory.Precategories.
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.Foundations.Sets.
+(* Require Export UniMath.Ktheory.Precategories. *)
 
 Local Open Scope cat.
 
