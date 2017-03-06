@@ -30,7 +30,7 @@ Notation "s ≤ s'" := (rel _ s s') : wosubset.
 
 (* Coercion rel : SubsetWithWellOrdering >-> hrel. *)
 
-Local Definition lt {X:hSet} {S : SubsetWithWellOrdering X} (s s' : S) := (s ≤ s') ∧ ¬ (s = s').
+Local Definition lt {X:hSet} {S : SubsetWithWellOrdering X} (s s' : S) := ¬ (s' ≤ s).
 
 Notation "s < s'" := (lt s s') : wosubset.
 
@@ -79,7 +79,7 @@ Definition upto {X:hSet} {S:SubsetWithWellOrdering X} (s:S) : hsubtype X
   := λ x, ∑ h:S x, (x,,h) < s.
 
 Lemma ord_nge_iff_lt {X:hSet} (S : SubsetWithWellOrdering X) (x y:S) :
-  ¬ (x ≤ y) <-> y < x.
+  y < x <-> ((y ≤ x) ∧ ¬ (y = x)).
 (* this is actually a fact about total orderings and could be moved upstream *)
 Proof.
   assert (tot := pr2122 S); simpl in tot.
@@ -89,8 +89,8 @@ Proof.
   { intros nle. split.
     - assert (q := tot x y). simple refine (hinhuniv _ q); intro q'; clear q.
       induction q' as [Rxy|Ryx].
-      + apply fromempty, nle, Rxy.
-      + exact Ryx.
+      + change (hProptoType (x ≤ y)) in Rxy. apply fromempty, nle, Rxy.
+      + change (hProptoType (y ≤ x)) in Ryx. exact Ryx.
     - intros ne. induction ne. apply nle; clear nle. exact (refl y). }
   { intros yltx xley. induction yltx as [ylex neq]. apply neq; clear neq. now apply anti. }
 Defined.
@@ -112,21 +112,17 @@ Proof.
   (* minu says that u is the smallest element of T not in S *)
   exists u. intro y. split.
   - intro yinS. set (s := (y ,, yinS) : S). set (s' := subtype_inc (pr1 le) s).
-    exists (pr2 s'). set (y' := y ,, pr2 s'). apply ord_nge_iff_lt. intro ules.
+    exists (pr2 s'). set (y' := y ,, pr2 s'). intro ules.
     assert (q := pr22 le s u ules); clear ules.
     apply uinU. exact q.
   - intro yltu. induction yltu as [yinT yltu].
-    apply decidable_proof_by_contradiction.
-    { apply dec. }
-    intro bc.
-    assert (nuley := pr2 (ord_nge_iff_lt _ _ _) yltu). apply nuley; clear nuley.
-    exact (minu (y,,yinT) bc).
+    apply (decidable_proof_by_contradiction (dec _)).
+    intro bc. apply yltu. apply minu. exact bc.
 Defined.
 
 Lemma chain_union {X:hSet} {I:UU} (S : I -> SubsetWithWellOrdering X) :
   (∏ (i j:I), ((S i ≼ S j) ∨ (S j ≼ S i))) ->
-  ∑ (R : hrel (carrier_set (subtype_union S)))
-    (h : isWellOrder R),
+  ∑ (R : hrel (carrier_set (subtype_union S))) (h : isWellOrder R),
   ∏ i, S i ≼ (subtype_union S ,, (R ,, h)).
 Proof.
   intro chain.
