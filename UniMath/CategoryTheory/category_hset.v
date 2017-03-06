@@ -29,8 +29,9 @@ Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.Foundations.HLevels.
 
 Require Import UniMath.CategoryTheory.precategories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.functor_categories.
+
+Local Open Scope cat.
 
 (** * Precategory of hSets *)
 Section HSET_precategory.
@@ -55,7 +56,7 @@ Qed.
 Definition hset_precategory : precategory :=
   tpair _ _ is_precategory_hset_precategory_data.
 
-Local Notation "'HSET'" := (hset_precategory) : cat.
+Local Notation "'HSET'" := hset_precategory : cat.
 
 Lemma has_homsets_HSET : has_homsets HSET.
 Proof.
