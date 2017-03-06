@@ -38,21 +38,36 @@ Open Scope logic.
 
 Open Scope prop.
 
-Definition ord_le (X:hSet) : hrel (SubsetWithWellOrdering X)
+Definition wosub_le (X:hSet) : hrel (SubsetWithWellOrdering X)
   := λ S T, ∑ (le : S ⊆ T),
      (∀ s s' : S, s ≤ s' ⇒ subtype_inc le s ≤ subtype_inc le s')
      ∧
      (∀ (s:S) (t:T), t ≤ subtype_inc le s ⇒ (t ∈ S)).
 
-Notation "S ≼ T" := (ord_le _ S T) (at level 95) : wosubset.
+Notation "S ≼ T" := (wosub_le _ S T) (at level 70) : wosubset.
 
-Definition ord_inc {X} {S T : SubsetWithWellOrdering X} : (S ≼ T) -> S -> T.
+Definition wosub_equal (X:hSet) : hrel (SubsetWithWellOrdering X) := λ S T, (S ≼ T) ∧ (T ≼ S).
+
+Notation "S ≣ T" := (wosub_equal _ S T) (at level 70) : wosubset.
+
+Theorem wosub_univalence {X:hSet} (S T : SubsetWithWellOrdering X) : (S = T) ≃ (S ≣ T).
+Proof.
+  intros. unfold wosub_equal.
+  intermediate_weq (∑ (le : S ⊆ T), ∀ s s' : S, s ≤ s' ⇒ subtype_inc le s ≤ subtype_inc le s').
+  - admit.
+  -
+
+
+Abort.
+
+
+Definition wosub_inc {X} {S T : SubsetWithWellOrdering X} : (S ≼ T) -> S -> T.
 Proof.
   intros le s. exact (subtype_inc (pr1 le) s).
 Defined.
 
-Definition ord_fidelity {X:hSet} {S T:SubsetWithWellOrdering X} (le : S ≼ T)
-      (s s' : S) : s ≤ s' <-> ord_inc le s ≤ ord_inc le s'.
+Definition wosub_fidelity {X:hSet} {S T:SubsetWithWellOrdering X} (le : S ≼ T)
+      (s s' : S) : s ≤ s' <-> wosub_inc le s ≤ wosub_inc le s'.
 Proof.
   split.
   { intro l. exact (pr12 le s s' l). }
@@ -66,34 +81,53 @@ Proof.
       assert (k' := pr21122 T _ _ l k); clear k. simpl in k'.
       assert (p : s = s').
       { apply subtypeEquality_prop. exact (maponpaths pr1 k'). }
-      induction p.
-      exact (pr211122 S _). }
+      induction p. exact (pr211122 S _). }
 Defined.
 
-Definition ord_le_smaller {X:hSet} (S T:SubsetWithWellOrdering X) : hProp := (S ≼ T) ∧ (∃ t:T, t ∉ S).
+Local Lemma h1 {X} {S:SubsetWithWellOrdering X} {s t u:S} : s = t -> t ≤ u -> s ≤ u.
+Proof.
+  intros p le. induction p. exact le.
+Defined.
 
-Notation "S ≺ T" := (ord_le_smaller S T) (at level 95) : wosubset.
+Lemma wosub_le_isPartialOrder X : isPartialOrder (wosub_le X).
+Proof.
+  repeat split.
+  - intros S T U i j.
+    exists (pr11 (subtype_containment_isPartialOrder X) S T U (pr1 i) (pr1 j)).
+    split.
+    + intros s s' l. exact (pr12 j _ _ (pr12 i _ _ l)).
+    + intros s u l.
+      change (hProptoType (u ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) s))) in l.
+      set (uinT := pr1 u,,pr22 j (subtype_inc (pr1 i) s) u l : T).
+      assert (p : subtype_inc (pr1 j) uinT = u).
+      { now apply subtypeEquality_prop. }
+      assert (q := h1 p l : subtype_inc (pr1 j) uinT ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) s)).
+      assert (r := pr2 (wosub_fidelity j _ _) q).
+      assert (b := pr22 i _ _ r); simpl in b.
+      exact b.
+  - intros S.
+    use tpair.
+    + intros x xinS. exact xinS.
+    + split.
+      * intros s s' le. induction s, s'; exact le.
+      * intros s s' le. exact (pr2 s').
+  - intros S T i j.
+    induction i as [i i'], i' as [i' i''].
+    induction j as [j j'], j' as [j' j''].
+    assert (q := pr2 (subtype_containment_isPartialOrder X) S T i j); simpl in q.
+    unfold SubsetWithWellOrdering_to_subtype in q.
+
+
+Abort.
+
+
+Definition wosub_le_smaller {X:hSet} (S T:SubsetWithWellOrdering X) : hProp := (S ≼ T) ∧ (∃ t:T, t ∉ S).
+
+Notation "S ≺ T" := (wosub_le_smaller S T) (at level 70) : wosubset.
 
 (* [upto s x] means x is in S and, as an element of S, it is strictly less than s *)
 Definition upto {X:hSet} {S:SubsetWithWellOrdering X} (s:S) : hsubtype X
   := λ x, ∑ h:S x, (x,,h) < s.
-
-Lemma ord_nge_iff_lt {X:hSet} (S : SubsetWithWellOrdering X) (x y:S) :
-  y < x <-> ((y ≤ x) ∧ ¬ (y = x)).
-(* this is actually a fact about total orderings and could be moved upstream *)
-Proof.
-  assert (tot := pr2122 S); simpl in tot.
-  assert (refl := pr211122 S); simpl in refl.
-  assert (anti := pr21122 S); simpl in anti.
-  split.
-  { intros nle. split.
-    - assert (q := tot x y). simple refine (hinhuniv _ q); intro q'; clear q.
-      induction q' as [Rxy|Ryx].
-      + change (hProptoType (x ≤ y)) in Rxy. apply fromempty, nle, Rxy.
-      + change (hProptoType (y ≤ x)) in Ryx. exact Ryx.
-    - intros ne. induction ne. apply nle; clear nle. exact (refl y). }
-  { intros yltx xley. induction yltx as [ylex neq]. apply neq; clear neq. now apply anti. }
-Defined.
 
 Local Open Scope prop.
 

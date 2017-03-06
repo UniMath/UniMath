@@ -11,13 +11,13 @@ Definition subtype_set X : hSet := hSetpair (hsubtype X) (isasethsubtype X).
 
 Definition subtype_isIn {X:UU} {S:hsubtype X} (s:S) (T:hsubtype X) : hProp := T (pr1 s).
 
-Notation " s ∈ T " := (subtype_isIn s T) (at level 95) : subtype.
+Notation " s ∈ T " := (subtype_isIn s T) (at level 70) : subtype.
 
-Notation " s ∉ T " := (¬ (subtype_isIn s T) : hProp) (at level 95) : subtype.
+Notation " s ∉ T " := (¬ (subtype_isIn s T) : hProp) (at level 70) : subtype.
 
 Definition subtype_containedIn {X:UU} : hrel (subtype_set X) := λ S T, ∀ x:X, S x ⇒ T x.
 
-Notation " S ⊆ T " := (subtype_containedIn S T) (at level 95) : subtype.
+Notation " S ⊆ T " := (subtype_containedIn S T) (at level 70) : subtype.
 
 Definition subtype_notContainedIn {X:UU} (S T : hsubtype X) : hProp := ∃ x:X, S x ∧ ¬ (T x).
 
@@ -26,21 +26,21 @@ Proof.
   intros le s. exact (pr1 s,, le (pr1 s) (pr2 s)).
 Defined.
 
-Notation " S ⊈ T " := (subtype_notContainedIn S T) (at level 95) : subtype.
+Notation " S ⊈ T " := (subtype_notContainedIn S T) (at level 70) : subtype.
 
 Definition subtype_smallerThan {X:UU} (S T : hsubtype X) : hProp := (S ⊆ T) ∧ (T ⊈ S).
 
-Notation " S ⊊ T " := (subtype_smallerThan S T) (at level 95) : subtype.
+Notation " S ⊊ T " := (subtype_smallerThan S T) (at level 70) : subtype.
 
 Local Open Scope logic.
 
 Definition subtype_equal {X:UU} (S T : hsubtype X) : hProp := ∀ x, S x ⇔ T x.
 
-Notation " S ≡ T " := (subtype_equal S T) (at level 95) : subtype.
+Notation " S ≡ T " := (subtype_equal S T) (at level 70) : subtype.
 
 Definition subtype_notEqual {X:UU} (S T : hsubtype X) : hProp := (S ⊈ T) ∨ (T ⊈ S).
 
-Notation " S ≢ T " := (subtype_notEqual S T) (at level 95) : subtype.
+Notation " S ≢ T " := (subtype_notEqual S T) (at level 70) : subtype.
 
 Definition subtype_difference {X:UU} (S T : hsubtype X) : hsubtype X := λ x, S x ∧ ¬ (T x).
 
@@ -89,6 +89,12 @@ Proof.
   - intros S T U i j x. exact (j x ∘ i x).
   - intros S x s. exact s.
   - intros S T i j. apply (invmap (hsubtype_univalence S T)). now apply subtype_equal_cond.
+Defined.
+
+Lemma subtype_inc_comp {X:UU} {S T U : hsubtype X} (i:S⊆T) (j:T⊆U) (s:S) :
+  subtype_inc j (subtype_inc i s) = subtype_inc (λ x, j x ∘ i x) s.
+Proof.
+  reflexivity.
 Defined.
 
 Lemma subtype_deceq {X} (S:hsubtype X) : isdeceq X -> isdeceq S.
