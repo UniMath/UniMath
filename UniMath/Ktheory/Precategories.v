@@ -62,8 +62,6 @@ Defined.
 
 Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat. (* this overwrites the previous definition *)
 
-Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HSET).
-
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := C,,i.
 
