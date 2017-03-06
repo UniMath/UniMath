@@ -81,14 +81,6 @@ Definition category_pair (C:precategory) (i:is_category C) : category := C,,i.
 
 Definition theUnivalenceProperty (C:category) := pr2 C : is_category C.
 
-Definition reflects_isos {C D} (X:C⟶D) :=
-  ∏ c c' (f : c --> c'), is_isomorphism (#X f) -> is_isomorphism f.
-
-Lemma isaprop_reflects_isos {C D} (X:C⟶D) : isaprop (reflects_isos X).
-Proof.
-  apply impred; intros. apply impred; intros. apply impred; intros.
-  apply impred; intros. apply isaprop_is_isomorphism. Qed.
-
 Lemma Precategory_eq (C D:Precategory) :
   (C:precategory_data) = (D:precategory_data) -> C=D.
 Proof.
