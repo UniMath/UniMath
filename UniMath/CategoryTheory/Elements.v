@@ -1,4 +1,19 @@
-(** *** the category of elements of a functor *)
+(** ****************************************************************************
+
+The category of elements of a functor "F : C ⟶ HSET"
+
+Contents:
+
+- Category of elements ([cat_of_elems])
+- Functoriality of the constructon of the category of elements
+  ([cat_of_elems_on_nat_trans])
+- The forgetful functor from the category of elements to C
+  ([cat_of_elems_forgetful])
+
+Originally written by: Dan Grayson
+Ported to CT by: Anders Mörtberg
+
+*******************************************************************************)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
@@ -10,11 +25,11 @@ Require Import UniMath.CategoryTheory.category_hset.
 
 Local Open Scope cat.
 
-Section cov_cat_elems_def.
+Section cat_of_elems_def.
 
 Context {C : precategory} (X : C ⟶ HSET).
 
-Definition cat_of_elems_ob_mor  : precategory_ob_mor.
+Definition cat_of_elems_ob_mor : precategory_ob_mor.
 Proof.
 exists (∑ (c : C), X c : hSet).
 intros a b.
@@ -64,32 +79,36 @@ apply isaset_total2.
 - intro f. apply isasetaprop, setproperty.
 Qed.
 
-End cov_cat_elems_def.
+End cat_of_elems_def.
 
+Arguments get_mor {_ _ _ _} _.
+
+(** Type as \int in Agda mode *)
 Notation "∫ X" := (cat_of_elems X) (at level 3) : cat.
 
-Section cov_cat_elems_theory.
+Section cat_of_elems_theory.
 
 Context {C : precategory} {X Y : C ⟶ HSET}.
 
-Definition get_ob (x : ∫ X) := pr1 x.
-Definition get_el (x : ∫ X) := pr2 x.
-Definition get_eqn {x y : ∫ X} (f : (∫ X)⟦x,y⟧) := pr2 f.
+Definition get_ob (x : ∫ X) : C := pr1 x.
+Definition get_el (x : ∫ X) : X (get_ob x) : hSet := pr2 x.
+Definition get_eqn {x y : ∫ X} (f : (∫ X)⟦x,y⟧) :
+  # X (get_mor f) (get_el x) = get_el y := pr2 f.
 
-Definition make_ob (c : C) (x : pr1 X c : hSet) : ∫ X := (c,,x).
+Definition make_ob (c : C) (x : X c : hSet) : ∫ X := (c,,x).
+Definition make_mor (r s : ∫ X) (f : C⟦get_ob r,get_ob s⟧)
+  (i : # X f (get_el r) = get_el s) : (∫ X)⟦r,s⟧ := (f,,i).
 
-Definition make_mor (r s : ∫ X) (f : C⟦pr1 r,pr1 s⟧) (i : # X f (pr2 r) = pr2 s) : (∫ X)⟦r,s⟧
-  := (f,,i).
 
-
-(** *** Functoriality of the construction of the category of elements *)
-Definition cat_of_elems_on_nat_trans_data (α : X ⟹ Y) : functor_data (∫ X) (∫ Y).
+(** Functoriality of the construction of the category of elements *)
+Definition cat_of_elems_on_nat_trans_data (α : X ⟹ Y) :
+  functor_data (∫ X) (∫ Y).
 Proof.
-exists (λ a, (pr1 a,, α (pr1 a) (pr2 a))).
+exists (λ a, (get_ob a,,α (get_ob a) (get_el a))).
 intros b c f.
-exists (pr1 f).
-abstract (exact (! (eqtohomot (pr2 α (pr1 b) (pr1 c) (pr1 f)) (pr2 b))
-                   @ maponpaths ((pr1 α) (pr1 c)) (pr2 f))).
+exists (get_mor f).
+abstract (exact (!eqtohomot (pr2 α (get_ob b) (get_ob c) (get_mor f)) (get_el b)
+                @ maponpaths (α (get_ob c)) (get_eqn f))).
 Defined.
 
 Lemma cat_of_elems_on_nat_trans_is_functor (α : X ⟹ Y) :
@@ -101,41 +120,36 @@ split.
 Qed.
 
 Definition cat_of_elems_on_nat_trans (α : X ⟹ Y) : ∫ X ⟶ ∫ Y :=
-  (cat_of_elems_on_nat_trans_data α,, cat_of_elems_on_nat_trans_is_functor α).
+  (cat_of_elems_on_nat_trans_data α,,cat_of_elems_on_nat_trans_is_functor α).
 
 (* maybe make a functor [C,SET] ⟶ [category of Precategories] *)
 
-End cov_cat_elems_theory.
+(** The forgetful functor from the category of elements to C *)
+Definition cat_of_elems_forgetful : ∫ X ⟶ C.
+Proof.
+use mk_functor.
+- exists pr1.
+  intros a b; apply pr1.
+- now split.
+Defined.
 
-(** *** properties of projection to the original category *)
+Lemma reflects_isos_cat_of_elems_forgetful : reflects_isos cat_of_elems_forgetful.
+Proof.
+intros [c x] [d y] f Hf.
+apply is_iso_from_is_z_iso.
+assert (H := is_z_iso_from_is_iso _ Hf); clear Hf.
+destruct f as [f i]; destruct H as [f' j].
+assert (i' : #X f' y = x).
+{ intermediate_path (#X f' (#X f x)).
+  - exact (maponpaths (#X f') (!i)).
+  - intermediate_path (#X (f' ∘ f) x).
+    + exact (eqtohomot (!functor_comp X f f') x).
+    + intermediate_path (#X (identity c) x).
+      * exact (eqtohomot (maponpaths #X (pr1 j)) x).
+      * exact (eqtohomot (functor_id X c) x).
+}
+exists (f' ,, i').
+split; apply cat_of_elems_mor_eq; [ exact (pr1 j) | exact (pr2 j) ].
+Qed.
 
-(* TODO: port *)
-(* Module pr1. *)
-
-(*   Definition fun_data {C:Precategory} (X:C⟶SET) : *)
-(*       functor_data (Precategories.Precategory_obmor (cat X)) (Precategories.Precategory_obmor C). *)
-(*     intros. exists pr1. intros x x'. exact pr1. Defined. *)
-
-(*   Definition func {C:Precategory} (X:C⟶SET) : cat X ⟶ C. *)
-(*     intros. exists (fun_data _). *)
-(*     split. { intros a . reflexivity. } { intros a b c f g . reflexivity. } Defined. *)
-
-
-(*   Lemma func_reflects_isos {C:Precategory} (X:C⟶SET) : Precategories.reflects_isos (func X). *)
-(*   Proof. intros C X [c x] [d y] f Hf. *)
-(*     apply is_iso_from_is_z_iso. *)
-(*     set (H := is_z_iso_from_is_iso _ Hf). clearbody H. clear Hf. *)
-(*     destruct f as [f i]. destruct H as [f' j]. *)
-(*         assert (i' : #X f' y = x). *)
-(*     { intermediate_path (#X f' (#X f x)). *)
-(*       { exact (ap (#X f') (!i)). } *)
-(*       { intermediate_path (#X (f' ∘ f) x). *)
-(*         { exact (eqtohomot (!functor_comp X f f') x). } *)
-(*         { intermediate_path (#X (identity c) x). *)
-(*           { exact (eqtohomot (ap #X (pr1 j)) x). } *)
-(*           { exact (eqtohomot (functor_id X c) x). }}}} *)
-(*     { exists (f' ,, i'). split. *)
-(*       { apply mor_equality.  exact (pr1 j). } *)
-(*       { apply mor_equality.  exact (pr2 j). } } Qed. *)
-
-(* End pr1. *)
+End cat_of_elems_theory.
