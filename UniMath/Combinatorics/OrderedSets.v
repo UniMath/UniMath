@@ -61,9 +61,6 @@ Proof.
       + exact c.
 Defined.
 
-Definition isWellOrder {X : UU} (R : hrel X) : UU
-  := isTotalOrder R × mincondition R.
-
 Lemma isaprop_isTotalOrder {X : hSet} (R : hrel X) : isaprop (isTotalOrder R).
 Proof.
   intros. apply isapropdirprod.
@@ -71,15 +68,16 @@ Proof.
   - apply isaprop_istotal.
 Defined.
 
-Lemma isaprop_isWellOrder {X : hSet} (R : hrel X) : isaprop (isWellOrder R).
+Definition isWellOrder {X : hSet} (R : hrel X) : hProp.
 Proof.
   intros.
+  exists (isTotalOrder R × mincondition R).
   apply isaprop_assume_it_is; intro iswell.
   induction iswell as [istot hasmin].
   induction istot as [ispo istot].
   unwrap_isPartialOrder ispo.
   apply isapropdirprod.
-  { apply isaprop_isTotalOrder. }
+  { exact (isaprop_isTotalOrder R). }
   now apply isaprop_mincondition.
 Defined.
 

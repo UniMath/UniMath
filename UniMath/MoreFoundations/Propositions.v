@@ -13,3 +13,11 @@ Proof.
   - apply isasethProp.
   - apply propproperty.
 Defined.
+
+Lemma decidable_proof_by_contradiction {P:hProp} : decidable P -> ¬ ¬ P -> P.
+Proof.
+  intros dec nnp.
+  induction dec as [p|np].
+  - exact p.
+  - apply fromempty, nnp, np.
+Defined.
