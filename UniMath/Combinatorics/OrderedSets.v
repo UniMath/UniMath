@@ -10,6 +10,31 @@ Local Open Scope poset.
 Definition isTotalOrder {X : UU} (R : hrel X) : UU
   := isPartialOrder R × istotal R.
 
+Section A.
+
+  Local Open Scope logic.
+  Local Open Scope set.
+
+  Lemma tot_nge_iff_lt {X:hSet} (R:hrel X) :
+    isTotalOrder R -> ∏ x y, ¬ (R x y)  <->  R y x ∧ ¬ (y = x).
+  (** if [R x y] is [x ≤ y], then this shows the equivalence of two definitions for [y < x] *)
+  Proof.
+    intros X R i.
+    assert (tot := pr2 i); simpl in tot.
+    assert (refl := pr2 (pr1 (pr1 i))); simpl in refl.
+    assert (anti := pr2 (pr1 i)); simpl in anti.
+    split.
+    { intros nle. split.
+      - assert (q := tot x y). simple refine (hinhuniv _ q); intro q'; clear q.
+        induction q' as [Rxy|Ryx].
+        + apply fromempty, nle, Rxy.
+        + exact Ryx.
+      - intros ne. induction ne. apply nle; clear nle. exact (refl y). }
+    { intros yltx xley. induction yltx as [ylex neq]. apply neq; clear neq. now apply anti. }
+  Defined.
+
+End A.
+
 Definition mincondition {X : UU} (R : hrel X) : UU
   := ∏ S : hsubtype X, (∃ s, S s) -> ∑ s:X, S s × ∏ t:X, S t -> R s t.
 
@@ -111,65 +136,55 @@ Local Arguments isPosetEquivalence : clear implicits.
 Local Arguments isaposetmorphism : clear implicits.
 
 Lemma posetStructureIdentity {X:hSet} (R S:PartialOrder X) :
-  @isPosetEquivalence (X,,R) (X,,S) (idweq X) -> R=S.
+  @isPosetEquivalence (X,,R) (X,,S) (idweq X) <-> R=S.
 Proof.
-  intros ? ? ? e.
-  apply subtypeEquality. { intros T. apply isaprop_isPartialOrder. }
-  induction R as [R r]; induction S as [S s]; simpl.
-  apply funextfun; intro x; apply funextfun; intro y.
-  unfold isPosetEquivalence in e.
-  unfold isaposetmorphism in e; simpl in e.
-  induction e as [e e'].
-  unfold posetRelation in *. unfold invmap in *; simpl in *.
-  apply hPropUnivalence. { apply e. } { apply e'. }
-Defined.
-
-Open Scope transport.
-
-Lemma poTransport_logeq {X Y:hSet} (R:PartialOrder X) (S:PartialOrder Y) (f:X=Y) :
-  @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f)
-  <-> f#R = S.
-Proof.
-  split.
-  { intros i. induction f. apply posetStructureIdentity. apply i. }
-  { intros e. induction f. induction e. apply isPosetEquivalence_idweq. }
-Defined.
-
-Corollary poTransport_weq {X Y:hSet} (R:PartialOrder X) (S:PartialOrder Y) (f:X=Y) :
-  @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f)
-  ≃ f#R = S.
-Proof.
-  intros. apply weqimplimpl.
-  { apply (pr1 (poTransport_logeq _ _ _)). }
-  { apply (pr2 (poTransport_logeq _ _ _)). }
-  { apply isaprop_isPosetEquivalence. }
-  { apply isaset_PartialOrder. }
+  intros. split.
+  { intros e.
+    apply subtypeEquality. { intros T. apply isaprop_isPartialOrder. }
+    induction R as [R r]; induction S as [S s]; simpl.
+    apply funextfun; intro x; apply funextfun; intro y.
+    unfold isPosetEquivalence in e.
+    unfold isaposetmorphism in e; simpl in e.
+    induction e as [e e'].
+    unfold posetRelation in *. unfold invmap in *; simpl in *.
+    apply hPropUnivalence. { apply e. } { apply e'. } }
+  { intros p. induction p. apply isPosetEquivalence_idweq. }
 Defined.
 
 Local Lemma posetTransport_weq (X Y:Poset) : X╝Y ≃ X≅Y.
 Proof.
-  intros.
-  simple refine (weqbandf _ _ _ _).
+  intros. simple refine (weqbandf _ _ _ _).
   { apply hSet_univalence. }
-  intros e. apply invweq. apply poTransport_weq.
+  intros e. apply invweq. induction X as [X R], Y as [Y S]; simpl in e.
+  induction e; simpl. apply weqimplimpl.
+  { exact (pr1 (posetStructureIdentity R S)). }
+  { exact (pr2 (posetStructureIdentity R S)). }
+  { exact (isaprop_isPosetEquivalence _). }
+  { exact (isaset_PartialOrder _ _ _). }
 Defined.
+
+Local Theorem Poset_univalence_0 (X Y:Poset) : X=Y ≃ X≅Y.
+Proof.
+  intros. intermediate_weq (X╝Y).
+  - apply total2_paths_equiv.
+  - apply posetTransport_weq.
+Defined.
+
+Lemma Poset_univalence_compute {X Y:Poset} (e:X=Y) :
+  Poset_univalence_0 X Y e = Poset_univalence_map e.
+Proof.
+  try reflexivity.              (* fails, so we use "remakeweq" below *)
+Abort.
 
 Theorem Poset_univalence (X Y:Poset) : X=Y ≃ X≅Y.
 Proof.
   intros.
-  set (f := @Poset_univalence_map X Y).
-  set (g := total2_paths_equiv _ X Y).
-  set (h := posetTransport_weq X Y).
-  set (f' := weqcomp g h).
-  assert (k : pr1weq f' ~ f).
-  try reflexivity.              (* this doesn't work *)
+  assert (k : pr1weq (Poset_univalence_0 X Y) ~ @Poset_univalence_map X Y).
   { intro e. apply isinj_pr1_PosetEquivalence. induction e. reflexivity. }
-  assert (l : isweq f).
-  { apply (isweqhomot f'). exact k. apply weqproperty. }
-  exact (f,,l).
+  exact (remakeweq k).
 Defined.
 
-Definition Poset_univalence_compute {X Y:Poset} (e:X=Y) :
+Lemma Poset_univalence_compute {X Y:Poset} (e:X=Y) :
   Poset_univalence X Y e = Poset_univalence_map e.
 Proof. reflexivity. Defined.
 
