@@ -2,8 +2,8 @@ Foundations.v
 Notations.v
 Tactics.v
 Subposets.v
-Subtypes.v
 Propositions.v
+Subtypes.v
 DecidablePropositions.v
 AxiomOfChoice.v
 All.v

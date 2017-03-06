@@ -38,61 +38,41 @@ Open Scope logic.
 
 Open Scope prop.
 
-Definition subposet {X:hSet} (S T:SubsetWithWellOrdering X) : hProp
-  := ∑ (le : S ⊆ T), ∀ s s' : S, s ≤ s' ⇒ subtype_inc le s ≤ subtype_inc le s'.
+Definition ord_le (X:hSet) : hrel (SubsetWithWellOrdering X)
+  := λ S T, ∑ (le : S ⊆ T),
+     (∀ s s' : S, s ≤ s' ⇒ subtype_inc le s ≤ subtype_inc le s')
+     ∧
+     (∀ (s:S) (t:T), t ≤ subtype_inc le s ⇒ (t ∈ S)).
 
-Notation " S ⊑ T " := (subposet S T) (at level 95) : wosubset.
+Notation "S ≼ T" := (ord_le _ S T) (at level 95) : wosubset.
 
-Notation " S ⊏ T " := ((S ⊑ T) ∧ (T ⊈ S)) (at level 95) : wosubset.
-
-Definition subposet_to_subtype {X:hSet} {S T:SubsetWithWellOrdering X} : S ⊑ T -> S ⊆ T
-  := pr1.
-
-Local Definition inc' {X} {S T : SubsetWithWellOrdering X} : (S ⊑ T) -> S -> T.
+Definition ord_inc {X} {S T : SubsetWithWellOrdering X} : (S ≼ T) -> S -> T.
 Proof.
-  intros le s. exact (subtype_inc (subposet_to_subtype le) s).
+  intros le s. exact (subtype_inc (pr1 le) s).
 Defined.
 
-Definition subposet_reflect {X:hSet} {S T:SubsetWithWellOrdering X} (le : S ⊑ T)
-      (s s' : S) : inc' le s ≤ inc' le s' -> s ≤ s'.
+Definition ord_fidelity {X:hSet} {S T:SubsetWithWellOrdering X} (le : S ≼ T)
+      (s s' : S) : s ≤ s' <-> ord_inc le s ≤ ord_inc le s'.
 Proof.
-  intro l. apply (squash_to_prop (pr2122 S s s')).
-  { apply propproperty. }
-  change ((s ≤ s') ⨿ (s' ≤ s) → s ≤ s').
-  intro c. induction c as [c|c].
-  - exact c.
-  - induction le as [le b].
-    assert (k := b s' s c).
-    assert (k' := pr21122 T _ _ l k); clear k. simpl in k'.
-    assert (p : s = s').
-    { apply subtypeEquality_prop. exact (maponpaths pr1 k'). }
-    induction p.
-    exact (pr211122 S _).
+  split.
+  { intro l. exact (pr12 le s s' l). }
+  { intro l. apply (squash_to_prop (pr2122 S s s')).
+    { apply propproperty. }
+    change ((s ≤ s') ⨿ (s' ≤ s) → s ≤ s').
+    intro c. induction c as [c|c].
+    - exact c.
+    - induction le as [le b].  induction b as [b b'].
+      assert (k := b s' s c).
+      assert (k' := pr21122 T _ _ l k); clear k. simpl in k'.
+      assert (p : s = s').
+      { apply subtypeEquality_prop. exact (maponpaths pr1 k'). }
+      induction p.
+      exact (pr211122 S _). }
 Defined.
 
-Definition isclosed_UU {X:hSet} (S T:SubsetWithWellOrdering X) : UU
-  := ∑ (le : S ⊑ T), ∀ (s:S) (t:T), t ≤ inc' le s ⇒ (t ∈ S).
+Definition ord_le_smaller {X:hSet} (S T:SubsetWithWellOrdering X) : hProp := (S ≼ T) ∧ (∃ t:T, t ∉ S).
 
-Definition isclosed (X:hSet) : hrel (SubsetWithWellOrdering X)
-  := λ S T, hProppair (isclosed_UU S T) (propproperty _ ).
-
-  (* := ∑ (le : S ⊑ T), ∀ (s:S) (t:T), t ≤ inc' le s ⇒ (t ∈ S). *)
-
-Notation "S ≼ T" := (isclosed _ S T) (at level 95) : wosubset.
-
-Lemma isclosed_isrefl {X:hSet} : isrefl (isclosed X).
-Proof.
-  intro S.
-  use tpair.
-  - use tpair.
-    + intros x s. exact s.
-    + abstract (intros s t le; now induction s, t).
-  - intros s t le. exact (pr2 t).
-Defined.
-
-Definition isclosed_smaller {X:hSet} (S T:SubsetWithWellOrdering X) : hProp := (S ≼ T) ∧ (∃ t:T, t ∉ S).
-
-Notation "S ≺ T" := (isclosed_smaller S T) (at level 95) : wosubset.
+Notation "S ≺ T" := (ord_le_smaller S T) (at level 95) : wosubset.
 
 (* [upto s x] means x is in S and, as an element of S, it is strictly less than s *)
 Definition upto {X:hSet} {S:SubsetWithWellOrdering X} (s:S) : hsubtype X
@@ -131,9 +111,9 @@ Proof.
   induction minu as [uinU minu].
   (* minu says that u is the smallest element of T not in S *)
   exists u. intro y. split.
-  - intro yinS. set (s := (y ,, yinS) : S). set (s' := subtype_inc (pr11 le) s).
+  - intro yinS. set (s := (y ,, yinS) : S). set (s' := subtype_inc (pr1 le) s).
     exists (pr2 s'). set (y' := y ,, pr2 s'). apply ord_nge_iff_lt. intro ules.
-    assert (q := pr2 le s u ules); clear ules.
+    assert (q := pr22 le s u ules); clear ules.
     apply uinU. exact q.
   - intro yltu. induction yltu as [yinT yltu].
     apply decidable_proof_by_contradiction.
@@ -164,13 +144,13 @@ Proof.
         assert (ch := chain i j); clear chain.
         simple refine (squash_to_set isasethProp _ _ ch).
         -- clear ch; intro ch. induction ch as [ilej|jlei].
-           ++ set (s' := inc' (pr1 ilej) s).
+           ++ set (s' := subtype_inc (pr1 ilej) s).
               exact (s' ≤ t).
-           ++ set (t' := inc' (pr1 jlei) t).
+           ++ set (t' := subtype_inc (pr1 jlei) t).
               exact (s ≤ t').
         -- clear ch; intros ch ch'; simpl.
            induction ch as [ch|ch], ch' as [ch'|ch'].
-           ++ simpl. apply (maponpaths (λ ch, inc' (pr1 ch) s ≤ t)).
+           ++ simpl. apply (maponpaths (λ ch, subtype_inc (pr1 ch) s ≤ t)).
               change (ch = ch'). apply propproperty.
            ++ simpl.
 
