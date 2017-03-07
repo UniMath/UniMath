@@ -11,7 +11,8 @@ Local Open Scope set.
 
 Definition AxiomOfChoice : hProp := ∀ (X:hSet), ischoicebase X.
 
-Definition AxiomOfChoice_surj : hProp := ∀ (X:hSet) (Y:UU) (f:Y→X), issurjective f ⇒ ∃ g, ∀ x, f (g x) = x.
+Definition AxiomOfChoice_surj : hProp :=
+  ∀ (X:hSet) (Y:UU) (f:Y→X), issurjective f ⇒ ∃ g, ∀ x, f (g x) = x.
 
 (** Notice that the equation above is a proposition only because X is a set, which is not required
     in the previous formulation.  The notation for "=" currently in effect uses [eqset] instead of
@@ -31,7 +32,8 @@ Proof.
     set (T := (∑ x, P x)%type).
     set (f := pr1 : T -> X).
     assert (k : issurjective f).
-    { intros x. simple refine (hinhuniv _ (ne x)); intro p. apply hinhpr. exists (x,,p). reflexivity. }
+    { intros x. simple refine (hinhuniv _ (ne x)); intro p. apply hinhpr. exists (x,,p).
+      reflexivity. }
     simple refine (hinhuniv _ (AC X T f k)).
     intro sec. induction sec as [g e]. apply hinhpr. intro x.
     assert (e' := e x); simpl in e'; clear e.
@@ -48,57 +50,50 @@ Defined.
     Berlin, 1972.
 
     The idea is to define an equivalence relation E on bool by setting [E true false := P], to use
-    AC to split the surjection f from bool to its quotient by E with a function g, and to observe
-    that the function [g ∘ f : bool -> bool] is constant iff P, and to observe that being constant is
-    decidable, because equality in [bool] is decidable. *)
+    AC to split the surjection f from bool to its quotient Y by E with a function g, and to observe
+    bool has decidable equality, and thus so does Y, because then Y is a retract of bool, to use
+    that to decide whether [f true = f false], and thus to decide P. *)
+
+Definition eqrel_on_bool (P:hProp) : eqrel bool.
+(* an equivalence relation on bool amounts to a single proposition *)
+Proof.
+  set (ifb := bool_rect (λ _:bool, hProp)).
+  exists (λ x y, ifb (ifb htrue P y) (ifb P htrue y) x).
+  repeat split.
+  { intros x y z a b.
+    induction x.
+    - induction z.
+      + exact tt.
+      + induction y.
+        * exact b.
+        * exact a.
+    - induction z.
+      + induction y.
+        * exact a.
+        * exact b.
+      + exact tt. }
+  { intros x. induction x; exact tt. }
+  { intros x y a. induction x; induction y; exact a. }
+Defined.
 
 Theorem AC_to_LEM : AxiomOfChoice -> LEM.
 Proof.
   intros AC P.
-  set (ifb := bool_rect (λ _:bool, hProp)).
-  set (R := λ x y, ifb (ifb htrue P y) (ifb P htrue y) x); simpl in R.
-  assert (e : iseqrel R).
-  { repeat split.
-    { intros x y z a b. induction x.
-      - induction y.
-        + induction z; exact b.
-        + induction z.
-          * exact tt.
-          * exact a.
-      - induction y.
-        + induction z.
-          * exact a.
-          * exact tt.
-        + induction z; exact b. }
-    { intros x. induction x; exact tt. }
-    { intros x y a. induction x; induction y; exact a. } }
-  set (E := R,,e : eqrel bool).
+  set (E := eqrel_on_bool P).
   set (Y := setquotinset E).
   set (f := setquotpr E : bool -> Y).
   assert (q := pr1 AC_impl2 AC Y boolset f (issurjsetquotpr E)).
   apply (squash_to_prop q).
-  { apply isapropdec. apply propproperty. }
-  clear q.
-  intro sec.
-  induction sec as [g h].
-  (* prove P iff [g ∘ f] is constant *)
-  assert (coll : P <-> g (f true) = g (f false)).
+  { apply isapropdec, propproperty. }
+  clear q. intro sec. induction sec as [g h].
+  (* reduce decidability of P to decidability of [f true = f false] *)
+  simple refine (@logeq_dec (f true = f false) P _ _).
   { split.
-    { intro p. apply maponpaths. apply iscompsetquotpr. exact p. }
-    { intro q.
-      assert (r : f true = f false).
-      { intermediate_path (f (g (f true))).
-        { apply pathsinv0, h. }
-        intermediate_path (f (g (f false))).
-        { apply maponpaths, q. }
-        { apply h. } }
-      change (E true false).
-      apply (invmap (weqpathsinsetquot _ _ _)).
-      change (f true = f false).
-      exact r. } }
-  (* the equation is decidable, and thus P is decidable, by the lemma above *)
-  apply (logeq_dec (issymm_logeq _ _ coll)).
-  apply isdeceqbool.
+    { intro q. change (E true false). apply (invmap (weqpathsinsetquot _ _ _)).
+      change (f true = f false). exact q. }
+    { intro p. apply iscompsetquotpr. exact p. } }
+  (* a retract of a type with decidable equality has decidable equality *)
+  exact (retract_dec f g h isdeceqbool _ _).
 Defined.
 
 (* end of file *)

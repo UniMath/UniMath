@@ -1,5 +1,12 @@
 Require Export UniMath.MoreFoundations.Notations.
 
+Lemma retract_dec {X Y} (f : X -> Y) (g : Y -> X) (h : f ∘ g ~ idfun Y) : isdeceq X -> isdeceq Y.
+Proof.
+  intros i y y'. induction (i (g y) (g y')) as [eq|ne].
+  - apply ii1. exact (! h y @ maponpaths f eq @ h y').
+  - apply ii2. intro p. apply ne. exact (maponpaths g p).
+Defined.
+
 Lemma logeq_dec {X Y} : (X <-> Y) -> decidable X -> decidable Y.
 Proof.
   intros iff decX. induction iff as [XtoY YtoX].
