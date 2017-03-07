@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.precategories
+               UniMath.Foundations.Sets.
 Require Import UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories.
 Local Open Scope cat.
 

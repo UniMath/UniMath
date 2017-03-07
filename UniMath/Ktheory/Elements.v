@@ -1,8 +1,8 @@
 (** *** the category of elements of a functor *)
 
-Require Import UniMath.MoreFoundations.All.
 Require Export UniMath.CategoryTheory.precategories
-               UniMath.CategoryTheory.functor_categories.
+               UniMath.CategoryTheory.functor_categories
+               UniMath.Foundations.Sets.
 Require Export UniMath.Ktheory.Precategories.
 
 Local Open Scope cat.

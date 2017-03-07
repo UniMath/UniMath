@@ -2,8 +2,8 @@
 
 (** * Group actions *)
 
-Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Monoids_and_Groups
+               UniMath.Foundations.UnivalenceAxiom
                UniMath.Combinatorics.OrderedSets
                UniMath.Ktheory.Utilities.
 

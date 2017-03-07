@@ -1,12 +1,13 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.MoreFoundations.All.
 Require Export UniMath.Ktheory.Utilities.
 Require Export UniMath.CategoryTheory.precategories. (* export its coercions, especially *)
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
                UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.Foundations.Preamble.
+Require Export UniMath.Foundations.Sets.
 Require Export UniMath.CategoryTheory.category_hset.
 
 Local Open Scope cat.
@@ -179,7 +180,7 @@ Definition functor_mor_application {B C:Precategory} {b b':B} (F:[B,C]) :
 Notation "F ▭ f" := (functor_mor_application F f) (at level 40, left associativity) : cat. (* \rew1 *)
 
 Definition arrow {C:Precategory} (c : C) (X : [C^op,SET]) : hSet := X ◾ c.
-Notation "c ⇒ X" := (arrow c X) : cat. (* \r= *)
+Notation "c ⇒ X" := (arrow c X)  (at level 50) : cat. (* \r= *)
 
 Definition arrow' {C:Precategory} (c : C) (X : [C^op^op,SET]) : hSet := X ◾ c.
 Notation "X ⇐ c" := (arrow' c X)  (at level 50) : cat. (* \l= *)
