@@ -2,6 +2,15 @@
 
 Require Export UniMath.MoreFoundations.DecidablePropositions.
 
+Lemma pr1_issurjective {X : hSet} {P : X -> UU} :
+  (∏ x : X, ∥ P x ∥) -> issurjective (pr1 : (∑ x, P x) -> X).
+(* move upstream later *)
+Proof.
+  intros ne x. simple refine (hinhuniv _ (ne x)).
+  intros p. apply hinhpr.
+  exact ((x,,p),,idpath _).
+Defined.
+
 Local Open Scope logic.
 
 Local Open Scope set.
@@ -24,21 +33,16 @@ Lemma AC_impl2 : AxiomOfChoice <-> AxiomOfChoice_surj.
 Proof.
   split.
   - intros AC X Y f surj.
-    apply (squash_to_prop (AC _ _ surj) (propproperty _)).
-    intro s. apply hinhpr.
-    exists (λ y, hfiberpr1 f y (s y)).
-    exact  (λ y, hfiberpr2 f y (s y)).
+    use (squash_to_prop (AC _ _ surj) (propproperty _)).
+    intro s.
+    use hinhpr.
+    use tpair.
+    + exact (λ y, hfiberpr1 f y (s y)).
+    + exact (λ y, hfiberpr2 f y (s y)).
   - intros AC X P ne.
-    set (T := (∑ x, P x)%type).
-    set (f := pr1 : T -> X).
-    assert (k : issurjective f).
-    { intros x. simple refine (hinhuniv _ (ne x)); intro p. apply hinhpr. exists (x,,p).
-      reflexivity. }
-    simple refine (hinhuniv _ (AC X T f k)).
-    intro sec. induction sec as [g e]. apply hinhpr. intro x.
-    assert (e' := e x); simpl in e'; clear e.
-    induction (g x) as [x' p]; simpl in e'.
-    induction e'. exact p.
+    use (hinhuniv _ (AC X _ _ (pr1_issurjective ne))).
+    intros sec. use hinhpr. intros x.
+    induction (pr2 sec x). exact (pr2 (pr1 sec x)).
 Defined.
 
 (** ** The Axiom of Choice implies the Law of the Excluded Middle  *)
