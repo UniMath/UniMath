@@ -150,6 +150,8 @@ Proof.
     assert (q := pr22 le s u ules); clear ules.
     apply uinU. exact q.
   - intro yltu. induction yltu as [yinT yltu].
+    (* Goal : [S y].  We know y is smaller than the smallest element of T not in S,
+       so at best, constructively, we know [¬ ¬ (S y)].  So prove it by contradiction. *)
     apply (decidable_proof_by_contradiction (dec _)).
     intro bc. apply yltu. apply minu. exact bc.
 Defined.

@@ -11,4 +11,6 @@ Require Export
         UniMath.MoreFoundations.Subposets
         UniMath.MoreFoundations.Subtypes
         UniMath.MoreFoundations.Tactics
+        UniMath.MoreFoundations.StructureIdentity
+        UniMath.MoreFoundations.AlternativeProofs
 .

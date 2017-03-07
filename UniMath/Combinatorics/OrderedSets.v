@@ -12,8 +12,7 @@ Definition isTotalOrder {X : UU} (R : hrel X) : UU
 
 Section A.
 
-  Local Open Scope logic.
-  Local Open Scope set.
+  Open Scope logic.
 
   Lemma tot_nge_iff_lt {X:hSet} (R:hrel X) :
     isTotalOrder R -> ∏ x y, ¬ (R x y)  <->  R y x ∧ ¬ (y = x).
