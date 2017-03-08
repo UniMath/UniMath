@@ -21,3 +21,5 @@ Proof.
   - exact p.
   - apply fromempty, nnp, np.
 Defined.
+
+Definition hrel_set (X : hSet) : hSet := hSetpair (hrel X) (isaset_hrel X).

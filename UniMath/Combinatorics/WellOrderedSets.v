@@ -9,9 +9,12 @@ Require Import UniMath.Combinatorics.OrderedSets.
 Local Open Scope poset.
 Local Open Scope subtype.
 Local Open Scope logic.
+Local Open Scope set.
 
-Definition SubsetWithWellOrdering (X:hSet) :=
-  (∑ (S:hsubtype X) (R : hrel (carrier_set S)), isWellOrder R).
+Definition SubsetWithWellOrdering_set (X:hSet) : hSet
+  := ∑ (S:subtype_set X) (R : hrel_set (carrier_set S)), isWellOrder R.
+
+Definition SubsetWithWellOrdering (X:hSet) : UU := SubsetWithWellOrdering_set X.
 
 Definition SubsetWithWellOrdering_to_subtype {X:hSet} : SubsetWithWellOrdering X -> hsubtype X
   := pr1.
@@ -58,8 +61,7 @@ Proof.
   -
 
 
-Abort.
-
+Admitted.
 
 Definition wosub_inc {X} {S T : SubsetWithWellOrdering X} : (S ≼ T) -> S -> T.
 Proof.
@@ -85,6 +87,11 @@ Proof.
 Defined.
 
 Local Lemma h1 {X} {S:SubsetWithWellOrdering X} {s t u:S} : s = t -> t ≤ u -> s ≤ u.
+Proof.
+  intros p le. induction p. exact le.
+Defined.
+
+Local Lemma h1' {X} {S:SubsetWithWellOrdering X} {s t u:S} : s = t -> u ≤ s -> u ≤ t.
 Proof.
   intros p le. induction p. exact le.
 Defined.
@@ -118,8 +125,14 @@ Proof.
     unfold SubsetWithWellOrdering_to_subtype in q.
 
 
-Abort.
+Admitted.
 
+Definition WosubPoset (X:hSet) : Poset.
+Proof.
+  exists (SubsetWithWellOrdering_set X).
+  exists (λ S T, S ≼ T).
+  exact (wosub_le_isPartialOrder X).
+Defined.
 
 Definition wosub_le_smaller {X:hSet} (S T:SubsetWithWellOrdering X) : hProp := (S ≼ T) ∧ (∃ t:T, t ∉ S).
 
@@ -156,34 +169,122 @@ Proof.
     intro bc. apply yltu. apply minu. exact bc.
 Defined.
 
+Definition chain_union_prelim_prop {X:hSet} {S T:SubsetWithWellOrdering X}
+           (x:S) (y:T) (ch : (S ≼ T) ⨿ (T ≼ S)) : hProp.
+Proof.
+  induction ch as [i|j].
+  + exact (subtype_inc (pr1 i) x ≤ y).
+  + exact (x ≤ subtype_inc (pr1 j) y).
+Defined.
+
+Lemma chain_union_prelim_eq {X:hSet} {S T:SubsetWithWellOrdering X}
+      (s:S) (t:T) (ch ch' : (S ≼ T) ⨿ (T ≼ S)) :
+  chain_union_prelim_prop s t ch = chain_union_prelim_prop s t ch'.
+Proof.
+  induction ch as [ch|ch], ch' as [ch'|ch'].
+  + simpl. apply (maponpaths (λ ch, subtype_inc (pr1 ch) s ≤ t)).
+     change (ch = ch'). apply propproperty.
+  + simpl.
+     apply (invmap (weqlogeq _ _)).
+     split.
+     * intros slet.
+        assert (Q := pr12 ch' _ _ slet).
+        simple refine (h1 _ Q); clear Q.
+        apply subtypeEquality_prop.
+        reflexivity.
+     * intros tles.
+        assert (Q := pr12 ch _ _ tles).
+        simple refine (h1' _ Q); clear Q.
+        apply subtypeEquality_prop.
+        reflexivity.
+  + cbn.
+     apply (invmap (weqlogeq _ _)).
+     split.
+     * intros slet.
+        assert (Q := pr12 ch' _ _ slet).
+        simple refine (h1' _ Q); clear Q.
+        apply subtypeEquality_prop.
+        reflexivity.
+     * intros slet.
+        assert (Q := pr12 ch _ _ slet).
+        simple refine (h1 _ Q); clear Q.
+        apply subtypeEquality_prop.
+        reflexivity.
+  + cbn.
+     apply maponpaths.
+     apply subtypeEquality_prop.
+     reflexivity.
+Defined.
+
+Definition chain_union_prelim {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
+           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
+           (x y : carrier_set (⋃ (λ x : I, S x)))
+           (a : ∑ i : I, (λ x : I, S x) i (pr1 x))
+           (b : ∑ i : I, (λ x : I, S x) i (pr1 y)) : hProp.
+Proof.
+  assert (ch := chain (pr1 a) (pr1 b)); clear chain.
+  simple refine (squash_to_set isasethProp _ _ ch).
+  -- exact (chain_union_prelim_prop (pr1 x,,pr2 a) (pr1 y,,pr2 b)).
+  -- apply chain_union_prelim_eq.
+Defined.
+
+Definition chain_union_prelim_eq2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
+           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
+           (x y : carrier_set (⋃ (λ x : I, S x)))
+           (a : ∑ i : I, (λ x : I, S x) i (pr1 x))
+           (b b' : ∑ i : I, (λ x : I, S x) i (pr1 y)) :
+  chain_union_prelim chain x y a b = chain_union_prelim chain x y a b'.
+Proof.
+Admitted.
+
+Definition chain_union_prelim2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
+           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
+           (x y : carrier_set (⋃ (λ x : I, S x))) :
+  (∑ i : I, (λ x0 : I, S x0) i (pr1 x)) → hProp.
+Proof.
+  intro a.
+  simple refine (squash_to_set isasethProp _ _ (pr2 y)). (* y ∈ S j, for some j *)
+  * exact (chain_union_prelim chain x y a).
+  * (* now show independence of choice of j *)
+    exact (chain_union_prelim_eq2 chain x y a).
+Defined.
+
+Definition chain_union_prelim2_eqn {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
+           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
+           (x y : carrier_set (⋃ (λ x : I, S x)))
+           (a a' : ∑ i : I, (λ x0 : I, S x0) i (pr1 x)) :
+  chain_union_prelim2 chain x y a = chain_union_prelim2 chain x y a'.
+Proof.
+Admitted.
+
+Definition chain_union_rel {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
+           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i) :
+  hrel (carrier_set (⋃ (λ x : I, S x))).
+Proof.
+  intros x y.                 (* now define [x ≤ y] on the union *)
+  simple refine (squash_to_set isasethProp _ _ (pr2 x)). (* x ∈ S i, for some i *)
+  + exact (chain_union_prelim2 chain x y).
+  + exact (chain_union_prelim2_eqn chain x y).
+Defined.
+
 Lemma chain_union {X:hSet} {I:UU} (S : I -> SubsetWithWellOrdering X) :
-  (∏ (i j:I), ((S i ≼ S j) ∨ (S j ≼ S i))) ->
+  (∀ (i j:I), ((S i ≼ S j) ∨ (S j ≼ S i))) ->
   ∑ (R : hrel (carrier_set (subtype_union S))) (h : isWellOrder R),
-  ∏ i, S i ≼ (subtype_union S ,, (R ,, h)).
+  ∀ i, S i ≼ (subtype_union S ,, (R ,, h)).
 Proof.
   intro chain.
+  exists (chain_union_rel chain).
   use tpair.
-  - intros x y.
-    induction x as [x a], y as [y b].
-    simple refine (squash_to_set isasethProp _ _ a).
-    + intro a'; clear a.
-      induction a' as [i p].
-      set (s := (x,,p) : S i).
-      simple refine (squash_to_set isasethProp _ _ b).
-      * intro b'; clear b.
-        induction b' as [j q].
-        set (t := (y,,q) : S j).
-        assert (ch := chain i j); clear chain.
-        simple refine (squash_to_set isasethProp _ _ ch).
-        -- clear ch; intro ch. induction ch as [ilej|jlei].
-           ++ set (s' := subtype_inc (pr1 ilej) s).
-              exact (s' ≤ t).
-           ++ set (t' := subtype_inc (pr1 jlei) t).
-              exact (s ≤ t').
-        -- clear ch; intros ch ch'; simpl.
-           induction ch as [ch|ch], ch' as [ch'|ch'].
-           ++ simpl. apply (maponpaths (λ ch, subtype_inc (pr1 ch) s ≤ t)).
-              change (ch = ch'). apply propproperty.
-           ++ simpl.
-
-Abort.
+  - repeat split.
+    + admit.
+    + admit.
+    + admit.
+    + admit.
+    + admit.
+  - intros i.
+    use tpair.
+    + intros x s. change (∃ j, S j x). admit.
+    + split.
+      * intros s s' j. admit.
+      * intros s t j. admit.
+Admitted.

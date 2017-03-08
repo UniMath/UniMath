@@ -1,5 +1,6 @@
 Foundations.v
 Notations.v
+AlternativeProofs.v
 Tactics.v
 Subposets.v
 Propositions.v
@@ -7,5 +8,4 @@ Subtypes.v
 DecidablePropositions.v
 AxiomOfChoice.v
 StructureIdentity.v
-AlternativeProofs.v
 All.v
