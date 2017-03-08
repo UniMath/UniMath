@@ -177,43 +177,24 @@ Proof.
   + exact (x ≤ subtype_inc (pr1 j) y).
 Defined.
 
+Definition isconst {X Y:UU} (f : X -> Y) := (∏ x x', f x = f x')%type.
+
 Lemma chain_union_prelim_eq {X:hSet} {S T:SubsetWithWellOrdering X}
-      (s:S) (t:T) (ch ch' : (S ≼ T) ⨿ (T ≼ S)) :
-  chain_union_prelim_prop s t ch = chain_union_prelim_prop s t ch'.
+      (s:S) (t:T) : isconst (chain_union_prelim_prop s t).
 Proof.
-  induction ch as [ch|ch], ch' as [ch'|ch'].
-  + simpl. apply (maponpaths (λ ch, subtype_inc (pr1 ch) s ≤ t)).
-     change (ch = ch'). apply propproperty.
-  + simpl.
-     apply (invmap (weqlogeq _ _)).
-     split.
-     * intros slet.
-        assert (Q := pr12 ch' _ _ slet).
-        simple refine (h1 _ Q); clear Q.
-        apply subtypeEquality_prop.
-        reflexivity.
-     * intros tles.
-        assert (Q := pr12 ch _ _ tles).
-        simple refine (h1' _ Q); clear Q.
-        apply subtypeEquality_prop.
-        reflexivity.
-  + cbn.
-     apply (invmap (weqlogeq _ _)).
-     split.
-     * intros slet.
-        assert (Q := pr12 ch' _ _ slet).
-        simple refine (h1' _ Q); clear Q.
-        apply subtypeEquality_prop.
-        reflexivity.
-     * intros slet.
-        assert (Q := pr12 ch _ _ slet).
-        simple refine (h1 _ Q); clear Q.
-        apply subtypeEquality_prop.
-        reflexivity.
-  + cbn.
-     apply maponpaths.
-     apply subtypeEquality_prop.
-     reflexivity.
+  intros ch ch'. induction ch as [ch|ch], ch' as [ch'|ch'].
+  + apply (maponpaths (λ ch : S ≼ T, subtype_inc (pr1 ch) s ≤ t)). apply propproperty.
+  + apply (invmap (weqlogeq _ _)). split.
+    * intros slet. simple refine (h1 _ (pr12 ch' _ _ slet)).
+      now apply subtypeEquality_prop.
+    * intros tles. simple refine (h1' _ (pr12 ch _ _ tles)).
+      now apply subtypeEquality_prop.
+  + apply (invmap (weqlogeq _ _)). split.
+    * intros slet. simple refine (h1' _ (pr12 ch' _ _ slet)).
+      now apply subtypeEquality_prop.
+    * intros slet. simple refine (h1 _ (pr12 ch _ _ slet)).
+      now apply subtypeEquality_prop.
+  + apply maponpaths, maponpaths. apply propproperty.
 Defined.
 
 Definition chain_union_prelim {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
@@ -225,16 +206,14 @@ Proof.
   assert (ch := chain (pr1 a) (pr1 b)); clear chain.
   simple refine (squash_to_set isasethProp _ _ ch).
   -- exact (chain_union_prelim_prop (pr1 x,,pr2 a) (pr1 y,,pr2 b)).
-  -- apply chain_union_prelim_eq.
+  -- exact (chain_union_prelim_eq   (pr1 x,,pr2 a) (pr1 y,,pr2 b)).
 Defined.
 
 Definition chain_union_prelim_eq2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
-           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
-           (x y : carrier_set (⋃ (λ x : I, S x)))
-           (a : ∑ i : I, (λ x : I, S x) i (pr1 x))
-           (b b' : ∑ i : I, (λ x : I, S x) i (pr1 y)) :
-  chain_union_prelim chain x y a b = chain_union_prelim chain x y a b'.
+           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i) x y a :
+  isconst (chain_union_prelim chain x y a).
 Proof.
+  intros b b'.
 Admitted.
 
 Definition chain_union_prelim2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
@@ -244,17 +223,15 @@ Definition chain_union_prelim2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrde
 Proof.
   intro a.
   simple refine (squash_to_set isasethProp _ _ (pr2 y)). (* y ∈ S j, for some j *)
-  * exact (chain_union_prelim chain x y a).
-  * (* now show independence of choice of j *)
-    exact (chain_union_prelim_eq2 chain x y a).
+  * exact (chain_union_prelim     chain x y a).
+  * exact (chain_union_prelim_eq2 chain x y a).
 Defined.
 
 Definition chain_union_prelim2_eqn {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
-           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
-           (x y : carrier_set (⋃ (λ x : I, S x)))
-           (a a' : ∑ i : I, (λ x0 : I, S x0) i (pr1 x)) :
-  chain_union_prelim2 chain x y a = chain_union_prelim2 chain x y a'.
+           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i) x y :
+  isconst (chain_union_prelim2 chain x y).
 Proof.
+  intros a a'.
 Admitted.
 
 Definition chain_union_rel {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
@@ -263,7 +240,7 @@ Definition chain_union_rel {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering
 Proof.
   intros x y.                 (* now define [x ≤ y] on the union *)
   simple refine (squash_to_set isasethProp _ _ (pr2 x)). (* x ∈ S i, for some i *)
-  + exact (chain_union_prelim2 chain x y).
+  + exact (chain_union_prelim2     chain x y).
   + exact (chain_union_prelim2_eqn chain x y).
 Defined.
 
