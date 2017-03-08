@@ -96,28 +96,38 @@ Proof.
   intros p le. induction p. exact le.
 Defined.
 
+Lemma wosub_le_isrefl {X:hSet} : isrefl (wosub_le X).
+Proof.
+  intros S.
+  use tpair.
+  + intros x xinS. exact xinS.
+  + split.
+    * intros s s' le. induction s, s'; exact le.
+    * intros s s' le. exact (pr2 s').
+Defined.
+
+Lemma wosub_le_istrans {X:hSet} : istrans (wosub_le X).
+Proof.
+  intros S T U i j.
+  exists (pr11 (subtype_containment_isPartialOrder X) S T U (pr1 i) (pr1 j)).
+  split.
+  + intros s s' l. exact (pr12 j _ _ (pr12 i _ _ l)).
+  + intros s u l.
+    change (hProptoType (u ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) s))) in l.
+    set (uinT := pr1 u,,pr22 j (subtype_inc (pr1 i) s) u l : T).
+    assert (p : subtype_inc (pr1 j) uinT = u).
+    { now apply subtypeEquality_prop. }
+    assert (q := h1 p l : subtype_inc (pr1 j) uinT ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) s)).
+    assert (r := pr2 (wosub_fidelity j _ _) q).
+    assert (b := pr22 i _ _ r); simpl in b.
+    exact b.
+Defined.
+
 Lemma wosub_le_isPartialOrder X : isPartialOrder (wosub_le X).
 Proof.
   repeat split.
-  - intros S T U i j.
-    exists (pr11 (subtype_containment_isPartialOrder X) S T U (pr1 i) (pr1 j)).
-    split.
-    + intros s s' l. exact (pr12 j _ _ (pr12 i _ _ l)).
-    + intros s u l.
-      change (hProptoType (u ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) s))) in l.
-      set (uinT := pr1 u,,pr22 j (subtype_inc (pr1 i) s) u l : T).
-      assert (p : subtype_inc (pr1 j) uinT = u).
-      { now apply subtypeEquality_prop. }
-      assert (q := h1 p l : subtype_inc (pr1 j) uinT ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) s)).
-      assert (r := pr2 (wosub_fidelity j _ _) q).
-      assert (b := pr22 i _ _ r); simpl in b.
-      exact b.
-  - intros S.
-    use tpair.
-    + intros x xinS. exact xinS.
-    + split.
-      * intros s s' le. induction s, s'; exact le.
-      * intros s s' le. exact (pr2 s').
+  - apply wosub_le_istrans.
+  - apply wosub_le_isrefl.
   - intros S T i j.
     induction i as [i i'], i' as [i' i''].
     induction j as [j j'], j' as [j' j''].
@@ -197,9 +207,39 @@ Proof.
   + apply maponpaths, maponpaths. apply propproperty.
 Defined.
 
+Lemma chain_ub2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X} :
+  (∀ i j, S i ≼ S j ∨ S j ≼ S i) ->
+  (∀ i j, ∃ k, S i ≼ S k ∧ S j ≼ S k).
+Proof.
+  intros chain i j.
+  simple refine (hinhuniv _ (chain i j)); intro c. apply hinhpr. induction c as [ij|ji].
+  - exists j. split.
+    + exact ij.
+    + apply wosub_le_isrefl.
+  - exists i. split.
+    + apply wosub_le_isrefl.
+    + exact ji.
+Defined.
+
+Lemma chain_ub3 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X} :
+  (∀ i j, S i ≼ S j ∨ S j ≼ S i) ->
+  (∀ i j k, ∃ m, S i ≼ S m ∧ S j ≼ S m ∧ S k ≼ S m).
+Proof.
+  intros chain i j k.
+  assert (fil := chain_ub2 chain).
+  simple refine (hinhuniv _ (fil i j)). intro n. induction n as [n n'], n' as [ilen jlen].
+  simple refine (hinhuniv _ (fil n k)). intro o. induction o as [o o'], o' as [nleo kleo].
+  apply hinhpr.
+  exists o.
+  repeat split.
+  - apply (wosub_le_istrans _ _ _ ilen nleo).
+  - apply (wosub_le_istrans _ _ _ jlen nleo).
+  - exact kleo.
+Defined.
+
 Definition chain_union_prelim {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
-           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
-           (x y:X) (a : ∑ i : I, S i x) (b : ∑ i : I, S i y) : hPropset.
+           (chain : ∀ i j, S i ≼ S j ∨ S j ≼ S i)
+           (x y:X) (a : ∑ i, S i x) (b : ∑ i, S i y) : hPropset.
 Proof.
   assert (ch := chain (pr1 a) (pr1 b)); clear chain.
   simple refine (squash_to_set isasethProp _ _ ch).
@@ -231,27 +271,31 @@ Defined.
 
 Ltac intermediate_eqset x := apply (pathcomp_set (b := x)).
 
-Definition chain_union_prelim_eq2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
+
+Lemma chain_union_prelim_eq1 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
+           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
+           (x y : X) (i j n: I) (xi : S i x) (yj : S j y) (jlen : S j ≼ S n) :
+  chain_union_prelim chain x y (i,, xi) (j,, yj) = chain_union_prelim chain x y (i,, xi) (n,, pr1 jlen y yj).
+Proof.
+  unfold chain_union_prelim.
+  simpl.
+Admitted.
+
+Lemma chain_union_prelim_eq2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
            (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i) x y a :
   isconst (chain_union_prelim chain x y a).
 Proof.
-  intros b b'.
-  unfold chain_union_prelim.
-  simple refine (hinhuniv _ (chain (pr1 a) (pr1 b))); intro ab.
-  intermediate_eqset ((chain_union_prelim_prop (x,, pr2 a) (y,, pr2 b)) ab).
-  - apply squash_to_set_eqn.
-  - simple refine (hinhuniv _ (chain (pr1 a) (pr1 b'))); intro ab'.
-    intermediate_eqset ((chain_union_prelim_prop (x,, pr2 a) (y,, pr2 b')) ab').
-    + unfold chain_union_prelim_prop.
-      induction ab as [l|l], ab' as [m|m].
-      * simpl. apply (invmap (weqlogeq _ _)); split.
-        -- intro n. admit.
-        -- intro n. admit.
-      * simpl. admit.
-      * simpl. admit.
-      * simpl. admit.
-    + apply pathsinv0, squash_to_set_eqn.
-Admitted.
+  induction a as [i xi].
+  intros b c.
+  induction b as [j yj], c as [k yk].
+  simple refine (hinhuniv _ (chain_ub2 chain j k)); intro n.
+  induction n as [n r]. induction r as [jlen klen].
+  intermediate_path (chain_union_prelim chain x y (i,, xi) (n,, pr1 jlen _ yj)).
+  - clear yk k klen. apply chain_union_prelim_eq1.
+  - intermediate_path (chain_union_prelim chain x y (i,, xi) (n,, pr1 klen _ yk)).
+    + apply maponpaths. apply maponpaths. apply propproperty.
+    + clear yj j jlen. apply pathsinv0. apply chain_union_prelim_eq1.
+Defined.
 
 Definition chain_union_prelim2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
            (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
