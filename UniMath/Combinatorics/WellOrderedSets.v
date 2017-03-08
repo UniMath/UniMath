@@ -199,14 +199,14 @@ Defined.
 
 Definition chain_union_prelim {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
            (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
-           (x y : carrier_set (⋃ (λ x : I, S x)))
-           (a : ∑ i : I, (λ x : I, S x) i (pr1 x))
-           (b : ∑ i : I, (λ x : I, S x) i (pr1 y)) : hProp.
+           (x y:X)
+           (a : ∑ i : I, (λ x : I, S x) i x)
+           (b : ∑ i : I, (λ x : I, S x) i y) : hProp.
 Proof.
   assert (ch := chain (pr1 a) (pr1 b)); clear chain.
   simple refine (squash_to_set isasethProp _ _ ch).
-  -- exact (chain_union_prelim_prop (pr1 x,,pr2 a) (pr1 y,,pr2 b)).
-  -- exact (chain_union_prelim_eq   (pr1 x,,pr2 a) (pr1 y,,pr2 b)).
+  -- exact (chain_union_prelim_prop (x,,pr2 a) (y,,pr2 b)).
+  -- exact (chain_union_prelim_eq   (x,,pr2 a) (y,,pr2 b)).
 Defined.
 
 Definition chain_union_prelim_eq2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
@@ -218,13 +218,13 @@ Admitted.
 
 Definition chain_union_prelim2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
            (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
-           (x y : carrier_set (⋃ (λ x : I, S x))) :
-  (∑ i : I, (λ x0 : I, S x0) i (pr1 x)) → hProp.
+           (x:X) (y : carrier_set (⋃ (λ x : I, S x))) :
+  (∑ i : I, S i x) → hProp.
 Proof.
   intro a.
   simple refine (squash_to_set isasethProp _ _ (pr2 y)). (* y ∈ S j, for some j *)
-  * exact (chain_union_prelim     chain x y a).
-  * exact (chain_union_prelim_eq2 chain x y a).
+  * exact (chain_union_prelim     chain x (pr1 y) a).
+  * exact (chain_union_prelim_eq2 chain x (pr1 y) a).
 Defined.
 
 Definition chain_union_prelim2_eqn {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
@@ -240,8 +240,8 @@ Definition chain_union_rel {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering
 Proof.
   intros x y.                 (* now define [x ≤ y] on the union *)
   simple refine (squash_to_set isasethProp _ _ (pr2 x)). (* x ∈ S i, for some i *)
-  + exact (chain_union_prelim2     chain x y).
-  + exact (chain_union_prelim2_eqn chain x y).
+  + exact (chain_union_prelim2     chain (pr1 x) y).
+  + exact (chain_union_prelim2_eqn chain (pr1 x) y).
 Defined.
 
 Lemma chain_union {X:hSet} {I:UU} (S : I -> SubsetWithWellOrdering X) :
