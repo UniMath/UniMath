@@ -170,14 +170,14 @@ Proof.
 Defined.
 
 Definition chain_union_prelim_prop {X:hSet} {S T:SubsetWithWellOrdering X}
-           (x:S) (y:T) (ch : (S ≼ T) ⨿ (T ≼ S)) : hProp.
+           (x:S) (y:T) (ch : (S ≼ T) ⨿ (T ≼ S)) : hPropset.
 Proof.
   induction ch as [i|j].
   + exact (subtype_inc (pr1 i) x ≤ y).
   + exact (x ≤ subtype_inc (pr1 j) y).
 Defined.
 
-Definition isconst {X Y:UU} (f : X -> Y) := (∏ x x', f x = f x')%type.
+Definition isconst {X:UU} {Y:hSet} (f : X -> Y) : hProp := (∀ x x', f x = f x').
 
 Lemma chain_union_prelim_eq {X:hSet} {S T:SubsetWithWellOrdering X}
       (s:S) (t:T) : isconst (chain_union_prelim_prop s t).
@@ -199,9 +199,7 @@ Defined.
 
 Definition chain_union_prelim {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
            (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
-           (x y:X)
-           (a : ∑ i : I, (λ x : I, S x) i x)
-           (b : ∑ i : I, (λ x : I, S x) i y) : hProp.
+           (x y:X) (a : ∑ i : I, S i x) (b : ∑ i : I, S i y) : hPropset.
 Proof.
   assert (ch := chain (pr1 a) (pr1 b)); clear chain.
   simple refine (squash_to_set isasethProp _ _ ch).
@@ -209,17 +207,56 @@ Proof.
   -- exact (chain_union_prelim_eq   (x,,pr2 a) (y,,pr2 b)).
 Defined.
 
+Lemma squash_to_set_eqn {X Y : UU} (i : isaset Y) (f : X -> Y)
+      (const : ∏ x x', f x = f x') (x : ∥ X ∥) (x' : X) :
+  squash_to_set i f const x = f x'.
+Proof.
+  assert (p : hinhpr x' = x).
+  - apply propproperty.
+  - induction p. reflexivity.
+Defined.
+
+Lemma squash_rec {X Y : UU} (P : ∥ X ∥ -> UU) : (∑ x, P (hinhpr x)) -> (∏ x, P x).
+Proof.
+  intros xp x.
+  assert (q : hinhpr (pr1 xp)  = x).
+  - apply propproperty.
+  - induction q. exact (pr2 xp).
+Defined.
+
+Definition pathcomp_set {X : hSet} {a b c : X} : eqset a b -> eqset b c -> eqset a c.
+Proof.
+  intros p q. induction p. exact q.
+Defined.
+
+Ltac intermediate_eqset x := apply (pathcomp_set (b := x)).
+
 Definition chain_union_prelim_eq2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
            (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i) x y a :
   isconst (chain_union_prelim chain x y a).
 Proof.
   intros b b'.
+  unfold chain_union_prelim.
+  simple refine (hinhuniv _ (chain (pr1 a) (pr1 b))); intro ab.
+  intermediate_eqset ((chain_union_prelim_prop (x,, pr2 a) (y,, pr2 b)) ab).
+  - apply squash_to_set_eqn.
+  - simple refine (hinhuniv _ (chain (pr1 a) (pr1 b'))); intro ab'.
+    intermediate_eqset ((chain_union_prelim_prop (x,, pr2 a) (y,, pr2 b')) ab').
+    + unfold chain_union_prelim_prop.
+      induction ab as [l|l], ab' as [m|m].
+      * simpl. apply (invmap (weqlogeq _ _)); split.
+        -- intro n. admit.
+        -- intro n. admit.
+      * simpl. admit.
+      * simpl. admit.
+      * simpl. admit.
+    + apply pathsinv0, squash_to_set_eqn.
 Admitted.
 
 Definition chain_union_prelim2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
            (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
            (x:X) (y : carrier_set (⋃ (λ x : I, S x))) :
-  (∑ i : I, S i x) → hProp.
+  (∑ i : I, S i x) → hPropset.
 Proof.
   intro a.
   simple refine (squash_to_set isasethProp _ _ (pr2 y)). (* y ∈ S j, for some j *)
