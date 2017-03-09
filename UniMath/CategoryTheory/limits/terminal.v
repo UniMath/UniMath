@@ -52,7 +52,7 @@ Proof.
 Qed.
 
 Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) :
-   is_isomorphism (TerminalArrow T T').
+   is_iso (TerminalArrow T T').
 Proof.
   apply (is_iso_qinv _ (TerminalArrow T' T)).
   split.

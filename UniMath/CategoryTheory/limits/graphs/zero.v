@@ -140,7 +140,7 @@ Section def_zero.
 
   (** The morphism from ZeroObject to ZeroObject is an isomorphisms. *)
   Lemma isiso_from_Zero_to_Zero (Z Z' : Zero) :
-    is_isomorphism (ZeroArrowFrom Z (ZeroObject Z')).
+    is_iso (ZeroArrowFrom Z (ZeroObject Z')).
   Proof.
     apply (is_iso_qinv _ (ZeroArrowFrom Z' (ZeroObject Z))).
     split; apply ArrowsFromZero.

@@ -232,7 +232,7 @@ Section def_coequalizers.
   Qed.
 
   Lemma isiso_from_Coequalizer_to_Coequalizer {a b : C} {f g : C⟦a, b⟧} (E1 E2 : Coequalizer f g) :
-    is_isomorphism (from_Coequalizer_to_Coequalizer E1 E2).
+    is_iso (from_Coequalizer_to_Coequalizer E1 E2).
   Proof.
     apply (is_iso_qinv _ (from_Coequalizer_to_Coequalizer E2 E1)).
     apply are_inverses_from_Coequalizer_to_Coequalizer.

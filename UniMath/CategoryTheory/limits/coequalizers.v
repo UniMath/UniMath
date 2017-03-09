@@ -195,7 +195,7 @@ Section def_coequalizers.
 
   Lemma isiso_from_Coequalizer_to_Coequalizer {y z : C} {f g : y --> z}
         (E E' : Coequalizer f g) :
-    is_isomorphism (from_Coequalizer_to_Coequalizer E E').
+    is_iso (from_Coequalizer_to_Coequalizer E E').
   Proof.
     apply (is_iso_qinv _ (from_Coequalizer_to_Coequalizer E' E)).
     apply are_inverses_from_Coequalizer_to_Coequalizer.

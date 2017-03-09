@@ -110,7 +110,7 @@ Defined.
 
 Lemma hset_equiv_is_iso (A B : hSet)
       (f : weq (pr1 A) (pr1 B)) :
-           is_isomorphism (C:=HSET) (pr1 f).
+           is_iso (C:=HSET) (pr1 f).
 Proof.
   apply (is_iso_qinv (C:=HSET) _ (invmap f)).
   split; simpl.

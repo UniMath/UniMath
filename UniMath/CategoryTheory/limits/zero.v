@@ -89,7 +89,7 @@ Section def_zero.
   Qed.
 
   Lemma isiso_from_Zero_to_Zero (Z Z' : Zero) :
-    is_isomorphism (ZeroArrowTo Z Z').
+    is_iso (ZeroArrowTo Z Z').
   Proof.
     apply (is_iso_qinv _ (ZeroArrowTo Z' Z)).
     split; apply pathsinv0; apply ZeroEndo_is_identity.
