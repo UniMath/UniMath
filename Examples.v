@@ -11,6 +11,7 @@ A typical use for displayed categories is for constructing categories of structu
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.category_hset.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
@@ -113,7 +114,8 @@ End NAction.
 A presheaf on a (pre)category can be viewed as a fiberwise discrete displayed (pre)category. In fact, the universal example of this is the case corresponding to the identity functor on [SET].  So, having given the displayed category for this case, one obtains it for arbitrary presheaves by reindexing. *)
 
 (* TODO: move? ponder? *)
-Local Notation SET := Precategories.SET.
+
+
 
 Section Elements_Disp.
 
