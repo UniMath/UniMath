@@ -139,7 +139,6 @@ Require Export UniMath.Foundations.Preamble.
 
 (* end of "Preamble" *)
 
-
 (** ** Some standard constructions not using identity types (paths) *)
 
 (** *** Canonical functions from [ empty ] and to [ unit ] *)
@@ -372,6 +371,13 @@ Proof.
 Defined.
 
 Hint Resolve @pathsinv0 : pathshints.
+
+Ltac unimath_easy :=
+  trivial; hnf; intros; solve
+   [ repeat (solve [trivial | apply pathsinv0; trivial] || discriminate || contradiction || split)
+   | match goal with H : ¬ _ |- _ => solve [induction H; trivial] end ].
+
+Tactic Notation "now" tactic(t) := t; unimath_easy.
 
 Definition path_assoc {X} {a b c d:X}
            (f : a = b) (g : b = c) (h : c = d)

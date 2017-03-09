@@ -254,7 +254,7 @@ Proof.
     induction n as [ | n _] ; simpl.
     + intros _ n.
       apply fromempty.
-      now generalize (pr2 n).
+      induction (negnatlthn0 _ (pr2 n)).
     + intros Hx m.
       rewrite (tppr m) ;
         generalize (pr1 m) (pr2 m) ;
@@ -302,7 +302,7 @@ Proof.
     + rewrite <- finite_intersection_htrue.
       apply X0.
       intros n.
-      now generalize (pr2 n).
+            induction (negnatlthn0 _ (pr2 n)).
     + intros A B Pa Pb.
       rewrite <- finite_intersection_and.
       apply X0.
