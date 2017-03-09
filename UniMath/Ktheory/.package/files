@@ -7,8 +7,6 @@ Utilities.v
 Interval.v
 Precategories.v
 StandardCategories.v
-Elements.v
-ElementsOp.v
 Bifunctor.v
 Representation.v
 RawMatrix.v

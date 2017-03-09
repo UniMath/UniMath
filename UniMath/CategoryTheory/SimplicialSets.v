@@ -16,8 +16,6 @@ Require Export UniMath.CategoryTheory.precategories.
 Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.functor_categories.
 Require Export UniMath.CategoryTheory.opp_precat.
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 (* To upstream files *)
 
@@ -74,9 +72,10 @@ Proof.
   { simpl. intros m n o p f g h. now apply monfunstnpr1_isInjective. }
 Defined.
 
+Local Open Scope cat.
+
 Definition sSet := [ precatDelta^op , HSET, pr2 is_category_HSET ] .
 (* V.V. with Sasha Vishik, Nov. 23, 2014 *)
 
 
 (* End of file *)
-
