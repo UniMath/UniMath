@@ -14,7 +14,7 @@ Contents:
 - Terminal object ([Terminal_PreShv])
 - Pullbacks ([Pullbacks_PreShv])
 - Exponentials ([has_exponentials_PreShv])
-- Discrete presheaf ([discrete_PreShv])
+- Constant presheaf ([constant_PreShv])
 - Definition of the subobject classifier (without proof) ([Ω_PreShv], [Ω_mor])
 
 
@@ -121,7 +121,7 @@ Section presheaves.
 
 Context {C : precategory}.
 
-Definition discrete_PreShv (A : HSET) : PreShv C.
+Definition constant_PreShv (A : HSET) : PreShv C.
 Proof.
 use mk_functor.
 + mkpair.
@@ -130,7 +130,7 @@ use mk_functor.
 + now split.
 Defined.
 
-Definition empty_PreShv : PreShv C := discrete_PreShv emptyHSET.
+Definition empty_PreShv : PreShv C := constant_PreShv emptyHSET.
 
 End presheaves.
 
