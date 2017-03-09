@@ -280,7 +280,7 @@ Section def_po.
   Qed.
 
   Lemma isiso_from_Pushout_to_Pushout {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}
-        (Po Po': Pushout f g) : is_isomorphism (from_Pushout_to_Pushout Po Po').
+        (Po Po': Pushout f g) : is_iso (from_Pushout_to_Pushout Po Po').
   Proof.
     apply (is_iso_qinv _ (from_Pushout_to_Pushout Po' Po)).
     apply are_inverses_from_Pushout_to_Pushout.

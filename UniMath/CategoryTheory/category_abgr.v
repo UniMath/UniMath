@@ -168,7 +168,7 @@ Section ABGR_category.
   Defined.
 
   Lemma abgr_equiv_is_iso (A B : abgr) (f : monoidiso A B) :
-    @is_isomorphism ABGR A B (monoidfunconstr (pr2 f)).
+    @is_iso ABGR A B (monoidfunconstr (pr2 f)).
   Proof.
     apply (is_iso_qinv (C:=ABGR) _ (monoidfunconstr (pr2 (invmonoidiso f)))).
     split; cbn.
