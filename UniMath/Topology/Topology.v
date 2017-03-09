@@ -61,8 +61,9 @@ Proof.
   rewrite <- finite_intersection_htrue.
   apply H0.
   intros m.
-  now generalize (pr2 m).
+  induction (nopathsfalsetotrue (pr2 m)).
 Qed.
+
 Lemma isSetOfOpen_finite_intersection_and :
   isSetOfOpen_finite_intersection
   → isSetOfOpen_and.
@@ -142,7 +143,7 @@ Proof.
   rewrite <- finite_intersection_htrue.
   apply isOpen_finite_intersection.
   intros m.
-  now generalize (pr2 m).
+  induction (nopathsfalsetotrue (pr2 m)).
 Qed.
 Lemma isOpen_and :
   ∏ A B : T → hProp,
@@ -565,11 +566,7 @@ Proof.
   intros x.
   apply hinhpr.
   exists nil.
-  repeat split.
-  intros n.
-  now generalize (pr2 n).
-  intros n.
-  now generalize (pr2 n).
+  repeat split; intros n; induction (nopathsfalsetotrue (pr2 n)).
 Qed.
 
 Lemma topologygenerated_and :

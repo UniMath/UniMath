@@ -373,9 +373,10 @@ Defined.
 Hint Resolve @pathsinv0 : pathshints.
 
 Ltac unimath_easy :=
-  trivial; hnf; intros; solve
-   [ repeat (solve [trivial | apply pathsinv0; trivial] || discriminate || contradiction || split)
-   | match goal with H : ¬ _ |- _ => solve [induction H; trivial] end ].
+  trivial; intros; solve
+   [ repeat (solve [trivial | apply pathsinv0; trivial] || split)
+   | match goal with H : ¬ _ |- _ => solve [induction H; trivial] end
+   | match goal with H : ∅ |- _ => induction H end ].
 
 Tactic Notation "now" tactic(t) := t; unimath_easy.
 

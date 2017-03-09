@@ -1008,10 +1008,11 @@ Proof.
   apply hinhpr.
   exists nil.
   split.
-  intros m.
-  now generalize (pr2 m).
-  easy.
+  + intros m.
+    induction (nopathsfalsetotrue (pr2 m)).
+  + unimath_easy.
 Qed.
+
 Lemma filtergenerated_and :
   isfilter_and filtergenerated.
 Proof.
