@@ -394,7 +394,6 @@ Qed.
 
 (** *** Fully faithful functors reflect isos *)
 
-
 Lemma inv_of_ff_inv_is_inv (C D : precategory) (F : functor C D)
    (FF : fully_faithful F) (a b : C) (f : iso (F a) (F b)) :
   is_inverse_in_precat ((FF ^-1) f) ((FF ^-1) (inv_from_iso f)).
@@ -494,11 +493,20 @@ Qed.
 
 (** Alternative implementation of [weq_ff_functor_on_iso] *)
 
-Lemma ff_reflects_is_iso (C D : precategory) (F : functor C D)
-  (HF : fully_faithful F) (a b : C) (f : a --> b)
-  : is_iso (# F f) -> is_iso f.
+Definition reflects_isos {C D : precategory} (F : C ⟶ D) :=
+  ∏ c c' (f : C⟦c,c'⟧), is_isomorphism (# F f) → is_isomorphism f.
+
+Lemma isaprop_reflects_isos {C D : precategory} (F : C ⟶ D) : isaprop (reflects_isos F).
 Proof.
-  intro H.
+apply impred; intros c; apply impred; intros c'.
+apply impred; intros f; apply impred; intros f'.
+apply isaprop_is_isomorphism.
+Qed.
+
+Lemma ff_reflects_is_iso (C D : precategory) (F : functor C D)
+  (HF : fully_faithful F) : reflects_isos F.
+Proof.
+  intros a b f H.
   set (X:= fully_faithful_reflects_iso_proof _ _ F HF _ _ (isopair _ H)).
   simpl in X.
   set (T:= homotinvweqweq (weq_from_fully_faithful HF a b ) ).
