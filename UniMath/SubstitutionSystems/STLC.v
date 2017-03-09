@@ -53,8 +53,6 @@ Local Notation "[]" := (@nil _) (at level 0, format "[]").
 Local Notation "C / X" := (slice_precat C X (homset_property C)).
 Local Notation "a + b" := (setcoprod a b) : set.
 
-Let SET : Precategory := (HSET,,has_homsets_HSET).
-
 Local Definition SET_over_sort : Precategory.
 Proof.
 exists (SET / sort).
