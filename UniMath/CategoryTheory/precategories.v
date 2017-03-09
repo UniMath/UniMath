@@ -315,15 +315,11 @@ Definition precomp_with {C : precategory_data} {a b : C} (f : a --> b) {c} (g : 
 Definition is_iso {C : precategory_data} {a b : C} (f : a --> b) :=
   ∏ c, isweq (precomp_with f (c:=c)).
 
-Definition is_isomorphism {C: precategory_data}{a b : C} (f : a --> b) := is_iso f.
-
 Lemma isaprop_is_iso {C : precategory_data}(a b : C) (f : a --> b) : isaprop (is_iso f).
 Proof.
   apply impred; intro.
   apply isapropisweq.
 Qed.
-
-Definition isaprop_is_isomorphism := @isaprop_is_iso.
 
 Definition iso {C: precategory_data}(a b : C) := total2 (fun f : a --> b => is_iso f).
 Definition morphism_from_iso (C:precategory_data)(a b : C) (f : iso a b) : a --> b := pr1 f.

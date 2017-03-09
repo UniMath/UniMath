@@ -234,7 +234,7 @@ Qed.
 
 Lemma isiso_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
    (Pb Pb': Pullback f g) :
-      is_isomorphism (from_Pullback_to_Pullback Pb Pb').
+      is_iso (from_Pullback_to_Pullback Pb Pb').
 Proof.
   apply (is_iso_qinv _ (from_Pullback_to_Pullback Pb' Pb)).
   apply are_inverses_from_Pullback_to_Pullback.

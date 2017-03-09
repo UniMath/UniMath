@@ -230,7 +230,7 @@ Section def_equalizers.
   Qed.
 
   Lemma isiso_from_Equalizer_to_Equalizer {a b : C} {f g : C⟦a, b⟧} (E1 E2 : Equalizer f g) :
-    is_isomorphism (from_Equalizer_to_Equalizer E1 E2).
+    is_iso (from_Equalizer_to_Equalizer E1 E2).
   Proof.
     apply (is_iso_qinv _ (from_Equalizer_to_Equalizer E2 E1)).
     apply are_inverses_from_Equalizer_to_Equalizer.

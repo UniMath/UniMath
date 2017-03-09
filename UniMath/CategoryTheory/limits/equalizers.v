@@ -192,7 +192,7 @@ Section def_equalizers.
 
   Lemma isiso_from_Equalizer_to_Equalizer {y z : C} {f g : y --> z}
         (E E' : Equalizer f g) :
-    is_isomorphism (from_Equalizer_to_Equalizer E E').
+    is_iso (from_Equalizer_to_Equalizer E E').
   Proof.
     apply (is_iso_qinv _ (from_Equalizer_to_Equalizer E' E)).
     apply are_inverses_from_Equalizer_to_Equalizer.
