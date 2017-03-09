@@ -271,7 +271,7 @@ use total2.
 - apply (hsubtype (∑ (x : C),C⟦x,c⟧)).
 - intros S.
   apply (∏ (s1 : ∑ (x : C),C⟦x,c⟧), S s1 →
-         ∏ (s2 : ∑ (y : C),C⟦y,pr1 s1⟧), S (pr1 s2,,pr2 s2 · pr2 s1)).
+         ∏ y (f : C⟦y,pr1 s1⟧), S (y,, f · pr2 s1)).
 Defined.
 
 Lemma isaset_sieve (c : C) : isaset (sieve_def c).
@@ -304,7 +304,7 @@ Definition empty_sieve (c : C) : sieve c.
 Proof.
 mkpair.
 - intros S; apply hfalse.
-- intros f S g; apply S.
+- intros f S y g; apply S.
 Defined.
 
 Definition intersection_sieve (c : C) : binop (sieve c).
@@ -325,7 +325,7 @@ simpl; intros S1 S2.
 mkpair.
 - intros f.
   apply (S1 f ∨ S2 f).
-- intros f S f'; apply S; clear S; intros S.
+- intros f S y f'; apply S; clear S; intros S.
   apply hinhpr.
   induction S as [S|S].
   + apply ii1, (pr2 S1 _ S).
@@ -364,7 +364,7 @@ simpl; intros S.
 mkpair.
 - intros g.
   apply (S (pr1 g,,pr2 g · f)).
-- abstract (intros g H h; simpl; rewrite <- assoc; apply (pr2 S (pr1 g,,pr2 g · f)), H).
+- abstract (intros g H y h; simpl; rewrite <- assoc; apply (pr2 S (pr1 g,,pr2 g · f)), H).
 Defined.
 
 Local Definition Ω_PreShv_data : functor_data C^op HSET := (sieve,,sieve_mor).
