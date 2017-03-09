@@ -268,66 +268,68 @@ Context {C : precategory}.
 Definition sieve_def (c : C) : UU.
 Proof.
 use total2.
-- apply (∏ (x : C) (f : C⟦x,c⟧), hProp).
+- apply (hsubtype (∑ (x : C),C⟦x,c⟧)).
 - intros S.
-  apply (∏ (x : C) (f : C⟦x,c⟧), S x f → ∏ (y : C) (f' : C⟦y,x⟧), S y (f' · f)).
+  apply (∏ (s1 : ∑ (x : C),C⟦x,c⟧), S s1 →
+         ∏ (s2 : ∑ (y : C),C⟦y,pr1 s1⟧), S (pr1 s2,,pr2 s2 · pr2 s1)).
 Defined.
 
 Lemma isaset_sieve (c : C) : isaset (sieve_def c).
 Proof.
 use isaset_total2.
-- repeat (apply impred_isaset; intro); apply isasethProp.
-- intros S; simpl; repeat (apply impred_isaset; intro); apply isasetaprop, propproperty.
+- apply isasethsubtype.
+- intros S; repeat (apply impred_isaset; intro); apply isasetaprop, propproperty.
 Qed.
 
 (* If I use HSET here the coercion isn't triggered later and I need to insert pr1 explicitly *)
 Definition sieve (c : C) : hSet := (sieve_def c,,isaset_sieve c).
 
+Definition pr1sieve {c : C} : sieve_def c → hsubtype _ := @pr1 _ _.
+Coercion pr1sieve : sieve_def >-> hsubtype.
+
 Lemma sieve_eq (c : C) (s t : sieve c) (H : pr1 s = pr1 t) : s = t.
 Proof.
-apply subtypeEquality; try assumption.
+apply subtypeEquality; [|apply H].
 now intros x; repeat (apply impred; intros); apply propproperty.
 Qed.
 
 Definition maximal_sieve (c : C) : sieve c.
 Proof.
 mkpair.
-- apply (λ _ _, htrue).
-- apply (λ _ _ _ _ _, tt).
+- intro S; apply htrue.
+- intros; apply tt.
 Defined.
 
 Definition empty_sieve (c : C) : sieve c.
 Proof.
 mkpair.
-- apply (λ _ _, hfalse).
-- intros x f S y g; apply S.
+- intros S; apply hfalse.
+- intros f S g; apply S.
 Defined.
 
 Definition intersection_sieve (c : C) : binop (sieve c).
 Proof.
-intros S1 S2.
+simpl; intros S1 S2.
 mkpair.
-- intros x f.
-  (* How can I get rid of the pr1's? *)
-  apply (pr1 S1 x f ∧ pr1 S2 x f).
-- simpl; intros x f S y f'.
+- intros f.
+  apply (S1 f ∧ S2 f).
+- simpl; intros f S f'.
   split.
-  + apply (pr2 S1 _ _ (pr1 S)).
-  + apply (pr2 S2 _ _ (pr2 S)).
+  + apply (pr2 S1 _ (pr1 S)).
+  + apply (pr2 S2 _ (pr2 S)).
 Defined.
 
 Definition union_sieve (c : C) : binop (sieve c).
 Proof.
-intros S1 S2.
+simpl; intros S1 S2.
 mkpair.
-- intros x f.
-  (* How can I get rid of the pr1's? *)
-  apply (pr1 S1 x f ∨ pr1 S2 x f).
-- intros x f S y f'; apply S; clear S; intros S.
+- intros f.
+  apply (S1 f ∨ S2 f).
+- intros f S f'; apply S; clear S; intros S.
   apply hinhpr.
   induction S as [S|S].
-  + apply ii1, (pr2 S1 _ _ S).
-  + apply ii2, (pr2 S2 _ _ S).
+  + apply ii1, (pr2 S1 _ S).
+  + apply ii2, (pr2 S2 _ S).
 Defined.
 
 Definition sieve_lattice (c : C) : lattice (sieve c).
@@ -336,7 +338,7 @@ use mklattice.
 - apply intersection_sieve.
 - apply union_sieve.
 - repeat split; intros S1; intros;
-  apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
+  apply sieve_eq, funextsec; intro f; simpl.
   + apply (isassoc_Lmin hProp_lattice).
   + apply (iscomm_Lmin hProp_lattice).
   + apply (isassoc_Lmax hProp_lattice).
@@ -351,18 +353,18 @@ use mkbounded_lattice.
 - apply sieve_lattice.
 - apply empty_sieve.
 - apply maximal_sieve.
-- split; intros S; apply sieve_eq, funextsec; intro x; apply funextsec; intro f.
+- split; intros S; apply sieve_eq, funextsec; intro f; simpl.
   + apply (islunit_Lmax_Lbot hProp_bounded_lattice).
   + apply (islunit_Lmin_Ltop hProp_bounded_lattice).
 Defined.
 
 Definition sieve_mor a b (f : C⟦b,a⟧) : sieve a → sieve b.
 Proof.
-intros S.
+simpl; intros S.
 mkpair.
-- intros y g.
-  apply (pr1 S y (g · f)).
-- abstract (intros y g H z h; simpl; rewrite <- assoc; apply (pr2 S), H).
+- intros g.
+  apply (S (pr1 g,,pr2 g · f)).
+- abstract (intros g H h; simpl; rewrite <- assoc; apply (pr2 S (pr1 g,,pr2 g · f)), H).
 Defined.
 
 Local Definition Ω_PreShv_data : functor_data C^op HSET := (sieve,,sieve_mor).
@@ -373,7 +375,7 @@ split.
 - intros x; apply funextfun; intros [S hS]; simpl.
   apply subtypeEquality; simpl.
   + intros X; repeat (apply impred; intro); apply propproperty.
-  + now repeat (apply funextsec; intro); rewrite id_right.
+  + now apply funextsec; intro; rewrite id_right, <- tppr.
 - intros x y z f g; apply funextfun; intros [S hS]; simpl.
   apply subtypeEquality; simpl.
   + intros X; repeat (apply impred; intro); apply propproperty.
