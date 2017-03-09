@@ -11,8 +11,10 @@ Local Open Scope subtype.
 Local Open Scope logic.
 Local Open Scope set.
 
+Definition WellOrdering (S:hSet) : hSet := ∑ (R : hrel_set S), isWellOrder R.
+
 Definition SubsetWithWellOrdering_set (X:hSet) : hSet
-  := ∑ (S:subtype_set X) (R : hrel_set (carrier_set S)), isWellOrder R.
+  := ∑ (S:subtype_set X), WellOrdering (carrier_set S).
 
 Definition SubsetWithWellOrdering (X:hSet) : UU := SubsetWithWellOrdering_set X.
 
@@ -41,6 +43,31 @@ Open Scope logic.
 
 Open Scope prop.
 
+Definition wosub_le0 (S:hSet) : hrel (WellOrdering S)
+  := λ R R', ∀ s s' : S, pr1 R s s' ⇒ pr1 R' s s'.
+
+Lemma wosub_le0_eq (S:hSet) R R' : wosub_le0 S R R' -> R = R'.
+Proof.
+  intros le. simple refine (invmap (total2_paths_equiv _ _ _) _).
+  induction R as [R w], R' as [R' w'].
+  change (∏ s s' : S, R s s' -> R' s s')%type in le.
+  use tpair.
+  - change (R=R'). apply funextfun; intro s; apply funextfun; intro s'.
+    apply (invmap (weqlogeq _ _)). split.
+    { exact (le s s'). }
+    apply (squash_to_prop (pr21 w s s')). (* istotal *)
+    { apply propproperty. }
+    intro r. induction r as [a|b].
+    { intros _. exact a. }
+    { intros c. assert (p : s = s').
+      { apply (pr211 w' s s').  (* isantisymm *)
+        - exact c.
+        - apply le. exact b. }
+      induction p.
+      apply (pr2111 w).         (* isrefl *) }
+  - apply propproperty.
+Defined.
+
 Definition wosub_le (X:hSet) : hrel (SubsetWithWellOrdering X)
   := λ S T, ∑ (le : S ⊆ T),
      (∀ s s' : S, s ≤ s' ⇒ subtype_inc le s ≤ subtype_inc le s')
@@ -49,6 +76,35 @@ Definition wosub_le (X:hSet) : hrel (SubsetWithWellOrdering X)
 
 Notation "S ≼ T" := (wosub_le _ S T) (at level 70) : wosubset.
 
+Lemma wosub_le_isrefl {X:hSet} : isrefl (wosub_le X).
+Proof.
+  intros S.
+  use tpair.
+  + intros x xinS. exact xinS.
+  + split.
+    * intros s s' le. induction s, s'; exact le.
+    * intros s s' le. exact (pr2 s').
+Defined.
+
+Lemma wosub_le_eq (X:hSet) (S:hsubtype X) (R R':WellOrdering (carrier_set S)) :
+  (S,,R) ≼ (S,,R') <-> R = R'.
+Proof.
+  split.
+  { intros le. apply wosub_le0_eq. intros s s' r.
+    unfold wosub_le in le; simpl in le.
+    induction le as [le a], a as [a b].
+    assert (q := a s s' r).
+    unfold rel in q; simpl in q.
+    assert (E : le = λ _, idfun _).
+    { apply funextsec; intro x; apply funextsec; intro w. apply propproperty. }
+    assert (F : ∏ s, s = subtype_inc le s).
+    { intro t. induction (!E). apply subtypeEquality_prop. reflexivity. }
+    induction (F s).
+    induction (F s').
+    exact q. }
+  { intro E. induction E. apply wosub_le_isrefl. }
+Defined.
+
 Definition wosub_equal (X:hSet) : hrel (SubsetWithWellOrdering X) := λ S T, (S ≼ T) ∧ (T ≼ S).
 
 Notation "S ≣ T" := (wosub_equal _ S T) (at level 70) : wosubset.
@@ -56,9 +112,19 @@ Notation "S ≣ T" := (wosub_equal _ S T) (at level 70) : wosubset.
 Theorem wosub_univalence {X:hSet} (S T : SubsetWithWellOrdering X) : (S = T) ≃ (S ≣ T).
 Proof.
   intros. unfold wosub_equal.
-  intermediate_weq (∑ (le : S ⊆ T), ∀ s s' : S, s ≤ s' ⇒ subtype_inc le s ≤ subtype_inc le s').
-  - admit.
-  -
+  intermediate_weq (S ╝ T).
+  - apply total2_paths_equiv.
+  - Local Arguments transportf {_ _ _ _} _ _.
+    unfold PathPair.
+
+    (* use weqfibtototal. *)
+    (* intro p. apply weqimplimpl. *)
+    (*  { intros q. split; induction q; apply isrefl_posetRelation. } *)
+    (*  { intros e. apply isantisymm_posetRelation. *)
+    (*    - exact (pr1 e). *)
+    (*    - exact (pr2 e). } *)
+    (*  { apply (setproperty (Data _)). } *)
+    (*     { apply (propproperty (DataEquiv _ _ _)). } } *)
 
 
 Admitted.
@@ -94,16 +160,6 @@ Defined.
 Local Lemma h1' {X} {S:SubsetWithWellOrdering X} {s t u:S} : s = t -> u ≤ s -> u ≤ t.
 Proof.
   intros p le. induction p. exact le.
-Defined.
-
-Lemma wosub_le_isrefl {X:hSet} : isrefl (wosub_le X).
-Proof.
-  intros S.
-  use tpair.
-  + intros x xinS. exact xinS.
-  + split.
-    * intros s s' le. induction s, s'; exact le.
-    * intros s s' le. exact (pr2 s').
 Defined.
 
 Lemma wosub_le_istrans {X:hSet} : istrans (wosub_le X).
