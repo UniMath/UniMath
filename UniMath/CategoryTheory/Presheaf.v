@@ -14,6 +14,7 @@ Contents:
 - Terminal object ([Terminal_PreShv])
 - Pullbacks ([Pullbacks_PreShv])
 - Exponentials ([has_exponentials_PreShv])
+- Discrete presheaf ([discrete_PreShv])
 - Definition of the subobject classifier (without proof) ([Ω_PreShv], [Ω_mor])
 
 
@@ -114,6 +115,24 @@ now apply has_exponentials_functor_HSET, has_homsets_opp, hsC.
 Defined.
 
 End limits.
+
+(** * Define some standard presheaves *)
+Section presheaves.
+
+Context {C : precategory}.
+
+Definition discrete_PreShv (A : HSET) : PreShv C.
+Proof.
+use mk_functor.
++ mkpair.
+  - intros _; apply A.
+  - intros a b f; apply idfun.
++ now split.
+Defined.
+
+Definition empty_PreShv : PreShv C := discrete_PreShv emptyHSET.
+
+End presheaves.
 
 (** Definition of the subobject classifier in a presheaf
     TODO: Prove that Ω actually is the subobject classifier  *)
