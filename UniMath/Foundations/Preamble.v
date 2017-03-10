@@ -118,7 +118,7 @@ One can not use a new record each time one needs it because the general theorems
 construction would not apply to new instances of "Record" due to the "generativity" of inductive
 definitions in Coq.
 
-We use "Inductive" instead of "Record" here.
+We use "Record" instead of "Inductive" here.
 
 Using "Record" which is equivalent to "Structure" would allow us later to use the mechanism of
 canonical structures with total2.
@@ -131,32 +131,11 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
 *)
 
-(* two alternatives: *)
-(* total2 as a record with primitive projections: *)
+(* Set Primitive Projections. *)
 
-    (* Set Primitive Projections. *)
+Set Nonrecursive Elimination Schemes.
 
-    (* Set Nonrecursive Elimination Schemes. *)
-
-    (* Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }. *)
-
-(* or total2 as an inductive type:  *)
-
-    Inductive total2 { T: Type } ( P: T -> Type ) := tpair : ∏ (__t__:T) (__p__:P __t__), total2 P.
-
-    (* Do not use "induction" without specifying names; seeing __t__ or __p__ will indicate that you *)
-    (*    did that.  This will prepare for the use of primitive projections, when the names will be pr1 *)
-    (*    and pr2. *)
-
-    Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T .
-    Proof . intros .  induction t as [ t p ] . exact t . Defined.
-
-    Definition pr2 { T : Type } { P : T -> Type } ( t : total2 P ) : P ( pr1 t ) .
-    Proof . intros .  induction t as [ t p ] . exact p . Defined.
-
-(* end of two alternatives *)
-
-    Print total2.               (* log which definition of total2 is currently in use *)
+Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }.
 
 Arguments tpair {_} _ _ _.
 Arguments pr1 {_ _} _.
@@ -172,8 +151,6 @@ Definition whether_primitive_projections : bool.
 Proof.
   tryif primitive_projections then exact true else exact false.
 Defined.
-
-Print whether_primitive_projections.
 
 Notation "'∑'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
