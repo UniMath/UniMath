@@ -1046,7 +1046,7 @@ End Displayed_Equiv_Compose.
 Section Equiv_Fibers.
 
 Context {C C' : Precategory}.
-
+(*
 Definition fiber_is_left_adj 
   {A : adjunction C C'}
   {D : disp_precat C} {D' : disp_precat C'}
@@ -1077,7 +1077,8 @@ Proof.
     refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
     apply homset_property.
 Defined.
-
+*)
+(*
 Definition fiber_equiv {D D' : disp_precat C}
   {FF : functor_over (functor_identity _) D D'}
   (EFF : is_equiv_over_id FF)
@@ -1094,7 +1095,7 @@ Proof.
     apply is_iso_fiber_from_is_iso_disp. 
     apply (is_iso_counit_over_id isos).
 Defined.
-
+*)
 End Equiv_Fibers.
 
 (* *)
