@@ -85,9 +85,11 @@ Require Export UniMath.Foundations.PartD.
 
 Definition hProp@{i j} : Type@{j} := total2@{j} isaprop@{i}. (* i < j *)
 
-Definition hProppair (X : UU) (is : isaprop X) : hProp
-  := tpair (fun X : UU => isaprop X) X is.
+Definition hProppair@{i j} (X : Type@{i}) (is : isaprop@{i} X) : hProp@{i j}
+  := tpair@{j} (isaprop@{i}) X is.
+
 Definition hProptoType@{i j} := @pr1@{j} _ _ : hProp@{i j} -> Type@{i}.
+
 Coercion hProptoType : hProp >-> Sortclass.
 
 Definition propproperty (P : hProp) := pr2 P : isaprop (pr1 P).

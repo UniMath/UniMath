@@ -471,7 +471,7 @@ Defined.
 
 (** *** Relations and boolean relations *)
 
-Definition hrel (X : UU) : UU := X -> X -> hProp.
+Definition hrel@{i j} (X : Type@{i}) : Type@{j} := X -> X -> hProp@{i j}.
 Identity Coercion idhrel : hrel >-> Funclass.
 
 Definition brel (X : UU) : UU := X -> X -> bool.
