@@ -997,7 +997,7 @@ Theorem univfromtwoaxiomshProp (P P' : hProp) : isweq (@eqweqmaphProp P P').
 Proof.
   intros.
 
-  set (P1 := fun XY : hProp × hProp => @paths _ (pr1 XY) (pr2 XY)).
+  set (P1 := fun XY : hProp × hProp => (pr1 XY) = (pr2 XY)).
   set (P2 := fun XY : hProp × hProp => weq (pr1 XY) (pr2 XY)).
   set (Z1 :=  total2 P1).
   set (Z2 :=  total2 P2).
@@ -1013,9 +1013,9 @@ Proof.
   }
 
   set (h := fun a1 : Z1 => (pr1 (pr1 a1))).
-  assert (egf0 : ∏ a1 : Z1, @paths (hProp×hProp) (pr1 (g (f a1))) (pr1 a1))
+  assert (egf0 : ∏ a1 : Z1, (pr1 (g (f a1))) = (pr1 a1))
          by (intro; apply idpath).
-  assert (egf1 : ∏ a1 a1' : Z1, @paths _ (pr1 a1') (pr1 a1) -> @paths _ a1' a1).
+  assert (egf1 : ∏ a1 a1' : Z1, (pr1 a1') = (pr1 a1) -> a1' = a1).
   {
     intros ? ? X.
     set (X' := maponpaths (@pr1 _ _) X).

@@ -365,7 +365,7 @@ Proof.
   set (f := fromdsubtypesdirprodcarrier A B).
   set (g := tosubtypesdirprodcarrier A B).
   split with f.
-  assert (egf : ∏ a : _, paths (g (f a)) a).
+  assert (egf : ∏ a, g (f a) = a).
   {
     intro a.
     destruct a as [ xy is ].
@@ -373,7 +373,7 @@ Proof.
     destruct is as [ isx isy ].
     apply idpath.
   }
-  assert (efg : ∏ a : _, paths (f (g a)) a).
+  assert (efg : ∏ a, f (g a) = a).
   {
     intro a.
     destruct a as [ xis yis ].
@@ -1074,7 +1074,7 @@ Proof.
 Defined.
 
 Definition breltodecrel {X : UU} (B : brel X) : decrel X
-  := @decrelpair _ (fun x x' => hProppair (paths (B x x') true) (isasetbool _ _))
+  := @decrelpair _ (fun x x' => hProppair (B x x' = true) (isasetbool _ _))
                  (fun x x' => (isdeceqbool _ _)).
 
 Definition decrel_to_DecidableRelation {X : UU} :
@@ -1372,17 +1372,17 @@ Theorem surjectionisepitosets {X Y Z : UU} (f : X -> Y) (g1 g2 : Y -> Z)
         (isf : ∏ x : X, g1 (f x) = g2 (f x)) : ∏ y : Y, g1 y = g2 y.
 Proof.
   intros.
-  set (P1:= hProppair (paths (g1 y) (g2 y)) (is2 (g1 y) (g2 y))).
+  set (P1:= hProppair ((g1 y) = (g2 y)) (is2 (g1 y) (g2 y))).
   unfold issurjective in is1.
-  assert (s1: (hfiber f y)-> paths (g1 y) (g2 y)).
+  assert (s1: (hfiber f y)-> (g1 y) = (g2 y)).
   {
     intro X1. destruct X1 as [t x ]. induction x. apply (isf t).
   }
-  assert (s2: ishinh (paths (g1 y) (g2 y)))
+  assert (s2: ishinh ((g1 y) = (g2 y)))
     by apply (hinhfun s1 (is1 y)).
   set (is3 := is2 (g1 y) (g2 y)).
   simpl in is3.
-  apply (@hinhuniv (paths (g1 y) (g2 y)) (hProppair _ is3)).
+  apply (@hinhuniv ((g1 y) = (g2 y)) (hProppair _ is3)).
   - intro X1. assumption.
   - assumption.
 Defined.
@@ -1651,7 +1651,7 @@ Lemma isapropimeqclass {X : UU} (R : hrel X) (Y : hSet) (f : X -> Y)
 Proof.
   intros. apply isapropsubtype.
   intros y1 y2. simpl.
-  apply (@hinhuniv2 _ _ (hProppair (paths y1 y2) (pr2 Y y1 y2))).
+  apply (@hinhuniv2 _ _ (hProppair (y1 = y2) (pr2 Y y1 y2))).
   intros x1 x2. simpl.
   destruct c as [ A iseq ].
   destruct x1 as [ x1 is1 ]. destruct x2 as [ x2 is2 ].
@@ -1848,8 +1848,8 @@ Proof.
   - apply isasetsetquot.
   - apply isasetsetquot.
   - assert (is : ∏ (x x' : setquot RX),
-                 isaprop (paths (setquotfun RX RY f is1 x)
-                                (setquotfun RX RY f is1 x') -> paths x x')).
+                 isaprop ((setquotfun RX RY f is1 x) =
+                            (setquotfun RX RY f is1 x') -> x = x')).
     {
       intros.
       apply impred. intro.
@@ -1881,14 +1881,14 @@ Proof.
   rewrite (homotinvweqweq f (invmap f y)).
   rewrite (homotinvweqweq f (invmap f y')).
   apply (is2 _ _). set (gg := setquotfun RY RX (invmap f) is2').
-  assert (egf : ∏ a, paths (gg (ff a)) a).
+  assert (egf : ∏ a, (gg (ff a)) = a).
   {
     apply (setquotunivprop
              RX (fun a0 => hProppair _ (isasetsetquot RX (gg (ff a0)) a0))).
     simpl. intro x. unfold ff. unfold gg.
     apply (maponpaths (setquotpr RX) (homotinvweqweq f x)).
   }
-  assert (efg : ∏ a, paths (ff (gg a)) a).
+  assert (efg : ∏ a, (ff (gg a)) = a).
   {
     apply (setquotunivprop
              RY (fun a0 => hProppair _ (isasetsetquot RY (ff (gg a0)) a0))).
@@ -1949,7 +1949,7 @@ Proof.
   set (f := setquottodirprod RX RY).
   set (g := dirprodtosetquot RX RY).
   split with f.
-  assert (egf : ∏ a : _, paths (g (f a)) a).
+  assert (egf : ∏ a : _, (g (f a)) = a).
   {
     apply (setquotunivprop _ (fun a : _ => (hProppair _ (isasetsetquot _ (g (f a))
                                                                     a)))).
@@ -1958,7 +1958,7 @@ Proof.
     simpl. apply funextsec. intro xy'.
     destruct xy' as [ x' y' ]. apply idpath.
   }
-  assert (efg : ∏ a : _, paths (f (g a)) a).
+  assert (efg : ∏ a : _, (f (g a)) = a).
   {
     intro a. destruct a as [ ax ay ]. apply pathsdirprod.
     generalize ax. clear ax.
@@ -2099,7 +2099,7 @@ Theorem isdeceqsetquot_non_constr {X : UU} (R : eqrel X)
 Proof.
   intros. apply isdeceqif. intros x x'.
   apply (setquotuniv2prop
-           R (fun x0 x0' => hProppair _ (isapropisdecprop (paths x0 x0')))).
+           R (fun x0 x0' => hProppair _ (isapropisdecprop (x0 = x0')))).
   intros x0 x0'. simpl.
   apply (isdecpropweqf (weqpathsinsetquot R x0 x0') (is x0 x0')).
 Defined.
@@ -2140,7 +2140,7 @@ Lemma setquotbooleqtopaths {X : UU} (R : eqrel X)
 Proof.
   intros X R is.
   assert (isp : ∏ (x x' : setquot R),
-                isaprop (paths (setquotbooleq R is x x') true  -> paths x x')).
+                isaprop ((setquotbooleq R is x x') = true  -> x = x')).
   {
     intros x x'. apply impred. intro. apply (isasetsetquot R x x').
   }
