@@ -175,7 +175,7 @@ Definition ishinh_UU@{i j} (X : Type@{i}) : Type@{i}
 
 Lemma isapropishinh (X : UU) : isaprop (ishinh_UU X).
 Proof.
-  intro. unfold ishinh_UU. apply isaprop_resize.
+  intro. unfold ishinh_UU. apply isofhlevel_resize.
   apply impred. intros P. apply impred. intros _. apply propproperty.
 Qed.
 

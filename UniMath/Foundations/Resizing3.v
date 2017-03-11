@@ -43,23 +43,7 @@ Section A.
 
 End A.
 
-Lemma isaprop_resize@{i j} (P:Type@{j}) : isaprop@{j} P -> isaprop@{i} (ResizeType@{i j} P).
-Proof.
-  intros ip.
-  apply invproofirrelevance@{i i}; intros p q.
-  assert (e := proofirrelevance@{j} _ ip p q); clear ip.
-  now induction e.
-Defined.
-
 Lemma isofhlevel_resize@{i j} n (X:Type@{j}) : isofhlevel@{j j} n X -> isofhlevel@{i i} n (ResizeType@{i j} X).
 Proof.
-  induction n as [|n IH].
-  - change (iscontr@{j j} X -> iscontr@{i i} (ResizeType@{i j} X)).
-    intro c. induction c as [x e].
-    exists x. intro x'.
-    now induction (e x').
-  - change ((∏ x x' : X, (isofhlevel n (@paths X x x')))
-            ->
-            (∏ x x' : ResizeType@{i j} X, (isofhlevel n (@paths (ResizeType@{i j} X) x x')))).
-    intros hl x x'.
-Abort.
+  apply isofhlevelweqf, resize_weq.
+Defined.
