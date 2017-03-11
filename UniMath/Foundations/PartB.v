@@ -48,7 +48,7 @@ Require Export UniMath.Foundations.PartA.
 (** *** h-levels of types *)
 
 
-Fixpoint isofhlevel (n : nat) (X : UU) : UU
+Fixpoint isofhlevel@{i} (n : nat) (X : Type@{i}) : Type@{i}
   := match n with
      | O => iscontr X
      | S m => ∏ x : X, ∏ x' : X, (isofhlevel m (paths x x'))

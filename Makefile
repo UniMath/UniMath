@@ -58,7 +58,10 @@ ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
 
-UniMath/Foundations/Resizing2.vo : OTHERFLAGS += -type-in-type
+TYPE_IN_TYPE_FILES := 				\
+	UniMath/Foundations/Resizing2.vo
+
+$(TYPE_IN_TYPE_FILES) : OTHERFLAGS += -type-in-type
 
 ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc

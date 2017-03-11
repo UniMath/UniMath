@@ -154,6 +154,8 @@ Defined.
 
 Arguments fromempty { X } _.
 
+Inductive unit : UU :=  tt : unit. (* make unit polymorphic; needed due to Coq bug? *)
+
 Definition tounit {X : UU} : X -> unit := fun (x : X) => tt.
 
 (** *** Functions from [ unit ] corresponding to terms *)
@@ -994,7 +996,7 @@ Defined.
 
 (** *** Contractibility [ iscontr ] *)
 
-Definition iscontr (T:UU) : UU := ∑ cntr:T, ∏ t:T, t=cntr.
+Definition iscontr@{i} (T:Type@{i}) : Type@{i} := ∑ cntr:T, ∏ t:T, t=cntr.
 
 Notation "'∃!' x .. y , P"
   := (iscontr (∑ x, .. (∑ y, P) ..))
@@ -1223,12 +1225,11 @@ Proof.
   apply idpath.
 Defined.
 
-
 (** ** Weak equivalences *)
 
 (** *** Basics - [ isweq ] and [ weq ] *)
 
-Definition isweq {X Y : UU} (f : X -> Y) : UU :=
+Definition isweq@{i} {X Y : Type@{i}} (f : X -> Y) : Type@{i} :=
   ∏ y : Y, iscontr (hfiber f y).
 
 Lemma idisweq (T : UU) : isweq (idfun T).
@@ -1242,7 +1243,7 @@ Proof.
   apply idpath.
 Defined.
 
-Definition weq (X Y : UU) : UU := ∑ f:X->Y, isweq f.
+Definition weq@{i} (X Y : Type@{i}) : Type@{i} := ∑ f:X->Y, isweq@{i} f.
 
 Notation "X ≃ Y" := (weq X Y) (at level 80, no associativity) : type_scope.
 (* written \simeq in Agda input method *)
@@ -1263,7 +1264,7 @@ Proof.
   intros. unfold weqccontrhfiber. apply (pr2 (pr2 w y)).
 Defined.
 
-Definition weqpair {X Y : UU} (f : X -> Y) (is: isweq f) : X ≃ Y :=
+Definition weqpair@{i} {X Y : Type@{i}} (f : X -> Y) (is: isweq f) : X ≃ Y :=
   tpair (fun (f : X -> Y) => isweq f) f is.
 
 Definition idweq (X : UU) : X ≃ X :=
@@ -1293,7 +1294,7 @@ Proof.
   - intro y. now apply fromempty, ny.
 Defined.
 
-Definition invmap {X Y : UU} (w : X ≃ Y) : Y -> X :=
+Definition invmap@{i} {X Y : Type@{i}} (w : X ≃ Y) : Y -> X :=
   fun (y : Y) => hfiberpr1 _ _ (weqccontrhfiber w y).
 
 (** *** Weak equivalences and paths spaces (more results in further sections) *)

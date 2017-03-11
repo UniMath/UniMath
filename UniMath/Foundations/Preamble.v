@@ -29,9 +29,10 @@ Global Set Universe Polymorphism.
 
 *)
 
-Notation empty := Empty_set.
-Notation empty_rect := Empty_set_rect.
-Notation "∅" := Empty_set.
+
+Inductive empty : UU :=.  (* make it polymorphic; needed due to Coq bug? *)
+
+Notation "∅" := empty.
 
 (** Identity Types. Identity types are introduced in Coq.Init.Datatypes by the lines :
 
@@ -41,7 +42,7 @@ Hint Resolve identity_refl : core . ]
 
 *)
 
-Inductive paths {A:Type} (a:A) : A -> Type := paths_refl : paths a a.
+Inductive paths@{i} {A:Type@{i}} (a:A) : A -> Type@{i} := paths_refl : paths a a.
 Hint Resolve paths_refl : core .
 Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 Notation idpath := paths_refl .
@@ -172,8 +173,6 @@ Definition whether_primitive_projections : bool.
 Proof.
   tryif primitive_projections then exact true else exact false.
 Defined.
-
-Print whether_primitive_projections.
 
 Notation "'∑'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.

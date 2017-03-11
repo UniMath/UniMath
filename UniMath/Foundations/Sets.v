@@ -81,9 +81,6 @@ Unset Automatic Introduction.
 
 Require Export UniMath.Foundations.Propositions.
 
-
-
-
 (** ** The type of sets i.e. of types of h-level 2 in [UU] *)
 
 Definition hSet : UU := total2 (fun X : UU => isaset X).

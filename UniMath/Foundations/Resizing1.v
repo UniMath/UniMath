@@ -9,7 +9,5 @@ Section SafeResizing.
 
   Universe i j.
   Constraint i < j.
-  Set Printing Universes.
-  Unset Printing Notations.
 
 End SafeResizing.

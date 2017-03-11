@@ -82,7 +82,6 @@ Require Export UniMath.Foundations.PartD.
 
 (** ** The type [hProp] of types of h-level 1 *)
 
-
 Definition hProp@{i j} : Type@{j} := total2@{j} isaprop@{i}. (* i < j *)
 
 Definition hProppair@{i j} (X : Type@{i}) (is : isaprop@{i} X) : hProp@{i j}
@@ -164,6 +163,10 @@ Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
 
 *)
 
+(** ** Change of universe level for hProp *)
+
+
+
 
 (** ** Intuitionistic logic on [hProp] *)
 
@@ -172,16 +175,26 @@ Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
 
 Require Import UniMath.Foundations.Resizing3.
 
-Definition ishinh_UU@{i j} (X : Type@{i}) : Type@{i}
-  := ResizeType@{i j} (∏ P : hProp@{i j}, ((X -> P) -> P)). (* i < j *)
+Definition ishinh_UU@{i j} (X : Type@{i}) : Type@{j}           (* i < j *)
+  := ∏ P : hProp@{i j}, ((X -> P) -> P).
 
-Lemma isapropishinh (X : UU) : isaprop (ishinh_UU X).
+Lemma isapropishinh_UU@{i j} (X : Type@{i}) : isaprop@{j} (ishinh_UU@{i j} X).
 Proof.
-  intro. unfold ishinh_UU. apply isofhlevel_resize.
-  apply impred. intros P. apply impred. intros _. apply propproperty.
+  intro. apply impred. intros P. apply impred. intros _. apply propproperty.
 Qed.
 
-Definition ishinh (X : UU) : hProp := hProppair (ishinh_UU X) (isapropishinh X).
+Definition ishinh_resized@{i j} (X : Type@{i}) : Type@{i}           (* i < j *)
+  := ResizeProp@{i j} (ishinh_UU X) (isapropishinh_UU _).
+
+Lemma isapropishinh (X : Type) : isaprop (ishinh_resized X).
+Proof.
+  intro. unfold ishinh_resized. apply lower_universe_isofhlevel.
+  simple refine (@isofhlevelweqf 1 (ishinh_UU X) _ _ _).
+  - apply ResizeProp_weq.
+  - apply isapropishinh_UU.
+Defined.
+
+Definition ishinh (X : UU) : hProp := hProppair (ishinh_resized X) (isapropishinh X).
 
 Notation nonempty := ishinh (only parsing).
 
