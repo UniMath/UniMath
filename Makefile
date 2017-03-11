@@ -53,10 +53,13 @@ endif
 everything: TAGS all html install
 check-first: enforce-prescribed-ordering check-travis
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -indices-matter -type-in-type -w none
+OTHERFLAGS += -indices-matter -w none
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
+
+UniMath/Foundations/Resizing2.vo : OTHERFLAGS += -type-in-type
+
 ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
 LATEXDIR = latex

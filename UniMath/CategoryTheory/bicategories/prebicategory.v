@@ -55,7 +55,7 @@ Definition prebicategory_ob_1mor_2mor :=
   total2 (fun C : UU => forall a b : C, precategory).
 
 Definition bicat_ob (C : prebicategory_ob_1mor_2mor) : UU := @pr1 _ _ C.
-Coercion bicat_ob : prebicategory_ob_1mor_2mor >-> UU.
+Coercion bicat_ob : prebicategory_ob_1mor_2mor >-> Sortclass.
 
 Definition homprecat {C : prebicategory_ob_1mor_2mor} (a b : C) : precategory :=
   (pr2 C) a b.

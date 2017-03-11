@@ -438,4 +438,4 @@ Definition isCompleteSpace (X : PreorderedSet) :=
 Definition CompleteSpace  :=
   ∑ X : PreorderedSet, isCompleteSpace X.
 Definition pr1CompleteSpace : CompleteSpace → UU := pr1.
-Coercion pr1CompleteSpace : CompleteSpace >-> UU.
+Coercion pr1CompleteSpace : CompleteSpace >-> Sortclass.

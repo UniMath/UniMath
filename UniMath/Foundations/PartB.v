@@ -964,9 +964,9 @@ Defined.
 
 Definition negProp P := ∑ Q, isaprop Q × (¬P <-> Q).
 
-Definition negProp_to_type {P} (negP : negProp P) := pr1 negP.
+Definition negProp_to_type {P} (negP : negProp P) : UU := pr1 negP.
 
-Coercion negProp_to_type : negProp >-> UU.
+Coercion negProp_to_type : negProp >-> Sortclass.
 
 Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop nP
   := pr1 (pr2 nP).
@@ -974,12 +974,12 @@ Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop nP
 Definition negProp_to_iff {P} (nP : negProp P) : ¬P <-> nP
   := pr2 (pr2 nP).
 
-Definition negProp_to_neg {P} {nP : negProp P} : nP -> ¬P.
+Definition negProp_to_neg {P} {nP : negProp P} : negProp_to_type nP -> ¬P.
 Proof. intros ? ? np. exact (pr2 (negProp_to_iff nP) np). Defined.
 
 Coercion negProp_to_neg : negProp >-> Funclass.
 
-Definition neg_to_negProp {P} {nP : negProp P} : ¬P -> nP.
+Definition neg_to_negProp {P} {nP : negProp P} : ¬P -> negProp_to_type nP.
 Proof. intros ? ? np. exact (pr1 (negProp_to_iff nP) np). Defined.
 
 Definition negPred {X:UU} (x  :X) (P:∏ y:X, UU)      := ∏ y  , negProp (P y).
@@ -1028,7 +1028,7 @@ Proof.
   - clear c. apply ii2. intro k. apply b'. exact (pr1 k).
 Defined.
 
-Lemma negProp_to_complementary P (Q:negProp P) : P ⨿ Q <-> complementary P Q.
+Lemma negProp_to_complementary P (Q:negProp P) : P ⨿ negProp_to_type Q <-> complementary P (negProp_to_type Q).
 Proof.
   intros ? [Q [i [r s]]]; simpl in *.
   split.
@@ -1038,7 +1038,7 @@ Proof.
   * intros [j c]. assumption.
 Defined.
 
-Lemma negProp_to_uniqueChoice P (Q:negProp P) : (isaprop P × (P ⨿ Q)) <-> iscontr (P ⨿ Q).
+Lemma negProp_to_uniqueChoice P (Q:negProp P) : (isaprop P × (P ⨿ negProp_to_type Q)) <-> iscontr (P ⨿ negProp_to_type Q).
 Proof.
   intros ? [Q [j [r s]]]; simpl in *. split.
   * intros [i v]. exists v. intro w.
@@ -1205,7 +1205,7 @@ Defined.
 (** *** Isolated points *)
 
 Definition isisolated (X:UU) (x:X) := ∏ x':X, (x = x') ⨿ (x != x').
-Definition isisolated_ne (X:UU) (x:X) (neq_x:neqPred x) := ∏ y:X, (x=y) ⨿ neq_x y.
+Definition isisolated_ne (X:UU) (x:X) (neq_x:neqPred x) := ∏ y:X, (x=y) ⨿ negProp_to_type (neq_x y).
 
 Definition isisolated_to_isisolated_ne {X x neq_x} :
   isisolated X x -> isisolated_ne X x neq_x.
@@ -1257,7 +1257,7 @@ Proof.
   (* we could follow the proof of isaproppathsfromisolated here, but we try a
      different way *)
   intros. unfold isisolated_ne in is. apply invproofirrelevance; intros m n.
-  set (Q y := (x = y) ⨿ (neq_x y)).
+  set (Q y := (x = y) ⨿ negProp_to_type (neq_x y)).
   assert (a := (transport_section is m) @ !(transport_section is n)).
   induction (is x) as [j|k].
   - assert (b := transport_map (λ y p, ii1 p : Q y) m j); simpl in b;

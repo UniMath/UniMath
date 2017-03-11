@@ -18,9 +18,9 @@ Unset Automatic Introduction.
 
 Notation UUU := Set .
 
-Definition UU := Type.
+Notation UU  := Type.
 
-Identity Coercion fromUUtoType : UU >-> Sortclass.
+Global Set Universe Polymorphism.
 
 
 (** Empty type.  The empty type is introduced in Coq.Init.Datatypes by the line:

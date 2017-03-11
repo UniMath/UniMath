@@ -81,15 +81,12 @@ Unset Automatic Introduction.
 
 Require Export UniMath.Foundations.Propositions.
 
-
-
-
 (** ** The type of sets i.e. of types of h-level 2 in [UU] *)
 
 Definition hSet : UU := total2 (fun X : UU => isaset X).
 Definition hSetpair (X : UU) (i : isaset X) := tpair isaset X i : hSet.
 Definition pr1hSet : hSet -> UU := @pr1 UU (fun X : UU => isaset X).
-Coercion pr1hSet: hSet >-> UU.
+Coercion pr1hSet: hSet >-> Sortclass.
 
 Definition eqset {X : hSet} (x x' : X) : hProp
   := hProppair (x = x') (pr2 X x x').
@@ -1442,7 +1439,20 @@ Proof.
     intro x; cbn.
     apply weqtopathshProp.
     apply logeqweq.
-    + apply hinhuniv.
+    +
+
+      assert (R := hinhuniv
+                       (λ X : ∑ y : hfiber p (p b), x = p (pr1 y),
+                        match X with
+                        | y,, eqx =>
+                            internal_paths_rew_r B x (p (pr1 y))
+                              (λ x0 : B, hProppair (x0 = p b) (isB x0 (p b)))
+                              (hfiberpr2 p (p b) y) eqx
+                        end)).
+
+      exact R.
+
+      apply hinhuniv.
       intros [y eqx].
       rewrite eqx.
       apply (hfiberpr2 _ _ y).
@@ -1450,6 +1460,56 @@ Proof.
       apply hinhpr.
       use tpair;[now exists b|exact eqx].
 Qed.
+
+(*
+    epiissurjectiontosets =
+    λ (A B : UU) (p : A → B) (isB : isaset B)
+    (epip : ∏ (C : hSet) (g1 g2 : B → C), (∏ x : A, g1 (p x) = g2 (p x)) → ∏ y : B, g1 y = g2 y),
+    (λ pred_set : isaset (B → hProp),
+     (λ epip0 : (∏ x : A,
+                 (λ b x0 : B, ∃ y : hfiber p b, x0 = p (pr1 y)) (p x) =
+                 (λ b x0 : B, hProppair (x0 = b) (isB x0 b)) (p x))
+                → ∏ y : B,
+                  (λ b x : B, ∃ y0 : hfiber p b, x = p (pr1 y0)) y =
+                  (λ b x : B, hProppair (x = b) (isB x b)) y,
+      (λ (h : ∏ y : B,
+              (λ x : B, ∃ y0 : hfiber p y, x = p (pr1 y0)) = (λ x : B, hProppair (x = y) (isB x y)))
+       (y : B),
+       (λ h0 : (λ x : B, ∃ y0 : hfiber p y, x = p (pr1 y0)) = (λ x : B, hProppair (x = y) (isB x y)),
+        (λ h1 : (λ x : B, ∃ y0 : hfiber p y, x = p (pr1 y0)) ~
+                (λ x : B, hProppair (x = y) (isB x y)),
+         (λ (h2 : (λ x : B, ∃ y0 : hfiber p y, x = p (pr1 y0)) y =
+                  (λ x : B, hProppair (x = y) (isB x y)) y) (typ:=hProppair (y = y) (isB y y)),
+          (λ witness : typ,
+           internal_paths_rew hProp (∃ y0 : hfiber p y, y = p (pr1 y0))
+             (λ typ0 : hProp, typ0 → ∥ hfiber p y ∥)
+             (hinhfun (λ h' : ∑ y0 : hfiber p y, y = p (pr1 y0), pr1 h')) typ h2 witness)
+            (idpath y)) (h1 y))
+          (toforallpaths (λ _ : B, hProp) (λ x : B, ∃ y0 : hfiber p y, x = p (pr1 y0))
+             (λ x : B, hProppair (x = y) (isB x y)) h0)) (h y))
+        (epip0
+           (λ b : A,
+            funextfun (λ x : B, ∃ y : hfiber p (p b), x = p (pr1 y))
+              (λ x : B, hProppair (x = p b) (isB x (p b)))
+              (λ x : B,
+               weqtopathshProp
+                 (logeqweq (∃ y : hfiber p (p b), x = p (pr1 y)) (hProppair (x = p b) (isB x (p b)))
+                    (hinhuniv
+                       (λ X : ∑ y : hfiber p (p b), x = p (pr1 y),
+                        match X with
+                        | y,, eqx =>
+                            internal_paths_rew_r B x (p (pr1 y))
+                              (λ x0 : B, hProppair (x0 = p b) (isB x0 (p b)))
+                              (hfiberpr2 p (p b) y) eqx
+                        end)) (λ eqx : hProppair (x = p b) (isB x (p b)), hinhpr ((● b)%stn,, eqx)))))))
+       (epip (hSetpair (B → hProp) pred_set) (λ b x : B, ∃ y : hfiber p b, x = p (pr1 y))
+          (λ b x : B, hProppair (x = b) (isB x b))))
+      (isaset_set_fun_space B (hSetpair hProp isasethProp))
+         : ∏ (A B : UU) (p : A → B),
+           isaset B
+           → (∏ (C : hSet) (g1 g2 : B → C), (∏ x : A, g1 (p x) = g2 (p x)) → ∏ y : B, g1 y = g2 y)
+             → issurjective p
+*)
 
 
 

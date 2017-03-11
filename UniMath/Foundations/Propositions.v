@@ -87,7 +87,7 @@ Definition hProp := total2 (fun X : UU => isaprop X).
 Definition hProppair (X : UU) (is : isaprop X) : hProp
   := tpair (fun X : UU => isaprop X) X is.
 Definition hProptoType := @pr1 _ _ : hProp -> UU.
-Coercion hProptoType : hProp >-> UU.
+Coercion hProptoType : hProp >-> Sortclass.
 
 Definition propproperty (P : hProp) := pr2 P : isaprop (pr1 P).
 
@@ -167,13 +167,17 @@ Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
 
 (** *** The [hProp] version of the "inhabited" construction. *)
 
+Require Import UniMath.Foundations.Resizing3.
 
-
-Definition ishinh_UU (X : UU) : UU := ∏ P : hProp, ((X -> P) -> P).
+Definition ishinh_UU@{i j} (X : Type@{i}) : Type@{i}
+  := ResizeType@{i j} (∏ P : hProp@{j i}, ((X -> P) -> P)).
 
 Lemma isapropishinh (X : UU) : isaprop (ishinh_UU X).
 Proof.
-  intro. apply impred.
+  intro.
+  unfold ishinh_UU.
+  apply isaprop_resize.
+  apply impred.
   intro P. apply impred.
   intro. apply (pr2 P).
 Qed.

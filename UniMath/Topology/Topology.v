@@ -102,7 +102,7 @@ Definition mkTopologicalSet (X : UU) (O : (X → hProp) → hProp)
   (X,,O,,is,,(isSetOfOpen_finite_intersection_carac _ is0 is1)).
 
 Definition pr1TopologicatSet : TopologicalSet → UU := pr1.
-Coercion pr1TopologicatSet : TopologicalSet >-> UU.
+Coercion pr1TopologicatSet : TopologicalSet >-> Sortclass.
 
 Definition isOpen {T : TopologicalSet} : (T → hProp) → hProp := pr1 (pr2 T).
 Definition Open {T : TopologicalSet} :=
