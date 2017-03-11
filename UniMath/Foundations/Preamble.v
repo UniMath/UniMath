@@ -138,11 +138,11 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
     (* Set Nonrecursive Elimination Schemes. *)
 
-    (* Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }. *)
+    (* Record total2@{i} { T: Type@{i} } ( P: T -> Type@{i} ) := tpair { pr1 : T; pr2 : P pr1 }. *)
 
 (* or total2 as an inductive type:  *)
 
-    Inductive total2 { T: Type } ( P: T -> Type ) := tpair : ∏ (__t__:T) (__p__:P __t__), total2 P.
+    Inductive total2@{i} { T: Type@{i} } ( P: T -> Type@{i} ) : Type@{i} := tpair : ∏ (__t__:T) (__p__:P __t__), total2 P.
 
     (* Do not use "induction" without specifying names; seeing __t__ or __p__ will indicate that you *)
     (*    did that.  This will prepare for the use of primitive projections, when the names will be pr1 *)

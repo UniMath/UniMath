@@ -83,7 +83,8 @@ Require Export UniMath.Foundations.PartD.
 (** ** The type [hProp] of types of h-level 1 *)
 
 
-Definition hProp := total2 (fun X : UU => isaprop X).
+Definition hProp@{i j} : Type@{j} := total2@{j} isaprop@{i}. (* i < j *)
+
 Definition hProppair (X : UU) (is : isaprop X) : hProp
   := tpair (fun X : UU => isaprop X) X is.
 Definition hProptoType := @pr1 _ _ : hProp -> UU.
@@ -170,16 +171,12 @@ Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
 Require Import UniMath.Foundations.Resizing3.
 
 Definition ishinh_UU@{i j} (X : Type@{i}) : Type@{i}
-  := ResizeType@{i j} (∏ P : hProp@{j i}, ((X -> P) -> P)).
+  := ResizeType@{i j} (∏ P : hProp@{i j}, ((X -> P) -> P)). (* i < j *)
 
 Lemma isapropishinh (X : UU) : isaprop (ishinh_UU X).
 Proof.
-  intro.
-  unfold ishinh_UU.
-  apply isaprop_resize.
-  apply impred.
-  intro P. apply impred.
-  intro. apply (pr2 P).
+  intro. unfold ishinh_UU. apply isaprop_resize.
+  apply impred. intros P. apply impred. intros _. apply propproperty.
 Qed.
 
 Definition ishinh (X : UU) : hProp := hProppair (ishinh_UU X) (isapropishinh X).
