@@ -8,6 +8,17 @@ Section A.
   Universe i j.
   Constraint i < j.
 
+  Definition raise_type : Type@{i} -> Type@{j}.
+  Proof.
+    intros T.
+    exact T.
+  Defined.
+
+  Lemma weq_raise {X : Type@{i}} (x y : X) : @paths@{i} X x y ≃ @paths@{j} (raise_type X) x y.
+  Proof.
+    simple refine (weqpair _ (gradth _ _ _ _)); intros p; now induction p.
+  Defined.
+
   Definition lower_path {X : Type@{j}} (x y : ResizeType X) :
     @paths@{j} X x y -> @paths@{i} (ResizeType X) x y.
   Proof.
@@ -15,7 +26,7 @@ Section A.
     now induction p.
   Defined.
 
-  Goal ∏ (X : Type@{j}), raise_type@{i j} (ResizeType X) = X.
+  Goal ∏ (X : Type@{j}), raise_type (ResizeType X) = X.
   Proof.
     reflexivity.
   Defined.
