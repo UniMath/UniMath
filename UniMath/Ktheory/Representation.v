@@ -10,6 +10,7 @@ Require Import
         UniMath.Ktheory.Bifunctor.
 Set Automatic Introduction.
 Local Open Scope cat.
+Local Open Scope Cat.
 
 Definition isUniversal {C:Precategory} {X:[C^op,SET]} {c:C} (x:c ⇒ X)
   := ∏ (c':C), isweq (λ f : c' --> c, x ⟲ f).
@@ -65,7 +66,7 @@ Definition RepresentableFunctor (C:Precategory) : Precategory
   := categoryWithStructure [C^op,SET] isRepresentable.
 
 Definition toRepresentableFunctor {C:Precategory} :
-  RepresentedFunctor C ==> RepresentableFunctor C :=
+  RepresentedFunctor C ⟶ RepresentableFunctor C :=
   functorWithStructures (λ c, hinhpr).
 
 (* make a representation of a functor *)
@@ -166,7 +167,7 @@ Proof.
   apply universalMapProperty.
 Qed.
 
-Definition universalObjectFunctor (C:Precategory) : RepresentedFunctor C ==> C.
+Definition universalObjectFunctor (C:Precategory) : RepresentedFunctor C ⟶ C.
 Proof.
   unshelve refine (makeFunctor _ _ _ _).
   - intro X. exact (universalObject (pr2 X)).
@@ -349,11 +350,11 @@ Proof.
 Defined.
 
 Definition HomPair_1 {C:Precategory} (a b c:C) :
-  (((HomPair a b : C^op ==> SET) c : hSet) -> Hom C c a)
+  (((HomPair a b : C^op ⟶ SET) c : hSet) -> Hom C c a)
   := pr1.
 
 Definition HomPair_2 {C:Precategory} (a b c:C) :
-  (((HomPair a b : C^op ==> SET) c : hSet) -> Hom C c b)
+  (((HomPair a b : C^op ⟶ SET) c : hSet) -> Hom C c b)
   := pr2.
 
 Definition BinaryProduct {C:Precategory} (a b:C) :=
@@ -461,7 +462,7 @@ Defined.
 
 (** products and coproducts *)
 
-Definition HomFamily (C:Precategory) {I} (c:I -> ob C) : C^op ==> SET.
+Definition HomFamily (C:Precategory) {I} (c:I -> ob C) : C^op ⟶ SET.
 Proof.
   unshelve refine (_,,_).
   - unshelve refine (_,,_).
@@ -516,10 +517,8 @@ Defined.
 
 (** equalizers and coequalizers *)
 
-Local Open Scope cat'.
-
 Definition Equalization {C:Precategory} {c d:C} (f g:c-->d) :
-  C^op ==> SET.
+  C^op ⟶ SET.
 Proof.
   unshelve refine (makeFunctor_op _ _ _ _).
   - intro b. unshelve refine (_,,_).
@@ -565,7 +564,7 @@ Definition coequalizerEquation {C:Precategory} {c d:C} {f g:c-->d} (coeq : Coequ
 (** pullbacks and pushouts  *)
 
 Definition PullbackCone {C:Precategory} {a b c:C} (f:a-->c) (g:b-->c) :
-  C^op ==> SET.
+  C^op ⟶ SET.
 Proof.
   intros.
   unshelve refine (makeFunctor_op _ _ _ _).
@@ -622,10 +621,8 @@ Definition po_eqn {C:Precategory} {a b c:C} {f:a-->c} {g:a-->c} (po : Pushout f 
 
 (** kernels and cokernels *)
 
-Local Open Scope cat'.
-
 Definition Annihilator (C:Precategory) (zero:hasZeroMaps C) {c d:C} (f:c --> d) :
-  C^op ==> SET.
+  C^op ⟶ SET.
 Proof.
   unshelve refine (_,,_).
   { unshelve refine (_,,_).
@@ -675,7 +672,7 @@ Definition cokernelEquation {C:Precategory} {zero:hasZeroMaps C} {c d:ob C} {f:c
 (** fibers of maps between functors *)
 
 Definition fiber {C:Precategory} {X Y:[C^op,SET]} (p : X --> Y) {c:C} (y : c ⇒ Y) :
-  C^op ==> SET.
+  C^op ⟶ SET.
 Proof.
   unshelve refine (makeFunctor_op _ _ _ _).
   - intro b.
@@ -715,7 +712,7 @@ Definition cone {I C:Precategory} (c:C) (D: [I,C]) : UU
   := ∑ (φ : ∏ i, Hom C c (D ◾ i)),
      ∏ i j (e : i --> j), D ▭ e ∘ φ i = φ j.
 
-Lemma cone_eq {C I:Precategory} (c:C^op) (D: I==>C) (p q:cone (C:=C) c D) :
+Lemma cone_eq {C I:Precategory} (c:C^op) (D: I⟶C) (p q:cone (C:=C) c D) :
   pr1 p ~ pr1 q -> p = q.
 Proof.
   intros h. apply subtypeEquality.
@@ -727,7 +724,7 @@ Proof.
   apply funextsec; intro i; apply h.
 Qed.
 
-Definition cone_functor {I C:Precategory} : [I,C] ==> [C^op,SET].
+Definition cone_functor {I C:Precategory} : [I,C] ⟶ [C^op,SET].
 Proof.
   intros.
   unshelve refine (_,,_).
@@ -781,37 +778,37 @@ Proof.
       | intro c; apply funextsec; intro K; apply cone_eq; intros i; apply assoc ]]). }
 Defined.
 
-Definition cocone_functor {I C:Precategory} : [I,C]^op ==> [C^op^op,SET] :=
+Definition cocone_functor {I C:Precategory} : [I,C]^op ⟶ [C^op^op,SET] :=
   cone_functor □ functorOp.
 
-Definition Limit {C I:Precategory} (D: I==>C) := Representation (cone_functor D).
+Definition Limit {C I:Precategory} (D: I⟶C) := Representation (cone_functor D).
 
-Definition Colimit {C I:Precategory} (D: I==>C) := Representation (cocone_functor D).
+Definition Colimit {C I:Precategory} (D: I⟶C) := Representation (cocone_functor D).
 
-Definition proj_ {C I:Precategory} {D: I==>C} (lim:Limit D) (i:I) : universalObject lim --> D i.
+Definition proj_ {C I:Precategory} {D: I⟶C} (lim:Limit D) (i:I) : universalObject lim --> D i.
 Proof. intros. exact ((pr1 (universalElement lim) i)). Defined.
 
-Definition inj_ {C I:Precategory} {D: I==>C} (colim:Colimit D) (i:I) : D i --> universalObject colim.
+Definition inj_ {C I:Precategory} {D: I⟶C} (colim:Colimit D) (i:I) : D i --> universalObject colim.
 Proof. intros. exact ((pr1 (universalElement colim) i)). Defined.
 
-Definition proj_comm {C I:Precategory} {D: I==>C} (lim:Limit D) {i j:I} (f:i-->j) :
+Definition proj_comm {C I:Precategory} {D: I⟶C} (lim:Limit D) {i j:I} (f:i-->j) :
   # D f ∘ proj_ lim i = proj_ lim j.
 Proof. intros. exact (pr2 (universalElement lim) _ _ f). Defined.
 
-Definition inj_comm {C I:Precategory} {D: I==>C} (colim:Colimit D) {i j:I} (f:i-->j) :
+Definition inj_comm {C I:Precategory} {D: I⟶C} (colim:Colimit D) {i j:I} (f:i-->j) :
   inj_ colim j ∘ # D f = inj_ colim i.
 Proof. intros. exact (pr2 (universalElement colim) _ _ f). Defined.
 
-Definition hasLimits (C:Precategory) := ∏ (I:Precategory) (D: I==>C), Limit D.
+Definition hasLimits (C:Precategory) := ∏ (I:Precategory) (D: I⟶C), Limit D.
 
-Definition hasColimits (C:Precategory) := ∏ (I:Precategory) (D: I==>C), Colimit D.
+Definition hasColimits (C:Precategory) := ∏ (I:Precategory) (D: I⟶C), Colimit D.
 
 Definition lim_functor (C:Precategory) (lim:hasLimits C) (I:Precategory) :
-  [I,C] ==> C
+  [I,C] ⟶ C
   := universalObjectFunctor C □ addStructure cone_functor (lim I).
 
 Definition colim_functor (C:Precategory) (colim:hasColimits C) (I:Precategory) :
-  [I,C] ==> C
+  [I,C] ⟶ C
   := functorRmOp (
          universalObjectFunctor C^op □ addStructure cocone_functor (colim I)).
 
@@ -910,7 +907,8 @@ Lemma BinaryProductFunctorAssoc {B C : Precategory}
       (F G : [B, C]) :
   iso (bifunctor_assoc (binaryProductFunctor F G)) (HomPair F G).
 Proof.
-  unshelve refine (makeNatiso _ _).
+  set (ISO := @iso).
+  unshelve refine (makeNatiso (C := [B, C]^op) _ _).
   { intro H. apply hset_equiv_iso.
     unshelve refine (weqgradth _ _ _ _).
     { intros w.

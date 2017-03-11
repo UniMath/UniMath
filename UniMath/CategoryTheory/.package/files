@@ -1,13 +1,12 @@
 total2_paths.v
 precategories.v
 functor_categories.v
-UnicodeNotations.v
 opp_precat.v
 PrecategoryBinProduct.v
 ProductPrecategory.v
 whiskering.v
+Adjunctions.v
 equivalences.v
-AdjunctionHomTypesWeq.v
 sub_precategories.v
 Monics.v
 Epis.v
@@ -48,8 +47,8 @@ limits/FinOrdCoproducts.v
 limits/Opp.v
 limits/graphs/eqdiag.v
 EpiFacts.v
-HLevel_n_is_of_hlevel_Sn.v
 category_hset.v
+SimplicialSets.v
 yoneda.v
 Monads.v
 RModules.v
@@ -98,4 +97,6 @@ AbelianPushoutPullback.v
 PseudoElements.v
 FiveLemma.v
 set_slice_fam_equiv.v
+Elements.v
+ElementsOp.v
 elems_slice_equiv.v

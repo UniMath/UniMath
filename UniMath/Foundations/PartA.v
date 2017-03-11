@@ -166,7 +166,11 @@ Definition idfun (T : UU) := λ t:T, t.
 
 Definition funcomp {X Y : UU} {Z:Y->UU} (f : X -> Y) (g : ∏ y:Y, Z y) := λ x, g (f x).
 
-Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity).
+Delimit Scope functions with functions.
+
+Open Scope functions.
+
+Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity) : functions.
 
 (** back and forth between functions of pairs and functions returning
   functions *)
@@ -485,30 +489,31 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
-(** *** Homotopy between functions *)
+(** *** Homotopy between sections *)
 
-Definition homot {X : UU} {P : X -> UU} (f g : ∏ x : X, P x) :=
-  ∏ x : X , f x = g x.
+Definition homot {X : UU} {P : X -> UU} (f g : ∏ x : X, P x) := ∏ x : X , f x = g x.
 
 Notation "f ~ g" := (homot f g) (at level 70, no associativity).
 
-Definition homotrefl {X Y : UU} {f: X -> Y} : f ~ f.
+Definition homotrefl {X : UU} {P : X -> UU} (f: ∏ x : X, P x) : f ~ f.
 Proof.
   intros ? ? ? x. reflexivity.
 Defined.
 
-Definition homotcomp {X Y : UU} {f f' f'' : X -> Y}
+Definition homotcomp {X:UU} {Y:X->UU} {f f' f'' : ∏ x : X, Y x}
            (h : f ~ f') (h' : f' ~ f'') : f ~ f'' := fun (x : X) => h x @ h' x.
 
-Definition invhomot {X Y : UU} {f f' : X -> Y}
+Definition invhomot {X:UU} {Y:X->UU} {f f' : ∏ x : X, Y x}
            (h : f ~ f') : f' ~ f := fun (x : X) => !(h x).
 
-Definition funhomot {X Y Z : UU} (f : X -> Y) {g g' : Y -> Z}
-           (h : g ~ g') : (g ∘ f) ~ (g' ∘ f) := fun (x : X) => h (f x).
+Definition funhomot {X Y Z:UU} (f : X -> Y) {g g' : Y -> Z}
+           (h : g ~ g') : g ∘ f ~ g' ∘ f := fun (x : X) => h (f x).
+
+Definition funhomotsec {X Y:UU} {Z:Y->UU} (f : X -> Y) {g g' : ∏ y:Y, Z y}
+           (h : g ~ g') : g ∘ f ~ g' ∘ f := fun (x : X) => h (f x).
 
 Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
-           (g : Y -> Z) : (g ∘ f) ~ (g ∘ f') := fun (x : X) => maponpaths g (h x).
-
+           (g : Y -> Z) : g ∘ f ~ g ∘ f' := fun (x : X) => maponpaths g (h x).
 
 (** *** Equality between functions defines a homotopy *)
 
@@ -1001,6 +1006,9 @@ Definition iscontrpair {T : UU} : ∏ x : T, (∏ t : T, t = x) -> iscontr T
 
 Definition iscontrpr1 {T : UU} : iscontr T -> T := pr1.
 
+Definition iscontr_uniqueness {T} (i:iscontr T) (t:T) : t = iscontrpr1 i
+  := pr2 i t.
+
 Lemma iscontrretract {X Y : UU} (p : X -> Y) (s : Y -> X)
       (eps : ∏ y : Y, p (s y) = y) (is : iscontr X) : iscontr Y.
 Proof.
@@ -1026,7 +1034,7 @@ Defined.
 
 (** *** Homotopy fibers [ hfiber ] *)
 
-Definition hfiber {X Y : UU}  (f : X -> Y) (y : Y) : UU := ∑ x:X, f x = y.
+Definition hfiber {X Y : UU} (f : X -> Y) (y : Y) : UU := ∑ x : X, f x = y.
 
 Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
            (x : X) (e : f x = y) : hfiber f y :=

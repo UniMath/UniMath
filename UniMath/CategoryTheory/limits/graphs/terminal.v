@@ -7,7 +7,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.terminal.
 
 Section def_terminal.
@@ -87,7 +87,7 @@ now apply ArrowsToTerminal.
 Qed.
 
 Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) :
-   is_isomorphism (TerminalArrow T (TerminalObject T')).
+   is_iso (TerminalArrow T (TerminalObject T')).
 Proof.
   apply (is_iso_qinv _ (TerminalArrow T' (TerminalObject T))).
   split; apply pathsinv0, TerminalEndo_is_identity.

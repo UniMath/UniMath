@@ -86,7 +86,7 @@ Definition eqweqmapap_inv' {T} (P:T->Type) {t u:T} (e:t = u) (p:P t) :
 Proof. intros. destruct e. reflexivity. Defined.
 
 Definition weqpr1_irr_sec {X} {P:X->Type}
-           (irr:∏ x (p q:P x), p = q) (sec:Section P) : weq (total2 P) X.
+           (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x) : weq (total2 P) X.
 (* compare with weqpr1 *)
 Proof. intros.
        set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
@@ -97,7 +97,7 @@ Proof. intros.
        { intros [x p]. simpl. apply pair_path_in2_comp1. } Defined.
 
 Definition invweqpr1_irr_sec {X} {P:X->Type}
-           (irr:∏ x (p q:P x), p = q) (sec:Section P) : X ≃ (total2 P).
+           (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x) : X ≃ (total2 P).
 (* compare with weqpr1 *)
 Proof. intros.
        set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
@@ -110,12 +110,12 @@ Proof. intros.
          reflexivity. } Defined.
 
 Definition homotinvweqweq' {X} {P:X->Type}
-           (irr:∏ x (p q:P x), p = q) (s:Section P) (w:total2 P) :
+           (irr:∏ x (p q:P x), p = q) (s:∏ x, P x) (w:total2 P) :
   invmap (weqpr1_irr_sec irr s) (weqpr1_irr_sec irr s w) = w.
 Proof. intros ? ? ? ? [x p]. apply pair_path_in2. apply irr. Defined.
 
 Definition homotinvweqweq'_comp {X} {P:X->Type}
-           (irr:∏ x (p q:P x), p = q) (sec:Section P)
+           (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x)
            (x:X) (p:P x) :
   let f := weqpr1_irr_sec irr sec in
   let w := x,,p in
@@ -127,7 +127,7 @@ Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
 Definition homotinvweqweq_comp {X} {P:X->Type}
-           (irr:∏ x (p q:P x), p = q) (sec:Section P)
+           (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x)
            (x:X) (p:P x) :
   let f := weqpr1_irr_sec irr sec in
   let w := x,,p in
@@ -140,7 +140,7 @@ Proof.
 Abort.
 
 Definition homotinvweqweq_comp_3 {X} {P:X->Type}
-           (irr:∏ x (p q:P x), p = q) (sec:Section P)
+           (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x)
            (x:X) (p:P x) :
   let f := weqpr1_irr_sec irr sec in
   let g := invweqpr1_irr_sec irr sec in
@@ -162,7 +162,7 @@ Proof. intros. destruct ni, mi, l. simpl. rewrite pathscomp0rid. reflexivity.
 Defined.
 
 Definition loop_correspondence' {X Y} {P:X->Type}
-           (irr:∏ x (p q:P x), p = q) (sec:Section P)
+           (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x)
            (g:total2 P->Y)
            {w w':total2 P} {l:w = w'}
            {m:weqpr1_irr_sec irr sec w = weqpr1_irr_sec irr sec w'} (mi:ap (weqpr1_irr_sec irr sec) l = m)

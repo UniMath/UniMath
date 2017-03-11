@@ -9,12 +9,12 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.CategoryTheory.Monics.
@@ -58,7 +58,6 @@ Section def_grothendiecktopology.
   (** A sieve on c is a subobject of the yoneda functor. *)
   Definition sieve (c : C) : UU :=
     SubobjectsPrecategory
-      (functor_precategory (opp_precat C) HSET has_homsets_HSET)
       (functor_category_has_homsets (opp_precat C) HSET has_homsets_HSET)
       (yoneda C hs c).
 
@@ -85,7 +84,6 @@ Section def_grothendiecktopology.
 
   Definition isGrothendieckTopology_maximal_sieve (COS : collection_of_sieves) : UU :=
     ∏ (c : C), COS c (SubobjectsPrecategory_ob
-                        (functor_precategory (opp_precat C) HSET has_homsets_HSET)
                         (functor_category_has_homsets (opp_precat C) HSET has_homsets_HSET)
                         (identity (yoneda C hs c)) (identity_isMonic _)).
 
@@ -93,7 +91,7 @@ Section def_grothendiecktopology.
     ∏ (c c' : C) (h : c' --> c) (s : sieve c),
     COS c s ->
     COS c' (PullbackSubobject
-              _ _
+              _
               (FunctorPrecategoryPullbacks (opp_precat C) HSET has_homsets_HSET HSET_Pullbacks)
               s (yoneda_morphisms C hs _ _ h)).
 
@@ -101,7 +99,7 @@ Section def_grothendiecktopology.
     ∏ (c : C) (s : sieve c),
     (∏ (c' : C) (h : c' --> c),
      COS c' (PullbackSubobject
-               _ _
+               _
                (FunctorPrecategoryPullbacks (opp_precat C) HSET has_homsets_HSET HSET_Pullbacks)
                s (yoneda_morphisms C hs _ _ h))
      -> COS c s).

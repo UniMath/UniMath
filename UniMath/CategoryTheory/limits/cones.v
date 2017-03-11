@@ -12,10 +12,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "f ;; g" := (compose f g)(at level 50).
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
+Local Open Scope cat.
 
 Section Cone.
 
@@ -40,7 +37,7 @@ Proof.
 Defined.
 
 Definition ConeProp (a : ConeData) :=
-  ∏ j j' (f : j --> j'), ConeMor a j ;; #F f = ConeMor a j'.
+  ∏ j j' (f : j --> j'), ConeMor a j · #F f = ConeMor a j'.
 
 Lemma isaprop_ConeProp (a : ConeData) : isaprop (ConeProp a).
 Proof.
@@ -75,7 +72,7 @@ Coercion ConeProp_from_Cone : Cone >-> ConeProp.
 
 
 Lemma cone_prop (a : Cone) :
-  ∏ j j' (f : j --> j'), ConeMor a j ;; #F f = ConeMor a j'.
+  ∏ j j' (f : j --> j'), ConeMor a j · #F f = ConeMor a j'.
 Proof.
   exact (pr2 a).
 Qed.
@@ -90,7 +87,7 @@ Defined.
 
 Definition Cone_Mor (M N : Cone) :=
   total2 (fun f : ConeTop M --> ConeTop N =>
-        ∏ j : J, f ;; ConeMor N j = ConeMor M j).
+        ∏ j : J, f · ConeMor N j = ConeMor M j).
 
 
 Lemma isaset_Cone_Mor (M N : Cone) : isaset (Cone_Mor M N).
@@ -117,7 +114,7 @@ Proof.
 Qed.
 
 Lemma cone_mor_prop M N (f : Cone_Mor M N) :
-    ∏ j : J, ConeConnect f ;; ConeMor N j = ConeMor M j.
+    ∏ j : J, ConeConnect f · ConeMor N j = ConeMor M j.
 Proof.
   exact (pr2 f).
 Qed.
@@ -132,7 +129,7 @@ Defined.
 Definition Cone_comp (A B D : Cone) (f : Cone_Mor A B)
         (g : Cone_Mor B D) : Cone_Mor A D.
 Proof.
-  exists (ConeConnect f ;; ConeConnect g).
+  exists (ConeConnect f · ConeConnect g).
   intro j.
   (* make this proof opaque *)
   rewrite <- assoc.
@@ -177,7 +174,7 @@ Definition CONE : precategory := tpair _ _ is_precategory_Cone.
 (* this should not need the pr1 before f *)
 
 Definition iso_projects_from_CONE (a b : CONE) (f : iso a b) :
-  is_isomorphism (ConeConnect (pr1 f)).
+  is_iso (ConeConnect (pr1 f)).
 Proof.
   set (T:=iso_inv_after_iso f).
   set (T':=iso_after_iso_inv f).
@@ -226,16 +223,16 @@ Proof.
   intro f.
   apply (total2_paths_f (isotoid _ is_cat_C (ConeConnectIso f))).
   pathvia ((fun c : J =>
-     idtoiso (!isotoid C is_cat_C (ConeConnectIso f));; pr2 (pr1 a) c)).
+     idtoiso (!isotoid C is_cat_C (ConeConnectIso f))· pr2 (pr1 a) c)).
   apply transportf_isotoid_dep'.
   apply funextsec.
   intro t.
-  pathvia (idtoiso (isotoid C is_cat_C (iso_inv_from_iso (ConeConnectIso f)));;
+  pathvia (idtoiso (isotoid C is_cat_C (iso_inv_from_iso (ConeConnectIso f)))·
        pr2 (pr1 a) t).
   apply cancel_postcomposition.
   apply maponpaths. apply maponpaths.
   apply inv_isotoid.
-  pathvia (iso_inv_from_iso (ConeConnectIso f);; pr2 (pr1 a) t).
+  pathvia (iso_inv_from_iso (ConeConnectIso f)· pr2 (pr1 a) t).
   apply cancel_postcomposition.
   set (H := idtoiso_isotoid _ is_cat_C _ _ (iso_inv_from_iso (ConeConnectIso f))).
   simpl in *.

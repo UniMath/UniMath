@@ -510,7 +510,6 @@ Proof.
   intros x x'.
   apply iscontrpathsinunit.
 Defined.
-Coercion isapropifcontr : iscontr >-> isaprop.
 
 Theorem hlevelntosn (n : nat) (T : UU) (is : isofhlevel n T) : isofhlevel (S n) T.
 Proof.
@@ -598,27 +597,24 @@ Defined.
 
 Lemma iscontraprop1inv {X : UU} (f : X -> iscontr X) : isaprop X.
 Proof.
-  intros X X0.
-  assert (H : X -> isofhlevel (S O) X)
-    by (intro X1; apply (hlevelntosn O _ (X0 X1))).
-  apply (isofhlevelsn O H).
+  intros X c. apply (isofhlevelsn O). intro x. exact (hlevelntosn O X (c x)).
 Defined.
 
-Lemma proofirrelevance (X : UU) (is : isaprop X) : ∏ x x' : X , paths x x'.
+Definition isProofIrrelevant (X:UU) := ∏ x y:X, x = y.
+
+Lemma proofirrelevance (X : UU) : isaprop X -> isProofIrrelevant X.
 Proof.
-  intros. unfold isaprop in is. unfold isofhlevel in is.
-  apply (pr1 (is x x')).
+  intros ? is x x'. unfold isaprop in is. unfold isofhlevel in is. exact (iscontrpr1 (is x x')).
 Defined.
 
-Lemma invproofirrelevance (X : UU) (ee : ∏ x x' : X , paths x x') : isaprop X.
+Lemma invproofirrelevance (X : UU) : isProofIrrelevant X -> isaprop X.
 Proof.
-  intros. unfold isaprop. unfold isofhlevel. intro x.
-  assert (is1 : iscontr X) by
-      (split with x; intro t; apply (ee t x)).
-  assert (is2 : isaprop X) by
-      (apply isapropifcontr; assumption).
-  unfold isaprop in is2. unfold isofhlevel in is2.
-  apply (is2 x).
+  intros ? ee x x'. apply isapropifcontr. exists x. intros t. exact (ee t x).
+Defined.
+
+Lemma isProofIrrelevant_paths {X} (irr:isProofIrrelevant X) {x y:X} : isProofIrrelevant (x=y).
+Proof.
+  intros ? ? ? ? p q. assert (r := invproofirrelevance X irr x y). exact (pr2 r p @ ! pr2 r q).
 Defined.
 
 Lemma isapropcoprod (P Q : UU) :
@@ -872,7 +868,7 @@ Proof. intros. apply isaset_total2. assumption. intro. assumption. Defined.
 Corollary isaset_hfiber {X Y : UU} (f : X -> Y) (y : Y) : isaset X -> isaset Y -> isaset (hfiber f y).
 Proof. intros X Y f y isX isY. apply isaset_total2. assumption. intro. apply isasetaprop. apply isY. Defined.
 
-(** The following lemma assert "uniqueness of identity proofs" (uip) for
+(** The following lemma asserts "uniqueness of identity proofs" (uip) for
   sets. *)
 
 Lemma uip {X : UU} (is : isaset X) {x x' : X} (e e' : x = x') : e = e'.

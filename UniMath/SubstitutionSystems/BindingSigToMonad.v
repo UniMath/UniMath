@@ -18,7 +18,6 @@ Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -42,6 +41,8 @@ Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
+
+Local Open Scope cat.
 
 Local Notation "[ C , D , hsD ]" := (functor_precategory C D hsD).
 Local Notation "'chain'" := (diagram nat_graph).
