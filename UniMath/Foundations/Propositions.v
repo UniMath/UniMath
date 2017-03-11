@@ -165,8 +165,26 @@ Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
 
 (** ** Change of universe level for hProp *)
 
+Section A.
 
+  Axiom unsafe@{i} : ∏ X : Type@{i}, X.
 
+  Universes i j l.
+  Constraint i < j.
+  Constraint j < l.
+
+  Lemma change_universe_hProp : weq@{l} hProp@{i j} hProp@{j l}.
+  Proof.
+    simple refine (weqpair@{l} _ (gradth@{l l} _ _ _ _)).
+    - intro P. induction P as [P ip]. exists P. exact (raise_universe_isofhlevel@{i j} 1 P ip).
+    - intro P. induction P as [P ip]. exists (ResizeProp@{i j} P ip).
+      simple refine (lower_universe_isofhlevel@{i l} 1 _ _).
+      exact (isofhlevelweqf@{j l} 1 (ResizeProp_weq@{i j l} ip) ip).
+    - intros P. apply unsafe@{l}.
+    - intros P. apply unsafe@{l}.
+  Defined.
+
+End A.
 
 (** ** Intuitionistic logic on [hProp] *)
 

@@ -103,7 +103,7 @@ Section A.
       apply invweq, change_universe_paths.
   Defined.
 
-  Lemma ResizeProp_weq {X:Type@{j}} (ip:isaprop@{j} X): weq@{j} X (ResizeProp@{i j} X ip).
+  Lemma ResizeProp_weq@{k} {X:Type@{j}} (ip:isaprop@{j} X): weq@{k} X (ResizeProp@{i j} X ip).
   Proof.
     simple refine (weqpair _ (gradth _ _ _ _)).
     - intros x. exact x.
@@ -112,8 +112,8 @@ Section A.
     - reflexivity.
   Defined.
 
-  Lemma ResizeType_weq {S : Type@{i}} (T : Type@{j}) (w : weq@{j} S T) :
-    weq@{j} T (ResizeType@{i j} T w).
+  Lemma ResizeType_weq@{k} {S : Type@{i}} (T : Type@{j}) (w : weq@{j} S T) :
+    weq@{k} T (ResizeType@{i j} T w).
   Proof.
     simple refine (weqpair _ (gradth _ _ _ _)).
     - intros x. exact x.

@@ -10,13 +10,13 @@ Section A.
 
   Definition ResizeProp (T : Type@{j}) : isaprop@{j} T -> Type@{i}.
   Proof.
-    intros is.
+    intros _.
     exact T.
   Defined.
 
   Definition ResizeType {S : Type@{i}} (T : Type@{j}) : weq@{j} S T -> Type@{i}.
   Proof.
-    intros w.
+    intros _.
     exact T.
   Defined.
 

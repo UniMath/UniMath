@@ -275,7 +275,13 @@ Require Export UniMath.Foundations.Resizing3.
 
 Definition hsubtype_big@{i j} (X : Type@{i}) : Type@{j} := X -> hProp@{i j}.
 
-Definition hsubtype@{h i} (X : Type@{i}) : Type@{i} := X -> hProp@{h i}.
+Definition hsubtype@{h i j} (X : Type@{i}) : Type@{i}.
+Proof.
+  intros.
+  simple refine (@ResizeType@{i j} (X -> hProp@{h i}) (X -> hProp@{i j}) _).
+  apply weqonsecfibers. intro x.
+  apply change_universe_hProp.
+Defined.
 
 Definition hsubtype_to_predicate (X:UU) (S : hsubtype X) : X -> hProp.
 Proof.
@@ -1619,6 +1625,9 @@ Proof.
   - exact (eqax2 (pr2 c) (pr1 x) x0 (pr2 x) r).
 Defined.
 
+Set Printing Universes.
+Set Printing All.
+
 Theorem issurjsetquotpr {X : UU} (R : eqrel X) : issurjective (setquotpr R).
 Proof.
   intros. unfold issurjective.
@@ -1626,7 +1635,9 @@ Proof.
   intro x. apply hinhpr.
   split with (pr1 x).
   - apply setquotl0.
-  - apply (eqax0 (pr2 c)).
+  - assert (q := eqax0 (pr2 c)).
+    simpl in q. simpl.
+    exact q.
 Defined.
 
 Lemma iscompsetquotpr {X : UU} (R : eqrel X) (x x' : X) (a : R x x') :

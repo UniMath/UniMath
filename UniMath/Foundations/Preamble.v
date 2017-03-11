@@ -22,6 +22,7 @@ Notation UU  := Type.
 
 Global Set Universe Polymorphism.
 
+Global Unset Universe Minimization ToSet.
 
 (** Empty type.  The empty type is introduced in Coq.Init.Datatypes by the line:
 
