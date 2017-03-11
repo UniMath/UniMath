@@ -366,7 +366,7 @@ Defined.
     lemma to connect [ pathsinv0 (idpath _) ] to [ idpath ].
  *)
 
-Definition pathsinv0 {X : Type} {a b : X} (e : a = b) : b = a.
+Definition pathsinv0 {X : UU} {a b : X} (e : a = b) : b = a.
 Proof.
   intros. induction e. apply idpath.
 Defined.
@@ -968,7 +968,7 @@ Defined.
 (** *** Homotopies between families and the total spaces *)
 
 Definition famhomotfun {X : UU} {P Q : X -> UU}
-           (h : ∏ x, P x = Q x) (xp : total2 P) : total2 Q.
+           (h : P ~ Q) (xp : total2 P) : total2 Q.
 Proof.
   intros.
   induction xp as [ x p ].
@@ -977,8 +977,8 @@ Proof.
   apply p.
 Defined.
 
-Definition famhomothomothomot {X : UU} {P Q : X -> UU} (h1 h2 : ∏ x, P x = Q x)
-           (H : ∏ x, h1 x = h2 x) : famhomotfun h1 ~ famhomotfun h2.
+Definition famhomothomothomot {X : UU} {P Q : X -> UU} (h1 h2 : P ~ Q)
+           (H : h1 ~ h2) : famhomotfun h1 ~ famhomotfun h2.
 Proof.
   intros.
   intro xp.
@@ -1441,7 +1441,7 @@ Defined.
 (* another way the adjointness relation may occur (added by D. Grayson, Oct. 2015): *)
 Definition weq_transportf_adjointness {X Y : UU} (w : X ≃ Y) (P : Y -> UU)
            (x : X) (p : P (w x)) :
-  transportf (λ x, P(w x)) (! homotinvweqweq w x) p
+  transportf (P ∘ w) (! homotinvweqweq w x) p
   = transportf P (! homotweqinvweq w (w x)) p.
 Proof.
   intros. refine (functtransportf w P (!homotinvweqweq w x) p @ _).
@@ -1451,7 +1451,7 @@ Defined.
 
 Definition weq_transportb_adjointness {X Y : UU} (w : X ≃ Y) (P : Y -> UU)
            (x : X) (p : P (w x)) :
-  transportb (λ x, P(w x)) (homotinvweqweq w x) p
+  transportb (P ∘ w) (homotinvweqweq w x) p
   = transportb P (homotweqinvweq w (w x)) p.
 Proof.
   intros.
@@ -3592,7 +3592,7 @@ Definition weqtotal2overcoprod' {W X Y : UU} (P : W -> UU) (f : X ⨿ Y ≃ W) :
   (∑ w, P w) ≃ (∑ x : X, P (f (ii1 x))) ⨿ (∑ y : Y, P (f (ii2 y))).
 Proof.
   intros.
-  exact (weqcomp (invweq (weqfp f _)) (weqtotal2overcoprod (λ xy, P(f xy)))).
+  exact (weqcomp (invweq (weqfp f _)) (weqtotal2overcoprod (P ∘ f))).
 Defined.
 
 (** *** Total spaces of families over a contractible base *)
