@@ -5,15 +5,15 @@ Require Import UniMath.Foundations.Sets
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.opp_precat
         UniMath.CategoryTheory.yoneda
-        UniMath.Ktheory.ElementsOp.
+        UniMath.CategoryTheory.ElementsOp.
 
 (* Proof that pshf (el P) ≃ (pshf C) / P *)
 Section elems_slice_equiv.
 
   Local Open Scope cat.
 
-  Local Definition el {C : Precategory} (P : C^op ==> SET) : Precategory := @cat C P.
   Local Definition pshf (C : Precategory) : Precategory := [C^op, SET].
+  Local Definition el {C : Precategory} (P : pshf C) : Precategory := (cat_of_elems P ,, has_homsets_cat_of_elems P (pr2 C)).
   Local Definition slice (C : Precategory) (X : C) : Precategory :=
     ((slice_precat C X (pr2 C)) ,, (has_homsets_slice_precat (pr2 C) X)).
 
@@ -36,7 +36,6 @@ Section elems_slice_equiv.
 
   Definition pshf_to_slice_ob_is_funct (F : pshf (el P)) : is_functor (pshf_to_slice_ob_funct_data F).
   Proof.
-    intros F.
     split;
       [intros X | intros X Y Z f g];  
       apply funextsec; intros [p q].
@@ -48,32 +47,32 @@ Section elems_slice_equiv.
       set (e := fun (x : el P) => eqtohomot (!((functor_id P) (pr1 x))) (pr2 x)).
       set (h := fun (x : T') => pr1 x ,, (pr2 x) q : pr1hSet (pshf_to_slice_ob_funct_fun F X)).
       
-      refine (ap (funcomp G h)
-                 (connectedcoconustot ((# (pr1 P) (identity X) p) ,, idpath _) (p ,, e (X ,, p))) @ _).
+      refine (maponpaths (funcomp G h)
+                         (connectedcoconustot ((# (pr1 P) (identity X) p) ,, idpath _) (p ,, e (X ,, p))) @ _).
       refine (@pair_path_in2 _ (fun x => pr1hSet ((pr1 F) (X ,, x))) p _ _ _).
       exact (eqtohomot (functor_id F (X ,, p)) q).
-
+      
     + set (T := ∑ p' : ## P Z, p' = # (pr1 P) (g ∘ f) p : UU).      
       set (T' := ∑ p' : ## P Z, (pr1 F) (X ,, p) --> (pr1 F) (Z ,, p') : UU).
       set (phi := fun (x : T) => (g ∘ f) ,, (pr2 x) : ((Z ,, pr1 x) : el P) --> ((X ,, p) : el P)).
       set (G := fun (x : T) => (pr1 x ,, # (pr1 F) (phi x)) : T').
       set (e := fun (z y x : el P) (f : z --> y) (g : y --> x) =>
-                  ((pr2 f) @ !ap (# (pr1 P) (pr1 f)) (!(pr2 g)))
-                    @ (!(eqtohomot (((functor_comp P) _ _ _ (pr1 g) (pr1 f))) (pr2 x)))).
+                  ((pr2 f) @ maponpaths (# (pr1 P) (pr1 f)) (pr2 g)
+                    @ (eqtohomot (!(functor_comp P) (pr1 g) (pr1 f)) (pr2 x)))).
       set (h := fun (x : T') => pr1 x ,, (pr2 x) q : pr1hSet (pshf_to_slice_ob_funct_fun F Z)).
       
-      refine (ap (funcomp G h)
-                 (connectedcoconustot (# (pr1 P) (g ∘ f) p ,, idpath _)
-                                      (# (pr1 P) g (# (pr1 P) f p) ,,
-                                         e (Z ,, # (pr1 P) g (# (pr1 P) f p) : el P)
-                                         (Y ,, # (pr1 P) f p : el P) (X ,, p : el P)
-                                         (g ,, idpath _) (f ,, idpath _))) @ _).
+      refine (maponpaths (funcomp G h)
+                         (connectedcoconustot (# (pr1 P) (g ∘ f) p ,, idpath _)
+                                              (# (pr1 P) g (# (pr1 P) f p) ,,
+                                                 e (Z ,, # (pr1 P) g (# (pr1 P) f p) : el P)
+                                                 (Y ,, # (pr1 P) f p : el P) (X ,, p : el P)
+                                                 (g ,, idpath _) (f ,, idpath _))) @ _).
       
       refine (@pair_path_in2 _ (fun x => pr1hSet ((pr1 F) (Z ,, x))) (# (pr1 P) g (# (pr1 P) f p)) _ _ _).
-      exact (eqtohomot (functor_comp F (X ,, p : el P)
-                                     (Y ,, # (pr1 P) f p : el P)
-                                     (Z ,, # (pr1 P) g (# (pr1 P) f p) : el P)
-                                     (f ,, idpath _) (g,, idpath _)) q).
+      exact (eqtohomot (@functor_comp _ _ F (X ,, p : el P)
+                                      (Y ,, # (pr1 P) f p : el P)
+                                      (Z ,, # (pr1 P) g (# (pr1 P) f p) : el P)
+                                      (f ,, idpath _) (g,, idpath _)) q).
   Qed.
 
   Definition pshf_to_slice_ob_funct (F : pshf (el P)) : pshf C :=
@@ -97,7 +96,7 @@ Section elems_slice_equiv.
   Definition pshf_to_slice_ob_isnat {X Y : pshf (el P)} (f : X --> Y) :
     is_nat_trans (pshf_to_slice_ob_funct_data X) (pshf_to_slice_ob_funct_data Y) (pshf_to_slice_ob_nat f).
     simpl.
-    intros X Y f c c' g.
+    intros c c' g.
     apply funextsec; intro p.
     apply pair_path_in2.
     exact (eqtohomot ((pr2 f) (c ,, pr1 p) (c',, # (pr1 P) g (pr1 p)) (g,, idpath (# (pr1 P) g (pr1 p)))) (pr2 p)).
@@ -105,8 +104,6 @@ Section elems_slice_equiv.
 
   Definition pshf_to_slice_mor {X Y : pshf (el P)} (f : X --> Y) :
     pshf_to_slice_ob X --> pshf_to_slice_ob Y.
-    simpl.
-    intros X Y f.
     exists (pshf_to_slice_ob_nat f ,, pshf_to_slice_ob_isnat f).
     apply (nat_trans_eq has_homsets_HSET).
     reflexivity.
@@ -127,7 +124,7 @@ Section elems_slice_equiv.
       reflexivity.
   Defined.
 
-  Definition pshf_to_slice : (pshf (el P)) ==> (slice (pshf C) P) :=
+  Definition pshf_to_slice : functor (pshf (el P)) (slice (pshf C) P) :=
     pshf_to_slice_data ,, pshf_to_slice_is_funct.
 
   Definition slice_to_pshf_ob_ob (Q : slice (pshf C) P) : (el P)^op → SET :=
@@ -137,12 +134,15 @@ Section elems_slice_equiv.
 
   Definition slice_to_pshf_ob_mor (Q : slice (pshf C) P) {F G : (el P)^op} (f : F --> G) :
     slice_to_pshf_ob_ob Q F --> slice_to_pshf_ob_ob Q G.
-    intros [[[Q Qmor] [Qid Qcomp]] [Qnat Qisnat]] [x Px] [y Py] [f feq] s.
+    intros s.
+    destruct Q as [[[Q Qmor] [Qid Qcomp]] [Qnat Qisnat]].
+    destruct F as [x Px]. destruct G as [y Py].
+    destruct f as [f feq].
     apply (hfibersgftog (Qmor _ _ f) (Qnat y)).
     exists (pr1 s).
     rewrite feq.
-    destruct (pr2 s).
-    exact (eqtohomot (Qisnat _ _ f) (pr1 s)).
+    refine (eqtohomot (Qisnat _ _ f) (pr1 s) @ _). 
+    exact (maponpaths (# (pr1 P) f) (pr2 s)).
   Defined.
 
   Definition slice_to_pshf_ob_funct_data (Q : slice (pshf C) P) : functor_data ((el P)^op) SET :=
@@ -174,7 +174,10 @@ Section elems_slice_equiv.
   Definition slice_to_pshf_ob_is_nat {X Y : slice (pshf C) P} (F : X --> Y) :
     is_nat_trans (slice_to_pshf_ob X : functor _ _) (slice_to_pshf_ob Y : functor _ _) (slice_to_pshf_ob_nat F).
   Proof.
-    intros [[[X Xmor] [Xid Xcomp]] [Xnat Xisnat]] [[[Y Ymor] [Yid Ycomp]] [Ynat Yisnat]] [[F Fisnat] Feq] [e Pe] [e' Pe'] [f feq].
+    intros [e Pe] [e' Pe'] [f feq].
+    destruct X as [[[X Xmor] [Xid Xcomp]] [Xnat Xisnat]].
+    destruct Y as [[[Y Ymor] [Yid Ycomp]] [Ynat Yisnat]].
+    destruct F as [[F Fisnat] Feq].
     simpl in *.
     apply funextsec; intros [p peq].
     apply (invmaponpathsincl pr1).
@@ -184,11 +187,9 @@ Section elems_slice_equiv.
     + simpl.
       destruct peq.
       unfold hfiber.
-      unfold hfibersgftog. unfold hfiberpair.
-      repeat rewrite transportf_pair.
+      repeat rewrite transportf_total2.
       simpl.
       repeat rewrite transportf_const.
-      unfold idfun.
       exact (eqtohomot (Fisnat e e' f) p).
   Qed.
 
@@ -212,25 +213,22 @@ Section elems_slice_equiv.
       simpl;
       unfold hfiber;
       unfold hfibersgftog; unfold hfiberpair;
-      repeat rewrite transportf_pair;
+      repeat rewrite transportf_total2;
       simpl;
       repeat rewrite transportf_const;
       reflexivity.
   Qed.
 
-  Definition slice_to_pshf : (slice (pshf C) P) ==> (pshf (el P)) :=
+  Definition slice_to_pshf : functor (slice (pshf C) P) (pshf (el P)) :=
     slice_to_pshf_data ,, slice_to_pshf_is_funct.
 
   Definition slice_counit_fun (X : slice (pshf C) P) :
     (functor_composite_data slice_to_pshf pshf_to_slice) X --> (functor_identity_data _) X.
   Proof.
-    intros [[[X Xmor] [Xid Xcomp]] [Xnat Xisnat]].
+    destruct X as [[[X Xmor] [Xid Xcomp]] [Xnat Xisnat]].
     simpl in *.
     unfold pshf_to_slice_ob ,  slice_to_pshf_ob.
     unfold slice_to_pshf_ob_funct_data , pshf_to_slice_ob_funct_data.
-  Admitted.
-
-End elems_slice_equiv._data.
   Admitted.
 
 End elems_slice_equiv.
