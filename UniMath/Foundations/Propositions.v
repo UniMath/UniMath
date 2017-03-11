@@ -87,7 +87,7 @@ Definition hProp@{i j} : Type@{j} := total2@{j} isaprop@{i}. (* i < j *)
 
 Definition hProppair (X : UU) (is : isaprop X) : hProp
   := tpair (fun X : UU => isaprop X) X is.
-Definition hProptoType := @pr1 _ _ : hProp -> UU.
+Definition hProptoType@{i j} := @pr1@{j} _ _ : hProp@{i j} -> Type@{i}.
 Coercion hProptoType : hProp >-> Sortclass.
 
 Definition propproperty (P : hProp) := pr2 P : isaprop (pr1 P).
@@ -993,12 +993,11 @@ Proof.
   apply (isapropweqtoprop P P' (pr2 P')).
 Defined.
 
-
 Theorem univfromtwoaxiomshProp (P P' : hProp) : isweq (@eqweqmaphProp P P').
 Proof.
   intros.
 
-  set (P1 := fun XY : hProp × hProp => paths (pr1 XY) (pr2 XY)).
+  set (P1 := fun XY : hProp × hProp => @paths _ (pr1 XY) (pr2 XY)).
   set (P2 := fun XY : hProp × hProp => weq (pr1 XY) (pr2 XY)).
   set (Z1 :=  total2 P1).
   set (Z2 :=  total2 P2).
@@ -1006,7 +1005,7 @@ Proof.
                              @eqweqmaphProp (pr1 XY) (pr2 XY)): Z1 -> Z2)).
   set (g := (totalfun _ _ (fun XY : hProp × hProp =>
                              @weqtopathshProp (pr1 XY) (pr2 XY)): Z2 -> Z1)).
-  assert (efg : ∏ z2 : Z2 , paths (f (g z2)) z2).
+  assert (efg : ∏ z2 : Z2 , @paths Z2 (f (g z2)) z2).
   {
     intros. induction z2 as [ XY w].
     exact (maponpaths (fun w : weq (pr1 XY) (pr2 XY) => tpair P2 XY w)
@@ -1014,9 +1013,9 @@ Proof.
   }
 
   set (h := fun a1 : Z1 => (pr1 (pr1 a1))).
-  assert (egf0 : ∏ a1 : Z1, paths (pr1 (g (f a1))) (pr1 a1))
+  assert (egf0 : ∏ a1 : Z1, @paths (hProp×hProp) (pr1 (g (f a1))) (pr1 a1))
          by (intro; apply idpath).
-  assert (egf1 : ∏ a1 a1' : Z1, paths (pr1 a1') (pr1 a1) -> paths a1' a1).
+  assert (egf1 : ∏ a1 a1' : Z1, @paths _ (pr1 a1') (pr1 a1) -> @paths _ a1' a1).
   {
     intros ? ? X.
     set (X' := maponpaths (@pr1 _ _) X).

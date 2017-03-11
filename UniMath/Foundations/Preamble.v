@@ -148,10 +148,10 @@ if we used "Record", has a known interpretation in the framework of the univalen
     (*    did that.  This will prepare for the use of primitive projections, when the names will be pr1 *)
     (*    and pr2. *)
 
-    Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T .
+    Definition pr1@{i} { T : Type@{i} } { P : T -> Type@{i} } ( t : total2@{i} P ) : T .
     Proof . intros .  induction t as [ t p ] . exact t . Defined.
 
-    Definition pr2 { T : Type } { P : T -> Type } ( t : total2 P ) : P ( pr1 t ) .
+    Definition pr2@{i} { T : Type@{i} } { P : T -> Type@{i} } ( t : total2@{i} P ) : P ( pr1 t ) .
     Proof . intros .  induction t as [ t p ] . exact p . Defined.
 
 (* end of two alternatives *)
