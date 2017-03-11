@@ -194,7 +194,7 @@ Proof.
   - apply isapropishinh_UU.
 Defined.
 
-Definition ishinh (X : UU) : hProp := hProppair (ishinh_resized X) (isapropishinh X).
+Definition ishinh@{i j} (X : Type@{i}) : hProp@{i j} := hProppair (ishinh_resized@{i j} X) (isapropishinh@{i j} X).
 
 Notation nonempty := ishinh (only parsing).
 

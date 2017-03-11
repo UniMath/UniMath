@@ -122,7 +122,7 @@ Section A.
     - reflexivity.
   Defined.
 
-  Lemma isofhlevel_resize@{i j} n (X:Type@{j}) (ip : isaprop@{j} X) :
+  Lemma isofhlevel_resize n (X:Type@{j}) (ip : isaprop@{j} X) :
     isofhlevel@{j} n X -> isofhlevel@{i} n (ResizeProp@{i j} X ip).
   Proof.
     intros hl.
@@ -132,3 +132,17 @@ Section A.
   Defined.
 
 End A.
+
+
+Section B.
+
+  Universes i j k.
+  Constraint i < j.
+  Constraint j < k.
+
+  Lemma A (X:Type@{i}) (P:X -> Type@{i}) : paths@{k} (total2@{i} P) (total2@{j} P).
+  Proof.
+    try reflexivity.          (* get Coq to do this? *)
+  Abort.
+
+End B.

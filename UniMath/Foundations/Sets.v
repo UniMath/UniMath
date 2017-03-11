@@ -273,7 +273,9 @@ Defined.
 
 Require Export UniMath.Foundations.Resizing3.
 
-Definition hsubtype@{i j} (X : Type@{i}) : Type@{i} := ResizeType@{i j} (X -> hProp@{i j}).
+Definition hsubtype_big@{i j} (X : Type@{i}) : Type@{j} := X -> hProp@{i j}.
+
+Definition hsubtype@{h i} (X : Type@{i}) : Type@{i} := X -> hProp@{h i}.
 
 Definition hsubtype_to_predicate (X:UU) (S : hsubtype X) : X -> hProp.
 Proof.
@@ -312,7 +314,6 @@ Lemma isasethsubtype (X : UU) : isaset (hsubtype X).
 Proof.
   intro X.
   change (isofhlevel 2 (hsubtype X)).
-  apply (isofhlevelweqf _ (resize_weq)).
   apply impred; intro x.
   exact isasethProp.
 Defined.
@@ -1311,7 +1312,7 @@ Defined.
 
 
 Definition iseqclass@{i j} {X : Type@{i}} (R : hrel@{i j} X) (A : hsubtype@{i j} X) : Type@{i}
-  := dirprod@{i} (ishinh@{i j} (carrier A))
+  := dirprod@{i} (ishinh (carrier A))
              (dirprod (∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2)
                       (∏ x1 x2 : X, A x1 ->  A x2 -> R x1 x2)).
 Definition iseqclassconstr {X : UU} (R : hrel X) {A : hsubtype X}

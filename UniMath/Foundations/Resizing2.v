@@ -1,5 +1,4 @@
-Require Export UniMath.Foundations.Preamble.
-Require Export UniMath.Foundations.Resizing1.
+Require Export UniMath.Foundations.PartB.
 
 (* this file is compiled with type-in-type *)
 
@@ -20,6 +19,16 @@ Section A.
     intros w.
     exact T.
   Defined.
+
+  (*
+
+  Definition ResizeUnsafe {S : Type@{i}} (T : Type@{j}) : Type@{i}.
+  (* this one is not valid *)
+  Proof.
+    exact T.
+  Defined.
+
+   *)
 
 End A.
 
