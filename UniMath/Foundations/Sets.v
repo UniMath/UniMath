@@ -274,8 +274,17 @@ Defined.
 
 (** *** General definitions *)
 
-Definition hsubtype (X : UU) : UU := X -> hProp.
-Identity Coercion id_hsubtype :  hsubtype >-> Funclass.
+Require Export UniMath.Foundations.Resizing3.
+
+Definition hsubtype@{i j} (X : Type@{i}) : Type@{i} := ResizeType@{i j} (X -> hProp@{i j}).
+
+Definition hsubtype_to_predicate (X:UU) (S : hsubtype X) : X -> hProp.
+Proof.
+  intros X S. exact S.
+Defined.
+
+Coercion hsubtype_to_predicate :  hsubtype >-> Funclass.
+
 Definition carrier {X : UU} (A : hsubtype X) := total2 A.
 Coercion carrier : hsubtype >-> Sortclass.
 Definition carrierpair {X : UU} (A : hsubtype X) :
@@ -306,6 +315,7 @@ Lemma isasethsubtype (X : UU) : isaset (hsubtype X).
 Proof.
   intro X.
   change (isofhlevel 2 (hsubtype X)).
+  apply (isofhlevelweqf _ (resize_weq)).
   apply impred; intro x.
   exact isasethProp.
 Defined.
@@ -908,7 +918,7 @@ Defined.
 
 (** *** Eqivalence relations and associated types. *)
 
-Definition eqrel (X : UU) : UU := total2 (fun R : hrel X => iseqrel R).
+Definition eqrel@{i j} (X : Type@{i}) : Type@{j} := total2@{j} (fun R : hrel@{i j} X => iseqrel@{i j} R).
 Definition eqrelpair {X : UU} (R : hrel X) (is : iseqrel R) : eqrel X
   := tpair (fun R : hrel X => iseqrel R) R is.
 Definition eqrelconstr {X : UU} (R : hrel X)
@@ -1303,8 +1313,8 @@ Defined.
 
 
 
-Definition iseqclass {X : UU} (R : hrel X) (A : hsubtype X) : UU
-  := dirprod (ishinh (carrier A))
+Definition iseqclass@{i j} {X : Type@{i}} (R : hrel@{i j} X) (A : hsubtype@{i j} X) : Type@{i}
+  := dirprod@{i} (ishinh@{i j} (carrier A))
              (dirprod (∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2)
                       (∏ x1 x2 : X, A x1 ->  A x2 -> R x1 x2)).
 Definition iseqclassconstr {X : UU} (R : hrel X) {A : hsubtype X}
@@ -1557,9 +1567,9 @@ be considered in the section about types of h-level 3.
 
 (** *** Setquotient defined in terms of equivalence classes *)
 
+Definition setquot@{i j} {X : Type@{i}} (R : hrel@{i j} X) : Type@{j}
+  := total2@{j} (λ A : hsubtype@{i j} X, iseqclass@{i j} R A).
 
-Definition setquot {X : UU} (R : hrel X) : UU
-  := total2 (fun A : _ => iseqclass R A).
 Definition setquotpair {X : UU} (R : hrel X) (A : hsubtype X)
            (is : iseqclass R A) : setquot R := tpair _ A is.
 Definition pr1setquot {X : UU} (R : hrel X) : setquot R -> (hsubtype X)
