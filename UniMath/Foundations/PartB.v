@@ -110,7 +110,7 @@ Defined.
 (** *** h-levels of functions *)
 
 
-Definition isofhlevelf (n : nat) {X Y : UU} (f : X -> Y) : UU
+Definition isofhlevelf@{i} (n : nat) {X Y : Type@{i}} (f : X -> Y) : Type@{i}
   := ∏ y : Y, isofhlevel n (hfiber f y).
 
 
@@ -430,7 +430,7 @@ Defined.
 (** *** h-levelf of [ pr1 ] *)
 
 
-Theorem isofhlevelfpr1 (n : nat) {X : UU} (P : X -> UU)
+Theorem isofhlevelfpr1@{i} (n : nat) {X : Type@{i}} (P : X -> Type@{i})
         (is : ∏ x : X, isofhlevel n (P x)) : isofhlevelf n (@pr1 X P).
 Proof.
   intros. unfold isofhlevelf. intro x.
@@ -688,7 +688,7 @@ Defined.
 (** *** Inclusions - functions of h-level 1 *)
 
 
-Definition isincl {X Y : UU} (f : X -> Y) := isofhlevelf 1 f.
+Definition isincl@{i} {X Y : Type@{i}} (f : X -> Y) := isofhlevelf@{i} 1 f.
 
 Definition incl (X Y : UU) := total2 (fun f : X -> Y => isincl f).
 Definition inclpair {X Y : UU} (f : X -> Y) (is : isincl f) :
@@ -772,7 +772,7 @@ Proof. intros ? ? ? is x x'. apply (isofhlevelfonpaths O f x x' is). Defined.
 Definition weqonpathsincl {X Y : UU} (f : X -> Y) (is : isincl f) (x x' : X)
   := weqpair _ (isweqonpathsincl f is x x').
 
-Definition invmaponpathsincl {X Y : UU} (f : X -> Y) :
+Definition invmaponpathsincl@{i} {X Y : Type@{i}} (f : X -> Y) :
   isincl f -> ∏ x x', f x = f x' -> x = x'.
 Proof.
   intros ? ? ? is x x'.
@@ -782,8 +782,8 @@ Defined.
 Lemma isinclweqonpaths {X Y : UU} (f : X -> Y) : isInjective f -> isincl f.
 Proof. intros X Y f X0. apply (isofhlevelfsn O f X0). Defined.
 
-Definition isinclpr1 {X : UU} (P : X -> UU) (is : ∏ x : X, isaprop (P x)) :
-  isincl (@pr1 X P):= isofhlevelfpr1 (S O) P is.
+Definition isinclpr1@{i} {X : Type@{i}} (P : X -> Type@{i}) (is : ∏ x : X, isaprop@{i} (P x)) :
+  isincl@{i} (@pr1@{i} X P):= isofhlevelfpr1 (S O) P is.
 
 Theorem subtypeInjectivity {A : UU} (B : A -> UU) :
   isPredicate B -> ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1 y).
@@ -791,7 +791,7 @@ Proof.
   intros. apply Injectivity. apply isweqonpathsincl. now apply isinclpr1.
 Defined.
 
-Corollary subtypeEquality {A : UU} {B : A -> UU} (is : isPredicate B)
+Corollary subtypeEquality@{i} {A : Type@{i}} {B : A -> Type@{i}} (is : isPredicate B)
    {s s' : total2 (fun x => B x)} : pr1 s = pr1 s' -> s = s'.
 Proof.
   intros A B H s s'. apply invmap. now apply subtypeInjectivity.

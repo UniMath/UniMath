@@ -348,6 +348,7 @@ Proof.
   apply lower_universe_isofhlevel@{i j}.
   change (isofhlevel 2 (X -> hProp)).
   apply impred; intro x. exact isasethProp.
+  Unset Printing Universes.
 Defined.
 
 Definition totalsubtype (X : UU) : hsubtype X := fun x => htrue.
@@ -1623,16 +1624,18 @@ be considered in the section about types of h-level 3.
 
 (** *** Setquotient defined in terms of equivalence classes *)
 
-Definition setquot@{h i j} {X : Type@{i}} (R : hrel@{h i j} X) : Type@{j}
+Definition setquot@{h i j} {X : Type@{i}} (R : hrel@{h i j} X) : Type@{i}
   := total2@{i} (λ A : hsubtype@{h i j} X, iseqclass@{h i j} R A).
 
 Definition setquotpair {X : UU} (R : hrel X) (A : hsubtype X)
            (is : iseqclass R A) : setquot R := tpair _ A is.
-Definition pr1setquot {X : UU} (R : hrel X) : setquot R -> (hsubtype X)
+
+Definition pr1setquot@{h i j} {X : Type@{i}} (R : hrel@{h i j} X) : setquot@{h i j} R -> hsubtype@{h i j} X
   := @pr1 _ (fun A : _ => iseqclass R A).
+
 Coercion pr1setquot : setquot >-> hsubtype.
 
-Lemma isinclpr1setquot {X : UU} (R : hrel X) : isincl (pr1setquot R).
+Lemma isinclpr1setquot@{h i j} {X : Type@{i}} (R : hrel@{h i j} X) : isincl (pr1setquot R).
 Proof.
   intros X R. apply isinclpr1. intro x0. apply isapropiseqclass.
 Defined.
@@ -1655,15 +1658,16 @@ Definition setquotinset {X : UU} (R : hrel X) : hSet :=
 Theorem setquotpr {X : UU} (R : eqrel X) : X -> setquot R.
 Proof.
   intros X R X0.
-  set (rax := eqrelrefl R).
-  set (sax := eqrelsymm R).
-  set (tax := eqreltrans R).
-  apply (tpair _ (fun x : X => R X0 x)).
-  split.
-  - exact (hinhpr (tpair _ X0 (rax X0))).
-  - split; intros x1 x2 X1 X2.
-    + exact (tax X0 x1 x2 X2 X1).
-    + exact (tax x1 X0 x2 (sax X0 x1 X1) X2).
+  assert (rax := eqrelrefl R).
+  assert (sax := eqrelsymm R).
+  assert (tax := eqreltrans R).
+  use tpair.
+  - intros x. exact (R X0 x).
+  - split.
+    + exact (hinhpr (tpair _ X0 (rax X0))).
+    + split; intros x1 x2 X1 X2.
+      * exact (tax X0 x1 x2 X2 X1).
+      * exact (tax x1 X0 x2 (sax X0 x1 X1) X2).
 Defined.
 
 Lemma setquotl0 {X : UU} (R : eqrel X) (c : setquot R) (x : c) :
@@ -1676,9 +1680,6 @@ Proof.
   - exact (eqax1 (pr2 c) (pr1 x) x0 r (pr2 x)).
   - exact (eqax2 (pr2 c) (pr1 x) x0 (pr2 x) r).
 Defined.
-
-Set Printing Universes.
-Set Printing All.
 
 Theorem issurjsetquotpr {X : UU} (R : eqrel X) : issurjective (setquotpr R).
 Proof.

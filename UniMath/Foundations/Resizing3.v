@@ -3,9 +3,10 @@ Require Export UniMath.Foundations.Resizing2.
 
 (* this file is not compiled with type-in-type *)
 
+Local Set Printing Universes.
+
 Section A.
 
-  Set Printing Universes.
   Universe i j.
   Constraint Set < i.
   Constraint i < j.
@@ -47,23 +48,51 @@ Section A.
     intros ic. induction ic as [c e]. exists c. intro x. now induction (e x).
   Defined.
 
+  Definition raise_universe_pairs@{} (X:Type@{i}) (P:X -> Type@{i}) :
+    total2@{i} P -> total2@{j} P.
+  Proof.
+    intro w. try exact w. induction w as [x p]. exists x. exact p.
+  Defined.
+
+  Definition lower_universe_pairs@{} (X:Type@{i}) (P:X -> Type@{i}) :
+    total2@{i} P <- total2@{j} P.
+  Proof.
+    intro w. try exact w. induction w as [x p]. exists x. exact p.
+  Defined.
+
   Lemma change_universe_pairs@{k} (X:Type@{i}) (P:X -> Type@{i}) :
     weq@{k} (total2@{i} P) (total2@{j} P).
   Proof.
     simple refine (weqpair _ (gradth _ _ _ _)).
-    - intro w. try exact w. induction w as [x p]. exists x. exact p.
-    - intro w. try exact w. induction w as [x p]. exists x. exact p.
-    - intro w. try reflexivity. induction w as [x p]. reflexivity.
-    - intro w. try reflexivity. induction w as [x p]. reflexivity.
+    - exact (raise_universe_pairs X P).
+    - exact (lower_universe_pairs X P).
+    - intro w. try reflexivity. now induction w as [x p].
+    - intro w. try reflexivity. now induction w as [x p].
+  Defined.
+
+  Lemma change_universe_pr1@{} (X:Type@{i}) (P:X -> Type@{i}) (w :total2@{i} P) :
+    pr1@{i} w = pr1@{j} (raise_universe_pairs X P w).
+  Proof.
+    try reflexivity. now induction w.
+  Defined.
+
+  Lemma change_universe_hfiber@{k} (X Y : Type@{i}) (f : X -> Y) (y : Y) :
+    weq@{k} (hfiber@{i} f y) (hfiber@{j} f y).
+  Proof.
+    Unset Printing Notations.
+    unfold hfiber.
+    intermediate_weq (@total2@{j} X (fun x : X => @paths@{i} Y (f x) y)).
+    - apply change_universe_pairs.
+    - apply weqfibtototal; intro x. apply change_universe_paths.
+    Set Printing Notations.
   Defined.
 
   Lemma lower_universe_isweq@{} {X Y : Type@{i}} (f : X -> Y) : isweq@{j} f -> isweq@{i} f.
   Proof.
+    Unset Printing Notations.
     intros iw. try exact iw. intro y. assert (q := iw y); clear iw.
-    simple refine (iscontrweqf _ q); clear q. apply invweq.
-    intermediate_weq (@total2@{j} X (fun x : X => @paths@{i} Y (f x) y)).
-    - apply change_universe_pairs.
-    - apply weqfibtototal; intro x. apply change_universe_paths.
+    simple refine (iscontrweqf _ q); clear q. apply invweq. apply change_universe_hfiber.
+    Set Printing Notations.
   Defined.
 
   Lemma lower_universe_weq@{} (X Y : Type@{i}) : weq@{j} X Y -> weq@{i} X Y.

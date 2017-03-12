@@ -1010,18 +1010,23 @@ Defined.
 
 (** ** Univalence for hProp *)
 
-Theorem hPropUnivalence : ∏ (P Q : hProp), (P -> Q) -> (Q -> P) -> P = Q.
+Theorem hPropUnivalence@{i j} : ∏ (P Q : hProp@{i j}), (P -> Q) -> (Q -> P) -> paths@{j} P Q.
   (* this theorem replaced a former axiom, with the same statement, called
      "uahp" *)
 Proof.
+  Set Printing Universes.
+  Unset Printing Notations.
   intros ? ? f g.
   apply subtypeEquality.
-  - intro X. apply isapropisaprop.
+  - intro X. change (isofhlevel@{j} 1 (isofhlevel@{i} 1 X)).
+    apply raise_universe_isofhlevel@{i j}. apply isapropisofhlevel@{i}.
   - apply propositionalUnivalenceAxiom.
     + apply propproperty.
     + apply propproperty.
-    + assumption.
-    + assumption.
+    + exact f.
+    + exact g.
+  Unset Printing Universes.
+  Set Printing Notations.
 Defined.
 
 Definition eqweqmaphProp {P P' : hProp} (e : @paths hProp P P') : weq P P'.
@@ -1087,11 +1092,17 @@ Definition weqpathsweqhProp' {P P' : hProp} (e : P = P') :
   weqtopathshProp (eqweqmaphProp e) = e.
 Proof. intros. apply isasethProp. Defined.
 
-Lemma iscontrtildehProp : iscontr tildehProp.
+Lemma iscontrtildehProp@{i j} : iscontr@{j} tildehProp@{i j}.
 Proof.
+  Set Printing Universes.
   split with (tpair _ htrue tt). intro tP. destruct tP as [ P p ].
-  apply (invmaponpathsincl _ (isinclpr1 (fun P : hProp => P) (fun P => pr2 P))).
-  simpl. apply hPropUnivalence. apply (fun x => tt). intro t. apply p.
+  apply subtypeEquality.
+  - intros Q. induction Q as [Q ipQ]. change (isaprop@{j} Q).
+    apply raise_universe_isofhlevel@{i j}. exact ipQ.
+  - change (P = htrue@{i j}). apply hPropUnivalence.
+    + intros _. exact tt.
+    + intros _. exact p.
+  Unset Printing Universes.
 Defined.
 
 Lemma isaproptildehProp : isaprop tildehProp.

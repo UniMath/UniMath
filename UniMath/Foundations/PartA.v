@@ -15,7 +15,12 @@ For example, [ boolsumfun ], when written in terms of the eliminatior [ bool_rec
 instead of the  [ match ], requires application of [ bool_rect ] to an argument that is
 not a member of the base universe [ UU ]. This would be different if the universe management
 in Coq was constructed differently. Due to this uncertainty we do not consider any more the
-single universe requirement as a defining one when selecting results for the inclusion in Foundations.
+single universe requirement as a defining one when selecting results for the inclusion in
+Foundations.  However, now that universe polymorphism has been turned on, definitions
+in PartA and PartB should take at most one explicit polymorphic universe parameter,
+and definitions with implicit polymorphic universe parameters should, in principle, be
+capapble of being annotated so a single explicit universe parameter is accepted without breaking
+any proofs.
 
 Part A was created as a separate file on Dec. 3, 2014.
 
@@ -1036,7 +1041,7 @@ Defined.
 
 (** *** Homotopy fibers [ hfiber ] *)
 
-Definition hfiber {X Y : UU} (f : X -> Y) (y : Y) : UU := ∑ x : X, f x = y.
+Definition hfiber@{i} {X Y : Type@{i}} (f : X -> Y) (y : Y) : Type@{i} := total2@{i} (λ x, f x = y).
 
 Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
            (x : X) (e : f x = y) : hfiber f y :=
