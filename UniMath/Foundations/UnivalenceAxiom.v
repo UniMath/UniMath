@@ -140,7 +140,7 @@ Proof.
   { intros ua.
     simple refine (_,,_).
     - intros ? ?. exact (invmap (weqpair _ (ua _ _))).
-    - intros ? ? w. exact (lower_paths (homotweqinvweq (weqpair _ (ua _ _)) w)). }
+    - intros ? ? w. exact (lower_universe_paths (homotweqinvweq (weqpair _ (ua _ _)) w)). }
 Defined.
 
 (** Conjecture :  the pair [weqtopaths] and [weqtopathsweq] in the proof above is well defined up to a canonical equality. **)
@@ -167,7 +167,7 @@ Section UnivalenceImplications.
 
   Definition weqpathsweqUAH : weqpathsweqStatement (@weqtopathsUAH).
   Proof.
-    intros ? ? w. exact (lower_paths (homotweqinvweq (univalenceUAH T1 T2) w)).
+    intros ? ? w. exact (lower_universe_paths (homotweqinvweq (univalenceUAH T1 T2) w)).
   Defined.
   Arguments weqpathsweqUAH {_ _} _.
 

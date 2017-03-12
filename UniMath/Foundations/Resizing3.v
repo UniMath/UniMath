@@ -3,6 +3,8 @@ Require Export UniMath.Foundations.Resizing2.
 
 (* this file is not compiled with type-in-type *)
 
+Monomorphic Universe uu0.       (* lowest universe, larger than Set, from which all the propositions come *)
+
 Local Set Printing Universes.
 
 Section A.
@@ -23,20 +25,24 @@ Section A.
     exact T.
   Defined.
 
+  Definition raise_universe_paths@{} {X : Type@{i}} {x y : X} : paths@{i} x y -> paths@{j} x y.
+  Proof.
+    intros p. try exact p. now induction p.
+  Defined.
+
+  Definition lower_universe_paths@{} {X : Type@{i}} {x y : X} : paths@{j} x y -> paths@{i} x y.
+  Proof.
+    intros p. try exact p. now induction p.
+  Defined.
+
   Lemma change_universe_paths@{k} {X : Type@{i}} {x y : X} : weq@{k} (paths@{i} x y) (paths@{j} x y).
   Proof.
     simple refine (weqpair _ (gradth _ _ _ _)).
-    - intros p. try exact p. now induction p.
-    - intros p. try exact p. now induction p.
+    - apply raise_universe_paths.
+    - apply lower_universe_paths.
     - intros p. try exact p. now induction p.
     - intros p. try exact p. now induction p.
   Defined.
-
-  Definition raise_paths@{} {X : Type@{i}} {x y : X} : paths@{i} x y -> paths@{j} x y
-    := pr1weq change_universe_paths.
-
-  Definition lower_paths@{} {X : Type@{i}} {x y : X} : paths@{j} x y -> paths@{i} x y
-    := invmap change_universe_paths.
 
   Lemma raise_iscontr@{} (X : Type@{i}) : iscontr@{i} X -> iscontr@{j} X.
   Proof.
