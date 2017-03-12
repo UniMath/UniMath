@@ -83,7 +83,7 @@ Require Export UniMath.Foundations.Propositions.
 
 (** ** The type of sets i.e. of types of h-level 2 in [UU] *)
 
-Definition hSet : UU := total2 (fun X : UU => isaset X).
+Definition hSet@{i j} : Type@{j} := total2@{j} (fun X : Type@{i} => isaset X).
 Definition hSetpair (X : UU) (i : isaset X) := tpair isaset X i : hSet.
 Definition pr1hSet : hSet -> UU := @pr1 UU (fun X : UU => isaset X).
 Coercion pr1hSet: hSet >-> Sortclass.
@@ -273,15 +273,39 @@ Defined.
 
 Require Export UniMath.Foundations.Resizing3.
 
-Definition hsubtype_big@{i j} (X : Type@{i}) : Type@{j} := X -> hProp@{i j}.
-
-Definition hsubtype@{h i j} (X : Type@{i}) : Type@{i}.
+Definition hsubtype@{h i j} (X : Type@{i}) : Type@{i}. (* h < i < j *)
 Proof.
-  intros.
-  simple refine (@ResizeType@{i j} (X -> hProp@{h i}) (X -> hProp@{i j}) _).
-  apply weqonsecfibers. intro x.
-  apply change_universe_hProp.
+  Set Printing Universes.
+  intros. simple refine (@ResizeType@{i j} (X -> hProp@{h i}) (X -> hProp@{i j}) _).
+  apply weqonsecfibers; intro x. apply change_universe_hProp.
+  Unset Printing Universes.
 Defined.
+
+Section A.
+
+  Goal ∏ (X : Type), @paths Type (hsubtype X) (X -> hProp).
+    (* goal is:
+       forall X : Type@{i},
+           @paths@{j}
+               Type@{k}
+               (hsubtype@{l m n} X)
+               (forall _ : X, hProp@{n o})
+     *)
+    reflexivity.
+  Defined.
+
+  Goal ∏ (X : Type), @paths _ (hsubtype X) (X -> hProp).
+    (* goal is:
+       forall X : Type@{i},
+           @paths@{j}
+               Type@{k}
+               (hsubtype@{l k j} X)
+               (forall _ : X, hProp@{n o})
+     *)
+    try reflexivity.            (* fails, could be a Coq bug *)
+  Abort.
+
+End A.
 
 Definition hsubtype_to_predicate (X:UU) (S : hsubtype X) : X -> hProp.
 Proof.
@@ -316,12 +340,14 @@ Delimit Scope subset with subset.
 Lemma isinclpr1carrier {X : UU} (A : hsubtype X) : isincl (@pr1carrier X A).
 Proof. intros. apply (isinclpr1 A (fun x : _ => pr2 (A x))). Defined.
 
-Lemma isasethsubtype (X : UU) : isaset (hsubtype X).
+Lemma isasethsubtype@{h i j} (X : Type@{i}) : isaset@{i} (hsubtype@{h i j} X).
 Proof.
+  Set Printing Universes.
   intro X.
   change (isofhlevel 2 (hsubtype X)).
-  apply impred; intro x.
-  exact isasethProp.
+  apply lower_universe_isofhlevel@{i j}.
+  change (isofhlevel 2 (X -> hProp)).
+  apply impred; intro x. exact isasethProp.
 Defined.
 
 Definition totalsubtype (X : UU) : hsubtype X := fun x => htrue.
@@ -485,8 +511,22 @@ Defined.
 
 (** *** Relations and boolean relations *)
 
-Definition hrel@{i j} (X : Type@{i}) : Type@{j} := X -> X -> hProp@{i j}.
-Identity Coercion idhrel : hrel >-> Funclass.
+Definition hrel@{h i j} (X : Type@{i}) : Type@{i}. (* h < i < j *)
+Proof.
+    Set Printing Universes.
+    intros.
+    simple refine (@ResizeType@{i j} (X -> X -> hProp@{h i}) (X -> X -> hProp@{i j}) _).
+    apply weqonsecfibers; intro x. apply weqonsecfibers; intro y.
+    apply change_universe_hProp.
+    Unset Printing Universes.
+Defined.
+
+Definition hrel_to_function @{h i j} (X : Type@{i}) : hrel@{h i j} X -> X -> X -> Type@{j}.
+Proof.
+  intros X R. exact R.
+Defined.
+
+Coercion hrel_to_function : hrel >-> Funclass.
 
 Definition brel (X : UU) : UU := X -> X -> bool.
 Identity Coercion idbrel : brel >-> Funclass.
@@ -499,18 +539,21 @@ Coercion DecidableRelation_to_hrel : DecidableRelation >-> hrel.
 
 
 
-Definition istrans {X : UU} (R : hrel X) : UU
+Definition istrans@{h i j} {X : Type@{i}} (R : hrel@{h i j} X) : Type@{i}
   := ∏ (x1 x2 x3 : X), R x1 x2 -> R x2 x3 -> R x1 x3.
 
-Definition isrefl {X : UU} (R : hrel X) : UU
+Definition isrefl@{h i j} {X : Type@{i}} (R : hrel@{h i j} X) : Type@{i}
   := ∏ x : X, R x x.
 
-Definition issymm {X : UU} (R : hrel X) : UU
+Definition issymm@{h i j} {X : Type@{i}} (R : hrel@{h i j} X) : Type@{i}
   := ∏ (x1 x2 : X), R x1 x2 -> R x2 x1.
 
-Definition ispreorder {X : UU} (R : hrel X) : UU := istrans R × isrefl R.
+Definition ispreorder@{h i j} {X : Type@{i}} (R : hrel@{h i j} X) : Type@{i}
+  := istrans@{h i j} R × isrefl@{h i j} R.
 
-Definition iseqrel {X : UU} (R : hrel X) := ispreorder R × issymm R.
+Definition iseqrel@{h i j} {X : Type@{i}} (R : hrel@{h i j} X)
+  := ispreorder@{h i j} R × issymm@{h i j} R.
+
 Definition iseqrelconstr {X : UU} {R : hrel X}
            (trans0 : istrans R) (refl0 : isrefl R) (symm0 : issymm R) :
   iseqrel R := dirprodpair (dirprodpair trans0 refl0) symm0.
@@ -612,11 +655,16 @@ Defined.
 
 (** the relations on a set form a set *)
 
-Definition isaset_hrel (X : hSet) : isaset (hrel X).
-  intros. unfold hrel.
+Definition isaset_hrel@{h i j k} (X : hSet@{i j}) : isaset@{i} (hrel@{h i j} X).
+  Set Printing Universes.
+  intros.
+  change (isofhlevel 2 (hrel X)).
+  apply lower_universe_isofhlevel@{i j}.
+  change (isofhlevel 2 (X -> X -> hProp)).
   apply impred_isaset; intro x.
   apply impred_isaset; intro y.
   exact isasethProp.
+  Unset Printing Universes.
 Defined.
 
 (** *** Elementary implications between properties of relations *)
@@ -922,9 +970,13 @@ Defined.
 
 (** *** Eqivalence relations and associated types. *)
 
-Definition eqrel@{i j} (X : Type@{i}) : Type@{j} := total2@{j} (fun R : hrel@{i j} X => iseqrel@{i j} R).
-Definition eqrelpair {X : UU} (R : hrel X) (is : iseqrel R) : eqrel X
+Definition eqrel@{h i j} (X : Type@{i}) : Type@{j}
+  := total2@{j} (fun R : hrel@{h i j} X => iseqrel@{h i j} R).
+
+Definition eqrelpair@{h i j} {X : Type@{i}} (R : hrel@{h i j} X) (is : iseqrel@{h i j} R) :
+  eqrel@{h i j} X
   := tpair (fun R : hrel X => iseqrel R) R is.
+
 Definition eqrelconstr {X : UU} (R : hrel X)
            (is1 : istrans R) (is2 : isrefl R) (is3 : issymm R) : eqrel X
   := eqrelpair R (dirprodpair (dirprodpair is1 is2) is3).
@@ -1317,8 +1369,8 @@ Defined.
 
 
 
-Definition iseqclass@{i j} {X : Type@{i}} (R : hrel@{i j} X) (A : hsubtype@{i j} X) : Type@{i}
-  := dirprod@{i} (ishinh (carrier A))
+Definition iseqclass@{h i j} {X : Type@{i}} (R : hrel@{h i j} X) (A : hsubtype@{h i j} X) : Type@{i}
+  := dirprod (ishinh@{i j} (carrier A))
              (dirprod (∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2)
                       (∏ x1 x2 : X, A x1 ->  A x2 -> R x1 x2)).
 Definition iseqclassconstr {X : UU} (R : hrel X) {A : hsubtype X}
@@ -1571,8 +1623,8 @@ be considered in the section about types of h-level 3.
 
 (** *** Setquotient defined in terms of equivalence classes *)
 
-Definition setquot@{i j} {X : Type@{i}} (R : hrel@{i j} X) : Type@{j}
-  := total2@{j} (λ A : hsubtype@{i j} X, iseqclass@{i j} R A).
+Definition setquot@{h i j} {X : Type@{i}} (R : hrel@{h i j} X) : Type@{j}
+  := total2@{i} (λ A : hsubtype@{h i j} X, iseqclass@{h i j} R A).
 
 Definition setquotpair {X : UU} (R : hrel X) (A : hsubtype X)
            (is : iseqclass R A) : setquot R := tpair _ A is.

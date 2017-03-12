@@ -5,6 +5,7 @@ Require Export UniMath.Foundations.Resizing2.
 
 Section A.
 
+  Set Printing Universes.
   Universe i j.
   Constraint Set < i.
   Constraint i < j.
@@ -14,13 +15,14 @@ Section A.
     reflexivity.
   Defined.
 
-  Definition raise_element : Type@{i} -> Type@{j}.
+  Definition raise_element@{} : Type@{i} -> Type@{j}.
+  (* adding @{} prevents additional universe parameters from being added to this definition *)
   Proof.
     intros T.
     exact T.
   Defined.
 
-  Lemma change_universe_paths {X : Type@{i}} {x y : X} : weq@{j} (paths@{i} x y) (paths@{j} x y).
+  Lemma change_universe_paths@{k} {X : Type@{i}} {x y : X} : weq@{k} (paths@{i} x y) (paths@{j} x y).
   Proof.
     simple refine (weqpair _ (gradth _ _ _ _)).
     - intros p. try exact p. now induction p.
@@ -29,24 +31,24 @@ Section A.
     - intros p. try exact p. now induction p.
   Defined.
 
-  Definition raise_paths {X : Type@{i}} {x y : X} : paths@{i} x y -> paths@{j} x y
+  Definition raise_paths@{} {X : Type@{i}} {x y : X} : paths@{i} x y -> paths@{j} x y
     := pr1weq change_universe_paths.
 
-  Definition lower_paths {X : Type@{i}} {x y : X} : paths@{j} x y -> paths@{i} x y
+  Definition lower_paths@{} {X : Type@{i}} {x y : X} : paths@{j} x y -> paths@{i} x y
     := invmap change_universe_paths.
 
-  Lemma raise_iscontr (X : Type@{i}) : iscontr@{i} X -> iscontr@{j} X.
+  Lemma raise_iscontr@{} (X : Type@{i}) : iscontr@{i} X -> iscontr@{j} X.
   Proof.
     intros ic. induction ic as [c e]. exists c. intro x. now induction (e x).
   Defined.
 
-  Lemma lower_iscontr (X : Type@{i}) : iscontr@{i} X <- iscontr@{j} X.
+  Lemma lower_iscontr@{} (X : Type@{i}) : iscontr@{i} X <- iscontr@{j} X.
   Proof.
     intros ic. induction ic as [c e]. exists c. intro x. now induction (e x).
   Defined.
 
-  Lemma change_universe_pairs (X:Type@{i}) (P:X -> Type@{i}) :
-    weq@{j} (total2@{i} P) (total2@{j} P).
+  Lemma change_universe_pairs@{k} (X:Type@{i}) (P:X -> Type@{i}) :
+    weq@{k} (total2@{i} P) (total2@{j} P).
   Proof.
     simple refine (weqpair _ (gradth _ _ _ _)).
     - intro w. try exact w. induction w as [x p]. exists x. exact p.
@@ -55,7 +57,7 @@ Section A.
     - intro w. try reflexivity. induction w as [x p]. reflexivity.
   Defined.
 
-  Lemma lower_universe_isweq {X Y : Type@{i}} (f : X -> Y) : isweq@{j} f -> isweq@{i} f.
+  Lemma lower_universe_isweq@{} {X Y : Type@{i}} (f : X -> Y) : isweq@{j} f -> isweq@{i} f.
   Proof.
     intros iw. try exact iw. intro y. assert (q := iw y); clear iw.
     simple refine (iscontrweqf _ q); clear q. apply invweq.
@@ -64,12 +66,12 @@ Section A.
     - apply weqfibtototal; intro x. apply change_universe_paths.
   Defined.
 
-  Lemma lower_universe_weq (X Y : Type@{i}) : weq@{j} X Y -> weq@{i} X Y.
+  Lemma lower_universe_weq@{} (X Y : Type@{i}) : weq@{j} X Y -> weq@{i} X Y.
   Proof.
     intro w. try exact w. exists (pr1 w). apply lower_universe_isweq. exact (pr2 w).
   Defined.
 
-  Lemma raise_universe_isweq {X Y : Type@{i}} (f : X -> Y) : isweq@{i} f -> isweq@{j} f.
+  Lemma raise_universe_isweq@{} {X Y : Type@{i}} (f : X -> Y) : isweq@{i} f -> isweq@{j} f.
   Proof.
     intros iw. try exact iw. intro y. assert (q := iw y); clear iw.
     simple refine (iscontrweqf _ q); clear q. apply invweq.
@@ -78,12 +80,13 @@ Section A.
     - unfold hfiber. apply invweq, change_universe_pairs.
   Defined.
 
-  Lemma raise_universe_weq (X Y : Type@{i}) : weq@{i} X Y -> weq@{j} X Y.
+  Lemma raise_universe_weq@{} (X Y : Type@{i}) : weq@{i} X Y -> weq@{j} X Y.
   Proof.
     intro w. try exact w. exists (pr1 w). apply raise_universe_isweq. exact (pr2 w).
   Defined.
 
-  Lemma raise_universe_isofhlevel n (X : Type@{i}) : isofhlevel@{i} n X -> isofhlevel@{j} n X.
+  Lemma raise_universe_isofhlevel@{} (n:nat) (X : Type@{i}) : isofhlevel@{i} n X -> isofhlevel@{j} n X.
+  (* Declaring n in nat explicitly prevents errors like "Error: Universe {Top.205} is unbound." Coq bug? *)
   Proof.
     generalize X; clear X.
     induction n as [|n IH].
@@ -93,7 +96,7 @@ Section A.
       apply change_universe_paths.
   Defined.
 
-  Lemma lower_universe_isofhlevel n (X : Type@{i}) : isofhlevel@{j} n X -> isofhlevel@{i} n X.
+  Lemma lower_universe_isofhlevel@{} (n:nat) (X : Type@{i}) : isofhlevel@{j} n X -> isofhlevel@{i} n X.
   Proof.
     generalize X; clear X.
     induction n as [|n IH].
@@ -103,36 +106,25 @@ Section A.
       apply invweq, change_universe_paths.
   Defined.
 
-  Lemma ResizeProp_weq@{k} {X:Type@{j}} (ip:isaprop@{j} X): weq@{k} X (ResizeProp@{i j} X ip).
+  Goal ∏ (X:Type@{j}) (ip:isaprop@{j} X), ResizeProp@{i j} X ip = X.
+  (* illustrate that [ResizeProp T ip] and [T] are judgmentally equal *)
   Proof.
-    simple refine (weqpair _ (gradth _ _ _ _)).
-    - intros x. exact x.
-    - intros x. exact x.
-    - reflexivity.
-    - reflexivity.
+    intros. reflexivity.
   Defined.
 
-  Lemma ResizeType_weq@{k} {S : Type@{i}} (T : Type@{j}) (w : weq@{j} S T) :
-    weq@{k} T (ResizeType@{i j} T w).
+  Goal ∏ (S : Type@{i}) (T : Type@{j}) (w : weq@{j} S T), ResizeType@{i j} T w = T.
+  (* illustrate that [ResizeType T w] and [T] are judgmentally equal *)
   Proof.
-    simple refine (weqpair _ (gradth _ _ _ _)).
-    - intros x. exact x.
-    - intros x. exact x.
-    - reflexivity.
-    - reflexivity.
+    intros. reflexivity.
   Defined.
 
-  Lemma isofhlevel_resize n (X:Type@{j}) (ip : isaprop@{j} X) :
-    isofhlevel@{j} n X -> isofhlevel@{i} n (ResizeProp@{i j} X ip).
-  Proof.
-    intros hl.
-    set (q := isofhlevelweqf@{j j} n (ResizeProp_weq ip) hl).
-    apply lower_universe_isofhlevel.
-    exact q.
-  Defined.
+  (* Lemma isofhlevel_resize@{} (n:nat) (X:Type@{j}) (ip : isaprop@{j} X) : *)
+  (*   isofhlevel@{j} n X -> isofhlevel@{i} n (ResizeProp@{i j} X ip). *)
+  (* Proof. *)
+  (*   intros hl. apply lower_universe_isofhlevel. exact hl. *)
+  (* Defined. *)
 
 End A.
-
 
 Section B.
 

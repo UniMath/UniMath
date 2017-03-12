@@ -840,7 +840,7 @@ Defined.
 
 (** *** Basics about types of h-level 2 - "sets" *)
 
-Definition isaset (X : UU) : UU := ∏ x x' : X, isaprop (x = x').
+Definition isaset@{i} (X : Type@{i}) : Type@{i} := ∏ x x' : X, isaprop (x = x').
 
 (* Definition isaset := isofhlevel 2. *)
 

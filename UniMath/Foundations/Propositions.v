@@ -173,16 +173,30 @@ Section A.
   Constraint i < j.
   Constraint j < l.
 
-  Lemma change_universe_hProp : weq@{l} hProp@{i j} hProp@{j l}.
+  Set Printing Universes.
+
+  Definition raise_universe_hProp : hProp@{i j} -> hProp@{j l}.
+  (* adding @{} evokes a Coq bug about an unbound universe, should isolate it *)
+  Proof.
+    intro P. exists (pr1 P). apply raise_universe_isofhlevel. exact (pr2 P).
+  Defined.
+
+  Definition lower_universe_hProp : hProp@{i j} <- hProp@{j l}.
+  Proof.
+    intro P. exists (ResizeProp@{i j} (pr1 P) (pr2 P)).
+    apply lower_universe_isofhlevel. exact (pr2 P).
+  Defined.
+
+  Definition change_universe_hProp@{} : weq@{l} hProp@{i j} hProp@{j l}.
   Proof.
     simple refine (weqpair@{l} _ (gradth@{l l} _ _ _ _)).
-    - intro P. induction P as [P ip]. exists P. exact (raise_universe_isofhlevel@{i j} 1 P ip).
-    - intro P. induction P as [P ip]. exists (ResizeProp@{i j} P ip).
-      simple refine (lower_universe_isofhlevel@{i l} 1 _ _).
-      exact (isofhlevelweqf@{j l} 1 (ResizeProp_weq@{i j l} ip) ip).
+    - exact raise_universe_hProp.
+    - exact lower_universe_hProp.
     - intros P. apply unsafe@{l}.
     - intros P. apply unsafe@{l}.
   Defined.
+
+  Unset Printing Universes.
 
 End A.
 
@@ -206,10 +220,7 @@ Definition ishinh_resized@{i j} (X : Type@{i}) : Type@{i}           (* i < j *)
 
 Lemma isapropishinh (X : Type) : isaprop (ishinh_resized X).
 Proof.
-  intro. unfold ishinh_resized. apply lower_universe_isofhlevel.
-  simple refine (@isofhlevelweqf 1 (ishinh_UU X) _ _ _).
-  - apply ResizeProp_weq.
-  - apply isapropishinh_UU.
+  intro. unfold ishinh_resized. apply lower_universe_isofhlevel. apply isapropishinh_UU.
 Defined.
 
 Definition ishinh@{i j} (X : Type@{i}) : hProp@{i j} := hProppair (ishinh_resized@{i j} X) (isapropishinh@{i j} X).

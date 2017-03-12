@@ -8,13 +8,13 @@ Section A.
 
   Constraint i < j.             (* we impose this constraint so we don't resize a type needlessly *)
 
-  Definition ResizeProp (T : Type@{j}) : isaprop@{j} T -> Type@{i}.
+  Definition ResizeProp@{} (T : Type@{j}) : isaprop@{j} T -> Type@{i}.
   Proof.
     intros _.
     exact T.
   Defined.
 
-  Definition ResizeType {S : Type@{i}} (T : Type@{j}) : weq@{j} S T -> Type@{i}.
+  Definition ResizeType@{} {S : Type@{i}} (T : Type@{j}) : weq@{j} S T -> Type@{i}.
   Proof.
     intros _.
     exact T.
