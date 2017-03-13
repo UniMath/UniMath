@@ -82,12 +82,15 @@ Require Export UniMath.Foundations.PartD.
 
 (** ** The type [hProp] of types of h-level 1 *)
 
-Definition hProp@{i j} : Type@{j} := total2@{j} isaprop@{i}. (* i < j *)
+Monomorphic Universe uu1.       (* second lowest universe *)
 
-Definition hProppair@{i j} (X : Type@{i}) (is : isaprop@{i} X) : hProp@{i j}
-  := tpair@{j} (isaprop@{i}) X is.
+Definition hProp@{} : Type@{uu1} := total2@{uu1} isaprop@{uu0}. (* uu0 < uu1 *)
 
-Definition hProptoType@{i j} := @pr1@{j} _ _ : hProp@{i j} -> Type@{i}.
+Definition hProppair@{i} (X : Type@{i}) (is : isaprop@{i} X) : hProp
+  := let P := (ResizeProp@{uu0 i} X is) in
+     tpair isaprop@{uu0} P (lower_universe_isofhlevel@{uu0 i} 1 P is).
+
+Definition hProptoType := pr1 : hProp -> Type@{uu0}.
 
 Coercion hProptoType : hProp >-> Sortclass.
 
@@ -163,43 +166,6 @@ Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
 
 *)
 
-(** ** Change of universe level for hProp *)
-
-Section A.
-
-  Axiom unsafe@{i} : ∏ X : Type@{i}, X.
-
-  Universes i j l.
-  Constraint i < j.
-  Constraint j < l.
-
-  Set Printing Universes.
-
-  Definition raise_universe_hProp : hProp@{i j} -> hProp@{j l}.
-  (* adding @{} evokes a Coq bug about an unbound universe, should isolate it *)
-  Proof.
-    intro P. exists (pr1 P). apply raise_universe_isofhlevel. exact (pr2 P).
-  Defined.
-
-  Definition lower_universe_hProp : hProp@{i j} <- hProp@{j l}.
-  Proof.
-    intro P. exists (ResizeProp@{i j} (pr1 P) (pr2 P)).
-    apply lower_universe_isofhlevel. exact (pr2 P).
-  Defined.
-
-  Definition change_universe_hProp@{} : weq@{l} hProp@{i j} hProp@{j l}.
-  Proof.
-    simple refine (weqpair@{l} _ (gradth@{l l} _ _ _ _)).
-    - exact raise_universe_hProp.
-    - exact lower_universe_hProp.
-    - intros P. apply unsafe@{l}.
-    - intros P. apply unsafe@{l}.
-  Defined.
-
-  Unset Printing Universes.
-
-End A.
-
 (** ** Intuitionistic logic on [hProp] *)
 
 
@@ -207,10 +173,10 @@ End A.
 
 Require Import UniMath.Foundations.Resizing3.
 
-Definition ishinh_UU@{i j} (X : Type@{i}) : Type@{j}           (* i < j *)
-  := ∏ P : hProp@{i j}, ((X -> P) -> P).
+Definition ishinh_UU@{i} (X : Type@{i}) : Type@{i}
+  := ∏ P : hProp, ((X -> P) -> P).
 
-Lemma isapropishinh_UU@{i j} (X : Type@{i}) : isaprop@{j} (ishinh_UU@{i j} X).
+Lemma isapropishinh_UU@{i} (X : Type@{i}) : isaprop@{i} (ishinh_UU@{i} X).
 Proof.
   intro. apply impred. intros P. apply impred. intros _. apply propproperty.
 Qed.
@@ -223,7 +189,7 @@ Proof.
   intro. unfold ishinh_resized. apply lower_universe_isofhlevel. apply isapropishinh_UU.
 Defined.
 
-Definition ishinh@{i j} (X : Type@{i}) : hProp@{i j} := hProppair (ishinh_resized@{i j} X) (isapropishinh@{i j} X).
+Definition ishinh@{i j} (X : Type@{i}) : hProp := hProppair (ishinh_resized@{i j} X) (isapropishinh@{i j} X).
 
 Notation nonempty := ishinh (only parsing).
 
@@ -1010,7 +976,7 @@ Defined.
 
 (** ** Univalence for hProp *)
 
-Theorem hPropUnivalence@{i j} : ∏ (P Q : hProp@{i j}), (P -> Q) -> (Q -> P) -> paths@{j} P Q.
+Theorem hPropUnivalence@{i j} : ∏ (P Q : hProp), (P -> Q) -> (Q -> P) -> paths@{j} P Q.
   (* this theorem replaced a former axiom, with the same statement, called
      "uahp" *)
 Proof.
@@ -1092,7 +1058,7 @@ Definition weqpathsweqhProp' {P P' : hProp} (e : P = P') :
   weqtopathshProp (eqweqmaphProp e) = e.
 Proof. intros. apply isasethProp. Defined.
 
-Lemma iscontrtildehProp@{i j} : iscontr@{j} tildehProp@{i j}.
+Lemma iscontrtildehProp : iscontr@{j} tildehProp.
 Proof.
   Set Printing Universes.
   split with (tpair _ htrue tt). intro tP. destruct tP as [ P p ].

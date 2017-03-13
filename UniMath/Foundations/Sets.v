@@ -85,7 +85,7 @@ Require Export UniMath.Foundations.Propositions.
 
 Definition hSet@{i j} : Type@{j} := total2@{j} (fun X : Type@{i} => isaset X).
 Definition hSetpair (X : UU) (i : isaset X) := tpair isaset X i : hSet.
-Definition pr1hSet : hSet -> UU := @pr1 UU (fun X : UU => isaset X).
+Definition pr1hSet@{i j} : hSet@{i j} -> Type@{i} := pr1.
 Coercion pr1hSet: hSet >-> Sortclass.
 
 Definition eqset {X : hSet} (x x' : X) : hProp
@@ -149,7 +149,7 @@ Notation "A × B" := (dirprod_hSet A B) (at level 75, right associativity) : set
 
 (** *** [hProp] as a set *)
 
-Definition hPropset : hSet := tpair _ hProp isasethProp.
+Definition hPropset@{i j k} : hSet@{j k} := tpair _ hProp@{i j} isasethProp.
 (* Canonical Structure hPropset. *)
 
 Definition hProp_to_hSet (P : hProp) : hSet
@@ -2065,7 +2065,9 @@ Defined.
 
 (** *** Universal property of [setquot] for functions of two variables *)
 
-Definition iscomprelfun2 {X Y : UU} (R : hrel X) (f : X -> X -> Y) : UU
+Definition iscomprelfun2@{i i' j} {X : Type@{i}} {Y : Type@{i'}}
+           (R : hrel@{i j} X) (f : X -> X -> Y)
+  : Type@{i}
   := ∏ x x' x0 x0' : X, R x x' -> R x0 x0' -> f x x0 = f x' x0'.
 
 Lemma iscomprelfun2if {X Y : UU} (R : hrel X) (f : X -> X -> Y)
@@ -2095,8 +2097,8 @@ Proof.
 Defined.
 Global Opaque setquotuniv2_iscomprelfun.
 
-Definition setquotuniv2 {X : UU} (R : hrel X) (Y : hSet) (f : X -> X -> Y)
-           (is : iscomprelfun2 R f) (c c0 : setquot R) : Y.
+Definition setquotuniv2@{i j} {X : Type@{i}} (R : hrel@{i j} X) (Y : hSet@{i j}) (f : X -> X -> Y)
+           (is : iscomprelfun2 R f) (c c0 : setquot@{i j} R) : Y.
 Proof.
   intros.
   set (ff := fun xy : dirprod X X => f (pr1 xy) (pr2 xy)).
@@ -2306,8 +2308,17 @@ Proof.
   apply (is _ _ _ _ r r0).
 Defined.
 
-Definition quotrel {X : UU} {R L : hrel X} (is : iscomprelrel R L) :
-  hrel (setquot R) := setquotuniv2 R hPropset L is.
+Set Printing Universes.
+Set Printing All.
+
+Definition quotrel {X : UU} {R L : hrel X} (is : iscomprelrel R L) : hrel (setquot R).
+Proof.
+  intros.
+  exact (setquotuniv2 R hPropset L is).
+
+Defined.
+
+
 
 Lemma istransquotrel {X : UU} {R : eqrel X} {L : hrel X}
       (is : iscomprelrel R L) (isl : istrans L) : istrans (quotrel is).

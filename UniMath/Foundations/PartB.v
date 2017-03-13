@@ -501,7 +501,7 @@ Definition isapropunit : isaprop unit := iscontrpathsinunit.
 Definition isapropdirprod (X Y : UU) : isaprop X -> isaprop Y -> isaprop (X × Y)
   := isofhleveldirprod 1 X Y.
 
-Lemma isapropifcontr {X : UU} (is : iscontr X) : isaprop X.
+Lemma isapropifcontr {X : Type} (is : iscontr X) : isaprop X.
 Proof.
   intros. set (f := fun x : X => tt).
   assert (isw : isweq f)
@@ -607,7 +607,7 @@ Proof.
   intros ? is x x'. unfold isaprop in is. unfold isofhlevel in is. exact (iscontrpr1 (is x x')).
 Defined.
 
-Lemma invproofirrelevance (X : UU) : isProofIrrelevant X -> isaprop X.
+Lemma invproofirrelevance (X : Type) : isProofIrrelevant X -> isaprop X.
 Proof.
   intros ? ee x x'. apply isapropifcontr. exists x. intros t. exact (ee t x).
 Defined.

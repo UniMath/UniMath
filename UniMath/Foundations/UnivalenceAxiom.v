@@ -63,7 +63,7 @@ Proof. destruct ee. simpl. apply r. Defined.
 
 Definition univalenceStatement := ∏ X Y:UU, isweq (@eqweqmap X Y).
 
-Definition funextemptyStatement := ∏ (X:UU) (f g : X->empty), f = g.
+Definition funextemptyStatement := ∏ (X:Type) (f g : X->empty), f = g.
 
 Definition propositionalUnivalenceStatement :=
   ∏ (P Q:UU), isaprop P -> isaprop Q -> (P -> Q) -> (Q -> P) -> P=Q.

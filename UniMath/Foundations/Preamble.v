@@ -30,8 +30,31 @@ Global Unset Universe Minimization ToSet.
 
 *)
 
+(** Declare a bottom universe level, in which all the propositions will live, by
+    virtue of resizing. *)
 
-Inductive empty : UU :=.  (* make it polymorphic; needed due to Coq bug? *)
+Monomorphic Universe uu0.
+
+(**
+   We have a choice:
+
+   (1) we can make [empty] polymorphic, so that at each universe level i we have a empty
+       type [empty@{i} : Type@{i} ], and then we have the problem that [empty@{i}]
+       and [empty@{j}] are not the same unless i = j; or
+
+   (2) we can make [empty] monomorphic, so that there is a single type
+       [empty : Type@{u00}].  But then types like [paths tt tt] end up at universe
+       level uu0, and [paths@{uu0} tt tt] is not the same as [paths@{i} tt tt] unless
+       uu0 = i, so we have to be careful with the theorems that use paths in empty,
+       for else they will force useless constraints of the form [uu0 = i].
+
+   The same issue applies to nat, bool, and unit.
+
+   We tentatively adopt choice 1 here.
+
+  *)
+
+Inductive empty : Type :=.
 
 Notation "∅" := empty.
 
