@@ -110,7 +110,9 @@ set (Hh1 := iso_after_iso_inv h1).
 exists (pr1 (pr1 h1_inv) · pr1 f · pr1 (pr1 (pr1 h2))).
 set (Htemp := maponpaths pr1 (pr2 (pr1 h2))).
 apply pathsinv0; simpl in *.
-rewrite <-!assoc, <- Htemp. rewrite <- (pr2 f).
+rewrite <-!assoc, <- Htemp.
+intermediate_path (pr1 (pr1 h1_inv) · pr1 (pr2 x1)).
+{ apply maponpaths, pathsinv0, (pr2 f). }
 etrans; [ apply maponpaths, (maponpaths pr1 (pr2 (pr1 h1))) |]; simpl.
 rewrite assoc.
 etrans; [ eapply cancel_postcomposition, (maponpaths pr1 (maponpaths pr1 Hh1)) |].
