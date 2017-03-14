@@ -16,10 +16,15 @@ Defined.
 
 Lemma decidable_proof_by_contradiction {P:hProp} : decidable P -> ¬ ¬ P -> P.
 Proof.
-  intros dec nnp.
-  induction dec as [p|np].
+  intros dec nnp. induction dec as [p|np].
   - exact p.
   - apply fromempty, nnp, np.
+Defined.
+
+Lemma proof_by_contradiction {P:hProp} : LEM -> ¬ ¬ P -> P.
+Proof.
+  intro lem.
+  exact (decidable_proof_by_contradiction (lem P)).
 Defined.
 
 Definition hrel_set (X : hSet) : hSet := hSetpair (hrel X) (isaset_hrel X).
