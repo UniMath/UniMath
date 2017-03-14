@@ -118,20 +118,25 @@ One can not use a new record each time one needs it because the general theorems
 construction would not apply to new instances of "Record" due to the "generativity" of inductive
 definitions in Coq.
 
-We use "Record" instead of "Inductive" here.
+We use "Record", which is equivalent to "Structure", instead of "Inductive" here, so we can take
+advantage of a useful feature of the tactic "apply" for "tuples", and to get an overall speed-up of
+15%.
 
-Using "Record" which is equivalent to "Structure" would allow us later to use the mechanism of
-canonical structures with total2.
-By using "Structure", we could also get eta for dependent pairs, by adding the option
-"Set Primitive Projections.".
+The terms produced by the "induction" tactic, when we define "total2" as a record, contain the
+"match" construction instead appealing to the eliminator.  However, assuming the eliminator will be
+justified mathematically, the way to justify the the "match" construction is to point out that it
+can be regarded as an abbreviation for the eliminator that omits explicit mention of the first two
+parameters (X:Type) and (Y:X->Type).
 
-However, the use of "Inductive" allows us to obtain proof terms that are expressed in terms of
-the eliminator total2_rect that, unlike the "match" construct that would appear in the proof terms
-if we used "Record", has a known interpretation in the framework of the univalent model.
+I.e., whenever you see
+
+       match w as t0 return TYPE with | tpair _ _ x y => BODY end
+
+in a proof term, just mentally replace it by
+
+       @total2_rect _ _ (λ t0, TYPE) (λ x y, BODY) w
 
 *)
-
-(* Set Primitive Projections. *)
 
 Set Nonrecursive Elimination Schemes.
 
