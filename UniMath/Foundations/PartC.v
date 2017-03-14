@@ -66,6 +66,14 @@ Proof.
   intros x x'. apply (funextempty X x x').
 Defined.
 
+Lemma isaprop_isProofIrrelevant X : isaprop (isProofIrrelevant X).
+Proof.
+  intros. apply invproofirrelevance. intros i j.
+  apply funextsec; intro x; apply funextsec; intro y.
+  generalize (i x y) as p; generalize (j x y) as q; intros.
+  now apply isProofIrrelevant_paths.
+Defined.
+
 (** See also [ isapropneg2 ] *)
 
 
@@ -97,7 +105,7 @@ Proof.
 Defined.
 
 
-Theorem isapropdec (X : UU) : isaprop X -> isaprop (X ⨿ ¬X).
+Theorem isapropdec (X : UU) : isaprop X -> isaprop (decidable X).
 (* uses [funextemptyAxiom] *)
 Proof.
   intros ? i. apply isapropcoprod.

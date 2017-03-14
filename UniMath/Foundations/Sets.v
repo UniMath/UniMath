@@ -96,7 +96,7 @@ Definition eqset {X : hSet} (x x' : X) : hProp
 Notation "a = b" := (eqset a b) (at level 70, no associativity) : set.
 
 Definition neqset {X : hSet} (x x' : X) : hProp
-  := hProppair (x != x') (isapropneg _).
+  := hProppair (x != x') (isapropneg _). (* uses funextemptyAxiom *)
 Notation "a != b" := (neqset a b) (at level 70, no associativity) : set.
 Delimit Scope set with set.
 
@@ -121,7 +121,7 @@ Defined.
 Definition total2_hSet {X : hSet} (Y : X -> hSet) : hSet
   := hSetpair (∑ x, Y x) (isaset_total2_hSet X Y).
 
-Definition hfiber_hSet {X : hSet} {Y : hSet} (f : X → Y) (y : Y) : hSet
+Definition hfiber_hSet {X Y : hSet} (f : X → Y) (y : Y) : hSet
   := hSetpair (hfiber f y) (isaset_hfiber f y (pr2 X) (pr2 Y)).
 
 Delimit Scope set with set.
@@ -139,23 +139,6 @@ Definition forall_hSet {X : UU} (Y : X -> hSet) : hSet
 Notation "'∏' x .. y , P" := (forall_hSet (fun x =>.. (forall_hSet (fun y => P))..))
   (at level 200, x binder, y binder, right associativity) : set.
   (* type this in emacs in agda-input method with \sum *)
-
-Lemma isaset_total2_subset (X : hSet) (Y : X -> hProp) : isaset (∑ x, Y x).
-Proof.
-  intros. apply isaset_total2.
-  - apply setproperty.
-  - intro x. apply isasetaprop, propproperty.
-Defined.
-
-Definition total2_subset {X : hSet} (Y : X -> hProp) : hSet
-  := hSetpair (∑ x, Y x) (isaset_total2_subset X Y).
-
-Notation "'∑' x .. y , P"
-  := (total2_subset (fun x =>.. (total2_subset (fun y => P))..))
-  (at level 200, x binder, y binder, right associativity) : subset.
-  (* type this in emacs in agda-input method with \sum *)
-
-Delimit Scope subset with subset.
 
 Definition unitset : hSet := hSetpair unit isasetunit.
 
@@ -298,6 +281,23 @@ Coercion carrier : hsubtype >-> Sortclass.
 Definition carrierpair {X : UU} (A : hsubtype X) :
    ∏ t : X, A t → ∑ x : X, A x := tpair A.
 Definition pr1carrier {X : UU} (A : hsubtype X) := @pr1 _ _  : carrier A -> X.
+
+Lemma isaset_carrier_subset (X : hSet) (Y : hsubtype X) : isaset (∑ x, Y x).
+Proof.
+  intros. apply isaset_total2.
+  - apply setproperty.
+  - intro x. apply isasetaprop, propproperty.
+Defined.
+
+Definition carrier_subset {X : hSet} (Y : hsubtype X) : hSet
+  := hSetpair (∑ x, Y x) (isaset_carrier_subset X Y).
+
+Notation "'∑' x .. y , P"
+  := (carrier_subset (fun x =>.. (carrier_subset (fun y => P))..))
+  (at level 200, x binder, y binder, right associativity) : subset.
+  (* type this in emacs in agda-input method with \sum *)
+
+Delimit Scope subset with subset.
 
 Lemma isinclpr1carrier {X : UU} (A : hsubtype X) : isincl (@pr1carrier X A).
 Proof. intros. apply (isinclpr1 A (fun x : _ => pr2 (A x))). Defined.
@@ -1660,7 +1660,7 @@ Proof.
   assert (r : R x1 x2) by apply (eqax2 iseq _ _ is1' is2').
   apply (pathscomp0 (pathsinv0 is1) (pathscomp0 (is _ _ r) is2)).
 Defined.
-
+Global Opaque isapropimeqclass.
 
 Theorem setquotuniv {X : UU} (R : hrel X) (Y : hSet) (f : X -> Y)
         (is : iscomprelfun R f) (c : setquot R) : Y.
@@ -2002,18 +2002,24 @@ Proof.
   apply (is _ _ _ _ ((pr2 (lg _ _)) r) ((pr2 (lg _ _)) r0)).
 Defined.
 
+Local Lemma setquotuniv2_iscomprelfun {X : UU} (R : hrel X) (Y : hSet) (f : X -> X -> Y)
+      (is : iscomprelfun2 R f) (c c0 : setquot R) :
+  iscomprelfun (hreldirprod R R) (fun xy : dirprod X X => f (pr1 xy) (pr2 xy)).
+Proof.
+  intros X R Y f is c c0.
+  intros xy x'y'. simpl. intro dp. destruct dp as [ r r'].
+  apply (is _ _ _ _ r r').
+Defined.
+Global Opaque setquotuniv2_iscomprelfun.
+
 Definition setquotuniv2 {X : UU} (R : hrel X) (Y : hSet) (f : X -> X -> Y)
            (is : iscomprelfun2 R f) (c c0 : setquot R) : Y.
 Proof.
   intros.
   set (ff := fun xy : dirprod X X => f (pr1 xy) (pr2 xy)).
   set (RR := hreldirprod R R).
-  assert (isff : iscomprelfun RR ff).
-  {
-    intros xy x'y'. simpl. intro dp. destruct dp as [ r r'].
-    apply (is _ _ _ _ r r').
-  }
-  apply (setquotuniv RR Y ff isff (dirprodtosetquot R R (dirprodpair c c0))).
+  apply (setquotuniv RR Y ff (setquotuniv2_iscomprelfun R Y f is c c0)
+                     (dirprodtosetquot R R (dirprodpair c c0))).
 Defined.
 
 Theorem setquotuniv2comm {X : UU} (R : eqrel X) (Y : hSet) (f : X -> X -> Y)
@@ -2057,19 +2063,24 @@ Proof.
   apply ((pr1 (lg _ _)) (is _ _ _ _ r r0)).
 Defined.
 
+Local Lemma setquotfun2_iscomprelfun2 {X Y : UU} (RX : hrel X) (RY : eqrel Y)
+           (f : X -> X -> Y) (is : iscomprelrelfun2 RX RY f)
+           (cx cx0 : setquot RX) : iscomprelfun2 RX (fun x x0 : X => setquotpr RY (f x x0)).
+Proof.
+  intros X Y RX RY f is cx cx0.
+  intros x x' x0 x0'. intros r r0.
+  apply (weqpathsinsetquot RY (f x x0) (f x' x0')).
+  apply is. apply r. apply r0.
+Defined.
+Global Opaque setquotfun2_iscomprelfun2.
+
 Definition setquotfun2 {X Y : UU} (RX : hrel X) (RY : eqrel Y)
            (f : X -> X -> Y) (is : iscomprelrelfun2 RX RY f)
            (cx cx0 : setquot RX) : setquot RY.
 Proof.
   intros.
   set (ff := fun x x0 : X => setquotpr RY (f x x0)).
-  assert (isff : iscomprelfun2 RX ff).
-  {
-    intros x x' x0 x0'. intros r r0.
-    apply (weqpathsinsetquot RY (f x x0) (f x' x0')).
-    apply is. apply r. apply r0.
-  }
-  apply (setquotuniv2 RX (setquotinset RY) ff isff cx cx0).
+  exact (setquotuniv2 RX (setquotinset RY) ff (setquotfun2_iscomprelfun2 RX RY f is cx cx0) cx cx0).
 Defined.
 
 Theorem setquotfun2comm {X Y : UU} (RX : eqrel X) (RY : eqrel Y)
@@ -2986,5 +2997,18 @@ Proof.
   - apply univalenceAxiom.
   Unset Printing Coercions.
 Defined.
+
+Theorem hSet_rect (X Y : hSet) (P : X ≃ Y -> UU) :
+  (∏ e : X=Y, P (hSet_univalence _ _ e)) -> ∏ f, P f.
+Proof.
+  intros ? ? ? ih ?.
+  Set Printing Coercions.
+  set (p := ih (invmap (hSet_univalence _ _) f)).
+  set (h := homotweqinvweq (hSet_univalence _ _) f).
+  exact (transportf P h p).
+  Unset Printing Coercions.
+Defined.
+
+Ltac hSet_induction f e := generalize f; apply UU_rect; intro e; clear f.
 
 (* End of the file hSet.v *)

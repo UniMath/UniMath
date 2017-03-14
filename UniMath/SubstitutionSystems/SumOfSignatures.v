@@ -18,7 +18,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.PointedFunctors.
@@ -28,17 +28,6 @@ Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.limits.products.
-
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
-
-Arguments θ_source {_ _ _ _} _ .
-Arguments θ_target {_ _ _ _} _ .
-Arguments θ_Strength1 {_ _ _ _ _} _ .
-Arguments θ_Strength2 {_ _ _ _ _} _ .
-Arguments θ_Strength1_int {_ _ _ _ _} _ .
-Arguments θ_Strength2_int {_ _ _ _ _} _ .
 
 Section sum_of_signatures.
 
@@ -51,7 +40,7 @@ Local Notation "'CCD'" := (Coproducts_functor_precat I C D CD hsD : Coproducts I
 
 Variables H1 : I -> functor [C, C, hsC] [C, D, hsD].
 
-Variable θ1 : ∏ i, θ_source (H1 i) ⟶ θ_target (H1 i).
+Variable θ1 : ∏ i, θ_source (H1 i) ⟹ θ_target (H1 i).
 
 (** * Definition of the data of the sum of signatures *)
 
@@ -95,7 +84,7 @@ apply CoproductOfArrows_eq, funextsec; intro i.
 apply (nat_trans_eq_pointwise (nat_trans_ax (θ1 i) (X,,Z) (X',,Z') αβ) c).
 Qed.
 
-Local Definition θ : θ_source H ⟶ θ_target H := tpair _ _ is_nat_trans_θ_ob.
+Local Definition θ : θ_source H ⟹ θ_target H := tpair _ _ is_nat_trans_θ_ob.
 
 (** * Proof of the strength laws of the sum of two signatures *)
 

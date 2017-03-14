@@ -7,7 +7,7 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 
 Require Import UniMath.CategoryTheory.limits.products.
@@ -95,8 +95,8 @@ Section FinOrdProduct_criteria.
                              (ProductObject (stn 1) C Cone2)).
     set (p1 := BinProductPr1 _ BinCone).
     set (p2 := BinProductPr2 _ BinCone).
-    set (m1 := fun i1 : stn n => p1 ;; (Cone1Pr i1)).
-    set (m2 := fun i2 : stn 1 => p2 ;; (Cone2Pr i2)).
+    set (m1 := fun i1 : stn n => p1 · (Cone1Pr i1)).
+    set (m2 := fun i2 : stn 1 => p2 · (Cone2Pr i2)).
     set (BinConeOb := BinProductObject _ BinCone).
     fold BinConeOb in p1, p2, m1, m2.
 
@@ -104,9 +104,9 @@ Section FinOrdProduct_criteria.
 
     (* Construction of the arrows from a i to BinConeOb *)
     intros i. induction (natlehchoice4 (pr1 i) _ (pr2 i)) as [a0|b].
-    exact (m1 (stnpair n (pr1 i) a0) ;;
+    exact (m1 (stnpair n (pr1 i) a0) ·
               idtoiso (! maponpaths a (dni_lastelement_eq n i a0))).
-    exact (m2 (invweq(weqstn1tounit) tt) ;;
+    exact (m2 (invweq(weqstn1tounit) tt) ·
               idtoiso (! maponpaths a (lastelement_eq n i b))).
 
     (* Construction of isProductCone. *)
@@ -134,7 +134,7 @@ Section FinOrdProduct_criteria.
     apply remove_id_right. apply idpath.
 
     unfold m1. unfold p1. rewrite assoc. fold g1. fold ar1.
-    use (pathscomp0 (maponpaths (fun f : _ => f ;; Cone1Pr (stnpair n (pr1 i) a0))
+    use (pathscomp0 (maponpaths (fun f : _ => f · Cone1Pr (stnpair n (pr1 i) a0))
                                 com1)).
     fold ar1 in com3. rewrite com3. unfold g1. apply idpath.
 
@@ -144,7 +144,7 @@ Section FinOrdProduct_criteria.
     apply remove_id_right. apply idpath.
 
     unfold m2. unfold p2. rewrite assoc. fold g1. fold ar1.
-    use (pathscomp0 (maponpaths (fun f : _ => f ;; Cone2Pr lastelement) com2)).
+    use (pathscomp0 (maponpaths (fun f : _ => f · Cone2Pr lastelement) com2)).
     rewrite com4. apply idpath.
 
 
@@ -168,7 +168,7 @@ Section FinOrdProduct_criteria.
 
     set (e := dni_lastelement_is_inj (dni_lastelement_eq n (dni_lastelement i)
                                                          a0)).
-    use (pathscomp0 _ (ProductPr_idtoiso (stn n) C (a ∘ dni_lastelement) Cone1
+    use (pathscomp0 _ (ProductPr_idtoiso (stn n) C (a ∘ dni_lastelement)%functions Cone1
                                          (!e))).
     rewrite maponpathsinv0.
     apply cancel_precomposition.

@@ -13,9 +13,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
-
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
+Local Open Scope cat.
 
 Section def_terminal.
 
@@ -54,7 +52,7 @@ Proof.
 Qed.
 
 Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) :
-   is_isomorphism (TerminalArrow T T').
+   is_iso (TerminalArrow T T').
 Proof.
   apply (is_iso_qinv _ (TerminalArrow T' T)).
   split.
@@ -156,7 +154,7 @@ End Terminal_and_EmptyProd.
 (* case (iscc _ (termCone b)); intros f Hf; destruct f as [f fcomm]. *)
 (* apply (tpair _ f); intro g. *)
 (* simple refine (let X : ∑ x : b --> c, *)
-(*                        ∏ v, coconeIn cc v ;; x = coconeIn (termCone b) v := _ in _). *)
+(*                        ∏ v, coconeIn cc v · x = coconeIn (termCone b) v := _ in _). *)
 (*   { apply (tpair _ g); intro u; induction u. } *)
 (* apply (maponpaths pr1 (Hf X)). *)
 (* Defined. *)

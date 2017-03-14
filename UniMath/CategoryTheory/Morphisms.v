@@ -9,7 +9,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.opp_precat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -18,7 +18,23 @@ Require Import UniMath.CategoryTheory.limits.Opp.
 (** * Pair of morphisms *)
 Section def_morphismpair.
 
-  Variable C : precategory.
+  Context {C : precategory}.
+
+  (** ** Morphism **)
+
+  Definition Morphism : UU := ∑ (a b : C), a --> b.
+
+  Definition mk_Morphism {a b : C} (f : a --> b) : Morphism := (a,,(b,,f)).
+
+  Definition Source (M : Morphism) : ob C := pr1 M.
+
+  Definition Target (M : Morphism) : ob C := pr1 (pr2 M).
+
+  Definition MorphismMor (M : Morphism) : C⟦Source M, Target M⟧ := pr2 (pr2 M).
+  Coercion MorphismMor : Morphism >-> precategory_morphisms.
+
+
+  (** ** MorphismPair **)
 
   Definition MorphismPair : UU := ∑ (a b c : C), (a --> b × b --> c).
 
@@ -50,48 +66,54 @@ Section def_morphismpair.
   Definition MPMorMors (MP1 MP2 : MorphismPair) : UU :=
     (Ob1 MP1 --> Ob1 MP2) × (Ob2 MP1 --> Ob2 MP2) × (Ob3 MP1 --> Ob3 MP2).
 
-  Definition MPMors1 {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) : Ob1 MP1 --> Ob1 MP2 :=
+  Definition mk_MPMorMors {MP1 MP2 : MorphismPair} (f1 : Ob1 MP1 --> Ob1 MP2)
+             (f2 : Ob2 MP1 --> Ob2 MP2) (f3 : Ob3 MP1 --> Ob3 MP2) : MPMorMors MP1 MP2 :=
+    (f1,,(f2,,f3)).
+
+  Definition MPMor1 {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) : Ob1 MP1 --> Ob1 MP2 :=
     dirprod_pr1 MPM.
 
-  Definition MPMors2 {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) : Ob2 MP1 --> Ob2 MP2 :=
+  Definition MPMor2 {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) : Ob2 MP1 --> Ob2 MP2 :=
     dirprod_pr1 (dirprod_pr2 MPM).
 
-  Definition MPMors3 {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) : Ob3 MP1 --> Ob3 MP2 :=
+  Definition MPMor3 {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) : Ob3 MP1 --> Ob3 MP2 :=
     dirprod_pr2 (dirprod_pr2 MPM).
 
   Definition MPMorComms {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) : UU :=
-    (MPMors1 MPM ;; Mor1 MP2 = Mor1 MP1 ;; MPMors2 MPM)
-      × (MPMors2 MPM ;; Mor2 MP2 = Mor2 MP1 ;; MPMors3 MPM).
+    (MPMor1 MPM · Mor1 MP2 = Mor1 MP1 · MPMor2 MPM)
+      × (MPMor2 MPM · Mor2 MP2 = Mor2 MP1 · MPMor3 MPM).
+
+  Definition mk_MPMorComms {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2)
+             (H1 : MPMor1 MPM · Mor1 MP2 = Mor1 MP1 · MPMor2 MPM)
+             (H2 : MPMor2 MPM · Mor2 MP2 = Mor2 MP1 · MPMor3 MPM) : MPMorComms MPM := (H1,,H2).
 
   Definition MPComm1 {MP1 MP2 : MorphismPair} {MPM : MPMorMors MP1 MP2} (MPMC : MPMorComms MPM) :
-    MPMors1 MPM ;; Mor1 MP2 = Mor1 MP1 ;; MPMors2 MPM := dirprod_pr1 MPMC.
+    MPMor1 MPM · Mor1 MP2 = Mor1 MP1 · MPMor2 MPM := dirprod_pr1 MPMC.
 
   Definition MPComm2 {MP1 MP2 : MorphismPair} {MPM : MPMorMors MP1 MP2} (MPMC : MPMorComms MPM) :
-    MPMors2 MPM ;; Mor2 MP2 = Mor2 MP1 ;; MPMors3 MPM := dirprod_pr2 MPMC.
+    MPMor2 MPM · Mor2 MP2 = Mor2 MP1 · MPMor3 MPM := dirprod_pr2 MPMC.
 
-  Definition MPMorphism (MP1 MP2 : MorphismPair) : UU := ∑ MPM : MPMorMors MP1 MP2, MPMorComms MPM.
+  Definition MPMor (MP1 MP2 : MorphismPair) : UU := ∑ MPM : MPMorMors MP1 MP2, MPMorComms MPM.
 
-  Definition MPMorphism_MPMorMors {MP1 MP2 : MorphismPair} (MPM : MPMorphism MP1 MP2) :
+  Definition mk_MPMor {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) (MPMC : MPMorComms MPM) :
+    MPMor MP1 MP2 := (MPM,,MPMC).
+
+  Definition MPMor_MPMorMors {MP1 MP2 : MorphismPair} (MPM : MPMor MP1 MP2) :
     MPMorMors MP1 MP2 := pr1 MPM.
-  Coercion MPMorphism_MPMorMors : MPMorphism >-> MPMorMors.
+  Coercion MPMor_MPMorMors : MPMor >-> MPMorMors.
 
-  Definition MPMorphism_MPMorComms {MP1 MP2 : MorphismPair} (MPM : MPMorphism MP1 MP2) :
+  Definition MPMor_MPMorComms {MP1 MP2 : MorphismPair} (MPM : MPMor MP1 MP2) :
     MPMorComms MPM := pr2 MPM.
-  Coercion MPMorphism_MPMorComms : MPMorphism >-> MPMorComms.
+  Coercion MPMor_MPMorComms : MPMor >-> MPMorComms.
 
 End def_morphismpair.
-Arguments mk_MorphismPair [C] [a] [b] [c] _ _.
-Arguments Ob1 [C] _.
-Arguments Ob2 [C] _.
-Arguments Ob3 [C] _.
-Arguments Mor1 [C] _.
-Arguments Mor2 [C] _.
 
 
 (** * MorphismPair and opposite categories *)
 Section MorphismPair_opp.
 
-  Definition MorphismPair_opp {C : precategory} (MP : MorphismPair C) : MorphismPair (opp_precat C).
+  Definition MorphismPair_opp {C : precategory} (MP : @MorphismPair C) :
+    @MorphismPair (opp_precat C).
   Proof.
     use mk_MorphismPair.
     - exact (Ob3 MP).
@@ -101,7 +123,8 @@ Section MorphismPair_opp.
     - exact (Mor1 MP).
   Defined.
 
-  Definition opp_MorphismPair {C : precategory} (MP : MorphismPair (opp_precat C)) : MorphismPair C.
+  Definition opp_MorphismPair {C : precategory} (MP : @MorphismPair (opp_precat C)) :
+    @MorphismPair C.
   Proof.
     use mk_MorphismPair.
     - exact (Ob3 MP).
@@ -126,18 +149,18 @@ Section def_shortshortexactdata.
     morphism. *)
 
   Definition ShortShortExactData : UU :=
-    ∑ MP : MorphismPair C, Mor1 MP ;; Mor2 MP = ZeroArrow Z _ _.
+    ∑ MP : MorphismPair, Mor1 MP · Mor2 MP = ZeroArrow Z _ _.
 
-  Definition mk_ShortShortExactData (MP : MorphismPair C)
-             (H : Mor1 MP ;; Mor2 MP = ZeroArrow Z _ _) : ShortShortExactData := tpair _ MP H.
+  Definition mk_ShortShortExactData (MP : MorphismPair)
+             (H : Mor1 MP · Mor2 MP = ZeroArrow Z _ _) : ShortShortExactData := tpair _ MP H.
 
   (** Accessor functions *)
   Definition ShortShortExactData_MorphismPair (SSED : ShortShortExactData) :
-    MorphismPair C := pr1 SSED.
+    MorphismPair := pr1 SSED.
   Coercion ShortShortExactData_MorphismPair : ShortShortExactData >-> MorphismPair.
 
   Definition ShortShortExactData_Eq (SSED : ShortShortExactData) :
-    (Mor1 SSED) ;; (Mor2 SSED) = ZeroArrow Z _ _ := pr2 SSED.
+    (Mor1 SSED) · (Mor2 SSED) = ZeroArrow Z _ _ := pr2 SSED.
 
 End def_shortshortexactdata.
 Arguments mk_ShortShortExactData [C] _ _ _.
@@ -149,7 +172,7 @@ Section shortshortexactdata_opp.
 
   Lemma opp_ShortShortExactData_Eq {C : precategory} {Z : Zero C}
              (SSED : ShortShortExactData (opp_precat C) (Zero_opp C Z)) :
-    Mor1 (opp_MorphismPair SSED) ;; Mor2 (opp_MorphismPair SSED) =
+    Mor1 (opp_MorphismPair SSED) · Mor2 (opp_MorphismPair SSED) =
     ZeroArrow Z (Ob1 (opp_MorphismPair SSED)) (Ob3 (opp_MorphismPair SSED)).
   Proof.
     use (pathscomp0 (@ShortShortExactData_Eq (opp_precat C) (Zero_opp C Z) SSED)).
@@ -166,7 +189,7 @@ Section shortshortexactdata_opp.
 
   Lemma ShortShortExactData_opp_Eq {C : precategory} {Z : Zero C}
         (SSED : ShortShortExactData C Z) :
-    Mor1 (MorphismPair_opp SSED) ;; Mor2 (MorphismPair_opp SSED) =
+    Mor1 (MorphismPair_opp SSED) · Mor2 (MorphismPair_opp SSED) =
     ZeroArrow (Zero_opp C Z) (Ob1 (MorphismPair_opp SSED)) (Ob3 (MorphismPair_opp SSED)).
   Proof.
     use (pathscomp0 (@ShortShortExactData_Eq C Z SSED)).

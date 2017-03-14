@@ -282,11 +282,13 @@ Proof.
   apply funextfun ; intro x.
   apply maponpaths.
   apply map_on_two_paths.
-  induction L as [n L] ; simpl.
-  apply maponpaths.
-  apply funextfun ; intro m.
-  apply append_fun_compute_1.
-  reflexivity.
+  - induction L as [n L] ; simpl.
+    apply maponpaths.
+    apply funextfun ; intro m.
+    unfold funcomp.
+    rewrite <- replace_dni_last.
+    apply append_fun_compute_1.
+  - reflexivity.
 Qed.
 
 Lemma finite_intersection_hProp {X : UU} :

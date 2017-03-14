@@ -42,12 +42,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-
-
+Local Open Scope cat.
 
 (** * Sub-precategories *)
 
@@ -61,7 +56,7 @@ Definition is_sub_precategory {C : precategory}
     (Cmor' : ∏ a b : C, hsubtype (a --> b)) :=
  dirprod (∏ a : C, C' a ->  Cmor' _ _ (identity a ))
          (∏ (a b c : C) (f: a --> b) (g : b --> c),
-                   Cmor' _ _ f -> Cmor' _ _  g -> Cmor' _ _  (f ;; g)).
+                   Cmor' _ _ f -> Cmor' _ _  g -> Cmor' _ _  (f · g)).
 
 Definition sub_precategories (C : precategory) := total2 (
    fun C' : dirprod (hsubtype (ob C))
@@ -119,7 +114,7 @@ Definition sub_precategory_comp (C : precategory)(C':sub_precategories C) :
    ∏ (a b c: ob C) (f: a --> b) (g : b --> c),
           sub_precategory_predicate_morphisms C' _ _ f ->
           sub_precategory_predicate_morphisms C' _ _ g ->
-          sub_precategory_predicate_morphisms C' _ _  (f ;; g) :=
+          sub_precategory_predicate_morphisms C' _ _  (f · g) :=
         pr2 (pr2 C').
 
 (** the following lemma should be an instance of a general theorem saying that
@@ -479,7 +474,7 @@ Variable C' : hsubtype (ob C).
 (** *** Isos in the full subcategory are equivalent to isos in the precategory *)
 
 Lemma iso_in_subcat_is_iso_in_precat (a b : ob (full_sub_precategory C'))
-       (f : iso a b): is_isomorphism (C:=C) (a:=pr1 a) (b:=pr1 b)
+       (f : iso a b): is_iso (C:=C) (a:=pr1 a) (b:=pr1 b)
      (pr1 (pr1 f)).
 Proof.
   set (T:= pr1 (inv_from_iso f)).
@@ -494,7 +489,7 @@ Defined.
 
 Lemma iso_in_precat_is_iso_in_subcat (a b : ob (full_sub_precategory C'))
      (f : iso (pr1 a) (pr1 b)) :
-   is_isomorphism (C:=full_sub_precategory C')
+   is_iso (C:=full_sub_precategory C')
      (precategory_morphisms_in_subcat f tt).
 Proof.
   apply (is_iso_qinv _ (precategory_morphisms_in_subcat (inv_from_iso f) tt)).

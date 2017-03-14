@@ -12,7 +12,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
@@ -59,11 +59,11 @@ Let f2 : [C,D] ⟦H (X • U Y),H' (X • U Y)⟧ := α (X • U Y).
 Let g1 : [C,D] ⟦H X • U Y,H' X • U Y⟧ := α X ∙∙ identity (U Y).
 Let g2 : [C,D] ⟦H' X • U Y,H' (X • U Y)⟧ := θ' (X,,Y).
 
-Definition Signature_category_mor_diagram : UU := f1 ;; f2 = g1 ;; g2.
+Definition Signature_category_mor_diagram : UU := f1 · f2 = g1 · g2.
 
 (** Special comparison lemma that speeds things up a lot *)
 Lemma Signature_category_mor_diagram_pointwise
-  (Hc : ∏ c, pr1 f1 c ;; pr1 f2 c = pr1 (α X) ((pr1 Y) c) ;; pr1 g2 c) :
+  (Hc : ∏ c, pr1 f1 c · pr1 f2 c = pr1 (α X) ((pr1 Y) c) · pr1 g2 c) :
    Signature_category_mor_diagram.
 Proof.
 apply (nat_trans_eq hsD); intro c; simpl.
@@ -105,7 +105,7 @@ Proof.
 destruct α as [α Hα]; destruct β as [β Hβ].
 unfold Signature_category_mor_diagram in *; simpl.
 rewrite (assoc ((theta Ht1) (X,,Y))).
-etrans; [apply (cancel_postcomposition _ _ _ _ ((theta Ht1) (X,,Y) ;; _)), Hα|].
+etrans; [apply (cancel_postcomposition _ _ _ _ ((theta Ht1) (X,,Y) · _)), Hα|].
 rewrite <- assoc; etrans; [apply maponpaths, Hβ|].
 rewrite assoc; apply (cancel_postcomposition [C,D] _ _ _ _ (_ ∙∙ identity (U Y))).
 apply (nat_trans_eq hsD); intro c; simpl.

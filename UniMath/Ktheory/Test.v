@@ -10,7 +10,8 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
 Require Import UniMath.Ktheory.Representation.
@@ -29,8 +30,8 @@ Definition isCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
 Definition mk_isCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :
    (∏ (c : C) (f : a --> c) (g : b --> c),
     ∃! k : C ⟦co, c⟧,
-      ia ;; k = f ×
-      ib ;; k = g)
+      ia · k = f ×
+      ib · k = g)
    ->
    isCoproductCocone a b co ia ib.
 Proof.
@@ -71,14 +72,14 @@ Definition CoproductArrow {a b : C} (CC : CoproductCocone a b) {c : C} (f : a --
   := binarySumMap CC f g.
 
 Lemma CoproductIn1Commutes (a b : C) (CC : CoproductCocone a b):
-     ∏ (c : C) (f : a --> c) g, CoproductIn1 CC ;; CoproductArrow CC f g  = f.
+     ∏ (c : C) (f : a --> c) g, CoproductIn1 CC · CoproductArrow CC f g  = f.
 Proof.
   intros c f g.
   exact (binarySum_in_1_eqn CC f g).
 Qed.
 
 Lemma CoproductIn2Commutes (a b : C) (CC : CoproductCocone a b):
-     ∏ (c : C) (f : a --> c) g, CoproductIn2 CC ;; CoproductArrow CC f g = g.
+     ∏ (c : C) (f : a --> c) g, CoproductIn2 CC · CoproductArrow CC f g = g.
 Proof.
   intros c f g.
   exact (binarySum_in_2_eqn CC f g).
@@ -86,7 +87,7 @@ Qed.
 
 Lemma CoproductArrowUnique (a b : C) (CC : CoproductCocone a b) (x : C)
     (f : a --> x) (g : b --> x) (k : CoproductObject CC --> x) :
-    CoproductIn1 CC ;; k = f -> CoproductIn2 CC ;; k = g ->
+    CoproductIn1 CC · k = f -> CoproductIn2 CC · k = g ->
       k = CoproductArrow CC f g.
 Proof.
   intros u v.
@@ -97,7 +98,7 @@ Qed.
 
 Lemma CoproductArrowEta (a b : C) (CC : CoproductCocone a b) (x : C)
     (f : CoproductObject CC --> x) :
-    f = CoproductArrow CC (CoproductIn1 CC ;; f) (CoproductIn2 CC ;; f).
+    f = CoproductArrow CC (CoproductIn1 CC · f) (CoproductIn2 CC · f).
 Proof.
   apply CoproductArrowUnique;
   apply idpath.
@@ -106,11 +107,11 @@ Qed.
 Definition CoproductOfArrows {a b : C} (CCab : CoproductCocone a b) {c d : C}
     (CCcd : CoproductCocone c d) (f : a --> c) (g : b --> d) :
           CoproductObject CCab --> CoproductObject CCcd :=
-    CoproductArrow CCab (f ;; CoproductIn1 CCcd) (g ;; CoproductIn2 CCcd).
+    CoproductArrow CCab (f · CoproductIn1 CCcd) (g · CoproductIn2 CCcd).
 
 Lemma CoproductOfArrowsIn1 {a b : C} (CCab : CoproductCocone a b) {c d : C}
     (CCcd : CoproductCocone c d) (f : a --> c) (g : b --> d) :
-    CoproductIn1 CCab ;; CoproductOfArrows CCab CCcd f g = f ;; CoproductIn1 CCcd.
+    CoproductIn1 CCab · CoproductOfArrows CCab CCcd f g = f · CoproductIn1 CCcd.
 Proof.
   unfold CoproductOfArrows.
   apply CoproductIn1Commutes.
@@ -118,7 +119,7 @@ Qed.
 
 Lemma CoproductOfArrowsIn2 {a b : C} (CCab : CoproductCocone a b) {c d : C}
     (CCcd : CoproductCocone c d) (f : a --> c) (g : b --> d) :
-    CoproductIn2 CCab ;; CoproductOfArrows CCab CCcd f g = g ;; CoproductIn2 CCcd.
+    CoproductIn2 CCab · CoproductOfArrows CCab CCcd f g = g · CoproductIn2 CCcd.
 Proof.
   unfold CoproductOfArrows.
   apply CoproductIn2Commutes.
@@ -128,8 +129,8 @@ Qed.
 Lemma precompWithCoproductArrow {a b : C} (CCab : CoproductCocone a b) {c d : C}
     (CCcd : CoproductCocone c d) (f : a --> c) (g : b --> d)
     {x : C} (k : c --> x) (h : d --> x) :
-        CoproductOfArrows CCab CCcd f g ;; CoproductArrow CCcd k h =
-         CoproductArrow CCab (f ;; k) (g ;; h).
+        CoproductOfArrows CCab CCcd f g · CoproductArrow CCcd k h =
+         CoproductArrow CCab (f · k) (g · h).
 Proof.
   apply CoproductArrowUnique.
   - rewrite assoc. rewrite CoproductOfArrowsIn1.
@@ -143,7 +144,7 @@ Qed.
 
 Lemma postcompWithCoproductArrow {a b : C} (CCab : CoproductCocone a b) {c : C}
     (f : a --> c) (g : b --> c) {x : C} (k : c --> x)  :
-       CoproductArrow CCab f g ;; k = CoproductArrow CCab (f ;; k) (g ;; k).
+       CoproductArrow CCab f g · k = CoproductArrow CCab (f · k) (g · k).
 Proof.
   apply CoproductArrowUnique.
   -  rewrite assoc, CoproductIn1Commutes;
@@ -168,8 +169,8 @@ Defined.
 
 Lemma Coproduct_endo_is_identity (CC : CoproductCocone a b)
   (k : CoproductObject CC --> CoproductObject CC)
-  (H1 : CoproductIn1 CC ;; k = CoproductIn1 CC)
-  (H2 : CoproductIn2 CC ;; k = CoproductIn2 CC)
+  (H1 : CoproductIn1 CC · k = CoproductIn1 CC)
+  (H2 : CoproductIn2 CC · k = CoproductIn2 CC)
   : identity _ = k.
 Proof.
 (*  apply pathsinv0. *)

@@ -13,7 +13,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -21,7 +21,9 @@ Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
+(*
 Require Import UniMath.SubstitutionSystems.Lam.
+*)
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
@@ -65,7 +67,7 @@ split; simpl.
 - intro Ze.
   apply (nat_trans_eq hsC).
   now intro c; simpl; rewrite functor_id, id_right.
-- intros [Z e] [Z' e'] [Z'' e''] [α a] [β b].
+- intros H1 H2 H3 H4 H5; induction H1 as [Z e]; induction H2 as [Z' e']; induction H3 as [Z'' e'']; induction H4 as [α a]; induction H5 as [β b].
   apply (nat_trans_eq hsC); intro c; simpl in *.
   now rewrite !id_left, functor_comp.
 Qed.
@@ -88,7 +90,7 @@ split; simpl.
 - intro Ze.
   apply (nat_trans_eq hsC).
   now intro c; simpl; rewrite functor_id, id_right.
-- intros [Z e] [Z' e'] [Z'' e''] [α a] [β b].
+- intros H1 H2 H3 H4 H5; induction H1 as [Z e]; induction H2 as [Z' e']; induction H3 as [Z'' e'']; induction H4 as [α a]; induction H5 as [β b].
   apply (nat_trans_eq hsC); intro c; simpl in *.
   now rewrite !functor_id, !id_right.
 Qed.
@@ -97,7 +99,7 @@ Definition δ_target : functor Ptd EndC := tpair _ _ is_functor_δ_target.
 
 Section δ_laws.
 
-Variable δ : δ_source ⟶ δ_target.
+Variable δ : δ_source ⟹ δ_target.
 
 (* Should be ρ_G^-1 ∘ λ_G ? *)
 Definition δ_law1 : UU := δ (id_Ptd C hsC) = nat_trans_id G.
@@ -165,7 +167,7 @@ Defined.
 Lemma is_nat_trans_θ_from_δ_mor :
    is_nat_trans (θ_source precompG) (θ_target precompG) θ_from_δ_mor.
 Proof.
-intros [F1 X1] [F2 X2] [α X]; simpl in *.
+intros H1 H2 H3; induction H1 as [F1 X1]; induction H2 as [F2 X2];induction H3 as [α X]; simpl in *.
 apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_right, !id_left.
 generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G DL) X1 X2 X) c); simpl.
 rewrite id_left, functor_id, id_right.
@@ -181,7 +183,7 @@ eapply pathscomp0.
 now rewrite <- assoc, <- functor_comp.
 Qed.
 
-Definition θ_from_δ : θ_source precompG ⟶ θ_target precompG :=
+Definition θ_from_δ : θ_source precompG ⟹ θ_target precompG :=
   tpair _ _ is_nat_trans_θ_from_δ_mor.
 
 Lemma θ_Strength1_int_from_δ : θ_Strength1_int θ_from_δ.
@@ -207,7 +209,7 @@ eapply pathscomp0;
 apply functor_comp.
 Qed.
 
-Definition θ_precompG : ∑ θ : θ_source precompG ⟶ θ_target precompG,
+Definition θ_precompG : ∑ θ : θ_source precompG ⟹ θ_target precompG,
                               θ_Strength1_int θ × θ_Strength2_int θ :=
   tpair _ θ_from_δ (θ_Strength1_int_from_δ,,θ_Strength2_int_from_δ).
 
@@ -226,7 +228,7 @@ Section δ_mul.
 
 Definition δ_comp_mor (Ze : ptd_obj C) :
        functor_composite_data (pr1 Ze) (functor_composite_data G1 G2)
-   ⟶ functor_composite_data (functor_composite_data G1 G2) (pr1 Ze).
+   ⟹ functor_composite_data (functor_composite_data G1 G2) (pr1 Ze).
 Proof.
 set (Z := pr1 Ze).
 set (F1 := α_functor_inv Z G1 G2).
@@ -240,7 +242,7 @@ Defined.
 Lemma is_nat_trans_δ_comp_mor : is_nat_trans (δ_source (G2 • G1 : [C,C,hsC]))
                                              (δ_target (G2 • G1 : [C,C,hsC])) δ_comp_mor.
 Proof.
-intros [Z e] [Z' e'] [α X]; simpl in *.
+intros Ze Z'e' αX; induction Ze as [Z e]; induction Z'e' as [Z' e']; induction αX as [α X]; simpl in *.
 apply (nat_trans_eq hsC); intro c; simpl; rewrite functor_id, !id_right, !id_left.
 eapply pathscomp0.
   rewrite assoc.
@@ -259,7 +261,7 @@ eapply pathscomp0.
 now rewrite assoc.
 Qed.
 
-Definition δ_comp : δ_source (G2 • G1 : [C,C,hsC]) ⟶ δ_target (G2 • G1 : [C,C,hsC]) :=
+Definition δ_comp : δ_source (G2 • G1 : [C,C,hsC]) ⟹ δ_target (G2 • G1 : [C,C,hsC]) :=
   tpair _ δ_comp_mor is_nat_trans_δ_comp_mor.
 
 Lemma δ_comp_law1 : δ_law1 (G2 • G1 : [C,C,hsC]) δ_comp.
@@ -314,7 +316,7 @@ Definition δ_genoption_mor (Ze : Ptd) (c : C) :  C ⟦ BinCoproductObject C (CC
                                                   pr1 Ze (BinCoproductObject C (CC A c)) ⟧.
 Proof.
 apply (@BinCoproductArrow _ _ _ (CC A (pr1 Ze c)) (pr1 Ze (BinCoproductObject C (CC A c)))).
-- apply (BinCoproductIn1 _ (CC A c) ;; pr2 Ze (BinCoproductObject _ (CC A c))).
+- apply (BinCoproductIn1 _ (CC A c) · pr2 Ze (BinCoproductObject _ (CC A c))).
 - apply (# (pr1 Ze) (BinCoproductIn2 _ (CC A c))).
 Defined.
 
@@ -323,7 +325,7 @@ Lemma is_nat_trans_δ_genoption_mor (Ze : Ptd) :
      (δ_genoption_mor Ze).
 Proof.
 intros a b f; simpl.
-destruct Ze as [Z e].
+induction Ze as [Z e].
 unfold BinCoproduct_of_functors_mor; simpl.
 eapply pathscomp0.
   apply precompWithBinCoproductArrow.
@@ -351,7 +353,7 @@ Lemma is_nat_trans_δ_genoption_mor_nat_trans : is_nat_trans (δ_source_functor_
      (δ_target_functor_data genopt)
      (λ Ze : Ptd, δ_genoption_mor Ze,, is_nat_trans_δ_genoption_mor Ze).
 Proof.
-intros [Z e] [Z' e'] [α X]; simpl in *.
+intro Ze; induction Ze as [Z e]; intro Z'e'; induction Z'e' as [Z' e']; intro αX; induction αX as [α X]; simpl in *.
 apply (nat_trans_eq hsC); intro c; simpl.
 rewrite id_left, functor_id, id_right.
 unfold BinCoproduct_of_functors_mor, BinCoproduct_of_functors_ob, δ_genoption_mor; simpl.
@@ -368,7 +370,7 @@ apply pathsinv0, BinCoproductArrowUnique.
   now apply nat_trans_ax.
 Qed.
 
-Definition δ_genoption : δ_source genopt ⟶ δ_target genopt.
+Definition δ_genoption : δ_source genopt ⟹ δ_target genopt.
 Proof.
 mkpair.
 - intro Ze.
@@ -388,7 +390,7 @@ Qed.
 
 Lemma δ_law2_genoption : δ_law2 genopt δ_genoption.
 Proof.
-intros [Z e] [Z' e'].
+intros Ze Z'e'; induction Ze as [Z e]; induction Z'e' as [Z' e'].
 apply (nat_trans_eq hsC); intro c; simpl.
 unfold δ_genoption_mor, BinCoproduct_of_functors_ob; simpl.
 rewrite !id_left, id_right.
@@ -432,7 +434,7 @@ Section option_sig.
 
   Variables (TC : Terminal C) (CC : BinCoproducts C).
   Let opt := option_functor CC TC.
-  Definition δ_option: δ_source opt ⟶ δ_target opt :=
+  Definition δ_option: δ_source opt ⟹ δ_target opt :=
     δ_genoption TC CC.
 
   Definition δ_law1_option :=  δ_law1_genoption TC CC.
@@ -470,7 +472,7 @@ Section id_signature.
 Variable (C : precategory) (hsC : has_homsets C).
 
 Definition θ_functor_identity : ∑
-  θ : θ_source (functor_identity [C,C,hsC]) ⟶ θ_target (functor_identity [C,C,hsC]),
+  θ : θ_source (functor_identity [C,C,hsC]) ⟹ θ_target (functor_identity [C,C,hsC]),
   θ_Strength1_int θ × θ_Strength2_int θ.
 Proof.
 mkpair; simpl.
@@ -506,7 +508,7 @@ Section constantly_constant_signature.
   Let H := constant_functor (functor_Precategory C C) (functor_Precategory C D) (constant_functor C D d).
 
   Definition θ_const_const : ∑
-  θ : θ_source H  ⟶ θ_target H, θ_Strength1_int θ × θ_Strength2_int θ.
+  θ : θ_source H  ⟹ θ_target H, θ_Strength1_int θ × θ_Strength2_int θ.
 Proof.
 mkpair; simpl.
 + mkpair; simpl.
@@ -568,7 +570,7 @@ Defined.
 Lemma is_nat_trans_Gθ_mor :
    is_nat_trans (θ_source GH) (θ_target GH) Gθ_mor.
 Proof.
-intros [F1 X1] [F2 X2] [α X]; simpl in *.
+intros H1 H2 H3; induction H1 as [F1 X1]; induction H2 as [F2 X2]; induction H3 as [α X]; simpl in *.
 apply (nat_trans_eq hsE); intro c; simpl.
 do 2 rewrite <- assoc.
 do 2 rewrite id_left.
@@ -581,12 +583,12 @@ eapply pathscomp0.
       * eapply maponpaths.
         apply pathsinv0.
         rewrite assoc.
-        generalize (nat_trans_eq_pointwise (nat_trans_ax θ (F1,,X1)(F2,,X2) (α,,X)) c); simpl.
+        generalize (nat_trans_eq_pointwise (nat_trans_ax θ (F1,,X1)(F2,,X2)(α,,X)) c); simpl.
         intro Hyp.
         apply Hyp.
 Qed.
 
-Definition Gθ : θ_source GH ⟶ θ_target GH :=
+Definition Gθ : θ_source GH ⟹ θ_target GH :=
   tpair _ _ is_nat_trans_Gθ_mor.
 
 
@@ -624,7 +626,7 @@ eapply pathscomp0.
 Qed.
 
 
-Definition Gθ_with_laws : ∑ θ : θ_source GH ⟶ θ_target GH,
+Definition Gθ_with_laws : ∑ θ : θ_source GH ⟹ θ_target GH,
                               θ_Strength1_int θ × θ_Strength2_int θ :=
   tpair _ Gθ (Gθ_Strength1_int,,Gθ_Strength2_int).
 

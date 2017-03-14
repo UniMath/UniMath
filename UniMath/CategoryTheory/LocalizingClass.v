@@ -5,25 +5,25 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 (** * Localizing class and localization of categories.
     In this section we define localization of categories when the collection of morphisms forms
     so called localizing class. The axioms of localizing class S are the following
     - every identity morphism must be in the collection
-    - if f and g are in S, then so is f ;; g
+    - if f and g are in S, then so is f · g
     - Suppose we morphisms s : X --> Y and f : Z --> Y such that s in in S. Then we can find a
       square, that is morphisms, s' : W --> Z and f' : W --> X, such that s' in in S and we have
-      s' ;; f = f' ;; s.
+      s' · f = f' · s.
     - Dual version of the previous. Suppose s : X --> Y and f : X --> Z such that s in in S. Then
       we can find a square, that is morphisms, s' : Z --> W and f' : Y --> W, such that s' is in S
-      and we have s' ;; f = f' ;; s.
+      and we have s' · f = f' · s.
     - Suppose we have a morphism s : X --> Y contained in S and two morphisms f g : Y --> Z such
-      that s ;; f = s ;; g. Then S contains a morphism s' such that f ;; s' = f ;; s'.
+      that s · f = s · g. Then S contains a morphism s' such that f · s' = f · s'.
     - Dual of the above. Suppose we have a morphism s : Z --> W in S and two morphisms
-      f g : Y --> Z such that f ;; s = g ;; s. Then we can find a morphism s' in S such that
-      s' ;; f = s' ;; g.
+      f g : Y --> Z such that f · s = g · s. Then we can find a morphism s' in S such that
+      s' · f = s' · g.
 *)
 
 Section def_roofs.
@@ -39,21 +39,21 @@ Section def_roofs.
   Definition isLocalizingClass1 (SOM : SubsetsOfMors) : UU :=
     (∏ (x : ob C), SOM x x (identity x))
       × (∏ (x y z : ob C) (f : x --> y) (e1 : SOM x y f) (g : y --> z) (e2 : SOM y z g),
-         SOM x z (f ;; g)).
+         SOM x z (f · g)).
 
   Definition isLocClassIs {SOM : SubsetsOfMors} (H : isLocalizingClass1 SOM) :
     ∏ (x : ob C), SOM x x (identity x) := pr1 H.
 
   Definition isLocClassComp {SOM : SubsetsOfMors} (H : isLocalizingClass1 SOM) :
     ∏ (x y z : ob C) (f : x --> y) (e1 : SOM x y f) (g : y --> z) (e2 : SOM y z g),
-    SOM x z (f ;; g) := pr2 H.
+    SOM x z (f · g) := pr2 H.
 
   (** **** Squares *)
   Definition LocSqr1 (SOM : SubsetsOfMors) {x y z : ob C} (s : x --> y) (e1 : SOM x y s)
              (f : x --> z) : UU :=
     ∑ D : (∑ (w : ob C), C⟦y, w⟧ × C⟦z, w⟧),
           (SOM z (pr1 D) (dirprod_pr2 (pr2 D)))
-            × (s ;; (dirprod_pr1 (pr2 D)) = f ;; (dirprod_pr2 (pr2 D))).
+            × (s · (dirprod_pr1 (pr2 D)) = f · (dirprod_pr2 (pr2 D))).
 
   Definition LocSqr1Ob {SOM : SubsetsOfMors} {x y z : ob C} {s : x --> y} {e1 : SOM x y s}
              {f : x --> z} (LS1 : LocSqr1 SOM s e1 f) : ob C := pr1 (pr1 LS1).
@@ -71,13 +71,13 @@ Section def_roofs.
 
   Definition LocSqr1Comm {SOM : SubsetsOfMors} {x y z : ob C} {s : x --> y} {e1 : SOM x y s}
              {f : x --> z} (LS1 : LocSqr1 SOM s e1 f) :
-    s ;; (LocSqr1Mor1 LS1) = f ;; (LocSqr1Mor2 LS1) := dirprod_pr2 (pr2 LS1).
+    s · (LocSqr1Mor1 LS1) = f · (LocSqr1Mor2 LS1) := dirprod_pr2 (pr2 LS1).
 
   Definition LocSqr2 (SOM : SubsetsOfMors) {y z w : ob C} (s : y --> w) (e1 : SOM y w s)
              (f : z --> w) : UU :=
     ∑ D : (∑ (x : ob C), C⟦x, y⟧ × C⟦x, z⟧),
           (SOM (pr1 D) z (dirprod_pr2 (pr2 D)))
-            × ((dirprod_pr1 (pr2 D)) ;; s = (dirprod_pr2 (pr2 D)) ;; f).
+            × ((dirprod_pr1 (pr2 D)) · s = (dirprod_pr2 (pr2 D)) · f).
 
   Definition LocSqr2Ob {SOM : SubsetsOfMors} {y z w : ob C} {s : y --> w} {e1 : SOM y w s}
              {f : z --> w} (LS2 : LocSqr2 SOM s e1 f) : ob C := pr1 (pr1 LS2).
@@ -95,7 +95,7 @@ Section def_roofs.
 
   Definition LocSqr2Comm {SOM : SubsetsOfMors} {y z w : ob C} {s : y --> w} {e1 : SOM y w s}
              {f : z --> w} (LS2 : LocSqr2 SOM s e1 f) :
-    (LocSqr2Mor1 LS2) ;; s = (LocSqr2Mor2 LS2) ;; f := dirprod_pr2 (pr2 LS2).
+    (LocSqr2Mor1 LS2) · s = (LocSqr2Mor2 LS2) · f := dirprod_pr2 (pr2 LS2).
 
   (** *** Completion to squares *)
   Definition isLocalizingClass2 (SOM : SubsetsOfMors) : UU :=
@@ -112,62 +112,62 @@ Section def_roofs.
 
   (** **** Pre- and post switch *)
   Definition PreSwitch (SOM : SubsetsOfMors) {x y z : ob C} (s : x --> y) (e : SOM x y s)
-             (f g : y --> z) (H : s ;; f = s ;; g) : UU :=
-    ∑ D : (∑ (w : ob C), C⟦z, w⟧), (SOM z (pr1 D) (pr2 D)) × (f ;; (pr2 D) = g ;; (pr2 D)).
+             (f g : y --> z) (H : s · f = s · g) : UU :=
+    ∑ D : (∑ (w : ob C), C⟦z, w⟧), (SOM z (pr1 D) (pr2 D)) × (f · (pr2 D) = g · (pr2 D)).
 
   Definition PreSwitchOb {SOM : SubsetsOfMors} {x y z : ob C} {s : x --> y} {e : SOM x y s}
-             {f g : y --> z} {H : s ;; f = s ;; g} (PreS : PreSwitch SOM s e f g H) : ob C :=
+             {f g : y --> z} {H : s · f = s · g} (PreS : PreSwitch SOM s e f g H) : ob C :=
     pr1 (pr1 PreS).
   Coercion PreSwitchOb : PreSwitch >-> ob.
 
   Definition PreSwitchMor {SOM : SubsetsOfMors} {x y z : ob C} {s : x --> y} {e : SOM x y s}
-             {f g : y --> z} {H : s ;; f = s ;; g} (PreS : PreSwitch SOM s e f g H) :
+             {f g : y --> z} {H : s · f = s · g} (PreS : PreSwitch SOM s e f g H) :
     C⟦z, PreS⟧ := pr2 (pr1 PreS).
 
   Definition PreSwitchMorIs {SOM : SubsetsOfMors} {x y z : ob C} {s : x --> y} {e : SOM x y s}
-             {f g : y --> z} {H : s ;; f = s ;; g} (PreS : PreSwitch SOM s e f g H) :
+             {f g : y --> z} {H : s · f = s · g} (PreS : PreSwitch SOM s e f g H) :
     SOM z PreS (PreSwitchMor PreS) := dirprod_pr1 (pr2 PreS).
 
   Definition PreSwitchEq {SOM : SubsetsOfMors} {x y z : ob C} {s : x --> y} {e : SOM x y s}
-             {f g : y --> z} {H : s ;; f = s ;; g} (PreS : PreSwitch SOM s e f g H) :
-    f ;; (PreSwitchMor PreS) = g ;; (PreSwitchMor PreS) := dirprod_pr2 (pr2 PreS).
+             {f g : y --> z} {H : s · f = s · g} (PreS : PreSwitch SOM s e f g H) :
+    f · (PreSwitchMor PreS) = g · (PreSwitchMor PreS) := dirprod_pr2 (pr2 PreS).
 
   (** **** Post switch *)
 
   Definition PostSwitch (SOM : SubsetsOfMors) {y z w : ob C} (f g : y --> z) (s : z --> w)
-             (e : SOM z w s) (H : f ;; s = g ;; s) : UU :=
-    ∑ D : (∑ (x : ob C), C⟦x, y⟧), (SOM (pr1 D) y (pr2 D)) × ((pr2 D) ;; f = (pr2 D) ;; g).
+             (e : SOM z w s) (H : f · s = g · s) : UU :=
+    ∑ D : (∑ (x : ob C), C⟦x, y⟧), (SOM (pr1 D) y (pr2 D)) × ((pr2 D) · f = (pr2 D) · g).
 
   Definition PostSwitchOb {SOM : SubsetsOfMors} {y z w : ob C} {f g : y --> z} {s : z --> w}
-             {e : SOM z w s} {H : f ;; s = g ;; s} (PostS : PostSwitch SOM f g s e H) : ob C :=
+             {e : SOM z w s} {H : f · s = g · s} (PostS : PostSwitch SOM f g s e H) : ob C :=
     pr1 (pr1 PostS).
   Coercion PostSwitchOb : PostSwitch >-> ob.
 
   Definition PostSwitchMor {SOM : SubsetsOfMors} {y z w : ob C} {f g : y --> z} {s : z --> w}
-             {e : SOM z w s} {H : f ;; s = g ;; s} (PostS : PostSwitch SOM f g s e H) :
+             {e : SOM z w s} {H : f · s = g · s} (PostS : PostSwitch SOM f g s e H) :
     C⟦PostS, y⟧ := pr2 (pr1 PostS).
 
   Definition PostSwitchMorIs {SOM : SubsetsOfMors} {y z w : ob C} {f g : y --> z} {s : z --> w}
-             {e : SOM z w s} {H : f ;; s = g ;; s} (PostS : PostSwitch SOM f g s e H) :
+             {e : SOM z w s} {H : f · s = g · s} (PostS : PostSwitch SOM f g s e H) :
     SOM PostS y (PostSwitchMor PostS) := dirprod_pr1 (pr2 PostS).
 
   Definition PostSwitchEq {SOM : SubsetsOfMors} {y z w : ob C} {f g : y --> z} {s : z --> w}
-             {e : SOM z w s} {H : f ;; s = g ;; s} (PostS : PostSwitch SOM f g s e H) :
-    (PostSwitchMor PostS) ;; f = (PostSwitchMor PostS) ;; g := dirprod_pr2 (pr2 PostS).
+             {e : SOM z w s} {H : f · s = g · s} (PostS : PostSwitch SOM f g s e H) :
+    (PostSwitchMor PostS) · f = (PostSwitchMor PostS) · g := dirprod_pr2 (pr2 PostS).
 
   (** *** Pre- and postcomposition with morphisms in the subset *)
   Definition isLocalizingClass3 (SOM : SubsetsOfMors) : UU :=
-    (∏ (x y z : ob C) (s : x --> y) (e : SOM x y s) (f g : y --> z) (H : s ;; f = s ;; g),
+    (∏ (x y z : ob C) (s : x --> y) (e : SOM x y s) (f g : y --> z) (H : s · f = s · g),
      PreSwitch SOM s e f g H)
-      × (∏ (y z w : ob C) (f g : y --> z) (s : z --> w) (e : SOM z w s) (H : f ;; s = g ;; s),
+      × (∏ (y z w : ob C) (f g : y --> z) (s : z --> w) (e : SOM z w s) (H : f · s = g · s),
          PostSwitch SOM f g s e H).
 
   Definition isLocClassPre {SOM : SubsetsOfMors} (H : isLocalizingClass3 SOM) :
-    ∏ (x y z : ob C) (s : x --> y) (e : SOM x y s) (f g : y --> z) (H : s ;; f = s ;; g),
+    ∏ (x y z : ob C) (s : x --> y) (e : SOM x y s) (f g : y --> z) (H : s · f = s · g),
     PreSwitch SOM s e f g H := dirprod_pr1 H.
 
   Definition isLocClassPost {SOM : SubsetsOfMors} (H : isLocalizingClass3 SOM) :
-    ∏ (y z w : ob C) (f g : y --> z) (s : z --> w) (e : SOM z w s) (H : f ;; s = g ;; s),
+    ∏ (y z w : ob C) (f g : y --> z) (s : z --> w) (e : SOM z w s) (H : f · s = g · s),
     PostSwitch SOM f g s e H := dirprod_pr2 H.
 
   (** *** Localizing class *)
@@ -241,14 +241,14 @@ Section def_roofs.
   (** These are used to define an equivalence relation between roofs *)
   Definition RoofTop {x y : ob C} (R1 R2 : Roof x y) : UU :=
     ∑ D : (∑ w : ob C, C⟦w, R1⟧ × C⟦w, R2⟧),
-          (SOM (pr1 D) x ((dirprod_pr1 (pr2 D)) ;; (RoofMor1 R1)))
-            × ((dirprod_pr1 (pr2 D)) ;; (RoofMor1 R1) = (dirprod_pr2 (pr2 D)) ;; (RoofMor1 R2))
-            × ((dirprod_pr1 (pr2 D)) ;; (RoofMor2 R1) = (dirprod_pr2 (pr2 D)) ;; (RoofMor2 R2)).
+          (SOM (pr1 D) x ((dirprod_pr1 (pr2 D)) · (RoofMor1 R1)))
+            × ((dirprod_pr1 (pr2 D)) · (RoofMor1 R1) = (dirprod_pr2 (pr2 D)) · (RoofMor1 R2))
+            × ((dirprod_pr1 (pr2 D)) · (RoofMor2 R1) = (dirprod_pr2 (pr2 D)) · (RoofMor2 R2)).
 
   Definition mk_RoofTop {x y : ob C} {R1 R2 : Roof x y} (w : ob C) (s : w --> R1) (f : w --> R2)
-             (e : SOM w x (s ;; RoofMor1 R1))
-             (H1 : s ;; (RoofMor1 R1) = f ;; (RoofMor1 R2))
-             (H2 : s ;; (RoofMor2 R1) = f ;; (RoofMor2 R2)) : RoofTop R1 R2 :=
+             (e : SOM w x (s · RoofMor1 R1))
+             (H1 : s · (RoofMor1 R1) = f · (RoofMor1 R2))
+             (H2 : s · (RoofMor2 R1) = f · (RoofMor2 R2)) : RoofTop R1 R2 :=
     tpair _ (tpair _ w (s,,f)) (e,,(H1,,H2)).
 
   Definition RoofTopOb {x y : ob C} {R1 R2 : Roof x y} (T : RoofTop R1 R2) : ob C := pr1 (pr1 T).
@@ -258,17 +258,17 @@ Section def_roofs.
     dirprod_pr1 (pr2 (pr1 T)).
 
   Definition RoofTopMor1Is {x y : ob C} {R1 R2 : Roof x y} (T : RoofTop R1 R2) :
-    (SOM T x ((RoofTopMor1 T) ;; (RoofMor1 R1))) := (dirprod_pr1 (pr2 T)).
+    (SOM T x ((RoofTopMor1 T) · (RoofMor1 R1))) := (dirprod_pr1 (pr2 T)).
 
   Definition RoofTopMor2 {x y : ob C} {R1 R2 : Roof x y} (T : RoofTop R1 R2) : C⟦T, R2⟧ :=
     dirprod_pr2 (pr2 (pr1 T)).
 
   Definition RoofTopEq1 {x y : ob C} {R1 R2 : Roof x y} (T : RoofTop R1 R2) :
-    (RoofTopMor1 T) ;; (RoofMor1 R1) = (RoofTopMor2 T) ;; (RoofMor1 R2) :=
+    (RoofTopMor1 T) · (RoofMor1 R1) = (RoofTopMor2 T) · (RoofMor1 R2) :=
     dirprod_pr1 (dirprod_pr2 (pr2 T)).
 
   Definition RoofTopEq2 {x y : ob C} {R1 R2 : Roof x y} (T : RoofTop R1 R2) :
-    (RoofTopMor1 T) ;; (RoofMor2 R1) = (RoofTopMor2 T) ;; (RoofMor2 R2) :=
+    (RoofTopMor1 T) · (RoofMor2 R1) = (RoofTopMor2 T) · (RoofMor2 R2) :=
     dirprod_pr2 (dirprod_pr2 (pr2 T)).
 
   (** We define an equivalence relation between the roofs *)
@@ -284,18 +284,18 @@ Section def_roofs.
     - intros R1 R2 R3 T1' T2'.
       use (squash_to_prop T1'). apply isapropishinh. intros T1. clear T1'.
       use (squash_to_prop T2'). apply isapropishinh. intros T2. clear T2'.
-      set (tmp := isLocClassSqr2 iLC T2 T1 x (RoofTopMor1 T2 ;; RoofMor1 R2) (RoofTopMor1Is T2)
-                                 (RoofTopMor2 T1 ;; RoofMor1 R2)).
+      set (tmp := isLocClassSqr2 iLC T2 T1 x (RoofTopMor1 T2 · RoofMor1 R2) (RoofTopMor1Is T2)
+                                 (RoofTopMor2 T1 · RoofMor1 R2)).
       induction tmp as [D1 D2]. induction D1 as [w m]. induction m as [m1 m2].
       induction D2 as [D1 D2]. cbn in D1, D2. repeat rewrite assoc in D2.
-      set (tmp := isLocClassPost iLC w R2 x (m1 ;; RoofTopMor1 T2) (m2 ;; RoofTopMor2 T1)
+      set (tmp := isLocClassPost iLC w R2 x (m1 · RoofTopMor1 T2) (m2 · RoofTopMor2 T1)
                                  (RoofMor1 R2) (RoofMor1Is R2) D2).
       induction tmp as [t p].
       intros P X. apply X. clear X P.
       use mk_RoofTop.
       + exact (pr1 t).
-      + exact ((pr2 t) ;; m2 ;; RoofTopMor1 T1).
-      + exact ((pr2 t) ;; m1 ;; RoofTopMor2 T2).
+      + exact ((pr2 t) · m2 · RoofTopMor1 T1).
+      + exact ((pr2 t) · m1 · RoofTopMor2 T2).
       + repeat rewrite <- assoc. use (isLocClassComp iLC).
         * exact (dirprod_pr1 p).
         * use (isLocClassComp iLC).
@@ -471,8 +471,8 @@ Section def_roofs.
     set (LS2 := isLocClassSqr2 iLC R2 R1 y (RoofMor1 R2) (RoofMor1Is R2) (RoofMor2 R1)).
     use mk_Roof.
     - exact LS2.
-    - exact ((LocSqr2Mor2 LS2) ;; (RoofMor1 R1)).
-    - exact ((LocSqr2Mor1 LS2) ;; (RoofMor2 R2)).
+    - exact ((LocSqr2Mor2 LS2) · (RoofMor1 R1)).
+    - exact ((LocSqr2Mor1 LS2) · (RoofMor2 R2)).
     - use (isLocClassComp iLC).
       + exact (LocSqr2Mor2Is LS2).
       + exact (RoofMor1Is R1).
@@ -483,18 +483,18 @@ Section def_roofs.
 
   (** Construct a "commutative coroof" from RoofTop *)
   Definition RoofTopToCoroof {x y : ob C} {R1 R2 : Roof x y} (T : RoofTop R1 R2) :
-    ∑ CR : Coroof x y, (RoofMor1 R1 ;; CoroofMor1 CR = RoofMor2 R1 ;; CoroofMor2 CR)
-                         × (RoofMor1 R2 ;; CoroofMor1 CR = RoofMor2 R2 ;; CoroofMor2 CR).
+    ∑ CR : Coroof x y, (RoofMor1 R1 · CoroofMor1 CR = RoofMor2 R1 · CoroofMor2 CR)
+                         × (RoofMor1 R2 · CoroofMor1 CR = RoofMor2 R2 · CoroofMor2 CR).
   Proof.
     set (sqr1 := isLocClassSqr1 iLC _ _ _ (RoofMor1 R1) (RoofMor1Is R1) (RoofMor2 R1)).
     set (sqr2 := isLocClassSqr1 iLC _ _ _ (RoofMor1 R2) (RoofMor1Is R2) (RoofMor2 R2)).
     set (sqr3 := isLocClassSqr1 iLC _ _ _ (LocSqr1Mor2 sqr1) (LocSqr1Mor2Is sqr1)
                                 (LocSqr1Mor2 sqr2)).
-    set (mor1 := RoofTopMor1 T ;; RoofMor1 R1 ;; LocSqr1Mor1 sqr1 ;; LocSqr1Mor1 sqr3).
-    set (mor2 := RoofTopMor1 T ;; RoofMor1 R1 ;; LocSqr1Mor1 sqr2 ;; LocSqr1Mor2 sqr3).
+    set (mor1 := RoofTopMor1 T · RoofMor1 R1 · LocSqr1Mor1 sqr1 · LocSqr1Mor1 sqr3).
+    set (mor2 := RoofTopMor1 T · RoofMor1 R1 · LocSqr1Mor1 sqr2 · LocSqr1Mor2 sqr3).
 
-    assert (H : RoofTopMor1 T ;; RoofMor1 R1 ;; (LocSqr1Mor1 sqr1 ;; LocSqr1Mor1 sqr3)
-                = RoofTopMor1 T ;; RoofMor1 R1 ;; (LocSqr1Mor1 sqr2 ;; LocSqr1Mor2 sqr3)).
+    assert (H : RoofTopMor1 T · RoofMor1 R1 · (LocSqr1Mor1 sqr1 · LocSqr1Mor1 sqr3)
+                = RoofTopMor1 T · RoofMor1 R1 · (LocSqr1Mor1 sqr2 · LocSqr1Mor2 sqr3)).
     {
       set (tmp1 := LocSqr1Comm sqr1).
       set (tmp2 := LocSqr1Comm sqr2).
@@ -506,14 +506,14 @@ Section def_roofs.
       rewrite assoc. rewrite (RoofTopEq1 T). rewrite assoc.
       apply idpath.
     }
-    set (PreS := isLocClassPre iLC _ _ _ (RoofTopMor1 T ;; RoofMor1 R1) (RoofTopMor1Is T)
-                               (LocSqr1Mor1 sqr1 ;; LocSqr1Mor1 sqr3)
-                               (LocSqr1Mor1 sqr2 ;; LocSqr1Mor2 sqr3) H).
+    set (PreS := isLocClassPre iLC _ _ _ (RoofTopMor1 T · RoofMor1 R1) (RoofTopMor1Is T)
+                               (LocSqr1Mor1 sqr1 · LocSqr1Mor1 sqr3)
+                               (LocSqr1Mor1 sqr2 · LocSqr1Mor2 sqr3) H).
     use tpair.
     - use mk_Coroof.
       + exact PreS.
-      + exact (LocSqr1Mor1 sqr1 ;; LocSqr1Mor1 sqr3 ;; PreSwitchMor PreS).
-      + exact (LocSqr1Mor2 sqr2 ;; LocSqr1Mor2 sqr3 ;; PreSwitchMor PreS).
+      + exact (LocSqr1Mor1 sqr1 · LocSqr1Mor1 sqr3 · PreSwitchMor PreS).
+      + exact (LocSqr1Mor2 sqr2 · LocSqr1Mor2 sqr3 · PreSwitchMor PreS).
       + use (isLocClassComp iLC).
         * use (isLocClassComp iLC).
           -- exact (LocSqr1Mor2Is sqr2).
@@ -544,16 +544,16 @@ Section def_roofs.
     set (sqr4 := isLocClassSqr2 iLC R3 R1 y (RoofMor1 R3) (RoofMor1Is R3) (RoofMor2 R1)).
     set (sqr5 := isLocClassSqr2 iLC R3 R2 y (RoofMor1 R3) (RoofMor1Is R3) (RoofMor2 R2)).
     fold sqr4 in R4. fold sqr5 in R5.
-    set (sqr6 := isLocClassSqr2 iLC R5 R4 x (LocSqr2Mor2 sqr5 ;; RoofMor1 R2) (RoofMor1Is R5)
-                                (LocSqr2Mor2 sqr4 ;; RoofMor1 R1)).
-    assert (s : SOM R3 CR (RoofMor1 R3 ;; CoroofMor2 CR)).
+    set (sqr6 := isLocClassSqr2 iLC R5 R4 x (LocSqr2Mor2 sqr5 · RoofMor1 R2) (RoofMor1Is R5)
+                                (LocSqr2Mor2 sqr4 · RoofMor1 R1)).
+    assert (s : SOM R3 CR (RoofMor1 R3 · CoroofMor2 CR)).
     {
       use (isLocClassComp iLC).
       - exact (RoofMor1Is R3).
       - exact (CoroofMor2Is CR).
     }
-    assert (H : LocSqr2Mor1 sqr6 ;; LocSqr2Mor1 sqr5 ;; (RoofMor1 R3 ;; CoroofMor2 CR) =
-                LocSqr2Mor2 sqr6 ;; LocSqr2Mor1 sqr4 ;; (RoofMor1 R3 ;; CoroofMor2 CR)).
+    assert (H : LocSqr2Mor1 sqr6 · LocSqr2Mor1 sqr5 · (RoofMor1 R3 · CoroofMor2 CR) =
+                LocSqr2Mor2 sqr6 · LocSqr2Mor1 sqr4 · (RoofMor1 R3 · CoroofMor2 CR)).
     {
       rewrite assoc. rewrite assoc.
       rewrite <- (assoc _ (LocSqr2Mor1 sqr5)). rewrite (LocSqr2Comm sqr5).
@@ -566,13 +566,13 @@ Section def_roofs.
       apply tmp.
     }
     set (PostS := isLocClassPost iLC _ _ _
-                                 (LocSqr2Mor1 sqr6 ;; LocSqr2Mor1 sqr5)
-                                 (LocSqr2Mor2 sqr6 ;; LocSqr2Mor1 sqr4)
-                                 (RoofMor1 R3 ;; CoroofMor2 CR) s H).
+                                 (LocSqr2Mor1 sqr6 · LocSqr2Mor1 sqr5)
+                                 (LocSqr2Mor2 sqr6 · LocSqr2Mor1 sqr4)
+                                 (RoofMor1 R3 · CoroofMor2 CR) s H).
     use mk_RoofTop.
     - exact PostS.
-    - exact (PostSwitchMor PostS ;; LocSqr2Mor2 sqr6).
-    - exact (PostSwitchMor PostS ;; LocSqr2Mor1 sqr6).
+    - exact (PostSwitchMor PostS · LocSqr2Mor2 sqr6).
+    - exact (PostSwitchMor PostS · LocSqr2Mor1 sqr6).
     - use (isLocClassComp iLC).
       + use (isLocClassComp iLC).
         * exact (PostSwitchMorIs PostS).
@@ -584,7 +584,7 @@ Section def_roofs.
     - cbn.
       rewrite assoc. rewrite assoc.
       set (tmp := ! (PostSwitchEq PostS)). rewrite assoc in tmp. rewrite assoc in tmp.
-      apply (maponpaths (fun f : _ => f ;; RoofMor2 R3)) in tmp.
+      apply (maponpaths (fun f : _ => f · RoofMor2 R3)) in tmp.
       apply tmp.
   Qed.
 
@@ -603,8 +603,8 @@ Section def_roofs.
     fold sqr4 in R4. fold sqr5 in R5.
     set (sqr6 := isLocClassSqr2 iLC R5 R4 R1 (LocSqr2Mor2 sqr5) (LocSqr2Mor2Is sqr5)
                                 (LocSqr2Mor2 sqr4)).
-    assert (H : LocSqr2Mor1 sqr6 ;; LocSqr2Mor1 sqr5 ;; RoofMor2 R3 ;; CoroofMor2 CR =
-                LocSqr2Mor2 sqr6 ;; LocSqr2Mor1 sqr4 ;; RoofMor2 R2 ;; CoroofMor2 CR).
+    assert (H : LocSqr2Mor1 sqr6 · LocSqr2Mor1 sqr5 · RoofMor2 R3 · CoroofMor2 CR =
+                LocSqr2Mor2 sqr6 · LocSqr2Mor1 sqr4 · RoofMor2 R2 · CoroofMor2 CR).
     {
       rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
       rewrite <- (dirprod_pr1 eq). rewrite <- (dirprod_pr2 eq).
@@ -616,13 +616,13 @@ Section def_roofs.
       apply (LocSqr2Comm sqr6).
     }
     set (PostS := isLocClassPost iLC _ _ _
-                               (LocSqr2Mor1 sqr6 ;; LocSqr2Mor1 sqr5 ;; RoofMor2 R3)
-                               (LocSqr2Mor2 sqr6 ;; LocSqr2Mor1 sqr4 ;; RoofMor2 R2)
+                               (LocSqr2Mor1 sqr6 · LocSqr2Mor1 sqr5 · RoofMor2 R3)
+                               (LocSqr2Mor2 sqr6 · LocSqr2Mor1 sqr4 · RoofMor2 R2)
                                (CoroofMor2 CR) (CoroofMor2Is CR) H).
     use mk_RoofTop.
     - exact PostS.
-    - exact (PostSwitchMor PostS ;; LocSqr2Mor2 sqr6).
-    - exact (PostSwitchMor PostS ;; LocSqr2Mor1 sqr6).
+    - exact (PostSwitchMor PostS · LocSqr2Mor2 sqr6).
+    - exact (PostSwitchMor PostS · LocSqr2Mor1 sqr6).
     - use (isLocClassComp iLC).
       + use (isLocClassComp iLC).
         * exact (PostSwitchMorIs PostS).
@@ -630,7 +630,7 @@ Section def_roofs.
       + exact (RoofMor1Is R4).
     - cbn. rewrite assoc. rewrite assoc. apply cancel_postcomposition.
       set (tmp := ! (LocSqr2Comm sqr6)).
-      apply (maponpaths (fun f : _ => PostSwitchMor PostS ;; f)) in tmp.
+      apply (maponpaths (fun f : _ => PostSwitchMor PostS · f)) in tmp.
       rewrite assoc in tmp. rewrite assoc in tmp. apply tmp.
     - cbn. apply pathsinv0.
       rewrite assoc. rewrite assoc.
@@ -788,7 +788,7 @@ Section def_roofs.
 
   Lemma loc_id_left_in {x y : loc_precategory_data} (f : loc_precategory_data⟦x, y⟧)
     (R1 : Roof x y) (H1 : RoofEqclassIn f R1) :
-    pr1 (identity x ;; f) (roof_comp (IdRoof x) R1).
+    pr1 (identity x · f) (roof_comp (IdRoof x) R1).
   Proof.
     apply (pr2 (pr1 (roof_comp_iscontr x x y (IdRoofEqclass x) f))).
     - apply RoofEqclassFromRoofIn.
@@ -796,23 +796,23 @@ Section def_roofs.
   Qed.
 
   Local Lemma loc_id_left {x y : loc_precategory_data} (f : loc_precategory_data⟦x, y⟧) :
-    identity x ;; f = f.
+    identity x · f = f.
   Proof.
     use (squash_to_prop (pr1 (RoofEqclassIs f))). apply isasetRoofEqclass. intros f'.
     induction f' as [f1 f2].
     use RoofEqclassEq.
     - intros R HR.
       set (tmp := IdRoofEqrel_left R).
-      set (e1 := eqax1 (RoofEqclassIs (identity x ;; f)) _ _ tmp HR).
+      set (e1 := eqax1 (RoofEqclassIs (identity x · f)) _ _ tmp HR).
       (* Need to show that eqrel f1 R *)
-      assert (X : RoofEqclassIn (identity x ;; f) (roof_comp (IdRoof x) f1)).
+      assert (X : RoofEqclassIn (identity x · f) (roof_comp (IdRoof x) f1)).
       {
         cbn.
         apply (pr2 (pr1 (roof_comp_iscontr x x y (IdRoofEqclass x) f)) (IdRoof x)).
         - apply RoofEqclassFromRoofIn.
         - apply f2.
       }
-      set (e2 := eqax2 (RoofEqclassIs (identity x ;; f)) _ _ e1 X).
+      set (e2 := eqax2 (RoofEqclassIs (identity x · f)) _ _ e1 X).
       set (e3 := IdRoofEqrel_left R).
       use (eqax1 (RoofEqclassIs f)).
       + exact (roof_comp (IdRoof x) f1).
@@ -827,7 +827,7 @@ Section def_roofs.
         -- exact f2.
     - intros R HR.
       set (tmp := IdRoofEqrel_left R).
-      use (eqax1 (RoofEqclassIs (identity x ;; f))).
+      use (eqax1 (RoofEqclassIs (identity x · f))).
       + exact (roof_comp (IdRoof x) R).
       + apply eqrelsymm. apply tmp.
       + apply (pr2 (pr1 (roof_comp_iscontr x x y (IdRoofEqclass x) f))).
@@ -836,23 +836,23 @@ Section def_roofs.
   Qed.
 
   Local Lemma loc_id_right {x y : loc_precategory_data} (f : loc_precategory_data⟦x, y⟧) :
-    f ;; identity y = f.
+    f · identity y = f.
   Proof.
     use (squash_to_prop (pr1 (RoofEqclassIs f))). apply isasetRoofEqclass. intros f'.
     induction f' as [f1 f2].
     use RoofEqclassEq.
     - intros R HR.
       set (tmp := IdRoofEqrel_right R).
-      set (e1 := eqax1 (RoofEqclassIs (f ;; identity y)) _ _ tmp HR).
+      set (e1 := eqax1 (RoofEqclassIs (f · identity y)) _ _ tmp HR).
       (* Need to show (eqrel ...) f1 R *)
-      assert (X : RoofEqclassIn (f ;; identity y) (roof_comp f1 (IdRoof y))).
+      assert (X : RoofEqclassIn (f · identity y) (roof_comp f1 (IdRoof y))).
       {
         cbn.
         apply (pr2 (pr1 (roof_comp_iscontr x y y f (IdRoofEqclass y)))).
         - apply f2.
         - apply RoofEqclassFromRoofIn.
       }
-      set (e2 := eqax2 (RoofEqclassIs (f ;; identity y)) _ _ e1 X).
+      set (e2 := eqax2 (RoofEqclassIs (f · identity y)) _ _ e1 X).
       use (eqax1 (RoofEqclassIs f)).
       + exact (roof_comp f1 (IdRoof y)).
       + use eqreltrans.
@@ -866,7 +866,7 @@ Section def_roofs.
         -- exact f2.
     - intros R HR.
       set (tmp := IdRoofEqrel_right R).
-      use (eqax1 (RoofEqclassIs (f ;; identity y))).
+      use (eqax1 (RoofEqclassIs (f · identity y))).
       + exact (roof_comp R (IdRoof y)).
       + apply eqrelsymm. apply tmp.
       + apply (pr2 (pr1 (roof_comp_iscontr x y y f (IdRoofEqclass y)))).
@@ -883,8 +883,8 @@ Section def_roofs.
                                 (LocSqr2Mor1 sqr1)).
     use mk_Roof.
     - exact sqr3.
-    - exact (LocSqr2Mor2 sqr3 ;; LocSqr2Mor2 sqr1 ;; RoofMor1 R1).
-    - exact (LocSqr2Mor1 sqr3 ;; LocSqr2Mor1 sqr2 ;; RoofMor2 R3).
+    - exact (LocSqr2Mor2 sqr3 · LocSqr2Mor2 sqr1 · RoofMor1 R1).
+    - exact (LocSqr2Mor1 sqr3 · LocSqr2Mor1 sqr2 · RoofMor2 R3).
     - use (isLocClassComp iLC).
       + use (isLocClassComp iLC).
         * exact (LocSqr2Mor2Is sqr3).
@@ -908,11 +908,11 @@ Section def_roofs.
     set (sqr3 := isLocClassSqr2 iLC sqr2 sqr1 R2 (LocSqr2Mor2 sqr2) (LocSqr2Mor2Is sqr2)
                                 (LocSqr2Mor1 sqr1)).
     set (sqr4 := isLocClassSqr2 iLC R3 sqr1 z (RoofMor1 R3) (RoofMor1Is R3)
-                                (LocSqr2Mor1 sqr1 ;; RoofMor2 R2)).
+                                (LocSqr2Mor1 sqr1 · RoofMor2 R2)).
     set (sqr := isLocClassSqr2 iLC _ _ _ (LocSqr2Mor2 sqr3) (LocSqr2Mor2Is sqr3)
                                (LocSqr2Mor2 sqr4)).
-    assert (H : LocSqr2Mor2 sqr ;; RoofMor2 R6' ;; CoroofMor2 CR =
-                LocSqr2Mor1 sqr ;; RoofMor2 R6 ;; CoroofMor2 CR).
+    assert (H : LocSqr2Mor2 sqr · RoofMor2 R6' · CoroofMor2 CR =
+                LocSqr2Mor1 sqr · RoofMor2 R6 · CoroofMor2 CR).
     {
       cbn. fold sqrop. fold sqr1. fold sqr2. fold sqr3. fold sqr4.
       rewrite assoc. rewrite assoc. rewrite assoc.
@@ -928,14 +928,14 @@ Section def_roofs.
       apply cancel_precomposition.
       apply (! (LocSqr2Comm sqr3)).
     }
-    set (PostS := isLocClassPost iLC _ _ _ (LocSqr2Mor2 sqr ;; RoofMor2 R6')
-                                 (LocSqr2Mor1 sqr ;;  RoofMor2 R6)
+    set (PostS := isLocClassPost iLC _ _ _ (LocSqr2Mor2 sqr · RoofMor2 R6')
+                                 (LocSqr2Mor1 sqr ·  RoofMor2 R6)
                                  (CoroofMor2 CR) (CoroofMor2Is CR) H).
     intros P X. apply X. clear X P.
     use mk_RoofTop.
     - exact (PostS).
-    - exact (PostSwitchMor PostS ;; LocSqr2Mor2 sqr).
-    - exact (PostSwitchMor PostS ;; LocSqr2Mor1 sqr).
+    - exact (PostSwitchMor PostS · LocSqr2Mor2 sqr).
+    - exact (PostSwitchMor PostS · LocSqr2Mor1 sqr).
     - use (isLocClassComp iLC).
       + use (isLocClassComp iLC).
         * exact (PostSwitchMorIs PostS).
@@ -965,28 +965,28 @@ Section def_roofs.
     set (sqr2 := isLocClassSqr2 iLC R3 R2 z (RoofMor1 R3) (RoofMor1Is R3) (RoofMor2 R2)).
     set (sqr3 := isLocClassSqr2 iLC sqr2 sqr1 R2 (LocSqr2Mor2 sqr2) (LocSqr2Mor2Is sqr2)
                                 (LocSqr2Mor1 sqr1)).
-    set (sqr4 := isLocClassSqr2 iLC sqr2 R1 y (LocSqr2Mor2 sqr2 ;; RoofMor1 R2)
+    set (sqr4 := isLocClassSqr2 iLC sqr2 R1 y (LocSqr2Mor2 sqr2 · RoofMor1 R2)
                                 (isLocClassComp iLC sqr2 R2 y (LocSqr2Mor2 sqr2)
                                                 (LocSqr2Mor2Is sqr2)
                                                 (RoofMor1 R2) (RoofMor1Is R2)) (RoofMor2 R1)).
-    assert (e0 : SOM _ _ (LocSqr2Mor2 sqr3 ;; LocSqr2Mor2 sqr1)).
+    assert (e0 : SOM _ _ (LocSqr2Mor2 sqr3 · LocSqr2Mor2 sqr1)).
     {
       use (isLocClassComp iLC).
       - exact (LocSqr2Mor2Is sqr3).
       - exact (LocSqr2Mor2Is sqr1).
     }
-    set (sqr := isLocClassSqr2 iLC _ _ _ (LocSqr2Mor2 sqr3 ;; LocSqr2Mor2 sqr1) e0
+    set (sqr := isLocClassSqr2 iLC _ _ _ (LocSqr2Mor2 sqr3 · LocSqr2Mor2 sqr1) e0
                                (LocSqr2Mor2 sqr4)).
-    assert (e : SOM R3 CR (RoofMor1 R3 ;; CoroofMor2 CR)).
+    assert (e : SOM R3 CR (RoofMor1 R3 · CoroofMor2 CR)).
     {
       use (isLocClassComp iLC).
       - exact (RoofMor1Is R3).
       - exact (CoroofMor2Is CR).
     }
-    assert (H : LocSqr2Mor2 sqr ;; LocSqr2Mor1 sqr4 ;; LocSqr2Mor1 sqr2 ;;
-                            (RoofMor1 R3 ;; LocSqr1Mor2 sqrop) =
-                LocSqr2Mor1 sqr ;; LocSqr2Mor1 sqr3 ;; LocSqr2Mor1 sqr2 ;;
-                            (RoofMor1 R3 ;; LocSqr1Mor2 sqrop)).
+    assert (H : LocSqr2Mor2 sqr · LocSqr2Mor1 sqr4 · LocSqr2Mor1 sqr2 ·
+                            (RoofMor1 R3 · LocSqr1Mor2 sqrop) =
+                LocSqr2Mor1 sqr · LocSqr2Mor1 sqr3 · LocSqr2Mor1 sqr2 ·
+                            (RoofMor1 R3 · LocSqr1Mor2 sqrop)).
     {
       rewrite assoc. rewrite assoc.
       rewrite <- (assoc _ (LocSqr2Mor1 sqr2)). rewrite (LocSqr2Comm sqr2). rewrite assoc.
@@ -1002,14 +1002,14 @@ Section def_roofs.
       apply cancel_precomposition. apply cancel_precomposition.
       apply (! (LocSqr2Comm sqr1)).
     }
-    set (PostS := isLocClassPost iLC _ _ _ (LocSqr2Mor2 sqr ;; LocSqr2Mor1 sqr4 ;; LocSqr2Mor1 sqr2)
-                                 (LocSqr2Mor1 sqr ;; LocSqr2Mor1 sqr3 ;; LocSqr2Mor1 sqr2)
-                                 (RoofMor1 R3 ;; CoroofMor2 CR) e H).
+    set (PostS := isLocClassPost iLC _ _ _ (LocSqr2Mor2 sqr · LocSqr2Mor1 sqr4 · LocSqr2Mor1 sqr2)
+                                 (LocSqr2Mor1 sqr · LocSqr2Mor1 sqr3 · LocSqr2Mor1 sqr2)
+                                 (RoofMor1 R3 · CoroofMor2 CR) e H).
     intros P X. apply X. clear X P.
     use mk_RoofTop.
     - exact PostS.
-    - exact (PostSwitchMor PostS ;; LocSqr2Mor2 sqr).
-    - exact (PostSwitchMor PostS ;; LocSqr2Mor1 sqr).
+    - exact (PostSwitchMor PostS · LocSqr2Mor2 sqr).
+    - exact (PostSwitchMor PostS · LocSqr2Mor1 sqr).
     - use (isLocClassComp iLC).
       + use (isLocClassComp iLC).
         * exact (PostSwitchMorIs PostS).
@@ -1041,7 +1041,7 @@ Section def_roofs.
 
   Local Lemma loc_precategory_assoc (a b c d : loc_precategory_data)
         (f : loc_precategory_data ⟦a, b⟧) (g : loc_precategory_data ⟦b, c⟧)
-        (h : loc_precategory_data ⟦c, d⟧) : f ;; (g ;; h) = f ;; g ;; h.
+        (h : loc_precategory_data ⟦c, d⟧) : f · (g · h) = f · g · h.
   Proof.
     use (squash_to_prop (pr1 (RoofEqclassIs f))). apply isasetRoofEqclass. intros f'.
     use (squash_to_prop (pr1 (RoofEqclassIs g))). apply isasetRoofEqclass. intros g'.
@@ -1049,7 +1049,7 @@ Section def_roofs.
     induction f' as [f1 f2]. induction g' as [g1 g2]. induction h' as [h1 h2].
     use RoofEqclassEq.
     - intros R HR.
-      assert (X1 : pr1 (f ;; (g ;; h)) (roof_comp f1 (roof_comp g1 h1))).
+      assert (X1 : pr1 (f · (g · h)) (roof_comp f1 (roof_comp g1 h1))).
       {
         apply (pr2 (pr1 (roof_comp_iscontr a b d f (pr1 (pr1 (roof_comp_iscontr b c d g h)))))).
         - apply f2.
@@ -1057,7 +1057,7 @@ Section def_roofs.
           + apply g2.
           + apply h2.
       }
-      assert (X2 : pr1 (f ;; g ;; h) (roof_comp (roof_comp f1 g1) h1)).
+      assert (X2 : pr1 (f · g · h) (roof_comp (roof_comp f1 g1) h1)).
       {
         apply (pr2 (pr1 (roof_comp_iscontr a c d (pr1 (pr1 (roof_comp_iscontr a b c f g))) h))).
         - apply (pr2 (pr1 (roof_comp_iscontr a b c f g))).
@@ -1066,17 +1066,17 @@ Section def_roofs.
         - apply h2.
       }
       set (X3 := loc_precategory_assoc_eqrel a b c d f1 g1 h1).
-      use (eqax1 (RoofEqclassIs (f ;; g ;; h))).
+      use (eqax1 (RoofEqclassIs (f · g · h))).
       + exact (roof_comp f1 (roof_comp g1 h1)).
-      + use (eqax2 (RoofEqclassIs (f ;; (g ;; h)))).
+      + use (eqax2 (RoofEqclassIs (f · (g · h)))).
         * exact X1.
         * exact HR.
-      + use (eqax1 (RoofEqclassIs (f ;; g ;; h))).
+      + use (eqax1 (RoofEqclassIs (f · g · h))).
         * exact (roof_comp (roof_comp f1 g1) h1).
         * apply eqrelsymm. exact X3.
         * exact X2.
     - intros R HR.
-      assert (X1 : pr1 (f ;; (g ;; h)) (roof_comp f1 (roof_comp g1 h1))).
+      assert (X1 : pr1 (f · (g · h)) (roof_comp f1 (roof_comp g1 h1))).
       {
         apply (pr2 (pr1 (roof_comp_iscontr a b d f (pr1 (pr1 (roof_comp_iscontr b c d g h)))))).
         - apply f2.
@@ -1084,7 +1084,7 @@ Section def_roofs.
           + apply g2.
           + apply h2.
       }
-      assert (X2 : pr1 (f ;; g ;; h) (roof_comp (roof_comp f1 g1) h1)).
+      assert (X2 : pr1 (f · g · h) (roof_comp (roof_comp f1 g1) h1)).
       {
         apply (pr2 (pr1 (roof_comp_iscontr a c d (pr1 (pr1 (roof_comp_iscontr a b c f g))) h))).
         - apply (pr2 (pr1 (roof_comp_iscontr a b c f g))).
@@ -1093,12 +1093,12 @@ Section def_roofs.
         - apply h2.
       }
       set (X3 := loc_precategory_assoc_eqrel a b c d f1 g1 h1).
-      use (eqax1 (RoofEqclassIs (f ;; (g ;; h)))).
+      use (eqax1 (RoofEqclassIs (f · (g · h)))).
       + exact (roof_comp f1 (roof_comp g1 h1)).
       + use eqreltrans.
         * exact (roof_comp (roof_comp f1 g1) h1).
         * exact X3.
-        * use (eqax2 (RoofEqclassIs (f ;; g ;; h))).
+        * use (eqax2 (RoofEqclassIs (f · g · h))).
           -- exact X2.
           -- exact HR.
       + exact X1.
@@ -1152,17 +1152,17 @@ Section def_roofs.
 
   (** MorToRoof is linear with respect to composition in C. *)
   Lemma MorphismCompEqrel {x y z : ob C} (f : x --> y) (g : y --> z) :
-    (eqrelpair _ (RoofEqrel x z)) (MorToRoof (f ;; g)) (roof_comp (MorToRoof f) (MorToRoof g)).
+    (eqrelpair _ (RoofEqrel x z)) (MorToRoof (f · g)) (roof_comp (MorToRoof f) (MorToRoof g)).
   Proof.
     set (Rf := MorToRoof f).
     set (Rg := MorToRoof g).
-    set (Rfg := MorToRoof (f ;; g)).
+    set (Rfg := MorToRoof (f · g)).
     unfold roof_comp.
     set (sqr1 := isLocClassSqr2 iLC Rg Rf y (RoofMor1 Rg) (RoofMor1Is Rg) (RoofMor2 Rf)).
     set (CR := RoofToCoroof (MorToRoof g)).
     set (sqrop := isLocClassSqr1 iLC y y z (identity y) (isLocClassIs iLC y) g).
-    assert (H : LocSqr2Mor1 sqr1 ;; RoofMor2 Rg ;; CoroofMor2 CR =
-                LocSqr2Mor2 sqr1 ;; f ;; g ;; CoroofMor2 CR).
+    assert (H : LocSqr2Mor1 sqr1 · RoofMor2 Rg · CoroofMor2 CR =
+                LocSqr2Mor2 sqr1 · f · g · CoroofMor2 CR).
     {
       cbn. fold sqrop.
       rewrite <- assoc. rewrite <- (LocSqr1Comm sqrop). rewrite id_left.
@@ -1171,13 +1171,13 @@ Section def_roofs.
       set (tmp := LocSqr2Comm sqr1). cbn in tmp. rewrite id_right in tmp.
       exact tmp.
     }
-    set (PostS := isLocClassPost iLC _ _ _ (LocSqr2Mor1 sqr1 ;; RoofMor2 Rg)
-                                 (LocSqr2Mor2 sqr1 ;; f ;; g)
+    set (PostS := isLocClassPost iLC _ _ _ (LocSqr2Mor1 sqr1 · RoofMor2 Rg)
+                                 (LocSqr2Mor2 sqr1 · f · g)
                                  (CoroofMor2 CR) (CoroofMor2Is CR) H).
     intros P X. apply X. clear X P.
     use mk_RoofTop.
     - exact PostS.
-    - exact (PostSwitchMor PostS ;; (LocSqr2Mor2 sqr1)).
+    - exact (PostSwitchMor PostS · (LocSqr2Mor2 sqr1)).
     - exact (PostSwitchMor PostS).
     - use (isLocClassComp iLC).
       + use (isLocClassComp iLC).
@@ -1195,7 +1195,7 @@ Section def_roofs.
   (** This is used to show that the natural inclusion functor C --> loc_precategory
       respects composition. See [FunctorToLocalization]. *)
   Lemma FunctorToLocalization_comp {x y z : ob C} (f : x --> y) (g : y --> z) :
-    RoofEqclassFromRoof (MorToRoof (f ;; g)) =
+    RoofEqclassFromRoof (MorToRoof (f · g)) =
     pr1 (pr1 (roof_comp_iscontr x y z (RoofEqclassFromRoof (MorToRoof f))
                                 (RoofEqclassFromRoof (MorToRoof g)))).
   Proof.
@@ -1212,16 +1212,16 @@ Section def_roofs.
       use (eqax1 (RoofEqclassIs eqclass)).
       + exact (roof_comp (MorToRoof f) (MorToRoof g)).
       + use eqreltrans.
-        * exact (MorToRoof (f ;; g)).
+        * exact (MorToRoof (f · g)).
         * apply eqrelsymm. apply MorphismCompEqrel.
-        * set (HR' := RoofEqclassFromRoofIn (MorToRoof (f ;; g))).
-          use (eqax2 (RoofEqclassIs (RoofEqclassFromRoof (MorToRoof (f ;; g))))).
+        * set (HR' := RoofEqclassFromRoofIn (MorToRoof (f · g))).
+          use (eqax2 (RoofEqclassIs (RoofEqclassFromRoof (MorToRoof (f · g))))).
           -- exact HR'.
           -- exact HR.
       + exact tmpp.
     - intros R HR.
-      use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof (MorToRoof (f ;; g))))).
-      + exact (MorToRoof (f ;; g)).
+      use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof (MorToRoof (f · g))))).
+      + exact (MorToRoof (f · g)).
       + use eqreltrans.
         * exact (roof_comp (MorToRoof f) (MorToRoof g)).
         * apply MorphismCompEqrel.
@@ -1245,25 +1245,25 @@ Section def_roofs.
   Defined.
 
   (** This definition is the map used by the unique localization functor to map morphisms.
-      It sends a roof (s, f) to the composite (# F s)^{-1} ;; (# F f). *)
+      It sends a roof (s, f) to the composite (# F s)^{-1} · (# F f). *)
   Definition MorMap (D : precategory) (hsD : has_homsets D) (F : functor C D) (x y : ob C)
              (H : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f)) :
     Roof x y -> D⟦F x, F y⟧.
   Proof.
     intros R.
-    exact (inv_from_iso (isopair _ (H _ _(RoofMor1 R) (RoofMor1Is R))) ;; (# F (RoofMor2 R))).
+    exact (inv_from_iso (isopair _ (H _ _(RoofMor1 R) (RoofMor1Is R))) · (# F (RoofMor2 R))).
   Defined.
 
   (** One of the 2-out-of-3 properties for isomorphisms. *)
   Lemma is_iso_pre {D : precategory} {x y z : D} (f : x --> y) (g : y --> z)
-        (H1 : is_iso (f ;; g)) (H2 : is_iso g) : is_iso f.
+        (H1 : is_iso (f · g)) (H2 : is_iso g) : is_iso f.
   Proof.
     set (iso1 := isopair _ H1).
     set (iso2 := isopair _ H2).
     set (inv1 := inv_from_iso iso1).
     set (inv2 := inv_from_iso iso2).
     use is_iso_qinv.
-    - exact (g ;; inv1).
+    - exact (g · inv1).
     - split.
       + rewrite assoc. unfold inv1.
         set (tmp := iso_inv_after_iso iso1). cbn in tmp.
@@ -1300,7 +1300,7 @@ Section def_roofs.
 
   (** Equation for compositions of inverses *)
   Lemma inv_from_iso_comp {D : precategory} {x y z : D} (f : iso x y) (g : iso y z) :
-    inv_from_iso (iso_comp f g) = inv_from_iso g ;; inv_from_iso f.
+    inv_from_iso (iso_comp f g) = inv_from_iso g · inv_from_iso f.
   Proof.
     apply pathsinv0. apply inv_iso_unique'. unfold precomp_with. unfold iso_comp. cbn.
     rewrite assoc. rewrite <- (assoc _ g). rewrite iso_inv_after_iso. rewrite id_right.
@@ -1403,13 +1403,13 @@ Section def_roofs.
   Lemma MorMap_compose (D : precategory) (hsD : has_homsets D) (F : functor C D)
         (H' : ∏ (x y : C) (f : x --> y) (s : SOM x y f), is_iso (# F f))
         {x y z : ob C} (R1 : Roof x y) (R2 : Roof y z) :
-    MorMap D hsD F x z H' (roof_comp R1 R2) = MorMap D hsD F x y H' R1 ;; MorMap D hsD F y z H' R2.
+    MorMap D hsD F x z H' (roof_comp R1 R2) = MorMap D hsD F x y H' R1 · MorMap D hsD F y z H' R2.
   Proof.
     set (sqr := isLocClassSqr2 iLC R2 R1 y (RoofMor1 R2) (RoofMor1Is R2) (RoofMor2 R1)).
     unfold roof_comp. fold sqr. unfold MorMap at 1. cbn.
     set (iso1 := isopair
-                   (# F (LocSqr2Mor2 sqr ;; RoofMor1 R1))
-                   (H' sqr x (LocSqr2Mor2 sqr ;; RoofMor1 R1)
+                   (# F (LocSqr2Mor2 sqr · RoofMor1 R1))
+                   (H' sqr x (LocSqr2Mor2 sqr · RoofMor1 R1)
                        (isLocClassComp iLC sqr R1 x (LocSqr2Mor2 sqr) (LocSqr2Mor2Is sqr)
                                        (RoofMor1 R1) (RoofMor1Is R1)))).
     set (iso2 := isopair _ (H' sqr R1 (LocSqr2Mor2 sqr) (LocSqr2Mor2Is sqr))).
@@ -1536,7 +1536,7 @@ Section def_roofs.
       use mk_RoofTop.
       + exact sqr.
       + cbn. exact (identity sqr).
-      + exact (LocSqr2Mor2 sqr ;; (RoofMor1 f1)).
+      + exact (LocSqr2Mor2 sqr · (RoofMor1 f1)).
       + use (isLocClassComp iLC).
         * exact (isLocClassIs iLC _).
         * exact (RoofMor1Is _).
@@ -1718,7 +1718,7 @@ Section def_roofs.
         use mk_RoofTop.
         * exact PostS.
         * exact (PostSwitchMor PostS).
-        * exact (PostSwitchMor PostS ;; LocSqr2Mor2 sqr).
+        * exact (PostSwitchMor PostS · LocSqr2Mor2 sqr).
         * use (isLocClassComp iLC).
           -- exact (PostSwitchMorIs PostS).
           -- use (isLocClassComp iLC).
@@ -1737,7 +1737,7 @@ Section def_roofs.
         use mk_RoofTop.
         * exact sqr.
         * exact (identity sqr).
-        * exact (LocSqr2Mor2 sqr ;; f).
+        * exact (LocSqr2Mor2 sqr · f).
         * use (isLocClassComp iLC).
           -- exact (isLocClassIs iLC sqr).
           -- use (isLocClassComp iLC).

@@ -29,6 +29,10 @@ Require Export UniMath.Combinatorics.StandardFiniteSets .
 
 Definition nelstruct ( n : nat ) ( X : UU ) := weq ( stn n ) X .
 
+Definition nelstructToFunction {n} {X} (S : nelstruct n X) : stn n -> X := pr1weq S.
+
+Coercion nelstructToFunction : nelstruct >-> Funclass.
+
 Definition nelstructonstn ( n : nat ) : nelstruct n ( stn n ) := idweq _ .
 
 Definition nelstructweqf { X Y : UU } { n : nat } ( w : weq X Y ) ( sx : nelstruct n X ) : nelstruct n Y := weqcomp sx w .
@@ -50,7 +54,7 @@ Definition nelstructoncoprodwithunit { X : UU } { n : nat } ( sx : nelstruct n X
 Definition nelstructoncompl {X} {n} (x:X) : nelstruct (S n) X -> nelstruct n (compl X x).
 Proof.
   intros ? ? ? sx.
-  refine (invweq ( weqoncompl ( invweq sx ) x) ∘ _ ∘ weqdnicompl n (invweq sx x))%weq.
+  refine (invweq ( weqoncompl ( invweq sx ) x) ∘ _ ∘ weqdnicompl (invweq sx x))%weq.
   apply compl_weq_compl_ne.
 Defined.
 
@@ -118,6 +122,11 @@ Definition isofnelonweq { X : UU } { n : nat } ( sx : isofnel n X ) : isofnel ( 
 
 
 Definition finstruct  ( X : UU ) := total2 ( fun n : nat => nelstruct n X ) .
+
+Definition finstructToFunction {X} (S : finstruct X) := pr2 S : nelstruct (pr1 S) X.
+
+Coercion finstructToFunction : finstruct >-> nelstruct.
+
 Definition finstructpair  ( X : UU )  := tpair ( fun n : nat => nelstruct n X ) .
 
 Definition finstructonstn ( n : nat ) : finstruct ( stn n ) := tpair _ n ( nelstructonstn n ) .
@@ -170,6 +179,7 @@ Definition FiniteSet := ∑ X:UU, isfinite X.
 Definition isfinite_to_FiniteSet {X:UU} (f:isfinite X) : FiniteSet := X,,f.
 
 Lemma isfinite_isdeceq X : isfinite X -> isdeceq X.
+(* uses funextemptyAxiom *)
 Proof. intros ? isfin.
        apply (isfin (hProppair _ (isapropisdeceq X))); intro f; clear isfin; simpl.
        apply (isdeceqweqf (pr2 f)).
@@ -226,6 +236,20 @@ Definition isfinitecoprod { X  Y : UU } ( sx : isfinite X ) ( sy : isfinite Y ) 
 Definition isfinitetotal2 { X : UU } ( P : X -> UU ) ( sx : isfinite X ) ( fs : ∏ x : X , isfinite ( P x ) ) : isfinite ( total2 P ) .
 Proof . intros . set ( fs' := ischoicebasefiniteset sx _ fs ) .  apply ( hinhfun2 ( fun fx0 : ∏ x : X , finstruct ( P x )  => fun sx0 : _ => finstructontotal2 P sx0 fx0 ) fs' sx ) .  Defined .
 
+Definition FiniteSetSum {I:FiniteSet} (X : I -> FiniteSet) : FiniteSet.
+Proof.
+  intros. exists (∑ i, X i).
+  apply isfinitetotal2.
+  - exact (pr2 I).
+  - intros i. exact (pr2 (X i)).
+Defined.
+
+Delimit Scope finset with finset.
+
+Notation "'∑' x .. y , P" := (FiniteSetSum (fun x =>.. (FiniteSetSum (fun y => P))..))
+  (at level 200, x binder, y binder, right associativity) : finset.
+  (* type this in emacs in agda-input method with \sum *)
+
 Definition isfinitedirprod { X Y : UU } ( sx : isfinite X ) ( sy : isfinite Y ) : isfinite ( dirprod X Y ) := hinhfun2 ( fun sx0 : _ => fun sy0 : _ => finstructondirprod sx0 sy0 ) sx sy .
 
 Definition isfinitedecsubset { X : UU } ( f : X -> bool ) ( sx : isfinite X ) : isfinite ( hfiber f true ) := hinhfun ( fun sx0 : _ =>  finstructondecsubset f sx0 ) sx .
@@ -236,8 +260,6 @@ Definition isfiniteforall { X : UU } ( P : X -> UU ) ( sx : isfinite X ) ( fs : 
 Proof . intros . set ( fs' := ischoicebasefiniteset sx _ fs ) .  apply ( hinhfun2 ( fun fx0 : ∏ x : X , finstruct ( P x )  => fun sx0 : _ => finstructonforall P sx0 fx0 ) fs' sx ) .  Defined .
 
 Definition isfiniteweq { X : UU } ( sx : isfinite X ) : isfinite ( weq X X ) := hinhfun ( fun sx0 : _ =>  finstructonweq sx0 ) sx .
-
-
 
 
 
@@ -270,38 +292,6 @@ Proof. intros. *)
 
 (* The cardinality of finite sets defined using the "impredicative" ishinh *)
 
-(** finite sums of natural numbers *)
-
-Definition finsum {X} (fin : isfinite X) (f : X -> nat) : nat.
-Proof.
-  intros.
-  unfold isfinite in fin.
-  unfold finstruct in fin.
-  unfold nelstruct in fin.
-  set (sum := λ (x : ∑ n, stn n ≃ X), stnsum (f ∘ pr2 x)).
-  apply (squash_to_set isasetnat sum).
-  { intros.
-    induction x as [n x].
-    induction x' as [n' x'].
-    assert (p := weqtoeqstn (invweq x' ∘ x)%weq).
-    induction p.
-    unfold sum; simpl.
-    set (k := nat_plus_commutativity (f ∘ x') (invweq x' ∘ x)%weq).
-    assert (e : f ∘ x' ∘ (invweq x' ∘ x)%weq = f ∘ x).
-    { rewrite weqcomp_to_funcomp. apply funextfun.
-      intro i. unfold funcomp. apply maponpaths.
-      exact (homotweqinvweq x' (x i)). }
-    rewrite e in k.
-    exact (!k). }
-  assumption.
-Defined.
-
-(* A simpler definition: *)
-Definition finsum' {X} (fin : isfinite X) (f : X -> nat) : nat.
-Proof.
-  intros. exact (fincard (isfinitetotal2 (stn∘f) fin (λ i, isfinitestn (f i)))).
-Defined.
-
 Definition isfinite_to_DecidableEquality {X} : isfinite X -> DecidableRelation X.
   intros ? fin x y.
   exact (@isdecprop_to_DecidableProposition
@@ -309,4 +299,47 @@ Definition isfinite_to_DecidableEquality {X} : isfinite X -> DecidableRelation X
                   (isdecpropif (x=y)
                                (isfinite_isaset X fin x y)
                                (isfinite_isdeceq X fin x y))).
+Defined.
+
+Lemma subsetFiniteness {X} (is : isfinite X) (P : DecidableSubtype X) :
+  isfinite (decidableSubtypeCarrier P).
+Proof.
+  intros.
+  assert (fin : isfinite (decidableSubtypeCarrier' P)).
+  { now apply isfinitedecsubset. }
+  refine (isfiniteweqf _ fin).
+  apply decidableSubtypeCarrier_weq.
+Defined.
+
+Definition subsetFiniteSet {X:FiniteSet} (P:DecidableSubtype X) : FiniteSet.
+Proof. intros X P. exact (isfinite_to_FiniteSet (subsetFiniteness (pr2 X) P)). Defined.
+
+Definition fincard_subset {X} (is : isfinite X) (P : DecidableSubtype X) : nat.
+Proof. intros ? fin ?. exact (fincard (subsetFiniteness fin P)). Defined.
+
+Definition fincard_standardSubset {n} (P : DecidableSubtype (stn n)) : nat.
+Proof. intros. exact (fincard (subsetFiniteness (isfinitestn n) P)). Defined.
+
+Local Definition bound01 (P:DecidableProposition) : ((choice P 1 0) ≤ 1)%nat.
+Proof.
+  intros. unfold choice. choose P p q; reflexivity.
+Defined.
+
+Definition tallyStandardSubset {n} (P: DecidableSubtype (stn n)) : stn (S n).
+Proof. intros. exists (stnsum (λ x, choice (P x) 1 0)). apply natlehtolthsn.
+       apply (istransnatleh (m := stnsum(λ _ : stn n, 1))).
+       { apply stnsum_le; intro i. apply bound01. }
+       assert ( p : ∏ r s, r = s -> (r ≤ s)%nat). { intros ? ? e. destruct e. apply isreflnatleh. }
+       apply p. apply stnsum_1.
+Defined.
+
+Definition tallyStandardSubsetSegment {n} (P: DecidableSubtype (stn n))
+           (i:stn n) : stn n.
+  (* count how many elements less than i satisfy P *)
+  intros.
+  assert (k := tallyStandardSubset
+                 (λ j:stn i, P (stnmtostnn i n (natlthtoleh i n (pr2 i)) j))).
+  apply (stnmtostnn (S i) n).
+  { apply natlthtolehsn. exact (pr2 i). }
+  exact k.
 Defined.

@@ -15,7 +15,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -25,17 +25,6 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
-
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
-
-Arguments θ_source {_ _ _ _} _ .
-Arguments θ_target {_ _ _ _} _ .
-Arguments θ_Strength1 {_ _ _ _ _} _ .
-Arguments θ_Strength2 {_ _ _ _ _} _ .
-Arguments θ_Strength1_int {_ _ _ _ _} _ .
-Arguments θ_Strength2_int {_ _ _ _ _} _ .
 
 Section binproduct_of_signatures.
 
@@ -51,8 +40,8 @@ Local Notation "'PCD'" := (BinProducts_functor_precat C D PD hs : BinProducts [C
 
 Variables H1 H2 : functor [C, C, hsC] [C, D, hs].
 
-Variable θ1 : θ_source H1 ⟶ θ_target H1.
-Variable θ2 : θ_source H2 ⟶ θ_target H2.
+Variable θ1 : θ_source H1 ⟹ θ_target H1.
+Variable θ2 : θ_source H2 ⟹ θ_target H2.
 
 Variable S11 : θ_Strength1 θ1.
 Variable S12 : θ_Strength2 θ1.
@@ -109,7 +98,7 @@ Proof.
   + exact (nat_trans_eq_pointwise (nat_trans_ax θ2 _ _ (α,,β)) c).
 Qed.
 
-Local Definition θ : θ_source H ⟶ θ_target H.
+Local Definition θ : θ_source H ⟹ θ_target H.
 Proof.
   exists θ_ob.
   apply is_nat_trans_θ_ob.

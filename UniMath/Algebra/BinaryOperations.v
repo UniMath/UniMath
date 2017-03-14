@@ -94,7 +94,7 @@ Defined.
 
 (** *)
 
-Definition islunit {X : hSet} (opp : binop X) (un0 : X) : UU := ∏ x : X, paths (opp un0 x) x.
+Definition islunit {X : UU} (opp : binop X) (un0 : X) : UU := ∏ x : X, paths (opp un0 x) x.
 
 Lemma isapropislunit {X : hSet} (opp : binop X) (un0 : X) : isaprop (islunit opp un0).
 Proof.
@@ -103,7 +103,7 @@ Proof.
   simpl. apply (setproperty X).
 Defined.
 
-Definition isrunit {X : hSet} (opp : binop X) (un0 : X) : UU := ∏ x : X, paths (opp x un0) x.
+Definition isrunit {X : UU} (opp : binop X) (un0 : X) : UU := ∏ x : X, paths (opp x un0) x.
 
 Lemma isapropisrunit {X : hSet} (opp : binop X) (un0 : X) : isaprop (isrunit opp un0).
 Proof.
@@ -1352,6 +1352,8 @@ Definition binopfunpair {X Y : setwithbinop} (f : X -> Y) (is : isbinopfun f) : 
 
 Definition pr1binopfun (X Y : setwithbinop) : binopfun X Y -> (X -> Y) := @pr1 _ _.
 Coercion pr1binopfun : binopfun >-> Funclass.
+
+Definition binopfunisbinopfun {X Y : setwithbinop} (f : binopfun X Y) : isbinopfun f := pr2 f.
 
 Lemma isasetbinopfun  (X Y : setwithbinop) : isaset (binopfun X Y).
 Proof.
