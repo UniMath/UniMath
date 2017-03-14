@@ -474,7 +474,7 @@ Variable C' : hsubtype (ob C).
 (** *** Isos in the full subcategory are equivalent to isos in the precategory *)
 
 Lemma iso_in_subcat_is_iso_in_precat (a b : ob (full_sub_precategory C'))
-       (f : iso a b): is_isomorphism (C:=C) (a:=pr1 a) (b:=pr1 b)
+       (f : iso a b): is_iso (C:=C) (a:=pr1 a) (b:=pr1 b)
      (pr1 (pr1 f)).
 Proof.
   set (T:= pr1 (inv_from_iso f)).
@@ -489,7 +489,7 @@ Defined.
 
 Lemma iso_in_precat_is_iso_in_subcat (a b : ob (full_sub_precategory C'))
      (f : iso (pr1 a) (pr1 b)) :
-   is_isomorphism (C:=full_sub_precategory C')
+   is_iso (C:=full_sub_precategory C')
      (precategory_morphisms_in_subcat f tt).
 Proof.
   apply (is_iso_qinv _ (precategory_morphisms_in_subcat (inv_from_iso f) tt)).

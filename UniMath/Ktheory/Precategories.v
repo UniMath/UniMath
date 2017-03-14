@@ -1,12 +1,13 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.MoreFoundations.All.
 Require Export UniMath.Ktheory.Utilities.
 Require Export UniMath.CategoryTheory.precategories. (* export its coercions, especially *)
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
                UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.Foundations.Preamble.
+Require Export UniMath.Foundations.Sets.
 Require Export UniMath.CategoryTheory.category_hset.
 
 Local Open Scope cat.
@@ -61,8 +62,6 @@ Defined.
 
 Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat. (* this overwrites the previous definition *)
 
-Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HSET).
-
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := C,,i.
 
@@ -79,14 +78,6 @@ Definition Functor_compose {C D} (F:functor C D) := @functor_comp _ _ F.
 Definition category_pair (C:precategory) (i:is_category C) : category := C,,i.
 
 Definition theUnivalenceProperty (C:category) := pr2 C : is_category C.
-
-Definition reflects_isos {C D} (X:C⟶D) :=
-  ∏ c c' (f : c --> c'), is_isomorphism (#X f) -> is_isomorphism f.
-
-Lemma isaprop_reflects_isos {C D} (X:C⟶D) : isaprop (reflects_isos X).
-Proof.
-  apply impred; intros. apply impred; intros. apply impred; intros.
-  apply impred; intros. apply isaprop_is_isomorphism. Qed.
 
 Lemma Precategory_eq (C D:Precategory) :
   (C:precategory_data) = (D:precategory_data) -> C=D.
@@ -179,7 +170,7 @@ Definition functor_mor_application {B C:Precategory} {b b':B} (F:[B,C]) :
 Notation "F ▭ f" := (functor_mor_application F f) (at level 40, left associativity) : cat. (* \rew1 *)
 
 Definition arrow {C:Precategory} (c : C) (X : [C^op,SET]) : hSet := X ◾ c.
-Notation "c ⇒ X" := (arrow c X) : cat. (* \r= *)
+Notation "c ⇒ X" := (arrow c X)  (at level 50) : cat. (* \r= *)
 
 Definition arrow' {C:Precategory} (c : C) (X : [C^op^op,SET]) : hSet := X ◾ c.
 Notation "X ⇐ c" := (arrow' c X)  (at level 50) : cat. (* \l= *)

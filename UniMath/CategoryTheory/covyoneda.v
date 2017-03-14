@@ -197,7 +197,7 @@ Definition covyoneda (C : precategory) (hs: has_homsets C) :
 
 (* Lemma yoneda_iso_sets (C : precategory) (hs: has_homsets C) (c : C) *)
 (*    (F : functor C^op HSET) : *)
-(*    is_isomorphism (C:=HSET) *)
+(*    is_iso (C:=HSET) *)
 (*      (a := hSetpair (hom _ ((yoneda C) hs c) F) (isaset_nat_trans_yoneda C hs c F)) *)
 (*      (b := F c) *)
 (*      (yoneda_map_1 C hs c F). *)

@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.precategories
+               UniMath.Foundations.Sets.
 Require Import UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories.
 Local Open Scope cat.
 
@@ -21,7 +21,7 @@ Proof. intro. apply impred.
 Lemma morphism_from_iso_is_incl (C : Precategory) (a b : ob C) :
   isincl (morphism_from_iso C a b).
 Proof. intros ? ? ? g.
-  apply (isofhlevelweqf _ (ezweqpr1 _ _)). apply isaprop_is_isomorphism. Qed.
+  apply (isofhlevelweqf _ (ezweqpr1 _ _)). apply isaprop_is_iso. Qed.
 
 Lemma is_category_groupoid {C : Precategory}: is_groupoid C -> is_category C.
 Proof. intros ? ig  .

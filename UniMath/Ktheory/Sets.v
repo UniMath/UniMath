@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.Ktheory.Utilities.
 Definition unit : hSet := ((unit:UU),,isasetunit).
 Definition Product {I} (X:I -> hSet) : hSet.

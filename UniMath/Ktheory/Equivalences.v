@@ -2,7 +2,8 @@
 
 Unset Automatic Introduction.
 
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Ktheory.Tactics.
 
 Definition Equivalence X Y :=

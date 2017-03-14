@@ -1,6 +1,5 @@
 (** * Tactics *)
-
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.Foundations.Sets UniMath.Foundations.UnivalenceAxiom.
 
 Notation ap := maponpaths (only parsing).
 
