@@ -7,7 +7,7 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Algebra.BinaryOperations.
 
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 Section BINOPS_precategory.
@@ -114,7 +114,7 @@ Section BINOP_category.
 
   Lemma binop_equiv_is_iso (A B : setwithbinop)
         (f : binopiso A B) :
-    @is_isomorphism BINOP A B (binopfunpair (pr1 (pr1 f)) (pr2 f)).
+    @is_iso BINOP A B (binopfunpair (pr1 (pr1 f)) (pr2 f)).
   Proof.
     apply (is_iso_qinv (C:=BINOP) _ (binopfunpair (pr1 (pr1 (invbinopiso f)))
                                                   (pr2 (invbinopiso f)))).

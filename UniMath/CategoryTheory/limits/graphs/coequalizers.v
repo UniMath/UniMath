@@ -12,7 +12,7 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 
 
@@ -48,11 +48,11 @@ Section def_coequalizers.
   Defined.
 
   Definition Coequalizer_cocone {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧)
-             (H : f ;; h = g ;; h) : cocone (Coequalizer_diagram f g) d.
+             (H : f · h = g · h) : cocone (Coequalizer_diagram f g) d.
   Proof.
     use mk_cocone.
     - use two_rec_dep; cbn.
-      + exact (f ;; h).
+      + exact (f · h).
       + exact h.
     - use two_rec_dep; cbn; use two_rec_dep; cbn.
       + exact (Empty_set_rect _).
@@ -64,17 +64,17 @@ Section def_coequalizers.
   Defined.
 
   Definition isCoequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧)
-             (H : f ;; h = g ;; h) : UU := isColimCocone (Coequalizer_diagram f g) d
+             (H : f · h = g · h) : UU := isColimCocone (Coequalizer_diagram f g) d
                                                          (Coequalizer_cocone f g d h H).
 
   Definition mk_isCoequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧)
-             (H : f ;; h = g ;; h) :
-    (∏ e (h' : C⟦b, e⟧) (H' : f ;; h' = g ;; h'),
-     iscontr (total2 (fun hk : C⟦d, e⟧ => h ;; hk = h'))) ->
+             (H : f · h = g · h) :
+    (∏ e (h' : C⟦b, e⟧) (H' : f · h' = g · h'),
+     iscontr (total2 (fun hk : C⟦d, e⟧ => h · hk = h'))) ->
     isCoequalizer f g d h H.
   Proof.
     intros H' x cx.
-    assert (H1 : f ;; coconeIn cx Two = g ;; coconeIn cx Two).
+    assert (H1 : f · coconeIn cx Two = g · coconeIn cx Two).
     {
       use (pathscomp0 (coconeInCommutes cx One Two (ii1 tt))).
       use (pathscomp0 _ (!(coconeInCommutes cx One Two (ii2 tt)))).
@@ -97,7 +97,7 @@ Section def_coequalizers.
 
   Definition Coequalizer {a b : C} (f g : C⟦a, b⟧) : UU := ColimCocone (Coequalizer_diagram f g).
 
-  Definition mk_Coequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧) (H : f ;; h = g ;; h)
+  Definition mk_Coequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧) (H : f · h = g · h)
              (isCEq : isCoequalizer f g d h H) : Coequalizer f g.
   Proof.
     use tpair.
@@ -120,7 +120,7 @@ Section def_coequalizers.
     C⟦b, colim E⟧ := colimIn E Two.
 
   Definition CoequalizerArrowEq {a b : C} {f g : C⟦a, b⟧} (E : Coequalizer f g) :
-    f ;; CoequalizerArrow E = g ;; CoequalizerArrow E.
+    f · CoequalizerArrow E = g · CoequalizerArrow E.
   Proof.
     use (pathscomp0 (colimInCommutes E One Two (ii1 tt))).
     use (pathscomp0 _ (!(colimInCommutes E One Two (ii2 tt)))).
@@ -128,12 +128,12 @@ Section def_coequalizers.
   Qed.
 
   Definition CoequalizerOut {a b : C} {f g : C⟦a, b⟧} (E : Coequalizer f g) e (h : C⟦b, e⟧)
-             (H : f ;; h = g ;; h) : C⟦colim E, e⟧.
+             (H : f · h = g · h) : C⟦colim E, e⟧.
   Proof.
     use colimArrow.
     use mk_cocone.
     - use two_rec_dep; cbn.
-      + exact (f ;; h).
+      + exact (f · h).
       + exact h.
     - use two_rec_dep; cbn; use two_rec_dep; cbn.
       + exact (Empty_set_rect _).
@@ -145,19 +145,19 @@ Section def_coequalizers.
   Defined.
 
   Lemma CoequalizerArrowComm {a b : C} {f g : C⟦a, b⟧} (E : Coequalizer f g) (e : C) (h : C⟦b, e⟧)
-        (H : f ;; h = g ;; h) : CoequalizerArrow E ;; CoequalizerOut E e h H = h.
+        (H : f · h = g · h) : CoequalizerArrow E · CoequalizerOut E e h H = h.
   Proof.
     refine (colimArrowCommutes E e _ Two).
   Qed.
 
   Lemma CoequalizerOutUnique {a b : C} {f g : C⟦a, b⟧} (E : Coequalizer f g) (e : C) (h : C⟦b, e⟧)
-        (H : f ;; h = g ;; h) (w : C⟦colim E, e⟧) (H' : CoequalizerArrow E ;; w = h) :
+        (H : f · h = g · h) (w : C⟦colim E, e⟧) (H' : CoequalizerArrow E · w = h) :
     w = CoequalizerOut E e h H.
   Proof.
     apply path_to_ctr.
     use two_rec_dep; cbn.
     - set (X := colimInCommutes E One Two (ii1 tt)).
-      apply (maponpaths (fun h : _ => h ;; w)) in X.
+      apply (maponpaths (fun h : _ => h · w)) in X.
       use (pathscomp0 (!X)). cbn. rewrite <- assoc.
       unfold idfun. apply cancel_precomposition.
       apply H'.
@@ -184,7 +184,7 @@ Section def_coequalizers.
   (** ** Coequalizers to coequalizers *)
 
   Definition identity_is_Coequalizer_input {a b : C} {f g : C⟦a, b⟧} (E : Coequalizer f g) :
-    total2 (fun hk : C⟦colim E, colim E⟧ => CoequalizerArrow E ;; hk = CoequalizerArrow E).
+    total2 (fun hk : C⟦colim E, colim E⟧ => CoequalizerArrow E · hk = CoequalizerArrow E).
   Proof.
     use tpair.
     exact (identity _).
@@ -192,14 +192,14 @@ Section def_coequalizers.
   Defined.
 
   Lemma CoequalizerEndo_is_identity  {a b : C} {f g : C⟦a, b⟧} (E : Coequalizer f g)
-        (k : C⟦colim E, colim E⟧) (kH :CoequalizerArrow E ;; k = CoequalizerArrow E) :
+        (k : C⟦colim E, colim E⟧) (kH :CoequalizerArrow E · k = CoequalizerArrow E) :
     identity (colim E) = k.
   Proof.
     apply colim_endo_is_identity.
     unfold colimIn.
     use two_rec_dep; cbn.
     + set (X := (coconeInCommutes (colimCocone E) One Two (ii1 tt))).
-      use (pathscomp0 (! (maponpaths (fun h' : _ => h' ;; k) X))).
+      use (pathscomp0 (! (maponpaths (fun h' : _ => h' · k) X))).
       use (pathscomp0 _ X).
       rewrite <- assoc. apply cancel_precomposition.
       apply kH.
@@ -232,7 +232,7 @@ Section def_coequalizers.
   Qed.
 
   Lemma isiso_from_Coequalizer_to_Coequalizer {a b : C} {f g : C⟦a, b⟧} (E1 E2 : Coequalizer f g) :
-    is_isomorphism (from_Coequalizer_to_Coequalizer E1 E2).
+    is_iso (from_Coequalizer_to_Coequalizer E1 E2).
   Proof.
     apply (is_iso_qinv _ (from_Coequalizer_to_Coequalizer E2 E1)).
     apply are_inverses_from_Coequalizer_to_Coequalizer.
@@ -273,7 +273,7 @@ Section coequalizers_coincide.
 
   (** ** isCoequalizers *)
 
-  Lemma equiv_isCoequalizer1 {a b : C} {f g : C⟦a, b⟧} (e : C) (h : C⟦b, e⟧) (H : f ;; h = g ;; h) :
+  Lemma equiv_isCoequalizer1 {a b : C} {f g : C⟦a, b⟧} (e : C) (h : C⟦b, e⟧) (H : f · h = g · h) :
     limits.coequalizers.isCoequalizer f g h H -> isCoequalizer C f g e h H.
   Proof.
     intros X.
@@ -292,7 +292,7 @@ Section coequalizers_coincide.
       exact (!(limits.coequalizers.CoequalizerCommutes E e' h' H')).
   Qed.
 
-  Lemma equiv_isCoequalizer2 {a b : C} (f g : C⟦a, b⟧) (e : C) (h : C⟦b, e⟧) (H : f ;; h = g ;; h) :
+  Lemma equiv_isCoequalizer2 {a b : C} (f g : C⟦a, b⟧) (e : C) (h : C⟦b, e⟧) (H : f · h = g · h) :
     limits.coequalizers.isCoequalizer f g h H <- isCoequalizer C f g e h H.
   Proof.
     intros X.

@@ -10,7 +10,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.sub_precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
@@ -23,10 +23,10 @@ Section def_monic.
 
   (** Definition and construction of isMonic. *)
   Definition isMonic {y z : C} (f : y --> z) : UU :=
-    ∏ (x : C) (g h : x --> y), g ;; f = h ;; f -> g = h.
+    ∏ (x : C) (g h : x --> y), g · f = h · f -> g = h.
 
   Definition mk_isMonic {y z : C} (f : y --> z)
-             (H : ∏ (x : C) (g h : x --> y), g ;; f = h ;; f -> g = h) : isMonic f := H.
+             (H : ∏ (x : C) (g h : x --> y), g · f = h · f -> g = h) : isMonic f := H.
 
   Lemma isapropisMonic {y z : C} (f : y --> z) : isaprop (isMonic f).
   Proof.
@@ -49,15 +49,15 @@ Section def_monic.
   Definition MonicisMonic {y z : C} (M : Monic y z) : isMonic M := pr2 M.
 
   (** Isomorphism to isMonic and Monic. *)
-  Lemma is_iso_isMonic {y x : C} (f : y --> x) (H : is_iso f) : isMonic f.
+  Lemma is_iso_isMonic {y x : C} (f : y --> x) (H : is_z_isomorphism f) : isMonic f.
   Proof.
     apply mk_isMonic.
     intros z g h X.
-    apply (post_comp_with_iso_is_inj _ y _ f H).
+    apply (post_comp_with_z_iso_is_inj H).
     exact X.
   Qed.
 
-  Lemma is_iso_Monic {y x : C} (f : y --> x) (H : is_iso f) : Monic y x.
+  Lemma is_iso_Monic {y x : C} (f : y --> x) (H : is_z_isomorphism f) : Monic y x.
   Proof.
     apply (mk_Monic f (is_iso_isMonic f H)).
   Defined.
@@ -65,7 +65,7 @@ Section def_monic.
   (** Identity to isMonic and Monic. *)
   Lemma identity_isMonic {x : C} : isMonic (identity x).
   Proof.
-    apply (is_iso_isMonic (identity x) (identity_is_iso _ x)).
+    apply (is_iso_isMonic (identity x) (is_z_isomorphism_identity x)).
   Defined.
 
   Lemma identity_Monic {x : C} : Monic x x.
@@ -75,21 +75,21 @@ Section def_monic.
 
   (** Composition of isMonics and Monics. *)
   Definition isMonic_comp {x y z : C} (f : x --> y) (g : y --> z) :
-    isMonic f -> isMonic g -> isMonic (f ;; g).
+    isMonic f -> isMonic g -> isMonic (f · g).
   Proof.
     intros X X0. apply mk_isMonic. intros x0 g0 h X1.
     repeat rewrite assoc in X1. apply X0 in X1. apply X in X1. apply X1.
   Qed.
 
   Definition Monic_comp {x y z : C} (M1 : Monic x y) (M2 : Monic y z) :
-    Monic x z := tpair _ (M1 ;; M2) (isMonic_comp M1 M2 (pr2 M1) (pr2 M2)).
+    Monic x z := tpair _ (M1 · M2) (isMonic_comp M1 M2 (pr2 M1) (pr2 M2)).
 
   (** If precomposition of g with f is a monic, then f is a monic. *)
   Definition isMonic_postcomp {x y z : C} (f : x --> y) (g : y --> z) :
-    isMonic (f ;; g) -> isMonic f.
+    isMonic (f · g) -> isMonic f.
   Proof.
     intros X. intros w φ ψ H.
-    apply (maponpaths (fun f' => f' ;; g)) in H.
+    apply (maponpaths (fun f' => f' · g)) in H.
     repeat rewrite <- assoc in H.
     apply (X w _ _ H).
   Defined.

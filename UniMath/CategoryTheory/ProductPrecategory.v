@@ -13,9 +13,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
-
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
+Local Open Scope cat.
 
 Section dep_product_precategory.
 
@@ -37,7 +35,7 @@ Proof.
   - intros f i; simpl in *.
     apply (identity (f i)).
   - intros a b c f g i; simpl in *.
-    exact (f i ;; g i).
+    exact (f i · g i).
 Defined.
 
 Lemma is_precategory_product_precategory_data :

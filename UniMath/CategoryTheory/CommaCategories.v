@@ -26,11 +26,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
-
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
+Local Open Scope cat.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -45,7 +41,7 @@ Variable c : C.
 
 Definition ccomma_object : UU := ∑ m, C⟦c, K m⟧.
 Definition ccomma_morphism (a b : ccomma_object) : UU
-  := ∑ f : _ ⟦pr1 a, pr1 b⟧, pr2 a ;; #K f = pr2 b.
+  := ∑ f : _ ⟦pr1 a, pr1 b⟧, pr2 a · #K f = pr2 b.
 
 Definition isaset_ccomma_morphism a b : isaset (ccomma_morphism a b).
 Proof.
@@ -69,7 +65,7 @@ Definition ccomma_id a : ccomma_morphism a a.
 Proof.
   exists (identity _ ).
   abstract (
-  pathvia (pr2 a ;; identity _ );
+  pathvia (pr2 a · identity _ );
    [ apply maponpaths; apply functor_id |];
   apply id_right
   ).
@@ -79,7 +75,7 @@ Definition ccomma_comp a b d :
   ccomma_morphism a b -> ccomma_morphism b d -> ccomma_morphism a d.
 Proof.
   intros f g.
-  exists (pr1 f ;; pr1 g).
+  exists (pr1 f · pr1 g).
   abstract (
   rewrite functor_comp;
   rewrite assoc;
@@ -157,7 +153,7 @@ Definition cComma_mor_ob : c' ↓ K → c ↓ K.
 Proof.
   intro af.
   exists (pr1 af).
-  exact (h ;; pr2 af).
+  exact (h · pr2 af).
 Defined.
 
 Definition cComma_mor_mor (af af' : c' ↓ K) (g : _ ⟦af, af'⟧)

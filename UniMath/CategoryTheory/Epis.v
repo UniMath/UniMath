@@ -13,7 +13,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.sub_precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
@@ -27,10 +27,10 @@ Section def_epi.
 
   (** Definition and construction of isEpi. *)
   Definition isEpi {x y : C} (f : x --> y) : UU :=
-    ∏ (z : C) (g h : y --> z), f ;; g = f ;; h -> g = h.
+    ∏ (z : C) (g h : y --> z), f · g = f · h -> g = h.
 
   Definition mk_isEpi {x y : C} (f : x --> y)
-             (H : ∏ (z : C) (g h : y --> z), f ;; g = f ;; h -> g = h) : isEpi f := H.
+             (H : ∏ (z : C) (g h : y --> z), f · g = f · h -> g = h) : isEpi f := H.
 
   Lemma isapropisEpi {y z : C} (f : y --> z) : isaprop (isEpi f).
   Proof.
@@ -53,15 +53,15 @@ Section def_epi.
   Definition EpiisEpi {x y : C} (E : Epi x y) : isEpi E := pr2 E.
 
   (** Isomorphism to isEpi and Epi. *)
-  Lemma is_iso_isEpi {x y : C} (f : x --> y) (H : is_iso f) : isEpi f.
+  Lemma is_iso_isEpi {x y : C} (f : x --> y) (H : is_z_isomorphism f) : isEpi f.
   Proof.
     apply mk_isEpi.
     intros z g h X.
-    apply (pre_comp_with_iso_is_inj _ x _ _ f H).
+    apply (pre_comp_with_z_iso_is_inj H).
     exact X.
   Qed.
 
-  Lemma is_iso_Epi {x y : C} (f : x --> y) (H : is_iso f) : Epi x y.
+  Lemma is_iso_Epi {x y : C} (f : x --> y) (H : is_z_isomorphism f) : Epi x y.
   Proof.
     apply (mk_Epi f (is_iso_isEpi f H)).
   Defined.
@@ -69,7 +69,7 @@ Section def_epi.
   (** Identity to isEpi and Epi. *)
   Lemma identity_isEpi {x : C} : isEpi (identity x).
   Proof.
-    apply (is_iso_isEpi (identity x) (identity_is_iso _ x)).
+    apply (is_iso_isEpi (identity x) (is_z_isomorphism_identity x)).
   Defined.
 
   Lemma identity_Epi {x : C} : Epi x x.
@@ -79,20 +79,20 @@ Section def_epi.
 
   (** Composition of isEpis and Epis. *)
   Definition isEpi_comp {x y z : C} (f : x --> y) (g : y --> z) :
-    isEpi f -> isEpi g -> isEpi (f ;; g).
+    isEpi f -> isEpi g -> isEpi (f · g).
   Proof.
     intros X X0. unfold isEpi. intros z0 g0 h X1.
     repeat rewrite <- assoc in X1. apply X in X1. apply X0 in X1. apply X1.
   Qed.
 
   Definition Epi_comp {x y z : C} (E1 : Epi x y) (E2 : Epi y z) :
-    Epi x z := tpair _ (E1 ;; E2) (isEpi_comp E1 E2 (pr2 E1) (pr2 E2)).
+    Epi x z := tpair _ (E1 · E2) (isEpi_comp E1 E2 (pr2 E1) (pr2 E2)).
 
   (** If precomposition of g with f is an epi, then g is an epi. *)
-  Definition isEpi_precomp {x y z : C} (f : x --> y) (g : y --> z) : isEpi (f ;; g) -> isEpi g.
+  Definition isEpi_precomp {x y z : C} (f : x --> y) (g : y --> z) : isEpi (f · g) -> isEpi g.
   Proof.
     intros X. intros w φ ψ H.
-    apply (maponpaths (fun g' => f ;; g')) in H.
+    apply (maponpaths (fun g' => f · g')) in H.
     repeat rewrite assoc in H.
     apply (X w _ _ H).
   Defined.
@@ -170,7 +170,3 @@ Section epis_functorcategories.
   Qed.
 
 End epis_functorcategories.
-
-
-
-

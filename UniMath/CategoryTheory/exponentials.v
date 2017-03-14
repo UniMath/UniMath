@@ -28,10 +28,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
-
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
+Local Open Scope cat.
 
 Section exponentials.
 
@@ -124,11 +121,11 @@ Arguments flip_iso : simpl never.
 
 Local Definition eta' : [C,C,hsC]⟦functor_identity C,functor_composite F' G⟧ :=
   let G' := (post_composition_functor C C C hsC hsC G)
-  in eta ;; (# G' (flip_iso a)).
+  in eta · (# G' (flip_iso a)).
 
 Local Definition eps' : [C,C,hsC]⟦functor_composite G F',functor_identity C⟧ :=
   let G' := (pre_composition_functor C C C hsC hsC G)
-  in # G' (inv_from_iso (flip_iso a)) ;; eps.
+  in # G' (inv_from_iso (flip_iso a)) · eps.
 
 Local Lemma form_adjunction_eta'_eps' : form_adjunction F' G eta' eps'.
 Proof.
@@ -145,7 +142,7 @@ mkpair.
     eapply pathscomp0; [apply maponpaths; rewrite assoc; apply cancel_postcomposition, H1|].
     rewrite id_left.
     apply (nat_trans_eq_pointwise (iso_after_iso_inv (flip_iso a)) x).
-+ intro x.
++ intro x; cbn.
   rewrite <- (H2 x), <- assoc, <- (functor_comp G).
   apply maponpaths, maponpaths.
   rewrite assoc.
