@@ -3,6 +3,8 @@ Require Export UniMath.Foundations.Resizing2.
 
 (* this file is not compiled with type-in-type *)
 
+Monomorphic Universe uu0.       (* lowest universe, larger than Set, from which all the propositions come *)
+
 Local Set Printing Universes.
 
 Section A.

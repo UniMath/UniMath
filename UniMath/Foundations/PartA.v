@@ -159,7 +159,7 @@ Defined.
 
 Arguments fromempty { X } _.
 
-Inductive unit : Type :=  tt : unit.
+Inductive unit : UU :=  tt : unit. (* make unit polymorphic; needed due to Coq bug? *)
 
 Definition tounit {X : UU} : X -> unit := fun (x : X) => tt.
 
@@ -240,7 +240,7 @@ Defined.
 
 (** *** Negation and double negation *)
 
-Definition neg@{i} (X : Type@{i}) : Type@{i} := X -> empty@{i}.
+Definition neg (X : UU) : UU := X -> empty.
 
 Notation "'¬' X" := (neg X) (at level 35, right associativity).
 (* type this in emacs in agda-input method with \neg *)
@@ -1043,8 +1043,8 @@ Defined.
 
 Definition hfiber@{i} {X Y : Type@{i}} (f : X -> Y) (y : Y) : Type@{i} := total2@{i} (λ x, f x = y).
 
-Definition hfiberpair@{i} {X Y : Type@{i}} (f : X -> Y) {y : Y}
-           (x : X) (e : f x = y) : hfiber@{i} f y :=
+Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
+           (x : X) (e : f x = y) : hfiber f y :=
   tpair _ x e.
 
 Definition hfiberpr1 {X Y : UU} (f : X -> Y) (y : Y) : hfiber f y -> X := pr1.
@@ -1494,7 +1494,7 @@ Ltac intermediate_iscontr Y' := apply (iscontrweqb (Y := Y')).
 (** [ unit ] is contractible (recall that [ tt ] is the name of the
     canonical term of the type [ unit ]). *)
 
-Lemma isconnectedunit@{i} : ∏ x x' : unit@{i}, paths@{i} x x'.
+Lemma isconnectedunit : ∏ x x' : unit, x = x'.
 Proof.
   intros. induction x. induction x'. apply idpath.
 Defined.

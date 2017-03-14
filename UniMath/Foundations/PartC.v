@@ -59,7 +59,8 @@ Require Export UniMath.Foundations.UnivalenceAxiom.
 
 (** *** More results on propositions *)
 
-Theorem isapropneg (X : Type) : isaprop (neg X).
+
+Theorem isapropneg (X : UU) : isaprop (neg X).
 Proof.
   intro. apply invproofirrelevance.
   intros x x'. apply (funextempty X x x').
