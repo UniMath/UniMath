@@ -852,7 +852,7 @@ Defined.
 
 Lemma natplusr0 (n : nat) : (n + 0) = n.
 Proof.
-  intro. induction n as [ | n IH n ].
+  intro. induction n as [ | n IH].
   - apply idpath.
   - simpl. apply (maponpaths S IH).
 Defined.
