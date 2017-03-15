@@ -937,7 +937,7 @@ Proof.
         induction k as [k K]. simpl.
         apply (maponpaths (λ x, x+k)). unfold funcomp. unfold stntonat. unfold di.
         clear K k.
-        induction (natlthorgeh (pr1 j) n) as [G|G'].
+        induction (natlthorgeh _ n) as [G|G'].
         -- simpl. apply stnsum_eq; intro k. apply maponpaths.
            apply subtypeEquality_prop. simpl.
            apply pathsinv0, di_eq1.

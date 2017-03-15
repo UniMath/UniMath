@@ -301,7 +301,7 @@ induction n as [|n IHn]; simpl.
 - rewrite foldr_nil.
   now destruct l.
 - rewrite foldr_cons; simpl.
-  now rewrite IHn; simpl; rewrite <- (tppr l).
+  now rewrite IHn; simpl; try rewrite <- (tppr l).
 Qed.
 
 Lemma to_ListK (A : HSET) : ∏ y : List A, to_List A (to_list A y) = y.

@@ -100,6 +100,8 @@ Lemma are_isomorphic_monorel {c : C} {x1 y1 x2 y2 : SubobjectsPrecategory hsC c}
   monorel c x1 x2 → monorel c y1 y2.
 Proof.
 apply hinhuniv; intros f.
+change (ishinh_UU (iso x1 y1)) in h1.
+change (ishinh_UU (iso x2 y2)) in h2.
 apply h1; clear h1; intro h1.
 apply h2; clear h2; intro h2.
 intros P H; apply H; clear P H.
@@ -108,7 +110,9 @@ set (Hh1 := iso_after_iso_inv h1).
 exists (pr1 (pr1 h1_inv) · pr1 f · pr1 (pr1 (pr1 h2))).
 set (Htemp := maponpaths pr1 (pr2 (pr1 h2))).
 apply pathsinv0; simpl in *.
-rewrite <-!assoc, <- Htemp, <- (pr2 f).
+rewrite <-!assoc, <- Htemp.
+intermediate_path (pr1 (pr1 h1_inv) · pr1 (pr2 x1)).
+{ apply maponpaths, pathsinv0, (pr2 f). }
 etrans; [ apply maponpaths, (maponpaths pr1 (pr2 (pr1 h1))) |]; simpl.
 rewrite assoc.
 etrans; [ eapply cancel_postcomposition, (maponpaths pr1 (maponpaths pr1 Hh1)) |].

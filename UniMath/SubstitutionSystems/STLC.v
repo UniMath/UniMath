@@ -128,8 +128,10 @@ Local Notation "'1'" := (functor_identity SET_over_sort).
 Local Notation "x ⊗ y" := (BinProductObject _ (BP x y)) (at level 10).
 
 (** The variables *)
+
+
 Definition var_map : SET_over_sort2⟦1,STLC⟧ :=
-  BinCoproductIn1 SET_over_sort2 _ · STLC_mor.
+  BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · STLC_mor.
 
 (** The source of the application constructor *)
 Definition app_source (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
@@ -137,14 +139,18 @@ Definition app_source (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
 
 (** The application constructor *)
 Definition app_map (s t : sort) : SET_over_sort2⟦app_source s t STLC,STLC⟧ :=
-  CoproductIn _ _ _ (ii1 (s,,t)) · BinCoproductIn2 _ _ · STLC_mor.
+  (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ _) (ii1 (s,, t)))
+    · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _))
+    · STLC_mor.
 
 (** The source of the lambda constructor *)
 Definition lam_source (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
   (sorted_option_functor sort s ∙ X ∙ proj_functor sort t) ∙ hat_functor sort (arr s t).
 
 Definition lam_map (s t : sort) : SET_over_sort2⟦lam_source s t STLC,STLC⟧ :=
-  CoproductIn _ _ _ (ii2 (s,,t)) · BinCoproductIn2 _ _ · STLC_mor.
+  (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ _) (ii2 (s,,t)))
+    · BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _)
+    · STLC_mor.
 
 Definition mk_STLC_Algebra X (fvar : SET_over_sort2⟦1,X⟧)
   (fapp : ∏ s t, SET_over_sort2⟦app_source s t X,X⟧)
@@ -174,7 +180,7 @@ Lemma foldr_var X (fvar : SET_over_sort2⟦1,X⟧)
   (flam : ∏ s t, SET_over_sort2⟦lam_source s t X,X⟧) :
   var_map · foldr_map X fvar fapp flam = fvar.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ _ · x)
+assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
 rewrite assoc in F.
 eapply pathscomp0; [apply F|].
