@@ -59,6 +59,7 @@ ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
 
+# this list is duplicated in UniMath/.dir-locals.el :
 TYPE_IN_TYPE_FILES := 				\
 	UniMath/Foundations/Resizing2.vo
 
