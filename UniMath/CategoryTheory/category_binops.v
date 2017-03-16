@@ -186,13 +186,35 @@ Section BINOP_category.
   Qed.
 
   Definition binop_equiv_iso_weq (A B : BINOP) :
-    weq (binopiso A B)(iso A B).
+    weq (binopiso A B) (iso A B).
   Proof.
     exists (binop_equiv_iso A B).
     apply binop_equiv_iso_is_equiv.
   Defined.
 
-(** ** HERE ONE SHOULD ADD A PROOF THAT BINOP IS ACTUALLY A CATEGORY.
-       See category_hset.v *)
+  Definition binop_precategory_isweq (a b : BINOP) :
+    isweq (λ p : a = b, idtoiso p).
+  Proof.
+    assert (e : funcomp (setwithbinop_weq_map a b) (binop_equiv_iso a b) =
+                λ p : a = b, idtoiso p).
+    {
+      use funextsec. intros e. induction e.
+      use total2_paths_f.
+      - use total2_paths_f.
+        + use idpath.
+        + use proofirrelevance. use isapropisbinopfun.
+      - use proofirrelevance. use isaprop_is_iso.
+    }
+    rewrite <- e.
+    exact (weqproperty (weqcomp (setwithbinop_weq a b) (binop_equiv_iso_weq a b))).
+  Defined.
+  Opaque binop_precategory_isweq.
+
+  Definition binop_precategory_is_category : is_category binop_precategory.
+  Proof.
+    use dirprodpair.
+    - intros a b. exact (binop_precategory_isweq a b).
+    - exact has_homsets_BINOP.
+  Defined.
 
 End BINOP_category.
