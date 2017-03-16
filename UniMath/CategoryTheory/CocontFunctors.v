@@ -28,10 +28,10 @@ This file also contains proofs that the following functors are (omega-)cocontinu
   [is_cocont_bincoproduct_functor] [is_omega_cocont_bincoproduct_functor]
 - General coproduct functor: C^I -> C
   [is_cocont_coproduct_functor] [is_omega_cocont_coproduct_functor]
-- Binary coproduct of functors: F + G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x
- + G x
-  [is_cocont_BinCoproduct_of_functors_alt] [is_cocont_BinCoproduct_of_functors]
-  [is_omega_cocont_BinCoproduct_of_functors_alt] [is_omega_cocont_BinCoproduct_of_functors]
+- Binary coproduct of functors: F + G : C -> D, x |-> F x + G x
+  [is_cocont_BinCoproduct_of_functors_alt] [is_omega_cocont_BinCoproduct_of_functors_alt]
+  [is_cocont_BinCoproduct_of_functors_alt2] [is_omega_cocont_BinCoproduct_of_functors_alt2]
+  [is_cocont_BinCoproduct_of_functors] [is_omega_cocont_BinCoproduct_of_functors]
 - Coproduct of families of functors: + F_i : C -> D  (generalization of coproduct of functors)
   [is_cocont_coproduct_of_functors_alt] [is_cocont_coproduct_of_functors]
   [is_omega_cocont_coproduct_of_functors_alt] [is_omega_cocont_coproduct_of_functors]
@@ -1089,7 +1089,7 @@ Defined.
 
 Definition omega_cocont_BinCoproduct_of_functors_alt (F G : omega_cocont_functor C D) :
   omega_cocont_functor C D :=
-  tpair _ _ (is_omega_cocont_BinCoproduct_of_functors_alt (pr2 F) (pr2 G)).
+    tpair _ _ (is_omega_cocont_BinCoproduct_of_functors_alt (pr2 F) (pr2 G)).
 
 Lemma is_cocont_BinCoproduct_of_functors (F G : functor C D)
   (HF : is_cocont F) (HG : is_cocont G) :

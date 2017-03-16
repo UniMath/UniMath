@@ -5,7 +5,10 @@ Anders Mörtberg
 
 2016
 
-Definition of the general product category
+Contents:
+
+- Definition of the general product category ([product_precategory])
+- Tuple functor ([tuple_functor])
 
 ************************************************************)
 
@@ -13,6 +16,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+
 Local Open Scope cat.
 
 Section dep_product_precategory.
@@ -152,7 +156,7 @@ Definition tuple_functor {I : UU} {A : precategory} {B : I → precategory}
   (F : ∏ i, functor A (B i)) : functor A (product_precategory I B)
     := (tuple_functor_data F,, tuple_functor_axioms F).
 
-Definition pr_tuple_functor {I : UU} {A : precategory} {B : I → precategory} (hsB : ∏ i, has_homsets (B i))
+Lemma pr_tuple_functor {I : UU} {A : precategory} {B : I → precategory} (hsB : ∏ i, has_homsets (B i))
   (F : ∏ i, functor A (B i)) (i : I) : tuple_functor F ∙ pr_functor I B i = F i.
 Proof.
 now apply functor_eq.
