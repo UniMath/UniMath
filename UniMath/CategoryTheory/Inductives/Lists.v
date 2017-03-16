@@ -15,7 +15,6 @@ Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
@@ -26,6 +25,9 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+
+Local Open Scope cat.
 
 (** * Lists as the colimit of a chain given by the list functor: F(X) = 1 + A * X *)
 Section lists.
@@ -60,12 +62,12 @@ Let List_alg : algebra_ob listFunctor :=
   InitialObject listFunctor_Initial.
 
 Definition nil_map : HSET⟦unitHSET,μL_A⟧ :=
-  BinCoproductIn1 HSET _ · List_mor.
+  BinCoproductIn1 _ (BinCoproductsHSET _ _) · List_mor.
 
 Definition nil : List := nil_map tt.
 
 Definition cons_map : HSET⟦(A × μL_A)%set,μL_A⟧ :=
-  BinCoproductIn2 HSET _ · List_mor.
+  BinCoproductIn2 _ (BinCoproductsHSET _ _) · List_mor.
 
 Definition cons : pr1 A → List -> List := λ a l, cons_map (a,,l).
 
@@ -143,8 +145,9 @@ Opaque is_omega_cocont_listFunctor.
 Lemma isalghom_pr1foldr :
   is_algebra_mor _ List_alg List_alg (fun l => pr1 (foldr P'HSET P0' Pc' l)).
 Proof.
-apply BinCoproductArrow_eq_cor.
-- apply funextfun; intro x; destruct x; apply idpath.
+apply (BinCoproductArrow_eq_cor _ BinCoproductsHSET).
+- apply funextfun; intro x; induction x.
+  apply (maponpaths pr1 (foldr_nil P'HSET P0' Pc')).
 - apply funextfun; intro x; destruct x as [a l].
   apply (maponpaths pr1 (foldr_cons P'HSET P0' Pc' a l)).
 Qed.
@@ -200,9 +203,8 @@ Lemma length_map (f : A -> A) : ∏ xs, length (map f xs) = length xs.
 Proof.
 apply listIndProp.
 - intros l; apply isasetnat.
-- apply idpath.
+- now unfold map; rewrite foldr_nil.
 - simpl; unfold map, length; simpl; intros a l Hl.
-  simpl.
   now rewrite !foldr_cons, <- Hl.
 Qed.
 
@@ -234,14 +236,14 @@ Definition sum : List natHSET -> nat :=
 (* Eval vm_compute in sum testlist. *)
 (* Eval vm_compute in sum testlistS. *)
 
-(* All of these compute *)
-Eval lazy in length _ (nil natHSET).
-Eval lazy in length _ testlist.
-Eval lazy in length _ testlistS.
-Eval lazy in sum testlist.
-Eval lazy in sum testlistS.
-Eval lazy in length _ (concatenate _ testlist testlistS).
-Eval lazy in sum (concatenate _ testlist testlistS).
+(* None of these compute *)
+(* Eval lazy in length _ (nil natHSET). *)
+(* Eval lazy in length _ testlist. *)
+(* Eval lazy in length _ testlistS. *)
+(* Eval lazy in sum testlist. *)
+(* Eval lazy in sum testlistS. *)
+(* Eval lazy in length _ (concatenate _ testlist testlistS). *)
+(* Eval lazy in sum (concatenate _ testlist testlistS). *)
 
 Goal (∏ l, length _ (2 :: l) = S (length _ l)).
 simpl.
@@ -330,8 +332,8 @@ Defined.
 (* This doesn't compute: *)
 (* Eval compute in (to_list _ testlist). *)
 
-(* This does compute: *)
-Eval lazy in (to_list _ testlist).
+(* This doesn't compute: *)
+(* Eval lazy in (to_list _ testlist). *)
 
 
 End list.
@@ -536,15 +538,8 @@ Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A × X -> X)
 Proof.
 assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
-assert (Fal := toforallpaths _ _ _ F (a,,l)).
-clear F.
-(* apply Fal. *) (* This doesn't work here. why? *)
-unfold compose in Fal.
-simpl in Fal.
-exact Fal.
-Opaque foldr_map.
-Qed. (* This Qed is slow unless one has the Opaque command above *)
-Transparent foldr_map.
+apply (toforallpaths _ _ _ F (a,,l)).
+Qed.
 
 (* This defines the induction principle for lists using foldr *)
 Section list_induction.

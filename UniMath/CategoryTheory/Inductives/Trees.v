@@ -154,7 +154,8 @@ Lemma isalghom_pr1foldr :
   is_algebra_mor _ Tree_alg Tree_alg (fun l => pr1 (foldr P'HSET P0' Pc' l)).
 Proof.
 apply BinCoproductArrow_eq_cor.
-- apply funextfun; intro x; destruct x; apply idpath.
+- apply funextfun; intro x; destruct x.
+  apply (maponpaths pr1 (foldr_leaf P'HSET P0' Pc')).
 - apply funextfun; intro x; destruct x as [a [l1 l2]].
   apply (maponpaths pr1 (foldr_node P'HSET P0' Pc' a l1 l2)).
 Qed.
@@ -211,9 +212,8 @@ Lemma size_map (f : nat -> nat) : ∏ l, size (map f l) = size l.
 Proof.
 apply treeIndProp.
 - intros l. apply isasetnat.
-- apply idpath.
-- intros a l1 l2 ih1 ih2.
-  unfold map.
+- now unfold map; rewrite foldr_leaf.
+- intros a l1 l2 ih1 ih2; unfold map.
   now rewrite foldr_node, !size_node, <- ih1, <- ih2.
 Qed.
 
@@ -250,5 +250,6 @@ Proof.
   - exact t.
 Defined.
 
-Eval lazy in Lists.sum (flatten _ testtree).
-Eval lazy in sum testtree.
+(* These doesn't work any more: *)
+(* Eval lazy in Lists.sum (flatten _ testtree). *)
+(* Eval lazy in sum testtree. *)
