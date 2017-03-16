@@ -1114,28 +1114,35 @@ Definition omega_cocont_BinCoproduct_of_functors
   omega_cocont_functor C D :=
     tpair _ _ (is_omega_cocont_BinCoproduct_of_functors _ _ (pr2 F) (pr2 G)).
 
-(* Lemma is_cocont_BinCoproduct_of_functors_alt_old (F G : functor C D) *)
-(*   (HF : is_cocont F) (HG : is_cocont G) : *)
-(*   is_cocont (BinCoproduct_of_functors_alt_old HD F G). *)
-(* Proof. *)
-(* exact (transportf _ *)
-(*          (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors_alt_old _ _ _ _ F G) *)
-(*          (is_cocont_BinCoproduct_of_functors_alt HF HG)). *)
-(* Defined. *)
+(* Keep these as they have better computational behavior than the one for _alt above *)
+Lemma is_cocont_BinCoproduct_of_functors_alt2 {hsC : has_homsets C}
+  (PC : BinProducts C) (F G : functor C D)
+  (HF : is_cocont F) (HG : is_cocont G) :
+  is_cocont (BinCoproduct_of_functors_alt2 HD F G).
+Proof.
+apply (is_cocont_functor_composite hsD).
+  apply (is_cocont_bindelta_functor PC hsC).
+apply (is_cocont_functor_composite hsD).
+  apply (is_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
+apply (is_cocont_bincoproduct_functor _ hsD).
+Defined.
 
-(* Lemma is_omega_cocont_BinCoproduct_of_functors_alt_old (F G : functor C D) *)
-(*   (HF : is_omega_cocont F) (HG : is_omega_cocont G) : *)
-(*   is_omega_cocont (BinCoproduct_of_functors_alt_old HD F G). *)
-(* Proof. *)
-(* exact (transportf _ *)
-(*          (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors_alt_old _ _ _ _ F G) *)
-(*          (is_omega_cocont_BinCoproduct_of_functors_alt HF HG)). *)
-(* Defined. *)
+Lemma is_omega_cocont_BinCoproduct_of_functors_alt2 (hsC : has_homsets C)
+  (PC : BinProducts C) (F G : functor C D)
+  (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
+  is_omega_cocont (BinCoproduct_of_functors_alt2 HD F G).
+Proof.
+apply (is_omega_cocont_functor_composite hsD).
+  apply (is_omega_cocont_bindelta_functor PC hsC).
+apply (is_omega_cocont_functor_composite hsD).
+  apply (is_omega_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
+apply (is_omega_cocont_bincoproduct_functor _ hsD).
+Defined.
 
-(* Definition omega_cocont_BinCoproduct_of_functors_alt_old *)
-(*  (F G : omega_cocont_functor C D) : *)
-(*   omega_cocont_functor C D := *)
-(*     tpair _ _ (is_omega_cocont_BinCoproduct_of_functors_alt_old _ _ (pr2 F) (pr2 G)). *)
+Definition omega_cocont_BinCoproduct_of_functors_alt2 (hsC : has_homsets C)
+  (PC : BinProducts C) (F G : omega_cocont_functor C D) :
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_BinCoproduct_of_functors_alt2 hsC PC _ _ (pr2 F) (pr2 G)).
 
 End BinCoproduct_of_functors.
 
@@ -1771,14 +1778,14 @@ Notation "'Id'" := (omega_cocont_functor_identity has_homsets_HSET) :
                      cocont_functor_hset_scope.
 
 Notation "F * G" :=
-  (omega_cocont_BinProduct_of_functors BinProductsHSET _
+  (omega_cocont_BinProduct_of_functors_alt BinProductsHSET _
      has_homsets_HSET has_homsets_HSET
      (is_omega_cocont_constprod_functor1 _ has_homsets_HSET has_exponentials_HSET)
      F G) : cocont_functor_hset_scope.
 
 Notation "F + G" :=
-  (omega_cocont_BinCoproduct_of_functors
-     BinCoproductsHSET has_homsets_HSET F G) : cocont_functor_hset_scope.
+  (omega_cocont_BinCoproduct_of_functors_alt2
+     BinCoproductsHSET has_homsets_HSET has_homsets_HSET BinProductsHSET F G) : cocont_functor_hset_scope.
 
 Notation "1" := (unitHSET) : cocont_functor_hset_scope.
 Notation "0" := (emptyHSET) : cocont_functor_hset_scope.

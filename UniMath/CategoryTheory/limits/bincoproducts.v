@@ -682,21 +682,22 @@ abstract (split;
   | now intros x y z f g; simpl; rewrite BinCoproductOfArrows_comp ]).
 Defined.
 
+(* Defines the copropuct of two functors *)
+Definition BinCoproduct_of_functors_alt {C D : precategory}
+  (hsD : has_homsets D) (HD : BinCoproducts D) (F G : C ⟶ D) : C ⟶ D :=
+    tuple_functor (λ b, bool_rect (λ _, C ⟶ D) F G b) ∙
+    coproduct_functor bool (CoproductsBool hsD HD).
+
 (* Defines the copropuct of two functors by:
     x -> (x,x) -> (F x,G x) -> F x + G x
 
   For a direct and equal definition see FunctorsPointwiseBinCoproduct.v
 
-  Below follows a slightly simpler definition
+  Above is a slightly simpler definition
 *)
-Definition BinCoproduct_of_functors_alt_old {C D : precategory}
+Definition BinCoproduct_of_functors_alt2 {C D : precategory}
   (HD : BinCoproducts D) (F G : functor C D) : functor C D :=
     bindelta_functor C ∙ (pair_functor F G ∙ bincoproduct_functor HD).
-
-Definition BinCoproduct_of_functors_alt {C D : precategory}
-  (hsD : has_homsets D) (HD : BinCoproducts D) (F G : C ⟶ D) : C ⟶ D :=
-    tuple_functor (λ b, bool_rect (λ _, C ⟶ D) F G b) ∙
-    coproduct_functor bool (CoproductsBool hsD HD).
 
 End functors.
 
@@ -792,8 +793,8 @@ Qed.
 Definition BinCoproduct_of_functors : functor C D :=
   tpair _ _ is_functor_BinCoproduct_of_functors_data.
 
-Lemma BinCoproduct_of_functors_alt_old_eq_BinCoproduct_of_functors :
-  BinCoproduct_of_functors_alt_old HD F G = BinCoproduct_of_functors.
+Lemma BinCoproduct_of_functors_alt2_eq_BinCoproduct_of_functors :
+  BinCoproduct_of_functors_alt2 HD F G = BinCoproduct_of_functors.
 Proof.
 now apply (functor_eq _ _ hsD).
 Defined.
@@ -804,8 +805,8 @@ Proof.
 now apply (functor_eq _ _ hsD).
 Defined.
 
-Lemma BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors_alt_old :
-  BinCoproduct_of_functors_alt hsD HD F G = BinCoproduct_of_functors_alt_old HD F G.
+Lemma BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors_alt2 :
+  BinCoproduct_of_functors_alt hsD HD F G = BinCoproduct_of_functors_alt2 HD F G.
 Proof.
 now apply (functor_eq _ _ hsD).
 Defined.

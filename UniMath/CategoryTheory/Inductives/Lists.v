@@ -236,7 +236,7 @@ Definition sum : List natHSET -> nat :=
 (* Eval vm_compute in sum testlist. *)
 (* Eval vm_compute in sum testlistS. *)
 
-(* None of these compute *)
+(* All of these compute *)
 (* Eval lazy in length _ (nil natHSET). *)
 (* Eval lazy in length _ testlist. *)
 (* Eval lazy in length _ testlistS. *)
@@ -332,7 +332,7 @@ Defined.
 (* This doesn't compute: *)
 (* Eval compute in (to_list _ testlist). *)
 
-(* This doesn't compute: *)
+(* This does compute: *)
 (* Eval lazy in (to_list _ testlist). *)
 
 
