@@ -26,10 +26,11 @@ Section A.
     { intros nle. split.
       - assert (q := tot x y). simple refine (hinhuniv _ q); intro q'; clear q.
         induction q' as [Rxy|Ryx].
-        + apply fromempty, nle, Rxy.
+        + apply fromempty. exact (nle Rxy).
         + exact Ryx.
-      - intros ne. induction ne. apply nle; clear nle. exact (refl y). }
-    { intros yltx xley. induction yltx as [ylex neq]. apply neq; clear neq. now apply anti. }
+      - intros ne. induction ne. exact (nle (refl y)). }
+    { intros yltx xley. induction yltx as [ylex neq].
+      simple refine (neq _); clear neq. now apply anti. }
   Defined.
 
 End A.

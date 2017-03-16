@@ -18,7 +18,7 @@ Lemma decidable_proof_by_contradiction {P:hProp} : decidable P -> ¬ ¬ P -> P.
 Proof.
   intros dec nnp. induction dec as [p|np].
   - exact p.
-  - apply fromempty, nnp, np.
+  - apply fromempty. exact (nnp np).
 Defined.
 
 Lemma proof_by_contradiction {P:hProp} : LEM -> ¬ ¬ P -> P.
