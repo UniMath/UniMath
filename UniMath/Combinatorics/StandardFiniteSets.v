@@ -38,7 +38,7 @@ Delimit Scope stn with stn.
 Notation "⟦ n ⟧" := (stn n) (at level 50) : stn.
 (* in agda-mode \[[ n \]] *)
 
-Notation "● x" := (x ,, idpath _) (at level 35) : stn.
+Notation "● i" := (i ,, (idpath _ : natgtb _ _ = _)) (at level 35) : stn.
 
 Lemma isinclstntonat ( n : nat ) : isincl ( stntonat n ) .
 Proof. intro .  refine (isinclpr1 _ _) .  intro x .  apply ( pr2 ( natlth x n ) ) .  Defined.
@@ -937,7 +937,7 @@ Proof.
         induction k as [k K]. simpl.
         apply (maponpaths (λ x, x+k)). unfold funcomp. unfold stntonat. unfold di.
         clear K k.
-        induction (natlthorgeh (pr1 j) n) as [G|G'].
+        induction (natlthorgeh _ n) as [G|G'].
         -- simpl. apply stnsum_eq; intro k. apply maponpaths.
            apply subtypeEquality_prop. simpl.
            apply pathsinv0, di_eq1.
