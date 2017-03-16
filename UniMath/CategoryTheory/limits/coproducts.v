@@ -204,12 +204,19 @@ Defined.
 
 End functors.
 
-(* Defines the arbitrary copropuct of a family of functors *)
-Definition coproduct_of_functors_alt (I : UU) {C D : precategory}
+(* The arbitrary copropuct of a family of functors *)
+(* This is the old and not so good definition *)
+Definition coproduct_of_functors_alt_old (I : UU) {C D : precategory}
   (HD : Coproducts I D) (F : I -> functor C D) : functor C D :=
   functor_composite (delta_functor I C)
      (functor_composite (family_functor _ F)
                         (coproduct_functor _ HD)).
+
+(* The arbitrary copropuct of a family of functors *)
+Definition coproduct_of_functors_alt (I : UU) {C D : precategory}
+  (HD : Coproducts I D) (F : ∏ (i : I), functor C D)
+  := functor_composite (tuple_functor F) (coproduct_functor _ HD).
+
 
 (** * Coproducts lift to functor categories *)
 Section def_functor_pointwise_coprod.
@@ -256,6 +263,12 @@ Qed.
 
 Definition coproduct_of_functors : functor C D :=
   tpair _ _ is_functor_coproduct_of_functors_data.
+
+Lemma coproduct_of_functors_alt_old_eq_coproduct_of_functors :
+  coproduct_of_functors_alt_old _ HD F = coproduct_of_functors.
+Proof.
+now apply (functor_eq _ _ hsD).
+Defined.
 
 Lemma coproduct_of_functors_alt_eq_coproduct_of_functors :
   coproduct_of_functors_alt _ HD F = coproduct_of_functors.
