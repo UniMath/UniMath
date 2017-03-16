@@ -63,7 +63,6 @@ Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
@@ -83,6 +82,8 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.CategoryTheory.slicecat.
+
+Local Open Scope cat.
 
 (** * Definition of cocontinuous functors *)
 Section cocont.
@@ -1114,43 +1115,78 @@ End coprod_functor.
 (** ** Binary coproduct of functors: F + G : C -> D is omega cocontinuous *)
 Section BinCoproduct_of_functors.
 
-Context {C D : precategory} (PC : BinProducts C) (HD : BinCoproducts D)
-        (hsC : has_homsets C) (hsD : has_homsets D).
+Context {C D : precategory} (HD : BinCoproducts D) (hsD : has_homsets D).
 
+Lemma temp : Coproducts bool D.
+Proof.
+intros H.
+use mk_CoproductCocone.
+- apply (HD (H true) (H false)).
+- induction i; apply (pr1 (HD (H true) (H false))).
+- use (mk_isCoproductCocone _ _ hsD); intros c f.
+  induction (pr2 (HD (H true) (H false)) c (f true) (f false)) as [[x1 [x2 x3]] x4].
+  use unique_exists.
+  + apply x1.
+  + cbn; induction i; assumption.
+  + intros x; apply impred; intros; apply hsD.
+  + intros h1 h2.
+    apply (maponpaths pr1 (x4 (h1,,(h2 true,,h2 false)))).
+Defined.
 
-Lemma is_cocont_BinCoproduct_of_functors_alt {F G : functor C D}
+Definition BinCoproduct_of_functors_alt2 (F G : C ⟶ D) : C ⟶ D.
+Proof.
+  use functor_composite.
+  Focus 2.
+  use tuple_functor.
+  apply bool.
+  intros b.
+  apply D.
+  intros b.
+  induction b.
+  apply F.
+  apply G.
+  use coproduct_functor.
+  apply temp.
+Defined.
+
+Lemma is_cocont_BinCoproduct_of_functors_alt2 {F G : functor C D}
   (HF : is_cocont F) (HG : is_cocont G) :
-  is_cocont (BinCoproduct_of_functors_alt HD F G).
+  is_cocont (BinCoproduct_of_functors_alt2 F G).
 Proof.
 apply (is_cocont_functor_composite hsD).
-  apply (is_cocont_bindelta_functor PC hsC).
-apply (is_cocont_functor_composite hsD).
-  apply (is_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
-apply (is_cocont_bincoproduct_functor _ hsD).
+- apply is_cocont_tuple_functor; [intros b; apply hsD|].
+  induction i; assumption.
+- apply is_cocont_coproduct_functor, hsD.
 Defined.
 
-Lemma is_omega_cocont_BinCoproduct_of_functors_alt {F G : functor C D}
+Lemma is_omega_cocont_BinCoproduct_of_functors_alt2 {F G : functor C D}
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (BinCoproduct_of_functors_alt HD F G).
+  is_omega_cocont (BinCoproduct_of_functors_alt2 F G).
 Proof.
 apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_bindelta_functor PC hsC).
-apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
-apply (is_omega_cocont_bincoproduct_functor _ hsD).
+- apply is_omega_cocont_tuple_functor; [intros b; apply hsD|].
+  induction i; assumption.
+- apply is_omega_cocont_coproduct_functor, hsD.
 Defined.
 
-Definition omega_cocont_BinCoproduct_of_functors_alt (F G : omega_cocont_functor C D) :
+Definition omega_cocont_BinCoproduct_of_functors_alt2 (F G : omega_cocont_functor C D) :
   omega_cocont_functor C D :=
-    tpair _ _ (is_omega_cocont_BinCoproduct_of_functors_alt (pr2 F) (pr2 G)).
+  tpair _ _ (is_omega_cocont_BinCoproduct_of_functors_alt2 (pr2 F) (pr2 G)).
+
+Lemma BinCoproduct_of_functors_alt2_eq_BinCoproduct_of_functors
+  (F G : functor C D) :
+    BinCoproduct_of_functors_alt2 F G = BinCoproduct_of_functors _ _ HD F G.
+Proof.
+now apply (functor_eq _ _ hsD).
+Defined.
 
 Lemma is_cocont_BinCoproduct_of_functors (F G : functor C D)
   (HF : is_cocont F) (HG : is_cocont G) :
   is_cocont (BinCoproduct_of_functors _ _ HD F G).
 Proof.
 exact (transportf _
-         (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors C D HD hsD F G)
-         (is_cocont_BinCoproduct_of_functors_alt HF HG)).
+         (BinCoproduct_of_functors_alt2_eq_BinCoproduct_of_functors F G)
+         (is_cocont_BinCoproduct_of_functors_alt2 HF HG)).
 Defined.
 
 Lemma is_omega_cocont_BinCoproduct_of_functors (F G : functor C D)
@@ -1158,8 +1194,8 @@ Lemma is_omega_cocont_BinCoproduct_of_functors (F G : functor C D)
   is_omega_cocont (BinCoproduct_of_functors _ _ HD F G).
 Proof.
 exact (transportf _
-         (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors C D HD hsD F G)
-         (is_omega_cocont_BinCoproduct_of_functors_alt HF HG)).
+         (BinCoproduct_of_functors_alt2_eq_BinCoproduct_of_functors F G)
+         (is_omega_cocont_BinCoproduct_of_functors_alt2 HF HG)).
 Defined.
 
 Definition omega_cocont_BinCoproduct_of_functors
@@ -1167,13 +1203,61 @@ Definition omega_cocont_BinCoproduct_of_functors
   omega_cocont_functor C D :=
     tpair _ _ (is_omega_cocont_BinCoproduct_of_functors _ _ (pr2 F) (pr2 G)).
 
+(* Lemma is_cocont_BinCoproduct_of_functors_alt {F G : functor C D} *)
+(*   (HF : is_cocont F) (HG : is_cocont G) : *)
+(*   is_cocont (BinCoproduct_of_functors_alt HD F G). *)
+(* Proof. *)
+(* apply (is_cocont_functor_composite hsD). *)
+(*   apply (is_cocont_bindelta_functor PC hsC). *)
+(* apply (is_cocont_functor_composite hsD). *)
+(*   apply (is_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG). *)
+(* apply (is_cocont_bincoproduct_functor _ hsD). *)
+(* Defined. *)
+
+(* Lemma is_omega_cocont_BinCoproduct_of_functors_alt {F G : functor C D} *)
+(*   (HF : is_omega_cocont F) (HG : is_omega_cocont G) : *)
+(*   is_omega_cocont (BinCoproduct_of_functors_alt HD F G). *)
+(* Proof. *)
+(* apply (is_omega_cocont_functor_composite hsD). *)
+(*   apply (is_omega_cocont_bindelta_functor PC hsC). *)
+(* apply (is_omega_cocont_functor_composite hsD). *)
+(*   apply (is_omega_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG). *)
+(* apply (is_omega_cocont_bincoproduct_functor _ hsD). *)
+(* Defined. *)
+
+(* Definition omega_cocont_BinCoproduct_of_functors_alt (F G : omega_cocont_functor C D) : *)
+(*   omega_cocont_functor C D := *)
+(*     tpair _ _ (is_omega_cocont_BinCoproduct_of_functors_alt (pr2 F) (pr2 G)). *)
+
+(* Lemma is_cocont_BinCoproduct_of_functors (F G : functor C D) *)
+(*   (HF : is_cocont F) (HG : is_cocont G) : *)
+(*   is_cocont (BinCoproduct_of_functors _ _ HD F G). *)
+(* Proof. *)
+(* exact (transportf _ *)
+(*          (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors C D HD hsD F G) *)
+(*          (is_cocont_BinCoproduct_of_functors_alt HF HG)). *)
+(* Defined. *)
+
+(* Lemma is_omega_cocont_BinCoproduct_of_functors (F G : functor C D) *)
+(*   (HF : is_omega_cocont F) (HG : is_omega_cocont G) : *)
+(*   is_omega_cocont (BinCoproduct_of_functors _ _ HD F G). *)
+(* Proof. *)
+(* exact (transportf _ *)
+(*          (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors C D HD hsD F G) *)
+(*          (is_omega_cocont_BinCoproduct_of_functors_alt HF HG)). *)
+(* Defined. *)
+
+(* Definition omega_cocont_BinCoproduct_of_functors *)
+(*  (F G : omega_cocont_functor C D) : *)
+(*   omega_cocont_functor C D := *)
+(*     tpair _ _ (is_omega_cocont_BinCoproduct_of_functors _ _ (pr2 F) (pr2 G)). *)
+
 End BinCoproduct_of_functors.
 
 (** ** Coproduct of families of functors: + F_i : C -> D is omega cocontinuous *)
 Section coproduct_of_functors.
 
-Context {I : UU} {C D : precategory} (HD : Coproducts I D)
-        (hsC : has_homsets C) (hsD : has_homsets D).
+Context {I : UU} {C D : precategory} (HD : Coproducts I D) (hsD : has_homsets D).
 
 (** todo: upstream? *)
 Local Definition coproduct_of_functors_alt2 (F : ∏ (i : I), functor C D)
@@ -1822,8 +1906,8 @@ Notation "F * G" :=
      F G) : cocont_functor_hset_scope.
 
 Notation "F + G" :=
-  (omega_cocont_BinCoproduct_of_functors_alt BinProductsHSET BinCoproductsHSET
-     has_homsets_HSET has_homsets_HSET F G) : cocont_functor_hset_scope.
+  (omega_cocont_BinCoproduct_of_functors_alt2
+     BinCoproductsHSET has_homsets_HSET F G) : cocont_functor_hset_scope.
 
 (* omega_cocont_coproduct_functor has worse computational behavior
    than omega_cocont_coproduct_of_functors and breaks

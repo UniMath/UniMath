@@ -195,7 +195,7 @@ Definition SignatureInitialAlgebra
 Proof.
 use colimAlgInitial.
 - apply (Initial_functor_precat _ _ IC).
-- apply (is_omega_cocont_Id_H _ _ _ BPC _ Hs).
+- apply (is_omega_cocont_Id_H _ _ _ _ Hs).
 - apply ColimsFunctorCategory_of_shape, CLC.
 Defined.
 
@@ -287,7 +287,6 @@ Definition SignatureInitialAlgebraHSET (s : Signature HSET has_homsets_HSET _ _)
   Initial (FunctorAlg (Id_H _ _ BinCoproductsHSET s) has_homsets_HSET2).
 Proof.
 apply SignatureInitialAlgebra; try assumption.
-- apply BinProductsHSET.
 - apply InitialHSET.
 - apply ColimsHSET_of_shape.
 Defined.
