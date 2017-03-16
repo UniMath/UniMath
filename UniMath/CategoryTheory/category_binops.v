@@ -195,18 +195,16 @@ Section BINOP_category.
   Definition binop_precategory_isweq (a b : BINOP) :
     isweq (λ p : a = b, idtoiso p).
   Proof.
-    assert (e : funcomp (setwithbinop_weq_map a b) (binop_equiv_iso a b) =
-                λ p : a = b, idtoiso p).
-    {
-      use funextsec. intros e. induction e.
-      use total2_paths_f.
-      - use total2_paths_f.
-        + use idpath.
-        + use proofirrelevance. use isapropisbinopfun.
-      - use proofirrelevance. use isaprop_is_iso.
-    }
-    rewrite <- e.
-    exact (weqproperty (weqcomp (setwithbinop_weq a b) (binop_equiv_iso_weq a b))).
+    use (@isweqhomot
+           (a = b) (iso a b)
+           (pr1weq (weqcomp (setwithbinop_univalence a b) (binop_equiv_iso_weq a b)))
+           _ _ (weqproperty (weqcomp (setwithbinop_univalence a b) (binop_equiv_iso_weq a b)))).
+    intros e. induction e.
+    use total2_paths_f.
+    - use total2_paths_f.
+      + use idpath.
+      + use proofirrelevance. use isapropisbinopfun.
+    - use proofirrelevance. use isaprop_is_iso.
   Defined.
   Opaque binop_precategory_isweq.
 

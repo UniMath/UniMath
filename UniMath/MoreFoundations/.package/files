@@ -2,6 +2,4 @@ Foundations.v
 Notations.v
 DecidablePropositions.v
 AxiomOfChoice.v
-Equivalences.v
-Paths.v
 All.v

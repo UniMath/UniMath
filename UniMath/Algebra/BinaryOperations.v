@@ -38,10 +38,9 @@ Unset Automatic Introduction.
 (** Imports *)
 
 Require Export UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.Equivalences.
-Require Import UniMath.MoreFoundations.Paths.
 
 (** To upstream files *)
+
 
 (** ** Sets with one and two binary operations *)
 
@@ -1446,111 +1445,44 @@ Opaque isbinopfuninvmap.
 Definition invbinopiso {X Y : setwithbinop} (f : binopiso X Y) :
   binopiso Y X := binopisopair (invweq (pr1 f)) (isbinopfuninvmap f).
 
+Definition idbinopiso (X : setwithbinop) : binopiso X X.
+Proof.
+  intros X.
+  use binopisopair.
+  - exact (idweq X).
+  - intros x1 x2. use idpath.
+Defined.
 
 (** **** (X = Y) ≃ (binopiso X Y) *)
 
-Lemma setwithbinop_weq_isbinopfun {X Y : setwithbinop} (e : X = Y) :
-  isbinopfun (eqweqmap (base_paths (pr1 X) (pr1 Y) (base_paths X Y e))).
+Definition setwithbinop_univalence_map (X Y : setwithbinop) : X = Y -> binopiso X Y.
 Proof.
-  intros X Y e. intros x x'. induction e. use idpath.
-Defined.
-Opaque setwithbinop_weq_isbinopfun.
-
-Lemma setwithbinop_weq_binoppaths {X Y : setwithbinop} (f : binopiso X Y) :
-  transportf (λ x : hSet, binop x)
-             (hSet_paths (invmap (weqpair eqweqmap (univalenceAxiom (pr1 X) (pr1 Y))) (pr1 f)))
-             (pr2 X) = pr2 Y.
-Proof.
-  intros X Y f.
-  use (pathscomp0
-         (@transportf_total2_base_paths
-            _ _ (pr1 X) (pr1 Y)
-            (invmap (weqpair eqweqmap (univalenceAxiom (pr1 X) (pr1 Y))) (pr1 f)) _
-            (fun X0 : UU => binop X0) (pr2 X))).
-  use funextsec. intros y1.
-  use funextsec. intros y2.
-  use (pathscomp0
-         (@transportf_fun_pointwise2
-            (pr1 X) (pr1 Y) (invmap (weqpair eqweqmap (univalenceAxiom (pr1 X) (pr1 Y))) (pr1 f))
-            (pr2 X) y1 y2)).
-  use (pathscomp0 (@transportf_invmap_eqweqmap (pr1 X) (pr1 Y) (pr1 f) _)). unfold transportb.
-  use (pathscomp0 (pr2 f _ _)).
-  rewrite <- transportf_invmap_eqweqmap. rewrite <- transportf_invmap_eqweqmap.
-  rewrite transport_f_f. rewrite transport_f_f.
-  rewrite pathsinv0l. use idpath.
-Defined.
-Opaque setwithbinop_weq_binoppaths.
-
-Lemma setwithbinop_weq_hfiber_path {X Y : setwithbinop} (f : binopiso X Y) (x : X)
-      (w := weqpair eqweqmap (univalenceAxiom (pr1 X) (pr1 Y)))
-      (e := base_paths X Y (total2_paths_f (hSet_paths (invmap w (pr1 f)))
-                                           (setwithbinop_weq_binoppaths f))) :
-  pr1 (weqpair (w (base_paths _ _ e)) (weqproperty (w (base_paths _ _ e)))) x = pr1 (pr1 f) x.
-Proof.
-  intros X Y f x w.
-  rewrite base_total2_paths.
-  Local Transparent hSet_paths. unfold hSet_paths. Local Opaque hSet_paths.
-  rewrite base_total2_paths.
-  exact (maponpaths (λ w' : X ≃ Y, w' x) (homotweqinvweq w (pr1 f))).
-Defined.
-Opaque setwithbinop_weq_hfiber_path.
-
-Definition setwithbinop_weq_map (X Y : setwithbinop) : X = Y → binopiso X Y.
-Proof.
-  intros X Y e. use binopisopair.
-  - use weqpair.
-    + exact (pr1weq (weqpair _ (@univalenceAxiom (pr1 X) (pr1 Y)))
-                    (base_paths _ _ (base_paths _ _ e))).
-    + use weqproperty.
-  - exact (setwithbinop_weq_isbinopfun e).
+  intros X Y e. induction e. exact (idbinopiso X).
 Defined.
 
-Definition setwithbinop_weq_isweq (X Y : setwithbinop) :
-  isweq (setwithbinop_weq_map X Y).
-Proof.
-  intros X Y f. use iscontrpair.
-  - use hfiberpair.
-    + use total2_paths_f.
-      * use hSet_paths.
-        exact (invmap (weqpair _ (@univalenceAxiom (pr1 X) (pr1 Y))) (pr1 f)).
-      * exact (setwithbinop_weq_binoppaths f).
-    + use total2_paths_f.
-      * use total2_paths_f.
-        -- use funextsec. intros x. exact (setwithbinop_weq_hfiber_path f x).
-        -- use proofirrelevance. use isapropisweq.
-      * use proofirrelevance.
-        use impred. intros t1.
-        use impred. intros t2.
-        use setproperty.
-  - intros t. use hfiber_paths_isaset.
-    + cbn. use (pathscomp0 (total2_paths_f_components _ _ _ (pr1 t))).
-      use total2_paths_f_paths.
-      * use (pathscomp0 (total2_paths_f_components _ _ _ (base_paths X Y (pr1 t)))).
-        Local Transparent hSet_paths. unfold hSet_paths. Local Opaque hSet_paths.
-        use total2_paths_f_paths.
-        -- use (pathscomp0
-                  (! (homotinvweqweq (weqpair _ (univalenceAxiom (pr1 X) (pr1 Y)))
-                                     (base_paths (pr1 X) (pr1 Y) (base_paths X Y (pr1 t)))))).
-           use maponpaths.
-           use (pathscomp0 _ (base_paths _ _ (pr2 t))).
-           use total2_paths_f.
-           ++ use idpath.
-           ++ use proofirrelevance. use isapropisweq.
-        -- use proofirrelevance. use isapropifcontr. use isapropisaset.
-      * use uip. use isasetbinoponhSet.
-    + use isasetbinopiso.
-Defined.
-Opaque setwithbinop_weq_isweq.
-
-Definition setwithbinop_weq (X Y : setwithbinop) : weq (X = Y) (binopiso X Y).
+Definition setwithbinop_univalence (X Y : setwithbinop) : (X = Y) ≃ (binopiso X Y).
 Proof.
   intros X Y.
-  use weqpair.
-  - exact (setwithbinop_weq_map X Y).
-  - exact (setwithbinop_weq_isweq X Y).
+  use remakeweq.
+  - use (@weqcomp _ (X ╝ Y)).
+    + use total2_paths_equiv.
+    + use weqbandf.
+      * use hSet_univalence.
+      * intros e. use invweq. induction X as [X Xop]. induction Y as [Y Yop]. cbn in e.
+        induction e. use weqimplimpl.
+        -- intros i.
+           use funextfun. intros x1.
+           use funextfun. intros x2.
+           exact (i x1 x2).
+        -- intros e. change (Xop = Yop) in e. intros x1 x2. induction e. use idpath.
+        -- use isapropisbinopfun.
+        -- use isasetbinoponhSet.
+  - exact (setwithbinop_univalence_map X Y).
+  - intros e. use subtypeEquality.
+    + intros w. use isapropisbinopfun.
+    + induction e. use idpath.
 Defined.
-Opaque setwithbinop_weq.
-
+Opaque setwithbinop_univalence.
 
 (** **** Transport of properties of a binary operation  *)
 
