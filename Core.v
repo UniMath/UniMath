@@ -445,15 +445,15 @@ Proof.
     apply XR. apply i.
   - cbn.
     split.
-    + abstract (
+    + abstract ( 
       etrans ;[ apply mor_disp_transportf_postwhisker |];
-      etrans ;[ apply maponpaths; apply inv_mor_after_iso_disp |];
+      etrans ; [ apply maponpaths; apply (inv_mor_after_iso_disp i)  | ];
       etrans ;[ apply transport_f_f |];
       apply transportf_comp_lemma; apply transportf_comp_lemma_hset;
       try apply homset_property; apply idpath ).
     + abstract (
       etrans ;[ apply mor_disp_transportf_prewhisker |];
-      etrans ;[ apply maponpaths; apply iso_disp_after_inv_mor |];
+      etrans ;[ apply maponpaths; apply (iso_disp_after_inv_mor i) |];
       etrans ;[ apply transport_f_f |];
       apply transportf_comp_lemma; apply transportf_comp_lemma_hset;
       try apply homset_property; apply idpath ).
@@ -708,7 +708,7 @@ Proof.
     etrans; [ apply maponpaths_2, iso_after_iso_inv | apply id_left ].
   - apply pathsinv0.
     etrans. eapply transportf_bind.
-      eapply cancel_postcomposition_disp, iso_disp_after_inv_mor.
+      eapply cancel_postcomposition_disp, (iso_disp_after_inv_mor ii).
     rewrite id_left_disp.
     etrans. apply transport_f_f.
     refine (@maponpaths_2 _ _ _ _ _ (idpath _) _ _).
@@ -717,7 +717,7 @@ Proof.
     rewrite e.
     etrans. eapply transportf_bind, assoc_disp.
     etrans. eapply transportf_bind.
-      eapply cancel_postcomposition_disp, iso_disp_after_inv_mor.
+      eapply cancel_postcomposition_disp, (iso_disp_after_inv_mor ii).
     rewrite id_left_disp.
     etrans. apply transport_f_f.
     refine (@maponpaths_2 _ _ _ _ _ (idpath _) _ _).
