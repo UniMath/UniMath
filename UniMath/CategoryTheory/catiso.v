@@ -263,7 +263,7 @@ Proof.
   unfold catiso_to_precategory_mor_path_funext.
   unfold catiso_to_precategory_mor_path.
   unfold weqfunextsec.
-  simpl pr1.
+  simpl (pr1 _).
   rewrite !(homotweqinvweq (weqtoforallpaths _ _ _)).
 
   (* Cancel transport_mor with its inverse *)

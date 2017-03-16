@@ -86,7 +86,7 @@ now apply colim_endo_is_identity; intro u; induction u.
 Qed.
 
 Lemma isiso_from_Initial_to_Initial (O O' : Initial) :
-  is_isomorphism (InitialArrow O (InitialObject O')).
+  is_iso (InitialArrow O (InitialObject O')).
 Proof.
   apply (is_iso_qinv _ (InitialArrow O' (InitialObject O))).
   split; apply pathsinv0, InitialEndo_is_identity.

@@ -57,12 +57,12 @@ Notation "[ C , D ]" := (functor_Precategory C D) : cat.
 
 Definition oppositePrecategory (C:Precategory) : Precategory.
 Proof.
-  exists (opp_precat C). apply has_homsets_opp, homset_property.
+  exists (opp_precat C).
+  unfold Precategory in C.
+  exact (λ a b, pr2 C b a).
 Defined.
 
 Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat. (* this overwrites the previous definition *)
-
-Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HSET).
 
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := C,,i.
@@ -80,14 +80,6 @@ Definition Functor_compose {C D} (F:functor C D) := @functor_comp _ _ F.
 Definition category_pair (C:precategory) (i:is_category C) : category := C,,i.
 
 Definition theUnivalenceProperty (C:category) := pr2 C : is_category C.
-
-Definition reflects_isos {C D} (X:C⟶D) :=
-  ∏ c c' (f : c --> c'), is_isomorphism (#X f) -> is_isomorphism f.
-
-Lemma isaprop_reflects_isos {C D} (X:C⟶D) : isaprop (reflects_isos X).
-Proof.
-  apply impred; intros. apply impred; intros. apply impred; intros.
-  apply impred; intros. apply isaprop_is_isomorphism. Qed.
 
 Lemma Precategory_eq (C D:Precategory) :
   (C:precategory_data) = (D:precategory_data) -> C=D.
@@ -358,8 +350,10 @@ Proof. induction C as [[ob mor] [id co]]. reflexivity. Defined.
 
 Lemma opp_opp_precat (C:Precategory) : C = C^op^op.
 Proof.
-  apply Precategory_eq. induction C as [[[[obj mor] [id comp]] p] h].
-  reflexivity.
+  apply Precategory_eq.         (* we need both associativity axioms to avoid this *)
+  tryif primitive_projections
+  then reflexivity
+  else induction C as [[[[obj mor] [id comp]] p] h]; reflexivity.
 Qed.
 
 Definition functorOp {B C : Precategory} : [B, C] ^op ⟶ [B ^op, C ^op].

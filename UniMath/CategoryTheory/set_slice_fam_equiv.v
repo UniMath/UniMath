@@ -120,7 +120,7 @@ Section set_slice_fam_equiv.
                                       (functor_identity (slice X)) :=
     slice_counit_fun ,, is_nat_trans_slice_counit.
 
-  Definition slice_all_iso : forall x : slice X, is_isomorphism (slice_counit x).
+  Definition slice_all_iso : forall x : slice X, is_iso (slice_counit x).
   Proof.
     intro x.
     apply iso_to_slice_precat_iso.
@@ -171,7 +171,7 @@ Section set_slice_fam_equiv.
   Proof.
     apply (functor_iso_from_pointwise_iso _ _ has_homsets_HSET _ _ ((pr1 fam_unit) F)).
     intro x.
-    unfold is_isomorphism.
+    unfold is_iso.
     unfold fam_unit_fun_fun.
     exact (hset_equiv_is_iso ((pr1 F) x)
                              (hSetpair (hfiber pr1 x)
@@ -180,7 +180,7 @@ Section set_slice_fam_equiv.
                              (ezweqpr1 (funcomp (pr1 (pr1 F)) pr1) x)).
   Defined.
 
-  Definition fam_all_iso (F : fam X) : is_isomorphism (fam_unit F) := pr2 (fam_iso F).
+  Definition fam_all_iso (F : fam X) : is_iso (fam_unit F) := pr2 (fam_iso F).
 
   Definition fam_counit := nat_trans_inv_from_pointwise_inv _ _
                                                             (functor_category_has_homsets _ _ has_homsets_HSET) _ _

@@ -229,7 +229,7 @@ Section def_po.
 
   Lemma isiso_from_Pushout_to_Pushout {a b c : C} {f : a --> b} {g : a --> c}
         (Pb Pb': Pushout f g) :
-    is_isomorphism (from_Pushout_to_Pushout Pb Pb').
+    is_iso (from_Pushout_to_Pushout Pb Pb').
   Proof.
     apply (is_iso_qinv _ (from_Pushout_to_Pushout Pb' Pb)).
     apply are_inverses_from_Pushout_to_Pushout.

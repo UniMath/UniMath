@@ -87,7 +87,7 @@ now apply ArrowsToTerminal.
 Qed.
 
 Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) :
-   is_isomorphism (TerminalArrow T (TerminalObject T')).
+   is_iso (TerminalArrow T (TerminalObject T')).
 Proof.
   apply (is_iso_qinv _ (TerminalArrow T' (TerminalObject T))).
   split; apply pathsinv0, TerminalEndo_is_identity.
