@@ -372,16 +372,6 @@ Defined.
 
 Hint Resolve @pathsinv0 : pathshints.
 
-Ltac unimath_easy :=
-  trivial; intros; solve
-   [ repeat (solve [trivial | apply pathsinv0; trivial] || split)
-   | match goal with | H : ∅ |- _ => induction H end
-   | match goal with | H : ¬ _ |- _ => induction H; trivial end
-   | match goal with | H : _ → ∅ |- _ => induction H; trivial end
-   | match goal with | H : _ → _ → ∅ |- _ => induction H; trivial end ].
-
-Tactic Notation "now" tactic(t) := t; unimath_easy.
-
 Definition path_assoc {X} {a b c d:X}
            (f : a = b) (g : b = c) (h : c = d)
   : f @ (g @ h) = (f @ g) @ h.
