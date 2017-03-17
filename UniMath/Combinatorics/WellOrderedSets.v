@@ -109,25 +109,55 @@ Definition wosub_equal (X:hSet) : hrel (SubsetWithWellOrdering X) := λ S T, (S 
 
 Notation "S ≣ T" := (wosub_equal _ S T) (at level 70) : wosubset.
 
+Open Scope subtype.
+
 Theorem wosub_univalence {X:hSet} (S T : SubsetWithWellOrdering X) : (S = T) ≃ (S ≣ T).
 Proof.
   intros. unfold wosub_equal.
   intermediate_weq (S ╝ T).
   - apply total2_paths_equiv.
-  - Local Arguments transportf {_ _ _ _} _ _.
-    unfold PathPair.
-
-    (* use weqfibtototal. *)
-    (* intro p. apply weqimplimpl. *)
-    (*  { intros q. split; induction q; apply isrefl_posetRelation. } *)
-    (*  { intros e. apply isantisymm_posetRelation. *)
-    (*    - exact (pr1 e). *)
-    (*    - exact (pr2 e). } *)
-    (*  { apply (setproperty (Data _)). } *)
-    (*     { apply (propproperty (DataEquiv _ _ _)). } } *)
-
-
-Admitted.
+  - intermediate_weq (∑ e : S ≡ T, S ≼ T ∧ T ≼ S).
+    + apply weqbandf.
+      * apply hsubtype_univalence.
+      * intro p. induction S as [S v], T as [T w]. simpl in p. induction p.
+        change (v=w ≃ (S,, v ≼ S,, w ∧ S,, w ≼ S,, v)).
+        induction v as [v i], w as [w j].
+        intermediate_weq (v=w)%type.
+        { apply subtypeInjectivity. change (isPredicate (λ R : hrel (carrier_set S), isWellOrder R)).
+          intros R. apply propproperty. }
+        apply weqimplimpl.
+        { intros p. induction p. split.
+          { use tpair.
+            { intros s. change (S s → S s). exact (idfun _). }
+            { split.
+              { intros s s' le. exact le. }
+              { intros s t le. simpl in t. simpl. exact (pr2 t). } } }
+          { use tpair.
+            { intros s. change (S s → S s). exact (idfun _). }
+            { split.
+              { intros s s' le. exact le. }
+              { intros s t le. simpl in t. simpl. exact (pr2 t). } } } }
+        { simpl. unfold rel. simpl. intros [[a [b _]] [d [e _]]].
+          assert (triv : ∏ (f:∏ x : X, S x → S x) (x:carrier_set S), subtype_inc f x = x).
+          { intros f s. apply subtypeEquality_prop. reflexivity. }
+          apply funextfun; intros s. apply funextfun; intros t.
+          apply hPropUnivalence.
+          { intros le. assert (q := b s t le). rewrite 2 triv in q. exact q. }
+          { intros le. assert (q := e s t le). rewrite 2 triv in q. exact q. } }
+        { apply setproperty. }
+        { apply propproperty. }
+    + apply weqimplimpl.
+      { intros k. split ; apply k. }
+      { intros [[a [b c]] [d [e f]]]. split.
+        { intros x. split.
+          { intros s. exact (a x s). }
+          { intros t. exact (d x t). } }
+        { split.
+          { admit. }
+          { admit. } } }
+      { apply propproperty. }
+      { apply propproperty. }
+Abort.
 
 Definition wosub_inc {X} {S T : SubsetWithWellOrdering X} : (S ≼ T) -> S -> T.
 Proof.
