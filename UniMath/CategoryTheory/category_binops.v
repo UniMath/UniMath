@@ -200,10 +200,9 @@ Section BINOP_category.
            (pr1weq (weqcomp (setwithbinop_univalence a b) (binop_equiv_iso_weq a b)))
            _ _ (weqproperty (weqcomp (setwithbinop_univalence a b) (binop_equiv_iso_weq a b)))).
     intros e. induction e.
+    use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
-    - use total2_paths_f.
-      + use idpath.
-      + use proofirrelevance. use isapropisbinopfun.
+    - use idpath.
     - use proofirrelevance. use isaprop_is_iso.
   Defined.
   Opaque binop_precategory_isweq.
