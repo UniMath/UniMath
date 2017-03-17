@@ -205,15 +205,16 @@ Defined.
 
 End functors.
 
-(* The arbitrary copropuct of a family of functors *)
-(* This is the old and not so good definition *)
+(* The copropuct of a family of functors *)
+(* This is the old and not so good definition as it is unnecessarily complicated, also the proof
+   that it is omega-cocontinuous requires that C has products *)
 Definition coproduct_of_functors_alt_old (I : UU) {C D : precategory}
   (HD : Coproducts I D) (F : I -> functor C D) : functor C D :=
   functor_composite (delta_functor I C)
      (functor_composite (family_functor _ F)
                         (coproduct_functor _ HD)).
 
-(* The arbitrary copropuct of a family of functors *)
+(** The copropuct of a family of functors *)
 Definition coproduct_of_functors_alt (I : UU) {C D : precategory}
   (HD : Coproducts I D) (F : ∏ (i : I), functor C D)
   := functor_composite (tuple_functor F) (coproduct_functor _ HD).
