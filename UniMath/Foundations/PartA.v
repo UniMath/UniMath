@@ -139,6 +139,7 @@ Require Export UniMath.Foundations.Preamble.
 
 (* end of "Preamble" *)
 
+
 (** ** Some standard constructions not using identity types (paths) *)
 
 (** *** Canonical functions from [ empty ] and to [ unit ] *)
