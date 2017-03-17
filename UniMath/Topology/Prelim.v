@@ -1,6 +1,7 @@
 (** * Additionals theorems *)
 
 Require Export UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.Tactics.
 Require Export UniMath.Combinatorics.FiniteSequences.
 Require Export UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.Ktheory.Utilities.

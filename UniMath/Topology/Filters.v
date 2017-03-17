@@ -4,6 +4,8 @@
 
 Require Export UniMath.Topology.Prelim.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
 
 (** ** Definition of a Filter *)

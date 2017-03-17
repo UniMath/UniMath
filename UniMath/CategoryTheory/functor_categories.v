@@ -52,12 +52,13 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.precategories.
+
 Local Open Scope cat.
+
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
-
-
 
 (** * Functors : Morphisms of precategories *)
 Section functors.

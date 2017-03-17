@@ -8,6 +8,9 @@ Written by: Anders Mörtberg, 2017
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
+
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.precategories.
