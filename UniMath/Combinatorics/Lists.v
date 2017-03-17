@@ -5,6 +5,9 @@ This file contains a formalization of lists define as iterated products ([list])
 Written by: Anders Mörtberg, 2016 (inspired by a remark of Vladimir Voevodsky)
 
 *)
+
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Section preamble.

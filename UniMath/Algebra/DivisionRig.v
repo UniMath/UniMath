@@ -15,6 +15,8 @@ Require Export UniMath.Foundations.Sets.
 Require Export UniMath.Algebra.Rigs_and_Rings.
 Require Export UniMath.Algebra.Domains_and_Fields.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 (** ** Definition of a DivRig *)
 
 Definition isnonzerorig (X : rig) : UU := (1%rig : X) != 0%rig.

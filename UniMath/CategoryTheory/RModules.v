@@ -12,19 +12,20 @@ Written by: Ambroise Lafont (November 2016)
 
 ************************************************************)
 
-
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
-
 Require Import UniMath.CategoryTheory.Monads.
+
+Local Open Scope cat.
 
 Local Notation "F ;;; G" := (nat_trans_comp _ _ _ F G) (at level 35).
 

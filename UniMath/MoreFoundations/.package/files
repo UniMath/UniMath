@@ -1,4 +1,5 @@
 Foundations.v
+Tactics.v
 Notations.v
 DecidablePropositions.v
 AxiomOfChoice.v

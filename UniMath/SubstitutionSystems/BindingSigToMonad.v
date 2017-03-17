@@ -16,6 +16,8 @@ Written by: Anders Mörtberg, 2016
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Combinatorics.Lists.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
