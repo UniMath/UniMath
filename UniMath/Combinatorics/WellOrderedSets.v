@@ -60,11 +60,11 @@ Proof.
     intro r. induction r as [a|b].
     { intros _. exact a. }
     { intros c. assert (p : s = s').
-      { apply (pr211 w' s s').  (* isantisymm *)
+      { apply w'.
         - exact c.
         - apply le. exact b. }
       induction p.
-      apply (pr2111 w).         (* isrefl *) }
+      apply w. }
   - apply propproperty.
 Defined.
 
@@ -195,7 +195,7 @@ Proof.
       assert (k' := pr21122 T _ _ l k); clear k. simpl in k'.
       assert (p : s = s').
       { apply subtypeEquality_prop. exact (maponpaths pr1 k'). }
-      induction p. exact (pr211122 S _). }
+      induction p. apply (pr2 S). }
 Defined.
 
 Local Lemma h1 {X} {S:SubsetWithWellOrdering X} {s t u:S} : s = t -> t ≤ u -> s ≤ u.
@@ -208,36 +208,25 @@ Proof.
   intros p le. induction p. exact le.
 Defined.
 
-Lemma wosub_le_istrans {X:hSet} : istrans (wosub_le X).
-Proof.
-  intros S T U i j.
-  exists (pr11 (subtype_containment_isPartialOrder X) S T U (pr1 i) (pr1 j)).
-  split.
-  + intros s s' l. exact (pr12 j _ _ (pr12 i _ _ l)).
-  + intros s u l.
-    change (hProptoType (u ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) s))) in l.
-    set (uinT := pr1 u,,pr22 j (subtype_inc (pr1 i) s) u l : T).
-    assert (p : subtype_inc (pr1 j) uinT = u).
-    { now apply subtypeEquality_prop. }
-    assert (q := h1 p l : subtype_inc (pr1 j) uinT ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) s)).
-    assert (r := pr2 (wosub_fidelity j _ _) q).
-    assert (b := pr22 i _ _ r); simpl in b.
-    exact b.
-Defined.
-
 Lemma wosub_le_isPartialOrder X : isPartialOrder (wosub_le X).
 Proof.
   repeat split.
-  - apply wosub_le_istrans.
+  - intros S T U i j.
+    exists (pr11 (subtype_containment_isPartialOrder X) S T U (pr1 i) (pr1 j)).
+    split.
+    + intros s s' l. exact (pr12 j _ _ (pr12 i _ _ l)).
+    + intros s u l.
+      change (hProptoType (u ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) s))) in l.
+      set (uinT := pr1 u,,pr22 j (subtype_inc (pr1 i) s) u l : T).
+      assert (p : subtype_inc (pr1 j) uinT = u).
+      { now apply subtypeEquality_prop. }
+      assert (q := h1 p l : subtype_inc (pr1 j) uinT ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) s)).
+      assert (r := pr2 (wosub_fidelity j _ _) q).
+      assert (b := pr22 i _ _ r); simpl in b.
+      exact b.
   - apply wosub_le_isrefl.
-  - intros S T i j.
-    induction i as [i i'], i' as [i' i''].
-    induction j as [j j'], j' as [j' j''].
-    assert (q := pr2 (subtype_containment_isPartialOrder X) S T i j); simpl in q.
-    unfold SubsetWithWellOrdering_to_subtype in q.
-
-
-Admitted.
+  - intros S T i j. apply (invmap (wosub_univalence _ _)). exact (i,,j).
+Defined.
 
 Definition WosubPoset (X:hSet) : Poset.
 Proof.
@@ -317,9 +306,9 @@ Proof.
   simple refine (hinhuniv _ (chain i j)); intro c. apply hinhpr. induction c as [ij|ji].
   - exists j. split.
     + exact ij.
-    + apply wosub_le_isrefl.
+    + apply wosub_le_isPartialOrder.
   - exists i. split.
-    + apply wosub_le_isrefl.
+    + apply wosub_le_isPartialOrder.
     + exact ji.
 Defined.
 
@@ -334,8 +323,8 @@ Proof.
   apply hinhpr.
   exists o.
   repeat split.
-  - apply (wosub_le_istrans _ _ _ ilen nleo).
-  - apply (wosub_le_istrans _ _ _ jlen nleo).
+  - apply (pr11 (wosub_le_isPartialOrder _) _ _ _ ilen nleo).
+  - apply (pr11 (wosub_le_isPartialOrder _) _ _ _ jlen nleo).
   - exact kleo.
 Defined.
 
@@ -372,7 +361,6 @@ Proof.
 Defined.
 
 Ltac intermediate_eqset x := apply (pathcomp_set (b := x)).
-
 
 Lemma chain_union_prelim_eq1 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
            (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
