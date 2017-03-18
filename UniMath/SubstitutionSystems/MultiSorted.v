@@ -25,8 +25,12 @@ using [X,SET] instead of SET/X. There is no proof that the
 functor we obtain using this approach is omega-cocontinuous yet.
 
 *)
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
+
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.precategories.
