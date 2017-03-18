@@ -2,6 +2,9 @@ Require Export UniMath.Combinatorics.Lists.
 Require Export UniMath.Combinatorics.FiniteSequences.
 Require Export UniMath.Algebra.Rigs_and_Rings.
 Require Export UniMath.Foundations.UnivalenceAxiom.
+
+Require Import UniMath.MoreFoundations.Tactics.
+
 Unset Automatic Introduction.
 
 (* move upstream *)

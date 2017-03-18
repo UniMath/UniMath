@@ -9,28 +9,26 @@
 Ambroise LAFONT January 2017
 *)
 
-
-Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-Local Open Scope cat.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.coequalizers.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-
 Require Import UniMath.CategoryTheory.limits.graphs.pushouts.
 Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
-
 Require Import UniMath.CategoryTheory.limits.pushouts.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 
-
-Require Import UniMath.CategoryTheory.Epis.
+Local Open Scope cat.
 
 (** Definition of an effective epimorphism.
 An effective epimorphism p: A -> B is a morphism which has a kernel pair and which
