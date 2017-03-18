@@ -9,6 +9,7 @@ Require Export UniMath.CategoryTheory.functor_categories.
 Require Export UniMath.Foundations.Preamble.
 Require Export UniMath.Foundations.Sets.
 Require Export UniMath.CategoryTheory.category_hset.
+Require Import UniMath.MoreFoundations.Tactics.
 
 Local Open Scope cat.
 

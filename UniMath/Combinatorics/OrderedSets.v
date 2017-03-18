@@ -3,6 +3,7 @@
 Require Import UniMath.Combinatorics.FiniteSets.
 Unset Automatic Introduction.
 Require Import UniMath.Foundations.UnivalenceAxiom.
+Require Import UniMath.MoreFoundations.Tactics.
 Local Open Scope poset.
 
 (** partially ordered sets and ordered sets *)

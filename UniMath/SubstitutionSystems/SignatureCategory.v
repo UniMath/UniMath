@@ -8,11 +8,13 @@ Definition of the category of signatures with strength ([Signature_precategory])
 Written by: Anders Mörtberg in October 2016 based on a note of Benedikt Ahrens.
 
 *)
+
 Require Import UniMath.Foundations.PartD.
+
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
@@ -26,6 +28,8 @@ Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
+
+Local Open Scope cat.
 
 Local Notation "[ C , D ]" := (functor_Precategory C D).
 
