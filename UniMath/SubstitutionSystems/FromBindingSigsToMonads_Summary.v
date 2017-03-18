@@ -346,7 +346,7 @@ Defined.
 
 (** Construction 46: Datatypes specified by binding signatures (initial algebra of Id_H + H) *)
 Definition SignatureInitialAlgebra :
-  ∏ {C : precategory} (hsC : has_homsets C) (BPC : BinProducts C) (BCC : BinCoproducts C),
+  ∏ {C : precategory} (hsC : has_homsets C) (BCC : BinCoproducts C),
   Initial C → Colims_of_shape nat_graph C
   → ∏ s : Signature C hsC C hsC, is_omega_cocont (Signature_Functor C hsC C hsC s)
   → Initial (FunctorAlg (Id_H C hsC BCC s) (BindingSigToMonad.has_homsets_C2 hsC)).
@@ -357,7 +357,7 @@ Defined.
 (** Theorem 48: Construction of a substitution operation on an initial algebra *)
 Definition InitHSS :
   ∏ (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C),
-  BinProducts C → Initial C → Colims_of_shape nat_graph C →
+  Initial C → Colims_of_shape nat_graph C →
   ∏ H : Signature C hsC C hsC, is_omega_cocont (pr1 H) → hss_precategory CP H.
 Proof.
 exact @UniMath.SubstitutionSystems.LiftingInitial_alt.InitHSS.
@@ -365,10 +365,9 @@ Defined.
 
 Lemma isInitial_InitHSS :
   ∏ (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C)
-  (BPC : BinProducts C) (IC : Initial C)
-  (CC : Colims_of_shape nat_graph C) (H : Signature C hsC C hsC)
+  (IC : Initial C) (CC : Colims_of_shape nat_graph C) (H : Signature C hsC C hsC)
   (HH : is_omega_cocont (pr1 H)),
-  isInitial (hss_precategory CP H) (InitHSS C hsC CP BPC IC CC H HH).
+  isInitial (hss_precategory CP H) (InitHSS C hsC CP IC CC H HH).
 Proof.
 exact @UniMath.SubstitutionSystems.LiftingInitial_alt.isInitial_InitHSS.
 Defined.
