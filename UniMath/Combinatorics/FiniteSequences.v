@@ -1,5 +1,8 @@
 Require Export UniMath.Combinatorics.FiniteSets.
 Require Export UniMath.Combinatorics.Lists.
+
+Require Import UniMath.MoreFoundations.Tactics.
+
 Unset Automatic Introduction.
 
 Local Open Scope transport.

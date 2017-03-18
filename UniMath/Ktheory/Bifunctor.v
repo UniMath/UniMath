@@ -4,6 +4,8 @@ Require Import
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Export UniMath.CategoryTheory.precategories.
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda

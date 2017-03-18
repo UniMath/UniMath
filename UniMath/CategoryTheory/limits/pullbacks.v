@@ -14,16 +14,20 @@ Direct implementation of pullbacks together with:
 - Construction of binary products from pullbacks ([BinProductsFromPullbacks])
 
 *)
+
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.Monics.
-Require Import UniMath.Foundations.Propositions.
+
+Local Open Scope cat.
 
 (** Definition of pullbacks *)
 Section def_pb.
