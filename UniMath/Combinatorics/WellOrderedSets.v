@@ -271,6 +271,16 @@ Proof.
   intros p le. induction p. exact le.
 Defined.
 
+Local Lemma h1'' {X} {S:SubsetWithWellOrdering X} {r s t u:S} : r ≤ t -> pr1 r = pr1 s -> pr1 t = pr1 u -> s ≤ u.
+Proof.
+  intros le p q.
+  assert (p' : r = s).
+  { now apply subtypeEquality_prop. }
+  assert (q' : t = u).
+  { now apply subtypeEquality_prop. }
+  induction p', q'. exact le.
+Defined.
+
 Lemma wosub_le_isPartialOrder X : isPartialOrder (wosub_le X).
 Proof.
   repeat split.
@@ -337,6 +347,20 @@ Defined.
 
 (** Our goal now is to equip the union of a chain of subsets-with-well-orderings
     with a well ordering. *)
+
+Lemma chain_union_prelim_eq0 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
+           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
+           (x y : X) (i j: I) (xi : S i x) (xj : S j x) (yi : S i y) (yj : S j y) :
+  rel (S i) (x ,, xi) (y ,, yi) ⇔ rel (S j) (x ,, xj) (y ,, yj).
+Proof.
+  simple refine (hinhuniv _ (chain i j)). intros [c|c].
+  - split.
+    + intro l. assert (q := pr12 c _ _ l); clear l. now apply (h1'' q).
+    + intro l. apply (pr2 ((wosub_fidelity c) (x,,xi) (y,,yi))). now apply (h1'' l).
+  - split.
+    + intro l. apply (pr2 ((wosub_fidelity c) (x,,xj) (y,,yj))). now apply (h1'' l).
+    + intro l. assert (q := pr12 c _ _ l); clear l. now apply (h1'' q).
+Defined.
 
 Definition chain_union_prelim_prop {X:hSet} {S T:SubsetWithWellOrdering X}
            (x:S) (y:T) (ch : (S ≼ T) ⨿ (T ≼ S)) : hPropset.
@@ -407,18 +431,32 @@ Defined.
 Lemma squash_to_set_eqn {X Y : UU} (i : isaset Y) (f : X -> Y)
       (const : ∏ x x', f x = f x') (x : ∥ X ∥) (x' : X) :
   squash_to_set i f const x = f x'.
+(* upstream *)
 Proof.
   assert (p : hinhpr x' = x).
   - apply propproperty.
   - induction p. reflexivity.
 Defined.
 
-Lemma squash_rec {X Y : UU} (P : ∥ X ∥ -> UU) : (∑ x, P (hinhpr x)) -> (∏ x, P x).
+Lemma squash_rec {X : UU} (P : ∥ X ∥ -> UU) : (∑ x, P (hinhpr x)) -> (∏ x, P x).
+(* upstream, if it turns out to be useful *)
 Proof.
   intros xp x.
   assert (q : hinhpr (pr1 xp)  = x).
   - apply propproperty.
   - induction q. exact (pr2 xp).
+Defined.
+
+Lemma squash_rec' {X : UU} (P : ∥ X ∥ -> hProp) : (∏ x, P (hinhpr x)) -> (∏ x, P x).
+(* upstream *)
+Proof.
+  intros xp x'.
+  simple refine (hinhuniv _ x').
+  intro x.
+  assert (q : hinhpr x = x').
+  { apply propproperty. }
+  induction q.
+  exact (xp x).
 Defined.
 
 Definition pathcomp_set {X : hSet} {a b c : X} : eqset a b -> eqset b c -> eqset a c.
@@ -430,14 +468,20 @@ Ltac intermediate_eqset x := apply (pathcomp_set (b := x)).
 
 Lemma chain_union_prelim_eq1 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
            (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
-           (x y : X) (i j n: I) (xi : S i x) (yj : S j y) (jlen : S j ≼ S n) :
-  chain_union_prelim chain x y (i,, xi) (j,, yj) = chain_union_prelim chain x y (i,, xi) (n,, pr1 jlen y yj).
+           (x y : X) (i j k: I) (xi : S i x) (yj : S j y) (b : S j ≼ S k) :
+  (chain_union_prelim chain x y (i,, xi) (j,, yj) = chain_union_prelim chain x y (i,, xi) (k,, pr1 b y yj))%set.
 Proof.
-  unfold chain_union_prelim.
-  simpl.
-
-
-Admitted.
+  unfold chain_union_prelim. change (chain (pr1 (i,, xi)) (pr1 (j,, yj))) with (chain i j).
+  generalize (chain i j). apply squash_rec'. intro c.
+  change (chain (pr1 (i,, xi)) (pr1 (k,, pr1 b y yj))) with (chain i k).
+  generalize (chain i k). apply squash_rec'. intro d.
+  change ((chain_union_prelim_prop (x,, xi) (y,, yj)) c = (chain_union_prelim_prop (x,, xi) (y,, pr1 b y yj)) d).
+  induction c as [c|c], d as [d|d].
+  - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0.
+  - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0.
+  - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0.
+  - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0.
+Defined.
 
 Lemma chain_union_prelim_eq2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
            (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i) x y a :
