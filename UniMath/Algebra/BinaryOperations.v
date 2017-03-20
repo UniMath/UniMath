@@ -2080,12 +2080,30 @@ Definition setwithbinop2 (X : setwith2binop) : setwithbinop := setwithbinoppair 
 Notation "x + y" := (op1 x y) : twobinops_scope.
 Notation "x * y" := (op2 x y) : twobinops_scope.
 
+Definition isasettwobinoponhSet {X : hSet} : isaset (dirprod (binop X) (binop X)).
+Proof.
+  intros X.
+  use isasetdirprod.
+  - use impred_isaset. intros t1.
+    use impred_isaset. intros t2.
+    use setproperty.
+  - use impred_isaset. intros t1.
+    use impred_isaset. intros t2.
+    use setproperty.
+Defined.
+Opaque isasettwobinoponhSet.
+
 
 (** **** Functions compatible with a pair of binary operation (homomorphisms) and their properties *)
 
 Definition istwobinopfun {X Y : setwith2binop} (f : X -> Y) : UU :=
   dirprod (∏ x x' : X, paths (f (op1 x x')) (op1 (f x) (f x')))
           (∏ x x' : X, paths (f (op2 x x')) (op2 (f x) (f x'))).
+
+Definition mk_istwobinopfun {X Y : setwith2binop} (f : X -> Y)
+           (H1 : ∏ x x' : X, paths (f (op1 x x')) (op1 (f x) (f x')))
+           (H2 : ∏ x x' : X, paths (f (op2 x x')) (op2 (f x) (f x'))) :
+  istwobinopfun f := dirprodpair H1 H2.
 
 Lemma isapropistwobinopfun {X Y : setwith2binop} (f : X -> Y) : isaprop (istwobinopfun f).
 Proof.
@@ -2211,6 +2229,73 @@ Opaque istwobinopfuninvmap.
 
 Definition invtwobinopiso {X Y : setwith2binop} (f : twobinopiso X Y) :
   twobinopiso Y X := twobinopisopair (invweq (pr1 f)) (istwobinopfuninvmap f).
+
+Definition idtwobinopiso (X : setwith2binop) : twobinopiso X X.
+Proof.
+  intros X.
+  use twobinopisopair.
+  - use (idweq X).
+  - use mk_istwobinopfun.
+    + intros x x'. use idpath.
+    + intros x x'. use idpath.
+Defined.
+
+
+(** **** X = Y ≃ (X ≃ Y)
+   The idea is to use the composition X = Y ≃ X ╝ Y ≃ (twobinopiso X Y)
+*)
+
+Definition setwith2binop_univalence_weq1 (X Y : setwith2binop) : (X = Y) ≃ (X ╝ Y) :=
+  total2_paths_equiv _ X Y.
+
+Definition setwith2binop_univalence_weq2 (X Y : setwith2binop) : (X ╝ Y) ≃ (twobinopiso X Y).
+Proof.
+  intros X Y.
+  use weqbandf.
+  - use hSet_univalence.
+  - intros e. use invweq. induction X as [X Xop]. induction Y as [Y Yop]. cbn in e.
+    induction e. use weqimplimpl.
+    + intros i.
+      use dirprod_paths.
+      * use funextfun. intros x1.
+        use funextfun. intros x2.
+        exact ((dirprod_pr1 i) x1 x2).
+      * use funextfun. intros x1.
+        use funextfun. intros x2.
+        exact ((dirprod_pr2 i) x1 x2).
+    + intros e. change (Xop = Yop) in e.
+      use mk_istwobinopfun.
+      * intros x1 x2. induction e. use idpath.
+      * intros x1 x2. induction e. use idpath.
+    + use isapropistwobinopfun.
+    + use isasettwobinoponhSet.
+Defined.
+Opaque setwith2binop_univalence_weq2.
+
+Definition setwith2binop_univalence_map (X Y : setwith2binop) : X = Y -> twobinopiso X Y.
+Proof.
+  intros X Y e. induction e. exact (idtwobinopiso X).
+Defined.
+
+Lemma setwith2binop_univalence_isweq (X Y : setwith2binop) :
+  isweq (setwith2binop_univalence_map X Y).
+Proof.
+  intros X Y.
+  use isweqhomot.
+  - exact (weqcomp (setwith2binop_univalence_weq1 X Y) (setwith2binop_univalence_weq2 X Y)).
+  - intros e. induction e. use (pathscomp0 weqcomp_to_funcomp_app). use idpath.
+  - use weqproperty.
+Defined.
+Opaque setwith2binop_univalence_isweq.
+
+Definition setwith2binop_univalence (X Y : setwith2binop) : (X = Y) ≃ (twobinopiso X Y).
+Proof.
+  intros X Y.
+  use weqpair.
+  - exact (setwith2binop_univalence_map X Y).
+  - exact (setwith2binop_univalence_isweq X Y).
+Defined.
+Opaque setwith2binop_univalence.
 
 
 (** **** Transport of properties of a pair of binary operations *)
