@@ -54,7 +54,6 @@ Unset Kernel Term Sharing.
 (** Imports *)
 
 Require Export UniMath.Algebra.BinaryOperations.
-Require Export UniMath.MoreFoundations.Equivalences.
 
 (** To upstream files *)
 
@@ -236,8 +235,8 @@ Defined.
 Opaque monoid_univalence_weq2.
 
 Definition monoid_univalence_weq3 (X Y : monoid) : (monoidiso' X Y) ≃ (monoidiso X Y) :=
-  invweq (@weq_total2_fiber_dirprod_total2
-            (weq X Y) (fun w : _ => isbinopfun w) (fun w : _ => ((w (unel X)) = (unel Y)))).
+  weqtotal2asstor (fun w : weq X Y => isbinopfun w)
+                  (fun y : ∑ w : weq X Y, isbinopfun w => (pr1 y) (unel X) = unel Y).
 
 Definition monoid_univalence_map (X Y : monoid) : X = Y -> monoidiso X Y.
 Proof.
@@ -1357,8 +1356,9 @@ Local Definition mk_gr' (X : gr) : gr' := tpair _ (tpair _ (pr1 X) (pr1 (pr2 X))
 Local Definition gr'_to_monoid (X : gr') : monoid := pr1 X.
 
 Definition gr_univalence_weq1 : gr ≃ gr' :=
-  weqtotal2assoc setwithbinop (fun Z : _ => ismonoidop (pr2 Z))
-                 (fun Z : _ => fun Z' : _ => invstruct (pr2 Z) Z').
+  weqtotal2asstol
+    (fun Z : setwithbinop => ismonoidop (pr2 Z))
+    (fun y : (∑ (x : setwithbinop), ismonoidop (pr2 x)) => invstruct (pr2 (pr1 y)) (pr2 y)).
 
 Definition gr_univalence_weq1' (X Y : gr) : (X = Y) ≃ (mk_gr' X = mk_gr' Y) :=
   weqpair _ (@isweqmaponpaths gr gr' gr_univalence_weq1 X Y).
@@ -1703,8 +1703,8 @@ Local Definition mk_abgr' (X : abgr) : abgr' :=
   tpair _ (tpair _ (pr1 X) (dirprod_pr1 (pr2 X))) (dirprod_pr2 (pr2 X)).
 
 Local Definition abgr_univalence_weq1 : abgr ≃ abgr' :=
-  weq_total2_fiber_dirprod_total2
-    setwithbinop (fun Z : _ => isgrop (pr2 Z)) (fun Z : _ => iscomm (pr2 Z)).
+  weqtotal2asstol (fun Z : _ => isgrop (pr2 Z))
+                  (fun y : (∑ x : setwithbinop, isgrop (pr2 x)) => iscomm (pr2 (pr1 y))).
 
 Definition abgr_univalence_weq1' (X Y : abgr) : (X = Y) ≃ (mk_abgr' X = mk_abgr' Y) :=
   weqpair _ (@isweqmaponpaths abgr abgr' abgr_univalence_weq1 X Y).
