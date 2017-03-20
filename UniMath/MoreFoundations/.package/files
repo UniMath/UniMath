@@ -4,6 +4,7 @@ Notations.v
 AlternativeProofs.v
 Subposets.v
 Propositions.v
+Sets.v
 Subtypes.v
 DecidablePropositions.v
 AxiomOfChoice.v

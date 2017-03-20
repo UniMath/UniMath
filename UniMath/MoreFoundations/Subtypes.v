@@ -104,7 +104,7 @@ Proof.
   - apply ii2. intro eq. apply ne. apply maponpaths. exact eq.
 Defined.
 
-Definition subtype_decidable {X} (S:hsubtype X) := ∏ x, decidable (S x).
+Definition isDecidablePredicate {X} (S:X->hProp) := ∏ x, decidable (S x).
 
 Definition carrier_set {X : hSet} (S : hsubtype X) : hSet :=
   hSetpair (carrier S) (isaset_carrier_subset _ S).

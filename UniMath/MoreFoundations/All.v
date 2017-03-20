@@ -8,6 +8,7 @@ Require Export
         UniMath.MoreFoundations.DecidablePropositions
         UniMath.MoreFoundations.AxiomOfChoice
         UniMath.MoreFoundations.Propositions
+        UniMath.MoreFoundations.Sets
         UniMath.MoreFoundations.Subposets
         UniMath.MoreFoundations.Subtypes
         UniMath.MoreFoundations.Tactics

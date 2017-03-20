@@ -6,10 +6,67 @@
 
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.OrderedSets.
+
+Definition mincondition {X : UU} (R : hrel X) : UU
+  := ∏ S : hsubtype X, (∃ s, S s) -> ∑ s:X, S s × ∏ t:X, S t -> R s t.
+
+Lemma iswellordering_istotal {X : UU} (R : hrel X) : mincondition R -> istotal R.
+Proof.
+  intros iswell x y.
+  (* make the doubleton subset containing x and y *)
+  set (S := (λ z, ∥ (z=x) ⨿ (z=y) ∥)).
+  assert (x' := hinhpr (ii1 (idpath _)) : S x).
+  assert (y' := hinhpr (ii2 (idpath _)) : S y).
+  assert (h : ∃ s, S s).
+  { apply hinhpr. exists x. exact x'. }
+  assert (q := iswell S h); clear h iswell.
+  induction q as [s min], min as [h issmallest].
+  apply (squash_to_prop h).
+  { apply propproperty. }
+  clear h. intro d. apply hinhpr. induction d as [d|d].
+  - induction (!d); clear d. now apply ii1, issmallest.
+  - induction (!d); clear d. now apply ii2, issmallest.
+Defined.
+
 Local Open Scope poset.
 Local Open Scope subtype.
 Local Open Scope logic.
 Local Open Scope set.
+
+Lemma isaprop_mincondition {X : hSet} (R : hrel X) : isantisymm R -> isaprop (mincondition R).
+Proof.
+  intros antisymm.
+  apply isaprop_assume_it_is; intro min.
+  assert (istot := iswellordering_istotal R min).
+  apply impred. intro S. apply impred. intros _.
+  apply invproofirrelevance. intros s t.
+  apply subtypeEquality.
+  * intros x. apply isapropdirprod.
+    + apply propproperty.
+    + apply impred; intro y. apply impred; intros _. apply propproperty.
+  * induction s as [x i], t as [y j], i as [I i], j as [J j]; simpl.
+    apply (squash_to_prop (istot x y)).
+    { apply setproperty. }
+    intro c. induction c as [c|c].
+    - apply antisymm.
+      + exact c.
+      + now apply j.
+    - apply antisymm.
+      + now apply i.
+      + exact c.
+Defined.
+
+Definition isWellOrder {X : hSet} (R : hrel X) : hProp.
+Proof.
+  exists (isTotalOrder R × mincondition R)%type.
+  apply isaprop_assume_it_is; intro iswell.
+  induction iswell as [istot hasmin].
+  induction istot as [ispo istot].
+  unwrap_isPartialOrder ispo.
+  apply isapropdirprod.
+  { exact (isaprop_isTotalOrder R). }
+  now apply isaprop_mincondition.
+Defined.
 
 Definition WellOrdering (S:hSet) : hSet := ∑ (R : hrel_set S), isWellOrder R.
 
@@ -183,16 +240,22 @@ Defined.
 Definition wosub_fidelity {X:hSet} {S T:SubsetWithWellOrdering X} (le : S ≼ T)
       (s s' : S) : s ≤ s' <-> wosub_inc le s ≤ wosub_inc le s'.
 Proof.
+  set (Srel := pr12 S).
+  assert (Stot : istotal Srel).
+  { apply (pr2 S). }
+  set (Trel := pr12 T).
+  assert (Tanti : isantisymm Trel).
+  { apply (pr2 T). }
   split.
   { intro l. exact (pr12 le s s' l). }
-  { intro l. apply (squash_to_prop (pr2122 S s s')).
+  { intro l. apply (squash_to_prop (Stot s s')).
     { apply propproperty. }
     change ((s ≤ s') ⨿ (s' ≤ s) → s ≤ s').
     intro c. induction c as [c|c].
     - exact c.
     - induction le as [le b].  induction b as [b b'].
       assert (k := b s' s c).
-      assert (k' := pr21122 T _ _ l k); clear k. simpl in k'.
+      assert (k' := Tanti _ _ l k); clear k. simpl in k'.
       assert (p : s = s').
       { apply subtypeEquality_prop. exact (maponpaths pr1 k'). }
       induction p. apply (pr2 S). }
@@ -246,11 +309,13 @@ Definition upto {X:hSet} {S:SubsetWithWellOrdering X} (s:S) : hsubtype X
 Local Open Scope prop.
 
 Definition isInterval {X:hSet} (S T:SubsetWithWellOrdering X) :
-  subtype_decidable S -> S ≺ T -> ∑ t:T, S ≡ upto t.
+  isDecidablePredicate S -> S ≺ T -> ∑ t:T, S ≡ upto t.
 Proof.
-  set (R := rel T). intros dec lt.
+  set (R := rel T).
+  assert (min : mincondition R).
+  { apply (pr2 T). }
+  intros dec lt.
   induction lt as [le ne].
-  assert (min := pr222 T); simpl in min; fold R in min.
   set (U := (λ t:T, t ∉ S) : hsubtype T).
   assert (ne' : nonempty U).
   { simple refine (hinhuniv _ ne); intro u. apply hinhpr. exact u. }
@@ -270,6 +335,9 @@ Proof.
     intro bc. simple refine (yltu _). apply minu. exact bc.
 Defined.
 
+(** Our goal now is to equip the union of a chain of subsets-with-well-orderings
+    with a well ordering. *)
+
 Definition chain_union_prelim_prop {X:hSet} {S T:SubsetWithWellOrdering X}
            (x:S) (y:T) (ch : (S ≼ T) ⨿ (T ≼ S)) : hPropset.
 Proof.
@@ -277,8 +345,6 @@ Proof.
   + exact (subtype_inc (pr1 i) x ≤ y).
   + exact (x ≤ subtype_inc (pr1 j) y).
 Defined.
-
-Definition isconst {X:UU} {Y:hSet} (f : X -> Y) : hProp := (∀ x x', f x = f x').
 
 Lemma chain_union_prelim_eq {X:hSet} {S T:SubsetWithWellOrdering X}
       (s:S) (t:T) : isconst (chain_union_prelim_prop s t).
@@ -369,6 +435,8 @@ Lemma chain_union_prelim_eq1 {X : hSet} {I : UU} {S : I → SubsetWithWellOrderi
 Proof.
   unfold chain_union_prelim.
   simpl.
+
+
 Admitted.
 
 Lemma chain_union_prelim_eq2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}

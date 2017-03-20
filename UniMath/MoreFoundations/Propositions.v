@@ -28,3 +28,9 @@ Proof.
 Defined.
 
 Definition hrel_set (X : hSet) : hSet := hSetpair (hrel X) (isaset_hrel X).
+
+Lemma isaprop_assume_it_is {X : UU} : (X -> isaprop X) -> isaprop X.
+Proof.
+  intros f. apply invproofirrelevance; intros x y.
+  apply proofirrelevance. now apply f.
+Defined.
