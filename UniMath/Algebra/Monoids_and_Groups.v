@@ -1703,7 +1703,7 @@ Local Definition mk_abgr' (X : abgr) : abgr' :=
   tpair _ (tpair _ (pr1 X) (dirprod_pr1 (pr2 X))) (dirprod_pr2 (pr2 X)).
 
 Local Definition abgr_univalence_weq1 : abgr ≃ abgr' :=
-  weqtotal2asstol (fun Z : _ => isgrop (pr2 Z))
+  weqtotal2asstol (fun Z : setwithbinop => isgrop (pr2 Z))
                   (fun y : (∑ x : setwithbinop, isgrop (pr2 x)) => iscomm (pr2 (pr1 y))).
 
 Definition abgr_univalence_weq1' (X Y : abgr) : (X = Y) ≃ (mk_abgr' X = mk_abgr' Y) :=
