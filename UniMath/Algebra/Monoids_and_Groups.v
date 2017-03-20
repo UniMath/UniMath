@@ -1349,7 +1349,7 @@ Defined.
 *)
 
 Local Definition gr' : UU :=
-  ∑ g : (∑ X : setwithbinop, ismonoidop (@op X)), invstruct (pr2 (pr1 g)) (pr2 g).
+  ∑ g : (∑ X : setwithbinop, ismonoidop (@op X)), invstruct (@op (pr1 g)) (pr2 g).
 
 Local Definition mk_gr' (X : gr) : gr' := tpair _ (tpair _ (pr1 X) (pr1 (pr2 X))) (pr2 (pr2 X)).
 
@@ -1357,8 +1357,8 @@ Local Definition gr'_to_monoid (X : gr') : monoid := pr1 X.
 
 Definition gr_univalence_weq1 : gr ≃ gr' :=
   weqtotal2asstol
-    (fun Z : setwithbinop => ismonoidop (pr2 Z))
-    (fun y : (∑ (x : setwithbinop), ismonoidop (pr2 x)) => invstruct (pr2 (pr1 y)) (pr2 y)).
+    (fun Z : setwithbinop => ismonoidop (@op Z))
+    (fun y : (∑ (x : setwithbinop), ismonoidop (@op x)) => invstruct (@op (pr1 y)) (pr2 y)).
 
 Definition gr_univalence_weq1' (X Y : gr) : (X = Y) ≃ (mk_gr' X = mk_gr' Y) :=
   weqpair _ (@isweqmaponpaths gr gr' gr_univalence_weq1 X Y).
@@ -1703,8 +1703,8 @@ Local Definition mk_abgr' (X : abgr) : abgr' :=
   tpair _ (tpair _ (pr1 X) (dirprod_pr1 (pr2 X))) (dirprod_pr2 (pr2 X)).
 
 Local Definition abgr_univalence_weq1 : abgr ≃ abgr' :=
-  weqtotal2asstol (fun Z : setwithbinop => isgrop (pr2 Z))
-                  (fun y : (∑ x : setwithbinop, isgrop (pr2 x)) => iscomm (pr2 (pr1 y))).
+  weqtotal2asstol (fun Z : setwithbinop => isgrop (@op Z))
+                  (fun y : (∑ x : setwithbinop, isgrop (@op x)) => iscomm (@op (pr1 y))).
 
 Definition abgr_univalence_weq1' (X Y : abgr) : (X = Y) ≃ (mk_abgr' X = mk_abgr' Y) :=
   weqpair _ (@isweqmaponpaths abgr abgr' abgr_univalence_weq1 X Y).
