@@ -233,11 +233,11 @@ Proof.
     + use setproperty.
     + use isapropifcontr. exact (@isapropismonoidop X (pr2 X) Xop Yop).
 Defined.
-Opaque setwith2binop_univalence_weq2.
+Opaque monoid_univalence_weq2.
 
 Definition monoid_univalence_weq3 (X Y : monoid) : (monoidiso' X Y) ≃ (monoidiso X Y) :=
-  (invweq (@weq_total2_fiber_dirprod_total2
-             (weq X Y) (fun w : _ => isbinopfun w) (fun w : _ => ((w (unel X)) = (unel Y))))).
+  invweq (@weq_total2_fiber_dirprod_total2
+            (weq X Y) (fun w : _ => isbinopfun w) (fun w : _ => ((w (unel X)) = (unel Y)))).
 
 Definition monoid_univalence_map (X Y : monoid) : X = Y -> monoidiso X Y.
 Proof.
@@ -1352,8 +1352,7 @@ Defined.
 Local Definition gr' : UU :=
   ∑ g : (∑ X : setwithbinop, ismonoidop (@op X)), invstruct (pr2 (pr1 g)) (pr2 g).
 
-Local Definition mk_gr' (X : gr) : gr' :=
-  tpair _ (tpair _ (pr1 X) (pr1 (pr2 X))) (pr2 (pr2 X)).
+Local Definition mk_gr' (X : gr) : gr' := tpair _ (tpair _ (pr1 X) (pr1 (pr2 X))) (pr2 (pr2 X)).
 
 Local Definition gr'_to_monoid (X : gr') : monoid := pr1 X.
 
@@ -1376,7 +1375,7 @@ Opaque gr_univalence_weq2.
 Definition gr_univalence_weq3 (X Y : gr) :
   ((gr'_to_monoid (mk_gr' X)) = (gr'_to_monoid (mk_gr' Y)))
     ≃ (monoidiso (gr'_to_monoid (mk_gr' X)) ((gr'_to_monoid (mk_gr' Y)))) :=
-  (monoid_univalence (gr'_to_monoid (mk_gr' X)) (gr'_to_monoid (mk_gr' Y))).
+  monoid_univalence (gr'_to_monoid (mk_gr' X)) (gr'_to_monoid (mk_gr' Y)).
 
 Definition gr_univalence_weq4 (X Y : gr) :
   (monoidiso (gr'_to_monoid (mk_gr' X)) ((gr'_to_monoid (mk_gr' Y)))) ≃ (monoidiso X Y) :=

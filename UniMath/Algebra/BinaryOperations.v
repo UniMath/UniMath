@@ -2084,12 +2084,8 @@ Definition isasettwobinoponhSet {X : hSet} : isaset (dirprod (binop X) (binop X)
 Proof.
   intros X.
   use isasetdirprod.
-  - use impred_isaset. intros t1.
-    use impred_isaset. intros t2.
-    use setproperty.
-  - use impred_isaset. intros t1.
-    use impred_isaset. intros t2.
-    use setproperty.
+  - use isasetbinoponhSet.
+  - use isasetbinoponhSet.
 Defined.
 Opaque isasettwobinoponhSet.
 
