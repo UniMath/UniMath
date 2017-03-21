@@ -102,6 +102,9 @@ Delimit Scope multmonoid_scope with multmonoid.
 Definition ismonoidfun {X Y : monoid} (f : X -> Y) : UU :=
   dirprod (isbinopfun f) (paths (f (unel X)) (unel Y)).
 
+Definition mk_ismonoidfun {X Y : monoid} {f : X -> Y} (H1 : isbinopfun f)
+           (H2 : f (unel X) = unel Y) : ismonoidfun f := dirprodpair H1 H2.
+
 Lemma isapropismonoidfun {X Y : monoid} (f : X -> Y) : isaprop (ismonoidfun f).
 Proof.
   intros. apply isofhleveldirprod.
@@ -228,7 +231,7 @@ Proof.
   - intros e. cbn. use invweq. induction X as [X Xop]. induction Y as [Y Yop]. cbn in e.
     cbn. induction e. use weqimplimpl.
     + intros i. use proofirrelevance. use isapropismonoidop.
-    + intros i. unfold idfun in i. induction i. use idpath.
+    + intros i. induction i. use idpath.
     + use setproperty.
     + use isapropifcontr. exact (@isapropismonoidop X (pr2 X) Xop Yop).
 Defined.
@@ -412,6 +415,69 @@ Definition commax (X : abmonoid) : iscomm (@op X) := pr2 (pr2 X).
 
 Definition abmonoidrer (X : abmonoid) (a b c d : X) :
   paths (op (op a b) (op c d)) (op (op a c) (op b d)) := abmonoidoprer (pr2 X) a b c d.
+
+(** **** (X = Y) ≃ (monoidiso X Y) *)
+Local Definition abmonoid' : UU := ∑ m : monoid, iscomm (@op m).
+
+Local Definition mk_abmonoid' (X : abmonoid) : abmonoid' :=
+  tpair _ (tpair _ (pr1 X) (dirprod_pr1 (pr2 X))) (dirprod_pr2 (pr2 X)).
+
+Definition abmonoid_univalence_weq1 : abmonoid ≃ abmonoid' :=
+  weqtotal2asstol (fun X : setwithbinop => ismonoidop (@op X))
+                  (fun y : (∑ X : setwithbinop, ismonoidop op) => iscomm (@op (pr1 y))).
+
+Definition abmonoid_univalence_weq1' (X Y : abmonoid) :
+  (X = Y) ≃ ((mk_abmonoid' X) = (mk_abmonoid' Y)) :=
+  weqpair _ (@isweqmaponpaths abmonoid abmonoid' abmonoid_univalence_weq1 X Y).
+
+Definition abmonoid_univalence_weq2 (X Y : abmonoid) :
+  ((mk_abmonoid' X) = (mk_abmonoid' Y)) ≃ ((pr1 (mk_abmonoid' X)) = (pr1 (mk_abmonoid' Y))).
+Proof.
+  intros X Y.
+  use subtypeInjectivity.
+  intros w. use isapropiscomm.
+Defined.
+Opaque abmonoid_univalence_weq2.
+
+Definition abmonoid_univalence_weq3 (X Y : abmonoid) :
+  ((pr1 (mk_abmonoid' X)) = (pr1 (mk_abmonoid' Y)))
+    ≃ (monoidiso (pr1 (mk_abmonoid' X)) (pr1 (mk_abmonoid' Y))) :=
+  monoid_univalence (pr1 (mk_abmonoid' X)) (pr1 (mk_abmonoid' Y)).
+
+Definition abmonoid_univalence_weq4 (X Y : abmonoid) :
+  (monoidiso (pr1 (mk_abmonoid' X)) (pr1 (mk_abmonoid' Y))) ≃ (monoidiso X Y) :=
+  idweq (monoidiso X Y).
+
+Definition abmonoid_univalence_map (X Y : abmonoid) : (X = Y) -> (monoidiso X Y).
+Proof.
+  intros X Y e. induction e. exact (idmonoidiso X).
+Defined.
+
+Lemma abmonoid_univalence_isweq (X Y : abmonoid) : isweq (abmonoid_univalence_map X Y).
+Proof.
+  intros X Y.
+  use isweqhomot.
+  - exact (weqcomp (abmonoid_univalence_weq1' X Y)
+                   (weqcomp (abmonoid_univalence_weq2 X Y)
+                            (weqcomp (abmonoid_univalence_weq3 X Y)
+                                     (abmonoid_univalence_weq4 X Y)))).
+  - intros e. induction e.
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use idpath.
+  - use weqproperty.
+Defined.
+Opaque abmonoid_univalence_isweq.
+
+Definition abmonoid_univalence (X Y : abmonoid) : (X = Y) ≃ (monoidiso X Y).
+Proof.
+  intros X Y.
+  use weqpair.
+  - exact (abmonoid_univalence_map X Y).
+  - exact (abmonoid_univalence_isweq X Y).
+Defined.
+Opaque abmonoid_univalence.
 
 
 (** **** Subobjects *)

@@ -141,11 +141,17 @@ Notation "1" := (rigunel2) : rig_scope.
 
 Delimit Scope rig_scope with rig.
 
+
 (** **** Homomorphisms of rigs (rig functions) *)
 
 Definition isrigfun {X Y : rig} (f : X -> Y) : UU :=
   dirprod (@ismonoidfun (rigaddabmonoid X) (rigaddabmonoid Y) f)
           (@ismonoidfun (rigmultmonoid X) (rigmultmonoid Y) f).
+
+Definition mk_isrigfun {X Y : rig} {f : X -> Y}
+           (H1 : @ismonoidfun (rigaddabmonoid X) (rigaddabmonoid Y) f)
+           (H2 : @ismonoidfun (rigmultmonoid X) (rigmultmonoid Y) f) : isrigfun f :=
+  dirprodpair H1 H2.
 
 Definition rigfun (X Y : rig) : UU := total2 (fun f : X -> Y => isrigfun f).
 
@@ -181,6 +187,114 @@ Proof.
   - apply (ismonoidfuninvmap (rigaddiso f)).
   - apply  (ismonoidfuninvmap (rigmultiso f)).
 Defined.
+
+Definition idrigiso (X : rig) : rigiso X X.
+Proof.
+  intros X.
+  use rigisopair.
+  - exact (idweq X).
+  - use mk_isrigfun.
+    + use mk_ismonoidfun.
+      * use mk_isbinopfun.
+        intros x x'. use idpath.
+      * use idpath.
+    + use mk_ismonoidfun.
+      * use mk_isbinopfun.
+        intros x x'. use idpath.
+      * use idpath.
+Defined.
+
+
+(** **** (X = Y) ≃ (rigiso X Y) *)
+
+Definition rigiso' (X Y : rig) : UU :=
+  ∑ D : (∑ w : X ≃ Y, istwobinopfun w),
+        ((pr1 D) (@rigunel1 X) = @rigunel1 Y) × ((pr1 D) (@rigunel2 X) = @rigunel2 Y).
+
+Definition mk_rigiso' (X Y : rig) (w : X ≃ Y) (H1 : istwobinopfun w)
+           (H2 : w (@rigunel1 X) = @rigunel1 Y) (H3 : w (@rigunel2 X) = @rigunel2 Y) :
+  rigiso' X Y := tpair _ (tpair _ w H1) (dirprodpair H2 H3).
+
+Definition rig_univalence_weq1 (X Y : rig) : (X = Y) ≃ (X ╝ Y) :=
+  total2_paths_equiv _ _ _.
+
+Definition rig_univalence_weq2 (X Y : rig) : (X ╝ Y) ≃ (rigiso' X Y).
+Proof.
+  intros X Y.
+  use weqbandf.
+  - exact (setwith2binop_univalence X Y).
+  - intros e. cbn. use invweq. induction X as [X Xop]. induction Y as [Y Yop]. cbn in e.
+    cbn. induction e. use weqimplimpl.
+    + intros i. use proofirrelevance. use isapropisrigops.
+    + intros i. use dirprodpair.
+      * induction i. use idpath.
+      * induction i. use idpath.
+    + use isapropdirprod.
+      * use setproperty.
+      * use setproperty.
+    + use isapropifcontr. exact (@isapropisrigops X op1 op2 Xop Yop).
+Defined.
+
+Definition rig_univalence_weq3 (X Y : rig) : (rigiso' X Y) ≃ (rigiso X Y).
+Proof.
+  intros X Y.
+  induction X as [X1 X2]. induction X2 as [X2 X3]. induction X2 as [X21 X22].
+  induction X21 as [X211 X212]. induction X22 as [X221 X222].
+  induction Y as [Y1 Y2]. induction Y2 as [Y2 Y3]. induction Y2 as [Y21 Y22].
+  induction Y21 as [Y211 Y212]. induction Y22 as [Y221 Y222]. cbn in *.
+  use weqpair.
+  - intros i'.
+    use rigisopair.
+    + exact (pr1 (pr1 i')).
+    + use mk_isrigfun.
+      * use mk_ismonoidfun.
+        -- use mk_isbinopfun.
+           exact (dirprod_pr1 (pr2 (pr1 i'))).
+        -- exact (dirprod_pr1 (pr2 i')).
+      *  use mk_ismonoidfun.
+        -- use mk_isbinopfun.
+           exact (dirprod_pr2 (pr2 (pr1 i'))).
+        -- exact (dirprod_pr2 (pr2 i')).
+  - use gradth.
+    + intros i. use mk_rigiso'.
+      * exact (pr1 i).
+      * use mk_istwobinopfun.
+        -- exact (pr1 (pr1 (pr2 i))).
+        -- exact (pr1 (pr2 (pr2 i))).
+      * exact (pr2 (pr1 (pr2 i))).
+      * exact (pr2 (pr2 (pr2 i))).
+    + intros x. use idpath.
+    + intros x. use idpath.
+Defined.
+Opaque rig_univalence_weq3.
+
+Definition rig_univlalence_map (X Y : rig) : X = Y → rigiso X Y.
+Proof.
+  intros X Y e. induction e. exact (idrigiso X).
+Defined.
+
+Lemma rig_univalence_isweq (X Y : rig) : isweq (rig_univlalence_map X Y).
+Proof.
+  intros X Y.
+  use isweqhomot.
+  - exact (weqcomp (rig_univalence_weq1 X Y)
+                   (weqcomp (rig_univalence_weq2 X Y) (rig_univalence_weq3 X Y))).
+  - intros e. induction e.
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use idpath.
+  - use weqproperty.
+Defined.
+Opaque rig_univalence_isweq.
+
+Definition rig_univalence (X Y : rig) : (X = Y) ≃ (rigiso X Y).
+Proof.
+  intros X Y.
+  use weqpair.
+  - exact (rig_univlalence_map X Y).
+  - exact (rig_univalence_isweq X Y).
+Defined.
+Opaque rig_univalence.
 
 
 (** **** Relations similar to "greater" or "greater or equal" on rigs *)
@@ -357,6 +471,71 @@ Definition commrigmultabmonoid (X : commrig) : abmonoid :=
   abmonoidpair (setwithbinoppair X op2) (dirprodpair (rigop2axs X) (rigcomm2 X)).
 
 
+(** **** (X = Y) ≃ (rigiso X Y) *)
+
+Local Definition commrig' : UU :=
+  ∑ D : (∑ X : setwith2binop, isrigops (@op1 X) (@op2 X)), iscomm (@op2 (pr1 D)).
+
+Local Definition mk_commrig' (CR : commrig) : commrig' :=
+  tpair _ (tpair _ (pr1 CR) (dirprod_pr1 (pr2 CR))) (dirprod_pr2 (pr2 CR)).
+
+Definition commrig_univalence_weq1 : commrig ≃ commrig' :=
+  weqtotal2asstol
+    (fun X : setwith2binop => isrigops (@op1 X) (@op2 X))
+    (fun y : (∑ (X : setwith2binop), isrigops (@op1 X) (@op2 X)) => iscomm (@op2 (pr1 y))).
+
+Definition commrig_univalence_weq1' (X Y : commrig) : (X = Y) ≃ (mk_commrig' X = mk_commrig' Y) :=
+  weqpair _ (@isweqmaponpaths commrig commrig' commrig_univalence_weq1 X Y).
+
+Definition commrig_univalence_weq2 (X Y : commrig) :
+  ((mk_commrig' X) = (mk_commrig' Y)) ≃ ((pr1 (mk_commrig' X)) = (pr1 (mk_commrig' Y))).
+Proof.
+  intros X Y.
+  use subtypeInjectivity.
+  intros w. use isapropiscomm.
+Defined.
+Opaque commrig_univalence_weq2.
+
+Definition commrig_univalence_weq3 (X Y : commrig) :
+  ((pr1 (mk_commrig' X)) = (pr1 (mk_commrig' Y)))
+    ≃ (rigiso (pr1 (mk_commrig' X)) (pr1 (mk_commrig' Y))) :=
+  rig_univalence (pr1 (mk_commrig' X)) (pr1 (mk_commrig' Y)).
+
+Definition commrig_univalence_weq4 (X Y : commrig) :
+  (rigiso (pr1 (mk_commrig' X)) (pr1 (mk_commrig' Y))) ≃ (rigiso X Y) :=  idweq (rigiso X Y).
+
+Definition commrig_univalence_map (X Y : commrig) : (X = Y) -> (rigiso X Y).
+Proof.
+  intros X Y e. induction e. exact (idrigiso X).
+Defined.
+
+Lemma commrig_univalence_isweq (X Y : commrig) : isweq (commrig_univalence_map X Y).
+Proof.
+  intros X Y.
+  use isweqhomot.
+  - exact (weqcomp (commrig_univalence_weq1' X Y)
+                   (weqcomp (commrig_univalence_weq2 X Y)
+                            (weqcomp (commrig_univalence_weq3 X Y)
+                                     (commrig_univalence_weq4 X Y)))).
+  - intros e. induction e.
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use idpath.
+  - use weqproperty.
+Defined.
+Opaque commrig_univalence_isweq.
+
+Definition commrig_univalence (X Y : commrig) : (X = Y) ≃ (rigiso X Y).
+Proof.
+  intros X Y.
+  use weqpair.
+  - exact (commrig_univalence_map X Y).
+  - exact (commrig_univalence_isweq X Y).
+Defined.
+Opaque commrig_univalence.
+
+
 (** **** Relations similar to "greater" on commutative rigs *)
 
 Lemma isinvrigmultgtif (X : commrig) (R : hrel X)
@@ -522,6 +701,114 @@ Definition rngisopair {X Y : rng} (f : weq X Y) (is : isrngfun f) : rngiso X Y :
 Identity Coercion id_rngiso : rngiso >-> rigiso.
 
 Definition isrngfuninvmap {X Y : rng} (f : rngiso X Y) : isrngfun (invmap f) := isrigfuninvmap f.
+
+
+(** **** (X = Y) ≃ (rngiso X Y) *)
+
+Local Definition rng' : UU :=
+  ∑ D : (∑ X : setwith2binop, isrigops (@op1 X) (@op2 X)),
+        invstruct (@op1 (pr1 D)) (dirprod_pr1 (dirprod_pr1 (pr1 (pr1 (pr2 D))))).
+
+Local Definition mk_rng' (R : rng) : rng'.
+Proof.
+  intros R.
+  use tpair.
+  - use tpair.
+    + exact (pr1 R).
+    + use mk_isrigops.
+      * use mk_isabmonoidop.
+        -- exact (pr1 (dirprod_pr1 (dirprod_pr1 (dirprod_pr1 (pr2 R))))).
+        -- exact (dirprod_pr2 (dirprod_pr1 (dirprod_pr1 (pr2 R)))).
+      * exact (dirprod_pr2 (dirprod_pr1 (pr2 R))).
+      * exact (@mult0x_is_l (pr1 R) (@op1 (pr1 R)) (@op2 (pr1 R))
+                            (dirprod_pr1 (dirprod_pr1 (dirprod_pr1 (pr2 R))))
+                            (dirprod_pr2 (dirprod_pr1 (pr2 R))) (dirprod_pr2 (pr2 R))).
+      * exact (@multx0_is_l (pr1 R) (@op1 (pr1 R)) (@op2 (pr1 R))
+                            (dirprod_pr1 (dirprod_pr1 (dirprod_pr1 (pr2 R))))
+                            (dirprod_pr2 (dirprod_pr1 (pr2 R))) (dirprod_pr2 (pr2 R))).
+      * exact (dirprod_pr2 (pr2 R)).
+  - exact (pr2 (dirprod_pr1 (dirprod_pr1 (dirprod_pr1 (pr2 R))))).
+Defined.
+
+Local Definition mk_rng_from_rng' (R : rng') : rng.
+Proof.
+  intros R'.
+  use rngpair.
+  - exact (pr1 (pr1 R')).
+  - use mk_isrngops.
+    + use mk_isabgrop.
+      * use mk_isgrop.
+        -- exact (dirprod_pr1 (dirprod_pr1 (pr1 (dirprod_pr1 (pr2 (pr1 R')))))).
+        -- exact (pr2 R').
+      * exact (dirprod_pr2 (dirprod_pr1 (pr1 (dirprod_pr1 (pr2 (pr1 R')))))).
+    + exact (dirprod_pr2 (pr1 (dirprod_pr1 (pr2 (pr1 R'))))).
+    + exact (dirprod_pr2 (pr2 (pr1 R'))).
+Defined.
+
+Definition rng_univalence_weq1 : rng ≃ rng'.
+Proof.
+  use weqpair.
+  - intros R. exact (mk_rng' R).
+  - use gradth.
+    + intros R'. exact (mk_rng_from_rng' R').
+    + intros R. use idpath.
+    + intros R'.
+      use total2_paths_f.
+      * use total2_paths_f.
+        -- use idpath.
+        -- use proofirrelevance. use isapropisrigops.
+      * use proofirrelevance. use isapropinvstruct.
+Defined.
+
+Definition rng_univalence_weq1' (X Y : rng) : (X = Y) ≃ (mk_rng' X = mk_rng' Y) :=
+  weqpair _ (@isweqmaponpaths rng rng' rng_univalence_weq1 X Y).
+
+Definition rng_univalence_weq2 (X Y : rng) :
+  ((mk_rng' X) = (mk_rng' Y)) ≃ ((pr1 (mk_rng' X)) = (pr1 (mk_rng' Y))).
+Proof.
+  intros X Y.
+  use subtypeInjectivity.
+  intros w. use isapropinvstruct.
+Defined.
+Opaque rng_univalence_weq2.
+
+Definition rng_univalence_weq3 (X Y : rng) :
+  ((pr1 (mk_rng' X)) = (pr1 (mk_rng' Y))) ≃ (rigiso (pr1 (mk_rng' X)) (pr1 (mk_rng' Y))) :=
+  rig_univalence (pr1 (mk_rng' X)) (pr1 (mk_rng' Y)).
+
+Definition rng_univalence_weq4 (X Y : rng) :
+  (rigiso (pr1 (mk_rng' X)) (pr1 (mk_rng' Y))) ≃ (rngiso X Y) := idweq (rngiso X Y).
+
+Definition rng_univalence_map (X Y : rng) : (X = Y) -> (rngiso X Y).
+Proof.
+  intros X Y e. induction e. exact (idrigiso X).
+Defined.
+
+Lemma rng_univalence_isweq (X Y : rng) : isweq (rng_univalence_map X Y).
+Proof.
+  intros X Y.
+  use isweqhomot.
+  - exact (weqcomp (rng_univalence_weq1' X Y)
+                   (weqcomp (rng_univalence_weq2 X Y)
+                            (weqcomp (rng_univalence_weq3 X Y)
+                                     (rng_univalence_weq4 X Y)))).
+  - intros e. induction e.
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use idpath.
+  - use weqproperty.
+Defined.
+Opaque rng_univalence_isweq.
+
+Definition rng_univalence (X Y : rng) : (X = Y) ≃ (rngiso X Y).
+Proof.
+  intros X Y.
+  use weqpair.
+  - exact (rng_univalence_map X Y).
+  - exact (rng_univalence_isweq X Y).
+Defined.
+Opaque rng_univalence.
 
 
 (** **** Computation lemmas for rings *)
@@ -1532,6 +1819,71 @@ Definition rngmultabmonoid (X : commrng) : abmonoid :=
 
 Definition commrngtocommrig (X : commrng) : commrig := commrigpair _ (pr2 X).
 Coercion commrngtocommrig : commrng >-> commrig.
+
+
+(** **** (X = Y) ≃ (rngiso X Y) *)
+
+Local Definition commrng' : UU :=
+  ∑ D : (∑ X : setwith2binop, isrngops (@op1 X) (@op2 X)), iscomm (@op2 (pr1 D)).
+
+Local Definition mk_commrng' (CR : commrng) : commrng' :=
+  tpair _ (tpair _ (pr1 CR) (dirprod_pr1 (pr2 CR))) (dirprod_pr2 (pr2 CR)).
+
+Definition commrng_univalence_weq1 : commrng ≃ commrng' :=
+  weqtotal2asstol
+    (fun X : setwith2binop => isrngops (@op1 X) (@op2 X))
+    (fun y : (∑ (X : setwith2binop), isrngops (@op1 X) (@op2 X)) => iscomm (@op2 (pr1 y))).
+
+Definition commrng_univalence_weq1' (X Y : commrng) : (X = Y) ≃ (mk_commrng' X = mk_commrng' Y) :=
+  weqpair _ (@isweqmaponpaths commrng commrng' commrng_univalence_weq1 X Y).
+
+Definition commrng_univalence_weq2 (X Y : commrng) :
+  ((mk_commrng' X) = (mk_commrng' Y)) ≃ ((pr1 (mk_commrng' X)) = (pr1 (mk_commrng' Y))).
+Proof.
+  intros X Y.
+  use subtypeInjectivity.
+  intros w. use isapropiscomm.
+Defined.
+Opaque commrng_univalence_weq2.
+
+Definition commrng_univalence_weq3 (X Y : commrng) :
+  ((pr1 (mk_commrng' X)) = (pr1 (mk_commrng' Y)))
+    ≃ (rngiso (pr1 (mk_commrng' X)) (pr1 (mk_commrng' Y))) :=
+  rng_univalence (pr1 (mk_commrng' X)) (pr1 (mk_commrng' Y)).
+
+Definition commrng_univalence_weq4 (X Y : commrng) :
+  (rngiso (pr1 (mk_commrng' X)) (pr1 (mk_commrng' Y))) ≃ (rngiso X Y) :=  idweq (rngiso X Y).
+
+Definition commrng_univalence_map (X Y : commrng) : (X = Y) -> (rngiso X Y).
+Proof.
+  intros X Y e. induction e. exact (idrigiso X).
+Defined.
+
+Lemma commrng_univalence_isweq (X Y : commrng) : isweq (commrng_univalence_map X Y).
+Proof.
+  intros X Y.
+  use isweqhomot.
+  - exact (weqcomp (commrng_univalence_weq1' X Y)
+                   (weqcomp (commrng_univalence_weq2 X Y)
+                            (weqcomp (commrng_univalence_weq3 X Y)
+                                     (commrng_univalence_weq4 X Y)))).
+  - intros e. induction e.
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use idpath.
+  - use weqproperty.
+Defined.
+Opaque commrng_univalence_isweq.
+
+Definition commrng_univalence (X Y : commrng) : (X = Y) ≃ (rngiso X Y).
+Proof.
+  intros X Y.
+  use weqpair.
+  - exact (commrng_univalence_map X Y).
+  - exact (commrng_univalence_isweq X Y).
+Defined.
+Opaque commrng_univalence.
 
 
 (** **** Computational lemmas for commutative rings *)
