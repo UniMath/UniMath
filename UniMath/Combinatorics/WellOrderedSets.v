@@ -351,6 +351,62 @@ Defined.
 Definition is_wosubset_chain {X : hSet} {I : UU} (S : I → SubsetWithWellOrdering X)
   := ∀ i j : I, S i ≼ S j ∨ S j ≼ S i.
 
+Lemma common_index2 {X : hSet} {I : UU} (S : I → SubsetWithWellOrdering X)
+      (x y : carrier_set (⋃ (λ i, S i))) :
+  is_wosubset_chain S -> ∃ i, S i (pr1 x) × S i (pr1 y).
+Proof.
+  intros chain.
+  induction x as [x j], y as [y k].
+  change (∃ i, S i x × S i y).
+  simple refine (hinhuniv _ j). clear j. intros [j s].
+  simple refine (hinhuniv _ k). clear k. intros [k t].
+  simple refine (hinhuniv _ (chain j k)). clear chain. intros [c|c].
+  - apply hinhpr. exists k. split.
+    + exact (pr1 c x s).
+    + exact t.
+  - apply hinhpr. exists j. split.
+    + exact s.
+    + exact (pr1 c y t).
+Defined.
+
+Lemma common_index3 {X : hSet} {I : UU} (S : I → SubsetWithWellOrdering X)
+      (x y z : carrier_set (⋃ (λ i, S i))) :
+  is_wosubset_chain S -> ∃ i, S i (pr1 x) × S i (pr1 y) × S i (pr1 z).
+Proof.
+  intros chain.
+  induction x as [x j], y as [y k], z as [z l].
+  change (∃ i, S i x × S i y × S i z).
+  simple refine (hinhuniv _ j). clear j. intros [j s].
+  simple refine (hinhuniv _ k). clear k. intros [k t].
+  simple refine (hinhuniv _ l). clear l. intros [l u].
+  simple refine (hinhuniv _ (chain j k)). intros [c|c].
+  - simple refine (hinhuniv _ (chain k l)). clear chain. intros [d|d].
+    + apply hinhpr. exists l. repeat split.
+      * exact (pr1 d x (pr1 c x s)).
+      * exact (pr1 d y t).
+      * exact u.
+    + apply hinhpr. exists k. repeat split.
+      * exact (pr1 c x s).
+      * exact t.
+      * exact (pr1 d z u).
+  - simple refine (hinhuniv _ (chain j l)). clear chain. intros [d|d].
+    + apply hinhpr. exists l. repeat split.
+      * exact (pr1 d x s).
+      * exact (pr1 d y (pr1 c y t)).
+      * exact u.
+    + apply hinhpr. exists j. repeat split.
+      * exact s.
+      * exact (pr1 c y t).
+      * exact (pr1 d z u).
+Defined.
+
+Lemma common_index_eqn {X : hSet} {I : UU} (S : I → SubsetWithWellOrdering X)
+      (z : carrier_set (⋃ (λ i, S i)))
+      i (s : S i (pr1 z)) : z = subtype_union_element S (pr1 z) i s.
+Proof.
+  now apply subtypeEquality_prop.
+Defined.
+
 Lemma chain_union_prelim_eq0 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
            (chain : is_wosubset_chain S)
            (x y : X) (i j: I) (xi : S i x) (xj : S j x) (yi : S i y) (yj : S j y) :
@@ -409,23 +465,6 @@ Defined.
 
 Ltac intermediate_eqset x := apply (pathcomp_set (b := x)).
 
-Lemma chain_union_prelim_eq1 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
-           (chain : is_wosubset_chain S)
-           (x y : X) (i j k: I) (xi : S i x) (yj : S j y) (b : S j ≼ S k) :
-  (chain_union_prelim chain x y (i,, xi) (j,, yj) = chain_union_prelim chain x y (i,, xi) (k,, pr1 b y yj))%set.
-Proof.
-  unfold chain_union_prelim. change (chain (pr1 (i,, xi)) (pr1 (j,, yj))) with (chain i j).
-  generalize (chain i j). apply squash_rec. intro c.
-  change (chain (pr1 (i,, xi)) (pr1 (k,, pr1 b y yj))) with (chain i k).
-  generalize (chain i k). apply squash_rec. intro d.
-  change ((chain_union_prelim_prop (x,, xi) (y,, yj)) c = (chain_union_prelim_prop (x,, xi) (y,, pr1 b y yj)) d).
-  induction c as [c|c], d as [d|d].
-  - now apply chain_union_prelim_eq0.
-  - now apply chain_union_prelim_eq0.
-  - now apply chain_union_prelim_eq0.
-  - now apply chain_union_prelim_eq0.
-Defined.
-
 Lemma chain_union_prelim_eq2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
            (chain : is_wosubset_chain S) x y a :
   isconst (chain_union_prelim chain x y a).
@@ -442,7 +481,7 @@ Proof.
 Defined.
 
 Lemma chain_union_prelim_eq3 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
-           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i) x y b :
+           (chain : is_wosubset_chain S) x y b :
   isconst (λ a, chain_union_prelim chain x y a b).
 Proof.
   induction b as [k yk].
@@ -457,9 +496,9 @@ Proof.
 Defined.
 
 Definition chain_union_prelim2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
-           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
-           (x:X) (y : carrier_set (⋃ (λ x : I, S x))) :
-  (∑ i : I, S i x) → hPropset.
+           (chain : is_wosubset_chain S)
+           (x:X) (y : carrier_set (⋃ (λ i, S i))) :
+  (∑ i, S i x) → hPropset.
 Proof.
   intro a.
   simple refine (squash_to_set isasethProp _ _ (pr2 y)). (* y ∈ S j, for some j *)
@@ -468,7 +507,7 @@ Proof.
 Defined.
 
 Definition chain_union_prelim2_eqn {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
-           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i) x y :
+           (chain : is_wosubset_chain S) x y :
   isconst (chain_union_prelim2 chain x y).
 Proof.
   intros a a'.
@@ -479,8 +518,8 @@ Proof.
 Defined.
 
 Definition chain_union_rel {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
-           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i) :
-  hrel (carrier_set (⋃ (λ x : I, S x))).
+           (chain : is_wosubset_chain S) :
+  hrel (carrier_set (⋃ (λ i, S i))).
 Proof.
   intros x y.                 (* now define [x ≤ y] on the union *)
   simple refine (squash_to_set isasethProp _ _ (pr2 x)). (* x ∈ S i, for some i *)
@@ -489,15 +528,17 @@ Proof.
 Defined.
 
 Lemma chain_union {X:hSet} {I:UU} (S : I -> SubsetWithWellOrdering X) :
-  (∀ (i j:I), ((S i ≼ S j) ∨ (S j ≼ S i))) ->
+  (is_wosubset_chain S) ->
   ∑ (R : hrel (carrier_set (subtype_union S))) (h : isWellOrder R),
   ∀ i, S i ≼ (subtype_union S ,, (R ,, h)).
 Proof.
-  intro chain.
-  exists (chain_union_rel chain).
-  use tpair.
+  intro chain. exists (chain_union_rel chain). use tpair.
   - repeat split.
-    + admit.
+    + intros x y z l m.
+
+
+
+      admit.
     + admit.
     + admit.
     + admit.

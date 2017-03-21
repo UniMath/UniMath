@@ -67,6 +67,12 @@ Definition subtype_union {X I:UU} (S : I -> hsubtype X) : hsubtype X := λ x, �
 
 Notation "⋃ S" := (subtype_union S) (at level 100, no associativity) : subtype.
 
+Definition carrier_set {X : hSet} (S : hsubtype X) : hSet :=
+  hSetpair (carrier S) (isaset_carrier_subset _ S).
+
+Definition subtype_union_element {X:hSet} {I:UU} (S : I -> hsubtype X) x i : S i x -> carrier_set (⋃ S)
+  := λ s, (x ,, hinhpr (i ,, s)).
+
 Theorem hsubtype_univalence {X:UU} (S T : hsubtype X) : (S = T) ≃ (S ≡ T).
 Proof.
   intros. intermediate_weq (∏ x, S x = T x).
@@ -105,6 +111,3 @@ Proof.
 Defined.
 
 Definition isDecidablePredicate {X} (S:X->hProp) := ∏ x, decidable (S x).
-
-Definition carrier_set {X : hSet} (S : hsubtype X) : hSet :=
-  hSetpair (carrier S) (isaset_carrier_subset _ S).
