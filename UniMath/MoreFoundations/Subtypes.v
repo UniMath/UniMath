@@ -70,6 +70,8 @@ Notation "⋃ S" := (subtype_union S) (at level 100, no associativity) : subtype
 Definition carrier_set {X : hSet} (S : hsubtype X) : hSet :=
   hSetpair (carrier S) (isaset_carrier_subset _ S).
 
+Coercion carrier_set : hsubtype >-> hSet.
+
 Definition subtype_union_element {X:hSet} {I:UU} (S : I -> hsubtype X) x i : S i x -> carrier_set (⋃ S)
   := λ s, (x ,, hinhpr (i ,, s)).
 
@@ -103,7 +105,7 @@ Proof.
   reflexivity.
 Defined.
 
-Lemma subtype_deceq {X} (S:hsubtype X) : isdeceq X -> isdeceq S.
+Lemma subtype_deceq {X} (S:hsubtype X) : isdeceq X -> isdeceq (carrier S).
 Proof.
   intro i. intros s t. induction (i (pr1 s) (pr1 t)) as [eq|ne].
   - apply ii1, subtypeEquality_prop, eq.

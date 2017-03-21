@@ -71,7 +71,7 @@ Definition WOSubset_to_subtype {X:hSet} : WOSubset X -> hsubtype X
 
 Coercion WOSubset_to_subtype : WOSubset >-> hsubtype.
 
-Local Definition rel {X:hSet} (S : WOSubset X) : hrel S := pr12 S.
+Local Definition rel {X:hSet} (S : WOSubset X) : hrel (carrier S) := pr12 S.
 
 Delimit Scope wosubset with wosubset. (* subsets equipped with a well ordering *)
 
@@ -312,8 +312,8 @@ Proof.
   { apply (pr2 T). }
   intros dec lt.
   induction lt as [le ne].
-  set (U := (λ t:T, t ∉ S) : hsubtype T).
-  assert (ne' : nonempty U).
+  set (U := (λ t:T, t ∉ S) : hsubtype (carrier T)).
+  assert (ne' : nonempty (carrier U)).
   { simple refine (hinhuniv _ ne); intro u. apply hinhpr. exact u. }
   clear ne. assert (minU := min U ne'); clear min ne'.
   simple refine (hinhuniv _ minU); clear minU; intros minU.
@@ -429,6 +429,85 @@ Proof.
   now induction e.
 Defined.
 
+Lemma chain_union_rel_istrans {X : hSet} {I : UU} {S : I → WOSubset X}
+           (chain : is_wosubset_chain S) :
+  istrans (chain_union_rel chain).
+Proof.
+  intros x y z l m.
+  simple refine (hinhuniv _ (common_index3 chain x y z)); intros [i [r [s t]]].
+  assert (p := chain_union_rel_eqn chain x y i r s).
+  assert (q := chain_union_rel_eqn chain y z i s t).
+  assert (e := chain_union_rel_eqn chain x z i r t).
+  rewrite p in l; clear p.
+  rewrite q in m; clear q.
+  rewrite e; clear e.
+  assert (tot : istrans (rel (S i))).
+  { apply (pr2 (S i)). }
+  exact (tot _ _ _ l m).
+Defined.
+
+Lemma chain_union_rel_isrefl {X : hSet} {I : UU} {S : I → WOSubset X}
+           (chain : is_wosubset_chain S) :
+  isrefl (chain_union_rel chain).
+Proof.
+  intros x. simple refine (hinhuniv _ (pr2 x)). intros [i r].
+  assert (p := chain_union_rel_eqn chain x x i r r). rewrite p; clear p. apply (pr2 (S i)).
+Defined.
+
+Lemma chain_union_rel_isantisymm {X : hSet} {I : UU} {S : I → WOSubset X}
+           (chain : is_wosubset_chain S) :
+  isantisymm (chain_union_rel chain).
+Proof.
+  intros x y l m.
+  change (x=y)%set.
+  simple refine (hinhuniv _ (common_index2 chain x y)); intros [i [r s]].
+  apply subtypeEquality_prop.
+  assert (p := chain_union_rel_eqn chain x y i r s). rewrite p in l; clear p.
+  assert (q := chain_union_rel_eqn chain y x i s r). rewrite q in m; clear q.
+  assert (anti : isantisymm (rel (S i))).
+  { apply (pr2 (S i)). }
+  assert (b := anti _ _ l m); clear anti l m.
+  exact (maponpaths pr1 b).
+Defined.
+
+Lemma chain_union_rel_istotal {X : hSet} {I : UU} {S : I → WOSubset X}
+           (chain : is_wosubset_chain S) :
+  istotal (chain_union_rel chain).
+Proof.
+  intros x y.
+  simple refine (hinhuniv _ (common_index2 chain x y)); intros [i [r s]].
+  assert (p := chain_union_rel_eqn chain x y i r s). rewrite p; clear p.
+  assert (p := chain_union_rel_eqn chain y x i s r). rewrite p; clear p.
+  apply (pr2 (S i)).
+Defined.
+
+Lemma chain_union_rel_hasSmallest {X : hSet} {I : UU} {S : I → WOSubset X}
+           (chain : is_wosubset_chain S) :
+  hasSmallest (chain_union_rel chain).
+Proof.
+  intros T t'.
+  simple refine (hinhuniv _ t'); clear t'; intros [[x i] xinT].
+  simple refine (hinhuniv _ i); intros [j xinSj].
+  assert (q : hinhpr ( j ,, xinSj ) = i).
+  { apply propproperty. }
+  induction q.
+  (* T' is the intersection of T with S j *)
+  set (T' := (λ s, T (pr1 s ,, hinhpr (j ,, pr2 s))) : hsubtype (carrier (S j))).
+  assert (t' := hinhpr ((x,,xinSj),,xinT) : ∥ carrier T' ∥); clear x xinSj xinT.
+  assert (min := pr222 (S j) T' t').
+  simple refine (hinhuniv _ min); clear min t'; intros [t0 [t0inT' t0min]].
+  (* t0 is the minimal element of T' *)
+  set (s0 := subtype_union_element S (pr1 t0) j (pr2 t0)).
+  (* s0 is the element of the union corresponding to t0 *)
+  apply hinhpr.
+  exists s0.
+  split.
+  * exact t0inT'.
+  * intros t tinT.
+    (* now show any other element t of T is at least as big as s0 *)
+    admit.
+Admitted.
+
 Lemma chain_union {X:hSet} {I:UU} (S : I -> WOSubset X) :
   (is_wosubset_chain S) ->
   ∑ (R : hrel (carrier_set (subtype_union S))) (h : isWellOrder R),
@@ -436,41 +515,23 @@ Lemma chain_union {X:hSet} {I:UU} (S : I -> WOSubset X) :
 Proof.
   intro chain. exists (chain_union_rel chain). use tpair.
   - repeat split.
-    + intros x y z l m.
-      simple refine (hinhuniv _ (common_index3 chain x y z)); intros [i [r [s t]]].
-      assert (p := chain_union_rel_eqn chain x y i r s).
-      assert (q := chain_union_rel_eqn chain y z i s t).
-      assert (e := chain_union_rel_eqn chain x z i r t).
-      rewrite p in l; clear p.
-      rewrite q in m; clear q.
-      rewrite e; clear e.
-      assert (tot : istrans (rel (S i))).
-      { apply (pr2 (S i)). }
-      exact (tot _ _ _ l m).
-    + intros x. simple refine (hinhuniv _ (pr2 x)). intros [i r].
-      assert (p := chain_union_rel_eqn chain x x i r r). rewrite p; clear p. apply (pr2 (S i)).
-    + intros x y l m.
-      change (x=y)%set.
-      simple refine (hinhuniv _ (common_index2 chain x y)); intros [i [r s]].
-      apply subtypeEquality_prop.
-      assert (p := chain_union_rel_eqn chain x y i r s). rewrite p in l; clear p.
-      assert (q := chain_union_rel_eqn chain y x i s r). rewrite q in m; clear q.
-      assert (anti : isantisymm (rel (S i))).
-      { apply (pr2 (S i)). }
-      assert (b := anti _ _ l m); clear anti l m.
-      exact (maponpaths pr1 b).
-    + intros x y.
-      simple refine (hinhuniv _ (common_index2 chain x y)); intros [i [r s]].
-      assert (p := chain_union_rel_eqn chain x y i r s). rewrite p; clear p.
-      assert (p := chain_union_rel_eqn chain y x i s r). rewrite p; clear p.
-      apply (pr2 (S i)).
-    + intros T t.
-      admit.
-
+    + exact (chain_union_rel_istrans chain).
+    + exact (chain_union_rel_isrefl chain).
+    + exact (chain_union_rel_isantisymm chain).
+    + exact (chain_union_rel_istotal chain).
+    + exact (chain_union_rel_hasSmallest chain).
   - intros i.
     use tpair.
-    + intros x s. change (∃ j, S j x). admit.
+    + intros x s. change (∃ j, S j x). exact (hinhpr (i,,s)).
     + split.
-      * intros s s' j. admit.
-      * intros s t j. admit.
-Admitted.
+      * intros s s' j.
+        set (u := subtype_inc (λ x J, hinhpr (i,, J)) s : ⋃ S).
+        set (u':= subtype_inc (λ x J, hinhpr (i,, J)) s': ⋃ S).
+        change (chain_union_rel chain u u').
+        assert (q := chain_union_rel_eqn chain u u' i (pr2 s) (pr2 s')).
+        rewrite q; clear q. exact j.
+      * intros s t j.
+        (** now show [t ∈ S i] *)
+        admit.
+Abort.
+
