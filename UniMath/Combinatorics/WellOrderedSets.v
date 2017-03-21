@@ -348,11 +348,15 @@ Defined.
 (** Our goal now is to equip the union of a chain of subsets-with-well-orderings
     with a well ordering. *)
 
+Definition is_wosubset_chain {X : hSet} {I : UU} (S : I → SubsetWithWellOrdering X)
+  := ∀ i j : I, S i ≼ S j ∨ S j ≼ S i.
+
 Lemma chain_union_prelim_eq0 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
-           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
+           (chain : is_wosubset_chain S)
            (x y : X) (i j: I) (xi : S i x) (xj : S j x) (yi : S i y) (yj : S j y) :
-  rel (S i) (x ,, xi) (y ,, yi) ⇔ rel (S j) (x ,, xj) (y ,, yj).
+  rel (S i) (x ,, xi) (y ,, yi) = rel (S j) (x ,, xj) (y ,, yj).
 Proof.
+  apply weqlogeq.
   simple refine (hinhuniv _ (chain i j)). intros [c|c].
   - split.
     + intro l. assert (q := pr12 c _ _ l); clear l. now apply (h1'' q).
@@ -388,75 +392,14 @@ Proof.
   + apply maponpaths, maponpaths. apply propproperty.
 Defined.
 
-Lemma chain_ub2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X} :
-  (∀ i j, S i ≼ S j ∨ S j ≼ S i) ->
-  (∀ i j, ∃ k, S i ≼ S k ∧ S j ≼ S k).
-Proof.
-  intros chain i j.
-  simple refine (hinhuniv _ (chain i j)); intro c. apply hinhpr. induction c as [ij|ji].
-  - exists j. split.
-    + exact ij.
-    + apply wosub_le_isPartialOrder.
-  - exists i. split.
-    + apply wosub_le_isPartialOrder.
-    + exact ji.
-Defined.
-
-Lemma chain_ub3 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X} :
-  (∀ i j, S i ≼ S j ∨ S j ≼ S i) ->
-  (∀ i j k, ∃ m, S i ≼ S m ∧ S j ≼ S m ∧ S k ≼ S m).
-Proof.
-  intros chain i j k.
-  assert (fil := chain_ub2 chain).
-  simple refine (hinhuniv _ (fil i j)). intro n. induction n as [n n'], n' as [ilen jlen].
-  simple refine (hinhuniv _ (fil n k)). intro o. induction o as [o o'], o' as [nleo kleo].
-  apply hinhpr.
-  exists o.
-  repeat split.
-  - apply (pr11 (wosub_le_isPartialOrder _) _ _ _ ilen nleo).
-  - apply (pr11 (wosub_le_isPartialOrder _) _ _ _ jlen nleo).
-  - exact kleo.
-Defined.
-
 Definition chain_union_prelim {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
-           (chain : ∀ i j, S i ≼ S j ∨ S j ≼ S i)
+           (chain : is_wosubset_chain S)
            (x y:X) (a : ∑ i, S i x) (b : ∑ i, S i y) : hPropset.
 Proof.
   assert (ch := chain (pr1 a) (pr1 b)); clear chain.
   simple refine (squash_to_set isasethProp _ _ ch).
   -- exact (chain_union_prelim_prop (x,,pr2 a) (y,,pr2 b)).
   -- exact (chain_union_prelim_eq   (x,,pr2 a) (y,,pr2 b)).
-Defined.
-
-Lemma squash_to_set_eqn {X Y : UU} (i : isaset Y) (f : X -> Y)
-      (const : ∏ x x', f x = f x') (x : ∥ X ∥) (x' : X) :
-  squash_to_set i f const x = f x'.
-(* upstream *)
-Proof.
-  assert (p : hinhpr x' = x).
-  - apply propproperty.
-  - induction p. reflexivity.
-Defined.
-
-Lemma squash_rec {X : UU} (P : ∥ X ∥ -> UU) : (∑ x, P (hinhpr x)) -> (∏ x, P x).
-(* upstream, if it turns out to be useful *)
-Proof.
-  intros xp x.
-  assert (q : hinhpr (pr1 xp)  = x).
-  - apply propproperty.
-  - induction q. exact (pr2 xp).
-Defined.
-
-Lemma squash_rec' {X : UU} (P : ∥ X ∥ -> hProp) : (∏ x, P (hinhpr x)) -> (∏ x, P x).
-(* upstream *)
-Proof.
-  intros xp x'.
-  simple refine (hinhuniv _ x').
-  intro x.
-  assert (q : hinhpr x = x').
-  { apply propproperty. }
-  induction q.
-  exact (xp x).
 Defined.
 
 Definition pathcomp_set {X : hSet} {a b c : X} : eqset a b -> eqset b c -> eqset a c.
@@ -467,43 +410,36 @@ Defined.
 Ltac intermediate_eqset x := apply (pathcomp_set (b := x)).
 
 Lemma chain_union_prelim_eq1 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
-           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i)
+           (chain : is_wosubset_chain S)
            (x y : X) (i j k: I) (xi : S i x) (yj : S j y) (b : S j ≼ S k) :
   (chain_union_prelim chain x y (i,, xi) (j,, yj) = chain_union_prelim chain x y (i,, xi) (k,, pr1 b y yj))%set.
 Proof.
   unfold chain_union_prelim. change (chain (pr1 (i,, xi)) (pr1 (j,, yj))) with (chain i j).
-  generalize (chain i j). apply squash_rec'. intro c.
+  generalize (chain i j). apply squash_rec. intro c.
   change (chain (pr1 (i,, xi)) (pr1 (k,, pr1 b y yj))) with (chain i k).
-  generalize (chain i k). apply squash_rec'. intro d.
+  generalize (chain i k). apply squash_rec. intro d.
   change ((chain_union_prelim_prop (x,, xi) (y,, yj)) c = (chain_union_prelim_prop (x,, xi) (y,, pr1 b y yj)) d).
   induction c as [c|c], d as [d|d].
-  - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0.
-  - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0.
-  - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0.
-  - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0.
+  - now apply chain_union_prelim_eq0.
+  - now apply chain_union_prelim_eq0.
+  - now apply chain_union_prelim_eq0.
+  - now apply chain_union_prelim_eq0.
 Defined.
 
 Lemma chain_union_prelim_eq2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
-           (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i) x y a :
+           (chain : is_wosubset_chain S) x y a :
   isconst (chain_union_prelim chain x y a).
 Proof.
   induction a as [i xi].
   intros [j yj] [k yk].
   unfold chain_union_prelim.
-(*   change (  squash_to_set isasethProp (chain_union_prelim_prop (x,, xi) (y,, yj)) *)
-(*                           (chain_union_prelim_eq (x,, xi) (y,, yj)) (chain i j) = *)
-(*             squash_to_set isasethProp (chain_union_prelim_prop (x,, xi) (y,, yk)) *)
-(*                           (chain_union_prelim_eq (x,, xi) (y,, yk)) (chain i k))%set. *)
-(*   generalize (chain i j). apply squash_rec'. intros c. *)
-(*   generalize (chain i k). apply squash_rec'. intros d. *)
-(*   change (chain_union_prelim_prop (x,, xi) (y,,yk) c = chain_union_prelim_prop (x,, xj) (y,, yk) d). *)
-(*   induction c as [c|c], d as [d|d]. *)
-(*   - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0. *)
-(*   - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0. *)
-(*   - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0. *)
-(*   - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0. *)
-(* Defined. *)
-Admitted.
+  change (chain _ (pr1 (j,, _))) with (chain i j).
+  change (chain _ (pr1 (k,, _))) with (chain i k).
+  generalize (chain i j). apply squash_rec. intros c.
+  generalize (chain i k). apply squash_rec. intros d.
+  change (chain_union_prelim_prop (x,, xi) (y,, yj) c = chain_union_prelim_prop (x,, xi) (y,, yk) d).
+  induction c as [c|c], d as [d|d]; now apply chain_union_prelim_eq0.
+Defined.
 
 Lemma chain_union_prelim_eq3 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
            (chain : ∀ i j : I, S i ≼ S j ∨ S j ≼ S i) x y b :
@@ -514,14 +450,10 @@ Proof.
   unfold chain_union_prelim.
   change (chain (pr1 (i,, _)) _) with (chain i k).
   change (chain (pr1 (j,, _)) _) with (chain j k).
-  generalize (chain i k). apply squash_rec'. intros c.
-  generalize (chain j k). apply squash_rec'. intros d.
+  generalize (chain i k). apply squash_rec. intros c.
+  generalize (chain j k). apply squash_rec. intros d.
   change (chain_union_prelim_prop (x,, xi) (y,,yk) c = chain_union_prelim_prop (x,, xj) (y,, yk) d).
-  induction c as [c|c], d as [d|d].
-  - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0.
-  - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0.
-  - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0.
-  - unfold chain_union_prelim_prop,subtype_inc;simpl. apply weqlogeq. now apply chain_union_prelim_eq0.
+  induction c as [c|c], d as [d|d]; now apply chain_union_prelim_eq0.
 Defined.
 
 Definition chain_union_prelim2 {X : hSet} {I : UU} {S : I → SubsetWithWellOrdering X}
@@ -541,7 +473,7 @@ Definition chain_union_prelim2_eqn {X : hSet} {I : UU} {S : I → SubsetWithWell
 Proof.
   intros a a'.
   induction y as [y u]. generalize u; clear u.
-  apply squash_rec'; intro b.
+  apply squash_rec; intro b.
   change (chain_union_prelim chain x y a b = chain_union_prelim chain x y a' b).
   exact (chain_union_prelim_eq3 chain x y b a a').
 Defined.

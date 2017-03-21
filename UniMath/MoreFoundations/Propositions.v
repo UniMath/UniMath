@@ -34,3 +34,11 @@ Proof.
   intros f. apply invproofirrelevance; intros x y.
   apply proofirrelevance. now apply f.
 Defined.
+
+Lemma squash_rec {X : UU} (P : ∥ X ∥ -> hProp) : (∏ x, P (hinhpr x)) -> (∏ x, P x).
+Proof.
+  intros xp x'. simple refine (hinhuniv _ x'). intro x.
+  assert (q : hinhpr x = x').
+  { apply propproperty. }
+  induction q. exact (xp x).
+Defined.
