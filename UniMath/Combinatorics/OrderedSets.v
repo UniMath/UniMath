@@ -8,8 +8,12 @@ Local Open Scope poset.
 
 (** partially ordered sets and ordered sets *)
 
-Definition isTotalOrder {X : UU} (R : hrel X) : UU
-  := isPartialOrder R × istotal R.
+Definition isTotalOrder {X : hSet} (R : hrel X) : hProp.
+Proof.
+  intros. exists (isPartialOrder R × istotal R). apply isapropdirprod.
+  - apply isaprop_isPartialOrder.
+  - apply isaprop_istotal.
+Defined.
 
 Section A.
 
@@ -35,13 +39,6 @@ Section A.
   Defined.
 
 End A.
-
-Lemma isaprop_isTotalOrder {X : hSet} (R : hrel X) : isaprop (isTotalOrder R).
-Proof.
-  intros. apply isapropdirprod.
-  - apply isaprop_isPartialOrder.
-  - apply isaprop_istotal.
-Defined.
 
 Definition isSmallest {X : Poset} (x : X) : UU := ∏ y, x ≤ y.
 
