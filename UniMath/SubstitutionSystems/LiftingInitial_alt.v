@@ -16,9 +16,10 @@ Set Kernel Term Sharing.
 
 Require Import UniMath.Foundations.PartD.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -40,11 +41,13 @@ Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Notation.
 
+Local Open Scope cat.
+
 Local Coercion alg_carrier : algebra_ob >-> ob.
 
 Section Precategory_Algebra.
 
-Variables (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C) (BPC : BinProducts C).
+Variables (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C).
 Variables (IC : Initial C) (CC : Colims_of_shape nat_graph C).
 Variables (H : Signature C hsC C hsC) (HH : is_omega_cocont H).
 
@@ -78,7 +81,6 @@ Defined.
 Lemma is_omega_cocont_Id_H : is_omega_cocont Id_H.
 Proof.
 apply is_omega_cocont_BinCoproduct_of_functors; try apply functor_category_has_homsets.
-- apply (BinProducts_functor_precat _ _ BPC).
 - apply is_omega_cocont_constant_functor, functor_category_has_homsets.
 - apply HH.
 Defined.

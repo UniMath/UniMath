@@ -7,4 +7,5 @@ Require Export
         UniMath.MoreFoundations.Notations
         UniMath.MoreFoundations.DecidablePropositions
         UniMath.MoreFoundations.AxiomOfChoice
+        UniMath.MoreFoundations.Tactics
 .

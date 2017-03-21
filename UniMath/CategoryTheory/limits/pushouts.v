@@ -1,17 +1,21 @@
-(* Direct implementation of pushouts
+(** Direct implementation of pushouts
 
 Definition of Epi in terms of a pushout diagram
+
 *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.precategories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.Epis.
+
+Local Open Scope cat.
 
 Section def_po.
 

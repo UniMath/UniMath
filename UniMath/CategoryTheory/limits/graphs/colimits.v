@@ -17,11 +17,14 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Adjunctions.
+
+Local Open Scope cat.
 
 Section move_upstream.
 
@@ -619,3 +622,18 @@ apply (@iscontrweqb _ (∑ y : C ⟦ L, G M ⟧,
 Defined.
 
 End map.
+
+Section mapcocone_functor_composite.
+
+Context {A B C : precategory} (hsC : has_homsets C)
+        (F : functor A B) (G : functor B C).
+
+Lemma mapcocone_functor_composite {g : graph} {D : diagram g A} {a : A} (cc : cocone D a) :
+  mapcocone (functor_composite F G) _ cc = mapcocone G _ (mapcocone F _ cc).
+Proof.
+  apply subtypeEquality.
+  - intros x. repeat (apply impred_isaprop; intro). apply hsC.
+  - reflexivity.
+Qed.
+
+End mapcocone_functor_composite.

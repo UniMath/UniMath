@@ -1,6 +1,8 @@
 (** * A library about decidable Real Numbers *)
 (** Author: Catherine LELAY. Oct 2015 - *)
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.RealNumbers.Prelim.
 Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.NonnegativeRationals.

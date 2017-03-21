@@ -60,8 +60,6 @@ use colimAlgInitial.
 - apply (Initial_functor_precat _ _ InitialHSET).
 - unfold Id_H, Const_plus_H.
   apply is_omega_cocont_BinCoproduct_of_functors.
-  + apply (BinProducts_functor_precat _ _ BinProductsHSET).
-  + apply functor_category_has_homsets.
   + apply functor_category_has_homsets.
   + apply is_omega_cocont_constant_functor; apply functor_category_has_homsets.
   + apply is_omega_cocont_Lam_S.
@@ -79,7 +77,6 @@ Defined.
 Definition LamHSS_Initial_HSET : Initial (hss_precategory BinCoproductsHSET Lam_S).
 Proof.
 apply InitialHSS.
-- apply BinProductsHSET.
 - apply InitialHSET.
 - apply ColimsHSET_of_shape.
 - apply is_omega_cocont_Lam_S.
