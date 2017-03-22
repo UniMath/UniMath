@@ -121,16 +121,18 @@ Definition WOSubset_to_subtype {X:hSet} : WOSubset X -> hsubtype X
 
 Coercion WOSubset_to_subtype : WOSubset >-> hsubtype.
 
-Local Definition rel {X:hSet} (S : WOSubset X) : hrel (carrier S) := pr12 S.
-
-Notation "s ≤ s'" := (rel _ s s') : wosubset.
-
 Definition WOSubset_to_TOSubset {X:hSet} : WOSubset X -> TOSubset X.
 Proof.
-  intros S. exists (pr1 S). exists (rel S). exact (pr122 S).
+  intros S. exists (pr1 S). exists (pr12 S). exact (pr122 S).
 Defined.
 
-Local Definition lt {X:hSet} {S : WOSubset X} (s s' : S) := ¬ (s' ≤ s).
+Coercion WOSubset_to_TOSubset : WOSubset >-> TOSubset.
+
+Local Definition WOrel {X:hSet} (S : WOSubset X) : hrel (carrier S) := pr12 S.
+
+Notation "s ≤ s'" := (WOrel _ s s') : wosubset.
+
+Local Definition lt {X:hSet} {S : WOSubset X} (s s' : S) := ¬ (s' ≤ s)%wosubset.
 
 Notation "s < s'" := (lt s s') : wosubset.
 
@@ -182,7 +184,7 @@ Proof.
     unfold wosub_le in le; simpl in le.
     induction le as [le a], a as [a b].
     assert (q := a s s' r).
-    unfold rel in q; simpl in q.
+    unfold WOrel in q; simpl in q.
     assert (E : le = λ _, idfun _).
     { apply funextsec; intro x; apply funextsec; intro w. apply propproperty. }
     assert (F : ∏ s, s = subtype_inc le s).
@@ -235,7 +237,7 @@ Proof.
               { split.
                 { intros s s' le. exact le. }
                 { intros s t le. simpl in t. simpl. exact (pr2 t). } } } }
-          { simpl. unfold rel. simpl. intros [[a [b _]] [d [e _]]].
+          { simpl. unfold WOrel. simpl. intros [[a [b _]] [d [e _]]].
             assert (triv : ∏ (f:∏ x : X, S x → S x) (x:carrier_set S), subtype_inc f x = x).
             { intros f s. apply subtypeEquality_prop. reflexivity. }
             apply funextfun; intros s. apply funextfun; intros t.
@@ -344,7 +346,7 @@ Definition upto {X:hSet} {S:WOSubset X} (s:S) : hsubtype X
 Definition isInterval {X:hSet} (S T:WOSubset X) :
   isDecidablePredicate S -> S ≺ T -> ∃ t:T, S ≡ upto t.
 Proof.
-  set (R := rel T).
+  set (R := WOrel T).
   assert (min : hasSmallest R).
   { apply (pr2 T). }
   intros dec lt.
@@ -438,7 +440,7 @@ Defined.
 Lemma chain_union_prelim_eq0 {X : hSet} {I : UU} {S : I → WOSubset X}
            (chain : is_wosubset_chain S)
            (x y : X) (i j: I) (xi : S i x) (xj : S j x) (yi : S i y) (yj : S j y) :
-  rel (S i) (x ,, xi) (y ,, yi) = rel (S j) (x ,, xj) (y ,, yj).
+  WOrel (S i) (x ,, xi) (y ,, yi) = WOrel (S j) (x ,, xj) (y ,, yj).
 Proof.
   apply weqlogeq.
   apply (squash_to_hProp (chain i j)). intros [c|c].
@@ -456,7 +458,7 @@ Definition chain_union_rel {X : hSet} {I : UU} {S : I → WOSubset X}
 Proof.
   intros x y.
   change (hPropset). simple refine (squash_to_hSet _ _ (common_index2 chain x y)).
-  - intros [i [s t]]. exact (rel (S i) (pr1 x,,s) (pr1 y,,t)).
+  - intros [i [s t]]. exact (WOrel (S i) (pr1 x,,s) (pr1 y,,t)).
   - intros i j. now apply chain_union_prelim_eq0.
 Defined.
 
@@ -464,7 +466,7 @@ Definition chain_union_rel_eqn {X : hSet} {I : UU} {S : I → WOSubset X}
            (chain : is_wosubset_chain S)
            (x y : carrier_set (⋃ (λ i, S i)))
            i (s : S i (pr1 x)) (t : S i (pr1 y)) :
-  chain_union_rel chain x y = rel (S i) (pr1 x,,s) (pr1 y,,t).
+  chain_union_rel chain x y = WOrel (S i) (pr1 x,,s) (pr1 y,,t).
 Proof.
   unfold chain_union_rel. generalize (common_index2 chain x y); intro h.
   assert (e : hinhpr (i,,s,,t) = h).
@@ -484,7 +486,7 @@ Proof.
   rewrite p in l; clear p.
   rewrite q in m; clear q.
   rewrite e; clear e.
-  assert (tot : istrans (rel (S i))).
+  assert (tot : istrans (WOrel (S i))).
   { apply (pr2 (S i)). }
   exact (tot _ _ _ l m).
 Defined.
@@ -507,7 +509,7 @@ Proof.
   apply subtypeEquality_prop.
   assert (p := chain_union_rel_eqn chain x y i r s). rewrite p in l; clear p.
   assert (q := chain_union_rel_eqn chain y x i s r). rewrite q in m; clear q.
-  assert (anti : isantisymm (rel (S i))).
+  assert (anti : isantisymm (WOrel (S i))).
   { apply (pr2 (S i)). }
   assert (b := anti _ _ l m); clear anti l m.
   exact (maponpaths pr1 b).
