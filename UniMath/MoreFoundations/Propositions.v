@@ -2,6 +2,11 @@ Require Export UniMath.MoreFoundations.Notations.
 
 Local Open Scope logic.
 
+Lemma ishinh_irrel {X:UU} (x:X) (x':∥X∥) : hinhpr x = x'.
+Proof.
+  apply proofirrelevance. apply propproperty.
+Defined.
+
 Corollary squash_to_hProp {X:UU} {Q:hProp} : ∥ X ∥ -> (X -> Q) -> Q.
 Proof. intros h f. exact (hinhuniv f h). Defined.
 
