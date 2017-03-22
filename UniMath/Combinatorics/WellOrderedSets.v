@@ -13,48 +13,33 @@ Local Open Scope logic.
 Local Open Scope set.
 
 Definition hasSmallest {X : UU} (R : hrel X) : hProp
-  := ∀ S : hsubtype X, (∃ s, S s) ⇒ ∃ s:X, S s ∧ ∀ t:X, S t ⇒ R s t.
+  := ∀ S : hsubtype X, (∃ x, S x) ⇒ ∃ x:X, S x ∧ ∀ y:X, S y ⇒ R x y.
 
-Lemma iswellordering_istotal {X : UU} (R : hrel X) : hasSmallest R -> istotal R.
+Lemma iswellordering_istotal {X : hSet} (R : hrel X) : hasSmallest R -> istotal R.
 Proof.
-  intros iswell x y.
-  (* make the doubleton subset containing x and y *)
-  set (S := (λ z, ∥ (z=x) ⨿ (z=y) ∥)).
-  assert (x' := hinhpr (ii1 (idpath _)) : S x).
-  assert (y' := hinhpr (ii2 (idpath _)) : S y).
-  assert (h : ∃ s, S s).
-  { apply hinhpr. exists x. exact x'. }
-  assert (q := iswell S h); clear h iswell.
-  simple refine (hinhuniv _ q); clear q; intro q.
-  induction q as [s min], min as [h issmallest].
-  apply (squash_to_prop h).
-  { apply propproperty. }
-  clear h. intro d. apply hinhpr. induction d as [d|d].
-  - induction (!d); clear d. apply ii1. exact (issmallest y y').
-  - induction (!d); clear d. apply ii2. exact (issmallest x x').
+  intros has x y.
+  (* make the doubleton subset containing x and y and its two elements *)
+  set (S := λ z, z=x ∨ z=y).
+  assert (xinS := hinhpr (ii1 (idpath _)) : S x). assert (yinS := hinhpr (ii2 (idpath _)) : S y).
+  assert (h := hinhpr(x,,xinS) : ∃ s, S s). assert (q := has S h); clear h has.
+  apply (squash_to_hProp q); clear q; intro q.
+  induction q as [s min], min as [sinS smin].
+  apply (squash_to_hProp sinS); clear sinS. intro d. apply hinhpr. induction d as [d|d].
+  - induction (!d); clear d. apply ii1. exact (smin _ yinS).
+  - induction (!d); clear d. apply ii2. exact (smin _ xinS).
 Defined.
 
 Lemma actualSmallest {X : hSet} (R : hrel X) (S : hsubtype X) :
   isantisymm R -> hasSmallest R -> (∃ s, S s) -> ∑ s:X, S s ∧ ∀ t:X, S t ⇒ R s t.
 (* antisymmetry ensures the smallest element of S is unique, so it actually exists *)
 Proof.
-  intros antisymm min ne.
-  apply (squash_to_prop (min S ne)).
-  { assert (istot := iswellordering_istotal R min).
-    apply invproofirrelevance. intros s t. apply subtypeEquality.
-    * intros x. apply propproperty.
-    * induction s as [x i], t as [y j], i as [I i], j as [J j]. change (x=y).
-      apply (squash_to_prop (istot x y)).
-      { apply setproperty. }
-      intros [c|c].
-      { apply antisymm.
-        + exact c.
-        + exact (j x I). }
-      { apply antisymm.
-        + exact (i y J).
-        + exact c. } }
-  intros c.
-  exact c.
+  intros antisymm min ne. apply (squash_to_prop (min S ne)).
+  { apply invproofirrelevance; intros s t. apply subtypeEquality_prop.
+    induction s as [x i], t as [y j], i as [I i], j as [J j]. change (x=y)%set.
+    apply (squash_to_hProp (iswellordering_istotal R min x y)). intros [c|c].
+    { apply antisymm. { exact c. } { exact (j x I). } }
+    { apply antisymm. { exact (i y J). } { exact c. } } }
+  intros c. exact c.
 Defined.
 
 Definition isWellOrder {X : hSet} (R : hrel X) : hProp := isTotalOrder R ∧ hasSmallest R.
@@ -96,24 +81,18 @@ Definition wosub_le0 (S:hSet) : hrel (WellOrdering S)
 
 Lemma wosub_le0_eq (S:hSet) R R' : wosub_le0 S R R' -> R = R'.
 Proof.
-  intros le. simple refine (invmap (total2_paths_equiv _ _ _) _).
-  induction R as [R w], R' as [R' w'].
+  intros le. apply subtypeEquality_prop. induction R as [R w], R' as [R' w'].
   change (∏ s s' : S, R s s' -> R' s s')%type in le.
-  use tpair.
-  - change (R=R'). apply funextfun; intro s; apply funextfun; intro s'.
-    apply (invmap (weqlogeq _ _)). split.
-    { exact (le s s'). }
-    apply (squash_to_prop (pr21 w s s')). (* istotal *)
-    { apply propproperty. }
-    intro r. induction r as [a|b].
+  change (R=R'). apply funextfun; intro s; apply funextfun; intro s'.
+  apply (invmap (weqlogeq _ _)). split.
+  - exact (le s s').
+  - apply (squash_to_hProp (pr21 w s s')). (* istotal *) intro r. induction r as [a|b].
     { intros _. exact a. }
     { intros c. assert (p : s = s').
       { apply w'.
         - exact c.
-        - apply le. exact b. }
-      induction p.
-      apply w. }
-  - apply propproperty.
+        - exact (le _ _ b). }
+      induction p. apply w. }
 Defined.
 
 Definition wosub_order_compat {X:hSet} {S T : WOSubset X} (le : S ⊆ T) : hProp
@@ -242,14 +221,13 @@ Proof.
   { apply (pr2 T). }
   split.
   { intro l. exact (pr12 le s s' l). }
-  { intro l. apply (squash_to_prop (Stot s s')).
-    { apply propproperty. }
+  { intro l. apply (squash_to_hProp (Stot s s')).
     change ((s ≤ s') ⨿ (s' ≤ s) → s ≤ s').
     intro c. induction c as [c|c].
     - exact c.
-    - induction le as [le b].  induction b as [b b'].
-      assert (k := b s' s c).
-      assert (k' := Tanti _ _ l k); clear k. simpl in k'.
+    - induction le as [le [com ini]].
+      assert (k := com s' s c).
+      assert (k' := Tanti _ _ l k); clear k.
       assert (p : s = s').
       { apply subtypeEquality_prop. exact (maponpaths pr1 k'). }
       induction p. apply (pr2 S). }
@@ -317,9 +295,9 @@ Proof.
   induction lt as [le ne].
   set (U := (λ t:T, t ∉ S) : hsubtype (carrier T)).
   assert (ne' : nonempty (carrier U)).
-  { simple refine (hinhuniv _ ne); intro u. apply hinhpr. exact u. }
+  { apply (squash_to_hProp ne); intro u. apply hinhpr. exact u. }
   clear ne. assert (minU := min U ne'); clear min ne'.
-  simple refine (hinhuniv _ minU); clear minU; intros minU.
+  apply (squash_to_hProp minU); clear minU; intros minU.
   induction minU as [u minu]. fold (WOSubset_to_subtype T) in u.
   induction minu as [uinU minu].
   (* minu says that u is the smallest element of T not in S *)
@@ -341,15 +319,29 @@ Defined.
 Definition is_wosubset_chain {X : hSet} {I : UU} (S : I → WOSubset X)
   := ∀ i j : I, S i ≼ S j ∨ S j ≼ S i.
 
+Lemma common_index {X : hSet} {I : UU} {S : I → WOSubset X}
+      (chain : is_wosubset_chain S) (i : I) (x : carrier_set (⋃ (λ i, S i))) :
+   ∃ j, S i ≼ S j ∧ S j (pr1 x).
+Proof.
+  induction x as [x xinU]. apply (squash_to_hProp xinU); intros [k xinSk].
+  change (∃ j : I, S i ≼ S j ∧ S j x).
+  apply (squash_to_hProp (chain i k)). intros c. apply hinhpr. induction c as [c|c].
+  - exists k. split.
+    + exact c.
+    + exact xinSk.
+  - exists i. split.
+    + apply wosub_le_isrefl.
+    + exact (pr1 c x xinSk).
+Defined.
+
 Lemma common_index2 {X : hSet} {I : UU} {S : I → WOSubset X}
       (chain : is_wosubset_chain S) (x y : carrier_set (⋃ (λ i, S i))) :
-   ∃ i, S i (pr1 x) × S i (pr1 y).
+   ∃ i, S i (pr1 x) ∧ S i (pr1 y).
 Proof.
-  induction x as [x j], y as [y k].
-  change (∃ i, S i x × S i y).
-  simple refine (hinhuniv _ j). clear j. intros [j s].
-  simple refine (hinhuniv _ k). clear k. intros [k t].
-  simple refine (hinhuniv _ (chain j k)). clear chain. intros [c|c].
+  induction x as [x j], y as [y k]. change (∃ i, S i x ∧ S i y).
+  apply (squash_to_hProp j). clear j. intros [j s].
+  apply (squash_to_hProp k). clear k. intros [k t].
+  apply (squash_to_hProp (chain j k)). clear chain. intros [c|c].
   - apply hinhpr. exists k. split.
     + exact (pr1 c x s).
     + exact t.
@@ -360,15 +352,14 @@ Defined.
 
 Lemma common_index3 {X : hSet} {I : UU} {S : I → WOSubset X}
       (chain : is_wosubset_chain S) (x y z : carrier_set (⋃ (λ i, S i))) :
-   ∃ i, S i (pr1 x) × S i (pr1 y) × S i (pr1 z).
+   ∃ i, S i (pr1 x) ∧ S i (pr1 y) ∧ S i (pr1 z).
 Proof.
-  induction x as [x j], y as [y k], z as [z l].
-  change (∃ i, S i x × S i y × S i z).
-  simple refine (hinhuniv _ j). clear j. intros [j s].
-  simple refine (hinhuniv _ k). clear k. intros [k t].
-  simple refine (hinhuniv _ l). clear l. intros [l u].
-  simple refine (hinhuniv _ (chain j k)). intros [c|c].
-  - simple refine (hinhuniv _ (chain k l)). clear chain. intros [d|d].
+  induction x as [x j], y as [y k], z as [z l]. change (∃ i, S i x ∧ S i y ∧ S i z).
+  apply (squash_to_hProp j). clear j. intros [j s].
+  apply (squash_to_hProp k). clear k. intros [k t].
+  apply (squash_to_hProp l). clear l. intros [l u].
+  apply (squash_to_hProp (chain j k)). intros [c|c].
+  - apply (squash_to_hProp (chain k l)). clear chain. intros [d|d].
     + apply hinhpr. exists l. repeat split.
       * exact (pr1 d x (pr1 c x s)).
       * exact (pr1 d y t).
@@ -377,7 +368,7 @@ Proof.
       * exact (pr1 c x s).
       * exact t.
       * exact (pr1 d z u).
-  - simple refine (hinhuniv _ (chain j l)). clear chain. intros [d|d].
+  - apply (squash_to_hProp (chain j l)). clear chain. intros [d|d].
     + apply hinhpr. exists l. repeat split.
       * exact (pr1 d x s).
       * exact (pr1 d y (pr1 c y t)).
@@ -394,7 +385,7 @@ Lemma chain_union_prelim_eq0 {X : hSet} {I : UU} {S : I → WOSubset X}
   rel (S i) (x ,, xi) (y ,, yi) = rel (S j) (x ,, xj) (y ,, yj).
 Proof.
   apply weqlogeq.
-  simple refine (hinhuniv _ (chain i j)). intros [c|c].
+  apply (squash_to_hProp (chain i j)). intros [c|c].
   - split.
     + intro l. assert (q := pr12 c _ _ l); clear l. now apply (h1'' q).
     + intro l. apply (pr2 ((wosub_fidelity c) (x,,xi) (y,,yi))). now apply (h1'' l).
@@ -430,7 +421,7 @@ Lemma chain_union_rel_istrans {X : hSet} {I : UU} {S : I → WOSubset X}
   istrans (chain_union_rel chain).
 Proof.
   intros x y z l m.
-  simple refine (hinhuniv _ (common_index3 chain x y z)); intros [i [r [s t]]].
+  apply (squash_to_hProp (common_index3 chain x y z)); intros [i [r [s t]]].
   assert (p := chain_union_rel_eqn chain x y i r s).
   assert (q := chain_union_rel_eqn chain y z i s t).
   assert (e := chain_union_rel_eqn chain x z i r t).
@@ -446,7 +437,7 @@ Lemma chain_union_rel_isrefl {X : hSet} {I : UU} {S : I → WOSubset X}
            (chain : is_wosubset_chain S) :
   isrefl (chain_union_rel chain).
 Proof.
-  intros x. simple refine (hinhuniv _ (pr2 x)). intros [i r].
+  intros x. apply (squash_to_hProp (pr2 x)). intros [i r].
   assert (p := chain_union_rel_eqn chain x x i r r). rewrite p; clear p. apply (pr2 (S i)).
 Defined.
 
@@ -456,7 +447,7 @@ Lemma chain_union_rel_isantisymm {X : hSet} {I : UU} {S : I → WOSubset X}
 Proof.
   intros x y l m.
   change (x=y)%set.
-  simple refine (hinhuniv _ (common_index2 chain x y)); intros [i [r s]].
+  apply (squash_to_hProp (common_index2 chain x y)); intros [i [r s]].
   apply subtypeEquality_prop.
   assert (p := chain_union_rel_eqn chain x y i r s). rewrite p in l; clear p.
   assert (q := chain_union_rel_eqn chain y x i s r). rewrite q in m; clear q.
@@ -471,7 +462,7 @@ Lemma chain_union_rel_istotal {X : hSet} {I : UU} {S : I → WOSubset X}
   istotal (chain_union_rel chain).
 Proof.
   intros x y.
-  simple refine (hinhuniv _ (common_index2 chain x y)); intros [i [r s]].
+  apply (squash_to_hProp (common_index2 chain x y)); intros [i [r s]].
   assert (p := chain_union_rel_eqn chain x y i r s). rewrite p; clear p.
   assert (p := chain_union_rel_eqn chain y x i s r). rewrite p; clear p.
   apply (pr2 (S i)).
@@ -497,7 +488,12 @@ Lemma chain_union_rel_initial {X : hSet} {I : UU} {S : I → WOSubset X}
   ∀ (s:S i) (t:⋃ S), chain_union_rel chain t (inc s) ⇒ (t ∈ S i).
 (* compare with [wosub_initial] *)
 Proof.
-
+  intros s t le. apply (squash_to_hProp (common_index chain i t)). intros [j [[ij [com ini]] tinSj]].
+  set (t' := (pr1 t,,tinSj) : S j).
+  unfold wosub_initial in ini.
+  assert (K := ini s t'); simpl in K.
+  change (t' ≤ subtype_inc ij s → t ∈ S i) in K.
+  apply K; clear K.
 
 
 Admitted.
@@ -507,21 +503,17 @@ Lemma chain_union_rel_hasSmallest {X : hSet} {I : UU} {S : I → WOSubset X}
   hasSmallest (chain_union_rel chain).
 Proof.
   intros T t'.
-  simple refine (hinhuniv _ t'); clear t'; intros [[x i] xinT].
-  simple refine (hinhuniv _ i); intros [j xinSj].
-  assert (q : hinhpr ( j ,, xinSj ) = i).
-  { apply propproperty. }
-  induction q.
+  apply (squash_to_hProp t'); clear t'; intros [[x i] xinT].
+  apply (squash_to_hProp i); intros [j xinSj].
+  induction (ishinh_irrel ( j ,, xinSj ) i).
   (* T' is the intersection of T with S j *)
   set (T' := (λ s, T (subtype_inc (subtype_union_containedIn S j) s))).
   assert (t' := hinhpr ((x,,xinSj),,xinT) : ∥ carrier T' ∥); clear x xinSj xinT.
   assert (min := pr222 (S j) T' t').
-  simple refine (hinhuniv _ min); clear min t'; intros [t0 [t0inT' t0min]].
+  apply (squash_to_hProp min); clear min t'; intros [t0 [t0inT' t0min]].
   (* t0 is the minimal element of T' *)
   set (t0' := subtype_inc (subtype_union_containedIn S j) t0).
-  apply hinhpr.
-  exists t0'.
-  split.
+  apply hinhpr. exists t0'. split.
   - exact t0inT'.
   - intros t tinT.
     (* now show any other element t of T is at least as big as t0' *)
@@ -536,22 +528,23 @@ Proof.
     unfold T'. rewrite E. exact tinT.
 Defined.
 
-Lemma chain_union {X:hSet} {I:UU} (S : I -> WOSubset X) :
-  (is_wosubset_chain S) ->
-  ∑ (R : hrel (carrier_set (subtype_union S))) (h : isWellOrder R),
-  ∀ i, S i ≼ (subtype_union S ,, (R ,, h)).
+Lemma chain_union {X:hSet} {I:UU} {S : I -> WOSubset X} :
+  is_wosubset_chain S -> WOSubset X.
 Proof.
-  intro chain. exists (chain_union_rel chain). use tpair.
-  - repeat split.
-    + exact (chain_union_rel_istrans chain).
-    + exact (chain_union_rel_isrefl chain).
-    + exact (chain_union_rel_isantisymm chain).
-    + exact (chain_union_rel_istotal chain).
-    + exact (chain_union_rel_hasSmallest chain).
-  - intros i.
-    use tpair.
-    + change (S i ⊆ ⋃ S). exact (subtype_union_containedIn S i).
-    + split.
-      * exact (chain_union_rel_order_compat chain i).
-      * exact (chain_union_rel_initial chain i).
+  intro chain. exists (⋃ S). exists (chain_union_rel chain). repeat split.
+  - exact (chain_union_rel_istrans chain).
+  - exact (chain_union_rel_isrefl chain).
+  - exact (chain_union_rel_isantisymm chain).
+  - exact (chain_union_rel_istotal chain).
+  - exact (chain_union_rel_hasSmallest chain).
+Defined.
+
+Lemma chain_union_le {X:hSet} {I:UU} (S : I -> WOSubset X) (chain : is_wosubset_chain S) :
+  ∀ i, S i ≼ chain_union chain.
+Proof.
+  intros i. use tpair.
+  + change (S i ⊆ ⋃ S). exact (subtype_union_containedIn S i).
+  + split.
+    * exact (chain_union_rel_order_compat chain i).
+    * exact (chain_union_rel_initial chain i).
 Defined.
