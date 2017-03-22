@@ -157,8 +157,7 @@ Section def_gr_category.
     use (@isweqhomot
            (X = Y) (iso X Y)
            (pr1weq (weqcomp (gr_univalence X Y) (gr_equiv_iso_weq X Y)))
-           _ _ (weqproperty (weqcomp (gr_univalence X Y)
-                                     (gr_equiv_iso_weq X Y)))).
+           _ _ (weqproperty (weqcomp (gr_univalence X Y) (gr_equiv_iso_weq X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
@@ -174,7 +173,6 @@ Section def_gr_category.
     - exact has_homsets_gr_precategory.
   Defined.
 
-  Definition gr_category : category :=
-    mk_category gr_precategory gr_precategory_is_category.
+  Definition gr_category : category := mk_category gr_precategory gr_precategory_is_category.
 
 End def_gr_category.

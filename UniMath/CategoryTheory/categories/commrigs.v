@@ -30,22 +30,21 @@ Section def_commrig_precategory.
       commrig_precategory_ob_mor (fun (X : commrig) => (rigisotorigfun (idrigiso X)))
       (fun (X Y Z : commrig) (f : rigfun X Y) (g : rigfun Y Z) => rigfuncomp f g).
 
-  Local Definition commrig_id_left (X Y : commrig) (f : rigfun X Y) :
+  Local Lemma commrig_id_left (X Y : commrig) (f : rigfun X Y) :
     rigfuncomp (rigisotorigfun (idrigiso X)) f = f.
   Proof.
     use rigfun_paths. use idpath.
   Defined.
   Opaque commrig_id_left.
 
-  Local Definition commrig_id_commright (X Y : commrig) (f : rigfun X Y) :
+  Local Lemma commrig_id_commright (X Y : commrig) (f : rigfun X Y) :
     rigfuncomp f (rigisotorigfun (idrigiso Y)) = f.
   Proof.
     use rigfun_paths. use idpath.
   Defined.
   Opaque commrig_id_commright.
 
-  Local Definition commrig_assoc (X Y Z W : commrig) (f : rigfun X Y)
-             (g : rigfun Y Z) (h : rigfun Z W) :
+  Local Lemma commrig_assoc (X Y Z W : commrig) (f : rigfun X Y) (g : rigfun Y Z) (h : rigfun Z W) :
     rigfuncomp f (rigfuncomp g h) = rigfuncomp (rigfuncomp f g) h.
   Proof.
     use rigfun_paths. use idpath.
@@ -163,8 +162,7 @@ Section def_commrig_category.
     use (@isweqhomot
            (X = Y) (iso X Y)
            (pr1weq (weqcomp (commrig_univalence X Y) (commrig_equiv_iso_weq X Y)))
-           _ _ (weqproperty (weqcomp (commrig_univalence X Y)
-                                     (commrig_equiv_iso_weq X Y)))).
+           _ _ (weqproperty (weqcomp (commrig_univalence X Y) (commrig_equiv_iso_weq X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.

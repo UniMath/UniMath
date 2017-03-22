@@ -15,7 +15,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Local Open Scope cat.
 
 
-(** * Setwith2binops precategory*)
+(** * Precategory of setwith2binops  *)
 Section def_setwith2binop_precategory.
 
   Definition setwith2binop_fun_space (A B : setwith2binop) : hSet :=
@@ -32,27 +32,27 @@ Section def_setwith2binop_precategory.
       (fun (X Y Z : setwith2binop) (f : twobinopfun X Y) (g : twobinopfun Y Z)
        => twobinopfuncomp f g).
 
-  Definition setwith2binop_id_left (X Y : setwith2binop) (f : twobinopfun X Y) :
+  Local Lemma setwith2binop_id_left (X Y : setwith2binop) (f : twobinopfun X Y) :
     twobinopfuncomp (idtwobinopiso X) f = f.
   Proof.
     use twobinopfun_paths. use idpath.
   Defined.
   Opaque setwith2binop_id_left.
 
-  Definition setwith2binop_id_right (X Y : setwith2binop) (f : twobinopfun X Y) :
+  Local Lemma setwith2binop_id_right (X Y : setwith2binop) (f : twobinopfun X Y) :
     twobinopfuncomp f (idtwobinopiso Y) = f.
   Proof.
     use twobinopfun_paths. use idpath.
   Defined.
   Opaque setwith2binop_id_right.
 
-  Definition binopfuncomp_assoc (X Y Z W : setwith2binop) (f : twobinopfun X Y)
+  Local Lemma setwith2binop_assoc (X Y Z W : setwith2binop) (f : twobinopfun X Y)
              (g : twobinopfun Y Z) (h : twobinopfun Z W) :
     twobinopfuncomp f (twobinopfuncomp g h) = twobinopfuncomp (twobinopfuncomp f g) h.
   Proof.
     use twobinopfun_paths. use idpath.
   Defined.
-  Opaque binopfuncomp_assoc.
+  Opaque setwith2binop_assoc.
 
   Lemma is_precategory_setwith2binop_precategory_data :
     is_precategory setwith2binop_precategory_data.
@@ -60,7 +60,7 @@ Section def_setwith2binop_precategory.
     use mk_is_precategory.
     - intros a b f. use setwith2binop_id_left.
     - intros a b f. use setwith2binop_id_right.
-    - intros a b c d f g h. use binopfuncomp_assoc.
+    - intros a b c d f g h. use setwith2binop_assoc.
   Qed.
 
   Definition setwith2binop_precategory : precategory :=
@@ -68,14 +68,13 @@ Section def_setwith2binop_precategory.
 
   Lemma has_homsets_setwith2binop_precategory : has_homsets setwith2binop_precategory.
   Proof.
-    intros X Y.
-    use isasettwobinopfun.
+    intros X Y. use isasettwobinopfun.
   Qed.
 
 End def_setwith2binop_precategory.
 
 
-(** * Setwith2binop category *)
+(** * Category of setwith2binops *)
 Section def_setwith2binop_category.
 
   (** ** (twobinopiso X Y) ≃ (iso X Y) *)
@@ -160,7 +159,7 @@ Section def_setwith2binop_category.
   Defined.
 
 
-  (** ** setwith2binop_precategory is a category *)
+  (** ** Category of setwith2binops *)
 
   Definition setwith2binop_precategory_isweq (X Y : ob setwith2binop_precategory) :
     isweq (λ p : X = Y, idtoiso p).

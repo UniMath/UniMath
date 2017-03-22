@@ -163,8 +163,7 @@ Section def_commrng_category.
     use (@isweqhomot
            (X = Y) (iso X Y)
            (pr1weq (weqcomp (commrng_univalence X Y) (commrng_equiv_iso_weq X Y)))
-           _ _ (weqproperty (weqcomp (commrng_univalence X Y)
-                                     (commrng_equiv_iso_weq X Y)))).
+           _ _ (weqproperty (weqcomp (commrng_univalence X Y) (commrng_equiv_iso_weq X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.

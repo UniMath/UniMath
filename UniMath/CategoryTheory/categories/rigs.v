@@ -16,15 +16,14 @@ Require Import UniMath.Algebra.Rigs_and_Rings.
 Require Import UniMath.CategoryTheory.precategories.
 Local Open Scope cat.
 
+
 (** * Precategory of rigs *)
 Section def_rig_precategory.
 
-  Definition rig_fun_space (A B : rig) : hSet :=
-    hSetpair (rigfun A B) (isasetrigfun A B).
+  Definition rig_fun_space (A B : rig) : hSet := hSetpair (rigfun A B) (isasetrigfun A B).
 
   Definition rig_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) rig
-          (fun A B : rig => rig_fun_space A B).
+    tpair (fun ob : UU => ob -> ob -> UU) rig (fun A B : rig => rig_fun_space A B).
 
   Definition rig_precategory_data : precategory_data :=
     precategory_data_pair

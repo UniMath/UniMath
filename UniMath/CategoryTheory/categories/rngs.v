@@ -16,6 +16,7 @@ Require Import UniMath.Algebra.Rigs_and_Rings.
 Require Import UniMath.CategoryTheory.precategories.
 Local Open Scope cat.
 
+
 (** * Precategory of rngs *)
 Section def_rng_precategory.
 

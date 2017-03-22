@@ -25,43 +25,43 @@ Section def_monoid_precategory.
   Definition monoid_precategory_ob_mor : precategory_ob_mor :=
     tpair (fun ob : UU => ob -> ob -> UU) monoid (fun A B : monoid => monoid_fun_space A B).
 
-  Definition monoids_precategory_data : precategory_data :=
+  Definition monoid_precategory_data : precategory_data :=
     precategory_data_pair
       monoid_precategory_ob_mor (fun (X : monoid) => ((idmonoidiso X) : monoidfun X X))
       (fun (X Y Z : monoid) (f : monoidfun X Y) (g : monoidfun Y Z) => monoidfuncomp f g).
 
-  Definition monoid_id_left {X Y : monoid} (f : monoidfun X Y) :
+  Local Lemma monoid_id_left {X Y : monoid} (f : monoidfun X Y) :
     monoidfuncomp (idmonoidiso X) f = f.
   Proof.
     use monoidfun_paths. use idpath.
   Defined.
   Opaque monoid_id_left.
 
-  Definition monoid_id_right {X Y : monoid} (f : monoidfun X Y) :
+  Local Lemma monoid_id_right {X Y : monoid} (f : monoidfun X Y) :
     monoidfuncomp f (idmonoidiso Y) = f.
   Proof.
     use monoidfun_paths. use idpath.
   Defined.
   Opaque monoid_id_right.
 
-  Definition binopfuncomp_assoc (X Y Z W : monoid) (f : monoidfun X Y) (g : monoidfun Y Z)
-             (h : monoidfun Z W) :
+  Local Lemma monoid_assoc (X Y Z W : monoid) (f : monoidfun X Y) (g : monoidfun Y Z)
+        (h : monoidfun Z W) :
     monoidfuncomp f (monoidfuncomp g h) = monoidfuncomp (monoidfuncomp f g) h.
   Proof.
     use monoidfun_paths. use idpath.
   Defined.
-  Opaque binopfuncomp_assoc.
+  Opaque monoid_assoc.
 
-  Lemma is_precategory_monoids_precategory_data : is_precategory monoids_precategory_data.
+  Lemma is_precategory_monoid_precategory_data : is_precategory monoid_precategory_data.
   Proof.
     use mk_is_precategory.
     - intros a b f. use monoid_id_left.
     - intros a b f. use monoid_id_right.
-    - intros a b c d f g h. use binopfuncomp_assoc.
+    - intros a b c d f g h. use monoid_assoc.
   Qed.
 
   Definition monoid_precategory : precategory :=
-    mk_precategory monoids_precategory_data is_precategory_monoids_precategory_data.
+    mk_precategory monoid_precategory_data is_precategory_monoid_precategory_data.
 
   Lemma has_homsets_monoid_precategory : has_homsets monoid_precategory.
   Proof.
@@ -159,8 +159,7 @@ Section def_monoid_category.
     use (@isweqhomot
            (X = Y) (iso X Y)
            (pr1weq (weqcomp (monoid_univalence X Y) (monoid_equiv_iso_weq X Y)))
-           _ _ (weqproperty (weqcomp (monoid_univalence X Y)
-                                     (monoid_equiv_iso_weq X Y)))).
+           _ _ (weqproperty (weqcomp (monoid_univalence X Y) (monoid_equiv_iso_weq X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.

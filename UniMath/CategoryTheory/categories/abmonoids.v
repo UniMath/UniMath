@@ -14,7 +14,6 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 
 Require Import UniMath.CategoryTheory.precategories.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.functor_categories.
 
 
 (** * Precategory of abmonoids *)
@@ -24,42 +23,41 @@ Section def_abmonoid_precategory.
     hSetpair (monoidfun A B) (isasetmonoidfun A B).
 
   Definition abmonoid_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) abmonoid
-          (fun A B : abmonoid => abmonoid_fun_space A B).
+    tpair (fun ob : UU => ob -> ob -> UU) abmonoid (fun A B : abmonoid => abmonoid_fun_space A B).
 
   Definition abmonoid_precategory_data : precategory_data :=
     precategory_data_pair
       abmonoid_precategory_ob_mor (fun (X : abmonoid) => ((idmonoidiso X) : monoidfun X X))
       (fun (X Y Z : abmonoid) (f : monoidfun X Y) (g : monoidfun Y Z) => monoidfuncomp f g).
 
-  Definition abmonoid_id_left (X Y : abmonoid) (f : monoidfun X Y) :
+  Local Lemma abmonoid_id_left (X Y : abmonoid) (f : monoidfun X Y) :
     monoidfuncomp (idmonoidiso X) f = f.
   Proof.
     use monoidfun_paths. use idpath.
   Defined.
   Opaque abmonoid_id_left.
 
-  Definition abmonoid_id_right (X Y : abmonoid) (f : monoidfun X Y) :
+  Local Lemma abmonoid_id_right (X Y : abmonoid) (f : monoidfun X Y) :
     monoidfuncomp f (idmonoidiso Y) = f.
   Proof.
     use monoidfun_paths. use idpath.
   Defined.
   Opaque abmonoid_id_right.
 
-  Definition binopfuncomp_assoc (X Y Z W : abmonoid) (f : monoidfun X Y)
+  Local Lemma abmonoid_assoc (X Y Z W : abmonoid) (f : monoidfun X Y)
              (g : monoidfun Y Z) (h : monoidfun Z W) :
     monoidfuncomp f (monoidfuncomp g h) = monoidfuncomp (monoidfuncomp f g) h.
   Proof.
     use monoidfun_paths. use idpath.
   Defined.
-  Opaque binopfuncomp_assoc.
+  Opaque abmonoid_assoc.
 
   Lemma is_precategory_abmonoid_precategory_data : is_precategory abmonoid_precategory_data.
   Proof.
     use mk_is_precategory.
     - intros a b f. use abmonoid_id_left.
     - intros a b f. use abmonoid_id_right.
-    - intros a b c d f g h. use binopfuncomp_assoc.
+    - intros a b c d f g h. use abmonoid_assoc.
   Qed.
 
   Definition abmonoid_precategory : precategory :=
@@ -168,8 +166,7 @@ Section def_abmonoid_category.
     use (@isweqhomot
            (X = Y) (iso X Y)
            (pr1weq (weqcomp (abmonoid_univalence X Y) (abmonoid_equiv_iso_weq X Y)))
-           _ _ (weqproperty (weqcomp (abmonoid_univalence X Y)
-                                     (abmonoid_equiv_iso_weq X Y)))).
+           _ _ (weqproperty (weqcomp (abmonoid_univalence X Y) (abmonoid_equiv_iso_weq X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
