@@ -103,3 +103,4 @@ elems_slice_equiv.v
 categories/setwith2binops.v
 categories/monoids.v
 categories/abmonoids.v
+categories/grs.v
