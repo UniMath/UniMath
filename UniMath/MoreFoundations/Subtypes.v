@@ -72,8 +72,8 @@ Definition carrier_set {X : hSet} (S : hsubtype X) : hSet :=
 
 Coercion carrier_set : hsubtype >-> hSet.
 
-Definition subtype_union_element {X:hSet} {I:UU} (S : I -> hsubtype X) x i : S i x -> carrier_set (⋃ S)
-  := λ s, (x ,, hinhpr (i ,, s)).
+Definition subtype_union_containedIn {X:hSet} {I:UU} (S : I -> hsubtype X) i : S i ⊆ ⋃ S
+  := λ x s, hinhpr (i,,s).
 
 Theorem hsubtype_univalence {X:UU} (S T : hsubtype X) : (S = T) ≃ (S ≡ T).
 Proof.

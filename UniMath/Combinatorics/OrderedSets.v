@@ -19,7 +19,13 @@ Section A.
 
   Open Scope logic.
 
-  Lemma tot_nge_iff_lt {X:hSet} (R:hrel X) :
+  Lemma tot_nge_to_le {X:hSet} (R:hrel X) : istotal R -> ∏ x y, ¬ (R x y) ->  R y x.
+  Proof.
+    intros ? ? tot ? ? nle.
+    now apply (hdisjtoimpl (tot x y)).
+  Defined.
+
+  Lemma tot_nle_iff_gt {X:hSet} (R:hrel X) :
     isTotalOrder R -> ∏ x y, ¬ (R x y)  <->  R y x ∧ ¬ (y = x).
   (** if [R x y] is [x ≤ y], then this shows the equivalence of two definitions for [y < x] *)
   Proof.
@@ -29,13 +35,9 @@ Section A.
     assert (anti := pr2 (pr1 i)); simpl in anti.
     split.
     { intros nle. split.
-      - assert (q := tot x y). simple refine (hinhuniv _ q); intro q'; clear q.
-        induction q' as [Rxy|Ryx].
-        + apply fromempty. exact (nle Rxy).
-        + exact Ryx.
+      - now apply tot_nge_to_le.
       - intros ne. induction ne. exact (nle (refl y)). }
-    { intros yltx xley. induction yltx as [ylex neq].
-      simple refine (neq _); clear neq. now apply anti. }
+    { intros yltx xley. induction yltx as [ylex neq]. exact (neq (anti _ _ ylex xley)). }
   Defined.
 
 End A.
