@@ -106,3 +106,4 @@ categories/abmonoids.v
 categories/grs.v
 categories/rigs.v
 categories/commrigs.v
+categories/rngs.v
