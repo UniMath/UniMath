@@ -339,7 +339,15 @@ Definition intdomax (X : intdom) :
   ∏ (a1 a2 : X), paths (a1 * a2) 0 -> hdisj (eqset a1 0) (eqset a2 0) := pr2 (pr2 X).
 
 
-(** **** (X = Y) ≃ (rngiso X Y) *)
+(** **** (X = Y) ≃ (rngiso X Y)
+   We use the following composition
+
+                            (X = Y) ≃ (pr1 X = pr1 Y)
+                                    ≃ (rngiso (pr1 X) (pr1 Y))
+                                    ≃ (rngiso X Y)
+
+  where the second weak equivalence is given by univalence for commrngs, [commrng_univalence].
+*)
 
 Definition intdom_univalence_weq1 (X Y : intdom) : (X = Y) ≃ (pr1 X = pr1 Y).
 Proof.
@@ -347,7 +355,7 @@ Proof.
   use subtypeInjectivity.
   intros w. use isapropisintdom.
 Defined.
-Opaque commrig_univalence_weq1.
+Opaque intdom_univalence_weq1.
 
 Definition intdom_univalence_weq2 (X Y : intdom) : (pr1 X = pr1 Y) ≃ (rngiso (pr1 X) (pr1 Y)) :=
   commrng_univalence (pr1 X) (pr1 Y).
@@ -528,14 +536,12 @@ Proof.
         -- use setproperty.
         -- use setproperty.
     + use setproperty.
-    + intros H' e.
-      use H.
-      set (tmp := dirprod_pr1 (pr2 H')). cbn in tmp. rewrite e in tmp.
-      set (t := @multx0_is_l
-                  X (@op1 X) (@op2 X) (dirprod_pr1 (rngop1axs X)) (rngop2axs X)
-                  (rngdistraxs X) (pr1 H')).
-      use (pathscomp0 _ t). clear t.
-      use pathsinv0. exact tmp.
+    + intros H' e. use H.
+      use (pathscomp0
+             _ (@multx0_is_l X (@op1 X) (@op2 X) (dirprod_pr1 (rngop1axs X)) (rngop2axs X)
+                             (rngdistraxs X) (pr1 H'))).
+      use (pathscomp0 _ (maponpaths (fun y : X  => op2 (pr1 H') y) e)).
+      exact (! dirprod_pr1 (pr2 H')).
 Defined.
 Opaque isapropisafield.
 
@@ -568,7 +574,15 @@ Defined.
 Definition fldmultinv {X : fld} (x : X) (ne : neg (paths x 0)) : X := pr1 (fldmultinvpair X x ne).
 
 
-(** **** (X = Y) ≃ (rngiso X Y) *)
+(** **** (X = Y) ≃ (rngiso X Y)
+   We use the following composition
+
+                                (X = Y) ≃ (pr1 X = pr1 Y)
+                                        ≃ (rngiso (pr1 X) (pr1 Y))
+                                        ≃ (rngiso X Y)
+
+   where the second weak equivalence is given by univalence for commrngs, [commrng_univalence].
+*)
 
 Definition fld_univalence_weq1 (X Y : fld) : (X = Y) ≃ (pr1 X = pr1 Y).
 Proof.

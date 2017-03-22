@@ -205,13 +205,23 @@ Proof.
 Defined.
 
 
-(** **** (X = Y) ≃ (rigiso X Y) *)
+(** **** (X = Y) ≃ (rigiso X Y)
+    We use the following composition
 
-Definition rigiso' (X Y : rig) : UU :=
+                              (X = Y) ≃ (X ╝ Y)
+                                      ≃ (rigiso' X Y)
+                                      ≃ (rigiso X Y)
+
+    where the second weak equivalence is given by univalence for setwith2binop,
+    [setwith2binop_univalence]. The reason to define rigiso' is that it allows us to use
+    [setwith2binop_univalence].
+*)
+
+Local Definition rigiso' (X Y : rig) : UU :=
   ∑ D : (∑ w : X ≃ Y, istwobinopfun w),
         ((pr1 D) (@rigunel1 X) = @rigunel1 Y) × ((pr1 D) (@rigunel2 X) = @rigunel2 Y).
 
-Definition mk_rigiso' (X Y : rig) (w : X ≃ Y) (H1 : istwobinopfun w)
+Local Definition mk_rigiso' (X Y : rig) (w : X ≃ Y) (H1 : istwobinopfun w)
            (H2 : w (@rigunel1 X) = @rigunel1 Y) (H3 : w (@rigunel2 X) = @rigunel2 Y) :
   rigiso' X Y := tpair _ (tpair _ w H1) (dirprodpair H2 H3).
 
@@ -234,6 +244,7 @@ Proof.
       * use setproperty.
     + use isapropifcontr. exact (@isapropisrigops X op1 op2 Xop Yop).
 Defined.
+Opaque rig_univalence_weq2.
 
 Definition rig_univalence_weq3 (X Y : rig) : (rigiso' X Y) ≃ (rigiso X Y).
 Proof.
@@ -471,7 +482,17 @@ Definition commrigmultabmonoid (X : commrig) : abmonoid :=
   abmonoidpair (setwithbinoppair X op2) (dirprodpair (rigop2axs X) (rigcomm2 X)).
 
 
-(** **** (X = Y) ≃ (rigiso X Y) *)
+(** **** (X = Y) ≃ (rigiso X Y)
+    We use the following composition
+
+                          (X = Y) ≃ (mk_commrig' X = mk_commrig' Y)
+                                  ≃ ((pr1 (mk_commrig' X)) = (pr1 (mk_commrig' Y)))
+                                  ≃ (rigiso (pr1 (mk_commrig' X)) (pr1 (mk_commrig' Y)))
+                                  ≃ (rigiso X Y)
+
+    where the third weak equivalence uses univalence for rigs, [rig_univalence]. We define
+    [commrig'] to be able to apply it.
+ *)
 
 Local Definition commrig' : UU :=
   ∑ D : (∑ X : setwith2binop, isrigops (@op1 X) (@op2 X)), iscomm (@op2 (pr1 D)).
@@ -502,7 +523,7 @@ Definition commrig_univalence_weq3 (X Y : commrig) :
   rig_univalence (pr1 (mk_commrig' X)) (pr1 (mk_commrig' Y)).
 
 Definition commrig_univalence_weq4 (X Y : commrig) :
-  (rigiso (pr1 (mk_commrig' X)) (pr1 (mk_commrig' Y))) ≃ (rigiso X Y) :=  idweq (rigiso X Y).
+  (rigiso (pr1 (mk_commrig' X)) (pr1 (mk_commrig' Y))) ≃ (rigiso X Y) := idweq (rigiso X Y).
 
 Definition commrig_univalence_map (X Y : commrig) : (X = Y) -> (rigiso X Y).
 Proof.
@@ -703,7 +724,17 @@ Identity Coercion id_rngiso : rngiso >-> rigiso.
 Definition isrngfuninvmap {X Y : rng} (f : rngiso X Y) : isrngfun (invmap f) := isrigfuninvmap f.
 
 
-(** **** (X = Y) ≃ (rngiso X Y) *)
+(** **** (X = Y) ≃ (rngiso X Y)
+    We use the following composition
+
+                           (X = Y) ≃ (mk_rng' X = mk_rng' Y)
+                                   ≃ ((pr1 (mk_rng' X)) = (pr1 (mk_rng' Y)))
+                                   ≃ (rigiso (pr1 (mk_rng' X)) (pr1 (mk_rng' Y)))
+                                   ≃ (rngiso X Y)
+
+    where the third weak equivalence is given by univalence for rigs, [rig_univalence]. We define
+    rng' to be able to apply [rig_univalence].
+ *)
 
 Local Definition rng' : UU :=
   ∑ D : (∑ X : setwith2binop, isrigops (@op1 X) (@op2 X)),
@@ -1821,7 +1852,17 @@ Definition commrngtocommrig (X : commrng) : commrig := commrigpair _ (pr2 X).
 Coercion commrngtocommrig : commrng >-> commrig.
 
 
-(** **** (X = Y) ≃ (rngiso X Y) *)
+(** **** (X = Y) ≃ (rngiso X Y)
+    We use the following composition
+
+                          (X = Y) ≃ (mk_commrng' X = mk_commrng' Y)
+                                  ≃ ((pr1 (mk_commrng' X)) = (pr1 (mk_commrng' Y)))
+                                  ≃ (rngiso (pr1 (mk_commrng' X)) (pr1 (mk_commrng' Y)))
+                                  ≃ (rngiso X Y)
+
+    where the third weak equivalence is given by univalence for rng, [rng_univalence]. We define
+    [commrng'] to be able to use [rng_univalence].
+ *)
 
 Local Definition commrng' : UU :=
   ∑ D : (∑ X : setwith2binop, isrngops (@op1 X) (@op2 X)), iscomm (@op2 (pr1 D)).
@@ -1852,7 +1893,7 @@ Definition commrng_univalence_weq3 (X Y : commrng) :
   rng_univalence (pr1 (mk_commrng' X)) (pr1 (mk_commrng' Y)).
 
 Definition commrng_univalence_weq4 (X Y : commrng) :
-  (rngiso (pr1 (mk_commrng' X)) (pr1 (mk_commrng' Y))) ≃ (rngiso X Y) :=  idweq (rngiso X Y).
+  (rngiso (pr1 (mk_commrng' X)) (pr1 (mk_commrng' Y))) ≃ (rngiso X Y) := idweq (rngiso X Y).
 
 Definition commrng_univalence_map (X Y : commrng) : (X = Y) -> (rngiso X Y).
 Proof.

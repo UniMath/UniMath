@@ -416,7 +416,18 @@ Definition commax (X : abmonoid) : iscomm (@op X) := pr2 (pr2 X).
 Definition abmonoidrer (X : abmonoid) (a b c d : X) :
   paths (op (op a b) (op c d)) (op (op a c) (op b d)) := abmonoidoprer (pr2 X) a b c d.
 
-(** **** (X = Y) ≃ (monoidiso X Y) *)
+
+(** **** (X = Y) ≃ (monoidiso X Y)
+    We use the following composition
+
+                      (X = Y) ≃ ((mk_abmonoid' X) = (mk_abmonoid' Y))
+                              ≃ ((pr1 (mk_abmonoid' X)) = (pr1 (mk_abmonoid' Y)))
+                              ≃ (monoidiso (pr1 (mk_abmonoid' X)) (pr1 (mk_abmonoid' Y)))
+                              ≃ (monoidiso X Y)
+
+    where the third weak equivalence is given by univalence for monoids, [monoid_univalence].
+*)
+
 Local Definition abmonoid' : UU := ∑ m : monoid, iscomm (@op m).
 
 Local Definition mk_abmonoid' (X : abmonoid) : abmonoid' :=
