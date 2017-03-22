@@ -107,3 +107,5 @@ categories/grs.v
 categories/rigs.v
 categories/commrigs.v
 categories/rngs.v
+categories/commrngs.v
+categories/intdoms.v
