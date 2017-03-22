@@ -527,68 +527,50 @@ Proof.
 Defined.
 
 Definition chain_union_TOSubset {X : hSet} {I : UU} {S : I → WOSubset X}
-           (chain : is_wosubset_chain S) : TOSubset X.
+           (Schain : is_wosubset_chain S) : TOSubset X.
 Proof.
   exists (⋃ S).
-  exists (chain_union_rel chain).
+  exists (chain_union_rel Schain).
   repeat split.
-  - exact (chain_union_rel_istrans chain).
-  - exact (chain_union_rel_isrefl chain).
-  - exact (chain_union_rel_isantisymm chain).
-  - exact (chain_union_rel_istotal chain).
+  - apply chain_union_rel_istrans.
+  - apply chain_union_rel_isrefl.
+  - apply chain_union_rel_isantisymm.
+  - apply chain_union_rel_istotal.
 Defined.
 
-Lemma chain_union_rel_order_compat_TO {X : hSet} {I : UU} {S : I → WOSubset X}
-      (chain : is_wosubset_chain S) (i:I)
+Notation "⋃ chain" := (chain_union_TOSubset chain) (at level 100, no associativity) : tosubset.
+
+Lemma chain_union_tosub_le {X : hSet} {I : UU} {S : I → WOSubset X}
+      (Schain : is_wosubset_chain S) (i:I)
       (inc := subtype_inc (subtype_union_containedIn S i)) :
-  @tosub_order_compat X
-                      (WOSubset_to_TOSubset (S i))
-                      (chain_union_TOSubset chain)
-                      (subtype_union_containedIn S i).
+  ( S i ≼ ⋃ Schain ) % tosubset.
 Proof.
+  exists (subtype_union_containedIn S i).
   intros s s' j.
-  set (u := subtype_inc (λ x J, hinhpr (i,, J)) s : ⋃ S).
-  set (u':= subtype_inc (λ x J, hinhpr (i,, J)) s': ⋃ S).
-  change (chain_union_rel chain u u').
-  assert (q := chain_union_rel_eqn chain u u' i (pr2 s) (pr2 s')).
+  set (u := subtype_inc (λ x J, hinhpr (i,, J)) s : ⋃ Schain).
+  set (u':= subtype_inc (λ x J, hinhpr (i,, J)) s': ⋃ Schain).
+  change (chain_union_rel Schain u u').
+  assert (q := chain_union_rel_eqn Schain u u' i (pr2 s) (pr2 s')).
   rewrite q; clear q. exact j.
 Defined.
 
-Lemma chain_union_tosub_le {X : hSet} {I : UU} {S : I → WOSubset X}
-      (chain : is_wosubset_chain S) (i:I)
-      (inc := subtype_inc (subtype_union_containedIn S i)) :
-  (WOSubset_to_TOSubset (S i) ≼ chain_union_TOSubset chain) % tosubset.
-Proof.
-  exists (subtype_union_containedIn S i).
-  exact (chain_union_rel_order_compat_TO chain i).
-Defined.
-
-Lemma chain_union_rel_order_compat {X : hSet} {I : UU} {S : I → WOSubset X}
-      (chain : is_wosubset_chain S) (i:I)
-      (inc := subtype_inc (subtype_union_containedIn S i)) :
-  ∀ s s' : S i, s ≤ s' ⇒ chain_union_rel chain (inc s) (inc s').
-(* compare with [wosub_order_compat] *)
-Proof.
-  exact (chain_union_rel_order_compat_TO chain i).
-Defined.
-
 Lemma chain_union_rel_initial {X : hSet} {I : UU} {S : I → WOSubset X}
-      (chain : is_wosubset_chain S) (i:I)
+      (Schain : is_wosubset_chain S) (i:I)
       (inc := subtype_inc (subtype_union_containedIn S i)) :
-    ∀ s:S i, ∀ t:chain_union_TOSubset chain, (t ≤ inc s)%tosubset ⇒ t ∈ S i.
+    (∀ s:S i, ∀ t:⋃ Schain, t ≤ inc s ⇒ t ∈ S i)%tosubset.
 (* compare with [wosub_initial] *)
 Proof.
   intros s t le.
-  apply (squash_to_hProp (common_index chain i t)).
+  apply (squash_to_hProp (common_index Schain i t)).
   intros [j [[ij [com ini]] tinSj]]. set (t' := (pr1 t,,tinSj) : S j). unfold wosub_initial in ini.
   assert (K := ini s t'); simpl in K. change (t' ≤ subtype_inc ij s → t ∈ S i) in K.
   apply K; clear K. unfold wosub_order_compat in com.
-  apply (pr2 (tosub_fidelity (chain_union_tosub_le chain j) t' (subtype_inc ij s))).
+  apply (pr2 (tosub_fidelity (chain_union_tosub_le Schain j) t' (subtype_inc ij s))).
   clear com ini.
-  assert (p : t = subtype_inc (pr1 (chain_union_tosub_le chain j)) t').
+  assert (p : t = subtype_inc (pr1 (chain_union_tosub_le _ j)) t').
   { now apply subtypeEquality_prop. }
   induction p.
-  assert (q : inc s = subtype_inc (pr1 (chain_union_tosub_le chain j)) (subtype_inc ij s)).
+  assert (q : inc s = subtype_inc (pr1 (chain_union_tosub_le Schain j)) (subtype_inc ij s)).
   { now apply subtypeEquality_prop. }
   induction q.
   exact le.
@@ -620,27 +602,28 @@ Proof.
     assert (E : subtype_inc (subtype_union_containedIn S j) t' = t).
     { now apply subtypeEquality_prop. }
     rewrite <- E. unfold t0'.
-    apply (chain_union_rel_order_compat chain j t0 t'). apply (t0min t').
+    apply (pr2 (chain_union_tosub_le chain j) t0 t'). apply (t0min t').
     unfold T'. rewrite E. exact tinT.
 Defined.
 
-Lemma chain_union {X:hSet} {I:UU} {S : I -> WOSubset X} :
-  is_wosubset_chain S -> WOSubset X.
+Lemma chain_union_WOSubset {X:hSet} {I:UU} {S : I -> WOSubset X} (Schain : is_wosubset_chain S)
+  : WOSubset X.
 Proof.
-  intro chain. exists (⋃ S). exists (chain_union_rel chain). repeat split.
-  - exact (chain_union_rel_istrans chain).
-  - exact (chain_union_rel_isrefl chain).
-  - exact (chain_union_rel_isantisymm chain).
-  - exact (chain_union_rel_istotal chain).
-  - exact (chain_union_rel_hasSmallest chain).
+  exists (⋃ Schain). exists (chain_union_rel Schain).
+  repeat split.
+  - apply chain_union_rel_istrans.
+  - apply chain_union_rel_isrefl.
+  - apply chain_union_rel_isantisymm.
+  - apply chain_union_rel_istotal.
+  - apply chain_union_rel_hasSmallest.
 Defined.
 
-Lemma chain_union_le {X:hSet} {I:UU} (S : I -> WOSubset X) (chain : is_wosubset_chain S) :
-  ∀ i, S i ≼ chain_union chain.
+Notation "⋃ chain" := (chain_union_WOSubset chain) (at level 100, no associativity) : wosubset.
+
+Lemma chain_union_le {X:hSet} {I:UU} (S : I -> WOSubset X) (Schain : is_wosubset_chain S) :
+  ∀ i, S i ≼ ⋃ Schain.
 Proof.
-  intros i. use tpair.
-  + change (S i ⊆ ⋃ S). exact (subtype_union_containedIn S i).
-  + split.
-    * exact (chain_union_rel_order_compat chain i).
-    * exact (chain_union_rel_initial chain i).
+  intros i. exists (subtype_union_containedIn S i). split.
+  * exact (pr2 (chain_union_tosub_le _ i)).
+  * now apply chain_union_rel_initial.
 Defined.
