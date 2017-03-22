@@ -104,3 +104,4 @@ categories/setwith2binops.v
 categories/monoids.v
 categories/abmonoids.v
 categories/grs.v
+categories/rigs.v
