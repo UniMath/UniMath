@@ -7,10 +7,76 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.OrderedSets.
 
-Local Open Scope poset.
-Local Open Scope subtype.
 Local Open Scope logic.
+Local Open Scope prop.
 Local Open Scope set.
+Local Open Scope subtype.
+Local Open Scope poset.
+
+Delimit Scope tosubset with tosubset. (* subsets equipped with a well ordering *)
+Local Open Scope tosubset.
+
+Delimit Scope wosubset with wosubset. (* subsets equipped with a well ordering *)
+Local Open Scope wosubset.
+
+Definition TotalOrdering (S:hSet) : hSet := ∑ (R : hrel_set S), isTotalOrder R.
+
+Definition TOSubset_set (X:hSet) : hSet := ∑ (S:subtype_set X), TotalOrdering (carrier_set S).
+
+Definition TOSubset (X:hSet) : UU := TOSubset_set X.
+
+Definition TOSubset_to_subtype {X:hSet} : TOSubset X -> hsubtype X
+  := pr1.
+
+Coercion TOSubset_to_subtype : TOSubset >-> hsubtype.
+
+Local Definition TOrel {X:hSet} (S : TOSubset X) : hrel (carrier S) := pr12 S.
+
+Notation "s ≤ s'" := (TOrel _ s s') : tosubset.
+
+Definition TOtotal {X:hSet} (S : TOSubset X) : istotal (TOrel S).
+Proof.
+  apply (pr2 S).
+Defined.
+
+Definition TOanti {X:hSet} (S : TOSubset X) : isantisymm (TOrel S).
+Proof.
+  apply (pr2 S).
+Defined.
+
+Definition TOrefl {X:hSet} (S : TOSubset X) : isrefl (TOrel S).
+Proof.
+  apply (pr2 S).
+Defined.
+
+Definition TOeq_to_refl {X:hSet} (S : TOSubset X) : ∀ s t : carrier_set S, s = t ⇒ s ≤ t.
+Proof.
+  intros s t e. induction e. apply TOrefl.
+Defined.
+
+Definition TOtrans {X:hSet} (S : TOSubset X) : istrans (TOrel S).
+Proof.
+  apply (pr2 S).
+Defined.
+
+Definition tosub_order_compat {X:hSet} {S T : TOSubset X} (le : S ⊆ T) : hProp
+  := ∀ s s' : S, s ≤ s' ⇒ subtype_inc le s ≤ subtype_inc le s'.
+
+Definition tosub_le (X:hSet) (S T : TOSubset X) : hProp := (∑ le : S ⊆ T, tosub_order_compat le)%prop.
+
+Notation "S ≼ T" := (tosub_le _ S T) (at level 70) : tosubset.
+
+Lemma tosub_fidelity {X:hSet} {S T:TOSubset X} (le : S ≼ T)
+      (s s' : S) : s ≤ s' ⇔ subtype_inc (pr1 le) s ≤ subtype_inc (pr1 le) s'.
+Proof.
+  split.
+  { exact (pr2 le s s'). }
+  { intro l. apply (squash_to_hProp (TOtotal S s s')). intros [c|c].
+    - exact c.
+    - apply (TOeq_to_refl S s s'). assert (k := pr2 le _ _ c); clear c.
+      assert (k' := TOanti T _ _ l k); clear k l.
+      apply subtypeEquality_prop. exact (maponpaths pr1 k'). }
+Defined.
 
 Definition hasSmallest {X : UU} (R : hrel X) : hProp
   := ∀ S : hsubtype X, (∃ x, S x) ⇒ ∃ x:X, S x ∧ ∀ y:X, S y ⇒ R x y.
@@ -46,8 +112,7 @@ Definition isWellOrder {X : hSet} (R : hrel X) : hProp := isTotalOrder R ∧ has
 
 Definition WellOrdering (S:hSet) : hSet := ∑ (R : hrel_set S), isWellOrder R.
 
-Definition WOSubset_set (X:hSet) : hSet
-  := ∑ (S:subtype_set X), WellOrdering (carrier_set S).
+Definition WOSubset_set (X:hSet) : hSet := ∑ (S:subtype_set X), WellOrdering (carrier_set S).
 
 Definition WOSubset (X:hSet) : UU := WOSubset_set X.
 
@@ -58,23 +123,16 @@ Coercion WOSubset_to_subtype : WOSubset >-> hsubtype.
 
 Local Definition rel {X:hSet} (S : WOSubset X) : hrel (carrier S) := pr12 S.
 
-Delimit Scope wosubset with wosubset. (* subsets equipped with a well ordering *)
-
-Open Scope wosubset.
-
-Delimit Scope wosubset with wosubset.
-
 Notation "s ≤ s'" := (rel _ s s') : wosubset.
 
-(* Coercion rel : WOSubset >-> hrel. *)
+Definition WOSubset_to_TOSubset {X:hSet} : WOSubset X -> TOSubset X.
+Proof.
+  intros S. exists (pr1 S). exists (rel S). exact (pr122 S).
+Defined.
 
 Local Definition lt {X:hSet} {S : WOSubset X} (s s' : S) := ¬ (s' ≤ s).
 
 Notation "s < s'" := (lt s s') : wosubset.
-
-Open Scope logic.
-
-Open Scope prop.
 
 Definition wosub_le0 (S:hSet) : hrel (WellOrdering S)
   := λ R R', ∀ s s' : S, pr1 R s s' ⇒ pr1 R' s s'.
@@ -102,7 +160,7 @@ Definition wosub_initial {X:hSet} {S T : WOSubset X} (le : S ⊆ T) : hProp
   := ∀ (s:S) (t:T), t ≤ subtype_inc le s ⇒ (t ∈ S).
 
 Definition wosub_le (X:hSet) : hrel (WOSubset X)
-  := λ S T : WOSubset X, ∑ (le : S ⊆ T), wosub_order_compat le ∧ wosub_initial le.
+  := (λ S T : WOSubset X, ∑ (le : S ⊆ T), wosub_order_compat le ∧ wosub_initial le)%prop.
 
 Notation "S ≼ T" := (wosub_le _ S T) (at level 70) : wosubset.
 
@@ -139,8 +197,6 @@ Definition wosub_equal (X:hSet) : hrel (WOSubset X) := λ S T, (S ≼ T) ∧ (T 
 
 Notation "S ≣ T" := (wosub_equal _ S T) (at level 70) : wosubset.
 
-Open Scope subtype.
-
 Definition wosub_univalence_map {X:hSet} (S T : WOSubset X) : (S = T) -> (S ≣ T).
 Proof.
   intros e. induction e. unfold wosub_equal.
@@ -158,7 +214,7 @@ Proof.
   { unfold wosub_equal.
     intermediate_weq (S ╝ T).
     - apply total2_paths_equiv.
-    - intermediate_weq (∑ e : S ≡ T, S ≼ T ∧ T ≼ S).
+    - intermediate_weq (∑ e : S ≡ T, S ≼ T ∧ T ≼ S)%prop.
       + apply weqbandf.
         * apply hsubtype_univalence.
         * intro p. induction S as [S v], T as [T w]. simpl in p. induction p.
@@ -210,8 +266,10 @@ Proof.
   intros le s. exact (subtype_inc (pr1 le) s).
 Defined.
 
-Definition wosub_fidelity {X:hSet} {S T:WOSubset X} (le : S ≼ T)
-      (s s' : S) : s ≤ s' <-> wosub_inc le s ≤ wosub_inc le s'.
+Lemma wosub_fidelity {X:hSet} {S T:WOSubset X} (le : S ≼ T)
+      (s s' : S) : s ≤ s' ⇔ wosub_inc le s ≤ wosub_inc le s'.
+(* we want this lemma available after showing the union of a chain is totally ordered
+   but before showing it has the smallest element condition *)
 Proof.
   set (Srel := pr12 S).
   assert (Stot : istotal Srel).
@@ -230,7 +288,7 @@ Proof.
       assert (k' := Tanti _ _ l k); clear k.
       assert (p : s = s').
       { apply subtypeEquality_prop. exact (maponpaths pr1 k'). }
-      induction p. apply (pr2 S). }
+      induction p. apply (pr2 S). (* refl *) }
 Defined.
 
 Local Lemma h1 {X} {S:WOSubset X} {s t u:S} : s = t -> t ≤ u -> s ≤ u.
@@ -281,9 +339,7 @@ Notation "S ≺ T" := (wosub_le_smaller S T) (at level 70) : wosubset.
 
 (* [upto s x] means x is in S and, as an element of S, it is strictly less than s *)
 Definition upto {X:hSet} {S:WOSubset X} (s:S) : hsubtype X
-  := λ x, ∑ h:S x, (x,,h) < s.
-
-Local Open Scope prop.
+  := (λ x, ∑ h:S x, (x,,h) < s)%prop.
 
 Definition isInterval {X:hSet} (S T:WOSubset X) :
   isDecidablePredicate S -> S ≺ T -> ∃ t:T, S ≡ upto t.
