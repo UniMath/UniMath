@@ -653,8 +653,7 @@ Proof.
   set (isa_g_set
        := (λ C : WOSubset X, ∀ c:carrier_set C, pr1 c = pr1 (g (upto' c)))
           : hsubtype (WOSubset X) ).
-  set (g_set := ∑ C, isa_g_set C).
-  assert (tot : ∏ C D : g_set, pr1 C ≼ pr1 D ∨ pr1 D ≼ pr1 C).
+  assert (tot : ∏ C D, isa_g_set C -> isa_g_set D -> C ≼ D ∨ D ≼ C).
   {
 
 
