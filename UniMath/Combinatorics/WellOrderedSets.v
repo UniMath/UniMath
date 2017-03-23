@@ -63,9 +63,46 @@ Defined.
 Definition tosub_order_compat {X:hSet} {S T : TOSubset X} (le : S ⊆ T) : hProp
   := ∀ s s' : S, s ≤ s' ⇒ subtype_inc le s ≤ subtype_inc le s'.
 
-Definition tosub_le (X:hSet) (S T : TOSubset X) : hProp := (∑ le : S ⊆ T, tosub_order_compat le)%prop.
+Definition tosub_le (X:hSet) (S T : TOSubset X) : hProp
+  := (∑ le : S ⊆ T, tosub_order_compat le)%prop.
 
 Notation "S ≼ T" := (tosub_le _ S T) (at level 70) : tosubset.
+
+Definition sub_initial {X:hSet} {S : hsubtype X} {T : TOSubset X} (le : S ⊆ T) : hProp
+  := ∀ (s:S) (t:T), t ≤ subtype_inc le s ⇒ t ∈ S.
+
+(* the largest initial common subset of S and of T *)
+Definition max_sub_initial {X:hSet} (S T : TOSubset X) : hsubtype X
+  := λ x, ∃ (B : hsubtype X) (bs : B ⊆ S) (bt : B ⊆ T), B x ∧ sub_initial bs ∧ sub_initial bt.
+
+Lemma max_sub_initial_is_max {X:hSet}
+      (S T : TOSubset X) (A : hsubtype X) (AS : A ⊆ S) (AT : A ⊆ T) :
+  sub_initial AS -> sub_initial AT -> A ⊆ max_sub_initial S T.
+Proof.
+  intros ASi ATi x Ax. exact (hinhpr(A,,AS,,AT,,Ax,,ASi,,ATi)).
+Defined.
+
+Lemma max_sub_initial_is_sub {X:hSet} (S T : TOSubset X) :
+  max_sub_initial S T ⊆ S ∧ max_sub_initial S T ⊆ T.
+Proof.
+  split.
+  - intros x m. apply (squash_to_hProp m); intros [B [BS [_ [Bx _]]]]; clear m. exact (BS _ Bx).
+  - intros x m. apply (squash_to_hProp m); intros [B [_ [BT [Bx _]]]]; clear m. exact (BT _ Bx).
+Defined.
+
+Lemma max_sub_initial_is_initial {X:hSet} (S T : TOSubset X) :
+  sub_initial (pr1 (max_sub_initial_is_sub S T)) ∧
+  sub_initial (pr2 (max_sub_initial_is_sub S T)).
+Proof.
+  split.
+  - intros t s le.
+    induction t as [t tm].
+    apply (squash_to_hProp tm); intros [B [BS [BT [Bt [BSi BTi]]]]].
+    unfold sub_initial in BSi.
+    assert (Q := BSi (t,,Bt) s); simpl in Q.
+
+
+Abort.
 
 Lemma tosub_fidelity {X:hSet} {S T:TOSubset X} (le : S ≼ T)
       (s s' : S) : s ≤ s' ⇔ subtype_inc (pr1 le) s ≤ subtype_inc (pr1 le) s'.
@@ -137,14 +174,8 @@ Local Definition lt {X:hSet} {S : WOSubset X} (s s' : S) := ¬ (s' ≤ s)%wosubs
 
 Notation "s < s'" := (lt s s') : wosubset.
 
-Definition wosub_order_compat {X:hSet} {S T : WOSubset X} (le : S ⊆ T) : hProp
-  := ∀ s s' : S, s ≤ s' ⇒ subtype_inc le s ≤ subtype_inc le s'.
-
-Definition wosub_initial {X:hSet} {S T : WOSubset X} (le : S ⊆ T) : hProp
-  := ∀ (s:S) (t:T), t ≤ subtype_inc le s ⇒ (t ∈ S).
-
 Definition wosub_le (X:hSet) : hrel (WOSubset X)
-  := (λ S T : WOSubset X, ∑ (le : S ⊆ T), wosub_order_compat le ∧ wosub_initial le)%prop.
+  := (λ S T : WOSubset X, ∑ (le : S ⊆ T), @tosub_order_compat _ S T le ∧ @sub_initial _ S T le)%prop.
 
 Notation "S ≼ T" := (wosub_le _ S T) (at level 70) : wosubset.
 
@@ -158,9 +189,19 @@ Proof.
     * intros s s' le. exact (pr2 s').
 Defined.
 
-Definition wosub_equal (X:hSet) : hrel (WOSubset X) := λ S T, (S ≼ T) ∧ (T ≼ S).
+Definition wosub_equal {X:hSet} : hrel (WOSubset X) := λ S T, S ≼ T ∧ T ≼ S.
 
-Notation "S ≣ T" := (wosub_equal _ S T) (at level 70) : wosubset.
+Notation "S ≣ T" := (wosub_equal S T) (at level 70) : wosubset.
+
+Definition wosub_comparable {X:hSet} : hrel (WOSubset X) := λ S T, S ≼ T ∨ T ≼ S.
+
+Lemma wosub_compare {X:hSet} {S T U : WOSubset X} :
+  S ≼ U -> T ≼ U -> wosub_comparable S T.
+Proof.
+  intros su tu.
+
+
+Abort.
 
 Definition wosub_univalence_map {X:hSet} (S T : WOSubset X) : (S = T) -> (S ≣ T).
 Proof.
@@ -338,7 +379,7 @@ Defined.
     with a well ordering. *)
 
 Definition is_wosubset_chain {X : hSet} {I : UU} (S : I → WOSubset X)
-  := ∀ i j : I, S i ≼ S j ∨ S j ≼ S i.
+  := ∀ i j : I, wosub_comparable (S i) (S j).
 
 Lemma common_index {X : hSet} {I : UU} {S : I → WOSubset X}
       (chain : is_wosubset_chain S) (i : I) (x : carrier_set (⋃ (λ i, S i))) :
@@ -521,13 +562,13 @@ Lemma chain_union_rel_initial {X : hSet} {I : UU} {S : I → WOSubset X}
       (Schain : is_wosubset_chain S) (i:I)
       (inc := subtype_inc (subtype_union_containedIn S i)) :
     (∀ s:S i, ∀ t:⋃ Schain, t ≤ inc s ⇒ t ∈ S i)%tosubset.
-(* compare with [wosub_initial] *)
+(* compare with [tosub_initial] *)
 Proof.
   intros s t le.
   apply (squash_to_hProp (common_index Schain i t)).
-  intros [j [[ij [com ini]] tinSj]]. set (t' := (pr1 t,,tinSj) : S j). unfold wosub_initial in ini.
+  intros [j [[ij [com ini]] tinSj]]. set (t' := (pr1 t,,tinSj) : S j). unfold sub_initial in ini.
   assert (K := ini s t'); simpl in K. change (t' ≤ subtype_inc ij s → t ∈ S i) in K.
-  apply K; clear K. unfold wosub_order_compat in com.
+  apply K; clear K. unfold tosub_order_compat in com.
   apply (pr2 (tosub_fidelity (chain_union_tosub_le Schain j) t' (subtype_inc ij s))).
   clear com ini.
   assert (p : t = subtype_inc (pr1 (chain_union_tosub_le _ j)) t').
@@ -611,7 +652,13 @@ Proof.
   (* some well ordered subsets of X are called "g-sets" : *)
   set (isa_g_set := (λ C, ∀ c:C, pr1 c = pr1 (g (upto' c))) : WOSubset X -> hProp).
   assert (tot : ∏ C D, isa_g_set C -> isa_g_set D -> C ≼ D ∨ D ≼ C).
-  {
+  { intros C D gC gD.
+    set (subCD := (λ B, B ≼ C ∧ B ≼ D) : subtype_set (WOSubset X)).
+    set (I := carrier_set subCD).
+    set (S := pr1 : I -> WOSubset X).
+    assert (chain : is_wosubset_chain S).
+    { intros i j.
+
 
 
 
