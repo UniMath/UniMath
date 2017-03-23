@@ -627,3 +627,36 @@ Proof.
   * exact (pr2 (chain_union_tosub_le _ i)).
   * now apply chain_union_rel_initial.
 Defined.
+
+Definition proper_subtypes_set (X:UU) : hSet := ∑ S : subtype_set X, ∃ x, ¬ (S x).
+
+(* the interval up to c, as a proper subset of X *)
+Definition upto' {X:hSet} {C:WOSubset X} (c:C) : proper_subtypes_set X.
+Proof.
+  exists (upto c). apply hinhpr. exists (pr1 c). intro n.
+  simpl in n. induction n as [n o]. apply o; clear o.
+  apply (TOeq_to_refl C _ _). now apply subtypeEquality_prop.
+Defined.
+
+Theorem ZermeloWellOrdering {X:hSet} : AxiomOfChoice ⇒ ∃ R : hrel X, isWellOrder R.
+(* see http://www.math.illinois.edu/~dan/ShortProofs/WellOrdering.pdf *)
+Proof.
+  intros ac.
+  (* for each proper subset S of X, pick an element [g(S)] in its complement *)
+  assert (lem := AC_to_LEM ac).
+  assert (choice := ac (proper_subtypes_set X)
+                       (λ S, ∑ x, ¬ (pr1 S x))
+                       (λ S, pr2 S)); clear ac.
+  apply (squash_to_hProp choice); clear choice; intro g;
+  change (∏ S : proper_subtypes_set X, ∑ x, ¬ (pr1 S x))%type in g.
+  (* some well ordered subsets of X are called "g-sets" : *)
+  set (isa_g_set
+       := (λ C : WOSubset X, ∀ c:carrier_set C, pr1 c = pr1 (g (upto' c)))
+          : hsubtype (WOSubset X) ).
+  set (g_set := ∑ C, isa_g_set C).
+  assert (tot : ∏ C D : g_set, pr1 C ≼ pr1 D ∨ pr1 D ≼ pr1 C).
+  {
+
+
+
+Admitted.
