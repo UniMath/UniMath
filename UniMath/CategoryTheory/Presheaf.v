@@ -325,7 +325,7 @@ simpl; intros S1 S2.
 mkpair.
 - intros f.
   apply (S1 f ∨ S2 f).
-- intros f S y f'; apply S; clear S; intros S.
+- intros f S y f'; simpl in S; apply S; clear S; intro S.
   apply hinhpr.
   induction S as [S|S].
   + apply ii1, (pr2 S1 _ S).
@@ -375,7 +375,7 @@ split.
 - intros x; apply funextfun; intros [S hS]; simpl.
   apply subtypeEquality; simpl.
   + intros X; repeat (apply impred; intro); apply propproperty.
-  + now apply funextsec; intro; rewrite id_right, <- tppr.
+  + now apply funextsec; intro; rewrite id_right.
 - intros x y z f g; apply funextfun; intros [S hS]; simpl.
   apply subtypeEquality; simpl.
   + intros X; repeat (apply impred; intro); apply propproperty.
@@ -426,7 +426,7 @@ use mk_latticeob.
 + apply Ω_PreShv_meet.
 + apply Ω_PreShv_join.
 + repeat split; apply (nat_trans_eq has_homsets_HSET); intro c;
-                apply funextsec; intros S.
+                apply funextsec; intros S; simpl.
   - apply (isassoc_Lmin (sieve_lattice c)).
   - apply (iscomm_Lmin (sieve_lattice c)).
   - apply (isassoc_Lmax (sieve_lattice c)).
