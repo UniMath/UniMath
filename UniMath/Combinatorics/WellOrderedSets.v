@@ -60,6 +60,16 @@ Proof.
   apply (pr2 S).
 Defined.
 
+Local Lemma h1'' {X} {S:TOSubset X} {r s t u:S} : (r ≤ t -> pr1 r = pr1 s -> pr1 t = pr1 u -> s ≤ u)%tosubset.
+Proof.
+  intros le p q.
+  assert (p' : r = s).
+  { now apply subtypeEquality_prop. }
+  assert (q' : t = u).
+  { now apply subtypeEquality_prop. }
+  induction p', q'. exact le.
+Defined.
+
 Definition tosub_order_compat {X:hSet} {S T : TOSubset X} (le : S ⊆ T) : hProp
   := ∀ s s' : S, s ≤ s' ⇒ subtype_inc le s ≤ subtype_inc le s'.
 
@@ -68,41 +78,221 @@ Definition tosub_le (X:hSet) (S T : TOSubset X) : hProp
 
 Notation "S ≼ T" := (tosub_le _ S T) (at level 70) : tosubset.
 
-Definition sub_initial {X:hSet} {S : hsubtype X} {T : TOSubset X} (le : S ⊆ T) : hProp
-  := ∀ (s:S) (t:T), t ≤ subtype_inc le s ⇒ t ∈ S.
+Definition sub_initial {X:hSet} (S : hsubtype X) (T : TOSubset X) (le : S ⊆ T) : hProp
+  := ∀ (s t : X) (Ss : S s) (Tt : T t), TOrel T (t,,Tt) (s,,le s Ss) ⇒ S t.
 
-(* the largest initial common subset of S and of T *)
+Definition contained_initial {X:hSet} (B : hsubtype X) (S : TOSubset X) : hProp
+  := ∃ le : B ⊆ S, sub_initial B S le.
+
+Lemma filter_sub_initial_2 {X:hSet} (B C : hsubtype X) (S : TOSubset X)
+      (i : contained_initial B S) (j : contained_initial C S) :
+  ∀ x y, B x ⇒ (C y ⇒ C x ∨ B y).
+Proof.
+  intros x y Bx Cy.
+  apply (squash_to_hProp i); clear i; intros [le si].
+  apply (squash_to_hProp j); clear j; intros [le' sj].
+  apply (squash_to_hProp (TOtotal S (x,,le x Bx) (y,,le' y Cy))).
+  intros c. apply hinhpr. induction c as [c|c].
+  -                             (* x ≤ y, so both are in C *)
+    apply ii1. use sj.
+    + exact y.
+    + assumption.
+    + now use le.
+    + assumption.
+  -                             (* y ≤ x, so both are in B *)
+    apply ii2. use si.
+    + exact x.
+    + assumption.
+    + now use le'.
+    + assumption.
+Defined.
+
+Lemma hdisj_3 (P Q R : hProp) : P ⨿ Q ⨿ R -> P ∨ Q ∨ R.
+(* upstream *)
+Proof.
+  intros [[p|q]|r].
+  - exact (hinhpr (ii1 p)).
+  - exact (hinhpr (ii2 (hinhpr (ii1 q)))).
+  - exact (hinhpr (ii2 (hinhpr (ii2 r)))).
+Defined.
+
+Axiom oops : ∏ X, X.
+
+Lemma filter_sub_initial_3 {X:hSet} (B C D : hsubtype X) (S : TOSubset X)
+      (i : contained_initial B S) (j : contained_initial C S) (k : contained_initial D S) :
+  ∀ x y z, B x ⇒ (C y ⇒ (D z ⇒ (D x ∧ D y  ∨  C x ∧ C z  ∨  B y ∧ B z))).
+(* This is interesting, because it's constructive, whereas proving one of B, C, D contains
+   the others involves proof by contradiction. *)
+Proof.
+  intros x y z Bx Cy Dz.
+  apply (squash_to_hProp i); clear i; intros [le si].
+  apply (squash_to_hProp j); clear j; intros [le' sj].
+  apply (squash_to_hProp k); clear k; intros [le'' sk].
+  apply (squash_to_hProp (TOtotal S (x,,le x Bx) (y,,le' y Cy))); intros c.
+  apply (squash_to_hProp (TOtotal S (x,,le x Bx) (z,,le'' z Dz))); intros c'.
+  apply (squash_to_hProp (TOtotal S (y,,le' y Cy) (z,,le'' z Dz))); intros c''.
+  apply hdisj_3.
+  induction c as [c|c], c' as [c'|c'], c'' as [c''|c''].
+  -                             (* x,y ≤ z, so all are in D *)
+    apply ii1. apply ii1. split.
+    + use sk.
+      * exact z.
+      * assumption.
+      * now use le.
+      * assumption.
+    + use sk.
+      * exact z.
+      * assumption.
+      * now use le'.
+      * assumption.
+  -                             (* x,z ≤ y, so all are in C *)
+    apply ii1. apply ii2. split.
+    + use sj.
+      * exact y.
+      * assumption.
+      * now use le.
+      * assumption.
+    + use sj.
+      * exact y.
+      * assumption.
+      * now use le''.
+      * assumption.
+  -                             (* x ≤ y ≤ z ≤ x, so x=y=z and any will do *)
+    apply ii1. apply ii2. split.
+    + use sj.
+      * exact y.
+      * assumption.
+      * now use le.
+      * assumption.
+    + use sj.
+      * exact x.
+      * use sj.
+        ** exact y.
+        ** assumption.
+        ** now use le.
+        ** assumption.
+      * now use le''.
+      * now apply (h1'' c').
+  -                             (* x,z ≤ y, so all are in C *)
+    apply ii1. apply ii2. split.
+    + use sj.
+      * exact y.
+      * assumption.
+      * now use le.
+      * assumption.
+    + use sj.
+      * exact y.
+      * assumption.
+      * now use le''.
+      * assumption.
+  -                             (* x,y ≤ z, so all are in D *)
+    apply ii1. apply ii1. split.
+    + use sk.
+      * exact z.
+      * assumption.
+      * now use le.
+      * assumption.
+    + use sk.
+      * exact z.
+      * assumption.
+      * now use le'.
+      * assumption.
+  -                             (* z ≤ y ≤ x ≤ z, so x=y=z and any would do *)
+    apply ii1. apply ii2. split.
+    + use sj.
+      * exact z.
+      * use sj.
+        ** exact y.
+        ** assumption.
+        ** now use le''.
+        ** assumption.
+      * now use le.
+      * now apply (h1'' c').
+    + use sj.
+      * exact y.
+      * assumption.
+      * now use le''.
+      * assumption.
+  -                             (* y,z ≤ x, so al are in B *)
+    apply ii2. split.
+    + use si.
+      * exact x.
+      * assumption.
+      * now use le'.
+      * assumption.
+    + use si.
+      * exact x.
+      * assumption.
+      * now use le''.
+      * assumption.
+  -                             (* y,z ≤ x *)
+    apply ii2. split.
+    + use si.
+      * exact x.
+      * assumption.
+      * now use le'.
+      * assumption.
+    + use si.
+      * exact x.
+      * assumption.
+      * now use le''.
+      * assumption.
+Defined.
+
+Definition same_induced_ordering {X:hSet} {S T : TOSubset X} {B : hsubtype X} (BS : B ⊆ S) (BT : B ⊆ T)
+  := ∀ x y : B,
+             subtype_inc BS x ≤ subtype_inc BS y
+                         ⇔
+             subtype_inc BT x ≤ subtype_inc BT y.
+
+Definition common_initial {X:hSet} (B : hsubtype X) (S T : TOSubset X) :=
+  ∃ (BS : B ⊆ S) (BT : B ⊆ T), sub_initial B S BS ∧ sub_initial B T BT ∧ same_induced_ordering BS BT.
+
+(* the largest initial common ordered subset of S and of T, as the union of all of them *)
 Definition max_sub_initial {X:hSet} (S T : TOSubset X) : hsubtype X
-  := λ x, ∃ (B : hsubtype X) (bs : B ⊆ S) (bt : B ⊆ T), B x ∧ sub_initial bs ∧ sub_initial bt.
+  := λ x, ∃ (B : hsubtype X), B x ∧ common_initial B S T.
 
-Lemma max_sub_initial_is_max {X:hSet}
-      (S T : TOSubset X) (A : hsubtype X) (AS : A ⊆ S) (AT : A ⊆ T) :
-  sub_initial AS -> sub_initial AT -> A ⊆ max_sub_initial S T.
-Proof.
-  intros ASi ATi x Ax. exact (hinhpr(A,,AS,,AT,,Ax,,ASi,,ATi)).
-Defined.
+(* Lemma max_sub_initial_is_max {X:hSet} *)
+(*       (S T : TOSubset X) (A : hsubtype X) (AS : A ⊆ S) (AT : A ⊆ T) : *)
+(*   common_initial AS AT -> A ⊆ max_sub_initial S T. *)
+(* Proof. *)
+(*   intros AST x Ax. exact (hinhpr(A,,AS,,AT,,Ax,,AST)). *)
+(* Defined. *)
 
-Lemma max_sub_initial_is_sub {X:hSet} (S T : TOSubset X) :
-  max_sub_initial S T ⊆ S ∧ max_sub_initial S T ⊆ T.
-Proof.
-  split.
-  - intros x m. apply (squash_to_hProp m); intros [B [BS [_ [Bx _]]]]; clear m. exact (BS _ Bx).
-  - intros x m. apply (squash_to_hProp m); intros [B [_ [BT [Bx _]]]]; clear m. exact (BT _ Bx).
-Defined.
+(* Lemma max_sub_initial_is_sub {X:hSet} (S T : TOSubset X) : *)
+(*   max_sub_initial S T ⊆ S ∧ max_sub_initial S T ⊆ T. *)
+(* Proof. *)
+(*   split. *)
+(*   - intros x m. apply (squash_to_hProp m); intros [B [BS [_ [Bx _]]]]; clear m. exact (BS _ Bx). *)
+(*   - intros x m. apply (squash_to_hProp m); intros [B [_ [BT [Bx _]]]]; clear m. exact (BT _ Bx). *)
+(* Defined. *)
 
-Lemma max_sub_initial_is_initial {X:hSet} (S T : TOSubset X) :
-  sub_initial (pr1 (max_sub_initial_is_sub S T)) ∧
-  sub_initial (pr2 (max_sub_initial_is_sub S T)).
-Proof.
-  split.
-  - intros t s le.
-    induction t as [t tm].
-    apply (squash_to_hProp tm); intros [B [BS [BT [Bt [BSi BTi]]]]].
-    unfold sub_initial in BSi.
-    assert (Q := BSi (t,,Bt) s); simpl in Q.
+(* Lemma max_sub_initial_is_common_initial {X:hSet} (S T : TOSubset X) : *)
+(*   common_initial (pr1 (max_sub_initial_is_sub S T)) (pr2 (max_sub_initial_is_sub S T)). *)
+(* Proof. *)
+(*   split. *)
+(*   { intros x s le. induction x as [x xm]. *)
+(*     apply (squash_to_hProp xm); intros [B [BS [BT [Bx [BSi [BTi BST]]]]]]. *)
+(*     assert (Q := BSi (x,,Bx) s); simpl in Q. *)
+(*     assert (E : subtype_inc (pr1 (max_sub_initial_is_sub S T)) (x,, xm) = subtype_inc BS (x,, Bx)). *)
+(*     { now apply subtypeEquality_prop. } *)
+(*     induction E. assert (Q' := Q le); clear Q le. *)
+(*     exact (hinhpr(B,,BS,,BT,,Q',,BSi,,BTi,,BST)). } *)
+(*   split. *)
+(*   { intros x t le. induction x as [x xm]. *)
+(*     apply (squash_to_hProp xm); intros [B [BS [BT [Bx [BSi [BTi BST]]]]]]. *)
+(*     assert (Q := BTi (x,,Bx) t); simpl in Q. *)
+(*     assert (E : subtype_inc (pr2 (max_sub_initial_is_sub S T)) (x,, xm) = subtype_inc BT (x,, Bx)). *)
+(*     { now apply subtypeEquality_prop. } *)
+(*     induction E. assert (Q' := Q le); clear Q le. *)
+(*     exact (hinhpr(B,,BS,,BT,,Q',,BSi,,BTi,,BST)). } *)
+(*   split. *)
+(*   {                             (* why did the variables x, x0 get introduced here?? *) *)
+(*     generalize x0; clear x0; intros y. *)
+(*     intros le. *)
 
 
-Abort.
+(* Abort. *)
 
 Lemma tosub_fidelity {X:hSet} {S T:TOSubset X} (le : S ≼ T)
       (s s' : S) : s ≤ s' ⇔ subtype_inc (pr1 le) s ≤ subtype_inc (pr1 le) s'.
@@ -185,8 +375,8 @@ Proof.
   use tpair.
   + intros x xinS. exact xinS.
   + split.
-    * intros s s' le. induction s, s'; exact le.
-    * intros s s' le. exact (pr2 s').
+    * intros s s' le. exact le.
+    * intros s s' Ss Ss' le. exact Ss'.
 Defined.
 
 Definition wosub_equal {X:hSet} : hrel (WOSubset X) := λ S T, S ≼ T ∧ T ≼ S.
@@ -208,10 +398,10 @@ Proof.
   intros e. induction e. unfold wosub_equal.
   simple refine ((λ L, dirprodpair L L) _).
   use tpair.
-  + intros x s. exact s.
+  + intros x s. assumption.
   + split.
-    * intros s s' le. exact le.
-    * intros s t le. apply t.
+    * intros s s' le. assumption.
+    * intros s t Ss St le. assumption.
 Defined.
 
 Theorem wosub_univalence {X:hSet} (S T : WOSubset X) : (S = T) ≃ (S ≣ T).
@@ -235,12 +425,12 @@ Proof.
               { intros s. change (S s → S s). exact (idfun _). }
               { split.
                 { intros s s' le. exact le. }
-                { intros s t le. simpl in t. simpl. exact (pr2 t). } } }
+                { intros s t Ss St le. exact St. } } }
             { use tpair.
               { intros s. change (S s → S s). exact (idfun _). }
               { split.
                 { intros s s' le. exact le. }
-                { intros s t le. simpl in t. simpl. exact (pr2 t). } } } }
+                { intros s t Ss St le. exact St. } } } }
           { simpl. unfold WOrel. simpl. intros [[a [b _]] [d [e _]]].
             assert (triv : ∏ (f:∏ x : X, S x → S x) (x:carrier_set S), subtype_inc f x = x).
             { intros f s. apply subtypeEquality_prop. reflexivity. }
@@ -302,16 +492,6 @@ Proof.
   intros p le. induction p. exact le.
 Defined.
 
-Local Lemma h1'' {X} {S:WOSubset X} {r s t u:S} : r ≤ t -> pr1 r = pr1 s -> pr1 t = pr1 u -> s ≤ u.
-Proof.
-  intros le p q.
-  assert (p' : r = s).
-  { now apply subtypeEquality_prop. }
-  assert (q' : t = u).
-  { now apply subtypeEquality_prop. }
-  induction p', q'. exact le.
-Defined.
-
 Lemma wosub_le_isPartialOrder X : isPartialOrder (wosub_le X).
 Proof.
   repeat split.
@@ -319,14 +499,14 @@ Proof.
     exists (pr11 (subtype_containment_isPartialOrder X) S T U (pr1 i) (pr1 j)).
     split.
     + intros s s' l. exact (pr12 j _ _ (pr12 i _ _ l)).
-    + intros s u l.
-      change (hProptoType (u ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) s))) in l.
-      set (uinT := pr1 u,,pr22 j (subtype_inc (pr1 i) s) u l : T).
-      assert (p : subtype_inc (pr1 j) uinT = u).
+    + intros s u Ss Uu l.
+      change (hProptoType ((u,,Uu) ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) (s,,Ss)))) in l.
+      set (uinT := u ,, pr22 j s u (pr1 i s Ss) Uu l : T).
+      assert (p : subtype_inc (pr1 j) uinT = u,,Uu).
       { now apply subtypeEquality_prop. }
-      assert (q := h1 p l : subtype_inc (pr1 j) uinT ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) s)).
+      assert (q := h1 p l : subtype_inc (pr1 j) uinT ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) (s,,Ss))).
       assert (r := pr2 (wosub_fidelity j _ _) q).
-      assert (b := pr22 i _ _ r); simpl in b.
+      assert (b := pr22 i _ _ _ _ r); simpl in b.
       exact b.
   - apply wosub_le_isrefl.
   - intros S T i j. apply (invmap (wosub_univalence _ _)). exact (i,,j).
@@ -366,7 +546,7 @@ Proof.
   apply hinhpr. exists u. intro y. split.
   - intro yinS. set (s := (y ,, yinS) : S). set (s' := subtype_inc (pr1 le) s).
     exists (pr2 s'). set (y' := y ,, pr2 s'). intro ules.
-    assert (q := pr22 le s u ules); clear ules.
+    assert (q := pr22 le _ _ _ _ ules); clear ules.
     simple refine (uinU _). exact q.
   - intro yltu. induction yltu as [yinT yltu].
     (* Goal : [S y].  We know y is smaller than the smallest element of T not in S,
@@ -450,9 +630,11 @@ Proof.
   apply (squash_to_hProp (chain i j)). intros [c|c].
   - split.
     + intro l. assert (q := pr12 c _ _ l); clear l. now apply (h1'' q).
-    + intro l. apply (pr2 ((wosub_fidelity c) (x,,xi) (y,,yi))). now apply (h1'' l).
+    + intro l. apply (pr2 ((wosub_fidelity c) (x,,xi) (y,,yi))).
+      now apply (@h1'' X (S j) _ _ _ _ l).
   - split.
-    + intro l. apply (pr2 ((wosub_fidelity c) (x,,xj) (y,,yj))). now apply (h1'' l).
+    + intro l. apply (pr2 ((wosub_fidelity c) (x,,xj) (y,,yj))).
+      now apply (@h1'' X (S i) _ _ _ _ l).
     + intro l. assert (q := pr12 c _ _ l); clear l. now apply (h1'' q).
 Defined.
 
@@ -562,12 +744,11 @@ Lemma chain_union_rel_initial {X : hSet} {I : UU} {S : I → WOSubset X}
       (Schain : is_wosubset_chain S) (i:I)
       (inc := subtype_inc (subtype_union_containedIn S i)) :
     (∀ s:S i, ∀ t:⋃ Schain, t ≤ inc s ⇒ t ∈ S i)%tosubset.
-(* compare with [tosub_initial] *)
 Proof.
   intros s t le.
   apply (squash_to_hProp (common_index Schain i t)).
   intros [j [[ij [com ini]] tinSj]]. set (t' := (pr1 t,,tinSj) : S j). unfold sub_initial in ini.
-  assert (K := ini s t'); simpl in K. change (t' ≤ subtype_inc ij s → t ∈ S i) in K.
+  assert (K := ini (pr1 s) (pr1 t') (pr2 s) (pr2 t')); simpl in K. change (t' ≤ subtype_inc ij s → t ∈ S i) in K.
   apply K; clear K. unfold tosub_order_compat in com.
   apply (pr2 (tosub_fidelity (chain_union_tosub_le Schain j) t' (subtype_inc ij s))).
   clear com ini.
@@ -629,7 +810,8 @@ Lemma chain_union_le {X:hSet} {I:UU} (S : I -> WOSubset X) (Schain : is_wosubset
 Proof.
   intros i. exists (subtype_union_containedIn S i). split.
   * exact (pr2 (chain_union_tosub_le _ i)).
-  * now apply chain_union_rel_initial.
+  * intros s t Ss Tt.
+    exact (chain_union_rel_initial Schain i (s,,Ss) (t,,Tt)).
 Defined.
 
 Definition proper_subtypes_set (X:UU) : hSet := ∑ S : subtype_set X, ∃ x, ¬ (S x).
@@ -653,11 +835,7 @@ Proof.
   set (isa_g_set := (λ C, ∀ c:C, pr1 c = pr1 (g (upto' c))) : WOSubset X -> hProp).
   assert (tot : ∏ C D, isa_g_set C -> isa_g_set D -> C ≼ D ∨ D ≼ C).
   { intros C D gC gD.
-    set (subCD := (λ B, B ≼ C ∧ B ≼ D) : subtype_set (WOSubset X)).
-    set (I := carrier_set subCD).
-    set (S := pr1 : I -> WOSubset X).
-    assert (chain : is_wosubset_chain S).
-    { intros i j.
+    set (W := max_sub_initial C D).
 
 
 
