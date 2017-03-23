@@ -4,8 +4,9 @@
 
 (** In this file our goal is to prove Zorn's Lemma and Zermelo's Well-Ordering Theorem. *)
 
-Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.OrderedSets.
+Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.MoreFoundations.DecidablePropositions.
 
 Local Open Scope logic.
 Local Open Scope prop.
@@ -641,18 +642,12 @@ Defined.
 Theorem ZermeloWellOrdering {X:hSet} : AxiomOfChoice ⇒ ∃ R : hrel X, isWellOrder R.
 (* see http://www.math.illinois.edu/~dan/ShortProofs/WellOrdering.pdf *)
 Proof.
-  intros ac.
+  intros ac. assert (lem := AC_to_LEM ac).
   (* for each proper subset S of X, pick an element [g(S)] in its complement *)
-  assert (lem := AC_to_LEM ac).
-  assert (choice := ac (proper_subtypes_set X)
-                       (λ S, ∑ x, ¬ (pr1 S x))
-                       (λ S, pr2 S)); clear ac.
-  apply (squash_to_hProp choice); clear choice; intro g;
-  change (∏ S : proper_subtypes_set X, ∑ x, ¬ (pr1 S x))%type in g.
+  apply (squash_to_hProp (ac (proper_subtypes_set X) (λ S, ∑ x, ¬ (pr1 S x)) pr2));
+    intro g; change (∏ S : proper_subtypes_set X, ∑ x, ¬ (pr1 S x))%type in g.
   (* some well ordered subsets of X are called "g-sets" : *)
-  set (isa_g_set
-       := (λ C : WOSubset X, ∀ c:carrier_set C, pr1 c = pr1 (g (upto' c)))
-          : hsubtype (WOSubset X) ).
+  set (isa_g_set := (λ C, ∀ c:C, pr1 c = pr1 (g (upto' c))) : WOSubset X -> hProp).
   assert (tot : ∏ C D, isa_g_set C -> isa_g_set D -> C ≼ D ∨ D ≼ C).
   {
 
