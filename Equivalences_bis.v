@@ -535,7 +535,6 @@ Definition functor_over_id_ff_reflects_isos
   : is_iso_disp _ ff.
 Proof.
   set (FFffinv := inv_mor_disp_from_iso isiso).
-  Search (inv_from_iso (functor_on_iso _ _ )).
   set (FFffinv':= transportf (fun f' => _ -->[ _ ] _ ) (functor_on_inv_from_iso F f) FFffinv). cbn in FFffinv'. unfold precomp_with in FFffinv'.
   set (FFffinv'' := transportf (fun f' => _ -->[f'] _ ) (id_right _ ) FFffinv').
   cbn in FFffinv''.
