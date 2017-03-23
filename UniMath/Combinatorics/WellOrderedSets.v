@@ -137,25 +137,6 @@ Local Definition lt {X:hSet} {S : WOSubset X} (s s' : S) := ¬ (s' ≤ s)%wosubs
 
 Notation "s < s'" := (lt s s') : wosubset.
 
-Definition wosub_le0 (S:hSet) : hrel (WellOrdering S)
-  := λ R R', ∀ s s' : S, pr1 R s s' ⇒ pr1 R' s s'.
-
-Lemma wosub_le0_eq (S:hSet) R R' : wosub_le0 S R R' -> R = R'.
-Proof.
-  intros le. apply subtypeEquality_prop. induction R as [R w], R' as [R' w'].
-  change (∏ s s' : S, R s s' -> R' s s')%type in le.
-  change (R=R'). apply funextfun; intro s; apply funextfun; intro s'.
-  apply (invmap (weqlogeq _ _)). split.
-  - exact (le s s').
-  - apply (squash_to_hProp (pr21 w s s')). (* istotal *) intro r. induction r as [a|b].
-    { intros _. exact a. }
-    { intros c. assert (p : s = s').
-      { apply w'.
-        - exact c.
-        - exact (le _ _ b). }
-      induction p. apply w. }
-Defined.
-
 Definition wosub_order_compat {X:hSet} {S T : WOSubset X} (le : S ⊆ T) : hProp
   := ∀ s s' : S, s ≤ s' ⇒ subtype_inc le s ≤ subtype_inc le s'.
 
@@ -175,25 +156,6 @@ Proof.
   + split.
     * intros s s' le. induction s, s'; exact le.
     * intros s s' le. exact (pr2 s').
-Defined.
-
-Lemma wosub_le_eq (X:hSet) (S:hsubtype X) (R R':WellOrdering (carrier_set S)) :
-  (S,,R) ≼ (S,,R') <-> R = R'.
-Proof.
-  split.
-  { intros le. apply wosub_le0_eq. intros s s' r.
-    unfold wosub_le in le; simpl in le.
-    induction le as [le a], a as [a b].
-    assert (q := a s s' r).
-    unfold WOrel in q; simpl in q.
-    assert (E : le = λ _, idfun _).
-    { apply funextsec; intro x; apply funextsec; intro w. apply propproperty. }
-    assert (F : ∏ s, s = subtype_inc le s).
-    { intro t. induction (!E). apply subtypeEquality_prop. reflexivity. }
-    induction (F s).
-    induction (F s').
-    exact q. }
-  { intro E. induction E. apply wosub_le_isrefl. }
 Defined.
 
 Definition wosub_equal (X:hSet) : hrel (WOSubset X) := λ S T, (S ≼ T) ∧ (T ≼ S).
