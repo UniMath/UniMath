@@ -42,6 +42,32 @@ Definition subtype_notEqual {X:UU} (S T : hsubtype X) : hProp := (S ⊈ T) ∨ (
 
 Notation " S ≢ T " := (subtype_notEqual S T) (at level 70) : subtype.
 
+Lemma subtype_notEqual_to_negEqual {X:UU} (S T : hsubtype X) : S ≢ T -> ¬ (S ≡ T).
+Proof.
+    intros n. apply (squash_to_prop n).
+    + apply isapropneg.         (* uses funextemptyAxiom *)
+    + intros [c|c].
+      * apply (squash_to_prop c).
+        ** apply isapropneg.         (* uses funextemptyAxiom *)
+        ** intros [x [Sx nTx]] e. use nTx; clear nTx. exact (pr1 (e x) Sx).
+      * apply (squash_to_prop c).
+        ** apply isapropneg.         (* uses funextemptyAxiom *)
+        ** intros [x [Tx nSx]] e. use nSx; clear nSx. exact (pr2 (e x) Tx).
+Defined.
+
+Lemma subtype_notEqual_from_negEqual {X:UU} (S T : hsubtype X) : LEM -> (S ≢ T <- ¬ (S ≡ T)).
+Proof.
+  - intros lem ne. unfold subtype_equal in ne.
+    assert (q := negforall_to_existsneg _ lem ne); clear ne.
+    apply (squash_to_hProp q); clear q; intros [x n].
+    unfold subtype_notEqual.
+    assert (r := weak_fromnegdirprod _ _ n); clear n. unfold dneg in r.
+    assert (s := proof_by_contradiction lem r); clear r.
+    apply (squash_to_hProp s); clear s. intros s. apply hinhpr. induction s as [s|s].
+    + apply ii1, hinhpr. exists x. now apply negimpl_to_conj.
+    + apply ii2, hinhpr. exists x. now apply negimpl_to_conj.
+Defined.
+
 Definition subtype_difference {X:UU} (S T : hsubtype X) : hsubtype X := λ x, S x ∧ ¬ (T x).
 
 Notation " S - T " := (subtype_difference S T) : subtype.
@@ -51,7 +77,7 @@ Proof.
   intros x u. exact (pr1 u).
 Defined.
 
-Lemma subtype_equal_cond {X:UU} (S T : hsubtype X) : ((S ⊆ T) ∧ (T ⊆ S)) ⇔ (S ≡ T).
+Lemma subtype_equal_cond {X:UU} (S T : hsubtype X) : S ⊆ T ∧ T ⊆ S ⇔ S ≡ T.
 Proof.
   split.
   - intros c x. induction c as [st ts].

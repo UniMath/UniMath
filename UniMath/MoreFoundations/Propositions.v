@@ -51,6 +51,32 @@ Proof.
   exact (decidable_proof_by_contradiction (lem P)).
 Defined.
 
+Lemma dneg_elim_to_LEM : (∏ P:hProp, ¬ ¬ P -> P) -> LEM.
+(* a converse for Lemma dneg_LEM *)
+Proof.
+  intros dne. intros P. simple refine (dne (_,,_) _).
+  - apply isapropdec, P.
+  - simpl. intros n.
+    assert (q : ¬ (P ∨ ¬ P)).
+    { now apply weqnegtonegishinh. }
+    assert (r := fromnegcoprod_prop q).
+    exact (pr2 r (pr1 r)).
+Defined.
+
+Lemma negforall_to_existsneg {X:UU} (P:X->hProp) : LEM -> (¬ ∀ x, P x) -> (∃ x, ¬ (P x)).
+(* was omitted from the section on "Negation and quantification" in Foundations/Propositions.v *)
+Proof.
+  intros lem nf. apply (proof_by_contradiction lem); intro c. use nf; clear nf. intro x.
+  assert (q := neghexisttoforallneg _ c x); clear c; simpl in q.
+  exact (proof_by_contradiction lem q).
+Defined.
+
+Lemma negimpl_to_conj (P Q:hProp) : LEM -> ( ¬ (P ⇒ Q) -> P ∧ ¬ Q ).
+Proof.
+  intros lem ni. assert (r := negforall_to_existsneg _ lem ni); clear lem ni.
+  apply (squash_to_hProp r); clear r; intros [p nq]. exact (p,,nq).
+Defined.
+
 Definition hrel_set (X : hSet) : hSet := hSetpair (hrel X) (isaset_hrel X).
 
 Lemma isaprop_assume_it_is {X : UU} : (X -> isaprop X) -> isaprop X.

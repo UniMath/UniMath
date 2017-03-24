@@ -877,12 +877,14 @@ Definition Chosen_WOSubset_to_WOSubset {X:hSet} (g : choice_fun X) : Chosen_WOSu
 
 Coercion Chosen_WOSubset_to_WOSubset : Chosen_WOSubset >-> WOSubset.
 
-Lemma chosen_WOSubset_total {X:hSet} (g : choice_fun X) : ∏ C D : Chosen_WOSubset g, C ≼ D ∨ D ≼ C.
+Lemma chosen_WOSubset_total {X:hSet} (g : choice_fun X) : LEM -> ∏ C D : Chosen_WOSubset g, C ≼ D ∨ D ≼ C.
 Proof.
-  intros [C gC] [D gD].
+  intros lem [C gC] [D gD].
   set (W := max_common_initial C D).
   assert (E : W ≡ C ∨ W ≡ D).
-  {
+  { apply (proof_by_contradiction lem); intro h.
+    assert (k := fromnegcoprod_prop h); clear h; induction k as [nc nd].
+
 
 
 
