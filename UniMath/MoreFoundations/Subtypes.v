@@ -42,6 +42,15 @@ Definition subtype_notEqual {X:UU} (S T : hsubtype X) : hProp := (S ⊈ T) ∨ (
 
 Notation " S ≢ T " := (subtype_notEqual S T) (at level 70) : subtype.
 
+Lemma subtype_notEqual_containedIn {X:UU} (S T : hsubtype X) : S ⊆ T -> S ≢ T -> T ⊈ S.
+Proof.
+  intros ci ne.
+  apply (squash_to_hProp ne); clear ne; intros [n|n].
+  - apply (squash_to_hProp n); clear n; intros [x [p q]]. apply fromempty.
+    change (neg (T x)) in q. apply q; clear q. apply (ci x). exact p.
+  - exact n.
+Defined.
+
 Lemma subtype_notEqual_to_negEqual {X:UU} (S T : hsubtype X) : S ≢ T -> ¬ (S ≡ T).
 Proof.
     intros n. apply (squash_to_prop n).

@@ -82,15 +82,13 @@ Definition sub_initial {X:hSet} (S : hsubtype X) (T : TOSubset X) (le : S ⊆ T)
   := ∀ (s t : X) (Ss : S s) (Tt : T t), TOrel T (t,,Tt) (s,,le s Ss) ⇒ S t.
 
 Definition contained_initial {X:hSet} (B : hsubtype X) (S : TOSubset X) : hProp
-  := ∃ le : B ⊆ S, sub_initial B S le.
+  := (∑ le : B ⊆ S, sub_initial B S le)%prop.
 
 Lemma filter_sub_initial_2 {X:hSet} (B C : hsubtype X) (S : TOSubset X)
       (i : contained_initial B S) (j : contained_initial C S) :
   ∀ x y, B x ⇒ (C y ⇒ C x ∨ B y).
 Proof.
-  intros x y Bx Cy.
-  apply (squash_to_hProp i); clear i; intros [le si].
-  apply (squash_to_hProp j); clear j; intros [le' sj].
+  intros x y Bx Cy. induction i as [le si]. induction j as [le' sj].
   apply (squash_to_hProp (TOtotal S (x,,le x Bx) (y,,le' y Cy))).
   intros c. apply hinhpr. induction c as [c|c].
   -                             (* x ≤ y, so both are in C *)
@@ -124,10 +122,7 @@ Lemma filter_sub_initial_3 {X:hSet} (B C D : hsubtype X) (S : TOSubset X)
 (* This is interesting, because it's constructive, whereas proving one of B, C, D contains
    the others involves proof by contradiction. *)
 Proof.
-  intros x y z Bx Cy Dz.
-  apply (squash_to_hProp i); clear i; intros [le si].
-  apply (squash_to_hProp j); clear j; intros [le' sj].
-  apply (squash_to_hProp k); clear k; intros [le'' sk].
+  intros x y z Bx Cy Dz. induction i as [le si], j as [le' sj], k as [le'' sk].
   apply (squash_to_hProp (TOtotal S (x,,le x Bx) (y,,le' y Cy))); intros c.
   apply (squash_to_hProp (TOtotal S (x,,le x Bx) (z,,le'' z Dz))); intros c'.
   apply (squash_to_hProp (TOtotal S (y,,le' y Cy) (z,,le'' z Dz))); intros c''.
@@ -554,32 +549,27 @@ Notation "S ≺ T" := (wosub_le_smaller S T) (at level 70) : wosubset.
 Definition upto {X:hSet} {S:WOSubset X} (s:S) : hsubtype X
   := (λ x, ∑ h:S x, (x,,h) < s)%prop.
 
-Definition isInterval {X:hSet} (S T:WOSubset X) :
-  isDecidablePredicate S -> S ≺ T -> ∃ t:T, S ≡ upto t.
+Definition isInterval {X:hSet} (S:hsubtype X) (T:WOSubset X) :
+  LEM -> contained_initial S T -> T ⊈ S -> ∃ t:T, S ≡ upto t.
 Proof.
   set (R := WOrel T).
   assert (min : hasSmallest R).
   { apply (pr2 T). }
-  intros dec lt.
-  induction lt as [le ne].
-  set (U := (λ t:T, t ∉ S) : hsubtype (carrier T)).
-  assert (ne' : nonempty (carrier U)).
-  { apply (squash_to_hProp ne); intro u. apply hinhpr. exact u. }
-  clear ne. assert (minU := min U ne'); clear min ne'.
-  apply (squash_to_hProp minU); clear minU; intros minU.
-  induction minU as [u minu]. fold (WOSubset_to_subtype T) in u.
-  induction minu as [uinU minu].
+  intros lem [le ini] ne.
+  set (U := (λ t:T, t ∉ S) : hsubtype (carrier T)). (* complement of S in T *)
+  assert (neU : nonempty (carrier U)).
+  { apply (squash_to_hProp ne); intros [x [Tx nSx]]. apply hinhpr. exact ((x,,Tx),,nSx). }
+  clear ne. assert (minU := min U neU); clear min neU.
+  apply (squash_to_hProp minU); clear minU; intros [u [Uu minu]].
   (* minu says that u is the smallest element of T not in S *)
   apply hinhpr. exists u. intro y. split.
-  - intro yinS. set (s := (y ,, yinS) : S). set (s' := subtype_inc (pr1 le) s).
-    exists (pr2 s'). set (y' := y ,, pr2 s'). intro ules.
-    assert (q := pr22 le _ _ _ _ ules); clear ules.
-    simple refine (uinU _). exact q.
+  - intro Sy. change (∑ Ty : T y, neg (u ≤ y,, Ty)).
+    exists (le y Sy). intro ules. use Uu. exact (ini _ _ _ _ ules).
   - intro yltu. induction yltu as [yinT yltu].
-    (* Goal : [S y].  We know y is smaller than the smallest element of T not in S,
-       so at best, constructively, we know [¬ ¬ (S y)].  So prove it by contradiction. *)
-    apply (decidable_proof_by_contradiction (dec _)).
-    intro bc. simple refine (yltu _). simple refine (minu _ _). exact bc.
+    (* Goal : [S y].  We know y is smaller than the smallest element of T not in S, *)
+(*        so at best, constructively, we know [¬ ¬ (S y)].  So prove it by contradiction. *)
+    apply (proof_by_contradiction lem).
+    intro bc. use yltu. now use minu.
 Defined.
 
 (** Our goal now is to equip the union of a chain of subsets-with-well-orderings
@@ -881,11 +871,38 @@ Lemma chosen_WOSubset_total {X:hSet} (g : choice_fun X) : LEM -> ∏ C D : Chose
 Proof.
   intros lem [C gC] [D gD].
   set (W := max_common_initial C D).
+  assert (Q := max_common_initial_is_common_initial C D).
+  induction Q as [WC [WD [WCi [WDi WCD]]]]; fold W in WC, WD, WCi, WDi.
   assert (E : W ≡ C ∨ W ≡ D).
   { apply (proof_by_contradiction lem); intro h.
     assert (k := fromnegcoprod_prop h); clear h; induction k as [nc nd].
-
-
+    assert (nCW : C ⊈ W).
+    { use subtype_notEqual_containedIn.
+      - exact WC.
+      - now apply subtype_notEqual_from_negEqual. }
+    assert (nDW : D ⊈ W).
+    { use subtype_notEqual_containedIn.
+      - exact WD.
+      - now apply subtype_notEqual_from_negEqual. }
+    assert (p := isInterval W C lem (WC,,WCi) nCW); clear nCW nc.
+    assert (q := isInterval W D lem (WD,,WDi) nDW); clear nDW nd.
+    change hfalse.
+    apply (squash_to_hProp p); clear p; intros [c cE].
+    apply (squash_to_hProp q); clear q; intros [d dE].
+    assert (ce : W = upto c).
+    { now apply (invmap (hsubtype_univalence _ _)). }
+    clear cE.
+    assert (de : W = upto d).
+    { now apply (invmap (hsubtype_univalence _ _)). }
+    clear dE.
+    assert (cd := !ce @ de : upto c = upto d); clear ce de.
+    assert (cd' : upto' c = upto' d).
+    { now apply subtypeEquality_prop. }
+    assert (p := gC c); simpl in p.
+    assert (q := gD d); simpl in q.
+    unfold choice_fun in g.
+    assert (cd1 : pr1 c = pr1 d).
+    { simple refine (p @ _ @ !q). now induction cd'. }
 
 
 Admitted.
