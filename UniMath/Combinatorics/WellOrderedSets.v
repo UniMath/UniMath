@@ -891,11 +891,9 @@ Proof.
     apply (squash_to_hProp q); clear q; intros [d dE].
     assert (ce : W = upto c).
     { now apply (invmap (hsubtype_univalence _ _)). }
-    clear cE.
     assert (de : W = upto d).
     { now apply (invmap (hsubtype_univalence _ _)). }
-    clear dE.
-    assert (cd := !ce @ de : upto c = upto d); clear ce de.
+    assert (cd := !ce @ de : upto c = upto d).
     assert (cd' : upto' c = upto' d).
     { now apply subtypeEquality_prop. }
     assert (p := gC c); simpl in p.
@@ -903,8 +901,63 @@ Proof.
     unfold choice_fun in g.
     assert (cd1 : pr1 c = pr1 d).
     { simple refine (p @ _ @ !q). now induction cd'. }
+    clear cd'.
+    set (W' := λ x, W x ∨ pr1 c = x).
+    assert (j : W ⊆ W').
+    { intros w Ww. now apply hinhpr, ii1. }
+    assert (ci : common_initial W' C D).
+    { use tpair.
+      { abstract (intros x W'x; apply (squash_to_hProp W'x); intros [Wx|e];
+                  [ exact (WC x Wx) | induction e; exact (pr2 c) ]) using L. }
+      use tpair.
+      { abstract (intros x W'x; apply (squash_to_hProp W'x); intros [Wx|e];
+                  [ exact (WD x Wx) | induction (!cd1 @ e); exact (pr2 d) ]) using M. }
+      use tpair.
+      { intros w' c' W'w' Cc' le.
+        apply (squash_to_hProp W'w'); intros B. induction B as [Ww'|e].
+        - apply hinhpr, ii1. apply (WCi w' c' Ww' Cc'). now apply (h1'' le).
+        - induction e.
+          induction (lem (pr1 c = c')) as [e|ne].
+          + induction e. apply hinhpr. apply ii2. reflexivity.
+          + use j. rewrite ce. exists Cc'. unfold lt. intro le'. apply ne.
+            assert (e : c = (c',,Cc')).
+            { apply (TOanti C).
+              - exact le'.
+              - now apply (h1'' le). }
+            exact (maponpaths pr1 e). }
+      use tpair.
+      { intros w' d' W'w' Dd' le.
+        apply (squash_to_hProp W'w'); intros B. induction B as [Ww'|e].
+        - apply hinhpr, ii1. apply (WDi w' d' Ww' Dd'). now apply (h1'' le).
+        - induction e.
+          induction (lem (pr1 d = d')) as [e|ne].
+          + induction e. apply hinhpr. apply ii2. exact cd1.
+          + use j. rewrite de. exists Dd'. unfold lt. intro le'. apply ne.
+            assert (e : d = (d',,Dd')).
+            { apply (TOanti D).
+              - exact le'.
+              - now apply (h1'' le). }
+            exact (maponpaths pr1 e). }
+      change (same_induced_ordering (L X C D WC c) (M X C D WD c d cd1)).
+      intros [v W'v] [w W'w].
+      apply (squash_to_hProp W'v); intros [Wv|Ev].
+      - apply (squash_to_hProp W'w); intros [Ww|Ew].
+        +
 
 
+          admit.
+        + admit.
+      - admit. }
+    assert (K := max_common_initial_is_max C D W' ci); fold W in K.
+    assert (W'c : W' (pr1 c)).
+    { now apply hinhpr, ii2. }
+    assert (Wc : W (pr1 c)).
+    { exact (K (pr1 c) W'c). }
+    assert (L := pr1 (cE (pr1 c)) Wc). induction L as [Cc Q]. change (neg (c ≤ pr1 c,, Cc)) in Q.
+    apply Q; clear Q.
+    assert (Y : c = pr1 c,, Cc).
+    { now apply subtypeEquality_prop. }
+    induction Y. exact (TOrefl C c). }
 Admitted.
 
 Theorem ZermeloWellOrdering {X:hSet} : AxiomOfChoice ⇒ ∃ R : hrel X, isWellOrder R.
