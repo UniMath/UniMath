@@ -869,12 +869,13 @@ Definition is_chosen_WOSubset {X:hSet} (g : choice_fun X) (C : WOSubset X) : hPr
 
 Definition Chosen_WOSubset {X:hSet} (g : choice_fun X) := (∑ C, is_chosen_WOSubset g C)%type.
 
-Definition Chosen_WOSubset_to_WOSubset {X:hSet} (g : choice_fun X) : Chosen_WOSubset g -> WOSubset X
+Definition chosenFamily {X:hSet} (g : choice_fun X) : Chosen_WOSubset g -> WOSubset X
   := pr1.
 
-Coercion Chosen_WOSubset_to_WOSubset : Chosen_WOSubset >-> WOSubset.
+Coercion chosenFamily : Chosen_WOSubset >-> WOSubset.
 
-Lemma chosen_WOSubset_total {X:hSet} (g : choice_fun X) : LEM -> ∏ C D : Chosen_WOSubset g, C ≼ D ∨ D ≼ C.
+Lemma chosen_WOSubset_total {X:hSet} (g : choice_fun X) :
+  LEM -> is_wosubset_chain (chosenFamily g).
 Proof.
   intros lem [C gC] [D gD].
   set (W := max_common_initial C D).
@@ -909,13 +910,10 @@ Proof.
     assert (cd1 : pr1 c = pr1 d).
     { simple refine (p @ _ @ !q). now induction cd'. }
     clear cd'.
-    set (W' := λ x, W x ∨ pr1 c = x).
-    assert (j : W ⊆ W').
-    { intros w Ww. now apply hinhpr, ii1. }
-    assert (W'c : W' (pr1 c)).
-    { apply hinhpr. apply ii2. reflexivity. }
-    assert (W'd : W' (pr1 d)).
-    { apply hinhpr. apply ii2. exact cd1. }
+    set (W' := subtype_plus_point W (pr1 c)).
+    assert (j := subtype_plus_point_incl W (pr1 c) : W ⊆ W').
+    assert (W'c := subtype_plus_point_has_point W (pr1 c) : W' (pr1 c)).
+    assert (W'd := transportf W' cd1 W'c : W' (pr1 d)).
     assert (ci : common_initial W' C D).
     { use tpair.
       { abstract (intros x W'x; apply (squash_to_hProp W'x); intros [Wx|e];
@@ -1029,9 +1027,32 @@ Theorem ZermeloWellOrdering {X:hSet} : AxiomOfChoice ⇒ ∃ R : hrel X, isWellO
 Proof.
   intros ac. assert (lem := AC_to_LEM ac).
   apply (squash_to_hProp (AC_to_choice_fun X ac)); intro g.
-
-
-
-
-
-Abort.
+  set (S := chosenFamily g).
+  set (Schain := chosen_WOSubset_total g lem).
+  set (W := ⋃ Schain).
+  assert (Wchosen : is_chosen_WOSubset g W).
+  { admit. }
+  assert (all : ∀ x, W x).
+  { apply (proof_by_contradiction lem); intro n.
+    assert (Q := negforall_to_existsneg _ lem n); clear n.
+    change hfalse.
+    induction W as [W wo].
+    set (xn := g (W,,Q)).
+    set (x := pr1 xn).
+    assert (Wx : W x).
+    { admit. }
+    exact (pr2 xn Wx). }
+  clear Wchosen.
+  apply hinhpr.
+  induction W as [W R'].
+  change (∏ x : X, W x)%type in all.
+  change (WellOrdering X).
+  assert (e : X = carrier_set W).
+  { apply (invmap (hSet_univalence _ _)). apply invweq. apply weqpr1.
+    intros x.
+    simpl in all.
+    apply iscontraprop1.
+    - apply propproperty.
+    - apply all. }
+  induction e. exact R'.
+Admitted.

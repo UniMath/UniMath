@@ -148,3 +148,15 @@ Proof.
 Defined.
 
 Definition isDecidablePredicate {X} (S:X->hProp) := ∏ x, decidable (S x).
+
+Definition subtype_plus_point {X} (S:hsubtype X) (z:X) : hsubtype X := λ x, S x ∨ z = x.
+
+Definition subtype_plus_point_incl {X} (S:hsubtype X) (z:X) : S ⊆ subtype_plus_point S z.
+Proof.
+  intros s Ss. now apply hinhpr,ii1.
+Defined.
+
+Definition subtype_plus_point_has_point {X} (S:hsubtype X) (z:X) : subtype_plus_point S z z.
+Proof.
+  now apply hinhpr, ii2.
+Defined.
