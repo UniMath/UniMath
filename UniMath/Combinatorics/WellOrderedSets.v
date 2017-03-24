@@ -55,6 +55,13 @@ Proof.
   intros s t e. induction e. apply TOrefl.
 Defined.
 
+Definition TOeq_to_refl_1 {X:hSet} (S : TOSubset X) : ∀ s t : carrier_set S, pr1 s = pr1 t ⇒ s ≤ t.
+Proof.
+  intros s t e. assert (E : s = t).
+  { now apply subtypeEquality_prop. }
+  clear e. induction E. apply TOrefl.
+Defined.
+
 Definition TOtrans {X:hSet} (S : TOSubset X) : istrans (TOrel S).
 Proof.
   apply (pr2 S).
@@ -905,6 +912,10 @@ Proof.
     set (W' := λ x, W x ∨ pr1 c = x).
     assert (j : W ⊆ W').
     { intros w Ww. now apply hinhpr, ii1. }
+    assert (W'c : W' (pr1 c)).
+    { apply hinhpr. apply ii2. reflexivity. }
+    assert (W'd : W' (pr1 d)).
+    { apply hinhpr. apply ii2. exact cd1. }
     assert (ci : common_initial W' C D).
     { use tpair.
       { abstract (intros x W'x; apply (squash_to_hProp W'x); intros [Wx|e];
@@ -912,45 +923,98 @@ Proof.
       use tpair.
       { abstract (intros x W'x; apply (squash_to_hProp W'x); intros [Wx|e];
                   [ exact (WD x Wx) | induction (!cd1 @ e); exact (pr2 d) ]) using M. }
-      use tpair.
+      generalize (L X C D WC c); intro toC; generalize (M X C D WD c d cd1); intro toD.
+      change (hProptoType (W' ⊆ C)) in toC.
+      change (hProptoType (W' ⊆ D)) in toD.
+      assert (cmax : ∏ (v : carrier W') (W'c : W' (pr1 c)),
+                     subtype_inc toC v ≤ subtype_inc toC (pr1 c,,W'c)).
+      { intros. apply (squash_to_hProp W'c); intros [K|K].
+        - admit.
+        - admit. }
+      assert (cmax' : ∏ (w : carrier W) (W'c : W' (pr1 c)),
+                     subtype_inc toC (subtype_inc j w) < subtype_inc toC (pr1 c,,W'c)).
+      { intros. apply (squash_to_hProp W'c); intros [K|K].
+        - admit.
+        - admit. }
+      assert (dmax : ∏ (v : carrier W') (W'd : W' (pr1 d)),
+                     subtype_inc toD v ≤ subtype_inc toD (pr1 d,,W'd)).
+      { intros. apply (squash_to_hProp W'd); intros [K|K].
+        - admit.
+        - admit. }
+      assert (dmax' : ∏ (w : carrier W) (W'd : W' (pr1 d)),
+                     subtype_inc toD (subtype_inc j w) < subtype_inc toD (pr1 d,,W'd)).
+      { intros. apply (squash_to_hProp W'd); intros [K|K].
+        - admit.
+        - admit. }
+      split.
       { intros w' c' W'w' Cc' le.
         apply (squash_to_hProp W'w'); intros B. induction B as [Ww'|e].
         - apply hinhpr, ii1. apply (WCi w' c' Ww' Cc'). now apply (h1'' le).
         - induction e.
           induction (lem (pr1 c = c')) as [e|ne].
-          + induction e. apply hinhpr. apply ii2. reflexivity.
+          + induction e. exact W'c.
           + use j. rewrite ce. exists Cc'. unfold lt. intro le'. apply ne.
             assert (e : c = (c',,Cc')).
             { apply (TOanti C).
               - exact le'.
               - now apply (h1'' le). }
             exact (maponpaths pr1 e). }
-      use tpair.
+      split.
       { intros w' d' W'w' Dd' le.
         apply (squash_to_hProp W'w'); intros B. induction B as [Ww'|e].
         - apply hinhpr, ii1. apply (WDi w' d' Ww' Dd'). now apply (h1'' le).
         - induction e.
           induction (lem (pr1 d = d')) as [e|ne].
-          + induction e. apply hinhpr. apply ii2. exact cd1.
+          + induction e. exact W'd.
           + use j. rewrite de. exists Dd'. unfold lt. intro le'. apply ne.
             assert (e : d = (d',,Dd')).
             { apply (TOanti D).
               - exact le'.
               - now apply (h1'' le). }
             exact (maponpaths pr1 e). }
-      change (same_induced_ordering (L X C D WC c) (M X C D WD c d cd1)).
-      intros [v W'v] [w W'w].
-      apply (squash_to_hProp W'v); intros [Wv|Ev].
-      - apply (squash_to_hProp W'w); intros [Ww|Ew].
-        +
-
-
-          admit.
-        + admit.
-      - admit. }
+      {
+        intros [v W'v] [w W'w]. change (hProptoType (W' v)) in W'v; change (hProptoType (W' w)) in W'w.
+        apply (squash_to_hProp W'v); intros [Wv|Ev].
+        - apply (squash_to_hProp W'w); intros [Ww|Ew].
+          + assert (Q := WCD (v,,Wv) (w,,Ww)).
+            change (hProptoType (
+                        (subtype_inc WC (v,, Wv) ≤ subtype_inc WC (w,, Ww))
+                          ⇔
+                          (subtype_inc WD (v,, Wv) ≤ subtype_inc WD (w,, Ww))
+                      )%tosubset) in Q.
+            assert (e : subtype_inc toC (v,, W'v) = subtype_inc WC (v,, Wv)).
+            { now apply subtypeEquality_prop. }
+            induction e.
+            assert (e : subtype_inc toC (w,, W'w) = subtype_inc WC (w,, Ww)).
+            { now apply subtypeEquality_prop. }
+            induction e.
+            assert (e : subtype_inc toD (v,, W'v) = subtype_inc WD (v,, Wv)).
+            { now apply subtypeEquality_prop. }
+            induction e.
+            assert (e : subtype_inc toD (w,, W'w) = subtype_inc WD (w,, Ww)).
+            { now apply subtypeEquality_prop. }
+            induction e.
+            exact Q.
+          + induction Ew. apply logeq_if_both_true.
+            * apply cmax.
+            * induction (!cd1). apply dmax.
+        - induction Ev. apply (squash_to_hProp W'w); intros [Ww|Ew].
+          + apply logeq_if_both_false.
+            * assert (Q := cmax' (w,,Ww) W'v). unfold lt in Q.
+              assert (e : (w,, W'w) = (subtype_inc j (w,, Ww))).
+              { now apply subtypeEquality_prop. }
+              induction e.
+              exact Q.
+            * assert (Q := dmax' (w,,Ww) W'd). unfold lt in Q.
+              assert (e : (w,, W'w) = (subtype_inc j (w,, Ww))).
+              { now apply subtypeEquality_prop. }
+              induction e.
+              assert (e : subtype_inc toD (pr1 c,, W'v) = subtype_inc toD (pr1 d,, W'd)).
+              { now apply subtypeEquality_prop. }
+              induction e.
+              exact Q.
+          + induction Ew. apply logeq_if_both_true ; now use TOeq_to_refl_1. } }
     assert (K := max_common_initial_is_max C D W' ci); fold W in K.
-    assert (W'c : W' (pr1 c)).
-    { now apply hinhpr, ii2. }
     assert (Wc : W (pr1 c)).
     { exact (K (pr1 c) W'c). }
     assert (L := pr1 (cE (pr1 c)) Wc). induction L as [Cc Q]. change (neg (c ≤ pr1 c,, Cc)) in Q.

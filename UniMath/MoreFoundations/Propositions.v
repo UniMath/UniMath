@@ -92,3 +92,20 @@ Proof.
   { apply propproperty. }
   induction q. exact (xp x).
 Defined.
+
+Lemma logeq_if_both_true (P Q : hProp) : P -> Q -> ( P ⇔ Q ).
+Proof.
+  intros p q.
+  split.
+  - intros _. exact q.
+  - intros _. exact p.
+Defined.
+
+Lemma logeq_if_both_false (P Q : hProp) : ¬P -> ¬Q -> ( P ⇔ Q ).
+Proof.
+  intros np nq.
+  split.
+  - intros p. apply fromempty. exact (np p).
+  - intros q. apply fromempty. exact (nq q).
+Defined.
+
