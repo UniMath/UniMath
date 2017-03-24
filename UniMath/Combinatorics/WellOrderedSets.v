@@ -245,54 +245,81 @@ Definition same_induced_ordering {X:hSet} {S T : TOSubset X} {B : hsubtype X} (B
                          ⇔
              subtype_inc BT x ≤ subtype_inc BT y.
 
-Definition common_initial {X:hSet} (B : hsubtype X) (S T : TOSubset X) :=
-  ∃ (BS : B ⊆ S) (BT : B ⊆ T), sub_initial B S BS ∧ sub_initial B T BT ∧ same_induced_ordering BS BT.
+Definition common_initial {X:hSet} (B : hsubtype X) (S T : TOSubset X) : hProp
+  := (∑ (BS : B ⊆ S) (BT : B ⊆ T), sub_initial B S BS ∧ sub_initial B T BT ∧ same_induced_ordering BS BT)%prop.
 
 (* the largest initial common ordered subset of S and of T, as the union of all of them *)
-Definition max_sub_initial {X:hSet} (S T : TOSubset X) : hsubtype X
+Definition max_common_initial {X:hSet} (S T : TOSubset X) : hsubtype X
   := λ x, ∃ (B : hsubtype X), B x ∧ common_initial B S T.
 
-(* Lemma max_sub_initial_is_max {X:hSet} *)
-(*       (S T : TOSubset X) (A : hsubtype X) (AS : A ⊆ S) (AT : A ⊆ T) : *)
-(*   common_initial AS AT -> A ⊆ max_sub_initial S T. *)
-(* Proof. *)
-(*   intros AST x Ax. exact (hinhpr(A,,AS,,AT,,Ax,,AST)). *)
-(* Defined. *)
+Lemma max_common_initial_is_max {X:hSet} (S T : TOSubset X) (A : hsubtype X) :
+  common_initial A S T -> A ⊆ max_common_initial S T.
+Proof.
+  intros c x Ax. exact (hinhpr (A,,Ax,,c)).
+Defined.
 
-(* Lemma max_sub_initial_is_sub {X:hSet} (S T : TOSubset X) : *)
-(*   max_sub_initial S T ⊆ S ∧ max_sub_initial S T ⊆ T. *)
-(* Proof. *)
-(*   split. *)
-(*   - intros x m. apply (squash_to_hProp m); intros [B [BS [_ [Bx _]]]]; clear m. exact (BS _ Bx). *)
-(*   - intros x m. apply (squash_to_hProp m); intros [B [_ [BT [Bx _]]]]; clear m. exact (BT _ Bx). *)
-(* Defined. *)
+Lemma max_common_initial_is_sub {X:hSet} (S T : TOSubset X) :
+  max_common_initial S T ⊆ S
+  ∧
+  max_common_initial S T ⊆ T.
+Proof.
+  split.
+  - intros x m. apply (squash_to_hProp m); intros [B [Bx [BS [_ _]]]]; clear m. exact (BS _ Bx).
+  - intros x m. apply (squash_to_hProp m); intros [B [Bx [_ [BT _]]]]; clear m. exact (BT _ Bx).
+Defined.
 
-(* Lemma max_sub_initial_is_common_initial {X:hSet} (S T : TOSubset X) : *)
-(*   common_initial (pr1 (max_sub_initial_is_sub S T)) (pr2 (max_sub_initial_is_sub S T)). *)
-(* Proof. *)
-(*   split. *)
-(*   { intros x s le. induction x as [x xm]. *)
-(*     apply (squash_to_hProp xm); intros [B [BS [BT [Bx [BSi [BTi BST]]]]]]. *)
-(*     assert (Q := BSi (x,,Bx) s); simpl in Q. *)
-(*     assert (E : subtype_inc (pr1 (max_sub_initial_is_sub S T)) (x,, xm) = subtype_inc BS (x,, Bx)). *)
-(*     { now apply subtypeEquality_prop. } *)
-(*     induction E. assert (Q' := Q le); clear Q le. *)
-(*     exact (hinhpr(B,,BS,,BT,,Q',,BSi,,BTi,,BST)). } *)
-(*   split. *)
-(*   { intros x t le. induction x as [x xm]. *)
-(*     apply (squash_to_hProp xm); intros [B [BS [BT [Bx [BSi [BTi BST]]]]]]. *)
-(*     assert (Q := BTi (x,,Bx) t); simpl in Q. *)
-(*     assert (E : subtype_inc (pr2 (max_sub_initial_is_sub S T)) (x,, xm) = subtype_inc BT (x,, Bx)). *)
-(*     { now apply subtypeEquality_prop. } *)
-(*     induction E. assert (Q' := Q le); clear Q le. *)
-(*     exact (hinhpr(B,,BS,,BT,,Q',,BSi,,BTi,,BST)). } *)
-(*   split. *)
-(*   {                             (* why did the variables x, x0 get introduced here?? *) *)
-(*     generalize x0; clear x0; intros y. *)
-(*     intros le. *)
+Local Lemma h1' {X} {S:TOSubset X} {s t u:S} : s ≤ t -> pr1 t = pr1 u -> s ≤ u.
+Proof.
+  intros le p.
+  assert (q : t = u).
+  { now apply subtypeEquality_prop. }
+  induction q. exact le.
+Defined.
 
-
-(* Abort. *)
+Lemma max_common_initial_is_common_initial {X:hSet} (S T : TOSubset X) :
+  common_initial (max_common_initial S T) S T.
+Proof.
+  exists (pr1 (max_common_initial_is_sub S T)).
+  exists (pr2 (max_common_initial_is_sub S T)).
+  split.
+  { intros x s M Ss le.
+    apply (squash_to_hProp M); intros [B [Bx [BS [BT [BSi [BTi BST]]]]]].
+    unfold sub_initial in BSi.
+    apply hinhpr.
+    exists B.
+    split.
+    + apply (BSi x s Bx Ss). now apply (h1' le).
+    + exact (BS,,BT,,BSi,,BTi,,BST). }
+  split.
+  { intros x t M Tt le.
+    apply (squash_to_hProp M); intros [B [Bx [BS [BT [BSi [BTi BST]]]]]].
+    unfold sub_initial in BSi.
+    apply hinhpr.
+    exists B.
+    split.
+    + apply (BTi x t Bx Tt). now apply (h1' le).
+    + exact (BS,,BT,,BSi,,BTi,,BST). }
+  intros x y.
+  split.
+  { intros le. induction x as [x xm], y as [y ym].
+    apply (squash_to_hProp xm); intros [B [Bx [BS [BT [BSi [BTi BST]]]]]].
+    apply (squash_to_hProp ym); intros [C [Cy [CS [CT [CSi [CTi CST]]]]]].
+    assert (Cx : C x).
+    { apply (CSi y x Cy (BS x Bx)). now apply (h1'' le). }
+    assert (Q := pr1 (CST (x,,Cx) (y,,Cy))); simpl in Q.
+    assert (E : subtype_inc CS (x,, Cx) ≤ subtype_inc CS (y,, Cy)).
+    { now apply (h1'' le). }
+    clear le. now apply (h1'' (Q E)). }
+  { intros le. induction x as [x xm], y as [y ym].
+    apply (squash_to_hProp xm); intros [B [Bx [BS [BT [BSi [BTi BST]]]]]].
+    apply (squash_to_hProp ym); intros [C [Cy [CS [CT [CSi [CTi CST]]]]]].
+    assert (Cx : C x).
+    { apply (CTi y x Cy (BT x Bx)). now apply (h1'' le). }
+    assert (Q := pr2 (CST (x,,Cx) (y,,Cy))); simpl in Q.
+    assert (E : subtype_inc CT (x,, Cx) ≤ subtype_inc CT (y,, Cy)).
+    { now apply (h1'' le). }
+    clear le. now apply (h1'' (Q E)). }
+Defined.
 
 Lemma tosub_fidelity {X:hSet} {S T:TOSubset X} (le : S ≼ T)
       (s s' : S) : s ≤ s' ⇔ subtype_inc (pr1 le) s ≤ subtype_inc (pr1 le) s'.
@@ -824,20 +851,51 @@ Proof.
   apply (TOeq_to_refl C _ _). now apply subtypeEquality_prop.
 Defined.
 
-Theorem ZermeloWellOrdering {X:hSet} : AxiomOfChoice ⇒ ∃ R : hrel X, isWellOrder R.
-(* see http://www.math.illinois.edu/~dan/ShortProofs/WellOrdering.pdf *)
-Proof.
-  intros ac. assert (lem := AC_to_LEM ac).
-  (* for each proper subset S of X, pick an element [g(S)] in its complement *)
-  apply (squash_to_hProp (ac (proper_subtypes_set X) (λ S, ∑ x, ¬ (pr1 S x)) pr2));
-    intro g; change (∏ S : proper_subtypes_set X, ∑ x, ¬ (pr1 S x))%type in g.
-  (* some well ordered subsets of X are called "g-sets" : *)
-  set (isa_g_set := (λ C, ∀ c:C, pr1 c = pr1 (g (upto' c))) : WOSubset X -> hProp).
-  assert (tot : ∏ C D, isa_g_set C -> isa_g_set D -> C ≼ D ∨ D ≼ C).
-  { intros C D gC gD.
-    set (W := max_sub_initial C D).
+(** A choice function provides an element not in each proper subset.  *)
 
+Definition choice_fun (X:hSet) := ∏ S : proper_subtypes_set X, ∑ x : X, ¬ pr1 S x.
+
+Lemma AC_to_choice_fun (X:hSet) : AxiomOfChoice ⇒ ∥ choice_fun X ∥.
+Proof.
+  intros ac.
+  exact (squash_to_hProp (ac (proper_subtypes_set X)
+                             (λ S, ∑ x, ¬ (pr1 S x)) pr2)
+                         hinhpr).
+Defined.
+
+(** Given a choice function, we single out well ordered subsets C of X that
+    follow the choice functions advice when constructed by adding one element at
+    a time to the top.  We call them "chosen". *)
+
+Definition is_chosen_WOSubset {X:hSet} (g : choice_fun X) (C : WOSubset X) : hProp
+  := ∀ c:C, pr1 c = pr1 (g (upto' c)).
+
+Definition Chosen_WOSubset {X:hSet} (g : choice_fun X) := (∑ C, is_chosen_WOSubset g C)%type.
+
+Definition Chosen_WOSubset_to_WOSubset {X:hSet} (g : choice_fun X) : Chosen_WOSubset g -> WOSubset X
+  := pr1.
+
+Coercion Chosen_WOSubset_to_WOSubset : Chosen_WOSubset >-> WOSubset.
+
+Lemma chosen_WOSubset_total {X:hSet} (g : choice_fun X) : ∏ C D : Chosen_WOSubset g, C ≼ D ∨ D ≼ C.
+Proof.
+  intros [C gC] [D gD].
+  set (W := max_common_initial C D).
+  assert (E : W ≡ C ∨ W ≡ D).
+  {
 
 
 
 Admitted.
+
+Theorem ZermeloWellOrdering {X:hSet} : AxiomOfChoice ⇒ ∃ R : hrel X, isWellOrder R.
+(* see http://www.math.illinois.edu/~dan/ShortProofs/WellOrdering.pdf *)
+Proof.
+  intros ac. assert (lem := AC_to_LEM ac).
+  apply (squash_to_hProp (AC_to_choice_fun X ac)); intro g.
+
+
+
+
+
+Abort.
