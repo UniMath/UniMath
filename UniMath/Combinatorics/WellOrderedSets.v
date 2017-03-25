@@ -184,6 +184,81 @@ Proof.
       apply subtypeEquality_prop. exact (maponpaths pr1 k'). }
 Defined.
 
+(** *** Adding a point on top of a totally ordered subset *)
+
+(** We proceed directly.  An indirect way would be to form the corresponding totally ordered
+    set, add a point to it, set up an equivalence between that and the union of our subset and
+    the new point (assuming decidability of equality), and transport the ordering along the
+    equivalence. *)
+
+Definition TOSubset_plus_point_rel {X:hSet} (S:TOSubset X) (z:X) (nSz : ¬ S z) :
+  hrel (carrier_set (subtype_plus_point S z)).
+Proof.
+  intros [s i] [t j]. unfold subtype_plus_point in i,j. change hPropset.
+  use (squash_to_hSet_2' _ _ i j); clear i j.
+  { intros [Ss|ezs] [St|ezt].
+    { exact (TOrel S (s,,Ss) (t,,St)). } { exact htrue. }
+    { exact hfalse. }                    { exact htrue. } }
+  { split.
+    { intros [Ss|ezs] [Ss'|ezs'] [St|ezt]. repeat split.
+      - now induction_hProp Ss Ss'.
+      - reflexivity.
+      - apply fromempty. induction ezs'. exact (nSz Ss).
+      - reflexivity.
+      - apply fromempty. induction ezs. exact (nSz Ss').
+      - reflexivity.
+      - reflexivity.
+      - reflexivity. }
+    { intros [Ss|ezs] [St|ezt] [St'|ezt']. repeat split.
+      - now induction_hProp St St'.
+      - apply fromempty. induction ezt'. exact (nSz St).
+      - apply fromempty. induction ezt. exact (nSz St').
+      - reflexivity.
+      - reflexivity.
+      - apply fromempty. induction ezt'. exact (nSz St).
+      - apply fromempty. induction ezt. exact (nSz St').
+      - reflexivity. } }
+Defined.
+
+Lemma isTotalOrder_TOSubset_plus_point {X:hSet} (S:TOSubset X) (z:X) (nSz : ¬ S z) :
+  isTotalOrder (TOSubset_plus_point_rel S z nSz).
+Proof.
+  split.
+  { split.
+    { split.
+      {                         (* transitivity *)
+        intros [w Ww] [x Wx] [y Wy] wx xy.
+        apply (squash_to_hProp Wy); intros [Sy|ezy].
+        - induction (ishinh_irrel (ii1 Sy) Wy).
+          apply (squash_to_hProp Ww); intros [Sw|ezw].
+          + induction (ishinh_irrel (ii1 Sw) Ww).
+            apply (squash_to_hProp Wx); intros [Sx|ezx].
+            * induction (ishinh_irrel (ii1 Sx) Wx).
+              change (hProptoType (TOrel S (w,,Sw) (x,,Sx))) in wx.
+              change (hProptoType (TOrel S (x,,Sx) (y,,Sy))) in xy.
+              change (hProptoType (TOrel S (w,,Sw) (y,,Sy))).
+              exact (TOtrans _ _ _ _ wx xy).
+            * induction ezx.
+              induction (ishinh_irrel (ii2 (idpath z)) Wx).
+              change empty in xy.
+              exact (fromempty xy).
+          + admit.
+        - induction ezy. apply (squash_to_hProp Ww); intros [Sw|ezw].
+          + induction (ishinh_irrel (ii1 Sw) Ww), (ishinh_irrel (ii2 (idpath z)) Wy).
+            exact tt.
+          + induction ezw, (ishinh_irrel (ii2 (idpath z)) Wy).
+            induction (ishinh_irrel (ii2 (idpath z)) Ww).
+            exact tt.
+      }
+      {                         (* reflexivity *)
+        admit. } }
+    {                           (* antisymmetry *)
+      admit. } }
+  {                             (* totality *)
+    intros [x Wx] [y Wy].
+    admit. }
+Abort.
+
 (** ** Well ordered subsets of a set *)
 
 Definition hasSmallest {X : UU} (R : hrel X) : hProp

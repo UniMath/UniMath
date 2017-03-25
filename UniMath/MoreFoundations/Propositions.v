@@ -109,3 +109,7 @@ Proof.
   - intros q. apply fromempty. exact (nq q).
 Defined.
 
+Definition proofirrelevance_hProp (X : hProp) : isProofIrrelevant X
+  := proofirrelevance X (propproperty X).
+
+Ltac induction_hProp x y := induction (proofirrelevance_hProp _ x y).
