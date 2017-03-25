@@ -319,6 +319,35 @@ Proof.
         exact (hinhpr (ii2 tt)). }
 Defined.
 
+Definition TOSubset_plus_point {X:hSet} (S:TOSubset X) (z:X) (nSz : ¬ S z) : TOSubset X
+  :=  subtype_plus_point S z,,
+      TOSubset_plus_point_rel S z nSz,,
+      isTotalOrder_TOSubset_plus_point S z nSz.
+
+Lemma TOSubset_plus_point_incl {X:hSet} (S:TOSubset X) (z:X) (nSz : ¬ S z) :
+  S ⊆ TOSubset_plus_point S z nSz.
+Proof.
+  apply subtype_plus_point_incl.
+Defined.
+
+Lemma TOSubset_plus_point_le {X:hSet} (S:TOSubset X) (z:X) (nSz : ¬ S z) :
+  S ≼ TOSubset_plus_point S z nSz.
+Proof.
+  use tpair.
+  - apply TOSubset_plus_point_incl.
+  - intros s t le. exact le.
+Defined.
+
+Lemma TOSubset_plus_point_initial {X:hSet} (S:TOSubset X) (z:X) (nSz : ¬ S z) :
+  sub_initial S (TOSubset_plus_point S z nSz) (TOSubset_plus_point_incl S z nSz).
+Proof.
+  intros s t Ss Tt le.
+  apply (squash_to_hProp Tt); intros [St|ezt].
+  - exact St.
+  - induction ezt, (ishinh_irrel (ii2 (idpath z)) Tt); change empty in le.
+    exact (fromempty le).
+Defined.
+
 (** ** Well ordered subsets of a set *)
 
 Definition hasSmallest {X : UU} (R : hrel X) : hProp
@@ -350,6 +379,9 @@ Local Definition lt {X:hSet} {S : WOSubset X} (s s' : S) := ¬ (s' ≤ s)%wosubs
 
 Notation "s < s'" := (lt s s') : wosubset.
 
+Definition WOSubset_hasSmallest {X:hSet} (S : WOSubset X) : hasSmallest (WOrel S)
+  := pr222 S.
+
 Lemma wo_lt_to_le {X:hSet} {S : WOSubset X} (s s' : S) : s < s' -> s ≤ s'.
 Proof.
   unfold lt.
@@ -380,13 +412,59 @@ Notation "S ≣ T" := (wosub_equal S T) (at level 70) : wosubset.
 
 Definition wosub_comparable {X:hSet} : hrel (WOSubset X) := λ S T, S ≼ T ∨ T ≼ S.
 
-Lemma wosub_compare {X:hSet} {S T U : WOSubset X} :
-  S ≼ U -> T ≼ U -> wosub_comparable S T.
+Definition hasSmallest_WOSubset_plus_point {X:hSet} (S:WOSubset X) (z:X) (nSz : ¬ S z) :
+  LEM -> hasSmallest (TOrel (TOSubset_plus_point S z nSz)).
 Proof.
-  intros su tu.
-
-
-Abort.
+  intros lem T ne.
+  (* T is a nonempty set.  We need to find the smallest element of it *)
+  set (S' := TOSubset_plus_point S z nSz).
+  assert (S'z := subtype_plus_point_has_point S z : S' z).
+  set (z' := (z,,S'z) : carrier S').
+  set (j := TOSubset_plus_point_incl S z nSz). fold S' in j.
+  set (jmap := subtype_inc j).
+  set (SiT := λ s:S, T (subtype_inc j s)).
+  (* Decide whether [S ∩ T] is nonempty: *)
+  induction (lem (∃ s, SiT s)) as [q|q].
+  - (* ... use the smallest element of SiT *)
+    assert (SiTmin := WOSubset_hasSmallest _ _ q).
+    apply (squash_to_hProp SiTmin); clear SiTmin; intros [m [SiTm min]].
+    apply hinhpr. set (m' := jmap m). exists m'. split.
+    + exact SiTm.
+    + intros [t S't] Tt.
+      apply (squash_to_hProp S't); intros [St|etz].
+      * induction (ishinh_irrel (ii1 St) S't); change (m ≤ (t,,St)). exact (min (t,,St) Tt).
+      * induction etz; induction (ishinh_irrel (ii2 (idpath z)) S't); change unit.
+        exact tt.
+  - (* ... use z *)
+    apply hinhpr. exists z'. split.
+    + (* T doesn't meet S, so it must contain z *)
+      apply (squash_to_hProp ne); clear ne; intros [[t SiTt] Tt].
+      apply (squash_to_hProp SiTt); intros [St|ezt].
+      * apply fromempty.
+        (* S also meets T, so get a contradiction *)
+        apply q. apply hinhpr. exists (t,,St).
+        change (T (t,, j t St)).
+        induction (proofirrelevance_hProp _ SiTt (j t St)).
+        exact Tt.
+      * induction ezt. unfold z'.
+        induction (proofirrelevance_hProp _ SiTt S'z).
+        exact Tt.
+    + (* now show z' is the smallest element of T *)
+      intros [t S't] Tt.
+      apply (squash_to_hProp S't); intros [St|ezt].
+      * apply fromempty.
+        (* t is in S ∩ T, but that's empty *)
+        apply q; clear q. apply hinhpr.
+        exists (t,,St).
+        change (T (t,, j t St)).
+        induction (proofirrelevance_hProp _ S't (j t St)).
+        exact Tt.
+      * induction ezt.
+        (* now show [z ≤ z], by reflexivity *)
+        change (TOrel S' (z,,S'z) (z,,S't)).
+        induction (proofirrelevance_hProp _ S'z S't).
+        exact (TOrefl S' _).
+Defined.
 
 Definition wosub_univalence_map {X:hSet} (S T : WOSubset X) : (S = T) -> (S ≣ T).
 Proof.
