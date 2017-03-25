@@ -1048,12 +1048,31 @@ Proof.
     assert (Y : c = pr1 c,, Cc).
     { now apply subtypeEquality_prop. }
     induction Y. exact (TOrefl C c). }
-  unfold wosub_comparable.
+  change (wosub_comparable C D). unfold wosub_comparable.
   apply (squash_to_hProp E); clear E; intros E. apply hinhpr.
+  Set Printing Coercions.
   induction E as [eWC|eWD].
-  - apply ii1. admit.
-  - apply ii2. admit.
-Admitted.
+  - apply ii1.
+    assert (e : W = C).
+    { now apply hsubtype_univalence. }
+    unfold W in *. clear W.
+    induction (!e); clear e.
+    use tpair.
+    { exact WD. }
+    split.
+    { intros x y le. apply (pr1 (WCD x y)). now apply (h1'' le). }
+    exact WDi.
+  - apply ii2.
+    assert (e : W = D).
+    { now apply hsubtype_univalence. }
+    unfold W in *. clear W.
+    induction (!e); clear e.
+    use tpair.
+    { exact WC. }
+    split.
+    { intros x y le. apply (pr2 (WCD x y)). now apply (h1'' le). }
+    exact WCi.
+Defined.
 
 Theorem ZermeloWellOrdering {X:hSet} : AxiomOfChoice ⇒ ∃ R : hrel X, isWellOrder R.
 (* see http://www.math.illinois.edu/~dan/ShortProofs/WellOrdering.pdf *)
