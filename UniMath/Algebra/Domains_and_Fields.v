@@ -514,7 +514,7 @@ Defined.
 (** **** Main definitions *)
 
 Definition isafield (X : commrng) : UU :=
-  ∑ H : isnonzerorng X, (∏ x : X, coprod (multinvpair X x) (paths x 0)).
+  (isnonzerorng X) × (∏ x : X, coprod (multinvpair X x) (paths x 0)).
 
 Lemma isapropisafield (X : commrng) : isaprop (isafield X).
 Proof.
