@@ -233,16 +233,27 @@ Proof.
           apply (squash_to_hProp Ww); intros [Sw|ezw].
           + induction (ishinh_irrel (ii1 Sw) Ww).
             apply (squash_to_hProp Wx); intros [Sx|ezx].
-            * induction (ishinh_irrel (ii1 Sx) Wx).
-              change (hProptoType (TOrel S (w,,Sw) (x,,Sx))) in wx.
-              change (hProptoType (TOrel S (x,,Sx) (y,,Sy))) in xy.
+            * induction (ishinh_irrel (ii1 Sx) Wx);
+              change (hProptoType (TOrel S (w,,Sw) (x,,Sx))) in wx;
+              change (hProptoType (TOrel S (x,,Sx) (y,,Sy))) in xy;
               change (hProptoType (TOrel S (w,,Sw) (y,,Sy))).
               exact (TOtrans _ _ _ _ wx xy).
-            * induction ezx.
-              induction (ishinh_irrel (ii2 (idpath z)) Wx).
+            * induction ezx;
+              induction (ishinh_irrel (ii2 (idpath z)) Wx);
               change empty in xy.
               exact (fromempty xy).
-          + admit.
+          + induction ezw.
+            induction (ishinh_irrel (ii2 (idpath z)) Ww).
+            change hfalse.
+            apply (squash_to_hProp Wx); intros [Sx|ezx].
+            * induction (ishinh_irrel (ii1 Sx) Wx);
+              change (hProptoType (TOrel S (x,,Sx) (y,,Sy))) in xy;
+              change empty in wx.
+              exact wx.
+            * induction ezx;
+              induction (ishinh_irrel (ii2 (idpath z)) Wx);
+              change unit in wx; change empty in xy.
+              exact xy.
         - induction ezy. apply (squash_to_hProp Ww); intros [Sw|ezw].
           + induction (ishinh_irrel (ii1 Sw) Ww), (ishinh_irrel (ii2 (idpath z)) Wy).
             exact tt.
@@ -251,13 +262,62 @@ Proof.
             exact tt.
       }
       {                         (* reflexivity *)
-        admit. } }
+        intros [x Wx].
+        apply (squash_to_hProp Wx); intros [Sx|ezx].
+        - induction (ishinh_irrel (ii1 Sx) Wx).
+          change (hProptoType (TOrel S (x,,Sx) (x,,Sx))).
+          apply TOrefl.
+        - induction ezx.
+          induction (ishinh_irrel (ii2 (idpath z)) Wx); change unit.
+          exact tt. } }
     {                           (* antisymmetry *)
-      admit. } }
+      intros [x Wx] [y Wy] xy yx.
+      apply eqset_to_path.
+      apply (squash_to_hProp Wx); intros [Sx|ezx].
+      - induction (ishinh_irrel (ii1 Sx) Wx).
+        apply (squash_to_hProp Wy); intros [Sy|ezy].
+        + induction (ishinh_irrel (ii1 Sy) Wy);
+          change (hProptoType (TOrel S (x,,Sx) (y,,Sy))) in xy;
+          change (hProptoType (TOrel S (y,,Sy) (x,,Sx))) in yx.
+          apply subtypeEquality_prop; change (x=y).
+          exact (maponpaths pr1 (TOanti S _ _ xy yx)).
+        + induction ezy.
+          induction (ishinh_irrel (ii2 (idpath z)) Wy);
+          change unit in xy;
+          change empty in yx.
+          apply subtypeEquality_prop; change (x=z).
+          exact (fromempty yx).
+      - induction ezx.
+        induction (ishinh_irrel (ii2 (idpath z)) Wx).
+        apply (squash_to_hProp Wy); intros [Sy|ezy].
+        + induction (ishinh_irrel (ii1 Sy) Wy);
+          change unit in yx;
+          change empty in xy.
+          apply subtypeEquality_prop; change (z=y).
+          exact (fromempty xy).
+        + induction ezy.
+          apply subtypeEquality_prop; change (z=z).
+          reflexivity. } }
   {                             (* totality *)
     intros [x Wx] [y Wy].
-    admit. }
-Abort.
+    apply (squash_to_hProp Wx); intros [Sx|ezx].
+    - induction (ishinh_irrel (ii1 Sx) Wx).
+      apply (squash_to_hProp Wy); intros [Sy|ezy].
+      + induction (ishinh_irrel (ii1 Sy) Wy).
+        generalize (TOtotal S (x,,Sx) (y,,Sy)); apply hinhfun; intros [xy|yx].
+        * apply ii1. exact xy.
+        * apply ii2. exact yx.
+      + induction ezy. induction (ishinh_irrel (ii2 (idpath z)) Wy);
+        change (htrue ∨ hfalse).
+        exact (hinhpr (ii1 tt)).
+    - induction ezx. induction (ishinh_irrel (ii2 (idpath z)) Wx).
+      apply (squash_to_hProp Wy); intros [Sy|ezy].
+      + induction (ishinh_irrel (ii1 Sy) Wy); change (hfalse ∨ htrue).
+        exact (hinhpr (ii2 tt)).
+      + induction ezy.
+        induction (ishinh_irrel (ii2 (idpath z)) Wy); change (htrue ∨ htrue).
+        exact (hinhpr (ii2 tt)). }
+Defined.
 
 (** ** Well ordered subsets of a set *)
 
