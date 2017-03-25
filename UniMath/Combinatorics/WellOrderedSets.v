@@ -20,6 +20,8 @@ Local Open Scope tosubset.
 Delimit Scope wosubset with wosubset. (* subsets equipped with a well ordering *)
 Local Open Scope wosubset.
 
+(** ** Totally ordered subsets of a set *)
+
 Definition TotalOrdering (S:hSet) : hSet := ∑ (R : hrel_set S), isTotalOrder R.
 
 Definition TOSubset_set (X:hSet) : hSet := ∑ (S:subtype_set X), TotalOrdering (carrier_set S).
@@ -87,159 +89,6 @@ Notation "S ≼ T" := (tosub_le _ S T) (at level 70) : tosubset.
 
 Definition sub_initial {X:hSet} (S : hsubtype X) (T : TOSubset X) (le : S ⊆ T) : hProp
   := ∀ (s t : X) (Ss : S s) (Tt : T t), TOrel T (t,,Tt) (s,,le s Ss) ⇒ S t.
-
-Definition contained_initial {X:hSet} (B : hsubtype X) (S : TOSubset X) : hProp
-  := (∑ le : B ⊆ S, sub_initial B S le)%prop.
-
-Lemma filter_sub_initial_2 {X:hSet} (B C : hsubtype X) (S : TOSubset X)
-      (i : contained_initial B S) (j : contained_initial C S) :
-  ∀ x y, B x ⇒ (C y ⇒ C x ∨ B y).
-Proof.
-  intros x y Bx Cy. induction i as [le si]. induction j as [le' sj].
-  apply (squash_to_hProp (TOtotal S (x,,le x Bx) (y,,le' y Cy))).
-  intros c. apply hinhpr. induction c as [c|c].
-  -                             (* x ≤ y, so both are in C *)
-    apply ii1. use sj.
-    + exact y.
-    + assumption.
-    + now use le.
-    + assumption.
-  -                             (* y ≤ x, so both are in B *)
-    apply ii2. use si.
-    + exact x.
-    + assumption.
-    + now use le'.
-    + assumption.
-Defined.
-
-Lemma hdisj_3 (P Q R : hProp) : P ⨿ Q ⨿ R -> P ∨ Q ∨ R.
-(* upstream *)
-Proof.
-  intros [[p|q]|r].
-  - exact (hinhpr (ii1 p)).
-  - exact (hinhpr (ii2 (hinhpr (ii1 q)))).
-  - exact (hinhpr (ii2 (hinhpr (ii2 r)))).
-Defined.
-
-Axiom oops : ∏ X, X.
-
-Lemma filter_sub_initial_3 {X:hSet} (B C D : hsubtype X) (S : TOSubset X)
-      (i : contained_initial B S) (j : contained_initial C S) (k : contained_initial D S) :
-  ∀ x y z, B x ⇒ (C y ⇒ (D z ⇒ (D x ∧ D y  ∨  C x ∧ C z  ∨  B y ∧ B z))).
-(* This is interesting, because it's constructive, whereas proving one of B, C, D contains
-   the others involves proof by contradiction. *)
-Proof.
-  intros x y z Bx Cy Dz. induction i as [le si], j as [le' sj], k as [le'' sk].
-  apply (squash_to_hProp (TOtotal S (x,,le x Bx) (y,,le' y Cy))); intros c.
-  apply (squash_to_hProp (TOtotal S (x,,le x Bx) (z,,le'' z Dz))); intros c'.
-  apply (squash_to_hProp (TOtotal S (y,,le' y Cy) (z,,le'' z Dz))); intros c''.
-  apply hdisj_3.
-  induction c as [c|c], c' as [c'|c'], c'' as [c''|c''].
-  -                             (* x,y ≤ z, so all are in D *)
-    apply ii1. apply ii1. split.
-    + use sk.
-      * exact z.
-      * assumption.
-      * now use le.
-      * assumption.
-    + use sk.
-      * exact z.
-      * assumption.
-      * now use le'.
-      * assumption.
-  -                             (* x,z ≤ y, so all are in C *)
-    apply ii1. apply ii2. split.
-    + use sj.
-      * exact y.
-      * assumption.
-      * now use le.
-      * assumption.
-    + use sj.
-      * exact y.
-      * assumption.
-      * now use le''.
-      * assumption.
-  -                             (* x ≤ y ≤ z ≤ x, so x=y=z and any will do *)
-    apply ii1. apply ii2. split.
-    + use sj.
-      * exact y.
-      * assumption.
-      * now use le.
-      * assumption.
-    + use sj.
-      * exact x.
-      * use sj.
-        ** exact y.
-        ** assumption.
-        ** now use le.
-        ** assumption.
-      * now use le''.
-      * now apply (h1'' c').
-  -                             (* x,z ≤ y, so all are in C *)
-    apply ii1. apply ii2. split.
-    + use sj.
-      * exact y.
-      * assumption.
-      * now use le.
-      * assumption.
-    + use sj.
-      * exact y.
-      * assumption.
-      * now use le''.
-      * assumption.
-  -                             (* x,y ≤ z, so all are in D *)
-    apply ii1. apply ii1. split.
-    + use sk.
-      * exact z.
-      * assumption.
-      * now use le.
-      * assumption.
-    + use sk.
-      * exact z.
-      * assumption.
-      * now use le'.
-      * assumption.
-  -                             (* z ≤ y ≤ x ≤ z, so x=y=z and any would do *)
-    apply ii1. apply ii2. split.
-    + use sj.
-      * exact z.
-      * use sj.
-        ** exact y.
-        ** assumption.
-        ** now use le''.
-        ** assumption.
-      * now use le.
-      * now apply (h1'' c').
-    + use sj.
-      * exact y.
-      * assumption.
-      * now use le''.
-      * assumption.
-  -                             (* y,z ≤ x, so al are in B *)
-    apply ii2. split.
-    + use si.
-      * exact x.
-      * assumption.
-      * now use le'.
-      * assumption.
-    + use si.
-      * exact x.
-      * assumption.
-      * now use le''.
-      * assumption.
-  -                             (* y,z ≤ x *)
-    apply ii2. split.
-    + use si.
-      * exact x.
-      * assumption.
-      * now use le'.
-      * assumption.
-    + use si.
-      * exact x.
-      * assumption.
-      * now use le''.
-      * assumption.
-Defined.
 
 Definition same_induced_ordering {X:hSet} {S T : TOSubset X} {B : hsubtype X} (BS : B ⊆ S) (BT : B ⊆ T)
   := ∀ x y : B,
@@ -335,35 +184,10 @@ Proof.
       apply subtypeEquality_prop. exact (maponpaths pr1 k'). }
 Defined.
 
+(** ** Well ordered subsets of a set *)
+
 Definition hasSmallest {X : UU} (R : hrel X) : hProp
   := ∀ S : hsubtype X, (∃ x, S x) ⇒ ∃ x:X, S x ∧ ∀ y:X, S y ⇒ R x y.
-
-Lemma iswellordering_istotal {X : hSet} (R : hrel X) : hasSmallest R -> istotal R.
-Proof.
-  intros has x y.
-  (* make the doubleton subset containing x and y and its two elements *)
-  set (S := λ z, z=x ∨ z=y).
-  assert (xinS := hinhpr (ii1 (idpath _)) : S x). assert (yinS := hinhpr (ii2 (idpath _)) : S y).
-  assert (h := hinhpr(x,,xinS) : ∃ s, S s). assert (q := has S h); clear h has.
-  apply (squash_to_hProp q); clear q; intro q.
-  induction q as [s min], min as [sinS smin].
-  apply (squash_to_hProp sinS); clear sinS. intro d. apply hinhpr. induction d as [d|d].
-  - induction (!d); clear d. apply ii1. exact (smin _ yinS).
-  - induction (!d); clear d. apply ii2. exact (smin _ xinS).
-Defined.
-
-Lemma actualSmallest {X : hSet} (R : hrel X) (S : hsubtype X) :
-  isantisymm R -> hasSmallest R -> (∃ s, S s) -> ∑ s:X, S s ∧ ∀ t:X, S t ⇒ R s t.
-(* antisymmetry ensures the smallest element of S is unique, so it actually exists *)
-Proof.
-  intros antisymm min ne. apply (squash_to_prop (min S ne)).
-  { apply invproofirrelevance; intros s t. apply subtypeEquality_prop.
-    induction s as [x i], t as [y j], i as [I i], j as [J j]. change (x=y)%set.
-    apply (squash_to_hProp (iswellordering_istotal R min x y)). intros [c|c].
-    { apply antisymm. { exact c. } { exact (j x I). } }
-    { apply antisymm. { exact (i y J). } { exact c. } } }
-  intros c. exact c.
-Defined.
 
 Definition isWellOrder {X : hSet} (R : hrel X) : hProp := isTotalOrder R ∧ hasSmallest R.
 
@@ -375,8 +199,6 @@ Definition WOSubset (X:hSet) : UU := WOSubset_set X.
 
 Definition WOSubset_to_subtype {X:hSet} : WOSubset X -> hsubtype X
   := pr1.
-
-Coercion WOSubset_to_subtype : WOSubset >-> hsubtype.
 
 Definition WOSubset_to_TOSubset {X:hSet} : WOSubset X -> TOSubset X.
 Proof.
@@ -592,13 +414,13 @@ Proof.
     now apply (h1'' (pr12 ST _ _ le')).
 Defined.
 
-Definition isInterval {X:hSet} (S:hsubtype X) (T:WOSubset X) :
-  LEM -> contained_initial S T -> T ⊈ S -> ∃ t:T, S ≡ upto t.
+Definition isInterval {X:hSet} (S:hsubtype X) (T:WOSubset X) (le : S ⊆ T) :
+  LEM -> sub_initial S T le -> T ⊈ S -> ∃ t:T, S ≡ upto t.
 Proof.
   set (R := WOrel T).
   assert (min : hasSmallest R).
   { apply (pr2 T). }
-  intros lem [le ini] ne.
+  intros lem ini ne.
   set (U := (λ t:T, t ∉ S) : hsubtype (carrier T)). (* complement of S in T *)
   assert (neU : nonempty (carrier U)).
   { apply (squash_to_hProp ne); intros [x [Tx nSx]]. apply hinhpr. exact ((x,,Tx),,nSx). }
@@ -928,8 +750,8 @@ Proof.
     { use subtype_notEqual_containedIn.
       - exact WD.
       - now apply subtype_notEqual_from_negEqual. }
-    assert (p := isInterval W C lem (WC,,WCi) nCW); clear nCW nc.
-    assert (q := isInterval W D lem (WD,,WDi) nDW); clear nDW nd.
+    assert (p : ∃ t : C, W ≡ upto t). { now use isInterval. }
+    assert (q : ∃ t : D, W ≡ upto t). { now use isInterval. }
     change hfalse.
     apply (squash_to_hProp p); clear p; intros [c cE].
     apply (squash_to_hProp q); clear q; intros [d dE].
@@ -981,9 +803,7 @@ Proof.
         - now apply (h1'' Q).
         - intros e. assert (e' := maponpaths pr1 e); clear e. change (v = pr1 c)%type in e'.
           assert ( L' := pr2 L ). simpl in L'. apply L'; clear L'.
-          assert (e : c = (v,, pr1 L)).
-          { now apply subtypeEquality_prop. }
-          induction e; clear e'. exact (TOrefl C c). }
+          exact (TOeq_to_refl_1 C c (v,, pr1 L) (!e')). }
       assert (dmax : ∏ (v : carrier W') (W'd : W' (pr1 d)),
                      subtype_inc toD v ≤ subtype_inc toD (pr1 d,,W'd)).
       { intros v W'd'. assert (e : d = subtype_inc toD (pr1 d,, W'd')).
@@ -1005,9 +825,7 @@ Proof.
         - now apply (h1'' Q).
         - intros e. assert (e' := maponpaths pr1 e); clear e. change (v = pr1 d)%type in e'.
           assert ( L' := pr2 L ). simpl in L'. apply L'; clear L'.
-          assert (e : d = (v,, pr1 L)).
-          { now apply subtypeEquality_prop. }
-          induction e; clear e'. exact (TOrefl D d). }
+          exact (TOeq_to_refl_1 D d (v,, pr1 L) (!e')). }
       split.
       { intros w' c' W'w' Cc' le.
         apply (squash_to_hProp W'w'); intros B. induction B as [Ww'|e].
@@ -1115,10 +933,13 @@ Theorem ZermeloWellOrdering {X:hSet} : AxiomOfChoice ⇒ ∃ R : hrel X, isWellO
 (* see http://www.math.illinois.edu/~dan/ShortProofs/WellOrdering.pdf *)
 Proof.
   intros ac. assert (lem := AC_to_LEM ac).
+  (* a choice function g allows us to single out the "chosen" well ordered subsets of X *)
   apply (squash_to_hProp (AC_to_choice_fun X ac)); intro g.
   set (S := chosenFamily g).
   set (Schain := chosen_WOSubset_total g lem).
+  (* we form the union, W, of all the chosen (well ordered) subsets of X *)
   set (W := ⋃ Schain).
+  (* we show W itself is chosen, so W is the biggest chosen subset of X *)
   assert (Wchosen : is_chosen_WOSubset g W).
   { intros [w Ww]. apply (squash_to_hProp Ww); intros [C Cw].
     change (hProptoType (C w)) in Cw. simpl.
@@ -1133,16 +954,27 @@ Proof.
     change (pr1 (g (upto' ((w,, Cw):C))) = pr1 (g (upto' ((w,, Ww):W)))).
     induction e'.
     reflexivity. }
+  (* now we prove W is all of X *)
   assert (all : ∀ x, W x).
-  { apply (proof_by_contradiction lem); intro n.
+  { (* ... for if not, we can add a chosen element and get a bigger chosen subset *)
+    apply (proof_by_contradiction lem); intro n.
+    (* it's not constructive to get an element not in W: *)
     assert (Q := negforall_to_existsneg _ lem n); clear n.
     change hfalse.
     induction W as [W wo].
-    set (xn := g (W,,Q)).
-    set (x := pr1 xn).
+    change (hProptoType (∃ x : X, ¬ W x)) in Q.
+    (* xn is the chosen element not in W: *)
+    set (xnW := g (W,,Q) : ∑ x : X, ¬ W x).
+    set (x := pr1 xnW).
+
+
+
     assert (Wx : W x).
-    { admit. }
-    exact (pr2 xn Wx). }
+    {
+
+
+      admit. }
+    exact (pr2 xnW Wx). }
   clear Wchosen.
   apply hinhpr.
   induction W as [W R'].
