@@ -236,16 +236,36 @@ Section ABGR_category.
       + apply proofirrelevance. apply isaprop_is_iso.
   Qed.
 
-  Definition hbinop_equiv_iso_weq (A B : ABGR) :
+  Definition abgr_equiv_iso_weq (A B : ABGR) :
     weq (monoidiso (abgrtoabmonoid A) (abgrtoabmonoid B)) (iso A B).
   Proof.
     exists (abgr_equiv_iso A B).
     apply abgr_equiv_iso_is_equiv.
-  Qed.
+  Defined.
 
+  Definition abgr_precategory_isweq (a b : ABGR) :
+    isweq (λ p : a = b, idtoiso p).
+  Proof.
+    use (@isweqhomot
+           (a = b) (iso a b)
+           (pr1weq (weqcomp (abgr_univalence a b) (abgr_equiv_iso_weq a b)))
+           _ _ (weqproperty (weqcomp (abgr_univalence a b) (abgr_equiv_iso_weq a b)))).
+    intros e. induction e.
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use total2_paths_f.
+    - use total2_paths_f.
+      + use idpath.
+      + use proofirrelevance. use isapropismonoidfun.
+    - use proofirrelevance. use isaprop_is_iso.
+  Defined.
+  Opaque abgr_precategory_isweq.
 
-(** ** HERE ONE SHOULD ADD A PROOF THAT ABGR IS ACTUALLY A CATEGORY.
-         See category_hset.v *)
+  Definition abgr_precategory_is_category : is_category abgr_precategory.
+  Proof.
+    use dirprodpair.
+    - intros a b. exact (abgr_precategory_isweq a b).
+    - exact has_homsets_ABGR.
+  Defined.
 
 End ABGR_category.
 
