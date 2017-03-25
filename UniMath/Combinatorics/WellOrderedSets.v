@@ -926,24 +926,52 @@ Proof.
       change (hProptoType (W' ⊆ D)) in toD.
       assert (cmax : ∏ (v : carrier W') (W'c : W' (pr1 c)),
                      subtype_inc toC v ≤ subtype_inc toC (pr1 c,,W'c)).
-      { intros. apply (squash_to_hProp W'c); intros [K|K].
-        - admit.
-        - admit. }
+      { intros v W'c'. assert (e : c = subtype_inc toC (pr1 c,, W'c')).
+        { now apply subtypeEquality_prop. }
+        induction e. clear W'c'. induction v as [v W'v]. apply (squash_to_hProp W'v); intros [Wv|k].
+        - assert (L := pr1 (cE v) Wv). unfold upto,lt in L.
+          assert (Q := @tot_nge_to_le (carrier_set C) (TOrel C) (TOtotal C) _ _ (pr2 L)).
+          now apply(h1'' Q).
+        - use (TOeq_to_refl C). now apply subtypeEquality_prop. }
       assert (cmax' : ∏ (w : carrier W) (W'c : W' (pr1 c)),
                      subtype_inc toC (subtype_inc j w) < subtype_inc toC (pr1 c,,W'c)).
-      { intros. apply (squash_to_hProp W'c); intros [K|K].
-        - admit.
-        - admit. }
+      { intros w W'c'. assert (e : c = subtype_inc toC (pr1 c,, W'c')).
+        { now apply subtypeEquality_prop. }
+        induction e. clear W'c'. induction w as [v Wv].
+        assert (L := pr1 (cE v) Wv). unfold upto,lt in L.
+        assert (Q := @tot_nge_to_le (carrier_set C) (TOrel C) (TOtotal C) _ _ (pr2 L)).
+        apply (@tot_nle_iff_gt (carrier_set C) (TOrel C) (pr122 C)).
+        split.
+        - now apply (h1'' Q).
+        - intros e. assert (e' := maponpaths pr1 e); clear e. change (v = pr1 c)%type in e'.
+          assert ( L' := pr2 L ). simpl in L'. apply L'; clear L'.
+          assert (e : c = (v,, pr1 L)).
+          { now apply subtypeEquality_prop. }
+          induction e; clear e'. exact (TOrefl C c). }
       assert (dmax : ∏ (v : carrier W') (W'd : W' (pr1 d)),
                      subtype_inc toD v ≤ subtype_inc toD (pr1 d,,W'd)).
-      { intros. apply (squash_to_hProp W'd); intros [K|K].
-        - admit.
-        - admit. }
+      { intros v W'd'. assert (e : d = subtype_inc toD (pr1 d,, W'd')).
+        { now apply subtypeEquality_prop. }
+        induction e. clear W'd'. induction v as [v W'v]. apply (squash_to_hProp W'v); intros [Wv|k].
+        - assert (L := pr1 (dE v) Wv). unfold upto,lt in L.
+          assert (Q := @tot_nge_to_le (carrier_set D) (TOrel D) (TOtotal D) _ _ (pr2 L)).
+          now apply(h1'' Q).
+        - use (TOeq_to_refl D). apply subtypeEquality_prop. simpl. exact (!k @ cd1). }
       assert (dmax' : ∏ (w : carrier W) (W'd : W' (pr1 d)),
                      subtype_inc toD (subtype_inc j w) < subtype_inc toD (pr1 d,,W'd)).
-      { intros. apply (squash_to_hProp W'd); intros [K|K].
-        - admit.
-        - admit. }
+      { intros w W'd'. assert (e : d = subtype_inc toD (pr1 d,, W'd')).
+        { now apply subtypeEquality_prop. }
+        induction e. clear W'd'. induction w as [v Wv].
+        assert (L := pr1 (dE v) Wv). unfold upto,lt in L.
+        assert (Q := @tot_nge_to_le (carrier_set D) (TOrel D) (TOtotal D) _ _ (pr2 L)).
+        apply (@tot_nle_iff_gt (carrier_set D) (TOrel D) (pr122 D)).
+        split.
+        - now apply (h1'' Q).
+        - intros e. assert (e' := maponpaths pr1 e); clear e. change (v = pr1 d)%type in e'.
+          assert ( L' := pr2 L ). simpl in L'. apply L'; clear L'.
+          assert (e : d = (v,, pr1 L)).
+          { now apply subtypeEquality_prop. }
+          induction e; clear e'. exact (TOrefl D d). }
       split.
       { intros w' c' W'w' Cc' le.
         apply (squash_to_hProp W'w'); intros B. induction B as [Ww'|e].
@@ -1020,6 +1048,11 @@ Proof.
     assert (Y : c = pr1 c,, Cc).
     { now apply subtypeEquality_prop. }
     induction Y. exact (TOrefl C c). }
+  unfold wosub_comparable.
+  apply (squash_to_hProp E); clear E; intros E. apply hinhpr.
+  induction E as [eWC|eWD].
+  - apply ii1. admit.
+  - apply ii2. admit.
 Admitted.
 
 Theorem ZermeloWellOrdering {X:hSet} : AxiomOfChoice ⇒ ∃ R : hrel X, isWellOrder R.
