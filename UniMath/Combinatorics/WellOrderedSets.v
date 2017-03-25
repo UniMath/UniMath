@@ -1208,17 +1208,37 @@ Proof.
         change (x = pr1 (g (@upto' X W (x,, Wx))))%type in x_chosen.
         simple refine (x_chosen @ _); clear x_chosen.
         use upto'_eqn.
-        +
-
-
-          admit.
+        + (* show W ≼ W'; abstract later *)
+          assert (WW' := TOSubset_plus_point_le W z nWz).
+          induction WW' as [WW' comp].
+          exists WW'.
+          split.
+          * exact comp.
+          * intros w w' Ww W'w' le.
+            simple refine (TOSubset_plus_point_initial W z nWz w w' Ww W'w' _).
+            now apply (h1'' le).
         + reflexivity.
       - induction ezx.
         change (pr1 (g (pr1 W,, Q)) = pr1 (g (@upto' X W' (z,, W'x)))).
         assert (e : (pr1 W,, Q) = @upto' X W' (z,, W'x)).
-        {
-
-          admit. }
+        { apply subtypeEquality_prop. apply (invmap (hsubtype_univalence _ _)).
+          intros y.
+          change (W y ⇔ @upto X W' (z,, W'x) y).
+          split.
+          - intros Wy.
+            (* show that the element y in W is less than z *)
+            exists (j y Wy). unfold lt. intros le.
+            induction (ishinh_irrel (ii2 (idpath z)) W'x).
+            change empty in le.
+            exact le.
+          - intros [W'y yz].
+            (* show that if y in W' is less than z, then it's in W *)
+            apply (squash_to_hProp W'y); intros [Wy|ezy].
+            + exact Wy.         (* it was in W, anyway *)
+            + induction ezy.    (* y = x, and we know z<z *)
+              apply fromempty. unfold lt,hneg in yz. apply yz.
+              induction (proofirrelevance_hProp _ W'y W'x).
+              exact (TOrefl W' (z,, W'y)). }
         now induction e. }
     assert (W'W := chain_union_le S Schain (W',,W'chosen) : W' ≼ W).
     assert (K := pr2 (subtype_inc (pr1 W'W) (z,,W'z)) : W z).
@@ -1237,4 +1257,4 @@ Proof.
     - apply propproperty.
     - apply all. }
   induction e. exact R'.
-Admitted.
+Defined.
