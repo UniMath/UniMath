@@ -202,14 +202,29 @@ Qed.
 Definition total_comprehension_of_dm_structure
   : functor _ _ := total_functor comprehension_of_dm_structure.
 
+
+(** This commutativity is an instance of a general lemma about comprehension categories
+    once we have produced [comp_cat_of_dm] below
+*)
 Lemma comprehension_of_dm_structure_triangle_commutes 
 : functor_composite total_comprehension_of_dm_structure (pr1_precat _)
   = pr1_precat _ . 
 Proof. 
-  apply subtypeEquality.
-  { intro. apply isaprop_is_functor. apply homset_property. }
-  apply idpath.
+  apply functor_eq. 
+  - apply homset_property.
+  - apply idpath.
 Qed.
+
+Definition comp_cat_of_dm :  comprehension_cat_structure C.
+Proof.
+  mkpair.
+  - apply DM_disp. apply H.
+  - mkpair. 
+    + apply is_fibration_DM_disp.
+    + mkpair. 
+      * apply comprehension_of_dm_structure.
+      * apply is_cartesian_comprehension_of_dm_structure.
+Defined.
 
 End Comp_Cat_of_DM_Structure.
 
