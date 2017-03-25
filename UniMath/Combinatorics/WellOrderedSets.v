@@ -393,6 +393,15 @@ Local Definition lt {X:hSet} {S : WOSubset X} (s s' : S) := ¬ (s' ≤ s)%wosubs
 
 Notation "s < s'" := (lt s s') : wosubset.
 
+Lemma wo_lt_to_le {X:hSet} {S : WOSubset X} (s s' : S) : s < s' -> s ≤ s'.
+Proof.
+  unfold lt.
+  intros lt.
+  apply (squash_to_hProp (TOtotal S s s')); intros [c|c].
+  - exact c.
+  - exact (fromempty (lt c)).
+Defined.
+
 Definition wosub_le (X:hSet) : hrel (WOSubset X)
   := (λ S T : WOSubset X, ∑ (le : S ⊆ T), @tosub_order_compat _ S T le ∧ @sub_initial _ S T le)%prop.
 
@@ -555,6 +564,33 @@ Notation "S ≺ T" := (wosub_le_smaller S T) (at level 70) : wosubset.
 (* [upto s x] means x is in S and, as an element of S, it is strictly less than s *)
 Definition upto {X:hSet} {S:WOSubset X} (s:S) : hsubtype X
   := (λ x, ∑ h:S x, (x,,h) < s)%prop.
+
+Lemma upto_eqn {X:hSet} {S T:WOSubset X} (x:X) (Sx : S x) (Tx : T x) :
+  S ≼ T -> upto (x,,Sx) = upto (x,,Tx).
+Proof.
+  intros ST.
+  apply (invmap (hsubtype_univalence _ _)).
+  intros y.
+  split.
+  - intros [Sy lt].
+    exists (pr1 ST y Sy).
+    generalize lt; clear lt.
+    apply negf.
+    intros le'.
+    apply (pr2 (wosub_fidelity ST (x,, Sx) (y,, Sy))).
+    now apply (h1'' (S := T) le').
+  - intros [Ty lt].
+    assert (Q := pr22 ST x y Sx Ty); simpl in Q.
+    assert (e : pr1 ST x Sx = Tx).
+    { apply propproperty. }
+    induction e.
+    assert (Sy := Q (wo_lt_to_le _ _ lt) : S y); clear Q.
+    exists Sy.
+    generalize lt; clear lt.
+    apply negf.
+    intros le'.
+    now apply (h1'' (pr12 ST _ _ le')).
+Defined.
 
 Definition isInterval {X:hSet} (S:hsubtype X) (T:WOSubset X) :
   LEM -> contained_initial S T -> T ⊈ S -> ∃ t:T, S ≡ upto t.
@@ -1072,6 +1108,7 @@ Proof.
     split.
     { intros x y le. apply (pr2 (WCD x y)). now apply (h1'' le). }
     exact WCi.
+  Unset Printing Coercions.
 Defined.
 
 Theorem ZermeloWellOrdering {X:hSet} : AxiomOfChoice ⇒ ∃ R : hrel X, isWellOrder R.
@@ -1083,7 +1120,19 @@ Proof.
   set (Schain := chosen_WOSubset_total g lem).
   set (W := ⋃ Schain).
   assert (Wchosen : is_chosen_WOSubset g W).
-  { admit. }
+  { intros [w Ww]. apply (squash_to_hProp Ww); intros [C Cw].
+    change (hProptoType (C w)) in Cw. simpl.
+    assert (Q := pr2 C (w,,Cw)); simpl in Q.
+    simple refine (Q @ _); clear Q.
+    assert (Q := chain_union_le S Schain C : C ≼ W).
+    assert (e : upto ((w,,Cw):C) = upto ((w,,Ww):W)).
+    { now apply upto_eqn. }
+    assert (e' : upto' ((w,,Cw):C) = upto' ((w,,Ww):W)).
+    { now apply subtypeEquality_prop. }
+    clear e.
+    change (pr1 (g (upto' ((w,, Cw):C))) = pr1 (g (upto' ((w,, Ww):W)))).
+    induction e'.
+    reflexivity. }
   assert (all : ∀ x, W x).
   { apply (proof_by_contradiction lem); intro n.
     assert (Q := negforall_to_existsneg _ lem n); clear n.
