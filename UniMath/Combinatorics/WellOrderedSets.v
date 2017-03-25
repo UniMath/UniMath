@@ -466,6 +466,13 @@ Proof.
         exact (TOrefl S' _).
 Defined.
 
+Definition WOSubset_plus_point {X:hSet}
+           (S:WOSubset X) (z:X) (nSz : ¬ S z) : LEM -> WOSubset X
+  := λ lem, subtype_plus_point S z,,
+            TOrel (TOSubset_plus_point S z nSz),,
+            pr22 (TOSubset_plus_point S z nSz),,
+            hasSmallest_WOSubset_plus_point S z nSz lem.
+
 Definition wosub_univalence_map {X:hSet} (S T : WOSubset X) : (S = T) -> (S ≣ T).
 Proof.
   intros e. induction e. unfold wosub_equal.
@@ -938,6 +945,20 @@ Defined.
 Definition is_chosen_WOSubset {X:hSet} (g : choice_fun X) (C : WOSubset X) : hProp
   := ∀ c:C, pr1 c = pr1 (g (upto' c)).
 
+Lemma upto'_eqn {X:hSet} (g : choice_fun X) (C D : WOSubset X) (j : C ≼ D)
+      (c : C) (d : D) :
+  pr1 (subtype_inc (pr1 j) c) = pr1 d ->
+  pr1 (g (upto' c)) = pr1 (g (upto' d)).
+Proof.
+  intros p. assert (e' : upto' c = upto' d).
+  { apply subtypeEquality_prop. change (upto c = upto d).
+    assert (q : subtype_inc (pr1 j) c = d).
+    { now apply subtypeEquality_prop. }
+    clear p. induction q.
+    now apply upto_eqn. }
+  now induction e'.
+Defined.
+
 Definition Chosen_WOSubset {X:hSet} (g : choice_fun X) := (∑ C, is_chosen_WOSubset g C)%type.
 
 Definition chosenFamily {X:hSet} (g : choice_fun X) : Chosen_WOSubset g -> WOSubset X
@@ -1158,15 +1179,10 @@ Proof.
     change (hProptoType (C w)) in Cw. simpl.
     assert (Q := pr2 C (w,,Cw)); simpl in Q.
     simple refine (Q @ _); clear Q.
-    assert (Q := chain_union_le S Schain C : C ≼ W).
-    assert (e : upto ((w,,Cw):C) = upto ((w,,Ww):W)).
-    { now apply upto_eqn. }
-    assert (e' : upto' ((w,,Cw):C) = upto' ((w,,Ww):W)).
-    { now apply subtypeEquality_prop. }
-    clear e.
-    change (pr1 (g (upto' ((w,, Cw):C))) = pr1 (g (upto' ((w,, Ww):W)))).
-    induction e'.
-    reflexivity. }
+    assert (CW := chain_union_le S Schain C : C ≼ W).
+    use upto'_eqn.
+    - exact CW.
+    - reflexivity. }
   (* now we prove W is all of X *)
   assert (all : ∀ x, W x).
   { (* ... for if not, we can add a chosen element and get a bigger chosen subset *)
@@ -1174,20 +1190,40 @@ Proof.
     (* it's not constructive to get an element not in W: *)
     assert (Q := negforall_to_existsneg _ lem n); clear n.
     change hfalse.
-    induction W as [W wo].
-    change (hProptoType (∃ x : X, ¬ W x)) in Q.
-    (* xn is the chosen element not in W: *)
-    set (xnW := g (W,,Q) : ∑ x : X, ¬ W x).
-    set (x := pr1 xnW).
+    (* zn is the chosen element not in W: *)
+    set (znW := g (pr1 W,,Q) : ∑ z : X, ¬ pr1 W z).
+    set (z := pr1 znW).
+    set (nWz := pr2 znW : ¬ pr1 W z).
+    (* make a larger well ordered subset of X by appending z to the top of W *)
+    set (W' := WOSubset_plus_point W z nWz lem).
+    assert (W'z := subtype_plus_point_has_point W z : W' z).
+    set (j := TOSubset_plus_point_incl W z nWz : W ⊆ W').
+    set (jmap := subtype_inc j).
+    assert (W'chosen : is_chosen_WOSubset g W').
+    { unfold is_chosen_WOSubset.
+      intros [x W'x].
+      change (x = pr1 (g (@upto' X W' (x,, W'x))))%set.
+      apply (squash_to_hProp W'x); intros [Wx|ezx].
+      - assert (x_chosen := Wchosen (x,,Wx)).
+        change (x = pr1 (g (@upto' X W (x,, Wx))))%type in x_chosen.
+        simple refine (x_chosen @ _); clear x_chosen.
+        use upto'_eqn.
+        +
 
 
+          admit.
+        + reflexivity.
+      - induction ezx.
+        change (pr1 (g (pr1 W,, Q)) = pr1 (g (@upto' X W' (z,, W'x)))).
+        assert (e : (pr1 W,, Q) = @upto' X W' (z,, W'x)).
+        {
 
-    assert (Wx : W x).
-    {
-
-
-      admit. }
-    exact (pr2 xnW Wx). }
+          admit. }
+        now induction e. }
+    assert (W'W := chain_union_le S Schain (W',,W'chosen) : W' ≼ W).
+    assert (K := pr2 (subtype_inc (pr1 W'W) (z,,W'z)) : W z).
+    exact (nWz K).
+    }
   clear Wchosen.
   apply hinhpr.
   induction W as [W R'].
