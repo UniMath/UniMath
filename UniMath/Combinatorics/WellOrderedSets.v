@@ -1288,11 +1288,10 @@ Definition WOrel (X:WellOrderedSet) : hrel X := pr12 X.
 
 Notation "s ≤ s'" := (WOrel _ s s') : woset.
 
-Lemma isaprop_hasSmallest {X : hSet}
+Lemma isaprop_theSmallest {X : hSet}
       (R : hrel X) (total : isTotalOrder R) (S : hsubtype X) :
- (∃ s, S s) -> isaprop (∑ s:X, S s ∧ ∀ t:X, S t ⇒ R s t).
+  isaprop (∑ s:X, S s ∧ ∀ t:X, S t ⇒ R s t).
 Proof.
-  intros ne.
   induction total as [[po anti] tot].
   apply invproofirrelevance; intros s t. apply subtypeEquality_prop.
   induction s as [x i], t as [y j], i as [I i], j as [J j]. change (x=y)%set.
@@ -1305,24 +1304,22 @@ Definition WO_isTotalOrder (X : WellOrderedSet) : isTotalOrder (WOrel X) := pr12
 
 Definition WO_hasSmallest (X : WellOrderedSet) : hasSmallest (WOrel X) := pr222 X.
 
+Definition theSmallest {X : WellOrderedSet} (S : hsubtype X) : hProp
+  := (∃ s, S s) ⇒ hProppair
+                (∑ s:X, S s ∧ ∀ t:X, S t ⇒ WOrel X s t)
+                (isaprop_theSmallest _ (WO_isTotalOrder X) S).
+
 (** actually get the smallest element: *)
-Lemma WO_theSmallest {X : WellOrderedSet} (S : hsubtype X) :
- (∃ s, S s) -> ∑ s:X, S s ∧ ∀ t:X, S t ⇒ s ≤ t.
+Lemma WO_theSmallest {X : WellOrderedSet} (S : hsubtype X) : theSmallest S.
 Proof.
-  intros ne. apply (squash_to_prop (WO_hasSmallest X S ne)).
-  - apply isaprop_hasSmallest.
-    + apply (pr2 X).
-    + exact ne.
-  - intro c. exact c.
+  intros ne. apply (squash_to_hProp (WO_hasSmallest X S ne)).
+  intro c. exact c.
 Defined.
 
 Lemma WO_theUniqueSmallest {X : WellOrderedSet} (S : hsubtype X) :
- (∃ s, S s) -> ∃! s:X, S s ∧ ∀ t:X, S t ⇒ s ≤ t.
+ (∃ s, S s) ⇒ ∃! s:X, S s ∧ ∀ t:X, S t ⇒ s ≤ t.
 Proof.
-  intros c. apply iscontraprop1.
-  - apply isaprop_hasSmallest.
-    + apply WO_isTotalOrder.
-    + exact c.
-  - apply WO_theSmallest.
-    + exact c.
+  intros ne. apply iscontraprop1.
+  - apply isaprop_theSmallest. apply WO_isTotalOrder.
+  - exact (WO_theSmallest S ne).
 Defined.
