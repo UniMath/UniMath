@@ -43,7 +43,6 @@ Hint Resolve identity_refl : core . ]
 
 Inductive paths {A:Type} (a:A) : A -> Type := paths_refl : paths a a.
 Hint Resolve paths_refl : core .
-Delimit Scope type_scope with type.
 Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 Notation idpath := paths_refl .
 
