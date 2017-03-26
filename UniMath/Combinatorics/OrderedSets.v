@@ -8,12 +8,9 @@ Local Open Scope poset.
 
 (** partially ordered sets and ordered sets *)
 
-Definition isTotalOrder {X : hSet} (R : hrel X) : hProp.
-Proof.
-  intros. exists (isPartialOrder R × istotal R). apply isapropdirprod.
-  - apply isaprop_isPartialOrder.
-  - apply isaprop_istotal.
-Defined.
+Definition isTotalOrder {X : hSet} (R : hrel X) : hProp
+  := hProppair (isPartialOrder R × istotal R)
+               (isapropdirprod _ _ (isaprop_isPartialOrder R) (isaprop_istotal R)).
 
 Section A.
 
