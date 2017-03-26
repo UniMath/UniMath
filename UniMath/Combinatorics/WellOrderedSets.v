@@ -7,6 +7,7 @@
 Require Import UniMath.Combinatorics.OrderedSets.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.MoreFoundations.DecidablePropositions.
+Require Import UniMath.MoreFoundations.Propositions.
 
 Local Open Scope logic.
 Local Open Scope prop.
@@ -33,24 +34,17 @@ Definition TOSubset_to_subtype {X:hSet} : TOSubset X -> hsubtype X
 
 Coercion TOSubset_to_subtype : TOSubset >-> hsubtype.
 
-Local Definition TOrel {X:hSet} (S : TOSubset X) : hrel (carrier S) := pr12 S.
+Local Definition TOSrel {X:hSet} (S : TOSubset X) : hrel (carrier_set S) := pr12 S.
 
-Notation "s ≤ s'" := (TOrel _ s s') : tosubset.
+Notation "s ≤ s'" := (TOSrel _ s s') : tosubset.
 
-Definition TOtotal {X:hSet} (S : TOSubset X) : istotal (TOrel S).
-Proof.
-  apply (pr2 S).
-Defined.
+Definition TOtotal {X:hSet} (S : TOSubset X) : isTotalOrder (TOSrel S) := pr22 S.
 
-Definition TOanti {X:hSet} (S : TOSubset X) : isantisymm (TOrel S).
-Proof.
-  apply (pr2 S).
-Defined.
+Definition TOtot {X:hSet} (S : TOSubset X) : istotal (TOSrel S) := pr222 S.
 
-Definition TOrefl {X:hSet} (S : TOSubset X) : isrefl (TOrel S).
-Proof.
-  apply (pr2 S).
-Defined.
+Definition TOanti {X:hSet} (S : TOSubset X) : isantisymm (TOSrel S) := pr2 (pr122 S).
+
+Definition TOrefl {X:hSet} (S : TOSubset X) : isrefl (TOSrel S) := pr211 (pr22 S).
 
 Definition TOeq_to_refl {X:hSet} (S : TOSubset X) : ∀ s t : carrier_set S, s = t ⇒ s ≤ t.
 Proof.
@@ -64,7 +58,7 @@ Proof.
   clear e. induction E. apply TOrefl.
 Defined.
 
-Definition TOtrans {X:hSet} (S : TOSubset X) : istrans (TOrel S).
+Definition TOtrans {X:hSet} (S : TOSubset X) : istrans (TOSrel S).
 Proof.
   apply (pr2 S).
 Defined.
@@ -88,7 +82,7 @@ Definition tosub_le (X:hSet) (S T : TOSubset X) : hProp
 Notation "S ≼ T" := (tosub_le _ S T) (at level 70) : tosubset.
 
 Definition sub_initial {X:hSet} (S : hsubtype X) (T : TOSubset X) (le : S ⊆ T) : hProp
-  := ∀ (s t : X) (Ss : S s) (Tt : T t), TOrel T (t,,Tt) (s,,le s Ss) ⇒ S t.
+  := ∀ (s t : X) (Ss : S s) (Tt : T t), TOSrel T (t,,Tt) (s,,le s Ss) ⇒ S t.
 
 Definition same_induced_ordering {X:hSet} {S T : TOSubset X} {B : hsubtype X} (BS : B ⊆ S) (BT : B ⊆ T)
   := ∀ x y : B,
@@ -177,7 +171,7 @@ Lemma tosub_fidelity {X:hSet} {S T:TOSubset X} (le : S ≼ T)
 Proof.
   split.
   { exact (pr2 le s s'). }
-  { intro l. apply (squash_to_hProp (TOtotal S s s')). intros [c|c].
+  { intro l. apply (squash_to_hProp (TOtot S s s')). intros [c|c].
     - exact c.
     - apply (TOeq_to_refl S s s'). assert (k := pr2 le _ _ c); clear c.
       assert (k' := TOanti T _ _ l k); clear k l.
@@ -197,7 +191,7 @@ Proof.
   intros [s i] [t j]. unfold subtype_plus_point in i,j. change hPropset.
   use (squash_to_hSet_2' _ _ i j); clear i j.
   { intros [Ss|ezs] [St|ezt].
-    { exact (TOrel S (s,,Ss) (t,,St)). } { exact htrue. }
+    { exact (TOSrel S (s,,Ss) (t,,St)). } { exact htrue. }
     { exact hfalse. }                    { exact htrue. } }
   { split.
     { intros [Ss|ezs] [Ss'|ezs'] [St|ezt]. repeat split.
@@ -234,9 +228,9 @@ Proof.
           + induction (ishinh_irrel (ii1 Sw) Ww).
             apply (squash_to_hProp Wx); intros [Sx|ezx].
             * induction (ishinh_irrel (ii1 Sx) Wx);
-              change (hProptoType (TOrel S (w,,Sw) (x,,Sx))) in wx;
-              change (hProptoType (TOrel S (x,,Sx) (y,,Sy))) in xy;
-              change (hProptoType (TOrel S (w,,Sw) (y,,Sy))).
+              change (hProptoType (TOSrel S (w,,Sw) (x,,Sx))) in wx;
+              change (hProptoType (TOSrel S (x,,Sx) (y,,Sy))) in xy;
+              change (hProptoType (TOSrel S (w,,Sw) (y,,Sy))).
               exact (TOtrans _ _ _ _ wx xy).
             * induction ezx;
               induction (ishinh_irrel (ii2 (idpath z)) Wx);
@@ -247,7 +241,7 @@ Proof.
             change hfalse.
             apply (squash_to_hProp Wx); intros [Sx|ezx].
             * induction (ishinh_irrel (ii1 Sx) Wx);
-              change (hProptoType (TOrel S (x,,Sx) (y,,Sy))) in xy;
+              change (hProptoType (TOSrel S (x,,Sx) (y,,Sy))) in xy;
               change empty in wx.
               exact wx.
             * induction ezx;
@@ -265,7 +259,7 @@ Proof.
         intros [x Wx].
         apply (squash_to_hProp Wx); intros [Sx|ezx].
         - induction (ishinh_irrel (ii1 Sx) Wx).
-          change (hProptoType (TOrel S (x,,Sx) (x,,Sx))).
+          change (hProptoType (TOSrel S (x,,Sx) (x,,Sx))).
           apply TOrefl.
         - induction ezx.
           induction (ishinh_irrel (ii2 (idpath z)) Wx); change unit.
@@ -277,8 +271,8 @@ Proof.
       - induction (ishinh_irrel (ii1 Sx) Wx).
         apply (squash_to_hProp Wy); intros [Sy|ezy].
         + induction (ishinh_irrel (ii1 Sy) Wy);
-          change (hProptoType (TOrel S (x,,Sx) (y,,Sy))) in xy;
-          change (hProptoType (TOrel S (y,,Sy) (x,,Sx))) in yx.
+          change (hProptoType (TOSrel S (x,,Sx) (y,,Sy))) in xy;
+          change (hProptoType (TOSrel S (y,,Sy) (x,,Sx))) in yx.
           apply subtypeEquality_prop; change (x=y).
           exact (maponpaths pr1 (TOanti S _ _ xy yx)).
         + induction ezy.
@@ -304,7 +298,7 @@ Proof.
     - induction (ishinh_irrel (ii1 Sx) Wx).
       apply (squash_to_hProp Wy); intros [Sy|ezy].
       + induction (ishinh_irrel (ii1 Sy) Wy).
-        generalize (TOtotal S (x,,Sx) (y,,Sy)); apply hinhfun; intros [xy|yx].
+        generalize (TOtot S (x,,Sx) (y,,Sy)); apply hinhfun; intros [xy|yx].
         * apply ii1. exact xy.
         * apply ii2. exact yx.
       + induction ezy. induction (ishinh_irrel (ii2 (idpath z)) Wy);
@@ -371,22 +365,24 @@ Defined.
 
 Coercion WOSubset_to_TOSubset : WOSubset >-> TOSubset.
 
-Local Definition WOrel {X:hSet} (S : WOSubset X) : hrel (carrier S) := pr12 S.
+Definition WOSrel {X:hSet} (S : WOSubset X) : hrel (carrier_set S) := pr12 S.
 
-Notation "s ≤ s'" := (WOrel _ s s') : wosubset.
+Notation "s ≤ s'" := (WOSrel _ s s') : wosubset.
 
 Local Definition lt {X:hSet} {S : WOSubset X} (s s' : S) := ¬ (s' ≤ s)%wosubset.
 
 Notation "s < s'" := (lt s s') : wosubset.
 
-Definition WOSubset_hasSmallest {X:hSet} (S : WOSubset X) : hasSmallest (WOrel S)
+Definition WOStotal {X:hSet} (S : WOSubset X) : isTotalOrder (WOSrel S) := pr122 S.
+
+Definition WOS_hasSmallest {X:hSet} (S : WOSubset X) : hasSmallest (WOSrel S)
   := pr222 S.
 
 Lemma wo_lt_to_le {X:hSet} {S : WOSubset X} (s s' : S) : s < s' -> s ≤ s'.
 Proof.
   unfold lt.
   intros lt.
-  apply (squash_to_hProp (TOtotal S s s')); intros [c|c].
+  apply (squash_to_hProp (TOtot S s s')); intros [c|c].
   - exact c.
   - exact (fromempty (lt c)).
 Defined.
@@ -413,7 +409,7 @@ Notation "S ≣ T" := (wosub_equal S T) (at level 70) : wosubset.
 Definition wosub_comparable {X:hSet} : hrel (WOSubset X) := λ S T, S ≼ T ∨ T ≼ S.
 
 Definition hasSmallest_WOSubset_plus_point {X:hSet} (S:WOSubset X) (z:X) (nSz : ¬ S z) :
-  LEM -> hasSmallest (TOrel (TOSubset_plus_point S z nSz)).
+  LEM ⇒ hasSmallest (TOSrel (TOSubset_plus_point S z nSz)).
 Proof.
   intros lem T ne.
   (* T is a nonempty set.  We need to find the smallest element of it *)
@@ -426,7 +422,7 @@ Proof.
   (* Decide whether [S ∩ T] is nonempty: *)
   induction (lem (∃ s, SiT s)) as [q|q].
   - (* ... use the smallest element of SiT *)
-    assert (SiTmin := WOSubset_hasSmallest _ _ q).
+    assert (SiTmin := WOS_hasSmallest _ _ q).
     apply (squash_to_hProp SiTmin); clear SiTmin; intros [m [SiTm min]].
     apply hinhpr. set (m' := jmap m). exists m'. split.
     + exact SiTm.
@@ -461,7 +457,7 @@ Proof.
         exact Tt.
       * induction ezt.
         (* now show [z ≤ z], by reflexivity *)
-        change (TOrel S' (z,,S'z) (z,,S't)).
+        change (TOSrel S' (z,,S'z) (z,,S't)).
         induction (proofirrelevance_hProp _ S'z S't).
         exact (TOrefl S' _).
 Defined.
@@ -469,7 +465,7 @@ Defined.
 Definition WOSubset_plus_point {X:hSet}
            (S:WOSubset X) (z:X) (nSz : ¬ S z) : LEM -> WOSubset X
   := λ lem, subtype_plus_point S z,,
-            TOrel (TOSubset_plus_point S z nSz),,
+            TOSrel (TOSubset_plus_point S z nSz),,
             pr22 (TOSubset_plus_point S z nSz),,
             hasSmallest_WOSubset_plus_point S z nSz lem.
 
@@ -511,7 +507,7 @@ Proof.
               { split.
                 { intros s s' le. exact le. }
                 { intros s t Ss St le. exact St. } } } }
-          { simpl. unfold WOrel. simpl. intros [[a [b _]] [d [e _]]].
+          { simpl. unfold WOSrel. simpl. intros [[a [b _]] [d [e _]]].
             assert (triv : ∏ (f:∏ x : X, S x → S x) (x:carrier_set S), subtype_inc f x = x).
             { intros f s. apply subtypeEquality_prop. reflexivity. }
             apply funextfun; intros s. apply funextfun; intros t.
@@ -637,10 +633,9 @@ Defined.
 Definition isInterval {X:hSet} (S:hsubtype X) (T:WOSubset X) (le : S ⊆ T) :
   LEM -> sub_initial S T le -> T ⊈ S -> ∃ t:T, S ≡ upto t.
 Proof.
-  set (R := WOrel T).
-  assert (min : hasSmallest R).
-  { apply (pr2 T). }
   intros lem ini ne.
+  set (R := WOSrel T).
+  assert (min := WOS_hasSmallest T).
   set (U := (λ t:T, t ∉ S) : hsubtype (carrier T)). (* complement of S in T *)
   assert (neU : nonempty (carrier U)).
   { apply (squash_to_hProp ne); intros [x [Tx nSx]]. apply hinhpr. exact ((x,,Tx),,nSx). }
@@ -657,8 +652,7 @@ Proof.
     intro bc. use yltu. now use minu.
 Defined.
 
-(** Our goal now is to equip the union of a chain of subsets-with-well-orderings
-    with a well ordering. *)
+(** ** The union of a chain of totally ordered subsets *)
 
 Definition is_wosubset_chain {X : hSet} {I : UU} (S : I → WOSubset X)
   := ∀ i j : I, wosub_comparable (S i) (S j).
@@ -726,7 +720,7 @@ Defined.
 Lemma chain_union_prelim_eq0 {X : hSet} {I : UU} {S : I → WOSubset X}
            (chain : is_wosubset_chain S)
            (x y : X) (i j: I) (xi : S i x) (xj : S j x) (yi : S i y) (yj : S j y) :
-  WOrel (S i) (x ,, xi) (y ,, yi) = WOrel (S j) (x ,, xj) (y ,, yj).
+  WOSrel (S i) (x ,, xi) (y ,, yi) = WOSrel (S j) (x ,, xj) (y ,, yj).
 Proof.
   apply weqlogeq.
   apply (squash_to_hProp (chain i j)). intros [c|c].
@@ -746,7 +740,7 @@ Definition chain_union_rel {X : hSet} {I : UU} {S : I → WOSubset X}
 Proof.
   intros x y.
   change (hPropset). simple refine (squash_to_hSet _ _ (common_index2 chain x y)).
-  - intros [i [s t]]. exact (WOrel (S i) (pr1 x,,s) (pr1 y,,t)).
+  - intros [i [s t]]. exact (WOSrel (S i) (pr1 x,,s) (pr1 y,,t)).
   - intros i j. now apply chain_union_prelim_eq0.
 Defined.
 
@@ -754,7 +748,7 @@ Definition chain_union_rel_eqn {X : hSet} {I : UU} {S : I → WOSubset X}
            (chain : is_wosubset_chain S)
            (x y : carrier_set (⋃ (λ i, S i)))
            i (s : S i (pr1 x)) (t : S i (pr1 y)) :
-  chain_union_rel chain x y = WOrel (S i) (pr1 x,,s) (pr1 y,,t).
+  chain_union_rel chain x y = WOSrel (S i) (pr1 x,,s) (pr1 y,,t).
 Proof.
   unfold chain_union_rel. generalize (common_index2 chain x y); intro h.
   assert (e : hinhpr (i,,s,,t) = h).
@@ -774,7 +768,7 @@ Proof.
   rewrite p in l; clear p.
   rewrite q in m; clear q.
   rewrite e; clear e.
-  assert (tot : istrans (WOrel (S i))).
+  assert (tot : istrans (WOSrel (S i))).
   { apply (pr2 (S i)). }
   exact (tot _ _ _ l m).
 Defined.
@@ -797,7 +791,7 @@ Proof.
   apply subtypeEquality_prop.
   assert (p := chain_union_rel_eqn chain x y i r s). rewrite p in l; clear p.
   assert (q := chain_union_rel_eqn chain y x i s r). rewrite q in m; clear q.
-  assert (anti : isantisymm (WOrel (S i))).
+  assert (anti : isantisymm (WOSrel (S i))).
   { apply (pr2 (S i)). }
   assert (b := anti _ _ l m); clear anti l m.
   exact (maponpaths pr1 b).
@@ -814,6 +808,17 @@ Proof.
   apply (pr2 (S i)).
 Defined.
 
+Lemma chain_union_rel_isTotalOrder {X : hSet} {I : UU} {S : I → WOSubset X}
+           (chain : is_wosubset_chain S) :
+  isTotalOrder (chain_union_rel chain).
+Proof.
+  repeat split.
+  - apply chain_union_rel_istrans.
+  - apply chain_union_rel_isrefl.
+  - apply chain_union_rel_isantisymm.
+  - apply chain_union_rel_istotal.
+Defined.
+
 Definition chain_union_TOSubset {X : hSet} {I : UU} {S : I → WOSubset X}
            (Schain : is_wosubset_chain S) : TOSubset X.
 Proof.
@@ -827,6 +832,8 @@ Proof.
 Defined.
 
 Notation "⋃ chain" := (chain_union_TOSubset chain) (at level 100, no associativity) : tosubset.
+
+(** ** The union of a chain of well ordered subsets *)
 
 Lemma chain_union_tosub_le {X : hSet} {I : UU} {S : I → WOSubset X}
       (Schain : is_wosubset_chain S) (i:I)
@@ -874,8 +881,8 @@ Proof.
   (* T' is the intersection of T with S j *)
   set (T' := (λ s, T (subtype_inc (subtype_union_containedIn S j) s))).
   assert (t' := hinhpr ((x,,xinSj),,xinT) : ∥ carrier T' ∥); clear x xinSj xinT.
-  assert (min := pr222 (S j) T' t').
-  apply (squash_to_hProp min); clear min t'; intros [t0 [t0inT' t0min]].
+  assert (min := WOS_hasSmallest (S j) T' t'); clear t'.
+  apply (squash_to_hProp min); clear min; intros [t0 [t0inT' t0min]].
   (* t0 is the minimal element of T' *)
   set (t0' := subtype_inc (subtype_union_containedIn S j) t0).
   apply hinhpr. exists t0'. split.
@@ -926,6 +933,8 @@ Proof.
   apply (TOeq_to_refl C _ _). now apply subtypeEquality_prop.
 Defined.
 
+(** ** Choice functions *)
+
 (** A choice function provides an element not in each proper subset.  *)
 
 Definition choice_fun (X:hSet) := ∏ S : proper_subtypes_set X, ∑ x : X, ¬ pr1 S x.
@@ -965,6 +974,8 @@ Definition chosenFamily {X:hSet} (g : choice_fun X) : Chosen_WOSubset g -> WOSub
   := pr1.
 
 Coercion chosenFamily : Chosen_WOSubset >-> WOSubset.
+
+(** ** The chosen well ordered subsets form a chain *)
 
 Lemma chosen_WOSubset_total {X:hSet} (g : choice_fun X) :
   LEM -> is_wosubset_chain (chosenFamily g).
@@ -1022,7 +1033,7 @@ Proof.
         { now apply subtypeEquality_prop. }
         induction e. clear W'c'. induction v as [v W'v]. apply (squash_to_hProp W'v); intros [Wv|k].
         - assert (L := pr1 (cE v) Wv). unfold upto,lt in L.
-          assert (Q := @tot_nge_to_le (carrier_set C) (TOrel C) (TOtotal C) _ _ (pr2 L)).
+          assert (Q := @tot_nge_to_le (carrier_set C) (TOSrel C) (TOtot C) _ _ (pr2 L)).
           now apply(h1'' Q).
         - use (TOeq_to_refl C). now apply subtypeEquality_prop. }
       assert (cmax' : ∏ (w : carrier W) (W'c : W' (pr1 c)),
@@ -1031,8 +1042,8 @@ Proof.
         { now apply subtypeEquality_prop. }
         induction e. clear W'c'. induction w as [v Wv].
         assert (L := pr1 (cE v) Wv). unfold upto,lt in L.
-        assert (Q := @tot_nge_to_le (carrier_set C) (TOrel C) (TOtotal C) _ _ (pr2 L)).
-        apply (@tot_nle_iff_gt (carrier_set C) (TOrel C) (pr122 C)).
+        assert (Q := @tot_nge_to_le (carrier_set C) (TOSrel C) (TOtot C) _ _ (pr2 L)).
+        apply (@tot_nle_iff_gt (carrier_set C) (TOSrel C) (pr122 C)).
         split.
         - now apply (h1'' Q).
         - intros e. assert (e' := maponpaths pr1 e); clear e. change (v = pr1 c)%type in e'.
@@ -1044,7 +1055,7 @@ Proof.
         { now apply subtypeEquality_prop. }
         induction e. clear W'd'. induction v as [v W'v]. apply (squash_to_hProp W'v); intros [Wv|k].
         - assert (L := pr1 (dE v) Wv). unfold upto,lt in L.
-          assert (Q := @tot_nge_to_le (carrier_set D) (TOrel D) (TOtotal D) _ _ (pr2 L)).
+          assert (Q := @tot_nge_to_le (carrier_set D) (TOSrel D) (TOtot D) _ _ (pr2 L)).
           now apply(h1'' Q).
         - use (TOeq_to_refl D). apply subtypeEquality_prop. simpl. exact (!k @ cd1). }
       assert (dmax' : ∏ (w : carrier W) (W'd : W' (pr1 d)),
@@ -1053,8 +1064,8 @@ Proof.
         { now apply subtypeEquality_prop. }
         induction e. clear W'd'. induction w as [v Wv].
         assert (L := pr1 (dE v) Wv). unfold upto,lt in L.
-        assert (Q := @tot_nge_to_le (carrier_set D) (TOrel D) (TOtotal D) _ _ (pr2 L)).
-        apply (@tot_nle_iff_gt (carrier_set D) (TOrel D) (pr122 D)).
+        assert (Q := @tot_nge_to_le (carrier_set D) (TOSrel D) (TOtot D) _ _ (pr2 L)).
+        apply (@tot_nle_iff_gt (carrier_set D) (TOSrel D) (pr122 D)).
         split.
         - now apply (h1'' Q).
         - intros e. assert (e' := maponpaths pr1 e); clear e. change (v = pr1 d)%type in e'.
@@ -1163,6 +1174,8 @@ Proof.
   Unset Printing Coercions.
 Defined.
 
+(** ** The proof of the well ordering theorem of Zermelo *)
+
 Theorem ZermeloWellOrdering {X:hSet} : AxiomOfChoice ⇒ ∃ R : hrel X, isWellOrder R.
 (* see http://www.math.illinois.edu/~dan/ShortProofs/WellOrdering.pdf *)
 Proof.
@@ -1257,4 +1270,59 @@ Proof.
     - apply propproperty.
     - apply all. }
   induction e. exact R'.
+Defined.
+
+(** ** Well ordered sets *)
+
+Definition WellOrderedSet : UU := (∑ (S:hSet), WellOrdering S)%type.
+
+Definition WellOrderedSet_to_hSet : WellOrderedSet -> hSet := pr1.
+
+Coercion WellOrderedSet_to_hSet : WellOrderedSet >-> hSet.
+
+Delimit Scope woset with woset.
+
+Open Scope woset.
+
+Definition WOrel (X:WellOrderedSet) : hrel X := pr12 X.
+
+Notation "s ≤ s'" := (WOrel _ s s') : woset.
+
+Lemma isaprop_hasSmallest {X : hSet}
+      (R : hrel X) (total : isTotalOrder R) (S : hsubtype X) :
+ (∃ s, S s) -> isaprop (∑ s:X, S s ∧ ∀ t:X, S t ⇒ R s t).
+Proof.
+  intros ne.
+  induction total as [[po anti] tot].
+  apply invproofirrelevance; intros s t. apply subtypeEquality_prop.
+  induction s as [x i], t as [y j], i as [I i], j as [J j]. change (x=y)%set.
+  apply (squash_to_hProp (tot x y)); intros [c|c].
+  { apply anti. { exact c. } { exact (j x I). } }
+  { apply anti. { exact (i y J). } { exact c. } }
+Defined.
+
+Definition WO_isTotalOrder (X : WellOrderedSet) : isTotalOrder (WOrel X) := pr122 X.
+
+Definition WO_hasSmallest (X : WellOrderedSet) : hasSmallest (WOrel X) := pr222 X.
+
+(** actually get the smallest element: *)
+Lemma WO_theSmallest {X : WellOrderedSet} (S : hsubtype X) :
+ (∃ s, S s) -> ∑ s:X, S s ∧ ∀ t:X, S t ⇒ s ≤ t.
+Proof.
+  intros ne. apply (squash_to_prop (WO_hasSmallest X S ne)).
+  - apply isaprop_hasSmallest.
+    + apply (pr2 X).
+    + exact ne.
+  - intro c. exact c.
+Defined.
+
+Lemma WO_theUniqueSmallest {X : WellOrderedSet} (S : hsubtype X) :
+ (∃ s, S s) -> ∃! s:X, S s ∧ ∀ t:X, S t ⇒ s ≤ t.
+Proof.
+  intros c. apply iscontraprop1.
+  - apply isaprop_hasSmallest.
+    + apply WO_isTotalOrder.
+    + exact c.
+  - apply WO_theSmallest.
+    + exact c.
 Defined.
