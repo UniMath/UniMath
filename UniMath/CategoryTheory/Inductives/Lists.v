@@ -301,9 +301,6 @@ apply (foldr A (list (pr1 A),,isaset_list A)).
   apply (tpair _ (S (pr1 L)) (a,,pr2 L)).
 Defined.
 
-Set Printing All.
-Print to_list.
-
 Lemma to_listK (A : HSET) : ∏ x : list (pr1 A), to_list A (to_List A x) = x.
 Proof.
 intro l; destruct l as [n l]; unfold to_list, to_List.
