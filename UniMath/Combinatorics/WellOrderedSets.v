@@ -942,11 +942,11 @@ Proof.
                          hinhpr).
 Defined.
 
-(** Given a choice function, we single out well ordered subsets C of X that
+(** Given a choice function g, we single out well ordered subsets C of X that
     follow the choice functions advice when constructed by adding one element at
-    a time to the top.  We call them "chosen". *)
+    a time to the top.  We may say that C is "guided" by g. *)
 
-Definition is_chosen_WOSubset {X:hSet} (g : choice_fun X) (C : WOSubset X) : hProp
+Definition is_guided_WOSubset {X:hSet} (g : choice_fun X) (C : WOSubset X) : hProp
   := ∀ c:C, pr1 c = pr1 (g (upto' c)).
 
 Lemma upto'_eqn {X:hSet} (g : choice_fun X) (C D : WOSubset X) (j : C ≼ D)
@@ -963,17 +963,17 @@ Proof.
   now induction e'.
 Defined.
 
-Definition Chosen_WOSubset {X:hSet} (g : choice_fun X) := (∑ C, is_chosen_WOSubset g C)%type.
+Definition Guided_WOSubset {X:hSet} (g : choice_fun X) := (∑ C, is_guided_WOSubset g C)%type.
 
-Definition chosenFamily {X:hSet} (g : choice_fun X) : Chosen_WOSubset g -> WOSubset X
+Definition guidedFamily {X:hSet} (g : choice_fun X) : Guided_WOSubset g -> WOSubset X
   := pr1.
 
-Coercion chosenFamily : Chosen_WOSubset >-> WOSubset.
+Coercion guidedFamily : Guided_WOSubset >-> WOSubset.
 
-(** ** The chosen well ordered subsets form a chain *)
+(** ** The guided well ordered subsets form a chain *)
 
-Lemma chosen_WOSubset_total {X:hSet} (g : choice_fun X) :
-  LEM -> is_wosubset_chain (chosenFamily g).
+Lemma guided_WOSubset_total {X:hSet} (g : choice_fun X) :
+  LEM -> is_wosubset_chain (guidedFamily g).
 Proof.
   intros lem [C gC] [D gD].
   set (W := max_common_initial C D).
@@ -1169,14 +1169,14 @@ Theorem ZermeloWellOrdering {X:hSet} : AxiomOfChoice ⇒ ∃ R : hrel X, isWellO
 (* see http://www.math.illinois.edu/~dan/ShortProofs/WellOrdering.pdf *)
 Proof.
   intros ac. assert (lem := AC_to_LEM ac).
-  (* a choice function g allows us to single out the "chosen" well ordered subsets of X *)
+  (* a choice function g allows us to single out the "guided" well ordered subsets of X *)
   apply (squash_to_hProp (AC_to_choice_fun X ac)); intro g.
-  set (S := chosenFamily g).
-  set (Schain := chosen_WOSubset_total g lem).
-  (* we form the union, W, of all the chosen (well ordered) subsets of X *)
+  set (S := guidedFamily g).
+  set (Schain := guided_WOSubset_total g lem).
+  (* we form the union, W, of all the guided (well ordered) subsets of X *)
   set (W := ⋃ Schain).
-  (* we show W itself is chosen, so W is the biggest chosen subset of X *)
-  assert (Wchosen : is_chosen_WOSubset g W).
+  (* we show W itself is guided, so W is the biggest guided subset of X *)
+  assert (Wguided : is_guided_WOSubset g W).
   { intros [w Ww]. apply (squash_to_hProp Ww); intros [C Cw].
     change (hProptoType (C w)) in Cw. simpl.
     assert (Q := pr2 C (w,,Cw)); simpl in Q.
@@ -1187,12 +1187,12 @@ Proof.
     - reflexivity. }
   (* now we prove W is all of X *)
   assert (all : ∀ x, W x).
-  { (* ... for if not, we can add a chosen element and get a bigger chosen subset *)
+  { (* ... for if not, we can add a guided element and get a bigger guided subset *)
     apply (proof_by_contradiction lem); intro n.
     (* it's not constructive to get an element not in W: *)
     assert (Q := negforall_to_existsneg _ lem n); clear n.
     change hfalse.
-    (* zn is the chosen element not in W: *)
+    (* zn is the guided element not in W: *)
     set (znW := g (pr1 W,,Q) : ∑ z : X, ¬ pr1 W z).
     set (z := pr1 znW).
     set (nWz := pr2 znW : ¬ pr1 W z).
@@ -1201,14 +1201,14 @@ Proof.
     assert (W'z := subtype_plus_has_point W z : W' z).
     set (j := TOSubset_plus_point_incl W z nWz : W ⊆ W').
     set (jmap := subtype_inc j).
-    assert (W'chosen : is_chosen_WOSubset g W').
-    { unfold is_chosen_WOSubset.
+    assert (W'guided : is_guided_WOSubset g W').
+    { unfold is_guided_WOSubset.
       intros [x W'x].
       change (x = pr1 (g (@upto' X W' (x,, W'x))))%set.
       apply (squash_to_hProp W'x); intros [Wx|ezx].
-      - assert (x_chosen := Wchosen (x,,Wx)).
-        change (x = pr1 (g (@upto' X W (x,, Wx))))%type in x_chosen.
-        simple refine (x_chosen @ _); clear x_chosen.
+      - assert (x_guided := Wguided (x,,Wx)).
+        change (x = pr1 (g (@upto' X W (x,, Wx))))%type in x_guided.
+        simple refine (x_guided @ _); clear x_guided.
         use upto'_eqn.
         + (* show W ≼ W'; abstract later *)
           assert (WW' := TOSubset_plus_point_le W z nWz).
@@ -1242,11 +1242,11 @@ Proof.
               induction (proofirrelevance_hProp _ W'y W'x).
               exact (TOrefl W' (z,, W'y)). }
         now induction e. }
-    assert (W'W := chain_union_le S Schain (W',,W'chosen) : W' ≼ W).
+    assert (W'W := chain_union_le S Schain (W',,W'guided) : W' ≼ W).
     assert (K := pr2 (subtype_inc (pr1 W'W) (z,,W'z)) : W z).
     exact (nWz K).
     }
-  clear Wchosen.
+  clear Wguided.
   apply hinhpr.
   induction W as [W R'].
   change (∏ x : X, W x)%type in all.
@@ -1275,7 +1275,11 @@ Open Scope woset.
 
 Definition WOrel (X:WellOrderedSet) : hrel X := pr12 X.
 
-Notation "s ≤ s'" := (WOrel _ s s') : woset.
+Notation "x ≤ y" := (WOrel _ x y) : woset.
+
+Definition WOlt {X:WellOrderedSet} (x y : X) := ¬ (y ≤ x).
+
+Notation "x < y" := (WOlt x y) : wosubset.
 
 Lemma isaprop_theSmallest {X : hSet}
       (R : hrel X) (total : isTotalOrder R) (S : hsubtype X) :
@@ -1315,6 +1319,49 @@ Defined.
 
 Lemma isaset_WellOrderedSet : isaset WellOrderedSet.
 Proof.
+  (*
+     First show that an order preserving equivalence f : X ≃ Y of well
+     ordered sets has the property that for any x, f x is least element
+     greater than f y for every y < x.  Now given also an order
+     preserving f' : X ≃ Y, take the smallest x where f x ≠ f y.  Since
+     they agree on previous values, they agree at x, too, using the previous
+     statement.
+   *)
+
+Abort.
+
+(* ** Transfinite recursion *)
+
+(*
+   We should be able to prove Zorn's lemma from transfinite recursion, or,
+   better yet, make it unneeded.
+ *)
+
+Theorem transfiniteRecursion {X:WellOrderedSet} (P : X -> Type) :
+  LEM -> (∏ x:X, (∏ y, y<x -> P y) -> P x) -> (∏ x, P x).
+Proof.
+  intros g.
+  (*
+     Consider subsets C of X that are initial segments for the ordering,
+     each of which is equipped with a section f of P and a proof of
+     ∏ x ∈ C, g x = f x (λ y, g y).  One may say that f is guided by g.
+     Then two pairs (C,f), (C',f') agree on their common intersection, which
+     is C or C', and thus the union U of all their graphs is a maximal guided
+     function.  If U were a proper subset, then its upper bound
+     could be added to U, contradiction, so U = X.
+   *)
+
+Abort.
+
+Lemma bigSet (X:Type) : ∑ Y:hSet, ∏ f : Y -> X, ¬ isincl f.
+Proof.
+  (*
+     This lemma is useful in arguments by contradiction, where one uses
+     transfinite recursion to define an injective function f, after first
+     equipping Y with a well ordering.
+
+     To prove it, let Y be the set of subsets of π_0 (X).
+   *)
 
 
 Abort.
