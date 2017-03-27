@@ -4,7 +4,7 @@ Matthew Weaver, 2017
 
 
 (** **********************************************************
-Contents : Equivalence of the categories pshf ∫P and 
+Contents : Equivalence of the categories pshf ∫P and
            pshf C / P for any P in pshf C
 ************************************************************)
 
@@ -37,7 +37,7 @@ Section elems_slice_equiv.
   Qed.
 
   Lemma transportf_pshf (C : precategory) (F : pshf C) (x y z : C)
-        (e : x = y) (f : C⟦x,z⟧) (u : ##F z) : 
+        (e : x = y) (f : C⟦x,z⟧) (u : ##F z) :
     transportf (λ x, ##F x) e (# (pr1 F) f u) =
     # (pr1 F) (transportf (@precategory_morphisms C^op z) e f) u.
   Proof.
@@ -57,9 +57,9 @@ Section elems_slice_equiv.
   (* BEGIN: Stuff from Anders *)
   (* Any f : J → I and ρ : P I defines a morphism from (J,,# P ρ) to (I,,ρ) in ∫P *)
   Definition mor_to_el_mor {I J : C} (f : J --> I) (ρ : pr1 P I : hSet) :
-    ∫P ⟦ make_ob J (# (pr1 P) f ρ), make_ob I ρ ⟧ := 
+    ∫P ⟦ make_ob J (# (pr1 P) f ρ), make_ob I ρ ⟧ :=
     make_mor (J,,# (pr1 P) f ρ) (I,,ρ) f (idpath (# (pr1 P) f ρ)).
-  
+
   Lemma make_ob_eq {I : C} {x y} (e : x = y) :
     make_ob I x = @make_ob C P I y.
   Proof.
@@ -111,10 +111,10 @@ Section elems_slice_equiv.
     now rewrite H, idpath_transportf.
   Qed.
   (* END: Stuff from Anders *)
-  
+
   Local Definition mk_ob := @make_ob C P.
   Local Definition mk_mor := @make_mor C P.
-  
+
   Definition pshf_to_slice_ob_funct_fun (F : pshf ∫P) : C^op → SET :=
     fun X => total2_hSet (fun p : ##P X => (pr1 F) (mk_ob X p)).
 
@@ -208,7 +208,7 @@ Section elems_slice_equiv.
     apply (hfibersgftog (Qmor _ _ f) (Qnat y)).
     exists (pr1 s).
     rewrite feq.
-    refine (eqtohomot (Qisnat _ _ f) (pr1 s) @ _). 
+    refine (eqtohomot (Qisnat _ _ f) (pr1 s) @ _).
     exact (maponpaths (# (pr1 P) f) (pr2 s)).
   Defined.
 
@@ -280,8 +280,8 @@ Section elems_slice_equiv.
       simpl;
       unfold hfiber;
       unfold hfibersgftog; unfold hfiberpair;
-      repeat rewrite transportf_total2;
-      simpl;
+      repeat (rewrite transportf_total2;
+              simpl; unfold hfiber);
       now repeat rewrite transportf_const.
   Qed.
 
@@ -314,7 +314,7 @@ Section elems_slice_equiv.
     simpl. unfold compose. simpl.
     destruct X as [[[X Xmor] Xisfunct] [Xnat Xisnat]].
     destruct Y as [[[Y Ymor] Yisfunct] [Ynat Yisnat]].
-    destruct f as [[f fisnat] feq]. simpl in *. 
+    destruct f as [[f fisnat] feq]. simpl in *.
     apply maponpaths. unfold hfiber.
     rewrite transportf_total2. simpl.
     rewrite transportf_const.
@@ -340,20 +340,20 @@ Section elems_slice_equiv.
     exact (hset_equiv_is_iso (hSetpair (coconusf (Fnat X))
                                          (isaset_total2_hSet _ (fun y => (hfiber_hSet (Fnat X) y)))) _
                                (weqfromcoconusf (Fnat X))).
-  Qed. 
+  Qed.
 
   Definition slice_unit : nat_trans (functor_identity (pshf C / P)) (slice_to_pshf ∙ pshf_to_slice) :=
     nat_trans_inv_from_pointwise_inv _ _
                                      (has_homsets_slice_precat (pr2 (pshf C)) P)
                                      (slice_to_pshf ∙ pshf_to_slice) (functor_identity (pshf C / P))
                                      slice_counit slice_all_iso.
-  
+
   Definition pshf_unit_fun (F : pshf ∫P) :
     (functor_identity _) F --> (pshf_to_slice ∙ slice_to_pshf) F.
   Proof.
     mkpair.
     + intros [X p] x.
-      exact ((p ,, x) ,, idpath p). 
+      exact ((p ,, x) ,, idpath p).
     + intros [X p] [X' p'] [f feq].
       simpl in *.
       apply funextsec; intros x.
@@ -373,7 +373,7 @@ Section elems_slice_equiv.
   Proof.
     intros [[F Fmor] Fisfunct] [[G Gmor] Gisfunct] [f fisnat].
     apply (nat_trans_eq has_homsets_HSET).
-    intros [X p]. 
+    intros [X p].
     apply funextsec; intros q.
     apply (invmaponpathsincl pr1).
     apply isofhlevelfpr1;
@@ -385,7 +385,7 @@ Section elems_slice_equiv.
   Qed.
 
   Definition pshf_unit : nat_trans (functor_identity (pshf ∫P)) (pshf_to_slice ∙ slice_to_pshf) :=
-    pshf_unit_fun ,, is_nat_trans_pshf_unit.  
+    pshf_unit_fun ,, is_nat_trans_pshf_unit.
 
   (* maybe move upstream *)
   Lemma transportf_paths_rewrite {X : UU} {Q : X → UU} {x y : X} {e e' : x = y} {q : Q x} :
@@ -393,8 +393,8 @@ Section elems_slice_equiv.
   Proof.
     intros eq.
     now induction eq.
-  Qed. 
-  
+  Qed.
+
   Definition pshf_all_iso : forall F : pshf ∫P, is_iso (pshf_unit F).
   Proof.
     intros [[F Fmor] Fisfunct].
@@ -427,8 +427,8 @@ Section elems_slice_equiv.
 
   Definition pshf_of_elems_slice_of_pshf_equiv : equivalence_of_precats (pshf ∫P) (pshf C / P) :=
     (pshf_to_slice ,,  slice_to_pshf ,, pshf_unit ,, slice_counit) ,, (pshf_all_iso ,, slice_all_iso).
-  
+
   Definition pshf_of_elems_slice_of_pshf_adj_equiv : adj_equivalence_of_precats pshf_to_slice :=
     @adjointificiation (pshf ∫P) (pshf C / P ,, has_homsets_slice_precat (pr2 (pshf C)) P) pshf_of_elems_slice_of_pshf_equiv.
-  
+
 End elems_slice_equiv.
