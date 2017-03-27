@@ -8,6 +8,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
@@ -15,8 +17,6 @@ Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Local Open Scope cat.
-
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
@@ -41,6 +41,8 @@ Require Import UniMath.CategoryTheory.AbelianToAdditive.
 Require Import UniMath.CategoryTheory.AdditiveFunctors.
 
 Require Import UniMath.HomologicalAlgebra.Complexes.
+
+Local Open Scope cat.
 
 Unset Kernel Term Sharing.
 Global Opaque hz.

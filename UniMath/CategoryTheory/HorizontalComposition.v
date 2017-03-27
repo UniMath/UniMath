@@ -10,10 +10,13 @@ Written by: Benedikt Ahrens, Ralph Matthes (2015)
 
 Require Import UniMath.Foundations.PartD.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+
 Local Open Scope cat.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).

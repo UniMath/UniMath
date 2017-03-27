@@ -25,8 +25,12 @@ using [X,SET] instead of SET/X. There is no proof that the
 functor we obtain using this approach is omega-cocontinuous yet.
 
 *)
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
+
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.precategories.
@@ -481,9 +485,7 @@ Definition SignatureInitialAlgebraSetSort
 Proof.
 use colimAlgInitial.
 - apply Initial_functor_precat, Initial_slice_precat, InitialHSET.
-- apply (is_omega_cocont_Id_H).
-  + apply BinProducts_HSET_slice.
-  + apply Hs.
+- apply (is_omega_cocont_Id_H), Hs.
 - apply ColimsFunctorCategory_of_shape, slice_precat_colims_of_shape,
         ColimsHSET_of_shape.
 Defined.
@@ -495,7 +497,6 @@ Definition MultiSortedSigToHSS (sig : MultiSortedSig) :
   HSS (MultiSortedSigToSignature sig).
 Proof.
 apply SignatureToHSS.
-+ apply BinProducts_HSET_slice.
 + apply Initial_slice_precat, InitialHSET.
 + apply slice_precat_colims_of_shape, ColimsHSET_of_shape.
 + apply is_omega_cocont_MultiSortedSigToSignature.

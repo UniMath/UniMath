@@ -19,14 +19,21 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories
-               UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.ProductPrecategory.
+
+Local Open Scope cat.
+
+Local Open Scope cat.
 
 (** * Definition of binary coproduct of objects in a precategory *)
 Section coproduct_def.
@@ -632,6 +639,28 @@ Defined.
 
 End BinCoproducts_from_Colims.
 
+(** * Coproducts over bool from binary coproducts *)
+Section CoproductsBool.
+
+Lemma CoproductsBool {C : precategory} (hsC : has_homsets C)
+  (HC : BinCoproducts C) : Coproducts bool C.
+Proof.
+intros H.
+use mk_CoproductCocone.
+- apply (HC (H true) (H false)).
+- induction i; apply (pr1 (HC (H true) (H false))).
+- use (mk_isCoproductCocone _ _ hsC); intros c f.
+  induction (pr2 (HC (H true) (H false)) c (f true) (f false)) as [[x1 [x2 x3]] x4].
+  use unique_exists.
+  + apply x1.
+  + cbn; induction i; assumption.
+  + intros x; apply impred; intros; apply hsC.
+  + intros h1 h2.
+    apply (maponpaths pr1 (x4 (h1,,(h2 true,,h2 false)))).
+Defined.
+
+End CoproductsBool.
+
 Section functors.
 
 Definition bincoproduct_functor_data {C : precategory} (PC : BinCoproducts C) :
@@ -657,16 +686,22 @@ abstract (split;
   | now intros x y z f g; simpl; rewrite BinCoproductOfArrows_comp ]).
 Defined.
 
+(* Defines the copropuct of two functors *)
+Definition BinCoproduct_of_functors_alt {C D : precategory}
+  (hsD : has_homsets D) (HD : BinCoproducts D) (F G : C ⟶ D) : C ⟶ D :=
+    tuple_functor (λ b, bool_rect (λ _, C ⟶ D) F G b) ∙
+    coproduct_functor bool (CoproductsBool hsD HD).
+
 (* Defines the copropuct of two functors by:
     x -> (x,x) -> (F x,G x) -> F x + G x
 
   For a direct and equal definition see FunctorsPointwiseBinCoproduct.v
 
+  Above is a slightly simpler definition
 *)
-Definition BinCoproduct_of_functors_alt {C D : precategory}
+Definition BinCoproduct_of_functors_alt2 {C D : precategory}
   (HD : BinCoproducts D) (F G : functor C D) : functor C D :=
-  functor_composite (bindelta_functor C)
-     (functor_composite (pair_functor F G) (bincoproduct_functor HD)).
+    bindelta_functor C ∙ (pair_functor F G ∙ bincoproduct_functor HD).
 
 End functors.
 
@@ -762,8 +797,20 @@ Qed.
 Definition BinCoproduct_of_functors : functor C D :=
   tpair _ _ is_functor_BinCoproduct_of_functors_data.
 
+Lemma BinCoproduct_of_functors_alt2_eq_BinCoproduct_of_functors :
+  BinCoproduct_of_functors_alt2 HD F G = BinCoproduct_of_functors.
+Proof.
+now apply (functor_eq _ _ hsD).
+Defined.
+
 Lemma BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors :
-  BinCoproduct_of_functors_alt HD F G = BinCoproduct_of_functors.
+  BinCoproduct_of_functors_alt hsD HD F G = BinCoproduct_of_functors.
+Proof.
+now apply (functor_eq _ _ hsD).
+Defined.
+
+Lemma BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors_alt2 :
+  BinCoproduct_of_functors_alt hsD HD F G = BinCoproduct_of_functors_alt2 HD F G.
 Proof.
 now apply (functor_eq _ _ hsD).
 Defined.

@@ -10,6 +10,8 @@ Unset Automatic Introduction.
 
 (* Preamble *)
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Export UniMath.Combinatorics.FiniteSets.
 (* Require Export UniMath.Combinatorics.OrderedSets. *)
 Require Export UniMath.CategoryTheory.precategories.

@@ -9,6 +9,7 @@ endif
 ############################################
 # The packages, listed in order by dependency:
 PACKAGES += Foundations
+PACKAGES += MoreFoundations
 PACKAGES += Combinatorics
 PACKAGES += Algebra
 PACKAGES += NumberSystems
@@ -26,13 +27,19 @@ BUILD_COQ ?= yes
 BUILD_COQIDE ?= no
 COQBIN ?=
 ############################################
+
 .PHONY: all everything install lc lcp wc describe clean distclean build-coq doc build-coqide
-COQIDE_OPTION ?= no
+all: check-first
+everything: TAGS all html install
+check-first: enforce-prescribed-ordering check-travis
+
+COQIDE_OPTION := no
+
 ifeq "$(BUILD_COQ)" "yes"
 COQBIN=sub/coq/bin/
-all: check-first
 all: build-coq
 build-coq: sub/coq/bin/coqc
+build/CoqMakefile.make: $(COQBIN)coq_makefile
 ifeq "$(BUILD_COQIDE)" "yes"
 all: build-coqide
 build-coqide: sub/coq/bin/coqide
@@ -50,8 +57,12 @@ PACKAGE_FILES := $(patsubst %, UniMath/%/.package/files, $(PACKAGES))
 ifneq "$(INCLUDE)" "no"
 include build/CoqMakefile.make
 endif
-everything: TAGS all html install
-check-first: enforce-linear-ordering check-travis
+
+ifeq ($(BUILD_COQ),yes)
+# this comes after including build/CoqMakefile.make, to bet VFILES defined
+$(VFILES:.v=.vo) : $(COQBIN)coqc
+endif
+
 OTHERFLAGS += $(MOREFLAGS)
 OTHERFLAGS += -indices-matter -type-in-type -w none
 ifeq ($(VERBOSE),yes)
@@ -103,8 +114,7 @@ COQDEFS := --language=none																\
 	-r '/^[[:space:]]*Tactic[[:space:]]+Notation.*[[:space:]]"\([[:alnum:]'\''_]+\)"[[:space:]]/\1/'										\
 	-r '/^[[:space:]]*Delimit[[:space:]]+Scope[[:space:]]+[[:alnum:]'\''_]+[[:space:]]+with[[:space:]]+\([[:alnum:]'\''_]+\)[[:space:]]*\./\1/'
 
-$(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
-$(VFILES:.v=.vo) : $(COQBIN)coqc
+$(foreach P,$(PACKAGES),$(eval TAGS-$P: Makefile $(filter UniMath/$P/%,$(VFILES)); etags $(COQDEFS) -o $$@ $$^))
 TAGS : Makefile $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
 $(foreach P,$(PACKAGES),$(eval $P: check-first $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\)=UniMath/$P/\1o=" )))
@@ -132,11 +142,11 @@ describe:; git describe --dirty --long --always --abbrev=40 --all
 	done ;\
 	echo ;\
 	echo '# Local ''Variables:' ;\
-	echo '# compile-command: "sub/coq/bin/coq_makefile -f .coq_makefile_input -o CoqMakefile.make.tmp && mv CoqMakefile.make.tmp build/CoqMakefile.make"' ;\
+	echo '# compile-command: "$(COQBIN)coq_makefile -f .coq_makefile_input -o CoqMakefile.make.tmp && mv CoqMakefile.make.tmp build/CoqMakefile.make"' ;\
 	echo '# End:' ;\
 	) >$@
 # the '' above prevents emacs from mistaking the lines above as providing local variables when visiting this file
-build/CoqMakefile.make: .coq_makefile_input $(COQBIN)coq_makefile
+build/CoqMakefile.make: .coq_makefile_input
 	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
 	mv .coq_makefile_output $@
 

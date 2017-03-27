@@ -13,6 +13,9 @@ Unset Kernel Term Sharing.
 
 Require UniMath.Ktheory.Nat.
 Require Export UniMath.Foundations.Sets.
+
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.Ktheory.Utilities
                UniMath.Algebra.Monoids_and_Groups
                UniMath.Foundations.UnivalenceAxiom
@@ -360,28 +363,44 @@ Proof. intros.
                                                               (fun t : T => weq_pathscomp0r y (s t)) t0))
                       (iscontrcoconustot Y (f t0)))
                 : @paths (GHomotopy f s (f t0)) _ _).
-       simple refine (eqtohomot (ap pr1 ((idpath _ :
-                         (pr2
-                            (thePoint
-                               (iscontrweqb
-                                  (weqfibtototal (GHomotopy f s) (fun y : Y => y = f t0)
-                                                 (fun y : Y =>
-                                                    ℤTorsorRecursion_weq (fun t : T => y = f t)
-                                                                          (fun t : T => weq_pathscomp0r y (s t)) t0))
-                                  (iscontrcoconustot Y (f t0)))))
-                           =
-                         (path_start a2)) @ a2)) t0 @ _).
-       simple refine (eqtohomot
-                  (ap pr1
-                     (compute_pr2_invmap_weqfibtototal
-                        (fun y : Y =>
-                           ℤTorsorRecursion_weq
-                             (fun t : T => y = f t)
-                             (fun t : T => weq_pathscomp0r y (s t)) t0)
-                        (f t0,, idpath (f t0))))
-                 t0 @ _).
-       exact (ℤTorsorRecursion_inv_compute _ _ _ _).
-Defined.
+       assert (Q1 := eqtohomot (ap pr1 ((idpath _ :
+                                            (pr2
+                                               (thePoint
+                                                  (iscontrweqb
+                                                     (weqfibtototal (GHomotopy f s) (fun y : Y => y = f t0)
+                                                                    (fun y : Y =>
+                                                                       ℤTorsorRecursion_weq (fun t : T => y = f t)
+                                                                                            (fun t : T => weq_pathscomp0r y (s t)) t0))
+                                                     (iscontrcoconustot Y (f t0)))))
+                                            =
+                                            (path_start a2)) @ a2)) t0).
+       assert (Q2 := eqtohomot
+                       (ap pr1
+                           (compute_pr2_invmap_weqfibtototal
+                              (fun y : Y =>
+                                 ℤTorsorRecursion_weq
+                                   (fun t : T => y = f t)
+                                   (fun t : T => weq_pathscomp0r y (s t)) t0)
+                              (f t0,, idpath (f t0))))
+                       t0).
+       assert (Q3 := ℤTorsorRecursion_inv_compute
+                       (λ t : T,
+                              pr1
+                                (invmap
+                                   (weqfibtototal (λ y : Y, ∑ y0, GuidedSection (λ t1 : T, y = f t1) (λ t1 : T, weq_pathscomp0r y (s t1)) y0) (λ y : Y, (λ t1 : T, y = f t1) t0)
+                                                  (λ y : Y, ℤTorsorRecursion_weq (λ t1 : T, y = f t1) (λ t1 : T, weq_pathscomp0r y (s t1)) t0)) (f t0,, idpath (f t0))) =
+                              f t)
+                       (λ t : T,
+                              weq_pathscomp0r
+                                (pr1
+                                   (invmap
+                                      (weqfibtototal (λ y : Y, ∑ y0, GuidedSection (λ t1 : T, y = f t1) (λ t1 : T, weq_pathscomp0r y (s t1)) y0)
+                                                     (λ y : Y, (λ t1 : T, y = f t1) t0) (λ y : Y, ℤTorsorRecursion_weq (λ t1 : T, y = f t1) (λ t1 : T, weq_pathscomp0r y (s t1)) t0))
+                                      (f t0,, idpath (f t0)))) (s t)) t0 (pr2 (f t0,, idpath (f t0)))).
+       (* this proof used to work quickly before turning on primitive projections, so maybe it's a Coq bug *)
+       (* exact (Q1 @ Q2 @ Q3). *)
+(* Defined. *)
+Abort.
 
 (* Definition iscontrGuidedHomotopy_comp_3 {Y} : *)
 (*   let T := trivialTorsor ℤ in  *)
