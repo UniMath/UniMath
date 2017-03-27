@@ -146,47 +146,6 @@ Section elems_slice_equiv.
         apply eqtohomot, (functor_comp F (mor_to_el_mor f ρ) (mor_to_el_mor g (# (pr1 P) f ρ))).
   Qed.
 
-  Definition pshf_to_slice_ob_is_funct' (F : pshf ∫P) : is_functor (pshf_to_slice_ob_funct_data F).
-  Proof.
-    split;
-      [intros X | intros X Y Z f g];  
-      apply funextsec; intros [p q].
-    
-    + set (T := ∑ p' : ## P X, p' = # (pr1 P) (identity X) p : UU).
-      set (T' := ∑ p' : ## P X, (pr1 F) (X ,, p) --> (pr1 F) (X ,, p') : UU).
-      set (phi := fun (x : T) => mk_mor (X ,, pr1 x) (X ,, p) (identity X) (pr2 x)).
-      set (G := fun (x : T) => pr1 x ,, # (pr1 F) (phi x) : T').
-      set (e := fun (x : ∫P) => eqtohomot (!((functor_id P) (pr1 x))) (pr2 x)).
-      set (h := fun (x : T') => pr1 x ,, (pr2 x) q : pr1hSet (pshf_to_slice_ob_funct_fun F X)).
-      
-      refine (maponpaths (funcomp G h)
-                         (connectedcoconustot ((# (pr1 P) (identity X) p) ,, idpath _) (p ,, e (X ,, p))) @ _).
-      refine (@pair_path_in2 _ (fun x => pr1hSet ((pr1 F) (X ,, x))) p _ _ _).
-      exact (eqtohomot (functor_id F (X ,, p)) q).
-      
-    + set (T := ∑ p' : ## P Z, p' = # (pr1 P) (g ∘ f) p : UU).      
-      set (T' := ∑ p' : ## P Z, (pr1 F) (X ,, p) --> (pr1 F) (Z ,, p') : UU).
-      set (phi := fun (x : T) => mk_mor (Z ,, pr1 x) (X ,, p) (g ∘ f) (pr2 x)).
-      set (G := fun (x : T) => (pr1 x ,, # (pr1 F) (phi x)) : T').
-      set (e := fun (z y x : ∫P) (f : z --> y) (g : y --> x) =>
-                  ((pr2 f) @ maponpaths (# (pr1 P) (pr1 f)) (pr2 g)
-                    @ (eqtohomot (!(functor_comp P) (pr1 g) (pr1 f)) (pr2 x)))).
-      set (h := fun (x : T') => pr1 x ,, (pr2 x) q : pr1hSet (pshf_to_slice_ob_funct_fun F Z)).
-      
-      refine (maponpaths (funcomp G h)
-                         (connectedcoconustot (# (pr1 P) (g ∘ f) p ,, idpath _)
-                                              (# (pr1 P) g (# (pr1 P) f p) ,,
-                                                 e (mk_ob Z (# (pr1 P) g (# (pr1 P) f p)))
-                                                 (mk_ob Y (# (pr1 P) f p)) (mk_ob X p)
-                                                 (g ,, idpath _) (f ,, idpath _))) @ _).
-      
-      refine (@pair_path_in2 _ (fun x => pr1hSet ((pr1 F) (Z ,, x))) (# (pr1 P) g (# (pr1 P) f p)) _ _ _).
-      exact (eqtohomot (@functor_comp _ _ F (mk_ob X p)
-                                      (mk_ob Y (# (pr1 P) f p))
-                                      (mk_ob Z (# (pr1 P) g (# (pr1 P) f p)))
-                                      (f ,, idpath _) (g,, idpath _)) q).
-  Qed.
-
   Definition pshf_to_slice_ob_funct (F : pshf ∫P) : pshf C :=
     pshf_to_slice_ob_funct_data F ,, pshf_to_slice_ob_is_funct F.
 

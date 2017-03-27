@@ -45,11 +45,11 @@ exists cat_of_elems_ob_mor.
 split.
 + intros a.
   exists (identity (pr1 a)).
-  exact (eqtohomot (!(functor_id X) (pr1 a)) (pr2 a)).
+  abstract (exact (eqtohomot (!(functor_id X) (pr1 a)) (pr2 a))).
 + intros a b c f g.
   exists (pr1 f · pr1 g).
-  exact ((pr2 f) @ maponpaths (#X (pr1 f)) (pr2 g)
-                    @ (eqtohomot (!(functor_comp X) (pr1 g) (pr1 f)) (pr2 c))).
+  abstract (exact ((pr2 f) @ maponpaths (#X (pr1 f)) (pr2 g)
+                    @ (eqtohomot (!(functor_comp X) (pr1 g) (pr1 f)) (pr2 c)))).
 Defined.
 
 Definition get_mor {x y : cat_of_elems_data} (f : _⟦x,y⟧) := pr1 f.
