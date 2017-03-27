@@ -1,13 +1,24 @@
+(** **********************************************************
+Matthew Weaver, 2017
+************************************************************)
+
+
+(** **********************************************************
+Contents : Equivalence of the categories pshf ∫P and 
+           pshf C / P for any P in pshf C
+************************************************************)
+
 Require Import UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
+        UniMath.CategoryTheory.equivalences
         UniMath.CategoryTheory.category_hset
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.opp_precat
         UniMath.CategoryTheory.yoneda
         UniMath.CategoryTheory.ElementsOp.
 
-(* Proof that pshf (el P) ≃ (pshf C) / P *)
+(* Proof that pshf ∫P ≃ pshf C / P *)
 Section elems_slice_equiv.
 
   Local Open Scope cat.
@@ -16,7 +27,6 @@ Section elems_slice_equiv.
   Local Notation "C / X" := (slice_precat C X (pr2 C)).
   Local Definition ap_pshf {X : precategory} := fun (P : pshf X) (x : X) => pr1hSet ((pr1 P) x).
   Local Notation "##" := ap_pshf.
-
 
   (* BEGIN: Stuff from Anders *)
   Lemma transportb_to_transportf (X : UU) (P : X -> UU) (x y : X) (e : x = y) (px : P x) (py : P y) :
@@ -320,7 +330,7 @@ Section elems_slice_equiv.
     slice_to_pshf_data ,, slice_to_pshf_is_funct.
 
   Definition slice_counit_fun (X : pshf C / P) :
-    (functor_composite_data slice_to_pshf pshf_to_slice) X --> (functor_identity_data _) X.
+    (slice_to_pshf ∙ pshf_to_slice) X --> (functor_identity _) X.
   Proof.
     destruct X as [[[X Xmor] Xisfunct] [Xnat Xisnat]].
     simpl in *.
@@ -352,15 +362,39 @@ Section elems_slice_equiv.
     now unfold idfun.
   Qed.
 
-  Definition slice_counit : nat_trans (slice_to_pshf ∙ pshf_to_slice) (functor_identity_data (pshf C / P)) :=
+  Definition slice_counit : nat_trans (slice_to_pshf ∙ pshf_to_slice) (functor_identity (pshf C / P)) :=
     slice_counit_fun ,, is_nat_trans_slice_counit.
 
+  Definition slice_all_iso : forall F : pshf C / P, is_iso (slice_counit F).
+  Proof.
+    intros [[[F Fmor] Fisfunct] [Fnat Fisnat]].
+    apply iso_to_slice_precat_iso.
+    apply functor_iso_if_pointwise_iso.
+    intros X; simpl.
+    match goal with
+    | |- is_iso ?t => assert (eq : t =
+                                   (fun X0 => pr1 (pr2 X0)))
+    end.
+    { apply funextsec. intros [p q]. simpl. reflexivity. }
+    rewrite eq.
+    change (fun X0 => pr1 (pr2 X0)) with (fromcoconusf (Fnat X)).
+    exact (hset_equiv_is_iso (hSetpair (coconusf (Fnat X))
+                                         (isaset_total2_hSet _ (fun y => (hfiber_hSet (Fnat X) y)))) _
+                               (weqfromcoconusf (Fnat X))).
+  Qed. 
+
+  Definition slice_unit : nat_trans (functor_identity (pshf C / P)) (slice_to_pshf ∙ pshf_to_slice) :=
+    nat_trans_inv_from_pointwise_inv _ _
+                                     (has_homsets_slice_precat (pr2 (pshf C)) P)
+                                     (slice_to_pshf ∙ pshf_to_slice) (functor_identity (pshf C / P))
+                                     slice_counit slice_all_iso.
+  
   Definition pshf_unit_fun (F : pshf ∫P) :
-    (functor_identity_data _) F --> (functor_composite_data pshf_to_slice slice_to_pshf) F.
+    (functor_identity _) F --> (pshf_to_slice ∙ slice_to_pshf) F.
   Proof.
     mkpair.
     + intros [X p] x.
-      exact ((p ,, x) ,, idpath _). 
+      exact ((p ,, x) ,, idpath p). 
     + intros [X p] [X' p'] [f feq].
       simpl in *.
       apply funextsec; intros x.
@@ -368,7 +402,7 @@ Section elems_slice_equiv.
       apply isofhlevelfpr1;
         intros ?;
                exact (pr2 (eqset _ _)).
-      induction (!feq); simpl.   
+      induction (!feq).
       apply (total2_paths2_f (idpath _)).
       rewrite idpath_transportf.
       assert (set_eq : idpath _ = feq).
@@ -380,14 +414,62 @@ Section elems_slice_equiv.
   Proof.
     intros [[F Fmor] Fisfunct] [[G Gmor] Gisfunct] [f fisnat].
     apply (nat_trans_eq has_homsets_HSET).
-    intros [X p].
-    apply funextsec.
-    intros q.
-    unfold compose. simpl in *. 
-    (*Check ((f (X,, p) ∙ (λ x : G (X,, p), (p,, x),, idpath p)) q).
-    
-    unfold pshf_to_slice_ob_nat. simpl. 
-    unfold pshf_to_slice_ob_nat_fun.
-    unfold pshf_to_slice_ob_nat , pshf_to_slice_ob_funct_data.
-    unfold pshf_to_slice_ob_funct_fun , pshf_to_slice_ob_funct_mor. simpl. *)
+    intros [X p]. 
+    apply funextsec; intros q.
+    apply (invmaponpathsincl pr1).
+    apply isofhlevelfpr1;
+      intros ?;
+             exact (pr2 (eqset _ _)).
+    simpl. unfold hfiber.
+    rewrite transportf_total2; simpl.
+    now rewrite transportf_const.
+  Qed.
+
+  Definition pshf_unit : nat_trans (functor_identity (pshf ∫P)) (pshf_to_slice ∙ slice_to_pshf) :=
+    pshf_unit_fun ,, is_nat_trans_pshf_unit.  
+
+  (* maybe move upstream *)
+  Lemma transportf_paths_rewrite {X : UU} {Q : X → UU} {x y : X} {e e' : x = y} {q : Q x} :
+    e = e' → transportf Q e q = transportf Q e' q.
+  Proof.
+    intros eq.
+    now induction eq.
+  Qed. 
+  
+  Definition pshf_all_iso : forall F : pshf ∫P, is_iso (pshf_unit F).
+  Proof.
+    intros [[F Fmor] Fisfunct].
+    apply functor_iso_if_pointwise_iso.
+    intros [X p]; simpl.
+    assert (H : isweq (λ x : pr1hSet (F (X,, p)) , (p,, x) ,, idpath p : pr1hSet (slice_to_pshf_ob_ob (pshf_to_slice_ob ((F,, Fmor),, Fisfunct)) (X,, p)))).
+    { unfold isweq. intros [[p' x'] e'].
+      simpl in *. induction e'.
+      refine ((x',, idpath _),, _).
+      intros [x'' t].
+      apply (invmaponpathsincl pr1).
+      apply isofhlevelfpr1;
+        intros ?;
+               exact (pr2 (@eqset
+                             ((slice_to_pshf_ob_ob (pshf_to_slice_ob ((F,, Fmor),, Fisfunct)) (X,, p'))) _ _)).
+      assert (eq_id : base_paths (p',, x'') (p',, x') (maponpaths pr1 t) = idpath p').
+      { set (c := iscontraprop1 (pr2 (@eqset ((pr1 P) X) p' p')) (idpath p')).
+        exact ((pr2 c) _ @ !((pr2 c) _)).
+      }
+      set (eq := fiber_paths (maponpaths pr1 t)).
+      refine (_ @ eq).
+      rewrite (transportf_paths_rewrite eq_id).
+      now rewrite idpath_transportf.
+    }
+    exact (hset_equiv_is_iso (F (X ,, p)) _ (_ ,, H)).
+  Qed.
+
+  Definition pshf_counit : nat_trans (pshf_to_slice ∙ slice_to_pshf) (functor_identity (pshf ∫P))  :=
+    nat_trans_inv_from_pointwise_inv _ _ (pr2 (pshf ∫P)) _ _ pshf_unit pshf_all_iso.
+
+  Definition pshf_of_elems_slice_of_pshf_equiv : equivalence_of_precats (pshf ∫P) (pshf C / P) :=
+    (pshf_to_slice ,,  slice_to_pshf ,, pshf_unit ,, slice_counit) ,, (pshf_all_iso ,, slice_all_iso).
+  
+  Definition pshf_of_elems_slice_of_pshf_adj_equiv : adj_equivalence_of_precats pshf_to_slice :=
+    @adjointificiation (pshf ∫P) (pshf C / P ,, has_homsets_slice_precat (pr2 (pshf C)) P) pshf_of_elems_slice_of_pshf_equiv.
+  
 End elems_slice_equiv.
