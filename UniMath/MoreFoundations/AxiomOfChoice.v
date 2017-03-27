@@ -107,4 +107,39 @@ Proof.
   apply (retract_dec f g h isdeceqbool).
 Defined.
 
+(** ** The Axiom of Choice implies a type receives a surjective map from a set *)
 
+Lemma pi0_components (X:Type) (R := pathseqrel X) (p := setquotpr R : X -> setquotinset _) :
+  ∀ x y, eqset (p x) (p y) ⇒ ∥ paths x y ∥.
+Proof.
+  intros x y e.
+  apply (squash_to_prop (invmap (weqpathsinsetquot R x y) e)).
+  { apply propproperty. }
+  clear e; intros e.
+  exact (hinhpr e).
+Defined.
+
+Theorem SetCovering (X:Type) : AxiomOfChoice -> ∃ (S:hSet) (f:S->X), issurjective f.
+Proof.
+  intros ac.
+  assert (ac' := pr1 AC_impl2 ac); clear ac.
+  set (R := pathseqrel X).
+  set (S := setquotinset R).
+  set (g := pi0pr X : X -> S).
+  assert (g_sur := issurjsetquotpr R : issurjective g).
+  assert (f := ac' _ _ _ g_sur).
+  apply (squash_to_prop f).
+  { apply propproperty. }
+  clear f; intros [f eqn].
+  apply hinhpr.
+  exists S.
+  exists f.
+  intros x.
+  use (@squash_to_prop (f (g x) = x)%type).
+  { use (pi0_components X). change (g (f (g x)) = g x)%type. exact (eqn (g x)). }
+  { apply propproperty. }
+  intros e.
+  apply hinhpr.
+  exists (g x).
+  exact e.
+Defined.
