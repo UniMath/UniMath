@@ -523,18 +523,7 @@ Proof.
   - use isapropisnonzerorng.
   - intros H.
     use impred. intros x. use isapropcoprod.
-    + use invproofirrelevance. intros m1 m2.
-      use total2_paths_f.
-      * use (pathscomp0 (! (rigrunax2 X (pr1 m1)))).
-        use (pathscomp0 _ (riglunax2 X (pr1 m2))).
-        use (pathscomp0 _ (maponpaths (fun y : X => op2 y (pr1 m2)) (dirprod_pr2 (pr2 m1)))).
-        use (pathscomp0 (maponpaths (fun y : X => op2 (pr1 m1) y) (! dirprod_pr1 (pr2 m2)))).
-        use (pathscomp0 (! @rigassoc2 X (pr1 m1) (pr1 m2) x)).
-        use (pathscomp0 (@rigcomm2 X (op2 (pr1 m1) (pr1 m2)) x)).
-        exact (! @rigassoc2 X x (pr1 m1) (pr1 m2)).
-      * use proofirrelevance. use isapropdirprod.
-        -- use setproperty.
-        -- use setproperty.
+    + use isapropinvpair.
     + use setproperty.
     + intros H' e. use H.
       use (pathscomp0

@@ -153,6 +153,12 @@ Definition mk_isrigfun {X Y : rig} {f : X -> Y}
            (H2 : @ismonoidfun (rigmultmonoid X) (rigmultmonoid Y) f) : isrigfun f :=
   dirprodpair H1 H2.
 
+Definition isrigfunisaddmonoidfun {X Y : rig} {f : X -> Y} (H : isrigfun f) :
+  @ismonoidfun (rigaddabmonoid X) (rigaddabmonoid Y) f := dirprod_pr1 H.
+
+Definition isrigfunismultmonoidfun {X Y : rig} {f : X -> Y} (H : isrigfun f) :
+  @ismonoidfun (rigmultmonoid X) (rigmultmonoid Y) f := dirprod_pr2 H.
+
 Definition rigfun (X Y : rig) : UU := total2 (fun f : X -> Y => isrigfun f).
 
 Definition rigfunconstr {X Y : rig} {f : X -> Y} (is : isrigfun f) : rigfun X Y := tpair _ f is.
@@ -172,6 +178,8 @@ Definition rigisopair {X Y : rig} (f : weq X Y) (is : isrigfun f) : rigiso X Y :
 
 Definition pr1rigiso (X Y : rig) : rigiso X Y -> weq X Y := @pr1 _ _.
 Coercion pr1rigiso : rigiso >-> weq.
+
+Definition rigisoisrigfun {X Y : rig} (f : rigiso X Y) : isrigfun f := pr2 f.
 
 Definition rigaddiso {X Y : rig} (f : rigiso X Y) :
   monoidiso (rigaddabmonoid X) (rigaddabmonoid Y) :=
@@ -249,10 +257,6 @@ Opaque rig_univalence_weq2.
 Definition rig_univalence_weq3 (X Y : rig) : (rigiso' X Y) ≃ (rigiso X Y).
 Proof.
   intros X Y.
-  induction X as [X1 X2]. induction X2 as [X2 X3]. induction X2 as [X21 X22].
-  induction X21 as [X211 X212]. induction X22 as [X221 X222].
-  induction Y as [Y1 Y2]. induction Y2 as [Y2 Y3]. induction Y2 as [Y21 Y22].
-  induction Y21 as [Y211 Y212]. induction Y22 as [Y221 Y222]. cbn in *.
   use weqpair.
   - intros i'.
     use rigisopair.
@@ -268,12 +272,12 @@ Proof.
         -- exact (dirprod_pr2 (pr2 i')).
   - use gradth.
     + intros i. use mk_rigiso'.
-      * exact (pr1 i).
+      * exact (pr1rigiso _ _ i).
       * use mk_istwobinopfun.
-        -- exact (pr1 (pr1 (pr2 i))).
-        -- exact (pr1 (pr2 (pr2 i))).
-      * exact (pr2 (pr1 (pr2 i))).
-      * exact (pr2 (pr2 (pr2 i))).
+        -- exact (ismonoidfunisbinopfun (isrigfunisaddmonoidfun (rigisoisrigfun i))).
+        -- exact (ismonoidfunisbinopfun (isrigfunismultmonoidfun (rigisoisrigfun i))).
+      * exact (ismonoidfununel (isrigfunisaddmonoidfun (rigisoisrigfun i))).
+      * exact (ismonoidfununel (isrigfunismultmonoidfun (rigisoisrigfun i))).
     + intros x. use idpath.
     + intros x. use idpath.
 Defined.

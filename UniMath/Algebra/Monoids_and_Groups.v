@@ -100,10 +100,16 @@ Delimit Scope multmonoid_scope with multmonoid.
 (** **** Functions between monoids compatible with structure (homomorphisms) and their properties *)
 
 Definition ismonoidfun {X Y : monoid} (f : X -> Y) : UU :=
-  dirprod (isbinopfun f) (paths (f (unel X)) (unel Y)).
+  dirprod (isbinopfun f) (f (unel X) = (unel Y)).
 
 Definition mk_ismonoidfun {X Y : monoid} {f : X -> Y} (H1 : isbinopfun f)
            (H2 : f (unel X) = unel Y) : ismonoidfun f := dirprodpair H1 H2.
+
+Definition ismonoidfunisbinopfun {X Y : monoid} {f : X -> Y} (H : ismonoidfun f) : isbinopfun f :=
+  dirprod_pr1 H.
+
+Definition ismonoidfununel {X Y : monoid} {f : X -> Y} (H : ismonoidfun f) : f (unel X) = unel Y :=
+  dirprod_pr2 H.
 
 Lemma isapropismonoidfun {X Y : monoid} (f : X -> Y) : isaprop (ismonoidfun f).
 Proof.
