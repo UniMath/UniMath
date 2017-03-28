@@ -11,9 +11,10 @@ Revised and extended by Ralph Matthes, 2017
 
 Require Import UniMath.Foundations.PartD.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -21,12 +22,11 @@ Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
-(*
-Require Import UniMath.SubstitutionSystems.Lam.
-*)
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
+
+Local Open Scope cat.
 
 Section around_δ.
 
@@ -99,7 +99,7 @@ Definition δ_target : functor Ptd EndC := tpair _ _ is_functor_δ_target.
 
 Section δ_laws.
 
-Variable δ : δ_source ⟶ δ_target.
+Variable δ : δ_source ⟹ δ_target.
 
 (* Should be ρ_G^-1 ∘ λ_G ? *)
 Definition δ_law1 : UU := δ (id_Ptd C hsC) = nat_trans_id G.
@@ -183,7 +183,7 @@ eapply pathscomp0.
 now rewrite <- assoc, <- functor_comp.
 Qed.
 
-Definition θ_from_δ : θ_source precompG ⟶ θ_target precompG :=
+Definition θ_from_δ : θ_source precompG ⟹ θ_target precompG :=
   tpair _ _ is_nat_trans_θ_from_δ_mor.
 
 Lemma θ_Strength1_int_from_δ : θ_Strength1_int θ_from_δ.
@@ -209,7 +209,7 @@ eapply pathscomp0;
 apply functor_comp.
 Qed.
 
-Definition θ_precompG : ∑ θ : θ_source precompG ⟶ θ_target precompG,
+Definition θ_precompG : ∑ θ : θ_source precompG ⟹ θ_target precompG,
                               θ_Strength1_int θ × θ_Strength2_int θ :=
   tpair _ θ_from_δ (θ_Strength1_int_from_δ,,θ_Strength2_int_from_δ).
 
@@ -228,7 +228,7 @@ Section δ_mul.
 
 Definition δ_comp_mor (Ze : ptd_obj C) :
        functor_composite_data (pr1 Ze) (functor_composite_data G1 G2)
-   ⟶ functor_composite_data (functor_composite_data G1 G2) (pr1 Ze).
+   ⟹ functor_composite_data (functor_composite_data G1 G2) (pr1 Ze).
 Proof.
 set (Z := pr1 Ze).
 set (F1 := α_functor_inv Z G1 G2).
@@ -261,7 +261,7 @@ eapply pathscomp0.
 now rewrite assoc.
 Qed.
 
-Definition δ_comp : δ_source (G2 • G1 : [C,C,hsC]) ⟶ δ_target (G2 • G1 : [C,C,hsC]) :=
+Definition δ_comp : δ_source (G2 • G1 : [C,C,hsC]) ⟹ δ_target (G2 • G1 : [C,C,hsC]) :=
   tpair _ δ_comp_mor is_nat_trans_δ_comp_mor.
 
 Lemma δ_comp_law1 : δ_law1 (G2 • G1 : [C,C,hsC]) δ_comp.
@@ -316,7 +316,7 @@ Definition δ_genoption_mor (Ze : Ptd) (c : C) :  C ⟦ BinCoproductObject C (CC
                                                   pr1 Ze (BinCoproductObject C (CC A c)) ⟧.
 Proof.
 apply (@BinCoproductArrow _ _ _ (CC A (pr1 Ze c)) (pr1 Ze (BinCoproductObject C (CC A c)))).
-- apply (BinCoproductIn1 _ (CC A c) ;; pr2 Ze (BinCoproductObject _ (CC A c))).
+- apply (BinCoproductIn1 _ (CC A c) · pr2 Ze (BinCoproductObject _ (CC A c))).
 - apply (# (pr1 Ze) (BinCoproductIn2 _ (CC A c))).
 Defined.
 
@@ -370,7 +370,7 @@ apply pathsinv0, BinCoproductArrowUnique.
   now apply nat_trans_ax.
 Qed.
 
-Definition δ_genoption : δ_source genopt ⟶ δ_target genopt.
+Definition δ_genoption : δ_source genopt ⟹ δ_target genopt.
 Proof.
 mkpair.
 - intro Ze.
@@ -434,7 +434,7 @@ Section option_sig.
 
   Variables (TC : Terminal C) (CC : BinCoproducts C).
   Let opt := option_functor CC TC.
-  Definition δ_option: δ_source opt ⟶ δ_target opt :=
+  Definition δ_option: δ_source opt ⟹ δ_target opt :=
     δ_genoption TC CC.
 
   Definition δ_law1_option :=  δ_law1_genoption TC CC.
@@ -472,7 +472,7 @@ Section id_signature.
 Variable (C : precategory) (hsC : has_homsets C).
 
 Definition θ_functor_identity : ∑
-  θ : θ_source (functor_identity [C,C,hsC]) ⟶ θ_target (functor_identity [C,C,hsC]),
+  θ : θ_source (functor_identity [C,C,hsC]) ⟹ θ_target (functor_identity [C,C,hsC]),
   θ_Strength1_int θ × θ_Strength2_int θ.
 Proof.
 mkpair; simpl.
@@ -508,7 +508,7 @@ Section constantly_constant_signature.
   Let H := constant_functor (functor_Precategory C C) (functor_Precategory C D) (constant_functor C D d).
 
   Definition θ_const_const : ∑
-  θ : θ_source H  ⟶ θ_target H, θ_Strength1_int θ × θ_Strength2_int θ.
+  θ : θ_source H  ⟹ θ_target H, θ_Strength1_int θ × θ_Strength2_int θ.
 Proof.
 mkpair; simpl.
 + mkpair; simpl.
@@ -588,7 +588,7 @@ eapply pathscomp0.
         apply Hyp.
 Qed.
 
-Definition Gθ : θ_source GH ⟶ θ_target GH :=
+Definition Gθ : θ_source GH ⟹ θ_target GH :=
   tpair _ _ is_nat_trans_Gθ_mor.
 
 
@@ -626,7 +626,7 @@ eapply pathscomp0.
 Qed.
 
 
-Definition Gθ_with_laws : ∑ θ : θ_source GH ⟶ θ_target GH,
+Definition Gθ_with_laws : ∑ θ : θ_source GH ⟹ θ_target GH,
                               θ_Strength1_int θ × θ_Strength2_int θ :=
   tpair _ Gθ (Gθ_Strength1_int,,Gθ_Strength2_int).
 

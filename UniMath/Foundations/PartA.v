@@ -166,7 +166,11 @@ Definition idfun (T : UU) := λ t:T, t.
 
 Definition funcomp {X Y : UU} {Z:Y->UU} (f : X -> Y) (g : ∏ y:Y, Z y) := λ x, g (f x).
 
-Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity).
+Delimit Scope functions with functions.
+
+Open Scope functions.
+
+Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity) : functions.
 
 (** back and forth between functions of pairs and functions returning
   functions *)
@@ -503,13 +507,13 @@ Definition invhomot {X:UU} {Y:X->UU} {f f' : ∏ x : X, Y x}
            (h : f ~ f') : f' ~ f := fun (x : X) => !(h x).
 
 Definition funhomot {X Y Z:UU} (f : X -> Y) {g g' : Y -> Z}
-           (h : g ~ g') : (g ∘ f) ~ (g' ∘ f) := fun (x : X) => h (f x).
+           (h : g ~ g') : g ∘ f ~ g' ∘ f := fun (x : X) => h (f x).
 
 Definition funhomotsec {X Y:UU} {Z:Y->UU} (f : X -> Y) {g g' : ∏ y:Y, Z y}
-           (h : g ~ g') : (g ∘ f) ~ (g' ∘ f) := fun (x : X) => h (f x).
+           (h : g ~ g') : g ∘ f ~ g' ∘ f := fun (x : X) => h (f x).
 
 Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
-           (g : Y -> Z) : (g ∘ f) ~ (g ∘ f') := fun (x : X) => maponpaths g (h x).
+           (g : Y -> Z) : g ∘ f ~ g ∘ f' := fun (x : X) => maponpaths g (h x).
 
 (** *** Equality between functions defines a homotopy *)
 
@@ -1030,7 +1034,7 @@ Defined.
 
 (** *** Homotopy fibers [ hfiber ] *)
 
-Definition hfiber {X Y : UU}  (f : X -> Y) (y : Y) : UU := ∑ x:X, f x = y.
+Definition hfiber {X Y : UU} (f : X -> Y) (y : Y) : UU := ∑ x : X, f x = y.
 
 Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
            (x : X) (e : f x = y) : hfiber f y :=

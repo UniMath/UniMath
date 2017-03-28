@@ -12,10 +12,9 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
-
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
+Require Import UniMath.CategoryTheory.precategories
+               UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 
 Section def_initial.
 
@@ -62,7 +61,7 @@ Proof.
 Defined.
 
 Lemma isiso_from_Initial_to_Initial (O O' : Initial) :
-   is_isomorphism (InitialArrow O O').
+   is_iso (InitialArrow O O').
 Proof.
   apply (is_iso_qinv _ (InitialArrow O' O)).
   split; apply pathsinv0;
@@ -151,14 +150,12 @@ End Initial_and_EmptyCoprod.
 (* case (iscc _ (initCocone b)); intros f Hf; destruct f as [f fcomm]. *)
 (* apply (tpair _ f); intro g. *)
 (* transparent assert (X : (∑ x : c --> b, ∏ v, *)
-(*                        coconeIn cc v ;; x = coconeIn (initCocone b) v)). *)
+(*                        coconeIn cc v · x = coconeIn (initCocone b) v)). *)
 (*   { apply (tpair _ g); intro u; induction u. } *)
 (* apply (maponpaths pr1 (Hf X)). *)
 (* Defined. *)
 
 (* End Initial_from_Colims. *)
-
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (** * Construction of initial object in a functor category *)
 Section InitialFunctorCat.

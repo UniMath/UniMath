@@ -26,9 +26,9 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.Folds.aux_lemmas.
 Require Import UniMath.Folds.folds_precat.
 
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
-Local Notation "f □ g" := (compose f g)(at level 50).
+Local Open Scope cat.
 
+Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
 
 (** * From precategories to FOLDS precategories *)
 
@@ -215,12 +215,12 @@ Local Notation "C ^" := (folds_precat_from_precat C) (at level 3).
 Local Notation "C ^^" := (precat_from_folds_precat C) (at level 3).
 
 Lemma comp_compose {C : precategory} (hs: has_homsets C) {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h : a ⇒ c} :
-   f □ g = h -> T (C:=C^hs) f g h.
+   f · g = h -> T (C:=C^hs) f g h.
 Proof.
    apply (λ x, x).
 Qed.
 Lemma comp_compose' {C : precategory} (hs: has_homsets C){a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h : a ⇒ c} :
-    T (C:=C^hs) f g h -> f □ g = h.
+    T (C:=C^hs) f g h -> f · g = h.
 Proof.
    apply (λ x, x).
 Qed.

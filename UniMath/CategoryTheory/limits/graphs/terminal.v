@@ -1,14 +1,18 @@
 (** Terminal object defined as a limit *)
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.terminal.
+
+Local Open Scope cat.
 
 Section def_terminal.
 
@@ -87,7 +91,7 @@ now apply ArrowsToTerminal.
 Qed.
 
 Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) :
-   is_isomorphism (TerminalArrow T (TerminalObject T')).
+   is_iso (TerminalArrow T (TerminalObject T')).
 Proof.
   apply (is_iso_qinv _ (TerminalArrow T' (TerminalObject T))).
   split; apply pathsinv0, TerminalEndo_is_identity.

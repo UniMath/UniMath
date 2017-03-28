@@ -22,7 +22,6 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -33,9 +32,7 @@ Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 
-Local Notation "# F" := (functor_on_morphisms F) (at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
+Local Open Scope cat.
 
 Section binsum_of_signatures.
 
@@ -51,8 +48,8 @@ Local Notation "'CCD'" := (BinCoproducts_functor_precat C D CD hs : BinCoproduct
 
 Variables H1 H2 : functor [C, C, hsC] [C, D, hs].
 
-Variable θ1 : θ_source H1 ⟶ θ_target H1.
-Variable θ2 : θ_source H2 ⟶ θ_target H2.
+Variable θ1 : θ_source H1 ⟹ θ_target H1.
+Variable θ2 : θ_source H2 ⟹ θ_target H2.
 
 Variable S11 : θ_Strength1 θ1.
 Variable S12 : θ_Strength2 θ1.
@@ -119,7 +116,7 @@ Proof.
     + apply (nat_trans_eq_pointwise Hyp2 c).
 Qed.
 
-Local Definition θ : θ_source H ⟶ θ_target H.
+Local Definition θ : θ_source H ⟹ θ_target H.
 Proof.
   exists θ_ob.
   apply is_nat_trans_θ_ob.
@@ -230,16 +227,14 @@ Proof.
 Defined.
 
 Lemma is_omega_cocont_BinSum_of_Signatures (S1 S2 : Signature C hsC D hs)
-  (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2) (PC : BinProducts C) :
+  (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2) :
   is_omega_cocont (BinSum_of_Signatures S1 S2).
 Proof.
 destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.
 destruct S2 as [G1 [G2 [G3 G4]]]; simpl in *.
 unfold H.
 apply is_omega_cocont_BinCoproduct_of_functors; try assumption.
-- apply (BinProducts_functor_precat _ _ PC).
-- apply functor_category_has_homsets.
-- apply functor_category_has_homsets.
+apply functor_category_has_homsets.
 Defined.
 
 End binsum_of_signatures.

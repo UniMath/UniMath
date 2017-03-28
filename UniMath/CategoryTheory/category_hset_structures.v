@@ -34,8 +34,10 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
@@ -51,11 +53,9 @@ Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.covyoneda.
 Require Import UniMath.CategoryTheory.slicecat.
-
 Require Import UniMath.CategoryTheory.EpiFacts.
 
-
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Open Scope cat.
 
 (* This should be moved upstream. Constructs the smallest eqrel
    containing a given relation *)
@@ -211,7 +211,7 @@ use mk_cocone.
 Defined.
 
 Definition ColimHSETArrow (c : HSET) (cc : cocone D c) :
-  ∑ x : HSET ⟦ colimHSET, c ⟧, ∏ v : vertex g, injections v ;; x = coconeIn cc v.
+  ∑ x : HSET ⟦ colimHSET, c ⟧, ∏ v : vertex g, injections v · x = coconeIn cc v.
 Proof.
 exists (from_colimHSET _ cc).
 abstract (intro i; simpl; unfold injections, compose, from_colimHSET; simpl;
@@ -623,7 +623,7 @@ mkpair.
     * abstract (apply (isaset_nat_trans has_homsets_HSET)).
   + simpl; intros a b f alpha.
     apply (BinProductOfArrows _ (CP (cy a) P) (CP (cy b) P)
-                           (# cy f) (identity _) ;; alpha).
+                           (# cy f) (identity _) · alpha).
 - abstract (
     split;
       [ intros c; simpl; apply funextsec; intro a;
@@ -678,16 +678,19 @@ use left_adjoint_from_partial.
               [|apply (toforallpaths _ _ _ (nat_trans_ax φ _ _ f)
                                      (dirprodpair (pr2 x) (# R (pr1 x) u)))]; cbn.
               repeat (apply maponpaths).
-              assert (H : # R (pr1 x ;; f) = # R (pr1 x) ;; #R f).
+              assert (H : # R (pr1 x · f) = # R (pr1 x) · #R f).
               { apply functor_comp. }
-              apply (toforallpaths _ _ _ H u).
+              unfold prodtofuntoprod.
+              simpl (pr1 _); simpl (pr2 _).
+              apply maponpaths.
+              apply (eqtohomot H u).
         - intros a b f; cbn.
           apply funextsec; intros x; cbn.
           apply subtypeEquality;
             [intros xx; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|].
           apply funextsec; intro y; apply funextsec; intro z; cbn.
           repeat apply maponpaths;  unfold covyoneda_morphisms_data.
-          assert (H : # R (f ;; pr1 z) = # R f ;; # R (pr1 z)).
+          assert (H : # R (f · pr1 z) = # R f · # R (pr1 z)).
           { apply functor_comp. }
           apply pathsinv0.
           now etrans; [apply (toforallpaths _ _ _ H x)|].
@@ -764,7 +767,7 @@ use mk_functor.
       exists (pr1 h).
       intros fx.
       mkpair.
-      * apply (pr1 g), (pr1 (pr2 h fx)).
+      * exact (pr1 g (pr1 (pr2 h fx))).
       * abstract (etrans; [ apply (!toforallpaths _ _ _ (pr2 g) (pr1 (pr2 h fx)))|];
                   apply (pr2 (pr2 h fx))).
     - abstract (now apply funextsec).
@@ -830,7 +833,12 @@ use mk_are_adjoints.
   + intros x; apply eq_mor_slicecat, funextsec; intro x1; simpl.
     use total2_paths_f; [apply idpath|]; cbn.
     apply funextsec; intro y.
-    now apply subtypeEquality; [intro z; apply setproperty|]; simpl; rewrite <- tppr.
+    simple refine (subtypeEquality _ _).
+    * intro z; apply setproperty.
+    * simpl.
+      apply maponpaths.
+      apply maponpaths.
+      apply tppr.
 Defined.
 
 (** * Products in Set/X *)
@@ -877,12 +885,15 @@ use mk_ProductCone.
     * abstract (now apply funextsec).
   - abstract (now intros i; apply eq_mor_slicecat, funextsec).
   - abstract (now intros g; apply impred_isaprop; intro i; apply has_homsets_slice_precat).
-  - abstract (simpl; intros [y1 y2] Hy; apply eq_mor_slicecat, funextsec; intro x;
+  - abstract(simpl; intros [y1 y2] Hy; apply eq_mor_slicecat, funextsec; intro x;
     use total2_paths_f; [apply (toforallpaths _ _ _ (!y2) x)|];
     apply funextsec; intro i; apply subtypeEquality; [intros w; apply setproperty|];
     destruct f as [f Hf]; cbn in *;
-    induction (toforallpaths (λ _ : f, X) (λ x0 : f, pr1 (y1 x0)) Hf (! y2) x);
-    now rewrite idpath_transportf, <- (Hy i)).
+    rewrite y2;
+    simpl;
+    rewrite idpath_transportf;
+    rewrite <- Hy;
+    reflexivity).
 Defined.
 
 End products_set_slice.
@@ -929,7 +940,7 @@ End set_slicecat.
 Lemma pullback_HSET_univprop_elements {P A B C : HSET}
     {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
     {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
-    (ep : p1 ;; f = p2 ;; g)
+    (ep : p1 · f = p2 · g)
     (pb : isPullback f g p1 p2 ep)
   : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
 Proof.

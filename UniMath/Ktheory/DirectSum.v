@@ -38,7 +38,7 @@ Record DirectSum {C:Precategory} (h:hasZeroMaps C) I (dec : isdeceq I) (c : I ->
       ds_issum  : ∏ c, isweq (λ f : Hom C ds c, λ i, f ∘ ds_in i) }.
 Definition toDirectSum {C:Precategory} (h:hasZeroMaps C) {I} (dec : isdeceq I) (d:I -> ob C)
            (B:Sum d) (D:Product d)
-           (is: is_isomorphism (identity_map h dec B D)) : DirectSum h I dec d.
+           (is: is_iso (identity_map h dec B D)) : DirectSum h I dec d.
 Proof. intros. set (id := identity_map h dec B D).
   refine (make_DirectSum C h I dec d (universalObject D)
                          (λ i, pr_ D i)

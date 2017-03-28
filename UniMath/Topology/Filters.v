@@ -4,6 +4,8 @@
 
 Require Export UniMath.Topology.Prelim.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
 
 (** ** Definition of a Filter *)
@@ -203,7 +205,7 @@ End Filter_pty.
 Lemma isasetPreFilter (X : UU) : isaset (PreFilter X).
 Proof.
   intros X.
-  simple refine (isaset_total2_subset (hSetpair _ _) (λ _, hProppair _ _)).
+  simple refine (isaset_carrier_subset (hSetpair _ _) (λ _, hProppair _ _)).
   apply impred_isaset ; intros _.
   apply isasethProp.
   apply isapropdirprod.
@@ -214,7 +216,7 @@ Qed.
 Lemma isasetFilter (X : UU) : isaset (Filter X).
 Proof.
   intros X.
-  simple refine (isaset_total2_subset (hSetpair _ _) (λ _, hProppair _ _)).
+  simple refine (isaset_carrier_subset (hSetpair _ _) (λ _, hProppair _ _)).
   apply impred_isaset ; intros _.
   apply isasethProp.
   apply isapropdirprod.
@@ -1008,10 +1010,11 @@ Proof.
   apply hinhpr.
   exists nil.
   split.
-  intros m.
-  now generalize (pr2 m).
-  easy.
+  + intros m.
+    induction (nopathsfalsetotrue (pr2 m)).
+  + unimath_easy.
 Qed.
+
 Lemma filtergenerated_and :
   isfilter_and filtergenerated.
 Proof.

@@ -13,9 +13,9 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 
+Local Open Scope cat.
 
 (** * Definition of equalizers in terms of limits *)
 Section def_equalizers.
@@ -41,22 +41,22 @@ Section def_equalizers.
   Definition Equalizer_diagram {a b : C} (f g : C⟦a, b⟧) : diagram Equalizer_graph C.
   Proof.
     exists (two_rec a b).
-    use two_rec_dep; cbn.
-    - use two_rec_dep; cbn.
+    use two_rec_dep.
+    - use two_rec_dep; simpl.
       + apply fromempty.
       + intro x. induction x.
         exact f. exact g.
     - intro. apply fromempty.
   Defined.
 
-  Definition Equalizer_cone {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧) (H : h ;; f = h ;; g) :
+  Definition Equalizer_cone {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧) (H : h · f = h · g) :
     cone (Equalizer_diagram f g) d.
   Proof.
     use mk_cone.
-    - use two_rec_dep; cbn.
+    - use two_rec_dep.
       + exact h.
-      + exact (h ;; f).
-    - use two_rec_dep; cbn; use two_rec_dep; cbn.
+      + exact (h · f).
+    - use two_rec_dep; use two_rec_dep.
       + exact (Empty_set_rect _).
       + intro e. unfold idfun. induction e.
         * apply idpath.
@@ -65,16 +65,15 @@ Section def_equalizers.
       + exact (Empty_set_rect _).
   Defined.
 
-  Definition isEqualizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧) (H : h ;; f = h ;; g) :
+  Definition isEqualizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧) (H : h · f = h · g) :
     UU := isLimCone (Equalizer_diagram f g) d (Equalizer_cone f g d h H).
 
-  Definition mk_isEqualizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧) (H : h ;; f = h ;; g) :
-    (∏ e (h' : C⟦e, a⟧) (H' : h' ;; f = h' ;; g),
-     iscontr (total2 (fun hk : C⟦e, d⟧ => hk ;; h = h'))) -> isEqualizer f g d h H.
+  Definition mk_isEqualizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧) (H : h · f = h · g) :
+    (∏ e (h' : C⟦e, a⟧) (H' : h' · f = h' · g),
+     iscontr (total2 (fun hk : C⟦e, d⟧ => hk · h = h'))) -> isEqualizer f g d h H.
   Proof.
     intros H' x cx.
-
-    assert (H1 : coneOut cx One ;; f = coneOut cx One ;; g).
+    assert (H1 : coneOut cx One · f = coneOut cx One · g).
     {
       use (pathscomp0 (coneOutCommutes cx One Two (ii1 tt))).
       use (pathscomp0 _ (!(coneOutCommutes cx One Two (ii2 tt)))).
@@ -83,22 +82,21 @@ Section def_equalizers.
     set (H2 := (H' x (coneOut cx One) H1)).
     use tpair.
     - use (tpair _ (pr1 (pr1 H2)) _).
-      use two_rec_dep; cbn; unfold idfun.
+      use two_rec_dep.
       + apply (pr2 (pr1 H2)).
-      +  use (pathscomp0 _ (coneOutCommutes cx One Two (ii1 tt))).
-         cbn. rewrite assoc. apply cancel_postcomposition.
-         apply (pr2 (pr1 H2)).
-    - intro t. apply subtypeEquality.
-      intros y. apply impred. intros t0. apply hs.
-      induction t as [t p]. cbn.
-      apply path_to_ctr.
-      apply (p One).
+      + use (pathscomp0 _ (coneOutCommutes cx One Two (ii1 tt))).
+        change (coneOut (Equalizer_cone f g d h H) (● 1)%stn) with (h · f).
+        rewrite assoc.
+        apply cancel_postcomposition, (pr2 (pr1 H2)).
+    - abstract (intro t; apply subtypeEquality;
+                [ intros y; apply impred; intros t0; apply hs
+                | induction t as [t p]; apply path_to_ctr, (p One)]).
   Defined.
 
   Definition Equalizer {a b : C} (f g : C⟦a, b⟧) := LimCone (Equalizer_diagram f g).
 
   Definition mk_Equalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦d, a⟧)
-             (H : h ;; f = h ;; g) (isEq : isEqualizer f g d h H) :
+             (H : h · f = h · g) (isEq : isEqualizer f g d h H) :
     Equalizer f g.
   Proof.
     use tpair.
@@ -120,7 +118,7 @@ Section def_equalizers.
     C⟦lim E, a⟧ := limOut E One.
 
   Definition EqualizerArrowEq {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) :
-    EqualizerArrow E ;; f = EqualizerArrow E ;; g.
+    EqualizerArrow E · f = EqualizerArrow E · g.
   Proof.
     use (pathscomp0 (limOutCommutes E One Two (ii1 tt))).
     use (pathscomp0 _ (!(limOutCommutes E One Two (ii2 tt)))).
@@ -128,40 +126,30 @@ Section def_equalizers.
   Qed.
 
   Definition EqualizerIn {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) (e : C) (h : C⟦e, a⟧)
-             (H : h ;; f = h ;; g) : C⟦e, lim E⟧.
+             (H : h · f = h · g) : C⟦e, lim E⟧.
   Proof.
-    use limArrow.
-    use mk_cone.
-    - use two_rec_dep; cbn.
-      + exact h.
-      + exact (h ;; f).
-    - use two_rec_dep; cbn; use two_rec_dep; cbn.
-      + exact (Empty_set_rect _).
-      + intros e0. unfold idfun. induction e0.
-        * apply idpath.
-        * apply (! H).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
+    now use limArrow; use Equalizer_cone.
   Defined.
 
   Lemma EqualizerArrowComm {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) (e : C) (h : C⟦e, a⟧)
-        (H : h ;; f = h ;; g) : EqualizerIn E e h H ;; EqualizerArrow E = h.
+        (H : h · f = h · g) : EqualizerIn E e h H · EqualizerArrow E = h.
   Proof.
     refine (limArrowCommutes E e _ One).
   Qed.
 
   Lemma EqualizerInUnique {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) (e : C) (h : C⟦e, a⟧)
-        (H : h ;; f = h ;; g) (w : C⟦e, lim E⟧) (H' : w ;; EqualizerArrow E = h) :
+        (H : h · f = h · g) (w : C⟦e, lim E⟧) (H' : w · EqualizerArrow E = h) :
     w = EqualizerIn E e h H.
   Proof.
     apply path_to_ctr.
-    use two_rec_dep; cbn.
+    use two_rec_dep.
     - apply H'.
     - set (X := limOutCommutes E One Two (ii1 tt)).
-      apply (maponpaths (fun h : _ => w ;; h)) in X.
-      use (pathscomp0 (!X)). cbn. rewrite assoc.
-      apply cancel_postcomposition.
-      apply H'.
+      apply (maponpaths (fun h : _ => w · h)) in X.
+      use (pathscomp0 (!X)); rewrite assoc.
+      change (dmor _ _) with f.
+      change (coneOut _ _) with (h · f).
+      apply cancel_postcomposition, H'.
   Qed.
 
   Definition isEqualizer_Equalizer {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) :
@@ -183,7 +171,7 @@ Section def_equalizers.
   (** ** Equalizers to equalizers *)
 
   Definition identity_is_Equalizer_input {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) :
-    total2 (fun hk : C⟦lim E, lim E⟧ => hk ;; EqualizerArrow E = EqualizerArrow E).
+    total2 (fun hk : C⟦lim E, lim E⟧ => hk · EqualizerArrow E = EqualizerArrow E).
   Proof.
     use tpair.
     exact (identity _).
@@ -191,7 +179,7 @@ Section def_equalizers.
   Defined.
 
   Lemma EqualizerEndo_is_identity  {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g)
-        (k : C⟦lim E, lim E⟧) (kH : k ;; EqualizerArrow E = EqualizerArrow E) :
+        (k : C⟦lim E, lim E⟧) (kH : k · EqualizerArrow E = EqualizerArrow E) :
     identity (lim E) = k.
   Proof.
     apply lim_endo_is_identity.
@@ -199,10 +187,10 @@ Section def_equalizers.
     use two_rec_dep; cbn.
     + apply kH.
     + set (X := (coneOutCommutes (limCone E) One Two (ii1 tt))).
-      use (pathscomp0 (! (maponpaths (fun h' : _ => k ;; h') X))).
+      use (pathscomp0 (! (maponpaths (fun h' : _ => k · h') X))).
       use (pathscomp0 _ X).
-      rewrite assoc. cbn. apply cancel_postcomposition.
-      apply kH.
+      rewrite assoc; change (dmor _ _) with f.
+      apply cancel_postcomposition, kH.
   Qed.
 
   Definition from_Equalizer_to_Equalizer {a b : C} {f g : C⟦a, b⟧} (E1 E2 : Equalizer f g) :
@@ -230,7 +218,7 @@ Section def_equalizers.
   Qed.
 
   Lemma isiso_from_Equalizer_to_Equalizer {a b : C} {f g : C⟦a, b⟧} (E1 E2 : Equalizer f g) :
-    is_isomorphism (from_Equalizer_to_Equalizer E1 E2).
+    is_iso (from_Equalizer_to_Equalizer E1 E2).
   Proof.
     apply (is_iso_qinv _ (from_Equalizer_to_Equalizer E2 E1)).
     apply are_inverses_from_Equalizer_to_Equalizer.
@@ -270,7 +258,7 @@ Section equalizers_coincide.
 
   (** ** isEqualizers *)
 
-  Lemma equiv_isEqualizer1 {a b : C} {f g : C⟦a, b⟧} (e : C) (h : C⟦e, a⟧) (H : h ;; f = h ;; g) :
+  Lemma equiv_isEqualizer1 {a b : C} {f g : C⟦a, b⟧} (e : C) (h : C⟦e, a⟧) (H : h · f = h · g) :
     limits.equalizers.isEqualizer f g h H -> isEqualizer C f g e h H.
   Proof.
     intros X.
@@ -289,7 +277,7 @@ Section equalizers_coincide.
       exact (!(limits.equalizers.EqualizerCommutes E e' h' H')).
   Qed.
 
-  Lemma equiv_isEqualizer2 {a b : C} (f g : C⟦a, b⟧) (e : C) (h : C⟦e, a⟧) (H : h ;; f = h ;; g) :
+  Lemma equiv_isEqualizer2 {a b : C} (f g : C⟦a, b⟧) (e : C) (h : C⟦e, a⟧) (H : h · f = h · g) :
     limits.equalizers.isEqualizer f g h H <- isEqualizer C f g e h H.
   Proof.
     intros X.

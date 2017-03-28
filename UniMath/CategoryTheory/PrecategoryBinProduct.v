@@ -35,11 +35,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
-
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G ∙ F" := (functor_composite _ _ _ F G) (at level 35).
+Local Open Scope cat.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -55,7 +51,7 @@ Proof.
   - intro cd.
     exact (dirprodpair (identity (pr1 cd)) (identity (pr2 cd))).
   - intros cd cd' cd'' fg fg'.
-    exact (dirprodpair (pr1 fg ;; pr1 fg') (pr2 fg ;; pr2 fg')).
+    exact (dirprodpair (pr1 fg · pr1 fg') (pr2 fg · pr2 fg')).
 Defined.
 
 Section precategory_binproduct.
@@ -248,7 +244,7 @@ Section nat_trans_fix_fst_arg.
 
 Variable C D E : precategory.
 Variable F F': functor (precategory_binproduct C D) E.
-Variable α: F ⟶ F'.
+Variable α: F ⟹ F'.
 Variable c: C.
 
 Definition nat_trans_fix_fst_arg_data (d:D): functor_fix_fst_arg C D E F c d --> functor_fix_fst_arg C D E F' c d := α (tpair _ c d).
@@ -263,7 +259,7 @@ Proof.
   apply nat_trans_ax_inst.
 Qed.
 
-Definition nat_trans_fix_fst_arg: functor_fix_fst_arg C D E F c ⟶ functor_fix_fst_arg C D E F' c
+Definition nat_trans_fix_fst_arg: functor_fix_fst_arg C D E F c ⟹ functor_fix_fst_arg C D E F' c
   := tpair _ nat_trans_fix_fst_arg_data nat_trans_fix_fst_arg_ax.
 
 End nat_trans_fix_fst_arg.
@@ -319,7 +315,7 @@ Section nat_trans_fix_snd_arg.
 
 Variable C D E : precategory.
 Variable F F': functor (precategory_binproduct C D) E.
-Variable α: F ⟶ F'.
+Variable α: F ⟹ F'.
 Variable d: D.
 
 Definition nat_trans_fix_snd_arg_data (c:C): functor_fix_snd_arg C D E F d c --> functor_fix_snd_arg C D E F' d c := α (tpair _ c d).
@@ -334,7 +330,7 @@ Proof.
   apply nat_trans_ax_inst.
 Qed.
 
-Definition nat_trans_fix_snd_arg: functor_fix_snd_arg C D E F d ⟶ functor_fix_snd_arg C D E F' d
+Definition nat_trans_fix_snd_arg: functor_fix_snd_arg C D E F d ⟹ functor_fix_snd_arg C D E F' d
   := tpair _ nat_trans_fix_snd_arg_data nat_trans_fix_snd_arg_ax.
 
 End nat_trans_fix_snd_arg.

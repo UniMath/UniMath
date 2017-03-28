@@ -42,6 +42,8 @@ less fragile and to make the files have a more uniform and pleasing appearance.
 * Do not use `destruct`, `match`, `case`, square brackets with `intros`, or
   nested square brackets with `induction`.  (The goal is to prevent generation of
   proof terms using `match`.)
+* Use `do` with a specific numerical count, rather than `repeat`, to make proofs
+  easier to repair.
 * Use `as` to name all new variables introduced by `induction` or
   `destruct`, if the corresponding type is defined in a remote location,
   because different names might be used by Coq when the definition of the type
