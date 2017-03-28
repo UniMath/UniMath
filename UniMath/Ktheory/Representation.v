@@ -8,14 +8,16 @@ Require Import
         UniMath.Ktheory.Tactics
         UniMath.Ktheory.Precategories
         UniMath.Ktheory.Bifunctor.
+Require Import UniMath.MoreFoundations.Tactics.
 Set Automatic Introduction.
 Local Open Scope cat.
+Local Open Scope Cat.
 
 Definition isUniversal {C:Precategory} {X:[C^op,SET]} {c:C} (x:c ⇒ X)
-  := Π (c':C), isweq (λ f : c' --> c, x ⟲ f).
+  := ∏ (c':C), isweq (λ f : c' --> c, x ⟲ f).
 
 Definition Universal {C:Precategory} (X:[C^op,SET]) (c:C)
-  := Σ (x:c ⇒ X), isUniversal x.
+  := ∑ (x:c ⇒ X), isUniversal x.
 
 Lemma iso_Universal_weq {C:Precategory} {X Y:[C^op,SET]} (c:C) :
   iso X Y -> Universal X c ≃ Universal Y c.
@@ -29,14 +31,14 @@ Proof.
     + unshelve refine (twooutof3c_iff_1_homot _ _ _ _ _).
       * exact (pr1 i ◽ opp_ob b).
       * intro f; unfold funcomp; simpl.
-        exact (apevalat x (nat_trans_ax (pr1 i) _ _ f)).
+        exact (eqtohomot (nat_trans_ax (pr1 i) _ _ f) x).
       * exact (hset_iso_is_equiv _ _ (I b)).
     + apply isapropisweq.
     + apply isapropisweq.
 Defined.
 
 Definition Representation {C:Precategory} (X:[C^op,SET]) : UU
-  := Σ (c:C), Universal X c.
+  := ∑ (c:C), Universal X c.
 
 Definition isRepresentable {C:Precategory} (X:[C^op,SET]) := ∥ Representation X ∥.
 
@@ -65,13 +67,13 @@ Definition RepresentableFunctor (C:Precategory) : Precategory
   := categoryWithStructure [C^op,SET] isRepresentable.
 
 Definition toRepresentableFunctor {C:Precategory} :
-  RepresentedFunctor C ==> RepresentableFunctor C :=
+  RepresentedFunctor C ⟶ RepresentableFunctor C :=
   functorWithStructures (λ c, hinhpr).
 
 (* make a representation of a functor *)
 
 Definition makeRepresentation {C:Precategory} {c:C} {X:[C^op,SET]} (x:c ⇒ X) :
-  (Π (c':C), bijective (λ f : c' --> c, x ⟲ f)) -> Representation X.
+  (∏ (c':C), bijective (λ f : c' --> c, x ⟲ f)) -> Representation X.
 Proof.
   intros bij. exists c. exists x. intros c'. apply set_bijection_to_weq.
   - exact (bij c').
@@ -166,7 +168,7 @@ Proof.
   apply universalMapProperty.
 Qed.
 
-Definition universalObjectFunctor (C:Precategory) : RepresentedFunctor C ==> C.
+Definition universalObjectFunctor (C:Precategory) : RepresentedFunctor C ⟶ C.
 Proof.
   unshelve refine (makeFunctor _ _ _ _).
   - intro X. exact (universalObject (pr2 X)).
@@ -203,7 +205,7 @@ Definition embeddingRepresentability {C D:Precategory}
            (s:Representation Y)
            (i:PrecategoryEmbedding C D) :
   iso (Y □ functorOp (opp_ob (pr1 i))) X ->
-  (Σ c, i c = universalObject s) -> Representation X.
+  (∑ c, i c = universalObject s) -> Representation X.
 Proof.
   intros j ce.
   apply (iso_Representation_weq j).
@@ -300,7 +302,7 @@ Proof. intros. unfold InitialObject. now induction (opp_opp_precat C). Defined.
 (** zero objects, as an alternative to ZeroObject.v *)
 
 Definition ZeroObject (C:Precategory)
-  := Σ z:ob C, Universal (UnitFunctor C^op) z × Universal (UnitFunctor C^op^op) z.
+  := ∑ z:ob C, Universal (UnitFunctor C^op) z × Universal (UnitFunctor C^op^op) z.
 
 Definition zero_to_terminal (C:Precategory) : ZeroObject C -> TerminalObject C
   := λ z, pr1 z ,, pr1 (pr2 z).
@@ -349,17 +351,17 @@ Proof.
 Defined.
 
 Definition HomPair_1 {C:Precategory} (a b c:C) :
-  (((HomPair a b : C^op ==> SET) c : hSet) -> Hom C c a)
+  (((HomPair a b : C^op ⟶ SET) c : hSet) -> Hom C c a)
   := pr1.
 
 Definition HomPair_2 {C:Precategory} (a b c:C) :
-  (((HomPair a b : C^op ==> SET) c : hSet) -> Hom C c b)
+  (((HomPair a b : C^op ⟶ SET) c : hSet) -> Hom C c b)
   := pr2.
 
 Definition BinaryProduct {C:Precategory} (a b:C) :=
   Representation (HomPair a b).
 
-Definition hasBinaryProducts (C:Precategory) := Π (a b:C), BinaryProduct a b.
+Definition hasBinaryProducts (C:Precategory) := ∏ (a b:C), BinaryProduct a b.
 
 Definition pr_1 {C:Precategory} {a b:C} (prod : BinaryProduct a b) :
   universalObject prod --> a
@@ -406,7 +408,7 @@ Defined.
 Definition BinarySum {C:Precategory} (a b:C) :=
   BinaryProduct (opp_ob a) (opp_ob b).
 
-Definition hasBinarySums (C:Precategory) := Π (a b:C), BinarySum a b.
+Definition hasBinarySums (C:Precategory) := ∏ (a b:C), BinarySum a b.
 
 Lemma binarySumsToProducts {C:Precategory} :
   hasBinarySums C -> hasBinaryProducts C^op.
@@ -461,11 +463,11 @@ Defined.
 
 (** products and coproducts *)
 
-Definition HomFamily (C:Precategory) {I} (c:I -> ob C) : C^op ==> SET.
+Definition HomFamily (C:Precategory) {I} (c:I -> ob C) : C^op ⟶ SET.
 Proof.
   unshelve refine (_,,_).
   - unshelve refine (_,,_).
-    + intros x. exact (Π i, Hom C x (c i)) % set.
+    + intros x. exact (∏ i, Hom C x (c i)) % set.
     + intros x y f p i; simpl; simpl in p.
       exact (compose (C:=C) f (p i)).
   - abstract (split;
@@ -485,12 +487,12 @@ Definition pr_ {C:Precategory} {I} {c:I -> ob C} (prod : Product c) (i:I) :
 
 Definition productMapExistence {C:Precategory} {I} {c:I -> ob C} (prod : Product c)
       {a:C} :
-  (Π i, Hom C a (c i)) -> Hom C a (universalObject prod)
+  (∏ i, Hom C a (c i)) -> Hom C a (universalObject prod)
   := λ f, prod \\ f.
 
 Lemma productMapUniqueness {C:Precategory} {I} {c:I -> ob C} (prod : Product c)
       {a:C} (f g : Hom C a (universalObject prod)) :
-  (Π i, pr_ prod i ∘ f = pr_ prod i ∘ g) -> f = g.
+  (∏ i, pr_ prod i ∘ f = pr_ prod i ∘ g) -> f = g.
 Proof.
   intro e. apply mapUniqueness. apply funextsec; intro i. apply e.
 Defined.
@@ -504,26 +506,24 @@ Definition in_ {C:Precategory} {I} {c:I -> ob C} (sum : Sum c) (i:I) :
 
 Definition sumMapExistence {C:Precategory} {I} {c:I -> ob C} (sum : Sum c)
       {a:C} :
-  (Π i, Hom C (c i) a) -> Hom C (universalObject sum) a
+  (∏ i, Hom C (c i) a) -> Hom C (universalObject sum) a
   := λ f, f // sum.
 
 Lemma sumMapUniqueness {C:Precategory} {I} {c:I -> ob C} (sum : Sum c)
       {a:C} (f g : Hom C (universalObject sum) a) :
-  (Π i, f ∘ in_ sum i = g ∘ in_ sum i) -> f = g.
+  (∏ i, f ∘ in_ sum i = g ∘ in_ sum i) -> f = g.
 Proof.
   intro e. apply opp_mor_eq, mapUniqueness. apply funextsec; intro i. apply e.
 Defined.
 
 (** equalizers and coequalizers *)
 
-Local Open Scope cat'.
-
 Definition Equalization {C:Precategory} {c d:C} (f g:c-->d) :
-  C^op ==> SET.
+  C^op ⟶ SET.
 Proof.
   unshelve refine (makeFunctor_op _ _ _ _).
   - intro b. unshelve refine (_,,_).
-    + exact (Σ p:b --> c, f∘p = g∘p).
+    + exact (∑ p:b --> c, f∘p = g∘p).
     + abstract (apply isaset_total2;
       [ apply homset_property
       | intro; apply isasetaprop; apply homset_property]) using _L_.
@@ -565,12 +565,12 @@ Definition coequalizerEquation {C:Precategory} {c d:C} {f g:c-->d} (coeq : Coequ
 (** pullbacks and pushouts  *)
 
 Definition PullbackCone {C:Precategory} {a b c:C} (f:a-->c) (g:b-->c) :
-  C^op ==> SET.
+  C^op ⟶ SET.
 Proof.
   intros.
   unshelve refine (makeFunctor_op _ _ _ _).
   - intros t. unshelve refine (_,,_).
-    + exact (Σ (p: t --> a × t --> b), f ∘ pr1 p = g ∘ pr2 p).
+    + exact (∑ (p: t --> a × t --> b), f ∘ pr1 p = g ∘ pr2 p).
     + abstract (apply isaset_total2;
       [ apply isasetdirprod; apply homset_property
       | intro; apply isasetaprop; apply homset_property]) using _L_.
@@ -580,12 +580,12 @@ Proof.
         simpl; rewrite <- 2? assoc; apply maponpaths; exact (pr2 w)) using _M_.
   - abstract (intros t; simpl; apply funextsec; intro w;
               induction w as [w eq]; induction w as [p q];
-              simpl in *; unshelve refine (total2_paths2 _ _);
+              simpl in *; unshelve refine (two_arg_paths_f _ _);
               [ rewrite 2? id_left; reflexivity
               | apply proofirrelevance; apply homset_property]) using _N_.
   - abstract (
         intros r s t p q; simpl in *; apply funextsec; intro w;
-        unshelve refine (total2_paths2 _ _);
+        unshelve refine (total2_paths2_f _ _);
         [ simpl; rewrite 2? assoc; reflexivity
         | apply proofirrelevance; apply homset_property]) using _P_.
 Defined.
@@ -622,14 +622,12 @@ Definition po_eqn {C:Precategory} {a b c:C} {f:a-->c} {g:a-->c} (po : Pushout f 
 
 (** kernels and cokernels *)
 
-Local Open Scope cat'.
-
 Definition Annihilator (C:Precategory) (zero:hasZeroMaps C) {c d:C} (f:c --> d) :
-  C^op ==> SET.
+  C^op ⟶ SET.
 Proof.
   unshelve refine (_,,_).
   { unshelve refine (_,,_).
-    { intro b. exists (Σ g:Hom C b c, f ∘ g = pr1 zero b d).
+    { intro b. exists (∑ g:Hom C b c, f ∘ g = pr1 zero b d).
       abstract (apply isaset_total2; [ apply setproperty |
       intro g; apply isasetaprop; apply homset_property ]) using _L_. }
     { intros a b p ge; simpl.
@@ -675,11 +673,11 @@ Definition cokernelEquation {C:Precategory} {zero:hasZeroMaps C} {c d:ob C} {f:c
 (** fibers of maps between functors *)
 
 Definition fiber {C:Precategory} {X Y:[C^op,SET]} (p : X --> Y) {c:C} (y : c ⇒ Y) :
-  C^op ==> SET.
+  C^op ⟶ SET.
 Proof.
   unshelve refine (makeFunctor_op _ _ _ _).
   - intro b.
-    exists (Σ fx : (b --> c) × (b ⇒ X), p ⟳ pr2 fx = y ⟲ pr1 fx).
+    exists (∑ fx : (b --> c) × (b ⇒ X), p ⟳ pr2 fx = y ⟲ pr1 fx).
     abstract (apply isaset_total2;
         [ apply isaset_dirprod, setproperty; apply homset_property
         | intros [f x]; apply isasetaprop; apply setproperty ]) using _K_.
@@ -689,12 +687,12 @@ Proof.
               apply maponpaths; exact (pr2 fxe)) using _M_.
   - abstract (intro b; apply funextsec; intro w;
               induction w as [w e]; induction w as [f x]; simpl;
-              unshelve refine (total2_paths2 _ _);
+              unshelve refine (two_arg_paths_f _ _);
               [ apply dirprodeq; [ apply id_left | apply arrow_mor_id ]
               | apply setproperty]) using _R_.
   - abstract (intros b b' b'' g g''; apply funextsec; intro w;
               induction w as [w e]; induction w as [f x]; simpl;
-              unshelve refine (total2_paths2 _ _);
+              unshelve refine (total2_paths2_f _ _);
               [ apply dirprodeq;
                 [ apply pathsinv0, assoc | apply arrow_mor_mor_assoc ]
               | apply setproperty ]) using _T_.
@@ -704,18 +702,18 @@ Defined.
    Grothendieck.  See EGA Chapter 0. *)
 
 Definition Representation_Map {C:Precategory} {X Y:[C^op,SET]} (p : X --> Y) :=
-  Π (c : C) (y : c ⇒ Y), Representation (fiber p y).
+  ∏ (c : C) (y : c ⇒ Y), Representation (fiber p y).
 
 Definition isRepresentable_Map {C:Precategory} {X Y:[C^op,SET]} (p : X --> Y) :=
-  Π (c : C) (y : c ⇒ Y), isRepresentable (fiber p y).
+  ∏ (c : C) (y : c ⇒ Y), isRepresentable (fiber p y).
 
 (** limits and colimits  *)
 
 Definition cone {I C:Precategory} (c:C) (D: [I,C]) : UU
-  := Σ (φ : Π i, Hom C c (D ◾ i)),
-     Π i j (e : i --> j), D ▭ e ∘ φ i = φ j.
+  := ∑ (φ : ∏ i, Hom C c (D ◾ i)),
+     ∏ i j (e : i --> j), D ▭ e ∘ φ i = φ j.
 
-Lemma cone_eq {C I:Precategory} (c:C^op) (D: I==>C) (p q:cone (C:=C) c D) :
+Lemma cone_eq {C I:Precategory} (c:C^op) (D: I⟶C) (p q:cone (C:=C) c D) :
   pr1 p ~ pr1 q -> p = q.
 Proof.
   intros h. apply subtypeEquality.
@@ -727,7 +725,7 @@ Proof.
   apply funextsec; intro i; apply h.
 Qed.
 
-Definition cone_functor {I C:Precategory} : [I,C] ==> [C^op,SET].
+Definition cone_functor {I C:Precategory} : [I,C] ⟶ [C^op,SET].
 Proof.
   intros.
   unshelve refine (_,,_).
@@ -781,42 +779,42 @@ Proof.
       | intro c; apply funextsec; intro K; apply cone_eq; intros i; apply assoc ]]). }
 Defined.
 
-Definition cocone_functor {I C:Precategory} : [I,C]^op ==> [C^op^op,SET] :=
+Definition cocone_functor {I C:Precategory} : [I,C]^op ⟶ [C^op^op,SET] :=
   cone_functor □ functorOp.
 
-Definition Limit {C I:Precategory} (D: I==>C) := Representation (cone_functor D).
+Definition Limit {C I:Precategory} (D: I⟶C) := Representation (cone_functor D).
 
-Definition Colimit {C I:Precategory} (D: I==>C) := Representation (cocone_functor D).
+Definition Colimit {C I:Precategory} (D: I⟶C) := Representation (cocone_functor D).
 
-Definition proj_ {C I:Precategory} {D: I==>C} (lim:Limit D) (i:I) : universalObject lim --> D i.
+Definition proj_ {C I:Precategory} {D: I⟶C} (lim:Limit D) (i:I) : universalObject lim --> D i.
 Proof. intros. exact ((pr1 (universalElement lim) i)). Defined.
 
-Definition inj_ {C I:Precategory} {D: I==>C} (colim:Colimit D) (i:I) : D i --> universalObject colim.
+Definition inj_ {C I:Precategory} {D: I⟶C} (colim:Colimit D) (i:I) : D i --> universalObject colim.
 Proof. intros. exact ((pr1 (universalElement colim) i)). Defined.
 
-Definition proj_comm {C I:Precategory} {D: I==>C} (lim:Limit D) {i j:I} (f:i-->j) :
+Definition proj_comm {C I:Precategory} {D: I⟶C} (lim:Limit D) {i j:I} (f:i-->j) :
   # D f ∘ proj_ lim i = proj_ lim j.
 Proof. intros. exact (pr2 (universalElement lim) _ _ f). Defined.
 
-Definition inj_comm {C I:Precategory} {D: I==>C} (colim:Colimit D) {i j:I} (f:i-->j) :
+Definition inj_comm {C I:Precategory} {D: I⟶C} (colim:Colimit D) {i j:I} (f:i-->j) :
   inj_ colim j ∘ # D f = inj_ colim i.
 Proof. intros. exact (pr2 (universalElement colim) _ _ f). Defined.
 
-Definition hasLimits (C:Precategory) := Π (I:Precategory) (D: I==>C), Limit D.
+Definition hasLimits (C:Precategory) := ∏ (I:Precategory) (D: I⟶C), Limit D.
 
-Definition hasColimits (C:Precategory) := Π (I:Precategory) (D: I==>C), Colimit D.
+Definition hasColimits (C:Precategory) := ∏ (I:Precategory) (D: I⟶C), Colimit D.
 
 Definition lim_functor (C:Precategory) (lim:hasLimits C) (I:Precategory) :
-  [I,C] ==> C
+  [I,C] ⟶ C
   := universalObjectFunctor C □ addStructure cone_functor (lim I).
 
 Definition colim_functor (C:Precategory) (colim:hasColimits C) (I:Precategory) :
-  [I,C] ==> C
+  [I,C] ⟶ C
   := functorRmOp (
          universalObjectFunctor C^op □ addStructure cocone_functor (colim I)).
 
 Lemma bifunctor_assoc_repn {B C:Precategory} (X : [B, [C^op,SET]]) :
-  (Π b, Representation (X ◾ b)) -> Representation (bifunctor_assoc X).
+  (∏ b, Representation (X ◾ b)) -> Representation (bifunctor_assoc X).
 Proof.
   intro r. set (X' := addStructure X r).
   change (categoryWithStructure [C ^op, SET] Representation) with (RepresentedFunctor C) in X'.
@@ -847,7 +845,7 @@ Proof.
                       apply (maponpaths (λ k, X ▭ f ⟳ k));
                       apply pathsinv0;
                       exact (universalMapProperty (r b) (pr1 x' b)) ]) using _R_. } }
-      { abstract (unshelve refine (total2_paths _ _);
+      { abstract (unshelve refine (total2_paths_f _ _);
         [ simpl; apply funextsec; intro b; unshelve refine (universalMapProperty _ _)
         | apply funextsec; intro b;
           apply funextsec; intro b';
@@ -879,7 +877,7 @@ Proof.
   { apply bifunctor_assoc_repn; intro b. exact t. }
 Defined.
 
-Goal Π B C t b,
+Goal ∏ B C t b,
        universalObject(functorPrecategoryTerminalObject B C t) ◾ b = universalObject t.
   reflexivity.
 Defined.
@@ -910,7 +908,8 @@ Lemma BinaryProductFunctorAssoc {B C : Precategory}
       (F G : [B, C]) :
   iso (bifunctor_assoc (binaryProductFunctor F G)) (HomPair F G).
 Proof.
-  unshelve refine (makeNatiso _ _).
+  set (ISO := @iso).
+  unshelve refine (makeNatiso (C := [B, C]^op) _ _).
   { intro H. apply hset_equiv_iso.
     unshelve refine (weqgradth _ _ _ _).
     { intros w.
@@ -927,7 +926,7 @@ Proof.
       { abstract (intros b b' f; simpl;
                   apply dirprodeq; ( simpl; apply nattrans_naturality )) using _L_. } }
     { abstract (intros w;
-                unshelve refine (total2_paths _ _);
+                unshelve refine (total2_paths_f _ _);
                 [ apply funextsec; intro b; apply pathsinv0, tppr
                 | (apply funextsec; intro b;
                    apply funextsec; intro b';

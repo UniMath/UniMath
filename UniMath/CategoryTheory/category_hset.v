@@ -21,28 +21,20 @@ Contents :
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
-Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.UnivalenceAxiom.
+Require Import UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.Foundations.HLevels.
 
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.HLevel_n_is_of_hlevel_Sn.
 
-Local Notation "# F" := (functor_on_morphisms F) (at level 3).
+Local Open Scope cat.
 
 (** * Precategory of hSets *)
 Section HSET_precategory.
-
-Lemma isaset_set_fun_space (A B : hSet) : isaset (A -> B).
-Proof.
-  change isaset with (isofhlevel 2).
-  apply impred.
-  apply (fun _ => (pr2 B)).
-Qed.
 
 Definition hset_fun_space (A B : hSet) : hSet :=
   hSetpair _ (isaset_set_fun_space A B).
@@ -58,24 +50,29 @@ Definition hset_precategory_data : precategory_data :=
 Lemma is_precategory_hset_precategory_data :
   is_precategory hset_precategory_data.
 Proof.
-  repeat split; simpl.
+repeat split.
 Qed.
 
 Definition hset_precategory : precategory :=
   tpair _ _ is_precategory_hset_precategory_data.
 
-Local Notation HSET := hset_precategory.
+Local Notation "'HSET'" := hset_precategory : cat.
 
 Lemma has_homsets_HSET : has_homsets HSET.
-Proof. intros a b; apply isaset_set_fun_space. Qed.
+Proof.
+intros a b; apply isaset_set_fun_space.
+Qed.
 
 (*
   Canonical Structure hset_precategory. :-)
-*)
+ *)
+
+Definition hset_Precategory : Precategory := (HSET ,, has_homsets_HSET).
 
 End HSET_precategory.
 
-Notation HSET := hset_precategory.
+Notation "'HSET'" := hset_precategory : cat.
+Notation "'SET'" := hset_Precategory : cat.
 
 (** * The precategory of hSets is a category. *)
 
@@ -113,7 +110,7 @@ Defined.
 
 Lemma hset_equiv_is_iso (A B : hSet)
       (f : weq (pr1 A) (pr1 B)) :
-           is_isomorphism (C:=HSET) (pr1 f).
+           is_iso (C:=HSET) (pr1 f).
 Proof.
   apply (is_iso_qinv (C:=HSET) _ (invmap f)).
   split; simpl.

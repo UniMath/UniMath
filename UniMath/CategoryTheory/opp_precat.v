@@ -15,14 +15,15 @@ Contents : Definition of opposite category and functor
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Open Scope cat.
 
 (** * The opposite precategory of a precategory *)
 
@@ -31,21 +32,21 @@ Definition opp_precat_ob_mor (C : precategory_ob_mor) : precategory_ob_mor :=
 
 Definition opp_precat_data (C : precategory_data) : precategory_data :=
   tpair _ _ (tpair _ (fun c : opp_precat_ob_mor C => identity c)
-                     (fun (a b c : opp_precat_ob_mor C) f g => g ;; f)).
+                     (fun (a b c : opp_precat_ob_mor C) f g => g · f)).
 
 Lemma is_precat_opp_precat_data (C : precategory) : is_precategory (opp_precat_data C).
 Proof.
 repeat split; intros; unfold compose; simpl.
 - apply id_right.
 - apply id_left.
-- rewrite assoc; apply idpath.
+- apply pathsinv0.              (* this prevents C^op^op and C being the same, judgmentally *)
+  apply assoc.
 Qed.
 
 Definition opp_precat (C : precategory) : precategory :=
   tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).
 
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-
+Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : cat.
 
 Definition opp_ob {C : precategory} (c : ob C) : ob C^op := c.
 
@@ -60,26 +61,34 @@ Definition opp_mor_eq {C : precategory} {a b : C} {f g : a --> b} (e : opp_mor f
 
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).
 Proof.
-  induction C as [ob mor]. apply idpath.
+  tryif primitive_projections then idtac else induction C as [ob mor].
+  reflexivity.
 Defined.
 
 Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
   idpath _ = maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
 Proof.
-  induction C as [ob mor]. apply idpath.
+  tryif primitive_projections
+  then reflexivity
+  else induction C as [ob mor]; apply idpath.
 Defined.
 
 Lemma opp_opp_precat_data (C : precategory_data) : C = opp_precat_data (opp_precat_data C).
 Proof.
-  induction C as [obmor idco].
-  induction obmor as [ob mor].
-  induction idco as [id co].
-  apply idpath.
+  tryif primitive_projections
+  then reflexivity
+  else (
+      induction C as [obmor idco];
+      induction obmor as [ob mor];
+      induction idco as [id co];
+      apply idpath ).
 Defined.
 
 Lemma opp_opp_precat (C : precategory) (hs : has_homsets C) : C = C^op^op.
 Proof.
-  use total2_paths.
+
+
+  use total2_paths_f.
   - apply opp_opp_precat_data.
   - apply (isaprop_is_precategory _ hs).
 Qed.
@@ -101,6 +110,33 @@ Definition opp_iso {C : precategory} {a b : C} : @iso C a b -> @iso C^op b a.
   split; [ apply (pr2 (pr2 T)) | apply (pr1 (pr2 T)) ].
 Defined.
 
+Lemma opp_is_inverse_in_precat {C : precategory} {a b : C} {f : a --> b} {g : b --> a} :
+  @is_inverse_in_precat C a b f g -> @is_inverse_in_precat (opp_precat C) a b g f.
+Proof.
+  intros H.
+  use mk_is_inverse_in_precat.
+  - exact (is_inverse_in_precat1 H).
+  - exact (is_inverse_in_precat2 H).
+Defined.
+
+Definition opp_is_z_isomorphism {C : precategory} {a b : C} (f : a --> b) :
+  @is_z_isomorphism C a b f -> @is_z_isomorphism C^op b a f.
+Proof.
+  intros H.
+  use mk_is_z_isomorphism.
+  - exact (is_z_isomorphism_mor H).
+  - exact (opp_is_inverse_in_precat (is_inverse_in_precat_inv H)).
+Defined.
+
+Definition opp_z_iso {C : precategory} {a b : C} (f : a --> b) : @z_iso C a b -> @z_iso C^op b a.
+Proof.
+  intros H.
+  use mk_z_iso.
+  - exact (z_iso_mor H).
+  - exact (z_iso_inv_mor H).
+  - exact (opp_is_inverse_in_precat (is_inverse_in_precat_inv H)).
+Defined.
+
 Lemma has_homsets_opp {C : precategory} (hsC : has_homsets C) : has_homsets C^op.
 Proof. intros a b; apply hsC. Qed.
 
@@ -109,7 +145,7 @@ Proof. intros a b; apply hsC. Qed.
 
 Definition functor_opp_data {C D : precategory} (F : functor C D) :
   functor_data C^op D^op :=
-    tpair (fun F : C^op -> D^op => Π a b, C^op ⟦a, b⟧ -> D^op ⟦F a, F b⟧) F
+    tpair (fun F : C^op -> D^op => ∏ a b, C^op ⟦a, b⟧ -> D^op ⟦F a, F b⟧) F
           (fun (a b : C) (f : C⟦b, a⟧) => functor_on_morphisms F f).
 
 Lemma is_functor_functor_opp {C D : precategory} (F : functor C D) :
@@ -144,7 +180,7 @@ Lemma opp_functor_essentially_surjective :
 Proof.
   intros HF d.
   set (TH := HF d).
-  set (X:=@hinhuniv  (Σ a : C, iso (F a) d)).
+  set (X:=@hinhuniv  (∑ a : C, iso (F a) d)).
   refine (X _ _ TH).
   intro H. clear TH. clear X.
   apply hinhpr.
@@ -155,6 +191,8 @@ Proof.
 Qed.
 
 End opp_functor_properties.
+
+Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : cat.
 
 Lemma functor_opp_identity {C : precategory} (hsC : has_homsets C) :
   functor_opp (functor_identity C) = functor_identity C^op.

@@ -8,17 +8,16 @@ Written by: Benedikt Ahrens, Ralph Matthes (2015)
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.PartD.
+
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G □ F" := (functor_composite F G) (at level 35).
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Open Scope cat.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -29,11 +28,11 @@ Variables C D E : precategory.
 Variables F F' : functor C D.
 Variables G G' : functor D E.
 
-Variable α : F ⟶ F'.
-Variable β : G ⟶ G'.
+Variable α : F ⟹ F'.
+Variable β : G ⟹ G'.
 
 Lemma is_nat_trans_horcomp : is_nat_trans (G □ F) (G' □ F')
-  (λ c : C, β (F c) ;; #G' (α _ )).
+  (λ c : C, β (F c) · #G' (α _ )).
 Proof.
   intros c d f; simpl.
   rewrite assoc, nat_trans_ax, <- !assoc; apply maponpaths.
@@ -56,7 +55,7 @@ Qed.
 
 Lemma horcomp_id_left (C D : precategory) (X : functor C C) (Z Z' : functor C D)(f : nat_trans Z Z')
   :
-  Π c : C, horcomp (nat_trans_id X) f c = f (X c).
+  ∏ c : C, horcomp (nat_trans_id X) f c = f (X c).
 Proof.
   intro c; simpl.
   now rewrite functor_id, id_right.

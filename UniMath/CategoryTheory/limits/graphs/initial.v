@@ -1,13 +1,17 @@
 (** Definition of initial object as a colimit *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.initial.
+
+Local Open Scope cat.
 
 Section def_initial.
 
@@ -32,9 +36,9 @@ Defined.
 
 Definition isInitial (a : C) :=
   isColimCocone initDiagram a (initCocone a).
- (* Π b : C, iscontr (a --> b). *)
+ (* ∏ b : C, iscontr (a --> b). *)
 
-Definition mk_isInitial (a : C) (H : Π (b : C), iscontr (a --> b)) :
+Definition mk_isInitial (a : C) (H : ∏ (b : C), iscontr (a --> b)) :
   isInitial a.
 Proof.
 intros b cb.
@@ -86,7 +90,7 @@ now apply colim_endo_is_identity; intro u; induction u.
 Qed.
 
 Lemma isiso_from_Initial_to_Initial (O O' : Initial) :
-  is_isomorphism (InitialArrow O (InitialObject O')).
+  is_iso (InitialArrow O (InitialObject O')).
 Proof.
   apply (is_iso_qinv _ (InitialArrow O' (InitialObject O))).
   split; apply pathsinv0, InitialEndo_is_identity.
@@ -106,7 +110,7 @@ Definition hasInitial := ishinh Initial.
 (* Proof. *)
 (*   apply invproofirrelevance. *)
 (*   intros O O'. *)
-(*   apply (total2_paths (isotoid _ H (iso_Initials O O')) ). *)
+(*   apply (total2_paths_f (isotoid _ H (iso_Initials O O')) ). *)
 (*   apply proofirrelevance. *)
 (*   unfold isInitial. *)
 (*   apply impred. *)

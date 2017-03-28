@@ -1,17 +1,14 @@
-## these files are potential candidates for being moved upstream
+Tactics.v
+
+# move upstream?:
 Equivalences.v
 
-## the core files for Ktheory
-
-Tactics.v
 Utilities.v
 Interval.v
 Precategories.v
 StandardCategories.v
-Elements.v
-ElementsOp.v
-Representation.v
 Bifunctor.v
+Representation.v
 RawMatrix.v
 DirectSum.v
 Magma.v

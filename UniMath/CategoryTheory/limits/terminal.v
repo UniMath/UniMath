@@ -7,21 +7,19 @@ Direct definition of terminal object together with:
 
 
 *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
-
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
+Local Open Scope cat.
 
 Section def_terminal.
 
 Variable C : precategory.
 
-Definition isTerminal (b : C) : UU := Π a : C, iscontr (a --> b).
+Definition isTerminal (b : C) : UU := ∏ a : C, iscontr (a --> b).
 
 Definition Terminal : UU := total2 (fun a => isTerminal a).
 
@@ -33,7 +31,7 @@ Proof.
   exists b; exact H.
 Defined.
 
-Definition mk_isTerminal (b : C) (H : Π (a : C), iscontr (a --> b)) :
+Definition mk_isTerminal (b : C) (H : ∏ (a : C), iscontr (a --> b)) :
   isTerminal b.
 Proof.
   exact H.
@@ -54,7 +52,7 @@ Proof.
 Qed.
 
 Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) :
-   is_isomorphism (TerminalArrow T T').
+   is_iso (TerminalArrow T T').
 Proof.
   apply (is_iso_qinv _ (TerminalArrow T' T)).
   split.
@@ -75,7 +73,7 @@ Lemma isaprop_Terminal : isaprop Terminal.
 Proof.
   apply invproofirrelevance.
   intros T T'.
-  apply (total2_paths (isotoid _ H (iso_Terminals T T')) ).
+  apply (total2_paths_f (isotoid _ H (iso_Terminals T T')) ).
   apply proofirrelevance.
   unfold isTerminal.
   apply impred.
@@ -114,7 +112,7 @@ Section Terminal_and_EmptyProd.
     refine (mk_Terminal (ProductObject _ C X) _).
     refine (mk_isTerminal _ _).
     intros a.
-    assert (H : Π i : empty, C⟦a, fromempty i⟧) by
+    assert (H : ∏ i : empty, C⟦a, fromempty i⟧) by
         (intros i; apply (fromempty i)).
     apply (iscontrpair (ProductArrow _ _ X H)); intros t.
     apply ProductArrowUnique; intros i; apply (fromempty i).
@@ -155,8 +153,8 @@ End Terminal_and_EmptyProd.
 (* apply (mk_Terminal c); apply mk_isTerminal; intros b. *)
 (* case (iscc _ (termCone b)); intros f Hf; destruct f as [f fcomm]. *)
 (* apply (tpair _ f); intro g. *)
-(* simple refine (let X : Σ x : b --> c, *)
-(*                        Π v, coconeIn cc v ;; x = coconeIn (termCone b) v := _ in _). *)
+(* simple refine (let X : ∑ x : b --> c, *)
+(*                        ∏ v, coconeIn cc v · x = coconeIn (termCone b) v := _ in _). *)
 (*   { apply (tpair _ g); intro u; induction u. } *)
 (* apply (maponpaths pr1 (Hf X)). *)
 (* Defined. *)

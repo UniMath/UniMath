@@ -1,17 +1,36 @@
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+
+(** **********************************************************
+
+Anders Mörtberg, 2016
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents:
+
+- Definition of the functors given by binary product with
+  a fixed object
+- Definition of exponentials
+
+
+************************************************************)
+
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
+Local Open Scope cat.
 
 Section exponentials.
 
@@ -26,7 +45,7 @@ Definition constprod_functor2 (a : C) : functor C C :=
 
 Definition is_exponentiable (a : C) : UU := is_left_adjoint (constprod_functor1 a).
 
-Definition has_exponentials : UU := Π (a : C), is_exponentiable a.
+Definition has_exponentials : UU := ∏ (a : C), is_exponentiable a.
 
 Definition nat_trans_constprod_functor1 (a : C) :
   nat_trans (constprod_functor1 a) (constprod_functor2 a).
@@ -104,11 +123,11 @@ Arguments flip_iso : simpl never.
 
 Local Definition eta' : [C,C,hsC]⟦functor_identity C,functor_composite F' G⟧ :=
   let G' := (post_composition_functor C C C hsC hsC G)
-  in eta ;; (# G' (flip_iso a)).
+  in eta · (# G' (flip_iso a)).
 
 Local Definition eps' : [C,C,hsC]⟦functor_composite G F',functor_identity C⟧ :=
   let G' := (pre_composition_functor C C C hsC hsC G)
-  in # G' (inv_from_iso (flip_iso a)) ;; eps.
+  in # G' (inv_from_iso (flip_iso a)) · eps.
 
 Local Lemma form_adjunction_eta'_eps' : form_adjunction F' G eta' eps'.
 Proof.
@@ -125,7 +144,7 @@ mkpair.
     eapply pathscomp0; [apply maponpaths; rewrite assoc; apply cancel_postcomposition, H1|].
     rewrite id_left.
     apply (nat_trans_eq_pointwise (iso_after_iso_inv (flip_iso a)) x).
-+ intro x.
++ intro x; cbn.
   rewrite <- (H2 x), <- assoc, <- (functor_comp G).
   apply maponpaths, maponpaths.
   rewrite assoc.

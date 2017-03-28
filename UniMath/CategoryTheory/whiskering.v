@@ -23,21 +23,15 @@ Contents :
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-(*Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).*)
-Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-
 
 Definition functor_compose {A B C : precategory} (hsB: has_homsets B)
                            (hsC: has_homsets C) (F : ob [A, B, hsB])
@@ -76,8 +70,8 @@ Defined.
 
 Lemma pre_whisker_iso_is_iso {A B C : precategory_data}
     (F : functor_data A B)  {G H : functor_data B C} (gamma : nat_trans G H)
-    (X : (forall b : B, is_isomorphism (gamma b)))
-  : (forall a : A, is_isomorphism (pre_whisker F gamma a)).
+    (X : (forall b : B, is_iso (gamma b)))
+  : (forall a : A, is_iso (pre_whisker F gamma a)).
 Proof.
   intros a.
   apply X.
@@ -112,8 +106,8 @@ Defined.
 Lemma post_whisker_iso_is_iso {B C D : precategory}
    {G H : functor_data B C} (gamma : nat_trans G H)
    (K : functor C D)
-   (X : (forall b : B, is_isomorphism (gamma b)))
-  : (forall b : B, is_isomorphism (post_whisker gamma K b)).
+   (X : (forall b : B, is_iso (gamma b)))
+  : (forall b : B, is_iso (post_whisker gamma K b)).
 Proof.
   intros b.
   unfold post_whisker.

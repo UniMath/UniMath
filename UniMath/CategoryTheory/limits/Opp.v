@@ -16,12 +16,12 @@
  - BinProducts and BinCoproducts
 *)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.opp_precat.
@@ -44,9 +44,6 @@ Section def_opposites.
 
   Variable C : precategory.
   Hypothesis hs : has_homsets C.
-
-  Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-
 
   (** ** Monic and Epi *)
 
@@ -113,14 +110,14 @@ Section def_opposites.
 
   (** ** Equalizers and Coequalizers *)
 
-  Lemma opp_isEqualizer {x y z : C} (f g : (C^op)⟦y, z⟧) (e : (C^op)⟦x, y⟧) (H : e ;; f = e ;; g)
+  Lemma opp_isEqualizer {x y z : C} (f g : (C^op)⟦y, z⟧) (e : (C^op)⟦x, y⟧) (H : e · f = e · g)
     (H' : @isEqualizer (C^op) _ _ _ f g e H) : @isCoequalizer C _ _ _ f g e H.
   Proof.
     exact H'.
   Qed.
 
   Lemma opp_isCoequalizer {x y z : C} (f g : (C^op)⟦x, y⟧) (e : (C^op)⟦y, z⟧)
-        (H : f ;; e = g ;; e) (H' : @isCoequalizer (C^op) _ _ _ f g e H) :
+        (H : f · e = g · e) (H' : @isCoequalizer (C^op) _ _ _ f g e H) :
     @isEqualizer C _ _ _ f g e H.
   Proof.
     exact H'.
@@ -157,15 +154,15 @@ Section def_opposites.
 
 
   Local Lemma opp_isCokernel_eq {x y z : C^op} (f : (C^op)⟦x, y⟧) (g : C^op⟦y, z⟧) (Z : Zero (C^op))
-        (H : f ;; g = ZeroArrow Z _ _) (Z' : Zero C) :
-    (g : C⟦z, y⟧) ;; (f : C⟦y, x⟧) = ZeroArrow Z' _ _.
+        (H : f · g = ZeroArrow Z _ _) (Z' : Zero C) :
+    (g : C⟦z, y⟧) · (f : C⟦y, x⟧) = ZeroArrow Z' _ _.
   Proof.
     cbn in *. rewrite H. rewrite opp_ZeroArrow.
     exact (ZerosArrowEq C (opp_Zero Z) Z' z x).
   Qed.
 
   Lemma opp_isCokernel {x y z : C^op} {f : (C^op)⟦x, y⟧} {g : C^op⟦y, z⟧} {Z : Zero (C^op)}
-        {H : f ;; g = ZeroArrow Z _ _} (K' : isKernel Z f g H) {Z' : Zero C} :
+        {H : f · g = ZeroArrow Z _ _} (K' : isKernel Z f g H) {Z' : Zero C} :
     isCokernel Z' (g : C⟦z, y⟧) (f : C⟦y, x⟧) (opp_isCokernel_eq f g Z H Z').
   Proof.
     set (K := mk_Kernel _ _ _ _ K').
@@ -215,7 +212,7 @@ Section def_opposites.
   Defined.
 
   Lemma opp_isKernel {x y z : C^op} {f : (C^op)⟦x, y⟧} {g : C^op⟦y, z⟧} {Z : Zero (C^op)}
-        {H : f ;; g = ZeroArrow Z _ _} (CK' : isCokernel Z f g H) {Z' : Zero C} :
+        {H : f · g = ZeroArrow Z _ _} (CK' : isCokernel Z f g H) {Z' : Zero C} :
     isKernel Z' (g : C⟦z, y⟧) (f : C⟦y, x⟧) (opp_isCokernel_eq f g Z H Z').
   Proof.
     set (CK := mk_Cokernel _ _ _ _ CK').
@@ -282,14 +279,14 @@ Section def_opposites.
   (** ** Pushouts and pullbacks *)
 
   Lemma opp_isPushout {a b c d : C} (f : (C^op)⟦a, b⟧) (g : (C^op)⟦a, c⟧)
-        (in1 : (C^op)⟦b, d⟧) (in2 : (C^op)⟦c, d⟧) (H : f ;; in1 = g ;; in2)
+        (in1 : (C^op)⟦b, d⟧) (in2 : (C^op)⟦c, d⟧) (H : f · in1 = g · in2)
         (iPo : @isPushout (C^op) a b c d f g in1 in2 H) : @isPullback C a b c d f g in1 in2 H.
   Proof.
     exact iPo.
   Qed.
 
   Lemma opp_isPullback {a b c d : C} (f : (C^op)⟦b, a⟧) (g : (C^op)⟦c, a⟧)
-        (p1 : (C^op)⟦d, b⟧) (p2 : (C^op)⟦d, c⟧) (H : p1 ;; f = p2 ;; g)
+        (p1 : (C^op)⟦d, b⟧) (p2 : (C^op)⟦d, c⟧) (H : p1 · f = p2 · g)
         (iPb : @isPullback (C^op) a b c d f g p1 p2 H) : @isPushout C a b c d f g p1 p2 H.
   Proof.
     exact iPb.
@@ -346,9 +343,6 @@ Section def_opposites'.
 
   Variable C : precategory.
   Hypothesis hs : has_homsets C.
-
-  Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-
 
   (** ** Monic and Epi *)
 
@@ -415,10 +409,10 @@ Section def_opposites'.
 
   (** ** Equalizers and Coequalizers *)
 
-  Definition isEqualizer_opp {x y z : C} (f g : C⟦y, z⟧) (e : C⟦x, y⟧) (H : e ;; f = e ;; g)
+  Definition isEqualizer_opp {x y z : C} (f g : C⟦y, z⟧) (e : C⟦x, y⟧) (H : e · f = e · g)
              (isE : @isEqualizer C _ _ _ f g e H) : @isCoequalizer (C^op) _ _ _ f g e H := isE.
 
-  Definition isCoequalizer_opp {x y z : C} (f g : C⟦x, y⟧) (e : C⟦y, z⟧) (H : f ;; e = g ;; e)
+  Definition isCoequalizer_opp {x y z : C} (f g : C⟦x, y⟧) (e : C⟦y, z⟧) (H : f · e = g · e)
              (isC : @isCoequalizer C _ _ _ f g e H) : @isEqualizer (C^op) _ _ _ f g e H := isC.
 
   Definition Equalizer_opp {y z : C} (f g : C⟦y, z⟧) (E : @Equalizer C y z f g) :
@@ -453,15 +447,15 @@ Section def_opposites'.
   (** ** Kernels and Cokernels *)
 
   Local Lemma isCokernel_opp_eq {x y z : C} (f : C⟦x, y⟧) (g : C⟦y, z⟧) (Z : Zero C)
-        (H : f ;; g = ZeroArrow Z _ _) (Z' : Zero C^op) :
-    (g : C^op⟦z, y⟧) ;; (f : C^op⟦y, x⟧) = ZeroArrow Z' _ _.
+        (H : f · g = ZeroArrow Z _ _) (Z' : Zero C^op) :
+    (g : C^op⟦z, y⟧) · (f : C^op⟦y, x⟧) = ZeroArrow Z' _ _.
   Proof.
     cbn in *. rewrite H. rewrite ZeroArrow_opp.
     exact (ZerosArrowEq C^op (Zero_opp Z) Z' z x).
   Qed.
 
   Lemma isCokernel_opp {x y z : C} {f : C⟦x, y⟧} {g : C⟦y, z⟧} {Z : Zero C}
-        {H : f ;; g = ZeroArrow Z _ _} (K' : isKernel Z f g H) {Z' : Zero C^op} :
+        {H : f · g = ZeroArrow Z _ _} (K' : isKernel Z f g H) {Z' : Zero C^op} :
     isCokernel Z' (g : C^op⟦z, y⟧) (f : C^op⟦y, x⟧) (isCokernel_opp_eq f g Z H Z').
   Proof.
     set (K := mk_Kernel _ _ _ _ K').
@@ -505,7 +499,7 @@ Section def_opposites'.
   Defined.
 
   Lemma isKernel_opp {x y z : C^op} {f : C⟦x, y⟧} {g : C⟦y, z⟧} {Z : Zero C}
-        {H : f ;; g = ZeroArrow Z _ _} (CK' : isCokernel Z f g H) {Z' : Zero C^op} :
+        {H : f · g = ZeroArrow Z _ _} (CK' : isCokernel Z f g H) {Z' : Zero C^op} :
     isKernel Z' (g : C^op⟦z, y⟧) (f : C^op⟦y, x⟧) (isCokernel_opp_eq f g Z H Z').
   Proof.
     set (CK := mk_Cokernel _ _ _ _ CK').
@@ -570,11 +564,11 @@ Section def_opposites'.
   (** ** Pushouts and pullbacks *)
 
   Definition isPushout_opp {a b c d : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) (in1 : C⟦b, d⟧) (in2 : C⟦c, d⟧)
-             (H : f ;; in1 = g ;; in2) (iPo : @isPushout C a b c d f g in1 in2 H) :
+             (H : f · in1 = g · in2) (iPo : @isPushout C a b c d f g in1 in2 H) :
     @isPullback (C^op) a b c d f g in1 in2 H := iPo.
 
   Definition isPullback_opp {a b c d : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧) (p1 : C⟦d, b⟧) (p2 : C⟦d, c⟧)
-        (H : p1 ;; f = p2 ;; g) (iPb : @isPullback C a b c d f g p1 p2 H) :
+        (H : p1 · f = p2 · g) (iPb : @isPullback C a b c d f g p1 p2 H) :
     @isPushout (C^op) a b c d f g p1 p2 H := iPb.
 
   Definition Pushout_opp {a b c : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) (Po : @Pushout C a b c f g) :

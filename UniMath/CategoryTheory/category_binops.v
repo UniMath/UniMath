@@ -1,16 +1,14 @@
 (* The category of sets with binary operations. *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.UnivalenceAxiom.
 
-Require Import UniMath.Foundations.Algebra.BinaryOperations.
+Require Import UniMath.Algebra.BinaryOperations.
 
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.HLevel_n_is_of_hlevel_Sn.
-
 
 Section BINOPS_precategory.
 
@@ -32,7 +30,7 @@ Section BINOPS_precategory.
     binopfuncomp (idbinopfun A) f = f.
   Proof.
     unfold binopfuncomp. unfold idbinopfun.
-    use total2_paths. cbn. unfold funcomp. apply maponpaths.
+    use total2_paths_f. cbn. unfold funcomp. apply maponpaths.
     apply idpath. apply proofirrelevance. apply isapropisbinopfun.
   Defined.
 
@@ -41,7 +39,7 @@ Section BINOPS_precategory.
     binopfuncomp f (idbinopfun B) = f.
   Proof.
     unfold binopfuncomp. unfold idbinopfun.
-    use total2_paths. cbn. unfold funcomp. apply maponpaths.
+    use total2_paths_f. cbn. unfold funcomp. apply maponpaths.
     apply idpath. apply proofirrelevance. apply isapropisbinopfun.
   Defined.
 
@@ -116,16 +114,16 @@ Section BINOP_category.
 
   Lemma binop_equiv_is_iso (A B : setwithbinop)
         (f : binopiso A B) :
-    @is_isomorphism BINOP A B (binopfunpair (pr1 (pr1 f)) (pr2 f)).
+    @is_iso BINOP A B (binopfunpair (pr1 (pr1 f)) (pr2 f)).
   Proof.
     apply (is_iso_qinv (C:=BINOP) _ (binopfunpair (pr1 (pr1 (invbinopiso f)))
                                                   (pr2 (invbinopiso f)))).
     split; cbn. unfold compose, identity. cbn. unfold binopfuncomp, idbinopfun.
-    cbn. use total2_paths. cbn. apply funextfun. intros x.
+    cbn. use total2_paths_f. cbn. apply funextfun. intros x.
     apply homotinvweqweq. cbn. apply impred_isaprop. intros t.
     apply impred_isaprop. intros t0. apply (pr2 (pr1 A)).
 
-    use total2_paths. cbn. apply funextfun. intros x.
+    use total2_paths_f. cbn. apply funextfun. intros x.
     apply homotweqinvweq. cbn. apply impred_isaprop. intros yt.
     apply impred_isaprop. intros t0. apply (pr2 (pr1 B)).
   Defined.
@@ -144,7 +142,7 @@ Section BINOP_category.
     apply (gradth _ (binop_equiv_iso A B)).
     intro; apply eq_iso. apply maponpaths.
     unfold binop_equiv_iso, binop_iso_equiv. cbn.
-    use total2_paths. cbn. unfold binopfunpair.
+    use total2_paths_f. cbn. unfold binopfunpair.
     apply subtypeEquality. intros y. apply isapropisbinopfun.
     apply maponpaths. apply subtypeEquality.
     unfold isPredicate.
@@ -156,7 +154,7 @@ Section BINOP_category.
     apply isaprop_is_iso.
 
     intros y. unfold binop_iso_equiv, binop_equiv_iso. cbn.
-    use total2_paths. cbn. unfold binopfunpair.
+    use total2_paths_f. cbn. unfold binopfunpair.
     apply subtypeEquality. intros x. apply isapropisweq.
     apply idpath.
 
@@ -177,24 +175,43 @@ Section BINOP_category.
     intros y. apply isapropisbinopfun.
 
     unfold binop_equiv_iso, binop_iso_equiv. cbn.
-    use total2_paths. cbn. apply idpath.
+    use total2_paths_f. cbn. apply idpath.
     apply isapropisweq.
 
     intros y. unfold binop_equiv_iso, binop_iso_equiv. cbn.
-    use total2_paths. cbn. unfold binopfunpair. cbn.
+    use total2_paths_f. cbn. unfold binopfunpair. cbn.
     apply subtypeEquality. intros x. apply isapropisbinopfun.
     apply idpath. apply proofirrelevance.
     apply isaprop_is_iso.
   Qed.
 
   Definition binop_equiv_iso_weq (A B : BINOP) :
-    weq (binopiso A B)(iso A B).
+    weq (binopiso A B) (iso A B).
   Proof.
     exists (binop_equiv_iso A B).
     apply binop_equiv_iso_is_equiv.
   Defined.
 
-(** ** HERE ONE SHOULD ADD A PROOF THAT BINOP IS ACTUALLY A CATEGORY.
-       See category_hset.v *)
+  Definition binop_precategory_isweq (a b : BINOP) :
+    isweq (λ p : a = b, idtoiso p).
+  Proof.
+    use (@isweqhomot
+           (a = b) (iso a b)
+           (pr1weq (weqcomp (setwithbinop_univalence a b) (binop_equiv_iso_weq a b)))
+           _ _ (weqproperty (weqcomp (setwithbinop_univalence a b) (binop_equiv_iso_weq a b)))).
+    intros e. induction e.
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use total2_paths_f.
+    - use idpath.
+    - use proofirrelevance. use isaprop_is_iso.
+  Defined.
+  Opaque binop_precategory_isweq.
+
+  Definition binop_precategory_is_category : is_category binop_precategory.
+  Proof.
+    use dirprodpair.
+    - intros a b. exact (binop_precategory_isweq a b).
+    - exact has_homsets_BINOP.
+  Defined.
 
 End BINOP_category.

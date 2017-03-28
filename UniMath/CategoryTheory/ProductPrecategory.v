@@ -5,17 +5,19 @@ Anders Mörtberg
 
 2016
 
-Definition of the general product category
+Contents:
+
+- Definition of the general product category ([product_precategory])
+- Tuple functor ([tuple_functor])
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
+Local Open Scope cat.
 
 Section dep_product_precategory.
 
@@ -25,9 +27,9 @@ Variables C : I -> precategory.
 Definition product_precategory_ob_mor : precategory_ob_mor.
 Proof.
 mkpair.
-- apply (Π (i : I), ob (C i)).
+- apply (∏ (i : I), ob (C i)).
 - intros f g.
-  apply (Π i, f i --> g i).
+  apply (∏ i, f i --> g i).
 Defined.
 
 Definition product_precategory_data : precategory_data.
@@ -37,7 +39,7 @@ Proof.
   - intros f i; simpl in *.
     apply (identity (f i)).
   - intros a b c f g i; simpl in *.
-    exact (f i ;; g i).
+    exact (f i · g i).
 Defined.
 
 Lemma is_precategory_product_precategory_data :
@@ -52,7 +54,7 @@ Qed.
 Definition product_precategory : precategory
   := tpair _ _ is_precategory_product_precategory_data.
 
-Definition has_homsets_product_precategory (hsC : Π (i:I), has_homsets (C i)) :
+Definition has_homsets_product_precategory (hsC : ∏ (i:I), has_homsets (C i)) :
   has_homsets product_precategory.
 Proof.
 intros a b; simpl.
@@ -80,11 +82,11 @@ Qed.
 
 End power_precategory.
 
-
+(* TODO: Some of the functors in this section can be defined in terms of each other *)
 Section functors.
 
 Definition family_functor_data (I : UU) {A B : I -> precategory}
-  (F : Π (i : I), functor (A i) (B i)) :
+  (F : ∏ (i : I), functor (A i) (B i)) :
   functor_data (product_precategory I A)
                (product_precategory I B).
 Proof.
@@ -94,7 +96,7 @@ mkpair.
 Defined.
 
 Definition family_functor (I : UU) {A B : I -> precategory}
-  (F : Π (i : I), functor (A i) (B i)) :
+  (F : ∏ (i : I), functor (A i) (B i)) :
   functor (product_precategory I A)
           (product_precategory I B).
 Proof.
@@ -133,5 +135,31 @@ Proof.
 apply (tpair _ (delta_functor_data I C)).
 abstract (split; intros x *; apply idpath).
 Defined.
+
+Definition tuple_functor_data {I : UU} {A : precategory} {B : I → precategory}
+  (F : ∏ i, functor A (B i)) : functor_data A (product_precategory I B).
+Proof.
+mkpair.
+- intros a i; exact (F i a).
+- intros a b f i; exact (# (F i) f).
+Defined.
+
+Lemma tuple_functor_axioms {I : UU} {A : precategory} {B : I → precategory}
+  (F : ∏ i, functor A (B i)) : is_functor (tuple_functor_data F).
+Proof.
+split.
+- intros a. apply funextsec; intro i. apply functor_id.
+- intros ? ? ? ? ?. apply funextsec; intro i. apply functor_comp.
+Qed.
+
+Definition tuple_functor {I : UU} {A : precategory} {B : I → precategory}
+  (F : ∏ i, functor A (B i)) : functor A (product_precategory I B)
+    := (tuple_functor_data F,, tuple_functor_axioms F).
+
+Lemma pr_tuple_functor {I : UU} {A : precategory} {B : I → precategory} (hsB : ∏ i, has_homsets (B i))
+  (F : ∏ i, functor A (B i)) (i : I) : tuple_functor F ∙ pr_functor I B i = F i.
+Proof.
+now apply functor_eq.
+Qed.
 
 End functors.

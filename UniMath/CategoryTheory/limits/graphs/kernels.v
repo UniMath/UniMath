@@ -2,15 +2,15 @@
 (** ** Contents
 - Definition coincides with the direct definition
 *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.zero.
 Require Import UniMath.CategoryTheory.limits.graphs.equalizers.
 Require Import UniMath.CategoryTheory.limits.kernels.
@@ -27,7 +27,7 @@ Section def_kernels.
 
   (** ** Maps between Kernels as limits and direct definition. *)
   Lemma equiv_Kernel1_eq {a b : C} (f : C⟦a, b⟧) (K : limits.kernels.Kernel (equiv_Zero2 Z) f) :
-    KernelArrow K ;; f = KernelArrow K ;; ZeroArrow Z a b.
+    KernelArrow K · f = KernelArrow K · ZeroArrow Z a b.
   Proof.
     rewrite precomp_with_ZeroArrow. rewrite <- equiv_ZeroArrow. apply KernelCompZero.
   Qed.
@@ -69,7 +69,7 @@ Section def_kernels.
   (* Other direction *)
 
   Lemma equiv_Kernel2_eq {a b : C} (f : C⟦a, b⟧) (K : Kernel f) :
-    EqualizerArrow C K ;; f = limits.zero.ZeroArrow (equiv_Zero2 Z) (EqualizerObject C K) b.
+    EqualizerArrow C K · f = limits.zero.ZeroArrow (equiv_Zero2 Z) (EqualizerObject C K) b.
   Proof.
     rewrite (EqualizerArrowEq C K). rewrite equiv_ZeroArrow.
     rewrite precomp_with_ZeroArrow. apply idpath.

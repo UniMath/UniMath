@@ -8,13 +8,16 @@ Written by: Anders Mörtberg, 2016
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+
+Local Open Scope cat.
 
 (** * Discrete precategories *)
 Section DiscretePrecategory.
@@ -57,7 +60,7 @@ Defined.
 (** A natural transformation of functors is given by a family of morphisms *)
 Definition is_nat_trans_discrete_precategory {D : precategory} (Dhom : has_homsets D)
            {f g : functor_precategory discrete_precategory D Dhom}
-           (F : Π x : A , (pr1 f) x --> (pr1 g) x)
+           (F : ∏ x : A , (pr1 f) x --> (pr1 g) x)
   : is_nat_trans (pr1 f) (pr1 g) F.
 Proof.
   intros x y h.

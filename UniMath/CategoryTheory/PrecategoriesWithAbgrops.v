@@ -1,13 +1,13 @@
 (** ** Precategories with homsets abelian groups (abgrops). *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.Foundations.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Monoids_and_Groups.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
@@ -17,10 +17,10 @@ Section def_precategory_with_abgrops.
 
   (** Definition of precategories such that homsets are abgrops. *)
   Definition PrecategoryWithAbgropsData (PB : precategoryWithBinOps) (hs : has_homsets PB) : UU :=
-    Π (x y : PB), @isabgrop (hSetpair (PB⟦x,y⟧) (hs x y)) (to_binop x y).
+    ∏ (x y : PB), @isabgrop (hSetpair (PB⟦x,y⟧) (hs x y)) (to_binop x y).
 
   Definition PrecategoryWithAbgrops : UU :=
-    Σ PA : (Σ PB : precategoryWithBinOps, has_homsets PB),
+    ∑ PA : (∑ PB : precategoryWithBinOps, has_homsets PB),
            PrecategoryWithAbgropsData (pr1 PA) (pr2 PA).
 
   Definition PrecategoryWithAbgrops_precategoryWithBinOps (PB : PrecategoryWithAbgrops) :
@@ -86,10 +86,10 @@ Section def_precategory_with_abgrops.
       with a morphism. Note that we have not required these to be abelian group morphisms of abelian
       groups. *)
   Definition to_premor {x y : PA} (z : PA) (f : x --> y) : to_abgrop y z -> to_abgrop x z :=
-    fun (g : (to_abgrop y z)) => f ;; g.
+    fun (g : (to_abgrop y z)) => f · g.
 
   Definition to_postmor (x : PA) {y z : PA} (f : y --> z) : to_abgrop x y -> to_abgrop x z :=
-    fun (g : (to_abgrop x y)) => g ;; f.
+    fun (g : (to_abgrop x y)) => g · f.
 
 
   (** Some equatios on inverses *)
@@ -162,6 +162,20 @@ Section def_precategory_with_abgrops.
     apply (to_rcan g). rewrite to_assoc. rewrite linvax. rewrite to_runax'.
     apply (to_rcan f). rewrite to_assoc. rewrite linvax. cbn.
     rewrite <- (linvax (to_binop x y f g)). apply maponpaths. apply to_commax'.
+  Qed.
+
+  Lemma to_binop_inv_comm_1 {x y : PA} (f g : PA⟦x, y⟧) :
+    to_binop _ _ (to_inv f) g = to_inv (to_binop _ _ f (to_inv g)).
+  Proof.
+    apply (to_rcan (to_binop x y f (to_inv g))). rewrite linvax.
+    rewrite (to_commax' f). rewrite to_assoc. rewrite <- (to_assoc g).
+    rewrite rinvax. rewrite to_lunax'. rewrite linvax. apply idpath.
+  Qed.
+
+  Lemma to_binop_inv_comm_2 {x y : PA} (f g : PA⟦x, y⟧) :
+    to_binop _ _ f (to_inv g) = to_inv (to_binop _ _ (to_inv f) g).
+  Proof.
+    rewrite to_commax'. rewrite (to_commax' _ g). apply to_binop_inv_comm_1.
   Qed.
 
 End def_precategory_with_abgrops.

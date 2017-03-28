@@ -1,16 +1,16 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import
-        UniMath.Foundations.Basics.Sets
+        UniMath.Foundations.Sets
         UniMath.Ktheory.Utilities.
 Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
            (f:X->Y->Z) : Type
-  := (Π x x', RX x x' -> Π y, f x y = f x' y) ×
-     (Π y y', RY y y' -> Π x, f x y = f x y').
+  := (∏ x x', RX x x' -> ∏ y, f x y = f x' y) ×
+     (∏ y y', RY y y' -> ∏ x, f x y = f x y').
 Definition iscomprelrelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y) (RZ:eqrel Z)
            (f:X->Y->Z) : Type
-  := (Π x x' y, RX x x' -> RZ (f x y) (f x' y)) ×
-     (Π x y y', RY y y' -> RZ (f x y) (f x y')).
+  := (∏ x x' y, RX x x' -> RZ (f x y) (f x' y)) ×
+     (∏ x y y', RY y y' -> RZ (f x y) (f x y')).
 Lemma setquotuniv_equal { X : UU } ( R : hrel X ) ( Y : hSet )
       ( f f' : X -> Y ) (p : f = f')
       ( is : iscomprelfun R f ) ( is' : iscomprelfun R f' )

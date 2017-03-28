@@ -1,18 +1,30 @@
 Installation of UniMath
 =======================
 
-Prepare for installation by installing the OCAML compiler on your system.
-Under Mac OS X, the most convenient way to do that is with "Homebrew",
-available from http://brew.sh/, with the following command:
+Prepare for installation by installing the OCAML compiler and a more modern
+version of `bash` on your system.  Under Mac OS X, the most convenient way to
+do that is with "Homebrew", available from http://brew.sh/, with the following
+command:
 
 ```bash
-$ brew install objective-caml camlp5 camlp4 lablgtk
+$ brew install objective-caml camlp5 camlp4 lablgtk bash
 ```
+
+Also install "ocamlfind" using "homebrew" with the following commands.
+
+```bash
+$ brew tap mht208/formal
+$ brew install ocaml-findlib
+```
+
+(It is also possible to install "ocamlfind" with "opam", but that is a bit more
+complicated.  One uses "homebrew" to install "opam" and then uses "opam" to
+install "ocamlfind", but it ends up in a nonstandard place.)
 
 Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
 
 ```bash
-$ sudo apt-get install ocaml ocaml-nox ocaml-native-compilers camlp4-extra proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0
+$ sudo apt-get install ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
 ```
 
 Under Mac OS X, you may obtain ProofGeneral from http://proofgeneral.inf.ed.ac.uk/.
@@ -46,6 +58,13 @@ $ make BUILD_COQIDE=yes
 Alternatively, you can specify the value of the BUILD_COQIDE option more
 permanently by following the instructions in the file
 build/Makefile-configuration-template.
+
+Later on, after running the command `make install` as instructed below, in
+order to run the program ```coqide```, you may use the following command.
+
+```bash
+$ sub/coq/bin/coqide -indices-matter -type-in-type -Q UniMath UniMath
+```
 
 To create the standard HTML documentation provided by coqdoc:
 ```bash

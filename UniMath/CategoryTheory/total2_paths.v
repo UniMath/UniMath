@@ -1,6 +1,6 @@
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 
 Definition propproperty ( X : hProp ) := pr2 X .
@@ -33,7 +33,7 @@ Lemma total2_paths2_UU {B : UU -> UU} {A A': UU} {b : B A}
      {b' : B A'} (p : A = A') (q : transportf (fun x => B x) p b = b') :
     tpair (fun x => B x) A b = tpair (fun x => B x) A' b'.
 Proof.
-  apply (@total2_paths _ _
+  apply (@total2_paths_f _ _
      (tpair (fun x => B x) A b)(tpair (fun x => B x) A' b') p q).
 Defined.
 
@@ -94,7 +94,7 @@ Lemma eq_equalities_between_pairs (A : UU)(B : A -> UU)(x y : total2 (fun x => B
          H (fiber_paths p) = fiber_paths q) :  p = q.
 Proof.
   apply (invmaponpathsweq (total2_paths_equiv _ _ _ )).
-  apply (total2_paths (B:=(fun p : pr1 x = pr1 y =>
+  apply (total2_paths_f (B:=(fun p : pr1 x = pr1 y =>
           transportf (fun x : A => B x) p (pr2 x) = pr2 y))
           (s:=(total2_paths_equiv B x y) p)
           (s':=(total2_paths_equiv B x y) q) H).

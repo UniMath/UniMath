@@ -10,16 +10,17 @@ Contents :
 
 *****************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Open Scope cat.
 
 Section move_upstream.
 
@@ -43,28 +44,28 @@ End move_upstream.
 Section lim_def.
 
 Definition cone {J C : precategory} (F : functor J C) (c : C) : UU :=
-  Σ (f : Π (v : J), C⟦c,F v⟧),
-    Π (u v : J) (e : J⟦u,v⟧), f u ;; # F e = f v.
+  ∑ (f : ∏ (v : J), C⟦c,F v⟧),
+    ∏ (u v : J) (e : J⟦u,v⟧), f u · # F e = f v.
 
 Definition mk_cone {J C : precategory} {F : functor J C} {c : C}
-  (f : Π v, C⟦c, F v⟧) (Hf : Π u v (e : J⟦u,v⟧) , f u ;; # F e  = f v) :
+  (f : ∏ v, C⟦c, F v⟧) (Hf : ∏ u v (e : J⟦u,v⟧) , f u · # F e  = f v) :
   cone F c := tpair _ f Hf.
 
 Definition coneOut {J C : precategory} {F : functor J C} {c : C} (cc : cone F c) :
-  Π v, C⟦c, F v⟧ := pr1 cc.
+  ∏ v, C⟦c, F v⟧ := pr1 cc.
 
 Lemma coneOutCommutes {J C : precategory} {F : functor J C} {c : C}
-  (cc : cone F c) : Π u v (e : J⟦u,v⟧), coneOut cc u ;; # F e = coneOut cc v.
+  (cc : cone F c) : ∏ u v (e : J⟦u,v⟧), coneOut cc u · # F e = coneOut cc v.
 Proof.
 apply (pr2 cc).
 Qed.
 
 Definition isLimCone {J C : precategory} (F : functor J C)
-  (l : C) (cc0 : cone F l) : UU := Π (c : C) (cc : cone F c),
-    iscontr (Σ x : C⟦c,l⟧, Π v, x ;; coneOut cc0 v = coneOut cc v).
+  (l : C) (cc0 : cone F l) : UU := ∏ (c : C) (cc : cone F c),
+    iscontr (∑ x : C⟦c,l⟧, ∏ v, x · coneOut cc0 v = coneOut cc v).
 
 Definition LimCone {J C : precategory} (F : functor J C) : UU :=
-  Σ (A : (Σ l, cone F l)), isLimCone F (pr1 A) (pr2 A).
+  ∑ (A : (∑ l, cone F l)), isLimCone F (pr1 A) (pr2 A).
 
 Definition mk_LimCone {J C : precategory} (F : functor J C)
   (c : C) (cc : cone F c) (isCC : isLimCone F c cc) : LimCone F :=
@@ -78,18 +79,18 @@ Definition limCone {J C : precategory} {F : functor J C} (CC : LimCone F) :
   cone F (lim CC) := pr2 (pr1 CC).
 
 Definition limOut {J C : precategory} {F : functor J C} (CC : LimCone F) :
-  Π v, C⟦lim CC,F v⟧ := coneOut (limCone CC).
+  ∏ v, C⟦lim CC,F v⟧ := coneOut (limCone CC).
 
 Lemma limOutCommutes {J C : precategory} {F : functor J C}
-  (CC : LimCone F) : Π u v (e : J⟦u,v⟧),
-   limOut CC u ;; # F e = limOut CC v.
+  (CC : LimCone F) : ∏ u v (e : J⟦u,v⟧),
+   limOut CC u · # F e = limOut CC v.
 Proof.
 exact (coneOutCommutes (limCone CC)).
 Qed.
 
 Lemma limUnivProp {J C : precategory} {F : functor J C}
-  (CC : LimCone F) : Π (c : C) (cc : cone F c),
-  iscontr (Σ x : C⟦c, lim CC⟧, Π v, x ;; limOut CC v = coneOut cc v).
+  (CC : LimCone F) : ∏ (c : C) (cc : cone F c),
+  iscontr (∑ x : C⟦c, lim CC⟧, ∏ v, x · limOut CC v = coneOut cc v).
 Proof.
 exact (pr2 CC).
 Qed.
@@ -111,14 +112,14 @@ Definition limArrow {J C : precategory} {F : functor J C} (CC : LimCone F)
 
 Lemma limArrowCommutes {J C : precategory} {F : functor J C} (CC : LimCone F)
   (c : C) (cc : cone F c) u :
-   limArrow CC c cc ;; limOut CC u = coneOut cc u.
+   limArrow CC c cc · limOut CC u = coneOut cc u.
 Proof.
 exact ((pr2 (pr1 (isLimCone_LimCone CC _ cc))) u).
 Qed.
 
 Lemma limArrowUnique {J C : precategory} {F : functor J C} (CC : LimCone F)
   (c : C) (cc : cone F c) (k : C⟦c, lim CC⟧)
-  (Hk : Π u, k ;; limOut CC u = coneOut cc u) :
+  (Hk : ∏ u, k · limOut CC u = coneOut cc u) :
   k = limArrow CC c cc.
 Proof.
 now apply path_to_ctr, Hk.
@@ -126,14 +127,14 @@ Qed.
 
 Lemma Cone_precompose {J C : precategory} {F : functor J C}
   {c : C} (cc : cone F c) (x : C) (f : C⟦x,c⟧) :
-    Π u v (e : J⟦u,v⟧), (f ;; coneOut cc u) ;; # F e = f ;; coneOut cc v.
+    ∏ u v (e : J⟦u,v⟧), (f · coneOut cc u) · # F e = f · coneOut cc v.
 Proof.
 now intros u v e; rewrite <- assoc, coneOutCommutes.
 Qed.
 
 Lemma limArrowEta {J C : precategory} {F : functor J C} (CC : LimCone F)
   (c : C) (f : C⟦c, lim CC⟧) :
-  f = limArrow CC c (tpair _ (λ u, f ;; limOut CC u)
+  f = limArrow CC c (tpair _ (λ u, f · limOut CC u)
                  (Cone_precompose (limCone CC) c f)).
 Proof.
 now apply limArrowUnique.
@@ -141,22 +142,22 @@ Qed.
 
 Definition limOfArrows {J C : precategory} {F1 F2 : functor J C}
   (CC1 : LimCone F1) (CC2 : LimCone F2)
-  (f : Π u, C⟦F1 u,F2 u⟧)
-  (fNat : Π u v (e : J⟦u,v⟧), f u ;; # F2 e = # F1 e ;; f v) :
+  (f : ∏ u, C⟦F1 u,F2 u⟧)
+  (fNat : ∏ u v (e : J⟦u,v⟧), f u · # F2 e = # F1 e · f v) :
   C⟦lim CC1 , lim CC2⟧.
 Proof.
 apply limArrow; simple refine (mk_cone _ _).
-- now intro u; apply (limOut CC1 u ;; f u).
+- now intro u; apply (limOut CC1 u · f u).
 - abstract (intros u v e; simpl;
             now rewrite <- assoc, fNat, assoc, limOutCommutes).
 Defined.
 
 Lemma limOfArrowsOut {J C : precategory} {F1 F2 : functor J C}
   (CC1 : LimCone F1) (CC2 : LimCone F2)
-  (f : Π u, C⟦F1 u,F2 u⟧)
-  (fNat : Π u v (e : J⟦u,v⟧), f u ;; # F2 e = # F1 e ;; f v) :
-    Π u, limOfArrows CC1 CC2 f fNat ;; limOut CC2 u =
-          limOut CC1 u ;; f u.
+  (f : ∏ u, C⟦F1 u,F2 u⟧)
+  (fNat : ∏ u v (e : J⟦u,v⟧), f u · # F2 e = # F1 e · f v) :
+    ∏ u, limOfArrows CC1 CC2 f fNat · limOut CC2 u =
+          limOut CC1 u · f u.
 Proof.
 now unfold limOfArrows; intro u; rewrite limArrowCommutes.
 Qed.
@@ -164,10 +165,10 @@ Qed.
 Lemma postCompWithLimOfArrows_subproof
   {J C : precategory} {F1 F2 : functor J C}
   (CC1 : LimCone F1) (CC2 : LimCone F2)
-  (f : Π u, C⟦F1 u,F2 u⟧)
-  (fNat : Π u v (e : J⟦u,v⟧), f u ;; # F2 e = # F1 e ;; f v)
+  (f : ∏ u, C⟦F1 u,F2 u⟧)
+  (fNat : ∏ u v (e : J⟦u,v⟧), f u · # F2 e = # F1 e · f v)
   (x : C) (cc : cone F1 x) u v (e : J⟦u,v⟧) :
-    (coneOut cc u ;; f u) ;; # F2 e = coneOut cc v ;; f v.
+    (coneOut cc u · f u) · # F2 e = coneOut cc v · f v.
 Proof.
 now rewrite <- (coneOutCommutes cc u v e), <- assoc, fNat, assoc.
 Defined.
@@ -175,11 +176,11 @@ Defined.
 Lemma postcompWithLimOfArrows
   {J C : precategory} {F1 F2 : functor J C}
   (CC1 : LimCone F1) (CC2 : LimCone F2)
-  (f : Π u, C⟦F1 u,F2 u⟧)
-  (fNat : Π u v (e : J⟦u,v⟧), f u ;; # F2 e = # F1 e ;; f v)
+  (f : ∏ u, C⟦F1 u,F2 u⟧)
+  (fNat : ∏ u v (e : J⟦u,v⟧), f u · # F2 e = # F1 e · f v)
   (x : C) (cc : cone F1 x) :
-     limArrow CC1 x cc ;; limOfArrows CC1 CC2 f fNat =
-       limArrow CC2 x (mk_cone (λ u, coneOut cc u ;; f u)
+     limArrow CC1 x cc · limOfArrows CC1 CC2 f fNat =
+       limArrow CC2 x (mk_cone (λ u, coneOut cc u · f u)
          (postCompWithLimOfArrows_subproof CC1 CC2 f fNat x cc)).
 Proof.
 apply limArrowUnique; intro u.
@@ -188,8 +189,8 @@ Qed.
 
 Lemma postcompWithLimArrow {J C : precategory} {F : functor J C}
  (CC : LimCone F) (c : C) (cc : cone F c) (d : C) (k : C⟦d,c⟧) :
-   k ;; limArrow CC c cc  =
-   limArrow CC d (mk_cone (λ u, k ;; coneOut cc u)
+   k · limArrow CC c cc  =
+   limArrow CC d (mk_cone (λ u, k · coneOut cc u)
               (Cone_precompose cc d k)).
 Proof.
 apply limArrowUnique.
@@ -198,7 +199,7 @@ Qed.
 
 Lemma lim_endo_is_identity {J C : precategory} {F : functor J C}
   (CC : LimCone F) (k : lim CC --> lim CC)
-  (H : Π u, k ;; limOut CC u = limOut CC u) :
+  (H : ∏ u, k · limOut CC u = limOut CC u) :
   identity _ = k.
 Proof.
 unshelve refine (uniqueExists _ _ (limUnivProp CC _ _) _ _ _ _).
@@ -211,20 +212,20 @@ Qed.
 Definition Cocone_by_postcompose {g : graph} (D : diagram g C)
  (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) : cocone D d.
 Proof.
-now exists (λ u, coconeIn cc u ;; k); apply Cocone_postcompose.
+now exists (λ u, coconeIn cc u · k); apply Cocone_postcompose.
 Defined.
 
 Lemma isColim_weq_subproof1 {g : graph} (D : diagram g C)
   (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) :
-  Π u, coconeIn cc u ;; k = pr1 (Cocone_by_postcompose D c cc d k) u.
+  ∏ u, coconeIn cc u · k = pr1 (Cocone_by_postcompose D c cc d k) u.
 Proof.
 now intro u.
 Qed.
 
 Lemma isColim_weq_subproof2 (g : graph) (D : diagram g C)
-  (c : C) (cc : cocone D c) (H : Π d, isweq (Cocone_by_postcompose D c cc d))
+  (c : C) (cc : cocone D c) (H : ∏ d, isweq (Cocone_by_postcompose D c cc d))
   (d : C) (cd : cocone D d) (u : vertex g) :
-    coconeIn cc u ;; invmap (weqpair _ (H d)) cd = coconeIn cd u.
+    coconeIn cc u · invmap (weqpair _ (H d)) cd = coconeIn cd u.
 Proof.
 rewrite (isColim_weq_subproof1 D c cc d (invmap (weqpair _ (H d)) _) u).
 set (p := homotweqinvweq (weqpair _ (H d)) cd); simpl in p.
@@ -232,7 +233,7 @@ now rewrite p.
 Qed.
 
 Lemma isColim_weq {g : graph} (D : diagram g C) (c : C) (cc : cocone D c) :
-  isColimCocone D c cc <-> Π d, isweq (Cocone_by_postcompose D c cc d).
+  isColimCocone D c cc <-> ∏ d, isweq (Cocone_by_postcompose D c cc d).
 Proof.
 split.
 - intros H d.
@@ -276,10 +277,10 @@ End lim_def.
 
 Section Lims.
 
-Definition Lims (C : precategory) : UU := Π {J : precategory} (F : functor J C), LimCone F.
+Definition Lims (C : precategory) : UU := ∏ {J : precategory} (F : functor J C), LimCone F.
 Definition hasLims : UU  :=
-  Π {J C : precategory} (F : functor J C), ishinh (LimCone F).
-Definition Lims_of_shape (J C : precategory) : UU := Π (F : functor J C), LimCone F.
+  ∏ {J C : precategory} (F : functor J C), ishinh (LimCone F).
+Definition Lims_of_shape (J C : precategory) : UU := ∏ (F : functor J C), LimCone F.
 
 Section Universal_Unique.
 
@@ -293,9 +294,9 @@ apply impred; intro J; apply impred; intro F.
 apply invproofirrelevance; intros Hccx Hccy.
 apply subtypeEquality.
 - intro; apply isaprop_isLimCone.
-- apply (total2_paths (isotoid _ H (iso_from_lim_to_lim Hccx Hccy))).
-  set (B c := Π v, C⟦c,F v⟧).
-  set (C' (c : C) f := Π u v (e : J⟦u,v⟧), @compose _ c _ _ (f u) (# F e) = f v).
+- apply (total2_paths_f (isotoid _ H (iso_from_lim_to_lim Hccx Hccy))).
+  set (B c := ∏ v, C⟦c,F v⟧).
+  set (C' (c : C) f := ∏ u v (e : J⟦u,v⟧), @compose _ c _ _ (f u) (# F e) = f v).
   rewrite (@transportf_total2 _ B C').
   apply subtypeEquality.
   + intro; repeat (apply impred; intro); apply (pr2 H).
@@ -323,10 +324,10 @@ mkpair.
     [ intro x; simpl;
       apply (toforallpaths _ _ _ (maponpaths pr1 (functor_id D x)) a)
     | intros x y z f g; simpl;
-      apply (toforallpaths _ _ _ (maponpaths pr1 (functor_comp D x y z f g)) a)]).
+      apply (toforallpaths _ _ _ (maponpaths pr1 (functor_comp D f g)) a)]).
 Defined.
 
-Variable (HCg : Π (a : A), LimCone (functor_pointwise a)).
+Variable (HCg : ∏ (a : A), LimCone (functor_pointwise a)).
 
 Definition LimFunctor_ob (a : A) : C := lim (HCg a).
 
@@ -376,8 +377,8 @@ simple refine (mk_cone _ _).
 Defined.
 
 Lemma LimFunctor_unique (F : [A, C, hsC]) (cc : cone D F) :
-  iscontr (Σ x : [A, C, hsC] ⟦ F, LimFunctor ⟧,
-            Π v, x ;; lim_nat_trans_in_data v = coneOut cc v).
+  iscontr (∑ x : [A, C, hsC] ⟦ F, LimFunctor ⟧,
+            ∏ v, x · lim_nat_trans_in_data v = coneOut cc v).
 Proof.
 mkpair.
 - mkpair.

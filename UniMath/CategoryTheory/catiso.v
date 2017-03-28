@@ -1,16 +1,12 @@
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.UnivalenceAxiom.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
-
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 (******************************************************************************)
 (** * Isomorphism of (pre)categories *)
@@ -118,8 +114,8 @@ Lemma eqweq_maponpaths_mor {A B : precategory}
   (F G : weq A B) (p : F = G) (a a' : A) (f : F a --> F a')
   : eqweqmap (maponpaths (fun T : weq A B => (pr1 T) a --> (pr1 T) a') p) f
     =    (idtomor _ _ (!toforallpaths _ _ _ (maponpaths pr1 p) a))
-      ;; f
-      ;; (idtomor _ _ (toforallpaths _ _ _ (maponpaths pr1 p) a')).
+      · f
+      · (idtomor _ _ (toforallpaths _ _ _ (maponpaths pr1 p) a')).
 Proof.
   induction p.
   rewrite id_left.
@@ -132,8 +128,8 @@ Lemma eqweq_correct_hom_is_comp {A B : precategory}
   : forall a a' : A, forall f : F a --> F a',
       eqweqmap (correct_hom F _ _) f
     =    (idtomor _ _ (eqweq_ob_path_is_functor_app F a))
-      ;; f
-      ;; (idtomor _ _ (!eqweq_ob_path_is_functor_app F a')).
+      · f
+      · (idtomor _ _ (!eqweq_ob_path_is_functor_app F a')).
 Proof.
   intros a a' f.
   unfold correct_hom.
@@ -267,7 +263,7 @@ Proof.
   unfold catiso_to_precategory_mor_path_funext.
   unfold catiso_to_precategory_mor_path.
   unfold weqfunextsec.
-  simpl pr1.
+  simpl (pr1 _).
   rewrite !(homotweqinvweq (weqtoforallpaths _ _ _)).
 
   (* Cancel transport_mor with its inverse *)
@@ -341,8 +337,8 @@ Lemma correct_hom_on_comp {A B : precategory}
   (F : catiso A B)
   : forall a a' a'', forall f : F a --> F a', forall g : F a' --> F a'',
        (eqweqmap (correct_hom F _ _)) f
-    ;; (eqweqmap (correct_hom F _ _)) g
-    =  (eqweqmap (correct_hom F _ _)) (f ;; g).
+    · (eqweqmap (correct_hom F _ _)) g
+    =  (eqweqmap (correct_hom F _ _)) (f · g).
 Proof.
   intros a a' a'' f g.
 

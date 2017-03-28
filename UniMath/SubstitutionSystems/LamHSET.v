@@ -6,11 +6,11 @@ Written by: Anders Mörtberg, 2016
 
 *)
 
-Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
@@ -38,7 +38,7 @@ Require Import UniMath.CategoryTheory.CocontFunctors.
 
 Section LamHSET.
 
-Let Lam_S : Signature HSET has_homsets_HSET :=
+Let Lam_S : Signature HSET has_homsets_HSET _ _ :=
   Lam_Sig HSET has_homsets_HSET TerminalHSET BinCoproductsHSET BinProductsHSET.
 
 Local Notation "'EndHSET'":= ([HSET, HSET, has_homsets_HSET]) .
@@ -60,15 +60,13 @@ use colimAlgInitial.
 - apply (Initial_functor_precat _ _ InitialHSET).
 - unfold Id_H, Const_plus_H.
   apply is_omega_cocont_BinCoproduct_of_functors.
-  + apply (BinProducts_functor_precat _ _ BinProductsHSET).
-  + apply functor_category_has_homsets.
   + apply functor_category_has_homsets.
   + apply is_omega_cocont_constant_functor; apply functor_category_has_homsets.
   + apply is_omega_cocont_Lam_S.
 - apply ColimsFunctorCategory_of_shape; apply ColimsHSET_of_shape.
 Defined.
 
-(* Lemma KanExt_HSET : Π Z : precategory_Ptd HSET has_homsets_HSET, *)
+(* Lemma KanExt_HSET : ∏ Z : precategory_Ptd HSET has_homsets_HSET, *)
 (*    RightKanExtension.GlobalRightKanExtensionExists HSET HSET *)
 (*      (U Z) HSET has_homsets_HSET has_homsets_HSET. *)
 (* Proof. *)
@@ -79,7 +77,6 @@ Defined.
 Definition LamHSS_Initial_HSET : Initial (hss_precategory BinCoproductsHSET Lam_S).
 Proof.
 apply InitialHSS.
-- apply BinProductsHSET.
 - apply InitialHSET.
 - apply ColimsHSET_of_shape.
 - apply is_omega_cocont_Lam_S.

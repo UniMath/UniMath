@@ -6,14 +6,17 @@ Written by: Benedikt Ahrens, March 2015
 
 *********************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+
+Local Open Scope cat.
 
 (** * Definition of binary coproduct of objects in a precategory *)
 
@@ -48,10 +51,10 @@ Definition isBinCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
   isColimCocone (bincoproduct_diagram a b) co (CopCocone ia ib).
 
 Definition mk_isBinCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a --> co) (ib : b --> co) :
-   (Π (c : C) (f : a --> c) (g : b --> c),
+   (∏ (c : C) (f : a --> c) (g : b --> c),
     ∃! k : C ⟦co, c⟧,
-      ia ;; k = f ×
-      ib ;; k = g)
+      ia · k = f ×
+      ib · k = g)
    →
    isBinCoproductCocone a b co ia ib.
 Proof.
@@ -72,7 +75,7 @@ Definition BinCoproductCocone (a b : C) :=
   ColimCocone (bincoproduct_diagram a b).
 
 Definition mk_BinCoproductCocone (a b : C) :
-  Π (c : C) (f : a --> c) (g : b --> c),
+  ∏ (c : C) (f : a --> c) (g : b --> c),
    isBinCoproductCocone _ _ _ f g →  BinCoproductCocone a b.
 Proof.
   intros.
@@ -82,7 +85,7 @@ Proof.
   - apply X.
 Defined.
 
-Definition BinCoproducts := Π (a b : C), BinCoproductCocone a b.
+Definition BinCoproducts := ∏ (a b : C), BinCoproductCocone a b.
 Definition hasBinCoproducts := ishinh BinCoproducts.
 
 Definition BinCoproductObject {a b : C} (CC : BinCoproductCocone a b) : C := colim CC.
@@ -104,7 +107,7 @@ Proof.
 Defined.
 
 Lemma BinCoproductIn1Commutes (a b : C) (CC : BinCoproductCocone a b):
-     Π (c : C) (f : a --> c) g, BinCoproductIn1 CC ;; BinCoproductArrow CC f g  = f.
+     ∏ (c : C) (f : a --> c) g, BinCoproductIn1 CC · BinCoproductArrow CC f g  = f.
 Proof.
   intros c f g.
   unfold BinCoproductIn1.
@@ -113,7 +116,7 @@ Proof.
 Qed.
 
 Lemma BinCoproductIn2Commutes (a b : C) (CC : BinCoproductCocone a b):
-     Π (c : C) (f : a --> c) g, BinCoproductIn2 CC ;; BinCoproductArrow CC f g = g.
+     ∏ (c : C) (f : a --> c) g, BinCoproductIn2 CC · BinCoproductArrow CC f g = g.
 Proof.
   intros c f g.
   unfold BinCoproductIn1.
@@ -123,7 +126,7 @@ Qed.
 
 Lemma BinCoproductArrowUnique (a b : C) (CC : BinCoproductCocone a b) (x : C)
     (f : a --> x) (g : b --> x) (k : BinCoproductObject CC --> x) :
-    BinCoproductIn1 CC ;; k = f → BinCoproductIn2 CC ;; k = g →
+    BinCoproductIn1 CC · k = f → BinCoproductIn2 CC · k = g →
       k = BinCoproductArrow CC f g.
 Proof.
   intros H1 H2.
@@ -136,7 +139,7 @@ Qed.
 
 Lemma BinCoproductArrowEta (a b : C) (CC : BinCoproductCocone a b) (x : C)
     (f : BinCoproductObject CC --> x) :
-    f = BinCoproductArrow CC (BinCoproductIn1 CC ;; f) (BinCoproductIn2 CC ;; f).
+    f = BinCoproductArrow CC (BinCoproductIn1 CC · f) (BinCoproductIn2 CC · f).
 Proof.
   apply BinCoproductArrowUnique;
   apply idpath.
@@ -146,11 +149,11 @@ Qed.
 Definition BinCoproductOfArrows {a b : C} (CCab : BinCoproductCocone a b) {c d : C}
     (CCcd : BinCoproductCocone c d) (f : a --> c) (g : b --> d) :
           BinCoproductObject CCab --> BinCoproductObject CCcd :=
-    BinCoproductArrow CCab (f ;; BinCoproductIn1 CCcd) (g ;; BinCoproductIn2 CCcd).
+    BinCoproductArrow CCab (f · BinCoproductIn1 CCcd) (g · BinCoproductIn2 CCcd).
 
 Lemma BinCoproductOfArrowsIn1 {a b : C} (CCab : BinCoproductCocone a b) {c d : C}
     (CCcd : BinCoproductCocone c d) (f : a --> c) (g : b --> d) :
-    BinCoproductIn1 CCab ;; BinCoproductOfArrows CCab CCcd f g = f ;; BinCoproductIn1 CCcd.
+    BinCoproductIn1 CCab · BinCoproductOfArrows CCab CCcd f g = f · BinCoproductIn1 CCcd.
 Proof.
   unfold BinCoproductOfArrows.
   apply BinCoproductIn1Commutes.
@@ -158,7 +161,7 @@ Qed.
 
 Lemma BinCoproductOfArrowsIn2 {a b : C} (CCab : BinCoproductCocone a b) {c d : C}
     (CCcd : BinCoproductCocone c d) (f : a --> c) (g : b --> d) :
-    BinCoproductIn2 CCab ;; BinCoproductOfArrows CCab CCcd f g = g ;; BinCoproductIn2 CCcd.
+    BinCoproductIn2 CCab · BinCoproductOfArrows CCab CCcd f g = g · BinCoproductIn2 CCcd.
 Proof.
   unfold BinCoproductOfArrows.
   apply BinCoproductIn2Commutes.
@@ -168,8 +171,8 @@ Qed.
 Lemma precompWithBinCoproductArrow {a b : C} (CCab : BinCoproductCocone a b) {c d : C}
     (CCcd : BinCoproductCocone c d) (f : a --> c) (g : b --> d)
     {x : C} (k : c --> x) (h : d --> x) :
-        BinCoproductOfArrows CCab CCcd f g ;; BinCoproductArrow CCcd k h =
-         BinCoproductArrow CCab (f ;; k) (g ;; h).
+        BinCoproductOfArrows CCab CCcd f g · BinCoproductArrow CCcd k h =
+         BinCoproductArrow CCab (f · k) (g · h).
 Proof.
   apply BinCoproductArrowUnique.
   - rewrite assoc. rewrite BinCoproductOfArrowsIn1.
@@ -183,7 +186,7 @@ Qed.
 
 Lemma postcompWithBinCoproductArrow {a b : C} (CCab : BinCoproductCocone a b) {c : C}
     (f : a --> c) (g : b --> c) {x : C} (k : c --> x)  :
-       BinCoproductArrow CCab f g ;; k = BinCoproductArrow CCab (f ;; k) (g ;; k).
+       BinCoproductArrow CCab f g · k = BinCoproductArrow CCab (f · k) (g · k).
 Proof.
   apply BinCoproductArrowUnique.
   -  rewrite assoc, BinCoproductIn1Commutes;
@@ -210,8 +213,8 @@ Defined.
 
 Lemma BinCoproduct_endo_is_identity (CC : BinCoproductCocone a b)
   (k : BinCoproductObject CC --> BinCoproductObject CC)
-  (H1 : BinCoproductIn1 CC ;; k = BinCoproductIn1 CC)
-  (H2 : BinCoproductIn2 CC ;; k = BinCoproductIn2 CC)
+  (H1 : BinCoproductIn1 CC · k = BinCoproductIn1 CC)
+  (H2 : BinCoproductIn2 CC · k = BinCoproductIn2 CC)
   : identity _ = k.
 Proof.
 (*  apply pathsinv0. *)
@@ -249,7 +252,7 @@ Definition iso_from_BinCoproduct_to_BinCoproduct (CC CC' : BinCoproductCocone a 
   := isopair _ (is_iso_from_BinCoproduct_to_BinCoproduct CC CC').
 
 Lemma transportf_isotoid' (c d d': C) (p : iso d d') (f : c --> d) :
-  transportf (λ a0 : C, c --> a0) (isotoid C H p) f = f ;; p .
+  transportf (λ a0 : C, c --> a0) (isotoid C H p) f = f · p .
 Proof.
   rewrite <- idtoiso_postcompose.
   rewrite idtoiso_isotoid.
@@ -267,7 +270,7 @@ Proof.
   + intros.
     unfold isColimCocone.
     do 2 (apply impred; intro); apply isapropiscontr.
-  + apply (total2_paths (isotoid _ H (iso_from_BinCoproduct_to_BinCoproduct CC CC'))).
+  + apply (total2_paths_f (isotoid _ H (iso_from_BinCoproduct_to_BinCoproduct CC CC'))).
     rewrite transportf_dirprod.
     rewrite transportf_isotoid'. simpl.
     rewrite transportf_isotoid'.

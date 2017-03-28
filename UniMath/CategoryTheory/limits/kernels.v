@@ -3,17 +3,17 @@
 - Definition of [Kernel]
 - Correspondence of Kernels and Equalizers
 - Kernel up to isomorphism
-- Kernel of morphism ;; [Monic]
+- Kernel of morphism · [Monic]
 - KernelIn of equal morphisms
 - Transport of kernels
 *)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -28,19 +28,19 @@ Section def_kernels.
 
 
   (** Definition and construction of Kernels *)
-  Definition isKernel {x y z : C} (f : x --> y) (g : y --> z) (H : f ;; g = ZeroArrow Z x z) : UU :=
-    Π (w : C) (h : w --> y) (H : h ;; g = ZeroArrow Z w z), iscontr (Σ φ : w --> x, φ ;; f = h).
+  Definition isKernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = ZeroArrow Z x z) : UU :=
+    ∏ (w : C) (h : w --> y) (H : h · g = ZeroArrow Z w z), iscontr (∑ φ : w --> x, φ · f = h).
 
-  Lemma isKernel_paths {x y z : C} (f : x --> y) (g : y --> z) (H H' : f ;; g = (ZeroArrow Z x z))
+  Lemma isKernel_paths {x y z : C} (f : x --> y) (g : y --> z) (H H' : f · g = (ZeroArrow Z x z))
         (isK : isKernel f g H) : isKernel f g H'.
   Proof.
     assert (e : H = H') by apply hs.
     induction e. exact isK.
   Qed.
 
-  Definition mk_isKernel {x y z : C} (f : x --> y) (g : y --> z) (H1 : f ;; g = ZeroArrow Z x z)
-             (H2 : Π (w : C) (h : w --> y) (H' : h ;; g = ZeroArrow Z w z),
-                   iscontr (Σ ψ : w --> x, ψ ;; f = h)) : isKernel f g H1.
+  Definition mk_isKernel {x y z : C} (f : x --> y) (g : y --> z) (H1 : f · g = ZeroArrow Z x z)
+             (H2 : ∏ (w : C) (h : w --> y) (H' : h · g = ZeroArrow Z w z),
+                   iscontr (∑ ψ : w --> x, ψ · f = h)) : isKernel f g H1.
   Proof.
     unfold isKernel.
     intros w h H.
@@ -52,15 +52,15 @@ Section def_kernels.
   Defined.
 
   Definition Kernel {y z : C} (g : y --> z) : UU :=
-    Σ D : (Σ x : ob C, x --> y),
-          Σ (e : (pr2 D) ;; g = ZeroArrow Z (pr1 D) z), isKernel (pr2 D) g e.
+    ∑ D : (∑ x : ob C, x --> y),
+          ∑ (e : (pr2 D) · g = ZeroArrow Z (pr1 D) z), isKernel (pr2 D) g e.
 
-  Definition mk_Kernel {x y z : C} (f : x --> y) (g : y --> z) (H : f ;; g = (ZeroArrow Z x z))
+  Definition mk_Kernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = (ZeroArrow Z x z))
              (isE : isKernel f g H) : Kernel g := ((x,,f),,(H,,isE)).
 
-  Definition Kernels : UU := Π (y z : C) (g : y --> z), Kernel g.
+  Definition Kernels : UU := ∏ (y z : C) (g : y --> z), Kernel g.
 
-  Definition hasKernels : UU := Π (y z : C) (g : y --> z), ishinh (Kernel g).
+  Definition hasKernels : UU := ∏ (y z : C) (g : y --> z), ishinh (Kernel g).
 
   (** Accessor functions *)
   Definition KernelOb {y z : C} {g : y --> z} (K : Kernel g) : C := pr1 (pr1 K).
@@ -69,44 +69,44 @@ Section def_kernels.
   Definition KernelArrow {y z : C} {g : y --> z} (K : Kernel g) :  C⟦K, y⟧ := pr2 (pr1 K).
 
   Definition KernelCompZero {y z : C} {g : y --> z} (K : Kernel g) :
-    KernelArrow K ;; g = ZeroArrow Z K z := pr1 (pr2 K).
+    KernelArrow K · g = ZeroArrow Z K z := pr1 (pr2 K).
 
   Definition KernelisKernel {y z : C} {g : y --> z} (K : Kernel g) :
     isKernel (KernelArrow K) g (KernelCompZero K) := pr2 (pr2 K).
 
   Definition KernelIn {y z : C} {g : y --> z} (K : Kernel g) (w : C) (h : w --> y)
-             (H : h ;; g = ZeroArrow Z w z) : C⟦w, K⟧ :=
+             (H : h · g = ZeroArrow Z w z) : C⟦w, K⟧ :=
     pr1 (iscontrpr1 ((KernelisKernel K) w h H)).
 
   Definition KernelCommutes {y z : C} {g : y --> z} (K : Kernel g) (w : C) (h : w --> y)
-             (H : h ;; g = ZeroArrow Z w z) : (KernelIn K w h H) ;; (KernelArrow K) = h :=
+             (H : h · g = ZeroArrow Z w z) : (KernelIn K w h H) · (KernelArrow K) = h :=
     pr2 (iscontrpr1 ((KernelisKernel K) w h H)).
 
-  Local Lemma KernelInUnique {x y z : C} {f : x --> y} {g : y --> z} {H : f ;; g = ZeroArrow Z x z}
-        (isK : isKernel f g H) {w : C} {h : w --> y} (H' : h ;; g = ZeroArrow Z w z) {φ : w --> x}
-        (H'' : φ ;; f = h) :
+  Local Lemma KernelInUnique {x y z : C} {f : x --> y} {g : y --> z} {H : f · g = ZeroArrow Z x z}
+        (isK : isKernel f g H) {w : C} {h : w --> y} (H' : h · g = ZeroArrow Z w z) {φ : w --> x}
+        (H'' : φ · f = h) :
     φ = (pr1 (pr1 (isK w h H'))).
   Proof.
     exact (base_paths _ _ (pr2 (isK w h H') (tpair _ φ H''))).
   Qed.
 
   Lemma KernelInsEq {y z: C} {g : y --> z} (K : Kernel g) {w : C} (φ1 φ2 : C⟦w, K⟧)
-        (H : φ1 ;; (KernelArrow K) = φ2 ;; (KernelArrow K)) : φ1 = φ2.
+        (H : φ1 · (KernelArrow K) = φ2 · (KernelArrow K)) : φ1 = φ2.
   Proof.
-    assert (H1 : φ1 ;; (KernelArrow K) ;; g = ZeroArrow Z _ _).
+    assert (H1 : φ1 · (KernelArrow K) · g = ZeroArrow Z _ _).
     {
       rewrite <- assoc. rewrite KernelCompZero. apply ZeroArrow_comp_right.
     }
     rewrite (KernelInUnique (KernelisKernel K) H1 (idpath _)).
     apply pathsinv0.
-    set (tmp := pr2 (KernelisKernel K w (φ1 ;; KernelArrow K) H1) (tpair _ φ2 (! H))).
+    set (tmp := pr2 (KernelisKernel K w (φ1 · KernelArrow K) H1) (tpair _ φ2 (! H))).
     exact (base_paths _ _ tmp).
   Qed.
 
   Lemma KernelInComp {y z : C} {f : y --> z} (K : Kernel f) {x x' : C}
         (h1 : x --> x') (h2 : x' --> y)
-        (H1 : h1 ;; h2 ;; f = ZeroArrow Z _ _) (H2 : h2 ;; f = ZeroArrow Z _ _) :
-    KernelIn K x (h1 ;; h2) H1 = h1 ;; KernelIn K x' h2 H2.
+        (H1 : h1 · h2 · f = ZeroArrow Z _ _) (H2 : h2 · f = ZeroArrow Z _ _) :
+    KernelIn K x (h1 · h2) H1 = h1 · KernelIn K x' h2 H2.
   Proof.
     use KernelInsEq. rewrite KernelCommutes. rewrite <- assoc. rewrite KernelCommutes.
     apply idpath.
@@ -114,17 +114,17 @@ Section def_kernels.
 
   (** Results on morphisms between Kernels. *)
   Definition identity_is_KernelIn {y z : C} {g : y --> z} (K : Kernel g) :
-    Σ φ : C⟦K, K⟧, φ ;; (KernelArrow K) = (KernelArrow K).
+    ∑ φ : C⟦K, K⟧, φ · (KernelArrow K) = (KernelArrow K).
   Proof.
     exists (identity K).
     apply id_left.
   Defined.
 
   Lemma KernelEndo_is_identity {y z : C} {g : y --> z} {K : Kernel g}
-        (φ : C⟦K, K⟧) (H : φ ;; (KernelArrow K) = KernelArrow K) :
+        (φ : C⟦K, K⟧) (H : φ · (KernelArrow K) = KernelArrow K) :
     identity K = φ.
   Proof.
-    set (H1 := tpair ((fun φ' : C⟦K, K⟧ => φ' ;; _ = _)) φ H).
+    set (H1 := tpair ((fun φ' : C⟦K, K⟧ => φ' · _ = _)) φ H).
     assert (H2 : identity_is_KernelIn K = H1).
     - apply proofirrelevance.
       apply isapropifcontr.
@@ -157,10 +157,11 @@ Section def_kernels.
     apply are_inverses_from_Kernel_to_Kernel.
   Qed.
 
-  Definition iso_from_Kernel_to_Kernel {y z : C} {g : y --> z} (K K' : Kernel g) : iso K K' :=
-    tpair _ _ (from_Kernel_to_Kernel_is_iso K K').
+  Definition iso_from_Kernel_to_Kernel {y z : C} {g : y --> z} (K K' : Kernel g) : z_iso K K' :=
+    mk_z_iso (from_Kernel_to_Kernel K K') (from_Kernel_to_Kernel K' K)
+             (are_inverses_from_Kernel_to_Kernel K K').
 
-  (** Kernel of the morphism to zero object is given by identity *)
+  (** Kernel of the ZeroArrow is given by identity *)
   Local Lemma KernelOfZeroArrow_isKernel (x y : C) :
     isKernel (identity x) (ZeroArrow Z x y) (id_left (ZeroArrow Z x y)).
   Proof.
@@ -173,7 +174,7 @@ Section def_kernels.
     - intros y0 X. cbn in X. rewrite id_right in X. exact X.
   Qed.
 
-  Lemma KernelofZeroArrow (x y : C) : Kernel (@ZeroArrow C Z x y).
+  Definition KernelofZeroArrow (x y : C) : Kernel (@ZeroArrow C Z x y).
   Proof.
     use mk_Kernel.
     - exact x.
@@ -182,24 +183,42 @@ Section def_kernels.
     - exact (KernelOfZeroArrow_isKernel x y).
   Defined.
 
-  (** More generally, the KernelArrow of the kernel of the ZeroArrow is an isomorphism. *)
-  Lemma KernelofZeroArrow_is_iso {x y : C} (K : Kernel (ZeroArrow Z x y)) :
-    is_iso (KernelArrow K).
+  (** Kernel of identity is given by arrow from zero *)
+  Local Lemma KernelOfIdentity_isKernel (x : C) :
+    isKernel (ZeroArrowFrom x) (identity x)
+             (ArrowsFromZero C Z x (ZeroArrowFrom x · identity x) (ZeroArrow Z Z x)).
   Proof.
-    set (K' := KernelofZeroArrow x y).
-    use is_iso_qinv.
-    - use (from_Kernel_to_Kernel K' K).
-    - unfold from_Kernel_to_Kernel.
-      split.
-      + use KernelInsEq. rewrite <- assoc. rewrite KernelCommutes. rewrite id_left.
-        cbn. rewrite id_right. apply idpath.
-      + rewrite KernelCommutes. apply idpath.
+    use mk_isKernel.
+    intros w h H'.
+    use unique_exists.
+    - exact (ZeroArrowTo w).
+    - cbn. rewrite id_right in H'. rewrite H'. apply idpath.
+    - intros y. apply hs.
+    - intros y X. cbn in X. use ArrowsToZero.
   Qed.
 
-  Lemma KernelofZeroArrow_iso (x y : C) (K : Kernel (@ZeroArrow C Z x y)) : iso K x.
+  Definition KernelOfIdentity (x : C) : Kernel (identity x).
   Proof.
-    exact (iso_from_Kernel_to_Kernel K (KernelofZeroArrow x y)).
+    use mk_Kernel.
+    - exact Z.
+    - exact (ZeroArrowFrom x).
+    - use ArrowsFromZero.
+    - exact (KernelOfIdentity_isKernel x).
   Defined.
+
+  (** More generally, the KernelArrow of the kernel of the ZeroArrow is an isomorphism. *)
+  Lemma KernelofZeroArrow_is_iso {x y : C} (K : Kernel (ZeroArrow Z x y)) :
+    is_inverse_in_precat (KernelArrow K) (from_Kernel_to_Kernel (KernelofZeroArrow x y) K).
+  Proof.
+    use mk_is_inverse_in_precat.
+    - use KernelInsEq. rewrite <- assoc. unfold from_Kernel_to_Kernel. rewrite KernelCommutes.
+      rewrite id_left. cbn. rewrite id_right. apply idpath.
+    - unfold from_Kernel_to_Kernel. rewrite KernelCommutes. apply idpath.
+  Qed.
+
+  Definition KernelofZeroArrow_iso (x y : C) (K : Kernel (@ZeroArrow C Z x y)) : z_iso K x :=
+    mk_z_iso (KernelArrow K) (from_Kernel_to_Kernel (KernelofZeroArrow x y) K)
+             (KernelofZeroArrow_is_iso K).
 
   (** It follows that KernelArrow is monic. *)
   Lemma KernelArrowisMonic {y z : C} {g : y --> z} (K : Kernel g) : isMonic (KernelArrow K).
@@ -237,7 +256,7 @@ Section kernel_equalizers.
 
   (** ** Equalizer from Kernel *)
   Lemma KernelEqualizer_eq {x y : ob C} {f : x --> y} (K : Kernel Z f) :
-    KernelArrow K ;; f = KernelArrow K ;; ZeroArrow Z x y.
+    KernelArrow K · f = KernelArrow K · ZeroArrow Z x y.
   Proof.
     rewrite ZeroArrow_comp_right. apply KernelCompZero.
   Qed.
@@ -268,7 +287,7 @@ Section kernel_equalizers.
 
   (** ** Kernel from Equalizer *)
   Lemma EqualizerKernel_eq {x y : ob C} {f : x --> y} (E : Equalizer f (ZeroArrow Z _ _)) :
-    EqualizerArrow E ;; f = ZeroArrow Z E y.
+    EqualizerArrow E · f = ZeroArrow Z E y.
   Proof.
     rewrite <- (ZeroArrow_comp_right _ _ _ _ _ (EqualizerArrow E)).
     exact (EqualizerEqAr E).
@@ -309,8 +328,8 @@ Section kernels_iso.
   Variable Z : Zero C.
 
   Definition Kernel_up_to_iso_eq {x y z : C} (f : x --> y) (g : y --> z)
-             (K : Kernel Z g) (h : iso x K) (H : f = h ;; (KernelArrow K)) :
-    f ;; g = ZeroArrow Z x z.
+             (K : Kernel Z g) (h : z_iso x K) (H : f = h · (KernelArrow K)) :
+    f · g = ZeroArrow Z x z.
   Proof.
     induction K as [t p]. induction t as [t' p']. induction p as [t'' p''].
     unfold isEqualizer in p''.
@@ -321,40 +340,41 @@ Section kernels_iso.
     apply KernelCompZero.
   Qed.
 
-  Lemma Kernel_up_to_iso_isEqualizer {x y z : C} (f : x --> y) (g : y --> z)
-             (K : Kernel Z g) (h : iso x K) (H : f = h ;; (KernelArrow K)) :
-    isKernel Z f g (Kernel_up_to_iso_eq f g K h H).
+  Lemma Kernel_up_to_iso_isKernel {x y z : C} (f : x --> y) (g : y --> z) (K : Kernel Z g)
+        (h : z_iso x K) (H : f = h · (KernelArrow K)) (H'' : f · g = ZeroArrow Z x z) :
+    isKernel Z f g H''.
   Proof.
     use (mk_isKernel hs).
     intros w h0 H'.
     use unique_exists.
-    - exact (KernelIn Z K w h0 H' ;; iso_inv_from_iso h).
+    - exact (KernelIn Z K w h0 H' · z_iso_inv_mor h).
     - cbn beta. rewrite H. rewrite assoc. rewrite <- (assoc _ _ h).
-      cbn. rewrite (iso_after_iso_inv h). rewrite id_right.
+      cbn. rewrite (is_inverse_in_precat2 h). rewrite id_right.
       apply KernelCommutes.
     - intros y0. apply hs.
     - intros y0 X. cbn beta in X.
-      use (post_comp_with_iso_is_inj _ _ _ _ (pr2 h)). rewrite <- assoc.
-      use (pathscomp0 _ (! (maponpaths (fun gg : _ => KernelIn Z K w h0 H' ;; gg)
-                                       (iso_after_iso_inv h)))).
+      use (post_comp_with_z_iso_is_inj h). rewrite <- assoc.
+      use (pathscomp0 _ (! (maponpaths (fun gg : _ => KernelIn Z K w h0 H' · gg)
+                                       (is_inverse_in_precat2 h)))).
       rewrite id_right. use KernelInsEq. rewrite KernelCommutes. rewrite <- X.
       rewrite <- assoc. apply cancel_precomposition. apply pathsinv0.
       apply H.
   Qed.
 
-  Definition Kernel_up_to_iso {x y z : C} (f : x --> y) (g : y --> z) (K : Kernel Z g) (h : iso x K)
-             (H : f = h ;; (KernelArrow K)) : Kernel Z g :=
-    mk_Kernel Z f _ (Kernel_up_to_iso_eq f g K h H) (Kernel_up_to_iso_isEqualizer f g K h H).
+  Definition Kernel_up_to_iso {x y z : C} (f : x --> y) (g : y --> z) (K : Kernel Z g)
+             (h : z_iso x K) (H : f = h · (KernelArrow K)) : Kernel Z g :=
+    mk_Kernel Z f _ (Kernel_up_to_iso_eq f g K h H)
+              (Kernel_up_to_iso_isKernel f g K h H (Kernel_up_to_iso_eq f g K h H)).
 
-  Lemma Kernel_up_to_iso2_eq {x y z : C} {f1 : x --> y} {f2 : x --> z} (h : iso y z)
-        (H : f1 ;; h = f2) (K : Kernel Z f1) : KernelArrow K ;; f2 = ZeroArrow Z K z.
+  Lemma Kernel_up_to_iso2_eq {x y z : C} {f1 : x --> y} {f2 : x --> z} (h : z_iso y z)
+        (H : f1 · h = f2) (K : Kernel Z f1) : KernelArrow K · f2 = ZeroArrow Z K z.
   Proof.
     rewrite <- H. rewrite assoc. rewrite KernelCompZero.
     apply ZeroArrow_comp_left.
   Qed.
 
   Definition Kernel_up_to_iso2_isKernel {x y z : C} (f1 : x --> y) (f2 : x --> z)
-             (h : iso y z) (H : f1 ;; h = f2) (K : Kernel Z f1) :
+             (h : z_iso y z) (H : f1 · h = f2) (K : Kernel Z f1) :
     isKernel Z (KernelArrow K) f2 (Kernel_up_to_iso2_eq h H K).
   Proof.
     use (mk_isKernel hs).
@@ -363,9 +383,8 @@ Section kernels_iso.
     - use KernelIn.
       + exact h0.
       + rewrite <- H in H'. rewrite <- (ZeroArrow_comp_left _ _ _ _ _ h) in H'.
-        rewrite assoc in H'. apply post_comp_with_iso_is_inj in H'.
-        * exact H'.
-        * exact (pr2 h).
+        rewrite assoc in H'. apply (post_comp_with_z_iso_is_inj h) in H'.
+        exact H'.
     - cbn. use KernelCommutes.
     - intros y0. apply hs.
     - intros y0 H''. use KernelInsEq.
@@ -373,17 +392,17 @@ Section kernels_iso.
       apply KernelCommutes.
   Qed.
 
-  Definition Kernel_up_to_iso2 {x y z : C} {f1 : x --> y} {f2 : x --> z} {h : iso y z}
-             (H : f1 ;; h = f2) (K : Kernel Z f1) : Kernel Z f2 :=
+  Definition Kernel_up_to_iso2 {x y z : C} {f1 : x --> y} {f2 : x --> z} {h : z_iso y z}
+             (H : f1 · h = f2) (K : Kernel Z f1) : Kernel Z f2 :=
     mk_Kernel Z (KernelArrow K) _ (Kernel_up_to_iso2_eq h H K)
               (Kernel_up_to_iso2_isKernel f1 f2 h H K).
 
 End kernels_iso.
 
 
-(** * Kernel of morphism ;; monic *)
+(** * Kernel of morphism · monic *)
 (** ** Introduction
-   Suppose f : x --> y is a morphism and M : y --> z is a Monic. Then kernel of f ;; M is
+   Suppose f : x --> y is a morphism and M : y --> z is a Monic. Then kernel of f · M is
    isomorphic to kernel of f.
 *)
 Section kernels_monics.
@@ -393,28 +412,28 @@ Section kernels_monics.
   Variable Z : Zero C.
 
   Local Lemma KernelCompMonic_eq1 {x y z : C} (f : x --> y) (M : Monic C y z)
-        (K1 : Kernel Z (f ;; M)) (K2 : Kernel Z f) :
-    KernelArrow K1 ;; f = ZeroArrow Z K1 y.
+        (K1 : Kernel Z (f · M)) (K2 : Kernel Z f) :
+    KernelArrow K1 · f = ZeroArrow Z K1 y.
   Proof.
     use (MonicisMonic C M). rewrite ZeroArrow_comp_left. rewrite <- assoc. use KernelCompZero.
   Qed.
 
   Definition KernelCompMonic_mor1 {x y z : C} (f : x --> y) (M : Monic C y z)
-        (K1 : Kernel Z (f ;; M)) (K2 : Kernel Z f) : C⟦K1, K2⟧ :=
+        (K1 : Kernel Z (f · M)) (K2 : Kernel Z f) : C⟦K1, K2⟧ :=
     KernelIn Z K2 _ (KernelArrow K1) (KernelCompMonic_eq1 f M K1 K2).
 
   Local Lemma KernelCompMonic_eq2 {x y z : C} (f : x --> y) (M : Monic C y z)
-        (K1 : Kernel Z (f ;; M)) (K2 : Kernel Z f) : KernelArrow K2 ;; (f ;; M) = ZeroArrow Z K2 z.
+        (K1 : Kernel Z (f · M)) (K2 : Kernel Z f) : KernelArrow K2 · (f · M) = ZeroArrow Z K2 z.
   Proof.
     rewrite assoc. rewrite KernelCompZero. apply ZeroArrow_comp_left.
   Qed.
 
   Definition KernelCompMonic_mor2 {x y z : C} (f : x --> y) (M : Monic C y z)
-             (K1 : Kernel Z (f ;; M)) (K2 : Kernel Z f) : C⟦K2, K1⟧ :=
+             (K1 : Kernel Z (f · M)) (K2 : Kernel Z f) : C⟦K2, K1⟧ :=
     KernelIn Z K1 _ (KernelArrow K2) (KernelCompMonic_eq2 f M K1 K2).
 
   Lemma KernelCompMonic1 {x y z : C} (f : x --> y) (M : Monic C y z)
-             (K1 : Kernel Z (f ;; M)) (K2 : Kernel Z f) :
+             (K1 : Kernel Z (f · M)) (K2 : Kernel Z f) :
     is_iso (KernelCompMonic_mor1 f M K1 K2).
   Proof.
     use is_iso_qinv.
@@ -431,7 +450,7 @@ Section kernels_monics.
   Qed.
 
   Lemma KernelCompMonic2 {x y z : C} (f : x --> y) (M : Monic C y z)
-             (K1 : Kernel Z (f ;; M)) (K2 : Kernel Z f) :
+             (K1 : Kernel Z (f · M)) (K2 : Kernel Z f) :
     is_iso (KernelCompMonic_mor2 f M K1 K2).
   Proof.
     use is_iso_qinv.
@@ -448,13 +467,13 @@ Section kernels_monics.
   Qed.
 
   Local Lemma KernelCompMonic_eq {x y z : C} (f : x --> y) (M : Monic C y z)
-        (K : Kernel Z (f ;; M)) : KernelArrow K ;; f = ZeroArrow Z K y.
+        (K : Kernel Z (f · M)) : KernelArrow K · f = ZeroArrow Z K y.
   Proof.
     use (MonicisMonic C M). rewrite ZeroArrow_comp_left. rewrite <- assoc. use KernelCompZero.
   Qed.
 
-  Local Lemma KernelCompMonic_isKernel {x y z : C} (f : x --> y) (M : Monic C y z)
-        (K : Kernel Z (f ;; M)) :
+  Lemma KernelCompMonic_isKernel {x y z : C} (f : x --> y) (M : Monic C y z)
+        (K : Kernel Z (f · M)) :
     isKernel Z (KernelArrow K) f (KernelCompMonic_eq f M K).
   Proof.
     use mk_isKernel.
@@ -473,7 +492,7 @@ Section kernels_monics.
         rewrite KernelCommutes. apply pathsinv0. apply X.
   Qed.
 
-  Definition KernelCompMonic {x y z : C} (f : x --> y) (M : Monic C y z) (K : Kernel Z (f ;; M)) :
+  Definition KernelCompMonic {x y z : C} (f : x --> y) (M : Monic C y z) (K : Kernel Z (f · M)) :
     Kernel Z f.
   Proof.
     use mk_Kernel.
@@ -509,7 +528,7 @@ Section kernel_in_paths.
   Qed.
 
   Local Lemma KernelPath_eq {x y : C} {f f' : x --> y} (e : f = f') (K : Kernel Z f) :
-    KernelArrow K ;; f' = ZeroArrow Z K y.
+    KernelArrow K · f' = ZeroArrow Z K y.
   Proof.
     induction e. use KernelCompZero.
   Qed.
@@ -540,15 +559,15 @@ Section transport_kernels.
   Variable hs : has_homsets C.
   Variable Z : Zero C.
 
-  Local Lemma transport_source_KernelIn_eq {x' x y z : C} (f : x --> y) {g : y --> z} (K : Kernel Z g)
-        (e : x = x') (H : f ;; g = ZeroArrow Z _ _) :
-    (transportf (fun x' : ob C => precategory_morphisms x' y) e f) ;; g = ZeroArrow Z _ _.
+  Local Lemma transport_source_KernelIn_eq {x' x y z : C} (f : x --> y) {g : y --> z}
+        (K : Kernel Z g) (e : x = x') (H : f · g = ZeroArrow Z _ _) :
+    (transportf (fun x' : ob C => precategory_morphisms x' y) e f) · g = ZeroArrow Z _ _.
   Proof.
     induction e. apply H.
   Qed.
 
   Lemma transport_source_KernelIn {x' x y z : C} (f : x --> y) {g : y --> z} (K : Kernel Z g)
-        (e : x = x') (H : f ;; g = ZeroArrow Z _ _) :
+        (e : x = x') (H : f · g = ZeroArrow Z _ _) :
     transportf (fun x' : ob C => precategory_morphisms x' K) e (KernelIn Z K _ f H) =
     KernelIn Z K _ (transportf (fun x' : ob C => precategory_morphisms x' y) e f)
              (transport_source_KernelIn_eq f K e H).

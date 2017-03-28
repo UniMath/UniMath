@@ -6,16 +6,18 @@ functor ([List]) and then more generally over any type defined as iterated produ
 Written by: Anders Mörtberg, 2016
 
 *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
-Require Import UniMath.Foundations.Combinatorics.Lists.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.NaturalNumbers.
+
+Require Import UniMath.Combinatorics.Lists.
+
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
@@ -26,9 +28,11 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
-Local Notation "# F" := (functor_on_morphisms F) (at level 3).
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Open Scope cat.
+
+Local Open Scope cat.
 
 (** * Lists as the colimit of a chain given by the list functor: F(X) = 1 + A * X *)
 Section lists.
@@ -63,12 +67,12 @@ Let List_alg : algebra_ob listFunctor :=
   InitialObject listFunctor_Initial.
 
 Definition nil_map : HSET⟦unitHSET,μL_A⟧ :=
-  BinCoproductIn1 HSET _ ;; List_mor.
+  BinCoproductIn1 _ (BinCoproductsHSET _ _) · List_mor.
 
 Definition nil : List := nil_map tt.
 
 Definition cons_map : HSET⟦(A × μL_A)%set,μL_A⟧ :=
-  BinCoproductIn2 HSET _ ;; List_mor.
+  BinCoproductIn2 _ (BinCoproductsHSET _ _) · List_mor.
 
 Definition cons : pr1 A → List -> List := λ a l, cons_map (a,,l).
 
@@ -102,7 +106,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A → X -> X) : foldr X x f nil = x.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET _ _) ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x (λ a, f (pr1 a) (pr2 a))))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -111,7 +115,7 @@ Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A → X -> X)
                  (a : pr1 A) (l : List) :
   foldr X x f (cons a l) = f a (foldr X x f l).
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _) ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x (λ a, f (pr1 a) (pr2 a))))).
 assert (Fal := toforallpaths _ _ _ F (a,,l)).
 clear F.
@@ -125,11 +129,11 @@ Transparent foldr_map.
 (** The induction principle for lists defined using foldr *)
 Section list_induction.
 
-Variables (P : List -> UU) (PhSet : Π l, isaset (P l)).
+Variables (P : List -> UU) (PhSet : ∏ l, isaset (P l)).
 Variables (P0 : P nil)
-          (Pc : Π a l, P l -> P (cons a l)).
+          (Pc : ∏ a l, P l -> P (cons a l)).
 
-Let P' : UU := Σ l, P l.
+Let P' : UU := ∑ l, P l.
 Let P0' : P' := (nil,, P0).
 Let Pc' : pr1 A  → P' -> P' :=
   λ (a : pr1 A) (p : P'), cons a (pr1 p),,Pc a (pr1 p) (pr2 p).
@@ -146,8 +150,9 @@ Opaque is_omega_cocont_listFunctor.
 Lemma isalghom_pr1foldr :
   is_algebra_mor _ List_alg List_alg (fun l => pr1 (foldr P'HSET P0' Pc' l)).
 Proof.
-apply BinCoproductArrow_eq_cor.
-- apply funextfun; intro x; destruct x; apply idpath.
+apply (BinCoproductArrow_eq_cor _ BinCoproductsHSET).
+- apply funextfun; intro x; induction x.
+  apply (maponpaths pr1 (foldr_nil P'HSET P0' Pc')).
 - apply funextfun; intro x; destruct x as [a l].
   apply (maponpaths pr1 (foldr_cons P'HSET P0' Pc' a l)).
 Qed.
@@ -174,7 +179,7 @@ Defined.
 End list_induction.
 
 Lemma listIndhProp (P : List → hProp) :
-  P nil → (Π a l, P l → P (cons a l)) → Π l, P l.
+  P nil → (∏ a l, P l → P (cons a l)) → ∏ l, P l.
 Proof.
 intros Pnil Pcons.
 apply listInd; try assumption.
@@ -182,8 +187,8 @@ intro l; apply isasetaprop, propproperty.
 Defined.
 
 (* This variation is easier to use *)
-Lemma listIndProp (P : List → UU) (HP : Π l, isaprop (P l)) :
-  P nil → (Π a l, P l → P (cons a l)) → Π l, P l.
+Lemma listIndProp (P : List → UU) (HP : ∏ l, isaprop (P l)) :
+  P nil → (∏ a l, P l → P (cons a l)) → ∏ l, P l.
 Proof.
 intros Pnil Pcons.
 apply listInd; try assumption.
@@ -199,13 +204,12 @@ Definition length : List -> nat := foldr natHSET 0 (λ _ (n : nat), 1 + n).
 Definition map (f : A -> A) : List -> List :=
   foldr _ nil (λ (x : A) (xs : List), cons (f x) xs).
 
-Lemma length_map (f : A -> A) : Π xs, length (map f xs) = length xs.
+Lemma length_map (f : A -> A) : ∏ xs, length (map f xs) = length xs.
 Proof.
 apply listIndProp.
 - intros l; apply isasetnat.
-- apply idpath.
+- now unfold map; rewrite foldr_nil.
 - simpl; unfold map, length; simpl; intros a l Hl.
-  simpl.
   now rewrite !foldr_cons, <- Hl.
 Qed.
 
@@ -246,7 +250,7 @@ Eval lazy in sum testlistS.
 Eval lazy in length _ (concatenate _ testlist testlistS).
 Eval lazy in sum (concatenate _ testlist testlistS).
 
-Goal (Π l, length _ (2 :: l) = S (length _ l)).
+Goal (∏ l, length _ (2 :: l) = S (length _ l)).
 simpl.
 intro l.
 try apply idpath. (* this doesn't work *)
@@ -261,7 +265,7 @@ Abort.
 
 (* Eval compute in const 0 (nil natHSET). *)
 
-(* Axiom const' : Π {A B : UU}, A -> B -> A. *)
+(* Axiom const' : ∏ {A B : UU}, A -> B -> A. *)
 
 (* Eval compute in const' 0 1. *)
 (* Eval compute in const' 0 (nil natHSET). *)
@@ -297,17 +301,17 @@ apply (foldr A (list (pr1 A),,isaset_list A)).
   apply (tpair _ (S (pr1 L)) (a,,pr2 L)).
 Defined.
 
-Lemma to_listK (A : HSET) : Π x : list (pr1 A), to_list A (to_List A x) = x.
+Lemma to_listK (A : HSET) : ∏ x : list (pr1 A), to_list A (to_List A x) = x.
 Proof.
 intro l; destruct l as [n l]; unfold to_list, to_List.
 induction n as [|n IHn]; simpl.
 - rewrite foldr_nil.
   now destruct l.
 - rewrite foldr_cons; simpl.
-  now rewrite IHn; simpl; rewrite <- (paireta l).
+  now rewrite IHn; simpl; try rewrite <- (tppr l).
 Qed.
 
-Lemma to_ListK (A : HSET) : Π y : List A, to_List A (to_list A y) = y.
+Lemma to_ListK (A : HSET) : ∏ y : List A, to_List A (to_list A y) = y.
 Proof.
 apply listIndProp.
 * intro l; apply setproperty.
@@ -372,7 +376,7 @@ simple refine (tpair _ _ _).
     apply HX.
   + cbn.
     destruct cc as [f hf]; simpl; intro n.
-    apply funextfun; intro p; rewrite (paireta p).
+    apply funextfun; intro p; rewrite (tppr p).
     assert (XR := colimArrowCommutes (mk_ColimCocone hF c L ccL) _ HX n).
     unfold flip, curry, colimIn in *; simpl in *.
     now rewrite <- (toforallpaths _ _ _ (toforallpaths _ _ _ XR (pr2 p)) (pr1 p)).
@@ -410,10 +414,10 @@ intros hF c L ccL HcL cc.
 simple refine (tpair _ _ _).
 - simple refine (tpair _ _ _).
   + eapply BinCoproductArrow.
-    * exact (BinCoproductIn1 _ (PC x (dob hF 0)) ;; pr1 cc 0).
+    * exact (BinCoproductIn1 _ (PC x (dob hF 0)) · pr1 cc 0).
     * simple refine (let ccHcL : cocone hF HcL := _ in _).
       { simple refine (mk_cocone _ _).
-        - intros n; exact (BinCoproductIn2 _ (PC x (dob hF n)) ;; pr1 cc n).
+        - intros n; exact (BinCoproductIn2 _ (PC x (dob hF n)) · pr1 cc n).
         - abstract (
             intros m n e; destruct e; simpl;
             destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
@@ -436,9 +440,9 @@ simple refine (tpair _ _ _).
   | destruct t as [t p]; destruct ccL as [t0 p0]; unfold BinCoproduct_of_functors_mor in *; destruct t0 as [t0 p1]; simpl;
     apply BinCoproductArrowUnique;
     [ now rewrite <- (p 0), assoc, BinCoproductOfArrowsIn1, id_left
-    | simple refine (let temp : Σ x0 : C ⟦ c, HcL ⟧, Π v : nat,
-         coconeIn L v ;; x0 = BinCoproductIn2 C (PC x (dob hF v)) ;; f v := _ in _);
-         [ apply (tpair _ (BinCoproductIn2 C (PC x c) ;; t));
+    | simple refine (let temp : ∑ x0 : C ⟦ c, HcL ⟧, ∏ v : nat,
+         coconeIn L v · x0 = BinCoproductIn2 C (PC x (dob hF v)) · f v := _ in _);
+         [ apply (tpair _ (BinCoproductIn2 C (PC x c) · t));
           now intro n; rewrite <- (p n), !assoc, BinCoproductOfArrowsIn2|];
       apply (maponpaths pr1 (p0 temp))]]).
 Defined.
@@ -528,7 +532,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A × X -> X) : foldr X x f nil = x.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET _ _) ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -537,26 +541,19 @@ Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A × X -> X)
                  (a : pr1 A) (l : pr1 List) :
   foldr X x f (cons (a,,l)) = f (a,,foldr X x f l).
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _) ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
-assert (Fal := toforallpaths _ _ _ F (a,,l)).
-clear F.
-(* apply Fal. *) (* This doesn't work here. why? *)
-unfold compose in Fal.
-simpl in Fal.
-exact Fal.
-Opaque foldr_map.
-Qed. (* This Qed is slow unless one has the Opaque command above *)
-Transparent foldr_map.
+apply (toforallpaths _ _ _ F (a,,l)).
+Qed.
 
 (* This defines the induction principle for lists using foldr *)
 Section list_induction.
 
-Variables (P : pr1 List -> UU) (PhSet : Π l, isaset (P l)).
+Variables (P : pr1 List -> UU) (PhSet : ∏ l, isaset (P l)).
 Variables (P0 : P nil)
-          (Pc : Π (a : pr1 A) (l : pr1 List), P l -> P (cons (a,,l))).
+          (Pc : ∏ (a : pr1 A) (l : pr1 List), P l -> P (cons (a,,l))).
 
-Let P' : UU := Σ l, P l.
+Let P' : UU := ∑ l, P l.
 Let P0' : P' := (nil,, P0).
 Let Pc' : pr1 A × P' -> P' :=
   λ ap : pr1 A × P', cons (pr1 ap,, pr1 (pr2 ap)),,Pc (pr1 ap) (pr1 (pr2 ap)) (pr2 (pr2 ap)).
@@ -594,8 +591,8 @@ Defined.
 
 End list_induction.
 
-Lemma listIndProp (P : pr1 List -> UU) (HP : Π l, isaprop (P l)) :
-  P nil -> (Π a l, P l → P (cons (a,, l))) -> Π l, P l.
+Lemma listIndProp (P : pr1 List -> UU) (HP : ∏ l, isaprop (P l)) :
+  P nil -> (∏ a l, P l → P (cons (a,, l))) -> ∏ l, P l.
 Proof.
 intros Pnil Pcons.
 apply listInd; try assumption.
@@ -614,7 +611,7 @@ Definition length : pr1 List -> nat :=
 Definition map (f : pr1 A -> pr1 A) : pr1 List -> pr1 List :=
   foldr _ nil (λ xxs : pr1 A × pr1 List, cons (f (pr1 xxs),, pr2 xxs)).
 
-Lemma length_map (f : pr1 A -> pr1 A) : Π xs, length (map f xs) = length xs.
+Lemma length_map (f : pr1 A -> pr1 A) : ∏ xs, length (map f xs) = length xs.
 Proof.
 apply listIndProp.
 - intros l; apply isasetnat.
@@ -661,7 +658,7 @@ Definition sum : pr1 (List natHSET) -> nat :=
 (* native_compute. *)
 (* Abort. *)
 
-Goal (Π l, length _ (2 :: l) = S (length _ l)).
+Goal (∏ l, length _ (2 :: l) = S (length _ l)).
 simpl.
 intro l.
 try apply idpath. (* this doesn't work *)

@@ -7,8 +7,8 @@ Contents of this file:
 
   - Definition of type of isomorphism [folds_iso a b] in a FOLDS precategory
     - consists of two families of isos and an iso, see [folds_iso_data]
-      - [ϕ₁ : Π x, x ⇒ a → x ⇒ b]
-      - [ϕ₂ : Π z, a ⇒ z → b ⇒ z]
+      - [ϕ₁ : ∏ x, x ⇒ a → x ⇒ b]
+      - [ϕ₂ : ∏ z, a ⇒ z → b ⇒ z]
       - [ϕ∙ :      a ⇒ a → b ⇒ b]
     - and a number of logical equivalences, see [folds_iso_prop]
   - Some lemmas expressing naturality of maps [ϕX]
@@ -25,10 +25,10 @@ Contents of this file:
 
 Require Import UniMath.Folds.UnicodeNotations.
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 
@@ -51,8 +51,8 @@ Local Notation "'id' a" := (identity (C:=C') a) (at level 30).
 
 
 Definition folds_iso_data (a b : C) : UU :=
-  ((Π {x : C}, (x ⇒ a) ≃ (x ⇒ b))
- × (Π {z : C}, (a ⇒ z) ≃ (b ⇒ z)))
+  ((∏ {x : C}, (x ⇒ a) ≃ (x ⇒ b))
+ × (∏ {z : C}, (a ⇒ z) ≃ (b ⇒ z)))
 ×             ((a ⇒ a) ≃ (b ⇒ b)).
 
 Definition ϕ₁ {a b : C} (f : folds_iso_data a b) {x : C} : (x ⇒ a) ≃ (x ⇒ b) :=
@@ -65,14 +65,14 @@ Notation "ϕ∙" := ϕo. (* works as a notation, but not as an identifier *)
 
 
 Definition folds_iso_prop {a b : C} (i : folds_iso_data a b) : UU :=
-  ((((Π (x y : C) (f : x ⇒ y) (g : y ⇒ a) (h : x ⇒ a), T f g h ≃ T f ((ϕ₁ i) g) ((ϕ₁ i) h))
-   × (Π (x z : C) (f : x ⇒ a) (g : a ⇒ z) (h : x ⇒ z), T f g h ≃ T ((ϕ₁ i) f) ((ϕ₂ i) g) h))
-   × (Π (z w : C) (f : a ⇒ z) (g : z ⇒ w) (h : a ⇒ w), T f g h ≃ T ((ϕ₂ i) f) g ((ϕ₂ i) h)))
- × (((Π (x : C) (f : x ⇒ a) (g : a ⇒ a) (h : x ⇒ a),   T f g h ≃ T ((ϕ₁ i) f) ((ϕo i) g) ((ϕ₁ i) h))
-   × (Π (x : C) (f : a ⇒ x) (g : x ⇒ a) (h : a ⇒ a),   T f g h ≃ T ((ϕ₂ i) f) ((ϕ₁ i) g) ((ϕ∙ i) h)))
-  × ((Π (x : C) (f : a ⇒ a) (g h : a ⇒ x),             T f g h ≃ T ((ϕ∙ i) f) ((ϕ₂ i) g) ((ϕ₂ i) h))
-   × (Π f g h : a ⇒ a,                                 T f g h ≃ T ((ϕ∙ i) f) ((ϕ∙ i) g) ((ϕ∙ i) h)))))
-   × (Π f : a ⇒ a,                                     I f ≃ I ((ϕ∙ i) f)).
+  ((((∏ (x y : C) (f : x ⇒ y) (g : y ⇒ a) (h : x ⇒ a), T f g h ≃ T f ((ϕ₁ i) g) ((ϕ₁ i) h))
+   × (∏ (x z : C) (f : x ⇒ a) (g : a ⇒ z) (h : x ⇒ z), T f g h ≃ T ((ϕ₁ i) f) ((ϕ₂ i) g) h))
+   × (∏ (z w : C) (f : a ⇒ z) (g : z ⇒ w) (h : a ⇒ w), T f g h ≃ T ((ϕ₂ i) f) g ((ϕ₂ i) h)))
+ × (((∏ (x : C) (f : x ⇒ a) (g : a ⇒ a) (h : x ⇒ a),   T f g h ≃ T ((ϕ₁ i) f) ((ϕo i) g) ((ϕ₁ i) h))
+   × (∏ (x : C) (f : a ⇒ x) (g : x ⇒ a) (h : a ⇒ a),   T f g h ≃ T ((ϕ₂ i) f) ((ϕ₁ i) g) ((ϕ∙ i) h)))
+  × ((∏ (x : C) (f : a ⇒ a) (g h : a ⇒ x),             T f g h ≃ T ((ϕ∙ i) f) ((ϕ₂ i) g) ((ϕ₂ i) h))
+   × (∏ f g h : a ⇒ a,                                 T f g h ≃ T ((ϕ∙ i) f) ((ϕ∙ i) g) ((ϕ∙ i) h)))))
+   × (∏ f : a ⇒ a,                                     I f ≃ I ((ϕ∙ i) f)).
 
 Definition isaprop_folds_iso_prop (a b : C) (i : folds_iso_data a b) : isaprop (folds_iso_prop i).
 Proof.
@@ -80,7 +80,7 @@ Proof.
    repeat (apply impred; intro); apply isapropweqtoprop; apply pr2.
 Qed.
 
-Definition folds_iso (a b : C) := Σ i : folds_iso_data a b, folds_iso_prop i.
+Definition folds_iso (a b : C) := ∑ i : folds_iso_data a b, folds_iso_prop i.
 
 Definition folds_iso_data_from_folds_iso {a b : C} : folds_iso a b → folds_iso_data a b
   := λ i, pr1 i.
@@ -192,7 +192,7 @@ Variables i i' : folds_iso a b.
 
 Hypothesis H : ϕ₁ i (id _ ) = ϕ₁ i' (id _ ).
 
-Lemma ϕ₂_determined : Π x (f : a ⇒ x) , ϕ₂ i f = ϕ₂ i' f.
+Lemma ϕ₂_determined : ∏ x (f : a ⇒ x) , ϕ₂ i f = ϕ₂ i' f.
 Proof.
   intros x f.
   rewrite (ϕ₂_is_comp i).
@@ -209,7 +209,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma ϕo_determined : Π f, ϕ∙ i f = ϕ∙ i' f.
+Lemma ϕo_determined : ∏ f, ϕ∙ i f = ϕ∙ i' f.
 Proof.
   intro f.
   do 2 rewrite ϕo_ϕ₁_ϕ₂.
@@ -401,7 +401,7 @@ Proof.
       set (H2 := comp_compose2' H).
       rewrite assoc in H2.
       eapply post_comp_with_z_iso_is_inj.
-      apply (pr2 f). apply H2.
+      apply (z_iso_is_inverse_in_precat f). apply H2.
   - simpl. apply logeqweq.
     + intro H. apply comp_compose2.
       apply pathsinv0. eapply pathscomp0.
@@ -422,8 +422,7 @@ Proof.
     + intro H. apply comp_compose2.
       set (H2:= comp_compose2' H).
       rewrite <- assoc in H2.
-      set (H3:= pre_comp_with_z_iso_is_inj _  _ _ _ _ (is_z_iso_inv_from_z_iso _ _ f) _ _ H2).
-      assumption.
+      use (pre_comp_with_z_iso_inv_is_inj f). exact H2.
   - simpl; apply logeqweq.
     + intro H; apply comp_compose2.
       rewrite <- (comp_compose2' H).
@@ -434,12 +433,12 @@ Proof.
     + intro H; apply comp_compose2.
       set (H2 := comp_compose2' H).
       repeat rewrite assoc in H2.
-      set (H3:= post_comp_with_z_iso_is_inj _  _ _ _ (pr2 f) _  _ _ H2).
-      rewrite <- H3; clear H3 H2 H.
-      transitivity
-          ((f0 □ (f □ (inv_from_z_iso f))) □ g).
+      use pathscomp0.
+      * exact ((f0 □ (f □ (inv_from_z_iso f))) □ g).
       * rewrite z_iso_inv_after_z_iso, id_right; apply idpath.
-      * repeat rewrite assoc; apply idpath.
+      * repeat rewrite assoc.
+        use (post_comp_with_z_iso_is_inj f).
+        exact H2.
   -  simpl; apply logeqweq.
     + intro H. apply comp_compose2.
       repeat rewrite assoc; rewrite assoc4.
@@ -448,10 +447,10 @@ Proof.
     + intro H; apply comp_compose2.
       set (H2 := comp_compose2' H).
       rewrite <- assoc in H2.
-      set (H3 := pre_comp_with_z_iso_is_inj _ _ _  _ _ ((is_z_iso_inv_from_z_iso  _ _ f)) _ _ H2).
-      rewrite assoc in H3.
-      set (H4:= post_comp_with_z_iso_is_inj _ _ _ _ (pr2 f) _ _ _ H3).
-      assumption.
+      use (pre_comp_with_z_iso_inv_is_inj f).
+      use (post_comp_with_z_iso_is_inj f).
+      rewrite assoc. rewrite assoc in H2. rewrite assoc in H2.
+      use (pathscomp0 H2). rewrite <- assoc. apply idpath.
   - simpl. apply logeqweq.
     + intro H; apply comp_compose2.
       rewrite <- (comp_compose2' H); clear H.
@@ -461,11 +460,9 @@ Proof.
     + intro H; apply comp_compose2.
       set (H':= comp_compose2' H); generalize H'; clear H' H; intro H.
       repeat rewrite <- assoc in H.
-      set (H2:=pre_comp_with_z_iso_is_inj _ _ _  _ _ ((is_z_iso_inv_from_z_iso  _ _ f)) _ _ H);
-        clearbody H2; clear H.
-      repeat rewrite  assoc in H2; rewrite assoc4 in H2.
-      rewrite z_iso_inv_after_z_iso, id_right in H2.
-      assumption.
+      use (pre_comp_with_z_iso_inv_is_inj f). use (pathscomp0 _ H).
+      rewrite (@assoc C' _ _ _ _ f). rewrite z_iso_inv_after_z_iso. rewrite id_left.
+      apply idpath.
   - simpl; apply logeqweq.
     + intro H; set (H':=comp_compose2' H); clearbody H'; clear H;
       rename H' into H; rewrite <- H; clear H.
@@ -481,13 +478,9 @@ Proof.
       rename H' into H.
       apply comp_compose2.
       repeat rewrite <- assoc in H.
-      set (H':=pre_comp_with_z_iso_is_inj _ _ _  _ _ ((is_z_iso_inv_from_z_iso  _ _ f)) _ _ H);
-        clearbody H'; clear H.
-      repeat rewrite assoc in H'.
-      set (H'':=post_comp_with_z_iso_is_inj _ _ _ _ (pr2 f) _ _ _ H');
-      clearbody H''; clear H'.
-      rewrite assoc4, z_iso_inv_after_z_iso, id_right in H'';
-      assumption.
+      use (post_comp_with_z_iso_is_inj f). use (pre_comp_with_z_iso_inv_is_inj f).
+      use (pathscomp0 _ H). rewrite (@assoc C' _ _ _ _ f). rewrite z_iso_inv_after_z_iso.
+      rewrite id_left. rewrite <- assoc. apply idpath.
   - simpl. apply logeqweq.
     + intro H. apply id_identity2.
       rewrite (id_identity2' H). rewrite (@id_left C').

@@ -6,13 +6,13 @@
 - Coincides with the direct definition
 *)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.initial.
@@ -31,12 +31,12 @@ Section def_zero.
   (** Construction of isZero for an object c from the conditions that the space
     of all morphisms from c to any object d is contractible and and the space of
     all morphisms from any object d to c is contractible. *)
-  Definition mk_isZero (c : C) (H : (Π (d : C), iscontr (c --> d))
-                                      × (Π (d : C), iscontr (d --> c))) :
+  Definition mk_isZero (c : C) (H : (∏ (d : C), iscontr (c --> d))
+                                      × (∏ (d : C), iscontr (d --> c))) :
     isZero c := mk_isInitial c (dirprod_pr1 H),,mk_isTerminal c (dirprod_pr2 H).
 
   (** Definition of Zero. *)
-  Definition Zero : UU := Σ c : C, isZero c.
+  Definition Zero : UU := ∑ c : C, isZero c.
   Definition mk_Zero (c : C) (H : isZero c) : Zero := tpair _ c H.
   Definition ZeroObject (Z : Zero) : C := pr1 Z.
 
@@ -108,7 +108,7 @@ Section def_zero.
 
   (** It follows that any morphism which factors through 0 is the ZeroArrow. *)
   Corollary ZeroArrowUnique (Z : Zero) (c d : C) (f : C⟦c, ZeroObject Z⟧)
-            (g : C⟦ZeroObject Z, d⟧) : f ;; g = ZeroArrow Z c d.
+            (g : C⟦ZeroObject Z, d⟧) : f · g = ZeroArrow Z c d.
   Proof.
     rewrite (ZeroArrowToUnique Z c f).
     rewrite (ZeroArrowFromUnique Z d g).
@@ -117,14 +117,14 @@ Section def_zero.
 
   (** Compose any morphism with the ZeroArrow and you get the ZeroArrow. *)
   Lemma precomp_with_ZeroArrow (Z : Zero) (a b c : C) (f : C⟦a, b⟧) :
-    f ;; ZeroArrow Z b c = ZeroArrow Z a c.
+    f · ZeroArrow Z b c = ZeroArrow Z a c.
   Proof.
     unfold ZeroArrow at 1. rewrite assoc.
     apply ZeroArrowUnique.
   Defined.
 
   Lemma postcomp_with_ZeroArrow (Z : Zero) (a b c : C) (f : C⟦b, c⟧) :
-    ZeroArrow Z a b ;; f = ZeroArrow Z a c.
+    ZeroArrow Z a b · f = ZeroArrow Z a c.
   Proof.
     unfold ZeroArrow at 1. rewrite <- assoc.
     apply ZeroArrowUnique.
@@ -140,7 +140,7 @@ Section def_zero.
 
   (** The morphism from ZeroObject to ZeroObject is an isomorphisms. *)
   Lemma isiso_from_Zero_to_Zero (Z Z' : Zero) :
-    is_isomorphism (ZeroArrowFrom Z (ZeroObject Z')).
+    is_iso (ZeroArrowFrom Z (ZeroObject Z')).
   Proof.
     apply (is_iso_qinv _ (ZeroArrowFrom Z' (ZeroObject Z))).
     split; apply ArrowsFromZero.

@@ -9,6 +9,10 @@ endif
 ############################################
 # The packages, listed in order by dependency:
 PACKAGES += Foundations
+PACKAGES += MoreFoundations
+PACKAGES += Combinatorics
+PACKAGES += Algebra
+PACKAGES += NumberSystems
 PACKAGES += CategoryTheory
 PACKAGES += Ktheory
 PACKAGES += Topology
@@ -16,23 +20,30 @@ PACKAGES += RealNumbers
 PACKAGES += Tactics
 PACKAGES += SubstitutionSystems
 PACKAGES += Folds
+PACKAGES += HomologicalAlgebra
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= yes
 BUILD_COQIDE ?= no
 COQBIN ?=
 ############################################
+
 .PHONY: all everything install lc lcp wc describe clean distclean build-coq doc build-coqide
-COQIDE_OPTION ?= no
+all: check-first
+everything: TAGS all html install
+check-first: enforce-prescribed-ordering check-travis
+
+COQIDE_OPTION := no
+
 ifeq "$(BUILD_COQ)" "yes"
 COQBIN=sub/coq/bin/
 all: build-coq
 build-coq: sub/coq/bin/coqc
+build/CoqMakefile.make: $(COQBIN)coq_makefile
 ifeq "$(BUILD_COQIDE)" "yes"
 all: build-coqide
 build-coqide: sub/coq/bin/coqide
 COQIDE_OPTION := opt
-LABLGTK := -lablgtkdir "$(shell pwd)"/sub/lablgtk/src
 endif
 endif
 
@@ -46,7 +57,12 @@ PACKAGE_FILES := $(patsubst %, UniMath/%/.package/files, $(PACKAGES))
 ifneq "$(INCLUDE)" "no"
 include build/CoqMakefile.make
 endif
-everything: TAGS all html install
+
+ifeq ($(BUILD_COQ),yes)
+# this comes after including build/CoqMakefile.make, to bet VFILES defined
+$(VFILES:.v=.vo) : $(COQBIN)coqc
+endif
+
 OTHERFLAGS += $(MOREFLAGS)
 OTHERFLAGS += -indices-matter -type-in-type -w none
 ifeq ($(VERBOSE),yes)
@@ -92,16 +108,16 @@ MODIFIERS := $(MODIFIERS)Local\|
 MODIFIERS := $(MODIFIERS)Private\|
 MODIFIERS := $(MODIFIERS)Program\|
 
-COQDEFS := --language=none												\
-	-r '/^[[:space:]]*\(\($(MODIFIERS)\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:]'\''_]+\)/\4/'	\
-	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:]]+\)'/\1/"								\
-	-r '/^[[:space:]]*Tactic Notation.* "\([[:alnum:]]+\)" /\1/'
+COQDEFS := --language=none																\
+	-r '/^[[:space:]]*\(\($(MODIFIERS)\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:]'\''_]+\)/\4/'					\
+	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:]'\''_]+\)'/\1/"											\
+	-r '/^[[:space:]]*Tactic[[:space:]]+Notation.*[[:space:]]"\([[:alnum:]'\''_]+\)"[[:space:]]/\1/'										\
+	-r '/^[[:space:]]*Delimit[[:space:]]+Scope[[:space:]]+[[:alnum:]'\''_]+[[:space:]]+with[[:space:]]+\([[:alnum:]'\''_]+\)[[:space:]]*\./\1/'
 
-$(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
-$(VFILES:.v=.vo) : $(COQBIN)coqc
-TAGS : $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
+$(foreach P,$(PACKAGES),$(eval TAGS-$P: Makefile $(filter UniMath/$P/%,$(VFILES)); etags $(COQDEFS) -o $$@ $$^))
+TAGS : Makefile $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
-$(foreach P,$(PACKAGES),$(eval $P: $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\)=UniMath/$P/\1o=" )))
+$(foreach P,$(PACKAGES),$(eval $P: check-first $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\)=UniMath/$P/\1o=" )))
 install:all
 coqwc:; coqwc $(VFILES)
 lc:; wc -l $(VFILES)
@@ -126,17 +142,17 @@ describe:; git describe --dirty --long --always --abbrev=40 --all
 	done ;\
 	echo ;\
 	echo '# Local ''Variables:' ;\
-	echo '# compile-command: "sub/coq/bin/coq_makefile -f .coq_makefile_input -o CoqMakefile.make.tmp && mv CoqMakefile.make.tmp build/CoqMakefile.make"' ;\
+	echo '# compile-command: "$(COQBIN)coq_makefile -f .coq_makefile_input -o CoqMakefile.make.tmp && mv CoqMakefile.make.tmp build/CoqMakefile.make"' ;\
 	echo '# End:' ;\
 	) >$@
 # the '' above prevents emacs from mistaking the lines above as providing local variables when visiting this file
-build/CoqMakefile.make: .coq_makefile_input $(COQBIN)coq_makefile
+build/CoqMakefile.make: .coq_makefile_input
 	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
 	mv .coq_makefile_output $@
 
 # "clean::" occurs also in build/CoqMakefile.make, hence both colons
 clean::
-	rm -f .coq_makefile_input .coq_makefile_output build/CoqMakefile.make
+	rm -f .coq_makefile_input .coq_makefile_output build/CoqMakefile.make COQC.log
 	find UniMath \( -name .\*.aux -o -name \*.glob -o -name \*.v.d -o -name \*.vo \) -delete
 	find UniMath -type d -empty -delete
 clean::; rm -rf $(ENHANCEDDOCTARGET)
@@ -145,33 +161,23 @@ latex-clean clean::; cd $(LATEXDIR) ; rm -f *.pdf *.tex *.log *.aux *.out *.blg 
 distclean:: clean
 distclean::          ; - $(MAKE) -C sub/coq distclean
 distclean::          ; rm -f build/Makefile-configuration
+distclean::          ; - $(MAKE) -C sub/lablgtk arch-clean
 
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
-sub/lablgtk/README:
-	git submodule update --init sub/lablgtk
-sub/coq/configure sub/coq/configure.ml:
+sub/coq/configure.ml:
 	git submodule update --init sub/coq
-ifeq "$(BUILD_COQ) $(BUILD_COQIDE)" "yes yes"
-sub/coq/config/coq_config.ml: sub/lablgtk/src/gSourceView2.cmi
-endif
-sub/coq/config/coq_config.ml: sub/coq/configure sub/coq/configure.ml
+sub/coq/config/coq_config.ml: sub/coq/configure.ml
 	: making $@ because of $?
-	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" $(LABLGTK) -with-doc no -annotate -debug -local
+	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" -with-doc no -annotate -debug -local
 # instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 .PHONY: rebuild-coq
 rebuild-coq sub/coq/bin/coq_makefile sub/coq/bin/coqc:
 	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqbinaries tools states
-sub/coq/bin/coqide: sub/lablgtk/README sub/coq/config/coq_config.ml
+sub/coq/bin/coqide: sub/coq/config/coq_config.ml
 	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
 configure-coq: sub/coq/config/coq_config.ml
-# we use sub/lablgtk/src/gSourceView2.cmi as a proxy for all of lablgtk
-# note: under Mac OS X, "homebrew" installs lablgtk without that file, but it's needed for building coqide.  That's why we build lablgtk ourselves.
-# note: lablgtk needs camlp4, not camlp5.  Strange, but it does.  So we must install that, too.
-build-lablgtk sub/lablgtk/src/gSourceView2.cmi: sub/lablgtk/README
-	cd sub/lablgtk && ./configure
-	$(MAKE) -C sub/lablgtk all byte opt world
 git-describe:
 	git describe --dirty --long --always --abbrev=40
 	git submodule foreach git describe --dirty --long --always --abbrev=40 --tags
@@ -218,6 +224,53 @@ enforce-max-line-length:
 	LC_ALL="en_US.UTF-8" gwc -L $(VFILES) | grep -vw total | awk '{ if ($$1 > 100) { printf "%6d  %s\n", $$1, $$2 }}' | sort -r | grep .
 show-long-lines:
 	LC_ALL="en_US.UTF-8" grep -nE '.{101}' $(VFILES)
+
+# here we assume the shell is bash, which it usually is nowadays:
+SHELL = bash
+enforce-prescribed-ordering: .enforce-prescribed-ordering.okay
+clean::; rm -f .enforce-prescribed-ordering.okay
+.enforce-prescribed-ordering.okay: Makefile $(VFILES:.v=.v.d)
+	: "--- enforce ordering prescribed by the files UniMath/*/.packages/files ---"
+	@set -e ;\
+	if declare -A seqnum 2>/dev/null ;\
+	then n=0 ;\
+	     for i in $(VOFILES) ;\
+	     do n=$$(( $$n + 1 )) ;\
+		seqnum[$$i]=$$n ;\
+	     done ;\
+	     for i in $(VFILES:.v=.v.d); \
+	     do head -1 $$i ;\
+	     done \
+	     | sed -E -e 's/[^ ]*\.(glob|v\.beautified|v)([ :]|$$)/\2/g' -e 's/ *: */ /' \
+	     | while read line ;\
+	       do for i in $$line ; do echo $$i ; done \
+		  | ( read target ; \
+		      [ "$${seqnum[$$target]}" ] || (echo unknown target: $$target; false) >&2 ;\
+		      while read prereq ; \
+		      do [ "$${seqnum[$$prereq]}" ] || (echo "unknown prereq of $$target : $$prereq" ; false) >&2 ;\
+			 echo "$$(($${seqnum[$$target]} > $${seqnum[$$prereq]})) error: *** $$target should not require $$prereq" ;\
+		      done ) ;\
+	       done | grep ^0 | sed 's/^0 //' | \
+	       ( haderror= ; \
+		 while read line ; \
+		 do if [ ! "$$haderror" ] ; then haderror=1 ; fi ; \
+		    echo "$$line" ;\
+		 done ;\
+		 [ ! "$$haderror" ] ) ;\
+	else echo "make: *** skipping enforcement of linear ordering of packages, because 'bash' is too old" ;\
+	fi
+	touch $@
+
+# here we ensure that the travis script checks every package
+check-travis:.check-travis.okay
+clean::; rm -f .check-travis.okay
+.check-travis.okay: Makefile .travis.yml
+	: --- check travis script ---
+	@set -e ;\
+	for p in $(PACKAGES) ;\
+	do grep -q "PACKAGES=.*$$p" .travis.yml || ( echo "package $$p not checked by .travis.yml" >&2 ; exit 1 ) ;\
+	done
+	touch "$@"
 
 #################################
 # targets best used with INCLUDE=no

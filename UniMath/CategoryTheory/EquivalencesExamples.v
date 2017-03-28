@@ -17,19 +17,24 @@ This file contains some adjunctions:
 Written by: Anders Mörtberg, 2016
 
 *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
+
+Local Open Scope cat.
 
 Section bindelta_functor_adjunction.
 
@@ -53,7 +58,7 @@ mkpair.
 - abstract (split; simpl; intro x;
   [ unfold precatbinprodmor, compose; simpl;
     now rewrite BinProductPr1Commutes, BinProductPr2Commutes
-  | rewrite postcompWithBinProductArrow, !id_left;
+  | cbn; rewrite postcompWithBinProductArrow, !id_left;
     apply pathsinv0, BinProduct_endo_is_identity;
       [ apply BinProductPr1Commutes | apply BinProductPr2Commutes ]]).
 Defined.
@@ -83,7 +88,7 @@ mkpair.
                 now rewrite ProductOfArrowsPr).
 - abstract (split; simpl; intro x;
     [ apply funextsec; intro i; apply (ProductPrCommutes _ _ (fun _ => x))
-    | rewrite postcompWithProductArrow;
+    | cbn; rewrite postcompWithProductArrow;
       apply pathsinv0, Product_endo_is_identity; intro i;
       eapply pathscomp0; [|apply (ProductPrCommutes I C _ (PC x))];
       apply cancel_postcomposition, maponpaths, funextsec; intro j; apply id_left]).
@@ -112,7 +117,7 @@ mkpair.
                 now rewrite precompWithBinCoproductArrow, postcompWithBinCoproductArrow,
                             id_right, id_left).
 - abstract (split; simpl; intro x;
-  [ rewrite precompWithBinCoproductArrow, !id_right;
+  [ cbn; rewrite precompWithBinCoproductArrow, !id_right;
     apply pathsinv0, BinCoproduct_endo_is_identity;
       [ apply BinCoproductIn1Commutes | apply BinCoproductIn2Commutes ]
   | unfold precatbinprodmor, compose; simpl;
@@ -143,7 +148,7 @@ mkpair.
                             postcompWithCoproductArrow,
                             id_right, id_left).
 - abstract (split; simpl; intro x;
-    [ rewrite precompWithCoproductArrow;
+    [ cbn; rewrite precompWithCoproductArrow;
       apply pathsinv0, Coproduct_endo_is_identity; intro i;
       eapply pathscomp0; [|apply CoproductInCommutes];
       apply maponpaths, maponpaths, funextsec; intro j; apply id_right
@@ -156,7 +161,6 @@ End coproduct_functor_adjunction.
 Section functor_swap.
 
 Local Notation "[ C , D ]" := (functor_Precategory C D).
-Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 
 Lemma functor_swap {C D : precategory} {E : Precategory} : functor C [D,E] → functor D [C,E].
 Proof.

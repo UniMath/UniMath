@@ -2,15 +2,15 @@
 (** ** Contents
 - Definition coincides with direct definition
 *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.zero.
 Require Import UniMath.CategoryTheory.limits.graphs.coequalizers.
 Require Import UniMath.CategoryTheory.limits.cokernels.
@@ -28,7 +28,7 @@ Section def_cokernels.
   (** ** Coincides with the direct definiton *)
   Lemma equiv_Cokernel1_eq {a b : C} (f : C⟦a, b⟧)
         (CK : limits.cokernels.Cokernel (equiv_Zero2 Z) f) :
-    f ;; (CokernelArrow CK) = ZeroArrow Z a b ;; (CokernelArrow CK).
+    f · (CokernelArrow CK) = ZeroArrow Z a b · (CokernelArrow CK).
   Proof.
     rewrite CokernelCompZero. rewrite postcomp_with_ZeroArrow. apply equiv_ZeroArrow.
   Qed.
@@ -71,7 +71,7 @@ Section def_cokernels.
 
 
   Lemma equiv_Cokernel2_eq {a b : C} (f : C⟦a, b⟧) (CK : cokernels.Cokernel (equiv_Zero2 Z) f) :
-    f ;; CokernelArrow CK = ZeroArrow Z a b ;; CokernelArrow CK.
+    f · CokernelArrow CK = ZeroArrow Z a b · CokernelArrow CK.
   Proof.
     rewrite CokernelCompZero. rewrite postcomp_with_ZeroArrow. apply equiv_ZeroArrow.
   Qed.

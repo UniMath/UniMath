@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.CategoryTheory.precategories
-               UniMath.Foundations.Basics.Sets.
+               UniMath.Foundations.Sets.
 Require Import UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories.
 Local Open Scope cat.
 
@@ -12,7 +12,7 @@ Proof. intros. exact (compose f g). Defined.
 (** *** the path groupoid *)
 
 Definition is_groupoid (C : Precategory) :=
-  Π a b : ob C, isweq (fun p : a = b => idtomor a b p).
+  ∏ a b : ob C, isweq (fun p : a = b => idtomor a b p).
 
 Lemma isaprop_is_groupoid (C : Precategory) : isaprop (is_groupoid C).
 Proof. intro. apply impred.
@@ -21,7 +21,7 @@ Proof. intro. apply impred.
 Lemma morphism_from_iso_is_incl (C : Precategory) (a b : ob C) :
   isincl (morphism_from_iso C a b).
 Proof. intros ? ? ? g.
-  apply (isofhlevelweqf _ (ezweqpr1 _ _)). apply isaprop_is_isomorphism. Qed.
+  apply (isofhlevelweqf _ (ezweqpr1 _ _)). apply isaprop_is_iso. Qed.
 
 Lemma is_category_groupoid {C : Precategory}: is_groupoid C -> is_category C.
 Proof. intros ? ig  .
@@ -70,7 +70,7 @@ Proof. intros ? iobj. apply (Precategories.category_pair (path_pregroupoid X iob
 
 (** *** the discrete category on n objects *)
 
-Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 Definition cat_n (n:nat):category.
   intro. apply (path_groupoid (stn n)). apply hlevelntosn.
   apply isasetstn. Defined.

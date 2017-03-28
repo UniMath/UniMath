@@ -7,21 +7,20 @@ Direct definition of initial object together with:
 - Initial element in a functor precategory ([Initial_functor_precat])
 
 *)
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
-
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
+Require Import UniMath.CategoryTheory.precategories
+               UniMath.CategoryTheory.functor_categories.
+Local Open Scope cat.
 
 Section def_initial.
 
 Variable C : precategory.
 
-Definition isInitial (a : C) : UU := Π b : C, iscontr (a --> b).
+Definition isInitial (a : C) : UU := ∏ b : C, iscontr (a --> b).
 
 Definition Initial : UU := total2 (fun a => isInitial a).
 
@@ -55,14 +54,14 @@ Proof.
   exact H.
 Defined.
 
-Definition mk_isInitial (a : C) (H : Π (b : C), iscontr (a --> b)) :
+Definition mk_isInitial (a : C) (H : ∏ (b : C), iscontr (a --> b)) :
   isInitial a.
 Proof.
   exact H.
 Defined.
 
 Lemma isiso_from_Initial_to_Initial (O O' : Initial) :
-   is_isomorphism (InitialArrow O O').
+   is_iso (InitialArrow O O').
 Proof.
   apply (is_iso_qinv _ (InitialArrow O' O)).
   split; apply pathsinv0;
@@ -83,7 +82,7 @@ Lemma isaprop_Initial : isaprop Initial.
 Proof.
   apply invproofirrelevance.
   intros O O'.
-  apply (total2_paths (isotoid _ H (iso_Initials O O')) ).
+  apply (total2_paths_f (isotoid _ H (iso_Initials O O')) ).
   apply proofirrelevance.
   unfold isInitial.
   apply impred.
@@ -113,7 +112,7 @@ Section Initial_and_EmptyCoprod.
     refine (mk_Initial (CoproductObject _ _ X) _).
     refine (mk_isInitial _ _).
     intros b.
-    assert (H : Π i : empty, C⟦fromempty i, b⟧) by
+    assert (H : ∏ i : empty, C⟦fromempty i, b⟧) by
         (intros i; apply (fromempty i)).
     apply (iscontrpair (CoproductArrow _ _ X H)); intros t.
     apply CoproductArrowUnique; intros i; apply (fromempty i).
@@ -150,15 +149,13 @@ End Initial_and_EmptyCoprod.
 (* apply (mk_Initial c); apply mk_isInitial; intros b. *)
 (* case (iscc _ (initCocone b)); intros f Hf; destruct f as [f fcomm]. *)
 (* apply (tpair _ f); intro g. *)
-(* transparent assert (X : (Σ x : c --> b, Π v, *)
-(*                        coconeIn cc v ;; x = coconeIn (initCocone b) v)). *)
+(* transparent assert (X : (∑ x : c --> b, ∏ v, *)
+(*                        coconeIn cc v · x = coconeIn (initCocone b) v)). *)
 (*   { apply (tpair _ g); intro u; induction u. } *)
 (* apply (maponpaths pr1 (Hf X)). *)
 (* Defined. *)
 
 (* End Initial_from_Colims. *)
-
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (** * Construction of initial object in a functor category *)
 Section InitialFunctorCat.

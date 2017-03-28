@@ -12,14 +12,15 @@ Contents:
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.Sets
+Require Import UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
         UniMath.CategoryTheory.category_hset
         UniMath.CategoryTheory.slicecat
+        UniMath.CategoryTheory.Adjunctions
         UniMath.CategoryTheory.equivalences
-        UniMath.CategoryTheory.DiscretePrecategory
-        UniMath.CategoryTheory.UnicodeNotations.
+        UniMath.CategoryTheory.DiscretePrecategory.
+Local Open Scope cat.
 
 Section set_slice_fam_equiv.
 
@@ -84,7 +85,7 @@ Section set_slice_fam_equiv.
   Theorem is_functor_fam_to_slice : is_functor fam_to_slice_data.
   Proof.
     split; [intro f | intros f f' f'' F F'];
-      apply slice_precat_morphisms_pr1_eq.
+      apply eq_mor_slicecat.
     + apply funextsec. intro p.
       exact (!tppr p).
     + reflexivity.
@@ -96,7 +97,7 @@ Section set_slice_fam_equiv.
   Definition slice_counit_fun (f : slice X) :
     (functor_composite_data slice_to_fam_data fam_to_slice_data) f --> (functor_identity_data _) f.
   Proof.
-    exists (fun h : (Σ x : X, hfiber (pr2 f) x) => pr1 (pr2 h)).
+    exists (fun h : (∑ x : X, hfiber (pr2 f) x) => pr1 (pr2 h)).
     simpl.
     apply funextsec.
     intro p.
@@ -106,7 +107,7 @@ Section set_slice_fam_equiv.
   Definition is_nat_trans_slice_counit : is_nat_trans _ _ slice_counit_fun.
   Proof.
     intros f f' F.
-    apply slice_precat_morphisms_pr1_eq.
+    apply eq_mor_slicecat.
     unfold slice_counit_fun. simpl.
     unfold compose. simpl.
     apply funextsec. intro p.
@@ -119,7 +120,7 @@ Section set_slice_fam_equiv.
                                       (functor_identity (slice X)) :=
     slice_counit_fun ,, is_nat_trans_slice_counit.
 
-  Definition slice_all_iso : forall x : slice X, is_isomorphism (slice_counit x).
+  Definition slice_all_iso : forall x : slice X, is_iso (slice_counit x).
   Proof.
     intro x.
     apply iso_to_slice_precat_iso.
@@ -131,7 +132,7 @@ Section set_slice_fam_equiv.
   Qed.
 
   Definition slice_unit := nat_trans_inv_from_pointwise_inv _ _
-                                                            (has_homsets_slice_precat _ has_homsets_HSET X) _ _
+                                                            (has_homsets_slice_precat has_homsets_HSET X) _ _
                                                             slice_counit slice_all_iso.
 
   Definition fam_unit_fun_fun (f : fam X) (x : X) :
@@ -170,7 +171,7 @@ Section set_slice_fam_equiv.
   Proof.
     apply (functor_iso_from_pointwise_iso _ _ has_homsets_HSET _ _ ((pr1 fam_unit) F)).
     intro x.
-    unfold is_isomorphism.
+    unfold is_iso.
     unfold fam_unit_fun_fun.
     exact (hset_equiv_is_iso ((pr1 F) x)
                              (hSetpair (hfiber pr1 x)
@@ -179,7 +180,7 @@ Section set_slice_fam_equiv.
                              (ezweqpr1 (funcomp (pr1 (pr1 F)) pr1) x)).
   Defined.
 
-  Definition fam_all_iso (F : fam X) : is_isomorphism (fam_unit F) := pr2 (fam_iso F).
+  Definition fam_all_iso (F : fam X) : is_iso (fam_unit F) := pr2 (fam_iso F).
 
   Definition fam_counit := nat_trans_inv_from_pointwise_inv _ _
                                                             (functor_category_has_homsets _ _ has_homsets_HSET) _ _
@@ -190,7 +191,7 @@ Section set_slice_fam_equiv.
     unfold form_adjunction.
     split.
     + intro f.
-      apply slice_precat_morphisms_pr1_eq.
+      apply eq_mor_slicecat.
       apply funextsec. intro x.
       exact (!tppr _).
     + intro F.

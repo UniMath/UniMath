@@ -13,20 +13,49 @@ Contents:
 - Proof that C/x is a category if C is
 
 - Proof that any morphism C[x,y] induces a functor from C/x to C/y
+  ([slicecat_functor])
 
 - Colimits in slice categories ([slice_precat_colims])
 
+- Binary products in slice categories of categories with pullbacks
+  ([BinProducts_slice_precat])
+
+- Binary coproducts in slice categories of categories with binary
+  coproducts ([BinCoproducts_slice_precat])
+
+- Coproducts in slice categories of categories with coproducts
+  ([Coproducts_slice_precat])
+
+- Initial object in slice categories with initial object
+  ([Initial_slice_precat])
+
+- Terminal object in slice categories ([Terminal_slice_precat])
+
+- Base change functor ([base_change_functor]) and proof that
+  it is right adjoint to slicecat_functor
+
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Propositions.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
+
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Adjunctions.
+Require Import UniMath.CategoryTheory.exponentials.
+
+Local Open Scope cat.
 
 (** * Definition of slice categories *)
 (** Given a category C and x : obj C. The slice category C/x is given by:
@@ -44,18 +73,16 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
        v
        x
 >>
-    where h ;; g = f
+    where h · g = f
 
 *)
 Section slice_precat_def.
 
-Variable C : precategory.
-Variable x : C.
+Context (C : precategory) (x : C).
 
 (* Accessor functions *)
-Definition slicecat_ob := total2 (fun (a : C) => a --> x).
-Definition slicecat_mor (f g : slicecat_ob) :=
-  total2 (fun h : pr1 f --> pr1 g => pr2 f = h ;; pr2 g).
+Definition slicecat_ob := total2 (λ a, C⟦a,x⟧).
+Definition slicecat_mor (f g : slicecat_ob) := total2 (λ h, pr2 f = h · pr2 g).
 
 Definition slicecat_ob_object (f : slicecat_ob) : ob C := pr1 f.
 
@@ -66,16 +93,15 @@ Definition slicecat_mor_morphism {f g : slicecat_ob} (h : slicecat_mor f g) :
   C⟦slicecat_ob_object f, slicecat_ob_object g⟧ := pr1 h.
 
 Definition slicecat_mor_comm {f g : slicecat_ob} (h : slicecat_mor f g) :
-  (slicecat_ob_morphism f) = (slicecat_mor_morphism h) ;; (slicecat_ob_morphism g) := pr2 h.
+  (slicecat_ob_morphism f) = (slicecat_mor_morphism h) · (slicecat_ob_morphism g) := pr2 h.
 
-Definition slice_precat_ob_mor : precategory_ob_mor :=
-  tpair _ _ slicecat_mor.
+Definition slice_precat_ob_mor : precategory_ob_mor := (slicecat_ob,,slicecat_mor).
 
 Definition id_slice_precat (c : slice_precat_ob_mor) : c --> c :=
   tpair _ _ (!(id_left (pr2 c))).
 
-Definition comp_slice_precat_subproof (a b c : slice_precat_ob_mor)
-  (f : a --> b) (g : b --> c) : pr2 a = (pr1 f ;; pr1 g) ;; pr2 c.
+Definition comp_slice_precat_subproof {a b c : slice_precat_ob_mor}
+  (f : a --> b) (g : b --> c) : pr2 a = (pr1 f · pr1 g) · pr2 c.
 Proof.
   rewrite <- assoc, (!(pr2 g)).
   exact (pr2 f).
@@ -83,7 +109,7 @@ Qed.
 
 Definition comp_slice_precat (a b c : slice_precat_ob_mor)
                              (f : a --> b) (g : b --> c) : a --> c :=
-  tpair _ (pr1 f ;; pr1 g) (comp_slice_precat_subproof _ _ _ _ _).
+  (pr1 f · pr1 g,,comp_slice_precat_subproof _ _).
 
 Definition slice_precat_data : precategory_data :=
   precategory_data_pair _ id_slice_precat comp_slice_precat.
@@ -103,16 +129,14 @@ repeat split; simpl.
 Qed.
 
 Definition slice_precat (hsC : has_homsets C) : precategory :=
-  tpair _ _ (is_precategory_slice_precat_data hsC).
+  (_,,is_precategory_slice_precat_data hsC).
 
 
 End slice_precat_def.
 
 Section slice_precat_theory.
 
-Variable C : precategory.
-Variable hsC : has_homsets C.
-Variable x : C.
+Context {C : precategory} (hsC : has_homsets C) (x : C).
 
 Local Notation "C / X" := (slice_precat C X hsC).
 
@@ -121,18 +145,19 @@ Proof.
 intros a b.
 case a; clear a; intros a f; case b; clear b; intros b g; simpl.
 apply (isofhleveltotal2 2); [ apply hsC | intro h].
-apply isasetaprop; apply hsC.
+now apply isasetaprop; apply hsC.
 Qed.
 
-Lemma eq_mor_slicecat (af bg : C / x) (f g : af --> bg) : pr1 f = pr1 g -> f = g.
-Proof. intro heq; apply (total2_paths heq); apply hsC. Qed.
+Lemma eq_mor_slicecat (af bg : C / x) (f g : C/x⟦af,bg⟧) : pr1 f = pr1 g -> f = g.
+Proof.
+now intro heq; apply (total2_paths_f heq); apply hsC.
+Qed.
 
 Lemma eq_iso_slicecat (af bg : C / x) (f g : iso af bg) : pr1 f = pr1 g -> f = g.
 Proof.
 case g; case f; clear f g; simpl; intros f fP g gP eq.
 refine (subtypePairEquality _ eq).
-intro.
-apply isaprop_is_iso.
+now intro; apply isaprop_is_iso.
 Qed.
 
 (** It suffices that the underlying morphism is an iso to get an iso in
@@ -140,30 +165,27 @@ Qed.
 Lemma iso_to_slice_precat_iso (af bg : C / x) (h : af --> bg)
   (isoh : is_iso (pr1 h)) : is_iso h.
 Proof.
-case (is_z_iso_from_is_iso _ isoh).
-intros hinv hinvP; case hinvP; clear hinvP; intros h1 h2.
-assert (pinv : hinv ;; pr2 af = pr2 bg).
-  rewrite <- id_left, <- h2, <- assoc, (!(pr2 h)).
-  apply idpath.
+case (is_z_iso_from_is_iso _ isoh); intros hinv [h1 h2].
+assert (pinv : hinv · pr2 af = pr2 bg).
+{ now rewrite <- id_left, <- h2, <- assoc, (!(pr2 h)). }
 apply is_iso_from_is_z_iso.
-exists (tpair _ hinv (!(pinv))).
-split; ( apply subtypePairEquality ; [ intro; apply hsC | trivial ]).
+exists (hinv,,!pinv).
+now split; (apply subtypePairEquality; [ intro; apply hsC |]).
 Qed.
 
 (** An iso in the slice category gives an iso in the base category *)
 Lemma slice_precat_iso_to_iso  (af bg : C / x) (h : af --> bg)
   (p : is_iso h) : is_iso (pr1 h).
 Proof.
-case (is_z_iso_from_is_iso _ p); intros hinv hinvP.
-case hinvP; clear hinvP; intros h1 h2.
+case (is_z_iso_from_is_iso _ p); intros hinv [h1 h2].
 apply is_iso_from_is_z_iso.
 exists (pr1 hinv); split.
-  apply (maponpaths pr1 h1).
-apply (maponpaths pr1 h2).
+- apply (maponpaths pr1 h1).
+- apply (maponpaths pr1 h2).
 Qed.
 
 Lemma iso_weq (af bg : C / x) :
-  weq (iso af bg) (total2 (fun h : iso (pr1 af) (pr1 bg) => pr2 af = h ;; pr2 bg)).
+  weq (iso af bg) (total2 (fun h : iso (pr1 af) (pr1 bg) => pr2 af = h · pr2 bg)).
 Proof.
 apply (weqcomp (weqtotal2asstor _ _)).
 apply invweq.
@@ -172,18 +194,18 @@ apply weqfibtototal; intro h; simpl.
 apply (weqcomp (weqdirprodcomm _ _)).
 apply weqfibtototal; intro p.
 apply weqimplimpl; try apply isaprop_is_iso.
-  intro hp; apply iso_to_slice_precat_iso; assumption.
-intro hp; apply (slice_precat_iso_to_iso _ _ _ hp).
+- now intro hp; apply iso_to_slice_precat_iso.
+- now intro hp; apply (slice_precat_iso_to_iso _ _ _ hp).
 Defined.
 
 (** The forgetful functor from C/x to C *)
 Definition slicecat_to_cat : functor (C / x) C.
 Proof.
-mkpair.
+use mk_functor.
 + mkpair.
   - apply pr1.
   - intros a b; apply pr1.
-+ abstract (now split).
++ now split.
 Defined.
 
 End slice_precat_theory.
@@ -192,9 +214,7 @@ End slice_precat_theory.
 (** This is exercise 9.1 in the HoTT book *)
 Section slicecat_theory.
 
-Variable C : precategory.
-Variable is_catC : is_category C.
-Variable x : C.
+Context {C : precategory} (is_catC : is_category C) (x : C).
 
 Local Notation "C / x" := (slice_precat C x (pr2 is_catC)).
 
@@ -207,20 +227,20 @@ assert (weq1 : weq (af = bg)
   apply (total2_paths_equiv _ af bg).
 
 assert (weq2 : weq (total2 (fun (p : a = b) => transportf _ p (pr2 af) = g))
-                   (total2 (fun (p : a = b) => idtoiso (! p) ;; f = g))).
+                   (total2 (fun (p : a = b) => idtoiso (! p) · f = g))).
   apply weqfibtototal; intro p.
   rewrite idtoiso_precompose.
   apply idweq.
 
-assert (weq3 : weq (total2 (fun (p : a = b) => idtoiso (! p) ;; f = g))
-                   (total2 (fun h : iso a b => f = h ;; g))).
+assert (weq3 : weq (total2 (fun (p : a = b) => idtoiso (! p) · f = g))
+                   (total2 (fun h : iso a b => f = h · g))).
   apply (weqbandf (weqpair _ ((pr1 is_catC) a b))); intro p.
   rewrite idtoiso_inv; simpl.
   apply weqimplimpl; simpl; try apply (pr2 is_catC); intro Hp.
     rewrite <- Hp, assoc, iso_inv_after_iso, id_left; apply idpath.
   rewrite Hp, assoc, iso_after_iso_inv, id_left; apply idpath.
 
-assert (weq4 : weq (total2 (fun h : iso a b => f = h ;; g)) (iso af bg)).
+assert (weq4 : weq (total2 (fun h : iso a b => f = h · g)) (iso af bg)).
   apply invweq; apply iso_weq.
 
 apply (weqcomp weq1 (weqcomp weq2 (weqcomp weq3 weq4))).
@@ -232,8 +252,7 @@ split; [| apply has_homsets_slice_precat]; simpl; intros a b.
 set (h := id_weq_iso_slicecat a b).
 apply (isweqhomot h); [intro p|case h; trivial].
 destruct p.
-apply eq_iso.
-apply eq_mor_slicecat; trivial.
+now apply eq_iso, eq_mor_slicecat.
 Qed.
 
 End slicecat_theory.
@@ -241,46 +260,43 @@ End slicecat_theory.
 (** * A morphism x --> y in the base category induces a functor between C/x and C/y *)
 Section slicecat_functor_def.
 
-Variable C : precategory.
-Variable hsC : has_homsets C.
-Variable x y : C.
-Variable f : x --> y.
+Context {C : precategory} (hsC : has_homsets C) {x y : C} (f : C⟦x,y⟧).
 
 Local Notation "C / X" := (slice_precat C X hsC).
 
 Definition slicecat_functor_ob (af : C / x) : C / y :=
-  tpair _ (pr1 af) (pr2 af ;; f).
+  (pr1 af,,pr2 af · f).
 
-Lemma slicecat_functor_subproof (af bg : C / x) (h : af --> bg) :
-  pr2 af ;; f = pr1 h ;; (pr2 bg ;; f).
-Proof. rewrite assoc, (!(pr2 h)); apply idpath. Qed.
+Lemma slicecat_functor_subproof (af bg : C / x) (h : C/x⟦af,bg⟧) :
+  pr2 af · f = pr1 h · (pr2 bg · f).
+Proof.
+now rewrite assoc, <- (pr2 h).
+Qed.
 
 Definition slicecat_functor_data : functor_data (C / x) (C / y) :=
-  tpair (fun F => Π a b, a --> b -> F a --> F b)
-        slicecat_functor_ob
-        (fun a b h => tpair _ (pr1 h) (slicecat_functor_subproof _ _ h)).
+  tpair (λ F, ∏ a b, C/x⟦a,b⟧ → C/y⟦F a,F b⟧) slicecat_functor_ob
+        (λ a b h, (pr1 h,,slicecat_functor_subproof _ _ h)).
 
 Lemma is_functor_slicecat_functor : is_functor slicecat_functor_data.
 Proof.
 split.
-  intros a; apply eq_mor_slicecat; apply idpath.
-intros a b c g h; apply eq_mor_slicecat; apply idpath.
+- now intros a; apply eq_mor_slicecat.
+- now intros a b c g h; apply eq_mor_slicecat.
 Qed.
 
 Definition slicecat_functor : functor (C / x) (C / y) :=
-  tpair _ _ is_functor_slicecat_functor.
+  (slicecat_functor_data,,is_functor_slicecat_functor).
 
 End slicecat_functor_def.
 
 Section slicecat_functor_theory.
 
-Variable C : precategory.
-Variable hsC : has_homsets C.
+Context {C : precategory} (hsC : has_homsets C).
 
 Local Notation "C / X" := (slice_precat C X hsC).
 
 Lemma slicecat_functor_identity_ob (x : C) :
-  slicecat_functor_ob C hsC x x (identity x) = functor_identity (C / x).
+  slicecat_functor_ob hsC (identity x) = functor_identity (C / x).
 Proof.
 apply funextsec; intro af.
 unfold slicecat_functor_ob.
@@ -288,10 +304,10 @@ now rewrite id_right, tppr.
 Defined.
 
 Lemma slicecat_functor_identity (x : C) :
-  slicecat_functor _ _ _ _ (identity x) = functor_identity (C / x).
+  slicecat_functor _ (identity x) = functor_identity (C / x).
 Proof.
-apply (functor_eq _ _ (has_homsets_slice_precat _ _ _)); simpl.
-apply (total2_paths2 (slicecat_functor_identity_ob _)).
+apply (functor_eq _ _ (has_homsets_slice_precat _ _)); simpl.
+apply (two_arg_paths_f (slicecat_functor_identity_ob _)).
 apply funextsec; intros [a f].
 apply funextsec; intros [b g].
 apply funextsec; intros [h hh].
@@ -306,24 +322,23 @@ case (id_right f).
 now case (id_right g).
 Qed.
 
-Lemma slicecat_functor_comp_ob (x y z : C) (f : x --> y) (g : y --> z) :
-  slicecat_functor_ob C hsC x z (f ;; g) =
-       (fun a : slicecat_ob C x =>
-        slicecat_functor_ob C hsC y z g (slicecat_functor_ob C hsC x y f a)).
+Lemma slicecat_functor_comp_ob {x y z : C} (f : C⟦x,y⟧) (g : C⟦y,z⟧) :
+  slicecat_functor_ob hsC (f · g) =
+  (λ a, slicecat_functor_ob hsC g (slicecat_functor_ob hsC f a)).
 Proof.
 apply funextsec; intro af.
 now unfold slicecat_functor_ob; rewrite assoc.
 Defined.
 
 (* This proof is not so nice... *)
-Lemma slicecat_functor_comp (x y z : C) (f : x --> y) (g : y --> z) :
-  slicecat_functor _ hsC _ _ (f ;; g) =
-  functor_composite (slicecat_functor _ _ _ _ f) (slicecat_functor _ _ _ _ g).
+Lemma slicecat_functor_comp {x y z : C} (f : C⟦x,y⟧) (g : C⟦y,z⟧) :
+  slicecat_functor hsC (f · g) =
+  functor_composite (slicecat_functor _ f) (slicecat_functor _ g).
 Proof.
-apply (functor_eq _ _ (has_homsets_slice_precat _ _ _)); simpl.
+apply (functor_eq _ _ (has_homsets_slice_precat _ _)); simpl.
 unfold slicecat_functor_data; simpl.
 unfold functor_composite_data; simpl.
-apply (total2_paths2 (slicecat_functor_comp_ob _ _ _ _ _)).
+apply (two_arg_paths_f (slicecat_functor_comp_ob _ _)).
 apply funextsec; intros [a fax].
 apply funextsec; intros [b fbx].
 apply funextsec; intros [h hh].
@@ -335,13 +350,13 @@ rewrite transportf_total2; simpl.
 unfold slicecat_functor_comp_ob.
 rewrite toforallpaths_funextsec; simpl.
 assert (H1 : transportf (fun x : C / z => pr1 x --> b)
-               (Basics.PartA.internal_paths_rew_r _ _ _
+               (Foundations.PartA.internal_paths_rew_r _ _ _
                  (fun p => tpair _ a p = tpair _ a _) (idpath (tpair _ a _))
                  (assoc fax f g)) h = h).
   case (assoc fax f g); apply idpath.
-assert (H2 : Π h', h' = h ->
+assert (H2 : ∏ h', h' = h ->
              transportf (fun x : C / z => a --> pr1 x)
-                        (Basics.PartA.internal_paths_rew_r _ _ _
+                        (Foundations.PartA.internal_paths_rew_r _ _ _
                            (fun p => tpair _ b p = tpair _ b _) (idpath _)
                            (assoc fbx f g)) h' = h).
   intros h' eq.
@@ -358,7 +373,7 @@ Context (g : graph) {C : precategory} (hsC : has_homsets C) (x : C).
 
 Local Notation "C / X" := (slice_precat C X hsC).
 
-Let U : functor (C / x) C := slicecat_to_cat C hsC x.
+Let U : functor (C / x) C := slicecat_to_cat hsC x.
 
 Lemma slice_precat_isColimCocone (d : diagram g (C / x)) (a : C / x)
   (cc : cocone d a)
@@ -420,7 +435,7 @@ Defined.
 End slicecat_colimits.
 
 Lemma slice_precat_colims_of_shape {C : precategory} (hsC : has_homsets C)
-  {g : graph} (d : diagram g C) (x : C) (CC : Colims_of_shape g C) :
+  {g : graph} (x : C) (CC : Colims_of_shape g C) :
   Colims_of_shape g (slice_precat C x hsC).
 Proof.
 now intros y; apply slice_precat_ColimCocone, CC.
@@ -432,15 +447,267 @@ Proof.
 now intros g d; apply slice_precat_ColimCocone, CC.
 Defined.
 
-(** morphisms of slice precategories with homsests equal if first projection equal *)
-Lemma slice_precat_morphisms_pr1_eq {C : precategory} (hsC : has_homsets C) (x : ob C)
-      {a b : ob (slice_precat C x hsC)} (f g : a --> b) :
-  pr1 f = pr1 g -> f = g.
+(** * Binary products in slice categories of categories with pullbacks *)
+Section slicecat_binproducts.
+
+Context {C : precategory} (hsC : has_homsets C) (PC : Pullbacks C).
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Lemma BinProducts_slice_precat (x : C) : BinProducts (C / x).
 Proof.
-  intro pr1eq.
-  apply (invmaponpathsincl pr1).
-  + apply isofhlevelfpr1.
-    intro h.
-    apply hsC.
-  + exact (pr1eq).
+intros a b.
+use mk_BinProductCone.
++ exists (PullbackObject (PC _ _ _ (pr2 a) (pr2 b))).
+  apply (PullbackPr1 (PC x _ _ (pr2 a) (pr2 b)) · pr2 a).
++ use (PullbackPr1 _,,idpath _).
++ use (PullbackPr2 _,, PullbackSqrCommutes _).
++ intros c f g.
+  use unique_exists.
+  - mkpair.
+    * apply (PullbackArrow _ _ (pr1 f) (pr1 g)).
+      abstract (now rewrite <- (pr2 f), <- (pr2 g)).
+    * abstract (now rewrite assoc, PullbackArrow_PullbackPr1, <- (pr2 f)).
+  - abstract (split; apply eq_mor_slicecat; simpl;
+             [ apply PullbackArrow_PullbackPr1 | apply PullbackArrow_PullbackPr2 ]).
+  - abstract (now intros h; apply isapropdirprod; apply has_homsets_slice_precat).
+  - abstract (intros h [H1 H2]; apply eq_mor_slicecat, PullbackArrowUnique;
+             [ apply (maponpaths pr1 H1) | apply (maponpaths pr1 H2) ]).
 Defined.
+
+End slicecat_binproducts.
+
+(** * Binary coproducts in slice categories of categories with binary coproducts *)
+Section slicecat_bincoproducts.
+
+Context {C : precategory} (hsC : has_homsets C) (BC : BinCoproducts C).
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Lemma BinCoproducts_slice_precat (x : C) : BinCoproducts (C / x).
+Proof.
+intros a b.
+use mk_BinCoproductCocone.
++ exists (BinCoproductObject _ (BC (pr1 a) (pr1 b))).
+  apply (BinCoproductArrow _ _ (pr2 a) (pr2 b)).
++ mkpair.
+  - apply BinCoproductIn1.
+  - abstract (now rewrite BinCoproductIn1Commutes).
++ mkpair.
+  - apply BinCoproductIn2.
+  - abstract (now rewrite BinCoproductIn2Commutes).
++ intros c f g.
+  use unique_exists.
+  - exists (BinCoproductArrow _ _ (pr1 f) (pr1 g)).
+    abstract (apply pathsinv0, BinCoproductArrowUnique;
+      [ now rewrite assoc, (BinCoproductIn1Commutes C _ _ (BC (pr1 a) (pr1 b))), (pr2 f)
+      | now rewrite assoc, (BinCoproductIn2Commutes C _ _ (BC (pr1 a) (pr1 b))), (pr2 g)]).
+  - abstract (split; apply eq_mor_slicecat; simpl;
+             [ apply BinCoproductIn1Commutes | apply BinCoproductIn2Commutes ]).
+  - abstract (intros y; apply isapropdirprod; apply has_homsets_slice_precat).
+  - abstract (now intros y [<- <-]; apply eq_mor_slicecat, BinCoproductArrowUnique).
+Defined.
+
+End slicecat_bincoproducts.
+
+(** * Coproducts in slice categories of categories with coproducts *)
+Section slicecat_coproducts.
+
+Context {C : precategory} (hsC : has_homsets C) (I : UU) (BC : Coproducts I C).
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Lemma Coproducts_slice_precat (x : C) : Coproducts I (C / x).
+Proof.
+intros a.
+use mk_CoproductCocone.
++ exists (CoproductObject _ _ (BC (λ i, pr1 (a i)))).
+  apply CoproductArrow; intro i; apply (pr2 (a i)).
++ intro i; mkpair; simpl.
+  - apply (CoproductIn I C (BC (λ i, pr1 (a i))) i).
+  - abstract (now rewrite (CoproductInCommutes I C _ (BC (λ i, pr1 (a i))))).
++ intros c f.
+  use unique_exists.
+  - exists (CoproductArrow _ _ _ (λ i, pr1 (f i))).
+    abstract (simpl; apply pathsinv0, CoproductArrowUnique; intro i;
+              now rewrite assoc, (CoproductInCommutes _ _ _ (BC (λ i, pr1 (a i)))), (pr2 (f i))).
+  - abstract (now intros i;
+              apply eq_mor_slicecat, (CoproductInCommutes _ _ _ (BC (λ i0 : I, pr1 (a i0))))).
+  - abstract (now intros y; apply impred; intro i; apply has_homsets_slice_precat).
+  - abstract (simpl; intros y Hy;
+              apply eq_mor_slicecat, CoproductArrowUnique;
+              intros i; apply (maponpaths pr1 (Hy i))).
+Defined.
+
+End slicecat_coproducts.
+
+Section slicecat_initial.
+
+Context {C : precategory} (hsC : has_homsets C) (IC : Initial C).
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Lemma Initial_slice_precat (x : C) : Initial (C / x).
+Proof.
+use mk_Initial.
+- mkpair.
+  + apply (InitialObject IC).
+  + apply InitialArrow.
+- intros y.
+  use unique_exists; simpl.
+  * apply InitialArrow.
+  * abstract (now apply pathsinv0, InitialArrowUnique).
+  * abstract (now intros f; apply hsC).
+  * abstract (now intros f Hf; apply InitialArrowUnique).
+Defined.
+
+End slicecat_initial.
+
+Section slicecat_terminal.
+
+Context {C : precategory} (hsC : has_homsets C).
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Lemma Terminal_slice_precat (x : C) : Terminal (C / x).
+Proof.
+use mk_Terminal.
+- mkpair.
+  + apply x.
+  + apply (identity x).
+- intros y.
+  use unique_exists; simpl.
+  * apply (pr2 y).
+  * abstract (now rewrite id_right).
+  * abstract (now intros f; apply hsC).
+  * abstract (now intros f ->; rewrite id_right).
+Defined.
+
+End slicecat_terminal.
+
+(** Base change functor: https://ncatlab.org/nlab/show/base+change *)
+Section base_change.
+
+Context {C : precategory} (hsC : has_homsets C) (PC : Pullbacks C).
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Definition base_change_functor_data {c c' : C} (g : C⟦c,c'⟧) : functor_data (C / c') (C / c).
+Proof.
+mkpair.
+- intros Af'.
+  exists (PullbackObject (PC _ _ _ g (pr2 Af'))).
+  apply PullbackPr1.
+- intros a b f.
+  mkpair; simpl.
+  + use PullbackArrow.
+    * apply PullbackPr1.
+    * apply (PullbackPr2 _ · pr1 f).
+    * abstract (now rewrite <- assoc, <- (pr2 f), PullbackSqrCommutes).
+  + abstract (now rewrite PullbackArrow_PullbackPr1).
+Defined.
+
+Lemma is_functor_base_change_functor {c c' : C} (g : C⟦c,c'⟧) :
+ is_functor (base_change_functor_data g).
+Proof.
+split.
+- intros x; apply (eq_mor_slicecat hsC); simpl.
+  now apply pathsinv0, PullbackArrowUnique; rewrite id_left, ?id_right.
+- intros x y z f1 f2; apply (eq_mor_slicecat hsC); simpl.
+  apply pathsinv0, PullbackArrowUnique.
+  + now rewrite <- assoc, !PullbackArrow_PullbackPr1.
+  + now rewrite <- assoc, PullbackArrow_PullbackPr2, !assoc,
+            PullbackArrow_PullbackPr2.
+Qed.
+
+Definition base_change_functor {c c' : C} (g : C⟦c,c'⟧) : functor (C / c') (C / c) :=
+  (base_change_functor_data g,,is_functor_base_change_functor g).
+
+Local Definition eta {c c' : C} (g : C⟦c,c'⟧) :
+  nat_trans (functor_identity (C / c))
+            (functor_composite (slicecat_functor hsC g) (base_change_functor g)).
+Proof.
+use mk_nat_trans.
+- intros x.
+  mkpair; simpl.
+  + use (PullbackArrow _ _ (pr2 x) (identity _)).
+    abstract (now rewrite id_left).
+  + abstract (now rewrite PullbackArrow_PullbackPr1).
+- intros x y f; apply eq_mor_slicecat; simpl.
+  eapply pathscomp0; [apply postCompWithPullbackArrow|].
+  apply pathsinv0, PullbackArrowUnique.
+  + now rewrite <- assoc, !PullbackArrow_PullbackPr1, <- (pr2 f).
+  + now rewrite <- assoc, PullbackArrow_PullbackPr2, assoc,
+                PullbackArrow_PullbackPr2, id_right, id_left.
+Defined.
+
+Local Definition eps {c c' : C} (g : C⟦c,c'⟧) :
+  nat_trans (functor_composite (base_change_functor g) (slicecat_functor hsC g))
+            (functor_identity (C / c')).
+Proof.
+use mk_nat_trans.
+- intros x.
+  exists (PullbackPr2 _); simpl.
+  abstract (now apply PullbackSqrCommutes).
+- intros x  y f; apply eq_mor_slicecat; simpl.
+  now rewrite PullbackArrow_PullbackPr2.
+Defined.
+
+Local Lemma form_adjunction_eta_eps {c c' : C} (g : C⟦c,c'⟧) :
+  form_adjunction (slicecat_functor hsC g) (base_change_functor g) (eta g) (eps g).
+Proof.
+mkpair.
+- now intros x; apply eq_mor_slicecat; simpl; rewrite PullbackArrow_PullbackPr2.
+- intros x; apply (eq_mor_slicecat hsC); simpl.
+  apply pathsinv0, PullbackEndo_is_identity.
+  + now rewrite <- assoc, !PullbackArrow_PullbackPr1.
+  + now rewrite <- assoc, PullbackArrow_PullbackPr2, assoc,
+                PullbackArrow_PullbackPr2, id_left.
+Qed.
+
+Lemma are_adjoints_slicecat_functor_base_change {c c' : C} (g : C⟦c,c'⟧) :
+  are_adjoints (slicecat_functor hsC g) (base_change_functor g).
+Proof.
+exists (eta g,,eps g).
+exact (form_adjunction_eta_eps g).
+Defined.
+
+(** If the base change functor has a right adjoint, called dependent product, then C / c has
+    exponentials. The formal proof is inspired by Proposition 2.1 from:
+    https://ncatlab.org/nlab/show/locally+cartesian+closed+category#in_category_theory
+*)
+Section dependent_product.
+
+Context (H : ∏ {c c' : C} (g : C⟦c,c'⟧), is_left_adjoint (base_change_functor g)).
+
+Let dependent_product_functor {c c' : C} (g : C⟦c,c'⟧) :
+  functor (C / c) (C / c') := right_adjoint (H c c' g).
+
+Let BPC c : BinProducts (C / c) := BinProducts_slice_precat hsC PC c.
+
+Lemma const_prod_functor1_slicecat c (Af : C / c) :
+  constprod_functor1 (BPC c) Af =
+  functor_composite (base_change_functor (pr2 Af)) (slicecat_functor hsC (pr2 Af)).
+Proof.
+apply functor_eq; try apply has_homsets_slice_precat.
+use functor_data_eq; try trivial.
+intros x y f; apply (eq_mor_slicecat hsC); simpl.
+apply PullbackArrowUnique.
+- now rewrite PullbackArrow_PullbackPr1, id_right.
+- now rewrite PullbackArrow_PullbackPr2.
+Defined.
+
+Lemma dependent_product_to_exponentials c : has_exponentials (BPC c).
+Proof.
+intros Af.
+mkpair.
++ apply (functor_composite (base_change_functor (pr2 Af))
+                           (dependent_product_functor (pr2 Af))).
++ rewrite const_prod_functor1_slicecat.
+  apply are_adjoints_functor_composite.
+  - apply (pr2 (H _ _ _)).
+  - apply are_adjoints_slicecat_functor_base_change.
+Defined.
+
+End dependent_product.
+End base_change.

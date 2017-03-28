@@ -6,10 +6,10 @@ Unset Kernel Term Sharing.
 (** We will show that [B ℤ] has the universal property of the circle. *)
 
 Require Import UniMath.Ktheory.AffineLine
-               UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.Basics.UnivalenceAxiom
+               UniMath.Algebra.Monoids_and_Groups
+               UniMath.Foundations.UnivalenceAxiom
                UniMath.Ktheory.GroupAction
-               UniMath.Foundations.NumberSystems.Integers
+               UniMath.NumberSystems.Integers
                UniMath.Ktheory.Nat
                UniMath.Ktheory.Integers
                UniMath.Ktheory.MoreEquivalences.
@@ -35,7 +35,7 @@ Proof. intros. unfold circle_loop. rewrite pathsinv0inv0.
 Definition ZGuidedHomotopy {Y} {y:Y} (l:y = y) (T:Torsor ℤ) :=
   GuidedHomotopy (confun T y) (confun T l).
 
-Definition GH {Y} {y:Y} (l:y = y) := Σ T:Torsor ℤ, ZGuidedHomotopy l T.
+Definition GH {Y} {y:Y} (l:y = y) := ∑ T:Torsor ℤ, ZGuidedHomotopy l T.
 
 Definition GHpair {Y} {y:Y} (l:y = y) (T:Torsor ℤ) (g:ZGuidedHomotopy l T) :=
   T,,g : GH l.
@@ -254,7 +254,7 @@ Proof. intros. assert (p := pr1_GH_weq_compute l).
 
 
 Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)}
-           (l:circle_loop#y = y) : Π c:circle, Y c.
+           (l:circle_loop#y = y) : ∏ c:circle, Y c.
 Proof. (** (not proved yet) *)
 Abort.
 
@@ -263,7 +263,7 @@ Abort.
  http://arxiv.org/abs/1402.0761 *)
 
 Lemma circle_map_check_paths'
-      (circle_map': Π (Y:circle->UU) (y:Y(basepoint circle))
+      (circle_map': ∏ (Y:circle->UU) (y:Y(basepoint circle))
            (l:circle_loop#y = y) (c:circle), Y c)
       {Y} (f:circle->Y) :
   circle_map (ap f circle_loop) = f .

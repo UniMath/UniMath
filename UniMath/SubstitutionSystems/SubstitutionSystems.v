@@ -24,11 +24,11 @@ Contents :
 ************************************************************)
 
 
-Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
@@ -54,12 +54,12 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP hs.
 
-Variable H : Signature C hs.
+Variable H : Signature C hs C hs.
 
 Let θ := theta H.
 
-Let θ_strength1_int := Sig_strength_law1 _ _ H.
-Let θ_strength2_int := Sig_strength_law2 _ _ H.
+Let θ_strength1_int := Sig_strength_law1 _ _ _ _ H.
+Let θ_strength2_int := Sig_strength_law2 _ _ _ _ H.
 
 Let Id_H
 : functor EndC EndC
@@ -78,8 +78,8 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 Definition eta_from_alg (T : algebra_ob Id_H) : EndC ⟦ functor_identity _,  `T ⟧.
 Proof.
   tryif primitive_projections
-  then exact (BinCoproductIn1 _ (CPEndC _ _) ;; alg_map _ T)
-  else exact (BinCoproductIn1 _ _            ;; alg_map _ T).
+  then exact (BinCoproductIn1 _ (CPEndC _ _) · alg_map _ T)
+  else exact (BinCoproductIn1 _ _            · alg_map _ T).
 Defined.
 
 Local Notation η := eta_from_alg.
@@ -93,8 +93,8 @@ Defined.
 Definition tau_from_alg (T : algebra_ob Id_H) : EndC ⟦H `T, `T⟧.
 Proof.
   tryif primitive_projections
-  then exact (BinCoproductIn2 _ (CPEndC _ _) ;; alg_map _ T)
-  else exact (BinCoproductIn2 _ _            ;; alg_map _ T).
+  then exact (BinCoproductIn2 _ (CPEndC _ _) · alg_map _ T)
+  else exact (BinCoproductIn2 _ _            · alg_map _ T).
 Defined.
 Local Notation τ := tau_from_alg.
 
@@ -110,16 +110,16 @@ Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) 
 Definition bracket_property (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T)
            (h : `T • (U Z)  --> `T) : UU
   :=
-    alg_map _ T •• (U Z) ;; h =
-          identity (U Z) ⊕ θ (`T ⊗ Z) ;;
-          identity (U Z) ⊕ #H h ;;
+    alg_map _ T •• (U Z) · h =
+          identity (U Z) ⊕ θ (`T ⊗ Z) ·
+          identity (U Z) ⊕ #H h ·
           BinCoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T).
 
 Definition bracket_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T): UU :=
   ∃! h : `T • (U Z)  --> `T, bracket_property T f h.
 
 Definition bracket (T : algebra_ob Id_H) : UU
-  := Π (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_at T f.
+  := ∏ (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_at T f.
 
 Lemma isaprop_bracket (T : algebra_ob Id_H) : isaprop (bracket T).
 Proof.
@@ -131,14 +131,14 @@ Qed.
 Definition bracket_property_parts (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T)
            (h : `T • (U Z)  --> `T) : UU
   :=
-    (#U f = η T •• (U Z) ;; h) ×
-     (θ (`T ⊗ Z) ;; #H h ;; τ T  = τ T •• (U Z) ;;  h).
+    (#U f = η T •• (U Z) · h) ×
+     (θ (`T ⊗ Z) · #H h · τ T  = τ T •• (U Z) ·  h).
 
 Definition bracket_parts_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T) : UU :=
    ∃! h : `T • (U Z)  --> `T, bracket_property_parts T f h.
 
 Definition bracket_parts (T : algebra_ob Id_H) : UU
-  := Π (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_parts_at T f.
+  := ∏ (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_parts_at T f.
 
 (* show that for any h of suitable type, the following are equivalent *)
 
@@ -154,7 +154,7 @@ Proof.
     simpl.
     unfold coproduct_nat_trans_in1_data.
     assert (Hyp_inst := nat_trans_eq_pointwise Hyp c); clear Hyp.
-    apply (maponpaths (fun m => BinCoproductIn1 C (CP _ _);; m)) in Hyp_inst.
+    apply (maponpaths (fun m => BinCoproductIn1 C (CP _ _)· m)) in Hyp_inst.
     match goal with |[ H1 : _  = ?f |- _ = _   ] =>
          pathvia (f) end.
 
@@ -175,7 +175,7 @@ Proof.
     simpl.
     unfold coproduct_nat_trans_in2_data.
     assert (Hyp_inst := nat_trans_eq_pointwise Hyp c); clear Hyp.
-    apply (maponpaths (fun m =>  BinCoproductIn2 C (CP _ _);; m)) in Hyp_inst.
+    apply (maponpaths (fun m =>  BinCoproductIn2 C (CP _ _)· m)) in Hyp_inst.
     match goal with |[ H1 : _  = ?f |- _ = _   ] =>
          pathvia (f) end.
 
@@ -241,11 +241,11 @@ Qed.
 
 (* show bracket_parts_point is logically equivalent to bracket_point, then
    use it to show that bracket_parts is equivalent to bracket using [weqonsecfibers:
-  Π (X : UU) (P Q : X → UU),
-  (Π x : X, P x ≃ Q x) → (Π x : X, P x) ≃ (Π x : X, Q x)] *)
+  ∏ (X : UU) (P Q : X → UU),
+  (∏ x : X, P x ≃ Q x) → (∏ x : X, P x) ≃ (∏ x : X, Q x)] *)
 
 
-Definition hss : UU := Σ T, bracket T.
+Definition hss : UU := ∑ T, bracket T.
 
 Coercion alg_from_hss (T : hss) : algebra_ob Id_H := pr1 T.
 
@@ -259,10 +259,10 @@ Notation "⦃ f ⦄" := (fbracket _ f)(at level 0).
 (** The bracket operation [fbracket] is unique *)
 
 Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
-  : Π (α : functor_composite (U Z) `T ⟶ pr1 `T),
-     (Π c : C, pr1 (#U f) c = pr1 (η T) (pr1 (U Z) c) ;; α c) →
-     (Π c : C, pr1 (θ (`T ⊗ Z))  c ;; pr1 (#H α) c ;; pr1 (τ T) c =
-        pr1 (τ T) (pr1 (U Z) c) ;; α c)
+  : ∏ (α : functor_composite (U Z) `T ⟹ pr1 `T),
+     (∏ c : C, pr1 (#U f) c = pr1 (η T) (pr1 (U Z) c) · α c) →
+     (∏ c : C, pr1 (θ (`T ⊗ Z))  c · pr1 (#H α) c · pr1 (τ T) c =
+        pr1 (τ T) (pr1 (U Z) c) · α c)
      →
      α = ⦃f⦄.
 Proof.
@@ -275,7 +275,7 @@ Proof.
 Qed.
 
 Definition fbracket_unique (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
-: Π α : (*functor_composite (C:=C)*) `T • (U Z)  --> `T,
+: ∏ α : (*functor_composite (C:=C)*) `T • (U Z)  --> `T,
     bracket_property_parts T f α
    →
    α = ⦃f⦄.
@@ -287,10 +287,10 @@ Proof.
 Qed.
 
 Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
-  : Π α : `T • U Z --> `T,
+  : ∏ α : `T • U Z --> `T,
         bracket_property_parts T f α
    →
-   Π c, pr1 α c =  pr1 ⦃ f ⦄ c.
+   ∏ c, pr1 α c =  pr1 ⦃ f ⦄ c.
 Proof.
   intros α H12.
   set (t:= fbracket_unique _ _ α H12).
@@ -299,18 +299,18 @@ Qed.
 
 (** Properties of [fbracket] by definition: commutative diagrams *)
 
-Lemma fbracket_η (T : hss) : Π {Z : Ptd} (f : Z --> ptd_from_alg T),
-   #U f = η T •• U Z ;; ⦃f⦄.
+Lemma fbracket_η (T : hss) : ∏ {Z : Ptd} (f : Z --> ptd_from_alg T),
+   #U f = η T •• U Z · ⦃f⦄.
 Proof.
   intros Z f.
   (* assert (H' := parts_from_whole T Z f (fbracket _ f)) . *)
   exact (pr1 (parts_from_whole _ _ _ _  (pr2 (pr1 (pr2 T Z f))))).
 Qed.
 
-Lemma fbracket_τ (T : hss) : Π {Z : Ptd} (f : Z --> ptd_from_alg T),
-    θ (`T ⊗ Z) ;; #H ⦃f⦄ ;; τ T
+Lemma fbracket_τ (T : hss) : ∏ {Z : Ptd} (f : Z --> ptd_from_alg T),
+    θ (`T ⊗ Z) · #H ⦃f⦄ · τ T
     =
-    τ T •• U Z ;; ⦃f⦄.
+    τ T •• U Z · ⦃f⦄.
 Proof.
   intros Z f.
   exact (pr2 (parts_from_whole _ _ _ _ (pr2 (pr1 (pr2 T Z f))))).
@@ -319,17 +319,17 @@ Qed.
 (** [fbracket] is also natural *)
 
 Lemma fbracket_natural (T : hss) {Z Z' : Ptd} (f : Z --> Z') (g : Z' --> ptd_from_alg T)
-:  (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U Z' ⟧) ;; ⦃ g ⦄ = ⦃ f ;; g ⦄.
+:  (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U Z' ⟧) · ⦃ g ⦄ = ⦃ f · g ⦄.
 Proof.
   apply fbracket_unique_pointwise.
   - simpl. intro c.
     rewrite assoc.
-    set (H':=nat_trans_ax (eta_from_alg T)).
+    pose proof (nat_trans_ax (eta_from_alg T)) as H'.
     simpl in H'.
     rewrite <- H'; clear H'.
     rewrite <- assoc.
     apply maponpaths.
-    set (X:= nat_trans_eq_weq hs _ _  (fbracket_η T g)).
+    pose proof (nat_trans_eq_weq hs _ _  (fbracket_η T g)) as X.
     simpl in X. exact (X _ ).
   - intro c; simpl.
     assert (H':=nat_trans_ax (tau_from_alg T)).
@@ -343,8 +343,8 @@ Proof.
     simpl in X.
     rewrite  <- assoc.
     rewrite  <- assoc.
-    transitivity (  # (pr1 (H ((`T)))) (pr1 (pr1 f) c) ;;
-                     (pr1 (θ ((`T) ⊗ Z')) c);; pr1 (# H (fbracket T g)) c;; pr1 (tau_from_alg T) c).
+    transitivity (  # (pr1 (H ((`T)))) (pr1 (pr1 f) c) ·
+                     (pr1 (θ ((`T) ⊗ Z')) c)· pr1 (# H (fbracket T g)) c· pr1 (tau_from_alg T) c).
     Focus 2.
       rewrite <- assoc.
       rewrite <- assoc.
@@ -354,7 +354,7 @@ Proof.
     clear X.
     set (A:=θ_nat_2_pointwise).
     simpl in *.
-    set (A':= A _ hs H θ (`T) Z Z').
+    set (A':= A _ hs _ hs H θ (`T) Z Z').
     simpl in A'.
     set (A2:= A' f).
     clearbody A2; clear A'; clear A.
@@ -364,11 +364,9 @@ Proof.
     simpl.
     repeat rewrite assoc.
     apply cancel_postcomposition.
-    set (A := functor_comp H).
-    simpl in A.
-    rewrite A.
+    rewrite (functor_comp H).
     apply cancel_postcomposition.
-    clear A. clear H'.
+    clear H'.
     set (A:=horcomp_id_postwhisker C _ _ hs hs).
     rewrite A.
     apply idpath.
@@ -376,11 +374,11 @@ Qed.
 
 (** As a consequence of naturality, we can compute [fbracket f] from [fbracket identity] *)
 
-Lemma compute_fbracket (T : hss) : Π {Z : Ptd} (f : Z --> ptd_from_alg T),
-    ⦃ f ⦄ = (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U (p T) ⟧) ;; ⦃ identity p T ⦄.
+Lemma compute_fbracket (T : hss) : ∏ {Z : Ptd} (f : Z --> ptd_from_alg T),
+    ⦃ f ⦄ = (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U (p T) ⟧) · ⦃ identity p T ⦄.
 Proof.
   intros Z f.
-  assert (A : f = f ;; identity _ ).
+  assert (A : f = f · identity _ ).
   { rewrite id_right; apply idpath. }
   rewrite A.
   rewrite <- fbracket_natural.
@@ -396,7 +394,7 @@ Qed.
 (** A morphism [f] of pointed functors is an algebra morphism when... *)
 (*
 Definition isAlgMor {T T' : Alg} (f : T --> T') : UU :=
-  #H (# U f) ;; τ T' = compose (C:=EndC) (τ T) (#U f).
+  #H (# U f) · τ T' = compose (C:=EndC) (τ T) (#U f).
 
 Lemma isaprop_isAlgMor (T T' : Alg) (f : T --> T') : isaprop (isAlgMor f).
 Proof.
@@ -407,11 +405,11 @@ Qed.
 
 (** a little preparation for much later *)
 Lemma τ_part_of_alg_mor  (T T' : @algebra_ob [C, C, hs] Id_H)
-  (β : @algebra_mor [C, C, hs] Id_H T T'): #H β ;; τ T' = compose (C:=EndC) (τ T) β.
+  (β : @algebra_mor [C, C, hs] Id_H T T'): #H β · τ T' = compose (C:=EndC) (τ T) β.
 Proof.
   assert (β_is_alg_mor := pr2 β).
   simpl in β_is_alg_mor.
-  assert (β_is_alg_mor_inst := maponpaths (fun m:EndC⟦_,_⟧ => (BinCoproductIn2 EndC (CPEndC _ _));; m) β_is_alg_mor); clear β_is_alg_mor.
+  assert (β_is_alg_mor_inst := maponpaths (fun m:EndC⟦_,_⟧ => (BinCoproductIn2 EndC (CPEndC _ _))· m) β_is_alg_mor); clear β_is_alg_mor.
   simpl in β_is_alg_mor_inst.
   apply nat_trans_eq; try (exact hs).
   intro c.
@@ -494,8 +492,8 @@ Definition ptd_from_alg_functor: functor (precategory_FunctorAlg Id_H hsEndC) Pt
 
 
 Definition isbracketMor {T T' : hss} (β : algebra_mor _ T T') : UU :=
-    Π (Z : Ptd) (f : Z --> ptd_from_alg T),
-      ⦃ f ⦄ ;; β = β •• U Z ;; ⦃ f ;; # ptd_from_alg_functor β ⦄.
+    ∏ (Z : Ptd) (f : Z --> ptd_from_alg T),
+      ⦃ f ⦄ · β = β •• U Z · ⦃ f · # ptd_from_alg_functor β ⦄.
 
 
 Lemma isaprop_isbracketMor (T T':hss) (β : algebra_mor _ T T') : isaprop (isbracketMor β).
@@ -512,7 +510,7 @@ Definition ishssMor {T T' : hss} (β : algebra_mor _ T T') : UU
   :=   isbracketMor β.
 
 Definition hssMor (T T' : hss) : UU
-  := Σ β : algebra_mor _ T T', ishssMor β.
+  := ∑ β : algebra_mor _ T T', ishssMor β.
 
 Coercion ptd_mor_from_hssMor (T T' : hss) (β : hssMor T T') : algebra_mor _ T T' := pr1 β.
 
@@ -592,7 +590,7 @@ Proof.
   intros Z f.
   eapply pathscomp0.
     apply assoc.
-  (* match goal with | [|- ?l = _ ] => assert (Hyp : l = fbracket T f;; pr1 β;; pr1 γ) end. *)
+  (* match goal with | [|- ?l = _ ] => assert (Hyp : l = fbracket T f· pr1 β· pr1 γ) end. *)
   eapply pathscomp0.
     apply cancel_postcomposition.
     apply isbracketMor_hssMor.
@@ -604,9 +602,7 @@ Proof.
   rewrite functor_comp.
   rewrite assoc.
   apply cancel_postcomposition.
-  set (H2:=functor_comp (pre_composition_functor _ _ C _ hs (U Z)) ).
-  apply pathsinv0.
-  apply H2.
+  apply pathsinv0, (functor_comp (pre_composition_functor _ _ C _ hs (U Z)) ).
 Qed.
 
 Definition hssMor_comp {T T' T'' : hss} (β : hssMor T T') (γ : hssMor T' T'')
