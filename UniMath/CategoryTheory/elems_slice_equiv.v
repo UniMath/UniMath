@@ -183,7 +183,7 @@ Section elems_slice_equiv.
   Definition pshf_to_slice_is_funct : is_functor pshf_to_slice_data.
   Proof.
     split; [intros X | intros X Y Z f g];
-      apply slice_precat_morphisms_pr1_eq;
+      apply eq_mor_slicecat;
       apply (nat_trans_eq has_homsets_HSET);
       unfold pshf_to_slice_ob_nat , pshf_to_slice_ob_funct_fun;
       intro c;
