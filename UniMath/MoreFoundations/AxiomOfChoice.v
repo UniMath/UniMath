@@ -113,7 +113,7 @@ Definition pi0 (X : UU) : hSet := setquotinset (pathseqrel X).
 
 Theorem SetCovering (X:Type) : AxiomOfChoice -> ∃ (S:hSet) (f:S->X), issurjective f.
 Proof.
-  (* We use the axiom of choice to find a splitting f of the projection map g from X
+  (** We use the axiom of choice to find a splitting f of the projection map g from X
      onto its set [pi0 X] of connected components.  Since the image of f contains one
      point in every component of X, f is surjective.
    *)
