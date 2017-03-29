@@ -109,25 +109,19 @@ Defined.
 
 (** ** The Axiom of Choice implies a type receives a surjective map from a set *)
 
-Lemma pi0_components (X:Type) (R := pathseqrel X) (p := setquotpr R : X -> setquotinset _) :
-  ∀ x y, eqset (p x) (p y) ⇒ ∥ paths x y ∥.
-Proof.
-  intros x y e.
-  apply (squash_to_prop (invmap (weqpathsinsetquot R x y) e)).
-  { apply propproperty. }
-  clear e; intros e.
-  exact (hinhpr e).
-Defined.
+Definition pi0 (X : UU) : hSet := setquotinset (pathseqrel X).
 
 Theorem SetCovering (X:Type) : AxiomOfChoice -> ∃ (S:hSet) (f:S->X), issurjective f.
 Proof.
+  (* We use the axiom of choice to find a splitting f of the projection map g from X
+     onto its set [pi0 X] of connected components.  Since the image of f contains one
+     point in every component of X, f is surjective.
+   *)
   intros ac.
-  assert (ac' := pr1 AC_impl2 ac); clear ac.
-  set (R := pathseqrel X).
-  set (S := setquotinset R).
+  assert (ac' := pr1 AC_impl2 ac); clear ac; unfold AxiomOfChoice_surj in ac'.
+  set (S := pi0 X).
   set (g := pi0pr X : X -> S).
-  assert (g_sur := issurjsetquotpr R : issurjective g).
-  assert (f := ac' _ _ _ g_sur).
+  assert (f := ac' _ _ g (issurjsetquotpr _)); clear ac'.
   apply (squash_to_prop f).
   { apply propproperty. }
   clear f; intros [f eqn].
@@ -136,7 +130,9 @@ Proof.
   exists f.
   intros x.
   use (@squash_to_prop (f (g x) = x)%type).
-  { use (pi0_components X). change (g (f (g x)) = g x)%type. exact (eqn (g x)). }
+  { apply (invmap (weqpathsinsetquot (pathseqrel X) _ _)).
+    change (g (f (g x)) = g x)%type.
+    exact (eqn (g x)). }
   { apply propproperty. }
   intros e.
   apply hinhpr.
