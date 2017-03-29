@@ -387,14 +387,6 @@ Section elems_slice_equiv.
   Definition pshf_unit : nat_trans (functor_identity (pshf ∫P)) (pshf_to_slice ∙ slice_to_pshf) :=
     pshf_unit_fun ,, is_nat_trans_pshf_unit.
 
-  (* maybe move upstream *)
-  Lemma transportf_paths_rewrite {X : UU} {Q : X → UU} {x y : X} {e e' : x = y} {q : Q x} :
-    e = e' → transportf Q e q = transportf Q e' q.
-  Proof.
-    intros eq.
-    now induction eq.
-  Qed.
-
   Definition pshf_all_iso : forall F : pshf ∫P, is_iso (pshf_unit F).
   Proof.
     intros [[F Fmor] Fisfunct].
@@ -416,7 +408,7 @@ Section elems_slice_equiv.
       }
       set (eq := fiber_paths (maponpaths pr1 t)).
       refine (_ @ eq).
-      rewrite (transportf_paths_rewrite eq_id).
+      rewrite (transportf_paths _ eq_id).
       now rewrite idpath_transportf.
     }
     exact (hset_equiv_is_iso (F (X ,, p)) _ (_ ,, H)).
