@@ -18,7 +18,7 @@ Require Import UniMath.Foundations.Sets
         UniMath.CategoryTheory.yoneda
         UniMath.CategoryTheory.ElementsOp.
 
-(* Proof that pshf ∫P ≃ pshf C / P *)
+(** * Proof that pshf ∫P ≃ pshf C / P *)
 Section elems_slice_equiv.
 
   Local Open Scope cat.
@@ -112,6 +112,7 @@ Section elems_slice_equiv.
   Qed.
   (* END: Stuff from Anders *)
 
+  (** ** Construction of the functor from pshf ∫P to pshf C / P *)
   Local Definition mk_ob := @make_ob C P.
   Local Definition mk_mor := @make_mor C P.
 
@@ -194,6 +195,7 @@ Section elems_slice_equiv.
   Definition pshf_to_slice : functor (pshf ∫P) (pshf C / P) :=
     pshf_to_slice_data ,, pshf_to_slice_is_funct.
 
+  (** ** Construction of the functor from pshf C / P to pshf ∫P *)
   Definition slice_to_pshf_ob_ob (Q : pshf C / P) : (∫P)^op → SET :=
     fun p =>
       hfiber ((pr1 (pr2 Q)) (pr1 p)) (pr2 p) ,,
@@ -288,6 +290,7 @@ Section elems_slice_equiv.
   Definition slice_to_pshf : functor (pshf C / P) (pshf ∫P) :=
     slice_to_pshf_data ,, slice_to_pshf_is_funct.
 
+  (** ** Construction of the natural isomorphism from (slice_to_pshf ∙ pshf_to_slice) to the identity functor *)
   Definition slice_counit_fun (X : pshf C / P) :
     (slice_to_pshf ∙ pshf_to_slice) X --> (functor_identity _) X.
   Proof.
@@ -348,6 +351,7 @@ Section elems_slice_equiv.
                                      (slice_to_pshf ∙ pshf_to_slice) (functor_identity (pshf C / P))
                                      slice_counit slice_all_iso.
 
+  (** ** Construction of the natural isomorphism from the identity functor to (pshf_to_slice ∙ slice_to_pshf) *)
   Definition pshf_unit_fun (F : pshf ∫P) :
     (functor_identity _) F --> (pshf_to_slice ∙ slice_to_pshf) F.
   Proof.
@@ -417,6 +421,7 @@ Section elems_slice_equiv.
   Definition pshf_counit : nat_trans (pshf_to_slice ∙ slice_to_pshf) (functor_identity (pshf ∫P))  :=
     nat_trans_inv_from_pointwise_inv _ _ (pr2 (pshf ∫P)) _ _ pshf_unit pshf_all_iso.
 
+  (** ** The equivalence of the categories pshf ∫P and pshf C / P *)
   Definition pshf_of_elems_slice_of_pshf_equiv : equivalence_of_precats (pshf ∫P) (pshf C / P) :=
     (pshf_to_slice ,,  slice_to_pshf ,, pshf_unit ,, slice_counit) ,, (pshf_all_iso ,, slice_all_iso).
 
