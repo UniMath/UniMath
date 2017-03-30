@@ -428,7 +428,6 @@ Definition abmonoidrer (X : abmonoid) (a b c d : X) :
 
                       (X = Y) ≃ ((mk_abmonoid' X) = (mk_abmonoid' Y))
                               ≃ ((pr1 (mk_abmonoid' X)) = (pr1 (mk_abmonoid' Y)))
-                              ≃ (monoidiso (pr1 (mk_abmonoid' X)) (pr1 (mk_abmonoid' Y)))
                               ≃ (monoidiso X Y)
 
     where the third weak equivalence is given by univalence for monoids, [monoid_univalence].
@@ -457,13 +456,8 @@ Defined.
 Opaque abmonoid_univalence_weq2.
 
 Definition abmonoid_univalence_weq3 (X Y : abmonoid) :
-  ((pr1 (mk_abmonoid' X)) = (pr1 (mk_abmonoid' Y)))
-    ≃ (monoidiso (pr1 (mk_abmonoid' X)) (pr1 (mk_abmonoid' Y))) :=
+  ((pr1 (mk_abmonoid' X)) = (pr1 (mk_abmonoid' Y))) ≃ (monoidiso X Y) :=
   monoid_univalence (pr1 (mk_abmonoid' X)) (pr1 (mk_abmonoid' Y)).
-
-Definition abmonoid_univalence_weq4 (X Y : abmonoid) :
-  (monoidiso (pr1 (mk_abmonoid' X)) (pr1 (mk_abmonoid' Y))) ≃ (monoidiso X Y) :=
-  idweq (monoidiso X Y).
 
 Definition abmonoid_univalence_map (X Y : abmonoid) : (X = Y) -> (monoidiso X Y).
 Proof.
@@ -475,11 +469,8 @@ Proof.
   intros X Y.
   use isweqhomot.
   - exact (weqcomp (abmonoid_univalence_weq1' X Y)
-                   (weqcomp (abmonoid_univalence_weq2 X Y)
-                            (weqcomp (abmonoid_univalence_weq3 X Y)
-                                     (abmonoid_univalence_weq4 X Y)))).
+                   (weqcomp (abmonoid_univalence_weq2 X Y) (abmonoid_univalence_weq3 X Y))).
   - intros e. induction e.
-    use (pathscomp0 weqcomp_to_funcomp_app).
     use (pathscomp0 weqcomp_to_funcomp_app).
     use (pathscomp0 weqcomp_to_funcomp_app).
     use idpath.
@@ -1424,7 +1415,6 @@ Defined.
 
             (X = Y) ≃ (mk_gr' X = mk_gr' Y)
                     ≃ ((gr'_to_monoid (mk_gr' X)) = (gr'_to_monoid (mk_gr' Y)))
-                    ≃ (monoidiso (gr'_to_monoid (mk_gr' X)) ((gr'_to_monoid (mk_gr' Y))))
                     ≃ (monoidiso X Y).
 
    The reason why we use gr' is that then we can use univalence for monoids. See
@@ -1456,13 +1446,8 @@ Defined.
 Opaque gr_univalence_weq2.
 
 Definition gr_univalence_weq3 (X Y : gr) :
-  ((gr'_to_monoid (mk_gr' X)) = (gr'_to_monoid (mk_gr' Y)))
-    ≃ (monoidiso (gr'_to_monoid (mk_gr' X)) ((gr'_to_monoid (mk_gr' Y)))) :=
+  ((gr'_to_monoid (mk_gr' X)) = (gr'_to_monoid (mk_gr' Y))) ≃ (monoidiso X Y) :=
   monoid_univalence (gr'_to_monoid (mk_gr' X)) (gr'_to_monoid (mk_gr' Y)).
-
-Definition gr_univalence_weq4 (X Y : gr) :
-  (monoidiso (gr'_to_monoid (mk_gr' X)) ((gr'_to_monoid (mk_gr' Y)))) ≃ (monoidiso X Y) :=
-  idweq (monoidiso X Y).
 
 Definition gr_univalence_map (X Y : gr) : (X = Y) -> (monoidiso X Y).
 Proof.
@@ -1474,11 +1459,8 @@ Proof.
   intros X Y.
   use isweqhomot.
   - exact (weqcomp (gr_univalence_weq1' X Y)
-                   (weqcomp (gr_univalence_weq2 X Y)
-                            (weqcomp (gr_univalence_weq3 X Y)
-                                     (gr_univalence_weq4 X Y)))).
+                   (weqcomp (gr_univalence_weq2 X Y) (gr_univalence_weq3 X Y))).
   - intros e. induction e.
-    use (pathscomp0 weqcomp_to_funcomp_app).
     use (pathscomp0 weqcomp_to_funcomp_app).
     use (pathscomp0 weqcomp_to_funcomp_app).
     use idpath.
@@ -1772,7 +1754,6 @@ Coercion abgrtoabmonoid : abgr >-> abmonoid.
 
         (X = Y) ≃ (mk_abgr' X = mk_abgr' Y)
                 ≃ (pr1 (mk_abgr' X) = pr1 (mk_abgr' Y))
-                ≃ (monoidiso (grtomonoid (pr1 (mk_abgr' X))) (grtomonoid (pr1 (mk_abgr' Y))))
                 ≃ (monoidiso X Y)
 
     We use abgr' so that we can use univalence for groups, [gr_univalence]. See
@@ -1802,13 +1783,8 @@ Defined.
 Opaque abgr_univalence_weq2.
 
 Definition abgr_univalence_weq3 (X Y : abgr) :
-  (pr1 (mk_abgr' X) = pr1 (mk_abgr' Y))
-    ≃ (monoidiso (grtomonoid (pr1 (mk_abgr' X))) (grtomonoid (pr1 (mk_abgr' Y)))) :=
+  (pr1 (mk_abgr' X) = pr1 (mk_abgr' Y)) ≃ (monoidiso X Y) :=
   gr_univalence (pr1 (mk_abgr' X)) (pr1 (mk_abgr' Y)).
-
-Definition abgr_univalence_weq4 (X Y : abgr) :
-  (monoidiso (grtomonoid (pr1 (mk_abgr' X))) (grtomonoid (pr1 (mk_abgr' Y)))) ≃ (monoidiso X Y) :=
-  idweq (monoidiso X Y).
 
 Definition abgr_univalence_map (X Y : abgr) : (X = Y) -> (monoidiso X Y).
 Proof.
@@ -1820,11 +1796,8 @@ Proof.
   intros X Y.
   use isweqhomot.
   - exact (weqcomp (abgr_univalence_weq1' X Y)
-                   (weqcomp (abgr_univalence_weq2 X Y)
-                            (weqcomp (abgr_univalence_weq3 X Y)
-                                     (abgr_univalence_weq4 X Y)))).
+                   (weqcomp (abgr_univalence_weq2 X Y) (abgr_univalence_weq3 X Y))).
   - intros e. induction e.
-    use (pathscomp0 weqcomp_to_funcomp_app).
     use (pathscomp0 weqcomp_to_funcomp_app).
     use (pathscomp0 weqcomp_to_funcomp_app).
     use idpath.

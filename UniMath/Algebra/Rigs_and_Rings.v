@@ -491,7 +491,6 @@ Definition commrigmultabmonoid (X : commrig) : abmonoid :=
 
                           (X = Y) ≃ (mk_commrig' X = mk_commrig' Y)
                                   ≃ ((pr1 (mk_commrig' X)) = (pr1 (mk_commrig' Y)))
-                                  ≃ (rigiso (pr1 (mk_commrig' X)) (pr1 (mk_commrig' Y)))
                                   ≃ (rigiso X Y)
 
     where the third weak equivalence uses univalence for rigs, [rig_univalence]. We define
@@ -522,12 +521,8 @@ Defined.
 Opaque commrig_univalence_weq2.
 
 Definition commrig_univalence_weq3 (X Y : commrig) :
-  ((pr1 (mk_commrig' X)) = (pr1 (mk_commrig' Y)))
-    ≃ (rigiso (pr1 (mk_commrig' X)) (pr1 (mk_commrig' Y))) :=
+  ((pr1 (mk_commrig' X)) = (pr1 (mk_commrig' Y))) ≃ (rigiso X Y) :=
   rig_univalence (pr1 (mk_commrig' X)) (pr1 (mk_commrig' Y)).
-
-Definition commrig_univalence_weq4 (X Y : commrig) :
-  (rigiso (pr1 (mk_commrig' X)) (pr1 (mk_commrig' Y))) ≃ (rigiso X Y) := idweq (rigiso X Y).
 
 Definition commrig_univalence_map (X Y : commrig) : (X = Y) -> (rigiso X Y).
 Proof.
@@ -539,11 +534,8 @@ Proof.
   intros X Y.
   use isweqhomot.
   - exact (weqcomp (commrig_univalence_weq1' X Y)
-                   (weqcomp (commrig_univalence_weq2 X Y)
-                            (weqcomp (commrig_univalence_weq3 X Y)
-                                     (commrig_univalence_weq4 X Y)))).
+                   (weqcomp (commrig_univalence_weq2 X Y) (commrig_univalence_weq3 X Y))).
   - intros e. induction e.
-    use (pathscomp0 weqcomp_to_funcomp_app).
     use (pathscomp0 weqcomp_to_funcomp_app).
     use (pathscomp0 weqcomp_to_funcomp_app).
     use idpath.
@@ -733,7 +725,6 @@ Definition isrngfuninvmap {X Y : rng} (f : rngiso X Y) : isrngfun (invmap f) := 
 
                            (X = Y) ≃ (mk_rng' X = mk_rng' Y)
                                    ≃ ((pr1 (mk_rng' X)) = (pr1 (mk_rng' Y)))
-                                   ≃ (rigiso (pr1 (mk_rng' X)) (pr1 (mk_rng' Y)))
                                    ≃ (rngiso X Y)
 
     where the third weak equivalence is given by univalence for rigs, [rig_univalence]. We define
@@ -808,11 +799,8 @@ Defined.
 Opaque rng_univalence_weq2.
 
 Definition rng_univalence_weq3 (X Y : rng) :
-  ((pr1 (mk_rng' X)) = (pr1 (mk_rng' Y))) ≃ (rigiso (pr1 (mk_rng' X)) (pr1 (mk_rng' Y))) :=
+  ((pr1 (mk_rng' X)) = (pr1 (mk_rng' Y))) ≃ (rigiso X Y) :=
   rig_univalence (pr1 (mk_rng' X)) (pr1 (mk_rng' Y)).
-
-Definition rng_univalence_weq4 (X Y : rng) :
-  (rigiso (pr1 (mk_rng' X)) (pr1 (mk_rng' Y))) ≃ (rngiso X Y) := idweq (rngiso X Y).
 
 Definition rng_univalence_map (X Y : rng) : (X = Y) -> (rngiso X Y).
 Proof.
@@ -824,11 +812,8 @@ Proof.
   intros X Y.
   use isweqhomot.
   - exact (weqcomp (rng_univalence_weq1' X Y)
-                   (weqcomp (rng_univalence_weq2 X Y)
-                            (weqcomp (rng_univalence_weq3 X Y)
-                                     (rng_univalence_weq4 X Y)))).
+                   (weqcomp (rng_univalence_weq2 X Y) (rng_univalence_weq3 X Y))).
   - intros e. induction e.
-    use (pathscomp0 weqcomp_to_funcomp_app).
     use (pathscomp0 weqcomp_to_funcomp_app).
     use (pathscomp0 weqcomp_to_funcomp_app).
     use idpath.
@@ -1861,7 +1846,6 @@ Coercion commrngtocommrig : commrng >-> commrig.
 
                           (X = Y) ≃ (mk_commrng' X = mk_commrng' Y)
                                   ≃ ((pr1 (mk_commrng' X)) = (pr1 (mk_commrng' Y)))
-                                  ≃ (rngiso (pr1 (mk_commrng' X)) (pr1 (mk_commrng' Y)))
                                   ≃ (rngiso X Y)
 
     where the third weak equivalence is given by univalence for rng, [rng_univalence]. We define
@@ -1892,12 +1876,8 @@ Defined.
 Opaque commrng_univalence_weq2.
 
 Definition commrng_univalence_weq3 (X Y : commrng) :
-  ((pr1 (mk_commrng' X)) = (pr1 (mk_commrng' Y)))
-    ≃ (rngiso (pr1 (mk_commrng' X)) (pr1 (mk_commrng' Y))) :=
+  ((pr1 (mk_commrng' X)) = (pr1 (mk_commrng' Y))) ≃ (rngiso X Y) :=
   rng_univalence (pr1 (mk_commrng' X)) (pr1 (mk_commrng' Y)).
-
-Definition commrng_univalence_weq4 (X Y : commrng) :
-  (rngiso (pr1 (mk_commrng' X)) (pr1 (mk_commrng' Y))) ≃ (rngiso X Y) := idweq (rngiso X Y).
 
 Definition commrng_univalence_map (X Y : commrng) : (X = Y) -> (rngiso X Y).
 Proof.
@@ -1909,11 +1889,8 @@ Proof.
   intros X Y.
   use isweqhomot.
   - exact (weqcomp (commrng_univalence_weq1' X Y)
-                   (weqcomp (commrng_univalence_weq2 X Y)
-                            (weqcomp (commrng_univalence_weq3 X Y)
-                                     (commrng_univalence_weq4 X Y)))).
+                   (weqcomp (commrng_univalence_weq2 X Y) (commrng_univalence_weq3 X Y))).
   - intros e. induction e.
-    use (pathscomp0 weqcomp_to_funcomp_app).
     use (pathscomp0 weqcomp_to_funcomp_app).
     use (pathscomp0 weqcomp_to_funcomp_app).
     use idpath.

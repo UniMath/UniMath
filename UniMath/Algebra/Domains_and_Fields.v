@@ -343,7 +343,6 @@ Definition intdomax (X : intdom) :
    We use the following composition
 
                             (X = Y) ≃ (pr1 X = pr1 Y)
-                                    ≃ (rngiso (pr1 X) (pr1 Y))
                                     ≃ (rngiso X Y)
 
   where the second weak equivalence is given by univalence for commrngs, [commrng_univalence].
@@ -357,11 +356,8 @@ Proof.
 Defined.
 Opaque intdom_univalence_weq1.
 
-Definition intdom_univalence_weq2 (X Y : intdom) : (pr1 X = pr1 Y) ≃ (rngiso (pr1 X) (pr1 Y)) :=
+Definition intdom_univalence_weq2 (X Y : intdom) : (pr1 X = pr1 Y) ≃ (rngiso X Y) :=
   commrng_univalence (pr1 X) (pr1 Y).
-
-Definition intdom_univalence_weq3 (X Y : intdom) : (rngiso (pr1 X) (pr1 Y)) ≃ (rngiso X Y) :=
-  idweq (rngiso X Y).
 
 Definition intdom_univalence_map (X Y : intdom) : (X = Y) -> (rngiso X Y).
 Proof.
@@ -372,10 +368,8 @@ Lemma intdom_univalence_isweq (X Y : intdom) : isweq (intdom_univalence_map X Y)
 Proof.
   intros X Y.
   use isweqhomot.
-  - exact (weqcomp (intdom_univalence_weq1 X Y)
-                   (weqcomp (intdom_univalence_weq2 X Y) (intdom_univalence_weq3 X Y))).
+  - exact (weqcomp (intdom_univalence_weq1 X Y) (intdom_univalence_weq2 X Y)).
   - intros e. induction e.
-    use (pathscomp0 weqcomp_to_funcomp_app).
     use (pathscomp0 weqcomp_to_funcomp_app).
     use idpath.
   - use weqproperty.
@@ -567,7 +561,6 @@ Definition fldmultinv {X : fld} (x : X) (ne : neg (paths x 0)) : X := pr1 (fldmu
    We use the following composition
 
                                 (X = Y) ≃ (pr1 X = pr1 Y)
-                                        ≃ (rngiso (pr1 X) (pr1 Y))
                                         ≃ (rngiso X Y)
 
    where the second weak equivalence is given by univalence for commrngs, [commrng_univalence].
@@ -581,11 +574,8 @@ Proof.
 Defined.
 Opaque fld_univalence_weq1.
 
-Definition fld_univalence_weq2 (X Y : fld) : (pr1 X = pr1 Y) ≃ (rngiso (pr1 X) (pr1 Y)) :=
+Definition fld_univalence_weq2 (X Y : fld) : (pr1 X = pr1 Y) ≃ (rngiso X Y) :=
   commrng_univalence (pr1 X) (pr1 Y).
-
-Definition fld_univalence_weq3 (X Y : fld) : (rngiso (pr1 X) (pr1 Y)) ≃ (rngiso X Y) :=
-  idweq (rngiso X Y).
 
 Definition fld_univalence_map (X Y : fld) : (X = Y) -> (rngiso X Y).
 Proof.
@@ -596,10 +586,8 @@ Lemma fld_univalence_isweq (X Y : fld) : isweq (fld_univalence_map X Y).
 Proof.
   intros X Y.
   use isweqhomot.
-  - exact (weqcomp (fld_univalence_weq1 X Y)
-                   (weqcomp (fld_univalence_weq2 X Y) (fld_univalence_weq3 X Y))).
+  - exact (weqcomp (fld_univalence_weq1 X Y) (fld_univalence_weq2 X Y)).
   - intros e. induction e.
-    use (pathscomp0 weqcomp_to_funcomp_app).
     use (pathscomp0 weqcomp_to_funcomp_app).
     use idpath.
   - use weqproperty.
