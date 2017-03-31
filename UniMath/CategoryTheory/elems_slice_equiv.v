@@ -8,14 +8,14 @@ Contents : Equivalence of the categories pshf ∫P and
            pshf C / P for any P in pshf C
 ************************************************************)
 
-Require Import UniMath.Foundations.Sets
+Require Import UniMath.MoreFoundations.Tactics
+        UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
         UniMath.CategoryTheory.equivalences
         UniMath.CategoryTheory.category_hset
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.opp_precat
-        UniMath.CategoryTheory.yoneda
         UniMath.CategoryTheory.ElementsOp.
 
 (** * Proof that pshf ∫P ≃ pshf C / P *)
