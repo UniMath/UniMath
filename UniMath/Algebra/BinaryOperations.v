@@ -1509,7 +1509,7 @@ Proof.
   intros X Y.
   use isweqhomot.
   - exact (weqcomp (setwithbinop_univalence_weq1 X Y) (setwithbinop_univalence_weq2 X Y)).
-  - intros e. induction e. use (pathscomp0 weqcomp_to_funcomp_app). use idpath.
+  - intros e. induction e. use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
 Opaque setwithbinop_univalence_isweq.
@@ -2300,7 +2300,7 @@ Proof.
   intros X Y.
   use isweqhomot.
   - exact (weqcomp (setwith2binop_univalence_weq1 X Y) (setwith2binop_univalence_weq2 X Y)).
-  - intros e. induction e. use (pathscomp0 weqcomp_to_funcomp_app). use idpath.
+  - intros e. induction e. use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
 Opaque setwith2binop_univalence_isweq.

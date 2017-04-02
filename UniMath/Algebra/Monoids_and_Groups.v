@@ -261,8 +261,7 @@ Proof.
                    (weqcomp (monoid_univalence_weq2 X Y) (monoid_univalence_weq3 X Y))).
   - intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
-    use (pathscomp0 weqcomp_to_funcomp_app).
-    use idpath.
+    use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
 Opaque monoid_univalence_isweq.
@@ -472,8 +471,7 @@ Proof.
                    (weqcomp (abmonoid_univalence_weq2 X Y) (abmonoid_univalence_weq3 X Y))).
   - intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
-    use (pathscomp0 weqcomp_to_funcomp_app).
-    use idpath.
+    use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
 Opaque abmonoid_univalence_isweq.
@@ -1462,8 +1460,7 @@ Proof.
                    (weqcomp (gr_univalence_weq2 X Y) (gr_univalence_weq3 X Y))).
   - intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
-    use (pathscomp0 weqcomp_to_funcomp_app).
-    use idpath.
+    use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
 Opaque gr_univalence_isweq.
@@ -1799,8 +1796,7 @@ Proof.
                    (weqcomp (abgr_univalence_weq2 X Y) (abgr_univalence_weq3 X Y))).
   - intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
-    use (pathscomp0 weqcomp_to_funcomp_app).
-    use idpath.
+    use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
 Opaque abgr_univalence_isweq.

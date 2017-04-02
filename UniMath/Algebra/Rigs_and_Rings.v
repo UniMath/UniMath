@@ -296,8 +296,7 @@ Proof.
                    (weqcomp (rig_univalence_weq2 X Y) (rig_univalence_weq3 X Y))).
   - intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
-    use (pathscomp0 weqcomp_to_funcomp_app).
-    use idpath.
+    use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
 Opaque rig_univalence_isweq.
@@ -537,8 +536,7 @@ Proof.
                    (weqcomp (commrig_univalence_weq2 X Y) (commrig_univalence_weq3 X Y))).
   - intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
-    use (pathscomp0 weqcomp_to_funcomp_app).
-    use idpath.
+    use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
 Opaque commrig_univalence_isweq.
@@ -815,8 +813,7 @@ Proof.
                    (weqcomp (rng_univalence_weq2 X Y) (rng_univalence_weq3 X Y))).
   - intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
-    use (pathscomp0 weqcomp_to_funcomp_app).
-    use idpath.
+    use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
 Opaque rng_univalence_isweq.
@@ -1892,8 +1889,7 @@ Proof.
                    (weqcomp (commrng_univalence_weq2 X Y) (commrng_univalence_weq3 X Y))).
   - intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
-    use (pathscomp0 weqcomp_to_funcomp_app).
-    use idpath.
+    use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
 Opaque commrng_univalence_isweq.

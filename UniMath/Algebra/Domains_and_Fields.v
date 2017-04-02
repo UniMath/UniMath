@@ -369,9 +369,7 @@ Proof.
   intros X Y.
   use isweqhomot.
   - exact (weqcomp (intdom_univalence_weq1 X Y) (intdom_univalence_weq2 X Y)).
-  - intros e. induction e.
-    use (pathscomp0 weqcomp_to_funcomp_app).
-    use idpath.
+  - intros e. induction e. use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
 Opaque intdom_univalence_isweq.
@@ -587,9 +585,7 @@ Proof.
   intros X Y.
   use isweqhomot.
   - exact (weqcomp (fld_univalence_weq1 X Y) (fld_univalence_weq2 X Y)).
-  - intros e. induction e.
-    use (pathscomp0 weqcomp_to_funcomp_app).
-    use idpath.
+  - intros e. induction e. use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
 Opaque fld_univalence_isweq.
