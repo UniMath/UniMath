@@ -447,6 +447,19 @@ Proof.
 now intros g d; apply slice_precat_ColimCocone, CC.
 Defined.
 
+(** Matt : morphisms of slice precategories with homsests equal if first projection equal *)
+Lemma slice_precat_morphisms_pr1_eq {C : precategory} (hsC : has_homsets C) (x : ob C)
+      {a b : ob (slice_precat C x hsC)} (f g : a --> b) :
+  (pr1 f) = (pr1 g) -> f = g.
+Proof.
+  intro pr1eq.
+  apply (invmaponpathsincl pr1).
+  + apply isofhlevelfpr1.
+    intro h.
+    apply hsC.
+  + exact (pr1eq).
+Defined.
+
 (** * Binary products in slice categories of categories with pullbacks *)
 Section slicecat_binproducts.
 

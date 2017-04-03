@@ -17,6 +17,5 @@
 	     (if (not (member '("chimney" "╝") agda-input-user-translations))
 		 (progn
 		   (setq agda-input-user-translations (cons '("chimney" "╝") agda-input-user-translations))
-		   (setq agda-input-user-translations (cons '("==>" "⟹") agda-input-user-translations))
 		   (agda-input-setup)))
 	     (set-input-method "Agda"))))))
