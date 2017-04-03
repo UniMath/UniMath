@@ -193,6 +193,9 @@ Definition invstruct {X : hSet} (opp : binop X) (is : ismonoidop opp) : UU :=
 Definition isgrop {X : hSet} (opp : binop X) : UU :=
   total2 (fun is : ismonoidop opp => invstruct opp is).
 
+Definition mk_isgrop {X : hSet} {opp : binop X} (H1 : ismonoidop opp) (H2 : invstruct opp H1) :
+  isgrop opp := tpair _ H1 H2.
+
 Definition isgroppair {X : hSet} {opp : binop X} (is1 : ismonoidop opp) (is2 : invstruct opp is1) :
   isgrop opp := tpair (fun is : ismonoidop opp => invstruct opp is) is1 is2.
 
@@ -380,6 +383,9 @@ Defined.
 
 Definition isabmonoidop {X : hSet} (opp : binop X) : UU := dirprod (ismonoidop opp) (iscomm opp).
 
+Definition mk_isabmonoidop {X : hSet} {opp : binop X} (H1 : ismonoidop opp) (H2 : iscomm opp) :
+  isabmonoidop opp := dirprodpair H1 H2.
+
 Definition pr1isabmonoidop (X : hSet) (opp : binop X) : isabmonoidop opp -> ismonoidop opp :=
   @pr1 _ _.
 Coercion pr1isabmonoidop : isabmonoidop >-> ismonoidop.
@@ -491,6 +497,9 @@ Opaque abmonoidoprer.
 
 Definition isabgrop {X : hSet} (opp : binop X) : UU := dirprod (isgrop opp) (iscomm opp).
 
+Definition mk_isabgrop {X : hSet} {opp : binop X} (H1 : isgrop opp) (H2 : iscomm opp) :
+  isabgrop opp := dirprodpair H1 H2.
+
 Definition pr1isabgrop (X : hSet) (opp : binop X) : isabgrop opp -> isgrop opp := @pr1 _ _.
 Coercion pr1isabgrop : isabgrop >-> isgrop.
 
@@ -582,11 +591,16 @@ Defined.
 (** *)
 
 Definition isrigops {X : hSet} (opp1 opp2 : binop X) : UU :=
-  dirprod (total2
-             (fun (axs : dirprod (isabmonoidop opp1) (ismonoidop opp2)) =>
-                (dirprod (∏ x : X, paths (opp2 (unel_is (pr1 axs)) x) (unel_is (pr1 axs))))
-                  (∏ x : X, paths (opp2 x (unel_is (pr1 axs))) (unel_is (pr1 axs)))))
-          (isdistr opp1 opp2).
+  (∑ axs : (isabmonoidop opp1) × (ismonoidop opp2),
+           (∏ x : X, (opp2 (unel_is (pr1 axs)) x) = (unel_is (pr1 axs)))
+             × (∏ x : X, (opp2 x (unel_is (pr1 axs))) = (unel_is (pr1 axs))))
+    × (isdistr opp1 opp2).
+
+Definition mk_isrigops {X : hSet} {opp1 opp2 : binop X} (H1 : isabmonoidop opp1)
+           (H2 : ismonoidop opp2) (H3 : ∏ x : X, (opp2 (unel_is H1) x) = (unel_is H1))
+           (H4 : ∏ x : X, (opp2 x (unel_is H1)) = (unel_is H1))
+           (H5 : isdistr opp1 opp2) : isrigops opp1 opp2 :=
+  tpair _ (tpair _ (dirprodpair H1 H2) (dirprodpair H3 H4)) H5.
 
 Definition rigop1axs_is {X : hSet} {opp1 opp2 : binop X} :
   isrigops opp1 opp2 -> isabmonoidop opp1 := fun is : _ => pr1 (pr1 (pr1 is)).
@@ -635,6 +649,10 @@ Defined.
 
 Definition isrngops {X : hSet} (opp1 opp2 : binop X) : UU :=
   dirprod (dirprod (isabgrop opp1) (ismonoidop opp2)) (isdistr opp1 opp2).
+
+Definition mk_isrngops {X : hSet} {opp1 opp2 : binop X} (H1 : isabgrop opp1) (H2 : ismonoidop opp2)
+           (H3 : isdistr opp1 opp2) : isrngops opp1 opp2 :=
+  dirprodpair (dirprodpair H1 H2) H3.
 
 Definition rngop1axs_is {X : hSet} {opp1 opp2 : binop X} : isrngops opp1 opp2 -> isabgrop opp1 :=
   fun is : _ => pr1 (pr1 is).
@@ -1346,6 +1364,9 @@ Notation "x * y" := (op x y) : multoperation_scope.
 Definition isbinopfun {X Y : setwithbinop} (f : X -> Y) : UU :=
   ∏ x x' : X, paths (f (op x x')) (op (f x) (f x')).
 
+Definition mk_isbinopfun {X Y : setwithbinop} {f : X -> Y}
+           (H : ∏ x x' : X, f (op x x') = op (f x) (f x')) : isbinopfun f := H.
+
 Lemma isapropisbinopfun {X Y : setwithbinop} (f : X -> Y) : isaprop (isbinopfun f).
 Proof.
   intros.
@@ -1488,7 +1509,7 @@ Proof.
   intros X Y.
   use isweqhomot.
   - exact (weqcomp (setwithbinop_univalence_weq1 X Y) (setwithbinop_univalence_weq2 X Y)).
-  - intros e. induction e. use (pathscomp0 weqcomp_to_funcomp_app). use idpath.
+  - intros e. induction e. use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
 Opaque setwithbinop_univalence_isweq.
@@ -2279,7 +2300,7 @@ Proof.
   intros X Y.
   use isweqhomot.
   - exact (weqcomp (setwith2binop_univalence_weq1 X Y) (setwith2binop_univalence_weq2 X Y)).
-  - intros e. induction e. use (pathscomp0 weqcomp_to_funcomp_app). use idpath.
+  - intros e. induction e. use weqcomp_to_funcomp_app.
   - use weqproperty.
 Defined.
 Opaque setwith2binop_univalence_isweq.
