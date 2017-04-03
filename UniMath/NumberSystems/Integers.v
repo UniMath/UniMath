@@ -61,9 +61,11 @@ Delimit Scope hz_scope with hz .
 
 Theorem isdeceqhz : isdeceq hz .
 Proof . change ( isdeceq ( abgrdiff ( rigaddabmonoid natcommrig ) ) ) . apply isdeceqabgrdiff . apply isinclnatplusr .  apply isdeceqnat .  Defined .
+Opaque isdeceqhz.
 
 Lemma isasethz : isaset hz .
 Proof . apply ( setproperty hzaddabgr ) . Defined .
+Opaque isasethz.
 
 Definition hzeq ( x y : hz ) : hProp := hProppair ( x = y ) ( isasethz _ _  )  .
 Definition isdecrelhzeq : isdecrel hzeq  := fun a b => isdeceqhz a b .
@@ -973,6 +975,18 @@ Lemma hzeqsnmnsm {n m : hz} (e : hzeq (n + 1) m) (e' : hzeq n (m + 1)) : empty.
 Proof.
   intros n m e e'.
   cbn in e. rewrite <- e in e'. apply (hzeqissi e').
+Qed.
+
+Lemma hzeqnmplusr {n m i : hz} (e : n = m) (e' : ¬ (n + i = m + i)) : empty.
+Proof.
+  intros n m i e e'.
+  apply e'. exact (hzplusradd _ _ i e).
+Qed.
+
+Lemma hzeqnmplusr' {n m i : hz} (e : ¬ (n = m)) (e' : n + i = m + i) : empty.
+Proof.
+  intros n m i e e'.
+  apply e. exact (hzplusrcan _ _ i e').
 Qed.
 
 Lemma isdecrelhzeqi (i : hz) : isdecrelhzeq i i = ii1 (idpath _).

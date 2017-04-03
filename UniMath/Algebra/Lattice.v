@@ -31,6 +31,8 @@ Truncated minus is a lattice:
 
 Require Export UniMath.Algebra.Monoids_and_Groups.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Unset Automatic Introduction.
 
 (** ** Strong Order *)
@@ -503,8 +505,8 @@ Proof.
   intros x y Hxy.
   generalize (istotal_latticedec is x y).
   apply hinhuniv, sumofmaps ; intros H.
-  - apply fromempty, Hxy.
-    exact H.
+  - apply fromempty.
+    exact (Hxy H).
   - exact H.
 Qed.
 
@@ -512,7 +514,7 @@ Lemma istrans_latticedec_gt_rel :
   istrans latticedec_gt_rel.
 Proof.
   intros x y z Hxy Hyz Hxz.
-  apply Hxy.
+  simple refine (Hxy _).
   apply istrans_Lle with z.
   apply Hxz.
   apply latticedec_gt_ge.
@@ -525,7 +527,7 @@ Proof.
   induction (isdecrel_latticedec is x y) as [Hxy | Hyx].
   - apply hinhpr, ii2.
     intros Hyz.
-    apply Hxz.
+    simple refine (Hxz _).
     apply istrans_Lle with y.
     exact Hxy.
     exact Hyz.
@@ -540,7 +542,7 @@ Proof.
   - apply istrans_latticedec_gt_rel.
   - apply iscotrans_latticedec_gt_rel.
   - intros x Hx.
-    apply Hx.
+    simple refine (Hx _).
     apply isrefl_Lle.
 Defined.
 
@@ -558,7 +560,8 @@ Lemma latticedec_lenotgt :
   ∏ (x y : X), Lle is x y → ¬ latticedec_gt_so x y.
 Proof.
   intros x y H H0.
-  apply H0, H.
+  simple refine (H0 _).
+  exact H.
 Qed.
 
 Lemma latticedec_gtmin :

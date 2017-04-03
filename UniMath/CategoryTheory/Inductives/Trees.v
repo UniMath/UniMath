@@ -6,15 +6,17 @@ tree functor.
 Written by: Anders Mörtberg (2016)
 
 *)
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
@@ -27,8 +29,7 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.Inductives.Lists.
 
-Local Notation "# F" := (functor_on_morphisms F) (at level 3).
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Open Scope cat.
 
 (** * Binary trees *)
 Section bintrees.
@@ -106,7 +107,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_leaf (X : hSet) (x : X) (f : pr1 A × X × X -> X) : foldr X x f leaf = x.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET _ _) ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -115,7 +116,7 @@ Lemma foldr_node (X : hSet) (x : X) (f : pr1 A × X × X -> X)
                  (a : pr1 A) (l1 l2 : pr1 Tree) :
   foldr X x f (node (a,,l1,,l2)) = f (a,,foldr X x f l1,,foldr X x f l2).
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _);; x)
+assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _)· x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 assert (Fal := toforallpaths _ _ _ F (a,,l1,,l2)).
 clear F.
@@ -157,7 +158,8 @@ Lemma isalghom_pr1foldr :
   is_algebra_mor _ Tree_alg Tree_alg (fun l => pr1 (foldr P'HSET P0' Pc' l)).
 Proof.
 apply BinCoproductArrow_eq_cor.
-- apply funextfun; intro x; destruct x; apply idpath.
+- apply funextfun; intro x; destruct x.
+  apply (maponpaths pr1 (foldr_leaf P'HSET P0' Pc')).
 - apply funextfun; intro x; destruct x as [a [l1 l2]].
   apply (maponpaths pr1 (foldr_node P'HSET P0' Pc' a l1 l2)).
 Qed.
@@ -214,9 +216,8 @@ Lemma size_map (f : nat -> nat) : ∏ l, size (map f l) = size l.
 Proof.
 apply treeIndProp.
 - intros l. apply isasetnat.
-- apply idpath.
-- intros a l1 l2 ih1 ih2.
-  unfold map.
+- now unfold map; rewrite foldr_leaf.
+- intros a l1 l2 ih1 ih2; unfold map.
   now rewrite foldr_node, !size_node, <- ih1, <- ih2.
 Qed.
 
@@ -229,9 +230,9 @@ Proof.
   - apply 5.
   - use node_map; repeat split.
     + apply 6.
-    + apply leaf_map. apply tt.
-    + apply leaf_map. apply tt.
-  - apply leaf_map. apply tt.
+    + exact (leaf_map _ tt).
+    + exact (leaf_map _ tt).
+  - exact (leaf_map _ tt).
 Defined.
 
 

@@ -3,9 +3,63 @@
 Require Import UniMath.Combinatorics.FiniteSets.
 Unset Automatic Introduction.
 Require Import UniMath.Foundations.UnivalenceAxiom.
+Require Import UniMath.MoreFoundations.Tactics.
 Local Open Scope poset.
 
 (** partially ordered sets and ordered sets *)
+
+Definition isTotalOrder {X : hSet} (R : hrel X) : hProp
+  := hProppair (isPartialOrder R × istotal R)
+               (isapropdirprod _ _ (isaprop_isPartialOrder R) (isaprop_istotal R)).
+
+Section A.
+
+  Open Scope logic.
+
+  Lemma tot_nge_to_le {X:hSet} (R:hrel X) : istotal R -> ∏ x y, ¬ (R x y) ->  R y x.
+  Proof.
+    intros ? ? tot ? ? nle.
+    now apply (hdisjtoimpl (tot x y)).
+  Defined.
+
+  Lemma tot_nle_iff_gt {X:hSet} (R:hrel X) :
+    isTotalOrder R -> ∏ x y, ¬ (R x y)  <->  R y x ∧ ¬ (y = x).
+  (** if [R x y] is [x ≤ y], then this shows the equivalence of two definitions for [y < x] *)
+  Proof.
+    intros X R i.
+    assert (tot := pr2 i); simpl in tot.
+    assert (refl := pr2 (pr1 (pr1 i))); simpl in refl.
+    assert (anti := pr2 (pr1 i)); simpl in anti.
+    split.
+    { intros nle. split.
+      - now apply tot_nge_to_le.
+      - intros ne. induction ne. exact (nle (refl y)). }
+    { intros yltx xley. induction yltx as [ylex neq]. exact (neq (anti _ _ ylex xley)). }
+  Defined.
+
+End A.
+
+Definition isSmallest {X : Poset} (x : X) : UU := ∏ y, x ≤ y.
+
+Definition isBiggest {X : Poset} (x : X) : UU := ∏ y, y ≤ x.
+
+Definition isMinimal {X : Poset} (x : X) : UU := ∏ y, y ≤ x -> x = y.
+(* the definition in Sets.v is wrong *)
+
+Definition isMaximal {X : Poset} (x : X) : UU := ∏ y, x ≤ y -> x = y.
+(* the definition in Sets.v is wrong *)
+
+Definition consecutive {X : Poset} (x y : X) : UU := x < y × ∏ z, ¬ (x < z × z < y).
+
+Lemma isaprop_isSmallest {X : Poset} (x : X) : isaprop (isSmallest x).
+Proof.
+  intros. unfold isSmallest. apply impred_prop.
+Defined.
+
+Lemma isaprop_isBiggest {X : Poset} (x : X) : isaprop (isBiggest x).
+Proof.
+  intros. unfold isBiggest. apply impred_prop.
+Defined.
 
 Definition Poset_univalence_map {X Y:Poset} : X=Y -> PosetEquivalence X Y.
 Proof. intros ? ? e. induction e. apply identityPosetEquivalence.
@@ -15,65 +69,55 @@ Local Arguments isPosetEquivalence : clear implicits.
 Local Arguments isaposetmorphism : clear implicits.
 
 Lemma posetStructureIdentity {X:hSet} (R S:PartialOrder X) :
-  @isPosetEquivalence (X,,R) (X,,S) (idweq X) -> R=S.
+  @isPosetEquivalence (X,,R) (X,,S) (idweq X) <-> R=S.
 Proof.
-  intros ? ? ? e.
-  apply subtypeEquality. { intros T. apply isaprop_isPartialOrder. }
-  induction R as [R r]; induction S as [S s]; simpl.
-  apply funextfun; intro x; apply funextfun; intro y.
-  unfold isPosetEquivalence in e.
-  unfold isaposetmorphism in e; simpl in e.
-  induction e as [e e'].
-  unfold posetRelation in *. unfold invmap in *; simpl in *.
-  apply hPropUnivalence. { apply e. } { apply e'. }
-Defined.
-
-Open Scope transport.
-
-Lemma poTransport_logeq {X Y:hSet} (R:PartialOrder X) (S:PartialOrder Y) (f:X=Y) :
-  @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f)
-  <-> f#R = S.
-Proof.
-  split.
-  { intros i. induction f. apply posetStructureIdentity. apply i. }
-  { intros e. induction f. induction e. apply isPosetEquivalence_idweq. }
-Defined.
-
-Corollary poTransport_weq {X Y:hSet} (R:PartialOrder X) (S:PartialOrder Y) (f:X=Y) :
-  @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f)
-  ≃ f#R = S.
-Proof.
-  intros. apply weqimplimpl.
-  { apply (pr1 (poTransport_logeq _ _ _)). }
-  { apply (pr2 (poTransport_logeq _ _ _)). }
-  { apply isaprop_isPosetEquivalence. }
-  { apply isaset_PartialOrder. }
+  intros. split.
+  { intros e.
+    apply subtypeEquality. { intros T. apply isaprop_isPartialOrder. }
+    induction R as [R r]; induction S as [S s]; simpl.
+    apply funextfun; intro x; apply funextfun; intro y.
+    unfold isPosetEquivalence in e.
+    unfold isaposetmorphism in e; simpl in e.
+    induction e as [e e'].
+    unfold posetRelation in *. unfold invmap in *; simpl in *.
+    apply hPropUnivalence. { apply e. } { apply e'. } }
+  { intros p. induction p. apply isPosetEquivalence_idweq. }
 Defined.
 
 Local Lemma posetTransport_weq (X Y:Poset) : X╝Y ≃ X≅Y.
 Proof.
-  intros.
-  simple refine (weqbandf _ _ _ _).
+  intros. simple refine (weqbandf _ _ _ _).
   { apply hSet_univalence. }
-  intros e. apply invweq. apply poTransport_weq.
+  intros e. apply invweq. induction X as [X R], Y as [Y S]; simpl in e.
+  induction e; simpl. apply weqimplimpl.
+  { exact (pr1 (posetStructureIdentity R S)). }
+  { exact (pr2 (posetStructureIdentity R S)). }
+  { exact (isaprop_isPosetEquivalence _). }
+  { exact (isaset_PartialOrder _ _ _). }
 Defined.
+
+Local Theorem Poset_univalence_0 (X Y:Poset) : X=Y ≃ X≅Y.
+Proof.
+  intros. intermediate_weq (X╝Y).
+  - apply total2_paths_equiv.
+  - apply posetTransport_weq.
+Defined.
+
+Lemma Poset_univalence_compute {X Y:Poset} (e:X=Y) :
+  Poset_univalence_0 X Y e = Poset_univalence_map e.
+Proof.
+  try reflexivity.              (* fails, so we use "remakeweq" below *)
+Abort.
 
 Theorem Poset_univalence (X Y:Poset) : X=Y ≃ X≅Y.
 Proof.
   intros.
-  set (f := @Poset_univalence_map X Y).
-  set (g := total2_paths_equiv _ X Y).
-  set (h := posetTransport_weq X Y).
-  set (f' := weqcomp g h).
-  assert (k : pr1weq f' ~ f).
-  try reflexivity.              (* this doesn't work *)
+  assert (k : pr1weq (Poset_univalence_0 X Y) ~ @Poset_univalence_map X Y).
   { intro e. apply isinj_pr1_PosetEquivalence. induction e. reflexivity. }
-  assert (l : isweq f).
-  { apply (isweqhomot f'). exact k. apply weqproperty. }
-  exact (f,,l).
+  exact (remakeweq k).
 Defined.
 
-Definition Poset_univalence_compute {X Y:Poset} (e:X=Y) :
+Lemma Poset_univalence_compute {X Y:Poset} (e:X=Y) :
   Poset_univalence X Y e = Poset_univalence_map e.
 Proof. reflexivity. Defined.
 
@@ -213,6 +257,32 @@ Proof.
   { apply maponpaths. }
   apply isweqonpathsincl. apply isincl_underlyingPoset.
   Unset Printing Coercions.
+Defined.
+
+Lemma smallestUniqueness (X:OrderedSet) (x y:X) : isSmallest x -> isSmallest y -> x = y.
+Proof.
+  intros ? ? ? i j. assert (q := OrderedSet_istotal x y). apply (squash_to_prop q).
+  { apply setproperty. }
+  intro c. induction c as [xley|ylex].
+  - apply OrderedSet_isantisymm.
+    + assumption.
+    + now apply j.
+  - apply OrderedSet_isantisymm.
+    + now apply i.
+    + assumption.
+Defined.
+
+Lemma biggestUniqueness (X:OrderedSet) (x y:X) : isBiggest x -> isBiggest y -> x = y.
+Proof.
+  intros ? ? ? i j. assert (q := OrderedSet_istotal x y). apply (squash_to_prop q).
+  { apply setproperty. }
+  intro c. induction c as [xley|ylex].
+  - apply OrderedSet_isantisymm.
+    + assumption.
+    + now apply i.
+  - apply OrderedSet_isantisymm.
+    + now apply j.
+    + assumption.
 Defined.
 
 Theorem OrderedSet_univalence (X Y:OrderedSet) : X=Y ≃ X≅Y.

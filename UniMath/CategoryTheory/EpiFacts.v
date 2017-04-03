@@ -9,30 +9,26 @@
 Ambroise LAFONT January 2017
 *)
 
-
-Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.coequalizers.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-
 Require Import UniMath.CategoryTheory.limits.graphs.pushouts.
 Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
-
 Require Import UniMath.CategoryTheory.limits.pushouts.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 
-
-Require Import UniMath.CategoryTheory.Epis.
-
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-
+Local Open Scope cat.
 
 (** Definition of an effective epimorphism.
 An effective epimorphism p: A -> B is a morphism which has a kernel pair and which
@@ -64,7 +60,7 @@ Section IsEffectivePw.
   Local Notation CD := (@functor_Precategory C D).
 
   Lemma eq_pb_pw {X Y Z:functor C D}
-        (a: X ⟶ Z) (b: Y ⟶ Z)
+        (a: X ⟹ Z) (b: Y ⟹ Z)
         (c:C)
     : eq_diag
         (pullback_diagram D (a c)  (b c))
@@ -78,7 +74,7 @@ Section IsEffectivePw.
       exact (Empty_set_rect _ ) ||  (exact (fun _ => idpath _)).
   Defined.
 
-  Lemma eq_coeq_pw {X Y: functor C D} (a b:X ⟶ Y) (c:C) :
+  Lemma eq_coeq_pw {X Y: functor C D} (a b:X ⟹ Y) (c:C) :
     eq_diag
       (Coequalizer_diagram D (a c) (b c))
       (diagram_pointwise (homset_property D)
@@ -95,7 +91,7 @@ Section IsEffectivePw.
     apply idpath.
   Defined.
 
-  Context {X Y :functor C D } {a:X⟶Y}.
+  Context {X Y :functor C D } {a:X ⟹ Y}.
 
   Lemma isEffectivePw : (∏ (x:C), isEffective (a x)) -> isEffective (C:=CD) a.
   Proof.
@@ -144,7 +140,7 @@ Section PointwiseEpi.
 
   Local Notation CD := (functor_Precategory C D).
 
-  Lemma eq_po_pw {X Y Z :functor C D} {a: X ⟶ Y } {b: X ⟶ Z} x  :
+  Lemma eq_po_pw {X Y Z :functor C D} {a: X ⟹ Y } {b: X ⟹ Z} x  :
     eq_diag
       (pushout_diagram D (a x) (b x))
       (diagram_pointwise (homset_property D)
@@ -157,7 +153,7 @@ Section PointwiseEpi.
   Defined.
 
   Lemma Pushouts_pw_epi (colimD : graphs.pushouts.Pushouts D) (A B : functor C D)
-       (a: A⟶B)  (epia:isEpi (C:=CD) a) : ∏ (x:C), isEpi (a x).
+       (a: A ⟹ B)  (epia:isEpi (C:=CD) a) : ∏ (x:C), isEpi (a x).
   Proof.
     intro  x; simpl.
     apply (epi_to_pushout (C:=CD)) in epia.

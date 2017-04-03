@@ -1,13 +1,17 @@
 (** Definition of initial object as a colimit *)
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.initial.
+
+Local Open Scope cat.
 
 Section def_initial.
 
@@ -86,7 +90,7 @@ now apply colim_endo_is_identity; intro u; induction u.
 Qed.
 
 Lemma isiso_from_Initial_to_Initial (O O' : Initial) :
-  is_isomorphism (InitialArrow O (InitialObject O')).
+  is_iso (InitialArrow O (InitialObject O')).
 Proof.
   apply (is_iso_qinv _ (InitialArrow O' (InitialObject O))).
   split; apply pathsinv0, InitialEndo_is_identity.

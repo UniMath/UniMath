@@ -8,6 +8,8 @@ Unset Kernel Term Sharing.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Foundations.Propositions.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 (** ** Additionals theorems about relations *)
 
 Lemma isapropisirrefl {X : UU} (rel : hrel X) :

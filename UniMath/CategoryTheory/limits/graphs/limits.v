@@ -15,15 +15,15 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
+Require Import UniMath.CategoryTheory.Adjunctions.
 
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Open Scope cat.
 
 (** * Definition of limits *)
 Section lim_def.
@@ -32,10 +32,10 @@ Context {C : precategory} (hsC : has_homsets C).
 
 Definition cone {g : graph} (d : diagram g C) (c : C) : UU :=
   ∑ (f : ∏ (v : vertex g), C⟦c,dob d v⟧),
-    ∏ (u v : vertex g) (e : edge u v), f u ;; dmor d e = f v.
+    ∏ (u v : vertex g) (e : edge u v), f u · dmor d e = f v.
 
 Definition mk_cone {g : graph} {d : diagram g C} {c : C}
-  (f : ∏ v, C⟦c, dob d v⟧) (Hf : ∏ u v (e : edge u v), f u ;; dmor d e = f v) :
+  (f : ∏ v, C⟦c, dob d v⟧) (Hf : ∏ u v (e : edge u v), f u · dmor d e = f v) :
   cone d c
   := tpair _ f Hf.
 
@@ -44,14 +44,14 @@ Definition coneOut {g : graph} {d : diagram g C} {c : C} (cc : cone d c) :
   ∏ v, C⟦c, dob d v⟧ := pr1 cc.
 
 Lemma coneOutCommutes {g : graph} {d : diagram g C} {c : C} (cc : cone d c) :
-  ∏ u v (e : edge u v), coneOut cc u ;; dmor d e = coneOut cc v.
+  ∏ u v (e : edge u v), coneOut cc u · dmor d e = coneOut cc v.
 Proof.
 apply (pr2 cc).
 Qed.
 
 Definition isLimCone {g : graph} (d : diagram g C) (c0 : C)
   (cc0 : cone d c0) : UU := ∏ (c : C) (cc : cone d c),
-    iscontr (∑ x : C⟦c,c0⟧, ∏ v, x ;; coneOut cc0 v = coneOut cc v).
+    iscontr (∑ x : C⟦c,c0⟧, ∏ v, x · coneOut cc0 v = coneOut cc v).
 
 Definition LimCone {g : graph} (d : diagram g C) : UU :=
    ∑ (A : (∑ l, cone d l)), isLimCone d (pr1 A) (pr2 A).
@@ -72,14 +72,14 @@ Definition limOut {g : graph} {d : diagram g C} (CC : LimCone d) :
 
 Lemma limOutCommutes {g : graph} {d : diagram g C}
   (CC : LimCone d) : ∏ (u v : vertex g) (e : edge u v),
-   limOut CC u ;; dmor d e = limOut CC v.
+   limOut CC u · dmor d e = limOut CC v.
 Proof.
 exact (coneOutCommutes (limCone CC)).
 Qed.
 
 Lemma limUnivProp {g : graph} {d : diagram g C}
   (CC : LimCone d) : ∏ (c : C) (cc : cone d c),
-  iscontr (∑ x : C⟦c, lim CC⟧, ∏ (v : vertex g), x ;; limOut CC v = coneOut cc v).
+  iscontr (∑ x : C⟦c, lim CC⟧, ∏ (v : vertex g), x · limOut CC v = coneOut cc v).
 Proof.
 apply (pr2 CC).
 Qed.
@@ -102,14 +102,14 @@ Definition limArrow {g : graph} {d : diagram g C} (CC : LimCone d)
 
 Lemma limArrowCommutes {g : graph} {d : diagram g C} (CC : LimCone d)
   (c : C) (cc : cone d c) (u : vertex g) :
-   limArrow CC c cc ;; limOut CC u = coneOut cc u.
+   limArrow CC c cc · limOut CC u = coneOut cc u.
 Proof.
 exact ((pr2 (pr1 (isLimCone_LimCone CC _ cc))) u).
 Qed.
 
 Lemma limArrowUnique {g : graph} {d : diagram g C} (CC : LimCone d)
   (c : C) (cc : cone d c) (k : C⟦c, lim CC⟧)
-  (Hk : ∏ (u : vertex g), k ;; limOut CC u = coneOut cc u) :
+  (Hk : ∏ (u : vertex g), k · limOut CC u = coneOut cc u) :
   k = limArrow CC c cc.
 Proof.
 now apply path_to_ctr, Hk.
@@ -117,14 +117,14 @@ Qed.
 
 Lemma Cone_precompose {g : graph} {d : diagram g C}
   {c : C} (cc : cone d c) (x : C) (f : C⟦x,c⟧) :
-    ∏ u v (e : edge u v), (f ;; coneOut cc u) ;; dmor d e = f ;; coneOut cc v.
+    ∏ u v (e : edge u v), (f · coneOut cc u) · dmor d e = f · coneOut cc v.
 Proof.
 now intros u v e; rewrite <- assoc, coneOutCommutes.
 Qed.
 
 Lemma limArrowEta {g : graph} {d : diagram g C} (CC : LimCone d)
   (c : C) (f : C⟦c, lim CC⟧) :
-  f = limArrow CC c (tpair _ (λ u, f ;; limOut CC u)
+  f = limArrow CC c (tpair _ (λ u, f · limOut CC u)
                  (Cone_precompose (limCone CC) c f)).
 Proof.
 now apply limArrowUnique.
@@ -133,11 +133,11 @@ Qed.
 Definition limOfArrows {g : graph} {d1 d2 : diagram g C}
   (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
-  (fNat : ∏ u v (e : edge u v), f u ;; dmor d2 e = dmor d1 e ;; f v) :
+  (fNat : ∏ u v (e : edge u v), f u · dmor d2 e = dmor d1 e · f v) :
   C⟦lim CC1 , lim CC2⟧.
 Proof.
 apply limArrow; simple refine (mk_cone _ _).
-- now intro u; apply (limOut CC1 u ;; f u).
+- now intro u; apply (limOut CC1 u · f u).
 - abstract (intros u v e; simpl;
             now rewrite <- assoc, fNat, assoc, limOutCommutes).
 Defined.
@@ -145,9 +145,9 @@ Defined.
 Lemma limOfArrowsOut {g : graph} (d1 d2 : diagram g C)
   (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
-  (fNat : ∏ u v (e : edge u v), f u ;; dmor d2 e = dmor d1 e ;; f v) :
-    ∏ u, limOfArrows CC1 CC2 f fNat ;; limOut CC2 u =
-          limOut CC1 u ;; f u.
+  (fNat : ∏ u v (e : edge u v), f u · dmor d2 e = dmor d1 e · f v) :
+    ∏ u, limOfArrows CC1 CC2 f fNat · limOut CC2 u =
+          limOut CC1 u · f u.
 Proof.
 now unfold limOfArrows; intro u; rewrite limArrowCommutes.
 Qed.
@@ -155,9 +155,9 @@ Qed.
 Lemma postCompWithLimOfArrows_subproof {g : graph} {d1 d2 : diagram g C}
   (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
-  (fNat : ∏ u v (e : edge u v), f u ;; dmor d2 e = dmor d1 e ;; f v)
+  (fNat : ∏ u v (e : edge u v), f u · dmor d2 e = dmor d1 e · f v)
   (x : C) (cc : cone d1 x) u v (e : edge u v) :
-    (coneOut cc u ;; f u) ;; dmor d2 e = coneOut cc v ;; f v.
+    (coneOut cc u · f u) · dmor d2 e = coneOut cc v · f v.
 Proof.
 now rewrite <- (coneOutCommutes cc u v e), <- assoc, fNat, assoc.
 Defined.
@@ -165,10 +165,10 @@ Defined.
 Lemma postCompWithLimOfArrows {g : graph} (d1 d2 : diagram g C)
   (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
-  (fNat : ∏ u v (e : edge u v), f u ;; dmor d2 e = dmor d1 e ;; f v)
+  (fNat : ∏ u v (e : edge u v), f u · dmor d2 e = dmor d1 e · f v)
   (x : C) (cc : cone d1 x) :
-     limArrow CC1 x cc ;; limOfArrows CC1 CC2 f fNat =
-       limArrow CC2 x (mk_cone (λ u, coneOut cc u ;; f u)
+     limArrow CC1 x cc · limOfArrows CC1 CC2 f fNat =
+       limArrow CC2 x (mk_cone (λ u, coneOut cc u · f u)
          (postCompWithLimOfArrows_subproof CC1 CC2 f fNat x cc)).
 Proof.
 apply limArrowUnique; intro u.
@@ -177,8 +177,8 @@ Qed.
 
 Lemma postCompWithLimArrow {g : graph} (D : diagram g C)
  (CC : LimCone D) (c : C) (cc : cone D c) (d : C) (k : C⟦d,c⟧) :
-   k ;; limArrow CC c cc  =
-   limArrow CC d (mk_cone (λ u, k ;; coneOut cc u)
+   k · limArrow CC c cc  =
+   limArrow CC d (mk_cone (λ u, k · coneOut cc u)
               (Cone_precompose cc d k)).
 Proof.
   apply limArrowUnique.
@@ -187,7 +187,7 @@ Qed.
 
 Lemma lim_endo_is_identity {g : graph} (D : diagram g C)
   (CC : LimCone D) (k : lim CC --> lim CC)
-  (H : ∏ u, k ;; limOut CC u = limOut CC u) :
+  (H : ∏ u, k · limOut CC u = limOut CC u) :
   identity _ = k.
 Proof.
 unshelve refine (uniqueExists _ _ (limUnivProp CC _ _) _ _ _ _).
@@ -237,7 +237,7 @@ set (iinv := z_iso_inv_from_is_z_iso _ (is_z_iso_from_is_iso _ H)).
 intros x cx.
 simple refine (tpair _ _ _).
 - simple refine (tpair _ _ _).
-  + exact (limArrow CC x cx;;iinv).
+  + exact (limArrow CC x cx·iinv).
   + simpl; intro u.
     assert (XR:=limArrowCommutes CC x cx u).
     eapply pathscomp0; [| apply XR].
@@ -262,12 +262,12 @@ Defined.
 Definition Cocone_by_postcompose {g : graph} (D : diagram g C)
  (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) : cocone D d.
 Proof.
-now exists (λ u, coconeIn cc u ;; k); apply Cocone_postcompose.
+now exists (λ u, coconeIn cc u · k); apply Cocone_postcompose.
 Defined.
 
 Lemma isColim_weq_subproof1 {g : graph} (D : diagram g C)
   (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) :
-  ∏ u, coconeIn cc u ;; k = pr1 (Cocone_by_postcompose D c cc d k) u.
+  ∏ u, coconeIn cc u · k = pr1 (Cocone_by_postcompose D c cc d k) u.
 Proof.
 now intro u.
 Qed.
@@ -275,7 +275,7 @@ Qed.
 Lemma isColim_weq_subproof2 (g : graph) (D : diagram g C)
   (c : C) (cc : cocone D c) (H : ∏ d, isweq (Cocone_by_postcompose D c cc d))
   (d : C) (cd : cocone D d) (u : vertex g) :
-    coconeIn cc u ;; invmap (weqpair _ (H d)) cd = coconeIn cd u.
+    coconeIn cc u · invmap (weqpair _ (H d)) cd = coconeIn cd u.
 Proof.
 rewrite (isColim_weq_subproof1 D c cc d (invmap (weqpair _ (H d)) _) u).
 set (p := homotweqinvweq (weqpair _ (H d)) cd); simpl in p.
@@ -417,7 +417,7 @@ Defined.
 
 Lemma LimFunctor_unique (F : [A, C, hsC]) (cc : cone D F) :
   iscontr (∑ x : [A, C, hsC] ⟦ F, LimFunctor ⟧,
-            ∏ v, x ;; lim_nat_trans_in_data v = coneOut cc v).
+            ∏ v, x · lim_nat_trans_in_data v = coneOut cc v).
 Proof.
 mkpair.
 - mkpair.
@@ -501,13 +501,13 @@ intros HccL M ccM.
 set (G := left_adjoint HF).
 set (H := pr2 HF : are_adjoints G F).
 apply (@iscontrweqb _ (∑ y : C ⟦ G M, L ⟧,
-    ∏ i, y ;; coneOut ccL i = φ_adj_inv H (coneOut ccM i))).
+    ∏ i, y · coneOut ccL i = φ_adj_inv H (coneOut ccM i))).
 - eapply (weqcomp (Y := ∑ y : C ⟦ G M, L ⟧,
-    ∏ i, φ_adj H y ;; # F (coneOut ccL i) = coneOut ccM i)).
+    ∏ i, φ_adj H y · # F (coneOut ccL i) = coneOut ccM i)).
   + apply invweq, (weqbandf (adjunction_hom_weq H M L)); simpl; intro f.
     abstract (now apply weqiff; try (apply impred; intro; apply hsD)).
   + eapply (weqcomp (Y := ∑ y : C ⟦ G M, L ⟧,
-      ∏ i, φ_adj H (y ;; coneOut ccL i) = coneOut ccM i)).
+      ∏ i, φ_adj H (y · coneOut ccL i) = coneOut ccM i)).
     * apply weqfibtototal; simpl; intro f.
       abstract (apply weqiff; try (apply impred; intro; apply hsD); split; intros HH i;
                [ now rewrite φ_adj_natural_postcomp; apply HH
@@ -539,8 +539,6 @@ Module co.
 
 Require Import UniMath.CategoryTheory.opp_precat.
 
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-
 Section lim_def.
 
 Context {C : precategory} (hsC : has_homsets C).
@@ -549,7 +547,7 @@ Context {C : precategory} (hsC : has_homsets C).
 (*
 Definition cocone {g : graph} (d : diagram g C) (c : C) : UU :=
   ∑ (f : ∏ (v : vertex g), C⟦dob d v,c⟧),
-    ∏ (u v : vertex g) (e : edge u v), dmor d e ;; f v = f u.
+    ∏ (u v : vertex g) (e : edge u v), dmor d e · f v = f u.
 *)
 
 Definition opp_diagram g C := diagram g C^op.
@@ -559,12 +557,12 @@ Definition cone {g : graph} (d : diagram g C^op) (c : C) : UU :=
 
 (*
 Definition mk_cocone {g : graph} {d : diagram g C} {c : C}
-  (f : ∏ v, C⟦dob d v,c⟧) (Hf : ∏ u v e, dmor d e ;; f v = f u) :
+  (f : ∏ v, C⟦dob d v,c⟧) (Hf : ∏ u v e, dmor d e · f v = f u) :
   cocone d c := tpair _ f Hf.
 *)
 
 Definition mk_cone {g : graph} {d : diagram g C^op} {c : C}
-  (f : ∏ v, C⟦c, dob d v⟧) (Hf : ∏ u v (e : edge u v) , f v ;; dmor d e  = f u) :
+  (f : ∏ v, C⟦c, dob d v⟧) (Hf : ∏ u v (e : edge u v) , f v · dmor d e  = f u) :
   cone d c
   := tpair _ f Hf.
 
@@ -573,7 +571,7 @@ Definition coneOut {g : graph} {d : diagram g C^op} {c : C} (cc : cone d c) :
   ∏ v, C⟦c, dob d v⟧ := coconeIn cc.
 
 Lemma coneOutCommutes {g : graph} {d : diagram g C^op} {c : C} (cc : cone d c) :
-  ∏ u v (e : edge u v), coneOut cc v ;; dmor d e = coneOut cc u.
+  ∏ u v (e : edge u v), coneOut cc v · dmor d e = coneOut cc u.
 Proof.
   apply (coconeInCommutes cc).
 Qed.
@@ -587,7 +585,7 @@ Definition isLimCone {g : graph} (d : diagram g C^op) (c0 : C)
 (*
 ∏ (c : C) (cc : cone d c),
       isColimCocone
-    iscontr (∑ x : C⟦c0,c⟧, ∏ v, coconeIn cc0 v ;; x = coconeIn cc v).
+    iscontr (∑ x : C⟦c0,c⟧, ∏ v, coconeIn cc0 v · x = coconeIn cc v).
 *)
 
 Definition LimCone {g : graph} (d : diagram g C^op) : UU :=
@@ -618,14 +616,14 @@ Definition limOut {g : graph} {d : diagram g C^op} (CC : LimCone d) :
 
 Lemma limOutCommutes {g : graph} {d : diagram g C^op}
   (CC : LimCone d) : ∏ (u v : vertex g) (e : edge u v),
-   limOut CC v ;; dmor d e = limOut CC u.
+   limOut CC v · dmor d e = limOut CC u.
 Proof.
 exact (coneOutCommutes (limCone CC)).
 Qed.
 
 Lemma limUnivProp {g : graph} {d : diagram g C^op}
   (CC : LimCone d) : ∏ (c : C) (cc : cone d c),
-  iscontr (∑ x : C⟦c, lim CC⟧, ∏ (v : vertex g), x ;; limOut CC v = coneOut cc v).
+  iscontr (∑ x : C⟦c, lim CC⟧, ∏ (v : vertex g), x · limOut CC v = coneOut cc v).
 Proof.
 apply (colimUnivProp CC).
 Qed.
@@ -643,14 +641,14 @@ Defined.
 
 Lemma limArrowCommutes {g : graph} {d : diagram g C^op} (CC : LimCone d)
   (c : C) (cc : cone d c) (u : vertex g) :
-   limArrow CC c cc ;; limOut CC u = coneOut cc u.
+   limArrow CC c cc · limOut CC u = coneOut cc u.
 Proof.
   exact (colimArrowCommutes CC _ cc _ ).
 Qed.
 
 Lemma limArrowUnique {g : graph} {d : diagram g C^op} (CC : LimCone d)
   (c : C) (cc : cone d c) (k : C⟦c, lim CC⟧)
-  (Hk : ∏ (u : vertex g), k ;; limOut CC u = coneOut cc u) :
+  (Hk : ∏ (u : vertex g), k · limOut CC u = coneOut cc u) :
   k = limArrow CC c cc.
 Proof.
   apply (colimArrowUnique CC c cc k Hk).
@@ -658,14 +656,14 @@ Qed.
 
 Lemma Cone_precompose {g : graph} {d : diagram g C^op}
   {c : C} (cc : cone d c) (x : C) (f : C⟦x,c⟧) :
-    ∏ u v (e : edge u v), (f ;; coneOut cc v) ;; dmor d e = f ;; coneOut cc u.
+    ∏ u v (e : edge u v), (f · coneOut cc v) · dmor d e = f · coneOut cc u.
 Proof.
   apply (Cocone_postcompose cc x f).
 Qed.
 
 Lemma limArrowEta {g : graph} {d : diagram g C^op} (CC : LimCone d)
   (c : C) (f : C⟦c, lim CC⟧) :
-  f = limArrow CC c (tpair _ (λ u, f ;; limOut CC u)
+  f = limArrow CC c (tpair _ (λ u, f · limOut CC u)
                  (Cone_precompose (limCone CC) c f)).
 Proof.
 now apply limArrowUnique.
@@ -674,9 +672,9 @@ Qed.
 Definition limOfArrows {g : graph} {d1 d2 : diagram g C^op}
   (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
-  (fNat : ∏ u v (e : edge u v), f v ;; (dmor d2 e : C⟦dob d2 v, dob d2 u⟧)
+  (fNat : ∏ u v (e : edge u v), f v · (dmor d2 e : C⟦dob d2 v, dob d2 u⟧)
                               =
-                                (dmor d1 e : C⟦dob d1 v, dob d1 u⟧);; f u) :
+                                (dmor d1 e : C⟦dob d1 v, dob d1 u⟧)· f u) :
   C⟦lim CC1 , lim CC2⟧.
 Proof.
   use (colimOfArrows CC2 CC1).
@@ -687,9 +685,9 @@ Defined.
 Lemma limOfArrowsOut {g : graph} (d1 d2 : diagram g C^op)
   (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
-  (fNat : ∏ u v (e : edge u v), f v ;; dmor d2 e = (dmor d1 e : C ⟦ _ , _ ⟧)  ;; f u) :
-    ∏ u, limOfArrows CC1 CC2 f fNat ;; limOut CC2 u =
-          limOut CC1 u ;; f u.
+  (fNat : ∏ u v (e : edge u v), f v · dmor d2 e = (dmor d1 e : C ⟦ _ , _ ⟧)  · f u) :
+    ∏ u, limOfArrows CC1 CC2 f fNat · limOut CC2 u =
+          limOut CC1 u · f u.
 Proof.
   apply (colimOfArrowsIn _ _ CC2 CC1 f fNat).
 Qed.
@@ -697,9 +695,9 @@ Qed.
 Lemma postCompWithLimOfArrows_subproof {g : graph} {d1 d2 : diagram g C^op}
   (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
-  (fNat : ∏ u v (e : edge u v), f v ;; dmor d2 e = (dmor d1 e : C ⟦ _ , _ ⟧)  ;; f u)
+  (fNat : ∏ u v (e : edge u v), f v · dmor d2 e = (dmor d1 e : C ⟦ _ , _ ⟧)  · f u)
   (x : C) (cc : cone d1 x) u v (e : edge u v) :
-    (coneOut cc v ;; f v) ;; dmor d2 e = coneOut cc u ;; f u.
+    (coneOut cc v · f v) · dmor d2 e = coneOut cc u · f u.
 Proof.
   apply (preCompWithColimOfArrows_subproof CC2 CC1 f fNat x cc _ _ e).
 Defined.
@@ -707,10 +705,10 @@ Defined.
 Lemma postcompWithColimOfArrows {g : graph} (d1 d2 : diagram g C^op)
   (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
-  (fNat : ∏ u v (e : edge u v), f v ;; dmor d2 e = (dmor d1 e : C ⟦ _ , _ ⟧)  ;; f u)
+  (fNat : ∏ u v (e : edge u v), f v · dmor d2 e = (dmor d1 e : C ⟦ _ , _ ⟧)  · f u)
   (x : C) (cc : cone d1 x) :
-     limArrow CC1 x cc ;; limOfArrows CC1 CC2 f fNat =
-       limArrow CC2 x (mk_cone (λ u, coneOut cc u ;; f u)
+     limArrow CC1 x cc · limOfArrows CC1 CC2 f fNat =
+       limArrow CC2 x (mk_cone (λ u, coneOut cc u · f u)
          (postCompWithLimOfArrows_subproof CC1 CC2 f fNat x cc)).
 Proof.
   apply limArrowUnique.
@@ -724,8 +722,8 @@ Qed.
 
 Lemma precompWithLimArrow {g : graph} (D : diagram g C^op)
  (CC : LimCone D) (c : C) (cc : cone D c) (d : C) (k : C⟦d,c⟧) :
-   k ;; limArrow CC c cc  =
-   limArrow CC d (mk_cone (λ u, k ;; coneOut cc u)
+   k · limArrow CC c cc  =
+   limArrow CC d (mk_cone (λ u, k · coneOut cc u)
               (Cone_precompose cc d k)).
 Proof.
   apply limArrowUnique.
@@ -734,7 +732,7 @@ Qed.
 
 Lemma lim_endo_is_identity {g : graph} (D : diagram g C^op)
   (CC : LimCone D) (k : lim CC --> lim CC)
-  (H : ∏ u, k ;; limOut CC u = limOut CC u) :
+  (H : ∏ u, k · limOut CC u = limOut CC u) :
   identity _ = k.
 Proof.
 unshelve refine (uniqueExists _ _ (limUnivProp CC _ _) _ _ _ _).
@@ -749,12 +747,12 @@ Qed.
 Definition Cocone_by_postcompose {g : graph} (D : diagram g C)
  (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) : cocone D d.
 Proof.
-now exists (λ u, coconeIn cc u ;; k); apply Cocone_postcompose.
+now exists (λ u, coconeIn cc u · k); apply Cocone_postcompose.
 Defined.
 
 Lemma isColim_weq_subproof1 {g : graph} (D : diagram g C)
   (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) :
-  ∏ u, coconeIn cc u ;; k = pr1 (Cocone_by_postcompose D c cc d k) u.
+  ∏ u, coconeIn cc u · k = pr1 (Cocone_by_postcompose D c cc d k) u.
 Proof.
 now intro u.
 Qed.
@@ -762,7 +760,7 @@ Qed.
 Lemma isColim_weq_subproof2 (g : graph) (D : diagram g C)
   (c : C) (cc : cocone D c) (H : ∏ d, isweq (Cocone_by_postcompose D c cc d))
   (d : C) (cd : cocone D d) (u : vertex g) :
-    coconeIn cc u ;; invmap (weqpair _ (H d)) cd = coconeIn cd u.
+    coconeIn cc u · invmap (weqpair _ (H d)) cd = coconeIn cd u.
 Proof.
 rewrite (isColim_weq_subproof1 D c cc d (invmap (weqpair _ (H d)) _) u).
 set (p := homotweqinvweq (weqpair _ (H d)) cd); simpl in p.
@@ -837,7 +835,7 @@ set (iinv := z_iso_inv_from_is_z_iso _ (is_z_iso_from_is_iso _ H)).
 intros x cx.
 simple refine (tpair _ _ _).
 - simple refine (tpair _ _ _).
-  + exact (limArrow CC x cx;;iinv).
+  + exact (limArrow CC x cx·iinv).
   + simpl; intro u.
     assert (XR:=limArrowCommutes CC x cx u).
     eapply pathscomp0; [| apply XR].
@@ -1012,7 +1010,7 @@ Defined.
 
 Lemma ColimFunctor_unique (F : [A, C, hsC]) (cc : cocone D F) :
   iscontr (∑ x : [A, C, hsC] ⟦ ColimFunctor, F ⟧,
-            ∏ v : vertex g, colim_nat_trans_in_data v ;; x = coconeIn cc v).
+            ∏ v : vertex g, colim_nat_trans_in_data v · x = coconeIn cc v).
 Proof.
 refine (tpair _ _ _).
 - refine (tpair _ _ _).

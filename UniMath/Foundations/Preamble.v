@@ -118,45 +118,31 @@ One can not use a new record each time one needs it because the general theorems
 construction would not apply to new instances of "Record" due to the "generativity" of inductive
 definitions in Coq.
 
-We use "Inductive" instead of "Record" here.
+We use "Record", which is equivalent to "Structure", instead of "Inductive" here, so we can take
+advantage of the "primitive projections" feature of Coq, which introduces η-reduction for pairs, by
+adding the option "Set Primitive Projections".  It also speeds up compilation by 56%.
 
-Using "Record" which is equivalent to "Structure" would allow us later to use the mechanism of
-canonical structures with total2.
-By using "Structure", we could also get eta for dependent pairs, by adding the option
-"Set Primitive Projections.".
+The terms produced by the "induction" tactic, when we define "total2" as a record, contain the
+"match" construction instead appealing to the eliminator.  However, assuming the eliminator will be
+justified mathematically, the way to justify the the "match" construction is to point out that it
+can be regarded as an abbreviation for the eliminator that omits explicit mention of the first two
+parameters (X:Type) and (Y:X->Type).
 
-However, the use of "Inductive" allows us to obtain proof terms that are expressed in terms of
-the eliminator total2_rect that, unlike the "match" construct that would appear in the proof terms
-if we used "Record", has a known interpretation in the framework of the univalent model.
+I.e., whenever you see
+
+       match w as t0 return TYPE with | tpair _ _ x y => BODY end
+
+in a proof term, just mentally replace it by
+
+       @total2_rect _ _ (λ t0, TYPE) (λ x y, BODY) w
 
 *)
 
-(* two alternatives: *)
-(* total2 as a record with primitive projections: *)
+Set Primitive Projections.
 
-    (* Set Primitive Projections. *)
+Set Nonrecursive Elimination Schemes.
 
-    (* Set Nonrecursive Elimination Schemes. *)
-
-    (* Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }. *)
-
-(* or total2 as an inductive type:  *)
-
-    Inductive total2 { T: Type } ( P: T -> Type ) := tpair : ∏ (__t__:T) (__p__:P __t__), total2 P.
-
-    (* Do not use "induction" without specifying names; seeing __t__ or __p__ will indicate that you *)
-    (*    did that.  This will prepare for the use of primitive projections, when the names will be pr1 *)
-    (*    and pr2. *)
-
-    Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T .
-    Proof . intros .  induction t as [ t p ] . exact t . Defined.
-
-    Definition pr2 { T : Type } { P : T -> Type } ( t : total2 P ) : P ( pr1 t ) .
-    Proof . intros .  induction t as [ t p ] . exact p . Defined.
-
-(* end of two alternatives *)
-
-    Print total2.               (* log which definition of total2 is currently in use *)
+Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }.
 
 Arguments tpair {_} _ _ _.
 Arguments pr1 {_ _} _.
@@ -172,8 +158,6 @@ Definition whether_primitive_projections : bool.
 Proof.
   tryif primitive_projections then exact true else exact false.
 Defined.
-
-Print whether_primitive_projections.
 
 Notation "'∑'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
@@ -271,3 +255,84 @@ Tactic Notation "use" uconstr(p) := simple_rapply p.
 
 Tactic Notation "transparent" "assert" "(" ident(name) ":" constr(type) ")" :=
   simple refine (let name := (_ : type) in _).
+
+(** reserve notations for later use: *)
+
+Reserved Notation "∅".
+
+Reserved Notation "a --> b" (at level 50).
+
+Reserved Notation "C ⟦ a , b ⟧" (at level 50).
+(* ⟦   to input: type "\[[" or "\(" with Agda input method
+   ⟧   to input: type "\]]" or "\)" with Agda input method *)
+
+Reserved Notation "f ;; g"  (at level 50, left associativity, only parsing). (* deprecated *)
+
+Reserved Notation "f · g"  (at level 50, format "f  ·  g", left associativity).
+(* to input: type "\centerdot" or "\cdot" with Agda input method *)
+
+Reserved Notation "g ∘ f"  (at level 50, left associativity).
+(* agda input \circ *)
+
+(* conflict:
+    Reserved Notation "# F"  (at level 3).
+    Reserved Notation "p # x" (right associativity, at level 65, only parsing).
+*)
+
+Reserved Notation "p #' x" (right associativity, at level 65, only parsing).
+
+Reserved Notation "C '^op'" (at level 3, format "C ^op").
+
+Reserved Notation "a <-- b" (at level 50).
+
+Reserved Notation "[ C , D ]" .
+
+Reserved Notation "C [ a , b ]"  (at level 50).
+
+Reserved Notation "X ⟶ Y"  (at level 39).
+(* to input: type "\-->" with Agda input method *)
+
+Reserved Notation "X ⟹ Y"  (at level 39).
+(* same parsing level as ⟶ *)
+(* to input: type "\==>" with Agda input method *)
+
+Reserved Notation "F ∙ G" (at level 35).
+(* to input: type "\." with Agda input method *)
+(* the old notation had the arguments in the opposite order *)
+
+(* conflict:
+    Reserved Notation "s □ x" (at level 64, left associativity).
+    Reserved Notation "G □ F" (at level 35).
+    (* to input: type "\Box" or "\square" or "\sqw" or "\sq" with Agda input method *)
+*)
+
+Reserved Notation "F ◾ b"  (at level 40, left associativity).
+(* to input: type "\sqb" or "\sq" with Agda input method *)
+
+Reserved Notation "F ▭ f"  (at level 40, left associativity). (* \rew1 *)
+(* to input: type "\rew" or "\re" with Agda input method *)
+
+(* conflict:
+    Reserved Notation "A ⇒ B" (at level 95, no associativity).
+    Reserved Notation "c ⇒ X" (at level 50).
+    (* to input: type "\Rightarrow" or "\r=" or "\r" or "\Longrightarrow" or "\=>" with Agda input method *)
+*)
+
+Reserved Notation "X ⇐ c"   (at level 50).
+(* to input: type "\Leftarrow" or "\Longleftarrow" or "\l=" or "\l" with Agda input method *)
+
+Reserved Notation "x ⟲ f"  (at level 50, left associativity).
+(* to input: type "\l" and select from the menu, row 4, spot 2, with Agda input method *)
+
+Reserved Notation "q ⟳ x"  (at level 50, left associativity).
+(* to input: type "\r" and select from the menu, row 4, spot 3, with Agda input method *)
+
+Reserved Notation "p ◽ b"  (at level 40).
+(* to input: type "\sqw" or "\sq" with Agda input method *)
+
+Reserved Notation "xe ⟲⟲ p"  (at level 50).
+(* to input: type "\l" and select from the menu, row 4, spot 2, with Agda input method *)
+
+Reserved Notation "r \\ x"  (at level 50, left associativity).
+
+Reserved Notation "x // r"  (at level 50, left associativity).

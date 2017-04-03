@@ -26,9 +26,10 @@ Set Kernel Term Sharing.
 
 Require Import UniMath.Foundations.PartD.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -50,7 +51,7 @@ Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Notation.
 
-
+Local Open Scope cat.
 
 Local Coercion alg_carrier : algebra_ob >-> ob.
 
@@ -89,18 +90,18 @@ Variable IA : Initial Alg.
 Definition SpecializedGMIt (Z : Ptd) (X : EndC)
   :  ∏ (G : functor [C, C, hs] [C, C, hs])
        (ρ : [C, C, hs] ⟦ G X, X ⟧)
-       (θ : functor_composite Id_H (ℓ (U Z)) ⟶ functor_composite (ℓ (U Z)) G),
+       (θ : functor_composite Id_H (ℓ (U Z)) ⟹ functor_composite (ℓ (U Z)) G),
      ∃! h : [C, C, hs] ⟦ ℓ (U Z) (` (InitialObject IA)), X ⟧,
-            # (ℓ (U Z)) (alg_map Id_H (InitialObject IA)) ;; h
+            # (ℓ (U Z)) (alg_map Id_H (InitialObject IA)) · h
             =
-            θ (` (InitialObject IA)) ;; # G h ;; ρ
+            θ (` (InitialObject IA)) · # G h · ρ
    :=
   SpecialGenMendlerIteration _ _ _ IA EndC hsEndC X _ (KanExt Z) .
 
 
 Definition θ_in_first_arg (Z: Ptd)
   : functor_fix_snd_arg [C, C,hs] Ptd [C, C, hs] (θ_source H) Z
-    ⟶
+    ⟹
     functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_target H) Z
   := nat_trans_fix_snd_arg _ _ _ _ _ θ Z.
 
@@ -268,16 +269,16 @@ Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
   := @BinCoproductArrow
    EndC _ _  (CPEndC (U Z)
    (H (alg_carrier _ InitAlg))) (alg_carrier _ InitAlg) (#U f)
-   (BinCoproductIn2 _ (CPEndC _ _) ;; (alg_map _ InitAlg)).
+   (BinCoproductIn2 _ (CPEndC _ _) · (alg_map _ InitAlg)).
 
 Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
   : ∃! h : [C, C, hs] ⟦ ℓ (U Z) (` (InitialObject IA)), pr1 InitAlg ⟧,
-           # (ℓ (U Z)) (alg_map Id_H (InitialObject IA)) ;; h
+           # (ℓ (U Z)) (alg_map Id_H (InitialObject IA)) · h
            =
-           pr1 ((aux_iso_1 Z ;; θ'_Thm15 Z ;; aux_iso_2_inv Z)) (` (InitialObject IA)) ;;
-           # (Const_plus_H (U Z)) h ;; ρ_Thm15 Z f
+           pr1 ((aux_iso_1 Z · θ'_Thm15 Z · aux_iso_2_inv Z)) (` (InitialObject IA)) ·
+           # (Const_plus_H (U Z)) h · ρ_Thm15 Z f
   := SpecializedGMIt Z (pr1 InitAlg) (Const_plus_H (U Z))
-     (ρ_Thm15 Z f) (aux_iso_1 Z ;; θ'_Thm15 Z ;; aux_iso_2_inv Z).
+     (ρ_Thm15 Z f) (aux_iso_1 Z · θ'_Thm15 Z · aux_iso_2_inv Z).
 
 Definition bracket_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
   : [C, C, hs] ⟦ ℓ (U Z) (` (InitialObject IA)), `InitAlg ⟧
@@ -289,17 +290,17 @@ Notation "⦃ f ⦄" := (bracket_Thm15 _ f) (at level 0).
 Lemma bracket_Thm15_ok_part1 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg  InitAlg ⟧):
  # U f
  =
- # (pr1 (ℓ (U Z))) (η InitAlg) ;; ⦃f⦄.
+ # (pr1 (ℓ (U Z))) (η InitAlg) · ⦃f⦄.
 Proof.
   apply nat_trans_eq; try (exact hs).
   intro c.
   assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
   assert (h_eq' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ =>
-               (((aux_iso_1_inv Z):(_⟶_)) _);; m) h_eq);
+               (((aux_iso_1_inv Z):(_ ⟹ _)) _)· m) h_eq);
   clear h_eq.
   simpl in h_eq'.
   assert (h_eq1' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ =>
-               (BinCoproductIn1 EndC (CPEndC _ _));; m) h_eq');
+               (BinCoproductIn1 EndC (CPEndC _ _))· m) h_eq');
   clear h_eq'.
   assert (h_eq1'_inst := nat_trans_eq_pointwise h_eq1' c);
   clear h_eq1'.
@@ -341,20 +342,20 @@ Qed.
 Check bracket_Thm15_ok_part1.
 
 Lemma bracket_Thm15_ok_part2 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg  InitAlg ⟧):
- (theta H) ((alg_carrier _  InitAlg) ⊗ Z) ;;  # H ⦃f⦄ ;; τ InitAlg
+ (theta H) ((alg_carrier _  InitAlg) ⊗ Z) ·  # H ⦃f⦄ · τ InitAlg
   =
-   # (pr1 (ℓ (U Z))) (τ InitAlg) ;; ⦃f⦄.
+   # (pr1 (ℓ (U Z))) (τ InitAlg) · ⦃f⦄.
 Proof.
   apply nat_trans_eq; try (exact hs).
   intro c.
   assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
   assert (h_eq' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ =>
-                  (((aux_iso_1_inv Z):(_⟶_)) _);; m) h_eq);
+                  (((aux_iso_1_inv Z):(_⟹_)) _)· m) h_eq);
   clear h_eq.
  (*        simpl in h_eq'. (* until here same as in previous lemma *) *)
 
   assert (h_eq2' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ =>
-                (BinCoproductIn2 EndC (CPEndC _ _));; m) h_eq').
+                (BinCoproductIn2 EndC (CPEndC _ _))· m) h_eq').
   clear h_eq'.
   assert (h_eq2'_inst := nat_trans_eq_pointwise h_eq2' c).
   clear h_eq2'.
@@ -609,7 +610,7 @@ Definition thetahat (Z : Ptd)  (f : Z --> ptd_from_alg  InitAlg)
                                         (ℓ (U Z)),
                      functor_composite (ℓ (U Z)) (Ghat) ⟧.
 Proof.
-  exact (iso1' Z ;; thetahat_0 Z f ;; iso2' Z).
+  exact (iso1' Z · thetahat_0 Z f · iso2' Z).
 Defined.
 
 
@@ -620,13 +621,13 @@ Let Yon (X : EndC) : functor EndC^op HSET := yoneda_objects EndC hsEndC X.
 
 Definition Phi_fusion (Z : Ptd) (X : EndC) (b : pr1 InitAlg --> X) :
   functor_composite (functor_opp (ℓ (U Z))) (Yon (pr1 InitAlg))
-   ⟶
+   ⟹
   functor_composite (functor_opp (ℓ (U Z))) (Yon X) .
 Proof.
   simple refine (tpair _ _ _ ).
   - intro Y.
     intro a.
-    exact (a ;; b).
+    exact (a · b).
   - abstract (
     intros ? ? ? ; simpl ;
     apply funextsec ;
@@ -651,18 +652,18 @@ Proof.
   unfold isbracketMor.
   intros Z f.
   set (β0 := InitialArrow IA (pr1 T')).
-  match goal with | [|- _ ;; ?b = _ ] => set (β := b) end.
+  match goal with | [|- _ · ?b = _ ] => set (β := b) end.
   set ( rhohat := BinCoproductArrow EndC  (CPEndC _ _ )  β (tau_from_alg T')
                   :  pr1 Ghat T' --> T').
   set (X:= SpecializedGMIt Z _ Ghat rhohat (thetahat Z f)).
   pathvia (pr1 (pr1 X)).
   - set (TT:= fusion_law _ _ _ IA _ hsEndC (pr1 InitAlg) T' _ (KanExt Z)).
     set (Psi := ψ_from_comps _ (Id_H) _ hsEndC _ (ℓ (U Z)) (Const_plus_H (U Z)) (ρ_Thm15 Z f)
-                             (aux_iso_1 Z ;; θ'_Thm15 Z ;; aux_iso_2_inv Z) ).
+                             (aux_iso_1 Z · θ'_Thm15 Z · aux_iso_2_inv Z) ).
     set (T2 := TT Psi).
     set (T3 := T2 (ℓ (U Z)) (KanExt Z)).
     set (Psi' := ψ_from_comps _ (Id_H) _ hsEndC _ (ℓ (U Z)) (Ghat) (rhohat)
-                             (iso1' Z ;; thetahat_0 Z f ;; iso2' Z) ).
+                             (iso1' Z · thetahat_0 Z f · iso2' Z) ).
     set (T4 := T3 Psi').
     set (Φ := (Phi_fusion Z T' β)).
     set (T5 := T4 Φ).
@@ -720,11 +721,11 @@ Proof.
         apply BinCoproductIn2Commutes_left_in_ctx_dir.
         apply BinCoproductIn2Commutes_right_in_ctx_dir.
         simpl.
-        assert (H_nat_inst := functor_comp H _ _ _ t β).
+        assert (H_nat_inst := functor_comp H t β).
         assert (H_nat_inst_c := nat_trans_eq_pointwise H_nat_inst c); clear H_nat_inst.
         {
-          match goal with |[ H1 : _  = ?f |- _ = _;; ?g ;; ?h  ] =>
-             pathvia (f;;g;;h) end.
+          match goal with |[ H1 : _  = ?f |- _ = _· ?g · ?h  ] =>
+             pathvia (f·g·h) end.
           + clear H_nat_inst_c.
             simpl.
             repeat rewrite <- assoc.
@@ -770,7 +771,7 @@ Proof.
         apply cancel_postcomposition.
         assert (ptd_mor_commutes_inst := ptd_mor_commutes _ (ptd_from_alg_mor _ hs CP H β0) ((pr1 Z) c)).
         apply ptd_mor_commutes_inst.
-      assert (fbracket_η_inst := fbracket_η T' (f;; ptd_from_alg_mor _ hs CP H β0)).
+      assert (fbracket_η_inst := fbracket_η T' (f· ptd_from_alg_mor _ hs CP H β0)).
       assert (fbracket_η_inst_c := nat_trans_eq_pointwise fbracket_η_inst c); clear fbracket_η_inst.
       apply (!fbracket_η_inst_c).
     + (* now the difficult case *)
@@ -807,7 +808,7 @@ Proof.
         apply maponpaths.
         rewrite assoc.
         eapply pathsinv0.
-        assert (fbracket_τ_inst := fbracket_τ T' (f;; ptd_from_alg_mor _ hs CP H β0)).
+        assert (fbracket_τ_inst := fbracket_τ T' (f· ptd_from_alg_mor _ hs CP H β0)).
         assert (fbracket_τ_inst_c := nat_trans_eq_pointwise fbracket_τ_inst c); clear fbracket_τ_inst.
         apply fbracket_τ_inst_c.
       simpl.
@@ -816,13 +817,13 @@ Proof.
       apply cancel_postcomposition.
       apply cancel_postcomposition.
       assert (Hyp:
-                 ((# (pr1 (ℓ(U Z))) (# H β));;
-                 (theta H) ((alg_carrier _  T') ⊗ Z);;
-                 # H (fbracket T' (f;; ptd_from_alg_mor C hs CP H β0))
+                 ((# (pr1 (ℓ(U Z))) (# H β))·
+                 (theta H) ((alg_carrier _  T') ⊗ Z)·
+                 # H (fbracket T' (f· ptd_from_alg_mor C hs CP H β0))
                  =
-                 θ (tpair (λ _ : functor C C, ptd_obj C) (alg_carrier _ (InitialObject IA)) Z) ;;
-                 # H (# (pr1 (ℓ(U Z))) β ;;
-                 fbracket T' (f;; ptd_from_alg_mor C hs CP H β0)))).
+                 θ (tpair (λ _ : functor C C, ptd_obj C) (alg_carrier _ (InitialObject IA)) Z) ·
+                 # H (# (pr1 (ℓ(U Z))) β ·
+                 fbracket T' (f· ptd_from_alg_mor C hs CP H β0)))).
 
       Focus 2.
       assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp.

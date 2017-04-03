@@ -13,15 +13,17 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
-
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.EpiFacts.
-
 Require Import UniMath.CategoryTheory.limits.coequalizers.
+
+Local Open Scope cat.
 
 
 Lemma is_pointwise_epi_from_set_nat_trans_epi (C:precategory)
@@ -102,13 +104,13 @@ Section LiftEpiNatTrans.
     apply (CoequalizerCommutes coeq).
   Qed.
 
-  Lemma univ_surj_nt_ax_pw x  : p x ;; univ_surj_nt x = f x .
+  Lemma univ_surj_nt_ax_pw x  : p x · univ_surj_nt x = f x .
   Proof.
     now rewrite <- univ_surj_nt_ax.
   Qed.
 
 
-  Lemma univ_surj_nt_ax_pw_pw x c : (p x ;; univ_surj_nt x) c = f x c.
+  Lemma univ_surj_nt_ax_pw_pw x c : (p x · univ_surj_nt x) c = f x c.
   Proof.
     now rewrite <- univ_surj_nt_ax.
   Qed.
