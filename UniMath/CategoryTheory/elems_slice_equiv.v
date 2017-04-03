@@ -285,11 +285,13 @@ Section elems_slice_equiv.
     fun Q =>  slice_to_pshf_ob_funct_data Q ,,  slice_to_pshf_ob_is_funct Q.
 
   Definition slice_to_pshf_ob_nat {X Y : pshf C / P} (F : X --> Y) (e : ∫P^op) :
-    (slice_to_pshf_ob_ob X) e --> (slice_to_pshf_ob_ob Y) e :=
-    match e with
-    | (e ,, Pe) =>
-      fun p => hfibersgftog ((pr1 (pr1 F)) e) ((pr1 (pr2 Y)) e) Pe (transportf (fun x => hfiber (x e) Pe) (base_paths _ _ (pr2 F)) p)
-    end.
+    (slice_to_pshf_ob_ob X) e --> (slice_to_pshf_ob_ob Y) e.
+  Proof.
+    induction e as [e Pe].
+    exact (fun p => hfibersgftog ((pr1 (pr1 F)) e)
+                                 ((pr1 (pr2 Y)) e) Pe
+                                 (transportf (fun x => hfiber (x e) Pe) (base_paths _ _ (pr2 F)) p)).
+  Defined.
 
   Definition slice_to_pshf_ob_is_nat {X Y : pshf C / P} (F : X --> Y) :
     is_nat_trans (slice_to_pshf_ob X : functor _ _) (slice_to_pshf_ob Y : functor _ _) (slice_to_pshf_ob_nat F).
