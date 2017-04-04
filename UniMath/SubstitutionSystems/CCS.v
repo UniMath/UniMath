@@ -89,17 +89,6 @@ Proof.
 apply functor_category_has_homsets.
 Qed.
 
-Local Lemma BinProducts_SET_over_sort2 : BinProducts SET_over_sort2.
-Proof.
-apply BinProducts_functor_precat, BinProducts_slice_precat, PullbacksHSET.
-Defined.
-
-Local Lemma Coproducts_SET_over_sort2 : Coproducts ((sort × sort) + (sort × sort))%set SET_over_sort2.
-Proof.
-apply Coproducts_functor_precat, Coproducts_slice_precat, CoproductsHSET.
-apply setproperty.
-Defined.
-
 
 (** The grammar of expressions and objects from page 157:
 
