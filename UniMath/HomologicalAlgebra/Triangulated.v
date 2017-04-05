@@ -1278,7 +1278,8 @@ Section short_short_exact_sequences.
   Defined.
 
   Lemma ShortShortExact_isKernel_from_object (D : @DTri PT) (X : ob PT) :
-    isKernel Abelian.to_Zero (KernelArrow (Image (ShortShortExactData_from_object D X)))
+    isKernel (Abelian.to_Zero ABGR_AbelianPreCat)
+             (KernelArrow (Image (ShortShortExactData_from_object D X)))
              (Mor2 (ShortShortExactData_from_object D X))
              (@Image_Eq ABGR_AbelianPreCat has_homsets_ABGR (ShortShortExactData_from_object D X)).
   Proof.
@@ -1334,7 +1335,7 @@ Section short_short_exact_sequences.
   Local Lemma ShortShortExactData_Eq_to_object (D : @DTri PT) (X : ob PT) :
     monoidfuncomp (to_premor_monoidfun PT (Ob2 D) (Ob3 D) X (Mor2 D))
                   (to_premor_monoidfun PT (Ob1 D) (Ob2 D) X (Mor1 D)) =
-    ZeroArrow (@Abelian.to_Zero ABGR_AbelianPreCat) (to_abgrop (Ob3 D) X) (to_abgrop (Ob1 D) X).
+    ZeroArrow (Abelian.to_Zero ABGR_AbelianPreCat) (to_abgrop (Ob3 D) X) (to_abgrop (Ob1 D) X).
   Proof.
     rewrite <- (@AdditiveZeroArrow_premor_Abelian PT).
     use monoidfun_eq. intros x. cbn. unfold to_premor. rewrite assoc.
@@ -1350,7 +1351,8 @@ Section short_short_exact_sequences.
   Defined.
 
   Lemma ShortShortExact_isKernel_to_object (D : @DTri PT) (X : ob PT) :
-    isKernel Abelian.to_Zero (KernelArrow (Image (ShortShortExactData_to_object D X)))
+    isKernel (Abelian.to_Zero ABGR_AbelianPreCat)
+             (KernelArrow (Image (ShortShortExactData_to_object D X)))
              (Mor2 (ShortShortExactData_to_object D X))
              (@Image_Eq ABGR_AbelianPreCat has_homsets_ABGR
                        (ShortShortExactData_to_object D X)).
