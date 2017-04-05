@@ -28,6 +28,32 @@ Local Set Automatic Introduction.
 
 (** * Displayed category of topological spaces *)
 
+
+(** TODO: upstream to Topology.Topology *)
+Lemma is_lim_comp {X : UU} {U V : TopologicalSet} (f : X → U) (g : U → V) (F : Filter X) (l : U) :
+  is_lim f F l → continuous_at g l →
+  is_lim (funcomp f g) F (g l).
+Proof.
+  apply filterlim_comp.
+Qed.
+Lemma continuous_comp {X Y Z : TopologicalSet} (f : X → Y) (g : Y → Z) :
+  continuous f → continuous g →
+  continuous (funcomp f g).
+Proof.
+  intros Hf Hg x.
+  refine (is_lim_comp _ _ _ _ _ _).
+  apply Hf.
+  apply Hg.
+Qed.
+Lemma isaprop_continuous ( x y : TopologicalSet)
+  (f : x → y)
+  : isaprop (continuous (λ x0 : x,  f x0)).
+Proof.
+  do 3 (apply impred_isaprop; intro).
+  apply propproperty.
+Qed.
+(** END TODO *)
+
 Definition top_disp_precat_ob_mor : disp_precat_ob_mor HSET.
 Proof.
   mkpair.
@@ -44,11 +70,19 @@ Proof.
     unfold continuous_at. cbn. unfold is_lim. cbn.
     unfold filterlim. cbn. unfold filter_le. cbn.
     intros. assumption.
-  - intros. cbn. unfold continuous. 
-    intros. cbn. unfold continuous_at. cbn. 
-    unfold is_lim.
-Abort.
+  - intros X Y Z f g XX YY ZZ Hf Hg. 
+    use (@continuous_comp (pr1hSet X,,XX) (pr1hSet Y,,YY) (pr1hSet Z,,ZZ) f g);
+      assumption.
+Defined.
+
+Definition top_disp_precat_axioms : disp_precat_axioms SET top_disp_precat_data.
+Proof.
+  repeat split; cbn; intros; try (apply proofirrelevance, isaprop_continuous).
+  apply isasetaprop. apply isaprop_continuous.
+Defined.
  
+Definition top_disp_precat : disp_precat SET := _ ,, top_disp_precat_axioms.
+
 
 (** ** The displayed arrow category 
 
