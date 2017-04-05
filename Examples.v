@@ -3,6 +3,7 @@
 
 A typical use for displayed categories is for constructing categories of structured objects, over a given (specific or general) category. We give a few examples here:
 
+- category of topological space as total category
 - arrow precategories
 - objects with N-actions
 - elements, over hSet
@@ -12,6 +13,7 @@ A typical use for displayed categories is for constructing categories of structu
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.Topology.Topology.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
@@ -23,6 +25,30 @@ Local Open Scope mor_disp_scope.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
+
+(** * Displayed category of topological spaces *)
+
+Definition top_disp_precat_ob_mor : disp_precat_ob_mor HSET.
+Proof.
+  mkpair.
+  - intro X. exact (isTopologicalSet (pr1hSet X)).
+  - cbn. intros X Y T U f.
+    apply (@continuous (pr1hSet X,,T) (pr1hSet Y,,U) f).
+Defined.
+
+Definition top_disp_precat_data : disp_precat_data HSET.
+Proof.
+  exists top_disp_precat_ob_mor.
+  mkpair.
+  - intros X XX. cbn. unfold continuous. intros. 
+    unfold continuous_at. cbn. unfold is_lim. cbn.
+    unfold filterlim. cbn. unfold filter_le. cbn.
+    intros. assumption.
+  - intros. cbn. unfold continuous. 
+    intros. cbn. unfold continuous_at. cbn. 
+    unfold is_lim.
+Abort.
+ 
 
 (** ** The displayed arrow category 
 
