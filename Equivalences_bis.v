@@ -30,9 +30,9 @@ Section Essential_Surjectivity.
 
 Definition fiber_functor_ess_split_surj 
     {C C' : Precategory} {D} {D'}
-    {F : functor C C'} (FF : functor_over F D D')
-    (H : functor_over_ff FF)
-    {X : functor_over_ess_split_surj FF}
+    {F : functor C C'} (FF : disp_functor F D D')
+    (H : disp_functor_ff FF)
+    {X : disp_functor_ess_split_surj FF}
     {Y : is_op_isofibration D}
   (* TODO: change to [is_isofibration], once [is_isofibration_iff_is_op_isofibration] is provided *)
     (x : C)
@@ -47,8 +47,8 @@ Proof.
   mkpair.
   - apply dd.
   - 
-    (* now need functor_over_on_iso_disp *)
-    set (XR := functor_over_on_iso_disp FF pe).
+    (* now need disp_functor_on_iso_disp *)
+    set (XR := disp_functor_on_iso_disp FF pe).
     set (XR' := iso_inv_from_iso_disp XR).
     (* now need composition of iso_disps *)
     apply  (invweq (iso_disp_iso_fiber _ _ _ _)).
@@ -153,21 +153,21 @@ Definition adjunction_over_data {C C' : Precategory} (A : adjunction_data C C')
            (F := left_functor A) (G := right_functor A)
            (eta := adjunit A) (eps := adjcounit A)
            (D : disp_precat C) (D' : disp_precat C') : UU
-  := ∑ (FF : functor_over F D D') (GG : functor_over G D' D),
-     (nat_trans_over eta (functor_over_identity _ ) 
-                     (functor_over_composite FF GG))
+  := ∑ (FF : disp_functor F D D') (GG : disp_functor G D' D),
+     (disp_nat_trans eta (disp_functor_identity _ ) 
+                     (disp_functor_composite FF GG))
        ×
-       (nat_trans_over eps (functor_over_composite GG FF) (functor_over_identity _ )).
+       (disp_nat_trans eps (disp_functor_composite GG FF) (disp_functor_identity _ )).
 
 
 Section notation.
 
 Context {C C' : Precategory} {A : adjunction_data C C'} 
         {D D'} (X : adjunction_over_data A D D').
-Definition left_adj_over : functor_over _ _ _ := pr1 X.
-Definition right_adj_over : functor_over _ _ _ := pr1 (pr2 X).
-Definition unit_over : nat_trans_over _ _ _ := pr1 (pr2 (pr2 X)).
-Definition counit_over : nat_trans_over _ _ _ := pr2 (pr2 (pr2 X)).
+Definition left_adj_over : disp_functor _ _ _ := pr1 X.
+Definition right_adj_over : disp_functor _ _ _ := pr1 (pr2 X).
+Definition unit_over : disp_nat_trans _ _ _ := pr1 (pr2 (pr2 X)).
+Definition counit_over : disp_nat_trans _ _ _ := pr2 (pr2 (pr2 X)).
 
 End notation.
 
@@ -234,24 +234,24 @@ Our choice here does _not_ agree with that of the base UniMath category theory l
 
 Definition right_adjoint_over_data {C C' : Precategory} 
            {A : adjunction_data C C'} {D : disp_precat C} {D' : disp_precat C'}
-  (FF : functor_over (left_functor A) D D') : UU
-:= ∑ (GG : functor_over (right_functor A) D' D),
-     (nat_trans_over (adjunit A) 
-            (functor_over_identity _) (functor_over_composite FF GG))
-   × (nat_trans_over (adjcounit A )
-            (functor_over_composite GG FF) (functor_over_identity _)).
+  (FF : disp_functor (left_functor A) D D') : UU
+:= ∑ (GG : disp_functor (right_functor A) D' D),
+     (disp_nat_trans (adjunit A) 
+            (disp_functor_identity _) (disp_functor_composite FF GG))
+   × (disp_nat_trans (adjcounit A )
+            (disp_functor_composite GG FF) (disp_functor_identity _)).
 
 Definition functor_of_right_adjoint_over {C C' : Precategory} 
            {A : adjunction_data C C'} {D : disp_precat C} {D' : disp_precat C'}
-           {FF : functor_over (left_functor A) D D'}
+           {FF : disp_functor (left_functor A) D D'}
   (GG : right_adjoint_over_data FF)
 := pr1 GG.
 Coercion functor_of_right_adjoint_over
-  : right_adjoint_over_data >-> functor_over.
+  : right_adjoint_over_data >-> disp_functor.
 
 Definition adjunction_of_right_adjoint_over_data {C C' : Precategory} 
            {A : adjunction_data C C'} {D : disp_precat C} {D' : disp_precat C'}
-           {FF : functor_over (left_functor A) D D'}
+           {FF : disp_functor (left_functor A) D D'}
   (GG : right_adjoint_over_data FF)
   : adjunction_over_data A D D'
 := (FF,, GG). 
@@ -268,14 +268,14 @@ Definition right_adjoint_of_adjunction_over_data
 Definition right_adjoint_over 
            {C C' : Precategory} {A : adjunction C C'} 
            {D : disp_precat C} {D' : disp_precat C'}
-           (FF : functor_over (left_functor A) D D') : UU
+           (FF : disp_functor (left_functor A) D D') : UU
 := ∑ GG : right_adjoint_over_data FF,
    form_adjunction_over A GG.
 
 Definition data_of_right_adjoint_over 
                       {C C' : Precategory} {A : adjunction C C'} 
                       {D : disp_precat C} {D' : disp_precat C'}
-  {FF : functor_over (left_functor A) D D'}
+  {FF : disp_functor (left_functor A) D D'}
   (GG : right_adjoint_over FF)
 := pr1 GG.
 Coercion data_of_right_adjoint_over
@@ -283,7 +283,7 @@ Coercion data_of_right_adjoint_over
 
 Definition adjunction_of_right_adjoint_over {C C' : Precategory}
            {A : adjunction C C'} {D : disp_precat C} {D' : disp_precat C'}
-           (FF : functor_over (left_functor A) D D')
+           (FF : disp_functor (left_functor A) D D')
            (GG : right_adjoint_over FF)
 : adjunction_over A D D'
 := (adjunction_of_right_adjoint_over_data GG ,, pr2 GG).
@@ -342,21 +342,21 @@ Coercion axioms_of_equiv_over {C C' : Precategory} (E : adj_equiv C C')
 
 Definition is_equiv_over {C C' : Precategory} (E : adj_equiv C C')
            {D : disp_precat C} {D': disp_precat C'} 
-           (FF : functor_over (left_functor E) D D') : UU
+           (FF : disp_functor (left_functor E) D D') : UU
   := ∑ GG : @right_adjoint_over _ _ E _ _ FF, 
             @form_equiv_over _ _ E _ _ GG.
 (* argument E is not inferred *)
 
 Definition right_adjoint_of_is_equiv_over {C C' : Precategory} (E : adj_equiv C C')
            {D : disp_precat C} {D': disp_precat C'} 
-           {FF : functor_over (left_functor E) D D'}
+           {FF : disp_functor (left_functor E) D D'}
            (EE : is_equiv_over E FF) := pr1 EE.
 Coercion right_adjoint_of_is_equiv_over
   : is_equiv_over >-> right_adjoint_over.
 
 Definition equiv_of_is_equiv_over {C C' : Precategory} (E : adj_equiv C C')
            {D : disp_precat C} {D': disp_precat C'} 
-           {FF : functor_over (left_functor E) D D'}
+           {FF : disp_functor (left_functor E) D D'}
            (EE : is_equiv_over E FF)
 : equiv_over E D D'
 := (adjunction_of_right_adjoint_over _ EE ,, pr2 EE). 
@@ -412,7 +412,7 @@ Proof.
     eapply cancel_postcomposition_disp.
     etrans. eapply transportf_transpose. apply @pathsinv0.
       refine (iso_disp_after_inv_mor _).
-      refine (functor_over_on_is_iso_disp GG _).
+      refine (disp_functor_on_is_iso_disp GG _).
       apply Hε. (*1a*)
     eapply transportf_bind.
     eapply cancel_postcomposition_disp.
@@ -433,26 +433,26 @@ Proof.
       etrans. apply assoc_disp.
       eapply transportf_bind.
       etrans. eapply cancel_postcomposition_disp.
-        refine (nat_trans_over_ax η (# GG (ε x yy))). (*2*)
+        refine (disp_nat_trans_ax η (# GG (ε x yy))). (*2*)
       eapply transportf_bind.
       etrans. apply assoc_disp_var.
       eapply transportf_bind.
       eapply cancel_precomposition_disp.
       cbn.
       etrans. eapply transportf_transpose.
-        apply @pathsinv0, (functor_over_comp GG).
+        apply @pathsinv0, (disp_functor_comp GG).
       eapply transportf_bind.
       etrans. apply maponpaths.
-        apply (nat_trans_over_ax ε). (*3*)
+        apply (disp_nat_trans_ax ε). (*3*)
       cbn.
-      etrans. apply (functor_over_transportf _ GG).
+      etrans. apply (disp_functor_transportf _ GG).
       eapply transportf_bind.
-      apply (functor_over_comp GG).
+      apply (disp_functor_comp GG).
     eapply transportf_bind.
     etrans. apply assoc_disp.
     eapply transportf_bind.
     etrans. eapply cancel_postcomposition_disp.
-      apply (nat_trans_over_ax η (η _ (GG x yy))). (*4*)
+      apply (disp_nat_trans_ax η (η _ (GG x yy))). (*4*)
     cbn. 
     eapply transportf_bind.
     etrans. apply assoc_disp_var.
@@ -462,11 +462,11 @@ Proof.
     eapply transportf_bind.
     etrans. eapply cancel_postcomposition_disp.
       etrans. eapply transportf_transpose.
-        apply @pathsinv0, (functor_over_comp GG). (*5*)
+        apply @pathsinv0, (disp_functor_comp GG). (*5*)
       eapply transportf_bind.
       etrans. apply maponpaths, T1. (*6*)
-      etrans. apply (functor_over_transportf _ GG).
-      eapply transportf_bind. apply (functor_over_id GG).
+      etrans. apply (disp_functor_transportf _ GG).
+      eapply transportf_bind. apply (disp_functor_id GG).
     eapply transportf_bind. apply id_left_disp.
   etrans. eapply transportf_bind.
     etrans. apply assoc_disp_var.
@@ -507,19 +507,19 @@ Context {C C' : Precategory}
         {F : functor C C'}
         {D : disp_precat C} 
         {D' : disp_precat C'}
-        (FF : functor_over F D D')
-        (FF_split : functor_over_disp_ess_split_surj FF)
-        (FF_ff : functor_over_ff FF).
+        (FF : disp_functor F D D')
+        (FF_split : disp_functor_disp_ess_split_surj FF)
+        (FF_ff : disp_functor_ff FF).
 
 (** *** Utility lemmas from fullness+faithfulness *)
 
 (* TODO: inline throughout? *) 
 Let FFweq {x y} xx yy (f : x --> y) : xx -->[ f] yy ≃ FF x xx -->[ (# F)%Cat f] FF y yy
-  := functor_over_ff_weq _ FF_ff xx yy f. 
+  := disp_functor_ff_weq _ FF_ff xx yy f. 
 Let FFinv {x y} {xx} {yy} {f} : FF x xx -->[ (# F)%Cat f] FF y yy → xx -->[ f] yy 
-  := @functor_over_ff_inv _ _ _ _ _ _ FF_ff x y xx yy f.
+  := @disp_functor_ff_inv _ _ _ _ _ _ FF_ff x y xx yy f.
 
-(* TODO: once [functor_over_ff_transportf_gen] is done, replace this with that. *) 
+(* TODO: once [disp_functor_ff_transportf_gen] is done, replace this with that. *) 
 Lemma FFinv_transportf
     {x y : C} {f f' : x --> y} (e : f = f')
     {xx : D x} {yy : D y} (ff : FF _ xx -->[(#F)%cat f] FF _ yy)
@@ -528,8 +528,8 @@ Proof.
   destruct e. apply idpath.
 Qed.
 
-(* TODO: once more general [functor_over_ff_reflects_isos] is done, kill this and replace it with that. *)
-Definition functor_over_id_ff_reflects_isos 
+(* TODO: once more general [disp_functor_ff_reflects_isos] is done, kill this and replace it with that. *)
+Definition disp_functor_id_ff_reflects_isos 
   {x y} {xx : D x} {yy : D y} {f : iso x y}
   (ff : xx -->[ f ] yy) (isiso: is_iso_disp (functor_on_iso F f) (# FF ff)) 
   : is_iso_disp _ ff.
@@ -543,7 +543,7 @@ Proof.
   split.
   - unfold ffinv, FFffinv''; clear ffinv FFffinv''.
     apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
-    etrans. apply (functor_over_comp FF).
+    etrans. apply (disp_functor_comp FF).
     etrans. apply maponpaths. apply maponpaths_2. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
     etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
     etrans. apply transport_f_f.
@@ -552,13 +552,13 @@ Proof.
     etrans. apply maponpaths. unfold FFffinv. apply (iso_disp_after_inv_mor isiso).
     etrans. apply transport_f_f.
     apply pathsinv0.
-    etrans. apply (functor_over_transportf _ FF).
-    etrans. apply maponpaths. apply functor_over_id.
+    etrans. apply (disp_functor_transportf _ FF).
+    etrans. apply maponpaths. apply disp_functor_id.
     etrans. apply transport_f_f.
     apply maponpaths_2. apply homset_property.
   - unfold ffinv, FFffinv''; clear ffinv FFffinv''.
     apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
-    etrans. apply (functor_over_comp FF).
+    etrans. apply (disp_functor_comp FF).
     etrans. apply maponpaths. apply maponpaths. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
         etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
     etrans. apply transport_f_f.
@@ -567,8 +567,8 @@ Proof.
     etrans. apply maponpaths. unfold FFffinv. apply (inv_mor_after_iso_disp isiso).
     etrans. apply transport_f_f.
     apply pathsinv0.
-    etrans. apply (functor_over_transportf _ FF).
-    etrans. apply maponpaths. apply functor_over_id.
+    etrans. apply (disp_functor_transportf _ FF).
+    etrans. apply maponpaths. apply disp_functor_id.
     etrans. apply transport_f_f.
     apply maponpaths_2. apply homset_property.
 Qed.
@@ -577,7 +577,7 @@ Definition FFinv_on_iso_is_iso {x y} {xx : D x} {yy : D y} {f : iso x y}
   (ff : FF _ xx -->[ (#F)%cat f ] FF _ yy) (Hff: is_iso_disp (functor_on_iso F f) ff) 
   : is_iso_disp _ (FFinv ff).
 Proof.
-  apply functor_over_id_ff_reflects_isos.
+  apply disp_functor_id_ff_reflects_isos.
   refine (transportf _ _ Hff).
   apply @pathsinv0. use homotweqinvweq.
 Qed.
@@ -587,7 +587,7 @@ Qed.
 (* TODO: does [Local Definition] actually keep it local?  It seems not — e.g. [Print GG_data] still works after the section closes. Is there a way to actually keep them local?  If not, find less generic names for [GG] and its components. *) 
 
 (*
-Local Definition GG_data : functor_over_data (functor_identity _ ) D D'.
+Local Definition GG_data : disp_functor_data (functor_identity _ ) D D'.
 Proof.
   mkpair.
   + intros x xx. exact (pr1 (FF_split x xx)).
@@ -602,12 +602,12 @@ Defined.
 *)
 
 (*
-Local Lemma GG_ax : functor_over_axioms GG_data.
+Local Lemma GG_ax : disp_functor_axioms GG_data.
 Proof.
   split; simpl.
   + intros x xx.
     apply invmap_eq. cbn.
-    etrans. Focus 2. apply @pathsinv0, (functor_over_id FF).
+    etrans. Focus 2. apply @pathsinv0, (disp_functor_id FF).
     etrans. apply maponpaths.
       etrans. apply maponpaths_2, id_right_disp.
       etrans. apply mor_disp_transportf_postwhisker.
@@ -618,7 +618,7 @@ Proof.
   + intros x y z xx yy zz f g ff gg.
     apply invmap_eq. cbn.
     etrans. Focus 2. apply @pathsinv0.
-      etrans. apply (functor_over_comp FF).
+      etrans. apply (disp_functor_comp FF).
       etrans. apply maponpaths.
         etrans. apply maponpaths; use homotweqinvweq.
         apply maponpaths_2; use homotweqinvweq.
@@ -660,16 +660,16 @@ Proof.
 Qed.
 *)
 (*
-Definition GG : functor_over _ _ _ := (_ ,, GG_ax).
+Definition GG : disp_functor _ _ _ := (_ ,, GG_ax).
 *)
 (*
 Definition ε_ses_ff_data
-  : nat_trans_over_data (nat_trans_id _ )
-      (functor_over_composite GG FF) (functor_over_identity _ )
+  : disp_nat_trans_data (nat_trans_id _ )
+      (disp_functor_composite GG FF) (disp_functor_identity _ )
 := fun x xx => (pr2 (FF_split x xx)).
 *)
 (*
-Lemma ε_ses_ff_ax : nat_trans_over_axioms ε_ses_ff_data.
+Lemma ε_ses_ff_ax : disp_nat_trans_axioms ε_ses_ff_data.
 Proof.
   intros x y f xx yy ff. cbn. unfold ε_ses_ff_data.
   etrans. apply maponpaths_2; use homotweqinvweq.
@@ -689,14 +689,14 @@ Qed.
 *)
 (*
 Definition ε_ses_ff
-  : nat_trans_over (nat_trans_id _ )
-      (functor_over_composite GG FF) (functor_over_identity _ )
+  : disp_nat_trans (nat_trans_id _ )
+      (disp_functor_composite GG FF) (disp_functor_identity _ )
 := (ε_ses_ff_data,, ε_ses_ff_ax).
 *)
 (*
 Definition η_ses_ff_data
-  : nat_trans_over_data (nat_trans_id _)
-      (functor_over_identity _ ) (functor_over_composite FF GG).
+  : disp_nat_trans_data (nat_trans_id _)
+      (disp_functor_identity _ ) (disp_functor_composite FF GG).
 Proof.
   intros x xx. cbn.
   apply FFinv.
@@ -705,13 +705,13 @@ Defined.
 *)
 (*
 Definition η_ses_ff_ax
-  : nat_trans_over_axioms η_ses_ff_data.
+  : disp_nat_trans_axioms η_ses_ff_data.
 Proof.
   intros x y f xx yy ff. cbn. unfold η_ses_ff_data.
   (* This feels a bit roundabout.  Can it be simplified? *)
   apply @pathsinv0.
   etrans. eapply maponpaths.
-    etrans. apply @pathsinv0, functor_over_ff_inv_compose.
+    etrans. apply @pathsinv0, disp_functor_ff_inv_compose.
     apply maponpaths.
     etrans. apply mor_disp_transportf_prewhisker.
     apply maponpaths.
@@ -735,14 +735,14 @@ Proof.
   etrans. apply transport_f_f.
   apply transportf_comp_lemma_hset.
     apply homset_property.
-  etrans. apply (functor_over_ff_inv_compose _ FF_ff).
+  etrans. apply (disp_functor_ff_inv_compose _ FF_ff).
   apply maponpaths_2, homotinvweqweq.
 Qed.
 *)
 (*
 Definition η_ses_ff
-  : nat_trans_over (nat_trans_id _)
-      (functor_over_identity _ ) (functor_over_composite FF GG)
+  : disp_nat_trans (nat_trans_id _)
+      (disp_functor_identity _ ) (disp_functor_composite FF GG)
 := (_ ,, η_ses_ff_ax).
 *)
 (*
@@ -795,16 +795,16 @@ End Equiv_from_ff_plus_ess_split.
 Section Nat_Trans_Disp_Inv.
 
 Context {C : Precategory} {D' D : disp_precat C}
-        {FF GG : functor_over (functor_identity _) D' D}
-        (alpha : nat_trans_over (nat_trans_id _ ) FF GG)
+        {FF GG : disp_functor (functor_identity _) D' D}
+        (alpha : disp_nat_trans (nat_trans_id _ ) FF GG)
         (Ha : ∏ x xx, is_iso_disp (identity_iso _ ) (alpha x xx)).
 
 (*
-Lemma inv_ax : nat_trans_over_axioms
+Lemma inv_ax : disp_nat_trans_axioms
     (λ (x : C) (xx : D' x), @inv_mor_disp_from_iso _ _ _ _ (identity_iso _ ) _  _ _ (Ha x xx)).
 *)
 
-Local Lemma inv_ax : @nat_trans_over_axioms C C (functor_identity_data C)
+Local Lemma inv_ax : @disp_nat_trans_axioms C C (functor_identity_data C)
     (functor_identity_data C) (@nat_trans_id C C (functor_identity_data C))
     D' D GG FF
     (λ (x : C) (xx : D' x),
@@ -837,7 +837,7 @@ Proof.
             apply assoc_disp.
     etrans. apply transport_f_f.
     etrans. apply maponpaths. apply maponpaths_2.
-            apply (nat_trans_over_ax_var alpha).
+            apply (disp_nat_trans_ax_var alpha).
     etrans. apply maponpaths. 
             apply mor_disp_transportf_postwhisker.
     etrans.    apply transport_f_f.
@@ -855,7 +855,7 @@ Proof.
     apply homset_property.
 Qed.
 
-Local Definition inv : nat_trans_over (nat_trans_id _ ) GG FF.
+Local Definition inv : disp_nat_trans (nat_trans_id _ ) GG FF.
 Proof.
   mkpair.
   - intros x xx.
@@ -868,33 +868,33 @@ End Nat_Trans_Disp_Inv.
 Section Displayed_Equiv_Inv.
 
 Context {C : Precategory} {D' D : disp_precat C}
-        (FF : functor_over (functor_identity _) D' D)
+        (FF : disp_functor (functor_identity _) D' D)
         (isEquiv : is_equiv_over_id FF).
 
-Let GG : functor_over _ D D' := right_adjoint_of_is_equiv_over_id isEquiv.
-Let η : nat_trans_over (nat_trans_id (functor_identity C)) 
-                       (functor_over_identity D')
-                       (functor_over_composite FF GG)
+Let GG : disp_functor _ D D' := right_adjoint_of_is_equiv_over_id isEquiv.
+Let η : disp_nat_trans (nat_trans_id (functor_identity C)) 
+                       (disp_functor_identity D')
+                       (disp_functor_composite FF GG)
   := unit_over_id isEquiv.
 
-Let ε :  nat_trans_over
+Let ε :  disp_nat_trans
            (nat_trans_id (functor_identity C))
-           (functor_over_composite GG FF)
-           (functor_over_identity D)
+           (disp_functor_composite GG FF)
+           (disp_functor_identity D)
   := counit_over_id isEquiv.
 
-Definition η_inv : nat_trans_over (nat_trans_id (functor_identity C))
-    (functor_over_identity D) (functor_over_composite GG FF).
+Definition η_inv : disp_nat_trans (nat_trans_id (functor_identity C))
+    (disp_functor_identity D) (disp_functor_composite GG FF).
 Proof.
   apply (inv ε).
   apply (is_iso_counit_over_id isEquiv).
 Defined.
 
 Definition ε_inv :
- nat_trans_over
+ disp_nat_trans
     (nat_trans_id
        (functor_identity C))
-    (functor_over_composite FF GG) (functor_over_identity D').
+    (disp_functor_composite FF GG) (disp_functor_identity D').
 Proof.
   apply (inv η). cbn.
   apply (is_iso_unit_over_id isEquiv).
@@ -931,7 +931,7 @@ Proof.
   intros x xx. cbn.
         set (XR:= @iso_disp_precomp).
         set (Gepsxxx := (#GG (ε x xx))). 
-        set (RG := @functor_over_on_is_iso_disp _ _ (functor_identity C)).
+        set (RG := @disp_functor_on_is_iso_disp _ _ (functor_identity C)).
         specialize (RG _ _ GG).  
         specialize (RG _ _ _ _ (identity_iso _ )  (ε x xx)).
         specialize (RG (is_iso_counit_over_id (pr2 isEquiv) x xx)).
@@ -952,18 +952,18 @@ Proof.
         unfold Gepsxxx.
         etrans. apply assoc_disp.
         etrans. apply maponpaths. apply maponpaths_2.
-                eapply pathsinv0. apply (functor_over_comp_var GG).
+                eapply pathsinv0. apply (disp_functor_comp_var GG).
         etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
         etrans. apply transport_f_f.
         etrans. apply maponpaths. apply maponpaths_2.
                 apply maponpaths.
                 apply (inv_mor_after_iso_disp (is_iso_counit_over_id (pr2 isEquiv) x xx)).
         etrans. apply maponpaths. apply maponpaths_2.
-                apply (functor_over_transportf _ GG).
+                apply (disp_functor_transportf _ GG).
         etrans. apply maponpaths. apply  mor_disp_transportf_postwhisker.
         etrans. apply ( transport_f_f _ _ _ _ ).
         etrans. apply maponpaths. apply maponpaths_2.
-                apply (functor_over_id GG).
+                apply (disp_functor_id GG).
         etrans. apply maponpaths. apply  mor_disp_transportf_postwhisker.
         etrans. apply transport_f_f.
         etrans. apply maponpaths. apply id_left_disp.
@@ -1049,7 +1049,7 @@ Context {C C' : Precategory}.
 Definition fiber_is_left_adj 
   {A : adjunction C C'}
   {D : disp_precat C} {D' : disp_precat C'}
-  {FF : functor_over (left_functor A) D D'}
+  {FF : disp_functor (left_functor A) D D'}
   (EFF : right_adjoint_over FF)
   (c : C)
 : is_left_adjoint (fiber_functor FF c).
@@ -1079,7 +1079,7 @@ Defined.
 *)
 (*
 Definition fiber_equiv {D D' : disp_precat C}
-  {FF : functor_over (functor_identity _) D D'}
+  {FF : disp_functor (functor_identity _) D D'}
   (EFF : is_equiv_over_id FF)
   (c : C)
 : adj_equivalence_of_precats (fiber_functor FF c).
