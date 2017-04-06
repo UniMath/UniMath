@@ -21,6 +21,7 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Require Import TypeTheory.Displayed_Cats.Auxiliary.
 Require Import TypeTheory.Displayed_Cats.Core.
+Require Import TypeTheory.Displayed_Cats.Limits.
 
 Local Open Scope mor_disp_scope.
 
@@ -253,6 +254,14 @@ Qed.
 Definition disp_precat_functor_alg : disp_precat C := _ ,, disp_precat_functor_alg_axioms.
 
 Definition total_functor_alg : precategory := total_precat disp_precat_functor_alg.
+
+
+
+Definition creates_limits_functor_alg : creates_limits disp_precat_functor_alg.
+Proof.
+  intros J D x L isL.  
+Abort.
+
 
 End functor_algebras.
 
