@@ -290,16 +290,30 @@ Proof.
   - mkpair.
     + mkpair.
       * use (limArrow LL). apply FC.
-      * { mkpair.
-          - intro j. cbn.
-            set (XR := limArrowCommutes LL _ FC). cbn in XR.
-            apply pathsinv0. apply XR. 
-          - cbn. intros i j e.
-            apply subtypeEquality.
-            { intro. apply homset_property. } 
-            cbn. apply (coneOutCommutes L). }
-    + intro t.
-      admit.
+      * abstract (
+          mkpair ;
+          [
+            intro j; cbn;
+            set (XR := limArrowCommutes LL _ FC); cbn in XR;
+            apply pathsinv0; apply XR 
+          | cbn; intros i j e;
+            apply subtypeEquality;
+            [ intro; apply homset_property |];
+            cbn; apply (coneOutCommutes L)
+          ]).
+    + intro t. cbn.
+      use total2_paths_f.
+      { cbn. 
+        apply (limArrowUnique LL).
+        induction t as [t [H1 H2]]. cbn in *.
+        intro j.
+        apply pathsinv0. apply H1. }
+      apply proofirrelevance.
+      apply isofhleveltotal2.
+      *  apply impred_isaprop. intro. apply homset_property.
+      * intros.
+        do 3 (apply impred_isaprop; intro).
+        admit.
   - admit.
 Abort.
 
