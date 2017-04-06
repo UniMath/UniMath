@@ -103,9 +103,22 @@ t ::= x                       variable
     | (∀x:E) t                universal quantification
 >>
 
-We refer to the first syntactic class as ty and the second as el. This grammar gives 6
-operations, to the left as Vladimir's restricted 2-sorted signature (where el is 0 and
-ty is 1) and to the right as a multisorted signature:
+We refer to the first syntactic class as ty and the second as el. We first reformulate the rules as
+follows:
+
+<<
+A,B ::= Π(A,x.B)              product of types
+      | Prop                  type of propositions
+      | Proof(t)              type of proofs of proposition t
+
+t,u ::= x                     variable
+      | λ(A,x.t)              function abstraction
+      | App(A,x.B,t,u)        function application
+      | ∀(A,x.t)              universal quantification
+>>
+
+This grammar then gives 6 operations, to the left as Vladimir's restricted 2-sorted signature (where
+el is 0 and ty is 1) and to the right as a multisorted signature:
 
 ((0, 1), (1, 1), 1)                 = (([],ty), ([el], ty), ty)
 (1)                                 = ([],ty)
