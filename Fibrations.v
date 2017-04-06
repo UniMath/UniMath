@@ -406,7 +406,7 @@ Section Equivalence_disc_fibs_presheaves.
 Outline via categories:
 
 - show that the fibers of a discrete fibration are (discrete categories on) sets, and that the disp morphism types are props;
-- define the category of discrete fibrations over C, using [functor_over_id] for morphisms, and with [homset_property] coming from the previous point;
+- define the category of discrete fibrations over C, using [disp_functor_id] for morphisms, and with [homset_property] coming from the previous point;
 - construct equivalence of cats; probably easiest by explicit functors and natural isos (not by “ess split” plus “full and faithful”); 
 - show [disc_fib_precat C] is univalent (possibly _using_ the above equivalence of cats, to get “isos of displayed cats are weq to isos btn associated presheaves”?);
 - conclude equivalence of types.
@@ -423,7 +423,7 @@ Variable C : Precategory.
 Definition precat_of_discrete_fibs_ob_mor : precategory_ob_mor.
 Proof.
   exists (discrete_fibration C).
-  intros a b. exact (functor_over (functor_identity _ ) a b).
+  intros a b. exact (disp_functor (functor_identity _ ) a b).
 Defined.
 
 Definition precat_of_discrete_fibs_data : precategory_data.
@@ -431,8 +431,8 @@ Proof.
   exists precat_of_discrete_fibs_ob_mor.
   split.
   - intro.
-    exact (@functor_over_identity _ _ ).
-  - intros ? ? ? f g. exact (functor_over_composite f g ).
+    exact (@disp_functor_identity _ _ ).
+  - intros ? ? ? f g. exact (disp_functor_composite f g ).
 Defined.
 
 Lemma eq_discrete_fib_mor (F G : precat_of_discrete_fibs_ob_mor)
@@ -441,7 +441,7 @@ Lemma eq_discrete_fib_mor (F G : precat_of_discrete_fibs_ob_mor)
   : a = b.
 Proof.
   apply subtypeEquality.
-  { intro. apply isaprop_functor_over_axioms. } 
+  { intro. apply isaprop_disp_functor_axioms. } 
   use total2_paths_f.
   - apply funextsec. intro x. 
     apply funextsec. intro y. 
@@ -468,7 +468,7 @@ Proof.
       apply isaset_fiber_discrete_fibration. 
     + intro. do 6 (apply impred; intro).
       apply homsets_disp.
-  - intro. apply isasetaprop. apply isaprop_functor_over_axioms.
+  - intro. apply isasetaprop. apply isaprop_disp_functor_axioms.
 Qed.  
 
 Definition Precat_of_discrete_fibs : Precategory 

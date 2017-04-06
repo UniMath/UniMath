@@ -112,7 +112,7 @@ Definition dirprod_disp_precat : disp_precat C
   := (_ ,, dirprod_disp_precat_axioms).
 
 Definition dirprodpr1_disp_functor_data
-  : functor_over_data (functor_identity C) dirprod_disp_precat (D1).
+  : disp_functor_data (functor_identity C) dirprod_disp_precat (D1).
 Proof.
   mkpair.
   - intros x xx; exact (pr1 xx).
@@ -120,7 +120,7 @@ Proof.
 Defined.
 
 Definition dirprodpr1_disp_functor_axioms
-  : functor_over_axioms dirprodpr1_disp_functor_data.
+  : disp_functor_axioms dirprodpr1_disp_functor_data.
 Proof.
   split. 
   - intros; apply idpath.
@@ -128,12 +128,12 @@ Proof.
 Qed.
 
 Definition dirprodpr1_disp_functor
-  : functor_over (functor_identity C) dirprod_disp_precat (D1)
+  : disp_functor (functor_identity C) dirprod_disp_precat (D1)
 := (dirprodpr1_disp_functor_data,, dirprodpr1_disp_functor_axioms).
 
 
 Definition dirprodpr2_disp_functor_data
-  : functor_over_data (functor_identity C) dirprod_disp_precat (D2).
+  : disp_functor_data (functor_identity C) dirprod_disp_precat (D2).
 Proof.
   mkpair.
   - intros x xx; exact (pr2 xx).
@@ -141,7 +141,7 @@ Proof.
 Defined.
 
 Definition dirprodpr2_disp_functor_axioms
-  : functor_over_axioms dirprodpr2_disp_functor_data.
+  : disp_functor_axioms dirprodpr2_disp_functor_data.
 Proof.
   split. 
   - intros; apply idpath.
@@ -149,7 +149,7 @@ Proof.
 Qed.
 
 Definition dirprodpr2_disp_functor
-  : functor_over (functor_identity C) dirprod_disp_precat (D2)
+  : disp_functor (functor_identity C) dirprod_disp_precat (D2)
 := (dirprodpr2_disp_functor_data,, dirprodpr2_disp_functor_axioms).
 
 End Dirprod.
@@ -213,7 +213,7 @@ Definition sigma_disp_precat : disp_precat C
   := (_ ,, sigma_disp_precat_axioms).
 
 Definition sigmapr1_disp_functor_data
-  : functor_over_data (functor_identity C) sigma_disp_precat D.
+  : disp_functor_data (functor_identity C) sigma_disp_precat D.
 Proof.
   mkpair.
   - intros x xx; exact (pr1 xx).
@@ -221,7 +221,7 @@ Proof.
 Defined.
 
 Definition sigmapr1_disp_functor_axioms
-  : functor_over_axioms sigmapr1_disp_functor_data.
+  : disp_functor_axioms sigmapr1_disp_functor_data.
 Proof.
   split. 
   - intros; apply idpath.
@@ -229,10 +229,10 @@ Proof.
 Qed.
 
 Definition sigmapr1_disp_functor
-  : functor_over (functor_identity C) sigma_disp_precat D
+  : disp_functor (functor_identity C) sigma_disp_precat D
 := (sigmapr1_disp_functor_data,, sigmapr1_disp_functor_axioms).
 
-(* TODO: complete [sigmapr2_disp]; will be a [functor_lifting], not a [functor_over]. *)
+(* TODO: complete [sigmapr2_disp]; will be a [functor_lifting], not a [disp_functor]. *)
 
 (** ** Transport and isomorphism lemmas *)
 
@@ -432,13 +432,13 @@ Lemma foo
   (F' F : functor C' C)
   (a' a : nat_trans F' F)
   (p : a' = a )
-  (FF' : functor_over F' D' D)
-  (FF : functor_over F D' D)
-  (b : nat_trans_over a' FF' FF)
+  (FF' : disp_functor F' D' D)
+  (FF : disp_functor F D' D)
+  (b : disp_nat_trans a' FF' FF)
   (c' : C')
   (xx' : D' c')
   :
-  pr1 (transportf (fun x => nat_trans_over x FF' FF) p b) c' xx' =
+  pr1 (transportf (fun x => disp_nat_trans x FF' FF) p b) c' xx' =
       transportf (mor_disp (FF' c' xx') (FF c' xx')) 
            (nat_trans_eq_pointwise p _ )  (b c' xx'). 
 Proof.
@@ -449,20 +449,20 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma nat_trans_over_id_left
+Lemma disp_nat_trans_id_left
   (F' F : functor C' C)
   (a : nat_trans F' F)
-  (FF' : functor_over F' D' D)
-  (FF : functor_over F D' D)
-  (b : nat_trans_over a FF' FF)
+  (FF' : disp_functor F' D' D)
+  (FF : disp_functor F D' D)
+  (b : disp_nat_trans a FF' FF)
   :
-   nat_trans_over_comp (nat_trans_over_id FF') b =
-   transportb (λ f : nat_trans F' F, nat_trans_over f FF' FF) 
+   disp_nat_trans_comp (disp_nat_trans_id FF') b =
+   transportb (λ f : nat_trans F' F, disp_nat_trans f FF' FF) 
               (id_left (a : FunctorsC'C ⟦ _ , _ ⟧)) 
               b.
 Proof.
   apply subtypeEquality.
-  { intro. apply isaprop_nat_trans_over_axioms. }
+  { intro. apply isaprop_disp_nat_trans_axioms. }
   apply funextsec; intro c'.
   apply funextsec; intro xx'.
   apply pathsinv0. 
@@ -472,20 +472,20 @@ Proof.
   apply transportf_ext, homset_property.
 Qed.
 
-Lemma nat_trans_over_id_right
+Lemma disp_nat_trans_id_right
   (F' F : functor C' C)
   (a : nat_trans F' F)
-  (FF' : functor_over F' D' D)
-  (FF : functor_over F D' D)
-  (b : nat_trans_over a FF' FF)
+  (FF' : disp_functor F' D' D)
+  (FF : disp_functor F D' D)
+  (b : disp_nat_trans a FF' FF)
   :
-   nat_trans_over_comp b (nat_trans_over_id FF) =
-   transportb (λ f : nat_trans F' F, nat_trans_over f FF' FF) 
+   disp_nat_trans_comp b (disp_nat_trans_id FF) =
+   transportb (λ f : nat_trans F' F, disp_nat_trans f FF' FF) 
               (id_right (a : FunctorsC'C ⟦ _ , _ ⟧)) 
               b.
 Proof.
   apply subtypeEquality.
-  { intro. apply isaprop_nat_trans_over_axioms. }
+  { intro. apply isaprop_disp_nat_trans_axioms. }
   apply funextsec; intro c'.
   apply funextsec; intro xx'.
   apply pathsinv0. 
@@ -495,26 +495,26 @@ Proof.
   apply transportf_ext, homset_property.
 Qed.
 
-Lemma nat_trans_over_assoc
+Lemma disp_nat_trans_assoc
   (x y z w : functor C' C)
   (f : nat_trans x y)
   (g : nat_trans y z)
   (h : nat_trans z w)
-  (xx : functor_over x D' D)
-  (yy : functor_over y D' D)
-  (zz : functor_over z D' D)
-  (ww : functor_over w D' D)
-  (ff : nat_trans_over f xx yy)
-  (gg : nat_trans_over g yy zz)
-  (hh : nat_trans_over h zz ww)
+  (xx : disp_functor x D' D)
+  (yy : disp_functor y D' D)
+  (zz : disp_functor z D' D)
+  (ww : disp_functor w D' D)
+  (ff : disp_nat_trans f xx yy)
+  (gg : disp_nat_trans g yy zz)
+  (hh : disp_nat_trans h zz ww)
   :
-   nat_trans_over_comp ff (nat_trans_over_comp gg hh) =
-   transportb (λ f0 : nat_trans x w, nat_trans_over f0 xx ww) 
+   disp_nat_trans_comp ff (disp_nat_trans_comp gg hh) =
+   transportb (λ f0 : nat_trans x w, disp_nat_trans f0 xx ww) 
      (assoc (f : FunctorsC'C⟦_,_⟧) g h) 
-     (nat_trans_over_comp (nat_trans_over_comp ff gg) hh).
+     (disp_nat_trans_comp (disp_nat_trans_comp ff gg) hh).
 Proof.
   apply subtypeEquality.
-  { intro. apply isaprop_nat_trans_over_axioms. }
+  { intro. apply isaprop_disp_nat_trans_axioms. }
   apply funextsec; intro c'.
   apply funextsec; intro xx'.
   apply pathsinv0.
@@ -525,13 +525,13 @@ Proof.
   apply homset_property.
 Qed.
 
-Lemma isaset_nat_trans_over
+Lemma isaset_disp_nat_trans
   (x y : functor C' C)
   (f : nat_trans x y)
-  (xx : functor_over x D' D)
-  (yy : functor_over y D' D)
+  (xx : disp_functor x D' D)
+  (yy : disp_functor y D' D)
   :
-   isaset (nat_trans_over f xx yy).
+   isaset (disp_nat_trans f xx yy).
 Proof.
   intros. simpl in *.
   apply (isofhleveltotal2 2).
@@ -549,18 +549,18 @@ Proof.
   - mkpair.
     + mkpair.
       * intro F.
-        apply (functor_over F D' D).
+        apply (disp_functor F D' D).
       * simpl. intros F' F FF' FF a.
-        apply (nat_trans_over a FF' FF).
+        apply (disp_nat_trans a FF' FF).
     + mkpair.
       * intros x xx.
-        apply nat_trans_over_id.
-      * intros ? ? ? ? ? ? ? ? X X0. apply (nat_trans_over_comp X X0 ).
+        apply disp_nat_trans_id.
+      * intros ? ? ? ? ? ? ? ? X X0. apply (disp_nat_trans_comp X X0 ).
   - repeat split.
-    + apply nat_trans_over_id_left.
-    + apply nat_trans_over_id_right.
-    + apply nat_trans_over_assoc.
-    + apply isaset_nat_trans_over.      
+    + apply disp_nat_trans_id_left.
+    + apply disp_nat_trans_id_right.
+    + apply disp_nat_trans_assoc.
+    + apply isaset_disp_nat_trans.      
 Defined.
 
 (** TODO : characterize isos in the displayed functor precat *)
@@ -635,7 +635,7 @@ Proof.
       apply transportf_ext, homset_property.
 Defined.
 
-Lemma is_nat_trans_over_pointwise_inv
+Lemma is_disp_nat_trans_pointwise_inv
   (x y : FunctorsC'C)
   (f : iso x y)
   (xx : disp_functor_precat x)
@@ -649,7 +649,7 @@ Lemma is_nat_trans_over_pointwise_inv
   (xx0 : D' x0)
   (ff : xx' -->[ f0] xx0)
   :
-   # (yy : functor_over _ _ _)  ff ;; (let RT := pr1 (H x0 xx0) in
+   # (yy : disp_functor _ _ _)  ff ;; (let RT := pr1 (H x0 xx0) in
                transportf (mor_disp (pr1 yy x0 xx0) (pr1 xx x0 xx0))
                  (id_right (pr1 (inv_from_iso f) x0)) RT) =
    transportb (mor_disp (pr1 yy x' xx') (pr1 xx x0 xx0))
@@ -657,7 +657,7 @@ Lemma is_nat_trans_over_pointwise_inv
      ((let RT := pr1 (H x' xx') in
        transportf (mor_disp (pr1 yy x' xx') (pr1 xx x' xx'))
          (id_right (pr1 (inv_from_iso f) x')) RT) ;; 
-      # (xx : functor_over _ _ _) ff).
+      # (xx : disp_functor _ _ _) ff).
 Proof.
  etrans. apply mor_disp_transportf_prewhisker.
     apply pathsinv0.
@@ -677,7 +677,7 @@ Proof.
           %mor
          ) 
        ).
-    specialize (XR ((xx : functor_over _ _ _  ) x0 xx0)).
+    specialize (XR ((xx : disp_functor _ _ _  ) x0 xx0)).
     set (Xweq := weqpair _ XR).
     apply (invmaponpathsweq Xweq).
     unfold Xweq. clear Xweq.
@@ -689,7 +689,7 @@ Proof.
     etrans. apply transport_f_f.
     apply pathsinv0.
     etrans. apply assoc_disp.
-    assert (XRO := @nat_trans_over_ax _ _ _ _ _ _ _ _ _ FF).
+    assert (XRO := @disp_nat_trans_ax _ _ _ _ _ _ _ _ _ FF).
     specialize (XRO _ _ _ xx'  _ ff).
     assert (XR' := ! (Utilities.transportf_pathsinv0 _ _ _ _  (!XRO))).
     clear XRO.
@@ -736,7 +736,7 @@ Proof.
     set (RT := pr1 (H x' xx')).
     apply (transportf _ XR RT).
   + intros x' x0 f0 xx' xx0 ff.
-    apply is_nat_trans_over_pointwise_inv.
+    apply is_disp_nat_trans_pointwise_inv.
 Defined.
     
     
@@ -755,7 +755,7 @@ Proof.
   - apply (inv_disp_from_pointwise_iso _ _ _ _ _ FF H).
   - split.
     + apply subtypeEquality.
-      { intro. apply isaprop_nat_trans_over_axioms. }
+      { intro. apply isaprop_disp_nat_trans_axioms. }
       apply funextsec; intro c'.
       apply funextsec; intro xx'.
       apply pathsinv0.
@@ -767,7 +767,7 @@ Proof.
       etrans. apply transport_f_f.
       apply transportf_ext, homset_property.
     + apply subtypeEquality.
-      { intro. apply isaprop_nat_trans_over_axioms. }
+      { intro. apply isaprop_disp_nat_trans_axioms. }
       apply funextsec; intro c'.
       apply funextsec; intro xx'.
       apply pathsinv0.
@@ -941,7 +941,7 @@ Section Fiber_Functors.
 Section fix_context.
 
 Context {C C' : Precategory} {D} {D'}
-        {F : functor C C'} (FF : functor_over F D D')
+        {F : functor C C'} (FF : disp_functor F D D')
         (x : C).
 
 Definition fiber_functor_data : functor_data D[{x}] D'[{F x}].
@@ -957,11 +957,11 @@ Proof.
   split; unfold functor_idax, functor_compax; cbn.
   - intros.
     apply Utilities.transportf_pathsinv0.
-    apply pathsinv0. apply functor_over_id.
+    apply pathsinv0. apply disp_functor_id.
   - intros.
-    etrans. apply maponpaths. apply functor_over_transportf.
+    etrans. apply maponpaths. apply disp_functor_transportf.
     etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply functor_over_comp.
+    etrans. apply maponpaths. apply disp_functor_comp.
     etrans. apply transport_f_f.
     apply pathsinv0.
     etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
@@ -1001,8 +1001,8 @@ Qed.
 
 Definition fiber_nat_trans {C C' : Precategory}
   {F : functor C C'}
-  {D D'} {FF FF' : functor_over F D D'}
-  (α : nat_trans_over (nat_trans_id F) FF FF')
+  {D D'} {FF FF' : disp_functor F D D'}
+  (α : disp_nat_trans (nat_trans_id F) FF FF')
   (c : C)
 : nat_trans (fiber_functor FF c) (fiber_functor FF' c).
 Proof.
@@ -1023,8 +1023,8 @@ Defined.
 
 Lemma fiber_functor_ff
     {C C' : Precategory} {D} {D'}
-    {F : functor C C'} (FF : functor_over F D D')
-    (H : functor_over_ff FF)
+    {F : functor C C'} (FF : disp_functor F D D')
+    (H : disp_functor_ff FF)
     (c : C)
 : fully_faithful (fiber_functor FF c).
 Proof.
