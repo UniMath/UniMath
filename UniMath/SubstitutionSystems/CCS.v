@@ -164,11 +164,11 @@ Proof.
 apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
 
-Local Notation "'1'" := (functor_identity SET_over_sort).
+Local Notation "'Id'" := (functor_identity SET_over_sort).
 Local Notation "x ⊗ y" := (BinProductObject _ (BP x y)) (at level 10).
 
 (** The variables *)
-Definition var_map : SET_over_sort2⟦1,CCS⟧ :=
+Definition var_map : SET_over_sort2⟦Id,CCS⟧ :=
   BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · CCS_mor.
 
 Definition Pi_source (X : SET_over_sort2) : SET_over_sort2 :=
@@ -180,14 +180,13 @@ Definition Pi_map : SET_over_sort2⟦Pi_source CCS,CCS⟧ :=
     · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _))
     · CCS_mor.
 
-(* This is weird *)
 Definition Prop_source (X : SET_over_sort2) : SET_over_sort2 :=
   constant_functor (slice_precat HSET sort has_homsets_HSET) HSET 1%CS  ∙ hat_functor sort ty.
 
 Definition Prop_map : SET_over_sort2⟦Prop_source CCS,CCS⟧.
-Admitted.
-(* Why is this not working??? *)
-(* use  ((CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ _) (● 1)%stn) · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _)) · CCS_mor). *)
+Proof.
+use ((CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ _) (● 1)%stn) · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _)) · CCS_mor).
+Defined.
 
 Definition Proof_source (X : SET_over_sort2) : SET_over_sort2 :=
   (X ∙ proj_functor sort el) ∙ hat_functor sort ty.
@@ -229,7 +228,7 @@ Definition forall_map : SET_over_sort2⟦forall_source CCS,CCS⟧ :=
     · CCS_mor.
 
 Definition mk_CCS_Algebra X
-  (fvar    : SET_over_sort2⟦1,X⟧)
+  (fvar    : SET_over_sort2⟦Id,X⟧)
   (fPi     : SET_over_sort2⟦Pi_source X,X⟧)
   (fProp   : SET_over_sort2⟦Prop_source X,X⟧)
   (fProof  : SET_over_sort2⟦Proof_source X,X⟧)
@@ -250,11 +249,11 @@ repeat (induction n as [|n _]; try induction (nopathsfalsetotrue p)).
 - simpl in fapp.
   exact fapp.
 - exact fforall.
-Admitted. (* Defined is extremely slow *)
+Defined. (* This is slow *)
 
 (** The recursor for ccs *)
 Definition foldr_map X
-  (fvar    : SET_over_sort2⟦1,X⟧)
+  (fvar    : SET_over_sort2⟦Id,X⟧)
   (fPi     : SET_over_sort2⟦Pi_source X,X⟧)
   (fProp   : SET_over_sort2⟦Prop_source X,X⟧)
   (fProof  : SET_over_sort2⟦Proof_source X,X⟧)
