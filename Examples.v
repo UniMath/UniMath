@@ -13,6 +13,7 @@ A typical use for displayed categories is for constructing categories of structu
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.Topology.Topology.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -255,7 +256,6 @@ Definition total_functor_alg : precategory := total_precat disp_precat_functor_a
 
 End functor_algebras.
 
-Require Import UniMath.CategoryTheory.Monads.
 
 Section monad_algebras.
 
