@@ -28,9 +28,9 @@ Local Set Automatic Introduction.
 (** * Definition of a cartesian displayed functor *)
 
 (* TODO: upstream to with definition of fibrations/cartesianness *)
-Definition is_cartesian_functor_over
+Definition is_cartesian_disp_functor
   {C C' : Precategory} {F : functor C C'}
-  {D : disp_precat C} {D' : disp_precat C'} (FF : functor_over F D D') : UU
+  {D : disp_precat C} {D' : disp_precat C'} (FF : disp_functor F D D') : UU
 := ∏  {c c' : C} {f : c' --> c}
       {d : D c} {d' : D c'} (ff : d' -->[f] d),
   is_cartesian ff -> is_cartesian (#FF ff).
@@ -97,10 +97,10 @@ Defined.
   Of course, this can only happen when the domain is a fibration; and in practice, it is useful exactly in the case where one has shown it is a fibration by exhibiting some particular construction of (mere existence of) cartesian lifts. *) 
 Lemma cartesian_functor_from_fibration
     {C C' : Precategory} {F : functor C C'}
-    {D : disp_precat C} {D' : disp_precat C'} {FF : functor_over F D D'}
+    {D : disp_precat C} {D' : disp_precat C'} {FF : disp_functor F D D'}
     (H : forall (c c' : C) (f : c' --> c) (d : D c),
       ∥ { ff : cartesian_lift d f & is_cartesian (#FF ff) } ∥)
-  : is_cartesian_functor_over FF.
+  : is_cartesian_disp_functor FF.
 Proof.
   intros c c' f d d' ff ff_cart.
   use (squash_to_prop (H _ _ f d)).
@@ -109,7 +109,7 @@ Proof.
     use (is_cartesian_from_iso_to_cartesian ff'_cart).
     + refine (transportf (fun i => iso_disp i _ _)
                        _
-                       (@functor_over_on_iso_disp
+                       (@disp_functor_on_iso_disp
                           _ _ _ _ _ FF
                           _ _ _ _ (identity_iso _) _)).
       apply (eq_iso _ _), functor_id.
@@ -126,21 +126,21 @@ Proof.
       etrans. {
         eapply maponpaths. simpl.
         etrans. {
-          eapply pathsinv0, functor_over_comp_var. }
+          eapply pathsinv0, disp_functor_comp_var. }
         eapply transportf_bind.
         etrans. {
           apply maponpaths, cartesian_factorisation_commutes'. }
-        apply functor_over_transportf. }
+        apply disp_functor_transportf. }
       etrans. apply transport_f_f.
       unfold transportb. apply maponpaths_2, homset_property.
 Qed.
 
 Lemma cartesian_functor_from_cleaving
     {C C' : Precategory} {F : functor C C'}
-    {D : disp_precat C} {D' : disp_precat C'} {FF : functor_over F D D'}
+    {D : disp_precat C} {D' : disp_precat C'} {FF : disp_functor F D D'}
     (clD : is_fibration D)
     (H : forall c c' f d, is_cartesian (# FF (clD c c' f d)))
-  : is_cartesian_functor_over FF.
+  : is_cartesian_disp_functor FF.
 Proof.
   apply cartesian_functor_from_fibration.
   intros c c' f d. apply hinhpr.
@@ -150,8 +150,8 @@ Qed.
 
 Definition comprehension_cat_structure (C : Precategory) : UU 
   := ∑ (D : disp_precat C) (H : is_fibration D)
-     (F : functor_over (functor_identity _ ) D (cod_disp C)),
-     is_cartesian_functor_over F.
+     (F : disp_functor (functor_identity _ ) D (cod_disp C)),
+     is_cartesian_disp_functor F.
 
 Arguments comprehension_cat_structure _ : clear implicits.
 
@@ -163,7 +163,7 @@ Context {C : Precategory}.
 Variable (H : dm_sub_pb C).
 
 Definition comprehension_of_dm_structure_data
-  : functor_over_data (functor_identity C) (DM_disp H) (cod_disp C).
+  : disp_functor_data (functor_identity C) (DM_disp H) (cod_disp C).
 Proof.
   use tpair.
   + intros x d. cbn in *.
@@ -173,7 +173,7 @@ Proof.
 Defined.
 
 Definition comprehension_of_dm_structure_axioms
-  : functor_over_axioms comprehension_of_dm_structure_data.
+  : disp_functor_axioms comprehension_of_dm_structure_data.
 Proof.
   cbn; repeat split; cbn.
   + intros.
@@ -187,10 +187,10 @@ Proof.
 Qed.
 
 Definition comprehension_of_dm_structure
-  : functor_over _ _ _ := _ ,, comprehension_of_dm_structure_axioms.
+  : disp_functor _ _ _ := _ ,, comprehension_of_dm_structure_axioms.
 
 Lemma is_cartesian_comprehension_of_dm_structure
-  : is_cartesian_functor_over comprehension_of_dm_structure.
+  : is_cartesian_disp_functor comprehension_of_dm_structure.
 Proof.
   use cartesian_functor_from_cleaving.
   - apply is_fibration_DM_disp.

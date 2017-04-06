@@ -214,3 +214,43 @@ Definition precat_of_elements {C : Precategory} (P : functor C SET)
   := total_precat (disp_precat_of_elements P).
 
 End Elements_Disp.
+
+
+Section functor_algebras.
+
+Context {C : Precategory} (F : functor C C).
+
+Definition disp_precat_functor_alg_ob_mor : disp_precat_ob_mor C.
+Proof.
+  exists (λ c : C, F c --> c).
+  intros c d a a' r. exact ( (#F r)%cat · a' = a · r).
+Defined.
+
+Definition disp_precat_functor_alg_data : disp_precat_data C.
+Proof.
+  exists disp_precat_functor_alg_ob_mor.
+  split.
+  - intros x f. cbn.
+    etrans. apply maponpaths_2. apply functor_id.
+    etrans. apply id_left. apply pathsinv0, id_right.
+  - cbn; intros ? ? ? ? ? ? ? ? H H0.
+    etrans. apply maponpaths_2. apply functor_comp.
+    etrans. eapply pathsinv0. apply assoc.
+    etrans. apply maponpaths. apply H0.
+    etrans. apply assoc. 
+    etrans. apply maponpaths_2. apply H. 
+    apply pathsinv0, assoc.
+Defined.
+
+Definition disp_precat_functor_alg_axioms 
+  : disp_precat_axioms C disp_precat_functor_alg_data.
+Proof.
+  repeat split; intros; try apply homset_property.
+  apply isasetaprop. apply homset_property.
+Qed.
+
+Definition disp_precat_functor_alg : disp_precat C := _ ,, disp_precat_functor_alg_axioms.
+
+End functor_algebras.
+
+(* *)
