@@ -191,6 +191,43 @@ Qed.
 
 Definition disp_precat_functor_alg : disp_precat C := _ ,, disp_precat_functor_alg_axioms.
 
+Definition total_functor_alg : precategory := total_precat disp_precat_functor_alg.
+
 End functor_algebras.
+
+Require Import UniMath.CategoryTheory.Monads.
+
+Section monad_algebras.
+
+Context {C : Precategory} (T : Monad C).
+
+Let T' : C ⟶ C := T.
+Let FAlg := total_functor_alg T'.
+
+Definition isMonadAlg (Xa : FAlg) : UU 
+  := η T (pr1 Xa) · pr2 Xa = identity _ 
+                                      ×
+                                      (#T')%cat (pr2 Xa) · pr2 Xa = μ T _ · pr2 Xa.
+
+Definition disp_precat_monad_alg_ob_mor : disp_precat_ob_mor FAlg.
+Proof.
+  mkpair.
+  - exact (λ Xa, isMonadAlg Xa).
+  - cbn; intros. exact unit.
+Defined.
+
+Definition disp_precat_monad_alg_data : disp_precat_data FAlg.
+Proof.
+  exists disp_precat_monad_alg_ob_mor.
+  split; intros; exact tt.
+Defined.
+
+Definition disp_precat_monad_alg_axioms : disp_precat_axioms _ disp_precat_monad_alg_data.
+Proof.
+  repeat split; cbn; intros; try apply isconnectedunit.
+  apply isasetunit.
+Defined.
+  
+End monad_algebras.
 
 (* *)
