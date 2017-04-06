@@ -36,6 +36,7 @@ Definition forms_cone_and_isLimCone {C : precategory} {g : graph}
 End Auxiliary.
 
 Section limit.
+
 Definition creates_limit_for
            {C : Precategory}
            (D : disp_precat C)
@@ -44,11 +45,16 @@ Definition creates_limit_for
            {x : C}
            (L : cone (mapdiagram (pr1_precat D) F)  x)
            (isL : isLimCone _ x L) : UU
-  := iscontr (
+  := 
+    ∑ (CC : iscontr (
          ∑ (d : D x) (δ : ∏ j : vertex J, 
                                 d -->[coneOut L j] (pr2 (dob F j))),
-         forms_cone_and_isLimCone F (x,,d) (λ j, (coneOut L j,, δ j))
-         ).
+         forms_cone F (x,,d)  (λ j : vertex J, coneOut L j ,, δ j)))
+    ,
+           let T := iscontrpr1 CC in
+           let fc := pr2 (pr2 T) in 
+           isLimCone _ _ (mk_cone _ fc).
+         
 
 Definition creates_limits {C : Precategory} (D : disp_precat C) : UU
   := ∏  {J : graph}

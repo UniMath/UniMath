@@ -257,9 +257,50 @@ Definition total_functor_alg : precategory := total_precat disp_precat_functor_a
 
 
 
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+
+
 Definition creates_limits_functor_alg : creates_limits disp_precat_functor_alg.
 Proof.
   intros J D x L isL.  
+  unfold creates_limit_for. cbn.
+  transparent assert (FC : (cone (mapdiagram (pr1_precat disp_precat_functor_alg) D) (F x)))
+.
+  { use mk_cone.
+    - intro j. 
+      eapply compose.
+      apply ((#F)%cat (coneOut L j )).
+      cbn. exact (pr2 (dob D j)).
+    - abstract (
+      intros; cbn;
+      assert (XR := pr2 (dmor D e)); cbn in XR;
+      etrans; [eapply pathsinv0; apply assoc |];
+      etrans; [apply maponpaths, (!XR) |];
+      etrans; [apply assoc |];
+      apply maponpaths_2;
+      rewrite <- functor_comp;
+      apply maponpaths;
+      apply (coneOutCommutes L)
+      ).
+  }
+  transparent assert (LL : (LimCone (mapdiagram (pr1_precat disp_precat_functor_alg) D))).
+  { use mk_LimCone. apply x. apply L. apply isL. }
+  mkpair.
+  - mkpair.
+    + mkpair.
+      * use (limArrow LL). apply FC.
+      * { mkpair.
+          - intro j. cbn.
+            set (XR := limArrowCommutes LL _ FC). cbn in XR.
+            apply pathsinv0. apply XR. 
+          - cbn. intros i j e.
+            apply subtypeEquality.
+            { intro. apply homset_property. } 
+            cbn. apply (coneOutCommutes L). }
+    + intro t.
+      admit.
+  - admit.
 Abort.
 
 
