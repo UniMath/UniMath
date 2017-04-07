@@ -30,7 +30,6 @@ Section pullbacks_slice_products_equiv.
 
   Variable (C : precategory) (hsC : has_homsets C) (Z : C).
   Local Notation "C / X" := (slice_precat C X hsC).
-  Check eq_mor_slicecat.
   Local Definition slice_eq {C : precategory} {hsC : has_homsets C} {x : C} {af bg : slice_precat C x hsC} (f g :slice_precat C x hsC ⟦ af, bg ⟧) : pr1 f = pr1 g → f = g :=
     eq_mor_slicecat hsC x af bg f g.
 
