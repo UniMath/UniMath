@@ -23,49 +23,42 @@ Local Open Scope mor_disp_scope.
 
 Section Auxiliary.
 
-Definition forms_cone {C : precategory} {g : graph} (d : diagram g C) (c : C) 
-           (f : ∏ (v : vertex g), C⟦c, dob d v⟧) : UU
-  :=  ∏ (u v : vertex g) (e : edge u v), f u · dmor d e  = f v.
+(* TODO: upstream into definition of cone in UniMath. *)
+Definition forms_cone 
+    {C : precategory} {g : graph} (d : diagram g C)
+    (c : C) (f : ∏ (v : vertex g), C⟦c, dob d v⟧)
+  : UU
+:= ∏ (u v : vertex g) (e : edge u v),
+     f u · dmor d e = f v.
 
-Definition forms_cone_and_isLimCone {C : precategory} {g : graph} 
-           (d : diagram g C) (c : C) 
-           (f : ∏ (v : vertex g), C⟦c, dob d v⟧) : UU
-  := ∑ H : forms_cone _ _ f,
-           isLimCone _ _ (mk_cone _ H).
+Coercion coneOut : cone >-> Funclass.
 
 End Auxiliary.
 
-Section limit.
+Section Creates_Limits.
 
-Definition creates_limit_for
-           {C : Precategory}
-           (D : disp_precat C)
-           {J : graph}
-           (F : diagram J (total_precat D))
-           {x : C}
-           (L : cone (mapdiagram (pr1_precat D) F)  x)
-           (isL : isLimCone _ x L) : UU
-  := 
-    ∑ (CC : iscontr (
-         ∑ (d : D x) (δ : ∏ j : vertex J, 
-                                d -->[coneOut L j] (pr2 (dob F j))),
-         forms_cone F (x,,d)  (λ j : vertex J, coneOut L j ,, δ j)))
-    ,
-           let T := iscontrpr1 CC in
-           let fc := pr2 (pr2 T) in 
-           isLimCone _ _ (mk_cone _ fc).
+(* TODO: consider implicitness of argument *)
+Definition creates_limit
+  {C : Precategory}
+  (D : disp_precat C)
+  {J : graph} (F : diagram J (total_precat D))
+  {x : C} (L : cone (mapdiagram (pr1_precat D) F)  x)
+  (isL : isLimCone _ x L) : UU
+:= 
+  ∑ (CC : iscontr 
+      ( ∑ (d : D x)
+          (δ : ∏ j : vertex J, d -->[L j] (pr2 (dob F j))),
+          forms_cone F (x,,d)  (λ j, (L j ,, δ j))))
+  , isLimCone _ _ (mk_cone _ (pr2 (pr2 (iscontrpr1 CC)))).
          
-
 Definition creates_limits {C : Precategory} (D : disp_precat C) : UU
-  := ∏  {J : graph}
-        (F : diagram J (total_precat D))
-        {x : C}
-        (L : cone (mapdiagram (pr1_precat D) F)  x)
-        (isL : isLimCone _ x L),
-     creates_limit_for _ F L isL.
+:= 
+  ∏ {J : graph} (F : diagram J (total_precat D))
+    {x : C} (L : cone (mapdiagram (pr1_precat D) F)  x)
+    (isL : isLimCone _ x L),
+  creates_limit _ _ _ isL.
 
-
-End limit.
+End Creates_Limits.
            
 
 

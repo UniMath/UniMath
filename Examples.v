@@ -262,12 +262,12 @@ Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
 Local Notation "'π'" := (pr1_precat disp_precat_functor_alg).
 
-Definition creates_limits_functor_alg : creates_limits disp_precat_functor_alg.
+Definition creates_limits_functor_alg
+  : creates_limits disp_precat_functor_alg.
 Proof.
-  intros J D x L isL.  
-  unfold creates_limit_for. cbn.
-  transparent assert (FC : (cone (mapdiagram π D) (F x)))
-.
+  intros J D x L isL.
+  unfold creates_limit. cbn.
+  transparent assert (FC : (cone (mapdiagram π D) (F x))).
   { use mk_cone.
     - intro j. 
       eapply compose.
