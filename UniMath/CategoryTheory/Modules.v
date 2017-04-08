@@ -20,24 +20,11 @@ Local Open Scope addmonoid_scope.
  Definition setofendabgr (G : abgr) : hSet :=
   hSetpair (monoidfun G G) (isasetmonoidfun G G).
 
- Definition pr1setofendabgr (G : abgr) : setofendabgr G -> (G -> G) := fun f => pr1 f.
-
-Coercion pr1setofendabgr : setofendabgr >-> Funclass.
-
 (** Two binary operations on the underlying set of the ring of endomorphisms of an abelian group *)
 
-Definition setofendabgr_to_isbinopfun {G : abgr} : ∏ f : setofendabgr G, isbinopfun (pr1 f).
-Proof.
-  intro f.
-  exact (pr1 (pr2 f)).
-Defined.
+Definition setofendabgr_to_isbinopfun {G : abgr} (f : setofendabgr G) : isbinopfun (pr1 f) := pr1 (pr2 f).
 
-Definition setofendabgr_to_unel {G : abgr} : ∏ f : setofendabgr G, pr1 f 0 = 0.
-Proof.
-  intro f.
-  exact (pr2 (pr2 f)).
-Defined.
-
+Definition setofendabgr_to_unel {G : abgr} (f : setofendabgr G) : pr1 f 0 = 0 := pr2 (pr2 f).
 
 Definition setofendabgr_op1 {G: abgr} : binop (setofendabgr G).
 Proof.
@@ -61,6 +48,8 @@ Proof.
 Defined.
 
 Notation "f + g" := (setofendabgr_op1 f g) : abgr_scope.
+
+(* the composition below uses the diagrammatic order *)
 Notation "f ∘ g" := (setofendabgr_op2 f g) : abgr_scope.
 
 Definition setwith2binopofendabgr (G : abgr) : setwith2binop :=
@@ -151,9 +140,9 @@ Definition setofendabgr_inv {G : abgr} : setofendabgr G -> setofendabgr G.
    apply (@monoidfunconstr G G (λ x : G, grinv G (pr1 f x))).
    apply dirprodpair.
    - intros x x'.
-     rewrite (dirprod_pr1 (pr2 f)).
+     rewrite (setofendabgr_to_isbinopfun f).
      apply (dirprod_pr1 ismonoidfun_abgrinv).
-   - rewrite (dirprod_pr2 (pr2 f)).
+   - rewrite (setofendabgr_to_unel f).
      apply (grinvunel G).
  Defined.
 
@@ -302,35 +291,35 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
 
  Definition module (R : rng) : UU := ∑ G, rngfun R (rngofendabgr G).
 
- Definition pr1module : forall (R : rng) (M : module R), abgr.
- Proof.
-   intros R M.
-   exact (pr1 M).
- Defined.
+ Definition pr1module {R : rng} (M : module R) : abgr := pr1 M.
 
  Coercion pr1module : module >-> abgr.
 
- Definition module_struct {R : rng} (G : abgr) : UU :=
-   rngfun R (rngofendabgr G).
+ Definition module_struct {R : rng} (G : abgr) : UU := rngfun R (rngofendabgr G).
 
  (** The multiplication defined from a module *)
 
- Definition module_mult {R : rng} {M : @module R} : R × pr1 M -> pr1 M.
+ Definition module_mult {R : rng} {M : @module R} : R × M -> M.
  Proof.
    apply uncurry.
    intros r x.
-   exact ((pr1 ((pr2 M) r)) x).
+   exact (pr1 (pr2 M r) x).
  Defined.
+
+ Local Open Scope rig_scope.
+
+ Definition rigfun_to_unel_rigaddmonoid {X Y : rig} (f : rigfun X Y) : f 0 = 0 := pr2 (pr1 (pr2 f)).
+
+ Local Close Scope rig_scope.
 
  Local Open Scope rng_scope.
 
- Definition module_mult_0_to_0 {R : rng} {M : @module R} : ∏ x : pr1 M, module_mult (0,,x) = @unel (pr1 M).
+ Definition module_mult_0_to_0 {R : rng} {M : @module R} (x : M) : module_mult (0,,x) = @unel M.
  Proof.
-   intro x.
    unfold module_mult, uncurry.
    cbn.
-   assert ((pr2 M) rngunel1 = @rngunel1 (rngofendabgr (pr1 M))).
-   - exact (pr2 (pr1 (pr2 (pr2 M)))).
+   assert ((pr2 M) rngunel1 = @rngunel1 (rngofendabgr M)).
+   - exact (rigfun_to_unel_rigaddmonoid (pr2 M)).
    - rewrite X.
      cbn.
      reflexivity.
@@ -339,35 +328,41 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
 
  (** (left) R-module homomorphism *)
 
- Definition ismodulefun {R : rng} {M N : module} (f : pr1 M -> pr1 N) : UU :=
-   (isbinopfun f) × (∏ r : R, ∏ x : (pr1 M), f (module_mult (r,,x)) = module_mult (r,,(f x)) ).
+ Definition ismodulefun {R : rng} {M N : module R} (f : M -> N) : UU :=
+   (isbinopfun f) × (∏ r : R, ∏ x : M, f (module_mult (r,,x)) = module_mult (r,,(f x))).
 
 
- Lemma isapropismodulefun {R : rng} {M N : module} (f : pr1 M -> pr1 N) : isaprop (@ismodulefun R M N f).
+ Lemma isapropismodulefun {R : rng} {M N : module R} (f : M -> N) : isaprop (@ismodulefun R M N f).
  Proof.
-   refine (@isofhleveldirprod 1 (isbinopfun f) (∏ r : R, ∏ x : (pr1 M), f (module_mult (r,,x)) = module_mult (r,,(f x))) _ _).
+   refine (@isofhleveldirprod 1 (isbinopfun f) (∏ r : R, ∏ x : M, f (module_mult (r,,x)) = module_mult (r,,(f x))) _ _).
    exact (isapropisbinopfun f).
    apply (impred 1 _).
    intro r.
    apply (impred 1 _).
    intro x.
-   apply (setproperty (pr1 N)).
+   apply (setproperty N).
  Defined.
 
 
- Definition modulefun {R : rng} (M N : module) := total2 (λ f : pr1 M -> pr1 N, @ismodulefun R M N f).
+ Definition modulefun {R : rng} (M N : module R) := total2 (λ f : M -> N, @ismodulefun R M N f).
 
- Definition modulefunpair {R : rng} {M N : module} (f : pr1 M -> pr1 N) (is : @ismodulefun R M N f) :=
+ Definition modulefunpair {R : rng} {M N : module R} (f : M -> N) (is : @ismodulefun R M N f) :=
    tpair _ f is.
 
- Definition modulefun_unel {R : rng} {M N : module} (f : @modulefun R M N) : pr1 f (@unel (pr1 M)) = @unel (pr1 N).
+ Definition islinear {R : rng} {M N : module R} (f : M -> N) :=
+   ∏ r : R, ∏ x : M, f (module_mult (r,,x)) = module_mult (r,,(f x)).
+
+ Definition modulefun_to_islinear {R : rng} {M N : module R} (f : modulefun M N): islinear (pr1 f) := pr2 (pr2 f).
+
+ Definition modulefun_unel {R : rng} {M N : module R} (f : @modulefun R M N) : pr1 f (@unel M) = @unel N.
  Proof.
-   rewrite <- (module_mult_0_is_0 (@unel (pr1 M))).
-   rewrite (pr2 (pr2 f) rngunel1 (@unel (pr1 M))).
-   rewrite (module_mult_0_is_0 _).
+   rewrite <- (module_mult_0_to_0 (@unel M)).
+   rewrite ((modulefun_to_islinear f) rngunel1 (@unel M)).
+   rewrite (module_mult_0_to_0 _).
    reflexivity.
  Defined.
 
+ Definition modulefun_to_isbinopfun {R : rng} {M N : module R} (f : modulefun M N) : isbinopfun (pr1 f) := pr1 (pr2 f).
 
  (** *** The precategory of (left) R-modules and R-modules homomorphisms *)
 
@@ -376,39 +371,45 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
  Definition precategory_ob_mor_module {R: rng} : precategory_ob_mor :=
    precategory_ob_mor_pair (@module R) (λ M N, modulefun M N).
 
- Local Open Scope functions.
+ Local Open Scope Cat.
+
+ Definition modulefun_id {R : rng}: ∏ M : @precategory_ob_mor_module R, M --> M.
+ Proof.
+   intro M.
+   refine (tpair _ (idfun (pr1 M)) _).
+   apply dirprodpair.
+     - intros x y.
+       reflexivity.
+     - intros.
+       reflexivity.
+ Defined.
+
+ Definition modulefun_comp {R : rng} : ∏ M N P : @precategory_ob_mor_module R, M --> N → N --> P → M --> P.
+ Proof.
+    intros  M N P f g.
+    refine (tpair _ (funcomp (pr1 f) (pr1 g)) _).
+    apply dirprodpair.
+     + intros x y.
+       unfold funcomp.
+       rewrite <- (modulefun_to_isbinopfun g).
+       rewrite <- (modulefun_to_isbinopfun f).
+       reflexivity.
+     + intros.
+       unfold funcomp.
+       rewrite (modulefun_to_islinear f).
+       rewrite (modulefun_to_islinear g).
+       reflexivity.
+ Defined.
 
  Definition precategory_id_comp_module {R : rng} : precategory_id_comp (@precategory_ob_mor_module R).
  Proof.
    apply dirprodpair.
-   - intro M.
-     refine (tpair _ (idfun (pr1 M)) _).
-     apply dirprodpair.
-     + intros x y.
-       reflexivity.
-     + intros.
-       reflexivity.
-   - intros  M N P f g.
-     refine (tpair _ ((pr1 g) ∘ (pr1 f)) _).
-     apply dirprodpair.
-     + intros x y.
-       unfold funcomp.
-       rewrite <- (pr1 (pr2 g)).
-       rewrite <- (pr1 (pr2 f)).
-       reflexivity.
-     + intros.
-       unfold funcomp.
-       rewrite (pr2 (pr2 f)).
-       rewrite (pr2 (pr2 g)).
-       reflexivity.
+   - exact (modulefun_id).
+   - exact (modulefun_comp).
  Defined.
 
  Definition precategory_data_module {R : rng} : precategory_data :=
    tpair _ (@precategory_ob_mor_module R) (precategory_id_comp_module).
-
- Local Close Scope functions.
-
- Local Open Scope cat.
 
  Definition is_precategory_precategory_data_module {R : rng} : is_precategory (@precategory_data_module R).
  Proof.
@@ -437,7 +438,7 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
      + apply isapropismodulefun.
  Defined.
 
- Definition precategory_module {R : rng} : precategory :=
+ Definition precategory_module (R : rng) : precategory :=
    tpair _ (@precategory_data_module R) (is_precategory_precategory_data_module).
 
  End modules_precategory.
@@ -448,7 +449,7 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
  Section modules_category.
 
  Variable R : rng.
- Notation "R-mod" := (@precategory_module R).
+ Notation "R-mod" := (precategory_module R).
 
  Definition has_homsets_precategory_module : has_homsets (R-mod).
  Proof.
@@ -495,18 +496,15 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
 
  Definition isbinopfuninvmap {M N : R-mod} (f : moduleiso M N) : isbinopfun (invmap (pr1 f)).
  Proof.
-   set (is := pr1 (pr2 f)).
    intros x y.
    apply (invmaponpathsweq (pr1 f)).
    rewrite (homotweqinvweq (pr1 f) (op x y)).
-   rewrite (is (invmap (pr1 f) x) (invmap (pr1 f) y)).
-   rewrite (homotweqinvweq (pr1 f) x).
-   rewrite (homotweqinvweq (pr1 f) y).
+   symmetry.
+   transitivity (op (pr1 f (invmap (pr1 f) x)) (pr1 f (invmap (pr1 f) y))).
+   apply (modulefun_to_isbinopfun f (invmap (pr1 f) x) (invmap (pr1 f) y)).
+   rewrite 2 (homotweqinvweq (pr1 f)).
    reflexivity.
  Defined.
-
- Definition islinear {M N : R-mod} (f : pr1 M -> pr1 N) :=
-   ∏ r : R, ∏ x : (pr1 M), f (module_mult (r,,x)) = module_mult (r,,(f x)).
 
  Definition islinearinvmap {M N : R-mod} (f : moduleiso M N) : islinear (invmap (pr1 f)).
  Proof.
@@ -519,8 +517,8 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
    transitivity (module_mult (r,, f(invmap f x))).
    rewrite (homotweqinvweq f x).
    reflexivity.
-   rewrite <- (pr2 is r (invmap f x)).
-   reflexivity.
+   symmetry.
+   apply (pr2 is r (invmap f x)).
    Defined.
 
  Definition invmoduleiso {M N : R-mod} (f : moduleiso M N) : moduleiso N M.
@@ -532,7 +530,7 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
      + exact (islinearinvmap f).
  Defined.
 
- Definition isaprop_islinear {M N : R-mod} {f : (pr1 M) -> (pr1 N)} : isaprop (@islinear M N f).
+ Definition isaprop_islinear {M N : R-mod} {f : (pr1 M) -> (pr1 N)} : isaprop (@islinear R M N f).
  Proof.
    use impred.
    intro r.
@@ -551,9 +549,9 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
    - use tpair.
      + exact (pr1 w).
      + use tpair.
-       * exact (pr1 (pr2 w)).
+       * exact (modulefun_to_isbinopfun w).
        * use (modulefun_unel w).
-   - use (pr2 (pr2 w)).
+   - exact (modulefun_to_islinear w).
  Defined.
 
  Definition moduleiso'_to_moduleiso {M N : R-mod} : moduleiso' M N -> moduleiso M N.
