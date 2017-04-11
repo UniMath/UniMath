@@ -31,7 +31,6 @@ Contents:
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.MoreFoundations.AxiomOfChoice.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
