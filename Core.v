@@ -878,26 +878,7 @@ Qed.
 Definition pr1_precat : functor total_precat C
   := (pr1_precat_data ,, pr1_precat_is_functor).
 
-(** TODO: see https://github.com/UniMath/UniMath/issues/677 *)
-Lemma pr1_issurjective' {X : UU} {P : X -> UU} :
-  (∏ x : X, ∥ P x ∥) -> issurjective (pr1 : (∑ x, P x) -> X).
-Proof.
-  intros ne x. simple refine (hinhuniv _ (ne x)).
-  intros p. apply hinhpr.
-  exact ((x,,p),,idpath _).
-Defined.
 
-Lemma fibers_inhab_if_pr1_issurjective {X : UU} {P : X -> UU} :
-  (∏ x : X, ∥ P x ∥) <- issurjective (pr1 : (∑ x, P x) -> X).
-Proof.
-  intros ne x. simple refine (hinhuniv _ (ne x)).
-  intros p. apply hinhpr.
-  cbn in p.
-  destruct p as [[a b] c].
-  cbn in *.
-  induction c. 
-  assumption.
-Defined.
 
 Lemma full_pr1_precat  (H : ∏ (a b : total_precat)  (x : C ⟦ pr1 a, pr1 b ⟧), 
                             ∥ pr2 a -->[ x] pr2 b ∥) 
@@ -917,26 +898,6 @@ Proof.
   apply H.
 Defined.
 
-(* TODO : upstream *)
-Lemma isaprop_fiber_if_isinclpr1 
-  : ∏ (X : UU) (isasetX : isaset X) (P : X → UU), (∏ x : X, isaprop (P x)) <- isincl (pr1 : (∑ x, P x) -> X).
-Proof.
-  intros X isasetX P H x.
-  unfold isincl in H. unfold isofhlevelf in H.
-  apply invproofirrelevance.
-  intros p p'.
-  assert (X0 :  x,,p = x,,p').
-  { specialize (H x).
-    assert (H1 :  (x,,p),, idpath _ = ((x,,p'),,idpath _ : hfiber pr1 x)).
-    { apply proofirrelevance. apply H. }
-    apply (base_paths _ _ H1).
-  } 
-  set (XR := fiber_paths X0). cbn in XR.
-  etrans. Focus 2. apply XR.
-  apply pathsinv0. 
-  etrans. apply transportf_ext. apply (isasetX _ _ _ (idpath x)).
-  apply idpath_transportf.
-Defined.
 
 Definition fully_faithful_pr1_precat (H : ∏ (a b : total_precat) (x : C ⟦ pr1 a, pr1 b ⟧), 
                                           iscontr (pr2 a -->[ x] pr2 b))
