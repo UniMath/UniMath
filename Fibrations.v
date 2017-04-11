@@ -706,3 +706,28 @@ Section Opfibrations.
 (* TODO: add definitions analogous to in [Fibrations].  For constructions/theorems: think about whether it’s possible to recover them by duality, instead of repeating all proofs?? *)
 
 End Opfibrations.
+
+Section isofibration_from_disp_over_univalent.
+
+Context (C : Precategory) 
+        (Ccat : is_category C)
+        (D : disp_precat C).
+
+Definition isofib_disp : is_isofibration D.
+Proof.
+  intros c c' i d.
+  mkpair.
+  - exact (transportb D (isotoid _ Ccat i) d).
+  - generalize i. clear i.
+    apply forall_isotid.
+    { apply Ccat. }
+    intro e. induction e.
+    cbn.
+    rewrite isotoid_identity_iso.
+    cbn. 
+    apply identity_iso_disp.
+Defined.
+
+End isofibration_from_disp_over_univalent.
+
+(* *)
