@@ -21,6 +21,7 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Require Import TypeTheory.Displayed_Cats.Auxiliary.
 Require Import TypeTheory.Displayed_Cats.Core.
+Require Import TypeTheory.Displayed_Cats.Constructions.
 Require Import TypeTheory.Displayed_Cats.Limits.
 
 Local Open Scope mor_disp_scope.
@@ -411,7 +412,15 @@ Proof.
   repeat split; cbn; intros; try apply isconnectedunit.
   apply isasetunit.
 Defined.
-  
+
+Definition disp_precat_monad_alg_over_functor_alg : disp_precat _ 
+  := _ ,, disp_precat_monad_alg_axioms.
+
+
+
+Definition disp_precat_monad_alg : disp_precat C 
+  := sigma_disp_precat disp_precat_monad_alg_over_functor_alg.
+
 End monad_algebras.
 
 (* *)
