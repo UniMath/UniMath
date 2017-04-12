@@ -100,3 +100,13 @@ set_slice_fam_equiv.v
 Elements.v
 ElementsOp.v
 elems_slice_equiv.v
+categories/setwith2binops.v
+categories/monoids.v
+categories/abmonoids.v
+categories/grs.v
+categories/rigs.v
+categories/commrigs.v
+categories/rngs.v
+categories/commrngs.v
+categories/intdoms.v
+categories/flds.v

@@ -2149,6 +2149,16 @@ Definition binop2fun {X Y : setwith2binop} (f : twobinopfun X Y) :
   binopfun (setwithbinop2 X) (setwithbinop2 Y) :=
   @binopfunpair (setwithbinop2 X) (setwithbinop2 Y) (pr1 f) (pr2 (pr2 f)).
 
+Definition twobinopfun_paths {X Y : setwith2binop} (f g : twobinopfun X Y)
+           (e : pr1 f = pr1 g) : f = g.
+Proof.
+  intros X Y f g e.
+  use total2_paths_f.
+  - exact e.
+  - use proofirrelevance. use isapropistwobinopfun.
+Defined.
+Opaque twobinopfun_paths.
+
 Lemma isasettwobinopfun  (X Y : setwith2binop) : isaset (twobinopfun X Y).
 Proof.
   intros.
@@ -2157,6 +2167,7 @@ Proof.
     apply impred. intro. apply (setproperty Y).
   - refine (isinclpr1 _ _). intro. apply isapropistwobinopfun.
 Defined.
+Opaque isasettwobinopfun.
 
 Lemma istwobinopfuncomp {X Y Z : setwith2binop} (f : twobinopfun X Y) (g : twobinopfun Y Z) :
   istwobinopfun (funcomp (pr1 f) (pr1 g)).
@@ -2211,6 +2222,18 @@ Coercion pr1twobinopiso : twobinopiso >-> weq.
 Definition twobinopisototwobinopmono (X Y : setwith2binop) :
   twobinopiso X Y -> twobinopmono X Y := fun f => twobinopmonopair (pr1 f) (pr2 f).
 Coercion twobinopisototwobinopmono : twobinopiso >-> twobinopmono.
+
+Definition twobinopisototwobinopfun {X Y : setwith2binop} (f : twobinopiso X Y) :
+  twobinopfun X Y := twobinopfunpair f (pr2 f).
+
+Lemma twobinopiso_paths {X Y : setwith2binop} (f g : twobinopiso X Y) (e : pr1 f = pr1 g) : f = g.
+Proof.
+  intros X Y f g e.
+  use total2_paths_f.
+  - exact e.
+  - use proofirrelevance. use isapropistwobinopfun.
+Defined.
+Opaque twobinopiso_paths.
 
 Definition binop1iso {X Y : setwith2binop} (f : twobinopiso X Y) :
   binopiso (setwithbinop1 X) (setwithbinop1 Y) :=

@@ -127,13 +127,17 @@ Definition postcompose  {C : precategory_data} {a b c : C} (g : b --> c) (f : a 
 *)
 
 Definition is_precategory (C : precategory_data) :=
-   dirprod (dirprod (∏ (a b : C) (f : a --> b),
-                         identity a · f = f)
-                     (∏ (a b : C) (f : a --> b),
-                         f · identity b = f))
-            (∏ (a b c d : C)
-                    (f : a --> b)(g : b --> c) (h : c --> d),
-                     f · (g · h) = (f · g) · h).
+  ((∏ (a b : C) (f : a --> b), identity a · f = f)
+     × (∏ (a b : C) (f : a --> b), f · identity b = f))
+    × (∏ (a b c d : C) (f : a --> b) (g : b --> c) (h : c --> d), f · (g · h) = (f · g) · h).
+
+Definition mk_is_precategory {C : precategory_data}
+           (H1 : ∏ (a b : C) (f : a --> b), identity a · f = f)
+           (H2 : ∏ (a b : C) (f : a --> b), f · identity b = f)
+           (H3 : ∏ (a b c d : C) (f : a --> b) (g : b --> c) (h : c --> d), f · (g · h) = (f · g) · h) :
+  is_precategory C := dirprodpair (dirprodpair H1 H2) H3.
+
+
 (*
 Definition is_hs_precategory_data (C : precategory_data) := ∏ (a b : C), isaset (a --> b).
 *)
@@ -146,6 +150,9 @@ Coercion precategory_data_from_hs_precategory_data : hs_precategory_data >-> pre
 
 
 Definition precategory := total2 is_precategory.
+
+Definition mk_precategory (C : precategory_data) (H : is_precategory C) : precategory :=
+  tpair _ C H.
 
 Definition hs_precategory := total2 (fun C : precategory_data =>
   dirprod (is_precategory C) (∏ a b : C, isaset (a --> b))).
@@ -1129,7 +1136,10 @@ Defined.
 
 (* use eta expanded version to force printing of object arguments *)
 Definition is_category (C : precategory) :=
-  dirprod (∏ (a b : ob C), isweq (fun p : a = b => idtoiso p)) (has_homsets C).
+  (∏ (a b : ob C), isweq (fun p : a = b => idtoiso p)) × (has_homsets C).
+
+Definition mk_is_category {C : precategory} (H1 : ∏ (a b : ob C), isweq (fun p : a = b => idtoiso p))
+           (H2 : has_homsets C) : is_category C := dirprodpair H1 H2.
 
 Lemma eq_idtoiso_idtomor {C:precategory} (a b:ob C) (e:a = b) :
     pr1 (idtoiso e) = idtomor _ _ e.
@@ -1153,6 +1163,8 @@ Proof.
 Qed.
 
 Definition category : UU := total2 (fun C : precategory => is_category C).
+
+Definition mk_category (C : precategory) (H : is_category C) : category := tpair _ C H.
 
 Definition category_to_Precategory (C : category) : Precategory.
 Proof.
