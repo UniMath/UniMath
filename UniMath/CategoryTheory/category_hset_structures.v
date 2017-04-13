@@ -901,37 +901,7 @@ End products_set_slice.
 Lemma is_left_adjoint_slicecat_to_cat_HSET (X : HSET) :
   is_left_adjoint (slicecat_to_cat has_homsets_HSET X).
 Proof.
-mkpair.
-- use mk_functor.
-  + mkpair.
-    * intro Y.
-      exists (X × Y)%set; simpl.
-      apply pr1.
-    * intros A B f.
-      exists (λ xa, pr1 xa,,f (pr2 xa)).
-      abstract (now apply funextsec).
-  + abstract (split;
-    [ intros A; simpl; apply subtypeEquality; [intros x; apply setproperty|];
-      now apply funextsec; intros [x a]
-    | intros A B C f g; apply subtypeEquality; [intros x; apply setproperty|];
-      now apply funextsec; intros [x a]]).
-- use mk_are_adjoints.
-  + use mk_nat_trans.
-    * simpl; intros F.
-      exists (λ f, (pr2 F f,,f)).
-      abstract (now apply funextsec).
-    * abstract (intros Y Z F; apply (eq_mor_slicecat has_homsets_HSET);
-                apply funextsec; intro y;
-                use total2_paths2_f; [apply (toforallpaths _ _ _ (!pr2 F) y)|];
-                cbn in *; induction (toforallpaths _ _ _ _ _);
-                now rewrite idpath_transportf).
-  + use mk_nat_trans.
-    * intros Y xy; apply (pr2 xy).
-    * now intros Y Z f.
-  + split.
-    * now intros.
-    * intros Y; apply eq_mor_slicecat; simpl.
-      now apply funextsec; intros f; cbn; rewrite tppr.
+apply is_left_adjoint_slicecat_to_cat, BinProductsHSET.
 Defined.
 
 End set_slicecat.
