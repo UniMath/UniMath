@@ -6,7 +6,6 @@ Equivalences.v
 Utilities.v
 Interval.v
 Precategories.v
-StandardCategories.v
 Bifunctor.v
 Representation.v
 RawMatrix.v

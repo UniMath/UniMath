@@ -131,6 +131,15 @@ Coercion monoidfuntobinopfun : monoidfun >-> binopfun.
 
 Definition monoidfununel {X Y : monoid} (f : monoidfun X Y) : f (unel X) = (unel Y) := pr2 (pr2 f).
 
+Definition monoidfun_paths {X Y : monoid} (f g : monoidfun X Y) (e : pr1 f = pr1 g) : f = g.
+Proof.
+  intros X Y f g e.
+  use total2_paths_f.
+  - exact e.
+  - use proofirrelevance. use isapropismonoidfun.
+Defined.
+Opaque monoidfun_paths.
+
 Lemma isasetmonoidfun (X Y : monoid) : isaset (monoidfun X Y).
 Proof.
   intros. apply (isasetsubset (pr1monoidfun X Y)).
@@ -188,6 +197,15 @@ Coercion monoidisotomonoidmono : monoidiso >-> monoidmono.
 Definition monoidisotobinopiso (X Y : monoid) : monoidiso X Y -> binopiso X Y :=
   fun f => binopisopair (pr1 f) (pr1 (pr2 f)).
 Coercion monoidisotobinopiso : monoidiso >-> binopiso.
+
+Definition monoidiso_paths {X Y : monoid} (f g : monoidiso X Y) (e : pr1 f = pr1 g) : f = g.
+Proof.
+  intros X Y f g e.
+  use total2_paths_f.
+  - exact e.
+  - use proofirrelevance. use isapropismonoidfun.
+Defined.
+Opaque monoidfun_paths.
 
 Lemma ismonoidfuninvmap {X Y : monoid} (f : monoidiso X Y) :
   ismonoidfun (invmap (pr1 f)).
