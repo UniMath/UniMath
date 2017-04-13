@@ -423,4 +423,59 @@ Definition disp_precat_monad_alg : disp_precat C
 
 End monad_algebras.
 
+(** * Any category is a displayed category over unit *)
+
+Section over_terminal_category.
+
+Variable C : Precategory.
+
+
+
+End over_terminal_category.
+
+Section cartesian_product.
+
+Variables C C' : Precategory.
+
+Definition disp_cartesian_ob_mor : disp_precat_ob_mor C.
+Proof.
+  mkpair.
+  - exact (fun c => C').
+  - cbn. intros x y x' y' f. exact (C'⟦x', y'⟧).
+Defined.
+
+Definition disp_cartesian_data : disp_precat_data C.
+Proof.
+  exists disp_cartesian_ob_mor.
+  mkpair; cbn. 
+  - intros; apply identity.
+  - intros ? ? ? ? ? ? ? ? f g. apply (f · g).
+Defined.
+
+Definition disp_cartesian_axioms : disp_precat_axioms _ disp_cartesian_data.
+Proof.
+  repeat split; intros; cbn.
+  - etrans. apply id_left.
+    apply pathsinv0.
+    etrans. unfold mor_disp. cbn. apply transportf_const.
+    apply idpath.
+  - etrans. apply id_right.
+    apply pathsinv0.
+    etrans. unfold mor_disp. cbn. apply transportf_const.
+    apply idpath.
+  - etrans. apply assoc.
+    apply pathsinv0.
+    etrans. unfold mor_disp. cbn. apply transportf_const.
+    apply idpath.
+  - apply homset_property.
+Qed.
+
+Definition disp_cartesian : disp_precat C := _ ,, disp_cartesian_axioms.
+
+End cartesian_product.
+
+
+
+
+
 (* *)
