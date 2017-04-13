@@ -2,7 +2,8 @@
 
 Require Import UniMath.CategoryTheory.precategories
                UniMath.Foundations.Sets.
-(* Require Import UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories. *)
+Require Import UniMath.CategoryTheory.functor_categories.
+
 Local Open Scope cat.
 
 Definition compose' { C:precategory_data } { a b c:ob C }
@@ -83,3 +84,51 @@ Proof. apply isofhleveltotal2. apply isapropisaset.
 
 Lemma is_discrete_cat_n (n:nat) : is_discrete (cat_n n).
 Proof. split. apply isasetstn. apply is_groupoid_path_pregroupoid. Qed.
+
+
+Definition unit_category : category.
+Proof.
+  use path_groupoid.
+  - exact unit.
+  - do 2 (apply hlevelntosn). apply isapropunit.
+Defined.
+
+
+Section functor.
+
+Variable A : precategory.
+
+Definition functor_to_unit_data : functor_data A unit_category.
+Proof.
+  exists (fun _ => tt).
+  exact (fun _ _ _ => idpath _ ).
+Defined.
+
+Definition is_functor_to_unit : is_functor functor_to_unit_data.
+Proof.
+  split.
+  - intro a. apply idpath.
+  - intros a b c f g . apply idpath.
+Qed.
+
+Definition functor_to_unit : functor A _ := _ ,, is_functor_to_unit.
+
+Lemma functor_to_unit_unique (F : functor A unit_category)
+  : F = functor_to_unit.
+Proof.
+  apply functor_eq.
+  - apply (homset_property unit_category).
+  - use total2_paths_f.
+    + apply funextsec. intro. cbn.
+      apply proofirrelevance.
+      apply isapropunit.
+    + do 3 (apply funextsec; intro).
+      apply proofirrelevance.
+      simpl.
+      apply hlevelntosn.
+      apply isapropunit.
+Qed.
+
+End functor.
+
+(* *)
