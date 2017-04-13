@@ -447,33 +447,54 @@ Proof.
 now intros g d; apply slice_precat_ColimCocone, CC.
 Defined.
 
-(** * Binary products in slice categories of categories with pullbacks *)
+(** * Moving between Binary products in slice categories and Pullbacks in base category *)
 Section slicecat_binproducts.
 
-Context {C : precategory} (hsC : has_homsets C) (PC : Pullbacks C).
+Context {C : precategory} (hsC : has_homsets C).
 
 Local Notation "C / X" := (slice_precat C X hsC).
 
-Lemma BinProducts_slice_precat (x : C) : BinProducts (C / x).
+Definition pullback_to_slice_binprod {A B Z : C} {f : A --> Z} {g : B --> Z} :
+  Pullback f g -> BinProductCone (C / Z) (A ,, f) (B ,, g).
 Proof.
-intros a b.
-use mk_BinProductCone.
-+ exists (PullbackObject (PC _ _ _ (pr2 a) (pr2 b))).
-  apply (PullbackPr1 (PC x _ _ (pr2 a) (pr2 b)) · pr2 a).
-+ use (PullbackPr1 _,,idpath _).
-+ use (PullbackPr2 _,, PullbackSqrCommutes _).
-+ intros c f g.
+  intros P.
+  refine (((PullbackObject P ,, (PullbackPr1 P) · f) ,, (((PullbackPr1 P) ,, idpath _) ,, (((PullbackPr2 P) ,, (PullbackSqrCommutes P))))) ,, _).
+  intros Y [j jeq] [k keq]; simpl in jeq , keq.
   use unique_exists.
-  - mkpair.
-    * apply (PullbackArrow _ _ (pr1 f) (pr1 g)).
-      abstract (now rewrite <- (pr2 f), <- (pr2 g)).
-    * abstract (now rewrite assoc, PullbackArrow_PullbackPr1, <- (pr2 f)).
-  - abstract (split; apply eq_mor_slicecat; simpl;
-             [ apply PullbackArrow_PullbackPr1 | apply PullbackArrow_PullbackPr2 ]).
-  - abstract (now intros h; apply isapropdirprod; apply has_homsets_slice_precat).
-  - abstract (intros h [H1 H2]; apply eq_mor_slicecat, PullbackArrowUnique;
+  + mkpair.
+    ++ apply (PullbackArrow P _ j k).
+       abstract (now rewrite <- jeq , keq).
+    ++ abstract (now rewrite assoc, PullbackArrow_PullbackPr1, <- jeq).
+  + abstract (split; apply eq_mor_slicecat; simpl;
+              [ apply PullbackArrow_PullbackPr1 | apply PullbackArrow_PullbackPr2 ]).
+  + abstract (now intros h; apply isapropdirprod; apply has_homsets_slice_precat).
+  + abstract (intros h [H1 H2]; apply eq_mor_slicecat, PullbackArrowUnique;
              [ apply (maponpaths pr1 H1) | apply (maponpaths pr1 H2) ]).
 Defined.
+
+Definition BinProducts_slice_precat (PC : Pullbacks C) : ∏ x, BinProducts (C / x) :=
+ fun x a b => pullback_to_slice_binprod (PC _ _ _ (pr2 a) (pr2 b)).
+
+Definition slice_binprod_to_pullback {Z : C} {AZ BZ : C / Z} :
+  BinProductCone (C / Z) AZ BZ → Pullback (pr2 AZ) (pr2 BZ).
+Proof.
+  induction AZ as [A f].
+  induction BZ as [B g].
+  intros [[[P h] [[l leq] [r req]]] PisProd].
+  refine ((P ,, l ,, r) ,, (! leq @ req) ,, _).
+  intros Y j k Yeq. simpl in *.
+  use unique_exists.
+  + exact (pr1 (pr1 (pr1 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))))).
+  + abstract (exact (maponpaths pr1 (pr1 (pr2 (pr1 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))))) ,,
+                                maponpaths pr1 (pr2 (pr2 (pr1 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))))))).
+  + abstract (intros x; apply isofhleveldirprod; apply (hsC _ _)).
+  + intros t teqs.
+    refine (maponpaths pr1 (maponpaths pr1 (pr2 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq)) ((t ,, (maponpaths (λ x, x · f) (!(pr1 teqs)) @ !(assoc _ _ _) @ maponpaths (λ x, t · x) (!leq))) ,, _)))).
+    abstract (split; apply eq_mor_slicecat; [exact (pr1 teqs) | exact (pr2 teqs)]).
+Defined.
+
+Definition Pullbacks_from_slice_BinProducts (BP : ∏ x, BinProducts (C / x)) : Pullbacks C :=
+  fun x a b f g => slice_binprod_to_pullback (BP x (a ,, f) (b ,, g)).
 
 End slicecat_binproducts.
 
@@ -683,7 +704,7 @@ Context (H : ∏ {c c' : C} (g : C⟦c,c'⟧), is_left_adjoint (base_change_func
 Let dependent_product_functor {c c' : C} (g : C⟦c,c'⟧) :
   functor (C / c) (C / c') := right_adjoint (H c c' g).
 
-Let BPC c : BinProducts (C / c) := BinProducts_slice_precat hsC PC c.
+Let BPC c : BinProducts (C / c) := @BinProducts_slice_precat C hsC PC c.
 
 Lemma const_prod_functor1_slicecat c (Af : C / c) :
   constprod_functor1 (BPC c) Af =
