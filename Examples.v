@@ -425,13 +425,101 @@ End monad_algebras.
 
 (** * Any category is a displayed category over unit *)
 
+Require Import UniMath.CategoryTheory.categories.StandardCategories.
+
 Section over_terminal_category.
 
 Variable C : Precategory.
 
+Definition disp_over_unit_data : disp_precat_data unit_category.
+Proof.
+  mkpair.
+  - mkpair.
+    + intro. apply (ob C).
+    + simpl. intros x y c c' e. apply (C ⟦c, c'⟧).
+  - mkpair.
+    + simpl. intros. apply identity.
+    + intros ? ? ? ? ? a b c f g. 
+      apply (compose (C:=C) f g ).
+Defined.
 
+Definition disp_over_unit_axioms : disp_precat_axioms _ disp_over_unit_data.
+Proof.
+  repeat split; cbn; intros.
+  - apply id_left.
+  - etrans. apply id_right.
+    apply pathsinv0. unfold mor_disp. cbn.
+    apply transportf_const.
+  - etrans. apply assoc.
+    apply pathsinv0. unfold mor_disp. cbn.
+    apply transportf_const.
+  - apply homset_property.
+Qed.
+
+Definition disp_over_unit : disp_precat _ := _ ,, disp_over_unit_axioms.
 
 End over_terminal_category.
+
+Section cartesian_product_pb.
+
+Variable C C' : Precategory.
+
+
+Definition disp_cartesian : disp_precat C 
+  := reindex_disp_precat (functor_to_unit C) (disp_over_unit C').
+
+Definition cartesian : Precategory := total_precat disp_cartesian.
+
+End cartesian_product_pb.
+
+Section arrow.
+
+Variable C : Precategory.
+
+Definition disp_arrow_data : disp_precat_data (cartesian C C).
+Proof.
+  mkpair.
+  - mkpair.
+    + intro H. 
+      exact (pr1 H --> pr2 H).
+    + cbn. intros xy ab f g h.
+      exact (compose f (pr2 h) = compose (pr1 h) g ).
+  - split; intros.
+    + cbn. 
+      apply pathsinv0. 
+      etrans. apply id_left.
+      cbn in xx.
+      unfold mor_disp. cbn.
+      etrans. eapply pathsinv0. apply id_right.
+      apply maponpaths. apply pathsinv0.
+      apply transportf_const.
+    + cbn in *.
+      unfold mor_disp. cbn.
+      etrans. apply maponpaths. apply transportf_const.
+      etrans. apply assoc.
+      etrans. apply maponpaths_2. apply X.
+      etrans. eapply pathsinv0, assoc.
+      etrans. apply maponpaths. apply X0.
+      apply assoc.
+Defined.
+
+Definition disp_arrow_axioms : disp_precat_axioms _ disp_arrow_data.
+Proof.
+  repeat split; intros; cbn;
+    try apply homset_property.
+  apply isasetaprop. 
+  apply homset_property.
+Qed.
+
+Definition disp_arrow : disp_precat (cartesian C C) := _ ,, disp_arrow_axioms.
+
+Definition arrow : Precategory := total_precat disp_arrow.
+
+Definition disp_domain_sigma : disp_precat C := sigma_disp_precat disp_arrow.
+
+Definition domain := total_precat disp_domain_sigma.
+
+End arrow.
 
 Section cartesian_product.
 
@@ -470,7 +558,7 @@ Proof.
   - apply homset_property.
 Qed.
 
-Definition disp_cartesian : disp_precat C := _ ,, disp_cartesian_axioms.
+Definition disp_cartesian' : disp_precat C := _ ,, disp_cartesian_axioms.
 
 End cartesian_product.
 
