@@ -38,15 +38,22 @@ Section Isofibrations.
 there’s some object d' in D c', and an iso φbar : d' =~ d over φ.
 *)
 
-Definition is_isofibration {C : Precategory} (D : disp_precat C) : UU
+Definition iso_cleaving {C : Precategory} (D : disp_precat C) : UU
 := 
   forall (c c' : C) (i : iso c' c) (d : D c),
           ∑ d' : D c', iso_disp i d' d.
 
-Definition is_uncloven_isofibration {C : Precategory} (D : disp_precat C) : UU
+Definition iso_fibration (C : Precategory) : UU
+  := ∑ D : disp_precat C, iso_cleaving D.
+
+Definition is_uncloven_iso_cleaving {C : Precategory} (D : disp_precat C) : UU
 := 
   forall (c c' : C) (i : iso c' c) (d : D c),
           ∃ d' : D c', iso_disp i d' d.
+
+Definition weak_iso_fibration (C : Precategory) : UU
+  := ∑ D : disp_precat C, is_uncloven_iso_cleaving D.
+
 
 (** As with fibrations, there is an evident dual version.  However, in the iso case, it is self-dual: having forward (i.e. cocartesian) liftings along isos is equivalent to having backward (cartesian) liftings. *)
 
@@ -57,7 +64,7 @@ Definition is_op_isofibration {C : Precategory} (D : disp_precat C) : UU
 
 Lemma is_isofibration_iff_is_op_isofibration 
     {C : Precategory} (D : disp_precat C)
-  : is_isofibration D <-> is_op_isofibration D.
+  : iso_cleaving D <-> is_op_isofibration D.
 Proof.
   (* TODO: give this! *)
 Abort.
@@ -165,15 +172,27 @@ Coercion cartesian_lift_is_cartesian : cartesian_lift >-> is_cartesian.
 
 (* TODO: should the arguments be re-ordered as in [cartesian_lift]? If so, reorder in [isofibration] etc as well, for consistency. *)
 (* TODO: consider renaming to e.g. [cleaving] to follow convention that [is_] is reserved for hprops. *)
-Definition is_fibration {C : Precategory} (D : disp_precat C) : UU
+Definition cleaving {C : Precategory} (D : disp_precat C) : UU
 := 
   forall (c c' : C) (f : c' --> c) (d : D c), cartesian_lift d f.
 
+(** ** (Cloven) fibration *)
+
+Definition fibration (C : Precategory) : UU
+:= 
+  ∑ D : disp_precat C, cleaving D.
+
+
+(** ** Weak fibration *)
+
 (* TODO: give access functions! *)
 
-Definition is_uncloven_fibration {C : Precategory} (D : disp_precat C) : UU
+Definition is_cleaving {C : Precategory} (D : disp_precat C) : UU
 := 
   forall (c c' : C) (f : c' --> c) (d : D c), ∥ cartesian_lift d f ∥.
+
+Definition weak_fibration (C : Precategory) : UU
+:= ∑ D : disp_precat C, is_cleaving D.
 
 (** ** Connection with isofibrations *)
 
@@ -200,7 +219,7 @@ Proof.
 Qed.
 
 Lemma is_isofibration_from_is_fibration {C : Precategory} {D : disp_precat C}
-  : is_fibration D -> is_isofibration D.
+  : cleaving D -> iso_cleaving D.
 Proof.
   intros D_fib c c' f d.
   assert (fd := D_fib _ _ f d).
@@ -283,7 +302,7 @@ Defined.
 
 Definition univalent_fibration_is_cloven
     {C : Precategory} {D : disp_precat C} (D_cat : is_category_disp D)
-  : is_uncloven_fibration D -> is_fibration D.
+  : is_cleaving D -> cleaving D.
 Proof.
   intros D_fib c c' f d.
   apply (squash_to_prop (D_fib c c' f d)).
@@ -359,7 +378,7 @@ Proof.
 Qed.
 
 Definition fibration_from_discrete_fibration C (D : discrete_fibration C)
-  : is_fibration D.
+  : cleaving D.
 Proof.
   intros c c' f d.
   mkpair.
@@ -713,7 +732,7 @@ Context (C : Precategory)
         (Ccat : is_category C)
         (D : disp_precat C).
 
-Definition isofib_disp : is_isofibration D.
+Definition iso_cleaving_category : iso_cleaving D.
 Proof.
   intros c c' i d.
   mkpair.

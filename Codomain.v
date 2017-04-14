@@ -104,7 +104,7 @@ Section Pullbacks_Cartesian.
 
 Context {C:Precategory}.
 
-Definition pullback_cartesian_in_cod_disp
+Definition isPullback_cartesian_in_cod_disp
     { Γ Γ' : C } {f : Γ' --> Γ}
     {p : disp_codomain _ Γ} {p' : disp_codomain _ Γ'} (ff : p' -->[f] p)
   : (isPullback _ _ _ _ (pr2 ff)) -> is_cartesian ff.
@@ -134,6 +134,62 @@ Proof.
       * exact (maponpaths pr1 (pr2 H)).
       * exact (pr1 H).
 Qed.
+
+Definition cartesian_isPullback_in_cod_disp
+    { Γ Γ' : C } {f : Γ' --> Γ}
+    {p : disp_codomain _ Γ} {p' : disp_codomain _ Γ'} (ff : p' -->[f] p)
+  : (isPullback _ _ _ _ (pr2 ff)) <- is_cartesian ff.
+Proof.
+  intros cf c h k H.
+  destruct p as [a x].
+  destruct p' as [b y].
+  destruct ff as [H1 H2].
+  unfold is_cartesian in cf.
+  simpl in *.
+  eapply iscontrweqf.
+  Focus 2. { 
+    use cf.
+    + exact Γ'.
+    + exact (identity _ ).
+    + exists c. exact k.
+    + cbn. exists h.
+      etrans. apply H. apply maponpaths. apply (! id_left _ ).
+  } Unfocus.
+  eapply weqcomp.
+  apply weqtotal2asstor.
+  apply weq_subtypes_iff.
+
+  - intro. apply (isofhleveltotal2 1). 
+    + apply homset_property.
+    + intros. 
+      match goal with |[|- isofhlevel 1 (?x = _ )] => 
+                       set (X := x) end.
+      set (XR := @homsets_disp _ (disp_codomain C )). 
+      specialize (XR _ _ _ _ _ X).
+      apply XR.
+  - cbn. intro. apply isapropdirprod; apply homset_property.
+  - intros gg; split; intros HRR.
+    + split.
+      * exact (maponpaths pr1 (pr2 HRR)).
+      * etrans. apply (pr1 HRR). apply id_right.
+    + mkpair. 
+      * rewrite id_right.
+        exact (pr2 HRR).
+      * apply subtypeEquality.
+        intro; apply homset_property.
+      exact (pr1 HRR).
+Qed.
+
+
+Definition cartesian_iff_isPullback
+    { Γ Γ' : C } {f : Γ' --> Γ}
+    {p : disp_codomain _ Γ} {p' : disp_codomain _ Γ'} (ff : p' -->[f] p)
+  : (isPullback _ _ _ _ (pr2 ff)) <-> is_cartesian ff.
+Proof.
+  split.
+  - apply isPullback_cartesian_in_cod_disp.
+  - apply cartesian_isPullback_in_cod_disp.
+Defined.
 
 End Pullbacks_Cartesian.
 

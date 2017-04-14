@@ -138,7 +138,7 @@ Qed.
 Lemma cartesian_functor_from_cleaving
     {C C' : Precategory} {F : functor C C'}
     {D : disp_precat C} {D' : disp_precat C'} {FF : disp_functor F D D'}
-    (clD : is_fibration D)
+    (clD : cleaving D)
     (H : forall c c' f d, is_cartesian (# FF (clD c c' f d)))
   : is_cartesian_disp_functor FF.
 Proof.
@@ -149,7 +149,7 @@ Proof.
 Qed.
 
 Definition comprehension_cat_structure (C : Precategory) : UU 
-  := ∑ (D : disp_precat C) (H : is_fibration D)
+  := ∑ (D : disp_precat C) (H : cleaving D)
      (F : disp_functor (functor_identity _ ) D (disp_codomain C)),
      is_cartesian_disp_functor F.
 
@@ -195,7 +195,7 @@ Proof.
   use cartesian_functor_from_cleaving.
   - apply is_fibration_DM_disp.
   - intros c c' f d. 
-    apply pullback_cartesian_in_cod_disp.
+    apply isPullback_cartesian_in_cod_disp.
     apply isPullback_of_dm_sub_pb, homset_property.
 Qed.
 
