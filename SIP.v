@@ -13,6 +13,7 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Require Import TypeTheory.Displayed_Cats.Auxiliary.
 Require Import TypeTheory.Displayed_Cats.Core.
+Require Import TypeTheory.Displayed_Cats.Constructions.
 
 Local Open Scope mor_disp_scope.
 
@@ -41,18 +42,8 @@ Variable Hstandard : ∏ (x : C) (a a' : P x),
 
 (** ** A displayed precategory from the data *)
 
-Definition disp_precat_from_SIP_data : disp_precat C.
-Proof.
-  mkpair.
-  - mkpair.
-    + exists P.
-      exact @H.
-    + exists Hid.
-      intros ? ? ? ? ? ? ? ? X X0. simpl in *.
-      eapply Hcomp. * apply X. * apply X0.
-  - repeat split; intros; try apply proofirrelevance; 
-    try apply isasetaprop; apply Hisprop. 
-Defined.
+Definition disp_precat_from_SIP_data : disp_precat C
+  := disp_struct C P (@H) Hisprop Hid Hcomp.
 
 (** ** Displayed category from SIP data is univalent *)
 

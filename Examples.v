@@ -24,6 +24,7 @@ Require Import TypeTheory.Displayed_Cats.Core.
 Require Import TypeTheory.Displayed_Cats.Constructions.
 Require Import TypeTheory.Displayed_Cats.Limits.
 Require Import TypeTheory.Displayed_Cats.Fibrations.
+Require Import TypeTheory.Displayed_Cats.SIP.
 
 Local Open Scope mor_disp_scope.
 
@@ -312,43 +313,75 @@ Definition precat_of_elements {C : Precategory} (P : functor C SET)
 End Elements_Disp.
 
 
+
 Section functor_algebras.
 
 Context {C : Precategory} (F : functor C C).
 
-Definition disp_precat_functor_alg_ob_mor : disp_precat_ob_mor C.
+Definition functor_alg_ob : C -> UU := λ c, F c --> c.
+
+Definition functor_alg_mor 
+  : ∏ (x y : C), functor_alg_ob x → functor_alg_ob y → C⟦x,y⟧ → UU.
 Proof.
-  exists (λ c : C, F c --> c).
   intros c d a a' r. exact ( (#F r)%cat · a' = a · r).
 Defined.
 
-Definition disp_precat_functor_alg_data : disp_precat_data C.
+Definition isaprop_functor_alg_mor 
+  :  ∏ (x y : C) a a' r,
+     isaprop (functor_alg_mor x y a a' r).
 Proof.
-  exists disp_precat_functor_alg_ob_mor.
-  split.
-  - intros x f. cbn.
-    etrans. apply maponpaths_2. apply functor_id.
-    etrans. apply id_left. apply pathsinv0, id_right.
-  - cbn; intros ? ? ? ? ? ? ? ? H H0.
-    etrans. apply maponpaths_2. apply functor_comp.
-    etrans. eapply pathsinv0. apply assoc.
-    etrans. apply maponpaths. apply H0.
-    etrans. apply assoc. 
-    etrans. apply maponpaths_2. apply H. 
-    apply pathsinv0, assoc.
-Defined.
-
-Definition disp_precat_functor_alg_axioms 
-  : disp_precat_axioms C disp_precat_functor_alg_data.
-Proof.
-  repeat split; intros; try apply homset_property.
-  apply isasetaprop. apply homset_property.
+  intros. simpl. apply homset_property.
 Qed.
 
-Definition disp_precat_functor_alg : disp_precat C := _ ,, disp_precat_functor_alg_axioms.
+Definition functor_alg_id 
+: ∏ (x : C) (a : functor_alg_ob x), functor_alg_mor _ _ a a (identity x ).
+Proof.
+  intros; unfold functor_alg_mor.
+  rewrite functor_id; 
+  rewrite id_left; 
+  apply pathsinv0; apply id_right .
+Qed.
+
+Definition functor_alg_comp 
+  : ∏ (x y z : C) a b c (f : C⟦x,y⟧) (g : C⟦y,z⟧),
+                 functor_alg_mor _ _  a b f 
+                 → functor_alg_mor _ _  b c g 
+                 → functor_alg_mor _ _  a c (f ;; g).
+Proof.
+  cbn; intros ? ? ? ? ? ? ? ? X X0;
+  unfold functor_alg_mor in *;
+  rewrite functor_comp;
+  rewrite <-assoc; rewrite X0;
+  rewrite assoc; rewrite X;
+  apply (!assoc _ _ _ ) .
+Qed.
+
+Definition disp_precat_functor_alg : disp_precat C
+  := disp_struct _ _ 
+                 functor_alg_mor 
+                 isaprop_functor_alg_mor 
+                 functor_alg_id 
+                 functor_alg_comp.                                                  
 
 Definition total_functor_alg : Precategory := total_precat disp_precat_functor_alg.
 
+Lemma isaset_functor_alg_ob : ∏ x : C, isaset (functor_alg_ob x).
+Proof.
+  intro c.
+  apply homset_property.
+Qed.
+
+Lemma is_disp_category_functor_alg : is_category_disp disp_precat_functor_alg.
+Proof. 
+  use is_category_disp_from_SIP_data.
+  - apply isaset_functor_alg_ob.
+  - unfold functor_alg_mor.
+    intros x a a' H H'.
+    rewrite functor_id in H'.
+    rewrite id_left in H'.
+    rewrite id_right in H'.
+    apply H'.
+Defined.
 
 Definition iso_cleaving_functor_alg : iso_cleaving disp_precat_functor_alg.
 Proof.
@@ -365,7 +398,9 @@ Proof.
           apply pathsinv0; apply iso_after_iso_inv
         ).
     + mkpair.
-      * cbn. repeat rewrite assoc.
+      * unfold functor_alg_mor.
+        cbn. repeat rewrite assoc.
+        unfold functor_alg_mor. cbn.
         rewrite <- functor_comp.
         rewrite iso_after_iso_inv.
         rewrite functor_id.
@@ -457,9 +492,11 @@ Proof.
             apply maponpaths;
             apply (maponpaths pr1 (coneOutCommutes CC _ _ _ ))
                   ).
-        } 
+        }
+ 
         {
-          transitivity (limArrow LL _ X).
+          unfold functor_alg_mor.
+          pathvia (limArrow LL _ X).
           - apply (limArrowUnique LL).
             intro j. rewrite <- assoc.
             rewrite (limArrowCommutes LL).
