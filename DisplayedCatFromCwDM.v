@@ -151,7 +151,7 @@ TODO: maybe factor out this dependency — name the separate conditions on class
 
 Context (D : dm_sub_pb CC).
 
-Lemma is_fibration_DM_disp : is_fibration (DM_disp D).
+Lemma is_fibration_DM_disp : cleaving (DM_disp D).
 Proof.
   intros Γ Γ' f p.
   exists (pb_DM_over_of_DM_over p f).

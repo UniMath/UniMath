@@ -165,7 +165,7 @@ Coercion cartesian_lift_is_cartesian : cartesian_lift >-> is_cartesian.
 
 (* TODO: should the arguments be re-ordered as in [cartesian_lift]? If so, reorder in [isofibration] etc as well, for consistency. *)
 (* TODO: consider renaming to e.g. [cleaving] to follow convention that [is_] is reserved for hprops. *)
-Definition is_fibration {C : Precategory} (D : disp_precat C) : UU
+Definition cleaving {C : Precategory} (D : disp_precat C) : UU
 := 
   forall (c c' : C) (f : c' --> c) (d : D c), cartesian_lift d f.
 
@@ -200,7 +200,7 @@ Proof.
 Qed.
 
 Lemma is_isofibration_from_is_fibration {C : Precategory} {D : disp_precat C}
-  : is_fibration D -> is_isofibration D.
+  : cleaving D -> is_isofibration D.
 Proof.
   intros D_fib c c' f d.
   assert (fd := D_fib _ _ f d).
@@ -283,7 +283,7 @@ Defined.
 
 Definition univalent_fibration_is_cloven
     {C : Precategory} {D : disp_precat C} (D_cat : is_category_disp D)
-  : is_uncloven_fibration D -> is_fibration D.
+  : is_uncloven_fibration D -> cleaving D.
 Proof.
   intros D_fib c c' f d.
   apply (squash_to_prop (D_fib c c' f d)).
@@ -359,7 +359,7 @@ Proof.
 Qed.
 
 Definition fibration_from_discrete_fibration C (D : discrete_fibration C)
-  : is_fibration D.
+  : cleaving D.
 Proof.
   intros c c' f d.
   mkpair.
