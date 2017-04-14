@@ -732,7 +732,7 @@ Context (C : Precategory)
         (Ccat : is_category C)
         (D : disp_precat C).
 
-Definition isofib_disp : iso_cleaving D.
+Definition iso_cleaving_category : iso_cleaving D.
 Proof.
   intros c c' i d.
   mkpair.
