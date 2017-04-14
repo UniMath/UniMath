@@ -23,6 +23,7 @@ Require Import TypeTheory.Displayed_Cats.Auxiliary.
 Require Import TypeTheory.Displayed_Cats.Core.
 Require Import TypeTheory.Displayed_Cats.Constructions.
 Require Import TypeTheory.Displayed_Cats.Limits.
+Require Import TypeTheory.Displayed_Cats.Fibrations.
 
 Local Open Scope mor_disp_scope.
 
@@ -257,6 +258,29 @@ Definition disp_precat_functor_alg : disp_precat C := _ ,, disp_precat_functor_a
 Definition total_functor_alg : precategory := total_precat disp_precat_functor_alg.
 
 
+Definition functor_alg_isofib : is_isofibration disp_precat_functor_alg.
+Proof.
+  intros c c' i d.
+  cbn in *.
+  mkpair.
+  - exact (compose (compose (functor_on_iso F i) d) (iso_inv_from_iso i)).
+  - cbn. unfold iso_disp. cbn.
+    mkpair.
+    + abstract (
+          etrans; [eapply pathsinv0; apply id_right |];
+          repeat rewrite <- assoc;
+          do 2 apply maponpaths;
+          apply pathsinv0; apply iso_after_iso_inv
+        ).
+    + mkpair.
+      * cbn. repeat rewrite assoc.
+        rewrite <- functor_comp.
+        rewrite iso_after_iso_inv.
+        rewrite functor_id.
+        rewrite id_left. apply idpath.
+      * split; apply homset_property.
+Defined.
+
 
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
@@ -377,7 +401,6 @@ Proof.
       specialize (X u).
       apply (maponpaths pr1 X).
 Defined.
-
 
 End functor_algebras.
 
