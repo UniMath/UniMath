@@ -117,19 +117,20 @@ Proof.
       clear XR.
       clear RX.
       unfold T.
+      unfold T'.
       apply (limArrowUnique (mk_LimCone _ _ _ isL)) .
-      intro j.
-      (*
-      set (ZR := limArrowCommutes (
-      
-      apply pathsinv0.
-      *)
-      admit.
+      intro j. 
+      set (RRt := mk_LimCone _ _ _ RT1).
+      set (RRtt := limArrowCommutes RRt x CC j).
+      set (RH := maponpaths (#π)%Cat RRtt).
+      cbn in RH.
+      apply RH.
     } 
     rewrite <- X0.
     apply XR.
-Abort.
+Defined.
 
+End creates_preserves.
 
 
 (* *)
