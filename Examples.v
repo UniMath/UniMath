@@ -609,9 +609,9 @@ Definition disp_arrow : disp_precat (cartesian C C) := _ ,, disp_arrow_axioms.
 
 Definition arrow : Precategory := total_precat disp_arrow.
 
-Definition disp_domain_sigma : disp_precat C := sigma_disp_precat disp_arrow.
+Definition disp_domain : disp_precat C := sigma_disp_precat disp_arrow.
 
-Definition domain := total_precat disp_domain_sigma.
+Definition total_domain := total_precat disp_domain.
 
 End arrow.
 
