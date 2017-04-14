@@ -38,15 +38,22 @@ Section Isofibrations.
 there’s some object d' in D c', and an iso φbar : d' =~ d over φ.
 *)
 
-Definition is_isofibration {C : Precategory} (D : disp_precat C) : UU
+Definition iso_cleaving {C : Precategory} (D : disp_precat C) : UU
 := 
   forall (c c' : C) (i : iso c' c) (d : D c),
           ∑ d' : D c', iso_disp i d' d.
 
-Definition is_uncloven_isofibration {C : Precategory} (D : disp_precat C) : UU
+Definition iso_fibration (C : Precategory) : UU
+  := ∑ D : disp_precat C, iso_cleaving D.
+
+Definition is_uncloven_iso_cleaving {C : Precategory} (D : disp_precat C) : UU
 := 
   forall (c c' : C) (i : iso c' c) (d : D c),
           ∃ d' : D c', iso_disp i d' d.
+
+Definition weak_iso_fibration (C : Precategory) : UU
+  := ∑ D : disp_precat C, is_uncloven_iso_cleaving D.
+
 
 (** As with fibrations, there is an evident dual version.  However, in the iso case, it is self-dual: having forward (i.e. cocartesian) liftings along isos is equivalent to having backward (cartesian) liftings. *)
 
@@ -57,7 +64,7 @@ Definition is_op_isofibration {C : Precategory} (D : disp_precat C) : UU
 
 Lemma is_isofibration_iff_is_op_isofibration 
     {C : Precategory} (D : disp_precat C)
-  : is_isofibration D <-> is_op_isofibration D.
+  : iso_cleaving D <-> is_op_isofibration D.
 Proof.
   (* TODO: give this! *)
 Abort.
@@ -212,7 +219,7 @@ Proof.
 Qed.
 
 Lemma is_isofibration_from_is_fibration {C : Precategory} {D : disp_precat C}
-  : cleaving D -> is_isofibration D.
+  : cleaving D -> iso_cleaving D.
 Proof.
   intros D_fib c c' f d.
   assert (fd := D_fib _ _ f d).
@@ -725,7 +732,7 @@ Context (C : Precategory)
         (Ccat : is_category C)
         (D : disp_precat C).
 
-Definition isofib_disp : is_isofibration D.
+Definition isofib_disp : iso_cleaving D.
 Proof.
   intros c c' i d.
   mkpair.

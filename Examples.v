@@ -350,7 +350,7 @@ Definition disp_precat_functor_alg : disp_precat C := _ ,, disp_precat_functor_a
 Definition total_functor_alg : precategory := total_precat disp_precat_functor_alg.
 
 
-Definition functor_alg_isofib : is_isofibration disp_precat_functor_alg.
+Definition functor_alg_isofib : iso_cleaving disp_precat_functor_alg.
 Proof.
   intros c c' i d.
   cbn in *.
