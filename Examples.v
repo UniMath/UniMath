@@ -177,7 +177,7 @@ Proof.
   apply isasetaprop. apply isaprop_continuous.
 Defined.
  
-Definition top_disp_precat : disp_precat SET := _ ,, top_disp_precat_axioms.
+Definition disp_top : disp_precat SET := _ ,, top_disp_precat_axioms.
 
 
 (** ** The displayed arrow category 
