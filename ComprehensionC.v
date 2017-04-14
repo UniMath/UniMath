@@ -195,7 +195,7 @@ Proof.
   use cartesian_functor_from_cleaving.
   - apply is_fibration_DM_disp.
   - intros c c' f d. 
-    apply pullback_cartesian_in_cod_disp.
+    apply isPullback_cartesian_in_cod_disp.
     apply isPullback_of_dm_sub_pb, homset_property.
 Qed.
 
