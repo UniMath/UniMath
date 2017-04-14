@@ -169,11 +169,23 @@ Definition cleaving {C : Precategory} (D : disp_precat C) : UU
 := 
   forall (c c' : C) (f : c' --> c) (d : D c), cartesian_lift d f.
 
+(** ** (Cloven) fibration *)
+
+Definition fibration (C : Precategory) : UU
+:= 
+  ∑ D : disp_precat C, cleaving D.
+
+
+(** ** Weak fibration *)
+
 (* TODO: give access functions! *)
 
-Definition is_uncloven_fibration {C : Precategory} (D : disp_precat C) : UU
+Definition is_cleaving {C : Precategory} (D : disp_precat C) : UU
 := 
   forall (c c' : C) (f : c' --> c) (d : D c), ∥ cartesian_lift d f ∥.
+
+Definition weak_fibration (C : Precategory) : UU
+:= ∑ D : disp_precat C, is_cleaving D.
 
 (** ** Connection with isofibrations *)
 
@@ -283,7 +295,7 @@ Defined.
 
 Definition univalent_fibration_is_cloven
     {C : Precategory} {D : disp_precat C} (D_cat : is_category_disp D)
-  : is_uncloven_fibration D -> cleaving D.
+  : is_cleaving D -> cleaving D.
 Proof.
   intros D_fib c c' f d.
   apply (squash_to_prop (D_fib c c' f d)).
