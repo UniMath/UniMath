@@ -3,6 +3,9 @@
 
 Partial contents:
 
+- Full subcategory as total category of a displayed category
+- Displayed category given by a structure on objects and a proposition
+   on morphisms of the base category
 - Direct products of displayed precategories (and their projections)
   - [dirprod_precat D1 D2]
   - [dirprodpr1_functor], [dirprodpr2_functor]
@@ -63,6 +66,76 @@ Defined.
 
 End Auxiliary.
 
+
+(** * Full subcategories *)
+
+Section full_subcat.
+Variable C : Precategory.
+Variable P : C -> UU.
+
+Definition disp_full_sub_ob_mor : disp_precat_ob_mor C.
+Proof.
+  exists P.
+  intros. exact unit.
+Defined.
+
+Definition disp_full_sub_id_comp : disp_precat_id_comp C disp_full_sub_ob_mor.
+Proof.
+  split; intros; apply tt.
+Qed.
+
+Definition disp_full_sub_data : disp_precat_data C 
+  :=  disp_full_sub_ob_mor,, disp_full_sub_id_comp.
+
+Definition disp_full_sub_axioms : disp_precat_axioms _ disp_full_sub_data.
+Proof.
+  repeat split; intros; try (apply proofirrelevance; apply isapropunit).
+  apply isasetaprop; apply isapropunit.
+Qed.
+
+Definition disp_full_sub : disp_precat C := _ ,, disp_full_sub_axioms.                      
+
+End full_subcat.
+
+(** * Displayed category from structure on objects and compatibility on morphisms *)
+
+Section struct_hom.
+
+Variable C : Precategory.
+Variable univC : is_category C.
+Variable P : ob C -> UU.
+(* Variable Pisset : ∏ x, isaset (P x). *)
+Variable H : ∏ (x y : C), P x → P y → C⟦x,y⟧ → UU.
+Arguments H {_ _} _ _ _ .
+Variable Hisprop : ∏ x y a b (f : C⟦x,y⟧), isaprop (H a b f).
+Variable Hid : ∏ (x : C) (a : P x), H a a (identity _ ).
+Variable Hcomp : ∏ (x y z : C) a b c (f : C⟦x,y⟧) (g : C⟦y,z⟧),
+                 H a b f → H b c g → H a c (f ;; g).
+
+Definition disp_struct_ob_mor : disp_precat_ob_mor C.
+Proof.
+  exists P.
+  intros ? ? f a b; exact (H f a b ).
+Defined.
+
+Definition disp_struct_id_comp : disp_precat_id_comp _ disp_struct_ob_mor.
+Proof.
+  split; cbn; intros.
+  - apply Hid.
+  - eapply Hcomp. apply X. apply X0.
+Qed.
+
+Definition disp_struct_data : disp_precat_data C := _ ,, disp_struct_id_comp.
+
+Definition disp_struct_axioms : disp_precat_axioms _ disp_struct_data.
+Proof.
+  repeat split; intros; try (apply proofirrelevance; apply Hisprop).
+  apply isasetaprop; apply Hisprop.
+Qed.
+
+Definition disp_struct : disp_precat C := _ ,, disp_struct_axioms.
+
+End struct_hom.
 
 (** * Products of displayed (pre)categories 
 
