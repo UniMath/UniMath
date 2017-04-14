@@ -60,6 +60,76 @@ Definition creates_limits {C : Precategory} (D : disp_precat C) : UU
 
 End Creates_Limits.
            
+Section creates_preserves.
+
+Context {C : Precategory}
+        (D : disp_precat C)
+        (H : creates_limits D)
+        (J : graph)
+        (X : Lims_of_shape J C).
+
+Notation π := (pr1_precat D).
+
+Definition total_limits : Lims_of_shape J (total_precat D).
+Proof.
+  intro d.
+  set (πd := mapdiagram π d).
+  set (LL := X πd).
+  set (L := pr1 LL).
+  set (c := pr1 L).
+  set (isL := pr2 LL). cbn in isL.
+  set (XR := H _ d _ _ isL).
+  unfold creates_limit in XR.
+  cbn.
+  use (mk_LimCone _ _ _ (pr2 XR)).
+Defined.
+
+Lemma pr1_preserves_limit (d : diagram J (total_precat D)) 
+  (x : total_precat D) (CC : cone d x) : preserves_limit π _ x CC. 
+Proof.
+  intro H1.
+  set (XR := X (mapdiagram π d)).
+  use is_iso_isLim.
+  - apply homset_property.
+  - apply X.
+  - match goal with |[ |- is_iso ?foo ] => set (T:= foo) end.
+    destruct X as [[a L] isL]. cbn in isL.
+    clear XR.
+    set (tL := H _ _ _ _ isL).
+    unfold creates_limit in tL.
+    set (RR := pr1 tL).
+    set (RT1 := pr2 tL).
+(*
+    set (RX := isLim_is_iso _ (mk_LimCone _ _ CC H1) _ _ RT1).
+    cbn in RX.
+    set (XR := @functor_on_is_iso_is_iso _ _ π _ _ _ RX).
+    cbn in XR.
+    match goal with |[ H : is_iso ?f |- _ ] => set (T':= f) end.
+*)
+  
+    set (RX := isLim_is_iso _ (mk_LimCone _ _ _ RT1) _ _ H1).
+    set (XR := @functor_on_is_iso_is_iso _ _ π _ _ _ RX).
+    match goal with |[ H : is_iso ?f |- _ ] => set (T':= f) end.
+
+    assert (X0 : T' = T).
+    { 
+      
+      clear XR.
+      clear RX.
+      unfold T.
+      apply (limArrowUnique (mk_LimCone _ _ _ isL)) .
+      intro j.
+      (*
+      set (ZR := limArrowCommutes (
+      
+      apply pathsinv0.
+      *)
+      admit.
+    } 
+    rewrite <- X0.
+    apply XR.
+Abort.
+
 
 
 (* *)
