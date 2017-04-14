@@ -645,8 +645,7 @@ Section abgr_kernels_and_cokernels.
   Proof.
     use issubgrpair.
     - use issubmonoidpair.
-      + use mk_issubsetwithbinop.
-        intros a a'.
+      + intros a a'.
         use (hinhuniv _ (pr2 a)). intros ae.
         use (hinhuniv _ (pr2 a')). intros a'e.
         use hinhpr.
@@ -793,15 +792,14 @@ Section abgr_kernels_and_cokernels.
   Proof.
     use issubgrpair.
     - use issubmonoidpair.
-      + use mk_issubsetwithbinop.
-        intros a a'.
+      + intros a a'.
         use (hinhuniv _ (pr2 a)). intros ae.
         use (hinhuniv _ (pr2 a')). intros a'e.
         use hinhpr.
         use tpair.
         * exact (@op A (pr1 ae) (pr1 a'e)).
         * use (pathscomp0 (binopfunisbinopfun f (pr1 ae) (pr1 a'e))).
-          use binoppathsop.
+          use two_arg_paths.
           -- exact (pr2 ae).
           -- exact (pr2 a'e).
       + use hinhpr. use tpair.
@@ -854,7 +852,7 @@ Section abgr_kernels_and_cokernels.
     use tpair.
     - exact (grinv A (pr1 x3')).
     - use (pathscomp0 (monoidfuninvtoinv f (pr1 x3'))).
-      rewrite (pr2 x3'). rewrite grinvop. use binoppathsop.
+      rewrite (pr2 x3'). rewrite grinvop. use two_arg_paths.
       + use grinvinv.
       + use idpath.
   Qed.
@@ -917,7 +915,7 @@ Section abgr_kernels_and_cokernels.
     use tpair.
     - exact a.
     - use (pathscomp0 (pathsinv0 (runax B (pr1 f a)))).
-      use binoppathsop.
+      use two_arg_paths.
       + use idpath.
       + use pathsinv0. use (grinvunel B).
   Qed.
@@ -1069,7 +1067,7 @@ Section abgr_monics_and_epis.
     rewrite (monoidfun_nat_to_monoid_map f a2 x1).
     rewrite (monoidfun_nat_to_monoid_map f (grinv A a1) x2).
     rewrite (monoidfun_nat_to_monoid_map f (grinv A a2) x2).
-    use binoppathsop.
+    use two_arg_paths.
     - induction H. use idpath.
     - assert (e : f (grinv A a1) = f (grinv A a2)). {
         use (@grlcan B _ _ (pr1 f a1)).
@@ -1726,7 +1724,7 @@ Section abgr_corollaries.
                                           f g ZA H isM h H' ((x * y)%multmonoid))))).
       use (pathscomp0 (binopfunisbinopfun (h : monoidfun _ _) _ _)).
       use pathsinv0.
-      use binoppathsop.
+      use two_arg_paths.
       + exact (pr2 (iscontrpr1 (abgr_isKernel_iscontr f g ZA H isM h H' (x%multmonoid)))).
       + exact (pr2 (iscontrpr1 (abgr_isKernel_iscontr f g ZA H isM h H' (y%multmonoid)))).
     - use (abgr_monic_paths f isM).

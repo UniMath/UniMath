@@ -50,13 +50,6 @@ Definition unop (X : UU) : UU := X -> X.
 
 (** *** Binary operations *)
 
-Lemma binoppathsop {X : UU} {opp : binop X} {x1 y1 x2 y2 : X} (e1 : x1 = y1) (e2 : x2 = y2) :
-  opp x1 x2 = opp y1 y2.
-Proof.
-  intros X opp x1 y1 x2 y2 e1 e2.
-  induction e1. induction e2.
-  use idpath.
-Qed.
 
 (** **** General definitions *)
 
@@ -91,9 +84,6 @@ Definition binop_weq_bck {X Y : UU} (H : weq X Y) :
 Definition isassoc {X : hSet} (opp : binop X) : UU :=
   ∏ x x' x'', paths (opp (opp x x') x'') (opp x (opp x' x'')).
 
-Definition mk_isassoc {X : hSet} {opp : binop X}
-           (H : ∏ x x' x'' : X, opp (opp x x') x'' = opp x (opp x' x'')) : isassoc opp := H.
-
 Lemma isapropisassoc {X : hSet} (opp : binop X) : isaprop (isassoc opp).
 Proof.
   intros.
@@ -107,9 +97,6 @@ Defined.
 
 Definition islunit {X : UU} (opp : binop X) (un0 : X) : UU := ∏ x : X, paths (opp un0 x) x.
 
-Definition mk_islunit {X : UU} {opp : binop X} {un0 : X} (H : ∏ x : X, opp un0 x = x) :
-  islunit opp un0 := H.
-
 Lemma isapropislunit {X : hSet} (opp : binop X) (un0 : X) : isaprop (islunit opp un0).
 Proof.
   intros.
@@ -118,9 +105,6 @@ Proof.
 Defined.
 
 Definition isrunit {X : UU} (opp : binop X) (un0 : X) : UU := ∏ x : X, paths (opp x un0) x.
-
-Definition mk_isrunit {X : UU} {opp : binop X} {un0 : X} (H : ∏ x : X, opp x un0 = x) :
-  isrunit opp un0 := H.
 
 Lemma isapropisrunit {X : hSet} (opp : binop X) (un0 : X) : isaprop (isrunit opp un0).
 Proof.
@@ -179,9 +163,6 @@ Defined.
 Definition islinv {X : hSet} (opp : binop X) (un0 : X) (inv0 : X -> X) : UU :=
   ∏ x : X, paths (opp (inv0 x) x) un0.
 
-Definition mk_islinv {X : hSet} {opp : binop X} {un0 : X} {inv0 : X -> X}
-           (H : ∏ x : X, opp (inv0 x) x = un0) : islinv opp un0 inv0 := H.
-
 Lemma isapropislinv {X : hSet} (opp : binop X) (un0 : X) (inv0 : X -> X) :
   isaprop (islinv opp un0 inv0).
 Proof.
@@ -192,9 +173,6 @@ Defined.
 
 Definition isrinv {X : hSet} (opp : binop X) (un0 : X) (inv0 : X -> X) : UU :=
   ∏ x : X, paths (opp x (inv0 x)) un0.
-
-Definition mk_isrinv {X : hSet} {opp : binop X} {un0 : X} {inv0 : X -> X}
-           (H : ∏ x : X, opp x (inv0 x) = un0) : isrinv opp un0 inv0 := H.
 
 Lemma isapropisrinv {X : hSet} (opp : binop X) (un0 : X) (inv0 : X -> X) :
   isaprop (isrinv opp un0 inv0).
@@ -406,9 +384,6 @@ Defined.
 (** *)
 
 Definition iscomm {X : hSet} (opp : binop X) : UU := ∏ x x' : X, paths (opp x x') (opp x' x).
-
-Definition mk_iscomm {X : hSet} {opp : binop X} (H : ∏ x x' : X, (opp x x') = (opp x' x)) :
-  iscomm opp := H.
 
 Lemma isapropiscomm {X : hSet} (opp : binop X) : isaprop (iscomm opp).
 Proof.
@@ -1393,16 +1368,6 @@ Proof.
 Defined.
 Opaque isasetbinoponhSet.
 
-Definition binopradd {X : setwithbinop} (x y z : X) : x = y -> op x z = op y z.
-Proof.
-  intros X x y z e. induction e. use idpath.
-Qed.
-
-Definition binopladd {X : setwithbinop} (x y z : X) : x = y -> op z x = op z y.
-Proof.
-  intros X x y z e. induction e. use idpath.
-Qed.
-
 Notation "x + y" := (op x y) : addoperation_scope.
 Notation "x * y" := (op x y) : multoperation_scope.
 
@@ -1826,9 +1791,6 @@ Definition isabgropisob {X Y : setwithbinop} (f : binopiso X Y) (is : isabgrop (
 
 Definition issubsetwithbinop {X : hSet} (opp : binop X) (A : hsubtype X) : UU :=
   ∏ a a' : A, A (opp (pr1 a) (pr1 a')).
-
-Definition mk_issubsetwithbinop {X : hSet} {opp : binop X} {A : hsubtype X}
-           (H : ∏ a a' : A, A (opp (pr1 a) (pr1 a'))) : issubsetwithbinop opp A := H.
 
 Lemma isapropissubsetwithbinop {X : hSet} (opp : binop X) (A : hsubtype X) :
   isaprop (issubsetwithbinop opp A).

@@ -107,12 +107,12 @@ Delimit Scope multmonoid_scope with multmonoid.
 Definition unitmonoid_ismonoid : ismonoidop (fun x : unitset => fun y : unitset => x).
 Proof.
   use mk_ismonoidop.
-  - use mk_isassoc. intros x x' x''. use isconnectedunit.
+  - intros x x' x''. use isconnectedunit.
   - use isunitalpair.
     + exact tt.
     + use isunitpair.
-      * use mk_islunit. intros x. use isconnectedunit.
-      * use mk_isrunit. intros x. use isconnectedunit.
+      * intros x. use isconnectedunit.
+      * intros x. use isconnectedunit.
 Qed.
 
 Definition unitmonoid : monoid :=
@@ -520,7 +520,7 @@ Definition unitabmonoid_isabmonoid : isabmonoidop (@op unitmonoid).
 Proof.
   use mk_isabmonoidop.
   - exact unitmonoid_ismonoid.
-  - use mk_iscomm. intros x x'. use isconnectedunit.
+  - intros x x'. use isconnectedunit.
 Qed.
 
 Definition unitabmonoid : abmonoid := abmonoidpair unitmonoid unitabmonoid_isabmonoid.
@@ -568,9 +568,10 @@ Proof.
   use mk_ismonoidfun.
   - use mk_isbinopfun.
     intros x x'. cbn. rewrite (pr1 (pr2 f)). rewrite (pr1 (pr2 g)).
-    rewrite <- (assocax Y). rewrite <- (assocax Y). use binopradd.
-    rewrite (assocax Y). rewrite (assocax Y). use binopladd.
-    rewrite (commax Y ). use idpath.
+    rewrite (assocax Y). rewrite (assocax Y). use maponpaths.
+    rewrite <- (assocax Y). rewrite <- (assocax Y).
+    use (maponpaths (fun y : Y => (y * (pr1 g x'))%multmonoid)).
+    use (commax Y).
   - use (pathscomp0 (maponpaths (fun h : Y => (pr1 f (unel X) * h)%multmonoid)
                                 (monoidfununel g))).
     rewrite runax. exact (monoidfununel f).
@@ -613,8 +614,8 @@ Proof.
   - use isunitalpair.
     + exact (unelmonoidfun X Y).
     + use isunitpair.
-      * use mk_islunit. intros f. exact (abmonoidsbinop_lunax f).
-      * use mk_isrunit. intros f. exact (abmonoidsbinop_runax f).
+      * intros f. exact (abmonoidsbinop_lunax f).
+      * intros f. exact (abmonoidsbinop_runax f).
 Defined.
 
 Lemma abmonoidshomabmonoid_isabmonoid (X Y : abmonoid) :
@@ -624,7 +625,7 @@ Proof.
   intros X Y.
   use mk_isabmonoidop.
   - exact (abmonoidshomabmonoid_ismonoidop X Y).
-  - use mk_iscomm. intros f g. exact (abmonoidshombinop_comm f g).
+  - intros f g. exact (abmonoidshombinop_comm f g).
 Defined.
 
 Definition abmonoidshomabmonoid (X Y : abmonoid) : abmonoid.
@@ -1635,8 +1636,8 @@ Proof.
   - use mk_invstruct.
     + intros i. exact i.
     + use mk_isinv.
-      * use mk_islinv. intros x. use isconnectedunit.
-      * use mk_islinv. intros x. use isconnectedunit.
+      * intros x. use isconnectedunit.
+      * intros x. use isconnectedunit.
 Qed.
 
 Definition unitgr : gr := grpair unitmonoid unitgr_isgrop.
@@ -2092,9 +2093,9 @@ Proof.
     + use mk_invstruct.
       * intros f. exact (abgrshombinop_inv f).
       * use mk_isinv.
-        -- use mk_islinv. intros f. exact (abgrshombinop_linvax f).
-        -- use mk_isrinv. intros f. exact (abgrshombinop_rinvax f).
-  - use mk_iscomm. intros f g. exact (abmonoidshombinop_comm f g).
+        -- intros f. exact (abgrshombinop_linvax f).
+        -- intros f. exact (abgrshombinop_rinvax f).
+  - intros f g. exact (abmonoidshombinop_comm f g).
 Defined.
 
 Definition abgrshomabgr (X Y : abgr) : abgr.

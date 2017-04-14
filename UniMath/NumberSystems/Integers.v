@@ -1093,7 +1093,7 @@ Lemma nat_to_monoid_map_S {X : abmonoid} (x : X) (n : nat) :
 Proof.
   intros X x n. induction n as [ | n IHn].
   - exact (commax X x (unel X)).
-  - cbn. rewrite (assocax X). use binoppathsop.
+  - cbn. rewrite (assocax X). use two_arg_paths.
     + use idpath.
     + exact (commax X x _).
 Qed.
@@ -1103,7 +1103,7 @@ Lemma nat_to_abmonoid_map_plus {X : monoid} (x : X) (n m : nat) :
 Proof.
   intros X x n. induction n as [ | n IHn].
   - intros m. rewrite (lunax X). use idpath.
-  - intros m. cbn. rewrite (assocax X). use binoppathsop.
+  - intros m. cbn. rewrite (assocax X). use two_arg_paths.
     + use idpath.
     + exact (IHn m).
 Qed.
@@ -1126,7 +1126,7 @@ Proof.
     rewrite <- (assocax X (@nat_to_monoid_map X x n)).
     use (pathscomp0 (maponpaths (fun xx : pr1 X => (x * (xx * (grinv X x))))%multmonoid IHn)).
     clear IHn. use (pathscomp0 _ (grrinvax X x)).
-    use binoppathsop.
+    use two_arg_paths.
     + use idpath.
     + use (lunax X).
 Qed.
@@ -1156,11 +1156,11 @@ Proof.
   unfold nataddabmonoid_nataddabmonoid_to_monoid_map. unfold nat_nat_to_monoid_map. cbn.
   rewrite nat_to_abmonoid_map_plus. rewrite nat_to_abmonoid_map_plus.
   rewrite (assocax X). rewrite (assocax X).
-  use binoppathsop.
+  use two_arg_paths.
   - use idpath.
   - rewrite <- (assocax X). rewrite (commax X (nat_to_monoid_map (grinv X x) n2) _).
     rewrite (assocax X). rewrite (assocax X).
-    use binoppathsop.
+    use two_arg_paths.
     + use idpath.
     + use (commax X).
 Qed.
@@ -1242,7 +1242,7 @@ Proof.
   rewrite (@nat_to_monoid_map_S X (grinv X x)).
   rewrite (@nat_to_monoid_map_S X (grinv X x)).
   rewrite <- (assocax X). rewrite <- (assocax X).
-  use binoppathsop.
+  use two_arg_paths.
   - exact H.
   - use idpath.
 Qed.
@@ -1281,7 +1281,7 @@ Proof.
     set (tmp := IHx1 (dirprodpair x2 (S e2)) HH). cbn in tmp.
     use (pathscomp0 (maponpaths (fun xx : X => (x * xx)%multmonoid) tmp)).
     clear tmp. clear HH. clear H2. clear IHx1. rewrite (commax X x). rewrite (assocax X).
-    use binoppathsop.
+    use two_arg_paths.
     + use idpath.
     + use (pathscomp0
              (maponpaths (fun xx : X => (xx * x)%multmonoid)
@@ -1344,7 +1344,7 @@ Proof.
   - use (pathscomp0 (maponpaths (pr1 f) (@nat_to_monoid_map_S X x n))).
     use (pathscomp0 (binopfunisbinopfun f _ _)).
     use (pathscomp0 _ (! (@nat_to_monoid_map_S Y (f x) n))).
-    use binoppathsop.
+    use two_arg_paths.
     + exact IHn.
     + use idpath.
 Qed.
