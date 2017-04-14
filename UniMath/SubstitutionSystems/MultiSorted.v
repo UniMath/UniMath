@@ -96,6 +96,8 @@ Defined.
 
 Let hs : has_homsets (SET / sort) := homset_property SET_over_sort.
 
+Let BC := BinCoproducts_slice_precat has_homsets_HSET BinCoproductsHSET sort: BinCoproducts (SET / sort).
+
 (** Definition of multi sorted signatures *)
 Definition MultiSortedSig : UU :=
   ∑ (I : hSet), I → list (list sort × sort) × sort.
@@ -530,22 +532,22 @@ Definition bind_slice {T:Monad (SET / sort)}{Gamma1 Gamma2 : SET_over_sort} (f :
 Definition wellsorted_in {T:[SET_over_sort,SET_over_sort]}(A:hSet)(f:A->sort): hSet := pr1(pr1 T(A,,f)).
 Definition sort_in {T:[SET_over_sort,SET_over_sort]}{A:hSet}{f:A->sort}(M:wellsorted_in A f): sort := pr2 (pr1 T(A,,f)) M.
 *)
-Definition wellsorted_in (T:Monad (SET / sort))(A:hSet)(f:A->sort): hSet := pr1(pr1 T(A,,f)).
-Definition sort_in (T:Monad (SET / sort)){A:hSet}{f:A->sort}(M:wellsorted_in T A f): sort := pr2 (pr1 T(A,,f)) M.
+Definition wellsorted_in (T:Monad (SET / sort))(Gamma:SET_over_sort): hSet := pr1(pr1 T Gamma).
+Definition sort_in (T:Monad (SET / sort)){Gamma:SET_over_sort}(M:wellsorted_in T Gamma): sort := pr2 (pr1 T Gamma) M.
 
-Definition aux_fh {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}(f : A1->wellsorted_in T A2 f2)(H: forall a1:A1, sort_in T (f a1) = f1 a1) : SET_over_sort⟦(A1,,f1),T (A2,,f2)⟧.
+Definition aux_fh {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}(f : A1->wellsorted_in T (A2,,f2))(H: forall a1:A1, sort_in T (f a1) = f1 a1) : SET_over_sort⟦(A1,,f1),T (A2,,f2)⟧.
 Proof.
    mkpair.
     * exact f.
     * apply funextsec; intro a1; apply pathsinv0; apply H.
 Defined.
 
-Definition bind_slice_op {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}(f : A1->wellsorted_in T A2 f2)(H: forall a1:A1, sort_in T (f a1) = f1 a1)(M: wellsorted_in T A1 f1) : wellsorted_in T A2 f2.
+Definition bind_slice_op {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}(f : A1->wellsorted_in T (A2,,f2))(H: forall a1:A1, sort_in T (f a1) = f1 a1)(M: wellsorted_in T (A1,,f1)) : wellsorted_in T (A2,,f2).
 Proof.
   exact (pr1 (bind_slice (aux_fh f H)) M).
 Defined.
 
-Lemma bind_slice_op_ok {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}(f : A1->wellsorted_in T A2 f2)(H: forall a1:A1, sort_in T (f a1) = f1 a1)(M: wellsorted_in T A1 f1) : sort_in T (bind_slice_op f H M) = sort_in T M.
+Lemma bind_slice_op_ok {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}(f : A1->wellsorted_in T (A2,,f2))(H: forall a1:A1, sort_in T (f a1) = f1 a1)(M: wellsorted_in T (A1,,f1)) : sort_in T (bind_slice_op f H M) = sort_in T M.
 Proof.
   assert (H1 := pr2 (bind_slice (aux_fh f H))).
   apply toforallpaths in H1.
@@ -555,8 +557,46 @@ Proof.
 Qed.
 
 (** now we only substitute a single sorted variable *)
-Definition subst_slice {T:Monad (SET / sort)}{A:hSet}{f:A->sort}(N: wellsorted_in T A f)(M : wellsorted_in T ): wellsorted_in T A f.
 
+Definition aux_inject_N {T:Monad (SET / sort)}{A:hSet}{f:A->sort}(N : wellsorted_in T (A,,f)): SET_over_sort⟦constHSET_slice (sort_in T N),T (A,,f)⟧.
+Proof.
+  mkpair.
+  + exact (fun _=> N).
+  + apply funextsec.
+    intro u.
+    apply idpath.
+Defined.
+
+Definition subst_slice {T:Monad (SET / sort)}{A:hSet}{f:A->sort}(N : wellsorted_in T (A,,f))(M : wellsorted_in T (sorted_option_functor (sort_in T N) (A,,f))): wellsorted_in T (A,,f).
+Proof.
+  set (aux0 := (CategoryTheory.Monads.η T (A,,f))).
+  set (auxf := BinCoproductArrow _ (BC _ _) (aux_inject_N N) (CategoryTheory.Monads.η T (A,,f))).
+  refine (bind_slice_op (pr1 auxf) _ M).
+  intro a.
+  simpl in a.
+  induction a as [a | a].
+  + apply idpath.
+  + simpl.
+    generalize (ii2(A:=unit) a).
+    clear a.
+    apply toforallpaths.
+    simpl.
+    intermediate_path ((BinCoproductArrow HSET (BinCoproductsHSET 1%CS A) (λ _ : unit, N) (pr1 ((Monads.η T) (A,, f)))) ·  (sort_in T)).
+    * apply idpath.
+    * rewrite postcompWithBinCoproductArrow.
+      apply map_on_two_paths.
+      - apply idpath.
+      - set (aux1 := pr2 ((Monads.η T) (A,, f))).
+        simpl in aux1.
+        apply pathsinv0.
+        eapply pathscomp0; try eapply aux1.
+        apply idpath.
+Defined.
+
+Lemma subst_slice_ok {T:Monad (SET / sort)}{A:hSet}{f:A->sort}(N : wellsorted_in T (A,,f))(M : wellsorted_in T (sorted_option_functor (sort_in T N) (A,,f))): sort_in T (subst_slice N M) = sort_in T M.
+Proof.
+  apply bind_slice_op_ok.
+Qed.
 
 End monad.
 End MBindingSig.
