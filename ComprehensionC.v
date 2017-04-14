@@ -150,7 +150,7 @@ Qed.
 
 Definition comprehension_cat_structure (C : Precategory) : UU 
   := ∑ (D : disp_precat C) (H : is_fibration D)
-     (F : disp_functor (functor_identity _ ) D (cod_disp C)),
+     (F : disp_functor (functor_identity _ ) D (disp_codomain C)),
      is_cartesian_disp_functor F.
 
 Arguments comprehension_cat_structure _ : clear implicits.
@@ -163,7 +163,7 @@ Context {C : Precategory}.
 Variable (H : dm_sub_pb C).
 
 Definition comprehension_of_dm_structure_data
-  : disp_functor_data (functor_identity C) (DM_disp H) (cod_disp C).
+  : disp_functor_data (functor_identity C) (DM_disp H) (disp_codomain C).
 Proof.
   use tpair.
   + intros x d. cbn in *.
