@@ -853,6 +853,24 @@ Proof.
       apply transportf_ext, homset_property.
 Defined.      
 
+Definition is_disp_functor_precat_iso_iff_pointwise_iso 
+  (x y : FunctorsC'C)
+  (f : iso x y)
+  (xx : disp_functor_precat x)
+  (yy : disp_functor_precat y)
+  (FF : xx -->[ f ] yy)
+  : 
+  (∏ x' (xx' : D' x') , is_iso_disp (pointwise_iso_from_nat_iso f _ )
+                          (pr1 FF _ xx' ))
+    <->
+    is_iso_disp f FF.
+Proof.
+  split.
+  - apply is_disp_functor_precat_iso_if_pointwise_iso.
+  - apply is_pointwise_iso_if_is_disp_functor_precat_iso.
+Defined.
+
+
 End Functor.
 
 (** * Fiber precategories *)
