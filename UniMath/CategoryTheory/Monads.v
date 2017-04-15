@@ -267,15 +267,43 @@ Qed.
 
 End bind.
 
+(** * Operations for monads based on binary coproducts *)
+Section MonadsUsingCoproducts.
+
+Context {C : precategory} (T : Monad C) (BC : BinCoproducts C).
+
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
+
+(** operation of weakening in a monad *)
+Definition mweak (a b: C): C⟦T a, T (a ⊕ b)⟧ := bind (BinCoproductIn1 _ (BC _ _) · (η T _)).
+
+(** operation of exchange in a monad *)
+Definition mexch (a b c:C): C⟦T ((a ⊕ b) ⊕ c), T ((a ⊕ c) ⊕ b)⟧.
+Proof.
+  set (a11 := BinCoproductIn1 _ (BC _ _) · BinCoproductIn1 _ (BC _ _): C⟦a, (a ⊕ c) ⊕ b⟧).
+  set (a12 := BinCoproductIn2 _ (BC _ _): C⟦b, (a ⊕ c) ⊕ b⟧).
+  set (a2 := BinCoproductIn2 _ (BC _ _) · BinCoproductIn1 _ (BC _ _): C⟦c, (a ⊕ c) ⊕ b⟧).
+  exact (bind ((BinCoproductArrow _ _ (BinCoproductArrow _ _ a11 a12) a2) · (η T _))).
+Defined.
+
 (** * Substitution operation for monads *)
 Section MonadSubst.
 
-Context {C : precategory} (T : Monad C) (TC : Terminal C) (BC : BinCoproducts C).
+Context (TC : Terminal C).
 
 Local Notation "1" := TC.
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
 
 Definition monadSubst (a : C) (e : C⟦1,T a⟧) : C⟦T (a ⊕ 1), T a⟧ :=
   bind (BinCoproductArrow _ _ (η T a) e).
 
+
+Lemma subst_interchange_law (a : C) (e : C⟦1,T (a ⊕ 1)⟧) (f : C⟦1,T a⟧):
+  (monadSubst _ e) · (monadSubst _ f) = (mexch a 1 1) · (monadSubst _ (f · (mweak a 1)))  · (monadSubst _ (e · (monadSubst _ f))).
+Proof.
+Abort.
+
+
+
 End MonadSubst.
+
+End MonadsUsingCoproducts.
