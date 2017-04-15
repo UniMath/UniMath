@@ -526,33 +526,34 @@ Defined.
 (** The following definitions do not depend on the monad coming from our construction, only on the
     slice category we are working in. *)
 
-Definition bind_slice {T:Monad (SET / sort)}{Gamma1 Gamma2 : SET_over_sort} (f : SET_over_sort⟦Gamma1,T Gamma2⟧) :
-  SET_over_sort⟦T Gamma1,T Gamma2⟧ := bind f.
+Definition bind_slice {T:Monad (SET / sort)}{Γ1 Γ2 : SET_over_sort} (f : SET_over_sort⟦Γ1,T Γ2⟧) :
+  SET_over_sort⟦T Γ1,T Γ2⟧ := bind f.
 
-(* the following would be on the right level of generality but make problems later:
-Definition wellsorted_in {T:[SET_over_sort,SET_over_sort]}(A:hSet)(f:A->sort): hSet := pr1(pr1 T(A,,f)).
-Definition sort_in {T:[SET_over_sort,SET_over_sort]}{A:hSet}{f:A->sort}(M:wellsorted_in A f): sort := pr2 (pr1 T(A,,f)) M.
-*)
-Definition wellsorted_in (T:Monad (SET / sort))(Gamma:SET_over_sort): hSet := pr1(pr1 T Gamma).
-Definition sort_in (T:Monad (SET / sort)){Gamma:SET_over_sort}(M:wellsorted_in T Gamma): sort := pr2 (pr1 T Gamma) M.
+(* the following would be on the right level of generality but make problems later (the monads are not coerced into their underlying functors):
+Definition wellsorted_in (T:[SET_over_sort,SET_over_sort])(Γ:SET_over_sort): hSet := pr1(pr1 T Γ).
+Definition sort_in (T:[SET_over_sort,SET_over_sort]){Γ:SET_over_sort}(M:wellsorted_in T Γ): sort := pr2 (pr1 T Γ) M.
+ *)
 
-Definition aux_fh {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Gamma2:SET_over_sort}
-   (f : A1->wellsorted_in T Gamma2)(H: forall a1:A1, sort_in T (f a1) = f1 a1) : SET_over_sort⟦(A1,,f1),T Gamma2⟧.
+Definition wellsorted_in (T:Monad (SET / sort))(Γ:SET_over_sort): hSet := pr1(pr1 T Γ).
+Definition sort_in (T:Monad (SET / sort)){Γ:SET_over_sort}(M:wellsorted_in T Γ): sort := pr2 (pr1 T Γ) M.
+
+Definition aux_fh {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
+   (f : A1->wellsorted_in T Γ2)(H: forall a1:A1, sort_in T (f a1) = f1 a1) : SET_over_sort⟦(A1,,f1),T Γ2⟧.
 Proof.
    mkpair.
     * exact f.
     * apply funextsec; intro a1; apply pathsinv0; apply H.
 Defined.
 
-Definition bind_slice_op {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Gamma2:SET_over_sort}
-   (f : A1->wellsorted_in T Gamma2)(H: forall a1:A1, sort_in T (f a1) = f1 a1)(M: wellsorted_in T (A1,,f1)) :
-   wellsorted_in T Gamma2.
+Definition bind_slice_op {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
+   (f : A1->wellsorted_in T Γ2)(H: forall a1:A1, sort_in T (f a1) = f1 a1)(M: wellsorted_in T (A1,,f1)) :
+   wellsorted_in T Γ2.
 Proof.
   exact (pr1 (bind_slice (aux_fh f H)) M).
 Defined.
 
-Lemma bind_slice_op_ok {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Gamma2:SET_over_sort}
-    (f : A1->wellsorted_in T Gamma2)(H: forall a1:A1, sort_in T (f a1) = f1 a1)(M: wellsorted_in T (A1,,f1)) :
+Lemma bind_slice_op_ok {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
+    (f : A1->wellsorted_in T Γ2)(H: forall a1:A1, sort_in T (f a1) = f1 a1)(M: wellsorted_in T (A1,,f1)) :
     sort_in T (bind_slice_op f H M) = sort_in T M.
 Proof.
   assert (H1 := pr2 (bind_slice (aux_fh f H))).
@@ -564,8 +565,8 @@ Qed.
 
 (** now we only substitute a single sorted variable *)
 
-Definition aux_inject_N {T:Monad (SET / sort)}{Gamma:SET_over_sort}(N : wellsorted_in T Gamma):
-  SET_over_sort⟦constHSET_slice (sort_in T N),T Gamma⟧.
+Definition aux_inject_N {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_in T Γ):
+  SET_over_sort⟦constHSET_slice (sort_in T N),T Γ⟧.
 Proof.
   mkpair.
   + exact (fun _=> N).
@@ -574,36 +575,36 @@ Proof.
     apply idpath.
 Defined.
 
-Definition subst_slice {T:Monad (SET / sort)}{Gamma:SET_over_sort}(N : wellsorted_in T Gamma)
-           (M : wellsorted_in T (sorted_option_functor (sort_in T N) Gamma)): wellsorted_in T Gamma.
+Definition subst_slice {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_in T Γ)
+           (M : wellsorted_in T (sorted_option_functor (sort_in T N) Γ)): wellsorted_in T Γ.
 Proof.
-  set (aux0 := (CategoryTheory.Monads.η T Gamma)).
-  set (auxf := BinCoproductArrow _ (BC _ _) (aux_inject_N N) (CategoryTheory.Monads.η T Gamma)).
+  set (aux0 := (CategoryTheory.Monads.η T Γ)).
+  set (auxf := BinCoproductArrow _ (BC _ _) (aux_inject_N N) (CategoryTheory.Monads.η T Γ)).
   refine (bind_slice_op (pr1 auxf) _ M).
   intro a.
   simpl in a.
   induction a as [a | a].
   + apply idpath.
-  + simpl.
-    generalize (ii2(A:=unit) a).
+  + generalize (ii2(A:=unit) a).
     clear a.
     apply toforallpaths.
-    simpl.
-    intermediate_path ((BinCoproductArrow HSET (BinCoproductsHSET 1%CS (pr1 Gamma))
-                         (λ _ : unit, N) (pr1 ((Monads.η T) Gamma))) ·  (sort_in T)).
-    * apply idpath.
-    * rewrite postcompWithBinCoproductArrow.
-      apply map_on_two_paths.
-      - apply idpath.
-      - set (aux1 := pr2 ((Monads.η T) Gamma)).
-        simpl in aux1.
-        apply pathsinv0.
-        eapply pathscomp0; try eapply aux1.
-        apply idpath.
+(*    intermediate_path ((BinCoproductArrow HSET (BinCoproductsHSET 1%CS (pr1 Γ))
+                         (λ _ : unit, N) (pr1 ((Monads.η T) Γ))) ·  (sort_in T)).*)
+    change ((BinCoproductArrow HSET (BinCoproductsHSET 1%CS (pr1 Γ))
+                                    (λ _ : unit, N) (pr1 ((Monads.η T) Γ))) ·  (sort_in T) =
+                 BinCoproductArrow HSET (BinCoproductsHSET 1%CS (pr1 Γ))
+                                    (λ _ : unit, sort_in T N) (pr2 Γ)).
+    rewrite postcompWithBinCoproductArrow.
+    apply map_on_two_paths.
+    - apply idpath.
+    - set (aux1 := pr2 ((Monads.η T) Γ)).
+      apply pathsinv0.
+      eapply pathscomp0; try eapply aux1.
+      apply idpath.
 Defined.
 
-Lemma subst_slice_ok {T:Monad (SET / sort)}{Gamma:SET_over_sort}(N : wellsorted_in T Gamma)
-   (M : wellsorted_in T (sorted_option_functor (sort_in T N) Gamma)): sort_in T (subst_slice N M) = sort_in T M.
+Lemma subst_slice_ok {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_in T Γ)
+   (M : wellsorted_in T (sorted_option_functor (sort_in T N) Γ)): sort_in T (subst_slice N M) = sort_in T M.
 Proof.
   apply bind_slice_op_ok.
 Qed.
