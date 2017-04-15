@@ -230,7 +230,7 @@ Arguments BinCoproductObject : simpl never.
 Definition substLam (X : HSET) : HSET⟦LamMonad (X ⊕ 1) ⊛ LamMonad X,LamMonad X⟧.
 Proof.
 intro H.
-set (f := monadSubst LamMonad TerminalHSET BinCoproductsHSET X).
+set (f := monadSubst LamMonad BinCoproductsHSET TerminalHSET X).
 set (g := λ (_ : unit), pr2 H).
 cbn in H, f, g.
 apply (f g (pr1 H)).
