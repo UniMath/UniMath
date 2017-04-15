@@ -605,6 +605,59 @@ Proof.
   apply bind_slice_ok.
 Qed.
 
+
+Definition subst_slice_alt {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_in T Γ){s : sort}
+           (M : wellsorted_in T (sorted_option_functor s Γ))(H: sort_in T N = s) : wellsorted_in T Γ.
+Proof.
+  apply (subst_slice N).
+  now rewrite <- H in M.
+Defined.
+
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
+
+Local Definition mweak_instantiated {T:Monad (SET / sort)}{Γ1 : SET_over_sort}(Γ2 : SET_over_sort) :
+  SET_over_sort⟦T Γ1,T (Γ1 ⊕ Γ2)⟧ := mweak T BC _ _.
+
+Definition mweak_slice {T:Monad (SET / sort)}{Γ1 : SET_over_sort}(Γ2 : SET_over_sort) : wellsorted_in T Γ1 -> wellsorted_in T (Γ1 ⊕ Γ2) := pr1 (mweak_instantiated Γ2).
+
+Lemma mweak_slice_ok {T:Monad (SET / sort)}{Γ1 : SET_over_sort}(Γ2 : SET_over_sort)(M : wellsorted_in T Γ1) :
+  sort_in T (mweak_slice Γ2 M) = sort_in T M.
+Proof.
+  set (H1 := pr2 (mweak_instantiated(T:=T)(Γ1:=Γ1)Γ2)).
+  apply toforallpaths in H1.
+  apply pathsinv0.
+  now rewrite H1.
+Qed.
+
+Local Definition mexch_instantiated {T:Monad (SET / sort)}{Γ1 Γ2 Γ3: SET_over_sort} :
+  SET_over_sort⟦T ((Γ1 ⊕ Γ2) ⊕ Γ3), T ((Γ1 ⊕ Γ3) ⊕ Γ2)⟧ := mexch T BC _ _ _.
+
+Definition mexch_slice {T:Monad (SET / sort)}{Γ1 Γ2 Γ3: SET_over_sort} :
+  wellsorted_in T ((Γ1 ⊕ Γ2) ⊕ Γ3) -> wellsorted_in T ((Γ1 ⊕ Γ3) ⊕ Γ2) :=
+  pr1 (mexch_instantiated).
+
+Lemma mexch_slice_ok {T:Monad (SET / sort)}{Γ1 Γ2 Γ3: SET_over_sort}(M : wellsorted_in T ((Γ1 ⊕ Γ2) ⊕ Γ3)) :
+  sort_in T (mexch_slice M) = sort_in T M.
+Proof.
+  set (H1 := pr2 (mexch_instantiated(T:=T)(Γ1:=Γ1)(Γ2:=Γ2)(Γ3:=Γ3))).
+  apply toforallpaths in H1.
+  apply pathsinv0.
+  now rewrite H1.
+Qed.
+
+(*
+Lemma subst_interchange_law_slice {T:Monad (SET / sort)}{Γ : SET_over_sort}
+      (L : wellsorted_in T Γ)
+      (N : wellsorted_in T (sorted_option_functor (sort_in T L) Γ))
+      (M : wellsorted_in T (sorted_option_functor (sort_in T N) (sorted_option_functor (sort_in T L) Γ))) :
+      subst_slice L (subst_slice N M) = subst_slice L (subst_slice N M).
+
+
+
+
+  subst_slice_alt (subst_slice L N) M  (subst_slice_ok L N)
+*)
+
 End monad.
 End MBindingSig.
 
