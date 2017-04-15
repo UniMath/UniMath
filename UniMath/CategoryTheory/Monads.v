@@ -300,8 +300,66 @@ Definition monadSubst (a : C) (e : C⟦1,T a⟧) : C⟦T (a ⊕ 1), T a⟧ :=
 Lemma subst_interchange_law (a : C) (e : C⟦1,T (a ⊕ 1)⟧) (f : C⟦1,T a⟧):
   (monadSubst _ e) · (monadSubst _ f) = (mexch a 1 1) · (monadSubst _ (f · (mweak a 1)))  · (monadSubst _ (e · (monadSubst _ f))).
 Proof.
-Abort.
-
+  unfold monadSubst, mexch.
+  do 3 rewrite bind_bind.
+  apply maponpaths.
+  apply BinCoproductArrowsEq.
+  + rewrite assoc.
+    rewrite BinCoproductIn1Commutes.
+    rewrite (η_bind(a:=a ⊕ 1)).
+    do 3 rewrite assoc.
+    rewrite BinCoproductIn1Commutes.
+    apply BinCoproductArrowsEq.
+    * rewrite BinCoproductIn1Commutes.
+      rewrite <- assoc.
+      rewrite bind_bind.
+      do 2 rewrite assoc.
+      rewrite BinCoproductIn1Commutes.
+      do 2 rewrite <- assoc.
+      rewrite (η_bind(a:=let (pr1, _) := pr1 (BC (a ⊕ 1) 1) in pr1)).
+      apply pathsinv0.
+      eapply pathscomp0.
+      - apply cancel_precomposition.
+        rewrite assoc.
+        rewrite BinCoproductIn1Commutes.
+        rewrite (η_bind(a:=(a ⊕ 1))).
+        apply idpath.
+      - now rewrite BinCoproductIn1Commutes.
+    * rewrite BinCoproductIn2Commutes.
+      rewrite <- assoc.
+      rewrite bind_bind.
+      do 2 rewrite assoc.
+      rewrite BinCoproductIn2Commutes.
+      rewrite <- assoc.
+      rewrite (η_bind(a:=let (pr1, _) := pr1 (BC (a ⊕ 1) 1) in pr1)).
+      rewrite assoc.
+      rewrite BinCoproductIn2Commutes.
+      unfold mweak.
+      rewrite <- assoc.
+      rewrite bind_bind.
+      apply pathsinv0.
+      apply remove_id_right; try now idtac.
+      rewrite <- bind_η.
+      apply maponpaths.
+      rewrite <- assoc.
+      rewrite (η_bind(a:=let (pr1, _) := pr1 (BC a 1) in pr1)).
+      now rewrite BinCoproductIn1Commutes.
+  + do 4 rewrite assoc.
+    do 2 rewrite BinCoproductIn2Commutes.
+    rewrite <- assoc.
+    rewrite bind_bind.
+    rewrite <- assoc.
+    rewrite (η_bind(a:=let (pr1, _) := pr1 (BC (a ⊕ 1) 1) in pr1)).
+    rewrite <- assoc.
+    apply pathsinv0.
+    eapply pathscomp0.
+    * apply cancel_precomposition.
+      rewrite assoc.
+      rewrite BinCoproductIn1Commutes.
+      rewrite (η_bind(a:=(a ⊕ 1))).
+      apply idpath.
+    * now rewrite BinCoproductIn2Commutes.
+Qed.
 
 
 End MonadSubst.
