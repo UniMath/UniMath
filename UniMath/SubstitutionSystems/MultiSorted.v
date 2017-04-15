@@ -542,7 +542,7 @@ Definition aux_fh {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort
 Proof.
    mkpair.
     * exact f.
-    * apply funextsec; intro a1; apply pathsinv0; apply H.
+    * apply funextsec; intro a1; now apply pathsinv0.
 Defined.
 
 Definition bind_slice {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
@@ -559,8 +559,7 @@ Proof.
   assert (H1 := pr2 (bind_instantiated (aux_fh f H))).
   apply toforallpaths in H1.
   apply pathsinv0.
-  rewrite H1.
-  apply idpath.
+  now rewrite H1.
 Qed.
 
 (** now we only substitute a single sorted variable *)
@@ -570,9 +569,7 @@ Definition aux_inject_N {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_
 Proof.
   mkpair.
   + exact (fun _=> N).
-  + apply funextsec.
-    intro u.
-    apply idpath.
+  + now apply funextsec.
 Defined.
 
 Definition subst_slice {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_in T Γ)
@@ -584,7 +581,7 @@ Proof.
   intro a.
   simpl in a.
   induction a as [a | a].
-  + apply idpath.
+  + now idtac.
   + generalize (ii2(A:=unit) a).
     clear a.
     apply toforallpaths.
@@ -599,8 +596,7 @@ Proof.
     - apply idpath.
     - set (aux1 := pr2 ((Monads.η T) Γ)).
       apply pathsinv0.
-      eapply pathscomp0; try eapply aux1.
-      apply idpath.
+      now (etrans; try eapply aux1).
 Defined.
 
 Lemma subst_slice_ok {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_in T Γ)
