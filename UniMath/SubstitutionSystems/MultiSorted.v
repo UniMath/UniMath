@@ -526,7 +526,7 @@ Defined.
 (** The following definitions do not depend on the monad coming from our construction, only on the
     slice category we are working in. *)
 
-Definition bind_slice {T:Monad (SET / sort)}{Γ1 Γ2 : SET_over_sort} (f : SET_over_sort⟦Γ1,T Γ2⟧) :
+Local Definition bind_instantiated {T:Monad (SET / sort)}{Γ1 Γ2 : SET_over_sort} (f : SET_over_sort⟦Γ1,T Γ2⟧) :
   SET_over_sort⟦T Γ1,T Γ2⟧ := bind f.
 
 (* the following would be on the right level of generality but make problems later (the monads are not coerced into their underlying functors):
@@ -545,18 +545,18 @@ Proof.
     * apply funextsec; intro a1; apply pathsinv0; apply H.
 Defined.
 
-Definition bind_slice_op {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
+Definition bind_slice {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
    (f : A1->wellsorted_in T Γ2)(H: forall a1:A1, sort_in T (f a1) = f1 a1)(M: wellsorted_in T (A1,,f1)) :
    wellsorted_in T Γ2.
 Proof.
-  exact (pr1 (bind_slice (aux_fh f H)) M).
+  exact (pr1 (bind_instantiated (aux_fh f H)) M).
 Defined.
 
-Lemma bind_slice_op_ok {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
+Lemma bind_slice_ok {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
     (f : A1->wellsorted_in T Γ2)(H: forall a1:A1, sort_in T (f a1) = f1 a1)(M: wellsorted_in T (A1,,f1)) :
-    sort_in T (bind_slice_op f H M) = sort_in T M.
+    sort_in T (bind_slice f H M) = sort_in T M.
 Proof.
-  assert (H1 := pr2 (bind_slice (aux_fh f H))).
+  assert (H1 := pr2 (bind_instantiated (aux_fh f H))).
   apply toforallpaths in H1.
   apply pathsinv0.
   rewrite H1.
@@ -580,7 +580,7 @@ Definition subst_slice {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_i
 Proof.
   set (aux0 := (CategoryTheory.Monads.η T Γ)).
   set (auxf := BinCoproductArrow _ (BC _ _) (aux_inject_N N) (CategoryTheory.Monads.η T Γ)).
-  refine (bind_slice_op (pr1 auxf) _ M).
+  refine (bind_slice (pr1 auxf) _ M).
   intro a.
   simpl in a.
   induction a as [a | a].
@@ -606,7 +606,7 @@ Defined.
 Lemma subst_slice_ok {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_in T Γ)
    (M : wellsorted_in T (sorted_option_functor (sort_in T N) Γ)): sort_in T (subst_slice N M) = sort_in T M.
 Proof.
-  apply bind_slice_op_ok.
+  apply bind_slice_ok.
 Qed.
 
 End monad.
