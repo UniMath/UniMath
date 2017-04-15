@@ -615,28 +615,28 @@ Defined.
 
 Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
 
-Local Definition mweak_instantiated {T:Monad (SET / sort)}{Γ1 : SET_over_sort}(Γ2 : SET_over_sort) :
-  SET_over_sort⟦T Γ1,T (Γ1 ⊕ Γ2)⟧ := mweak T BC _ _.
+Local Definition mweak_instantiated {T:Monad (SET / sort)}(Γ1 : SET_over_sort){Γ2 : SET_over_sort} :
+  SET_over_sort⟦T Γ2,T (Γ1 ⊕ Γ2)⟧ := mweak T BC _ _.
 
-Definition mweak_slice {T:Monad (SET / sort)}{Γ1 : SET_over_sort}(Γ2 : SET_over_sort) : wellsorted_in T Γ1 -> wellsorted_in T (Γ1 ⊕ Γ2) := pr1 (mweak_instantiated Γ2).
+Definition mweak_slice {T:Monad (SET / sort)}(Γ1 : SET_over_sort){Γ2 : SET_over_sort} : wellsorted_in T Γ2 -> wellsorted_in T (Γ1 ⊕ Γ2) := pr1 (mweak_instantiated Γ1).
 
-Lemma mweak_slice_ok {T:Monad (SET / sort)}{Γ1 : SET_over_sort}(Γ2 : SET_over_sort)(M : wellsorted_in T Γ1) :
-  sort_in T (mweak_slice Γ2 M) = sort_in T M.
+Lemma mweak_slice_ok {T:Monad (SET / sort)}(Γ1 : SET_over_sort){Γ2 : SET_over_sort}(M : wellsorted_in T Γ2) :
+  sort_in T (mweak_slice Γ1 M) = sort_in T M.
 Proof.
-  set (H1 := pr2 (mweak_instantiated(T:=T)(Γ1:=Γ1)Γ2)).
+  set (H1 := pr2 (mweak_instantiated(T:=T)(Γ2:=Γ2)Γ1)).
   apply toforallpaths in H1.
   apply pathsinv0.
   now rewrite H1.
 Qed.
 
 Local Definition mexch_instantiated {T:Monad (SET / sort)}{Γ1 Γ2 Γ3: SET_over_sort} :
-  SET_over_sort⟦T ((Γ1 ⊕ Γ2) ⊕ Γ3), T ((Γ1 ⊕ Γ3) ⊕ Γ2)⟧ := mexch T BC _ _ _.
+  SET_over_sort⟦T (Γ1 ⊕ (Γ2 ⊕ Γ3)), T (Γ2 ⊕ (Γ1 ⊕ Γ3))⟧ := mexch T BC _ _ _.
 
 Definition mexch_slice {T:Monad (SET / sort)}{Γ1 Γ2 Γ3: SET_over_sort} :
-  wellsorted_in T ((Γ1 ⊕ Γ2) ⊕ Γ3) -> wellsorted_in T ((Γ1 ⊕ Γ3) ⊕ Γ2) :=
+  wellsorted_in T (Γ1 ⊕ (Γ2 ⊕ Γ3)) -> wellsorted_in T (Γ2 ⊕ (Γ1 ⊕ Γ3)) :=
   pr1 (mexch_instantiated).
 
-Lemma mexch_slice_ok {T:Monad (SET / sort)}{Γ1 Γ2 Γ3: SET_over_sort}(M : wellsorted_in T ((Γ1 ⊕ Γ2) ⊕ Γ3)) :
+Lemma mexch_slice_ok {T:Monad (SET / sort)}{Γ1 Γ2 Γ3: SET_over_sort}(M : wellsorted_in T (Γ1 ⊕ (Γ2 ⊕ Γ3))) :
   sort_in T (mexch_slice M) = sort_in T M.
 Proof.
   set (H1 := pr2 (mexch_instantiated(T:=T)(Γ1:=Γ1)(Γ2:=Γ2)(Γ3:=Γ3))).

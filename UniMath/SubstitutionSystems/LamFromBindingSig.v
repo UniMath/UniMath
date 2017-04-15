@@ -227,7 +227,7 @@ Local Notation "x ⊛ y" := (BinProductObject _ (BinProductsHSET x y)) (at level
 Arguments LamMonad : simpl never.
 Arguments BinCoproductObject : simpl never.
 
-Definition substLam (X : HSET) : HSET⟦LamMonad (X ⊕ 1) ⊛ LamMonad X,LamMonad X⟧.
+Definition substLam (X : HSET) : HSET⟦LamMonad (1 ⊕ X) ⊛ LamMonad X,LamMonad X⟧.
 Proof.
 intro H.
 set (f := monadSubst LamMonad BinCoproductsHSET TerminalHSET X).
