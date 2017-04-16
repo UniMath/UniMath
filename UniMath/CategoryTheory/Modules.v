@@ -18,18 +18,22 @@ Local Open Scope addmonoid_scope.
 (** The underlying set of the ring of endomorphisms of an abelian group *)
 
  Definition setofendabgr (G : abgr) : hSet :=
-  hSetpair (monoidfun G G) (isasetmonoidfun G G).
+   hSetpair (monoidfun G G) (isasetmonoidfun G G).
+
+ Definition pr1setofendabgr {G : abgr} (f : setofendabgr G) : G -> G := pr1 f.
+
+ Definition pr2setofendabgr {G : abgr} (f : setofendabgr G) : ismonoidfun (pr1 f) := pr2 f.
 
 (** Two binary operations on the underlying set of the ring of endomorphisms of an abelian group *)
 
-Definition setofendabgr_to_isbinopfun {G : abgr} (f : setofendabgr G) : isbinopfun (pr1 f) := pr1 (pr2 f).
+Definition setofendabgr_to_isbinopfun {G : abgr} (f : setofendabgr G) : isbinopfun (pr1setofendabgr f) := pr1 (pr2setofendabgr f).
 
-Definition setofendabgr_to_unel {G : abgr} (f : setofendabgr G) : pr1 f 0 = 0 := pr2 (pr2 f).
+Definition setofendabgr_to_unel {G : abgr} (f : setofendabgr G) : pr1setofendabgr f 0 = 0 := pr2 (pr2setofendabgr f).
 
 Definition setofendabgr_op1 {G: abgr} : binop (setofendabgr G).
 Proof.
   intros f g.
-  apply (@monoidfunconstr _ _ (λ x : G, pr1 f x + pr1 g x)).
+  apply (@monoidfunconstr _ _ (λ x : G, pr1setofendabgr f x + pr1setofendabgr g x)).
   apply tpair.
   - intros x x'.
     rewrite (setofendabgr_to_isbinopfun f).
@@ -68,7 +72,6 @@ Local Open Scope abgr_scope.
    use total2_paths_f.
    - apply funextfun.
      intro.
-     cbn.
      apply (pr2 G).
    - apply isapropismonoidfun.
  Defined.
@@ -87,10 +90,8 @@ Local Open Scope abgr_scope.
  Proof.
    intro f.
    use total2_paths_f.
-   - apply funextfun.
-     intro x.
-     cbn.
-     apply (lunax G (pr1 f x)).
+   - apply funextfun. intro x.
+     apply (lunax G (pr1setofendabgr f x)).
    - apply isapropismonoidfun.
  Defined.
 
@@ -98,10 +99,8 @@ Definition isrunit_setofendabgr_un0 {G : abgr} : isrunit (@op1 (setwith2binopofe
  Proof.
    intros f.
    use total2_paths_f.
-   - apply funextfun.
-     intro x.
-     cbn .
-     apply (runax G (pr1 f x)).
+   - apply funextfun. intro x.
+     apply (runax G (pr1setofendabgr f x)).
    - apply isapropismonoidfun.
  Defined.
 
@@ -137,7 +136,7 @@ Definition ismonoidfun_abgrinv {G : abgr} : ismonoidfun (grinv G).
 Definition setofendabgr_inv {G : abgr} : setofendabgr G -> setofendabgr G.
  Proof.
    intro f.
-   apply (@monoidfunconstr G G (λ x : G, grinv G (pr1 f x))).
+   apply (@monoidfunconstr G G (λ x : G, grinv G (pr1setofendabgr f x))).
    apply dirprodpair.
    - intros x x'.
      rewrite (setofendabgr_to_isbinopfun f).
@@ -152,9 +151,7 @@ Local Open Scope abgr_scope.
  Proof.
    intro f.
    use total2_paths_f.
-   - apply funextfun.
-     intro x.
-     cbn.
+   - apply funextfun. intro x.
      apply (grlinvax G).
    - apply isapropismonoidfun.
  Defined.
@@ -163,9 +160,7 @@ Definition isrinv_setofendabgr_inv {G : abgr} : isrinv (@op1 (setwith2binopofend
  Proof.
    intro f.
    use total2_paths_f.
-   - apply funextfun.
-     intro x.
-     cbn.
+   - apply funextfun. intro x.
      apply (grrinvax G).
    - apply isapropismonoidfun.
  Defined.
@@ -188,9 +183,7 @@ Definition isinv_setofendabgr_inv {G : abgr} : isinv (@op1 (setwith2binopofendab
  Proof.
    intros f g.
    use total2_paths_f.
-   - apply funextfun.
-     intro x.
-     cbn.
+   - apply funextfun. intro x.
      apply (commax G).
    - apply (isapropismonoidfun).
  Defined.
@@ -212,8 +205,7 @@ Definition setofendabgr_un1 {G: abgr} : setofendabgr G.
  Proof.
    apply (@monoidfunconstr _ _ (idfun G)).
    apply dirprodpair.
-   - intros x x'.
-     reflexivity.
+   - intros x x'. reflexivity.
    - reflexivity.
  Defined.
 
@@ -221,10 +213,7 @@ Definition setofendabgr_un1 {G: abgr} : setofendabgr G.
  Proof.
    intro f.
    use total2_paths_f.
-   - apply funextfun.
-     intro x.
-     cbn.
-     reflexivity.
+   - apply funextfun. intro x. reflexivity.
    - apply isapropismonoidfun.
     Defined.
 
@@ -232,10 +221,7 @@ Definition isrunit_setofendabgr_un1 {G : abgr} : isrunit (@op2 (setwith2binopofe
  Proof.
    intros f.
    use total2_paths_f.
-   - apply funextfun.
-     intro x.
-     cbn.
-     reflexivity.
+   - apply funextfun. intro x. reflexivity.
    - apply isapropismonoidfun.
  Defined.
 
@@ -258,10 +244,7 @@ Definition isrunit_setofendabgr_un1 {G : abgr} : isrunit (@op2 (setwith2binopofe
  Proof.
    intros f g h.
    use total2_paths_f.
-   - apply funextfun.
-     intro x.
-     cbn.
-     reflexivity.
+   - apply funextfun. intro x. reflexivity.
    - apply isapropismonoidfun.
  Defined.
 
@@ -269,9 +252,7 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
  Proof.
    intros f g h.
    use total2_paths_f.
-   - apply funextfun.
-     intro x.
-     cbn.
+   - apply funextfun. intro x.
      apply (setofendabgr_to_isbinopfun h).
    - apply isapropismonoidfun.
  Defined.
@@ -297,13 +278,16 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
 
  Definition module_struct {R : rng} (G : abgr) : UU := rngfun R (rngofendabgr G).
 
+ Definition pr2module {R : rng} (M : module R) : rngfun R (rngofendabgr (pr1module M)) := pr2 M.
+
+ Coercion pr2module : module >-> rngfun.
+
  (** The multiplication defined from a module *)
 
  Definition module_mult {R : rng} {M : @module R} : R × M -> M.
  Proof.
-   apply uncurry.
-   intros r x.
-   exact (pr1 (pr2 M r) x).
+   apply uncurry. intros r x.
+   exact (pr1setofendabgr (M r) x).
  Defined.
 
  Local Open Scope rig_scope.
@@ -316,12 +300,10 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
 
  Definition module_mult_0_to_0 {R : rng} {M : @module R} (x : M) : module_mult (0,,x) = @unel M.
  Proof.
-   unfold module_mult, uncurry.
-   cbn.
-   assert ((pr2 M) rngunel1 = @rngunel1 (rngofendabgr M)).
-   - exact (rigfun_to_unel_rigaddmonoid (pr2 M)).
+   unfold module_mult, uncurry. cbn.
+   assert (M rngunel1 = @rngunel1 (rngofendabgr M)).
+   - exact (rigfun_to_unel_rigaddmonoid M).
    - rewrite X.
-     cbn.
      reflexivity.
  Defined.
 
@@ -336,10 +318,8 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
  Proof.
    refine (@isofhleveldirprod 1 (isbinopfun f) (∏ r : R, ∏ x : M, f (module_mult (r,,x)) = module_mult (r,,(f x))) _ _).
    exact (isapropisbinopfun f).
-   apply (impred 1 _).
-   intro r.
-   apply (impred 1 _).
-   intro x.
+   apply (impred 1 _). intro r.
+   apply (impred 1 _). intro x.
    apply (setproperty N).
  Defined.
 
@@ -349,12 +329,16 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
  Definition modulefunpair {R : rng} {M N : module R} (f : M -> N) (is : @ismodulefun R M N f) :=
    tpair _ f is.
 
+ Definition pr1modulefun {R : rng} {M N : module R} (f : @modulefun R M N) : M -> N := pr1 f.
+
+ Coercion pr1modulefun : modulefun >-> Funclass.
+
  Definition islinear {R : rng} {M N : module R} (f : M -> N) :=
    ∏ r : R, ∏ x : M, f (module_mult (r,,x)) = module_mult (r,,(f x)).
 
- Definition modulefun_to_islinear {R : rng} {M N : module R} (f : modulefun M N): islinear (pr1 f) := pr2 (pr2 f).
+ Definition modulefun_to_islinear {R : rng} {M N : module R} (f : modulefun M N): islinear f := pr2 (pr2 f).
 
- Definition modulefun_unel {R : rng} {M N : module R} (f : @modulefun R M N) : pr1 f (@unel M) = @unel N.
+ Definition modulefun_unel {R : rng} {M N : module R} (f : @modulefun R M N) : f (@unel M) = @unel N.
  Proof.
    rewrite <- (module_mult_0_to_0 (@unel M)).
    rewrite ((modulefun_to_islinear f) rngunel1 (@unel M)).
@@ -362,7 +346,7 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
    reflexivity.
  Defined.
 
- Definition modulefun_to_isbinopfun {R : rng} {M N : module R} (f : modulefun M N) : isbinopfun (pr1 f) := pr1 (pr2 f).
+ Definition modulefun_to_isbinopfun {R : rng} {M N : module R} (f : modulefun M N) : isbinopfun f := pr1 (pr2 f).
 
  (** *** The precategory of (left) R-modules and R-modules homomorphisms *)
 
@@ -376,12 +360,10 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
  Definition modulefun_id {R : rng}: ∏ M : @precategory_ob_mor_module R, M --> M.
  Proof.
    intro M.
-   refine (tpair _ (idfun (pr1 M)) _).
+   refine (tpair _ (idfun (pr1module M)) _).
    apply dirprodpair.
-     - intros x y.
-       reflexivity.
-     - intros.
-       reflexivity.
+     - intros x y. reflexivity.
+     - intros. reflexivity.
  Defined.
 
  Definition modulefun_comp {R : rng} : ∏ M N P : @precategory_ob_mor_module R, M --> N → N --> P → M --> P.
@@ -417,22 +399,16 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
    - apply dirprodpair.
      + intros M N f.
        use total2_paths_f.
-       * apply funextfun.
-         intro x.
-         reflexivity.
+       * apply funextfun. intro x. reflexivity.
        * apply isapropismodulefun.
      + intros M N f.
        use total2_paths_f.
-       * apply funextfun.
-         intro x.
-         reflexivity.
+       * apply funextfun. intro x. reflexivity.
        * apply isapropismodulefun.
    - intros M N P Q f g h.
      use total2_paths_f.
-     + apply funextfun.
-       intro x.
-       unfold compose.
-       cbn.
+     + apply funextfun. intro x.
+       unfold compose. cbn.
        rewrite funcomp_assoc.
        reflexivity.
      + apply isapropismodulefun.
@@ -453,16 +429,12 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
 
  Definition has_homsets_precategory_module : has_homsets (R-mod).
  Proof.
-   intros M N.
-   unfold isaset.
-   intros f g.
-   unfold isaprop.
-   apply (isofhlevelweqb 1 (total2_paths_equiv (λ x : pr1 M -> pr1 N, ismodulefun x) f g)).
+   intros M N. unfold isaset. intros f g. unfold isaprop.
+   apply (isofhlevelweqb 1 (total2_paths_equiv (λ x :  pr1module M ->  pr1module N, ismodulefun x) f g)).
    refine (isofhleveltotal2 1 _ _ _).
-   - assert (p : isofhlevel 2 (pr1 M -> pr1 N)).
-     + apply impred.
-       intro.
-       exact (setproperty (pr1 N)).
+   - assert (p : isofhlevel 2 (pr1module M ->  pr1module N)).
+     + apply impred. intro.
+       exact (setproperty (pr1module N)).
      + exact (p (pr1 f) (pr1 g)).
    - intro p.
      assert (q : isaset (@ismodulefun R M N (pr1 g))).
@@ -470,47 +442,48 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
      + apply q.
  Defined.
 
- Definition moduleiso (M N : R-mod) := total2 (λ w : pr1 M ≃ pr1 N, ismodulefun w).
+ Definition moduleiso (M N : R-mod) := total2 (λ w : pr1module M ≃ pr1module N, ismodulefun w).
 
  Definition moduleiso_modulefun {M N : R-mod} : moduleiso M N -> modulefun M N.
  Proof.
    intro f.
-   exact (tpair _ (pr1 (pr1 f)) (pr2 f)).
+   exact (tpair _ (pr1weq (pr1 f)) (pr2 f)).
  Defined.
 
  Coercion moduleiso_modulefun : moduleiso >-> modulefun.
 
- Definition moduleisopair {M N : R-mod} (f : pr1 M ≃ pr1 N) (is : ismodulefun f) : moduleiso M N :=
+ Definition pr1moduleiso {M N : R-mod} (f : moduleiso M N) : weq (pr1module M) (pr1module N) := pr1 f.
+
+ Coercion pr1moduleiso : moduleiso >-> weq.
+
+ Definition moduleisopair {M N : R-mod} (f : pr1module M ≃ pr1module N) (is : ismodulefun f) : moduleiso M N :=
    tpair _ f is.
 
  Definition idmoduleiso (M : R-mod) : moduleiso M M.
  Proof.
    use moduleisopair.
-   - exact (idweq (pr1 M)).
+   - exact (idweq (pr1module M)).
    - use dirprodpair.
-     + intros x y.
-       use idpath.
-     + intros r x.
-       use idpath.
+     + intros x y. use idpath.
+     + intros r x. use idpath.
  Defined.
 
- Definition isbinopfuninvmap {M N : R-mod} (f : moduleiso M N) : isbinopfun (invmap (pr1 f)).
+ Definition isbinopfuninvmap {M N : R-mod} (f : moduleiso M N) : isbinopfun (invmap f).
  Proof.
    intros x y.
-   apply (invmaponpathsweq (pr1 f)).
-   rewrite (homotweqinvweq (pr1 f) (op x y)).
+   apply (invmaponpathsweq f).
+   rewrite (homotweqinvweq f (op x y)).
    symmetry.
-   transitivity (op (pr1 f (invmap (pr1 f) x)) (pr1 f (invmap (pr1 f) y))).
-   apply (modulefun_to_isbinopfun f (invmap (pr1 f) x) (invmap (pr1 f) y)).
-   rewrite 2 (homotweqinvweq (pr1 f)).
+   transitivity (op ((pr1moduleiso f) (invmap f x)) ((pr1moduleiso f) (invmap f y))).
+   apply (modulefun_to_isbinopfun f (invmap f x) (invmap f y)).
+   rewrite 2 (homotweqinvweq f).
    reflexivity.
  Defined.
 
- Definition islinearinvmap {M N : R-mod} (f : moduleiso M N) : islinear (invmap (pr1 f)).
+ Definition islinearinvmap {M N : R-mod} (f : moduleiso M N) : islinear (invmap f).
  Proof.
    intros r x.
    induction f as [f is].
-   cbn.
    apply (invmaponpathsweq f).
    transitivity (module_mult (r,,x)).
    exact (homotweqinvweq f (@module_mult R N (r,, x))).
@@ -524,30 +497,28 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
  Definition invmoduleiso {M N : R-mod} (f : moduleiso M N) : moduleiso N M.
  Proof.
    use moduleisopair.
-   - exact (invweq (pr1 f)).
+   - exact (invweq f).
    - use dirprodpair.
      + exact (isbinopfuninvmap f).
      + exact (islinearinvmap f).
  Defined.
 
- Definition isaprop_islinear {M N : R-mod} {f : (pr1 M) -> (pr1 N)} : isaprop (@islinear R M N f).
+ Definition isaprop_islinear {M N : R-mod} {f : (pr1module M) -> (pr1module N)} : isaprop (@islinear R M N f).
  Proof.
-   use impred.
-   intro r.
-   use impred.
-   intro x.
+   use impred. intro r.
+   use impred. intro x.
    use setproperty.
  Defined.
 
  Definition moduleiso' (M N : R-mod) : UU :=
-   total2 (λ w : monoidiso (pr1 M) (pr1 N), islinear w).
+   total2 (λ w : monoidiso (pr1module M) (pr1module N), islinear w).
 
  Definition moduleiso_to_moduleiso' {M N : R-mod} : moduleiso M N -> moduleiso' M N.
  Proof.
    intro w.
    use tpair.
    - use tpair.
-     + exact (pr1 w).
+     + exact w.
      + use tpair.
        * exact (modulefun_to_isbinopfun w).
        * use (modulefun_unel w).
@@ -558,35 +529,30 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
  Proof.
    intro w.
    use tpair.
-   - exact (pr1 (pr1 w)).
+   - exact (pr1 w).
    - use dirprodpair.
      + exact (pr1 (pr2 (pr1 w))).
      + exact (pr2 w).
  Defined.
 
- Lemma modulefun_unel_uniqueness {M N : R-mod} {f : pr1 M -> pr1 N} {is: ismodulefun f} (p : f (@unel (pr1 M)) = @unel (pr1 N)) :
-   modulefun_unel (f,,is) = p.
+ Lemma modulefun_unel_uniqueness {M N : R-mod} {f : pr1module M -> pr1module N} {is: ismodulefun f}
+       (p : f (@unel (pr1module M)) = @unel (pr1module N)) : modulefun_unel (f,,is) = p.
  Proof.
-   apply (setproperty (pr1 (pr1 (pr1 N)))).
+   apply (setproperty (pr1module N)).
  Defined.
 
  Definition moduleiso'_to_moduleiso_isweq {M N : R-mod} : isweq (@moduleiso'_to_moduleiso M N).
  Proof.
-   use (gradth _ moduleiso_to_moduleiso').
-   intro w.
+   use (gradth _ moduleiso_to_moduleiso'). intro w.
    induction w as [w is].
    unfold moduleiso'_to_moduleiso, moduleiso_to_moduleiso'.
-   cbn.
    induction w as [w is'].
-   cbn.
    induction is' as [is'' p].
-   cbn.
    rewrite (modulefun_unel_uniqueness p).
    reflexivity.
    intro w.
    induction w as [w is].
    unfold moduleiso_to_moduleiso', moduleiso'_to_moduleiso.
-   cbn.
    reflexivity.
    Defined.
 
@@ -596,7 +562,7 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopof
  Lemma isaset_el_of_setwith2binop {X : setwith2binop} : isaset X.
  Proof.
    intros x y.
-   use (setproperty (pr1 X)).
+   use (setproperty X).
  Defined.
 
  Lemma isaprop_isrigfun {X Y : rig} (f : X -> Y) : isaprop (isrigfun f).
@@ -609,11 +575,8 @@ Defined.
  Lemma isaset_rngfun {X Y : rng} : isaset (rngfun X Y).
  Proof.
    apply (isofhleveltotal2 2).
-   - use impred_isaset.
-     intro x.
-     cbn.
+   - use impred_isaset. intro x.
      induction Y as [Y is].
-     cbn.
      apply isaset_el_of_setwith2binop.
    - intro f.
      apply (isasetaprop (isaprop_isrigfun f)).
@@ -628,28 +591,19 @@ Defined.
    - apply abgr_univalence.
    - intro e.
      use invweq.
-     induction M as [M f].
-     induction N as [N g].
-     cbn in e.
-     induction e.
+     induction M as [M f]. induction N as [N g]. cbn in e. induction e.
      use weqimplimpl.
-     + intro i.
-       cbn.
+     + intro i. cbn.
        use total2_paths2_f.
-       * use funextfun.
-         intro r.
+       * use funextfun. intro r.
          use total2_paths2_f.
-           use funextfun.
-           intro x.
+           use funextfun. intro x.
            exact (i r x).
            apply isapropismonoidfun.
        * apply isaprop_isrigfun.
-     + intro i.
-       cbn.
+     + intro i. cbn.
        intros r x.
-       unfold idmonoidiso.
-       cbn.
-       cbn in i.
+       unfold idmonoidiso. cbn. cbn in i.
        induction i.
        reflexivity.
      + use isaprop_islinear.
@@ -713,21 +667,19 @@ Defined.
    - exact (pr2 (pr1 f)).
  Defined.
 
- Lemma moduleiso_is_iso {M N : ob R-mod} (f : moduleiso M N) : @is_iso R-mod M N (modulefunpair (pr1 (pr1 f)) (pr2 f)).
+ Lemma moduleiso_is_iso {M N : ob R-mod} (f : moduleiso M N) : @is_iso R-mod M N (modulefunpair f (pr2 f)).
  Proof.
-   apply (is_iso_qinv (C:= R-mod) _ (modulefunpair (pr1 (pr1 (invmoduleiso f))) (pr2 (invmoduleiso f)))).
+   apply (is_iso_qinv (C:= R-mod) _ (modulefunpair (invmoduleiso f) (pr2 (invmoduleiso f)))).
    split.
    - use total2_paths_f.
      + cbn.
-       apply funextfun.
-       intro x.
+       apply funextfun. intro x.
        unfold funcomp, idfun.
        apply homotinvweqweq.
      + apply isapropismodulefun.
    - use total2_paths_f.
      + cbn.
-       apply funextfun.
-       intro y.
+       apply funextfun. intro y.
        apply homotweqinvweq.
      + apply isapropismodulefun.
    Defined.
@@ -737,7 +689,7 @@ Defined.
    intro f.
    use isopair.
    - use tpair.
-     + exact (pr1 (pr1 f)).
+     + exact f.
      + exact (pr2 f).
    - exact (moduleiso_is_iso f).
    Defined.
@@ -749,15 +701,13 @@ Defined.
      apply subtypeEquality.
      + intro w.
        apply isapropismodulefun.
-     + unfold moduleiso_iso, iso_moduleiso.
-       cbn.
+     + unfold moduleiso_iso, iso_moduleiso. cbn.
        use total2_paths_f.
        * cbn.
          reflexivity.
        * apply isapropisweq.
    - intro f.
-     unfold iso_moduleiso, moduleiso_iso.
-     cbn.
+     unfold iso_moduleiso, moduleiso_iso. cbn.
      use total2_paths_f.
      + cbn.
        reflexivity.
@@ -773,8 +723,7 @@ Defined.
    use (isweqhomot (weqcomp (modules_univalence M N) (moduleiso_iso_weq M N)) _).
    - intro p.
      induction p.
-     use (pathscomp0 weqcomp_to_funcomp_app).
-     cbn.
+     use (pathscomp0 weqcomp_to_funcomp_app). cbn.
      use total2_paths_f.
      + reflexivity.
      + apply isaprop_is_iso.
