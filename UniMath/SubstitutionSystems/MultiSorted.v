@@ -606,7 +606,7 @@ Proof.
 Qed.
 
 
-Definition subst_slice_alt {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_in T Γ){s : sort}
+Definition subst_slice_eqn {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_in T Γ){s : sort}
            (M : wellsorted_in T (sorted_option_functor s Γ))(H: sort_in T N = s) : wellsorted_in T Γ.
 Proof.
   apply (subst_slice N).
@@ -645,18 +645,23 @@ Proof.
   now rewrite H1.
 Qed.
 
-(*
+
 Lemma subst_interchange_law_slice {T:Monad (SET / sort)}{Γ : SET_over_sort}
       (L : wellsorted_in T Γ)
       (N : wellsorted_in T (sorted_option_functor (sort_in T L) Γ))
       (M : wellsorted_in T (sorted_option_functor (sort_in T N) (sorted_option_functor (sort_in T L) Γ))) :
-      subst_slice L (subst_slice N M) = subst_slice L (subst_slice N M).
+  subst_slice L (subst_slice N M) =
+  subst_slice_eqn (subst_slice L N)
+                  (subst_slice_eqn (mweak_slice _ L) (mexch_slice M) (mweak_slice_ok _ L))
+                  (subst_slice_ok L N).
+Proof.
+  set (ls := subst_slice L (subst_slice N M)).
+  set (rs1 := subst_slice_eqn (mweak_slice _ L) (mexch_slice M) (mweak_slice_ok _ L)).
+  set (rs2 := subst_slice L N).
+  simpl in rs1.
 
+Abort.
 
-
-
-  subst_slice_alt (subst_slice L N) M  (subst_slice_ok L N)
-*)
 
 End monad.
 End MBindingSig.
