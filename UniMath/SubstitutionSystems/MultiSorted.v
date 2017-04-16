@@ -534,27 +534,29 @@ Definition wellsorted_in (T:[SET_over_sort,SET_over_sort])(Γ:SET_over_sort): hS
 Definition sort_in (T:[SET_over_sort,SET_over_sort]){Γ:SET_over_sort}(M:wellsorted_in T Γ): sort := pr2 (pr1 T Γ) M.
  *)
 
-Definition wellsorted_in (T:Monad (SET / sort))(Γ:SET_over_sort): hSet := pr1(pr1 T Γ).
-Definition sort_in (T:Monad (SET / sort)){Γ:SET_over_sort}(M:wellsorted_in T Γ): sort := pr2 (pr1 T Γ) M.
+Context {T:Monad (SET / sort)}.
 
-Definition aux_fh {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
-   (f : A1->wellsorted_in T Γ2)(H: forall a1:A1, sort_in T (f a1) = f1 a1) : SET_over_sort⟦(A1,,f1),T Γ2⟧.
+Definition wellsorted_in (Γ:SET_over_sort): hSet := pr1(pr1 T Γ).
+Definition sort_in {Γ:SET_over_sort}(M:wellsorted_in Γ): sort := pr2 (pr1 T Γ) M.
+
+Definition aux_fh {A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
+   (f : A1->wellsorted_in Γ2)(H: forall a1:A1, sort_in (f a1) = f1 a1) : SET_over_sort⟦(A1,,f1),T Γ2⟧.
 Proof.
    mkpair.
     * exact f.
     * apply funextsec; intro a1; now apply pathsinv0.
 Defined.
 
-Definition bind_slice {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
-   (f : A1->wellsorted_in T Γ2)(H: forall a1:A1, sort_in T (f a1) = f1 a1)(M: wellsorted_in T (A1,,f1)) :
-   wellsorted_in T Γ2.
+Definition bind_slice {A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
+   (f : A1->wellsorted_in Γ2)(H: forall a1:A1, sort_in (f a1) = f1 a1)(M: wellsorted_in (A1,,f1)) :
+   wellsorted_in Γ2.
 Proof.
   exact (pr1 (bind_instantiated (aux_fh f H)) M).
 Defined.
 
-Lemma bind_slice_ok {T:Monad (SET / sort)}{A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
-    (f : A1->wellsorted_in T Γ2)(H: forall a1:A1, sort_in T (f a1) = f1 a1)(M: wellsorted_in T (A1,,f1)) :
-    sort_in T (bind_slice f H M) = sort_in T M.
+Lemma bind_slice_ok {A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
+    (f : A1->wellsorted_in Γ2)(H: forall a1:A1, sort_in (f a1) = f1 a1)(M: wellsorted_in (A1,,f1)) :
+    sort_in (bind_slice f H M) = sort_in M.
 Proof.
   assert (H1 := pr2 (bind_instantiated (aux_fh f H))).
   apply toforallpaths in H1.
@@ -564,16 +566,16 @@ Qed.
 
 (** now we only substitute a single sorted variable *)
 
-Definition aux_inject_N {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_in T Γ):
-  SET_over_sort⟦constHSET_slice (sort_in T N),T Γ⟧.
+Definition aux_inject_N {Γ:SET_over_sort}(N : wellsorted_in Γ):
+  SET_over_sort⟦constHSET_slice (sort_in N),T Γ⟧.
 Proof.
   mkpair.
   + exact (fun _=> N).
   + now apply funextsec.
 Defined.
 
-Definition subst_slice {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_in T Γ)
-           (M : wellsorted_in T (sorted_option_functor (sort_in T N) Γ)): wellsorted_in T Γ.
+Definition subst_slice {Γ:SET_over_sort}(N : wellsorted_in Γ)
+           (M : wellsorted_in (sorted_option_functor (sort_in N) Γ)): wellsorted_in Γ.
 Proof.
   set (aux0 := (CategoryTheory.Monads.η T Γ)).
   set (auxf := BinCoproductArrow _ (BC _ _) (aux_inject_N N) (CategoryTheory.Monads.η T Γ)).
@@ -588,9 +590,9 @@ Proof.
 (*    intermediate_path ((BinCoproductArrow HSET (BinCoproductsHSET 1%CS (pr1 Γ))
                          (λ _ : unit, N) (pr1 ((Monads.η T) Γ))) ·  (sort_in T)).*)
     change ((BinCoproductArrow HSET (BinCoproductsHSET 1%CS (pr1 Γ))
-                                    (λ _ : unit, N) (pr1 ((Monads.η T) Γ))) ·  (sort_in T) =
+                                    (λ _ : unit, N) (pr1 ((Monads.η T) Γ))) ·  sort_in =
                  BinCoproductArrow HSET (BinCoproductsHSET 1%CS (pr1 Γ))
-                                    (λ _ : unit, sort_in T N) (pr2 Γ)).
+                                    (λ _ : unit, sort_in N) (pr2 Γ)).
     rewrite postcompWithBinCoproductArrow.
     apply map_on_two_paths.
     - apply idpath.
@@ -599,57 +601,67 @@ Proof.
       now (etrans; try eapply aux1).
 Defined.
 
-Lemma subst_slice_ok {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_in T Γ)
-   (M : wellsorted_in T (sorted_option_functor (sort_in T N) Γ)): sort_in T (subst_slice N M) = sort_in T M.
+Lemma subst_slice_ok {Γ:SET_over_sort}(N : wellsorted_in Γ)
+   (M : wellsorted_in (sorted_option_functor (sort_in N) Γ)): sort_in (subst_slice N M) = sort_in M.
 Proof.
   apply bind_slice_ok.
 Qed.
 
 
-Definition subst_slice_eqn {T:Monad (SET / sort)}{Γ:SET_over_sort}(N : wellsorted_in T Γ){s : sort}
-           (M : wellsorted_in T (sorted_option_functor s Γ))(H: sort_in T N = s) : wellsorted_in T Γ.
+Definition subst_slice_eqn {Γ:SET_over_sort}(N : wellsorted_in Γ){s : sort}
+           (M : wellsorted_in (sorted_option_functor s Γ))(H: sort_in N = s) : wellsorted_in Γ.
 Proof.
   apply (subst_slice N).
   now rewrite <- H in M.
 Defined.
 
+Lemma subst_slice_eqn_ok {Γ:SET_over_sort}(N : wellsorted_in Γ){s : sort}
+      (M : wellsorted_in (sorted_option_functor s Γ))(H: sort_in N = s) :
+      sort_in (subst_slice_eqn N M H) = sort_in M.
+Proof.
+  unfold subst_slice_eqn.
+  rewrite subst_slice_ok.
+  now rewrite H.
+Qed.
+
 Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
 
-Local Definition mweak_instantiated {T:Monad (SET / sort)}(Γ1 : SET_over_sort){Γ2 : SET_over_sort} :
+Local Definition mweak_instantiated (Γ1 : SET_over_sort){Γ2 : SET_over_sort} :
   SET_over_sort⟦T Γ2,T (Γ1 ⊕ Γ2)⟧ := mweak T BC _ _.
 
-Definition mweak_slice {T:Monad (SET / sort)}(Γ1 : SET_over_sort){Γ2 : SET_over_sort} : wellsorted_in T Γ2 -> wellsorted_in T (Γ1 ⊕ Γ2) := pr1 (mweak_instantiated Γ1).
+Definition mweak_slice (Γ1 : SET_over_sort){Γ2 : SET_over_sort} : wellsorted_in Γ2 -> wellsorted_in (Γ1 ⊕ Γ2) := pr1 (mweak_instantiated Γ1).
 
-Lemma mweak_slice_ok {T:Monad (SET / sort)}(Γ1 : SET_over_sort){Γ2 : SET_over_sort}(M : wellsorted_in T Γ2) :
-  sort_in T (mweak_slice Γ1 M) = sort_in T M.
+Lemma mweak_slice_ok (Γ1 : SET_over_sort){Γ2 : SET_over_sort}(M : wellsorted_in Γ2) :
+  sort_in (mweak_slice Γ1 M) = sort_in M.
 Proof.
-  set (H1 := pr2 (mweak_instantiated(T:=T)(Γ2:=Γ2)Γ1)).
+  set (H1 := pr2 (mweak_instantiated(Γ2:=Γ2)Γ1)).
   apply toforallpaths in H1.
   apply pathsinv0.
   now rewrite H1.
 Qed.
 
-Local Definition mexch_instantiated {T:Monad (SET / sort)}{Γ1 Γ2 Γ3: SET_over_sort} :
+Local Definition mexch_instantiated {Γ1 Γ2 Γ3: SET_over_sort} :
   SET_over_sort⟦T (Γ1 ⊕ (Γ2 ⊕ Γ3)), T (Γ2 ⊕ (Γ1 ⊕ Γ3))⟧ := mexch T BC _ _ _.
 
-Definition mexch_slice {T:Monad (SET / sort)}{Γ1 Γ2 Γ3: SET_over_sort} :
-  wellsorted_in T (Γ1 ⊕ (Γ2 ⊕ Γ3)) -> wellsorted_in T (Γ2 ⊕ (Γ1 ⊕ Γ3)) :=
+Definition mexch_slice {Γ1 Γ2 Γ3: SET_over_sort} :
+  wellsorted_in (Γ1 ⊕ (Γ2 ⊕ Γ3)) -> wellsorted_in (Γ2 ⊕ (Γ1 ⊕ Γ3)) :=
   pr1 (mexch_instantiated).
 
-Lemma mexch_slice_ok {T:Monad (SET / sort)}{Γ1 Γ2 Γ3: SET_over_sort}(M : wellsorted_in T (Γ1 ⊕ (Γ2 ⊕ Γ3))) :
-  sort_in T (mexch_slice M) = sort_in T M.
+Lemma mexch_slice_ok {Γ1 Γ2 Γ3: SET_over_sort}(M : wellsorted_in (Γ1 ⊕ (Γ2 ⊕ Γ3))) :
+  sort_in (mexch_slice M) = sort_in M.
 Proof.
-  set (H1 := pr2 (mexch_instantiated(T:=T)(Γ1:=Γ1)(Γ2:=Γ2)(Γ3:=Γ3))).
+  set (H1 := pr2 (mexch_instantiated(Γ1:=Γ1)(Γ2:=Γ2)(Γ3:=Γ3))).
   apply toforallpaths in H1.
   apply pathsinv0.
   now rewrite H1.
 Qed.
 
+(* we are heading for the following lemma:
 
-Lemma subst_interchange_law_slice {T:Monad (SET / sort)}{Γ : SET_over_sort}
-      (L : wellsorted_in T Γ)
-      (N : wellsorted_in T (sorted_option_functor (sort_in T L) Γ))
-      (M : wellsorted_in T (sorted_option_functor (sort_in T N) (sorted_option_functor (sort_in T L) Γ))) :
+Lemma subst_interchange_law_slice {Γ : SET_over_sort}
+      (L : wellsorted_in Γ)
+      (N : wellsorted_in (sorted_option_functor (sort_in L) Γ))
+      (M : wellsorted_in (sorted_option_functor (sort_in N) (sorted_option_functor (sort_in L) Γ))) :
   subst_slice L (subst_slice N M) =
   subst_slice_eqn (subst_slice L N)
                   (subst_slice_eqn (mweak_slice _ L) (mexch_slice M) (mweak_slice_ok _ L))
@@ -659,8 +671,31 @@ Proof.
   set (rs1 := subst_slice_eqn (mweak_slice _ L) (mexch_slice M) (mweak_slice_ok _ L)).
   set (rs2 := subst_slice L N).
   simpl in rs1.
+*)
 
-Abort.
+Context {Γ : SET_over_sort}
+      (L : wellsorted_in Γ)
+      (N : wellsorted_in (sorted_option_functor (sort_in L) Γ))
+      (M : wellsorted_in (sorted_option_functor (sort_in N) (sorted_option_functor (sort_in L) Γ))).
+
+Local Definition LHS : wellsorted_in Γ := subst_slice L (subst_slice N M).
+Local Definition RHS : wellsorted_in Γ :=
+  subst_slice_eqn (subst_slice L N)
+                  (subst_slice_eqn (mweak_slice _ L) (mexch_slice M) (mweak_slice_ok _ L))
+                  (subst_slice_ok L N).
+
+Local Lemma same_sort_LHS_RHS : sort_in LHS = sort_in RHS.
+Proof.
+  unfold LHS.
+  rewrite subst_slice_ok.
+  rewrite subst_slice_ok.
+  unfold RHS.
+  do 2 rewrite subst_slice_eqn_ok.
+  apply pathsinv0.
+  apply mexch_slice_ok.
+Qed.
+
+
 
 
 End monad.
