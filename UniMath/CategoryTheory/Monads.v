@@ -289,17 +289,14 @@ Defined.
 (** * Substitution operation for monads *)
 Section MonadSubst.
 
-Context (TC : Terminal C).
 
-Local Notation "1" := TC.
-
-Definition monadSubst (a : C) (e : C⟦1,T a⟧) : C⟦T (1 ⊕ a), T a⟧ :=
+Definition monadSubstGen {b:C} (a : C) (e : C⟦b,T a⟧) : C⟦T (b ⊕ a), T a⟧ :=
   bind (BinCoproductArrow _ _ e (η T a)).
 
-Lemma subst_interchange_law (a : C) (e : C⟦1,T (1 ⊕ a)⟧) (f : C⟦1,T a⟧):
-  (monadSubst _ e) · (monadSubst _ f) = (mexch 1 1 a) · (monadSubst _ (f · (mweak 1 a)))  · (monadSubst _ (e · (monadSubst _ f))).
+Lemma subst_interchange_law_gen (c b a : C) (e : C⟦c,T (b ⊕ a)⟧) (f : C⟦b,T a⟧):
+  (monadSubstGen _ e) · (monadSubstGen _ f) = (mexch c b a) · (monadSubstGen _ (f · (mweak c a)))  · (monadSubstGen _ (e · (monadSubstGen _ f))).
 Proof.
-  unfold monadSubst, mexch.
+  unfold monadSubstGen, mexch.
   do 3 rewrite bind_bind.
   apply maponpaths.
   apply BinCoproductArrowsEq.
@@ -308,19 +305,19 @@ Proof.
     rewrite <- assoc.
     rewrite bind_bind.
     rewrite <- assoc.
-    rewrite (η_bind(a:=let (pr1, _) := pr1 (BC 1 (1 ⊕ a)) in pr1)).
+    rewrite (η_bind(a:=let (pr1, _) := pr1 (BC b (c ⊕ a)) in pr1)).
     rewrite <- assoc.
     apply pathsinv0.
     eapply pathscomp0.
     * apply cancel_precomposition.
       rewrite assoc.
       rewrite BinCoproductIn2Commutes.
-      rewrite (η_bind(a:=(1 ⊕ a))).
+      rewrite (η_bind(a:=(c ⊕ a))).
       apply idpath.
     * now rewrite BinCoproductIn1Commutes.
   + rewrite assoc.
     rewrite BinCoproductIn2Commutes.
-    rewrite (η_bind(a:=1 ⊕ a)).
+    rewrite (η_bind(a:=b ⊕ a)).
     do 3 rewrite assoc.
     rewrite BinCoproductIn2Commutes.
     apply BinCoproductArrowsEq.
@@ -330,7 +327,7 @@ Proof.
       do 2 rewrite assoc.
       rewrite BinCoproductIn1Commutes.
       rewrite <- assoc.
-      rewrite (η_bind(a:=let (pr1, _) := pr1 (BC 1 (1 ⊕ a)) in pr1)).
+      rewrite (η_bind(a:=let (pr1, _) := pr1 (BC b (c ⊕ a)) in pr1)).
       rewrite assoc.
       rewrite BinCoproductIn1Commutes.
       unfold mweak.
@@ -341,7 +338,7 @@ Proof.
       rewrite <- bind_η.
       apply maponpaths.
       rewrite <- assoc.
-      rewrite (η_bind(a:=let (pr1, _) := pr1 (BC 1 a) in pr1)).
+      rewrite (η_bind(a:=let (pr1, _) := pr1 (BC c a) in pr1)).
       now rewrite BinCoproductIn2Commutes.
     * rewrite BinCoproductIn2Commutes.
       rewrite <- assoc.
@@ -349,16 +346,30 @@ Proof.
       do 2 rewrite assoc.
       rewrite BinCoproductIn2Commutes.
       do 2 rewrite <- assoc.
-      rewrite (η_bind(a:=let (pr1, _) := pr1 (BC 1 (1 ⊕ a)) in pr1)).
+      rewrite (η_bind(a:=let (pr1, _) := pr1 (BC b (c ⊕ a)) in pr1)).
       apply pathsinv0.
       eapply pathscomp0.
       - apply cancel_precomposition.
         rewrite assoc.
         rewrite BinCoproductIn2Commutes.
-        rewrite (η_bind(a:=(1 ⊕ a))).
+        rewrite (η_bind(a:=(c ⊕ a))).
         apply idpath.
       - now rewrite BinCoproductIn2Commutes.
 Qed.
+
+Context (TC : Terminal C).
+
+Local Notation "1" := TC.
+
+Definition monadSubst (a : C) (e : C⟦1,T a⟧) : C⟦T (1 ⊕ a), T a⟧ :=
+  monadSubstGen a e.
+
+Lemma subst_interchange_law (a : C) (e : C⟦1,T (1 ⊕ a)⟧) (f : C⟦1,T a⟧):
+  (monadSubst _ e) · (monadSubst _ f) = (mexch 1 1 a) · (monadSubst _ (f · (mweak 1 a)))  · (monadSubst _ (e · (monadSubst _ f))).
+Proof.
+  apply subst_interchange_law_gen.
+Qed.
+
 
 
 End MonadSubst.
