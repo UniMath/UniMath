@@ -564,6 +564,86 @@ Proof.
   now rewrite H1.
 Qed.
 
+Definition η_slice {Γ:SET_over_sort}(a: pr1 (pr1 Γ)) : wellsorted_in Γ :=
+  pr1 ((Monads.η T) Γ) a.
+
+Lemma η_slice_ok {Γ:SET_over_sort}(a: pr1 (pr1 Γ)) :
+  sort_in (η_slice(Γ:=Γ) a) = (pr2 Γ) a.
+Proof.
+  unfold η_slice.
+  set (H1 := pr2 ((Monads.η T) Γ)).
+  simpl in H1.
+  apply toforallpaths in H1.
+  now rewrite H1.
+Qed.
+
+Lemma η_bind_slice {A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
+      (f : A1->wellsorted_in Γ2)(H: forall a1:A1, sort_in (f a1) = f1 a1)(a1:A1) :
+      bind_slice f H (η_slice(Γ:=(A1,,f1)) a1) = f a1.
+Proof.
+  unfold bind_slice.
+  unfold η_slice.
+  set (H1 := η_bind(aux_fh f H)).
+  apply (maponpaths pr1) in H1.
+  apply toforallpaths in H1.
+  apply H1.
+Qed.
+
+Lemma bind_η_slice {A1:hSet}{f1:A1->sort}(H: forall a1:A1, sort_in (η_slice(Γ:=(A1,,f1)) a1) = f1 a1)(M: wellsorted_in (A1,,f1)) :
+  bind_slice (η_slice(Γ:=(A1,,f1))) H M = M.
+Proof.
+  unfold bind_slice, η_slice.
+  unfold bind_instantiated.
+  assert (H1 : aux_fh (fun a:A1 => pr1 ((Monads.η T) (A1,, f1)) a) H = (Monads.η T) (A1,, f1)).
+  + unfold aux_fh.
+    now apply eq_mor_slicecat.
+  + intermediate_path (pr1 (bind ((Monads.η T) (A1,, f1))) M).
+    * apply (maponpaths (fun f => f M)).
+      apply maponpaths.
+      apply maponpaths.
+      exact H1.
+    * now rewrite bind_η.
+Qed.
+(** notice that the hypothesis [H] can always be instantiated with [η_slice_ok] *)
+
+Lemma bind_bind_slice {A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}{Γ3:SET_over_sort}
+  (f : A1->wellsorted_in (A2,,f2))(H1: forall a1:A1, sort_in (f a1) = f1 a1)
+  (g : A2->wellsorted_in Γ3)(H2: forall a2:A2, sort_in (g a2) = f2 a2)
+  (HH: forall a1:A1, sort_in (bind_slice g H2 (f a1)) = f1 a1)
+  (M: wellsorted_in (A1,,f1)) :
+    bind_slice g H2 (bind_slice f H1 M) = bind_slice (fun a1:A1 => bind_slice g H2 (f a1)) HH M.
+Proof.
+  unfold bind_slice.
+  intermediate_path (pr1 (bind_instantiated (aux_fh f H1) · bind_instantiated (aux_fh g H2)) M).
+  + apply idpath.
+  + apply (maponpaths (fun f => f M)).
+    apply maponpaths.
+    unfold bind_instantiated.
+    rewrite bind_bind.
+    apply maponpaths.
+    now apply eq_mor_slicecat.
+Qed.
+
+Local Definition HH_bind_bind_slice {A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}{Γ3:SET_over_sort}
+  (f : A1->wellsorted_in (A2,,f2))(H1: forall a1:A1, sort_in (f a1) = f1 a1)
+  (g : A2->wellsorted_in Γ3)(H2: forall a2:A2, sort_in (g a2) = f2 a2)(a1:A1) :
+  sort_in (bind_slice g H2 (f a1)) = f1 a1.
+Proof.
+  eapply pathscomp0.
+  + apply (bind_slice_ok g H2).
+  + apply H1.
+Defined.
+
+Lemma bind_bind_slice_inst {A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}{Γ3:SET_over_sort}
+  (f : A1->wellsorted_in (A2,,f2))(H1: forall a1:A1, sort_in (f a1) = f1 a1)
+  (g : A2->wellsorted_in Γ3)(H2: forall a2:A2, sort_in (g a2) = f2 a2)
+  (HH: forall a1:A1, sort_in (bind_slice g H2 (f a1)) = f1 a1)
+  (M: wellsorted_in (A1,,f1)) :
+    bind_slice g H2 (bind_slice f H1 M) = bind_slice (fun a1:A1 => bind_slice g H2 (f a1)) (HH_bind_bind_slice f H1 g H2) M.
+Proof.
+  apply bind_bind_slice.
+Qed.
+
 (** now we only substitute a single sorted variable *)
 
 Definition aux_inject_N {Γ:SET_over_sort}(N : wellsorted_in Γ):
@@ -695,7 +775,53 @@ Proof.
   apply mexch_slice_ok.
 Qed.
 
+(*
+Lemma subst_interchange_law_slice: LHS = RHS.
+Proof.
+  unfold LHS.
+  unfold subst_slice.
+  rewrite bind_bind_slice_inst.
 
+
+(* first treat the question of having the right sort *)
+  Focus 2.
+    simpl.
+  induction a1 as [u | a1].
+  + rewrite bind_slice_ok.
+    now rewrite postcompWithBinCoproductArrowHSET.
+  Focus 2.
+  simpl.
+  rewrite bind_slice_ok.
+   rewrite postcompWithBinCoproductArrowHSET.
+   unfold BinCoproductArrow.
+   simpl. unfold compose. simpl.
+   unfold BinCoproduct_of_functors_ob.
+   simpl.
+   intermediate_path (sort_in (η_slice(Γ:=BinCoproductObject
+          (slice_precat HSET sort has_homsets_HSET)
+          (BinCoproducts_HSET_slice sort (constHSET_slice (sort_in L)) Γ))
+          a1)).
+   Focus 2.
+   now rewrite η_slice_ok.
+   apply maponpaths. apply idpath.
+(* end of verifying the right sort *)
+
+   (* the left-hand side is now of the form bind_slice f' H' M *)
+*)
+
+(*
+Lemma subst_interchange_law_slice: LHS = RHS.
+Proof.
+   unfold RHS.
+   unfold subst_slice_eqn at 1.
+   unfold mexch_slice at 1.
+   unfold mexch_instantiated.
+   unfold mexch.
+
+   (* extra difficulty: mexch_slide and mweak_slice have not been defined
+      in terms of bind_slice *)
+
+*)
 
 
 End monad.
