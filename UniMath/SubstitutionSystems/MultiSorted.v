@@ -17,7 +17,7 @@ Written by: Anders Mörtberg, 2016. The formalization follows a note
 written by Benedikt Ahrens and Ralph Matthes, and is also inspired by
 discussions with them and Vladimir Voevodsky.
 
-Strength calculation added by Ralph Matthes, 2017.
+Strength calculation and analysis of monad in slice category added by Ralph Matthes, 2017.
 
 
 In the end of the file there is a module with an alternative version
@@ -544,7 +544,7 @@ Definition aux_fh {A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
 Proof.
    mkpair.
     * exact f.
-    * apply funextsec; intro a1; now apply pathsinv0.
+    * abstract(apply funextsec; intro a1; now apply pathsinv0).
 Defined.
 
 Definition bind_slice {A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
@@ -604,7 +604,15 @@ Proof.
       exact H1.
     * now rewrite bind_η.
 Qed.
-(** notice that the hypothesis [H] can always be instantiated with [η_slice_ok] *)
+(** notice that the hypothesis [H] can be instantiated with [η_slice_ok] *)
+
+Lemma bind_η_slice_inst {A1:hSet}{f1:A1->sort}(M: wellsorted_in (A1,,f1)) :
+  bind_slice (η_slice(Γ:=(A1,,f1))) (η_slice_ok(Γ:=(A1,,f1))) M = M.
+Proof.
+  apply bind_η_slice.
+Qed.
+(** would rather be used from right to left *)
+
 
 Lemma bind_bind_slice {A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}{Γ3:SET_over_sort}
   (f : A1->wellsorted_in (A2,,f2))(H1: forall a1:A1, sort_in (f a1) = f1 a1)
@@ -639,7 +647,8 @@ Lemma bind_bind_slice_inst {A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}{Γ3:SET_
   (g : A2->wellsorted_in Γ3)(H2: forall a2:A2, sort_in (g a2) = f2 a2)
   (HH: forall a1:A1, sort_in (bind_slice g H2 (f a1)) = f1 a1)
   (M: wellsorted_in (A1,,f1)) :
-    bind_slice g H2 (bind_slice f H1 M) = bind_slice (fun a1:A1 => bind_slice g H2 (f a1)) (HH_bind_bind_slice f H1 g H2) M.
+  bind_slice g H2 (bind_slice f H1 M) =
+  bind_slice (fun a1:A1 => bind_slice g H2 (f a1)) (HH_bind_bind_slice f H1 g H2) M.
 Proof.
   apply bind_bind_slice.
 Qed.
@@ -654,6 +663,7 @@ Proof.
   + now apply funextsec.
 Defined.
 
+(* first approach not instantiating from the general situation of a monad:
 Definition subst_slice {Γ:SET_over_sort}(N : wellsorted_in Γ)
            (M : wellsorted_in (sorted_option_functor (sort_in N) Γ)): wellsorted_in Γ.
 Proof.
@@ -680,11 +690,45 @@ Proof.
       apply pathsinv0.
       now (etrans; try eapply aux1).
 Defined.
+ *)
+
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
+
+Local Definition monadSubstGen_instantiated {T:Monad (SET / sort)}{Γ2 : SET_over_sort}(Γ1: SET_over_sort) (e : SET_over_sort⟦Γ2,T Γ1⟧) :
+  SET_over_sort⟦T (Γ2 ⊕ Γ1),T Γ1⟧ := monadSubstGen T BC Γ1 e.
+
+Definition subst_slice {Γ:SET_over_sort}(N : wellsorted_in Γ)
+  (M : wellsorted_in (sorted_option_functor (sort_in N) Γ)): wellsorted_in Γ :=
+  pr1 (monadSubstGen_instantiated _ (aux_inject_N N)) M.
 
 Lemma subst_slice_ok {Γ:SET_over_sort}(N : wellsorted_in Γ)
    (M : wellsorted_in (sorted_option_functor (sort_in N) Γ)): sort_in (subst_slice N M) = sort_in M.
 Proof.
-  apply bind_slice_ok.
+  assert (H1 := pr2 (monadSubstGen_instantiated _ (aux_inject_N N))).
+  apply toforallpaths in H1.
+  apply pathsinv0.
+  now rewrite H1.
+Qed.
+
+Definition subst_slice_as_bind_slice {Γ:SET_over_sort}(N : wellsorted_in Γ)
+  (M : wellsorted_in (sorted_option_functor (sort_in N) Γ)): wellsorted_in Γ.
+Proof.
+  refine (bind_slice (BinCoproductArrow _ (BinCoproductsHSET _ _) (fun _ => N) (η_slice(Γ:=Γ))) _ M).
+  abstract(intro a1; induction a1 as [u | a1];
+           [apply idpath | unfold BinCoproductArrow; simpl; now rewrite η_slice_ok]).
+Defined.
+
+Lemma subst_slice_as_bind_slice_agrees {Γ:SET_over_sort}(N : wellsorted_in Γ)
+      (M : wellsorted_in (sorted_option_functor (sort_in N) Γ)) :
+  subst_slice_as_bind_slice N M =subst_slice N M.
+Proof.
+  unfold subst_slice_as_bind_slice, subst_slice.
+  unfold bind_slice, monadSubstGen_instantiated.
+  apply (maponpaths (fun f => f M)).
+  apply maponpaths.
+  unfold monadSubstGen, bind_instantiated.
+  apply maponpaths.
+  now apply eq_mor_slicecat.
 Qed.
 
 
@@ -704,7 +748,6 @@ Proof.
   now rewrite H.
 Qed.
 
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
 
 Local Definition mweak_instantiated (Γ1 : SET_over_sort){Γ2 : SET_over_sort} :
   SET_over_sort⟦T Γ2,T (Γ1 ⊕ Γ2)⟧ := mweak T BC _ _.
@@ -814,8 +857,17 @@ Proof.
   rewrite mexch_slice_as_bind_slice_agrees; apply mexch_slice_ok.
 Qed.
 
+Lemma subst_interchange_law_instantiated {t s:sort}{Γ: SET_over_sort}(NN:SET_over_sort⟦constHSET_slice t, T (constHSET_slice s ⊕ Γ)⟧)
+      (LL:SET_over_sort⟦constHSET_slice s, T Γ⟧):
+  (monadSubstGen_instantiated _ NN) · (monadSubstGen_instantiated _ LL) =
+  (mexch_instantiated (Γ1:=constHSET_slice t) (Γ2:=constHSET_slice s) (Γ3:=Γ)) · (monadSubstGen_instantiated _ (LL · (mweak_instantiated _)))
+                                                                               · (monadSubstGen_instantiated _ (NN · (monadSubstGen_instantiated _ LL))).
+Proof.
+  apply subst_interchange_law_gen.
+Qed.
 
-(* we were are heading for the following lemma:
+
+(* we were heading for the following lemma that presents the result in terms of the application domain and not category theory:
 
 Lemma subst_interchange_law_slice {Γ : SET_over_sort}
       (L : wellsorted_in Γ)
