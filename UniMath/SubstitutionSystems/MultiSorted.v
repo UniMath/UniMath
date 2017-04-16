@@ -709,16 +709,44 @@ Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
 Local Definition mweak_instantiated (Γ1 : SET_over_sort){Γ2 : SET_over_sort} :
   SET_over_sort⟦T Γ2,T (Γ1 ⊕ Γ2)⟧ := mweak T BC _ _.
 
-Definition mweak_slice (Γ1 : SET_over_sort){Γ2 : SET_over_sort} : wellsorted_in Γ2 -> wellsorted_in (Γ1 ⊕ Γ2) := pr1 (mweak_instantiated Γ1).
+Definition mweak_slice (Γ1 : SET_over_sort)(Γ2 : SET_over_sort) : wellsorted_in Γ2 -> wellsorted_in (Γ1 ⊕ Γ2) := pr1 (mweak_instantiated Γ1).
+
+Arguments mweak_slice _ _ _ : clear implicits.
 
 Lemma mweak_slice_ok (Γ1 : SET_over_sort){Γ2 : SET_over_sort}(M : wellsorted_in Γ2) :
-  sort_in (mweak_slice Γ1 M) = sort_in M.
+  sort_in (mweak_slice Γ1 Γ2 M) = sort_in M.
 Proof.
-  set (H1 := pr2 (mweak_instantiated(Γ2:=Γ2)Γ1)).
+  set (H1 := pr2 (mweak_instantiated(Γ2:=Γ2) Γ1)).
   apply toforallpaths in H1.
   apply pathsinv0.
   now rewrite H1.
 Qed.
+
+Definition mweak_slice_as_bind_slice (Γ1 : SET_over_sort)(Γ2 : SET_over_sort)(M : wellsorted_in Γ2) : wellsorted_in (Γ1 ⊕ Γ2).
+Proof.
+  refine (bind_slice (fun a1 => η_slice(Γ:=Γ1 ⊕ Γ2) (pr1 (BinCoproductIn2 _ (BC _ _)) a1)) _ M).
+  intro a1.
+  now rewrite η_slice_ok.
+Defined.
+
+Lemma mweak_slice_as_bind_slice_agrees (Γ1 : SET_over_sort){Γ2 : SET_over_sort}(M : wellsorted_in Γ2) :
+  mweak_slice_as_bind_slice Γ1 Γ2 M = mweak_slice Γ1 Γ2 M.
+Proof.
+  unfold mweak_slice_as_bind_slice, mweak_slice.
+  unfold bind_slice, mweak_instantiated.
+  apply (maponpaths (fun f => f M)).
+  apply maponpaths.
+  unfold mweak, bind_instantiated.
+  apply maponpaths.
+  now apply eq_mor_slicecat.
+Qed.
+
+Lemma mweak_slice_as_bind_slice_ok (Γ1 : SET_over_sort){Γ2 : SET_over_sort}(M : wellsorted_in Γ2) :
+  sort_in (mweak_slice_as_bind_slice Γ1 Γ2 M) = sort_in M.
+Proof.
+  rewrite mweak_slice_as_bind_slice_agrees; apply mweak_slice_ok.
+Qed.
+
 
 Local Definition mexch_instantiated {Γ1 Γ2 Γ3: SET_over_sort} :
   SET_over_sort⟦T (Γ1 ⊕ (Γ2 ⊕ Γ3)), T (Γ2 ⊕ (Γ1 ⊕ Γ3))⟧ := mexch T BC _ _ _.
@@ -736,7 +764,58 @@ Proof.
   now rewrite H1.
 Qed.
 
-(* we are heading for the following lemma:
+
+Definition mexch_slice_as_bind_slice {Γ1 Γ2 Γ3: SET_over_sort}(M : wellsorted_in (Γ1 ⊕ (Γ2 ⊕ Γ3))) :
+  wellsorted_in (Γ2 ⊕ (Γ1 ⊕ Γ3)).
+Proof.
+  (* first important preparations *)
+  unfold BinCoproductObject in M.
+  simpl in M.
+  set (a1 := BinCoproductIn1 _ (BinCoproductsHSET _ _) · BinCoproductIn2 _ (BinCoproductsHSET _ _): HSET⟦pr1 Γ1, pr1(Γ2 ⊕ (Γ1 ⊕ Γ3))⟧).
+  set (a21 := BinCoproductIn1 _ (BinCoproductsHSET _ _): HSET⟦pr1 Γ2, pr1(Γ2 ⊕ (Γ1 ⊕ Γ3))⟧).
+  set (a22 := BinCoproductIn2 _ (BinCoproductsHSET _ _) · BinCoproductIn2 _ (BinCoproductsHSET _ _): HSET⟦pr1 Γ3, pr1(Γ2 ⊕ (Γ1 ⊕ Γ3))⟧).
+  refine (bind_slice ((BinCoproductArrow _ _ a1 (BinCoproductArrow _ _ a21 a22)) · η_slice(Γ:=Γ2 ⊕ (Γ1 ⊕ Γ3))) _ M).
+  intro x.
+  induction x as [x1 | x2].
+  + unfold BinCoproductArrow.
+    simpl.
+    unfold compose.
+    simpl.
+    now rewrite η_slice_ok.
+  + induction x2 as [x21 | x22].
+    * unfold BinCoproductArrow.
+      simpl.
+      unfold compose.
+      simpl.
+      now rewrite η_slice_ok.
+    * unfold BinCoproductArrow.
+      simpl.
+      unfold compose.
+      simpl.
+      now rewrite η_slice_ok.
+Defined.
+
+Lemma mexch_slice_as_bind_slice_agrees {Γ1 Γ2 Γ3: SET_over_sort}(M : wellsorted_in (Γ1 ⊕ (Γ2 ⊕ Γ3))) :
+  mexch_slice_as_bind_slice M = mexch_slice M.
+Proof.
+  unfold mexch_slice_as_bind_slice, mexch_slice.
+  unfold bind_slice, mexch_instantiated.
+  apply (maponpaths (fun f => f M)).
+  apply maponpaths.
+  unfold mexch, bind_instantiated.
+  apply maponpaths.
+  now apply eq_mor_slicecat.
+Qed.
+
+
+Lemma mexch_slice_as_bind_slice_ok {Γ1 Γ2 Γ3: SET_over_sort}(M : wellsorted_in (Γ1 ⊕ (Γ2 ⊕ Γ3))) :
+  sort_in (mexch_slice_as_bind_slice M) = sort_in M.
+Proof.
+  rewrite mexch_slice_as_bind_slice_agrees; apply mexch_slice_ok.
+Qed.
+
+
+(* we were are heading for the following lemma:
 
 Lemma subst_interchange_law_slice {Γ : SET_over_sort}
       (L : wellsorted_in Γ)
@@ -751,6 +830,9 @@ Proof.
   set (rs1 := subst_slice_eqn (mweak_slice _ L) (mexch_slice M) (mweak_slice_ok _ L)).
   set (rs2 := subst_slice L N).
   simpl in rs1.
+
+Problem: mweak_slice is not an instance of bind_slice, and rewriting is not possible since also
+mweak_slice_ok appears in the term.
 *)
 
 Context {Γ : SET_over_sort}
@@ -761,7 +843,7 @@ Context {Γ : SET_over_sort}
 Local Definition LHS : wellsorted_in Γ := subst_slice L (subst_slice N M).
 Local Definition RHS : wellsorted_in Γ :=
   subst_slice_eqn (subst_slice L N)
-                  (subst_slice_eqn (mweak_slice _ L) (mexch_slice M) (mweak_slice_ok _ L))
+                  (subst_slice_eqn (mweak_slice_as_bind_slice _ _ L) (mexch_slice M) (mweak_slice_as_bind_slice_ok _ L))
                   (subst_slice_ok L N).
 
 Local Lemma same_sort_LHS_RHS : sort_in LHS = sort_in RHS.
@@ -814,12 +896,11 @@ Lemma subst_interchange_law_slice: LHS = RHS.
 Proof.
    unfold RHS.
    unfold subst_slice_eqn at 1.
-   unfold mexch_slice at 1.
-   unfold mexch_instantiated.
-   unfold mexch.
-
-   (* extra difficulty: mexch_slide and mweak_slice have not been defined
-      in terms of bind_slice *)
+   rewrite <- mexch_slice_as_bind_slice_agrees.
+   unfold mexch_slice_as_bind_slice at 1.
+   unfold subst_slice, subst_slice_eqn, mweak_slice_as_bind_slice.
+   unfold subst_slice.
+   simpl.
 
 *)
 
