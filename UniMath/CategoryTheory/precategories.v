@@ -154,6 +154,7 @@ Definition precategory := total2 is_precategory.
 Definition mk_precategory (C : precategory_data) (H : is_precategory C) : precategory :=
   tpair _ C H.
 
+
 Definition hs_precategory := total2 (fun C : precategory_data =>
   dirprod (is_precategory C) (∏ a b : C, isaset (a --> b))).
 
@@ -184,6 +185,30 @@ Definition Precategory_pair C h : Precategory := C,,h.
 Definition Precategory_to_precategory : Precategory -> precategory := pr1.
 Coercion Precategory_to_precategory : Precategory >-> precategory.
 Definition homset_property (C : Precategory) : has_homsets C := pr2 C.
+
+
+Definition precategory_pair (C:precategory_data) (i:is_precategory C)
+  : precategory := C,,i.
+
+Definition makePrecategory
+    (obj : UU)
+    (mor : obj -> obj -> UU)
+    (homsets : ∏ a b, isaset (mor a b))
+    (identity : ∏ i, mor i i)
+    (compose : ∏ i j k (f:mor i j) (g:mor j k), mor i k)
+    (right : ∏ i j (f:mor i j), compose _ _ _ (identity i) f = f)
+    (left  : ∏ i j (f:mor i j), compose _ _ _ f (identity j) = f)
+    (associativity : ∏ a b c d (f:mor a b) (g:mor b c) (h:mor c d),
+        compose _ _ _ f (compose _ _ _ g h) = compose _ _ _ (compose _ _ _ f g) h)
+  : Precategory
+  := (precategory_pair
+           (precategory_data_pair
+              (precategory_ob_mor_pair
+                 obj
+                 (fun i j => mor i j))
+              identity compose)
+           ((right,,left),,associativity)),,homsets.
+
 
 Lemma isaprop_is_precategory (C : precategory_data)(hs: has_homsets C)
   : isaprop (is_precategory C).
@@ -1172,6 +1197,8 @@ Proof.
   exact (pr2 (pr2 C)).
 Defined.
 Coercion category_to_Precategory : category >-> Precategory.
+
+Definition category_pair (C:precategory) (i:is_category C) : category := C,,i.
 
 
 Definition category_has_homsets (C : category) := pr2 (pr2 C).
