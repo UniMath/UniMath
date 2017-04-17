@@ -385,17 +385,20 @@ Proof.
 Qed.
 
 
-Lemma mexch_slice_as_bind_slice_ok {Γ1 Γ2 Γ3: SET_over_sort}(M : wellsorted_in (Γ1 ⊕ (Γ2 ⊕ Γ3))) :
+Lemma mexch_slice_as_bind_slice_ok {Γ1 Γ2 Γ3: SET_over_sort}
+      (M : wellsorted_in (Γ1 ⊕ (Γ2 ⊕ Γ3))) :
   sort_in (mexch_slice_as_bind_slice M) = sort_in M.
 Proof.
   rewrite mexch_slice_as_bind_slice_agrees; apply mexch_slice_ok.
 Qed.
 
-Lemma subst_interchange_law_instantiated {t s:sort}{Γ: SET_over_sort}(NN:SET_over_sort⟦constHSET_slice t, T (constHSET_slice s ⊕ Γ)⟧)
+Lemma subst_interchange_law_instantiated {t s:sort}{Γ: SET_over_sort}
+      (NN:SET_over_sort⟦constHSET_slice t, T (constHSET_slice s ⊕ Γ)⟧)
       (LL:SET_over_sort⟦constHSET_slice s, T Γ⟧):
   (monadSubstGen_instantiated _ NN) · (monadSubstGen_instantiated _ LL) =
-  (mexch_instantiated (Γ1:=constHSET_slice t) (Γ2:=constHSET_slice s) (Γ3:=Γ)) · (monadSubstGen_instantiated _ (LL · (mweak_instantiated _)))
-                                                                               · (monadSubstGen_instantiated _ (NN · (monadSubstGen_instantiated _ LL))).
+  (mexch_instantiated (Γ1:=constHSET_slice t) (Γ2:=constHSET_slice s) (Γ3:=Γ))
+    · (monadSubstGen_instantiated _ (LL · (mweak_instantiated _)))
+    · (monadSubstGen_instantiated _ (NN · (monadSubstGen_instantiated _ LL))).
 Proof.
   apply subst_interchange_law_gen.
 Qed.
@@ -424,13 +427,15 @@ mweak_slice_ok appears in the term.
 Context {Γ : SET_over_sort}
       (L : wellsorted_in Γ)
       (N : wellsorted_in (sorted_option_functor (sort_in L) Γ))
-      (M : wellsorted_in (sorted_option_functor (sort_in N) (sorted_option_functor (sort_in L) Γ))).
+      (M : wellsorted_in (sorted_option_functor (sort_in N)
+                            (sorted_option_functor (sort_in L) Γ))).
 
 Local Definition LHS : wellsorted_in Γ := subst_slice L (subst_slice N M).
 Local Definition RHS : wellsorted_in Γ :=
   subst_slice_eqn (subst_slice L N)
-                  (subst_slice_eqn (mweak_slice_as_bind_slice _ _ L) (mexch_slice M) (mweak_slice_as_bind_slice_ok _ L))
-                  (subst_slice_ok L N).
+           (subst_slice_eqn (mweak_slice_as_bind_slice _ _ L)
+                            (mexch_slice M) (mweak_slice_as_bind_slice_ok _ L))
+        (subst_slice_ok L N).
 
 Local Lemma same_sort_LHS_RHS : sort_in LHS = sort_in RHS.
 Proof.

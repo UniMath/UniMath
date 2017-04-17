@@ -294,7 +294,9 @@ Definition monadSubstGen {b:C} (a : C) (e : C⟦b,T a⟧) : C⟦T (b ⊕ a), T a
   bind (BinCoproductArrow _ _ e (η T a)).
 
 Lemma subst_interchange_law_gen (c b a : C) (e : C⟦c,T (b ⊕ a)⟧) (f : C⟦b,T a⟧):
-  (monadSubstGen _ e) · (monadSubstGen _ f) = (mexch c b a) · (monadSubstGen _ (f · (mweak c a)))  · (monadSubstGen _ (e · (monadSubstGen _ f))).
+  (monadSubstGen _ e) · (monadSubstGen _ f) =
+  (mexch c b a) · (monadSubstGen _ (f · (mweak c a)))
+                · (monadSubstGen _ (e · (monadSubstGen _ f))).
 Proof.
   unfold monadSubstGen, mexch.
   do 3 rewrite bind_bind.
@@ -365,7 +367,9 @@ Definition monadSubst (a : C) (e : C⟦1,T a⟧) : C⟦T (1 ⊕ a), T a⟧ :=
   monadSubstGen a e.
 
 Lemma subst_interchange_law (a : C) (e : C⟦1,T (1 ⊕ a)⟧) (f : C⟦1,T a⟧):
-  (monadSubst _ e) · (monadSubst _ f) = (mexch 1 1 a) · (monadSubst _ (f · (mweak 1 a)))  · (monadSubst _ (e · (monadSubst _ f))).
+  (monadSubst _ e) · (monadSubst _ f) =
+  (mexch 1 1 a) · (monadSubst _ (f · (mweak 1 a)))
+                · (monadSubst _ (e · (monadSubst _ f))).
 Proof.
   apply subst_interchange_law_gen.
 Qed.
