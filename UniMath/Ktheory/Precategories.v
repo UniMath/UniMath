@@ -65,8 +65,6 @@ Defined.
 
 Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat. (* this overwrites the previous definition *)
 
-Definition precategory_pair (C:precategory_data) (i:is_precategory C)
-  : precategory := C,,i.
 
 Definition Precategory_obmor (C:precategory) : precategory_ob_mor :=
       precategory_ob_mor_from_precategory_data (
@@ -78,7 +76,6 @@ Definition Functor_mor {C D} (F:functor C D) := pr2 (pr1 F).
 Definition Functor_identity {C D} (F:functor C D) := functor_id F.
 Definition Functor_compose {C D} (F:functor C D) := @functor_comp _ _ F.
 
-Definition category_pair (C:precategory) (i:is_category C) : category := C,,i.
 
 Definition theUnivalenceProperty (C:category) := pr2 C : is_category C.
 
@@ -130,24 +127,6 @@ Definition makePrecategory_data
     : precategory_data
   := precategory_data_pair (makePrecategory_ob_mor obj mor) identity compose.
 
-Definition makePrecategory
-    (obj : UU)
-    (mor : obj -> obj -> UU)
-    (homsets : ∏ a b, isaset (mor a b))
-    (identity : ∏ i, mor i i)
-    (compose : ∏ i j k (f:mor i j) (g:mor j k), mor i k)
-    (right : ∏ i j (f:mor i j), compose _ _ _ (identity i) f = f)
-    (left  : ∏ i j (f:mor i j), compose _ _ _ f (identity j) = f)
-    (associativity : ∏ a b c d (f:mor a b) (g:mor b c) (h:mor c d),
-        compose _ _ _ f (compose _ _ _ g h) = compose _ _ _ (compose _ _ _ f g) h)
-  : Precategory
-  := (precategory_pair
-           (precategory_data_pair
-              (precategory_ob_mor_pair
-                 obj
-                 (fun i j => mor i j))
-              identity compose)
-           ((right,,left),,associativity)),,homsets.
 
 Local Open Scope cat_deprecated.
 
