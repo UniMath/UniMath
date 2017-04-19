@@ -47,8 +47,9 @@ Unset Automatic Introduction.
 Definition isStrongOrder {X : UU} (R : hrel X) : UU :=
   istrans R × iscotrans R × isirrefl R.
 Definition mkStrongOrder {X : UU} (R : hrel X)
-           (Htrans : istrans R) (Hcotrans : iscotrans R) (Hirrefl : isirrefl R) :
-  isStrongOrder R := Htrans,,Hcotrans,,Hirrefl.
+           (Htrans : istrans R) (Hcotrans : iscotrans R)
+           (Hirrefl : isirrefl R) : isStrongOrder R :=
+  Htrans,,Hcotrans,,Hirrefl.
 Definition StrongOrder (X : UU) := ∑ R : hrel X, isStrongOrder R.
 Definition pairStrongOrder {X : UU} (R : hrel X) (is : isStrongOrder R) : StrongOrder X :=
   R,,is.
@@ -102,7 +103,8 @@ Proof.
   - intros x.
     apply (isirrefl_isStrongOrder is).
 Qed.
-Definition StrongOrder_bck {X Y : UU} (f : Y → X) (gt : StrongOrder X) : StrongOrder Y :=
+Definition StrongOrder_bck {X Y : UU} (f : Y → X)
+           (gt : StrongOrder X) : StrongOrder Y :=
   (fun_hrel_comp f gt) ,, isStrongOrder_bck f _ (pr2 gt).
 
 Lemma isStrongOrder_setquot {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
@@ -114,7 +116,8 @@ Proof.
   - apply iscotransquotrel, (iscotrans_isStrongOrder H).
   - apply isirreflquotrel, (isirrefl_isStrongOrder H).
 Qed.
-Definition StrongOrder_setquot {X : UU} {R : eqrel X} {L : StrongOrder X} (is : iscomprelrel R L) : StrongOrder (setquot R) :=
+Definition StrongOrder_setquot {X : UU} {R : eqrel X} {L : StrongOrder X}
+           (is : iscomprelrel R L) : StrongOrder (setquot R) :=
   quotrel is,, isStrongOrder_setquot is (pr2 L).
 
 Lemma isStrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (gt : hrel X)
