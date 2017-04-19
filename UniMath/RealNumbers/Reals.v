@@ -464,7 +464,8 @@ Qed.
 
 Lemma isStrongOrder_hr_lt : isStrongOrder hr_lt_rel.
 Proof.
-  apply isStrongOrder_abgrdiff, mkStrongOrder.
+  apply isStrongOrder_abgrdiff.
+  mkStrongOrder.
   - exact istrans_ltNonnegativeReals.
   - exact iscotrans_ltNonnegativeReals.
   - exact isirrefl_ltNonnegativeReals.

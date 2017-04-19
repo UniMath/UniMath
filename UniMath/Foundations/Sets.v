@@ -863,6 +863,13 @@ Definition pairStrongOrder {X : UU} (R : hrel X) (is : isStrongOrder R) : Strong
 Definition pr1StrongOrder {X : UU} : StrongOrder X → hrel X := pr1.
 Coercion  pr1StrongOrder : StrongOrder >-> hrel.
 
+Ltac mkStrongOrder :=
+  match goal with
+    | |- StrongOrder _ => simple refine (pairStrongOrder _ _) ;
+        [ | mkStrongOrder]
+    | |- isStrongOrder _ => split ; [ | split]
+  end.
+
 Section so_pty.
 
 Context {X : UU}.

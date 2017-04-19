@@ -518,14 +518,13 @@ Qed.
 
 Definition latticedec_gt_so : StrongOrder X.
 Proof.
-  simple refine (pairStrongOrder _ _).
+  mkStrongOrder.
   - apply latticedec_gt_rel.
-  - split ; [ | split].
-    + apply istrans_latticedec_gt_rel.
-    + apply iscotrans_latticedec_gt_rel.
-    + intros x Hx.
-      simple refine (Hx _).
-      apply isrefl_Lle.
+  - apply istrans_latticedec_gt_rel.
+  - apply iscotrans_latticedec_gt_rel.
+  - intros x Hx.
+    simple refine (Hx _).
+    apply isrefl_Lle.
 Defined.
 
 Lemma latticedec_notgtle :
