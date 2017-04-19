@@ -1778,8 +1778,12 @@ Definition weqgradth {X Y : UU} (f : X -> Y) (g : Y -> X)
            (efg: ∏ y : Y, f (g y) = y) : X ≃ Y :=
   weqpair _ (gradth _ _ egf efg).
 
+(* Dubious definition *)
+
 Definition bijective {X Y:UU} (f:X->Y) :=
   (∏ y, ∑ x, f x = y) × (∏ x x', f x = f x' -> x = x').
+
+(* *)
 
 Corollary bijection_to_weq {X Y:UU} (f:X->Y) : bijective f -> isweq f.
 Proof.
