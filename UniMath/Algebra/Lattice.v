@@ -44,11 +44,26 @@ Unset Automatic Introduction.
 
 (** ** Definition *)
 
-Definition islatticeop {X : hSet} (min max : binop X) :=
+Definition islatticeop {X : hSet} (min max : binop X) : UU :=
   ((isassoc min) × (iscomm min))
     × ((isassoc max) × (iscomm max))
     × (isabsorb min max)
     × (isabsorb max min).
+Lemma isaprop_islatticeop {X : hSet} (min max : binop X) :
+  isaprop (islatticeop min max).
+Proof.
+  intros X min max.
+  apply isapropdirprod ;
+    [ | apply isapropdirprod] ;
+    apply isapropdirprod.
+  apply isapropisassoc.
+  apply isapropiscomm.
+  apply isapropisassoc.
+  apply isapropiscomm.
+  apply isapropisabsorb.
+  apply isapropisabsorb.
+Qed.
+
 Definition lattice (X : hSet) :=
   ∑ min max : binop X, islatticeop min max.
 

@@ -1889,6 +1889,16 @@ Defined.
 Definition ispartbinophrel {X : setwithbinop} (S : hsubtype X) (R : hrel X) : UU :=
   dirprod (∏ a b c : X, S c -> R a b -> R (op c a) (op c b))
           (∏ a b c : X, S c -> R a b -> R (op a c) (op b c)).
+Lemma isaprop_ispartbinophrel {X : setwithbinop} (S : hsubtype X) (R : hrel X) :
+  isaprop (ispartbinophrel S R).
+Proof.
+  intros X S R.
+  apply isapropdirprod ;
+  apply impred_isaprop ; intros a ;
+  apply impred_isaprop ; intros b ;
+  apply impred_isaprop ; intros c ;
+  apply isapropimpl, isapropimpl, propproperty.
+Defined.
 
 Definition isbinoptoispartbinop {X : setwithbinop} (S : hsubtype X) (L : hrel X)
            (is : isbinophrel L) : ispartbinophrel S L.
