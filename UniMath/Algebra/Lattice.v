@@ -55,21 +55,38 @@ Definition pairStrongOrder {X : UU} (R : hrel X) (is : isStrongOrder R) : Strong
 Definition pr1StrongOrder {X : UU} : StrongOrder X → hrel X := pr1.
 Coercion  pr1StrongOrder : StrongOrder >-> hrel.
 
+Section isso_pty.
+
+Context {X : UU}.
+Context {R : hrel X}
+        (is : isStrongOrder R).
+
+Definition istrans_isStrongOrder : istrans R :=
+  pr1 is.
+Definition iscotrans_isStrongOrder : iscotrans R :=
+  pr1 (pr2 is).
+Definition isirrefl_isStrongOrder : isirrefl R :=
+  pr2 (pr2 is).
+Definition isasymm_isStrongOrder : isasymm R :=
+  istransandirrefltoasymm
+    istrans_isStrongOrder
+    isirrefl_isStrongOrder.
+
+End isso_pty.
+
 Section so_pty.
 
 Context {X : UU}.
 Context (R : StrongOrder X).
 
 Definition istrans_StrongOrder : istrans R :=
-  pr1 (pr2 R).
+  istrans_isStrongOrder (pr2 R).
 Definition iscotrans_StrongOrder : iscotrans R :=
-  pr1 (pr2 (pr2 R)).
+  iscotrans_isStrongOrder (pr2 R).
 Definition isirrefl_StrongOrder : isirrefl R :=
-  pr2 (pr2 (pr2 R)).
+  isirrefl_isStrongOrder (pr2 R).
 Definition isasymm_StrongOrder : isasymm R :=
-  istransandirrefltoasymm
-    istrans_StrongOrder
-    isirrefl_StrongOrder.
+  isasymm_isStrongOrder (pr2 R).
 
 End so_pty.
 
@@ -79,11 +96,11 @@ Proof.
   intros X Y H gt is.
   apply mkStrongOrder.
   - intros x y z.
-    apply (istrans_StrongOrder (_,,is)).
+    apply (istrans_isStrongOrder is).
   - intros x y z.
-    apply (iscotrans_StrongOrder (_,,is)).
+    apply (iscotrans_isStrongOrder is).
   - intros x.
-    apply (isirrefl_StrongOrder (_,,is)).
+    apply (isirrefl_isStrongOrder is).
 Qed.
 Definition StrongOrder_bck {X Y : UU} (f : Y → X) (gt : StrongOrder X) : StrongOrder Y :=
   (fun_hrel_comp f gt) ,, isStrongOrder_bck f _ (pr2 gt).
@@ -93,9 +110,9 @@ Lemma isStrongOrder_setquot {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelr
 Proof.
   intros X R L is H.
   apply mkStrongOrder.
-  - apply istransquotrel, (istrans_StrongOrder (_,,H)).
-  - apply iscotransquotrel, (iscotrans_StrongOrder (_,,H)).
-  - apply isirreflquotrel, (isirrefl_StrongOrder (_,,H)).
+  - apply istransquotrel, (istrans_isStrongOrder H).
+  - apply iscotransquotrel, (iscotrans_isStrongOrder H).
+  - apply isirreflquotrel, (isirrefl_isStrongOrder H).
 Qed.
 Definition StrongOrder_setquot {X : UU} {R : eqrel X} {L : StrongOrder X} (is : iscomprelrel R L) : StrongOrder (setquot R) :=
   quotrel is,, isStrongOrder_setquot is (pr2 L).
@@ -106,9 +123,9 @@ Lemma isStrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (gt : hrel X)
 Proof.
   intros X Y gt Hgt H.
   apply mkStrongOrder.
-  - apply istransabmonoidfracrel, (istrans_StrongOrder (_,,H)).
-  - apply iscotransabmonoidfracrel, (iscotrans_StrongOrder (_,,H)).
-  - apply isirreflabmonoidfracrel, (isirrefl_StrongOrder (_,,H)).
+  - apply istransabmonoidfracrel, (istrans_isStrongOrder H).
+  - apply iscotransabmonoidfracrel, (iscotrans_isStrongOrder H).
+  - apply isirreflabmonoidfracrel, (isirrefl_isStrongOrder H).
 Qed.
 Definition StrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (gt : StrongOrder X)
            (Hgt : ispartbinophrel Y gt) : StrongOrder (abmonoidfrac X Y) :=
@@ -120,9 +137,9 @@ Lemma isStrongOrder_abgrdiff {X : abmonoid} (gt : hrel X)
 Proof.
   intros X gt Hgt H.
   apply mkStrongOrder.
-  - apply istransabgrdiffrel, (istrans_StrongOrder (_,,H)).
-  - apply iscotransabgrdiffrel, (iscotrans_StrongOrder (_,,H)).
-  - apply isirreflabgrdiffrel, (isirrefl_StrongOrder (_,,H)).
+  - apply istransabgrdiffrel, (istrans_isStrongOrder H).
+  - apply iscotransabgrdiffrel, (iscotrans_isStrongOrder H).
+  - apply isirreflabgrdiffrel, (isirrefl_isStrongOrder H).
 Qed.
 Definition StrongOrder_abgrdiff {X : abmonoid} (gt : StrongOrder X)
            (Hgt : isbinophrel gt) : StrongOrder (abgrdiff X) :=
