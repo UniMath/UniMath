@@ -15,9 +15,11 @@ Ahrens, Matthes & Mörtberg, [From signatures to monads in UniMath](https://arxi
 
 Still more recent material by Ahrens, Matthes & Mörtberg concerns multi-sorted systems.
 
-* *CCS.v* --- the example of the calculus of constructions in the style of Streicher
+
 * *MultiSorted.v* --- the main file on multi-sorted binding signatures
+* *MonadsMultiSorted.v* --- an exploration of what a monad allows to do in the slice category
 * *STLC.v* --- the example of simply-typed lambda calculus
+* *CCS.v* --- the example of the calculus of constructions in the style of Streicher
 Not surprisingly, these files heavily depend on the implementation of category theory that had to be extended to fit the needs.
 
 
