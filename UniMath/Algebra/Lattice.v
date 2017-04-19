@@ -204,7 +204,7 @@ End lattice_pty.
 (** [Lle] *)
 
 Definition Lle {X : hSet} (is : lattice X) : hrel X :=
-  λ (x y : X), hProppair (Lmin is x y = x) (setproperty X (Lmin is x y) x).
+  λ (x y : X), (Lmin is x y = x)%set.
 
 Section lattice_le.
 
@@ -678,7 +678,7 @@ Section lattice_abmonoid.
 
 Context {X : abmonoid}
         (is : lattice X)
-        (is0 : isinvbinophrel (λ x y, hProppair (x = y) (setproperty X _ _)))
+        (is0 : isinvbinophrel (λ x y : X, (x = y)%set))
         (is2 : isrdistr (Lmin is) op).
 
 Lemma op_le_r :
@@ -714,7 +714,7 @@ Qed.
 Definition extruncminus {X : abmonoid} (is : lattice X) :=
   ∑ minus : binop X, istruncminus is minus.
 Lemma isaprop_extruncminus {X : abmonoid} (is : lattice X)
-      (Hop : isinvbinophrel (λ x y, hProppair (x = y) (setproperty X _ _))) :
+      (Hop : isinvbinophrel (λ x y : X, (x = y)%set)) :
   isaprop (extruncminus is).
 Proof.
   intros X is Hop.
@@ -751,7 +751,7 @@ Section truncminus_pty.
 Context {X : abmonoid}
         {is : lattice X}
         (ex : extruncminus is)
-        (is1 : isinvbinophrel (λ x y, hProppair (x = y) (setproperty X _ _)))
+        (is1 : isinvbinophrel (λ x y : X, (x = y)%set))
         (is2 : isrdistr (Lmax is) op)
         (is3 : isrdistr (Lmin is) op)
         (is4 : isrdistr (Lmin is) (Lmax is))
