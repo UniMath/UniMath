@@ -1124,6 +1124,20 @@ Proof.
   - apply isl.
 Defined.
 
+Lemma isStrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (gt : hrel X)
+      (Hgt : ispartbinophrel Y gt) :
+  isStrongOrder gt → isStrongOrder (abmonoidfracrel X Y Hgt).
+Proof.
+  intros X Y gt Hgt H.
+  split ; [ | split].
+  - apply istransabmonoidfracrel, (istrans_isStrongOrder H).
+  - apply iscotransabmonoidfracrel, (iscotrans_isStrongOrder H).
+  - apply isirreflabmonoidfracrel, (isirrefl_isStrongOrder H).
+Defined.
+Definition StrongOrder_abmonoidfrac {X : abmonoid} (Y : @submonoid X) (gt : StrongOrder X)
+           (Hgt : ispartbinophrel Y gt) : StrongOrder (abmonoidfrac X Y) :=
+  abmonoidfracrel X Y Hgt,, isStrongOrder_abmonoidfrac Y gt Hgt (pr2 gt).
+
 Lemma isantisymmnegabmonoidfracrel (X : abmonoid) (A : @subabmonoid X) {L : hrel X}
       (is : ispartbinophrel A L) (isl : isantisymmneg L) : isantisymmneg (abmonoidfracrel X A is).
 Proof.
@@ -2261,6 +2275,21 @@ Proof.
                                   isl (weqabgrdiff X a) (weqabgrdiff X b) (weqabgrdiff X c)).
 Defined.
 Opaque iscotransabgrdiffrel.
+
+Lemma isStrongOrder_abgrdiff {X : abmonoid} (gt : hrel X)
+      (Hgt : isbinophrel gt) :
+  isStrongOrder gt → isStrongOrder (abgrdiffrel X Hgt).
+Proof.
+  intros X gt Hgt H.
+  split ; [ | split].
+  - apply istransabgrdiffrel, (istrans_isStrongOrder H).
+  - apply iscotransabgrdiffrel, (iscotrans_isStrongOrder H).
+  - apply isirreflabgrdiffrel, (isirrefl_isStrongOrder H).
+Defined.
+Definition StrongOrder_abgrdiff {X : abmonoid} (gt : StrongOrder X)
+           (Hgt : isbinophrel gt) : StrongOrder (abgrdiff X) :=
+  abgrdiffrel X Hgt,, isStrongOrder_abgrdiff gt Hgt (pr2 gt).
+
 
 Lemma abgrdiffrelimpl (X : abmonoid) {L L' : hrel X} (is : isbinophrel L) (is' : isbinophrel L')
       (impl : ∏ x x', L x x' -> L' x x') (x x' : abgrdiff X) (ql : abgrdiffrel X is x x') :

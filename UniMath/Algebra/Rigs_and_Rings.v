@@ -2673,6 +2673,23 @@ Proof.
            (rngmultabmonoid X) S (ispartbinopcommrngfracgt X S is0 is1 is2) is' isd).
 Defined.
 
+Lemma StrongOrder_correct_commrngfrac (X : commrng) (Y : @subabmonoid (rngmultabmonoid X))
+      (gt : StrongOrder X)
+      Hgt Hle Hmult Hpos :
+  commrngfracgt X Y (R := gt) Hle Hmult Hpos = StrongOrder_abmonoidfrac Y gt Hgt.
+Proof.
+  intros X Y gt Hgt Hle Hmult Hpos.
+  apply funextfun ; intros x.
+  apply funextfun ; intros y.
+  apply (maponpaths (λ H, abmonoidfracrel (rngmultabmonoid X) Y H x y)).
+  assert (H : isaprop (ispartbinophrel Y gt)).
+  { apply isapropdirprod ;
+    apply impred_isaprop ; intros a ;
+    apply impred_isaprop ; intros b ;
+    apply impred_isaprop ; intros c ;
+    apply isapropimpl, isapropimpl, (pr2 (gt _ _)). }
+  apply H.
+Defined.
 
 (** **** Realations and the canonical homomorphism to the ring of fractions *)
 
