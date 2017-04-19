@@ -10,6 +10,9 @@ Contents:
 
 - Definition of slice precategories, C/x (assumes that C has homsets)
 
+- Proof that the forgetful functor [slicecat_to_cat] : C/x → C is
+  a left adjoint if C has binary products ([is_left_adjoint_slicecat_to_cat])
+
 - Proof that C/x is a category if C is
 
 - Proof that any morphism C[x,y] induces a functor from C/x to C/y
@@ -206,6 +209,52 @@ use mk_functor.
   - apply pr1.
   - intros a b; apply pr1.
 + now split.
+Defined.
+
+(** Right adjoint to slicecat_to_cat *)
+Definition cat_to_slicecat (BPC : BinProducts C) : functor C (C / x).
+Proof.
+use mk_functor.
++ mkpair.
+  * intro y.
+    exists (BinProductObject _ (BPC x y)).
+    apply BinProductPr1.
+  * intros A B f; cbn.
+    mkpair.
+    - apply (BinProductOfArrows _ _ _ (identity x) f).
+    - abstract (now rewrite BinProductOfArrowsPr1, id_right).
++ split.
+  * intros A; apply eq_mor_slicecat;
+    now apply pathsinv0, BinProductArrowUnique; rewrite id_left, id_right.
+  * intros a1 a2 a3 f1 f2; apply eq_mor_slicecat; simpl;
+    now rewrite BinProductOfArrows_comp, id_right.
+Defined.
+
+Lemma is_left_adjoint_slicecat_to_cat (BPC : BinProducts C) :
+  is_left_adjoint slicecat_to_cat.
+Proof.
+exists (cat_to_slicecat BPC).
+use mk_are_adjoints.
++ use mk_nat_trans.
+  * simpl; intros F.
+    exists (BinProductArrow _ _ (pr2 F) (identity _)); simpl.
+    abstract (now rewrite BinProductPr1Commutes).
+  * intros Y Z F; apply eq_mor_slicecat; simpl.
+    rewrite postcompWithBinProductArrow.
+    apply BinProductArrowUnique.
+    - now rewrite <- assoc, BinProductPr1Commutes, id_right, (pr2 F).
+    - now rewrite <- assoc, BinProductPr2Commutes, id_left, id_right.
++ use mk_nat_trans.
+  * intros Y.
+    apply BinProductPr2.
+  * now intros Y Z f; apply BinProductOfArrowsPr2.
++ split.
+  * intros Y; cbn.
+    now rewrite BinProductPr2Commutes.
+  * intros Y; apply eq_mor_slicecat; cbn.
+    rewrite postcompWithBinProductArrow.
+    apply pathsinv0, BinProductArrowUnique; trivial.
+    now rewrite id_right, id_left.
 Defined.
 
 End slice_precat_theory.
