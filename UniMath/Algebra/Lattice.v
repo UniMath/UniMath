@@ -95,7 +95,7 @@ Lemma Lmin_id :
   ∏ x : X, Lmin lat x x = x.
 Proof.
   intros x.
-  apply (pathscomp0 (b := Lmin lat x (Lmax lat x (Lmin lat x x)))).
+  intermediate_path (Lmin lat x (Lmax lat x (Lmin lat x x))).
   - apply maponpaths, pathsinv0, Lmax_absorb.
   - apply Lmin_absorb.
 Qed.
@@ -103,7 +103,7 @@ Lemma Lmax_id :
   ∏ x : X, Lmax lat x x = x.
 Proof.
   intros x.
-  apply (pathscomp0 (b := Lmax lat x (Lmin lat x (Lmax lat x x)))).
+  intermediate_path (Lmax lat x (Lmin lat x (Lmax lat x x))).
   - apply maponpaths, pathsinv0, Lmin_absorb.
   - apply Lmax_absorb.
 Qed.
