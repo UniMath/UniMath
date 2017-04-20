@@ -28,6 +28,12 @@ Local Open Scope cat.
 (** * Proof that the types of binary products in C/Z and pullbacks of pairs of arrows to Z in C are equivalent *)
 Section pullbacks_slice_products_equiv.
 
+  Definition some_pullback (C : precategory) (Z : C) : UU :=
+    ∑ A B (f : A --> Z) (g : B --> Z) , Pullback f g.
+
+  Definition some_binprod (C : precategory) : UU :=
+    ∑ A B , BinProductCone C A B.
+
   Context {C : precategory} (hsC : has_homsets C) (Z : C).
   Local Notation "C / X" := (slice_precat C X hsC).
 
@@ -74,8 +80,7 @@ Section pullbacks_slice_products_equiv.
 
   (** ** function taking the type of all binary products in C / Z
          to the type of all pullbacks of functions to Z in C *)
-  Definition binprod_to_pullback : (∑ AZ BZ , BinProductCone (C / Z) AZ BZ) →
-                                   (∑ A B (f : A --> Z) (g : B --> Z) , Pullback f g).
+  Definition binprod_to_pullback : some_binprod (C / Z) → some_pullback C Z.
   Proof.
     intro P.
     induction P as [AZ BZ].
@@ -85,44 +90,39 @@ Section pullbacks_slice_products_equiv.
 
   (** ** function taking the type of all pullbacks of functions to Z in C
          to the type of all binary products in C / Z  *)
-  Definition pullback_to_binprod : (∑ A B (f : A --> Z) (g : B --> Z) , Pullback f g) →
-                                   (∑ AZ BZ , BinProductCone (C / Z) AZ BZ).
+  Definition pullback_to_binprod : some_pullback C Z → some_binprod (C / Z).
   Proof.
     intros [A [B [f [g P]]]].
     refine ((A ,, f) ,, (B ,, g) ,, pullback_to_slice_binprod hsC P).
   Defined.
 
   (** ** binprod_to_pullback is invertible *)
-  Lemma binprod_to_pullback_inv (P : ∑ AZ BZ , BinProductCone (C / Z) AZ BZ) :
+  Lemma binprod_to_pullback_inv (P : some_binprod (C / Z)) :
     pullback_to_binprod (binprod_to_pullback P) = P.
   Proof.
     induction P as [[A f] [[B g] P]].
     unfold pullback_to_binprod , binprod_to_pullback.
     simpl.
     repeat (apply (total2_paths2_f (idpath _)); rewrite idpath_transportf).
-    now apply (slice_binprod_to_pullback_inv P).
+    exact (slice_binprod_to_pullback_inv P).
   Qed.
 
-  (** ** binprod_to_pullback is bijective *)
-  Lemma bijective_binprod_to_pullback : bijective binprod_to_pullback.
+  (** ** pullback_to_binprod is invertible *)
+  Lemma pullback_to_binprod_inv (P : some_pullback C Z) :
+    binprod_to_pullback (pullback_to_binprod P) = P.
   Proof.
-    split.
-    + intros [A [B [f [g P]]]].
-      exists ((A ,, f) ,, (B ,, g) ,, pullback_to_slice_binprod hsC P).
-      unfold binprod_to_pullback. simpl (pr1 _). simpl (pr2 _).
-      do 4 (apply (total2_paths2_f (idpath _)); rewrite idpath_transportf);
-      exact (pullback_to_slice_binprod_inv P).
-    + intros x x' eq.
-      set (eq' := maponpaths pullback_to_binprod eq).
-      repeat rewrite binprod_to_pullback_inv in eq'.
-      exact eq'.
+    induction P as [A [B [f [g P]]]].
+    unfold binprod_to_pullback , pullback_to_binprod.
+    do 4 (apply (total2_paths2_f (idpath _)); rewrite idpath_transportf).
+    exact (pullback_to_slice_binprod_inv P).
   Qed.
 
   Definition isweq_binprod_to_pullback : isweq binprod_to_pullback :=
-    bijection_to_weq _ bijective_binprod_to_pullback.
+    gradth _ _ binprod_to_pullback_inv pullback_to_binprod_inv.
 
   (** ** the equivalence of the types of binary products in C/Z
          and pullbacks of pairs of arrows to Z in C *)
-  Definition weq_binprod_to_pullback : weq _ _ := binprod_to_pullback ,, isweq_binprod_to_pullback.
+  Definition weq_binprod_to_pullback : weq (some_binprod (C / Z)) (some_pullback C Z) :=
+    binprod_to_pullback ,, isweq_binprod_to_pullback.
 
 End pullbacks_slice_products_equiv.
