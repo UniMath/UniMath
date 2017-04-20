@@ -34,8 +34,36 @@ Section pullbacks_slice_products_equiv.
   Definition some_binprod (C : precategory) : UU :=
     ∑ A B , BinProductCone C A B.
 
-  Context {C : precategory} (hsC : has_homsets C) (Z : C).
+  Context {C : precategory} (hsC : has_homsets C).
   Local Notation "C / X" := (slice_precat C X hsC).
+
+  Lemma isweq_isPullback_to_isBinProductCone
+        {A B Z P : C} {f : A --> Z} {g : B --> Z} {l : P --> A} {r : P --> B} {e : l · f = r · g} :
+    isweq (@isPullback_to_isBinProductCone C hsC A B Z P f g l r e).
+  Proof.
+    apply isweqimplimpl.
+    + apply slice_isBinProductCone_to_isPullback.
+    + apply isaprop_isPullback.
+    + apply isaprop_isBinProductCone.
+  Qed.
+
+  Lemma isweq_slice_isBinProductCone_to_isPullback
+        {Z : C} {AZ BZ PZ : C / Z} {l : PZ --> AZ} {r : PZ --> BZ} :
+    isweq (@slice_isBinProductCone_to_isPullback C hsC Z AZ BZ PZ l r).
+  Proof.
+    induction AZ as [A f], BZ as [B g], PZ as [P h], l as [l leq], r as [r req].
+    simpl in *.
+    apply isweqimplimpl.
+    + intros isPull.
+      induction (!leq).
+      assert (H : leq = idpath (l · f)) by apply hsC.
+      rewrite H.
+      now apply isPullback_to_isBinProductCone.
+    + apply isaprop_isBinProductCone.
+    + apply isaprop_isPullback.
+  Qed.
+
+  Context (Z : C).
 
   (** ** pullback_to_slice_binprod is invertible *)
   Lemma pullback_to_slice_binprod_inv {A B : C} {f : A --> Z} {g : B --> Z} (P : Pullback f g) :
