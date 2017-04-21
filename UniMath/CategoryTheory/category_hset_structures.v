@@ -246,6 +246,37 @@ Proof.
 now intros d; apply ColimCoconeHSET.
 Defined.
 
+
+(* rules for coproducts in HSET *)
+Lemma BinCoproductIn1CommutesHSET (A B : HSET) (CC : BinCoproductCocone HSET A B)(C : HSET)
+      (f : A --> C)(g: B --> C) (a:pr1 A):
+  BinCoproductArrow HSET CC f g (BinCoproductIn1 HSET CC a)  = f a.
+Proof.
+  set (H1 := BinCoproductIn1Commutes _ _ _ CC _ f g).
+  apply toforallpaths in H1.
+  now apply H1.
+Qed.
+
+Lemma BinCoproductIn2CommutesHSET (A B : HSET) (CC : BinCoproductCocone HSET A B)(C : HSET)
+      (f : A --> C)(g: B --> C) (b:pr1 B):
+  BinCoproductArrow HSET CC f g (BinCoproductIn2 HSET CC b)  = g b.
+Proof.
+  set (H1 := BinCoproductIn2Commutes _ _ _ CC _ f g).
+  apply toforallpaths in H1.
+  now apply H1.
+Qed.
+
+Lemma postcompWithBinCoproductArrowHSET {A B : HSET} (CCAB : BinCoproductCocone HSET A B) {C : HSET}
+    (f : A --> C) (g : B --> C) {X : HSET} (k : C --> X) z:
+       k (BinCoproductArrow _ CCAB f g z) = BinCoproductArrow _ CCAB (f · k) (g · k) z.
+Proof.
+  set (H1 := postcompWithBinCoproductArrow _ CCAB f g k).
+  apply toforallpaths in H1.
+  now apply H1.
+Qed.
+
+
+
 (* Direct construction of binary coproducts in HSET *)
 Lemma BinCoproductsHSET : BinCoproducts HSET.
 Proof.
