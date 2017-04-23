@@ -56,7 +56,7 @@ Section pullbacks_slice_products_equiv.
     + abstract (intros q [H1 H2]; apply (eq_mor_slicecat hsC);
                 refine (maponpaths pr1 ((pr2 (isPull _)) ((pr1 q) ,, (_ ,, _))));
                 [apply (maponpaths pr1 H1) | apply (maponpaths pr1 H2)]).
-  Qed.
+  Defined.
 
   Lemma slice_isBinProductCone_to_isPullback
         {A B Z P : C} {f : A --> Z} {g : B --> Z} {l : P --> A} {r : P --> B} {e : l · f = r · g} :
@@ -72,7 +72,7 @@ Section pullbacks_slice_products_equiv.
       refine (maponpaths pr1 (maponpaths pr1 (pr2 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))
                                                   ((t ,, (maponpaths (λ x, x · f) (!(pr1 teqs)) @ !(assoc _ _ _) @ maponpaths (λ x, t · x) (idpath _))) ,, _)))).
       abstract (split; apply eq_mor_slicecat; [exact (pr1 teqs) | exact (pr2 teqs)]).
-  Qed.
+  Defined.
 
   (** ** equivalence of function taking proof of isPullback to proof of isBinProductCone *)
   Lemma isweq_isPullback_to_isBinProductCone {Z : C} {AZ BZ PZ : C / Z} {l : PZ --> AZ} {r : PZ --> BZ} :
