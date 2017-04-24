@@ -73,7 +73,7 @@ Definition toRepresentableFunctor {C:Precategory} :
 (* make a representation of a functor *)
 
 Definition makeRepresentation {C:Precategory} {c:C} {X:[C^op,SET]} (x:c ⇒ X) :
-  (∏ (c':C), bijective (λ f : c' --> c, x ⟲ f)) -> Representation X.
+  (∏ (c':C), UniqueConstruction (λ f : c' --> c, x ⟲ f)) -> Representation X.
 Proof.
   intros bij. exists c. exists x. intros c'. apply set_bijection_to_weq.
   - exact (bij c').
@@ -823,7 +823,7 @@ Proof.
   { unshelve refine (_,,_).
     { intro b. exact (universalElement (r b)). }
     { abstract (intros b b' f; exact (!universalObjectFunctor_comm C (X' ▭ f))) using _K_. } }
-  { intro F'. apply bijection_to_weq.
+  { intro F'. apply UniqueConstruction_to_weq.
     split.
     { intro x'. unfold arrow in x'.
       unshelve refine (_,,_).

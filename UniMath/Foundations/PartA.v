@@ -1778,14 +1778,11 @@ Definition weqgradth {X Y : UU} (f : X -> Y) (g : Y -> X)
            (efg: ∏ y : Y, f (g y) = y) : X ≃ Y :=
   weqpair _ (gradth _ _ egf efg).
 
-(* Dubious definition *)
-
-Definition bijective {X Y:UU} (f:X->Y) :=
+Definition UniqueConstruction {X Y:UU} (f:X->Y) :=
   (∏ y, ∑ x, f x = y) × (∏ x x', f x = f x' -> x = x').
 
-(* *)
+Corollary UniqueConstruction_to_weq {X Y:UU} (f:X->Y) : UniqueConstruction f -> isweq f.
 
-Corollary bijection_to_weq {X Y:UU} (f:X->Y) : bijective f -> isweq f.
 Proof.
   intros ? ? ? bij. assert (sur := pr1 bij). assert (inj := pr2 bij).
   unshelve refine (gradth f _ _ _).
