@@ -277,7 +277,90 @@ Definition monoidal_precat_to_precat (M : monoidal_precat) : precategory := pr1 
 
 Coercion monoidal_precat_to_precat : monoidal_precat >-> precategory.
 
+Local Close Scope type_scope.
+
+(** A few access functions for monoidal precategories *)
+
+Definition monoidal_precat_to_associator (M : monoidal_precat) : associator := pr1 (pr2 M).
+
+Definition monoidal_precat_to_unit (M : monoidal_precat) : C := pr1 (pr2 (pr2 M)).
+
+Definition monoidal_precat_to_left_unitor (M : monoidal_precat) : left_unitor (monoidal_precat_to_unit M) := pr1 (pr2 (pr2 (pr2 M))).
+
+Definition monoidal_precat_to_right_unitor (M : monoidal_precat) : right_unitor (monoidal_precat_to_unit M) := pr1 (pr2 (pr2 (pr2 (pr2 M)))).
+
 (** ** Symmetric monoidal (pre)category *)
 
+Local Open Scope cat.
+
+Definition braiding_on_ob : ob (C × C) -> ob (C × C).
+Proof.
+  intro f.
+  intro x. induction x.
+  - exact (f false).
+  - exact (f true).
+Defined.
+
+Definition braiding_on_mor : ∏ f g : ob (C × C), f --> g -> braiding_on_ob f --> braiding_on_ob g.
+Proof.
+  intros f g h.
+  intro x. induction x.
+  - exact (h false).
+  - exact (h true).
+Defined.
+
+Definition braiding_data : functor_data (C × C) (C × C) := functor_data_constr (C × C) (C × C) braiding_on_ob braiding_on_mor.
+
+Definition braiding_idax : functor_idax braiding_data.
+Proof.
+  intro f.
+  apply funextsec. intro x.
+  induction x.
+  - reflexivity.
+  - reflexivity.
+Defined.
+
+Definition braiding_compax : functor_compax braiding_data.
+Proof.
+  intros f g h fg gh.
+  apply funextsec. intro x.
+  induction x.
+  - reflexivity.
+  - reflexivity.
+Defined.
+
+Definition isfunctor_braiding : is_functor braiding_data := dirprodpair braiding_idax braiding_compax.
+
+Definition braiding_functor : functor (C × C) (C × C) := tpair _ braiding_data isfunctor_braiding.
+
+Definition braiding := F ⇔ functor_composite braiding_functor F.
+
+Local Open Scope type_scope.
+
+Definition braiding_unitor_identity (γ : braiding) (e : C) (l : left_unitor e) (r : right_unitor e) :=
+  ∏ a : C, pr1 l a ∘ (pr1 γ (a , e)) = pr1 r a.
+
+Definition hexagonal_identity_1 (α : associator) (γ : braiding) :=
+  ∏ a b c : C,
+            (pr1 γ (c , a) #⊗ identity b) ∘ (pr1 α ((c , a) , b)) ∘ (pr1 γ (a ⊗ b , c)) =
+            (pr1 α ((a , c) , b)) ∘ (identity a #⊗ pr1 γ (b , c)) ∘ (inv_from_iso (pr1 α ((a , b) , c))).
+
+Definition hexagonal_identity_2 (α : associator) (γ : braiding) :=
+  ∏ a b c : C,
+            (identity b #⊗ pr1 γ (c , a)) ∘ (inv_from_iso (pr1 α ((b , c) , a))) ∘ (pr1 γ (a , b ⊗ c)) =
+            (inv_from_iso (pr1 α ((b , a) , c))) ∘ (pr1 γ (a , b) #⊗ identity c) ∘ (pr1 α ((a , b) , c)).
+
+Definition braiding_after_braiding_identity (γ : braiding) := ∏ a b : C, (pr1 γ (b, a)) ∘ (pr1 γ (a , b)) = identity (a ⊗ b).
+
+(** If the latest identity is satisfied for every object (a , b), then it means that γ is its own inverse, in this case hexagonal_identity_1 implies hexagonal_identity_2 and conversely. *)
+
+Definition symmetric_struct (M : monoidal_precat) : UU :=
+  ∑ γ : braiding,
+        (braiding_unitor_identity γ (monoidal_precat_to_unit M) (monoidal_precat_to_left_unitor M) (monoidal_precat_to_right_unitor M)) ×
+        (hexagonal_identity_1 (monoidal_precat_to_associator M) γ) ×
+        (hexagonal_identity_2 (monoidal_precat_to_associator M) γ) ×
+        (braiding_after_braiding_identity γ).
+
+Definition symmetric_monoidal_precat : UU := ∑ M : monoidal_precat, symmetric_struct M .
 
 End monoidal_precategory.
