@@ -172,7 +172,7 @@ Coercion nat_iso_to_nat_trans : nat_iso >-> nat_trans.
 
 Definition associator : UU := nat_iso F0 F1.
 
-Definition pentagone_identity (α : associator) :=
+Definition pentagon_identity (α : associator) :=
   ∏ a b c d : C, (inv_from_iso (pr1 α ((a , b) , c)) #⊗ identity d) ∘ (pr1 α (((a ⊗ b) , c) , d)) ∘ (pr1 α ((a , b) , c ⊗ d)) =
                  (pr1 α ((a , b ⊗ c) , d)) ∘ (identity a #⊗ pr1 α ((b , c) , d)).
 
@@ -268,7 +268,7 @@ Local Close Scope cat.
 Local Open Scope type_scope.
 
 Definition monoidal_struct : UU :=
-  ∑ α : associator, ∑ e : C, ∑ l : left_unitor e, ∑ r : right_unitor e, ∑ p : pentagone_identity α,
+  ∑ α : associator, ∑ e : C, ∑ l : left_unitor e, ∑ r : right_unitor e, ∑ p : pentagon_identity α,
                                                                     triangle_identity α e l r × unit_tensor_unit_to_unit_uniqueness l r.
 
 Definition monoidal_precat : UU := ∑ C : precategory, monoidal_struct.
@@ -289,7 +289,7 @@ Definition monoidal_precat_to_left_unitor (M : monoidal_precat) : left_unitor (m
 
 Definition monoidal_precat_to_right_unitor (M : monoidal_precat) : right_unitor (monoidal_precat_to_unit M) := pr1 (pr2 (pr2 (pr2 (pr2 M)))).
 
-(** ** Symmetric monoidal (pre)category *)
+(** ** Braided monoidal (pre)category *)
 
 Local Open Scope cat.
 
@@ -340,27 +340,34 @@ Local Open Scope type_scope.
 Definition braiding_unitor_identity (γ : braiding) (e : C) (l : left_unitor e) (r : right_unitor e) :=
   ∏ a : C, pr1 l a ∘ (pr1 γ (a , e)) = pr1 r a.
 
-Definition hexagonal_identity_1 (α : associator) (γ : braiding) :=
+Definition hexagon_identity_1 (α : associator) (γ : braiding) :=
   ∏ a b c : C,
             (pr1 γ (c , a) #⊗ identity b) ∘ (pr1 α ((c , a) , b)) ∘ (pr1 γ (a ⊗ b , c)) =
             (pr1 α ((a , c) , b)) ∘ (identity a #⊗ pr1 γ (b , c)) ∘ (inv_from_iso (pr1 α ((a , b) , c))).
 
-Definition hexagonal_identity_2 (α : associator) (γ : braiding) :=
+Definition hexagon_identity_2 (α : associator) (γ : braiding) :=
   ∏ a b c : C,
             (identity b #⊗ pr1 γ (c , a)) ∘ (inv_from_iso (pr1 α ((b , c) , a))) ∘ (pr1 γ (a , b ⊗ c)) =
             (inv_from_iso (pr1 α ((b , a) , c))) ∘ (pr1 γ (a , b) #⊗ identity c) ∘ (pr1 α ((a , b) , c)).
 
+Definition braided_struct (M : monoidal_precat) : UU :=
+   ∑ γ : braiding,
+        (braiding_unitor_identity γ (monoidal_precat_to_unit M) (monoidal_precat_to_left_unitor M) (monoidal_precat_to_right_unitor M)) ×
+        (hexagon_identity_1 (monoidal_precat_to_associator M) γ) ×
+        (hexagon_identity_2 (monoidal_precat_to_associator M) γ).
+
+Definition braided_monoidal_precat : UU := ∑ M : monoidal_precat, braided_struct M.
+
+(** An access function for the braiding of a braided monoidal precategory *)
+
+Definition braided_monoidal_precat_to_braiding (M : braided_monoidal_precat) := pr1 (pr2 M).
+
+(** *** Symmetric monoidal (pre)category *)
+
 Definition braiding_after_braiding_identity (γ : braiding) := ∏ a b : C, (pr1 γ (b, a)) ∘ (pr1 γ (a , b)) = identity (a ⊗ b).
 
-(** If the latest identity is satisfied for every object (a , b), then it means that γ is its own inverse, in this case hexagonal_identity_1 implies hexagonal_identity_2 and conversely. *)
+Definition symmetric_struct (M : braided_monoidal_precat) : UU := braiding_after_braiding_identity (braided_monoidal_precat_to_braiding M).
 
-Definition symmetric_struct (M : monoidal_precat) : UU :=
-  ∑ γ : braiding,
-        (braiding_unitor_identity γ (monoidal_precat_to_unit M) (monoidal_precat_to_left_unitor M) (monoidal_precat_to_right_unitor M)) ×
-        (hexagonal_identity_1 (monoidal_precat_to_associator M) γ) ×
-        (hexagonal_identity_2 (monoidal_precat_to_associator M) γ) ×
-        (braiding_after_braiding_identity γ).
-
-Definition symmetric_monoidal_precat : UU := ∑ M : monoidal_precat, symmetric_struct M .
+Definition symmetric_monoidal_precat : UU := ∑ M : braided_monoidal_precat, symmetric_struct M .
 
 End monoidal_precategory.
