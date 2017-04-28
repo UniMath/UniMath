@@ -10,7 +10,6 @@ Require Import UniMath.CategoryTheory.functor_categories.
 
 (** * Monoidal (pre)category *)
 
-Section monoidal_precategory.
 
 Definition binprod_precat (C D : precategory) : precategory.
 Proof.
@@ -42,14 +41,7 @@ Defined.
 
 Notation "( f #, g )" := (binprod_precat_pair_of_mor f g) : cat.
 
-Variable C : precategory.
-Variable F : (C × C) ⟶ C.
-Notation "a ⊗ b" := (F (a , b)) (at level 30, right associativity) : cat.
-(** use \ox with Agda input mode *)
-
-Notation "f #⊗ g" := (#F (f #, g)) (at level 30, right associativity) : cat.
-
-Lemma id_binprod_precat (a b : C) : identity (a , b) = (identity a #, identity b).
+Lemma id_binprod_precat {C : precategory} (a b : C) : identity (a , b) = (identity a #, identity b).
 Proof.
   apply funextsec.
   intro x. induction x.
@@ -57,7 +49,8 @@ Proof.
   - cbn. reflexivity.
 Defined.
 
-Lemma comp_binprod_precat {u v x y z w : C} (f : u --> x) (g : v --> y) (h : x --> z) (i : y --> w) : (f #, g) · (h #, i) = (f · h #, g · i).
+Lemma comp_binprod_precat {C : precategory} {u v x y z w : C} (f : u --> x) (g : v --> y) (h : x --> z) (i : y --> w) :
+  (f #, g) · (h #, i) = (f · h #, g · i).
 Proof.
   intros.
   apply funextsec. intro b.
@@ -65,6 +58,15 @@ Proof.
   - cbn. reflexivity.
   - cbn. reflexivity.
 Defined.
+
+Section monoidal_precategory.
+
+Variable C : precategory.
+Variable F : (C × C) ⟶ C.
+Notation "a ⊗ b" := (F (a , b)) (at level 30, right associativity) : cat.
+(** use \ox with Agda input mode *)
+
+Notation "f #⊗ g" := (#F (f #, g)) (at level 30, right associativity) : cat.
 
 Definition F0_on_ob : ob ((C × C) × C) -> ob C.
 Proof.
@@ -122,7 +124,7 @@ Definition F1_idax : functor_idax F1_data.
 Proof.
   intro f.
   unfold F1_data, F1_on_ob, F1_on_mor. cbn.
-  rewrite <- (id_binprod_precat (f true true) (f true false)).
+  rewrite <- id_binprod_precat.
   rewrite (pr1 (pr2 F)).
   transitivity (#F (identity ((pr1 F) (f true true, f true false) , f false))).
   - apply (maponpaths #F).
@@ -283,13 +285,13 @@ Local Close Scope type_scope.
 
 Definition monoidal_precat_to_associator (M : monoidal_precat) : associator := pr1 (pr2 M).
 
-Definition monoidal_precat_to_unit (M : monoidal_precat) : C := pr1 (pr2 (pr2 M)).
+Definition monoidal_precat_to_unit (M : monoidal_precat) : ob C := pr1 (pr2 (pr2 M)).
 
 Definition monoidal_precat_to_left_unitor (M : monoidal_precat) : left_unitor (monoidal_precat_to_unit M) := pr1 (pr2 (pr2 (pr2 M))).
 
 Definition monoidal_precat_to_right_unitor (M : monoidal_precat) : right_unitor (monoidal_precat_to_unit M) := pr1 (pr2 (pr2 (pr2 (pr2 M)))).
 
-(** ** Braided monoidal (pre)category *)
+(** * Braided monoidal (pre)category *)
 
 Local Open Scope cat.
 
@@ -358,11 +360,15 @@ Definition braided_struct (M : monoidal_precat) : UU :=
 
 Definition braided_monoidal_precat : UU := ∑ M : monoidal_precat, braided_struct M.
 
-(** An access function for the braiding of a braided monoidal precategory *)
+(** Access functions from a braided monoidal precategory *)
 
 Definition braided_monoidal_precat_to_braiding (M : braided_monoidal_precat) := pr1 (pr2 M).
 
-(** *** Symmetric monoidal (pre)category *)
+Definition braided_monoidal_precat_to_monoidal_precat (M : braided_monoidal_precat) := pr1 M.
+
+Coercion braided_monoidal_precat_to_monoidal_precat : braided_monoidal_precat >-> monoidal_precat.
+
+(** * Symmetric monoidal (pre)category *)
 
 Definition braiding_after_braiding_identity (γ : braiding) := ∏ a b : C, (pr1 γ (b, a)) ∘ (pr1 γ (a , b)) = identity (a ⊗ b).
 
@@ -370,4 +376,130 @@ Definition symmetric_struct (M : braided_monoidal_precat) : UU := braiding_after
 
 Definition symmetric_monoidal_precat : UU := ∑ M : braided_monoidal_precat, symmetric_struct M .
 
+Definition symmetric_monoidal_precat_to_braided_monoidal_precat (M : symmetric_monoidal_precat) := pr1 M.
+
+Coercion symmetric_monoidal_precat_to_braided_monoidal_precat : symmetric_monoidal_precat >-> braided_monoidal_precat.
+
 End monoidal_precategory.
+
+(** * Monoidal functors *)
+
+Section monoidal_functor.
+
+Local Open Scope cat.
+
+Variable C C' : precategory.
+Variable F : (C × C) ⟶ C.
+Variable F': (C' × C') ⟶ C'.
+Variable M : monoidal_precat C F.
+Variable M' : monoidal_precat C' F'.
+Variable G : C ⟶ C'.
+
+Notation "a ⊗ b" := (F (a , b)) (at level 30) : cat.
+Notation "f #⊗ g" := (#F (f #, g)) (at level 30) : cat.
+
+Notation "a ⊗' b" := (F' (a , b)) (at level 30) : cat.
+Notation "f #⊗' g":= (#F' (f #, g)) (at level 30): cat.
+
+Notation "'α'" := (monoidal_precat_to_associator C F M).
+Notation "'α''" := (monoidal_precat_to_associator C' F' M').
+
+Notation "'e'" := (monoidal_precat_to_unit C F M).
+Notation "'e''" := (monoidal_precat_to_unit C' F' M').
+
+Notation "'l'" := (monoidal_precat_to_left_unitor C F M).
+Notation "'l''" := (monoidal_precat_to_left_unitor C' F' M').
+
+Notation "'r'" := (monoidal_precat_to_right_unitor C F M).
+Notation "'r''" := (monoidal_precat_to_right_unitor C' F' M').
+
+Definition G_tensor_ob : ob (C × C) -> C'.
+Proof.
+  intro f.
+  exact (G (f true) ⊗' G (f false)).
+Defined.
+
+Definition G_tensor_mor : ∏ f g : ob (C × C), f --> g -> G_tensor_ob f --> G_tensor_ob g.
+Proof.
+  intros f g h.
+  exact (#G (h true) #⊗' #G (h false)).
+Defined.
+
+Definition G_tensor_data : functor_data (C × C) C' := functor_data_constr (C × C) C' G_tensor_ob G_tensor_mor.
+
+Definition G_tensor_idax : functor_idax G_tensor_data.
+Proof.
+  intro f.
+  unfold G_tensor_data, G_tensor_ob, G_tensor_mor. cbn.
+  rewrite 2 (pr1 (pr2 G)).
+  rewrite <- id_binprod_precat.
+  rewrite (pr1 (pr2 F')).
+  reflexivity.
+Defined.
+
+Definition G_tensor_compax : functor_compax G_tensor_data.
+Proof.
+  intros f g h i j.
+  unfold G_tensor_data, G_tensor_ob, G_tensor_mor. cbn.
+  rewrite 2 (pr2 (pr2 G)).
+  rewrite <- comp_binprod_precat.
+  apply (pr2 (pr2 F')).
+Defined.
+
+Definition isfunctor_G_tensor : is_functor G_tensor_data := dirprodpair G_tensor_idax G_tensor_compax.
+
+Definition G_tensor : functor (C × C) C' := tpair _ G_tensor_data isfunctor_G_tensor.
+
+Definition tensor_G_ob : ob (C × C) -> C'.
+Proof.
+  intro f.
+  exact (G (f true ⊗ f false)).
+Defined.
+
+Definition tensor_G_mor : ∏ f g : ob (C × C), f --> g -> tensor_G_ob f --> tensor_G_ob g.
+Proof.
+  intros f g h.
+  exact (#G (h true #⊗ h false)).
+Defined.
+
+Definition tensor_G_data : functor_data (C × C) C' := functor_data_constr (C × C) C' tensor_G_ob tensor_G_mor.
+
+Definition tensor_G_idax : functor_idax tensor_G_data.
+Proof.
+  intro f.
+  unfold tensor_G_data, tensor_G_ob, tensor_G_mor. cbn.
+  rewrite <- id_binprod_precat.
+  rewrite (pr1 (pr2 F)).
+  apply (pr1 (pr2 G)).
+Defined.
+
+Definition tensor_G_compax : functor_compax tensor_G_data.
+Proof.
+  intros f g h i j.
+  unfold tensor_G_data, tensor_G_ob, tensor_G_mor. cbn.
+  rewrite <- comp_binprod_precat.
+  rewrite (pr2 (pr2 F)).
+  apply (pr2 (pr2 G)).
+Defined.
+
+Definition isfunctor_tensor_G : is_functor tensor_G_data := dirprodpair tensor_G_idax tensor_G_compax.
+
+Definition tensor_G : functor (C × C) C' := tpair _ tensor_G_data isfunctor_tensor_G.
+
+Definition hexagon_identity_3 (Φ : nat_iso G_tensor tensor_G) := ∏ a b c : C,
+  #G(inv_from_iso (pr1 α ((a , b) , c))) ∘ (pr1 Φ (a ⊗ b , c)) ∘ (pr1 Φ (a , b) #⊗' identity (G c)) =
+  (pr1 Φ (a , b ⊗ c)) ∘ (identity (G a) #⊗' pr1 Φ (b , c)) ∘ (inv_from_iso (pr1 α' ((G a , G b) , G c))).
+
+Definition square_identity_1 (Φ : nat_iso G_tensor tensor_G) (φ : iso e' (G e)) :=
+  ∏ a : C, pr1 (pr1 l' (G a)) = #G(pr1 l a) ∘ (pr1 Φ (e , a)) ∘ (φ #⊗' identity (G a)).
+
+Definition square_identity_2 (Φ : nat_iso G_tensor tensor_G) (φ : iso e' (G e)) :=
+  ∏ a : C, pr1 (pr1 r' (G a)) = #G (pr1 r a) ∘ (pr1 Φ (a , e)) ∘ (identity (G a) #⊗' φ).
+
+Local Close Scope cat.
+Local Open Scope type_scope.
+
+Definition monoidal_functor : UU := ∑ G, ∑ Φ : nat_iso G_tensor tensor_G, ∑ φ : iso e' (G e),
+  hexagon_identity_3 Φ × square_identity_1 Φ φ × square_identity_2 Φ φ.
+
+End monoidal_functor.
