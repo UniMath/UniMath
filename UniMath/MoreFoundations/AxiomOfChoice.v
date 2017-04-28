@@ -4,7 +4,7 @@ Require Export UniMath.MoreFoundations.DecidablePropositions.
 
 (** ** Preliminaries  *)
 
-Lemma pr1_issurjective {X : hSet} {P : X -> UU} :
+Lemma pr1_issurjective {X : UU} {P : X -> UU} :
   (∏ x : X, ∥ P x ∥) -> issurjective (pr1 : (∑ x, P x) -> X).
 (* move upstream later *)
 Proof.

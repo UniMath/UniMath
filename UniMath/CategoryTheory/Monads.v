@@ -267,15 +267,115 @@ Qed.
 
 End bind.
 
+(** * Operations for monads based on binary coproducts *)
+Section MonadsUsingCoproducts.
+
+Context {C : precategory} (T : Monad C) (BC : BinCoproducts C).
+
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
+
+(** operation of weakening in a monad *)
+Definition mweak (a b: C): C⟦T b, T (a ⊕ b)⟧ := bind (BinCoproductIn2 _ (BC _ _) · (η T _)).
+
+(** operation of exchange in a monad *)
+Definition mexch (a b c:C): C⟦T (a ⊕ (b ⊕ c)), T (b ⊕ (a ⊕ c))⟧.
+Proof.
+  set (a1 := BinCoproductIn1 _ (BC _ _) · BinCoproductIn2 _ (BC _ _): C⟦a, b ⊕ (a ⊕ c)⟧).
+  set (a21 := BinCoproductIn1 _ (BC _ _): C⟦b, b ⊕ (a ⊕ c)⟧).
+  set (a22 := BinCoproductIn2 _ (BC _ _) · BinCoproductIn2 _ (BC _ _): C⟦c, b ⊕ (a ⊕ c)⟧).
+  exact (bind ((BinCoproductArrow _ _ a1 (BinCoproductArrow _ _ a21 a22)) · (η T _))).
+Defined.
+
 (** * Substitution operation for monads *)
 Section MonadSubst.
 
-Context {C : precategory} (T : Monad C) (TC : Terminal C) (BC : BinCoproducts C).
+
+Definition monadSubstGen {b:C} (a : C) (e : C⟦b,T a⟧) : C⟦T (b ⊕ a), T a⟧ :=
+  bind (BinCoproductArrow _ _ e (η T a)).
+
+Lemma subst_interchange_law_gen (c b a : C) (e : C⟦c,T (b ⊕ a)⟧) (f : C⟦b,T a⟧):
+  (monadSubstGen _ e) · (monadSubstGen _ f) =
+  (mexch c b a) · (monadSubstGen _ (f · (mweak c a)))
+                · (monadSubstGen _ (e · (monadSubstGen _ f))).
+Proof.
+  unfold monadSubstGen, mexch.
+  do 3 rewrite bind_bind.
+  apply maponpaths.
+  apply BinCoproductArrowsEq.
+  + do 4 rewrite assoc.
+    do 2 rewrite BinCoproductIn1Commutes.
+    rewrite <- assoc.
+    rewrite bind_bind.
+    rewrite <- assoc.
+    rewrite (η_bind(a:=let (pr1, _) := pr1 (BC b (c ⊕ a)) in pr1)).
+    rewrite <- assoc.
+    apply pathsinv0.
+    eapply pathscomp0.
+    * apply cancel_precomposition.
+      rewrite assoc.
+      rewrite BinCoproductIn2Commutes.
+      rewrite (η_bind(a:=(c ⊕ a))).
+      apply idpath.
+    * now rewrite BinCoproductIn1Commutes.
+  + rewrite assoc.
+    rewrite BinCoproductIn2Commutes.
+    rewrite (η_bind(a:=b ⊕ a)).
+    do 3 rewrite assoc.
+    rewrite BinCoproductIn2Commutes.
+    apply BinCoproductArrowsEq.
+    * rewrite BinCoproductIn1Commutes.
+      rewrite <- assoc.
+      rewrite bind_bind.
+      do 2 rewrite assoc.
+      rewrite BinCoproductIn1Commutes.
+      rewrite <- assoc.
+      rewrite (η_bind(a:=let (pr1, _) := pr1 (BC b (c ⊕ a)) in pr1)).
+      rewrite assoc.
+      rewrite BinCoproductIn1Commutes.
+      unfold mweak.
+      rewrite <- assoc.
+      rewrite bind_bind.
+      apply pathsinv0.
+      apply remove_id_right; try now idtac.
+      rewrite <- bind_η.
+      apply maponpaths.
+      rewrite <- assoc.
+      rewrite (η_bind(a:=let (pr1, _) := pr1 (BC c a) in pr1)).
+      now rewrite BinCoproductIn2Commutes.
+    * rewrite BinCoproductIn2Commutes.
+      rewrite <- assoc.
+      rewrite bind_bind.
+      do 2 rewrite assoc.
+      rewrite BinCoproductIn2Commutes.
+      do 2 rewrite <- assoc.
+      rewrite (η_bind(a:=let (pr1, _) := pr1 (BC b (c ⊕ a)) in pr1)).
+      apply pathsinv0.
+      eapply pathscomp0.
+      - apply cancel_precomposition.
+        rewrite assoc.
+        rewrite BinCoproductIn2Commutes.
+        rewrite (η_bind(a:=(c ⊕ a))).
+        apply idpath.
+      - now rewrite BinCoproductIn2Commutes.
+Qed.
+
+Context (TC : Terminal C).
 
 Local Notation "1" := TC.
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
 
-Definition monadSubst (a : C) (e : C⟦1,T a⟧) : C⟦T (a ⊕ 1), T a⟧ :=
-  bind (BinCoproductArrow _ _ (η T a) e).
+Definition monadSubst (a : C) (e : C⟦1,T a⟧) : C⟦T (1 ⊕ a), T a⟧ :=
+  monadSubstGen a e.
+
+Lemma subst_interchange_law (a : C) (e : C⟦1,T (1 ⊕ a)⟧) (f : C⟦1,T a⟧):
+  (monadSubst _ e) · (monadSubst _ f) =
+  (mexch 1 1 a) · (monadSubst _ (f · (mweak 1 a)))
+                · (monadSubst _ (e · (monadSubst _ f))).
+Proof.
+  apply subst_interchange_law_gen.
+Qed.
+
+
 
 End MonadSubst.
+
+End MonadsUsingCoproducts.
