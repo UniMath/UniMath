@@ -496,10 +496,11 @@ Definition square_identity_1 (Φ : nat_iso G_tensor tensor_G) (φ : iso e' (G e)
 Definition square_identity_2 (Φ : nat_iso G_tensor tensor_G) (φ : iso e' (G e)) :=
   ∏ a : C, pr1 (pr1 r' (G a)) = #G (pr1 r a) ∘ (pr1 Φ (a , e)) ∘ (identity (G a) #⊗' φ).
 
-Local Close Scope cat.
 Local Open Scope type_scope.
 
-Definition monoidal_functor : UU := ∑ G, ∑ Φ : nat_iso G_tensor tensor_G, ∑ φ : iso e' (G e),
+Definition monoidal_functor_struct : UU := ∑ Φ : nat_iso G_tensor tensor_G, ∑ φ : iso e' (G e),
   hexagon_identity_3 Φ × square_identity_1 Φ φ × square_identity_2 Φ φ.
+
+Definition monoidal_functor : UU := ∑ G : C ⟶ C', monoidal_functor_struct.
 
 End monoidal_functor.
