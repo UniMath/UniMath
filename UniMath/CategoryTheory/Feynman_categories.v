@@ -520,3 +520,85 @@ Definition monoidal_functor_struct : UU := ∑ Φ : nat_iso F_tensor tensor_F, �
 End monoidal_functor.
 
 Definition monoidal_functor (M M' : monoidal_precat) : UU := ∑ F : M ⟶ M', monoidal_functor_struct M M' F.
+
+Definition monoidal_functor_to_functor {M M' : monoidal_precat} (F : monoidal_functor M M') : functor M M' := pr1 F.
+
+Coercion monoidal_functor_to_functor : monoidal_functor >-> functor.
+
+(** * Braided monoidal functors *)
+
+Section braided_monoidal_functor.
+
+Variables M M': braided_monoidal_precat.
+Variable F : monoidal_functor M M'.
+
+Notation "a ⊗ b" := (monoidal_precat_to_tensor M (a , b)) (at level 30).
+Notation "a ⊗' b" := (monoidal_precat_to_tensor M' (a , b)) (at level 30).
+
+Notation "'γ'" := (braided_monoidal_precat_to_braiding M).
+Notation "'γ''" := (braided_monoidal_precat_to_braiding M').
+
+Notation "'Φ'" := (pr1 (pr2 F)).
+
+Definition compatibility_with_braidings := ∏ a b : M, pr1 Φ (b , a) ∘ pr1 γ' (F a , F b) = #F(pr1 γ (a , b)) ∘ pr1 Φ (a , b).
+
+End braided_monoidal_functor.
+
+Definition braided_monoidal_functor (M M' : braided_monoidal_precat) : UU := ∑ F : monoidal_functor M M', compatibility_with_braidings M M' F.
+Definition braided_monoidal_functor_to_monoidal_functor {M M' : braided_monoidal_precat} (F : braided_monoidal_functor M M') := pr1 F.
+
+Coercion braided_monoidal_functor_to_monoidal_functor : braided_monoidal_functor >-> monoidal_functor.
+
+(** * Symmetric monoidal functors *)
+
+Definition symmetric_monoidal_functor (M M' : symmetric_monoidal_precat) : UU := braided_monoidal_functor M M'.
+
+(** * Monoidal, braided monoidal, symmetric monoidal natural transformations *)
+
+Section symmetric_nat_trans.
+
+Variables M M' : monoidal_precat.
+Variables F G : monoidal_functor M M'.
+Variable α : F ⟹ G.
+
+Notation "a ⊗ b" := (monoidal_precat_to_tensor M (a , b)) (at level 30).
+Notation "a ⊗' b" := (monoidal_precat_to_tensor M' (a , b)) (at level 30).
+
+Notation "f #⊗' g" := (#(monoidal_precat_to_tensor M') (f #, g)) (at level 30).
+
+Notation "'e'" := (monoidal_precat_to_unit M).
+Notation "'e''" := (monoidal_precat_to_unit M').
+
+Notation "'Φ'" := (pr1 (pr2 F)).
+Notation "'Γ'" := (pr1 (pr2 G)).
+
+Notation "'φ'" := (pr1 (pr2 (pr2 F))).
+Notation "'γ'" := (pr1 (pr2 (pr2 G))).
+
+Definition square_identity_3 := ∏ a b : M, pr1 Γ (a , b) ∘ (pr1 α a #⊗' pr1 α b) = pr1 α (a ⊗ b) ∘ pr1 Φ (a , b).
+
+Definition triangle_identity_2 := pr1 γ = pr1 α e ∘ φ.
+
+End symmetric_nat_trans.
+
+Local Open Scope type_scope.
+
+Definition monoidal_nat_trans {M M' : monoidal_precat} (F G : monoidal_functor M M') : UU :=
+  ∑ α : F ⟹ G, (square_identity_3 M M' F G α) × (triangle_identity_2 M M' F G α).
+
+Definition monoidal_nat_iso {M M' : monoidal_precat} (F G : monoidal_functor M M') : UU :=
+  ∑ α : nat_iso F G, (square_identity_3 M M' F G α) × (triangle_identity_2 M M' F G α).
+
+Local Close Scope type_scope.
+
+Definition braided_nat_trans {M M': braided_monoidal_precat} (F G : braided_monoidal_functor M M') := monoidal_nat_trans F G.
+
+Definition braided_nat_iso {M M': braided_monoidal_precat} (F G : braided_monoidal_functor M M') := monoidal_nat_iso F G.
+
+Definition symmetric_nat_trans {M M' : symmetric_monoidal_precat} (F G : symmetric_monoidal_functor M M') := braided_nat_trans F G.
+
+Definition symmetric_nat_iso {M M' : symmetric_monoidal_precat} (F G : symmetric_monoidal_functor M M') := braided_nat_iso F G.
+
+(** * Monoidal, braided monoidal, symmetric monoidal equivalences *)
+
+(* To Do : to prove the stability by composition of monoidal, braided monoidal, symmetric monoidal functors, and to prove that identity functors are monoidal, braided monoidal, symmetric monoidal functors *)
