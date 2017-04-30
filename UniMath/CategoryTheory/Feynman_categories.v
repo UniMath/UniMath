@@ -525,6 +525,8 @@ Definition monoidal_functor_to_functor {M M' : monoidal_precat} (F : monoidal_fu
 
 Coercion monoidal_functor_to_functor : monoidal_functor >-> functor.
 
+Definition monoidal_functor_to_nat_iso {M M' : monoidal_precat} (F : monoidal_functor M M') := pr1 (pr2 F).
+
 (** * Braided monoidal functors *)
 
 Section braided_monoidal_functor.
@@ -599,11 +601,9 @@ Definition symmetric_nat_trans {M M' : symmetric_monoidal_precat} (F G : symmetr
 
 Definition symmetric_nat_iso {M M' : symmetric_monoidal_precat} (F G : symmetric_monoidal_functor M M') := braided_nat_iso F G.
 
-(** * Monoidal, braided monoidal, symmetric monoidal equivalences *)
+(** * The monoidal, braided monoidal, symmetric monoidal identity functor *)
 
-(* To Do : to prove the stability by composition of monoidal, braided monoidal, symmetric monoidal functors, and to prove that identity functors are monoidal, braided monoidal, symmetric monoidal functors *)
-
-Section monoidal_equivalence.
+Section monoidal_functor_identity.
 
 Definition nat_iso_functor_identity (M : monoidal_precat) : (F_tensor M M Id) ⇔ (tensor_F M M Id).
 Proof.
@@ -657,19 +657,64 @@ Proof.
   reflexivity.
 Defined.
 
-Definition monoidal_functor_identity : monoidal_functor M M.
+End monoidal_functor_identity.
+
+Definition monoidal_functor_identity (M : monoidal_precat) : monoidal_functor M M.
 Proof.
   use tpair.
   - exact (functor_identity M) .
   - use tpair.
     + exact (nat_iso_functor_identity M).
     + use tpair.
-      * exact (unit_iso_functor_identity).
+      * exact (unit_iso_functor_identity M).
       *  use tpair.
-         exact (hexagon_functor_identity).
+         exact (hexagon_functor_identity M).
          use tpair.
-         exact (square_identity_1_functor_identity).
-         exact (square_identity_2_functor_identity).
+         exact (square_identity_1_functor_identity M).
+         exact (square_identity_2_functor_identity M).
 Defined.
 
-End monoidal_equivalence.
+Section braided_monoidal_functor_identity.
+
+Variable M : braided_monoidal_precat.
+
+Definition compatibility_with_braidings_functor_identity : compatibility_with_braidings M M (monoidal_functor_identity M).
+Proof.
+  unfold compatibility_with_braidings. intros a b. cbn.
+  rewrite id_right.
+  rewrite id_left.
+  reflexivity.
+Defined.
+
+End braided_monoidal_functor_identity.
+
+Definition braided_monoidal_functor_identity (M : braided_monoidal_precat) : braided_monoidal_functor M M :=
+  tpair _ (monoidal_functor_identity M) (compatibility_with_braidings_functor_identity M).
+
+Definition symmetric_monoidal_functor_identity (M : symmetric_monoidal_precat) : symmetric_monoidal_functor M M :=
+  braided_monoidal_functor_identity M.
+
+(** * The stability of monoidal, braided monoidal, symmetric monoidal functors by composition *)
+
+Section monoidal_composition.
+
+Variables M N P : monoidal_precat.
+Variable F : monoidal_functor M N.
+Variable G : monoidal_functor N P.
+
+Definition nat_iso_functor_comp : F_tensor M P (functor_composite F G) ⇔ tensor_F M P (functor_composite F G).
+Proof.
+  use tpair.
+  - intro x.
+    exact (iso_comp (pr1 (monoidal_functor_to_nat_iso G) (F (x true) , F (x false))) (functor_on_iso G (pr1 (monoidal_functor_to_nat_iso F) (x true , x false)))).
+  - intros x x' f. cbn.
+    symmetry.
+    transitivity (pr1 (monoidal_functor_to_nat_iso G) (F (x true), F (x false)) · #G (pr1 (monoidal_functor_to_nat_iso F) (x true, x false) · # F (# (monoidal_precat_to_tensor M) (f true #, f false)))).
+    symmetry.
+    rewrite (functor_comp G).
+    apply (assoc).
+    rewrite <- (pr2 (monoidal_functor_to_nat_iso G)).
+
+
+
+End monoidal_composition.
