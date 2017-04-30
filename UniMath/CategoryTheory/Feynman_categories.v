@@ -602,3 +602,74 @@ Definition symmetric_nat_iso {M M' : symmetric_monoidal_precat} (F G : symmetric
 (** * Monoidal, braided monoidal, symmetric monoidal equivalences *)
 
 (* To Do : to prove the stability by composition of monoidal, braided monoidal, symmetric monoidal functors, and to prove that identity functors are monoidal, braided monoidal, symmetric monoidal functors *)
+
+Section monoidal_equivalence.
+
+Definition nat_iso_functor_identity (M : monoidal_precat) : (F_tensor M M Id) ⇔ (tensor_F M M Id).
+Proof.
+  use tpair.
+  - intro x.
+    exact (identity_iso (monoidal_precat_to_tensor M (x true ,  x false))).
+  - intros x x' f. cbn.
+    rewrite id_right.
+    rewrite id_left.
+    reflexivity.
+Defined.
+
+Variable M : monoidal_precat.
+Notation "'e'" := (monoidal_precat_to_unit M).
+
+Notation "'Φ'" := (nat_iso_functor_identity M).
+
+Definition unit_iso_functor_identity : iso e (Id e) := identity_iso e.
+
+Notation "'φ'" := (unit_iso_functor_identity).
+
+Definition hexagon_functor_identity : hexagon_identity_3 M M Id Φ.
+Proof.
+  unfold hexagon_identity_3. intros a b c.
+  unfold Id. cbn. rewrite <- id_binprod_precat.
+  rewrite (functor_id (monoidal_precat_to_tensor M)).
+  rewrite 2 id_left.
+  rewrite <- id_binprod_precat.
+  rewrite (functor_id (monoidal_precat_to_tensor M)).
+  rewrite 2 id_right.
+  reflexivity.
+Defined.
+
+Definition square_identity_1_functor_identity : square_identity_1 M M Id Φ φ.
+Proof.
+  unfold square_identity_1. intro a.
+  unfold unit_iso_functor_identity. cbn.
+  rewrite <- id_binprod_precat.
+  rewrite (functor_id (monoidal_precat_to_tensor M)).
+  rewrite 2 id_left.
+  reflexivity.
+Defined.
+
+Definition square_identity_2_functor_identity : square_identity_2 M M Id Φ φ.
+Proof.
+  unfold square_identity_2. intro a.
+  unfold unit_iso_functor_identity. cbn.
+  rewrite <- id_binprod_precat.
+  rewrite (functor_id (monoidal_precat_to_tensor M)).
+  rewrite 2 id_left.
+  reflexivity.
+Defined.
+
+Definition monoidal_functor_identity : monoidal_functor M M.
+Proof.
+  use tpair.
+  - exact (functor_identity M) .
+  - use tpair.
+    + exact (nat_iso_functor_identity M).
+    + use tpair.
+      * exact (unit_iso_functor_identity).
+      *  use tpair.
+         exact (hexagon_functor_identity).
+         use tpair.
+         exact (square_identity_1_functor_identity).
+         exact (square_identity_2_functor_identity).
+Defined.
+
+End monoidal_equivalence.
