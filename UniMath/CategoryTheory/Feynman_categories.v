@@ -707,7 +707,7 @@ Local Open Scope cat.
 Definition family_of_iso_monoidal_functor_comp : ∏ x : ob (M × M), iso (F_tensor M P (F ∙ G) x) (tensor_F M P (F ∙ G) x).
 Proof.
   intro x.
-  exact (iso_comp (pr1 (monoidal_functor_to_nat_iso G) (F (x true) , F (x false))) (functor_on_iso G (pr1 (monoidal_functor_to_nat_iso F) (x true , x false)))).
+  exact (iso_comp (pr1 (monoidal_functor_to_nat_iso G) (F (x true) , F (x false))) (functor_on_iso G (pr1 (monoidal_functor_to_nat_iso F) x))).
 Defined.
 
 Lemma tensor_to_tensor_comp {x x' : ob (M × M)} (f : x --> x') : #G(#(tensor_F M N F) f) = #(tensor_F M P (F ∙ G)) f.
@@ -719,25 +719,49 @@ Defined.
 Lemma tensor_comp_to_tensor {x x' : ob (M × M)} (f : x --> x') : #(F_tensor M P (F ∙ G)) f =
   (pr1 (monoidal_functor_to_nat_iso G) (F (x true) , F (x false)) · #G(#(F_tensor M N F) f)) · inv_from_iso (pr1 (monoidal_functor_to_nat_iso G) (F (x' true) , F (x' false))).
 Proof.
-  apply iso_inv_to_right.
+  apply iso_inv_on_left.
+  symmetry.
+  apply (pr2 (monoidal_functor_to_nat_iso G) (F (x true) , F (x false)) (F (x' true) , F (x' false)) (#F (f true) #, #F (f false))).
+Defined.
 
 Definition is_nat_iso_family_of_iso_monoidal_functor_comp :
   is_nat_iso (F_tensor M P (F ∙ G)) (tensor_F M P (F ∙ G)) family_of_iso_monoidal_functor_comp.
 Proof.
   intros x x' f.
+  rewrite (tensor_comp_to_tensor f).
+  unfold family_of_iso_monoidal_functor_comp. cbn.
+  rewrite <- assoc.
+  transitivity (pr1 (monoidal_functor_to_nat_iso G) (F (x true), F (x false)) ·
+  # G (F_tensor_mor M N F x x' f) · ((inv_from_iso (pr1 (monoidal_functor_to_nat_iso G) (F (x' true), F (x' false))) · pr1 (monoidal_functor_to_nat_iso G) (F (x' true), F (x' false))) · # G (pr1 (monoidal_functor_to_nat_iso F) x'))).
+  - apply cancel_precomposition.
+    rewrite assoc.
+    reflexivity.
+  - rewrite (iso_after_iso_inv (pr1 (monoidal_functor_to_nat_iso G) (F (x' true), F (x' false)))).
+    transitivity (pr1 (monoidal_functor_to_nat_iso G) (F (x true), F (x false)) ·
+  # G (F_tensor_mor M N F x x' f) ·  # G (pr1 (monoidal_functor_to_nat_iso F) x')).
+    + apply cancel_precomposition.
+      apply remove_id_left.
+      reflexivity.
+      reflexivity.
+    + rewrite <- assoc.
+      transitivity (pr1 (monoidal_functor_to_nat_iso G) (F (x true), F (x false)) · (# G (F_tensor_mor M N F x x' f · pr1 (monoidal_functor_to_nat_iso F) x'))).
+      * apply cancel_precomposition.
+        symmetry.
+        apply (pr2 (pr2 (monoidal_functor_to_functor G))).
+      * transitivity (pr1 (monoidal_functor_to_nat_iso G) (F (x true), F (x false)) · #G (#(F_tensor M N F) f · pr1 (monoidal_functor_to_nat_iso F) x')).
+        cbn. reflexivity.
+        transitivity (pr1 (monoidal_functor_to_nat_iso G) (F (x true), F (x false)) · #G (pr1 (monoidal_functor_to_nat_iso F) x · #(tensor_F M N F) f)).
+        apply cancel_precomposition.
+        apply maponpaths.
+        apply (pr2 (monoidal_functor_to_nat_iso F)).
+        rewrite (pr2 (pr2 (pr1 G))).
+        rewrite assoc.
+        apply cancel_precomposition.
+        apply tensor_to_tensor_comp.
+Defined.
 
-Definition nat_iso_functor_comp : F_tensor M P (functor_composite F G) ⇔ tensor_F M P (functor_composite F G).
-Proof.
-  use tpair.
-  - intro x.
-    exact (iso_comp (pr1 (monoidal_functor_to_nat_iso G) (F (x true) , F (x false))) (functor_on_iso G (pr1 (monoidal_functor_to_nat_iso F) (x true , x false)))).
-  - intros x x' f. cbn.
-    symmetry.
-    transitivity (pr1 (monoidal_functor_to_nat_iso G) (F (x true), F (x false)) · #G (pr1 (monoidal_functor_to_nat_iso F) (x true, x false) · # F (# (monoidal_precat_to_tensor M) (f true #, f false)))).
-    symmetry.
-    rewrite (functor_comp G).
-    apply (assoc).
-    rewrite <- (pr2 (monoidal_functor_to_nat_iso G)).
+Definition nat_iso_functor_comp : F_tensor M P (functor_composite F G) ⇔ tensor_F M P (functor_composite F G) :=
+  tpair _ family_of_iso_monoidal_functor_comp is_nat_iso_family_of_iso_monoidal_functor_comp.
 
 
 
