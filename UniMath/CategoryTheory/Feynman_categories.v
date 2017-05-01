@@ -702,6 +702,30 @@ Variables M N P : monoidal_precat.
 Variable F : monoidal_functor M N.
 Variable G : monoidal_functor N P.
 
+Local Open Scope cat.
+
+Definition family_of_iso_monoidal_functor_comp : ∏ x : ob (M × M), iso (F_tensor M P (F ∙ G) x) (tensor_F M P (F ∙ G) x).
+Proof.
+  intro x.
+  exact (iso_comp (pr1 (monoidal_functor_to_nat_iso G) (F (x true) , F (x false))) (functor_on_iso G (pr1 (monoidal_functor_to_nat_iso F) (x true , x false)))).
+Defined.
+
+Lemma tensor_to_tensor_comp {x x' : ob (M × M)} (f : x --> x') : #G(#(tensor_F M N F) f) = #(tensor_F M P (F ∙ G)) f.
+Proof.
+  cbn. unfold tensor_F_mor.
+  reflexivity.
+Defined.
+
+Lemma tensor_comp_to_tensor {x x' : ob (M × M)} (f : x --> x') : #(F_tensor M P (F ∙ G)) f =
+  (pr1 (monoidal_functor_to_nat_iso G) (F (x true) , F (x false)) · #G(#(F_tensor M N F) f)) · inv_from_iso (pr1 (monoidal_functor_to_nat_iso G) (F (x' true) , F (x' false))).
+Proof.
+  apply iso_inv_to_right.
+
+Definition is_nat_iso_family_of_iso_monoidal_functor_comp :
+  is_nat_iso (F_tensor M P (F ∙ G)) (tensor_F M P (F ∙ G)) family_of_iso_monoidal_functor_comp.
+Proof.
+  intros x x' f.
+
 Definition nat_iso_functor_comp : F_tensor M P (functor_composite F G) ⇔ tensor_F M P (functor_composite F G).
 Proof.
   use tpair.
