@@ -62,6 +62,7 @@ Definition BinCoproducts := ∏ (a b : C), BinCoproductCocone a b.
 Definition hasBinCoproducts := ishinh BinCoproducts.
 
 Definition BinCoproductObject {a b : C} (CC : BinCoproductCocone a b) : C := pr1 (pr1 CC).
+Coercion BinCoproductObject : BinCoproductCocone >-> ob.
 Definition BinCoproductIn1 {a b : C} (CC : BinCoproductCocone a b): a --> BinCoproductObject CC :=
   pr1 (pr2 (pr1 CC)).
 Definition BinCoproductIn2 {a b : C} (CC : BinCoproductCocone a b) : b --> BinCoproductObject CC :=
