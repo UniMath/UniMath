@@ -949,7 +949,7 @@ Section abgr_kernels_and_cokernels.
     @ismonoidfun (@abgr_Cokernel_abgr A B f) C (@abgr_CokernelOut_map A B C f h H).
   Proof.
     use mk_ismonoidfun.
-    - exact (@isbinopfun_2of3
+    - exact (@isbinopfun_twooutof3b
                (pr1 B) (abgr_Cokernel_abgr f) C
                (pr1 (abgr_CokernelArrow f))
                (abgr_CokernelOut_map f h H)
@@ -1054,19 +1054,19 @@ Section abgr_monics_and_epis.
 
   (** ** Monics *)
 
-  Lemma abgr_natset_dirprod_monoidfun_eq {A B : abgr} (a1 a2 : A) (f : monoidfun A B)
+  Lemma nat_nat_prod_abgr_monoidfun_paths {A B : abgr} (a1 a2 : A) (f : monoidfun A B)
         (H : f a1 = f a2) : monoidfuncomp (nat_nat_prod_abmonoid_monoidfun a1) f =
                             monoidfuncomp (nat_nat_prod_abmonoid_monoidfun a2) f.
   Proof.
     use monoidfun_paths. use funextfun. intros x. induction x as [x1 x2]. cbn.
-    unfold funcomp. unfold nataddabmonoid_nataddabmonoid_to_monoid_map.
-    unfold nat_nat_to_monoid_map. Opaque nat_to_monoid_map. cbn.
+    unfold funcomp. unfold nataddabmonoid_nataddabmonoid_to_monoid_fun.
+    unfold nat_nat_to_monoid_fun. Opaque nat_to_monoid_fun. cbn.
     use (pathscomp0 (binopfunisbinopfun f _ _)).
     use (pathscomp0 _ (! (binopfunisbinopfun f _ _))). cbn.
-    rewrite (monoidfun_nat_to_monoid_map f a1 x1).
-    rewrite (monoidfun_nat_to_monoid_map f a2 x1).
-    rewrite (monoidfun_nat_to_monoid_map f (grinv A a1) x2).
-    rewrite (monoidfun_nat_to_monoid_map f (grinv A a2) x2).
+    rewrite (monoidfun_nat_to_monoid_fun f a1 x1).
+    rewrite (monoidfun_nat_to_monoid_fun f a2 x1).
+    rewrite (monoidfun_nat_to_monoid_fun f (grinv A a1) x2).
+    rewrite (monoidfun_nat_to_monoid_fun f (grinv A a2) x2).
     use two_arg_paths.
     - induction H. use idpath.
     - assert (e : f (grinv A a1) = f (grinv A a2)). {
@@ -1080,7 +1080,7 @@ Section abgr_monics_and_epis.
       }
       induction e. use idpath.
   Qed.
-  Transparent nat_to_monoid_map.
+  Transparent nat_to_monoid_fun.
 
   Lemma abgr_monoidfun_precomp {A :abmonoid} {B C : abgr} (f1 f2 : monoidfun B C)
         (g : monoidfun A B) (H : issurjective (pr1 g)) :
@@ -1092,19 +1092,19 @@ Section abgr_monics_and_epis.
     exact (toforallpaths _ _ _ (base_paths _ _ e) (hfiberpr1 _ _ hf)).
   Qed.
 
-  Lemma abgr_hz_map_monoifun_eq {A B : abgr} (a1 a2 : A) (f : monoidfun A B) (H : f a1 = f a2) :
-    monoidfuncomp (abgr_hz_map_monoidfun a1) f = monoidfuncomp (abgr_hz_map_monoidfun a2) f.
+  Lemma hz_abgr_fun_monoifun_paths {A B : abgr} (a1 a2 : A) (f : monoidfun A B) (H : f a1 = f a2) :
+    monoidfuncomp (hz_abgr_fun_monoidfun a1) f = monoidfuncomp (hz_abgr_fun_monoidfun a2) f.
   Proof.
     use (@abgr_monoidfun_precomp
            (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig))
            hzaddabgr B
-           (monoidfuncomp (abgr_hz_map_monoidfun a1) f)
-           (monoidfuncomp (abgr_hz_map_monoidfun a2) f)
+           (monoidfuncomp (hz_abgr_fun_monoidfun a1) f)
+           (monoidfuncomp (hz_abgr_fun_monoidfun a2) f)
            hz_abmonoid_monoidfun).
     - use issurjsetquotpr.
     - rewrite monoidfunassoc. rewrite monoidfunassoc.
       rewrite abgr_natnat_hz_X_comm. rewrite abgr_natnat_hz_X_comm.
-      exact (abgr_natset_dirprod_monoidfun_eq a1 a2 f H).
+      exact (nat_nat_prod_abgr_monoidfun_paths a1 a2 f H).
   Qed.
 
   Definition abgr_monic_isincl {A B : abgr} (f : abgr_category⟦A, B⟧) (isM : isMonic f) :
@@ -1114,9 +1114,9 @@ Section abgr_monics_and_epis.
     use iscontrpair.
     - use total2_paths_f.
       + set (e := hfiberpr2 _ _ h1 @ (! hfiberpr2 _ _ h2)).
-        set (tmp := isM hzaddabgr (abgr_hz_map_monoidfun (pr1 h1))
-                        (abgr_hz_map_monoidfun (pr1 h2))
-                        (abgr_hz_map_monoifun_eq (pr1 h1) (pr1 h2) f e)).
+        set (tmp := isM hzaddabgr (hz_abgr_fun_monoidfun (pr1 h1))
+                        (hz_abgr_fun_monoidfun (pr1 h2))
+                        (hz_abgr_fun_monoifun_paths (pr1 h1) (pr1 h2) f e)).
         set (e' := toforallpaths _ _ _ (base_paths _ _ tmp) hzone).
         use (grrcan A (unel A)). use (grrcan A (unel A)). exact e'.
       + use proofirrelevance. use (setproperty B).

@@ -1388,7 +1388,7 @@ Proof.
   apply (setproperty Y).
 Defined.
 
-Definition isbinopfun_2of3 {A B C : setwithbinop} (f : (pr1 A) -> (pr1 B)) (g : (pr1 B) -> (pr1 C))
+Definition isbinopfun_twooutof3b {A B C : setwithbinop} (f : A -> B) (g : B -> C)
            (H : issurjective f) : isbinopfun (g ∘ f)%functions -> isbinopfun f -> isbinopfun g.
 Proof.
   intros A B C f g H H1 H2.

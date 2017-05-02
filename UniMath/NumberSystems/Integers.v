@@ -1076,20 +1076,20 @@ Qed.
 
 (** **** hz -> abgr, 1 ↦ x, n ↦ x + x + ... + x  (n times), [hz_abmonoid_monoidfun] *)
 
-Definition nat_to_monoid_map {X : monoid} (x : X) : natset -> X.
+Definition nat_to_monoid_fun {X : monoid} (x : X) : natset -> X.
 Proof.
   intros X x n. induction n as [ | n IHn].
   - exact (unel X).
   - exact (@op X x IHn).
 Defined.
 
-Lemma nat_to_monoid_map_unel {X : monoid} (x : X) : nat_to_monoid_map x O = (unel X).
+Lemma nat_to_monoid_fun_unel {X : monoid} (x : X) : nat_to_monoid_fun x O = (unel X).
 Proof.
   intros X x. exact (idpath (unel X)).
 Defined.
 
-Lemma nat_to_monoid_map_S {X : abmonoid} (x : X) (n : nat) :
-  nat_to_monoid_map x (S n) = (nat_to_monoid_map x n * x)%multmonoid.
+Lemma nat_to_monoid_fun_S {X : abmonoid} (x : X) (n : nat) :
+  nat_to_monoid_fun x (S n) = (nat_to_monoid_fun x n * x)%multmonoid.
 Proof.
   intros X x n. induction n as [ | n IHn].
   - exact (commax X x (unel X)).
@@ -1098,8 +1098,8 @@ Proof.
     + exact (commax X x _).
 Qed.
 
-Lemma nat_to_abmonoid_map_plus {X : monoid} (x : X) (n m : nat) :
-  nat_to_monoid_map x (n + m)%nat = @op X (nat_to_monoid_map x n) (nat_to_monoid_map x m).
+Lemma nat_to_abmonoid_fun_plus {X : monoid} (x : X) (n m : nat) :
+  nat_to_monoid_fun x (n + m)%nat = @op X (nat_to_monoid_fun x n) (nat_to_monoid_fun x m).
 Proof.
   intros X x n. induction n as [ | n IHn].
   - intros m. rewrite (lunax X). use idpath.
@@ -1108,77 +1108,77 @@ Proof.
     + exact (IHn m).
 Qed.
 
-Definition nat_nat_to_monoid_map {X : gr} (x : X) : natset × natset -> X.
+Definition nat_nat_to_monoid_fun {X : gr} (x : X) : natset × natset -> X.
 Proof.
   intros X x n.
-  exact (@op X (nat_to_monoid_map x (dirprod_pr1 n))
-             (nat_to_monoid_map (grinv X x) (dirprod_pr2 n))).
+  exact (@op X (nat_to_monoid_fun x (dirprod_pr1 n))
+             (nat_to_monoid_fun (grinv X x) (dirprod_pr2 n))).
 Defined.
 
 Lemma nat_to_monoid_unel' {X : abgr} (x : X) (n : nat) :
-  ((nat_to_monoid_map x n) * (nat_to_monoid_map (grinv X x) n))%multmonoid = (unel X).
+  ((nat_to_monoid_fun x n) * (nat_to_monoid_fun (grinv X x) n))%multmonoid = (unel X).
 Proof.
   intros X x n. induction n as [ | n IHn].
   - use (runax X).
-  - Opaque nat_to_monoid_map. cbn in *.
-    rewrite (@nat_to_monoid_map_S X x). rewrite (@nat_to_monoid_map_S X (grinv X x)).
+  - Opaque nat_to_monoid_fun. cbn in *.
+    rewrite (@nat_to_monoid_fun_S X x). rewrite (@nat_to_monoid_fun_S X (grinv X x)).
     rewrite (commax X _ x). rewrite (assocax X).
-    rewrite <- (assocax X (@nat_to_monoid_map X x n)).
+    rewrite <- (assocax X (@nat_to_monoid_fun X x n)).
     use (pathscomp0 (maponpaths (fun xx : pr1 X => (x * (xx * (grinv X x))))%multmonoid IHn)).
     clear IHn. use (pathscomp0 _ (grrinvax X x)).
     use two_arg_paths.
     + use idpath.
     + use (lunax X).
 Qed.
-Transparent nat_to_monoid_map.
+Transparent nat_to_monoid_fun.
 
 Lemma nat_nat_to_monoid1 {X : gr} (x : X) {n1 n2 m2 : nat} (e : n2 = m2) :
-  nat_nat_to_monoid_map x (dirprodpair n1 n2) = nat_nat_to_monoid_map x (dirprodpair n1 m2).
+  nat_nat_to_monoid_fun x (dirprodpair n1 n2) = nat_nat_to_monoid_fun x (dirprodpair n1 m2).
 Proof.
   intros X x n1 n2 m2 e. induction e. use idpath.
 Qed.
 
 Lemma nat_nat_to_monoid2 {X : gr} (x : X) {n1 m1 n2 : nat} (e : n1 = m1) :
-  nat_nat_to_monoid_map x (dirprodpair n1 n2) = nat_nat_to_monoid_map x (dirprodpair m1 n2).
+  nat_nat_to_monoid_fun x (dirprodpair n1 n2) = nat_nat_to_monoid_fun x (dirprodpair m1 n2).
 Proof.
   intros X x n1 m1 n2 e. induction e. use idpath.
 Qed.
 
-Definition nataddabmonoid_nataddabmonoid_to_monoid_map {X : gr} (x : X) :
-  abmonoiddirprod nataddabmonoid nataddabmonoid -> X := nat_nat_to_monoid_map x.
+Definition nataddabmonoid_nataddabmonoid_to_monoid_fun {X : gr} (x : X) :
+  abmonoiddirprod nataddabmonoid nataddabmonoid -> X := nat_nat_to_monoid_fun x.
 
-Opaque nat_to_monoid_map.
-Lemma nat_nat_monoid_map_isbinopfun {X : abgr} (x : X) :
-  isbinopfun (nataddabmonoid_nataddabmonoid_to_monoid_map x).
+Opaque nat_to_monoid_fun.
+Lemma nat_nat_monoid_fun_isbinopfun {X : abgr} (x : X) :
+  isbinopfun (nataddabmonoid_nataddabmonoid_to_monoid_fun x).
 Proof.
   intros X x.
   use mk_isbinopfun. intros n m. induction n as [n1 n2]. induction m as [m1 m2]. cbn.
-  unfold nataddabmonoid_nataddabmonoid_to_monoid_map. unfold nat_nat_to_monoid_map. cbn.
-  rewrite nat_to_abmonoid_map_plus. rewrite nat_to_abmonoid_map_plus.
+  unfold nataddabmonoid_nataddabmonoid_to_monoid_fun. unfold nat_nat_to_monoid_fun. cbn.
+  rewrite nat_to_abmonoid_fun_plus. rewrite nat_to_abmonoid_fun_plus.
   rewrite (assocax X). rewrite (assocax X).
   use two_arg_paths.
   - use idpath.
-  - rewrite <- (assocax X). rewrite (commax X (nat_to_monoid_map (grinv X x) n2) _).
+  - rewrite <- (assocax X). rewrite (commax X (nat_to_monoid_fun (grinv X x) n2) _).
     rewrite (assocax X). rewrite (assocax X).
     use two_arg_paths.
     + use idpath.
     + use (commax X).
 Qed.
-Transparent nat_to_monoid_map.
+Transparent nat_to_monoid_fun.
 
 Lemma nat_nat_to_monoid_plus1 {X : abgr} (x : X) {n1 m1 m2: nat} (e : m2 = (m1 + n1)%nat) :
-  nat_to_monoid_map (grinv X x) n1 =
-  (nat_to_monoid_map x m1 * nat_to_monoid_map (grinv X x) m2)%multmonoid.
+  nat_to_monoid_fun (grinv X x) n1 =
+  (nat_to_monoid_fun x m1 * nat_to_monoid_fun (grinv X x) m2)%multmonoid.
 Proof.
-  intros X x n1 m1 m2 e. rewrite e. clear e. rewrite nat_to_abmonoid_map_plus.
+  intros X x n1 m1 m2 e. rewrite e. clear e. rewrite nat_to_abmonoid_fun_plus.
   rewrite <- (assocax X). use pathsinv0.
-  use (pathscomp0 (maponpaths (fun xx : X => (xx * (nat_to_monoid_map (grinv X x) n1))%multmonoid)
+  use (pathscomp0 (maponpaths (fun xx : X => (xx * (nat_to_monoid_fun (grinv X x) n1))%multmonoid)
                               (nat_to_monoid_unel' x m1))).
   use (lunax X).
 Qed.
 
-Lemma nat_nat_prod_abmonoid_map_unel {X : abgr} (x : X) :
-  (nataddabmonoid_nataddabmonoid_to_monoid_map x)
+Lemma nat_nat_prod_abmonoid_fun_unel {X : abgr} (x : X) :
+  (nataddabmonoid_nataddabmonoid_to_monoid_fun x)
     (unel (abmonoiddirprod nataddabmonoid nataddabmonoid)) = (unel X).
 Proof.
   intros X x. use (pathscomp0 (lunax X _)). use idpath.
@@ -1189,10 +1189,10 @@ Definition nat_nat_prod_abmonoid_monoidfun {X : abgr} (x : X) :
 Proof.
   intros X x.
   use monoidfunconstr.
-  - exact (nataddabmonoid_nataddabmonoid_to_monoid_map x).
+  - exact (nataddabmonoid_nataddabmonoid_to_monoid_fun x).
   - use mk_ismonoidfun.
-    + exact (nat_nat_monoid_map_isbinopfun x).
-    + exact (nat_nat_prod_abmonoid_map_unel x).
+    + exact (nat_nat_monoid_fun_isbinopfun x).
+    + exact (nat_nat_prod_abmonoid_fun_unel x).
 Defined.
 
 Lemma hz_abmonoid_ismonoidfun :
@@ -1215,58 +1215,58 @@ Proof.
   - exact hz_abmonoid_ismonoidfun.
 Defined.
 
-Definition nat_nat_map_unel {X : abgr} (x : X) (n : nat) :
-  nat_nat_to_monoid_map x (dirprodpair n n) = unel X.
+Definition nat_nat_fun_unel {X : abgr} (x : X) (n : nat) :
+  nat_nat_to_monoid_fun x (dirprodpair n n) = unel X.
 Proof.
   intros X x n. exact (nat_to_monoid_unel' x n).
 Qed.
 
-Opaque nat_to_monoid_map.
-Definition nat_nat_map_ind {X : abgr} (x : X) (n m : nat) :
-  nat_nat_to_monoid_map x (dirprodpair (n + m)%nat m) = nat_nat_to_monoid_map x (dirprodpair n O).
+Opaque nat_to_monoid_fun.
+Definition nat_nat_fun_ind {X : abgr} (x : X) (n m : nat) :
+  nat_nat_to_monoid_fun x (dirprodpair (n + m)%nat m) = nat_nat_to_monoid_fun x (dirprodpair n O).
 Proof.
   intros X x n m.
-  use (pathscomp0 (nat_nat_monoid_map_isbinopfun x (dirprodpair n O) (dirprodpair m m))).
-  unfold nataddabmonoid_nataddabmonoid_to_monoid_map.
-  rewrite (nat_nat_map_unel x m). rewrite (runax X). use idpath.
+  use (pathscomp0 (nat_nat_monoid_fun_isbinopfun x (dirprodpair n O) (dirprodpair m m))).
+  unfold nataddabmonoid_nataddabmonoid_to_monoid_fun.
+  rewrite (nat_nat_fun_unel x m). rewrite (runax X). use idpath.
 Qed.
-Transparent nat_to_monoid_map.
+Transparent nat_to_monoid_fun.
 
-Opaque nat_to_monoid_map.
-Definition nat_nat_map_ind2 {X : abgr} (x : X) (n1 n2 m k : nat) :
-  nat_nat_to_monoid_map x (dirprodpair n1 m) = nat_nat_to_monoid_map x (dirprodpair n2 k) ->
-  nat_nat_to_monoid_map x (dirprodpair n1 (S m)) = nat_nat_to_monoid_map x (dirprodpair n2 (S k)).
+Opaque nat_to_monoid_fun.
+Definition nat_nat_fun_ind2 {X : abgr} (x : X) (n1 n2 m k : nat) :
+  nat_nat_to_monoid_fun x (dirprodpair n1 m) = nat_nat_to_monoid_fun x (dirprodpair n2 k) ->
+  nat_nat_to_monoid_fun x (dirprodpair n1 (S m)) = nat_nat_to_monoid_fun x (dirprodpair n2 (S k)).
 Proof.
   intros X x n1 n2 m k H.
-  unfold nat_nat_to_monoid_map in *. cbn in *.
-  rewrite (@nat_to_monoid_map_S X (grinv X x)).
-  rewrite (@nat_to_monoid_map_S X (grinv X x)).
+  unfold nat_nat_to_monoid_fun in *. cbn in *.
+  rewrite (@nat_to_monoid_fun_S X (grinv X x)).
+  rewrite (@nat_to_monoid_fun_S X (grinv X x)).
   rewrite <- (assocax X). rewrite <- (assocax X).
   use two_arg_paths.
   - exact H.
   - use idpath.
 Qed.
-Transparent nat_to_monoid_map.
+Transparent nat_to_monoid_fun.
 
-Opaque nat_to_monoid_map.
-Definition abgr_precategory_integer_map_iscomprelfun {X : abgr} (x : X) :
+Opaque nat_to_monoid_fun.
+Definition abgr_precategory_integer_fun_iscomprelfun {X : abgr} (x : X) :
   iscomprelfun (binopeqrelabgrdiff (rigaddabmonoid natcommrig))
                (nat_nat_prod_abmonoid_monoidfun x).
 Proof.
   intros X x. intros x1. induction x1 as [x1 e1].
   unfold nat_nat_prod_abmonoid_monoidfun. cbn.
-  unfold nataddabmonoid_nataddabmonoid_to_monoid_map.
-  unfold nat_nat_to_monoid_map. cbn.
+  unfold nataddabmonoid_nataddabmonoid_to_monoid_fun.
+  unfold nat_nat_to_monoid_fun. cbn.
   induction x1 as [ | x1 IHx1].
   - intros x2 H. use (squash_to_prop H (setproperty X _ _)). intros H'. cbn in H'.
     induction H' as [H1 H2]. clear H. induction x2 as [x2 e2].
-    apply natplusrcan in H2. rewrite nat_to_monoid_map_unel. rewrite (lunax X). cbn. cbn in H2.
+    apply natplusrcan in H2. rewrite nat_to_monoid_fun_unel. rewrite (lunax X). cbn. cbn in H2.
     exact (nat_nat_to_monoid_plus1 x H2).
   - intros x2 H. use (squash_to_prop H (setproperty X _ _)). intros H'. cbn in H'.
     induction H' as [H1 H2]. clear H. induction x2 as [x2 e2]. cbn in H2. cbn.
     use (pathscomp0
-           (maponpaths (fun xx : X => (xx * (nat_to_monoid_map (grinv X x) e1))%multmonoid)
-                       (@nat_to_monoid_map_S X x x1))).
+           (maponpaths (fun xx : X => (xx * (nat_to_monoid_fun (grinv X x) e1))%multmonoid)
+                       (@nat_to_monoid_fun_S X x x1))).
     rewrite (commax X _ x). rewrite (assocax X). cbn.
     assert (HH : ishinh_UU(∑ x0 : nat, (x1 + (S e2) + x0)%nat = (x2 + e1 + x0)%nat)).
     {
@@ -1285,26 +1285,26 @@ Proof.
     + use idpath.
     + use (pathscomp0
              (maponpaths (fun xx : X => (xx * x)%multmonoid)
-                         (@nat_to_monoid_map_S X (grinv X x) e2))).
+                         (@nat_to_monoid_fun_S X (grinv X x) e2))).
       rewrite (assocax X). rewrite (grlinvax X x). use (runax X).
 Qed.
-Transparent nat_to_monoid_map.
+Transparent nat_to_monoid_fun.
 
 (** Construction of tha map \mathbb{Z} --> A, 1 ↦ x *)
-Definition abgr_hz_map {X : abgr} (x : X) : hzaddabgr -> X.
+Definition hz_abgr_fun {X : abgr} (x : X) : hzaddabgr -> X.
 Proof.
   intros X x.
   use setquotuniv.
   - exact (nat_nat_prod_abmonoid_monoidfun x).
-  - exact (abgr_precategory_integer_map_iscomprelfun x).
+  - exact (abgr_precategory_integer_fun_iscomprelfun x).
 Defined.
 
 (** Hide ismonoidfun behind Qed. *)
-Definition abgr_hz_map_ismonoidfun {X : abgr} (x : X) : ismonoidfun (abgr_hz_map x).
+Definition hz_abgr_fun_ismonoidfun {X : abgr} (x : X) : ismonoidfun (hz_abgr_fun x).
 Proof.
   intros X x.
   use mk_ismonoidfun.
-  - use isbinopfun_2of3.
+  - use isbinopfun_twooutof3b.
     + use (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig)).
     + use (hz_abmonoid_monoidfun).
     + use issurjsetquotpr.
@@ -1314,41 +1314,41 @@ Proof.
 Qed.
 
 (** Construction of the monoidfun \mathbb{Z} --> A, 1 ↦ x *)
-Definition abgr_hz_map_monoidfun {X : abgr} (x : X) : monoidfun hzaddabgr X.
+Definition hz_abgr_fun_monoidfun {X : abgr} (x : X) : monoidfun hzaddabgr X.
 Proof.
   intros X x.
   use monoidfunconstr.
-  - exact (abgr_hz_map x).
-  - exact (abgr_hz_map_ismonoidfun x).
+  - exact (hz_abgr_fun x).
+  - exact (hz_abgr_fun_ismonoidfun x).
 Defined.
 
 (** Commutativity of the following diagram
 
                           nat × nat --- nat_nat_prod_abmonoid_monoidfun --->  X
-        abgr_hz_map_monoidfun |                                               ||
+        hz_abgr_fun_monoidfun |                                               ||
                              hz -------- hz_abmonoid_monoidfun -------------> X
  *)
 Lemma abgr_natnat_hz_X_comm {X : abgr} (x : X) :
-  monoidfuncomp hz_abmonoid_monoidfun (abgr_hz_map_monoidfun x) =
+  monoidfuncomp hz_abmonoid_monoidfun (hz_abgr_fun_monoidfun x) =
   nat_nat_prod_abmonoid_monoidfun x.
 Proof.
   intros X x. use monoidfun_paths. use funextfun. intros n. use setquotunivcomm.
 Qed.
 
-Opaque nat_to_monoid_map.
-Lemma monoidfun_nat_to_monoid_map {X Y : abgr} (f : monoidfun X Y) (x : X) (n : nat) :
-  pr1 f (nat_to_monoid_map x n) = nat_to_monoid_map (f x) n.
+Opaque nat_to_monoid_fun.
+Lemma monoidfun_nat_to_monoid_fun {X Y : abgr} (f : monoidfun X Y) (x : X) (n : nat) :
+  pr1 f (nat_to_monoid_fun x n) = nat_to_monoid_fun (f x) n.
 Proof.
   intros X Y f x n. induction n as [ | n IHn].
   - use monoidfununel.
-  - use (pathscomp0 (maponpaths (pr1 f) (@nat_to_monoid_map_S X x n))).
+  - use (pathscomp0 (maponpaths (pr1 f) (@nat_to_monoid_fun_S X x n))).
     use (pathscomp0 (binopfunisbinopfun f _ _)).
-    use (pathscomp0 _ (! (@nat_to_monoid_map_S Y (f x) n))).
+    use (pathscomp0 _ (! (@nat_to_monoid_fun_S Y (f x) n))).
     use two_arg_paths.
     + exact IHn.
     + use idpath.
 Qed.
-Transparent nat_to_monoid_map.
+Transparent nat_to_monoid_fun.
 
 
 (* End of the file hz.v *)
