@@ -525,7 +525,11 @@ Definition monoidal_functor_to_functor {M M' : monoidal_precat} (F : monoidal_fu
 
 Coercion monoidal_functor_to_functor : monoidal_functor >-> functor.
 
+(** A few access functions from a monoidal functor *)
+
 Definition monoidal_functor_to_nat_iso {M M' : monoidal_precat} (F : monoidal_functor M M') := pr1 (pr2 F).
+
+Definition monoidal_functor_to_iso_unit_to_unit {M M' : monoidal_precat} (F : monoidal_functor M M') := pr1 (pr2 (pr2 F)).
 
 (** * Braided monoidal functors *)
 
@@ -760,8 +764,17 @@ Proof.
         apply tensor_to_tensor_comp.
 Defined.
 
-Definition nat_iso_functor_comp : F_tensor M P (functor_composite F G) ⇔ tensor_F M P (functor_composite F G) :=
+Definition nat_iso_monoidal_functor_comp : F_tensor M P (functor_composite F G) ⇔ tensor_F M P (functor_composite F G) :=
   tpair _ family_of_iso_monoidal_functor_comp is_nat_iso_family_of_iso_monoidal_functor_comp.
+
+Notation "'e'" := (monoidal_precat_to_unit M).
+Notation "'e''" := (monoidal_precat_to_unit N).
+Notation "'e'''" := (monoidal_precat_to_unit P).
+
+Definition iso_unit_to_unit_monoidal_functor_comp : iso e'' ((F ∙ G) e).
+Proof.
+  exact (iso_comp (monoidal_functor_to_iso_unit_to_unit G) (functor_on_iso G (monoidal_functor_to_iso_unit_to_unit F))).
+Defined.
 
 
 
