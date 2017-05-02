@@ -1,4 +1,4 @@
-(** Anthony Bordg, April 2017 *)
+(** Anthony Bordg, April-May 2017 *)
 
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.Foundations.PartA.
@@ -41,7 +41,7 @@ Defined.
 
 Notation "( f #, g )" := (binprod_precat_pair_of_mor f g) : cat.
 
-Lemma id_binprod_precat {C : precategory} (a b : C) : identity (a , b) = (identity a #, identity b).
+Lemma id_binprod_precat {C D : precategory} (a : C) (b : D) : identity (a , b) = (identity a #, identity b).
 Proof.
   apply funextsec.
   intro x. induction x.
@@ -49,7 +49,7 @@ Proof.
   - cbn. reflexivity.
 Defined.
 
-Lemma comp_binprod_precat {C : precategory} {u v x y z w : C} (f : u --> x) (g : v --> y) (h : x --> z) (i : y --> w) :
+Lemma comp_binprod_precat {C D : precategory} {u x z : C} {v y w: D} (f : u --> x) (g : v --> y) (h : x --> z) (i : y --> w) :
   (f #, g) · (h #, i) = (f · h #, g · i).
 Proof.
   intros.
@@ -57,6 +57,22 @@ Proof.
   induction b.
   - cbn. reflexivity.
   - cbn. reflexivity.
+Defined.
+
+Definition iso_to_iso_binprod_precat {C D : precategory} {u x : C} {v y : D} (f : u --> x) (fiso : is_iso f) (g : v --> y) (giso : is_iso g) : is_iso (f #, g).
+Proof.
+  apply (is_iso_qinv (f #, g) (inv_from_iso (isopair f fiso) #, inv_from_iso (isopair g giso))).
+  apply dirprodpair.
+  - transitivity ((isopair f fiso) · (inv_from_iso (isopair f fiso)) #, (isopair g giso) · (inv_from_iso (isopair g giso))).
+    + apply comp_binprod_precat.
+    + rewrite 2 iso_inv_after_iso.
+      symmetry.
+      apply id_binprod_precat.
+  - transitivity ((inv_from_iso (isopair f fiso)) · (isopair f fiso) #, (inv_from_iso (isopair g giso)) · (isopair g giso)).
+    + apply comp_binprod_precat.
+    + rewrite 2 iso_after_iso_inv.
+      symmetry.
+      apply id_binprod_precat.
 Defined.
 
 (** Definition of natural isomorphisms *)
@@ -502,10 +518,6 @@ Definition isfunctor_tensor_F : is_functor tensor_F_data := dirprodpair tensor_F
 
 Definition tensor_F : functor (M × M) M' := tpair _ tensor_F_data isfunctor_tensor_F.
 
-(* Definition hexagon_identity_3 (Φ : nat_iso F_tensor tensor_F) := ∏ a b c : M,
-  #F(inv_from_iso (pr1 α ((a , b) , c))) ∘ (pr1 Φ (a ⊗ b , c)) ∘ (pr1 Φ (a , b) #⊗' identity (F c)) =
-  (pr1 Φ (a , b ⊗ c)) ∘ (identity (F a) #⊗' pr1 Φ (b , c)) ∘ (inv_from_iso (pr1 α' ((F a , F b) , F c))).*)
-
 Definition hexagon_identity_3 (Φ : nat_iso F_tensor tensor_F) := ∏ a b c : M,
   (pr1 Φ (a , b) #⊗' identity (F c)) · (pr1 Φ (a ⊗ b , c)) · #F(inv_from_iso (pr1 α ((a , b) , c))) =
   (inv_from_iso (pr1 α' ((F a , F b) , F c))) · (identity (F a) #⊗' pr1 Φ (b , c)) · (pr1 Φ (a , b ⊗ c)).
@@ -802,8 +814,22 @@ Proof.
   apply (monoidal_functor_to_hexagon_identity F).
 Defined.
 
+Definition is_iso_functor_on_iso {C C' : precategory} (H : functor C C') {a b : ob C} (f : a --> b) (fiso : is_iso f) : is_iso (#H f).
+Proof.
+  exact (pr2 (functor_on_iso H (isopair f fiso))).
+Defined.
+
+Lemma is_iso_G_after_tensor_on_iso {a b c : M} : is_iso (#G((pr1 Φ (a , b)) #⊗' identity (F c))).
+Proof.
+  apply is_iso_functor_on_iso.
+  apply is_iso_functor_on_iso.
+  apply iso_to_iso_binprod_precat.
+  exact (pr2 (pr1 Φ (a , b))).
+  exact (identity_is_iso N (F c)).
+Defined.
+
 Lemma image_of_hexagon_identity_bis : ∏ a b c : M,
   #G(pr1 Φ (a ⊗ b , c)) · #G(#F(inv_from_iso (pr1 α ((a , b) , c)))) =
-  inv_from_iso (#G((pr1 Φ (a , b)) #⊗' identity (F c))) · #G(inv_from_iso (pr1 α' ((F a , F b) , F c))) · #G(identity (F a) #⊗' (pr1 Φ (b , c))) · #G(pr1 Φ (a , b ⊗ c)).
+  inv_from_iso (isopair (#G((pr1 Φ (a , b)) #⊗' identity (F c))) is_iso_G_after_tensor_on_iso) · #G(inv_from_iso (pr1 α' ((F a , F b) , F c))) · #G(identity (F a) #⊗' (pr1 Φ (b , c))) · #G(pr1 Φ (a , b ⊗ c)).
 
 End monoidal_composition.
