@@ -502,9 +502,13 @@ Definition isfunctor_tensor_F : is_functor tensor_F_data := dirprodpair tensor_F
 
 Definition tensor_F : functor (M × M) M' := tpair _ tensor_F_data isfunctor_tensor_F.
 
-Definition hexagon_identity_3 (Φ : nat_iso F_tensor tensor_F) := ∏ a b c : M,
+(* Definition hexagon_identity_3 (Φ : nat_iso F_tensor tensor_F) := ∏ a b c : M,
   #F(inv_from_iso (pr1 α ((a , b) , c))) ∘ (pr1 Φ (a ⊗ b , c)) ∘ (pr1 Φ (a , b) #⊗' identity (F c)) =
-  (pr1 Φ (a , b ⊗ c)) ∘ (identity (F a) #⊗' pr1 Φ (b , c)) ∘ (inv_from_iso (pr1 α' ((F a , F b) , F c))).
+  (pr1 Φ (a , b ⊗ c)) ∘ (identity (F a) #⊗' pr1 Φ (b , c)) ∘ (inv_from_iso (pr1 α' ((F a , F b) , F c))).*)
+
+Definition hexagon_identity_3 (Φ : nat_iso F_tensor tensor_F) := ∏ a b c : M,
+  (pr1 Φ (a , b) #⊗' identity (F c)) · (pr1 Φ (a ⊗ b , c)) · #F(inv_from_iso (pr1 α ((a , b) , c))) =
+  (inv_from_iso (pr1 α' ((F a , F b) , F c))) · (identity (F a) #⊗' pr1 Φ (b , c)) · (pr1 Φ (a , b ⊗ c)).
 
 Definition square_identity_1 (Φ : nat_iso F_tensor tensor_F) (φ : iso e' (F e)) :=
   ∏ a : M,  pr1 (pr1 l' (F a)) = #F(pr1 l a) ∘ (pr1 Φ (e , a)) ∘ (φ #⊗' identity (F a)).
@@ -530,6 +534,8 @@ Coercion monoidal_functor_to_functor : monoidal_functor >-> functor.
 Definition monoidal_functor_to_nat_iso {M M' : monoidal_precat} (F : monoidal_functor M M') := pr1 (pr2 F).
 
 Definition monoidal_functor_to_iso_unit_to_unit {M M' : monoidal_precat} (F : monoidal_functor M M') := pr1 (pr2 (pr2 F)).
+
+Definition monoidal_functor_to_hexagon_identity {M M' : monoidal_precat} (F : monoidal_functor M M') := pr1 (pr2 (pr2 (pr2 F))).
 
 (** * Braided monoidal functors *)
 
@@ -776,6 +782,28 @@ Proof.
   exact (iso_comp (monoidal_functor_to_iso_unit_to_unit G) (functor_on_iso G (monoidal_functor_to_iso_unit_to_unit F))).
 Defined.
 
+Notation "'α'" := (monoidal_precat_to_associator M).
+Notation "'α''" := (monoidal_precat_to_associator N).
+Notation "a ⊗ b" := (monoidal_precat_to_tensor M (a , b)) (at level 30).
+Notation "a ⊗' b" := (monoidal_precat_to_tensor N (a , b)) (at level 30).
+Notation "f #⊗' g" := (#(monoidal_precat_to_tensor N) (f #, g)) (at level 30).
+Notation "'Φ'" := (monoidal_functor_to_nat_iso F).
 
+Lemma image_of_hexagon_identity : ∏ a b c : M,
+  #G((pr1 Φ (a , b)) #⊗' identity (F c)) · #G(pr1 Φ (a ⊗ b , c)) · #G(#F(inv_from_iso (pr1 α ((a , b) , c)))) =
+  #G(inv_from_iso (pr1 α' ((F a , F b) , F c))) · #G(identity (F a) #⊗' (pr1 Φ (b , c))) · #G(pr1 Φ (a , b ⊗ c)).
+Proof.
+  intros a b c.
+  rewrite <- (pr2 (pr2 (pr1 G))).
+  rewrite <- (pr2 (pr2 (pr1 G))).
+  rewrite <- (pr2 (pr2 (pr1 G))).
+  rewrite <- (pr2 (pr2 (pr1 G))).
+  apply maponpaths.
+  apply (monoidal_functor_to_hexagon_identity F).
+Defined.
+
+Lemma image_of_hexagon_identity_bis : ∏ a b c : M,
+  #G(pr1 Φ (a ⊗ b , c)) · #G(#F(inv_from_iso (pr1 α ((a , b) , c)))) =
+  inv_from_iso (#G((pr1 Φ (a , b)) #⊗' identity (F c))) · #G(inv_from_iso (pr1 α' ((F a , F b) , F c))) · #G(identity (F a) #⊗' (pr1 Φ (b , c))) · #G(pr1 Φ (a , b ⊗ c)).
 
 End monoidal_composition.
