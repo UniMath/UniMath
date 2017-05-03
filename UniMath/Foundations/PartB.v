@@ -945,7 +945,7 @@ Defined.
 
 
 Corollary set_bijection_to_weq {X Y : UU} (f : X -> Y) :
-  bijective f -> isaset Y -> isweq f.
+  UniqueConstruction f -> isaset Y -> isweq f.
 Proof.
   (* compare with bijection_to_weq: this one doesn't use gradth *)
   intros ? ? ? bij i y. set (sur := pr1 bij); set (inj := pr2 bij).
