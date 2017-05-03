@@ -31,7 +31,7 @@
 \DeclareUnicodeCharacter{9645}{{\(\boxdot\)}}
 \DeclareUnicodeCharacter{981}{{\(\phi\)}}
 \DeclareUnicodeCharacter{9565}{{\textSFxxvi}}
-\DeclareUnicodeCharacter{8803}{{\(\triplesim\)}} % TODO: this latex symbol does not adequately represent the Unicode symbol
+\DeclareUnicodeCharacter{8803}{{\(\mathop {\vbox {{\rlap =} \kern 3.9pt} {\rlap =} \phantom =} \)}}
 \hypersetup{linkcolor=blue}
 
 \begin{document}
