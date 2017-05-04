@@ -152,7 +152,7 @@ We give the “bidirectional” version first, and then the “handed” version
 Definition disp_adjunction_data {C C' : Precategory} (A : adjunction_data C C') 
            (F := left_functor A) (G := right_functor A)
            (eta := adjunit A) (eps := adjcounit A)
-           (D : disp_precat C) (D' : disp_precat C') : UU
+           (D : disp_cat C) (D' : disp_cat C') : UU
   := ∑ (FF : disp_functor F D D') (GG : disp_functor G D' D),
      (disp_nat_trans eta (disp_functor_identity _ ) 
                      (disp_functor_composite FF GG))
@@ -201,7 +201,7 @@ Definition triangle_2_statement_over
 
 
 Definition form_disp_adjunction {C C' : Precategory} 
-           (A : adjunction C C') {D : disp_precat C} {D' : disp_precat C'}
+           (A : adjunction C C') {D : disp_cat C} {D' : disp_cat C'}
            (AA : disp_adjunction_data A D D')
   : UU
 := triangle_1_statement_over AA × triangle_2_statement_over AA.
@@ -215,14 +215,14 @@ Coercion data_of_disp_adjunction (C C' : Precategory) (A : adjunction C C')
 
 
 Definition triangle_1_over {C C' : Precategory} 
-           {A : adjunction C C'} {D : disp_precat C}
-           {D' : disp_precat C'} (AA : disp_adjunction A D D')
+           {A : adjunction C C'} {D : disp_cat C}
+           {D' : disp_cat C'} (AA : disp_adjunction A D D')
 : triangle_1_statement_over AA
 := pr1 (pr2 AA).
 
 Definition triangle_2_over {C C' : Precategory} 
-           {A : adjunction C C'} {D : disp_precat C}
-           {D' : disp_precat C'} (AA : disp_adjunction A D D')
+           {A : adjunction C C'} {D : disp_cat C}
+           {D' : disp_cat C'} (AA : disp_adjunction A D D')
 : triangle_2_statement_over AA
 := pr2 (pr2 AA).
 
@@ -233,7 +233,7 @@ Definition triangle_2_over {C C' : Precategory}
 Our choice here does _not_ agree with that of the base UniMath category theory library. TODO: consider these conventions, and eventually harmonise them by changing it either here or in UniMath. *)
 
 Definition right_adjoint_over_data {C C' : Precategory} 
-           {A : adjunction_data C C'} {D : disp_precat C} {D' : disp_precat C'}
+           {A : adjunction_data C C'} {D : disp_cat C} {D' : disp_cat C'}
   (FF : disp_functor (left_functor A) D D') : UU
 := ∑ (GG : disp_functor (right_functor A) D' D),
      (disp_nat_trans (adjunit A) 
@@ -242,7 +242,7 @@ Definition right_adjoint_over_data {C C' : Precategory}
             (disp_functor_composite GG FF) (disp_functor_identity _)).
 
 Definition functor_of_right_adjoint_over {C C' : Precategory} 
-           {A : adjunction_data C C'} {D : disp_precat C} {D' : disp_precat C'}
+           {A : adjunction_data C C'} {D : disp_cat C} {D' : disp_cat C'}
            {FF : disp_functor (left_functor A) D D'}
   (GG : right_adjoint_over_data FF)
 := pr1 GG.
@@ -250,7 +250,7 @@ Coercion functor_of_right_adjoint_over
   : right_adjoint_over_data >-> disp_functor.
 
 Definition adjunction_of_right_adjoint_over_data {C C' : Precategory} 
-           {A : adjunction_data C C'} {D : disp_precat C} {D' : disp_precat C'}
+           {A : adjunction_data C C'} {D : disp_cat C} {D' : disp_cat C'}
            {FF : disp_functor (left_functor A) D D'}
   (GG : right_adjoint_over_data FF)
   : disp_adjunction_data A D D'
@@ -260,21 +260,21 @@ Coercion adjunction_of_right_adjoint_over_data
 
 Definition right_adjoint_of_disp_adjunction_data 
            {C C' : Precategory} {A : adjunction_data C C'} 
-           {D : disp_precat C} {D' : disp_precat C'}
+           {D : disp_cat C} {D' : disp_cat C'}
            (AA : disp_adjunction_data A D D')
   : right_adjoint_over_data (left_adj_over AA) (* coercion does not trigger *)
 := pr2 AA. 
 
 Definition right_adjoint_over 
            {C C' : Precategory} {A : adjunction C C'} 
-           {D : disp_precat C} {D' : disp_precat C'}
+           {D : disp_cat C} {D' : disp_cat C'}
            (FF : disp_functor (left_functor A) D D') : UU
 := ∑ GG : right_adjoint_over_data FF,
    form_disp_adjunction A GG.
 
 Definition data_of_right_adjoint_over 
                       {C C' : Precategory} {A : adjunction C C'} 
-                      {D : disp_precat C} {D' : disp_precat C'}
+                      {D : disp_cat C} {D' : disp_cat C'}
   {FF : disp_functor (left_functor A) D D'}
   (GG : right_adjoint_over FF)
 := pr1 GG.
@@ -282,14 +282,14 @@ Coercion data_of_right_adjoint_over
   : right_adjoint_over >-> right_adjoint_over_data.
 
 Definition adjunction_of_right_adjoint_over {C C' : Precategory}
-           {A : adjunction C C'} {D : disp_precat C} {D' : disp_precat C'}
+           {A : adjunction C C'} {D : disp_cat C} {D' : disp_cat C'}
            (FF : disp_functor (left_functor A) D D')
            (GG : right_adjoint_over FF)
 : disp_adjunction A D D'
 := (adjunction_of_right_adjoint_over_data GG ,, pr2 GG).
 
 Definition right_adjoint_of_disp_adjunction {C C' : Precategory}
-           {A : adjunction C C'} {D : disp_precat C} {D' : disp_precat C'}
+           {A : adjunction C C'} {D : disp_cat C} {D' : disp_cat C'}
            (AA : disp_adjunction A D D')
 : right_adjoint_over (left_adj_over AA)
 := (right_adjoint_of_disp_adjunction_data AA ,, pr2 AA).
@@ -303,7 +303,7 @@ Section Equivalences.
 
 
 Definition form_equiv_over {C C' : Precategory} {E : equivalence_of_precats C C'} 
-           {D : disp_precat C} {D' : disp_precat C'}
+           {D : disp_cat C} {D' : disp_cat C'}
            (AA : disp_adjunction_data E D D') : UU
   := (∏ x xx, is_iso_disp (adjunitiso E x) (unit_over AA x xx))
      ×
@@ -325,37 +325,37 @@ Definition is_iso_counit_over
 := pr2 EE.
 
 Definition equiv_over {C C' : Precategory} (E : adj_equiv C C') 
-           (D : disp_precat C) (D' : disp_precat C')
+           (D : disp_cat C) (D' : disp_cat C')
          : UU
 := ∑ AA : disp_adjunction E D D', @form_equiv_over _ _ E _  _ (pr1 AA).
 (* argument A is not inferred *)
 
 Coercion adjunction_of_equiv_over {C C' : Precategory} (E : adj_equiv C C')
-          {D : disp_precat C} {D': disp_precat C'} (EE : equiv_over E D D')
+          {D : disp_cat C} {D': disp_cat C'} (EE : equiv_over E D D')
 : disp_adjunction _ _ _ := pr1 EE.
 
 
 Coercion axioms_of_equiv_over {C C' : Precategory} (E : adj_equiv C C')
-            {D : disp_precat C} {D': disp_precat C'} 
+            {D : disp_cat C} {D': disp_cat C'} 
             (EE : equiv_over E D D') : form_equiv_over _  
 := pr2 EE.
 
 Definition is_equiv_over {C C' : Precategory} (E : adj_equiv C C')
-           {D : disp_precat C} {D': disp_precat C'} 
+           {D : disp_cat C} {D': disp_cat C'} 
            (FF : disp_functor (left_functor E) D D') : UU
   := ∑ GG : @right_adjoint_over _ _ E _ _ FF, 
             @form_equiv_over _ _ E _ _ GG.
 (* argument E is not inferred *)
 
 Definition right_adjoint_of_is_equiv_over {C C' : Precategory} (E : adj_equiv C C')
-           {D : disp_precat C} {D': disp_precat C'} 
+           {D : disp_cat C} {D': disp_cat C'} 
            {FF : disp_functor (left_functor E) D D'}
            (EE : is_equiv_over E FF) := pr1 EE.
 Coercion right_adjoint_of_is_equiv_over
   : is_equiv_over >-> right_adjoint_over.
 
 Definition equiv_of_is_equiv_over {C C' : Precategory} (E : adj_equiv C C')
-           {D : disp_precat C} {D': disp_precat C'} 
+           {D : disp_cat C} {D': disp_cat C'} 
            {FF : disp_functor (left_functor E) D D'}
            (EE : is_equiv_over E FF)
 : equiv_over E D D'
@@ -366,7 +366,7 @@ Coercion equiv_of_is_equiv_over
 
 (*
 Definition is_equiv_of_equiv_over {C C' : Precategory} (E : adj_equiv C C')
-           {D : disp_precat C} {D': disp_precat C'}
+           {D : disp_cat C} {D': disp_cat C'}
            (EE : equiv_over E D D')
 : is_equiv_over E (left_adj_over EE).
 Proof.
@@ -387,7 +387,7 @@ Local Open Scope hide_transport_scope.
 
 Lemma triangle_2_from_1_for_equiv_over
   {C C' : Precategory} (E : adj_equiv C C')
-  {D : disp_precat C} {D' : disp_precat C'}
+  {D : disp_cat C} {D' : disp_cat C'}
   (AA : disp_adjunction_data E D D')
   (EE : form_equiv_over (E:=E) AA)
 : triangle_1_statement_over (A:=E) AA -> triangle_2_statement_over (A:=E) AA.
@@ -485,7 +485,7 @@ Time Qed.
 
 Lemma triangle_1_from_2_for_equiv_over_id
       {C C' : Precategory} (E : adj_equiv C C')
-      {D : disp_precat C} {D' : disp_precat C'}
+      {D : disp_cat C} {D' : disp_cat C'}
       (AA : disp_adjunction_data E D D')
       (EE : form_equiv_over (E:=E) AA)
 : triangle_2_statement_over (A:=E) AA -> triangle_1_statement_over (A:=E) AA.
@@ -505,8 +505,8 @@ Section Equiv_from_ff_plus_ess_split.
 
 Context {C C' : Precategory} 
         {F : functor C C'}
-        {D : disp_precat C} 
-        {D' : disp_precat C'}
+        {D : disp_cat C} 
+        {D' : disp_cat C'}
         (FF : disp_functor F D D')
         (FF_split : disp_functor_disp_ess_split_surj FF)
         (FF_ff : disp_functor_ff FF).
@@ -794,7 +794,7 @@ End Equiv_from_ff_plus_ess_split.
 (*
 Section Nat_Trans_Disp_Inv.
 
-Context {C : Precategory} {D' D : disp_precat C}
+Context {C : Precategory} {D' D : disp_cat C}
         {FF GG : disp_functor (functor_identity _) D' D}
         (alpha : disp_nat_trans (nat_trans_id _ ) FF GG)
         (Ha : ∏ x xx, is_iso_disp (identity_iso _ ) (alpha x xx)).
@@ -867,7 +867,7 @@ End Nat_Trans_Disp_Inv.
 
 Section Displayed_Equiv_Inv.
 
-Context {C : Precategory} {D' D : disp_precat C}
+Context {C : Precategory} {D' D : disp_cat C}
         (FF : disp_functor (functor_identity _) D' D)
         (isEquiv : is_equiv_over_id FF).
 
@@ -1048,7 +1048,7 @@ Context {C C' : Precategory}.
 (*
 Definition fiber_is_left_adj 
   {A : adjunction C C'}
-  {D : disp_precat C} {D' : disp_precat C'}
+  {D : disp_cat C} {D' : disp_cat C'}
   {FF : disp_functor (left_functor A) D D'}
   (EFF : right_adjoint_over FF)
   (c : C)
@@ -1078,7 +1078,7 @@ Proof.
 Defined.
 *)
 (*
-Definition fiber_equiv {D D' : disp_precat C}
+Definition fiber_equiv {D D' : disp_cat C}
   {FF : disp_functor (functor_identity _) D D'}
   (EFF : is_equiv_over_id FF)
   (c : C)

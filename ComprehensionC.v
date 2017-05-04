@@ -30,7 +30,7 @@ Local Set Automatic Introduction.
 (* TODO: upstream to with definition of fibrations/cartesianness *)
 Definition is_cartesian_disp_functor
   {C C' : Precategory} {F : functor C C'}
-  {D : disp_precat C} {D' : disp_precat C'} (FF : disp_functor F D D') : UU
+  {D : disp_cat C} {D' : disp_cat C'} (FF : disp_functor F D D') : UU
 := ∏  {c c' : C} {f : c' --> c}
       {d : D c} {d' : D c'} (ff : d' -->[f] d),
   is_cartesian ff -> is_cartesian (#FF ff).
@@ -38,7 +38,7 @@ Definition is_cartesian_disp_functor
 
 (* TODO: upstream *)
 Lemma isaprop_is_cartesian
-    {C : Precategory} {D : disp_precat C}
+    {C : Precategory} {D : disp_cat C}
     {c c' : C} {f : c' --> c}
     {d : D c} {d' : D c'} (ff : d' -->[f] d)
   : isaprop (is_cartesian ff).
@@ -49,7 +49,7 @@ Qed.
 
 (* TODO: upstream *)
 Lemma is_cartesian_from_iso_to_cartesian
-    {C : Precategory} {D : disp_precat C}
+    {C : Precategory} {D : disp_cat C}
     {c} {d : D c} {c' : C} {f : c' --> c}
     {d0'} {ff : d0' -->[f] d} (ff_cart : is_cartesian ff)
     {d1'} {ff' : d1' -->[f] d}
@@ -97,7 +97,7 @@ Defined.
   Of course, this can only happen when the domain is a fibration; and in practice, it is useful exactly in the case where one has shown it is a fibration by exhibiting some particular construction of (mere existence of) cartesian lifts. *) 
 Lemma cartesian_functor_from_fibration
     {C C' : Precategory} {F : functor C C'}
-    {D : disp_precat C} {D' : disp_precat C'} {FF : disp_functor F D D'}
+    {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
     (H : forall (c c' : C) (f : c' --> c) (d : D c),
       ∥ { ff : cartesian_lift d f & is_cartesian (#FF ff) } ∥)
   : is_cartesian_disp_functor FF.
@@ -137,7 +137,7 @@ Qed.
 
 Lemma cartesian_functor_from_cleaving
     {C C' : Precategory} {F : functor C C'}
-    {D : disp_precat C} {D' : disp_precat C'} {FF : disp_functor F D D'}
+    {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
     (clD : cleaving D)
     (H : forall c c' f d, is_cartesian (# FF (clD c c' f d)))
   : is_cartesian_disp_functor FF.
@@ -149,7 +149,7 @@ Proof.
 Qed.
 
 Definition comprehension_cat_structure (C : Precategory) : UU 
-  := ∑ (D : disp_precat C) (H : cleaving D)
+  := ∑ (D : disp_cat C) (H : cleaving D)
      (F : disp_functor (functor_identity _ ) D (disp_codomain C)),
      is_cartesian_disp_functor F.
 

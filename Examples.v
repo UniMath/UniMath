@@ -100,7 +100,7 @@ Proof.
   apply setproperty.
 Qed.
 
-Definition disp_grp : disp_precat hset_Precategory. 
+Definition disp_grp : disp_cat hset_Precategory. 
 Proof.
   use disp_struct.
   - exact grp_structure.
@@ -151,7 +151,7 @@ Proof.
 Qed.
 (** END TODO *)
 
-Definition top_disp_precat_ob_mor : disp_precat_ob_mor HSET.
+Definition top_disp_cat_ob_mor : disp_cat_ob_mor HSET.
 Proof.
   mkpair.
   - intro X. exact (isTopologicalSet (pr1hSet X)).
@@ -159,9 +159,9 @@ Proof.
     apply (@continuous (pr1hSet X,,T) (pr1hSet Y,,U) f).
 Defined.
 
-Definition top_disp_precat_data : disp_precat_data HSET.
+Definition top_disp_cat_data : disp_cat_data HSET.
 Proof.
-  exists top_disp_precat_ob_mor.
+  exists top_disp_cat_ob_mor.
   mkpair.
   - intros X XX. cbn. unfold continuous. intros. 
     unfold continuous_at. cbn. unfold is_lim. cbn.
@@ -172,13 +172,13 @@ Proof.
       assumption.
 Defined.
 
-Definition top_disp_precat_axioms : disp_precat_axioms SET top_disp_precat_data.
+Definition top_disp_cat_axioms : disp_cat_axioms SET top_disp_cat_data.
 Proof.
   repeat split; cbn; intros; try (apply proofirrelevance, isaprop_continuous).
   apply isasetaprop. apply isaprop_continuous.
 Defined.
  
-Definition disp_top : disp_precat SET := _ ,, top_disp_precat_axioms.
+Definition disp_top : disp_cat SET := _ ,, top_disp_cat_axioms.
 
 
 (** ** The displayed arrow category 
@@ -188,14 +188,14 @@ Section Arrow_Disp.
 
 Context (C:Precategory).
 
-Definition arrow_disp_ob_mor : disp_precat_ob_mor (C × C).
+Definition arrow_disp_ob_mor : disp_cat_ob_mor (C × C).
 Proof.
   exists (fun xy : (C × C) => (pr1 xy) --> (pr2 xy)).
   simpl; intros xx' yy' g h ff'. 
     exact (pr1 ff' ;; h = g ;; pr2 ff')%mor.
 Defined.
 
-Definition arrow_id_comp : disp_precat_id_comp _ arrow_disp_ob_mor.
+Definition arrow_id_comp : disp_cat_id_comp _ arrow_disp_ob_mor.
 Proof.
   split.
   - simpl; intros.
@@ -208,16 +208,16 @@ Proof.
     apply pathsinv0, assoc.
 Qed.
 
-Definition arrow_data : disp_precat_data _
+Definition arrow_data : disp_cat_data _
   := (arrow_disp_ob_mor ,, arrow_id_comp).
 
-Lemma arrow_axioms : disp_precat_axioms (C × C) arrow_data.
+Lemma arrow_axioms : disp_cat_axioms (C × C) arrow_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
   apply isasetaprop, homset_property. 
 Qed.
 
-Definition arrow_disp : disp_precat (C × C)
+Definition arrow_disp : disp_cat (C × C)
   := (arrow_data ,, arrow_axioms).
 
 End Arrow_Disp.
@@ -233,13 +233,13 @@ Section NAction.
 
 Context (C:Precategory).
 
-Definition NAction_disp_ob_mor : disp_precat_ob_mor C.
+Definition NAction_disp_ob_mor : disp_cat_ob_mor C.
 Proof.
   exists (fun c => c --> c).
   intros x y xx yy f. exact (f ;; yy = xx ;; f)%mor.
 Defined.
 
-Definition NAction_id_comp : disp_precat_id_comp C NAction_disp_ob_mor.
+Definition NAction_id_comp : disp_cat_id_comp C NAction_disp_ob_mor.
 Proof.
   split.
   - simpl; intros.
@@ -252,16 +252,16 @@ Proof.
     apply pathsinv0, assoc.
 Qed.
 
-Definition NAction_data : disp_precat_data C
+Definition NAction_data : disp_cat_data C
   := (NAction_disp_ob_mor ,, NAction_id_comp).
 
-Lemma NAction_axioms : disp_precat_axioms C NAction_data.
+Lemma NAction_axioms : disp_cat_axioms C NAction_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
   apply isasetaprop, homset_property. 
 Qed.
 
-Definition NAction_disp : disp_precat C
+Definition NAction_disp : disp_cat C
   := (NAction_data ,, NAction_axioms).
 
 End NAction.
@@ -276,14 +276,14 @@ A presheaf on a (pre)category can be viewed as a fiberwise discrete displayed (p
 
 Section Elements_Disp.
 
-Definition elements_ob_mor : disp_precat_ob_mor SET.
+Definition elements_ob_mor : disp_cat_ob_mor SET.
 Proof.
   use tpair.
   - simpl. exact (fun X => X).
   - simpl. intros X Y x y f. exact (f x = y).
 Defined.
 
-Lemma elements_id_comp : disp_precat_id_comp SET elements_ob_mor.
+Lemma elements_id_comp : disp_cat_id_comp SET elements_ob_mor.
 Proof.
   apply tpair; simpl.
   - intros X x. apply idpath.
@@ -291,24 +291,24 @@ Proof.
     eapply pathscomp0. apply maponpaths, e_fx_y. apply e_gy_z.
 Qed.
 
-Definition elements_data : disp_precat_data SET
+Definition elements_data : disp_cat_data SET
   := (_ ,, elements_id_comp).
 
-Lemma elements_axioms : disp_precat_axioms SET elements_data.
+Lemma elements_axioms : disp_cat_axioms SET elements_data.
 Proof.
   repeat split; intros; try apply setproperty.
   apply isasetaprop; apply setproperty.
 Qed.
 
-Definition elements_universal : disp_precat SET
+Definition elements_universal : disp_cat SET
   := (_ ,, elements_axioms).
 
-Definition disp_precat_of_elements {C : Precategory} (P : functor C SET)
-  := reindex_disp_precat P elements_universal.
+Definition disp_cat_of_elements {C : Precategory} (P : functor C SET)
+  := reindex_disp_cat P elements_universal.
 
 (* TODO: compare to other definitions of this in the library! *)
 Definition precat_of_elements {C : Precategory} (P : functor C SET)
-  := total_precat (disp_precat_of_elements P).
+  := total_precat (disp_cat_of_elements P).
 
 End Elements_Disp.
 
@@ -356,14 +356,14 @@ Proof.
   apply (!assoc _ _ _ ) .
 Qed.
 
-Definition disp_precat_functor_alg : disp_precat C
+Definition disp_cat_functor_alg : disp_cat C
   := disp_struct _ _ 
                  functor_alg_mor 
                  isaprop_functor_alg_mor 
                  functor_alg_id 
                  functor_alg_comp.                                                  
 
-Definition total_functor_alg : Precategory := total_precat disp_precat_functor_alg.
+Definition total_functor_alg : Precategory := total_precat disp_cat_functor_alg.
 
 Lemma isaset_functor_alg_ob : ∏ x : C, isaset (functor_alg_ob x).
 Proof.
@@ -371,9 +371,9 @@ Proof.
   apply homset_property.
 Qed.
 
-Lemma is_disp_category_functor_alg : is_category_disp disp_precat_functor_alg.
+Lemma is_disp_category_functor_alg : is_univalent_disp disp_cat_functor_alg.
 Proof. 
-  use is_category_disp_from_SIP_data.
+  use is_univalent_disp_from_SIP_data.
   - apply isaset_functor_alg_ob.
   - unfold functor_alg_mor.
     intros x a a' H H'.
@@ -383,7 +383,7 @@ Proof.
     apply H'.
 Defined.
 
-Definition iso_cleaving_functor_alg : iso_cleaving disp_precat_functor_alg.
+Definition iso_cleaving_functor_alg : iso_cleaving disp_cat_functor_alg.
 Proof.
   intros c c' i d.
   cbn in *.
@@ -412,10 +412,10 @@ Defined.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
-Local Notation "'π'" := (pr1_precat disp_precat_functor_alg).
+Local Notation "'π'" := (pr1_precat disp_cat_functor_alg).
 
 Definition creates_limits_functor_alg
-  : creates_limits disp_precat_functor_alg.
+  : creates_limits disp_cat_functor_alg.
 Proof.
   intros J D x L isL.
   unfold creates_limit. cbn.
@@ -479,7 +479,7 @@ Proof.
         cbn in XR.
         set (H1:= coneOutCommutes CC). simpl in H1.
         destruct x' as [c a]. cbn.
-        unfold disp_precat_functor_alg in a. cbn in a.
+        unfold disp_cat_functor_alg in a. cbn in a.
         cbn in πCC.
         transparent assert (X : (cone (mapdiagram π D) (F c))).
         { use mk_cone.
@@ -546,11 +546,11 @@ Definition isMonadAlg (Xa : FAlg) : UU
      ×
      (#T')%cat (pr2 Xa) · pr2 Xa = μ T _ · pr2 Xa.
 
-Definition disp_precat_monad_alg_over_functor_alg : disp_precat FAlg
+Definition disp_cat_monad_alg_over_functor_alg : disp_cat FAlg
   := disp_full_sub _ isMonadAlg.
 
-Definition disp_precat_monad_alg : disp_precat C 
-  := sigma_disp_precat disp_precat_monad_alg_over_functor_alg.
+Definition disp_cat_monad_alg : disp_cat C 
+  := sigma_disp_cat disp_cat_monad_alg_over_functor_alg.
 
 End monad_algebras.
 
@@ -562,7 +562,7 @@ Section over_terminal_category.
 
 Variable C : Precategory.
 
-Definition disp_over_unit_data : disp_precat_data unit_category.
+Definition disp_over_unit_data : disp_cat_data unit_category.
 Proof.
   mkpair.
   - mkpair.
@@ -574,7 +574,7 @@ Proof.
       apply (compose (C:=C) f g ).
 Defined.
 
-Definition disp_over_unit_axioms : disp_precat_axioms _ disp_over_unit_data.
+Definition disp_over_unit_axioms : disp_cat_axioms _ disp_over_unit_data.
 Proof.
   repeat split; cbn; intros.
   - apply id_left.
@@ -587,7 +587,7 @@ Proof.
   - apply homset_property.
 Qed.
 
-Definition disp_over_unit : disp_precat _ := _ ,, disp_over_unit_axioms.
+Definition disp_over_unit : disp_cat _ := _ ,, disp_over_unit_axioms.
 
 End over_terminal_category.
 
@@ -596,8 +596,8 @@ Section cartesian_product_pb.
 Variable C C' : Precategory.
 
 
-Definition disp_cartesian : disp_precat C 
-  := reindex_disp_precat (functor_to_unit C) (disp_over_unit C').
+Definition disp_cartesian : disp_cat C 
+  := reindex_disp_cat (functor_to_unit C) (disp_over_unit C').
 
 Definition cartesian : Precategory := total_precat disp_cartesian.
 
@@ -607,7 +607,7 @@ Section arrow.
 
 Variable C : Precategory.
 
-Definition disp_arrow_data : disp_precat_data (cartesian C C).
+Definition disp_arrow_data : disp_cat_data (cartesian C C).
 Proof.
   mkpair.
   - mkpair.
@@ -634,7 +634,7 @@ Proof.
       apply assoc.
 Defined.
 
-Definition disp_arrow_axioms : disp_precat_axioms _ disp_arrow_data.
+Definition disp_arrow_axioms : disp_cat_axioms _ disp_arrow_data.
 Proof.
   repeat split; intros; cbn;
     try apply homset_property.
@@ -642,11 +642,11 @@ Proof.
   apply homset_property.
 Qed.
 
-Definition disp_arrow : disp_precat (cartesian C C) := _ ,, disp_arrow_axioms.
+Definition disp_arrow : disp_cat (cartesian C C) := _ ,, disp_arrow_axioms.
 
 Definition arrow : Precategory := total_precat disp_arrow.
 
-Definition disp_domain : disp_precat C := sigma_disp_precat disp_arrow.
+Definition disp_domain : disp_cat C := sigma_disp_cat disp_arrow.
 
 Definition total_domain := total_precat disp_domain.
 
@@ -656,14 +656,14 @@ Section cartesian_product.
 
 Variables C C' : Precategory.
 
-Definition disp_cartesian_ob_mor : disp_precat_ob_mor C.
+Definition disp_cartesian_ob_mor : disp_cat_ob_mor C.
 Proof.
   mkpair.
   - exact (fun c => C').
   - cbn. intros x y x' y' f. exact (C'⟦x', y'⟧).
 Defined.
 
-Definition disp_cartesian_data : disp_precat_data C.
+Definition disp_cartesian_data : disp_cat_data C.
 Proof.
   exists disp_cartesian_ob_mor.
   mkpair; cbn. 
@@ -671,7 +671,7 @@ Proof.
   - intros ? ? ? ? ? ? ? ? f g. apply (f · g).
 Defined.
 
-Definition disp_cartesian_axioms : disp_precat_axioms _ disp_cartesian_data.
+Definition disp_cartesian_axioms : disp_cat_axioms _ disp_cartesian_data.
 Proof.
   repeat split; intros; cbn.
   - etrans. apply id_left.
@@ -689,7 +689,7 @@ Proof.
   - apply homset_property.
 Qed.
 
-Definition disp_cartesian' : disp_precat C := _ ,, disp_cartesian_axioms.
+Definition disp_cartesian' : disp_cat C := _ ,, disp_cartesian_axioms.
 
 End cartesian_product.
 

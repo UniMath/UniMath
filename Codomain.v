@@ -36,14 +36,14 @@ Section Codomain_Disp.
 
 Context (C:Precategory).
 
-Definition cod_disp_ob_mor : disp_precat_ob_mor C.
+Definition cod_disp_ob_mor : disp_cat_ob_mor C.
 Proof.
   exists (fun x : C => ∑ y, y --> x).
   simpl; intros x y xx yy f. 
     exact (∑ ff : pr1 xx --> pr1 yy, ff ;; pr2 yy = pr2 xx ;; f).
 Defined.
 
-Definition cod_id_comp : disp_precat_id_comp _ cod_disp_ob_mor.
+Definition cod_id_comp : disp_cat_id_comp _ cod_disp_ob_mor.
 Proof.
   split.
   - simpl; intros.
@@ -62,10 +62,10 @@ Proof.
         apply assoc).
 Defined.
 
-Definition cod_disp_data : disp_precat_data _
+Definition cod_disp_data : disp_cat_data _
   := (cod_disp_ob_mor ,, cod_id_comp).
 
-Lemma cod_disp_axioms : disp_precat_axioms C cod_disp_data.
+Lemma cod_disp_axioms : disp_cat_axioms C cod_disp_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
   - apply subtypeEquality.
@@ -95,7 +95,7 @@ Proof.
     + intro. apply isasetaprop. apply homset_property.
 Qed.
 
-Definition disp_codomain : disp_precat C
+Definition disp_codomain : disp_cat C
   := (cod_disp_data ,, cod_disp_axioms).
 
 End Codomain_Disp.

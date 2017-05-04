@@ -42,14 +42,14 @@ Variable Hstandard : ∏ (x : C) (a a' : P x),
 
 (** ** A displayed precategory from the data *)
 
-Definition disp_precat_from_SIP_data : disp_precat C
+Definition disp_cat_from_SIP_data : disp_cat C
   := disp_struct C P (@H) Hisprop Hid Hcomp.
 
 (** ** Displayed category from SIP data is univalent *)
 
-Lemma is_category_disp_from_SIP_data : is_category_disp disp_precat_from_SIP_data.
+Lemma is_univalent_disp_from_SIP_data : is_univalent_disp disp_cat_from_SIP_data.
 Proof.
-  apply is_category_disp_from_fibers.
+  apply is_univalent_disp_from_fibers.
   intros x a b.
   apply isweqimplimpl.
   - intro i. apply Hstandard.
@@ -58,16 +58,16 @@ Proof.
   - apply Pisset.
   - apply isofhleveltotal2.
     + apply Hisprop.
-    + intro. apply (@isaprop_is_iso_disp _ disp_precat_from_SIP_data).
+    + intro. apply (@isaprop_is_iso_disp _ disp_cat_from_SIP_data).
 Defined.
 
 (** ** The conclusion of SIP: total category is univalent *)
 
-Definition SIP : is_category (total_precat disp_precat_from_SIP_data).
+Definition SIP : is_category (total_precat disp_cat_from_SIP_data).
 Proof.
   apply is_category_total_category.
   - apply univC.
-  - apply is_category_disp_from_SIP_data.
+  - apply is_univalent_disp_from_SIP_data.
 Defined.
 
 End SIP.

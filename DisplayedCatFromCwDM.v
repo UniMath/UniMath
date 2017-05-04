@@ -46,7 +46,7 @@ Section Displayed_Cat_of_Class_of_Maps.
 
 Context  (D : dm_sub_struct CC).
 
-Definition DM_disp_ob_mor : disp_precat_ob_mor CC.
+Definition DM_disp_ob_mor : disp_cat_ob_mor CC.
 Proof.
   exists (fun Γ => DM_over D Γ).
   simpl; intros Γ Δ p q f. 
@@ -54,8 +54,8 @@ Proof.
            ff ;; q = p ;; f).
 Defined.
 
-(* TODO: consider implicit args of [disp_precat_id_comp]. *)
-Definition DM_disp_id_comp : disp_precat_id_comp _ DM_disp_ob_mor.
+(* TODO: consider implicit args of [disp_cat_id_comp]. *)
+Definition DM_disp_id_comp : disp_cat_id_comp _ DM_disp_ob_mor.
 Proof.
   split.
   - simpl; intros.
@@ -73,10 +73,10 @@ Proof.
         eapply pathsinv0, assoc).
 Defined.
 
-Definition DM_disp_data : disp_precat_data CC
+Definition DM_disp_data : disp_cat_data CC
   := (DM_disp_ob_mor ,, DM_disp_id_comp).
 
-Lemma DM_disp_axioms : disp_precat_axioms CC DM_disp_data.
+Lemma DM_disp_axioms : disp_cat_axioms CC DM_disp_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
   - (* id_left_disp *) 
@@ -107,7 +107,7 @@ Proof.
     + intro. apply isasetaprop. apply homset_property.
 Qed.
 
-Definition DM_disp : disp_precat CC
+Definition DM_disp : disp_cat CC
   := (DM_disp_data ,, DM_disp_axioms).
 
 (* TODO: check what naming conventions suggest for this. *)

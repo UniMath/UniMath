@@ -40,7 +40,7 @@ Section Creates_Limits.
 (* TODO: consider implicitness of argument *)
 Definition creates_limit
   {C : Precategory}
-  (D : disp_precat C)
+  (D : disp_cat C)
   {J : graph} (F : diagram J (total_precat D))
   {x : C} (L : cone (mapdiagram (pr1_precat D) F)  x)
   (isL : isLimCone _ x L) : UU
@@ -51,7 +51,7 @@ Definition creates_limit
           forms_cone F (x,,d)  (λ j, (L j ,, δ j))))
   , isLimCone _ _ (mk_cone _ (pr2 (pr2 (iscontrpr1 CC)))).
          
-Definition creates_limits {C : Precategory} (D : disp_precat C) : UU
+Definition creates_limits {C : Precategory} (D : disp_cat C) : UU
 := 
   ∏ {J : graph} (F : diagram J (total_precat D))
     {x : C} (L : cone (mapdiagram (pr1_precat D) F)  x)
@@ -63,7 +63,7 @@ End Creates_Limits.
 Section creates_preserves.
 
 Context {C : Precategory}
-        (D : disp_precat C)
+        (D : disp_cat C)
         (H : creates_limits D)
         (J : graph)
         (X : Lims_of_shape J C).

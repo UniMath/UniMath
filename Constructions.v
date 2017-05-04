@@ -73,27 +73,27 @@ Section full_subcat.
 Variable C : Precategory.
 Variable P : C -> UU.
 
-Definition disp_full_sub_ob_mor : disp_precat_ob_mor C.
+Definition disp_full_sub_ob_mor : disp_cat_ob_mor C.
 Proof.
   exists P.
   intros. exact unit.
 Defined.
 
-Definition disp_full_sub_id_comp : disp_precat_id_comp C disp_full_sub_ob_mor.
+Definition disp_full_sub_id_comp : disp_cat_id_comp C disp_full_sub_ob_mor.
 Proof.
   split; intros; apply tt.
 Qed.
 
-Definition disp_full_sub_data : disp_precat_data C 
+Definition disp_full_sub_data : disp_cat_data C 
   :=  disp_full_sub_ob_mor,, disp_full_sub_id_comp.
 
-Definition disp_full_sub_axioms : disp_precat_axioms _ disp_full_sub_data.
+Definition disp_full_sub_axioms : disp_cat_axioms _ disp_full_sub_data.
 Proof.
   repeat split; intros; try (apply proofirrelevance; apply isapropunit).
   apply isasetaprop; apply isapropunit.
 Qed.
 
-Definition disp_full_sub : disp_precat C := _ ,, disp_full_sub_axioms.                      
+Definition disp_full_sub : disp_cat C := _ ,, disp_full_sub_axioms.                      
 
 End full_subcat.
 
@@ -112,28 +112,28 @@ Variable Hid : ∏ (x : C) (a : P x), H a a (identity _ ).
 Variable Hcomp : ∏ (x y z : C) a b c (f : C⟦x,y⟧) (g : C⟦y,z⟧),
                  H a b f → H b c g → H a c (f ;; g).
 
-Definition disp_struct_ob_mor : disp_precat_ob_mor C.
+Definition disp_struct_ob_mor : disp_cat_ob_mor C.
 Proof.
   exists P.
   intros ? ? f a b; exact (H f a b ).
 Defined.
 
-Definition disp_struct_id_comp : disp_precat_id_comp _ disp_struct_ob_mor.
+Definition disp_struct_id_comp : disp_cat_id_comp _ disp_struct_ob_mor.
 Proof.
   split; cbn; intros.
   - apply Hid.
   - eapply Hcomp. apply X. apply X0.
 Qed.
 
-Definition disp_struct_data : disp_precat_data C := _ ,, disp_struct_id_comp.
+Definition disp_struct_data : disp_cat_data C := _ ,, disp_struct_id_comp.
 
-Definition disp_struct_axioms : disp_precat_axioms _ disp_struct_data.
+Definition disp_struct_axioms : disp_cat_axioms _ disp_struct_data.
 Proof.
   repeat split; intros; try (apply proofirrelevance; apply Hisprop).
   apply isasetaprop; apply Hisprop.
 Qed.
 
-Definition disp_struct : disp_precat C := _ ,, disp_struct_axioms.
+Definition disp_struct : disp_cat C := _ ,, disp_struct_axioms.
 
 End struct_hom.
 
@@ -141,20 +141,20 @@ End struct_hom.
 
 We directly define direct products of displayed categories over a base.
 
-An alternative would be to define the direct product as the [sigma_disp_precat] of the pullback to either factor.  *)
+An alternative would be to define the direct product as the [sigma_disp_cat] of the pullback to either factor.  *)
 Section Dirprod.
 
-Context {C : Precategory} (D1 D2 : disp_precat C).
+Context {C : Precategory} (D1 D2 : disp_cat C).
 
-Definition dirprod_disp_precat_ob_mor : disp_precat_ob_mor C.
+Definition dirprod_disp_cat_ob_mor : disp_cat_ob_mor C.
 Proof.
   exists (fun c => (D1 c × D2 c)).
   intros x y xx yy f.
   exact (pr1 xx -->[f] pr1 yy × pr2 xx -->[f] pr2 yy).
 Defined.
 
-Definition dirprod_disp_precat_id_comp
-  : disp_precat_id_comp _ dirprod_disp_precat_ob_mor.
+Definition dirprod_disp_cat_id_comp
+  : disp_cat_id_comp _ dirprod_disp_cat_ob_mor.
 Proof.
   apply tpair.
   - intros x xx. exact (id_disp _,, id_disp _).
@@ -162,11 +162,11 @@ Proof.
     exact ((pr1 ff ;; pr1 gg),, (pr2 ff ;; pr2 gg)).
 Defined.
 
-Definition dirprod_disp_precat_data : disp_precat_data C
-  := (_ ,, dirprod_disp_precat_id_comp).
+Definition dirprod_disp_cat_data : disp_cat_data C
+  := (_ ,, dirprod_disp_cat_id_comp).
 
-Definition dirprod_disp_precat_axioms
-  : disp_precat_axioms _ dirprod_disp_precat_data.
+Definition dirprod_disp_cat_axioms
+  : disp_cat_axioms _ dirprod_disp_cat_data.
 Proof.
   repeat apply tpair.
   - intros. apply dirprod_paths; refine (id_left_disp @ !_).
@@ -181,11 +181,11 @@ Proof.
   - intros. apply isaset_dirprod; apply homsets_disp.
 Qed.
 
-Definition dirprod_disp_precat : disp_precat C
-  := (_ ,, dirprod_disp_precat_axioms).
+Definition dirprod_disp_cat : disp_cat C
+  := (_ ,, dirprod_disp_cat_axioms).
 
 Definition dirprodpr1_disp_functor_data
-  : disp_functor_data (functor_identity C) dirprod_disp_precat (D1).
+  : disp_functor_data (functor_identity C) dirprod_disp_cat (D1).
 Proof.
   mkpair.
   - intros x xx; exact (pr1 xx).
@@ -201,12 +201,12 @@ Proof.
 Qed.
 
 Definition dirprodpr1_disp_functor
-  : disp_functor (functor_identity C) dirprod_disp_precat (D1)
+  : disp_functor (functor_identity C) dirprod_disp_cat (D1)
 := (dirprodpr1_disp_functor_data,, dirprodpr1_disp_functor_axioms).
 
 
 Definition dirprodpr2_disp_functor_data
-  : disp_functor_data (functor_identity C) dirprod_disp_precat (D2).
+  : disp_functor_data (functor_identity C) dirprod_disp_cat (D2).
 Proof.
   mkpair.
   - intros x xx; exact (pr2 xx).
@@ -222,23 +222,23 @@ Proof.
 Qed.
 
 Definition dirprodpr2_disp_functor
-  : disp_functor (functor_identity C) dirprod_disp_precat (D2)
+  : disp_functor (functor_identity C) dirprod_disp_cat (D2)
 := (dirprodpr2_disp_functor_data,, dirprodpr2_disp_functor_axioms).
 
 End Dirprod.
 
-Notation "D1 × D2" := (dirprod_disp_precat D1 D2) : disp_precat_scope.
-Delimit Scope disp_precat_scope with disp_precat.
-Bind Scope disp_precat_scope with disp_precat.
+Notation "D1 × D2" := (dirprod_disp_cat D1 D2) : disp_cat_scope.
+Delimit Scope disp_cat_scope with disp_cat.
+Bind Scope disp_cat_scope with disp_cat.
 
 (** * Sigmas of displayed (pre)categories *)
 Section Sigma.
 
 Context {C : Precategory}
-        {D : disp_precat C}
-        (E : disp_precat (total_precat D)).
+        {D : disp_cat C}
+        (E : disp_cat (total_precat D)).
 
-Definition sigma_disp_precat_ob_mor : disp_precat_ob_mor C.
+Definition sigma_disp_cat_ob_mor : disp_cat_ob_mor C.
 Proof.
   exists (fun c => ∑ (d : D c), (E (c,,d))).
   intros x y xx yy f.
@@ -246,8 +246,8 @@ Proof.
                 (pr2 xx -->[f,,fD] pr2 yy)).
 Defined.
 
-Definition sigma_disp_precat_id_comp
-  : disp_precat_id_comp _ sigma_disp_precat_ob_mor.
+Definition sigma_disp_cat_id_comp
+  : disp_cat_id_comp _ sigma_disp_cat_ob_mor.
 Proof.
   apply tpair.
   - intros x xx.
@@ -256,12 +256,12 @@ Proof.
     exists (pr1 ff ;; pr1 gg). exact (pr2 ff ;; pr2 gg).
 Defined.
 
-Definition sigma_disp_precat_data : disp_precat_data C
-  := (_ ,, sigma_disp_precat_id_comp).
+Definition sigma_disp_cat_data : disp_cat_data C
+  := (_ ,, sigma_disp_cat_id_comp).
 
 
-Definition sigma_disp_precat_axioms
-  : disp_precat_axioms _ sigma_disp_precat_data.
+Definition sigma_disp_cat_axioms
+  : disp_cat_axioms _ sigma_disp_cat_data.
 Proof.
   repeat apply tpair.
   - intros. use total2_reassoc_paths'.
@@ -282,11 +282,11 @@ Proof.
   - intros. apply isaset_total2; intros; apply homsets_disp.
 Qed.
 
-Definition sigma_disp_precat : disp_precat C
-  := (_ ,, sigma_disp_precat_axioms).
+Definition sigma_disp_cat : disp_cat C
+  := (_ ,, sigma_disp_cat_axioms).
 
 Definition sigmapr1_disp_functor_data
-  : disp_functor_data (functor_identity C) sigma_disp_precat D.
+  : disp_functor_data (functor_identity C) sigma_disp_cat D.
 Proof.
   mkpair.
   - intros x xx; exact (pr1 xx).
@@ -302,7 +302,7 @@ Proof.
 Qed.
 
 Definition sigmapr1_disp_functor
-  : disp_functor (functor_identity C) sigma_disp_precat D
+  : disp_functor (functor_identity C) sigma_disp_cat D
 := (sigmapr1_disp_functor_data,, sigmapr1_disp_functor_axioms).
 
 (* TODO: complete [sigmapr2_disp]; will be a [functor_lifting], not a [disp_functor]. *)
@@ -310,14 +310,14 @@ Definition sigmapr1_disp_functor
 (** ** Transport and isomorphism lemmas *)
 
 Lemma pr1_transportf_sigma_disp {x y : C} {f f' : x --> y} (e : f = f')
-    {xxx : sigma_disp_precat x} {yyy} (fff : xxx -->[f] yyy)
+    {xxx : sigma_disp_cat x} {yyy} (fff : xxx -->[f] yyy)
   : pr1 (transportf _ e fff) = transportf _ e (pr1 fff).
 Proof.
   destruct e; apply idpath.
 Qed.
 
 Lemma pr2_transportf_sigma_disp {x y : C} {f f' : x --> y} (e : f = f')
-    {xxx : sigma_disp_precat x} {yyy} (fff : xxx -->[f] yyy)
+    {xxx : sigma_disp_cat x} {yyy} (fff : xxx -->[f] yyy)
   : pr2 (transportf _ e fff)
   = transportf (fun ff => pr2 xxx -->[ff] _ ) (two_arg_paths_f (*total2_paths2*) e (! pr1_transportf_sigma_disp e fff))
       (pr2 fff).
@@ -334,7 +334,7 @@ Qed.
 Local Open Scope hide_transport_scope.
 
 Definition is_iso_sigma_disp_aux1
-    {x y} {xxx : sigma_disp_precat x} {yyy : sigma_disp_precat y}
+    {x y} {xxx : sigma_disp_cat x} {yyy : sigma_disp_cat y}
     {f : iso x y} (fff : xxx -->[f] yyy) 
     (ii : is_iso_disp f (pr1 fff))
     (ffi := (_,, ii) : iso_disp f (pr1 xxx) (pr1 yyy))
@@ -347,7 +347,7 @@ Proof.
 Defined.
 
 Lemma is_iso_sigma_disp_aux2
-    {x y} {xxx : sigma_disp_precat x} {yyy : sigma_disp_precat y}
+    {x y} {xxx : sigma_disp_cat x} {yyy : sigma_disp_cat y}
     {f : iso x y} (fff : xxx -->[f] yyy) 
     (ii : is_iso_disp f (pr1 fff))
     (ffi := (_,, ii) : iso_disp f (pr1 xxx) (pr1 yyy))
@@ -388,7 +388,7 @@ Proof.
 Time Qed. (* TODO: try to speed this up? *)
 
 Lemma is_iso_sigma_disp
-    {x y} {xxx : sigma_disp_precat x} {yyy : sigma_disp_precat y}
+    {x y} {xxx : sigma_disp_cat x} {yyy : sigma_disp_cat y}
     {f : iso x y} (fff : xxx -->[f] yyy) 
     (ii : is_iso_disp f (pr1 fff))
     (ffi := (_,, ii) : iso_disp f (pr1 xxx) (pr1 yyy))
@@ -400,7 +400,7 @@ Proof.
 Defined.
 
 Definition sigma_disp_iso
-    {x y} (xx : sigma_disp_precat x) (yy : sigma_disp_precat y)
+    {x y} (xx : sigma_disp_cat x) (yy : sigma_disp_cat y)
     {f : iso x y} (ff : iso_disp f (pr1 xx) (pr1 yy))
     (fff : iso_disp (@total_iso _ _ (_,,_) (_,,_) f ff) (pr2 xx) (pr2 yy))
   : iso_disp f xx yy.
@@ -411,7 +411,7 @@ Proof.
 Defined.
 
 Definition sigma_disp_iso_map
-    {x y} (xx : sigma_disp_precat x) (yy : sigma_disp_precat y)
+    {x y} (xx : sigma_disp_cat x) (yy : sigma_disp_cat y)
     (f : iso x y)
   : (∑ ff : iso_disp f (pr1 xx) (pr1 yy),
        iso_disp (@total_iso _ _ (_,,_) (_,,_) f ff) (pr2 xx) (pr2 yy))
@@ -419,7 +419,7 @@ Definition sigma_disp_iso_map
 := fun ff => sigma_disp_iso _ _ (pr1 ff) (pr2 ff).
 
 Lemma sigma_disp_iso_isweq
-    {x y} (xx : sigma_disp_precat x) (yy : sigma_disp_precat y)
+    {x y} (xx : sigma_disp_cat x) (yy : sigma_disp_cat y)
     (f : iso x y)
   : isweq (sigma_disp_iso_map xx yy f).
 Proof.
@@ -427,16 +427,16 @@ Abort.
 
 (*
 Definition sigma_disp_iso_equiv 
-    {x y} (xx : sigma_disp_precat x) (yy : sigma_disp_precat y)
+    {x y} (xx : sigma_disp_cat x) (yy : sigma_disp_cat y)
     (f : iso x y)
 := weqpair _ (sigma_disp_iso_isweq xx yy f).
 *)
 
 (*
-Lemma is_category_sigma_disp (DD : is_category_disp D) (EE : is_category_disp E)
-  : is_category_disp sigma_disp_precat.
+Lemma is_category_sigma_disp (DD : is_univalent_disp D) (EE : is_univalent_disp E)
+  : is_univalent_disp sigma_disp_cat.
 Proof.
-  apply is_category_disp_from_fibers.
+  apply is_univalent_disp_from_fibers.
   intros x xx yy.
   use weqhomot.
   - destruct xx as [xx xxx], yy as [yy yyy].
@@ -496,8 +496,8 @@ Section Functor.
 (* TODO: clean up this section a bit. *)
 
 Variables C' C : Precategory.
-Variable D' : disp_precat C'.
-Variable D : disp_precat C.
+Variable D' : disp_cat C'.
+Variable D : disp_cat C.
 
 Let FunctorsC'C := functor_Precategory C' C.
 
@@ -616,7 +616,7 @@ Proof.
 Qed.
 
 Definition disp_functor_precat : 
-  disp_precat (FunctorsC'C).
+  disp_cat (FunctorsC'C).
 Proof.
   mkpair.
   - mkpair.
@@ -879,7 +879,7 @@ End Functor.
 Section Fiber.
 
 Context {C : Precategory}
-        (D : disp_precat C)
+        (D : disp_cat C)
         (c : C).
 
 Definition fiber_precategory_data : precategory_data.
@@ -978,7 +978,7 @@ Proof.
 Defined.
     
 (** ** Univalence *)
-Variable H : is_category_disp D.
+Variable H : is_univalent_disp D.
 
 Let idto1 (a b : fiber_precategory) : a = b ≃ iso_disp (identity_iso c) a b 
   := 
@@ -1070,7 +1070,7 @@ End fix_context.
 (* TODO: consider lemma organisation in this file *)
 
 Definition is_iso_fiber_from_is_iso_disp
-  {C : Precategory} {D : disp_precat C}
+  {C : Precategory} {D : disp_cat C}
   {c : C} {d d' : D c} (ff : d -->[identity c] d')
   (Hff : is_iso_disp (identity_iso c) ff)
 : @is_iso (fiber_precategory D c) _ _ ff.
