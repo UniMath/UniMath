@@ -306,7 +306,6 @@ End Neighborhood.
 
 Definition locally {T : TopologicalSet} (x : T) : Filter T.
 Proof.
-  intros T x.
   simple refine (mkFilter _ _ _ _ _).
   - apply (neighborhood x).
   - abstract (intros A B ;
@@ -367,7 +366,6 @@ End base_default.
 
 Definition base_of_neighborhood_default {T : TopologicalSet} (x : T) : base_of_neighborhood x.
 Proof.
-  intros T x.
   exists (base_default x).
   split.
   - now apply base_default_1.
@@ -380,7 +378,6 @@ Definition neighborhood' {T : TopologicalSet} (x : T) (B : base_of_neighborhood 
 Lemma neighborhood_equiv {T : TopologicalSet} (x : T) (B : base_of_neighborhood x) :
   ∏ P, neighborhood' x B P <-> neighborhood x P.
 Proof.
-  intros T x B P.
   split.
   - apply hinhuniv.
     intros O.
@@ -409,7 +406,6 @@ Definition isNeighborhood {X : UU} (B : X → (X → hProp) → hProp) :=
 Lemma isNeighborhood_neighborhood {T : TopologicalSet} :
   isNeighborhood (neighborhood (T := T)).
 Proof.
-  intros T.
   repeat split.
   - intros x A B.
     apply (neighborhood_imply x).
@@ -467,7 +463,6 @@ End TopologyFromNeighborhood.
 
 Definition TopologyFromNeighborhood {X : UU} (N : X → (X → hProp) → hProp) (H : isNeighborhood N) : TopologicalSet.
 Proof.
-  intros X N H.
   simple refine (mkTopologicalSet _ _ _ _ _).
   - apply X.
   - intros A.
@@ -488,8 +483,6 @@ Lemma TopologyFromNeighborhood_correct {X : UU} (N : X → (X → hProp) → hPr
   ∏ (x : X) (P : X → hProp),
     N x P <-> neighborhood (T := TopologyFromNeighborhood N H) x P.
 Proof.
-  intros X N H.
-  intros x P.
   split.
   - intros Hx.
     apply hinhpr.
@@ -518,7 +511,7 @@ Qed.
 Lemma isNeighborhood_isPreFilter {X : UU} N :
   isNeighborhood N -> ∏ x : X, isPreFilter (N x).
 Proof.
-  intros X N Hn x.
+  intros Hn x.
   split.
   - apply (pr1 Hn).
   - apply isfilter_finite_intersection_carac.
@@ -528,7 +521,7 @@ Qed.
 Lemma isNeighborhood_isFilter {X : UU} N :
   isNeighborhood N -> ∏ x : X, isFilter (N x).
 Proof.
-  intros X N Hn x.
+  intros Hn x.
   split.
   - apply isNeighborhood_isPreFilter, Hn.
   - intros A Fa.
@@ -645,7 +638,6 @@ End topologygenerated.
 
 Definition TopologyGenerated {X : UU} (O : (X → hProp) → hProp) : TopologicalSet.
 Proof.
-  intros X O.
   simple refine (TopologyFromNeighborhood _ _).
   - apply X.
   - apply topologygenerated, O.
@@ -661,7 +653,7 @@ Lemma TopologyGenerated_included {X : UU} :
   ∏ (O : (X → hProp) → hProp) (P : X → hProp),
     O P → isOpen (T := TopologyGenerated O) P.
 Proof.
-  intros X O P Op.
+  intros O P Op.
   apply neighborhood_isOpen.
   intros x Hx.
   apply TopologyFromNeighborhood_correct.
@@ -681,7 +673,7 @@ Lemma TopologyGenerated_smallest {X : UU} :
     (∏ P : X → hProp, O P → pr1 T P)
     → ∏ P : X → hProp, isOpen (T := TopologyGenerated O) P → pr1 T P.
 Proof.
-  intros X O T Ht P Hp.
+  intros O T Ht P Hp.
   apply (neighborhood_isOpen (T := (X,,T))).
   intros x Px.
   generalize (Hp x Px) ; clear Hp.
@@ -809,7 +801,6 @@ End topologydirprod.
 
 Definition TopologyDirprod (U V : TopologicalSet) : TopologicalSet.
 Proof.
-  intros U V.
   simple refine (TopologyFromNeighborhood _ _).
   - apply (U × V).
   - apply topologydirprod.
@@ -827,7 +818,7 @@ Definition locally2d {T S : TopologicalSet} (x : T) (y : S) : Filter (T × S) :=
 Lemma locally2d_correct {T S : TopologicalSet} (x : T) (y : S) :
   ∏ P : T × S → hProp, locally2d x y P <-> locally (T := TopologyDirprod T S) (x,,y) P.
 Proof.
-  intros T S x y P.
+  intros P.
   split ; apply hinhuniv.
   - intros A.
     apply TopologyFromNeighborhood_correct.
@@ -952,7 +943,6 @@ End topologysubtype.
 
 Definition TopologySubtype {T : TopologicalSet} (dom : T → hProp) : TopologicalSet.
 Proof.
-  intros T dom.
   simple refine (TopologyFromNeighborhood _ _).
   - exact (∑ x : T, dom x).
   - apply topologysubtype.
@@ -1002,7 +992,6 @@ End locally_base.
 
 Definition locally_base {T : TopologicalSet} (x : T) (base : base_of_neighborhood x) : Filter T.
 Proof.
-  intros T x base.
   simple refine (mkFilter _ _ _ _ _).
   - apply (neighborhood' x base).
   - apply locally_base_imply.
@@ -1030,7 +1019,6 @@ Definition ex_filter_lim_base  {T : TopologicalSet} (F : Filter T) :=
 Lemma is_filter_lim_base_correct {T : TopologicalSet} (F : Filter T) (x : T) base :
   is_filter_lim_base F x base <-> is_filter_lim F x.
 Proof.
-  intros T F x base.
   split.
   - intros Hx P HP.
     apply (pr2 (neighborhood_equiv _ base _)) in HP.
@@ -1044,7 +1032,6 @@ Qed.
 Lemma ex_filter_lim_base_correct {T : TopologicalSet} (F : Filter T) :
   ex_filter_lim_base F <-> ex_filter_lim F.
 Proof.
-  intros T F.
   split.
   - apply hinhfun.
     intros x.
@@ -1073,7 +1060,6 @@ Definition ex_lim_base {X : UU} {T : TopologicalSet} (f : X → T) (F : Filter X
 Lemma is_lim_base_correct {X : UU} {T : TopologicalSet} (f : X → T) (F : Filter X) (x : T) base :
   is_lim_base f F x base <-> is_lim f F x.
 Proof.
-  intros X T f F x base.
   split.
   - intros Hx P HP.
     apply Hx, (pr2 (neighborhood_equiv _ _ _)).
@@ -1085,7 +1071,6 @@ Qed.
 Lemma ex_lim_base_correct {X : UU} {T : TopologicalSet} (f : X → T) (F : Filter X) :
   ex_lim_base f F <-> ex_lim f F.
 Proof.
-  intros X T f F.
   split.
   - apply hinhfun.
     intros x.
@@ -1133,14 +1118,13 @@ Lemma continuous_comp {X : UU} {U V : TopologicalSet} (f : X → U) (g : U → V
   is_lim f F l → continuous_at g l →
   is_lim (funcomp f g) F (g l).
 Proof.
-  intros X U V f g F l.
   apply filterlim_comp.
 Qed.
 Lemma continuous2d_comp {X : UU} {U V W : TopologicalSet} (f : X → U) (g : X → V) (h : U → V → W) (F : Filter X) (lf : U) (lg : V) :
   is_lim f F lf → is_lim g F lg → continuous2d_at h lf lg →
   is_lim (λ x, h (f x) (g x)) F (h lf lg).
 Proof.
-  intros X U V W f g h F lf lg Hf Hg.
+  intros Hf Hg.
   apply (filterlim_comp (λ x, (f x ,, g x))).
   intros P.
   apply hinhuniv.
@@ -1156,7 +1140,7 @@ Qed.
 Lemma continuous_tpair {U V : TopologicalSet} :
   continuous2d (W := TopologyDirprod U V) (λ (x : U) (y : V), (x,,y)).
 Proof.
-  intros U V x y P.
+  intros x y P.
   apply hinhuniv.
   intros O.
   simple refine (filter_imply _ _ _ _ _).
@@ -1178,7 +1162,7 @@ Qed.
 Lemma continuous_pr1 {U V : TopologicalSet} :
   continuous (U := TopologyDirprod U V) (λ (xy : U × V), pr1 xy).
 Proof.
-  intros U V xy P.
+  intros xy P.
   apply hinhuniv.
   intros O.
   simple refine (filter_imply _ _ _ _ _).
@@ -1203,7 +1187,7 @@ Qed.
 Lemma continuous_pr2 {U V : TopologicalSet} :
   continuous (U := TopologyDirprod U V) (λ (xy : U × V), pr2 xy).
 Proof.
-  intros U V xy P.
+  intros xy P.
   apply hinhuniv.
   intros O.
   simple refine (filter_imply _ _ _ _ _).

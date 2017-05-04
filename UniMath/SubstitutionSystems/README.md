@@ -13,6 +13,16 @@ Much more on signatures (binding signatures and signatures with strength) and ef
 
 Ahrens, Matthes & Mörtberg, [From signatures to monads in UniMath](https://arxiv.org/abs/1612.00693)
 
+Still more recent material by Ahrens, Matthes & Mörtberg concerns multi-sorted systems.
+
+
+* *MultiSorted.v* --- the main file on multi-sorted binding signatures
+* *MonadsMultiSorted.v* --- an exploration of what a monad allows to do in the slice category
+* *STLC.v* --- the example of simply-typed lambda calculus
+* *CCS.v* --- the example of the calculus of constructions in the style of Streicher
+Not surprisingly, these files heavily depend on the implementation of category theory that had to be extended to fit the needs.
+
+
 # Contents (alphabetic order of files)
 
 * *BindingSigToMonad.v*
