@@ -501,7 +501,7 @@ Definition Precat_of_discrete_fibs : Precategory
 
 
 Definition preshv_data_from_disc_fib_ob (D : discrete_fibration C) 
-  : functor_data C^op HSET_category.
+  : functor_data C^op HSET_univalent_category.
 Proof.
   mkpair.
   + intro c. exists (D c). apply  isaset_fiber_discrete_fibration.
@@ -729,7 +729,7 @@ End Opfibrations.
 Section isofibration_from_disp_over_univalent.
 
 Context (C : Precategory) 
-        (Ccat : is_category C)
+        (Ccat : is_univalent C)
         (D : disp_cat C).
 
 Definition iso_cleaving_category : iso_cleaving D.

@@ -1046,8 +1046,8 @@ Definition total_iso_equiv (xx yy : total_precat)
   ≃ iso xx yy
 := weqpair _ (total_iso_isweq xx yy).
 
-Lemma is_category_total_category (CC : is_category C) (DD : is_univalent_disp D)
-  : is_category (total_precat).
+Lemma is_category_total_category (CC : is_univalent C) (DD : is_univalent_disp D)
+  : is_univalent (total_precat).
 Proof.
   split. Focus 2. apply homset_property.
   intros xs ys.

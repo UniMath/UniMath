@@ -28,7 +28,7 @@ Section SIP.
 (** ** The data and properties according to HoTT book, chapter 9.8 *)
 
 Variable C : Precategory.
-Variable univC : is_category C.
+Variable univC : is_univalent C.
 Variable P : ob C -> UU.
 Variable Pisset : ∏ x, isaset (P x).
 Variable H : ∏ (x y : C), P x → P y → C⟦x,y⟧ → UU.
@@ -63,7 +63,7 @@ Defined.
 
 (** ** The conclusion of SIP: total category is univalent *)
 
-Definition SIP : is_category (total_precat disp_cat_from_SIP_data).
+Definition SIP : is_univalent (total_precat disp_cat_from_SIP_data).
 Proof.
   apply is_category_total_category.
   - apply univC.

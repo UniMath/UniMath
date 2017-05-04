@@ -102,7 +102,7 @@ End full_subcat.
 Section struct_hom.
 
 Variable C : Precategory.
-Variable univC : is_category C.
+Variable univC : is_univalent C.
 Variable P : ob C -> UU.
 (* Variable Pisset : ∏ x, isaset (P x). *)
 Variable H : ∏ (x y : C), P x → P y → C⟦x,y⟧ → UU.
@@ -1010,7 +1010,7 @@ Proof.
 Defined.    
 
 
-Lemma is_category_fiber : is_category fiber_precategory.
+Lemma is_univalent_fiber : is_univalent fiber_precategory.
 Proof.
   split.
   - apply is_univalent_fiber_precat.
