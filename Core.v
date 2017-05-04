@@ -728,8 +728,8 @@ Qed.
 
 End Utilities.
 
-(** ** Saturation: displayed categories *)
-Section Categories.
+(** ** Saturation: displayed univalent categories *)
+Section Univalent_Categories.
 
 (** The current [is_univalent_disp] is certainly the correct definition in the case where the base precategory [C] is a category.
 
@@ -747,23 +747,23 @@ Proof.
   intros H x x' e. destruct e. apply H.
 Qed.
 
-Definition disp_category C
+Definition disp_univalent_category C
   := ∑ D : disp_cat C, is_univalent_disp D.
 
-Definition disp_category_pair
+Definition disp_univalent_category_pair
     {C} {D : disp_cat C} (H : is_univalent_disp D)
-  : disp_category C
+  : disp_univalent_category C
 := (D,,H).
 
-Definition disp_cat_of_disp_cat {C} (D : disp_category C)
+Definition disp_cat_of_disp_univalent_cat {C} (D : disp_univalent_category C)
   : disp_cat C
 := pr1 D.
-Coercion disp_cat_of_disp_cat : disp_category >-> disp_cat.
+Coercion disp_cat_of_disp_univalent_cat : disp_univalent_category >-> disp_cat.
 
-Definition category_is_univalent_disp {C} (D : disp_category C)
+Definition disp_univalent_category_is_univalent_disp {C} (D : disp_univalent_category C)
   : is_univalent_disp D
 := pr2 D.
-Coercion category_is_univalent_disp : disp_category >-> is_univalent_disp.
+Coercion disp_univalent_category_is_univalent_disp : disp_univalent_category >-> is_univalent_disp.
 
 Definition isotoid_disp
     {C} {D : disp_cat C} (D_cat : is_univalent_disp D)
@@ -789,14 +789,14 @@ Proof.
   refine (homotinvweqweq _ _).
 Qed.
 
-End Categories.
+End Univalent_Categories.
 
 
 (** * Total categories *)
 
 (** ** Definition and forgetful functor *)
 
-(* Any displayed precategory has a total precategory, with a forgetful functor to the base category. *)
+(* Any displayed category has a total precategory, with a forgetful functor to the base category. *)
 Section Total_Precat.
 
 Context {C : Precategory} (D : disp_cat C).
