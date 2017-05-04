@@ -126,7 +126,7 @@ Section def_zero.
   Definition hasZero := ishinh Zero.
 
   Section Zero_Unique.
-    Hypothesis H : is_category C.
+    Hypothesis H : is_univalent C.
 
     Lemma isaprop_Zero : isaprop Zero.
     Proof.

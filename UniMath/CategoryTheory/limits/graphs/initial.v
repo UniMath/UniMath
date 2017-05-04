@@ -104,7 +104,7 @@ Definition hasInitial := ishinh Initial.
 (* TODO: This should be an instance of a general result for colimits *)
 (* Section Initial_Unique. *)
 
-(* Hypothesis H : is_category C. *)
+(* Hypothesis H : is_univalent C. *)
 
 (* Lemma isaprop_Initial : isaprop Initial. *)
 (* Proof. *)

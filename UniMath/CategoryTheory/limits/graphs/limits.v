@@ -337,9 +337,9 @@ Definition Lims_of_shape (g : graph) (C : precategory) : UU :=
 
 Section Universal_Unique.
 
-Variable (C : category).
+Variable (C : univalent_category).
 
-Let H : is_category C := pr2 C.
+Let H : is_univalent C := pr2 C.
 
 Lemma isaprop_Lims : isaprop (Lims C).
 Proof.
@@ -352,7 +352,7 @@ apply subtypeEquality.
   set (C' (c : C) f := ∏ u v (e : edge u v), @compose _ c _ _ (f u) (dmor cc e) = f v).
   rewrite (@transportf_total2 _ B C').
   apply subtypeEquality.
-  + intro; repeat (apply impred; intro); apply category_has_homsets.
+  + intro; repeat (apply impred; intro); apply univalent_category_has_homsets.
   + abstract (now simpl; eapply pathscomp0; [apply transportf_isotoid_dep'|];
               apply funextsec; intro v; rewrite inv_isotoid, idtoiso_isotoid;
               cbn; unfold precomp_with; rewrite id_right; apply limArrowCommutes).

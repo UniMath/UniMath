@@ -55,7 +55,7 @@ Section precomp_w_ess_surj_ff_is_ess_surj.
 (** ** Section variables *)
 
 Variables A B C : precategory.
-Hypothesis Ccat : is_category C.
+Hypothesis Ccat : is_univalent C.
 Variable H : functor A B.
 Hypothesis p : essentially_surjective H.
 Hypothesis fH : fully_faithful H.

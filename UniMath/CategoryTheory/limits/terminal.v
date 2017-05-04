@@ -73,7 +73,7 @@ Definition hasTerminal := ishinh Terminal.
 
 Section Terminal_Unique.
 
-Hypothesis H : is_category C.
+Hypothesis H : is_univalent C.
 
 Lemma isaprop_Terminal : isaprop Terminal.
 Proof.

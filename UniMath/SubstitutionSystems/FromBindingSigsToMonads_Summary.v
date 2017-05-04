@@ -117,7 +117,7 @@ Definition Colims : precategory → UU :=
   @UniMath.CategoryTheory.limits.graphs.colimits.Colims.
 
 (** Remark 20: Uniqueness of colimits *)
-Lemma isaprop_Colims : ∏ C : category, isaprop (Colims C).
+Lemma isaprop_Colims : ∏ C : univalent_category, isaprop (Colims C).
 Proof.
 exact @UniMath.CategoryTheory.limits.graphs.colimits.isaprop_Colims.
 Defined.

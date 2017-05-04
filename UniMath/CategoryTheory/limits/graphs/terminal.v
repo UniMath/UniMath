@@ -105,7 +105,7 @@ Definition hasTerminal := ishinh Terminal.
 (* TODO: This should be an instance of a general result for limits *)
 (* Section Terminal_Unique. *)
 
-(* Hypothesis H : is_category C. *)
+(* Hypothesis H : is_univalent C. *)
 
 (* Lemma isaprop_Terminal : isaprop Terminal. *)
 (* Proof. *)

@@ -42,7 +42,7 @@ Definition Representation {C:Precategory} (X:[C^op,SET]) : UU
 
 Definition isRepresentable {C:Precategory} (X:[C^op,SET]) := ∥ Representation X ∥.
 
-Lemma isaprop_Representation {C:category} (X:[C^op,SET]) :
+Lemma isaprop_Representation {C: univalent_category} (X:[C^op,SET]) :
   isaprop (@Representation C X).
 Proof.
 

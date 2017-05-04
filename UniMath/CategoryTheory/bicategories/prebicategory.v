@@ -269,7 +269,7 @@ Definition prebicategory_has_2mor_sets {C : prebicategory} (a b : C)
   := (pr1 (pr2 C)) a b.
 
 Definition has_homcats (C : prebicategory)
-  := forall a b : C, is_category (a -1-> b).
+  := forall a b : C, is_univalent (a -1-> b).
 
 Definition associator {C : prebicategory} { a b c d : C }
            (f : a -1-> b)

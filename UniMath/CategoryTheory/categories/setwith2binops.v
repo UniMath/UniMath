@@ -177,14 +177,14 @@ Section def_setwith2binop_category.
   Defined.
   Opaque setwith2binop_precategory_isweq.
 
-  Definition setwith2binop_precategory_is_category : is_category setwith2binop_precategory.
+  Definition setwith2binop_precategory_is_univalent : is_univalent setwith2binop_precategory.
   Proof.
-    use mk_is_category.
+    use mk_is_univalent.
     - intros X Y. exact (setwith2binop_precategory_isweq X Y).
     - exact has_homsets_setwith2binop_precategory.
   Defined.
 
-  Definition setwith2binop_category : category :=
-    mk_category setwith2binop_precategory setwith2binop_precategory_is_category.
+  Definition setwith2binop_category : univalent_category :=
+    mk_category setwith2binop_precategory setwith2binop_precategory_is_univalent.
 
 End def_setwith2binop_category.

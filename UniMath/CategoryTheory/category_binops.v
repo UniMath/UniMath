@@ -207,7 +207,7 @@ Section BINOP_category.
   Defined.
   Opaque binop_precategory_isweq.
 
-  Definition binop_precategory_is_category : is_category binop_precategory.
+  Definition binop_precategory_is_univalent : is_univalent binop_precategory.
   Proof.
     use dirprodpair.
     - intros a b. exact (binop_precategory_isweq a b).

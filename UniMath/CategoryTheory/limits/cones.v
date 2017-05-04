@@ -1,7 +1,7 @@
 (**
 
 Definition of the precategory of cones over a precategory C together with a proof that that
-precategory is a category if C is ([is_category_CONE]).
+precategory is a univalent_category if C is ([is_univalent_CONE]).
 
 Written by Benedikt Ahrens, following discussions with J. Gross, D. Grayson and V. Voevodsky
 *)
@@ -215,7 +215,7 @@ Defined.
 
 Section CONE_category.
 
-Hypothesis is_cat_C : is_category C.
+Hypothesis is_cat_C : is_univalent C.
 
 
 Definition isotoid_CONE_pr1 (a b : CONE) : iso a b -> pr1 a = pr1 b.
@@ -317,7 +317,7 @@ Proof.
 Qed.
 
 
-Lemma is_category_CONE : is_category CONE.
+Lemma is_univalent_CONE : is_univalent CONE.
 Proof.
   split.
   - intros a b.

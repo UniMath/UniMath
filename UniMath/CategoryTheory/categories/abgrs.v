@@ -193,15 +193,15 @@ Section def_abgr_category.
     - use proofirrelevance. use isaprop_is_iso.
   Qed.
 
-  Definition abgr_Precategory_is_category : is_category abgr_Precategory.
+  Definition abgr_Precategory_is_univalent : is_univalent abgr_Precategory.
   Proof.
     use dirprodpair.
     - intros a b. exact (abgr_Precategory_isweq a b).
     - exact has_homsets_abgr.
   Defined.
 
-  Definition abgr_category : category :=
-    mk_category abgr_Precategory abgr_Precategory_is_category.
+  Definition abgr_category : univalent_category :=
+    mk_category abgr_Precategory abgr_Precategory_is_univalent.
 
 End def_abgr_category.
 

@@ -284,9 +284,9 @@ Definition Lims_of_shape (J C : precategory) : UU := ∏ (F : functor J C), LimC
 
 Section Universal_Unique.
 
-Context (C : category).
+Context (C : univalent_category).
 
-Let H : is_category C := pr2 C.
+Let H : is_univalent C := pr2 C.
 
 Lemma isaprop_Lims: isaprop (Lims C).
 Proof.
