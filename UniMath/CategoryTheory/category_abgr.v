@@ -236,16 +236,36 @@ Section ABGR_category.
       + apply proofirrelevance. apply isaprop_is_iso.
   Qed.
 
-  Definition hbinop_equiv_iso_weq (A B : ABGR) :
+  Definition abgr_equiv_iso_weq (A B : ABGR) :
     weq (monoidiso (abgrtoabmonoid A) (abgrtoabmonoid B)) (iso A B).
   Proof.
     exists (abgr_equiv_iso A B).
     apply abgr_equiv_iso_is_equiv.
-  Qed.
+  Defined.
 
+  Definition abgr_precategory_isweq (a b : ABGR) :
+    isweq (λ p : a = b, idtoiso p).
+  Proof.
+    use (@isweqhomot
+           (a = b) (iso a b)
+           (pr1weq (weqcomp (abgr_univalence a b) (abgr_equiv_iso_weq a b)))
+           _ _ (weqproperty (weqcomp (abgr_univalence a b) (abgr_equiv_iso_weq a b)))).
+    intros e. induction e.
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use total2_paths_f.
+    - use total2_paths_f.
+      + use idpath.
+      + use proofirrelevance. use isapropismonoidfun.
+    - use proofirrelevance. use isaprop_is_iso.
+  Defined.
+  Opaque abgr_precategory_isweq.
 
-(** ** HERE ONE SHOULD ADD A PROOF THAT ABGR IS ACTUALLY A CATEGORY.
-         See category_hset.v *)
+  Definition abgr_precategory_is_category : is_category abgr_precategory.
+  Proof.
+    use dirprodpair.
+    - intros a b. exact (abgr_precategory_isweq a b).
+    - exact has_homsets_ABGR.
+  Defined.
 
 End ABGR_category.
 
@@ -2018,47 +2038,20 @@ Section ABGR_abelianprecat.
     set (Add := ABGR_Additive).
     set (BinDS := to_BinDirectSums Add).
     use (mk_Abelian ABGR).
-    (* Data1 *)
-    - unfold Data1.
-      split.
+    - use mk_Data1.
       + exact (ABGR_has_zero). (* zero object *)
-      + split.
-        * intros X Y. exact (BinDirectSum_BinProduct _ (BinDS X Y)). (* BinProducts *)
-        * intros X Y. exact (BinDirectSum_BinCoproduct _ (BinDS X Y)). (* BinCoproducts *)
-    (* Data *)
-    - unfold AbelianData.
-      split.
-      + unfold Data2.
-        split.
+      + intros X Y. exact (BinDirectSum_BinProduct _ (BinDS X Y)). (* BinProducts *)
+      + intros X Y. exact (BinDirectSum_BinCoproduct _ (BinDS X Y)). (* BinCoproducts *)
+    - use mk_AbelianData.
+      + use mk_Data2.
         * intros A B f. exact (ABGR_Kernel f). (* Kernels *)
         * intros A B f. exact (ABGR_Cokernel f). (* Cokernels *)
-      + split.
-        (* Monics are kernels of epis *)
-        * use mk_AbelianMonicKernelsData.
-          intros x y M.
-          set (monic_ker := ABGR_monic_kernel (pr1 M) (pr2 M)).
-          use tpair.
-          -- use tpair.
-             ++ use tpair.
-                ** exact (ABGR_Cokernel (pr1 M)).
-                ** exact (CokernelArrow (ABGR_Cokernel (pr1 M))).
-             ++ use dirprodpair.
-                ** exact (CokernelArrowisEpi _ (ABGR_Cokernel (pr1 M))).
-                ** exact (KernelCompZero ABGR_has_zero monic_ker).
-          -- exact (KernelisKernel _ monic_ker).
-        (* Epis are cokernels *)
-        * use mk_AbelianEpiCokernelsData.
-          intros x y E.
-          set (epi_coker := ABGR_epi_cokernel (pr1 E) (pr2 E)).
-          use tpair.
-          -- use tpair.
-             ++ use tpair.
-                ** exact (ABGR_Kernel (pr1 E)).
-                ** exact (KernelArrow (ABGR_Kernel (pr1 E))).
-             ++ use dirprodpair.
-                ** exact (KernelArrowisMonic _ (ABGR_Kernel (pr1 E))).
-                ** exact (CokernelCompZero ABGR_has_zero epi_coker).
-          -- exact (CokernelisCokernel _ epi_coker).
+      + use mk_MonicsAreKernels.
+        intros x y M.
+        exact (KernelisKernel ABGR_has_zero (ABGR_monic_kernel M (MonicisMonic ABGR M))).
+      + use mk_EpisAreCokernels.
+        intros x y E.
+        exact (CokernelisCokernel _ (ABGR_epi_cokernel E (EpiisEpi ABGR E))).
   Defined.
 
 End ABGR_abelianprecat.
@@ -2069,7 +2062,7 @@ Section ABGR_corollaries.
   (** Some applications to Additive categories *)
   Lemma AdditiveZeroArrow_postmor_Abelian {Add : Additive} (x y z : Add) :
     to_postmor_monoidfun Add x y z (ZeroArrow (Additive.to_Zero Add) y z) =
-    ZeroArrow (@to_Zero ABGR_AbelianPreCat) (@to_abgrop Add x y) (@to_abgrop Add x z).
+    ZeroArrow (to_Zero ABGR_AbelianPreCat) (@to_abgrop Add x y) (@to_abgrop Add x z).
   Proof.
     rewrite ABGR_has_zero_arrow_eq.
     unfold to_postmor_monoidfun.
@@ -2083,7 +2076,7 @@ Section ABGR_corollaries.
 
   Lemma AdditiveZeroArrow_premor_Abelian {Add : Additive} (x y z : Add) :
     to_premor_monoidfun Add x y z (ZeroArrow (Additive.to_Zero Add) x y) =
-    ZeroArrow (@to_Zero ABGR_AbelianPreCat) (@to_abgrop Add y z) (@to_abgrop Add x z).
+    ZeroArrow (to_Zero ABGR_AbelianPreCat) (@to_abgrop Add y z) (@to_abgrop Add x z).
   Proof.
     rewrite ABGR_has_zero_arrow_eq.
     unfold to_premor_monoidfun.
@@ -2198,11 +2191,11 @@ Section ABGR_corollaries.
   Local Opaque ZeroArrow.
 
   Definition ABGR_isKernel_iscontr {X Y Z : ABGR} (f : X --> Y) (g : Y --> Z)
-             (ZA : f · g = @ZeroArrow ABGR_AbelianPreCat (@to_Zero ABGR_AbelianPreCat) _ _)
+             (ZA : f · g = @ZeroArrow ABGR_AbelianPreCat (to_Zero ABGR_AbelianPreCat) _ _)
              (H : ∏ (D : (∑ y : pr1 Y, pr1 g y = 1%multmonoid)),
                   ∥ ∑ (x : abgrtogr X), monoidfuntobinopfun _ _ f x = (pr1 D) ∥)
              (isM : @isMonic ABGR _ _ f) (W : ABGR) (h : W --> Y)
-             (H' : h · g = @ZeroArrow ABGR (@to_Zero ABGR_AbelianPreCat) W Z) (w' : pr1 W) :
+             (H' : h · g = @ZeroArrow ABGR (to_Zero ABGR_AbelianPreCat) W Z) (w' : pr1 W) :
     iscontr (∑ (x : abgrtogr X), monoidfuntobinopfun _ _ f x = pr1 h w').
   Proof.
     cbn in H'. rewrite <- (@PreAdditive_unel_zero (ABGR_PreAdditive)) in H'.
@@ -2230,11 +2223,11 @@ Section ABGR_corollaries.
   Qed.
 
   Definition ABGR_isKernel {X Y Z : ABGR} (f : X --> Y) (g : Y --> Z)
-             (ZA : f · g = @ZeroArrow ABGR_AbelianPreCat (@to_Zero ABGR_AbelianPreCat) _ _)
+             (ZA : f · g = @ZeroArrow ABGR_AbelianPreCat (to_Zero ABGR_AbelianPreCat) _ _)
              (H : ∏ (D : (∑ y : pr1 Y, pr1 g y = 1%multmonoid)),
                   ∥ ∑ (x : abgrtogr X), monoidfuntobinopfun _ _ f x = (pr1 D) ∥)
              (isM : @isMonic ABGR _ _ f) :
-    isKernel (@to_Zero ABGR_AbelianPreCat) f g ZA.
+    isKernel (to_Zero ABGR_AbelianPreCat) f g ZA.
   Proof.
     use mk_isKernel.
     - exact has_homsets_ABGR.

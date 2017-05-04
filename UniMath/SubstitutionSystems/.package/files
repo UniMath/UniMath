@@ -19,5 +19,7 @@ BindingSigToMonad.v
 LamFromBindingSig.v
 MLTT79.v
 FromBindingSigsToMonads_Summary.v
+MonadsMultiSorted.v
 MultiSorted.v
 STLC.v
+CCS.v

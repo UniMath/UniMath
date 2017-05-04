@@ -19,3 +19,6 @@ Ltac unimath_easy :=
 
 (** Override the Coq now tactic so that it uses unimath_easy instead *)
 Tactic Notation "now" tactic(t) := t; unimath_easy.
+
+(* hSet_induction in Foundations is wrong, so redefine it here: *)
+Ltac hSet_induction f e := generalize f; apply hSet_rect; intro e; clear f.

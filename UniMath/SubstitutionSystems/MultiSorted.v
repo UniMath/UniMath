@@ -64,6 +64,7 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
+Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
 
 Local Open Scope cat.
 
@@ -95,6 +96,8 @@ now apply has_homsets_slice_precat.
 Defined.
 
 Let hs : has_homsets (SET / sort) := homset_property SET_over_sort.
+
+Let BC := BinCoproducts_slice_precat has_homsets_HSET BinCoproductsHSET sort: BinCoproducts (SET / sort).
 
 (** Definition of multi sorted signatures *)
 Definition MultiSortedSig : UU :=
@@ -137,15 +140,21 @@ mkpair.
             apply subtypeEquality; try (intro x; apply has_homsets_HSET)).
 Defined.
 
+(*
 (** The object (1,λ _,s) in SET/sort that can be seen as a sorted variable *)
 Local Definition constHSET_slice (s : sort) : SET / sort.
 Proof.
 exists (TerminalObject TerminalHSET); simpl.
 apply (λ x, s).
 Defined.
+ *)
+Local Definition constHSET_slice := constHSET_slice sort.
 
+(*
 Definition sorted_option_functor (s : sort) : functor (SET / sort) (SET / sort) :=
   constcoprod_functor1 (BinCoproducts_HSET_slice sort) (constHSET_slice s).
+ *)
+Local Definition sorted_option_functor := sorted_option_functor sort.
 
 (** Sorted option functor for lists (also called option in the note) *)
 Local Definition option_list (xs : list sort) : functor (SET / sort) (SET / sort).

@@ -3,7 +3,7 @@ Facts about set valued functors
 
 - epimorphic natural transformations are pointwise epimorphic
 - epimorphic natural transformations enjoy a universal property similar to
-surjections (univ_surj_nt)
+surjections [univ_surj_nt]
 - Definition of a quotient functor
 
 Ambroise LAFONT January 2017
@@ -50,7 +50,7 @@ Given the following diagram :
  B
 >>>
 there exists a unique natural transformation from B to C that makes the diagram
-commute provided that for any set X, any x,y in X, if p_X x = p_X y then f_X x = f_X y
+commute provided that for any set X, any x,y in X, if [p x = p y] then [f x = f y]
 
 This property comes from the fact that p is an effective epimorphism.
 *)
@@ -134,11 +134,11 @@ Let C be a category
 Let R be a functor from C to Set.
 
 Let X be an object of C
-Let ~_X a family of equivalence relations on RX satisfying
-if x ~_X y and f : X -> Y, then f(x) ~_Y f(y).
+Let tilde a family of equivalence relations on RX satisfying
+if [x tilde y] and [f : X -> Y], then [f(x) tilde f(y)].
 
-Then we can define R' := R/~ as a functor which to any X associates R'X := RX / ~_X
-Moreover, there is an epimorphism pr_quot_functor : R -> R'
+Then we can define [R'] as a functor which to any X associates [R'X = RX mod tilde]
+Moreover, there is an epimorphism [pr_quot_functor : R -> R']
 
  *)
 Section QuotientFunctor.
@@ -146,15 +146,15 @@ Section QuotientFunctor.
   Context { D:precategory}.
   Variable (R:functor D HSET).
 
-  (** This is ~_X *)
+  (** This is [tilde] *)
   Variable (hequiv : ∏ (d:D),eqrel (pr1hSet (R d))).
 
-  (** The relations satisfied by hequiv (~_X) *)
+  (** The relations satisfied by [hequiv (tilde)] *)
   Hypothesis (congru: ∏ (x y:D) (f:D⟦ x,  y⟧), iscomprelrelfun (hequiv x) (hequiv y) (#R f)).
 
   (** Definition of the quotient functor *)
   (* not using setquotinset directly because as isasetsetquot is not opaque it would make
-     computation slow in some cases (see issue #548) *)
+     computation slow in some cases (see issue 548) *)
   Definition quot_functor_ob (d:D) :hSet.
   Proof.
     mkpair.
