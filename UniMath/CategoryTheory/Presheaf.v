@@ -1,11 +1,11 @@
-(** **********************************************************
+(** ****************************************************************************
 
 Theory about set-valued presheaves. We write PreShv C for [C^op,HSET].
 
 Contents:
 
-- Limits ([Lims_PreShv], [Lims_PreShv_of_shape])
-- Colimits ([Colims_PreShv], [Colims_PreShv_of_shape])
+- Limits ([Lims_PreShv_of_shape])
+- Colimits ([Colims_PreShv_of_shape])
 - Binary products ([BinProducts_PreShv])
 - Indexed products ([Products_PreShv])
 - Binary coproducts ([BinCoproducts_PreShv])
@@ -16,15 +16,18 @@ Contents:
 - Exponentials ([has_exponentials_PreShv])
 - Constant presheaf ([constant_PreShv])
 - Definition of the subobject classifier (without proof) ([Ω_PreShv], [Ω_mor])
-
+- Proof that Ω_PreShv is a bounded lattice object ([Ω_PreShv_lattice],
+  [Ω_PreShv_bounded_lattice])
 
 Written by: Anders Mörtberg, 2017
 
-************************************************************)
+********************************************************************************)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+
+Require Import UniMath.Algebra.Lattice.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
@@ -43,30 +46,149 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Monics.
+Require Import UniMath.CategoryTheory.LatticeObject.
 
 Local Open Scope cat.
 
 Notation "'PreShv' C" := [C^op,HSET,has_homsets_HSET] (at level 3) : cat.
+
+(* TODO: upstream *)
+Section hProp_lattice.
+
+Lemma isassoc_hconj (P Q R : hProp) : ((P ∧ Q) ∧ R) = (P ∧ (Q ∧ R)).
+Proof.
+apply hPropUnivalence.
+- intros PQR.
+  exact (pr1 (pr1 PQR),,(pr2 (pr1 PQR),,pr2 PQR)).
+- intros PQR.
+  exact ((pr1 PQR,,pr1 (pr2 PQR)),,pr2 (pr2 PQR)).
+Qed.
+
+Lemma iscomm_hconj (P Q : hProp) : (P ∧ Q) = (Q ∧ P).
+Proof.
+apply hPropUnivalence.
+- intros PQ.
+  exact (pr2 PQ,,pr1 PQ).
+- intros QP.
+  exact (pr2 QP,,pr1 QP).
+Qed.
+
+Lemma isassoc_hdisj (P Q R : hProp) : ((P ∨ Q) ∨ R) = (P ∨ (Q ∨ R)).
+Proof.
+apply hPropUnivalence.
+- apply hinhuniv; intros hPQR.
+  induction hPQR as [hPQ|hR].
+  + use (hinhuniv _ hPQ); clear hPQ; intros hPQ.
+    induction hPQ as [hP|hQ].
+    * exact (hinhpr (ii1 hP)).
+    * exact (hinhpr (ii2 (hinhpr (ii1 hQ)))).
+  + exact (hinhpr (ii2 (hinhpr (ii2 hR)))).
+- apply hinhuniv; intros hPQR.
+  induction hPQR as [hP|hQR].
+  + exact (hinhpr (ii1 (hinhpr (ii1 hP)))).
+  + use (hinhuniv _ hQR); clear hQR; intros hQR.
+    induction hQR as [hQ|hR].
+    * exact (hinhpr (ii1 (hinhpr (ii2 hQ)))).
+    * exact (hinhpr (ii2 hR)).
+Qed.
+
+Lemma iscomm_hdisj (P Q : hProp) : (P ∨ Q) = (Q ∨ P).
+Proof.
+apply hPropUnivalence.
+- apply hinhuniv; intros PQ.
+  induction PQ as [hP|hQ].
+  + exact (hinhpr (ii2 hP)).
+  + exact (hinhpr (ii1 hQ)).
+- apply hinhuniv; intros PQ.
+  induction PQ as [hQ|hP].
+  + exact (hinhpr (ii2 hQ)).
+  + exact (hinhpr (ii1 hP)).
+Qed.
+
+Lemma hconj_absorb_hdisj (P Q : hProp) : (P ∧ (P ∨ Q)) = P.
+Proof.
+apply hPropUnivalence.
+- intros hPPQ; apply (pr1 hPPQ).
+- intros hP.
+  split; [ apply hP | apply (hinhpr (ii1 hP)) ].
+Qed.
+
+Lemma hdisj_absorb_hconj (P Q : hProp) : (P ∨ (P ∧ Q)) = P.
+Proof.
+apply hPropUnivalence.
+- apply hinhuniv; intros hPPQ.
+  induction hPPQ as [hP|hPQ].
+  + exact hP.
+  + exact (pr1 hPQ).
+- intros hP; apply (hinhpr (ii1 hP)).
+Qed.
+
+Lemma hfalse_hdisj (P : hProp) : (∅ ∨ P) = P.
+Proof.
+apply hPropUnivalence.
+- apply hinhuniv; intros hPPQ.
+  induction hPPQ as [hF|hP].
+  + induction hF.
+  + exact hP.
+- intros hP; apply (hinhpr (ii2 hP)).
+Qed.
+
+Lemma htrue_hconj (P : hProp) : (htrue ∧ P) = P.
+Proof.
+apply hPropUnivalence.
+- intros hP; apply (pr2 hP).
+- intros hP.
+  split; [ apply tt | apply hP ].
+Qed.
+
+Definition hProp_lattice : lattice (hProp,,isasethProp).
+Proof.
+use mklattice.
+- intros P Q; exact (P ∧ Q).
+- simpl; intros P Q; exact (P ∨ Q).
+- repeat split.
+  + intros P Q R; apply isassoc_hconj.
+  + intros P Q; apply iscomm_hconj.
+  + intros P Q R; apply isassoc_hdisj.
+  + intros P Q; apply iscomm_hdisj.
+  + intros P Q; apply hconj_absorb_hdisj.
+  + intros P Q; apply hdisj_absorb_hconj.
+Defined.
+
+Definition hProp_bounded_lattice : bounded_lattice (hProp,,isasethProp).
+Proof.
+use mkbounded_lattice.
+- exact hProp_lattice.
+- exact hfalse.
+- exact htrue.
+- split.
+  + intros P; apply hfalse_hdisj.
+  + intros P; apply htrue_hconj.
+Defined.
+
+End hProp_lattice.
 
 (** Various limits and colimits in PreShv C *)
 Section limits.
 
 Context {C : precategory}.
 
-Lemma Lims_PreShv : Lims (PreShv C).
-Proof.
-now apply LimsFunctorCategory, LimsHSET.
-Defined.
+(* This should be only small limits *)
+(* Lemma Lims_PreShv : Lims (PreShv C). *)
+(* Proof. *)
+(* now apply LimsFunctorCategory, LimsHSET. *)
+(* Defined. *)
 
 Lemma Lims_PreShv_of_shape (g : graph) : Lims_of_shape g (PreShv C).
 Proof.
 now apply LimsFunctorCategory_of_shape, LimsHSET_of_shape.
 Defined.
 
-Lemma Colims_PreShv : Colims (PreShv C).
-Proof.
-now apply ColimsFunctorCategory, ColimsHSET.
-Defined.
+(* This should be only small colimits *)
+(* Lemma Colims_PreShv : Colims (PreShv C). *)
+(* Proof. *)
+(* now apply ColimsFunctorCategory, ColimsHSET. *)
+(* Defined. *)
 
 Lemma Colims_PreShv_of_shape (g : graph) : Colims_of_shape g (PreShv C).
 Proof.
@@ -134,8 +256,11 @@ Definition empty_PreShv : PreShv C := constant_PreShv emptyHSET.
 
 End presheaves.
 
-(** Definition of the subobject classifier in a presheaf
-    TODO: Prove that Ω actually is the subobject classifier  *)
+(** * Definition of the subobject classifier in a presheaf. *)
+(**
+See: "Sheaves in Geometry and Logic" by Mac Lane and Moerdijk (page 37)
+*)
+(* TODO: Prove that Ω actually is the subobject classifier  *)
 Section Ω_PreShv.
 
 Context {C : precategory}.
@@ -143,41 +268,103 @@ Context {C : precategory}.
 Definition sieve_def (c : C) : UU.
 Proof.
 use total2.
-- apply (∏ (x : C) (f : C⟦x,c⟧), hProp).
+- apply (hsubtype (∑ (x : C),C⟦x,c⟧)).
 - intros S.
-  apply (∏ (x : C) (f : C⟦x,c⟧), S x f → ∏ (y : C) (f' : C⟦y,x⟧), S y (f' · f)).
+  apply (∏ (s1 : ∑ (x : C),C⟦x,c⟧), S s1 →
+         ∏ y (f : C⟦y,pr1 s1⟧), S (y,, f · pr2 s1)).
 Defined.
 
 Lemma isaset_sieve (c : C) : isaset (sieve_def c).
 Proof.
 use isaset_total2.
-- repeat (apply impred_isaset; intro); apply isasethProp.
-- intros S; simpl; repeat (apply impred_isaset; intro); apply isasetaprop, propproperty.
+- apply isasethsubtype.
+- intros S; repeat (apply impred_isaset; intro); apply isasetaprop, propproperty.
 Qed.
 
 (* If I use HSET here the coercion isn't triggered later and I need to insert pr1 explicitly *)
 Definition sieve (c : C) : hSet := (sieve_def c,,isaset_sieve c).
 
+Definition pr1sieve {c : C} : sieve_def c → hsubtype _ := @pr1 _ _.
+Coercion pr1sieve : sieve_def >-> hsubtype.
+
 Lemma sieve_eq (c : C) (s t : sieve c) (H : pr1 s = pr1 t) : s = t.
 Proof.
-apply subtypeEquality; try assumption.
+apply subtypeEquality; [|apply H].
 now intros x; repeat (apply impred; intros); apply propproperty.
 Qed.
 
 Definition maximal_sieve (c : C) : sieve c.
 Proof.
 mkpair.
-- apply (λ _ _, htrue).
-- apply (λ _ _ _ _ _, tt).
+- intro S; apply htrue.
+- intros; apply tt.
+Defined.
+
+Definition empty_sieve (c : C) : sieve c.
+Proof.
+mkpair.
+- intros S; apply hfalse.
+- intros f S y g; apply S.
+Defined.
+
+Definition intersection_sieve (c : C) : binop (sieve c).
+Proof.
+simpl; intros S1 S2.
+mkpair.
+- intros f.
+  apply (S1 f ∧ S2 f).
+- simpl; intros f S f'.
+  split.
+  + apply (pr2 S1 _ (pr1 S)).
+  + apply (pr2 S2 _ (pr2 S)).
+Defined.
+
+Definition union_sieve (c : C) : binop (sieve c).
+Proof.
+simpl; intros S1 S2.
+mkpair.
+- intros f.
+  apply (S1 f ∨ S2 f).
+- intros f S y f'; simpl in S; apply S; clear S; intro S.
+  apply hinhpr.
+  induction S as [S|S].
+  + apply ii1, (pr2 S1 _ S).
+  + apply ii2, (pr2 S2 _ S).
+Defined.
+
+Definition sieve_lattice (c : C) : lattice (sieve c).
+Proof.
+use mklattice.
+- apply intersection_sieve.
+- apply union_sieve.
+- repeat split; intros S1; intros;
+  apply sieve_eq, funextsec; intro f; simpl.
+  + apply (isassoc_Lmin hProp_lattice).
+  + apply (iscomm_Lmin hProp_lattice).
+  + apply (isassoc_Lmax hProp_lattice).
+  + apply (iscomm_Lmax hProp_lattice).
+  + apply (Lmin_absorb hProp_lattice).
+  + apply (Lmax_absorb hProp_lattice).
+Defined.
+
+Definition sieve_bounded_lattice (c : C) : bounded_lattice (sieve c).
+Proof.
+use mkbounded_lattice.
+- apply sieve_lattice.
+- apply empty_sieve.
+- apply maximal_sieve.
+- split; intros S; apply sieve_eq, funextsec; intro f; simpl.
+  + apply (islunit_Lmax_Lbot hProp_bounded_lattice).
+  + apply (islunit_Lmin_Ltop hProp_bounded_lattice).
 Defined.
 
 Definition sieve_mor a b (f : C⟦b,a⟧) : sieve a → sieve b.
 Proof.
-intros S.
+simpl; intros S.
 mkpair.
-- intros y g.
-  apply (pr1 S y (g · f)).
-- abstract (intros y g H z h; simpl; rewrite <- assoc; apply (pr2 S), H).
+- intros g.
+  apply (S (pr1 g,,pr2 g · f)).
+- abstract (intros g H y h; simpl; rewrite <- assoc; apply (pr2 S (pr1 g,,pr2 g · f)), H).
 Defined.
 
 Local Definition Ω_PreShv_data : functor_data C^op HSET := (sieve,,sieve_mor).
@@ -188,7 +375,7 @@ split.
 - intros x; apply funextfun; intros [S hS]; simpl.
   apply subtypeEquality; simpl.
   + intros X; repeat (apply impred; intro); apply propproperty.
-  + now repeat (apply funextsec; intro); rewrite id_right.
+  + now apply funextsec; intro; rewrite id_right.
 - intros x y z f g; apply funextfun; intros [S hS]; simpl.
   apply subtypeEquality; simpl.
   + intros X; repeat (apply impred; intro); apply propproperty.
@@ -210,5 +397,69 @@ Lemma isMonic_Ω_mor : isMonic Ω_mor.
 Proof.
 now apply from_terminal_isMonic.
 Qed.
+
+Local Notation "c '⊗' d" := (BinProductObject _ (BinProducts_PreShv c d)) (at level 75) : cat.
+
+Definition Ω_PreShv_meet : PreShv(C)⟦Ω_PreShv ⊗ Ω_PreShv,Ω_PreShv⟧.
+Proof.
+use mk_nat_trans.
++ intros c S1S2.
+  apply (intersection_sieve c (pr1 S1S2) (pr2 S1S2)).
++ intros x y f.
+  apply funextsec; cbn; intros [S1 S2].
+  now apply sieve_eq.
+Defined.
+
+Definition Ω_PreShv_join : PreShv(C)⟦Ω_PreShv ⊗ Ω_PreShv,Ω_PreShv⟧.
+Proof.
+use mk_nat_trans.
++ intros c S1S2.
+  apply (union_sieve c (pr1 S1S2) (pr2 S1S2)).
++ intros x y f.
+  apply funextsec; cbn; intros [S1 S2].
+  now apply sieve_eq.
+Defined.
+
+Definition Ω_PreShv_lattice : latticeob BinProducts_PreShv Ω_PreShv.
+Proof.
+use mk_latticeob.
++ apply Ω_PreShv_meet.
++ apply Ω_PreShv_join.
++ repeat split; apply (nat_trans_eq has_homsets_HSET); intro c;
+                apply funextsec; intros S; simpl.
+  - apply (isassoc_Lmin (sieve_lattice c)).
+  - apply (iscomm_Lmin (sieve_lattice c)).
+  - apply (isassoc_Lmax (sieve_lattice c)).
+  - apply (iscomm_Lmax (sieve_lattice c)).
+  - apply (Lmin_absorb (sieve_lattice c)).
+  - apply (Lmax_absorb (sieve_lattice c)).
+Defined.
+
+Definition Ω_PreShv_bottom : PreShv(C)⟦Terminal_PreShv,Ω_PreShv⟧.
+Proof.
+use mk_nat_trans.
++ intros c _; apply empty_sieve.
++ now intros x y f; apply funextsec; intros []; apply sieve_eq.
+Defined.
+
+Definition Ω_PreShv_top : PreShv(C)⟦Terminal_PreShv,Ω_PreShv⟧.
+Proof.
+use mk_nat_trans.
++ intros c _; apply maximal_sieve.
++ now intros x y f; apply funextsec; intros []; apply sieve_eq.
+Defined.
+
+Definition Ω_PreShv_bounded_lattice :
+  bounded_latticeob BinProducts_PreShv Terminal_PreShv Ω_PreShv.
+Proof.
+use mk_bounded_latticeob.
+- exact Ω_PreShv_lattice.
+- exact Ω_PreShv_bottom.
+- exact Ω_PreShv_top.
+- split; apply (nat_trans_eq has_homsets_HSET); intro c;
+         apply funextsec; cbn; intros S.
+  + apply (islunit_Lmax_Lbot (sieve_bounded_lattice c)).
+  + apply (islunit_Lmin_Ltop (sieve_bounded_lattice c)).
+Defined.
 
 End Ω_PreShv.

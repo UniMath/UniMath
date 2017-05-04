@@ -98,6 +98,7 @@ FiveLemma.v
 set_slice_fam_equiv.v
 Elements.v
 ElementsOp.v
+LatticeObject.v
 Presheaf.v
 elems_slice_equiv.v
 pullbacks_slice_products_equiv.v
