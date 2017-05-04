@@ -19,6 +19,7 @@
 \usepackage{textgreek}
 \usepackage{stmaryrd}
 \usepackage{pmboxdraw}
+\usepackage{fdsymbol}
 \DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}
 \DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}
 \DeclareUnicodeCharacter{10815}{{\(\amalg\)}}
@@ -30,6 +31,7 @@
 \DeclareUnicodeCharacter{9645}{{\(\boxdot\)}}
 \DeclareUnicodeCharacter{981}{{\(\phi\)}}
 \DeclareUnicodeCharacter{9565}{{\textSFxxvi}}
+\DeclareUnicodeCharacter{8803}{{\(\mathop {\vbox {{\rlap =} \kern 3.9pt} {\rlap =} \phantom =} \)}}
 \hypersetup{linkcolor=blue}
 
 \begin{document}

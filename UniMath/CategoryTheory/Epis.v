@@ -17,8 +17,6 @@ Local Open Scope cat.
 Require Import UniMath.CategoryTheory.sub_precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
-
-
 (** * Definition of Epis *)
 Section def_epi.
 
