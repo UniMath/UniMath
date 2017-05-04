@@ -169,14 +169,14 @@ Section def_rig_category.
   Defined.
   Opaque rig_precategory_isweq.
 
-  Definition rig_precategory_is_category : is_category rig_precategory.
+  Definition rig_precategory_is_univalent : is_univalent rig_precategory.
   Proof.
-    use mk_is_category.
+    use mk_is_univalent.
     - intros X Y. exact (rig_precategory_isweq X Y).
     - exact has_homsets_rig_precategory.
   Defined.
 
   Definition rig_category : category :=
-    mk_category rig_precategory rig_precategory_is_category.
+    mk_category rig_precategory rig_precategory_is_univalent.
 
 End def_rig_category.

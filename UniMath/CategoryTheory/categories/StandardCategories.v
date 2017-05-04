@@ -24,7 +24,7 @@ Lemma morphism_from_iso_is_incl (C : Precategory) (a b : ob C) :
 Proof. intro g.
   apply (isofhlevelweqf _ (ezweqpr1 _ _)). apply isaprop_is_iso. Qed.
 
-Lemma is_category_groupoid {C : Precategory}: is_groupoid C -> is_category C.
+Lemma is_univalent_groupoid {C : Precategory}: is_groupoid C -> is_univalent C.
 Proof. intros ig  .
   split.
   { intros a b.
@@ -57,17 +57,17 @@ Proof. intros a b.
   assert (k : idfun (a = b) ~ idtomor a b). { intro p. destruct p. reflexivity. }
   apply (isweqhomot _ _ k). apply idisweq. Qed.
 
-Lemma is_category_path_pregroupoid (X:UU) (i:isofhlevel 3 X) :
-  is_category (path_pregroupoid X i).
+Lemma is_univalent_path_pregroupoid (X:UU) (i:isofhlevel 3 X) :
+  is_univalent (path_pregroupoid X i).
 Proof.
   intros; split.
-  - apply is_category_groupoid. apply is_groupoid_path_pregroupoid.
+  - apply is_univalent_groupoid. apply is_groupoid_path_pregroupoid.
   - apply i.
 Qed.
 
 Definition path_groupoid (X:UU) : isofhlevel 3 X -> category.
 Proof. intros iobj. apply (category_pair (path_pregroupoid X iobj)).
-  apply is_category_path_pregroupoid. Defined.
+  apply is_univalent_path_pregroupoid. Defined.
 
 (** *** the discrete category on n objects *)
 

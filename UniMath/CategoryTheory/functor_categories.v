@@ -42,7 +42,7 @@ Contents :
 
                 - Functor precategory is category if
                    target precategory is
-                   [is_category_functor_category]
+                   [is_univalent_functor_category]
 
 
 ************************************************************)
@@ -296,8 +296,8 @@ Proof.
   apply (! functor_id _ _ ).
 Qed.
 
-Hypothesis HC : is_category C.
-Hypothesis HD : is_category D.
+Hypothesis HC : is_univalent C.
+Hypothesis HD : is_univalent D.
 
 Lemma maponpaths_isotoid (a b : C) (i : iso a b)
 : maponpaths (functor_on_objects F) (isotoid _ HC i)
@@ -545,7 +545,7 @@ Proof.
 Defined.
 
 Lemma ff_is_inclusion_on_objects {C D : precategory}
-      (HC : is_category C) (HD : is_category D)
+      (HC : is_univalent C) (HD : is_univalent D)
       (F : functor C D) (HF : fully_faithful F)
       : isofhlevelf 1 (functor_on_objects F).
 Proof.
@@ -1104,7 +1104,7 @@ Defined.
 
 Definition pr1_pr1_functor_eq_from_functor_iso (C : precategory_data) (D : precategory)
   (hs: has_homsets D)
-    (H : is_category D) (F G : ob [C , D, hs]) :
+    (H : is_univalent D) (F G : ob [C , D, hs]) :
    iso F G -> pr1 (pr1 F) = pr1 (pr1 G).
 Proof.
   intro A.
@@ -1145,7 +1145,7 @@ Proof.
 Qed.
 
 Definition pr1_functor_eq_from_functor_iso (C : precategory_data) (D : precategory)(hs: has_homsets D)
-    (H : is_category D) (F G : ob [C , D, hs]) :
+    (H : is_univalent D) (F G : ob [C , D, hs]) :
    iso F G -> pr1 F = pr1 G.
 Proof.
   intro A.
@@ -1194,7 +1194,7 @@ Defined.
 
 Definition functor_eq_from_functor_iso {C : precategory_data} {D : precategory}
   (hs: has_homsets D)
-    (H : is_category D) (F G : ob [C , D, hs])
+    (H : is_univalent D) (F G : ob [C , D, hs])
     (H' : iso F G) : F = G.
 Proof.
   apply (functor_eq _ _ hs F G).
@@ -1218,7 +1218,7 @@ Qed.
 
 Lemma functor_eq_from_functor_iso_idtoiso (C : precategory_data) (D : precategory)
   (hs: has_homsets D)
-    (H : is_category D)
+    (H : is_univalent D)
     (F G : ob [C, D, hs]) (p : F = G) :
   functor_eq_from_functor_iso _ H F G (idtoiso p) = p.
 Proof.
@@ -1239,7 +1239,7 @@ Qed.
 
 Lemma idtoiso_functor_eq_from_functor_iso (C : precategory_data) (D : precategory)
   (hs: has_homsets D)
-    (H : is_category D)
+    (H : is_univalent D)
     (F G : ob [C, D, hs]) (gamma : iso F G) :
         idtoiso (functor_eq_from_functor_iso _ H F G gamma) = gamma.
 Proof.
@@ -1271,7 +1271,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma isweq_idtoiso_functorcat (C : precategory_data) (D : precategory) (H : is_category D)
+Lemma isweq_idtoiso_functorcat (C : precategory_data) (D : precategory) (H : is_univalent D)
     (F G : ob [C, D, (pr2 H)]) :
    isweq (@idtoiso _ F G).
 Proof.
@@ -1280,8 +1280,8 @@ Proof.
   apply idtoiso_functor_eq_from_functor_iso.
 Defined.
 
-Lemma is_category_functor_category (C : precategory_data) (D : precategory) (H : is_category D) :
-   is_category [C, D, (pr2 H)].
+Lemma is_univalent_functor_category (C : precategory_data) (D : precategory) (H : is_univalent D) :
+   is_univalent [C, D, (pr2 H)].
 Proof.
   split.
   - intros F G.

@@ -172,14 +172,14 @@ Section def_commrng_category.
   Defined.
   Opaque commrng_precategory_isweq.
 
-  Definition commrng_precategory_is_category : is_category commrng_precategory.
+  Definition commrng_precategory_is_univalent : is_univalent commrng_precategory.
   Proof.
-    use mk_is_category.
+    use mk_is_univalent.
     - intros X Y. exact (commrng_precategory_isweq X Y).
     - exact has_homsets_commrng_precategory.
   Defined.
 
   Definition commrng_category : category :=
-    mk_category commrng_precategory commrng_precategory_is_category.
+    mk_category commrng_precategory commrng_precategory_is_univalent.
 
 End def_commrng_category.

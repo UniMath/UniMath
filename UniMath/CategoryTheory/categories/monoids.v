@@ -168,14 +168,14 @@ Section def_monoid_category.
   Defined.
   Opaque monoid_precategory_isweq.
 
-  Definition monoid_precategory_is_category : is_category monoid_precategory.
+  Definition monoid_precategory_is_univalent : is_univalent monoid_precategory.
   Proof.
-    use mk_is_category.
+    use mk_is_univalent.
     - intros X Y. exact (monoid_precategory_isweq X Y).
     - exact has_homsets_monoid_precategory.
   Defined.
 
   Definition monoid_category : category :=
-    mk_category monoid_precategory monoid_precategory_is_category.
+    mk_category monoid_precategory monoid_precategory_is_univalent.
 
 End def_monoid_category.

@@ -263,7 +263,7 @@ End slice_precat_theory.
 (** This is exercise 9.1 in the HoTT book *)
 Section slicecat_theory.
 
-Context {C : precategory} (is_catC : is_category C) (x : C).
+Context {C : precategory} (is_catC : is_univalent C) (x : C).
 
 Local Notation "C / x" := (slice_precat C x (pr2 is_catC)).
 
@@ -295,7 +295,7 @@ assert (weq4 : weq (total2 (fun h : iso a b => f = h · g)) (iso af bg)).
 apply (weqcomp weq1 (weqcomp weq2 (weqcomp weq3 weq4))).
 Defined.
 
-Lemma is_category_slicecat : is_category (C / x).
+Lemma is_univalent_slicecat : is_univalent (C / x).
 Proof.
 split; [| apply has_homsets_slice_precat]; simpl; intros a b.
 set (h := id_weq_iso_slicecat a b).

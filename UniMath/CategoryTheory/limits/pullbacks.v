@@ -316,7 +316,7 @@ End pullback_lemma.
 
 Section Universal_Unique.
 
-Hypothesis H : is_category C.
+Hypothesis H : is_univalent C.
 
 Lemma inv_from_iso_iso_from_Pullback (a b c : C) (f : b --> a) (g : c --> a)
   (Pb : Pullback f g) (Pb' : Pullback f g):

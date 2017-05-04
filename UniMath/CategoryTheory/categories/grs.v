@@ -166,13 +166,13 @@ Section def_gr_category.
   Defined.
   Opaque gr_precategory_isweq.
 
-  Definition gr_precategory_is_category : is_category gr_precategory.
+  Definition gr_precategory_is_univalent : is_univalent gr_precategory.
   Proof.
-    use mk_is_category.
+    use mk_is_univalent.
     - intros X Y. exact (gr_precategory_isweq X Y).
     - exact has_homsets_gr_precategory.
   Defined.
 
-  Definition gr_category : category := mk_category gr_precategory gr_precategory_is_category.
+  Definition gr_category : category := mk_category gr_precategory gr_precategory_is_univalent.
 
 End def_gr_category.

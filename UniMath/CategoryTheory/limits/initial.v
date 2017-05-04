@@ -78,7 +78,7 @@ Definition hasInitial := ishinh Initial.
 (** * Being initial is a property in a (saturated/univalent) category *)
 Section Initial_Unique.
 
-Hypothesis H : is_category C.
+Hypothesis H : is_univalent C.
 
 Lemma isaprop_Initial : isaprop Initial.
 Proof.

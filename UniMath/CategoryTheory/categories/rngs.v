@@ -168,14 +168,14 @@ Section def_rng_category.
   Defined.
   Opaque rng_precategory_isweq.
 
-  Definition rng_precategory_is_category : is_category rng_precategory.
+  Definition rng_precategory_is_univalent : is_univalent rng_precategory.
   Proof.
-    use mk_is_category.
+    use mk_is_univalent.
     - intros X Y. exact (rng_precategory_isweq X Y).
     - exact has_homsets_rng_precategory.
   Defined.
 
   Definition rng_category : category :=
-    mk_category rng_precategory rng_precategory_is_category.
+    mk_category rng_precategory rng_precategory_is_univalent.
 
 End def_rng_category.

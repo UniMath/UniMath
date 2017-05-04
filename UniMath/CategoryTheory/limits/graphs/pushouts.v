@@ -293,7 +293,7 @@ Section def_po.
 
   Section Universal_Unique.
 
-    Hypothesis H : is_category C.
+    Hypothesis H : is_univalent C.
 
     Lemma inv_from_iso_iso_from_Pushout (a b c : C) (f : C⟦a, b⟧) (g : C⟦a, c⟧)
           (Po : Pushout f g) (Po' : Pushout f g):

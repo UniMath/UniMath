@@ -204,7 +204,7 @@ Proof.
   apply (pr2 (hset_id_iso_weq A B)).
 Defined.
 
-Lemma is_category_HSET : is_category HSET.
+Lemma is_univalent_HSET : is_univalent HSET.
 Proof.
   split.
   - apply is_weq_precat_paths_to_iso_hset.

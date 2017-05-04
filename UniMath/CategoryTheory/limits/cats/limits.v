@@ -286,7 +286,7 @@ Section Universal_Unique.
 
 Context (C : category).
 
-Let H : is_category C := pr2 C.
+Let H : is_univalent C := pr2 C.
 
 Lemma isaprop_Lims: isaprop (Lims C).
 Proof.

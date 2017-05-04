@@ -28,7 +28,7 @@ Proof.
   intro a.
   apply impred.
   intro b.
-  apply (isaprop_is_category (a -1-> b)).
+  apply (isaprop_is_univalent (a -1-> b)).
 Qed.
 
 (* Definition isaprop_is_bicategory { C : prebicategory } *)

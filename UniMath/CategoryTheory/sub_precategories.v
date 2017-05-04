@@ -31,7 +31,7 @@ Contents :
 
                     Full subcategory of a category is
                       a category
-                      [is_category_full_subcat]
+                      [is_univalent_full_subcat]
 
 
 
@@ -466,7 +466,7 @@ Proof.
 Section full_sub_cat.
 
 Variable C : precategory.
-Hypothesis H : is_category C.
+Hypothesis H : is_univalent C.
 
 Variable C' : hsubtype (ob C).
 
@@ -586,9 +586,9 @@ Defined.
 
 (** ** Proof of the targeted theorem: full subcats of cats are cats *)
 
-Lemma is_category_full_subcat: is_category (full_sub_precategory C').
+Lemma is_univalent_full_subcat: is_univalent (full_sub_precategory C').
 Proof.
-  unfold is_category.
+  unfold is_univalent.
   split.
   - apply isweq_sub_precat_paths_to_iso.
   - intros x y. apply is_set_sub_precategory_morphisms. apply (pr2 H).

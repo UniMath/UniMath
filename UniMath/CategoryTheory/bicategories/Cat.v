@@ -395,7 +395,7 @@ Definition Cat_has_homcats : has_homcats Cat_prebicategory.
 Proof.
   unfold has_homcats.
   intros a b.
-  apply is_category_functor_category.
+  apply is_univalent_functor_category.
 Defined.
 
 (* TODO: "Should be easy" *)

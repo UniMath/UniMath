@@ -175,14 +175,14 @@ Section def_abmonoid_category.
   Defined.
   Opaque abmonoid_precategory_isweq.
 
-  Definition abmonoid_precategory_is_category : is_category abmonoid_precategory.
+  Definition abmonoid_precategory_is_univalent : is_univalent abmonoid_precategory.
   Proof.
-    use mk_is_category.
+    use mk_is_univalent.
     - intros X Y. exact (abmonoid_precategory_isweq X Y).
     - exact has_homsets_abmonoid_precategory.
   Defined.
 
   Definition abmonoid_category : category :=
-    mk_category abmonoid_precategory abmonoid_precategory_is_category.
+    mk_category abmonoid_precategory abmonoid_precategory_is_univalent.
 
 End def_abmonoid_category.

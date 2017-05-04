@@ -279,14 +279,14 @@ Defined.
 (**  Fundamentally needed that both source and target are categories *)
 
 Lemma adj_equiv_of_cats_is_weq_of_objects (A B : precategory)
-   (HA : is_category A) (HB : is_category B) (F : [A, B, pr2 HB ])
+   (HA : is_univalent A) (HB : is_univalent B) (F : [A, B, pr2 HB ])
    (HF : adj_equivalence_of_precats F) : isweq (pr1 (pr1 F)).
 Proof.
   set (G := right_adjoint (pr1 HF)).
   set (et := unit_iso_from_adj_equivalence_of_precats (pr2 HA)  HF).
   set (ep := counit_iso_from_adj_equivalence_of_precats _ HF).
-  set (AAcat := is_category_functor_category A _ HA).
-  set (BBcat := is_category_functor_category B _ HB).
+  set (AAcat := is_univalent_functor_category A _ HA).
+  set (BBcat := is_univalent_functor_category B _ HB).
   set (Et := isotoid _ AAcat et).
   set (Ep := isotoid _ BBcat ep).
   apply (gradth _ (fun b => pr1 (right_adjoint (pr1 HF)) b)); intro a.
@@ -295,7 +295,7 @@ Proof.
 Defined.
 
 Definition weq_on_objects_from_adj_equiv_of_cats (A B : precategory)
-   (HA : is_category A) (HB : is_category B) (F : ob [A, B, pr2 HB])
+   (HA : is_univalent A) (HB : is_univalent B) (F : ob [A, B, pr2 HB])
    (HF : adj_equivalence_of_precats F) : weq
           (ob A) (ob B).
 Proof.
@@ -308,7 +308,7 @@ Defined.
      is a proposition *)
 
 
-Lemma isaprop_sigma_iso (A B : precategory) (HA : is_category A) (*hsB: has_homsets B*)
+Lemma isaprop_sigma_iso (A B : precategory) (HA : is_univalent A) (*hsB: has_homsets B*)
      (F : functor A B) (HF : fully_faithful F) :
       ∏ b : ob B,
   isaprop (total2 (fun a : ob A => iso (pr1 F a) b)).
@@ -356,7 +356,7 @@ Proof.
 Qed.
 
 
-Lemma isaprop_pi_sigma_iso (A B : precategory) (HA : is_category A) (hsB: has_homsets B)
+Lemma isaprop_pi_sigma_iso (A B : precategory) (HA : is_univalent A) (hsB: has_homsets B)
      (F : ob [A, B, hsB]) (HF : fully_faithful F) :
   isaprop (∏ b : ob B,
              total2 (fun a : ob A => iso (pr1 F a) b)).
@@ -376,7 +376,7 @@ Qed.
 Section from_fully_faithful_and_ess_surj_to_equivalence.
 
 Variables A B : precategory.
-Hypothesis HA : is_category A.
+Hypothesis HA : is_univalent A.
 Variable F : functor A B.
 Hypothesis HF : fully_faithful F.
 Hypothesis HS : essentially_surjective F.

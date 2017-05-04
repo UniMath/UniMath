@@ -210,7 +210,7 @@ Qed.
 
 Section coproduct_unique.
 
-Hypothesis H : is_category C.
+Hypothesis H : is_univalent C.
 
 Variables a b : C.
 
