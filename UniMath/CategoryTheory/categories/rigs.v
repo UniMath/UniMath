@@ -176,7 +176,7 @@ Section def_rig_category.
     - exact has_homsets_rig_precategory.
   Defined.
 
-  Definition rig_category : category :=
+  Definition rig_category : univalent_category :=
     mk_category rig_precategory rig_precategory_is_univalent.
 
 End def_rig_category.

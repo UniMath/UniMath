@@ -184,7 +184,7 @@ Section def_setwith2binop_category.
     - exact has_homsets_setwith2binop_precategory.
   Defined.
 
-  Definition setwith2binop_category : category :=
+  Definition setwith2binop_category : univalent_category :=
     mk_category setwith2binop_precategory setwith2binop_precategory_is_univalent.
 
 End def_setwith2binop_category.

@@ -65,14 +65,14 @@ Proof.
   - apply i.
 Qed.
 
-Definition path_groupoid (X:UU) : isofhlevel 3 X -> category.
-Proof. intros iobj. apply (category_pair (path_pregroupoid X iobj)).
+Definition path_groupoid (X:UU) : isofhlevel 3 X -> univalent_category.
+Proof. intros iobj. apply (univalent_category_pair (path_pregroupoid X iobj)).
   apply is_univalent_path_pregroupoid. Defined.
 
-(** *** the discrete category on n objects *)
+(** *** the discrete univalent_category on n objects *)
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-Definition cat_n (n:nat):category.
+Definition cat_n (n:nat): univalent_category.
   apply (path_groupoid (stn n)). apply hlevelntosn.
   apply isasetstn. Defined.
 Definition is_discrete (C:Precategory) := isaset (ob C) × is_groupoid C.
@@ -86,7 +86,7 @@ Lemma is_discrete_cat_n (n:nat) : is_discrete (cat_n n).
 Proof. split. apply isasetstn. apply is_groupoid_path_pregroupoid. Qed.
 
 
-Definition unit_category : category.
+Definition unit_category : univalent_category.
 Proof.
   use path_groupoid.
   - exact unit.

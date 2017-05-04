@@ -178,7 +178,7 @@ Section def_intdom_category.
     - exact has_homsets_intdom_precategory.
   Defined.
 
-  Definition intdom_category : category :=
+  Definition intdom_category : univalent_category :=
     mk_category intdom_precategory intdom_precategory_is_univalent.
 
 End def_intdom_category.

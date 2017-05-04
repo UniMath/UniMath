@@ -77,7 +77,7 @@ Definition Functor_identity {C D} (F:functor C D) := functor_id F.
 Definition Functor_compose {C D} (F:functor C D) := @functor_comp _ _ F.
 
 
-Definition theUnivalenceProperty (C:category) := pr2 C : is_univalent C.
+Definition theUnivalenceProperty (C: univalent_category) := pr2 C : is_univalent C.
 
 Lemma Precategory_eq (C D:Precategory) :
   (C:precategory_data) = (D:precategory_data) -> C=D.

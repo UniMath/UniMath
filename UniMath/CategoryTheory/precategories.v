@@ -1187,25 +1187,25 @@ Proof.
     apply isapropisaset.
 Qed.
 
-Definition category : UU := total2 (fun C : precategory => is_univalent C).
+Definition univalent_category : UU := total2 (fun C : precategory => is_univalent C).
 
-Definition mk_category (C : precategory) (H : is_univalent C) : category := tpair _ C H.
+Definition mk_category (C : precategory) (H : is_univalent C) : univalent_category := tpair _ C H.
 
-Definition category_to_Precategory (C : category) : Precategory.
+Definition univalent_category_to_Precategory (C : univalent_category) : Precategory.
 Proof.
   exists (pr1 C).
   exact (pr2 (pr2 C)).
 Defined.
-Coercion category_to_Precategory : category >-> Precategory.
+Coercion univalent_category_to_Precategory : univalent_category >-> Precategory.
 
-Definition category_pair (C:precategory) (i:is_univalent C) : category := C,,i.
+Definition univalent_category_pair (C:precategory) (i:is_univalent C) : univalent_category := C,,i.
 
 
-Definition category_has_homsets (C : category) := pr2 (pr2 C).
+Definition univalent_category_has_homsets (C : univalent_category) := pr2 (pr2 C).
 
-Definition category_is_univalent (C : category) : is_univalent C := pr2 C.
+Definition univalent_category_is_univalent (C : univalent_category) : is_univalent C := pr2 C.
 
-Lemma category_has_groupoid_ob (C : category): isofhlevel 3 (ob C).
+Lemma univalent_category_has_groupoid_ob (C : univalent_category): isofhlevel 3 (ob C).
 Proof.
   change (isofhlevel 3 C) with
         (∏ a b : C, isofhlevel 2 (a = b)).

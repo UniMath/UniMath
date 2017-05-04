@@ -200,7 +200,7 @@ Section def_abgr_category.
     - exact has_homsets_abgr.
   Defined.
 
-  Definition abgr_category : category :=
+  Definition abgr_category : univalent_category :=
     mk_category abgr_Precategory abgr_Precategory_is_univalent.
 
 End def_abgr_category.

@@ -29,8 +29,8 @@ Contents :
                     Isos in full subcategory are equiv
                       to isos in the precategory
 
-                    Full subcategory of a category is
-                      a category
+                    Full subcategory of a univalent_category is
+                      a univalent_category
                       [is_univalent_full_subcat]
 
 
@@ -316,7 +316,7 @@ Definition functor_full_img {C D: precategory}
 
 
 (** *** Morphisms in the full subprecat are equiv to morphisms in the precategory *)
-(** does of course not need the category hypothesis *)
+(** does of course not need the univalent_category hypothesis *)
 
 Definition hom_in_subcat_from_hom_in_precat (C : precategory)
  (C' : hsubtype (ob C))
@@ -460,7 +460,7 @@ Proof.
 *)
 
 
-(** ** Any full subprecategory of a category is a category. *)
+(** ** Any full subprecategory of a univalent_category is a univalent_category. *)
 
 
 Section full_sub_cat.

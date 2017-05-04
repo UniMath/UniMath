@@ -175,7 +175,7 @@ Section def_monoid_category.
     - exact has_homsets_monoid_precategory.
   Defined.
 
-  Definition monoid_category : category :=
+  Definition monoid_category : univalent_category :=
     mk_category monoid_precategory monoid_precategory_is_univalent.
 
 End def_monoid_category.

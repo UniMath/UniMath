@@ -15,7 +15,7 @@ Contents :
 
             Precategory HSET of hSets
 
-	    HSET is a category
+	    HSET is a univalent_category
 
 	    Colimits in HSET
 
@@ -74,7 +74,7 @@ End HSET_precategory.
 Notation "'HSET'" := hset_precategory : cat.
 Notation "'SET'" := hset_Precategory : cat.
 
-(** * The precategory of hSets is a category. *)
+(** * The precategory of hSets is a univalent_category. *)
 
 Section HSET_category.
 
@@ -167,7 +167,7 @@ Proof.
   apply hset_equiv_iso_is_equiv.
 Defined.
 
-(** ** HSET is a category. *)
+(** ** HSET is a univalent_category. *)
 
 Definition univalenceweq (X X' : UU) : weq (X = X') (weq X X') :=
    tpair _ _ (univalenceAxiom X X').

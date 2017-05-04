@@ -175,7 +175,7 @@ Section def_rng_category.
     - exact has_homsets_rng_precategory.
   Defined.
 
-  Definition rng_category : category :=
+  Definition rng_category : univalent_category :=
     mk_category rng_precategory rng_precategory_is_univalent.
 
 End def_rng_category.

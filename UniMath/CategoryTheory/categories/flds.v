@@ -175,6 +175,6 @@ Section def_fld_category.
     - exact has_homsets_fld_precategory.
   Defined.
 
-  Definition fld_category : category := mk_category fld_precategory fld_precategory_is_univalent.
+  Definition fld_category : univalent_category := mk_category fld_precategory fld_precategory_is_univalent.
 
 End def_fld_category.

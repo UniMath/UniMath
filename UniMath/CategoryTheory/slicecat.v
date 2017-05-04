@@ -13,7 +13,7 @@ Contents:
 - Proof that the forgetful functor [slicecat_to_cat] : C/x → C is
   a left adjoint if C has binary products ([is_left_adjoint_slicecat_to_cat])
 
-- Proof that C/x is a category if C is
+- Proof that C/x is a univalent_category if C is
 
 - Proof that any morphism C[x,y] induces a functor from C/x to C/y
   ([slicecat_functor])
@@ -259,7 +259,7 @@ Defined.
 
 End slice_precat_theory.
 
-(** * Proof that C/x is a category if C is. *)
+(** * Proof that C/x is a univalent_category if C is. *)
 (** This is exercise 9.1 in the HoTT book *)
 Section slicecat_theory.
 

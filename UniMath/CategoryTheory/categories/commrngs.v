@@ -179,7 +179,7 @@ Section def_commrng_category.
     - exact has_homsets_commrng_precategory.
   Defined.
 
-  Definition commrng_category : category :=
+  Definition commrng_category : univalent_category :=
     mk_category commrng_precategory commrng_precategory_is_univalent.
 
 End def_commrng_category.

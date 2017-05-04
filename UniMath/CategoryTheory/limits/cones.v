@@ -1,7 +1,7 @@
 (**
 
 Definition of the precategory of cones over a precategory C together with a proof that that
-precategory is a category if C is ([is_univalent_CONE]).
+precategory is a univalent_category if C is ([is_univalent_CONE]).
 
 Written by Benedikt Ahrens, following discussions with J. Gross, D. Grayson and V. Voevodsky
 *)

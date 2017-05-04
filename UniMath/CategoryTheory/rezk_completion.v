@@ -45,7 +45,7 @@ Section rezk.
 Variable A : precategory.
 Hypothesis hsA: has_homsets A.
 
-Definition Rezk_completion : category.
+Definition Rezk_completion : univalent_category.
 Proof.
   exists (full_img_sub_precategory (yoneda A hsA)).
   apply is_univalent_full_subcat.
@@ -73,9 +73,9 @@ End rezk.
 (** * Universal property of the Rezk completion *)
 
 Definition functor_from (C : precategory) : UU
-  := ∑ D : category, functor C D.
+  := ∑ D : univalent_category, functor C D.
 
-Coercion target_category (C : precategory) (X : functor_from C) : category := pr1 X.
+Coercion target_category (C : precategory) (X : functor_from C) : univalent_category := pr1 X.
 Definition func_functor_from {C : precategory} (X : functor_from C) : functor C X := pr2 X.
 
 Definition is_initial_functor_from (C : precategory) (X : functor_from C) : UU

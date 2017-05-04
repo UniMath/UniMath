@@ -12,7 +12,7 @@ Contents:
 
 - Definition of equivalence of precategories
 - Equivalence of categories yields weak equivalence of object types
-- A fully faithful and ess. surjective functor induces equivalence of precategories, if the source is a category.
+- A fully faithful and ess. surjective functor induces equivalence of precategories, if the source is a univalent_category.
 
 ************************************************************)
 
@@ -304,7 +304,7 @@ Proof.
 Defined.
 
 
-(** If the source precategory is a category, then being split essentially surjective
+(** If the source precategory is a univalent_category, then being split essentially surjective
      is a proposition *)
 
 
@@ -370,7 +370,7 @@ Qed.
 
 (** A fully faithful and ess. surjective functor induces an
    equivalence of precategories, if the source is a
-    category.
+    univalent_category.
 *)
 
 Section from_fully_faithful_and_ess_surj_to_equivalence.

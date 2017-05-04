@@ -37,10 +37,10 @@ Contents :
                          isomorphisms
 
                 - Isomorphic Functors are equal
-                   if target precategory is category
+                   if target precategory is univalent_category
                    [functor_eq_from_functor_iso]
 
-                - Functor precategory is category if
+                - Functor precategory is univalent_category if
                    target precategory is
                    [is_univalent_functor_category]
 

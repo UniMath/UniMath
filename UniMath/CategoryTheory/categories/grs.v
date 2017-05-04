@@ -173,6 +173,6 @@ Section def_gr_category.
     - exact has_homsets_gr_precategory.
   Defined.
 
-  Definition gr_category : category := mk_category gr_precategory gr_precategory_is_univalent.
+  Definition gr_category : univalent_category := mk_category gr_precategory gr_precategory_is_univalent.
 
 End def_gr_category.

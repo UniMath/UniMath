@@ -196,7 +196,7 @@ Proof.
 Qed.
 
 
-(** * Proof that coproducts are unique when the precategory [C] is a category *)
+(** * Proof that coproducts are unique when the precategory [C] is a univalent_category *)
 
 Section coproduct_unique.
 

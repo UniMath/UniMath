@@ -182,7 +182,7 @@ Section def_abmonoid_category.
     - exact has_homsets_abmonoid_precategory.
   Defined.
 
-  Definition abmonoid_category : category :=
+  Definition abmonoid_category : univalent_category :=
     mk_category abmonoid_precategory abmonoid_precategory_is_univalent.
 
 End def_abmonoid_category.

@@ -178,7 +178,7 @@ Section def_commrig_category.
     - exact has_homsets_commrig_precategory.
   Defined.
 
-  Definition commrig_category : category :=
+  Definition commrig_category : univalent_category :=
     mk_category commrig_precategory commrig_precategory_is_univalent.
 
 End def_commrig_category.
