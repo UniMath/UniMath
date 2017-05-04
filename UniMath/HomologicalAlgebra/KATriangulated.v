@@ -38,7 +38,7 @@ Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import UniMath.CategoryTheory.Abelian.
 Require Import UniMath.CategoryTheory.ShortExactSequences.
-Require Import UniMath.CategoryTheory.category_abgr.
+Require Import UniMath.CategoryTheory.categories.abgrs.
 
 Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.

@@ -121,6 +121,8 @@ Section def_bindirectsums.
   (** BinDirectSum in categories. *)
   Definition BinDirectSums : UU := ∏ (a b : A), BinDirectSumCone a b.
 
+  Definition mk_BinDirectSums (H : ∏ (a b : A), BinDirectSumCone a b) : BinDirectSums := H.
+
   Definition has_BinDirectSums : UU := ishinh BinDirectSums.
 
   (** The direct sum object. *)
