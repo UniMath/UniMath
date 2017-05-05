@@ -688,16 +688,16 @@ Section additivefunctor_criteria.
 End additivefunctor_criteria.
 
 
-(** * The functor [QuotPrecategoryFunctor] is additive *)
+(** * The functor [QuotcategoryFunctor] is additive *)
 Section def_additive_quot_functor.
 
   Variable A : Additive.
   Variable PAS : PreAdditiveSubabgrs A.
   Variable PAC : PreAdditiveComps A PAS.
 
-  Local Lemma QuotPrecategoryAdditiveFunctor_isAdditiveFunctor :
-    @isAdditiveFunctor A (QuotPrecategory_Additive A PAS PAC)
-                       (QuotPrecategoryFunctor (Additive_PreAdditive A) PAS PAC).
+  Local Lemma QuotcategoryAdditiveFunctor_isAdditiveFunctor :
+    @isAdditiveFunctor A (Quotcategory_Additive A PAS PAC)
+                       (QuotcategoryFunctor (Additive_PreAdditive A) PAS PAC).
   Proof.
     use mk_isAdditiveFunctor.
     intros X Y.
@@ -706,12 +706,12 @@ Section def_additive_quot_functor.
     - apply idpath.
   Qed.
 
-  Definition QuotPrecategoryAdditiveFunctor :
-    AdditiveFunctor A (QuotPrecategory_Additive A PAS PAC).
+  Definition QuotcategoryAdditiveFunctor :
+    AdditiveFunctor A (Quotcategory_Additive A PAS PAC).
   Proof.
     use mk_AdditiveFunctor.
-    - exact (QuotPrecategoryFunctor A PAS PAC).
-    - exact QuotPrecategoryAdditiveFunctor_isAdditiveFunctor.
+    - exact (QuotcategoryFunctor A PAS PAC).
+    - exact QuotcategoryAdditiveFunctor_isAdditiveFunctor.
   Defined.
 
 End def_additive_quot_functor.

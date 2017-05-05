@@ -172,7 +172,7 @@ Defined.
 
 Section adjointification.
 
-Context {C D : Precategory} (E : equivalence_of_precats C D).
+Context {C D : category} (E : equivalence_of_precats C D).
 Let F : functor C D := left_functor E.
 Let G : functor D C := right_functor E.
 

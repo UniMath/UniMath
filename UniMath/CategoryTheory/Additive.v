@@ -100,13 +100,13 @@ Section additive_quot_additive.
   Hypothesis PAS : PreAdditiveSubabgrs A.
   Hypothesis PAC : PreAdditiveComps A PAS.
 
-  Definition QuotPrecategory_Additive : Additive.
+  Definition Quotcategory_Additive : Additive.
   Proof.
     use mk_Additive.
-    - exact (QuotPrecategory_PreAdditive A PAS PAC).
+    - exact (Quotcategory_PreAdditive A PAS PAC).
     - use mk_isAdditive.
-      + exact (QuotPrecategory_Zero A PAS PAC (to_Zero A)).
-      + exact (QuotPrecategory_BinDirectSums A (to_BinDirectSums A) PAS PAC).
+      + exact (Quotcategory_Zero A PAS PAC (to_Zero A)).
+      + exact (Quotcategory_BinDirectSums A (to_BinDirectSums A) PAS PAC).
   Defined.
 
 End additive_quot_additive.

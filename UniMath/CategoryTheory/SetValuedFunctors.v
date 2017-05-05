@@ -31,7 +31,7 @@ Lemma is_pointwise_epi_from_set_nat_trans_epi (C:precategory)
       (h:isEpi (C:=functor_precategory C _ has_homsets_HSET) f)
   : ∏ (x:C), isEpi (f x).
 Proof.
-  apply (Pushouts_pw_epi (D:=hset_Precategory)).
+  apply (Pushouts_pw_epi (D:=hset_category)).
   apply PushoutsHSET_from_Colims.
   apply h.
 Qed.
@@ -71,10 +71,10 @@ Section LiftEpiNatTrans.
   Lemma EffectiveEpis_Functor_HSET : EpisAreEffective C_SET.
   Proof.
     intros F G m isepim.
-    apply (isEffectivePw (D:=hset_Precategory)).
+    apply (isEffectivePw (D:=hset_category)).
     intro x.
     apply EffectiveEpis_HSET.
-    apply (Pushouts_pw_epi (D:=hset_Precategory)
+    apply (Pushouts_pw_epi (D:=hset_category)
                            PushoutsHSET_from_Colims).
     assumption.
   Qed.

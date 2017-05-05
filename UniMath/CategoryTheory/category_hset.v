@@ -13,7 +13,7 @@ Extended by: Anders Mörtberg (October 2015)
 
 Contents :
 
-            Precategory HSET of hSets
+            category HSET of hSets
 
 	    HSET is a univalent_category
 
@@ -33,7 +33,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 
 Local Open Scope cat.
 
-(** * Precategory of hSets *)
+(** * category of hSets *)
 Section HSET_precategory.
 
 Definition hset_fun_space (A B : hSet) : hSet :=
@@ -67,12 +67,12 @@ Qed.
   Canonical Structure hset_precategory. :-)
  *)
 
-Definition hset_Precategory : Precategory := (HSET ,, has_homsets_HSET).
+Definition hset_category : category := (HSET ,, has_homsets_HSET).
 
 End HSET_precategory.
 
 Notation "'HSET'" := hset_precategory : cat.
-Notation "'SET'" := hset_Precategory : cat.
+Notation "'SET'" := hset_category : cat.
 
 (** * The precategory of hSets is a univalent_category. *)
 

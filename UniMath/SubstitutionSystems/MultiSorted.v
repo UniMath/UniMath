@@ -89,7 +89,7 @@ Section MBindingSig.
 
 Variables (sort : hSet).
 
-Local Definition SET_over_sort : Precategory.
+Local Definition SET_over_sort : category.
 Proof.
 exists (SET / sort).
 now apply has_homsets_slice_precat.
@@ -545,7 +545,7 @@ Require Import UniMath.CategoryTheory.EquivalencesExamples.
 Section MBindingSig.
 
 Variables (sort : UU) (eq : isdeceq sort). (* Can we eliminate this assumption? *)
-Variables (C : Precategory) (BP : BinProducts C) (BC : BinCoproducts C) (TC : Terminal C).
+Variables (C : category) (BP : BinProducts C) (BC : BinCoproducts C) (TC : Terminal C).
 
 (** Define the discrete category of sorts *)
 Let sort_cat : precategory := discrete_precategory sort.
@@ -553,7 +553,7 @@ Let sort_cat : precategory := discrete_precategory sort.
 Let hsC : has_homsets C := homset_property C.
 
 (** This represents "sort → C" *)
-Let sortToC : Precategory := [sort_cat,C].
+Let sortToC : category := [sort_cat,C].
 
 Local Lemma has_homsets_sortToC : has_homsets sortToC.
 Proof.
@@ -568,7 +568,7 @@ Defined.
 Local Definition mk_sortToC (f : sort → C) : sortToC :=
   functor_discrete_precategory _ _ f.
 
-Local Definition proj_gen_fun (D : precategory) (E : Precategory) (d : D) : functor [D,E] E.
+Local Definition proj_gen_fun (D : precategory) (E : category) (d : D) : functor [D,E] E.
 Proof.
 mkpair.
 + mkpair.
@@ -577,7 +577,7 @@ mkpair.
 + abstract (split; [intro f; apply idpath|intros f g h fg gh; apply idpath]).
 Defined.
 
-Local Definition proj_gen {D : precategory} {E : Precategory} : functor D [[D,E],E].
+Local Definition proj_gen {D : precategory} {E : category} : functor D [[D,E],E].
 Proof.
 mkpair.
 + mkpair.
@@ -719,7 +719,7 @@ Defined.
 
 
 (* From here on things are not so nice: *)
-Local Definition MultiSortedSigToFunctor_helper1 (C1 D E1 : precategory) (E2 : Precategory)
+Local Definition MultiSortedSigToFunctor_helper1 (C1 D E1 : precategory) (E2 : category)
   : functor [E1,[C1,[D,E2]]] [E1,[D,[C1,E2]]].
 Proof.
 eapply post_composition_functor.
@@ -728,7 +728,7 @@ Defined.
 
 (* This lemma is just here to check that the correct sort_cat gets pulled out when reorganizing *)
 (*    arguments *)
-Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory) :
+Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : category) :
   functor [E1,[C1,[D,E2]]] [C1,[D,[E1,E2]]].
 Proof.
 eapply (functor_composite (functor_cat_swap _ _ _)).
@@ -740,12 +740,12 @@ Defined.
 (* The above definition might be the same as: *)
 (* functor_composite (functor_cat_swap F) functor_cat_swap. *)
 
-(* Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory) *)
+(* Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : category) *)
 (*   (F : functor E1 [C1,[D,E2]]) : functor C1 [D,[E1,E2]]. *)
 (*     functor_composite (functor_cat_swap F) functor_cat_swap. *)
 
 
-(* Lemma is_omega_cocont_MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory) *)
+(* Lemma is_omega_cocont_MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : category) *)
 (*   (F : functor E1 [C1,[D,E2]]) (HF : ∏ s, is_omega_cocont (F s)) : *)
 (*   is_omega_cocont (MultiSortedSigToFunctor_helper C1 D E1 E2 F). *)
 (* Proof. *)
@@ -755,7 +755,7 @@ Defined.
 (* + apply is_omega_cocont_functor_cat_swap. *)
 (* Admitted. *)
 
-(* Local Definition MultiSortedSigToFunctor_helper2 (C1 D E1 : precategory) (E2 : Precategory) : *)
+(* Local Definition MultiSortedSigToFunctor_helper2 (C1 D E1 : precategory) (E2 : category) : *)
 (*   functor [E1,[D,[C1,E2]]] [C1,[D,[E1,E2]]]. *)
 (* Proof. *)
 (* eapply functor_composite;[apply functor_cat_swap|]. *)

@@ -3,7 +3,7 @@
 Contents:
 
         - Definition of monads ([Monad])
-        - Precategory of monads [Precategory_Monad C] on [C]
+        - category of monads [category_Monad C] on [C]
         - Forgetful functor [forgetfunctor_Monad] from monads
              to endofunctors on [C]
         - Haskell style bind operation ([bind])
@@ -193,7 +193,7 @@ Definition precategory_Monad (C : precategory) (hs : has_homsets C) : precategor
   := tpair _ _ (precategory_Monad_axioms C hs).
 
 
-Lemma has_homsets_Monad (C:Precategory) : has_homsets (precategory_Monad C (homset_property C)).
+Lemma has_homsets_Monad (C : category) : has_homsets (precategory_Monad C (homset_property C)).
 Proof.
   intros F G.
   simpl.
@@ -207,12 +207,12 @@ Proof.
   apply homset_property.
 Qed.
 
-Definition Precategory_Monad (C:Precategory) : Precategory :=
+Definition category_Monad (C : category) : category :=
   (precategory_Monad C (homset_property C) ,, has_homsets_Monad C ).
 
 
-Definition forgetfunctor_Monad (C:Precategory) :
-  functor (Precategory_Monad C) (functor_Precategory C C).
+Definition forgetfunctor_Monad (C : category) :
+  functor (category_Monad C) (functor_category C C).
 Proof.
   use mk_functor.
   - use mk_functor_data.

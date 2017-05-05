@@ -23,7 +23,7 @@ Section elems_slice_equiv.
 
   Local Open Scope cat.
 
-  Local Definition pshf (C : precategory) : Precategory := [C^op, SET].
+  Local Definition pshf (C : precategory) : category := [C^op, SET].
   Local Notation "C / X" := (slice_precat C X (pr2 C)).
   Local Definition ap_pshf {X : precategory} := fun (P : pshf X) (x : X) => pr1hSet ((pr1 P) x).
   Local Notation "##" := ap_pshf.

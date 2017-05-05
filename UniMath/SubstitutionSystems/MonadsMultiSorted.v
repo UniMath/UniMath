@@ -35,7 +35,7 @@ Section MonadsInSET_over_sort.
 
 Variables (sort : hSet).
 
-Definition SET_over_sort : Precategory.
+Definition SET_over_sort : category.
 Proof.
 exists (SET / sort).
 now apply has_homsets_slice_precat.

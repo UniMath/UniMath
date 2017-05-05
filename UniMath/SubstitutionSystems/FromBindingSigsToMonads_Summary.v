@@ -62,7 +62,7 @@ Definition Signature : ∏ C : precategory, has_homsets C → ∏ D : precategor
 
 (** Definition 5: Morphism of signatures with strength *)
 Definition SignatureMor :
-  ∏ C D : Precategory,
+  ∏ C D : category,
        Signatures.Signature C (homset_property C) D (homset_property D)
        → Signatures.Signature C (homset_property C) D (homset_property D) → UU :=
   @UniMath.SubstitutionSystems.SignatureCategory.SignatureMor.

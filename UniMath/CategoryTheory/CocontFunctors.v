@@ -1664,14 +1664,14 @@ End post_composition_functor.
 (** * Swapping of functor category arguments *)
 Section functor_swap.
 
-Lemma is_cocont_functor_cat_swap (C D : precategory) (E : Precategory) :
+Lemma is_cocont_functor_cat_swap (C D : precategory) (E : category) :
   is_cocont (functor_cat_swap C D E).
 Proof.
 apply left_adjoint_cocont; try apply homset_property.
 apply is_left_adjoint_functor_cat_swap.
 Defined.
 
-Lemma is_omega_cocont_functor_cat_swap (C D : precategory) (E : Precategory) :
+Lemma is_omega_cocont_functor_cat_swap (C D : precategory) (E : category) :
   is_omega_cocont (functor_cat_swap C D E).
 Proof.
 intros d L ccL HccL.

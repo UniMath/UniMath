@@ -55,7 +55,7 @@ Local Open Scope cat.
 
 Local Coercion alg_carrier : algebra_ob >-> ob.
 
-Section Precategory_Algebra.
+Section category_Algebra.
 
 Variable C : precategory.
 Variable hs : has_homsets C.
@@ -882,4 +882,4 @@ Proof.
 Defined.
 
 
-End Precategory_Algebra.
+End category_Algebra.

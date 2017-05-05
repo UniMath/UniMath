@@ -12,19 +12,19 @@ Proof. intros. exact (compose f g). Defined.
 
 (** *** the path groupoid *)
 
-Definition is_groupoid (C : Precategory) :=
+Definition is_groupoid (C : category) :=
   ∏ a b : ob C, isweq (fun p : a = b => idtomor a b p).
 
-Lemma isaprop_is_groupoid (C : Precategory) : isaprop (is_groupoid C).
+Lemma isaprop_is_groupoid (C : category) : isaprop (is_groupoid C).
 Proof. apply impred.
   intro a. apply impred. intro b. apply isapropisweq. Qed.
 
-Lemma morphism_from_iso_is_incl (C : Precategory) (a b : ob C) :
+Lemma morphism_from_iso_is_incl (C : category) (a b : ob C) :
   isincl (morphism_from_iso C a b).
 Proof. intro g.
   apply (isofhlevelweqf _ (ezweqpr1 _ _)). apply isaprop_is_iso. Qed.
 
-Lemma is_univalent_groupoid {C : Precategory}: is_groupoid C -> is_univalent C.
+Lemma is_univalent_groupoid {C : category}: is_groupoid C -> is_univalent C.
 Proof. intros ig  .
   split.
   { intros a b.
@@ -36,13 +36,13 @@ Proof. intros ig  .
   { apply homset_property. }
 Qed.
 
-Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> Precategory.
+Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> category.
   (* Later we'll define a version of this with no hlevel assumption on X,
      where [mor i j] will be defined with [pi0].  This version will still
      be useful, because in it, each arrow is a path, rather than an
      equivalence class of paths. *)
   intros iobj.
-  unshelve refine (makePrecategory X (fun x y => x = y) _ _ _ _ _ _).
+  unshelve refine (makecategory X (fun x y => x = y) _ _ _ _ _ _).
   { reflexivity. }
   { intros. exact (f @ g). }
   { intros. exact (iobj _ _). }
@@ -75,9 +75,9 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Definition cat_n (n:nat): univalent_category.
   apply (path_groupoid (stn n)). apply hlevelntosn.
   apply isasetstn. Defined.
-Definition is_discrete (C:Precategory) := isaset (ob C) × is_groupoid C.
+Definition is_discrete (C : category) := isaset (ob C) × is_groupoid C.
 
-Lemma isaprop_is_discrete (C:Precategory) :
+Lemma isaprop_is_discrete (C : category) :
   isaprop (is_discrete C).
 Proof. apply isofhleveltotal2. apply isapropisaset.
   intro is. apply isaprop_is_groupoid. Qed.

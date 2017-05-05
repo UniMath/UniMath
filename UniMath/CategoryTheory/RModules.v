@@ -1,7 +1,7 @@
 (** **********************************************************
 Contents:
         - Definition of right modules ([RModule R]) over a monad [R] on [C]
-        - Precategory of right modules [Precategory_RModule R D] of range [D] over a monad [R] on [C]
+        - category of right modules [category_RModule R D] of range [D] over a monad [R] on [C]
         - Tautological right module [tautological_RModule] : a monad is a module over itself
         - Pullback of a module along a monad morphism [pb_RModule]
         - Pullback of a module morphism along a monad morphism [pb_RModule_Mor]
@@ -167,10 +167,10 @@ Proof.
     apply (@assoc (functor_precategory B C hs)).
 Qed.
 
-Definition precategory_RModule (C : Precategory) : precategory
+Definition precategory_RModule (C : category) : precategory
   := tpair _ _ (precategory_RModule_axioms C (homset_property C)).
 
-Lemma has_homsets_RModule (C:Precategory) :
+Lemma has_homsets_RModule (C : category) :
   has_homsets (precategory_RModule C).
 Proof.
   intros F G.
@@ -183,7 +183,7 @@ Proof.
     apply homset_property.
 Qed.
 
-Definition Precategory_RModule (C:Precategory) : Precategory :=
+Definition category_RModule (C : category) : category :=
   (precategory_RModule C,, has_homsets_RModule C).
 
 
