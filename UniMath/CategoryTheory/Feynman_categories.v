@@ -723,7 +723,7 @@ Definition symmetric_monoidal_functor_identity (M : symmetric_monoidal_precat) :
 
 Section commutative_diagrams.
 
-Definition comm_square_vertical_iso {C : precategory} {x y z w : C} (f : iso x y) (g : y --> z) (i : iso w z) (h : x --> w) :
+Definition comm_square_with_vertical_iso {C : precategory} {x y z w : C} (f : iso x y) (g : y --> z) (i : iso w z) (h : x --> w) :
   f · g = h · i -> g · inv_from_iso i = inv_from_iso f · h.
 Proof.
   intro d.
@@ -750,7 +750,7 @@ Proof.
   exact d.
 Defined.
 
-Definition comm_square_horizontal_bottom_iso {C : precategory} {x y z w : C} (f : x --> y) (g : iso y z) (i : w --> z) (h : x --> w) :
+Definition comm_square_with_bottom_horizontal_iso {C : precategory} {x y z w : C} (f : x --> y) (g : iso y z) (i : w --> z) (h : x --> w) :
   f · g = h · i -> f = h · i · inv_from_iso g.
 Proof.
   intro d.
@@ -761,8 +761,8 @@ Proof.
   exact d.
 Defined.
 
-Definition comm_hexagon_firstvertical_iso {C : precategory} {u v x y z w : C} (f : u --> v) (g : v --> x) (h : x --> y) (i : z --> y)
-           (j : w -->z) (k : iso u w) : f · g · h = k · j · i -> inv_from_iso k · f · g · h = j · i.
+Definition comm_hexagon_with_left_horizontal_iso {C : precategory} {u v x y z w : C} (f : u --> v) (g : v --> x) (h : x --> y) (i : z --> y)
+  (j : w -->z) (k : iso u w) : f · g · h = k · j · i -> inv_from_iso k · f · g · h = j · i.
 Proof.
   intro d.
   apply (pre_comp_with_iso_is_inj C _ _ _ k (pr2 k)).
@@ -783,95 +783,6 @@ Variable F : monoidal_functor M N.
 Variable G : monoidal_functor N P.
 
 Local Open Scope cat.
-
-Definition family_of_iso_monoidal_functor_comp : ∏ x : ob (M × M), iso (F_tensor M P (F ∙ G) x) (tensor_F M P (F ∙ G) x).
-Proof.
-  intro x.
-  exact (iso_comp (pr1 (monoidal_functor_to_nat_iso G) (F (x true) , F (x false))) (functor_on_iso G (pr1 (monoidal_functor_to_nat_iso F) x))).
-Defined.
-
-Lemma tensor_to_tensor_comp {x x' : ob (M × M)} (f : x --> x') : #G(#(tensor_F M N F) f) = #(tensor_F M P (F ∙ G)) f.
-Proof.
-  cbn. unfold tensor_F_mor.
-  reflexivity.
-Defined.
-
-Lemma tensor_comp_to_tensor {x x' : ob (M × M)} (f : x --> x') : #(F_tensor M P (F ∙ G)) f =
-  (pr1 (monoidal_functor_to_nat_iso G) (F (x true) , F (x false)) · #G(#(F_tensor M N F) f)) · inv_from_iso (pr1 (monoidal_functor_to_nat_iso G) (F (x' true) , F (x' false))).
-Proof.
-  apply iso_inv_on_left.
-  symmetry.
-  apply (pr2 (monoidal_functor_to_nat_iso G) (F (x true) , F (x false)) (F (x' true) , F (x' false)) (#F (f true) #, #F (f false))).
-Defined.
-
-Definition is_nat_iso_family_of_iso_monoidal_functor_comp :
-  is_nat_iso (F_tensor M P (F ∙ G)) (tensor_F M P (F ∙ G)) family_of_iso_monoidal_functor_comp.
-Proof.
-  intros x x' f.
-  rewrite (tensor_comp_to_tensor f).
-  unfold family_of_iso_monoidal_functor_comp. cbn.
-  rewrite <- assoc.
-  transitivity (pr1 (monoidal_functor_to_nat_iso G) (F (x true), F (x false)) ·
-  # G (F_tensor_mor M N F x x' f) · ((inv_from_iso (pr1 (monoidal_functor_to_nat_iso G) (F (x' true), F (x' false))) · pr1 (monoidal_functor_to_nat_iso G) (F (x' true), F (x' false))) · # G (pr1 (monoidal_functor_to_nat_iso F) x'))).
-  - apply cancel_precomposition.
-    rewrite assoc.
-    reflexivity.
-  - rewrite (iso_after_iso_inv (pr1 (monoidal_functor_to_nat_iso G) (F (x' true), F (x' false)))).
-    transitivity (pr1 (monoidal_functor_to_nat_iso G) (F (x true), F (x false)) ·
-  # G (F_tensor_mor M N F x x' f) ·  # G (pr1 (monoidal_functor_to_nat_iso F) x')).
-    + apply cancel_precomposition.
-      apply remove_id_left.
-      reflexivity.
-      reflexivity.
-    + rewrite <- assoc.
-      transitivity (pr1 (monoidal_functor_to_nat_iso G) (F (x true), F (x false)) · (# G (F_tensor_mor M N F x x' f · pr1 (monoidal_functor_to_nat_iso F) x'))).
-      * apply cancel_precomposition.
-        symmetry.
-        apply (pr2 (pr2 (monoidal_functor_to_functor G))).
-      * transitivity (pr1 (monoidal_functor_to_nat_iso G) (F (x true), F (x false)) · #G (#(F_tensor M N F) f · pr1 (monoidal_functor_to_nat_iso F) x')).
-        cbn. reflexivity.
-        transitivity (pr1 (monoidal_functor_to_nat_iso G) (F (x true), F (x false)) · #G (pr1 (monoidal_functor_to_nat_iso F) x · #(tensor_F M N F) f)).
-        apply cancel_precomposition.
-        apply maponpaths.
-        apply (pr2 (monoidal_functor_to_nat_iso F)).
-        rewrite (pr2 (pr2 (pr1 G))).
-        rewrite assoc.
-        apply cancel_precomposition.
-        apply tensor_to_tensor_comp.
-Defined.
-
-Definition nat_iso_monoidal_functor_comp : F_tensor M P (functor_composite F G) ⇔ tensor_F M P (functor_composite F G) :=
-  tpair _ family_of_iso_monoidal_functor_comp is_nat_iso_family_of_iso_monoidal_functor_comp.
-
-Notation "'e'" := (monoidal_precat_to_unit M).
-Notation "'e''" := (monoidal_precat_to_unit N).
-Notation "'e'''" := (monoidal_precat_to_unit P).
-
-Definition iso_unit_to_unit_monoidal_functor_comp : iso e'' ((F ∙ G) e).
-Proof.
-  exact (iso_comp (monoidal_functor_to_iso_unit_to_unit G) (functor_on_iso G (monoidal_functor_to_iso_unit_to_unit F))).
-Defined.
-
-Notation "'α'" := (monoidal_precat_to_associator M).
-Notation "'α''" := (monoidal_precat_to_associator N).
-Notation "a ⊗ b" := (monoidal_precat_to_tensor M (a , b)) (at level 30).
-Notation "f #⊗ g" := (#(monoidal_precat_to_tensor M) (f #, g)) (at level 30).
-Notation "a ⊗' b" := (monoidal_precat_to_tensor N (a , b)) (at level 30).
-Notation "f #⊗' g" := (#(monoidal_precat_to_tensor N) (f #, g)) (at level 30).
-Notation "'Φ'" := (monoidal_functor_to_nat_iso F).
-
-Lemma image_of_hexagon_identity : ∏ a b c : M,
-  #G((pr1 Φ (a , b)) #⊗' identity (F c)) · #G(pr1 Φ (a ⊗ b , c)) · #G(#F(inv_from_iso (pr1 α ((a , b) , c)))) =
-  #G(inv_from_iso (pr1 α' ((F a , F b) , F c))) · #G(identity (F a) #⊗' (pr1 Φ (b , c))) · #G(pr1 Φ (a , b ⊗ c)).
-Proof.
-  intros a b c.
-  rewrite <- (pr2 (pr2 (pr1 G))).
-  rewrite <- (pr2 (pr2 (pr1 G))).
-  rewrite <- (pr2 (pr2 (pr1 G))).
-  rewrite <- (pr2 (pr2 (pr1 G))).
-  apply maponpaths.
-  apply (monoidal_functor_to_hexagon_identity F).
-Defined.
 
 Definition tensor_on_is_iso_is_iso {C : monoidal_precat} {x y z w : C} {f : x --> z} (fiso : is_iso f) {g : y --> w} (giso : is_iso g)
 : is_iso (#(monoidal_precat_to_tensor C) (f #, g)).
@@ -902,6 +813,75 @@ Proof.
 Defined.
 
 Notation "1 x" := (identity_iso x) (at level 90) : cat.
+
+
+Definition family_of_iso_monoidal_functor_comp : ∏ x : ob (M × M), iso (F_tensor M P (F ∙ G) x) (tensor_F M P (F ∙ G) x).
+Proof.
+  intro x.
+  exact (iso_comp (pr1 (monoidal_functor_to_nat_iso G) (F (x true) , F (x false))) (functor_on_iso G (pr1 (monoidal_functor_to_nat_iso F) x))).
+Defined.
+
+Lemma tensor_to_tensor_comp {x x' : ob (M × M)} (f : x --> x') : #G(#(tensor_F M N F) f) = #(tensor_F M P (F ∙ G)) f.
+Proof.
+  cbn. unfold tensor_F_mor.
+  reflexivity.
+Defined.
+
+Lemma tensor_comp_to_tensor {x x' : ob (M × M)} (f : x --> x') : #(F_tensor M P (F ∙ G)) f =
+  (pr1 (monoidal_functor_to_nat_iso G) (F (x true) , F (x false)) · #G(#(F_tensor M N F) f)) · inv_from_iso (pr1 (monoidal_functor_to_nat_iso G) (F (x' true) , F (x' false))).
+Proof.
+  set (d := pr2 (monoidal_functor_to_nat_iso G) (F (x true) , F (x false)) (F (x' true) , F (x' false)) (#F (f true) #, #F (f false))).
+  apply (comm_square_with_bottom_horizontal_iso _ _ _ _ d).
+Defined.
+
+Definition is_nat_iso_family_of_iso_monoidal_functor_comp :
+  is_nat_iso (F_tensor M P (F ∙ G)) (tensor_F M P (F ∙ G)) family_of_iso_monoidal_functor_comp.
+Proof.
+  intros x x' f.
+  rewrite (tensor_comp_to_tensor f).
+  unfold family_of_iso_monoidal_functor_comp.
+  transitivity (pr1 (monoidal_functor_to_nat_iso G) (F (x true), F (x false))·
+  # G (#(F_tensor M N (pr1 F)) f) · ((inv_from_iso (pr1 (monoidal_functor_to_nat_iso G) (F (x' true), F (x' false))) · pr1 (monoidal_functor_to_nat_iso G) (F (x' true), F (x' false))) · # G (pr1 (monoidal_functor_to_nat_iso F) x'))).
+  - rewrite <- assoc. apply cancel_precomposition.
+    rewrite <- assoc. reflexivity.
+  - rewrite iso_after_iso_inv.
+    rewrite id_left.
+    transitivity (pr1 (monoidal_functor_to_nat_iso G) (F (x true), F (x false)) · #G (pr1 (monoidal_functor_to_nat_iso F) x) ·
+                      #G (#(tensor_F M N F) f)).
+    rewrite <- assoc. symmetry. rewrite <- assoc. symmetry. apply cancel_precomposition.
+    apply (functor_on_comm_square G _ _ _ _ (pr2 (monoidal_functor_to_nat_iso F) x x' f)).
+    reflexivity.
+Defined.
+
+Definition nat_iso_monoidal_functor_comp : F_tensor M P (functor_composite F G) ⇔ tensor_F M P (functor_composite F G) :=
+  tpair _ family_of_iso_monoidal_functor_comp is_nat_iso_family_of_iso_monoidal_functor_comp.
+
+Notation "'e'" := (monoidal_precat_to_unit M).
+Notation "'e''" := (monoidal_precat_to_unit N).
+Notation "'e'''" := (monoidal_precat_to_unit P).
+
+Definition iso_unit_to_unit_monoidal_functor_comp : iso e'' ((F ∙ G) e).
+Proof.
+  exact (iso_comp (monoidal_functor_to_iso_unit_to_unit G) (functor_on_iso G (monoidal_functor_to_iso_unit_to_unit F))).
+Defined.
+
+Notation "'α'" := (monoidal_precat_to_associator M).
+Notation "'α''" := (monoidal_precat_to_associator N).
+Notation "a ⊗ b" := (monoidal_precat_to_tensor M (a , b)) (at level 30).
+Notation "f #⊗ g" := (#(monoidal_precat_to_tensor M) (f #, g)) (at level 30).
+Notation "a ⊗' b" := (monoidal_precat_to_tensor N (a , b)) (at level 30).
+Notation "f #⊗' g" := (#(monoidal_precat_to_tensor N) (f #, g)) (at level 30).
+Notation "'Φ'" := (monoidal_functor_to_nat_iso F).
+
+Lemma image_of_hexagon_identity : ∏ a b c : M,
+  #G((pr1 Φ (a , b)) #⊗' identity (F c)) · #G(pr1 Φ (a ⊗ b , c)) · #G(#F(inv_from_iso (pr1 α ((a , b) , c)))) =
+  #G(inv_from_iso (pr1 α' ((F a , F b) , F c))) · #G(identity (F a) #⊗' (pr1 Φ (b , c))) · #G(pr1 Φ (a , b ⊗ c)).
+Proof.
+  intros a b c.
+  rewrite <- 4 (functor_comp G).
+  apply maponpaths.
+  apply (monoidal_functor_to_hexagon_identity F).
+Defined.
 
 Lemma image_of_hexagon_identity_bis : ∏ a b c : M,
   #G(pr1 Φ (a ⊗ b , c)) · #G(#F(inv_from_iso (pr1 α ((a , b) , c)))) =
