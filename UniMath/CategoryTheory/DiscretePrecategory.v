@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 
 (** * Discrete precategories *)
-Section DiscretePrecategory.
+Section Discretecategory.
 
 Variable (A : UU).
 
@@ -70,4 +70,4 @@ Proof.
   reflexivity.
 Defined.
 
-End DiscretePrecategory.
+End Discretecategory.

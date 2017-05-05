@@ -11,7 +11,7 @@ Extended by: Anders Mörtberg. October 2015
 
 Contents :
 
-- Precategory of algebras of an endofunctor
+- category of algebras of an endofunctor
 
 - Saturated if base precategory is
 

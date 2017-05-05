@@ -1301,7 +1301,7 @@ Proof.
 Qed.
 
 
-Definition functor_Precategory (C : precategory) (D : Precategory) : Precategory.
+Definition functor_category (C : precategory) (D : category) : category.
 Proof.
   exists (functor_precategory C D (homset_property D)).
   apply functor_category_has_homsets.
@@ -1466,7 +1466,7 @@ End functors_on_iso_with_inv.
 
 Notation "[ C , D , hs ]" := (functor_precategory C D hs) : cat.
 
-Notation "[ C , D ]" := (functor_Precategory C D) : cat.
+Notation "[ C , D ]" := (functor_category C D) : cat.
 
 Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
 (* to input: type "\==>" with Agda input method *)

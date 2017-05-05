@@ -227,7 +227,7 @@ Defined.
 
 Lemma Pullbacks_PreShv : Pullbacks (PreShv C).
 Proof.
-now apply FunctorPrecategoryPullbacks, PullbacksHSET.
+now apply FunctorcategoryPullbacks, PullbacksHSET.
 Defined.
 
 Lemma has_exponentials_PreShv (hsC : has_homsets C) :

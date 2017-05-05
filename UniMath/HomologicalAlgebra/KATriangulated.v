@@ -62,7 +62,7 @@ Section KATriangulated.
 
   Context {A : Additive}.
 
-  Local Opaque ComplexHomotFunctor ComplexHomotSubset QuotPrecategory identity
+  Local Opaque ComplexHomotFunctor ComplexHomotSubset Quotcategory identity
         MappingConePr1 MappingConeIn2 RotMorphism RotMorphismInv InvRotMorphism InvRotMorphismInv
         to_inv compose to_abgrop pathsinv0 pathscomp0 ishinh.
 

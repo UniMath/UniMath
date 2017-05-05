@@ -527,7 +527,7 @@ is a pushout
 *)
 Section EpiPushoutId.
 
-  Context {C:Precategory} {A B:C} (f:C⟦A,B ⟧).
+  Context {C : category} {A B : C} (f : C⟦A,B ⟧).
 
   Lemma epi_to_pushout : isEpi f -> isPushout f f (identity _) (identity _) (idpath _).
   Proof.

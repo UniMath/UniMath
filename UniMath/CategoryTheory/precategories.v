@@ -63,7 +63,7 @@ Definition precategory_morphisms { C : precategory_ob_mor } :
 
 Delimit Scope cat with cat.     (* for precategories *)
 
-Delimit Scope cat with Cat.     (* a slight enhancement for Precategories *)
+Delimit Scope cat with Cat.     (* a slight enhancement for categories *)
 
 Delimit Scope cat_deprecated with cat_deprecated.
 
@@ -180,17 +180,17 @@ Proof.
   apply isapropisaset.
 Qed.
 
-Definition Precategory := ∑ C:precategory, has_homsets C.
-Definition Precategory_pair C h : Precategory := C,,h.
-Definition Precategory_to_precategory : Precategory -> precategory := pr1.
-Coercion Precategory_to_precategory : Precategory >-> precategory.
-Definition homset_property (C : Precategory) : has_homsets C := pr2 C.
+Definition category := ∑ C:precategory, has_homsets C.
+Definition category_pair C h : category := C,,h.
+Definition category_to_precategory : category -> precategory := pr1.
+Coercion category_to_precategory : category >-> precategory.
+Definition homset_property (C : category) : has_homsets C := pr2 C.
 
 
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := C,,i.
 
-Definition makePrecategory
+Definition makecategory
     (obj : UU)
     (mor : obj -> obj -> UU)
     (homsets : ∏ a b, isaset (mor a b))
@@ -200,7 +200,7 @@ Definition makePrecategory
     (left  : ∏ i j (f:mor i j), compose _ _ _ f (identity j) = f)
     (associativity : ∏ a b c d (f:mor a b) (g:mor b c) (h:mor c d),
         compose _ _ _ f (compose _ _ _ g h) = compose _ _ _ (compose _ _ _ f g) h)
-  : Precategory
+  : category
   := (precategory_pair
            (precategory_data_pair
               (precategory_ob_mor_pair
@@ -893,7 +893,7 @@ Proof.
   exact H.
 Qed.
 
-Lemma z_iso_eq {C : Precategory} {a b : C} (i i' : z_iso a b) (e : z_iso_mor i = z_iso_mor i') :
+Lemma z_iso_eq {C : category} {a b : C} (i i' : z_iso a b) (e : z_iso_mor i = z_iso_mor i') :
   i = i'.
 Proof.
   use total2_paths_f.
@@ -901,7 +901,7 @@ Proof.
   - use proofirrelevance. apply isaprop_is_z_isomorphism. apply homset_property.
 Qed.
 
-Lemma z_iso_eq_inv {C : Precategory} {a b : C} (i i' : z_iso a b)
+Lemma z_iso_eq_inv {C : category} {a b : C} (i i' : z_iso a b)
       (e2 : z_iso_inv_mor i = z_iso_inv_mor i') : i = i'.
 Proof.
   use z_iso_eq.
@@ -1191,12 +1191,12 @@ Definition univalent_category : UU := total2 (fun C : precategory => is_univalen
 
 Definition mk_category (C : precategory) (H : is_univalent C) : univalent_category := tpair _ C H.
 
-Definition univalent_category_to_Precategory (C : univalent_category) : Precategory.
+Definition univalent_category_to_category (C : univalent_category) : category.
 Proof.
   exists (pr1 C).
   exact (pr2 (pr2 C)).
 Defined.
-Coercion univalent_category_to_Precategory : univalent_category >-> Precategory.
+Coercion univalent_category_to_category : univalent_category >-> category.
 
 Definition univalent_category_pair (C:precategory) (i:is_univalent C) : univalent_category := C,,i.
 

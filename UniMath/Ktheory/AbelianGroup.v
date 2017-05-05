@@ -491,7 +491,7 @@ Module Category.
   Definition MorEquality G H (p q : Mor G H) : pr1 p = pr1 q -> p = q.
     intros. apply Monoid.funEquality. assumption. Qed.
 
-  Definition Precat : Precategory.
+  Definition Precat : category.
     unshelve refine (_,,_).
     { exists Data. split.
       { simpl. split.
