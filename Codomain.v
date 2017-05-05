@@ -34,7 +34,7 @@ the components of the objects and morphisms will be arranged differently
 (* TODO: perhaps rename [slice_disp], and make [C] implicit? *)
 Section Codomain_Disp.
 
-Context (C:Precategory).
+Context (C:category).
 
 Definition cod_disp_ob_mor : disp_cat_ob_mor C.
 Proof.
@@ -102,7 +102,7 @@ End Codomain_Disp.
 
 Section Pullbacks_Cartesian.
 
-Context {C:Precategory}.
+Context {C:category}.
 
 Definition isPullback_cartesian_in_cod_disp
     { Γ Γ' : C } {f : Γ' --> Γ}

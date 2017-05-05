@@ -38,32 +38,32 @@ Section Isofibrations.
 there’s some object d' in D c', and an iso φbar : d' =~ d over φ.
 *)
 
-Definition iso_cleaving {C : Precategory} (D : disp_cat C) : UU
+Definition iso_cleaving {C : category} (D : disp_cat C) : UU
 := 
   forall (c c' : C) (i : iso c' c) (d : D c),
           ∑ d' : D c', iso_disp i d' d.
 
-Definition iso_fibration (C : Precategory) : UU
+Definition iso_fibration (C : category) : UU
   := ∑ D : disp_cat C, iso_cleaving D.
 
-Definition is_uncloven_iso_cleaving {C : Precategory} (D : disp_cat C) : UU
+Definition is_uncloven_iso_cleaving {C : category} (D : disp_cat C) : UU
 := 
   forall (c c' : C) (i : iso c' c) (d : D c),
           ∃ d' : D c', iso_disp i d' d.
 
-Definition weak_iso_fibration (C : Precategory) : UU
+Definition weak_iso_fibration (C : category) : UU
   := ∑ D : disp_cat C, is_uncloven_iso_cleaving D.
 
 
 (** As with fibrations, there is an evident dual version.  However, in the iso case, it is self-dual: having forward (i.e. cocartesian) liftings along isos is equivalent to having backward (cartesian) liftings. *)
 
-Definition is_op_isofibration {C : Precategory} (D : disp_cat C) : UU
+Definition is_op_isofibration {C : category} (D : disp_cat C) : UU
 := 
   forall (c c' : C) (i : iso c c') (d : D c),
           ∑ d' : D c', iso_disp i d d'.
 
 Lemma is_isofibration_iff_is_op_isofibration 
-    {C : Precategory} (D : disp_cat C)
+    {C : category} (D : disp_cat C)
   : iso_cleaving D <-> is_op_isofibration D.
 Proof.
   (* TODO: give this! *)
@@ -74,7 +74,7 @@ End Isofibrations.
 (** * Fibrations *)
 Section Fibrations.
 
-Definition is_cartesian {C : Precategory} {D : disp_cat C}
+Definition is_cartesian {C : category} {D : disp_cat C}
     {c c' : C} {f : c' --> c}
     {d : D c} {d' : D c'} (ff : d' -->[f] d)
   : UU
@@ -82,7 +82,7 @@ Definition is_cartesian {C : Precategory} {D : disp_cat C}
   ∃! (gg : d'' -->[g] d'), gg ;; ff = hh.
 
 (** See also [cartesian_factorisation'] below, for when the map one wishes to factor is not judgementally over [g;;f], but over some equal map. *)
-Definition cartesian_factorisation {C : Precategory} {D : disp_cat C}
+Definition cartesian_factorisation {C : category} {D : disp_cat C}
     {c c' : C} {f : c' --> c}
     {d : D c} {d' : D c'} {ff : d' -->[f] d} (H : is_cartesian ff)
     {c''} (g : c'' --> c') {d'' : D c''} (hh : d'' -->[g;;f] d)
@@ -90,7 +90,7 @@ Definition cartesian_factorisation {C : Precategory} {D : disp_cat C}
 := pr1 (pr1 (H _ g _ hh)).
 
 Definition cartesian_factorisation_commutes
-    {C : Precategory} {D : disp_cat C}
+    {C : category} {D : disp_cat C}
     {c c' : C} {f : c' --> c}
     {d : D c} {d' : D c'} {ff : d' -->[f] d} (H : is_cartesian ff)
     {c''} (g : c'' --> c') {d'' : D c''} (hh : d'' -->[g;;f] d)
@@ -99,7 +99,7 @@ Definition cartesian_factorisation_commutes
 
 (** This is essentially the third access function for [is_cartesian], but given in a more usable form than [pr2 (H …)] would be. *)
 Definition cartesian_factorisation_unique
-    {C : Precategory} {D : disp_cat C}
+    {C : category} {D : disp_cat C}
     {c c' : C} {f : c' --> c}
     {d : D c} {d' : D c'} {ff : d' -->[f] d} (H : is_cartesian ff)
     {c''} {g : c'' --> c'} {d'' : D c''} (gg gg' : d'' -->[g] d')
@@ -119,7 +119,7 @@ Proof.
   apply pathsinv0, goal'.
 Qed.
 
-Definition cartesian_factorisation' {C : Precategory} {D : disp_cat C}
+Definition cartesian_factorisation' {C : category} {D : disp_cat C}
     {c c' : C} {f : c' --> c}
     {d : D c} {d' : D c'} {ff : d' -->[f] d} (H : is_cartesian ff)
     {c''} (g : c'' --> c')
@@ -132,7 +132,7 @@ Proof.
 Defined.
 
 Definition cartesian_factorisation_commutes'
-    {C : Precategory} {D : disp_cat C}
+    {C : category} {D : disp_cat C}
     {c c' : C} {f : c' --> c}
     {d : D c} {d' : D c'} {ff : d' -->[f] d} (H : is_cartesian ff)
     {c''} (g : c'' --> c')
@@ -144,26 +144,26 @@ Proof.
   apply cartesian_factorisation_commutes.
 Qed.
 
-Definition cartesian_lift {C : Precategory} {D : disp_cat C}
+Definition cartesian_lift {C : category} {D : disp_cat C}
     {c} (d : D c) {c' : C} (f : c' --> c)
   : UU
 := ∑ (d' : D c') (ff : d' -->[f] d), is_cartesian ff.
 
-Definition object_of_cartesian_lift  {C : Precategory} {D : disp_cat C}
+Definition object_of_cartesian_lift  {C : category} {D : disp_cat C}
     {c} (d : D c) {c' : C} (f : c' --> c)
     (fd : cartesian_lift d f)
   : D c'
 := pr1 fd.
 Coercion object_of_cartesian_lift : cartesian_lift >-> ob_disp.
 
-Definition mor_disp_of_cartesian_lift  {C : Precategory} {D : disp_cat C}
+Definition mor_disp_of_cartesian_lift  {C : category} {D : disp_cat C}
     {c} (d : D c) {c' : C} (f : c' --> c)
     (fd : cartesian_lift d f)
   : (fd : D c') -->[f] d
 := pr1 (pr2 fd).
 Coercion mor_disp_of_cartesian_lift : cartesian_lift >-> mor_disp.
 
-Definition cartesian_lift_is_cartesian {C : Precategory} {D : disp_cat C}
+Definition cartesian_lift_is_cartesian {C : category} {D : disp_cat C}
     {c} (d : D c) {c' : C} (f : c' --> c)
     (fd : cartesian_lift d f)
   : is_cartesian fd
@@ -172,13 +172,13 @@ Coercion cartesian_lift_is_cartesian : cartesian_lift >-> is_cartesian.
 
 (* TODO: should the arguments be re-ordered as in [cartesian_lift]? If so, reorder in [isofibration] etc as well, for consistency. *)
 (* TODO: consider renaming to e.g. [cleaving] to follow convention that [is_] is reserved for hprops. *)
-Definition cleaving {C : Precategory} (D : disp_cat C) : UU
+Definition cleaving {C : category} (D : disp_cat C) : UU
 := 
   forall (c c' : C) (f : c' --> c) (d : D c), cartesian_lift d f.
 
 (** ** (Cloven) fibration *)
 
-Definition fibration (C : Precategory) : UU
+Definition fibration (C : category) : UU
 := 
   ∑ D : disp_cat C, cleaving D.
 
@@ -187,16 +187,16 @@ Definition fibration (C : Precategory) : UU
 
 (* TODO: give access functions! *)
 
-Definition is_cleaving {C : Precategory} (D : disp_cat C) : UU
+Definition is_cleaving {C : category} (D : disp_cat C) : UU
 := 
   forall (c c' : C) (f : c' --> c) (d : D c), ∥ cartesian_lift d f ∥.
 
-Definition weak_fibration (C : Precategory) : UU
+Definition weak_fibration (C : category) : UU
 := ∑ D : disp_cat C, is_cleaving D.
 
 (** ** Connection with isofibrations *)
 
-Lemma is_iso_from_is_cartesian {C : Precategory} {D : disp_cat C}
+Lemma is_iso_from_is_cartesian {C : category} {D : disp_cat C}
     {c c' : C} (i : iso c' c) {d : D c} {d'} (ff : d' -->[i] d)
   : is_cartesian ff -> is_iso_disp i ff.
 Proof.
@@ -218,7 +218,7 @@ Proof.
     apply maponpaths_2, homset_property.
 Qed.
 
-Lemma is_isofibration_from_is_fibration {C : Precategory} {D : disp_cat C}
+Lemma is_isofibration_from_is_fibration {C : category} {D : disp_cat C}
   : cleaving D -> iso_cleaving D.
 Proof.
   intros D_fib c c' f d.
@@ -231,7 +231,7 @@ Defined.
 (** ** Uniqueness of cartesian lifts *)
 
 (* TODO: show that when [D] is _univalent_, cartesian lifts are literally unique, and so any uncloven fibration (isofibration, etc) is in fact cloven. *)
-Definition cartesian_lifts_iso {C : Precategory} {D : disp_cat C}
+Definition cartesian_lifts_iso {C : category} {D : disp_cat C}
     {c} {d : D c} {c' : C} {f : c' --> c} (fd fd' : cartesian_lift d f)
   : iso_disp (identity_iso c') fd fd'.
 Proof.
@@ -263,7 +263,7 @@ Proof.
       apply maponpaths_2, homset_property.
 Defined.
 
-Definition cartesian_lifts_iso_commutes {C : Precategory} {D : disp_cat C}
+Definition cartesian_lifts_iso_commutes {C : category} {D : disp_cat C}
     {c} {d : D c} {c' : C} {f : c' --> c} (fd fd' : cartesian_lift d f)
   : (cartesian_lifts_iso fd fd') ;; fd'
   = transportb _ (id_left _) (fd : _ -->[_] _).
@@ -273,7 +273,7 @@ Qed.
 
 (** In a displayed _category_ (i.e. _univalent_), cartesian lifts are literally unique, if they exist; that is, the type of cartesian lifts is always a proposition. *) 
 Definition isaprop_cartesian_lifts
-    {C : Precategory} {D : disp_cat C} (D_cat : is_univalent_disp D)
+    {C : category} {D : disp_cat C} (D_cat : is_univalent_disp D)
     {c} (d : D c) {c' : C} (f : c' --> c)
   : isaprop (cartesian_lift d f).
 Proof.
@@ -301,7 +301,7 @@ Proof.
 Defined.
 
 Definition univalent_fibration_is_cloven
-    {C : Precategory} {D : disp_cat C} (D_cat : is_univalent_disp D)
+    {C : category} {D : disp_cat C} (D_cat : is_univalent_disp D)
   : is_cleaving D -> cleaving D.
 Proof.
   intros D_fib c c' f d.
@@ -327,7 +327,7 @@ Defined.
 
 Section Discrete_Fibrations.
 
-Definition is_discrete_fibration {C : Precategory} (D : disp_cat C) : UU
+Definition is_discrete_fibration {C : category} (D : disp_cat C) : UU
 := 
   (forall (c c' : C) (f : c' --> c) (d : D c),
           ∃! d' : D c', d' -->[f] d)
@@ -437,7 +437,7 @@ More direct equivalence of types:
  *)
 
 
-Variable C : Precategory.
+Variable C : category.
 
 Definition precat_of_discrete_fibs_ob_mor : precategory_ob_mor.
 Proof.
@@ -490,7 +490,7 @@ Proof.
   - intro. apply isasetaprop. apply isaprop_disp_functor_axioms.
 Qed.  
 
-Definition Precat_of_discrete_fibs : Precategory 
+Definition Precat_of_discrete_fibs : category 
   := ( precat_of_discrete_fibs ,, has_homsets_precat_of_discrete_fibs).
 
 (** ** Functor from discrete fibrations to presheaves *)
@@ -728,7 +728,7 @@ End Opfibrations.
 
 Section isofibration_from_disp_over_univalent.
 
-Context (C : Precategory) 
+Context (C : category) 
         (Ccat : is_univalent C)
         (D : disp_cat C).
 

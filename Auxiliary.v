@@ -27,7 +27,7 @@ Local Set Automatic Introduction.
 
 Bind Scope precategory_scope with precategory_ob_mor.
 Bind Scope precategory_scope with precategory_data.
-Bind Scope precategory_scope with Precategory.
+Bind Scope precategory_scope with category.
 Bind Scope precategory_scope with precategory.
 Delimit Scope precategory_scope with precat.
 (** Many binding sorts for this scope, following the many coercions on precategories. *)
@@ -75,7 +75,7 @@ End Dirprod_utils.
 
 Construction of finite products of precategories, including functoriality, associativity, and similar infrastructure. *)
 
-Section Precategory_products.
+Section category_products.
 
 (* TODO: move this upstream to [CategoryTheory]? *)
 
@@ -133,27 +133,27 @@ Qed.
 Definition prod_precategory_pre (C D : precategory) : precategory
   := (_ ,, prod_precategory_is_precategory C D).
 
-Definition prod_precategory_homsets (C D : Precategory)
+Definition prod_precategory_homsets (C D : category)
   : has_homsets (prod_precategory_data C D).
 Proof.
   intros x y. apply isaset_dirprod; apply homset_property.
 Qed.
 
-Definition prod_precategory (C D : Precategory) : Precategory
+Definition prod_precategory (C D : category) : category
   := (prod_precategory_pre C D,, prod_precategory_homsets C D).
 
 Arguments prod_precategory (_ _)%precat.
 
 Notation "C × D" := (prod_precategory C D) (at level 75, right associativity) : precategory_scope.
 
-Definition prod_precategory_assoc_data (C0 C1 C2 : Precategory)
+Definition prod_precategory_assoc_data (C0 C1 C2 : category)
   : functor_data (C0 × (C1 × C2)) ((C0 × C1) × C2).
 Proof.
   (* functor_on_objects *) exists dirprod_assoc.
   (* functor_on_morphisms *) intros a b; apply dirprod_assoc.
 Defined.
 
-Definition prod_precategory_assoc (C0 C1 C2 : Precategory)
+Definition prod_precategory_assoc (C0 C1 C2 : category)
   : functor (C0 × (C1 × C2)) ((C0 × C1) × C2).
 Proof.
   exists (prod_precategory_assoc_data _ _ _). split.
@@ -161,7 +161,7 @@ Proof.
   (* functor_comp *) intros c0 c1 c2 f g. simpl; apply paths_refl.
 Defined.
 
-Definition prod_functor_data {C0 C1 D0 D1 : Precategory}
+Definition prod_functor_data {C0 C1 D0 D1 : category}
   (F0 : functor C0 D0) (F1 : functor C1 D1)
 : functor_data (C0 × C1) (D0 × D1).
 Proof.
@@ -170,7 +170,7 @@ Proof.
     apply dirprod_maps; apply functor_on_morphisms.
 Defined.
 
-Definition prod_functor {C0 C1 D0 D1 : Precategory}
+Definition prod_functor {C0 C1 D0 D1 : category}
   (F0 : functor C0 D0) (F1 : functor C1 D1)
 : functor (C0 × C1) (D0 × D1).
 Proof.
@@ -180,7 +180,7 @@ Proof.
     apply dirprod_paths; apply functor_comp.
 Defined.
 
-Definition pair_functor_data {C D0 D1 : Precategory}
+Definition pair_functor_data {C D0 D1 : category}
   (F0 : functor C D0) (F1 : functor C D1)
 : functor_data C (D0 × D1).
 Proof.
@@ -189,7 +189,7 @@ Proof.
     apply dirprod_pair_maps; apply functor_on_morphisms.
 Defined.
 
-Definition pair_functor {C D0 D1 : Precategory}
+Definition pair_functor {C D0 D1 : category}
   (F0 : functor C D0) (F1 : functor C D1)
 : functor C (D0 × D1).
 Proof.
@@ -199,7 +199,7 @@ Proof.
     apply dirprod_paths; apply functor_comp.
 Defined.
 
-End Precategory_products.
+End category_products.
 
 (** Redeclare section notations to be available globally. *)
 Notation "C × D" := (prod_precategory C D)
@@ -212,9 +212,9 @@ Section Pregroupoids.
 Definition is_pregroupoid (C : precategory)
   := forall (x y : C) (f : x --> y), is_iso f.
 
-Lemma is_pregroupoid_functor_precat {C D : Precategory}
+Lemma is_pregroupoid_functor_precat {C D : category}
   (gr_D : is_pregroupoid D)
-  : is_pregroupoid (functor_Precategory C D).
+  : is_pregroupoid (functor_category C D).
 Proof.
   intros F G α; apply functor_iso_if_pointwise_iso.
   intros c; apply gr_D.
@@ -227,7 +227,7 @@ End Pregroupoids.
 In order to construct locally discrete (pre)bicategories below, we need some infrastructure on discrete (pre)categories. *)
 Section Discrete_precats.
 
-Definition discrete_precat (X : hSet) : Precategory.
+Definition discrete_precat (X : hSet) : category.
 Proof.
   use tpair.
     apply (path_pregroupoid X).

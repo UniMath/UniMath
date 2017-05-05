@@ -27,7 +27,7 @@ Section SIP.
 
 (** ** The data and properties according to HoTT book, chapter 9.8 *)
 
-Variable C : Precategory.
+Variable C : category.
 Variable univC : is_univalent C.
 Variable P : ob C -> UU.
 Variable Pisset : ∏ x, isaset (P x).

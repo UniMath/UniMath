@@ -100,7 +100,7 @@ Proof.
   apply setproperty.
 Qed.
 
-Definition disp_grp : disp_cat hset_Precategory. 
+Definition disp_grp : disp_cat hset_category. 
 Proof.
   use disp_struct.
   - exact grp_structure.
@@ -186,7 +186,7 @@ Definition disp_top : disp_cat SET := _ ,, top_disp_cat_axioms.
 A very fertile example: many others can be obtained from it by reindexing. *)
 Section Arrow_Disp.
 
-Context (C:Precategory).
+Context (C:category).
 
 Definition arrow_disp_ob_mor : disp_cat_ob_mor (C × C).
 Proof.
@@ -231,7 +231,7 @@ Once we have pullbacks of displayed precategories, this can be obtained as a pul
 
 Section NAction.
 
-Context (C:Precategory).
+Context (C:category).
 
 Definition NAction_disp_ob_mor : disp_cat_ob_mor C.
 Proof.
@@ -303,11 +303,11 @@ Qed.
 Definition elements_universal : disp_cat SET
   := (_ ,, elements_axioms).
 
-Definition disp_cat_of_elements {C : Precategory} (P : functor C SET)
+Definition disp_cat_of_elements {C : category} (P : functor C SET)
   := reindex_disp_cat P elements_universal.
 
 (* TODO: compare to other definitions of this in the library! *)
-Definition precat_of_elements {C : Precategory} (P : functor C SET)
+Definition precat_of_elements {C : category} (P : functor C SET)
   := total_precat (disp_cat_of_elements P).
 
 End Elements_Disp.
@@ -316,7 +316,7 @@ End Elements_Disp.
 
 Section functor_algebras.
 
-Context {C : Precategory} (F : functor C C).
+Context {C : category} (F : functor C C).
 
 Definition functor_alg_ob : C -> UU := λ c, F c --> c.
 
@@ -363,7 +363,7 @@ Definition disp_cat_functor_alg : disp_cat C
                  functor_alg_id 
                  functor_alg_comp.                                                  
 
-Definition total_functor_alg : Precategory := total_precat disp_cat_functor_alg.
+Definition total_functor_alg : category := total_precat disp_cat_functor_alg.
 
 Lemma isaset_functor_alg_ob : ∏ x : C, isaset (functor_alg_ob x).
 Proof.
@@ -536,10 +536,10 @@ End functor_algebras.
 
 Section monad_algebras.
 
-Context {C : Precategory} (T : Monad C).
+Context {C : category} (T : Monad C).
 
 Let T' : C ⟶ C := T.
-Let FAlg : Precategory := total_functor_alg T'.
+Let FAlg : category := total_functor_alg T'.
 
 Definition isMonadAlg (Xa : FAlg) : UU 
   := η T (pr1 Xa) · pr2 Xa = identity _ 
@@ -560,7 +560,7 @@ Require Import UniMath.CategoryTheory.categories.StandardCategories.
 
 Section over_terminal_category.
 
-Variable C : Precategory.
+Variable C : category.
 
 Definition disp_over_unit_data : disp_cat_data unit_category.
 Proof.
@@ -593,19 +593,19 @@ End over_terminal_category.
 
 Section cartesian_product_pb.
 
-Variable C C' : Precategory.
+Variable C C' : category.
 
 
 Definition disp_cartesian : disp_cat C 
   := reindex_disp_cat (functor_to_unit C) (disp_over_unit C').
 
-Definition cartesian : Precategory := total_precat disp_cartesian.
+Definition cartesian : category := total_precat disp_cartesian.
 
 End cartesian_product_pb.
 
 Section arrow.
 
-Variable C : Precategory.
+Variable C : category.
 
 Definition disp_arrow_data : disp_cat_data (cartesian C C).
 Proof.
@@ -644,7 +644,7 @@ Qed.
 
 Definition disp_arrow : disp_cat (cartesian C C) := _ ,, disp_arrow_axioms.
 
-Definition arrow : Precategory := total_precat disp_arrow.
+Definition arrow : category := total_precat disp_arrow.
 
 Definition disp_domain : disp_cat C := sigma_disp_cat disp_arrow.
 
@@ -654,7 +654,7 @@ End arrow.
 
 Section cartesian_product.
 
-Variables C C' : Precategory.
+Variables C C' : category.
 
 Definition disp_cartesian_ob_mor : disp_cat_ob_mor C.
 Proof.

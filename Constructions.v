@@ -70,7 +70,7 @@ End Auxiliary.
 (** * Full subcategories *)
 
 Section full_subcat.
-Variable C : Precategory.
+Variable C : category.
 Variable P : C -> UU.
 
 Definition disp_full_sub_ob_mor : disp_cat_ob_mor C.
@@ -101,7 +101,7 @@ End full_subcat.
 
 Section struct_hom.
 
-Variable C : Precategory.
+Variable C : category.
 Variable univC : is_univalent C.
 Variable P : ob C -> UU.
 (* Variable Pisset : ∏ x, isaset (P x). *)
@@ -144,7 +144,7 @@ We directly define direct products of displayed categories over a base.
 An alternative would be to define the direct product as the [sigma_disp_cat] of the pullback to either factor.  *)
 Section Dirprod.
 
-Context {C : Precategory} (D1 D2 : disp_cat C).
+Context {C : category} (D1 D2 : disp_cat C).
 
 Definition dirprod_disp_cat_ob_mor : disp_cat_ob_mor C.
 Proof.
@@ -234,7 +234,7 @@ Bind Scope disp_cat_scope with disp_cat.
 (** * Sigmas of displayed (pre)categories *)
 Section Sigma.
 
-Context {C : Precategory}
+Context {C : category}
         {D : disp_cat C}
         (E : disp_cat (total_precat D)).
 
@@ -495,11 +495,11 @@ Displayed functors and natural transformations form a displayed precategory over
 Section Functor.
 (* TODO: clean up this section a bit. *)
 
-Variables C' C : Precategory.
+Variables C' C : category.
 Variable D' : disp_cat C'.
 Variable D : disp_cat C.
 
-Let FunctorsC'C := functor_Precategory C' C.
+Let FunctorsC'C := functor_category C' C.
 
 Lemma foo
   (F' F : functor C' C)
@@ -878,7 +878,7 @@ End Functor.
 (** A displayed category gives a _fiber_ category over each object of the base.  These are most interesting in the case where the displayed category is an isofibration. *)
 Section Fiber.
 
-Context {C : Precategory}
+Context {C : category}
         (D : disp_cat C)
         (c : C).
 
@@ -1031,7 +1031,7 @@ Section Fiber_Functors.
 
 Section fix_context.
 
-Context {C C' : Precategory} {D} {D'}
+Context {C C' : category} {D} {D'}
         {F : functor C C'} (FF : disp_functor F D D')
         (x : C).
 
@@ -1070,7 +1070,7 @@ End fix_context.
 (* TODO: consider lemma organisation in this file *)
 
 Definition is_iso_fiber_from_is_iso_disp
-  {C : Precategory} {D : disp_cat C}
+  {C : category} {D : disp_cat C}
   {c : C} {d d' : D c} (ff : d -->[identity c] d')
   (Hff : is_iso_disp (identity_iso c) ff)
 : @is_iso (fiber_precategory D c) _ _ ff.
@@ -1090,7 +1090,7 @@ Proof.
     apply homset_property.
 Qed.
 
-Definition fiber_nat_trans {C C' : Precategory}
+Definition fiber_nat_trans {C C' : category}
   {F : functor C C'}
   {D D'} {FF FF' : disp_functor F D D'}
   (α : disp_nat_trans (nat_trans_id F) FF FF')
@@ -1113,7 +1113,7 @@ Proof.
 Defined.
 
 Lemma fiber_functor_ff
-    {C C' : Precategory} {D} {D'}
+    {C C' : category} {D} {D'}
     {F : functor C C'} (FF : disp_functor F D D')
     (H : disp_functor_ff FF)
     (c : C)

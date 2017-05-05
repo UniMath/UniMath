@@ -29,7 +29,7 @@ End Auxiliary.
 Section Essential_Surjectivity.
 
 Definition fiber_functor_ess_split_surj 
-    {C C' : Precategory} {D} {D'}
+    {C C' : category} {D} {D'}
     {F : functor C C'} (FF : disp_functor F D D')
     (H : disp_functor_ff FF)
     {X : disp_functor_ess_split_surj FF}
@@ -74,7 +74,7 @@ End Essential_Surjectivity.
 
 Section disp_adjunction.
 
-Definition disp_adjunction_data {C C' : Precategory} (A : adjunction_data C C') 
+Definition disp_adjunction_data {C C' : category} (A : adjunction_data C C') 
            (F := left_functor A) (G := right_functor A)
            (eta := adjunit A) (eps := adjcounit A)
            (D : disp_cat C) (D' : disp_cat C') : UU
@@ -86,7 +86,7 @@ Definition disp_adjunction_data {C C' : Precategory} (A : adjunction_data C C')
 
 Section notation.
 
-Context {C C' : Precategory} {A : adjunction_data C C'} 
+Context {C C' : category} {A : adjunction_data C C'} 
         {D D'} (X : disp_adjunction_data A D D').
 Definition left_adj_over : disp_functor _ _ _ := pr1 X.
 Definition right_adj_over : disp_functor _ _ _ := pr1 (pr2 X).
@@ -127,7 +127,7 @@ Defined.
 
 
 Definition triangle_1_over_statement  
-           {C C' : Precategory} {A : adjunction C C'} 
+           {C C' : category} {A : adjunction C C'} 
            {D D'} (X : disp_adjunction_data A D D') 
            (FF := left_adj_over X)
            (ηη := unit_over X)
@@ -136,7 +136,7 @@ Definition triangle_1_over_statement
              = transportb _ (triangle_id_left_ad A x ) (id_disp _) .
 
 Definition triangle_2_over_statement  
-           {C C' : Precategory} {A : adjunction C C'} 
+           {C C' : category} {A : adjunction C C'} 
            {D D'} (X : disp_adjunction_data A D D') 
            (GG := right_adj_over X)
            (ηη := unit_over X)
@@ -144,14 +144,14 @@ Definition triangle_2_over_statement
   := ∏ x xx, ηη _ (GG x xx) ;; # GG (εε _ xx)
            = transportb _ (triangle_id_right_ad A _ ) (id_disp _).
 
-Definition disp_adjunction {C C' : Precategory} (A : adjunction C C') D D' : UU
+Definition disp_adjunction {C C' : category} (A : adjunction C C') D D' : UU
   := ∑ X : disp_adjunction_data A D D', 
            triangle_1_over_statement X × triangle_2_over_statement X.
 
-Coercion adj_over_data_from_adj_over (C C' : Precategory) (A : adjunction C C') 
+Coercion adj_over_data_from_adj_over (C C' : category) (A : adjunction C C') 
          D D' (X : disp_adjunction A D D') : disp_adjunction_data _ _ _ := pr1 X.
 
-Definition form_equiv {C C' : Precategory} (A : equivalence_of_precats C C') {D D'}
+Definition form_equiv {C C' : category} (A : equivalence_of_precats C C') {D D'}
            (X : disp_adjunction_data A D D') : UU
   := ∏ x xx, is_iso_disp (adjunitiso A x) (unit_over X x xx)
      ×
@@ -497,7 +497,7 @@ End Equivalences.
 Section Equiv_from_ff_plus_ess_split.
 (* TODO: consider naming throughout this section!  Especially: anything with [ses] should be fixed. *)
 
-Context {C : Precategory} {D' D : disp_cat C}
+Context {C : category} {D' D : disp_cat C}
         (FF : disp_functor (functor_identity _) D' D)
         (FF_split : disp_functor_disp_ess_split_surj FF)
         (FF_ff : disp_functor_ff FF).
@@ -755,7 +755,7 @@ End Equiv_from_ff_plus_ess_split.
 
 Section Nat_Trans_Disp_Inv.
 
-Context {C : Precategory} {D' D : disp_cat C}
+Context {C : category} {D' D : disp_cat C}
         {FF GG : disp_functor (functor_identity _) D' D}
         (alpha : disp_nat_trans (nat_trans_id _ ) FF GG)
         (Ha : ∏ x xx, is_iso_disp (identity_iso _ ) (alpha x xx)).
@@ -828,7 +828,7 @@ End Nat_Trans_Disp_Inv.
 
 Section Displayed_Equiv_Inv.
 
-Context {C : Precategory} {D' D : disp_cat C}
+Context {C : category} {D' D : disp_cat C}
         (FF : disp_functor (functor_identity _) D' D)
         (isEquiv : is_equiv_over_id FF).
 
@@ -1002,7 +1002,7 @@ End Displayed_Equiv_Compose.
 (** ** Induced adjunctions/equivalences of fiber precats *)
 Section Equiv_Fibers.
 
-Context {C : Precategory}.
+Context {C : category}.
 
 Definition fiber_is_left_adj {D D' : disp_cat C}
   {FF : disp_functor (functor_identity _) D D'}

@@ -1,7 +1,7 @@
 (**
 A module for “displayed categories”, based over UniMath’s [CategoryTheory] library.
 
-Roughly, a “displayed category _D_ over a Precategory _C_” is analogous to “a family of types _Y_ indexed over a type _X_”.  A displayed category has a “total category” ∑ _C_ _D_, with a functor to _D_; and indeed displayed categories should be equivalent to categories over _D_, by taking fibers.
+Roughly, a “displayed category _D_ over a category _C_” is analogous to “a family of types _Y_ indexed over a type _X_”.  A displayed category has a “total category” ∑ _C_ _D_, with a functor to _D_; and indeed displayed categories should be equivalent to categories over _D_, by taking fibers.
 
 In a little more detail: if [D] is a displayed category over [C], then [D] has a type of objects indexed over [ob C], and for each [x y : C, f : x --> y, xx : D x, yy : D y], a type of “morphisms over [f] from [xx] to [yy]”.  The identity and composition (and axioms) for [D] all overlie the corresponding structure on [C].
 
@@ -48,7 +48,7 @@ Local Open Scope type_scope.
 
 Module Record_Preview.
 
-  Record disp_cat (C : Precategory) : UU :=
+  Record disp_cat (C : category) : UU :=
     { ob_disp : C -> UU
     ; mor_disp {x y : C} : (x --> y) -> ob_disp x -> ob_disp y -> UU
     ; id_disp {x : C} (xx : ob_disp x) : mor_disp (identity x) xx xx
@@ -140,7 +140,7 @@ Delimit Scope mor_disp_scope with mor_disp.
 Bind Scope mor_disp_scope with mor_disp.
 Local Open Scope mor_disp_scope.
 
-Definition disp_cat_axioms (C : Precategory) (D : disp_cat_data C)
+Definition disp_cat_axioms (C : category) (D : disp_cat_data C)
   : UU
 := (∏ x y (f : x --> y) (xx : D x) yy (ff : xx -->[f] yy),
      id_disp _ ;; ff
@@ -154,7 +154,7 @@ Definition disp_cat_axioms (C : Precategory) (D : disp_cat_data C)
      = transportb _ (assoc _ _ _) ((ff ;; gg) ;; hh))
    × (∏ x y f (xx : D x) (yy : D y), isaset (xx -->[f] yy)).
 
-Definition disp_cat (C : Precategory) := total2 (disp_cat_axioms C).
+Definition disp_cat (C : category) := total2 (disp_cat_axioms C).
 
 Definition disp_cat_data_from_disp_cat {C} (D : disp_cat C)
  := pr1 D : disp_cat_data C.
@@ -230,7 +230,7 @@ Qed.
 
 Tactic Notation "etrans_disp" := eapply @pathscomp0_disp.
 
-Lemma isaprop_disp_cat_axioms (C : Precategory) (D : disp_cat_data C)
+Lemma isaprop_disp_cat_axioms (C : category) (D : disp_cat_data C)
   : isaprop (disp_cat_axioms C D).
 Proof.
   apply isofhlevelsn.
@@ -316,40 +316,40 @@ Notation "#?' x" := (transportb _ _ x) (at level 45) : hide_transport_scope.
 
 Section Isos.
 
-Definition is_iso_disp {C : Precategory} {D : disp_cat_data C}
+Definition is_iso_disp {C : category} {D : disp_cat_data C}
     {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx -->[f] yy)
   : UU
 := ∑ (gg : yy -->[inv_from_iso f] xx),
      gg ;; ff = transportb _ (iso_after_iso_inv _) (id_disp _)
      × ff ;; gg = transportb _ (iso_inv_after_iso _) (id_disp _).
 
-Definition iso_disp {C : Precategory} {D : disp_cat_data C}
+Definition iso_disp {C : category} {D : disp_cat_data C}
     {x y : C} (f : iso x y) (xx : D x) (yy : D y)
   := ∑ ff : xx -->[f] yy, is_iso_disp f ff.
 
-Definition iso_disp_pair {C : Precategory} {D : disp_cat_data C}
+Definition iso_disp_pair {C : category} {D : disp_cat_data C}
     {x y : C} {f : iso x y} {xx : D x} {yy : D y}
     (ff : xx -->[f] yy) (is : is_iso_disp f ff)
     : iso_disp _ _ _ 
   := (ff,, is).
 
 
-Definition mor_disp_from_iso {C : Precategory} {D : disp_cat_data C}
+Definition mor_disp_from_iso {C : category} {D : disp_cat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
     (i : iso_disp f xx yy) : _ -->[ _ ] _ := pr1 i.
 Coercion mor_disp_from_iso : iso_disp >-> mor_disp.
 
-Definition is_iso_disp_from_iso {C : Precategory} {D : disp_cat_data C}
+Definition is_iso_disp_from_iso {C : category} {D : disp_cat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y}
     (i : iso_disp f xx yy) : is_iso_disp f i := pr2 i.
 Coercion is_iso_disp_from_iso : iso_disp >-> is_iso_disp.
 
-Definition inv_mor_disp_from_iso {C : Precategory} {D : disp_cat_data C}
+Definition inv_mor_disp_from_iso {C : category} {D : disp_cat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
     {ff : xx -->[f] yy} (i : is_iso_disp f ff)
   : _ -->[ _ ] _ := pr1 i.
 
-Definition iso_disp_after_inv_mor {C : Precategory} {D : disp_cat_data C}
+Definition iso_disp_after_inv_mor {C : category} {D : disp_cat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
     {ff : xx -->[f] yy} (i : is_iso_disp f ff)
   : inv_mor_disp_from_iso i ;; ff
@@ -358,7 +358,7 @@ Proof.
   apply (pr2 i).
 Qed.
 
-Definition inv_mor_after_iso_disp {C : Precategory} {D : disp_cat_data C}
+Definition inv_mor_after_iso_disp {C : category} {D : disp_cat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
     {ff : xx -->[f] yy} (i : is_iso_disp f ff)
   : ff ;; inv_mor_disp_from_iso i
@@ -367,7 +367,7 @@ Proof.
   apply (pr2 (pr2 i)).
 Qed.
 
-Lemma isaprop_is_iso_disp {C : Precategory} {D : disp_cat C}
+Lemma isaprop_is_iso_disp {C : category} {D : disp_cat C}
     {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx -->[f] yy)
   : isaprop (is_iso_disp f ff).
 Proof.
@@ -396,7 +396,7 @@ Proof.
     apply homset_property.
 Qed.
 
-Lemma isaset_iso_disp {C : Precategory} {D : disp_cat C}
+Lemma isaset_iso_disp {C : category} {D : disp_cat C}
   {x y} (f : iso x y) (xx : D x) (yy : D y)
   : isaset (iso_disp f xx yy).
 Proof.
@@ -405,7 +405,7 @@ Proof.
   - intros. apply isasetaprop, isaprop_is_iso_disp.
 Qed.
 
-Lemma eq_iso_disp {C : Precategory} {D : disp_cat C}
+Lemma eq_iso_disp {C : category} {D : disp_cat C}
     {x y : C} (f : iso x y) 
     {xx : D x} {yy} (ff ff' : iso_disp f xx yy)
   : pr1 ff = pr1 ff' -> ff = ff'.
@@ -413,7 +413,7 @@ Proof.
   apply subtypeEquality; intro; apply isaprop_is_iso_disp.
 Qed.
 
-Lemma is_iso_disp_transportf {C : Precategory} {D : disp_cat C}
+Lemma is_iso_disp_transportf {C : category} {D : disp_cat C}
     {x y : C} {f f' : iso x y} (e : f = f')
     {xx : D x} {yy} {ff : xx -->[f] yy}
     (is : is_iso_disp _ ff)
@@ -423,7 +423,7 @@ Proof.
   apply is.
 Qed.
 
-Lemma transportf_iso_disp {C : Precategory} {D : disp_cat C}
+Lemma transportf_iso_disp {C : category} {D : disp_cat C}
     {x y : C} {xx : D x} {yy} 
     {f f' : iso x y} (e : f = f')
     (ff : iso_disp f xx yy)
@@ -433,7 +433,7 @@ Proof.
   destruct e; apply idpath.
 Qed.
 
-Definition is_iso_inv_from_iso_disp {C : Precategory} {D : disp_cat_data C}
+Definition is_iso_inv_from_iso_disp {C : category} {D : disp_cat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
     (i : iso_disp f xx yy) 
     :
@@ -460,7 +460,7 @@ Proof.
       try apply homset_property; apply idpath ).
 Defined.
 
-Definition is_iso_inv_from_is_iso_disp {C : Precategory} {D : disp_cat_data C}
+Definition is_iso_inv_from_is_iso_disp {C : category} {D : disp_cat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
     (ff : xx -->[f] yy)
     (i : is_iso_disp f ff) 
@@ -470,7 +470,7 @@ Proof.
   apply (is_iso_inv_from_iso_disp (ff ,, i)).
 Defined.
 
-Definition iso_inv_from_iso_disp {C : Precategory} {D : disp_cat_data C}
+Definition iso_inv_from_iso_disp {C : category} {D : disp_cat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
     (i : iso_disp f xx yy) 
     :
@@ -480,7 +480,7 @@ Proof.
   apply is_iso_inv_from_iso_disp.
 Defined.
 
-Definition iso_disp_comp {C : Precategory} {D : disp_cat C}
+Definition iso_disp_comp {C : category} {D : disp_cat C}
     {x y z : C} {f : iso x y} {g : iso y z} {xx : D x} {yy : D y} {zz : D z}
     (ff : iso_disp f xx yy) (gg : iso_disp g yy zz) 
     :
@@ -569,7 +569,7 @@ Proof.
 Defined.
 
 
-Lemma iso_disp_precomp {C : Precategory} {D : disp_cat C}
+Lemma iso_disp_precomp {C : category} {D : disp_cat C}
     {x y : C} (f : iso x y) 
     {xx : D x} {yy} (ff : iso_disp f xx yy)
   : forall (y' : C) (f' : y --> y') (yy' : D y'), 
@@ -615,7 +615,7 @@ Proof.
     apply (pr2 C). apply idpath.
 Defined.
 
-Lemma iso_disp_postcomp {C : Precategory} {D : disp_cat C}
+Lemma iso_disp_postcomp {C : category} {D : disp_cat C}
     {x y : C} (i : iso x y) 
     {xx : D x} {yy} (ii : iso_disp i xx yy)
   : forall (x' : C) (f' : x' --> x) (xx' : D x'), 
@@ -664,7 +664,7 @@ Defined.
 
 (* Useful when you want to prove [is_iso_disp], and you have some lemma [awesome_lemma] which gives that, but over a different (or just opaque) proof of [is_iso] in the base.  Then you can use [eapply is_iso_disp_independent_of_is_iso; apply awesome_lemma.]. *)  
 Lemma is_iso_disp_independent_of_is_iso
-    {C : Precategory} {D : disp_cat_data C}
+    {C : category} {D : disp_cat_data C}
     {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx -->[f] yy)
     {H'f : is_iso f} (Hff : is_iso_disp ((f : _ --> _),,H'f) ff)
   : is_iso_disp f ff.
@@ -697,7 +697,7 @@ Qed.
 (* TODO: add dual [transportf_postcompose_disp]. *)
 
 Definition precomp_with_iso_disp_is_inj
-    {C : Precategory} {D : disp_cat C}
+    {C : category} {D : disp_cat C}
     {a b c : C} {i : iso a b} {f : b --> c}
     {aa : D a} {bb} {cc} (ii : iso_disp i aa bb) {ff ff' : bb -->[f] cc}
   : (ii ;; ff = ii ;; ff') -> ff = ff'.
@@ -799,7 +799,7 @@ End Univalent_Categories.
 (* Any displayed category has a total precategory, with a forgetful functor to the base category. *)
 Section Total_Precat.
 
-Context {C : Precategory} (D : disp_cat C).
+Context {C : category} (D : disp_cat C).
 
 Definition total_precat_ob_mor : precategory_ob_mor.
 Proof.
@@ -858,7 +858,7 @@ Proof.
   intros; apply homsets_disp.
 Qed.
 
-Definition total_precat : Precategory
+Definition total_precat : category
   := (total_precat_pre ,, total_precat_has_homsets).
 
 Definition pr1_precat_data : functor_data total_precat C.
@@ -1082,7 +1082,7 @@ Arguments pr1_precat [C] D.
 
 Section Reindexing.
 
-Context {C' C : Precategory} (F : functor C' C) (D : disp_cat C).
+Context {C' C : category} (F : functor C' C) (D : disp_cat C).
 
 Definition reindex_disp_cat_ob_mor : disp_cat_ob_mor C'.
 Proof.
@@ -1195,7 +1195,7 @@ Notation "# F" := (section_disp_on_morphisms F)
   (at level 3) : mor_disp_scope.
 
 Definition functor_lifting
-  {C C' : Precategory} (D : disp_cat C) (F : functor C' C) 
+  {C C' : category} (D : disp_cat C) (F : functor C' C) 
   := section_disp (reindex_disp_cat F D).
 
 Identity Coercion section_from_functor_lifting
@@ -1204,7 +1204,7 @@ Identity Coercion section_from_functor_lifting
 (** Note: perhaps it would be better to define [functor_lifting] directly? 
   Reindexed displayed-precats are a bit confusing to work in, since a term like [id_disp xx] is ambiguous: it can mean both the identity in the original displayed category, or the identity in the reindexing, which is nearly but not quite the same.  This shows up already in the proofs of [lifted_functor_axioms] below. *)
 
-Definition lifted_functor_data {C C' : Precategory} {D : disp_cat C}
+Definition lifted_functor_data {C C' : category} {D : disp_cat C}
   {F : functor C' C} (FF : functor_lifting D F)
   : functor_data C' (total_precat D).
 Proof.
@@ -1212,7 +1212,7 @@ Proof.
   intros x y f. exists (# F f)%cat. exact (# FF f).
 Defined.
 
-Definition lifted_functor_axioms {C C' : Precategory} {D : disp_cat C}
+Definition lifted_functor_axioms {C C' : category} {D : disp_cat C}
   {F : functor C' C} (FF : functor_lifting D F)
   : is_functor (lifted_functor_data FF).
 Proof.
@@ -1227,7 +1227,7 @@ Proof.
     cbn. apply transportfbinv.
 Qed.
 
-Definition lifted_functor {C C' : Precategory} {D : disp_cat C}
+Definition lifted_functor {C C' : category} {D : disp_cat C}
   {F : functor C' C} (FF : functor_lifting D F)
   : functor C' (total_precat D)
 := (_ ,, lifted_functor_axioms FF).
@@ -1239,7 +1239,7 @@ End Functor_Lifting.
 (** One could define these in terms of functor-liftings, as:
 
 [[
-Definition disp_functor {C C' : Precategory} (F : functor C C')
+Definition disp_functor {C C' : category} (F : functor C C')
     (D : disp_cat C) (D' : disp_cat C')
   := functor_lifting D' (functor_composite (pr1_precat D) F). 
 ]]
@@ -1279,7 +1279,7 @@ Definition disp_functor_on_morphisms {C' C : precategory_data} {F : functor_data
 Notation "# F" := (disp_functor_on_morphisms F)
   (at level 3) : mor_disp_scope.
 
-Definition disp_functor_axioms {C' C : Precategory} {F : functor C' C}
+Definition disp_functor_axioms {C' C : category} {F : functor C' C}
   {D' : disp_cat C'} {D : disp_cat C} (FF : disp_functor_data F D' D)
 :=  (∏ x (xx : D' x),
       # FF (id_disp xx) = transportb _ (functor_id F x) (id_disp (FF _ xx)))
@@ -1288,7 +1288,7 @@ Definition disp_functor_axioms {C' C : Precategory} {F : functor C' C}
       # FF (ff ;; gg)
       = transportb _ (functor_comp F f g) (# FF ff ;; # FF gg)).
 
-Lemma isaprop_disp_functor_axioms {C' C : Precategory} {F : functor C' C}
+Lemma isaprop_disp_functor_axioms {C' C : category} {F : functor C' C}
   {D' : disp_cat C'} {D : disp_cat C} (FF : disp_functor_data F D' D)
   : isaprop (disp_functor_axioms FF).
 Proof.
@@ -1297,7 +1297,7 @@ Proof.
   apply homsets_disp.
 Qed.    
 
-Definition disp_functor {C' C : Precategory} (F : functor C' C)
+Definition disp_functor {C' C : category} (F : functor C' C)
   (D' : disp_cat C') (D : disp_cat C)
 := ∑ FF : disp_functor_data F D' D, disp_functor_axioms FF.
 
@@ -1337,7 +1337,7 @@ Proof.
 Defined.
 
 (** Useful transport lemma for [disp_functor]. *)
-Lemma disp_functor_transportf {C' C : Precategory}
+Lemma disp_functor_transportf {C' C : category}
   {D' : disp_cat C'} {D : disp_cat C}
   (F : functor C' C) (FF : disp_functor F D' D)
   (x' x : C') (f' f : x' --> x) (p : f' = f)
@@ -1355,7 +1355,7 @@ Defined.
 (** ** Composite and identity functors. *)
 
 Definition disp_functor_composite_data
-    {C C' C'' : Precategory} {D} {D'} {D''}
+    {C C' C'' : category} {D} {D'} {D''}
     {F : functor C C'} {F' : functor C' C''}
     (FF : disp_functor F D D')
     (FF' : disp_functor F' D' D'')
@@ -1367,7 +1367,7 @@ Proof.
 Defined.
 
 Lemma disp_functor_composite_axioms
-    {C C' C'' : Precategory} {D} {D'} {D''}
+    {C C' C'' : category} {D} {D'} {D''}
     {F : functor C C'} {F' : functor C' C''}
     (FF : disp_functor F D D')
     (FF' : disp_functor F' D' D'')
@@ -1389,7 +1389,7 @@ Proof.
 Qed.
 
 Definition disp_functor_composite
-    {C C' C'' : Precategory} {D} {D'} {D''}
+    {C C' C'' : category} {D} {D'} {D''}
     {F : functor C C'} {F' : functor C' C''}
     (FF : disp_functor F D D')
     (FF' : disp_functor F' D' D'')
@@ -1401,7 +1401,7 @@ Proof.
 Defined.
 
 Definition disp_functor_identity
-    {C : Precategory} (D : disp_cat C)
+    {C : category} (D : disp_cat C)
   : disp_functor (functor_identity _ ) D D.
 Proof.
   mkpair.
@@ -1503,7 +1503,7 @@ Definition disp_functor_ff {C C'} {F}
 Section ff_reflects_isos.
 
 (* TODO: Try making FF implicit, since it can be inferred from [FF_ff]. *)
-Context {C C' : Precategory}
+Context {C C' : category}
         {F : functor C C'}
         {D : disp_cat C}
         {D' : disp_cat C'}
@@ -1643,7 +1643,7 @@ Notation "# F" := (disp_functor_on_morphisms F)
 
 Section reindexing_disp_functor.
 
-Context {C C' : Precategory} (F : functor C C') (D' : disp_cat C').
+Context {C C' : category} (F : functor C C') (D' : disp_cat C').
 
 Definition reindex_disp_functor : disp_functor F (reindex_disp_cat F D') D'.
 Proof.
@@ -1700,7 +1700,7 @@ Definition disp_nat_trans_axioms
      transportb _ (nat_trans_ax a _ _ f ) (b _ xx' ;; # R ff).
 
 Lemma isaprop_disp_nat_trans_axioms
-  {C' C : Precategory} 
+  {C' C : category} 
   {F' F : functor_data C' C}
   (a : nat_trans F' F)
   {D' : disp_cat_data C'}
@@ -1785,7 +1785,7 @@ Defined.
 (** identity disp_nat_trans *)
 
 Definition disp_nat_trans_id_ax
-  {C' C : Precategory} 
+  {C' C : category} 
   {F': functor_data C' C}
   {D' : disp_cat_data C'}
   {D : disp_cat C}
@@ -1804,7 +1804,7 @@ Qed.
   
 
 Definition disp_nat_trans_id
-  {C' C : Precategory} 
+  {C' C : category} 
   {F': functor_data C' C}
   {D' : disp_cat_data C'}
   {D : disp_cat C}
@@ -1821,7 +1821,7 @@ Defined.
 (** composition of disp_nat_trans *)
 
 Definition disp_nat_trans_comp_ax
-  {C' C : Precategory} 
+  {C' C : category} 
   {F'' F' F : functor_data C' C}
   {a' : nat_trans F'' F'}
   {a : nat_trans F' F}
@@ -1857,7 +1857,7 @@ Proof.
 Qed.
 
 Definition disp_nat_trans_comp
-  {C' C : Precategory} 
+  {C' C : category} 
   {F'' F' F : functor_data C' C}
   {a' : nat_trans F'' F'}
   {a : nat_trans F' F}

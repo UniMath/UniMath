@@ -39,7 +39,7 @@ the subcategory of the arrow category where objects are display maps
 
 Section DM_Disp.
 
-Context {CC:Precategory}.
+Context {CC:category}.
 
 Section Displayed_Cat_of_Class_of_Maps.
 (* We separate this out from the fibrational part since it has a weaker hypothesis: it just needs a class of maps, no closure under pullback required. *)
