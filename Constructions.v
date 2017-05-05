@@ -433,7 +433,7 @@ Definition sigma_disp_iso_equiv
 *)
 
 (*
-Lemma is_category_sigma_disp (DD : is_univalent_disp D) (EE : is_univalent_disp E)
+Lemma is_univalent_sigma_disp (DD : is_univalent_disp D) (EE : is_univalent_disp E)
   : is_univalent_disp sigma_disp_cat.
 Proof.
   apply is_univalent_disp_from_fibers.

@@ -65,7 +65,7 @@ Defined.
 
 Definition SIP : is_univalent (total_precat disp_cat_from_SIP_data).
 Proof.
-  apply is_category_total_category.
+  apply is_univalent_total_category.
   - apply univC.
   - apply is_univalent_disp_from_SIP_data.
 Defined.
