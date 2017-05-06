@@ -214,7 +214,7 @@ latex-doc: $(LATEXDIR)/doc.pdf
 
 $(LATEXDIR)/doc.pdf : $(LATEXDIR)/helper.tex $(LATEXDIR)/references.bib $(LATEXDIR)/latex-preamble.txt $(LATEXDIR)/helper.tex $(LATEXDIR)/latex-epilogue.txt
 	cd $(LATEXDIR) && cat latex-preamble.txt helper.tex latex-epilogue.txt > doc.tex
-	cd $(LATEXDIR) && latexmk -pdf doc
+	cd $(LATEXDIR) && latexmk -pdf -interaction=nonstopmode doc
 
 $(LATEXDIR)/coqdoc.sty $(LATEXDIR)/helper.tex : $(VFILES:.v=.glob) $(VFILES)
 	$(COQDOC) -Q UniMath UniMath $(COQDOC_OPTIONS) $(COQDOCLATEXOPTIONS) $(VFILES) -o $@
