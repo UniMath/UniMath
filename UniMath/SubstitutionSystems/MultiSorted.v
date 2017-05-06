@@ -33,7 +33,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.Combinatorics.Lists.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
@@ -538,7 +538,7 @@ End MBindingSig.
     functor we obtain using this approach is omega-cocontinuous yet. *)
 Module alt.
 
-Require Import UniMath.CategoryTheory.DiscretePrecategory.
+Require Import UniMath.CategoryTheory.DiscreteCategory.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
 
 (** * Definition of multisorted binding signatures *)

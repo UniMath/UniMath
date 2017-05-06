@@ -472,7 +472,7 @@ Definition power (I:Type) (X:abgr) : abgr.
 
 Module Category.
   Require Import UniMath.Algebra.Monoids_and_Groups
-                 UniMath.CategoryTheory.precategories.
+                 UniMath.CategoryTheory.Categories.
 
   Definition Ob := abgr.
 

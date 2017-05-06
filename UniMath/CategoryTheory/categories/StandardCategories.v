@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.CategoryTheory.precategories
+Require Import UniMath.CategoryTheory.Categories
                UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.functor_categories.
 

@@ -6,11 +6,11 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
-Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 
 
 Section def_precategory_with_abgrops.
