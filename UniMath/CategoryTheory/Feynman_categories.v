@@ -896,6 +896,7 @@ Notation "'Φ'" := (monoidal_functor_to_nat_iso F).
 Notation "'Φ''" := (monoidal_functor_to_nat_iso G).
 Notation "'φ'" := (monoidal_functor_to_iso_unit_to_unit F).
 Notation "'l''" := (monoidal_cat_to_left_unitor N).
+Notation "'r''" := (monoidal_cat_to_right_unitor N).
 
 Lemma image_of_comm_hexagon : ∏ a b c : M,
   #G (pr1 α' ((F a , F b) , F c)) · (#G (identity (F a) #⊗' (pr1 Φ (b , c))) · #G (pr1 Φ (a , b ⊗ c))) =
@@ -1019,5 +1020,59 @@ Proof.
     apply (monoidal_functor_to_square_eq_1 G (F a)).
 Defined.
 
+Definition square_eq_2_monoidal_functor_comp : square_eq_2 M P (functor_composite F G) (nat_iso_monoidal_functor_comp) iso_unit_to_unit_monoidal_functor_comp .
+Proof.
+  unfold square_eq_2.
+  intro a.
+  unfold nat_iso_monoidal_functor_comp. cbn.
+  rewrite assoc.
+  unfold iso_unit_to_unit_monoidal_functor_comp.
+  rewrite <- (id_left (identity (G (F a)))).
+  rewrite <- (binprod_cat_comp).
+  rewrite (functor_comp (monoidal_cat_to_tensor P)).
+  rewrite <- assoc.
+  rewrite <- (functor_id G).
+  change (# (monoidal_cat_to_tensor P)
+  (# G (identity (F a)) #, monoidal_functor_to_iso_unit_to_unit G) ·
+  # (tensor_after_functor N P (pr1 G))
+  (identity (F a) #, φ) · pr1 Φ' (F a, F e) · (# G (pr1 Φ (a, e)) · # G
+  (# F (pr1 (monoidal_cat_to_right_unitor M) a))) =
+  pr1 (monoidal_cat_to_right_unitor P) (G (F a))).
+  transitivity (# (monoidal_cat_to_tensor P)
+  (# G (identity (F a)) #, monoidal_functor_to_iso_unit_to_unit G) ·
+  (pr1 Φ' (F a, e') · #(functor_after_tensor N P G) (identity (F a) #, φ)) · (# G (pr1 Φ (a, e)) ·
+  # G (# F (pr1 (monoidal_cat_to_right_unitor M) a))) ).
+  - apply cancel_postcomposition.
+    rewrite <- assoc. apply cancel_precomposition.
+    apply (pr2 Φ' _ _ (identity (F a) #, φ)).
+  - rewrite <- 2 assoc.
+    transitivity ( # (monoidal_cat_to_tensor P)
+    (# G (identity (F a)) #, monoidal_functor_to_iso_unit_to_unit G) ·
+    (pr1 Φ' (F a, e') · #G (pr1 r' (F a)))).
+    apply cancel_precomposition. apply cancel_precomposition.
+    change ((# G (# (monoidal_cat_to_tensor N) (identity ((pr1 F) a) #, pr1 (pr2 (pr2 F)))) ·
+    (# G (pr1 Φ (a, e)) · # G (# F (pr1 (monoidal_cat_to_right_unitor M) a))) =
+             # G (pr1 r' (F a)))).
+    rewrite  assoc.
+    apply (functor_on_comm_square_with_reverse_vertical_arrows G _ _ _ _ (monoidal_functor_to_square_eq_2 F a)).
+    rewrite assoc.
+    rewrite (functor_id G).
+    apply (monoidal_functor_to_square_eq_2 G (F a)).
+Defined.
 
 End monoidal_composition.
+
+Definition monoidal_functor_comp_struct {M N P : monoidal_cat} (F : monoidal_functor M N) (G : monoidal_functor N P) :
+  monoidal_functor_struct M P (functor_composite F G).
+Proof.
+  use tpair.
+  - exact (nat_iso_monoidal_functor_comp M N P F G).
+  - use tpair.
+    + exact (iso_unit_to_unit_monoidal_functor_comp M N P F G).
+    + use tpair.
+      * exact (hexagon_eq_monoidal_functor_comp M N P F G).
+      * exact (tpair _ (square_eq_1_monoidal_functor_comp M N P F G) (square_eq_2_monoidal_functor_comp M N P F G)).
+Defined.
+
+Definition monoidal_functor_comp {M N P : monoidal_cat} (F : monoidal_functor M N) (G : monoidal_functor N P) : monoidal_functor M P :=
+  tpair _ (functor_composite F G) (monoidal_functor_comp_struct F G).
