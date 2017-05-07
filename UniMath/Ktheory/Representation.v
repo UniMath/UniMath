@@ -1,5 +1,5 @@
 Require Import
-        UniMath.CategoryTheory.precategories
+        UniMath.CategoryTheory.Categories
         UniMath.CategoryTheory.opp_precat
         UniMath.CategoryTheory.yoneda
         UniMath.CategoryTheory.functor_categories

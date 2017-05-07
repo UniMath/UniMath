@@ -13,13 +13,13 @@ Contents:
 ************************************************************)
 
 Require Import UniMath.Foundations.Sets
-        UniMath.CategoryTheory.precategories
+        UniMath.CategoryTheory.Categories
         UniMath.CategoryTheory.functor_categories
         UniMath.CategoryTheory.category_hset
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.Adjunctions
         UniMath.CategoryTheory.equivalences
-        UniMath.CategoryTheory.DiscretePrecategory.
+        UniMath.CategoryTheory.DiscreteCategory.
 Local Open Scope cat.
 
 Section set_slice_fam_equiv.

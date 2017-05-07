@@ -1,12 +1,12 @@
 Require Import
-        UniMath.CategoryTheory.precategories
+        UniMath.CategoryTheory.Categories
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Export UniMath.CategoryTheory.precategories.
+Require Export UniMath.CategoryTheory.Categories.
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
                UniMath.CategoryTheory.category_hset.

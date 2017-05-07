@@ -10,7 +10,7 @@ Contents : Equivalence of the categories pshf ∫P and
 
 Require Import UniMath.MoreFoundations.Tactics
         UniMath.Foundations.Sets
-        UniMath.CategoryTheory.precategories
+        UniMath.CategoryTheory.Categories
         UniMath.CategoryTheory.functor_categories
         UniMath.CategoryTheory.equivalences
         UniMath.CategoryTheory.category_hset

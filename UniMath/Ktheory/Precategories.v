@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Export UniMath.Ktheory.Utilities.
-Require Export UniMath.CategoryTheory.precategories. (* export its coercions, especially *)
+Require Export UniMath.CategoryTheory.Categories. (* export its coercions, especially *)
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
                UniMath.CategoryTheory.category_hset.
