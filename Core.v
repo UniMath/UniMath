@@ -30,7 +30,7 @@ Contents:
 (* TODO: this file has become large and unwieldy; should probably be split up.  Displayed functors can certainly be happily split off.  Should total precats stay here, or also be split out? *)
 
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.Ktheory.Utilities.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
