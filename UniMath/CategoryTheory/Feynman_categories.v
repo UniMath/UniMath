@@ -581,7 +581,11 @@ End braided_monoidal_functor.
 
 Definition braided_monoidal_functor (M M' : braided_monoidal_cat) : UU := ∑ F : monoidal_functor M M', compatibility_with_braidings M M' F.
 
+(** Two access functions from braided monoidal functors *)
+
 Definition braided_monoidal_functor_to_monoidal_functor {M M' : braided_monoidal_cat} (F : braided_monoidal_functor M M') := pr1 F.
+
+Definition braided_monoidal_functor_to_compatibility_with_braidings {M M' : braided_monoidal_cat} (F : braided_monoidal_functor M M') := pr2 F.
 
 Coercion braided_monoidal_functor_to_monoidal_functor : braided_monoidal_functor >-> monoidal_functor.
 
@@ -627,13 +631,15 @@ Definition monoidal_nat_iso {M M' : monoidal_cat} (F G : monoidal_functor M M') 
 
 Local Close Scope type_scope.
 
-Definition braided_nat_trans {M M': braided_monoidal_cat} (F G : braided_monoidal_functor M M') := monoidal_nat_trans F G.
+Definition braided_monoidal_nat_trans {M M': braided_monoidal_cat} (F G : braided_monoidal_functor M M') := monoidal_nat_trans F G.
 
-Definition braided_nat_iso {M M': braided_monoidal_cat} (F G : braided_monoidal_functor M M') := monoidal_nat_iso F G.
+Definition braided_monoidal_nat_iso {M M': braided_monoidal_cat} (F G : braided_monoidal_functor M M') := monoidal_nat_iso F G.
 
-Definition symmetric_nat_trans {M M' : symmetric_monoidal_cat} (F G : symmetric_monoidal_functor M M') := braided_nat_trans F G.
+Definition symmetric_monoidal_nat_trans {M M' : symmetric_monoidal_cat} (F G : symmetric_monoidal_functor M M') :=
+  braided_monoidal_nat_trans F G.
 
-Definition symmetric_nat_iso {M M' : symmetric_monoidal_cat} (F G : symmetric_monoidal_functor M M') := braided_nat_iso F G.
+Definition symmetric_monoidal_nat_iso {M M' : symmetric_monoidal_cat} (F G : symmetric_monoidal_functor M M') :=
+  braided_monoidal_nat_iso F G.
 
 (** * The monoidal, braided monoidal, symmetric monoidal identity functor *)
 
@@ -1076,3 +1082,53 @@ Defined.
 
 Definition monoidal_functor_comp {M N P : monoidal_cat} (F : monoidal_functor M N) (G : monoidal_functor N P) : monoidal_functor M P :=
   tpair _ (functor_composite F G) (monoidal_functor_comp_struct F G).
+
+
+Section braided_composition.
+
+Variables M N P : braided_monoidal_cat.
+
+Variable F : braided_monoidal_functor M N.
+Variable G : braided_monoidal_functor N P.
+
+Notation "'γ'" := (braided_monoidal_cat_to_braiding M).
+Notation "'γ''" := (braided_monoidal_cat_to_braiding N).
+Notation "'γ'''" := (braided_monoidal_cat_to_braiding P).
+
+Definition compatibility_with_braidings_monoidal_functor_comp : compatibility_with_braidings M P (monoidal_functor_comp F G).
+Proof.
+  unfold compatibility_with_braidings.
+  intros a b. cbn.
+  rewrite <- assoc.
+  transitivity (pr1 (monoidal_functor_to_nat_iso G) (F a, F b) · (# G (pr1 γ' (F a, F b)) · # G (pr1 (monoidal_functor_to_nat_iso F) (b, a)))).
+  - apply cancel_precomposition.
+    apply (functor_on_comm_square G _ _ _ _ (braided_monoidal_functor_to_compatibility_with_braidings F a b)).
+  - rewrite 2 assoc. apply cancel_postcomposition.
+    apply (braided_monoidal_functor_to_compatibility_with_braidings G (F a) (F b)).
+Defined.
+
+End braided_composition.
+
+Definition braided_monoidal_functor_comp {M N P : braided_monoidal_cat} (F : braided_monoidal_functor M N) (G : braided_monoidal_functor N P)  := tpair _ (monoidal_functor_comp F G) (compatibility_with_braidings_monoidal_functor_comp M N P F G).
+
+Definition symmetric_monoidal_functor_comp {M N P : symmetric_monoidal_cat} (F : symmetric_monoidal_functor M N)
+  (G : symmetric_monoidal_functor N P) : symmetric_monoidal_functor M P := braided_monoidal_functor_comp F G.
+
+Local Open Scope type_scope.
+
+Definition monoidal_equivalence (M N : monoidal_cat) : UU :=
+  ∑ F : monoidal_functor M N, ∑ G : monoidal_functor N M,
+    monoidal_nat_iso (monoidal_functor_comp F G) (monoidal_functor_identity M) ×
+    monoidal_nat_iso (monoidal_functor_comp G F) (monoidal_functor_identity N).
+
+Definition braided_monoidal_equivalence (M N : braided_monoidal_cat) : UU :=
+  ∑ F : braided_monoidal_functor M N, ∑ G : braided_monoidal_functor N M,
+    braided_monoidal_nat_iso (braided_monoidal_functor_comp F G) (braided_monoidal_functor_identity M) ×
+    braided_monoidal_nat_iso (braided_monoidal_functor_comp G F) (braided_monoidal_functor_identity N).
+
+Definition symmetric_monoidal_equivalence (M N : symmetric_monoidal_cat) : UU :=
+  ∑ F : symmetric_monoidal_functor M N, ∑ G : symmetric_monoidal_functor N M,
+    symmetric_monoidal_nat_iso (symmetric_monoidal_functor_comp F G) (symmetric_monoidal_functor_identity M) ×
+    symmetric_monoidal_nat_iso (symmetric_monoidal_functor_comp G F) (symmetric_monoidal_functor_identity N).
+
+Local Close Scope type_scope.
