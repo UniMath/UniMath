@@ -51,7 +51,7 @@ category_hset.v
 SimplicialSets.v
 yoneda.v
 Monads.v
-RModules.v
+LModules.v
 FunctorAlgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
