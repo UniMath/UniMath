@@ -5,6 +5,7 @@ Contents:
 - Definition of relative monads [RelMonad]
 - Functoriality for relative monads [r_lift]
 
+Reference: % \cite{DBLP:journals/corr/AltenkirchCU14} \par %
 
 Written by: Benedikt Ahrens (started May 2017)
 
