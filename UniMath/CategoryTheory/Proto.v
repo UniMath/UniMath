@@ -2,8 +2,8 @@
 
 Contents:
 
-        - Definition of proto-monads [proto_monad]
-
+- Definition of proto monads [proto_monad]
+- Definition of proto modules [proto_module] over proto monads
 
 
 Written by Benedikt Ahrens (started April 2017)
@@ -29,6 +29,15 @@ Section fix_a_functor.
 Variables C D : precategory.
 Variable J : functor C D.
 
+(** * Proto monads
+
+The notion of [proto_monad] is introduced for uniformity:
+a proto monad over a functor [J] is just a pointed functor wrt [J],
+that is, a functor [F] and a natural transformation [J ⟹ F].
+The interesting notion will be that of a proto module [proto_module]
+over a proto monad.
+*)
+
 Definition proto_monad : UU
   := ∑ F : functor C D, nat_trans J F.
 
@@ -53,7 +62,7 @@ Definition n_mbind {X : functor C E} (R : mbind_op X) : UU
        (f : J c1 --> Z c2),
      #X h1 · R _ _ f · #X h2 = R _ _ (#J h1 · f · #Z h2).
 
-
+(** * Proto modules over proto monads *)
 
 Definition proto_module_data : UU
   := ∑ X : functor C E, mbind_op X.
