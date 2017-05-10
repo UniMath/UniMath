@@ -8,7 +8,9 @@ Contents:
 
 Written by Benedikt Ahrens (started April 2017)
   following slides by Ralph Matthes
-
+<<
+  https://fpfm.github.io/Slides_Matthes.pdf
+>>
 ************************************************************)
 
 Require Import UniMath.Foundations.PartD.
