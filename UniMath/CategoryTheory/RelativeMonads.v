@@ -2,7 +2,8 @@
 
 Contents:
 
-        - Definition of relative monads ([RelMonad])
+- Definition of relative monads [RelMonad]
+- Functoriality for relative monads [r_lift]
 
 
 Written by: Benedikt Ahrens (started May 2017)
@@ -71,7 +72,11 @@ Proof.
   - etrans. Focus 2. eapply pathsinv0; apply (r_bind_r_bind R).
     apply maponpaths.
     etrans.
-      apply map_on_two_paths. apply functor_comp. apply idpath.
-Abort.
+    apply map_on_two_paths. apply functor_comp. apply idpath.
+    etrans. Focus 2.
+      etrans. Focus 2. apply assoc.
+      eapply pathsinv0. apply maponpaths. apply (r_eta_r_bind R).
+      apply pathsinv0, assoc.
+Defined.
 
 End RMonad_def.
