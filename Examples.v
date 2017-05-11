@@ -595,7 +595,7 @@ Section cartesian_product_pb.
 
 Variable C C' : category.
 
-
+(* TODO: use a better name here (this one is baffling out of context) *)
 Definition disp_cartesian : disp_cat C 
   := reindex_disp_cat (functor_to_unit C) (disp_over_unit C').
 
