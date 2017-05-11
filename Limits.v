@@ -41,8 +41,8 @@ Section Creates_Limits.
 Definition creates_limit
   {C : category}
   (D : disp_cat C)
-  {J : graph} (F : diagram J (total_precat D))
-  {x : C} (L : cone (mapdiagram (pr1_precat D) F)  x)
+  {J : graph} (F : diagram J (total_category D))
+  {x : C} (L : cone (mapdiagram (pr1_category D) F)  x)
   (isL : isLimCone _ x L) : UU
 := 
   ∑ (CC : iscontr 
@@ -53,8 +53,8 @@ Definition creates_limit
          
 Definition creates_limits {C : category} (D : disp_cat C) : UU
 := 
-  ∏ {J : graph} (F : diagram J (total_precat D))
-    {x : C} (L : cone (mapdiagram (pr1_precat D) F)  x)
+  ∏ {J : graph} (F : diagram J (total_category D))
+    {x : C} (L : cone (mapdiagram (pr1_category D) F)  x)
     (isL : isLimCone _ x L),
   creates_limit _ _ _ isL.
 
@@ -68,9 +68,9 @@ Context {C : category}
         (J : graph)
         (X : Lims_of_shape J C).
 
-Notation π := (pr1_precat D).
+Notation π := (pr1_category D).
 
-Definition total_limits : Lims_of_shape J (total_precat D).
+Definition total_limits : Lims_of_shape J (total_category D).
 Proof.
   intro d.
   set (πd := mapdiagram π d).
@@ -84,8 +84,8 @@ Proof.
   use (mk_LimCone _ _ _ (pr2 XR)).
 Defined.
 
-Lemma pr1_preserves_limit (d : diagram J (total_precat D)) 
-  (x : total_precat D) (CC : cone d x) : preserves_limit π _ x CC. 
+Lemma pr1_preserves_limit (d : diagram J (total_category D)) 
+  (x : total_category D) (CC : cone d x) : preserves_limit π _ x CC. 
 Proof.
   intro H1.
   set (XR := X (mapdiagram π d)).

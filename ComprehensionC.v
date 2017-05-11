@@ -207,8 +207,8 @@ Definition total_comprehension_of_dm_structure
     once we have produced [comp_cat_of_dm] below
 *)
 Lemma comprehension_of_dm_structure_triangle_commutes 
-: functor_composite total_comprehension_of_dm_structure (pr1_precat _)
-  = pr1_precat _ . 
+: functor_composite total_comprehension_of_dm_structure (pr1_category _)
+  = pr1_category _ . 
 Proof. 
   apply functor_eq. 
   - apply homset_property.

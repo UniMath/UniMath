@@ -308,7 +308,7 @@ Definition disp_cat_of_elements {C : category} (P : functor C SET)
 
 (* TODO: compare to other definitions of this in the library! *)
 Definition precat_of_elements {C : category} (P : functor C SET)
-  := total_precat (disp_cat_of_elements P).
+  := total_category (disp_cat_of_elements P).
 
 End Elements_Disp.
 
@@ -363,7 +363,7 @@ Definition disp_cat_functor_alg : disp_cat C
                  functor_alg_id 
                  functor_alg_comp.                                                  
 
-Definition total_functor_alg : category := total_precat disp_cat_functor_alg.
+Definition total_functor_alg : category := total_category disp_cat_functor_alg.
 
 Lemma isaset_functor_alg_ob : ∏ x : C, isaset (functor_alg_ob x).
 Proof.
@@ -412,7 +412,7 @@ Defined.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
-Local Notation "'π'" := (pr1_precat disp_cat_functor_alg).
+Local Notation "'π'" := (pr1_category disp_cat_functor_alg).
 
 Definition creates_limits_functor_alg
   : creates_limits disp_cat_functor_alg.
@@ -466,7 +466,7 @@ Proof.
       apply isofhleveltotal2;
       [ apply impred_isaprop; intro; apply homset_property |];
       intros; do 3 (apply impred_isaprop; intro);
-        apply (homset_property (total_precat _ )) 
+        apply (homset_property (total_category _ )) 
         ).
   - cbn.
     intros x' CC.
@@ -520,7 +520,7 @@ Proof.
       { intro. apply homset_property. }
       cbn. apply (limArrowCommutes LL).
     + intros.
-      apply impred_isaprop. intro t. (apply (homset_property (total_precat _ ))).
+      apply impred_isaprop. intro t. (apply (homset_property (total_category _ ))).
     + simpl. 
       intros.
       apply subtypeEquality.
@@ -599,7 +599,7 @@ Variable C C' : category.
 Definition disp_cartesian : disp_cat C 
   := reindex_disp_cat (functor_to_unit C) (disp_over_unit C').
 
-Definition cartesian : category := total_precat disp_cartesian.
+Definition cartesian : category := total_category disp_cartesian.
 
 End cartesian_product_pb.
 
@@ -644,11 +644,11 @@ Qed.
 
 Definition disp_arrow : disp_cat (cartesian C C) := _ ,, disp_arrow_axioms.
 
-Definition arrow : category := total_precat disp_arrow.
+Definition arrow : category := total_category disp_arrow.
 
 Definition disp_domain : disp_cat C := sigma_disp_cat disp_arrow.
 
-Definition total_domain := total_precat disp_domain.
+Definition total_domain := total_category disp_domain.
 
 End arrow.
 

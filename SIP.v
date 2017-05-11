@@ -63,7 +63,7 @@ Defined.
 
 (** ** The conclusion of SIP: total category is univalent *)
 
-Definition SIP : is_univalent (total_precat disp_cat_from_SIP_data).
+Definition SIP : is_univalent (total_category disp_cat_from_SIP_data).
 Proof.
   apply is_univalent_total_category.
   - apply univC.

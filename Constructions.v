@@ -236,7 +236,7 @@ Section Sigma.
 
 Context {C : category}
         {D : disp_cat C}
-        (E : disp_cat (total_precat D)).
+        (E : disp_cat (total_category D)).
 
 Definition sigma_disp_cat_ob_mor : disp_cat_ob_mor C.
 Proof.
@@ -371,7 +371,7 @@ Proof.
       etrans. apply transport_f_f.
       etrans. eapply transportf_bind.
         apply (iso_disp_after_inv_mor iii).
-      apply maponpaths_2, (@homset_property (total_precat D)).
+      apply maponpaths_2, (@homset_property (total_category D)).
   - use total2_paths_f; cbn.
     + abstract ( etrans;
         [ apply inv_mor_after_iso_disp
@@ -384,7 +384,7 @@ Proof.
       etrans. apply transport_f_f.
       etrans. eapply transportf_bind.
         apply (inv_mor_after_iso_disp iii).
-      apply maponpaths_2, (@homset_property (total_precat D)).
+      apply maponpaths_2, (@homset_property (total_category D)).
 Time Qed. (* TODO: try to speed this up? *)
 
 Lemma is_iso_sigma_disp
@@ -450,7 +450,7 @@ Proof.
       (* TODO: a pure transport lemma; maybe break out? *)
       destruct ee; apply idpath.
     apply @weqcomp with (∑ ee : xx = yy,
-             iso_disp (@idtoiso (total_precat _) (_,,_) (_,,_) (i ee)) xxx yyy).
+             iso_disp (@idtoiso (total_category _) (_,,_) (_,,_) (i ee)) xxx yyy).
       apply weqfibtototal; intros ee.
       exists (fun (eee : transportf _ (i ee) xxx = yyy) => idtoiso_disp _ eee).
       apply EE.
@@ -482,7 +482,7 @@ Proof.
     refine (@maponpaths_2 _ _ _ _ _ (idpath _) _ _).
     etrans. use maponpaths. apply eq_iso, idpath.
       apply isaset_iso, homset_property.
-   apply (@homset_property (total_precat _) (_,,_) (_,,_)).
+   apply (@homset_property (total_category _) (_,,_) (_,,_)).
 Qed.
 *)
 

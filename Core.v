@@ -18,8 +18,8 @@ Contents:
   - isomorphisms
   - saturation
 - Total categories (and their forgetful functors)
-  - [total_precat D]
-  - [pr1_precat D]
+  - [total_category D]
+  - [pr1_category D]
 - Functors between displayed categories, over functors between their bases
   - [functor_lifting], [lifted_functor]
   - [disp_functor], [total_functor]
@@ -27,7 +27,7 @@ Contents:
   - natural transformations: [disp_nat_trans], …
 *)
 
-(* TODO: this file has become large and unwieldy; should probably be split up.  Displayed functors can certainly be happily split off.  Should total precats stay here, or also be split out? *)
+(* TODO: this file has become large and unwieldy; should probably be split up.  Displayed functors can certainly be happily split off.  Should total cats stay here, or also be split out? *)
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
@@ -44,7 +44,7 @@ Local Open Scope type_scope.
 
 (* Undelimit Scope transport. *)
 
-(** * Displayed precategories *)
+(** * Displayed categories *)
 
 Module Record_Preview.
 
@@ -74,7 +74,7 @@ End Record_Preview.
 
 (** ** Definition *)
 
-(** The actual definition is structured analogously to [precategory], as an iterated ∑-type:
+(** The actual definition is structured analogously to [category], as an iterated ∑-type:
 
 - [disp_cat]
   - [disp_cat_data]
@@ -731,10 +731,6 @@ End Utilities.
 (** ** Saturation: displayed univalent categories *)
 Section Univalent_Categories.
 
-(** The current [is_univalent_disp] is certainly the correct definition in the case where the base precategory [C] is a category.
-
-When [C] is a general precategory, it’s not quite clear if this definition is correct, or if some other definition might be better. *)
-
 Definition is_univalent_disp {C} (D : disp_cat C)
   := forall x x' (e : x = x') {xx : D x} {xx' : D x'},
        isweq (λ ee, @idtoiso_disp _ _ _ _ e xx xx' ee).
@@ -796,12 +792,12 @@ End Univalent_Categories.
 
 (** ** Definition and forgetful functor *)
 
-(* Any displayed category has a total precategory, with a forgetful functor to the base category. *)
-Section Total_Precat.
+(* Any displayed category has a total category, with a forgetful functor to the base category. *)
+Section Total_Category.
 
 Context {C : category} (D : disp_cat C).
 
-Definition total_precat_ob_mor : precategory_ob_mor.
+Definition total_category_ob_mor : precategory_ob_mor.
 Proof.
   exists (∑ x:C, D x).
   intros xx yy.
@@ -810,7 +806,7 @@ Proof.
   exact (∑ (f : pr1 xx --> pr1 yy), pr2 xx -->[f] pr2 yy).
 Defined.
 
-Definition total_precat_id_comp : precategory_id_comp (total_precat_ob_mor).
+Definition total_category_id_comp : precategory_id_comp (total_category_ob_mor).
 Proof.
   apply tpair; simpl.
   - intros. exists (identity _). apply id_disp.
@@ -819,11 +815,11 @@ Proof.
     exact (pr2 ff ;; pr2 gg).
 Defined.
 
-Definition total_precat_data : precategory_data
-  := (total_precat_ob_mor ,, total_precat_id_comp).
+Definition total_category_data : precategory_data
+  := (total_category_ob_mor ,, total_category_id_comp).
 
 (* TODO: make notations [( ,, )] and [ ;; ] different levels?  ;; should bind tighter, perhaps, and ,, looser? *)
-Lemma total_precat_is_precat : is_precategory (total_precat_data).
+Lemma total_category_is_precat : is_precategory (total_category_data).
 Proof.
   repeat apply tpair; simpl.
   - intros xx yy ff; cbn.
@@ -848,49 +844,49 @@ Proof.
     apply transportfbinv. 
 Qed.
 
-(* The “pre-pre-category” version, without homsets *)
-Definition total_precat_pre : precategory
-  := (total_precat_data ,, total_precat_is_precat).
+(* The “pre-category” version, without homsets *)
+Definition total_precategory : precategory
+  := (total_category_data ,, total_category_is_precat).
 
-Lemma total_precat_has_homsets : has_homsets (total_precat_data).
+Lemma total_category_has_homsets : has_homsets (total_category_data).
 Proof.
   intros xx yy; simpl. apply isaset_total2. apply homset_property.
   intros; apply homsets_disp.
 Qed.
 
-Definition total_precat : category
-  := (total_precat_pre ,, total_precat_has_homsets).
+Definition total_category : category
+  := (total_precategory ,, total_category_has_homsets).
 
-Definition pr1_precat_data : functor_data total_precat C.
+Definition pr1_category_data : functor_data total_category C.
 Proof.
   exists pr1.
   intros a b; exact pr1.
 Defined.
 
-Lemma pr1_precat_is_functor : is_functor pr1_precat_data.
+Lemma pr1_category_is_functor : is_functor pr1_category_data.
 Proof.
   apply tpair.
   - intros x; apply idpath.
   - intros x y z f g; apply idpath.
 Qed.  
 
-Definition pr1_precat : functor total_precat C
-  := (pr1_precat_data ,, pr1_precat_is_functor).
+Definition pr1_category : functor total_category C
+  := (pr1_category_data ,, pr1_category_is_functor).
 
 
 
-Lemma full_pr1_precat  (H : ∏ (a b : total_precat)  (x : C ⟦ pr1 a, pr1 b ⟧), 
+Lemma full_pr1_category  (H : ∏ (a b : total_category)  (x : C ⟦ pr1 a, pr1 b ⟧), 
                             ∥ pr2 a -->[ x] pr2 b ∥) 
-  : full pr1_precat.
+  : full pr1_category.
 Proof.
   intros a b. 
   use pr1_issurjective'.
   apply H.
 Defined.
 
-Lemma faithful_pr1_precat (H : ∏ (a b : total_precat) (x : C ⟦ pr1 a, pr1 b ⟧), 
+Lemma faithful_pr1_category (H : ∏ (a b : total_category) (x : C ⟦ pr1 a, pr1 b ⟧), 
                                isaprop (pr2 a -->[ x] pr2 b))
-  : faithful pr1_precat.  
+  : faithful pr1_category.  
 Proof.
   intros a b. cbn.
   apply isinclpr1.
@@ -898,9 +894,9 @@ Proof.
 Defined.
 
 
-Definition fully_faithful_pr1_precat (H : ∏ (a b : total_precat) (x : C ⟦ pr1 a, pr1 b ⟧), 
+Definition fully_faithful_pr1_category (H : ∏ (a b : total_category) (x : C ⟦ pr1 a, pr1 b ⟧), 
                                           iscontr (pr2 a -->[ x] pr2 b))
-  : fully_faithful pr1_precat.
+  : fully_faithful pr1_category.
 Proof.
   intros a b.
   apply isweqpr1.
@@ -911,7 +907,7 @@ Defined.
 
 (** ** Isomorphisms and saturation *)
 
-Definition is_iso_total {xx yy : total_precat} (ff : xx --> yy)
+Definition is_iso_total {xx yy : total_category} (ff : xx --> yy)
   (i : is_iso (pr1 ff))
   (fi := isopair (pr1 ff) i)
   (ii : is_iso_disp fi (pr2 ff))
@@ -930,7 +926,7 @@ Proof.
     apply transportfbinv.
 Qed.
 
-Definition is_iso_base_from_total {xx yy : total_precat} {ff : xx --> yy} (i : is_iso ff)
+Definition is_iso_base_from_total {xx yy : total_category} {ff : xx --> yy} (i : is_iso ff)
   : is_iso (pr1 ff).
 Proof.  
   set (ffi := isopair ff i).
@@ -940,18 +936,18 @@ Proof.
   - exact (maponpaths pr1 (iso_after_iso_inv ffi)).
 Qed.
 
-Definition iso_base_from_total {xx yy : total_precat} (ffi : iso xx yy)
+Definition iso_base_from_total {xx yy : total_category} (ffi : iso xx yy)
   : iso (pr1 xx) (pr1 yy)
 := isopair _ (is_iso_base_from_total (pr2 ffi)).
 
-Definition inv_iso_base_from_total {xx yy : total_precat} (ffi : iso xx yy)
+Definition inv_iso_base_from_total {xx yy : total_category} (ffi : iso xx yy)
   : inv_from_iso (iso_base_from_total ffi) = pr1 (inv_from_iso ffi).
 Proof.
   apply pathsinv0, inv_iso_unique'. unfold precomp_with.
   exact (maponpaths pr1 (iso_inv_after_iso ffi)).
 Qed.
 
-Definition is_iso_disp_from_total {xx yy : total_precat}
+Definition is_iso_disp_from_total {xx yy : total_category}
     {ff : xx --> yy} (i : is_iso ff)
     (ffi := isopair ff i)
   : is_iso_disp (iso_base_from_total (ff,,i)) (pr2 ff).
@@ -973,14 +969,14 @@ Proof.
     unfold transportb; apply maponpaths, homset_property.
 Qed.
 
-Definition iso_disp_from_total {xx yy : total_precat}
+Definition iso_disp_from_total {xx yy : total_category}
     (ff : iso xx yy)
   : iso_disp (iso_base_from_total ff) (pr2 xx) (pr2 yy). 
 Proof.
   exact (_,, is_iso_disp_from_total (pr2 ff)).
 Defined.
 
-Definition total_iso {xx yy : total_precat}
+Definition total_iso {xx yy : total_category}
   (f : iso (pr1 xx) (pr1 yy)) (ff : iso_disp f (pr2 xx) (pr2 yy))
   : iso xx yy.
 Proof.
@@ -1006,7 +1002,7 @@ Proof.
 Qed.
 
 
-Lemma inv_mor_total_iso {xx yy : total_precat}
+Lemma inv_mor_total_iso {xx yy : total_category}
   (f : iso (pr1 xx) (pr1 yy)) (ff : iso_disp f (pr2 xx) (pr2 yy))
   : inv_from_iso (total_iso f ff)
   = (inv_from_iso f,, inv_mor_disp_from_iso ff).
@@ -1020,12 +1016,12 @@ Proof.
     apply transportfbinv.
 Qed.
 
-Definition total_iso_equiv_map {xx yy : total_precat}
+Definition total_iso_equiv_map {xx yy : total_category}
   : (∑ f : iso (pr1 xx) (pr1 yy), iso_disp f (pr2 xx) (pr2 yy))
   -> iso xx yy
 := fun ff => total_iso (pr1 ff) (pr2 ff).
 
-Definition total_iso_isweq (xx yy : total_precat)
+Definition total_iso_isweq (xx yy : total_category)
   : isweq (@total_iso_equiv_map xx yy).
 Proof.
   use gradth.
@@ -1041,13 +1037,13 @@ Proof.
     destruct f as [[f ff] w]; apply idpath.
 Qed.
 
-Definition total_iso_equiv (xx yy : total_precat)
+Definition total_iso_equiv (xx yy : total_category)
   : (∑ f : iso (pr1 xx) (pr1 yy), iso_disp f (pr2 xx) (pr2 yy))
   ≃ iso xx yy
 := weqpair _ (total_iso_isweq xx yy).
 
 Lemma is_univalent_total_category (CC : is_univalent C) (DD : is_univalent_disp D)
-  : is_univalent (total_precat).
+  : is_univalent (total_category).
 Proof.
   split. Focus 2. apply homset_property.
   intros xs ys.
@@ -1067,15 +1063,15 @@ Proof.
     apply idpath.
 Qed.
 
-End Total_Precat.
+End Total_Category.
 
-Arguments pr1_precat [C] D.
+Arguments pr1_category [C] D.
 
 (** * Functors 
 
-- Reindexing of displayed precats along functors: [reindex_disp_cat]
-- Functors into displayed precats, lifting functors into the base: [functor_lifting]
-- Functors between displayed precats, over functors between the bases: [disp_functor]
+- Reindexing of displayed cats along functors: [reindex_disp_cat]
+- Functors into displayed cats, lifting functors into the base: [functor_lifting]
+- Functors between displayed cats, over functors between the bases: [disp_functor]
 - Natural transformations between these: [disp_nat_trans] *)
 
 (** ** Reindexing *)
@@ -1142,7 +1138,7 @@ End Reindexing.
 
 (** ** Functors into displayed categories *)
 
-(** Just like how context morphisms in a CwA can be built up out of terms, similarly, the basic building-block for functors into (total cats of) displayed precategories will be analogous to a term. 
+(** Just like how context morphisms in a CwA can be built up out of terms, similarly, the basic building-block for functors into (total cats of) displayed categories will be analogous to a term. 
 
 We call it a _section_ (though we define it intrinsically, not as a section in a (bi)category), since it corresponds to a section of the forgetful functor. *)
 
@@ -1188,7 +1184,7 @@ Definition section_disp_comp {C} {D : disp_cat C} (F : section_disp D)
 
 End Sections.
 
-(** With sections defined, we can now define _lifts_ to a displayed precategory of a functor into the base. *)
+(** With sections defined, we can now define _lifts_ to a displayed category of a functor into the base. *)
 Section Functor_Lifting.
 
 Notation "# F" := (section_disp_on_morphisms F)
@@ -1202,11 +1198,11 @@ Identity Coercion section_from_functor_lifting
   : functor_lifting >-> section_disp.
 
 (** Note: perhaps it would be better to define [functor_lifting] directly? 
-  Reindexed displayed-precats are a bit confusing to work in, since a term like [id_disp xx] is ambiguous: it can mean both the identity in the original displayed category, or the identity in the reindexing, which is nearly but not quite the same.  This shows up already in the proofs of [lifted_functor_axioms] below. *)
+  Reindexed displayed-cats are a bit confusing to work in, since a term like [id_disp xx] is ambiguous: it can mean both the identity in the original displayed category, or the identity in the reindexing, which is nearly but not quite the same.  This shows up already in the proofs of [lifted_functor_axioms] below. *)
 
 Definition lifted_functor_data {C C' : category} {D : disp_cat C}
   {F : functor C' C} (FF : functor_lifting D F)
-  : functor_data C' (total_precat D).
+  : functor_data C' (total_category D).
 Proof.
   exists (fun x => (F x ,, FF x)). 
   intros x y f. exists (# F f)%cat. exact (# FF f).
@@ -1229,7 +1225,7 @@ Qed.
 
 Definition lifted_functor {C C' : category} {D : disp_cat C}
   {F : functor C' C} (FF : functor_lifting D F)
-  : functor C' (total_precat D)
+  : functor C' (total_category D)
 := (_ ,, lifted_functor_axioms FF).
 
 End Functor_Lifting.
@@ -1241,7 +1237,7 @@ End Functor_Lifting.
 [[
 Definition disp_functor {C C' : category} (F : functor C C')
     (D : disp_cat C) (D' : disp_cat C')
-  := functor_lifting D' (functor_composite (pr1_precat D) F). 
+  := functor_lifting D' (functor_composite (pr1_category D) F). 
 ]]
 
 However, it seems like it may probably be cleaner to define these independently.
@@ -1603,7 +1599,7 @@ Section Total_Functors.
 
 Definition total_functor_data {C' C} {F}
     {D' : disp_cat C'} {D : disp_cat C} (FF : disp_functor F D' D)
-  : functor_data (total_precat D') (total_precat D).
+  : functor_data (total_category D') (total_category D).
 Proof.
   mkpair.
   - intros xx. exists (F (pr1 xx)). exact (FF _ (pr2 xx)).
@@ -1627,7 +1623,7 @@ Qed.
 
 Definition total_functor {C' C} {F}
     {D' : disp_cat C'} {D : disp_cat C} (FF : disp_functor F D' D)
-  : functor (total_precat D') (total_precat D)
+  : functor (total_category D') (total_category D)
 := (total_functor_data FF,, total_functor_axioms FF).
 
 End Total_Functors.
@@ -1880,7 +1876,7 @@ End Disp_Nat_Trans.
 
 (** some TODOs for the displayed-cats library:
 
-- add lemmas connecting with products of precats (as required for displayed bicats)
+- add lemmas connecting with products of cats (as required for displayed bicats)
 - add more applications of the displayed arrow category: slices; equalisers, inserters; hence groups etc.
 
 *)
