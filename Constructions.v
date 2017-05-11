@@ -6,12 +6,12 @@ Partial contents:
 - Full subcategory as total category of a displayed category
 - Displayed category given by a structure on objects and a proposition
    on morphisms of the base category
-- Direct products of displayed precategories (and their projections)
-  - [dirprod_precat D1 D2]
+- Direct products of displayed categories (and their projections)
+  - [dirprod_cat D1 D2]
   - [dirprodpr1_functor], [dirprodpr2_functor]
-- Sigmas of displayed precategories
-- Displayed functor precat
-- Fiber precats
+- Sigmas of displayed categories
+- Displayed functor cat
+- Fiber cats
 *)
 
 Require Import UniMath.Foundations.Sets.
@@ -488,9 +488,9 @@ Qed.
 
 End Sigma.
 
-(** * Displayed functor precategory
+(** * Displayed functor category
 
-Displayed functors and natural transformations form a displayed precategory over the ordinary functor precategory between the bases. *)
+Displayed functors and natural transformations form a displayed category over the ordinary functor category between the bases. *)
 
 Section Functor.
 (* TODO: clean up this section a bit. *)
@@ -615,7 +615,7 @@ Proof.
     apply hlevelntosn. apply homsets_disp.
 Qed.
 
-Definition disp_functor_precat : 
+Definition disp_functor_cat : 
   disp_cat (FunctorsC'C).
 Proof.
   mkpair.
@@ -636,8 +636,9 @@ Proof.
     + apply isaset_disp_nat_trans.      
 Defined.
 
-(** TODO : characterize isos in the displayed functor precat *)
+(** TODO : characterize isos in the displayed functor cat *)
 
+(** TODO: integrate [has_homsets] assumptions below! *)
 Definition pointwise_iso_from_nat_iso {A X : precategory} {hsX : has_homsets X}
   {F G : functor_precategory A X hsX}
   (b : iso F G) (a : A) : iso (pr1 F a) (pr1 G a)
@@ -664,11 +665,11 @@ Defined.
     first.
 *)
 
-Definition is_pointwise_iso_if_is_disp_functor_precat_iso
+Definition is_pointwise_iso_if_is_disp_functor_cat_iso
   (x y : FunctorsC'C)
   (f : iso x y)
-  (xx : disp_functor_precat x)
-  (yy : disp_functor_precat y)
+  (xx : disp_functor_cat x)
+  (yy : disp_functor_cat y)
   (FF : xx -->[ f ] yy)
   (H : is_iso_disp f FF)
   :
@@ -711,8 +712,8 @@ Defined.
 Lemma is_disp_nat_trans_pointwise_inv
   (x y : FunctorsC'C)
   (f : iso x y)
-  (xx : disp_functor_precat x)
-  (yy : disp_functor_precat y)
+  (xx : disp_functor_cat x)
+  (yy : disp_functor_cat y)
   (FF : xx -->[ f] yy)
   (H : ∏ (x' : C') (xx' : D' x'),
       is_iso_disp (pointwise_iso_from_nat_iso f x') (pr1 FF x' xx'))
@@ -792,8 +793,8 @@ Qed.
 Definition inv_disp_from_pointwise_iso 
   (x y : FunctorsC'C)
   (f : iso x y)
-  (xx : disp_functor_precat x)
-  (yy : disp_functor_precat y)
+  (xx : disp_functor_cat x)
+  (yy : disp_functor_cat y)
   (FF : xx -->[ f ] yy)
   (H : forall x' (xx' : D' x') , is_iso_disp (pointwise_iso_from_nat_iso f _ )
                           (pr1 FF _ xx' ))
@@ -814,11 +815,11 @@ Defined.
     
     
 
-Definition is_disp_functor_precat_iso_if_pointwise_iso 
+Definition is_disp_functor_cat_iso_if_pointwise_iso 
   (x y : FunctorsC'C)
   (f : iso x y)
-  (xx : disp_functor_precat x)
-  (yy : disp_functor_precat y)
+  (xx : disp_functor_cat x)
+  (yy : disp_functor_cat y)
   (FF : xx -->[ f ] yy)
   (H : forall x' (xx' : D' x') , is_iso_disp (pointwise_iso_from_nat_iso f _ )
                           (pr1 FF _ xx' ))
@@ -853,11 +854,11 @@ Proof.
       apply transportf_ext, homset_property.
 Defined.      
 
-Definition is_disp_functor_precat_iso_iff_pointwise_iso 
+Definition is_disp_functor_cat_iso_iff_pointwise_iso 
   (x y : FunctorsC'C)
   (f : iso x y)
-  (xx : disp_functor_precat x)
-  (yy : disp_functor_precat y)
+  (xx : disp_functor_cat x)
+  (yy : disp_functor_cat y)
   (FF : xx -->[ f ] yy)
   : 
   (∏ x' (xx' : D' x') , is_iso_disp (pointwise_iso_from_nat_iso f _ )
@@ -866,14 +867,14 @@ Definition is_disp_functor_precat_iso_iff_pointwise_iso
     is_iso_disp f FF.
 Proof.
   split.
-  - apply is_disp_functor_precat_iso_if_pointwise_iso.
-  - apply is_pointwise_iso_if_is_disp_functor_precat_iso.
+  - apply is_disp_functor_cat_iso_if_pointwise_iso.
+  - apply is_pointwise_iso_if_is_disp_functor_cat_iso.
 Defined.
 
 
 End Functor.
 
-(** * Fiber precategories *)
+(** * Fiber categories *)
 
 (** A displayed category gives a _fiber_ category over each object of the base.  These are most interesting in the case where the displayed category is an isofibration. *)
 Section Fiber.
@@ -882,7 +883,7 @@ Context {C : category}
         (D : disp_cat C)
         (c : C).
 
-Definition fiber_precategory_data : precategory_data.
+Definition fiber_category_data : precategory_data.
 Proof.
   mkpair.
   - mkpair.
@@ -893,7 +894,7 @@ Proof.
     + intros. apply (transportf _ (id_right _ ) (comp_disp X X0)).
 Defined.
 
-Lemma fiber_is_precategory : is_precategory fiber_precategory_data.
+Lemma fiber_is_precategory : is_precategory fiber_category_data.
 Proof.
   repeat split; intros; cbn.
   - etrans. apply maponpaths. apply id_left_disp.
@@ -914,14 +915,16 @@ Qed.
 
 Definition fiber_precategory : precategory := ( _ ,, fiber_is_precategory).
 
-Lemma has_homsets_fiber : has_homsets fiber_precategory.
+Lemma has_homsets_fiber_category : has_homsets fiber_precategory.
 Proof.
   intros x y. apply homsets_disp.
 Qed.
 
+Definition fiber_category : category
+  := ( fiber_precategory ,, has_homsets_fiber_category).
 
 
-Definition iso_disp_from_iso_fiber (a b : fiber_precategory) :
+Definition iso_disp_from_iso_fiber (a b : fiber_category) :
   iso a b -> iso_disp (identity_iso c) a b.
 Proof.
  intro i.
@@ -943,14 +946,14 @@ Proof.
         apply transportf_ext; apply homset_property ] ).
 Defined.
 
-Definition iso_fiber_from_iso_disp (a b : fiber_precategory) :
+Definition iso_fiber_from_iso_disp (a b : fiber_category) :
   iso a b <- iso_disp (identity_iso c) a b.
 Proof.
   intro i.
   mkpair.
   + apply (pr1 i).
   + cbn in *. 
-    apply (@is_iso_from_is_z_iso fiber_precategory).
+    apply (@is_iso_from_is_z_iso fiber_category).
     mkpair.
     apply (inv_mor_disp_from_iso i).
     abstract (split; cbn;
@@ -968,7 +971,7 @@ Proof.
               ]). 
 Defined.
 
-Lemma iso_disp_iso_fiber (a b : fiber_precategory) :
+Lemma iso_disp_iso_fiber (a b : fiber_category) :
   iso a b ≃ iso_disp (identity_iso c) a b.
 Proof.
   exists (iso_disp_from_iso_fiber a b).
@@ -980,15 +983,15 @@ Defined.
 (** ** Univalence *)
 Variable H : is_univalent_disp D.
 
-Let idto1 (a b : fiber_precategory) : a = b ≃ iso_disp (identity_iso c) a b 
+Let idto1 (a b : fiber_category) : a = b ≃ iso_disp (identity_iso c) a b 
   := 
   weqpair (@idtoiso_fiber_disp _ _ _ a b) (H _ _ (idpath _ ) a b).
 
-Let idto2 (a b : fiber_precategory) : a = b -> iso_disp (identity_iso c) a b 
+Let idto2 (a b : fiber_category) : a = b -> iso_disp (identity_iso c) a b 
   := 
   funcomp (λ p : a = b, idtoiso p) (iso_disp_iso_fiber a b).
 
-Lemma eq_idto1_idto2 (a b : fiber_precategory) 
+Lemma eq_idto1_idto2 (a b : fiber_category) 
   : ∏ p : a = b, idto1 _ _ p = idto2 _ _ p.
 Proof.
   intro p. induction p.
@@ -996,8 +999,8 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma is_univalent_fiber_precat 
-  (a b : fiber_precategory)
+Lemma is_univalent_fiber_cat 
+  (a b : fiber_category)
   :
   isweq (λ p : a = b, idtoiso p).
 Proof.
@@ -1010,19 +1013,20 @@ Proof.
 Defined.    
 
 
-Lemma is_univalent_fiber : is_univalent fiber_precategory.
+Lemma is_univalent_fiber : is_univalent fiber_category.
 Proof.
   split.
-  - apply is_univalent_fiber_precat.
-  - apply has_homsets_fiber.
+  - apply is_univalent_fiber_cat.
+  - apply has_homsets_fiber_category.
 Defined.
 
 End Fiber.
 
 Arguments fiber_precategory {_} _ _ .
+Arguments fiber_category {_} _ _ .
 
 (* TODO: is this a terrible notation?  Probably. *)
-Notation "D [{ x }]" := (fiber_precategory D x)(at level 3,format "D [{ x }]").
+Notation "D [{ x }]" := (fiber_category D x)(at level 3,format "D [{ x }]").
 
 (** ** Fiber functors
 
@@ -1073,7 +1077,7 @@ Definition is_iso_fiber_from_is_iso_disp
   {C : category} {D : disp_cat C}
   {c : C} {d d' : D c} (ff : d -->[identity c] d')
   (Hff : is_iso_disp (identity_iso c) ff)
-: @is_iso (fiber_precategory D c) _ _ ff.
+: @is_iso (fiber_category D c) _ _ ff.
 Proof.
   apply is_iso_from_is_z_iso.
   exists (pr1 Hff).
