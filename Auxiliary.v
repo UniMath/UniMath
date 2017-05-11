@@ -25,12 +25,13 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
-Bind Scope precategory_scope with precategory_ob_mor.
-Bind Scope precategory_scope with precategory_data.
-Bind Scope precategory_scope with category.
-Bind Scope precategory_scope with precategory.
-Delimit Scope precategory_scope with precat.
-(** Many binding sorts for this scope, following the many coercions on precategories. *)
+Open Scope type_scope. (* so that it has priority over [cat], for [×] later *)
+
+Bind Scope cat with precategory_ob_mor.
+Bind Scope cat with precategory_data.
+Bind Scope cat with precategory.
+Bind Scope cat with category.
+(** Many binding sorts for this scope, following the many coercions on categories. *)
 
 
 (** * Direct products of types.
@@ -77,7 +78,7 @@ Construction of finite products of precategories, including functoriality, assoc
 
 Section category_products.
 
-(* TODO: move this upstream to [CategoryTheory]? *)
+(* TODO: use versions from [CategoryTheory] instead. *)
 
 Definition unit_precategory : precategory.
 Proof.
@@ -130,7 +131,7 @@ Proof.
   (* assoc *) apply dirprod_paths; simpl; apply assoc.
 Qed.
 
-Definition prod_precategory_pre (C D : precategory) : precategory
+Definition prod_precategory (C D : precategory) : precategory
   := (_ ,, prod_precategory_is_precategory C D).
 
 Definition prod_precategory_homsets (C D : category)
@@ -139,24 +140,24 @@ Proof.
   intros x y. apply isaset_dirprod; apply homset_property.
 Qed.
 
-Definition prod_precategory (C D : category) : category
-  := (prod_precategory_pre C D,, prod_precategory_homsets C D).
+Definition prod_category (C D : category) : category
+  := (prod_precategory C D,, prod_precategory_homsets C D).
 
-Arguments prod_precategory (_ _)%precat.
+Arguments prod_precategory (_ _)%cat.
 
-Notation "C × D" := (prod_precategory C D) (at level 75, right associativity) : precategory_scope.
+Notation "C × D" := (prod_category C D) (at level 75, right associativity) : cat.
 
-Definition prod_precategory_assoc_data (C0 C1 C2 : category)
+Definition prod_category_assoc_data (C0 C1 C2 : category)
   : functor_data (C0 × (C1 × C2)) ((C0 × C1) × C2).
 Proof.
   (* functor_on_objects *) exists dirprod_assoc.
   (* functor_on_morphisms *) intros a b; apply dirprod_assoc.
 Defined.
 
-Definition prod_precategory_assoc (C0 C1 C2 : category)
+Definition prod_category_assoc (C0 C1 C2 : category)
   : functor (C0 × (C1 × C2)) ((C0 × C1) × C2).
 Proof.
-  exists (prod_precategory_assoc_data _ _ _). split.
+  exists (prod_category_assoc_data _ _ _). split.
   (* functor_id *) intros c. simpl; apply paths_refl.
   (* functor_comp *) intros c0 c1 c2 f g. simpl; apply paths_refl.
 Defined.
@@ -202,49 +203,47 @@ Defined.
 End category_products.
 
 (** Redeclare section notations to be available globally. *)
-Notation "C × D" := (prod_precategory C D)
-  (at level 75, right associativity) : precategory_scope.
+Notation "C × D" := (prod_category C D)
+  (at level 75, right associativity) : cat.
 
-(** * Pregroupoids *)
-Section Pregroupoids.
+(** * Groupoids *)
+Section Groupoids.
 (* TODO: search library more thoroughly for any of these! *)
 
-Definition is_pregroupoid (C : precategory)
+Definition is_groupoid (C : category)
   := forall (x y : C) (f : x --> y), is_iso f.
 
-Lemma is_pregroupoid_functor_precat {C D : category}
-  (gr_D : is_pregroupoid D)
-  : is_pregroupoid (functor_category C D).
+Lemma is_groupoid_functor_cat {C D : category}
+  (gr_D : is_groupoid D)
+  : is_groupoid (functor_category C D).
 Proof.
   intros F G α; apply functor_iso_if_pointwise_iso.
   intros c; apply gr_D.
 Defined.
 
-End Pregroupoids.
+End Groupoids.
 
-(** * Discrete precategories on hSets.
+(** * Discrete categories on hSets.
 
-In order to construct locally discrete (pre)bicategories below, we need some infrastructure on discrete (pre)categories. *)
-Section Discrete_precats.
+In order to construct locally discrete bicategories below, we need some infrastructure on discrete categories. *)
+Section Discrete_cats.
 
-Definition discrete_precat (X : hSet) : category.
+Definition discrete_cat (X : hSet) : category.
 Proof.
-  use tpair.
-    apply (path_pregroupoid X).
+  refine (path_groupoid X _).
     apply hlevelntosn, setproperty.
-  apply homset_property.
 Defined.
 
-Lemma is_pregroupoid_path_pregroupoid {X} {H}
-  : is_pregroupoid (path_pregroupoid X H).
+Lemma is_groupoid_path_groupoid {X} {H}
+  : is_groupoid (path_groupoid X H).
 Proof.
   intros x y f. apply is_iso_qinv with (!f).
   split. apply pathsinv0r. apply pathsinv0l.
 Defined.
 
 (* TODO: check naming conventions; what should this be called? *)
-Definition fmap_discrete_precat {X Y : hSet} (f : X -> Y)
-  : functor (discrete_precat X) (discrete_precat Y).
+Definition fmap_discrete_cat {X Y : hSet} (f : X -> Y)
+  : functor (discrete_cat X) (discrete_cat Y).
 Proof.
   use tpair.
   + (* functor_on_objects *) exists f.
@@ -254,9 +253,9 @@ Proof.
     - (* functor_comp *) intros x y z w v; apply setproperty.
 Defined.
 
-Definition prod_discrete_precat (X Y : hSet)
-  : functor (discrete_precat X × discrete_precat Y)
-            (discrete_precat (X × Y)%set).
+Definition prod_discrete_cat (X Y : hSet)
+  : functor (discrete_cat X × discrete_cat Y)
+            (discrete_cat (X × Y)%set).
 Proof.
   use tpair. use tpair.
   + (* functor_on_objects *) apply id.
@@ -265,15 +264,15 @@ Proof.
   + (* functor_id, functor_comp *) split; intro; intros; apply setproperty.
 Defined.
 
-Definition discrete_precat_nat_trans {C : precategory} {X : hSet}
-  {F G : functor C (discrete_precat X)}
+Definition discrete_cat_nat_trans {C : precategory} {X : hSet}
+  {F G : functor C (discrete_cat X)}
   : (forall c:C, F c = G c) -> nat_trans F G.
 Proof.
   intros h. exists h.
   (* naturality *) intros c d f; apply setproperty.
 Defined.
 
-End Discrete_precats.
+End Discrete_cats.
 
 (** * Miscellaneous lemmas *)
 Section Miscellaneous.
