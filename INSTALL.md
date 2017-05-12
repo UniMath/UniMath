@@ -48,6 +48,17 @@ shell command (in this directory).
 $ make
 ```
 
+To compile an individual package and the files it depends on, e.g., the package `CategoryTheory`, issue
+```bash
+$ make CategoryTheory
+```
+
+To compile an individual file and the files it depends on, e.g., the file `CategoryTheory/Categories.v`, issue
+```bash
+$ make UniMath/CategoryTheory/Categories.vo
+```
+Note the extension `*.vo` required in the command.
+
 If you wish also to build the program ```coqide```, then issue the following
 command instead of the one above.
 
