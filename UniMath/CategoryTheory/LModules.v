@@ -48,7 +48,8 @@ Definition LModule_data (D:precategory) : UU
 Coercion functor_from_LModule_data (C : precategory) (F : LModule_data C)
   : functor B C := pr1 F.
 
-Definition σ {C : precategory} (F : LModule_data C) : F□M ⟹ F := pr2 F.
+Definition lm_mult {C : precategory} (F : LModule_data C) : F□M ⟹ F := pr2 F.
+Local Notation σ := lm_mult.
 
 Definition LModule_laws  {C:precategory} (T : LModule_data C) : UU :=
       (∏ c : B, #T (η M c) · σ T c = identity (T c))
@@ -82,6 +83,7 @@ End LModule_def.
 (** * Monad precategory *)
 Section LModule_precategory.
 
+Local Notation σ := lm_mult.
 Definition LModule_Mor_laws {C : precategory} {T T' : LModule_data C} (α : T ⟹ T')
   : UU :=
   ∏ a : B, α (M a) · σ T' a = σ T a · α a.
@@ -220,6 +222,7 @@ Section Pullback_module.
 
   Variable (T:LModule M' C).
   Notation "Z ∘ α" := (post_whisker α Z) (at level 50, left associativity).
+  Local Notation σ := lm_mult.
 
   Definition pb_LModule_σ : T □ M ⟹ T :=  nat_trans_comp _ _ _ (T ∘ m)  (σ _ T).
 
