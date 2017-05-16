@@ -1483,3 +1483,20 @@ Notation "G □ F" := (functor_composite (F:[_,_]) (G:[_,_]) : [_,_]) (at level 
 
 Notation "a ⟶ b" := (functor a b) (at level 39) : cat.
 (* to input: type "\-->" with Agda input method *)
+
+Lemma functor_comp_pw {C C' D D' : precategory} hsD hsD'
+           (F : [C,D,hsD] ⟶ [C',D',hsD']) {a b c}  (f : [C,D,hsD] ⟦ a, b ⟧)
+           (g : [C,D,hsD] ⟦ b, c ⟧) (x :C') :
+  (# F f:nat_trans _ _) x · (# F g:nat_trans _ _) x = ((# F (f · g)) :  nat_trans _ _ ) x .
+Proof.
+  now rewrite functor_comp.
+Qed.
+
+Lemma functor_cancel_pw {C C' D D' : precategory} hsD hsD'
+           (F : [C,D,hsD] ⟶ [C',D',hsD']) {a b }  (f g : [C,D,hsD] ⟦ a, b ⟧)
+           (x :C') : f = g ->
+                     ((# F f ) :  nat_trans _ _ ) x = (# F g:nat_trans _ _) x .
+Proof.
+  intro e.
+  now induction e.
+Qed.
