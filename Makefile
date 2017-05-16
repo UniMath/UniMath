@@ -136,6 +136,7 @@ describe:; git describe --dirty --long --always --abbrev=40 --all
 	echo '# It is made by automatically (by code in Makefile)' ;\
 	echo ;\
 	echo '-Q UniMath UniMath' ;\
+	echo '-arg "$(OTHERFLAGS)"' ;\
 	echo ;\
 	for i in $(PACKAGES) ;\
 	do <UniMath/$$i/.package/files $(FILES_FILTER) |sed "s=^=UniMath/$$i/="  ;\
