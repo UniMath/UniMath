@@ -104,8 +104,6 @@ Notation "⋃ S" := (subtype_union S) (at level 100, no associativity) : subtype
 Definition carrier_set {X : hSet} (S : hsubtype X) : hSet :=
   hSetpair (carrier S) (isaset_carrier_subset _ S).
 
-Coercion carrier_set : hsubtype >-> hSet.
-
 Definition subtype_union_containedIn {X:hSet} {I:UU} (S : I -> hsubtype X) i : S i ⊆ ⋃ S
   := λ x s, hinhpr (i,,s).
 

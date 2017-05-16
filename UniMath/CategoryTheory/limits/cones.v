@@ -331,5 +331,5 @@ End CONE_category.
 
 End Cone.
 
-Implicit Arguments CONE [J C].
-Implicit Arguments ConeConnect [J C].
+Arguments CONE [J C].
+Arguments ConeConnect [J C].
