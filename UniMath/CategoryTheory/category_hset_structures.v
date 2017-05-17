@@ -754,7 +754,7 @@ End exponentials_functor_cat.
 (** * Various results on Set/X *)
 Section set_slicecat.
 
-Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
+Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET) (only parsing).
 
 Lemma Terminal_HSET_slice X : Terminal (HSET / X).
 Proof.

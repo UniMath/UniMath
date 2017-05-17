@@ -1,10 +1,12 @@
 Unset Automatic Introduction.
 
+Require UniMath.Foundations.NaturalNumbers.
+
 Module Test_nat.
 
-  Local Open Scope nat_scope.
+  Import UniMath.Foundations.NaturalNumbers.
 
-  Require Import UniMath.Foundations.NaturalNumbers.
+  Local Open Scope nat_scope.
 
   Goal 3 ≠ 5. easy. Defined.
   Goal ¬ (3 ≠ 3). easy. Defined.
@@ -64,9 +66,11 @@ Module Test_nat.
 
 End Test_nat.
 
+Require UniMath.NumberSystems.Integers.
+
 Module Test_int.
 
-  Require Import UniMath.NumberSystems.Integers.
+  Import UniMath.NumberSystems.Integers.
 
   Goal true = (hzbooleq (natnattohz 3 4) (natnattohz 17 18)) . reflexivity. Qed.
   Goal false = (hzbooleq (natnattohz 3 4) (natnattohz 17 19)) . reflexivity. Qed.
@@ -77,9 +81,11 @@ Module Test_int.
 
 End Test_int.
 
+Require UniMath.NumberSystems.RationalNumbers.
+
 Module Test_rat.
 
-  Require Import UniMath.NumberSystems.RationalNumbers.
+  Import UniMath.NumberSystems.RationalNumbers.
 
   Open Scope hz_scope .
 

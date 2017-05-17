@@ -1683,7 +1683,7 @@ End functor_swap.
 (** * The forgetful functor from Set/X to Set preserves colimits *)
 Section cocont_slicecat_to_cat_HSET.
 
-Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
+Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET) (only parsing).
 
 Lemma preserves_colimit_slicecat_to_cat_HSET (X : HSET)
   (g : graph) (d : diagram g (HSET / X)) (L : HSET / X) (ccL : cocone d L) :

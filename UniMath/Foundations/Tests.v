@@ -65,9 +65,11 @@ Goal invmap (weqtotal2overunit (λ _,nat)) 3 = (tt,,3). reflexivity. Defined.
 Goal iscontr = isofhlevel 0. reflexivity. Defined.
 Goal isaset = isofhlevel 2.  reflexivity. Defined.
 
+Require UniMath.Foundations.Sets.
+
 Module Test_sets.
 
-  Require Import UniMath.Foundations.Sets.
+  Import UniMath.Foundations.Sets.
 
   Goal ∏ Y (is:isaset Y) (F:Y->UU) (e :∏ y y', F y -> F y' -> y=y')
          y (f:F y), squash_pairs_to_set F is e (hinhpr (y,,f)) = y.
