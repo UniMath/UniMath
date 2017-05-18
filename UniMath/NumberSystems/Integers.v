@@ -84,7 +84,7 @@ Definition hzdecneq : decrel hz := decrelpair isdecrelhzneq .
 Definition hzboolneq := decreltobrel hzdecneq .
 
 
-Open Local Scope hz_scope .
+Local Open Scope hz_scope .
 
 
 (** *** [ hz ] is a non-zero ring *)
@@ -1034,7 +1034,7 @@ Local Transparent hz isdecrelhzeq iscommrngops.
 
 (** *** [hz] is an archimedean ring *)
 
-Open Local Scope hz_scope .
+Local Open Scope hz_scope .
 
 Lemma isarchhz : isarchrng (X := hz) hzgth.
 Proof.
