@@ -18,12 +18,17 @@ Local Open Scope cat.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.LModules.
+Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
+
+(* Require Import UniMath.CategoryTheory.PrecategoryBinProduct. *)
+Require Import UniMath.CategoryTheory.FunctorAlgebras.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
 (** A monad is a pointed endofunctor *)
 Definition ptd_from_mon {C:precategory} hsC (T:Monad C) : precategory_Ptd C hsC :=
@@ -182,3 +187,75 @@ H(M) T ------> H(MT) ------> H(M)
 
   Local Definition lift_lmodule : LModule T D := (lift_LModule_data,, lift_lm_mult_laws).
 End SignatureLiftModule.
+
+
+Section InitialRep.
+  (** ** Some variables and assumptions *)
+
+  (** Assume having a precategory [C] whose hom-types are sets *)
+  Variable C : precategory.
+  Variable hs : has_homsets C.
+
+  Variable CP : BinCoproducts C.
+
+  Local Notation "'EndC'":= ([C, C, hs]) .
+  Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
+  Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP hs.
+
+  Variable H : Signature C hs C hs.
+
+  Let θ := theta H.
+
+  Let θ_strength1_int := Sig_strength_law1 _ _ _ _ H.
+  Let θ_strength2_int := Sig_strength_law2 _ _ _ _ H.
+
+  Let Id_H
+    : functor EndC EndC
+    := BinCoproduct_of_functors _ _ CPEndC
+                                (constant_functor _ _ (functor_identity _ : EndC))
+                                H.
+
+  Let Alg : precategory := FunctorAlg Id_H hsEndC.
+
+  (** The precategory of pointed endofunctors on [C] *)
+  Local Notation "'Ptd'" := (precategory_Ptd C hs).
+  (** The category of endofunctors on [C] *)
+  Local Notation "'EndC'":= ([C, C, hs]) .
+  (** The product of two precategories *)
+
+  Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
+  Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
+  Local Notation η := @eta_from_alg.
+  Require Import UniMath.CategoryTheory.limits.initial.
+
+  Variable T : hss CP H.
+  Local Notation T_mon := (Monad_from_hss _ _ _ _ T).
+  Local Notation T_mod := (tautological_LModule T_mon).
+  Local Notation HT_mod := (lift_lmodule _ _ _ _ H _ T_mod).
+  Section TauModuleMorphism.
+
+    Lemma τ_lmodule_laws : LModule_Mor_laws T_mon (T:=HT_mod) (T' := T_mod) (τ T).
+    Admitted.
+
+    Definition τ_lmodule_mor :  LModule_Mor  _ _ _ :=
+      tpair (fun x => LModule_Mor_laws _ x) _ τ_lmodule_laws.
+  End TauModuleMorphism.
+
+  Section InitialRep.
+
+    Variable initT : isInitial Alg (alg_from_hss _ _ _  _ T).
+    Let T_init : Initial Alg := tpair (fun x => isInitial _ x) _ initT.
+
+    Variable (M:Monad C).
+    Local Notation M_mod := (tautological_LModule M).
+    Local Notation HM_mod := (lift_lmodule _ _ _ _ H _ M_mod).
+    Variable (τ_M: LModule_Mor M HM_mod M_mod).
+
+    Let M_alg : Alg.
+      eapply (tpair (fun x => EndC ⟦ Id_H x, x ⟧) (M:functor _ _)).
+      (* Comment faire ??  *)
+    Admitted.
+  End InitialRep.
+
+
+End TauModuleMorphism.
