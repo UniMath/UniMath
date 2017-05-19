@@ -1,5 +1,7 @@
 (**
 
+Reference : "Initial Semantics for Strengthened Signatures" (André Hirschowitz , Marco Maggesi)
+
 Let (H, θ) be a strengthened signature, M an endo-functor.
 If M has a structure of (left) module over a monad T, then it can be lifted to endow
 H(M) with a structure of module over T.
