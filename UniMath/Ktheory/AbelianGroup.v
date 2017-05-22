@@ -470,9 +470,12 @@ Definition power (I:Type) (X:abgr) : abgr.
 
 (** ** the category of abelian groups *)
 
+Require UniMath.Algebra.Monoids_and_Groups
+        UniMath.CategoryTheory.Categories.
+
 Module Category.
-  Require Import UniMath.Algebra.Monoids_and_Groups
-                 UniMath.CategoryTheory.Categories.
+  Import UniMath.Algebra.Monoids_and_Groups
+         UniMath.CategoryTheory.Categories.
 
   Definition Ob := abgr.
 

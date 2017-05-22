@@ -64,7 +64,7 @@ $(VFILES:.v=.vo) : $(COQBIN)coqc
 endif
 
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -indices-matter -type-in-type -w none
+OTHERFLAGS += -indices-matter -type-in-type -w '-notation-overridden,-local-declaration,+uniform-inheritance'
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
