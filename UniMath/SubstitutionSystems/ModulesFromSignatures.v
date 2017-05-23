@@ -188,7 +188,6 @@ H(M) T ------> H(MT) ------> H(M)
   Local Definition lift_lmodule : LModule T D := (lift_LModule_data,, lift_lm_mult_laws).
 End SignatureLiftModule.
 
-
 Section InitialRep.
   (** ** Some variables and assumptions *)
 
@@ -235,7 +234,11 @@ Section InitialRep.
   Section TauModuleMorphism.
 
     Lemma τ_lmodule_laws : LModule_Mor_laws T_mon (T:=HT_mod) (T' := T_mod) (τ T).
-    Admitted.
+      intro a.
+      eapply pathsinv0.
+      (* It is precisely the square diagram satisfied by μ = { id } *)
+      exact( nat_trans_eq_pointwise (fbracket_τ T  (Z:= p T)(identity _ )) a).
+    Qed.
 
     Definition τ_lmodule_mor :  LModule_Mor  _ _ _ :=
       tpair (fun x => LModule_Mor_laws _ x) _ τ_lmodule_laws.
@@ -253,8 +256,40 @@ Section InitialRep.
 
     Let M_alg : Alg.
       eapply (tpair (fun x => EndC ⟦ Id_H x, x ⟧) (M:functor _ _)).
-      (* Comment faire ??  *)
+      eapply BinCoproductArrow.
+      apply Monads.η.
+      apply τ_M.
+    Defined.
+
+    Let j : Alg ⟦T_init, M_alg⟧ := InitialArrow T_init M_alg.
+    Local Notation j_mor := ((mor_from_algebra_mor _ _ _ j):nat_trans _ _).
+
+    (* j est un morphisme de représentation *)
+    Lemma j_mor_rep x : ((τ T):nat_trans _ _) x · (j_mor) x = (# H j_mor:nat_trans _ _) x · τ_M x.
+      (* It is exactly the 'H' part of the Id + H algebra morphism diagram *)
+      etrans.
+      eapply pathsinv0.
+      apply assoc.
+      etrans.
+      eapply cancel_precomposition.
+      apply (nat_trans_eq_pointwise (algebra_mor_commutes _ _ _ j) x).
+      etrans.
+      apply assoc.
+      etrans.
+      apply cancel_postcomposition.
+      apply BinCoproductIn2Commutes.
+      etrans;[eapply pathsinv0; apply assoc|].
+      apply cancel_precomposition.
+      apply BinCoproductIn2Commutes.
+    Qed.
+
+
+    (* j est un morphisme de monade *)
+    Lemma j_mon : Monad_Mor_laws (T:=T_mon) (T':=M) (mor_from_algebra_mor _ _ _ j).
     Admitted.
+
+    (* fini *)
+
   End InitialRep.
 
 
