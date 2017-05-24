@@ -6,6 +6,8 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.CategoryTheory.sub_precategories.
 
 
 Notation "1 x" := (identity_iso x) (at level 90) : cat.
@@ -1131,4 +1133,41 @@ Definition symmetric_monoidal_equivalence (M N : symmetric_monoidal_cat) : UU :=
     symmetric_monoidal_nat_iso (symmetric_monoidal_functor_comp F G) (symmetric_monoidal_functor_identity M) ×
     symmetric_monoidal_nat_iso (symmetric_monoidal_functor_comp G F) (symmetric_monoidal_functor_identity N).
 
-Local Close Scope type_scope.
+
+(** * Groupoids *)
+
+Definition is_groupoid (C : precategory) := ∏ c d : C, ∏ f : c --> d, is_iso f.
+
+Definition groupoid : UU := ∑ C : precategory, is_groupoid C.
+
+Definition groupoid_to_cat (G : groupoid) : precategory := pr1 G.
+
+Coercion groupoid_to_cat : groupoid >-> precategory.
+
+(** * The underlying groupoid of a category *)
+
+Definition hsubtype_ob_isos (C : precategory) : hsubtype (ob C) := fun c : C => htrue.
+
+Definition hsubtype_mor_isos (C : precategory) : ∏ c d : C, hsubtype (C⟦c, d⟧) :=
+  fun c d : C => (fun f : C⟦c, d⟧ => hProppair (is_iso f) (isaprop_is_iso c d f)).
+
+Definition is_sub_category_isos (C : precategory) : is_sub_precategory (hsubtype_ob_isos C) (hsubtype_mor_isos C).
+Proof.
+  use dirprodpair.
+  - intros c X. exact (identity_is_iso C c).
+  - intros. simpl. intros a b c f g fiso giso. exact (is_iso_comp_of_isos (isopair f fiso) (isopair g giso)).
+Defined.
+
+Definition sub_category_of_isos (C : precategory) : sub_precategories C :=
+  tpair _ (dirprodpair (hsubtype_ob_isos C) (hsubtype_mor_isos C)) (is_sub_category_isos C).
+
+Definition sub_category_of_isos_to_groupoid (C : precategory) : groupoid.
+Proof.
+  use tpair.
+  - exact (carrier_of_sub_precategory C (sub_category_of_isos C)).
+  - simpl. unfold is_groupoid. intros.
+    destruct f as [f p].
+    assert (fiso : is_iso f). apply p.
+    unfold is_iso. intro e.
+    use gradth.
+    intro g.
