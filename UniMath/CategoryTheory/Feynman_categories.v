@@ -1260,4 +1260,27 @@ Proof.
   - cbn. apply (pr2 C).
 Defined.
 
+Definition comma_cat_data_H3 :
+  ∏ (stf uvg xyh zwi : comma_cat_data) (jkp : stf --> uvg) (lmq : uvg --> xyh) (nor : xyh --> zwi), jkp · (lmq · nor) = (jkp · lmq) · nor .
+Proof.
+  intros stf uvg xyh zwi jkp lmq nor.
+  destruct stf as [st f]. destruct st as [s t].
+  destruct uvg as [uv g]. destruct uv as [u v].
+  destruct xyh as [xy h]. destruct xy as [x y].
+  destruct zwi as [zw i]. destruct zw as [z w].
+  destruct jkp as [jk p]. destruct jk as [j k].
+  destruct lmq as [lm q]. destruct lm as [l m].
+  destruct nor as [no r]. destruct no as [n o].
+  use total2_paths2_f.
+  - use total2_paths2.
+    + cbn. apply assoc.
+    + cbn. apply assoc.
+  - apply (pr2 C).
+Defined.
+
+Definition is_precategory_comma_cat_data : is_precategory comma_cat_data :=
+  mk_is_precategory comma_cat_data_H1 comma_cat_data_H2 comma_cat_data_H3.
+
+Definition comma_category : precategory := mk_precategory comma_cat_data is_precategory_comma_cat_data.
+
 End comma_categories.
