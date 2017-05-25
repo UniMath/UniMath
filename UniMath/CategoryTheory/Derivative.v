@@ -29,13 +29,6 @@ Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.CategoryTheory.LModules.
 
-Local Lemma leib {A B : UU} {x y : A} (f : A -> B) : x = y -> f x = f y.
-Proof.
-  intro e.
-  rewrite e.
-  reflexivity.
-Qed.
-
 Local Open Scope cat.
 
 Section comp_def.
@@ -81,17 +74,19 @@ Local Lemma monad_comp_law1 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : 
   rewrite <- (nat_trans_ax (η T) (S (T (S x)))).
   simpl.
   rewrite !assoc.
-  change ((η S) (T (S x)) · a (S x) · (η T) (T (S (S x))) · (μ T) (S (S x)) · # T ((μ S) x) = identity (T (S x))).
-  rewrite (monad_dist_law1).
+  change ((η S) (T (S x)) · a (S x) · (η T) (T (S (S x))) · (μ T) (S (S x)) · # T ((μ S) x)
+          = identity (T (S x))).
+  rewrite (monad_dist_law1 l).
   rewrite <- (assoc (# T ((η S) (S x)))).
-  change (# T ((η S) (S x)) · ((η T) (T (S (S x))) · (μ T) (S (S x))) · # T ((μ S) x) = identity (T (S x))).
+  change (# T ((η S) (S x)) · ((η T) (T (S (S x))) · (μ T) (S (S x))) · # T ((μ S) x)
+          = identity (T (S x))).
   rewrite Monad_law1.
   rewrite id_right.
   rewrite <- functor_comp.
   rewrite <- functor_id.
   change (# T ((η S) (S x) · (μ S) x) = # T (identity (S x))).
   rewrite Monad_law1.
-  reflexivity.
+  apply idpath.
 Qed.
 
 Local Lemma monad_comp_law2 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : ∏ x : C,
@@ -102,7 +97,8 @@ Local Lemma monad_comp_law2 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : 
   rewrite <- functor_comp.
   rewrite (functor_comp S).
   rewrite <- !assoc.
-  change (# T (# S ((η S) x) · (# S ((η T) (S x)) · a (S x))) · ((μ T) (S (S x)) · # T ((μ S) x)) = identity (T (S x))).
+  change (# T (# S ((η S) x) · (# S ((η T) (S x)) · a (S x))) · ((μ T) (S (S x)) · # T ((μ S) x))
+          = identity (T (S x))).
   rewrite (monad_dist_law2 l).
   rewrite functor_comp.
   rewrite <- assoc.
@@ -111,8 +107,9 @@ Local Lemma monad_comp_law2 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : 
   rewrite id_left.
   rewrite <- functor_comp.
   rewrite <- functor_id.
-  apply (leib (fun arg => (#T arg))).
-  exact (@Monad_law2 C S x).
+  change (# T (# S ((η S) x) · (μ S) x) = # T (identity (S x))).
+  rewrite (@Monad_law2 C S x).
+  apply idpath.
 Qed.
 
 Local Lemma monad_comp_law3 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : ∏ x : C,
@@ -134,15 +131,13 @@ Proof.
   rewrite <- (assoc (a (T (S x)))).
   rewrite (assoc _ (a (T (S x)))).
   simpl.
-  transitivity (# T
-    (# S (# T (a (S x))) · ((a (T (S (S x)))) · # T (# S (# T ((μ S) x))) ·
-                            (# T (a (S x)) · (μ T) (S (S x))))) ·
-  (# T (# T ((μ S) x)) · (μ T) (S x))).
-  apply (leib (fun arg => # T
-    (# S (# T (a (S x))) · (arg ·
-                            (# T (a (S x)) · (μ T) (S (S x))))) ·
-  (# T (# T ((μ S) x)) · (μ T) (S x)))).
-  exact (nat_trans_ax a _ _ (#T ((μ S) x))).
+  change(
+      # T (# S (# T (a (S x))) · (# (T ∙ S) (# T ((μ S) x)) ·
+                                    a (T (S x)) · (# T (a (S x)) · (μ T) (S (S x))))) ·
+        (# T (# T ((μ S) x)) · (μ T) (S x)) =
+      # T (a (S (T (S x)))) · ((μ T) (S (S (T (S x)))) · # T ((μ S) (T (S x)))) ·
+                                             (# T (a (S x)) · (# T (# T ((μ S) x)) · (μ T) (S x)))).
+  rewrite nat_trans_ax.
   rewrite <- assoc.
   rewrite (assoc _ (# T (a (S x)))).
   change (# T (# S (# T (a (S x))) · (a (T (S (S x))) · (# T (# S (# T ((μ S) x))) ·
@@ -151,13 +146,13 @@ Proof.
           # T (a (S (T (S x)))) · ((μ T) (S (S (T (S x)))) · # T ((μ S) (T (S x)))) ·
             (# T (a (S x)) · (# T (# T ((μ S) x)) · (μ T) (S x)))).
   rewrite <- (functor_comp T).
-  transitivity (# T (# S (# T (a (S x))) · (a (T (S (S x))) ·
-                                        (# T (a (S (S x)) · # T (# S ((μ S) x))) · (μ T) (S (S x)))))
-                  · (# T (# T ((μ S) x)) · (μ T) (S x))).
-  apply (leib (fun arg => (# T (# S
-                                 (# T (a (S x))) · (a (T (S (S x))) · (# T (arg) · (μ T) (S (S x)))))
-                             · (# T (# T ((μ S) x)) · (μ T) (S x))))).
-  exact (nat_trans_ax a _ _ _).
+  change (# T (# S (# T (a (S x))) · (a (T (S (S x))) · (# T (# (T ∙ S) ((μ S) x) ·
+                                                 a (S x)) ·
+                                               (μ T) (S (S x))))) ·
+  (# T (# T ((μ S) x)) · (μ T) (S x)) =
+  # T (a (S (T (S x)))) · ((μ T) (S (S (T (S x)))) · # T ((μ S) (T (S x)))) ·
+  (# T (a (S x)) · (# T (# T ((μ S) x)) · (μ T) (S x)))).
+  rewrite nat_trans_ax.
   rewrite <- assoc.
   rewrite <- (assoc _ (# T ((μ S) (T (S x))))).
   rewrite (assoc (# T ((μ S) (T (S x))))).
@@ -168,18 +163,18 @@ Proof.
   rewrite !functor_comp.
   rewrite !assoc.
   rewrite <- functor_comp.
-  transitivity (# T (a (S (T (S x))) · # T (# S (a (S x)))) · # T (# T (a (S (S x)))) ·
-                  # T (# T (# T (# S ((μ S) x)))) · # T ((μ T) (S (S x))) ·
-                  # T (# T ((μ S) x)) · (μ T) (S x)).
-  apply (leib (fun arg => (# T arg · # T (# T (a (S (S x)))) ·
-                  # T (# T (# T (# S ((μ S) x)))) · # T ((μ T) (S (S x))) ·
-                  # T (# T ((μ S) x)) · (μ T) (S x)))).
-  exact (nat_trans_ax a _ _ _).
+  change (# T (# (T ∙ S) (a (S x)) · a (T (S (S x)))) · # T (# T (a ((S ∙ S) x))) ·
+             # T (# T (# (S ∙ T) ((μ S) x))) · # T ((μ T) (S (S x))) ·
+             # T (# T ((μ S) x)) · (μ T) (S x) =
+           # T (a (S (T (S x)))) · # (T ∙ T) (# S (a (S x))) ·
+             # (T ∙ T) (a (S (S x))) · # (T ∙ T) (# T ((μ S) (S x))) ·
+             (μ T) ((S ∙ T) (S x)) · # T (# T ((μ S) x)) · (μ T) (S x)).
+  rewrite nat_trans_ax.
   rewrite <- assoc.
   rewrite <- assoc.
   rewrite (assoc (# T ((μ T) (S (S x))))).
   rewrite <- !(functor_comp T ((μ T) (S (S x)))).
-  rewrite <- nat_trans_ax.
+  rewrite <- (nat_trans_ax (μ T)).
   rewrite !functor_comp.
   rewrite !assoc.
   simpl.
@@ -194,21 +189,21 @@ Proof.
   rewrite <- (assoc _ ((μ T) (T (S (S x))))).
   rewrite <- nat_trans_ax.
   rewrite !assoc.
-  reflexivity.
+  apply idpath.
 Qed.
 
 Lemma monad_comp_laws {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : Monad_laws (monad_comp_data a).
   apply tpair.
   apply tpair.
-  exact (monad_comp_law1 l).
-  exact (monad_comp_law2 l).
-  exact (monad_comp_law3 l).
+  apply (monad_comp_law1 l).
+  apply (monad_comp_law2 l).
+  apply (monad_comp_law3 l).
 Qed.
 
 Definition monad_comp {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : Monad C :=
   (_,, monad_comp_laws l).
 
-(* morphism from first composand to of composition of monads *)
+(* morphism from first composand to composition of monads *)
 Definition monad_to_comp_trans {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
   T ⟹ monad_comp l := post_whisker (η S) T.
 
@@ -223,11 +218,10 @@ Proof.
   rewrite (assoc (# T (# S (# T ((η S) x))))).
   rewrite <- functor_comp.
   apply pathsinv0.
-  transitivity (# T ((η S) (T x)) · (# T (a x · # T (# S ((η S) x))) ·
-                       ((μ T) (S (S x)) · # T ((μ S) x)))).
-  apply (leib (fun arg => (# T ((η S) (T x)) · (# T arg ·
-                       ((μ T) (S (S x)) · # T ((μ S) x)))))).
-  exact (nat_trans_ax a _ _ _).
+  change (# T ((η S) (T x)) · (# T (# (T ∙ S) ((η S) x) · a (S x)) ·
+                                 ((μ T) (S (S x)) · # T ((μ S) x))) =
+          (μ T) x · # T ((η S) x)).
+  rewrite nat_trans_ax.
   rewrite functor_comp.
   rewrite !assoc.
   rewrite <- functor_comp.
@@ -243,7 +237,7 @@ Proof.
   rewrite !functor_id.
   rewrite id_left.
   rewrite <- (nat_trans_ax (μ T) x).
-  reflexivity.
+  apply idpath.
 Qed.
 
 Local Lemma monad_to_comp_law2 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
@@ -251,15 +245,15 @@ Local Lemma monad_to_comp_law2 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a)
         η T x · #T (η S x) = η S x · (η T (S x)).
   intro x.
   rewrite <- nat_trans_ax.
-  reflexivity.
+  apply idpath.
 Qed.
 
 Lemma monad_to_comp_laws {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
   Monad_Mor_laws (monad_to_comp_trans l).
 Proof.
   apply tpair.
-  exact (monad_to_comp_law1 l).
-  exact (monad_to_comp_law2 l).
+  apply (monad_to_comp_law1 l).
+  apply (monad_to_comp_law2 l).
 Qed.
 
 Definition monad_to_comp {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
@@ -292,7 +286,7 @@ BinCoproductArrow C _ (identity (co c o)) (BinCoproductIn2 C (co c o)) =
 identity (co c o).
   intro c.
   rewrite BinCoproductIn1Commutes.
-  reflexivity.
+  apply idpath.
 Qed.
 
 Local Lemma maybe_monad_law2 : ∏ c : C,
@@ -305,7 +299,7 @@ identity (co c o).
   rewrite id_left.
   rewrite <- (id_right (BinCoproductIn2 C (co c o))).
   rewrite <- BinCoproductArrowEta.
-  reflexivity.
+  apply idpath.
 Qed.
 
 Local Lemma maybe_monad_law3 : ∏ c : C,
@@ -325,7 +319,7 @@ Proof.
   rewrite id_left.
   rewrite id_left.
   rewrite BinCoproductIn2Commutes.
-  reflexivity.
+  apply idpath.
 Qed.
 
 Lemma maybe_monad_laws : Monad_laws maybe_monad_data.
@@ -333,9 +327,9 @@ Lemma maybe_monad_laws : Monad_laws maybe_monad_data.
   unfold Monad_laws.
   apply tpair.
   apply tpair.
-  exact maybe_monad_law1.
-  exact maybe_monad_law2.
-  exact maybe_monad_law3.
+  apply maybe_monad_law1.
+  apply maybe_monad_law2.
+  apply maybe_monad_law3.
 Qed.
 
 Definition maybe_monad : Monad C := (maybe_monad_data,, maybe_monad_laws).
@@ -361,16 +355,7 @@ Local Lemma deriv_dist_law1 (T : Monad C) : ∏ x : C,
 Proof.
   intro x.
   rewrite BinCoproductIn1Commutes.
-  reflexivity.
-Qed.
-
-(* a hack to get around Coq refusing to "rewrite" *)
-Local Lemma id_functor_nat_trans_ax {D : precategory} {F : functor D D} (a : functor_identity D ⟹ F):
-  ∏ (x x' : D)(f : x --> x'),
-    f · a x' = a x · #F f.
-Proof.
-  intros x x' f.
-  exact (nat_trans_ax a x x' f).
+  apply idpath.
 Qed.
 
 Local Lemma deriv_dist_law2 (T : Monad C) : ∏ x : C,
@@ -381,9 +366,11 @@ Proof.
   intro x.
   rewrite precompWithBinCoproductArrow.
   rewrite id_left.
-  rewrite <- (id_functor_nat_trans_ax (η T) x).
+  change (BinCoproductArrow C (co x o) ((η T) x · # T (BinCoproductIn1 C (co x o)))
+    (BinCoproductIn2 C (co x o) · (η T) (co x o)) = (η T) (co x o)).
+  rewrite <- nat_trans_ax.
   rewrite <- BinCoproductArrowEta.
-  reflexivity.
+  apply idpath.
 Qed.
 
 Local Lemma deriv_dist_law3 (T : Monad C) : ∏ x : C,
@@ -399,17 +386,18 @@ Proof.
   rewrite <- functor_comp.
   rewrite BinCoproductIn1Commutes.
   rewrite <- (assoc (BinCoproductIn2 C (co (T x) o))).
-  rewrite <- (id_functor_nat_trans_ax (η T) (co (T x) o)).
+  rewrite <- (nat_trans_ax (η T) (co (T x) o)).
   rewrite (assoc (BinCoproductIn2 C (co (T x) o))).
   rewrite <- (assoc _ ((η T) (T (co x o)))).
   rewrite Monad_law1.
+  simpl.
   rewrite BinCoproductIn2Commutes.
   rewrite precompWithBinCoproductArrow.
   rewrite id_left.
   rewrite id_right.
   rewrite <- (nat_trans_ax (μ T) x).
   simpl.
-  reflexivity.
+  apply idpath.
 Qed.
 
 Local Lemma deriv_dist_law4 (T : Monad C) : ∏ x : C,
@@ -439,7 +427,7 @@ Proof.
   rewrite postcompWithBinCoproductArrow.
   rewrite id_left.
   rewrite BinCoproductIn2Commutes.
-  reflexivity.
+  apply idpath.
 Qed.
 
 Lemma deriv_dist_is_monad_dist (T : Monad C) : monad_dist_laws (deriv_dist T).
@@ -447,10 +435,10 @@ Lemma deriv_dist_is_monad_dist (T : Monad C) : monad_dist_laws (deriv_dist T).
   apply tpair.
   apply tpair.
   apply tpair.
-  exact (deriv_dist_law1 T).
-  exact (deriv_dist_law2 T).
-  exact (deriv_dist_law3 T).
-  exact (deriv_dist_law4 T).
+  apply (deriv_dist_law1 T).
+  apply (deriv_dist_law2 T).
+  apply (deriv_dist_law3 T).
+  apply (deriv_dist_law4 T).
 Qed.
 
 Definition monad_deriv (T: Monad C) : Monad C := monad_comp (deriv_dist_is_monad_dist T).
@@ -467,7 +455,7 @@ Lemma LModule_comp_law1 {D : precategory} {T : Monad C} {S : Monad C}
   rewrite assoc.
   rewrite <- functor_comp.
   rewrite (monad_dist_law2 l).
-  exact (LModule_law1 T (S x)).
+  apply (LModule_law1 T (S x)).
 Qed.
 
 Lemma LModule_comp_law2 {D : precategory} {T : Monad C} {S : Monad C}
@@ -484,12 +472,12 @@ Proof.
   rewrite (LModule_law2 T (S x)).
   rewrite assoc.
   rewrite <- (assoc _ (#L (#T (a x)))).
-  transitivity (# L (a (T x)) · ((lm_mult T L) (S (T x)) · # L (a x)) ·
-                  (lm_mult T L) (S x)).
-  apply (leib (fun arg => # L (a (T x)) · arg · (lm_mult T L) (S x))).
-  exact (nat_trans_ax (lm_mult T L) _ _ _).
+  change(# L (a (T x)) · (# (T ∙ L) (a x) · (lm_mult T L) (T (S x))) ·
+           (lm_mult T L) (S x) =
+         # L (a (T x)) · (lm_mult T L) (S (T x)) · (# L (a x) · (lm_mult T L) (S x))).
+  rewrite (nat_trans_ax (lm_mult T L) _ _ _).
   rewrite !assoc.
-  reflexivity.
+  apply idpath.
 Qed.
 
 Definition LModule_comp_data {D : precategory} {T : Monad C} {S : Monad C} (a : T ∙ S ⟹ S ∙ T)
@@ -501,8 +489,8 @@ Lemma LModule_comp_laws {D : precategory} {T : Monad C} {S : Monad C}
       (LModule_laws T (LModule_comp_data a L)).
 Proof.
   apply tpair.
-  exact (LModule_comp_law1 l L).
-  exact (LModule_comp_law2 l L).
+  apply (LModule_comp_law1 l L).
+  apply (LModule_comp_law2 l L).
 Qed.
 
 Definition LModule_deriv {D : precategory} {T : Monad C} (L : LModule T D) : LModule T D :=
