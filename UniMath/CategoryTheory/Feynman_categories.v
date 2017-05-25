@@ -1161,6 +1161,9 @@ Defined.
 Definition sub_category_of_isos (C : precategory) : sub_precategories C :=
   tpair _ (dirprodpair (hsubtype_ob_isos C) (hsubtype_mor_isos C)) (is_sub_category_isos C).
 
+Local Close Scope type_scope.
+Local Open Scope cat.
+
 Definition sub_category_of_isos_to_groupoid (C : precategory) : groupoid.
 Proof.
   use tpair.
@@ -1170,4 +1173,44 @@ Proof.
     assert (fiso : is_iso f). apply p.
     unfold is_iso. intro e.
     use gradth.
-    intro g.
+    + intro g. exists (inv_from_iso (isopair f fiso) · pr1 g).
+      assert (giso : is_iso (pr1 g)). apply (pr2 g).
+      apply (is_iso_comp_of_is_isos (inv_from_iso (isopair f fiso)) (pr1 g) (is_iso_inv_from_iso (isopair f fiso)) giso).
+    + simpl. intro g.
+      destruct g as [g q].
+      use total2_paths2_f.
+      * simpl. rewrite assoc.
+        rewrite iso_after_iso_inv.
+        rewrite id_left.
+        apply idpath.
+      * apply propproperty.
+    + intro g. simpl.
+      destruct g as [g q].
+      use total2_paths2_f.
+      * cbn. rewrite assoc.
+        apply remove_id_left.
+        apply (iso_inv_after_iso (isopair f fiso)).
+        apply idpath.
+      * apply propproperty.
+Defined.
+
+
+(** * The general comma categories *)
+
+Section comma_categories.
+
+Variables C D E : precategory.
+Variable S : D ⟶ C.
+Variable T : E ⟶ C.
+
+Local Open Scope type_scope.
+Local Open Scope cat.
+
+Definition comma_cat_ob : UU := ∑ ed : ob E × ob D, C⟦T (pr1 ed), S (pr2 ed)⟧.
+
+Definition comma_cat_mor : comma_cat_ob -> comma_cat_ob -> UU :=
+  λ abf : comma_cat_ob,
+    (λ cdg : comma_cat_ob,
+      ∑ kh : E⟦pr1 (pr1 abf), pr1 (pr1 cdg)⟧ × D⟦pr2 (pr1 abf), pr2 (pr1 cdg)⟧, pr2 (abf) · #S(pr2 kh) = #T(pr1 kh) · pr2 (cdg)).
+
+End comma_categories.
