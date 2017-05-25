@@ -1199,7 +1199,10 @@ Defined.
 
 Section comma_categories.
 
-Variables C D E : precategory.
+(* We require that the target category C below has homsets *)
+
+Variable C : Precategory.
+Variables D E : precategory.
 Variable S : D ⟶ C.
 Variable T : E ⟶ C.
 
@@ -1211,6 +1214,50 @@ Definition comma_cat_ob : UU := ∑ ed : ob E × ob D, C⟦T (pr1 ed), S (pr2 ed
 Definition comma_cat_mor : comma_cat_ob -> comma_cat_ob -> UU :=
   λ abf : comma_cat_ob,
     (λ cdg : comma_cat_ob,
-      ∑ kh : E⟦pr1 (pr1 abf), pr1 (pr1 cdg)⟧ × D⟦pr2 (pr1 abf), pr2 (pr1 cdg)⟧, pr2 (abf) · #S(pr2 kh) = #T(pr1 kh) · pr2 (cdg)).
+             ∑ kh : E⟦pr1 (pr1 abf), pr1 (pr1 cdg)⟧ × D⟦pr2 (pr1 abf), pr2 (pr1 cdg)⟧, pr2 (abf) · #S(pr2 kh) = #T(pr1 kh) · pr2 (cdg)).
+
+Definition comma_cat_ob_mor : precategory_ob_mor := precategory_ob_mor_pair comma_cat_ob comma_cat_mor.
+
+Definition comma_cat_id_comp : precategory_id_comp comma_cat_ob_mor.
+Proof.
+  use dirprodpair.
+  - intro edf. cbn. destruct edf as [ed f]. destruct ed as [e d].
+    exists (dirprodpair (identity e) (identity d)). cbn.
+    rewrite 2 functor_id.
+    rewrite id_right.
+    rewrite id_left.
+    apply idpath.
+  - cbn. intros uvf xyg zwh ijp klq. destruct ijp as [ij p]. destruct klq as [kl q]. destruct ij as [i j]. destruct kl as [k l].
+    exists (dirprodpair (i · k) (j · l)). cbn.
+    rewrite 2 functor_comp. destruct uvf as [uv f]. cbn.
+    rewrite assoc. cbn in p.
+    rewrite p. destruct xyg as [xy g]. cbn. cbn in q.
+    rewrite <- assoc.
+    rewrite q.
+    rewrite assoc.
+    apply idpath.
+Defined.
+
+Definition comma_cat_data : precategory_data := tpair _ comma_cat_ob_mor comma_cat_id_comp.
+
+Definition comma_cat_data_H1 :  ∏ (abf cdg : comma_cat_data) (hkp : abf --> cdg), identity abf · hkp = hkp .
+Proof.
+  intros abf cdg hkp. destruct hkp as [hk p]. destruct hk as [h k]. destruct abf as [ab f]. destruct ab as [a b].
+  use total2_paths2_f.
+  - use total2_paths2.
+    + cbn. apply id_left.
+    + cbn. apply id_left.
+  - cbn. apply (pr2 C).
+Defined.
+
+Definition comma_cat_data_H2 :  ∏ (abf cdg : comma_cat_data) (hkp : abf --> cdg), hkp · identity cdg = hkp .
+Proof.
+  intros abf cdg hkp. destruct hkp as [hk p]. destruct hk as [h k]. destruct abf as [ab f]. destruct ab as [a b].
+  use total2_paths2_f.
+  - use total2_paths2.
+    + cbn. apply id_right.
+    + cbn. apply id_right.
+  - cbn. apply (pr2 C).
+Defined.
 
 End comma_categories.
