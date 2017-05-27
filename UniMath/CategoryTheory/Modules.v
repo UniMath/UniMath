@@ -7,7 +7,7 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.Algebra.Domains_and_Fields.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.Foundations.PartD.
 
 
@@ -72,7 +72,17 @@ Definition setwith2binopofendabgr (G : abgr) : setwith2binop :=
 
 Local Open Scope abgr_scope.
 
-Definition isassoc_rngofendabgr_op1 {G : abgr} : isassoc (@op1 (setwith2binopofendabgr G)).
+(*Definition isassoc_rngofendabgr_op1 {G : abgr} : isassoc (@op1 (setwith2binopofendabgr G)).
+Proof.
+   intros f g h.
+   use total2_paths_f.
+   - apply funextfun.
+     intro.
+     apply (pr2 G).
+   - apply isapropismonoidfun.
+Defined.*)
+
+Definition isassoc_rngofendabgr_op1 {G : abgr} : isassoc (@rngofendabgr_op1 G).
 Proof.
    intros f g h.
    use total2_paths_f.
@@ -82,7 +92,17 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition setofendabgr_un0 {G: abgr} : setofendabgr G.
+(*Definition setofendabgr_un0 {G: abgr} : setofendabgr G.
+Proof.
+   apply (@monoidfunconstr _ _ (λ x : G, 0)).
+   apply dirprodpair.
+     - intros x x'.
+       rewrite (lunax G).
+       reflexivity.
+     - reflexivity.
+Defined.*)
+
+Definition setofendabgr_un0 {G: abgr} : monoidfun G G.
 Proof.
    apply (@monoidfunconstr _ _ (λ x : G, 0)).
    apply dirprodpair.
@@ -92,7 +112,16 @@ Proof.
      - reflexivity.
 Defined.
 
-Definition islunit_setofendabgr_un0 {G : abgr} : islunit (@op1 (setwith2binopofendabgr G)) setofendabgr_un0.
+(*Definition islunit_setofendabgr_un0 {G : abgr} : islunit (@op1 (setwith2binopofendabgr G)) setofendabgr_un0.
+Proof.
+   intro f.
+   use total2_paths_f.
+   - apply funextfun. intro x.
+     apply (lunax G (pr1setofendabgr f x)).
+   - apply isapropismonoidfun.
+Defined.*)
+
+Definition islunit_setofendabgr_un0 {G : abgr} : islunit (@rngofendabgr_op1 G) setofendabgr_un0.
 Proof.
    intro f.
    use total2_paths_f.
@@ -101,7 +130,16 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isrunit_setofendabgr_un0 {G : abgr} : isrunit (@op1 (setwith2binopofendabgr G)) setofendabgr_un0.
+(*Definition isrunit_setofendabgr_un0 {G : abgr} : isrunit (@op1 (setwith2binopofendabgr G)) setofendabgr_un0.
+Proof.
+   intros f.
+   use total2_paths_f.
+   - apply funextfun. intro x.
+     apply (runax G (pr1setofendabgr f x)).
+   - apply isapropismonoidfun.
+Defined.*)
+
+Definition isrunit_setofendabgr_un0 {G : abgr} : isrunit (@rngofendabgr_op1 G) setofendabgr_un0.
 Proof.
    intros f.
    use total2_paths_f.
@@ -110,18 +148,27 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isunit_setofendabgr_un0 {G : abgr} : isunit (@op1 (setwith2binopofendabgr G)) setofendabgr_un0.
+(*Definition isunit_setofendabgr_un0 {G : abgr} : isunit (@op1 (setwith2binopofendabgr G)) setofendabgr_un0.
 Proof.
    exact (dirprodpair islunit_setofendabgr_un0 isrunit_setofendabgr_un0).
-Defined.
+Defined.*)
 
-Definition isunital_rngofendabgr_op1 {G : abgr} : isunital (@op1 (setwith2binopofendabgr G)).
+Definition isunit_setofendabgr_un0 {G : abgr} : isunit (@rngofendabgr_op1 G) setofendabgr_un0 :=
+  isunitpair islunit_setofendabgr_un0 isrunit_setofendabgr_un0.
+
+(*Definition isunital_rngofendabgr_op1 {G : abgr} : isunital (@op1 (setwith2binopofendabgr G)).
 Proof.
    exact (isunitalpair setofendabgr_un0 isunit_setofendabgr_un0).
-Defined.
+Defined.*)
 
-Definition ismonoidop_rngofendabgr_op1 {G : abgr} : ismonoidop (@op1 (setwith2binopofendabgr G)) :=
-   dirprodpair isassoc_rngofendabgr_op1 isunital_rngofendabgr_op1.
+Definition isunital_rngofendabgr_op1 {G : abgr} : isunital (@rngofendabgr_op1 G) :=
+  isunitalpair setofendabgr_un0 isunit_setofendabgr_un0.
+
+(*Definition ismonoidop_rngofendabgr_op1 {G : abgr} : ismonoidop (@op1 (setwith2binopofendabgr G)) :=
+   dirprodpair isassoc_rngofendabgr_op1 isunital_rngofendabgr_op1.*)
+
+Definition ismonoidop_rngofendabgr_op1 {G : abgr} : ismonoidop (@rngofendabgr_op1 G) :=
+   mk_ismonoidop isassoc_rngofendabgr_op1 isunital_rngofendabgr_op1.
 
 Local Close Scope abgr_scope.
 
@@ -139,7 +186,19 @@ Proof.
    - apply (grinvunel G).
 Defined.
 
-Definition setofendabgr_inv {G : abgr} : setofendabgr G -> setofendabgr G.
+(*Definition setofendabgr_inv {G : abgr} : setofendabgr G -> setofendabgr G.
+Proof.
+   intro f.
+   apply (@monoidfunconstr G G (λ x : G, grinv G (pr1setofendabgr f x))).
+   apply dirprodpair.
+   - intros x x'.
+     rewrite (setofendabgr_to_isbinopfun f).
+     apply (dirprod_pr1 ismonoidfun_abgrinv).
+   - rewrite (setofendabgr_to_unel f).
+     apply (grinvunel G).
+Defined.*)
+
+Definition setofendabgr_inv {G : abgr} : monoidfun G G -> monoidfun G G.
 Proof.
    intro f.
    apply (@monoidfunconstr G G (λ x : G, grinv G (pr1setofendabgr f x))).
@@ -153,16 +212,34 @@ Defined.
 
 Local Open Scope abgr_scope.
 
-Definition islinv_setofendabgr_inv {G : abgr} : islinv (@op1 (setwith2binopofendabgr G)) setofendabgr_un0 setofendabgr_inv.
+(*Definition islinv_setofendabgr_inv {G : abgr} : islinv (@op1 (setwith2binopofendabgr G)) setofendabgr_un0 setofendabgr_inv.
 Proof.
    intro f.
    use total2_paths_f.
    - apply funextfun. intro x.
      apply (grlinvax G).
    - apply isapropismonoidfun.
- Defined.
+ Defined.*)
 
-Definition isrinv_setofendabgr_inv {G : abgr} : isrinv (@op1 (setwith2binopofendabgr G)) setofendabgr_un0 setofendabgr_inv.
+Definition islinv_setofendabgr_inv {G : abgr} : islinv (@rngofendabgr_op1 G) setofendabgr_un0 setofendabgr_inv.
+Proof.
+   intro f.
+   use total2_paths_f.
+   - apply funextfun. intro x.
+     apply (grlinvax G).
+   - apply isapropismonoidfun.
+Defined.
+
+(*Definition isrinv_setofendabgr_inv {G : abgr} : isrinv (@op1 (setwith2binopofendabgr G)) setofendabgr_un0 setofendabgr_inv.
+Proof.
+   intro f.
+   use total2_paths_f.
+   - apply funextfun. intro x.
+     apply (grrinvax G).
+   - apply isapropismonoidfun.
+Defined.*)
+
+Definition isrinv_setofendabgr_inv {G : abgr} : isrinv (@rngofendabgr_op1 G) setofendabgr_un0 setofendabgr_inv.
 Proof.
    intro f.
    use total2_paths_f.
@@ -171,21 +248,39 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isinv_setofendabgr_inv {G : abgr} : isinv (@op1 (setwith2binopofendabgr G)) setofendabgr_un0 setofendabgr_inv.
+(* Definition isinv_setofendabgr_inv {G : abgr} : isinv (@op1 (setwith2binopofendabgr G)) setofendabgr_un0 setofendabgr_inv.
 Proof.
    apply dirprodpair.
    - exact islinv_setofendabgr_inv.
    - exact isrinv_setofendabgr_inv.
-Defined.
+Defined.*)
 
-Definition invstruct_setofendabgr_inv {G : abgr} : invstruct (@op1 (setwith2binopofendabgr G)) ismonoidop_rngofendabgr_op1 :=
+Definition isinv_setofendabgr_inv {G : abgr} : isinv (@rngofendabgr_op1 G) (unel_is (@ismonoidop_rngofendabgr_op1 G)) setofendabgr_inv :=
+  mk_isinv islinv_setofendabgr_inv isrinv_setofendabgr_inv.
+
+(*Definition invstruct_setofendabgr_inv {G : abgr} : invstruct (@op1 (setwith2binopofendabgr G)) ismonoidop_rngofendabgr_op1 :=
    tpair (λ inv0 : (setofendabgr G) -> (setofendabgr G), isinv (@op1 (setwith2binopofendabgr G)) setofendabgr_un0 inv0)
-         setofendabgr_inv isinv_setofendabgr_inv.
+         setofendabgr_inv isinv_setofendabgr_inv.*)
 
-Definition isgrop_rngofendabgr_op1 {G : abgr} : isgrop (@op1 (setwith2binopofendabgr G)) :=
-   tpair (λ is : ismonoidop (@op1 (setwith2binopofendabgr G)), invstruct (@op1 (setwith2binopofendabgr G)) is) ismonoidop_rngofendabgr_op1 invstruct_setofendabgr_inv.
+Definition invstruct_setofendabgr_inv {G : abgr} : invstruct (@rngofendabgr_op1 G) ismonoidop_rngofendabgr_op1 :=
+   mk_invstruct (@setofendabgr_inv G) (@isinv_setofendabgr_inv G).
 
-Definition iscomm_rngofendabgr_op1 {G : abgr} : iscomm (@op1 (setwith2binopofendabgr G)).
+(*Definition isgrop_rngofendabgr_op1 {G : abgr} : isgrop (@op1 (setwith2binopofendabgr G)) :=
+   tpair (λ is : ismonoidop (@op1 (setwith2binopofendabgr G)), invstruct (@op1 (setwith2binopofendabgr G)) is) ismonoidop_rngofendabgr_op1 invstruct_setofendabgr_inv.*)
+
+Definition isgrop_rngofendabgr_op1 {G : abgr} : isgrop (@rngofendabgr_op1 G) :=
+   isgroppair ismonoidop_rngofendabgr_op1 invstruct_setofendabgr_inv.
+
+(*Definition iscomm_rngofendabgr_op1 {G : abgr} : iscomm (@op1 (setwith2binopofendabgr G)).
+Proof.
+   intros f g.
+   use total2_paths_f.
+   - apply funextfun. intro x.
+     apply (commax G).
+   - apply (isapropismonoidfun).
+Defined.*)
+
+Definition iscomm_rngofendabgr_op1 {G : abgr} : iscomm (@rngofendabgr_op1 G).
 Proof.
    intros f g.
    use total2_paths_f.
@@ -194,12 +289,23 @@ Proof.
    - apply (isapropismonoidfun).
 Defined.
 
-Definition isabgrop_rngofendabgr_op1 {G : abgr} : isabgrop (@op1 (setwith2binopofendabgr G)) :=
-  dirprodpair isgrop_rngofendabgr_op1 iscomm_rngofendabgr_op1.
+(*Definition isabgrop_rngofendabgr_op1 {G : abgr} : isabgrop (@op1 (setwith2binopofendabgr G)) :=
+  dirprodpair isgrop_rngofendabgr_op1 iscomm_rngofendabgr_op1.*)
+
+Definition isabgrop_rngofendabgr_op1 {G : abgr} : isabgrop (@rngofendabgr_op1 G) :=
+  mk_isabgrop isgrop_rngofendabgr_op1 iscomm_rngofendabgr_op1.
 
 (** rngofendabgr_op2 is a monoid operation *)
 
-Definition isassoc_rngofendabgr_op2 {G : abgr} : isassoc (@op2 (setwith2binopofendabgr G)).
+(*Definition isassoc_rngofendabgr_op2 {G : abgr} : isassoc (@op2 (setwith2binopofendabgr G)).
+Proof.
+  intros f g h.
+  use total2_paths_f.
+  - apply funcomp_assoc.
+  - apply isapropismonoidfun.
+Defined.*)
+
+Definition isassoc_rngofendabgr_op2 {G : abgr} : isassoc (@rngofendabgr_op2 G).
 Proof.
   intros f g h.
   use total2_paths_f.
@@ -207,7 +313,15 @@ Proof.
   - apply isapropismonoidfun.
 Defined.
 
-Definition setofendabgr_un1 {G: abgr} : setofendabgr G.
+(*Definition setofendabgr_un1 {G: abgr} : setofendabgr G.
+Proof.
+   apply (@monoidfunconstr _ _ (idfun G)).
+   apply dirprodpair.
+   - intros x x'. reflexivity.
+   - reflexivity.
+Defined.*)
+
+Definition setofendabgr_un1 {G: abgr} : monoidfun G G.
 Proof.
    apply (@monoidfunconstr _ _ (idfun G)).
    apply dirprodpair.
@@ -215,7 +329,15 @@ Proof.
    - reflexivity.
 Defined.
 
-Definition islunit_setofendabgr_un1 {G : abgr} : islunit (@op2 (setwith2binopofendabgr G)) setofendabgr_un1.
+(*Definition islunit_setofendabgr_un1 {G : abgr} : islunit (@op2 (setwith2binopofendabgr G)) setofendabgr_un1.
+Proof.
+   intro f.
+   use total2_paths_f.
+   - apply funextfun. intro x. reflexivity.
+   - apply isapropismonoidfun.
+Defined.*)
+
+Definition islunit_setofendabgr_un1 {G : abgr} : islunit (@rngofendabgr_op2 G) setofendabgr_un1.
 Proof.
    intro f.
    use total2_paths_f.
@@ -223,7 +345,15 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isrunit_setofendabgr_un1 {G : abgr} : isrunit (@op2 (setwith2binopofendabgr G)) setofendabgr_un1.
+(*Definition isrunit_setofendabgr_un1 {G : abgr} : isrunit (@op2 (setwith2binopofendabgr G)) setofendabgr_un1.
+Proof.
+   intros f.
+   use total2_paths_f.
+   - apply funextfun. intro x. reflexivity.
+   - apply isapropismonoidfun.
+Defined.*)
+
+Definition isrunit_setofendabgr_un1 {G : abgr} : isrunit (@rngofendabgr_op2 G) setofendabgr_un1.
 Proof.
    intros f.
    use total2_paths_f.
@@ -231,22 +361,39 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isunit_setofendabgr_un1 {G : abgr} : isunit (@op2 (setwith2binopofendabgr G)) setofendabgr_un1.
+(*Definition isunit_setofendabgr_un1 {G : abgr} : isunit (@op2 (setwith2binopofendabgr G)) setofendabgr_un1.
 Proof.
    exact (dirprodpair islunit_setofendabgr_un1 isrunit_setofendabgr_un1).
-Defined.
+Defined.*)
 
-Definition isunital_rngofendabgr_op2 {G : abgr} : isunital (@op2 (setwith2binopofendabgr G)).
+Definition isunit_setofendabgr_un1 {G : abgr} : isunit (@rngofendabgr_op2 G) setofendabgr_un1 :=
+  isunitpair islunit_setofendabgr_un1 isrunit_setofendabgr_un1.
+
+(*Definition isunital_rngofendabgr_op2 {G : abgr} : isunital (@op2 (setwith2binopofendabgr G)).
 Proof.
    exact (isunitalpair setofendabgr_un1 isunit_setofendabgr_un1).
-Defined.
+Defined.*)
 
-Definition ismonoidop_rngofendabgr_op2 {G : abgr} : ismonoidop (@op2 (setwith2binopofendabgr G)) :=
-   dirprodpair isassoc_rngofendabgr_op2 isunital_rngofendabgr_op2.
+Definition isunital_rngofendabgr_op2 {G : abgr} : isunital (@rngofendabgr_op2 G) :=
+  isunitalpair setofendabgr_un1 isunit_setofendabgr_un1.
+
+(* Definition ismonoidop_rngofendabgr_op2 {G : abgr} : ismonoidop (@op2 (setwith2binopofendabgr G)) :=
+   dirprodpair isassoc_rngofendabgr_op2 isunital_rngofendabgr_op2.*)
+
+Definition ismonoidop_rngofendabgr_op2 {G : abgr} : ismonoidop (@rngofendabgr_op2 G) :=
+   mk_ismonoidop isassoc_rngofendabgr_op2 isunital_rngofendabgr_op2.
 
 (** rngofendabgr_op2 is distributive over rngofendabgr_op1 *)
 
-Definition isldistr_setofendabgr_op {G : abgr} : isldistr (@op1 (setwith2binopofendabgr G)) op2.
+(*Definition isldistr_setofendabgr_op {G : abgr} : isldistr (@op1 (setwith2binopofendabgr G)) (op2).
+Proof.
+   intros f g h.
+   use total2_paths_f.
+   - apply funextfun. intro x. reflexivity.
+   - apply isapropismonoidfun.
+Defined.*)
+
+Definition isldistr_setofendabgr_op {G : abgr} : isldistr (@rngofendabgr_op1 G) (@rngofendabgr_op2 G).
 Proof.
    intros f g h.
    use total2_paths_f.
@@ -254,7 +401,16 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopofendabgr G)) op2.
+(*Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopofendabgr G)) op2.
+Proof.
+   intros f g h.
+   use total2_paths_f.
+   - apply funextfun. intro x.
+     apply (setofendabgr_to_isbinopfun h).
+   - apply isapropismonoidfun.
+Defined.*)
+
+Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@rngofendabgr_op1 G) (@rngofendabgr_op2 G).
 Proof.
    intros f g h.
    use total2_paths_f.
@@ -263,16 +419,26 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isdistr_setofendabgr_op {G : abgr} : isdistr (@op1 (setwith2binopofendabgr G)) op2 :=
+(*Definition isdistr_setofendabgr_op {G : abgr} : isdistr (@op1 (setwith2binopofendabgr G)) op2 :=
+   dirprodpair isldistr_setofendabgr_op isrdistr_setofendabgr_op.*)
+
+Definition isdistr_setofendabgr_op {G : abgr} : isdistr (@rngofendabgr_op1 G) (@rngofendabgr_op2 G) :=
    dirprodpair isldistr_setofendabgr_op isrdistr_setofendabgr_op.
 
-Definition isrngops_setofendabgr_op {G : abgr} : isrngops (@op1 (setwith2binopofendabgr G)) op2 :=
-   dirprodpair (dirprodpair isabgrop_rngofendabgr_op1 ismonoidop_rngofendabgr_op2) isdistr_setofendabgr_op.
+(*Definition isrngops_setofendabgr_op {G : abgr} : isrngops (@op1 (setwith2binopofendabgr G)) op2 :=
+   dirprodpair (dirprodpair isabgrop_rngofendabgr_op1 ismonoidop_rngofendabgr_op2) isdistr_setofendabgr_op.*)
+
+Definition isrngops_setofendabgr_op {G : abgr} : isrngops (@rngofendabgr_op1 G) (@rngofendabgr_op2 G) :=
+   mk_isrngops isabgrop_rngofendabgr_op1 ismonoidop_rngofendabgr_op2 isdistr_setofendabgr_op.
 
 (** The set of endomorphisms of an abelian group is a ring *)
 
+(*Definition rngofendabgr (G : abgr) : rng :=
+   rngpair  (@isrngops_setofendabgr_op G).*)
+
 Definition rngofendabgr (G : abgr) : rng :=
-   rngpair (@isrngops_setofendabgr_op G).
+   @rngpair (setwith2binopofendabgr G) (@isrngops_setofendabgr_op G).
+
 
 (** ** The definition of the small type of (left) R-modules over a ring R *)
 
@@ -389,12 +555,8 @@ Proof.
        reflexivity.
 Defined.
 
-Definition precategory_id_comp_module {R : rng} : precategory_id_comp (@precategory_ob_mor_module R).
-Proof.
-   apply dirprodpair.
-   - exact (modulefun_id).
-   - exact (modulefun_comp).
-Defined.
+Definition precategory_id_comp_module {R : rng} : precategory_id_comp (@precategory_ob_mor_module R) :=
+  dirprodpair modulefun_id modulefun_comp.
 
 Definition precategory_data_module {R : rng} : precategory_data :=
    tpair _ (@precategory_ob_mor_module R) (precategory_id_comp_module).
@@ -421,14 +583,14 @@ Proof.
 Defined.
 
 Definition precategory_module (R : rng) : precategory :=
-   tpair _ (@precategory_data_module R) (is_precategory_precategory_data_module).
+   mk_precategory (@precategory_data_module R) (is_precategory_precategory_data_module).
 
 End modules_precategory.
 
 
 (** **** The category of (left) R-modules and R-modules homomorphisms *)
 
-Section modules_category.
+Section univalent_category_module.
 
 Variable R : rng.
 Notation "R-mod" := (precategory_module R).
@@ -447,6 +609,8 @@ Proof.
      + exact (isasetaprop (isapropismodulefun (pr1 g))).
      + apply q.
 Defined.
+
+Definition category_module : category := category_pair R-mod has_homsets_precategory_module.
 
 Definition moduleiso (M N : R-mod) := total2 (λ w : pr1module M ≃ pr1module N, ismodulefun w).
 
@@ -470,8 +634,8 @@ Proof.
    use moduleisopair.
    - exact (idweq (pr1module M)).
    - use dirprodpair.
-     + intros x y. use idpath.
-     + intros r x. use idpath.
+     + intros x y. apply idpath.
+     + intros r x. apply idpath.
 Defined.
 
 Definition isbinopfuninvmap {M N : R-mod} (f : moduleiso M N) : isbinopfun (invmap f).
@@ -736,22 +900,13 @@ Proof.
    - apply weqproperty.
 Defined.
 
-Definition precategory_module_is_category : is_category (R-mod).
-Proof.
-   apply dirprodpair.
-   - exact (precategory_module_idtoiso_isweq).
-   - exact (has_homsets_precategory_module).
-Defined.
+Definition precategory_module_is_univalent : is_univalent (R-mod) :=
+  mk_is_univalent precategory_module_idtoiso_isweq has_homsets_precategory_module.
 
-Theorem category_module : category.
-Proof.
-   use tpair.
-   - exact R-mod.
-   - exact precategory_module_is_category.
-Defined.
+Definition univalent_category_module : univalent_category := mk_category R-mod precategory_module_is_univalent.
 
 
-End modules_category.
+End univalent_category_module.
 
 Variable R : rng.
 Local Notation "R-Mod" := (category_module R).
