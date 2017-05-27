@@ -51,7 +51,7 @@ Notation "f ∘ g" := (rngofendabgr_op2 f g) : abgr_scope.
 Definition setofendabgr (G : abgr) : hSet :=
    hSetpair (monoidfun G G) (isasetmonoidfun G G).
 
- (** A few access functions *)
+(** A few access functions *)
 
 Definition pr1setofendabgr {G : abgr} (f : setofendabgr G) : G -> G := pr1 f.
 
@@ -72,16 +72,6 @@ Definition setwith2binopofendabgr (G : abgr) : setwith2binop :=
 
 Local Open Scope abgr_scope.
 
-(*Definition isassoc_rngofendabgr_op1 {G : abgr} : isassoc (@op1 (setwith2binopofendabgr G)).
-Proof.
-   intros f g h.
-   use total2_paths_f.
-   - apply funextfun.
-     intro.
-     apply (pr2 G).
-   - apply isapropismonoidfun.
-Defined.*)
-
 Definition isassoc_rngofendabgr_op1 {G : abgr} : isassoc (@rngofendabgr_op1 G).
 Proof.
    intros f g h.
@@ -91,16 +81,6 @@ Proof.
      apply (pr2 G).
    - apply isapropismonoidfun.
 Defined.
-
-(*Definition setofendabgr_un0 {G: abgr} : setofendabgr G.
-Proof.
-   apply (@monoidfunconstr _ _ (λ x : G, 0)).
-   apply dirprodpair.
-     - intros x x'.
-       rewrite (lunax G).
-       reflexivity.
-     - reflexivity.
-Defined.*)
 
 Definition setofendabgr_un0 {G: abgr} : monoidfun G G.
 Proof.
@@ -112,15 +92,6 @@ Proof.
      - reflexivity.
 Defined.
 
-(*Definition islunit_setofendabgr_un0 {G : abgr} : islunit (@op1 (setwith2binopofendabgr G)) setofendabgr_un0.
-Proof.
-   intro f.
-   use total2_paths_f.
-   - apply funextfun. intro x.
-     apply (lunax G (pr1setofendabgr f x)).
-   - apply isapropismonoidfun.
-Defined.*)
-
 Definition islunit_setofendabgr_un0 {G : abgr} : islunit (@rngofendabgr_op1 G) setofendabgr_un0.
 Proof.
    intro f.
@@ -129,15 +100,6 @@ Proof.
      apply (lunax G (pr1setofendabgr f x)).
    - apply isapropismonoidfun.
 Defined.
-
-(*Definition isrunit_setofendabgr_un0 {G : abgr} : isrunit (@op1 (setwith2binopofendabgr G)) setofendabgr_un0.
-Proof.
-   intros f.
-   use total2_paths_f.
-   - apply funextfun. intro x.
-     apply (runax G (pr1setofendabgr f x)).
-   - apply isapropismonoidfun.
-Defined.*)
 
 Definition isrunit_setofendabgr_un0 {G : abgr} : isrunit (@rngofendabgr_op1 G) setofendabgr_un0.
 Proof.
@@ -148,24 +110,11 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-(*Definition isunit_setofendabgr_un0 {G : abgr} : isunit (@op1 (setwith2binopofendabgr G)) setofendabgr_un0.
-Proof.
-   exact (dirprodpair islunit_setofendabgr_un0 isrunit_setofendabgr_un0).
-Defined.*)
-
 Definition isunit_setofendabgr_un0 {G : abgr} : isunit (@rngofendabgr_op1 G) setofendabgr_un0 :=
   isunitpair islunit_setofendabgr_un0 isrunit_setofendabgr_un0.
 
-(*Definition isunital_rngofendabgr_op1 {G : abgr} : isunital (@op1 (setwith2binopofendabgr G)).
-Proof.
-   exact (isunitalpair setofendabgr_un0 isunit_setofendabgr_un0).
-Defined.*)
-
 Definition isunital_rngofendabgr_op1 {G : abgr} : isunital (@rngofendabgr_op1 G) :=
   isunitalpair setofendabgr_un0 isunit_setofendabgr_un0.
-
-(*Definition ismonoidop_rngofendabgr_op1 {G : abgr} : ismonoidop (@op1 (setwith2binopofendabgr G)) :=
-   dirprodpair isassoc_rngofendabgr_op1 isunital_rngofendabgr_op1.*)
 
 Definition ismonoidop_rngofendabgr_op1 {G : abgr} : ismonoidop (@rngofendabgr_op1 G) :=
    mk_ismonoidop isassoc_rngofendabgr_op1 isunital_rngofendabgr_op1.
@@ -186,18 +135,6 @@ Proof.
    - apply (grinvunel G).
 Defined.
 
-(*Definition setofendabgr_inv {G : abgr} : setofendabgr G -> setofendabgr G.
-Proof.
-   intro f.
-   apply (@monoidfunconstr G G (λ x : G, grinv G (pr1setofendabgr f x))).
-   apply dirprodpair.
-   - intros x x'.
-     rewrite (setofendabgr_to_isbinopfun f).
-     apply (dirprod_pr1 ismonoidfun_abgrinv).
-   - rewrite (setofendabgr_to_unel f).
-     apply (grinvunel G).
-Defined.*)
-
 Definition setofendabgr_inv {G : abgr} : monoidfun G G -> monoidfun G G.
 Proof.
    intro f.
@@ -212,15 +149,6 @@ Defined.
 
 Local Open Scope abgr_scope.
 
-(*Definition islinv_setofendabgr_inv {G : abgr} : islinv (@op1 (setwith2binopofendabgr G)) setofendabgr_un0 setofendabgr_inv.
-Proof.
-   intro f.
-   use total2_paths_f.
-   - apply funextfun. intro x.
-     apply (grlinvax G).
-   - apply isapropismonoidfun.
- Defined.*)
-
 Definition islinv_setofendabgr_inv {G : abgr} : islinv (@rngofendabgr_op1 G) setofendabgr_un0 setofendabgr_inv.
 Proof.
    intro f.
@@ -229,15 +157,6 @@ Proof.
      apply (grlinvax G).
    - apply isapropismonoidfun.
 Defined.
-
-(*Definition isrinv_setofendabgr_inv {G : abgr} : isrinv (@op1 (setwith2binopofendabgr G)) setofendabgr_un0 setofendabgr_inv.
-Proof.
-   intro f.
-   use total2_paths_f.
-   - apply funextfun. intro x.
-     apply (grrinvax G).
-   - apply isapropismonoidfun.
-Defined.*)
 
 Definition isrinv_setofendabgr_inv {G : abgr} : isrinv (@rngofendabgr_op1 G) setofendabgr_un0 setofendabgr_inv.
 Proof.
@@ -248,37 +167,14 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-(* Definition isinv_setofendabgr_inv {G : abgr} : isinv (@op1 (setwith2binopofendabgr G)) setofendabgr_un0 setofendabgr_inv.
-Proof.
-   apply dirprodpair.
-   - exact islinv_setofendabgr_inv.
-   - exact isrinv_setofendabgr_inv.
-Defined.*)
-
 Definition isinv_setofendabgr_inv {G : abgr} : isinv (@rngofendabgr_op1 G) (unel_is (@ismonoidop_rngofendabgr_op1 G)) setofendabgr_inv :=
   mk_isinv islinv_setofendabgr_inv isrinv_setofendabgr_inv.
-
-(*Definition invstruct_setofendabgr_inv {G : abgr} : invstruct (@op1 (setwith2binopofendabgr G)) ismonoidop_rngofendabgr_op1 :=
-   tpair (λ inv0 : (setofendabgr G) -> (setofendabgr G), isinv (@op1 (setwith2binopofendabgr G)) setofendabgr_un0 inv0)
-         setofendabgr_inv isinv_setofendabgr_inv.*)
 
 Definition invstruct_setofendabgr_inv {G : abgr} : invstruct (@rngofendabgr_op1 G) ismonoidop_rngofendabgr_op1 :=
    mk_invstruct (@setofendabgr_inv G) (@isinv_setofendabgr_inv G).
 
-(*Definition isgrop_rngofendabgr_op1 {G : abgr} : isgrop (@op1 (setwith2binopofendabgr G)) :=
-   tpair (λ is : ismonoidop (@op1 (setwith2binopofendabgr G)), invstruct (@op1 (setwith2binopofendabgr G)) is) ismonoidop_rngofendabgr_op1 invstruct_setofendabgr_inv.*)
-
 Definition isgrop_rngofendabgr_op1 {G : abgr} : isgrop (@rngofendabgr_op1 G) :=
    isgroppair ismonoidop_rngofendabgr_op1 invstruct_setofendabgr_inv.
-
-(*Definition iscomm_rngofendabgr_op1 {G : abgr} : iscomm (@op1 (setwith2binopofendabgr G)).
-Proof.
-   intros f g.
-   use total2_paths_f.
-   - apply funextfun. intro x.
-     apply (commax G).
-   - apply (isapropismonoidfun).
-Defined.*)
 
 Definition iscomm_rngofendabgr_op1 {G : abgr} : iscomm (@rngofendabgr_op1 G).
 Proof.
@@ -289,21 +185,10 @@ Proof.
    - apply (isapropismonoidfun).
 Defined.
 
-(*Definition isabgrop_rngofendabgr_op1 {G : abgr} : isabgrop (@op1 (setwith2binopofendabgr G)) :=
-  dirprodpair isgrop_rngofendabgr_op1 iscomm_rngofendabgr_op1.*)
-
 Definition isabgrop_rngofendabgr_op1 {G : abgr} : isabgrop (@rngofendabgr_op1 G) :=
   mk_isabgrop isgrop_rngofendabgr_op1 iscomm_rngofendabgr_op1.
 
 (** rngofendabgr_op2 is a monoid operation *)
-
-(*Definition isassoc_rngofendabgr_op2 {G : abgr} : isassoc (@op2 (setwith2binopofendabgr G)).
-Proof.
-  intros f g h.
-  use total2_paths_f.
-  - apply funcomp_assoc.
-  - apply isapropismonoidfun.
-Defined.*)
 
 Definition isassoc_rngofendabgr_op2 {G : abgr} : isassoc (@rngofendabgr_op2 G).
 Proof.
@@ -313,14 +198,6 @@ Proof.
   - apply isapropismonoidfun.
 Defined.
 
-(*Definition setofendabgr_un1 {G: abgr} : setofendabgr G.
-Proof.
-   apply (@monoidfunconstr _ _ (idfun G)).
-   apply dirprodpair.
-   - intros x x'. reflexivity.
-   - reflexivity.
-Defined.*)
-
 Definition setofendabgr_un1 {G: abgr} : monoidfun G G.
 Proof.
    apply (@monoidfunconstr _ _ (idfun G)).
@@ -328,14 +205,6 @@ Proof.
    - intros x x'. reflexivity.
    - reflexivity.
 Defined.
-
-(*Definition islunit_setofendabgr_un1 {G : abgr} : islunit (@op2 (setwith2binopofendabgr G)) setofendabgr_un1.
-Proof.
-   intro f.
-   use total2_paths_f.
-   - apply funextfun. intro x. reflexivity.
-   - apply isapropismonoidfun.
-Defined.*)
 
 Definition islunit_setofendabgr_un1 {G : abgr} : islunit (@rngofendabgr_op2 G) setofendabgr_un1.
 Proof.
@@ -345,14 +214,6 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-(*Definition isrunit_setofendabgr_un1 {G : abgr} : isrunit (@op2 (setwith2binopofendabgr G)) setofendabgr_un1.
-Proof.
-   intros f.
-   use total2_paths_f.
-   - apply funextfun. intro x. reflexivity.
-   - apply isapropismonoidfun.
-Defined.*)
-
 Definition isrunit_setofendabgr_un1 {G : abgr} : isrunit (@rngofendabgr_op2 G) setofendabgr_un1.
 Proof.
    intros f.
@@ -361,37 +222,16 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-(*Definition isunit_setofendabgr_un1 {G : abgr} : isunit (@op2 (setwith2binopofendabgr G)) setofendabgr_un1.
-Proof.
-   exact (dirprodpair islunit_setofendabgr_un1 isrunit_setofendabgr_un1).
-Defined.*)
-
 Definition isunit_setofendabgr_un1 {G : abgr} : isunit (@rngofendabgr_op2 G) setofendabgr_un1 :=
   isunitpair islunit_setofendabgr_un1 isrunit_setofendabgr_un1.
 
-(*Definition isunital_rngofendabgr_op2 {G : abgr} : isunital (@op2 (setwith2binopofendabgr G)).
-Proof.
-   exact (isunitalpair setofendabgr_un1 isunit_setofendabgr_un1).
-Defined.*)
-
 Definition isunital_rngofendabgr_op2 {G : abgr} : isunital (@rngofendabgr_op2 G) :=
   isunitalpair setofendabgr_un1 isunit_setofendabgr_un1.
-
-(* Definition ismonoidop_rngofendabgr_op2 {G : abgr} : ismonoidop (@op2 (setwith2binopofendabgr G)) :=
-   dirprodpair isassoc_rngofendabgr_op2 isunital_rngofendabgr_op2.*)
 
 Definition ismonoidop_rngofendabgr_op2 {G : abgr} : ismonoidop (@rngofendabgr_op2 G) :=
    mk_ismonoidop isassoc_rngofendabgr_op2 isunital_rngofendabgr_op2.
 
 (** rngofendabgr_op2 is distributive over rngofendabgr_op1 *)
-
-(*Definition isldistr_setofendabgr_op {G : abgr} : isldistr (@op1 (setwith2binopofendabgr G)) (op2).
-Proof.
-   intros f g h.
-   use total2_paths_f.
-   - apply funextfun. intro x. reflexivity.
-   - apply isapropismonoidfun.
-Defined.*)
 
 Definition isldistr_setofendabgr_op {G : abgr} : isldistr (@rngofendabgr_op1 G) (@rngofendabgr_op2 G).
 Proof.
@@ -400,15 +240,6 @@ Proof.
    - apply funextfun. intro x. reflexivity.
    - apply isapropismonoidfun.
 Defined.
-
-(*Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@op1 (setwith2binopofendabgr G)) op2.
-Proof.
-   intros f g h.
-   use total2_paths_f.
-   - apply funextfun. intro x.
-     apply (setofendabgr_to_isbinopfun h).
-   - apply isapropismonoidfun.
-Defined.*)
 
 Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@rngofendabgr_op1 G) (@rngofendabgr_op2 G).
 Proof.
@@ -419,22 +250,13 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-(*Definition isdistr_setofendabgr_op {G : abgr} : isdistr (@op1 (setwith2binopofendabgr G)) op2 :=
-   dirprodpair isldistr_setofendabgr_op isrdistr_setofendabgr_op.*)
-
 Definition isdistr_setofendabgr_op {G : abgr} : isdistr (@rngofendabgr_op1 G) (@rngofendabgr_op2 G) :=
    dirprodpair isldistr_setofendabgr_op isrdistr_setofendabgr_op.
-
-(*Definition isrngops_setofendabgr_op {G : abgr} : isrngops (@op1 (setwith2binopofendabgr G)) op2 :=
-   dirprodpair (dirprodpair isabgrop_rngofendabgr_op1 ismonoidop_rngofendabgr_op2) isdistr_setofendabgr_op.*)
 
 Definition isrngops_setofendabgr_op {G : abgr} : isrngops (@rngofendabgr_op1 G) (@rngofendabgr_op2 G) :=
    mk_isrngops isabgrop_rngofendabgr_op1 ismonoidop_rngofendabgr_op2 isdistr_setofendabgr_op.
 
 (** The set of endomorphisms of an abelian group is a ring *)
-
-(*Definition rngofendabgr (G : abgr) : rng :=
-   rngpair  (@isrngops_setofendabgr_op G).*)
 
 Definition rngofendabgr (G : abgr) : rng :=
    @rngpair (setwith2binopofendabgr G) (@isrngops_setofendabgr_op G).
