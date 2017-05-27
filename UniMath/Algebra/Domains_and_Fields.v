@@ -60,7 +60,7 @@ Definition iscancelableif {X : hSet} (opp : binop X) (x : X)
 
 (** To monoids *)
 
-Open Local Scope  multmonoid_scope.
+Local Open Scope multmonoid_scope.
 
 Definition linvpair (X : monoid) (x : X) : UU := total2 (fun x' : X => paths (x' * x) 1).
 

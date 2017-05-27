@@ -12,7 +12,7 @@ file.
 ************************************************************)
 
 Require Import UniMath.Foundations.PartD.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
@@ -269,7 +269,7 @@ Definition prebicategory_has_2mor_sets {C : prebicategory} (a b : C)
   := (pr1 (pr2 C)) a b.
 
 Definition has_homcats (C : prebicategory)
-  := forall a b : C, is_category (a -1-> b).
+  := forall a b : C, is_univalent (a -1-> b).
 
 Definition associator {C : prebicategory} { a b c d : C }
            (f : a -1-> b)

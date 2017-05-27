@@ -11,7 +11,7 @@ Extended by: Anders Mörtberg. October 2015
 
 Contents :
 
-- Precategory of algebras of an endofunctor
+- category of algebras of an endofunctor
 
 - Saturated if base precategory is
 
@@ -25,7 +25,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.initial.
@@ -143,7 +143,7 @@ Qed.
 
 Section FunctorAlg_saturated.
 
-Hypothesis H : is_category C.
+Hypothesis H : is_univalent C.
 
 Definition algebra_eq_type (X Y : FunctorAlg (pr2 H)) : UU
   := ∑ p : iso (pr1 X) (pr1 Y), pr2 X · p = #F p · pr2 Y.
@@ -281,7 +281,7 @@ Proof.
   - apply (pr2 _ ).
 Defined.
 
-Lemma is_category_FunctorAlg : is_category (FunctorAlg (pr2 H)).
+Lemma is_univalent_FunctorAlg : is_univalent (FunctorAlg (pr2 H)).
 Proof.
   split.
   - apply isweq_idtoiso_FunctorAlg.

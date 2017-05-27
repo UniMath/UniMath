@@ -29,9 +29,9 @@ Contents :
                     Isos in full subcategory are equiv
                       to isos in the precategory
 
-                    Full subcategory of a category is
-                      a category
-                      [is_category_full_subcat]
+                    Full subcategory of a univalent_category is
+                      a univalent_category
+                      [is_univalent_full_subcat]
 
 
 
@@ -40,7 +40,7 @@ Contents :
 
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 
@@ -316,7 +316,7 @@ Definition functor_full_img {C D: precategory}
 
 
 (** *** Morphisms in the full subprecat are equiv to morphisms in the precategory *)
-(** does of course not need the category hypothesis *)
+(** does of course not need the univalent_category hypothesis *)
 
 Definition hom_in_subcat_from_hom_in_precat (C : precategory)
  (C' : hsubtype (ob C))
@@ -460,13 +460,13 @@ Proof.
 *)
 
 
-(** ** Any full subprecategory of a category is a category. *)
+(** ** Any full subprecategory of a univalent_category is a univalent_category. *)
 
 
 Section full_sub_cat.
 
 Variable C : precategory.
-Hypothesis H : is_category C.
+Hypothesis H : is_univalent C.
 
 Variable C' : hsubtype (ob C).
 
@@ -586,9 +586,9 @@ Defined.
 
 (** ** Proof of the targeted theorem: full subcats of cats are cats *)
 
-Lemma is_category_full_subcat: is_category (full_sub_precategory C').
+Lemma is_univalent_full_subcat: is_univalent (full_sub_precategory C').
 Proof.
-  unfold is_category.
+  unfold is_univalent.
   split.
   - apply isweq_sub_precat_paths_to_iso.
   - intros x y. apply is_set_sub_precategory_morphisms. apply (pr2 H).

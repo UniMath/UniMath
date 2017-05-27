@@ -12,7 +12,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
@@ -57,7 +57,7 @@ Section def_grothendiecktopology.
 
   (** A sieve on c is a subobject of the yoneda functor. *)
   Definition sieve (c : C) : UU :=
-    SubobjectsPrecategory
+    Subobjectscategory
       (functor_category_has_homsets (opp_precat C) HSET has_homsets_HSET)
       (yoneda C hs c).
 
@@ -83,7 +83,7 @@ Section def_grothendiecktopology.
   Definition collection_of_sieves : UU := ∏ (c : C), hsubtype (sieve c).
 
   Definition isGrothendieckTopology_maximal_sieve (COS : collection_of_sieves) : UU :=
-    ∏ (c : C), COS c (SubobjectsPrecategory_ob
+    ∏ (c : C), COS c (Subobjectscategory_ob
                         (functor_category_has_homsets (opp_precat C) HSET has_homsets_HSET)
                         (identity (yoneda C hs c)) (identity_isMonic _)).
 
@@ -92,7 +92,7 @@ Section def_grothendiecktopology.
     COS c s ->
     COS c' (PullbackSubobject
               _
-              (FunctorPrecategoryPullbacks (opp_precat C) HSET has_homsets_HSET HSET_Pullbacks)
+              (FunctorcategoryPullbacks (opp_precat C) HSET has_homsets_HSET HSET_Pullbacks)
               s (yoneda_morphisms C hs _ _ h)).
 
   Definition isGrothendieckTopology_transitivity (COS : collection_of_sieves) : UU :=
@@ -100,7 +100,7 @@ Section def_grothendiecktopology.
     (∏ (c' : C) (h : c' --> c),
      COS c' (PullbackSubobject
                _
-               (FunctorPrecategoryPullbacks (opp_precat C) HSET has_homsets_HSET HSET_Pullbacks)
+               (FunctorcategoryPullbacks (opp_precat C) HSET has_homsets_HSET HSET_Pullbacks)
                s (yoneda_morphisms C hs _ _ h))
      -> COS c s).
 
@@ -151,7 +151,7 @@ Section def_grothendiecktopology.
     (fun P : functor_precategory (opp_precat C) HSET has_homsets_HSET =>
        hProppair _ (isaprop_isSheaf GT (mk_Presheaf P))).
 
-  Definition PrecategoryOfSheaves (GT : GrothendieckTopology) :
+  Definition categoryOfSheaves (GT : GrothendieckTopology) :
     sub_precategories (functor_precategory (opp_precat C) HSET has_homsets_HSET) :=
     full_sub_precategory (hsubtype_obs_isSheaf GT).
 
@@ -170,7 +170,7 @@ Section def_grothendiecktopos.
       Grothendieck topology (pr2 D). *)
   Definition GrothendieckTopos : UU :=
     ∑ D' : (∑ D : precategory × (GrothendieckTopology C hs),
-                  functor (pr1 D) (PrecategoryOfSheaves C hs (pr2 D))),
+                  functor (pr1 D) (categoryOfSheaves C hs (pr2 D))),
            (adj_equivalence_of_precats (pr2 D')).
 
   (** Accessor functions *)
@@ -183,7 +183,7 @@ Section def_grothendiecktopos.
 
   Definition GrothendieckTopos_functor (GT : GrothendieckTopos) :
     functor (GrothendieckTopos_precategory GT)
-            (PrecategoryOfSheaves C hs (GrothendieckTopos_GrothendieckTopology GT)) :=
+            (categoryOfSheaves C hs (GrothendieckTopos_GrothendieckTopology GT)) :=
     pr2 (pr1 GT).
 
   Definition GrothendieckTopos_equivalence (GT : GrothendieckTopos) :

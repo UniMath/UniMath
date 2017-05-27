@@ -17,7 +17,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 Local Open Scope cat.
@@ -284,9 +284,9 @@ Definition Lims_of_shape (J C : precategory) : UU := ∏ (F : functor J C), LimC
 
 Section Universal_Unique.
 
-Context (C : category).
+Context (C : univalent_category).
 
-Let H : is_category C := pr2 C.
+Let H : is_univalent C := pr2 C.
 
 Lemma isaprop_Lims: isaprop (Lims C).
 Proof.

@@ -3,6 +3,7 @@
 - Standard Algebraic Structures
  - Monoids
   - Basics definitions
+  - Univalence for monoids
   - Functions between monoids compatible with structures (homomorphisms)
     and their properties
   - Subobjects
@@ -10,6 +11,7 @@
   - Direct products
  - Abelian (commutative) monoids
   - Basic definitions
+  - Univalence for abelian monoids
   - Subobjects
   - Quotient objects
   - Direct products
@@ -21,6 +23,7 @@
   - Relations and canonical homomorphism to [abmonoidfrac]
  - Groups
   - Basic definitions
+  - Univalence for groups
   - Computation lemmas for groups
   - Relations on groups
   - Subobjects
@@ -28,6 +31,7 @@
   - Direct products
  - Abelian groups
   - Basic definitions
+  - Univalence for abelian groups
   - Subobjects
   - Quotient objects
   - Direct products
@@ -97,6 +101,25 @@ Notation "1" := (unel _) : multmonoid_scope.
 
 Delimit Scope multmonoid_scope with multmonoid.
 
+
+(** **** Construction of the trivial monoid consisting of one element given by unit. *)
+
+Definition unitmonoid_ismonoid : ismonoidop (fun x : unitset => fun y : unitset => x).
+Proof.
+  use mk_ismonoidop.
+  - intros x x' x''. use isconnectedunit.
+  - use isunitalpair.
+    + exact tt.
+    + use isunitpair.
+      * intros x. use isconnectedunit.
+      * intros x. use isconnectedunit.
+Qed.
+
+Definition unitmonoid : monoid :=
+  monoidpair (setwithbinoppair unitset (fun x : unitset => fun y : unitset => x))
+             unitmonoid_ismonoid.
+
+
 (** **** Functions between monoids compatible with structure (homomorphisms) and their properties *)
 
 Definition ismonoidfun {X Y : monoid} (f : X -> Y) : UU :=
@@ -131,6 +154,15 @@ Coercion monoidfuntobinopfun : monoidfun >-> binopfun.
 
 Definition monoidfununel {X Y : monoid} (f : monoidfun X Y) : f (unel X) = (unel Y) := pr2 (pr2 f).
 
+Definition monoidfun_paths {X Y : monoid} (f g : monoidfun X Y) (e : pr1 f = pr1 g) : f = g.
+Proof.
+  intros X Y f g e.
+  use total2_paths_f.
+  - exact e.
+  - use proofirrelevance. use isapropismonoidfun.
+Defined.
+Opaque monoidfun_paths.
+
 Lemma isasetmonoidfun (X Y : monoid) : isaset (monoidfun X Y).
 Proof.
   intros. apply (isasetsubset (pr1monoidfun X Y)).
@@ -152,6 +184,43 @@ Opaque ismonoidfuncomp.
 
 Definition monoidfuncomp {X Y Z : monoid} (f : monoidfun X Y) (g : monoidfun Y Z) :
   monoidfun X Z := monoidfunconstr (ismonoidfuncomp f g).
+
+Lemma monoidfunassoc {X Y Z W : monoid} (f : monoidfun X Y) (g : monoidfun Y Z)
+      (h : monoidfun Z W) :
+  monoidfuncomp f (monoidfuncomp g h) = monoidfuncomp (monoidfuncomp f g) h.
+Proof.
+  intros X Y Z W f g h. use monoidfun_paths. use idpath.
+Qed.
+
+Lemma unelmonoidfun_ismonoidfun (X Y : monoid) : ismonoidfun (λ x : X, (unel Y)).
+Proof.
+  intros X Y. use mk_ismonoidfun.
+  - use mk_isbinopfun. intros x x'. use pathsinv0. use lunax.
+  - use idpath.
+Qed.
+
+Definition unelmonoidfun (X Y : monoid) : monoidfun X Y :=
+  monoidfunconstr (unelmonoidfun_ismonoidfun X Y).
+
+Lemma monoidfuntounit_ismonoidfun (X : monoid) : ismonoidfun (λ x : X, (unel unitmonoid)).
+Proof.
+  intros X. use mk_ismonoidfun.
+  - use mk_isbinopfun. intros x x'. use isconnectedunit.
+  - use isconnectedunit.
+Qed.
+
+Definition monoidfuntounit (X : monoid) : monoidfun X unitmonoid :=
+  monoidfunconstr (monoidfuntounit_ismonoidfun X).
+
+Lemma monoidfunfromunit_ismonoidfun (X : monoid) : ismonoidfun (λ x : unitmonoid, (unel X)).
+Proof.
+  intros X. use mk_ismonoidfun.
+  - use mk_isbinopfun. intros x x'. use pathsinv0. use (runax X).
+  - use idpath.
+Qed.
+
+Definition monoidfunfromunit (X : monoid) : monoidfun unitmonoid X :=
+  monoidfunconstr (monoidfunfromunit_ismonoidfun X).
 
 Definition monoidmono (X Y : monoid) : UU := total2 (fun f : incl X Y => ismonoidfun f).
 
@@ -189,6 +258,15 @@ Definition monoidisotobinopiso (X Y : monoid) : monoidiso X Y -> binopiso X Y :=
   fun f => binopisopair (pr1 f) (pr1 (pr2 f)).
 Coercion monoidisotobinopiso : monoidiso >-> binopiso.
 
+Definition monoidiso_paths {X Y : monoid} (f g : monoidiso X Y) (e : pr1 f = pr1 g) : f = g.
+Proof.
+  intros X Y f g e.
+  use total2_paths_f.
+  - exact e.
+  - use proofirrelevance. use isapropismonoidfun.
+Defined.
+Opaque monoidiso_paths.
+
 Lemma ismonoidfuninvmap {X Y : monoid} (f : monoidiso X Y) :
   ismonoidfun (invmap (pr1 f)).
 Proof.
@@ -211,6 +289,17 @@ Proof.
     + intros x x'. use idpath.
     + use idpath.
 Defined.
+
+Lemma monoidfunidleft {A B : monoid} (f : monoidfun A B) : monoidfuncomp (idmonoidiso A) f = f.
+Proof.
+  intros A B f. use monoidfun_paths. use idpath.
+Qed.
+
+Lemma monoidfunidright {A B : monoid} (f : monoidfun A B) : monoidfuncomp f (idmonoidiso B) = f.
+Proof.
+  intros A B f. use monoidfun_paths. use idpath.
+Qed.
+
 
 (** **** (X = Y) ≃ (monoidiso X Y)
    The idea here is to use the following composition
@@ -280,6 +369,9 @@ Opaque monoid_univalence.
 
 Definition issubmonoid {X : monoid} (A : hsubtype X) : UU :=
   dirprod (issubsetwithbinop (@op X) A) (A (unel X)).
+
+Definition issubmonoidpair {X : monoid} {A : hsubtype X} (H1 : issubsetwithbinop (@op X) A)
+           (H2 : A (unel X)) : issubmonoid A := dirprodpair H1 H2.
 
 Lemma isapropissubmonoid {X : monoid} (A : hsubtype X) :
   isaprop (issubmonoid A).
@@ -420,6 +512,133 @@ Definition commax (X : abmonoid) : iscomm (@op X) := pr2 (pr2 X).
 
 Definition abmonoidrer (X : abmonoid) (a b c d : X) :
   paths (op (op a b) (op c d)) (op (op a c) (op b d)) := abmonoidoprer (pr2 X) a b c d.
+
+
+(** **** Construction of the trivial abmonoid consisting of one element given by unit. *)
+
+Definition unitabmonoid_isabmonoid : isabmonoidop (@op unitmonoid).
+Proof.
+  use mk_isabmonoidop.
+  - exact unitmonoid_ismonoid.
+  - intros x x'. use isconnectedunit.
+Qed.
+
+Definition unitabmonoid : abmonoid := abmonoidpair unitmonoid unitabmonoid_isabmonoid.
+
+Lemma abmonoidfuntounit_ismonoidfun (X : abmonoid) : ismonoidfun (λ x : X, (unel unitabmonoid)).
+Proof.
+  intros X. use mk_ismonoidfun.
+  - use mk_isbinopfun. intros x x'. use isconnectedunit.
+  - use isconnectedunit.
+Qed.
+
+Definition abmonoidfuntounit (X : abmonoid) : monoidfun X unitabmonoid :=
+  monoidfunconstr (abmonoidfuntounit_ismonoidfun X).
+
+Lemma abmonoidfunfromunit_ismonoidfun (X : abmonoid) : ismonoidfun (λ x : unitabmonoid, (unel X)).
+Proof.
+  intros X. use mk_ismonoidfun.
+  - use mk_isbinopfun. intros x x'. use pathsinv0. use (runax X).
+  - use idpath.
+Qed.
+
+Definition abmonoidfunfromunit (X : abmonoid) : monoidfun unitabmonoid X :=
+  monoidfunconstr (abmonoidfunfromunit_ismonoidfun X).
+
+Lemma unelabmonoidfun_ismonoidfun (X Y : abmonoid) : ismonoidfun (λ x : X, (unel Y)).
+Proof.
+  intros X Y. use mk_ismonoidfun.
+  - use mk_isbinopfun. intros x x'. use pathsinv0. use lunax.
+  - use idpath.
+Qed.
+
+Definition unelabmonoidfun (X Y : abmonoid) : monoidfun X Y :=
+  monoidfunconstr (unelabmonoidfun_ismonoidfun X Y).
+
+
+(** **** Abelian monoid structure on homsets
+    If f g : X -> Y are morphisms of abelian monoids, then we define f + g to be the morphism
+    (f + g)(x) = f(x) + g(x).
+ *)
+
+Lemma abmonoidshombinop_ismonoidfun {X Y : abmonoid} (f g : monoidfun X Y) :
+  @ismonoidfun X Y (fun x : pr1 X => (pr1 f x * pr1 g x)%multmonoid).
+Proof.
+  intros X Y f g.
+  use mk_ismonoidfun.
+  - use mk_isbinopfun.
+    intros x x'. cbn. rewrite (pr1 (pr2 f)). rewrite (pr1 (pr2 g)).
+    rewrite (assocax Y). rewrite (assocax Y). use maponpaths.
+    rewrite <- (assocax Y). rewrite <- (assocax Y).
+    use (maponpaths (fun y : Y => (y * (pr1 g x'))%multmonoid)).
+    use (commax Y).
+  - use (pathscomp0 (maponpaths (fun h : Y => (pr1 f (unel X) * h)%multmonoid)
+                                (monoidfununel g))).
+    rewrite runax. exact (monoidfununel f).
+Qed.
+
+Definition abmonoidshombinop {X Y : abmonoid} : binop (monoidfun X Y) :=
+  (λ f g, monoidfunconstr (abmonoidshombinop_ismonoidfun f g)).
+
+Lemma abmonoidsbinop_runax {X Y : abmonoid} (f : monoidfun X Y) :
+  abmonoidshombinop f (unelmonoidfun X Y) = f.
+Proof.
+  intros X Y f. use monoidfun_paths. use funextfun. intros x. use (runax Y).
+Qed.
+
+Lemma abmonoidsbinop_lunax {X Y : abmonoid} (f : monoidfun X Y) :
+  abmonoidshombinop (unelmonoidfun X Y) f = f.
+Proof.
+  intros X Y f. use monoidfun_paths. use funextfun. intros x. use (lunax Y).
+Qed.
+
+Lemma abmonoidshombinop_assoc {X Y : abmonoid} (f g h : monoidfun X Y) :
+  abmonoidshombinop (abmonoidshombinop f g) h = abmonoidshombinop f (abmonoidshombinop g h).
+Proof.
+  intros X Y f g h. use monoidfun_paths. use funextfun. intros x. use assocax.
+Qed.
+
+Lemma abmonoidshombinop_comm {X Y : abmonoid} (f g : monoidfun X Y) :
+  abmonoidshombinop f g = abmonoidshombinop g f.
+Proof.
+  intros X Y f g. use monoidfun_paths. use funextfun. intros x. use (commax Y).
+Qed.
+
+Lemma abmonoidshomabmonoid_ismonoidop (X Y : abmonoid) :
+  @ismonoidop (hSetpair (monoidfun X Y) (isasetmonoidfun X Y))
+              (λ f g : monoidfun X Y, abmonoidshombinop f g).
+Proof.
+  intros X Y.
+  use mk_ismonoidop.
+  - intros f g h. exact (abmonoidshombinop_assoc f g h).
+  - use isunitalpair.
+    + exact (unelmonoidfun X Y).
+    + use isunitpair.
+      * intros f. exact (abmonoidsbinop_lunax f).
+      * intros f. exact (abmonoidsbinop_runax f).
+Defined.
+
+Lemma abmonoidshomabmonoid_isabmonoid (X Y : abmonoid) :
+  @isabmonoidop (hSetpair (monoidfun X Y) (isasetmonoidfun X Y))
+                (λ f g : monoidfun X Y, abmonoidshombinop f g).
+Proof.
+  intros X Y.
+  use mk_isabmonoidop.
+  - exact (abmonoidshomabmonoid_ismonoidop X Y).
+  - intros f g. exact (abmonoidshombinop_comm f g).
+Defined.
+
+Definition abmonoidshomabmonoid (X Y : abmonoid) : abmonoid.
+Proof.
+  intros X Y.
+  - use abmonoidpair.
+    + use setwithbinoppair.
+      * use hSetpair.
+        -- exact (monoidfun X Y).
+        -- exact (isasetmonoidfun X Y).
+      * intros f g. exact (abmonoidshombinop f g).
+    + exact (abmonoidshomabmonoid_isabmonoid X Y).
+Defined.
 
 
 (** **** (X = Y) ≃ (monoidiso X Y)
@@ -1408,6 +1627,51 @@ Proof.
 Defined.
 
 
+(** **** Construction of the trivial abmonoid consisting of one element given by unit. *)
+
+Definition unitgr_isgrop : isgrop (@op unitmonoid).
+Proof.
+  use mk_isgrop.
+  - exact unitmonoid_ismonoid.
+  - use mk_invstruct.
+    + intros i. exact i.
+    + use mk_isinv.
+      * intros x. use isconnectedunit.
+      * intros x. use isconnectedunit.
+Qed.
+
+Definition unitgr : gr := grpair unitmonoid unitgr_isgrop.
+
+Lemma grfuntounit_ismonoidfun (X : gr) : ismonoidfun (λ x : X, (unel unitgr)).
+Proof.
+  intros X. use mk_ismonoidfun.
+  - use mk_isbinopfun. intros x x'. use isconnectedunit.
+  - use isconnectedunit.
+Qed.
+
+Definition grfuntounit (X : gr) : monoidfun X unitgr := monoidfunconstr (grfuntounit_ismonoidfun X).
+
+Lemma grfunfromunit_ismonoidfun (X : gr) : ismonoidfun (λ x : unitgr, (unel X)).
+Proof.
+  intros X. use mk_ismonoidfun.
+  - use mk_isbinopfun. intros x x'. use pathsinv0. use (runax X).
+  - use idpath.
+Qed.
+
+Definition grfunfromunit (X : gr) : monoidfun unitmonoid X :=
+  monoidfunconstr (monoidfunfromunit_ismonoidfun X).
+
+Lemma unelgrfun_ismonoidfun (X Y : gr) : ismonoidfun (λ x : X, (unel Y)).
+Proof.
+  intros X Y. use mk_ismonoidfun.
+  - use mk_isbinopfun. intros x x'. use pathsinv0. use lunax.
+  - use idpath.
+Qed.
+
+Definition unelgrfun (X Y : gr) : monoidfun X Y :=
+  monoidfunconstr (unelgrfun_ismonoidfun X Y).
+
+
 (** **** (X = Y) ≃ (monoidiso X Y)
    The idea is to use the composition
 
@@ -1613,6 +1877,9 @@ Defined.
 Definition issubgr {X : gr} (A : hsubtype X) : UU :=
   dirprod (issubmonoid A) (∏ x : X, A x -> A (grinv X x)).
 
+Definition issubgrpair {X : gr} {A : hsubtype X} (H1 : issubmonoid A)
+           (H2 : ∏ x : X, A x -> A (grinv X x)) : issubgr A := dirprodpair H1 H2.
+
 Lemma isapropissubgr {X : gr} (A : hsubtype X) : isaprop (issubgr A).
 Proof.
   intros. apply (isofhleveldirprod 1).
@@ -1744,6 +2011,99 @@ Coercion abgrtogr : abgr >-> gr.
 Definition abgrtoabmonoid : abgr -> abmonoid :=
   fun X : _ => abmonoidpair (pr1 X) (dirprodpair (pr1 (pr1 (pr2 X))) (pr2 (pr2 X))).
 Coercion abgrtoabmonoid : abgr >-> abmonoid.
+
+
+(** **** Construction of the trivial abgr consisting of one element given by unit. *)
+
+Definition unitabgr_isabgrop : isabgrop (@op unitabmonoid).
+Proof.
+  use mk_isabgrop.
+  - exact unitgr_isgrop.
+  - exact (commax unitabmonoid).
+Qed.
+
+Definition unitabgr : abgr := abgrpair unitabmonoid unitabgr_isabgrop.
+
+Lemma abgrfuntounit_ismonoidfun (X : abgr) : ismonoidfun (λ x : X, (unel unitabgr)).
+Proof.
+  intros X. use mk_ismonoidfun.
+  - use mk_isbinopfun. intros x x'. use isconnectedunit.
+  - use isconnectedunit.
+Qed.
+
+Definition abgrfuntounit (X : abgr) : monoidfun X unitabgr :=
+  monoidfunconstr (abgrfuntounit_ismonoidfun X).
+
+Lemma abgrfunfromunit_ismonoidfun (X : abgr) : ismonoidfun (λ x : unitabgr, (unel X)).
+Proof.
+  intros X. use mk_ismonoidfun.
+  - use mk_isbinopfun. intros x x'. use pathsinv0. use (runax X).
+  - use idpath.
+Qed.
+
+Definition abgrfunfromunit (X : abgr) : monoidfun unitabgr X :=
+  monoidfunconstr (abgrfunfromunit_ismonoidfun X).
+
+Lemma unelabgrfun_ismonoidfun (X Y : abgr) : ismonoidfun (λ x : X, (unel Y)).
+Proof.
+  intros X Y. use mk_ismonoidfun.
+  - use mk_isbinopfun. intros x x'. use pathsinv0. use lunax.
+  - use idpath.
+Qed.
+
+Definition unelabgrfun (X Y : abgr) : monoidfun X Y :=
+  monoidfunconstr (unelgrfun_ismonoidfun X Y).
+
+
+(** **** Abelian group structure on morphism between abelian groups *)
+
+Definition abgrshombinop_inv_ismonoidfun {X Y : abgr} (f : monoidfun X Y) :
+  ismonoidfun (fun x : X => grinv Y (pr1 f x)).
+Proof.
+  intros X Y f.
+  use mk_ismonoidfun.
+  - use mk_isbinopfun. intros x x'. cbn.
+    rewrite (pr1 (pr2 f)). rewrite (pr2 (pr2 Y)). use (grinvop Y).
+  - use (pathscomp0 (maponpaths (fun y : Y => grinv Y y) (monoidfununel f))).
+    use grinvunel.
+Qed.
+
+Definition abgrshombinop_inv {X Y : abgr} (f : monoidfun X Y) : monoidfun X Y :=
+  monoidfunconstr (abgrshombinop_inv_ismonoidfun f).
+
+Definition abgrshombinop_linvax {X Y : abgr} (f : monoidfun X Y) :
+  @abmonoidshombinop X Y (abgrshombinop_inv f) f = unelmonoidfun X Y.
+Proof.
+  intros X Y f. use monoidfun_paths. use funextfun. intros x. use (@grlinvax Y).
+Qed.
+
+Definition abgrshombinop_rinvax {X Y : abgr} (f : monoidfun X Y) :
+  @abmonoidshombinop X Y f (abgrshombinop_inv f) = unelmonoidfun X Y.
+Proof.
+  intros X Y f. use monoidfun_paths. use funextfun. intros x. use (grrinvax Y).
+Qed.
+
+Lemma abgrshomabgr_isabgrop (X Y : abgr) :
+  @isabgrop (abmonoidshomabmonoid X Y) (λ f g : monoidfun X Y, @abmonoidshombinop X Y f g).
+Proof.
+  intros X Y.
+  use mk_isabgrop.
+  - use mk_isgrop.
+    + exact (abmonoidshomabmonoid_ismonoidop X Y).
+    + use mk_invstruct.
+      * intros f. exact (abgrshombinop_inv f).
+      * use mk_isinv.
+        -- intros f. exact (abgrshombinop_linvax f).
+        -- intros f. exact (abgrshombinop_rinvax f).
+  - intros f g. exact (abmonoidshombinop_comm f g).
+Defined.
+
+Definition abgrshomabgr (X Y : abgr) : abgr.
+Proof.
+  intros X Y. use abgrpair.
+  - exact (abmonoidshomabmonoid X Y).
+  - exact (abgrshomabgr_isabgrop X Y).
+Defined.
 
 
 (** **** (X = Y) ≃ (monoidiso X Y)

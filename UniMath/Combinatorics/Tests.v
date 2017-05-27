@@ -1,8 +1,16 @@
 Unset Automatic Introduction.
 
+Require UniMath.Combinatorics.Lists.
+Require UniMath.Combinatorics.StandardFiniteSets.
+Require UniMath.Combinatorics.FiniteSets.
+Require UniMath.Combinatorics.FiniteSequences.
+Require UniMath.Combinatorics.FiniteSets.
+Require UniMath.Combinatorics.OrderedSets.
+Require UniMath.Combinatorics.StandardFiniteSets.
+
 Module Test_list.
 
-  Require Import UniMath.Combinatorics.Lists.
+  Import UniMath.Combinatorics.Lists.
 
   Local Notation "[]" := nil (at level 0, format "[]").
   Local Infix "::" := cons.
@@ -19,7 +27,7 @@ End Test_list.
 
 Module Test_stn.
 
-  Require Import UniMath.Combinatorics.StandardFiniteSets.
+  Import UniMath.Combinatorics.StandardFiniteSets.
 
   Local Open Scope stn.
 
@@ -233,7 +241,7 @@ End Test_stn.
 
 Module Test_fin.
 
-  Require Import UniMath.Combinatorics.FiniteSets.
+  Import UniMath.Combinatorics.FiniteSets.
 
   (** ** Test computations. *)
   Goal fincard (isfiniteempty) = 0. reflexivity. Qed.
@@ -333,14 +341,14 @@ End Test_fin.
 
 Module Test_seq.
 
-  Require Import UniMath.Combinatorics.FiniteSequences.
+  Import UniMath.Combinatorics.FiniteSequences.
 
   Local Open Scope stn.
 
 End Test_seq.
 
 Module Test_finite_sets.
-  Require Import UniMath.Combinatorics.FiniteSets.
+  Import UniMath.Combinatorics.FiniteSets.
   Local Open Scope stn.
 
   Goal 3 = fincard_standardSubset (λ i:stn 10, 2*i < 6)%dnat. Proof. reflexivity. Defined.
@@ -353,8 +361,8 @@ End Test_finite_sets.
 
 Module Test_ord.
 
-  Require Import UniMath.Combinatorics.OrderedSets.
-  Require Import UniMath.Combinatorics.StandardFiniteSets.
+  Import UniMath.Combinatorics.OrderedSets.
+  Import UniMath.Combinatorics.StandardFiniteSets.
 
   Local Open Scope stn.
 

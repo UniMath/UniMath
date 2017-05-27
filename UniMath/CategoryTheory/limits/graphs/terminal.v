@@ -7,7 +7,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -105,7 +105,7 @@ Definition hasTerminal := ishinh Terminal.
 (* TODO: This should be an instance of a general result for limits *)
 (* Section Terminal_Unique. *)
 
-(* Hypothesis H : is_category C. *)
+(* Hypothesis H : is_univalent C. *)
 
 (* Lemma isaprop_Terminal : isaprop Terminal. *)
 (* Proof. *)

@@ -159,7 +159,25 @@ Definition isrigfunisaddmonoidfun {X Y : rig} {f : X -> Y} (H : isrigfun f) :
 Definition isrigfunismultmonoidfun {X Y : rig} {f : X -> Y} (H : isrigfun f) :
   @ismonoidfun (rigmultmonoid X) (rigmultmonoid Y) f := dirprod_pr2 H.
 
+Lemma isapropisrigfun {X Y : rig} (f : X -> Y) : isaprop (isrigfun f).
+Proof.
+  intros X Y f.
+  use isapropdirprod.
+  - use isapropismonoidfun.
+  - use isapropismonoidfun.
+Defined.
+Opaque isapropisrigfun.
+
 Definition rigfun (X Y : rig) : UU := total2 (fun f : X -> Y => isrigfun f).
+
+Definition isasetrigfun (X Y : rig) : isaset (rigfun X Y).
+Proof.
+  intros X Y.
+  use isaset_total2.
+  - use isaset_set_fun_space.
+  - intros x. use isasetaprop. use isapropisrigfun.
+Defined.
+Opaque isasetrigfun.
 
 Definition rigfunconstr {X Y : rig} {f : X -> Y} (is : isrigfun f) : rigfun X Y := tpair _ f is.
 
@@ -171,6 +189,25 @@ Definition rigaddfun {X Y : rig} (f : rigfun X Y) :
 
 Definition rigmultfun {X Y : rig} (f : rigfun X Y) :
   monoidfun (rigmultmonoid X) (rigmultmonoid Y) := monoidfunconstr (pr2 (pr2 f)).
+
+Definition rigfuncomp {X Y Z : rig} (f : rigfun X Y) (g : rigfun Y Z) : rigfun X Z.
+Proof.
+  intros X Y Z f g.
+  use rigfunconstr.
+  - exact (g ∘ f).
+  - use mk_isrigfun.
+    + exact (pr2 (monoidfuncomp (rigaddfun f) (rigaddfun g))).
+    + exact (pr2 (monoidfuncomp (rigmultfun f) (rigmultfun g))).
+Defined.
+
+Lemma rigfun_paths {X Y : rig} (f g : rigfun X Y) (e : pr1 f = pr1 g) : f = g.
+Proof.
+  intros X Y f g e.
+  use total2_paths_f.
+  - exact e.
+  - use proofirrelevance. use isapropisrigfun.
+Defined.
+Opaque rigfun_paths.
 
 Definition rigiso (X Y : rig) : UU := total2 (fun f : weq X Y => isrigfun f).
 
@@ -189,12 +226,26 @@ Definition rigmultiso {X Y : rig} (f : rigiso X Y) :
   monoidiso (rigmultmonoid X) (rigmultmonoid Y) :=
   @monoidisopair (rigmultmonoid X) (rigmultmonoid Y) (pr1 f) (pr2 (pr2 f)).
 
+Definition rigiso_paths {X Y : rig} (f g : rigiso X Y) (e : pr1 f = pr1 g) : f = g.
+Proof.
+  intros X Y f g e.
+  use total2_paths_f.
+  - exact e.
+  - use proofirrelevance. use isapropisrigfun.
+Defined.
+Opaque rigiso_paths.
+
+Definition rigisotorigfun {X Y : rig} (f : rigiso X Y) : rigfun X Y := rigfunconstr (pr2 f).
+
 Lemma isrigfuninvmap {X Y : rig} (f : rigiso X Y) : isrigfun (invmap f).
 Proof.
   intros. split.
   - apply (ismonoidfuninvmap (rigaddiso f)).
   - apply  (ismonoidfuninvmap (rigmultiso f)).
 Defined.
+
+Definition invrigiso {X Y : rig} (f : rigiso X Y) : rigiso Y X :=
+  rigisopair (invweq f) (isrigfuninvmap f).
 
 Definition idrigiso (X : rig) : rigiso X X.
 Proof.

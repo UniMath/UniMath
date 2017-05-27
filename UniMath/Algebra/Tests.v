@@ -1,9 +1,14 @@
 Unset Automatic Introduction.
 
+Require UniMath.Algebra.IteratedBinaryOperations.
+Require UniMath.Foundations.NaturalNumbers.
+Require UniMath.Algebra.IteratedBinaryOperations.
+Require UniMath.Combinatorics.FiniteSets.
+
 Module Test_assoc.
 
-  Require Import UniMath.Algebra.IteratedBinaryOperations.
-  Require Import UniMath.Foundations.NaturalNumbers.
+  Import UniMath.Algebra.IteratedBinaryOperations.
+  Import UniMath.Foundations.NaturalNumbers.
 
   (* verify that our associativity matches that of the parser, without an extra "1" *)
 
@@ -46,8 +51,8 @@ End Test_assoc.
 
 Module Test_finsum.
 
-  Require Import UniMath.Algebra.IteratedBinaryOperations.
-  Require Import UniMath.Combinatorics.FiniteSets.
+  Import UniMath.Algebra.IteratedBinaryOperations.
+  Import UniMath.Combinatorics.FiniteSets.
 
   Goal ∏ X (fin : finstruct X) (f : X -> nat),
     finsum (hinhpr fin) f = stnsum (f ∘ pr1weq (pr2 fin)).

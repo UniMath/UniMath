@@ -24,7 +24,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -43,9 +43,9 @@ Require Import UniMath.CategoryTheory.functor_categories.
 
 Require Import UniMath.CategoryTheory.Abelian.
 Require Import UniMath.CategoryTheory.ShortExactSequences.
-Require Import UniMath.CategoryTheory.category_abgr.
+Require Import UniMath.CategoryTheory.categories.abgrs.
 
-Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
@@ -1249,7 +1249,7 @@ Section short_short_exact_sequences.
   Local Opaque ZeroArrow.
 
   Definition MorphismPair_from_object (D : @DTri PT) (X : ob PT) :
-    @MorphismPair ABGR_AbelianPreCat.
+    @MorphismPair abgr_Abelian.
   Proof.
     use mk_MorphismPair.
     - exact (@to_abgrop PT X (Ob1 D)).
@@ -1262,15 +1262,15 @@ Section short_short_exact_sequences.
   Local Lemma ShortShortExactData_Eq_from_object (D : @DTri PT) (X : ob PT):
     monoidfuncomp (to_postmor_monoidfun PT X (Ob1 D) (Ob2 D) (Mor1 D))
                   (to_postmor_monoidfun PT X (Ob2 D) (Ob3 D) (Mor2 D)) =
-    ZeroArrow ABGR_has_zero (to_abgrop X (Ob1 D)) (to_abgrop X (Ob3 D)).
+    ZeroArrow abgr_Zero (to_abgrop X (Ob1 D)) (to_abgrop X (Ob3 D)).
   Proof.
     cbn. rewrite <- (@AdditiveZeroArrow_postmor_Abelian PT).
-    use monoidfun_eq. intros x. cbn. unfold to_postmor. rewrite <- assoc.
-    apply cancel_precomposition. exact (DTriCompZero D).
+    use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor.
+    rewrite <- assoc. apply cancel_precomposition. exact (DTriCompZero D).
   Qed.
 
   Definition ShortShortExactData_from_object (D : @DTri PT) (X : ob PT) :
-    @ShortShortExactData ABGR_AbelianPreCat ABGR_has_zero.
+    @ShortShortExactData abgr_Abelian abgr_Zero.
   Proof.
     use mk_ShortShortExactData.
     - exact (MorphismPair_from_object D X).
@@ -1278,12 +1278,12 @@ Section short_short_exact_sequences.
   Defined.
 
   Lemma ShortShortExact_isKernel_from_object (D : @DTri PT) (X : ob PT) :
-    isKernel (Abelian.to_Zero ABGR_AbelianPreCat)
+    isKernel (Abelian.to_Zero abgr_Abelian)
              (KernelArrow (Image (ShortShortExactData_from_object D X)))
              (Mor2 (ShortShortExactData_from_object D X))
-             (@Image_Eq ABGR_AbelianPreCat has_homsets_ABGR (ShortShortExactData_from_object D X)).
+             (@Image_Eq abgr_Abelian has_homsets_abgr (ShortShortExactData_from_object D X)).
   Proof.
-    use ABGR_isKernel.
+    use abgr_isKernel_Criteria.
     - intros D0. induction D0 as [y yH].
       set (D' := TrivialDTri PT X).
       assert (e : y · Mor2 D =
@@ -1300,20 +1300,21 @@ Section short_short_exact_sequences.
       use hinhpr.
       use tpair.
       + exact (((factorization1_epi
-                   ABGR_AbelianPreCat has_homsets_ABGR
-                   (Mor1 (ShortShortExactData_from_object D X)) : ABGR⟦_, _⟧) : monoidfun _ _)
+                   abgr_Abelian has_homsets_abgr
+                   (Mor1 (ShortShortExactData_from_object D X)) : abgr_Abelian⟦_, _⟧) :
+                  monoidfun _ _)
                  (MPMor1 Mor)).
       + cbn beta. set (comm1 := MPComm1 Mor). rewrite id_left in comm1.
         use (pathscomp0 _ comm1). clear comm1.
-        set (tmp := @factorization1 ABGR_AbelianPreCat has_homsets_ABGR _ _
+        set (tmp := @factorization1 abgr_Abelian has_homsets_abgr _ _
                                     (Mor1 (ShortShortExactData_from_object D X))).
         apply base_paths in tmp.
-        exact (! (funeqpaths tmp (MPMor1 Mor))).
+        exact (! (toforallpaths _ _ _ tmp (MPMor1 Mor))).
     - use KernelArrowisMonic.
   Qed.
 
   Definition ShortShortExact_from_object (D : @DTri PT) (X : ob PT) :
-    @ShortShortExact ABGR_AbelianPreCat has_homsets_ABGR.
+    @ShortShortExact abgr_Abelian has_homsets_abgr.
   Proof.
     use mk_ShortShortExact.
     - exact (ShortShortExactData_from_object D X).
@@ -1321,8 +1322,7 @@ Section short_short_exact_sequences.
   Defined.
 
   (** ShortShortExacts to X *)
-  Definition MorphismPair_to_object (D : @DTri PT) (X : ob PT) :
-    @MorphismPair ABGR_AbelianPreCat.
+  Definition MorphismPair_to_object (D : @DTri PT) (X : ob PT) : @MorphismPair abgr_Abelian.
   Proof.
     use mk_MorphismPair.
     - exact (@to_abgrop PT (Ob3 D) X).
@@ -1335,15 +1335,15 @@ Section short_short_exact_sequences.
   Local Lemma ShortShortExactData_Eq_to_object (D : @DTri PT) (X : ob PT) :
     monoidfuncomp (to_premor_monoidfun PT (Ob2 D) (Ob3 D) X (Mor2 D))
                   (to_premor_monoidfun PT (Ob1 D) (Ob2 D) X (Mor1 D)) =
-    ZeroArrow (Abelian.to_Zero ABGR_AbelianPreCat) (to_abgrop (Ob3 D) X) (to_abgrop (Ob1 D) X).
+    ZeroArrow (Abelian.to_Zero abgr_Abelian) (to_abgrop (Ob3 D) X) (to_abgrop (Ob1 D) X).
   Proof.
     rewrite <- (@AdditiveZeroArrow_premor_Abelian PT).
-    use monoidfun_eq. intros x. cbn. unfold to_premor. rewrite assoc.
+    use monoidfun_paths. use funextfun. intros x. cbn. unfold to_premor. rewrite assoc.
     apply cancel_postcomposition. exact (DTriCompZero D).
   Qed.
 
   Definition ShortShortExactData_to_object (D : @DTri PT) (X : ob PT) :
-    @ShortShortExactData ABGR_AbelianPreCat ABGR_has_zero.
+    @ShortShortExactData abgr_Abelian abgr_Zero.
   Proof.
     use mk_ShortShortExactData.
     - exact (MorphismPair_to_object D X).
@@ -1351,13 +1351,13 @@ Section short_short_exact_sequences.
   Defined.
 
   Lemma ShortShortExact_isKernel_to_object (D : @DTri PT) (X : ob PT) :
-    isKernel (Abelian.to_Zero ABGR_AbelianPreCat)
+    isKernel (Abelian.to_Zero abgr_Abelian)
              (KernelArrow (Image (ShortShortExactData_to_object D X)))
              (Mor2 (ShortShortExactData_to_object D X))
-             (@Image_Eq ABGR_AbelianPreCat has_homsets_ABGR
+             (@Image_Eq abgr_Abelian has_homsets_abgr
                        (ShortShortExactData_to_object D X)).
   Proof.
-    use ABGR_isKernel.
+    use abgr_isKernel_Criteria.
     - intros D0. induction D0 as [y yH].
       set (D' := InvRotDTri PT (TrivialDTri PT X)).
       assert (e : ZeroArrow (to_Zero PT) (Ob1 D) (Ob1 D') · Mor1 D' = Mor1 D · y).
@@ -1373,20 +1373,20 @@ Section short_short_exact_sequences.
       use hinhpr.
       use tpair.
       + exact (((factorization1_epi
-                   ABGR_AbelianPreCat has_homsets_ABGR
-                   (Mor1 (ShortShortExactData_to_object D X)) : ABGR⟦_, _⟧) : monoidfun _ _)
+                   abgr_Abelian has_homsets_abgr
+                   (Mor1 (ShortShortExactData_to_object D X)) : abgr_Abelian⟦_, _⟧) : monoidfun _ _)
                  (MPMor3 Mor)).
       + cbn beta. set (comm2 := MPComm2 Mor). rewrite id_right in comm2.
         use (pathscomp0 _ (! comm2)). clear comm2.
-        set (tmp := @factorization1 ABGR_AbelianPreCat has_homsets_ABGR _ _
+        set (tmp := @factorization1 abgr_Abelian has_homsets_abgr _ _
                                     (Mor1 (ShortShortExactData_to_object D X))).
         apply base_paths in tmp.
-        exact (! (funeqpaths tmp (MPMor3 Mor))).
+        exact (! (toforallpaths _ _ _ tmp (MPMor3 Mor))).
     - use KernelArrowisMonic.
   Qed.
 
   Definition ShortShortExact_to_object (D : @DTri PT) (X : ob PT) :
-    @ShortShortExact ABGR_AbelianPreCat has_homsets_ABGR.
+    @ShortShortExact abgr_Abelian has_homsets_abgr.
   Proof.
     use mk_ShortShortExact.
     - exact (ShortShortExactData_to_object D X).
@@ -1413,7 +1413,7 @@ Section triangulated_five_lemma.
   Local Opaque ZeroArrow.
 
   Definition TriangulatedRowObs_from_object (D : @DTri PT) (X : ob PT) :
-    @FiveRowObs ABGR_AbelianPreCat.
+    @FiveRowObs abgr_Abelian.
   Proof.
     use mk_FiveRowObs.
     - exact (to_abgrop X (Ob1 D)).
@@ -1424,7 +1424,7 @@ Section triangulated_five_lemma.
   Defined.
 
   Definition TriangulatedRowDiffs_from_object (D : @DTri PT) (X : ob PT) :
-    @FiveRowDiffs ABGR_AbelianPreCat (TriangulatedRowObs_from_object D X).
+    @FiveRowDiffs abgr_Abelian (TriangulatedRowObs_from_object D X).
   Proof.
     use mk_FiveRowDiffs.
     - exact (to_postmor_monoidfun PT _ _ _ (Mor1 D)).
@@ -1434,28 +1434,25 @@ Section triangulated_five_lemma.
   Defined.
 
   Definition TriangulatedRowDiffsEq_from_object (D : @DTri PT) (X : ob PT) :
-    @FiveRowDiffsEq ABGR_AbelianPreCat _ (TriangulatedRowDiffs_from_object D X).
+    @FiveRowDiffsEq abgr_Abelian _ (TriangulatedRowDiffs_from_object D X).
   Proof.
     use mk_FiveRowDiffsEq.
-    - use monoidfun_eq. rewrite ABGR_has_zero_arrow_eq.
-      intros x. cbn. unfold to_postmor. rewrite <- assoc.
+    - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor. rewrite <- assoc.
       set (tmp := DTriCompZero D). apply (maponpaths (compose x)) in tmp.
       use (pathscomp0 tmp). clear tmp. rewrite ZeroArrow_comp_right.
       rewrite <- PreAdditive_unel_zero. unfold to_unel. apply idpath.
-    - use monoidfun_eq. rewrite ABGR_has_zero_arrow_eq.
-      intros x. cbn. unfold to_postmor. rewrite <- assoc.
+    - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor. rewrite <- assoc.
       set (tmp := DTriCompZero' D). apply (maponpaths (compose x)) in tmp.
       use (pathscomp0 tmp). clear tmp. rewrite ZeroArrow_comp_right.
       rewrite <- PreAdditive_unel_zero. unfold to_unel. apply idpath.
-    - use monoidfun_eq. rewrite ABGR_has_zero_arrow_eq.
-      intros x. cbn. unfold to_postmor. rewrite <- assoc.
+    - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor. rewrite <- assoc.
       set (tmp := DTriCompZero' (RotDTri PT D)). apply (maponpaths (compose x)) in tmp.
       cbn in tmp. use (pathscomp0 tmp). clear tmp. rewrite ZeroArrow_comp_right.
       rewrite <- PreAdditive_unel_zero. unfold to_unel. apply idpath.
   Qed.
 
   Definition TriangulatedRowExacts_from_object (D : @DTri PT) (X : ob PT) :
-    @FiveRowExacts ABGR_AbelianPreCat has_homsets_ABGR _ _ (TriangulatedRowDiffsEq_from_object D X).
+    @FiveRowExacts abgr_Abelian has_homsets_abgr _ _ (TriangulatedRowDiffsEq_from_object D X).
   Proof.
     use mk_FiveRowExacts.
     - unfold isExact. exact_op (@ShortShortExact_isKernel_from_object PT D X).
@@ -1465,7 +1462,7 @@ Section triangulated_five_lemma.
   Qed.
 
   Definition TriangulatedRow_from_object (D : @DTri PT) (X : ob PT) :
-    @FiveRow ABGR_AbelianPreCat has_homsets_ABGR.
+    @FiveRow abgr_Abelian has_homsets_abgr.
   Proof.
     use mk_FiveRow.
     - exact (TriangulatedRowObs_from_object D X).
@@ -1475,7 +1472,7 @@ Section triangulated_five_lemma.
   Defined.
 
   Definition TriangulatedRowMors_from_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMors ABGR_AbelianPreCat has_homsets_ABGR
+    @FiveRowMors abgr_Abelian has_homsets_abgr
                  (TriangulatedRow_from_object D1 X) (TriangulatedRow_from_object D2 X).
   Proof.
     use mk_FiveRowMors.
@@ -1487,27 +1484,24 @@ Section triangulated_five_lemma.
   Defined.
 
   Definition TriangulatedMorsComm_from_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMorsComm ABGR_AbelianPreCat has_homsets_ABGR _ _ (TriangulatedRowMors_from_object M X).
+    @FiveRowMorsComm abgr_Abelian has_homsets_abgr _ _ (TriangulatedRowMors_from_object M X).
   Proof.
     use mk_FiveRowMorsComm.
-    - use monoidfun_eq.
-      intros x. cbn. unfold to_postmor. rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition. exact (! MPComm1 M).
-    - use monoidfun_eq.
-      intros x. cbn. unfold to_postmor. rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition. exact (! MPComm2 M).
-    - use monoidfun_eq.
-      intros x. cbn. unfold to_postmor. rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition. exact (! DComm3 M).
-    - use monoidfun_eq.
-      intros x. cbn. unfold to_postmor. rewrite <- assoc. rewrite <- assoc.
+    - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor.
+      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition. exact (! MPComm1 M).
+    - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor.
+      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition. exact (! MPComm2 M).
+    - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor.
+      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition. exact (! DComm3 M).
+    - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor.
+      rewrite <- assoc. rewrite <- assoc.
       apply cancel_precomposition. rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
       apply maponpaths. rewrite <- functor_comp. rewrite <- functor_comp.
       apply maponpaths. exact (! MPComm1 M).
   Qed.
 
   Definition TriangulatedMorphism_from_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMorphism ABGR_AbelianPreCat has_homsets_ABGR
+    @FiveRowMorphism abgr_Abelian has_homsets_abgr
                      (TriangulatedRow_from_object D1 X) (TriangulatedRow_from_object D2 X).
   Proof.
     use mk_FiveRowMorphism.
@@ -1515,8 +1509,7 @@ Section triangulated_five_lemma.
     - exact (TriangulatedMorsComm_from_object M X).
   Defined.
 
-  Definition TriangulatedRowObs_to_object (D : @DTri PT) (X : ob PT) :
-    @FiveRowObs ABGR_AbelianPreCat.
+  Definition TriangulatedRowObs_to_object (D : @DTri PT) (X : ob PT) : @FiveRowObs abgr_Abelian.
   Proof.
     use mk_FiveRowObs.
     - exact (to_abgrop (AddEquiv1 Trans (Ob2 D)) X).
@@ -1527,7 +1520,7 @@ Section triangulated_five_lemma.
   Defined.
 
   Definition TriangulatedRowDiffs_to_object (D : @DTri PT) (X : ob PT) :
-    @FiveRowDiffs ABGR_AbelianPreCat (TriangulatedRowObs_to_object D X).
+    @FiveRowDiffs abgr_Abelian (TriangulatedRowObs_to_object D X).
   Proof.
     use mk_FiveRowDiffs.
     - exact (to_premor_monoidfun PT _ _ _ (to_inv (# (AddEquiv1 Trans) (Mor1 D)))).
@@ -1537,23 +1530,20 @@ Section triangulated_five_lemma.
   Defined.
 
   Definition TriangulatedRowDiffsEq_to_object (D : @DTri PT) (X : ob PT) :
-    @FiveRowDiffsEq ABGR_AbelianPreCat _ (TriangulatedRowDiffs_to_object D X).
+    @FiveRowDiffsEq abgr_Abelian _ (TriangulatedRowDiffs_to_object D X).
   Proof.
     use mk_FiveRowDiffsEq.
-    - use monoidfun_eq. rewrite ABGR_has_zero_arrow_eq.
-      intros x. cbn. unfold to_premor. rewrite assoc.
+    - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_premor. rewrite assoc.
       set (tmp := DTriCompZero (RotDTri PT (RotDTri PT D))). cbn in tmp. cbn.
       apply (maponpaths (postcompose x)) in tmp. unfold postcompose in tmp.
       use (pathscomp0 tmp). clear tmp. rewrite ZeroArrow_comp_left.
       rewrite <- PreAdditive_unel_zero. unfold to_unel. apply idpath.
-    - use monoidfun_eq. rewrite ABGR_has_zero_arrow_eq.
-      intros x. cbn. unfold to_premor. rewrite assoc.
+    - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_premor. rewrite assoc.
       set (tmp := DTriCompZero (RotDTri PT D)). cbn in tmp. cbn.
       apply (maponpaths (postcompose x)) in tmp. unfold postcompose in tmp.
       use (pathscomp0 tmp). clear tmp. rewrite ZeroArrow_comp_left.
       rewrite <- PreAdditive_unel_zero. unfold to_unel. apply idpath.
-    - use monoidfun_eq. rewrite ABGR_has_zero_arrow_eq.
-      intros x. cbn. unfold to_premor. rewrite assoc.
+    - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_premor. rewrite assoc.
       set (tmp := DTriCompZero D). cbn in tmp. cbn.
       apply (maponpaths (postcompose x)) in tmp. unfold postcompose in tmp.
       cbn in tmp. use (pathscomp0 tmp). clear tmp. rewrite ZeroArrow_comp_left.
@@ -1561,7 +1551,7 @@ Section triangulated_five_lemma.
   Qed.
 
   Definition TriangulatedRowExacts_to_object (D : @DTri PT) (X : ob PT) :
-    @FiveRowExacts ABGR_AbelianPreCat has_homsets_ABGR _ _ (TriangulatedRowDiffsEq_to_object D X).
+    @FiveRowExacts abgr_Abelian has_homsets_abgr _ _ (TriangulatedRowDiffsEq_to_object D X).
   Proof.
     use mk_FiveRowExacts.
     - unfold isExact.
@@ -1571,7 +1561,7 @@ Section triangulated_five_lemma.
   Qed.
 
   Definition TriangulatedRow_to_object (D : @DTri PT) (X : ob PT) :
-    @FiveRow ABGR_AbelianPreCat has_homsets_ABGR.
+    @FiveRow abgr_Abelian has_homsets_abgr.
   Proof.
     use mk_FiveRow.
     - exact (TriangulatedRowObs_to_object D X).
@@ -1581,7 +1571,7 @@ Section triangulated_five_lemma.
   Defined.
 
   Definition TriangulatedRowMors_to_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMors ABGR_AbelianPreCat has_homsets_ABGR
+    @FiveRowMors abgr_Abelian has_homsets_abgr
                  (TriangulatedRow_to_object D2 X) (TriangulatedRow_to_object D1 X).
   Proof.
     use mk_FiveRowMors.
@@ -1593,27 +1583,28 @@ Section triangulated_five_lemma.
   Defined.
 
   Definition TriangulatedMorsComm_to_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMorsComm ABGR_AbelianPreCat has_homsets_ABGR _ _ (TriangulatedRowMors_to_object M X).
+    @FiveRowMorsComm abgr_Abelian has_homsets_abgr _ _ (TriangulatedRowMors_to_object M X).
   Proof.
     use mk_FiveRowMorsComm.
-    - use monoidfun_eq.
-      intros x. cbn. unfold to_premor. rewrite assoc. rewrite assoc.
-      apply cancel_postcomposition. rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
+    - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_premor.
+      rewrite assoc. rewrite assoc.
+      apply cancel_postcomposition. rewrite <- PreAdditive_invlcomp.
+      rewrite <- PreAdditive_invrcomp.
       apply maponpaths. rewrite <- functor_comp. rewrite <- functor_comp.
       apply maponpaths. exact (MPComm1 M).
-    - use monoidfun_eq.
+    - use monoidfun_paths. use funextfun.
       intros x. cbn. unfold to_premor. rewrite assoc. rewrite assoc.
       apply cancel_postcomposition. exact (DComm3 M).
-    - use monoidfun_eq.
-      intros x. cbn. unfold to_premor. rewrite assoc. rewrite assoc.
+    - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_premor.
+      rewrite assoc. rewrite assoc.
       apply cancel_postcomposition. exact (MPComm2 M).
-    - use monoidfun_eq.
+    - use monoidfun_paths. use funextfun.
       intros x. cbn. unfold to_premor. rewrite assoc. rewrite assoc.
       apply cancel_postcomposition. exact (MPComm1 M).
   Qed.
 
   Definition TriangulatedMorphism_to_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMorphism ABGR_AbelianPreCat has_homsets_ABGR
+    @FiveRowMorphism abgr_Abelian has_homsets_abgr
                      (TriangulatedRow_to_object D2 X) (TriangulatedRow_to_object D1 X) .
   Proof.
     use mk_FiveRowMorphism.
@@ -1627,27 +1618,27 @@ Section triangulated_five_lemma.
   Proof.
     set (Mor1 := TriangulatedMorphism_from_object M (Ob3 D2)).
     set (Mor2 := TriangulatedMorphism_to_object M (Ob3 D1)).
-    assert (e1 : is_z_isomorphism (@FMor3 ABGR_AbelianPreCat has_homsets_ABGR _ _ Mor1)).
+    assert (e1 : is_z_isomorphism (@FMor3 abgr_Abelian has_homsets_abgr _ _ Mor1)).
     {
       use FiveLemma.
-      - exact (@ABGR_Additive_is_iso_postmor PT _ _ _ _ H1).
-      - exact (@ABGR_Additive_is_iso_postmor PT _ _ _ _ H2).
-      - exact (ABGR_Additive_is_iso_postmor
+      - exact (@abgr_Additive_is_iso_postmor PT _ _ _ _ H1).
+      - exact (@abgr_Additive_is_iso_postmor PT _ _ _ _ H2).
+      - exact (abgr_Additive_is_iso_postmor
                  (Ob3 D2) _ _ (functor_on_is_z_isomorphism (AddEquiv1 (@Trans PT)) H1)).
-      - exact (ABGR_Additive_is_iso_postmor
+      - exact (abgr_Additive_is_iso_postmor
                  (Ob3 D2) _ _ (functor_on_is_z_isomorphism (AddEquiv1 (@Trans PT)) H2)).
     }
-    assert (e2 : is_z_isomorphism (@FMor3 ABGR_AbelianPreCat has_homsets_ABGR _ _ Mor2)).
+    assert (e2 : is_z_isomorphism (@FMor3 abgr_Abelian has_homsets_abgr _ _ Mor2)).
     {
       use FiveLemma.
-      - exact (ABGR_Additive_is_iso_premor
+      - exact (abgr_Additive_is_iso_premor
                  _ _ (Ob3 D1) (functor_on_is_z_isomorphism (AddEquiv1 (@Trans PT)) H2)).
-      - exact (ABGR_Additive_is_iso_premor
+      - exact (abgr_Additive_is_iso_premor
                  _ _ (Ob3 D1) (functor_on_is_z_isomorphism (AddEquiv1 (@Trans PT)) H1)).
-      - exact (@ABGR_Additive_is_iso_premor PT _ _ _ _ H2).
-      - exact (@ABGR_Additive_is_iso_premor PT _ _ _ _ H1).
+      - exact (@abgr_Additive_is_iso_premor PT _ _ _ _ H2).
+      - exact (@abgr_Additive_is_iso_premor PT _ _ _ _ H1).
     }
-    exact (@ABGR_Additive_premor_postmor_is_iso PT _ _ (MPMor3 M) e2 e1).
+    exact (@abgr_Additive_premor_postmor_is_iso PT _ _ (MPMor3 M) e2 e1).
   Qed.
 
   Lemma TriangulatedFiveLemma2 {D1 D2 : @DTri PT} (M : TriMor D1 D2)

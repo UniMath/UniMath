@@ -6,7 +6,7 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 
 Require Import UniMath.Algebra.BinaryOperations.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.functor_categories.
 
@@ -207,7 +207,7 @@ Section BINOP_category.
   Defined.
   Opaque binop_precategory_isweq.
 
-  Definition binop_precategory_is_category : is_category binop_precategory.
+  Definition binop_precategory_is_univalent : is_univalent binop_precategory.
   Proof.
     use dirprodpair.
     - intros a b. exact (binop_precategory_isweq a b).

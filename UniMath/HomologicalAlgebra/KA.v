@@ -16,7 +16,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
@@ -32,7 +32,7 @@ Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.equivalences.
 
-Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
@@ -63,7 +63,7 @@ Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow ishinh
    (χ^i · g^{i-1}), respectively.
 
    These are the properties that are enough to form the quotient category of C(A) using
-   [QuotPrecategory_Additive]. We call the resulting category the naive homotopy category of A, and
+   [Quotcategory_Additive]. We call the resulting category the naive homotopy category of A, and
    denote it by K(A). The objects of K(A) are objects of C(A) and Mor_{K(A)}(X, Y) =
    Mor_{C(A)}(X, Y) / (the subgroup of null-homotopic morphisms, [ComplexHomotSubgrp]).
 
@@ -318,7 +318,7 @@ Section complexes_homotopies.
      morphisms from C1 to C2, by [ComplexHomotSubgrp]. We also know that composition of a morphism
      with a morphism coming from a homotopy, is a morphism which comes from a homotopy, by
      [ComplexHomotSubgrop_comp_left] and [ComplexHomotSubgrop_comp_right]. This is enough to
-     invoke our abstract construction QuotPrecategory_Additive, to construct the naive homotopy
+     invoke our abstract construction Quotcategory_Additive, to construct the naive homotopy
      category. *)
   Local Lemma ComplexHomot_Additive_Comp :
     PreAdditiveComps (ComplexPreCat_Additive A)
@@ -333,12 +333,12 @@ Section complexes_homotopies.
 
   (** Here we construct K(A). *)
   Definition ComplexHomot_Additive : Additive :=
-    QuotPrecategory_Additive
+    Quotcategory_Additive
       (ComplexPreCat_Additive A) ComplexHomotSubgrp ComplexHomot_Additive_Comp.
 
   Definition ComplexHomotFunctor :
     AdditiveFunctor (ComplexPreCat_Additive A) ComplexHomot_Additive :=
-    QuotPrecategoryAdditiveFunctor
+    QuotcategoryAdditiveFunctor
       (ComplexPreCat_Additive A) ComplexHomotSubgrp ComplexHomot_Additive_Comp.
   Arguments ComplexHomotFunctor : simpl never.
 

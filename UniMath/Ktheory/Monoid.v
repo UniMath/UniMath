@@ -32,9 +32,11 @@ Proof. intros. exists (zero_map A zero).
        intros [f e]. apply funEquality; simpl.
        apply funextsec; intro a. induction (f a). reflexivity. Defined.
 
+Require UniMath.Combinatorics.FiniteSequences.
+
 Module Presentation'.
 
-  Require Import UniMath.Combinatorics.FiniteSequences.
+  Import UniMath.Combinatorics.FiniteSequences.
 
   Definition word X := Sequence X.
   Definition word_length {X} : word X -> nat := length.

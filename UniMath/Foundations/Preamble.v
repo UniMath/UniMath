@@ -120,7 +120,7 @@ definitions in Coq.
 
 We use "Record", which is equivalent to "Structure", instead of "Inductive" here, so we can take
 advantage of the "primitive projections" feature of Coq, which introduces η-reduction for pairs, by
-adding the option "Set Primitive Projections".  It also speeds up compilation by 56%.
+adding the option "Set Primitive Projections".  It also speeds up compilation by 56 percent.
 
 The terms produced by the "induction" tactic, when we define "total2" as a record, contain the
 "match" construction instead appealing to the eliminator.  However, assuming the eliminator will be
@@ -130,11 +130,11 @@ parameters (X:Type) and (Y:X->Type).
 
 I.e., whenever you see
 
-       match w as t0 return TYPE with | tpair _ _ x y => BODY end
+       [match w as t0 return TYPE with | tpair _ _ x y => BODY end]
 
 in a proof term, just mentally replace it by
 
-       @total2_rect _ _ (λ t0, TYPE) (λ x y, BODY) w
+       [@total2_rect _ _ (λ t0, TYPE) (λ x y, BODY) w]
 
 *)
 
