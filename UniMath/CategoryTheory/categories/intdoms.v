@@ -14,7 +14,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 Require Import UniMath.Algebra.Rigs_and_Rings.
 Require Import UniMath.Algebra.Domains_and_Fields.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 
 
@@ -171,14 +171,14 @@ Section def_intdom_category.
   Defined.
   Opaque intdom_precategory_isweq.
 
-  Definition intdom_precategory_is_category : is_category intdom_precategory.
+  Definition intdom_precategory_is_univalent : is_univalent intdom_precategory.
   Proof.
-    use mk_is_category.
+    use mk_is_univalent.
     - intros X Y. exact (intdom_precategory_isweq X Y).
     - exact has_homsets_intdom_precategory.
   Defined.
 
-  Definition intdom_category : category :=
-    mk_category intdom_precategory intdom_precategory_is_category.
+  Definition intdom_category : univalent_category :=
+    mk_category intdom_precategory intdom_precategory_is_univalent.
 
 End def_intdom_category.

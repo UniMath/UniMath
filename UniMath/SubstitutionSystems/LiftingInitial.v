@@ -28,7 +28,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
@@ -55,7 +55,7 @@ Local Open Scope cat.
 
 Local Coercion alg_carrier : algebra_ob >-> ob.
 
-Section Precategory_Algebra.
+Section category_Algebra.
 
 Variable C : precategory.
 Variable hs : has_homsets C.
@@ -882,4 +882,4 @@ Proof.
 Defined.
 
 
-End Precategory_Algebra.
+End category_Algebra.

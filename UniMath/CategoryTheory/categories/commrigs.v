@@ -13,7 +13,7 @@ Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 Require Import UniMath.Algebra.Rigs_and_Rings.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 
 
@@ -171,14 +171,14 @@ Section def_commrig_category.
   Defined.
   Opaque commrig_precategory_isweq.
 
-  Definition commrig_precategory_is_category : is_category commrig_precategory.
+  Definition commrig_precategory_is_univalent : is_univalent commrig_precategory.
   Proof.
-    use mk_is_category.
+    use mk_is_univalent.
     - intros X Y. exact (commrig_precategory_isweq X Y).
     - exact has_homsets_commrig_precategory.
   Defined.
 
-  Definition commrig_category : category :=
-    mk_category commrig_precategory commrig_precategory_is_category.
+  Definition commrig_category : univalent_category :=
+    mk_category commrig_precategory commrig_precategory_is_univalent.
 
 End def_commrig_category.

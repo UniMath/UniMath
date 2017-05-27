@@ -63,7 +63,7 @@ Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.category_hset.
@@ -77,7 +77,7 @@ Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
 Require Import UniMath.CategoryTheory.exponentials.
@@ -1664,14 +1664,14 @@ End post_composition_functor.
 (** * Swapping of functor category arguments *)
 Section functor_swap.
 
-Lemma is_cocont_functor_cat_swap (C D : precategory) (E : Precategory) :
+Lemma is_cocont_functor_cat_swap (C D : precategory) (E : category) :
   is_cocont (functor_cat_swap C D E).
 Proof.
 apply left_adjoint_cocont; try apply homset_property.
 apply is_left_adjoint_functor_cat_swap.
 Defined.
 
-Lemma is_omega_cocont_functor_cat_swap (C D : precategory) (E : Precategory) :
+Lemma is_omega_cocont_functor_cat_swap (C D : precategory) (E : category) :
   is_omega_cocont (functor_cat_swap C D E).
 Proof.
 intros d L ccL HccL.
@@ -1683,7 +1683,7 @@ End functor_swap.
 (** * The forgetful functor from Set/X to Set preserves colimits *)
 Section cocont_slicecat_to_cat_HSET.
 
-Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
+Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET) (only parsing).
 
 Lemma preserves_colimit_slicecat_to_cat_HSET (X : HSET)
   (g : graph) (d : diagram g (HSET / X)) (L : HSET / X) (ccL : cocone d L) :

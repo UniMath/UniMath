@@ -23,9 +23,9 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
@@ -160,9 +160,9 @@ End coproduct_functor_adjunction.
 (** * Swapping of arguments in functor categories *)
 Section functor_swap.
 
-Local Notation "[ C , D ]" := (functor_Precategory C D).
+Local Notation "[ C , D ]" := (functor_category C D).
 
-Lemma functor_swap {C D : precategory} {E : Precategory} : functor C [D,E] → functor D [C,E].
+Lemma functor_swap {C D : precategory} {E : category} : functor C [D,E] → functor D [C,E].
 Proof.
 intros F.
 mkpair.
@@ -187,7 +187,7 @@ mkpair.
   | intros a b c f g; apply (nat_trans_eq (homset_property E)); intro x; simpl; apply functor_comp]).
 Defined.
 
-Lemma functor_cat_swap_nat_trans {C D : precategory} {E : Precategory}
+Lemma functor_cat_swap_nat_trans {C D : precategory} {E : category}
   (F G : functor C [D, E]) (α : nat_trans F G) :
   nat_trans (functor_swap F) (functor_swap G).
 Proof.
@@ -199,7 +199,7 @@ mkpair.
 + abstract (intros a b f; apply (nat_trans_eq (homset_property E)); intro c; simpl; apply nat_trans_ax).
 Defined.
 
-Lemma functor_cat_swap (C D : precategory) (E : Precategory) : functor [C, [D, E]] [D, [C, E]].
+Lemma functor_cat_swap (C D : precategory) (E : category) : functor [C, [D, E]] [D, [C, E]].
 Proof.
 mkpair.
 - mkpair.
@@ -212,7 +212,7 @@ mkpair.
     now apply (nat_trans_eq (homset_property E))]).
 Defined.
 
-Definition id_functor_cat_swap (C D : precategory) (E : Precategory) :
+Definition id_functor_cat_swap (C D : precategory) (E : category) :
   nat_trans (functor_identity [C,[D,E]])
             (functor_composite (functor_cat_swap C D E) (functor_cat_swap D C E)).
 Proof.
@@ -229,7 +229,7 @@ mkpair.
             apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
 Defined.
 
-Definition functor_cat_swap_id (C D : precategory) (E : Precategory) :
+Definition functor_cat_swap_id (C D : precategory) (E : category) :
   nat_trans (functor_composite (functor_cat_swap D C E) (functor_cat_swap C D E))
             (functor_identity [D,[C,E]]).
 Proof.
@@ -246,7 +246,7 @@ mkpair.
             apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
 Defined.
 
-Lemma form_adjunction_functor_cat_swap (C D : precategory) (E : Precategory) :
+Lemma form_adjunction_functor_cat_swap (C D : precategory) (E : category) :
   form_adjunction _ _ (id_functor_cat_swap C D E) (functor_cat_swap_id C D E).
 Proof.
 set (hsE := homset_property E).
@@ -261,7 +261,7 @@ split; intro F.
   now intro d; apply (nat_trans_eq hsE); intro c; apply id_left.
 Qed. (* This Qed is very slow... I don't see how to make it faster *)
 
-Lemma are_adjoint_functor_cat_swap (C D : precategory) (E : Precategory) :
+Lemma are_adjoint_functor_cat_swap (C D : precategory) (E : category) :
   are_adjoints (@functor_cat_swap C D E) (@functor_cat_swap D C E).
 Proof.
 mkpair.
@@ -269,7 +269,7 @@ mkpair.
 - apply form_adjunction_functor_cat_swap.
 Defined.
 
-Lemma is_left_adjoint_functor_cat_swap (C D : precategory) (E : Precategory) :
+Lemma is_left_adjoint_functor_cat_swap (C D : precategory) (E : category) :
   is_left_adjoint (functor_cat_swap C D E).
 Proof.
 mkpair.

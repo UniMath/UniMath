@@ -9,7 +9,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.pushouts.
@@ -293,7 +293,7 @@ Section def_po.
 
   Section Universal_Unique.
 
-    Hypothesis H : is_category C.
+    Hypothesis H : is_univalent C.
 
     Lemma inv_from_iso_iso_from_Pushout (a b c : C) (f : C⟦a, b⟧) (g : C⟦a, c⟧)
           (Po : Pushout f g) (Po' : Pushout f g):

@@ -10,7 +10,7 @@ bicategories code strongly influenced the proofs in this file.
 ************************************************************)
 
 Require Import UniMath.Foundations.PartD.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
@@ -315,9 +315,9 @@ Defined.
 
 Definition Cat_1mor_2mor : prebicategory_ob_1mor_2mor.
 Proof.
-  exists category.
+  exists univalent_category.
   intros a b.
-  exact (functor_precategory a b (category_has_homsets b)).
+  exact (functor_precategory a b (univalent_category_has_homsets b)).
 Defined.
 
 Definition Cat_id_comp : prebicategory_id_comp.
@@ -328,8 +328,8 @@ Proof.
     exact functor_identity.
   - simpl.
     intros a b c.
-    exact (functorial_composition a b c (category_has_homsets b)
-                                        (category_has_homsets c)).
+    exact (functorial_composition a b c (univalent_category_has_homsets b)
+                                        (univalent_category_has_homsets c)).
 Defined.
 
 Definition Cat_data : prebicategory_data.
@@ -339,16 +339,16 @@ Proof.
   repeat split.
   - intros.
     simpl in a,b,c,d.
-    exact (Catlike_associator a b c d (category_has_homsets b)
-                                      (category_has_homsets c)
-                                      (category_has_homsets d)).
+    exact (Catlike_associator a b c d (univalent_category_has_homsets b)
+                                      (univalent_category_has_homsets c)
+                                      (univalent_category_has_homsets d)).
   - intros.
     simpl in a, b.
-    exact (Catlike_left_unitor a b (category_has_homsets a)
-                                   (category_has_homsets b)).
+    exact (Catlike_left_unitor a b (univalent_category_has_homsets a)
+                                   (univalent_category_has_homsets b)).
   - intros.
     simpl in a, b.
-    exact (Catlike_right_unitor a b (category_has_homsets b)).
+    exact (Catlike_right_unitor a b (univalent_category_has_homsets b)).
 Defined.
 
 Definition Cat_has_2mor_set : has_2mor_sets Cat_data.
@@ -356,7 +356,7 @@ Proof.
   unfold has_2mor_sets.
   intros a b f g.
   apply isaset_nat_trans.
-  exact (category_has_homsets b).
+  exact (univalent_category_has_homsets b).
 Defined.
 
 Definition Cat_associator_and_unitors_are_iso : associator_and_unitors_are_iso Cat_data.
@@ -395,7 +395,7 @@ Definition Cat_has_homcats : has_homcats Cat_prebicategory.
 Proof.
   unfold has_homcats.
   intros a b.
-  apply is_category_functor_category.
+  apply is_univalent_functor_category.
 Defined.
 
 (* TODO: "Should be easy" *)

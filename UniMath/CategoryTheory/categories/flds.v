@@ -14,7 +14,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 Require Import UniMath.Algebra.Rigs_and_Rings.
 Require Import UniMath.Algebra.Domains_and_Fields.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 
 (** * Precategory of flds *)
@@ -168,13 +168,13 @@ Section def_fld_category.
   Defined.
   Opaque fld_precategory_isweq.
 
-  Definition fld_precategory_is_category : is_category fld_precategory.
+  Definition fld_precategory_is_univalent : is_univalent fld_precategory.
   Proof.
-    use mk_is_category.
+    use mk_is_univalent.
     - intros X Y. exact (fld_precategory_isweq X Y).
     - exact has_homsets_fld_precategory.
   Defined.
 
-  Definition fld_category : category := mk_category fld_precategory fld_precategory_is_category.
+  Definition fld_category : univalent_category := mk_category fld_precategory fld_precategory_is_univalent.
 
 End def_fld_category.

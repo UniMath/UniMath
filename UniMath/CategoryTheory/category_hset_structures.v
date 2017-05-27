@@ -36,7 +36,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -754,7 +754,7 @@ End exponentials_functor_cat.
 (** * Various results on Set/X *)
 Section set_slicecat.
 
-Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
+Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET) (only parsing).
 
 Lemma Terminal_HSET_slice X : Terminal (HSET / X).
 Proof.
@@ -879,7 +879,7 @@ Section products_set_slice.
    should be from the one in [X,Set] using the equivalence between Set/X
    and [X,Set] *)
 (* Require Import UniMath.CategoryTheory.set_slice_fam_equiv. *)
-(* Require Import UniMath.CategoryTheory.DiscretePrecategory. *)
+(* Require Import UniMath.CategoryTheory.DiscreteCategory. *)
 
 (* Lemma Products_HSET_slice I X : Products I (HSET / X). *)
 (* Proof. *)

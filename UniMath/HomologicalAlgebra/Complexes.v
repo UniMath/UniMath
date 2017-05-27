@@ -23,7 +23,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -39,7 +39,7 @@ Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 
-Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
@@ -1313,15 +1313,15 @@ Section complexes_additive.
     - intros x y. exact (MorphismOp A).
   Defined.
 
-  Definition ComplexPreCat_PrecategoryWithAbgrops : PrecategoryWithAbgrops.
+  Definition ComplexPreCat_categoryWithAbgrops : categoryWithAbgrops.
   Proof.
-    use mk_PrecategoryWithAbgrops.
+    use mk_categoryWithAbgrops.
     - exact ComplexPreCat_precategoryWithBinOps.
     - exact (has_homsets_ComplexPreCat A).
     - intros x y. exact (MorphismOp_isabgrop A x y).
   Defined.
 
-  Lemma ComplexPreCat_isPreAdditive : isPreAdditive ComplexPreCat_PrecategoryWithAbgrops.
+  Lemma ComplexPreCat_isPreAdditive : isPreAdditive ComplexPreCat_categoryWithAbgrops.
   Proof.
     split.
     - intros x y z f.
@@ -1347,7 +1347,7 @@ Section complexes_additive.
   Lemma ComplexPreCat_PreAdditive : PreAdditive.
   Proof.
     use mk_PreAdditive.
-    - exact ComplexPreCat_PrecategoryWithAbgrops.
+    - exact ComplexPreCat_categoryWithAbgrops.
     - exact ComplexPreCat_isPreAdditive.
   Defined.
 

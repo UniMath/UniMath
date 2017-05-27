@@ -50,6 +50,7 @@ Definition unop (X : UU) : UU := X -> X.
 
 (** *** Binary operations *)
 
+
 (** **** General definitions *)
 
 Definition islcancelable {X : UU} (opp : binop X) (x : X) : UU := isincl (fun x0 : X => opp x x0).
@@ -115,6 +116,9 @@ Defined.
 Definition isunit {X : UU} (opp : binop X) (un0 : X) : UU :=
   dirprod (islunit opp un0) (isrunit opp un0).
 
+Definition isunitpair {X : UU} {opp : binop X} {un0 : X} (H1 : islunit opp un0)
+           (H2 : isrunit opp un0) : isunit opp un0 := dirprodpair H1 H2.
+
 Definition isunital {X : UU} (opp : binop X) : UU := total2 (fun un0 : X => isunit opp un0).
 
 Definition isunitalpair {X : UU} {opp : binop X} (un0 : X) (is : isunit opp un0) :
@@ -132,6 +136,9 @@ Defined.
 (** *)
 
 Definition ismonoidop {X : UU} (opp : binop X) : UU := dirprod (isassoc opp) (isunital opp).
+
+Definition mk_ismonoidop {X : UU} {opp : binop X} (H1 : isassoc opp) (H2 : isunital opp) :
+  ismonoidop opp := dirprodpair H1 H2.
 
 Definition assocax_is {X : UU} {opp : binop X} : ismonoidop opp -> isassoc opp := @pr1 _ _.
 
@@ -178,6 +185,9 @@ Defined.
 Definition isinv {X : UU} (opp : binop X) (un0 : X) (inv0 : X -> X) : UU :=
   dirprod (islinv opp un0 inv0) (isrinv opp un0 inv0).
 
+Definition mk_isinv {X : UU} {opp : binop X} {un0 : X} {inv0 : X -> X} (H1 : islinv opp un0 inv0)
+           (H2 : isrinv opp un0 inv0) : isinv opp un0 inv0 := dirprodpair H1 H2.
+
 Lemma isapropisinv {X : hSet} (opp : binop X) (un0 : X) (inv0 : X -> X) :
   isaprop (isinv opp un0 inv0).
 Proof.
@@ -189,6 +199,9 @@ Defined.
 
 Definition invstruct {X : UU} (opp : binop X) (is : ismonoidop opp) : UU :=
   total2 (fun inv0 : X -> X => isinv opp (unel_is is) inv0).
+
+Definition mk_invstruct {X : UU} {opp : binop X} {is : ismonoidop opp} (inv0 : X -> X)
+           (H : isinv opp (unel_is is) inv0) : invstruct opp is := tpair _ inv0 H.
 
 Definition isgrop {X : UU} (opp : binop X) : UU :=
   total2 (fun is : ismonoidop opp => invstruct opp is).
@@ -875,6 +888,7 @@ Proof.
   - apply maponpaths.
     apply homotinvweqweq0.
 Defined.
+
 Lemma islunit_weq_fwd {X Y : UU} (H : weq X Y) (opp : binop X) (x0 : X) :
   islunit opp x0 → islunit (binop_weq_fwd H opp) (H x0).
 Proof.
@@ -887,6 +901,7 @@ Proof.
     + apply is.
   - apply homotweqinvweq.
 Defined.
+
 Lemma isrunit_weq_fwd {X Y : UU} (H : weq X Y) (opp : binop X) (x0 : X) :
   isrunit opp x0 → isrunit (binop_weq_fwd H opp) (H x0).
 Proof.
@@ -899,6 +914,7 @@ Proof.
     + apply is.
   - apply homotweqinvweq.
 Defined.
+
 Lemma isunit_weq_fwd {X Y : UU} (H : weq X Y) (opp : binop X) (x0 : X) :
   isunit opp x0 → isunit (binop_weq_fwd H opp) (H x0).
 Proof.
@@ -1379,6 +1395,20 @@ Proof.
   apply (setproperty Y).
 Defined.
 
+Definition isbinopfun_twooutof3b {A B C : setwithbinop} (f : A -> B) (g : B -> C)
+           (H : issurjective f) : isbinopfun (g ∘ f)%functions -> isbinopfun f -> isbinopfun g.
+Proof.
+  intros A B C f g H H1 H2.
+  use mk_isbinopfun.
+  intros b1 b2.
+  use (squash_to_prop (H b1) (@setproperty C _ _)). intros H1'.
+  use (squash_to_prop (H b2) (@setproperty C _ _)). intros H2'.
+  rewrite <- (hfiberpr2 _ _ H1'). rewrite <- (hfiberpr2 _ _ H2').
+  use (pathscomp0
+         (! (maponpaths (fun b : B => g b) (H2 (hfiberpr1 f b1 H1') (hfiberpr1 f b2 H2'))))).
+  exact (H1 (hfiberpr1 f b1 H1') (hfiberpr1 f b2 H2')).
+Qed.
+
 Definition binopfun (X Y : setwithbinop) : UU := total2 (fun f : X -> Y => isbinopfun f).
 
 Definition binopfunpair {X Y : setwithbinop} (f : X -> Y) (is : isbinopfun f) : binopfun X Y :=
@@ -1526,6 +1556,22 @@ Proof.
   - exact (setwithbinop_univalence_isweq X Y).
 Defined.
 Opaque setwithbinop_univalence.
+
+
+(** **** hfiber and binop*)
+Local Lemma hfiberbinop_path {A B : setwithbinop} (f : binopfun A B) (b1 b2 : B)
+      (hf1 : hfiber (pr1 f) b1) (hf2 : hfiber (pr1 f) b2) :
+  pr1 f (@op A (pr1 hf1) (pr1 hf2)) = (@op B b1 b2).
+Proof.
+  intros A B f b1 b2 hf1 hf2.
+  use (pathscomp0 (binopfunisbinopfun f _ _)).
+  rewrite <- (hfiberpr2 _ _ hf1). rewrite <- (hfiberpr2 _ _ hf2). use idpath.
+Qed.
+
+Definition hfiberbinop {A B : setwithbinop} (f : binopfun A B) (b1 b2 : B)
+           (hf1 : hfiber (pr1 f) b1) (hf2 : hfiber (pr1 f) b2) :
+  hfiber (pr1 f) (@op B b1 b2) :=
+  hfiberpair (pr1 f) (@op A (pr1 hf1) (pr1 hf2)) (hfiberbinop_path f b1 b2 hf1 hf2).
 
 
 (** **** Transport of properties of a binary operation  *)

@@ -16,7 +16,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Lists.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
@@ -76,7 +76,7 @@ Definition sort : hSet := @tpair _ (λ X, isaset X) bool isasetbool.
 Definition ty : sort := true.
 Definition el : sort := false.
 
-Local Definition SET_over_sort : Precategory.
+Local Definition SET_over_sort : category.
 Proof.
 exists (SET / sort).
 now apply has_homsets_slice_precat.

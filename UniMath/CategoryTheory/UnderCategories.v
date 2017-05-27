@@ -3,7 +3,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 
@@ -72,21 +72,21 @@ Section def_underprecategories.
     exact (mk_Under_mor X Z (Under_mor_mor f · Under_mor_mor g) (Under_comp_eq f g)).
   Defined.
 
-  Definition UnderPrecategory_ob_mor : precategory_ob_mor.
+  Definition Undercategory_ob_mor : precategory_ob_mor.
   Proof.
     exists Under_ob.
     exact Under_mor.
   Defined.
 
-  Definition UnderPrecategory_data : precategory_data.
+  Definition Undercategory_data : precategory_data.
   Proof.
-    exists UnderPrecategory_ob_mor.
+    exists Undercategory_ob_mor.
     split.
     - exact Under_id.
     - exact Under_comp.
   Defined.
 
-  Definition is_precategory_UnderPrecategory_data : is_precategory UnderPrecategory_data.
+  Definition is_precategory_Undercategory_data : is_precategory Undercategory_data.
   Proof.
     repeat split.
     - intros. apply Under_mor_equality. apply id_left.
@@ -94,13 +94,13 @@ Section def_underprecategories.
     - intros. apply Under_mor_equality. apply assoc.
   Defined.
 
-  Definition UnderPrecategory : precategory.
+  Definition Undercategory : precategory.
   Proof.
-    exists UnderPrecategory_data.
-    exact is_precategory_UnderPrecategory_data.
+    exists Undercategory_data.
+    exact is_precategory_Undercategory_data.
   Defined.
 
-  Lemma has_homsets_Under : has_homsets UnderPrecategory.
+  Lemma has_homsets_Under : has_homsets Undercategory.
   Proof.
     intros X Y.
     apply (isaset_Under_mor X Y).
@@ -115,7 +115,7 @@ Section undercategories_morphisms.
   Variable C : precategory.
   Hypothesis hs : has_homsets C.
 
-  Local Notation "c / C" := (@UnderPrecategory C hs c).
+  Local Notation "c / C" := (@Undercategory C hs c).
 
   Definition Under_precategories_mor_ob {c c' : C} (h : C⟦c, c'⟧) : c' / C → c / C.
   Proof.
