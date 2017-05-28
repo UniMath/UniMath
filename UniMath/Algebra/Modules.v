@@ -3,11 +3,9 @@
 Require Import UniMath.Algebra.Rigs_and_Rings.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.Algebra.Domains_and_Fields.
-Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.Foundations.PartD.
 
 
