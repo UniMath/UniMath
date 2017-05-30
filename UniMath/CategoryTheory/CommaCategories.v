@@ -15,7 +15,7 @@ Contents :
         - forgetful functor [cComma_pr1]
         - morphism [f : C ⟦c, c'⟧] induces
           [functor_cComma_mor : functor (c' ↓ K) (c ↓ K)]
-        - general comma categories (T ↓ S)
+        - general comma precategories [comma_precategory]
 
 ************************************************************)
 
@@ -188,9 +188,9 @@ Definition functor_cComma_mor : functor _ _ := tpair _ _ is_functor_cComma_mor_f
 End lemmas_on_const_comma_cats.
 
 
-(** * The general comma categories *)
+(** * The general comma precategories *)
 
-Section general_comma_categories.
+Section general_comma_precategories.
 
 Local Open Scope cat.
 
@@ -213,73 +213,75 @@ Definition comma_cat_mor : comma_cat_ob -> comma_cat_ob -> UU :=
 
 Definition comma_cat_ob_mor : precategory_ob_mor := precategory_ob_mor_pair comma_cat_ob comma_cat_mor.
 
-Definition comma_cat_id_comp : precategory_id_comp comma_cat_ob_mor.
+Definition comma_cat_id : ∏ edf : comma_cat_ob_mor, comma_cat_ob_mor ⟦ edf, edf ⟧.
 Proof.
-  use dirprodpair.
-  - intro edf. cbn. destruct edf as [ed f]. destruct ed as [e d].
-    exists (dirprodpair (identity e) (identity d)). cbn.
-    rewrite 2 functor_id.
-    rewrite id_right.
-    rewrite id_left.
-    apply idpath.
-  - cbn. intros uvf xyg zwh ijp klq. destruct ijp as [ij p]. destruct klq as [kl q]. destruct ij as [i j]. destruct kl as [k l].
-    exists (dirprodpair (i · k) (j · l)). cbn.
-    rewrite 2 functor_comp. destruct uvf as [uv f]. cbn.
-    rewrite assoc. cbn in p.
-    rewrite p. destruct xyg as [xy g]. cbn. cbn in q.
-    rewrite <- assoc.
-    rewrite q.
-    rewrite assoc.
-    apply idpath.
+  intro edf. cbn.
+  exists (dirprodpair (identity (pr1 (pr1 edf))) (identity (pr2 (pr1 edf)))). cbn.
+  abstract (
+    rewrite 2 functor_id;
+    rewrite id_right;
+    rewrite id_left;
+    apply idpath
+    ).
 Defined.
+
+Definition comma_cat_comp : ∏ uvf xyg zwh : comma_cat_ob, comma_cat_mor uvf xyg → comma_cat_mor xyg zwh → comma_cat_mor uvf zwh.
+Proof.
+  intros uvf xyg zwh ijp klq.
+  exists (dirprodpair (pr1 (pr1 ijp) · pr1 (pr1 klq)) (pr2 (pr1 ijp) · pr2 (pr1 klq))). cbn.
+  abstract (
+    rewrite 2 functor_comp;
+    rewrite assoc;
+    rewrite (pr2 ijp);
+    rewrite <- assoc;
+    rewrite (pr2 klq);
+    rewrite assoc;
+    apply idpath
+    ).
+Defined.
+
+Definition comma_cat_id_comp : precategory_id_comp comma_cat_ob_mor := dirprodpair comma_cat_id comma_cat_comp.
 
 Definition comma_cat_data : precategory_data := tpair _ comma_cat_ob_mor comma_cat_id_comp.
 
-Definition comma_cat_data_H1 :  ∏ (abf cdg : comma_cat_data) (hkp : abf --> cdg), identity abf · hkp = hkp .
+Definition comma_cat_data_id_left :  ∏ (abf cdg : comma_cat_data) (hkp : abf --> cdg), identity abf · hkp = hkp .
 Proof.
-  intros abf cdg hkp. destruct hkp as [hk p]. destruct hk as [h k]. destruct abf as [ab f]. destruct ab as [a b].
+  intros abf cdg hkp.
   use total2_paths2_f.
   - use total2_paths2.
     + cbn. apply id_left.
     + cbn. apply id_left.
-  - cbn. apply (pr2 C).
-Defined.
+  - cbn. apply (homset_property C).
+Qed.
 
-Definition comma_cat_data_H2 :  ∏ (abf cdg : comma_cat_data) (hkp : abf --> cdg), hkp · identity cdg = hkp .
+Definition comma_cat_data_id_right :  ∏ (abf cdg : comma_cat_data) (hkp : abf --> cdg), hkp · identity cdg = hkp .
 Proof.
-  intros abf cdg hkp. destruct hkp as [hk p]. destruct hk as [h k]. destruct abf as [ab f]. destruct ab as [a b].
+  intros abf cdg hkp.
   use total2_paths2_f.
   - use total2_paths2.
     + cbn. apply id_right.
     + cbn. apply id_right.
-  - cbn. apply (pr2 C).
-Defined.
+  - cbn. apply (homset_property C).
+Qed.
 
-Definition comma_cat_data_H3 :
+Definition comma_cat_data_assoc :
   ∏ (stf uvg xyh zwi : comma_cat_data) (jkp : stf --> uvg) (lmq : uvg --> xyh) (nor : xyh --> zwi), jkp · (lmq · nor) = (jkp · lmq) · nor .
 Proof.
   intros stf uvg xyh zwi jkp lmq nor.
-  destruct stf as [st f]. destruct st as [s t].
-  destruct uvg as [uv g]. destruct uv as [u v].
-  destruct xyh as [xy h]. destruct xy as [x y].
-  destruct zwi as [zw i]. destruct zw as [z w].
-  destruct jkp as [jk p]. destruct jk as [j k].
-  destruct lmq as [lm q]. destruct lm as [l m].
-  destruct nor as [no r]. destruct no as [n o].
   use total2_paths2_f.
   - use total2_paths2.
     + cbn. apply assoc.
     + cbn. apply assoc.
-  - apply (pr2 C).
-Defined.
+  - apply (homset_property C).
+Qed.
 
 Definition is_precategory_comma_cat_data : is_precategory comma_cat_data :=
-  mk_is_precategory comma_cat_data_H1 comma_cat_data_H2 comma_cat_data_H3.
+  mk_is_precategory comma_cat_data_id_left comma_cat_data_id_right comma_cat_data_assoc.
 
-Definition comma_category : precategory := mk_precategory comma_cat_data is_precategory_comma_cat_data.
+Definition comma_precategory : precategory := mk_precategory comma_cat_data is_precategory_comma_cat_data.
 
 Local Close Scope cat.
 
-End general_comma_categories.
+End general_comma_precategories.
 
-Notation "( T ↓ S )" := (comma_category S T) : cat.
+Local Notation "( T ↓ S )" := (comma_precategory S T) : cat.
