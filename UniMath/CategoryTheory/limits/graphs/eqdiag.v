@@ -44,7 +44,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -97,12 +97,12 @@ Proof.
   now induction ex.
 Qed.
 
-Definition eq_diag  {C : Precategory} {g : graph} (d d' : diagram g C) :=
+Definition eq_diag  {C : category} {g : graph} (d d' : diagram g C) :=
   ∑ (eq_v : ∏ v: vertex g, dob d v = dob d' v), ∏ (v v':vertex g) (f:edge v v'),
   transportf (fun obj => C⟦obj, dob d v'⟧)  (eq_v v) (dmor d f) =
   transportb (fun obj => C⟦_, obj⟧) (eq_v v') (dmor d' f).
 
-Lemma eq_is_eq_diag {C : Precategory} {g : graph} (d d' : diagram g C)  :
+Lemma eq_is_eq_diag {C : category} {g : graph} (d d' : diagram g C)  :
   d = d' -> eq_diag d d'.
 Proof.
   intro e.
@@ -111,7 +111,7 @@ Proof.
   exact (fun x y z => idpath _).
 Qed.
 
-Lemma eq_diag_is_eq {C : Precategory} {g : graph} (d d' : diagram g C) :
+Lemma eq_diag_is_eq {C : category} {g : graph} (d d' : diagram g C) :
   eq_diag d d' -> d = d'.
 Proof.
   intros [eqv autreq].
@@ -156,7 +156,7 @@ Qed.
 (* We don't want to use the equivalence with bare identity to show the
 apply pathsinv0 because we want computation (Defined)
  *)
-Lemma sym_eq_diag  {C : Precategory} {g : graph} (d d' : diagram g C) :
+Lemma sym_eq_diag  {C : category} {g : graph} (d d' : diagram g C) :
   eq_diag d d' -> eq_diag d' d.
 Proof.
   intros eq_d.
@@ -190,7 +190,7 @@ Proof.
 Defined.
 
 Lemma eq_diag_mkcocone  :
-  ∏ {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : category} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (heq_d: eq_diag d d')
     {c : C} (cc:cocone d c),
@@ -223,7 +223,7 @@ Defined.
 
 (* The dual proof *)
 Lemma eq_diag_mkcone  :
-  ∏ {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : category} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (heq_d: eq_diag d d')
     {c : C} (cc:cone d c),
@@ -258,7 +258,7 @@ Defined.
 
 
 Lemma eq_diag_islimcone:
-  ∏ {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : category} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (eq_d : eq_diag d d')
     {c : C} {cc:cone d c}
@@ -310,7 +310,7 @@ This proof could be deduced from the previous if there was a lemma
 stating that colimits are limits in the dual category.
  *)
 Lemma eq_diag_iscolimcocone:
-  ∏ {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : category} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (eq_d : eq_diag d d')
     {c : C} {cc:cocone d c}
@@ -362,7 +362,7 @@ Qed.
 
 
 Definition eq_diag_liftcolimcocone
-           {C : Precategory} {g : graph} {d : diagram g C}
+           {C : category} {g : graph} {d : diagram g C}
            (d' : diagram g C)
            (eq_d : eq_diag d d')
            (cc:ColimCocone d ) : ColimCocone d'
@@ -370,7 +370,7 @@ Definition eq_diag_liftcolimcocone
                                                  (isColimCocone_ColimCocone cc)).
 
 Definition eq_diag_liftlimcone
-           {C : Precategory} {g : graph} {d : diagram g C}
+           {C : category} {g : graph} {d : diagram g C}
            (d' : diagram g C)
            (eq_d : eq_diag d d')
            (cc:LimCone d ) : LimCone d'

@@ -18,7 +18,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
@@ -45,7 +45,7 @@ Local Open Scope cat.
 
 Local Coercion alg_carrier : algebra_ob >-> ob.
 
-Section Precategory_Algebra.
+Section category_Algebra.
 
 Variables (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C).
 Variables (IC : Initial C) (CC : Colims_of_shape nat_graph C).
@@ -665,4 +665,4 @@ Proof.
 apply (mk_Initial InitHSS), isInitial_InitHSS.
 Defined.
 
-End Precategory_Algebra.
+End category_Algebra.

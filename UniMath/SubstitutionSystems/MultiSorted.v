@@ -33,7 +33,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.Combinatorics.Lists.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
@@ -64,6 +64,7 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
+Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
 
 Local Open Scope cat.
 
@@ -88,13 +89,15 @@ Section MBindingSig.
 
 Variables (sort : hSet).
 
-Local Definition SET_over_sort : Precategory.
+Local Definition SET_over_sort : category.
 Proof.
 exists (SET / sort).
 now apply has_homsets_slice_precat.
 Defined.
 
 Let hs : has_homsets (SET / sort) := homset_property SET_over_sort.
+
+Let BC := BinCoproducts_slice_precat has_homsets_HSET BinCoproductsHSET sort: BinCoproducts (SET / sort).
 
 (** Definition of multi sorted signatures *)
 Definition MultiSortedSig : UU :=
@@ -137,15 +140,21 @@ mkpair.
             apply subtypeEquality; try (intro x; apply has_homsets_HSET)).
 Defined.
 
+(*
 (** The object (1,λ _,s) in SET/sort that can be seen as a sorted variable *)
 Local Definition constHSET_slice (s : sort) : SET / sort.
 Proof.
 exists (TerminalObject TerminalHSET); simpl.
 apply (λ x, s).
 Defined.
+ *)
+Local Definition constHSET_slice := constHSET_slice sort.
 
+(*
 Definition sorted_option_functor (s : sort) : functor (SET / sort) (SET / sort) :=
   constcoprod_functor1 (BinCoproducts_HSET_slice sort) (constHSET_slice s).
+ *)
+Local Definition sorted_option_functor := sorted_option_functor sort.
 
 (** Sorted option functor for lists (also called option in the note) *)
 Local Definition option_list (xs : list sort) : functor (SET / sort) (SET / sort).
@@ -527,16 +536,19 @@ End MBindingSig.
 
 (** Alternative version using [X,SET] instead of SET/X below. There is no proof that the
     functor we obtain using this approach is omega-cocontinuous yet. *)
+Require UniMath.CategoryTheory.DiscreteCategory.
+Require UniMath.CategoryTheory.EquivalencesExamples.
+
 Module alt.
 
-Require Import UniMath.CategoryTheory.DiscretePrecategory.
-Require Import UniMath.CategoryTheory.EquivalencesExamples.
+Import UniMath.CategoryTheory.DiscreteCategory.
+Import UniMath.CategoryTheory.EquivalencesExamples.
 
 (** * Definition of multisorted binding signatures *)
 Section MBindingSig.
 
 Variables (sort : UU) (eq : isdeceq sort). (* Can we eliminate this assumption? *)
-Variables (C : Precategory) (BP : BinProducts C) (BC : BinCoproducts C) (TC : Terminal C).
+Variables (C : category) (BP : BinProducts C) (BC : BinCoproducts C) (TC : Terminal C).
 
 (** Define the discrete category of sorts *)
 Let sort_cat : precategory := discrete_precategory sort.
@@ -544,7 +556,7 @@ Let sort_cat : precategory := discrete_precategory sort.
 Let hsC : has_homsets C := homset_property C.
 
 (** This represents "sort → C" *)
-Let sortToC : Precategory := [sort_cat,C].
+Let sortToC : category := [sort_cat,C].
 
 Local Lemma has_homsets_sortToC : has_homsets sortToC.
 Proof.
@@ -559,7 +571,7 @@ Defined.
 Local Definition mk_sortToC (f : sort → C) : sortToC :=
   functor_discrete_precategory _ _ f.
 
-Local Definition proj_gen_fun (D : precategory) (E : Precategory) (d : D) : functor [D,E] E.
+Local Definition proj_gen_fun (D : precategory) (E : category) (d : D) : functor [D,E] E.
 Proof.
 mkpair.
 + mkpair.
@@ -568,7 +580,7 @@ mkpair.
 + abstract (split; [intro f; apply idpath|intros f g h fg gh; apply idpath]).
 Defined.
 
-Local Definition proj_gen {D : precategory} {E : Precategory} : functor D [[D,E],E].
+Local Definition proj_gen {D : precategory} {E : category} : functor D [[D,E],E].
 Proof.
 mkpair.
 + mkpair.
@@ -710,7 +722,7 @@ Defined.
 
 
 (* From here on things are not so nice: *)
-Local Definition MultiSortedSigToFunctor_helper1 (C1 D E1 : precategory) (E2 : Precategory)
+Local Definition MultiSortedSigToFunctor_helper1 (C1 D E1 : precategory) (E2 : category)
   : functor [E1,[C1,[D,E2]]] [E1,[D,[C1,E2]]].
 Proof.
 eapply post_composition_functor.
@@ -719,7 +731,7 @@ Defined.
 
 (* This lemma is just here to check that the correct sort_cat gets pulled out when reorganizing *)
 (*    arguments *)
-Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory) :
+Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : category) :
   functor [E1,[C1,[D,E2]]] [C1,[D,[E1,E2]]].
 Proof.
 eapply (functor_composite (functor_cat_swap _ _ _)).
@@ -731,12 +743,12 @@ Defined.
 (* The above definition might be the same as: *)
 (* functor_composite (functor_cat_swap F) functor_cat_swap. *)
 
-(* Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory) *)
+(* Local Definition MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : category) *)
 (*   (F : functor E1 [C1,[D,E2]]) : functor C1 [D,[E1,E2]]. *)
 (*     functor_composite (functor_cat_swap F) functor_cat_swap. *)
 
 
-(* Lemma is_omega_cocont_MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : Precategory) *)
+(* Lemma is_omega_cocont_MultiSortedSigToFunctor_helper (C1 D E1 : precategory) (E2 : category) *)
 (*   (F : functor E1 [C1,[D,E2]]) (HF : ∏ s, is_omega_cocont (F s)) : *)
 (*   is_omega_cocont (MultiSortedSigToFunctor_helper C1 D E1 E2 F). *)
 (* Proof. *)
@@ -746,7 +758,7 @@ Defined.
 (* + apply is_omega_cocont_functor_cat_swap. *)
 (* Admitted. *)
 
-(* Local Definition MultiSortedSigToFunctor_helper2 (C1 D E1 : precategory) (E2 : Precategory) : *)
+(* Local Definition MultiSortedSigToFunctor_helper2 (C1 D E1 : precategory) (E2 : category) : *)
 (*   functor [E1,[D,[C1,E2]]] [C1,[D,[E1,E2]]]. *)
 (* Proof. *)
 (* eapply functor_composite;[apply functor_cat_swap|]. *)

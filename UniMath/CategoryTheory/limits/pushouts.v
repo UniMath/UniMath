@@ -9,7 +9,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
@@ -246,7 +246,7 @@ Section def_po.
 
   Section Universal_Unique.
 
-    Hypothesis H : is_category C.
+    Hypothesis H : is_univalent C.
 
 
     Lemma inv_from_iso_iso_from_Pushout (a b c : C) (f : a --> b) (g : a --> c)
@@ -527,7 +527,7 @@ is a pushout
 *)
 Section EpiPushoutId.
 
-  Context {C:Precategory} {A B:C} (f:C⟦A,B ⟧).
+  Context {C : category} {A B : C} (f : C⟦A,B ⟧).
 
   Lemma epi_to_pushout : isEpi f -> isPushout f f (identity _) (identity _) (idpath _).
   Proof.

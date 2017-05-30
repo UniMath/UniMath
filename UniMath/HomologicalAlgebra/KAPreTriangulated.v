@@ -22,7 +22,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -42,9 +42,9 @@ Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import UniMath.CategoryTheory.Abelian.
 Require Import UniMath.CategoryTheory.ShortExactSequences.
-Require Import UniMath.CategoryTheory.category_abgr.
+Require Import UniMath.CategoryTheory.categories.abgrs.
 
-Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
@@ -104,7 +104,7 @@ Section KAPreTriangulated.
 
   Context {A : Additive}.
 
-  Local Opaque ComplexHomotFunctor ComplexHomotSubset QuotPrecategory identity
+  Local Opaque ComplexHomotFunctor ComplexHomotSubset Quotcategory identity
         MappingConePr1 MappingConeIn2 RotMorphism RotMorphismInv InvRotMorphism InvRotMorphismInv
         to_inv compose pathsinv0 pathscomp0 ishinh to_abgrop.
 

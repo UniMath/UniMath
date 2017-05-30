@@ -15,7 +15,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
@@ -55,9 +55,9 @@ Definition EpisAreEffective (C:precategory) :=
 (** Let f be a natural transformation. If f is pointwise effective, then f is effective *)
 Section IsEffectivePw.
 
-  Context { C :precategory} {D:Precategory} .
+  Context {C : precategory} {D : category} .
 
-  Local Notation CD := (@functor_Precategory C D).
+  Local Notation CD := (functor_category C D).
 
   Lemma eq_pb_pw {X Y Z:functor C D}
         (a: X ⟹ Z) (b: Y ⟹ Z)
@@ -136,9 +136,9 @@ Set Automatic Introduction.
   an epimorphism is pointwise epimorphic *)
 Section PointwiseEpi.
 
-  Context { C :precategory} {D:Precategory} .
+  Context {C : precategory} {D : category}.
 
-  Local Notation CD := (functor_Precategory C D).
+  Local Notation CD := (functor_category C D).
 
   Lemma eq_po_pw {X Y Z :functor C D} {a: X ⟹ Y } {b: X ⟹ Z} x  :
     eq_diag

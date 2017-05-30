@@ -20,7 +20,7 @@ Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -38,7 +38,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
 Require Import UniMath.CategoryTheory.CocontFunctors.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
@@ -62,7 +62,7 @@ Definition Signature : ∏ C : precategory, has_homsets C → ∏ D : precategor
 
 (** Definition 5: Morphism of signatures with strength *)
 Definition SignatureMor :
-  ∏ C D : Precategory,
+  ∏ C D : category,
        Signatures.Signature C (homset_property C) D (homset_property D)
        → Signatures.Signature C (homset_property C) D (homset_property D) → UU :=
   @UniMath.SubstitutionSystems.SignatureCategory.SignatureMor.
@@ -117,7 +117,7 @@ Definition Colims : precategory → UU :=
   @UniMath.CategoryTheory.limits.graphs.colimits.Colims.
 
 (** Remark 20: Uniqueness of colimits *)
-Lemma isaprop_Colims : ∏ C : category, isaprop (Colims C).
+Lemma isaprop_Colims : ∏ C : univalent_category, isaprop (Colims C).
 Proof.
 exact @UniMath.CategoryTheory.limits.graphs.colimits.isaprop_Colims.
 Defined.

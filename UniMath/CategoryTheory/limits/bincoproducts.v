@@ -2,7 +2,7 @@
 
 Direct implementation of binary coproducts togther with:
 
-- Proof that binary coproduct(cocone) is a property in a category ([isaprop_BinCoproductCocone])
+- Proof that binary coproduct(cocone) is a property in a univalent_category ([isaprop_BinCoproductCocone])
 - Specialized versions of beta rules for coproducts
 - Definition of binary coproduct functor ([bincoproduct_functor])
 - Definition of a coproduct structure on a functor category by taking pointwise coproducts in the
@@ -22,14 +22,14 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.ProductCategory.
 
 Local Open Scope cat.
 
@@ -206,11 +206,11 @@ Proof.
 Qed.
 
 
-(** * Proof that coproducts are unique when the precategory [C] is a category *)
+(** * Proof that coproducts are unique when the precategory [C] is a univalent_category *)
 
 Section coproduct_unique.
 
-Hypothesis H : is_category C.
+Hypothesis H : is_univalent C.
 
 Variables a b : C.
 

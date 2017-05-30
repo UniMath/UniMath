@@ -11,7 +11,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
@@ -28,7 +28,7 @@ Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
@@ -709,10 +709,10 @@ Section abelian_is_additive.
     apply idpath.
   Qed.
 
-  Definition AbelianToPrecategoryWithAbgropsData :
-    PrecategoryWithAbgropsData AbelianToprecategoryWithBinops hs.
+  Definition AbelianTocategoryWithAbgropsData :
+    categoryWithAbgropsData AbelianToprecategoryWithBinops hs.
   Proof.
-    unfold PrecategoryWithAbgropsData.
+    unfold categoryWithAbgropsData.
     intros x y.
     split.
     - use isgroppair.
@@ -732,14 +732,14 @@ Section abelian_is_additive.
   Defined.
 
   (** We prove that Abelian_precategories are PrecategoriesWithAbgrops. *)
-  Definition AbelianToPrecategoryWithAbgrops :
-    PrecategoryWithAbgrops := mk_PrecategoryWithAbgrops
+  Definition AbelianTocategoryWithAbgrops :
+    categoryWithAbgrops := mk_categoryWithAbgrops
                                 AbelianToprecategoryWithBinops  hs
-                                AbelianToPrecategoryWithAbgropsData.
+                                AbelianTocategoryWithAbgropsData.
 
   (** Hide isPreAdditive behind Qed. *)
   Lemma AbelianToisPreAdditive :
-    isPreAdditive AbelianToPrecategoryWithAbgrops.
+    isPreAdditive AbelianTocategoryWithAbgrops.
   Proof.
     use mk_isPreAdditive.
     (* precomposition ismonoidfun *)
@@ -815,7 +815,7 @@ Section abelian_is_additive.
 
   (** We prove that Abelian_precategories are PreAddtitive. *)
   Definition AbelianToPreAdditive :
-    PreAdditive := mk_PreAdditive AbelianToPrecategoryWithAbgrops AbelianToisPreAdditive.
+    PreAdditive := mk_PreAdditive AbelianTocategoryWithAbgrops AbelianToisPreAdditive.
 
   (** Finally, we show that Abelian_precategories are Additive. *)
   Definition AbelianToAdditive : Additive.

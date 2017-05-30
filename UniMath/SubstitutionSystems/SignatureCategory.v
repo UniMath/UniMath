@@ -13,7 +13,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -31,12 +31,12 @@ Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 
 Local Open Scope cat.
 
-Local Notation "[ C , D ]" := (functor_Precategory C D).
+Local Notation "[ C , D ]" := (functor_category C D).
 
 (** * The category of signatures with strength *)
 Section SignatureCategory.
 
-Variables (C D : Precategory).
+Variables (C D : category).
 
 Let hsC : has_homsets C := homset_property C.
 Let hsD : has_homsets D := homset_property D.
@@ -174,7 +174,7 @@ End SignatureCategory.
 (** * Binary products in the category of signatures *)
 Section BinProducts.
 
-Variables (C : Precategory) (BC : BinProducts C) (D : Precategory) (BD : BinProducts D).
+Variables (C : category) (BC : BinProducts C) (D : category) (BD : BinProducts D).
 
 Let hsC : has_homsets C := homset_property C.
 Let hsD : has_homsets D := homset_property D.
@@ -266,7 +266,7 @@ End BinProducts.
 Section Coproducts.
 
 Variables (I : UU).
-Variables (C D : Precategory) (CD : Coproducts I D).
+Variables (C D : category) (CD : Coproducts I D).
 
 Let hsC : has_homsets C := homset_property C.
 Let hsD : has_homsets D := homset_property D.

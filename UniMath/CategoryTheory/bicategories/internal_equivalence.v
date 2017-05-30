@@ -1,7 +1,7 @@
 Require Import UniMath.Foundations.PartD.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
 

@@ -470,9 +470,12 @@ Definition power (I:Type) (X:abgr) : abgr.
 
 (** ** the category of abelian groups *)
 
+Require UniMath.Algebra.Monoids_and_Groups
+        UniMath.CategoryTheory.Categories.
+
 Module Category.
-  Require Import UniMath.Algebra.Monoids_and_Groups
-                 UniMath.CategoryTheory.precategories.
+  Import UniMath.Algebra.Monoids_and_Groups
+         UniMath.CategoryTheory.Categories.
 
   Definition Ob := abgr.
 
@@ -491,7 +494,7 @@ Module Category.
   Definition MorEquality G H (p q : Mor G H) : pr1 p = pr1 q -> p = q.
     intros. apply Monoid.funEquality. assumption. Qed.
 
-  Definition Precat : Precategory.
+  Definition Precat : category.
     unshelve refine (_,,_).
     { exists Data. split.
       { simpl. split.
