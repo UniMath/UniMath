@@ -121,18 +121,6 @@ Local Close Scope abgr_scope.
 
 (** rngofendabgr_op1 is a group operation *)
 
-(* The definition below should be moved to Monoids_and_Groups *)
-
-Definition ismonoidfun_abgrinv {G : abgr} : ismonoidfun (grinv G).
-Proof.
-   apply dirprodpair.
-   - intros x y.
-     transitivity (grinv G y + grinv G x).
-     exact (grinvop G x y).
-     apply (commax G).
-   - apply (grinvunel G).
-Defined.
-
 Definition setofendabgr_inv {G : abgr} : monoidfun G G -> monoidfun G G.
 Proof.
    intro f.
@@ -140,7 +128,8 @@ Proof.
    apply dirprodpair.
    - intros x x'.
      rewrite (setofendabgr_to_isbinopfun f).
-     apply (dirprod_pr1 ismonoidfun_abgrinv).
+     rewrite (grinvop G).
+     apply (commax G).
    - rewrite (setofendabgr_to_unel f).
      apply (grinvunel G).
 Defined.
@@ -262,25 +251,25 @@ Definition rngofendabgr (G : abgr) : rng :=
 
 (** ** The definition of the small type of (left) R-modules over a ring R *)
 
-Definition module (R : rng) : UU := ∑ G, rngfun R (rngofendabgr G).
+Definition module_struct (R : rng) (G : abgr) : UU := rngfun R (rngofendabgr G).
+
+Definition module (R : rng) : UU := ∑ G, module_struct R G.
 
 Definition pr1module {R : rng} (M : module R) : abgr := pr1 M.
 
 Coercion pr1module : module >-> abgr.
 
-Definition module_struct {R : rng} (G : abgr) : UU := rngfun R (rngofendabgr G).
+Definition pr2module {R : rng} (M : module R) : module_struct R (pr1module M) := pr2 M.
 
-Definition pr2module {R : rng} (M : module R) : rngfun R (rngofendabgr (pr1module M)) := pr2 M.
-
-Coercion pr2module : module >-> rngfun.
+Identity Coercion id_module_struct : module_struct >-> rngfun.
 
 (** The multiplication defined from a module *)
 
-Definition module_mult {R : rng} {M : @module R} : R × M -> M.
-Proof.
-   apply uncurry. intros r x.
-   exact (pr1setofendabgr (M r) x).
-Defined.
+Definition module_mult {R : rng} {M : module R} : R -> M -> M := λ r : R, λ x : M, (pr1setofendabgr (pr2module M r) x).
+
+Notation "r * x" := (module_mult r x) : module_scope.
+
+Delimit Scope module_scope with module.
 
 Local Open Scope rig_scope.
 
@@ -288,13 +277,13 @@ Definition rigfun_to_unel_rigaddmonoid {X Y : rig} (f : rigfun X Y) : f 0 = 0 :=
 
 Local Close Scope rig_scope.
 
-Local Open Scope rng_scope.
+Local Open Scope module.
 
-Definition module_mult_0_to_0 {R : rng} {M : @module R} (x : M) : module_mult (0,,x) = @unel M.
+Definition module_mult_0_to_0 {R : rng} {M : @module R} (x : M) : rngunel1 * x = @unel M.
 Proof.
-   unfold module_mult, uncurry. cbn.
-   assert (M rngunel1 = @rngunel1 (rngofendabgr M)).
-   - exact (rigfun_to_unel_rigaddmonoid M).
+   unfold module_mult. cbn.
+   assert (pr2module M rngunel1 = @rngunel1 (rngofendabgr M)).
+   - exact (rigfun_to_unel_rigaddmonoid (pr2module M)).
    - rewrite X.
      reflexivity.
 Defined.
@@ -302,13 +291,15 @@ Defined.
 
 (** (left) R-module homomorphism *)
 
-Definition ismodulefun {R : rng} {M N : module R} (f : M -> N) : UU :=
-   (isbinopfun f) × (∏ r : R, ∏ x : M, f (module_mult (r,,x)) = module_mult (r,,(f x))).
+Definition islinear {R : rng} {M N : module R} (f : M -> N) :=
+  ∏ r : R, ∏ x : M, f (r * x) = r * (f x).
 
+Definition ismodulefun {R : rng} {M N : module R} (f : M -> N) : UU :=
+   (isbinopfun f) × (islinear f).
 
 Lemma isapropismodulefun {R : rng} {M N : module R} (f : M -> N) : isaprop (@ismodulefun R M N f).
 Proof.
-   refine (@isofhleveldirprod 1 (isbinopfun f) (∏ r : R, ∏ x : M, f (module_mult (r,,x)) = module_mult (r,,(f x))) _ _).
+   refine (@isofhleveldirprod 1 (isbinopfun f) (islinear f) _ _).
    exact (isapropisbinopfun f).
    apply (impred 1 _). intro r.
    apply (impred 1 _). intro x.
@@ -324,9 +315,6 @@ Definition modulefunpair {R : rng} {M N : module R} (f : M -> N) (is : @ismodule
 Definition pr1modulefun {R : rng} {M N : module R} (f : @modulefun R M N) : M -> N := pr1 f.
 
 Coercion pr1modulefun : modulefun >-> Funclass.
-
-Definition islinear {R : rng} {M N : module R} (f : M -> N) :=
-   ∏ r : R, ∏ x : M, f (module_mult (r,,x)) = module_mult (r,,(f x)).
 
 Definition modulefun_to_islinear {R : rng} {M N : module R} (f : modulefun M N): islinear f := pr2 (pr2 f).
 
