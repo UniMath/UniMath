@@ -265,9 +265,9 @@ Identity Coercion id_module_struct : module_struct >-> rngfun.
 
 (** The multiplication defined from a module *)
 
-Definition module_mult {R : rng} {M : module R} : R -> M -> M := λ r : R, λ x : M, (pr1setofendabgr (pr2module M r) x).
+Definition module_mult {R : rng} (M : module R) : R -> M -> M := λ r : R, λ x : M, (pr1setofendabgr (pr2module M r) x).
 
-Notation "r * x" := (module_mult r x) : module_scope.
+Notation "r * x" := (module_mult _ r x) : module_scope.
 
 Delimit Scope module_scope with module.
 
@@ -279,7 +279,7 @@ Local Close Scope rig_scope.
 
 Local Open Scope module.
 
-Definition module_mult_0_to_0 {R : rng} {M : @module R} (x : M) : rngunel1 * x = @unel M.
+Definition module_mult_0_to_0 {R : rng} {M : module R} (x : M) : rngunel1 * x = @unel M.
 Proof.
    unfold module_mult. cbn.
    assert (pr2module M rngunel1 = @rngunel1 (rngofendabgr M)).
@@ -317,7 +317,7 @@ Definition linearfuncomp {R : rng} {M N P : module R} (f : linearfun M N) (g : l
 Definition ismodulefun {R : rng} {M N : module R} (f : M -> N) : UU :=
    (isbinopfun f) × (islinear f).
 
-Lemma isapropismodulefun {R : rng} {M N : module R} (f : M -> N) : isaprop (@ismodulefun R M N f).
+Lemma isapropismodulefun {R : rng} {M N : module R} (f : M -> N) : isaprop (ismodulefun f).
 Proof.
    refine (@isofhleveldirprod 1 (isbinopfun f) (islinear f) _ _).
    exact (isapropisbinopfun f).
@@ -326,12 +326,12 @@ Proof.
    apply (setproperty N).
 Defined.
 
-Definition modulefun {R : rng} (M N : module R) := total2 (λ f : M -> N, @ismodulefun R M N f).
+Definition modulefun {R : rng} (M N : module R) := total2 (λ f : M -> N, ismodulefun f).
 
-Definition modulefunpair {R : rng} {M N : module R} (f : M -> N) (is : @ismodulefun R M N f) :=
+Definition modulefunpair {R : rng} {M N : module R} (f : M -> N) (is : ismodulefun f) :=
    tpair _ f is.
 
-Definition pr1modulefun {R : rng} {M N : module R} (f : @modulefun R M N) : M -> N := pr1 f.
+Definition pr1modulefun {R : rng} {M N : module R} (f : modulefun M N) : M -> N := pr1 f.
 
 Coercion pr1modulefun : modulefun >-> Funclass.
 
