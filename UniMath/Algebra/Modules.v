@@ -294,6 +294,26 @@ Defined.
 Definition islinear {R : rng} {M N : module R} (f : M -> N) :=
   ∏ r : R, ∏ x : M, f (r * x) = r * (f x).
 
+Definition linearfun {R : rng} (M N : module R) : UU := ∑ f : M -> N, islinear f.
+
+Definition linearfunpair {R : rng} {M N : module R} (f : M -> N) (is : islinear f) : linearfun M N := tpair _ f is.
+
+Definition pr1linearfun {R : rng} {M N : module R} (f : linearfun M N) : M -> N := pr1 f.
+
+Coercion pr1linearfun : linearfun >-> Funclass.
+
+Definition islinearfuncomp {R : rng} {M N P : module R} (f : linearfun M N) (g : linearfun N P) : islinear (funcomp (pr1 f) (pr1 g)).
+Proof.
+  intros r x.
+  unfold funcomp.
+  rewrite (pr2 f).
+  rewrite (pr2 g).
+  apply idpath.
+Defined.
+
+Definition linearfuncomp {R : rng} {M N P : module R} (f : linearfun M N) (g : linearfun N P) : linearfun M P :=
+  tpair _ (funcomp f g) (islinearfuncomp f g).
+
 Definition ismodulefun {R : rng} {M N : module R} (f : M -> N) : UU :=
    (isbinopfun f) × (islinear f).
 
@@ -306,7 +326,6 @@ Proof.
    apply (setproperty N).
 Defined.
 
-
 Definition modulefun {R : rng} (M N : module R) := total2 (λ f : M -> N, @ismodulefun R M N f).
 
 Definition modulefunpair {R : rng} {M N : module R} (f : M -> N) (is : @ismodulefun R M N f) :=
@@ -316,7 +335,15 @@ Definition pr1modulefun {R : rng} {M N : module R} (f : @modulefun R M N) : M ->
 
 Coercion pr1modulefun : modulefun >-> Funclass.
 
-Definition modulefun_to_islinear {R : rng} {M N : module R} (f : modulefun M N): islinear f := pr2 (pr2 f).
+Definition modulefun_to_isbinopfun {R : rng} {M N : module R} (f : modulefun M N) : isbinopfun (pr1modulefun f) := pr1 (pr2 f).
+
+Definition modulefun_to_binopfun {R : rng} {M N : module R} (f : modulefun M N) : binopfun M N :=
+  binopfunpair (pr1modulefun f) (modulefun_to_isbinopfun f).
+
+Definition modulefun_to_islinear {R : rng} {M N : module R} (f : modulefun M N): islinear (pr1modulefun f) := pr2 (pr2 f).
+
+Definition modulefun_to_linearfun {R : rng} {M N : module R} (f : modulefun M N) : linearfun M N :=
+  linearfunpair f (modulefun_to_islinear f).
 
 Definition modulefun_unel {R : rng} {M N : module R} (f : @modulefun R M N) : f (@unel M) = @unel N.
 Proof.
@@ -325,5 +352,3 @@ Proof.
    rewrite (module_mult_0_to_0 _).
    reflexivity.
 Defined.
-
-Definition modulefun_to_isbinopfun {R : rng} {M N : module R} (f : modulefun M N) : isbinopfun f := pr1 (pr2 f).
