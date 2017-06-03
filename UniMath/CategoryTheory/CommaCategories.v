@@ -280,8 +280,5 @@ Definition is_precategory_comma_cat_data : is_precategory comma_cat_data :=
 
 Definition comma_precategory : precategory := mk_precategory comma_cat_data is_precategory_comma_cat_data.
 
-Local Close Scope cat.
 
 End general_comma_precategories.
-
-Local Notation "( T ↓ S )" := (comma_precategory S T) : cat.
