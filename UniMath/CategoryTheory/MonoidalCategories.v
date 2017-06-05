@@ -1,8 +1,5 @@
 (** Anthony Bordg, April-May 2017 *)
 
-Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -36,7 +33,7 @@ Proof.
   - exact b.
 Defined.
 
-Notation "( a , b )" := (binprod_cat_pair_of_el a b) (right associativity) : cat.
+Local Notation "( a , b )" := (binprod_cat_pair_of_el a b) (right associativity) : cat.
 
 Definition binprod_cat_pair_of_mor {C D : precategory} {a c : C} {b d : D} (f : a --> c) (g : b --> d) : (a , b) --> (c , d).
 Proof.
@@ -45,7 +42,7 @@ Proof.
   - exact g.
 Defined.
 
-Notation "( f #, g )" := (binprod_cat_pair_of_mor f g) (right associativity) : cat.
+Local Notation "( f #, g )" := (binprod_cat_pair_of_mor f g) (right associativity) : cat.
 
 Lemma id_on_binprod_cat_pair_of_el {C D : precategory} (a : C) (b : D) : identity (a , b) = (identity a #, identity b).
 Proof.
