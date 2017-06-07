@@ -195,14 +195,15 @@ Defined.
 Definition subtypewithbinop (X : typewithbinop) : UU := ∑ A : hsubtype X, issubtypewithbinop (@op X) A.
 
 Definition isstable_by_laction {Ω X : UU} (ω : laction Ω X) (A : hsubtype X) : UU :=
-  ∏ α : Ω, ∏ x : A, A (ω α (pr1 x)).
+  ∏ α : Ω, ∏ x : X, A x -> A (ω α x).
 
 Lemma isapropisstable_by_laction {Ω X : UU} (ω : laction Ω X) (A : hsubtype X) : isaprop (isstable_by_laction ω A).
 Proof.
   intros.
   apply impred. intro t.
   apply impred. intro x.
-  apply (pr2 (A (ω t (pr1 x)))).
+  apply impred. intro p.
+  apply (pr2 (A (ω t x))).
 Defined.
 
 (** * Stable subgroups of a group with operators *)
@@ -228,7 +229,8 @@ Definition stable_subgr_to_laction {Ω : UU} {G : grwithoperators Ω} (H : stabl
 Proof.
   intros α x.
   split with (pr2 (pr1 G) α (pr1 x)).
-  apply (pr2 (pr2 H) α x).
+  apply (pr2 (pr2 H) α (pr1 x)).
+  apply (pr2 x).
 Defined.
 
 Definition stable_subgr_to_grwithlaction {Ω : UU} {G : grwithoperators Ω} (H : stable_subgr G) : grwithlaction Ω :=
