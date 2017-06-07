@@ -263,6 +263,8 @@ Definition pr2module {R : rng} (M : module R) : module_struct R (pr1module M) :=
 
 Identity Coercion id_module_struct : module_struct >-> rngfun.
 
+Definition modulepair {R : rng} (G : abgr) (f : module_struct R G) : module R := tpair _ G f.
+
 (** The multiplication defined from a module *)
 
 Definition module_mult {R : rng} (M : module R) : R -> M -> M := λ r : R, λ x : M, (pr1setofendabgr (pr2module M r) x).
