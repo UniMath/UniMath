@@ -844,12 +844,6 @@ Proof.
   intros. now apply maponpaths.
 Defined.
 
-Lemma base_paths_pair_path_in2 {X : UU} (P : X → UU) {x : X} {p q : P x} (e : p = q) :
-  base_paths _ _ (pair_path_in2 P e) = idpath x.
-Proof.
-now induction e.
-Qed.
-
 Definition fiber_paths {A : UU} {B : A -> UU} {u v : ∑ x, B x} (p : u = v) :
   transportf (fun x => B x) (base_paths _ _ p) (pr2 u) = pr2 v.
 Proof.
