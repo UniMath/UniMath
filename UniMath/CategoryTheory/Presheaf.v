@@ -52,6 +52,18 @@ Local Open Scope cat.
 
 Notation "'PreShv' C" := [C^op,HSET,has_homsets_HSET] (at level 3) : cat.
 
+Section basics.
+
+Lemma transportf_PreShv {C : precategory} (F : PreShv C) {x y z : C}
+  (e : x = y) (f : C⟦x,z⟧) (u : pr1 (pr1 F z)) :
+  transportf (λ x, pr1 (pr1 F x)) e (# (pr1 F) f u) =
+  # (pr1 F) (transportf (@precategory_morphisms C^op z) e f) u.
+Proof.
+now induction e.
+Qed.
+
+End basics.
+
 (* TODO: upstream *)
 Section hProp_lattice.
 
