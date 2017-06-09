@@ -283,6 +283,66 @@ Section InitialRep.
       apply BinCoproductIn2Commutes.
     Qed.
 
+    Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+    Require Import UniMath.CategoryTheory.CocontFunctors.
+    Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
+    Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
+    Variables (IC : Initial C) (CC : Colims_of_shape nat_graph C).
+    Variable (HH : is_omega_cocont H).
+    Let F := (H:functor EndC EndC).
+
+    Let L := (pre_composition_functor C C C hs hs (T_mon:functor _ _)).
+    (* copié de HU de LiftingInitial_alt *)
+    Local Lemma HL : is_omega_cocont L.
+    Proof.
+      apply CocontFunctors.is_omega_cocont_pre_composition_functor, CC.
+    Defined.
+
+    Let X := (M:functor _ _).
+
+    (* copié de HU de LiftingInitial_alt *)
+    Let InitialEndC : Initial EndC.
+    Proof.
+      apply Initial_functor_precat, IC.
+    Defined.
+    (* copié de HU de LiftingInitial_alt *)
+    Let Colims_of_shape_nat_graph_EndC : Colims_of_shape nat_graph EndC.
+    Proof.
+      apply colimits.ColimsFunctorCategory_of_shape, CC.
+    Defined.
+
+    Let is_omega_cocont_Id_H' := LiftingInitial_alt .is_omega_cocont_Id_H C hs CP H HH.
+    Let isInitial_precomp' : isInitial [C, C, hs] (L InitialEndC) :=
+      LiftingInitial_alt.isInitial_pre_comp C hs IC p T : isInitial [C, C, hs] (L InitialEndC).
+
+    (*
+Lemme 8 de substitution revisited : je dois maintenant fournir le ψ
+Rappelons
+X = M (M est la monade qui est une représentation non initiale de l'arité)
+        avec τ_M : H M -> M
+j est le morphisme initial T -> M où T est la monade initiale (hss)
+
+L Z = Z·T
+F Z = (Id+H) Z
+
+Z : EndC
+
+h : LZ -> X
+ soit Z T -> X
+
+ψ_Z(h) : L (F Z) -> X
+     soit (Id + H (Z)) T -> X
+     soit  T + H(Z) T -> X
+
+D'après Ralph,  ψ_Z(h)  = [j, τ_M ∘ H h ∘ Θ_Z,(T,η)]
+     *)
+    Let ψ : ψ_source hsEndC X L ⟹ ψ_target Id_H hsEndC X L.
+    Admitted.
+
+    Local Definition iter  :=
+      GenMendlerIteration hsEndC InitialEndC Colims_of_shape_nat_graph_EndC Id_H
+                          is_omega_cocont_Id_H' hsEndC X _ isInitial_precomp' HL ψ.
+
 
     (* j est un morphisme de monade *)
     Lemma j_mon : Monad_Mor_laws (T:=T_mon) (T':=M) (mor_from_algebra_mor _ _ _ j).
