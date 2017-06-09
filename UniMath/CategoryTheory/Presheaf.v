@@ -50,7 +50,7 @@ Require Import UniMath.CategoryTheory.LatticeObject.
 
 Local Open Scope cat.
 
-Notation "'PreShv' C" := [C^op,HSET,has_homsets_HSET] (at level 3) : cat.
+Notation "'PreShv' C" := [C^op,SET] (at level 4) : cat.
 
 Section basics.
 
