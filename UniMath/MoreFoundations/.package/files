@@ -9,4 +9,5 @@ Subtypes.v
 DecidablePropositions.v
 AxiomOfChoice.v
 StructureIdentity.v
+Various.v
 All.v
