@@ -31,8 +31,7 @@ Truncated minus is a lattice:
 
 Require Export UniMath.Algebra.Monoids_and_Groups.
 
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.Various.
+Require Import UniMath.MoreFoundations.All.
 
 Unset Automatic Introduction.
 
