@@ -23,9 +23,7 @@ Written by: Anders Mörtberg, 2017
 
 ********************************************************************************)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.Algebra.Lattice.
 
@@ -50,123 +48,19 @@ Require Import UniMath.CategoryTheory.LatticeObject.
 
 Local Open Scope cat.
 
-Notation "'PreShv' C" := [C^op,HSET,has_homsets_HSET] (at level 3) : cat.
+Notation "'PreShv' C" := [C^op,SET] (at level 4) : cat.
 
-(* TODO: upstream *)
-Section hProp_lattice.
+Section basics.
 
-Lemma isassoc_hconj (P Q R : hProp) : ((P ∧ Q) ∧ R) = (P ∧ (Q ∧ R)).
+Lemma transportf_PreShv {C : precategory} (F : PreShv C) {x y z : C}
+  (e : x = y) (f : C⟦x,z⟧) (u : pr1 (pr1 F z)) :
+  transportf (λ x, pr1 (pr1 F x)) e (# (pr1 F) f u) =
+  # (pr1 F) (transportf (@precategory_morphisms C^op z) e f) u.
 Proof.
-apply hPropUnivalence.
-- intros PQR.
-  exact (pr1 (pr1 PQR),,(pr2 (pr1 PQR),,pr2 PQR)).
-- intros PQR.
-  exact ((pr1 PQR,,pr1 (pr2 PQR)),,pr2 (pr2 PQR)).
+now induction e.
 Qed.
 
-Lemma iscomm_hconj (P Q : hProp) : (P ∧ Q) = (Q ∧ P).
-Proof.
-apply hPropUnivalence.
-- intros PQ.
-  exact (pr2 PQ,,pr1 PQ).
-- intros QP.
-  exact (pr2 QP,,pr1 QP).
-Qed.
-
-Lemma isassoc_hdisj (P Q R : hProp) : ((P ∨ Q) ∨ R) = (P ∨ (Q ∨ R)).
-Proof.
-apply hPropUnivalence.
-- apply hinhuniv; intros hPQR.
-  induction hPQR as [hPQ|hR].
-  + use (hinhuniv _ hPQ); clear hPQ; intros hPQ.
-    induction hPQ as [hP|hQ].
-    * exact (hinhpr (ii1 hP)).
-    * exact (hinhpr (ii2 (hinhpr (ii1 hQ)))).
-  + exact (hinhpr (ii2 (hinhpr (ii2 hR)))).
-- apply hinhuniv; intros hPQR.
-  induction hPQR as [hP|hQR].
-  + exact (hinhpr (ii1 (hinhpr (ii1 hP)))).
-  + use (hinhuniv _ hQR); clear hQR; intros hQR.
-    induction hQR as [hQ|hR].
-    * exact (hinhpr (ii1 (hinhpr (ii2 hQ)))).
-    * exact (hinhpr (ii2 hR)).
-Qed.
-
-Lemma iscomm_hdisj (P Q : hProp) : (P ∨ Q) = (Q ∨ P).
-Proof.
-apply hPropUnivalence.
-- apply hinhuniv; intros PQ.
-  induction PQ as [hP|hQ].
-  + exact (hinhpr (ii2 hP)).
-  + exact (hinhpr (ii1 hQ)).
-- apply hinhuniv; intros PQ.
-  induction PQ as [hQ|hP].
-  + exact (hinhpr (ii2 hQ)).
-  + exact (hinhpr (ii1 hP)).
-Qed.
-
-Lemma hconj_absorb_hdisj (P Q : hProp) : (P ∧ (P ∨ Q)) = P.
-Proof.
-apply hPropUnivalence.
-- intros hPPQ; apply (pr1 hPPQ).
-- intros hP.
-  split; [ apply hP | apply (hinhpr (ii1 hP)) ].
-Qed.
-
-Lemma hdisj_absorb_hconj (P Q : hProp) : (P ∨ (P ∧ Q)) = P.
-Proof.
-apply hPropUnivalence.
-- apply hinhuniv; intros hPPQ.
-  induction hPPQ as [hP|hPQ].
-  + exact hP.
-  + exact (pr1 hPQ).
-- intros hP; apply (hinhpr (ii1 hP)).
-Qed.
-
-Lemma hfalse_hdisj (P : hProp) : (∅ ∨ P) = P.
-Proof.
-apply hPropUnivalence.
-- apply hinhuniv; intros hPPQ.
-  induction hPPQ as [hF|hP].
-  + induction hF.
-  + exact hP.
-- intros hP; apply (hinhpr (ii2 hP)).
-Qed.
-
-Lemma htrue_hconj (P : hProp) : (htrue ∧ P) = P.
-Proof.
-apply hPropUnivalence.
-- intros hP; apply (pr2 hP).
-- intros hP.
-  split; [ apply tt | apply hP ].
-Qed.
-
-Definition hProp_lattice : lattice (hProp,,isasethProp).
-Proof.
-use mklattice.
-- intros P Q; exact (P ∧ Q).
-- simpl; intros P Q; exact (P ∨ Q).
-- repeat split.
-  + intros P Q R; apply isassoc_hconj.
-  + intros P Q; apply iscomm_hconj.
-  + intros P Q R; apply isassoc_hdisj.
-  + intros P Q; apply iscomm_hdisj.
-  + intros P Q; apply hconj_absorb_hdisj.
-  + intros P Q; apply hdisj_absorb_hconj.
-Defined.
-
-Definition hProp_bounded_lattice : bounded_lattice (hProp,,isasethProp).
-Proof.
-use mkbounded_lattice.
-- exact hProp_lattice.
-- exact hfalse.
-- exact htrue.
-- split.
-  + intros P; apply hfalse_hdisj.
-  + intros P; apply htrue_hconj.
-Defined.
-
-End hProp_lattice.
+End basics.
 
 (** Various limits and colimits in PreShv C *)
 Section limits.

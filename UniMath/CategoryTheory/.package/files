@@ -96,10 +96,10 @@ AbelianPushoutPullback.v
 PseudoElements.v
 FiveLemma.v
 set_slice_fam_equiv.v
-Elements.v
-ElementsOp.v
 LatticeObject.v
 Presheaf.v
+Elements.v
+ElementsOp.v
 elems_slice_equiv.v
 pullbacks_slice_products_equiv.v
 categories/setwith2binops.v
