@@ -62,11 +62,6 @@ Qed.
 
 End basics.
 
-(* TODO: upstream *)
-Section hProp_lattice.
-
-End hProp_lattice.
-
 (** Various limits and colimits in PreShv C *)
 Section limits.
 
