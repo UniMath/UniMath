@@ -7,7 +7,7 @@ Proof.
 now induction e.
 Qed.
 
-(* stolen from TypeTheory/Display_Cats/Auxiliary.v *)
+(* taken from TypeTheory/Display_Cats/Auxiliary.v *)
 (** Very handy for reasoning with “dependent paths” —
 
 Note: similar to [transportf_pathsinv0_var], [transportf_pathsinv0'],
