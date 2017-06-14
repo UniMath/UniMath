@@ -5,11 +5,11 @@ SumOfSignatures.v
 BinProductOfSignatures.v
 SubstitutionSystems.v
 MonadsFromSubstitutionSystems.v
-ModulesFromSignatures.v
 GenMendlerIteration.v
 GenMendlerIteration_alt.v
 LiftingInitial.v
 LiftingInitial_alt.v
+ModulesFromSignatures.v
 LamSignature.v
 Lam.v
 SignatureExamples.v

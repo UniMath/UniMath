@@ -6,6 +6,8 @@ Let (H, θ) be a strengthened signature, M an endo-functor.
 If M has a structure of (left) module over a monad T, then it can be lifted to endow
 H(M) with a structure of module over T.
 
+Let T be the initial Id+H algebra. Then T is the initial representation in the sense of H&M.
+
 *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.PointedFunctors.
@@ -26,9 +28,14 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
-(* Require Import UniMath.CategoryTheory.PrecategoryBinProduct. *)
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.CocontFunctors.
+Require Import UniMath.CategoryTheory.Presheaf.
+Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
+Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
+Require Import UniMath.CategoryTheory.limits.initial.
 
 (** A monad is a pointed endofunctor *)
 Definition ptd_from_mon {C:precategory} hsC (T:Monad C) : precategory_Ptd C hsC :=
@@ -84,7 +91,7 @@ Section SignatureLiftModule.
       (θ_Strength1_int_implies_θ_Strength1 _ _ _ _ _ _ (Sig_strength_law1 _ _ _ _ H ) M) x.
 
   (** A pointwise version of the second strength law with only one identity instead
-of two α_functor *)
+    of two α_functor *)
   Lemma strength_law2_pw :
     ∏ (X : EndC) (Z Z' : Ptd) x,
     ((theta H) (X ⊗ (Z p• Z')) : nat_trans _ _) x =
@@ -207,6 +214,8 @@ Section InitialRep.
 
   Let θ_strength1_int := Sig_strength_law1 _ _ _ _ H.
   Let θ_strength2_int := Sig_strength_law2 _ _ _ _ H.
+  Local Notation θ_nat_2_pw := (θ_nat_2_pointwise _ _ _ _ H (theta H)).
+  Local Notation θ_nat_1_pw := (θ_nat_1_pointwise _ _ _ _ H (theta H)).
 
   Let Id_H
     : functor EndC EndC
@@ -225,15 +234,18 @@ Section InitialRep.
   Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
   Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
   Local Notation η := @eta_from_alg.
-  Require Import UniMath.CategoryTheory.limits.initial.
 
-  Variable T : hss CP H.
-  Local Notation T_mon := (Monad_from_hss _ _ _ _ T).
-  Local Notation T_mod := (tautological_LModule T_mon).
-  Local Notation HT_mod := (lift_lmodule _ _ _ _ H _ T_mod).
+  (** Let T be an hss.
+  then τ : H T --> T is a module morphism
+   *)
   Section TauModuleMorphism.
+    Variable T : hss CP H.
+    Local Notation T_mon := (Monad_from_hss _ _ _ _ T).
+    Local Notation T_mod := (tautological_LModule T_mon).
+    Local Notation HT_mod := (lift_lmodule _ _ _ _ H _ T_mod).
 
     Lemma τ_lmodule_laws : LModule_Mor_laws T_mon (T:=HT_mod) (T' := T_mod) (τ T).
+    Proof.
       intro a.
       eapply pathsinv0.
       (* It is precisely the square diagram satisfied by μ = { id } *)
@@ -244,113 +256,345 @@ Section InitialRep.
       tpair (fun x => LModule_Mor_laws _ x) _ τ_lmodule_laws.
   End TauModuleMorphism.
 
-  Section InitialRep.
 
-    Variable initT : isInitial Alg (alg_from_hss _ _ _  _ T).
-    Let T_init : Initial Alg := tpair (fun x => isInitial _ x) _ initT.
+  (**
+      Let (M, τ_M) be a representation in the sense of Hirschowitz & Maggesi :
+      - M is a monad
+      - τ_M : HM ---> M is a module morphism
 
-    Variable (M:Monad C).
-    Local Notation M_mod := (tautological_LModule M).
-    Local Notation HM_mod := (lift_lmodule _ _ _ _ H _ M_mod).
-    Variable (τ_M: LModule_Mor M HM_mod M_mod).
+      Then there exists a unique monad morphism j : T --> M that is compatible with τ_M, τ_T
+     where T is the initial HSS.
 
-    Let M_alg : Alg.
-      eapply (tpair (fun x => EndC ⟦ Id_H x, x ⟧) (M:functor _ _)).
-      eapply BinCoproductArrow.
-      apply Monads.η.
-      apply τ_M.
-    Defined.
+      In other words, T is the initial representation in the sense of H&M
 
-    Let j : Alg ⟦T_init, M_alg⟧ := InitialArrow T_init M_alg.
-    Local Notation j_mor := ((mor_from_algebra_mor _ _ _ j):nat_trans _ _).
+   *)
 
-    (* j est un morphisme de représentation *)
-    Lemma j_mor_rep x : ((τ T):nat_trans _ _) x · (j_mor) x = (# H j_mor:nat_trans _ _) x · τ_M x.
-      (* It is exactly the 'H' part of the Id + H algebra morphism diagram *)
-      etrans.
-      eapply pathsinv0.
-      apply assoc.
-      etrans.
-      eapply cancel_precomposition.
-      apply (nat_trans_eq_pointwise (algebra_mor_commutes _ _ _ j) x).
-      etrans.
-      apply assoc.
-      etrans.
+  Variables (IC : Initial C) (CC : Colims_of_shape nat_graph C) (HH : is_omega_cocont H).
+  Variables (M:Monad C).
+
+  Let T := InitHSS _ _ CP IC CC H HH.
+
+  Local Notation T_hss := (T:hss _ _).
+  Local Notation T_alg := (alg_from_hss _ _ _ _ T).
+  Local Notation T_mon := (Monad_from_hss _ _ _ _ T).
+  Local Notation T_func := (T_mon : functor _ _).
+  Local Notation T_mod := (tautological_LModule T_mon).
+  Local Notation HT_mod := (lift_lmodule _ _ _ _ H _ T_mod).
+
+  Local Notation M_mod := (tautological_LModule M).
+  Local Notation HM_mod := (lift_lmodule _ _ _ _ H _ M_mod).
+
+  Variable (τ_M: LModule_Mor M HM_mod M_mod).
+
+  Local Definition M_alg : Alg.
+  Proof.
+    eapply (tpair (fun x => EndC ⟦ Id_H x, x ⟧) (M:functor _ _)).
+    eapply BinCoproductArrow.
+    apply Monads.η.
+    apply τ_M.
+  Defined.
+
+  (** j : T --> M is the initial Id+H-algebra morphism *)
+  Let j : Alg ⟦T_alg, M_alg⟧ := InitialArrow _ M_alg.
+
+
+  Let InitialEndC : Initial EndC.
+  Proof.
+    apply Initial_functor_precat, IC.
+  Defined.
+
+  Let Colims_of_shape_nat_graph_EndC : Colims_of_shape nat_graph EndC.
+  Proof.
+    apply colimits.ColimsFunctorCategory_of_shape, CC.
+  Defined.
+
+
+  Let is_omega_cocont_Id_H' := LiftingInitial_alt .is_omega_cocont_Id_H C hs CP H HH.
+
+  Local Notation j_mor := ((mor_from_algebra_mor _ _ _ j):nat_trans _ _).
+
+  (**
+  Following Ralph's proof : we want to prove the square diagram for the monad morphism induced by
+  the initial algebra morphism j : T --> M :
+<<<<<<<<
+       jj
+  TT ------> MM
+   |         |
+μ_T|         | μ_M
+   |         |
+   V         V
+   T ------> M
+       j
+>>>>>>>>>
+
+  The strategy is to show that both paths of the diagram satisfy the characteristic equation of
+  the same Mendler iterator. We use Lemma 8 from "Heteregenous substitution system revisited"
+  (Benedikt Ahrens & Ralph Matthes) with the following parameters :
+
+    X := M
+    L Z := Z·T
+    F Z := (Id+H) Z
+
+  And for any Z : EndC, h : LZ -> X
+
+    ψ_Z(h)  := [j, τ_M ∘ H h ∘ Θ_Z,(T,η)]
+
+   *)
+
+  Let L := (pre_composition_functor C C C hs hs T_func).
+  Let X := (M:functor _ _).
+
+  (* inspired by LiftingInitial_alt *)
+  Local Lemma HL : is_omega_cocont L.
+  Proof.
+    apply CocontFunctors.is_omega_cocont_pre_composition_functor, CC.
+  Defined.
+  Let isInitial_precomp' : isInitial [C, C, hs] (L InitialEndC) :=
+    LiftingInitial_alt.isInitial_pre_comp C hs IC p T_hss : isInitial [C, C, hs] (L InitialEndC).
+
+
+  Local Definition ψ_pw Z : _ ⟦ψ_source hsEndC X L Z, ψ_target Id_H hsEndC X L Z⟧ .
+  Proof.
+    - intros h.
+      cbn.
+      eapply (BinCoproductArrow EndC (a:= `T_hss) (b:= functor_composite `T_hss (H Z)) (CPEndC _ _) (c:=X)).
+      + apply j.
+      + apply ((θ  (Z ⊗ (p T_hss)))·#H h· (τ_M:nat_trans _ _)).
+  Defined.
+
+  Local Lemma ψ_nt : is_nat_trans _ _ ψ_pw.
+  Proof.
+    intros x x' a.
+    cbn in a.
+    apply weqfunextsec.
+    intros f.
+    eapply (nat_trans_eq hs).
+    intro c.
+    etrans; revgoals.
+    eapply pathsinv0.
+    eapply (precompWithBinCoproductArrow C (CP _ _) (CP _ _)
+                                         (identity _) (((# H a):nat_trans _ _) (T_func c))).
+    eapply BinCoproductArrow_eq.
+    + eapply pathsinv0,id_left.
+    + apply pathsinv0.
+      etrans;[eapply assoc|].
       apply cancel_postcomposition.
-      apply BinCoproductIn2Commutes.
-      etrans;[eapply pathsinv0; apply assoc|].
+      etrans;[eapply assoc|].
+      etrans.
+      eapply cancel_postcomposition.
+      eapply (θ_nat_1_pw _ _ a (p T_alg)).
+      rewrite <- assoc.
       apply cancel_precomposition.
-      apply BinCoproductIn2Commutes.
-    Qed.
+      etrans; revgoals.
+      eapply pathsinv0.
+      eapply nat_trans_eq_pointwise.
+      eapply (functor_comp H (_:EndC⟦ T_mon ∙ x', T_mon ∙ x⟧) ).
+      apply cancel_postcomposition.
+      apply functor_cancel_pw.
+      apply (nat_trans_eq hs).
+      intro c'.
+      etrans;[|apply id_right].
+      apply cancel_precomposition.
+      eapply (functor_id   x).
+  Qed.
 
-    Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-    Require Import UniMath.CategoryTheory.CocontFunctors.
-    Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
-    Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
-    Variables (IC : Initial C) (CC : Colims_of_shape nat_graph C).
-    Variable (HH : is_omega_cocont H).
-    Let F := (H:functor EndC EndC).
+  Local Definition ψ  : (PreShv EndC)⟦ψ_source hsEndC X L , ψ_target Id_H hsEndC X L⟧ :=
+    (ψ_pw ,, ψ_nt).
 
-    Let L := (pre_composition_functor C C C hs hs (T_mon:functor _ _)).
-    (* copié de HU de LiftingInitial_alt *)
-    Local Lemma HL : is_omega_cocont L.
-    Proof.
-      apply CocontFunctors.is_omega_cocont_pre_composition_functor, CC.
-    Defined.
-
-    Let X := (M:functor _ _).
-
-    (* copié de HU de LiftingInitial_alt *)
-    Let InitialEndC : Initial EndC.
-    Proof.
-      apply Initial_functor_precat, IC.
-    Defined.
-    (* copié de HU de LiftingInitial_alt *)
-    Let Colims_of_shape_nat_graph_EndC : Colims_of_shape nat_graph EndC.
-    Proof.
-      apply colimits.ColimsFunctorCategory_of_shape, CC.
-    Defined.
-
-    Let is_omega_cocont_Id_H' := LiftingInitial_alt .is_omega_cocont_Id_H C hs CP H HH.
-    Let isInitial_precomp' : isInitial [C, C, hs] (L InitialEndC) :=
-      LiftingInitial_alt.isInitial_pre_comp C hs IC p T : isInitial [C, C, hs] (L InitialEndC).
-
-    (*
-Lemme 8 de substitution revisited : je dois maintenant fournir le ψ
-Rappelons
-X = M (M est la monade qui est une représentation non initiale de l'arité)
-        avec τ_M : H M -> M
-j est le morphisme initial T -> M où T est la monade initiale (hss)
-
-L Z = Z·T
-F Z = (Id+H) Z
-
-Z : EndC
-
-h : LZ -> X
- soit Z T -> X
-
-ψ_Z(h) : L (F Z) -> X
-     soit (Id + H (Z)) T -> X
-     soit  T + H(Z) T -> X
-
-D'après Ralph,  ψ_Z(h)  = [j, τ_M ∘ H h ∘ Θ_Z,(T,η)]
-     *)
-    Let ψ : ψ_source hsEndC X L ⟹ ψ_target Id_H hsEndC X L.
-    Admitted.
-
-    Local Definition iter  :=
+  (** Unicity of the Mendler iterator characteristized by its equation *)
+  Local Definition uniq_iter :
+    ∃! h : [C, C, hs] ⟦ L `T_hss, X ⟧,
+           # L (alg_map Id_H T_alg) · h = (ψ:nat_trans _ _) `T_alg h
+    :=
       GenMendlerIteration hsEndC InitialEndC Colims_of_shape_nat_graph_EndC Id_H
                           is_omega_cocont_Id_H' hsEndC X _ isInitial_precomp' HL ψ.
 
 
-    (* j est un morphisme de monade *)
-    Lemma j_mon : Monad_Mor_laws (T:=T_mon) (T':=M) (mor_from_algebra_mor _ _ _ j).
-    Admitted.
+  (** The previous characteristic equation can be split as an equality between coproduct of arrows :
+- h ∘ η_T = j_mor
+- h ∘ τ_T = τ_M ∘ H h ∘ Θ_T,T
 
-    (* fini *)
+where [η_T, τ_T] : Id + HT --> T
+*)
 
-  End InitialRep.
+  Local Lemma coprod_iter_eq (h:nat_trans _ _) :
+    (∏ x,
+     BinCoproductIn1 C (CP (_ (T_mon x)) ((H T_func:functor _ _) (T_mon x))) ·
+                     (# L (alg_map Id_H T_alg):nat_trans _ _) x ·
+                     h x = j_mor x) ->
+    (∏ x,
+     BinCoproductIn2 C (CP (_ (T_mon x)) ((H T_func:functor _ _) (T_mon x))) ·
+                     (# L (alg_map Id_H T_alg):nat_trans _ _) x · h x =
+     (θ (`T_alg ⊗ p T_alg):nat_trans _ _) x · (# H h:nat_trans _ _) x · τ_M x) ->
+    # L (alg_map Id_H T_alg) · h = (ψ:nat_trans _ _) `T_alg h.
+  Proof.
+    intros hB1 hB2.
+    eapply (nat_trans_eq hs).
+    intros x.
+    etrans.
+    etrans.
+    eapply cancel_postcomposition.
+    eapply BinCoproductArrowEta.
+    eapply postcompWithBinCoproductArrow.
+    eapply BinCoproductArrow_eq.
+    - apply hB1.
+    - apply hB2.
+  Qed.
 
 
-End TauModuleMorphism.
+  Let τT := τ_lmodule_mor T.
+
+  (** j is a morphism of representation.
+    It is exactly the 'H' part of the Id + H algebra morphism diagram *)
+  Lemma j_mor_rep x : τT x · j_mor x = (# H j_mor:nat_trans _ _) x · τ_M x.
+  Proof.
+    etrans.
+    eapply pathsinv0.
+    apply assoc.
+    etrans.
+    eapply cancel_precomposition.
+    apply (nat_trans_eq_pointwise (algebra_mor_commutes _ _ _ j) x).
+    etrans.
+    apply assoc.
+    etrans.
+    apply cancel_postcomposition.
+    apply BinCoproductIn2Commutes.
+    etrans;[eapply pathsinv0; apply assoc|].
+    apply cancel_precomposition.
+    apply BinCoproductIn2Commutes.
+  Qed.
+
+  (** j satisfies the η-related diagram of monad morphism.
+         This is Id part of the Id+H-algebra morphism diagram *)
+  Lemma j_mon_η :   ∏ a : C, (Monads.η T_mon) a · j_mor a = (Monads.η M) a.
+  Proof.
+    intro a.
+    etrans.
+    eapply pathsinv0.
+    eapply assoc.
+    etrans.
+    eapply cancel_precomposition.
+    eapply (nat_trans_eq_pointwise (algebra_mor_commutes _ _ _ j) a).
+    etrans;[eapply assoc|].
+    etrans.
+    apply cancel_postcomposition.
+    eapply BinCoproductIn1Commutes.
+    etrans;[eapply pathsinv0;eapply assoc|].
+    etrans.
+    apply cancel_precomposition.
+    eapply BinCoproductIn1Commutes.
+    apply id_left.
+  Qed.
+
+  Let j_ptd : precategory_Ptd C hs ⟦ ptd_from_mon hs T_mon, ptd_from_mon hs M⟧.
+  Proof.
+    mkpair.
+    - eapply j.
+    - intros x.
+      eapply j_mon_η.
+  Defined.
+
+
+
+  (** j is a monad morphism (following Ralph's proof). For the square diagram,
+     we show that both parts satisfies the same Mendler iterator characteristic equation*)
+  Lemma j_mon : Monad_Mor_laws (T:=T_mon) (T':=M) (mor_from_algebra_mor _ _ _ j).
+  Proof.
+    split.
+    - apply (nat_trans_eq_pointwise (a:= compose (C:=EndC)  (μ T_mon) j_mor)
+                                    (a':= compose(C:=EndC)
+                                                 (compose (C:=EndC)
+                                                          (a:=_∙_)
+                                                          (b:=_∙_)
+                                                          (c:=_∙_)
+                                                          (j_mor ø T_mon ) (M ∘ j_mor) )
+                                                 (μ M))).
+      apply (uniqueExists _ _ uniq_iter).
+      + apply coprod_iter_eq; intro x.
+        * (* T monad law *)
+          etrans;[apply assoc|].
+          etrans.
+          apply cancel_postcomposition.
+          eapply (Monad_law1 (T:=T_mon)).
+          apply id_left.
+        * (* tau_T is a module morphism *)
+          etrans;[apply assoc|].
+          etrans.
+          apply cancel_postcomposition.
+          eapply (LModule_Mor_σ _  τT).
+          etrans;[eapply pathsinv0;eapply assoc|].
+          etrans;[eapply pathsinv0;eapply assoc|].
+          etrans; [| eapply assoc].
+          apply cancel_precomposition.
+          rewrite functor_comp.
+          etrans; [| eapply assoc].
+          apply cancel_precomposition.
+          apply j_mor_rep.
+      + apply coprod_iter_eq; intro x.
+        * etrans;[apply assoc|].
+          etrans.
+          eapply cancel_postcomposition.
+          etrans;[apply assoc|].
+          eapply cancel_postcomposition.
+          eapply j_mon_η.
+          etrans.
+          eapply cancel_postcomposition.
+          eapply pathsinv0.
+          eapply (nat_trans_ax (Monads.η M )).
+          etrans; [|apply id_right].
+          rewrite <- assoc.
+          eapply cancel_precomposition.
+          eapply Monad_law1.
+        * etrans;[eapply assoc|].
+          etrans;[eapply cancel_postcomposition|].
+          etrans;[eapply assoc|].
+          etrans;[eapply cancel_postcomposition|].
+          apply j_mor_rep.
+          rewrite <- assoc.
+          eapply cancel_precomposition.
+          eapply pathsinv0.
+          eapply (nat_trans_ax τ_M).
+          etrans.
+          repeat rewrite <- assoc.
+          eapply cancel_precomposition.
+          eapply cancel_precomposition.
+          eapply (LModule_Mor_σ _  τ_M ( x)).
+          repeat rewrite assoc.
+          eapply cancel_postcomposition.
+          etrans.
+          repeat rewrite <- assoc.
+          eapply cancel_precomposition.
+          etrans.
+          eapply assoc.
+          eapply cancel_postcomposition.
+          eapply (θ_nat_2_pw _ _ _ j_ptd).
+          etrans.
+          repeat rewrite assoc.
+          eapply cancel_postcomposition.
+          eapply cancel_postcomposition.
+          eapply (θ_nat_1_pw _ _ j_mor (ptd_from_mon hs T_mon)).
+          repeat rewrite <- assoc.
+          eapply cancel_precomposition.
+          rewrite functor_comp.
+          rewrite functor_comp.
+          repeat rewrite assoc.
+          eapply cancel_postcomposition.
+          rewrite <- functor_comp.
+          etrans.
+          eapply functor_comp_pw.
+          apply functor_cancel_pw.
+          apply (nat_trans_eq hs).
+          intro y.
+          etrans.
+          eapply cancel_postcomposition.
+          etrans.
+          eapply cancel_precomposition.
+          eapply functor_id.
+          eapply id_right.
+          apply cancel_precomposition.
+          apply id_left.
+    - apply j_mon_η.
+  Qed.
+
+
+End InitialRep.
