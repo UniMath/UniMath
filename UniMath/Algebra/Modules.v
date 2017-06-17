@@ -290,6 +290,59 @@ Proof.
      reflexivity.
 Defined.
 
+(** To construct a module from a left action satisfying four axioms *)
+
+Local Open Scope addmonoid.
+
+Definition mult_isldistr_wrt_grop {R : rng} {G : abgr} (m : R -> G -> G) : UU := ∏ r : R, ∏ x y : G, m r (x + y) = (m r x) + (m r y).
+
+Definition mult_isrdistr_wrt_rngop1 {R : rng} {G : abgr} (m : R -> G -> G) : UU := ∏ r s : R, ∏ x : G, m (op1 r s) x = (m r x) + (m s x).
+
+Definition mult_isrdistr_wrt_rngop2 {R : rng} {G : abgr} (m : R -> G -> G) : UU := ∏ r s : R, ∏ x : G, m (op2 r s) x = m s (m r x).
+
+Definition mult_unel {R : rng} {G : abgr} (m : R -> G -> G) : UU := ∏ x : G, m rngunel2 x = x.
+
+Local Close Scope addmonoid.
+
+Definition mult_to_rngofendabgr {R : rng} {G : abgr} {m : R -> G -> G} (ax1 : mult_isldistr_wrt_grop m) (r : R) : rngofendabgr G.
+Proof.
+    use monoidfunconstr.
+    intro x. exact (m r x).
+    apply dirprodpair.
+    + intros x y. apply ax1.
+    + apply (grlcan G (m r (unel G))).
+      rewrite runax.
+      rewrite <- (ax1 r (unel G) (unel G)).
+      rewrite runax.
+      apply idpath.
+Defined.
+
+Definition mult_to_module_struct {R : rng} {G : abgr} {m : R -> G -> G} (ax1 : mult_isldistr_wrt_grop m) (ax2 : mult_isrdistr_wrt_rngop1 m)
+  (ax3 : mult_isrdistr_wrt_rngop2 m) (ax4 : mult_unel m) : module_struct R G.
+Proof.
+  split with (λ r : R, mult_to_rngofendabgr ax1 r).
+  apply dirprodpair.
+  - apply dirprodpair.
+    + intros r s.
+      use total2_paths2_f.
+      apply funextfun. intro x. apply ax2.
+      apply isapropismonoidfun.
+    + use total2_paths2_f.
+      apply funextfun. intro x. change (m rngunel1 x = unel G). apply (grlcan G (m (rngunel1) x)). rewrite runax.
+      rewrite <- (ax2 rngunel1 rngunel1 x). rewrite rngrunax1. apply idpath.
+      apply isapropismonoidfun.
+  -  apply dirprodpair.
+     + intros r s.
+       use total2_paths2_f.
+       apply funextfun. intro x. apply ax3.
+       apply isapropismonoidfun.
+     + use total2_paths2_f.
+       apply funextfun. intro x. apply ax4.
+       apply isapropismonoidfun.
+Defined.
+
+Definition mult_to_module {R : rng} {G : abgr} {m : R -> G -> G} (ax1 : mult_isldistr_wrt_grop m) (ax2 : mult_isrdistr_wrt_rngop1 m)
+  (ax3 : mult_isrdistr_wrt_rngop2 m) (ax4 : mult_unel m) : module R := modulepair G (mult_to_module_struct ax1 ax2 ax3 ax4).
 
 (** (left) R-module homomorphism *)
 
@@ -328,9 +381,9 @@ Proof.
    apply (setproperty N).
 Defined.
 
-Definition modulefun {R : rng} (M N : module R) := total2 (λ f : M -> N, ismodulefun f).
+Definition modulefun {R : rng} (M N : module R) : UU := ∑ f : M -> N, ismodulefun f.
 
-Definition modulefunpair {R : rng} {M N : module R} (f : M -> N) (is : ismodulefun f) :=
+Definition modulefunpair {R : rng} {M N : module R} (f : M -> N) (is : ismodulefun f) : modulefun M N :=
    tpair _ f is.
 
 Definition pr1modulefun {R : rng} {M N : module R} (f : modulefun M N) : M -> N := pr1 f.
@@ -347,10 +400,10 @@ Definition modulefun_to_islinear {R : rng} {M N : module R} (f : modulefun M N):
 Definition modulefun_to_linearfun {R : rng} {M N : module R} (f : modulefun M N) : linearfun M N :=
   linearfunpair f (modulefun_to_islinear f).
 
-Definition modulefun_unel {R : rng} {M N : module R} (f : @modulefun R M N) : f (@unel M) = @unel N.
+Definition modulefun_unel {R : rng} {M N : module R} (f : modulefun M N) : f (unel M) = unel N.
 Proof.
-   rewrite <- (module_mult_0_to_0 (@unel M)).
-   rewrite ((modulefun_to_islinear f) rngunel1 (@unel M)).
+   rewrite <- (module_mult_0_to_0 (unel M)).
+   rewrite ((modulefun_to_islinear f) rngunel1 (unel M)).
    rewrite (module_mult_0_to_0 _).
    reflexivity.
 Defined.
