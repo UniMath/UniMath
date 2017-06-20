@@ -100,20 +100,24 @@ Proof.
   (* 2 *)
   simpl.
   rewrite !assoc.
-  change ((η S) (T (S x)) · a (S x) · (η T) (T (S (S x))) · (μ T) (S (S x)) · # T ((μ S) x)
-          = identity (T (S x))).
-  rewrite (monad_dist_law1 l).
+  etrans.
+    { do 3 apply cancel_postcomposition.
+      apply (monad_dist_law1 l).
+    }
   (* 3 *)
   rewrite <- (assoc (# T ((η S) (S x)))).
-  change (# T ((η S) (S x)) · ((η T) (T (S (S x))) · (μ T) (S (S x))) · # T ((μ S) x)
-          = identity (T (S x))).
-  rewrite Monad_law1.
+  etrans.
+    { apply cancel_postcomposition.
+      apply cancel_precomposition.
+      apply (Monad_law1).
+    }
   (* 4 *)
   rewrite id_right.
   rewrite <- functor_comp.
   rewrite <- functor_id.
-  change (# T ((η S) (S x) · (μ S) x) = # T (identity (S x))).
-  now rewrite Monad_law1.
+  now etrans;
+    try apply maponpaths;
+    try apply Monad_law1.
 Defined.
 
 (**
@@ -142,9 +146,12 @@ Proof.
   rewrite <- functor_comp.
   rewrite (functor_comp S).
   rewrite <- !assoc.
-  change (# T (# S ((η S) x) · (# S ((η T) (S x)) · a (S x))) · ((μ T) (S (S x)) · # T ((μ S) x))
-          = identity (T (S x))).
-  rewrite (monad_dist_law2 l).
+  etrans.
+    { apply cancel_postcomposition.
+      apply maponpaths.
+      apply cancel_precomposition.
+      apply (monad_dist_law2 l).
+    }
   (* 2 *)
   rewrite functor_comp.
   rewrite <- assoc.
@@ -154,8 +161,9 @@ Proof.
   rewrite id_left.
   rewrite <- functor_comp.
   rewrite <- functor_id.
-  change (# T (# S ((η S) x) · (μ S) x) = # T (identity (S x))).
-  now rewrite (@Monad_law2 C S x).
+  now etrans;
+    try apply maponpaths;
+    try apply Monad_law2.
 Defined.
 
 (** Here, more enlightening than a diagram is just the "strategy" of the proof: each side of the
@@ -186,28 +194,30 @@ Proof.
   rewrite <- (assoc (a (T (S x)))).
   rewrite (assoc _ (a (T (S x)))).
   simpl.
-  change(
-      # T (# S (# T (a (S x))) · (# (T ∙ S) (# T ((μ S) x)) ·
-                                    a (T (S x)) · (# T (a (S x)) · (μ T) (S (S x))))) ·
-        (# T (# T ((μ S) x)) · (μ T) (S x)) =
-      # T (a (S (T (S x)))) · ((μ T) (S (S (T (S x)))) · # T ((μ S) (T (S x)))) ·
-                                             (# T (a (S x)) · (# T (# T ((μ S) x)) · (μ T) (S x)))).
-  rewrite nat_trans_ax.
+  etrans.
+    { apply cancel_postcomposition.
+      apply maponpaths.
+      apply cancel_precomposition.
+      apply cancel_postcomposition.
+      apply (nat_trans_ax a).
+    }
   rewrite <- assoc.
   rewrite (assoc _ (# T (a (S x)))).
-  change (# T (# S (# T (a (S x))) · (a (T (S (S x))) · (# T (# S (# T ((μ S) x))) ·
-                                               # T (a (S x)) · (μ T) (S (S x))))) ·
-            (# T (# T ((μ S) x)) · (μ T) (S x)) =
-          # T (a (S (T (S x)))) · ((μ T) (S (S (T (S x)))) · # T ((μ S) (T (S x)))) ·
-            (# T (a (S x)) · (# T (# T ((μ S) x)) · (μ T) (S x)))).
-  rewrite <- (functor_comp T).
-  change (# T (# S (# T (a (S x))) · (a (T (S (S x))) · (# T (# (T ∙ S) ((μ S) x) ·
-                                                 a (S x)) ·
-                                               (μ T) (S (S x))))) ·
-  (# T (# T ((μ S) x)) · (μ T) (S x)) =
-  # T (a (S (T (S x)))) · ((μ T) (S (S (T (S x)))) · # T ((μ S) (T (S x)))) ·
-  (# T (a (S x)) · (# T (# T ((μ S) x)) · (μ T) (S x)))).
-  rewrite nat_trans_ax.
+  etrans.
+    { apply cancel_postcomposition.
+      apply maponpaths.
+      do 2 apply cancel_precomposition.
+      apply cancel_postcomposition.
+      apply (! (functor_comp T _ _)).
+    }
+  etrans.
+    { apply cancel_postcomposition.
+      apply maponpaths.
+      do 2 apply cancel_precomposition.
+      apply cancel_postcomposition.
+      apply maponpaths.
+      apply (nat_trans_ax a).
+    }
   rewrite <- assoc.
   rewrite <- (assoc _ (# T ((μ S) (T (S x))))).
   rewrite (assoc (# T ((μ S) (T (S x))))).
@@ -219,13 +229,11 @@ Proof.
   rewrite !functor_comp.
   rewrite !assoc.
   rewrite <- functor_comp.
-  change (# T (# (T ∙ S) (a (S x)) · a (T (S (S x)))) · # T (# T (a ((S ∙ S) x))) ·
-             # T (# T (# (S ∙ T) ((μ S) x))) · # T ((μ T) (S (S x))) ·
-             # T (# T ((μ S) x)) · (μ T) (S x) =
-           # T (a (S (T (S x)))) · # (T ∙ T) (# S (a (S x))) ·
-             # (T ∙ T) (a (S (S x))) · # (T ∙ T) (# T ((μ S) (S x))) ·
-             (μ T) ((S ∙ T) (S x)) · # T (# T ((μ S) x)) · (μ T) (S x)).
-  rewrite nat_trans_ax.
+  etrans.
+    { do 5 apply cancel_postcomposition.
+      apply maponpaths.
+      apply (nat_trans_ax a).
+    }
   do 2 rewrite <- assoc.
   rewrite (assoc (# T ((μ T) (S (S x))))).
   rewrite <- !(functor_comp T ((μ T) (S (S x)))).
@@ -285,10 +293,12 @@ Proof.
   rewrite (assoc (# T (# S (# T ((η S) x))))).
   rewrite <- functor_comp.
   apply pathsinv0.
-  change (# T ((η S) (T x)) · (# T (# (T ∙ S) ((η S) x) · a (S x)) ·
-                                 ((μ T) (S (S x)) · # T ((μ S) x))) =
-          (μ T) x · # T ((η S) x)).
-  rewrite nat_trans_ax.
+  etrans.
+    { apply cancel_precomposition.
+      apply cancel_postcomposition.
+      apply maponpaths.
+      apply (nat_trans_ax a).
+    }
   (* 2 *)
   rewrite functor_comp.
   rewrite !assoc.
@@ -301,9 +311,12 @@ Proof.
   rewrite (assoc (# T (# T (# S ((η S) x))))).
   simpl.
   rewrite <- !functor_comp.
-  change (# T (# T ((η S) x)) · (# T (# T (# S ((η S) x) · (μ S) x)) · (μ T) (S x)) =
-          (μ T) x · # T ((η S) x)).
-  rewrite Monad_law2.
+  etrans.
+    { apply cancel_precomposition.
+      apply cancel_postcomposition.
+      do 2 apply maponpaths.
+      apply Monad_law2.
+    }
   (* 5 *)
   rewrite !functor_id.
   rewrite id_left.
@@ -515,10 +528,11 @@ Proof.
   rewrite (LModule_law2 T (S x)).
   rewrite assoc.
   rewrite <- (assoc _ (#L (#T (a x)))).
-  change(# L (a (T x)) · (# (T ∙ L) (a x) · (lm_mult T L) (T (S x))) ·
-           (lm_mult T L) (S x) =
-         # L (a (T x)) · (lm_mult T L) (S (T x)) · (# L (a x) · (lm_mult T L) (S x))).
-  rewrite (nat_trans_ax (lm_mult T L) _ _ _).
+  etrans.
+    { apply cancel_postcomposition.
+      apply cancel_precomposition.
+      apply (nat_trans_ax (lm_mult T L)).
+    }
   now rewrite !assoc.
 Defined.
 
