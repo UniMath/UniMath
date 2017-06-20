@@ -31,11 +31,13 @@ Require Import UniMath.CategoryTheory.LModules.
 
 Local Open Scope cat.
 
+(** * Definition of distributive laws for Monads and composition of Monads
+ cf. Beck "Distributive laws" (1969) *)
 Section comp_def.
 
 Context {C : precategory} {S T : Monad C}.
 
-(* distributivity law for a pair of monads *)
+(** distributivity law for a pair of monads *)
 Definition monad_dist_laws (a : T ∙ S ⟹ S ∙ T) :=
   (((∏ x : C, η S (T x) · a x = #T (η S x)) ×
     (∏ x : C, #S (η T x) · a x = η T (S x))) ×
@@ -47,7 +49,7 @@ Definition monad_dist_law2 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) := 
 Definition monad_dist_law3 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) := (pr2 (pr1 l)).
 Definition monad_dist_law4 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) := pr2 l.
 
-(* composition of monads *)
+(** composition of monads with a distributive law *)
 Definition monad_comp_mu (a : T ∙ S ⟹ S ∙ T) : (S ∙ T ∙ S ∙ T) ⟹ (S ∙ T) :=
   nat_trans_comp _ _ _ (post_whisker (pre_whisker S a) T)
                        (nat_trans_comp _ _ _ (pre_whisker (S ∙ S) (μ T)) (post_whisker (μ S) T)).
@@ -58,23 +60,55 @@ Definition monad_comp_eta (a : T ∙ S ⟹ S ∙ T): functor_identity C ⟹ S �
 Definition monad_comp_data (a : T ∙ S ⟹ S ∙ T) : Monad_data C :=
   (tpair _ (tpair _ (S ∙ T) (monad_comp_mu a)) (monad_comp_eta a)).
 
+(** Below are the proofs of the monad laws for the composition of monads. We prove them as separate
+    lemmas not only because they are somewhat lengthy, but also for the following reason: the μ and
+    η for this monad are defined via operations on natural transformations, rather than their value
+    being given explicitly at each object. However, for the proofs, it is desirable to have these
+    explicit expressions; the easiest way to accomplish this is to write out the statements by hand
+    in the desired form (as ugly as they may be).
+
+    This is also done for the same reason later in the file, where the proofs of the individual
+    lemmas are not as lengthy.
+*)
+
+(**
+Here is the diagram corresponding to this proof. The outside of the diagram represents the equation
+to be proved. The numbers indicate the order in which the sub-diagrams are used.
+TSTSx ---------------> TTSSx ----------->  TSSx  ------------> TSx
+  ^     #T (a (Sx))     ^     μ T (SSx)     ^     #T (μ S x)   ^
+  |                     |                  /                  /
+  |η T (STSx)           |η T (TSSx)       /id                /
+  |                 1   |            3   /                  /
+           a (Sx)                       /                  /
+ STSx  --------------> TSSx ------------         4        /
+  ^                     ^                                /
+  |             2      /#T (η S (Sx))                   /
+  |η S (TSx)          /                                /
+  | _________________/                                /
+  |/                               id                /
+ TSx ------------------------------------------------
+*)
 Local Lemma monad_comp_law1 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : ∏ x : C,
   (η S (T (S x))) · (η T (S (T (S x)))) · (#T (a (S x)) · (μ T (S (S x)) · #T (μ S x))) =
   identity (T (S x)).
 Proof.
   intro x.
+  (* 1 *)
   rewrite <- assoc.
   rewrite !(assoc ((η T) (S (T (S x))))).
   rewrite <- (nat_trans_ax (η T) (S (T (S x)))).
+  (* 2 *)
   simpl.
   rewrite !assoc.
   change ((η S) (T (S x)) · a (S x) · (η T) (T (S (S x))) · (μ T) (S (S x)) · # T ((μ S) x)
           = identity (T (S x))).
   rewrite (monad_dist_law1 l).
+  (* 3 *)
   rewrite <- (assoc (# T ((η S) (S x)))).
   change (# T ((η S) (S x)) · ((η T) (T (S (S x))) · (μ T) (S (S x))) · # T ((μ S) x)
           = identity (T (S x))).
   rewrite Monad_law1.
+  (* 4 *)
   rewrite id_right.
   rewrite <- functor_comp.
   rewrite <- functor_id.
@@ -82,11 +116,28 @@ Proof.
   now rewrite Monad_law1.
 Defined.
 
+(**
+The diagram for this proof (see above for explanation):
+TSTSx ---------------> TTSSx ----------->  TSSx  ------------> TSx
+  ^     #T (a (Sx))     ^     μ T (SSx)     ^     #T (μ S x)   ^
+  |                 1  /             2     /                  /
+  |#T #S (η T (Sx))   /                   /id                /
+  |                  /#T (η T (SSx))     /                  /
+  |  _______________/                   /                  /
+  | /                                  /                  /
+ TSSx  --------------------------------         3        /
+  ^                                                     /
+  |                                                    /
+  |#T #S (η S x)                                      /
+  |                                      id          /
+ TSx ------------------------------------------------
+*)
 Local Lemma monad_comp_law2 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : ∏ x : C,
   #T (#S ((η S x) · (η T (S x)))) · (#T (a (S x)) · (μ T (S (S x)) · #T (μ S x))) =
   identity (T (S x)).
 Proof.
   intro x.
+  (* 1 *)
   rewrite !assoc.
   rewrite <- functor_comp.
   rewrite (functor_comp S).
@@ -94,18 +145,28 @@ Proof.
   change (# T (# S ((η S) x) · (# S ((η T) (S x)) · a (S x))) · ((μ T) (S (S x)) · # T ((μ S) x))
           = identity (T (S x))).
   rewrite (monad_dist_law2 l).
+  (* 2 *)
   rewrite functor_comp.
   rewrite <- assoc.
   rewrite (assoc (# T ((η T) (S (S x))))).
   rewrite Monad_law2.
+  (* 3 *)
   rewrite id_left.
   rewrite <- functor_comp.
   rewrite <- functor_id.
   change (# T (# S ((η S) x) · (μ S) x) = # T (identity (S x))).
-  rewrite (@Monad_law2 C S x).
-  apply idpath.
+  now rewrite (@Monad_law2 C S x).
 Defined.
 
+(** Here, more enlightening than a diagram is just the "strategy" of the proof: each side of the
+    equation consists of some applications of the monad multiplications μ T and μ S and the
+    distributive law 'a'. The strategy is - (1) using repeated applications of the third and fourth
+    axioms for the distributive law and the naturality of μ T, μ S, and 'a' - to arrange for all the
+    applications of 'a' to come first, and then the applications μ T and μ S. Thus, both sides are
+    transformed to a composite TSTSTSx --> TTTSSSx -> TSx; then (2) the first composands are equal
+    by the naturality of 'a', and the second composands are equal by the naturality and
+    associativity of μ T and μ S.
+*)
 Local Lemma monad_comp_law3 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : ∏ x : C,
   #T (#S (#T (a (S x)) · (μ T (S (S x)) · #T (μ S x)))) ·
    (#T (a (S x)) · (μ T (S (S x)) · #T (μ S x))) =
@@ -113,6 +174,7 @@ Local Lemma monad_comp_law3 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : 
    (#T (a (S x)) · (μ T (S (S x)) · #T (μ S x))).
 Proof.
   intro x.
+  (* 1 *)
   rewrite assoc.
   rewrite <- functor_comp.
   rewrite <- nat_trans_ax.
@@ -153,6 +215,7 @@ Proof.
   rewrite <- (monad_dist_law4 l).
   rewrite (assoc ((μ T) (S (S (T (S x)))))).
   rewrite <- (nat_trans_ax (μ T)).
+  (* 2 *)
   rewrite !functor_comp.
   rewrite !assoc.
   rewrite <- functor_comp.
@@ -163,8 +226,7 @@ Proof.
              # (T ∙ T) (a (S (S x))) · # (T ∙ T) (# T ((μ S) (S x))) ·
              (μ T) ((S ∙ T) (S x)) · # T (# T ((μ S) x)) · (μ T) (S x)).
   rewrite nat_trans_ax.
-  rewrite <- assoc.
-  rewrite <- assoc.
+  do 2 rewrite <- assoc.
   rewrite (assoc (# T ((μ T) (S (S x))))).
   rewrite <- !(functor_comp T ((μ T) (S (S x)))).
   rewrite <- (nat_trans_ax (μ T)).
@@ -184,16 +246,33 @@ Proof.
   now rewrite !assoc.
 Defined.
 
-Definition monad_comp_laws {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
-  Monad_laws (monad_comp_data a) := ((monad_comp_law1 l,, monad_comp_law2 l),, monad_comp_law3 l).
-
 Definition monad_comp {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : Monad C :=
-  (_,, monad_comp_laws l).
+  (monad_comp_data a,,
+  dirprodpair (dirprodpair (monad_comp_law1 l) (monad_comp_law2 l)) (monad_comp_law3 l)).
 
-(* morphism from first composand to composition of monads *)
-Definition monad_to_comp_trans {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
+(** morphism from the factor T to the composite S ∙ T of two monads *)
+Definition monad_to_comp_data {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
   T ⟹ monad_comp l := post_whisker (η S) T.
 
+(** We prove the monad morphism laws as separate lemmas for the reason explained in the comment
+    near the beginning of the file *)
+
+(** The diagram for this proof (see above for explanation):
+TTx------------------------------------------------------------------->Tx
+ | \                                      μ T x                         |
+ |  ¯¯¯¯¯¯¯¯¯¯¯¯¯\                                                      |
+ |#T (η S (Tx))   \#T (#T (η S x)                 5           #T (η S x)|
+ |              2  \                                                    |
+ v    #T (a x)      v        id                     μ T (Sx)            |
+TSTx----------------TTSx------------------TTSx---------------------     |
+ |                    |                   ^                        \    |
+ |#T #S #T (η S x)    |#T #T #S (η S x)  /                          \   |
+ |                    |    _____________/ #T #T (μ S x)     3        \  |
+ |         1          | 4 /                                           \ |
+ v                    v  /                                            v v
+TSTSx-------------->TTSSx-------------------------->TSSx-------------->TSx
+      #T (a (Sx))                  μ T (SSx)               #T (μ S x)
+*)
 Local Lemma monad_to_comp_law1 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
   ∏ x : C,
         μ T x · #T (η S x) =
@@ -201,6 +280,7 @@ Local Lemma monad_to_comp_law1 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a)
          (#T (a (S x)) · (μ T (S (S x)) · #T (μ S x))).
 Proof.
   intro x.
+  (* 1 *)
   rewrite <- assoc.
   rewrite (assoc (# T (# S (# T ((η S) x))))).
   rewrite <- functor_comp.
@@ -209,51 +289,45 @@ Proof.
                                  ((μ T) (S (S x)) · # T ((μ S) x))) =
           (μ T) x · # T ((η S) x)).
   rewrite nat_trans_ax.
+  (* 2 *)
   rewrite functor_comp.
   rewrite !assoc.
   rewrite <- functor_comp.
   rewrite (monad_dist_law1 l).
+  (* 3 *)
   rewrite <- !assoc.
   rewrite <- (nat_trans_ax (μ T) (S (S x))).
+  (* 4 *)
   rewrite (assoc (# T (# T (# S ((η S) x))))).
   simpl.
   rewrite <- !functor_comp.
   change (# T (# T ((η S) x)) · (# T (# T (# S ((η S) x) · (μ S) x)) · (μ T) (S x)) =
           (μ T) x · # T ((η S) x)).
   rewrite Monad_law2.
+  (* 5 *)
   rewrite !functor_id.
   rewrite id_left.
-  rewrite <- (nat_trans_ax (μ T) x).
-  apply idpath.
+  now rewrite <- (nat_trans_ax (μ T) x).
 Defined.
 
-Local Lemma monad_to_comp_law2 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
-  ∏ x : C,
-        η T x · #T (η S x) = η S x · (η T (S x)).
+Local Definition monad_to_comp_law2 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
+  ∏ x : C, η T x · #T (η S x) = η S x · (η T (S x)).
 Proof.
   intro x.
-  rewrite <- nat_trans_ax.
-  apply idpath.
-Defined.
-
-Lemma monad_to_comp_laws {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
-  Monad_Mor_laws (monad_to_comp_trans l).
-Proof.
-  apply tpair.
-  apply (monad_to_comp_law1 l).
-  apply (monad_to_comp_law2 l).
+  now rewrite <- (nat_trans_ax (η T) x ).
 Defined.
 
 Definition monad_to_comp {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
-  Monad_Mor T (monad_comp l) := (_,, monad_to_comp_laws l).
+  Monad_Mor T (monad_comp l) :=
+  (monad_to_comp_data l,, dirprodpair (monad_to_comp_law1 l) (monad_to_comp_law2 l)).
 
 End comp_def.
 
+(** * Definition of the "Maybe" monad (coproduct with a fixed object) *)
 Section maybe_def.
 
 Context {C : precategory} (o : C) (co : BinCoproducts C).
 
-(* maybe monad *)
 Definition maybe_functor : functor C C :=
   constcoprod_functor2 co o.
 
@@ -268,14 +342,16 @@ Definition maybe_eta : functor_identity C ⟹ maybe_functor :=
 
 Definition maybe_monad_data : Monad_data C := (maybe_functor,, maybe_mu),, maybe_eta.
 
+(** We prove the monad laws as separate lemmas for the reason explained in the comment
+    near the beginning of the file *)
+
 Local Lemma maybe_monad_law1 : ∏ c : C,
 BinCoproductIn1 C (co (co c o) o) ·
 BinCoproductArrow C _ (identity (co c o)) (BinCoproductIn2 C (co c o)) =
 identity (co c o).
 Proof.
   intro c.
-  rewrite BinCoproductIn1Commutes.
-  apply idpath.
+  now rewrite BinCoproductIn1Commutes.
 Defined.
 
 Local Lemma maybe_monad_law2 : ∏ c : C,
@@ -285,11 +361,8 @@ BinCoproductArrow C _ (identity (co c o)) (BinCoproductIn2 C (co c o)) =
 identity (co c o).
 Proof.
   intro c.
-  rewrite precompWithBinCoproductArrow.
-  rewrite id_left.
-  rewrite <- (id_right (BinCoproductIn2 C (co c o))).
-  rewrite <- BinCoproductArrowEta.
-  apply idpath.
+  now rewrite precompWithBinCoproductArrow, id_left,
+              <- (id_right (BinCoproductIn2 C (co c o))), <- BinCoproductArrowEta.
 Defined.
 
 Local Lemma maybe_monad_law3 : ∏ c : C,
@@ -301,34 +374,24 @@ BinCoproductArrow C _ (identity (co (co c o) o)) (BinCoproductIn2 C (co (co c o)
  BinCoproductArrow C _ (identity (co c o)) (BinCoproductIn2 C (co c o)).
 Proof.
   intro c.
-  rewrite precompWithBinCoproductArrow.
-  rewrite postcompWithBinCoproductArrow.
-  rewrite id_right.
-  rewrite id_right.
-  rewrite postcompWithBinCoproductArrow.
-  rewrite id_left.
-  rewrite id_left.
-  rewrite BinCoproductIn2Commutes.
-  apply idpath.
+  now rewrite precompWithBinCoproductArrow, postcompWithBinCoproductArrow,
+              !id_right, postcompWithBinCoproductArrow,
+              !id_left, BinCoproductIn2Commutes.
 Defined.
 
-Lemma maybe_monad_laws : Monad_laws maybe_monad_data.
-Proof.
-  intros.
-  unfold Monad_laws.
-  apply tpair.
-  apply tpair.
-  apply maybe_monad_law1.
-  apply maybe_monad_law2.
-  apply maybe_monad_law3.
-Defined.
+Definition maybe_monad : Monad C :=
+  (maybe_monad_data,,
+  dirprodpair (dirprodpair maybe_monad_law1 maybe_monad_law2) maybe_monad_law3).
 
-Definition maybe_monad : Monad C := (maybe_monad_data,, maybe_monad_laws).
+(** Definition of the derivative of a monad, i.e. precomposing with the maybe monad *)
+Section deriv_def.
 
-(* derivative of a monad *)
 Definition functor_deriv {D : precategory}
            (T : functor C D) : functor C D := maybe_monad ∙ T.
 
+(** The distributive law for any monad with the Maybe monad. This is the obvious map
+    (TX + Y) -> T (X + Y) - i.e., T(in1) on the first component and (in2 · η T)
+    on the second component *)
 Definition deriv_dist (T : Monad C) : (T ∙ maybe_monad) ⟹ (maybe_monad ∙ T) :=
   coproduct_nat_trans C C co T (constant_functor C C o) (functor_deriv T)
                              (post_whisker (coproduct_nat_trans_in1 C C co (functor_identity C)
@@ -338,6 +401,8 @@ Definition deriv_dist (T : Monad C) : (T ∙ maybe_monad) ⟹ (maybe_monad ∙ T
                                                                       (constant_functor C C o))
                                              (pre_whisker maybe_monad (η T))).
 
+(** We prove the distributive law axioms as separate lemmas for the reason explained in the comment
+    near the beginning of the file *)
 
 Local Lemma deriv_dist_law1 (T : Monad C) : ∏ x : C,
   BinCoproductIn1 C (co (T x) o) ·
@@ -345,8 +410,7 @@ Local Lemma deriv_dist_law1 (T : Monad C) : ∏ x : C,
   #T (BinCoproductIn1 C (co x o)).
 Proof.
   intro x.
-  rewrite BinCoproductIn1Commutes.
-  apply idpath.
+  now rewrite BinCoproductIn1Commutes.
 Defined.
 
 Local Lemma deriv_dist_law2 (T : Monad C) : ∏ x : C,
@@ -360,16 +424,15 @@ Proof.
   change (BinCoproductArrow C (co x o) ((η T) x · # T (BinCoproductIn1 C (co x o)))
     (BinCoproductIn2 C (co x o) · (η T) (co x o)) = (η T) (co x o)).
   rewrite <- nat_trans_ax.
-  rewrite <- BinCoproductArrowEta.
-  apply idpath.
+  now rewrite <- BinCoproductArrowEta.
 Defined.
 
 Local Lemma deriv_dist_law3 (T : Monad C) : ∏ x : C,
-BinCoproductArrow C _ (#T (BinCoproductIn1 C _)) (BinCoproductIn2 C _ · η T (co (T x) o)) ·
-#T (BinCoproductArrow C _ (#T (BinCoproductIn1 C _)) (BinCoproductIn2 C _ · η T (co x o))) ·
-μ T (co x o) =
-BinCoproductOfArrows C (co (T (T x)) o) (co (T x) o) (μ T x) (identity o) ·
-BinCoproductArrow C _ (#T (BinCoproductIn1 C _)) (BinCoproductIn2 C _ · η T (co x o)).
+  BinCoproductArrow C _ (#T (BinCoproductIn1 C _)) (BinCoproductIn2 C _ · η T (co (T x) o)) ·
+  #T (BinCoproductArrow C _ (#T (BinCoproductIn1 C _)) (BinCoproductIn2 C _ · η T (co x o))) ·
+  μ T (co x o) =
+  BinCoproductOfArrows C (co (T (T x)) o) (co (T x) o) (μ T x) (identity o) ·
+  BinCoproductArrow C _ (#T (BinCoproductIn1 C _)) (BinCoproductIn2 C _ · η T (co x o)).
 Proof.
   intro x.
   rewrite postcompWithBinCoproductArrow.
@@ -386,20 +449,18 @@ Proof.
   rewrite precompWithBinCoproductArrow.
   rewrite id_left.
   rewrite id_right.
-  rewrite <- (nat_trans_ax (μ T) x).
-  simpl.
-  apply idpath.
+  now rewrite <- (nat_trans_ax (μ T) x).
 Defined.
 
 Local Lemma deriv_dist_law4 (T : Monad C) : ∏ x : C,
-BinCoproductOfArrows C (co (co (T x) o) o) (co (T (co x o)) o)
-                     (BinCoproductArrow C _ (#T (BinCoproductIn1 C _))
-                                        (BinCoproductIn2 C _ · η T (co x o))) (identity o) ·
-BinCoproductArrow C _ (#T (BinCoproductIn1 C _)) (BinCoproductIn2 C _ · η T (co (co x o) o)) ·
-#T (BinCoproductArrow C _ (identity _) (BinCoproductIn2 C _)) =
-BinCoproductArrow C (co (co (T x) o) o) (identity (co (T x) o)) (BinCoproductIn2 C _) ·
-                  BinCoproductArrow C (co (T x) o) (#T (BinCoproductIn1 C _))
-                  (BinCoproductIn2 C (co x o) · η T (co x o)).
+  BinCoproductOfArrows C (co (co (T x) o) o) (co (T (co x o)) o)
+                         (BinCoproductArrow C _ (#T (BinCoproductIn1 C _))
+                         (BinCoproductIn2 C _ · η T (co x o))) (identity o) ·
+  BinCoproductArrow C _ (#T (BinCoproductIn1 C _)) (BinCoproductIn2 C _ · η T (co (co x o) o)) ·
+  #T (BinCoproductArrow C _ (identity _) (BinCoproductIn2 C _)) =
+  BinCoproductArrow C (co (co (T x) o) o) (identity (co (T x) o)) (BinCoproductIn2 C _) ·
+  BinCoproductArrow C (co (T x) o) (#T (BinCoproductIn1 C _))
+                      (BinCoproductIn2 C (co x o) · η T (co x o)).
 Proof.
   intro x.
   rewrite precompWithBinCoproductArrow.
@@ -417,38 +478,27 @@ Proof.
   rewrite BinCoproductIn2Commutes.
   rewrite postcompWithBinCoproductArrow.
   rewrite id_left.
-  rewrite BinCoproductIn2Commutes.
-  apply idpath.
+  now rewrite BinCoproductIn2Commutes.
 Defined.
 
-Lemma deriv_dist_is_monad_dist (T : Monad C) : monad_dist_laws (deriv_dist T).
-Proof.
-  unfold monad_dist_laws.
-  apply tpair.
-  apply tpair.
-  apply tpair.
-  apply (deriv_dist_law1 T).
-  apply (deriv_dist_law2 T).
-  apply (deriv_dist_law3 T).
-  apply (deriv_dist_law4 T).
-Defined.
+Definition deriv_dist_is_monad_dist (T : Monad C) : monad_dist_laws (deriv_dist T) :=
+  dirprodpair (dirprodpair (dirprodpair (deriv_dist_law1 T) (deriv_dist_law2 T))
+                           (deriv_dist_law3 T))
+              (deriv_dist_law4 T).
 
 Definition monad_deriv (T: Monad C) : Monad C := monad_comp (deriv_dist_is_monad_dist T).
 
-(* The morphism from a monad to its derivative *)
+(** the morphism from a monad to its derivative *)
 Definition monad_to_deriv (T : Monad C) : Monad_Mor T (monad_deriv T) :=
   monad_to_comp (deriv_dist_is_monad_dist T).
 
-(* derivative of a left module over a monad *)
+(** derivative of a left module over a monad *)
 Lemma LModule_comp_law1 {D : precategory} {T : Monad C} {S : Monad C}
       {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) (L : LModule T D) : ∏ x : C,
   #L (#S (η T x)) · (#L (a x) · lm_mult T L (S x)) = identity (L (S x)).
 Proof.
   intro x.
-  rewrite assoc.
-  rewrite <- functor_comp.
-  rewrite (monad_dist_law2 l).
-  apply (LModule_law1 T (S x)).
+  now rewrite assoc, <- functor_comp, (monad_dist_law2 l), (LModule_law1 T (S x)).
 Defined.
 
 Lemma LModule_comp_law2 {D : precategory} {T : Monad C} {S : Monad C}
@@ -469,24 +519,21 @@ Proof.
            (lm_mult T L) (S x) =
          # L (a (T x)) · (lm_mult T L) (S (T x)) · (# L (a x) · (lm_mult T L) (S x))).
   rewrite (nat_trans_ax (lm_mult T L) _ _ _).
-  rewrite !assoc.
-  apply idpath.
+  now rewrite !assoc.
 Defined.
 
 Definition LModule_comp_data {D : precategory} {T : Monad C} {S : Monad C} (a : T ∙ S ⟹ S ∙ T)
                                                   (L : LModule T D) : LModule_data T D :=
   (S ∙ L,, nat_trans_comp _ _ _ (post_whisker a L) (pre_whisker S (lm_mult T L))).
 
-Lemma LModule_comp_laws {D : precategory} {T : Monad C} {S : Monad C}
+Definition LModule_comp_laws {D : precategory} {T : Monad C} {S : Monad C}
       {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) (L : LModule T D) :
-      (LModule_laws T (LModule_comp_data a L)).
-Proof.
-  apply tpair.
-  apply (LModule_comp_law1 l L).
-  apply (LModule_comp_law2 l L).
-Defined.
+  (LModule_laws T (LModule_comp_data a L)) := dirprodpair (LModule_comp_law1 l L)
+                                                          (LModule_comp_law2 l L).
 
 Definition LModule_deriv {D : precategory} {T : Monad C} (L : LModule T D) : LModule T D :=
   (LModule_comp_data (deriv_dist T) L,, LModule_comp_laws (deriv_dist_is_monad_dist T) L).
+
+End deriv_def.
 
 End maybe_def.
