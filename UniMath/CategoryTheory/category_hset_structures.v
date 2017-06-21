@@ -21,8 +21,8 @@ Contents:
 - Products in Set/X ([Products_HSET_slice])
 - Forgetful functor Set/X to Set is left adjoint
   ([is_left_adjoint_slicecat_to_cat])
-- kernel pairs
-- effective epis
+- Kernel pairs ([kernel_pair_HSET])
+- Effective epis ([EffectiveEpis_HSET])
 
 Written by: Benedikt Ahrens, Anders Mörtberg
 
