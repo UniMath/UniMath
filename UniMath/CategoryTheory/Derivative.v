@@ -1,14 +1,15 @@
 (** **********************************************************
 Contents:
-        - "maybe" monad (binary coproduct with a fixed object)
-        - distributive laws for pairs of monads
-          - in particular: the distributive law for the maybe monad and any monad
-        - composition of two monads with a distributive law
-          - in particular: derivative of a monad (composing with maybe)
-        - monad morphism from the first composand to the composition of monads
-          - in particular: monad morphism from a monad to its derivative
-        - left module over a monad T obtained by composing a monad having a distributive law with T
-          - in particular: the derivative of a left module over a monad
+        - "maybe" monad (binary coproduct with a fixed object) [maybe_monad]
+        - distributive laws for pairs of monads [monad_dist_laws]
+          - in particular: the distributive law for the maybe monad and any monad [deriv_dist]
+        - composition of two monads with a distributive law [monad_comp]
+          - in particular: derivative of a monad (composing with maybe) [monad_deriv]
+        - monad morphism from the first composand to the composition of monads [monad_to_comp]
+          - in particular: monad morphism from a monad to its derivative [monad_to_deriv]
+        - left module over a monad T obtained by composing a monad having a distributive
+          law with T [LModule_comp_laws]
+          - in particular: the derivative of a left module over a monad [LModule_deriv]
 
 Written by: Joseph Helfer (May 2017)
 
@@ -408,11 +409,11 @@ Definition functor_deriv {D : precategory}
 Definition deriv_dist (T : Monad C) : (T ∙ maybe_monad) ⟹ (maybe_monad ∙ T) :=
   coproduct_nat_trans C C co (constant_functor C C o) T (functor_deriv T)
                              (nat_trans_comp _ _ _
-                                             (coproduct_nat_trans_in1 C C co (constant_functor C C o)
-                                                                      (functor_identity C))
-                                             (pre_whisker maybe_monad (η T)))
+                                            (coproduct_nat_trans_in1 C C co (constant_functor C C o)
+                                                                            (functor_identity C))
+                                            (pre_whisker maybe_monad (η T)))
                              (post_whisker (coproduct_nat_trans_in2 C C co (constant_functor C C o)
-                                                                    (functor_identity C)) T).
+                                                                           (functor_identity C)) T).
 
 (** We prove the distributive law axioms as separate lemmas for the reason explained in the comment
     near the beginning of the file *)
