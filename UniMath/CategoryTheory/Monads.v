@@ -8,6 +8,7 @@ Contents:
              to endofunctors on [C]
         - Haskell style bind operation ([bind])
         - A substitution operator for monads ([monadSubst])
+        - A helper lemma for proving equality of Mondas ([Monad_eq_raw_data])
 
 TODO:
         - Proof that [precategory_Monad C] is saturated if [C] is
@@ -417,12 +418,12 @@ Section Monad_eq_helper.
     Definition Monad_to_raw_data {C : precategory} (T : Monad C) : raw_Monad_data C.
     Proof.
       mkpair.
-      exact (functor_on_objects T).
-      mkpair.
-      mkpair.
-      exact (@functor_on_morphisms C C T).
-      exact (μ T).
-      exact (η T).
+      - exact (functor_on_objects T).
+      - mkpair.
+        + mkpair.
+          * exact (@functor_on_morphisms C C T).
+          * exact (μ T).
+        + exact (η T).
     Defined.
 
     Definition Monad_to_Monad'_data {C : precategory} (T : Monad C) : Monad'_data C :=
@@ -444,14 +445,14 @@ Section Monad_eq_helper.
   Proof.
     intro e.
     apply subtypeEquality'.
-    apply subtypeEquality'.
-    apply e.
-    apply isapropdirprod.
-    apply isapropdirprod.
-    apply (isaprop_is_functor C C hs).
-    apply (isaprop_is_nat_trans C C hs).
-    apply (isaprop_is_nat_trans C C hs).
-    apply (isaprop_Monad_laws C hs).
+    - apply subtypeEquality'.
+      + apply e.
+      + apply isapropdirprod.
+        * apply isapropdirprod.
+          -- apply (isaprop_is_functor C C hs).
+          -- apply (isaprop_is_nat_trans C C hs).
+        * apply (isaprop_is_nat_trans C C hs).
+    - apply (isaprop_Monad_laws C hs).
   Qed.
 
   Lemma Monad_eq_raw_data {C : precategory} (hs : has_homsets C) (T T' : Monad C) :

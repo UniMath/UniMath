@@ -1,7 +1,7 @@
 (** **********************************************************
 Contents:
-        - "Kleisli" definition of monad
-        - proof of equivalence between this definition and the "monoidal" definition
+        - "Kleisli" definition of monad [kleisli]
+        - equivalence of this definition and the "monoidal" definition [weq_kleisli_monad]
 
 Written by: Joseph Helfer, Matthew Weaver, 2017
 
@@ -18,7 +18,7 @@ Local Open Scope cat.
 Section kleisli_def.
 
   Definition kleisli_data (C : precategory) : UU :=
-    ∑ T : C → C, ((∏ a : C, a --> T a) × (∏ a b : C, a --> T b -> T a --> T b)).
+    ∑ T : C -> C, ((∏ a : C, a --> T a) × (∏ a b : C, a --> T b -> T a --> T b)).
 
   Definition ob_function_from_kleisli_data {C : precategory} (T : kleisli_data C) := pr1 T.
   Coercion ob_function_from_kleisli_data : kleisli_data >-> Funclass.
@@ -63,11 +63,9 @@ Section monad_types_equiv.
       + exact T.
       + exact (fun (a b : C) (f : a --> b) => bind T (f · unit T b)).
     - apply tpair.
-      + intro a.
-        simpl.
+      + intro a; simpl.
         now rewrite id_left, (kleisli_law1 T).
-      + intros a b c f g.
-        simpl.
+      + intros a b c f g; simpl.
         now rewrite (kleisli_law3 T), <- !assoc, (kleisli_law2 T).
   Defined.
 
@@ -76,8 +74,7 @@ Section monad_types_equiv.
   Proof.
     mkpair.
     - exact (fun (x : C) => bind T (identity (T x))).
-    - intros x x' f.
-      simpl.
+    - intros x x' f; simpl.
       now rewrite (kleisli_law3 T), <- assoc, (kleisli_law2 T), id_right, (kleisli_law3 T), id_left.
   Defined.
 
@@ -86,8 +83,7 @@ Section monad_types_equiv.
   Proof.
     mkpair.
     - exact (unit T).
-    - intros x x' f.
-      simpl.
+    - intros x x' f; simpl.
       now rewrite (kleisli_law2 T).
   Defined.
 
@@ -110,9 +106,7 @@ Section monad_types_equiv.
         apply dirprod_paths.
         * apply idpath.
         * repeat (apply funextsec; unfold homot; intro).
-          simpl.
-          unfold Monads.bind.
-          simpl.
+          simpl; unfold Monads.bind; simpl.
           now rewrite (kleisli_law3 T), <- assoc, (kleisli_law2 T), id_right.
     - apply (isaprop_kleisli_laws hs).
   Defined.
@@ -127,13 +121,11 @@ Section monad_types_equiv.
       + apply dirprod_paths;
         repeat (apply funextsec; unfold homot; intro);
         simpl.
-        * unfold Monads.bind, bind, unit.
-          simpl.
+        * unfold Monads.bind, bind, unit; simpl.
           rewrite (functor_comp T), <- assoc.
           change (# T x1 · (# T (η T x0) · μ T x0) = #T x1).
           now rewrite (@Monad_law2 C T x0), id_right.
-        * unfold Monads.bind ,bind.
-          simpl.
+        * unfold Monads.bind, bind; simpl.
           now rewrite (functor_id T), id_left.
       + apply idpath.
   Defined.
