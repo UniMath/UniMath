@@ -325,20 +325,20 @@ Proof.
   - apply dirprodpair.
     + intros r s.
       use total2_paths2_f.
-      apply funextfun. intro x. apply ax2.
-      apply isapropismonoidfun.
+      * apply funextfun. intro x. apply ax2.
+      * apply isapropismonoidfun.
     + use total2_paths2_f.
-      apply funextfun. intro x. change (m rngunel1 x = unel G). apply (grlcan G (m (rngunel1) x)). rewrite runax.
-      rewrite <- (ax2 rngunel1 rngunel1 x). rewrite rngrunax1. apply idpath.
-      apply isapropismonoidfun.
+      * apply funextfun. intro x. change (m rngunel1 x = unel G). apply (grlcan G (m (rngunel1) x)). rewrite runax.
+        rewrite <- (ax2 rngunel1 rngunel1 x). rewrite rngrunax1. apply idpath.
+      * apply isapropismonoidfun.
   -  apply dirprodpair.
      + intros r s.
        use total2_paths2_f.
-       apply funextfun. intro x. apply ax3.
-       apply isapropismonoidfun.
+       * apply funextfun. intro x. apply ax3.
+       * apply isapropismonoidfun.
      + use total2_paths2_f.
-       apply funextfun. intro x. apply ax4.
-       apply isapropismonoidfun.
+       * apply funextfun. intro x. apply ax4.
+       * apply isapropismonoidfun.
 Defined.
 
 Definition mult_to_module {R : rng} {G : abgr} {m : R -> G -> G} (ax1 : mult_isldistr_wrt_grop m) (ax2 : mult_isrdistr_wrt_rngop1 m)
