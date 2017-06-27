@@ -85,6 +85,7 @@ For any question about this library, send an email to Benedikt Ahrens.
 * *GrothendieckTopos.v*
 * *HorizontalComposition.v*
   * Definition of horizontal composition for natural transformations
+* *Kleisli.v* --- the "kleisli" definition of monad and its equivalence to the "monoidal" definition
 * *LocalizingClass.v* --- localizing class and localization of categories
 * *Monads.v* --- monads, bind operation and substitution
 * *Monics.v* --- monics, their subcategory and their construction in functor categories

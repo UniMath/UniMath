@@ -11,13 +11,13 @@ Extended by: Anders Mörtberg (October 2015)
 
 (** **********************************************************
 
-Contents :
+Contents:
 
-            category HSET of hSets
+- Category HSET of hSets ([hset_category])
+- HSET is a univalent_category ([is_univalent_HSET])
 
-	    HSET is a univalent_category
-
-	    Colimits in HSET
+For structures (like (co)limits) on HSET see
+category_hset_structures.v
 
 ************************************************************)
 
