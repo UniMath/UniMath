@@ -19,7 +19,7 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Presheaf.
 
