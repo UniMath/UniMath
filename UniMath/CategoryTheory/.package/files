@@ -47,7 +47,7 @@ limits/FinOrdCoproducts.v
 limits/Opp.v
 limits/graphs/eqdiag.v
 EpiFacts.v
-category_hset.v
+categories/category_hset.v
 SimplicialSets.v
 yoneda.v
 Monads.v
@@ -66,7 +66,7 @@ RightKanExtension.v
 exponentials.v
 slicecat.v
 covyoneda.v
-category_hset_structures.v
+categories/category_hset_structures.v
 SetValuedFunctors.v
 CocontFunctors.v
 Inductives/Lists.v
