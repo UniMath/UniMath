@@ -8,6 +8,7 @@ Contents:
              to endofunctors on [C]
         - Haskell style bind operation ([bind])
         - A substitution operator for monads ([monadSubst])
+        - A helper lemma for proving equality of Mondas ([Monad_eq_raw_data])
 
 TODO:
         - Proof that [precategory_Monad C] is saturated if [C] is
@@ -379,3 +380,87 @@ Qed.
 End MonadSubst.
 
 End MonadsUsingCoproducts.
+
+(** * Helper lemma for showing two monads are equal *)
+Section Monad_eq_helper.
+  (** * Alternate (equivalent) definition of Monad *)
+  Section Monad'_def.
+
+    Definition raw_Monad_data (C : precategory_ob_mor) : UU :=
+      ∑ F : C -> C, (((∏ a b : ob C, a --> b -> F a --> F b) ×
+                      (∏ a : ob C, F (F a) --> F a)) ×
+                     (∏ a : ob C, a --> F a)).
+
+    Coercion functor_data_from_raw_Monad_data {C : precategory_ob_mor} (T : raw_Monad_data C) :
+      functor_data C C := mk_functor_data (pr1 T) (pr1 (pr1 (pr2 T))).
+
+    Definition Monad'_data_laws {C : precategory} (T : raw_Monad_data C) :=
+      ((is_functor T) ×
+       (is_nat_trans (functor_composite_data T T) T (pr2 (pr1 (pr2 T))))) ×
+      (is_nat_trans (functor_identity C) T (pr2 (pr2 T))).
+
+    Definition Monad'_data (C : precategory) := ∑ (T : raw_Monad_data C), Monad'_data_laws T.
+
+    Definition Monad'_data_to_Monad_data {C : precategory} (T : Monad'_data C) : Monad_data C :=
+      (((_,, pr1 (pr1 (pr2 T))),,
+        (pr2 (pr1 (pr2 (pr1 T))),, (pr2 (pr1 (pr2 T))))),,
+       (pr2 (pr2 (pr1 T)),, (pr2 (pr2 T)))).
+
+    Definition Monad' (C : precategory) := ∑ (T : Monad'_data C),
+                                             (Monad_laws (Monad'_data_to_Monad_data T)).
+  End Monad'_def.
+
+  (** * Equivalence of Monad and Monad' *)
+  Section Monad_Monad'_equiv.
+    Definition Monad'_to_Monad {C : precategory} (T : Monad' C) : Monad C :=
+      (Monad'_data_to_Monad_data (pr1 T),, pr2 T).
+
+    Definition Monad_to_raw_data {C : precategory} (T : Monad C) : raw_Monad_data C.
+    Proof.
+      mkpair.
+      - exact (functor_on_objects T).
+      - mkpair.
+        + mkpair.
+          * exact (@functor_on_morphisms C C T).
+          * exact (μ T).
+        + exact (η T).
+    Defined.
+
+    Definition Monad_to_Monad'_data {C : precategory} (T : Monad C) : Monad'_data C :=
+      (Monad_to_raw_data T,, ((pr2 (T : functor C C),, (pr2 (μ T))),, pr2 (η T))).
+
+    Definition Monad_to_Monad' {C : precategory} (T : Monad C) : Monad' C :=
+      (Monad_to_Monad'_data T,, pr2 T).
+
+    Definition Monad'_to_Monad_to_Monad' {C : precategory} (T : Monad' C) :
+      Monad_to_Monad' (Monad'_to_Monad T) = T := (idpath T).
+
+    Definition Monad_to_Monad'_to_Monad {C : precategory} (T : Monad C) :
+      Monad'_to_Monad (Monad_to_Monad' T) = T := (idpath T).
+
+  End Monad_Monad'_equiv.
+
+  Lemma Monad'_eq_raw_data {C : precategory} (hs : has_homsets C) (T T' : Monad' C) :
+    pr1 (pr1 T) = pr1 (pr1 T') -> T = T'.
+  Proof.
+    intro e.
+    apply subtypeEquality'.
+    - apply subtypeEquality'.
+      + apply e.
+      + apply isapropdirprod.
+        * apply isapropdirprod.
+          -- apply (isaprop_is_functor C C hs).
+          -- apply (isaprop_is_nat_trans C C hs).
+        * apply (isaprop_is_nat_trans C C hs).
+    - apply (isaprop_Monad_laws C hs).
+  Qed.
+
+  Lemma Monad_eq_raw_data {C : precategory} (hs : has_homsets C) (T T' : Monad C) :
+    Monad_to_raw_data T = Monad_to_raw_data T' -> T = T'.
+  Proof.
+    intro e.
+    apply (invmaponpathsweq (_,, (gradth _ _ (@Monad_to_Monad'_to_Monad C)
+                                             (@Monad'_to_Monad_to_Monad' C)))).
+    now apply (Monad'_eq_raw_data hs).
+  Qed.
+End Monad_eq_helper.
