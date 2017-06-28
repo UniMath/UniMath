@@ -735,13 +735,39 @@ Definition is_univalent_disp {C} (D : disp_cat C)
   := forall x x' (e : x = x') {xx : D x} {xx' : D x'},
        isweq (λ ee, @idtoiso_disp _ _ _ _ e xx xx' ee).
 
+Definition is_univalent_in_fibers {C} (D : disp_cat C) : UU
+  := ∏ x (xx xx' : D x), isweq (fun e : xx = xx' => idtoiso_fiber_disp e).
+  
+
 (* TODO: maybe rename further.  *)
 Lemma is_univalent_disp_from_fibers {C} {D : disp_cat C}
-  : (∏ x (xx xx' : D x), isweq (fun e : xx = xx' => idtoiso_fiber_disp e))
+  : is_univalent_in_fibers D
   -> is_univalent_disp D.
 Proof.
   intros H x x' e. destruct e. apply H.
 Qed.
+
+Definition is_univalent_in_fibers_from_univalent_disp {C} (D : disp_cat C)
+  : is_univalent_disp D -> is_univalent_in_fibers D.
+Proof.
+  unfold is_univalent_disp , is_univalent_in_fibers. 
+  intros H x xx xx'.
+  specialize (H x x (idpath _ ) xx xx').
+  apply H.
+Defined.
+
+Lemma univalent_disp_cat_has_groupoid_obs {C} (D : disp_cat C)
+  (is_u : is_univalent_disp D) : ∏ c, isofhlevel 3 (D c).
+Proof.
+  intro c.
+  change (isofhlevel 3 (D c)) with
+      (∏ a b : D c, isofhlevel 2 (a = b)).
+  intros xx xx'.
+  set (XR := is_univalent_in_fibers_from_univalent_disp _ is_u).
+  apply (isofhlevelweqb _ (weqpair _ (XR _ xx xx'))).
+  apply isaset_iso_disp.
+Defined.
+
 
 Definition disp_univalent_category C
   := ∑ D : disp_cat C, is_univalent_disp D.
