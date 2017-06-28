@@ -23,6 +23,7 @@ Contents:
   ([is_left_adjoint_slicecat_to_cat])
 - Kernel pairs ([kernel_pair_HSET])
 - Effective epis ([EffectiveEpis_HSET])
+- Split epis with axiom of choice ([SplitEpis_HSET])
 
 Written by: Benedikt Ahrens, Anders Mörtberg
 
@@ -35,6 +36,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.AxiomOfChoice.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -1027,6 +1029,15 @@ enjoyed by surjections (univ_surj)
   Qed.
 End kernel_pair_Set.
 
+Lemma EpisAreSurjective_HSET {A B : HSET} (f: HSET ⟦ A, B ⟧) (epif : Epis.isEpi f)
+  : issurjective f.
+Proof.
+  apply epiissurjectiontosets; [apply setproperty|].
+  intros C g1 g2 h .
+  apply toforallpaths.
+  apply (epif C g1 g2).
+  now apply funextfun.
+Qed.
 
 Lemma EffectiveEpis_HSET : EpisAreEffective HSET.
 Proof.
@@ -1035,9 +1046,17 @@ Proof.
   intros A B f epif.
   exists (kernel_pair_HSET f).
   apply isCoeqKernelPairSet.
-  apply epiissurjectiontosets; [apply setproperty|].
-  intros C g1 g2 h .
-  apply toforallpaths.
-  apply (epif C g1 g2).
-  now apply funextfun.
+  now apply EpisAreSurjective_HSET.
+Qed.
+
+Lemma SplitEpis_HSET : AxiomOfChoice_surj -> EpisAreSplit HSET.
+Proof.
+  intros axC A B f epif.
+  apply EpisAreSurjective_HSET in epif.
+  apply axC in epif.
+  unshelve eapply (hinhfun _ epif).
+  intro h.
+  exists (pr1 h).
+  apply funextfun.
+  exact (pr2 h).
 Qed.
