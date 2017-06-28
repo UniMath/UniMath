@@ -1028,6 +1028,31 @@ Arguments fiber_category {_} _ _ .
 (* TODO: is this a terrible notation?  Probably. *)
 Notation "D [{ x }]" := (fiber_category D x)(at level 3,format "D [{ x }]").
 
+
+Lemma is_univalent_disp_from_is_univalent_fiber {C : category} (D : disp_cat C) 
+  : (∏ (c : C), is_univalent D[{c}]) → is_univalent_disp D.
+Proof.
+  intro H.
+  apply is_univalent_disp_from_fibers.
+  intros c xx xx'.
+  specialize (H c). 
+  set (w := weqpair _ (pr1 H xx xx')). 
+  set (w' := weqcomp w (iso_disp_iso_fiber D _ xx xx')).
+  apply (weqhomot _ w').
+  intro e. induction e.
+  apply eq_iso_disp. apply idpath.
+Defined.
+
+Definition is_univalent_disp_iff_fibers_are_univalent {C : category} (D : disp_cat C)
+  : is_univalent_disp D <-> (∏ (c : C), is_univalent D[{c}]).
+Proof.
+  split; intro H.
+  - intro. apply is_univalent_fiber. apply H.
+  - apply is_univalent_disp_from_is_univalent_fiber.
+    apply H.
+Defined.
+
+
 (** ** Fiber functors
 
 Functors between displayed categories induce functors between their fibers. *)
