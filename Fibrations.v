@@ -3,12 +3,12 @@
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Displayed_Cats.Auxiliary.
 Require Import TypeTheory.Displayed_Cats.Core.
 Require Import TypeTheory.Displayed_Cats.Constructions.

@@ -12,11 +12,11 @@ A typical use for displayed categories is for constructing categories of structu
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.Topology.Topology.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Require Import TypeTheory.Displayed_Cats.Auxiliary.
