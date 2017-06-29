@@ -5,6 +5,7 @@ SumOfSignatures.v
 BinProductOfSignatures.v
 SubstitutionSystems.v
 MonadsFromSubstitutionSystems.v
+ModulesFromSignatures.v
 GenMendlerIteration.v
 GenMendlerIteration_alt.v
 LiftingInitial.v

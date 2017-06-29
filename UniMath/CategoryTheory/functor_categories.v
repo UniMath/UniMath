@@ -83,32 +83,6 @@ Proof.
   apply hs.
 Qed.
 
-Lemma functor_data_eq {C C' : precategory_ob_mor} (F F' : functor_data C C')
-      (H : ∏ (c : C), (pr1 F) c = (pr1 F') c)
-      (H1 : ∏ (C1 C2 : ob C) (f : C1 --> C2),
-            transportf (λ x : C', pr1 F' C1 --> x) (H C2)
-                       (transportf (λ x : C', x --> pr1 F C2) (H C1) (pr2 F C1 C2 f)) =
-            pr2 F' C1 C2 f) : F = F'.
-Proof.
-  use total2_paths_f.
-  - use funextfun. intros c. exact (H c).
-  - use funextsec. intros C1. use funextsec. intros C2. use funextsec. intros f.
-    assert (e : transportf (λ x : C → C', ∏ a b : C, a --> b → x a --> x b)
-                           (funextfun (pr1 F) (pr1 F') (λ c : C, H c))
-                           (pr2 F) C1 C2 f =
-                transportf (λ x : C → C', x C1 --> x C2)
-                           (funextfun (pr1 F) (pr1 F') (λ c : C, H c))
-                           ((pr2 F) C1 C2 f)).
-    {
-      induction (funextfun (pr1 F) (pr1 F') (λ c : C, H c)).
-      apply idpath.
-    }
-    rewrite e. clear e.
-    rewrite transport_mor_funextfun.
-    rewrite transport_source_funextfun. rewrite transport_target_funextfun.
-    exact (H1 C1 C2 f).
-Qed.
-
 Definition functor_data_constr (C C' : precategory_ob_mor)
            (F : ob C -> ob C') (Fm : ∏ a b : ob C, a --> b -> F a --> F b) :
   functor_data C C' := tpair _ F Fm .
@@ -153,6 +127,37 @@ Definition mk_functor {C C' : precategory_data} (F : functor_data C C') (H : is_
 Proof.
 exists F.
 abstract (exact H).
+Defined.
+
+Lemma functor_data_eq_prf C C' (F F' : functor_data C C')
+      (H : ∏ c, F c = F' c)
+      (H1 : ∏ C1 C2 (f : C1 --> C2),
+            transportf (λ x, F' C1 --> x) (H C2)
+                       (transportf (λ x, x --> F C2) (H C1) (pr2 F C1 C2 f)) =
+            pr2 F' C1 C2 f) :
+  transportf (λ x : C → C', ∏ a b : C, C ⟦ a, b ⟧ → C' ⟦ x a, x b ⟧)
+    (funextfun F F' (λ c : C, H c)) (pr2 F) = pr2 F'.
+Proof.
+use funextsec. intros C1. use funextsec. intros C2. use funextsec. intros f.
+assert (e : transportf (λ x, ∏ a b : C, a --> b → x a --> x b)
+                       (funextfun F F' (λ c : C, H c)) (pr2 F) C1 C2 f =
+            transportf (λ x, x C1 --> x C2)
+                       (funextfun F F' (λ c : C, H c)) (pr2 F C1 C2 f)).
+{ now induction (funextfun F F' (λ c, H c)). }
+rewrite e, transport_mor_funextfun, transport_source_funextfun, transport_target_funextfun.
+exact (H1 C1 C2 f).
+Qed.
+
+Lemma functor_data_eq C C' (F F' : functor_data C C')
+      (H : ∏ c, F c = F' c)
+      (H1 : ∏ C1 C2 (f : C1 --> C2),
+            transportf (λ x, F' C1 --> x) (H C2)
+              (transportf (λ x, x --> F C2) (H C1) (pr2 F C1 C2 f)) = pr2 F' C1 C2 f) :
+      F = F'.
+Proof.
+use total2_paths_f.
+- use funextfun. intros c. exact (H c).
+- now apply functor_data_eq_prf.
 Defined.
 
 Lemma functor_eq (C C' : precategory_data) (hs: has_homsets C') (F F': functor C C'):
@@ -1483,3 +1488,20 @@ Notation "G □ F" := (functor_composite (F:[_,_]) (G:[_,_]) : [_,_]) (at level 
 
 Notation "a ⟶ b" := (functor a b) (at level 39) : cat.
 (* to input: type "\-->" with Agda input method *)
+
+Lemma functor_comp_pw {C C' D D' : precategory} hsD hsD'
+           (F : [C,D,hsD] ⟶ [C',D',hsD']) {a b c}  (f : [C,D,hsD] ⟦ a, b ⟧)
+           (g : [C,D,hsD] ⟦ b, c ⟧) (x :C') :
+  (# F f:nat_trans _ _) x · (# F g:nat_trans _ _) x = ((# F (f · g)) :  nat_trans _ _ ) x .
+Proof.
+  now rewrite functor_comp.
+Qed.
+
+Lemma functor_cancel_pw {C C' D D' : precategory} hsD hsD'
+           (F : [C,D,hsD] ⟶ [C',D',hsD']) {a b }  (f g : [C,D,hsD] ⟦ a, b ⟧)
+           (x :C') : f = g ->
+                     ((# F f ) :  nat_trans _ _ ) x = (# F g:nat_trans _ _) x .
+Proof.
+  intro e.
+  now induction e.
+Qed.

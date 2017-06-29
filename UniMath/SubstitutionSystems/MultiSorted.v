@@ -50,8 +50,8 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.Monads.
-Require Import UniMath.CategoryTheory.category_hset.
-Require Import UniMath.CategoryTheory.category_hset_structures.
+Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.categories.category_hset_structures.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.slicecat.
 
@@ -536,10 +536,13 @@ End MBindingSig.
 
 (** Alternative version using [X,SET] instead of SET/X below. There is no proof that the
     functor we obtain using this approach is omega-cocontinuous yet. *)
+Require UniMath.CategoryTheory.DiscreteCategory.
+Require UniMath.CategoryTheory.EquivalencesExamples.
+
 Module alt.
 
-Require Import UniMath.CategoryTheory.DiscreteCategory.
-Require Import UniMath.CategoryTheory.EquivalencesExamples.
+Import UniMath.CategoryTheory.DiscreteCategory.
+Import UniMath.CategoryTheory.EquivalencesExamples.
 
 (** * Definition of multisorted binding signatures *)
 Section MBindingSig.

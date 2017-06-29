@@ -534,10 +534,11 @@ End map.
 
 (** Put in a module for namespace reasons *)
 
+Require UniMath.CategoryTheory.opp_precat.
 
 Module co.
 
-Require Import UniMath.CategoryTheory.opp_precat.
+Import UniMath.CategoryTheory.opp_precat.
 
 Section lim_def.
 

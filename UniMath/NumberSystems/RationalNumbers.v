@@ -79,11 +79,11 @@ Definition hqdecneq : decrel hq := decrelpair isdecrelhqneq .
 
 Definition hqboolneq := decreltobrel hqdecneq .
 
-Open Local Scope hz_scope .
+Local Open Scope hz_scope .
 
 (** *** Properties of addition and subtraction on [ hq ] *)
 
-Open Local Scope hq_scope .
+Local Open Scope hq_scope .
 
 Lemma hqplusr0 ( x : hq ) : paths ( x + 0 ) x .
 Proof . intro . apply ( rngrunax1 _ x ) .  Defined .

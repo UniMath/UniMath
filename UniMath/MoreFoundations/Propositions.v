@@ -120,3 +120,129 @@ Notation "'∃!' x .. y , P"
   := (iscontr_hProp (∑ x, .. (∑ y, P) ..))
        (at level 200, x binder, y binder, right associativity) : type_scope.
 (* type this in emacs in agda-input method with \ex ! *)
+
+
+(** Various algebraic properties of hProp *)
+Section hProp_logic.
+
+(** We first state the algebraic properties as bi-implications *)
+
+(* This is already in Foundations/Propositions.v *)
+(* Lemma islogeqcommhdisj {P Q : hProp} : hdisj P Q <-> hdisj Q P. *)
+
+Lemma islogeqassochconj {P Q R : hProp} : (P ∧ Q) ∧ R <-> P ∧ (Q ∧ R).
+Proof.
+split.
+- intros PQR.
+  exact (pr1 (pr1 PQR),,(pr2 (pr1 PQR),,pr2 PQR)).
+- intros PQR.
+  exact ((pr1 PQR,,pr1 (pr2 PQR)),,pr2 (pr2 PQR)).
+Defined.
+
+Lemma islogeqcommhconj {P Q : hProp} : P ∧ Q <-> Q ∧ P.
+Proof.
+split.
+- intros PQ.
+  exact (pr2 PQ,,pr1 PQ).
+- intros QP.
+  exact (pr2 QP,,pr1 QP).
+Defined.
+
+Lemma islogeqassochdisj {P Q R : hProp} : (P ∨ Q) ∨ R <-> P ∨ (Q ∨ R).
+Proof.
+split.
+- apply hinhuniv; intros hPQR.
+  induction hPQR as [hPQ|hR].
+  + use (hinhuniv _ hPQ); clear hPQ; intros hPQ.
+    induction hPQ as [hP|hQ].
+    * exact (hinhpr (ii1 hP)).
+    * exact (hinhpr (ii2 (hinhpr (ii1 hQ)))).
+  + exact (hinhpr (ii2 (hinhpr (ii2 hR)))).
+- apply hinhuniv; intros hPQR.
+  induction hPQR as [hP|hQR].
+  + exact (hinhpr (ii1 (hinhpr (ii1 hP)))).
+  + use (hinhuniv _ hQR); clear hQR; intros hQR.
+    induction hQR as [hQ|hR].
+    * exact (hinhpr (ii1 (hinhpr (ii2 hQ)))).
+    * exact (hinhpr (ii2 hR)).
+Defined.
+
+Lemma islogeqhconj_absorb_hdisj {P Q : hProp} : P ∧ (P ∨ Q) <-> P.
+Proof.
+split.
+- intros hPPQ; apply (pr1 hPPQ).
+- intros hP.
+  split; [ apply hP | apply (hinhpr (ii1 hP)) ].
+Defined.
+
+Lemma islogeqhdisj_absorb_hconj {P Q : hProp} : P ∨ (P ∧ Q) <-> P.
+Proof.
+split.
+- apply hinhuniv; intros hPPQ.
+  induction hPPQ as [hP|hPQ].
+  + exact hP.
+  + exact (pr1 hPQ).
+- intros hP; apply (hinhpr (ii1 hP)).
+Defined.
+
+Lemma islogeqhfalse_hdisj {P : hProp} : ∅ ∨ P <-> P.
+Proof.
+split.
+- apply hinhuniv; intros hPPQ.
+  induction hPPQ as [hF|hP].
+  + induction hF.
+  + exact hP.
+- intros hP; apply (hinhpr (ii2 hP)).
+Defined.
+
+Lemma islogeqhhtrue_hconj {P : hProp} : htrue ∧ P <-> P.
+Proof.
+split.
+- intros hP; apply (pr2 hP).
+- intros hP.
+  split; [ apply tt | apply hP ].
+Defined.
+
+
+(** We now turn these into equalities using univalence for propositions *)
+Lemma isassoc_hconj (P Q R : hProp) : ((P ∧ Q) ∧ R) = (P ∧ (Q ∧ R)).
+Proof.
+now apply hPropUnivalence; apply islogeqassochconj.
+Qed.
+
+Lemma iscomm_hconj (P Q : hProp) : (P ∧ Q) = (Q ∧ P).
+Proof.
+now apply hPropUnivalence; apply islogeqcommhconj.
+Qed.
+
+Lemma isassoc_hdisj (P Q R : hProp) : ((P ∨ Q) ∨ R) = (P ∨ (Q ∨ R)).
+Proof.
+now apply hPropUnivalence; apply islogeqassochdisj.
+Qed.
+
+Lemma iscomm_hdisj (P Q : hProp) : (P ∨ Q) = (Q ∨ P).
+Proof.
+now apply hPropUnivalence; apply islogeqcommhdisj.
+Qed.
+
+Lemma hconj_absorb_hdisj (P Q : hProp) : (P ∧ (P ∨ Q)) = P.
+Proof.
+now apply hPropUnivalence; apply islogeqhconj_absorb_hdisj.
+Qed.
+
+Lemma hdisj_absorb_hconj (P Q : hProp) : (P ∨ (P ∧ Q)) = P.
+Proof.
+now apply hPropUnivalence; apply islogeqhdisj_absorb_hconj.
+Qed.
+
+Lemma hfalse_hdisj (P : hProp) : (∅ ∨ P) = P.
+Proof.
+now apply hPropUnivalence; apply islogeqhfalse_hdisj.
+Qed.
+
+Lemma htrue_hconj (P : hProp) : (htrue ∧ P) = P.
+Proof.
+now apply hPropUnivalence; apply islogeqhhtrue_hconj.
+Qed.
+
+End hProp_logic.
