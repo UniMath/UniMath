@@ -9,3 +9,4 @@ Archimedean.v
 Lattice.v
 IteratedBinaryOperations.v
 Tests.v
+Modules.v

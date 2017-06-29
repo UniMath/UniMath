@@ -31,7 +31,7 @@ Truncated minus is a lattice:
 
 Require Export UniMath.Algebra.Monoids_and_Groups.
 
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.All.
 
 Unset Automatic Introduction.
 
@@ -936,3 +936,32 @@ Proof.
 Qed.
 
 End truncminus_gt.
+
+Section hProp_lattice.
+
+Definition hProp_lattice : lattice (hProp,,isasethProp).
+Proof.
+use mklattice.
+- intros P Q; exact (P ∧ Q).
+- simpl; intros P Q; exact (P ∨ Q).
+- repeat split.
+  + intros P Q R; apply isassoc_hconj.
+  + intros P Q; apply iscomm_hconj.
+  + intros P Q R; apply isassoc_hdisj.
+  + intros P Q; apply iscomm_hdisj.
+  + intros P Q; apply hconj_absorb_hdisj.
+  + intros P Q; apply hdisj_absorb_hconj.
+Defined.
+
+Definition hProp_bounded_lattice : bounded_lattice (hProp,,isasethProp).
+Proof.
+use mkbounded_lattice.
+- exact hProp_lattice.
+- exact hfalse.
+- exact htrue.
+- split.
+  + intros P; apply hfalse_hdisj.
+  + intros P; apply htrue_hconj.
+Defined.
+
+End hProp_lattice.
