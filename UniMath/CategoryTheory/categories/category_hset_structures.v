@@ -55,6 +55,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.covyoneda.
 Require Import UniMath.CategoryTheory.slicecat.
+Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.EpiFacts.
 
 Local Open Scope cat.
@@ -1029,7 +1030,7 @@ enjoyed by surjections (univ_surj)
   Qed.
 End kernel_pair_Set.
 
-Lemma EpisAreSurjective_HSET {A B : HSET} (f: HSET ⟦ A, B ⟧) (epif : Epis.isEpi f)
+Lemma EpisAreSurjective_HSET {A B : HSET} (f: HSET ⟦ A, B ⟧) (epif : isEpi f)
   : issurjective f.
 Proof.
   apply epiissurjectiontosets; [apply setproperty|].
@@ -1052,8 +1053,7 @@ Qed.
 Lemma SplitEpis_HSET : AxiomOfChoice_surj -> EpisAreSplit HSET.
 Proof.
   intros axC A B f epif.
-  apply EpisAreSurjective_HSET in epif.
-  apply axC in epif.
+  apply EpisAreSurjective_HSET,axC in epif.
   unshelve eapply (hinhfun _ epif).
   intro h.
   exists (pr1 h).
