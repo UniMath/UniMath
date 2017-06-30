@@ -10,3 +10,4 @@ Lattice.v
 IteratedBinaryOperations.v
 Tests.v
 Modules.v
+Algebras.v
