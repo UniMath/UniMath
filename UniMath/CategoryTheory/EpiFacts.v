@@ -226,7 +226,7 @@ Section SplitEpis.
     ∏ (A B:C) (f:C⟦A,B⟧), isEpi f -> isSplitEpi f.
 
   (** Functors preserve split epimorphisms *)
-  Lemma isSplitEpi_isAbsolute {C D:precategory} (F:functor C D)
+  Lemma preserves_isSplitEpi {C D:precategory} (F:functor C D)
         {A B : C} (f:C⟦A,B⟧) : isSplitEpi f -> isSplitEpi (#F f).
   Proof.
     apply hinhfun.
