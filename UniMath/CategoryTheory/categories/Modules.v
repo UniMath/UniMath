@@ -19,50 +19,52 @@ Contents:
 
 Section precategory_modules.
 
-Definition precategory_ob_mor_module (R: rng) : precategory_ob_mor :=
+Variable R : rng.
+
+Definition precategory_ob_mor_module : precategory_ob_mor :=
    precategory_ob_mor_pair (module R) (λ M N, modulefun M N).
 
 Local Open Scope Cat.
 
-Definition islinear_id {R : rng} (M : precategory_ob_mor_module R) : islinear (idfun (pr1module M)).
+Definition islinear_id (M : precategory_ob_mor_module) : islinear (idfun (pr1module M)).
 Proof.
   intros r x.
   unfold idfun. apply idpath.
 Defined.
 
-Definition ismodulefun_id {R : rng} (M : precategory_ob_mor_module R) : ismodulefun (idfun (pr1module M)).
+Definition ismodulefun_id (M : precategory_ob_mor_module) : ismodulefun (idfun (pr1module M)).
 Proof.
   apply dirprodpair.
   - intros x y. apply idpath.
   - intros. apply  islinear_id.
 Defined.
 
-Definition modulefun_id (R : rng) : ∏ M : precategory_ob_mor_module R, M --> M.
+Definition modulefun_id : ∏ M : precategory_ob_mor_module, M --> M.
 Proof.
   intro M.
   exists (idfun (pr1module M)).
   exact (ismodulefun_id M).
 Defined.
 
-Definition ismodulefun_comp {R : rng} {M N P : precategory_ob_mor_module R} (f : M --> N) (g : N --> P) :
+Definition ismodulefun_comp {M N P : precategory_ob_mor_module} (f : M --> N) (g : N --> P) :
   ismodulefun (funcomp (pr1modulefun f) (pr1modulefun g)) :=
     dirprodpair (isbinopfuncomp (modulefun_to_binopfun f) (modulefun_to_binopfun g))
                 (islinearfuncomp (modulefun_to_linearfun f) (modulefun_to_linearfun g)).
 
-Definition modulefun_comp (R : rng) : ∏ M N P : precategory_ob_mor_module R, M --> N → N --> P → M --> P.
+Definition modulefun_comp : ∏ M N P : precategory_ob_mor_module, M --> N → N --> P → M --> P.
 Proof.
     intros  M N P f g.
     exists (funcomp (pr1modulefun f) (pr1modulefun g)).
     exact (ismodulefun_comp f g).
 Defined.
 
-Definition precategory_id_comp_module (R : rng) : precategory_id_comp (precategory_ob_mor_module R) :=
-  dirprodpair (modulefun_id R) (modulefun_comp R).
+Definition precategory_id_comp_module : precategory_id_comp (precategory_ob_mor_module) :=
+  dirprodpair (modulefun_id) (modulefun_comp).
 
-Definition precategory_data_module (R : rng) : precategory_data :=
-   tpair _ (precategory_ob_mor_module R) (precategory_id_comp_module R).
+Definition precategory_data_module : precategory_data :=
+   tpair _ (precategory_ob_mor_module) (precategory_id_comp_module).
 
-Definition is_precategory_precategory_data_module (R : rng) : is_precategory (precategory_data_module R).
+Definition is_precategory_precategory_data_module : is_precategory (precategory_data_module).
 Proof.
    apply dirprodpair.
    - apply dirprodpair.
@@ -83,18 +85,18 @@ Proof.
      + apply isapropismodulefun.
 Defined.
 
-Definition precategory_module (R : rng) : precategory :=
-   mk_precategory (precategory_data_module R) (is_precategory_precategory_data_module R).
+Definition precategory_module : precategory :=
+   mk_precategory (precategory_data_module) (is_precategory_precategory_data_module).
 
 End precategory_modules.
 
 
-Variable R : rng.
-Local Notation "R-mod" := (precategory_module R).
-
 (** ** The category of (left) R-modules and R-modules homomorphisms *)
 
 Section category_modules.
+
+Variable R : rng.
+Notation "R-mod" := (precategory_module R).
 
 (** The precategory of R-modules has homsets *)
 
@@ -121,6 +123,9 @@ End category_modules.
 (** *** The univalent category of (left) R-modules and R-modules homomorphisms *)
 
 Section univalent_category_modules.
+
+Variable R : rng.
+Notation "R-mod" := (precategory_module R).
 
 Definition moduleiso (M N : R-mod) : UU := ∑ w : pr1module M ≃ pr1module N, ismodulefun w.
 
@@ -396,9 +401,8 @@ Proof.
 Defined.
 
 Definition precategory_module_is_univalent : is_univalent (R-mod) :=
-  mk_is_univalent precategory_module_idtoiso_isweq has_homsets_precategory_module.
+  mk_is_univalent precategory_module_idtoiso_isweq (has_homsets_precategory_module R).
 
 Definition univalent_category_module : univalent_category := mk_category R-mod precategory_module_is_univalent.
-
 
 End univalent_category_modules.
