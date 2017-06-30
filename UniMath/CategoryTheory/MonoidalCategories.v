@@ -1,5 +1,17 @@
 (** Anthony Bordg, April-May 2017 *)
 
+
+(** ***************************************************
+
+Contents:
+
+- Monoidal, braided monoidal, symmetric monoidal categories ([monoidal_cat], [braided_monoidal_cat], [symmetric_monoidal_cat])
+- The corresponding functors (and their stability by composition), natural transformations and equivalences
+- The underlying groupoid of a precategory ([sub_precategory_of_isos])
+
+ ******************************************************)
+
+
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -319,7 +331,7 @@ Definition monoidal_cat_to_left_unitor (M : monoidal_cat) : left_unitor M (monoi
 Definition monoidal_cat_to_right_unitor (M : monoidal_cat) : right_unitor M (monoidal_cat_to_tensor M) (monoidal_cat_to_unit M)
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
 
-(** * Braided monoidal category *)
+(** ** Braided monoidal category *)
 
 Section braided_monoidal_category.
 
@@ -400,7 +412,7 @@ Definition braided_monoidal_cat_to_monoidal_cat (M : braided_monoidal_cat) := pr
 
 Coercion braided_monoidal_cat_to_monoidal_cat : braided_monoidal_cat >-> monoidal_cat.
 
-(** * Symmetric monoidal category *)
+(** *** Symmetric monoidal category *)
 
 Section symmetric_monoidal_category.
 
@@ -418,7 +430,9 @@ Definition symmetric_monoidal_cat_to_braided_monoidal_cat (M : symmetric_monoida
 
 Coercion symmetric_monoidal_cat_to_braided_monoidal_cat : symmetric_monoidal_cat >-> braided_monoidal_cat.
 
-(** * Monoidal functors *)
+(** **** Monoidal, braided monoidal, symmetric monoidal functors, natural transformations and equivalences *)
+
+(** Monoidal functors *)
 
 Section monoidal_functor.
 
@@ -559,7 +573,7 @@ Definition monoidal_functor_to_square_eq_1 {M M' : monoidal_cat} (F : monoidal_f
 
 Definition monoidal_functor_to_square_eq_2 {M M' : monoidal_cat} (F : monoidal_functor M M') := pr2 (pr2 (pr2 (pr2 (pr2 F)))).
 
-(** * Braided monoidal functors *)
+(** Braided monoidal functors *)
 
 Section braided_monoidal_functor.
 
@@ -589,11 +603,11 @@ Definition braided_monoidal_functor_to_compatibility_with_braidings {M M' : brai
 
 Coercion braided_monoidal_functor_to_monoidal_functor : braided_monoidal_functor >-> monoidal_functor.
 
-(** * Symmetric monoidal functors *)
+(** Symmetric monoidal functors *)
 
 Definition symmetric_monoidal_functor (M M' : symmetric_monoidal_cat) : UU := braided_monoidal_functor M M'.
 
-(** * Monoidal, braided monoidal, symmetric monoidal natural transformations *)
+(** Monoidal, braided monoidal, symmetric monoidal natural transformations *)
 
 Section symmetric_nat_trans.
 
@@ -641,7 +655,7 @@ Definition symmetric_monoidal_nat_trans {M M' : symmetric_monoidal_cat} (F G : s
 Definition symmetric_monoidal_nat_iso {M M' : symmetric_monoidal_cat} (F G : symmetric_monoidal_functor M M') :=
   braided_monoidal_nat_iso F G.
 
-(** * The monoidal, braided monoidal, symmetric monoidal identity functor *)
+(** The monoidal, braided monoidal, symmetric monoidal identity functor *)
 
 Section monoidal_functor_identity.
 
@@ -734,7 +748,7 @@ Definition braided_monoidal_functor_identity (M : braided_monoidal_cat) : braide
 Definition symmetric_monoidal_functor_identity (M : symmetric_monoidal_cat) : symmetric_monoidal_functor M M :=
   braided_monoidal_functor_identity M.
 
-(** * Useful tools to rewrite commutative diagrams *)
+(** Useful tools to rewrite commutative diagrams *)
 
 Section commutative_diagrams.
 
@@ -807,7 +821,7 @@ Defined.
 
 End commutative_diagrams.
 
-(** * The stability of monoidal, braided monoidal, symmetric monoidal functors by composition *)
+(** The stability of monoidal, braided monoidal, symmetric monoidal functors by composition *)
 
 Section monoidal_composition.
 
@@ -1127,6 +1141,8 @@ Definition symmetric_monoidal_functor_comp {M N P : symmetric_monoidal_cat} (F :
 
 Local Open Scope type_scope.
 
+(** Monoidal, braided monoidal, symmetric monoidal equivalences *)
+
 Definition monoidal_equivalence (M N : monoidal_cat) : UU :=
   ∑ F : monoidal_functor M N, ∑ G : monoidal_functor N M,
     monoidal_nat_iso (monoidal_functor_comp F G) (monoidal_functor_identity M) ×
@@ -1143,7 +1159,7 @@ Definition symmetric_monoidal_equivalence (M N : symmetric_monoidal_cat) : UU :=
     symmetric_monoidal_nat_iso (symmetric_monoidal_functor_comp G F) (symmetric_monoidal_functor_identity N).
 
 
-(** * Groupoids *)
+(** Groupoids *)
 
 Definition is_groupoid (C : precategory) := ∏ c d : C, ∏ f : c --> d, is_iso f.
 
@@ -1153,30 +1169,30 @@ Definition groupoid_to_cat (G : groupoid) : precategory := pr1 G.
 
 Coercion groupoid_to_cat : groupoid >-> precategory.
 
-(** * The underlying groupoid of a category *)
+(** The underlying groupoid of a category *)
 
 Definition hsubtype_ob_isos (C : precategory) : hsubtype (ob C) := fun c : C => htrue.
 
 Definition hsubtype_mor_isos (C : precategory) : ∏ c d : C, hsubtype (C⟦c, d⟧) :=
   fun c d : C => (fun f : C⟦c, d⟧ => hProppair (is_iso f) (isaprop_is_iso c d f)).
 
-Definition is_sub_category_isos (C : precategory) : is_sub_precategory (hsubtype_ob_isos C) (hsubtype_mor_isos C).
+Definition is_sub_precategory_isos (C : precategory) : is_sub_precategory (hsubtype_ob_isos C) (hsubtype_mor_isos C).
 Proof.
   use dirprodpair.
   - intros c X. exact (identity_is_iso C c).
   - intros. simpl. intros a b c f g fiso giso. exact (is_iso_comp_of_isos (isopair f fiso) (isopair g giso)).
 Defined.
 
-Definition sub_category_of_isos (C : precategory) : sub_precategories C :=
-  tpair _ (dirprodpair (hsubtype_ob_isos C) (hsubtype_mor_isos C)) (is_sub_category_isos C).
+Definition sub_precategory_of_isos (C : precategory) : sub_precategories C :=
+  tpair _ (dirprodpair (hsubtype_ob_isos C) (hsubtype_mor_isos C)) (is_sub_precategory_isos C).
 
 Local Close Scope type_scope.
 Local Open Scope cat.
 
-Definition sub_category_of_isos_to_groupoid (C : precategory) : groupoid.
+Definition sub_precategory_of_isos_to_groupoid (C : precategory) : groupoid.
 Proof.
   use tpair.
-  - exact (carrier_of_sub_precategory C (sub_category_of_isos C)).
+  - exact (carrier_of_sub_precategory C (sub_precategory_of_isos C)).
   - simpl. unfold is_groupoid. intros.
     destruct f as [f p].
     assert (fiso : is_iso f). apply p.
