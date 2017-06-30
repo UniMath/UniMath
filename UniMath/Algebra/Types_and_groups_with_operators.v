@@ -1,6 +1,17 @@
 (** Anthony Bordg, June 2017 *)
 
 
+(** ********************************************
+
+Contents:
+
+- Types with operators ([typewithoperators])
+- Groups with operators ([grwithoperators]) and morphisms between them ([grwithoperatorsfun])
+- Stable subgroups of a group with operators ([stable_subgr])
+
+***********************************************)
+
+
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
 (** * Types with operators *)
@@ -99,7 +110,7 @@ Definition ishcompat_wrt_action {Ω : UU} (X Y : typewithaction Ω) (f : X -> Y)
 Definition typewithoperatorsfun {Ω : UU} (X Y : typewithoperators Ω) : UU :=
   ∑ f : typewithbinopfun X Y, ishcompat_wrt_action X Y f.
 
-(** * Groups with operators *)
+(** ** Groups with operators *)
 (** cf. section 2. Groupes à opérateurs, §4, chapitre 1, Algèbre, N. Bourbaki *)
 
 (** Groups endowed with a (left) action *)
@@ -181,7 +192,11 @@ Defined.
 Definition grwithoperatorsfun {Ω : UU} (X Y : grwithoperators Ω) : UU :=
   ∑ f : monoidfun X Y, ishcompat_wrt_action X Y f.
 
-(** * Subtypes of a type with a binary operation *)
+
+(** *** Stable subgroups of a group with operators *)
+(** cf. section 3. Sous-groupes, §4, Algèbre, N. Bourbaki *)
+
+(** Subtypes of a type with a binary operation *)
 
 Definition issubtypewithbinop {X : UU} (opp : binop X) (A : hsubtype X) : UU :=
   ∏ a a' : A, A (opp (pr1 a) (pr1 a')).
@@ -207,9 +222,6 @@ Proof.
   apply impred. intro p.
   apply (pr2 (A (ω t x))).
 Defined.
-
-(** * Stable subgroups of a group with operators *)
-(** cf. section 3. Sous-groupes, §4, Algèbre, N. Bourbaki *)
 
 Definition isstable_subgr {Ω : UU} {G : grwithoperators Ω} (A : hsubtype G) : UU :=
   (issubgr A) × (isstable_by_action (typewithoperators_to_action G) A).
