@@ -371,7 +371,7 @@ Proof.
   apply homset_property.
 Qed.
 
-Lemma is_disp_category_functor_alg : is_univalent_disp disp_cat_functor_alg.
+Lemma is_univalent_disp_functor_alg : is_univalent_disp disp_cat_functor_alg.
 Proof. 
   use is_univalent_disp_from_SIP_data.
   - apply isaset_functor_alg_ob.
