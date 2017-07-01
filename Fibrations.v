@@ -751,22 +751,22 @@ End isofibration_from_disp_over_univalent.
 
 (** * Split fibrations *)
 
-Definition cleaving_ob {C : Precategory} {D : disp_precat C}
+Definition cleaving_ob {C : category} {D : disp_cat C}
            (X : cleaving D) {c c' : C} (f : c' --> c) (d : D c) 
   : D c' := X _ _ f d.
 
-Definition cleaving_mor {C : Precategory} {D : disp_precat C}
+Definition cleaving_mor {C : category} {D : disp_cat C}
            (X : cleaving D) {c c' : C} (f : c' --> c) (d : D c) 
   : cleaving_ob X f d -->[f] d := X _ _ f d.
 
-Definition is_split_id {C : Precategory} {D : disp_precat C}
+Definition is_split_id {C : category} {D : disp_cat C}
            (X : cleaving D) : UU
   := ∏ c (d : D c), 
       ∑ e : cleaving_ob X (identity _) d = d,
             cleaving_mor X (identity _) d = 
             transportb (fun x => x -->[ _ ] _ ) e (id_disp d).
 
-Definition is_split_comp {C : Precategory} {D : disp_precat C}
+Definition is_split_comp {C : category} {D : disp_cat C}
            (X : cleaving D) : UU
   := 
     ∏ (c c' c'' : C) (f : c' --> c) (g : c'' --> c') (d : D c),
@@ -777,13 +777,13 @@ Definition is_split_comp {C : Precategory} {D : disp_precat C}
                        (cleaving_mor X g (cleaving_ob X f d) ;;
                                      cleaving_mor X f d).
      
-Definition is_split {C : Precategory} {D : disp_precat C}
+Definition is_split {C : category} {D : disp_cat C}
            (X : cleaving D) : UU
   := is_split_id X × is_split_comp X × (∏ c, isaset (D c)).
 
 
 Lemma is_split_fibration_from_discrete_fibration 
-      {C : Precategory} {D : disp_precat C}
+      {C : category} {D : disp_cat C}
       (X : is_discrete_fibration D) 
 : is_split (fibration_from_discrete_fibration _ (D,,X)).
 Proof.
