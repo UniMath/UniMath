@@ -749,4 +749,72 @@ Defined.
 
 End isofibration_from_disp_over_univalent.
 
+(** * Split fibrations *)
+
+Definition cleaving_ob {C : category} {D : disp_cat C}
+           (X : cleaving D) {c c' : C} (f : c' --> c) (d : D c) 
+  : D c' := X _ _ f d.
+
+Definition cleaving_mor {C : category} {D : disp_cat C}
+           (X : cleaving D) {c c' : C} (f : c' --> c) (d : D c) 
+  : cleaving_ob X f d -->[f] d := X _ _ f d.
+
+Definition is_split_id {C : category} {D : disp_cat C}
+           (X : cleaving D) : UU
+  := ∏ c (d : D c), 
+      ∑ e : cleaving_ob X (identity _) d = d,
+            cleaving_mor X (identity _) d = 
+            transportb (fun x => x -->[ _ ] _ ) e (id_disp d).
+
+Definition is_split_comp {C : category} {D : disp_cat C}
+           (X : cleaving D) : UU
+  := 
+    ∏ (c c' c'' : C) (f : c' --> c) (g : c'' --> c') (d : D c),
+      ∑ e : cleaving_ob X (g · f) d =
+                cleaving_ob X g (cleaving_ob X f d),
+            cleaving_mor X (g · f) d = 
+            transportb (fun x => x -->[ _ ] _ ) e 
+                       (cleaving_mor X g (cleaving_ob X f d) ;;
+                                     cleaving_mor X f d).
+     
+Definition is_split {C : category} {D : disp_cat C}
+           (X : cleaving D) : UU
+  := is_split_id X × is_split_comp X × (∏ c, isaset (D c)).
+
+
+Lemma is_split_fibration_from_discrete_fibration 
+      {C : category} {D : disp_cat C}
+      (X : is_discrete_fibration D) 
+: is_split (fibration_from_discrete_fibration _ (D,,X)).
+Proof.
+  repeat split.
+  - intros c d.
+    cbn.
+    mkpair.
+    + apply pathsinv0.
+      apply path_to_ctr.
+      apply id_disp.
+    + cbn.
+      apply  (disp_mor_unique_disc_fib _ (D,,X)).
+  - intros c c' c'' f g d.
+    cbn.
+    mkpair.
+    + set (XR := unique_lift f d).
+      set (d' := pr1 (iscontrpr1 XR)).
+      set (f' := pr2 (iscontrpr1 XR)). cbn in f'.
+      set (g' := pr2 (iscontrpr1 (unique_lift g d'))).
+      cbn in g'. 
+      set (gf' := g' ;; f').
+      match goal with |[ |- ?a = ?b ] =>
+                       assert (X0 : (a,,pr2 (iscontrpr1 (unique_lift (g ;; f) d))) =
+                                    (b,,gf')) end.
+      
+      { apply proofirrelevance. apply isapropifcontr. apply X. }
+      apply (maponpaths pr1 X0).
+    + apply  (disp_mor_unique_disc_fib _ (D,,X)).
+  - apply isaset_fiber_discrete_fibration.
+Defined.
+
+
+      
 (* *)
