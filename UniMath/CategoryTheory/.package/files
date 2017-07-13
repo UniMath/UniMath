@@ -1,7 +1,7 @@
 total2_paths.v
 Categories.v
 functor_categories.v
-RelativeMonads.v
+Monads/RelativeMonads.v
 opp_precat.v
 PrecategoryBinProduct.v
 ProductCategory.v
@@ -51,8 +51,8 @@ EpiFacts.v
 categories/category_hset.v
 SimplicialSets.v
 yoneda.v
-Monads.v
-LModules.v
+Monads/Monads.v
+Monads/LModules.v
 FunctorAlgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
@@ -103,7 +103,7 @@ Elements.v
 ElementsOp.v
 elems_slice_equiv.v
 pullbacks_slice_products_equiv.v
-Kleisli.v
+Monads/Kleisli.v
 categories/setwith2binops.v
 categories/monoids.v
 categories/abmonoids.v
@@ -116,4 +116,4 @@ categories/commrngs.v
 categories/intdoms.v
 categories/flds.v
 categories/StandardCategories.v
-Derivative.v
+Monads/Derivative.v
