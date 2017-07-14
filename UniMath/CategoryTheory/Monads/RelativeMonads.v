@@ -28,7 +28,7 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 (** * Definition of relative monads *)
 Section RMonad_def.
 
-Context {C D : precategory} (J : functor C D).
+Context {C D : precategory} {J : functor C D}.
 
 Definition RelMonad_data : UU
   := ∑ F : C -> D, (∏ c, D ⟦J c, F c⟧)
@@ -81,3 +81,7 @@ Proof.
 Defined.
 
 End RMonad_def.
+
+(* Underlying functor argument should be explicit for RelMonad_data and RelMonad *)
+Arguments RelMonad_data {C} {D} J.
+Arguments RelMonad {C} {D} J.
