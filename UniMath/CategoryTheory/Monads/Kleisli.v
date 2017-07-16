@@ -23,10 +23,6 @@ Section Kleisli_def.
   Definition RelMonad_from_Kleisli {C : precategory} (T : Kleisli C) := (T : RelMonad (functor_identity C)).
   Coercion RelMonad_from_Kleisli : Kleisli >-> RelMonad.
 
-  Definition Kleisli_law1 {C : precategory} (T : Kleisli C) := pr1 (pr2 T).
-  Definition Kleisli_law2 {C : precategory} (T : Kleisli C) := pr1 (pr2 (pr2 T)).
-  Definition Kleisli_law3 {C : precategory} (T : Kleisli C) := pr2 (pr2 (pr2 T)).
-
 End Kleisli_def.
 
 (** * Equivalence of the types of Kleisli monads and "monoidal" monads *)
@@ -43,9 +39,9 @@ Section monad_types_equiv.
       + exact (fun (a b : C) (f : a --> b) => r_bind T (f · r_eta T b)).
     - apply tpair.
       + intro a; simpl.
-        now rewrite id_left, (Kleisli_law1 T).
+        now rewrite id_left, (r_bind_r_eta T).
       + intros a b c f g; simpl.
-        now rewrite (Kleisli_law3 T), <- !assoc, (Kleisli_law2 T b).
+        now rewrite (r_bind_r_bind T), <- !assoc, (r_eta_r_bind T b).
   Defined.
 
   Definition Kleisli_to_μ {C : precategory} (T: Kleisli C) :
@@ -54,7 +50,7 @@ Section monad_types_equiv.
     mkpair.
     - exact (fun (x : C) => r_bind T (identity (T x))).
     - intros x x' f; simpl.
-      now rewrite (Kleisli_law3 T), <- assoc, (Kleisli_law2 T (T x')), id_right, (Kleisli_law3 T), id_left.
+      now rewrite (r_bind_r_bind T), <- assoc, (r_eta_r_bind T (T x')), id_right, (r_bind_r_bind T), id_left.
   Defined.
 
   Definition Kleisli_to_η {C : precategory} (T: Kleisli C) :
@@ -63,16 +59,16 @@ Section monad_types_equiv.
     mkpair.
     - exact (r_eta T).
     - intros x x' f; simpl.
-      now rewrite (Kleisli_law2 T x).
+      now rewrite (r_eta_r_bind T x).
   Defined.
 
   Definition Kleisli_to_Monad {C : precategory} (T : Kleisli C) : Monad C.
   Proof.
     refine (((Kleisli_to_functor T,, Kleisli_to_μ T) ,, Kleisli_to_η T) ,, _).
     do 2 try apply tpair; intros; simpl.
-    - apply Kleisli_law2.
-    - now rewrite (Kleisli_law3 T), <- assoc, (Kleisli_law2 T (T c)), id_right, (Kleisli_law1 T).
-    - now rewrite !(Kleisli_law3 T), id_left, <- assoc, (Kleisli_law2 T (T c)), id_right.
+    - apply (r_eta_r_bind T).
+    - now rewrite (r_bind_r_bind T), <- assoc, (r_eta_r_bind T (T c)), id_right, (r_bind_r_eta T).
+    - now rewrite !(r_bind_r_bind T), id_left, <- assoc, (r_eta_r_bind T (T c)), id_right.
   Defined.
 
   Proposition Kleisli_to_Monad_to_Kleisli {C : precategory} (hs : has_homsets C) (T : Kleisli C) :
@@ -86,7 +82,7 @@ Section monad_types_equiv.
         * apply idpath.
         * repeat (apply funextsec; unfold homot; intro).
           simpl; unfold Monads.bind; simpl.
-          now rewrite (Kleisli_law3 T), <- assoc, (Kleisli_law2 T (T x0)), id_right.
+          now rewrite (r_bind_r_bind T), <- assoc, (r_eta_r_bind T (T x0)), id_right.
     - do 2 try apply isapropdirprod;
         do 5 try (apply impred; intro);
         apply hs.
