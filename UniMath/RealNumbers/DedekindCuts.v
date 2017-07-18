@@ -1,4 +1,12 @@
-(** * Proofs of article *)
+(** * Usual constructive Dedekind cuts *)
+(** Catherine LELAY. July 2017 *)
+(** This file formalize the usual definitions of constructive Dedekind cuts.
+- The two-sides definition come from the HoTT-book
+- The one-side definition come from Robert S Lubarsky and Michael Rathjen. On the constructive
+Dedekind reals. Logic and Analysis.
+
+I first prove the equivalence between these two definitions, then I prove the equivalence between
+the non-negative numbers of the one-side definition and the set Dcuts *)
 
 Require Export UniMath.NumberSystems.RationalNumbers.
 Require Import UniMath.RealNumbers.Prelim.
