@@ -31,6 +31,8 @@ Definition is1side (S : hq → hProp) : UU :=
     × (∏ r : hq, S r → ∃ q : hq, S q ∧ hqlth r q)
     × (∏ r s : hq, hqlth r s → S r ∨ ¬ S s).
 
+(** ** Equivalence between these two definitions *)
+
 Lemma is2sides_1side :
   ∏ (L U : hq → hProp), is2sides L U → is1side L.
 Proof.
@@ -195,7 +197,7 @@ Proof.
     + reflexivity.
 Qed.
 
-(** ** Equivalence with usual definitions *)
+(** ** Equivalence of Dcuts with usual definitions *)
 
 Lemma is1side_Dcuts_bot :
   ∏ D, is1side D → Dcuts_def_bot (λ r, D (pr1 r)).
