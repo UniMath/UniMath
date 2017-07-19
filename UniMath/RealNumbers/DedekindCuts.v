@@ -281,8 +281,8 @@ Proof.
   apply coprodcomm in H0.
   revert H0 ; apply sumofmaps ; intros H0.
   apply hinhpr, ii1, H0.
-  enough (∃ q : NonnegativeRationals, D (pr1 q) × ¬ D (pr1 (q + c)%NRat)).
-  { revert X.
+  enough (Hq : ∃ q : NonnegativeRationals, D (pr1 q) × ¬ D (pr1 (q + c)%NRat)).
+  { revert Hq.
     apply hinhfun, ii2. }
 
   generalize (pr2 (pr1 H)).
@@ -438,9 +438,9 @@ Proof.
         refine (hqgthtoneghqleh _ _ _ _).
         exact H0.
         exact hq1ge0.
-      * assert (1%NRat = (1 ,, H0))
+      * assert (H1 : 1%NRat = (1 ,, H0))
           by (apply subtypeEquality_prop ; reflexivity).
-        rewrite X in H.
+        rewrite H1 in H.
         exact H.
     + rename H into q.
       exists (pr1 (pr1 q) + 1).
@@ -451,10 +451,10 @@ Proof.
         apply hq0lehandplus.
         exact (pr2 (pr1 q)).
         exact hq1ge0.
-      * assert ((pr1 q + 1)%NRat = (pr1 (pr1 q) + 1 ,, H0))
+      * assert (Hq1 : (pr1 q + 1)%NRat = (pr1 (pr1 q) + 1 ,, H0))
           by (apply subtypeEquality_prop ; reflexivity).
         generalize (pr2 (pr2 q)) ; intro Hq.
-        rewrite X in Hq.
+        rewrite Hq1 in Hq.
         exact Hq.
   - intros r Dr.
     induction (hqgthorleh 0 r) as [Hr | Hr].
@@ -480,10 +480,10 @@ Proof.
         apply Hq.
         exact (pr2 (pr1 q)).
       * split.
-        assert (pr1 q = (pr1 (pr1 q) ,, Hq))
+        assert (Hq1 : pr1 q = (pr1 (pr1 q) ,, Hq))
           by (apply subtypeEquality_prop ; reflexivity).
         generalize (pr1 (pr2 q)) ; intro Hq'.
-        rewrite X in Hq'.
+        rewrite Hq1 in Hq'.
         exact Hq'.
         generalize (pr2 (pr2 q)) ; intro Hq'.
         rewrite ltNonnegativeRationals_correct in Hq'.
@@ -571,9 +571,9 @@ set (g := (λ D : Dcuts,
       exact (pr2 q).
       exact Hq.
       intros H.
-      assert (q = (pr1 q,, Hq))
+      assert (Hq1 : q = (pr1 q,, Hq))
         by (apply subtypeEquality_prop ; reflexivity).
-      rewrite X ; exact H.
+      rewrite Hq1 ; exact H.
     + change (pr1 D q
   → sumofmaps (λ _ : 0 > pr1 q, htrue)
               (λ Hq : ¬ (0 > pr1 q), pr1 D (pr1 q,, Hq)) (hqgthorleh 0 (pr1 q))).
@@ -583,7 +583,7 @@ set (g := (λ D : Dcuts,
       refine (hqlehtoneghqgth _ _ _ _).
       exact (pr2 q).
       exact Hq.
-      assert (q = (pr1 q,, Hq))
+      assert (Hq1 : q = (pr1 q,, Hq))
         by (apply subtypeEquality_prop ; reflexivity).
-      rewrite X in Dq ; exact Dq.
+      rewrite Hq1 in Dq ; exact Dq.
 Qed.
