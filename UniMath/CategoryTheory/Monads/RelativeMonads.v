@@ -28,8 +28,9 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 (** * Definition of relative monads *)
 Section RMonad_def.
 
-Context {C D : precategory} (J : functor C D).
+Context {C D : precategory} {J : functor C D}.
 
+(* implicitness of arguments for RelMonad_data are set after this section *)
 Definition RelMonad_data : UU
   := ∑ F : C -> D, (∏ c, D ⟦J c, F c⟧)
                  × (∏ c d, D ⟦J c, F d⟧ → D ⟦F c, F d⟧).
@@ -55,6 +56,7 @@ Definition r_bind_r_bind {R : RelMonad_data} (X : RelMonad_axioms R)
          r_bind R f · r_bind R g = r_bind R (f · r_bind R g)
   := pr2 (pr2 X).
 
+(* implicitness of arguments for RelMonad are set after this section *)
 Definition RelMonad : UU := ∑ R : RelMonad_data, RelMonad_axioms R.
 Coercion RelMonad_data_from_RelMonad (R : RelMonad) : RelMonad_data := pr1 R.
 Coercion RelMonad_axioms_from_RelMonad (R : RelMonad) : RelMonad_axioms R := pr2 R.
@@ -81,3 +83,7 @@ Proof.
 Defined.
 
 End RMonad_def.
+
+(* Underlying functor argument should be explicit for RelMonad_data and RelMonad *)
+Arguments RelMonad_data {C} {D} J.
+Arguments RelMonad {C} {D} J.
