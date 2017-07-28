@@ -110,7 +110,7 @@ Lemma Kleisli_precat_is_precat : is_precategory Kleisli_precat_data.
     now rewrite (r_bind_r_eta R), id_right.
   - intros a b c d f g h.
     now rewrite <- assoc, (r_bind_r_bind R).
-Defined.
+Qed.
 
 Definition Kleisli_precat : precategory := (_,, Kleisli_precat_is_precat).
 
