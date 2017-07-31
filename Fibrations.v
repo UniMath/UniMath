@@ -816,5 +816,75 @@ Proof.
 Defined.
 
 
+Section fiber_functor_from_cleaving.
+
+Context {C : category} (D : disp_cat C) (F : cleaving D).
+Context {c c' : C} (f : C⟦c', c⟧).
+
+Let lift_f :  ∏ d : D c, cartesian_lift d f := F _ _ f.
+
+Definition fiber_functor_from_cleaving_data : functor_data (D [{c}]) (D [{c'}]).
+Proof.
+  mkpair.
+  + intro d. exact (object_of_cartesian_lift _ _ (lift_f d)).
+  + intros d' d ff. cbn.
+    
+    set (XR' := @cartesian_factorisation C D _ _ f).
+    specialize (XR' _ _ _ (lift_f d)).
+    use XR'.
+    * use (transportf (mor_disp _ _ )
+                      _ 
+                      (mor_disp_of_cartesian_lift _ _ (lift_f d') ;; ff)).
+      etrans; [ apply id_right |]; apply pathsinv0; apply id_left.
+Defined.
+
+Lemma is_functor_from_cleaving_data : is_functor fiber_functor_from_cleaving_data.
+Proof.
+  split.
+  - intro d; cbn.
+    apply pathsinv0.
+    apply path_to_ctr.
+    etrans; [apply id_left_disp |].
+    apply pathsinv0. 
+    etrans. { apply maponpaths. apply id_right_disp. }
+    etrans; [ apply transport_f_f |]. 
+    unfold transportb.
+    apply maponpaths_2. 
+    apply homset_property.
+  - intros d'' d' d ff' ff; cbn.
+    apply pathsinv0.
+    apply path_to_ctr.
+    etrans; [apply mor_disp_transportf_postwhisker |].
+    apply pathsinv0.
+    etrans. { apply maponpaths; apply mor_disp_transportf_prewhisker. }
+    etrans; [apply transport_f_f |].
+    apply transportf_comp_lemma.
+    apply pathsinv0.
+    etrans; [apply assoc_disp_var |].
+    apply pathsinv0.
+    apply transportf_comp_lemma.
+    apply pathsinv0.
+    etrans ; [ apply maponpaths, cartesian_factorisation_commutes |].
+    etrans ; [ apply mor_disp_transportf_prewhisker |].
+    apply pathsinv0.
+    apply transportf_comp_lemma.
+    apply pathsinv0.
+    etrans; [ apply assoc_disp |].
+    apply pathsinv0.
+    apply transportf_comp_lemma.
+    apply pathsinv0.
+    etrans; [ apply maponpaths_2, cartesian_factorisation_commutes |].
+    etrans; [ apply mor_disp_transportf_postwhisker |].    
+    etrans. { apply maponpaths. apply assoc_disp_var. }
+    etrans. { apply transport_f_f. }
+    apply transportf_ext, homset_property.
+Qed.
+
+Definition fiber_functor_from_cleaving : D [{c}] ⟶ D [{c'}] 
+  := mk_functor _  is_functor_from_cleaving_data.
+
+
+End fiber_functor_from_cleaving.
+
       
 (* *)
