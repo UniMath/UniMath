@@ -8,6 +8,11 @@ H(M) with a structure of module over T.
 
 Let T be the initial Id+H algebra. Then T is the initial representation in the sense of H&M.
 
+Note : A shorter proof of this statment could be formalized by using the proof of initiality
+in the category of hss, provided we weaken the notion of hss so that the bracket associated
+to the functor is not unique. The proof of initiality in the category of "weak" hss is the
+same as the one one already proved formally for the standard hss.
+
 *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.PointedFunctors.
@@ -104,14 +109,16 @@ Section SignatureLiftModule.
   Proof.
     intros X Z Z' x.
     etrans; revgoals.
-    apply ( nat_trans_eq_pointwise (θ_Strength2_int_implies_θ_Strength2 _ _ _ _ _ _
+    { apply ( nat_trans_eq_pointwise (θ_Strength2_int_implies_θ_Strength2 _ _ _ _ _ _
                                            (Sig_strength_law2 _ _ _ _ H) X Z Z' _
-           (identity _) ) x) .
+           (identity _) ) x). }
     etrans;[eapply pathsinv0;apply id_right|].
     apply cancel_precomposition.
-    eapply pathsinv0.
-    etrans. eapply nat_trans_eq_pointwise.
-    eapply (functor_id H).
+    apply pathsinv0.
+    etrans.
+    { eapply nat_trans_eq_pointwise.
+      apply (functor_id H).
+    }
     apply idpath.
   Qed.
 
@@ -135,54 +142,51 @@ H(M) T ------> H(MT) ------> H(M)
   Proof.
     split.
     - intro c.
-      etrans.
-      apply assoc.
-      etrans.
-      apply cancel_postcomposition.
-      eapply ( θ_nat_2_pw Mf (id_Ptd C hsC) (p T) (ptd_mor_pt hsC _) c).
-      etrans.
-      eapply cancel_postcomposition.
-      rewrite (horcomp_pre_post _ _ (category_pair _ hsC )).
-      rewrite (functor_comp H).
       etrans; [apply assoc|].
-      apply cancel_postcomposition.
-      apply strength_law1_pw.
+      etrans.
+      {  apply cancel_postcomposition.
+         apply ( θ_nat_2_pw Mf (id_Ptd C hsC) (p T) (ptd_mor_pt hsC _) c). }
+      etrans.
+      { apply cancel_postcomposition.
+        rewrite (horcomp_pre_post _ _ (category_pair _ hsC )).
+        rewrite (functor_comp H).
+        etrans; [apply assoc|].
+        apply cancel_postcomposition.
+        apply strength_law1_pw. }
       etrans;[|apply id_right].
       rewrite <- assoc.
-      eapply cancel_precomposition.
-      etrans.
-      apply functor_comp_pw.
+      apply cancel_precomposition.
+      etrans; [ apply functor_comp_pw|].
       etrans; [|apply (nat_trans_eq_pointwise (functor_id H Mf))].
       apply functor_cancel_pw.
       apply (nat_trans_eq hsC).
-      eapply (LModule_law1).
+      apply (LModule_law1).
     - intro c.
       cbn.
       etrans.
-      rewrite assoc.
-      apply cancel_postcomposition.
-      etrans.
-      apply (θ_nat_2_pw Mf _ _ (ptd_mor_from_μ)  c).
-      apply cancel_postcomposition.
-      apply (strength_law2_pw Mf (p T) (p T)).
+      { rewrite assoc.
+        apply cancel_postcomposition.
+        etrans; [ apply (θ_nat_2_pw Mf _ _ (ptd_mor_from_μ)  c)|].
+        apply cancel_postcomposition.
+        apply (strength_law2_pw Mf (p T) (p T)).  }
       etrans; revgoals.
-      rewrite <- assoc.
-      apply cancel_precomposition.
-      rewrite assoc;      apply cancel_postcomposition.
-      eapply pathsinv0.
-      apply (θ_nat_1_pw _ _ (σ M) (p T) c).
+      { rewrite <- assoc.
+        apply cancel_precomposition.
+        rewrite assoc.
+        apply cancel_postcomposition.
+        eapply pathsinv0.
+        apply (θ_nat_1_pw _ _ (σ M) (p T) c). }
       cbn.
       repeat rewrite <- assoc.
       apply cancel_precomposition.
       apply cancel_precomposition.
       etrans; revgoals.
-      eapply pathsinv0.
-      apply (functor_comp_pw hsC hsD H).
+      { eapply pathsinv0.
+        apply (functor_comp_pw hsC hsD H). }
       etrans.
-      apply cancel_precomposition.
-      apply (functor_comp_pw hsC hsD H).
-      etrans.
-      apply (functor_comp_pw hsC hsD H).
+      { apply cancel_precomposition.
+        apply (functor_comp_pw hsC hsD H). }
+      etrans; [ apply (functor_comp_pw hsC hsD H)|].
       apply functor_cancel_pw.
       apply (nat_trans_eq hsC).
       intro x.
@@ -247,7 +251,7 @@ Section InitialRep.
     Lemma τ_lmodule_laws : LModule_Mor_laws T_mon (T:=HT_mod) (T' := T_mod) (τ T).
     Proof.
       intro a.
-      eapply pathsinv0.
+      apply pathsinv0.
       (* It is precisely the square diagram satisfied by μ = { id } *)
       exact( nat_trans_eq_pointwise (fbracket_τ T  (Z:= p T)(identity _ )) a).
     Qed.
@@ -288,8 +292,8 @@ Section InitialRep.
 
   Local Definition M_alg : Alg.
   Proof.
-    eapply (tpair (fun x => EndC ⟦ Id_H x, x ⟧) (M:functor _ _)).
-    eapply BinCoproductArrow.
+    apply (tpair (fun x => EndC ⟦ Id_H x, x ⟧) (M:functor _ _)).
+    apply BinCoproductArrow.
     apply Monads.η.
     apply τ_M.
   Defined.
@@ -316,7 +320,7 @@ Section InitialRep.
   (**
   Following Ralph's proof : we want to prove the square diagram for the monad morphism induced by
   the initial algebra morphism j : T --> M :
-<<<<<<<<
+<<
        jj
   TT ------> MM
    |         |
@@ -325,7 +329,7 @@ Section InitialRep.
    V         V
    T ------> M
        j
->>>>>>>>>
+>>
 
   The strategy is to show that both paths of the diagram satisfy the characteristic equation of
   the same Mendler iterator. We use Lemma 8 from "Heteregenous substitution system revisited"
@@ -357,7 +361,7 @@ Section InitialRep.
   Proof.
     - intros h.
       cbn.
-      eapply (BinCoproductArrow EndC (a:= `T_hss) (b:= functor_composite `T_hss (H Z)) (CPEndC _ _) (c:=X)).
+      apply (BinCoproductArrow EndC (a:= `T_hss) (b:= functor_composite `T_hss (H Z)) (CPEndC _ _) (c:=X)).
       + apply j.
       + apply ((θ  (Z ⊗ (p T_hss)))·#H h· (τ_M:nat_trans _ _)).
   Defined.
@@ -368,34 +372,34 @@ Section InitialRep.
     cbn in a.
     apply weqfunextsec.
     intros f.
-    eapply (nat_trans_eq hs).
+    apply (nat_trans_eq hs).
     intro c.
     etrans; revgoals.
-    eapply pathsinv0.
-    eapply (precompWithBinCoproductArrow C (CP _ _) (CP _ _)
-                                         (identity _) (((# H a):nat_trans _ _) (T_func c))).
-    eapply BinCoproductArrow_eq.
-    + eapply pathsinv0,id_left.
+    { eapply pathsinv0.
+      apply (precompWithBinCoproductArrow C (CP _ _) (CP _ _)
+                                         (identity _) (((# H a):nat_trans _ _) (T_func c))). }
+    apply BinCoproductArrow_eq.
+    + apply pathsinv0,id_left.
     + apply pathsinv0.
-      etrans;[eapply assoc|].
+      etrans;[apply assoc|].
       apply cancel_postcomposition.
-      etrans;[eapply assoc|].
+      etrans;[apply assoc|].
       etrans.
-      eapply cancel_postcomposition.
-      eapply (θ_nat_1_pw _ _ a (p T_alg)).
+      apply cancel_postcomposition.
+      apply (θ_nat_1_pw _ _ a (p T_alg)).
       rewrite <- assoc.
       apply cancel_precomposition.
       etrans; revgoals.
-      eapply pathsinv0.
-      eapply nat_trans_eq_pointwise.
-      eapply (functor_comp H (_:EndC⟦ T_mon ∙ x', T_mon ∙ x⟧) ).
+      { eapply pathsinv0.
+        eapply nat_trans_eq_pointwise.
+        apply (functor_comp H (_:EndC⟦ T_mon ∙ x', T_mon ∙ x⟧)). }
       apply cancel_postcomposition.
       apply functor_cancel_pw.
       apply (nat_trans_eq hs).
       intro c'.
       etrans;[|apply id_right].
       apply cancel_precomposition.
-      eapply (functor_id   x).
+      apply (functor_id   x).
   Qed.
 
   Local Definition ψ  : (PreShv EndC)⟦ψ_source hsEndC X L , ψ_target Id_H hsEndC X L⟧ :=
@@ -429,14 +433,14 @@ where [η_T, τ_T] : Id + HT --> T
     # L (alg_map Id_H T_alg) · h = (ψ:nat_trans _ _) `T_alg h.
   Proof.
     intros hB1 hB2.
-    eapply (nat_trans_eq hs).
+    apply (nat_trans_eq hs).
     intros x.
     etrans.
-    etrans.
-    eapply cancel_postcomposition.
-    eapply BinCoproductArrowEta.
-    eapply postcompWithBinCoproductArrow.
-    eapply BinCoproductArrow_eq.
+    { etrans.
+      apply cancel_postcomposition.
+      apply BinCoproductArrowEta.
+      apply postcompWithBinCoproductArrow. }
+    apply BinCoproductArrow_eq.
     - apply hB1.
     - apply hB2.
   Qed.
@@ -449,16 +453,15 @@ where [η_T, τ_T] : Id + HT --> T
   Lemma j_mor_rep x : τT x · j_mor x = (# H j_mor:nat_trans _ _) x · τ_M x.
   Proof.
     etrans.
-    eapply pathsinv0.
-    apply assoc.
+    { eapply pathsinv0.
+      apply assoc. }
     etrans.
-    eapply cancel_precomposition.
-    apply (nat_trans_eq_pointwise (algebra_mor_commutes _ _ _ j) x).
+    { apply cancel_precomposition.
+      apply (nat_trans_eq_pointwise (algebra_mor_commutes _ _ _ j) x). }
+    etrans; [apply assoc|].
     etrans.
-    apply assoc.
-    etrans.
-    apply cancel_postcomposition.
-    apply BinCoproductIn2Commutes.
+    { apply cancel_postcomposition.
+      apply BinCoproductIn2Commutes. }
     etrans;[eapply pathsinv0; apply assoc|].
     apply cancel_precomposition.
     apply BinCoproductIn2Commutes.
@@ -470,34 +473,130 @@ where [η_T, τ_T] : Id + HT --> T
   Proof.
     intro a.
     etrans.
-    eapply pathsinv0.
-    eapply assoc.
+    { eapply pathsinv0.
+      apply assoc. }
     etrans.
-    eapply cancel_precomposition.
-    eapply (nat_trans_eq_pointwise (algebra_mor_commutes _ _ _ j) a).
-    etrans;[eapply assoc|].
+    { apply cancel_precomposition.
+      apply (nat_trans_eq_pointwise (algebra_mor_commutes _ _ _ j) a). }
+    etrans;[apply assoc|].
     etrans.
-    apply cancel_postcomposition.
-    eapply BinCoproductIn1Commutes.
-    etrans;[eapply pathsinv0;eapply assoc|].
+    { apply cancel_postcomposition.
+      apply BinCoproductIn1Commutes. }
+    etrans;[eapply pathsinv0;apply assoc|].
     etrans.
-    apply cancel_precomposition.
-    eapply BinCoproductIn1Commutes.
+    { apply cancel_precomposition.
+      apply BinCoproductIn1Commutes. }
     apply id_left.
   Qed.
 
   Let j_ptd : precategory_Ptd C hs ⟦ ptd_from_mon hs T_mon, ptd_from_mon hs M⟧.
   Proof.
     mkpair.
-    - eapply j.
+    - apply j.
     - intros x.
-      eapply j_mon_η.
+      apply j_mon_η.
   Defined.
 
 
 
   (** j is a monad morphism (following Ralph's proof). For the square diagram,
-     we show that both parts satisfies the same Mendler iterator characteristic equation*)
+     we show that both parts satisfies the same Mendler iterator characteristic equation *)
+  Lemma j_mon_square_eq1 : # L (alg_map Id_H T_alg) · ((μ T_mon : EndC ⟦_, _⟧) · j_mor) =
+                  (ψ : nat_trans _ _) `T_alg  ((μ T_mon : EndC ⟦_, _⟧) · j_mor).
+  Proof.
+    apply coprod_iter_eq; intro x.
+    - (* T monad law *)
+      etrans;[apply assoc|].
+      etrans.
+      { apply cancel_postcomposition.
+        apply (Monad_law1 (T:=T_mon)). }
+      apply id_left.
+    - (* tau_T is a module morphism *)
+      etrans;[apply assoc|].
+      etrans.
+      { apply cancel_postcomposition.
+        apply (LModule_Mor_σ _  τT). }
+      etrans;[eapply pathsinv0;apply assoc|].
+      etrans;[eapply pathsinv0;apply assoc|].
+      etrans; [| apply assoc].
+      apply cancel_precomposition.
+      rewrite functor_comp.
+      etrans; [| apply assoc].
+      apply cancel_precomposition.
+      apply j_mor_rep.
+  Qed.
+
+  Lemma j_mon_square_eq2 :
+    # L (alg_map Id_H T_alg) ·
+      ((j_mor ø T_mon : EndC ⟦_∙_, _∙_⟧) · (M ∘ j_mor : EndC ⟦_∙_, _∙_⟧) · μ M) =
+    (ψ : nat_trans _ _) `T_alg
+      ((j_mor ø T_mon : EndC ⟦_∙_, _∙_⟧) · (M ∘ j_mor : EndC ⟦_∙_, _∙_⟧) · μ M).
+  Proof.
+  apply coprod_iter_eq; intro x.
+  - etrans;[apply assoc|].
+    etrans.
+    { apply cancel_postcomposition.
+      etrans;[apply assoc|].
+      apply cancel_postcomposition.
+      apply j_mon_η. }
+    etrans.
+    { apply cancel_postcomposition.
+      eapply pathsinv0.
+      apply (nat_trans_ax (Monads.η M )). }
+    etrans; [|apply id_right].
+    rewrite <- assoc.
+    apply cancel_precomposition.
+    apply Monad_law1.
+  - etrans;[apply assoc|].
+    etrans.
+    { apply cancel_postcomposition.
+      etrans;[apply assoc|].
+      etrans.
+      { apply cancel_postcomposition.
+        apply j_mor_rep. }
+      rewrite <- assoc.
+      apply cancel_precomposition.
+      eapply pathsinv0.
+      apply (nat_trans_ax τ_M). }
+    etrans.
+    { repeat rewrite <- assoc.
+      apply cancel_precomposition.
+      apply cancel_precomposition.
+      apply (LModule_Mor_σ _  τ_M ( x)). }
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    etrans.
+    { repeat rewrite <- assoc.
+      apply cancel_precomposition.
+      etrans;[apply assoc|].
+      apply cancel_postcomposition.
+      apply (θ_nat_2_pw _ _ _ j_ptd). }
+    etrans.
+    { repeat rewrite assoc.
+      apply cancel_postcomposition.
+      apply cancel_postcomposition.
+      apply (θ_nat_1_pw _ _ j_mor (ptd_from_mon hs T_mon)). }
+    repeat rewrite <- assoc.
+    apply cancel_precomposition.
+    rewrite functor_comp.
+    rewrite functor_comp.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    rewrite <- functor_comp.
+    etrans;[ apply functor_comp_pw|].
+    apply functor_cancel_pw.
+    apply (nat_trans_eq hs).
+    intro y.
+    etrans.
+    { apply cancel_postcomposition.
+        etrans.
+        { apply cancel_precomposition.
+          apply functor_id. }
+        apply id_right. }
+    apply cancel_precomposition.
+    apply id_left.
+  Qed.
+
   Lemma j_mon : Monad_Mor_laws (T:=T_mon) (T':=M) (mor_from_algebra_mor _ _ _ j).
   Proof.
     split.
@@ -510,89 +609,8 @@ where [η_T, τ_T] : Id + HT --> T
                                                           (j_mor ø T_mon ) (M ∘ j_mor) )
                                                  (μ M))).
       apply (uniqueExists _ _ uniq_iter).
-      + apply coprod_iter_eq; intro x.
-        * (* T monad law *)
-          etrans;[apply assoc|].
-          etrans.
-          apply cancel_postcomposition.
-          eapply (Monad_law1 (T:=T_mon)).
-          apply id_left.
-        * (* tau_T is a module morphism *)
-          etrans;[apply assoc|].
-          etrans.
-          apply cancel_postcomposition.
-          eapply (LModule_Mor_σ _  τT).
-          etrans;[eapply pathsinv0;eapply assoc|].
-          etrans;[eapply pathsinv0;eapply assoc|].
-          etrans; [| eapply assoc].
-          apply cancel_precomposition.
-          rewrite functor_comp.
-          etrans; [| eapply assoc].
-          apply cancel_precomposition.
-          apply j_mor_rep.
-      + apply coprod_iter_eq; intro x.
-        * etrans;[apply assoc|].
-          etrans.
-          eapply cancel_postcomposition.
-          etrans;[apply assoc|].
-          eapply cancel_postcomposition.
-          eapply j_mon_η.
-          etrans.
-          eapply cancel_postcomposition.
-          eapply pathsinv0.
-          eapply (nat_trans_ax (Monads.η M )).
-          etrans; [|apply id_right].
-          rewrite <- assoc.
-          eapply cancel_precomposition.
-          eapply Monad_law1.
-        * etrans;[eapply assoc|].
-          etrans;[eapply cancel_postcomposition|].
-          etrans;[eapply assoc|].
-          etrans;[eapply cancel_postcomposition|].
-          apply j_mor_rep.
-          rewrite <- assoc.
-          eapply cancel_precomposition.
-          eapply pathsinv0.
-          eapply (nat_trans_ax τ_M).
-          etrans.
-          repeat rewrite <- assoc.
-          eapply cancel_precomposition.
-          eapply cancel_precomposition.
-          eapply (LModule_Mor_σ _  τ_M ( x)).
-          repeat rewrite assoc.
-          eapply cancel_postcomposition.
-          etrans.
-          repeat rewrite <- assoc.
-          eapply cancel_precomposition.
-          etrans.
-          eapply assoc.
-          eapply cancel_postcomposition.
-          eapply (θ_nat_2_pw _ _ _ j_ptd).
-          etrans.
-          repeat rewrite assoc.
-          eapply cancel_postcomposition.
-          eapply cancel_postcomposition.
-          eapply (θ_nat_1_pw _ _ j_mor (ptd_from_mon hs T_mon)).
-          repeat rewrite <- assoc.
-          eapply cancel_precomposition.
-          rewrite functor_comp.
-          rewrite functor_comp.
-          repeat rewrite assoc.
-          eapply cancel_postcomposition.
-          rewrite <- functor_comp.
-          etrans.
-          eapply functor_comp_pw.
-          apply functor_cancel_pw.
-          apply (nat_trans_eq hs).
-          intro y.
-          etrans.
-          eapply cancel_postcomposition.
-          etrans.
-          eapply cancel_precomposition.
-          eapply functor_id.
-          eapply id_right.
-          apply cancel_precomposition.
-          apply id_left.
+      + exact j_mon_square_eq1.
+      + exact j_mon_square_eq2.
     - apply j_mon_η.
   Qed.
 
