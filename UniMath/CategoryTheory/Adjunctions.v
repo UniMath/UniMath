@@ -281,9 +281,11 @@ Definition is_universal_arrow_from {D C : precategory}
            (S : functor D C) (c : C) (r : D) (v : C⟦S r, c⟧) : UU :=
   ∏ (d : D) (f : C⟦S d,c⟧), ∃! (f' : D⟦d,r⟧), f = # S f' · v.
 
-Variables (X A : precategory) (F : functor X A).
-Variables (G0 : ob A -> ob X) (eps : ∏ a, A⟦F (G0 a),a⟧).
-Hypothesis (Huniv : ∏ a, is_universal_arrow_from F a (G0 a) (eps a)).
+Context {X A : precategory}
+        (F : functor X A)
+        (G0 : ob A -> ob X)
+        (eps : ∏ a, A⟦F (G0 a),a⟧)
+        (Huniv : ∏ a, is_universal_arrow_from F a (G0 a) (eps a)).
 
 Local Definition G_data : functor_data A X.
 Proof.
@@ -381,9 +383,11 @@ Definition is_universal_arrow_to {D C : precategory}
            (S : functor D C) (c : C) (r : D) (v : C⟦c, S r⟧) : UU :=
   ∏ (d : D) (f : C⟦c, S d⟧), ∃! (f' : D⟦r,d⟧), v · #S f' = f.
 
-Variables (X A : precategory) (G : functor A X).
-Variables (F0 : ob X -> ob A) (eta : ∏ x, X⟦x, G (F0 x)⟧).
-Hypothesis (Huniv : ∏ x, is_universal_arrow_to G x (F0 x) (eta x)).
+Context {X A : precategory}
+        (G : functor A X)
+        (F0 : ob X -> ob A)
+        (eta : ∏ x, X⟦x, G (F0 x)⟧)
+        (Huniv : ∏ x, is_universal_arrow_to G x (F0 x) (eta x)).
 
 Local Definition F_data : functor_data X A.
 Proof.
