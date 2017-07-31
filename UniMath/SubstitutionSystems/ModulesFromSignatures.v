@@ -9,9 +9,10 @@ H(M) with a structure of module over T.
 Let T be the initial Id+H algebra. Then T is the initial representation in the sense of H&M.
 
 Note : A shorter proof of this statment could be formalized by using the proof of initiality
-in the category of hss, provided we weaken the notion of hss so that the bracket associated
-to the functor is not unique. The proof of initiality in the category of "weak" hss is the
-same as the one one already proved formally for the standard hss.
+in the category of heterogeneous substitution systems, provided we weaken the notion of heterogeneous
+substitution system so that the bracket associated to the functor is not unique.
+The proof of initiality in the category of "weak" heterogeneous substitution systems is the same
+as the one one already proved formally for the standard notion of heterogeneous substitution system.
 
 *)
 Require Import UniMath.Foundations.PartD.
