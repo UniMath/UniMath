@@ -360,11 +360,11 @@ Section InitialRep.
 
   Local Definition ψ_pw Z : _ ⟦ψ_source hsEndC X L Z, ψ_target Id_H hsEndC X L Z⟧ .
   Proof.
-    - intros h.
-      cbn.
-      apply (BinCoproductArrow EndC (a:= `T_hss) (b:= functor_composite `T_hss (H Z)) (CPEndC _ _) (c:=X)).
-      + apply j.
-      + apply ((θ  (Z ⊗ (p T_hss)))·#H h· (τ_M:nat_trans _ _)).
+    intros h.
+    cbn.
+    apply (BinCoproductArrow EndC (a:= `T_hss) (b:= functor_composite `T_hss (H Z)) (CPEndC _ _) (c:=X)).
+    - apply j.
+    - apply ((θ  (Z ⊗ (p T_hss)))·#H h· (τ_M:nat_trans _ _)).
   Defined.
 
   Local Lemma ψ_nt : is_nat_trans _ _ ψ_pw.
