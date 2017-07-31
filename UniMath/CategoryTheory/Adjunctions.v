@@ -410,7 +410,8 @@ Proof.
     apply (pr2 (pr1 H3)).
 Defined.
 
-Local Definition F : functor X A := F_data,, F_is_functor.
+Local Definition left_adj_from_partial : functor X A := F_data,, F_is_functor.
+Local Notation F := left_adj_from_partial.
 
 Local Definition counit_left_from_partial
   : functor_composite G F ⟹ functor_identity A.
@@ -466,6 +467,13 @@ Proof.
     destruct (Huniv _ _ (identity (G a))) as [[f hf] H]; simpl.
     apply hf.
 Defined.
+
+Definition right_adjoint_left_from_partial : is_right_adjoint G :=
+  (F,, (unit_left_from_partial,, counit_left_from_partial),,
+    form_adjunctionFG_left_from_partial).
+
+Definition left_adjoint_left_from_partial : is_left_adjoint F :=
+  (G,, (unit_left_from_partial,, _),, form_adjunctionFG_left_from_partial).
 
 End left_adjoint_from_partial.
 
