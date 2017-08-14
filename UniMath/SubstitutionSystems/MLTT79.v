@@ -50,10 +50,10 @@ Section preamble.
 Definition four_rec {A : UU} (a b c d : A) : stn 4 -> A.
 Proof.
 induction 1 as [n p].
-induction n as [_|n _]; [apply a|].
-induction n as [_|n _]; [apply b|].
-induction n as [_|n _]; [apply c|].
-induction n as [_|n _]; [apply d|].
+induction n as [|n _]; [apply a|].
+induction n as [|n _]; [apply b|].
+induction n as [|n _]; [apply c|].
+induction n as [|n _]; [apply d|].
 induction (nopathsfalsetotrue p).
 Defined.
 
