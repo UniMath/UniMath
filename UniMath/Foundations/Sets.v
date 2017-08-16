@@ -1,6 +1,6 @@
 (** * Generalities on [hSet].  Vladimir Voevodsky. Feb. - Sep. 2011
 
-In this file we introduce the type [hSet] of h-sets i.e. of types of h-level 2
+In this file we introduce the type [hSet] of h-sets, i.e., of types of h-level 2
 as well as a number of constructions such as type of (monic) subtypes, images,
 surjectivity etc. which, while they formally apply to functions between
 arbitrary types actually only depend on the behavior of the function on the sets
