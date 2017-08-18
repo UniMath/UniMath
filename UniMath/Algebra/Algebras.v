@@ -8,7 +8,8 @@ Require Import UniMath.Algebra.Modules.
 Contents:
 
 - Bilinear morphisms between modules over a ring ([bilinearfun])
-- algebras over a commutative ring ([algebra]) and associative, commutative, unital algebras ([assoc_comm_unital_algebra])
+- Algebras over a commutative ring ([algebra]) and associative, commutative, unital algebras ([assoc_comm_unital_algebra]), see Serge Lang,
+Algebra, III.1, p.121 in the revised third edition.
 - Morphisms between (non-associative) algebras aver a commutative ring ([algebrafun])
 - The opposite algebra ([algebra_opp])
 
@@ -17,10 +18,10 @@ Contents:
 
 (** * Bilinear morphims between modules over a ring *)
 
-Definition isbilinear {R : rng} (M N P : module R) (f : M -> N -> P) : UU :=
-  (∏ x : M, islinear (λ y : N, f x y) ) × (∏ y : N, islinear (λ x : M, f x y)).
+Definition isbilinear {R : rng} {M N P : module R} (f : M -> N -> P) : UU :=
+  (∏ x : M, ismodulefun (λ y : N, f x y) ) × (∏ y : N, ismodulefun (λ x : M, f x y)).
 
-Definition bilinearfun {R : rng} (M N P : module R) : UU := ∑ f : M -> N -> P, isbilinear M N P f.
+Definition bilinearfun {R : rng} (M N P : module R) : UU := ∑ f : M -> N -> P, isbilinear f.
 
 Definition pr1bilinearfun {R : rng} {M N P : module R} (f : bilinearfun M N P) : M -> N -> P := pr1 f.
 
@@ -45,7 +46,7 @@ Definition algebra_pair (M : module R) (f : bilinearfun M M M) : algebra := tpai
 
 Definition mult_algebra (A : algebra) : binop A := pr1 (pr2 A).
 
-Definition isbilinear_mult_algebra (A : algebra) : isbilinear A A A (mult_algebra A) := pr2 (pr2 A).
+Definition isbilinear_mult_algebra (A : algebra) : isbilinear (mult_algebra A) := pr2 (pr2 A).
 
 Notation "x * y" := (mult_algebra _ x y) : algebras_scope.
 
@@ -87,9 +88,17 @@ Definition unitalalgebra_to_algebra (A : unitalalgebra) : algebra := pr1 A.
 
 Coercion unitalalgebra_to_algebra : unitalalgebra >-> algebra.
 
+(** Unital associative algebras over a commutative ring *)
+
+Definition unital_assoc_algebra : UU := ∑ A : algebra, (isassoc_algebra A) × (isunital_algebra A).
+
+Definition unital_assoc_algebra_to_algebra (A : unital_assoc_algebra) : algebra := pr1 A.
+
+Coercion unital_assoc_algebra_to_algebra : unital_assoc_algebra >-> algebra.
+
 (** Associative, commutative, unital algebras over a ring *)
 
-Definition assoc_comm_unital_algebra : UU := ∑ A : algebra, (isassoc_algebra A) × (iscomm_algebra A) × (isunital_algebra A).
+Definition assoc_comm_unital_algebra : UU := ∑ A : unital_assoc_algebra, iscomm_algebra A.
 
 (** Morphisms between (non-associative) algebras over a commutative ring *)
 
@@ -99,15 +108,17 @@ Definition algebrafun (A B : algebra) : UU := ∑ f : modulefun A B, ∏ x y : A
 
 (** The opposite algebra  *)
 
-Definition mult_opp (A : algebra) : A -> A -> A := λ x y: A, y * x.
+Definition mult_opp (A : algebra) : A -> A -> A := λ x y : A, y * x.
 
-Definition isbilinear_mult_opp (A : algebra) : isbilinear A A A (mult_opp A).
+Definition isbilinear_mult_opp (A : algebra) : isbilinear (mult_opp A).
 Proof.
   apply dirprodpair.
-  - intro a. intros r b.
-    apply (pr2  (isbilinear_mult_algebra A)).
-  - intro b. intros r a.
-    apply (pr1 (isbilinear_mult_algebra A)).
+  - intro a. apply dirprodpair.
+    + intros x x'. apply (pr1 (pr2 (isbilinear_mult_algebra A) a) x x').
+    + intros r b. apply (pr2 (pr2  (isbilinear_mult_algebra A) a) r b).
+  - intro a. apply dirprodpair.
+    + intros x x'. apply (pr1 (pr1 (isbilinear_mult_algebra A) a) x x').
+    + intros r b. apply (pr2 (pr1  (isbilinear_mult_algebra A) a) r b).
 Defined.
 
 Definition bilinear_mult_opp (A : algebra) : bilinearfun A A A := tpair _ (mult_opp A) (isbilinear_mult_opp A).
