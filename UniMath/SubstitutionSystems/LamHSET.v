@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
-Require Import UniMath.CategoryTheory.Monads.
+Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
@@ -34,7 +34,6 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.categories.category_hset_structures.
 Require Import UniMath.CategoryTheory.CocontFunctors.
-(* Require Import UniMath.CategoryTheory.RightKanExtension. *)
 
 Section LamHSET.
 
