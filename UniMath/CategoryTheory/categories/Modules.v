@@ -8,8 +8,9 @@ Require Import UniMath.Algebra.Modules.
 
 Contents:
 
-- Category R-mod of modules over a ring R ([category_module])
-- R-mod is a univalent category ([category_module_is_univalent])
+- Precategory of modules over a ring ([Mod])
+- Category of modules over a ring ([category_Mod])
+- Mod is a univalent category ([Mod_is_univalent])
 
 ***************************************************)
 
@@ -85,7 +86,7 @@ Proof.
      + apply isapropismodulefun.
 Defined.
 
-Definition precategory_module : precategory :=
+Definition Mod : precategory :=
    mk_precategory (precategory_data_module) (is_precategory_precategory_data_module).
 
 End precategory_modules.
@@ -96,11 +97,10 @@ End precategory_modules.
 Section category_modules.
 
 Variable R : rng.
-Notation "R-mod" := (precategory_module R).
 
 (** The precategory of R-modules has homsets *)
 
-Definition has_homsets_precategory_module : has_homsets (R-mod).
+Definition has_homsets_Mod : has_homsets (Mod R).
 Proof.
    intros M N. unfold isaset. intros f g. unfold isaprop.
    apply (isofhlevelweqb 1 (total2_paths_equiv (λ x :  pr1module M ->  pr1module N, ismodulefun x) f g)).
@@ -115,7 +115,7 @@ Proof.
      + apply q.
 Defined.
 
-Definition category_module : category := category_pair R-mod has_homsets_precategory_module.
+Definition category_Mod : category := category_pair (Mod R) has_homsets_Mod.
 
 End category_modules.
 
@@ -125,11 +125,10 @@ End category_modules.
 Section univalent_category_modules.
 
 Variable R : rng.
-Notation "R-mod" := (precategory_module R).
 
-Definition moduleiso (M N : R-mod) : UU := ∑ w : pr1module M ≃ pr1module N, ismodulefun w.
+Definition moduleiso (M N : Mod R) : UU := ∑ w : pr1module M ≃ pr1module N, ismodulefun w.
 
-Definition moduleiso_to_modulefun (M N : R-mod) : moduleiso M N -> modulefun M N.
+Definition moduleiso_to_modulefun (M N : Mod R) : moduleiso M N -> modulefun M N.
 Proof.
    intro f.
    exact (tpair _ (pr1weq (pr1 f)) (pr2 f)).
@@ -137,14 +136,14 @@ Defined.
 
 Coercion moduleiso_to_modulefun : moduleiso >-> modulefun.
 
-Definition pr1moduleiso {M N : R-mod} (f : moduleiso M N) : weq (pr1module M) (pr1module N) := pr1 f.
+Definition pr1moduleiso {M N : Mod R} (f : moduleiso M N) : (pr1module M) ≃ (pr1module N) := pr1 f.
 
 Coercion pr1moduleiso : moduleiso >-> weq.
 
-Definition moduleisopair {M N : R-mod} (f : pr1module M ≃ pr1module N) (is : ismodulefun f) : moduleiso M N :=
+Definition moduleisopair {M N : Mod R} (f : pr1module M ≃ pr1module N) (is : ismodulefun f) : moduleiso M N :=
    tpair _ f is.
 
-Definition idmoduleiso (M : R-mod) : moduleiso M M.
+Definition idmoduleiso (M : Mod R) : moduleiso M M.
 Proof.
    use moduleisopair.
    - exact (idweq (pr1module M)).
@@ -153,7 +152,7 @@ Proof.
      + intros r x. apply idpath.
 Defined.
 
-Definition isbinopfuninvmap {M N : R-mod} (f : moduleiso M N) : isbinopfun (invmap f).
+Definition isbinopfuninvmap {M N : Mod R} (f : moduleiso M N) : isbinopfun (invmap f).
 Proof.
    intros x y.
    apply (invmaponpathsweq f).
@@ -165,7 +164,7 @@ Proof.
    apply idpath.
 Defined.
 
-Definition islinearinvmap {M N : R-mod} (f : moduleiso M N) : islinear (invmap f).
+Definition islinearinvmap {M N : Mod R} (f : moduleiso M N) : islinear (invmap f).
 Proof.
    intros r x.
    apply (invmaponpathsweq f).
@@ -178,7 +177,7 @@ Proof.
    apply (pr2 (pr2 f) r (invmap f x)).
 Defined.
 
-Definition invmoduleiso {M N : R-mod} (f : moduleiso M N) : moduleiso N M.
+Definition invmoduleiso {M N : Mod R} (f : moduleiso M N) : moduleiso N M.
 Proof.
    use moduleisopair.
    - exact (invweq f).
@@ -187,16 +186,16 @@ Proof.
      + exact (islinearinvmap f).
 Defined.
 
-Definition isaprop_islinear {M N : R-mod} (f : (pr1module M) -> (pr1module N)) : isaprop (islinear f).
+Definition isaprop_islinear {M N : Mod R} (f : (pr1module M) -> (pr1module N)) : isaprop (islinear f).
 Proof.
    use impred. intro r.
    use impred. intro x.
    apply setproperty.
 Defined.
 
-Definition moduleiso' (M N : R-mod) : UU := ∑ w : monoidiso (pr1module M) (pr1module N), islinear w.
+Definition moduleiso' (M N : Mod R) : UU := ∑ w : monoidiso (pr1module M) (pr1module N), islinear w.
 
-Definition moduleiso_to_moduleiso' (M N : R-mod) : moduleiso M N -> moduleiso' M N.
+Definition moduleiso_to_moduleiso' (M N : Mod R) : moduleiso M N -> moduleiso' M N.
 Proof.
    intro w.
    use tpair.
@@ -208,7 +207,7 @@ Proof.
    - exact (modulefun_to_islinear w).
 Defined.
 
-Definition moduleiso'_to_moduleiso (M N : R-mod) : moduleiso' M N -> moduleiso M N.
+Definition moduleiso'_to_moduleiso (M N : Mod R) : moduleiso' M N -> moduleiso M N.
 Proof.
    intro w.
    use tpair.
@@ -218,13 +217,13 @@ Proof.
      + exact (pr2 w).
 Defined.
 
-Lemma modulefun_unel_uniqueness {M N : R-mod} {f : pr1module M -> pr1module N} {is: ismodulefun f}
+Lemma modulefun_unel_uniqueness {M N : Mod R} {f : pr1module M -> pr1module N} {is: ismodulefun f}
        (p : f (@unel (pr1module M)) = @unel (pr1module N)) : modulefun_unel (f,,is) = p.
 Proof.
    apply (setproperty (pr1module N)).
 Defined.
 
-Definition moduleiso'_to_moduleiso_isweq (M N : R-mod) : isweq (moduleiso'_to_moduleiso M N).
+Definition moduleiso'_to_moduleiso_isweq (M N : Mod R) : isweq (moduleiso'_to_moduleiso M N).
 Proof.
    use (gradth _ (moduleiso_to_moduleiso' M N)). intro w.
    unfold moduleiso'_to_moduleiso, moduleiso_to_moduleiso'. cbn.
@@ -233,7 +232,7 @@ Proof.
    intro w. apply idpath.
 Defined.
 
-Definition moduleiso'_to_moduleiso_weq (M N : R-mod) : (moduleiso' M N) ≃ (moduleiso M N) :=
+Definition moduleiso'_to_moduleiso_weq (M N : Mod R) : (moduleiso' M N) ≃ (moduleiso M N) :=
    weqpair (moduleiso'_to_moduleiso M N) (moduleiso'_to_moduleiso_isweq M N).
 
 Lemma isaset_el_of_setwith2binop (X : setwith2binop) : isaset X.
@@ -258,9 +257,7 @@ Proof.
      apply (isasetaprop (isaprop_isrigfun f)).
 Defined.
 
-Definition modules_univalence_weq1 (M N : R-mod) : (M = N) ≃ (M ╝ N) := total2_paths_equiv _ M N.
-
-Definition modules_univalence_weq2 (M N : R-mod) : (M ╝ N) ≃ (moduleiso' M N).
+Definition modules_univalence_weq (M N : Mod R) : (M ╝ N) ≃ (moduleiso' M N).
 Proof.
    use weqbandf.
    - apply abgr_univalence.
@@ -284,17 +281,17 @@ Proof.
      + apply isaset_rngfun.
 Defined.
 
-Definition modules_univalence_map (M N : R-mod) : (M = N) -> (moduleiso M N).
+Definition modules_univalence_map (M N : Mod R) : (M = N) -> (moduleiso M N).
 Proof.
    intro p.
    induction p.
    exact (idmoduleiso M).
 Defined.
 
-Definition modules_univalence_map_isweq (M N : R-mod) : isweq (modules_univalence_map M N).
+Definition modules_univalence_map_isweq (M N : Mod R) : isweq (modules_univalence_map M N).
 Proof.
    use isweqhomot.
-   - exact (weqcomp (weqcomp (modules_univalence_weq1 M N) (modules_univalence_weq2 M N)) (moduleiso'_to_moduleiso_weq M N)).
+   - exact (weqcomp (weqcomp (total2_paths_equiv _ M N) (modules_univalence_weq M N)) (moduleiso'_to_moduleiso_weq M N)).
    - intro p.
      induction p.
      apply (pathscomp0 weqcomp_to_funcomp_app).
@@ -302,16 +299,16 @@ Proof.
    - apply weqproperty.
 Defined.
 
-Definition modules_univalence (M N : R-mod) : (M = N) ≃ (moduleiso M N).
+Definition modules_univalence (M N : Mod R) : (M = N) ≃ (moduleiso M N).
 Proof.
    use weqpair.
    - exact (modules_univalence_map M N).
    - exact (modules_univalence_map_isweq M N).
 Defined.
 
-(** Equivalence between isomorphisms and moduleiso in R-mod *)
+(** Equivalence between isomorphisms and moduleiso in Mod R *)
 
-Lemma iso_isweq {M N : ob R-mod} (f : iso M N) : isweq (pr1 (pr1 f)).
+Lemma iso_isweq {M N : ob (Mod R)} (f : iso M N) : isweq (pr1 (pr1 f)).
 Proof.
    use (gradth (pr1 (pr1 f))).
    - exact (pr1 (inv_from_iso f)).
@@ -331,7 +328,7 @@ Proof.
        apply isapropismodulefun.
 Defined.
 
-Lemma iso_moduleiso (M N : ob R-mod) : iso M N -> moduleiso M N.
+Lemma iso_moduleiso (M N : ob (Mod R)) : iso M N -> moduleiso M N.
 Proof.
    intro f.
    use moduleisopair.
@@ -341,9 +338,9 @@ Proof.
    - exact (pr2 (pr1 f)).
 Defined.
 
-Lemma moduleiso_is_iso {M N : ob R-mod} (f : moduleiso M N) : @is_iso R-mod M N (modulefunpair f (pr2 f)).
+Lemma moduleiso_is_iso {M N : ob (Mod R)} (f : moduleiso M N) : @is_iso (Mod R) M N (modulefunpair f (pr2 f)).
 Proof.
-   apply (is_iso_qinv (C:= R-mod) _ (modulefunpair (invmoduleiso f) (pr2 (invmoduleiso f)))).
+   apply (is_iso_qinv (C:= (Mod R)) _ (modulefunpair (invmoduleiso f) (pr2 (invmoduleiso f)))).
    split.
    - use total2_paths_f.
      + apply funextfun. intro x.
@@ -356,7 +353,7 @@ Proof.
      + apply isapropismodulefun.
 Defined.
 
-Lemma moduleiso_iso (M N : ob R-mod) : moduleiso M N -> iso M N.
+Lemma moduleiso_iso (M N : ob (Mod R)) : moduleiso M N -> iso M N.
 Proof.
    intro f.
    use isopair.
@@ -366,7 +363,7 @@ Proof.
    - exact (moduleiso_is_iso f).
 Defined.
 
-Lemma moduleiso_iso_isweq (M N : ob R-mod) : isweq (@moduleiso_iso M N).
+Lemma moduleiso_iso_isweq (M N : ob (Mod R)) : isweq (@moduleiso_iso M N).
 Proof.
    apply (gradth _ (iso_moduleiso M N)).
    - intro f.
@@ -384,10 +381,10 @@ Proof.
      + apply isaprop_is_iso.
 Defined.
 
-Definition moduleiso_iso_weq (M N : R-mod) : (moduleiso M N) ≃ (iso M N) :=
+Definition moduleiso_iso_weq (M N : Mod R) : (moduleiso M N) ≃ (iso M N) :=
    weqpair (moduleiso_iso M N) (moduleiso_iso_isweq M N).
 
-Definition precategory_module_idtoiso_isweq : ∏ M N : ob R-mod, isweq (fun p : M = N => idtoiso p).
+Definition Mod_idtoiso_isweq : ∏ M N : ob (Mod R), isweq (fun p : M = N => idtoiso p).
 Proof.
    intros M N.
    use (isweqhomot (weqcomp (modules_univalence M N) (moduleiso_iso_weq M N)) _).
@@ -400,9 +397,9 @@ Proof.
    - apply weqproperty.
 Defined.
 
-Definition precategory_module_is_univalent : is_univalent (R-mod) :=
-  mk_is_univalent precategory_module_idtoiso_isweq (has_homsets_precategory_module R).
+Definition Mod_is_univalent : is_univalent (Mod R) :=
+  mk_is_univalent Mod_idtoiso_isweq (has_homsets_Mod R).
 
-Definition univalent_category_module : univalent_category := mk_category R-mod precategory_module_is_univalent.
+Definition univalent_category_Mod : univalent_category := mk_category (Mod R) Mod_is_univalent.
 
 End univalent_category_modules.
