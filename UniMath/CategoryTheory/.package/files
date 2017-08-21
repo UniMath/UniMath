@@ -100,4 +100,3 @@ set_slice_fam_equiv.v
 Elements.v
 ElementsOp.v
 elems_slice_equiv.v
-MonoidalCategories.v
