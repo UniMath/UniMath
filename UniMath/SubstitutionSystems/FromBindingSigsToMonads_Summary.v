@@ -24,8 +24,8 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.category_hset.
-Require Import UniMath.CategoryTheory.category_hset_structures.
+Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.categories.category_hset_structures.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -41,7 +41,7 @@ Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.Monads.
+Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
@@ -166,7 +166,7 @@ Defined.
 (** Problem 28: Colimits in Set *)
 Lemma ColimsHSET_of_shape : ∏ (g : graph), Colims_of_shape g HSET.
 Proof.
-exact @UniMath.CategoryTheory.category_hset_structures.ColimsHSET_of_shape.
+exact @UniMath.CategoryTheory.categories.category_hset_structures.ColimsHSET_of_shape.
 Defined.
 
 (** Lemma 32: Left adjoints preserve colimits *)
@@ -270,7 +270,7 @@ Defined.
 
 (** Example 36: Exponentials in Set *)
 Definition has_exponentials_HSET : has_exponentials BinProductsHSET :=
-  @UniMath.CategoryTheory.category_hset_structures.has_exponentials_HSET.
+  @UniMath.CategoryTheory.categories.category_hset_structures.has_exponentials_HSET.
 
 (** Lemma 37: Left and right product functors preserves colimits *)
 Lemma is_cocont_constprod_functor1 :

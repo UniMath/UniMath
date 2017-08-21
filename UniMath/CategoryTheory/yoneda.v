@@ -29,7 +29,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 

@@ -34,15 +34,7 @@ This equality would not be needed if functional extensionality computed.
 
  *)
 
-
-
-
-
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -72,22 +64,6 @@ Proof.
   induction e'.
   apply idpath.
 Qed.
-
-
-(* stolen from TypeTheory/Display_Cats/Auxiliary.v *)
-(** Very handy for reasoning with “dependent paths” —
-
-Note: similar to [transportf_pathsinv0_var], [transportf_pathsinv0'],
-but not quite a special case of them, or (as far as I can find) any other
-library lemma.
-*)
-Lemma transportf_transpose {X : UU} {P : X → UU}
-  {x x' : X} (e : x = x') (y : P x) (y' : P x')
-: transportb P e y' = y -> y' = transportf P e y.
-Proof.
-  intro H; induction e; exact H.
-Defined.
-
 
 Lemma transportf2_comp  {X  : UU} (P : X -> X → UU) (x x'  : X)
       (ex : x = x')  (t:P x x) :
