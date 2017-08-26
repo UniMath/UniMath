@@ -370,9 +370,9 @@ End colim_def.
 
 Section Colims.
 
-Definition Colims (C : precategory) : UU := ∏ {g : graph} (d : diagram g C), ColimCocone d.
+Definition Colims (C : precategory) : UU := ∏ (g : graph) (d : diagram g C), ColimCocone d.
 Definition hasColims (C : precategory) : UU  :=
-  ∏ {g : graph} (d : diagram g C), ishinh (ColimCocone d).
+  ∏ (g : graph) (d : diagram g C), ishinh (ColimCocone d).
 
 (** Colimits of a specific shape *)
 Definition Colims_of_shape (g : graph) (C : precategory) : UU :=
