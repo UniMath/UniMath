@@ -274,10 +274,8 @@ Monomorphic Universe uu0.       (* lowest universe, larger than Set, from which 
 
 Definition hsubtype@{i j} (X : Type@{i}) : Type@{i}. (* h < i < j *)
 Proof.
-  Set Printing Universes.
   intros. simple refine (@ResizeType@{i j} (X -> hProp@{uu0 i}) (X -> hProp@{i j}) _).
   apply weqonsecfibers; intro x. apply change_universe_hProp.
-  Unset Printing Universes.
 Defined.
 
 Section A.
@@ -341,12 +339,10 @@ Proof. intros. apply (isinclpr1 A (fun x : _ => pr2 (A x))). Defined.
 
 Lemma isasethsubtype@{i j} (X : Type@{i}) : isaset@{i} (hsubtype@{i j} X).
 Proof.
-  Set Printing Universes.
   intro X.
   change (isofhlevel 2 (hsubtype X)).
   change (isofhlevel 2 (X -> hProp)).
   apply impred; intro x. exact isasethProp.
-  Unset Printing Universes.
 Defined.
 
 Definition totalsubtype (X : UU) : hsubtype X := fun x => htrue.
@@ -512,12 +508,10 @@ Defined.
 
 Definition hrel@{i j} (X : Type@{i}) : Type@{i}. (* i < j *)
 Proof.
-    Set Printing Universes.
     intros.
     simple refine (@ResizeType@{i j} (X -> X -> hProp@{uu0 i}) (X -> X -> hProp@{i j}) _).
     apply weqonsecfibers; intro x. apply weqonsecfibers; intro y.
     apply change_universe_hProp.
-    Unset Printing Universes.
 Defined.
 
 Definition hrel_to_function @{i j} (X : Type@{i}) : hrel@{i j} X -> X -> X -> Type@{i}.
@@ -1671,7 +1665,6 @@ Section B.
   Universe i j.
   Constraint Set < i.
   Constraint i < j.
-  (* this function should not be needed *)
   Definition lower_universe_paths@{} {X : Type@{i}} {x y : X} : paths@{j} x y -> paths@{i} x y.
   Proof.
     intros ? ? ? p. exact p.
@@ -1681,8 +1674,6 @@ End B.
 Lemma setquotl0@{i j} {X : Type@{i}} (R : eqrel@{i j} X) (c : setquot@{i j} R) (x : c) :
   setquotpr R (pr1 x) = c.
 Proof.
-  Set Printing Universes.
-  Unset Printing Notations.
   intros X R c x.
   apply (invmaponpathsincl _ (isinclpr1setquot R)).
   apply lower_universe_paths@{i j}.
@@ -1690,8 +1681,6 @@ Proof.
   apply hPropUnivalence; intro r.
   - exact (eqax1 (pr2 c) (pr1 x) x0 r (pr2 x)).
   - exact (eqax2 (pr2 c) (pr1 x) x0 (pr2 x) r).
-  Unset Printing Universes.
-  Set Printing Notations.
 Defined.
 
 Theorem issurjsetquotpr {X : UU} (R : eqrel X) : issurjective (setquotpr R).
@@ -1709,8 +1698,6 @@ Defined.
 Lemma iscompsetquotpr {X : UU} (R : eqrel X) (x x' : X) (a : R x x') :
   setquotpr R x = setquotpr R x'.
 Proof.
-  Set Printing Universes.
-  Unset Printing Notations.
   intros. apply (invmaponpathsincl _ (isinclpr1setquot R)).
   simpl.
   apply lower_universe_paths.
@@ -1718,8 +1705,6 @@ Proof.
   intro x0. apply hPropUnivalence.
   intro r0. apply (eqreltrans R _ _ _ (eqrelsymm R _ _ a) r0).
   intro x0'. apply (eqreltrans R _ _ _ a x0').
-  Set Printing Notations.
-  Unset Printing Universes.
 Defined.
 
 (** *** Universal property of [seqtquot R] for functions to sets satisfying compatibility condition [iscomprelfun] *)

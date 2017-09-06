@@ -23,7 +23,6 @@ Notation UU  := Type.
 Global Set Universe Polymorphism.
 Global Set Polymorphic Inductive Cumulativity.
 Global Unset Universe Minimization ToSet.
-Global Set Printing Universes.  (* debugging *)
 
 (** Empty type.  The empty type is introduced in Coq.Init.Datatypes by the line:
 
