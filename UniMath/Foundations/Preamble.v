@@ -24,14 +24,7 @@ Global Set Universe Polymorphism.
 Global Set Polymorphic Inductive Cumulativity.
 Global Unset Universe Minimization ToSet.
 
-(** Empty type.  The empty type is introduced in Coq.Init.Datatypes by the line:
-
-[ Inductive Empty_set : Set := . ]
-
-*)
-
-
-Inductive empty : UU :=.  (* make it polymorphic; needed due to Coq bug? *)
+Inductive empty : UU := .
 
 Notation "∅" := empty.
 
@@ -120,43 +113,31 @@ One can not use a new record each time one needs it because the general theorems
 construction would not apply to new instances of "Record" due to the "generativity" of inductive
 definitions in Coq.
 
-We use "Inductive" instead of "Record" here.
+We use "Record", which is equivalent to "Structure", instead of "Inductive" here, so we can take
+advantage of the "primitive projections" feature of Coq, which introduces η-reduction for pairs, by
+adding the option "Set Primitive Projections".  It also speeds up compilation by 56 percent.
 
-Using "Record" which is equivalent to "Structure" would allow us later to use the mechanism of
-canonical structures with total2.
-By using "Structure", we could also get eta for dependent pairs, by adding the option
-"Set Primitive Projections.".
+The terms produced by the "induction" tactic, when we define "total2" as a record, contain the
+"match" construction instead appealing to the eliminator.  However, assuming the eliminator will be
+justified mathematically, the way to justify the the "match" construction is to point out that it
+can be regarded as an abbreviation for the eliminator that omits explicit mention of the first two
+parameters (X:Type) and (Y:X->Type).
 
-However, the use of "Inductive" allows us to obtain proof terms that are expressed in terms of
-the eliminator total2_rect that, unlike the "match" construct that would appear in the proof terms
-if we used "Record", has a known interpretation in the framework of the univalent model.
+I.e., whenever you see
+
+       [match w as t0 return TYPE with | tpair _ _ x y => BODY end]
+
+in a proof term, just mentally replace it by
+
+       [@total2_rect _ _ (λ t0, TYPE) (λ x y, BODY) w]
 
 *)
 
-(* two alternatives: *)
-(* total2 as a record with primitive projections: *)
+Set Primitive Projections.
 
-    (* Set Primitive Projections. *)
+Set Nonrecursive Elimination Schemes.
 
-    (* Set Nonrecursive Elimination Schemes. *)
-
-    (* Record total2@{i} { T: Type@{i} } ( P: T -> Type@{i} ) := tpair { pr1 : T; pr2 : P pr1 }. *)
-
-(* or total2 as an inductive type:  *)
-
-    Inductive total2@{i} { T: Type@{i} } ( P: T -> Type@{i} ) : Type@{i} := tpair : ∏ (__t__:T) (__p__:P __t__), total2 P.
-
-    (* Do not use "induction" without specifying names; seeing __t__ or __p__ will indicate that you *)
-    (*    did that.  This will prepare for the use of primitive projections, when the names will be pr1 *)
-    (*    and pr2. *)
-
-    Definition pr1@{i} { T : Type@{i} } { P : T -> Type@{i} } ( t : total2@{i} P ) : T .
-    Proof . intros .  induction t as [ t p ] . exact t . Defined.
-
-    Definition pr2@{i} { T : Type@{i} } { P : T -> Type@{i} } ( t : total2@{i} P ) : P ( pr1 t ) .
-    Proof . intros .  induction t as [ t p ] . exact p . Defined.
-
-(* end of two alternatives *)
+Record total2@{i} { T: Type@{i} } ( P: T -> Type@{i} ) := tpair { pr1 : T; pr2 : P pr1 }.
 
 Arguments tpair {_} _ _ _.
 Arguments pr1 {_ _} _.

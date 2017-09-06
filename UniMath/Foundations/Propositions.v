@@ -168,13 +168,9 @@ Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
 
 Section A.
 
-  Axiom unsafe@{i} : ∏ X : Type@{i}, X.
-
   Universes i j l.
   Constraint i < j.
   Constraint j < l.
-
-  Set Printing Universes.
 
   Definition raise_universe_hProp : hProp@{i j} -> hProp@{j l}.
   (* adding @{} evokes a Coq bug about an unbound universe, should isolate it *)
@@ -193,11 +189,9 @@ Section A.
     simple refine (weqpair@{l} _ (gradth@{l l} _ _ _ _)).
     - exact raise_universe_hProp.
     - exact lower_universe_hProp.
-    - intros P. apply unsafe@{l}.
-    - intros P. apply unsafe@{l}.
+    - reflexivity.
+    - reflexivity.
   Defined.
-
-  Unset Printing Universes.
 
 End A.
 
