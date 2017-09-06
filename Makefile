@@ -27,19 +27,20 @@ BUILD_COQ ?= yes
 BUILD_COQIDE ?= no
 COQBIN ?=
 ############################################
-.PHONY: all everything install lc lcp wc describe clean distclean build-coq doc build-coqide
+.PHONY: our-all all everything install lc lcp wc describe clean distclean build-coq doc build-coqide
 COQIDE_OPTION ?= no
 ifeq "$(BUILD_COQ)" "yes"
 COQBIN=sub/coq/bin/
-all: check-first
-all: build-coq
+our-all: check-first
+our-all: build-coq
 build-coq: sub/coq/bin/coqc
 ifeq "$(BUILD_COQIDE)" "yes"
-all: build-coqide
+our-all: build-coqide
 build-coqide: sub/coq/bin/coqide
 COQIDE_OPTION := opt
 endif
 endif
+our-all: real-all
 
 # override the definition in build/CoqMakefile.make, to eliminate the -utf8 option
 COQDOC := coqdoc
@@ -51,7 +52,8 @@ PACKAGE_FILES := $(patsubst %, UniMath/%/.package/files, $(PACKAGES))
 ifneq "$(INCLUDE)" "no"
 include build/CoqMakefile.make
 endif
-everything: TAGS all html install
+.DEFAULT_GOAL := our-all
+everything: TAGS our-all html install
 check-first: enforce-prescribed-ordering check-travis
 OTHERFLAGS += $(MOREFLAGS)
 OTHERFLAGS += -indices-matter -w none
@@ -116,7 +118,7 @@ $(VFILES:.v=.vo) : $(COQBIN)coqc
 TAGS : Makefile $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
 $(foreach P,$(PACKAGES),$(eval $P: check-first $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\)=UniMath/$P/\1o=" )))
-install:all
+install:our-all
 coqwc:; coqwc $(VFILES)
 lc:; wc -l $(VFILES)
 lcp:; for i in $(PACKAGES) ; do echo ; echo ==== $$i ==== ; for f in $(VFILES) ; do echo "$$f" ; done | grep "UniMath/$$i" | xargs wc -l ; done
@@ -205,7 +207,7 @@ isolate-bug: sub/coq-tools/find-bug.py
 	@ echo "=== the isolated bug has been deposited in the file UniMath/$(ISOLATED_BUG_FILE)"
 	@ echo "==="
 
-world: all html doc latex-doc
+world: our-all html doc latex-doc
 
 latex-doc: $(LATEXDIR)/doc.pdf
 

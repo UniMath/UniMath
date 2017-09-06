@@ -21,8 +21,9 @@ Notation UUU := Set .
 Notation UU  := Type.
 
 Global Set Universe Polymorphism.
-
+Global Set Polymorphic Inductive Cumulativity.
 Global Unset Universe Minimization ToSet.
+Global Set Printing Universes.  (* debugging *)
 
 (** Empty type.  The empty type is introduced in Coq.Init.Datatypes by the line:
 
@@ -43,7 +44,7 @@ Hint Resolve identity_refl : core . ]
 
 *)
 
-Inductive paths@{i} {A:Type@{i}} (a:A) : A -> Type@{i} := paths_refl : paths a a.
+Inductive paths {A:Type} (a:A) : A -> Type := paths_refl : paths a a.
 Hint Resolve paths_refl : core .
 Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 Notation idpath := paths_refl .
@@ -157,8 +158,6 @@ if we used "Record", has a known interpretation in the framework of the univalen
     Proof . intros .  induction t as [ t p ] . exact p . Defined.
 
 (* end of two alternatives *)
-
-    Print total2.               (* log which definition of total2 is currently in use *)
 
 Arguments tpair {_} _ _ _.
 Arguments pr1 {_ _} _.

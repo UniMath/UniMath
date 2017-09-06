@@ -637,6 +637,7 @@ Definition weqfunfromdirprod (X X' Y : UU) :
 
 (** *** General case *)
 
+(* we should be able to make do with one universe parameter here *)
 Theorem impred@{j k} (n : nat) {T : Type@{k}} (P : T -> Type@{j}) : (* j ≤ k *)
   (∏ t : T, isofhlevel@{j} n (P t)) -> (isofhlevel@{k} n (∏ t : T, P t)).
 Proof.

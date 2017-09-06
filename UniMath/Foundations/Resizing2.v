@@ -20,15 +20,5 @@ Section A.
     exact T.
   Defined.
 
-  (*
-
-  Definition ResizeUnsafe {S : Type@{i}} (T : Type@{j}) : Type@{i}.
-  (* this one is not valid *)
-  Proof.
-    exact T.
-  Defined.
-
-   *)
-
 End A.
 

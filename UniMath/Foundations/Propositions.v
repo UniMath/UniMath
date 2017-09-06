@@ -68,6 +68,7 @@ Unset Automatic Introduction.
 (** Imports *)
 
 Require Export UniMath.Foundations.PartD.
+Require Export UniMath.Foundations.Resizing2.
 
 (** Universe structure *)
 
@@ -178,13 +179,13 @@ Section A.
   Definition raise_universe_hProp : hProp@{i j} -> hProp@{j l}.
   (* adding @{} evokes a Coq bug about an unbound universe, should isolate it *)
   Proof.
-    intro P. exists (pr1 P). apply raise_universe_isofhlevel. exact (pr2 P).
+    intro P. exists (pr1 P). exact (pr2 P).
   Defined.
 
   Definition lower_universe_hProp : hProp@{i j} <- hProp@{j l}.
   Proof.
     intro P. exists (ResizeProp@{i j} (pr1 P) (pr2 P)).
-    apply lower_universe_isofhlevel. exact (pr2 P).
+    exact (pr2 P).
   Defined.
 
   Definition change_universe_hProp@{} : weq@{l} hProp@{i j} hProp@{j l}.
@@ -205,8 +206,6 @@ End A.
 
 (** *** The [hProp] version of the "inhabited" construction. *)
 
-Require Import UniMath.Foundations.Resizing3.
-
 Definition ishinh_UU@{i j} (X : Type@{i}) : Type@{j}           (* i < j *)
   := ∏ P : hProp@{i j}, ((X -> P) -> P).
 
@@ -220,7 +219,7 @@ Definition ishinh_resized@{i j} (X : Type@{i}) : Type@{i}           (* i < j *)
 
 Lemma isapropishinh (X : Type) : isaprop (ishinh_resized X).
 Proof.
-  intro. unfold ishinh_resized. apply lower_universe_isofhlevel. apply isapropishinh_UU.
+  intro. unfold ishinh_resized. apply isapropishinh_UU.
 Defined.
 
 Definition ishinh@{i j} (X : Type@{i}) : hProp@{i j} := hProppair (ishinh_resized@{i j} X) (isapropishinh@{i j} X).
@@ -1019,7 +1018,7 @@ Proof.
   intros ? ? f g.
   apply subtypeEquality.
   - intro X. change (isofhlevel@{j} 1 (isofhlevel@{i} 1 X)).
-    apply raise_universe_isofhlevel@{i j}. apply isapropisofhlevel@{i}.
+    apply isapropisofhlevel@{i}.
   - apply propositionalUnivalenceAxiom.
     + apply propproperty.
     + apply propproperty.
@@ -1098,7 +1097,7 @@ Proof.
   split with (tpair _ htrue tt). intro tP. destruct tP as [ P p ].
   apply subtypeEquality.
   - intros Q. induction Q as [Q ipQ]. change (isaprop@{j} Q).
-    apply raise_universe_isofhlevel@{i j}. exact ipQ.
+    exact ipQ.
   - change (P = htrue@{i j}). apply hPropUnivalence.
     + intros _. exact tt.
     + intros _. exact p.

@@ -268,10 +268,9 @@ Defined.
 
 (** ** The type of monic subtypes of a type (subsets of the set of connected components) *)
 
+Monomorphic Universe uu0.       (* lowest universe, larger than Set, from which all the propositions come *)
 
 (** *** General definitions *)
-
-Require Export UniMath.Foundations.Resizing3.
 
 Definition hsubtype@{i j} (X : Type@{i}) : Type@{i}. (* h < i < j *)
 Proof.
@@ -345,7 +344,6 @@ Proof.
   Set Printing Universes.
   intro X.
   change (isofhlevel 2 (hsubtype X)).
-  apply lower_universe_isofhlevel@{i j}.
   change (isofhlevel 2 (X -> hProp)).
   apply impred; intro x. exact isasethProp.
   Unset Printing Universes.
@@ -657,15 +655,12 @@ Defined.
 (** the relations on a set form a set *)
 
 Definition isaset_hrel@{h i j k} (X : hSet@{i j}) : isaset@{i} (hrel@{i j} X).
-  Set Printing Universes.
   intros.
   change (isofhlevel 2 (hrel X)).
-  apply lower_universe_isofhlevel@{i j}.
   change (isofhlevel 2 (X -> X -> hProp)).
   apply impred_isaset; intro x.
   apply impred_isaset; intro y.
   exact isasethProp.
-  Unset Printing Universes.
 Defined.
 
 (** *** Elementary implications between properties of relations *)
@@ -1671,6 +1666,17 @@ Proof.
       * exact (tax X0 x1 x2 X2 X1).
       * exact (tax x1 X0 x2 (sax X0 x1 X1) X2).
 Defined.
+
+Section B.
+  Universe i j.
+  Constraint Set < i.
+  Constraint i < j.
+  (* this function should not be needed *)
+  Definition lower_universe_paths@{} {X : Type@{i}} {x y : X} : paths@{j} x y -> paths@{i} x y.
+  Proof.
+    intros ? ? ? p. exact p.
+  Defined.
+End B.
 
 Lemma setquotl0@{i j} {X : Type@{i}} (R : eqrel@{i j} X) (c : setquot@{i j} R) (x : c) :
   setquotpr R (pr1 x) = c.
