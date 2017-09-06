@@ -272,7 +272,7 @@ Monomorphic Universe uu0.       (* lowest universe, larger than Set, from which 
 
 (** *** General definitions *)
 
-Definition hsubtype@{i j} (X : Type@{i}) : Type@{i}. (* h < i < j *)
+Definition hsubtype@{i j} (X : Type@{i}) : Type@{i}. (* i < j *)
 Proof.
   intros. simple refine (@ResizeType@{i j} (X -> hProp@{uu0 i}) (X -> hProp@{i j}) _).
   apply weqonsecfibers; intro x. apply change_universe_hProp.
