@@ -15,12 +15,15 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.Adjunctions.
+
+Local Open Scope cat.
 
 (** * Definition of limits *)
 Section lim_def.
@@ -324,9 +327,9 @@ End lim_def.
 
 Section Lims.
 
-Definition Lims (C : precategory) : UU := ∏ {g : graph} (d : diagram g C), LimCone d.
+Definition Lims (C : precategory) : UU := ∏ (g : graph) (d : diagram g C), LimCone d.
 Definition hasLims (C : precategory) : UU  :=
-  ∏ {g : graph} (d : diagram g C), ishinh (LimCone d).
+  ∏ (g : graph) (d : diagram g C), ishinh (LimCone d).
 
 (** Limits of a specific shape *)
 Definition Lims_of_shape (g : graph) (C : precategory) : UU :=
@@ -334,9 +337,9 @@ Definition Lims_of_shape (g : graph) (C : precategory) : UU :=
 
 Section Universal_Unique.
 
-Variable (C : category).
+Variable (C : univalent_category).
 
-Let H : is_category C := pr2 C.
+Let H : is_univalent C := pr2 C.
 
 Lemma isaprop_Lims : isaprop (Lims C).
 Proof.
@@ -349,7 +352,7 @@ apply subtypeEquality.
   set (C' (c : C) f := ∏ u v (e : edge u v), @compose _ c _ _ (f u) (dmor cc e) = f v).
   rewrite (@transportf_total2 _ B C').
   apply subtypeEquality.
-  + intro; repeat (apply impred; intro); apply category_has_homsets.
+  + intro; repeat (apply impred; intro); apply univalent_category_has_homsets.
   + abstract (now simpl; eapply pathscomp0; [apply transportf_isotoid_dep'|];
               apply funextsec; intro v; rewrite inv_isotoid, idtoiso_isotoid;
               cbn; unfold precomp_with; rewrite id_right; apply limArrowCommutes).
@@ -531,10 +534,11 @@ End map.
 
 (** Put in a module for namespace reasons *)
 
+Require UniMath.CategoryTheory.opp_precat.
 
 Module co.
 
-Require Import UniMath.CategoryTheory.opp_precat.
+Import UniMath.CategoryTheory.opp_precat.
 
 Section lim_def.
 
@@ -597,9 +601,9 @@ simple refine (mk_ColimCocone _ _ _ _  ).
 - apply isCC.
 Defined.
 
-Definition Lims : UU := ∏ {g : graph} (d : diagram g C^op), LimCone d.
+Definition Lims : UU := ∏ (g : graph) (d : diagram g C^op), LimCone d.
 Definition hasLims : UU  :=
-  ∏ {g : graph} (d : diagram g C^op), ishinh (LimCone d).
+  ∏ (g : graph) (d : diagram g C^op), ishinh (LimCone d).
 
 (* lim is the tip of the lim cone *)
 Definition lim {g : graph} {d : diagram g C^op} (CC : LimCone d) : C

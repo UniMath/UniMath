@@ -17,11 +17,14 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Adjunctions.
+
+Local Open Scope cat.
 
 Section move_upstream.
 
@@ -367,20 +370,20 @@ End colim_def.
 
 Section Colims.
 
-Definition Colims (C : precategory) : UU := ∏ {g : graph} (d : diagram g C), ColimCocone d.
+Definition Colims (C : precategory) : UU := ∏ (g : graph) (d : diagram g C), ColimCocone d.
 Definition hasColims (C : precategory) : UU  :=
-  ∏ {g : graph} (d : diagram g C), ishinh (ColimCocone d).
+  ∏ (g : graph) (d : diagram g C), ishinh (ColimCocone d).
 
 (** Colimits of a specific shape *)
 Definition Colims_of_shape (g : graph) (C : precategory) : UU :=
   ∏ (d : diagram g C), ColimCocone d.
 
-(** If C is a category then Colims is a prop *)
+(** If C is a univalent_category then Colims is a prop *)
 Section Universal_Unique.
 
-Variables (C : category).
+Variables (C : univalent_category).
 
-Let H : is_category C := pr2 C.
+Let H : is_univalent C := pr2 C.
 
 Lemma isaprop_Colims: isaprop (Colims C).
 Proof.
@@ -393,7 +396,7 @@ apply subtypeEquality.
   set (C' (c : C) f := ∏ u v (e : edge u v), @compose _ _ _ c (dmor cc e) (f v) = f u).
   rewrite (@transportf_total2 _ B C').
   apply subtypeEquality.
-  + intro; repeat (apply impred; intro); apply category_has_homsets.
+  + intro; repeat (apply impred; intro); apply univalent_category_has_homsets.
   + simpl; eapply pathscomp0; [apply transportf_isotoid_dep''|].
     apply funextsec; intro v.
     now rewrite idtoiso_isotoid; apply colimArrowCommutes.
@@ -619,3 +622,18 @@ apply (@iscontrweqb _ (∑ y : C ⟦ L, G M ⟧,
 Defined.
 
 End map.
+
+Section mapcocone_functor_composite.
+
+Context {A B C : precategory} (hsC : has_homsets C)
+        (F : functor A B) (G : functor B C).
+
+Lemma mapcocone_functor_composite {g : graph} {D : diagram g A} {a : A} (cc : cocone D a) :
+  mapcocone (functor_composite F G) _ cc = mapcocone G _ (mapcocone F _ cc).
+Proof.
+  apply subtypeEquality.
+  - intros x. repeat (apply impred_isaprop; intro). apply hsC.
+  - reflexivity.
+Qed.
+
+End mapcocone_functor_composite.

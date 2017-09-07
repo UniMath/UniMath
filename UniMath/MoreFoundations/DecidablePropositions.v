@@ -1,4 +1,5 @@
 Require Export UniMath.MoreFoundations.Notations.
+Require Import UniMath.MoreFoundations.Tactics.
 
 Lemma retract_dec {X Y} (f : X -> Y) (g : Y -> X) (h : f ∘ g ~ idfun Y) : isdeceq X -> isdeceq Y.
 Proof.

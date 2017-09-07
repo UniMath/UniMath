@@ -10,10 +10,13 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
-Local Open Scope cat.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+
+Local Open Scope cat.
 
 (** * Definition of binary coproduct of objects in a precategory *)
 
@@ -193,11 +196,11 @@ Proof.
 Qed.
 
 
-(** * Proof that coproducts are unique when the precategory [C] is a category *)
+(** * Proof that coproducts are unique when the precategory [C] is a univalent_category *)
 
 Section coproduct_unique.
 
-Hypothesis H : is_category C.
+Hypothesis H : is_univalent C.
 
 Variables a b : C.
 

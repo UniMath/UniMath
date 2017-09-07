@@ -17,13 +17,13 @@ Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.Opp.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.opp_precat.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.Morphisms.
-Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
@@ -99,10 +99,10 @@ Section pushout_monic_pullback_epi.
     use (@to_isMonic (AbelianToAdditive A hs)).
     intros z0 g0 H. cbn in H. rewrite assoc in H.
     set (φ := KernelIn _ K z0 (g0 · to_In2 (AbelianToPreAdditive A hs) DS) H).
-    set (KComm := KernelCommutes to_Zero K z0 (g0 · to_In2 (AbelianToPreAdditive A hs) DS) H).
+    set (KComm := KernelCommutes (to_Zero A) K z0 (g0 · to_In2 (AbelianToPreAdditive A hs) DS) H).
     fold φ in KComm.
     (* The result follows from KComm and the fact that φ = ZeroArrow *)
-    assert (e1 : φ = ZeroArrow to_Zero _ _).
+    assert (e1 : φ = ZeroArrow (to_Zero A) _ _).
     {
       use (MonicisMonic _ f).
       rewrite ZeroArrow_comp_left. cbn in KComm.
@@ -118,7 +118,7 @@ Section pushout_monic_pullback_epi.
         set (tmp := to_IdIn1 _ DS). cbn in tmp. cbn. rewrite tmp. clear tmp.
         set (tmp := to_Unel2' DS). cbn in tmp. rewrite tmp. clear tmp.
         rewrite ZeroArrow_comp_right. rewrite id_right. apply pathsinv0.
-        set (tmp := @to_runax'' (AbelianToAdditive A hs) to_Zero _ _ f). exact tmp.
+        set (tmp := @to_runax'' (AbelianToAdditive A hs) (to_Zero A) _ _ f). exact tmp.
       }
       rewrite e2. clear e2. rewrite assoc. cbn in KComm. cbn. rewrite KComm.
       rewrite <- assoc. set (tmp := to_Unel2' DS). cbn in tmp. rewrite tmp. clear tmp.
@@ -148,17 +148,17 @@ Section pushout_monic_pullback_epi.
     let Po' := Pushout_from_Coequalizer_BinCoproduct
                  A hs _ _ _ f g (BinDirectSum_BinCoproduct _ DS)
                  (Abelian.Coequalizer A hs (f · (to_In1 _ DS)) (g · (to_In2 _ DS))) in
-    h · CokernelArrow (Abelian.Cokernel f) = ZeroArrow to_Zero e (Abelian.Cokernel f).
+    h · CokernelArrow (Abelian.Cokernel f) = ZeroArrow (to_Zero A) e (Abelian.Cokernel f).
   Proof.
     intros DS Po'. cbn zeta in Hk. fold DS in Hk. fold Po' in Hk.
     set (CK := Abelian.Cokernel f).
-    assert (e1 : f · CokernelArrow CK = g · ZeroArrow to_Zero z CK).
+    assert (e1 : f · CokernelArrow CK = g · ZeroArrow (to_Zero A) z CK).
     {
       rewrite CokernelCompZero. rewrite ZeroArrow_comp_right. apply idpath.
     }
-    rewrite <- (PushoutArrow_PushoutIn1 Po' CK (CokernelArrow CK) (ZeroArrow to_Zero _ _) e1).
+    rewrite <- (PushoutArrow_PushoutIn1 Po' CK (CokernelArrow CK) (ZeroArrow (to_Zero A) _ _) e1).
     rewrite assoc. rewrite Hk. clear Hk. rewrite <- assoc.
-    rewrite (PushoutArrow_PushoutIn2 Po' CK (CokernelArrow CK) (ZeroArrow to_Zero _ _) e1).
+    rewrite (PushoutArrow_PushoutIn2 Po' CK (CokernelArrow CK) (ZeroArrow (to_Zero A) _ _) e1).
     apply ZeroArrow_comp_right.
   Qed.
 
@@ -192,18 +192,19 @@ Section pushout_monic_pullback_epi.
       + apply idpath.
       + apply idpath.
       + exact (PushoutSqrCommutes _ ).
-      + set (K := MonicToKernel A hs f).
+      + set (K := MonicToKernel f).
         set (CK := Abelian.Cokernel f). fold CK in K.
         use mk_isPullback.
         intros e h k Hk.
         use unique_exists.
-        * use (KernelIn to_Zero K).
+        * use (KernelIn (to_Zero A) K).
           -- exact h.
           -- exact (AbelianPushoutMonicisPullback_eq f g Hk).
         * cbn. split.
-          -- use (KernelCommutes to_Zero K).
+          -- use (KernelCommutes (to_Zero A) K).
           -- assert (Hk' : h · PushoutIn1 Po' = k · PushoutIn2 Po') by apply Hk.
-             set (comm := KernelCommutes to_Zero K _ h (AbelianPushoutMonicisPullback_eq f g Hk)).
+             set (comm := KernelCommutes
+                            (to_Zero A) K _ h (AbelianPushoutMonicisPullback_eq f g Hk)).
              cbn in comm. rewrite <- comm in Hk'. clear comm.
              apply (AbelianPushoutMonic2 f g Po'). rewrite <- Hk'.
              cbn. rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
@@ -213,7 +214,7 @@ Section pushout_monic_pullback_epi.
           -- apply hs.
           -- apply hs.
         * intros y0 X. cbn in X.
-          use (KernelArrowisMonic to_Zero K). rewrite KernelCommutes. exact (dirprod_pr1 X).
+          use (KernelArrowisMonic (to_Zero A) K). rewrite KernelCommutes. exact (dirprod_pr1 X).
   Qed.
 
   Lemma AbelianPushoutMonicisPullback2 {x y z : A} (f : x --> y) (g : Monic A x z)
@@ -254,10 +255,10 @@ Section pushout_monic_pullback_epi.
     use (@to_isEpi (AbelianToAdditive A hs)).
     intros z0 g0 H. cbn in H. cbn. rewrite <- assoc in H.
     set (φ := CokernelOut _ CK z0 (to_Pr2 _ DS · g0) H).
-    set (CKComm := CokernelCommutes to_Zero CK z0 (to_Pr2 _ DS · g0) H).
+    set (CKComm := CokernelCommutes (to_Zero A) CK z0 (to_Pr2 _ DS · g0) H).
     fold φ in CKComm.
     (* The result follows from CKComm and the fact that φ = ZeroArrow *)
-    assert (e1 : φ = ZeroArrow to_Zero _ _).
+    assert (e1 : φ = ZeroArrow (to_Zero A) _ _).
     {
       use (EpiisEpi _ f).
       rewrite ZeroArrow_comp_right. cbn in CKComm.
@@ -272,7 +273,7 @@ Section pushout_monic_pullback_epi.
         set (tmp := to_IdIn1 _ DS). cbn in tmp. cbn. rewrite tmp. clear tmp.
         set (tmp := to_Unel1' DS). cbn in tmp. rewrite tmp. clear tmp.
         rewrite ZeroArrow_comp_left. rewrite id_left. apply pathsinv0.
-        set (tmp := @to_runax'' (AbelianToAdditive A hs) to_Zero _ _ f). exact tmp.
+        set (tmp := @to_runax'' (AbelianToAdditive A hs) (to_Zero A) _ _ f). exact tmp.
       }
       rewrite e2. clear e2. rewrite <- assoc. cbn in CKComm. cbn. rewrite CKComm.
       rewrite assoc. set (tmp := to_Unel1' DS). cbn in tmp. rewrite tmp. clear tmp.
@@ -304,16 +305,16 @@ Section pushout_monic_pullback_epi.
                            A hs _ _ _ f g (BinDirectSum_BinProduct _ DS)
                            (Abelian.Equalizer A hs ((to_Pr1 _ DS) · f) ((to_Pr2 _ DS) · g)) in
     let K := Abelian.Kernel f in
-    KernelArrow K · h = ZeroArrow to_Zero K e.
+    KernelArrow K · h = ZeroArrow (to_Zero A) K e.
   Proof.
     intros DS Pb' K. cbn zeta in Hk. fold DS in Hk. fold Pb' in Hk.
-    assert (e1 : KernelArrow K · f = ZeroArrow to_Zero _ _ · g).
+    assert (e1 : KernelArrow K · f = ZeroArrow (to_Zero A) _ _ · g).
     {
       rewrite KernelCompZero. rewrite ZeroArrow_comp_left. apply idpath.
     }
-    rewrite <- (PullbackArrow_PullbackPr1 Pb' K (KernelArrow K) (ZeroArrow to_Zero _ _) e1).
+    rewrite <- (PullbackArrow_PullbackPr1 Pb' K (KernelArrow K) (ZeroArrow (to_Zero A) _ _) e1).
     rewrite <- assoc. rewrite Hk. clear Hk. rewrite assoc.
-    rewrite (PullbackArrow_PullbackPr2 Pb' K (KernelArrow K) (ZeroArrow to_Zero _ _) e1).
+    rewrite (PullbackArrow_PullbackPr2 Pb' K (KernelArrow K) (ZeroArrow (to_Zero A) _ _) e1).
     apply ZeroArrow_comp_left.
   Qed.
 
@@ -344,18 +345,19 @@ Section pushout_monic_pullback_epi.
       + apply idpath.
       + apply idpath.
       + exact (PullbackSqrCommutes _ ).
-      + set (CK := EpiToCokernel A hs f).
+      + set (CK := EpiToCokernel f).
         set (K := Abelian.Kernel f). fold K in CK.
         use mk_isPushout.
         intros e h k Hk.
         use unique_exists.
-        * use (CokernelOut to_Zero CK).
+        * use (CokernelOut (to_Zero A) CK).
           -- exact h.
           -- exact (AbelianPullbackEpiisPushout1_eq f g Hk).
         * cbn. split.
-          -- use (CokernelCommutes to_Zero CK).
+          -- use (CokernelCommutes (to_Zero A) CK).
           -- assert (Hk' : PullbackPr1 Pb' · h = PullbackPr2 Pb' · k) by apply Hk.
-             set (comm := CokernelCommutes to_Zero CK _ h (AbelianPullbackEpiisPushout1_eq f g Hk)).
+             set (comm := CokernelCommutes
+                            (to_Zero A) CK _ h (AbelianPullbackEpiisPushout1_eq f g Hk)).
              cbn in comm. rewrite <- comm in Hk'. clear comm.
              apply (AbelianPullbackEpi2 f g Pb'). rewrite <- Hk'.
              cbn. rewrite assoc. rewrite assoc. apply cancel_postcomposition.
@@ -365,7 +367,7 @@ Section pushout_monic_pullback_epi.
           -- apply hs.
           -- apply hs.
         * intros y0 X. cbn in X.
-          use (CokernelArrowisEpi to_Zero CK). rewrite CokernelCommutes. exact (dirprod_pr1 X).
+          use (CokernelArrowisEpi (to_Zero A) CK). rewrite CokernelCommutes. exact (dirprod_pr1 X).
   Qed.
 
   Lemma AbelianPullbackEpiisPushout2 {x y z : A} (f : x --> z) (g : Epi A y z) (Pb : Pullback f g) :

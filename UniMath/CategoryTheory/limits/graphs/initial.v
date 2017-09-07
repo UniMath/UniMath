@@ -1,13 +1,17 @@
 (** Definition of initial object as a colimit *)
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.initial.
+
+Local Open Scope cat.
 
 Section def_initial.
 
@@ -100,7 +104,7 @@ Definition hasInitial := ishinh Initial.
 (* TODO: This should be an instance of a general result for colimits *)
 (* Section Initial_Unique. *)
 
-(* Hypothesis H : is_category C. *)
+(* Hypothesis H : is_univalent C. *)
 
 (* Lemma isaprop_Initial : isaprop Initial. *)
 (* Proof. *)

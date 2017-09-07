@@ -2,7 +2,7 @@
 
 Require Import UniMath.Foundations.UnivalenceAxiom
                UniMath.Ktheory.Utilities.
-Require UniMath.CategoryTheory.precategories.
+Require UniMath.CategoryTheory.Categories.
 Require UniMath.Ktheory.Nat.
 Notation ℕ := nat.
 

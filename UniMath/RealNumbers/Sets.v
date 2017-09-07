@@ -2,6 +2,8 @@
 
 (** Previous theorems about hSet and order *)
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Export UniMath.Foundations.Sets
                UniMath.Ktheory.QuotientSet.
 Require Import UniMath.Algebra.BinaryOperations

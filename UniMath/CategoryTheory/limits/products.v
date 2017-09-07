@@ -11,17 +11,21 @@ Written by: Anders Mörtberg 2016
 
 
 *)
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories
-               UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
+
+Local Open Scope cat.
 
 (** * Definition of indexed products of objects in a precategory *)
 Section product_def.

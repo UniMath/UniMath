@@ -3,12 +3,13 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Local Open Scope cat.
 Require        UniMath.CategoryTheory.limits.pullbacks.
+
+Local Open Scope cat.
 
 Section def_pb.
 
@@ -20,15 +21,15 @@ Definition One : three := ● 0.
 Definition Two : three := ● 1.
 Definition Three : three := ● 2.
 
-Definition pushout_graph : graph.
+Definition pullback_graph : graph.
 Proof.
   exists three.
-  apply (@three_rec (three -> UU)).
+  use three_rec.
   - apply three_rec.
     + apply empty.
     + apply unit.
     + apply empty.
-  - apply (fun _ => empty).
+  - apply (λ _, empty).
   - apply three_rec.
     + apply empty.
     + apply unit.
@@ -36,18 +37,18 @@ Proof.
 Defined.
 
 Definition pullback_diagram {a b c : C} (f : C ⟦b,a⟧) (g : C⟦c,a⟧) :
-  diagram pushout_graph C.
+  diagram pullback_graph C.
 Proof.
   exists (three_rec b a c).
-  use (three_rec_dep); cbn.
-  - use three_rec_dep; cbn.
+  use three_rec_dep.
+  - use three_rec_dep; simpl.
     + apply fromempty.
-    + intro; assumption.
+    + intro x; assumption.
     + apply fromempty.
-  - intro; apply fromempty.
-  - use three_rec_dep; cbn.
+  - intro x; apply fromempty.
+  - use three_rec_dep; simpl.
     + apply fromempty.
-    + intro; assumption.
+    + intro x; assumption.
     + apply fromempty.
 Defined.
 
@@ -56,18 +57,18 @@ Definition PullbCone {a b c : C} (f : C ⟦b,a⟧) (g : C⟦c,a⟧)
            (H : f' · f = g'· g)
   : cone (pullback_diagram f g) d.
 Proof.
-  simple refine (mk_cone _ _  ).
-  - use three_rec_dep; cbn; try assumption.
+  use mk_cone.
+  - use three_rec_dep; try assumption.
     apply (f' · f).
-  - use three_rec_dep; cbn; use three_rec_dep; cbn.
+  - use three_rec_dep; use three_rec_dep.
     + exact (Empty_set_rect _ ).
-    + intro. apply idpath.
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
+    + intro x; apply idpath.
     + exact (Empty_set_rect _ ).
     + exact (Empty_set_rect _ ).
     + exact (Empty_set_rect _ ).
-    + intro; apply (!H).
+    + exact (Empty_set_rect _ ).
+    + exact (Empty_set_rect _ ).
+    + intro x; apply (!H).
     + exact (Empty_set_rect _ ).
 Defined.
 
@@ -89,35 +90,24 @@ Proof.
   intros H' x cx; simpl in *.
   set (H1 := H' x (coneOut cx One) (coneOut cx Three) ).
   simple refine (let p : coneOut cx One · f = coneOut cx Three · g := _ in _ ).
-  - set (H2 := coneOutCommutes cx One Two tt).
-    eapply pathscomp0. apply H2.
-    clear H2.
-    apply pathsinv0.
-    apply (coneOutCommutes cx Three Two tt).
-  - set (H2 := H1 p).
-    simple refine (tpair _ _ _ ).
-    + exists (pr1 (pr1 H2)).
-      use three_rec_dep; cbn.
-      * apply (pr1 (pr2 (pr1 H2))).
-      * unfold compose.
-        simpl.
-        eapply pathscomp0.
-        apply assoc.
-        eapply pathscomp0.
-        eapply cancel_postcomposition.
-        apply (pr2 (pr1 H2)).
-        apply (coneOutCommutes cx One Two tt ).
-      * unfold compose. simpl.
-        set (X := pr2 (pr2 (pr1 H2))). simpl in *. apply X.
-    +  intro t.
-       apply subtypeEquality.
-       * simpl.
-         intro; apply impred; intro. apply hs.
-       * destruct t as [t p0]; simpl.
-         apply path_to_ctr.
-         { split.
-           - apply (p0 One).
-           - apply (p0 Three). }
+  { eapply pathscomp0; [apply (coneOutCommutes cx One Two tt)|].
+    apply pathsinv0, (coneOutCommutes cx Three Two tt). }
+  set (H2 := H1 p).
+  mkpair.
+  + exists (pr1 (pr1 H2)).
+    use three_rec_dep.
+    * apply (pr1 (pr2 (pr1 H2))).
+    * simpl.
+      change (three_rec_dep (λ n, C⟦d,_⟧) _ _ _ _) with (p1 · f).
+      rewrite assoc.
+      eapply pathscomp0.
+        eapply cancel_postcomposition, (pr2 (pr1 H2)).
+      apply (coneOutCommutes cx One Two tt).
+    * apply (pr2 (pr2 (pr1 H2))).
+  + abstract (intro t; apply subtypeEquality;
+              [ intro; apply impred; intro; apply hs
+              | destruct t as [t p0];
+                apply path_to_ctr; split; [ apply (p0 One) | apply (p0 Three) ]]).
 Defined.
 
 (*
@@ -139,10 +129,10 @@ Definition mk_Pullback {a b c : C} (f : C⟦b, a⟧)(g : C⟦c, a⟧)
     (ispb : isPullback f g p1 p2 H)
   : Pullback f g.
 Proof.
-  simple refine (tpair _ _ _ ).
-  - simple refine (tpair _ _ _ ).
+  mkpair.
+  - mkpair.
     + apply d.
-    + simple refine (PullbCone _ _ _ _ _ _ ); assumption.
+    + use PullbCone; assumption.
   - apply ispb.
 Defined.
 
@@ -179,27 +169,11 @@ Proof.
   apply (!limOutCommutes Pb Three Two tt) .
 Qed.
 
-
-
-
 Definition PullbackArrow {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
            (Pb : Pullback f g) e (h : C⟦e, b⟧) (k : C⟦e, c⟧)(H : h · f = k · g)
   : C⟦e, lim Pb⟧.
 Proof.
-  simple refine (limArrow _ _ _ ).
-  simple refine (mk_cone _ _ ).
-  - use three_rec_dep; cbn; try assumption.
-    apply (h · f).
-  - use three_rec_dep; cbn; use three_rec_dep; cbn.
-    + exact (Empty_set_rect _ ).
-    + intro. apply idpath.
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
-    + intro; apply (!H).
-    + exact (Empty_set_rect _ ).
+  now use limArrow; use PullbCone.
 Defined.
 
 Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
@@ -225,14 +199,14 @@ Lemma PullbackArrowUnique {a b c d : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧)
   w = PullbackArrow Pb _ h k Hcomm.
 Proof.
   apply path_to_ctr.
-  use three_rec_dep; cbn; try assumption.
+  use three_rec_dep; try assumption.
   set (X:= limOutCommutes Pb Three Two tt).
-  eapply pathscomp0. apply maponpaths.
-   eapply pathsinv0.
-   apply X.
+  eapply pathscomp0.
+    eapply maponpaths, pathsinv0, X.
   simpl.
   rewrite assoc.
-  eapply pathscomp0. apply cancel_postcomposition. apply H2.
+  eapply pathscomp0.
+    apply cancel_postcomposition, H2.
   apply (!Hcomm).
 Qed.
 
@@ -242,8 +216,8 @@ Definition isPullback_Pullback {a b c : C} {f : C⟦b, a⟧}{g : C⟦c, a⟧}
 Proof.
   apply mk_isPullback.
   intros e h k HK.
-  simple refine (tpair _ _ _ ).
-  - simple refine (tpair _ _ _ ).
+  mkpair.
+  - mkpair.
     + apply (PullbackArrow P _ h k HK).
     + split.
       * apply PullbackArrow_PullbackPr1.
@@ -281,15 +255,14 @@ Proof.
         assert (XRT := coneOutCommutes cc One Two tt); simpl in XRT;
         eapply pathscomp0; [| apply (XRT)]; apply idpath
          ).
-    + use three_rec_dep; cbn.
+    + use three_rec_dep.
       * abstract (apply (pullbacks.PullbackArrow_PullbackPr1 XR)).
-      * abstract (
-        simpl; cbn; unfold idfun;
+      * abstract (simpl;
+        change (three_rec_dep (λ n, C⟦d,_⟧) _ _ _ _) with (p1 · f);
         rewrite assoc;
         rewrite  (limits.pullbacks.PullbackArrow_PullbackPr1 XR);
         assert (XRT := coneOutCommutes cc One Two tt); simpl in XRT;
-        eapply pathscomp0; [| apply (XRT)]; apply idpath
-        ).
+        eapply pathscomp0; [| apply (XRT)]; apply idpath).
       * abstract (apply (limits.pullbacks.PullbackArrow_PullbackPr2 XR)).
   - abstract (
     intro t;
@@ -372,10 +345,6 @@ Proof.
            (equiv_isPullback_2 _ _ _ _ _ (isPullback_Pullback X))).
 Defined.
 
-
-
-
-
 Definition identity_is_Pullback_input {a b c : C}{f : C⟦b, a⟧} {g : C⟦c, a⟧} (Pb : Pullback f g) :
  total2 (fun hk : C⟦lim Pb, lim Pb⟧ =>
    dirprod (hk · PullbackPr1 Pb = PullbackPr1 Pb)(hk · PullbackPr2 Pb = PullbackPr2 Pb)).
@@ -383,9 +352,6 @@ Proof.
   exists (identity (lim Pb)).
   apply dirprodpair; apply id_left.
 Defined.
-
-
-
 
 (* was PullbackArrowUnique *)
 Lemma PullbackArrowUnique' {a b c d : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧)
@@ -395,13 +361,10 @@ Lemma PullbackArrowUnique' {a b c d : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧)
   w =  (pr1 (pr1 (P e (PullbCone f g _ h k Hcomm)))).
 Proof.
   apply path_to_ctr.
-  use three_rec_dep; cbn.
-  - assumption.
-  - unfold compose; simpl.
-    eapply pathscomp0. apply assoc.
-    rewrite H1.
-    apply idpath.
-  - assumption.
+  use three_rec_dep; try assumption; simpl.
+  change (three_rec_dep (λ n, C⟦d,_⟧) _ _ _ _) with (p1 · f).
+  change (three_rec_dep (λ n, C⟦e,_⟧) _ _ _ _) with (h · f).
+  now rewrite <- H1, assoc.
 Qed.
 
 
@@ -526,7 +489,7 @@ End pullback_lemma.
 
 Section Universal_Unique.
 
-Hypothesis H : is_category C.
+Hypothesis H : is_univalent C.
 
 
 Lemma inv_from_iso_iso_from_Pullback (a b c : C) (f : C⟦b, a⟧) (g : C⟦c, a⟧)

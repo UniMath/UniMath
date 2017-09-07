@@ -16,6 +16,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 (** Imports. *)
 
 Require Export UniMath.Foundations.NaturalNumbers .
+Require Import UniMath.MoreFoundations.Tactics.
 
 (** ** Standard finite sets [ stn ] . *)
 
@@ -937,7 +938,7 @@ Proof.
         induction k as [k K]. simpl.
         apply (maponpaths (λ x, x+k)). unfold funcomp. unfold stntonat. unfold di.
         clear K k.
-        induction (natlthorgeh (pr1 j) n) as [G|G'].
+        induction (natlthorgeh _ n) as [G|G'].
         -- simpl. apply stnsum_eq; intro k. apply maponpaths.
            apply subtypeEquality_prop. simpl.
            apply pathsinv0, di_eq1.
@@ -1385,8 +1386,8 @@ Definition two_rec {A : UU} (a b : A) : stn 2 -> A.
 Proof.
   intros A a b.
   induction 1 as [n p].
-  induction n as [_|n _]; [apply a|].
-  induction n as [_|n _]; [apply b|].
+  induction n as [|n _]; [apply a|].
+  induction n as [|n _]; [apply b|].
   induction (nopathsfalsetotrue p).
 Defined.
 
@@ -1395,8 +1396,8 @@ Definition two_rec_dep (P : two -> UU):
 Proof.
   intros P a b n.
   induction n as [n p].
-  induction n as [_|n _]. eapply stn_predicate. apply a.
-  induction n as [_|n _]. eapply stn_predicate. apply b.
+  induction n as [|n _]. eapply stn_predicate. apply a.
+  induction n as [|n _]. eapply stn_predicate. apply b.
   induction (nopathsfalsetotrue p).
 Defined.
 
@@ -1406,9 +1407,9 @@ Definition three_rec {A : UU} (a b c : A) : stn 3 -> A.
 Proof.
   intros A a b c.
   induction 1 as [n p].
-  induction n as [_|n _]; [apply a|].
-  induction n as [_|n _]; [apply b|].
-  induction n as [_|n _]; [apply c|].
+  induction n as [|n _]; [apply a|].
+  induction n as [|n _]; [apply b|].
+  induction n as [|n _]; [apply c|].
   induction (nopathsfalsetotrue p).
 Defined.
 
@@ -1417,9 +1418,9 @@ Definition three_rec_dep (P : three -> UU):
 Proof.
   intros P a b c n.
   induction n as [n p].
-  induction n as [_|n _]. eapply stn_predicate. apply a.
-  induction n as [_|n _]. eapply stn_predicate. apply b.
-  induction n as [_|n _]. eapply stn_predicate. apply c.
+  induction n as [|n _]. eapply stn_predicate. apply a.
+  induction n as [|n _]. eapply stn_predicate. apply b.
+  induction n as [|n _]. eapply stn_predicate. apply c.
   induction (nopathsfalsetotrue p).
 Defined.
 

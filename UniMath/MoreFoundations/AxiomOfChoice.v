@@ -4,7 +4,7 @@ Require Export UniMath.MoreFoundations.DecidablePropositions.
 
 (** ** Preliminaries  *)
 
-Lemma pr1_issurjective {X : hSet} {P : X -> UU} :
+Lemma pr1_issurjective {X : UU} {P : X -> UU} :
   (∏ x : X, ∥ P x ∥) -> issurjective (pr1 : (∑ x, P x) -> X).
 (* move upstream later *)
 Proof.
@@ -107,4 +107,35 @@ Proof.
   apply (retract_dec f g h isdeceqbool).
 Defined.
 
+(** ** The Axiom of Choice implies a type receives a surjective map from a set *)
 
+Definition pi0 (X : UU) : hSet := setquotinset (pathseqrel X).
+
+Theorem SetCovering (X:Type) : AxiomOfChoice -> ∃ (S:hSet) (f:S->X), issurjective f.
+Proof.
+  (** We use the axiom of choice to find a splitting f of the projection map g from X
+     onto its set [pi0 X] of connected components.  Since the image of f contains one
+     point in every component of X, f is surjective.
+   *)
+  intros ac.
+  assert (ac' := pr1 AC_impl2 ac); clear ac; unfold AxiomOfChoice_surj in ac'.
+  set (S := pi0 X).
+  set (g := pi0pr X : X -> S).
+  assert (f := ac' _ _ g (issurjsetquotpr _)); clear ac'.
+  apply (squash_to_prop f).
+  { apply propproperty. }
+  clear f; intros [f eqn].
+  apply hinhpr.
+  exists S.
+  exists f.
+  intros x.
+  use (@squash_to_prop (f (g x) = x)%type).
+  { apply (invmap (weqpathsinsetquot (pathseqrel X) _ _)).
+    change (g (f (g x)) = g x)%type.
+    exact (eqn (g x)). }
+  { apply propproperty. }
+  intros e.
+  apply hinhpr.
+  exists (g x).
+  exact e.
+Defined.

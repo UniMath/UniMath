@@ -25,8 +25,9 @@ env:
   - PACKAGES=Tactics BUILD_COQIDE=yes BUILD_ALSO=TAGS
   - PACKAGES=Folds
   - PACKAGES=HomologicalAlgebra
+  - FOUNDATIONS_CHANGE_ERROR=yes BUILD_ALSO=check-for-change-to-Foundations
 # building Coq in a separate stage folds up the output in the log:
 before_script:
   - time make build-coq
 script:
-  - time make TIMECMD=time $PACKAGES $BUILD_ALSO
+  - time make TIMECMD=time $PACKAGES $BUILD_ALSO FOUNDATIONS_CHANGE_ERROR=$FOUNDATIONS_CHANGE_ERROR

@@ -17,6 +17,8 @@ Require Import UniMath.Algebra.DivisionRig .
 Require Import UniMath.Algebra.Domains_and_Fields .
 Require Import UniMath.Algebra.ConstructiveStructures.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 (** ** The standard function from the natural numbers to a monoid *)
 
 Fixpoint natmult {X : monoid} (n : nat) (x : X) : X :=

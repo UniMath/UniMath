@@ -14,9 +14,12 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
+
 Local Open Scope cat.
 
 Section move_upstream.
@@ -274,16 +277,16 @@ End lim_def.
 
 Section Lims.
 
-Definition Lims (C : precategory) : UU := ∏ {J : precategory} (F : functor J C), LimCone F.
+Definition Lims (C : precategory) : UU := ∏ (J : precategory) (F : functor J C), LimCone F.
 Definition hasLims : UU  :=
-  ∏ {J C : precategory} (F : functor J C), ishinh (LimCone F).
+  ∏ (J C : precategory) (F : functor J C), ishinh (LimCone F).
 Definition Lims_of_shape (J C : precategory) : UU := ∏ (F : functor J C), LimCone F.
 
 Section Universal_Unique.
 
-Context (C : category).
+Context (C : univalent_category).
 
-Let H : is_category C := pr2 C.
+Let H : is_univalent C := pr2 C.
 
 Lemma isaprop_Lims: isaprop (Lims C).
 Proof.

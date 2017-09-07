@@ -12,8 +12,10 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories
-               UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Epis.
+
 Local Open Scope cat.
 
 Section def_initial.
@@ -76,7 +78,7 @@ Definition hasInitial := ishinh Initial.
 (** * Being initial is a property in a (saturated/univalent) category *)
 Section Initial_Unique.
 
-Hypothesis H : is_category C.
+Hypothesis H : is_univalent C.
 
 Lemma isaprop_Initial : isaprop Initial.
 Proof.
@@ -160,29 +162,39 @@ End Initial_and_EmptyCoprod.
 (** * Construction of initial object in a functor category *)
 Section InitialFunctorCat.
 
-Variable C D : precategory.
-Variable ID : Initial D.
-Variable hsD : has_homsets D.
+Variables (C D : precategory) (ID : Initial D) (hsD : has_homsets D).
 
 Definition Initial_functor_precat : Initial [C, D, hsD].
 Proof.
 use mk_Initial.
-- mkpair.
+- use mk_functor.
   + mkpair.
     * intros c; apply (InitialObject ID).
     * simpl; intros a b f; apply (InitialArrow ID).
-  + abstract (split;
-               [ intro a; apply pathsinv0, InitialEndo_is_identity
-               | intros a b c f g; apply pathsinv0, InitialArrowUnique]).
+  + split.
+    * intro a; apply pathsinv0, InitialEndo_is_identity.
+    * intros a b c f g; apply pathsinv0, InitialArrowUnique.
 - intros F.
   mkpair.
-  + simpl.
-    mkpair.
+  + use mk_nat_trans; simpl.
     * intro a; apply InitialArrow.
-    * abstract (intros a b f; simpl;
-                rewrite <- (InitialEndo_is_identity _ ID (InitialArrow ID ID)), id_left;
-                apply pathsinv0, InitialArrowUnique).
+    * intros a b f; simpl.
+      rewrite <- (InitialEndo_is_identity _ ID (InitialArrow ID ID)), id_left.
+      now apply pathsinv0, InitialArrowUnique.
   + abstract (intros α; apply (nat_trans_eq hsD); intro a; apply InitialArrowUnique).
 Defined.
 
 End InitialFunctorCat.
+
+(** Morphisms to the initial object are epis *)
+Section epis_initial.
+
+Context {C : precategory} (IC : Initial C).
+
+Lemma to_initial_isEpi (a : C) (f : C⟦a,IC⟧) : isEpi f.
+Proof.
+apply mk_isEpi; intros b g h H.
+now apply InitialArrowEq.
+Qed.
+
+End epis_initial.

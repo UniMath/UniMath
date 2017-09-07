@@ -10,12 +10,12 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 
+Local Open Scope cat.
 
 (** * Definition of equalizers in terms of limits *)
 Section def_equalizers.
@@ -41,8 +41,8 @@ Section def_equalizers.
   Definition Equalizer_diagram {a b : C} (f g : C⟦a, b⟧) : diagram Equalizer_graph C.
   Proof.
     exists (two_rec a b).
-    use two_rec_dep; cbn.
-    - use two_rec_dep; cbn.
+    use two_rec_dep.
+    - use two_rec_dep; simpl.
       + apply fromempty.
       + intro x. induction x.
         exact f. exact g.
@@ -53,10 +53,10 @@ Section def_equalizers.
     cone (Equalizer_diagram f g) d.
   Proof.
     use mk_cone.
-    - use two_rec_dep; cbn.
+    - use two_rec_dep.
       + exact h.
       + exact (h · f).
-    - use two_rec_dep; cbn; use two_rec_dep; cbn.
+    - use two_rec_dep; use two_rec_dep.
       + exact (Empty_set_rect _).
       + intro e. unfold idfun. induction e.
         * apply idpath.
@@ -73,7 +73,6 @@ Section def_equalizers.
      iscontr (total2 (fun hk : C⟦e, d⟧ => hk · h = h'))) -> isEqualizer f g d h H.
   Proof.
     intros H' x cx.
-
     assert (H1 : coneOut cx One · f = coneOut cx One · g).
     {
       use (pathscomp0 (coneOutCommutes cx One Two (ii1 tt))).
@@ -83,16 +82,15 @@ Section def_equalizers.
     set (H2 := (H' x (coneOut cx One) H1)).
     use tpair.
     - use (tpair _ (pr1 (pr1 H2)) _).
-      use two_rec_dep; cbn; unfold idfun.
+      use two_rec_dep.
       + apply (pr2 (pr1 H2)).
-      +  use (pathscomp0 _ (coneOutCommutes cx One Two (ii1 tt))).
-         cbn. rewrite assoc. apply cancel_postcomposition.
-         apply (pr2 (pr1 H2)).
-    - intro t. apply subtypeEquality.
-      intros y. apply impred. intros t0. apply hs.
-      induction t as [t p]. cbn.
-      apply path_to_ctr.
-      apply (p One).
+      + use (pathscomp0 _ (coneOutCommutes cx One Two (ii1 tt))).
+        change (coneOut (Equalizer_cone f g d h H) (● 1)%stn) with (h · f).
+        rewrite assoc.
+        apply cancel_postcomposition, (pr2 (pr1 H2)).
+    - abstract (intro t; apply subtypeEquality;
+                [ intros y; apply impred; intros t0; apply hs
+                | induction t as [t p]; apply path_to_ctr, (p One)]).
   Defined.
 
   Definition Equalizer {a b : C} (f g : C⟦a, b⟧) := LimCone (Equalizer_diagram f g).
@@ -130,18 +128,7 @@ Section def_equalizers.
   Definition EqualizerIn {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) (e : C) (h : C⟦e, a⟧)
              (H : h · f = h · g) : C⟦e, lim E⟧.
   Proof.
-    use limArrow.
-    use mk_cone.
-    - use two_rec_dep; cbn.
-      + exact h.
-      + exact (h · f).
-    - use two_rec_dep; cbn; use two_rec_dep; cbn.
-      + exact (Empty_set_rect _).
-      + intros e0. unfold idfun. induction e0.
-        * apply idpath.
-        * apply (! H).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
+    now use limArrow; use Equalizer_cone.
   Defined.
 
   Lemma EqualizerArrowComm {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) (e : C) (h : C⟦e, a⟧)
@@ -155,13 +142,14 @@ Section def_equalizers.
     w = EqualizerIn E e h H.
   Proof.
     apply path_to_ctr.
-    use two_rec_dep; cbn.
+    use two_rec_dep.
     - apply H'.
     - set (X := limOutCommutes E One Two (ii1 tt)).
       apply (maponpaths (fun h : _ => w · h)) in X.
-      use (pathscomp0 (!X)). cbn. rewrite assoc.
-      apply cancel_postcomposition.
-      apply H'.
+      use (pathscomp0 (!X)); rewrite assoc.
+      change (dmor _ _) with f.
+      change (coneOut _ _) with (h · f).
+      apply cancel_postcomposition, H'.
   Qed.
 
   Definition isEqualizer_Equalizer {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) :
@@ -201,8 +189,8 @@ Section def_equalizers.
     + set (X := (coneOutCommutes (limCone E) One Two (ii1 tt))).
       use (pathscomp0 (! (maponpaths (fun h' : _ => k · h') X))).
       use (pathscomp0 _ X).
-      rewrite assoc. cbn. apply cancel_postcomposition.
-      apply kH.
+      rewrite assoc; change (dmor _ _) with f.
+      apply cancel_postcomposition, kH.
   Qed.
 
   Definition from_Equalizer_to_Equalizer {a b : C} {f g : C⟦a, b⟧} (E1 E2 : Equalizer f g) :

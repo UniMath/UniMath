@@ -5,6 +5,7 @@ Require Export UniMath.Foundations.PartD.
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Export UniMath.Ktheory.Tactics.
+Require Import UniMath.MoreFoundations.Tactics.
 
 (** ** Null homotopies, an aid for proving things about propositional truncation *)
 

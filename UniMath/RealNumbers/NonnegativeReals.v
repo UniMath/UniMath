@@ -1,6 +1,8 @@
 (** * Definition of Dedekind cuts for non-negative real numbers *)
 (** Catherine Lelay. Sep. 2015 *)
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.RealNumbers.Sets.
 Require Export UniMath.Algebra.ConstructiveStructures.
 Require Import UniMath.RealNumbers.Prelim.

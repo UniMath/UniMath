@@ -11,11 +11,12 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Combinatorics.Lists.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.MoreFoundations.Tactics.
+
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
-Require Import UniMath.CategoryTheory.category_hset.
-Require Import UniMath.CategoryTheory.category_hset_structures.
+Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.categories.category_hset_structures.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -28,7 +29,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.Monads.
+Require Import UniMath.CategoryTheory.Monads.Monads.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
@@ -38,6 +39,8 @@ Require Import UniMath.SubstitutionSystems.LamSignature.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
+
+Local Open Scope cat.
 
 Section Lam.
 
@@ -224,10 +227,10 @@ Local Notation "x ⊛ y" := (BinProductObject _ (BinProductsHSET x y)) (at level
 Arguments LamMonad : simpl never.
 Arguments BinCoproductObject : simpl never.
 
-Definition substLam (X : HSET) : HSET⟦LamMonad (X ⊕ 1) ⊛ LamMonad X,LamMonad X⟧.
+Definition substLam (X : HSET) : HSET⟦LamMonad (1 ⊕ X) ⊛ LamMonad X,LamMonad X⟧.
 Proof.
 intro H.
-set (f := monadSubst LamMonad TerminalHSET BinCoproductsHSET X).
+set (f := monadSubst LamMonad BinCoproductsHSET TerminalHSET X).
 set (g := λ (_ : unit), pr2 H).
 cbn in H, f, g.
 apply (f g (pr1 H)).

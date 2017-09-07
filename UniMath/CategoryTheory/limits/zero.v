@@ -4,7 +4,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -126,7 +126,7 @@ Section def_zero.
   Definition hasZero := ishinh Zero.
 
   Section Zero_Unique.
-    Hypothesis H : is_category C.
+    Hypothesis H : is_univalent C.
 
     Lemma isaprop_Zero : isaprop Zero.
     Proof.

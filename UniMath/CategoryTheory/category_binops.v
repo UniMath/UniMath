@@ -6,7 +6,7 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 
 Require Import UniMath.Algebra.BinaryOperations.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.functor_categories.
 
@@ -186,13 +186,32 @@ Section BINOP_category.
   Qed.
 
   Definition binop_equiv_iso_weq (A B : BINOP) :
-    weq (binopiso A B)(iso A B).
+    weq (binopiso A B) (iso A B).
   Proof.
     exists (binop_equiv_iso A B).
     apply binop_equiv_iso_is_equiv.
   Defined.
 
-(** ** HERE ONE SHOULD ADD A PROOF THAT BINOP IS ACTUALLY A CATEGORY.
-       See category_hset.v *)
+  Definition binop_precategory_isweq (a b : BINOP) :
+    isweq (λ p : a = b, idtoiso p).
+  Proof.
+    use (@isweqhomot
+           (a = b) (iso a b)
+           (pr1weq (weqcomp (setwithbinop_univalence a b) (binop_equiv_iso_weq a b)))
+           _ _ (weqproperty (weqcomp (setwithbinop_univalence a b) (binop_equiv_iso_weq a b)))).
+    intros e. induction e.
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use total2_paths_f.
+    - use idpath.
+    - use proofirrelevance. use isaprop_is_iso.
+  Defined.
+  Opaque binop_precategory_isweq.
+
+  Definition binop_precategory_is_univalent : is_univalent binop_precategory.
+  Proof.
+    use dirprodpair.
+    - intros a b. exact (binop_precategory_isweq a b).
+    - exact has_homsets_BINOP.
+  Defined.
 
 End BINOP_category.

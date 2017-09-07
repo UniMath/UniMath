@@ -4,6 +4,8 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 Unset Kernel Term Sharing.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.Fields.
 Require Export UniMath.Algebra.DivisionRig.
@@ -18,7 +20,7 @@ Open Scope hq_scope.
 Definition hnnq_set := subset (hqleh 0).
 
 Local Definition hnnq_set_to_hq (r : hnnq_set) : hq := pr1 r.
-Coercion hnnq_set_to_hq : pr1hSet >-> pr1hSet.
+
 Local Definition hq_to_hnnq_set (r : hq) (Hr : hqleh 0 r) : hnnq_set :=
   r ,, Hr.
 

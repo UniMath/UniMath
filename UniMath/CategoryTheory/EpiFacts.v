@@ -5,32 +5,32 @@
 - Proof that if the target category has pushouts, a natural transformation that is
   an epimorphism is pointwise epimorphic
 - Faithul functors reflect epimorphisms
+- Definition of a split epimorphism
+- Split epis are absolute (ie are preserved by any functor)
 
 Ambroise LAFONT January 2017
 *)
 
-
-Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-Local Open Scope cat.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
+Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.coequalizers.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-
 Require Import UniMath.CategoryTheory.limits.graphs.pushouts.
 Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
-
 Require Import UniMath.CategoryTheory.limits.pushouts.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 
-
-Require Import UniMath.CategoryTheory.Epis.
+Local Open Scope cat.
 
 (** Definition of an effective epimorphism.
 An effective epimorphism p: A -> B is a morphism which has a kernel pair and which
@@ -57,9 +57,9 @@ Definition EpisAreEffective (C:precategory) :=
 (** Let f be a natural transformation. If f is pointwise effective, then f is effective *)
 Section IsEffectivePw.
 
-  Context { C :precategory} {D:Precategory} .
+  Context {C : precategory} {D : category} .
 
-  Local Notation CD := (@functor_Precategory C D).
+  Local Notation CD := (functor_category C D).
 
   Lemma eq_pb_pw {X Y Z:functor C D}
         (a: X ⟹ Z) (b: Y ⟹ Z)
@@ -138,9 +138,9 @@ Set Automatic Introduction.
   an epimorphism is pointwise epimorphic *)
 Section PointwiseEpi.
 
-  Context { C :precategory} {D:Precategory} .
+  Context {C : precategory} {D : category}.
 
-  Local Notation CD := (functor_Precategory C D).
+  Local Notation CD := (functor_category C D).
 
   Lemma eq_po_pw {X Y Z :functor C D} {a: X ⟹ Y } {b: X ⟹ Z} x  :
     eq_diag
@@ -198,3 +198,43 @@ Proof.
   rewrite <- functor_comp, <- functor_comp.
   now rewrite huv.
 Qed.
+
+(** Definition of a split epimorphism.
+It is a morphism f such that there exists a morphism g that satisfies f ∘ g = id
+*)
+Section SplitEpis.
+
+Section DefSplitEpis.
+
+Context {C:precategory} {A B:C} (f:C⟦A,B⟧).
+Definition isSplitEpi :=
+  ∥ ∑  (g:C⟦B,A⟧), g · f = identity B ∥.
+
+
+Lemma isSplitEpi_isEpi {hsc:has_homsets C} (split_f:isSplitEpi): isEpi f.
+Proof.
+  apply (squash_to_prop split_f).
+  - now apply isapropisEpi.
+  - intros hf z u v e.
+    rewrite <- (id_left u), <- (id_left v).
+    rewrite <- (pr2 hf).
+    repeat rewrite <- assoc.
+    now apply cancel_precomposition.
+Qed.
+
+End DefSplitEpis.
+
+Definition EpisAreSplit (C:precategory) :=
+  ∏ (A B:C) (f:C⟦A,B⟧), isEpi f -> isSplitEpi f.
+
+(** Functors preserve split epimorphisms *)
+Lemma preserves_isSplitEpi {C D:precategory} (F:functor C D)
+      {A B : C} (f:C⟦A,B⟧) : isSplitEpi f -> isSplitEpi (#F f).
+Proof.
+  apply hinhfun.
+  intro hf.
+  exists (#F (pr1 hf)).
+  now rewrite <-functor_id,<- (pr2 hf), <- functor_comp.
+Qed.
+
+End SplitEpis.

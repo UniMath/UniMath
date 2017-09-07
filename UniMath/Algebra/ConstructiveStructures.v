@@ -9,6 +9,8 @@ Require Export UniMath.Algebra.Apartness.
 Require Export UniMath.Algebra.DivisionRig.
 Require Export UniMath.Algebra.Domains_and_Fields.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 (** ** Predicats in a rig with a tight appartness relation *)
 
 Definition isnonzeroCR (X : rig) (R : tightap X) := R 1%rig 0%rig.

@@ -11,13 +11,13 @@ Extended by: Anders Mörtberg (October 2015)
 
 (** **********************************************************
 
-Contents :
+Contents:
 
-            Precategory HSET of hSets
+- Category HSET of hSets ([hset_category])
+- HSET is a univalent_category ([is_univalent_HSET])
 
-	    HSET is a category
-
-	    Colimits in HSET
+For structures (like (co)limits) on HSET see
+category_hset_structures.v
 
 ************************************************************)
 
@@ -28,12 +28,12 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.Foundations.HLevels.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 Local Open Scope cat.
 
-(** * Precategory of hSets *)
+(** * category of hSets *)
 Section HSET_precategory.
 
 Definition hset_fun_space (A B : hSet) : hSet :=
@@ -67,14 +67,14 @@ Qed.
   Canonical Structure hset_precategory. :-)
  *)
 
-Definition hset_Precategory : Precategory := (HSET ,, has_homsets_HSET).
+Definition hset_category : category := (HSET ,, has_homsets_HSET).
 
 End HSET_precategory.
 
 Notation "'HSET'" := hset_precategory : cat.
-Notation "'SET'" := hset_Precategory : cat.
+Notation "'SET'" := hset_category : cat.
 
-(** * The precategory of hSets is a category. *)
+(** * The precategory of hSets is a univalent_category. *)
 
 Section HSET_category.
 
@@ -167,7 +167,7 @@ Proof.
   apply hset_equiv_iso_is_equiv.
 Defined.
 
-(** ** HSET is a category. *)
+(** ** HSET is a univalent_category. *)
 
 Definition univalenceweq (X X' : UU) : weq (X = X') (weq X X') :=
    tpair _ _ (univalenceAxiom X X').
@@ -204,7 +204,7 @@ Proof.
   apply (pr2 (hset_id_iso_weq A B)).
 Defined.
 
-Lemma is_category_HSET : is_category HSET.
+Lemma is_univalent_HSET : is_univalent HSET.
 Proof.
   split.
   - apply is_weq_precat_paths_to_iso_hset.

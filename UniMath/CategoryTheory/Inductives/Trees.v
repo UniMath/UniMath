@@ -6,18 +6,20 @@ tree functor.
 Written by: Anders Mörtberg (2016)
 
 *)
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.category_hset.
-Require Import UniMath.CategoryTheory.category_hset_structures.
+Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.categories.category_hset_structures.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -26,6 +28,8 @@ Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.Inductives.Lists.
+
+Local Open Scope cat.
 
 (** * Binary trees *)
 Section bintrees.
@@ -154,7 +158,8 @@ Lemma isalghom_pr1foldr :
   is_algebra_mor _ Tree_alg Tree_alg (fun l => pr1 (foldr P'HSET P0' Pc' l)).
 Proof.
 apply BinCoproductArrow_eq_cor.
-- apply funextfun; intro x; destruct x; apply idpath.
+- apply funextfun; intro x; destruct x.
+  apply (maponpaths pr1 (foldr_leaf P'HSET P0' Pc')).
 - apply funextfun; intro x; destruct x as [a [l1 l2]].
   apply (maponpaths pr1 (foldr_node P'HSET P0' Pc' a l1 l2)).
 Qed.
@@ -211,9 +216,8 @@ Lemma size_map (f : nat -> nat) : ∏ l, size (map f l) = size l.
 Proof.
 apply treeIndProp.
 - intros l. apply isasetnat.
-- apply idpath.
-- intros a l1 l2 ih1 ih2.
-  unfold map.
+- now unfold map; rewrite foldr_leaf.
+- intros a l1 l2 ih1 ih2; unfold map.
   now rewrite foldr_node, !size_node, <- ih1, <- ih2.
 Qed.
 
@@ -226,9 +230,9 @@ Proof.
   - apply 5.
   - use node_map; repeat split.
     + apply 6.
-    + apply leaf_map. apply tt.
-    + apply leaf_map. apply tt.
-  - apply leaf_map. apply tt.
+    + exact (leaf_map _ tt).
+    + exact (leaf_map _ tt).
+  - exact (leaf_map _ tt).
 Defined.
 
 

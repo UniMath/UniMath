@@ -20,11 +20,11 @@ Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.Opp.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.opp_precat.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Morphisms.
-Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
@@ -153,24 +153,24 @@ Section five_lemma_data.
   (** *** Composition of consecutive differentials is 0 *)
 
   Definition FiveRowDiffsEq {FRO : FiveRowObs} (FRD : FiveRowDiffs FRO) : UU :=
-    (FDiff1 FRD · FDiff2 FRD = ZeroArrow to_Zero _ _)
-      × (FDiff2 FRD · FDiff3 FRD = ZeroArrow to_Zero _ _)
-      × (FDiff3 FRD · FDiff4 FRD = ZeroArrow to_Zero _ _).
+    (FDiff1 FRD · FDiff2 FRD = ZeroArrow (to_Zero A) _ _)
+      × (FDiff2 FRD · FDiff3 FRD = ZeroArrow (to_Zero A) _ _)
+      × (FDiff3 FRD · FDiff4 FRD = ZeroArrow (to_Zero A) _ _).
 
   Definition mk_FiveRowDiffsEq {FRO : FiveRowObs} (FRD : FiveRowDiffs FRO)
-             (H1 : FDiff1 FRD · FDiff2 FRD = ZeroArrow to_Zero _ _)
-             (H2 : FDiff2 FRD · FDiff3 FRD = ZeroArrow to_Zero _ _)
-             (H3 : FDiff3 FRD · FDiff4 FRD = ZeroArrow to_Zero _ _) : FiveRowDiffsEq FRD :=
+             (H1 : FDiff1 FRD · FDiff2 FRD = ZeroArrow (to_Zero A) _ _)
+             (H2 : FDiff2 FRD · FDiff3 FRD = ZeroArrow (to_Zero A) _ _)
+             (H3 : FDiff3 FRD · FDiff4 FRD = ZeroArrow (to_Zero A) _ _) : FiveRowDiffsEq FRD :=
     (H1,,(H2,,H3)).
 
   Definition FEq1 {FRO : FiveRowObs} {FRD : FiveRowDiffs FRO} (FRDE : FiveRowDiffsEq FRD) :
-    FDiff1 FRD · FDiff2 FRD = ZeroArrow to_Zero _ _ := dirprod_pr1 FRDE.
+    FDiff1 FRD · FDiff2 FRD = ZeroArrow (to_Zero A) _ _ := dirprod_pr1 FRDE.
 
   Definition FEq2 {FRO : FiveRowObs} {FRD : FiveRowDiffs FRO} (FRDE : FiveRowDiffsEq FRD) :
-    FDiff2 FRD · FDiff3 FRD = ZeroArrow to_Zero _ _ := dirprod_pr1 (dirprod_pr2 FRDE).
+    FDiff2 FRD · FDiff3 FRD = ZeroArrow (to_Zero A) _ _ := dirprod_pr1 (dirprod_pr2 FRDE).
 
   Definition FEq3 {FRO : FiveRowObs} {FRD : FiveRowDiffs FRO} (FRDE : FiveRowDiffsEq FRD) :
-    FDiff3 FRD · FDiff4 FRD = ZeroArrow to_Zero _ _ := dirprod_pr2 (dirprod_pr2 FRDE).
+    FDiff3 FRD · FDiff4 FRD = ZeroArrow (to_Zero A) _ _ := dirprod_pr2 (dirprod_pr2 FRDE).
 
   (** *** Row is exact *)
 
@@ -315,7 +315,8 @@ Section five_lemma_opp.
   Local Lemma FiveRowDiffsEq_opp1 {A : AbelianPreCat} {hs : has_homsets A} {FRO : @FiveRowObs A}
         {FRD : @FiveRowDiffs A FRO} (FRDE : @FiveRowDiffsEq A FRO FRD) :
     (@FDiff1 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD))
-      · (@FDiff2 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD)) = ZeroArrow to_Zero _ _.
+      · (@FDiff2 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD)) =
+    ZeroArrow (to_Zero (Abelian_opp A hs)) _ _.
   Proof.
     use (pathscomp0 (FEq3 FRDE)). use ZeroArrow_opp.
   Qed.
@@ -323,7 +324,8 @@ Section five_lemma_opp.
   Local Lemma FiveRowDiffsEq_opp2 {A : AbelianPreCat} {hs : has_homsets A} {FRO : @FiveRowObs A}
         {FRD : @FiveRowDiffs A FRO} (FRDE : @FiveRowDiffsEq A FRO FRD) :
     (@FDiff2 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD))
-      · (@FDiff3 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD)) = ZeroArrow to_Zero _ _.
+      · (@FDiff3 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD)) =
+    ZeroArrow (to_Zero (Abelian_opp A hs)) _ _.
   Proof.
     use (pathscomp0 (FEq2 FRDE)). use ZeroArrow_opp.
   Qed.
@@ -331,7 +333,8 @@ Section five_lemma_opp.
   Local Lemma FiveRowDiffsEq_opp3 {A : AbelianPreCat} {hs : has_homsets A} {FRO : @FiveRowObs A}
         {FRD : @FiveRowDiffs A FRO} (FRDE : @FiveRowDiffsEq A FRO FRD) :
     (@FDiff3 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD))
-      · (@FDiff4 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD)) = ZeroArrow to_Zero _ _.
+      · (@FDiff4 (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD)) =
+    ZeroArrow (to_Zero (Abelian_opp A hs)) _ _.
   Proof.
     use (pathscomp0 (FEq1 FRDE)). use ZeroArrow_opp.
   Qed.
@@ -388,7 +391,7 @@ Section five_lemma.
   Proof.
     use (dirprod_pr2 (PEq_isMonic hs (FMor3 hs FRM))).
     intros d' a X. apply pathsinv0. cbn in X. set (X' := PEq_Zero_Eq' _ _ X). cbn in X'.
-    assert (e1 : a · FDiff3 FR1 = ZeroArrow to_Zero _ _).
+    assert (e1 : a · FDiff3 FR1 = ZeroArrow (to_Zero A) _ _).
     {
       set (comm := FComm3 hs FRM). use (is_iso_isMonic A _ H4).
       rewrite <- assoc. rewrite comm. clear comm. rewrite assoc.
@@ -397,7 +400,7 @@ Section five_lemma.
     }
     set (b := dirprod_pr1 (PEq_isExact hs _ _ (FEq2 FR1)) (FEx2 hs FR1) a e1).
     set (PE1 := PseudoIm b (FMor2 hs FRM)).
-    assert (e2 : PE1 · FDiff2 FR2 = ZeroArrow to_Zero _ _).
+    assert (e2 : PE1 · FDiff2 FR2 = ZeroArrow (to_Zero A) _ _).
     {
       cbn. set (comm := FComm2 hs FRM). rewrite <- assoc. rewrite <- comm. clear comm.
       rewrite assoc. set (tmp := PEqEq (PFiber_Eq b)). cbn in tmp.
@@ -492,21 +495,21 @@ Section short_exact_five_lemma.
     @FiveRowObs A.
   Proof.
     use mk_FiveRowObs.
-    - exact to_Zero.
+    - exact (to_Zero A).
     - exact (Ob1 SSE1).
     - exact (Ob2 SSE1).
     - exact (Ob3 SSE1).
-    - exact to_Zero.
+    - exact (to_Zero A).
   Defined.
 
   Definition ShortExactDiffs1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowDiffs A (ShortExactObs1 Mor).
   Proof.
     use mk_FiveRowDiffs.
-    - exact (ZeroArrow to_Zero _ _).
+    - exact (ZeroArrow (to_Zero A) _ _).
     - exact (Mor1 SSE1).
     - exact (Mor2 SSE1).
-    - exact (ZeroArrow to_Zero _ _).
+    - exact (ZeroArrow (to_Zero A) _ _).
   Defined.
 
   Lemma ShortExactDiffsEq1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
@@ -514,7 +517,7 @@ Section short_exact_five_lemma.
   Proof.
     use mk_FiveRowDiffsEq.
     - cbn. apply ZeroArrow_comp_left.
-    - cbn. use (ShortShortExactData_Eq to_Zero SSE1).
+    - cbn. use (ShortShortExactData_Eq (to_Zero A) SSE1).
     - cbn. apply ZeroArrow_comp_right.
   Qed.
 
@@ -543,21 +546,21 @@ Section short_exact_five_lemma.
     @FiveRowObs A.
   Proof.
     use mk_FiveRowObs.
-    - exact to_Zero.
+    - exact (to_Zero A).
     - exact (Ob1 SSE2).
     - exact (Ob2 SSE2).
     - exact (Ob3 SSE2).
-    - exact to_Zero.
+    - exact (to_Zero A).
   Defined.
 
   Definition ShortExactDiffs2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowDiffs A (ShortExactObs2 Mor).
   Proof.
     use mk_FiveRowDiffs.
-    - exact (ZeroArrow to_Zero _ _).
+    - exact (ZeroArrow (to_Zero A) _ _).
     - exact (Mor1 SSE2).
     - exact (Mor2 SSE2).
-    - exact (ZeroArrow to_Zero _ _).
+    - exact (ZeroArrow (to_Zero A) _ _).
   Defined.
 
   Lemma ShortExactDiffsEq2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
@@ -565,7 +568,7 @@ Section short_exact_five_lemma.
   Proof.
     use mk_FiveRowDiffsEq.
     - cbn. apply ZeroArrow_comp_left.
-    - cbn. use (ShortShortExactData_Eq to_Zero SSE2).
+    - cbn. use (ShortShortExactData_Eq (to_Zero A) SSE2).
     - cbn. apply ZeroArrow_comp_right.
   Qed.
 

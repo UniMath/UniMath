@@ -10,16 +10,20 @@ Direct implementation of indexed coproducts together with:
 Written by: Anders Mörtberg 2016
 
 *)
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+
+Local Open Scope cat.
 
 (** * Definition of indexed coproducts of objects in a precategory *)
 Section coproduct_def.
@@ -204,12 +208,20 @@ Defined.
 
 End functors.
 
-(* Defines the arbitrary copropuct of a family of functors *)
-Definition coproduct_of_functors_alt (I : UU) {C D : precategory}
+(* The copropuct of a family of functors *)
+(* This is the old and not so good definition as it is unnecessarily complicated, also the proof
+   that it is omega-cocontinuous requires that C has products *)
+Definition coproduct_of_functors_alt_old (I : UU) {C D : precategory}
   (HD : Coproducts I D) (F : I -> functor C D) : functor C D :=
   functor_composite (delta_functor I C)
      (functor_composite (family_functor _ F)
                         (coproduct_functor _ HD)).
+
+(** The copropuct of a family of functors *)
+Definition coproduct_of_functors_alt (I : UU) {C D : precategory}
+  (HD : Coproducts I D) (F : ∏ (i : I), functor C D)
+  := functor_composite (tuple_functor F) (coproduct_functor _ HD).
+
 
 (** * Coproducts lift to functor categories *)
 Section def_functor_pointwise_coprod.
@@ -256,6 +268,12 @@ Qed.
 
 Definition coproduct_of_functors : functor C D :=
   tpair _ _ is_functor_coproduct_of_functors_data.
+
+Lemma coproduct_of_functors_alt_old_eq_coproduct_of_functors :
+  coproduct_of_functors_alt_old _ HD F = coproduct_of_functors.
+Proof.
+now apply (functor_eq _ _ hsD).
+Defined.
 
 Lemma coproduct_of_functors_alt_eq_coproduct_of_functors :
   coproduct_of_functors_alt _ HD F = coproduct_of_functors.

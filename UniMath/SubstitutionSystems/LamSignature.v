@@ -25,7 +25,7 @@ Contents :
 
 Require Import UniMath.Foundations.PartD.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -668,8 +668,6 @@ Lemma is_omega_cocont_Lam
   (LC : Colims_of_shape nat_graph C) : is_omega_cocont (Signature_Functor _ _ _ _ Lam_Sig).
 Proof.
 apply is_omega_cocont_BinCoproduct_of_functors.
-- apply (BinProducts_functor_precat _ _ CP).
-- apply functor_category_has_homsets.
 - apply functor_category_has_homsets.
 - apply (is_omega_cocont_App_H hE).
 - apply (is_omega_cocont_Abs_H LC).

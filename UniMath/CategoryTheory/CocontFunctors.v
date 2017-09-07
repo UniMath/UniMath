@@ -28,10 +28,10 @@ This file also contains proofs that the following functors are (omega-)cocontinu
   [is_cocont_bincoproduct_functor] [is_omega_cocont_bincoproduct_functor]
 - General coproduct functor: C^I -> C
   [is_cocont_coproduct_functor] [is_omega_cocont_coproduct_functor]
-- Binary coproduct of functors: F + G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x
- + G x
-  [is_cocont_BinCoproduct_of_functors_alt] [is_cocont_BinCoproduct_of_functors]
-  [is_omega_cocont_BinCoproduct_of_functors_alt] [is_omega_cocont_BinCoproduct_of_functors]
+- Binary coproduct of functors: F + G : C -> D, x |-> F x + G x
+  [is_cocont_BinCoproduct_of_functors_alt] [is_omega_cocont_BinCoproduct_of_functors_alt]
+  [is_cocont_BinCoproduct_of_functors_alt2] [is_omega_cocont_BinCoproduct_of_functors_alt2]
+  [is_cocont_BinCoproduct_of_functors] [is_omega_cocont_BinCoproduct_of_functors]
 - Coproduct of families of functors: + F_i : C -> D  (generalization of coproduct of functors)
   [is_cocont_coproduct_of_functors_alt] [is_cocont_coproduct_of_functors]
   [is_omega_cocont_coproduct_of_functors_alt] [is_omega_cocont_coproduct_of_functors]
@@ -60,13 +60,14 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.category_hset.
-Require Import UniMath.CategoryTheory.category_hset_structures.
+Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.categories.category_hset_structures.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -76,7 +77,7 @@ Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
 Require Import UniMath.CategoryTheory.exponentials.
@@ -84,12 +85,14 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.CategoryTheory.slicecat.
 
+Local Open Scope cat.
+
 (** * Definition of cocontinuous functors *)
 Section cocont.
 
 Context {C D : precategory} (F : functor C D).
 
-Definition is_cocont : UU := ∏ {g : graph} (d : diagram g C) (L : C)
+Definition is_cocont : UU := ∏ (g : graph) (d : diagram g C) (L : C)
   (cc : cocone d L), preserves_colimit F d L cc.
 
 End cocont.
@@ -772,25 +775,6 @@ Defined.
 
 End pair_functor.
 
-(** TODO: upstream, to with [mapcocone]? *)
-Section mapcocone_functor_composite.
-
-Context {A B C : precategory}
-  (hsA : has_homsets A) (hsB : has_homsets B) (hsC : has_homsets C)
-  (F : functor A B) (G : functor B C).
-
-Lemma mapcocone_functor_composite
-  {g : graph} {D : diagram g A} {a : A} (cc : cocone D a)
-  : mapcocone (functor_composite F G) _ cc
-  = mapcocone G _ (mapcocone F _ cc).
-Proof.
-  apply subtypeEquality.
-  - intros x. repeat (apply impred_isaprop; intro). apply hsC.
-  - reflexivity.
-Qed.
-
-End mapcocone_functor_composite.
-
 (** ** A functor F : A -> product_precategory I B is (omega-)cocontinuous if each F_i : A -> B_i is *)
 Section functor_into_product_precategory.
 (* NOTE: section below on [power_precategory] may be easily(?) generalised to [product_precategory]. *)
@@ -801,7 +785,9 @@ Context {I : UU} {A : precategory} (hsA : has_homsets A)
 
 (* A cocone in the [product_precategory] is a colimit cocone if each of its components is.
 
-Cf. the converse [isColimCocone_functor_into_power] below (currently only for special case of power, not product), which seems to require some additional assumption (e.g. decidable equality on [I]; perhaps other conditions might also suffice. *)
+Cf. the converse [isColimCocone_functor_into_power] below (currently only for special case of power,
+not product), which seems to require some additional assumption (e.g. decidable equality on [I];
+perhaps other conditions might also suffice. *)
 (* NOTE: other lemmas in below on cocones in [power_precategory] may be able to be simplified using this. *)
 Lemma isColimCocone_in_product_precategory
   {g : graph} (c : diagram g (product_precategory I B))
@@ -861,60 +847,27 @@ End functor_into_product_precategory.
 
 Section tuple_functor.
 
-Context {I : UU} {A : precategory} (hsA : has_homsets A)
-  {B : I -> precategory} (hsB : forall i, has_homsets (B i)).
+Context {I : UU} {A : precategory} {B : I -> precategory} (hsB : ∏ i, has_homsets (B i)).
 
-(** TODO: upstream definitions of [tuple_functor], [pr_tuple_functor] to with [product_precategory]/[family_functor]? Indeed: both of those could be defined as instances of [tuple_functor]. TODO: try! *)
-Definition tuple_functor_data (F : forall i, functor A (B i))
-  : functor_data A (product_precategory I B).
-Proof.
-  mkpair.
-  - intros a i; exact (F i a).
-  - intros a b f i; exact (#(F i) f).
-Defined.
-
-Definition tuple_functor_axioms (F : forall i, functor A (B i))
-  : is_functor (tuple_functor_data F).
-Proof.
-  split.
-  - intros a. apply funextsec; intro i. apply functor_id.
-  - intros ? ? ? ? ?. apply funextsec; intro i. apply functor_comp.
-Qed.
-
-Definition tuple_functor (F : forall i, functor A (B i))
-  : functor A (product_precategory I B)
-:= (tuple_functor_data F,, tuple_functor_axioms F).
-
-Definition pr_tuple_functor (F : forall i, functor A (B i)) (i : I)
-  : functor_composite (tuple_functor F) (pr_functor _ B i) = F i.
-Proof.
-  apply subtypeEquality.
-  - intro. apply isaprop_is_functor, hsB.
-  - apply pathsinv0, tppr.
-Defined.
-
-Definition is_cocont_tuple_functor
-  {F : forall i, functor A (B i)}
-  (HF : forall i, is_cocont (F i))
-  : is_cocont (tuple_functor F).
+Lemma is_cocont_tuple_functor {F : ∏ i, functor A (B i)}
+  (HF : ∏ i, is_cocont (F i)) : is_cocont (tuple_functor F).
 Proof.
   apply is_cocont_functor_into_product_precategory; try apply hsB.
-  intro i. rewrite pr_tuple_functor. apply HF.
+  intro i; rewrite (pr_tuple_functor hsB); apply HF.
 Defined.
 
-Definition is_omega_cocont_tuple_functor
-  {F : forall i, functor A (B i)}
-  (HF : forall i, is_omega_cocont (F i))
-  : is_omega_cocont (tuple_functor F).
+Lemma is_omega_cocont_tuple_functor {F : ∏ i, functor A (B i)}
+  (HF : ∏ i, is_omega_cocont (F i)) : is_omega_cocont (tuple_functor F).
 Proof.
   apply is_omega_cocont_functor_into_product_precategory; try apply hsB.
-  intro i. rewrite pr_tuple_functor. apply HF.
+  intro i; rewrite  (pr_tuple_functor hsB); apply HF.
 Defined.
 
 End tuple_functor.
 
 (** ** A family of functor F^I : A^I -> B^I is omega cocontinuous if each F_i is *)
-(** TODO: split out section [pr_functor], and then factor results on [family_functor] using that together with [tuple_functor] (maybe after redefining [family_functor] using [tuple_functor]. *)
+(** TODO: split out section [pr_functor], and then factor results on [family_functor] using that
+together with [tuple_functor] (maybe after redefining [family_functor] using [tuple_functor]. *)
 Section family_functor.
 
 Context {I : UU} {A B : precategory} (hsA : has_homsets A) (hsB : has_homsets B).
@@ -1114,30 +1067,26 @@ End coprod_functor.
 (** ** Binary coproduct of functors: F + G : C -> D is omega cocontinuous *)
 Section BinCoproduct_of_functors.
 
-Context {C D : precategory} (PC : BinProducts C) (HD : BinCoproducts D)
-        (hsC : has_homsets C) (hsD : has_homsets D).
-
+Context {C D : precategory} (HD : BinCoproducts D) (hsD : has_homsets D).
 
 Lemma is_cocont_BinCoproduct_of_functors_alt {F G : functor C D}
   (HF : is_cocont F) (HG : is_cocont G) :
-  is_cocont (BinCoproduct_of_functors_alt HD F G).
+  is_cocont (BinCoproduct_of_functors_alt hsD HD F G).
 Proof.
 apply (is_cocont_functor_composite hsD).
-  apply (is_cocont_bindelta_functor PC hsC).
-apply (is_cocont_functor_composite hsD).
-  apply (is_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
-apply (is_cocont_bincoproduct_functor _ hsD).
+- apply is_cocont_tuple_functor; [intros b; apply hsD|].
+  induction i; assumption.
+- apply is_cocont_coproduct_functor, hsD.
 Defined.
 
 Lemma is_omega_cocont_BinCoproduct_of_functors_alt {F G : functor C D}
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (BinCoproduct_of_functors_alt HD F G).
+  is_omega_cocont (BinCoproduct_of_functors_alt hsD HD F G).
 Proof.
 apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_bindelta_functor PC hsC).
-apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
-apply (is_omega_cocont_bincoproduct_functor _ hsD).
+- apply is_omega_cocont_tuple_functor; [intros b; apply hsD|].
+  induction i; assumption.
+- apply is_omega_cocont_coproduct_functor, hsD.
 Defined.
 
 Definition omega_cocont_BinCoproduct_of_functors_alt (F G : omega_cocont_functor C D) :
@@ -1149,7 +1098,7 @@ Lemma is_cocont_BinCoproduct_of_functors (F G : functor C D)
   is_cocont (BinCoproduct_of_functors _ _ HD F G).
 Proof.
 exact (transportf _
-         (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors C D HD hsD F G)
+         (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors _ _ _ _ F G)
          (is_cocont_BinCoproduct_of_functors_alt HF HG)).
 Defined.
 
@@ -1158,7 +1107,7 @@ Lemma is_omega_cocont_BinCoproduct_of_functors (F G : functor C D)
   is_omega_cocont (BinCoproduct_of_functors _ _ HD F G).
 Proof.
 exact (transportf _
-         (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors C D HD hsD F G)
+         (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors _ _ _ _ F G)
          (is_omega_cocont_BinCoproduct_of_functors_alt HF HG)).
 Defined.
 
@@ -1167,34 +1116,49 @@ Definition omega_cocont_BinCoproduct_of_functors
   omega_cocont_functor C D :=
     tpair _ _ (is_omega_cocont_BinCoproduct_of_functors _ _ (pr2 F) (pr2 G)).
 
+(* Keep these as they have better computational behavior than the one for _alt above *)
+Lemma is_cocont_BinCoproduct_of_functors_alt2 {hsC : has_homsets C}
+  (PC : BinProducts C) (F G : functor C D)
+  (HF : is_cocont F) (HG : is_cocont G) :
+  is_cocont (BinCoproduct_of_functors_alt2 HD F G).
+Proof.
+apply (is_cocont_functor_composite hsD).
+  apply (is_cocont_bindelta_functor PC hsC).
+apply (is_cocont_functor_composite hsD).
+  apply (is_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
+apply (is_cocont_bincoproduct_functor _ hsD).
+Defined.
+
+Lemma is_omega_cocont_BinCoproduct_of_functors_alt2 (hsC : has_homsets C)
+  (PC : BinProducts C) (F G : functor C D)
+  (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
+  is_omega_cocont (BinCoproduct_of_functors_alt2 HD F G).
+Proof.
+apply (is_omega_cocont_functor_composite hsD).
+  apply (is_omega_cocont_bindelta_functor PC hsC).
+apply (is_omega_cocont_functor_composite hsD).
+  apply (is_omega_cocont_pair_functor _ _ hsC hsC hsD hsD HF HG).
+apply (is_omega_cocont_bincoproduct_functor _ hsD).
+Defined.
+
+Definition omega_cocont_BinCoproduct_of_functors_alt2 (hsC : has_homsets C)
+  (PC : BinProducts C) (F G : omega_cocont_functor C D) :
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_BinCoproduct_of_functors_alt2 hsC PC _ _ (pr2 F) (pr2 G)).
+
 End BinCoproduct_of_functors.
 
 (** ** Coproduct of families of functors: + F_i : C -> D is omega cocontinuous *)
 Section coproduct_of_functors.
 
-Context {I : UU} {C D : precategory} (HD : Coproducts I D)
-        (hsC : has_homsets C) (hsD : has_homsets D).
-
-(** todo: upstream? *)
-Local Definition coproduct_of_functors_alt2 (F : ∏ (i : I), functor C D)
-  := functor_composite (tuple_functor F) (coproduct_functor _ HD).
-
-Local Lemma coproduct_of_functors_alt2_eq_coproduct_of_functors
-  (F : ∏ (i : I), functor C D)
-  : coproduct_of_functors_alt2 F
-  = coproduct_of_functors I C D HD F.
-Proof.
-  apply subtypeEquality.
-  - intro; apply isaprop_is_functor, hsD.
-  - reflexivity.
-Defined.
+Context {I : UU} {C D : precategory} (HD : Coproducts I D) (hsD : has_homsets D).
 
 Lemma is_cocont_coproduct_of_functors
   {F : ∏ (i : I), functor C D} (HF : ∏ i, is_cocont (F i)) :
   is_cocont (coproduct_of_functors I _ _ HD F).
 Proof.
   refine (transportf _
-        (coproduct_of_functors_alt2_eq_coproduct_of_functors F)
+        (coproduct_of_functors_alt_eq_coproduct_of_functors _ _ _ _ hsD F)
         _).
   apply is_cocont_functor_composite; try apply hsD.
   - apply is_cocont_tuple_functor; try (intro; apply hsD).
@@ -1207,7 +1171,7 @@ Lemma is_omega_cocont_coproduct_of_functors
   is_omega_cocont (coproduct_of_functors I _ _ HD F).
 Proof.
   refine (transportf _
-        (coproduct_of_functors_alt2_eq_coproduct_of_functors F)
+        (coproduct_of_functors_alt_eq_coproduct_of_functors _ _ _ _ hsD F)
         _).
   apply is_omega_cocont_functor_composite; try apply hsD.
   - apply is_omega_cocont_tuple_functor; try (intro; apply hsD).
@@ -1700,14 +1664,14 @@ End post_composition_functor.
 (** * Swapping of functor category arguments *)
 Section functor_swap.
 
-Lemma is_cocont_functor_cat_swap (C D : precategory) (E : Precategory) :
+Lemma is_cocont_functor_cat_swap (C D : precategory) (E : category) :
   is_cocont (functor_cat_swap C D E).
 Proof.
 apply left_adjoint_cocont; try apply homset_property.
 apply is_left_adjoint_functor_cat_swap.
 Defined.
 
-Lemma is_omega_cocont_functor_cat_swap (C D : precategory) (E : Precategory) :
+Lemma is_omega_cocont_functor_cat_swap (C D : precategory) (E : category) :
   is_omega_cocont (functor_cat_swap C D E).
 Proof.
 intros d L ccL HccL.
@@ -1719,7 +1683,7 @@ End functor_swap.
 (** * The forgetful functor from Set/X to Set preserves colimits *)
 Section cocont_slicecat_to_cat_HSET.
 
-Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET).
+Local Notation "HSET / X" := (slice_precat HSET X has_homsets_HSET) (only parsing).
 
 Lemma preserves_colimit_slicecat_to_cat_HSET (X : HSET)
   (g : graph) (d : diagram g (HSET / X)) (L : HSET / X) (ccL : cocone d L) :
@@ -1764,7 +1728,7 @@ transparent assert (cc : (cocone d c)).
     mkpair; simpl.
     + intros z.
       mkpair.
-      * apply (pr2 L), (pr1 (coconeIn ccL n) z).
+      * exact (pr2 L (pr1 (coconeIn ccL n) z)).
       * apply (coconeIn ccy n z).
     + abstract (now apply funextsec; intro z;
                 apply (toforallpaths _ _ _ (pr2 (coconeIn ccL n)) z)).
@@ -1772,7 +1736,8 @@ transparent assert (cc : (cocone d c)).
     use total2_paths_f;
       [ apply (maponpaths _ (toforallpaths _ _ _
                  (maponpaths pr1 (coconeInCommutes ccL m n e)) z))|];
-    cbn in *; induction (maponpaths _ _);
+    cbn in *; induction (maponpaths pr1 _);
+    simpl;
     now rewrite idpath_transportf, <- (coconeInCommutes ccy m n e)).
 }
 use unique_exists.
@@ -1821,16 +1786,8 @@ Notation "F * G" :=
      F G) : cocont_functor_hset_scope.
 
 Notation "F + G" :=
-  (omega_cocont_BinCoproduct_of_functors_alt BinProductsHSET BinCoproductsHSET
-     has_homsets_HSET has_homsets_HSET F G) : cocont_functor_hset_scope.
-
-(* omega_cocont_coproduct_functor has worse computational behavior
-   than omega_cocont_coproduct_of_functors and breaks
-   isalghom_pr1foldr in lists *)
-(* Notation "F + G" := *)
-(*   (omega_cocont_coproduct_functor _ _ ProductsHSET CoproductsHSET *)
-(*      has_homsets_HSET has_homsets_HSET _ _ (pr2 F) (pr2 G)) : *)
-(*     cocont_functor_hset_scope. *)
+  (omega_cocont_BinCoproduct_of_functors_alt2
+     BinCoproductsHSET has_homsets_HSET has_homsets_HSET BinProductsHSET F G) : cocont_functor_hset_scope.
 
 Notation "1" := (unitHSET) : cocont_functor_hset_scope.
 Notation "0" := (emptyHSET) : cocont_functor_hset_scope.

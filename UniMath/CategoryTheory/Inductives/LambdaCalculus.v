@@ -8,18 +8,20 @@ SubstitutionSystems/LamFromBindingSig.v.
 Written by: Anders Mörtberg, 2016
 
 *)
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.category_hset.
-Require Import UniMath.CategoryTheory.category_hset_structures.
+Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.categories.category_hset_structures.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -32,6 +34,8 @@ Require Import UniMath.CategoryTheory.EquivalencesExamples.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
+
+Local Open Scope cat.
 
 Local Notation "'chain'" := (diagram nat_graph).
 
@@ -78,8 +82,7 @@ Local Notation "F * G" :=
      (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2 has_exponentials_HSET2) F G).
 
 Local Notation "F + G" :=
-  (omega_cocont_BinCoproduct_of_functors_alt BinProductsHSET2 BinCoproductsHSET2
-     has_homsets_HSET2 has_homsets_HSET2 F G).
+  (omega_cocont_BinCoproduct_of_functors BinCoproductsHSET2 has_homsets_HSET2 F G).
 
 Local Notation "'_' 'o' 'option'" :=
   (omega_cocont_pre_composition_functor

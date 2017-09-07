@@ -10,10 +10,13 @@ Written by: Benedikt Ahrens, Ralph Matthes (2015)
 
 Require Import UniMath.Foundations.PartD.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.MoreFoundations.Tactics.
+
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+
 Local Open Scope cat.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
@@ -108,3 +111,17 @@ Proof.
     apply pathsinv0.
     apply nat_trans_ax.
 Defined.
+
+Lemma horcomp_pre_post
+      (C D:precategory) ( E : category) (F F' : functor C D) (G G' : functor D E) (f:nat_trans F F')
+      (g:nat_trans G G') :
+  horcomp f g = compose (C:=functor_category C E) (a:= (G □ F)) (b:= (G' □ F)) (c:= (G' □ F'))
+                        (pre_whisker F g)
+                        (post_whisker f G').
+Proof.
+  intros.
+  apply nat_trans_eq.
+  apply homset_property.
+  intros;
+    apply idpath.
+Qed.

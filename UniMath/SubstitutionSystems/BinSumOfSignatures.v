@@ -20,9 +20,8 @@ Contents:
 
 Require Import UniMath.Foundations.PartD.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -32,6 +31,8 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+
+Local Open Scope cat.
 
 Section binsum_of_signatures.
 
@@ -226,16 +227,14 @@ Proof.
 Defined.
 
 Lemma is_omega_cocont_BinSum_of_Signatures (S1 S2 : Signature C hsC D hs)
-  (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2) (PC : BinProducts C) :
+  (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2) :
   is_omega_cocont (BinSum_of_Signatures S1 S2).
 Proof.
 destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.
 destruct S2 as [G1 [G2 [G3 G4]]]; simpl in *.
 unfold H.
 apply is_omega_cocont_BinCoproduct_of_functors; try assumption.
-- apply (BinProducts_functor_precat _ _ PC).
-- apply functor_category_has_homsets.
-- apply functor_category_has_homsets.
+apply functor_category_has_homsets.
 Defined.
 
 End binsum_of_signatures.

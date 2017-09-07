@@ -11,9 +11,10 @@ Revised and extended by Ralph Matthes, 2017
 
 Require Import UniMath.Foundations.PartD.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.MoreFoundations.Tactics.
+
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -21,12 +22,11 @@ Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
-(*
-Require Import UniMath.SubstitutionSystems.Lam.
-*)
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
+
+Local Open Scope cat.
 
 Section around_δ.
 
@@ -502,10 +502,10 @@ End id_signature.
 
 Section constantly_constant_signature.
 
-  Variable (C D : Precategory).
+  Variable (C D : category).
   Variable (d : D).
 
-  Let H := constant_functor (functor_Precategory C C) (functor_Precategory C D) (constant_functor C D d).
+  Let H := constant_functor (functor_category C C) (functor_category C D) (constant_functor C D d).
 
   Definition θ_const_const : ∑
   θ : θ_source H  ⟹ θ_target H, θ_Strength1_int θ × θ_Strength2_int θ.

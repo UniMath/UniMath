@@ -10,20 +10,24 @@ Direct implementation of pullbacks together with:
   ([Pullbacks_from_Equalizers_BinProducts])
 - A fully faithful functor reflects limits ([isPullback_preimage_square])
 - A fully faithfull and essentially surjects functor preserves pullbacks ([isPullback_image_square])
-- Pullbacks in functor categories ([pb_if_pointwise_pb])
+- Pullbacks in functor categories ([FunctorcategoryPullbacks])
 - Construction of binary products from pullbacks ([BinProductsFromPullbacks])
 
 *)
-Require Import UniMath.Foundations.PartD.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
+
+Require Import UniMath.MoreFoundations.Tactics.
+
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.Monics.
-Require Import UniMath.Foundations.Propositions.
+
+Local Open Scope cat.
 
 (** Definition of pullbacks *)
 Section def_pb.
@@ -312,7 +316,7 @@ End pullback_lemma.
 
 Section Universal_Unique.
 
-Hypothesis H : is_category C.
+Hypothesis H : is_univalent C.
 
 Lemma inv_from_iso_iso_from_Pullback (a b c : C) (f : b --> a) (g : c --> a)
   (Pb : Pullback f g) (Pb' : Pullback f g):
@@ -903,7 +907,7 @@ Definition maps_pb_square_to_pb_square
   isPullback _ _ _ _ H -> isPullback _ _ _ _ (functor_on_square H).
 
 Definition maps_pb_squares_to_pb_squares :=
-   ∏ {a b c d : C}
+   ∏ (a b c d : C)
      {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
      (H : h · f = k · g),
      maps_pb_square_to_pb_square H.
@@ -1032,7 +1036,7 @@ Section pullbacks_functor_category.
   Hypothesis hs : has_homsets C.
   Hypothesis hpb : @Pullbacks C.
 
-  Local Lemma FunctorPrecategoryPullbacks_eq (F G H : functor D C) (α : nat_trans G F)
+  Local Lemma FunctorcategoryPullbacks_eq (F G H : functor D C) (α : nat_trans G F)
         (β : nat_trans H F) (a b : D) (f : D ⟦a, b⟧) :
     PullbackPr1 (hpb _ _ _ (α a) (β a)) · # G f · α b =
     PullbackPr2 (hpb _ _ _ (α a) (β a)) · # H f · β b.
@@ -1046,7 +1050,7 @@ Section pullbacks_functor_category.
     exact (PullbackSqrCommutes pba).
   Qed.
 
-  Local Lemma FunctorPrecategoryPullbacks_isfunctor (F G H : functor D C) (α : nat_trans G F)
+  Local Lemma FunctorcategoryPullbacks_isfunctor (F G H : functor D C) (α : nat_trans G F)
         (β : nat_trans H F) :
     is_functor
       (mk_functor_data
@@ -1057,7 +1061,7 @@ Section pullbacks_functor_category.
             (hpb (F a) (G a) (H a) (α a) (β a))
             (PullbackPr1 (hpb (F a) (G a) (H a) (α a) (β a)) · # G f)
             (PullbackPr2 (hpb (F a) (G a) (H a) (α a) (β a)) · # H f)
-            (FunctorPrecategoryPullbacks_eq F G H α β a b f))).
+            (FunctorcategoryPullbacks_eq F G H α β a b f))).
   Proof.
     split.
     intros x. apply pathsinv0. cbn.
@@ -1070,19 +1074,19 @@ Section pullbacks_functor_category.
     set (pz := hpb (F z) (G z) (H z) (α z) (β z)).
     set (pz1 := PullbackArrow_PullbackPr1 pz py (PullbackPr1 py · # G g)
                                           (PullbackPr2 py · # H g)
-                                          (FunctorPrecategoryPullbacks_eq
+                                          (FunctorcategoryPullbacks_eq
                                              F G H α β y z g)).
     set (pz2 := PullbackArrow_PullbackPr2 pz py (PullbackPr1 py · # G g)
                                           (PullbackPr2 py · # H g)
-                                          (FunctorPrecategoryPullbacks_eq
+                                          (FunctorcategoryPullbacks_eq
                                              F G H α β y z g)).
     set (py1 := PullbackArrow_PullbackPr1 py px (PullbackPr1 px · # G f)
                                           (PullbackPr2 px · # H f)
-                                          (FunctorPrecategoryPullbacks_eq
+                                          (FunctorcategoryPullbacks_eq
                                              F G H α β x y f)).
     set (py2 := PullbackArrow_PullbackPr2 py px (PullbackPr1 px · # G f)
                                           (PullbackPr2 px · # H f)
-                                          (FunctorPrecategoryPullbacks_eq
+                                          (FunctorcategoryPullbacks_eq
                                              F G H α β x y f)).
     apply pathsinv0. cbn. fold px. fold py. fold pz.
     use PullbackArrowUnique.
@@ -1097,7 +1101,7 @@ Section pullbacks_functor_category.
     apply py2.
   Qed.
 
-  Local Definition FunctorPrecategoryPullbacks_functor (F G H : functor D C) (α : nat_trans G F)
+  Local Definition FunctorcategoryPullbacks_functor (F G H : functor D C) (α : nat_trans G F)
         (β : nat_trans H F) : functor D C.
   Proof.
     use mk_functor.
@@ -1108,13 +1112,13 @@ Section pullbacks_functor_category.
         use (PullbackArrow (hpb _ _ _ (α b) (β b)) _
                            (PullbackPr1 (hpb _ _ _ (α a) (β a)) · (# G f))
                            (PullbackPr2 (hpb _ _ _ (α a) (β a)) · (# H f))
-                           (FunctorPrecategoryPullbacks_eq F G H α β a b f)).
-    - exact (FunctorPrecategoryPullbacks_isfunctor F G H α β).
+                           (FunctorcategoryPullbacks_eq F G H α β a b f)).
+    - exact (FunctorcategoryPullbacks_isfunctor F G H α β).
   Defined.
 
-  Local Lemma FunctorPrecategoryPullbacks_is_nat_trans1 (F G H : functor D C) (α : nat_trans G F)
+  Local Lemma FunctorcategoryPullbacks_is_nat_trans1 (F G H : functor D C) (α : nat_trans G F)
         (β : nat_trans H F) :
-    is_nat_trans (FunctorPrecategoryPullbacks_functor F G H α β) G
+    is_nat_trans (FunctorcategoryPullbacks_functor F G H α β) G
                  (λ x : D, PullbackPr1 (hpb (F x) (G x) (H x) (α x) (β x))).
   Proof.
     intros x x' f. cbn.
@@ -1122,21 +1126,21 @@ Section pullbacks_functor_category.
     set (px' := hpb (F x') (G x') (H x') (α x') (β x')).
     apply (PullbackArrow_PullbackPr1 px' px (PullbackPr1 px · # G f)
                                      (PullbackPr2 px · # H f)
-                                     (FunctorPrecategoryPullbacks_eq
+                                     (FunctorcategoryPullbacks_eq
                                         F G H α β x x' f)).
   Qed.
 
-  Local Definition FunctorPrecategoryPullbacks_nat_trans1 (F G H : functor D C) (α : nat_trans G F)
-        (β : nat_trans H F) : nat_trans (FunctorPrecategoryPullbacks_functor F G H α β) G.
+  Local Definition FunctorcategoryPullbacks_nat_trans1 (F G H : functor D C) (α : nat_trans G F)
+        (β : nat_trans H F) : nat_trans (FunctorcategoryPullbacks_functor F G H α β) G.
   Proof.
     use mk_nat_trans.
     - intros x. exact (PullbackPr1 (hpb (F x) (G x) (H x) (α x) (β x))).
-    - exact (FunctorPrecategoryPullbacks_is_nat_trans1 F G H α β).
+    - exact (FunctorcategoryPullbacks_is_nat_trans1 F G H α β).
   Defined.
 
-  Local Lemma FunctorPrecategoryPullbacks_is_nat_trans2 (F G H : functor D C) (α : nat_trans G F)
+  Local Lemma FunctorcategoryPullbacks_is_nat_trans2 (F G H : functor D C) (α : nat_trans G F)
         (β : nat_trans H F) :
-    is_nat_trans (FunctorPrecategoryPullbacks_functor F G H α β) H
+    is_nat_trans (FunctorcategoryPullbacks_functor F G H α β) H
                  (λ x : D, PullbackPr2 (hpb (F x) (G x) (H x) (α x) (β x))).
   Proof.
     intros x x' f. cbn.
@@ -1144,40 +1148,40 @@ Section pullbacks_functor_category.
     set (px' := hpb (F x') (G x') (H x') (α x') (β x')).
     apply (PullbackArrow_PullbackPr2 px' px (PullbackPr1 px · # G f)
                                      (PullbackPr2 px · # H f)
-                                     (FunctorPrecategoryPullbacks_eq
+                                     (FunctorcategoryPullbacks_eq
                                         F G H α β x x' f)).
   Qed.
 
 
-  Local Definition FunctorPrecategoryPullbacks_nat_trans2 (F G H : functor D C) (α : nat_trans G F)
-        (β : nat_trans H F) : nat_trans (FunctorPrecategoryPullbacks_functor F G H α β) H.
+  Local Definition FunctorcategoryPullbacks_nat_trans2 (F G H : functor D C) (α : nat_trans G F)
+        (β : nat_trans H F) : nat_trans (FunctorcategoryPullbacks_functor F G H α β) H.
   Proof.
     use mk_nat_trans.
     - intros x. exact (PullbackPr2 (hpb (F x) (G x) (H x) (α x) (β x))).
-    - exact (FunctorPrecategoryPullbacks_is_nat_trans2 F G H α β).
+    - exact (FunctorcategoryPullbacks_is_nat_trans2 F G H α β).
   Defined.
 
-  Local Lemma FunctorPrecategoryPullbacks_comm (F G H : functor D C) (α : nat_trans G F)
+  Local Lemma FunctorcategoryPullbacks_comm (F G H : functor D C) (α : nat_trans G F)
         (β : nat_trans H F) :
-    nat_trans_comp _ _ _ (FunctorPrecategoryPullbacks_nat_trans1 F G H α β) α =
-    nat_trans_comp _ _ _ (FunctorPrecategoryPullbacks_nat_trans2 F G H α β) β.
+    nat_trans_comp _ _ _ (FunctorcategoryPullbacks_nat_trans1 F G H α β) α =
+    nat_trans_comp _ _ _ (FunctorcategoryPullbacks_nat_trans2 F G H α β) β.
   Proof.
     use (nat_trans_eq hs). intros x.
     apply (PullbackSqrCommutes (hpb (F x) (G x) (H x) (α x) (β x))).
   Qed.
 
-  Definition FunctorPrecategoryPullbacks : @Pullbacks (functor_precategory D C hs).
+  Definition FunctorcategoryPullbacks : @Pullbacks (functor_precategory D C hs).
   Proof.
     intros F G H α β. cbn in F, G, H, α, β.
     use mk_Pullback.
     (* Pullback object *)
-    - exact (FunctorPrecategoryPullbacks_functor F G H α β).
+    - exact (FunctorcategoryPullbacks_functor F G H α β).
     (* Pr1 *)
-    - exact (FunctorPrecategoryPullbacks_nat_trans1 F G H α β).
+    - exact (FunctorcategoryPullbacks_nat_trans1 F G H α β).
     (* Pr2 *)
-    - exact (FunctorPrecategoryPullbacks_nat_trans2 F G H α β).
+    - exact (FunctorcategoryPullbacks_nat_trans2 F G H α β).
     (* Commutativity of the square *)
-    - exact (FunctorPrecategoryPullbacks_comm F G H α β).
+    - exact (FunctorcategoryPullbacks_comm F G H α β).
     (* isPullback *)
     - apply pb_if_pointwise_pb. intros x. cbn. apply isPullback_Pullback.
   Defined.

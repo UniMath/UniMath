@@ -9,12 +9,12 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 
+Local Open Scope cat.
 
 (** * Definition of coequalizers in terms of colimits *)
 Section def_coequalizers.
@@ -39,8 +39,8 @@ Section def_coequalizers.
   Definition Coequalizer_diagram {a b : C} (f g : C⟦a, b⟧) : diagram Coequalizer_graph C.
   Proof.
     exists (two_rec a b).
-    use two_rec_dep; cbn.
-    - use two_rec_dep; cbn.
+    use two_rec_dep.
+    - use two_rec_dep; simpl.
       + apply fromempty.
       + intro x. induction x.
         exact f. exact g.
@@ -51,12 +51,12 @@ Section def_coequalizers.
              (H : f · h = g · h) : cocone (Coequalizer_diagram f g) d.
   Proof.
     use mk_cocone.
-    - use two_rec_dep; cbn.
+    - use two_rec_dep.
       + exact (f · h).
       + exact h.
-    - use two_rec_dep; cbn; use two_rec_dep; cbn.
+    - use two_rec_dep; use two_rec_dep.
       + exact (Empty_set_rect _).
-      + intro e. unfold idfun. induction e.
+      + intro e. induction e.
         * apply idpath.
         * apply (! H).
       + exact (Empty_set_rect _).
@@ -83,16 +83,16 @@ Section def_coequalizers.
     set (H2 := (H' x (coconeIn cx Two) H1)).
     use tpair.
     - use (tpair _ (pr1 (pr1 H2)) _).
-      use two_rec_dep; cbn; unfold idfun.
+      use two_rec_dep.
       + use (pathscomp0 _ (coconeInCommutes cx One Two (ii1 tt))).
-        rewrite <- assoc. cbn. apply cancel_precomposition.
-        apply (pr2 (pr1 H2)).
+        change (coconeIn (Coequalizer_cocone f g d h H) _) with (f · h).
+        change (dmor _ _) with f.
+        rewrite <- assoc.
+        apply cancel_precomposition, (pr2 (pr1 H2)).
       + apply (pr2 (pr1 H2)).
-    - intro t. apply subtypeEquality.
-      intros y. apply impred. intros t0. apply hs.
-      induction t as [t p]. cbn.
-      apply path_to_ctr.
-      apply (p Two).
+    - abstract (intro t; apply subtypeEquality;
+               [intros y; apply impred; intros t0; apply hs
+               |induction t as [t p]; apply path_to_ctr, (p Two)]).
   Defined.
 
   Definition Coequalizer {a b : C} (f g : C⟦a, b⟧) : UU := ColimCocone (Coequalizer_diagram f g).
@@ -130,18 +130,7 @@ Section def_coequalizers.
   Definition CoequalizerOut {a b : C} {f g : C⟦a, b⟧} (E : Coequalizer f g) e (h : C⟦b, e⟧)
              (H : f · h = g · h) : C⟦colim E, e⟧.
   Proof.
-    use colimArrow.
-    use mk_cocone.
-    - use two_rec_dep; cbn.
-      + exact (f · h).
-      + exact h.
-    - use two_rec_dep; cbn; use two_rec_dep; cbn.
-      + exact (Empty_set_rect _).
-      + intro e0. unfold idfun. induction e0.
-        * apply idpath.
-        * apply (! H).
-      + exact (Empty_set_rect _).
-      + exact (Empty_set_rect _).
+    now use colimArrow; use Coequalizer_cocone.
   Defined.
 
   Lemma CoequalizerArrowComm {a b : C} {f g : C⟦a, b⟧} (E : Coequalizer f g) (e : C) (h : C⟦b, e⟧)
@@ -155,12 +144,13 @@ Section def_coequalizers.
     w = CoequalizerOut E e h H.
   Proof.
     apply path_to_ctr.
-    use two_rec_dep; cbn.
+    use two_rec_dep.
     - set (X := colimInCommutes E One Two (ii1 tt)).
       apply (maponpaths (fun h : _ => h · w)) in X.
-      use (pathscomp0 (!X)). cbn. rewrite <- assoc.
-      unfold idfun. apply cancel_precomposition.
-      apply H'.
+      use (pathscomp0 (!X)); rewrite <- assoc.
+      change (dmor _ _) with f.
+      change (coconeIn _ _) with (f · h).
+      apply cancel_precomposition, H'.
     - apply H'.
   Qed.
 

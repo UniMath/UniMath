@@ -20,11 +20,11 @@ Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.Opp.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.opp_precat.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Morphisms.
-Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
@@ -276,10 +276,10 @@ Section def_pseudo_element.
     use PEq_Im_Paths. exact H.
   Qed.
 
-  Definition PZero {c : A} (d : A) : PseudoElem c := mk_PseudoElem (ZeroArrow to_Zero d c).
+  Definition PZero {c : A} (d : A) : PseudoElem c := mk_PseudoElem (ZeroArrow (to_Zero A) d c).
 
   Lemma PEq_Zero_Eq' {c : A} (d : A) (PE : PseudoElem c) :
-    PEq PE (PZero d) -> (PE : A⟦_,_⟧ ) = ZeroArrow to_Zero _ _.
+    PEq PE (PZero d) -> (PE : A⟦_,_⟧ ) = ZeroArrow (to_Zero A) _ _.
   Proof.
     intros X1.
     set (tmp := PEqEq X1). cbn in tmp. rewrite ZeroArrow_comp_right in tmp.
@@ -288,7 +288,7 @@ Section def_pseudo_element.
   Qed.
 
   Lemma PEq_Zero_Eq {c : A} (PE : PseudoElem c) :
-    PEq_hrel PE (PZero (PseudoOb PE)) -> (PE : A⟦_,_⟧ ) = ZeroArrow to_Zero _ _.
+    PEq_hrel PE (PZero (PseudoOb PE)) -> (PE : A⟦_,_⟧ ) = ZeroArrow (to_Zero A) _ _.
   Proof.
     intros H1. use (squash_to_prop H1). apply hs. intros X1. exact (PEq_Zero_Eq' _ PE X1).
   Qed.
@@ -319,14 +319,14 @@ Section def_pseudo_element.
   Qed.
 
   Local Lemma PEq_Eq_Zero_Eq {c : A} (PE : PseudoElem c)
-        (H : (PE : A⟦_, c⟧) = ZeroArrow to_Zero _ _) :
-    identity (PseudoOb PE) · ZeroArrow to_Zero (PseudoOb PE) c = identity (PseudoOb PE) · PE.
+        (H : (PE : A⟦_, c⟧) = ZeroArrow (to_Zero A) _ _) :
+    identity (PseudoOb PE) · ZeroArrow (to_Zero A) (PseudoOb PE) c = identity (PseudoOb PE) · PE.
   Proof.
     rewrite id_left. rewrite id_left. apply pathsinv0. exact H.
   Qed.
 
   Lemma PEq_Eq_Zero {c : A} (PE : PseudoElem c) :
-    (PE : A⟦_, c⟧) = ZeroArrow to_Zero _ _ -> PEq PE (PZero (PseudoOb PE)).
+    (PE : A⟦_, c⟧) = ZeroArrow (to_Zero A) _ _ -> PEq PE (PZero (PseudoOb PE)).
   Proof.
     intros H.
     use mk_PEq.
@@ -340,7 +340,7 @@ Section def_pseudo_element.
 
   (** *** Zero criteria *)
   Lemma PEq_ZeroArrow {c d : ob A} (f : c --> d) :
-    f = ZeroArrow to_Zero _ _ <-> (∏ (a : PseudoElem c), a · f = ZeroArrow to_Zero _ _).
+    f = ZeroArrow (to_Zero A) _ _ <-> (∏ (a : PseudoElem c), a · f = ZeroArrow (to_Zero A) _ _).
   Proof.
     split.
     - intros H. intros a. rewrite H. apply ZeroArrow_comp_right.
@@ -352,7 +352,7 @@ Section def_pseudo_element.
 
   Lemma PEq_isMonic {c d : ob A} (f : c --> d) :
     isMonic f <-> (∏ (d' : ob A) (a : PseudoElem c),
-                 PEq (PseudoIm a f) (PZero d') -> ZeroArrow to_Zero _ _ = a).
+                 PEq (PseudoIm a f) (PZero d') -> ZeroArrow (to_Zero A) _ _ = a).
   Proof.
     split.
     - intros isM. intros d' a X. use isM. rewrite ZeroArrow_comp_left.
@@ -412,9 +412,10 @@ Section def_pseudo_element.
 
   (** *** isExact criteria *)
 
-  Lemma PEq_isExact {x y z : ob A} (f : x --> y) (g : y --> z) (H : f · g = ZeroArrow to_Zero _ _) :
+  Lemma PEq_isExact {x y z : ob A} (f : x --> y) (g : y --> z)
+        (H : f · g = ZeroArrow (to_Zero A) _ _) :
     isExact A hs f g H <->
-    ∏ (b : PseudoElem y) (H : b · g = ZeroArrow to_Zero _ _), PFiber f b.
+    ∏ (b : PseudoElem y) (H : b · g = ZeroArrow (to_Zero A) _ _), PFiber f b.
   Proof.
     split.
     - intros isK b H'. unfold isExact in isK.
@@ -433,7 +434,7 @@ Section def_pseudo_element.
           apply (maponpaths (fun gg : _ => gg · (factorization1_monic A f))) in tmp.
           rewrite <- assoc in tmp. rewrite <- tmp' in tmp. clear tmp'.
           use (pathscomp0 tmp). clear tmp. rewrite <- assoc. apply cancel_precomposition.
-          use (KernelCommutes to_Zero K).
+          use (KernelCommutes (to_Zero A) K).
     - intros X.
       set (fac := factorization1 hs f).
       use mk_isKernel.
@@ -477,7 +478,7 @@ Section def_pseudo_element.
         * cbn. cbn in e1. rewrite <- e1. apply idpath.
         * intros y0. apply hs.
         * intros y0 XX. cbn in XX.
-          use (KernelArrowisMonic to_Zero (Abelian.Image f)). rewrite XX.
+          use (KernelArrowisMonic (to_Zero A) (Abelian.Image f)). rewrite XX.
           apply e1.
   Qed.
 
@@ -486,15 +487,15 @@ Section def_pseudo_element.
   (** **** Data for Difference *)
   Definition PDiff {x y : ob A} {a a' : PseudoElem x} (f : x --> y)
              (H : PEq (PseudoIm a f) (PseudoIm a' f)) : UU :=
-    ∑ (a'' : PseudoElem x) (H' : a'' · f = ZeroArrow to_Zero _ _),
+    ∑ (a'' : PseudoElem x) (H' : a'' · f = ZeroArrow (to_Zero A) _ _),
     ∏ (z : ob A) (g : x --> z),
-    a · g = ZeroArrow to_Zero _ _ -> PEq (PseudoIm a' g) (PseudoIm a'' g).
+    a · g = ZeroArrow (to_Zero A) _ _ -> PEq (PseudoIm a' g) (PseudoIm a'' g).
 
   Definition mk_PDiff {x y : ob A} {a a' : PseudoElem x} (f : x --> y)
              (H : PEq (PseudoIm a f) (PseudoIm a' f)) (a'' : PseudoElem x)
-             (H' : a'' · f = ZeroArrow to_Zero _ _)
+             (H' : a'' · f = ZeroArrow (to_Zero A) _ _)
              (H'' : ∏ (z : ob A) (g : x --> z),
-                    a · g = ZeroArrow to_Zero _ _ -> PEq (PseudoIm a' g) (PseudoIm a'' g)) :
+                    a · g = ZeroArrow (to_Zero A) _ _ -> PEq (PseudoIm a' g) (PseudoIm a'' g)) :
     PDiff f H := (a'',,(H',,H'')).
 
   Definition PDiffElem {x y : ob A} {a a' : PseudoElem x} {f : x --> y}
@@ -503,12 +504,12 @@ Section def_pseudo_element.
 
   Definition PDiffIm {x y : ob A} {a a' : PseudoElem x} {f : x --> y}
              {H : PEq (PseudoIm a f) (PseudoIm a' f)} (PD : PDiff f H) :
-    PD · f = ZeroArrow to_Zero _ _ := pr1 (pr2 PD).
+    PD · f = ZeroArrow (to_Zero A) _ _ := pr1 (pr2 PD).
 
   Definition PDiffEq {x y : ob A} {a a' : PseudoElem x} {f : x --> y}
              {H : PEq (PseudoIm a f) (PseudoIm a' f)} (PD : PDiff f H) :
     ∏ (z : ob A) (g : x --> z),
-    a · g = ZeroArrow to_Zero _ _ -> PEq (PseudoIm a' g) (PseudoIm PD g) := pr2 (pr2 PD).
+    a · g = ZeroArrow (to_Zero A) _ _ -> PEq (PseudoIm a' g) (PseudoIm PD g) := pr2 (pr2 PD).
 
   (** **** Difference criteria *)
   Local Opaque to_binop to_inv.
@@ -516,7 +517,8 @@ Section def_pseudo_element.
   Local Lemma PEq_Diff_Eq1 {x y : ob A} {a a' : PseudoElem x} (f : x --> y)
         (H : PEq (PseudoIm a f) (PseudoIm a' f)) :
     let PA := (AbelianToAdditive A hs) : PreAdditive in
-    @to_binop PA _ _ (PEqEpi2 H · a) (PEqEpi1 H · @to_inv PA _ _ a') · f = ZeroArrow to_Zero _ _.
+    @to_binop PA _ _ (PEqEpi2 H · a) (PEqEpi1 H · @to_inv PA _ _ a') · f =
+    ZeroArrow (to_Zero A) _ _.
   Proof.
     intros PA.
     set (tmp := PEqEq H). cbn in tmp.
@@ -534,7 +536,7 @@ Section def_pseudo_element.
 
   Local Lemma PEq_Diff_Eq2 {x y : ob A} {a a' : PseudoElem x} (f : x --> y)
         (H : PEq (PseudoIm a f) (PseudoIm a' f)) {z0 : A} {g : A ⟦ x, z0 ⟧}
-        (X : a · g = ZeroArrow to_Zero (PseudoOb a) z0) :
+        (X : a · g = ZeroArrow (to_Zero A) (PseudoOb a) z0) :
     let PA := (AbelianToAdditive A hs) : PreAdditive in
     identity (PEqOb H) · (@to_binop PA (PEqOb H) x (PEqEpi2 H · a)
                                      (PEqEpi1 H · @to_inv PA _ _ a') · g) =

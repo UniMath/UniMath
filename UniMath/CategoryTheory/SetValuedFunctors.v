@@ -3,7 +3,7 @@ Facts about set valued functors
 
 - epimorphic natural transformations are pointwise epimorphic
 - epimorphic natural transformations enjoy a universal property similar to
-surjections (univ_surj_nt)
+surjections [univ_surj_nt]
 - Definition of a quotient functor
 
 Ambroise LAFONT January 2017
@@ -13,16 +13,17 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
-Require Import UniMath.CategoryTheory.category_hset.
-Require Import UniMath.CategoryTheory.category_hset_structures.
+Require Import UniMath.MoreFoundations.Tactics.
 
+Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.categories.category_hset_structures.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.EpiFacts.
-
 Require Import UniMath.CategoryTheory.limits.coequalizers.
+
+Local Open Scope cat.
 
 
 Lemma is_pointwise_epi_from_set_nat_trans_epi (C:precategory)
@@ -30,7 +31,7 @@ Lemma is_pointwise_epi_from_set_nat_trans_epi (C:precategory)
       (h:isEpi (C:=functor_precategory C _ has_homsets_HSET) f)
   : ∏ (x:C), isEpi (f x).
 Proof.
-  apply (Pushouts_pw_epi (D:=hset_Precategory)).
+  apply (Pushouts_pw_epi (D:=hset_category)).
   apply PushoutsHSET_from_Colims.
   apply h.
 Qed.
@@ -49,7 +50,7 @@ Given the following diagram :
  B
 >>>
 there exists a unique natural transformation from B to C that makes the diagram
-commute provided that for any set X, any x,y in X, if p_X x = p_X y then f_X x = f_X y
+commute provided that for any set X, any x,y in X, if [p x = p y] then [f x = f y]
 
 This property comes from the fact that p is an effective epimorphism.
 *)
@@ -70,10 +71,10 @@ Section LiftEpiNatTrans.
   Lemma EffectiveEpis_Functor_HSET : EpisAreEffective C_SET.
   Proof.
     intros F G m isepim.
-    apply (isEffectivePw (D:=hset_Precategory)).
+    apply (isEffectivePw (D:=hset_category)).
     intro x.
     apply EffectiveEpis_HSET.
-    apply (Pushouts_pw_epi (D:=hset_Precategory)
+    apply (Pushouts_pw_epi (D:=hset_category)
                            PushoutsHSET_from_Colims).
     assumption.
   Qed.
@@ -133,11 +134,11 @@ Let C be a category
 Let R be a functor from C to Set.
 
 Let X be an object of C
-Let ~_X a family of equivalence relations on RX satisfying
-if x ~_X y and f : X -> Y, then f(x) ~_Y f(y).
+Let tilde a family of equivalence relations on RX satisfying
+if [x tilde y] and [f : X -> Y], then [f(x) tilde f(y)].
 
-Then we can define R' := R/~ as a functor which to any X associates R'X := RX / ~_X
-Moreover, there is an epimorphism pr_quot_functor : R -> R'
+Then we can define [R'] as a functor which to any X associates [R'X = RX mod tilde]
+Moreover, there is an epimorphism [pr_quot_functor : R -> R']
 
  *)
 Section QuotientFunctor.
@@ -145,15 +146,15 @@ Section QuotientFunctor.
   Context { D:precategory}.
   Variable (R:functor D HSET).
 
-  (** This is ~_X *)
+  (** This is [tilde] *)
   Variable (hequiv : ∏ (d:D),eqrel (pr1hSet (R d))).
 
-  (** The relations satisfied by hequiv (~_X) *)
+  (** The relations satisfied by [hequiv (tilde)] *)
   Hypothesis (congru: ∏ (x y:D) (f:D⟦ x,  y⟧), iscomprelrelfun (hequiv x) (hequiv y) (#R f)).
 
   (** Definition of the quotient functor *)
   (* not using setquotinset directly because as isasetsetquot is not opaque it would make
-     computation slow in some cases (see issue #548) *)
+     computation slow in some cases (see issue 548) *)
   Definition quot_functor_ob (d:D) :hSet.
   Proof.
     mkpair.
@@ -197,9 +198,8 @@ Section QuotientFunctor.
 
   Definition pr_quot_functor : (nat_trans R  quot_functor) := (_ ,, is_nat_trans_pr_quot_functor).
 
-  Lemma isEpi_pr_quot_functor : isEpi (C:=functor_precategory _ _ has_homsets_HSET) pr_quot_functor.
+  Lemma isEpi_pw_pr_quot_functor : ∏ x, isEpi  (pr_quot_functor x).
   Proof.
-    apply is_nat_trans_epi_from_pointwise_epis.
     intros a z f g eqfg.
     apply funextfun.
     intro x.
@@ -209,6 +209,12 @@ Section QuotientFunctor.
     intro u.
     apply toforallpaths in eqfg.
     apply eqfg.
+  Qed.
+
+  Lemma isEpi_pr_quot_functor : isEpi (C:=functor_precategory _ _ has_homsets_HSET) pr_quot_functor.
+  Proof.
+    apply is_nat_trans_epi_from_pointwise_epis.
+    apply isEpi_pw_pr_quot_functor.
   Qed.
 
   Lemma weqpathsinpr_quot_functor X x y : hequiv X x y ≃ pr_quot_functor X x = pr_quot_functor X y.

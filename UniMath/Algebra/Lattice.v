@@ -31,6 +31,8 @@ Truncated minus is a lattice:
 
 Require Export UniMath.Algebra.Monoids_and_Groups.
 
+Require Import UniMath.MoreFoundations.All.
+
 Unset Automatic Introduction.
 
 (** ** Strong Order *)
@@ -88,6 +90,23 @@ Definition mklattice {X : hSet} {min max : binop X} : latticeop min max → latt
 Definition Lmin {X : hSet} (is : lattice X) : binop X := pr1 is.
 Definition Lmax {X : hSet} (is : lattice X) : binop X := pr1 (pr2 is).
 
+(** Bounded lattices *)
+
+Definition bounded_latticeop {X : hSet} (l : lattice X) (bot top : X) :=
+  (islunit (Lmax l) bot) × (islunit (Lmin l) top).
+
+Definition bounded_lattice (X : hSet) :=
+  ∑ (l : lattice X) (bot top : X), bounded_latticeop l bot top.
+
+Definition mkbounded_lattice {X : hSet} {l : lattice X} {bot top : X} :
+  bounded_latticeop l bot top → bounded_lattice X := λ bl, l,, bot,, top,, bl.
+
+Definition bounded_lattice_to_lattice X : bounded_lattice X → lattice X := pr1.
+Coercion bounded_lattice_to_lattice : bounded_lattice >-> lattice.
+
+Definition Lbot {X : hSet} (is : bounded_lattice X) : X := pr1 (pr2 is).
+Definition Ltop {X : hSet} (is : bounded_lattice X) : X := pr1 (pr2 (pr2 is)).
+
 Section lattice_pty.
 
 Context {X : hSet}
@@ -126,6 +145,30 @@ Proof.
 Qed.
 
 End lattice_pty.
+
+Section bounded_lattice_pty.
+
+Context {X : hSet} (l : bounded_lattice X).
+
+Definition islunit_Lmax_Lbot : islunit (Lmax l) (Lbot l) :=
+  pr1 (pr2 (pr2 (pr2 l))).
+
+Definition islunit_Lmin_Ltop : islunit (Lmin l) (Ltop l) :=
+  pr2 (pr2 (pr2 (pr2 l))).
+
+Lemma Lmin_Lbot (x : X) : Lmin l (Lbot l) x = Lbot l.
+Proof.
+intros x.
+now rewrite <- (islunit_Lmax_Lbot x), Lmin_absorb.
+Qed.
+
+Lemma Lmax_Ltop (x : X) : Lmax l (Ltop l) x = Ltop l.
+Proof.
+intros x.
+now rewrite <- (islunit_Lmin_Ltop x), Lmax_absorb.
+Qed.
+
+End bounded_lattice_pty.
 
 (** ** Partial order in a lattice *)
 
@@ -503,8 +546,8 @@ Proof.
   intros x y Hxy.
   generalize (istotal_latticedec is x y).
   apply hinhuniv, sumofmaps ; intros H.
-  - apply fromempty, Hxy.
-    exact H.
+  - apply fromempty.
+    exact (Hxy H).
   - exact H.
 Qed.
 
@@ -512,7 +555,7 @@ Lemma istrans_latticedec_gt_rel :
   istrans latticedec_gt_rel.
 Proof.
   intros x y z Hxy Hyz Hxz.
-  apply Hxy.
+  simple refine (Hxy _).
   apply istrans_Lle with z.
   apply Hxz.
   apply latticedec_gt_ge.
@@ -525,7 +568,7 @@ Proof.
   induction (isdecrel_latticedec is x y) as [Hxy | Hyx].
   - apply hinhpr, ii2.
     intros Hyz.
-    apply Hxz.
+    simple refine (Hxz _).
     apply istrans_Lle with y.
     exact Hxy.
     exact Hyz.
@@ -540,7 +583,7 @@ Proof.
   - apply istrans_latticedec_gt_rel.
   - apply iscotrans_latticedec_gt_rel.
   - intros x Hx.
-    apply Hx.
+    simple refine (Hx _).
     apply isrefl_Lle.
 Defined.
 
@@ -558,7 +601,8 @@ Lemma latticedec_lenotgt :
   ∏ (x y : X), Lle is x y → ¬ latticedec_gt_so x y.
 Proof.
   intros x y H H0.
-  apply H0, H.
+  simple refine (H0 _).
+  exact H.
 Qed.
 
 Lemma latticedec_gtmin :
@@ -892,3 +936,32 @@ Proof.
 Qed.
 
 End truncminus_gt.
+
+Section hProp_lattice.
+
+Definition hProp_lattice : lattice (hProp,,isasethProp).
+Proof.
+use mklattice.
+- intros P Q; exact (P ∧ Q).
+- simpl; intros P Q; exact (P ∨ Q).
+- repeat split.
+  + intros P Q R; apply isassoc_hconj.
+  + intros P Q; apply iscomm_hconj.
+  + intros P Q R; apply isassoc_hdisj.
+  + intros P Q; apply iscomm_hdisj.
+  + intros P Q; apply hconj_absorb_hdisj.
+  + intros P Q; apply hdisj_absorb_hconj.
+Defined.
+
+Definition hProp_bounded_lattice : bounded_lattice (hProp,,isasethProp).
+Proof.
+use mkbounded_lattice.
+- exact hProp_lattice.
+- exact hfalse.
+- exact htrue.
+- split.
+  + intros P; apply hfalse_hdisj.
+  + intros P; apply htrue_hconj.
+Defined.
+
+End hProp_lattice.

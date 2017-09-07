@@ -60,7 +60,7 @@ Definition iscancelableif {X : hSet} (opp : binop X) (x : X)
 
 (** To monoids *)
 
-Open Local Scope  multmonoid_scope.
+Local Open Scope multmonoid_scope.
 
 Definition linvpair (X : monoid) (x : X) : UU := total2 (fun x' : X => paths (x' * x) 1).
 
@@ -271,6 +271,12 @@ Local Open Scope rng_scope.
 
 Definition isnonzerorng (X : rng) : UU := neg (@paths X 1 0).
 
+Lemma isapropisnonzerorng (X : rng) : isaprop (isnonzerorng X).
+Proof.
+  intros X. use isapropneg.
+Defined.
+Opaque isapropisnonzerorng.
+
 Lemma isnonzerolinvel (X : rng) (is : isnonzerorng X) (x : X) (x' : multlinvpair X x) :
   neg (paths (pr1 x') 0).
 Proof.
@@ -312,6 +318,16 @@ Defined.
 Definition isintdom (X : commrng) : UU :=
   dirprod (isnonzerorng X) (∏ (a1 a2 : X), paths (a1 * a2) 0 -> hdisj (eqset a1 0) (eqset a2 0)).
 
+Lemma isapropisintdom (X : commrng) : isaprop (isintdom X).
+Proof.
+  intros X.
+  use isapropdirprod.
+  - use isapropisnonzerorng.
+  - use impred. intros x1. use impred. intros x2. use impred. intros H.
+    use propproperty.
+Defined.
+Opaque isapropisintdom.
+
 Definition intdom : UU := total2 (fun X : commrng => isintdom X).
 
 Definition pr1intdom : intdom -> commrng := @pr1 _ _.
@@ -321,6 +337,51 @@ Definition nonzeroax (X : intdom) : neg (@paths X 1 0) := pr1 (pr2 X).
 
 Definition intdomax (X : intdom) :
   ∏ (a1 a2 : X), paths (a1 * a2) 0 -> hdisj (eqset a1 0) (eqset a2 0) := pr2 (pr2 X).
+
+
+(** **** (X = Y) ≃ (rngiso X Y)
+   We use the following composition
+
+                            (X = Y) ≃ (pr1 X = pr1 Y)
+                                    ≃ (rngiso X Y)
+
+  where the second weak equivalence is given by univalence for commrngs, [commrng_univalence].
+*)
+
+Definition intdom_univalence_weq1 (X Y : intdom) : (X = Y) ≃ (pr1 X = pr1 Y).
+Proof.
+  intros X Y.
+  use subtypeInjectivity.
+  intros w. use isapropisintdom.
+Defined.
+Opaque intdom_univalence_weq1.
+
+Definition intdom_univalence_weq2 (X Y : intdom) : (pr1 X = pr1 Y) ≃ (rngiso X Y) :=
+  commrng_univalence (pr1 X) (pr1 Y).
+
+Definition intdom_univalence_map (X Y : intdom) : (X = Y) -> (rngiso X Y).
+Proof.
+  intros X Y e. induction e. exact (idrigiso X).
+Defined.
+
+Lemma intdom_univalence_isweq (X Y : intdom) : isweq (intdom_univalence_map X Y).
+Proof.
+  intros X Y.
+  use isweqhomot.
+  - exact (weqcomp (intdom_univalence_weq1 X Y) (intdom_univalence_weq2 X Y)).
+  - intros e. induction e. use weqcomp_to_funcomp_app.
+  - use weqproperty.
+Defined.
+Opaque intdom_univalence_isweq.
+
+Definition intdom_univalence (X Y : intdom) : (X = Y) ≃ (rngiso X Y).
+Proof.
+  intros X Y.
+  use weqpair.
+  - exact (intdom_univalence_map X Y).
+  - exact (intdom_univalence_isweq X Y).
+Defined.
+Opaque intdom_univalence.
 
 
 (** **** Computational lemmas for integral domains *)
@@ -445,7 +506,25 @@ Defined.
 (** **** Main definitions *)
 
 Definition isafield (X : commrng) : UU :=
-  dirprod (isnonzerorng X) (∏ x : X, coprod (multinvpair X x) (paths x 0)).
+  (isnonzerorng X) × (∏ x : X, coprod (multinvpair X x) (paths x 0)).
+
+Lemma isapropisafield (X : commrng) : isaprop (isafield X).
+Proof.
+  intros X.
+  use isofhleveltotal2.
+  - use isapropisnonzerorng.
+  - intros H.
+    use impred. intros x. use isapropcoprod.
+    + use isapropinvpair.
+    + use setproperty.
+    + intros H' e. use H.
+      use (pathscomp0
+             _ (@multx0_is_l X (@op1 X) (@op2 X) (dirprod_pr1 (rngop1axs X)) (rngop2axs X)
+                             (rngdistraxs X) (pr1 H'))).
+      use (pathscomp0 _ (maponpaths (fun y : X  => op2 (pr1 H') y) e)).
+      exact (! dirprod_pr1 (pr2 H')).
+Defined.
+Opaque isapropisafield.
 
 Definition fld : UU := total2 (fun X : commrng => isafield X).
 
@@ -474,6 +553,51 @@ Proof.
 Defined.
 
 Definition fldmultinv {X : fld} (x : X) (ne : neg (paths x 0)) : X := pr1 (fldmultinvpair X x ne).
+
+
+(** **** (X = Y) ≃ (rngiso X Y)
+   We use the following composition
+
+                                (X = Y) ≃ (pr1 X = pr1 Y)
+                                        ≃ (rngiso X Y)
+
+   where the second weak equivalence is given by univalence for commrngs, [commrng_univalence].
+*)
+
+Definition fld_univalence_weq1 (X Y : fld) : (X = Y) ≃ (pr1 X = pr1 Y).
+Proof.
+  intros X Y.
+  use subtypeInjectivity.
+  intros w. use isapropisafield.
+Defined.
+Opaque fld_univalence_weq1.
+
+Definition fld_univalence_weq2 (X Y : fld) : (pr1 X = pr1 Y) ≃ (rngiso X Y) :=
+  commrng_univalence (pr1 X) (pr1 Y).
+
+Definition fld_univalence_map (X Y : fld) : (X = Y) -> (rngiso X Y).
+Proof.
+  intros X Y e. induction e. exact (idrigiso X).
+Defined.
+
+Lemma fld_univalence_isweq (X Y : fld) : isweq (fld_univalence_map X Y).
+Proof.
+  intros X Y.
+  use isweqhomot.
+  - exact (weqcomp (fld_univalence_weq1 X Y) (fld_univalence_weq2 X Y)).
+  - intros e. induction e. use weqcomp_to_funcomp_app.
+  - use weqproperty.
+Defined.
+Opaque fld_univalence_isweq.
+
+Definition fld_univalence (X Y : fld) : (X = Y) ≃ (rngiso X Y).
+Proof.
+  intros X Y.
+  use weqpair.
+  - exact (fld_univalence_map X Y).
+  - exact (fld_univalence_isweq X Y).
+Defined.
+Opaque fld_univalence.
 
 
 (** **** Field of fractions of an integral domain with decidable equality *)

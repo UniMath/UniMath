@@ -18,7 +18,9 @@ Contents : Definition of opposite category and functor
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.MoreFoundations.Tactics.
+
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 Local Open Scope cat.
@@ -37,7 +39,8 @@ Proof.
 repeat split; intros; unfold compose; simpl.
 - apply id_right.
 - apply id_left.
-- rewrite assoc; apply idpath.
+- apply pathsinv0.              (* this prevents C^op^op and C being the same, judgmentally *)
+  apply assoc.
 Qed.
 
 Definition opp_precat (C : precategory) : precategory :=
@@ -58,25 +61,33 @@ Definition opp_mor_eq {C : precategory} {a b : C} {f g : a --> b} (e : opp_mor f
 
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).
 Proof.
-  induction C as [ob mor]. apply idpath.
+  tryif primitive_projections then idtac else induction C as [ob mor].
+  reflexivity.
 Defined.
 
 Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
   idpath _ = maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
 Proof.
-  induction C as [ob mor]. apply idpath.
+  tryif primitive_projections
+  then reflexivity
+  else induction C as [ob mor]; apply idpath.
 Defined.
 
 Lemma opp_opp_precat_data (C : precategory_data) : C = opp_precat_data (opp_precat_data C).
 Proof.
-  induction C as [obmor idco].
-  induction obmor as [ob mor].
-  induction idco as [id co].
-  apply idpath.
+  tryif primitive_projections
+  then reflexivity
+  else (
+      induction C as [obmor idco];
+      induction obmor as [ob mor];
+      induction idco as [id co];
+      apply idpath ).
 Defined.
 
 Lemma opp_opp_precat (C : precategory) (hs : has_homsets C) : C = C^op^op.
 Proof.
+
+
   use total2_paths_f.
   - apply opp_opp_precat_data.
   - apply (isaprop_is_precategory _ hs).

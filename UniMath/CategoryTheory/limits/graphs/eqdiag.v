@@ -34,21 +34,15 @@ This equality would not be needed if functional extensionality computed.
 
  *)
 
+Require Import UniMath.MoreFoundations.All.
 
-
-
-
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
-
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
+
+Local Open Scope cat.
 
 Set Automatic Introduction.
 
@@ -71,22 +65,6 @@ Proof.
   apply idpath.
 Qed.
 
-
-(* stolen from TypeTheory/Display_Cats/Auxiliary.v *)
-(** Very handy for reasoning with “dependent paths” —
-
-Note: similar to [transportf_pathsinv0_var], [transportf_pathsinv0'],
-but not quite a special case of them, or (as far as I can find) any other
-library lemma.
-*)
-Lemma transportf_transpose {X : UU} {P : X → UU}
-  {x x' : X} (e : x = x') (y : P x) (y' : P x')
-: transportb P e y' = y -> y' = transportf P e y.
-Proof.
-  intro H; induction e; exact H.
-Defined.
-
-
 Lemma transportf2_comp  {X  : UU} (P : X -> X → UU) (x x'  : X)
       (ex : x = x')  (t:P x x) :
   transportf (fun y => P y y) ex t = transportf (fun y => P y x') ex
@@ -95,12 +73,12 @@ Proof.
   now induction ex.
 Qed.
 
-Definition eq_diag  {C : Precategory} {g : graph} (d d' : diagram g C) :=
+Definition eq_diag  {C : category} {g : graph} (d d' : diagram g C) :=
   ∑ (eq_v : ∏ v: vertex g, dob d v = dob d' v), ∏ (v v':vertex g) (f:edge v v'),
   transportf (fun obj => C⟦obj, dob d v'⟧)  (eq_v v) (dmor d f) =
   transportb (fun obj => C⟦_, obj⟧) (eq_v v') (dmor d' f).
 
-Lemma eq_is_eq_diag {C : Precategory} {g : graph} (d d' : diagram g C)  :
+Lemma eq_is_eq_diag {C : category} {g : graph} (d d' : diagram g C)  :
   d = d' -> eq_diag d d'.
 Proof.
   intro e.
@@ -109,7 +87,7 @@ Proof.
   exact (fun x y z => idpath _).
 Qed.
 
-Lemma eq_diag_is_eq {C : Precategory} {g : graph} (d d' : diagram g C) :
+Lemma eq_diag_is_eq {C : category} {g : graph} (d d' : diagram g C) :
   eq_diag d d' -> d = d'.
 Proof.
   intros [eqv autreq].
@@ -154,7 +132,7 @@ Qed.
 (* We don't want to use the equivalence with bare identity to show the
 apply pathsinv0 because we want computation (Defined)
  *)
-Lemma sym_eq_diag  {C : Precategory} {g : graph} (d d' : diagram g C) :
+Lemma sym_eq_diag  {C : category} {g : graph} (d d' : diagram g C) :
   eq_diag d d' -> eq_diag d' d.
 Proof.
   intros eq_d.
@@ -188,7 +166,7 @@ Proof.
 Defined.
 
 Lemma eq_diag_mkcocone  :
-  ∏ {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : category} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (heq_d: eq_diag d d')
     {c : C} (cc:cocone d c),
@@ -221,7 +199,7 @@ Defined.
 
 (* The dual proof *)
 Lemma eq_diag_mkcone  :
-  ∏ {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : category} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (heq_d: eq_diag d d')
     {c : C} (cc:cone d c),
@@ -256,7 +234,7 @@ Defined.
 
 
 Lemma eq_diag_islimcone:
-  ∏ {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : category} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (eq_d : eq_diag d d')
     {c : C} {cc:cone d c}
@@ -308,7 +286,7 @@ This proof could be deduced from the previous if there was a lemma
 stating that colimits are limits in the dual category.
  *)
 Lemma eq_diag_iscolimcocone:
-  ∏ {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : category} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (eq_d : eq_diag d d')
     {c : C} {cc:cocone d c}
@@ -360,7 +338,7 @@ Qed.
 
 
 Definition eq_diag_liftcolimcocone
-           {C : Precategory} {g : graph} {d : diagram g C}
+           {C : category} {g : graph} {d : diagram g C}
            (d' : diagram g C)
            (eq_d : eq_diag d d')
            (cc:ColimCocone d ) : ColimCocone d'
@@ -368,7 +346,7 @@ Definition eq_diag_liftcolimcocone
                                                  (isColimCocone_ColimCocone cc)).
 
 Definition eq_diag_liftlimcone
-           {C : Precategory} {g : graph} {d : diagram g C}
+           {C : category} {g : graph} {d : diagram g C}
            (d' : diagram g C)
            (eq_d : eq_diag d d')
            (cc:LimCone d ) : LimCone d'

@@ -18,6 +18,8 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports. *)
 
+Require Import UniMath.MoreFoundations.Tactics.
+
 Require Export UniMath.Combinatorics.StandardFiniteSets .
 
 

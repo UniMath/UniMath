@@ -27,13 +27,20 @@ BUILD_COQ ?= yes
 BUILD_COQIDE ?= no
 COQBIN ?=
 ############################################
+
 .PHONY: our-all all everything install lc lcp wc describe clean distclean build-coq doc build-coqide
-COQIDE_OPTION ?= no
+our-all: check-first
+our-all: check-for-change-to-Foundations
+everything: TAGS our-all html install
+check-first: enforce-prescribed-ordering check-travis enforce-listing-of-proof-files
+
+COQIDE_OPTION := no
+
 ifeq "$(BUILD_COQ)" "yes"
 COQBIN=sub/coq/bin/
-our-all: check-first
 our-all: build-coq
 build-coq: sub/coq/bin/coqc
+build/CoqMakefile.make: $(COQBIN)coq_makefile
 ifeq "$(BUILD_COQIDE)" "yes"
 our-all: build-coqide
 build-coqide: sub/coq/bin/coqide
@@ -52,11 +59,16 @@ PACKAGE_FILES := $(patsubst %, UniMath/%/.package/files, $(PACKAGES))
 ifneq "$(INCLUDE)" "no"
 include build/CoqMakefile.make
 endif
+
 .DEFAULT_GOAL := our-all
-everything: TAGS our-all html install
-check-first: enforce-prescribed-ordering check-travis
+
+ifeq ($(BUILD_COQ),yes)
+# this comes after including build/CoqMakefile.make, to bet VFILES defined
+$(VFILES:.v=.vo) : $(COQBIN)coqc
+endif
+
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -indices-matter -w none
+OTHERFLAGS += -indices-matter -w '-notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option'
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
@@ -110,11 +122,10 @@ MODIFIERS := $(MODIFIERS)Program\|
 COQDEFS := --language=none																\
 	-r '/^[[:space:]]*\(\($(MODIFIERS)\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:]'\''_]+\)/\4/'					\
 	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:]'\''_]+\)'/\1/"											\
-	-r '/^[[:space:]]*Tactic[[:space:]]+Notation.*[[:space:]]"\([[:alnum:]'\''_]+\)"[[:space:]]/\1/'										\
+	-r '/^[[:space:]]*Tactic[[:space:]]+Notation.*[[:space:]]"\([[:alnum:]'\''_]+\)"[[:space:]]/\1/'						\
 	-r '/^[[:space:]]*Delimit[[:space:]]+Scope[[:space:]]+[[:alnum:]'\''_]+[[:space:]]+with[[:space:]]+\([[:alnum:]'\''_]+\)[[:space:]]*\./\1/'
 
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: Makefile $(filter UniMath/$P/%,$(VFILES)); etags $(COQDEFS) -o $$@ $$^))
-$(VFILES:.v=.vo) : $(COQBIN)coqc
 TAGS : Makefile $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
 $(foreach P,$(PACKAGES),$(eval $P: check-first $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\)=UniMath/$P/\1o=" )))
@@ -142,11 +153,11 @@ describe:; git describe --dirty --long --always --abbrev=40 --all
 	done ;\
 	echo ;\
 	echo '# Local ''Variables:' ;\
-	echo '# compile-command: "sub/coq/bin/coq_makefile -f .coq_makefile_input -o CoqMakefile.make.tmp && mv CoqMakefile.make.tmp build/CoqMakefile.make"' ;\
+	echo '# compile-command: "$(COQBIN)coq_makefile -f .coq_makefile_input -o CoqMakefile.make.tmp && mv CoqMakefile.make.tmp build/CoqMakefile.make"' ;\
 	echo '# End:' ;\
 	) >$@
 # the '' above prevents emacs from mistaking the lines above as providing local variables when visiting this file
-build/CoqMakefile.make: .coq_makefile_input $(COQBIN)coq_makefile
+build/CoqMakefile.make: .coq_makefile_input
 	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
 	mv .coq_makefile_output $@
 
@@ -213,7 +224,7 @@ latex-doc: $(LATEXDIR)/doc.pdf
 
 $(LATEXDIR)/doc.pdf : $(LATEXDIR)/helper.tex $(LATEXDIR)/references.bib $(LATEXDIR)/latex-preamble.txt $(LATEXDIR)/helper.tex $(LATEXDIR)/latex-epilogue.txt
 	cd $(LATEXDIR) && cat latex-preamble.txt helper.tex latex-epilogue.txt > doc.tex
-	cd $(LATEXDIR) && latexmk -pdf doc
+	cd $(LATEXDIR) && latexmk -pdf -interaction=nonstopmode doc
 
 $(LATEXDIR)/coqdoc.sty $(LATEXDIR)/helper.tex : $(VFILES:.v=.glob) $(VFILES)
 	$(COQDOC) -Q UniMath UniMath $(COQDOC_OPTIONS) $(COQDOCLATEXOPTIONS) $(VFILES) -o $@
@@ -230,33 +241,33 @@ enforce-prescribed-ordering: .enforce-prescribed-ordering.okay
 clean::; rm -f .enforce-prescribed-ordering.okay
 .enforce-prescribed-ordering.okay: Makefile $(VFILES:.v=.v.d)
 	: "--- enforce ordering prescribed by the files UniMath/*/.packages/files ---"
-	@set -e ;\
-	if declare -A seqnum 2>/dev/null ;\
-	then n=0 ;\
-	     for i in $(VOFILES) ;\
-	     do n=$$(( $$n + 1 )) ;\
-		seqnum[$$i]=$$n ;\
-	     done ;\
-	     for i in $(VFILES:.v=.v.d); \
-	     do head -1 $$i ;\
-	     done \
-	     | sed -E -e 's/[^ ]*\.(glob|v\.beautified|v)([ :]|$$)/\2/g' -e 's/ *: */ /' \
-	     | while read line ;\
-	       do for i in $$line ; do echo $$i ; done \
-		  | ( read target ; \
-		      [ "$${seqnum[$$target]}" ] || (echo unknown target: $$target; false) >&2 ;\
-		      while read prereq ; \
-		      do [ "$${seqnum[$$prereq]}" ] || (echo "unknown prereq of $$target : $$prereq" ; false) >&2 ;\
-			 echo "$$(($${seqnum[$$target]} > $${seqnum[$$prereq]})) error: *** $$target should not require $$prereq" ;\
-		      done ) ;\
-	       done | grep ^0 | sed 's/^0 //' | \
-	       ( haderror= ; \
-		 while read line ; \
-		 do if [ ! "$$haderror" ] ; then haderror=1 ; fi ; \
-		    echo "$$line" ;\
-		 done ;\
-		 [ ! "$$haderror" ] ) ;\
-	else echo "make: *** skipping enforcement of linear ordering of packages, because 'bash' is too old" ;\
+	@set -e ;															\
+	if declare -A seqnum 2>/dev/null ;												\
+	then n=0 ;															\
+	     for i in $(VOFILES) ;													\
+	     do n=$$(( $$n + 1 )) ;													\
+		seqnum[$$i]=$$n ;													\
+	     done ;															\
+	     for i in $(VFILES:.v=.v.d);												\
+	     do head -1 $$i ;														\
+	     done															\
+	     | sed -E -e 's/[^ ]*\.(glob|v\.beautified|v)([ :]|$$)/\2/g' -e 's/ *: */ /'						\
+	     | while read line ;													\
+	       do for i in $$line ; do echo $$i ; done											\
+		  | ( read target ;													\
+		      [ "$${seqnum[$$target]}" ] || (echo unknown target: $$target; false) >&2 ;					\
+		      while read prereq ;												\
+		      do [ "$${seqnum[$$prereq]}" ] || (echo "unknown prereq of $$target : $$prereq" ; false) >&2 ;			\
+			 echo "$$(($${seqnum[$$target]} > $${seqnum[$$prereq]})) error: *** $$target should not require $$prereq" ;	\
+		      done ) ;														\
+	       done | grep ^0 | sed 's/^0 //' |												\
+	       ( haderror= ;														\
+		 while read line ;													\
+		 do if [ ! "$$haderror" ] ; then haderror=1 ; fi ;									\
+		    echo "$$line" ;													\
+		 done ;															\
+		 [ ! "$$haderror" ] ) ;													\
+	else echo "make: *** skipping enforcement of linear ordering of packages, because 'bash' is too old" ;				\
 	fi
 	touch $@
 
@@ -265,11 +276,48 @@ check-travis:.check-travis.okay
 clean::; rm -f .check-travis.okay
 .check-travis.okay: Makefile .travis.yml
 	: --- check travis script ---
-	@set -e ;\
-	for p in $(PACKAGES) ;\
-	do grep -q "PACKAGES=.*$$p" .travis.yml || ( echo "package $$p not checked by .travis.yml" >&2 ; exit 1 ) ;\
+	@set -e ;													\
+	for p in $(PACKAGES) ;												\
+	do grep -q "PACKAGES=.*$$p" .travis.yml || ( echo "package $$p not checked by .travis.yml" >&2 ; exit 1 ) ;	\
 	done
 	touch "$@"
+
+
+# here we ensure that every *.v file F in each package P is listed in the corresponding file UniMath/P/.package/files
+# except for one, which someone has to look at and fix or eliminate:
+GRANDFATHER_UNLISTED = UniMath/CategoryTheory/equivalences_lemmas.v
+enforce-listing-of-proof-files:
+	@ if declare -A islisted 2>/dev/null ;										\
+	  then for i in $(VFILES) $(GRANDFATHER_UNLISTED) ;								\
+	       do islisted[$$i]=yes ;											\
+	       done ;													\
+	       m=0 ;													\
+	       for P in $(PACKAGES) ;											\
+	       do find UniMath/$$P -name '*.v' |									\
+		       (												\
+		       n=0 ;												\
+		       while read F ;											\
+		       do if [ "$${islisted[$$F]}" != yes ] ;								\
+			  then echo "error: *** file $$F not listed in appropriate file UniMath/*/.package/files" >&2 ;	\
+			       n=$$(( $$n + 1 )) ;									\
+			  fi ;												\
+		       done ; exit $$n ) ;										\
+		  m=$$(( $$m + $$? )) ;											\
+	       done ;													\
+	       if [ $$m != 0 ] ;											\
+	       then echo "error: *** $$m unlisted proof files encountered" >&2 ;					\
+		    exit 1 ;												\
+	       fi ;													\
+	  else echo "make: *** skipping enforcement of listing of proof files, because 'bash' is too old" ;		\
+	  fi
+
+# Here we check for changes to UniMath/Foundations, which normally does not change.
+# One step of the travis job will fail, if a change is made, see .travis.yml
+ifneq ($(FOUNDATIONS_CHANGE_ERROR),yes)
+FOUNDATIONS_CHANGE_ERROR0 = -
+endif
+check-for-change-to-Foundations:
+	$(FOUNDATIONS_CHANGE_ERROR0) ! ( git diff --stat master -- UniMath/Foundations | grep . )
 
 #################################
 # targets best used with INCLUDE=no

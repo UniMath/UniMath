@@ -16,7 +16,9 @@ Written by: Anders Mörtberg, 2016
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Combinatorics.Lists.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.MoreFoundations.Tactics.
+
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -29,9 +31,9 @@ Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.CocontFunctors.
-Require Import UniMath.CategoryTheory.Monads.
-Require Import UniMath.CategoryTheory.category_hset.
-Require Import UniMath.CategoryTheory.category_hset_structures.
+Require Import UniMath.CategoryTheory.Monads.Monads.
+Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.categories.category_hset_structures.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
@@ -195,7 +197,7 @@ Definition SignatureInitialAlgebra
 Proof.
 use colimAlgInitial.
 - apply (Initial_functor_precat _ _ IC).
-- apply (is_omega_cocont_Id_H _ _ _ BPC _ Hs).
+- apply (is_omega_cocont_Id_H _ _ _ _ Hs).
 - apply ColimsFunctorCategory_of_shape, CLC.
 Defined.
 
@@ -287,7 +289,6 @@ Definition SignatureInitialAlgebraHSET (s : Signature HSET has_homsets_HSET _ _)
   Initial (FunctorAlg (Id_H _ _ BinCoproductsHSET s) has_homsets_HSET2).
 Proof.
 apply SignatureInitialAlgebra; try assumption.
-- apply BinProductsHSET.
 - apply InitialHSET.
 - apply ColimsHSET_of_shape.
 Defined.
