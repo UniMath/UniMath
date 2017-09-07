@@ -213,6 +213,8 @@ isolate-bug: sub/coq-tools/find-bug.py
 	rm -f $(ISOLATED_BUG_FILE) && \
 	../sub/coq-tools/find-bug.py --coqbin ../sub/coq/bin -R . UniMath \
 		--arg " -indices-matter" \
+		--arg " -w" \
+		--arg " -notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option" \
 		$(BUGGY_FILE) $(ISOLATED_BUG_FILE)
 	@ echo "==="
 	@ echo "=== the isolated bug has been deposited in the file UniMath/$(ISOLATED_BUG_FILE)"

@@ -283,23 +283,19 @@ Section A.
   Goal ∏ (X : Type), @paths Type (hsubtype X) (X -> hProp).
     (* goal is:
        forall X : Type@{i},
-           @paths@{j}
-               Type@{k}
-               (hsubtype@{l m n} X)
-               (forall _ : X, hProp@{n o})
+         @paths@{j} Type@{k} (hsubtype@{l m} X)
+                             (forall _ : X, hProp@{n o})
      *)
     reflexivity.
   Defined.
 
-  Goal ∏ (X : Type), @paths _ (hsubtype X) (X -> hProp).
+  Goal ∏ (X : Type), @paths _    (hsubtype X) (X -> hProp).
     (* goal is:
        forall X : Type@{i},
-           @paths@{j}
-               Type@{k}
-               (hsubtype@{l k j} X)
-               (forall _ : X, hProp@{n o})
+         @paths@{j} Type@{k} (hsubtype@{k j} X)
+                             (forall _ : X, hProp@{l m})
      *)
-    try reflexivity.            (* fails, could be a Coq bug *)
+    try reflexivity.            (* an interesting failure *)
   Abort.
 
 End A.

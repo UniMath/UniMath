@@ -172,23 +172,11 @@ Section A.
   Constraint i < j.
   Constraint j < l.
 
-  Definition raise_universe_hProp@{} : hProp@{i j} -> hProp@{j l}.
-  Proof.
-    intro P.
-    exact (@tpair Type@{j} isaprop (pr1 P) (pr2 P)).
-  Defined.
-
-  Definition lower_universe_hProp@{} : hProp@{i j} <- hProp@{j l}.
-  Proof.
-    intro P.
-    exact (@tpair Type@{i} isaprop (ResizeProp@{i j} (pr1 P) (pr2 P)) (pr2 P)).
-  Defined.
-
   Definition change_universe_hProp@{} : weq@{l} hProp@{i j} hProp@{j l}.
   Proof.
     simple refine (weqpair _ (gradth _ _ _ _)).
-    - exact raise_universe_hProp.
-    - exact lower_universe_hProp.
+    - intro P. exact (@tpair Type@{j} isaprop (pr1 P) (pr2 P)).
+    - intro P. exact (@tpair Type@{i} isaprop (ResizeProp@{i j} (pr1 P) (pr2 P)) (pr2 P)).
     - reflexivity.
     - reflexivity.
   Defined.

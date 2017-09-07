@@ -19,7 +19,7 @@ single universe requirement as a defining one when selecting results for the inc
 Foundations.  However, now that universe polymorphism has been turned on, definitions
 in PartA and PartB should take at most one explicit polymorphic universe parameter,
 and definitions with implicit polymorphic universe parameters should, in principle, be
-capapble of being annotated so a single explicit universe parameter is accepted without breaking
+capable of being annotated so a single explicit universe parameter is accepted without breaking
 any proofs.
 
 Part A was created as a separate file on Dec. 3, 2014.
