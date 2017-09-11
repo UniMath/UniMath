@@ -1368,10 +1368,8 @@ Proof.
 
   assert (e1 : maponpaths f eee = e).
   {
-    assert (e2 : maponpaths (g ∘ f) eee = ee).
-    apply maponpathshomid2.
-    assert (e3 : maponpaths g (maponpaths f eee) = maponpaths g e).
-    apply (maponpathscomp f g eee @ e2).
+    assert (e2 : maponpaths (g ∘ f) eee = ee) by apply maponpathshomid2.
+    assert (e3 : maponpaths g (maponpaths f eee) = maponpaths g e) by apply (maponpathscomp f g eee @ e2).
     set (s := @maponpaths _ _ g (f x) (f x')).
     set (p := @pathssec2 _ _ g f (homotweqinvweq w) (f x) (f x')).
     set (eps := @pathssec3 _ _ g f (homotweqinvweq w) (f x) (f x')).
@@ -1380,19 +1378,16 @@ Proof.
 
   assert (e4:
             maponpaths f  (invmaponpathsweq w x x' (maponpaths f eee)) =
-            maponpaths f (invmaponpathsweq w x x' e)).
-  {
-    apply (maponpaths (fun (e0: f x = f x') =>
+            maponpaths f (invmaponpathsweq w x x' e)) by
+     apply (maponpaths (fun (e0: f x = f x') =>
                          maponpaths f (invmaponpathsweq w x x' e0))
                       e1).
-  }
 
-  assert (X0 : invmaponpathsweq w x x' (maponpaths f eee) = eee).
-  { apply (pathsweq3 w). }
+  assert (X0 : invmaponpathsweq w x x' (maponpaths f eee) = eee) by apply (pathsweq3 w).
 
   assert (e5: maponpaths f (invmaponpathsweq w x x' (maponpaths f eee))
-              = maponpaths f eee).
-  { apply (maponpaths (fun eee0: x = x' => maponpaths f eee0) X0). }
+              = maponpaths f eee) by
+    apply (maponpaths (fun eee0: x = x' => maponpaths f eee0) X0).
 
   apply (! e4 @ e5 @ e1).
 Defined.
