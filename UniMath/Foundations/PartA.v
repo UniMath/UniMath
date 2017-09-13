@@ -1409,14 +1409,16 @@ Defined.
 Definition isinjinvmap {X Y} (v w:X≃Y) : invmap v ~ invmap w -> v ~ w.
 Proof. intros ? ? ? ? h x.
   intermediate_path (w ((invmap w) (v x))).
-  { apply pathsinv0. apply homotweqinvweq. }
-  rewrite <- h. rewrite homotinvweqweq. apply idpath. Defined.
+       + apply pathsinv0. apply homotweqinvweq.
+       + rewrite <- h. now rewrite homotinvweqweq.
+Defined.
 
 Definition isinjinvmap' {X Y} (v w:X->Y) (v' w':Y->X) : w ∘ w' ~ idfun Y -> v' ∘ v ~ idfun X -> v' ~ w' -> v ~ w.
 Proof. intros ? ? ? ? ? ? p q h x .
   intermediate_path (w (w' (v x))).
-  { apply pathsinv0. apply p. }
-  apply maponpaths. rewrite <- h. apply q. Defined.
+       + apply pathsinv0. apply p.
+       + apply maponpaths. rewrite <- h. apply q.
+Defined.
 
 (** *** Adjointness property of a weak equivalence and its inverse *)
 
@@ -1424,7 +1426,7 @@ Lemma diaglemma2 {X Y : UU} (f : X -> Y) {x x' : X}
       (e1 : x = x') (e2 : f x' = f x)
       (ee : idpath (f x) = maponpaths f e1 @ e2) : maponpaths f (! e1) = e2.
 Proof.
-  intros. induction e1. simpl in *. apply ee.
+  intros. induction e1. simpl in *. exact ee.
 Defined.
 
 (* this is the adjointness relation for w and its homotopy inverse: *)
@@ -1438,6 +1440,7 @@ Proof.
   set (hfcc := weqccontrhfiber w (w x)).
   unfold homotweqinvweq.
   apply diaglemma2.
+  fold hfcc.
   apply (@hfibertriangle1 _ _ w _ hfid hfcc (weqccontrhfiber2 w (w x) hfid)).
 Defined.
 
@@ -1493,7 +1496,7 @@ Ltac intermediate_iscontr Y' := apply (iscontrweqb (Y := Y')).
 
 Lemma isconnectedunit : ∏ x x' : unit, x = x'.
 Proof.
-  intros. induction x. induction x'. apply idpath.
+  intros. induction x. now induction x'.
 Defined.
 
 Lemma unitl0 : tt = tt -> coconustot _ tt.
@@ -1503,7 +1506,7 @@ Defined.
 
 Lemma unitl1: coconustot _ tt -> tt = tt.
 Proof.
-  intro cp. induction cp as [x t]. induction x. apply t.
+  intro cp. induction cp as [x t]. induction x. exact t.
 Defined.
 
 Lemma unitl2: ∏ e : tt = tt, unitl1 (unitl0 e) = e.
@@ -1514,12 +1517,9 @@ Defined.
 Lemma unitl3: ∏ e : tt = tt, e = idpath tt.
 Proof.
   intros.
-
-  assert (e0 : unitl0 (idpath tt) = unitl0 e).
-  { apply connectedcoconustot. }
-
+  assert (e0 : unitl0 (idpath tt) = unitl0 e) by
+      apply connectedcoconustot.
   set (e1 := maponpaths unitl1 e0).
-
   apply (! (unitl2 e) @ (! e1) @ (unitl2 (idpath _))).
 Defined.
 
@@ -1551,16 +1551,15 @@ Proof.
   apply (iscontrpathsinunit tt tt).
 Defined.
 
-Lemma isweqcontrtounit {T : UU} (is : iscontr T) : isweq (fun (t : T) => tt).
+Lemma isweqcontrtounit {T : UU} (is : iscontr T) : isweq (fun (_ : T) => tt).
 Proof.
   intros. unfold isweq. intro y. induction y.
   induction is as [c h].
-  set (hc := hfiberpair _ c (isconnectedunit tt tt)).
+  set (hc := hfiberpair _ c (idpath tt)).
   split with hc.
   intros ha.
   induction ha as [x e].
-  unfold hc. unfold hfiberpair. unfold isconnectedunit.
-  simpl.
+  unfold hc. unfold hfiberpair.
   apply (fun q => two_arg_paths_f (h x) q).
   apply ifcontrthenunitl0.
 Defined.
@@ -1607,7 +1606,7 @@ Proof.
   set (g1 := fun (xe : hfiber g x0) => pr1 (constr2 f g efg x0 xe)).
   set (efg1 := fun (xe : hfiber g x0) => ! (pr2 (constr2 f g efg x0 xe))).
   apply (iscontrretract f1 g1 efg1).
-  apply is.
+  exact is.
 Defined.
 
 Definition homothfiber1 {X Y : UU} (f g : X -> Y)
@@ -1644,7 +1643,7 @@ Proof.
   (* A little lemma: *)
   assert (ee : ∏ a b c : Y, ∏ p : a = b, ∏ q : b = c,
                                                !p @ (p @ q) = q).
-  { intros. induction p. induction q. apply idpath. }
+  { intros. induction p. now induction q. }
 
   apply ee.
 Defined.
@@ -1662,7 +1661,7 @@ Defined.
 Corollary isweqhomot {X Y : UU} (f1 f2 : X -> Y)
           (h : f1 ~ f2) : isweq f1 -> isweq f2.
 Proof.
-  intros X Y f1 f2 h x0.
+  intros ? ? ? ? ? x0.
   unfold isweq.
   intro y.
   apply (iscontrhfiberl2 f1 f2 h).
@@ -1680,16 +1679,16 @@ Defined.
 Lemma remakeweq_eq {X Y : UU} (f1:X≃Y) (f2:X->Y) (e:f1~f2) : pr1weq (remakeweq e) = f2.
 (* check the claim in the comment above *)
 Proof.
-  intros; apply idpath.
+  now intros.
 Defined.
 
 Lemma remakeweq_eq' {X Y : UU} (f1:X≃Y) (f2:X->Y) (e:f1~f2) : invmap (remakeweq e) = invmap f1.
 (* check the claim in the comment above *)
 Proof.
-  intros; apply idpath.
+  now intros.
 Defined.
 
-Lemma iscontr_move_point {X} : X -> iscontr X -> iscontr X.
+Lemma iscontr_move_point {X : UU} : X -> iscontr X -> iscontr X.
 Proof.
   intros ? x i.
   exists x.
@@ -1697,9 +1696,9 @@ Proof.
   now apply proofirrelevancecontr.
 Defined.
 
-Lemma iscontr_move_point_eq {X} (x:X) (i:iscontr X) : iscontrpr1 (iscontr_move_point x i) = x.
+Lemma iscontr_move_point_eq {X : UU} (x:X) (i:iscontr X) : iscontrpr1 (iscontr_move_point x i) = x.
 Proof.
-  intros; apply idpath.
+  now intros.
 Defined.
 
 Corollary remakeweqinv {X Y : UU} {f:X≃Y} {h:Y->X} : invmap f ~ h -> X≃Y.
@@ -1715,13 +1714,13 @@ Defined.
 Lemma remakeweqinv_eq {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : pr1weq (remakeweqinv e) = pr1weq f.
 (* check the claim in the comment above *)
 Proof.
-  intros; apply idpath.
+  now intros.
 Defined.
 
 Lemma remakeweqinv_eq' {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : invmap (remakeweqinv e) = h.
 (* check the claim in the comment above *)
 Proof.
-  intros; apply idpath.
+  now intros.
 Defined.
 
 Corollary remakeweqboth {X Y : UU} {f:X≃Y} {g:X->Y} {h:Y->X} : f ~ g -> invmap f ~ h -> X≃Y.
@@ -1734,13 +1733,13 @@ Defined.
 Lemma remakeweqboth_eq {X Y : UU} (f:X≃Y) (g:X->Y) (h:Y->X) (r:f~g) (s:invmap f ~ h) :
   pr1weq (remakeweqboth r s) = g.
 Proof.
-  intros; apply idpath.
+  now intros.
 Defined.
 
 Lemma remakeweqboth_eq' {X Y : UU} (f:X≃Y) (g:X->Y) (h:Y->X) (r:f~g) (s:invmap f ~ h) :
   invmap (remakeweqboth r s) = h.
 Proof.
-  intros; apply idpath.
+  now intros.
 Defined.
 
 Corollary isweqhomot_iff {X Y : UU} (f1 f2 : X -> Y)
