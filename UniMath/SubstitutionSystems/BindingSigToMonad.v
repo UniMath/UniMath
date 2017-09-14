@@ -23,7 +23,6 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -240,7 +239,6 @@ Definition BindingSigToMonad
   (TC : Terminal C) (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
   (HF : ∏ (F : [C,C]), is_omega_cocont (constprod_functor1 F))
   (sig : BindingSig)
-  (PC : Products (BindingSigIndex sig) C)
   (CC : Coproducts (BindingSigIndex sig) C) :
   Monad C.
 Proof.
@@ -304,7 +302,6 @@ intros sig; use (BindingSigToMonad _ _ _ _ _ _ _ sig).
 - intros F.
   apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
   apply has_exponentials_functor_HSET, has_homsets_HSET.
-- apply ProductsHSET.
 - apply CoproductsHSET.
   apply BindingSigIsaset.
 Defined.

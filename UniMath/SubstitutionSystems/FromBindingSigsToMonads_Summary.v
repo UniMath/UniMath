@@ -376,8 +376,7 @@ Definition BindingSigToMonad :
   ∏ (C : precategory) (hsC : has_homsets C) (BPC : BinProducts C),
   BinCoproducts C → Terminal C → Initial C → Colims_of_shape nat_graph C
   → (∏ F, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C BPC hsC) F))
-  → ∏ sig : BindingSig, Products (BindingSigIndex sig) C
-  → Coproducts (BindingSigIndex sig) C
+  → ∏ sig : BindingSig, Coproducts (BindingSigIndex sig) C
   → Monad C.
 Proof.
   exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToMonad.
