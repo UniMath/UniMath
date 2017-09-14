@@ -178,12 +178,11 @@ Lemma is_omega_cocont_BindingSigToSignature
   (TC : Terminal C) (CLC : Colims_of_shape nat_graph C)
   (HF : ∏ (F : [C,C]), is_omega_cocont (constprod_functor1 F))
   (sig : BindingSig)
-  (CC : Coproducts (BindingSigIndex sig) C) (PC : Products (BindingSigIndex sig) C) :
+  (CC : Coproducts (BindingSigIndex sig) C) :
   is_omega_cocont (BindingSigToSignature TC sig CC).
 Proof.
 apply is_omega_cocont_Sum_of_Signatures.
-- intro i; apply is_omega_cocont_Arity_to_Signature, HF; assumption.
-- apply PC.
+now intro i; apply is_omega_cocont_Arity_to_Signature, HF.
 Defined.
 
 Let Id_H := Id_H C hsC BCC.
@@ -248,7 +247,7 @@ Proof.
 use Monad_from_hss.
 - apply (BindingSigToSignature TC sig CC).
 - apply (SignatureToHSS IC CLC).
-  apply (is_omega_cocont_BindingSigToSignature TC CLC HF _ _ PC).
+  apply (is_omega_cocont_BindingSigToSignature TC CLC HF _ _).
 Defined.
 
 End BindingSigToMonad.
@@ -276,12 +275,11 @@ Lemma is_omega_cocont_BindingSigToSignatureHSET (sig : BindingSig) :
   is_omega_cocont (BindingSigToSignatureHSET sig).
 Proof.
 apply is_omega_cocont_Sum_of_Signatures.
-- intro i; apply is_omega_cocont_Arity_to_Signature.
-  + apply ColimsHSET_of_shape.
-  + intros F.
-    apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
-    apply has_exponentials_functor_HSET, has_homsets_HSET.
-- apply ProductsHSET.
+intro i; apply is_omega_cocont_Arity_to_Signature.
++ apply ColimsHSET_of_shape.
++ intros F.
+  apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
+  apply has_exponentials_functor_HSET, has_homsets_HSET.
 Defined.
 
 (** ** Construction of initial algebra for a signature with strength for HSET *)
