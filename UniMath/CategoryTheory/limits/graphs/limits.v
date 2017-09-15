@@ -327,9 +327,9 @@ End lim_def.
 
 Section Lims.
 
-Definition Lims (C : precategory) : UU := ∏ {g : graph} (d : diagram g C), LimCone d.
+Definition Lims (C : precategory) : UU := ∏ (g : graph) (d : diagram g C), LimCone d.
 Definition hasLims (C : precategory) : UU  :=
-  ∏ {g : graph} (d : diagram g C), ishinh (LimCone d).
+  ∏ (g : graph) (d : diagram g C), ishinh (LimCone d).
 
 (** Limits of a specific shape *)
 Definition Lims_of_shape (g : graph) (C : precategory) : UU :=
@@ -601,9 +601,9 @@ simple refine (mk_ColimCocone _ _ _ _  ).
 - apply isCC.
 Defined.
 
-Definition Lims : UU := ∏ {g : graph} (d : diagram g C^op), LimCone d.
+Definition Lims : UU := ∏ (g : graph) (d : diagram g C^op), LimCone d.
 Definition hasLims : UU  :=
-  ∏ {g : graph} (d : diagram g C^op), ishinh (LimCone d).
+  ∏ (g : graph) (d : diagram g C^op), ishinh (LimCone d).
 
 (* lim is the tip of the lim cone *)
 Definition lim {g : graph} {d : diagram g C^op} (CC : LimCone d) : C
