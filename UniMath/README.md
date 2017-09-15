@@ -33,9 +33,6 @@ less fragile and to make the files have a more uniform and pleasing appearance.
 * Do not use `Admitted` or introduce new axioms.
 * Do not use `Prop` or `Set`, and ensure definitions don't produce
   elements of them.
-* Do not use `Type`, except in `Foundations/Basics/Preamble.v`.
-  Use `UU` instead.  If higher universes are needed, they should be
-  added to `Foundations/Basics/Preamble.v`.
 * Do not use `Inductive` or `Record`, except in `Foundations/Basics/Preamble.v`.
 * Do not use `Module` or `Structure`.
 * Do not use `Fixpoint`.
