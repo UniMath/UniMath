@@ -4,6 +4,7 @@ Contents:
 
 - Definition of relative monads [RelMonad]
 - Functoriality for relative monads [r_lift]
+- Kleisli category associated to a relative monad [Kleisli_precat] [Kleisli_cat]
 
 Reference: % \cite{DBLP:journals/corr/AltenkirchCU14} \par %
 
@@ -28,8 +29,9 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 (** * Definition of relative monads *)
 Section RMonad_def.
 
-Context {C D : precategory} (J : functor C D).
+Context {C D : precategory} {J : functor C D}.
 
+(* implicitness of arguments for RelMonad_data are set after this section *)
 Definition RelMonad_data : UU
   := ∑ F : C -> D, (∏ c, D ⟦J c, F c⟧)
                  × (∏ c d, D ⟦J c, F d⟧ → D ⟦F c, F d⟧).
@@ -55,6 +57,7 @@ Definition r_bind_r_bind {R : RelMonad_data} (X : RelMonad_axioms R)
          r_bind R f · r_bind R g = r_bind R (f · r_bind R g)
   := pr2 (pr2 X).
 
+(* implicitness of arguments for RelMonad are set after this section *)
 Definition RelMonad : UU := ∑ R : RelMonad_data, RelMonad_axioms R.
 Coercion RelMonad_data_from_RelMonad (R : RelMonad) : RelMonad_data := pr1 R.
 Coercion RelMonad_axioms_from_RelMonad (R : RelMonad) : RelMonad_axioms R := pr2 R.
@@ -81,3 +84,49 @@ Proof.
 Defined.
 
 End RMonad_def.
+
+(* Underlying functor argument should be explicit for RelMonad_data and RelMonad *)
+Arguments RelMonad_data {C} {D} J.
+Arguments RelMonad {C} {D} J.
+
+(** Kleisli precategory associated to a relative monad *)
+Section Kleisli_precat.
+
+Context {C D : precategory} {J : functor C D} (R : RelMonad J).
+
+Definition Kleisli_precat_ob_mor : precategory_ob_mor :=
+  precategory_ob_mor_pair (ob C) (fun c d => J c --> R d).
+
+Definition Kleisli_precat_data : precategory_data :=
+  precategory_data_pair Kleisli_precat_ob_mor (fun c => r_eta R c)
+                                              (fun a b c f g => f · r_bind R g).
+
+Lemma Kleisli_precat_is_precat : is_precategory Kleisli_precat_data.
+  do 2 try apply tpair;
+    try unfold compose; simpl.
+  - intros a b f.
+    apply (r_eta_r_bind R).
+  - intros a b f.
+    now rewrite (r_bind_r_eta R), id_right.
+  - intros a b c d f g h.
+    now rewrite <- assoc, (r_bind_r_bind R).
+Qed.
+
+Definition Kleisli_precat : precategory := (_,, Kleisli_precat_is_precat).
+
+End Kleisli_precat.
+
+(** Kleisli category associated to a relative monad *)
+Section Kleisli_cat.
+
+Lemma Kleisli_precat_has_homsets {C : precategory} {D : category} {J : functor C D} (R : RelMonad J)
+      (hs : has_homsets D) : has_homsets (Kleisli_precat_data R).
+Proof.
+  intros a b.
+  apply hs.
+Defined.
+
+Definition Kleisli_cat {C : precategory} {D : category} {J : functor C D} (R : RelMonad J)
+  : category := (Kleisli_precat R,, Kleisli_precat_has_homsets R (homset_property D)).
+
+End Kleisli_cat.
