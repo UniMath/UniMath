@@ -349,16 +349,6 @@ Proof.
 exact @UniMath.SubstitutionSystems.BindingSigToMonad.is_omega_cocont_BindingSigToSignature.
 Defined.
 
-(** Construction 45: Datatypes specified by binding signatures (initial algebra of Id_H + H) *)
-Definition SignatureInitialAlgebra :
-  ∏ {C : precategory} (hsC : has_homsets C) (BCC : BinCoproducts C),
-  Initial C → Colims_of_shape nat_graph C
-  → ∏ s : Signature C hsC C hsC, is_omega_cocont (Signature_Functor C hsC C hsC s)
-  → Initial (FunctorAlg (Id_H C hsC BCC s) (BindingSigToMonad.has_homsets_C2 hsC)).
-Proof.
-exact @UniMath.SubstitutionSystems.BindingSigToMonad.SignatureInitialAlgebra.
-Defined.
-
 (** Theorem 47: Construction of a substitution operation on an initial algebra *)
 Definition InitHSS :
   ∏ (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C),
