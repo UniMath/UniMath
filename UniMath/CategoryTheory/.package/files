@@ -125,7 +125,5 @@ DisplayedCats/Equivalences.v
 DisplayedCats/Equivalences_bis.v
 DisplayedCats/Codomain.v
 DisplayedCats/SIP.v
-DisplayedCats/DisplayedCatFromCwDM.v
-DisplayedCats/ComprehensionC.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
