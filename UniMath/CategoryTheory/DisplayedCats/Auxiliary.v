@@ -19,8 +19,11 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 
+Local Open Scope cat.
+(*
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+*)
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
@@ -49,25 +52,25 @@ Proof.
   destruct p as [a b], q as [a' b']; apply pathsdirprod.
 Defined.
 
-(** Compare [total2asstol]. *) 
+(** Compare [total2asstol]. *)
 Definition dirprod_assoc {C0 C1 C2 : UU}
   : (C0 × (C1 × C2)) -> ((C0 × C1) × C2).
 Proof.
-  intros c. exact ((pr1 c , (pr1 (pr2 c))) , pr2 (pr2 c)). 
+  intros c. exact ((pr1 c ,, (pr1 (pr2 c))) ,, pr2 (pr2 c)).
 Defined.
 
 (** Identical to [dirprodf]. *)
 Definition dirprod_maps {A0 A1 B0 B1} (f0 : A0 -> B0) (f1 : A1 -> B1)
   : A0 × A1 -> B0 × B1.
 Proof.
-  intros aa. exact (f0 (pr1 aa), f1 (pr2 aa)).
+  intros aa. exact (f0 (pr1 aa),, f1 (pr2 aa)).
 Defined.
 
 (** Compare [prodtofuntoprod]. *)
 Definition dirprod_pair_maps {A B0 B1} (f0 : A -> B0) (f1 : A -> B1)
   : A -> B0 × B1.
 Proof.
-  intros a; exact (f0 a, f1 a).
+  intros a; exact (f0 a,, f1 a).
 Defined.
 
 End Dirprod_utils.
@@ -118,8 +121,8 @@ Defined.
 Definition prod_precategory_data (C D : precategory) : precategory_data.
   exists (prod_precategory_ob_mor C D); split.
   (* identity *) split; apply identity.
-  (* comp *) intros a b c f g. 
-    exact ((pr1 f ;; pr1 g) , (pr2 f ;; pr2 g)).
+  (* comp *) intros a b c f g.
+    exact ((pr1 f · pr1 g) ,, (pr2 f · pr2 g)).
 Defined.
 
 Definition prod_precategory_is_precategory (C D : precategory)
@@ -127,7 +130,7 @@ Definition prod_precategory_is_precategory (C D : precategory)
 Proof.
   split; try split; try split; intros.
   (* id_left *) apply dirprod_paths; simpl; apply id_left.
-  (* id_right *) apply dirprod_paths; simpl; apply id_right. 
+  (* id_right *) apply dirprod_paths; simpl; apply id_right.
   (* assoc *) apply dirprod_paths; simpl; apply assoc.
 Qed.
 
@@ -145,7 +148,7 @@ Definition prod_category (C D : category) : category
 
 Arguments prod_precategory (_ _)%cat.
 
-Notation "C × D" := (prod_category C D) (at level 75, right associativity) : cat.
+Local Notation "C × D" := (prod_category C D) (at level 75, right associativity) : cat.
 
 Definition prod_category_assoc_data (C0 C1 C2 : category)
   : functor_data (C0 × (C1 × C2)) ((C0 × C1) × C2).
@@ -203,7 +206,7 @@ Defined.
 End category_products.
 
 (** Redeclare section notations to be available globally. *)
-Notation "C × D" := (prod_category C D)
+Local Notation "C × D" := (prod_category C D)
   (at level 75, right associativity) : cat.
 
 (** * Groupoids *)
@@ -288,7 +291,7 @@ Proof.
 Defined.
 
 (* TODO: upstream; also perhaps reconsider implicit args of pr1_transportf to match this? *)
-Lemma pr2_transportf {A} {B1 B2 : A → UU} 
+Lemma pr2_transportf {A} {B1 B2 : A → UU}
     {a a' : A} (e : a = a') (xs : B1 a × B2 a)
   : pr2 (transportf (fun a => B1 a × B2 a) e xs) = transportf _ e (pr2 xs).
 Proof.
@@ -375,4 +378,3 @@ Proof.
 Defined.
 
 End Miscellaneous.
-

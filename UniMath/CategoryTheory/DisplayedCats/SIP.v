@@ -8,12 +8,9 @@ A short proof of the SIP (HoTT book, chapter 9.8)
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
 
-Require Import TypeTheory.Auxiliary.Auxiliary.
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
-
-Require Import TypeTheory.Displayed_Cats.Auxiliary.
-Require Import TypeTheory.Displayed_Cats.Core.
-Require Import TypeTheory.Displayed_Cats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Local Open Scope mor_disp_scope.
 
@@ -36,7 +33,7 @@ Arguments H {_ _} _ _ _ .
 Variable Hisprop : ∏ x y a b (f : C⟦x,y⟧), isaprop (H a b f).
 Variable Hid : ∏ (x : C) (a : P x), H a a (identity _ ).
 Variable Hcomp : ∏ (x y z : C) a b c (f : C⟦x,y⟧) (g : C⟦y,z⟧),
-                 H a b f → H b c g → H a c (f ;; g).
+                 H a b f → H b c g → H a c (f · g).
 Variable Hstandard : ∏ (x : C) (a a' : P x),
                      H a a' (identity _ ) → H a' a (identity _ ) → a = a'.
 

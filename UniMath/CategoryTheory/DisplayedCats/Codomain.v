@@ -1,5 +1,5 @@
 
-(** * Examples 
+(** * Examples
 
 A typical use for displayed categories is for constructing categories of structured objects, over a given (specific or general) category. We give a few examples here:
 
@@ -10,22 +10,20 @@ A typical use for displayed categories is for constructing categories of structu
 *)
 
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
-Require Import TypeTheory.Auxiliary.Auxiliary.
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
-Require Import TypeTheory.Displayed_Cats.Auxiliary.
-Require Import TypeTheory.Displayed_Cats.Core.
-Require Import TypeTheory.Displayed_Cats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
+Open Scope cat.
 
-(** ** The displayed codomain  
+(** ** The displayed codomain
 
-The total category associated to this displayed category is going to be 
+The total category associated to this displayed category is going to be
 isomorphic to the arrow category, but it won't be the same:
 the components of the objects and morphisms will be arranged differently
 
@@ -39,8 +37,8 @@ Context (C:category).
 Definition cod_disp_ob_mor : disp_cat_ob_mor C.
 Proof.
   exists (fun x : C => ∑ y, y --> x).
-  simpl; intros x y xx yy f. 
-    exact (∑ ff : pr1 xx --> pr1 yy, ff ;; pr2 yy = pr2 xx ;; f).
+  simpl; intros x y xx yy f.
+    exact (∑ ff : pr1 xx --> pr1 yy, ff · pr2 yy = pr2 xx · f).
 Defined.
 
 Definition cod_id_comp : disp_cat_id_comp _ cod_disp_ob_mor.
@@ -52,8 +50,8 @@ Proof.
         etrans; [apply id_left |];
         apply pathsinv0, id_right ).
   - simpl; intros x y z f g xx yy zz ff gg.
-    exists (pr1 ff ;; pr1 gg).
-    abstract ( 
+    exists (pr1 ff · pr1 gg).
+    abstract (
         apply pathsinv0;
         etrans; [apply assoc |];
         etrans; [apply maponpaths_2, (! (pr2 ff)) |];
@@ -71,21 +69,21 @@ Proof.
   - apply subtypeEquality.
     { intro. apply homset_property. }
     etrans. apply id_left.
-    destruct ff as [ff H]. 
+    destruct ff as [ff H].
     apply pathsinv0.
     etrans. refine (pr1_transportf (C⟦x,y⟧) _ _ _ _ _ _ ).
     use transportf_const.
   - apply subtypeEquality.
     { intro. apply homset_property. }
     etrans. apply id_right.
-    destruct ff as [ff H]. 
+    destruct ff as [ff H].
     apply pathsinv0.
     etrans. refine (pr1_transportf (C⟦x,y⟧) _ _ _ _ _ _ ).
     use transportf_const.
   - apply subtypeEquality.
     { intro. apply homset_property. }
     etrans. apply assoc.
-    destruct ff as [ff H]. 
+    destruct ff as [ff H].
     apply pathsinv0.
     etrans. unfold mor_disp.
     refine (pr1_transportf (C⟦x,w⟧) _ _ _ _ _ _ ).
@@ -111,18 +109,18 @@ Definition isPullback_cartesian_in_cod_disp
 Proof.
   intros Hpb Δ g q hh.
   eapply iscontrweqf.
-  Focus 2. { 
+  Focus 2. {
     use Hpb.
     + exact (pr1 q).
     + exact (pr1 hh).
-    + simpl in q. refine (pr2 q ;; g).
+    + simpl in q. refine (pr2 q · g).
     + etrans. apply (pr2 hh). apply assoc.
   } Unfocus.
   eapply weqcomp.
   Focus 2. apply weqtotal2asstol.
   apply weq_subtypes_iff.
   - intro. apply isapropdirprod; apply homset_property.
-  - intro. apply (isofhleveltotal2 1). 
+  - intro. apply (isofhleveltotal2 1).
     + apply homset_property.
     + intros. apply homsets_disp.
   - intros gg; split; intros H.
@@ -147,7 +145,7 @@ Proof.
   unfold is_cartesian in cf.
   simpl in *.
   eapply iscontrweqf.
-  Focus 2. { 
+  Focus 2. {
     use cf.
     + exact Γ'.
     + exact (identity _ ).
@@ -159,12 +157,12 @@ Proof.
   apply weqtotal2asstor.
   apply weq_subtypes_iff.
 
-  - intro. apply (isofhleveltotal2 1). 
+  - intro. apply (isofhleveltotal2 1).
     + apply homset_property.
-    + intros. 
-      match goal with |[|- isofhlevel 1 (?x = _ )] => 
+    + intros.
+      match goal with |[|- isofhlevel 1 (?x = _ )] =>
                        set (X := x) end.
-      set (XR := @homsets_disp _ (disp_codomain C )). 
+      set (XR := @homsets_disp _ (disp_codomain C )).
       specialize (XR _ _ _ _ _ X).
       apply XR.
   - cbn. intro. apply isapropdirprod; apply homset_property.
@@ -172,7 +170,7 @@ Proof.
     + split.
       * exact (maponpaths pr1 (pr2 HRR)).
       * etrans. apply (pr1 HRR). apply id_right.
-    + mkpair. 
+    + mkpair.
       * rewrite id_right.
         exact (pr2 HRR).
       * apply subtypeEquality.
@@ -192,5 +190,3 @@ Proof.
 Defined.
 
 End Pullbacks_Cartesian.
-
-

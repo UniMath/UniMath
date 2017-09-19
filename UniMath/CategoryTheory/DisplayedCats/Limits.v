@@ -4,15 +4,14 @@ Limits
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
-Require Import TypeTheory.Auxiliary.Auxiliary.
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
-Require Import TypeTheory.Displayed_Cats.Auxiliary.
-Require Import TypeTheory.Displayed_Cats.Core.
-Require Import TypeTheory.Displayed_Cats.Constructions.
-Require Import TypeTheory.Displayed_Cats.Fibrations. 
+Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 
 Local Set Automatic Introduction.
@@ -24,7 +23,7 @@ Local Open Scope mor_disp_scope.
 Section Auxiliary.
 
 (* TODO: upstream into definition of cone in UniMath. *)
-Definition forms_cone 
+Definition forms_cone
     {C : precategory} {g : graph} (d : diagram g C)
     (c : C) (f : ∏ (v : vertex g), C⟦c, dob d v⟧)
   : UU
@@ -44,22 +43,22 @@ Definition creates_limit
   {J : graph} (F : diagram J (total_category D))
   {x : C} (L : cone (mapdiagram (pr1_category D) F)  x)
   (isL : isLimCone _ x L) : UU
-:= 
-  ∑ (CC : iscontr 
+:=
+  ∑ (CC : iscontr
       ( ∑ (d : D x)
           (δ : ∏ j : vertex J, d -->[L j] (pr2 (dob F j))),
           forms_cone F (x,,d)  (λ j, (L j ,, δ j))))
   , isLimCone _ _ (mk_cone _ (pr2 (pr2 (iscontrpr1 CC)))).
-         
+
 Definition creates_limits {C : category} (D : disp_cat C) : UU
-:= 
+:=
   ∏ {J : graph} (F : diagram J (total_category D))
     {x : C} (L : cone (mapdiagram (pr1_category D) F)  x)
     (isL : isLimCone _ x L),
   creates_limit _ _ _ isL.
 
 End Creates_Limits.
-           
+
 Section creates_preserves.
 
 Context {C : category}
@@ -84,8 +83,8 @@ Proof.
   use (mk_LimCone _ _ _ (pr2 XR)).
 Defined.
 
-Lemma pr1_preserves_limit (d : diagram J (total_category D)) 
-  (x : total_category D) (CC : cone d x) : preserves_limit π _ x CC. 
+Lemma pr1_preserves_limit (d : diagram J (total_category D))
+  (x : total_category D) (CC : cone d x) : preserves_limit π _ x CC.
 Proof.
   intro H1.
   set (XR := X (mapdiagram π d)).
@@ -106,26 +105,26 @@ Proof.
     cbn in XR.
     match goal with |[ H : is_iso ?f |- _ ] => set (T':= f) end.
 *)
-  
+
     set (RX := isLim_is_iso _ (mk_LimCone _ _ _ RT1) _ _ H1).
     set (XR := @functor_on_is_iso_is_iso _ _ π _ _ _ RX).
     match goal with |[ H : is_iso ?f |- _ ] => set (T':= f) end.
 
     assert (X0 : T' = T).
-    { 
-      
+    {
+
       clear XR.
       clear RX.
       unfold T.
       unfold T'.
       apply (limArrowUnique (mk_LimCone _ _ _ isL)) .
-      intro j. 
+      intro j.
       set (RRt := mk_LimCone _ _ _ RT1).
       set (RRtt := limArrowCommutes RRt x CC j).
       set (RH := maponpaths (#π)%Cat RRtt).
       cbn in RH.
       apply RH.
-    } 
+    }
     rewrite <- X0.
     apply XR.
 Defined.

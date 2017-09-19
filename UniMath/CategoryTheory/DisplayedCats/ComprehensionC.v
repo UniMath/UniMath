@@ -3,7 +3,7 @@
 
 Definition of the displayed category of display maps over a category [C]
 
-Given a category with display maps [C], we define a displayed 
+Given a category with display maps [C], we define a displayed
 category over [C]. Objects over [c:C] are display maps into [c].
 
 *)
@@ -22,8 +22,6 @@ Require Import TypeTheory.Displayed_Cats.Fibrations.
 Require Import TypeTheory.Displayed_Cats.DisplayedCatFromCwDM.
 Require Import TypeTheory.OtherDefs.DM.
 
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
 
 (** * Definition of a cartesian displayed functor *)
 
@@ -61,7 +59,7 @@ Proof.
   intros c'' g d'' h.
   refine (iscontrweqf _ (ff_cart c'' g d'' h)).
   use weq_subtypes'.
-  - eapply weqcomp. 
+  - eapply weqcomp.
     + exists (fun gg => (gg ;; i))%mor_disp.
       apply iso_disp_postcomp.
     + exists (transportf _ (id_right _)).
@@ -90,11 +88,11 @@ Proof.
 Defined.
 
 (* TODO: upstream *)
- 
+
 (* TODO: upstream also *)
 (** For a functor to be cartesian, it’s enough to show that it preserves _some_ cartesian lift of each lifting problem.
 
-  Of course, this can only happen when the domain is a fibration; and in practice, it is useful exactly in the case where one has shown it is a fibration by exhibiting some particular construction of (mere existence of) cartesian lifts. *) 
+  Of course, this can only happen when the domain is a fibration; and in practice, it is useful exactly in the case where one has shown it is a fibration by exhibiting some particular construction of (mere existence of) cartesian lifts. *)
 Lemma cartesian_functor_from_fibration
     {C C' : category} {F : functor C C'}
     {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
@@ -148,7 +146,7 @@ Proof.
   apply H.
 Qed.
 
-Definition comprehension_cat_structure (C : category) : UU 
+Definition comprehension_cat_structure (C : category) : UU
   := ∑ (D : disp_cat C) (H : cleaving D)
      (F : disp_functor (functor_identity _ ) D (disp_codomain C)),
      is_cartesian_disp_functor F.
@@ -168,7 +166,7 @@ Proof.
   use tpair.
   + intros x d. cbn in *.
     exact (pr1 d).
-  + cbn. intros x y xx yy f ff. 
+  + cbn. intros x y xx yy f ff.
     exact ff.
 Defined.
 
@@ -194,7 +192,7 @@ Lemma is_cartesian_comprehension_of_dm_structure
 Proof.
   use cartesian_functor_from_cleaving.
   - apply is_fibration_DM_disp.
-  - intros c c' f d. 
+  - intros c c' f d.
     apply isPullback_cartesian_in_cod_disp.
     apply isPullback_of_dm_sub_pb, homset_property.
 Qed.
@@ -206,11 +204,11 @@ Definition total_comprehension_of_dm_structure
 (** This commutativity is an instance of a general lemma about comprehension categories
     once we have produced [comp_cat_of_dm] below
 *)
-Lemma comprehension_of_dm_structure_triangle_commutes 
+Lemma comprehension_of_dm_structure_triangle_commutes
 : functor_composite total_comprehension_of_dm_structure (pr1_category _)
-  = pr1_category _ . 
-Proof. 
-  apply functor_eq. 
+  = pr1_category _ .
+Proof.
+  apply functor_eq.
   - apply homset_property.
   - apply idpath.
 Qed.
@@ -219,14 +217,11 @@ Definition comp_cat_of_dm :  comprehension_cat_structure C.
 Proof.
   mkpair.
   - apply DM_disp. apply H.
-  - mkpair. 
+  - mkpair.
     + apply is_fibration_DM_disp.
-    + mkpair. 
+    + mkpair.
       * apply comprehension_of_dm_structure.
       * apply is_cartesian_comprehension_of_dm_structure.
 Defined.
 
 End Comp_Cat_of_DM_Structure.
-
-
-

@@ -1,5 +1,5 @@
 
-(** * Examples 
+(** * Examples
 
 A typical use for displayed categories is for constructing categories of structured objects, over a given (specific or general) category. We give a few examples here:
 
@@ -11,31 +11,28 @@ A typical use for displayed categories is for constructing categories of structu
 *)
 
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.Topology.Topology.
 
-Require Import TypeTheory.Auxiliary.Auxiliary.
-Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
-
-Require Import TypeTheory.Displayed_Cats.Auxiliary.
-Require Import TypeTheory.Displayed_Cats.Core.
-Require Import TypeTheory.Displayed_Cats.Constructions.
-Require Import TypeTheory.Displayed_Cats.Limits.
-Require Import TypeTheory.Displayed_Cats.Fibrations.
-Require Import TypeTheory.Displayed_Cats.SIP.
+Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Limits.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 
 Local Open Scope mor_disp_scope.
 
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
 
 (** * Displayed category of groups *)
 
 Module group.
 
-Definition grp_structure_data (X : hSet) : UU 
+Definition grp_structure_data (X : hSet) : UU
   := (X -> X -> X) × X × (X -> X).
 Definition mult {X : hSet} (G : grp_structure_data X)
            : X -> X -> X := pr1 G.
@@ -77,22 +74,22 @@ Definition grp_structure (X : hSet) : UU
 Coercion grp_data {X} (G : grp_structure X) : grp_structure_data X := pr1 G.
 Coercion grp_axioms {X} (G : grp_structure X) : grp_structure_axioms _ := pr2 G.
 
-Definition is_grp_hom {X Y : hSet} (f : X -> Y) 
+Definition is_grp_hom {X Y : hSet} (f : X -> Y)
            (GX : grp_structure X) (GY : grp_structure Y) : UU
            := (∏ x x', f (mult GX x x') = mult GY (f x) (f x'))
                 ×
               (f (e GX) = e GY).
 Definition grp_hom_mult {X Y : hSet} {f : X -> Y}
-           {GX : grp_structure X} {GY : grp_structure Y} 
+           {GX : grp_structure X} {GY : grp_structure Y}
            (is : is_grp_hom f GX GY)
            : ∏ x x', f (mult GX x x') = mult GY (f x) (f x') := pr1 is.
 Definition grp_hom_e {X Y : hSet} {f : X -> Y}
-           {GX : grp_structure X} {GY : grp_structure Y} 
+           {GX : grp_structure X} {GY : grp_structure Y}
            (is : is_grp_hom f GX GY)
            : f (e GX) = e GY := pr2 is.
 
-Definition isaprop_is_grp_hom {X Y : hSet} (f : X -> Y) 
-           (GX : grp_structure X) (GY : grp_structure Y) 
+Definition isaprop_is_grp_hom {X Y : hSet} (f : X -> Y)
+           (GX : grp_structure X) (GY : grp_structure Y)
   : isaprop (is_grp_hom f GX GY).
 Proof.
   repeat apply (isofhleveldirprod);
@@ -100,12 +97,12 @@ Proof.
   apply setproperty.
 Qed.
 
-Definition disp_grp : disp_cat hset_category. 
+Definition disp_grp : disp_cat hset_category.
 Proof.
   use disp_struct.
   - exact grp_structure.
   - intros X Y GX GY f. exact (is_grp_hom f GX GY).
-  - intros.  apply isaprop_is_grp_hom. 
+  - intros.  apply isaprop_is_grp_hom.
   - intros. simpl.
     repeat split; intros; apply idpath.
   - intros ? ? ? ? ? ? ? ? Gf Gg  ; simpl in *;
@@ -163,11 +160,11 @@ Definition top_disp_cat_data : disp_cat_data HSET.
 Proof.
   exists top_disp_cat_ob_mor.
   mkpair.
-  - intros X XX. cbn. unfold continuous. intros. 
+  - intros X XX. cbn. unfold continuous. intros.
     unfold continuous_at. cbn. unfold is_lim. cbn.
     unfold filterlim. cbn. unfold filter_le. cbn.
     intros. assumption.
-  - intros X Y Z f g XX YY ZZ Hf Hg. 
+  - intros X Y Z f g XX YY ZZ Hf Hg.
     use (@continuous_comp (pr1hSet X,,XX) (pr1hSet Y,,YY) (pr1hSet Z,,ZZ) f g);
       assumption.
 Defined.
@@ -177,22 +174,22 @@ Proof.
   repeat split; cbn; intros; try (apply proofirrelevance, isaprop_continuous).
   apply isasetaprop. apply isaprop_continuous.
 Defined.
- 
+
 Definition disp_top : disp_cat SET := _ ,, top_disp_cat_axioms.
 
 
-(** ** The displayed arrow category 
+(** ** The displayed arrow category
 
 A very fertile example: many others can be obtained from it by reindexing. *)
 Section Arrow_Disp.
 
 Context (C:category).
 
-Definition arrow_disp_ob_mor : disp_cat_ob_mor (C × C).
+Definition arrow_disp_ob_mor : disp_cat_ob_mor (prod_category C C).
 Proof.
   exists (fun xy : (C × C) => (pr1 xy) --> (pr2 xy)).
-  simpl; intros xx' yy' g h ff'. 
-    exact (pr1 ff' ;; h = g ;; pr2 ff')%mor.
+  simpl; intros xx' yy' g h ff'.
+    exact (pr1 ff' · h = g · pr2 ff').
 Defined.
 
 Definition arrow_id_comp : disp_cat_id_comp _ arrow_disp_ob_mor.
@@ -211,21 +208,21 @@ Qed.
 Definition arrow_data : disp_cat_data _
   := (arrow_disp_ob_mor ,, arrow_id_comp).
 
-Lemma arrow_axioms : disp_cat_axioms (C × C) arrow_data.
+Lemma arrow_axioms : disp_cat_axioms (prod_category C C) arrow_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
-  apply isasetaprop, homset_property. 
+  apply isasetaprop, homset_property.
 Qed.
 
-Definition arrow_disp : disp_cat (C × C)
+Definition arrow_disp : disp_cat (prod_category C C)
   := (arrow_data ,, arrow_axioms).
 
 End Arrow_Disp.
 
 (** ** Objects with N-action
 
-For any category C, “C-objects equipped with an N-action” (or more elementarily, with an endomorphism) form a displayed category over C 
-Section ZAct. 
+For any category C, “C-objects equipped with an N-action” (or more elementarily, with an endomorphism) form a displayed category over C
+Section ZAct.
 
 Once we have pullbacks of displayed precategories, this can be obtained as a pullback of the previous example. *)
 
@@ -236,7 +233,7 @@ Context (C:category).
 Definition NAction_disp_ob_mor : disp_cat_ob_mor C.
 Proof.
   exists (fun c => c --> c).
-  intros x y xx yy f. exact (f ;; yy = xx ;; f)%mor.
+  intros x y xx yy f. exact (f · yy = xx · f).
 Defined.
 
 Definition NAction_id_comp : disp_cat_id_comp C NAction_disp_ob_mor.
@@ -258,7 +255,7 @@ Definition NAction_data : disp_cat_data C
 Lemma NAction_axioms : disp_cat_axioms C NAction_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
-  apply isasetaprop, homset_property. 
+  apply isasetaprop, homset_property.
 Qed.
 
 Definition NAction_disp : disp_cat C
@@ -320,33 +317,33 @@ Context {C : category} (F : functor C C).
 
 Definition functor_alg_ob : C -> UU := λ c, F c --> c.
 
-Definition functor_alg_mor 
+Definition functor_alg_mor
   : ∏ (x y : C), functor_alg_ob x → functor_alg_ob y → C⟦x,y⟧ → UU.
 Proof.
   intros c d a a' r. exact ( (#F r)%cat · a' = a · r).
 Defined.
 
-Definition isaprop_functor_alg_mor 
+Definition isaprop_functor_alg_mor
   :  ∏ (x y : C) a a' r,
      isaprop (functor_alg_mor x y a a' r).
 Proof.
   intros. simpl. apply homset_property.
 Qed.
 
-Definition functor_alg_id 
+Definition functor_alg_id
 : ∏ (x : C) (a : functor_alg_ob x), functor_alg_mor _ _ a a (identity x ).
 Proof.
   intros; unfold functor_alg_mor.
-  rewrite functor_id; 
-  rewrite id_left; 
+  rewrite functor_id;
+  rewrite id_left;
   apply pathsinv0; apply id_right .
 Qed.
 
-Definition functor_alg_comp 
+Definition functor_alg_comp
   : ∏ (x y z : C) a b c (f : C⟦x,y⟧) (g : C⟦y,z⟧),
-                 functor_alg_mor _ _  a b f 
-                 → functor_alg_mor _ _  b c g 
-                 → functor_alg_mor _ _  a c (f ;; g).
+                 functor_alg_mor _ _  a b f
+                 → functor_alg_mor _ _  b c g
+                 → functor_alg_mor _ _  a c (f · g).
 Proof.
   cbn; intros ? ? ? ? ? ? ? ? X X0;
   unfold functor_alg_mor in *;
@@ -357,11 +354,11 @@ Proof.
 Qed.
 
 Definition disp_cat_functor_alg : disp_cat C
-  := disp_struct _ _ 
-                 functor_alg_mor 
-                 isaprop_functor_alg_mor 
-                 functor_alg_id 
-                 functor_alg_comp.                                                  
+  := disp_struct _ _
+                 functor_alg_mor
+                 isaprop_functor_alg_mor
+                 functor_alg_id
+                 functor_alg_comp.
 
 Definition total_functor_alg : category := total_category disp_cat_functor_alg.
 
@@ -372,7 +369,7 @@ Proof.
 Qed.
 
 Lemma is_univalent_disp_functor_alg : is_univalent_disp disp_cat_functor_alg.
-Proof. 
+Proof.
   use is_univalent_disp_from_SIP_data.
   - apply isaset_functor_alg_ob.
   - unfold functor_alg_mor.
@@ -421,7 +418,7 @@ Proof.
   unfold creates_limit. cbn.
   transparent assert (FC : (cone (mapdiagram π D) (F x))).
   { use mk_cone.
-    - intro j. 
+    - intro j.
       eapply compose.
       apply ((#F)%cat (coneOut L j )).
       cbn. exact (pr2 (dob D j)).
@@ -448,7 +445,7 @@ Proof.
           [
             intro j; cbn;
             set (XR := limArrowCommutes LL _ FC); cbn in XR;
-            apply pathsinv0; apply XR 
+            apply pathsinv0; apply XR
           | cbn; intros i j e;
             apply subtypeEquality;
             [ intro; apply homset_property |];
@@ -457,7 +454,7 @@ Proof.
     + abstract (
       intro t; cbn;
       use total2_paths_f;
-      [ cbn; 
+      [ cbn;
         apply (limArrowUnique LL);
         induction t as [t [H1 H2]]; cbn in *;
         intro j;
@@ -466,15 +463,15 @@ Proof.
       apply isofhleveltotal2;
       [ apply impred_isaprop; intro; apply homset_property |];
       intros; do 3 (apply impred_isaprop; intro);
-        apply (homset_property (total_category _ )) 
+        apply (homset_property (total_category _ ))
         ).
   - cbn.
     intros x' CC.
-    set (πCC := mapcone π D CC). 
+    set (πCC := mapcone π D CC).
     use unique_exists.
-    + mkpair. 
-      * cbn. 
-        use (limArrow LL _ πCC). 
+    + mkpair.
+      * cbn.
+        use (limArrow LL _ πCC).
       * set (XR := limArrowCommutes LL).
         cbn in XR.
         set (H1:= coneOutCommutes CC). simpl in H1.
@@ -483,7 +480,7 @@ Proof.
         cbn in πCC.
         transparent assert (X : (cone (mapdiagram π D) (F c))).
         { use mk_cone.
-          - intro j. 
+          - intro j.
             apply (λ f, a · f). cbn.
             apply (coneOut CC j).
           - abstract (
@@ -493,7 +490,7 @@ Proof.
             apply (maponpaths pr1 (coneOutCommutes CC _ _ _ ))
                   ).
         }
- 
+
         {
           unfold functor_alg_mor.
           pathvia (limArrow LL _ X).
@@ -512,7 +509,7 @@ Proof.
             rewrite <- assoc.
             rewrite (limArrowCommutes LL).
             cbn.
-            apply idpath.            
+            apply idpath.
         }
     + simpl.
       intro j.
@@ -521,7 +518,7 @@ Proof.
       cbn. apply (limArrowCommutes LL).
     + intros.
       apply impred_isaprop. intro t. (apply (homset_property (total_category _ ))).
-    + simpl. 
+    + simpl.
       intros.
       apply subtypeEquality.
       { intro. apply homset_property. }
@@ -541,15 +538,15 @@ Context {C : category} (T : Monad C).
 Let T' : C ⟶ C := T.
 Let FAlg : category := total_functor_alg T'.
 
-Definition isMonadAlg (Xa : FAlg) : UU 
-  := η T (pr1 Xa) · pr2 Xa = identity _ 
+Definition isMonadAlg (Xa : FAlg) : UU
+  := η T (pr1 Xa) · pr2 Xa = identity _
      ×
      (#T')%cat (pr2 Xa) · pr2 Xa = μ T _ · pr2 Xa.
 
 Definition disp_cat_monad_alg_over_functor_alg : disp_cat FAlg
   := disp_full_sub _ isMonadAlg.
 
-Definition disp_cat_monad_alg : disp_cat C 
+Definition disp_cat_monad_alg : disp_cat C
   := sigma_disp_cat disp_cat_monad_alg_over_functor_alg.
 
 End monad_algebras.
@@ -570,7 +567,7 @@ Proof.
     + simpl. intros x y c c' e. apply (C ⟦c, c'⟧).
   - mkpair.
     + simpl. intros. apply identity.
-    + intros ? ? ? ? ? a b c f g. 
+    + intros ? ? ? ? ? a b c f g.
       apply (compose (C:=C) f g ).
 Defined.
 
@@ -596,7 +593,7 @@ Section cartesian_product_pb.
 Variable C C' : category.
 
 (* TODO: use a better name here (this one is baffling out of context) *)
-Definition disp_cartesian : disp_cat C 
+Definition disp_cartesian : disp_cat C
   := reindex_disp_cat (functor_to_unit C) (disp_over_unit C').
 
 Definition cartesian : category := total_category disp_cartesian.
@@ -611,13 +608,13 @@ Definition disp_arrow_data : disp_cat_data (cartesian C C).
 Proof.
   mkpair.
   - mkpair.
-    + intro H. 
+    + intro H.
       exact (pr1 H --> pr2 H).
     + cbn. intros xy ab f g h.
       exact (compose f (pr2 h) = compose (pr1 h) g ).
   - split; intros.
-    + cbn. 
-      apply pathsinv0. 
+    + cbn.
+      apply pathsinv0.
       etrans. apply id_left.
       cbn in xx.
       unfold mor_disp. cbn.
@@ -638,7 +635,7 @@ Definition disp_arrow_axioms : disp_cat_axioms _ disp_arrow_data.
 Proof.
   repeat split; intros; cbn;
     try apply homset_property.
-  apply isasetaprop. 
+  apply isasetaprop.
   apply homset_property.
 Qed.
 
@@ -666,7 +663,7 @@ Defined.
 Definition disp_cartesian_data : disp_cat_data C.
 Proof.
   exists disp_cartesian_ob_mor.
-  mkpair; cbn. 
+  mkpair; cbn.
   - intros; apply identity.
   - intros ? ? ? ? ? ? ? ? f g. apply (f · g).
 Defined.
