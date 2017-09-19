@@ -24,8 +24,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-(* only needed since imports globally unset it *)
-
 Section Auxiliary.
 
 (* TODO: perhaps upstream; consider name *)

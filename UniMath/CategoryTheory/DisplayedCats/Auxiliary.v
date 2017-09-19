@@ -20,13 +20,6 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 
 Local Open Scope cat.
-(*
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
-Require Import TypeTheory.Auxiliary.Auxiliary.
-*)
-
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
 
 Open Scope type_scope. (* so that it has priority over [cat], for [×] later *)
 
