@@ -244,7 +244,21 @@ exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_functor_composite.
 Defined.
 
 (** (ii) Tuple functor *)
-(* TODO *)
+Lemma is_cocont_tuple_functor :
+  ∏ (I : UU) (A : precategory) (B: I -> precategory), (∏ i, has_homsets (B i))
+  ->  ∏ (F : ∏ i, functor A (B i)), (∏ i, is_cocont (F i))
+  -> is_cocont (tuple_functor F).
+Proof.
+exact @UniMath.CategoryTheory.CocontFunctors.is_cocont_tuple_functor.
+Defined.
+
+Lemma is_omega_cocont_tuple_functor :
+  ∏ (I : UU) (A : precategory) (B: I -> precategory), (∏ i, has_homsets (B i))
+  ->  ∏ (F : ∏ i, functor A (B i)), (∏ i, is_omega_cocont (F i))
+  -> is_omega_cocont (tuple_functor F).
+Proof.
+exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_tuple_functor.
+Defined.
 
 (** (iii): Families of functors *)
 Lemma is_cocont_family_functor :
