@@ -37,6 +37,7 @@ Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.SubstitutionSystems.SignatureCategory.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
+Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 
 Local Open Scope cat.
 
@@ -352,7 +353,22 @@ Proof.
 exact @UniMath.SubstitutionSystems.BindingSigToMonad.is_omega_cocont_BindingSigToSignature.
 Defined.
 
-(** Theorem 47: Construction of a substitution operation on an initial algebra *)
+(** Problem 45: Datatypes specified by binding signatures *)
+Definition DatatypeOfBindingSig :
+  ∏ (C : precategory) (hsC : has_homsets C)
+    (BPC : BinProducts C) (BCC : BinCoproducts C)
+    (IC : Initial C) (TC : Terminal C)
+    (CLC : Colims_of_shape nat_graph C)
+    (HF : ∏ (F : functor_precategory C C hsC),
+            is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C BPC hsC) F))
+    (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C),
+  Initial (FunctorAlg (Id_H C hsC BCC (BindingSigToSignature hsC BPC BCC TC sig CC))
+                      (BindingSigToMonad.has_homsets_C2 hsC)).
+Proof.
+exact @UniMath.SubstitutionSystems.BindingSigToMonad.DatatypeOfBindingSig.
+Defined.
+
+(** Theorem 48: Construction of a substitution operation on an initial algebra *)
 Definition InitHSS :
   ∏ (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C),
   Initial C → Colims_of_shape nat_graph C →
@@ -381,8 +397,8 @@ Proof.
   exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToMonad.
 Defined.
 
-(** Example 49: Untyped lambda calculus *)
+(** Example 50: Untyped lambda calculus *)
 (* See: UniMath/SubstitutionSystems/LamFromBindingSig.v *)
 
-(** Example 50: Raw syntax of Martin-Löf type theory *)
+(** Example 51: Raw syntax of Martin-Löf type theory *)
 (* See: UniMath/SubstitutionSystems/MLTT79.v *)
