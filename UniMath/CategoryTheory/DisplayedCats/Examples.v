@@ -16,7 +16,6 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.Topology.Topology.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -116,66 +115,6 @@ Defined.
 
 End group.
 
-
-
-
-
-(** * Displayed category of topological spaces *)
-
-
-(** TODO: upstream to Topology.Topology *)
-Lemma is_lim_comp {X : UU} {U V : TopologicalSet} (f : X → U) (g : U → V) (F : Filter X) (l : U) :
-  is_lim f F l → continuous_at g l →
-  is_lim (funcomp f g) F (g l).
-Proof.
-  apply filterlim_comp.
-Qed.
-Lemma continuous_comp {X Y Z : TopologicalSet} (f : X → Y) (g : Y → Z) :
-  continuous f → continuous g →
-  continuous (funcomp f g).
-Proof.
-  intros Hf Hg x.
-  refine (is_lim_comp _ _ _ _ _ _).
-  apply Hf.
-  apply Hg.
-Qed.
-Lemma isaprop_continuous ( x y : TopologicalSet)
-  (f : x → y)
-  : isaprop (continuous (λ x0 : x,  f x0)).
-Proof.
-  do 3 (apply impred_isaprop; intro).
-  apply propproperty.
-Qed.
-(** END TODO *)
-
-Definition top_disp_cat_ob_mor : disp_cat_ob_mor HSET.
-Proof.
-  mkpair.
-  - intro X. exact (isTopologicalSet (pr1hSet X)).
-  - cbn. intros X Y T U f.
-    apply (@continuous (pr1hSet X,,T) (pr1hSet Y,,U) f).
-Defined.
-
-Definition top_disp_cat_data : disp_cat_data HSET.
-Proof.
-  exists top_disp_cat_ob_mor.
-  mkpair.
-  - intros X XX. cbn. unfold continuous. intros.
-    unfold continuous_at. cbn. unfold is_lim. cbn.
-    unfold filterlim. cbn. unfold filter_le. cbn.
-    intros. assumption.
-  - intros X Y Z f g XX YY ZZ Hf Hg.
-    use (@continuous_comp (pr1hSet X,,XX) (pr1hSet Y,,YY) (pr1hSet Z,,ZZ) f g);
-      assumption.
-Defined.
-
-Definition top_disp_cat_axioms : disp_cat_axioms SET top_disp_cat_data.
-Proof.
-  repeat split; cbn; intros; try (apply proofirrelevance, isaprop_continuous).
-  apply isasetaprop. apply isaprop_continuous.
-Defined.
-
-Definition disp_top : disp_cat SET := _ ,, top_disp_cat_axioms.
 
 
 (** ** The displayed arrow category
