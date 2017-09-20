@@ -1,11 +1,9 @@
 
-(** * Examples
+(** * The slice displayed category
 
-A typical use for displayed categories is for constructing categories of structured objects, over a given (specific or general) category. We give a few examples here:
-
-- arrow precategories
-- objects with N-actions
-- elements, over hSet
+- Definition of the slice displayed category
+- Proof that a morphism is cartesian if and only if
+  it is a pullback
 
 *)
 
