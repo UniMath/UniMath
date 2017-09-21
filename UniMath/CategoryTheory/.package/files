@@ -117,3 +117,4 @@ categories/intdoms.v
 categories/flds.v
 categories/StandardCategories.v
 Monads/Derivative.v
+categories/Modules.v
