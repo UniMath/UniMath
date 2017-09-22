@@ -29,7 +29,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.Monads.
+Require Import UniMath.CategoryTheory.Monads.Monads.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
@@ -50,10 +50,10 @@ Section preamble.
 Definition four_rec {A : UU} (a b c d : A) : stn 4 -> A.
 Proof.
 induction 1 as [n p].
-induction n as [_|n _]; [apply a|].
-induction n as [_|n _]; [apply b|].
-induction n as [_|n _]; [apply c|].
-induction n as [_|n _]; [apply d|].
+induction n as [|n _]; [apply a|].
+induction n as [|n _]; [apply b|].
+induction n as [|n _]; [apply c|].
+induction n as [|n _]; [apply d|].
 induction (nopathsfalsetotrue p).
 Defined.
 

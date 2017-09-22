@@ -30,6 +30,7 @@ COQBIN ?=
 
 .PHONY: all everything install lc lcp wc describe clean distclean build-coq doc build-coqide
 all: check-first
+all: check-for-change-to-Foundations
 everything: TAGS all html install
 check-first: enforce-prescribed-ordering check-travis enforce-listing-of-proof-files
 
@@ -64,7 +65,7 @@ $(VFILES:.v=.vo) : $(COQBIN)coqc
 endif
 
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -indices-matter -type-in-type -w '-notation-overridden,-local-declaration,+uniform-inheritance'
+OTHERFLAGS += -indices-matter -type-in-type -w '-notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option'
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
@@ -301,6 +302,14 @@ enforce-listing-of-proof-files:
 	       fi ;													\
 	  else echo "make: *** skipping enforcement of listing of proof files, because 'bash' is too old" ;		\
 	  fi
+
+# Here we check for changes to UniMath/Foundations, which normally does not change.
+# One step of the travis job will fail, if a change is made, see .travis.yml
+ifneq ($(FOUNDATIONS_CHANGE_ERROR),yes)
+FOUNDATIONS_CHANGE_ERROR0 = -
+endif
+check-for-change-to-Foundations:
+	$(FOUNDATIONS_CHANGE_ERROR0) ! ( git diff --stat master -- UniMath/Foundations | grep . )
 
 #################################
 # targets best used with INCLUDE=no
