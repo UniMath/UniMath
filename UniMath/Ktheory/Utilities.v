@@ -318,10 +318,6 @@ Definition transport_fun_path {X Y} {f g:X->Y} {x x':X} {p:x = x'} {e:f x = g x}
 Proof. intros ? ? ? ? ? ? ? ? ? k. induction p. rewrite maponpaths_idpath in k. rewrite maponpaths_idpath in k.
        rewrite pathscomp0rid in k. exact k. Defined.
 
-Definition transportf_pathsinv0 {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
-  !p # v = u -> p # u = v.
-Proof. intros ? ? ? ? ? ? ? e. induction p, e. reflexivity. Defined.
-
 Definition transportf_pathsinv0' {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
   p # u = v -> !p # v = u.
 Proof. intros ? ? ? ? ? ? ? e. induction p, e. reflexivity. Defined.

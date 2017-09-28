@@ -322,8 +322,8 @@ Notation "# F" := (functor_on_morphisms F)(at level 3) : cat. (* Notations do no
 
 (** ** Functors preserve inverses *)
 
-Lemma functor_on_inv_from_iso (C C' : precategory) (F : functor C C')
-    (a b : ob C)(f : iso a b) :
+Lemma functor_on_inv_from_iso {C C' : precategory} (F : functor C C')
+    {a b : ob C}(f : iso a b) :
       #F (inv_from_iso f) = inv_from_iso (functor_on_iso F f) .
 Proof.
   apply inv_iso_unique'; simpl.
