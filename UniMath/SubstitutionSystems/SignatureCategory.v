@@ -109,9 +109,9 @@ Proof.
 destruct α as [α Hα]; destruct β as [β Hβ].
 unfold Signature_category_mor_diagram in *; simpl.
 rewrite (assoc ((theta Ht1) (X,,Y))).
-etrans; [apply (cancel_postcomposition _ _ _ _ ((theta Ht1) (X,,Y) · _)), Hα|].
+etrans; [apply (cancel_postcomposition ((theta Ht1) (X,,Y) · _)), Hα|].
 rewrite <- assoc; etrans; [apply maponpaths, Hβ|].
-rewrite assoc; apply (cancel_postcomposition [C,D] _ _ _ _ (_ ∙∙ identity (U Y))).
+rewrite assoc; apply (cancel_postcomposition (C:=[C,D]) _  (_ ∙∙ identity (U Y))).
 apply (nat_trans_eq hsD); intro c; simpl.
 now rewrite assoc, !functor_id, !id_right.
 Qed.

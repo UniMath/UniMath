@@ -92,7 +92,7 @@ Section cocont.
 
 Context {C D : precategory} (F : functor C D).
 
-Definition is_cocont : UU := ∏ {g : graph} (d : diagram g C) (L : C)
+Definition is_cocont : UU := ∏ (g : graph) (d : diagram g C) (L : C)
   (cc : cocone d L), preserves_colimit F d L cc.
 
 End cocont.
