@@ -117,3 +117,13 @@ categories/intdoms.v
 categories/flds.v
 categories/StandardCategories.v
 Monads/Derivative.v
+DisplayedCats/Auxiliary.v
+DisplayedCats/Core.v
+DisplayedCats/Constructions.v
+DisplayedCats/Fibrations.v
+DisplayedCats/Equivalences.v
+DisplayedCats/Equivalences_bis.v
+DisplayedCats/Codomain.v
+DisplayedCats/SIP.v
+DisplayedCats/Limits.v
+DisplayedCats/Examples.v
