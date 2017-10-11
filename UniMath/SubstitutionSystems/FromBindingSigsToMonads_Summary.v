@@ -357,9 +357,9 @@ Defined.
 Definition DatatypeOfBindingSig :
   ∏ (C : precategory) (hsC : has_homsets C)
     (BPC : BinProducts C) (BCC : BinCoproducts C)
-    (IC : Initial C) (TC : Terminal C)
-    (CLC : Colims_of_shape nat_graph C)
-    (HF : ∏ (F : functor_precategory C C hsC),
+    (_ : Initial C) (TC : Terminal C)
+    (_ : Colims_of_shape nat_graph C)
+    (_ : ∏ (F : functor_precategory C C hsC),
             is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C BPC hsC) F))
     (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C),
   Initial (FunctorAlg (Id_H C hsC BCC (BindingSigToSignature hsC BPC BCC TC sig CC))
