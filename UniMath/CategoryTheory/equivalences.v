@@ -47,6 +47,10 @@ Coercion adjunction_data_from_equivalence_of_precats {A B}
 Definition adj_equivalence_of_precats {A B : precategory} (F : functor A B) : UU :=
    ∑ (H : is_left_adjoint F), forms_equivalence H.
 
+Definition adj_from_equiv (D1 D2 : precategory) (F : functor D1 D2):
+    adj_equivalence_of_precats F → is_left_adjoint F := fun x => pr1 x.
+Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
+
 Definition mk_adj_equivalence_of_precats {A B : precategory} (F : functor A B)
            (G : functor B A) η ε
            (H1 : form_adjunction F G η ε)

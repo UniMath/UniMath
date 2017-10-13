@@ -290,7 +290,7 @@ Proof.
   exact (identity a).
 Defined.
 
-Lemma cancel_postcomposition (C : precategory_data) (a b c: C)
+Lemma cancel_postcomposition {C : precategory_data} {a b c: C}
    (f f' : a --> b) (g : b --> c) : f = f' -> f · g = f' · g.
 Proof.
   intro H.
@@ -1382,6 +1382,15 @@ Proof.
   rewrite id_left.
   apply idpath.
 Qed.
+
+Lemma forall_isotoid (A : precategory) (a_is : is_univalent A)
+      (a a' : A) (P : iso a a' -> UU) :
+  (∏ e, P (idtoiso e)) → ∏ i, P i.
+Proof.
+  intros H i.
+  rewrite <- (idtoiso_isotoid _ a_is).
+  apply H.
+Defined.
 
 Lemma transportf_isotoid_dep' (J : UU) (C : precategory) (F : J -> C)
   (a a' : C) (p : a = a') (f : ∏ c, a --> F c) :

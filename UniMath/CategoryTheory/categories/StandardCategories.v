@@ -10,6 +10,20 @@ Definition compose' { C:precategory_data } { a b c:ob C }
   (g:b --> c) (f:a --> b) : a --> c.
 Proof. intros. exact (compose f g). Defined.
 
+(** * The precategory of types of a fixed universe *)
+
+Definition type_precat : precategory.
+Proof.
+  use mk_precategory.
+  - repeat mkpair.
+    + exact UU.
+    + exact (λ X Y, X -> Y).
+    + exact (λ X, idfun X).
+    + exact (λ X Y Z f g, funcomp f g).
+  - repeat split; intros; apply idpath.
+Defined.
+
+
 (** *** the path groupoid *)
 
 Definition is_groupoid (C : category) :=
