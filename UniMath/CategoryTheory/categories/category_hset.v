@@ -211,6 +211,13 @@ Proof.
   - apply has_homsets_HSET.
 Defined.
 
+Definition HSET_univalent_category : univalent_category.
+Proof.
+  exists HSET; split.
+  - apply is_univalent_HSET.
+  - apply has_homsets_HSET.
+Defined.
+
 End HSET_category.
 
 (* Some particular HSETs *)
