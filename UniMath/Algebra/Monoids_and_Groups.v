@@ -58,6 +58,7 @@ Unset Kernel Term Sharing.
 (** Imports *)
 
 Require Export UniMath.Algebra.BinaryOperations.
+Require Import UniMath.MoreFoundations.Subtypes.
 
 (** To upstream files *)
 
@@ -419,6 +420,18 @@ Definition carrierofsubmonoid {X : monoid} (A : @submonoid X) : monoid.
 Proof. intros. split with A. apply ismonoidcarrier. Defined.
 Coercion carrierofsubmonoid : submonoid >-> monoid.
 
+Lemma intersection_submonoid :
+  forall {X : monoid} {I : UU} (S : I -> hsubtype X)
+         (each_is_submonoid : ∏ i : I, issubmonoid (S i)),
+    issubmonoid (subtype_intersection S).
+Proof.
+  intros.
+  use issubmonoidpair.
+  + intros g h i.
+    pose (is_subgr := pr1 (each_is_submonoid i)).
+    exact (is_subgr (pr1 g,, (pr2 g) i) (pr1 h,, (pr2 h) i)).
+  + exact (fun i => pr2 (each_is_submonoid i)).
+Qed.
 
 (** **** Quotient objects *)
 
@@ -1921,6 +1934,16 @@ Definition isgrcarrier {X : gr} (A : @subgr X) : isgrop (@op A) :=
 Definition carrierofasubgr {X : gr} (A : @subgr X) : gr.
 Proof. intros. split with A. apply (isgrcarrier A). Defined.
 Coercion carrierofasubgr : subgr >-> gr.
+
+Lemma intersection_subgr : forall {X : gr} {I : UU} (S : I -> hsubtype X)
+                                  (each_is_subgr : ∏ i : I, issubgr (S i)),
+    issubgr (subtype_intersection S).
+Proof.
+  intros.
+  use issubgrpair.
+  - exact (intersection_submonoid S (fun i => (pr1 (each_is_subgr i)))).
+  - exact (fun x x_in_S i => pr2 (each_is_subgr i) x (x_in_S i)).
+Qed.
 
 
 (** **** Quotient objects *)
