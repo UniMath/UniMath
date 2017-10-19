@@ -107,6 +107,14 @@ Definition carrier_set {X : hSet} (S : hsubtype X) : hSet :=
 Definition subtype_union_containedIn {X:hSet} {I:UU} (S : I -> hsubtype X) i : S i ⊆ ⋃ S
   := λ x s, hinhpr (i,,s).
 
+(** Given a family of subtypes of X indexed by a type I, an element x : X is in
+    their intersection if it is an element of each subtype.
+ *)
+
+Definition subtype_intersection {X I:UU} (S : I -> hsubtype X) : hsubtype X := λ x, ∀ i, S i x.
+
+Notation "⋂ S" := (subtype_intersection S) (at level 100, no associativity) : subtype.
+
 Theorem hsubtype_univalence {X:UU} (S T : hsubtype X) : (S = T) ≃ (S ≡ T).
 Proof.
   intros. intermediate_weq (∏ x, S x = T x).
