@@ -137,7 +137,14 @@ Unset Automatic Introduction.
 
 Require Export UniMath.Foundations.Preamble.
 
+(* in view of maybe too much that is done by the tactic [now], the following tactic
+   had been considered, but not been seen as useful enough to clutter code with an
+   extra such device:
 Tactic Notation "nowid" tactic(t) := t; apply idpath.
+
+sub/coq/tactics/Tactics.ml contains the implementation of reflexivity that refers to
+setoids as well, which is why [apply idpath] is preferred to [reflexivity]
+*)
 
 (* end of "Preamble" *)
 
@@ -331,19 +338,19 @@ The same applies to other lemmas below whose proof is by immediate "reflexivity"
 Lemma funcomp_assoc {X Y Z W : UU} (f : X -> Y) (g : Y -> Z) (h : Z -> W)
 : h ∘ (g ∘ f) = (h ∘ g) ∘ f.
 Proof.
-  nowid intros.
+  intros; apply idpath.
 Defined.
 
 Lemma uncurry_curry {X Z : UU} {Y : X -> UU} (f : (∑ x : X, Y x) -> Z) :
   ∏ p, uncurry (curry f) p = f p.
 Proof.
-  intros. nowid induction p as [x y].
+  intros. induction p as [x y]; apply idpath.
 Defined.
 
 Lemma curry_uncurry {X Z : UU} {Y : X -> UU} (g : ∏ x : X, Y x -> Z) :
   ∏ x y, curry (uncurry g) x y = g x y.
 Proof.
-  nowid intros.
+  intros; apply idpath.
 Defined.
 
 
@@ -379,7 +386,7 @@ Defined.
 
 Definition pathsinv0 {X : UU} {a b : X} (e : a = b) : b = a.
 Proof.
-  intros. nowid induction e.
+  intros. induction e; apply idpath.
 Defined.
 
 Hint Resolve @pathsinv0 : pathshints.
@@ -388,7 +395,7 @@ Definition path_assoc {X} {a b c d:X}
            (f : a = b) (g : b = c) (h : c = d)
   : f @ (g @ h) = (f @ g) @ h.
 Proof.
-  intros. nowid induction f.
+  intros. induction f; apply idpath.
 Defined.
 
 (** Notation [! p] added by B.A., oct 2014 *)
@@ -398,17 +405,17 @@ Notation "! p " := (pathsinv0 p) (at level 50).
 
 Definition pathsinv0l {X : UU} {a b : X} (e : a = b) : !e @ e = idpath _.
 Proof.
-  intros. nowid induction e.
+  intros. induction e; apply idpath.
 Defined.
 
 Definition pathsinv0r {X : UU} {a b : X} (e : a = b) : e @ !e = idpath _.
 Proof.
-  intros. nowid induction e.
+  intros. induction e; apply idpath.
 Defined.
 
 Definition pathsinv0inv0 {X : UU} {x x' : X} (e : x = x') : !(!e) = e.
 Proof.
-  intros. nowid induction e.
+  intros. induction e; apply idpath.
 Defined.
 
 Lemma pathscomp_cancel_left {X : UU} {x y z : X} (p : x = y) (r s : y = z) :
@@ -428,7 +435,7 @@ Defined.
 Lemma pathscomp_inv {X : UU} {x y z : X} (p : x = y) (q : y = z)
   : !(p @ q) = !q @ !p.
 Proof.
-  intros ? ? ? ? p q. induction p. nowid induction q.
+  intros ? ? ? ? p q. induction p. induction q. apply idpath.
 Defined.
 
 (** *** Direct product of paths  *)
@@ -438,7 +445,7 @@ Definition pathsdirprod {X Y : UU} {x1 x2 : X} {y1 y2 : Y}
            (ex : x1 = x2) (ey : y1 = y2) :
   dirprodpair x1 y1 = dirprodpair x2 y2.
 Proof.
-  intros. induction ex. nowid induction ey.
+  intros. induction ex. induction ey. apply idpath.
 Defined.
 
 Lemma dirprodeq (A B : UU) (ab ab' : A × B) :
@@ -458,14 +465,14 @@ and its behavior relative to [ @ ] and [ ! ] *)
 Definition maponpaths {T1 T2 : UU} (f : T1 -> T2) {t1 t2 : T1}
            (e: t1 = t2) : f t1 = f t2.
 Proof.
-  intros. nowid induction e.
+  intros. induction e. apply idpath.
 Defined.
 
 (* useful with apply, to save typing *)
 Definition map_on_two_paths {X Y Z : UU} (f : X -> Y -> Z) {x x' y y'} (ex : x = x') (ey: y = y') :
   f x y = f x' y'.
 Proof.
-  intros. induction ex. nowid induction ey.
+  intros. induction ex. induction ey. apply idpath.
 Defined.
 
 
@@ -479,7 +486,7 @@ Defined.
 Definition maponpathsinv0 {X Y : UU} (f : X -> Y)
            {x1 x2 : X} (e : x1 = x2) : maponpaths f (! e) = ! (maponpaths f e).
 Proof.
-  intros. nowid induction e.
+  intros. induction e. apply idpath.
 Defined.
 
 
@@ -488,13 +495,13 @@ Defined.
 Lemma maponpathsidfun {X : UU} {x x' : X}
       (e : x = x') : maponpaths (idfun _) e = e.
 Proof.
-  intros. nowid induction e.
+  intros. induction e. apply idpath.
 Defined.
 
 Lemma maponpathscomp {X Y Z : UU} {x x' : X} (f : X -> Y) (g : Y -> Z)
       (e : x = x') : maponpaths g (maponpaths f e) = maponpaths (g ∘ f) e.
 Proof.
-  intros. nowid induction e.
+  intros. induction e. apply idpath.
 Defined.
 
 (** *** Homotopy between sections *)
@@ -505,7 +512,7 @@ Notation "f ~ g" := (homot f g) (at level 70, no associativity).
 
 Definition homotrefl {X : UU} {P : X -> UU} (f: ∏ x : X, P x) : f ~ f.
 Proof.
-  nowid (intros ? ? ? x).
+  intros ? ? ? x; apply idpath.
 Defined.
 
 Definition homotcomp {X:UU} {Y:X->UU} {f f' f'' : ∏ x : X, Y x}
@@ -527,13 +534,13 @@ Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
 
 Definition toforallpaths {T:UU} (P:T->UU) (f g:∏ t:T, P t) : f = g -> f ~ g.
 Proof.
-  intros ? ? ? ? h t. nowid induction h.
+  intros ? ? ? ? h t. induction h. apply idpath.
 Defined.
 
 Definition eqtohomot     {T:UU} {P:T->UU} {f g:∏ t:T, P t} : f = g -> f ~ g.
 (* the same as toforallpaths, but with different implicit arguments *)
 Proof.
-  intros ? ? ? ? e t. nowid induction e.
+  intros ? ? ? ? e t. induction e. apply idpath.
 Defined.
 
 (** *** [ maponpaths ] for a function homotopic to the identity
@@ -569,7 +576,7 @@ Proof.
 
   assert (l : ∏ (X : UU) (a b c d : X) (p : a = b) (q : a = c) (r : c = d),
               p @ (!p @ q @ r) @ !r = q).
-  { intros. induction p. induction q. nowid induction r. }
+  { intros. induction p. induction q. induction r. apply idpath. }
 
   apply (l _ _ _ _ _ (h x) e (h x')).
   (* the assertion is instructive, but the proof could have been direct as
@@ -644,7 +651,7 @@ Proof.
   split with (idfun (P x)).
   split with (fun p : P x => idpath _).
   unfold maponpaths. simpl.
-  nowid intro.
+  intro; apply idpath.
 Defined.
 
 Definition transportf {X : UU} (P : X -> UU) {x x' : X}
@@ -665,56 +672,56 @@ Delimit Scope transport with transport.
 Definition idpath_transportf {X : UU} (P : X -> UU) {x : X} (p : P x) :
   transportf P (idpath x) p = p.
 Proof.
-  nowid intros.
+  intros. apply idpath.
 Defined.
 
 Lemma functtransportf {X Y : UU} (f : X -> Y) (P : Y -> UU) {x x' : X}
       (e : x = x') (p : P (f x)) :
   transportf (fun x => P (f x)) e p = transportf P (maponpaths f e) p.
 Proof.
-  intros. nowid induction e.
+  intros. induction e; apply idpath.
 Defined.
 
 Lemma functtransportb {X Y : UU} (f : X -> Y) (P : Y -> UU) {x x' : X}
       (e : x' = x) (p : P (f x)) :
   transportb (fun x => P (f x)) e p = transportb P (maponpaths f e) p.
 Proof.
-  intros. nowid induction e.
+  intros. induction e; apply idpath.
 Defined.
 
 Definition transport_f_b {X : UU} (P : X ->UU) {x y z : X} (e : y = x)
            (e' : y = z) (p : P x) :
   transportf P e' (transportb P e p) = transportf P (!e @ e') p.
 Proof.
-  intros. induction e'. nowid induction e.
+  intros. induction e'. induction e. apply idpath.
 Defined.
 
 Definition transport_b_f {X : UU} (P : X ->UU) {x y z : X} (e : x = y)
            (e' : z = y) (p : P x) :
   transportb P e' (transportf P e p) = transportf P (e @ !e') p.
 Proof.
-  intros. induction e'. nowid induction e.
+  intros. induction e'. induction e. apply idpath.
 Defined.
 
 Definition transport_f_f {X : UU} (P : X ->UU) {x y z : X} (e : x = y)
            (e' : y = z) (p : P x) :
   transportf P e' (transportf P e p) = transportf P (e @ e') p.
 Proof.
-  intros. induction e'. nowid induction e.
+  intros. induction e'. induction e; apply idpath.
 Defined.
 
 Definition transport_b_b {X : UU} (P : X ->UU) {x y z : X} (e : x = y)
            (e' : y = z) (p : P z) :
   transportb P e (transportb P e' p) = transportb P (e @ e') p.
 Proof.
-  intros. induction e'. nowid induction e.
+  intros. induction e'. induction e. apply idpath.
 Defined.
 
 Definition transport_map {X : UU} {P Q : X -> UU} (f : ∏ x, P x -> Q x)
            {x : X} {y : X} (e : x = y) (p : P x) :
   transportf Q e (f x p) = f y (transportf P e p).
 Proof.
-  intros. nowid induction e.
+  intros. induction e; apply idpath.
 Defined.
 
 Definition transport_section {X : UU} {P:X -> UU} (f : ∏ x, P x)
@@ -728,32 +735,32 @@ Definition transportf_fun {X Y : UU}(P : X -> UU)
            {x1 x2 : X}(e : x1 = x2)(f : P x1 -> Y) :
   transportf (fun x => (P x -> Y)) e f = f ∘ transportb P e .
 Proof.
-  intros. nowid induction e.
+  intros. induction e; apply idpath.
 Defined.
 
 Lemma transportb_fun' {X:UU} {P:X->UU} {Z:UU}
       {x x':X} (f:P x'->Z) (p:x=x') (y:P x) :
   f (transportf P p y) = transportb (λ x, P x->Z) p f y.
 Proof.
-  intros. nowid induction p.
+  intros. induction p; apply idpath.
 Defined.
 
 Definition transportf_const {X : UU}{x1 x2 : X}(e : x1 = x2)(Y : UU) :
   transportf (fun _ => Y) e = idfun Y.
 Proof.
-  intros. nowid induction e.
+  intros. induction e; apply idpath.
 Defined.
 
 Definition transportb_const {X : UU}{x1 x2 : X}(e : x1 = x2)(Y : UU) :
   transportb (fun _ => Y) e = idfun Y.
 Proof.
-  intros. nowid induction e.
+  intros. induction e; apply idpath.
 Defined.
 
 Lemma transportf_paths {X : UU} (P : X -> UU) {x1 x2 : X} {e1 e2 : x1 = x2} (e : e1 = e2)
       (p : P x1) : transportf P e1 p = transportf P e2 p.
 Proof.
-  intros. nowid induction e.
+  intros. induction e; apply idpath.
 Defined.
 Opaque transportf_paths.
 
@@ -761,12 +768,12 @@ Local Open Scope transport.
 
 Definition transportbfinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P t) : e#'e#p = p.
 Proof.
-  intros. nowid induction e.
+  intros. induction e; apply idpath.
 Defined.
 
 Definition transportfbinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P u) : e#e#'p = p.
 Proof.
-  intros. nowid induction e.
+  intros. induction e; apply idpath.
 Defined.
 
 Close Scope transport.
@@ -786,7 +793,7 @@ Lemma two_arg_paths {A B C:UU} {f : A -> B -> C} {a1 b1 a2 b2} (p : a1 = a2)
       (q : b1 = b2) : f a1 b1 = f a2 b2.
 (* This lemma is an analogue of [maponpaths] for functions of two arguments. *)
 Proof.
-  intros. induction p. nowid induction q.
+  intros. induction p. induction q. apply idpath.
 Defined.
 
 Lemma two_arg_paths_f {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 b1 a2  b2}
@@ -796,7 +803,7 @@ Lemma two_arg_paths_f {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 b1
    as the special case [f := tpair _], and Coq can often infer the value for [f], which is declared
    as an implicit argument. *)
 Proof.
-  intros. induction p. nowid induction q.
+  intros. induction p. induction q. apply idpath.
 Defined.
 
 Lemma two_arg_paths_b {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 b1 a2 b2}
@@ -805,7 +812,7 @@ Lemma two_arg_paths_b {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 b1
    to [total2].  The lemma [total2_paths2_b] can be obtained as the special case [f := tpair _],
    and Coq can often infer the value for [f], which is declared as an implicit argument. *)
 Proof.
-  intros. induction p. change (b1 = b2) in q. nowid induction q.
+  intros. induction p. change (b1 = b2) in q. induction q. apply idpath.
 Defined.
 
 Lemma dirprod_paths {A : UU} {B :  UU} {s s' : A × B}
@@ -866,14 +873,15 @@ Defined.
 Definition fiber_paths {A : UU} {B : A -> UU} {u v : ∑ x, B x} (p : u = v) :
   transportf (fun x => B x) (base_paths _ _ p) (pr2 u) = pr2 v.
 Proof.
-  nowid induction p.
+  induction p; apply idpath.
 Defined.
 
 Lemma total2_fiber_paths {A : UU} {B : A -> UU} {x y : ∑ x, B x} (p : x = y) :
   total2_paths_f  _ (fiber_paths p) = p.
 Proof.
   induction p.
-  nowid induction x.
+  induction x.
+  apply idpath.
 Defined.
 
 Lemma base_total2_paths {A : UU} {B : A -> UU} {x y : ∑ x, B x}
@@ -884,7 +892,8 @@ Proof.
   induction y as [y K].
   simpl in *.
   induction p.
-  nowid induction q.
+  induction q.
+  apply idpath.
 Defined.
 
 
@@ -898,7 +907,8 @@ Proof.
   induction y as [y K].
   simpl in *.
   induction p.
-  nowid induction q.
+  induction q.
+  apply idpath.
 Defined.
 
 Definition total2_base_map {S T:UU} {P: T -> UU} (f : S->T) : (∑ i, P(f i)) -> (∑ j, P j).
@@ -969,7 +979,7 @@ Definition transportf_id2 {A : UU} {a x1 x2 : A}
            (p : x1 = x2) (q : x1 = a) :
   transportf (fun (x : A) => x = a) p q = !p @ q.
 Proof.
-  intros. induction p. nowid induction q.
+  intros. induction p. induction q. apply idpath.
 Defined.
 
 Definition transportf_id3 {A : UU} {x1 x2 : A}
@@ -1000,7 +1010,8 @@ Proof.
   induction xp as [x p].
   simpl.
   apply (maponpaths (fun q => tpair Q x q)).
-  nowid induction (H x).
+  induction (H x).
+  apply idpath.
 Defined.
 
 
@@ -1102,7 +1113,7 @@ Lemma hfibertriangle1inv0 {X Y : UU} (f : X -> Y) {y : Y} {xe1 xe2: hfiber f y}
       (e : xe1 = xe2) :
   maponpaths f (! (maponpaths pr1 e)) @ (pr2 xe1) = pr2 xe2.
 Proof.
-  intros. nowid induction e.
+  intros. induction e; apply idpath.
 Defined.
 
 Corollary hfibertriangle1inv0' {X Y : UU} (f : X -> Y) {x : X}
@@ -1157,7 +1168,8 @@ Proof.
   induction c1 as [x1 e1].
   induction e1.
   induction c2 as [x2 e2].
-  nowid induction e2.
+  induction e2.
+  apply idpath.
 Defined.
 
 Lemma iscontrcoconustot (T : UU) (t : T) : iscontr (coconustot T t).
@@ -1176,7 +1188,8 @@ Proof.
   induction c1 as [x1 e1].
   induction e1.
   induction c2 as [x2 e2].
-  nowid induction e2.
+  induction e2.
+  apply idpath.
 Defined.
 
 Lemma iscontrcoconusfromt (T : UU) (t : T) : iscontr (coconusfromt T t).
@@ -1221,7 +1234,7 @@ Proof.
   unfold fromcoconusf.
   unfold tococonusf.
   simpl.
-  nowid induction e.
+  induction e; apply idpath.
 Defined.
 
 Lemma homotfromtococonusf {X Y : UU} (f : X -> Y) :
@@ -1249,7 +1262,7 @@ Proof.
   split with (hfiberpair (idfun T) y (idpath y)).
   intro t.
   induction t as [x e].
-  nowid induction e.
+  induction e; apply idpath.
 Defined.
 
 Definition weq (X Y : UU) : UU := ∑ f:X->Y, isweq f.
@@ -1412,7 +1425,7 @@ Definition isinjinvmap {X Y} (v w:X≃Y) : invmap v ~ invmap w -> v ~ w.
 Proof. intros ? ? ? ? h x.
   intermediate_path (w ((invmap w) (v x))).
        + apply pathsinv0. apply homotweqinvweq.
-       + rewrite <- h. nowid rewrite homotinvweqweq.
+       + rewrite <- h. rewrite homotinvweqweq. apply idpath.
 Defined.
 
 Definition isinjinvmap' {X Y} (v w:X->Y) (v' w':Y->X) : w ∘ w' ~ idfun Y -> v' ∘ v ~ idfun X -> v' ~ w' -> v ~ w.
@@ -1498,7 +1511,7 @@ Ltac intermediate_iscontr Y' := apply (iscontrweqb (Y := Y')).
 
 Lemma isconnectedunit : ∏ x x' : unit, x = x'.
 Proof.
-  intros. induction x. nowid induction x'.
+  intros. induction x. induction x'. apply idpath.
 Defined.
 
 Lemma unitl0 : tt = tt -> coconustot _ tt.
@@ -1645,7 +1658,7 @@ Proof.
   (* A little lemma: *)
   assert (ee : ∏ a b c : Y, ∏ p : a = b, ∏ q : b = c,
                                                !p @ (p @ q) = q).
-  { intros. induction p. nowid induction q. }
+  { intros. induction p. induction q. apply idpath. }
 
   apply ee.
 Defined.
@@ -1681,13 +1694,13 @@ Defined.
 Lemma remakeweq_eq {X Y : UU} (f1:X≃Y) (f2:X->Y) (e:f1~f2) : pr1weq (remakeweq e) = f2.
 (* check the claim in the comment above *)
 Proof.
-  nowid intros.
+  intros. apply idpath.
 Defined.
 
 Lemma remakeweq_eq' {X Y : UU} (f1:X≃Y) (f2:X->Y) (e:f1~f2) : invmap (remakeweq e) = invmap f1.
 (* check the claim in the comment above *)
 Proof.
-  nowid intros.
+  intros. apply idpath.
 Defined.
 
 Lemma iscontr_move_point {X : UU} : X -> iscontr X -> iscontr X.
@@ -1700,7 +1713,7 @@ Defined.
 
 Lemma iscontr_move_point_eq {X : UU} (x:X) (i:iscontr X) : iscontrpr1 (iscontr_move_point x i) = x.
 Proof.
-  nowid intros.
+  intros. apply idpath.
 Defined.
 
 Corollary remakeweqinv {X Y : UU} {f:X≃Y} {h:Y->X} : invmap f ~ h -> X≃Y.
@@ -1716,13 +1729,13 @@ Defined.
 Lemma remakeweqinv_eq {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : pr1weq (remakeweqinv e) = pr1weq f.
 (* check the claim in the comment above *)
 Proof.
-  nowid intros.
+  intros. apply idpath.
 Defined.
 
 Lemma remakeweqinv_eq' {X Y : UU} (f:X≃Y) (h:Y->X) (e:invmap f ~ h) : invmap (remakeweqinv e) = h.
 (* check the claim in the comment above *)
 Proof.
-  nowid intros.
+  intros. apply idpath.
 Defined.
 
 Corollary remakeweqboth {X Y : UU} {f:X≃Y} {g:X->Y} {h:Y->X} : f ~ g -> invmap f ~ h -> X≃Y.
@@ -1735,13 +1748,13 @@ Defined.
 Lemma remakeweqboth_eq {X Y : UU} (f:X≃Y) (g:X->Y) (h:Y->X) (r:f~g) (s:invmap f ~ h) :
   pr1weq (remakeweqboth r s) = g.
 Proof.
-  nowid intros.
+  intros. apply idpath.
 Defined.
 
 Lemma remakeweqboth_eq' {X Y : UU} (f:X≃Y) (g:X->Y) (h:Y->X) (r:f~g) (s:invmap f ~ h) :
   invmap (remakeweqboth r s) = h.
 Proof.
-  nowid intros.
+  intros. apply idpath.
 Defined.
 
 Corollary isweqhomot_iff {X Y : UU} (f1 f2 : X -> Y)
@@ -1814,13 +1827,13 @@ Definition invweq {X Y : UU} (w : weq X Y) : weq Y X :=
 Lemma invinv {X Y : UU} (w : weq X Y) (x : X) :
   invmap (invweq w) x = w x.
 Proof.
-  nowid intros.
+  intros. apply idpath.
 Defined.
 
 Lemma pr1_invweq {X Y : UU} (w : weq X Y) : pr1weq (invweq w) = invmap w.
 (* useful for rewriting *)
 Proof.
-  nowid intros.
+  intros. apply idpath.
 Defined.
 
 Corollary iscontrweqf {X Y : UU} (w : weq X Y) (is : iscontr X) : iscontr Y.
@@ -1867,7 +1880,7 @@ Proof.
   set (g := fun (_ : X) => tt).
   split with f.
   assert (egf : ∏ t : unit, g (f t) = t).
-  { intro. nowid induction t. }
+  { intro. induction t. apply idpath. }
   assert (efg : ∏ x : X, f (g x) = x).
   { intro. apply (! (pr2 is x)). }
   apply (gradth _ _ egf efg).
@@ -1910,9 +1923,9 @@ Proof.
   set (f := fun (e : x = x') => e @ e').
   set (g := fun (e'' : x = x'') => e'' @ (! e')).
   assert (egf : ∏ e : _, g (f e) = e).
-  { intro e. induction e. nowid induction e'. }
+  { intro e. induction e. induction e'. apply idpath. }
   assert (efg : ∏ e : _, f (g e) = e).
-  { intro e. induction e. nowid induction e'. }
+  { intro e. induction e. induction e'. apply idpath. }
   apply (gradth f g egf efg).
 Defined.
 
@@ -1941,10 +1954,10 @@ Proof.
   intros.
   set (ff := deltap T). set (gg := fun (z : pathsspace T) => pr1 z).
   assert (egf : ∏ t : T, gg (ff t) = t).
-  { nowid intro. }
+  { intro. apply idpath. }
   assert (efg : ∏ (tte : _), ff (gg tte) = tte).
   { intro tte. induction tte as [t c].
-    induction c as [x e]. nowid induction e. }
+    induction c as [x e]. induction e; apply idpath. }
   apply (gradth _ _ egf efg).
 Defined.
 
@@ -1983,7 +1996,7 @@ Proof.
     induction xe as [x e].
     simpl.
     assert (eee : ! h x @ h x @ e = maponpaths g (idpath x) @ e).
-    { simpl.  induction e. nowid induction (h x). }
+    { simpl.  induction e. induction (h x). apply idpath. }
     set (xe1 := hfiberpair g x (! h x @ h x @ e)).
     set (xe2 := hfiberpair g x e).
     apply (hfibertriangle2 g xe1 xe2 (idpath x) eee).
@@ -1995,7 +2008,7 @@ Proof.
     induction xe as [x e].
     simpl.
     assert (eee :  h x @ !h x @ e = maponpaths f (idpath x) @ e).
-    { simpl.  induction e. nowid induction (h x). }
+    { simpl.  induction e. induction (h x). apply idpath. }
     set (xe1 := hfiberpair f x (h x @ ! h x @ e)).
     set (xe2 := hfiberpair f x e).
     apply (hfibertriangle2 f xe1 xe2 (idpath x) eee).
@@ -2196,19 +2209,19 @@ Ltac intermediate_weq Y' := apply (weqcomp (Y := Y')).
 Definition weqcomp_to_funcomp_app {X Y Z : UU} {x : X} {f : X ≃ Y} {g : Y ≃ Z} :
   (weqcomp f g) x = pr1weq g (pr1weq f x).
 Proof.
-  nowid intros.
+  intros. apply idpath.
 Defined.
 
 Definition weqcomp_to_funcomp {X Y Z : UU} {f : X ≃ Y} {g : Y ≃ Z} :
   pr1weq (weqcomp f g) = pr1weq g ∘ pr1weq f.
 Proof.
-  nowid intros.
+  intros. apply idpath.
 Defined.
 
 Definition invmap_weqcomp_expand {X Y Z : UU} {f : X ≃ Y} {g : Y ≃ Z} :
   invmap (weqcomp f g) = invmap f ∘ invmap g.
 Proof.
-  nowid intros.
+  intros. apply idpath.
 Defined.
 
 (** *** The 2-out-of-6 (two-out-of-six) property of weak equivalences *)
