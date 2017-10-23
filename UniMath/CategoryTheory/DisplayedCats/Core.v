@@ -1522,7 +1522,7 @@ Section Functor_Properties.
 Definition disp_functor_ff {C C'} {F}
   {D : disp_cat C} {D' : disp_cat C'} (FF : disp_functor F D D')
 :=
-  ∏ {x y} {xx : D x} {yy : D y} {f : x --> y},
+  ∏ x y (xx : D x) (yy : D y) (f : x --> y),
     isweq (fun ff : xx -->[f] yy => # FF ff).
 
 Section ff_reflects_isos.
@@ -1605,7 +1605,7 @@ Definition disp_functor_ess_split_surj {C' C} {F}
   {D' : disp_cat C'} {D : disp_cat C} (FF : disp_functor F D D')
   : UU
 :=
-  ∏ {x} {xx : D' (F x)},
+  ∏ x (xx : D' (F x)),
     ∑ y : C,
     ∑ i : iso y x,
     ∑ yy : D y,
@@ -1615,7 +1615,7 @@ Definition disp_functor_disp_ess_split_surj {C' C} {F}
   {D' : disp_cat C'} {D : disp_cat C} (FF : disp_functor F D D')
   : UU
 :=
-  ∏ {x} {xx : D' (F x)},
+  ∏ x (xx : D' (F x)),
     ∑ (yy : D x),
       iso_disp (identity_iso _) (FF _ yy) xx.
 
