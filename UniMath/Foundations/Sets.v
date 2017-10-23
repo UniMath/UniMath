@@ -325,11 +325,6 @@ Proof.
   - apply propproperty.
 Defined.
 
-Definition DecidableSubtype_to_hsubtype {X : UU} (P : DecidableSubtype X) :
-  hsubtype X
-  := λ x, DecidableProposition_to_hProp (P x).
-Coercion DecidableSubtype_to_hsubtype : DecidableSubtype >-> hsubtype.
-
 (** *** Direct product of two subtypes *)
 
 Definition subtypesdirprod {X Y : UU} (A : hsubtype X) (B : hsubtype Y) :
@@ -476,10 +471,6 @@ Identity Coercion idhrel : hrel >-> Funclass.
 
 Definition brel (X : UU) : UU := X -> X -> bool.
 Identity Coercion idbrel : brel >-> Funclass.
-
-Definition DecidableRelation_to_hrel {X : UU} (P : DecidableRelation X) : hrel X
-  := λ x y, DecidableProposition_to_hProp(P x y).
-Coercion DecidableRelation_to_hrel : DecidableRelation >-> hrel.
 
 (** *** Standard properties of relations *)
 
@@ -1076,13 +1067,6 @@ Defined.
 Definition breltodecrel {X : UU} (B : brel X) : decrel X
   := @decrelpair _ (fun x x' => hProppair (paths (B x x') true) (isasetbool _ _))
                  (fun x x' => (isdeceqbool _ _)).
-
-Definition decrel_to_DecidableRelation {X : UU} :
-  decrel X -> DecidableRelation X.
-Proof.
-  intros ? R x y. induction R as [R is]. exists (R x y).
-  apply isdecpropif. { apply propproperty. } apply is.
-Defined.
 
 Definition pathstor {X : UU} (R : decrel X) (x x' : X)
            (e : decreltobrel R x x' = true) : R x x'.

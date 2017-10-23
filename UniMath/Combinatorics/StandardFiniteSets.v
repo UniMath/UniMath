@@ -17,6 +17,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 Require Export UniMath.Foundations.NaturalNumbers .
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.DecidablePropositions.
 
 (** ** Standard finite sets [ stn ] . *)
 

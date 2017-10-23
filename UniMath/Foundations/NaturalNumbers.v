@@ -598,44 +598,6 @@ Definition iscoasymmnatgeh (n m : nat) (nl : ¬ (n ≥ m)) : m ≥ n := iscoasym
 
 Definition istotalnatgeh : istotal natgeh := fun n m => istotalnatleh m n.
 
-Definition natlth_DecidableProposition : DecidableRelation nat :=
-  decrel_to_DecidableRelation natlthdec.
-
-Definition natleh_DecidableProposition : DecidableRelation nat :=
-  decrel_to_DecidableRelation natlehdec.
-
-Definition natgth_DecidableProposition : DecidableRelation nat :=
-  decrel_to_DecidableRelation natgthdec.
-
-Definition natgeh_DecidableProposition : DecidableRelation nat :=
-  decrel_to_DecidableRelation natgehdec.
-
-Definition nateq_DecidableProposition : DecidableRelation nat :=
-  decrel_to_DecidableRelation natdeceq.
-
-Definition natneq_DecidableProposition : DecidableRelation nat :=
-  decrel_to_DecidableRelation natdecneq.
-
-Notation " x < y " := (natlth_DecidableProposition x y) (at level 70, no associativity) :
-                        decidable_nat.
-Notation " x <= y " := (natleh_DecidableProposition x y) (at level 70, no associativity) :
-                         decidable_nat.
-Notation " x ≤ y " := (natleh_DecidableProposition x y) (at level 70, no associativity) :
-                        decidable_nat.
-Notation " x ≥ y " := (natgeh_DecidableProposition x y) (at level 70, no associativity) :
-                        decidable_nat.
-Notation " x ≥ y " := (natgeh_DecidableProposition x y) (at level 70, no associativity) :
-                        decidable_nat.
-Notation " x > y " := (natgth_DecidableProposition x y) (at level 70, no associativity) :
-                        decidable_nat.
-Notation " x =? y " := (nateq_DecidableProposition x y) (at level 70, no associativity) :
-                         decidable_nat.
-Notation " x ≠ y " := (natneq_DecidableProposition x y) (at level 70, no associativity) :
-                        decidable_nat.
-
-Delimit Scope decidable_nat with dnat.
-
-
 (** *** Simple implications between comparisons *)
 
 Definition natgthtogeh (n m : nat) : n > m -> n ≥ m.
