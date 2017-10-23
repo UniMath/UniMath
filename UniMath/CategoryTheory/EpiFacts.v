@@ -132,8 +132,6 @@ Section IsEffectivePw.
 
 End IsEffectivePw.
 
-Set Automatic Introduction.
-
 (**  if the target category has pushouts, a natural transformation that is
   an epimorphism is pointwise epimorphic *)
 Section PointwiseEpi.

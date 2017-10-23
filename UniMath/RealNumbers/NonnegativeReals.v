@@ -13,6 +13,8 @@ Local Open Scope NRat_scope.
 Local Open Scope Dcuts_scope.
 Local Open Scope tap_scope.
 
+Unset Automatic Introduction.
+
 (** ** Definition of Dedekind cuts *)
 
 Definition Dcuts_def_bot (X : hsubtype NonnegativeRationals) : UU :=

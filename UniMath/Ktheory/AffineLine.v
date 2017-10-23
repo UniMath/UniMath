@@ -25,6 +25,8 @@ Require Import UniMath.Ktheory.Utilities
                UniMath.Ktheory.Nat
                UniMath.Ktheory.MoreEquivalences.
 
+Unset Automatic Introduction.
+
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Open Scope hz_scope.
 

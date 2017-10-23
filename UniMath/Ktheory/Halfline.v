@@ -4,6 +4,7 @@ Require Import UniMath.Foundations.UnivalenceAxiom
                UniMath.Ktheory.Utilities.
 Require UniMath.CategoryTheory.Categories.
 Require UniMath.Ktheory.Nat.
+Unset Automatic Introduction.
 Notation ℕ := nat.
 
 Definition target_paths {Y} (f:ℕ->Y) := ∏ n, f n=f(S n).

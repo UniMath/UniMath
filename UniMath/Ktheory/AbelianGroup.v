@@ -10,7 +10,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Ktheory.Representation
                UniMath.Ktheory.Precategories.
 Require UniMath.Ktheory.Group.
-
+Unset Automatic Introduction.
 Local Open Scope cat.
 
 Delimit Scope abgr with abgr.

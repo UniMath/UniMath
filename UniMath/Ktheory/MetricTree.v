@@ -7,6 +7,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Foundations.UnivalenceAxiom
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
+Unset Automatic Introduction.
 
 (** ** Definitions *)
 

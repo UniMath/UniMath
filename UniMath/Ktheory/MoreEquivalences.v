@@ -4,6 +4,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Ktheory.Utilities.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Ktheory.Equivalences.
+Unset Automatic Introduction.
 
 Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.
   intros ? ? [f r].

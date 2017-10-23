@@ -13,6 +13,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Ktheory.GroupAction
                UniMath.NumberSystems.Integers
                UniMath.Ktheory.Nat.
+Unset Automatic Introduction.
 
 Definition ℤ := hzaddabgr.
 Definition toℤ (n:nat) : ℤ := nattohz n.

@@ -1,6 +1,7 @@
 (** * A construction of the interval using propositional truncation *)
 
 Require Import UniMath.Ktheory.Utilities.
+Unset Automatic Introduction.
 
 Definition interval := ∥ bool ∥.
 Definition left := hinhpr true : interval.

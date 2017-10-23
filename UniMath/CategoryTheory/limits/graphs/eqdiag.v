@@ -44,8 +44,6 @@ Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
 Local Open Scope cat.
 
-Set Automatic Introduction.
-
 
 Lemma is_exists_unique {A : UU} {B : A → UU} (H : ∃! a : A, B a) :
   B ( pr1 (iscontrpr1 H)).

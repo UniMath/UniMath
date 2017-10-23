@@ -13,8 +13,6 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Local Open Scope cat.
 
-Set Automatic Introduction.
-
 Notation "a <-- b" := (@precategory_morphisms (opp_precat _) a b) (at level 50) : cat.
 
 Definition src {C:precategory} {a b:C} (f:a-->b) : C := a.

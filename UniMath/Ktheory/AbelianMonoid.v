@@ -5,6 +5,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.NumberSystems.NaturalNumbersAlgebra
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
+Unset Automatic Introduction.
 Close Scope multmonoid_scope.
 Open Scope addmonoid_scope.
 Local Notation Hom := monoidfun.

@@ -1,11 +1,12 @@
 (** * Utilities concerning paths, hlevel, and logic *)
 
-Global Unset Automatic Introduction.
+Unset Automatic Introduction.
 Require Export UniMath.Foundations.PartD.
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Export UniMath.Ktheory.Tactics.
 Require Import UniMath.MoreFoundations.Tactics.
+Unset Automatic Introduction.
 
 (** ** Null homotopies, an aid for proving things about propositional truncation *)
 

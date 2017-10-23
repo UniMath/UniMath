@@ -9,6 +9,8 @@ Require Export UniMath.Foundations.Sets
 Require Import UniMath.Algebra.BinaryOperations
                UniMath.Algebra.Apartness.
 
+Unset Automatic Introduction.
+
 (** ** Subsets *)
 
 Lemma isaset_hsubtype {X : hSet} (Hsub : hsubtype X) : isaset (carrier Hsub).

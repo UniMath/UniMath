@@ -14,10 +14,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
-
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
-
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
 

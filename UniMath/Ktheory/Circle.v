@@ -17,6 +17,7 @@ Require Import UniMath.Ktheory.Utilities.
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
 Open Scope action_scope.
+Unset Automatic Introduction.
 Local Notation "g + x" := (ac_mult _ g x) : action_scope.
 
 Definition circle := B ℤ.

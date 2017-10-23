@@ -9,7 +9,6 @@ Require Import
         UniMath.Ktheory.Precategories
         UniMath.Ktheory.Bifunctor.
 Require Import UniMath.MoreFoundations.Tactics.
-Set Automatic Introduction.
 Local Open Scope cat.
 Local Open Scope Cat.
 

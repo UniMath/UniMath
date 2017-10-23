@@ -8,6 +8,8 @@ Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
 Require Export UniMath.RealNumbers.NonnegativeReals.
 
+Unset Automatic Introduction.
+
 Open Scope NR_scope.
 
 (** ** Definition *)
