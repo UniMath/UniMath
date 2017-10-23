@@ -18,11 +18,173 @@ Defined.
 
 Definition decidable_prop (X:hProp) := hProppair (decidable X) (isapropdec X (pr2 X)).
 
-(* override LEM of Foundations/Propositions.v, to make an hProp: *)
 Definition LEM : hProp := ∀ P : hProp, decidable_prop P.
 
+(** ** Decidability via complementary pairs *)
+
+Definition ComplementaryPair : UU := ∑ (P Q : UU), complementary P Q.
+Definition Part1 (C : ComplementaryPair) : UU := pr1 C.
+Definition Part2 (C : ComplementaryPair) : UU := pr1 (pr2 C).
+Definition pair_contradiction (C : ComplementaryPair) : Part1 C -> Part2 C -> ∅
+  := pr1 (pr2 (pr2 C)).
+Definition chooser (C : ComplementaryPair) : Part1 C ⨿ Part2 C
+  := pr2 (pr2 (pr2 C)).
+
+Definition isTrue (C : ComplementaryPair)
+  := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
+Definition isFalse (C : ComplementaryPair)
+  := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
+
+Definition  trueWitness {C : ComplementaryPair} : isTrue  C -> Part1 C := pr1.
+Definition falseWitness {C : ComplementaryPair} : isFalse C -> Part2 C := pr1.
+
+Coercion  trueWitness : isTrue  >-> Part1.
+Coercion falseWitness : isFalse >-> Part2.
+
+Lemma complementaryDecisions (C : ComplementaryPair) :
+  iscontr (isTrue C ⨿ isFalse C).
+Proof.
+  (* the idea of this proof is to show that [isTrue C ⨿ isFalse C] is the same
+     as the decomposition provided by [weqcoprodsplit] *)
+  intros.
+  apply iscontrifweqtounit. assert (w := weqcoprodsplit (λ _:unit, chooser C)).
+  apply invweq. apply (weqcomp w). apply weqcoprodf; apply weqhfiberunit.
+Defined.
+
+Lemma isaprop_isTrue (C : ComplementaryPair) : isaprop (isTrue C).
+(* No axioms are used. *)
+Proof.
+  intros.
+  apply (isapropcomponent1 (isTrue C) (isFalse C)).
+  apply isapropifcontr.
+  apply complementaryDecisions.
+Defined.
+
+Lemma isaprop_isFalse (C : ComplementaryPair) : isaprop (isFalse C).
+(* No axioms are used. *)
+(* By contrast, to prove [¬P] is a proposition requires the use of functional
+   extensionality. *)
+Proof.
+  intros.
+  apply (isapropcomponent2 (isTrue C) (isFalse C)).
+  apply isapropifcontr.
+  apply complementaryDecisions.
+Defined.
+
+Ltac unpack_pair C P Q con c := induction C as [P Qc]; induction Qc as [Q c];
+                                induction c as [con c]; simpl in c, P, Q.
+
+Lemma pair_truth (C : ComplementaryPair) : Part1 C -> isTrue C.
+Proof.
+  intros p.
+  unpack_pair C P Q con c;
+    unfold isTrue, hfiber, Part1, Part2, chooser in *; simpl in *.
+  induction c as [p'|q].
+  - now exists p'.
+  - apply fromempty. contradicts (con p) q.
+Defined.
+
+Lemma pair_falsehood (C : ComplementaryPair) : Part2 C -> isFalse C.
+Proof.
+  intros q.
+  unpack_pair C P Q con c;
+    unfold isFalse, hfiber, Part1, Part2, chooser in *; simpl in *.
+  induction c as [p|q'].
+  - apply fromempty. contradicts (con p) q.
+  - now exists q'.
+Defined.
+
+Definition to_ComplementaryPair {P : UU} (c : P ⨿ neg P) : ComplementaryPair
+  (* By using [isTrue _] instead, we're effectively replacing P by a
+     propositional subtype of it: *)
+  (* the part connected to the element of [P ⨿ ¬P]. *)
+  (* Similarly, by using [isFalse _] instead, we're effectively replacing [¬P]
+     by a propositional subtype of it.  *)
+  (* Both are proved to be propositions without [funextemptyAxiom] *)
+  := (P,,neg P,,(λ p n, n p),,c).
+
+(* Relate isolated points to complementary pairs *)
+
+Definition isolation {X : UU} (x : X) (is : isisolated X x) (y : X) : UU
+  := isFalse (to_ComplementaryPair (is y)).
+
+Definition isaprop_isolation {X : UU} (x : X) (is : isisolated X x) (y : X) :
+  isaprop (isolation x is y) := isaprop_isFalse _.
+
+Definition isolation_to_inequality {X : UU} (x : X) (is : isisolated X x)
+           (y : X) :
+  isolation x is y -> x != y := falseWitness.
+
+Definition inequality_to_isolation {X : UU} (x : X) (i : isisolated X x)
+           (y : X) :
+  x != y -> isolation x i y := pair_falsehood (to_ComplementaryPair (i y)).
+
+(* operations on complementary pairs *)
+
+Definition pairNegation (C : ComplementaryPair) : ComplementaryPair
+  := Part2 C,, Part1 C ,, (λ q p, pair_contradiction C p q),,
+           coprodcomm _ _ (chooser C).
+
+Definition pairConjunction (C C' : ComplementaryPair) : ComplementaryPair.
+Proof.
+  unpack_pair C P Q con c; unpack_pair C' P' Q' con' c'; simpl in *.
+  unfold ComplementaryPair. exists (P × P'); exists (Q ⨿ Q'). split.
+  - simpl. intros a b. induction a as [p p']. induction b as [b|b].
+    + induction c' as [_|q'].
+      * contradicts (con p) b.
+      * contradicts (con p) b.
+    + contradicts (con' p') b.
+  - simpl. induction c as [p|q].
+    + induction c' as [p'|q'].
+      * apply ii1. exact (p,,p').
+      * apply ii2, ii2. exact q'.
+    + induction c' as [p'|q'].
+      * apply ii2, ii1. exact q.
+      * apply ii2, ii2. exact q'.
+Defined.
+
+Definition pairDisjunction (C C' : ComplementaryPair) : ComplementaryPair.
+Proof.
+  intros.
+  exact (pairNegation (pairConjunction (pairNegation C) (pairNegation C'))).
+Defined.
+
+Definition dnegelim {P Q : UU} : complementary P Q -> ¬¬ P -> P.
+Proof.
+  intros c nnp. induction c as [n c].
+  induction c as [p|q].
+  - assumption.
+  - contradicts nnp (λ p, n p q).
+Defined.
+
+(* Law of Excluded Middle
+
+   We don't state LEM as an axiom, because we want to force it
+   to be a hypothesis of any corollaries of any theorems that
+   appeal to it. *)
+
+Lemma LEM_for_sets (X : UU) : LEM -> isaset X -> isdeceq X.
+Proof. intros lem is x y. exact (lem (hProppair (x = y) (is x y))). Defined.
+
+Lemma isaprop_LEM : isaprop LEM.
+Proof.
+  unfold LEM. apply impred_isaprop; intro P. apply isapropdec. apply propproperty.
+Defined.
+
+Lemma dneg_LEM (P : hProp) : LEM -> ¬¬ P -> P.
+Proof. intros lem. exact (dnegelim ((λ p np, np p),,lem P)). Defined.
+
+Corollary reversal_LEM (P Q : hProp) : LEM -> (¬ P -> Q) -> (¬ Q -> P).
+Proof.
+  intros lem f n.
+  assert (g := negf f); clear f.
+  assert (h := g n); clear g n.
+  apply (dneg_LEM _ lem).
+  exact h.
+Defined.
+
 (*****************************************************************************)
-(* all of this stuff about decidable propositions will be redone: *)
+(* all of this stuff about decidable propositions will be replaced by the better code above *)
 (*****************************************************************************)
 
 Definition DecidableProposition : UU := ∑ X : UU, isdecprop X.
