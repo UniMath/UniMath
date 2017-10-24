@@ -537,7 +537,7 @@ Proof.
   intro; apply finitenessProperty.
 Defined.
 
-Notation "'∑'  x .. y , P" := (concatenateFiniteOrderedSets (fun x => .. (concatenateFiniteOrderedSets (fun y => P)) ..))
+Notation "'∑'  x .. y , P" := (concatenateFiniteOrderedSets (λ x, .. (concatenateFiniteOrderedSets (λ y, P)) ..))
   (at level 200, x binder, y binder, right associativity) : foset.
   (* type this in emacs in agda-input method with \sum *)
 

@@ -38,7 +38,7 @@ Definition setquotfun2 {X Y Z} {RX:hrel X} {RY:hrel Y} {RZ:eqrel Z}
            (f:X->Y->Z) (is:iscomprelrelfun2 RX RY RZ f) :
   setquot RX -> setquot RY -> setquot RZ.
 Proof. intros ? ? ? ? ? ? ? ?.
-       set (f' := fun x y => setquotpr RZ (f x y) : setquotinset RZ).
+       set (f' := λ x y, setquotpr RZ (f x y) : setquotinset RZ).
        apply (setquotuniv2 RX RY f'). split.
        { intros ? ? p ?. apply iscompsetquotpr. exact (pr1 is x x' y p). }
        { intros ? ? p ?. apply iscompsetquotpr. exact (pr2 is x y y' p). }

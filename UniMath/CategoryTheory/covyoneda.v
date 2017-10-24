@@ -37,7 +37,7 @@ Ltac unf := unfold identity,
 (** The following lemma is already in precategories.v . It should be transparent? *)
 
 (* Lemma iso_comp_left_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) : *)
-(*   isweq (fun f : hom _ c a => f · h). *)
+(*   isweq (λ f : hom _ c a, f · h). *)
 (* Proof. intros. apply (@iso_comp_right_isweq C^op b a (opp_iso h)). Qed. *)
 
 (** * Covariant Yoneda functor *)
@@ -50,12 +50,12 @@ Definition covyoneda_objects_ob (C : precategory) (c : C^op)
 (* Definition covyoneda_objects_mor (C : precategory) (c : C^op) *)
 (*     (d d' : C) (f : C⟦d,d'⟧) : *)
 (*    covyoneda_objects_ob C c d -> covyoneda_objects_ob C c d' := *)
-(*     fun g => g · f. *)
+(*     λ g, g · f. *)
 
 Definition covyoneda_ob_functor_data (C : precategory) (hs : has_homsets C) (c : C^op) :
     functor_data C HSET.
 Proof.
-exists (fun c' => hSetpair (covyoneda_objects_ob C c c') (hs c c')) .
+exists (λ c', hSetpair (covyoneda_objects_ob C c c') (hs c c')) .
 intros a b f g. unfold covyoneda_objects_ob in *. simpl in *.
 exact (g · f).
 Defined.
@@ -129,7 +129,7 @@ Definition covyoneda (C : precategory) (hs: has_homsets C) :
 (* Definition yoneda_map_1 (C : precategory) (hs: has_homsets C) (c : C) *)
 (*    (F : functor C^op HSET) : *)
 (*        hom _ (yoneda C hs c) F -> pr1 (F c) := *)
-(*    fun h =>  pr1 h c (identity c). *)
+(*    λ h,  pr1 h c (identity c). *)
 
 
 
@@ -153,7 +153,7 @@ Definition covyoneda (C : precategory) (hs: has_homsets C) :
 (*        pr1 (F c) -> hom _ (yoneda C hs c) F. *)
 (* Proof. *)
 (*   intro x. *)
-(*   exists (fun d : ob C => fun f => #F f x). *)
+(*   exists (λ d : ob C, λ f, #F f x). *)
 (*   apply yoneda_map_2_ax. *)
 (* Defined. *)
 
@@ -229,7 +229,7 @@ Definition covyoneda (C : precategory) (hs: has_homsets C) :
 
 (* Lemma is_natural_yoneda_iso (C : precategory) (hs : has_homsets C) (F : functor C^op HSET): *)
 (*   is_nat_trans (yoneda_iso_target C hs F) F *)
-(*   (fun c => yoneda_map_1 C hs c F). *)
+(*   (λ c, yoneda_map_1 C hs c F). *)
 (* Proof. *)
 (*   unfold is_nat_trans. *)
 (*   intros c c' f. cbn in *. *)
@@ -262,7 +262,7 @@ Definition covyoneda (C : precategory) (hs: has_homsets C) :
 
 (* Lemma is_natural_yoneda_iso_inv (C : precategory) (hs : has_homsets C) (F : functor C^op HSET): *)
 (*   is_nat_trans F (yoneda_iso_target C hs F) *)
-(*   (fun c => yoneda_map_2 C hs c F). *)
+(*   (λ c, yoneda_map_2 C hs c F). *)
 (* Proof. *)
 (*   unfold is_nat_trans. *)
 (*   intros c c' f. cbn in *. *)

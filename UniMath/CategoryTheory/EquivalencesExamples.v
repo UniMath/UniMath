@@ -78,7 +78,7 @@ mkpair.
 - split.
   + mkpair.
     * simpl; intro x.
-      apply (ProductArrow _ _ _ (fun _ => identity x)).
+      apply (ProductArrow _ _ _ (λ _, identity x)).
     * abstract (intros p q f; simpl;
                 now rewrite precompWithProductArrow, id_right,
                             postcompWithProductArrow, id_left).
@@ -87,7 +87,7 @@ mkpair.
     * abstract (intros p q f; apply funextsec; intro i; unfold compose; simpl;
                 now rewrite ProductOfArrowsPr).
 - abstract (split; simpl; intro x;
-    [ apply funextsec; intro i; apply (ProductPrCommutes _ _ (fun _ => x))
+    [ apply funextsec; intro i; apply (ProductPrCommutes _ _ (λ _, x))
     | cbn; rewrite postcompWithProductArrow;
       apply pathsinv0, Product_endo_is_identity; intro i;
       eapply pathscomp0; [|apply (ProductPrCommutes I C _ (PC x))];
@@ -142,7 +142,7 @@ mkpair.
     * abstract (intros p q f; apply funextsec; intro i; unfold compose; simpl;
                 now rewrite CoproductOfArrowsIn).
   + mkpair.
-    * intro x; apply (CoproductArrow _ _ _ (fun _ => identity x)).
+    * intro x; apply (CoproductArrow _ _ _ (λ _, identity x)).
     * abstract (intros p q f; simpl;
                 now rewrite precompWithCoproductArrow,
                             postcompWithCoproductArrow,
@@ -152,7 +152,7 @@ mkpair.
       apply pathsinv0, Coproduct_endo_is_identity; intro i;
       eapply pathscomp0; [|apply CoproductInCommutes];
       apply maponpaths, maponpaths, funextsec; intro j; apply id_right
-    | apply funextsec; intro i; apply (CoproductInCommutes _ _ (fun _ => x))]).
+    | apply funextsec; intro i; apply (CoproductInCommutes _ _ (λ _, x))]).
 Defined.
 
 End coproduct_functor_adjunction.

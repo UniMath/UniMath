@@ -58,7 +58,7 @@ Proof.
       etrans. Focus 2. apply functor_id.
       apply maponpaths. apply iso_after_iso_inv.
    }
-    set (XRT := transportf (fun r => iso_disp r (FF x dd) yy )
+    set (XRT := transportf (λ r, iso_disp r (FF x dd) yy )
                            XH).
     apply XRT.
     assumption.
@@ -519,7 +519,7 @@ Let FFinv {x y} {xx} {yy} {f} : FF x xx -->[ (# F)%Cat f] FF y yy → xx -->[ f]
 Lemma FFinv_transportf
     {x y : C} {f f' : x --> y} (e : f = f')
     {xx : D x} {yy : D y} (ff : FF _ xx -->[(#F)%cat f] FF _ yy)
-  : FFinv (transportf (fun f' => _ -->[ (#F)%Cat f'] _ ) e ff) = transportf _ e (FFinv ff).
+  : FFinv (transportf (λ f', _ -->[ (#F)%Cat f'] _ ) e ff) = transportf _ e (FFinv ff).
 Proof.
   destruct e. apply idpath.
 Qed.
@@ -531,8 +531,8 @@ Definition disp_functor_id_ff_reflects_isos
   : is_iso_disp _ ff.
 Proof.
   set (FFffinv := inv_mor_disp_from_iso isiso).
-  set (FFffinv':= transportf (fun f' => _ -->[ _ ] _ ) (functor_on_inv_from_iso F f) FFffinv). cbn in FFffinv'. unfold precomp_with in FFffinv'.
-  set (FFffinv'' := transportf (fun f' => _ -->[f'] _ ) (id_right _ ) FFffinv').
+  set (FFffinv':= transportf (λ f', _ -->[ _ ] _ ) (functor_on_inv_from_iso F f) FFffinv). cbn in FFffinv'. unfold precomp_with in FFffinv'.
+  set (FFffinv'' := transportf (λ f', _ -->[f'] _ ) (id_right _ ) FFffinv').
   cbn in FFffinv''.
   set (ffinv := FFinv FFffinv'').
   exists ffinv.
@@ -662,7 +662,7 @@ Definition GG : disp_functor _ _ _ := (_ ,, GG_ax).
 Definition ε_ses_ff_data
   : disp_nat_trans_data (nat_trans_id _ )
       (disp_functor_composite GG FF) (disp_functor_identity _ )
-:= fun x xx => (pr2 (FF_split x xx)).
+:= λ x xx, (pr2 (FF_split x xx)).
 *)
 (*
 Lemma ε_ses_ff_ax : disp_nat_trans_axioms ε_ses_ff_data.

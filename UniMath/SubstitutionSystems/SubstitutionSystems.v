@@ -154,7 +154,7 @@ Proof.
     simpl.
     unfold coproduct_nat_trans_in1_data.
     assert (Hyp_inst := nat_trans_eq_pointwise Hyp c); clear Hyp.
-    apply (maponpaths (fun m => BinCoproductIn1 C (CP _ _)· m)) in Hyp_inst.
+    apply (maponpaths (λ m, BinCoproductIn1 C (CP _ _)· m)) in Hyp_inst.
     match goal with |[ H1 : _  = ?f |- _ = _   ] =>
          pathvia (f) end.
 
@@ -175,7 +175,7 @@ Proof.
     simpl.
     unfold coproduct_nat_trans_in2_data.
     assert (Hyp_inst := nat_trans_eq_pointwise Hyp c); clear Hyp.
-    apply (maponpaths (fun m =>  BinCoproductIn2 C (CP _ _)· m)) in Hyp_inst.
+    apply (maponpaths (λ m,  BinCoproductIn2 C (CP _ _)· m)) in Hyp_inst.
     match goal with |[ H1 : _  = ?f |- _ = _   ] =>
          pathvia (f) end.
 

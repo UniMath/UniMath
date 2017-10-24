@@ -992,7 +992,7 @@ Section rotation_isos.
     rewrite functor_id. rewrite id_right. rewrite <- PreAdditive_invlcomp.
     rewrite AdditiveFunctorInv. rewrite inv_inv_eq. rewrite functor_comp.
     set (tmp := AddEquivCounitUnit' Trans (Ob1 D)). cbn in tmp. rewrite assoc. cbn.
-    apply (maponpaths (fun g : _ => (z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D)))
+    apply (maponpaths (λ g : _, (z_iso_inv_mor (AddEquivCounitIso Trans (Ob3 D)))
                                    · (# (AddEquiv1 Trans) (# (AddEquiv2 Trans) (Mor3 D)))
                                    · g)) in tmp.
     use (pathscomp0 (! tmp)). clear tmp.
@@ -1042,7 +1042,7 @@ Section rotation_isos.
     use (pathscomp0 _ (! tmp)). clear tmp. cbn. rewrite functor_comp. rewrite functor_comp.
     set (tmp := AddEquivCounitUnit Trans (Ob1 D1)).
     apply (maponpaths
-             (fun gg : _ => gg · # (AddEquiv1 Trans) (# (AddEquiv2 Trans) (MPMor3 Mor)) ·
+             (λ gg : _, gg · # (AddEquiv1 Trans) (# (AddEquiv2 Trans) (MPMor3 Mor)) ·
                             # (AddEquiv1 Trans)
                             (z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2))))) in tmp.
     use (pathscomp0 (! tmp)). clear tmp. rewrite <- assoc. rewrite <- assoc.
@@ -1061,7 +1061,7 @@ Section rotation_isos.
     use (pathscomp0 (AddEquivCounitMorComm Trans (MPMor3 Mor))).
     set (tmp := AddEquivCounitUnit Trans (Ob1 D1)).
     apply (maponpaths
-             (fun gg : _ => gg · (# (functor_composite (AddEquiv2 Trans) (AddEquiv1 Trans))
+             (λ gg : _, gg · (# (functor_composite (AddEquiv2 Trans) (AddEquiv1 Trans))
                                   (MPMor3 Mor))
                             · (AddEquivCounit Trans) ((AddEquiv1 Trans) (Ob1 D2)))) in tmp.
     use (pathscomp0 tmp). clear tmp. rewrite <- assoc. rewrite <- assoc. rewrite functor_comp.
@@ -1146,7 +1146,7 @@ Section rotation_isos.
     apply (maponpaths (compose (# (AddEquiv1 Trans) (MPMor1 Mor)))) in tmp'.
     use (pathscomp0 (! tmp')). clear tmp'.
     set (tmp' := AddEquivCounitUnit' Trans (Ob1 D2)).
-    apply (maponpaths (fun gg : _ => # (AddEquiv1 Trans) (MPMor1 Mor)
+    apply (maponpaths (λ gg : _, # (AddEquiv1 Trans) (MPMor1 Mor)
                                     · (# (AddEquiv1 Trans) (# (AddEquiv2 Trans) (Mor3 D2))
                                           · gg))) in tmp'.
     use (pathscomp0 tmp'). clear tmp'.
@@ -1155,7 +1155,7 @@ Section rotation_isos.
     apply (maponpaths (postcompose (# (AddEquiv1 Trans) (MPMor2 Mor)))) in tmp'.
     use (pathscomp0 _ tmp'). clear tmp'. unfold postcompose.
     set (tmp' := AddEquivCounitUnit' Trans (Ob1 D1)).
-    apply (maponpaths (fun gg : _ => # (AddEquiv1 Trans) (# (AddEquiv2 Trans) (Mor3 D1))
+    apply (maponpaths (λ gg : _, # (AddEquiv1 Trans) (# (AddEquiv2 Trans) (Mor3 D1))
                                     · gg · # (AddEquiv1 Trans) (MPMor2 Mor))) in tmp'.
     use (pathscomp0 _ (! tmp')). clear tmp'.
     rewrite <- functor_comp. rewrite <- functor_comp. apply maponpaths.

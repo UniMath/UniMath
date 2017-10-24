@@ -67,7 +67,7 @@ Proof.
 Defined.
 
 Definition foldr {B : UU} (f : A -> B -> B) (b : B) : list -> B :=
-  list_ind (fun _ => B) b (fun a _ b' => f a b').
+  list_ind (λ _, B) b (λ a _ b', f a b').
 
 Definition length : list -> nat := pr1.
 
@@ -220,7 +220,7 @@ Proof.
   reflexivity.
 Defined.
 
-(** weq between lists and functions  *)
+(** between ≃ lists and functions  *)
 
 Lemma isweqlistfun {A} n : isweq (@nth' A n).
 Proof.

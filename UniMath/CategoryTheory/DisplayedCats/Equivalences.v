@@ -62,7 +62,7 @@ Proof.
       etrans. Focus 2. apply functor_id.
       apply maponpaths. apply iso_after_iso_inv.
    }
-    set (XRT := transportf (fun r => iso_disp r (FF x dd) yy )
+    set (XRT := transportf (λ r, iso_disp r (FF x dd) yy )
                            XH).
     apply XRT.
     assumption.
@@ -638,7 +638,7 @@ Definition GG : disp_functor _ _ _ := (_ ,, GG_ax).
 Definition ε_ses_ff_data
   : disp_nat_trans_data (nat_trans_id _ )
       (disp_functor_composite GG FF) (disp_functor_identity _ )
-:= fun x xx => (pr2 (FF_split x xx)).
+:= λ x xx, (pr2 (FF_split x xx)).
 
 Lemma ε_ses_ff_ax : disp_nat_trans_axioms ε_ses_ff_data.
 Proof.

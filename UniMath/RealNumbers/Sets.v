@@ -53,7 +53,7 @@ End po_pty.
 Definition isStrongOrder {X : UU} (R : hrel X) := istrans R × iscotrans R × isirrefl R.
 Definition StrongOrder (X : UU) := ∑ R : hrel X, isStrongOrder R.
 Definition pairStrongOrder {X : UU} (R : hrel X) (is : isStrongOrder R) : StrongOrder X :=
-  tpair (fun R : hrel X => isStrongOrder R ) R is.
+  tpair (λ R : hrel X, isStrongOrder R ) R is.
 Definition pr1StrongOrder {X : UU} : StrongOrder X → hrel X := pr1.
 Coercion  pr1StrongOrder : StrongOrder >-> hrel.
 
@@ -84,7 +84,7 @@ Defined.
 (** ** Reverse orderse *)
 (** or how easily define ge x y := le x y *)
 
-Definition hrel_reverse {X : UU} (l : hrel X) := fun x y => l y x.
+Definition hrel_reverse {X : UU} (l : hrel X) := λ x y, l y x.
 
 Lemma istrans_reverse {X : UU} (l : hrel X) :
   istrans l → istrans (hrel_reverse l).

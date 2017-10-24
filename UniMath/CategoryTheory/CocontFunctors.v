@@ -674,7 +674,7 @@ mkpair.
   }
   abstract (apply subtypeEquality; simpl;
             [ intro f; apply impred; intro; apply hsA
-            | apply (maponpaths (fun x => pr1 (pr1 x)) (p2 X))]).
+            | apply (maponpaths (λ x, pr1 (pr1 x)) (p2 X))]).
 Defined.
 
 Lemma is_cocont_pr1_functor : is_cocont (pr1_functor A B).
@@ -718,7 +718,7 @@ mkpair.
   }
   abstract (apply subtypeEquality; simpl;
               [ intro f; apply impred; intro; apply hsB
-              | apply (maponpaths (fun x => dirprod_pr2 (pr1 x)) (p2 X)) ]).
+              | apply (maponpaths (λ x, dirprod_pr2 (pr1 x)) (p2 X)) ]).
 Defined.
 
 Lemma is_cocont_pr2_functor : is_cocont (pr2_functor A B).
@@ -887,16 +887,16 @@ Local Lemma isColimCocone_pr_functor
   {g : graph} (c : diagram g (power_precategory I A))
   (L : power_precategory I A) (ccL : cocone c L)
   (M : isColimCocone c L ccL) : ∏ i,
-  isColimCocone _ _ (mapcocone (pr_functor I (fun _ => A) i) c ccL).
+  isColimCocone _ _ (mapcocone (pr_functor I (λ _, A) i) c ccL).
 Proof.
 intros i x ccx; simpl in *.
-transparent assert (HHH : (cocone c (fun j => ifI i j x (L j)))).
+transparent assert (HHH : (cocone c (λ j, ifI i j x (L j)))).
 { unfold ifI.
   use mk_cocone.
   - simpl; intros n j.
     destruct (HI i j) as [p|p].
-    + apply (transportf (fun i => A ⟦ dob c n i, x ⟧) p (coconeIn ccx n)).
-    + apply (# (pr_functor I (fun _ => A) j) (coconeIn ccL n)).
+    + apply (transportf (λ i, A ⟦ dob c n i, x ⟧) p (coconeIn ccx n)).
+    + apply (# (pr_functor I (λ _, A) j) (coconeIn ccL n)).
   - abstract (simpl; intros m n e;
       apply funextsec; intro j; unfold compose; simpl;
       destruct (HI i j);
@@ -920,7 +920,7 @@ mkpair.
   { mkpair.
     - simpl; intro j; unfold ifI.
       destruct (HI i j).
-      + apply (transportf (fun i => A ⟦ L i, x ⟧) p (pr1 t)).
+      + apply (transportf (λ i, A ⟦ L i, x ⟧) p (pr1 t)).
       + apply identity.
     - abstract (intro n; apply funextsec; intro j; unfold ifI; destruct (HI i j);
           [ now destruct p; rewrite <- (pr2 t), !idpath_transportf
@@ -934,7 +934,7 @@ mkpair.
   now rewrite hp, idpath_transportf.
 Defined.
 
-Lemma is_cocont_pr_functor (i : I) : is_cocont (pr_functor I (fun _ => A) i).
+Lemma is_cocont_pr_functor (i : I) : is_cocont (pr_functor I (λ _, A) i).
 Proof.
 now intros c L ccL M H; apply isColimCocone_pr_functor.
 Defined.
@@ -1182,7 +1182,7 @@ Defined.
 Definition omega_cocont_coproduct_of_functors
   (F : ∏ i, omega_cocont_functor C D) :
   omega_cocont_functor C D :=
-    tpair _ _ (is_omega_cocont_coproduct_of_functors (fun i => pr2 (F i))).
+    tpair _ _ (is_omega_cocont_coproduct_of_functors (λ i, pr2 (F i))).
 
 End coproduct_of_functors.
 
@@ -1346,12 +1346,12 @@ Let HB := isColimCocone_pr2_functor hsC _ _ _ HccLM
 Let HAiB := λ i, omega_cocont_constprod_functor1 (pr1 (pr1 cAB i)) _ _ _ HB.
 
 (* Turn HAiB into a ColimCocone: *)
-Let CCAiB := fun i => mk_ColimCocone _ _ _ (HAiB i).
+Let CCAiB := λ i, mk_ColimCocone _ _ _ (HAiB i).
 
 (* Define the HAiM ColimCocone: *)
 Let HAiM := mk_ColimCocone _ _ _ (omega_cocont_constprod_functor2 M _ _ _ HA).
 
-Let ccAiB_K := fun i => ccAiB_K _ _ ccK i.
+Let ccAiB_K := λ i, ccAiB_K _ _ ccK i.
 
 (* The f which is used in colimOfArrows *)
 Local Definition f i j : C

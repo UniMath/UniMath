@@ -21,7 +21,7 @@ Proof. intros. unfold GuidedHomotopy, nullHomotopyFrom.
        refine (@iscontrweqb _ (∑ y, y=f 0) _ _).
        { apply weqfibtototal. intro y.
          exact (Nat.Uniqueness.hNatRecursion_weq
-                  (fun n => y = f n) (fun n hn => hn @ s n)). }
+                  (λ n, y = f n) (λ n hn, hn @ s n)). }
        { apply iscontrcoconustot. } Defined.
 
 Definition halfline := ∥ ℕ ∥.

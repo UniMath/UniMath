@@ -58,7 +58,7 @@ Module Uniqueness.
         (@hfiber
            (∑ (f:∏ n, P n), ∏ n, f(S n)=IH n (f n))
            (P 0)
-           (fun fh => pr1 fh 0)
+           (λ fh, pr1 fh 0)
            p0).
   Proof. intros. simple refine (weqpair _ (gradth _ _ _ _)).
          { intros [f [h0 h']]. exact ((f,,h'),,h0). }
@@ -69,7 +69,7 @@ Module Uniqueness.
 
   Lemma hNatRecursion_weq (P:nat->Type) (IH:∏ n, P n->P(S n)) :
     weq (total2 (fun f:∏ n, P n => ∏ n, f(S n)=IH n (f n))) (P 0).
-  Proof. intros. exists (fun f => pr1 f 0). intro p0.
+  Proof. intros. exists (λ f, pr1 f 0). intro p0.
          apply (iscontrweqf (helper_D _ _ _)). apply hNatRecursionUniq.
   Defined.
 

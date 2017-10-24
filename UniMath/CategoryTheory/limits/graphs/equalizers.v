@@ -35,7 +35,7 @@ Section def_equalizers.
     - apply two_rec.
       + apply empty.
       + apply (unit ⨿ unit).
-    - apply (fun _ => empty).
+    - apply (λ _, empty).
   Defined.
 
   Definition Equalizer_diagram {a b : C} (f g : C⟦a, b⟧) : diagram Equalizer_graph C.
@@ -112,7 +112,7 @@ Section def_equalizers.
 
   Definition hasEqualizers : UU := ∏ (a b : C) (f g : C⟦a, b⟧), ishinh (Equalizer f g).
 
-  Definition EqualizerObject {a b : C} {f g : C⟦a, b⟧} : Equalizer f g -> C := fun H => lim H.
+  Definition EqualizerObject {a b : C} {f g : C⟦a, b⟧} : Equalizer f g -> C := λ H, lim H.
 
   Definition EqualizerArrow {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) :
     C⟦lim E, a⟧ := limOut E One.
@@ -145,7 +145,7 @@ Section def_equalizers.
     use two_rec_dep.
     - apply H'.
     - set (X := limOutCommutes E One Two (ii1 tt)).
-      apply (maponpaths (fun h : _ => w · h)) in X.
+      apply (maponpaths (λ h : _, w · h)) in X.
       use (pathscomp0 (!X)); rewrite assoc.
       change (dmor _ _) with f.
       change (coneOut _ _) with (h · f).
@@ -187,7 +187,7 @@ Section def_equalizers.
     use two_rec_dep; cbn.
     + apply kH.
     + set (X := (coneOutCommutes (limCone E) One Two (ii1 tt))).
-      use (pathscomp0 (! (maponpaths (fun h' : _ => k · h') X))).
+      use (pathscomp0 (! (maponpaths (λ h' : _, k · h') X))).
       use (pathscomp0 _ X).
       rewrite assoc; change (dmor _ _) with f.
       apply cancel_postcomposition, kH.

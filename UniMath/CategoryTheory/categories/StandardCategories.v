@@ -56,7 +56,7 @@ Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> category.
      be useful, because in it, each arrow is a path, rather than an
      equivalence class of paths. *)
   intros iobj.
-  unshelve refine (makecategory X (fun x y => x = y) _ _ _ _ _ _).
+  unshelve refine (makecategory X (λ x y, x = y) _ _ _ _ _ _).
   { reflexivity. }
   { intros. exact (f @ g). }
   { intros. exact (iobj _ _). }
@@ -114,8 +114,8 @@ Variable A : precategory.
 
 Definition functor_to_unit_data : functor_data A unit_category.
 Proof.
-  exists (fun _ => tt).
-  exact (fun _ _ _ => idpath _ ).
+  exists (λ _, tt).
+  exact (λ _ _ _, idpath _ ).
 Defined.
 
 Definition is_functor_to_unit : is_functor functor_to_unit_data.

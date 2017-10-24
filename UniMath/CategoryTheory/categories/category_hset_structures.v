@@ -74,7 +74,7 @@ Proof.
 Qed.
 
 Definition eqrel_from_hrel : hrel A :=
-  fun a b => hProppair _ (isaprop_eqrel_from_hrel a b).
+  λ a b, hProppair _ (isaprop_eqrel_from_hrel a b).
 
 Lemma iseqrel_eqrel_from_hrel : iseqrel eqrel_from_hrel.
 Proof.
@@ -312,7 +312,7 @@ use mk_CoproductCocone.
 - apply (mk_isCoproductCocone _ _ has_homsets_HSET).
   intros C f; simpl in *.
   mkpair.
-  * apply (tpair _ (fun X => f (pr1 X) (pr2 X))); abstract (intro i; apply idpath).
+  * apply (tpair _ (λ X, f (pr1 X) (pr2 X))); abstract (intro i; apply idpath).
   * abstract (intros h; apply subtypeEquality; simpl;
       [ intro; apply impred; intro; apply has_homsets_HSET
       | destruct h as [t ht]; simpl; apply funextfun;
@@ -372,12 +372,12 @@ Lemma LimConeHSET : LimCone D.
 Proof.
 use mk_LimCone.
 - apply limset.
-- apply (tpair _ (fun u f => pr1 f u)).
+- apply (tpair _ (λ u f, pr1 f u)).
   abstract (intros u v e; simpl; apply funextfun; intro f; simpl; apply (pr2 f)).
 - intros X CC.
   mkpair.
   + mkpair.
-    * intro x; apply (tpair _ (fun u => coneOut CC u x)).
+    * intro x; apply (tpair _ (λ u, coneOut CC u x)).
       abstract (intros u v e; apply (toforallpaths _ _ _ (coneOutCommutes CC _ _ e))).
     * abstract (intro v; apply idpath).
   + abstract (intros [t p]; apply subtypeEquality;
@@ -425,12 +425,12 @@ Lemma cats_LimConeHSET : cats.limits.LimCone D.
 Proof.
 use mk_LimCone.
 - apply cats_limset.
-- apply (tpair _ (fun u f => pr1 f u)).
+- apply (tpair _ (λ u f, pr1 f u)).
   abstract (intros u v e; apply funextfun; intro f; apply (pr2 f)).
 - intros X CC.
   mkpair.
   + mkpair.
-    * intro x; apply (tpair _ (fun u => coneOut CC u x)).
+    * intro x; apply (tpair _ (λ u, coneOut CC u x)).
       abstract (intros u v e; apply (toforallpaths _ _ _ (coneOutCommutes CC _ _ e))).
     * abstract (intro v; apply idpath).
   + abstract (intros [t p]; apply subtypeEquality;
@@ -459,7 +459,7 @@ Lemma BinProductsHSET : BinProducts HSET.
 Proof.
 intros A B.
 use mk_BinProductCone.
-- simpl in *; apply (tpair _ (dirprod A B)).
+- simpl in *; apply (tpair _ (A × B)).
   abstract (apply isasetdirprod; apply setproperty).
 - simpl in *; apply pr1.
 - simpl in *; intros x; apply (pr2 x).
@@ -484,7 +484,7 @@ use mk_ProductCone.
 - apply (mk_isProductCone _ _ has_homsets_HSET).
   intros C f; simpl in *.
   mkpair.
-  * apply (tpair _ (fun c i => f i c)); intro i; apply idpath.
+  * apply (tpair _ (λ c i, f i c)); intro i; apply idpath.
    * abstract (intros h; apply subtypeEquality; simpl;
        [ intro; apply impred; intro; apply has_homsets_HSET
        | destruct h as [t ht]; simpl; apply funextfun; intro x;
@@ -506,7 +506,7 @@ Lemma TerminalHSET : Terminal HSET.
 Proof.
 apply (mk_Terminal unitHSET).
 apply mk_isTerminal; intro a.
-apply (tpair _ (fun _ => tt)).
+apply (tpair _ (λ _, tt)).
 abstract (simpl; intro f; apply funextfun; intro x; case (f x); apply idpath).
 Defined.
 
@@ -588,13 +588,13 @@ Definition exponential_functor (A : HSET) : functor HSET HSET.
 Proof.
 mkpair.
 + apply (tpair _ (hset_fun_space A)); simpl.
-  intros b c f g; apply (fun x => f (g x)).
+  intros b c f g; apply (λ x, f (g x)).
 + abstract (mkpair;
   [ intro x; now (repeat apply funextfun; intro)
   | intros x y z f g; now (repeat apply funextfun; intro)]).
 Defined.
 
-Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := fun x y => f y x.
+Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := λ x y, f y x.
 
 (** This checks that if we use constprod_functor2 the flip is not necessary *)
 Lemma are_adjoints_constprod_functor2 A :
@@ -954,14 +954,14 @@ Proof.
   - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
     apply subtypeEquality; simpl.
       intros x; apply isapropdirprod; apply setproperty.
-    refine (@toforallpaths unitset _ (fun _ => ab) (fun _ => ab') _ tt).
+    refine (@toforallpaths unitset _ (λ _, ab) (λ _, ab') _ tt).
     refine (MorphismsIntoPullbackEqual pb _ _ _ _ );
     apply funextsec; intros []; cbn;
     (eapply @pathscomp0; [ eassumption | apply pathsinv0; eassumption]).
   - simple refine (_,,_).
     refine (_ tt).
     refine (PullbackArrow Pb (unitset : HSET)
-      (fun _ => a) (fun _ => b) _).
+      (λ _, a) (λ _, b) _).
     apply funextsec; intro; exact e.
     simpl; split.
     + generalize tt; apply toforallpaths.

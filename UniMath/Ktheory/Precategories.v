@@ -115,7 +115,7 @@ Definition isomorphismOnMor {B C:category} (F:categoryIsomorphism B C)
 Definition makecategory_ob_mor
     (obj : UU)
     (mor : obj -> obj -> UU) : precategory_ob_mor
-  := precategory_ob_mor_pair obj (fun i j:obj => mor i j).
+  := precategory_ob_mor_pair obj (λ i j:obj, mor i j).
 
 Definition makecategory_data
     (obj : UU)

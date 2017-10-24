@@ -20,7 +20,7 @@ Context {C : precategory}.
 Definition empty_graph : graph.
 Proof.
   exists empty.
-  exact (fun _ _ => empty).
+  exact (λ _ _, empty).
 Defined.
 
 Definition initDiagram : diagram empty_graph C.
@@ -51,7 +51,7 @@ simple refine (tpair _ _ _).
 Defined.
 
 Definition Initial : UU := ColimCocone initDiagram.
-(* total2 (fun a => isInitial a). *)
+(* total2 (λ a, isInitial a). *)
 
 Definition mk_Initial (a : C) (H : isInitial a) : Initial.
 Proof.

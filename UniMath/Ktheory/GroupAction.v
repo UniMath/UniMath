@@ -26,16 +26,16 @@ Module Pack.
          ∑ act_unit : ∏ x, act_mult (unel _) x = x,
       (* act_assoc : *) ∏ g h x, act_mult (op g h) x = act_mult g (act_mult h x).
   Definition pack {G:gr} {X:hSet} : ActionStructure' G X -> ActionStructure G X
-    := fun ac => make G X (pr1 ac) (pr1 (pr2 ac)) (pr2 (pr2 ac)).
+    := λ ac, make G X (pr1 ac) (pr1 (pr2 ac)) (pr2 (pr2 ac)).
   Definition unpack {G:gr} {X:hSet} : ActionStructure G X -> ActionStructure' G X
-    := fun ac => (act_mult ac,,(act_unit _ _ ac,,act_assoc _ _ ac)).
+    := λ ac, (act_mult ac,,(act_unit _ _ ac,,act_assoc _ _ ac)).
   Definition h {G:gr} {X:hSet} (ac:ActionStructure' G X) : unpack (pack ac) = ac
     := match ac as t return (unpack (pack t) = t)
        with (act_mult,,(act_unit,,act_assoc)) => idpath (act_mult,,(act_unit,,act_assoc)) end.
   Definition k {G:gr} {X:hSet} (ac:ActionStructure G X) : pack (unpack ac) = ac
     := match ac as i return (pack (unpack i) = i)
        with make _ _ act_mult act_unit act_assoc => idpath _ end.
-  Lemma weq (G:gr) (X:hSet) : weq (ActionStructure' G X) (ActionStructure G X).
+  Lemma weq (G:gr) (X:hSet) : (ActionStructure' G X) ≃ (ActionStructure G X).
   Proof. intros. exists pack. intros ac. exists (unpack ac,,k ac). intros [ac' m].
          destruct m. assert (H := h ac'). destruct H. reflexivity. Qed.
 End Pack.
@@ -63,8 +63,8 @@ Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Open Scope action_scope.
 Definition ac_assoc {G:gr} (X:Action G) := act_assoc _ _ (pr2 X) : ∏ g h x, (op g h)*x = g*(h*x).
 
-Definition right_mult {G:gr} {X:Action G} (x:X) := fun g => g*x.
-Definition left_mult {G:gr} {X:Action G} (g:G) := fun x:X => g*x.
+Definition right_mult {G:gr} {X:Action G} (x:X) := λ g, g*x.
+Definition left_mult {G:gr} {X:Action G} (g:G) := λ x:X, g*x.
 
 Definition is_equivariant {G:gr} {X Y:Action G} (f:X->Y) :=
   ∏ g x, f (g*x) = g*(f x).
@@ -287,11 +287,11 @@ Definition trivialTorsor (G:gr) : Torsor G.
 Proof.
   intros. exists (makeAction G (make G G op (lunax G) (assocax G))).
   exact (hinhpr (unel G),,
-         fun x => gradth
-           (fun g => op g x)
-           (fun g => op g (grinv _ x))
-           (fun g => assocax _ g x (grinv _ x) @ ap (op g) (grrinvax G x) @ runax _ g)
-           (fun g => assocax _ g (grinv _ x) x @ ap (op g) (grlinvax G x) @ runax _ g)).
+         λ x, gradth
+           (λ g, op g x)
+           (λ g, op g (grinv _ x))
+           (λ g, assocax _ g x (grinv _ x) @ ap (op g) (grrinvax G x) @ runax _ g)
+           (λ g, assocax _ g (grinv _ x) x @ ap (op g) (grlinvax G x) @ runax _ g)).
 Defined.
 
 Definition pointedTrivialTorsor (G:gr) : PointedTorsor G.
@@ -313,10 +313,10 @@ Definition triviality_isomorphism {G:gr} (X:Torsor G) (x:X) :
 Proof. intros.
        exact (torsor_mult_weq X x,, univ_function_is_equivariant X x). Defined.
 
-Definition trivialTorsor_weq (G:gr) (g:G) : weq (trivialTorsor G) (trivialTorsor G).
-Proof. intros. exists (fun h => op h g). apply (gradth _ (fun h => op h (grinv G g))).
-       { exact (fun h => assocax _ _ _ _ @ ap (op _) (grrinvax _ _) @ runax _ _). }
-       { exact (fun h => assocax _ _ _ _ @ ap (op _) (grlinvax _ _) @ runax _ _). }
+Definition trivialTorsor_weq (G:gr) (g:G) : (trivialTorsor G) ≃ (trivialTorsor G).
+Proof. intros. exists (λ h, op h g). apply (gradth _ (λ h, op h (grinv G g))).
+       { exact (λ h, assocax _ _ _ _ @ ap (op _) (grrinvax _ _) @ runax _ _). }
+       { exact (λ h, assocax _ _ _ _ @ ap (op _) (grlinvax _ _) @ runax _ _). }
 Defined.
 
 Definition trivialTorsorAuto (G:gr) (g:G) :

@@ -28,11 +28,11 @@ Local Open Scope cat.
 (** * The opposite precategory of a precategory *)
 
 Definition opp_precat_ob_mor (C : precategory_ob_mor) : precategory_ob_mor :=
-   tpair (fun ob : UU => ob -> ob -> UU) C (fun a b : C => C⟦b, a⟧ ).
+   tpair (λ ob : UU, ob -> ob -> UU) C (λ a b : C, C⟦b, a⟧ ).
 
 Definition opp_precat_data (C : precategory_data) : precategory_data :=
-  tpair _ _ (tpair _ (fun c : opp_precat_ob_mor C => identity c)
-                     (fun (a b c : opp_precat_ob_mor C) f g => g · f)).
+  tpair _ _ (tpair _ (λ c : opp_precat_ob_mor C, identity c)
+                     (λ (a b c : opp_precat_ob_mor C) f g, g · f)).
 
 Lemma is_precat_opp_precat_data (C : precategory) : is_precategory (opp_precat_data C).
 Proof.
@@ -233,7 +233,7 @@ simple refine (tpair _ _ _); simpl.
 - intro F.
   simple refine (tpair _ _ _).
   + exists F.
-    apply (fun a b f => # F f).
+    apply (λ a b f, # F f).
   + abstract (split; [ intro a; apply (functor_id F)
                      | intros a b c f g; apply (functor_comp F)]).
 - intros F G α; exists α.

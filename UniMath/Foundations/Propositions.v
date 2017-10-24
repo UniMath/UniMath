@@ -53,7 +53,6 @@ prefrred choice in this situation.
  - Negation and conjunction ("and") and disjunction ("or")
  - Property of being decidable and [hdisj] ("or")
  - The double negation version of [hinhabited] (does not require RR1)
-- Decidability
 - Univalence for hProp
 *)
 
@@ -83,9 +82,9 @@ Require Export UniMath.Foundations.PartD.
 (** ** The type [hProp] of types of h-level 1 *)
 
 
-Definition hProp := total2 (fun X : UU => isaprop X).
+Definition hProp := total2 (λ X : UU, isaprop X).
 Definition hProppair (X : UU) (is : isaprop X) : hProp
-  := tpair (fun X : UU => isaprop X) X is.
+  := tpair (λ X : UU, isaprop X) X is.
 Definition hProptoType := @pr1 _ _ : hProp -> UU.
 Coercion hProptoType : hProp >-> UU.
 
@@ -93,7 +92,7 @@ Definition propproperty (P : hProp) := pr2 P : isaprop (pr1 P).
 
 (** ** The type [tildehProp] of pairs (P, p : P) where [P : hProp] *)
 
-Definition tildehProp := total2 (fun P : hProp => P).
+Definition tildehProp := total2 (λ P : hProp, P).
 Definition tildehProppair {P : hProp} (p : P) : tildehProp := tpair _ P p.
 
 Definition negProp_to_hProp {P : UU} (Q : negProp P) : hProp.
@@ -108,7 +107,7 @@ Corollary subtypeInjectivity_prop {A : UU} (B : A -> hProp) :
 Proof. intros. apply subtypeInjectivity. intro. apply propproperty. Defined.
 
 Corollary subtypeEquality_prop {A : UU} {B : A -> hProp}
-   {s s' : total2 (fun x => B x)} : pr1 s = pr1 s' -> s = s'.
+   {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> s = s'.
 Proof. intros A B s s'. apply invmap. apply subtypeInjectivity_prop. Defined.
 
 Corollary impred_prop {T : UU} (P : T -> hProp) : isaprop (∏ t : T, P t).
@@ -129,7 +128,7 @@ Definition forall_hProp {X : UU} (Y : X -> hProp) : hProp
   := hProppair (∏ x, Y x) (isaprop_forall_hProp X Y).
 
 Notation "∀  x .. y , P"
-  := (forall_hProp (fun x => .. (forall_hProp (fun y => P))..))
+  := (forall_hProp (λ x, .. (forall_hProp (λ y, P))..))
        (at level 200, x binder, y binder, right associativity) : type_scope.
   (* type this in emacs in agda-input method with \prod *)
 
@@ -186,10 +185,10 @@ Notation "∥ A ∥" := (ishinh A) (at level 20) : type_scope.
 (* written \|| in agda-input method *)
 
 Definition hinhpr {X : UU} : X -> ∥ X ∥
-  := fun x : X => fun P : hProp => fun f : X -> P => f x.
+  := λ x : X, λ P : hProp, fun f : X -> P => f x.
 
 Definition hinhfun {X Y : UU} (f : X -> Y) : ∥ X ∥ -> ∥ Y ∥ :=
-  fun isx : ∥ X ∥ => fun P : _ => fun yp : Y -> P => isx P (fun x : X => yp (f x)).
+  fun isx : ∥ X ∥ => λ P : _, fun yp : Y -> P => isx P (λ x : X, yp (f x)).
 
 (** Note that the previous definitions do not require RR1 in an essential way
   (except for the placing of [ishinh] in [hProp UU] - without RR1 it would be
@@ -206,15 +205,15 @@ Corollary squash_to_prop {X Q : UU} : ∥ X ∥ -> isaprop Q -> (X -> Q) -> Q.
 Proof. intros ? ? h i f. exact (@hinhuniv X (Q,,i) f h). Defined.
 
 Definition hinhand {X Y : UU} (inx1 : ∥ X ∥) (iny1 : ∥ Y ∥) : ∥ X × Y ∥
-  := fun P : _ => ddualand (inx1 P) (iny1 P).
+  := λ P : _, ddualand (inx1 P) (iny1 P).
 
 Definition hinhuniv2 {X Y : UU} {P : hProp} (f : X -> Y -> P)
            (isx : ∥ X ∥) (isy : ∥ Y ∥) : P
-  := hinhuniv (fun xy : X × Y => f (pr1 xy) (pr2 xy)) (hinhand isx isy).
+  := hinhuniv (λ xy : X × Y, f (pr1 xy) (pr2 xy)) (hinhand isx isy).
 
 Definition hinhfun2 {X Y Z : UU} (f : X -> Y -> Z)
            (isx : ∥ X ∥) (isy : ∥ Y ∥) : ∥ Z ∥
-  := hinhfun (fun xy: X × Y => f (pr1 xy) (pr2 xy)) (hinhand isx isy).
+  := hinhfun (λ xy: X × Y, f (pr1 xy) (pr2 xy)) (hinhand isx isy).
 
 Definition hinhunivcor1 (P : hProp) : ∥ P ∥ -> P := hinhuniv (idfun P).
 Notation hinhprinv := hinhunivcor1.
@@ -257,8 +256,8 @@ Defined.
 Lemma hinhcoprod (X Y : UU) : ∥ (∥ X ∥ ⨿ ∥ Y ∥) ∥ -> ∥ X ⨿ Y ∥.
 Proof.
   intros ? ? is. unfold ishinh. intro P. intro CP.
-  set (CPX := fun x : X => CP (ii1 x)).
-  set (CPY := fun y : Y => CP (ii2 y)).
+  set (CPX := λ x : X, CP (ii1 x)).
+  set (CPY := λ y : Y, CP (ii2 y)).
   set (is1P := is P).
   assert (f : coprod (ishinh X) (ishinh Y) -> P).
   apply (sumofmaps (hinhuniv CPX) (hinhuniv CPY)).
@@ -284,13 +283,13 @@ Defined.
 of connected components) **)
 
 Definition image {X Y : UU} (f : X -> Y) : UU
-  := total2 (fun y : Y => ishinh (hfiber f y)).
+  := total2 (λ y : Y, ishinh (hfiber f y)).
 Definition imagepair {X Y : UU} (f : X -> Y) :
   ∏ (t : Y), (λ y : Y, ∥ hfiber f y ∥) t → ∑ y : Y, ∥ hfiber f y ∥
-  := tpair (fun y : Y => ishinh (hfiber f y)).
+  := tpair (λ y : Y, ishinh (hfiber f y)).
 Definition pr1image {X Y : UU} (f : X -> Y) :
   (∑ y : Y, ∥ hfiber f y ∥) → Y
-  := @pr1 _  (fun y : Y => ishinh (hfiber f y)).
+  := @pr1 _  (λ y : Y, ishinh (hfiber f y)).
 
 Definition prtoimage {X Y : UU} (f : X -> Y) : X -> image f.
 Proof.
@@ -329,7 +328,7 @@ Lemma issurjcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
   issurjective (funcomp f g).
 Proof.
   intros. unfold issurjective.
-  intro z. apply (fun ff => hinhuniv ff (isg z)).
+  intro z. apply (λ ff, hinhuniv ff (isg z)).
   intro ye. apply (hinhfun (hfibersftogf f g z ye)).
   apply (isf).
 Defined.
@@ -577,8 +576,8 @@ Defined.
 Lemma fromnegcoprod {X Y : UU} : ¬ (X ⨿ Y) -> ¬X × ¬Y.
 Proof.
   intros ? ? is. split.
-  - exact (fun x => is (ii1 x)).
-  - exact (fun y => is (ii2 y)).
+  - exact (λ x, is (ii1 x)).
+  - exact (λ y, is (ii2 y)).
 Defined.
 
 Corollary fromnegcoprod_prop {X Y : hProp} : ¬ (X ∨ Y) -> ¬ X ∧ ¬ Y.
@@ -637,7 +636,7 @@ Definition inhdnegfun {X Y : UU} (f : X -> Y) : isinhdneg X -> isinhdneg Y
 
 Definition inhdneguniv (X : UU) (P : UU) (is : isweq (todneg P)) :
   (X -> P) -> ((isinhdneg X) -> P)
-  := fun xp : _ => fun inx0 : _ => (invmap (weqpair _ is) (dnegf  xp inx0)).
+  := λ xp : _, λ inx0 : _, (invmap (weqpair _ is) (dnegf  xp inx0)).
 
 Definition inhdnegand (X Y : UU) (inx0 : isinhdneg X) (iny0 : isinhdneg Y) :
   isinhdneg (X × Y) := dneganddnegimpldneg inx0 iny0.
@@ -661,13 +660,13 @@ Proof.
     + assumption.
 Defined.
 
-Definition eqweqmaphProp {P P' : hProp} (e : @paths hProp P P') : weq P P'.
+Definition eqweqmaphProp {P P' : hProp} (e : @paths hProp P P') : P ≃ P'.
 Proof. intros. destruct e. apply idweq. Defined.
 
-Definition weqtopathshProp {P P' : hProp} (w : weq P P') : P = P'
+Definition weqtopathshProp {P P' : hProp} (w : P ≃ P') : P = P'
   := hPropUnivalence P P' w (invweq w).
 
-Definition weqpathsweqhProp {P P' : hProp} (w : weq P P') :
+Definition weqpathsweqhProp {P P' : hProp} (w : P ≃ P') :
   eqweqmaphProp (weqtopathshProp w) = w.
 Proof.
   intros. apply proofirrelevance.
@@ -679,34 +678,34 @@ Theorem univfromtwoaxiomshProp (P P' : hProp) : isweq (@eqweqmaphProp P P').
 Proof.
   intros.
 
-  set (P1 := fun XY : hProp × hProp => paths (pr1 XY) (pr2 XY)).
-  set (P2 := fun XY : hProp × hProp => weq (pr1 XY) (pr2 XY)).
+  set (P1 := λ XY : hProp × hProp, paths (pr1 XY) (pr2 XY)).
+  set (P2 := λ XY : hProp × hProp, (pr1 XY) ≃ (pr2 XY)).
   set (Z1 :=  total2 P1).
   set (Z2 :=  total2 P2).
-  set (f := (totalfun _ _ (fun XY : hProp × hProp =>
+  set (f := (totalfun _ _ (λ XY : hProp × hProp,
                              @eqweqmaphProp (pr1 XY) (pr2 XY)): Z1 -> Z2)).
-  set (g := (totalfun _ _ (fun XY : hProp × hProp =>
+  set (g := (totalfun _ _ (λ XY : hProp × hProp,
                              @weqtopathshProp (pr1 XY) (pr2 XY)): Z2 -> Z1)).
   assert (efg : ∏ z2 : Z2 , paths (f (g z2)) z2).
   {
     intros. induction z2 as [ XY w].
-    exact (maponpaths (fun w : weq (pr1 XY) (pr2 XY) => tpair P2 XY w)
+    exact (maponpaths (fun w : (pr1 XY) ≃ (pr2 XY) => tpair P2 XY w)
                       (@weqpathsweqhProp (pr1 XY) (pr2 XY) w)).
   }
 
-  set (h := fun a1 : Z1 => (pr1 (pr1 a1))).
+  set (h := λ a1 : Z1, (pr1 (pr1 a1))).
   assert (egf0 : ∏ a1 : Z1, paths (pr1 (g (f a1))) (pr1 a1))
          by (intro; apply idpath).
-  assert (egf1 : ∏ a1 a1' : Z1, paths (pr1 a1') (pr1 a1) -> paths a1' a1).
+  assert (egf1 : ∏ a1 a1' : Z1, paths (pr1 a1') (pr1 a1) -> a1' = a1).
   {
     intros ? ? X.
     set (X' := maponpaths (@pr1 _ _) X).
     assert (is : isweq h) by apply (isweqpr1pr1 hProp).
     apply (invmaponpathsweq (weqpair h is) _ _ X').
   }
-  set (egf := fun a1:_ => (egf1 _ _ (egf0 a1))).
+  set (egf := λ a1, (egf1 _ _ (egf0 a1))).
   set (is2 := gradth _ _ egf efg).
-  apply (isweqtotaltofib P1 P2 (fun XY : hProp × hProp =>
+  apply (isweqtotaltofib P1 P2 (λ XY : hProp × hProp,
                                   @eqweqmaphProp (pr1 XY) (pr2 XY)) is2
                          (dirprodpair P P')).
 Defined.
@@ -728,8 +727,8 @@ Proof. intros. apply isasethProp. Defined.
 Lemma iscontrtildehProp : iscontr tildehProp.
 Proof.
   split with (tpair _ htrue tt). intro tP. destruct tP as [ P p ].
-  apply (invmaponpathsincl _ (isinclpr1 (fun P : hProp => P) (fun P => pr2 P))).
-  simpl. apply hPropUnivalence. apply (fun x => tt). intro t. apply p.
+  apply (invmaponpathsincl _ (isinclpr1 (λ P : hProp, P) (λ P, pr2 P))).
+  simpl. apply hPropUnivalence. apply (λ x, tt). intro t. apply p.
 Defined.
 
 Lemma isaproptildehProp : isaprop tildehProp.
@@ -741,12 +740,12 @@ Proof. apply (isasetifcontr iscontrtildehProp). Defined.
 
 (* ** Logical equivalence yields weak equivalence *)
 
-Definition logeqweq (P Q : hProp) : (P -> Q) -> (Q -> P) -> weq P Q :=
-  fun f g => weqimplimpl f g (pr2 P) (pr2 Q).
+Definition logeqweq (P Q : hProp) : (P -> Q) -> (Q -> P) -> P ≃ Q :=
+  λ f g, weqimplimpl f g (pr2 P) (pr2 Q).
 
 (* ** A variant of a lemma proved in uu0b.v *)
 Theorem total2_paths_hProp_equiv {A : UU} (B : A -> hProp)
-   (x y : total2 (fun x => B x)) : weq (x = y) (pr1 x = pr1 y).
+   (x y : total2 (λ x, B x)) : weq (x = y) (pr1 x = pr1 y).
 Proof.
   intros.
   apply subtypeInjectivity.

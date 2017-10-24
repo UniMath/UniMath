@@ -59,11 +59,11 @@ Ltac apply_pr2 T :=
 
 Ltac apply_pr2_in T H :=
   first [ apply (pr2 (T)) in H
-        | apply (fun H0 => pr2 (T H0)) in H
-        | apply (fun H0 H1 => pr2 (T H0 H1)) in H
-        | apply (fun H0 H1 H2 => pr2 (T H0 H1 H2)) in H
-        | apply (fun H0 H1 H2 H3 => pr2 (T H0 H1 H2 H3)) in H
-        | apply (fun H0 H1 H2 H3 H4 => pr2 (T H0 H1 H2 H3 H4)) in H ].
+        | apply (λ H0, pr2 (T H0)) in H
+        | apply (λ H0 H1, pr2 (T H0 H1)) in H
+        | apply (λ H0 H1 H2, pr2 (T H0 H1 H2)) in H
+        | apply (λ H0 H1 H2 H3, pr2 (T H0 H1 H2 H3)) in H
+        | apply (λ H0 H1 H2 H3 H4, pr2 (T H0 H1 H2 H3 H4)) in H ].
 
 (** ** About nat *)
 

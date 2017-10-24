@@ -28,7 +28,7 @@ End Kleisli_def.
 (** * Equivalence of the types of Kleisli monads and "monoidal" monads *)
 Section monad_types_equiv.
   Definition Monad_to_Kleisli {C : precategory} : Monad C → Kleisli C :=
-    fun T => (functor_on_objects T ,, (pr1 (η T) ,, @bind C T))
+    λ T, (functor_on_objects T ,, (pr1 (η T) ,, @bind C T))
                ,, @Monad_law2 C T ,, (@η_bind C T ,, @bind_bind C T).
 
   Definition Kleisli_to_functor {C : precategory} (T: Kleisli C) : C ⟶ C.
@@ -48,7 +48,7 @@ Section monad_types_equiv.
     Kleisli_to_functor T ∙ Kleisli_to_functor T ⟹ Kleisli_to_functor T.
   Proof.
     mkpair.
-    - exact (fun (x : C) => r_bind T (identity (T x))).
+    - exact (λ (x : C), r_bind T (identity (T x))).
     - intros x x' f; simpl.
       now rewrite (r_bind_r_bind T), <- assoc, (r_eta_r_bind T (T x')), id_right, (r_bind_r_bind T), id_left.
   Defined.
@@ -119,6 +119,6 @@ Section monad_types_equiv.
     gradth _ _ (Monad_to_Kleisli_to_Monad hs) (Kleisli_to_Monad_to_Kleisli hs).
 
   Definition weq_Kleisli_Monad {C : precategory} (hs : has_homsets C) :
-    weq (Monad C) (Kleisli C) := _,, (isweq_Monad_to_Kleisli hs).
+    (Monad C) ≃ (Kleisli C) := _,, (isweq_Monad_to_Kleisli hs).
 
 End monad_types_equiv.

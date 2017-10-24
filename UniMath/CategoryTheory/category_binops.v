@@ -16,8 +16,8 @@ Section BINOPS_precategory.
     hSetpair _ (isasetbinopfun A B).
 
   Definition binops_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) setwithbinop
-          (fun A B : setwithbinop => binops_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) setwithbinop
+          (λ A B : setwithbinop, binops_fun_space A B).
 
   Definition idbinopfun (A : setwithbinop) : binopfun A A.
   Proof.
@@ -53,7 +53,7 @@ Section BINOPS_precategory.
 
   Definition binop_precategory_data : precategory_data :=
     precategory_data_pair binops_precategory_ob_mor
-                          (fun (A : setwithbinop) => idbinopfun A )
+                          (λ (A : setwithbinop), idbinopfun A )
                           (fun (A B C : setwithbinop) (f : binopfun A B)
                              (g : binopfun B C) => binopfuncomp f g).
 
@@ -162,7 +162,7 @@ Section BINOP_category.
     apply isapropisbinopfun.
   Defined.
 
-  Definition binop_iso_equiv_weq (A B : BINOP) : weq (iso A B) (binopiso A B).
+  Definition binop_iso_equiv_weq (A B : BINOP) : (iso A B) ≃ (binopiso A B).
   Proof.
     exists (binop_iso_equiv A B).
     apply binop_iso_equiv_is_equiv.
@@ -186,7 +186,7 @@ Section BINOP_category.
   Qed.
 
   Definition binop_equiv_iso_weq (A B : BINOP) :
-    weq (binopiso A B) (iso A B).
+    (binopiso A B) ≃ (iso A B).
   Proof.
     exists (binop_equiv_iso A B).
     apply binop_equiv_iso_is_equiv.

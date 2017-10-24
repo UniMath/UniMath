@@ -66,11 +66,11 @@ Section def_abgr_precategory.
   Definition abgr_fun_space (A B : abgr) : hSet := hSetpair (monoidfun A B) (isasetmonoidfun A B).
 
   Definition abgr_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) abgr (fun A B : abgr => abgr_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) abgr (λ A B : abgr, abgr_fun_space A B).
 
   Definition abgr_precategory_data : precategory_data :=
     precategory_data_pair
-      abgr_precategory_ob_mor (fun (A : abgr) => ((idmonoidiso A) : monoidfun A A))
+      abgr_precategory_ob_mor (λ (A : abgr), ((idmonoidiso A) : monoidfun A A))
       (fun (A B C : abgr) (f : monoidfun A B) (g : monoidfun B C) => monoidfuncomp f g).
 
   (** ** is_precategory *)
@@ -345,7 +345,7 @@ Section abgr_additive.
    *)
 
   Lemma abgr_DirectSumPr1_ismonoidfun (A B : abgr) :
-    ismonoidfun (fun X : abgrdirprod A B => dirprod_pr1 X).
+    ismonoidfun (λ X : abgrdirprod A B, dirprod_pr1 X).
   Proof.
     use mk_ismonoidfun.
     - use mk_isbinopfun. intros x x'. use idpath.
@@ -356,7 +356,7 @@ Section abgr_additive.
     monoidfunconstr (abgr_DirectSumPr1_ismonoidfun A B).
 
   Lemma abgr_DirectSumPr2_ismonoidfun (A B : abgr) :
-    ismonoidfun (fun X : abgrdirprod A B => dirprod_pr2 X).
+    ismonoidfun (λ X : abgrdirprod A B, dirprod_pr2 X).
   Proof.
     use mk_ismonoidfun.
     - use mk_isbinopfun. intros x x'. use idpath.
@@ -367,7 +367,7 @@ Section abgr_additive.
     monoidfunconstr (abgr_DirectSumPr2_ismonoidfun A B).
 
   Lemma abgr_DirectSumIn1_ismonoidfun (A B : abgr) :
-    @ismonoidfun A (abgrdirprod A B) (fun a : A => dirprodpair a (unel B)).
+    @ismonoidfun A (abgrdirprod A B) (λ a : A, dirprodpair a (unel B)).
   Proof.
     use mk_ismonoidfun.
     - use mk_isbinopfun. intros x x'. use dirprod_paths.
@@ -382,7 +382,7 @@ Section abgr_additive.
     monoidfunconstr (abgr_DirectSumIn1_ismonoidfun A B).
 
   Lemma abgr_DirectSumIn2_ismonoidfun (A B : abgr) :
-    @ismonoidfun B (abgrdirprod A B) (fun b : B => dirprodpair (unel A) b).
+    @ismonoidfun B (abgrdirprod A B) (λ b : B, dirprodpair (unel A) b).
   Proof.
     use mk_ismonoidfun.
     - use mk_isbinopfun. intros x x'. use dirprod_paths.
@@ -448,11 +448,11 @@ Section abgr_additive.
     use dirprodpair.
     - use monoidfun_paths. use funextfun. intros x.
       use (pathscomp0
-             (maponpaths (fun z : (Z : abgr) => (pr1 f x * z)%multmonoid) (monoidfununel g))).
+             (maponpaths (λ z : (Z : abgr), (pr1 f x * z)%multmonoid) (monoidfununel g))).
       use (runax (Z : abgr)).
     - use monoidfun_paths. use funextfun. intros y.
       use (pathscomp0
-             (maponpaths (fun z : (Z : abgr) => (z * pr1 g y)%multmonoid) (monoidfununel f))).
+             (maponpaths (λ z : (Z : abgr), (z * pr1 g y)%multmonoid) (monoidfununel f))).
       use (lunax (Z : abgr)).
   Qed.
 
@@ -628,10 +628,10 @@ End abgr_additive.
 Section abgr_kernels_and_cokernels.
 
   Definition abgr_kernel_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype A :=
-    (fun x : A => ishinh ((f x) = unel B)).
+    (λ x : A, ishinh ((f x) = unel B)).
 
   Definition abgr_image_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype B :=
-    (fun y : B => ∃ x : A, (f x) = y).
+    (λ y : B, ∃ x : A, (f x) = y).
 
   (** ** Kernels
       Let f : X -> Y be a morphism of abelian groups. A kernel of f is given by the subgroup of X
@@ -657,7 +657,7 @@ Section abgr_kernels_and_cokernels.
       use hinhpr.
       use (grrcan B (f x)).
       use (pathscomp0 (! (binopfunisbinopfun f (grinv A x) x))).
-      use (pathscomp0 (maponpaths (fun a : A => f a) (grlinvax A x))).
+      use (pathscomp0 (maponpaths (λ a : A, f a) (grlinvax A x))).
       use (pathscomp0 (monoidfununel f)).
       use pathsinv0. use (pathscomp0 (lunax B (f x))). exact ae.
   Qed.
@@ -810,7 +810,7 @@ Section abgr_kernels_and_cokernels.
       use hinhpr.
       use tpair.
       + exact (grinv A (pr1 eb)).
-      + use (pathscomp0 _ (maponpaths (fun bb : B => (grinv B bb)) (pr2 eb))).
+      + use (pathscomp0 _ (maponpaths (λ bb : B, (grinv B bb)) (pr2 eb))).
         use monoidfuninvtoinv.
   Qed.
 
@@ -858,7 +858,7 @@ Section abgr_kernels_and_cokernels.
   Qed.
 
   Definition abgr_Cokernel_eqrel {A B : abgr} (f : monoidfun A B) : eqrel B :=
-    @eqrelconstr B (fun b1 : B => fun b2 : B => ∃ a : A, (f a) = (op b1 (grinv B b2)))
+    @eqrelconstr B (λ b1 : B, λ b2 : B, ∃ a : A, (f a) = (op b1 (grinv B b2)))
                  (abgr_Cokernel_eqrel_istrans f) (abgr_Cokernel_eqrel_isrefl f)
                  (abgr_Cokernel_eqrel_issymm f).
 
@@ -930,7 +930,7 @@ Section abgr_kernels_and_cokernels.
     use (grrcan (abgrtogr C) ((pr1 h) (grinv (abgrtogr B) x'))).
     use (pathscomp0 _ (binopfunisbinopfun
                          (h : monoidfun (B : abgr) (C : abgr)) x' (grinv (B : abgr) x'))).
-    use (pathscomp0 _ (! maponpaths (fun xx : (B : abgr) => pr1 h xx) (grrinvax (B : abgr) x'))).
+    use (pathscomp0 _ (! maponpaths (λ xx : (B : abgr), pr1 h xx) (grrinvax (B : abgr) x'))).
     use (pathscomp0 _ (! (monoidfununel h))).
     use (pathscomp0 _ (toforallpaths _ _ _ (base_paths _ _ H) (pr1 X'))).
     use (pathscomp0 (! (binopfunisbinopfun
@@ -1361,7 +1361,7 @@ Section abgr_monic_kernels_epi_cokernels.
     rewrite (grrinvax C).
     set (e1 := abgr_epi_cokernel_out_data_hfibers_to_unel f b hfib X).
     set (tmp1 := ! (monoidfuninvtoinv h (hfiberpr1 _ _ X))). cbn in tmp1.
-    use (pathscomp0 (maponpaths (fun k : _ => ((pr1 h (pr1 hfib)) * k)%multmonoid) tmp1)).
+    use (pathscomp0 (maponpaths (λ k : _, ((pr1 h (pr1 hfib)) * k)%multmonoid) tmp1)).
     rewrite <- (pr1 (pr2 h)).
     set (tmp2 := abgr_epi_cokernel_out_data_eq f isE h H).
     set (tmp3 := abgr_epi_cokernel_out_kernel_hsubtype
@@ -1431,7 +1431,7 @@ Section abgr_monic_kernels_epi_cokernels.
   Lemma abgr_epi_cokernel_out_ismonoidfun {A B C : abgr} (f : abgr_category⟦A, B⟧)
         (isE : isEpi f) (h : abgr_category⟦A, C⟧)
         (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) :
-    ismonoidfun (fun b : B => (pr1 (iscontrpr1 (abgr_epi_CokernelOut_iscontr f isE h H b)))).
+    ismonoidfun (λ b : B, (pr1 (iscontrpr1 (abgr_epi_CokernelOut_iscontr f isE h H b)))).
   Proof.
     use mk_ismonoidfun.
     - use mk_isbinopfun. intros x x'.

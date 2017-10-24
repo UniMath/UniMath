@@ -9,9 +9,9 @@ Ltac op_strip f :=
   repeat
     match goal with
       | |- f ?x ?y = f ?x ?z =>
-        apply (ap (fun v => f x v))
+        apply (ap (λ v, f x v))
       | |- f ?y ?x = f ?z ?x =>
-        apply (ap (fun v => f v x))
+        apply (ap (λ v, f v x))
   end.
 
 Ltac assocop_clean M f :=
@@ -66,8 +66,8 @@ Ltac monoid_op_strip_left M :=
   (monoid_declean M;
    match goal with
      | |- (@op M) ?x ?y = (@op M) ?x ?z =>
-       apply (ap (fun v => (@op M) x v))
-     | |- (?x * ?y = ?x * ?z)%multmonoid => apply (ap (fun v => x * v))%multmonoid
+       apply (ap (λ v, (@op M) x v))
+     | |- (?x * ?y = ?x * ?z)%multmonoid => apply (ap (λ v, x * v))%multmonoid
    end;
    monoid_clean M).
 

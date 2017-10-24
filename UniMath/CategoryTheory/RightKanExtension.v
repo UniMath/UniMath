@@ -169,7 +169,7 @@ use left_adjoint_from_partial.
   transparent assert (σ : (∏ c, A ⟦ S c, R T c ⟧)).
   { intro c; apply (limArrow _ _ (cc c)). }
 
-  set (lambda' := fun c' mf' => limOut (LA (c' ↓ K) (QT T c')) mf').
+  set (lambda' := λ c' mf', limOut (LA (c' ↓ K) (QT T c')) mf').
 
   (* this is the conclusion from the big diagram (8) in MacLane's proof *)
   assert (H : ∏ c c' (g : C ⟦ c, c' ⟧) (mf' : c' ↓ K),

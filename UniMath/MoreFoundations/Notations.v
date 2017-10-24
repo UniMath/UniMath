@@ -19,7 +19,7 @@ Definition total2_hProp {X : hProp} (Y : X -> hProp) : hProp
 
 Delimit Scope prop with prop.
 
-Notation "'∑' x .. y , P" := (total2_hProp (fun x =>.. (total2_hProp (fun y => P))..))
+Notation "'∑' x .. y , P" := (total2_hProp (λ x,.. (total2_hProp (λ y, P))..))
   (at level 200, x binder, y binder, right associativity) : prop.
   (* type this in emacs in agda-input method with \sum *)
 

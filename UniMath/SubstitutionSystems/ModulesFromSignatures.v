@@ -267,7 +267,7 @@ Proof.
 Qed.
 
 Definition τ_lmodule_mor :  LModule_Mor  _ _ _ :=
-  tpair (fun x => LModule_Mor_laws _ x) _ τ_lmodule_laws.
+  tpair (λ x, LModule_Mor_laws _ x) _ τ_lmodule_laws.
 
 End TauModuleMorphism.
 
@@ -308,7 +308,7 @@ Variable (τ_M: LModule_Mor M HM_mod M_mod).
 
 Local Definition M_alg : Alg.
 Proof.
-  apply (tpair (fun x => EndC ⟦ Id_H x, x ⟧) (M:functor _ _)).
+  apply (tpair (λ x, EndC ⟦ Id_H x, x ⟧) (M:functor _ _)).
   apply BinCoproductArrow.
   apply Monads.η.
   apply τ_M.

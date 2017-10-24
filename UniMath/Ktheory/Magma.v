@@ -14,7 +14,7 @@ Definition funEquality G H (p q : Hom G H)
   destruct (pr1 (isapropisbinopfun p i j)). reflexivity. Qed.
 (** the trivial magma *)
 Definition zero : magma.
-  exists unitset. exact (fun _ _ => tt). Defined.
+  exists unitset. exact (λ _ _, tt). Defined.
 (** product of magmas
 
     See Bourbaki Algebra, Chapter I, page 2 *)
@@ -24,15 +24,15 @@ Module Product.
   (** construction of the product *)
   Definition make {I} (X:I->magma) : magma.
     intros.
-    exists ((∏ i, X i),,i1 X). exact (fun v w i => v i * w i). Defined.
+    exists ((∏ i, X i),,i1 X). exact (λ v w i, v i * w i). Defined.
   (** the projection maps *)
   Definition Proj {I} (X:I->setwithbinop) : ∏ i:I, Hom (make X) (X i).
-    intros. exists (fun y => y i). intros a b. reflexivity. Defined.
+    intros. exists (λ y, y i). intros a b. reflexivity. Defined.
   (** the universal map *)
   Definition Fun {I} (X:I->setwithbinop) (T:setwithbinop)
              (g: ∏ i, Hom T (X i))
              : Hom T (make X).
-    intros. exists (fun t i => g i t).
+    intros. exists (λ t i, g i t).
     intros t u. apply funextsec; intro i. apply (pr2 (g i)). Defined.
   Definition Eqn {I} (X:I->setwithbinop) (T:setwithbinop) (g: ∏ i, Hom T (X i))
              : ∏ i, Proj X i ∘ Fun X T g = g i.
