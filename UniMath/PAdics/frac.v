@@ -48,7 +48,7 @@ pr1 ( pr2 ef ) ) ) ~> ( @op2 A ( pr1 ef ) ( pr1 ( pr2 cd ) ) ) ) in p.
 assert ( ( @op2 A ( pr1 cd ) ( pr1 ( pr2 ef ) ) ) # 0 ) as v. apply
 A. assumption. apply ( pr2 ( pr2 ef ) ). rewrite p in v. apply ( pr1 (
 timesazero v ) ).  Defined.
- 
+
 Lemma azerolmultcomp { a b c : A } ( p : a # 0 ) ( q : b # c ) : a * b
 # a * c.  Proof.  intros. apply aminuszeroa. rewrite <-
 rngminusdistr. apply ( pr2 A ). assumption.  apply
@@ -68,11 +68,11 @@ ab cd ef gh p q. unfold afldfracapartrelpre.  destruct ab as [ a b
 ]. destruct b as [ b b' ].  destruct cd as [ c d ]. destruct d as [ d
 d' ].  destruct ef as [ e f ]. destruct f as [ f f' ].  destruct gh as
 [ g h ]. destruct h as [ h h' ].  simpl in *.
-  
+
   apply uahp. intro u. apply p. intro p'. apply q. intro q'.  destruct
   p' as [ p' j ]. destruct p' as [ i p' ]. destruct q' as [ q' j'
   ]. destruct q' as [ i' q' ].  simpl in *.
-  
+
   assert ( a * f * d * i * h * i' # e * b * d * i * h * i') as v0.
   assert ( a * f * d # e * b * d ) as v0. apply azerormultcomp. apply
   d'.  assumption.  assert ( a * f * d * i # e * b * d * i ) as
@@ -98,7 +98,7 @@ d' ].  destruct ef as [ e f ]. destruct f as [ f f' ].  destruct gh as
   @op2 A ( @op2 A g d ) b ) f ) i ) i' ). rewrite k0.  assert ( @op2 A
   ( @op2 A e h ) i' ~> @op2 A ( @op2 A g f ) i' ) as j''. assumption.
   rewrite j''. permute. rewrite k in v0. assumption.
-  
+
   intro u. apply p. intro p'. apply q. intro q'.  destruct p' as [ p'
   j ]. destruct p' as [ i p' ]. destruct q' as [ q' j' ]. destruct q'
   as [ i' q' ].  simpl in *.
@@ -230,11 +230,11 @@ commrngfracop2 A ( aintdomazerosubmonoid A ) a c) -> pr1
 (afldfracapart ) b c) ) as int.  intros a b c. apply impred. intro
 p. apply ( pr1 ( afldfracapart ) b c ).  apply ( setquotuniv3prop _ (
 fun a b c => hProppair _ ( int a b c ) ) ).  intros ab cd ef p.
-  
+
   destruct ab as [ a b ]. destruct b as [ b b' ].  destruct cd as [ c
   d ]. destruct d as [ d d' ]. destruct ef as [ e f ].  destruct f as
   [ f f' ].
-  
+
   assert ( afldfracapartrelpre ( dirprodpair ( ( a * c ) ) ( @op (
   aintdomazerosubmonoid A ) ( tpair b b' ) ( tpair d d' ) ) ) (
   dirprodpair ( a * e ) ( @op ( aintdomazerosubmonoid A ) ( tpair b b'
@@ -294,7 +294,7 @@ dirprodpair b c ) ( dirprodpair ( @rngunel1 A ) ( unel (
 aintdomazerosubmonoid A ) ) ) ) as is'.  apply q. split with
 (setquotpr (eqrelcommrngfrac A (aintdomazerosubmonoid A)) (
 afldfracmultinvint ( dirprodpair b c ) is' ) ).
-  
+
   split.  change ( setquotpr ( eqrelcommrngfrac A (
   aintdomazerosubmonoid A ) ) ( dirprodpair ( @op2 A ( pr1 (
   afldfracmultinvint ( dirprodpair b c ) is' ) ) b ) ( @op (
@@ -316,7 +316,7 @@ afldfracmultinvint ( dirprodpair b c ) is' ) ).
  1 ( pr1 ( pr2 A ) ) ).  simpl. rewrite 3! ( @rngrunax2 A ). rewrite (
  @rnglunax2 A ). apply ( @rngcomm2 A ).  apply p. assumption.
  Defined.
- 
+
 Theorem afldfracisafld : isaafield afldfrac0.  Proof.  intros. split.
 change ( ( afldfracapartrel ) ( @rngunel2 ( commrngfrac A (
 aintdomazerosubmonoid A ) ) ) ( @rngunel1 ( commrngfrac A (
@@ -324,9 +324,9 @@ aintdomazerosubmonoid A ) ) ) ).  unfold afldfracapartrel. cut ( (
 @op2 A ( @rngunel2 A ) ( @rngunel2 A ) ) # ( @op2 A ( @rngunel1 A ) (
 @rngunel2 A ) ) ).  intro v. apply v. rewrite 2! ( @rngrunax2 A
 ). apply A.
-  
+
   intros a p. apply afldfracmultinv. assumption.  Defined.
- 
+
 Definition afldfrac := afldpair afldfrac0 afldfracisafld.
 
 End aint.

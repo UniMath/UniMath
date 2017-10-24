@@ -1,0 +1,37 @@
+\documentclass[12pt]{report}
+\usepackage[utf8x]{inputenc}
+
+%Warning: tipa declares many non-standard macros used by utf8x to
+%interpret utf8 characters but extra packages might have to be added
+%such as "textgreek" for Greek letters not already in tipa
+%or "stmaryrd" for mathematical symbols.
+%Utf8 codes missing a LaTeX interpretation can be defined by using
+%\DeclareUnicodeCharacter{code}{interpretation}.
+%Use coqdoc's option -p to add new packages or declarations.
+
+\usepackage{tipa}
+
+\usepackage[T1]{fontenc}
+\usepackage{fullpage}
+\usepackage[color]{coqdoc}
+\usepackage{amsmath,amssymb}
+\usepackage{url}
+\usepackage{textgreek}
+\usepackage{stmaryrd}
+\usepackage{pmboxdraw}
+\usepackage{fdsymbol}
+\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}
+\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}
+\DeclareUnicodeCharacter{10815}{{\(\amalg\)}}
+\DeclareUnicodeCharacter{9679}{{\(\bullet\)}}
+\DeclareUnicodeCharacter{9726}{{\(\blacksquare\)}}
+\DeclareUnicodeCharacter{9725}{{\(\square\)}}
+\DeclareUnicodeCharacter{10226}{{\(\circlearrowleft\)}}
+\DeclareUnicodeCharacter{10227}{{\(\circlearrowright\)}}
+\DeclareUnicodeCharacter{9645}{{\(\boxdot\)}}
+\DeclareUnicodeCharacter{981}{{\(\phi\)}}
+\DeclareUnicodeCharacter{9565}{{\textSFxxvi}}
+\DeclareUnicodeCharacter{8803}{{\(\mathop {\vbox {{\rlap =} \kern 3.9pt} {\rlap =} \phantom =} \)}}
+\hypersetup{linkcolor=blue}
+
+\begin{document}
