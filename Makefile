@@ -7,7 +7,7 @@ include build/Makefile-configuration
 endif
 endif
 ############################################
-### PACKAGES += PAdics
+PACKAGES += PAdics
 PACKAGES += Foundations
 PACKAGES += MoreFoundations
 PACKAGES += Combinatorics
