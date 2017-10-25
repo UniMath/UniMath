@@ -7,12 +7,13 @@ include build/Makefile-configuration
 endif
 endif
 ############################################
-PACKAGES += PAdics
+# The packages, listed in order by dependency:
 PACKAGES += Foundations
 PACKAGES += MoreFoundations
 PACKAGES += Combinatorics
 PACKAGES += Algebra
 PACKAGES += NumberSystems
+PACKAGES += PAdics
 PACKAGES += CategoryTheory
 PACKAGES += Ktheory
 PACKAGES += Topology
