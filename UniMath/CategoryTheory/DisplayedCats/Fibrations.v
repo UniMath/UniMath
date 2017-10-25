@@ -321,7 +321,7 @@ Proof.
   assert (g : ((a,,b) : total2 B)
                 =
               ( (pr1 (iscontrpr1 H),, pr2 (iscontrpr1 H)) : total2 B)).
-  { etrans. apply (pr2 H). apply tppr. }
+  { etrans. apply (pr2 H). reflexivity. }
   apply (maponpaths pr1 g).
 Defined.
 

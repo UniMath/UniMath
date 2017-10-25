@@ -612,14 +612,6 @@ Defined.
 
 (** *** Fibrations and paths - the transport functions *)
 
-Definition tppr {T : UU} {P : T -> UU}
-           (x : total2 P) : x = tpair _ (pr1 x) (pr2 x).
-Proof.
-  intros.
-  tryif primitive_projections then idtac else induction x.
-  reflexivity.
-Defined.
-
 Definition constr1 {X : UU} (P : X -> UU) {x x' : X} (e : x = x') :
   ∑ (f : P x -> P x'),
   ∑ (ee : ∏ p : P x, tpair _ x p = tpair _ x' (f p)),
@@ -930,7 +922,7 @@ Definition transportf_dirprod (A : UU) (B B' : A -> UU)
               (transportf (λ a, B' a) p (pr2 (pr2 x))).
 Proof.
   induction p.
-  apply tppr.
+  reflexivity.
 Defined.
 
 Definition transportb_dirprod (A : UU) (B B' : A -> UU)
@@ -2962,9 +2954,8 @@ equivalence is proved in [ isweqfibertohfiber ].
 [ g : Y -> Z ] and a term [ z : Z ]. It is based on the sequence of functions
 [ (hfiberpr1 : hfiber g z -> Y) (g : Y -> Z) ] and the corresponding [ ezmap ]
 is the function which takes a term [ ye : hfiber ] to
-[ hfiberpair g (pr1 ye) (pr2 ye) ]. If we had eta-concersion for the depndent
-sums it would be the identiry function. Since we do not have this conversion
-in Coq this function is only homotopic to the identity function by [ tppr ]
+[ hfiberpair g (pr1 ye) (pr2 ye) ].   We now have eta-coercion for dependent
+sums, so it is the identity function,
 which is sufficient to ensure that it is a weak equivalence. The first derived
 of [ fibseqg g z ] corresponding to [ y : Y ] coincides with
 [ fibseqpr1 (λ y' : Y , (g y') = z) y ].
@@ -3152,10 +3143,8 @@ Theorem isfibseqg {Y Z : UU} (g : Y -> Z) (z : Z) :
   isfibseq (hfiberpr1 g z) g z (λ ye: _, pr2 ye).
 Proof.
   intros.
-  assert (Y0 : ∏ ye' : hfiber g z,
-                       ye' = (ezmap (hfiberpr1 g z) g z (λ ye: _, pr2 ye)
-                                    ye')).
-  intro. apply tppr. apply (isweqhomot _ _ Y0 (idisweq _)).
+  simple refine (isweqhomot _ _ _ (idisweq _)).
+  - intro. reflexivity.
 Defined.
 
 Definition ezweqg {Y Z : UU} (g : Y -> Z) (z : Z) := weqpair _ (isfibseqg g z).

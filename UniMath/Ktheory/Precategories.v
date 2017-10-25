@@ -329,9 +329,7 @@ Proof. induction C as [[ob mor] [id co]]. reflexivity. Defined.
 Lemma opp_opp_precat (C:category) : C = C^op^op.
 Proof.
   apply category_eq.         (* we need both associativity axioms to avoid this *)
-  tryif primitive_projections
-  then reflexivity
-  else induction C as [[[[obj mor] [id comp]] p] h]; reflexivity.
+  reflexivity.
 Qed.
 
 Definition functorOp {B C : category} : [B, C] ^op ⟶ [B ^op, C ^op].

@@ -926,7 +926,7 @@ Proof.
                   apply dirprodeq; ( simpl; apply nattrans_naturality )) using _L_. } }
     { abstract (intros w;
                 unshelve refine (total2_paths_f _ _);
-                [ apply funextsec; intro b; apply pathsinv0, tppr
+                [ apply funextsec; intro b; apply pathsinv0; reflexivity
                 | (apply funextsec; intro b;
                    apply funextsec; intro b';
                    apply funextsec; intro f;

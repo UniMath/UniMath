@@ -86,8 +86,7 @@ Section set_slice_fam_equiv.
   Proof.
     split; [intro f | intros f f' f'' F F'];
       apply eq_mor_slicecat.
-    + apply funextsec. intro p.
-      exact (!tppr p).
+    + apply funextsec. intro p. reflexivity.
     + reflexivity.
   Qed.
 
@@ -193,7 +192,7 @@ Section set_slice_fam_equiv.
     + intro f.
       apply eq_mor_slicecat.
       apply funextsec. intro x.
-      exact (!tppr _).
+      reflexivity.
     + intro F.
       apply (nat_trans_eq has_homsets_HSET).
       intro x.

@@ -546,7 +546,7 @@ use mk_Pullback.
   - abstract (now intros h; apply isapropdirprod; apply has_homsets_HSET).
   - abstract (intros h [H1 H2]; apply funextsec; intro x;
     apply subtypeEquality; [intros H; apply setproperty|]; simpl;
-    now rewrite <- (toforallpaths _ _ _ H1 x), <- (toforallpaths _ _ _ H2 x), <- tppr).
+    now rewrite <- (toforallpaths _ _ _ H1 x), <- (toforallpaths _ _ _ H2 x)).
 Defined.
 
 Section PullbacksHSET_from_Lims.
@@ -609,7 +609,7 @@ mkpair.
     * intros X fx; apply (pr1 fx (pr2 fx)).
     * abstract (intros x y f; apply idpath).
 - abstract (mkpair;
-  [ intro x; simpl; apply funextfun; intro ax; now rewrite (tppr ax)
+  [ intro x; simpl; apply funextfun; intro ax; reflexivity
   | intro b; apply funextfun; intro f; apply idpath]).
 Defined.
 
@@ -626,7 +626,7 @@ mkpair.
     * intros x xf; simpl in *; apply (pr2 xf (pr1 xf)).
     * abstract (intros x y f; apply idpath).
 - abstract (mkpair;
-  [ now intro x; simpl; apply funextfun; intro ax; rewrite (tppr ax)
+  [ now intro x; simpl; apply funextfun; intro ax; reflexivity
   | now intro b; apply funextfun; intro f]).
 Defined.
 
@@ -863,7 +863,7 @@ use mk_are_adjoints.
 - apply eps.
 - split.
   + intros x; apply eq_mor_slicecat, funextsec; intro x1.
-    now apply subtypeEquality; [intro y; apply setproperty|]; rewrite tppr.
+    now apply subtypeEquality; [intro y; apply setproperty|]; reflexivity.
   + intros x; apply eq_mor_slicecat, funextsec; intro x1; simpl.
     use total2_paths_f; [apply idpath|]; cbn.
     apply funextsec; intro y.
@@ -872,7 +872,7 @@ use mk_are_adjoints.
     * simpl.
       apply maponpaths.
       apply maponpaths.
-      apply tppr.
+      reflexivity.
 Defined.
 
 (** * Products in Set/X *)

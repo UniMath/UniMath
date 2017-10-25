@@ -159,7 +159,7 @@ Section elems_slice_equiv.
       unfold PreShv_to_slice_ob_nat , PreShv_to_slice_ob_funct_fun;
       intro c;
       apply funextsec; intro p;
-      now rewrite tppr.
+      reflexivity.
   Defined.
 
   Definition PreShv_to_slice : functor (PreShv ∫P) (PreShv C / P) :=

@@ -90,46 +90,22 @@ Proof.
   apply (λ x : X, pr2 (X0 x)).
 Defined.
 
-Lemma lemmaeta1 {X : UU} (P : X -> UU) (Q : (∏ x : X, P x) -> UU)
-      (s0 : ∏ x : X, P x) (q : Q (λ x : X, (s0 x))) :
-  paths (tpair (fun s : (∏ x : X, P x) => Q (λ x : X, (s x))) s0 q)
-        (tpair (fun s : (∏ x : X, P x) => Q (λ x : X, (s x)))
-               (λ x : X, (s0 x)) q).
-Proof. reflexivity. Defined.
-
-Definition totaltoforalltototal {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU)
-           (ss : total2 (fun s0 : ∏ x : X, P x => ∏ x : X, PP x (s0 x))) :
-  paths (foralltototal _ _ (totaltoforall  _ _ ss)) ss.
-Proof.
-  intros; induction ss; apply idpath.
-Defined.
-
-
-
-Definition foralltototaltoforall {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU)
-           (ss : ∏ x : X, total2 (PP x)) :
-  paths (totaltoforall _ _ (foralltototal _ _ ss)) ss.
-Proof.
-  intros. unfold foralltototal. unfold totaltoforall. simpl.
-  assert (ee: ∏ x : X, paths (tpair (PP x) (pr1 (ss x)) (pr2 (ss x))) (ss x))
-    by (intro; apply (pathsinv0 (tppr (ss x)))).
-  apply (funextsec). assumption.
-Defined.
-
 Theorem isweqforalltototal {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU) :
   isweq (foralltototal P PP).
 Proof.
   intros.
-  apply (gradth (foralltototal P PP) (totaltoforall P PP)
-                (foralltototaltoforall P PP) (totaltoforalltototal P PP)).
+  simple refine (gradth (foralltototal P PP) (totaltoforall P PP) _ _).
+  - reflexivity.
+  - reflexivity.
 Defined.
 
 Theorem isweqtotaltoforall {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU) :
   isweq (totaltoforall P PP).
 Proof.
   intros.
-  apply (gradth (totaltoforall P PP) (foralltototal P PP)
-                (totaltoforalltototal P PP) (foralltototaltoforall P PP)).
+  simple refine (gradth (totaltoforall P PP) (foralltototal P PP) _ _).
+  - reflexivity.
+  - reflexivity.
 Defined.
 
 Definition weqforalltototal {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU)
@@ -166,7 +142,7 @@ Proof.
   intros.
   simple refine (weqpair _ (gradth (@funtoprodtoprod X Y Z)
                                    (@prodtofuntoprod X Y Z) _ _)).
-  - intro a. apply funextfun. intro x. simpl. apply pathsinv0, tppr.
+  - intro a. apply funextfun. intro x. reflexivity.
   - intro a. now induction a as [ fy fz ].
 Defined.
 

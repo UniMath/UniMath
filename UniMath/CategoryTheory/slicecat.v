@@ -349,7 +349,7 @@ Lemma slicecat_functor_identity_ob (x : C) :
 Proof.
 apply funextsec; intro af.
 unfold slicecat_functor_ob.
-now rewrite id_right, tppr.
+now rewrite id_right.
 Defined.
 
 Lemma slicecat_functor_identity (x : C) :

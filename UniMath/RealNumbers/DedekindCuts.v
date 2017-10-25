@@ -148,8 +148,7 @@ Proof.
             : (∑ S, isOneSided S) → ∑ L U : hq → hProp, isTwoSided L U).
   apply (weqgradth f g).
   - intros LU.
-    rewrite (tppr (g (f LU))).
-    eapply pathscomp0, pathsinv0, (tppr LU).
+    change (pr1 (g (f LU)),, pr2 (g (f LU)) = pr1 LU,, pr2 LU).
     apply pair_path_in2.
     simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
     +  apply isapropdirprod.
