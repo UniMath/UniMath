@@ -23,11 +23,11 @@ Section def_abmonoid_precategory.
     hSetpair (monoidfun A B) (isasetmonoidfun A B).
 
   Definition abmonoid_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) abmonoid (fun A B : abmonoid => abmonoid_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) abmonoid (λ A B : abmonoid, abmonoid_fun_space A B).
 
   Definition abmonoid_precategory_data : precategory_data :=
     precategory_data_pair
-      abmonoid_precategory_ob_mor (fun (X : abmonoid) => ((idmonoidiso X) : monoidfun X X))
+      abmonoid_precategory_ob_mor (λ (X : abmonoid), ((idmonoidiso X) : monoidfun X X))
       (fun (X Y Z : abmonoid) (f : monoidfun X Y) (g : monoidfun Y Z) => monoidfuncomp f g).
 
   Local Lemma abmonoid_id_left (X Y : abmonoid) (f : monoidfun X Y) :

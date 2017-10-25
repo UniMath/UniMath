@@ -24,14 +24,14 @@ Local Open Scope cat.
 
 Section move_upstream.
 
-Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : iscontr (total2 (fun a => B a)))
+Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : iscontr (total2 (λ a, B a)))
            (a : A) (p : B a) : a = pr1 (pr1 isc).
 Proof.
 exact (maponpaths pr1 (pr2 isc (tpair _ a p))).
 Defined.
 
 Lemma uniqueExists (A : UU) (P : A -> UU)
-  (Hexists : iscontr (total2 (fun a => P a)))
+  (Hexists : iscontr (total2 (λ a, P a)))
   (a b : A) (Ha : P a) (Hb : P b) : a = b.
 Proof.
 assert (H : tpair _ _ Ha = tpair _ _ Hb).
@@ -318,7 +318,7 @@ Variable (D : functor J [A, C, hsC]).
 Definition functor_pointwise (a : A) : functor J C.
 Proof.
 mkpair.
-- apply (tpair _ (fun v => pr1 (D v) a)).
+- apply (tpair _ (λ v, pr1 (D v) a)).
   intros u v e; simpl; apply (pr1 (# D e) a).
 - abstract (mkpair;
     [ intro x; simpl;
@@ -382,7 +382,7 @@ Lemma LimFunctor_unique (F : [A, C, hsC]) (cc : cone D F) :
 Proof.
 mkpair.
 - mkpair.
-  + apply (tpair _ (fun a => limArrow (HCg a) _ (cone_pointwise F cc a))).
+  + apply (tpair _ (λ a, limArrow (HCg a) _ (cone_pointwise F cc a))).
     abstract (intros a a' f; simpl; apply pathsinv0; eapply pathscomp0;
     [ apply (postcompWithLimOfArrows (HCg a))
     | apply pathsinv0; eapply pathscomp0;

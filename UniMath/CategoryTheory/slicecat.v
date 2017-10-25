@@ -267,7 +267,7 @@ Context {C : precategory} (is_catC : is_univalent C) (x : C).
 
 Local Notation "C / x" := (slice_precat C x (pr2 is_catC)).
 
-Lemma id_weq_iso_slicecat (af bg : C / x) : weq (af = bg) (iso af bg).
+Lemma id_weq_iso_slicecat (af bg : C / x) : (af = bg) ≃ (iso af bg).
 Proof.
 set (a := pr1 af); set (f := pr2 af); set (b := pr1 bg); set (g := pr2 bg).
 
@@ -282,14 +282,14 @@ assert (weq2 : weq (total2 (fun (p : a = b) => transportf _ p (pr2 af) = g))
   apply idweq.
 
 assert (weq3 : weq (total2 (fun (p : a = b) => idtoiso (! p) · f = g))
-                   (total2 (fun h : iso a b => f = h · g))).
+                   (total2 (λ h : iso a b, f = h · g))).
   apply (weqbandf (weqpair _ ((pr1 is_catC) a b))); intro p.
   rewrite idtoiso_inv; simpl.
   apply weqimplimpl; simpl; try apply (pr2 is_catC); intro Hp.
     rewrite <- Hp, assoc, iso_inv_after_iso, id_left; apply idpath.
   rewrite Hp, assoc, iso_after_iso_inv, id_left; apply idpath.
 
-assert (weq4 : weq (total2 (fun h : iso a b => f = h · g)) (iso af bg)).
+assert (weq4 : weq (total2 (λ h : iso a b, f = h · g)) (iso af bg)).
   apply invweq; apply iso_weq.
 
 apply (weqcomp weq1 (weqcomp weq2 (weqcomp weq3 weq4))).
@@ -349,7 +349,7 @@ Lemma slicecat_functor_identity_ob (x : C) :
 Proof.
 apply funextsec; intro af.
 unfold slicecat_functor_ob.
-now rewrite id_right, tppr.
+now rewrite id_right.
 Defined.
 
 Lemma slicecat_functor_identity (x : C) :
@@ -400,13 +400,13 @@ unfold slicecat_functor_comp_ob.
 rewrite toforallpaths_funextsec; simpl.
 assert (H1 : transportf (fun x : C / z => pr1 x --> b)
                (Foundations.PartA.internal_paths_rew_r _ _ _
-                 (fun p => tpair _ a p = tpair _ a _) (idpath (tpair _ a _))
+                 (λ p, tpair _ a p = tpair _ a _) (idpath (tpair _ a _))
                  (assoc fax f g)) h = h).
   case (assoc fax f g); apply idpath.
 assert (H2 : ∏ h', h' = h ->
              transportf (fun x : C / z => a --> pr1 x)
                         (Foundations.PartA.internal_paths_rew_r _ _ _
-                           (fun p => tpair _ b p = tpair _ b _) (idpath _)
+                           (λ p, tpair _ b p = tpair _ b _) (idpath _)
                            (assoc fbx f g)) h' = h).
   intros h' eq.
   case (assoc fbx f g); rewrite eq; apply idpath.
@@ -522,7 +522,7 @@ Proof.
 Defined.
 
 Definition BinProducts_slice_precat (PC : Pullbacks C) : ∏ x, BinProducts (C / x) :=
- fun x a b => pullback_to_slice_binprod (PC _ _ _ (pr2 a) (pr2 b)).
+ λ x a b, pullback_to_slice_binprod (PC _ _ _ (pr2 a) (pr2 b)).
 
 Definition slice_binprod_to_pullback {Z : C} {AZ BZ : C / Z} :
   BinProductCone (C / Z) AZ BZ → Pullback (pr2 AZ) (pr2 BZ).
@@ -543,7 +543,7 @@ Proof.
 Defined.
 
 Definition Pullbacks_from_slice_BinProducts (BP : ∏ x, BinProducts (C / x)) : Pullbacks C :=
-  fun x a b f g => slice_binprod_to_pullback (BP x (a ,, f) (b ,, g)).
+  λ x a b f g, slice_binprod_to_pullback (BP x (a ,, f) (b ,, g)).
 
 End slicecat_binproducts.
 

@@ -34,7 +34,7 @@ Context (C:category).
 
 Definition cod_disp_ob_mor : disp_cat_ob_mor C.
 Proof.
-  exists (fun x : C => ∑ y, y --> x).
+  exists (λ x : C, ∑ y, y --> x).
   simpl; intros x y xx yy f.
     exact (∑ ff : pr1 xx --> pr1 yy, ff · pr2 yy = pr2 xx · f).
 Defined.

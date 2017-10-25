@@ -1,4 +1,5 @@
 Require Export UniMath.MoreFoundations.Notations.
+Require Export UniMath.MoreFoundations.DecidablePropositions.
 
 Local Open Scope logic.
 
@@ -55,12 +56,11 @@ Lemma dneg_elim_to_LEM : (∏ P:hProp, ¬ ¬ P -> P) -> LEM.
 (* a converse for Lemma dneg_LEM *)
 Proof.
   intros dne. intros P. simple refine (dne (_,,_) _).
-  - apply isapropdec, P.
-  - simpl. intros n.
-    assert (q : ¬ (P ∨ ¬ P)).
-    { now apply weqnegtonegishinh. }
-    assert (r := fromnegcoprod_prop q).
-    exact (pr2 r (pr1 r)).
+  simpl. intros n.
+  assert (q : ¬ (P ∨ ¬ P)).
+  { now apply weqnegtonegishinh. }
+  assert (r := fromnegcoprod_prop q).
+  exact (pr2 r (pr1 r)).
 Defined.
 
 Lemma negforall_to_existsneg {X:UU} (P:X->hProp) : LEM -> (¬ ∀ x, P x) -> (∃ x, ¬ (P x)).

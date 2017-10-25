@@ -65,7 +65,7 @@ Require Export UniMath.Foundations.Sets.
 (* we will write m ≠ n for algorithmic inequality and ¬(m = n) for negation of
    equality *)
 
-Definition natnegpaths (x y : nat) : hProp := hProppair (neg (paths x y)) (isapropneg _).
+Definition natnegpaths (x y : nat) : hProp := hProppair (x != y) (isapropneg _).
 
 Fixpoint natneq_hProp (n m : nat) : hProp :=
   match n, m with
@@ -82,7 +82,7 @@ Local Open Scope nat_scope. (* it's already open, but we want it first in line *
 Lemma negpaths0sx (x : nat) : ¬ (0 = S x).
 Proof.
   intro.
-  set (f := fun n : nat => match n with O => true | S m => false end).
+  set (f := λ n : nat, match n with O => true | S m => false end).
   apply (negf (@maponpaths _ _ f 0 (S x)) nopathstruetofalse).
 Defined.
 
@@ -94,7 +94,7 @@ Defined.
 Lemma invmaponpathsS (n m : nat) : S n = S m -> n = m.
 Proof.
   intros n m e.
-  set (f := fun n : nat => match n with O => O | S m => m end).
+  set (f := λ n : nat, match n with O => O | S m => m end).
   apply (@maponpaths _ _ f (S n) (S m) e).
 Defined.
 
@@ -227,7 +227,7 @@ Defined.
 
 Definition nateq (x y : nat) : hProp := hProppair (x = y) (isasetnat _ _).
 
-Definition isdecrelnateq : isdecrel nateq := fun a b => isdeceqnat a b.
+Definition isdecrelnateq : isdecrel nateq := λ a b, isdeceqnat a b.
 
 Definition natdeceq : decrel nat := decrelpair isdecrelnateq.
 
@@ -408,7 +408,7 @@ Definition natneq0to0lth (n : nat) : n ≠ 0 -> 0 < n := natneq0togth0 n.
 Definition natlth1tois0 (n : nat) : n < 1 -> n = 0 := nat1gthtois0 _.
 
 Definition istransnatlth (n m k : nat) : n < m -> m < k -> n < k :=
-  fun lnm lmk => istransnatgth _ _ _ lmk lnm.
+  λ lnm lmk, istransnatgth _ _ _ lmk lnm.
 
 Definition isirreflnatlth (n : nat) : ¬ (natlth n n) := isirreflnatgth n.
 
@@ -421,16 +421,16 @@ Proof.
 Defined.
 
 Definition isasymmnatlth (n m : nat) : natlth n m -> natlth m n -> empty :=
-  fun lnm lmn => isasymmnatgth _ _ lmn lnm.
+  λ lnm lmn, isasymmnatgth _ _ lmn lnm.
 
 Definition isantisymmnegnattth  (n m : nat) :
-  ¬ (natlth n m) -> ¬ (natlth m n) -> n = m := fun nlnm nlmn => isantisymmnegnatgth _ _ nlmn nlnm.
+  ¬ (natlth n m) -> ¬ (natlth m n) -> n = m := λ nlnm nlmn, isantisymmnegnatgth _ _ nlmn nlnm.
 
-Definition isdecrelnatlth : isdecrel natlth := fun n m => isdecrelnatgth m n.
+Definition isdecrelnatlth : isdecrel natlth := λ n m, isdecrelnatgth m n.
 
 Definition natlthdec := decrelpair isdecrelnatlth.
 
-Definition isnegrelnatlth : isnegrel natlth := fun n m => isnegrelnatgth m n.
+Definition isnegrelnatlth : isnegrel natlth := λ n m, isnegrelnatgth m n.
 
 Definition iscoantisymmnatlth (n m : nat) : ¬ (natlth n m) -> (natlth m n) ⨿ (n = m).
 Proof.
@@ -581,60 +581,22 @@ Definition negnatgeh0sn (n : nat) : ¬ (0 ≥ (S n)) := negnatlehsn0 n.
 
 Definition negnatgehnsn (n : nat) : ¬ (n ≥ (S n)) := negnatlehsnn n.
 
-Definition istransnatgeh (n m k : nat) : n ≥ m -> m ≥ k -> n ≥ k := fun gnm gmk => istransnatleh gmk gnm.
+Definition istransnatgeh (n m k : nat) : n ≥ m -> m ≥ k -> n ≥ k := λ gnm gmk, istransnatleh gmk gnm.
 
 Definition isreflnatgeh (n : nat) : n ≥ n := isreflnatleh _.
 
 Definition isantisymmnatgeh (n m : nat) : n ≥ m -> m ≥ n -> n = m :=
-  fun gnm gmn => isantisymmnatleh _ _ gmn gnm.
+  λ gnm gmn, isantisymmnatleh _ _ gmn gnm.
 
-Definition isdecrelnatgeh : isdecrel natgeh := fun n m => isdecrelnatleh m n.
+Definition isdecrelnatgeh : isdecrel natgeh := λ n m, isdecrelnatleh m n.
 
 Definition natgehdec : decrel nat := decrelpair isdecrelnatgeh.
 
-Definition isnegrelnatgeh : isnegrel natgeh := fun n m => isnegrelnatleh m n.
+Definition isnegrelnatgeh : isnegrel natgeh := λ n m, isnegrelnatleh m n.
 
 Definition iscoasymmnatgeh (n m : nat) (nl : ¬ (n ≥ m)) : m ≥ n := iscoasymmnatleh _ _ nl.
 
-Definition istotalnatgeh : istotal natgeh := fun n m => istotalnatleh m n.
-
-Definition natlth_DecidableProposition : DecidableRelation nat :=
-  decrel_to_DecidableRelation natlthdec.
-
-Definition natleh_DecidableProposition : DecidableRelation nat :=
-  decrel_to_DecidableRelation natlehdec.
-
-Definition natgth_DecidableProposition : DecidableRelation nat :=
-  decrel_to_DecidableRelation natgthdec.
-
-Definition natgeh_DecidableProposition : DecidableRelation nat :=
-  decrel_to_DecidableRelation natgehdec.
-
-Definition nateq_DecidableProposition : DecidableRelation nat :=
-  decrel_to_DecidableRelation natdeceq.
-
-Definition natneq_DecidableProposition : DecidableRelation nat :=
-  decrel_to_DecidableRelation natdecneq.
-
-Notation " x < y " := (natlth_DecidableProposition x y) (at level 70, no associativity) :
-                        decidable_nat.
-Notation " x <= y " := (natleh_DecidableProposition x y) (at level 70, no associativity) :
-                         decidable_nat.
-Notation " x ≤ y " := (natleh_DecidableProposition x y) (at level 70, no associativity) :
-                        decidable_nat.
-Notation " x ≥ y " := (natgeh_DecidableProposition x y) (at level 70, no associativity) :
-                        decidable_nat.
-Notation " x ≥ y " := (natgeh_DecidableProposition x y) (at level 70, no associativity) :
-                        decidable_nat.
-Notation " x > y " := (natgth_DecidableProposition x y) (at level 70, no associativity) :
-                        decidable_nat.
-Notation " x =? y " := (nateq_DecidableProposition x y) (at level 70, no associativity) :
-                         decidable_nat.
-Notation " x ≠ y " := (natneq_DecidableProposition x y) (at level 70, no associativity) :
-                        decidable_nat.
-
-Delimit Scope decidable_nat with dnat.
-
+Definition istotalnatgeh : istotal natgeh := λ n m, istotalnatleh m n.
 
 (** *** Simple implications between comparisons *)
 
@@ -648,20 +610,20 @@ Proof.
   intros n m r. now apply @natlehneggth.
 Defined.
 
-Definition  natgthtonegnatleh (n m : nat) : n > m -> ¬ (n ≤ m) := fun g l => natlehtonegnatgth _ _ l g.
+Definition  natgthtonegnatleh (n m : nat) : n > m -> ¬ (n ≤ m) := λ g l, natlehtonegnatgth _ _ l g.
 
 Definition natgehtonegnatlth (n m : nat) :  n ≥ m -> ¬ (n < m) :=
-  fun gnm lnm => natlehtonegnatgth _ _ gnm lnm.
+  λ gnm lnm, natlehtonegnatgth _ _ gnm lnm.
 
 Definition natlthtonegnatgeh (n m : nat) : n < m -> ¬ (n ≥ m) :=
-  fun gnm lnm => natlehtonegnatgth _ _ lnm gnm.
+  λ gnm lnm, natlehtonegnatgth _ _ lnm gnm.
 
 Definition negnatgehtolth (n m : nat) : ¬ (n ≥ m) -> n < m.
 Proof.
   intros ? ? r. now apply negnatlehtogth.
 Defined.
 
-Definition negnatlthtogeh (n m : nat) : ¬ (n < m) -> n ≥ m := fun nl => negnatgthtoleh nl.
+Definition negnatlthtogeh (n m : nat) : ¬ (n < m) -> n ≥ m := λ nl, negnatgthtoleh nl.
 
 (* *** Simple corollaries of implications *** *)
 
@@ -1153,19 +1115,19 @@ Proof.
   - simpl. apply (maponpaths S IHn).
 Defined.
 
-Lemma isinclnatplusr (n : nat) : isincl (fun m : nat => m + n).
+Lemma isinclnatplusr (n : nat) : isincl (λ m : nat, m + n).
 Proof.
   intro. induction n as [ | n IHn ].
-  - apply (isofhlevelfhomot 1 _ _ (fun m : nat => pathsinv0 (natplusr0 m))).
+  - apply (isofhlevelfhomot 1 _ _ (λ m : nat, pathsinv0 (natplusr0 m))).
     apply (isofhlevelfweq 1 (idweq nat)).
-  - apply (isofhlevelfhomot 1 _ _ (fun m : nat => pathsinv0 (natplusnsm m n))).
+  - apply (isofhlevelfhomot 1 _ _ (λ m : nat, pathsinv0 (natplusnsm m n))).
     simpl. apply (isofhlevelfgf 1 _ _ isinclS IHn).
 Defined.
 
-Lemma isinclnatplusl (n : nat) : isincl (fun m : nat => n + m).
+Lemma isinclnatplusl (n : nat) : isincl (λ m : nat, n + m).
 Proof.
   intro.
-  apply (isofhlevelfhomot 1 _ _ (fun m : nat => natpluscomm m n) (isinclnatplusr n)).
+  apply (isofhlevelfhomot 1 _ _ (λ m : nat, natpluscomm m n) (isinclnatplusr n)).
 Defined.
 
 Lemma natplusrcan (a b c : nat) (is : a + c = b + c) : a = b.
@@ -1180,7 +1142,7 @@ Proof.
   apply (natplusrcan a b c  is).
 Defined.
 
-Lemma iscontrhfibernatplusr (n m : nat) (is : m ≥ n) : iscontr (hfiber (fun i : nat => i + n) m).
+Lemma iscontrhfibernatplusr (n m : nat) (is : m ≥ n) : iscontr (hfiber (λ i : nat, i + n) m).
 Proof.
   intros. apply iscontraprop1.
   - apply isinclnatplusr.
@@ -1192,7 +1154,7 @@ Proof.
       * split with 0. simpl. assumption.
 Defined.
 
-Lemma iscontrhfibernatplusl (n m : nat) (is : m ≥ n) : iscontr (hfiber (fun i : nat => n + i) m).
+Lemma iscontrhfibernatplusl (n m : nat) (is : m ≥ n) : iscontr (hfiber (λ i : nat, n + i) m).
 Proof.
   intros. apply iscontraprop1.
   - apply isinclnatplusl.
@@ -1205,13 +1167,13 @@ Proof.
       * split with 0. simpl. rewrite <- plus_n_O. assumption.
 Defined.
 
-Lemma neghfibernatplusr (n m : nat) (is : m < n) : ¬ (hfiber (fun i : nat => i + n) m).
+Lemma neghfibernatplusr (n m : nat) (is : m < n) : ¬ (hfiber (λ i : nat, i + n) m).
 Proof.
   intros. intro h. destruct h as [ i e ]. rewrite (pathsinv0 e) in is.
   destruct (natlehtonegnatgth _ _ (natlehmplusnm i n) is).
 Defined.
 
-Lemma isdecinclnatplusr (n : nat) : isdecincl (fun i : nat => i + n).
+Lemma isdecinclnatplusr (n : nat) : isdecincl (λ i : nat, i + n).
 Proof.
   intros. intro m. apply isdecpropif.
   - apply (isinclnatplusr _ m).
@@ -1707,7 +1669,7 @@ Proof.
   intro. induction n as [ | n IHn ].
   - intro. auto with natarith.
   - intro m. rewrite (multsnm n m). rewrite (multnsm m n).
-    apply (maponpaths (fun x : _ => m + x) (IHn m)).
+    apply (maponpaths (λ x : _, m + x) (IHn m)).
 Defined.
 
 Lemma natrdistr (n m k : nat) : (n + m) * k = n * k + m * k.
@@ -1727,7 +1689,7 @@ Proof.
   - simpl. rewrite (natmultn0 n). auto with natarith.
   - simpl. rewrite (multnsm n (m + k)). rewrite (multnsm n m).
     rewrite (natplusassoc _ _ _).
-    apply (maponpaths (fun x : _ => n + x) (IHm)).
+    apply (maponpaths (λ x : _, n + x) (IHm)).
 Defined.
 
 Lemma natmultassoc (n m k : nat) : ((n * m) * k) = (n * (m * k)).

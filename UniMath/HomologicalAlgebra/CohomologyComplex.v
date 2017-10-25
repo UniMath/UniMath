@@ -1502,7 +1502,7 @@ Section def_kernel_cokernel_complex.
       use CokernelOut.
       + use compose.
         * exact (C (i + 1 - 1 + 1)).
-        * use (transportf (fun x' : A => precategory_morphisms x' (C (i + 1 - 1 + 1)))
+        * use (transportf (λ x' : A, precategory_morphisms x' (C (i + 1 - 1 + 1)))
                           (! maponpaths C (hzrminusplus i 1 @ hzrplusminus' i 1))).
           cbn.
           exact (Diff C (i + 1 - 1)).
@@ -1635,7 +1635,7 @@ Section def_kernel_cokernel_complex.
   Definition CokernelKernelMorphism (C : Complex (AbelianToAdditive A hs)) (i : hz) :
     iscontr (∑ f : A⟦(CokernelComplex C) i, (KernelComplex C) i⟧,
                    ((KernelIn (to_Zero A) (Kernel (Diff C (i + 1))) (C i) (Diff C i) (DSq _ C i)) =
-                    (transportf (fun (i0 : hz) => A⟦C i0, (Cokernel (Diff C (i - 1)))⟧)
+                    (transportf (λ (i0 : hz), A⟦C i0, (Cokernel (Diff C (i - 1)))⟧)
                                 (hzrminusplus i 1)
                                 (CokernelArrow (Cokernel (Diff C (i - 1))))) · f)
                      × ((CokernelOut (to_Zero A) (Cokernel (Diff C (i - 1))) (C (i + 1))
@@ -1648,7 +1648,7 @@ Section def_kernel_cokernel_complex.
     - use tpair.
       + cbn. use KernelIn.
         * use CokernelOut.
-          -- exact (transportf (fun (x : A) => A⟦x, C(i + 1)⟧) (! maponpaths C (hzrminusplus i 1))
+          -- exact (transportf (λ (x : A), A⟦x, C(i + 1)⟧) (! maponpaths C (hzrminusplus i 1))
                                (Diff C i)).
           -- exact (CokernelKernelMorphism_comm1 C i).
         * exact (CokernelKernelMorphism_comm2 C i).
@@ -1743,7 +1743,7 @@ Section def_kernel_cokernel_complex.
     - cbn.
       use (compose (KernelArrow K)).
       use CokernelOut.
-      + exact (transportf (fun x' : A => A ⟦x', Cokernel (Diff C (i - 1))⟧)
+      + exact (transportf (λ x' : A, A ⟦x', Cokernel (Diff C (i - 1))⟧)
                           (maponpaths C (hzrminusplus i 1))
                           (CokernelArrow (Cokernel (Diff C (i - 1))))).
       + exact (CokernelKernelCohomology1_Mor1_eq1 C i).
@@ -1852,7 +1852,7 @@ Section def_kernel_cokernel_complex.
     use KernelIn.
     - use (compose (KernelArrow _)).
       use CokernelOut.
-      + exact (transportf (fun x' : A => precategory_morphisms x' _)
+      + exact (transportf (λ x' : A, precategory_morphisms x' _)
                           (! maponpaths C (hzrminusplus i 1))
                           (CokernelArrow (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                                (maponpaths C (hzrminusplus i 1))
@@ -1921,7 +1921,7 @@ Section def_kernel_cokernel_complex.
     }
     cbn in ee. cbn.
     apply (maponpaths
-             (fun gg : _ => KernelIn (to_Zero A) K1 K2
+             (λ gg : _, KernelIn (to_Zero A) K1 K2
                                   (KernelArrow K2 · CokernelOut (to_Zero A) CK1 CK2
                                                (transportf (λ x' : A, A ⟦ x', CK2 ⟧)
                                                            (! maponpaths C (hzrminusplus i 1))
@@ -1991,7 +1991,7 @@ Section def_kernel_cokernel_complex.
       apply (iso_inv_after_iso (isopair _ (CohomologyComplexIso_is_iso_i A hs C i))).
     }
     cbn beta in e. rewrite id_right.
-    apply (maponpaths (fun gg : _ => gg · KI21 · KI12 · CohomologyComplexIso_Mor_i A hs C i))
+    apply (maponpaths (λ gg : _, gg · KI21 · KI12 · CohomologyComplexIso_Mor_i A hs C i))
       in e.
     use (pathscomp0 e). clear e. rewrite id_left.
     (* Cancel the last morphism *)
@@ -2005,7 +2005,7 @@ Section def_kernel_cokernel_complex.
       apply (iso_inv_after_iso (isopair _ (CohomologyComplexIso_is_iso_i A hs C i))).
     }
     cbn beta in ee. rewrite ee.
-    apply (maponpaths (fun gg : _ => KI21 · (KI12 · gg))) in ee. use (pathscomp0 ee). clear ee.
+    apply (maponpaths (λ gg : _, KI21 · (KI12 · gg))) in ee. use (pathscomp0 ee). clear ee.
     rewrite id_right.
     (* Solve by using KernelInsEq *)
     unfold KI12, KI21. clear KI12 KI21. unfold K1, K2. clear K1 K2. unfold CK1, CK2. clear CK1 CK2.
@@ -2095,7 +2095,7 @@ Section def_kernel_cokernel_complex.
                                       (maponpaths C (hzrminusplus (i + 1) 1))
                                       (Diff C (i + 1 - 1)))
                           (CohomologyComplex_KernelIn_eq A hs C (i + 1)) =
-                 transportf (fun x' : ob A => precategory_morphisms x' _)
+                 transportf (λ x' : ob A, precategory_morphisms x' _)
                             (! maponpaths C (hzrplusminus i 1))
                             (KernelIn (to_Zero A) (Kernel (Diff C (i + 1))) (C i) (Diff C i)
                                       (DSq (AbelianToAdditive A hs) C i))).

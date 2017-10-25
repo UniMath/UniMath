@@ -13,6 +13,8 @@ Local Open Scope NRat_scope.
 Local Open Scope Dcuts_scope.
 Local Open Scope tap_scope.
 
+Unset Automatic Introduction.
+
 (** ** Definition of Dedekind cuts *)
 
 Definition Dcuts_def_bot (X : hsubtype NonnegativeRationals) : UU :=
@@ -82,7 +84,7 @@ Proof.
 Qed.
 
 Definition Dcuts_hsubtype : hsubtype (hsubtype NonnegativeRationals) :=
-  fun X : hsubtype NonnegativeRationals => hProppair _ (isaprop_Dcuts_hsubtype X).
+  λ X : hsubtype NonnegativeRationals, hProppair _ (isaprop_Dcuts_hsubtype X).
 Lemma isaset_Dcuts : isaset (carrier Dcuts_hsubtype).
 Proof.
   apply isasetsubset with pr1.
@@ -166,7 +168,7 @@ Qed.
 (** Strict partial order on [Dcuts] *)
 
 Definition Dcuts_lt_rel : hrel Dcuts_set :=
-  fun (X Y : Dcuts_set) =>
+  λ (X Y : Dcuts_set),
     ∃ x : NonnegativeRationals, dirprod (neg (x ∈ X)) (x ∈ Y).
 
 Lemma istrans_Dcuts_lt_rel : istrans Dcuts_lt_rel.
@@ -280,9 +282,7 @@ Proof.
       exists (pr1 x + (pr1 y' - y)) ; split.
       * exact (pr2 (pr2 x)).
       * apply is_Dcuts_bot with (1 := pr1 (pr2 y')).
-        tryif primitive_projections
-        then pattern (pr1 y') at 2
-        else pattern (pr1 y') at 3 ;
+        pattern (pr1 y') at 2;
           rewrite <- (minusNonnegativeRationals_plus_r y (pr1 y')).
         rewrite iscomm_plusNonnegativeRationals.
         apply plusNonnegativeRationals_lecompat_l.
@@ -361,7 +361,7 @@ Proof.
   - now apply isapropimpl, pr2.
 Qed.
 Definition Dcuts_eq : hrel Dcuts_set :=
-  λ X Y : Dcuts_set, hProppair (∏ r, dirprod (r ∈ X -> r ∈ Y) (r ∈ Y -> r ∈ X)) (isaprop_Dcuts_eq_rel X Y).
+  λ X Y : Dcuts_set, hProppair (∏ r, (r ∈ X -> r ∈ Y) × (r ∈ Y -> r ∈ X)) (isaprop_Dcuts_eq_rel X Y).
 
 Lemma istrans_Dcuts_eq : istrans Dcuts_eq.
 Proof.
@@ -593,7 +593,7 @@ Proof.
 Qed.
 
 Definition NonnegativeRationals_to_Dcuts (q : NonnegativeRationals) : Dcuts :=
-  mk_Dcuts (fun r => (r < q)%NRat)
+  mk_Dcuts (λ r, (r < q)%NRat)
            (NonnegativeRationals_to_Dcuts_bot q)
            (NonnegativeRationals_to_Dcuts_open q)
            (NonnegativeRationals_to_Dcuts_corr q).
@@ -844,24 +844,18 @@ Proof.
     unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)) ; apply sumofmaps.
     apply sumofmaps ; [intros Xq | intros Yq'].
     + apply Hx ; apply X_bot with (1 := Xq).
-      tryif primitive_projections
-      then pattern c at 2
-      else pattern c at 3 ;
+      pattern c at 2;
         rewrite (NQhalf_double c).
       rewrite <- isassoc_plusNonnegativeRationals.
       apply plusNonnegativeRationals_le_l.
     + apply (pr2 (pr2 q)) ; apply Y_bot with (1 := Yq').
-      tryif primitive_projections
-      then pattern c at 2
-      else pattern c at 4 ;
+      pattern c at 2;
         rewrite (NQhalf_double c).
       rewrite <- isassoc_plusNonnegativeRationals.
       apply plusNonnegativeRationals_le_r.
     + intros xy.
       apply (isirrefl_StrongOrder ltNonnegativeRationals (pr1 q + c)).
-      tryif primitive_projections
-      then pattern c at 2
-      else pattern c at 4 ;
+      pattern c at 2;
         rewrite (NQhalf_double c).
       pattern (pr1 q + c) at 1 ; rewrite (pr1 (pr2 xy)).
       rewrite <- isassoc_plusNonnegativeRationals.
@@ -881,22 +875,18 @@ Proof.
     unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)) ; apply sumofmaps.
     apply sumofmaps ; [intros Xq' | intros Yq].
     + apply (pr2 (pr2 q)) ; apply X_bot with (1 := Xq').
-      tryif primitive_projections
-      then pattern c at 2
-      else pattern c at 4;
+      pattern c at 2;
         rewrite (NQhalf_double c).
       rewrite <- isassoc_plusNonnegativeRationals.
       apply plusNonnegativeRationals_le_r.
     + apply Hy ; apply Y_bot with (1 := Yq).
-      tryif primitive_projections
-      then pattern c at 2 else pattern c at 3 ;
+      pattern c at 2;
         rewrite (NQhalf_double c).
       rewrite <- isassoc_plusNonnegativeRationals.
       apply plusNonnegativeRationals_le_l.
     + intros xy.
       apply (isirrefl_StrongOrder ltNonnegativeRationals (pr1 q + c)).
-      tryif primitive_projections
-      then pattern c at 2 else pattern c at 4 ; rewrite (NQhalf_double c).
+      pattern c at 2; rewrite (NQhalf_double c).
       pattern (pr1 q + c) at 1 ; rewrite (pr1 (pr2 xy)).
       rewrite <- isassoc_plusNonnegativeRationals.
       apply plusNonnegativeRationals_ltcompat.
@@ -918,18 +908,14 @@ Proof.
     + unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)) ; apply sumofmaps.
       apply sumofmaps ; [ intros Xq' | intros Yq'].
       * apply (pr2 (pr2 qx)), X_bot with (1 := Xq').
-        tryif primitive_projections
-        then pattern c at 2
-        else pattern c at 5 ;
+        pattern c at 2;
           rewrite (NQhalf_double c).
         rewrite <- isassoc_plusNonnegativeRationals.
         apply plusNonnegativeRationals_lecompat_r.
         rewrite isassoc_plusNonnegativeRationals.
         apply plusNonnegativeRationals_le_r.
       * apply (pr2 (pr2 qy)), Y_bot with (1 := Yq').
-        tryif primitive_projections
-        then pattern c at 2
-        else pattern c at 5;
+        pattern c at 2;
           rewrite (NQhalf_double c).
         rewrite <- isassoc_plusNonnegativeRationals.
         apply plusNonnegativeRationals_lecompat_r.
@@ -937,9 +923,7 @@ Proof.
         apply plusNonnegativeRationals_le_l.
       * intros xy.
         apply (isirrefl_StrongOrder ltNonnegativeRationals (pr1 qx + pr1 qy + c)).
-        tryif primitive_projections
-        then pattern c at 2
-        else pattern c at 6; rewrite (NQhalf_double c).
+        pattern c at 2; rewrite (NQhalf_double c).
         pattern (pr1 qx + pr1 qy + c) at 1 ; rewrite (pr1 (pr2 xy)).
         rewrite <- isassoc_plusNonnegativeRationals.
         rewrite (isassoc_plusNonnegativeRationals (pr1 qx) (pr1 qy) (c / 2)%NRat).
@@ -977,7 +961,7 @@ Section Dcuts_NQmult.
   Context (Y_corr : Dcuts_def_corr Y).
 
 Definition Dcuts_NQmult_val : hsubtype NonnegativeRationals :=
-  fun r => ∃ ry : NonnegativeRationals, r = x * ry × Y ry.
+  λ r, ∃ ry : NonnegativeRationals, r = x * ry × Y ry.
 
 Lemma Dcuts_NQmult_bot : Dcuts_def_bot Dcuts_NQmult_val.
 Proof.
@@ -1078,9 +1062,7 @@ Proof.
       intros ry.
       generalize (pr1 (pr2 ry)).
       apply gtNonnegativeRationals_noteq.
-      tryif primitive_projections
-      then pattern c at 1
-      else pattern c at 2;
+      pattern c at 1;
         rewrite <- (multdivNonnegativeRationals c x), <-isldistr_mult_plusNonnegativeRationals.
       apply (pr2 ( lt_gtNonnegativeRationals _ _)).
       apply (multNonnegativeRationals_ltcompat_l x (pr1 ry) (pr1 q + c / x)%NRat Hx).
@@ -1114,7 +1096,7 @@ Section Dcuts_mult.
   Context (Y_corr : Dcuts_def_corr Y).
 
 Definition Dcuts_mult_val : hsubtype NonnegativeRationals :=
-  fun r => ∃ xy : NonnegativeRationals * NonnegativeRationals,
+  λ r, ∃ xy : NonnegativeRationals * NonnegativeRationals,
                            r = (fst xy * snd xy)%NRat × X (fst xy) × Y (snd xy).
 
 Lemma Dcuts_mult_bot : Dcuts_def_bot Dcuts_mult_val.
@@ -1260,9 +1242,7 @@ Proof.
         exact H.
         rewrite isrdistr_mult_plusNonnegativeRationals, (iscomm_multNonnegativeRationals cx).
         unfold cx ; rewrite multdivNonnegativeRationals.
-        tryif primitive_projections
-        then pattern c at 3
-        else pattern c at 11;
+        pattern c at 3;
           rewrite (NQhalf_double c), <- isassoc_plusNonnegativeRationals.
         apply plusNonnegativeRationals_lecompat_r.
         rewrite isldistr_mult_plusNonnegativeRationals.
@@ -1345,9 +1325,7 @@ Proof.
       intros rx.
       apply (pr2 (pr2 x)), X_bot with (1 := pr2 (pr2 rx)).
       rewrite <- (isrunit_oneNonnegativeRationals (pr1 x + 1%NRat)).
-      tryif primitive_projections
-      then pattern 1%NRat at 2
-      else pattern 1%NRat at 3; rewrite (pr1 (pr2 rx)), <- isassoc_multNonnegativeRationals.
+      pattern 1%NRat at 2; rewrite (pr1 (pr2 rx)), <- isassoc_multNonnegativeRationals.
       rewrite isrinv_NonnegativeRationals, islunit_oneNonnegativeRationals.
       now apply isrefl_leNonnegativeRationals.
       exact Hx1.
@@ -1516,9 +1494,7 @@ Proof.
   right.
   exists (/ (NQmax 1%NRat (pr1 r) + c))%NRat ; split.
   - apply Dcuts_inv_out with (1 := pr2 (pr2 r)).
-    tryif primitive_projections
-    then pattern c at 2
-    else pattern c at 4; rewrite (NQhalf_double c), <- isassoc_plusNonnegativeRationals.
+    pattern c at 2; rewrite (NQhalf_double c), <- isassoc_plusNonnegativeRationals.
     eapply istrans_le_lt_ltNonnegativeRationals, plusNonnegativeRationals_lt_r.
     apply plusNonnegativeRationals_lecompat_r ; apply NQmax_le_r.
     exact Hc0.
@@ -1666,9 +1642,7 @@ Proof.
       rewrite isassoc_multNonnegativeRationals, islinv_NonnegativeRationals, isrunit_oneNonnegativeRationals.
       exact (pr1 (pr2 ry)).
       exact Hry'.
-    + tryif primitive_projections
-      then pattern x at 2
-      else pattern x at 4.
+    + pattern x at 2.
       rewrite <- (isrunit_oneNonnegativeRationals x).
       unfold divNonnegativeRationals.
       rewrite isassoc_multNonnegativeRationals.
@@ -2589,7 +2563,7 @@ Section Dcuts_minus.
   Context (Y_corr : Dcuts_def_corr Y).
 
 Definition Dcuts_minus_val : hsubtype NonnegativeRationals :=
-  fun r => ∃ x, X x × ∏ y, (Y y) ⨿ (y = 0%NRat) -> (r + y < x)%NRat.
+  λ r, ∃ x, X x × ∏ y, (Y y) ⨿ (y = 0%NRat) -> (r + y < x)%NRat.
 
 Lemma Dcuts_minus_bot : Dcuts_def_bot Dcuts_minus_val.
 Proof.
@@ -2647,7 +2621,7 @@ Proof.
           now apply ispositive_plusNonnegativeRationals_r. }
   intros c Hc.
   apply ispositive_NQhalf in Hc.
-  apply (fun X X0 Xerr => Dcuts_def_corr_not_empty X X0 Xerr _ Hc) in Y_corr'.
+  apply (λ X X0 Xerr, Dcuts_def_corr_not_empty X X0 Xerr _ Hc) in Y_corr'.
   revert Y_corr' ; apply hinhuniv ; intros y.
   generalize (pr1 (pr2 y)) ; apply hinhuniv ; intros Yy.
   assert (X0 : ¬ Y (pr1 y + c / 2%NRat)).
@@ -2668,7 +2642,7 @@ Proof.
     apply (pr2 (pr2 x)).
     now right.
   - generalize (isdecrel_leNonnegativeRationals (pr1 y + c / 2)%NRat (pr1 x)) ; apply sumofmaps ; intro Hxy.
-    + assert (HY : ∏ y', coprod (Y y') (y' = 0%NRat) -> (y' < pr1 y + c / 2)%NRat).
+    + assert (HY : ∏ y', (Y y') ⨿ (y' = 0%NRat) -> (y' < pr1 y + c / 2)%NRat).
       { intros y' ; apply sumofmaps ; intros Yy'.
         apply notge_ltNonnegativeRationals ; intro H ; apply nYy.
         now apply Y_bot with (1 := Yy').
@@ -2691,9 +2665,7 @@ Proof.
         apply notge_ltNonnegativeRationals ; intro H ; apply (pr2 (pr2 x)).
         now apply X_bot with (1 := pr1 (pr2 x')).
         rewrite isassoc_plusNonnegativeRationals, (iscomm_plusNonnegativeRationals _ (pr1 y)).
-        tryif primitive_projections
-        then pattern c at 3
-        else pattern c at 9; rewrite (NQhalf_double c).
+        pattern c at 3; rewrite (NQhalf_double c).
         rewrite <- (isassoc_plusNonnegativeRationals (pr1 y)), <- isassoc_plusNonnegativeRationals.
         rewrite minusNonnegativeRationals_plus_r.
         apply isrefl_leNonnegativeRationals.
@@ -2704,9 +2676,7 @@ Proof.
       apply_pr2 notlt_geNonnegativeRationals.
       induction (isdecrel_leNonnegativeRationals (pr1 y) (pr1 x')) as [Hxy' | Hxy'].
       rewrite iscomm_plusNonnegativeRationals.
-      tryif primitive_projections
-      then pattern c at 1
-      else pattern c at 4; rewrite (NQhalf_double c), <- isassoc_plusNonnegativeRationals.
+      pattern c at 1; rewrite (NQhalf_double c), <- isassoc_plusNonnegativeRationals.
       apply istrans_leNonnegativeRationals with (pr1 x + c / 2)%NRat.
       apply lt_leNonnegativeRationals ; apply notge_ltNonnegativeRationals ; intro ; apply (pr2 (pr2 x)).
       now apply X_bot with (1 := pr1 (pr2 x')).
@@ -3116,9 +3086,7 @@ Proof.
         apply hinhpr ; exists ((pr1 x + pr1 y) - r) ; split.
         exact nYy.
         apply is_Dcuts_bot with (1 := pr1 (pr2 x)).
-        tryif primitive_projections
-        then pattern (pr1 x) at 2
-        else pattern (pr1 x) at 3;
+        pattern (pr1 x) at 2;
           rewrite <- (plusNonnegativeRationals_minus_r r (pr1 x)).
         apply minusNonnegativeRationals_lecompat_l.
         apply plusNonnegativeRationals_lecompat_l.
@@ -3781,13 +3749,9 @@ Proof.
       * apply (U_bot (pr1 N)) with (1 := pr1 (pr2 (pr2 xy))).
         apply_pr2 (plusNonnegativeRationals_lecompat_r (pr2 (pr1 xy))).
         rewrite <- (pr1 (pr2 xy)).
-        tryif primitive_projections
-        then pattern c at 2
-        else pattern c at 7;
+        pattern c at 2;
           rewrite (NQhalf_double c), isassoc_plusNonnegativeRationals.
-        tryif primitive_projections
-        then pattern (c / 2)%NRat at 2
-        else pattern (c / 2)%NRat at 5;
+        pattern (c / 2)%NRat at 2;
           rewrite (NQhalf_double (c / 2)%NRat), isassoc_plusNonnegativeRationals.
         apply plusNonnegativeRationals_lecompat_l.
         apply istrans_leNonnegativeRationals with (c / 2 / 2)%NRat.
@@ -3802,9 +3766,7 @@ Proof.
       generalize (natgthorleh (pr1 N) (pr1 (pr2 (pr2 eps)))) ; apply sumofmaps ; intros HN.
       * apply natlthtoleh in HN.
         apply (U_bot (pr1 N)) with (1 := pr2 (pr2 (pr2 eps)) _ HN).
-        tryif primitive_projections
-        then pattern c at 2
-        else pattern c at 7;
+        pattern c at 2;
           rewrite (NQhalf_double c), isassoc_plusNonnegativeRationals.
         apply istrans_leNonnegativeRationals with (c / 2 + c / 2 / 2)%NRat.
         apply plusNonnegativeRationals_lecompat_r.
@@ -3817,9 +3779,7 @@ Proof.
         generalize (pr1 (Hu _ HN) _ HuN') ; clear Hu HuN'.
         apply hinhuniv ; apply sumofmaps ; [ apply sumofmaps ; intros H | intros xy].
         { apply (U_bot (pr1 N)) with (1 := H).
-          tryif primitive_projections
-          then pattern c at 2
-          else pattern c at 7;
+          pattern c at 2;
             rewrite (NQhalf_double c), isassoc_plusNonnegativeRationals, iscomm_plusNonnegativeRationals.
           apply istrans_leNonnegativeRationals with (c / 2 / 2 + c / 2)%NRat.
           apply plusNonnegativeRationals_lecompat_l.
@@ -3840,17 +3800,13 @@ Proof.
         { apply (U_bot (pr1 N)) with (1 := pr1 (pr2 (pr2 xy))).
           apply_pr2 (plusNonnegativeRationals_lecompat_r (pr2 (pr1 xy))).
           rewrite <- (pr1 (pr2 xy)).
-          tryif primitive_projections
-          then pattern c at 2
-          else pattern c at 12;
+          pattern c at 2;
             rewrite (NQhalf_double c), !isassoc_plusNonnegativeRationals.
           eapply istrans_leNonnegativeRationals.
           apply plusNonnegativeRationals_lecompat_r.
           now apply Hq.
           apply plusNonnegativeRationals_lecompat_l.
-          tryif primitive_projections
-          then pattern (c / 2)%NRat at 2
-          else pattern (c / 2)%NRat at 5;
+          pattern (c / 2)%NRat at 2;
             rewrite (NQhalf_double (c / 2)%NRat), isassoc_plusNonnegativeRationals.
           apply plusNonnegativeRationals_lecompat_l.
           apply istrans_leNonnegativeRationals with (c / 2 / 2)%NRat.
@@ -3884,14 +3840,10 @@ Proof.
         { apply (U_bot n) with (1 := pr1 (pr2 (pr2 xy))).
           apply_pr2 (plusNonnegativeRationals_lecompat_r (pr2 (pr1 xy))).
           rewrite <- (pr1 (pr2 xy)).
-          tryif primitive_projections
-          then pattern (pr1 q) at 2
-          else pattern (pr1 q) at 3;
+          pattern (pr1 q) at 2;
             rewrite <- (minusNonnegativeRationals_plus_r (c / 2)%NRat (pr1 q)), isassoc_plusNonnegativeRationals.
           apply plusNonnegativeRationals_lecompat_l.
-          tryif primitive_projections
-          then pattern (c / 2)%NRat at 2
-          else pattern (c / 2)%NRat at 8;
+          pattern (c / 2)%NRat at 2;
             rewrite (NQhalf_double (c / 2)%NRat).
           apply plusNonnegativeRationals_lecompat_l.
           apply lt_leNonnegativeRationals.
@@ -3902,13 +3854,9 @@ Proof.
         generalize (natgthorleh (pr1 N) (pr1 (pr2 (pr2 eps)))) ; apply sumofmaps ; intros HN.
         { apply natlthtoleh in HN.
           apply (U_bot (pr1 N)) with (1 := pr2 (pr2 (pr2 eps)) _ HN).
-          tryif primitive_projections
-          then pattern c at 3
-          else pattern c at 13;
+          pattern c at 3;
             rewrite (NQhalf_double c), <- isassoc_plusNonnegativeRationals, minusNonnegativeRationals_plus_r.
-          tryif primitive_projections
-          then pattern (c / 2)%NRat at 2
-          else pattern (c / 2)%NRat at 12;
+          pattern (c / 2)%NRat at 2;
             rewrite (NQhalf_double (c / 2)%NRat), !isassoc_plusNonnegativeRationals, <- (isassoc_plusNonnegativeRationals (pr1 q) (c / 2 / 2)%NRat).
           now apply plusNonnegativeRationals_le_r.
           now apply lt_leNonnegativeRationals. }
@@ -3941,21 +3889,15 @@ Proof.
             rewrite <- (pr1 (pr2 xy)).
             pattern (pr1 q) at 1 ;
               rewrite <- (minusNonnegativeRationals_plus_r (c / 2)%NRat (pr1 q)), !isassoc_plusNonnegativeRationals.
-            tryif primitive_projections
-            then pattern (pr1 q - c / 2 + c + pr1 eps)%NRat at 0
-            else pattern (pr1 q - c / 2 + c + pr1 eps)%NRat at 2;
+            pattern (pr1 q - c / 2 + c + pr1 eps)%NRat at 0;
               rewrite (isassoc_plusNonnegativeRationals (pr1 q - c / 2)%NRat c (pr1 eps)).
             apply plusNonnegativeRationals_lecompat_l.
-            tryif primitive_projections
-            then pattern c at 3
-            else pattern c at 20;
+            pattern c at 3;
               rewrite (NQhalf_double c).
             pattern (c / 2 + c / 2 + pr1 eps)%NRat at 1 ;
             rewrite isassoc_plusNonnegativeRationals.
             apply plusNonnegativeRationals_lecompat_l.
-            tryif primitive_projections
-            then pattern (c / 2)%NRat at 2
-            else pattern (c / 2)%NRat at 17;
+            pattern (c / 2)%NRat at 2;
               rewrite (NQhalf_double (c / 2)%NRat).
             pattern (c / 2 / 2 + c / 2 / 2 + pr1 eps)%NRat at 1 ;
               rewrite isassoc_plusNonnegativeRationals.
@@ -3987,7 +3929,7 @@ Definition is_Dcuts_lim_seq (u : nat -> Dcuts) (l : Dcuts) : hProp
 Definition Dcuts_lim_cauchy_seq (u : nat → Dcuts) (Hu : Dcuts_Cauchy_seq u) : Dcuts.
 Proof.
   intros U HU.
-  exists (Dcuts_lim_cauchy_val (fun n => pr1 (U n))).
+  exists (Dcuts_lim_cauchy_val (λ n, pr1 (U n))).
   repeat split.
   - apply Dcuts_lim_cauchy_bot.
     intro ; now apply is_Dcuts_bot.
@@ -4025,9 +3967,7 @@ Proof.
   split.
   - eapply istrans_Dcuts_lt_le_rel.
     now apply (Hu n Hn).
-    tryif primitive_projections
-    then pattern eps at 1
-    else pattern eps at 7;
+    pattern eps at 1;
       rewrite (Dcuts_half_double eps), <- isassoc_Dcuts_plus.
     eapply istrans_Dcuts_le_rel, Dcuts_plus_lecompat_l.
     + apply Dcuts_plus_lecompat_r.
@@ -4120,9 +4060,7 @@ Proof.
         unfold Dcuts_half_val.
         rewrite <- NQhalf_double.
         exact (pr1 (pr2 c)).
-    + tryif primitive_projections
-      then pattern eps at 2
-      else pattern eps at 6;
+    + pattern eps at 2;
       rewrite (Dcuts_half_double eps), <- isassoc_Dcuts_plus.
       apply Dcuts_plus_ltcompat_l.
       apply istrans_Dcuts_lt_le_rel with (Dcuts_plus (U n) (NonnegativeRationals_to_Dcuts (pr1 c / 2)%NRat)).
@@ -4162,7 +4100,7 @@ Qed.
 Lemma Dcuts_of_Dcuts_open :
   ∏ (x : NonnegativeRationals),
     Dcuts_of_Dcuts_val x ->
-    hexists (fun y : NonnegativeRationals => dirprod (Dcuts_of_Dcuts_val y) (x < y)%NRat).
+    hexists (λ y : NonnegativeRationals, (Dcuts_of_Dcuts_val y) × (x < y)%NRat).
 Proof.
   intros r.
   apply hinhuniv ; intros X.
@@ -4230,9 +4168,7 @@ Proof.
         apply is_Dcuts_bot with (1 := pr1 (pr2 (pr2 xy))).
         apply_pr2 (plusNonnegativeRationals_lecompat_r (pr2 (pr1 xy))).
         rewrite <- (pr1 (pr2 xy)).
-        tryif primitive_projections
-        then pattern c at 2
-        else pattern c at 5; rewrite (NQhalf_double c).
+        pattern c at 2; rewrite (NQhalf_double c).
         apply plusNonnegativeRationals_lecompat_l.
         apply lt_leNonnegativeRationals.
         exact (pr2 (pr2 (pr2 xy))).
@@ -4252,9 +4188,7 @@ Proof.
       apply hinhuniv ; apply sumofmaps.
       apply sumofmaps ; [intros Xc' | intros Yc' ].
       * apply is_Dcuts_bot with (1 := pr2 (pr2 Y)).
-        tryif primitive_projections
-        then pattern c at 1
-        else pattern c at 4;
+        pattern c at 1;
           rewrite (NQhalf_double c).
         rewrite <- isassoc_plusNonnegativeRationals.
         eapply istrans_leNonnegativeRationals, plusNonnegativeRationals_le_r.
@@ -4263,9 +4197,7 @@ Proof.
         intro ; apply (pr2 (pr2 q)).
         now apply is_Dcuts_bot with (1 := Xc').
       * apply is_Dcuts_bot with (1 := pr2 (pr2 Y)).
-        tryif primitive_projections
-        then pattern c at 1
-        else pattern c at 4;
+        pattern c at 1;
           rewrite (NQhalf_double c).
         rewrite <- isassoc_plusNonnegativeRationals.
         eapply istrans_leNonnegativeRationals, plusNonnegativeRationals_le_l.
@@ -4274,9 +4206,7 @@ Proof.
       * intros xy.
         apply is_Dcuts_bot with (1 := pr2 (pr2 Y)).
         rewrite (pr1 (pr2 xy)).
-        tryif primitive_projections
-        then pattern c at 1
-        else pattern c at 8;
+        pattern c at 1;
           rewrite (NQhalf_double c).
         rewrite <- isassoc_plusNonnegativeRationals.
         eapply istrans_leNonnegativeRationals, plusNonnegativeRationals_lecompat_l.
@@ -4322,7 +4252,7 @@ Qed.
 Lemma Dcuts_of_Dcuts'_open :
   ∏ (x : Dcuts),
     Dcuts_of_Dcuts'_val x ->
-    hexists (fun y : Dcuts => dirprod (Dcuts_of_Dcuts'_val y) (x < y)).
+    hexists (λ y : Dcuts, (Dcuts_of_Dcuts'_val y) × (x < y)).
 Proof.
   intros r.
   apply hinhuniv.
@@ -4586,7 +4516,7 @@ Definition hsubtypeNonnegativeRationals_to_NonnegativeReals
             X x -> ∏ y : NonnegativeRationals, (y <= x)%NRat -> X y)
   (Xopen : ∏ x : NonnegativeRationals,
              X x ->
-             hexists (fun y : NonnegativeRationals => dirprod (X y) (x < y)%NRat))
+             hexists (λ y : NonnegativeRationals, (X y) × (x < y)%NRat))
   (Xtop : Dcuts_def_corr X) : NonnegativeReals :=
   mk_Dcuts X Xbot Xopen Xtop.
 
@@ -5415,9 +5345,7 @@ Proof.
     exact (pr2 Hm).
     now apply Dcuts_lt_le_rel.
     reflexivity.
-  - tryif primitive_projections
-    then pattern l' at 1
-    else pattern l' at 7;
+  - pattern l' at 1;
     rewrite (minusNonnegativeReals_plus_r (l' - l) l' l), (iscomm_plusNonnegativeReals _ l), <- isassoc_plusNonnegativeReals, !isdistr_Dcuts_half_plus, <- Dcuts_half_double.
     exact (pr1 Hn).
     now apply Dcuts_lt_le_rel.

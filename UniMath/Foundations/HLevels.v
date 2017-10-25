@@ -103,7 +103,7 @@ Defined.
 (** *** The case [n = 0] *)
 
 Lemma isofhlevel0weq (X Y : UU) :
-    iscontr X -> iscontr Y -> weq X Y.
+    iscontr X -> iscontr Y -> X ≃ Y.
 Proof.
   intros pX pY.
   set (wX := wequnittocontr pX).
@@ -182,7 +182,7 @@ Proof.
   simpl.
   intros [X pX] [X' pX'].
   set (H := isofhlevelweqb n
-       (Id_p_weq_Id (fun X => tpair isaprop (isofhlevel n X)
+       (Id_p_weq_Id (λ X, tpair isaprop (isofhlevel n X)
                                (isapropisofhlevel _ _)) X X' pX pX')).
   apply H.
   apply isofhlevelpathspace;
@@ -213,6 +213,6 @@ Proof.
   intros n [X pX] [X' pX'].
   simpl.
   apply (UA_for_Predicates
-       (fun X => tpair isaprop (isofhlevel n X)
+       (λ X, tpair isaprop (isofhlevel n X)
                                       (isapropisofhlevel _ _))).
 Defined.

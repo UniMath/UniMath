@@ -217,8 +217,8 @@ Definition forgetfunctor_Monad (C : category) :
 Proof.
   use mk_functor.
   - use mk_functor_data.
-    + exact (fun M => pr1 M:functor C C).
-    + exact (fun M N f => pr1 f).
+    + exact (λ M, pr1 M:functor C C).
+    + exact (λ M N f, pr1 f).
   - abstract (split; red; intros;  reflexivity).
 Defined.
 

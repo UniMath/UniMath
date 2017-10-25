@@ -124,7 +124,7 @@ Section def_po.
   Definition hasPushouts : UU := ∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦a, c⟧), ishinh (Pushout f g).
 
   Definition PushoutObject {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}:
-    Pushout f g -> C := fun H => colim H.
+    Pushout f g -> C := λ H, colim H.
   (* Coercion PushoutObject : Pushout >-> ob. *)
 
   Definition PushoutIn1 {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧} (Po : Pushout f g) :
@@ -168,7 +168,7 @@ Section def_po.
     apply path_to_ctr.
     use three_rec_dep; try assumption.
     set (X := colimInCommutes Po One Two tt).
-    use (pathscomp0 (! (maponpaths (fun h' : _ => h' · w) X))).
+    use (pathscomp0 (! (maponpaths (λ h' : _, h' · w) X))).
     now rewrite <- assoc; simpl; rewrite <- H1.
   Qed.
 
@@ -226,7 +226,7 @@ Section def_po.
     use three_rec_dep; cbn.
     - unfold colimIn.
       set (T := (coconeInCommutes (colimCocone Po) One Three tt)).
-      use (pathscomp0 (! (maponpaths (fun h' : _ => h' · k) T))).
+      use (pathscomp0 (! (maponpaths (λ h' : _, h' · k) T))).
       use (pathscomp0 _ (coconeInCommutes (colimCocone Po) One Three tt)).
       rewrite <- assoc. apply cancel_precomposition.
       apply kH2.

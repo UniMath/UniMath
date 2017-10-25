@@ -14,10 +14,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Local Open Scope mor_disp_scope.
 
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
-
-
 (** * The Structure Identity Principle *)
 
 Section SIP.

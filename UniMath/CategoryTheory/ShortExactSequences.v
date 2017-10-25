@@ -113,7 +113,7 @@ Section def_shortexactseqs.
     unfold factorization2_epi in fact. cbn in fact. unfold Abelian.CoImage in fact.
     apply (factorization2_is_monic hs g).
     rewrite ZeroArrow_comp_left.
-    rewrite <- assoc. apply (maponpaths (fun gg : _ => f · gg)) in fact.
+    rewrite <- assoc. apply (maponpaths (λ gg : _, f · gg)) in fact.
     use (pathscomp0 (! fact)). exact H.
   Qed.
 
@@ -707,7 +707,7 @@ Section shortexact_correspondence.
       rewrite (factorization2 hs (Mor2 SSE)).
       unfold factorization2_epi. cbn.
       set (tmp := factorization2_monic A hs (Mor2 SSE)).
-      apply (maponpaths (fun h' : _ => h' · tmp)) in H'. unfold tmp in H'.
+      apply (maponpaths (λ h' : _, h' · tmp)) in H'. unfold tmp in H'.
       clear tmp. rewrite ZeroArrow_comp_left in H'. rewrite <- assoc in H'.
       unfold factorization2_monic in H'. cbn in H'.
       exact H'.
@@ -777,9 +777,9 @@ Section shortexact_correspondence.
                               (CokernelArrow (Abelian.CoImage g)) H) :
     f · g = ZeroArrow (to_Zero A) _ _.
   Proof.
-    set (tmp := maponpaths (fun h : _ => CokernelArrow (Abelian.CoImage f) · (CoIm_to_Im f) · h) H).
+    set (tmp := maponpaths (λ h : _, CokernelArrow (Abelian.CoImage f) · (CoIm_to_Im f) · h) H).
     cbn in tmp. rewrite ZeroArrow_comp_right in tmp.
-    apply (maponpaths (fun h : _ => h · (CoIm_to_Im g) · ((KernelArrow (Abelian.Image g))))) in tmp.
+    apply (maponpaths (λ h : _, h · (CoIm_to_Im g) · ((KernelArrow (Abelian.Image g))))) in tmp.
     rewrite ZeroArrow_comp_left in tmp.
     rewrite assoc in tmp.
     (* Work on f in tmp *)
@@ -912,7 +912,7 @@ Section shortshortexact_iskernel_iscokernel.
     + exact hs.
     + exact K.
     + exact (z_iso_inv (mk_z_iso _ _ e)).
-    + apply (maponpaths (fun g : _ => (z_iso_inv_mor (mk_z_iso _ _ e)) · g)) in e1.
+    + apply (maponpaths (λ g : _, (z_iso_inv_mor (mk_z_iso _ _ e)) · g)) in e1.
       use (pathscomp0 _ (! e1)). clear e1. rewrite assoc.
       cbn. rewrite (is_inverse_in_precat2 e). rewrite id_left. apply idpath.
   Qed.
@@ -949,7 +949,7 @@ Section shortshortexact_iskernel_iscokernel.
     + exact hs.
     + exact CK.
     + exact (z_iso_inv (mk_z_iso _ _ e)).
-    + apply (maponpaths (fun g : _ => g · (z_iso_inv_mor (mk_z_iso _ _ e)))) in e1.
+    + apply (maponpaths (λ g : _, g · (z_iso_inv_mor (mk_z_iso _ _ e)))) in e1.
       use (pathscomp0 _ (! e1)). clear e1. rewrite <- assoc. cbn.
       rewrite (is_inverse_in_precat1 e). rewrite id_right. apply idpath.
   Qed.

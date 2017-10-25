@@ -370,7 +370,6 @@ Proof.
         change_lhs (stntonat _ i).
         unfold dni. unfold di.
         unfold stntonat.
-        tryif primitive_projections then idtac else rewrite rewrite_pr1_tpair.
         match goal with |- context [ match ?x with _ => _ end ]
                         => induction x as [c|c] end.
         { reflexivity. }
@@ -380,7 +379,6 @@ Proof.
         apply iterop_seq_mon_homot. intro i. unfold x', x'', funcomp. apply maponpaths.
         apply subtypeEquality_prop. change_lhs (j+1+i). unfold dni, di.
         unfold stntonat.
-        tryif primitive_projections then idtac else rewrite rewrite_pr1_tpair.
         match goal with |- context [ match ?x with _ => _ end ]
                         => induction x as [c|c] end.
         { apply fromempty. exact (negnatlthplusnmn j i c). }

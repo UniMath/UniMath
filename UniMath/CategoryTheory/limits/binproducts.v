@@ -35,7 +35,7 @@ Variable C : precategory.
 
 Definition isBinProductCone (c d p : C) (p1 : p --> c) (p2 : p --> d) :=
   ∏ (a : C) (f : a --> c) (g : a --> d),
-  iscontr (total2 (fun fg : a --> p => dirprod (fg · p1 = f) (fg · p2 = g))).
+  iscontr (total2 (fun fg : a --> p => (fg · p1 = f) × (fg · p2 = g))).
 
 Lemma isaprop_isBinProductCone (c d p : C) (p1 : p --> c) (p2 : p --> d) :
   isaprop (isBinProductCone c d p p1 p2).
@@ -47,7 +47,7 @@ Proof.
 Qed.
 
 Definition BinProductCone (c d : C) :=
-   total2 (fun pp1p2 : total2 (fun p : C => dirprod (p --> c) (p --> d)) =>
+   total2 (fun pp1p2 : total2 (λ p : C, (p --> c) × (p --> d)) =>
              isBinProductCone c d (pr1 pp1p2) (pr1 (pr2 pp1p2)) (pr2 (pr2 pp1p2))).
 
 
@@ -92,7 +92,7 @@ Lemma BinProductArrowUnique (c d : C) (P : BinProductCone c d) (x : C)
       k = BinProductArrow P f g.
 Proof.
   intros H1 H2.
-  set (H := tpair (fun h => dirprod _ _ ) k (dirprodpair H1 H2)).
+  set (H := tpair (λ h, dirprod _ _ ) k (dirprodpair H1 H2)).
   set (H' := (pr2 (isBinProductCone_BinProductCone P _ f g)) H).
   apply (base_paths _ _ H').
 Qed.
@@ -268,7 +268,7 @@ Definition two_graph : graph := (bool,,λ _ _,empty).
 
 Definition binproduct_diagram (a b : C) : diagram two_graph C.
 Proof.
-exists (fun x : bool => if x then a else b).
+exists (λ x : bool, if x then a else b).
 abstract (intros u v F; induction F).
 Defined.
 
@@ -307,7 +307,7 @@ Variable H : BinProducts C.
 Arguments BinProductObject [C] c d {_}.
 Local Notation "c 'x' d" := (BinProductObject  c d )(at level 5).
 (*
-Check (fun c d : C => c x d).
+Check (λ c d : C, c x d).
 *)
 End test.
 

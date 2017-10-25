@@ -20,55 +20,55 @@ Definition absemigr_perm021 :
   ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
   ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n0 n2) n1 :=
-  fun X opp is n0 n1 n2 =>
+  λ X opp is n0 n1 n2,
     pathscomp0
       (pathscomp0
          ((pr1 is) n0 n1 n2)
-         (maponpaths (fun z => opp n0 z) ((pr2 is) n1 n2)))
+         (maponpaths (λ z, opp n0 z) ((pr2 is) n1 n2)))
       (pathsinv0 ((pr1 is) n0 n2 n1)).
 
 Definition abmonoid_perm021 :=
-  fun M : abmonoid => absemigr_perm021 M (@op M) (abmonoid_to_absemigr M).
+  λ M : abmonoid, absemigr_perm021 M (@op M) (abmonoid_to_absemigr M).
 
 Definition absemigr_perm102 :
   ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
   ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n1 n0) n2 :=
-  fun X opp is n0 n1 n2 => maponpaths (fun z => opp z n2) ((pr2 is) n0 n1).
+  λ X opp is n0 n1 n2, maponpaths (λ z, opp z n2) ((pr2 is) n0 n1).
 
 Definition abmonoid_perm102 :=
-  fun M : abmonoid => absemigr_perm102 M (@op M) (abmonoid_to_absemigr M).
+  λ M : abmonoid, absemigr_perm102 M (@op M) (abmonoid_to_absemigr M).
 
 Definition absemigr_perm120 :
   ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
   ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n2 n0) n1 :=
-  fun X opp is n0 n1 n2 =>
+  λ X opp is n0 n1 n2,
     pathscomp0 ((pr2 is) (opp n0 n1) n2) (pathsinv0 ((pr1 is) n2 n0 n1)).
 
 Definition abmonoid_perm120 :=
-  fun M : abmonoid => absemigr_perm120 M (@op M) (abmonoid_to_absemigr M).
+  λ M : abmonoid, absemigr_perm120 M (@op M) (abmonoid_to_absemigr M).
 
 Definition absemigr_perm201 :
   ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
   ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n1 n2) n0 :=
-  fun X opp is n0 n1 n2 =>
+  λ X opp is n0 n1 n2,
     pathscomp0 ((pr1 is) n0 n1 n2) ((pr2 is) n0 (opp n1 n2)).
 
 Definition abmonoid_perm201 :=
-  fun M : abmonoid => absemigr_perm201 M (@op M) (abmonoid_to_absemigr M).
+  λ M : abmonoid, absemigr_perm201 M (@op M) (abmonoid_to_absemigr M).
 
 Definition absemigr_perm210 :
   ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,
   ∏ n0 n1 n2,
     opp (opp n0 n1) n2 = opp (opp n2 n1) n0 :=
-  fun X opp is n0 n1 n2 =>
+  λ X opp is n0 n1 n2,
     pathscomp0 (absemigr_perm102 X opp is n0 n1 n2)
                (absemigr_perm120 X opp is n1 n0 n2).
 
 Definition abmonoid_perm210 :=
-  fun M : abmonoid => absemigr_perm210 M (@op M) (abmonoid_to_absemigr M).
+  λ M : abmonoid, absemigr_perm210 M (@op M) (abmonoid_to_absemigr M).
 
 (** * II. Tactics for rearranging words.*)
 
@@ -280,7 +280,7 @@ Ltac abmonoid_op_strip M :=
         | context [?x] =>
           match rhs with
             | context [x] => abmonoid_move_to_back_goal M x;
-                apply (ap (fun v => v + x))
+                apply (ap (λ v, v + x))
           end
       end
   end.

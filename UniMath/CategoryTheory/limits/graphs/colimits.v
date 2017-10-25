@@ -29,7 +29,7 @@ Local Open Scope cat.
 Section move_upstream.
 
 Lemma uniqueExists (A : UU) (P : A -> UU)
-  (Hexists : iscontr (total2 (fun a => P a)))
+  (Hexists : iscontr (total2 (λ a, P a)))
   (a b : A) (Ha : P a) (Hb : P b) : a = b.
 Proof.
 assert (H : tpair _ _ Ha = tpair _ _ Hb).
@@ -413,7 +413,7 @@ Context {A C : precategory} (hsC : has_homsets C) {g : graph} (D : diagram g [A,
 
 Definition diagram_pointwise (a : A) : diagram g C.
 Proof.
-exists (fun v => pr1 (dob D v) a); intros u v e.
+exists (λ v, pr1 (dob D v) a); intros u v e.
 now apply (pr1 (dmor D e) a).
 Defined.
 
@@ -472,7 +472,7 @@ Lemma ColimFunctor_unique (F : [A, C, hsC]) (cc : cocone D F) :
 Proof.
 simple refine (tpair _ _ _).
 - simple refine (tpair _ _ _).
-  + apply (tpair _ (fun a => colimArrow (HCg a) _ (cocone_pointwise F cc a))).
+  + apply (tpair _ (λ a, colimArrow (HCg a) _ (cocone_pointwise F cc a))).
     abstract (intros a a' f; simpl;
               eapply pathscomp0;
                 [ now apply precompWithColimOfArrows
