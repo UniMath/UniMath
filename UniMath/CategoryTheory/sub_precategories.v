@@ -361,7 +361,7 @@ Defined.
 
 Definition weq_hom_in_subcat_from_hom_in_precat (C : precategory)
      (C' : hsubtype (ob C))
-    (a b : ob (full_sub_precategory C')): weq (pr1 a --> pr1 b) (a-->b) :=
+    (a b : ob (full_sub_precategory C')): (pr1 a --> pr1 b) ≃ (a-->b) :=
   tpair _ _ (isweq_hom_in_subcat_from_hom_in_precat C C' a b).
 
 

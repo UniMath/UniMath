@@ -256,7 +256,7 @@ Proof . apply ( isantisymmnegabgrdiffrel nataddabmonoid isplushrelnatgth )  . un
 Lemma isnegrelhzgth : isnegrel hzgth .
 Proof . apply isdecreltoisnegrel . apply isdecrelhzgth . Defined .
 
-Lemma iscoantisymmhzgth ( n m : hz ) : neg ( hzgth n m ) -> coprod ( hzgth m n ) ( n = m ) .
+Lemma iscoantisymmhzgth ( n m : hz ) : neg ( hzgth n m ) -> ( hzgth m n ) ⨿ ( n = m ) .
 Proof . apply isantisymmnegtoiscoantisymm . apply isdecrelhzgth .  intros n m . apply isantisymmneghzgth . Defined .
 
 Lemma iscotranshzgth ( n m k : hz ) : hzgth n k -> hdisj ( hzgth n m ) ( hzgth m k ) .
@@ -281,7 +281,7 @@ Definition isantisymmneghztth  ( n m : hz ) : neg ( hzlth n m ) -> neg ( hzlth m
 
 Definition isnegrelhzlth : isnegrel hzlth := λ n m, isnegrelhzgth m n .
 
-Definition iscoantisymmhzlth ( n m : hz ) : neg ( hzlth n m ) -> coprod ( hzlth m n ) ( n = m ) .
+Definition iscoantisymmhzlth ( n m : hz ) : neg ( hzlth n m ) -> ( hzlth m n ) ⨿ ( n = m ) .
 Proof . intros n m nlnm . destruct ( iscoantisymmhzgth m n nlnm ) as [ l | e ] . apply ( ii1 l ) . apply ( ii2 ( pathsinv0 e ) ) . Defined .
 
 Definition iscotranshzlth ( n m k : hz ) : hzlth n k -> hdisj ( hzlth n m ) ( hzlth m k ) .
@@ -357,18 +357,18 @@ Definition neghzlthtogeh ( n m : hz ) : neg ( hzlth n m ) -> hzgeh n m := λ nl,
 (** *** Comparison alternatives *)
 
 
-Definition hzgthorleh ( n m : hz ) : coprod ( hzgth n m ) ( hzleh n m ) .
+Definition hzgthorleh ( n m : hz ) : ( hzgth n m ) ⨿ ( hzleh n m ) .
 Proof . intros . apply ( isdecrelhzgth n m ) .  Defined .
 
-Definition hzlthorgeh ( n m : hz ) : coprod ( hzlth n m ) ( hzgeh n m ) := hzgthorleh _ _ .
+Definition hzlthorgeh ( n m : hz ) : ( hzlth n m ) ⨿ ( hzgeh n m ) := hzgthorleh _ _ .
 
-Definition hzneqchoice ( n m : hz ) ( ne : neg ( n = m ) ) : coprod ( hzgth n m ) ( hzlth n m ) .
+Definition hzneqchoice ( n m : hz ) ( ne : neg ( n = m ) ) : ( hzgth n m ) ⨿ ( hzlth n m ) .
 Proof . intros . destruct ( hzgthorleh n m ) as [ g | l ]  .  destruct ( hzlthorgeh n m ) as [ g' | l' ] . destruct ( isasymmhzgth _ _ g g' )  .  apply ( ii1 g ) . destruct ( hzlthorgeh n m ) as [ l' | g' ] . apply ( ii2 l' ) . destruct ( ne ( isantisymmhzleh _ _ l g' ) ) . Defined .
 
-Definition hzlehchoice ( n m : hz ) ( l : hzleh n m ) : coprod ( hzlth n m ) ( n = m ) .
+Definition hzlehchoice ( n m : hz ) ( l : hzleh n m ) : ( hzlth n m ) ⨿ ( n = m ) .
 Proof .  intros . destruct ( hzlthorgeh n m ) as [ l' | g ] .   apply ( ii1 l' ) . apply ( ii2 ( isantisymmhzleh _ _ l g ) ) . Defined .
 
-Definition hzgehchoice ( n m : hz ) ( g : hzgeh n m ) : coprod ( hzgth n m ) ( n = m ) .
+Definition hzgehchoice ( n m : hz ) ( g : hzgeh n m ) : ( hzgth n m ) ⨿ ( n = m ) .
 Proof .  intros . destruct ( hzgthorleh n m ) as [ g' | l ] .  apply ( ii1 g' ) .  apply ( ii2 ( isantisymmhzleh _ _ l g ) ) .  Defined .
 
 

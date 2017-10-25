@@ -57,7 +57,7 @@ Definition catiso_to_precategory_ob_path {A B : precategory_data}
 
 Definition catiso_fully_faithful_weq {A B : precategory_data}
   (F : catiso A B)
-  : forall a a' : A, weq (a --> a') (F a --> F a')
+  : forall a a' : A, (a --> a') ≃ (F a --> F a')
   := λ a a', (weqpair (functor_on_morphisms F) (pr1 (pr2 F) a a')).
 
 Lemma catiso_fully_faithful_path {A B : precategory_data}

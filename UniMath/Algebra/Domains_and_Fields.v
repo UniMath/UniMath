@@ -506,7 +506,7 @@ Defined.
 (** **** Main definitions *)
 
 Definition isafield (X : commrng) : UU :=
-  (isnonzerorng X) × (∏ x : X, coprod (multinvpair X x) (x = 0)).
+  (isnonzerorng X) × (∏ x : X, (multinvpair X x) ⨿ (x = 0)).
 
 Lemma isapropisafield (X : commrng) : isaprop (isafield X).
 Proof.
@@ -543,7 +543,7 @@ Proof.
 Defined.
 Coercion fldtointdom : fld >-> intdom.
 
-Definition fldchoice {X : fld} (x : X) : coprod (multinvpair X x) (x = 0) := pr2 (pr2 X) x.
+Definition fldchoice {X : fld} (x : X) : (multinvpair X x) ⨿ (x = 0) := pr2 (pr2 X) x.
 
 Definition fldmultinvpair (X : fld) (x : X) (ne : x != 0) : multinvpair X x.
 Proof.

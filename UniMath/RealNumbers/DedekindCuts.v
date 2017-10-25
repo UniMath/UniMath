@@ -137,7 +137,7 @@ Proof.
 Qed.
 
 Lemma weqTwoSidedOneSided :
-  weq (∑ L U : hq → hProp, isTwoSided L U) (∑ S : hq → hProp, isOneSided S).
+  (∑ L U : hq → hProp, isTwoSided L U) ≃ (∑ S : hq → hProp, isOneSided S).
 Proof.
   set (f := (λ (LU : ∑ L U : hq → hProp, isTwoSided L U),
             pr1 LU,, isTwoSided_OneSided (pr1 LU) (pr1 (pr2 LU)) (pr2 (pr2 LU)))

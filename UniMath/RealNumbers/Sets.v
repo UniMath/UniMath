@@ -357,7 +357,7 @@ Definition isSmallerThanUpperBounds (E : hsubtype X) (lub : X) : UU :=
   ∏ ub : X, isUpperBound E ub -> lub <= ub.
 
 Definition isLeastUpperBound (E : hsubtype X) (lub : X) : UU :=
-  dirprod (isUpperBound E lub) (isSmallerThanUpperBounds E lub).
+  (isUpperBound E lub) × (isSmallerThanUpperBounds E lub).
 Definition LeastUpperBound (E : hsubtype X) : UU :=
   ∑ lub : X, isLeastUpperBound E lub.
 Definition pairLeastUpperBound (E : hsubtype X) (lub : X)
@@ -402,7 +402,7 @@ Definition isBiggerThanLowerBounds (E : hsubtype X) (lub : X) : UU :=
   ∏ ub : X, isLowerBound E ub -> lub >= ub.
 
 Definition isGreatestLowerBound (E : hsubtype X) (glb : X) : UU :=
-  dirprod (isLowerBound E glb) (isBiggerThanLowerBounds E glb).
+  (isLowerBound E glb) × (isBiggerThanLowerBounds E glb).
 Definition GreatestLowerBound (E : hsubtype X) : UU :=
   ∑ glb : X, isGreatestLowerBound E glb.
 Definition pairGreatestLowerBound (E : hsubtype X) (glb : X)

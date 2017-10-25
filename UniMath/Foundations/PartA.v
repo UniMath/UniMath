@@ -2806,7 +2806,7 @@ Defined.
 
 (** *** Some properties of [ bool ] *)
 
-Definition boolchoice (x : bool) : coprod (x = true) (x = false).
+Definition boolchoice (x : bool) : (x = true) ⨿ (x = false).
 Proof.
   intro. induction x. apply (ii1 (idpath _)). apply (ii2 (idpath _)).
 Defined.
@@ -2884,7 +2884,7 @@ Proof.
   assert (egf : ∏ p: P x, (g (f p)) = p). intro. simpl in g.
   unfold g. unfold f. simpl.
 
-  set (ff := λ cc:coprod (x = x) (P x -> empty),
+  set (ff := λ cc:(x = x) ⨿ (P x -> empty),
                match cc with
                | ii1 e0 => transportb P e0 p
                | ii2 phi => fromempty  (phi p)

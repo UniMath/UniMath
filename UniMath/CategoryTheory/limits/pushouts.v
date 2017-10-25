@@ -24,7 +24,7 @@ Section def_po.
   Definition isPushout {a b c d : C} (f : a --> b) (g : a --> c)
              (in1 : b --> d) (in2 : c --> d) (H : f · in1 = g · in2) : UU :=
     ∏ e (h : b --> e) (k : c --> e)(H : f · h = g · k),
-    iscontr (total2 (fun hk : d --> e => dirprod (in1 · hk = h) (in2 · hk = k))).
+    iscontr (total2 (fun hk : d --> e => (in1 · hk = h) × (in2 · hk = k))).
 
   Lemma isaprop_isPushout {a b c d : C} (f : a --> b) (g : a --> c)
         (in1 : b --> d) (in2 : c --> d) (H : f · in1 = g · in2) :
@@ -49,7 +49,7 @@ Section def_po.
   Qed.
 
   Definition Pushout {a b c : C} (f : a --> b) (g : a --> c) :=
-    total2 (fun pfg : total2 (λ p : C, dirprod (b --> p) (c --> p)) =>
+    total2 (fun pfg : total2 (λ p : C, (b --> p) × (c --> p)) =>
               total2 (fun H : f · pr1 (pr2 pfg) = g · pr2 (pr2 pfg) =>
                         isPushout f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
 

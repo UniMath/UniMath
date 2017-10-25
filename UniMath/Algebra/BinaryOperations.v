@@ -58,14 +58,14 @@ Definition islcancelable {X : UU} (opp : binop X) (x : X) : UU := isincl (λ x0 
 Definition isrcancelable {X : UU} (opp : binop X) (x : X) : UU := isincl (λ x0 : X, opp x0 x).
 
 Definition iscancelable {X : UU} (opp : binop X) (x : X) : UU :=
-  dirprod (islcancelable opp x) (isrcancelable opp x).
+  (islcancelable opp x) × (isrcancelable opp x).
 
 Definition islinvertible {X : UU} (opp : binop X) (x : X) : UU := isweq (λ x0 : X, opp x x0).
 
 Definition isrinvertible {X : UU} (opp : binop X) (x : X) : UU := isweq (λ x0 : X, opp x0 x).
 
 Definition isinvertible {X : UU} (opp : binop X) (x : X) : UU :=
-  dirprod (islinvertible opp x) (isrinvertible opp x).
+  (islinvertible opp x) × (isrinvertible opp x).
 
 (** **** Transfer of binary operations relative to weak equivalences *)
 
@@ -114,7 +114,7 @@ Proof.
 Defined.
 
 Definition isunit {X : UU} (opp : binop X) (un0 : X) : UU :=
-  dirprod (islunit opp un0) (isrunit opp un0).
+  (islunit opp un0) × (isrunit opp un0).
 
 Definition isunitpair {X : UU} {opp : binop X} {un0 : X} (H1 : islunit opp un0)
            (H2 : isrunit opp un0) : isunit opp un0 := dirprodpair H1 H2.
@@ -135,7 +135,7 @@ Defined.
 
 (** *)
 
-Definition ismonoidop {X : UU} (opp : binop X) : UU := dirprod (isassoc opp) (isunital opp).
+Definition ismonoidop {X : UU} (opp : binop X) : UU := (isassoc opp) × (isunital opp).
 
 Definition mk_ismonoidop {X : UU} {opp : binop X} (H1 : isassoc opp) (H2 : isunital opp) :
   ismonoidop opp := dirprodpair H1 H2.
@@ -183,7 +183,7 @@ Proof.
 Defined.
 
 Definition isinv {X : UU} (opp : binop X) (un0 : X) (inv0 : X -> X) : UU :=
-  dirprod (islinv opp un0 inv0) (isrinv opp un0 inv0).
+  (islinv opp un0 inv0) × (isrinv opp un0 inv0).
 
 Definition mk_isinv {X : UU} {opp : binop X} {un0 : X} {inv0 : X -> X} (H1 : islinv opp un0 inv0)
            (H2 : isrinv opp un0 inv0) : isinv opp un0 inv0 := dirprodpair H1 H2.
@@ -394,7 +394,7 @@ Proof.
   apply (setproperty X).
 Defined.
 
-Definition isabmonoidop {X : UU} (opp : binop X) : UU := dirprod (ismonoidop opp) (iscomm opp).
+Definition isabmonoidop {X : UU} (opp : binop X) : UU := (ismonoidop opp) × (iscomm opp).
 
 Definition mk_isabmonoidop {X : UU} {opp : binop X} (H1 : ismonoidop opp) (H2 : iscomm opp) :
   isabmonoidop opp := dirprodpair H1 H2.
@@ -512,7 +512,7 @@ Opaque abmonoidoprer.
 
 (** *)
 
-Definition isabgrop {X : UU} (opp : binop X) : UU := dirprod (isgrop opp) (iscomm opp).
+Definition isabgrop {X : UU} (opp : binop X) : UU := (isgrop opp) × (iscomm opp).
 
 Definition mk_isabgrop {X : UU} {opp : binop X} (H1 : isgrop opp) (H2 : iscomm opp) :
   isabgrop opp := dirprodpair H1 H2.
@@ -561,7 +561,7 @@ Proof.
 Defined.
 
 Definition isdistr {X : UU} (opp1 opp2 : binop X) : UU :=
-  dirprod (isldistr opp1 opp2) (isrdistr opp1 opp2).
+  (isldistr opp1 opp2) × (isrdistr opp1 opp2).
 
 Lemma isapropisdistr {X : hSet} (opp1 opp2 : binop X) : isaprop (isdistr opp1 opp2).
 Proof.
@@ -665,7 +665,7 @@ Defined.
 (** *)
 
 Definition isrngops {X : UU} (opp1 opp2 : binop X) : UU :=
-  dirprod (dirprod (isabgrop opp1) (ismonoidop opp2)) (isdistr opp1 opp2).
+  dirprod ((isabgrop opp1) × (ismonoidop opp2)) (isdistr opp1 opp2).
 
 Definition mk_isrngops {X : UU} {opp1 opp2 : binop X} (H1 : isabgrop opp1) (H2 : ismonoidop opp2)
            (H3 : isdistr opp1 opp2) : isrngops opp1 opp2 :=
@@ -830,7 +830,7 @@ Coercion isrngopstoisrigops : isrngops >-> isrigops.
 (** *)
 
 Definition iscommrigops {X : UU} (opp1 opp2 : binop X) : UU :=
-  dirprod (isrigops opp1 opp2) (iscomm opp2).
+  (isrigops opp1 opp2) × (iscomm opp2).
 
 Definition pr1iscommrigops (X : UU) (opp1 opp2 : binop X) :
   iscommrigops opp1 opp2 -> isrigops opp1 opp2 := @pr1 _ _.
@@ -850,7 +850,7 @@ Defined.
 (** *)
 
 Definition iscommrngops {X : UU} (opp1 opp2 : binop X) : UU :=
-  dirprod (isrngops opp1 opp2) (iscomm opp2).
+  (isrngops opp1 opp2) × (iscomm opp2).
 
 Definition pr1iscommrngops (X : UU) (opp1 opp2 : binop X) :
   iscommrngops opp1 opp2 -> isrngops opp1 opp2 := @pr1 _ _.
@@ -2131,13 +2131,13 @@ Defined.
 
 (** **** General definitions *)
 
-Definition setwith2binop : UU := total2 (λ X : hSet, dirprod (binop X) (binop X)).
+Definition setwith2binop : UU := total2 (λ X : hSet, (binop X) × (binop X)).
 
-Definition setwith2binoppair (X : hSet) (opps : dirprod (binop X) (binop X)) :
-  setwith2binop := tpair (λ X : hSet, dirprod (binop X) (binop X)) X opps.
+Definition setwith2binoppair (X : hSet) (opps : (binop X) × (binop X)) :
+  setwith2binop := tpair (λ X : hSet, (binop X) × (binop X)) X opps.
 
 Definition pr1setwith2binop : setwith2binop -> hSet :=
-  @pr1 _ (λ X : hSet, dirprod (binop X) (binop X)).
+  @pr1 _ (λ X : hSet, (binop X) × (binop X)).
 Coercion pr1setwith2binop : setwith2binop >-> hSet.
 
 Definition op1 {X : setwith2binop} : binop X := pr1 (pr2 X).
@@ -2151,7 +2151,7 @@ Definition setwithbinop2 (X : setwith2binop) : setwithbinop := setwithbinoppair 
 Notation "x + y" := (op1 x y) : twobinops_scope.
 Notation "x * y" := (op2 x y) : twobinops_scope.
 
-Definition isasettwobinoponhSet {X : hSet} : isaset (dirprod (binop X) (binop X)).
+Definition isasettwobinoponhSet {X : hSet} : isaset ((binop X) × (binop X)).
 Proof.
   intros X.
   use isasetdirprod.

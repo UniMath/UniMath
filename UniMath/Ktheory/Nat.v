@@ -155,7 +155,7 @@ Module Discern.
            { exact (  ap (helper_B (S m) (S m)) (! apSC _ _ (idpath m))
                     @ ap (ap S) IHm). } } Defined.
 
-  Definition E m n : weq (nat_discern m n) (m = n).
+  Definition E m n : (nat_discern m n) ≃ (m = n).
   Proof. intros. exact (weqpair (helper_B _ _) (helper_D _ _)). Defined.
 
   Definition nat_dist_anti m n : nat_dist m n = 0 -> m = n.
@@ -244,7 +244,7 @@ Proof. intros ? ? ? ? j.
        { apply nat_dist_between_le. exact s. exact j. }
 Defined.
 
-Definition natleorle m n : coprod (m≤n) (n≤m).
+Definition natleorle m n : (m≤n) ⨿ (n≤m).
 Proof. intros.
        induction (natgthorleh m n) as [r|s].
        { apply ii2. apply natlthtoleh. exact r. }

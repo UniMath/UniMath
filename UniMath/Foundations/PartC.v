@@ -918,7 +918,7 @@ Defined.
 
 
 Lemma coprodofhfiberstohfiber {X Y Z : UU} (f : X -> Z) (g : Y -> Z) (z : Z) :
-  coprod (hfiber f z) (hfiber g z) -> hfiber (sumofmaps f g) z.
+  (hfiber f z) ⨿ (hfiber g z) -> hfiber (sumofmaps f g) z.
 Proof.
   intros X Y Z f g z hfg.
   induction hfg as [ hf | hg ].
@@ -927,7 +927,7 @@ Proof.
 Defined.
 
 Lemma hfibertocoprodofhfibers {X Y Z : UU} (f : X -> Z) (g : Y -> Z) (z : Z) :
-  hfiber (sumofmaps f g) z -> coprod (hfiber f z) (hfiber g z).
+  hfiber (sumofmaps f g) z -> (hfiber f z) ⨿ (hfiber g z).
 Proof.
   intros X Y Z f g z hsfg.
   induction hsfg as [ xy e ]. induction xy as [ x | y ].
@@ -936,7 +936,7 @@ Proof.
 Defined.
 
 Theorem weqhfibersofsumofmaps {X Y Z : UU} (f : X -> Z) (g : Y -> Z) (z : Z) :
-  weq (coprod (hfiber f z) (hfiber g z)) (hfiber (sumofmaps f g) z).
+  weq ((hfiber f z) ⨿ (hfiber g z)) (hfiber (sumofmaps f g) z).
 Proof.
   intros.
   set (ff := coprodofhfiberstohfiber f g z).
@@ -990,7 +990,7 @@ Defined.
 
 Lemma weqhfibernoi1 {X Y Z : UU} (f : X -> Z) (g : Y -> Z)
       (noi : ∏ (x : X) (y : Y), neg (paths (f x) (g y))) (z : Z)
-      (xe : hfiber f z) : weq (hfiber (sumofmaps f g) z) (hfiber f z).
+      (xe : hfiber f z) : (hfiber (sumofmaps f g) z) ≃ (hfiber f z).
 Proof.
   intros.
   set (w1 := invweq (weqhfibersofsumofmaps f g z)).
@@ -1000,7 +1000,7 @@ Defined.
 
 Lemma weqhfibernoi2 {X Y Z : UU} (f : X -> Z) (g : Y -> Z)
       (noi : ∏ (x : X) (y : Y), neg (paths (f x) (g y))) (z : Z)
-      (ye : hfiber g z) : weq (hfiber (sumofmaps f g) z) (hfiber g z).
+      (ye : hfiber g z) : (hfiber (sumofmaps f g) z) ≃ (hfiber g z).
 Proof.
   intros. set (w1 := invweq (weqhfibersofsumofmaps f g z)).
   assert (a : neg (hfiber f z)). intro xe. apply (noil1 f g noi z xe ye).

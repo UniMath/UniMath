@@ -143,7 +143,7 @@ Proof.
     + reflexivity.
 Qed.
 
-Definition hset_iso_equiv_weq (A B : ob HSET) : weq (iso A B) ((pr1 A) ≃ (pr1 B)).
+Definition hset_iso_equiv_weq (A B : ob HSET) : (iso A B) ≃ ((pr1 A) ≃ (pr1 B)).
 Proof.
   exists (hset_iso_equiv A B).
   apply hset_iso_equiv_is_equiv.
@@ -161,7 +161,7 @@ Proof.
 Qed.
 
 Definition hset_equiv_iso_weq (A B : ob HSET) :
-  weq ((pr1 A) ≃ (pr1 B))(iso A B).
+  (pr1 A ≃ pr1 B) ≃ iso A B.
 Proof.
   exists (hset_equiv_iso A B).
   apply hset_equiv_iso_is_equiv.
@@ -169,11 +169,11 @@ Defined.
 
 (** ** HSET is a univalent_category. *)
 
-Definition univalenceweq (X X' : UU) : weq (X = X') (X ≃ X') :=
+Definition univalenceweq (X X' : UU) : (X = X') ≃ (X ≃ X') :=
    tpair _ _ (univalenceAxiom X X').
 
 Definition hset_id_iso_weq (A B : ob HSET) :
-  weq (A = B) (iso A B) :=
+  (A = B) ≃ (iso A B) :=
   weqcomp (UA_for_HLevels 2 A B) (hset_equiv_iso_weq A B).
 
 

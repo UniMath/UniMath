@@ -259,7 +259,7 @@ Proof.
   set (CPX := λ x : X, CP (ii1 x)).
   set (CPY := λ y : Y, CP (ii2 y)).
   set (is1P := is P).
-  assert (f : coprod (ishinh X) (ishinh Y) -> P).
+  assert (f : (ishinh X) ⨿ (ishinh Y) -> P).
   apply (sumofmaps (hinhuniv CPX) (hinhuniv CPY)).
   apply (is1P f).
 Defined.
@@ -514,7 +514,7 @@ Proof.
 Defined.
 
 Definition weqforallnegtonegexists {X : UU} (F : X -> UU) :
-  weq (∏ x : X, ¬ F x) (¬ ∃ x, F x).
+  (∏ x : X, ¬ F x) ≃ (¬ ∃ x, F x).
 Proof.
   intros.
   apply (weqimplimpl (forallnegtoneghexists F) (neghexisttoforallneg F)).
@@ -745,7 +745,7 @@ Definition logeqweq (P Q : hProp) : (P -> Q) -> (Q -> P) -> P ≃ Q :=
 
 (* ** A variant of a lemma proved in uu0b.v *)
 Theorem total2_paths_hProp_equiv {A : UU} (B : A -> hProp)
-   (x y : total2 (λ x, B x)) : weq (x = y) (pr1 x = pr1 y).
+   (x y : total2 (λ x, B x)) : (x = y) ≃ (pr1 x = pr1 y).
 Proof.
   intros.
   apply subtypeInjectivity.

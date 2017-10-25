@@ -193,7 +193,7 @@ Proof.
 Defined.
 
 Theorem natdivremunique' (n m i j:nat) : j+i*m=n -> j<m ->
-                                         dirprod (natdiv n m = i) (natrem n m = j).
+                                         (natdiv n m = i) × (natrem n m = j).
 Proof.
   intros ? ? ? ? e l.
   apply (natdivremunique m (natdiv n m) (natrem n m) i j).

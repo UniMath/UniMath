@@ -98,7 +98,7 @@ Proof.
   - now apply ii2.
 Defined.
 
-Definition weqisolatedstntostn ( n : nat ) : weq ( isolated ( stn n ) ) ( stn n ) .
+Definition weqisolatedstntostn ( n : nat ) : ( isolated ( stn n ) ) ≃ ( stn n ) .
 Proof . intro . apply weqpr1 . intro x .   apply iscontraprop1 .  apply ( isapropisisolated ) . set ( int := isdeceqstn n x  ) . assumption .  Defined .
 
 Corollary isasetstn ( n : nat ) : isaset ( stn n ) .
@@ -296,7 +296,7 @@ Proof.
   intros. simpl. apply di_neq_i.
 Defined.
 
-Lemma weqhfiberdnihfiberdi ( n : nat ) ( i j : stn ( S n ) ) : weq ( hfiber ( dni i ) j ) ( hfiber ( di i ) j ) .
+Lemma weqhfiberdnihfiberdi ( n : nat ) ( i j : stn ( S n ) ) : ( hfiber ( dni i ) j ) ≃ ( hfiber ( di i ) j ) .
 Proof.  intros . apply ( weqhfibersg'tof _ _ _ _ ( dnihfsq n i ) j ) . Defined .
 
 Lemma neghfiberdni ( n : nat ) ( i : stn ( S n ) ) : ¬ ( hfiber ( dni i ) i ) .
@@ -491,7 +491,7 @@ Proof. intros ? i j. apply subtypeEquality_prop. Defined.
 
 (** ***  Weak equivalence between the coproduct of [ stn n ] and [ stn m ] and [ stn ( n + m ) ] *)
 
-Definition weqfromcoprodofstn_invmap (n m : nat) : (stn (n + m)) -> (coprod (stn n) (stn m)).
+Definition weqfromcoprodofstn_invmap (n m : nat) : (stn (n + m)) -> ((stn n) ⨿ (stn m)).
 Proof.
   intros n m i.
   induction (natlthorgeh i n) as [i1 | i2].
@@ -512,7 +512,7 @@ Proof.
     exact (natgehtonegnatlth _ _ J (stnlt i)).
 Defined.
 
-Definition weqfromcoprodofstn_map (n m : nat) : (coprod (stn n) (stn m)) -> (stn (n + m)).
+Definition weqfromcoprodofstn_map (n m : nat) : ((stn n) ⨿ (stn m)) -> (stn (n + m)).
 Proof.
   intros n m i.
   induction i as [i | i].
@@ -550,7 +550,7 @@ Proof.
 Qed.
 
 (** A proof of weqfromcoprodofstn using gradth *)
-Theorem weqfromcoprodofstn (n m : nat) : weq (coprod (stn n) (stn m )) (stn (n + m)).
+Theorem weqfromcoprodofstn (n m : nat) : weq ((stn n) ⨿ (stn m )) (stn (n + m)).
 Proof.
   intros n m.
   use (tpair _ (weqfromcoprodofstn_map n m)).
@@ -1142,7 +1142,7 @@ Proof . intros .  set ( t := weqfromdecsubsetofstn ( λ i : _, eqbx X x is ( f i
 
 Theorem weqfromfunstntostn ( n m : nat ) : weq ( stn n -> stn m ) ( stn ( natpower m n ) ) .
 Proof. intro n . induction n as [ | n IHn ] . intro m .  apply weqcontrcontr . apply ( iscontrfunfromempty2 _ weqstn0toempty ) .  apply iscontrstn1 .
-intro m . set ( w1 := weqfromcoprodofstn 1 n ) . assert ( w2 : weq ( stn ( S n ) -> stn m ) ( (coprod (stn 1) (stn n)) -> stn m ) ) .   apply ( weqbfun _ w1  ) .  set ( w3 := weqcomp w2 ( weqfunfromcoprodtoprod ( stn 1 ) ( stn n ) ( stn m ) ) ) .   set ( w4 := weqcomp w3 ( weqdirprodf ( weqfunfromcontr ( stn m ) iscontrstn1 ) ( IHn m ) ) ) .  apply ( weqcomp w4 ( weqfromprodofstn m ( natpower m n ) ) ) .  Defined .
+intro m . set ( w1 := weqfromcoprodofstn 1 n ) . assert ( w2 : weq ( stn ( S n ) -> stn m ) ( ((stn 1) ⨿ (stn n)) -> stn m ) ) .   apply ( weqbfun _ w1  ) .  set ( w3 := weqcomp w2 ( weqfunfromcoprodtoprod ( stn 1 ) ( stn n ) ( stn m ) ) ) .   set ( w4 := weqcomp w3 ( weqdirprodf ( weqfunfromcontr ( stn m ) iscontrstn1 ) ( IHn m ) ) ) .  apply ( weqcomp w4 ( weqfromprodofstn m ( natpower m n ) ) ) .  Defined .
 
 
 
@@ -1166,7 +1166,7 @@ Proof.
   apply (maponpaths (λ i, i * f lastelement)). apply IH. intro x. apply h.
 Defined.
 
-Theorem weqstnprod { n : nat } ( P : stn n -> UU ) ( f : stn n -> nat ) ( ww : ∏ i : stn n , weq ( stn ( f i ) )  ( P i ) ) : weq ( ∏ x : stn n , P x  ) ( stn ( stnprod f ) ) .
+Theorem weqstnprod { n : nat } ( P : stn n -> UU ) ( f : stn n -> nat ) ( ww : ∏ i : stn n , ( stn ( f i ) ) ≃ ( P i ) ) : weq ( ∏ x : stn n , P x  ) ( stn ( stnprod f ) ) .
 Proof .
   intro n .
   induction n as [ | n IHn ] .
@@ -1261,20 +1261,20 @@ Proof. intros n n' X. apply (eqfromdnegeq nat isdeceqnat _ _  (dnegf (@weqtoeqst
 (** ** Some results on bounded quantification *)
 
 
-Lemma weqforallnatlehn0 ( F : nat -> hProp ) : weq ( ∏ n : nat , natleh n 0 -> F n ) ( F 0 ) .
+Lemma weqforallnatlehn0 ( F : nat -> hProp ) : ( ∏ n : nat , natleh n 0 -> F n ) ≃ ( F 0 ) .
 Proof . intros .  assert ( lg : ( ∏ n : nat , natleh n 0 -> F n ) <-> ( F 0 ) ) . split . intro f .  apply ( f 0 ( isreflnatleh 0 ) ) .  intros f0 n l .  set ( e := natleh0tois0 l ) .  rewrite e .  apply f0 . assert ( is1 : isaprop ( ∏ n : nat , natleh n 0 -> F n ) ) . apply impred . intro n . apply impred .   intro l .  apply ( pr2 ( F n ) ) .  apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) is1 ( pr2 ( F 0 ) ) ) . Defined .
 
 Lemma weqforallnatlehnsn' ( n' : nat ) ( F : nat -> hProp ) : weq ( ∏ n : nat , natleh n ( S n' ) -> F n ) ( dirprod ( ∏ n : nat , natleh n n' -> F n ) ( F ( S n' ) ) ) .
 Proof . intros . assert ( lg : ( ∏ n : nat , natleh n ( S n' ) -> F n ) <-> dirprod ( ∏ n : nat , natleh n n' -> F n ) ( F ( S n' ) ) ) .  split . intro f.  apply ( dirprodpair ( λ n, λ l, ( f n ( natlehtolehs _ _ l ) ) ) ( f ( S n' ) ( isreflnatleh _ ) ) ) .  intro d2 . intro n .  intro l .  destruct ( natlehchoice2 _ _ l ) as [ h | e ] . simpl in h .  apply ( pr1 d2 n h ) . destruct d2 as [ f2 d2 ] .  rewrite e .  apply d2 . assert ( is1 : isaprop ( ∏ n : nat , natleh n ( S n' ) -> F n ) ) . apply impred . intro n . apply impred . intro l . apply ( pr2 ( F n ) ) . assert ( is2 : isaprop ( dirprod ( ∏ n : nat , natleh n n' -> F n ) ( F ( S n' ) ) ) ) . apply isapropdirprod . apply impred . intro n . apply impred . intro l . apply ( pr2 ( F n ) ) .   apply ( pr2 ( F ( S n' ) ) ) .  apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) is1 is2 ) . Defined .
 
-Lemma weqexistsnatlehn0 ( P : nat -> hProp  ) : weq ( hexists ( λ n : nat, dirprod ( natleh n 0 ) ( P n ) ) ) ( P 0 ) .
-Proof . intro . assert ( lg : hexists ( λ n : nat, dirprod ( natleh n 0 ) ( P n ) ) <-> P 0  ) . split .  simpl . apply ( @hinhuniv _ ( P 0 ) ) .  intro t2 .  destruct t2 as [ n d2 ] . destruct d2 as [ l p ] . set ( e := natleh0tois0 l ) . clearbody e .  destruct e . apply p . intro p . apply hinhpr . split with 0 .  split with ( isreflnatleh 0 ) .  apply p . apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( pr2 _ ) ( pr2 _ ) ) .  Defined .
+Lemma weqexistsnatlehn0 ( P : nat -> hProp  ) : weq ( hexists ( λ n : nat, ( natleh n 0 ) × ( P n ) ) ) ( P 0 ) .
+Proof . intro . assert ( lg : hexists ( λ n : nat, ( natleh n 0 ) × ( P n ) ) <-> P 0  ) . split .  simpl . apply ( @hinhuniv _ ( P 0 ) ) .  intro t2 .  destruct t2 as [ n d2 ] . destruct d2 as [ l p ] . set ( e := natleh0tois0 l ) . clearbody e .  destruct e . apply p . intro p . apply hinhpr . split with 0 .  split with ( isreflnatleh 0 ) .  apply p . apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( pr2 _ ) ( pr2 _ ) ) .  Defined .
 
-Lemma weqexistsnatlehnsn' ( n' : nat ) ( P : nat -> hProp  ) : weq ( hexists ( λ n : nat, dirprod ( natleh n ( S n' ) ) ( P n ) ) ) ( hdisj ( hexists ( λ n : nat, dirprod ( natleh n n' ) ( P n ) ) )  ( P ( S n' ) ) ) .
-Proof . intros . assert ( lg : hexists ( λ n : nat, dirprod ( natleh n ( S n' ) ) ( P n ) )  <-> hdisj ( hexists ( λ n : nat, dirprod ( natleh n n' ) ( P n ) ) )  ( P ( S n' ) )  ) . split . apply hinhfun .   intro t2 .  destruct t2 as [ n d2 ] . destruct d2 as [ l p ] . destruct ( natlehchoice2 _ _ l ) as [ h | nh ] . simpl in h . apply ii1 .  apply hinhpr . split with n .  apply ( dirprodpair h p ) . destruct nh .  apply ( ii2 p ) . simpl . apply ( @hinhuniv _ ( ishinh _ ) ) . intro c .  destruct c as [ t | p ] .  generalize t . simpl . apply hinhfun .  clear t . intro t . destruct t as [ n d2 ] . destruct d2 as [ l p ] . split with n .  split with ( natlehtolehs _ _ l ) .  apply p .  apply hinhpr . split with ( S n' ) .  split with ( isreflnatleh _ ) . apply p .  apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( pr2 _ ) ( pr2 _ ) ) .  Defined .
+Lemma weqexistsnatlehnsn' ( n' : nat ) ( P : nat -> hProp  ) : weq ( hexists ( λ n : nat, dirprod ( natleh n ( S n' ) ) ( P n ) ) ) ( hdisj ( hexists ( λ n : nat, ( natleh n n' ) × ( P n ) ) )  ( P ( S n' ) ) ) .
+Proof . intros . assert ( lg : hexists ( λ n : nat, dirprod ( natleh n ( S n' ) ) ( P n ) )  <-> hdisj ( hexists ( λ n : nat, ( natleh n n' ) × ( P n ) ) )  ( P ( S n' ) )  ) . split . apply hinhfun .   intro t2 .  destruct t2 as [ n d2 ] . destruct d2 as [ l p ] . destruct ( natlehchoice2 _ _ l ) as [ h | nh ] . simpl in h . apply ii1 .  apply hinhpr . split with n .  apply ( dirprodpair h p ) . destruct nh .  apply ( ii2 p ) . simpl . apply ( @hinhuniv _ ( ishinh _ ) ) . intro c .  destruct c as [ t | p ] .  generalize t . simpl . apply hinhfun .  clear t . intro t . destruct t as [ n d2 ] . destruct d2 as [ l p ] . split with n .  split with ( natlehtolehs _ _ l ) .  apply p .  apply hinhpr . split with ( S n' ) .  split with ( isreflnatleh _ ) . apply p .  apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( pr2 _ ) ( pr2 _ ) ) .  Defined .
 
 
-Lemma isdecbexists ( n : nat ) ( P : nat -> UU ) ( is : ∏ n' , isdecprop ( P n' ) ) : isdecprop ( hexists ( λ n', dirprod ( natleh n' n ) ( P n' ) ) ) .
+Lemma isdecbexists ( n : nat ) ( P : nat -> UU ) ( is : ∏ n' , isdecprop ( P n' ) ) : isdecprop ( hexists ( λ n', ( natleh n' n ) × ( P n' ) ) ) .
 Proof . intros .  set ( P' := λ n' : nat, hProppair _ ( is n' ) ) . induction n as [ | n IHn ] . apply ( isdecpropweqb ( weqexistsnatlehn0 P' ) ) . apply ( is 0 ) .   apply ( isdecpropweqb ( weqexistsnatlehnsn' _ P' ) ) . apply isdecprophdisj . apply IHn . apply ( is ( S n ) ) . Defined .
 
 Lemma isdecbforall ( n : nat ) ( P : nat -> UU ) ( is : ∏ n' , isdecprop ( P n' ) ) : isdecprop ( ∏ n' , natleh n' n -> P n' )  .
@@ -1290,15 +1290,15 @@ Proof . intros n P is . set ( P' := λ n' : nat, hProppair _ ( is n' ) ) . induc
 
 (** ** Accessibility - the least element of an inhabited decidable subset of [nat] *)
 
-Definition natdecleast ( F : nat -> UU ) ( is : ∏ n , isdecprop ( F n ) ) := total2 ( λ  n : nat, dirprod ( F n ) ( ∏ n' : nat , F n' -> natleh n n' ) ) .
+Definition natdecleast ( F : nat -> UU ) ( is : ∏ n , isdecprop ( F n ) ) := total2 ( λ  n : nat, ( F n ) × ( ∏ n' : nat , F n' -> natleh n n' ) ) .
 
 Lemma isapropnatdecleast ( F : nat -> UU ) ( is : ∏ n , isdecprop ( F n ) ) : isaprop ( natdecleast F is ) .
-Proof . intros . set ( P := λ n' : nat, hProppair _ ( is n' ) ) . assert ( int1 : ∏ n : nat, isaprop ( dirprod ( F n ) ( ∏ n' : nat , F n' -> natleh n n' ) ) ) .  intro n . apply isapropdirprod . apply ( pr2 ( P n ) ) .  apply impred . intro t .  apply impred .  intro .  apply ( pr2 ( natleh n t ) ) . set ( int2 := ( λ n : nat, hProppair _ ( int1 n ) ) : nat -> hProp ) .   change ( isaprop ( total2 int2 ) ) . apply isapropsubtype . intros x1 x2 .  intros c1 c2 . simpl in * . destruct c1 as [ e1 c1 ] . destruct c2 as [ e2 c2 ] . set ( l1 := c1 x2 e2 ) .  set ( l2 := c2 x1 e1 ) . apply ( isantisymmnatleh _ _ l1 l2 ) .  Defined .
+Proof . intros . set ( P := λ n' : nat, hProppair _ ( is n' ) ) . assert ( int1 : ∏ n : nat, isaprop ( ( F n ) × ( ∏ n' : nat , F n' -> natleh n n' ) ) ) .  intro n . apply isapropdirprod . apply ( pr2 ( P n ) ) .  apply impred . intro t .  apply impred .  intro .  apply ( pr2 ( natleh n t ) ) . set ( int2 := ( λ n : nat, hProppair _ ( int1 n ) ) : nat -> hProp ) .   change ( isaprop ( total2 int2 ) ) . apply isapropsubtype . intros x1 x2 .  intros c1 c2 . simpl in * . destruct c1 as [ e1 c1 ] . destruct c2 as [ e2 c2 ] . set ( l1 := c1 x2 e2 ) .  set ( l2 := c2 x1 e1 ) . apply ( isantisymmnatleh _ _ l1 l2 ) .  Defined .
 
 Theorem accth ( F : nat -> UU ) ( is : ∏ n , isdecprop ( F n ) )  ( is' : hexists F ) : natdecleast F is .
 Proof . intros F is . simpl . apply (@hinhuniv _ ( hProppair _ ( isapropnatdecleast F is ) ) ) . intro t2. destruct t2 as [ n l ] . simpl .
 
-set ( F' := λ n' : nat, hexists ( λ n'', dirprod ( natleh n'' n' ) ( F n'' ) ) ) .  assert ( X : ∏ n' , F' n' -> natdecleast F is ) .  intro n' .    induction n' as [ | n' IHn' ] . apply ( @hinhuniv _  ( hProppair _ ( isapropnatdecleast F is ) ) ) . intro t2 . destruct t2 as [ n'' is'' ] . destruct is'' as [ l'' d'' ] .  split with 0 .  split . set ( e := natleh0tois0 l'' ) . clearbody e . destruct e . apply d'' .  apply ( λ n', λ f : _, natleh0n n' ) .  apply ( @hinhuniv _  ( hProppair _ ( isapropnatdecleast F is ) ) ) . intro t2 .  destruct t2 as [ n'' is'' ] . set ( j := natlehchoice2 _ _ ( pr1 is'' ) ) .  destruct j as [ jl | je ] .  simpl .  apply ( IHn' ( hinhpr ( tpair _ n'' ( dirprodpair jl ( pr2 is'' ) ) ) ) ) .  simpl . rewrite je in is''  .  destruct is'' as [ nn is'' ] .  clear nn. clear je . clear n'' .
+set ( F' := λ n' : nat, hexists ( λ n'', ( natleh n'' n' ) × ( F n'' ) ) ) .  assert ( X : ∏ n' , F' n' -> natdecleast F is ) .  intro n' .    induction n' as [ | n' IHn' ] . apply ( @hinhuniv _  ( hProppair _ ( isapropnatdecleast F is ) ) ) . intro t2 . destruct t2 as [ n'' is'' ] . destruct is'' as [ l'' d'' ] .  split with 0 .  split . set ( e := natleh0tois0 l'' ) . clearbody e . destruct e . apply d'' .  apply ( λ n', λ f : _, natleh0n n' ) .  apply ( @hinhuniv _  ( hProppair _ ( isapropnatdecleast F is ) ) ) . intro t2 .  destruct t2 as [ n'' is'' ] . set ( j := natlehchoice2 _ _ ( pr1 is'' ) ) .  destruct j as [ jl | je ] .  simpl .  apply ( IHn' ( hinhpr ( tpair _ n'' ( dirprodpair jl ( pr2 is'' ) ) ) ) ) .  simpl . rewrite je in is''  .  destruct is'' as [ nn is'' ] .  clear nn. clear je . clear n'' .
 
 assert ( is' : isdecprop ( F' n' ) ) . apply ( isdecbexists n' F is ) .   destruct ( pr1 is' ) as [ f | nf ] .  apply ( IHn'  f ) .  split with ( S n' ) .  split with is'' . intros n0 fn0 . destruct ( natlthorgeh n0 ( S n' ) )  as [ l' | g' ] .  set ( i' := natlthtolehsn _ _ l' ) .  destruct ( nf ( hinhpr ( tpair _ n0 ( dirprodpair i' fn0 ) ) ) ) .   apply g' .
 

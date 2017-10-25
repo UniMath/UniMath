@@ -447,7 +447,7 @@ Proof. intros. induction e. reflexivity. Defined.
 
 Definition weqonsec {X Y} (P:X->Type) (Q:Y->Type)
            (f:X ≃ Y) (g:∏ x, weq (P x) (Q (f x))) :
-  weq (∏ x:X, P x) (∏ y:Y, Q y).
+  (∏ x:X, P x) ≃ (∏ y:Y, Q y).
 Proof. intros.
        exact (weqcomp (weqonsecfibers P (λ x, Q(f x)) g)
                       (invweq (weqonsecbase Q f))). Defined.
@@ -460,7 +460,7 @@ Definition weq_transportf_comp {X} (P:X->Type) {x y:X} (p:x = y) (f:∏ x, P x) 
 Proof. intros. induction p. reflexivity. Defined.
 
 Definition weqonpaths2 {X Y} (w:X ≃ Y) {x x':X} {y y':Y} :
-  w x = y -> w x' = y' -> weq (x = x') (y = y').
+  w x = y -> w x' = y' -> (x = x') ≃ (y = y').
 Proof. intros ? ? ? ? ? ? ? p q. induction p,q. apply weqonpaths. Defined.
 
 Definition eqweqmap_ap {T} (P:T->Type) {t t':T} (e:t = t') (f:∏ t:T, P t) :

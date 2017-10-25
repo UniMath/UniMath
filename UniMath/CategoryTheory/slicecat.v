@@ -267,7 +267,7 @@ Context {C : precategory} (is_catC : is_univalent C) (x : C).
 
 Local Notation "C / x" := (slice_precat C x (pr2 is_catC)).
 
-Lemma id_weq_iso_slicecat (af bg : C / x) : weq (af = bg) (iso af bg).
+Lemma id_weq_iso_slicecat (af bg : C / x) : (af = bg) ≃ (iso af bg).
 Proof.
 set (a := pr1 af); set (f := pr2 af); set (b := pr1 bg); set (g := pr2 bg).
 

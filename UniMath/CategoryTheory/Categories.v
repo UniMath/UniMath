@@ -83,7 +83,7 @@ Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) : cat.
 *)
 
 Definition precategory_id_comp (C : precategory_ob_mor) :=
-     dirprod (∏ c : C, c --> c) (* identities *)
+     (∏ c : C, c --> c) × (* identities *)
              (∏ a b c : C,
                  a --> b -> b --> c -> a --> c).
 
@@ -608,7 +608,7 @@ Proof.
 Defined.
 
 Definition iso_comp_right_weq {C:precategory_data} {a b:C} (h:iso a b) (c:C) :
- weq (b --> c) (a --> c) := weqpair _ (iso_comp_right_isweq h c).
+ (b --> c) ≃ (a --> c) := weqpair _ (iso_comp_right_isweq h c).
 
 Lemma iso_comp_left_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
   isweq (fun f : c --> a => f · h).
@@ -678,10 +678,10 @@ Proof.
 Defined.
 
 Definition iso_comp_left_weq {C:precategory} {a b:C} (h:iso a b) (c:C) :
- weq (c --> a) (c --> b) := weqpair _ (iso_comp_left_isweq h c).
+ (c --> a) ≃ (c --> b) := weqpair _ (iso_comp_left_isweq h c).
 
 Definition iso_conjug_weq {C:precategory} {a b:C} (h:iso a b) :
- weq (a --> a) (b --> b) := weqcomp (iso_comp_left_weq h _ ) (iso_comp_right_weq (iso_inv_from_iso h) _ ).
+ (a --> a) ≃ (b --> b) := weqcomp (iso_comp_left_weq h _ ) (iso_comp_right_weq (iso_inv_from_iso h) _ ).
 
 
 (** * Equivalence relation identifying isomorphic objects *)
@@ -1107,7 +1107,7 @@ Proof.
 Defined.
 
 Definition z_iso_comp_right_weq {C:precategory} {a b:C} (h:z_iso a b) (c:C) :
- weq (b --> c) (a --> c) := weqpair _ (z_iso_comp_right_isweq h c).
+ (b --> c) ≃ (a --> c) := weqpair _ (z_iso_comp_right_isweq h c).
 
 Lemma z_iso_comp_left_isweq {C:precategory} {a b:ob C} (h:z_iso a b) (c:C) :
   isweq (fun f : c --> a => f · h).
@@ -1119,10 +1119,10 @@ Proof.
          { apply pathsinv0, assoc. } { apply id_right. } }
 Defined.
 Definition z_iso_comp_left_weq {C:precategory} {a b:C} (h:z_iso a b) (c:C) :
- weq (c --> a) (c --> b) := weqpair _ (z_iso_comp_left_isweq h c).
+ (c --> a) ≃ (c --> b) := weqpair _ (z_iso_comp_left_isweq h c).
 
 Definition z_iso_conjug_weq {C:precategory} {a b:C} (h:z_iso a b) :
- weq (a --> a) (b --> b) := weqcomp (z_iso_comp_left_weq h _ )
+ (a --> a) ≃ (b --> b) := weqcomp (z_iso_comp_left_weq h _ )
          (z_iso_comp_right_weq (z_iso_inv_from_z_iso h) _ ).
 
 Lemma is_iso_from_is_z_iso {C: precategory}{a b : C} (f: a --> b) :

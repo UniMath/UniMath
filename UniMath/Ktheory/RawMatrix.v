@@ -17,12 +17,12 @@ Local Open Scope cat.
 
 Definition to_row {C:category} {I} {b:I -> ob C}
            (B:Sum b) {d:ob C} :
-  weq (Hom C (universalObject B) d) (∏ j, Hom C (b j) d).
+  (Hom C (universalObject B) d) ≃ (∏ j, Hom C (b j) d).
 Proof. intros. exact (universalProperty B d). Defined.
 
 Definition from_row {C:category}  {I} {b:I -> ob C}
            (B:Sum b) {d:ob C} :
-  weq (∏ j, Hom C (b j) d) (Hom C (universalObject B) d).
+  (∏ j, Hom C (b j) d) ≃ (Hom C (universalObject B) d).
 Proof. intros. apply invweq. apply to_row. Defined.
 
 Lemma from_row_entry {C:category} {I} {b:I -> ob C}

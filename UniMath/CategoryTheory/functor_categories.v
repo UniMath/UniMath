@@ -103,7 +103,7 @@ Definition functor_compax {C C' : precategory_data} (F : functor_data C C') :=
   ∏ a b c : ob C, ∏ f : a --> b, ∏ g : b --> c, #F (f · g) = #F f · #F g .
 
 Definition is_functor {C C' : precategory_data} (F : functor_data C C') :=
-  dirprod ( functor_idax F ) ( functor_compax F ) .
+  ( functor_idax F ) × ( functor_compax F ) .
 
 Lemma isaprop_is_functor (C C' : precategory_data) (hs: has_homsets C')
       (F : functor_data C C') : isaprop (is_functor F).
@@ -349,7 +349,7 @@ Qed.
 
 Definition weq_from_fully_faithful {C D : precategory_data}{F : functor C D}
       (FF : fully_faithful F) (a b : ob C) :
-   weq (a --> b) (F a --> F b).
+   (a --> b) ≃ (F a --> F b).
 Proof.
   exists (functor_on_morphisms F (a:=a) (b:=b)).
   exact (FF a b).
@@ -609,7 +609,7 @@ Definition full {C D : precategory_data} (F : functor C D) :=
 (** ** Fully faithful is the same as full and faithful *)
 
 Definition full_and_faithful {C D : precategory_data} (F : functor C D) :=
-   dirprod (full F) (faithful F).
+   (full F) × (faithful F).
 
 
 Lemma fully_faithful_implies_full_and_faithful (C D : precategory_data) (F : functor C D) :
@@ -651,7 +651,7 @@ Qed.
 
 
 Definition weq_fully_faithful_full_and_faithful (C D : precategory_data) (F : functor C D) :
-   weq (fully_faithful F) (full_and_faithful F) :=
+   (fully_faithful F) ≃ (full_and_faithful F) :=
   weqimplimpl (fully_faithful_implies_full_and_faithful _ _ F)
               (full_and_faithful_implies_fully_faithful _ _ F)
               (isaprop_fully_faithful _ _ F)
@@ -939,7 +939,7 @@ Variable hsD : has_homsets D.
 Context {F G : functor C D}.
 Variables alpha beta : nat_trans F G.
 
-Definition nat_trans_eq_weq : weq (alpha = beta) (∏ c, alpha c = beta c).
+Definition nat_trans_eq_weq : (alpha = beta) ≃ (∏ c, alpha c = beta c).
 Proof.
   eapply weqcomp.
   - apply subtypeInjectivity.

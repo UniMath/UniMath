@@ -553,7 +553,7 @@ Proof.
   apply (isofhlevelfhfiberpr1 0 f y (hlevelntosn 0 _ is)).
 Defined.
 
-Corollary weqhfibertounit (X : UU) : weq (hfiber (λ x : X, tt) tt) X.
+Corollary weqhfibertounit (X : UU) : (hfiber (λ x : X, tt) tt) ≃ X.
 Proof. intro. apply (weqhfibertocontr _ tt iscontrunit). Defined.
 
 Corollary isofhleveltofun (n : nat) (X : UU) :
@@ -1382,7 +1382,7 @@ Proof. apply (isasetifdeceq _ isdeceqbool). Defined.
 
 
 Definition subsetsplit {X : UU} (f : X -> bool) (x : X) :
-  coprod (hfiber f true) (hfiber f false).
+  (hfiber f true) ⨿ (hfiber f false).
 Proof.
   intros. induction (boolchoice (f x)) as [ a | b ].
   - apply (ii1 (hfiberpair f x a)).
@@ -1390,11 +1390,11 @@ Proof.
 Defined.
 
 Definition subsetsplitinv {X : UU} (f : X -> bool)
-           (ab : coprod (hfiber f true) (hfiber f false)) : X
+           (ab : (hfiber f true) ⨿ (hfiber f false)) : X
   := match ab with ii1 xt => pr1 xt | ii2 xf => pr1 xf end.
 
 Theorem weqsubsetsplit {X : UU} (f : X -> bool) :
-  weq X (coprod (hfiber f true) (hfiber f false)).
+  weq X ((hfiber f true) ⨿ (hfiber f false)).
 Proof.
   intros.
   set (ff := subsetsplit f). set (gg := subsetsplitinv f).

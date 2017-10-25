@@ -139,7 +139,7 @@ Defined.
 
 (*
 Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
-     total2 (fun pfg : total2 (λ p : C, dirprod (p --> b) (p --> c)) =>
+     total2 (fun pfg : total2 (λ p : C, (p --> b) × (p --> c)) =>
          total2 (fun H : pr1 (pr2 pfg) · f = pr2 (pr2 pfg) · g =>
         isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
  *)

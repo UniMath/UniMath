@@ -26,7 +26,7 @@ Proof. intros ? ? [f [g [p [q h]]]]. exists g. unfold isweq. intro x.
        admit.
 Abort.
 
-Definition weq_pathscomp0r {X} x {y z:X} (p:y = z) : weq (x = y) (x = z).
+Definition weq_pathscomp0r {X} x {y z:X} (p:y = z) : (x = y) ≃ (x = z).
 Proof. intros. exact (weqpair _ (isweqpathscomp0r _ p)). Defined.
 
 Definition iscontrretract_compute {X Y} (p:X->Y) (s:Y->X)

@@ -35,7 +35,7 @@ Variable C : precategory.
 
 Definition isBinProductCone (c d p : C) (p1 : p --> c) (p2 : p --> d) :=
   ∏ (a : C) (f : a --> c) (g : a --> d),
-  iscontr (total2 (fun fg : a --> p => dirprod (fg · p1 = f) (fg · p2 = g))).
+  iscontr (total2 (fun fg : a --> p => (fg · p1 = f) × (fg · p2 = g))).
 
 Lemma isaprop_isBinProductCone (c d p : C) (p1 : p --> c) (p2 : p --> d) :
   isaprop (isBinProductCone c d p p1 p2).
@@ -47,7 +47,7 @@ Proof.
 Qed.
 
 Definition BinProductCone (c d : C) :=
-   total2 (fun pp1p2 : total2 (λ p : C, dirprod (p --> c) (p --> d)) =>
+   total2 (fun pp1p2 : total2 (λ p : C, (p --> c) × (p --> d)) =>
              isBinProductCone c d (pr1 pp1p2) (pr1 (pr2 pp1p2)) (pr2 (pr2 pp1p2))).
 
 

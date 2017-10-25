@@ -129,15 +129,15 @@ Definition weqfuntototaltototal (X : UU) {Y : UU} (Q : Y -> UU) :
 
 
 Definition funtoprodtoprod {X Y Z : UU} (f : X -> dirprod Y Z) :
-  dirprod (X -> Y) (X -> Z)
+  (X -> Y) × (X -> Z)
   := dirprodpair (λ x : X, pr1 (f x)) (λ x : X, (pr2 (f x))).
 
-Definition prodtofuntoprod {X Y Z : UU} (fg : dirprod (X -> Y) (X -> Z))
+Definition prodtofuntoprod {X Y Z : UU} (fg : (X -> Y) × (X -> Z))
   : X -> dirprod Y Z
   := match fg with tpair _ f g => λ x : X, dirprodpair (f x) (g x) end.
 
 Theorem weqfuntoprodtoprod (X Y Z : UU) :
-  weq (X -> dirprod Y Z) (dirprod (X -> Y) (X -> Z)).
+  weq (X -> dirprod Y Z) ((X -> Y) × (X -> Z)).
 Proof.
   intros.
   simple refine (weqpair _ (gradth (@funtoprodtoprod X Y Z)
@@ -297,7 +297,7 @@ Definition weqonsecfibers {X : UU} (P Q : X -> UU) (f : ∏ x : X, (P x) ≃ (Q 
 
 (** *** Composition of functions with a weak equivalence on the right *)
 
-Definition weqffun (X : UU) {Y Z : UU} (w : Y ≃ Z) : weq (X -> Y) (X -> Z)
+Definition weqffun (X : UU) {Y Z : UU} (w : Y ≃ Z) : (X -> Y) ≃ (X -> Z)
   := weqonsecfibers _ _ (λ x : X, w).
 
 
@@ -399,7 +399,7 @@ Definition weqonsecbase {X Y : UU} (P : Y -> UU) (f : X ≃ Y)
 (** *** Composition of functions with a weak equivalence on the left *)
 
 
-Definition weqbfun {X Y : UU} (Z : UU) (w : X ≃ Y) : weq (Y -> Z) (X -> Z)
+Definition weqbfun {X Y : UU} (Z : UU) (w : X ≃ Y) : (Y -> Z) ≃ (X -> Z)
   := weqonsecbase _ w.
 
 
@@ -498,14 +498,14 @@ Defined.
 (** *** Functions from a coproduct *)
 
 Definition funfromcoprodtoprod {X Y Z : UU} (f : coprod X Y -> Z) :
-  dirprod (X -> Z) (Y -> Z)
+  (X -> Z) × (Y -> Z)
   := dirprodpair (λ x : X, f (ii1 x)) (λ y : Y, f (ii2 y)).
 
-Definition prodtofunfromcoprod {X Y Z : UU} (fg : dirprod (X -> Z) (Y -> Z)) :
+Definition prodtofunfromcoprod {X Y Z : UU} (fg : (X -> Z) × (Y -> Z)) :
   coprod X Y -> Z := match fg with tpair _ f g => sumofmaps f g end.
 
 Theorem weqfunfromcoprodtoprod (X Y Z : UU) :
-  weq (coprod X Y -> Z) (dirprod (X -> Z) (Y -> Z)).
+  weq (coprod X Y -> Z) ((X -> Z) × (Y -> Z)).
 Proof.
   intros.
   simple refine (
@@ -525,7 +525,7 @@ Defined.
 Definition tosecoverunit (P : unit -> UU) (p : P tt) : ∏ t : unit, P t.
 Proof. intros. induction t. apply p. Defined.
 
-Definition weqsecoverunit (P : unit -> UU) : weq (∏ t : unit, P t) (P tt).
+Definition weqsecoverunit (P : unit -> UU) : (∏ t : unit, P t) ≃ (P tt).
 Proof.
   intro.
   set (f := fun a : ∏ t : unit, P t => a tt). set (g := tosecoverunit P).
@@ -587,12 +587,12 @@ Definition weqfunfromcontr {X : UU} (Y : UU) (is : iscontr X) : weq (X -> Y) Y
 (** *** Functions from [ total2 ] *)
 
 Definition weqfunfromtotal2 {X : UU} (P : X -> UU) (Y : UU) :
-  weq (total2 P -> Y) (∏ x : X, P x -> Y) := weqsecovertotal2 P _.
+  (total2 P -> Y) ≃ (∏ x : X, P x -> Y) := weqsecovertotal2 P _.
 
 (** *** Functions from direct product *)
 
 Definition weqfunfromdirprod (X X' Y : UU) :
-  weq (dirprod X X' -> Y) (∏ x : X, X' -> Y) := weqsecovertotal2 _ _.
+  (dirprod X X' -> Y) ≃ (∏ x : X, X' -> Y) := weqsecovertotal2 _ _.
 
 
 
@@ -886,7 +886,7 @@ Defined.
 
 (** *** Composition with a weak quivalence is a weak equivalence on weak equivalences *)
 
-Theorem weqfweq (X : UU) {Y Z : UU} (w : Y ≃ Z) : weq (X ≃ Y) (X ≃ Z).
+Theorem weqfweq (X : UU) {Y Z : UU} (w : Y ≃ Z) : (X ≃ Y) ≃ (X ≃ Z).
 Proof.
   intros.
   set (f := λ a : X ≃ Y, weqcomp a w).
@@ -905,7 +905,7 @@ Proof.
   apply (gradth _ _ egf efg).
 Defined.
 
-Theorem weqbweq {X Y : UU} (Z : UU) (w : X ≃ Y) : weq (Y ≃ Z) (X ≃ Z).
+Theorem weqbweq {X Y : UU} (Z : UU) (w : X ≃ Y) : (Y ≃ Z) ≃ (X ≃ Z).
 Proof.
   intros.
   set (f := λ a : Y ≃ Z, weqcomp w a).
@@ -937,7 +937,7 @@ Defined.
   this theorem in the form of [ isapropisweq ]. The rest of the proof can be
   completed using eta-conversion. *)
 
-Theorem weqinvweq (X Y : UU) : weq (X ≃ Y) (Y ≃ X).
+Theorem weqinvweq (X Y : UU) : (X ≃ Y) ≃ (Y ≃ X).
 Proof.
   intros.
   set (f := λ w : X ≃ Y, invweq w).
@@ -1150,7 +1150,7 @@ Defined.
 
 
 Definition locsplit (X : UU) (Y : UU) (f : X -> Y)
-:= ∏ y : Y, coprod (hfiber  f y) (hfiber  f y -> empty).
+:= ∏ y : Y, (hfiber  f y) ⨿ (hfiber  f y -> empty).
 
 Definition dnegimage (X : UU) (Y : UU) (f : X -> Y)
 := total2 Y (λ y : Y, dneg(hfiber  f y)).
@@ -1193,7 +1193,7 @@ Definition negimageincl (X Y : UU) (f : X -> Y)
 
 
 Definition imsum (X : UU) (Y : UU) (f : X -> Y) :
-coprod (dnegimage  f) (negimage  f) -> Y
+(dnegimage  f) ⨿ (negimage  f) -> Y
 := λ u,
 match u with
 ii1 z => pr1  z|

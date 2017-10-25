@@ -361,7 +361,7 @@ Proof.
   - now apply isapropimpl, pr2.
 Qed.
 Definition Dcuts_eq : hrel Dcuts_set :=
-  λ X Y : Dcuts_set, hProppair (∏ r, dirprod (r ∈ X -> r ∈ Y) (r ∈ Y -> r ∈ X)) (isaprop_Dcuts_eq_rel X Y).
+  λ X Y : Dcuts_set, hProppair (∏ r, (r ∈ X -> r ∈ Y) × (r ∈ Y -> r ∈ X)) (isaprop_Dcuts_eq_rel X Y).
 
 Lemma istrans_Dcuts_eq : istrans Dcuts_eq.
 Proof.
@@ -2642,7 +2642,7 @@ Proof.
     apply (pr2 (pr2 x)).
     now right.
   - generalize (isdecrel_leNonnegativeRationals (pr1 y + c / 2)%NRat (pr1 x)) ; apply sumofmaps ; intro Hxy.
-    + assert (HY : ∏ y', coprod (Y y') (y' = 0%NRat) -> (y' < pr1 y + c / 2)%NRat).
+    + assert (HY : ∏ y', (Y y') ⨿ (y' = 0%NRat) -> (y' < pr1 y + c / 2)%NRat).
       { intros y' ; apply sumofmaps ; intros Yy'.
         apply notge_ltNonnegativeRationals ; intro H ; apply nYy.
         now apply Y_bot with (1 := Yy').
@@ -4100,7 +4100,7 @@ Qed.
 Lemma Dcuts_of_Dcuts_open :
   ∏ (x : NonnegativeRationals),
     Dcuts_of_Dcuts_val x ->
-    hexists (λ y : NonnegativeRationals, dirprod (Dcuts_of_Dcuts_val y) (x < y)%NRat).
+    hexists (λ y : NonnegativeRationals, (Dcuts_of_Dcuts_val y) × (x < y)%NRat).
 Proof.
   intros r.
   apply hinhuniv ; intros X.
@@ -4252,7 +4252,7 @@ Qed.
 Lemma Dcuts_of_Dcuts'_open :
   ∏ (x : Dcuts),
     Dcuts_of_Dcuts'_val x ->
-    hexists (λ y : Dcuts, dirprod (Dcuts_of_Dcuts'_val y) (x < y)).
+    hexists (λ y : Dcuts, (Dcuts_of_Dcuts'_val y) × (x < y)).
 Proof.
   intros r.
   apply hinhuniv.
@@ -4516,7 +4516,7 @@ Definition hsubtypeNonnegativeRationals_to_NonnegativeReals
             X x -> ∏ y : NonnegativeRationals, (y <= x)%NRat -> X y)
   (Xopen : ∏ x : NonnegativeRationals,
              X x ->
-             hexists (λ y : NonnegativeRationals, dirprod (X y) (x < y)%NRat))
+             hexists (λ y : NonnegativeRationals, (X y) × (x < y)%NRat))
   (Xtop : Dcuts_def_corr X) : NonnegativeReals :=
   mk_Dcuts X Xbot Xopen Xtop.
 

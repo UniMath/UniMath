@@ -1903,7 +1903,7 @@ Defined.
 
 Definition setquottodirprod {X Y : UU} (RX : eqrel X) (RY : eqrel Y)
            (cc : setquot (eqreldirprod RX RY)) :
-  dirprod (setquot RX) (setquot RY).
+  (setquot RX) × (setquot RY).
 Proof.
   intros.
   set (RXY := eqreldirprod RX RY).
@@ -1921,13 +1921,13 @@ Proof.
 Defined.
 
 Definition dirprodtosetquot {X Y : UU} (RX : hrel X) (RY : hrel Y)
-           (cd : dirprod (setquot RX) (setquot RY)) :
+           (cd : (setquot RX) × (setquot RY)) :
   setquot (hreldirprod RX RY)
   := setquotpair _ _ (iseqclassdirprod (pr2 (pr1 cd)) (pr2 (pr2 cd))).
 
 
 Theorem weqsetquottodirprod {X Y : UU} (RX : eqrel X) (RY : eqrel Y) :
-  weq (setquot (eqreldirprod RX RY)) (dirprod (setquot RX) (setquot RY)).
+  weq (setquot (eqreldirprod RX RY)) ((setquot RX) × (setquot RY)).
 Proof.
   intros.
   set (f := setquottodirprod RX RY).
@@ -2928,7 +2928,7 @@ Proof.
 Defined.
 
 Theorem weqpathsinsetquot2 {X : UU} (R : eqrel X) (x x' : X) :
-  weq (R x x') (setquot2pr R x = setquot2pr R x').
+  (R x x') ≃ (setquot2pr R x = setquot2pr R x').
 Proof.
   intros. apply weqimplimpl. apply iscompsetquot2pr.
   set (int := setquot2univ R hPropset (λ x'', R x x'')
