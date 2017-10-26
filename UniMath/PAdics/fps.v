@@ -748,95 +748,233 @@ Definition truncnattruncautoinv { upper : nat } { i : nat -> nat }
   ( p : isnattruncauto ( S upper ) i ) : nat -> nat :=
   nattruncautoinv ( truncnattruncautoisauto p ).
 
-Lemma precompwithnatcofaceisauto { upper : nat } ( i : nat -> nat ) (
-p : isnattruncauto ( S upper ) i ) ( bound : natlth 0 (
-nattruncautopreimage p ( isreflnatleh ( S upper ) ) ) ) :
-isnattruncauto upper (funcomp ( natcoface ( nattruncautopreimage p (
-isreflnatleh ( S upper ) ) ) ) i ).  Proof.  intros. set ( v :=
-nattruncautopreimage p ( isreflnatleh ( S upper ) ) ).  change (
-nattruncautopreimage p ( isreflnatleh ( S upper ) ) ) with v in
-bound. unfold isnattruncauto. split. intros m q.  unfold
-funcomp. assert ( natleh m ( S upper ) ) as aaa. apply
-natlthtoleh. apply natlehlthtrans with ( m := upper
-). assumption. exact ( natlthnsn upper ).  set ( m' :=
-nattruncautopreimage p aaa ).  destruct ( natlthorgeh m' v ) as [ l |
-r ].  (* CASE m' < v *) split with m'. split. apply natlthsntoleh.
-apply ( natlthlehtrans _ v ). assumption. apply (
-nattruncautopreimageineq p _ ).  split. unfold natcoface. rewrite
-l. apply ( nattruncautopreimagepath p aaa ).  intros n j w. assert (
-natcoface v n ~> m' ) as f0. apply pathsinv0.  apply (
-nattruncautopreimagecanon p aaa ). apply
-natcofaceleh. assumption. assumption. rewrite <- f0. destruct (
-natgthorleh v n ) as [ l' | r' ]. unfold natcoface. rewrite l'. apply
-idpath.  assert empty. apply ( isirreflnatlth v ). apply (
-natlehlthtrans _ n ). assumption. apply ( istransnatlth _ ( S n )
-). apply natlthnsn. unfold natcoface in f0. rewrite (
-natgehimplnatgtbfalse v n r' ) in f0. rewrite
-f0. assumption. contradiction.  (* CASE v <= m' *) set ( j :=
-nattruncautopreimagepath p aaa ). change ( nattruncautopreimage p aaa
-) with m' in j.  set ( m'' := minus m' 1 ). assert ( natleh m'' upper
-) as a0. destruct ( natlthorgeh 0 m' ) as [ h | h' ]. rewrite <- (
-minussn1 upper ). apply minus1leh. assumption.  apply ( natlehlthtrans
-_ upper ). apply natleh0n. apply natlthnsn. apply (
-nattruncautopreimageineq ). destruct ( natgehchoice 0 m' h' ) as [ k |
-k' ]. assert empty. apply ( negnatgth0n m' k ). contradiction. unfold
-m''. rewrite <- k'. apply natleh0n.  destruct ( natgehchoice m' v r )
-as [ l' | r' ]. assert ( natleh v m'' ) as a2. apply
-natlthsntoleh. unfold m''. rewrite pathssminus. rewrite
-minussn1. assumption. destruct ( natlehchoice 0 m' ( natleh0n m' ) )
-as [ k | k' ]. assumption. assert empty. apply ( negnatgth0n v
-). rewrite k'. assumption. contradiction.  assert ( i ( natcoface v
-m'' ) ~> m ) as a1. unfold natcoface.  rewrite ( natgehimplnatgtbfalse
-v m'' a2 ). unfold m''. rewrite pathssminus. rewrite
-minussn1. assumption. destruct ( natlehchoice 0 m' ( natleh0n m' ) )
-as [ k | k' ]. assumption. assert empty. apply ( negnatgth0n v
-). rewrite k'. assumption. contradiction.  split with
-m''. split. assumption. split. assumption. intros n s t.  assert (
-natcoface v n ~> natcoface v m'' ) as g. assert ( natcoface v n ~> m'
-) as g0. apply pathsinv0. apply ( nattruncautopreimagecanon p aaa
-). apply natcofaceleh. assumption. assumption.  assert ( natcoface v
-m'' ~> m' ) as g1. unfold m'. unfold nattruncautopreimage. apply
-pathsinv0. apply ( nattruncautopreimagecanon p aaa ). apply
-natcofaceleh. assumption.  assumption. rewrite g0, g1. apply idpath.
-change ( idfun _ m'' ~> idfun _ n ). rewrite <- (
-natcofaceretractisretract v ). unfold funcomp. rewrite g. apply
-idpath.  assert empty. apply ( isirreflnatlth ( S upper ) ). apply (
-natlehlthtrans _ upper ). assert ( S upper ~> m ) as g. rewrite <- (
-nattruncautopreimagepath p ( isreflnatleh ( S upper ) ) ). change ( i
-v ~> m ).  rewrite <- j. rewrite r'. apply idpath. rewrite
-g. assumption. apply natlthnsn. contradiction.
+Lemma precompwithnatcofaceisauto { upper : nat } ( i : nat -> nat )
+  ( p : isnattruncauto ( S upper ) i )
+  ( bound : natlth 0 ( nattruncautopreimage p ( isreflnatleh ( S upper ) ) ) ) :
+  isnattruncauto upper (funcomp ( natcoface ( nattruncautopreimage p
+                                       ( isreflnatleh ( S upper ) ) ) ) i ).
+Proof.
+  intros.
+  set ( v := nattruncautopreimage p ( isreflnatleh ( S upper ) ) ).
+  change ( nattruncautopreimage p ( isreflnatleh ( S upper ) ) ) with v in bound.
+  unfold isnattruncauto.
+  split.
+  - intros m q.
+    unfold funcomp.
+    assert ( natleh m ( S upper ) ) as aaa.
+    { apply natlthtoleh.
+      apply natlehlthtrans with ( m := upper).
+      + assumption.
+      + exact ( natlthnsn upper ).
+    }
+    set ( m' := nattruncautopreimage p aaa ).
+    destruct ( natlthorgeh m' v ) as [ l | r ].
+    + (* CASE m' < v *) split with m'. split.
+      * apply natlthsntoleh.
+        apply ( natlthlehtrans _ v ).
+        -- assumption.
+        -- apply ( nattruncautopreimageineq p _ ).
+      * split.
+        -- unfold natcoface.
+           rewrite l.
+           apply ( nattruncautopreimagepath p aaa ).
+        -- intros n j w.
+           assert ( natcoface v n ~> m' ) as f0.
+           { apply pathsinv0.
+             apply ( nattruncautopreimagecanon p aaa ).
+             ++ apply natcofaceleh. assumption.
+             ++ assumption.
+           }
+           rewrite <- f0.
+           destruct ( natgthorleh v n ) as [ l' | r' ].
+           ++ unfold natcoface.
+              rewrite l'.
+              apply idpath.
+           ++ assert empty.
+              { apply ( isirreflnatlth v ).
+                apply ( natlehlthtrans _ n ).
+                ** assumption.
+                ** apply ( istransnatlth _ ( S n ) ).
+                   apply natlthnsn.
+                   unfold natcoface in f0.
+                   rewrite ( natgehimplnatgtbfalse v n r' ) in f0.
+                   rewrite f0.
+                   assumption.
+              }
+              contradiction.
+    + (* CASE v <= m' *) set ( j := nattruncautopreimagepath p aaa ).
+      change ( nattruncautopreimage p aaa ) with m' in j.
+      set ( m'' := minus m' 1 ).
+      assert ( natleh m'' upper ) as a0.
+      { destruct ( natlthorgeh 0 m' ) as [ h | h' ].
+        * rewrite <- ( minussn1 upper ).
+          apply minus1leh.
+          -- assumption.
+          -- apply ( natlehlthtrans _ upper ).
+             ++ apply natleh0n.
+             ++ apply natlthnsn.
+          -- apply nattruncautopreimageineq.
+        * destruct ( natgehchoice 0 m' h' ) as [ k | k' ].
+          -- assert empty by apply ( negnatgth0n m' k ).
+             contradiction.
+          -- unfold m''.
+             rewrite <- k'.
+             apply natleh0n.
+      }
+      destruct ( natgehchoice m' v r ) as [ l' | r' ].
+      * assert ( natleh v m'' ) as a2.
+        { apply natlthsntoleh.
+          unfold m''.
+          rewrite pathssminus.
+          -- rewrite minussn1.
+             assumption.
+          -- destruct ( natlehchoice 0 m' ( natleh0n m' ) ) as [ k | k' ].
+             ++ assumption.
+             ++ assert empty.
+                { apply ( negnatgth0n v ).
+                  rewrite k'.
+                  assumption.
+                }
+                contradiction.
+        }
+        assert ( i ( natcoface v m'' ) ~> m ) as a1.
+        { unfold natcoface.
+          rewrite ( natgehimplnatgtbfalse v m'' a2 ).
+          unfold m''.
+          rewrite pathssminus.
+          -- rewrite minussn1.
+             assumption.
+          -- destruct ( natlehchoice 0 m' ( natleh0n m' ) ) as [ k | k' ].
+             ++ assumption.
+             ++ assert empty.
+                { apply ( negnatgth0n v ).
+                  rewrite k'.
+                  assumption.
+                }
+                contradiction.
+        }
+        split with m''. split.
+        -- assumption.
+        -- split.
+           ++ assumption.
+           ++ intros n s t.
+              assert ( natcoface v n ~> natcoface v m'' ) as g.
+              { assert ( natcoface v n ~> m' ) as g0.
+                { apply pathsinv0.
+                  apply ( nattruncautopreimagecanon p aaa ).
+                  ** apply natcofaceleh.
+                     assumption.
+                  ** assumption.
+                }
+                assert ( natcoface v m'' ~> m' ) as g1.
+                { unfold m'.
+                  unfold nattruncautopreimage.
+                  apply pathsinv0.
+                  apply ( nattruncautopreimagecanon p aaa ).
+                  ** apply natcofaceleh. assumption.
+                  ** assumption.
+                }
+                rewrite g0, g1.
+                apply idpath.
+              }
+              change ( idfun _ m'' ~> idfun _ n ).
+              rewrite <- ( natcofaceretractisretract v ).
+              unfold funcomp.
+              rewrite g.
+              apply idpath.
+      * assert empty.
+        { apply ( isirreflnatlth ( S upper ) ).
+          apply ( natlehlthtrans _ upper ).
+          -- assert ( S upper ~> m ) as g.
+             { rewrite <- ( nattruncautopreimagepath p ( isreflnatleh ( S upper ) ) ).
+               change ( i v ~> m ).
+               rewrite <- j.
+               rewrite r'.
+               apply idpath.
+             }
+             rewrite g.
+             assumption.
+          -- apply natlthnsn.
+        }
+        contradiction.
+  - intros x X.
+    unfold funcomp.
+    assert ( natleh ( i ( natcoface v x ) ) ( S upper ) ) as a0.
+    { apply (pr2 p).
+      apply natcofaceleh.
+      assumption.
+    }
+    destruct ( natlehchoice _ _ a0 ) as [ l | r ].
+    + apply natlthsntoleh.
+      assumption.
+    + assert ( v ~> natcoface v x ) as g.
+      { unfold v.
+        apply ( nattruncautopreimagecanon p ( isreflnatleh ( S upper ) ) ).
+        * unfold natcoface.
+          -- destruct ( natgthorleh v x ) as [ a | b ].
+             ++ unfold v in a.
+                rewrite a.
+                apply natlthtoleh.
+                apply ( natlehlthtrans _ upper ).
+                ** assumption.
+                ** apply natlthnsn.
+             ++ unfold v in b.
+                rewrite ( natgehimplnatgtbfalse _ x b ).
+                assumption.
+        * assumption.
+      }
+      assert empty.
+      { destruct ( natgthorleh v x ) as [ a | b ].
+        * unfold natcoface in g.
+          rewrite a in g.
+          apply ( isirreflnatlth x ).
+          rewrite g in a.
+          assumption.
+        * unfold natcoface in g.
+          rewrite ( natgehimplnatgtbfalse v x b ) in g.
+          apply ( isirreflnatlth x ).
+          apply ( natlthlehtrans _ ( S x ) ).
+          -- apply natlthnsn.
+          -- rewrite <- g.
+             assumption.
+      }
+      contradiction.
+Defined.
 
-      intros x X. unfold funcomp. assert ( natleh ( i ( natcoface v x
-      ) ) ( S upper ) ) as a0. apply (pr2 p). apply
-      natcofaceleh. assumption.  destruct ( natlehchoice _ _ a0 ) as [
-      l | r ]. apply natlthsntoleh. assumption. assert ( v ~>
-      natcoface v x ) as g. unfold v. apply (
-      nattruncautopreimagecanon p ( isreflnatleh ( S upper ) )
-      ). unfold natcoface. destruct ( natgthorleh v x ) as [ a | b
-      ]. unfold v in a. rewrite a. apply natlthtoleh. apply (
-      natlehlthtrans _ upper ). assumption. apply natlthnsn. unfold v
-      in b. rewrite ( natgehimplnatgtbfalse _ x b ). assumption.
-      assumption. assert empty. destruct ( natgthorleh v x ) as [ a |
-      b ].  unfold natcoface in g. rewrite a in g. apply (
-      isirreflnatlth x ). rewrite g in a. assumption. unfold natcoface
-      in g. rewrite ( natgehimplnatgtbfalse v x b ) in g. apply (
-      isirreflnatlth x ). apply ( natlthlehtrans _ ( S x ) ). apply
-      natlthnsn. rewrite <- g. assumption. contradiction.  Defined.
-
-Lemma nattruncautocompstable { R : commrng } { upper : nat } ( i j :
-nat -> nat ) ( p : isnattruncauto upper i ) ( p' : isnattruncauto
-upper j ) : isnattruncauto upper ( funcomp j i ).  Proof.
-intros. split. intros n n'. split with ( nattruncautopreimage p' (
-nattruncautopreimageineq p n' ) ).  split. apply (
-nattruncautopreimageineq p' ). split. unfold funcomp.  rewrite (
-nattruncautopreimagepath p' _ ). rewrite ( nattruncautopreimagepath p
-_ ). apply idpath. intros x X y. unfold funcomp in y.  apply (
-nattruncautoisinj p' ). apply
-nattruncautopreimageineq. assumption. apply ( nattruncautoisinj p
-). apply (pr2 p'). apply nattruncautopreimageineq. apply
-(pr2 p') . assumption. rewrite ( nattruncautopreimagepath p' ). rewrite (
-nattruncautopreimagepath p ). rewrite y. apply idpath.  intros x
-X. unfold funcomp. apply (pr2 p). apply (pr2 p'). assumption.  Defined.
+Lemma nattruncautocompstable { R : commrng } { upper : nat }
+  ( i j : nat -> nat ) ( p : isnattruncauto upper i ) ( p' : isnattruncauto upper j ) :
+  isnattruncauto upper ( funcomp j i ).
+Proof.
+  intros.
+  split.
+  - intros n n'.
+    split with ( nattruncautopreimage p' ( nattruncautopreimageineq p n' ) ).
+    split.
+    + apply ( nattruncautopreimageineq p' ).
+    + split.
+      * unfold funcomp.
+        rewrite ( nattruncautopreimagepath p' _ ).
+        rewrite ( nattruncautopreimagepath p _ ).
+        apply idpath.
+      * intros x X y.
+        unfold funcomp in y.
+        apply ( nattruncautoisinj p' ).
+        -- apply nattruncautopreimageineq.
+        -- assumption.
+        -- apply ( nattruncautoisinj p ).
+           ++ apply (pr2 p').
+              apply nattruncautopreimageineq.
+           ++ apply (pr2 p') . assumption.
+           ++ rewrite ( nattruncautopreimagepath p' ).
+              rewrite ( nattruncautopreimagepath p ).
+              rewrite y.
+              apply idpath.
+  - intros x X.
+    unfold funcomp.
+    apply (pr2 p).
+    apply (pr2 p').
+    assumption.
+Defined.
 
 Definition nattruncreverse ( upper : nat ) : nat -> nat.
 Proof.
@@ -856,23 +994,55 @@ Proof.
     + exact n.
 Defined.
 
-Lemma nattruncreverseisnattruncauto ( upper : nat ) : isnattruncauto
-upper ( nattruncreverse upper ).  Proof.  intros. unfold
-isnattruncauto. split. intros m q.  set ( m' := minus upper m
-). assert ( natleh m' upper ) as a0. apply minusleh.  assert (
-nattruncreverse upper m' ~> m ) as a1.  unfold
-nattruncreverse. destruct ( natgthorleh m' upper ). assert
-empty. apply isirreflnatlth with ( n := m' ).  apply natlehlthtrans
-with ( m := upper ).  assumption. assumption. contradiction. unfold
-m'. rewrite doubleminuslehpaths. apply idpath. assumption. split with
-m'. split. assumption. split. assumption.  intros n qq u. unfold
-m'. rewrite <- u. unfold nattruncreverse.  destruct ( natgthorleh n
-upper ) as [ l | r ].  assert empty. apply ( isirreflnatlth n ). apply
-( natlehlthtrans _ upper
-). assumption. assumption. contradiction. rewrite
-doubleminuslehpaths. apply idpath. assumption.  intros x X. unfold
-nattruncreverse. destruct ( natgthorleh x upper ) as [ l | r
-]. assumption. apply minusleh.  Defined.
+Lemma nattruncreverseisnattruncauto ( upper : nat ) :
+  isnattruncauto upper ( nattruncreverse upper ).
+Proof.
+  intros.
+  unfold isnattruncauto.
+  split.
+  - intros m q.
+    set ( m' := minus upper m ).
+    assert ( natleh m' upper ) as a0 by apply minusleh.
+    assert ( nattruncreverse upper m' ~> m ) as a1.
+    { unfold nattruncreverse.
+      + destruct ( natgthorleh m' upper ).
+        * assert empty.
+          { apply isirreflnatlth with ( n := m' ).
+            apply natlehlthtrans with ( m := upper ).
+            -- assumption.
+            -- assumption.
+          }
+          contradiction.
+        * unfold m'.
+          rewrite doubleminuslehpaths.
+          -- apply idpath.
+          -- assumption.
+    }
+    split with m'. split.
+    + assumption.
+    + split.
+      * assumption.
+      * intros n qq u.
+        unfold m'.
+        rewrite <- u.
+        unfold nattruncreverse.
+        destruct ( natgthorleh n upper ) as [ l | r ].
+        -- assert empty.
+           { apply ( isirreflnatlth n ).
+             apply ( natlehlthtrans _ upper ).
+             ++ assumption.
+             ++ assumption.
+           }
+           contradiction.
+        -- rewrite doubleminuslehpaths.
+           ++ apply idpath.
+           ++ assumption.
+  - intros x X.
+    unfold nattruncreverse.
+    destruct ( natgthorleh x upper ) as [ l | r ].
+    + assumption.
+    + apply minusleh.
+Defined.
 
 Lemma nattruncbottomtopswapselfinv ( upper n : nat ) :
   nattruncbottomtopswap upper ( nattruncbottomtopswap upper n ) ~> n.
