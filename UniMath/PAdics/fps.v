@@ -13,6 +13,7 @@ file to compile with Coq8.2 *)
 
 Require Import UniMath.PAdics.lemmas.
 Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.NumberSystems.Integers.
 
 (** ** I. Summation in a commutative ring *)
 
@@ -1275,31 +1276,47 @@ Defined.
 
 Definition seqson ( A : UU ) := nat -> A.
 
-Lemma seqsonisaset ( A : hSet ) : isaset ( seqson A ).  Proof.
-intros. unfold seqson. change ( isofhlevel 2 ( nat -> A ) ). apply
-impredfun. apply (pr2 A).  Defined.
+Lemma seqsonisaset ( A : hSet ) : isaset ( seqson A ).
+Proof.
+  intros.
+  unfold seqson.
+  change ( isofhlevel 2 ( nat -> A ) ).
+  apply impredfun.
+  apply (pr2 A).
+Defined.
 
 Definition isasetfps ( R : commrng ) : isaset ( seqson R ) :=
-seqsonisaset R.
+  seqsonisaset R.
 
 Definition fps ( R : commrng ) : hSet := hSetpair _ ( isasetfps R ).
 
-Definition fpsplus ( R : commrng ) : binop ( fps R ) := fun v w n => (
-( v n ) + ( w n ) ).
+Definition fpsplus ( R : commrng ) : binop ( fps R ) :=
+  fun v w n => ( ( v n ) + ( w n ) ).
 
-Definition fpstimes ( R : commrng ) : binop ( fps R ) := fun s t n =>
-natsummation0 n ( fun x : nat => ( s x ) * ( t ( minus n x ) ) ).
+Definition fpstimes ( R : commrng ) : binop ( fps R ) :=
+  fun s t n => natsummation0 n ( fun x : nat => ( s x ) * ( t ( minus n x ) ) ).
 
-(* SOME TESTS OF THE SUMMATION AND FPSTIMES DEFINITIONS:
+(* SOME TESTS OF THE SUMMATION AND FPSTIMES DEFINITIONS: *)
 
-Definition test0 : seqson hz.  Proof.  intro n. induction n. exact
-0. exact ( nattohz ( S n ) ).  Defined.
+Local Definition test0 : seqson hz.
+Proof.
+  intro n.
+  induction n.
+  - exact 0.
+  - exact ( nattohz ( S n ) ).
+Defined.
 
-Eval lazy in ( hzabsval ( natsummation0 1 test0 ) ).
+(* Eval lazy in ( hzabsval ( natsummation0 1 test0 ) ). *)
 
-Definition test1 : seqson hz.  Proof.  intro n. induction n. exact ( 1
-+ 1 ). exact ( ( 1 + 1 ) * IHn ).  Defined.
+Local Definition test1 : seqson hz.
+Proof.
+  intro n.
+  induction n.
+  - exact ( 1 + 1 ).
+  - exact ( ( 1 + 1 ) * IHn ).
+Defined.
 
+(*
 Eval lazy in ( hzabsval ( fpstimes hz test0 test1 0%nat ) ).
 
 Eval lazy in ( hzabsval ( fpstimes hz test0 test1 1%nat ) ).
@@ -1308,243 +1325,480 @@ Eval lazy in ( hzabsval ( fpstimes hz test0 test1 2%nat ) ).
 
 Eval lazy in ( hzabsval ( fpstimes hz test0 test1 3%nat ) ).
 
-Eval lazy in ( hzabsval ( fpstimes hz test0 test1 4%nat ) ).  *)
+Eval lazy in ( hzabsval ( fpstimes hz test0 test1 4%nat ) ).
+*)
 
-Definition fpszero ( R : commrng ) : fps R := ( fun n : nat => 0 ).
+Definition fpszero ( R : commrng ) : fps R := fun n : nat => 0.
 
-Definition fpsone ( R : commrng ) : fps R.  Proof.  intros. intro
-n. destruct n. exact 1. exact 0.  Defined.
-
-Definition fpsminus ( R : commrng ) : fps R -> fps R := ( fun s n => -
-( s n ) ).
-
-Lemma ismonoidopfpsplus ( R : commrng ) : ismonoidop ( fpsplus R ).
-Proof.  intros. unfold ismonoidop. split.  unfold isassoc.  intros s t
-u. unfold fpsplus.  (* This is a hack which should work immediately
-without such a workaround! *) change ( (fun n : nat => s n + t n + u
-n) ~> (fun n : nat => s n + (t n + u n)) ). apply funextfun.  intro
-n.
- set (H:=pr2 R).
- set (H1:=pr1 H).
- set (H2:=pr1 H1).
- set (H3:=pr1 H2).
- set (H4:=pr1 H3).
- set (H5:=pr1 H4).
- set (H6:=pr1 H5).
- apply H6.
-(*  apply R. *)
-
-      unfold isunital. assert ( isunit ( fpsplus R ) ( fpszero R ) )
-      as a.  unfold isunit.  split.  unfold islunit. intro s. unfold
-      fpsplus. unfold fpszero.  change ( (fun n : nat => 0 + s n) ~> s
-      ). apply funextfun.  intro n. apply rnglunax1.
-
-        unfold isrunit. intro s. unfold fpsplus. unfold fpszero.
-        change ( (fun n : nat => s n + 0) ~> s ). apply funextfun.
-        intro n. apply rngrunax1.  exact ( tpair ( fpszero R ) a ).
-        Defined.
-
-Lemma isgropfpsplus ( R : commrng ) : isgrop ( fpsplus R ).  Proof.
-intros. unfold isgrop.  assert ( invstruct ( fpsplus R ) (
-ismonoidopfpsplus R ) ) as a.  unfold invstruct.  assert ( isinv
-(fpsplus R) (unel_is (ismonoidopfpsplus R)) ( fpsminus R ) ) as b.
-unfold isinv. split.  unfold islinv. intro s. unfold fpsplus. unfold
-fpsminus. unfold unel_is.  simpl. unfold fpszero. apply
-funextfun. intro n. exact ( rnglinvax1 R ( s n ) ).
-
-    unfold isrinv. intro s. unfold fpsplus. unfold fpsminus. unfold
-    unel_is.  simpl. unfold fpszero. apply funextfun. intro n. exact (
-    rngrinvax1 R ( s n ) ).  exact ( tpair ( fpsminus R ) b ).  exact
-    ( tpair ( ismonoidopfpsplus R ) a ).  Defined.
-
-Lemma iscommfpsplus ( R : commrng ) : iscomm ( fpsplus R ).  Proof.
-intros. unfold iscomm.  intros s t. unfold fpsplus.  change ((fun n :
-nat => s n + t n) ~> (fun n : nat => t n + s n) ).  apply
-funextfun. intro n.
-set (H1:= pr2 (pr1 (pr1 (pr1 (pr2 R))))).
-apply H1.
-(* apply R. *)
+Definition fpsone ( R : commrng ) : fps R.
+Proof.
+  intros. intro n.
+  destruct n.
+  - exact 1.
+  - exact 0.
 Defined.
 
-Lemma isassocfpstimes ( R : commrng ) : isassoc (fpstimes R).  Proof.
-intros. unfold isassoc. intros s t u.  unfold fpstimes.
+Definition fpsminus ( R : commrng ) : fps R -> fps R :=
+  fun s n => - ( s n ).
 
+Lemma ismonoidopfpsplus ( R : commrng ) :
+  ismonoidop ( fpsplus R ).
+Proof.
+  intros.
+  unfold ismonoidop.
+  split.
+  - unfold isassoc.
+    intros s t u.
+    unfold fpsplus.
+    (* This is a hack which should work immediately without such a workaround! *)
+    change ( (fun n : nat => s n + t n + u n) ~> (fun n : nat => s n + (t n + u n)) ).
+    apply funextfun.
+    intro n.
+    set ( H := pr2 R ).
+    set ( H1 := pr1 H ).
+    set ( H2 := pr1 H1 ).
+    set ( H3 := pr1 H2 ).
+    set ( H4 := pr1 H3 ).
+    set ( H5 := pr1 H4 ).
+    set ( H6 := pr1 H5 ).
+    apply H6.
+    (*  apply R. *)
+  - unfold isunital.
+    assert ( isunit ( fpsplus R ) ( fpszero R ) ) as a.
+    { unfold isunit.
+      split.
+      + unfold islunit.
+        intro s.
+        unfold fpsplus.
+        unfold fpszero.
+        change ( (fun n : nat => 0 + s n) ~> s ).
+        apply funextfun.
+        intro n.
+        apply rnglunax1.
+      + unfold isrunit.
+        intro s.
+        unfold fpsplus.
+        unfold fpszero.
+        change ( (fun n : nat => s n + 0) ~> s ).
+        apply funextfun.
+        intro n.
+        apply rngrunax1.
+    }
+    exact ( tpair ( fpszero R ) a ).
+Defined.
+
+Lemma isgropfpsplus ( R : commrng ) : isgrop ( fpsplus R ).
+Proof.
+  intros.
+  unfold isgrop.
+  assert ( invstruct ( fpsplus R ) ( ismonoidopfpsplus R ) ) as a.
+  { unfold invstruct.
+    assert ( isinv (fpsplus R) (unel_is (ismonoidopfpsplus R)) ( fpsminus R ) ) as b.
+    { unfold isinv.
+      split.
+      - unfold islinv.
+        intro s.
+        unfold fpsplus.
+        unfold fpsminus.
+        unfold unel_is.
+        simpl.
+        unfold fpszero.
+        apply funextfun.
+        intro n.
+        exact ( rnglinvax1 R ( s n ) ).
+      - unfold isrinv.
+        intro s.
+        unfold fpsplus.
+        unfold fpsminus.
+        unfold unel_is.
+        simpl.
+        unfold fpszero.
+        apply funextfun.
+        intro n.
+        exact ( rngrinvax1 R ( s n ) ).
+    }
+    exact ( tpair ( fpsminus R ) b ).
+  }
+  exact ( tpair ( ismonoidopfpsplus R ) a ).
+Defined.
+
+Lemma iscommfpsplus ( R : commrng ) : iscomm ( fpsplus R ).
+Proof.
+  intros.
+  unfold iscomm.
+  intros s t.
+  unfold fpsplus.
+  change ((fun n : nat => s n + t n) ~> (fun n : nat => t n + s n) ).
+  apply funextfun.
+  intro n.
+  set (H1:= pr2 (pr1 (pr1 (pr1 (pr2 R))))).
+  apply H1.
+  (* apply R. *)
+Defined.
+
+Lemma isassocfpstimes ( R : commrng ) : isassoc (fpstimes R).
+Proof.
+  intros.
+  unfold isassoc.
+  intros s t u.
+  unfold fpstimes.
   assert ( (fun n : nat => natsummation0 n (fun x : nat =>
-    natsummation0 ( minus n x) (fun x0 : nat => s x * ( t x0 * u (
-    minus ( minus n x ) x0) )))) ~> (fun n : nat => natsummation0 n
-    (fun x : nat => s x * natsummation0 ( minus n x) (fun x0 : nat =>
-    t x0 * u ( minus ( minus n x ) x0)))) ) as A.  apply
-    funextfun. intro n. apply
-    natsummationpathsupperfixed. intros. rewrite
-    natsummationtimesdistr. apply idpath. rewrite <- A.  assert ( (fun
-    n : nat => natsummation0 n (fun x : nat => natsummation0 ( minus n
-    x) (fun x0 : nat => s x * t x0 * u ( minus ( minus n x ) x0 ))))
-    ~> (fun n : nat => natsummation0 n (fun x : nat => natsummation0 (
-    minus n x) (fun x0 : nat => s x * ( t x0 * u ( minus ( minus n x )
-    x0) )))) ) as B.  apply funextfun. intro n. apply
-    maponpaths. apply funextfun. intro m. apply maponpaths. apply
-    funextfun. intro x. apply R.  assert ( (fun n : nat =>
-    natsummation0 n (fun x : nat => natsummation0 x (fun x0 : nat => s
-    x0 * t ( minus x x0 ) * u ( minus n x )))) ~> (fun n : nat =>
-    natsummation0 n (fun x : nat => natsummation0 ( minus n x) (fun x0
-    : nat => s x * t x0 * u ( minus ( minus n x ) x0 )))) ) as C.
-    apply funextfun. intro n.  set ( f := fun x : nat => ( fun x0 :
-    nat => s x * t x0 * u ( minus ( minus n x ) x0 ) ) ).  assert (
-    natsummation0 n ( fun x : nat => natsummation0 x ( fun x0 : nat =>
-    f x0 ( minus x x0 ) ) ) ~> ( natsummation0 n ( fun x : nat =>
-    natsummation0 ( minus n x ) ( fun x0 : nat => f x x0 ) ) ) ) as D.
-    apply natsummationswap. unfold f in D.  assert ( natsummation0 n (
-    fun x : nat => natsummation0 x ( fun x0 : nat => s x0 * t ( minus
-    x x0 ) * u ( minus n x ) ) ) ~> natsummation0 n ( fun x : nat =>
-    natsummation0 x ( fun x0 : nat => s x0 * t ( minus x x0 ) * u (
-    minus ( minus n x0 ) ( minus x x0 ) ) ) ) ) as E.  apply
-    natsummationpathsupperfixed. intros k p.  apply
-    natsummationpathsupperfixed. intros l q. rewrite ( natdoubleminus
-    p q ). apply idpath. rewrite E, D. apply idpath. rewrite <-
-    B. rewrite <- C.  assert ( (fun n : nat => natsummation0 n (fun x
-    : nat => natsummation0 x (fun x0 : nat => s x0 * t ( minus x x0))
-    * u ( minus n x))) ~> (fun n : nat => natsummation0 n (fun x : nat
-    => natsummation0 x (fun x0 : nat => s x0 * t ( minus x x0) * u (
-    minus n x)))) ) as D.  apply funextfun. intro n. apply
-    maponpaths. apply funextfun.  intro m. apply
-    natsummationtimesdistl. rewrite <- D. apply idpath.  Defined.
+                        natsummation0 ( minus n x) (fun x0 : nat =>
+                          s x * ( t x0 * u ( minus ( minus n x ) x0) )))) ~>
+           (fun n : nat => natsummation0 n (fun x : nat =>
+                          s x * natsummation0 ( minus n x) (fun x0 : nat =>
+                                  t x0 * u ( minus ( minus n x ) x0)))) ) as A.
+  { apply funextfun.
+    intro n.
+    apply natsummationpathsupperfixed.
+    intros.
+    rewrite natsummationtimesdistr.
+    apply idpath.
+  }
+  rewrite <- A.
+  assert ( (fun n : nat => natsummation0 n (fun x : nat =>
+                        natsummation0 ( minus n x) (fun x0 : nat =>
+                          s x * t x0 * u ( minus ( minus n x ) x0 )))) ~>
+          (fun n : nat => natsummation0 n (fun x : nat =>
+                             natsummation0 ( minus n x) (fun x0 : nat =>
+                          s x * ( t x0 * u ( minus ( minus n x ) x0) )))) ) as B.
+  { apply funextfun.
+    intro n.
+    apply maponpaths.
+    apply funextfun.
+    intro m.
+    apply maponpaths.
+    apply funextfun.
+    intro x.
+    apply R.
+  }
+  assert ( (fun n : nat => natsummation0 n (fun x : nat =>
+                        natsummation0 x (fun x0 : nat =>
+                          s x0 * t ( minus x x0 ) * u ( minus n x )))) ~>
+           (fun n : nat => natsummation0 n (fun x : nat =>
+                        natsummation0 ( minus n x) (fun x0 : nat =>
+                          s x * t x0 * u ( minus ( minus n x ) x0 )))) ) as C.
+  { apply funextfun.
+    intro n.
+    set ( f := fun x : nat => ( fun x0 : nat => s x * t x0 * u ( minus ( minus n x ) x0 ) ) ).
+    assert ( natsummation0 n ( fun x : nat =>
+              natsummation0 x ( fun x0 : nat => f x0 ( minus x x0 ) ) ) ~>
+           ( natsummation0 n ( fun x : nat =>
+              natsummation0 ( minus n x ) ( fun x0 : nat => f x x0 ) ) ) ) as D
+    by apply natsummationswap.
+    unfold f in D.
+    assert ( natsummation0 n ( fun x : nat =>
+               natsummation0 x ( fun x0 : nat =>
+                 s x0 * t ( minus x x0 ) * u ( minus n x ) ) ) ~>
+             natsummation0 n ( fun x : nat =>
+               natsummation0 x ( fun x0 : nat =>
+                 s x0 * t ( minus x x0 ) *
+                   u ( minus ( minus n x0 ) ( minus x x0 ) ) ) ) ) as E.
+    { apply natsummationpathsupperfixed.
+      intros k p.
+      apply natsummationpathsupperfixed.
+      intros l q.
+      rewrite ( natdoubleminus p q ).
+      apply idpath.
+    }
+    rewrite E, D.
+    apply idpath.
+  }
+  rewrite <- B. rewrite <- C.
+  assert ( (fun n : nat => natsummation0 n (fun x : nat =>
+              natsummation0 x (fun x0 : nat =>
+                s x0 * t ( minus x x0)) * u ( minus n x))) ~>
+           (fun n : nat => natsummation0 n (fun x : nat =>
+              natsummation0 x (fun x0 : nat =>
+                s x0 * t ( minus x x0) * u ( minus n x)))) ) as D.
+  { apply funextfun.
+    intro n.
+    apply maponpaths.
+    apply funextfun.
+    intro m.
+    apply natsummationtimesdistl.
+  }
+  rewrite <- D.
+  apply idpath.
+Defined.
 
-Lemma natsummationandfpszero ( R : commrng ) : forall m : nat,
-natsummation0 m ( fun x : nat => fpszero R x ) ~> ( @rngunel1 R ).
-Proof.  intros R m. induction m. apply idpath. simpl. rewrite
-IHm. rewrite ( rnglunax1 R ). apply idpath.  Defined.
+Lemma natsummationandfpszero ( R : commrng ) :
+  forall m : nat, natsummation0 m ( fun x : nat => fpszero R x ) ~> ( @rngunel1 R ).
+Proof.
+  intros R m.
+  induction m.
+  - apply idpath.
+  - simpl.
+    rewrite IHm.
+    rewrite ( rnglunax1 R ).
+    apply idpath.
+Defined.
 
 Lemma ismonoidopfpstimes ( R : commrng ) : ismonoidop ( fpstimes R ).
-Proof.  intros. unfold ismonoidop.  split. apply
-isassocfpstimes. split with ( fpsone R). split. intro s.  unfold
-fpstimes. change ( ( fun n : nat => natsummation0 n ( fun x : nat =>
-fpsone R x * s ( minus n x ) ) ) ~> s ).  apply funextfun. intro
-n. destruct n. simpl. rewrite ( rnglunax2 R ). apply idpath. rewrite
-natsummationshift0. rewrite ( rnglunax2 R). rewrite minus0r. assert (
-natsummation0 n ( fun x : nat => fpsone R ( S x ) * s ( minus n x ) )
-~> ( ( natsummation0 n ( fun x : nat => fpszero R x ) ) ) ) as
-f. apply natsummationpathsupperfixed. intros m m'. rewrite ( rngmult0x
-R ). apply idpath.  change ( natsummation0 n ( fun x : nat => fpsone R
-( S x ) * s ( minus n x ) ) + s ( S n ) ~> ( s ( S n ) ) ). rewrite
-f. rewrite natsummationandfpszero. apply ( rnglunax1 R ).
-
- intros s. unfold fpstimes. change ( ( fun n : nat => natsummation0 n
-  ( fun x : nat => s x * fpsone R ( minus n x ) ) ) ~> s ).  apply
-  funextfun. intro n. destruct n. simpl. rewrite ( rngrunax2 R
-  ). apply idpath. change ( natsummation0 n ( fun x : nat => s x *
-  fpsone R ( minus ( S n ) x ) ) + s ( S n ) * fpsone R ( minus n n )
-  ~> s ( S n ) ).  rewrite minusnn0. rewrite ( rngrunax2 R ). assert (
-  natsummation0 n ( fun x : nat => s x * fpsone R ( minus ( S n ) x ))
-  ~> ( ( natsummation0 n ( fun x : nat => fpszero R x ) ) ) ) as
-  f. apply natsummationpathsupperfixed. intros m m'.  rewrite <-
-  pathssminus. rewrite ( rngmultx0 R ). apply idpath. apply (
-  natlehlthtrans _ n ). assumption. apply natlthnsn. rewrite
-  f. rewrite natsummationandfpszero. apply ( rnglunax1 R ).  Defined.
-
-Lemma iscommfpstimes ( R : commrng ) ( s t : fps R ) : fpstimes R s t
-~> fpstimes R t s.  Proof.  intros. unfold fpstimes.  change ( ( fun n
-: nat => natsummation0 n (fun x : nat => s x * t ( minus n x) ) ) ~>
-(fun n : nat => natsummation0 n (fun x : nat => t x * s ( minus n x)))
-). apply funextfun. intro n.
-
-
-  assert ( natsummation0 n ( fun x : nat => s x * t ( minus n x ) ) ~>
-  ( natsummation0 n ( fun x : nat => t ( minus n x ) * s x ) ) ) as
-  a0.  apply maponpaths. apply funextfun. intro m. apply R.  assert (
-  ( natsummation0 n ( fun x : nat => t ( minus n x ) * s x ) ) ~> (
-  natsummation0 n ( funcomp ( nattruncreverse n ) ( fun x : nat => t x
-  * s ( minus n x ) ) ) ) ) as a1.
-
-  apply natsummationpathsupperfixed. intros m q. unfold
-  funcomp. unfold nattruncreverse. destruct (natgthorleh m n ).
-  assert empty. apply isirreflnatlth with ( n := n ). apply
-  natlthlehtrans with ( m := m ). apply h. assumption. contradiction.
-  apply maponpaths. apply maponpaths. apply pathsinv0. apply
-  doubleminuslehpaths.  assumption.  assert ( ( natsummation0 n (
-  funcomp ( nattruncreverse n ) ( fun x : nat => t x * s ( minus n x )
-  ) ) ) ~> natsummation0 n ( fun x : nat => t x * s ( minus n x ) ) )
-  as a2. apply pathsinv0. apply natsummationreindexing. apply
-  nattruncreverseisnattruncauto. exact ( pathscomp0 a0 ( pathscomp0 a1
-  a2 ) ).  Defined.
-
-Lemma isldistrfps ( R : commrng ) ( s t u : fps R ) : fpstimes R s (
-fpsplus R t u ) ~> ( fpsplus R ( fpstimes R s t ) ( fpstimes R s u )
-).  Proof.  intros. unfold fpstimes. unfold fpsplus. change ((fun n :
-nat => natsummation0 n (fun x : nat => s x * (t (minus n x) + u (
-minus n x)))) ~> (fun n : nat => natsummation0 n (fun x : nat => s x *
-t (minus n x)) + natsummation0 n (fun x : nat => s x * u (minus n x)))
-).  apply funextfun. intro upper.  assert ( natsummation0 upper ( fun
-x : nat => s x * ( t ( minus upper x ) + u ( minus upper x ) ) ) ~> (
-natsummation0 upper ( fun x : nat => ( ( s x * t ( minus upper x ) ) +
-( s x * u ( minus upper x ) ) ) ) ) ) as a0.  apply maponpaths. apply
-funextfun. intro n. apply R.  assert ( ( natsummation0 upper ( fun x :
-nat => ( ( s x * t ( minus upper x ) ) + ( s x * u ( minus upper x ) )
-) ) ) ~> ( ( natsummation0 upper ( fun x : nat => s x * t ( minus
-upper x ) ) ) + ( natsummation0 upper ( fun x : nat => s x * u ( minus
-upper x ) ) ) ) ) as a1.  apply natsummationplusdistr.  exact (
-pathscomp0 a0 a1 ).  Defined.
-
-Lemma isrdistrfps ( R : commrng ) ( s t u : fps R ) : fpstimes R (
-fpsplus R t u ) s ~> ( fpsplus R ( fpstimes R t s ) ( fpstimes R u s )
-).  Proof.  intros. unfold fpstimes. unfold fpsplus. change ((fun n :
-nat => natsummation0 n (fun x : nat => (t x + u x) * s ( minus n x )
-)) ~> (fun n : nat => natsummation0 n (fun x : nat => t x * s ( minus
-n x ) ) + natsummation0 n (fun x : nat => u x * s (minus n x))) ).
-apply funextfun. intro upper.  assert ( natsummation0 upper ( fun x :
-nat => ( t x + u x ) * s ( minus upper x ) ) ~> ( natsummation0 upper
-( fun x : nat => ( ( t x * s ( minus upper x ) ) + ( u x * s ( minus
-upper x ) ) ) ) ) ) as a0.  apply maponpaths. apply funextfun. intro
-n. apply R.  assert ( ( natsummation0 upper ( fun x : nat => ( ( t x *
-s ( minus upper x ) ) + ( u x * s ( minus upper x ) ) ) ) ) ~> ( (
-natsummation0 upper ( fun x : nat => t x * s ( minus upper x ) ) ) + (
-natsummation0 upper ( fun x : nat => u x * s ( minus upper x ) ) ) ) )
-as a1.  apply natsummationplusdistr.  exact ( pathscomp0 a0 a1 ).
+Proof.
+  intros.
+  unfold ismonoidop.
+  split.
+  - apply isassocfpstimes.
+  - split with ( fpsone R).
+    split.
+    + intro s.
+      unfold fpstimes.
+      change ( ( fun n : nat => natsummation0 n ( fun x : nat =>
+                   fpsone R x * s ( minus n x ) ) ) ~> s ).
+      apply funextfun.
+      intro n.
+      destruct n.
+      * simpl.
+        rewrite ( rnglunax2 R ).
+        apply idpath.
+      * rewrite natsummationshift0.
+        rewrite ( rnglunax2 R).
+        rewrite minus0r.
+        assert ( natsummation0 n ( fun x : nat =>
+                   fpsone R ( S x ) * s ( minus n x ) ) ~>
+             ( ( natsummation0 n ( fun x : nat =>
+                   fpszero R x ) ) ) ) as f.
+        { apply natsummationpathsupperfixed.
+          intros m m'.
+          rewrite ( rngmult0x R ).
+          apply idpath.
+        }
+        change ( natsummation0 n ( fun x : nat => fpsone R
+                   ( S x ) * s ( minus n x ) ) + s ( S n ) ~> ( s ( S n ) ) ).
+        rewrite f.
+        rewrite natsummationandfpszero.
+        apply ( rnglunax1 R ).
+    + intros s.
+      unfold fpstimes.
+      change ( ( fun n : nat => natsummation0 n
+                   ( fun x : nat => s x * fpsone R ( minus n x ) ) ) ~> s ).
+      apply funextfun.
+      intro n.
+      destruct n.
+      * simpl.
+        rewrite ( rngrunax2 R ).
+        apply idpath.
+      * change ( natsummation0 n ( fun x : nat =>
+          s x * fpsone R ( minus ( S n ) x ) ) + s ( S n ) * fpsone R ( minus n n ) ~>
+          s ( S n ) ).
+        rewrite minusnn0.
+        rewrite ( rngrunax2 R ).
+        assert ( natsummation0 n ( fun x : nat => s x * fpsone R ( minus ( S n ) x )) ~>
+             ( ( natsummation0 n ( fun x : nat => fpszero R x ) ) ) ) as f.
+        { apply natsummationpathsupperfixed.
+          intros m m'.
+          rewrite <- pathssminus.
+          -- rewrite ( rngmultx0 R ).
+             apply idpath.
+          -- apply ( natlehlthtrans _ n ).
+             ++ assumption.
+             ++ apply natlthnsn.
+        }
+        rewrite f.
+        rewrite natsummationandfpszero.
+        apply ( rnglunax1 R ).
 Defined.
 
-Definition fpsrng ( R : commrng ) := setwith2binoppair ( hSetpair (
-seqson R ) ( isasetfps R ) ) ( dirprodpair ( fpsplus R ) ( fpstimes R
-) ).
+Lemma iscommfpstimes ( R : commrng ) ( s t : fps R ) :
+  fpstimes R s t ~> fpstimes R t s.
+Proof.
+  intros.
+  unfold fpstimes.
+  change ( ( fun n : nat => natsummation0 n (fun x : nat => s x * t ( minus n x) ) ) ~>
+           ( fun n : nat => natsummation0 n (fun x : nat => t x * s ( minus n x) ) ) ).
+  apply funextfun.
+  intro n.
+  assert ( natsummation0 n ( fun x : nat => s x * t ( minus n x ) ) ~>
+         ( natsummation0 n ( fun x : nat => t ( minus n x ) * s x ) ) ) as a0.
+  { apply maponpaths.
+    apply funextfun.
+    intro m.
+    apply R.
+  }
+  assert ( ( natsummation0 n ( fun x : nat => t ( minus n x ) * s x ) ) ~>
+           ( natsummation0 n ( funcomp ( nattruncreverse n )
+                         ( fun x : nat => t x * s ( minus n x ) ) ) ) ) as a1.
+  { apply natsummationpathsupperfixed.
+    intros m q.
+    unfold funcomp.
+    unfold nattruncreverse.
+    destruct (natgthorleh m n ).
+    - assert empty.
+      { apply isirreflnatlth with ( n := n ).
+        apply natlthlehtrans with ( m := m ).
+        + apply h.
+        + assumption.
+      }
+      contradiction.
+    - apply maponpaths.
+      apply maponpaths.
+      apply pathsinv0.
+      apply doubleminuslehpaths.
+      assumption.
+  }
+  assert ( ( natsummation0 n ( funcomp ( nattruncreverse n )
+                                 ( fun x : nat => t x * s ( minus n x ) ) ) ) ~>
+             natsummation0 n ( fun x : nat => t x * s ( minus n x ) ) ) as a2.
+  { apply pathsinv0.
+    apply natsummationreindexing.
+    apply nattruncreverseisnattruncauto.
+  }
+  exact ( pathscomp0 a0 ( pathscomp0 a1 a2 ) ).
+Defined.
 
-Theorem fpsiscommrng ( R : commrng ) : iscommrng ( fpsrng R ).  Proof.
-intro. unfold iscommrng. unfold iscommrngops. split. unfold
-isrngops. split. split.  unfold isabgrop. split. exact ( isgropfpsplus
-R ). exact ( iscommfpsplus R ). exact ( ismonoidopfpstimes R ).
-unfold isdistr. split. unfold isldistr. intros. apply ( isldistrfps R
-).  unfold isrdistr. intros. apply ( isrdistrfps R ). unfold
-iscomm. intros. apply ( iscommfpstimes R ).  Defined.
+Lemma isldistrfps ( R : commrng ) ( s t u : fps R ) :
+  fpstimes R s ( fpsplus R t u ) ~>
+  ( fpsplus R ( fpstimes R s t ) ( fpstimes R s u ) ).
+Proof.
+  intros.
+  unfold fpstimes.
+  unfold fpsplus.
+  change ((fun n : nat => natsummation0 n (fun x : nat =>
+             s x * (t (minus n x) + u ( minus n x)))) ~>
+          (fun n : nat => natsummation0 n (fun x : nat => s x * t (minus n x)) +
+                     natsummation0 n (fun x : nat => s x * u (minus n x)))).
+  apply funextfun.
+  intro upper.
+  assert ( natsummation0 upper ( fun x : nat =>
+             s x * ( t ( minus upper x ) + u ( minus upper x ) ) ) ~>
+         ( natsummation0 upper ( fun x : nat =>
+             ( ( s x * t ( minus upper x ) ) +
+               ( s x * u ( minus upper x ) ) ) ) ) ) as a0.
+  { apply maponpaths.
+    apply funextfun.
+    intro n.
+    apply R.
+  }
+  assert ( ( natsummation0 upper ( fun x : nat =>
+               ( ( s x * t ( minus upper x ) ) +
+                 ( s x * u ( minus upper x ) ) ) ) ) ~>
+        ( ( natsummation0 upper ( fun x : nat => s x * t ( minus upper x ) ) ) +
+          ( natsummation0 upper ( fun x : nat => s x * u ( minus upper x ) ) ) ) ) as a1
+  by apply natsummationplusdistr.
+  exact ( pathscomp0 a0 a1 ).
+Defined.
 
-Definition fpscommrng ( R : commrng ) : commrng := commrngpair (
-fpsrng R ) ( fpsiscommrng R ).
+Lemma isrdistrfps ( R : commrng ) ( s t u : fps R ) :
+  fpstimes R ( fpsplus R t u ) s ~>
+  ( fpsplus R ( fpstimes R t s ) ( fpstimes R u s ) ).
+Proof.
+  intros.
+  unfold fpstimes.
+  unfold fpsplus.
+  change ((fun n : nat => natsummation0 n (fun x : nat => (t x + u x) * s ( minus n x ))) ~>
+          (fun n : nat => natsummation0 n (fun x : nat => t x * s ( minus n x ) ) +
+                     natsummation0 n (fun x : nat => u x * s ( minus n x ) ) ) ).
+  apply funextfun.
+  intro upper.
+  assert ( natsummation0 upper ( fun x : nat =>
+             ( t x + u x ) * s ( minus upper x ) ) ~>
+         ( natsummation0 upper ( fun x : nat =>
+             ( ( t x * s ( minus upper x ) ) +
+               ( u x * s ( minus upper x ) ) ) ) ) ) as a0.
+  { apply maponpaths.
+    apply funextfun.
+    intro n.
+    apply R.
+  }
+  assert ( ( natsummation0 upper ( fun x : nat =>
+               ( ( t x * s ( minus upper x ) ) +
+                 ( u x * s ( minus upper x ) ) ) ) ) ~>
+         ( ( natsummation0 upper ( fun x : nat => t x * s ( minus upper x ) ) ) +
+           ( natsummation0 upper ( fun x : nat => u x * s ( minus upper x ) ) ) ) ) as a1
+  by apply natsummationplusdistr.
+  exact ( pathscomp0 a0 a1 ).
+Defined.
 
-Definition fpsshift { R : commrng } ( a : fpscommrng R ) : fpscommrng
-R := fun n : nat => a ( S n ).
+Definition fpsrng ( R : commrng ) :=
+  setwith2binoppair ( hSetpair ( seqson R ) ( isasetfps R ) )
+                    ( dirprodpair ( fpsplus R ) ( fpstimes R ) ).
 
-Lemma fpsshiftandmult { R : commrng } ( a b : fpscommrng R ) ( p : b
-0%nat ~> 0 ) : forall n : nat, ( a * b ) ( S n ) ~> ( ( a * ( fpsshift
-b ) ) n ).  Proof.  intros. induction n. change ( a * b ) with (
-fpstimes R a b ). change ( a * fpsshift b ) with ( fpstimes R a (
-fpsshift b ) ).  unfold fpstimes. unfold fpsshift. simpl. rewrite
-p. rewrite ( rngmultx0 R ). rewrite ( rngrunax1 R ). apply idpath.
-change ( a * b ) with ( fpstimes R a b ). change ( a * fpsshift b )
-with ( fpstimes R a ( fpsshift b ) ). unfold fpsshift.  unfold
-fpstimes. change ( natsummation0 (S (S n)) (fun x : nat => a x * b
-(minus ( S (S n) ) x)) ) with ( ( natsummation0 ( S n ) ( fun x : nat
-=> a x * b ( minus ( S ( S n ) ) x ) ) ) + a ( S ( S n ) ) * b ( minus
-( S ( S n ) ) ( S ( S n ) ) ) ).  rewrite minusnn0. rewrite p. rewrite
-( rngmultx0 R ). rewrite rngrunax1.  apply
-natsummationpathsupperfixed. intros x j.  apply maponpaths. apply
-maponpaths. rewrite pathssminus.  apply idpath. apply ( natlehlthtrans
-_ ( S n ) _ ). assumption. apply natlthnsn.  Defined.
+Theorem fpsiscommrng ( R : commrng ) : iscommrng ( fpsrng R ).
+Proof.
+  intro.
+  unfold iscommrng.
+  unfold iscommrngops.
+  split.
+  - unfold isrngops.
+    split.
+    + split.
+      * unfold isabgrop.
+        -- split.
+           ++ exact ( isgropfpsplus R ).
+           ++ exact ( iscommfpsplus R ).
+      * exact ( ismonoidopfpstimes R ).
+    + unfold isdistr.
+      * split.
+        -- unfold isldistr.
+           intros.
+           apply ( isldistrfps R ).
+        -- unfold isrdistr.
+           intros.
+           apply ( isrdistrfps R ).
+  - unfold iscomm.
+    intros.
+    apply ( iscommfpstimes R ).
+Defined.
+
+Definition fpscommrng ( R : commrng ) : commrng :=
+  commrngpair ( fpsrng R ) ( fpsiscommrng R ).
+
+Definition fpsshift { R : commrng } ( a : fpscommrng R ) : fpscommrng R :=
+  fun n : nat => a ( S n ).
+
+Lemma fpsshiftandmult { R : commrng } ( a b : fpscommrng R )
+  ( p : b 0%nat ~> 0 ) :
+  forall n : nat, ( a * b ) ( S n ) ~> ( ( a * ( fpsshift b ) ) n ).
+Proof.
+  intros.
+  induction n.
+  - change ( a * b ) with ( fpstimes R a b ).
+    change ( a * fpsshift b ) with ( fpstimes R a ( fpsshift b ) ).
+    unfold fpstimes.
+    unfold fpsshift.
+    simpl.
+    rewrite p.
+    rewrite ( rngmultx0 R ).
+    rewrite ( rngrunax1 R ).
+    apply idpath.
+  - change ( a * b ) with ( fpstimes R a b ).
+    change ( a * fpsshift b ) with ( fpstimes R a ( fpsshift b ) ).
+    unfold fpsshift.
+    unfold fpstimes.
+    change ( natsummation0 (S (S n)) (fun x : nat => a x * b (minus ( S (S n) ) x)) ) with
+    ( ( natsummation0 ( S n ) ( fun x : nat =>
+          a x * b ( minus ( S ( S n ) ) x ) ) ) +
+          a ( S ( S n ) ) * b ( minus ( S ( S n ) ) ( S ( S n ) ) ) ).
+    rewrite minusnn0.
+    rewrite p.
+    rewrite ( rngmultx0 R ).
+    rewrite rngrunax1.
+    apply natsummationpathsupperfixed.
+    intros x j.
+    apply maponpaths.
+    apply maponpaths.
+    rewrite pathssminus.
+    + apply idpath.
+    + apply ( natlehlthtrans _ ( S n ) _ ).
+      * assumption.
+      * apply natlthnsn.
+Defined.
 
 (** * IV. Apartness relation on formal power series *)
 
 Lemma apartbinarysum0 ( R : acommrng ) ( a b : R ) ( p : a + b # 0 ) :
-hdisj ( a # 0 ) ( b # 0 ).  Proof.  intros. intros P s. apply (
-acommrng_acotrans R ( a + b ) a 0 p ). intro k.  destruct k as [ l | r
-]. apply s. apply ii2. assert ( a + b # a ) as l'. apply l.  assert (
-( a + b ) # ( a + 0 ) ) as l''. rewrite rngrunax1. assumption.  apply
-( ( pr1 ( acommrng_aadd R ) ) a b 0 ). assumption. apply s.  apply
-ii1. assumption.  Defined.
+  hdisj ( a # 0 ) ( b # 0 ).
+Proof.
+  intros. intros P s.
+  (* did not compile on Oct 27, 2017: *)
+  apply ( acommrng_acotrans R ( a + b ) a 0 p ).
+  intro k.
+  destruct k as [ l | r ].
+  apply s. apply ii2. assert ( a + b # a ) as l'. apply l.
+  assert ( ( a + b ) # ( a + 0 ) ) as l''. rewrite rngrunax1.
+  assumption.  apply ( ( pr1 ( acommrng_aadd R ) ) a b 0 ).
+  assumption. apply s.  apply ii1. assumption.  Defined.
 
 Lemma apartnatsummation0 ( R : acommrng ) ( upper : nat ) ( f : nat ->
 R ) ( p : ( natsummation0 upper f ) # 0 ) : hexists ( fun n : nat =>
