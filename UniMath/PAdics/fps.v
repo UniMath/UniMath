@@ -4,6 +4,9 @@
 
 (** January 2011 *)
 
+(** made compatible with the current UniMath library again by Benedikt Ahrens in 2014
+    and by Ralph Matthes in 2017 *)
+
 (** Settings *)
 
 Unset Automatic Introduction. (** This line has to be removed for the
@@ -1791,131 +1794,290 @@ Lemma apartbinarysum0 ( R : acommrng ) ( a b : R ) ( p : a + b # 0 ) :
   hdisj ( a # 0 ) ( b # 0 ).
 Proof.
   intros. intros P s.
-  (* did not compile on Oct 27, 2017: *)
-  apply ( acommrng_acotrans R ( a + b ) a 0 p ).
+  refine ( hinhuniv _ ( acommrng_acotrans R ( a + b ) a 0 p ) ).
   intro k.
   destruct k as [ l | r ].
-  apply s. apply ii2. assert ( a + b # a ) as l'. apply l.
-  assert ( ( a + b ) # ( a + 0 ) ) as l''. rewrite rngrunax1.
-  assumption.  apply ( ( pr1 ( acommrng_aadd R ) ) a b 0 ).
-  assumption. apply s.  apply ii1. assumption.  Defined.
-
-Lemma apartnatsummation0 ( R : acommrng ) ( upper : nat ) ( f : nat ->
-R ) ( p : ( natsummation0 upper f ) # 0 ) : hexists ( fun n : nat =>
-dirprod ( natleh n upper ) ( f n # 0 ) ).  Proof.  intros R
-upper. induction upper. simpl. intros. intros P s. apply s. split with
-0%nat.  split. intros g. simpl in g. apply
-nopathsfalsetotrue. assumption. assumption.  intros. intros P s. simpl
-in p. apply ( apartbinarysum0 R _ _ p ).  intro k. destruct k as [ l |
-r ]. apply ( IHupper f l ). intro k.  destruct k as [ n ab ]. destruct
-ab as [ a b ]. apply s. split with n. split.  apply ( istransnatleh _
-upper _ ). assumption. apply natlthtoleh.  apply
-natlthnsn. assumption. apply s. split with ( S upper ).  split. apply
-isreflnatleh. assumption.  Defined.
-
-Definition fpsapart0 ( R : acommrng ) : hrel ( fpscommrng R ) := fun s
-t : fpscommrng R => ( hexists ( fun n : nat => ( s n # t n ) ) ).
-
-Definition fpsapart ( R : acommrng ) : apart ( fpscommrng R ).  Proof.
-intros. split with ( fpsapart0 R ).  split. intros s f. assert (
-hfalse ) as i. apply f. intro k. destruct k as [ n p ].  apply (
-acommrng_airrefl R ( s n ) p). apply i.  split. intros s t p P
-j. apply p. intro k. destruct k as [ n q ].  apply j. split with
-n. apply ( acommrng_asymm R ( s n ) ( t n ) q ).  intros s t u p P
-j. apply p. intro k. destruct k as [ n q ].  apply ( acommrng_acotrans
-R ( s n ) ( t n ) ( u n ) q ).  intro l. destruct l as [ l | r ].
-apply j. apply ii1. intros v V. apply V. split with n. assumption.
-apply j. apply ii2. intros v V. apply V. split with n. assumption.
+  - apply s.
+    apply ii2.
+    assert ( a + b # a ) as l' by apply l.
+    assert ( ( a + b ) # ( a + 0 ) ) as l''.
+    { rewrite rngrunax1.
+      assumption. }
+    apply ( ( pr1 ( acommrng_aadd R ) ) a b 0 ).
+    assumption.
+  - apply s.
+    apply ii1.
+    assumption.
 Defined.
 
-Lemma fpsapartisbinopapartplusl ( R : acommrng ) : isbinopapartl (
-fpsapart R ) ( @op1 ( fpscommrng R ) ).  Proof.  intros. intros a b c
-p. intros P s. apply p. intro k.  destruct k as [ n q ]. apply
-s. change ( ( a + b ) n ) with ( ( a n ) + ( b n ) ) in q.  change ( (
-a + c ) n ) with ( ( a n ) + ( c n ) ) in q.  split with n. apply ( (
-pr1 ( acommrng_aadd R ) ) ( a n ) ( b n ) ( c n ) q ).  Defined.
-
-Lemma fpsapartisbinopapartplusr ( R : acommrng ) : isbinopapartr (
-fpsapart R ) ( @op1 ( fpscommrng R ) ).  Proof.  intros. intros a b c
-p. rewrite ( rngcomm1 ( fpscommrng R ) ) in p. rewrite ( rngcomm1 (
-fpscommrng R ) c ) in p.  apply ( fpsapartisbinopapartplusl _ a b c
-). assumption.  Defined.
-
-Lemma fpsapartisbinopapartmultl ( R : acommrng ) : isbinopapartl (
-fpsapart R ) ( @op2 ( fpsrng R ) ).  Proof.  intros. intros a b c
-p. intros P s. apply p. intro k.  destruct k as [ n q ]. change ( ( a
-* b ) n ) with ( natsummation0 n ( fun x : nat => ( a x ) * ( b (
-minus n x ) ) ) ) in q.  change ( ( a * c ) n ) with ( natsummation0 n
-( fun x : nat => ( a x ) * ( c ( minus n x ) ) ) ) in q.  assert (
-natsummation0 n ( fun x : nat => ( a x * b ( minus n x ) - ( a x * c (
-minus n x ) ) ) ) # 0 ) as q'. assert ( natsummation0 n ( fun x : nat
-=> ( a x * b ( minus n x ) ) ) - natsummation0 n ( fun x : nat => ( a
-x * c ( minus n x ) ) ) # 0 ) as q''. apply aaminuszero. assumption.
-assert ( (fun x : nat => a x * b (minus n x) - a x * c ( minus n x))
-~> (fun x : nat => a x * b ( minus n x) + ( - 1%rng ) * ( a x * c (
-minus n x)) ) ) as i.  apply funextfun. intro x. apply
-maponpaths. rewrite <- ( rngmultwithminus1 R ). apply idpath.  rewrite
-i. rewrite natsummationplusdistr. rewrite <- ( natsummationtimesdistr
-n ( fun x : nat => a x * c ( minus n x ) ) ( - 1%rng ) ).  rewrite (
-rngmultwithminus1 R ). assumption.  apply ( apartnatsummation0 R n _
-q' ). intro k.  destruct k as [ m g ]. destruct g as [ g g' ].  apply
-s. split with ( minus n m ). apply ( ( pr1 ( acommrng_amult R ) ) ( a
-m ) ( b ( minus n m ) ) ( c ( minus n m ) ) ). apply
-aminuszeroa. assumption.  Defined.
-
-Lemma fpsapartisbinopapartmultr ( R : acommrng ) : isbinopapartr (
-fpsapart R ) ( @op2 ( fpsrng R ) ).  Proof.  intros. intros a b c
-p. rewrite ( rngcomm2 ( fpscommrng R ) ) in p. rewrite ( rngcomm2 (
-fpscommrng R ) c ) in p.  apply ( fpsapartisbinopapartmultl _ a b c
-). assumption.  Defined.
-
-Definition acommrngfps ( R : acommrng ) : acommrng.  Proof.
-intros. split with ( fpscommrng R ). split with ( fpsapart R
-). split. split. apply ( fpsapartisbinopapartplusl R).  apply (
-fpsapartisbinopapartplusr R ). split. apply (
-fpsapartisbinopapartmultl R ). apply ( fpsapartisbinopapartmultr R ).
+Lemma apartnatsummation0 ( R : acommrng ) ( upper : nat )
+  ( f : nat -> R ) ( p : ( natsummation0 upper f ) # 0 ) :
+  hexists ( fun n : nat => dirprod ( natleh n upper ) ( f n # 0 ) ).
+Proof.
+  intros R upper.
+  induction upper.
+  - simpl.
+    intros. intros P s.
+    apply s.
+    split with 0%nat.
+    split.
+    + apply idpath.
+    + assumption.
+  - intros. intros P s.
+    simpl in p.
+    refine ( hinhuniv _ (apartbinarysum0 R _ _ p ) ).
+    intro k.
+    destruct k as [ l | r ].
+    + refine ( hinhuniv _ (IHupper f l ) ).
+      intro k.
+      destruct k as [ n ab ].
+      destruct ab as [ a b ].
+      apply s.
+      split with n.
+      split.
+      * apply ( istransnatleh( m := upper ) ).
+        -- assumption.
+        -- apply natlthtoleh.
+           apply natlthnsn.
+      * assumption.
+    + apply s.
+      split with ( S upper ).
+      split.
+      apply isreflnatleh.
+      assumption.
 Defined.
 
-Definition isacommrngapartdec ( R : acommrng ) := isapartdec ( ( pr1 (
-pr2 R ) ) ).
+Definition fpsapart0 ( R : acommrng ) : hrel ( fpscommrng R ) :=
+  fun s t : fpscommrng R => ( hexists ( fun n : nat => ( s n # t n ) ) ).
+
+Definition fpsapart ( R : acommrng ) : apart ( fpscommrng R ).
+Proof.
+  intros.
+  split with ( fpsapart0 R ).
+  split.
+  - intros s f.
+    assert ( hfalse ) as i.
+    { refine (hinhuniv _ f).
+      intro k.
+      destruct k as [ n p ].
+      apply (acommrng_airrefl R ( s n ) p).
+    }
+    apply i.
+  - split.
+    + intros s t p P j.
+      refine (hinhuniv _ p).
+      intro k.
+      destruct k as [ n q ].
+      apply j.
+      split with n.
+      apply ( acommrng_asymm R ( s n ) ( t n ) q ).
+    + intros s t u p P j.
+      refine (hinhuniv _ p).
+      intro k.
+      destruct k as [ n q ].
+      refine ( hinhuniv _ (acommrng_acotrans R ( s n ) ( t n ) ( u n ) q ) ).
+      intro l.
+      destruct l as [ l | r ].
+      * apply j.
+        apply ii1.
+        intros v V.
+        apply V.
+        split with n.
+        assumption.
+      * apply j.
+        apply ii2.
+        intros v V.
+        apply V.
+        split with n.
+        assumption.
+Defined.
+
+Lemma fpsapartisbinopapartplusl ( R : acommrng ) :
+  isbinopapartl ( fpsapart R ) ( @op1 ( fpscommrng R ) ).
+Proof.
+  intros. intros a b c p. intros P s.
+  refine (hinhuniv _ p).
+  intro k.
+  destruct k as [ n q ].
+  apply s.
+  change ( ( a + b ) n ) with ( ( a n ) + ( b n ) ) in q.
+  change ( ( a + c ) n ) with ( ( a n ) + ( c n ) ) in q.
+  split with n.
+  apply ( ( pr1 ( acommrng_aadd R ) ) ( a n ) ( b n ) ( c n ) q ).
+Defined.
+
+Lemma fpsapartisbinopapartplusr ( R : acommrng ) :
+  isbinopapartr ( fpsapart R ) ( @op1 ( fpscommrng R ) ).
+Proof.
+  intros. intros a b c p.
+  rewrite ( rngcomm1 ( fpscommrng R ) ) in p.
+  rewrite ( rngcomm1 ( fpscommrng R ) c ) in p.
+  apply ( fpsapartisbinopapartplusl _ a b c ).
+  assumption.
+Defined.
+
+Lemma fpsapartisbinopapartmultl ( R : acommrng ) :
+  isbinopapartl ( fpsapart R ) ( @op2 ( fpsrng R ) ).
+Proof.
+  intros. intros a b c p. intros P s.
+  refine (hinhuniv _ p).
+  intro k.
+  destruct k as [ n q ].
+  change ( ( a * b ) n ) with
+    ( natsummation0 n ( fun x : nat => ( a x ) * ( b ( minus n x ) ) ) ) in q.
+  change ( ( a * c ) n ) with
+    ( natsummation0 n ( fun x : nat => ( a x ) * ( c ( minus n x ) ) ) ) in q.
+  assert ( natsummation0 n ( fun x : nat => ( a x * b ( minus n x ) -
+                                         ( a x * c ( minus n x ) ) ) ) # 0 ) as q'.
+  { assert ( natsummation0 n ( fun x : nat => ( a x * b ( minus n x ) ) ) -
+             natsummation0 n ( fun x : nat => ( a x * c ( minus n x ) ) ) # 0 ) as q''.
+    { apply aaminuszero. assumption. }
+    assert ( (fun x : nat => a x * b (minus n x) - a x * c ( minus n x)) ~>
+             (fun x : nat => a x * b ( minus n x) + ( - 1%rng ) *
+                      ( a x * c ( minus n x)) ) ) as i.
+    { apply funextfun.
+      intro x.
+      apply maponpaths.
+      rewrite <- ( rngmultwithminus1 R ).
+      apply idpath.
+    }
+    rewrite i.
+    rewrite natsummationplusdistr.
+    rewrite <- ( natsummationtimesdistr n ( fun x : nat => a x * c ( minus n x ) )
+                                       ( - 1%rng ) ).
+    rewrite ( rngmultwithminus1 R ).
+    assumption.
+  }
+  refine ( hinhuniv _ ( apartnatsummation0 R n _ q' ) ).
+  intro k.
+  destruct k as [ m g ].
+  destruct g as [ g g' ].
+  apply s.
+  split with ( minus n m ).
+  apply ( ( pr1 ( acommrng_amult R ) ) ( a m )
+              ( b ( minus n m ) ) ( c ( minus n m ) ) ).
+  apply aminuszeroa.
+  assumption.
+Defined.
+
+Lemma fpsapartisbinopapartmultr ( R : acommrng ) :
+  isbinopapartr ( fpsapart R ) ( @op2 ( fpsrng R ) ).
+Proof.
+  intros. intros a b c p.
+  rewrite ( rngcomm2 ( fpscommrng R ) ) in p.
+  rewrite ( rngcomm2 ( fpscommrng R ) c ) in p.
+  apply ( fpsapartisbinopapartmultl _ a b c ).
+  assumption.
+Defined.
+
+Definition acommrngfps ( R : acommrng ) : acommrng.
+Proof.
+  intros.
+  split with ( fpscommrng R ).
+  split with ( fpsapart R ).
+  split.
+  - split.
+    + apply ( fpsapartisbinopapartplusl R).
+    + apply ( fpsapartisbinopapartplusr R ).
+  - split.
+    + apply ( fpsapartisbinopapartmultl R ).
+    + apply ( fpsapartisbinopapartmultr R ).
+Defined.
+
+Definition isacommrngapartdec ( R : acommrng ) :=
+  isapartdec ( ( pr1 ( pr2 R ) ) ).
 
 Lemma leadingcoefficientapartdec ( R : aintdom ) ( a : fpscommrng R )
-( is : isacommrngapartdec R ) ( p : a 0%nat # 0 ) : forall n : nat,
-forall b : fpscommrng R, ( b n # 0 ) -> ( ( acommrngapartrel (
-acommrngfps R ) ) ( a * b ) 0 ).  Proof.  intros R a is p n. induction
-n. intros b q. intros P s. apply s.  split with 0%nat. change ( ( a *
-b ) 0%nat ) with ( ( a 0%nat ) * ( b 0%nat ) ). apply
-R. assumption. assumption.  intros b q. destruct ( is ( b 0%nat ) 0 )
-as [ left | right ].  intros P s. apply s. split with 0%nat.  change (
-( a * b ) 0%nat ) with ( ( a 0%nat ) * ( b 0%nat ) ).  apply
-R. assumption. assumption.  assert ( ( acommrngapartrel ( acommrngfps
-R ) ) ( a * ( fpsshift b ) ) 0 ) as j.  apply IHn. unfold
-fpsshift. assumption. apply j. intro k. destruct k as [ k i ].  intros
-P s. apply s. rewrite <- ( fpsshiftandmult a b right k ) in i. split
-with ( S k ). assumption.  Defined.
+  ( is : isacommrngapartdec R ) ( p : a 0%nat # 0 ) :
+  forall n : nat, forall b : fpscommrng R, ( b n # 0 ) ->
+      ( ( acommrngapartrel ( acommrngfps R ) ) ( a * b ) 0 ).
+Proof.
+  intros R a is p n.
+  induction n.
+  - intros b q. intros P s.
+    apply s.
+    split with 0%nat.
+    change ( ( a * b ) 0%nat ) with ( ( a 0%nat ) * ( b 0%nat ) ).
+    apply R; assumption.
+  - intros b q.
+    destruct ( is ( b 0%nat ) 0 ) as [ left | right ].
+    + intros P s.
+      apply s.
+      split with 0%nat.
+      change ( ( a * b ) 0%nat ) with ( ( a 0%nat ) * ( b 0%nat ) ).
+      apply R; assumption.
+    + assert ( ( acommrngapartrel ( acommrngfps R ) )
+                                  ( a * ( fpsshift b ) ) 0 ) as j.
+      { apply IHn.
+        unfold fpsshift.
+        assumption. }
+      refine (hinhuniv _ j).
+      intro k.
+      destruct k as [ k i ].
+      intros P s.
+      apply s.
+      rewrite <- ( fpsshiftandmult a b right k ) in i.
+      split with ( S k ).
+      assumption.
+Defined.
 
 Lemma apartdecintdom0 ( R : aintdom ) ( is : isacommrngapartdec R ) :
-forall n : nat, forall a b : fpscommrng R, ( a n # 0 ) -> (
-acommrngapartrel ( acommrngfps R ) b 0 ) -> ( acommrngapartrel (
-acommrngfps R ) ( a * b ) 0 ).  Proof.  intros R is n. induction
-n. intros a b p q. apply q. intros k. destruct k as [ k k0 ]. apply (
-leadingcoefficientapartdec R a is p k ). assumption. intros a b p
-q. destruct ( is ( a 0%nat ) 0 ) as [ left | right ].  apply q. intros
-k. destruct k as [ k k0 ]. apply ( leadingcoefficientapartdec R a is
-left k ). assumption.  assert ( acommrngapartrel ( acommrngfps R ) ( (
-fpsshift a ) * b ) 0 ) as i.  apply IHn. unfold
-fpsshift. assumption. assumption. apply i.  intros k. destruct k as [
-k k0 ].  intros P s. apply s. split with ( S k ). rewrite
-rngcomm2. rewrite fpsshiftandmult.  rewrite
-rngcomm2. assumption. assumption.  Defined.
+  forall n : nat, forall a b : fpscommrng R, ( a n # 0 ) ->
+      ( acommrngapartrel ( acommrngfps R ) b 0 ) ->
+        ( acommrngapartrel ( acommrngfps R ) ( a * b ) 0 ).
+Proof.
+  intros R is n.
+  induction n.
+  - intros a b p q.
+    refine (hinhuniv _ q).
+    intros k.
+    destruct k as [ k k0 ].
+    apply ( leadingcoefficientapartdec R a is p k ).
+    assumption.
+  - intros a b p q.
+    destruct ( is ( a 0%nat ) 0 ) as [ left | right ].
+    + refine (hinhuniv _ q).
+      intros k.
+      destruct k as [ k k0 ].
+      apply ( leadingcoefficientapartdec R a is left k ).
+      assumption.
+    + assert ( acommrngapartrel ( acommrngfps R ) ( ( fpsshift a ) * b ) 0 ) as i.
+      { apply IHn.
+        * unfold fpsshift.
+          assumption.
+        * assumption.
+      }
+      refine (hinhuniv _ i).
+      intros k.
+      destruct k as [ k k0 ].
+      intros P s.
+      apply s.
+      split with ( S k ).
+      rewrite rngcomm2.
+      rewrite fpsshiftandmult.
+      * rewrite rngcomm2.
+        assumption.
+      * assumption.
+Defined.
 
-Theorem apartdectoisaintdomfps ( R : aintdom ) ( is :
-isacommrngapartdec R ) : aintdom.  Proof.  intros R. split with (
-acommrngfps R ).  split. intros P s. apply s. split with 0%nat. change
-( ( @rngunel1 ( fpscommrng R ) ) 0%nat ) with ( @rngunel1 R ). change
-( @rngunel2 R # ( @rngunel1 R ) ). apply R. intros a b p q.  apply
-p. intro n. destruct n as [ n n0 ]. apply ( apartdecintdom0 R is n)
-. assumption. assumption.  Defined.
+Theorem apartdectoisaintdomfps ( R : aintdom )
+  ( is : isacommrngapartdec R ) : aintdom.
+Proof.
+  intros R.
+  split with ( acommrngfps R ).
+  split.
+  - intros P s.
+    apply s.
+    split with 0%nat.
+    change ( ( @rngunel1 ( fpscommrng R ) ) 0%nat ) with ( @rngunel1 R ).
+    change ( @rngunel2 R # ( @rngunel1 R ) ).
+    apply R.
+  - intros a b p q.
+    refine (hinhuniv _ p).
+    intro n.
+    destruct n as [ n n0 ].
+    apply ( apartdecintdom0 R is n); assumption.
+Defined.
 
 Close Scope rng_scope.
 

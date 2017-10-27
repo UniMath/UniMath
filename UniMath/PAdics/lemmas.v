@@ -754,8 +754,8 @@ Close Scope hz_scope.
 
 (** * IV. Generalities on apartness relations *)
 
-Definition iscomparel { X : UU } ( R : hrel X ) := forall x y z : X,
-R x y -> coprod ( R x z ) ( R z y ).
+Definition iscomparel { X : UU } ( R : hrel X ) :=
+  forall x y z : X, R x y -> coprod ( R x z ) ( R z y ).
 
 Definition isapart { X : UU } ( R : hrel X ) :=
   dirprod ( isirrefl R ) ( dirprod ( issymm R ) ( iscotrans R ) ).
@@ -824,7 +824,8 @@ Definition acommrngconstr := acommrngpair.
 Definition acommrngtocommrng : acommrng -> commrng := @pr1 _ _.
 Coercion acommrngtocommrng : acommrng >-> commrng.
 
-Definition acommrngapartrel ( X : acommrng ) := pr1 ( pr1 ( pr2 X ) ).
+Definition acommrngapartrel ( X : acommrng ) : hrel (pr1 X) :=
+  pr1 ( pr1 ( pr2 X ) ).
 
 Notation " a # b " := ( acommrngapartrel _ a b )  (* ( at level 50 ) *) :
 rng_scope.
