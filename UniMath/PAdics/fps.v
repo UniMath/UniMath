@@ -1117,80 +1117,159 @@ Proof.
   - intros n p. apply nattruncbottomtopswapbound. assumption.
 Defined.
 
-Lemma isnattruncauto0S { upper : nat } { i : nat -> nat } ( p :
-isnattruncauto (S upper) i ) ( j : i 0%nat ~> S upper ) :
-isnattruncauto upper ( funcomp S i ).  Proof.  intros. unfold
-isnattruncauto. split. intros m q.  set ( v := nattruncautopreimage p
-(natlthtoleh m (S upper) (natlehlthtrans m upper (S upper) q
-(natlthnsn upper)))).  destruct ( isdeceqnat 0%nat v ) as [ i0 | i1
-]. assert empty. apply ( isirreflnatlth ( i 0%nat ) ). apply (
-natlehlthtrans _ upper ). rewrite i0. unfold v. rewrite (
-nattruncautopreimagepath ). assumption. rewrite j. apply
-natlthnsn. contradiction.  assert ( natlth 0 v ) as aux. destruct (
-natlehchoice _ _ ( natleh0n v ) ). assumption. assert empty. apply
-i1. assumption. contradiction.  split with ( minus v 1
-). split. rewrite <- ( minussn1 upper ).  apply ( minus1leh aux (
-natlehlthtrans _ _ _ ( natleh0n upper ) ( natlthnsn upper ) ) (
-nattruncautopreimageineq p ( natlthtoleh m ( S upper ) (
-natlehlthtrans m upper ( S upper ) q ( natlthnsn upper ) ) ) )
-). split. unfold funcomp.  rewrite pathssminus. rewrite
-minussn1. apply nattruncautopreimagepath. assumption.  intros n uu
-k. unfold funcomp in k. rewrite <- ( minussn1 n ).  assert ( v ~> S n
-) as f.  apply ( nattruncautopreimagecanon p _
-). assumption. assumption. rewrite f.  apply idpath.  intros x
-X. unfold funcomp. assert ( natleh ( i ( S x ) ) ( S upper ) ) as
-aux. apply (pr2 p). assumption. destruct ( natlehchoice _ _ aux ) as [ h | k
-]. apply natlthsntoleh. assumption. assert empty. assert ( 0%nat ~> S
-x ) as ii. apply ( nattruncautoisinj p ). apply natleh0n. assumption.
-rewrite j. rewrite k. apply idpath. apply ( isirreflnatlth ( S x ) ).
-apply ( natlehlthtrans _ x ). rewrite <- ii. apply natleh0n. apply
-natlthnsn. contradiction.  Defined.
+Lemma isnattruncauto0S { upper : nat } { i : nat -> nat }
+  ( p : isnattruncauto (S upper) i ) ( j : i 0%nat ~> S upper ) :
+  isnattruncauto upper ( funcomp S i ).
+Proof.
+  intros.
+  unfold isnattruncauto.
+  split.
+  - intros m q.
+    set ( v := nattruncautopreimage p (natlthtoleh m (S upper)
+               (natlehlthtrans m upper (S upper) q (natlthnsn upper)))).
+    destruct ( isdeceqnat 0%nat v ) as [ i0 | i1 ].
+    + assert empty.
+      { apply ( isirreflnatlth ( i 0%nat ) ).
+        apply ( natlehlthtrans _ upper ).
+        * rewrite i0.
+          unfold v.
+          rewrite nattruncautopreimagepath.
+          assumption.
+        * rewrite j.
+          apply natlthnsn.
+      }
+      contradiction.
+    + assert ( natlth 0 v ) as aux.
+      { destruct ( natlehchoice _ _ ( natleh0n v ) ).
+        * assumption.
+        * assert empty.
+          { apply i1. assumption. }
+          contradiction.
+      }
+      split with ( minus v 1 ).
+      split.
+      * rewrite <- ( minussn1 upper ).
+        apply ( minus1leh aux ( natlehlthtrans _ _ _ ( natleh0n upper )
+                ( natlthnsn upper ) ) ( nattruncautopreimageineq p
+                 ( natlthtoleh m ( S upper ) ( natlehlthtrans m upper ( S upper ) q
+                   ( natlthnsn upper ) ) ) ) ).
+      * split.
+        -- unfold funcomp.
+           rewrite pathssminus.
+           ++ rewrite minussn1.
+              apply nattruncautopreimagepath.
+           ++ assumption.
+        -- intros n uu k.
+           unfold funcomp in k.
+           rewrite <- ( minussn1 n ).
+           assert ( v ~> S n ) as f.
+           { apply ( nattruncautopreimagecanon p _ ); assumption. }
+           rewrite f.
+           apply idpath.
+  - intros x X.
+    unfold funcomp.
+    assert ( natleh ( i ( S x ) ) ( S upper ) ) as aux.
+    + apply (pr2 p).
+      assumption.
+    + destruct ( natlehchoice _ _ aux ) as [ h | k ].
+      * apply natlthsntoleh.
+        assumption.
+      * assert empty.
+        { assert ( 0%nat ~> S x ) as ii.
+          { apply ( nattruncautoisinj p ).
+            -- apply natleh0n.
+            -- assumption.
+            -- rewrite j.
+               rewrite k.
+               apply idpath.
+          }
+          apply ( isirreflnatlth ( S x ) ).
+          apply ( natlehlthtrans _ x ).
+          -- rewrite <- ii.
+             apply natleh0n.
+          -- apply natlthnsn.
+        }
+        contradiction.
+Defined.
 
 (* The following lemma says that we may reindex sums along
 automorphisms of the interval over which the finite summation is being
 taken. *)
 
-Lemma natsummationreindexing { R : commrng } { upper : nat } ( i : nat
--> nat ) ( p : isnattruncauto upper i ) ( f : nat -> R ) :
-natsummation0 upper f ~> natsummation0 upper (funcomp i f ).  Proof.
-intros R upper. induction upper. intros. simpl. unfold funcomp.
-assert ( 0%nat ~> i 0%nat ) as f0. destruct ( natlehchoice ( i 0%nat )
-0%nat ( pr2 p 0%nat ( isreflnatleh 0%nat ) ) ) as [ h | k ]. assert
-empty. exact ( negnatlthn0 ( i 0%nat ) h ). contradiction. rewrite
-k. apply idpath. rewrite <- f0. apply idpath.  intros. simpl (
-natsummation0 ( S upper ) f ).  set ( j := nattruncautopreimagepath p
-( isreflnatleh ( S upper ) ) ).  set ( v := nattruncautopreimage p (
-isreflnatleh ( S upper ) ) ).  change ( nattruncautopreimage p (
-isreflnatleh ( S upper ) ) ) with v in j.  destruct ( natlehchoice
-0%nat v ( natleh0n v ) ).  set ( aaa := nattruncautopreimageineq p (
-isreflnatleh ( S upper ) ) ). change ( nattruncautopreimage p (
-isreflnatleh ( S upper ) ) ) with v in aaa.  destruct ( natlehchoice v
-( S upper ) aaa ) as [ l | r ].  rewrite ( IHupper ( funcomp (
-natcoface v ) i ) ).
-
-  change ( funcomp ( funcomp ( natcoface v ) i ) f ) with ( funcomp (
-  natcoface v ) ( funcomp i f ) ).  assert ( f ( S upper ) ~> (
-  funcomp i f ) v ) as f0.  unfold funcomp.  rewrite j. apply
-  idpath. rewrite f0.
-
-  assert ( natleh v upper ) as aux. apply natlthsntoleh. assumption.
-  rewrite ( natsummationshift upper ( funcomp i f ) aux ). apply
-  idpath.  apply precompwithnatcofaceisauto. assumption.
-
-  rewrite ( IHupper ( funcomp ( natcoface v ) i ) ). assert (
-  natsummation0 upper ( funcomp ( funcomp ( natcoface v ) i) f ) ~>
-  natsummation0 upper ( funcomp i f ) ) as f0.  apply
-  natsummationpathsupperfixed. intros x X. unfold funcomp. unfold
-  natcoface. assert ( natlth x v ) as a0. apply ( natlehlthtrans _
-  upper ). assumption. rewrite r. apply natlthnsn. rewrite a0. apply
-  idpath. rewrite f0. assert ( f ( S upper ) ~> ( funcomp i f ) ( S
-  upper ) ) as f1. unfold funcomp.  rewrite <- r. rewrite j. rewrite
-  <- r. apply idpath. rewrite f1. apply idpath.  apply
-  precompwithnatcofaceisauto. assumption.  rewrite
-  natsummationshift0. unfold funcomp at 2. (* did not compile on Oct. 26, 2017 because of changed identifier: *) rewrite p0. rewrite j.
-  assert ( i 0%nat ~> S upper ) as j'. rewrite p0. rewrite j. apply
-  idpath.  rewrite ( IHupper ( funcomp S i ) ( isnattruncauto0S p j' )
-  ). apply idpath.  Defined.
+Lemma natsummationreindexing { R : commrng } { upper : nat }
+  ( i : nat -> nat ) ( p : isnattruncauto upper i ) ( f : nat -> R ) :
+  natsummation0 upper f ~> natsummation0 upper (funcomp i f ).
+Proof.
+  intros R upper.
+  induction upper.
+  - intros. simpl. unfold funcomp.
+    assert ( 0%nat ~> i 0%nat ) as f0.
+    { destruct ( natlehchoice ( i 0%nat ) 0%nat ( pr2 p 0%nat ( isreflnatleh 0%nat ) ) )
+        as [ h | k ].
+      + assert empty by exact ( negnatlthn0 ( i 0%nat ) h ).
+        contradiction.
+      + rewrite k.
+        apply idpath.
+    }
+    rewrite <- f0.
+    apply idpath.
+  - intros. simpl ( natsummation0 ( S upper ) f ).
+    set ( j := nattruncautopreimagepath p ( isreflnatleh ( S upper ) ) ).
+    set ( v := nattruncautopreimage p ( isreflnatleh ( S upper ) ) ).
+    change ( nattruncautopreimage p ( isreflnatleh ( S upper ) ) ) with v in j.
+    destruct ( natlehchoice 0%nat v ( natleh0n v ) ) as [ h | p0 ] .
+    + set ( aaa := nattruncautopreimageineq p ( isreflnatleh ( S upper ) ) ).
+      change ( nattruncautopreimage p ( isreflnatleh ( S upper ) ) ) with v in aaa.
+      destruct ( natlehchoice v ( S upper ) aaa ) as [ l | r ].
+      * rewrite ( IHupper ( funcomp ( natcoface v ) i ) ).
+        -- change ( funcomp ( funcomp ( natcoface v ) i ) f ) with
+               ( funcomp ( natcoface v ) ( funcomp i f ) ).
+           assert ( f ( S upper ) ~> ( funcomp i f ) v ) as f0.
+           { unfold funcomp. rewrite j. apply idpath. }
+           rewrite f0.
+           assert ( natleh v upper ) as aux.
+           { apply natlthsntoleh. assumption. }
+           rewrite ( natsummationshift upper ( funcomp i f ) aux ).
+           apply idpath.
+        -- apply precompwithnatcofaceisauto.
+           assumption.
+      *  rewrite ( IHupper ( funcomp ( natcoface v ) i ) ).
+         -- assert ( natsummation0 upper ( funcomp ( funcomp ( natcoface v ) i) f ) ~>
+                    natsummation0 upper ( funcomp i f ) ) as f0.
+            { apply natsummationpathsupperfixed.
+              intros x X. unfold funcomp. unfold natcoface.
+              assert ( natlth x v ) as a0.
+              { apply ( natlehlthtrans _ upper ).
+                ++ assumption.
+                ++ rewrite r.
+                   apply natlthnsn.
+              }
+              rewrite a0.
+              apply idpath.
+            }
+            rewrite f0.
+            assert ( f ( S upper ) ~> ( funcomp i f ) ( S upper ) ) as f1.
+            { unfold funcomp.
+              rewrite <- r.
+              rewrite j.
+              rewrite <- r.
+              apply idpath.
+            }
+            rewrite f1.
+            apply idpath.
+         -- apply precompwithnatcofaceisauto.
+            assumption.
+    + rewrite natsummationshift0.
+      unfold funcomp at 2.
+      rewrite p0.
+      rewrite j.
+      assert ( i 0%nat ~> S upper ) as j'.
+      { rewrite p0.
+        rewrite j.
+        apply idpath. }
+      rewrite ( IHupper ( funcomp S i ) ( isnattruncauto0S p j' ) ).
+      apply idpath.
+Defined.
 
 (** * III. Formal Power Series *)
 
