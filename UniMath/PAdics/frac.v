@@ -4,6 +4,8 @@
 
 (** February 2011 and August 2012 *)
 
+(** made compatible with the current UniMath library again by Ralph Matthes in 2017 *)
+
 (** Settings *)
 
 Unset Automatic Introduction. (** This line has to be removed for the
@@ -11,10 +13,11 @@ file to compile with Coq8.2 *)
 
 (** Imports *)
 
-Require Export lemmas.
+Require Import UniMath.PAdics.lemmas.
+Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.Algebra.Domains_and_Fields.
 
-(** * I. The field of fractions for an integrable domain with an
-apartness relation *)
+(** * I. The field of fractions for an integrable domain with an apartness relation *)
 
 Open Scope rng_scope.
 
@@ -69,7 +72,7 @@ ab cd ef gh p q. unfold afldfracapartrelpre.  destruct ab as [ a b
 d' ].  destruct ef as [ e f ]. destruct f as [ f f' ].  destruct gh as
 [ g h ]. destruct h as [ h h' ].  simpl in *.
 
-  apply uahp. intro u. apply p. intro p'. apply q. intro q'.  destruct
+  apply hPropUnivalence. intro u. apply p. intro p'. apply q. intro q'.  destruct
   p' as [ p' j ]. destruct p' as [ i p' ]. destruct q' as [ q' j'
   ]. destruct q' as [ i' q' ].  simpl in *.
 
@@ -141,9 +144,10 @@ Lemma iscotransafldfracapartrelpre : iscotrans afldfracapartrelpre.
 Proof.  intros ab cd ef p.  destruct ab as [ a b ]. destruct b as [ b
 b' ]. destruct cd as [ c d ] . destruct d as [ d d' ] . destruct ef as
 [ e f ]. destruct f as [ f f' ].  assert ( a * f * d # e * b * d ) as
-v.  apply azerormultcomp. assumption. assumption.  apply ( (
-acommrng_acotrans A ( a * f * d ) ( c * b * f ) ( e * b * d ) ) v
-). intro u.  intros P k. apply k.  unfold afldfracapartrelpre in
+            v.  apply azerormultcomp. assumption. assumption.
+refine (hinhuniv _ ( (
+acommrng_acotrans A ( a * f * d ) ( c * b * f ) ( e * b * d ) ) v ) ).
+        intro u.  intros P k. apply k.  unfold afldfracapartrelpre in
 *. simpl in *. destruct u as [ left | right ].  apply ii1. apply ( pr2
 ( acommrng_amult A ) f ).  assert ( @op2 A ( @op2 A a f ) d ~> @op2 A
 ( @op2 A a d ) f ) as i. permute.  change ( @op2 A ( @op2 A a d ) f #
@@ -317,15 +321,26 @@ afldfracmultinvint ( dirprodpair b c ) is' ) ).
  @rnglunax2 A ). apply ( @rngcomm2 A ).  apply p. assumption.
  Defined.
 
-Theorem afldfracisafld : isaafield afldfrac0.  Proof.  intros. split.
-change ( ( afldfracapartrel ) ( @rngunel2 ( commrngfrac A (
-aintdomazerosubmonoid A ) ) ) ( @rngunel1 ( commrngfrac A (
-aintdomazerosubmonoid A ) ) ) ).  unfold afldfracapartrel. cut ( (
-@op2 A ( @rngunel2 A ) ( @rngunel2 A ) ) # ( @op2 A ( @rngunel1 A ) (
-@rngunel2 A ) ) ).  intro v. apply v. rewrite 2! ( @rngrunax2 A
-). apply A.
-
-  intros a p. apply afldfracmultinv. assumption.  Defined.
+Theorem afldfracisafld : isaafield afldfrac0.
+Proof.
+  intros.
+  split.
+  - change ( ( afldfracapartrel )
+               ( @rngunel2 ( commrngfrac A (aintdomazerosubmonoid A ) ) )
+               ( @rngunel1 ( commrngfrac A ( aintdomazerosubmonoid A ) ) ) ).
+    unfold afldfracapartrel.
+    set ( aux := ( @op2 A ( @rngunel2 A ) ( @rngunel2 A ) ) #
+                 ( @op2 A ( @rngunel1 A ) ( @rngunel2 A ) ) ).
+    cut (pr1 aux). (* [pr1] is needed here *)
+    + intro v.
+      apply v.
+    + unfold aux.
+      rewrite 2! ( @rngrunax2 A ).
+      apply A.
+  - intros a p.
+    apply afldfracmultinv.
+    assumption.
+Defined.
 
 Definition afldfrac := afldpair afldfrac0 afldfracisafld.
 
