@@ -9,7 +9,6 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.Fields.
 Require Export UniMath.Algebra.DivisionRig.
-Require Import UniMath.Algebra.Lattice.
 Require Import UniMath.RealNumbers.Prelim.
 
 Opaque hq.
@@ -21,48 +20,31 @@ Open Scope hq_scope.
 Definition hnnq_set := subset (hqleh 0).
 
 Local Definition hnnq_set_to_hq (r : hnnq_set) : hq := pr1 r.
-Local Definition hq_to_hnnq_set (r : hq) : hnnq_set.
-Proof.
-  intros x.
-  mkpair.
-  apply (hqmax 0 x).
-  apply hqmax_ge_l.
-Defined.
 
-Local Definition hnnq_zero: hnnq_set := 0 ,, (isreflhqleh 0).
-Local Definition hnnq_one: hnnq_set := 1 ,, (hqlthtoleh 0 1 hq1_gt0).
+Local Definition hq_to_hnnq_set (r : hq) (Hr : hqleh 0 r) : hnnq_set :=
+  r ,, Hr.
+
+Local Definition hnnq_zero: hnnq_set := hq_to_hnnq_set 0 (isreflhqleh 0).
+Local Definition hnnq_one: hnnq_set := hq_to_hnnq_set 1 (hqlthtoleh 0 1 hq1_gt0).
 Local Definition hnnq_plus: binop hnnq_set :=
-  λ x y : hnnq_set, (pr1 x + pr1 y) ,, (hq0lehandplus _ _ (pr2 x) (pr2 y)).
-Local Definition hnnq_minus: binop hnnq_set :=
-  λ x y, hq_to_hnnq_set (pr1 x - pr1 y).
+  λ x y : hnnq_set, hq_to_hnnq_set (pr1 x + pr1 y) (hq0lehandplus _ _ (pr2 x) (pr2 y)).
+Local Definition hnnq_minus: binop hnnq_set.
+Proof.
+  intros x y.
+  induction (hqgthorleh (pr1 x) (pr1 y)) as [H | _].
+  exact (hq_to_hnnq_set (pr1 x - pr1 y) (hq0leminus _ _ (hqlthtoleh _ _ H))).
+  exact hnnq_zero.
+Defined.
 Local Definition hnnq_mult: binop hnnq_set :=
-  λ x y : hnnq_set, (pr1 x * pr1 y) ,, (hqmultgeh0geh0 (pr2 x) (pr2 y)).
+  λ x y : hnnq_set, hq_to_hnnq_set (pr1 x * pr1 y) (hqmultgeh0geh0 (pr2 x) (pr2 y)).
 Local Definition hnnq_inv: unop hnnq_set.
 Proof.
   intros x.
-  refine (sumofmaps _ _ (hqlehchoice 0 (pr1 x) (pr2 x))) ; [intros Hx0 | intros _].
-  exact ((/ pr1 x) ,, (hqlthtoleh 0 (/ pr1 x) (hqinv_gt0 (pr1 x) Hx0))).
+  induction (hqlehchoice 0 (pr1 x) (pr2 x)) as [Hx0 | _].
+  exact (hq_to_hnnq_set (/ pr1 x) (hqlthtoleh 0 (/ pr1 x) (hqinv_gt0 (pr1 x) Hx0))).
   exact x.
 Defined.
 Local Definition hnnq_div : binop hnnq_set := λ x y : hnnq_set, hnnq_mult x (hnnq_inv y).
-
-Local Definition hnnq_min : binop hnnq_set.
-Proof.
-  intros x y.
-  mkpair.
-  apply (hqmin (pr1 x) (pr1 y)).
-  apply hqmin_case ;
-    [ exact (pr2 x) | exact (pr2 y) ].
-Defined.
-Local Definition hnnq_max : binop hnnq_set.
-Proof.
-  intros x y.
-  mkpair.
-  apply (hqmax (pr1 x) (pr1 y)).
-  abstract (apply istranshqleh with (pr1 x) ;
-            [ apply (pr2 x)
-            | apply hqmax_ge_l ]).
-Defined.
 
 (** ** Equality and order on non-negative rational numbers *)
 
@@ -79,13 +61,18 @@ Qed.
 Local Definition hnnq_ge : hrel hnnq_set := resrel hqgeh (hqleh 0).
 Local Lemma ispreorder_hnnq_ge : ispreorder hnnq_ge.
 Proof.
-  apply (ispreorder_reverse _ ispreorder_hnnq_le).
+  set (H := ispreorder_hnnq_le).
+  split.
+  intros x y z Hxy Hyz.
+  now apply (pr1 H) with y.
+  intros x.
+  now apply (pr2 H).
 Qed.
 
 Local Definition hnnq_lt : hrel hnnq_set := resrel hqlth (hqleh 0).
 Local Lemma isStrongOrder_hnnq_lt : isStrongOrder hnnq_lt.
 Proof.
-  mkStrongOrder.
+  repeat split.
   - intros x y z.
     now apply istranshqlth.
   - intros x y z Hxz.
@@ -104,18 +91,18 @@ Local Definition hnnq_gt : hrel hnnq_set := resrel hqgth (hqleh 0).
 Local Lemma isStrongOrder_hnnq_gt : isStrongOrder hnnq_gt.
 Proof.
   set (H := isStrongOrder_reverse _ isStrongOrder_hnnq_lt).
-  mkStrongOrder.
-  - intros x y z.
-    apply (istrans_isStrongOrder H).
-  - intros x y z.
-    apply (iscotrans_isStrongOrder H).
-  - intros x.
-    apply (isirrefl_isStrongOrder H).
+  repeat split.
+  intros x y z.
+  now apply (pr1 H).
+  intros x y z.
+  now apply (pr1 (pr2 H)).
+  intros x.
+  now apply (pr2 (pr2 H)).
 Qed.
 
 Local Lemma isEffectiveOrder_hnnq : isEffectiveOrder hnnq_le hnnq_lt.
 Proof.
-  split ; split ; [ | | split | split ].
+  split ; [ split | repeat split ].
   - exact ispreorder_hnnq_le.
   - exact isStrongOrder_hnnq_lt.
   - easy.
@@ -278,67 +265,13 @@ Proof.
     + now apply (isrinv'_hnnq_inv x Hx').
 Defined.
 
-(** ** hnnq is a lattice *)
-
-Lemma islatticeop_hnnq :
-  islatticeop hnnq_min hnnq_max.
-Proof.
-  repeat split ; intro ; intros ; apply subtypeEquality_prop.
-  - apply isassoc_hqmin.
-  - apply iscomm_hqmin.
-  - apply isassoc_hqmax.
-  - apply iscomm_hqmax.
-  - apply isabsorb_hqmin_hqmax.
-  - apply isabsorb_hqmax_hqmin.
-Qed.
-Definition lattice_hnnq : lattice hnnq_set :=
-  hnnq_min ,, hnnq_max ,, islatticeop_hnnq.
-
-Lemma Lle_hnnq_le :
-  ∏ x y : hnnq_set, hnnq_le x y <-> Lle lattice_hnnq x y.
-Proof.
-  intros x y ; split.
-  - intros H.
-    apply subtypeEquality_prop.
-    apply Llehq_correct.
-    exact H.
-  - intros H.
-    apply_pr2 Llehq_correct.
-    apply (maponpaths pr1 H).
-Qed.
-
 (** * Exportable definitions and theorems *)
 
 Definition NonnegativeRationals : CommDivRig := CommDivRig_hnnq.
 Definition NonnegativeRationals_to_Rationals : NonnegativeRationals → hq :=
   pr1.
-Lemma NonnegativeRationals_to_Rationals_ge0 :
-  ∏ x : NonnegativeRationals, (0 <= NonnegativeRationals_to_Rationals x)%hq.
-Proof.
-  intros x.
-  apply (pr2 x).
-Qed.
-Definition Rationals_to_NonnegativeRationals (r : hq) : NonnegativeRationals :=
-  hq_to_hnnq_set r.
-
-Lemma NonnegativeRationals_to_Rationals_correct :
-  ∏ x : NonnegativeRationals,
-        Rationals_to_NonnegativeRationals (NonnegativeRationals_to_Rationals x) = x.
-Proof.
-  intros x.
-  apply subtypeEquality_prop.
-  apply hqmax_eq_r.
-  apply (pr2 x).
-Qed.
-Lemma Rationals_to_NonnegativeRationals_correct :
-  ∏ (x : hq),
-  (0 <= x)%hq →
-  NonnegativeRationals_to_Rationals (Rationals_to_NonnegativeRationals x) = x.
-Proof.
-  intros x Hx.
-  apply hqmax_eq_r.
-  exact Hx.
-Qed.
+Definition Rationals_to_NonnegativeRationals (r : hq) (Hr : hqleh 0%hq r) : NonnegativeRationals :=
+  tpair _ r Hr.
 
 Delimit Scope NRat_scope with NRat.
 
@@ -376,10 +309,10 @@ Definition divNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRat
   multNonnegativeRationals x (invNonnegativeRationals y).
 
 Definition twoNonnegativeRationals : NonnegativeRationals :=
-  2 ,, (hqlthtoleh _ _ hq2_gt0).
+  Rationals_to_NonnegativeRationals 2 (hqlthtoleh _ _ hq2_gt0).
 
 Definition nat_to_NonnegativeRationals (n : nat) : NonnegativeRationals :=
-  (hztohq (nattohz n)) ,, (hztohqandleh 0%hz _ (nattohzandleh O n (natleh0n n))).
+  Rationals_to_NonnegativeRationals (hztohq (nattohz n)) (hztohqandleh 0%hz _ (nattohzandleh O n (natleh0n n))).
 
 Notation "0" := zeroNonnegativeRationals : NRat_scope.
 Notation "1" := oneNonnegativeRationals : NRat_scope.
@@ -391,86 +324,76 @@ Notation "x * y" := (multNonnegativeRationals x y) (at level 40, left associativ
 Notation "/ x" := (invNonnegativeRationals x) (at level 35, right associativity) : NRat_scope.
 Notation "x / y" := (divNonnegativeRationals x y) (at level 40, left associativity) : NRat_scope.
 
-Definition minNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
-  hnnq_min x y.
-Definition maxNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
-  hnnq_max x y.
-
 Open Scope NRat_scope.
 
 (** *** Correctness of definitions *)
 
 Lemma zeroNonnegativeRationals_correct :
-  0 = Rationals_to_NonnegativeRationals 0%hq.
+  0 = Rationals_to_NonnegativeRationals 0%hq (isreflhqleh 0%hq).
 Proof.
   apply subtypeEquality_prop.
-  apply pathsinv0, hqmax_id.
+  reflexivity.
 Qed.
 Lemma oneNonnegativeRationals_correct :
-  1 = Rationals_to_NonnegativeRationals 1%hq.
+  1 = Rationals_to_NonnegativeRationals 1%hq hq1ge0.
 Proof.
   apply subtypeEquality_prop.
-  apply pathsinv0, hqmax_eq_r.
-  apply hq1ge0.
+  reflexivity.
 Qed.
 Lemma twoNonnegativeRationals_correct :
-  2 = Rationals_to_NonnegativeRationals 2%hq.
+  2 = Rationals_to_NonnegativeRationals 2%hq (hqlthtoleh _ _ hq2_gt0).
 Proof.
   apply subtypeEquality_prop.
-  apply pathsinv0, hqmax_eq_r.
-  apply hqgthtogeh.
-  apply hq2_gt0.
+  reflexivity.
 Qed.
 Lemma plusNonnegativeRationals_correct :
   ∏ (x y : NonnegativeRationals),
-    x + y = Rationals_to_NonnegativeRationals (pr1 x + pr1 y)%hq.
+    x + y = Rationals_to_NonnegativeRationals (pr1 x + pr1 y)%hq (hq0lehandplus _ _ (pr2 x) (pr2 y)).
 Proof.
   intros x y.
   apply subtypeEquality_prop.
-  change (pr1 x + pr1 y = hqmax 0 (pr1 x + pr1 y))%hq.
-  apply pathsinv0.
-  apply hqmax_eq_r.
-  apply hq0lehandplus.
-  exact (pr2 x).
-  exact (pr2 y).
+  reflexivity.
 Qed.
 Lemma minusNonnegativeRationals_correct :
-  ∏ (x y : NonnegativeRationals),
-    x - y = Rationals_to_NonnegativeRationals (pr1 x - pr1 y)%hq.
+  ∏ (x y : NonnegativeRationals) (Hminus : y <= x),
+    x - y = Rationals_to_NonnegativeRationals (pr1 x - pr1 y)%hq (hq0leminus _ _ Hminus).
 Proof.
-  intros x y.
-  reflexivity.
+  intros x y H.
+  apply subtypeEquality_prop.
+  unfold minusNonnegativeRationals, hnnq_minus.
+  generalize (hqgthorleh (pr1 x) (pr1 y)).
+  apply coprod_rect ; [intros Hgt | intros Hle].
+  - reflexivity.
+  - generalize (isantisymmhqleh _ _ Hle H) ; intros Heq.
+    rewrite coprod_rect_compute_2.
+    generalize (hq0leminus (pr1 y) (pr1 x) H).
+    rewrite Heq, hqrminus.
+    intros H0.
+    reflexivity.
 Qed.
 Lemma multNonnegativeRationals_correct :
   ∏ (x y : NonnegativeRationals),
-    x * y = Rationals_to_NonnegativeRationals (pr1 x * pr1 y)%hq.
+    x * y = Rationals_to_NonnegativeRationals (pr1 x * pr1 y)%hq ( hq0lehandmult _ _ (pr2 x) (pr2 y)).
 Proof.
   intros x y.
   apply subtypeEquality_prop.
-  change (pr1 x * pr1 y = hqmax 0 (pr1 x * pr1 y))%hq.
-  apply pathsinv0.
-  apply hqmax_eq_r.
-  apply hq0lehandmult.
-  exact (pr2 x).
-  exact (pr2 y).
+  reflexivity.
 Qed.
 Lemma invNonnegativeRationals_correct :
   ∏ (x : NonnegativeRationals) (Hx : 0 < x),
-    / x = Rationals_to_NonnegativeRationals (/ pr1 x)%hq.
+    / x = Rationals_to_NonnegativeRationals (/ pr1 x)%hq (hqlthtoleh _ _ (hqinv_gt0 _ Hx)).
 Proof.
   intros x Hx0.
   apply subtypeEquality_prop.
   unfold invNonnegativeRationals, hnnq_inv.
-  induction (hqlehchoice 0%hq (pr1 x) (pr2 x)) as [Hlt | Heq].
-  - change ((/ pr1 x)%hq = hqmax 0%hq (/ pr1 x)%hq).
-    apply pathsinv0.
-    apply hqmax_eq_r.
-    apply hqlthtoleh, hqinv_gt0.
-    exact Hlt.
-  - apply fromempty ; revert Hx0.
-    change (pr1 x <= 0)%hq.
-    rewrite <- Heq.
-    apply isreflhqleh.
+  generalize (hqlehchoice 0%hq (pr1 x) (pr2 x)).
+  apply coprod_rect ; [intros Hlt | intros Heq].
+  - reflexivity.
+  - apply fromempty ; generalize Hx0.
+    change x with (pr1 x,,pr2 x).
+    generalize (pr2 x).
+    rewrite <- Heq ; intro.
+    exact (isirreflhqlth 0%hq).
 Qed.
 
 Lemma leNonnegativeRationals_correct :
@@ -631,7 +554,7 @@ Proof.
   { apply istranshqleh with (pr1 x).
     now apply (pr2 x).
     apply (hqlthtoleh (pr1 x) (pr1 z)), (pr1 (pr2 z)). }
-  exists (pr1 z ,, Hz).
+  exists (hq_to_hnnq_set _ Hz).
   exact (pr2 z).
 Qed.
 
@@ -839,48 +762,57 @@ Qed.
 (** *** Substraction *)
 (** Rewriting *)
 
-Lemma minusNonnegativeRationals_plus :
-  ∏ r q : NonnegativeRationals, (q - r) + r = maxNonnegativeRationals q r.
-Proof.
-  intros r q.
-  apply subtypeEquality_prop.
-  change (hqmax 0 (pr1 q + - pr1 r) + pr1 r = hqmax (pr1 q) (pr1 r))%hq.
-  rewrite isrdistr_hqmax_hqplus, hqplusassoc.
-  rewrite hqlminus, hqplusl0, hqplusr0.
-  apply iscomm_hqmax.
-Qed.
-
 Lemma minusNonnegativeRationals_eq_zero:
   ∏ x y : NonnegativeRationals, x <= y -> x - y = 0.
 Proof.
   intros x y Hle.
-  apply (plusNonnegativeRationals_eqcompat_r y).
-  rewrite minusNonnegativeRationals_plus, islunit_zeroNonnegativeRationals.
-  apply (Lmax_le_eq_r lattice_hnnq).
-  apply Lle_hnnq_le.
-  exact Hle.
+  unfold minusNonnegativeRationals, hnnq_minus.
+  generalize (hqgthorleh (pr1 x) (pr1 y)).
+  apply coprod_rect ; intros H.
+  - apply fromempty.
+    exact (Hle H).
+  - reflexivity.
 Qed.
 Lemma minusNonnegativeRationals_plus_r :
   ∏ r q : NonnegativeRationals,
     r <= q -> (q - r) + r = q.
 Proof.
   intros r q H.
-  rewrite minusNonnegativeRationals_plus.
-  apply (Lmax_le_eq_l lattice_hnnq).
-  apply Lle_hnnq_le.
-  exact H.
+  unfold minusNonnegativeRationals, hnnq_minus.
+  generalize (hqgthorleh (pr1 q) (pr1 r)).
+  apply coprod_rect ; intros H'.
+  - rewrite coprod_rect_compute_1.
+    apply subtypeEquality_prop.
+    unfold hqminus.
+    pattern r at 4.
+    simpl.
+    generalize (pr1 r) (pr1 q) (pr2 r) (hq0leminus (pr1 r) (pr1 q) (hqlthtoleh (pr1 r) (pr1 q) H')) ; intros r' q' Hr Hrq.
+    now rewrite hqplusassoc, hqlminus, hqplusr0.
+  - rewrite coprod_rect_compute_2.
+    apply subtypeEquality_prop.
+    generalize (isantisymmhqleh _ _ H H').
+    simpl.
+    generalize (pr1 r) (pr2 r) (pr1 q) ; intros r' Hr' q' Heq.
+    now rewrite hqplusl0.
 Qed.
 
 Lemma plusNonnegativeRationals_minus_r :
   ∏ q r : NonnegativeRationals, (r + q) - q = r.
 Proof.
   intros q r.
+  change r with (pr1 r,,pr2 r).
+  generalize (pr1 r) (pr2 r) (pr1 q) (pr2 q) ; intros r' Hr q' Hq.
+  rewrite (minusNonnegativeRationals_correct _ _ (plusNonnegativeRationals_le_l _ _)).
   apply subtypeEquality_prop.
-  change (hqmax 0 (pr1 r + pr1 q + - pr1 q) = pr1 r)%hq.
-  rewrite hqplusassoc, (hqpluscomm (pr1 q)), (hqlminus (pr1 q)), hqplusr0.
-  apply hqmax_eq_r.
-  apply (pr2 r).
+  simpl pr1.
+  unfold hqminus.
+  rewrite hqplusassoc.
+  rewrite (hqpluscomm (pr1 q)).
+  rewrite hqlminus.
+  rewrite hqplusr0.
+  reflexivity.
 Qed.
+
 Lemma plusNonnegativeRationals_minus_l :
   ∏ q r : NonnegativeRationals, (q + r) - q = r.
 Proof.
@@ -922,18 +854,16 @@ Lemma minusNonnegativeRationals_plus_exchange :
   ∏ x y z : NonnegativeRationals, y <= x -> x - y + z = (x + z) - y.
 Proof.
   intros x y z Hxy.
-  apply (plusNonnegativeRationals_eqcompat_r y).
-  rewrite minusNonnegativeRationals_plus, isassoc_plusNonnegativeRationals.
-  rewrite (iscomm_plusNonnegativeRationals z), <- isassoc_plusNonnegativeRationals, minusNonnegativeRationals_plus.
-  change (hnnq_max x y + z = hnnq_max (x + z) y).
-  rewrite !(Lmax_le_eq_l lattice_hnnq).
-  - reflexivity.
-  - apply (pr1 (Lle_hnnq_le _ _)).
-    apply istrans_leNonnegativeRationals with x.
+  assert (Hxzy : y <= x + z).
+  { apply istrans_leNonnegativeRationals with x.
     exact Hxy.
-    apply plusNonnegativeRationals_le_r.
-  - apply (pr1 (Lle_hnnq_le _ _)).
-    exact Hxy.
+    apply plusNonnegativeRationals_le_r. }
+  rewrite (minusNonnegativeRationals_correct _ _ Hxy), (minusNonnegativeRationals_correct _ _ Hxzy).
+  revert Hxy Hxzy.
+  intros.
+  apply subtypeEquality_prop.
+  change (pr1 x - pr1 y + pr1 z = (pr1 x + pr1 z) - pr1 y)%hq.
+  now unfold hqminus ; rewrite !hqplusassoc, (hqpluscomm (pr1 z)).
 Qed.
 
 (** Order *)
@@ -942,10 +872,17 @@ Lemma ispositive_minusNonnegativeRationals :
   ∏ x y : NonnegativeRationals, (x < y) <-> (0 < y - x).
 Proof.
   intros x y.
-  unfold minusNonnegativeRationals, hnnq_minus, hq_to_hnnq_set.
-  generalize (hqmax_ge_l 0%hq (pr1 y - pr1 x)%hq).
-  intros H.
-  apply hqtruncminus_pos.
+  split ; intro Hlt.
+  - apply_pr2 (plusNonnegativeRationals_ltcompat_r x).
+    rewrite islunit_zeroNonnegativeRationals, minusNonnegativeRationals_plus_r.
+    + exact Hlt.
+    + now apply lt_leNonnegativeRationals, Hlt.
+  - revert Hlt.
+    unfold minusNonnegativeRationals, hnnq_minus.
+    generalize (hqgthorleh (pr1 y) (pr1 x)).
+    apply (coprod_rect (λ _, _ → _)) ; intros H0 ; intro Hlt.
+    + exact H0.
+    + now apply isirrefl_ltNonnegativeRationals in Hlt.
 Qed.
 
 Lemma minusNonnegativeRationals_le :
@@ -1234,8 +1171,7 @@ Proof.
     exact Hx0.
     exact Hy.
     apply multNonnegativeRationals_lecompat_r.
-    apply lt_leNonnegativeRationals.
-    exact Hx.
+    now apply lt_leNonnegativeRationals.
 Qed.
 Lemma multNonnegativeRationals_le_lt:
   ∏ x x' y y' : NonnegativeRationals,
@@ -1544,12 +1480,13 @@ Qed.
 Lemma NQhalf_double : ∏ x, x = x / 2 + x / 2.
 Proof.
   intros x.
-  rewrite (tppr x) ; generalize (pr1 x) (pr2 x) ; clear x ; intros x Hx.
+  change x with (pr1 x,,pr2 x).
+  generalize (pr1 x) (pr2 x) ; clear x ; intros x Hx.
   unfold divNonnegativeRationals, invNonnegativeRationals, hnnq_inv, twoNonnegativeRationals, Rationals_to_NonnegativeRationals ; simpl pr1 ; simpl pr2.
   generalize (hqlehchoice 0%hq 2%hq (hqlthtoleh 0%hq 2%hq hq2_gt0)) ;
   apply coprod_rect ; intros H2.
   apply subtypeEquality_prop ; simpl pr1.
-  rewrite !(hqmultcomm x (/ 2)%hq), <- hqldistr, hqmultcomm.
+  rewrite !(hqmultcomm x), <- hqldistr, hqmultcomm.
   apply hqplusdiv2.
   apply fromempty ; generalize hq2_gt0.
   rewrite H2.
@@ -1574,150 +1511,87 @@ Proof.
     exact Hx.
 Qed.
 
-(** ** maxNonnegativeRationals *)
+(** ** NQmax *)
 
-Lemma maxNonnegativeRationals_eq_zero :
-  ∏ x y : NonnegativeRationals, maxNonnegativeRationals x y = 0 -> (x = 0) × (y = 0).
+Definition NQmax : binop NonnegativeRationals.
 Proof.
   intros x y.
-  unfold maxNonnegativeRationals, hnnq_max.
-  generalize (hnnq_max_subproof x y).
-  apply (hqmax_case_strong (λ x, ∏ n : ¬ (0 > x)%hq,
-                                       x ,, n = 0 → _)).
-  - intros H Hx Hx0.
-    split.
-    + apply subtypeEquality_prop.
-      apply (maponpaths pr1 Hx0).
-    + apply subtypeEquality_prop.
-      apply isantisymmhqleh.
-      rewrite <- Hx0.
-      exact H.
-      exact (pr2 y).
-  - intros H Hy Hy0.
-    split.
-    + apply subtypeEquality_prop.
-      apply isantisymmhqleh.
-      rewrite <- Hy0.
-      exact H.
-      exact (pr2 x).
-    + apply subtypeEquality_prop.
-      apply (maponpaths pr1 Hy0).
-Qed.
-Lemma maxNonnegativeRationals_case_strong :
-  ∏ (P : NonnegativeRationals -> UU),
-  ∏ x y : NonnegativeRationals, (y <= x -> P x) -> (x <= y -> P y) -> P (maxNonnegativeRationals x y).
-Proof.
-  intros P x y Hx Hy.
-  unfold maxNonnegativeRationals, hnnq_max.
-  generalize (hnnq_max_subproof x y).
-  apply (hqmax_case_strong (λ x, ∏ n : ¬ (0 > x)%hq, P (x ,, n))).
-  - intros H n.
-    assert (H0 : x = (pr1 x,, n)).
-    apply subtypeEquality_prop.
-    reflexivity.
-    rewrite <- H0.
-    apply Hx.
-    exact H.
-  - intros H n.
-    assert (H0 : y = (pr1 y,, n)).
-    apply subtypeEquality_prop.
-    reflexivity.
-    rewrite <- H0.
-    apply Hy.
-    exact H.
-Qed.
-Lemma maxNonnegativeRationals_case :
-  ∏ (P : NonnegativeRationals -> UU),
-  ∏ x y : NonnegativeRationals, P x -> P y -> P (maxNonnegativeRationals x y).
-Proof.
-  intros P x y Hx Hy.
-  now apply maxNonnegativeRationals_case_strong.
-Qed.
-Lemma iscomm_maxNonnegativeRationals :
-  ∏ x y, maxNonnegativeRationals x y = maxNonnegativeRationals y x.
+  refine (sumofmaps _ _ (isdecrel_leNonnegativeRationals x y)) ; intros _.
+  exact y.
+  exact x.
+Defined.
+Lemma NQmax_eq_zero :
+  ∏ x y : NonnegativeRationals, NQmax x y = 0 -> (x = 0) × (y = 0).
 Proof.
   intros x y.
-  apply maxNonnegativeRationals_case_strong ; intro Hle ;
-  apply maxNonnegativeRationals_case_strong ; intro Hle'.
+  unfold NQmax.
+  generalize (isdecrel_leNonnegativeRationals x y).
+  apply (coprod_rect (λ _, _ → _)) ; [ intros Hle | intros Hlt] ; intro H ; simpl in H ; split.
+  - apply NonnegativeRationals_eq0_le0.
+    apply istrans_leNonnegativeRationals with (1 := Hle).
+    now rewrite H ; apply isrefl_leNonnegativeRationals.
+  - exact H.
+  - exact H.
+  - apply NonnegativeRationals_eq0_le0 ; rewrite <- H.
+    now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
+Qed.
+Lemma NQmax_case :
+  ∏ (P : NonnegativeRationals -> UU),
+  ∏ x y : NonnegativeRationals, P x -> P y -> P (NQmax x y).
+Proof.
+  intros P x y Hx Hy.
+  unfold NQmax.
+  generalize (isdecrel_leNonnegativeRationals x y).
+  now apply coprod_rect.
+Qed.
+Lemma NQmax_case_strong :
+  ∏ (P : NonnegativeRationals -> UU),
+  ∏ x y : NonnegativeRationals, (y <= x -> P x) -> (x <= y -> P y) -> P (NQmax x y).
+Proof.
+  intros P x y Hx Hy.
+  unfold NQmax.
+  generalize ( isdecrel_leNonnegativeRationals x y).
+  apply coprod_rect ; [intros Hle | intros Hlt].
+  - now apply Hy.
+  - apply Hx.
+    now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
+Qed.
+Lemma iscomm_NQmax :
+  ∏ x y, NQmax x y = NQmax y x.
+Proof.
+  intros x y.
+  apply NQmax_case_strong ; intro Hle ;
+  apply NQmax_case_strong ; intro Hle'.
   - now apply isantisymm_leNonnegativeRationals.
   - reflexivity.
   - reflexivity.
   - now apply isantisymm_leNonnegativeRationals.
 Qed.
-Lemma maxNonnegativeRationals_le_l :
-  ∏ x y : NonnegativeRationals, x <= maxNonnegativeRationals x y.
+Lemma NQmax_le_l :
+  ∏ x y : NonnegativeRationals, x <= NQmax x y.
 Proof.
   intros x y.
-  apply maxNonnegativeRationals_case_strong ; intro Hle.
+  apply NQmax_case_strong ; intro Hle.
   - apply isrefl_leNonnegativeRationals.
   - exact Hle.
 Qed.
-Lemma maxNonnegativeRationals_le_r :
-  ∏ x y : NonnegativeRationals, y <= maxNonnegativeRationals x y.
+Lemma NQmax_le_r :
+  ∏ x y : NonnegativeRationals, y <= NQmax x y.
 Proof.
   intros x y.
-  rewrite iscomm_maxNonnegativeRationals.
-  now apply maxNonnegativeRationals_le_l.
+  rewrite iscomm_NQmax.
+  now apply NQmax_le_l.
 Qed.
 
-(** ** minNonnegativeRationals *)
+(** ** NQmin *)
 
-Lemma minNonnegativeRationals_case_strong :
-  ∏ (P : NonnegativeRationals -> UU),
-  ∏ x y : NonnegativeRationals, (x <= y -> P x) -> (y <= x -> P y) -> P (minNonnegativeRationals x y).
-Proof.
-  intros P x y Hx Hy.
-  unfold minNonnegativeRationals, hnnq_min.
-  generalize (hqmin_case (λ p : hq, ¬ (0 > p)%hq) (pr1 x) (pr1 y) (pr2 x) (pr2 y)).
-  apply (hqmin_case_strong (λ z, ∏ H : (0 <= z)%hq, P (z ,, H))) ; intros H.
-  - intros n.
-    assert (H0 : x = (pr1 x,, n)).
-    apply subtypeEquality_prop.
-    reflexivity.
-    rewrite <- H0.
-    apply Hx.
-    exact H.
-  - intros n.
-    assert (H0 : y = (pr1 y,, n)).
-    apply subtypeEquality_prop.
-    reflexivity.
-    rewrite <- H0.
-    apply Hy.
-    exact H.
-Qed.
-Lemma minNonnegativeRationals_case :
-  ∏ (P : NonnegativeRationals -> UU),
-  ∏ x y : NonnegativeRationals, P x -> P y -> P (minNonnegativeRationals x y).
-Proof.
-  intros P x y Hx Hy.
-  now apply minNonnegativeRationals_case_strong.
-Qed.
-Lemma iscomm_minNonnegativeRationals :
-  ∏ x y, minNonnegativeRationals x y = minNonnegativeRationals y x.
+Definition NQmin : binop NonnegativeRationals.
 Proof.
   intros x y.
-  apply minNonnegativeRationals_case_strong ; intro Hle ;
-  apply minNonnegativeRationals_case_strong ; intro Hle'.
-  - now apply isantisymm_leNonnegativeRationals.
-  - reflexivity.
-  - reflexivity.
-  - now apply isantisymm_leNonnegativeRationals.
-Qed.
-Lemma minNonnegativeRationals_ge_l :
-  ∏ x y : NonnegativeRationals, minNonnegativeRationals x y <= x.
-Proof.
-  intros x y.
-  apply minNonnegativeRationals_case_strong ; intro Hle.
-  - apply isrefl_leNonnegativeRationals.
-  - exact Hle.
-Qed.
-Lemma minNonnegativeRationals_ge_r :
-  ∏ x y : NonnegativeRationals, minNonnegativeRationals x y <= y.
-Proof.
-  intros x y.
-  rewrite iscomm_minNonnegativeRationals.
-  now apply minNonnegativeRationals_ge_l.
-Qed.
+  refine (sumofmaps _ _ (isdecrel_leNonnegativeRationals x y)) ; intros _.
+  exact x.
+  exact y.
+Defined.
 
 (** ** intpart *)
 
@@ -1753,27 +1627,24 @@ Proof.
     generalize (isarchrig_diff _ H (pr1 y1) (pr1 y2) Hy).
     apply hinhfun.
     intros n.
-    simple refine (mk_isarchrig_1_acc _ _ _ _ _).
-    exact (isarchrig_1_val n).
-    generalize (isarchrig_1_pty n) ; intros Hn.
+    exists (pr1 n).
+    generalize (pr2 n) ; intros Hn.
     rewrite <- !X in Hn.
     exact Hn.
   - intros x.
     generalize (isarchrig_gt _ H (pr1 x)).
     apply hinhfun.
     intros n.
-    simple refine (mk_isarchrig_2_acc _ _ _ _).
-    exact (isarchrig_2_val n).
-    generalize (isarchrig_2_pty n) ; intros Hn.
+    exists (pr1 n).
+    generalize (pr2 n) ; intros Hn.
     rewrite <- X in Hn.
     exact Hn.
   - intros x.
     generalize (isarchrig_pos _ H (pr1 x)).
     apply hinhfun.
     intros n.
-    simple refine (mk_isarchrig_3_acc _ _ _ _).
-    exact (isarchrig_3_val n).
-    generalize (isarchrig_3_pty n) ; intros Hn.
+    exists (pr1 n).
+    generalize (pr2 n) ; intros Hn.
     rewrite <- X in Hn.
     exact Hn.
   - exact isrngaddhzgth.
