@@ -624,9 +624,7 @@ Proof.
             rewrite hzrminus.
             rewrite hzabsval0.
             rewrite nattohzand0.
-            (* did not compile on Oct. 28, 2017: *)
-            (* now an intermediary result *)
-            assert (hzabsval m ≠ 0) as Hyp.
+            assert (hzabsval m ≠ 0).
             { apply hzabsvalneq0.
               intro Q.
               rewrite Q in p.
@@ -634,19 +632,8 @@ Proof.
               apply p.
               apply idpath.
             }
-
-
-(*  playing around
-             assumption.
-            unfold hzlth.
-            rewrite hzabsvalgth0.
-            apply nattohzandlth.
-
-This was the original continuation of the proof script:
-            apply hzabsvalneq0.
-            intro Q. apply p. assumption.
- *)
-            admit.
+            apply lemmas.hzabsvalneq0. (* the culprit is the prefix [lemmas] *)
+            assumption.
       }
       assert empty.
       { apply ( isirreflhzlth ( nattohz ( hzabsval m ) ) ).
@@ -711,7 +698,7 @@ This was the original continuation of the proof script:
   }
   apply proofirrelevancecontr.
   assumption.
-Admitted.
+Defined.
 
 Definition hzquotientmod ( p : hz ) ( x : hzneq 0 p ) : hz -> hz :=
   fun n : hz => ( pr1 ( pr1 ( divalgorithmexists n p x ) ) ).
