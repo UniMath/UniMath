@@ -521,106 +521,222 @@ Proof.
          ++ apply ( pr2 ( pr2 ( pr2 ( a ) ) ) ).
 Defined.
 
-Lemma hzdivhzabsval ( a b : hz ) ( p : hzdiv a b ) : hdisj ( natleh (
-hzabsval a ) ( hzabsval b ) ) ( hzabsval b ~> 0%nat ).  Proof.  intros
-a b p P q. apply ( p P ).  intro t. destruct t as [ k f ].  unfold
-hzdiv0 in f. apply q. apply natdivleh with ( hzabsval k ).  rewrite (
-hzabsvalandmult ). rewrite f. apply idpath.  Defined.
+Lemma hzdivhzabsval ( a b : hz ) ( p : hzdiv a b ) :
+  hdisj ( natleh ( hzabsval a ) ( hzabsval b ) ) ( hzabsval b ~> 0%nat ).
+Proof.
+  intros a b p P q.
+  apply ( p P ).
+  intro t.
+  destruct t as [ k f ].
+  unfold hzdiv0 in f.
+  apply q.
+  apply natdivleh with ( hzabsval k ).
+  rewrite hzabsvalandmult.
+  rewrite f.
+  apply idpath.
+Defined.
 
-Lemma divalgorithm ( n m : hz ) ( p : hzneq 0 m ) : iscontr ( total2 (
-fun qr : dirprod hz hz => ( ( dirprod ( n ~> ( ( m * ( pr1 qr ) ) + (
-pr2 qr ) ) ) ( dirprod ( hzleh 0 ( pr2 qr ) ) ( hzlth ( pr2 qr ) (
-nattohz ( hzabsval m ) ) ) ) ) ) ) ).  Proof.  intros. split with (
-divalgorithmexists n m p ). intro t.  destruct t as [ qr' t'
-]. destruct qr' as [ q' r' ]. simpl in t'.  destruct t' as [ f' p2p2t
-]. destruct p2p2t as [ p1p2p2t p2p2p2t ].  destruct divalgorithmexists
-as [ qr v ]. destruct qr as [ q r ].  destruct v as [ f p2p2dae ].
-destruct p2p2dae as [ p1p2p2dae p2p2p2dae ]. simpl in f. simpl in
-p1p2p2dae. simpl in p2p2p2dae.
+Lemma divalgorithm ( n m : hz ) ( p : hzneq 0 m ) :
+  iscontr ( total2 ( fun qr : dirprod hz hz =>
+    ( ( dirprod ( n ~> ( ( m * ( pr1 qr ) ) + ( pr2 qr ) ) )
+         ( dirprod ( hzleh 0 ( pr2 qr ) )
+                   ( hzlth ( pr2 qr ) ( nattohz ( hzabsval m ) ) ) ) ) ) ) ).
+Proof.
+  intros.
+  split with ( divalgorithmexists n m p ).
+  intro t.
+  destruct t as [ qr' t' ].
+  destruct qr' as [ q' r' ].
+  simpl in t'.
+  destruct t' as [ f' p2p2t ].
+  destruct p2p2t as [ p1p2p2t p2p2p2t ].
+  destruct divalgorithmexists as [ qr v ].
+  destruct qr as [ q r ].
+  destruct v as [ f p2p2dae ].
+  destruct p2p2dae as [ p1p2p2dae p2p2p2dae ].
+  simpl in f.
+  simpl in p1p2p2dae.
+  simpl in p2p2p2dae.
+  assert ( r' ~> r ) as h.
+  { (* Proof that r' ~> r : *)
+    assert ( m * ( q - q' ) ~> ( r' - r ) ) as h0.
+    { change ( q - q' ) with ( q + - q' ).
+      rewrite hzldistr.
+      rewrite <- ( hzplusr0 ( r' - r ) ).
+      rewrite <- ( hzrminus ( m * q' ) ).
+      change ( r' - r ) with ( r' + ( - r ) ).
+      rewrite ( hzplusassoc r' ).
+      change ( ( m * q' ) - ( m * q' ) ) with ( ( m * q' ) + ( - ( m * q' ) ) ).
+      rewrite <- ( hzplusassoc ( - r ) ).
+      rewrite ( hzpluscomm ( -r ) ).
+      rewrite <- ( hzplusassoc r' ).
+      rewrite <- ( hzplusassoc r' ).
+      rewrite ( hzpluscomm r' ).
+      rewrite <- f'.
+      rewrite f.
+      rewrite ( hzplusassoc ( m * q ) ).
+      change ( r + - r ) with ( r - r ).
+      rewrite hzrminus.
+      rewrite hzplusr0.
+      rewrite ( rngrmultminus hz ).
+      change ( m * q + - ( m * q' ) ) with ( ( m * q + - ( m * q' ) )%rng ).
+      apply idpath.
+    }
+    assert ( hdisj ( natleh ( hzabsval m ) ( hzabsval ( r' - r ) ) )
+                   ( hzabsval ( r' - r ) ~> 0%nat ) ) as v.
+    { apply hzdivhzabsval.
+      intro P.
+      intro s.
+      apply s.
+      split with ( q - q' ).
+      unfold hzdiv0.
+      assumption.
+    }
+    assert ( isaprop ( r' ~> r ) ) as P by apply isasethz.
+    apply ( v ( hProppair ( r' ~> r ) P ) ).
+    intro s.
+    destruct s as [ left | right ].
+    - assert ( hzlth ( nattohz ( hzabsval ( r' - r ) ) ) ( nattohz ( hzabsval m ) ) ) as u.
+      { destruct ( hzgthorleh r' r ) as [ greater | lesseq ].
+        + assert ( hzlth 0 ( r' - r ) ) as e.
+          { rewrite <- ( hzrminus r ).
+            apply hzlthandplusr.
+            assumption.
+          }
+          rewrite hzabsvalgth0.
+          * apply hzlthminus.
+            -- exact p2p2p2t.
+            -- exact p2p2p2dae.
+            -- exact p1p2p2dae.
+          * apply e.
+        + destruct ( hzlehchoice r' r lesseq ) as [ less | equal ].
+          * rewrite hzabsvalandminuspos.
+            -- rewrite hzabsvalgth0.
+               ++ apply hzlthminus.
+                  ** exact p2p2p2dae.
+                  ** exact p2p2p2t.
+                  **  exact p1p2p2t.
+               ++ apply hzlthminusequiv.
+                  assumption.
+            -- exact p1p2p2t.
+            -- exact p1p2p2dae.
+          * rewrite equal.
+            rewrite hzrminus.
+            rewrite hzabsval0.
+            rewrite nattohzand0.
+            (* did not compile on Oct. 28, 2017: *)
+            (* now an intermediary result *)
+            assert (hzabsval m ≠ 0) as Hyp.
+            { apply hzabsvalneq0.
+              intro Q.
+              rewrite Q in p.
+              simpl in p.
+              apply p.
+              apply idpath.
+            }
 
-  assert ( r' ~> r ) as h.  (*Proof that r' ~> r :*) assert ( m * ( q
-  - q' ) ~> ( r' - r ) ) as h0.  change ( q - q' ) with ( q + - q'
-  ). rewrite ( hzldistr ).  rewrite <- ( hzplusr0 ( r' - r )
-  ). rewrite <- ( hzrminus ( m * q' ) ).  change ( r' - r ) with ( r'
-  + ( - r ) ).  rewrite ( hzplusassoc r' ). change ( ( m * q' ) - ( m
-  * q' ) ) with ( ( m * q' ) + ( - ( m * q' ) ) ).  rewrite <- (
-  hzplusassoc ( - r ) ). rewrite ( hzpluscomm ( -r ) ).  rewrite <- (
-  hzplusassoc r' ). rewrite <- ( hzplusassoc r' ). rewrite (
-  hzpluscomm r' ).  rewrite <- f'. rewrite f. rewrite ( hzplusassoc (
-  m * q ) ).  change ( r + - r ) with ( r - r ). rewrite ( hzrminus ).
-  rewrite ( hzplusr0 ). rewrite ( rngrmultminus hz ).  change ( m * q
-  + - ( m * q' ) ) with ( ( m * q + - ( m * q' ) )%rng ). apply
-  idpath.
 
-    assert ( hdisj ( natleh ( hzabsval m ) ( hzabsval ( r' - r ) ) ) (
-    hzabsval ( r' - r ) ~> 0%nat ) ) as v.  apply hzdivhzabsval. intro
-    P. intro s. apply s. split with ( q - q' ).  unfold
-    hzdiv0. assumption. assert ( isaprop ( r' ~> r ) ) as P. apply (
-    isasethz ). apply ( v ( hProppair ( r' ~> r ) P ) ). intro
-    s. destruct s as [ left | right ].  assert ( hzlth ( nattohz (
-    hzabsval ( r' - r ) ) ) ( nattohz ( hzabsval m ) ) ) as u.
-    destruct ( hzgthorleh r' r ) as [ greater | lesseq ].  assert (
-    hzlth 0 ( r' - r ) ) as e. rewrite <- ( hzrminus r ).  apply
-    hzlthandplusr. assumption. rewrite ( hzabsvalgth0 ).  apply
-    hzlthminus. apply ( p2p2p2t ). apply ( p2p2p2dae ). apply (
-    p1p2p2dae ).  apply e. destruct ( hzlehchoice r' r lesseq ) as [
-    less | equal ].  rewrite hzabsvalandminuspos. rewrite
-    hzabsvalgth0. apply hzlthminus.  apply ( p2p2p2dae ). apply (
-    p2p2p2t ). apply ( p1p2p2t). apply hzlthminusequiv.
-    assumption. apply ( p1p2p2t ). apply p1p2p2dae. rewrite
-    equal. rewrite hzrminus. rewrite hzabsval0.  rewrite
-    nattohzand0. apply hzabsvalneq0. intro Q. apply p. assumption.
-    assert empty. apply ( isirreflhzlth ( nattohz ( hzabsval m ) ) ).
-    apply ( hzlehlthtrans _ ( nattohz ( hzabsval ( r' - r ) ) ) _ ).
-    apply nattohzandleh. assumption. assumption. contradiction.
-    assert ( r' ~> r ) as i. assert ( r' - r ~> 0 ) as i0.  apply
-    hzabsvaleq0. assumption. rewrite <- ( hzplusl0 r ). rewrite <- (
-    hzplusr0 r' ).  assert ( r' + ( r - r ) ~> ( 0 + r ) ) as i00.
-    change ( r - r ) with ( r + - r ). rewrite ( hzpluscomm _ ( - r )
-    ).  rewrite <- hzplusassoc. apply ( maponpaths ( fun x : _ => x +
-    r ) ).  apply i0. exact ( transportf ( fun x : _ => ( r' + x ~> (
-    0 + r ) ) ) ( ( hzrminus r ) ) i00 ). apply i.
+(*  playing around
+             assumption.
+            unfold hzlth.
+            rewrite hzabsvalgth0.
+            apply nattohzandlth.
 
-  assert ( q' ~> q ) as g.  (* Proof that q' ~> q:*) rewrite h in
-  f'. rewrite f in f'.  apply ( hzmultlcan q' q m ). intro i. apply
-  p. apply pathsinv0. assumption.  apply ( hzplusrcan ( m * q' ) ( m *
-  q ) r ). apply pathsinv0. apply f'.
-
-  (* Path in direct product: *) assert ( dirprodpair q' r' ~> (
-  dirprodpair q r ) ) as j. apply
-  pathsdirprod. assumption. assumption.
-
-  (* Proof of general path: *) apply pathintotalfiber with ( p0 := j
-  ).  assert ( iscontr ( dirprod ( n ~> ( m * q + r ) ) ( dirprod (
-  hzleh 0 r ) ( hzlth r ( nattohz ( hzabsval m ) ) ) ) ) ) as
-  contract.  change iscontr with ( isofhlevel 0 ). apply
-  isofhleveldirprod.  split with f. intro t. apply isasethz.  apply
-  isofhleveldirprod. split with p1p2p2dae. intro t. apply hzleh.
-  split with p2p2p2dae. intro t. apply hzlth.  apply
-  proofirrelevancecontr. assumption.  Defined.
+This was the original continuation of the proof script:
+            apply hzabsvalneq0.
+            intro Q. apply p. assumption.
+ *)
+            admit.
+      }
+      assert empty.
+      { apply ( isirreflhzlth ( nattohz ( hzabsval m ) ) ).
+        apply ( hzlehlthtrans _ ( nattohz ( hzabsval ( r' - r ) ) ) _ ).
+        + apply nattohzandleh.
+          assumption.
+        + assumption.
+      }
+      contradiction.
+    - assert ( r' ~> r ) as i.
+      { assert ( r' - r ~> 0 ) as i0.
+        { apply hzabsvaleq0.
+          assumption. }
+        rewrite <- ( hzplusl0 r ).
+        rewrite <- ( hzplusr0 r' ).
+        assert ( r' + ( r - r ) ~> ( 0 + r ) ) as i00.
+        { change ( r - r ) with ( r + - r ).
+          rewrite ( hzpluscomm _ ( - r ) ).
+          rewrite <- hzplusassoc.
+          apply ( maponpaths ( fun x : _ => x + r ) ).
+          apply i0.
+        }
+        exact ( transportf ( fun x : _ => ( r' + x ~> ( 0 + r ) ) )
+                           ( ( hzrminus r ) ) i00 ).
+      }
+      apply i.
+  }
+  assert ( q' ~> q ) as g.
+  { (* Proof that q' ~> q:*)
+    rewrite h in f'.
+    rewrite f in f'.
+    apply ( hzmultlcan q' q m ).
+    - intro i.
+      rewrite i in p.
+      simpl in p.
+      apply p.
+      apply idpath.
+    - apply ( hzplusrcan ( m * q' ) ( m * q ) r ).
+      apply pathsinv0.
+      apply f'.
+  }
+  (* Path in direct product: *)
+  assert ( dirprodpair q' r' ~> ( dirprodpair q r ) ) as j
+  by (apply pathsdirprod; assumption).
+  (* Proof of general path: *)
+  apply pathintotalfiber with ( p0 := j ).
+  assert ( iscontr ( dirprod ( n ~> ( m * q + r ) )
+             ( dirprod ( hzleh 0 r )
+               ( hzlth r ( nattohz ( hzabsval m ) ) ) ) ) ) as contract.
+  { change iscontr with ( isofhlevel 0 ).
+    apply isofhleveldirprod.
+    - split with f.
+      intro t.
+      apply isasethz.
+    - apply isofhleveldirprod.
+      + split with p1p2p2dae.
+        intro t.
+        apply hzleh.
+      + split with p2p2p2dae.
+        intro t.
+        apply hzlth.
+  }
+  apply proofirrelevancecontr.
+  assumption.
+Admitted.
 
 Definition hzquotientmod ( p : hz ) ( x : hzneq 0 p ) : hz -> hz :=
-fun n : hz => ( pr1 ( pr1 ( divalgorithmexists n p x ) ) ).
+  fun n : hz => ( pr1 ( pr1 ( divalgorithmexists n p x ) ) ).
 
 Definition hzremaindermod ( p : hz ) ( x : hzneq 0 p ) : hz -> hz :=
-fun n : hz => ( pr2 ( pr1 ( divalgorithmexists n p x ) ) ).
+  fun n : hz => ( pr2 ( pr1 ( divalgorithmexists n p x ) ) ).
 
 Definition hzdivequationmod ( p : hz ) ( x : hzneq 0 p ) ( n : hz ) :
-n ~> ( p * ( hzquotientmod p x n ) + ( hzremaindermod p x n ) ) := (
-pr1 ( pr2 ( divalgorithmexists n p x ) ) ).
+  n ~> ( p * ( hzquotientmod p x n ) + ( hzremaindermod p x n ) ) :=
+  pr1 ( pr2 ( divalgorithmexists n p x ) ).
 
-Definition hzleh0remaindermod ( p : hz ) ( x : hzneq 0 p ) ( n : hz )
-: hzleh 0 ( hzremaindermod p x n ) := ( pr1 ( pr2 ( pr2 (
-divalgorithmexists n p x ) ) ) ).
+Definition hzleh0remaindermod ( p : hz ) ( x : hzneq 0 p ) ( n : hz ) :
+  hzleh 0 ( hzremaindermod p x n ) :=
+  pr1 ( pr2 ( pr2 ( divalgorithmexists n p x ) ) ).
 
-Definition hzlthremaindermodmod ( p : hz ) ( x : hzneq 0 p ) ( n : hz
-) : hzlth ( hzremaindermod p x n ) ( nattohz ( hzabsval p ) ) := ( pr2
-( pr2 ( pr2 ( divalgorithmexists n p x ) ) ) ).
+Definition hzlthremaindermodmod ( p : hz ) ( x : hzneq 0 p ) ( n : hz ) :
+  hzlth ( hzremaindermod p x n ) ( nattohz ( hzabsval p ) ) :=
+  pr2 ( pr2 ( pr2 ( divalgorithmexists n p x ) ) ).
 
-(* Eval lazy in hzabsval ( ( ( hzquotientmod ( 1 + 1 ) testlemma2 ( 1
-+ 1 + 1 + 1 + 1 + 1 + 1 + 1 ) ) ) ).  Eval lazy in hzabsval ( ( (
-hzremaindermod ( 1 + 1 ) testlemma2 ( 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 +
-1 ) ) ) ).  *)
+(*
+Eval lazy in hzabsval ( ( ( hzquotientmod ( 1 + 1 ) testlemma2
+( 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 ) ) ) ).
+Eval lazy in hzabsval ( ( ( hzremaindermod ( 1 + 1 ) testlemma2
+( 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 ) ) ) ).
+*)
 
 (** * II. QUOTIENTS AND REMAINDERS *)
 
