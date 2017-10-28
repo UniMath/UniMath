@@ -468,7 +468,7 @@ Proof.
         rewrite functor_id.
         apply pathsinv0, id_right.
       }
-      apply (maponpaths (fun T =>  pr1 (# H T) c)).
+      apply (maponpaths (λ T,  pr1 (# H T) c)).
       apply X.
     * clear HXX. clear Ac. clear F. clear B.
       assert (H4 := fbracket_τ T  (identity _ )).

@@ -913,7 +913,7 @@ Section def_additive_equivalence.
     use (post_comp_with_z_iso_is_inj (AddEquivUnitIso AE y)).
     use (pathscomp0 (AddEquivUnitComm AE _ _ f)).
     use (pathscomp0 _ (! (AddEquivUnitComm AE _ _ g))).
-    exact (maponpaths (fun gg : _ => (AddEquivUnit AE) x · gg) H).
+    exact (maponpaths (λ gg : _, (AddEquivUnit AE) x · gg) H).
   Qed.
 
   Lemma AddEquiv2Inj {A1 A2 : Additive} (AE : AddEquiv A1 A2) {x y : A2} (f g : x --> y)
@@ -923,7 +923,7 @@ Section def_additive_equivalence.
     use (pre_comp_with_z_iso_is_inj (AddEquivCounitIso AE x)).
     use (pathscomp0 (! AddEquivCounitComm AE _ _ f)).
     use (pathscomp0 _ (AddEquivCounitComm AE _ _ g)).
-    exact (maponpaths (fun gg : _ => gg · (AddEquivCounit AE) y) H).
+    exact (maponpaths (λ gg : _, gg · (AddEquivCounit AE) y) H).
   Qed.
 
 End def_additive_equivalence.

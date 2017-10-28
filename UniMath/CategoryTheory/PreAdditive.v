@@ -354,11 +354,11 @@ Section preadditive_quotient.
 
   (** The hProp which tells if two elements of A belong to the same equivalence class in A/B *)
   Definition subgrhrel_hprop {A : gr} (B : @subgr A) (a1 a2 : A) : hProp :=
-    hexists (fun b : B => pr1 b = (a1 * grinv A a2)%multmonoid).
+    hexists (λ b : B, pr1 b = (a1 * grinv A a2)%multmonoid).
 
   (** Construct a relation using the above hProp *)
   Definition subgrhrel {A : gr} (B : @subgr A) : @hrel A :=
-    (fun a1 : A => fun a2 : A => (subgrhrel_hprop B a1 a2)).
+    (λ a1 : A, λ a2 : A, (subgrhrel_hprop B a1 a2)).
 
   (** Some equalities *)
   Local Lemma ropeq (X : setwithbinop) (x y z : X) : x = y -> @op X x z = @op X y z.
@@ -368,7 +368,7 @@ Section preadditive_quotient.
 
   (** Let B be a subgroup of A. Then the canonical map A -> A/B is a monoidfun. *)
   Local Lemma abgrquotpr_ismonoidfun {A : abgr} (H : @binopeqrel A) :
-    @ismonoidfun A (abgrquot H) (fun a : A => setquotpr H a).
+    @ismonoidfun A (abgrquot H) (λ a : A, setquotpr H a).
   Proof.
     split.
     - split.
@@ -458,7 +458,7 @@ Section preadditive_quotient.
   Definition Quotcategory_homsets (c d : ob PA) : abgr := subabgr_quot (PAS c d).
 
   Definition Quotcategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) (ob PA) (fun A B : ob PA => Quotcategory_homsets A B).
+    tpair (λ ob : UU, ob -> ob -> UU) (ob PA) (λ A B : ob PA, Quotcategory_homsets A B).
 
   Lemma Quotcategory_surj {c d : Quotcategory_ob_mor} (f : Quotcategory_ob_mor⟦c, d⟧) :
     ∥ hfiber (setquotpr (binopeqrel_subgr_eqrel (PAS c d))) f ∥.
@@ -476,7 +476,7 @@ Section preadditive_quotient.
     setquotpr H (f1 * grinv A f2)%multmonoid = setquotpr H 1%multmonoid.
   Proof.
     rewrite <- e2 in e1. clear e2.
-    apply (maponpaths (fun f : _ => (f * (@grinv (abgrquot H) (setquotpr H f2)))%multmonoid)) in e1.
+    apply (maponpaths (λ f : _, (f * (@grinv (abgrquot H) (setquotpr H f2)))%multmonoid)) in e1.
     rewrite grrinvax in e1. apply e1.
   Qed.
 
@@ -763,7 +763,7 @@ Section preadditive_quotient.
   Definition Quotcategory_data : precategory_data :=
     precategory_data_pair
       Quotcategory_ob_mor
-      (fun (A : ob PA) => setquotpr (binopeqrel_subgr_eqrel (PAS A A)) (identity A))
+      (λ (A : ob PA), setquotpr (binopeqrel_subgr_eqrel (PAS A A)) (identity A))
       (fun (A B C : ob PA) (f : Quotcategory_ob_mor⟦A, B⟧)
          (g : Quotcategory_ob_mor⟦B, C⟧) => Quotcategory_comp f g).
 

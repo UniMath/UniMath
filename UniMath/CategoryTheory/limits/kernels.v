@@ -354,7 +354,7 @@ Section kernels_iso.
     - intros y0. apply hs.
     - intros y0 X. cbn beta in X.
       use (post_comp_with_z_iso_is_inj h). rewrite <- assoc.
-      use (pathscomp0 _ (! (maponpaths (fun gg : _ => KernelIn Z K w h0 H' · gg)
+      use (pathscomp0 _ (! (maponpaths (λ gg : _, KernelIn Z K w h0 H' · gg)
                                        (is_inverse_in_precat2 h)))).
       rewrite id_right. use KernelInsEq. rewrite KernelCommutes. rewrite <- X.
       rewrite <- assoc. apply cancel_precomposition. apply pathsinv0.
@@ -561,15 +561,15 @@ Section transport_kernels.
 
   Local Lemma transport_source_KernelIn_eq {x' x y z : C} (f : x --> y) {g : y --> z}
         (K : Kernel Z g) (e : x = x') (H : f · g = ZeroArrow Z _ _) :
-    (transportf (fun x' : ob C => precategory_morphisms x' y) e f) · g = ZeroArrow Z _ _.
+    (transportf (λ x' : ob C, precategory_morphisms x' y) e f) · g = ZeroArrow Z _ _.
   Proof.
     induction e. apply H.
   Qed.
 
   Lemma transport_source_KernelIn {x' x y z : C} (f : x --> y) {g : y --> z} (K : Kernel Z g)
         (e : x = x') (H : f · g = ZeroArrow Z _ _) :
-    transportf (fun x' : ob C => precategory_morphisms x' K) e (KernelIn Z K _ f H) =
-    KernelIn Z K _ (transportf (fun x' : ob C => precategory_morphisms x' y) e f)
+    transportf (λ x' : ob C, precategory_morphisms x' K) e (KernelIn Z K _ f H) =
+    KernelIn Z K _ (transportf (λ x' : ob C, precategory_morphisms x' y) e f)
              (transport_source_KernelIn_eq f K e H).
   Proof.
     induction e. use KernelInsEq. cbn. unfold idfun.

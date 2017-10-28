@@ -1188,7 +1188,6 @@ Proof.
     exists (pr2 x).
     apply (maponpaths (λ x, (x * _)%multmonoid)).
     unfold abmonoidfrac_lattice_fun.
-    rewrite !rewrite_pr1_tpair, !rewrite_pr2_tpair.
     simpl ; unfold pr1carrier ; simpl.
     rewrite (assocax X (pr1 (pr2 x))).
     apply (maponpaths (λ x: X, op x _)).
@@ -1217,7 +1216,6 @@ Proof.
     apply (iscompsetquotpr (eqrelabmonoidfrac X Y)), hinhpr.
     exists (pr2 x).
     apply (maponpaths (λ x, (x * _)%multmonoid)).
-    rewrite !rewrite_pr1_tpair, !rewrite_pr2_tpair.
     simpl ; unfold pr1carrier ; simpl.
     rewrite Hf, Hg, Hg.
     do 3 rewrite (assocax X (pr1 x)).
@@ -1487,7 +1485,7 @@ Proof.
     apply hinhfun2.
     intros cx cy.
     unfold abmonoidfrac_lattice_fun.
-    rewrite rewrite_pr1_tpair, rewrite_pr2_tpair.
+    simpl.
     exists (@op Y (pr1 cx) (pr1 cy)).
     do 2 rewrite Hmin.
     apply Hgtmin.

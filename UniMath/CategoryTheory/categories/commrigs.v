@@ -23,11 +23,11 @@ Section def_commrig_precategory.
   Definition commrig_fun_space (A B : commrig) : hSet := hSetpair (rigfun A B) (isasetrigfun A B).
 
   Definition commrig_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) commrig (fun A B : commrig => commrig_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) commrig (λ A B : commrig, commrig_fun_space A B).
 
   Definition commrig_precategory_data : precategory_data :=
     precategory_data_pair
-      commrig_precategory_ob_mor (fun (X : commrig) => (rigisotorigfun (idrigiso X)))
+      commrig_precategory_ob_mor (λ (X : commrig), (rigisotorigfun (idrigiso X)))
       (fun (X Y Z : commrig) (f : rigfun X Y) (g : rigfun Y Z) => rigfuncomp f g).
 
   Local Lemma commrig_id_left (X Y : commrig) (f : rigfun X Y) :

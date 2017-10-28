@@ -44,8 +44,6 @@ Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
 Local Open Scope cat.
 
-Set Automatic Introduction.
-
 
 Lemma is_exists_unique {A : UU} {B : A → UU} (H : ∃! a : A, B a) :
   B ( pr1 (iscontrpr1 H)).
@@ -56,8 +54,8 @@ Qed.
 
 Lemma transport_swap: ∏ {X Y : UU} (P : X -> Y → UU) {x x':X} {y  y' : Y}
                         (e : x = x') (e' : y = y') (p : P x y),
-                  transportf (fun a => P _ a) e' (transportf (fun a => P a _) e p) =
-                  transportf (fun a => P a _) e (transportf (fun a => P _ a) e' p) .
+                  transportf (λ a, P _ a) e' (transportf (λ a, P a _) e p) =
+                  transportf (λ a, P a _) e (transportf (λ a, P _ a) e' p) .
 Proof.
   intros.
   induction e.
@@ -67,24 +65,24 @@ Qed.
 
 Lemma transportf2_comp  {X  : UU} (P : X -> X → UU) (x x'  : X)
       (ex : x = x')  (t:P x x) :
-  transportf (fun y => P y y) ex t = transportf (fun y => P y x') ex
-                                             (transportf (fun y => P x y) ex t).
+  transportf (λ y, P y y) ex t = transportf (λ y, P y x') ex
+                                             (transportf (λ y, P x y) ex t).
 Proof.
   now induction ex.
 Qed.
 
 Definition eq_diag  {C : category} {g : graph} (d d' : diagram g C) :=
   ∑ (eq_v : ∏ v: vertex g, dob d v = dob d' v), ∏ (v v':vertex g) (f:edge v v'),
-  transportf (fun obj => C⟦obj, dob d v'⟧)  (eq_v v) (dmor d f) =
-  transportb (fun obj => C⟦_, obj⟧) (eq_v v') (dmor d' f).
+  transportf (λ obj, C⟦obj, dob d v'⟧)  (eq_v v) (dmor d f) =
+  transportb (λ obj, C⟦_, obj⟧) (eq_v v') (dmor d' f).
 
 Lemma eq_is_eq_diag {C : category} {g : graph} (d d' : diagram g C)  :
   d = d' -> eq_diag d d'.
 Proof.
   intro e.
   induction e.
-  exists (fun x => idpath _).
-  exact (fun x y z => idpath _).
+  exists (λ x, idpath _).
+  exact (λ x y z, idpath _).
 Qed.
 
 Lemma eq_diag_is_eq {C : category} {g : graph} (d d' : diagram g C) :
@@ -119,14 +117,14 @@ Proof.
     rewrite pathsinv0inv0.
     etrans.
     eapply pathsinv0.
-    apply (  transport_map (P:=P) (Q:=_) (fun x tp => tp  v v' ed)).
+    apply (  transport_map (P:=P) (Q:=_) (λ x tp, tp  v v' ed)).
     etrans.
-    apply (transportf_funextfun (fun x => C⟦ pr1 d' v,x⟧)).
+    apply (transportf_funextfun (λ x, C⟦ pr1 d' v,x⟧)).
     apply maponpaths.
     etrans.
     eapply pathsinv0.
-    apply (  transport_map (P:=P2) (Q:=_) (fun x tp => tp  v v' ed)).
-    apply (transportf_funextfun (fun x => C⟦ x,pr1 d v'⟧)).
+    apply (  transport_map (P:=P2) (Q:=_) (λ x tp, tp  v v' ed)).
+    apply (transportf_funextfun (λ x, C⟦ x,pr1 d v'⟧)).
 Qed.
 
 (* We don't want to use the equivalence with bare identity to show the
@@ -161,7 +159,7 @@ Proof.
                                          _ _ _ (! eq_d2));
     rewrite eq_d2';
     unfold transportb; rewrite pathsinv0inv0;
-    apply (transport_swap (fun a b => C⟦b,a⟧))).
+    apply (transport_swap (λ a b, C⟦b,a⟧))).
 
 Defined.
 
@@ -177,7 +175,7 @@ Proof.
   destruct heq_d as [heq heq2].
   use mk_cocone.
   intro v.
-  use (transportf (fun obj => C⟦obj,_⟧ ) (heq v)); simpl.
+  use (transportf (λ obj, C⟦obj,_⟧ ) (heq v)); simpl.
   apply (coconeIn cc).
   abstract(
       intros u v e; simpl;
@@ -211,7 +209,7 @@ Proof.
   set (heq2 := pr2 heq_d).
   use mk_cone.
   intro v.
-  apply (transportf (fun obj => C⟦_,obj⟧ ) (heq v) (coneOut cc v)).
+  apply (transportf (λ obj, C⟦_,obj⟧ ) (heq v) (coneOut cc v)).
     abstract(
       intros u v e; simpl;
       rewrite <- ( coneOutCommutes cc u v e);
@@ -221,7 +219,7 @@ Proof.
       apply cancel_precomposition;
       apply transportf_transpose;
       etrans;[
-        apply (transport_swap (fun a b => C⟦a,b⟧))|];
+        apply (transport_swap (λ a b, C⟦a,b⟧))|];
       etrans;[
         apply maponpaths;
         eapply pathsinv0;

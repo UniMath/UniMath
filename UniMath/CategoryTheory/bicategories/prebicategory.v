@@ -52,7 +52,7 @@ Local Notation "a -2-> b" := (precategory_morphisms a b)(at level 50).
 Local Notation "alpha ;v; beta" := (compose alpha beta) (at level 50, format "alpha ;v; beta", no associativity).
 
 Definition prebicategory_ob_1mor_2mor :=
-  total2 (fun C : UU => forall a b : C, precategory).
+  total2 (λ C : UU, forall a b : C, precategory).
 
 Definition bicat_ob (C : prebicategory_ob_1mor_2mor) : UU := @pr1 _ _ C.
 Coercion bicat_ob : prebicategory_ob_1mor_2mor >-> UU.
@@ -63,7 +63,7 @@ Definition homprecat {C : prebicategory_ob_1mor_2mor} (a b : C) : precategory :=
 Local Notation "a -1-> b" := (homprecat a b)(at level 50).
 
 Definition prebicategory_id_comp :=
-  total2 ( fun C : prebicategory_ob_1mor_2mor =>
+  total2 ( λ C : prebicategory_ob_1mor_2mor,
     dirprod (forall a : C, a -1-> a)
             (forall a b c : C, functor ((a -1-> b) c× (b -1-> c)) (a -1-> c))).
 
@@ -148,7 +148,7 @@ Definition right_unitor_trans_type { C : prebicategory_id_comp } (a b : C) :=
     (functor_identity _).
 
 Definition prebicategory_data :=
-  total2 (fun C : prebicategory_id_comp =>
+  total2 (λ C : prebicategory_id_comp,
     dirprod
       (forall a b c d : C, associator_trans_type a b c d)
       ( dirprod

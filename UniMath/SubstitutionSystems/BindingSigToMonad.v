@@ -176,8 +176,7 @@ Defined.
 Lemma is_omega_cocont_BindingSigToSignature
   (TC : Terminal C) (CLC : Colims_of_shape nat_graph C)
   (HF : ∏ (F : [C,C]), is_omega_cocont (constprod_functor1 F))
-  (sig : BindingSig)
-  (CC : Coproducts (BindingSigIndex sig) C) :
+  (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C) :
   is_omega_cocont (BindingSigToSignature TC sig CC).
 Proof.
 apply is_omega_cocont_Sum_of_Signatures.
@@ -197,6 +196,17 @@ use colimAlgInitial.
 - apply (Initial_functor_precat _ _ IC).
 - apply (is_omega_cocont_Id_H _ _ _ _ Hs).
 - apply ColimsFunctorCategory_of_shape, CLC.
+Defined.
+
+(** ** Construction of datatype specified by a binding signature *)
+Definition DatatypeOfBindingSig
+  (IC : Initial C) (TC : Terminal C) (CLC : Colims_of_shape nat_graph C)
+  (HF : ∏ (F : [C,C]), is_omega_cocont (constprod_functor1 F))
+  (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C) :
+  Initial (FunctorAlg (Id_H (BindingSigToSignature TC sig CC))).
+Proof.
+apply SignatureInitialAlgebra; trivial.
+now apply is_omega_cocont_BindingSigToSignature.
 Defined.
 
 Let HSS := @hss_precategory C hsC BCC.

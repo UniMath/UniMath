@@ -17,12 +17,12 @@ Module Export Notation.
   Notation ap := maponpaths.
   Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport.
   Open Scope transport.
-  Notation "{ x : X & P }" := (total2 (fun x:X => P)) : type_scope.
-  Notation "X ** Y" := (dirprod X Y) (right associativity, at level 80) : type_scope.
+  Notation "{ x : X & P }" := (total2 (λ x:X, P)) : type_scope.
+  Notation "X ** Y" := (X × Y) (right associativity, at level 80) : type_scope.
 End Notation.
 
 Definition neq (X : UU) : X -> X -> hProp
-  := fun x y : X => hProppair (neg (x = y)) (isapropneg (x = y)).
+  := λ x y : X, hProppair (x != y) (isapropneg (x = y)).
 
 Ltac check_cons f g :=
   let h T :=

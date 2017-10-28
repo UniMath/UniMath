@@ -15,7 +15,7 @@ Only one universe is used and never as a type.
 - Homotopy fibers of the map [∏ x : X, P x -> ∏ x : X, Q x]
  - General case
  - The weak equivalence between sections spaces (dependent products) defined
-   by a family of weak equivalences [weq (P x) (Q x)]
+   by a family of weak equivalences [(P x) ≃ (Q x)]
  - Composition of functions with a weak equaivalence on the right
 - The map between section spaces (dependent products) defined by the map
   between the bases [ f : Y -> X ]
@@ -86,50 +86,26 @@ Definition foralltototal {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU) :
   -> total2 (fun s0 : ∏ x : X, P x => ∏ x : X, PP x (s0 x)).
 Proof.
   intros X P PP X0.
-  exists (fun x : X => pr1 (X0 x)).
-  apply (fun x : X => pr2 (X0 x)).
-Defined.
-
-Lemma lemmaeta1 {X : UU} (P : X -> UU) (Q : (∏ x : X, P x) -> UU)
-      (s0 : ∏ x : X, P x) (q : Q (fun x : X => (s0 x))) :
-  paths (tpair (fun s : (∏ x : X, P x) => Q (fun x : X => (s x))) s0 q)
-        (tpair (fun s : (∏ x : X, P x) => Q (fun x : X => (s x)))
-               (fun x : X => (s0 x)) q).
-Proof. reflexivity. Defined.
-
-Definition totaltoforalltototal {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU)
-           (ss : total2 (fun s0 : ∏ x : X, P x => ∏ x : X, PP x (s0 x))) :
-  paths (foralltototal _ _ (totaltoforall  _ _ ss)) ss.
-Proof.
-  intros; induction ss; apply idpath.
-Defined.
-
-
-
-Definition foralltototaltoforall {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU)
-           (ss : ∏ x : X, total2 (PP x)) :
-  paths (totaltoforall _ _ (foralltototal _ _ ss)) ss.
-Proof.
-  intros. unfold foralltototal. unfold totaltoforall. simpl.
-  assert (ee: ∏ x : X, paths (tpair (PP x) (pr1 (ss x)) (pr2 (ss x))) (ss x))
-    by (intro; apply (pathsinv0 (tppr (ss x)))).
-  apply (funextsec). assumption.
+  exists (λ x : X, pr1 (X0 x)).
+  apply (λ x : X, pr2 (X0 x)).
 Defined.
 
 Theorem isweqforalltototal {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU) :
   isweq (foralltototal P PP).
 Proof.
   intros.
-  apply (gradth (foralltototal P PP) (totaltoforall P PP)
-                (foralltototaltoforall P PP) (totaltoforalltototal P PP)).
+  simple refine (gradth (foralltototal P PP) (totaltoforall P PP) _ _).
+  - reflexivity.
+  - reflexivity.
 Defined.
 
 Theorem isweqtotaltoforall {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU) :
   isweq (totaltoforall P PP).
 Proof.
   intros.
-  apply (gradth (totaltoforall P PP) (foralltototal P PP)
-                (totaltoforalltototal P PP) (foralltototaltoforall P PP)).
+  simple refine (gradth (totaltoforall P PP) (foralltototal P PP) _ _).
+  - reflexivity.
+  - reflexivity.
 Defined.
 
 Definition weqforalltototal {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU)
@@ -144,7 +120,7 @@ Definition weqtotaltoforall {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU)
 
 Definition weqfuntototaltototal (X : UU) {Y : UU} (Q : Y -> UU) :
   weq (X -> total2 Q) (total2 (fun f : X -> Y => ∏ x : X, Q (f x)))
-  := weqforalltototal (fun x : X => Y) (fun x : X => Q).
+  := weqforalltototal (λ x : X, Y) (λ x : X, Q).
 
 
 (** *** Functions to direct product *)
@@ -153,20 +129,20 @@ Definition weqfuntototaltototal (X : UU) {Y : UU} (Q : Y -> UU) :
 
 
 Definition funtoprodtoprod {X Y Z : UU} (f : X -> dirprod Y Z) :
-  dirprod (X -> Y) (X -> Z)
-  := dirprodpair (fun x : X => pr1 (f x)) (fun x : X => (pr2 (f x))).
+  (X -> Y) × (X -> Z)
+  := dirprodpair (λ x : X, pr1 (f x)) (λ x : X, (pr2 (f x))).
 
-Definition prodtofuntoprod {X Y Z : UU} (fg : dirprod (X -> Y) (X -> Z))
+Definition prodtofuntoprod {X Y Z : UU} (fg : (X -> Y) × (X -> Z))
   : X -> dirprod Y Z
-  := match fg with tpair _ f g => fun x : X => dirprodpair (f x) (g x) end.
+  := match fg with tpair _ f g => λ x : X, dirprodpair (f x) (g x) end.
 
 Theorem weqfuntoprodtoprod (X Y Z : UU) :
-  weq (X -> dirprod Y Z) (dirprod (X -> Y) (X -> Z)).
+  weq (X -> dirprod Y Z) ((X -> Y) × (X -> Z)).
 Proof.
   intros.
   simple refine (weqpair _ (gradth (@funtoprodtoprod X Y Z)
                                    (@prodtofuntoprod X Y Z) _ _)).
-  - intro a. apply funextfun. intro x. simpl. apply pathsinv0, tppr.
+  - intro a. apply funextfun. intro x. reflexivity.
   - intro a. now induction a as [ fy fz ].
 Defined.
 
@@ -176,11 +152,11 @@ Defined.
 
 Definition maponsec {X : UU}  (P Q : X -> UU) (f : ∏ x : X, P x -> Q x) :
   (∏ x : X, P x) -> (∏ x : X, Q x)
-  := fun s : ∏ x : X, P x => (fun x : X => (f x) (s x)).
+  := fun s : ∏ x : X, P x => (λ x : X, (f x) (s x)).
 
 Definition maponsec1 {X Y : UU} (P : Y -> UU) (f : X -> Y) :
   (∏ y : Y, P y) -> (∏ x : X, P (f x))
-  := fun sy : ∏ y : Y, P y => (fun x : X => sy (f x)).
+  := fun sy : ∏ y : Y, P y => (λ x : X, sy (f x)).
 
 
 
@@ -190,15 +166,15 @@ Definition hfibertoforall {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x)
 Proof.
   intro. intro. intro. intro. intro. unfold hfiber.
   set (map1 := totalfun (fun pointover : ∏ x : X, P x =>
-                           paths (fun x : X => f x (pointover x)) s)
+                           paths (λ x : X, f x (pointover x)) s)
                         (fun pointover : ∏ x : X, P x =>
                            ∏ x : X, paths  ((f x) (pointover x)) (s x))
                         (fun pointover: ∏ x : X, P x =>
-                           toforallpaths _ (fun x : X => f x (pointover x)) s)).
-  set (map2 := totaltoforall P (fun x : X =>
-                                  (fun pointover : P x =>
+                           toforallpaths _ (λ x : X, f x (pointover x)) s)).
+  set (map2 := totaltoforall P (λ x : X,
+                                  (λ pointover : P x,
                                      paths (f x pointover) (s x)))).
-  set (themap := fun a : _ => map2 (map1 a)). assumption.
+  set (themap := λ a : _, map2 (map1 a)). assumption.
 Defined.
 
 
@@ -208,15 +184,15 @@ Definition foralltohfiber {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x)
   (∏ x : X, hfiber (f x) (s x)) -> hfiber (maponsec _ _ f) s.
 Proof.
   intro. intro. intro. intro. intro. unfold hfiber.
-  set (map2inv := foralltototal P (fun x : X => (fun pointover : P x =>
+  set (map2inv := foralltototal P (λ x : X, (λ pointover : P x,
                                                 paths (f x pointover) (s x)))).
   set (map1inv :=  totalfun (fun pointover : ∏ x : X, P x =>
                                ∏ x : X, paths  ((f x) (pointover x)) (s x))
                             (fun pointover : ∏ x : X, P x =>
-                               paths (fun x : X => f x (pointover x)) s)
+                               paths (λ x : X, f x (pointover x)) s)
                             (fun pointover: ∏ x : X, P x =>
-                               funextsec _ (fun x : X => f x (pointover x)) s)).
-  set (themap := fun a : _ => map1inv (map2inv a)). assumption.
+                               funextsec _ (λ x : X, f x (pointover x)) s)).
+  set (themap := λ a : _, map1inv (map2inv a)). assumption.
 Defined.
 
 
@@ -225,17 +201,17 @@ Theorem isweqhfibertoforall {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x)
 Proof.
   intro. intro. intro. intro. intro.
   set (map1 := totalfun (fun pointover : ∏ x : X, P x =>
-                           paths  (fun x : X => f x (pointover x)) s)
+                           paths  (λ x : X, f x (pointover x)) s)
                         (fun pointover : ∏ x : X, P x =>
                            ∏ x : X, paths  ((f x) (pointover x)) (s x))
                         (fun pointover: ∏ x : X, P x =>
-                           toforallpaths _ (fun x : X => f x (pointover x)) s)).
-  set (map2 := totaltoforall P (fun x : X => (fun pointover : P x =>
+                           toforallpaths _ (λ x : X, f x (pointover x)) s)).
+  set (map2 := totaltoforall P (λ x : X, (λ pointover : P x,
                                              paths (f x pointover) (s x)))).
   assert (is1 : isweq map1)
     by apply (isweqfibtototal _ _ (fun pointover: ∏ x : X, P x =>
                                      weqtoforallpaths
-                                       _ (fun x : X => f x (pointover x)) s)).
+                                       _ (λ x : X, f x (pointover x)) s)).
   assert (is2 : isweq map2)
     by apply isweqtotaltoforall.
   apply (twooutof3c map1 map2 is1 is2).
@@ -251,33 +227,33 @@ Theorem isweqforalltohfiber {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x)
         (s : ∏ x : X, Q x) : isweq (foralltohfiber  _ _ f s).
 Proof.
   intro. intro. intro. intro. intro.
-  set (map2inv := foralltototal P (fun x : X => (fun pointover : P x =>
+  set (map2inv := foralltototal P (λ x : X, (λ pointover : P x,
                                                 paths (f x pointover) (s x)))).
 
   assert (is2 : isweq map2inv).
-  apply (isweqforalltototal P (fun x : X => (fun pointover : P x =>
+  apply (isweqforalltototal P (λ x : X, (λ pointover : P x,
                                             paths (f x pointover) (s x)))).
   set (map1inv := totalfun (fun pointover : ∏ x : X, P x =>
                               ∏ x : X, paths ((f x) (pointover x)) (s x))
                            (fun pointover : ∏ x : X, P x =>
-                              paths (fun x : X => f x (pointover x)) s)
+                              paths (λ x : X, f x (pointover x)) s)
                            (fun pointover: ∏ x : X, P x =>
-                              funextsec _  (fun x : X => f x (pointover x)) s)).
+                              funextsec _  (λ x : X, f x (pointover x)) s)).
   assert (is1 : isweq map1inv).
 
   (* ??? in this place 8.4 (actually trunk to 8.5) hangs if the next command is
 
     apply (isweqfibtototal _ _ (fun pointover: ∏ x : X, P x =>
-    weqfunextsec _ (fun x : X => f x (pointover x)) s)).
+    weqfunextsec _ (λ x : X, f x (pointover x)) s)).
 
     and no -no-sharing option is turned on. It also hangs on
 
     exact (isweqfibtototal (fun pointover : ∏ x : X, P x =>
                 ∏ x : X, paths (f x (pointover x)) (s x))
                   (fun pointover : ∏ x : X, P x =>
-                paths (fun x : X => f x (pointover x)) s)
+                paths (λ x : X, f x (pointover x)) s)
                   (fun pointover: ∏ x : X, P x =>
-                weqfunextsec Q (fun x : X => f x (pointover x)) s)).
+                weqfunextsec Q (λ x : X, f x (pointover x)) s)).
 
     for at least 2hrs. After adding "Opaque funextsec." the "exact" commend
     goes through in <1sec and so does the "apply". If "Transparent funextsec."
@@ -286,7 +262,7 @@ Proof.
     Resoved (2014.10.23). *)
 
   apply (isweqfibtototal _ _ (fun pointover: ∏ x : X, P x =>
-                                weqfunextsec _ (fun x : X => f x (pointover x))
+                                weqfunextsec _ (λ x : X, f x (pointover x))
                                              s)).
   apply (twooutof3c map2inv map1inv is2 is1).
 Defined.
@@ -297,12 +273,12 @@ Definition weqforalltohfiber {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x
 
 
 
-(** *** The weak equivalence  between section spaces (dependent products) defined by a family of weak equivalences  [ weq (P x) (Q x) ] *)
+(** *** The weak equivalence  between section spaces (dependent products) defined by a family of weak equivalences  [ (P x) ≃ (Q x) ] *)
 
 
 
 
-Corollary isweqmaponsec {X : UU} (P Q : X -> UU) (f : ∏ x : X, weq (P x) (Q x)) :
+Corollary isweqmaponsec {X : UU} (P Q : X -> UU) (f : ∏ x : X, (P x) ≃ (Q x)) :
   isweq (maponsec _ _ f).
 Proof.
   intros. unfold isweq. intro y.
@@ -315,14 +291,14 @@ Proof.
   apply (iscontrweqb (weqhfibertoforall P Q f y) is1).
 Defined.
 
-Definition weqonsecfibers {X : UU} (P Q : X -> UU) (f : ∏ x : X, weq (P x) (Q x))
+Definition weqonsecfibers {X : UU} (P Q : X -> UU) (f : ∏ x : X, (P x) ≃ (Q x))
   := weqpair _ (isweqmaponsec P Q f).
 
 
 (** *** Composition of functions with a weak equivalence on the right *)
 
-Definition weqffun (X : UU) {Y Z : UU} (w : weq Y Z) : weq (X -> Y) (X -> Z)
-  := weqonsecfibers _ _ (fun x : X => w).
+Definition weqffun (X : UU) {Y Z : UU} (w : Y ≃ Z) : (X -> Y) ≃ (X -> Z)
+  := weqonsecfibers _ _ (λ x : X, w).
 
 
 
@@ -338,40 +314,40 @@ Definition weqffun (X : UU) {Y Z : UU} (w : weq Y Z) : weq (X -> Y) (X -> Z)
 
 
 Definition maponsec1l0 {X : UU} (P : X -> UU) (f : X -> X)
-           (h : ∏ x : X, paths (f x) x) (s : ∏ x : X, P x) : (∏ x : X, P x)
-  := (fun x : X => transportf P (h x) (s (f x))).
+           (h : ∏ x : X, (f x) = x) (s : ∏ x : X, P x) : (∏ x : X, P x)
+  := (λ x : X, transportf P (h x) (s (f x))).
 
 Lemma maponsec1l1 {X : UU} (P : X -> UU) (x : X) (s :∏ x : X, P x) :
-  paths (maponsec1l0 P (fun x : X => x) (fun x : X => idpath x) s x) (s x).
+  paths (maponsec1l0 P (λ x : X, x) (λ x : X, idpath x) s x) (s x).
 Proof. intros. unfold maponsec1l0. apply idpath. Defined.
 
 
-Lemma maponsec1l2 {X : UU} (P : X -> UU) (f : X -> X) (h : ∏ x : X, paths (f x) x)
+Lemma maponsec1l2 {X : UU} (P : X -> UU) (f : X -> X) (h : ∏ x : X, (f x) = x)
       (s : ∏ x : X, P x) (x : X) : paths (maponsec1l0 P f h s x) (s x).
 Proof.
   intros.
-  set (map := fun ff : total2 (fun f0 : X ->X => ∏ x : X, paths (f0 x) x) =>
+  set (map := fun ff : total2 (fun f0 : X ->X => ∏ x : X, (f0 x) = x) =>
                 maponsec1l0 P (pr1 ff) (pr2 ff) s x).
-  assert (is1 : iscontr (total2 (fun f0 : X ->X => ∏ x : X, paths (f0 x) x)))
+  assert (is1 : iscontr (total2 (fun f0 : X ->X => ∏ x : X, (f0 x) = x)))
     by apply funextcontr.
-  assert (e: paths (tpair (fun f0 : X ->X => ∏ x : X, paths (f0 x) x) f h)
-                   (tpair (fun f0 : X ->X => ∏ x : X, paths (f0 x) x)
-                          (fun x0 : X => x0) (fun x0 : X => idpath x0)))
+  assert (e: paths (tpair (fun f0 : X ->X => ∏ x : X, (f0 x) = x) f h)
+                   (tpair (fun f0 : X ->X => ∏ x : X, (f0 x) = x)
+                          (λ x0 : X, x0) (λ x0 : X, idpath x0)))
     by (apply proofirrelevancecontr; assumption).
   apply (maponpaths map e).
 Defined.
 
 
-Theorem isweqmaponsec1 {X Y : UU} (P : Y -> UU) (f : weq X Y) :
+Theorem isweqmaponsec1 {X Y : UU} (P : Y -> UU) (f : X ≃ Y) :
   isweq (maponsec1 P f).
 Proof.
   intros.
   set (map := maponsec1  P f).
   set (invf := invmap f).
   set (e1 := homotweqinvweq f). set (e2 := homotinvweqweq f).
-  set (im1 := fun sx : ∏ x : X, P (f x) => (fun y : Y => sx (invf y))).
+  set (im1 := fun sx : ∏ x : X, P (f x) => (λ y : Y, sx (invf y))).
   set (im2 := fun sy': ∏ y : Y, P (f (invf y)) =>
-                (fun y : Y => transportf _ (homotweqinvweq f y) (sy' y))).
+                (λ y : Y, transportf _ (homotweqinvweq f y) (sy' y))).
   set (invmapp := (fun sx : ∏ x : X, P (f x) => im2 (im1 sx))).
 
   assert (efg0 : ∏ sx : (∏ x : X, P (f x)),
@@ -379,7 +355,7 @@ Proof.
   {
     intro. intro. unfold map. unfold invmapp. unfold im1. unfold im2.
     unfold maponsec1. simpl. fold invf. set (ee := e2 x). fold invf in ee.
-    set (e3x := fun x0 : X => invmaponpathsweq f (invf (f x0)) x0
+    set (e3x := λ x0 : X, invmaponpathsweq f (invf (f x0)) x0
                                             (homotweqinvweq f (f x0))).
     set (e3 := e3x x).
     assert (e4 : paths (homotweqinvweq f (f x)) (maponpaths f  e3))
@@ -387,15 +363,15 @@ Proof.
     assert  (e5 : paths (transportf P (homotweqinvweq f (f x))
                                     (sx (invf (f x))))
                         (transportf P (maponpaths f  e3) (sx (invf (f x)))))
-      by apply (maponpaths (fun e40 : _ => (transportf P e40 (sx (invf (f x)))))
+      by apply (maponpaths (λ e40 : _, (transportf P e40 (sx (invf (f x)))))
                            e4).
     assert (e6 : paths (transportf P (maponpaths f e3) (sx (invf (f x))))
-                       (transportf (fun x : X => P (f x)) e3 (sx (invf (f x)))))
+                       (transportf (λ x : X, P (f x)) e3 (sx (invf (f x)))))
       by apply (pathsinv0 (functtransportf f P e3 (sx (invf (f x))))).
-    set (ff := fun x : X => invf (f x)).
-    assert (e7 : paths (transportf (fun x : X => P (f x)) e3 (sx (invf (f x))))
+    set (ff := λ x : X, invf (f x)).
+    assert (e7 : paths (transportf (λ x : X, P (f x)) e3 (sx (invf (f x))))
                        (sx x))
-      by apply (maponsec1l2 (fun x : X => P (f x)) ff e3x sx x).
+      by apply (maponsec1l2 (λ x : X, P (f x)) ff e3x sx x).
     apply (pathscomp0 (pathscomp0 e5 e6) e7).
   }
   assert (efg : ∏ sx : (∏ x : X, P (f x)), paths (map (invmapp sx)) sx)
@@ -406,7 +382,7 @@ Proof.
   {
     intros. unfold invmapp. unfold map. unfold im1. unfold im2.
     unfold maponsec1.
-    set (ff := fun y : Y => f (invf y)). fold invf.
+    set (ff := λ y : Y, f (invf y)). fold invf.
     apply (maponsec1l2 P ff (homotweqinvweq f) sy y).
   }
   assert (egf : ∏ sy : (∏ y : Y, P y), paths (invmapp (map sy)) sy)
@@ -415,7 +391,7 @@ Proof.
   apply (gradth map invmapp egf efg).
 Defined.
 
-Definition weqonsecbase {X Y : UU} (P : Y -> UU) (f : weq X Y)
+Definition weqonsecbase {X Y : UU} (P : Y -> UU) (f : X ≃ Y)
   : weq (∏ y : Y, P y) (∏ x : X, P (f x))
   := weqpair _ (isweqmaponsec1 P f).
 
@@ -423,7 +399,7 @@ Definition weqonsecbase {X Y : UU} (P : Y -> UU) (f : weq X Y)
 (** *** Composition of functions with a weak equivalence on the left *)
 
 
-Definition weqbfun {X Y : UU} (Z : UU) (w : weq X Y) : weq (Y -> Z) (X -> Z)
+Definition weqbfun {X Y : UU} (Z : UU) (w : X ≃ Y) : (Y -> Z) ≃ (X -> Z)
   := weqonsecbase _ w.
 
 
@@ -450,7 +426,7 @@ Definition weqbfun {X Y : UU} (Z : UU) (w : weq X Y) : weq (Y -> Z) (X -> Z)
 
 Definition iscontrsecoverempty (P : empty -> UU) : iscontr (∏ x : empty, P x).
 Proof.
-  intro. split with (fun x : empty => fromempty x).
+  intro. split with (λ x : empty, fromempty x).
   intro t. apply funextsec.
   intro t0. induction t0.
 Defined.
@@ -465,7 +441,7 @@ Defined.
 Definition secovercoprodtoprod {X Y : UU} (P : coprod X Y -> UU)
            (a : ∏ xy : coprod X Y, P xy) :
   dirprod (∏ x : X, P (ii1 x)) (∏ y : Y, P (ii2 y))
-  := dirprodpair (fun x : X => a (ii1 x)) (fun y : Y => a (ii2 y)).
+  := dirprodpair (λ x : X, a (ii1 x)) (λ y : Y, a (ii2 y)).
 
 Definition prodtosecovercoprod {X Y : UU} (P : coprod X Y -> UU)
            (a : dirprod (∏ x : X, P (ii1 x)) (∏ y : Y, P (ii2 y))) :
@@ -522,14 +498,14 @@ Defined.
 (** *** Functions from a coproduct *)
 
 Definition funfromcoprodtoprod {X Y Z : UU} (f : coprod X Y -> Z) :
-  dirprod (X -> Z) (Y -> Z)
-  := dirprodpair (fun x : X => f (ii1 x)) (fun y : Y => f (ii2 y)).
+  (X -> Z) × (Y -> Z)
+  := dirprodpair (λ x : X, f (ii1 x)) (λ y : Y, f (ii2 y)).
 
-Definition prodtofunfromcoprod {X Y Z : UU} (fg : dirprod (X -> Z) (Y -> Z)) :
+Definition prodtofunfromcoprod {X Y Z : UU} (fg : (X -> Z) × (Y -> Z)) :
   coprod X Y -> Z := match fg with tpair _ f g => sumofmaps f g end.
 
 Theorem weqfunfromcoprodtoprod (X Y Z : UU) :
-  weq (coprod X Y -> Z) (dirprod (X -> Z) (Y -> Z)).
+  weq (coprod X Y -> Z) ((X -> Z) × (Y -> Z)).
 Proof.
   intros.
   simple refine (
@@ -549,7 +525,7 @@ Defined.
 Definition tosecoverunit (P : unit -> UU) (p : P tt) : ∏ t : unit, P t.
 Proof. intros. induction t. apply p. Defined.
 
-Definition weqsecoverunit (P : unit -> UU) : weq (∏ t : unit, P t) (P tt).
+Definition weqsecoverunit (P : unit -> UU) : (∏ t : unit, P t) ≃ (P tt).
 Proof.
   intro.
   set (f := fun a : ∏ t : unit, P t => a tt). set (g := tosecoverunit P).
@@ -581,7 +557,7 @@ Definition weqsecovertotal2 {X : UU} (P : X -> UU) (Q : total2 P -> UU) :
   weq (∏ xp : total2 P, Q xp) (∏ x : X, ∏ p : P x, Q (tpair _ x p)).
 Proof.
   intros.
-  set (f := fun a : ∏ xp : total2 P, Q xp => fun x : X => fun p : P x =>
+  set (f := fun a : ∏ xp : total2 P, Q xp => λ x : X, λ p : P x,
                                                       a (tpair _ x p)).
   set (g := tosecovertotal2 P Q). split with f.
   assert (egf : ∏ a : _, paths (g (f a)) a).
@@ -611,12 +587,12 @@ Definition weqfunfromcontr {X : UU} (Y : UU) (is : iscontr X) : weq (X -> Y) Y
 (** *** Functions from [ total2 ] *)
 
 Definition weqfunfromtotal2 {X : UU} (P : X -> UU) (Y : UU) :
-  weq (total2 P -> Y) (∏ x : X, P x -> Y) := weqsecovertotal2 P _.
+  (total2 P -> Y) ≃ (∏ x : X, P x -> Y) := weqsecovertotal2 P _.
 
 (** *** Functions from direct product *)
 
 Definition weqfunfromdirprod (X X' Y : UU) :
-  weq (dirprod X X' -> Y) (∏ x : X, X' -> Y) := weqsecovertotal2 _ _.
+  (dirprod X X' -> Y) ≃ (∏ x : X, X' -> Y) := weqsecovertotal2 _ _.
 
 
 
@@ -646,7 +622,7 @@ Proof.
     assert (is : ∏ t : T, isofhlevel n (paths (x t) (x' t)))
       by (intro; apply (X t (x t) (x' t))).
     assert (is2 : isofhlevel n (∏ t : T, paths (x t) (x' t)))
-      by apply (IHn _ (fun t0 : T => paths (x t0) (x' t0)) is).
+      by apply (IHn _ (λ t0 : T, paths (x t0) (x' t0)) is).
     set (u := toforallpaths P x x').
     assert (is3: isweq u) by apply isweqtoforallpaths.
     set (v:= invmap (weqpair u is3)).
@@ -680,14 +656,14 @@ Defined.
 
 Corollary impredfun (n : nat) (X Y : UU) (is : isofhlevel n Y) :
   isofhlevel n (X -> Y).
-Proof. intros. apply (impred n (fun x :_ => Y) (fun x : X => is)). Defined.
+Proof. intros. apply (impred n (λ x , Y) (λ x : X, is)). Defined.
 
 
 Theorem impredtech1 (n : nat) (X Y : UU) :
   (X -> isofhlevel n Y) -> isofhlevel n (X -> Y).
 Proof.
   intro. induction n as [ | n IHn ]. intros X Y X0. simpl.
-  split with (fun x : X => pr1 (X0 x)).
+  split with (λ x : X, pr1 (X0 x)).
   - intro t.
     assert (s1 : ∏ x : X, paths (t x) (pr1 (X0 x)))
            by (intro; apply proofirrelevancecontr; apply (X0 x)).
@@ -698,7 +674,7 @@ Proof.
     intros x x'.
     assert (s1 : isofhlevel n (∏ xx : X, paths (x xx) (x' xx)))
            by (apply impred; intro t; apply (X0 t)).
-    assert (w : weq (∏ xx : X, paths (x xx) (x' xx)) (paths x x'))
+    assert (w : weq (∏ xx : X, paths (x xx) (x' xx)) (x = x'))
       by apply (weqfunextsec  _ x x').
     apply (isofhlevelweqf n w s1).
 Defined.
@@ -709,7 +685,7 @@ Defined.
 
 Theorem iscontrfuntounit (X : UU) : iscontr (X -> unit).
 Proof.
-  intro. split with (fun x : X => tt).
+  intro. split with (λ x : X, tt).
   intro f. apply funextfun.
   intro x. induction (f x). apply idpath.
 Defined.
@@ -746,12 +722,12 @@ Proof. intros. apply impred. intro. apply (isapropifnegtrue is). Defined.
 Theorem iscontriscontr {X : UU} (is : iscontr X) : iscontr (iscontr X).
 Proof.
   intros X X0.
-  assert (is0 : ∏ (x x' : X), paths x x')
+  assert (is0 : ∏ (x x' : X), x = x')
          by (apply proofirrelevancecontr; assumption).
-  assert (is1 : ∏ cntr : X, iscontr (∏ x : X, paths x cntr)).
+  assert (is1 : ∏ cntr : X, iscontr (∏ x : X, x = cntr)).
   {
     intro.
-    assert (is2 : ∏ x : X, iscontr (paths x cntr)).
+    assert (is2 : ∏ x : X, iscontr (x = cntr)).
     {
       assert (is2 : isaprop X)
              by (apply isapropifcontr; assumption).
@@ -760,10 +736,10 @@ Proof.
     }
     apply funcontr. assumption.
   }
-  set (f := @pr1 X (fun cntr : X => ∏ x : X, paths x cntr)).
+  set (f := @pr1 X (λ cntr : X, ∏ x : X, x = cntr)).
   assert (X1 : isweq f)
     by (apply isweqpr1; assumption).
-  change (total2 (fun cntr : X => ∏ x : X, paths x cntr)) with (iscontr X) in X1.
+  change (total2 (λ cntr : X, ∏ x : X, x = cntr)) with (iscontr X) in X1.
   apply (iscontrweqb (weqpair f X1)). assumption.
 Defined.
 
@@ -782,8 +758,8 @@ Defined.
 Theorem isapropisweq {X Y : UU} (f : X -> Y) : isaprop (isweq f).
 Proof.
   intros. unfold isweq.
-  apply (impred (S O) (fun y : Y => iscontr (hfiber f y))
-                (fun y : Y => isapropiscontr (hfiber f y))).
+  apply (impred (S O) (λ y : Y, iscontr (hfiber f y))
+                (λ y : Y, isapropiscontr (hfiber f y))).
 Defined.
 
 
@@ -865,7 +841,7 @@ Corollary isinjpr1weq (X Y : UU) : isInjective (pr1weq : X ≃ Y -> X -> Y).
 Proof. intros. apply isweqonpathsincl. apply isinclpr1weq. Defined.
 
 Theorem isinclpr1isolated (T : UU) : isincl (pr1isolated T).
-Proof. intro. apply (isinclpr1 _ (fun t : T => isapropisisolated T t)). Defined.
+Proof. intro. apply (isinclpr1 _ (λ t : T, isapropisisolated T t)). Defined.
 
 (** associativity of weqcomp **)
 
@@ -910,11 +886,11 @@ Defined.
 
 (** *** Composition with a weak quivalence is a weak equivalence on weak equivalences *)
 
-Theorem weqfweq (X : UU) {Y Z : UU} (w : weq Y Z) : weq (weq X Y) (weq X Z).
+Theorem weqfweq (X : UU) {Y Z : UU} (w : Y ≃ Z) : (X ≃ Y) ≃ (X ≃ Z).
 Proof.
   intros.
-  set (f := fun a : weq X Y => weqcomp a w).
-  set (g := fun b : weq X Z => weqcomp b (invweq w)).
+  set (f := λ a : X ≃ Y, weqcomp a w).
+  set (g := λ b : X ≃ Z, weqcomp b (invweq w)).
   split with f.
   assert (egf : ∏ a : _, paths (g (f a)) a).
   {
@@ -929,11 +905,11 @@ Proof.
   apply (gradth _ _ egf efg).
 Defined.
 
-Theorem weqbweq {X Y : UU} (Z : UU) (w : weq X Y) : weq (weq Y Z) (weq X Z).
+Theorem weqbweq {X Y : UU} (Z : UU) (w : X ≃ Y) : (Y ≃ Z) ≃ (X ≃ Z).
 Proof.
   intros.
-  set (f := fun a : weq Y Z => weqcomp w a).
-  set (g := fun b : weq X Z => weqcomp (invweq w) b).
+  set (f := λ a : Y ≃ Z, weqcomp w a).
+  set (g := λ b : X ≃ Z, weqcomp (invweq w) b).
   split with f.
   assert (egf : ∏ a : _, paths (g (f a)) a).
   {
@@ -961,11 +937,11 @@ Defined.
   this theorem in the form of [ isapropisweq ]. The rest of the proof can be
   completed using eta-conversion. *)
 
-Theorem weqinvweq (X Y : UU) : weq (weq X Y) (weq Y X).
+Theorem weqinvweq (X Y : UU) : (X ≃ Y) ≃ (Y ≃ X).
 Proof.
   intros.
-  set (f := fun w : weq X Y => invweq w).
-  set (g := fun w : weq Y X => invweq w).
+  set (f := λ w : X ≃ Y, invweq w).
+  set (g := λ w : Y ≃ X, invweq w).
   split with f.
   assert (egf : ∏ w : _, paths (g (f w)) w).
   {
@@ -988,7 +964,7 @@ Defined.
 (** *** Weak equivalences to and from types of h-level (S n) *)
 
 Theorem isofhlevelsnweqtohlevelsn (n : nat) (X Y : UU)
-        (is : isofhlevel (S n) Y) : isofhlevel (S n) (weq X Y).
+        (is : isofhlevel (S n) Y) : isofhlevel (S n) (X ≃ Y).
 Proof.
   intros.
   apply (isofhlevelsninclb n _ (isinclpr1weq _ _)).
@@ -996,7 +972,7 @@ Proof.
 Defined.
 
 Theorem isofhlevelsnweqfromhlevelsn (n : nat) (X Y : UU)
-        (is : isofhlevel (S n) Y) : isofhlevel (S n) (weq Y X).
+        (is : isofhlevel (S n) Y) : isofhlevel (S n) (Y ≃ X).
 Proof.
   intros.
   apply (isofhlevelweqf (S n) (weqinvweq X Y)
@@ -1008,57 +984,57 @@ Defined.
 
 (** *** Weak equivalences to and from contractible types *)
 
-Theorem isapropweqtocontr (X : UU) {Y : UU} (is : iscontr Y) : isaprop (weq X Y).
+Theorem isapropweqtocontr (X : UU) {Y : UU} (is : iscontr Y) : isaprop (X ≃ Y).
 Proof. intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropifcontr is)). Defined.
 
-Theorem isapropweqfromcontr (X : UU) {Y : UU} (is : iscontr Y) : isaprop (weq Y X).
+Theorem isapropweqfromcontr (X : UU) {Y : UU} (is : iscontr Y) : isaprop (Y ≃ X).
 Proof. intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropifcontr is)). Defined.
 
 
 (** *** Weak equivalences to and from propositions *)
 
 
-Theorem isapropweqtoprop (X  Y : UU) (is : isaprop Y) : isaprop (weq X Y).
+Theorem isapropweqtoprop (X  Y : UU) (is : isaprop Y) : isaprop (X ≃ Y).
 Proof. intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ is). Defined.
 
-Theorem isapropweqfromprop (X Y : UU) (is : isaprop Y) : isaprop (weq Y X).
+Theorem isapropweqfromprop (X Y : UU) (is : isaprop Y) : isaprop (Y ≃ X).
 Proof. intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ is). Defined.
 
 
 (** *** Weak equivalences to and from sets *)
 
-Theorem isasetweqtoset (X  Y : UU) (is : isaset Y) : isaset (weq X Y).
+Theorem isasetweqtoset (X  Y : UU) (is : isaset Y) : isaset (X ≃ Y).
 Proof. intros. apply (isofhlevelsnweqtohlevelsn 1 _ _ is). Defined.
 
-Theorem isasetweqfromset (X Y : UU) (is : isaset Y) : isaset (weq Y X).
+Theorem isasetweqfromset (X Y : UU) (is : isaset Y) : isaset (Y ≃ X).
 Proof. intros. apply (isofhlevelsnweqfromhlevelsn 1 X _ is). Defined.
 
 
 
 (** *** Weak equivalences to an empty type *)
 
-Theorem isapropweqtoempty (X : UU) : isaprop (weq X empty).
+Theorem isapropweqtoempty (X : UU) : isaprop (X ≃ empty).
 Proof. intro. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropempty)). Defined.
 
 
-Theorem isapropweqtoempty2 (X : UU) {Y : UU} (is : neg Y) : isaprop (weq X Y).
+Theorem isapropweqtoempty2 (X : UU) {Y : UU} (is : neg Y) : isaprop (X ≃ Y).
 Proof. intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropifnegtrue is)). Defined.
 
 
 (** *** Weak equivalences from an empty type *)
 
-Theorem isapropweqfromempty (X : UU) : isaprop (weq empty X).
+Theorem isapropweqfromempty (X : UU) : isaprop (empty ≃ X).
 Proof. intro. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropempty)). Defined.
 
-Theorem isapropweqfromempty2 (X : UU) {Y : UU} (is : neg Y) : isaprop (weq Y X).
+Theorem isapropweqfromempty2 (X : UU) {Y : UU} (is : neg Y) : isaprop (Y ≃ X).
 Proof. intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropifnegtrue is)). Defined.
 
 (** *** Weak equivalences to and from [ unit ] *)
 
-Theorem isapropweqtounit (X : UU) : isaprop (weq X unit).
+Theorem isapropweqtounit (X : UU) : isaprop (X ≃ unit).
 Proof. intro. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropunit)). Defined.
 
-Theorem isapropweqfromunit (X : UU) : isaprop (weq unit X).
+Theorem isapropweqfromunit (X : UU) : isaprop (unit ≃ X).
 Proof. intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropunit)). Defined.
 
 (** ** Weak auto-equivalences of a type with an isolated point *)
@@ -1132,9 +1108,9 @@ Proof.
       unfold g, invcutonweq; simpl.
       set (int := funtranspos
                     (tpair _ t is) (tpair _ t' is')
-                    (recompl T t (coprodf w (fun x0 :unit => x0)
+                    (recompl T t (coprodf w (λ x0 :unit, x0)
                                           (invmap (weqrecompl T t is) t)))).
-      assert (eee : paths int t').
+      assert (eee : int = t').
       {
         unfold int. unfold recompl, coprodf, invmap; simpl. unfold invrecompl.
         induction (is t) as [ ett | nett ].
@@ -1157,7 +1133,7 @@ Proof.
       rewrite ee.
       set (e := homottranspost2t1t1t2
                   t t' is is'
-                  (recompl T t (coprodf w (fun x0 : unit => x0)
+                  (recompl T t (coprodf w (λ x0 : unit, x0)
                                         (invmap (weqrecompl T t is) x)))).
       unfold funcomp,idfun in e.
       rewrite e. unfold recompl, coprodf, invmap; simpl. unfold invrecompl.
@@ -1174,19 +1150,19 @@ Defined.
 
 
 Definition locsplit (X : UU) (Y : UU) (f : X -> Y)
-:= ∏ y : Y, coprod (hfiber  f y) (hfiber  f y -> empty).
+:= ∏ y : Y, (hfiber  f y) ⨿ (hfiber  f y -> empty).
 
 Definition dnegimage (X : UU) (Y : UU) (f : X -> Y)
-:= total2 Y (fun y : Y => dneg(hfiber  f y)).
+:= total2 Y (λ y : Y, dneg(hfiber  f y)).
 Definition dnegimageincl (X Y : UU) (f : X -> Y)
-:= pr1 Y (fun y : Y => dneg(hfiber  f y)).
+:= pr1 Y (λ y : Y, dneg(hfiber  f y)).
 
 Definition xtodnegimage (X : UU) (Y : UU) (f : X -> Y) : X -> dnegimage f
-:= fun x : X => tpair (f x) ((todneg _) (hfiberpair  f (f x) x (idpath (f x)))).
+:= λ x : X, tpair (f x) ((todneg _) (hfiberpair  f (f x) x (idpath (f x)))).
 
 Definition locsplitsec (X : UU) (Y : UU) (f : X -> Y) (ls : locsplit  f) :
 dnegimage f -> X
-:= fun u: _ =>
+:= λ u: _,
 match u with
 tpair y psi =>
 match (ls y) with
@@ -1202,7 +1178,7 @@ assert (paths (pr1 (p (s u))) (pr1  u)). unfold p. unfold xtodnegimage.
 unfold s. unfold locsplitsec. simpl. induction u. set (lst := ls t).
 induction lst.  simpl. apply (pr2  x0). induction (x y).
 assert (is : isofhlevelf (S O) (dnegimageincl f)).
-apply (isofhlevelfpr1 (S O) (fun y : Y => isapropdneg (hfiber f y))).
+apply (isofhlevelfpr1 (S O) (λ y : Y, isapropdneg (hfiber f y))).
 assert (isw: isweq (maponpaths (dnegimageincl f) (p (s u)) u)).
 apply (isofhlevelfonpaths O  _ is).
 apply (invmap  _ isw X0).
@@ -1211,14 +1187,14 @@ Defined.
 
 
 Definition negimage (X : UU) (Y : UU) (f : X -> Y)
-:= total2 Y (fun y : Y => neg(hfiber f y)).
+:= total2 Y (λ y : Y, neg(hfiber f y)).
 Definition negimageincl (X Y : UU) (f : X -> Y)
-:= pr1 Y (fun y : Y => neg(hfiber f y)).
+:= pr1 Y (λ y : Y, neg(hfiber f y)).
 
 
 Definition imsum (X : UU) (Y : UU) (f : X -> Y) :
-coprod (dnegimage  f) (negimage  f) -> Y
-:= fun u:_ =>
+(dnegimage  f) ⨿ (negimage  f) -> Y
+:= λ u,
 match u with
 ii1 z => pr1  z|
 ii2 z => pr1  z

@@ -148,18 +148,7 @@ Arguments tpair {_} _ _ _.
 Arguments pr1 {_ _} _.
 Arguments pr2 {_ _} _.
 
-(* Now prepare tactics for writing proofs in two ways, depending on whether projections are primitive *)
-Ltac primitive_projections :=
-  unify (fun (w : total2 (fun _:nat => nat)) => tpair _ (pr1 w) (pr2 w))
-        (fun (w : total2 (fun _:nat => nat)) => w).
-(* Use like this: [ tryif primitive_projections then ... else ... . ] *)
-
-Definition whether_primitive_projections : bool.
-Proof.
-  tryif primitive_projections then exact true else exact false.
-Defined.
-
-Notation "'∑'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
+Notation "'∑'  x .. y , P" := (total2 (λ x, .. (total2 (λ y, P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
   (* type this in emacs in agda-input method with \sum *)
 
@@ -167,30 +156,15 @@ Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser
 
 Ltac mkpair := (simple refine (tpair _ _ _ ) ; [| cbn]).
 
+(* How to use "mkpair":
+
 Goal ∏ X (Y : X -> UU) (x : X) (y : Y x), ∑ x, Y x.
   intros X Y x y.
   mkpair.
   - apply x.
   - apply y.
 Defined.
-
-(* print out this theorem to see whether "induction" compiles to "match" *)
-Goal ∏ X (Y:X->UU) (w:∑ x, Y x), X.
-  intros.
-  induction w as [x y].
-  exact x.
-Defined.
-
-(* Step through this proof to demonstrate eta expansion for pairs, if primitive
-   projections are on: *)
-Goal ∏ X (Y:X->UU) (w:∑ x, Y x), w = (pr1 w,, pr2 w).
-Proof. try reflexivity. Abort.
-
-Definition rewrite_pr1_tpair {X} {P:X->UU} x p : pr1 (tpair P x p) = x.
-reflexivity. Defined.
-
-Definition rewrite_pr2_tpair {X} {P:X->UU} x p : pr2 (tpair P x p) = p.
-reflexivity. Defined.
+*)
 
 (*
 

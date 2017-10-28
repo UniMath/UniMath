@@ -21,7 +21,7 @@ Variable hs: has_homsets C.
 Variable F : functor J C.
 
 Definition ConeData := total2 (
-  fun a : C => ∏ j : J, a --> F j).
+  λ a : C, ∏ j : J, a --> F j).
 
 Definition ConeTop (a : ConeData) : C := pr1 a.
 Definition ConeMor (a : ConeData) (j : J) : ConeTop a --> F j := (pr2 a) j.
@@ -45,10 +45,10 @@ Proof.
   apply hs.
 Qed.
 
-Definition Cone := total2 (fun a : ConeData => ConeProp a).
+Definition Cone := total2 (λ a : ConeData, ConeProp a).
 
 
-Definition ConeData_from_Cone : Cone -> ConeData := fun a => pr1 a.
+Definition ConeData_from_Cone : Cone -> ConeData := λ a, pr1 a.
 
 Lemma eq_Cone_eq (a b : Cone) (p q : a = b) :
    base_paths _ _ (base_paths _ _ p) =
@@ -141,7 +141,7 @@ Defined.
 
 Definition Cone_precategory_ob_mor : precategory_ob_mor :=
    precategory_ob_mor_pair Cone
-   (fun a b => Cone_Mor a b).
+   (λ a b, Cone_Mor a b).
 
 Definition Cone_precategory_data : precategory_data.
 Proof.
@@ -222,7 +222,7 @@ Definition isotoid_CONE_pr1 (a b : CONE) : iso a b -> pr1 a = pr1 b.
 Proof.
   intro f.
   apply (total2_paths_f (isotoid _ is_cat_C (ConeConnectIso f))).
-  pathvia ((fun c : J =>
+  pathvia ((λ c : J,
      idtoiso (!isotoid C is_cat_C (ConeConnectIso f))· pr2 (pr1 a) c)).
   apply transportf_isotoid_dep'.
   apply funextsec.

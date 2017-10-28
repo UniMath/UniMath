@@ -8,6 +8,8 @@ Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
 Require Export UniMath.RealNumbers.NonnegativeReals.
 
+Unset Automatic Introduction.
+
 Open Scope NR_scope.
 
 (** ** Definition *)
@@ -486,7 +488,11 @@ Proof.
   rewrite <- (hr_to_NR_bij x), <- (hr_to_NR_bij 0%rng), hr_to_NR_zero.
   unfold hr_to_NRneg.
   split.
-  - rewrite (tppr (hr_to_NR x)) ; generalize (pr1 (hr_to_NR x)), (pr2 (hr_to_NR x)) ; intros x1 x2 ; simpl pr1 ; simpl pr2 ; clear x ; intros ->.
+  - generalize (hr_to_NR x). intros hx.
+    change hx with (pr1 hx,,pr2 hx).
+    generalize (pr1 hx), (pr2 hx).
+    clear hx.
+    intros x1 x2 ; simpl pr1 ; simpl pr2 ; clear x ; intros ->.
     apply NR_to_hr_le ; simpl.
     rewrite !isrunit_zero_plusNonnegativeReals.
     now apply isnonnegative_NonnegativeReals.
@@ -509,8 +515,8 @@ Proof.
   - pattern x at 3.
     rewrite <- (hr_to_NR_bij x), <- (hr_to_NR_bij 0%rng), hr_to_NR_zero.
     unfold hr_to_NRpos, hr_to_NRneg.
-    rewrite (tppr (hr_to_NR x)) ;
-      generalize (pr1 (hr_to_NR x)), (pr2 (hr_to_NR x)) ;
+    change (hr_to_NR x) with (pr1 (hr_to_NR x),,pr2 _).
+    generalize (pr1 (hr_to_NR x)), (pr2 (hr_to_NR x)) ;
       intros x1 x2 ; simpl pr1 ; simpl pr2 ; clear x ; intros H1 ; rewrite (pr2 H1).
     apply NR_to_hr_lt ; simpl.
     rewrite !isrunit_zero_plusNonnegativeReals.
@@ -534,7 +540,7 @@ Proof.
   rewrite <- (hr_to_NR_bij x), <- (hr_to_NR_bij 0%rng), hr_to_NR_zero.
   unfold hr_to_NRpos.
   split.
-  - rewrite (tppr (hr_to_NR x)).
+  - change (hr_to_NR x) with (pr1 (hr_to_NR x),,pr2 _).
     simpl pr1 ; simpl pr2 ; intros ->.
     apply NR_to_hr_le ; simpl.
     rewrite !islunit_zero_plusNonnegativeReals.
@@ -558,7 +564,8 @@ Proof.
   - pattern x at 3.
     rewrite <- (hr_to_NR_bij x), <- (hr_to_NR_bij 0%rng), hr_to_NR_zero.
     unfold hr_to_NRpos, hr_to_NRneg.
-    rewrite (tppr (hr_to_NR x)) ; simpl pr1 ; simpl pr2 ; intros H2 ; rewrite (pr1 H2).
+    change (hr_to_NR x) with (pr1 (hr_to_NR x),,pr2 _).
+    simpl pr1 ; simpl pr2 ; intros H2 ; rewrite (pr1 H2).
     apply NR_to_hr_lt ; simpl.
     rewrite !islunit_zero_plusNonnegativeReals.
     now apply ispositive_apNonnegativeReals, (pr2 H2).
@@ -868,9 +875,7 @@ Lemma hr_islinv_neg :
    (NR_to_hr (0%NR,, invNonnegativeReals (hr_to_NRneg x) (pr2 (pr2 (hr_to_NR_negative _) Hap))) * x)%rng = 1%rng.
 Proof.
   intros x Hap.
-  tryif primitive_projections
-  then pattern x at 3
-  else pattern x at 15;
+  pattern x at 3;
     rewrite <- (hr_to_NR_bij x).
   rewrite NR_to_hr_mult ; simpl.
   rewrite  !islabsorb_zero_multNonnegativeReals , !islunit_zero_plusNonnegativeReals.
@@ -896,9 +901,7 @@ Lemma hr_islinv_pos :
    (NR_to_hr (invNonnegativeReals (hr_to_NRpos x) (pr1 (pr2 (hr_to_NR_positive _) Hap)) ,, 0%NR) * x)%rng = 1%rng.
 Proof.
   intros x Hap.
-  tryif primitive_projections
-  then pattern x at 3
-  else pattern x at 15;
+  pattern x at 3;
     rewrite <- (hr_to_NR_bij x).
   rewrite NR_to_hr_mult ; simpl.
   rewrite  !islabsorb_zero_multNonnegativeReals , !isrunit_zero_plusNonnegativeReals.
@@ -1190,7 +1193,7 @@ Proof.
   apply hinhfun.
   intros n.
   exists (pr1 n).
-  rewrite (tppr n) ; generalize (pr1 n) (pr2 n) ; clear n ; intros n Hn.
+  generalize (pr1 n) (pr2 n) ; clear n ; intros n Hn.
   simpl pr1.
   rewrite <- (hr_to_NR_bij x), <- (hr_to_NR_bij (@nattorng hr_ConstructiveField n)) in Hn |- *.
   revert Hn.
@@ -1219,7 +1222,6 @@ Proof.
   assert (Hxy : ∏ n, NR_to_hr (x n ,, y n) = u n).
   { intros n.
     unfold x, y, hr_to_NRpos, hr_to_NRneg.
-    tryif primitive_projections then idtac else rewrite <- tppr.
     apply hr_to_NR_bij. }
   intros Cu c Hc.
   generalize (Cu c Hc).
@@ -1256,7 +1258,6 @@ Proof.
   assert (Hxy : ∏ n, NR_to_hr (x n ,, y n) = u n).
   { intros n.
     unfold x, y, hr_to_NRpos, hr_to_NRneg.
-    tryif primitive_projections then idtac else rewrite <- tppr.
     apply hr_to_NR_bij. }
   intros Cu c Hc.
   generalize (Cu c Hc).
@@ -1304,7 +1305,6 @@ Proof.
   assert (Hxy : ∏ n, NR_to_hr (x n ,, y n) = u n).
   { intros n.
     unfold x, y, hr_to_NRpos, hr_to_NRneg.
-    tryif primitive_projections then idtac else rewrite <- tppr.
     apply hr_to_NR_bij. }
   generalize (Cauchy_seq_impl_ex_lim_seq x (Cauchy_seq_pr1 u Cu)).
   set (lx := Cauchy_lim_seq x (Cauchy_seq_pr1 u Cu)) ; clearbody lx ; intro Hx.
@@ -1404,7 +1404,6 @@ Lemma NRNRtoR_RtoNRNR :
 Proof.
   intros X.
   unfold NRNRtoR.
-  tryif primitive_projections then idtac else rewrite <- tppr.
   apply hr_to_NR_bij.
 Qed.
 

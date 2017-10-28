@@ -194,7 +194,7 @@ Section translation_functor.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
     rewrite inv_inv_eq.
     assert (e : (maponpaths (λ i0 : pr1 hz, C2 (i0 + 1)) (hzrplusminus (i - 1 + 1) 1)) =
-                (maponpaths C2 (maponpaths (fun (i0 : hz) => i0 + 1) (hzrplusminus (i - 1 + 1) 1)))).
+                (maponpaths C2 (maponpaths (λ (i0 : hz), i0 + 1) (hzrplusminus (i - 1 + 1) 1)))).
     {
       induction (hzrplusminus (i - 1 + 1) 1). apply idpath.
     }

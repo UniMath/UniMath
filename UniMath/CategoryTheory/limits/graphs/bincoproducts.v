@@ -23,12 +23,12 @@ Local Open Scope cat.
 Definition two_graph : graph.
 Proof.
   exists bool.
-  exact (fun _ _ => empty).
+  exact (λ _ _, empty).
 Defined.
 
 Definition bincoproduct_diagram {C : precategory} (a b : C) : diagram two_graph C.
 Proof.
-  exists (fun x : bool => if x then a else b).
+  exists (λ x : bool, if x then a else b).
   intros u v F.
   induction F.
 Defined.

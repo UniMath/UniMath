@@ -4,6 +4,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups
 	       UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Monoid.
+Unset Automatic Introduction.
 Local Notation Hom := monoidfun.
 Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, left associativity, only parsing).
 Local Notation "x * y" := ( op x y ).
@@ -47,7 +48,7 @@ Module Presentation.
   Definition MarkedPreGroup_to_hrel {X}
              (M:MarkedPreGroup X) (is:isaset (elem M)) :
       hrel (word X) :=
-    fun v w => (evalword M v = evalword M w) ,, is _ _.
+    λ v w, (evalword M v = evalword M w) ,, is _ _.
 
   (** eta expansion principle for words *)
 
@@ -97,15 +98,15 @@ Module Presentation.
          { intros ? r ra. apply base. exact ra. }
          { intros ? r ra. apply (reflex R). exact ra. }
          { intros ? ? p r ra. apply (symm R). exact ra. exact (p r ra). }
-         { exact (fun u v w p q r ra => trans R r ra u v w (p r ra) (q r ra)). }
+         { exact (λ u v w p q r ra, trans R r ra u v w (p r ra) (q r ra)). }
          { intros ? ? ? p r ra. apply (left_compat R). exact ra. exact (p r ra). }
          { intros ? ? ? p r ra. apply (right_compat R). exact ra. exact (p r ra). }
          { intros ? r ra. apply (left_unit R). exact ra. }
          { intros ? r ra. apply (right_unit R). exact ra. }
-         { exact (fun u v w r ra => assoc R r ra u v w). }
-         { exact (fun v w p r ra => inverse_compat R r ra v w (p r ra)). }
-         { exact (fun w r ra => left_inverse R r ra w). }
-         { exact (fun w r ra => right_inverse R r ra w). }
+         { exact (λ u v w r ra, assoc R r ra u v w). }
+         { exact (λ v w p r ra, inverse_compat R r ra v w (p r ra)). }
+         { exact (λ w r ra, left_inverse R r ra w). }
+         { exact (λ w r ra, right_inverse R r ra w). }
   Qed.
   Definition smallestAdequateRelation {X I} (R:I->reln X) : eqrel (word X).
     intros. exact (adequacy_to_eqrel R _ (adequacy R)). Defined.
@@ -140,7 +141,7 @@ Module Presentation.
   Definition universalMarkedPreGroup {X I} (R:I->reln X) : MarkedPreGroup X.
     intros. refine (make_preGroup X (universalMarkedPreGroup0 R) _ _ _ _).
     { exact (setquotpr _ word_unit). }
-    { exact (fun x => setquotpr _ (word_gen x)). }
+    { exact (λ x, setquotpr _ (word_gen x)). }
     { exact (univ_inverse _). }
     { exact (univ_binop _). } Defined.
 
@@ -153,20 +154,20 @@ Module Presentation.
   Proof. intros ? ? ? w'. isaprop_goal ig. { apply setproperty. }
     apply (squash_to_prop (lift R w') ig); intros [w []].
     exact (iscompsetquotpr (smallestAdequateRelation R) _ _
-                           (fun r ra => left_unit R r ra w)). Qed.
+                           (λ r ra, left_unit R r ra w)). Qed.
   Lemma is_right_unit_univ_binop {X I} (R:I->reln X) (w:universalMarkedPreGroup0 R) :
     ((univ_binop _) w (setquotpr _ word_unit)) = w.
   Proof. intros ? ? ? w'. isaprop_goal ig. { apply setproperty. }
     apply (squash_to_prop (lift R w') ig); intros [w []].
     exact (iscompsetquotpr (smallestAdequateRelation R) _ _
-                           (fun r ra => right_unit R r ra w)). Qed.
+                           (λ r ra, right_unit R r ra w)). Qed.
   Lemma isassoc_univ_binop {X I} (R:I->reln X) : isassoc(univ_binop R).
   Proof. intros. set (e := smallestAdequateRelation R). intros u' v' w'.
          isaprop_goal ig. { apply setproperty. }
          apply (squash_to_prop (lift R u') ig); intros [u i]; destruct i.
          apply (squash_to_prop (lift R v') ig); intros [v j]; destruct j.
          apply (squash_to_prop (lift R w') ig); intros [w []].
-         exact (iscompsetquotpr e _ _ (fun r ra => assoc R r ra u v w)). Qed.
+         exact (iscompsetquotpr e _ _ (λ r ra, assoc R r ra u v w)). Qed.
   Lemma is_left_inverse_univ_binop {X I} (R:I->reln X) :
     ∏ w:setquot (smallestAdequateRelation0 R),
       univ_binop R (univ_inverse R w) w =
@@ -174,7 +175,7 @@ Module Presentation.
   Proof. intros. isaprop_goal ig. { apply setproperty. }
     apply (squash_to_prop (lift R w) ig); intros [v []].
     exact (iscompsetquotpr (smallestAdequateRelation R) _ _
-                           (fun r ra => left_inverse R r ra v)). Qed.
+                           (λ r ra, left_inverse R r ra v)). Qed.
   Lemma is_right_inverse_univ_binop {X I} (R:I->reln X) :
     ∏ w:setquot (smallestAdequateRelation0 R),
       univ_binop R w (univ_inverse R w) =
@@ -182,7 +183,7 @@ Module Presentation.
   Proof. intros. isaprop_goal ig. { apply setproperty. }
     apply (squash_to_prop (lift R w) ig); intros [v []].
     exact (iscompsetquotpr (smallestAdequateRelation R) _ _
-                           (fun r ra => right_inverse R r ra v)). Qed.
+                           (λ r ra, right_inverse R r ra v)). Qed.
   Fixpoint reassemble_pr {X I} (R:I->reln X) (v:word X) :
     evalword (universalMarkedPreGroup R) v = setquotpr _ v.
   Proof. intros ? ? ? [|x|w|v w]. { reflexivity. } { reflexivity. }
@@ -219,11 +220,11 @@ Module Presentation.
   Definition evalwordMM {X I} {R:I->reln X} (M:MarkedGroup R) : word X -> M :=
     evalword (toMarkedPreGroup' M).
   Definition MarkedGroup_to_hrel {X I} {R:I->reln X} (M:MarkedGroup R) : hrel (word X) :=
-    fun v w  => eqset (evalwordMM M v) (evalwordMM M w).
+    λ v w , eqset (evalwordMM M v) (evalwordMM M w).
   Lemma abelian_group_adequacy {X I} (R:I->reln X) (M:MarkedGroup R) :
     AdequateRelation R (MarkedGroup_to_hrel M).
   Proof. intros. refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _ _ _ _).
-         { exact (fun i => m_reln R M i). } { reflexivity. }
+         { exact (λ i, m_reln R M i). } { reflexivity. }
          { intros ? ?. exact pathsinv0. } { intros ? ? ?. exact pathscomp0. }
          { intros ? ? ? p. simpl in p; simpl.
            unfold evalwordMM,evalword in *. destruct p. reflexivity. }
@@ -255,7 +256,7 @@ Module Presentation.
          { exact (monoidfuninvtoinv f (evalwordMM M w)
                 @ ap (grinv N) (MarkedGroupMap_compat _ _ _ _ _ f w)). }
          { exact (Monoid.multproperty f (evalwordMM M v) (evalwordMM M w)
-                  @ aptwice (fun r s => r * s)
+                  @ aptwice (λ r s, r * s)
                             (MarkedGroupMap_compat _ _ _ _ _ f v)
                             (MarkedGroupMap_compat _ _ _ _ _ f w)). } Qed.
   Lemma MarkedGroupMap_compat2 {X I} {R:I->reln X}
@@ -284,7 +285,7 @@ Module Presentation.
   Definition universalMarkedGroup1 {X I} (R:I->reln X) : MarkedPreGroup X :=
     (toMarkedPreGroup R
                   (universalMarkedGroup0 R)
-                  (fun x : X => setquotpr (smallestAdequateRelation R) (word_gen x))).
+                  (λ x : X, setquotpr (smallestAdequateRelation R) (word_gen x))).
   Lemma universalMarkedGroup2 {X I} (R:I->reln X) (w:word X) :
     setquotpr (smallestAdequateRelation R) w = evalword (universalMarkedGroup1 R) w.
   Proof. intros.
@@ -295,11 +296,11 @@ Module Presentation.
     evalword (universalMarkedGroup1 R) (rhs (R i)).
   Proof. intros.
          exact (! universalMarkedGroup2 R (lhs (R i))
-                @ iscompsetquotpr (smallestAdequateRelation R) _ _ (fun r ra => base ra i)
+                @ iscompsetquotpr (smallestAdequateRelation R) _ _ (λ r ra, base ra i)
                 @ universalMarkedGroup2 R (rhs (R i))). Qed.
   Definition universalMarkedGroup {X I} (R:I->reln X) : MarkedGroup R :=
     make_MarkedGroup R (universalMarkedGroup0 R)
-                (fun x => setquotpr (smallestAdequateRelation R) (word_gen x))
+                (λ x, setquotpr (smallestAdequateRelation R) (word_gen x))
                 (universalMarkedGroup3 R).
   Fixpoint agreement_on_gens0 {X I} {R:I->reln X} {M:gr}
         (f g:Hom (universalMarkedGroup R) M)
@@ -321,7 +322,7 @@ Module Presentation.
              @ _ @ !
                Monoid.multproperty g (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)).
-           apply (aptwice (fun r s => r * s)).
+           apply (aptwice (λ r s, r * s)).
            { apply agreement_on_gens0. assumption. }
            { apply agreement_on_gens0. assumption. } } Qed.
   Lemma agreement_on_gens {X I} {R:I->reln X} {M:gr}
@@ -337,7 +338,7 @@ Module Presentation.
     universalMarkedGroup0 R -> M.
   Proof. intros ? ? ? ?.
     apply (setquotuniv _ _ (evalwordMM M)).
-    exact (fun _ _ r => r (MarkedGroup_to_hrel M) (abelian_group_adequacy R M)).
+    exact (λ _ _ r, r (MarkedGroup_to_hrel M) (abelian_group_adequacy R M)).
   Defined.
   Definition universality1 {X I} (R:I->reln X)
                            (M:MarkedGroup R) (v w:universalMarkedGroup0 R) :
@@ -359,7 +360,7 @@ Module Presentation.
   Proof. intros.
     assert (g := make_MarkedGroupMap X I R
                            (universalMarkedGroup R) M
-                           (universality2 M) (fun x => idpath _)).
+                           (universality2 M) (λ x, idpath _)).
     exists g. intros f. apply MarkedGroupMapEquality.
     apply Monoid.funEquality. apply funextsec; intro v.
     isaprop_goal ig. { apply setproperty. }
@@ -371,7 +372,7 @@ End Presentation.
 Module Product.
   Definition make {I} (X:I->gr) : gr.
     intros. set (Y := Monoid.Product.make X). exists (pr1monoid Y). exists (pr2 Y).
-    exists (fun y i => grinv (X i) (y i)). split.
+    exists (λ y i, grinv (X i) (y i)). split.
     - intro y. apply funextsec; intro i. apply grlinvax.
     - intro y. apply funextsec; intro i. apply grrinvax. Defined.
   Definition Proj {I} (X:I->gr) (i:I) : Hom (make X) (X i).

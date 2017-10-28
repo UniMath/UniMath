@@ -352,7 +352,7 @@ Section cokernels_iso.
     - intros y0. apply hs.
     - intros y0 X. cbn beta in X.
       use (pre_comp_with_z_iso_is_inj h). rewrite assoc.
-      set (tmp := maponpaths (fun gg : _ => gg · CokernelOut Z CK w h0 H')
+      set (tmp := maponpaths (λ gg : _, gg · CokernelOut Z CK w h0 H')
                              (is_inverse_in_precat1 h)). cbn in tmp.
       use (pathscomp0 _ (! tmp)). clear tmp. rewrite id_left.
       use CokernelOutsEq. rewrite CokernelCommutes. rewrite assoc.

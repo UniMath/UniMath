@@ -51,7 +51,7 @@ Require Export UniMath.Foundations.PartA.
 Fixpoint isofhlevel (n : nat) (X : UU) : UU
   := match n with
      | O => iscontr X
-     | S m => ∏ x : X, ∏ x' : X, (isofhlevel m (paths x x'))
+     | S m => ∏ x : X, ∏ x' : X, (isofhlevel m (x = x'))
      end.
 
 (* induction induction *)
@@ -70,7 +70,7 @@ Proof.
     apply (IHn  _ _ p' s' eps' is).
 Defined.
 
-Corollary isofhlevelweqf (n : nat) {X Y : UU} (f : weq X Y) :
+Corollary isofhlevelweqf (n : nat) {X Y : UU} (f : X ≃ Y) :
   isofhlevel n X -> isofhlevel n Y.
 Proof.
   intros n X Y f X0.
@@ -78,7 +78,7 @@ Proof.
   assumption.
 Defined.
 
-Corollary isofhlevelweqb (n : nat) {X Y : UU} (f : weq X Y) :
+Corollary isofhlevelweqb (n : nat) {X Y : UU} (f : X ≃ Y) :
   isofhlevel n Y -> isofhlevel n X.
 Proof.
   intros n X Y f X0.
@@ -91,12 +91,12 @@ Lemma isofhlevelsn (n : nat) {X : UU} (f : X -> isofhlevel (S n) X) :
 Proof. intros. simpl. intros x x'. apply (f x x x'). Defined.
 
 Lemma isofhlevelssn (n : nat) {X : UU}
-      (is : ∏ x : X, isofhlevel (S n) (paths x x)) : isofhlevel (S (S n)) X.
+      (is : ∏ x : X, isofhlevel (S n) (x = x)) : isofhlevel (S (S n)) X.
 Proof.
   intros. simpl. intros x x'.
-  change (∏ (x0 x'0 : paths x x'), isofhlevel n (paths x0 x'0))
-  with (isofhlevel (S n) (paths x x')).
-  assert (X1 : paths x x' -> isofhlevel (S n) (paths x x'))
+  change (∏ (x0 x'0 : x = x'), isofhlevel n (x0 = x'0))
+  with (isofhlevel (S n) (x = x')).
+  assert (X1 : x = x' -> isofhlevel (S n) (x = x'))
     by (intro X2; induction X2; apply (is x)).
   apply (isofhlevelsn n X1).
 Defined.
@@ -143,7 +143,7 @@ Theorem isofhlevelfffromZ (n : nat) {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : 
         (fs : fibseqstr f g z) (isz : isofhlevel (S n) Z) : isofhlevelf n f.
 Proof.
   intros. intro y.
-  assert (w : weq (hfiber f y) (paths (g y) z)).
+  assert (w : (hfiber f y) ≃ ((g y) = z)).
   apply (invweq (ezweq1 f g z fs y)).
   apply (isofhlevelweqb n w (isz (g y) z)).
 Defined.
@@ -153,7 +153,7 @@ Theorem isofhlevelXfromg (n : nat) {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z
         (fs : fibseqstr f g z) : isofhlevelf n g -> isofhlevel n X.
 Proof.
   intros n X Y Z f g z fs isf.
-  assert (w : weq X (hfiber g z)).
+  assert (w : X ≃ (hfiber g z)).
   apply (weqpair _ (pr2 fs)).
   apply (isofhlevelweqb n w (isf z)).
 Defined.
@@ -174,16 +174,16 @@ Proof.
     apply (isweqcontrcontr f X0 is1).
 
   - intros X Y f X0 X1. unfold isofhlevelf. simpl.
-    assert (is1 : ∏ x' x : X, isofhlevel n (paths x' x))
+    assert (is1 : ∏ x' x : X, isofhlevel n (x' = x))
       by (simpl in X0; assumption).
-    assert (is2 : ∏ y' y : Y, isofhlevel (S n) (paths y' y))
+    assert (is2 : ∏ y' y : Y, isofhlevel (S n) (y' = y))
       by (simpl in X1; simpl; assumption).
     assert (is3 : ∏ (y : Y) (x : X) (xe' : hfiber f y),
                   isofhlevelf n (d2g f x xe'))
       by (intros; apply (IHn _ _ (d2g  f x xe') (is1 (pr1 xe') x)
                              (is2 (f x) y))).
-    assert (is4 : ∏ (y : Y) (x : X) (xe' : hfiber f y) (e : paths (f x) y),
-                  isofhlevel n (paths (hfiberpair f x e) xe'))
+    assert (is4 : ∏ (y : Y) (x : X) (xe' : hfiber f y) (e : (f x) = y),
+                  isofhlevel n ((hfiberpair f x e) = xe'))
       by (intros; apply (isofhlevelweqb n (ezweq3g f x xe' e) (is3 y x xe' e))).
     intros y xe xe'. induction xe as [ t x ].
     apply (is4 y t xe' x).
@@ -198,7 +198,7 @@ Proof.
   - intros X Y f X0 X1.
     apply (iscontrweqb (weqpair f X0) X1).
   - intros X Y f X0 X1. simpl.
-    assert (is1 : ∏ (y : Y) (xe xe': hfiber f y), isofhlevel n (paths xe xe'))
+    assert (is1 : ∏ (y : Y) (xe xe': hfiber f y), isofhlevel n (xe = xe'))
            by (intros; apply (X0 y)).
     assert (is2 : ∏ (y : Y) (x : X) (xe' : hfiber f y),
                   isofhlevelf n (d2g f x xe')).
@@ -207,7 +207,7 @@ Proof.
       apply (isofhlevelweqf n (ezweq3g f x xe' y0)
                             (is1 y (hfiberpair f x y0) xe')).
     }
-    assert (is3 : ∏ (y' y : Y), isofhlevel n (paths y' y))
+    assert (is3 : ∏ (y' y : Y), isofhlevel n (y' = y))
       by (simpl in X1; assumption).
     intros x' x.
     set (y := f x'). set (e' := idpath y). set (xe' := hfiberpair f x' e').
@@ -220,7 +220,7 @@ Defined.
 
 
 Theorem  isofhlevelffib (n : nat) {X : UU} (P : X -> UU) (x : X)
-         (is : ∏ x' : X, isofhlevel n (paths x' x)) : isofhlevelf n (tpair P x).
+         (is : ∏ x' : X, isofhlevel n (x' = x)) : isofhlevelf n (tpair P x).
 Proof.
   intros. unfold isofhlevelf. intro xp.
   apply (isofhlevelweqf n (ezweq1pr1 P x xp) (is (pr1 xp))).
@@ -229,7 +229,7 @@ Defined.
 
 
 Theorem isofhlevelfhfiberpr1y (n : nat) {X Y : UU} (f : X -> Y) (y : Y)
-        (is : ∏ y' : Y, isofhlevel n (paths y' y)) :
+        (is : ∏ y' : Y, isofhlevel n (y' = y)) :
   isofhlevelf n (hfiberpr1 f y).
 Proof.
   intros. unfold isofhlevelf. intro x.
@@ -242,7 +242,7 @@ Defined.
 
 
 Theorem isofhlevelfsnfib (n : nat) {X : UU} (P : X -> UU) (x : X)
-        (is : isofhlevel (S n) (paths x x)) : isofhlevelf (S n) (tpair P x).
+        (is : isofhlevel (S n) (x = x)) : isofhlevelf (S n) (tpair P x).
 Proof.
   intros. unfold isofhlevelf. intro xp.
   apply (isofhlevelweqf (S n) (ezweq1pr1 P x xp)).
@@ -253,7 +253,7 @@ Defined.
 
 
 Theorem isofhlevelfsnhfiberpr1 (n : nat) {X Y : UU} (f : X -> Y) (y : Y)
-        (is : isofhlevel (S n) (paths y y)) : isofhlevelf (S n) (hfiberpr1 f y).
+        (is : isofhlevel (S n) (y = y)) : isofhlevelf (S n) (hfiberpr1 f y).
 Proof.
   intros. unfold isofhlevelf. intro x.
   apply (isofhlevelweqf (S n) ( ezweq1g f y x)). apply isofhlevelsn.
@@ -273,7 +273,7 @@ Proof. intros. apply isofhlevelfhfiberpr1y. intro y'. apply (is y' y). Defined.
 
 
 Theorem isofhlevelff (n : nat) {X Y Z : UU} (f : X -> Y) (g : Y -> Z) :
-  isofhlevelf n (fun x : X => g (f x)) -> isofhlevelf (S n)  g -> isofhlevelf n f.
+  isofhlevelf n (λ x : X, g (f x)) -> isofhlevelf (S n)  g -> isofhlevelf n f.
 Proof.
   intros n X Y Z f g X0 X1. unfold isofhlevelf. intro y.
   set (ye := hfiberpair g y (idpath (g y))).
@@ -284,7 +284,7 @@ Defined.
 
 
 Theorem isofhlevelfgf (n : nat) {X Y Z : UU} (f : X -> Y) (g : Y -> Z) :
-  isofhlevelf n f -> isofhlevelf n g -> isofhlevelf n (fun x : X => g (f x)).
+  isofhlevelf n f -> isofhlevelf n g -> isofhlevelf n (λ x : X, g (f x)).
 Proof.
   intros n X Y Z f g X0 X1. unfold isofhlevelf. intro z.
   assert (is1 : isofhlevelf n (hfibersgftog f g z)).
@@ -299,8 +299,8 @@ Defined.
 
 
 
-Theorem isofhlevelfgwtog (n : nat) {X Y Z : UU} (w : weq X Y) (g : Y -> Z)
-        (is : isofhlevelf n (fun x : X => g (w x))) : isofhlevelf n g.
+Theorem isofhlevelfgwtog (n : nat) {X Y Z : UU} (w : X ≃ Y) (g : Y -> Z)
+        (is : isofhlevelf n (λ x : X, g (w x))) : isofhlevelf n g.
 Proof.
   intros. intro z.
   assert (is' : isweq (hfibersgftog w g z)).
@@ -313,8 +313,8 @@ Defined.
 
 
 
-Theorem isofhlevelfgtogw (n : nat) {X Y Z : UU} (w : weq X Y) (g : Y -> Z)
-        (is : isofhlevelf n g) : isofhlevelf n (fun x : X => g (w x)).
+Theorem isofhlevelfgtogw (n : nat) {X Y Z : UU} (w : X ≃ Y) (g : Y -> Z)
+        (is : isofhlevelf n g) : isofhlevelf n (λ x : X, g (w x)).
 Proof.
   intros. intro z.
   assert (is' : isweq (hfibersgftog w g z)).
@@ -328,11 +328,11 @@ Defined.
 
 
 Corollary isofhlevelfhomot2 (n : nat) {X X' Y : UU} (f : X -> Y) (f' : X' -> Y)
-          (w : weq X X') (h : ∏ x : X, paths (f x) (f' (w x))) :
+          (w : X ≃ X') (h : ∏ x : X, paths (f x) (f' (w x))) :
   isofhlevelf n f -> isofhlevelf n f'.
 Proof.
   intros n X X' Y f f' w h X0.
-  assert (X1 : isofhlevelf n  (fun x : X => f' (w x)))
+  assert (X1 : isofhlevelf n  (λ x : X, f' (w x)))
     by apply (isofhlevelfhomot n _ _ h X0).
   apply (isofhlevelfgwtog n w f' X1).
 Defined.
@@ -351,7 +351,7 @@ Proof.
     apply (isofhlevelweqf n (ezweq3g f x xe' y0)
                           (X0 y (hfiberpair f x y0) xe')).
   }
-  assert (h : ∏ ee : paths x' x, paths (d2g f x xe' ee)
+  assert (h : ∏ ee : x' = x, paths (d2g f x xe' ee)
                                        (maponpaths f (pathsinv0 ee))).
   {
     intro.
@@ -376,13 +376,13 @@ Proof.
   set (xe := hfiberpair f x e).
   set (d3 := d2g f x xe'). simpl in d3.
   assert (is1 : isofhlevelf n (d2g f x xe')).
-  assert (h : ∏ ee : paths x' x, paths (maponpaths f (pathsinv0  ee))
+  assert (h : ∏ ee : x' = x, paths (maponpaths f (pathsinv0  ee))
                                        (d2g  f x xe' ee)).
   {
     intro. unfold d2g. simpl.
     apply (pathsinv0 (pathscomp0rid _)).
   }
-  assert (is2 : isofhlevelf n (fun ee: paths x' x => maponpaths f (pathsinv0 ee)))
+  assert (is2 : isofhlevelf n (λ ee: x' = x, maponpaths f (pathsinv0 ee)))
     by apply (isofhlevelfgtogw n ( weqpair _ (isweqpathsinv0  _ _))
                                (@maponpaths _ _ f x x') (X0 x x')).
   apply (isofhlevelfhomot n _ _  h is2).
@@ -395,7 +395,7 @@ Theorem isofhlevelfssn (n : nat) {X Y : UU} (f : X -> Y) :
   -> isofhlevelf (S (S n)) f.
 Proof.
   intros n X Y f X0. unfold isofhlevelf. intro y.
-  assert (∏ xe0 : hfiber f y, isofhlevel (S n) (paths xe0 xe0)).
+  assert (∏ xe0 : hfiber f y, isofhlevel (S n) (xe0 = xe0)).
   {
     intro. induction xe0 as [ x e ]. induction e.
     set (e':= idpath (f x)).
@@ -404,13 +404,13 @@ Proof.
     set (d3:= d2g f x xe'). simpl in d3.
     assert (is1: isofhlevelf (S n) (d2g f x xe')).
     {
-      assert (h : ∏ ee: paths x x, paths (maponpaths f (pathsinv0 ee))
+      assert (h : ∏ ee: x = x, paths (maponpaths f (pathsinv0 ee))
                                          (d2g f x xe' ee)).
       {
         intro. unfold d2g. simpl.
         apply (pathsinv0 (pathscomp0rid _)).
       }
-      assert (is2 : isofhlevelf (S n) (fun ee : paths x x
+      assert (is2 : isofhlevelf (S n) (fun ee : x = x
                                        => maponpaths f (pathsinv0 ee)))
         by apply (isofhlevelfgtogw (S n)  (weqpair _ (isweqpathsinv0  _ _))
                                    (@maponpaths _ _ f x x) (X0 x)).
@@ -463,7 +463,7 @@ Proof.
 Defined.
 
 Corollary isofhleveldirprod (n : nat) (X Y : UU) (is1 : isofhlevel n X)
-          (is2 : isofhlevel n Y) : isofhlevel n (dirprod X Y).
+          (is2 : isofhlevel n Y) : isofhlevel n (X × Y).
 Proof. intros. apply isofhleveltotal2. assumption. intro. assumption. Defined.
 
 
@@ -503,7 +503,7 @@ Definition isapropdirprod (X Y : UU) : isaprop X -> isaprop Y -> isaprop (X × Y
 
 Lemma isapropifcontr {X : UU} (is : iscontr X) : isaprop X.
 Proof.
-  intros. set (f := fun x : X => tt).
+  intros. set (f := λ x : X, tt).
   assert (isw : isweq f)
     by (apply isweqcontrtounit; assumption).
   apply (isofhlevelweqb (S O) (weqpair f isw)).
@@ -516,9 +516,9 @@ Proof.
   intro. induction n as [ | n IHn ].
   - intro. apply isapropifcontr.
   - intro. intro X.
-    change (∏ t1 t2 : T, isofhlevel (S n) (paths t1 t2)).
+    change (∏ t1 t2 : T, isofhlevel (S n) (t1 = t2)).
     intros t1 t2.
-    change (∏ t1 t2 : T, isofhlevel n (paths t1 t2)) in X.
+    change (∏ t1 t2 : T, isofhlevel n (t1 = t2)) in X.
     set (XX := X t1 t2).
     apply (IHn _ XX).
 Defined.
@@ -528,12 +528,12 @@ Proof.
   intro. induction n as [ | n IHn ].
   - intros X X0. assumption.
   - intros X X0. simpl. intros x x'.
-    assert (is : iscontr (paths x x')).
+    assert (is : iscontr (x = x')).
     apply (isapropifcontr X0 x x').
     apply (IHn _ is).
 Defined.
 
-Lemma isofhlevelfweq (n : nat) {X Y : UU} (f : weq X Y) : isofhlevelf n f.
+Lemma isofhlevelfweq (n : nat) {X Y : UU} (f : X ≃ Y) : isofhlevelf n f.
 Proof.
   intros n X Y f. unfold isofhlevelf. intro y.
   apply (isofhlevelcontr n).
@@ -553,18 +553,18 @@ Proof.
   apply (isofhlevelfhfiberpr1 0 f y (hlevelntosn 0 _ is)).
 Defined.
 
-Corollary weqhfibertounit (X : UU) : weq (hfiber (fun x : X => tt) tt) X.
+Corollary weqhfibertounit (X : UU) : (hfiber (λ x : X, tt) tt) ≃ X.
 Proof. intro. apply (weqhfibertocontr _ tt iscontrunit). Defined.
 
 Corollary isofhleveltofun (n : nat) (X : UU) :
-  isofhlevel n X -> isofhlevelf n (fun x : X => tt).
+  isofhlevel n X -> isofhlevelf n (λ x : X, tt).
 Proof.
   intros n X is. intro t. induction t.
   apply (isofhlevelweqb n (weqhfibertounit X) is).
 Defined.
 
 Corollary isofhlevelfromfun (n : nat) (X : UU) :
-  isofhlevelf n (fun x : X => tt) -> isofhlevel n X.
+  isofhlevelf n (λ x : X, tt) -> isofhlevel n X.
 Proof.
   intros n X is. apply (isofhlevelweqf n (weqhfibertounit X) (is tt)).
 Defined.
@@ -708,8 +708,8 @@ Proof.
   apply (is y).
 Defined.
 
-Definition weqtoincl (X Y : UU) : weq X Y -> incl X Y
-  := fun w => inclpair (pr1weq w) (pr2 w).
+Definition weqtoincl (X Y : UU) : X ≃ Y -> incl X Y
+  := λ w, inclpair (pr1weq w) (pr2 w).
 Coercion weqtoincl : weq >-> incl.
 
 Lemma isinclcomp {X Y Z : UU} (f : incl X Y) (g : incl Y Z) :
@@ -727,11 +727,11 @@ Proof.
   apply (isofhlevelfsnincl 1 g isg).
 Defined.
 
-Lemma isinclgwtog {X Y Z : UU} (w : weq X Y) (g : Y -> Z)
+Lemma isinclgwtog {X Y Z : UU} (w : X ≃ Y) (g : Y -> Z)
       (is : isincl (funcomp w g)) : isincl g.
 Proof. intros. apply (isofhlevelfgwtog 1 w g is). Defined.
 
-Lemma isinclgtogw {X Y Z : UU}  (w : weq X Y) (g : Y -> Z) (is : isincl g) :
+Lemma isinclgtogw {X Y Z : UU}  (w : X ≃ Y) (g : Y -> Z) (is : isincl g) :
   isincl (funcomp w g).
 Proof. intros. apply (isofhlevelfgtogw 1 w g is). Defined.
 
@@ -792,20 +792,20 @@ Proof.
 Defined.
 
 Corollary subtypeEquality {A : UU} {B : A -> UU} (is : isPredicate B)
-   {s s' : total2 (fun x => B x)} : pr1 s = pr1 s' -> s = s'.
+   {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> s = s'.
 Proof.
   intros A B H s s'. apply invmap. now apply subtypeInjectivity.
 Defined.
 
 Corollary subtypeEquality' {A : UU} {B : A -> UU}
-   {s s' : total2 (fun x => B x)} : pr1 s = pr1 s' -> isaprop (B (pr1 s')) -> s = s'.
+   {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> isaprop (B (pr1 s')) -> s = s'.
 (* This variant of subtypeEquality is not often needed. *)
 Proof. intros ? ? ? ? e is. apply (total2_paths_f e). apply is. Defined.
 
 (* This corollary of subtypeEquality is used for categories. *)
 Corollary unique_exists {A : UU} {B : A -> UU} (x : A) (b : B x)
           (h : ∏ y, isaprop (B y)) (H : ∏ y, B y -> y = x) :
-  iscontr (total2 (fun t : A => B t)).
+  iscontr (total2 (λ t : A, B t)).
 Proof.
   intros A B x b h H.
   use iscontrpair.
@@ -886,7 +886,7 @@ Proof.
   exact (X0 x x').
 Defined.
 
-Lemma isasetifiscontrloops (X : UU) : (∏ x : X, iscontr (paths x x)) -> isaset X.
+Lemma isasetifiscontrloops (X : UU) : (∏ x : X, iscontr (x = x)) -> isaset X.
 Proof.
   intros X X0. unfold isaset. unfold isofhlevel. intros x x' x0 x0'.
   induction x0.
@@ -895,11 +895,11 @@ Proof.
 Defined.
 
 Lemma iscontrloopsifisaset (X : UU) :
-  (isaset X) -> (∏ x : X, iscontr (paths x x)).
+  (isaset X) -> (∏ x : X, iscontr (x = x)).
 Proof.
   intros X X0 x. unfold isaset in X0. unfold isofhlevel in X0.
-  change (∏ (x x' : X) (x0 x'0 : paths x x'), iscontr (paths x0 x'0))
-  with (∏ (x x' : X), isaprop (paths x x')) in X0.
+  change (∏ (x x' : X) (x0 x'0 : x = x'), iscontr (x0 = x'0))
+  with (∏ (x x' : X), isaprop (x = x')) in X0.
   apply (iscontraprop1 (X0 x x) (idpath x)).
 Defined.
 
@@ -925,7 +925,7 @@ Proof. intros. refine (isofhlevelfhfiberpr1 _ _ _ _). assumption. Defined.
 
 Theorem isinclbetweensets {X Y : UU} (f : X -> Y)
         (isx : isaset X) (isy : isaset Y)
-        (inj : ∏ x x' : X , (paths (f x) (f x') -> paths x x')) : isincl f.
+        (inj : ∏ x x' : X , (paths (f x) (f x') -> x = x')) : isincl f.
 Proof.
   intros. apply isinclweqonpaths. intros x x'.
   apply (isweqimplimpl (@maponpaths _ _ f x x') (inj x x') (isx x x')
@@ -1133,7 +1133,7 @@ Defined.
 
 Definition isdeceq (X:UU) : UU := ∏ (x x':X), decidable (x=x').
 
-Lemma isdeceqweqf {X Y : UU} (w : weq X Y) (is : isdeceq X) : isdeceq Y.
+Lemma isdeceqweqf {X Y : UU} (w : X ≃ Y) (is : isdeceq X) : isdeceq Y.
 Proof.
   intros. intros y y'.
   set (w' := weqonpaths (invweq w) y y').
@@ -1143,7 +1143,7 @@ Proof.
   - apply (ii2 ((negf w') ni)).
 Defined.
 
-Lemma isdeceqweqb {X Y : UU} (w : weq X Y) (is : isdeceq Y) : isdeceq X.
+Lemma isdeceqweqb {X Y : UU} (w : X ≃ Y) (is : isdeceq Y) : isdeceq X.
 Proof. intros. apply (isdeceqweqf (invweq w) is). Defined.
 
 Theorem isdeceqinclb {X Y : UU} (f : X -> Y) (is : isdeceq Y) (is' : isincl f) :
@@ -1165,7 +1165,7 @@ Definition booleq {X : UU} (is : isdeceq X) (x x' : X) : bool.
 Proof. intros. induction (is x x'). apply true. apply false. Defined.
 
 Lemma eqfromdnegeq (X : UU) (is : isdeceq X) (x x' : X) :
-  dneg (paths x x') -> paths x x'.
+  dneg (x = x') -> x = x'.
 Proof.
   intros X is x x' X0. induction (is x x') as [ y | n ].
   - assumption.
@@ -1239,9 +1239,9 @@ Theorem isaproppathsfromisolated (X : UU) (x : X) (is : isisolated X x) :
   ∏ x', isaprop(x = x').
 Proof.
   intros. apply iscontraprop1inv. intro e. induction e.
-  set (f := fun e : paths x x => coconusfromtpair _ e).
+  set (f := λ e : x = x, coconusfromtpair _ e).
   assert (is' : isweq f)
-    by apply (onefiber (fun x' : X => paths x x') (x : X) (fun x' : X => is x')).
+    by apply (onefiber (λ x' : X, x = x') (x : X) (λ x' : X, is x')).
   assert (is2 : iscontr (coconusfromt _ x))
     by apply iscontrcoconusfromt.
   apply (iscontrweqb (weqpair f is')).
@@ -1317,7 +1317,7 @@ Proof.
     + apply inr. intro e_xpyq. apply ne_pq.
       set (e_pq := fiber_paths e_xpyq).
       refine (_ @ e_pq).
-      refine (maponpaths (fun e => transportf _ e _) _).
+      refine (maponpaths (λ e, transportf _ e _) _).
   (* NOTE: want [maponpaths_2] from the [TypeTheory] library here. Upstream it to [Foundations], perhaps? *)
       apply isasetifdeceq, HX.
   - apply inr. intros e_xypq. apply ne_xy, base_paths, e_xypq.
@@ -1382,7 +1382,7 @@ Proof. apply (isasetifdeceq _ isdeceqbool). Defined.
 
 
 Definition subsetsplit {X : UU} (f : X -> bool) (x : X) :
-  coprod (hfiber f true) (hfiber f false).
+  (hfiber f true) ⨿ (hfiber f false).
 Proof.
   intros. induction (boolchoice (f x)) as [ a | b ].
   - apply (ii1 (hfiberpair f x a)).
@@ -1390,11 +1390,11 @@ Proof.
 Defined.
 
 Definition subsetsplitinv {X : UU} (f : X -> bool)
-           (ab : coprod (hfiber f true) (hfiber f false)) : X
+           (ab : (hfiber f true) ⨿ (hfiber f false)) : X
   := match ab with ii1 xt => pr1 xt | ii2 xf => pr1 xf end.
 
 Theorem weqsubsetsplit {X : UU} (f : X -> bool) :
-  weq X (coprod (hfiber f true) (hfiber f false)).
+  weq X ((hfiber f true) ⨿ (hfiber f false)).
 Proof.
   intros.
   set (ff := subsetsplit f). set (gg := subsetsplitinv f).

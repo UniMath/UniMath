@@ -24,11 +24,11 @@ Section def_intdom_precategory.
   Definition intdom_fun_space (A B : intdom) : hSet := hSetpair (rngfun A B) (isasetrigfun A B).
 
   Definition intdom_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) intdom (fun A B : intdom => intdom_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) intdom (λ A B : intdom, intdom_fun_space A B).
 
   Definition intdom_precategory_data : precategory_data :=
     precategory_data_pair
-      intdom_precategory_ob_mor (fun (X : intdom) => (rigisotorigfun (idrigiso X)))
+      intdom_precategory_ob_mor (λ (X : intdom), (rigisotorigfun (idrigiso X)))
       (fun (X Y Z : intdom) (f : rngfun X Y) (g : rngfun Y Z) => rigfuncomp f g).
 
   Local Lemma intdom_id_left (X Y : intdom) (f : rngfun X Y) :

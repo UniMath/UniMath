@@ -19,22 +19,22 @@ Unset Kernel Term Sharing.
 
 Open Scope hq_scope.
 
-Definition is2sided (L U : hq → hProp) : UU :=
+Definition isTwoSided (L U : hq → hProp) : UU :=
   ((∏ q : hq, L q <-> ∃ r : hq, L r ∧ hqlth q r)
      × (∏ q : hq, U q <-> ∃ r : hq, U r ∧ hqlth r q))
     × ((∃ q : hq, L q) × (∃ q : hq, U q))
     × (∏ q : hq, ¬ (U q ∧ L q))
     × (∏ q r : hq, hqlth q r → L q ∨ U r).
 
-Definition is1sided (S : hq → hProp) : UU :=
+Definition isOneSided (S : hq → hProp) : UU :=
   ((∃ r : hq, S r) ∧ (∃ r : hq, ¬ S r))
     × (∏ r : hq, S r → ∃ q : hq, S q ∧ hqlth r q)
     × (∏ r s : hq, hqlth r s → S r ∨ ¬ S s).
 
 (** ** Equivalence between these two definitions *)
 
-Lemma is2sided_1sided :
-  ∏ (L U : hq → hProp), is2sided L U → is1sided L.
+Lemma isTwoSided_OneSided :
+  ∏ (L U : hq → hProp), isTwoSided L U → isOneSided L.
 Proof.
   intros L U H.
   split ; split.
@@ -65,9 +65,9 @@ Proof.
       exact Ls.
 Qed.
 
-Lemma is1sided_2sided :
+Lemma isOneSided_TwoSided :
   ∏ (S : hq → hProp),
-  is1sided S → is2sided S (λ s : hq, ∃ r : hq, hqlth r s × ¬ S r).
+  isOneSided S → isTwoSided S (λ s : hq, ∃ r : hq, hqlth r s × ¬ S r).
 Proof.
   intros S H.
   split ; split ; [ | | split | split].
@@ -136,20 +136,19 @@ Proof.
       * exact Sr.
 Qed.
 
-Lemma weq2sided1sided :
-  weq (∑ L U : hq → hProp, is2sided L U) (∑ S : hq → hProp, is1sided S).
+Lemma weqTwoSidedOneSided :
+  (∑ L U : hq → hProp, isTwoSided L U) ≃ (∑ S : hq → hProp, isOneSided S).
 Proof.
-  set (f := (λ (LU : ∑ L U : hq → hProp, is2sided L U),
-            pr1 LU,, is2sided_1sided (pr1 LU) (pr1 (pr2 LU)) (pr2 (pr2 LU)))
-            : (∑ L U : hq → hProp, is2sided L U) → ∑ S, is1sided S).
-  set (g := (λ S : (∑ S : hq → hProp, is1sided S),
+  set (f := (λ (LU : ∑ L U : hq → hProp, isTwoSided L U),
+            pr1 LU,, isTwoSided_OneSided (pr1 LU) (pr1 (pr2 LU)) (pr2 (pr2 LU)))
+            : (∑ L U : hq → hProp, isTwoSided L U) → ∑ S, isOneSided S).
+  set (g := (λ S : (∑ S : hq → hProp, isOneSided S),
                    pr1 S ,, (λ s : hq, ∃ r : hq, r < s × ¬ pr1 S r)
-                       ,, is1sided_2sided (pr1 S) (pr2 S))
-            : (∑ S, is1sided S) → ∑ L U : hq → hProp, is2sided L U).
+                       ,, isOneSided_TwoSided (pr1 S) (pr2 S))
+            : (∑ S, isOneSided S) → ∑ L U : hq → hProp, isTwoSided L U).
   apply (weqgradth f g).
   - intros LU.
-    rewrite (tppr (g (f LU))).
-    eapply pathscomp0, pathsinv0, (tppr LU).
+    change (pr1 (g (f LU)),, pr2 (g (f LU)) = pr1 LU,, pr2 LU).
     apply pair_path_in2.
     simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
     +  apply isapropdirprod.
@@ -199,8 +198,8 @@ Qed.
 
 (** ** Equivalence of Dcuts with usual definitions *)
 
-Lemma is1sided_Dcuts_bot :
-  ∏ D, is1sided D → Dcuts_def_bot (λ r, D (pr1 r)).
+Lemma isOneSided_Dcuts_bot :
+  ∏ D, isOneSided D → Dcuts_def_bot (λ r, D (pr1 r)).
 Proof.
   intros D H r Dr q Hq.
   generalize (le_eqorltNonnegativeRationals _ _ Hq) ; clear Hq.
@@ -213,8 +212,8 @@ Proof.
     + exact Dq.
     + apply fromempty, Dq, Dr.
 Qed.
-Lemma is1sided_Dcuts_open :
-  ∏ D, is1sided D → Dcuts_def_open (λ r, D (pr1 r)).
+Lemma isOneSided_Dcuts_open :
+  ∏ D, isOneSided D → Dcuts_def_open (λ r, D (pr1 r)).
 Proof.
   intros D H r Dr.
   generalize ((pr1 (pr2 H)) (pr1 r) Dr).
@@ -234,9 +233,9 @@ Proof.
     exact (pr2 (pr2 q)).
 Qed.
 
-Lemma is1sided_translation :
+Lemma isOneSided_translation :
   ∏ (D : hq → hProp) (c : hq),
-  is1sided D → is1sided (λ q, D (q + c)).
+  isOneSided D → isOneSided (λ q, D (q + c)).
 Proof.
   intros D c Hd.
   split ; split.
@@ -271,8 +270,8 @@ Proof.
     apply (pr2 (pr2 Hd)).
     apply hqlthandplusr, Hrs.
 Qed.
-Lemma is1sided_Dcuts_corr :
-  ∏ D, is1sided D → Dcuts_def_corr (λ r, D (pr1 r)).
+Lemma isOneSided_Dcuts_corr :
+  ∏ D, isOneSided D → Dcuts_def_corr (λ r, D (pr1 r)).
 Proof.
   intros D H c Hc.
   rewrite ltNonnegativeRationals_correct in Hc.
@@ -413,10 +412,10 @@ Proof.
       apply hqlthnsn.
 Qed.
 
-Lemma isDcuts_1sided :
+Lemma isDcuts_OneSided :
   ∏ (D : NonnegativeRationals → hProp),
   Dcuts_def_bot D → Dcuts_def_open D → Dcuts_def_corr D
-  → is1sided (λ q : hq, sumofmaps (λ _ : 0 > q, htrue) (λ Hq : 0 <= q, D (q,, Hq)) (hqgthorleh 0 q)).
+  → isOneSided (λ q : hq, sumofmaps (λ _ : 0 > q, htrue) (λ Hq : 0 <= q, D (q,, Hq)) (hqgthorleh 0 q)).
 Proof.
   intros D Hbot Hopen Hcorr.
   split ; split.
@@ -504,15 +503,15 @@ Proof.
       exact Hrq.
 Qed.
 
-Lemma weq1sidedDcuts :
-  weq (∑ S : hq → hProp, is1sided S × ∏ q : hq, q < 0 → S q) Dcuts.
+Lemma weqOneSidedDcuts :
+  weq (∑ S : hq → hProp, isOneSided S × ∏ q : hq, q < 0 → S q) Dcuts.
 Proof.
-  set (f := (λ (D : ∑ S : hq → hProp, is1sided S × (∏ q : hq, q < 0 → S q)),
+  set (f := (λ (D : ∑ S : hq → hProp, isOneSided S × (∏ q : hq, q < 0 → S q)),
              mk_Dcuts (λ r : NonnegativeRationals, pr1 D (pr1 r))
-                     (is1sided_Dcuts_bot (pr1 D) (pr1 (pr2 D)))
-                     (is1sided_Dcuts_open (pr1 D) (pr1 (pr2 D)))
-                     (is1sided_Dcuts_corr (pr1 D) (pr1 (pr2 D))))
-            : (∑ S : hq → hProp, is1sided S × (∏ q : hq, q < 0 → S q)) → Dcuts).
+                     (isOneSided_Dcuts_bot (pr1 D) (pr1 (pr2 D)))
+                     (isOneSided_Dcuts_open (pr1 D) (pr1 (pr2 D)))
+                     (isOneSided_Dcuts_corr (pr1 D) (pr1 (pr2 D))))
+            : (∑ S : hq → hProp, isOneSided S × (∏ q : hq, q < 0 → S q)) → Dcuts).
   assert (Hg : ∏ (D : Dcuts) (q : hq),
                q < 0
                → sumofmaps (λ _ : 0 > q, htrue) (λ Hq : 0 <= q, pr1 D (q,, Hq)) (hqgthorleh 0 q)).
@@ -528,9 +527,9 @@ set (g := (λ D : Dcuts,
     (λ q : hq,
      sumofmaps (λ _ : 0 > q, htrue) (λ Hq : 0 <= q, pr1 D (q,, Hq))
        (hqgthorleh 0 q)),,
-    isDcuts_1sided (pr1 D) (is_Dcuts_bot D) (is_Dcuts_open D)
+    isDcuts_OneSided (pr1 D) (is_Dcuts_bot D) (is_Dcuts_open D)
     (is_Dcuts_corr D),, Hg D)
-          : Dcuts → ∑ S : hq → hProp, is1sided S × (∏ q : hq, q < 0 → S q)).
+          : Dcuts → ∑ S : hq → hProp, isOneSided S × (∏ q : hq, q < 0 → S q)).
   apply (weqgradth f g).
   - intros D.
     simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).

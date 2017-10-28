@@ -286,7 +286,7 @@ Defined.
 (* TODO: upstream; also perhaps reconsider implicit args of pr1_transportf to match this? *)
 Lemma pr2_transportf {A} {B1 B2 : A → UU}
     {a a' : A} (e : a = a') (xs : B1 a × B2 a)
-  : pr2 (transportf (fun a => B1 a × B2 a) e xs) = transportf _ e (pr2 xs).
+  : pr2 (transportf (λ a, B1 a × B2 a) e xs) = transportf _ e (pr2 xs).
 Proof.
   destruct e. apply idpath.
 Defined.
