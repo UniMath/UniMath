@@ -4,6 +4,8 @@
 
 (** December 2011 *)
 
+(** made compatible with the current UniMath library by Ralph Matthes in October 2017 *)
+
 (** Settings *)
 
 Unset Automatic Introduction. (** This line has to be removed for the
@@ -2046,179 +2048,385 @@ Defined.
 
 (** * V. Z/nZ *)
 
-Lemma hzmodisaprop ( p : hz ) ( x : hzneq 0 p ) ( n m : hz ) : isaprop
-( hzremaindermod p x n ~> ( hzremaindermod p x m ) ).  Proof.
-intros. apply isasethz.  Defined.
+Lemma hzmodisaprop ( p : hz ) ( x : hzneq 0 p ) ( n m : hz ) :
+  isaprop ( hzremaindermod p x n ~> ( hzremaindermod p x m ) ).
+Proof.
+  intros.
+  apply isasethz.
+Defined.
 
 Definition hzmod ( p : hz ) ( x : hzneq 0 p ) : hz -> hz -> hProp.
-Proof.  intros p x n m. exact ( hProppair ( hzremaindermod p x n ~> (
-hzremaindermod p x m ) ) ( hzmodisaprop p x n m ) ).  Defined.
+Proof.
+  intros p x n m.
+  exact ( hProppair ( hzremaindermod p x n ~>
+                    ( hzremaindermod p x m ) ) ( hzmodisaprop p x n m ) ).
+Defined.
 
 Lemma hzmodisrefl ( p : hz ) ( x : hzneq 0 p ) : isrefl ( hzmod p x ).
-Proof.  intros. unfold isrefl. intro n. unfold hzmod. assert (
-hzremaindermod p x n ~> ( hzremaindermod p x n ) ) as a. auto. apply
-a.  Defined.
+Proof.
+  intros.
+  unfold isrefl.
+  intro n.
+  unfold hzmod.
+  assert ( hzremaindermod p x n ~> ( hzremaindermod p x n ) ) as a
+      by apply idpath.
+  apply a.
+Defined.
 
 Lemma hzmodissymm ( p : hz ) ( x : hzneq 0 p ) : issymm ( hzmod p x ).
-Proof.  intros. unfold issymm. intros n m. unfold hzmod. intro v.
-assert ( hzremaindermod p x m ~> hzremaindermod p x n ) as a.  exact (
-pathsinv0 ( v ) ). apply a.  Defined.
+Proof.
+  intros.
+  unfold issymm.
+  intros n m.
+  unfold hzmod.
+  intro v.
+  assert ( hzremaindermod p x m ~> hzremaindermod p x n ) as a
+  by exact ( pathsinv0 ( v ) ).
+  apply a.
+Defined.
 
-Lemma hzmodistrans ( p : hz ) ( x : hzneq 0 p ) : istrans ( hzmod p x
-).  Proof.  intros. unfold istrans. intros n m k. intros u v. unfold
-hzmod. unfold hzmod in u. unfold hzmod in v.  assert ( hzremaindermod
-p x n ~> hzremaindermod p x k ) as a.  exact ( pathscomp0 u v ). apply
-a.  Defined.
+Lemma hzmodistrans ( p : hz ) ( x : hzneq 0 p ) : istrans ( hzmod p x ).
+Proof.
+  intros.
+  unfold istrans.
+  intros n m k. intros u v.
+  unfold hzmod.
+  unfold hzmod in u.
+  unfold hzmod in v.
+  assert ( hzremaindermod p x n ~> hzremaindermod p x k ) as a
+  by exact ( pathscomp0 u v ).
+  apply a.
+Defined.
 
-Lemma hzmodiseqrel ( p : hz ) ( x : hzneq 0 p ) : iseqrel ( hzmod p x
-).  Proof.  intros. apply iseqrelconstr. exact ( hzmodistrans p x
-). exact ( hzmodisrefl p x ). exact ( hzmodissymm p x ).  Defined.
+Lemma hzmodiseqrel ( p : hz ) ( x : hzneq 0 p ) : iseqrel ( hzmod p x ).
+Proof.
+  intros.
+  apply iseqrelconstr.
+  - exact ( hzmodistrans p x ).
+  - exact ( hzmodisrefl p x ).
+  - exact ( hzmodissymm p x ).
+Defined.
 
-Lemma hzmodcompatmultl ( p : hz ) ( x : hzneq 0 p ) : forall a b c :
-hz, hzmod p x a b -> hzmod p x ( c * a ) ( c * b ).  Proof.  intros p
-x a b c v. unfold hzmod.  change (hzremaindermod p x (c * a) ~>
-hzremaindermod p x (c * b)).  rewrite hzremaindermodandtimes. rewrite
-v. rewrite <- hzremaindermodandtimes. apply idpath.  Defined.
+Lemma hzmodcompatmultl ( p : hz ) ( x : hzneq 0 p ) :
+  forall a b c : hz, hzmod p x a b -> hzmod p x ( c * a ) ( c * b ).
+Proof.
+  intros p x a b c v.
+  unfold hzmod.
+  change (hzremaindermod p x (c * a) ~> hzremaindermod p x (c * b)).
+  rewrite hzremaindermodandtimes.
+  rewrite v.
+  rewrite <- hzremaindermodandtimes.
+  apply idpath.
+Defined.
 
-Lemma hzmodcompatmultr ( p : hz ) ( x : hzneq 0 p ) : forall a b c :
-hz, hzmod p x a b -> hzmod p x ( a * c ) ( b * c ).  Proof.  intros p
-x a b c v. rewrite hzmultcomm. rewrite ( hzmultcomm b ). apply
-hzmodcompatmultl. assumption.  Defined.
+Lemma hzmodcompatmultr ( p : hz ) ( x : hzneq 0 p ) :
+forall a b c : hz, hzmod p x a b -> hzmod p x ( a * c ) ( b * c ).
+Proof.
+  intros p x a b c v.
+  rewrite hzmultcomm.
+  rewrite ( hzmultcomm b ).
+  apply hzmodcompatmultl.
+  assumption.
+Defined.
 
-Lemma hzmodcompatplusl ( p : hz ) ( x : hzneq 0 p ) : forall a b c :
-hz, hzmod p x a b -> hzmod p x ( c + a ) ( c + b ).  Proof.  intros p
-x a b c v. unfold hzmod.  change ( hzremaindermod p x ( c + a ) ~>
-hzremaindermod p x ( c + b ) ).  rewrite
-hzremaindermodandplus. rewrite v. rewrite <-
-hzremaindermodandplus. apply idpath.  Defined.
+Lemma hzmodcompatplusl ( p : hz ) ( x : hzneq 0 p ) :
+  forall a b c : hz, hzmod p x a b -> hzmod p x ( c + a ) ( c + b ).
+Proof.
+  intros p x a b c v.
+  unfold hzmod.
+  change ( hzremaindermod p x ( c + a ) ~> hzremaindermod p x ( c + b ) ).
+  rewrite hzremaindermodandplus.
+  rewrite v.
+  rewrite <- hzremaindermodandplus.
+  apply idpath.
+Defined.
 
-Lemma hzmodcompatplusr ( p : hz ) ( x : hzneq 0 p ) : forall a b c :
-hz, hzmod p x a b -> hzmod p x ( a + c ) ( b + c ).  Proof.  intros p
-x a b c v. rewrite hzpluscomm. rewrite ( hzpluscomm b ). apply
-hzmodcompatplusl. assumption.  Defined.
+Lemma hzmodcompatplusr ( p : hz ) ( x : hzneq 0 p ) :
+  forall a b c : hz, hzmod p x a b -> hzmod p x ( a + c ) ( b + c ).
+Proof.
+  intros p x a b c v.
+  rewrite hzpluscomm.
+  rewrite ( hzpluscomm b ).
+  apply hzmodcompatplusl.
+  assumption.
+Defined.
 
-Lemma hzmodisrngeqrel ( p : hz ) ( x : hzneq 0 p ) : rngeqrel ( X :=
-hz ).  Proof.  intros. split with ( tpair ( hzmod p x ) ( hzmodiseqrel
-p x ) ).  split. split. apply hzmodcompatplusl. apply
-hzmodcompatplusr.  split. apply hzmodcompatmultl. apply
-hzmodcompatmultr.  Defined.
+Lemma hzmodisrngeqrel ( p : hz ) ( x : hzneq 0 p ) : rngeqrel ( X := hz ).
+Proof.
+  intros.
+  split with ( tpair ( hzmod p x ) ( hzmodiseqrel p x ) ).
+  split.
+  - split.
+    + apply hzmodcompatplusl.
+    + apply hzmodcompatplusr.
+  - split.
+    + apply hzmodcompatmultl.
+    + apply hzmodcompatmultr.
+Defined.
 
-Definition hzmodp ( p : hz ) ( x : hzneq 0 p ) := commrngquot (
-hzmodisrngeqrel p x ).
+Definition hzmodp ( p : hz ) ( x : hzneq 0 p ) :=
+  commrngquot ( hzmodisrngeqrel p x ).
 
-Lemma isdeceqhzmodp ( p : hz ) ( x : hzneq 0 p ) : isdeceq ( hzmodp p
-x ).  Proof.  intros. apply ( isdeceqsetquot ( hzmodisrngeqrel p x )
-). intros a b. unfold isdecprop.  destruct ( isdeceqhz (
-hzremaindermod p x a ) ( hzremaindermod p x b ) ) as [ l | r ].
-unfold hzmodisrngeqrel. simpl. split with ( ii1 l ). intros t.
-destruct t as [ f | g ].  apply maponpaths. apply isasethz. assert
-empty. apply g. assumption. contradiction.  split with ( ii2 r
-). intros t. destruct t as [ f | g ]. assert empty. apply r.
-assumption. contradiction. apply maponpaths. apply isapropneg.
+Lemma isdeceqhzmodp ( p : hz ) ( x : hzneq 0 p ) : isdeceq ( hzmodp p x ).
+Proof.
+  intros.
+  apply ( isdeceqsetquot ( hzmodisrngeqrel p x ) ).
+  intros a b.
+  unfold isdecprop.
+  - destruct ( isdeceqhz ( hzremaindermod p x a )
+                       ( hzremaindermod p x b ) ) as [ l | r ].
+    + unfold hzmodisrngeqrel.
+      simpl.
+      split.
+      * apply ii1.
+        assumption.
+      * apply isasethz.
+    + unfold hzmodisrngeqrel.
+      simpl.
+      split.
+      * apply ii2.
+        assumption.
+      * apply isasethz.
 Defined.
 
 Definition acommrng_hzmod ( p : hz ) ( x : hzneq 0 p ) : acommrng.
-Proof.  intros. split with ( hzmodp p x ). split with ( tpair _ (
-deceqtoneqapart ( isdeceqhzmodp p x ) ) ). split. split. intros a b c
-q. simpl. simpl in q. intro f. apply q. rewrite f. apply idpath.
-intros a b c q. simpl in q. simpl. intro f. apply q. rewrite f. apply
-idpath.  split. intros a b c q. simpl in q. simpl. intros f. apply
-q. rewrite f. apply idpath.  intros a b c q. simpl. simpl in q. intro
-f. apply q. rewrite f. apply idpath.  Defined.
+Proof.
+  intros.
+  split with ( hzmodp p x ).
+  split with ( tpair _ ( deceqtoneqapart ( isdeceqhzmodp p x ) ) ).
+  split.
+  - split.
+    + intros a b c q.
+      simpl.
+      simpl in q.
+      intro f.
+      apply q.
+      rewrite f.
+      apply idpath.
+    + intros a b c q.
+      simpl in q.
+      simpl.
+      intro f.
+      apply q.
+      rewrite f.
+      apply idpath.
+  - split.
+    + intros a b c q.
+      simpl in q.
+      simpl.
+      intros f.
+      apply q.
+      rewrite f.
+      apply idpath.
+    + intros a b c q.
+      simpl.
+      simpl in q.
+      intro f.
+      apply q.
+      rewrite f.
+      apply idpath.
+Defined.
 
-Lemma hzremaindermodanddiv ( p : hz ) ( x : hzneq 0 p ) ( a : hz ) ( y
-: hzdiv p a ) : hzremaindermod p x a ~> 0.  Proof.  intros. assert (
-isaprop ( hzremaindermod p x a ~> 0 ) ) as v. apply isasethz.  apply (
-y ( hProppair _ v ) ). intro t. destruct t as [ k f ]. unfold hzdiv0
-in f.  assert ( a ~> ( p * k + 0 ) ) as f'. rewrite f. rewrite
-hzplusr0. apply idpath.  set ( e := tpair ( P := (fun qr : dirprod hz
-hz => dirprod (a ~> (p * pr1 qr + pr2 qr)) (dirprod (hzleh 0 (pr2 qr))
-(hzlth (pr2 qr) (nattohz (hzabsval p))))) ) ( dirprodpair k 0 ) (
-dirprodpair f' ( dirprodpair ( isreflhzleh 0 ) ( hzabsvalneq0 p x ) )
-) ).  assert ( e ~> ( pr1 ( divalgorithm a p x ) ) ) as s. apply ( pr2
-( divalgorithm a p x ) ). set ( w := pathintotalpr1 ( pathsinv0 s )
-). unfold e in w. unfold hzremaindermod. apply ( maponpaths ( fun z :
-dirprod hz hz => pr2 z ) w ).  Defined.
+Lemma hzremaindermodanddiv ( p : hz ) ( x : hzneq 0 p ) ( a : hz )
+      ( y : hzdiv p a ) : hzremaindermod p x a ~> 0.
+Proof.
+  intros.
+  assert ( isaprop ( hzremaindermod p x a ~> 0 ) ) as v
+  by apply isasethz.
+  apply ( y ( hProppair _ v ) ).
+  intro t.
+  destruct t as [ k f ].
+  unfold hzdiv0 in f.
+  assert ( a ~> ( p * k + 0 ) ) as f'.
+  { rewrite f.
+    rewrite hzplusr0.
+    apply idpath.
+  }
+  set ( e := tpair ( P := (fun qr : dirprod hz hz =>
+                             dirprod (a ~> (p * pr1 qr + pr2 qr))
+                                     (dirprod (hzleh 0 (pr2 qr))
+                                                 (hzlth (pr2 qr) (nattohz (hzabsval p))))) )
+         ( dirprodpair k 0 ) (dirprodpair f'
+                              ( dirprodpair ( isreflhzleh 0 ) ( lemmas.hzabsvalneq0 p x ) ) ) ).
+  assert ( e ~> ( pr1 ( divalgorithm a p x ) ) ) as s
+  by apply ( pr2 ( divalgorithm a p x ) ).
+  set ( w := pathintotalpr1 ( pathsinv0 s ) ).
+  unfold e in w.
+  unfold hzremaindermod.
+  apply ( maponpaths ( fun z : dirprod hz hz => pr2 z ) w ).
+Defined.
 
-Lemma gcdandprime ( p : hz ) ( x : hzneq 0 p ) ( y : isaprime p ) ( a
-: hz ) ( q : neg ( hzmod p x a 0 ) ) : gcd p a x ~> 1.  Proof.
-intros.  assert ( isaprop ( gcd p a x ~> 1) ) as is. apply ( isasethz
-). apply ( pr2 y ( gcd p a x ) ( pr1 ( gcdiscommondiv p a x ) ) (
-hProppair _ is ) ). intro t.  destruct t as [ t0 | t1 ]. apply
-t0. assert empty.  apply q. simpl.  assert ( hzremaindermod p x a ~> 0
-) as f.  assert ( hzdiv p a ) as u. rewrite <- t1. apply ( pr2 (
-gcdiscommondiv _ _ _ ) ).  rewrite hzremaindermodanddiv. apply
-idpath. assumption.  rewrite f. rewrite hzqrand0r. apply
-idpath. contradiction.  Defined.
+Lemma gcdandprime ( p : hz ) ( x : hzneq 0 p ) ( y : isaprime p )
+      ( a : hz ) ( q : neg ( hzmod p x a 0 ) ) : gcd p a x ~> 1.
+Proof.
+  intros.
+  assert ( isaprop ( gcd p a x ~> 1) ) as is
+  by apply isasethz.
+  apply ( pr2 y ( gcd p a x )
+              ( pr1 ( gcdiscommondiv p a x ) ) (hProppair _ is ) ).
+  intro t.
+  destruct t as [ t0 | t1 ].
+  - apply t0.
+  - assert empty.
+    { apply q.
+      simpl.
+      assert ( hzremaindermod p x a ~> 0 ) as f.
+      { assert ( hzdiv p a ) as u.
+        { rewrite <- t1.
+          apply ( pr2 ( gcdiscommondiv _ _ _ ) ).
+        }
+        rewrite hzremaindermodanddiv.
+        + apply idpath.
+        + assumption.
+      }
+      rewrite f.
+      rewrite hzqrand0r.
+      apply idpath.
+    }
+    contradiction.
+Defined.
 
-Lemma hzremaindermodandmultl ( p : hz ) ( x : hzneq 0 p ) ( a b : hz )
-: hzremaindermod p x ( p * a + b ) ~> hzremaindermod p x b.  Proof.
-intros. assert ( p * a + b ~> ( p * ( a + hzquotientmod p x b ) +
-hzremaindermod p x b ) ) as f.  rewrite hzldistr. rewrite
-hzplusassoc. rewrite <- ( hzdivequationmod p x b ). apply
-idpath. rewrite hzremaindermodandplus. rewrite
-hzremaindermodandtimes. rewrite hzqrandselfr. rewrite
-hzmult0x. rewrite hzqrand0r. rewrite hzplusl0. rewrite
-hzremaindermoditerated. apply idpath.  Defined.
+Lemma hzremaindermodandmultl ( p : hz ) ( x : hzneq 0 p ) ( a b : hz ) :
+  hzremaindermod p x ( p * a + b ) ~> hzremaindermod p x b.
+Proof.
+  intros.
+  assert ( p * a + b ~>
+         ( p * ( a + hzquotientmod p x b ) + hzremaindermod p x b ) ) as f.
+  { rewrite hzldistr.
+    rewrite hzplusassoc.
+    rewrite <- ( hzdivequationmod p x b ).
+    apply idpath.
+  }
+  rewrite hzremaindermodandplus.
+  rewrite hzremaindermodandtimes.
+  rewrite hzqrandselfr.
+  rewrite hzmult0x.
+  rewrite hzqrand0r.
+  rewrite hzplusl0.
+  rewrite hzremaindermoditerated.
+  apply idpath.
+Defined.
 
-Lemma hzmodprimeinv ( p : hz ) ( x : hzneq 0 p ) ( y : isaprime p ) (
-a : hz ) ( q : neg ( hzmod p x a 0 ) ) : total2 ( fun v : hz =>
-dirprod ( hzmod p x ( a * v ) 1 ) ( hzmod p x ( v * a ) 1 ) ).  Proof.
-intros. split with ( pr2 ( pr1 ( bezoutstrong a p x ) ) ).  assert ( 1
-~> (pr1 (pr1 (bezoutstrong a p x)) * p + pr2 (pr1 (bezoutstrong a p
-x)) * a) ) as f'. assert ( 1 ~> gcd p a x ) as f''. apply
-pathsinv0. apply ( gcdandprime ). assumption. assumption. rewrite
-f''. apply ( bezoutstrong a p x ). split.  rewrite f'. simpl. rewrite
-( hzmultcomm ( pr1 ( pr1 ( bezoutstrong a p x ) ) ) _ ).  rewrite (
-hzremaindermodandmultl ). rewrite hzmultcomm. apply idpath.  rewrite
-f'. simpl.  rewrite hzremaindermodandplus.  rewrite (
-hzremaindermodandtimes p x _ p ). rewrite hzqrandselfr. rewrite
-hzmultx0. rewrite hzqrand0r. rewrite hzplusl0. rewrite
-hzremaindermoditerated. apply idpath.  Defined.
+Lemma hzmodprimeinv ( p : hz ) ( x : hzneq 0 p ) ( y : isaprime p )
+  ( a : hz ) ( q : neg ( hzmod p x a 0 ) ) :
+  total2 ( fun v : hz =>
+             dirprod ( hzmod p x ( a * v ) 1 ) ( hzmod p x ( v * a ) 1 ) ).
+Proof.
+  intros.
+  split with ( pr2 ( pr1 ( bezoutstrong a p x ) ) ).
+  assert ( 1 ~> (pr1 (pr1 (bezoutstrong a p x)) * p +
+                 pr2 (pr1 (bezoutstrong a p x)) * a) ) as f'.
+  { assert ( 1 ~> gcd p a x ) as f''.
+    { apply pathsinv0.
+      apply gcdandprime; assumption.
+    }
+    rewrite f''.
+    apply ( bezoutstrong a p x ).
+  }
+  split.
+  - rewrite f'.
+    simpl.
+    rewrite ( hzmultcomm ( pr1 ( pr1 ( bezoutstrong a p x ) ) ) _ ).
+    rewrite hzremaindermodandmultl.
+    rewrite hzmultcomm.
+    apply idpath.
+  - rewrite f'.
+    simpl.
+    rewrite hzremaindermodandplus.
+    rewrite ( hzremaindermodandtimes p x _ p ).
+    rewrite hzqrandselfr.
+    rewrite hzmultx0.
+    rewrite hzqrand0r.
+    rewrite hzplusl0.
+    rewrite hzremaindermoditerated.
+    apply idpath.
+Defined.
 
-Lemma quotientrngsumdecom ( X : commrng ) ( R : rngeqrel ( X := X ) )
-( a b : X ) : @op2 ( commrngquot R ) ( setquotpr R a ) ( setquotpr R b
-) ~> ( setquotpr R ( a * b )%rng ).  Proof.  intros. auto.  Defined.
+Lemma quotientrngsumdecom ( X : commrng ) ( R : rngeqrel ( X := X ) ) ( a b : X ) :
+  @op2 ( commrngquot R ) ( setquotpr R a ) ( setquotpr R b ) ~>
+  ( setquotpr R ( a * b )%rng ).
+Proof.
+  intros.
+  apply idpath.
+Defined.
 
-Definition ahzmod ( p : hz ) ( y : isaprime p ) : afld.  Proof.
-intros. split with ( acommrng_hzmod p ( isaprimetoneq0 y )
-). split. simpl. intro f. apply ( isirreflhzlth 0 ).  assert ( hzlth 0
-1 ) as i. apply hzlthnsn. change ( 1%rng ) with ( setquotpr (
-hzmodisrngeqrel p ( isaprimetoneq0 y ) ) 1%hz ) in f. change ( 0%rng )
-with ( setquotpr ( hzmodisrngeqrel p ( isaprimetoneq0 y ) ) 0%hz
-). assert ( (hzmodisrngeqrel p ( isaprimetoneq0 y )) 1%hz 0%hz ) as
-o. apply ( setquotprpathsandR ( hzmodisrngeqrel p ( isaprimetoneq0 y )
-) 1%hz 0%hz ).  assumption. unfold hzmodisrngeqrel in o. simpl in o.
-assert ( hzremaindermod p ( isaprimetoneq0 y ) 0 ~> 0 ) as o'. rewrite
-hzqrand0r. apply idpath. rewrite o' in o.  assert ( hzremaindermod p (
-isaprimetoneq0 y ) 1 ~> 1 ) as o''.  assert ( hzlth 1 p ) as v. apply
-y. rewrite hzqrand1r. apply idpath. rewrite o'' in o.  assert ( hzlth
-0 1 ) as o'''. apply hzlthnsn. rewrite o in o'''. assumption.  assert
-( forall x0 : acommrng_hzmod p ( isaprimetoneq0 y ), isaprop ( ( x0 #
-0)%rng -> multinvpair ( acommrng_hzmod p ( isaprimetoneq0 y ) ) x0 ) )
-as int. intro a. apply impred. intro q. apply isapropmultinvpair.
-apply ( setquotunivprop _ ( fun x0 => hProppair _ ( int x0 ) ) ).
-intro a. simpl. intro q.  assert ( neg ( hzmod p ( isaprimetoneq0 y )
-a 0 ) ) as q'. intro g. unfold hzmod in g. simpl in g. apply q.
-change ( 0%rng ) with ( setquotpr ( hzmodisrngeqrel p ( isaprimetoneq0
-y ) ) 0%hz ). apply ( iscompsetquotpr ( hzmodisrngeqrel p (
-isaprimetoneq0 y ) ) ). apply g.  split with ( setquotpr (
-hzmodisrngeqrel p ( isaprimetoneq0 y ) ) ( pr1 ( hzmodprimeinv p (
-isaprimetoneq0 y ) y a q' ) ) ).  split. simpl. rewrite (
-quotientrngsumdecom hz ( hzmodisrngeqrel p ( isaprimetoneq0 y ) ) ).
-change 1%multmonoid with ( setquotpr ( hzmodisrngeqrel p (
-isaprimetoneq0 y ) ) 1%hz ).  apply ( iscompsetquotpr (
-hzmodisrngeqrel p ( isaprimetoneq0 y ) ) ).  simpl. change (pr2 (pr1
-(bezoutstrong a p ( isaprimetoneq0 y ))) * a)%rng with (pr2 (pr1
-(bezoutstrong a p ( isaprimetoneq0 y ))) * a)%hz. exact ( ( pr2 ( pr2
-( hzmodprimeinv p ( isaprimetoneq0 y ) y a q' ) ) )).  simpl. rewrite
-( quotientrngsumdecom hz ( hzmodisrngeqrel p ( isaprimetoneq0 y ) ) ).
-change 1%multmonoid with ( setquotpr ( hzmodisrngeqrel p (
-isaprimetoneq0 y ) ) 1%hz ).  apply ( iscompsetquotpr (
-hzmodisrngeqrel p ( isaprimetoneq0 y ) ) ).  change (a * pr2 (pr1
-(bezoutstrong a p ( isaprimetoneq0 y ))))%rng with (a * pr2 (pr1
-(bezoutstrong a p ( isaprimetoneq0 y ))))%hz. exact ( ( pr1 ( pr2 (
-hzmodprimeinv p ( isaprimetoneq0 y ) y a q' ) ) )).  Defined.
+Definition ahzmod ( p : hz ) ( y : isaprime p ) : afld.
+Proof.
+  intros.
+  split with ( acommrng_hzmod p ( isaprimetoneq0 y ) ).
+  split.
+  - simpl.
+    intro f.
+    apply ( isirreflhzlth 0 ).
+    assert ( hzlth 0 1 ) as i by apply hzlthnsn.
+    change ( 1%rng ) with
+    ( setquotpr ( hzmodisrngeqrel p ( isaprimetoneq0 y ) ) 1%hz ) in f.
+    change ( 0%rng ) with
+    ( setquotpr ( hzmodisrngeqrel p ( isaprimetoneq0 y ) ) 0%hz ).
+    assert ( (hzmodisrngeqrel p ( isaprimetoneq0 y )) 1%hz 0%hz ) as o.
+    { apply ( setquotprpathsandR
+                ( hzmodisrngeqrel p ( isaprimetoneq0 y ) ) 1%hz 0%hz ).
+      assumption.
+    }
+    unfold hzmodisrngeqrel in o.
+    simpl in o.
+    assert ( hzremaindermod p ( isaprimetoneq0 y ) 0 ~> 0 ) as o'.
+    { rewrite hzqrand0r.
+      apply idpath.
+    }
+    rewrite o' in o.
+    assert ( hzremaindermod p ( isaprimetoneq0 y ) 1 ~> 1 ) as o''.
+    { assert ( hzlth 1 p ) as v by apply  y.
+      rewrite hzqrand1r.
+      apply idpath.
+    }
+    rewrite o'' in o.
+    assert ( hzlth 0 1 ) as o''' by apply hzlthnsn.
+    rewrite o in o'''.
+    assumption.
+  - assert ( forall x0 : acommrng_hzmod p ( isaprimetoneq0 y ),
+      isaprop ( ( x0 # 0)%rng ->
+        multinvpair ( acommrng_hzmod p ( isaprimetoneq0 y ) ) x0 ) ) as int.
+    { intro a.
+      apply impred.
+      intro q.
+      apply isapropmultinvpair.
+    }
+    apply ( setquotunivprop _ ( fun x0 => hProppair _ ( int x0 ) ) ).
+    intro a.
+    simpl.
+    intro q.
+    assert ( neg ( hzmod p ( isaprimetoneq0 y ) a 0 ) ) as q'.
+    { intro g.
+      unfold hzmod in g.
+      simpl in g.
+      apply q.
+      change ( 0%rng ) with
+      ( setquotpr ( hzmodisrngeqrel p ( isaprimetoneq0 y ) ) 0%hz ).
+      apply ( iscompsetquotpr ( hzmodisrngeqrel p ( isaprimetoneq0 y ) ) ).
+      apply g.
+    }
+    split with ( setquotpr ( hzmodisrngeqrel p ( isaprimetoneq0 y ) )
+                           ( pr1 ( hzmodprimeinv p ( isaprimetoneq0 y ) y a q' ) ) ).
+    split.
+    + simpl.
+      rewrite ( quotientrngsumdecom hz ( hzmodisrngeqrel p ( isaprimetoneq0 y ) ) ).
+      change 1%multmonoid with
+      ( setquotpr ( hzmodisrngeqrel p ( isaprimetoneq0 y ) ) 1%hz ).
+      apply ( iscompsetquotpr ( hzmodisrngeqrel p ( isaprimetoneq0 y ) ) ).
+      simpl.
+      change (pr2 (pr1 (bezoutstrong a p ( isaprimetoneq0 y ))) * a)%rng with
+      (pr2 (pr1 (bezoutstrong a p ( isaprimetoneq0 y ))) * a)%hz.
+      exact ( ( pr2 ( pr2 ( hzmodprimeinv p ( isaprimetoneq0 y ) y a q' ) ) )).
+    + simpl.
+      rewrite ( quotientrngsumdecom hz ( hzmodisrngeqrel p ( isaprimetoneq0 y ) ) ).
+      change 1%multmonoid with
+      ( setquotpr ( hzmodisrngeqrel p ( isaprimetoneq0 y ) ) 1%hz ).
+      apply ( iscompsetquotpr ( hzmodisrngeqrel p ( isaprimetoneq0 y ) ) ).
+      change (a * pr2 (pr1 (bezoutstrong a p ( isaprimetoneq0 y ))))%rng with
+      (a * pr2 (pr1 (bezoutstrong a p ( isaprimetoneq0 y ))))%hz.
+      exact ( ( pr1 ( pr2 ( hzmodprimeinv p ( isaprimetoneq0 y ) y a q' ) ) )).
+Defined.
 
 Close Scope hz_scope.
 (** END OF FILE *)

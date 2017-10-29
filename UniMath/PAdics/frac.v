@@ -4,7 +4,7 @@
 
 (** February 2011 and August 2012 *)
 
-(** made compatible with the current UniMath library again by Ralph Matthes in 2017 *)
+(** made compatible with the current UniMath library by Ralph Matthes in October 2017 *)
 
 (** Settings *)
 
