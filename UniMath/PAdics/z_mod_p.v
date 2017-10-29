@@ -1744,18 +1744,15 @@ Proof.
           * rewrite right.
             apply hzgth0andminus.
             change 0 with ( nattohz 0%nat ).
+
             apply nattohzandgth.
             apply natneq0togth0.
-            (*
-            unfold hzneq in i.
-            simpl in i.
-            unfold natneq.
-            simpl.
-            unfold natneq_hProp.
-            simpl.
-            intro f. apply i. rewrite
-                                f. apply idpath. *)
-            admit.
+            refine (pr1 (natneq_iff_neq _ _) _). (* this is the culprit for advancing *)
+            intro f.
+            unfold hzneq in i. (* crucial *)
+            apply i.
+            rewrite f.
+            apply idpath.
           * apply gcdpositive.
         }
         contradiction.
@@ -1763,13 +1760,13 @@ Proof.
       intros m x y. intros n i.
       assert ( hzneq 0 ( nattohz m ) ) as p.
       { intro f.
-        (*
-         apply x. apply pathsinv0.  rewrite <-
-hzabsvalandnattohz.
-
-      change 0%nat with ( hzabsval ( nattohz 0%nat ) ).
-      apply maponpaths. assumption. *)
-        admit.
+        set (aux := pr2 (natneq_iff_neq _ _) x). (* this is the culprit for advancing *)
+        apply aux.
+        apply pathsinv0.
+        rewrite <- hzabsvalandnattohz.
+        change 0%nat with ( hzabsval ( nattohz 0%nat ) ).
+        apply maponpaths.
+        assumption.
       }
       set ( r := hzremaindermod ( nattohz m ) p ( nattohz n ) ).
       set ( q := hzquotientmod ( nattohz m ) p ( nattohz n ) ).
@@ -1843,89 +1840,209 @@ hzabsvalandnattohz.
         ( ( r + nattohz m * q ) + ( - ( q * nattohz m ) ) ).
         rewrite hzmultcomm.
         rewrite hzplusassoc.
-        (* Coq hangs on the following command: *)
+        (* Coq hangs on the following command:
         change (q * nattohz m + - (q * nattohz m)) with
                (q * nattohz m - (q * nattohz m)).
-        rewrite hzrminus.
-        rewrite hzplusr0.
-        apply hzabsvalgeh0.
-        apply ( hzleh0remaindermod ( nattohz m ) p ( nattohz n ) ).  rewrite h. change
-( (nattohz n - q * nattohz m) ) with ( (nattohz n + ( - ( q * nattohz
-m) ) ) ) at 1.  rewrite ( rngldistr hz ). rewrite <- ( hzplusassoc ).
-rewrite ( hzpluscomm ( a * nattohz m ) ). rewrite
-rngrmultminus. rewrite <- hzmultassoc.  rewrite <-
-rnglmultminus. rewrite hzplusassoc. rewrite <- ( rngrdistr hz ).
-change (b * nattohz n + (a - b * q) * nattohz m) with ((b * nattohz
-n)%rng + ((a + - (b * q)%hz) * nattohz m)%rng). apply idpath. apply
-goal.  Defined.
-
-Lemma divandhzabsval ( n : hz ) : hzdiv n ( nattohz ( hzabsval n ) ).
-Proof.  intros. destruct ( hzlthorgeh 0 n ) as [ left | right ].
-intros P s. apply s. split with 1. unfold hzdiv0. rewrite hzmultr1.
-rewrite hzabsvalgth0. apply idpath. assumption.  intros P s. apply
-s. split with ( - 1%hz ). unfold hzdiv0. rewrite ( rngrmultminus hz
-). rewrite hzmultr1. rewrite hzabsvalleh0. apply idpath. assumption.
+         *)
+        intermediate_path (r + 0).
+        + rewrite hzplusr0.
+          apply hzabsvalgeh0.
+          apply ( hzleh0remaindermod ( nattohz m ) p ( nattohz n ) ).
+        + apply maponpaths.
+          (* Coq again hangs on the following command:
+          change (q * nattohz m + - (q * nattohz m)) with
+               (q * nattohz m - (q * nattohz m)).
+          *)
+          rewrite <- (hzrminus (q * nattohz m)).
+          apply idpath.
+      }
+      rewrite h.
+      change ( (nattohz n - q * nattohz m) ) with
+             ( (nattohz n + ( - ( q * nattohz m) ) ) ) at 1.
+      rewrite ( rngldistr hz ).
+      rewrite <- hzplusassoc.
+      rewrite ( hzpluscomm ( a * nattohz m ) ).
+      rewrite rngrmultminus.
+      rewrite <- hzmultassoc.
+      rewrite <- rnglmultminus.
+      rewrite hzplusassoc.
+      rewrite <- ( rngrdistr hz ).
+      change (b * nattohz n + (a - b * q) * nattohz m) with
+            ((b * nattohz n)%rng + ((a + - (b * q)%hz) * nattohz m)%rng).
+      apply idpath.
+  }
+  apply goal.
 Defined.
 
-Lemma bezoutstrong ( m n : hz ) ( i : hzneq 0 n ) : total2 ( fun ab :
-dirprod hz hz => ( gcd n m i ~> ( ( pr1 ab ) * n + ( pr2 ab ) * m ) )
-).  Proof.  intros. assert ( hzneq 0 ( nattohz ( hzabsval n ) ) ) as
-i'.  intro f. apply i. destruct ( hzneqchoice 0 n i ) as [ left |
-right ].  rewrite hzabsvallth0 in f. rewrite <- ( rngminusminus hz
-). change 0 with ( - - 0 ).  apply
-maponpaths. assumption. assumption. rewrite hzabsvalgth0 in
-f. assumption. assumption.  set ( c := (natbezoutstrong (hzabsval m)
-(hzabsval n) i')).  destruct c as [ ab f ]. destruct ab as [ a b
-]. simpl in f.  assert ( gcd n m i ~> gcd ( nattohz ( hzabsval n ) ) (
-nattohz ( hzabsval m ) ) i' ) as g.  destruct ( hzneqchoice 0 n i ) as
-[ left_n | right_n ].  apply isantisymmhzleh. apply
-gcdisgreatest. split.  rewrite hzabsvallth0. apply
-hzdivandminus. apply gcdiscommondiv. assumption.  destruct (
-hzlthorgeh 0 m ) as [ left_m | right_m ].  rewrite hzabsvalgth0.
-apply ( pr2 ( gcdiscommondiv _ _ _ ) ). assumption.  rewrite
-hzabsvalleh0. apply hzdivandminus. apply ( pr2 ( gcdiscommondiv _ _ _
-) ). assumption.  apply gcdisgreatest. split.  apply ( hzdivistrans _
-( nattohz ( hzabsval n ) ) _ ). apply gcdiscommondiv.  rewrite
-hzabsvallth0. rewrite <- ( rngminusminus hz n ).  apply
-hzdivandminus. rewrite ( rngminusminus hz n ). apply hzdivisrefl.
-assumption.  apply ( hzdivistrans _ ( nattohz ( hzabsval m ) ) _ ).
-apply ( pr2 ( gcdiscommondiv _ _ _ ) ).  destruct ( hzlthorgeh 0 m )
-as [ left_m | right_m ].  rewrite hzabsvalgth0. apply
-hzdivisrefl. assumption.  rewrite hzabsvalleh0. rewrite <- (
-rngminusminus hz m ).  apply hzdivandminus. rewrite ( rngminusminus hz
-m ). apply hzdivisrefl.  assumption.  apply isantisymmhzleh. apply
-gcdisgreatest. split.  rewrite hzabsvalgth0. apply
-gcdiscommondiv. assumption.  apply ( hzdivistrans _ ( nattohz (
-hzabsval m ) ) _ ).  destruct ( hzlthorgeh 0 m ) as [ left_m | right_m
-].  rewrite hzabsvalgth0. apply ( pr2 ( gcdiscommondiv _ _ _ ) ).
-assumption. rewrite hzabsvalleh0. apply hzdivandminus.  apply ( pr2 (
-gcdiscommondiv _ _ _ ) ). assumption. apply hzdivisrefl.  apply
-gcdisgreatest. split.  apply ( hzdivistrans _ ( nattohz ( hzabsval n )
-) _ ). apply gcdiscommondiv.  rewrite hzabsvalgth0. apply
-hzdivisrefl. assumption.  apply ( hzdivistrans _ ( nattohz ( hzabsval
-m ) ) _ ).  apply ( pr2 ( gcdiscommondiv _ _ _ ) ).  destruct (
-hzlthorgeh 0 m ) as [ left_m | right_m ].  rewrite hzabsvalgth0. apply
-hzdivisrefl. assumption.  rewrite hzabsvalleh0. rewrite <- (
-rngminusminus hz m ).  apply hzdivandminus. rewrite ( rngminusminus hz
-m ). apply hzdivisrefl. assumption.  destruct ( hzneqchoice 0 n i ) as
-[ left_n | right_n ].  destruct ( hzlthorgeh 0 m ) as [ left_m |
-right_m ].
+Lemma divandhzabsval ( n : hz ) : hzdiv n ( nattohz ( hzabsval n ) ).
+Proof.
+  intros.
+  destruct ( hzlthorgeh 0 n ) as [ left | right ].
+  - intros P s.
+    apply s.
+    split with 1.
+    unfold hzdiv0.
+    rewrite hzmultr1.
+    rewrite hzabsvalgth0.
+    + apply idpath.
+    + assumption.
+  - intros P s.
+    apply s.
+    split with ( - 1%hz ).
+    unfold hzdiv0.
+    rewrite ( rngrmultminus hz ).
+    rewrite hzmultr1.
+    rewrite hzabsvalleh0.
+    + apply idpath.
+    + assumption.
+Defined.
 
-  split with ( dirprodpair ( - a ) b ). simpl.  assert ( - a * n + b *
-  m ~> ( a * ( nattohz ( hzabsval n ) ) + b * ( nattohz ( hzabsval m )
-  ) ) ) as l.  rewrite hzabsvallth0. rewrite hzabsvalgth0. rewrite (
-  rnglmultminus hz ).  rewrite <- ( rngrmultminus hz ). apply
-  idpath. assumption. assumption.  rewrite l. rewrite g. exact
-  f. split with ( dirprodpair ( - a ) ( - b ) ).  simpl. rewrite 2! (
-  rnglmultminus hz ). rewrite <- 2! ( rngrmultminus hz ).  rewrite <-
-  ( hzabsvallth0 ). rewrite <- ( hzabsvalleh0 ).  rewrite g. exact
-  f. assumption. assumption.  destruct ( hzlthorgeh 0 m ) as [ left_m
-  | right_m ].  split with ( dirprodpair a b ). simpl.  rewrite
-  g. rewrite f.  rewrite 2! hzabsvalgth0. apply
-  idpath. assumption. assumption.  split with ( dirprodpair a ( - b )
-  ). rewrite g.  rewrite f. simpl. rewrite hzabsvalgth0. rewrite
-  hzabsvalleh0.  rewrite ( rngrmultminus hz ). rewrite <- (
-  rnglmultminus hz ).  apply idpath. assumption. assumption.  Defined.
+Lemma bezoutstrong ( m n : hz ) ( i : hzneq 0 n ) :
+  total2 ( fun ab : dirprod hz hz =>
+             ( gcd n m i ~> ( ( pr1 ab ) * n + ( pr2 ab ) * m ) ) ).
+Proof.
+  intros.
+  assert ( hzneq 0 ( nattohz ( hzabsval n ) ) ) as i'.
+  { intro f.
+    unfold hzneq in i. (* crucial *)
+    apply i.
+    destruct ( hzneqchoice 0 n i ) as [ left | right ].
+    - rewrite hzabsvallth0 in f.
+      + rewrite <- ( rngminusminus hz ).
+        change 0 with ( - - 0 ).
+        apply maponpaths.
+        assumption.
+      + assumption.
+    - rewrite hzabsvalgth0 in f; assumption.
+  }
+  set ( c := (natbezoutstrong (hzabsval m) (hzabsval n) i')).
+  destruct c as [ ab f ].
+  destruct ab as [ a b ].
+  simpl in f.
+  assert ( gcd n m i ~>
+           gcd ( nattohz ( hzabsval n ) ) ( nattohz ( hzabsval m ) ) i' ) as g.
+  { destruct ( hzneqchoice 0 n i ) as [ left_n | right_n ].
+    - apply isantisymmhzleh.
+      + apply gcdisgreatest.
+        split.
+        * rewrite hzabsvallth0.
+          -- apply hzdivandminus.
+             apply gcdiscommondiv.
+          -- assumption.
+        * destruct ( hzlthorgeh 0 m ) as [ left_m | right_m ].
+          -- rewrite hzabsvalgth0.
+             ++ apply ( pr2 ( gcdiscommondiv _ _ _ ) ).
+             ++ assumption.
+          -- rewrite hzabsvalleh0.
+             ++ apply hzdivandminus.
+                apply ( pr2 ( gcdiscommondiv _ _ _ ) ).
+             ++ assumption.
+      + apply gcdisgreatest.
+        split.
+        * apply ( hzdivistrans _ ( nattohz ( hzabsval n ) ) _ ).
+          -- apply gcdiscommondiv.
+          -- rewrite hzabsvallth0.
+             ++ rewrite <- ( rngminusminus hz n ).
+                apply hzdivandminus.
+                rewrite ( rngminusminus hz n ).
+                apply hzdivisrefl.
+             ++ assumption.
+        * apply ( hzdivistrans _ ( nattohz ( hzabsval m ) ) _ ).
+          -- apply ( pr2 ( gcdiscommondiv _ _ _ ) ).
+          -- destruct ( hzlthorgeh 0 m ) as [ left_m | right_m ].
+             ++ rewrite hzabsvalgth0.
+                ** apply hzdivisrefl.
+                ** assumption.
+             ++ rewrite hzabsvalleh0.
+                rewrite <- ( rngminusminus hz m ).
+                apply hzdivandminus.
+                rewrite ( rngminusminus hz m ).
+                apply hzdivisrefl.
+                assumption.
+    - apply isantisymmhzleh.
+      + apply gcdisgreatest.
+        split.
+        * rewrite hzabsvalgth0.
+          -- apply gcdiscommondiv.
+          -- assumption.
+        * apply ( hzdivistrans _ ( nattohz ( hzabsval m ) ) _ ).
+          -- destruct ( hzlthorgeh 0 m ) as [ left_m | right_m ].
+             ++ rewrite hzabsvalgth0.
+                ** apply ( pr2 ( gcdiscommondiv _ _ _ ) ).
+                ** assumption.
+             ++ rewrite hzabsvalleh0.
+                ** apply hzdivandminus.
+                   apply ( pr2 ( gcdiscommondiv _ _ _ ) ).
+                ** assumption.
+          -- apply hzdivisrefl.
+      + apply gcdisgreatest.
+        split.
+        * apply ( hzdivistrans _ ( nattohz ( hzabsval n ) ) _ ).
+          -- apply gcdiscommondiv.
+          -- rewrite hzabsvalgth0.
+             ++ apply hzdivisrefl.
+             ++ assumption.
+        * apply ( hzdivistrans _ ( nattohz ( hzabsval m ) ) _ ).
+          -- apply ( pr2 ( gcdiscommondiv _ _ _ ) ).
+          -- destruct ( hzlthorgeh 0 m ) as [ left_m | right_m ].
+             ++ rewrite hzabsvalgth0.
+                ** apply hzdivisrefl.
+                ** assumption.
+             ++ rewrite hzabsvalleh0.
+                ** rewrite <- ( rngminusminus hz m ).
+                   apply hzdivandminus.
+                   rewrite ( rngminusminus hz m ).
+                   apply hzdivisrefl.
+                ** assumption.
+  }
+  destruct ( hzneqchoice 0 n i ) as [ left_n | right_n ].
+  - destruct ( hzlthorgeh 0 m ) as [ left_m | right_m ].
+    + split with ( dirprodpair ( - a ) b ).
+      simpl.
+      assert ( - a * n + b * m ~>
+             ( a * ( nattohz ( hzabsval n ) ) + b * ( nattohz ( hzabsval m ) ) ) ) as l.
+      { rewrite hzabsvallth0.
+        * rewrite hzabsvalgth0.
+          -- rewrite ( rnglmultminus hz ).
+             rewrite <- ( rngrmultminus hz ).
+             apply idpath.
+          -- assumption.
+        * assumption.
+      }
+      rewrite l.
+      rewrite g.
+      exact f.
+    + split with ( dirprodpair ( - a ) ( - b ) ).
+      simpl.
+      rewrite 2! ( rnglmultminus hz ).
+      rewrite <- 2! ( rngrmultminus hz ).
+      rewrite <- hzabsvallth0.
+      * rewrite <- hzabsvalleh0.
+        -- rewrite g.
+           exact f.
+        -- assumption.
+      * assumption.
+  - destruct ( hzlthorgeh 0 m ) as [ left_m | right_m ].
+    + split with ( dirprodpair a b ).
+      simpl.
+      rewrite g.
+      rewrite f.
+      rewrite 2! hzabsvalgth0.
+      * apply idpath.
+      * assumption.
+      * assumption.
+    + split with ( dirprodpair a ( - b ) ).
+      rewrite g.
+      rewrite f.
+      simpl.
+      rewrite hzabsvalgth0.
+      * rewrite hzabsvalleh0.
+        -- rewrite ( rngrmultminus hz ).
+           rewrite <- ( rnglmultminus hz ).
+           apply idpath.
+        -- assumption.
+      * assumption.
+Defined.
 
 (** * V. Z/nZ *)
 
