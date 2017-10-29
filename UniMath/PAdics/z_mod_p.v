@@ -1099,38 +1099,83 @@ Defined.
 
 (** * III. THE EUCLIDEAN ALGORITHM *)
 
-Definition iscommonhzdiv ( k n m : hz ) := dirprod ( hzdiv k n ) (
-hzdiv k m ).
+Definition iscommonhzdiv ( k n m : hz ) :=
+  dirprod ( hzdiv k n ) ( hzdiv k m ).
 
-Lemma isapropiscommonhzdiv ( k n m : hz ) : isaprop ( iscommonhzdiv k
-n m ).  Proof.  intros. unfold isaprop. apply isofhleveldirprod. apply
-hzdiv. apply hzdiv.  Defined.
+Lemma isapropiscommonhzdiv ( k n m : hz ) : isaprop ( iscommonhzdiv k n m ).
+Proof.
+  intros.
+  unfold isaprop.
+  apply isofhleveldirprod.
+  - apply hzdiv.
+  - apply hzdiv.
+Defined.
 
-Definition hzgcd ( n m : hz ) : UU := total2 ( fun k : hz => dirprod (
-iscommonhzdiv k n m ) ( forall l : hz, iscommonhzdiv l n m -> hzleh l
-k ) ).
+Definition hzgcd ( n m : hz ) : UU :=
+  total2 ( fun k : hz =>
+             dirprod ( iscommonhzdiv k n m )
+                     ( forall l : hz, iscommonhzdiv l n m -> hzleh l k ) ).
 
-Lemma isaprophzgcd0 ( k n m : hz ) : isaprop ( dirprod ( iscommonhzdiv
-k n m ) ( forall l : hz, iscommonhzdiv l n m -> hzleh l k ) ).  Proof.
-intros. apply isofhleveldirprod. apply isapropiscommonhzdiv. apply
-impred. intro t. apply impredfun. apply hzleh.  Defined.
+Lemma isaprophzgcd0 ( k n m : hz ) :
+  isaprop ( dirprod ( iscommonhzdiv k n m )
+                    ( forall l : hz, iscommonhzdiv l n m -> hzleh l k ) ).
+Proof.
+  intros.
+  apply isofhleveldirprod.
+  - apply isapropiscommonhzdiv.
+  - apply impred.
+    intro t.
+    apply impredfun.
+    apply hzleh.
+Defined.
 
-Lemma isaprophzgcd ( n m : hz ) : isaprop ( hzgcd n m ).  Proof.
-intros. intros k l. assert ( isofhlevel 2 ( hzgcd n m ) ) as aux.
-apply isofhleveltotal2. apply isasethz. intros x. apply hlevelntosn.
-apply isofhleveldirprod. apply isapropiscommonhzdiv. apply
-impred. intro t. apply impredfun. apply ( hzleh t x ).  assert ( k ~>
-l ) as f. destruct k as [ k pq ]. destruct pq as [ p q ].  destruct l
-as [ l pq ]. destruct pq as [ p' q' ].  assert ( k ~> l ) as f0. apply
-isantisymmhzleh. apply q'. assumption. apply q. assumption.
-
-  apply pathintotalfiber with ( p0 := f0 ).  assert ( isaprop (
-  dirprod ( iscommonhzdiv l n m ) ( forall x : hz, iscommonhzdiv x n m
-  -> hzleh x l ) ) ) as is. apply isofhleveldirprod. apply
-  isapropiscommonhzdiv. apply impred. intro t. apply impredfun. apply
-  ( hzleh t l ). apply is.  split with f. intro g.  destruct k as [ k
-  pq ]. destruct pq as [ p q ].  destruct l as [ l pq ]. destruct pq
-  as [ p' q' ]. apply aux.  Defined.
+Lemma isaprophzgcd ( n m : hz ) : isaprop ( hzgcd n m ).
+Proof.
+  intros. intros k l.
+  assert ( isofhlevel 2 ( hzgcd n m ) ) as aux.
+  { apply isofhleveltotal2.
+    - apply isasethz.
+    - intros x.
+      apply hlevelntosn.
+      apply isofhleveldirprod.
+      + apply isapropiscommonhzdiv.
+      + apply impred.
+        intro t.
+        apply impredfun.
+        apply ( hzleh t x ).
+  }
+  assert ( k ~> l ) as f.
+  { destruct k as [ k pq ].
+    destruct pq as [ p q ].
+    destruct l as [ l pq ].
+    destruct pq as [ p' q' ].
+    assert ( k ~> l ) as f0.
+    { apply isantisymmhzleh.
+      - apply q'.
+        assumption.
+      - apply q.
+        assumption.
+    }
+    apply pathintotalfiber with ( p0 := f0 ).
+    assert ( isaprop ( dirprod ( iscommonhzdiv l n m )
+                       ( forall x : hz, iscommonhzdiv x n m -> hzleh x l ) ) ) as is.
+    { apply isofhleveldirprod.
+      - apply isapropiscommonhzdiv.
+      - apply impred.
+        intro t.
+        apply impredfun.
+        apply ( hzleh t l ).
+    }
+    apply is.
+  }
+  split with f.
+  intro g.
+  destruct k as [ k pq ].
+  destruct pq as [ p q ].
+  destruct l as [ l pq ].
+  destruct pq as [ p' q' ].
+  apply aux.
+Defined.
 
 (* Euclidean algorithm for calculating the GCD of two numbers (here
 assumed to be natural numbers ( m <= n )):
@@ -1138,152 +1183,400 @@ assumed to be natural numbers ( m <= n )):
 gcd ( n , m ) := 1. if m = 0, then take n.  2. if m \neq 0, then
   divide n = q * m + r and take g := gcd ( m , r ).  *)
 
-Lemma hzdivandmultl ( a c d : hz ) ( p : hzdiv d a ) : hzdiv d ( c * a
-).  Proof.  intros. intros P s. (* did not compile on Oct. 29, 2017: *)apply p. intro k. destruct k as [ k f
-]. apply s.  unfold hzdiv0. split with ( c * k ). rewrite ( hzmultcomm
-d ).  rewrite ( hzmultassoc ). unfold hzdiv0 in f. rewrite (
-hzmultcomm k ). rewrite f.  apply idpath.  Defined.
-
-Lemma hzdivandmultr ( a c d : hz ) ( p : hzdiv d a ) : hzdiv d ( a * c
-).  Proof.  intros. rewrite hzmultcomm. apply
-hzdivandmultl. assumption.  Defined.
-
-Lemma hzdivandminus ( a d : hz ) ( p : hzdiv d a ) : hzdiv d ( - a ).
-Proof.  intros. intros P s. apply p. intro k. destruct k as [ k f
-]. apply s.  split with ( - k ). unfold hzdiv0. unfold hzdiv0 in
-f. rewrite ( rngrmultminus hz ).  apply maponpaths. assumption.
+Lemma hzdivandmultl ( a c d : hz ) ( p : hzdiv d a ) : hzdiv d ( c * a ).
+Proof.
+  intros. intros P s.
+  refine (hinhuniv _ p).
+  intro k.
+  destruct k as [ k f ].
+  apply s.
+  unfold hzdiv0.
+  split with ( c * k ).
+  rewrite ( hzmultcomm d ).
+  rewrite hzmultassoc.
+  unfold hzdiv0 in f.
+  rewrite ( hzmultcomm k ).
+  rewrite f.
+  apply idpath.
 Defined.
 
-Definition natgcd ( m n : nat ) : ( natneq 0%nat n ) -> ( natleh m n )
--> ( hzgcd ( nattohz n ) ( nattohz m ) ).  Proof.  set ( E := ( fun m
-: nat => forall n : nat, ( natneq 0%nat n ) -> ( natleh m n ) -> (
-hzgcd ( nattohz n ) ( nattohz m ) ) ) ).  assert ( forall x : nat, E x
-) as goal. apply stronginduction.  (* BASE CASE: *) intros n x0
-x1. split with ( nattohz n ).  split. unfold iscommonhzdiv.
-split. unfold hzdiv. intros P s. apply s.  unfold hzdiv0. split with
-1. rewrite hzmultr1. apply idpath.  unfold hzdiv. intros P s. apply
-s. unfold hzdiv0. split with 0.  rewrite hzmultx0. rewrite
-nattohzand0. apply idpath.  intros l t. destruct t as [ t0 t1
-]. destruct ( hzgthorleh l 0 ) as [ left | right ].  rewrite <-
-hzabsvalgth0. apply nattohzandleh. unfold hzdiv in t0. apply t0. intro
-t2.  destruct t2 as [ k t2 ]. unfold hzdiv0 in t2.  assert ( coprod (
-natleh ( hzabsval l ) n ) ( n ~> 0%nat ) ) as C. apply ( natdivleh (
-hzabsval l ) ( n ) ( hzabsval k ) ).  apply ( isinclisinj
-isinclnattohz ). rewrite nattohzandmult.  rewrite 2!
-hzabsvalgeh0. assumption. assert ( hzgeh ( l * k ) ( l * 0 ) ) as i.
-rewrite hzmultx0. rewrite t2. change 0 with ( nattohz 0%nat ).  apply
-nattohzandgeh. apply x1. apply ( hzgehandmultlinv _ _ l
-). assumption. assumption.  apply hzgthtogeh. assumption. destruct C
-as [ C0 | C1 ]. assumption.  assert empty. apply x0. apply
-pathsinv0. assumption. contradiction. assumption.  apply (
-istranshzleh _ 0 _ ). assumption.  change 0 with ( nattohz 0%nat
-). apply nattohzandleh. assumption.  (* INDUCTION CASE: *) intros m p
-q. intros n i j.
+Lemma hzdivandmultr ( a c d : hz ) ( p : hzdiv d a ) : hzdiv d ( a * c ).
+Proof.
+  intros.
+  rewrite hzmultcomm.
+  apply hzdivandmultl.
+  assumption.
+Defined.
 
-   assert ( hzlth 0 ( nattohz m ) ) as p'. change 0 with ( nattohz
-   0%nat ).  apply nattohzandlth. apply natneq0togth0. apply p.  set (
-   a := divalgorithmnonneg n m p' ). destruct a as [ qr a ].  destruct
-   qr as [ quot rem ]. destruct a as [ f a ].  destruct a as [ a b
-   ]. simpl in b.  simpl in f.  assert ( natlth ( hzabsval rem ) m )
-   as p''.  rewrite <- ( hzabsvalandnattohz m ). apply
-   nattohzandlthinv.  rewrite 2! hzabsvalgeh0. assumption. apply
-   hzgthtogeh. apply ( hzgthgehtrans _ rem ).
-   assumption. assumption. assumption.  assert ( natleh ( hzabsval rem
-   ) n ) as i''.  apply natlthtoleh. apply nattohzandlthinv. rewrite
-   hzabsvalgeh0.  apply ( hzlthlehtrans _ ( nattohz m ) _
-   ). assumption.  apply nattohzandleh. assumption. assumption.
-   assert ( natneq 0%nat m ) as p'''. intro ff.  apply p. apply
-   pathsinv0. assumption.  destruct ( q ( hzabsval rem ) p'' m p''' (
-   natlthtoleh _ _ p'' ) ) as [ rr c ].  destruct c as [ c0 c1 ].
-   split with rr. split. split.  apply ( hzdivlinearcombright (
-   nattohz n ) ( nattohz m * quot ) ( rem ) rr f ).  apply
-   hzdivandmultr. exact ( pr1 c0 ). rewrite hzabsvalgeh0 in c0.  exact
-   ( pr2 c0 ). assumption. exact ( pr1 c0 ).
+Lemma hzdivandminus ( a d : hz ) ( p : hzdiv d a ) : hzdiv d ( - a ).
+Proof.
+  intros. intros P s.
+  refine (hinhuniv _ p).
+  intro k.
+  destruct k as [ k f ].
+  apply s.
+  split with ( - k ).
+  unfold hzdiv0.
+  unfold hzdiv0 in f.
+  rewrite ( rngrmultminus hz ).
+  apply maponpaths.
+  assumption.
+Defined.
 
-   intros l o. apply c1. split. exact ( pr2 o ). rewrite hzabsvalgeh0.
-   apply ( hzdivlinearcombleft ( nattohz n ) ( nattohz m * quot ) (
-   rem ) l f ).  exact ( pr1 o ). apply hzdivandmultr. exact ( pr2 o
-   ). assumption.  assumption.  Defined.
+Definition natgcd ( m n : nat ) : ( natneq 0%nat n ) ->
+                                  ( natleh m n ) ->
+                                  ( hzgcd ( nattohz n ) ( nattohz m ) ).
+Proof.
+  set ( E := ( fun m : nat => forall n : nat,
+                   ( natneq 0%nat n ) ->
+                   ( natleh m n ) ->
+                   (hzgcd ( nattohz n ) ( nattohz m ) ) ) ).
+  assert ( forall x : nat, E x ) as goal.
+  { apply stronginduction.
+    - (* BASE CASE: *)
+      intros n x0 x1.
+      split with ( nattohz n ).
+      split.
+      + unfold iscommonhzdiv.
+        split.
+        * unfold hzdiv.
+          intros P s.
+          apply s.
+          unfold hzdiv0.
+          split with 1.
+          rewrite hzmultr1.
+          apply idpath.
+        * unfold hzdiv.
+          intros P s.
+          apply s.
+          unfold hzdiv0.
+          split with 0.
+          rewrite hzmultx0.
+          rewrite nattohzand0.
+          apply idpath.
+      + intros l t.
+        destruct t as [ t0 t1 ].
+        destruct ( hzgthorleh l 0 ) as [ left | right ].
+        * rewrite <- hzabsvalgth0.
+          -- apply nattohzandleh.
+             unfold hzdiv in t0.
+             refine (hinhuniv _ t0).
+             intro t2.
+             destruct t2 as [ k t2 ].
+             unfold hzdiv0 in t2.
+             assert ( coprod ( natleh ( hzabsval l ) n )
+                             ( n ~> 0%nat ) ) as C.
+             { apply ( natdivleh ( hzabsval l ) ( n ) ( hzabsval k ) ).
+               apply ( isinclisinj isinclnattohz ).
+               rewrite nattohzandmult.
+               rewrite 2! hzabsvalgeh0.
+               ++ assumption.
+               ++ assert ( hzgeh ( l * k ) ( l * 0 ) ) as i.
+                  { rewrite hzmultx0.
+                    rewrite t2.
+                    change 0 with ( nattohz 0%nat ).
+                    apply nattohzandgeh.
+                    apply x1.
+                  }
+                  apply ( hzgehandmultlinv _ _ l ); assumption.
+               ++ apply hzgthtogeh.
+                  assumption.
+             }
+             destruct C as [ C0 | C1 ].
+             ++ assumption.
+             ++ assert empty.
+                { rewrite C1 in x0.
+                  apply x0. }
+                contradiction.
+          -- assumption.
+        * apply ( istranshzleh _ 0 _ ).
+          assumption.
+          change 0 with ( nattohz 0%nat ).
+          apply nattohzandleh.
+          assumption.
+    - (* INDUCTION CASE: *)
+      intros m p q. intros n i j.
+      assert ( hzlth 0 ( nattohz m ) ) as p'.
+      { change 0 with ( nattohz 0%nat ).
+        apply nattohzandlth.
+        apply natneq0togth0.
+        apply p.
+      }
+      set ( a := divalgorithmnonneg n m p' ).
+      destruct a as [ qr a ].
+      destruct qr as [ quot rem ].
+      destruct a as [ f a ].
+      destruct a as [ a b ].
+      simpl in b.
+      simpl in f.
+      assert ( natlth ( hzabsval rem ) m ) as p''.
+      { rewrite <- ( hzabsvalandnattohz m ).
+        apply nattohzandlthinv.
+        rewrite 2! hzabsvalgeh0.
+        + assumption.
+        + apply hzgthtogeh.
+          apply ( hzgthgehtrans _ rem ); assumption.
+        + assumption.
+      }
+      assert ( natleh ( hzabsval rem ) n ) as i''.
+      { apply natlthtoleh.
+        apply nattohzandlthinv.
+        rewrite hzabsvalgeh0.
+        + apply ( hzlthlehtrans _ ( nattohz m ) _ ).
+          * assumption.
+          * apply nattohzandleh.
+            assumption.
+        + assumption.
+      }
+      assert ( natneq 0%nat m ) as p'''.
+      { apply issymm_natneq.
+        (* the culprit is using this lemma instead of direct arguments *)
+        assumption.
+      }
+      destruct ( q ( hzabsval rem ) p'' m p''' ( natlthtoleh _ _ p'' ) )
+        as [ rr c ].
+      destruct c as [ c0 c1 ].
+      split with rr.
+      split.
+      + split.
+        * apply ( hzdivlinearcombright ( nattohz n )
+                                       ( nattohz m * quot ) rem rr f ).
+          -- apply hzdivandmultr.
+             exact ( pr1 c0 ).
+          -- rewrite hzabsvalgeh0 in c0.
+             exact ( pr2 c0 ).
+             assumption.
+        * exact ( pr1 c0 ).
+      + intros l o.
+        apply c1.
+        split.
+        * exact ( pr2 o ).
+        * rewrite hzabsvalgeh0.
+          -- apply ( hzdivlinearcombleft ( nattohz n )
+                                         ( nattohz m * quot ) rem l f ).
+             ++ exact ( pr1 o ).
+             ++ apply hzdivandmultr.
+                exact ( pr2 o ).
+          -- assumption.
+  }
+  assumption.
+Defined.
 
 Lemma hzgcdandminusl ( m n : hz ) : hzgcd m n ~> hzgcd ( - m ) n.
-Proof.  intros. assert ( hProppair ( hzgcd m n ) ( isaprophzgcd _ _ )
-~> ( hProppair ( hzgcd ( - m ) n ) ( isaprophzgcd _ _ ) ) ) as
-x. apply uahp. intro i.  destruct i as [ a i ]. destruct i as [ i0 i1
-]. destruct i0 as [ j0 j1 ].  split with a. split. split.  apply
-j0. intro k. destruct k as [ k f ]. unfold hzdiv0 in f. intros P s.
-apply s. split with ( - k ). unfold hzdiv0. rewrite ( rngrmultminus hz
-).  apply maponpaths. assumption. assumption. intros l f. apply i1.
-split. apply ( pr1 f ). intro k. destruct k as [ k g ]. unfold hzdiv0
-in g.  intros P s. apply s. split with ( - k ). unfold hzdiv0.
-rewrite ( rngrmultminus hz ). rewrite <- ( rngminusminus hz m).  apply
-maponpaths. assumption. exact ( pr2 f ).  intro i. destruct i as [ a i
-].  destruct i as [ i0 i1 ]. destruct i0 as [ j0 j1 ].  split with
-a. split. split.  apply j0. intro k. destruct k as [ k f ]. unfold
-hzdiv0 in f.  intros P s. apply s. split with ( - k ). unfold hzdiv0.
-rewrite ( rngrmultminus hz ). rewrite <- ( rngminusminus hz m ).
-apply maponpaths. assumption. assumption.  intros l f. apply
-i1. split. apply ( pr1 f ). intro k. destruct k as [ k g ].  unfold
-hzdiv0 in g. intros P s. apply s. split with ( - k ). unfold hzdiv0.
-rewrite (rngrmultminus hz ). apply maponpaths. assumption. exact ( pr2
-f ).  apply ( pathintotalpr1 x ).  Defined.
+Proof.
+  intros.
+  assert ( hProppair ( hzgcd m n ) ( isaprophzgcd _ _ )
+      ~> ( hProppair ( hzgcd ( - m ) n ) ( isaprophzgcd _ _ ) ) ) as x.
+  { apply hPropUnivalence.
+    - intro i.
+      destruct i as [ a i ].
+      destruct i as [ i0 i1 ].
+      destruct i0 as [ j0 j1 ].
+      split with a.
+      split.
+      + split.
+        * refine (hinhuniv _ j0).
+          intro k.
+          destruct k as [ k f ].
+          unfold hzdiv0 in f.
+          intros P s.
+          apply s.
+          split with ( - k ).
+          unfold hzdiv0.
+          rewrite ( rngrmultminus hz ).
+          apply maponpaths.
+          assumption.
+        * assumption.
+      + intros l f.
+        apply i1.
+        split.
+        * refine (hinhuniv _ ( pr1 f )).
+          intro k.
+          destruct k as [ k g ].
+          unfold hzdiv0 in g.
+          intros P s.
+          apply s.
+          split with ( - k ).
+          unfold hzdiv0.
+          rewrite ( rngrmultminus hz ).
+          rewrite <- ( rngminusminus hz m).
+          apply maponpaths.
+          assumption.
+        * exact ( pr2 f ).
+    - intro i.
+      destruct i as [ a i ].
+      destruct i as [ i0 i1 ].
+      destruct i0 as [ j0 j1 ].
+      split with a.
+      split.
+      + split.
+        * refine (hinhuniv _ j0).
+          intro k.
+          destruct k as [ k f ].
+          unfold hzdiv0 in f.
+          intros P s.
+          apply s.
+          split with ( - k ).
+          unfold hzdiv0.
+          rewrite ( rngrmultminus hz ).
+          rewrite <- ( rngminusminus hz m ).
+          apply maponpaths.
+          assumption.
+        * assumption.
+      + intros l f.
+        apply i1.
+        split.
+        * refine (hinhuniv _ ( pr1 f )).
+          intro k.
+          destruct k as [ k g ].
+          unfold hzdiv0 in g.
+          intros P s.
+          apply s.
+          split with ( - k ).
+          unfold hzdiv0.
+          rewrite (rngrmultminus hz ).
+          apply maponpaths.
+          assumption.
+        * exact ( pr2 f ).
+  }
+  apply ( pathintotalpr1 x ).
+Defined.
 
-Lemma hzgcdsymm ( m n : hz ) : hzgcd m n ~> hzgcd n m.  Proof.
-intros. assert ( hProppair ( hzgcd m n ) ( isaprophzgcd _ _ ) ~> (
-hProppair ( hzgcd n m ) ( isaprophzgcd _ _ ) ) ) as x. apply
-uahp. intro i.  destruct i as [ a i ]. destruct i as [ i0 i1
-]. destruct i0 as [ j0 j1 ].  split with
-a. split. split. assumption. assumption. intros l o.  apply
-i1. split. exact ( pr2 o ). exact ( pr1 o ). intro i. destruct i as [
-a i ]. destruct i as [ i0 i1 ]. destruct i0 as [ j0 j1 ]. split with
-a. split. split. assumption. assumption. intros l o. apply
-i1. split. exact ( pr2 o ). exact ( pr1 o ).  apply ( pathintotalpr1 x
-).  Defined.
+Lemma hzgcdsymm ( m n : hz ) : hzgcd m n ~> hzgcd n m.
+Proof.
+  intros.
+  assert ( hProppair ( hzgcd m n ) ( isaprophzgcd _ _ ) ~>
+         ( hProppair ( hzgcd n m ) ( isaprophzgcd _ _ ) ) ) as x.
+  { apply hPropUnivalence.
+    - intro i.
+      destruct i as [ a i ].
+      destruct i as [ i0 i1 ].
+      destruct i0 as [ j0 j1 ].
+      split with a.
+      split.
+      + split; assumption.
+      + intros l o.
+        apply i1.
+        split.
+        * exact ( pr2 o ).
+        * exact ( pr1 o ).
+    - intro i.
+      destruct i as [ a i ].
+      destruct i as [ i0 i1 ].
+      destruct i0 as [ j0 j1 ].
+      split with a.
+      split.
+      + split; assumption.
+      + intros l o.
+        apply i1.
+        split.
+        * exact ( pr2 o ).
+        * exact ( pr1 o ).
+  }
+  apply ( pathintotalpr1 x ).
+Defined.
 
 Lemma hzgcdandminusr ( m n : hz ) : hzgcd m n ~> hzgcd m ( - n ).
-Proof.  intros. rewrite 2! ( hzgcdsymm m ). rewrite
-hzgcdandminusl. apply idpath.  Defined.
+Proof.
+  intros.
+  rewrite 2! ( hzgcdsymm m ).
+  rewrite hzgcdandminusl.
+  apply idpath.
+Defined.
 
-Definition euclidean ( n m : hz ) ( i : hzneq 0 n ) ( p : natleh (
-hzabsval m ) ( hzabsval n ) ) : hzgcd n m.  Proof.  intros. assert (
-natneq 0%nat ( hzabsval n ) ) as j.  intro x. apply i. assert (
-hzabsval n ~> 0%nat ) as f.  apply pathsinv0. assumption. rewrite (
-hzabsvaleq0 f ). apply idpath.  set ( a := natgcd ( hzabsval m ) (
-hzabsval n ) j p ).  destruct ( hzlthorgeh 0 n ) as [ left_n | right_n
-].  destruct ( hzlthorgeh 0 m ) as [ left_m | right_m ].  rewrite 2! (
-hzabsvalgth0 ) in a. assumption. assumption. assumption.  rewrite
-hzabsvalgth0 in a. rewrite hzabsvalleh0 in a.  rewrite
-hzgcdandminusr. assumption. assumption. assumption.  destruct (
-hzlthorgeh 0 m ) as [ left_m | right_m ].  rewrite ( hzabsvalgth0
-left_m ) in a. rewrite hzabsvalleh0 in a.  rewrite
-hzgcdandminusl. assumption. assumption.  rewrite 2! hzabsvalleh0 in
-a. rewrite hzgcdandminusl. rewrite hzgcdandminusr.
-assumption. assumption. assumption.  Defined.
+Definition euclidean ( n m : hz ) ( i : hzneq 0 n )
+           ( p : natleh ( hzabsval m ) ( hzabsval n ) ) :
+  hzgcd n m.
+Proof.
+  intros.
+  assert ( natneq 0%nat ( hzabsval n ) ) as j.
+  { (* this proof very different from the original development: *)
+    apply issymm_natneq.
+    apply hzabsvalneq0.
+    intro x.
+    rewrite x in i.
+    simpl in i.
+    apply i.
+    apply idpath.
+  }
+  set ( a := natgcd ( hzabsval m ) ( hzabsval n ) j p ).
+  destruct ( hzlthorgeh 0 n ) as [ left_n | right_n ].
+  - destruct ( hzlthorgeh 0 m ) as [ left_m | right_m ].
+    + rewrite 2! ( hzabsvalgth0 ) in a; assumption.
+    + rewrite hzabsvalgth0 in a.
+      * rewrite hzabsvalleh0 in a.
+        -- rewrite hzgcdandminusr.
+           assumption.
+        -- assumption.
+      * assumption.
+  - destruct ( hzlthorgeh 0 m ) as [ left_m | right_m ].
+    + rewrite ( hzabsvalgth0 left_m ) in a.
+      rewrite hzabsvalleh0 in a.
+      * rewrite hzgcdandminusl.
+        assumption.
+      * assumption.
+    + rewrite 2! hzabsvalleh0 in a.
+      * rewrite hzgcdandminusl.
+        rewrite hzgcdandminusr.
+        assumption.
+      * assumption.
+      * assumption.
+Defined.
 
-Theorem euclideanalgorithm ( n m : hz ) ( i : hzneq 0 n ) : iscontr (
-hzgcd n m ).  Proof.  intros. destruct ( natgthorleh ( hzabsval m ) (
-hzabsval n ) ) as [ left | right ]. assert ( hzneq 0 m ) as i'. intro
-f. apply ( negnatlthn0 ( hzabsval n ) ).  rewrite <- f in
-left. rewrite hzabsval0 in left. assumption.  set ( a := ( euclidean m
-n i' ( natlthtoleh _ _ left ) ) ).  rewrite hzgcdsymm in a. split with
-a. intro. apply isaprophzgcd.  split with ( euclidean n m i right
-). intro. apply isaprophzgcd.  Defined.
+Theorem euclideanalgorithm ( n m : hz ) ( i : hzneq 0 n ) :
+  iscontr ( hzgcd n m ).
+Proof.
+  intros.
+  destruct ( natgthorleh ( hzabsval m ) ( hzabsval n ) ) as [ left | right ].
+  - assert ( hzneq 0 m ) as i'.
+    { intro f.
+      apply ( negnatlthn0 ( hzabsval n ) ).
+      rewrite <- f in left.
+      rewrite hzabsval0 in left.
+      assumption.
+    }
+    set ( a := ( euclidean m n i' ( natlthtoleh _ _ left ) ) ).
+    rewrite hzgcdsymm in a.
+    split with a.
+    intro.
+    apply isaprophzgcd.
+  - split with ( euclidean n m i right ).
+    intro.
+    apply isaprophzgcd.
+Defined.
 
-Definition gcd ( n m : hz ) ( i : hzneq 0 n ) : hz := pr1 ( pr1 (
-euclideanalgorithm n m i ) ).
+Definition gcd ( n m : hz ) ( i : hzneq 0 n ) : hz :=
+  pr1 ( pr1 ( euclideanalgorithm n m i ) ).
 
-Definition gcdiscommondiv ( n m : hz ) ( i : hzneq 0 n ) := pr1 ( pr2
-( pr1 ( euclideanalgorithm n m i ) ) ).
+Definition gcdiscommondiv ( n m : hz ) ( i : hzneq 0 n ) :=
+  pr1 ( pr2 ( pr1 ( euclideanalgorithm n m i ) ) ).
 
-Definition gcdisgreatest ( n m : hz ) ( i : hzneq 0 n ) := pr2 ( pr2 (
-pr1 ( euclideanalgorithm n m i ) ) ).
+Definition gcdisgreatest ( n m : hz ) ( i : hzneq 0 n ) :=
+  pr2 ( pr2 ( pr1 ( euclideanalgorithm n m i ) ) ).
 
-Lemma hzdivand0 ( n : hz ) : hzdiv n 0.  Proof.  intros. intros P
-s. apply s. split with 0. unfold hzdiv0. apply hzmultx0.  Defined.
+Lemma hzdivand0 ( n : hz ) : hzdiv n 0.
+Proof.
+  intros. intros P s.
+  apply s.
+  split with 0.
+  unfold hzdiv0.
+  apply hzmultx0.
+Defined.
 
 Lemma nozerodiv ( n : hz ) ( i : hzneq 0 n ) : neg ( hzdiv 0 n ).
-Proof.  intros. intro p. apply i.  apply ( p ( hProppair ( 0 ~> n ) (
-isasethz 0 n ) ) ). intro t.  destruct t as [ k f ]. unfold hzdiv0 in
-f. rewrite ( hzmult0x ) in f.  assumption.  Defined.
+Proof.
+  intros. intro p.
+  unfold hzneq in i. (* is crucial *)
+  simpl in i.
+  apply i.
+  apply ( p ( hProppair ( 0 ~> n ) ( isasethz 0 n ) ) ).
+  intro t.
+  destruct t as [ k f ].
+  unfold hzdiv0 in f.
+  rewrite ( hzmult0x ) in f.
+  assumption.
+Defined.
+
 
 (** * IV. Bezout's lemma and the commutative ring Z/pZ *)
 
