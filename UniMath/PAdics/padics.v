@@ -11,13 +11,33 @@ file to compile with Coq8.2 *)
 
 (** Imports *)
 
-Require Export lemmas.
+Require Import UniMath.PAdics.lemmas.
+Require Import UniMath.PAdics.fps.
+Require Import UniMath.PAdics.frac.
+Require Import UniMath.PAdics.z_mod_p.
 
-Require Export fps.
+Require Import UniMath.NumberSystems.Integers.
 
-Require Export frac.
+Section Upstream.
+  (* these lemmas are only used for pointing to problems *)
+Open Scope hz_scope.
 
-Require Export z_mod_p.
+Lemma hzmultrmul (a b c : hz) (is : a = b) : (a * c) = (b * c).
+Proof.
+  intros.
+  induction is.
+  apply idpath.
+Defined.
+
+Lemma hzmultlmul (a b c : hz) (is : a = b) : (c * a) = (c * b).
+Proof.
+  intros.
+  apply maponpaths.
+  apply is.
+Defined.
+
+Close Scope hz_scope.
+End Upstream.
 
 (** * I. Several basic lemmas *)
 
@@ -54,7 +74,7 @@ S upper ) ) ) _ ).  change ( natsummation0 upper ( fun n : nat =>
 hzquotientmod m x ( a n ) ) + hzquotientmod m x ( a ( S upper ) ) )
 with ( natsummation0 ( S upper ) ( fun n : nat => hzquotientmod m x (
 a n ) ) ).
-  
+
    rewrite hzqrandnatsummation0r. rewrite hzquotientmodandplus.
 rewrite <- hzqrandremainderq. rewrite hzplusl0. rewrite
 hzremaindermoditerated. rewrite ( hzplusassoc (natsummation0 ( S upper
@@ -120,9 +140,19 @@ hzremaindermod m x ( a x0 ) * hzquotientmod m x ( b ( minus ( S upper
 ) x0 ) ) ) ). apply natsummationpathsupperfixed. intros j p. rewrite (
 hzquotientmodandtimes m x ( hzremaindermod m x ( a j ) ) ( ( b ( minus
 ( S upper ) j ) ) ) ). rewrite <- hzqrandremainderq. rewrite 2!
-hzmult0x. rewrite hzmultx0. rewrite hzplusl0. rewrite
-hzremaindermoditerated. apply idpath.  rewrite h. apply idpath.
+                                                             hzmult0x. rewrite hzmultx0. rewrite hzplusl0.
+rewrite hzremaindermoditerated.
+(* Coq hangs on this command on Oct. 29, 2017: apply idpath. Solution: *)
+apply hzplusladd.
+Fail (apply hzmultlmul).
+Fail (apply hzmultrmul).
+apply idpath.
+
+rewrite h. apply idpath.
+(* [Defined.] now seems to run forever:
 Defined.
+ *)
+Admitted.
 
 Close Scope hz_scope.
 
@@ -188,8 +218,9 @@ hz ) : precarry m is ( carry m is a ) ~> carry m is a.  Proof.
 intros. assert ( forall n : nat, ( precarry m is ( carry m is a ) ) n
 ~> ( ( carry m is a ) n ) ) as f. intros n. induction n. simpl. apply
 idpath. simpl. rewrite IHn. unfold carry at 2. rewrite <-
-hzqrandremainderq. rewrite hzplusr0. apply idpath. apply ( funextfun _
-_ f ).  Defined.
+hzqrandremainderq. rewrite hzplusr0. apply idpath. apply ( funextfun _ _ f ).
+(* [Defined.] does not terminate *)
+Admitted.
 
 Lemma hzqrandcarryeq ( m : hz ) ( is : hzneq 0 m ) ( a : fpscommrng hz
 ) ( n : nat ) : carry m is a n ~> ( ( m * 0 ) + carry m is a n ).
@@ -223,7 +254,8 @@ hzremaindermoditerated.  unfold carry.  simpl. change (precarry m is
 precarry m is ( carry m is a ) ) n ). rewrite
 precarryandcarry. rewrite <- hzqrandcarryq.  rewrite hzplusr0. rewrite
 hzremaindermoditerated. apply idpath.  apply ( funextfun _ _ f ).
-Defined.
+(* [Defined.] does not terminate *)
+Admitted.
 
 Lemma carryandcarryequiv ( m : hz ) ( is : hzneq 0 m ) ( a :
 fpscommrng hz ) : carryequiv m is ( carry m is a ) a.  Proof.
@@ -277,8 +309,10 @@ m is ( b 0%nat ) ) ) ). rewrite hzquotientmodandplus.  apply idpath.
   : hz => hzremaindermod m is pa + x ) ). rewrite (
   hzremaindermodandplus m is ( carry m is b ( S n ) ) _ ). unfold
   carry. rewrite hzremaindermoditerated.  rewrite <- (
-  hzremaindermodandplus m is ( precarry m is b ( S n ) ) _ ).  apply
-  idpath.  Defined.
+  hzremaindermodandplus m is ( precarry m is b ( S n ) ) _ ).  apply idpath.
+ (* [Defined.] does not terminate *)
+Admitted.
+
 
 Lemma carryandplus ( m : hz ) ( is : hzneq 0 m ) ( a b : fpscommrng hz
 ) : carry m is ( a + b ) ~> carry m is ( carry m is a + carry m is b
@@ -295,7 +329,8 @@ precarry m is b n ) ) + hzquotientmod m is ( precarry m is ( carry m
 is a + carry m is b ) n ) ) ).  rewrite quotientprecarryplus.  rewrite
 ( hzremaindermodandplus m is ( hzremaindermod m is (a (S n) +
 hzquotientmod m is (precarry m is a n)) + hzremaindermod m is (b (S n)
-+ hzquotientmod m is (precarry m is b n)) ) _ ).  change
++ hzquotientmod m is (precarry m is b n)) ) _ ).
+(* the next command takes too long, hence compilation ended here on Oct. 29, 2017 *) change
 (hzremaindermod m is (a (S n) + hzquotientmod m is (precarry m is a
 n)) + hzremaindermod m is (b (S n) + hzquotientmod m is (precarry m is
 b n))) with (hzremaindermod m is (a (S n) + hzquotientmod m is
@@ -475,13 +510,13 @@ hzremaindermodandtimes. change ( precarry m is a 0%nat ) with ( a
 0%nat ). rewrite <- hzremaindermodandplus. rewrite hzpluscomm. apply
 idpath. rewrite g. rewrite <- hzremaindermodandplus.  apply
 idpath. apply ( funextfun _ _ f ).  Defined.
-  
+
 Lemma carryandtimesr ( m : hz ) ( is : hzneq 0 m ) ( a b : fpscommrng
 hz ) : carry m is ( a * b ) ~> carry m is ( a * carry m is b ).
 Proof.  intros. rewrite ( @rngcomm2 ( fpscommrng hz ) ). rewrite
 carryandtimesl.  rewrite ( @rngcomm2 ( fpscommrng hz ) ). apply
 idpath.  Defined.
-  
+
 Lemma carryandtimes ( m : hz ) ( is : hzneq 0 m ) ( a b : fpscommrng
 hz ) : carry m is ( a * b ) ~> carry m is ( carry m is a * carry m is
 b ).  Proof.  intros. rewrite carryandtimesl. rewrite
@@ -678,7 +713,7 @@ c) x) ). assert ( isdecnatprop P ) as isdec. intros m.  destruct (
 isdeceqhz ( carry p ( isaprimetoneq0 is ) ( a + b) m) ( carry p (
 isaprimetoneq0 is ) ( a + c) m) ) as [ l | r ]. apply ii2. intros
 j. apply j. assumption. apply ii1. assumption.
- 
+
   set ( le := leastelementprinciple n P isdec n').  apply le. intro
   k. destruct k as [ k k' ]. destruct k' as [ k' k'' ]. destruct k.
   apply total2tohexists. split with 0%nat. intros j. apply k'.  unfold
@@ -687,7 +722,7 @@ j. apply j. assumption. apply ii1. assumption.
   ). unfold carry in j.  unfold precarry in j. rewrite
   hzremaindermodandplus. rewrite j. rewrite <-
   hzremaindermodandplus. apply idpath.
-  
+
   destruct ( isdeceqhz ( carry p ( isaprimetoneq0 is ) b ( S k ) ) (
   carry p ( isaprimetoneq0 is ) c ( S k ) ) ) as [ l | r ].  apply (
   padicapartandplusprecarryl p is a b c k ).  intros j. apply
@@ -772,7 +807,7 @@ carry p (isaprimetoneq0 is) a x0 * carry p (isaprimetoneq0 is) c (
 minus ( S k ) x0)) ) as f. apply natsummationpathsupperfixed. intros m
 y. rewrite ( l ( minus ( S k ) m ) ). apply idpath. apply
 minusleh. rewrite f. rewrite j. apply idpath. contradiction.
-  
+
   apply r. intros o. destruct o as [ o o' ]. apply
 total2tohexists. split with o. apply o'.  Defined.
 
@@ -812,7 +847,7 @@ rewrite j.  assert ( natsummation0 ( S n ) (fun x0 : nat => carry p
 ( l ( minus ( S n ) m ) ). apply idpath. apply minusleh. rewrite
 f. apply idpath. contradiction.  apply r. intros k. destruct k as [ k
 k' ]. apply total2tohexists. split with k. apply k'.  Defined.
- 
+
 Lemma padictimesisbinopapartl ( p : hz ) ( is : isaprime p ) :
 isbinopapartl ( padicapart p is ) ( padictimes p is ).  Proof.
 intros. unfold isbinopapartl. assert ( forall x x' x'' :
@@ -1091,7 +1126,7 @@ impred. intros. apply impred. intros. apply ( pr1 ( padicapart p is )
   carry p ( isaprimetoneq0 is ) b ) four ).  rewrite
   carryandzero. change ( ( @rngunel1 ( fpscommrng hz ) ) ( k + o )%nat
   ) with 0%hz.  rewrite carryandtimes.
-  
+
 destruct k. destruct o.  rewrite <- carryandtimes. intros v. change (
   hzremaindermod p ( isaprimetoneq0 is ) ( a 0%nat * b 0%nat ) ~> 0%hz
   ) in v.  assert hfalse. apply ( hzremaindermodprimeandtimes p is ( a
@@ -1115,7 +1150,7 @@ destruct k. destruct o.  rewrite <- carryandtimes. intros v. change (
   apply k'. rewrite hzqrandcarryr. assumption. apply o'. rewrite
   hzqrandcarryr. assumption.  assumption. apply one. apply two. apply
   natlthnsn.
-  
+
   intros v. unfold carry at 1 in v.  change ( hzremaindermod p (
   isaprimetoneq0 is ) ( ( carry p ( isaprimetoneq0 is ) a * carry p (
   isaprimetoneq0 is ) b ) ( S k + o )%nat + hzquotientmod p (
@@ -1141,7 +1176,7 @@ padiconecomputation p is ).  rewrite padicapartcomputation. apply
 total2tohexists. split with 0%nat.  unfold carry. unfold
 precarry. rewrite hzqrand1r. rewrite hzqrand0r. apply isnonzerornghz.
 apply padicintsareintdom.  Defined.
-  
+
 Definition padics ( p : hz ) ( is : isaprime p ) : afld := afldfrac (
 padicintegers p is ).
 
