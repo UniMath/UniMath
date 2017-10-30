@@ -905,33 +905,70 @@ p ( isaprimetoneq0 is ) ) a ) ( setquotpr ( carryequiv p (
 isaprimetoneq0 is ) ) b ) ~> padicapart0 p is a b.  Proof.
 intros. apply hPropUnivalence. intros i. apply i. intro u. apply u.  Defined.
 
-Lemma padicapartandplusprecarryl ( p : hz ) ( is : isaprime p ) ( a b
-c : fpscommrng hz ) ( n : nat ) ( x : neq _ ( precarry p (
-isaprimetoneq0 is ) ( carry p ( isaprimetoneq0 is ) a + carry p (
-isaprimetoneq0 is ) b ) n ) ( ( precarry p ( isaprimetoneq0 is ) (
-carry p ( isaprimetoneq0 is ) a + carry p ( isaprimetoneq0 is ) c ) )
-n ) ) : ( padicapart0 p is ) b c.  Proof.  intros. set ( P := fun x :
-nat => neq hz (precarry p (isaprimetoneq0 is) (carry p (isaprimetoneq0
-is) a + carry p (isaprimetoneq0 is) b) x) (precarry p (isaprimetoneq0
-is) (carry p (isaprimetoneq0 is) a + carry p (isaprimetoneq0 is) c) x)
-).  assert ( isdecnatprop P ) as isdec. intros m. destruct ( isdeceqhz
-(precarry p (isaprimetoneq0 is) (carry p (isaprimetoneq0 is) a + carry
-p (isaprimetoneq0 is) b) m) (precarry p (isaprimetoneq0 is) (carry p
-(isaprimetoneq0 is) a + carry p (isaprimetoneq0 is) c) m) ) as [ l | r
-]. apply ii2. intros j. unfold P in j. unfold neq in j. apply j. assumption. apply ii1. assumption.
-set ( leexists := leastelementprinciple n P isdec x ).
-(* does not compile on Oct. 30, 2017: *)
-apply leexists. intro k. destruct k as [ k k' ]. destruct k' as [ k' k'' ].
-destruct k. apply total2tohexists. split with 0%nat. intros i.  apply
-k'. change (carry p (isaprimetoneq0 is) a 0%nat + carry p
-(isaprimetoneq0 is) b 0%nat ~> (carry p (isaprimetoneq0 is) a 0%nat +
-carry p (isaprimetoneq0 is) c 0%nat) ). rewrite i. apply idpath.
-apply total2tohexists. split with ( S k ). intro i. apply ( k'' k
-). apply natlthnsn. intro j. apply k'. change ( carry p (
+Lemma padicapartandplusprecarryl ( p : hz ) ( is : isaprime p )
+  ( a b c : fpscommrng hz ) ( n : nat )
+  ( x : neq _ ( precarry p ( isaprimetoneq0 is )
+                             ( carry p ( isaprimetoneq0 is ) a +
+                               carry p ( isaprimetoneq0 is ) b ) n )
+            ( ( precarry p ( isaprimetoneq0 is )
+                             ( carry p ( isaprimetoneq0 is ) a +
+                               carry p ( isaprimetoneq0 is ) c ) ) n ) ) :
+  ( padicapart0 p is ) b c.
+Proof.
+  intros.
+  set ( P := fun x : nat =>
+    neq hz (precarry p (isaprimetoneq0 is) (carry p (isaprimetoneq0 is) a +
+                                            carry p (isaprimetoneq0 is) b) x)
+           (precarry p (isaprimetoneq0 is) (carry p (isaprimetoneq0 is) a +
+                                            carry p (isaprimetoneq0 is) c) x) ).
+  assert ( isdecnatprop P ) as isdec.
+  { intros m.
+    destruct ( isdeceqhz (precarry p (isaprimetoneq0 is)
+                            (carry p (isaprimetoneq0 is) a +
+                             carry p (isaprimetoneq0 is) b) m)
+                         (precarry p (isaprimetoneq0 is)
+                            (carry p (isaprimetoneq0 is) a +
+                             carry p (isaprimetoneq0 is) c) m) ) as [ l | r ].
+    - apply ii2.
+      intros j.
+      unfold P in j.
+      unfold neq in j.
+      apply j.
+      assumption.
+    - apply ii1.
+      assumption.
+  }
+  set ( leexists := leastelementprinciple n P isdec x ).
+  refine (hinhuniv _ leexists).
+  intro k.
+  destruct k as [ k k' ].
+  destruct k' as [ k' k'' ].
+  destruct k.
+  - apply total2tohexists.
+    split with 0%nat.
+    intros i.
+    unfold P in k'. unfold neq in k'. (* crucial *)
+    apply k'.
+    change (carry p (isaprimetoneq0 is) a 0%nat +
+            carry p (isaprimetoneq0 is) b 0%nat ~>
+           (carry p (isaprimetoneq0 is) a 0%nat +
+            carry p (isaprimetoneq0 is) c 0%nat) ).
+    rewrite i.
+    apply idpath.
+  - apply total2tohexists.
+    split with ( S k ).
+    intro i.
+    apply ( k'' k ).
+    + apply natlthnsn.
+    + intro j.
+      unfold P in k'. unfold neq in k'. (* crucial *)
+      apply k'.
+      change ( carry p (
 isaprimetoneq0 is ) a ( S k ) + carry p ( isaprimetoneq0 is ) b ( S k
 ) + hzquotientmod p ( isaprimetoneq0 is ) ( precarry p (
 isaprimetoneq0 is ) ( carry p ( isaprimetoneq0 is ) a + carry p (
-isaprimetoneq0 is ) b ) k ) ~> ( carry p ( isaprimetoneq0 is ) a ( S k
+                                                                isaprimetoneq0 is ) b ) k ) ~>
+                  ( carry p ( isaprimetoneq0 is ) a ( S k
 ) + carry p ( isaprimetoneq0 is ) c ( S k ) + hzquotientmod p (
 isaprimetoneq0 is ) ( precarry p ( isaprimetoneq0 is ) ( carry p (
 isaprimetoneq0 is ) a + carry p ( isaprimetoneq0 is ) c ) k ) ) ).
@@ -980,17 +1017,17 @@ Defined.
 
 Lemma padicplusisbinopapart0 ( p : hz ) ( is : isaprime p ) ( a b c :
 fpscommrng hz ) ( u : padicapart0 p is ( a + b ) ( a + c ) ) :
-padicapart0 p is b c.  Proof.  intros. apply u. intros n. destruct n
+padicapart0 p is b c.  Proof.  intros. refine (hinhuniv _ u). intros n. destruct n
 as [ n n' ].  set ( P := fun x : nat => neq hz ( carry p (
 isaprimetoneq0 is ) ( a + b) x) ( carry p ( isaprimetoneq0 is ) ( a +
 c) x) ). assert ( isdecnatprop P ) as isdec. intros m.  destruct (
 isdeceqhz ( carry p ( isaprimetoneq0 is ) ( a + b) m) ( carry p (
 isaprimetoneq0 is ) ( a + c) m) ) as [ l | r ]. apply ii2. intros
-j. apply j. assumption. apply ii1. assumption.
+j. unfold P in j. unfold neq in j. apply j. assumption. apply ii1. assumption.
 
-  set ( le := leastelementprinciple n P isdec n').  apply le. intro
+  set ( le := leastelementprinciple n P isdec n').  refine (hinhuniv _ le). intro
   k. destruct k as [ k k' ]. destruct k' as [ k' k'' ]. destruct k.
-  apply total2tohexists. split with 0%nat. intros j. apply k'.  unfold
+  apply total2tohexists. split with 0%nat. intros j. unfold P in k'. unfold neq in k'. apply k'.  unfold
   carry.  unfold precarry.  change ( ( a + b ) 0%nat ) with ( a 0%nat
   + b 0%nat ). change ( ( a + c ) 0%nat ) with ( a 0%nat + c 0%nat
   ). unfold carry in j.  unfold precarry in j. rewrite
@@ -999,7 +1036,7 @@ j. apply j. assumption. apply ii1. assumption.
 
   destruct ( isdeceqhz ( carry p ( isaprimetoneq0 is ) b ( S k ) ) (
   carry p ( isaprimetoneq0 is ) c ( S k ) ) ) as [ l | r ].  apply (
-  padicapartandplusprecarryl p is a b c k ).  intros j. apply
+  padicapartandplusprecarryl p is a b c k ).  intros j. unfold P in k'. unfold neq in k'. apply
   k'. rewrite ( carryandplus ). unfold carry at 1.  change (
   hzremaindermod p ( isaprimetoneq0 is ) ( carry p ( isaprimetoneq0 is
   ) a ( S k ) + carry p ( isaprimetoneq0 is ) b ( S k ) +
@@ -1052,11 +1089,11 @@ is) (carry p (isaprimetoneq0 is) a * carry p (isaprimetoneq0 is) c) x)
 (precarry p (isaprimetoneq0 is) (carry p (isaprimetoneq0 is) a * carry
 p (isaprimetoneq0 is) b) m) (precarry p (isaprimetoneq0 is) (carry p
 (isaprimetoneq0 is) a * carry p (isaprimetoneq0 is) c) m) ) as [ l | r
-]. apply ii2. intros j. apply j. assumption. apply ii1. assumption.
-set ( leexists := leastelementprinciple n P isdec x ). apply
-leexists. intro k. destruct k as [ k k' ]. destruct k' as [ k' k''
+]. apply ii2. intros j. unfold P in j. unfold neq in j. apply j. assumption. apply ii1. assumption.
+set ( leexists := leastelementprinciple n P isdec x ). refine (hinhuniv _
+leexists). intro k. destruct k as [ k k' ]. destruct k' as [ k' k''
 ]. induction k.  apply total2tohexists. split with 0%nat. intros i.
-apply k'. change (carry p (isaprimetoneq0 is) a 0%nat * carry p
+unfold P in k'. unfold neq in k'. apply k'. change (carry p (isaprimetoneq0 is) a 0%nat * carry p
 (isaprimetoneq0 is) b 0%nat ~> (carry p (isaprimetoneq0 is) a 0%nat *
 carry p (isaprimetoneq0 is) c 0%nat) ). rewrite i. apply idpath.  set
 ( Q := ( fun o : nat => hProppair ( carry p ( isaprimetoneq0 is ) b o
@@ -1065,7 +1102,9 @@ isdecnatprop Q ) as isdec'. intro o. destruct ( isdeceqhz ( carry p (
 isaprimetoneq0 is ) b o ) ( carry p ( isaprimetoneq0 is ) c o ) ) as [
 l | r ]. apply ii1. assumption. apply ii2. assumption.  destruct (
 isdecisbndqdec Q isdec' ( S k ) ) as [ l | r ].  assert hfalse as
-xx. apply ( k'' k ). apply natlthnsn. intro j.  apply k'.  change ( (
+    xx. apply ( k'' k ). apply natlthnsn. intro j.
+unfold P in k'. unfold neq in k'.
+apply k'.  change ( (
 natsummation0 ( S k ) ( fun x : nat => carry p ( isaprimetoneq0 is ) a
 x * carry p ( isaprimetoneq0 is ) b ( minus ( S k ) x ) ) ) +
 hzquotientmod p ( isaprimetoneq0 is ) ( precarry p ( isaprimetoneq0 is
@@ -1082,14 +1121,14 @@ minus ( S k ) x0)) ) as f. apply natsummationpathsupperfixed. intros m
 y. rewrite ( l ( minus ( S k ) m ) ). apply idpath. apply
 minusleh. rewrite f. rewrite j. apply idpath. contradiction.
 
-  apply r. intros o. destruct o as [ o o' ]. apply
+refine (hinhuniv _ r). intros o. destruct o as [ o o' ]. apply
 total2tohexists. split with o. apply o'.  Defined.
 
 Lemma padictimesisbinopapart0 ( p : hz ) ( is : isaprime p ) ( a b c :
 fpscommrng hz ) ( u : padicapart0 p is ( a * b ) ( a * c ) ) :
-padicapart0 p is b c.  Proof.  intros. apply u. intros n. destruct n
+padicapart0 p is b c.  Proof.  intros. refine (hinhuniv _ u). intros n. destruct n
 as [ n n' ].  destruct n. apply total2tohexists. split with
-0%nat. intros j.  apply n'. rewrite carryandtimes. rewrite (
+0%nat. intros j.  unfold neq in n'. apply n'. rewrite carryandtimes. rewrite (
 carryandtimes p ( isaprimetoneq0 is ) a c ). change ( hzremaindermod p
 ( isaprimetoneq0 is ) ( carry p ( isaprimetoneq0 is ) a 0%nat * carry
 p ( isaprimetoneq0 is ) b 0%nat ) ~> hzremaindermod p ( isaprimetoneq0
@@ -1102,7 +1141,7 @@ isaprimetoneq0 is ) b o ) ( carry p ( isaprimetoneq0 is ) c o ) ) as [
 l | r ]. apply ii1. assumption. apply ii2. assumption. destruct (
 isdecisbndqdec Q isdec'( S n ) ) as [ l | r ].  apply (
 padicapartandtimesprecarryl p is a b c n ). intros j. assert hfalse as
-xx. apply n'.  rewrite carryandtimes. rewrite ( carryandtimes p (
+xx. unfold neq in n'. apply n'.  rewrite carryandtimes. rewrite ( carryandtimes p (
 isaprimetoneq0 is ) a c ). change ( hzremaindermod p ( isaprimetoneq0
 is ) ( natsummation0 ( S n ) ( fun x : nat => carry p ( isaprimetoneq0
 is ) a x * carry p ( isaprimetoneq0 is ) b ( minus ( S n ) x ) ) +
@@ -1119,7 +1158,7 @@ rewrite j.  assert ( natsummation0 ( S n ) (fun x0 : nat => carry p
 (isaprimetoneq0 is) a x0 * carry p (isaprimetoneq0 is) c ( minus ( S n
 ) x0)) ) as f. apply natsummationpathsupperfixed. intros m y. rewrite
 ( l ( minus ( S n ) m ) ). apply idpath. apply minusleh. rewrite
-f. apply idpath. contradiction.  apply r. intros k. destruct k as [ k
+f. apply idpath. contradiction.  refine (hinhuniv _ r). intros k. destruct k as [ k
 k' ]. apply total2tohexists. split with k. apply k'.  Defined.
 
 Lemma padictimesisbinopapartl ( p : hz ) ( is : isaprime p ) :
@@ -1154,8 +1193,7 @@ padicplusisbinopapartl p is ).  apply ( padicplusisbinopapartr p is ).
 split. apply ( padictimesisbinopapartl p is ).  apply (
 padictimesisbinopapartr p is ).  Defined.
 
-(** * IV. The apartness domain of p-adic integers and the Heyting
-field of p-adic numbers *)
+(** * IV. The apartness domain of p-adic integers and the Heyting field of p-adic numbers *)
 
 Lemma precarryandzeromultl ( p : hz ) ( is : isaprime p ) ( a b :
 fpscommrng hz ) ( n : nat ) ( x : forall m : nat, natlth m n -> (
@@ -1280,18 +1318,23 @@ hzplusl0. assert ( natlth m ( k + k' )%nat ) as one. apply (
 istransnatlth _ ( S m ) _ ). apply natlthnsn. assumption. rewrite (
 IHm one ). rewrite hzqrand0q. apply idpath.  Defined.
 
-Lemma primedivorcoprime ( p a : hz ) ( is : isaprime p ) : hdisj (
-hzdiv p a ) ( gcd p a ( isaprimetoneq0 is ) ~> 1 ).  Proof.
-intros. intros P i. apply ( pr2 is ( gcd p a ( isaprimetoneq0 is ) ) (
-pr1 ( gcdiscommondiv p a ( isaprimetoneq0 is ) ) ) ). intro t. apply
+Lemma primedivorcoprime ( p a : hz ) ( is : isaprime p ) :
+  hdisj ( hzdiv p a ) ( gcd p a ( isaprimetoneq0 is ) ~> 1 ).
+Proof.
+  intros. intros P i.
+  refine (hinhuniv _ ( pr2 is ( gcd p a ( isaprimetoneq0 is ) ) ( pr1 ( gcdiscommondiv p a ( isaprimetoneq0 is ) ) ) )).
+  intro t. apply
 i. destruct t as [ t0 | t1 ]. apply ii2. assumption. apply
 ii1. rewrite <- t1. exact ( pr2 ( gcdiscommondiv p a ( isaprimetoneq0
 is ) ) ).  Defined.
 
-Lemma primeandtimes ( p a b : hz ) ( is : isaprime p ) ( x : hzdiv p (
-a * b ) ) : hdisj ( hzdiv p a ) ( hzdiv p b ).  Proof.  intros. apply
-( primedivorcoprime p a is ).  intros j. intros P i. apply i. destruct
-j as [ j0 | j1 ]. apply ii1. assumption. apply ii2. apply x. intro
+Lemma primeandtimes ( p a b : hz ) ( is : isaprime p )
+  ( x : hzdiv p ( a * b ) ) :
+  hdisj ( hzdiv p a ) ( hzdiv p b ).
+Proof.
+  intros.
+  refine (hinhuniv _ ( primedivorcoprime p a is )).  intros j. intros P i. apply i. destruct
+j as [ j0 | j1 ]. apply ii1. assumption. apply ii2. refine (hinhuniv _ x). intro
 u. destruct u as [ k u ]. unfold hzdiv0 in u.  set ( cd :=
 bezoutstrong a p ( isaprimetoneq0 is ) ). destruct cd as [ cd f
 ]. destruct cd as [ c d ]. rewrite j1 in f. simpl in f. assert ( b ~>
@@ -1319,14 +1362,13 @@ rewrite <- x. change (p * hzquotientmod p (isaprimetoneq0 is) (a * b)
 + hzremaindermod p (isaprimetoneq0 is) a * b) with (p * hzquotientmod
 p (isaprimetoneq0 is) (a * b)%rng + ( hzremaindermod p (isaprimetoneq0
 is) a * b )%rng )%hz. apply ( hzdivequationmod p ( isaprimetoneq0 is )
-( a * b ) ).  apply ( primeandtimes p a b is i ). intro t. destruct t
-as [ t0 | t1 ]. apply t0. intros k. destruct k as [ k k' ].  intros Q
+( a * b ) ).  refine (hinhuniv _ ( primeandtimes p a b is i )). intro t. destruct t
+as [ t0 | t1 ]. refine (hinhuniv _ t0). intros k. destruct k as [ k k' ].  intros Q
 j. apply j. apply ii1.  apply pathsinv0. apply ( hzqrtestr p (
 isaprimetoneq0 is ) a k ).  split.  rewrite hzplusr0. unfold hzdiv0 in
 k'. rewrite k'. apply idpath. split. apply isreflhzleh. rewrite
 hzabsvalgth0. apply ( istranshzlth _ 1 _ ). apply hzlthnsn. apply
-is. apply ( istranshzlth _ 1 _ ). apply hzlthnsn. apply is. apply
-t1. intros k. destruct k as [ k k' ]. intros Q j. apply j. apply
+is. apply ( istranshzlth _ 1 _ ). apply hzlthnsn. apply is. refine (hinhuniv _ t1). intros k. destruct k as [ k k' ]. intros Q j. apply j. apply
 ii2. apply pathsinv0. apply ( hzqrtestr p ( isaprimetoneq0 is ) b k ).
 split.  rewrite hzplusr0. unfold hzdiv0 in k'. rewrite k'. apply
 idpath. split. apply isreflhzleh. rewrite hzabsvalgth0. apply (
@@ -1364,8 +1406,8 @@ impred. intros. apply impred. intros. apply ( pr1 ( padicapart p is )
   (isaprimetoneq0 is)) a) (setquotpr (carryequiv p (isaprimetoneq0
   is)) b)) (padiczero p is)). unfold padictimes.  rewrite
   padiczerocomputation. rewrite setquotprandpadictimes.  rewrite 3!
-  padicapartcomputation. intros i j. apply i. intros i0. destruct i0
-  as [ i0 i1 ]. apply j. intros j0. destruct j0 as [ j0 j1 ].  rewrite
+  padicapartcomputation. intros i j. refine (hinhuniv _ i). intros i0. destruct i0
+  as [ i0 i1 ]. refine (hinhuniv _ j). intros j0. destruct j0 as [ j0 j1 ].  rewrite
   carryandzero in i1, j1. change ( ( @rngunel1 ( fpscommrng hz ) ) i0
   ) with 0%hz in i1. change ( ( @rngunel1 ( fpscommrng hz ) ) j0 )
   with 0%hz in j1.  set ( P := fun x : nat => neq hz ( carry p (
@@ -1373,13 +1415,13 @@ impred. intros. apply impred. intros. apply ( pr1 ( padicapart p is )
   carry p ( isaprimetoneq0 is ) b x ) 0 ). assert ( isdecnatprop P )
   as isdec1. intros m.  destruct ( isdeceqhz ( carry p (
   isaprimetoneq0 is ) a m ) 0%hz ) as [ l | r ]. apply ii2. intro
-  v. apply v. assumption. apply ii1. assumption. assert ( isdecnatprop
+  v. unfold P in v. unfold neq in v. apply v. assumption. apply ii1. assumption. assert ( isdecnatprop
   P' ) as isdec2. intros m. destruct ( isdeceqhz ( carry p (
-  isaprimetoneq0 is ) b m ) 0%hz ) as [ l | r ]. apply ii2. intro
-  v. apply v. assumption. apply ii1. assumption.  set ( le1 :=
+  isaprimetoneq0 is ) b m ) 0%hz ) as [ l | r ]. apply ii2. intro v.
+  unfold P' in v. unfold neq in v. apply v. assumption. apply ii1. assumption.  set ( le1 :=
   leastelementprinciple i0 P isdec1 i1 ). set ( le2 :=
-  leastelementprinciple j0 P' isdec2 j1 ).  apply le1. intro
-  k. destruct k as [ k k' ]. apply le2. intro o. destruct o as [ o o'
+  leastelementprinciple j0 P' isdec2 j1 ).  refine (hinhuniv _ le1). intro
+  k. destruct k as [ k k' ]. refine (hinhuniv _ le2). intro o. destruct o as [ o o'
   ].  apply total2tohexists. split with ( k + o )%nat.
 
   assert ( forall m : nat, natlth m k -> carry p ( isaprimetoneq0 is )
@@ -1402,10 +1444,11 @@ impred. intros. apply impred. intros. apply ( pr1 ( padicapart p is )
   ) with 0%hz.  rewrite carryandtimes.
 
 destruct k. destruct o.  rewrite <- carryandtimes. intros v. change (
-  hzremaindermod p ( isaprimetoneq0 is ) ( a 0%nat * b 0%nat ) ~> 0%hz
-  ) in v.  assert hfalse. apply ( hzremaindermodprimeandtimes p is ( a
-  0%nat ) ( b 0%nat ) v ). intros t. destruct t as [ t0 | t1 ]. apply
-  ( pr1 k' ). apply t0. apply ( pr1 o' ). apply t1. assumption.
+  hzremaindermod p ( isaprimetoneq0 is ) ( a 0%nat * b 0%nat ) ~> 0%hz ) in v.  assert hfalse.
+  refine (hinhuniv _ ( hzremaindermodprimeandtimes p is ( a 0%nat ) ( b 0%nat ) v )). intros t. destruct t as [ t0 | t1 ]. unfold P in k'. unfold neq in k'.
+  apply
+    ( pr1 k' ). apply t0. unfold P' in o'. unfold neq in o'.
+  apply ( pr1 o' ). apply t1. assumption.
 
   intros v. unfold carry at 1 in v. change ( 0 + S o )%nat with ( S o
   ) in v.  change ( hzremaindermod p ( isaprimetoneq0 is ) ( ( carry p
@@ -1418,10 +1461,13 @@ destruct k. destruct o.  rewrite <- carryandtimes. intros v. change (
   fpstimes hz ( carry p ( isaprimetoneq0 is ) a ) ( carry p (
   isaprimetoneq0 is ) b ) ) in v.  rewrite ( precarryandzeromult p is
   a b 0%nat ( S o ) ) in v. rewrite hzqrand0q in v. rewrite hzplusr0
-  in v. assert hfalse. apply ( hzremaindermodprimeandtimes p is (
+    in v. assert hfalse.
+  set (aux :=  hzremaindermodprimeandtimes p is (
   carry p ( isaprimetoneq0 is ) a 0%nat ) ( carry p ( isaprimetoneq0
-  is ) b ( S o ) ) ). assumption. intros s. destruct s as [ l | r ].
-  apply k'. rewrite hzqrandcarryr. assumption. apply o'. rewrite
+                                                      is ) b ( S o ) ) v).
+  refine (hinhuniv _ aux).
+  intros s. destruct s as [ l | r ].
+  unfold P in k'. unfold neq in k'. apply k'. rewrite hzqrandcarryr. assumption. unfold P' in o'. unfold neq in o'. apply o'. rewrite
   hzqrandcarryr. assumption.  assumption. apply one. apply two. apply
   natlthnsn.
 
@@ -1435,12 +1481,18 @@ destruct k. destruct o.  rewrite <- carryandtimes. intros v. change (
   fpstimes hz ( carry p ( isaprimetoneq0 is ) a ) ( carry p (
   isaprimetoneq0 is ) b ) ) in v.  rewrite ( precarryandzeromult p is
   a b ( S k ) o ) in v. rewrite hzqrand0q in v. rewrite hzplusr0 in
-  v. assert hfalse. apply ( hzremaindermodprimeandtimes p is ( carry p
+      v. assert hfalse.
+  set (aux := hzremaindermodprimeandtimes p is ( carry p
   ( isaprimetoneq0 is ) a ( S k ) ) ( carry p ( isaprimetoneq0 is ) b
-  (o ) ) ). assumption. intros s. destruct s as [ l | r ].  apply
-  k'. rewrite hzqrandcarryr. assumption. apply o'. rewrite
+                                            (o ) ) v).
+  refine (hinhuniv _ aux).
+  intros s. destruct s as [ l | r ]. unfold P in k'. unfold neq in k'. apply
+  k'. rewrite hzqrandcarryr. assumption. unfold P' in o'. unfold neq in o'. apply o'. rewrite
   hzqrandcarryr. assumption.  assumption. apply one. apply two. apply
-  natlthnsn.  Defined.
+                                                                  natlthnsn.
+(* [Defined.] does not terminate *)
+Admitted.
+
 
 Definition padicintegers ( p : hz ) ( is : isaprime p ) : aintdom.
 Proof.  intros. split with ( acommrngofpadicints p is ). split.
