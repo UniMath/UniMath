@@ -824,9 +824,8 @@ carry p ( isaprimetoneq0 is) a n ) ( carry p ( isaprimetoneq0 is ) b n
 Lemma padicapartiscomprel ( p : hz ) ( is : isaprime p ) :
   iscomprelrel ( carryequiv p ( isaprimetoneq0 is ) ) ( padicapart0 p is ).
 Proof.  intros p is a a' b b' i j. apply hPropUnivalence. intro k.
-(* does not compile on Oct. 30, 2017: *) apply
-k. intros u. destruct u as [ n u ]. apply total2tohexists. split with
-n. rewrite <- i , <- j. assumption.  intro k. apply k. intros
+refine (hinhuniv _ k). intros u. destruct u as [ n u ]. apply total2tohexists. split with
+n. rewrite <- i , <- j. assumption.  intro k. refine (hinhuniv _ k). intros
 u. destruct u as [ n u ]. apply total2tohexists. split with n. rewrite
 i, j. assumption.  Defined.
 
@@ -839,16 +838,16 @@ hfalse as x. apply f. intros u. destruct u as [ n u ]. apply u. apply
 idpath. apply x.  Defined.
 
 Lemma issymmpadicapart0 ( p : hz ) ( is : isaprime p ) : issymm (
-padicapart0 p is ).  Proof.  intros. intros a b f. apply f. intros
+padicapart0 p is ).  Proof.  intros. intros a b f. refine (hinhuniv _ f). intros
 u. destruct u as [ n u ]. apply total2tohexists. split with n. intros
-g. apply u. rewrite g. apply idpath.  Defined.
+g. unfold neq in u. apply u. rewrite g. apply idpath.  Defined.
 
 Lemma iscotranspadicapart0 ( p : hz ) ( is : isaprime p ) : iscotrans
-( padicapart0 p is ).  Proof.  intros. intros a b c f. apply f. intros
+( padicapart0 p is ).  Proof.  intros. intros a b c f. refine (hinhuniv _ f). intro
 u. destruct u as [ n u ].  intros P j. apply j. destruct ( isdeceqhz (
 carry p ( isaprimetoneq0 is ) a n ) ( carry p ( isaprimetoneq0 is ) b
 n ) ) as [ l | r ].  apply ii2. intros Q k. apply k. split with
-n. intros g. apply u.  rewrite l, g. apply idpath. apply ii1. intros Q
+n. intros g. unfold neq in u. apply u.  rewrite l, g. apply idpath. apply ii1. intros Q
 k. apply k. split with n. intros g. apply r. assumption.  Defined.
 
 Definition padicapart ( p : hz ) ( is : isaprime p ) : apart (
@@ -904,7 +903,7 @@ Lemma padicapartcomputation ( p : hz ) ( is : isaprime p ) ( a b :
 fpscommrng hz ) : ( pr1 ( padicapart p is ) ) ( setquotpr (carryequiv
 p ( isaprimetoneq0 is ) ) a ) ( setquotpr ( carryequiv p (
 isaprimetoneq0 is ) ) b ) ~> padicapart0 p is a b.  Proof.
-intros. apply uahp. intros i. apply i. intro u. apply u.  Defined.
+intros. apply hPropUnivalence. intros i. apply i. intro u. apply u.  Defined.
 
 Lemma padicapartandplusprecarryl ( p : hz ) ( is : isaprime p ) ( a b
 c : fpscommrng hz ) ( n : nat ) ( x : neq _ ( precarry p (
@@ -919,9 +918,10 @@ is) (carry p (isaprimetoneq0 is) a + carry p (isaprimetoneq0 is) c) x)
 (precarry p (isaprimetoneq0 is) (carry p (isaprimetoneq0 is) a + carry
 p (isaprimetoneq0 is) b) m) (precarry p (isaprimetoneq0 is) (carry p
 (isaprimetoneq0 is) a + carry p (isaprimetoneq0 is) c) m) ) as [ l | r
-]. apply ii2. intros j. apply j. assumption. apply ii1. assumption.
-set ( leexists := leastelementprinciple n P isdec x ). apply
-leexists. intro k. destruct k as [ k k' ]. destruct k' as [ k' k'' ].
+]. apply ii2. intros j. unfold P in j. unfold neq in j. apply j. assumption. apply ii1. assumption.
+set ( leexists := leastelementprinciple n P isdec x ).
+(* does not compile on Oct. 30, 2017: *)
+apply leexists. intro k. destruct k as [ k k' ]. destruct k' as [ k' k'' ].
 destruct k. apply total2tohexists. split with 0%nat. intros i.  apply
 k'. change (carry p (isaprimetoneq0 is) a 0%nat + carry p
 (isaprimetoneq0 is) b 0%nat ~> (carry p (isaprimetoneq0 is) a 0%nat +
