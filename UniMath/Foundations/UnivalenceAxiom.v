@@ -37,11 +37,11 @@ Require Export UniMath.Foundations.PartB.
 Definition eqweqmap { T1 T2 : UU } : T1 = T2 -> T1 ≃ T2.
 Proof. intro e. induction e. apply idweq. Defined.
 
-Definition sectohfiber { X : UU } (P:X -> UU): (∏ x:X, P x) -> (hfiber (fun f:_ => fun x:_ => pr1  (f x)) (fun x:X => x)) := (fun a : ∏ x:X, P x => tpair _ (fun x:_ => tpair _ x (a x)) (idpath (fun x:X => x))).
+Definition sectohfiber { X : UU } (P:X -> UU): (∏ x:X, P x) -> (hfiber (λ f, λ x, pr1  (f x)) (λ x:X, x)) := (fun a : ∏ x:X, P x => tpair _ (λ x, tpair _ x (a x)) (idpath (λ x:X, x))).
 
 Definition hfibertosec { X : UU } (P:X -> UU):
-  (hfiber (fun f x => pr1 (f x)) (fun x:X => x)) -> (∏ x:X, P x)
-  := fun se:_  => fun x:X => match se as se' return P x with tpair _ s e => (transportf P (toforallpaths _ (fun x:X => pr1 (s x)) (fun x:X => x) e x) (pr2  (s x))) end.
+  (hfiber (λ f x, pr1 (f x)) (λ x:X, x)) -> (∏ x:X, P x)
+  := λ se , λ x:X, match se as se' return P x with tpair _ s e => (transportf P (toforallpaths _ (λ x:X, pr1 (s x)) (λ x:X, x) e x) (pr2  (s x))) end.
 
 Definition sectohfibertosec { X : UU } (P:X -> UU):
   ∏ a : (∏ x:X, P x), hfibertosec _ (sectohfiber _ a) = a.
@@ -49,13 +49,13 @@ Proof.
   reflexivity.
 Defined.
 
-Lemma isweqtransportf10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  paths x x' ) : isweq ( transportf P e ).
+Lemma isweqtransportf10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  x = x' ) : isweq ( transportf P e ).
 Proof. intros. destruct e.  apply idisweq. Defined.
 
-Lemma isweqtransportb10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  paths x x' ) : isweq ( transportb P e ).
+Lemma isweqtransportb10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  x = x' ) : isweq ( transportb P e ).
 Proof. intros. apply ( isweqtransportf10 _ ( pathsinv0 e ) ). Defined.
 
-Lemma l1  { X0 X0' : UU } ( ee : paths X0 X0' ) ( P : UU -> UU ) ( pp' : P X0' ) ( R : ∏ X X' : UU , ∏ w : weq X X' , P X' -> P X ) ( r : ∏ X : UU , ∏ p : P X , paths ( R X X ( idweq X ) p ) p ) : paths ( R X0 X0' ( eqweqmap ee ) pp' ) (  transportb P ee pp' ).
+Lemma l1  { X0 X0' : UU } ( ee : X0 = X0' ) ( P : UU -> UU ) ( pp' : P X0' ) ( R : ∏ X X' : UU , ∏ w : X ≃ X' , P X' -> P X ) ( r : ∏ X : UU , ∏ p : P X , paths ( R X X ( idweq X ) p ) p ) : paths ( R X0 X0' ( eqweqmap ee ) pp' ) (  transportb P ee pp' ).
 Proof. destruct ee. simpl. apply r. Defined.
 
 (** Axiom statements (propositions) *)
@@ -113,28 +113,28 @@ Theorem univfromtwoaxioms :
 Proof.
   split.
   { intros [weqtopaths weqpathsweq] T1 T2.
-    set ( P1 := fun XY : UU × UU => pr1 XY = pr2 XY ) .
-    set ( P2 := fun XY :  UU × UU => weq (pr1 XY)  (pr2 XY) ) .
+    set ( P1 := λ XY : UU × UU, pr1 XY = pr2 XY ) .
+    set ( P2 := λ XY :  UU × UU, (pr1 XY) ≃ (pr2 XY) ) .
     set ( Z1 := total2 P1 ). set ( Z2 := total2 P2 ).
-    set ( f := totalfun _ _ ( fun XY : UU × UU =>  @eqweqmap (pr1 XY) (pr2 XY)) : Z1 -> Z2 ) .
-    set ( g := totalfun _ _ ( fun XY : UU × UU =>  weqtopaths (pr1 XY) (pr2 XY) ) : Z2 -> Z1 ) .
+    set ( f := totalfun _ _ ( λ XY : UU × UU,  @eqweqmap (pr1 XY) (pr2 XY)) : Z1 -> Z2 ) .
+    set ( g := totalfun _ _ ( λ XY : UU × UU,  weqtopaths (pr1 XY) (pr2 XY) ) : Z2 -> Z1 ) .
     assert (efg : funcomp g f ~ idfun _) .
     - intro z2 . induction z2 as [ XY e ] .
       unfold funcomp . unfold idfun . unfold g . unfold f . unfold totalfun . simpl .
-      apply ( maponpaths ( fun w : weq ( pr1 XY) (pr2 XY) =>  tpair P2 XY w )
+      apply ( maponpaths ( fun w : ( pr1 XY) ≃ (pr2 XY) =>  tpair P2 XY w )
                        ( weqpathsweq ( pr1 XY ) ( pr2 XY ) e )) .
-    - set ( h := fun a1 : Z1 =>  pr1 ( pr1 a1 ) ) .
+    - set ( h := λ a1 : Z1,  pr1 ( pr1 a1 ) ) .
       assert ( egf0 : ∏ a1 : Z1 ,  pr1 ( g ( f a1 ) ) = pr1 a1 ).
       + intro. apply idpath.
-      + assert ( egf1 : ∏ a1 a1' : Z1 ,  paths ( pr1 a1' ) (  pr1 a1 ) ->  paths a1' a1 ).
+      + assert ( egf1 : ∏ a1 a1' : Z1 ,  paths ( pr1 a1' ) (  pr1 a1 ) ->  a1' = a1 ).
         * intros.
           set ( X' :=  maponpaths pr1 X ).
           assert ( is : isweq h ).
           { simpl in h .  apply isweqpr1pr1 . }
           apply ( invmaponpathsweq ( weqpair h is ) _ _ X' ).
-        * set ( egf := fun a1  => egf1 _ _ ( egf0 a1 ) ).
+        * set ( egf := λ a1 , egf1 _ _ ( egf0 a1 ) ).
           set ( is2 := gradth _ _ egf efg ).
-          apply ( isweqtotaltofib _ _ ( fun _ => eqweqmap) is2 ( dirprodpair T1 T2 ) ).
+          apply ( isweqtotaltofib _ _ ( λ _, eqweqmap) is2 ( dirprodpair T1 T2 ) ).
           }
   { intros ua.
     simple refine (_,,_).
@@ -191,9 +191,9 @@ Section UnivalenceImplications.
     of structures are weak equivalences. *)
 
   Theorem weqtransportbUAH ( P : UU -> UU )
-          ( R : ∏ ( X X' : UU ) ( w :  weq X X' ) , P X' -> P X )
+          ( R : ∏ ( X X' : UU ) ( w :  X ≃ X' ) , P X' -> P X )
           ( r : ∏ X : UU , ∏ p : P X , R X X ( idweq X ) p = p ) :
-    ∏ ( X X' : UU ) ( w :  weq X X' ) ( p' : P X' ),
+    ∏ ( X X' : UU ) ( w :  X ≃ X' ) ( p' : P X' ),
       R X X' w p' = transportb P ( weqtopathsUAH w ) p'.
   Proof.
     intros.
@@ -215,7 +215,7 @@ Section UnivalenceImplications.
             ( R :  ∏ ( X X' : UU ) ( w : X ≃ X' ) , P X' -> P X )
             ( r :  ∏ X : UU , ∏ p : P X , R X X ( idweq X ) p  = p ) :
     ∏ ( X X' : UU ) ( w : X ≃ X' ),
-      isweq ( fun p' :  P X' => R X X' w p' ).
+      isweq ( λ p' :  P X', R X X' w p' ).
   Proof.
     intros.
     assert ( e : R X X' w ~ transportb P ( weqtopathsUAH w )).
@@ -230,27 +230,27 @@ Section UnivalenceImplications.
 
   (** Theorem saying that composition with a weak equivalence is a weak equivalence on function spaces. *)
 
-  Theorem isweqcompwithweqUAH { X X' : UU } ( w : weq X X' ) ( Y : UU ) :
-    isweq ( fun f : X' -> Y => ( fun x : X => f ( w x ) ) ).
+  Theorem isweqcompwithweqUAH { X X' : UU } ( w : X ≃ X' ) ( Y : UU ) :
+    isweq ( fun f : X' -> Y => ( λ x : X, f ( w x ) ) ).
   Proof.
-    set ( P := fun X0 : UU => ( X0 -> Y ) ).
-    set ( R := fun X0 : UU => ( fun X0' : UU => ( fun w1 : X0 -> X0' =>  ( fun  f : P X0'  => ( fun x : X0 => f ( w1 x ) ) ) ) ) ).
-    apply ( isweqweqtransportbUAH P R (fun X0 f => idpath _) X X' w ).
+    set ( P := λ X0 : UU, ( X0 -> Y ) ).
+    set ( R := λ X0 : UU, ( λ X0' : UU, ( fun w1 : X0 -> X0' =>  ( λ  f : P X0' , ( λ x : X0, f ( w1 x ) ) ) ) ) ).
+    apply ( isweqweqtransportbUAH P R (λ X0 f, idpath _) X X' w ).
   Defined.
 
-  Lemma eqcor0UAH { X X' : UU } ( w :  weq X X' ) ( Y : UU ) ( f1 f2 : X' -> Y ) :
-    (fun x : X => f1 ( w x )) = (fun x : X => f2 ( w x ) ) -> f1 = f2.
+  Lemma eqcor0UAH { X X' : UU } ( w :  X ≃ X' ) ( Y : UU ) ( f1 f2 : X' -> Y ) :
+    (λ x : X, f1 ( w x )) = (λ x : X, f2 ( w x ) ) -> f1 = f2.
   Proof. apply ( invmaponpathsweq ( weqpair _ ( isweqcompwithweqUAH w Y ) ) f1 f2 ). Defined.
 
-  Lemma apathpr1toprUAH ( T : UU ) : paths ( fun z :  pathsspace T => pr1 z ) ( fun z : pathsspace T => pr1 ( pr2 z ) ).
-  Proof. apply ( eqcor0UAH ( weqpair _ ( isweqdeltap T ) ) _ ( fun z :  pathsspace T => pr1 z ) ( fun z :  pathsspace T => pr1 ( pr2 z ) ) ( idpath ( idfun T ) ) ) . Defined.
+  Lemma apathpr1toprUAH ( T : UU ) : paths ( λ z :  pathsspace T, pr1 z ) ( λ z : pathsspace T, pr1 ( pr2 z ) ).
+  Proof. apply ( eqcor0UAH ( weqpair _ ( isweqdeltap T ) ) _ ( λ z :  pathsspace T, pr1 z ) ( λ z :  pathsspace T, pr1 ( pr2 z ) ) ( idpath ( idfun T ) ) ) . Defined.
 
   Theorem funextfunPreliminaryUAH : funextfunStatement.
   Proof.
     intros ? ? f1 f2 e.
-    set ( f := fun x : X => pathsspacetriple Y ( e x ) ).
-    set ( g1 := fun z : pathsspace Y => pr1 z ).
-    set ( g2 := fun z : pathsspace Y => pr1 ( pr2 z ) ).
+    set ( f := λ x : X, pathsspacetriple Y ( e x ) ).
+    set ( g1 := λ z : pathsspace Y, pr1 z ).
+    set ( g2 := λ z : pathsspace Y, pr1 ( pr2 z ) ).
     change ( (funcomp f g1) = (funcomp f g2) ).
     apply maponpaths.
     apply apathpr1toprUAH.
@@ -267,22 +267,22 @@ Section UnivalenceImplications.
 
   (** *** Deduction of functional extensionality for dependent functions (sections) from functional extensionality of usual functions *)
 
-  Lemma isweqlcompwithweqUAH {X X' : UU} (w: weq X X') (Y:UU) : isweq (fun (a:X'->Y) x => a (w x)).
+  Lemma isweqlcompwithweqUAH {X X' : UU} (w: X ≃ X') (Y:UU) : isweq (fun (a:X'->Y) x => a (w x)).
   (* this lemma is currently unused *)
   Proof.
     simple refine (gradth _ _ _ _).
-    exact (fun b x' => b (invweq w x')).
-    exact (fun a => funextfunPreliminaryUAH _ a (fun x' => maponpaths a (homotweqinvweq w x'))).
-    exact (fun a => funextfunPreliminaryUAH _ a (fun x  => maponpaths a (homotinvweqweq w x ))).
+    exact (λ b x', b (invweq w x')).
+    exact (λ a, funextfunPreliminaryUAH _ a (λ x', maponpaths a (homotweqinvweq w x'))).
+    exact (λ a, funextfunPreliminaryUAH _ a (λ x , maponpaths a (homotinvweqweq w x ))).
   Defined.
 
-  Lemma isweqrcompwithweqUAH { Y Y':UU } (w: weq Y Y')(X:UU) :
-    isweq (fun a:X->Y => (fun x => w (a x))).
+  Lemma isweqrcompwithweqUAH { Y Y':UU } (w: Y ≃ Y')(X:UU) :
+    isweq (fun a:X->Y => (λ x, w (a x))).
   Proof.
     simple refine (gradth _ _ _ _).
-    exact (fun a':X->Y' => fun x => (invweq  w (a' x))).
-    exact (fun a :X->Y  => funextfunPreliminaryUAH _ a (fun x => homotinvweqweq w (a x))).
-    exact (fun a':X->Y' => funextfunPreliminaryUAH _ a' (fun x => homotweqinvweq w (a' x))).
+    exact (fun a':X->Y' => λ x, (invweq  w (a' x))).
+    exact (fun a :X->Y  => funextfunPreliminaryUAH _ a (λ x, homotinvweqweq w (a x))).
+    exact (fun a':X->Y' => funextfunPreliminaryUAH _ a' (λ x, homotweqinvweq w (a' x))).
   Defined.
 
   Theorem funcontrUAH : funcontrStatement.
@@ -290,16 +290,16 @@ Section UnivalenceImplications.
     unfold funcontrStatement.
     intros ? ? X0.
     set (T1 := ∏ x:X, P x).
-    set (T2 := (hfiber (fun f: (X -> total2 P)  => fun x: X => pr1  (f x)) (fun x:X => x))).
+    set (T2 := (hfiber (fun f: (X -> total2 P)  => λ x: X, pr1  (f x)) (λ x:X, x))).
     assert (is1:isweq (@pr1 X P)).
     - apply isweqpr1. assumption.
     - set (w1:= weqpair  (@pr1 X P) is1).
       assert (X1:iscontr T2).
-      + apply (isweqrcompwithweqUAH w1 X (fun x:X => x)).
+      + apply (isweqrcompwithweqUAH w1 X (λ x:X, x)).
       + apply (iscontrretract _ _ (sectohfibertosec P) X1).
   Defined.
 
-  (** Proof of the fact that the [ toforallpaths ] from [paths s1 s2] to
+  (** Proof of the fact that the [ toforallpaths ] from [s1 = s2] to
   [∏ t:T, paths (s1 t) (s2 t)] is a weak equivalence - a strong form of
   functional extensionality for sections of general families. The proof uses
   only [funcontrUAH] which is an element of a proposition.  *)
@@ -423,7 +423,7 @@ Definition transportf_funextfun {X Y : UU} (P : Y -> UU) (F F' : X -> Y) (H : �
   transportf (λ x0 : X → Y, P (x0 x)) (funextsec _ F F' H) f = transportf (λ x0 : Y, P x0) (H x) f.
 Proof.
   apply (toforallpaths_induction
-           _ _ F F' (fun H' => transportf (λ x0 : X → Y, P (x0 x))
+           _ _ F F' (λ H', transportf (λ x0 : X → Y, P (x0 x))
                                        (funextsec (λ _ : X, Y) F F' (λ x0 : X, H' x0)) f =
                             transportf (λ x0 : Y, P x0) (H' x) f)).
   intro e. clear H.

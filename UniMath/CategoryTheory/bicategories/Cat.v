@@ -52,7 +52,7 @@ Proof.
 
     (* The component at x is just the identity, because composition of
        functions is associative for free. *)
-    exists (fun x => identity _).
+    exists (λ x, identity _).
 
     (* Which is natural. *)
     intros oba oba' f.
@@ -110,7 +110,7 @@ Proof.
   - (* Step 1: Give components.
        Again identity works, as function composition is unital for free *)
     intros x.
-    exists (fun x => identity _).
+    exists (λ x, identity _).
     intros oba oba' f.
     exact (id_right _ @ !(id_left _)).
 
@@ -153,7 +153,7 @@ Definition Catlike_right_unitor (a b : precategory) (hsB : has_homsets b) :
 Proof.
   use tpair. (* Same as above *)
   - intros x.
-    exists (fun x => identity _).
+    exists (λ x, identity _).
     intros oba oba' f.
     exact (id_right _ @ !(id_left _)).
 

@@ -275,7 +275,7 @@ Section def_roofs.
   Definition RoofHrel' {x y : ob C} (R1 R2 : Roof x y) : hProp := ishinh (RoofTop R1 R2).
 
   Definition RoofHrel (x y : ob C) : hrel (Roof x y) :=
-    (fun R1 : Roof x y => fun R2 : Roof x y => RoofHrel' R1 R2).
+    (λ R1 : Roof x y, λ R2 : Roof x y, RoofHrel' R1 R2).
 
   Lemma RoofEqrel (x y : ob C) : iseqrel (RoofHrel x y).
   Proof.
@@ -390,7 +390,7 @@ Section def_roofs.
   Definition RoofEqclassFromRoof {x y : ob C} (R : Roof x y) : RoofEqclass x y.
   Proof.
     use tpair.
-    - exact (fun RR : Roof x y => (eqrelpair _ (RoofEqrel x y)) RR R).
+    - exact (λ RR : Roof x y, (eqrelpair _ (RoofEqrel x y)) RR R).
     - use tpair.
       + intros P X. apply X. clear X P.
         use tpair.
@@ -584,7 +584,7 @@ Section def_roofs.
     - cbn.
       rewrite assoc. rewrite assoc.
       set (tmp := ! (PostSwitchEq PostS)). rewrite assoc in tmp. rewrite assoc in tmp.
-      apply (maponpaths (fun f : _ => f · RoofMor2 R3)) in tmp.
+      apply (maponpaths (λ f : _, f · RoofMor2 R3)) in tmp.
       apply tmp.
   Qed.
 
@@ -630,7 +630,7 @@ Section def_roofs.
       + exact (RoofMor1Is R4).
     - cbn. rewrite assoc. rewrite assoc. apply cancel_postcomposition.
       set (tmp := ! (LocSqr2Comm sqr6)).
-      apply (maponpaths (fun f : _ => PostSwitchMor PostS · f)) in tmp.
+      apply (maponpaths (λ f : _, PostSwitchMor PostS · f)) in tmp.
       rewrite assoc in tmp. rewrite assoc in tmp. apply tmp.
     - cbn. apply pathsinv0.
       rewrite assoc. rewrite assoc.
@@ -653,7 +653,7 @@ Section def_roofs.
     use tpair.
     - use tpair.
       + use mk_RoofEqclass.
-        * exact (fun RR : (Roof x z) => (eqrelpair _ (RoofEqrel x z)) RR (roof_comp R1 R2)).
+        * exact (λ RR : (Roof x z), (eqrelpair _ (RoofEqrel x z)) RR (roof_comp R1 R2)).
         * use iseqclassconstr.
           -- intros P X. apply X. clear X P.
              use tpair.
@@ -725,7 +725,7 @@ Section def_roofs.
 
   (** ** Definition of the localization *)
   Definition loc_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) (ob C) (fun x y : ob C => RoofEqclass x y).
+    tpair (λ ob : UU, ob -> ob -> UU) (ob C) (λ x y : ob C, RoofEqclass x y).
 
   Definition IdRoof (x : ob C) : Roof x x.
   Proof.
@@ -782,7 +782,7 @@ Section def_roofs.
   Definition loc_precategory_data : precategory_data :=
     precategory_data_pair
       loc_precategory_ob_mor
-      (fun (x : ob C) => IdRoofEqclass x)
+      (λ (x : ob C), IdRoofEqclass x)
       (fun (x y z : ob C) (f : RoofEqclass x y) (g : RoofEqclass y z) =>
          pr1 (pr1 (roof_comp_iscontr x y z f g))).
 

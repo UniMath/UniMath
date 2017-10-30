@@ -33,7 +33,7 @@ Section def_coequalizers.
     - apply two_rec.
       + apply empty.
       + apply (unit ⨿ unit).
-    - apply (fun _ => empty).
+    - apply (λ _, empty).
   Defined.
 
   Definition Coequalizer_diagram {a b : C} (f g : C⟦a, b⟧) : diagram Coequalizer_graph C.
@@ -114,7 +114,7 @@ Section def_coequalizers.
   Definition hasCoequalizers : UU := ∏ (a b : C) (f g : C⟦a, b⟧), ishinh (Coequalizer f g).
 
   Definition CoequalizerObject {a b : C} {f g : C⟦a, b⟧} :
-    Coequalizer f g -> C := fun H => colim H.
+    Coequalizer f g -> C := λ H, colim H.
 
   Definition CoequalizerArrow {a b : C} {f g : C⟦a, b⟧} (E : Coequalizer f g) :
     C⟦b, colim E⟧ := colimIn E Two.
@@ -146,7 +146,7 @@ Section def_coequalizers.
     apply path_to_ctr.
     use two_rec_dep.
     - set (X := colimInCommutes E One Two (ii1 tt)).
-      apply (maponpaths (fun h : _ => h · w)) in X.
+      apply (maponpaths (λ h : _, h · w)) in X.
       use (pathscomp0 (!X)); rewrite <- assoc.
       change (dmor _ _) with f.
       change (coconeIn _ _) with (f · h).
@@ -189,7 +189,7 @@ Section def_coequalizers.
     unfold colimIn.
     use two_rec_dep; cbn.
     + set (X := (coconeInCommutes (colimCocone E) One Two (ii1 tt))).
-      use (pathscomp0 (! (maponpaths (fun h' : _ => h' · k) X))).
+      use (pathscomp0 (! (maponpaths (λ h' : _, h' · k) X))).
       use (pathscomp0 _ X).
       rewrite <- assoc. apply cancel_precomposition.
       apply kH.

@@ -27,7 +27,7 @@ Proof. intro e. induction p, e. reflexivity. Defined.
 
 Definition maponpaths_2 {X Y Z : UU} (f : X -> Y -> Z) {x x'} (e : x = x') y
   : f x y = f x' y
-:= maponpaths (fun x => f x y) e.
+:= maponpaths (λ x, f x y) e.
 
 Lemma transportf_comp_lemma (X : UU) (B : X -> UU) {A A' A'': X} (e : A = A'') (e' : A' = A'')
   (x : B A) (x' : B A')
@@ -39,7 +39,7 @@ Proof.
     apply maponpaths. exact H.
   eapply pathscomp0. Focus 2.
     symmetry. apply transport_f_f.
-  apply (maponpaths (fun p => transportf _ p x)).
+  apply (maponpaths (λ p, transportf _ p x)).
   apply pathsinv0.
   eapply pathscomp0.
   - apply @pathsinv0, path_assoc.
@@ -56,7 +56,7 @@ Lemma transportf_comp_lemma_hset (X : UU) (B : X -> UU) (A : X) (e : A = A)
 Proof.
   intros ex.
   apply @pathscomp0 with (transportf _ (idpath _) x).
-  - apply (maponpaths (fun p => transportf _ p x)).
+  - apply (maponpaths (λ p, transportf _ p x)).
     apply hs.
   - exact ex.
 Qed.
@@ -64,7 +64,7 @@ Qed.
 Lemma transportf_pair {A B} (P : A × B -> UU) {a a' : A} {b b' : B}
       (eA : a = a') (eB : b = b') (p : P (a,,b))
       : transportf P (pathsdirprod eA eB) p =
-        transportf (fun bb => P(a',,bb) ) eB (transportf (fun aa => P(aa,,b)) eA p).
+        transportf (λ bb, P(a',,bb) ) eB (transportf (λ aa, P(aa,,b)) eA p).
 Proof.
   induction eA. induction eB. apply idpath.
 Defined.
@@ -84,14 +84,14 @@ Defined.
 
 Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
    (a a' : A) (e : a = a') (xs : ∑ b : B a, P _ b):
-   pr1 (transportf (fun x => ∑ b : B x, P _ b) e xs) =
-     transportf (fun x => B x) e (pr1 xs).
+   pr1 (transportf (λ x, ∑ b : B x, P _ b) e xs) =
+     transportf (λ x, B x) e (pr1 xs).
 Proof.
   destruct e; apply idpath.
 Defined.
 
 Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B) :
-   transportf (fun _ => B) e b = b.
+   transportf (λ _, B) e b = b.
 Proof.
   induction e.
   apply idpath.

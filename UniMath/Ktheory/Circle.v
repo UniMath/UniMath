@@ -17,6 +17,7 @@ Require Import UniMath.Ktheory.Utilities.
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
 Open Scope action_scope.
+Unset Automatic Introduction.
 Local Notation "g + x" := (ac_mult _ g x) : action_scope.
 
 Definition circle := B ℤ.
@@ -70,7 +71,7 @@ Local Definition irr {Y} {y:Y} (l:y = y) (T:Torsor ℤ) := proofirrGuidedHomotop
 
 Local Definition sec {Y} {y:Y} (l:y = y) (T:Torsor ℤ) := makeGuidedHomotopy2 T (confun T y) (confun T l).
 
-Definition pr1_GH_weq {Y} {y:Y} {l:y = y} : weq (GH l) (Torsor ℤ) := weqpr1_irr_sec (irr l) (sec l).
+Definition pr1_GH_weq {Y} {y:Y} {l:y = y} : (GH l) ≃ (Torsor ℤ) := weqpr1_irr_sec (irr l) (sec l).
 
 Definition homotinvweqweq_GH_comp {Y} {y:Y} {l:y = y}
            (T:Torsor ℤ) (gh:ZGuidedHomotopy l T) :
@@ -105,16 +106,16 @@ Proof. intros.
        refine (ap (ap pr12_GH)
                   (homotinvweqweq_GH_comp
                      T0
-                     (makeGuidedHomotopy (fun _ : T0 => y)
+                     (makeGuidedHomotopy (λ _ : T0, y)
                                          (confun T0 l) t0 (idpath y)))
                   @ _).
        refine (pr12_pair_path_in2
                  l T0
                  (irr l T0 (sec l T0)
-                      (makeGuidedHomotopy (fun _ : T0 => y) (confun T0 l) t0 (idpath y)))
+                      (makeGuidedHomotopy (λ _ : T0, y) (confun T0 l) t0 (idpath y)))
                  @ _).
        unfold sec.
-       change (makeGuidedHomotopy (fun _ : T0 => y) (confun T0 l) t0 (idpath y))
+       change (makeGuidedHomotopy (λ _ : T0, y) (confun T0 l) t0 (idpath y))
        with (sec l T0).
        change (makeGuidedHomotopy2 T0 (confun T0 y) (confun T0 l))
        with (sec l T0).
@@ -178,7 +179,7 @@ Definition makeGH_transPath {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T) {y'} (h:y' 
 Proof. intros. apply GH_path3.
        (* copied from the proof of [makeGuidedHomotopy_transPath] *)
        exact (ℤTorsorRecursion_transition_inv
-                _ (fun t => weq_pathscomp0r y' l) _ _). Defined.
+                _ (λ t, weq_pathscomp0r y' l) _ _). Defined.
 
 Definition makeGH_transPath_comp1 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T) {y'} (h:y' = y)
   : ap pr1_GH (makeGH_transPath l t h) = idpath T.
@@ -206,7 +207,7 @@ Definition makeGH_diagonalLoop_comp1 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T)
 Proof. intros. unfold makeGH_diagonalLoop.
        refine (maponpaths_naturality (makeGH_transPath_comp1 _ _ _) _).
        refine (maponpaths_naturality (makeGH_localPath_comp1 _ _ _ _) _).
-       rewrite <- (pathscomp0rid (paths_rect _ _ (fun b _ => b = T) _ _ q)). (* Used to be "rewrite <- (pathscomp0rid (! q))", which was more perspicuous. *)
+       rewrite <- (pathscomp0rid (paths_rect _ _ (λ b _, b = T) _ _ q)). (* Used to be "rewrite <- (pathscomp0rid (! q))", which was more perspicuous. *)
        refine (maponpaths_naturality' (makeGH_horizontalPath_comp1 _ _ _ _) _).
        rewrite <- (pathscomp0rid (idpath T)).
        refine (maponpaths_naturality (makeGH_localPath_comp1 _ _ _ _) _).
@@ -247,8 +248,8 @@ Proof. intros. assert (p := pr1_GH_weq_compute l).
        { intermediate_path (ap (circle_map l) circle_loop @ idpath y).
          { apply pathsinv0. apply pathscomp0rid. }
          { apply pathsinv0. rewrite pathsinv0inv0.
-           exact (ap (fun r => ap (circle_map l) circle_loop @ r) p). } }
-       { exact (ap (fun r => r @ l) p). } Defined.
+           exact (ap (λ r, ap (circle_map l) circle_loop @ r) p). } }
+       { exact (ap (λ r, r @ l) p). } Defined.
 
 (** *** The induction principle (dependent functions) *)
 
@@ -271,7 +272,7 @@ Proof. intros. apply funextsec.
        simple refine (circle_map' _ _ _).
        { reflexivity. }
        { set (y := f (basepoint circle)). set (l := ap f circle_loop).
-         set (P := fun T : underlyingType circle => circle_map _ T = f T).
+         set (P := λ T : underlyingType circle, circle_map _ T = f T).
          apply transport_fun_path. rewrite pathscomp0rid.
          change (idpath y @ ap f circle_loop) with (ap f circle_loop).
          exact (! circle_map_check_paths l). } Defined.

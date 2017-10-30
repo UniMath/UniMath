@@ -25,7 +25,7 @@ Variable C : precategory.
 
 Definition isTerminal (b : C) : UU := ∏ a : C, iscontr (a --> b).
 
-Definition Terminal : UU := total2 (fun a => isTerminal a).
+Definition Terminal : UU := total2 (λ a, isTerminal a).
 
 Definition TerminalObject (T : Terminal) : C := pr1 T.
 Coercion TerminalObject : Terminal >-> ob.
@@ -138,7 +138,7 @@ End Terminal_and_EmptyProd.
 (* Definition empty_graph : graph. *)
 (* Proof. *)
 (*   exists empty. *)
-(*   exact (fun _ _ => empty). *)
+(*   exact (λ _ _, empty). *)
 (* Defined. *)
 
 (* Definition termDiagram : diagram empty_graph C^op. *)

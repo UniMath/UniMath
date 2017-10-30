@@ -161,7 +161,7 @@ Local Definition option_list (xs : list sort) : functor (SET / sort) (SET / sort
 Proof.
 (* This should be foldr1 in order to avoid composing with the
    identity functor in the base case *)
-use (foldr1 (fun F G => F ∙ G) (functor_identity _) (map sorted_option_functor xs)).
+use (foldr1 (λ F G, F ∙ G) (functor_identity _) (map sorted_option_functor xs)).
 Defined.
 
 (** Define a functor
@@ -199,7 +199,7 @@ set (T := constant_functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET]
 set (XS := map exp_functor xs).
 (* This should be foldr1 in order to avoid composing with the
    constant functor in the base case *)
-use (foldr1 (fun F G => BinProduct_of_functors _ F G) T XS).
+use (foldr1 (λ F G, BinProduct_of_functors _ F G) T XS).
 apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
 
@@ -304,7 +304,7 @@ Qed.
 (* The signature for MultiSortedSigToFunctor *)
 Definition MultiSortedSigToSignature (M : MultiSortedSig) : Signature _ hs _ hs.
 Proof.
-set (Hyps := fun (op : ops M) => Sig_hat_exp_functor_list (arity M op)).
+set (Hyps := λ (op : ops M), Sig_hat_exp_functor_list (arity M op)).
 refine (Sum_of_Signatures (ops M) _ Hyps).
 apply Coproducts_slice_precat, CoproductsHSET, setproperty.
 Defined.
@@ -606,7 +606,7 @@ Defined.
 Definition MultiSortedSig : UU :=
   ∏ (s : sort), ∑ (I : UU), (I → list (list sort × sort)). (* × (isaset I). *)
 
-Definition indices (M : MultiSortedSig) : sort → UU := fun s => pr1 (M s).
+Definition indices (M : MultiSortedSig) : sort → UU := λ s, pr1 (M s).
 
 Definition args (M : MultiSortedSig) (s : sort) : indices M s → list (list sort × sort) :=
   pr2 (M s).
@@ -696,7 +696,7 @@ set (XS := map exp_functor xs).
 set (T := constant_functor [sortToC,sortToC] [sortToC,C]
                            (constant_functor sortToC C TC)).
 (* TODO: Maybe use indexed finite products instead of a fold? *)
-apply (foldr1 (fun F G => BinProduct_of_functors BinProductsSortToCToC F G) T XS).
+apply (foldr1 (λ F G, BinProduct_of_functors BinProductsSortToCToC F G) T XS).
 Defined.
 
 (* H follows if C has exponentials? *)

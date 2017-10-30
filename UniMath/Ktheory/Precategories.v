@@ -13,8 +13,6 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Local Open Scope cat.
 
-Set Automatic Introduction.
-
 Notation "a <-- b" := (@precategory_morphisms (opp_precat _) a b) (at level 50) : cat.
 
 Definition src {C:precategory} {a b:C} (f:a-->b) : C := a.
@@ -117,7 +115,7 @@ Definition isomorphismOnMor {B C:category} (F:categoryIsomorphism B C)
 Definition makecategory_ob_mor
     (obj : UU)
     (mor : obj -> obj -> UU) : precategory_ob_mor
-  := precategory_ob_mor_pair obj (fun i j:obj => mor i j).
+  := precategory_ob_mor_pair obj (λ i j:obj, mor i j).
 
 Definition makecategory_data
     (obj : UU)
@@ -331,9 +329,7 @@ Proof. induction C as [[ob mor] [id co]]. reflexivity. Defined.
 Lemma opp_opp_precat (C:category) : C = C^op^op.
 Proof.
   apply category_eq.         (* we need both associativity axioms to avoid this *)
-  tryif primitive_projections
-  then reflexivity
-  else induction C as [[[[obj mor] [id comp]] p] h]; reflexivity.
+  reflexivity.
 Qed.
 
 Definition functorOp {B C : category} : [B, C] ^op ⟶ [B ^op, C ^op].

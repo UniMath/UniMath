@@ -84,7 +84,7 @@ Qed.
 
 Lemma CoproductArrowEta (a : I -> C) (CC : CoproductCocone a) (x : C)
     (f : CoproductObject CC --> x) :
-    f = CoproductArrow CC (fun i => CoproductIn CC i · f).
+    f = CoproductArrow CC (λ i, CoproductIn CC i · f).
 Proof.
   now apply CoproductArrowUnique.
 Qed.
@@ -93,7 +93,7 @@ Qed.
 Definition CoproductOfArrows {a : I -> C} (CCab : CoproductCocone a) {c : I -> C}
     (CCcd : CoproductCocone c) (f : ∏ i, a i --> c i) :
           CoproductObject CCab --> CoproductObject CCcd :=
-    CoproductArrow CCab (fun i => f i · CoproductIn CCcd i).
+    CoproductArrow CCab (λ i, f i · CoproductIn CCcd i).
 
 Lemma CoproductOfArrowsIn {a : I -> C} (CCab : CoproductCocone a) {c : I -> C}
     (CCcd : CoproductCocone c) (f : ∏ i, a i --> c i) :
@@ -125,7 +125,7 @@ Lemma precompWithCoproductArrow {a : I -> C} (CCab : CoproductCocone a) {c : I -
     (CCcd : CoproductCocone c) (f : ∏ i, a i --> c i)
     {x : C} (k : ∏ i, c i --> x) :
         CoproductOfArrows CCab CCcd f · CoproductArrow CCcd k =
-         CoproductArrow CCab (fun i => f i · k i).
+         CoproductArrow CCab (λ i, f i · k i).
 Proof.
 apply CoproductArrowUnique; intro i.
 now rewrite assoc, CoproductOfArrowsIn, <- assoc, CoproductInCommutes.
@@ -133,7 +133,7 @@ Qed.
 
 Lemma postcompWithCoproductArrow {a : I -> C} (CCab : CoproductCocone a) {c : C}
     (f : ∏ i, a i --> c) {x : C} (k : c --> x)  :
-       CoproductArrow CCab f · k = CoproductArrow CCab (fun i => f i · k).
+       CoproductArrow CCab f · k = CoproductArrow CCab (λ i, f i · k).
 Proof.
 apply CoproductArrowUnique; intro i.
 now rewrite assoc, CoproductInCommutes.
@@ -168,7 +168,7 @@ Variables (I : UU) (C : precategory) (CC : Coproducts I C).
 Definition CoproductOfArrows_comp (a b c : I -> C)
   (f : ∏ i, a i --> b i) (g : ∏ i, b i --> c i) :
    CoproductOfArrows _ _ _ _ f · CoproductOfArrows _ _ (CC _) (CC _) g
-   = CoproductOfArrows _ _ (CC _) (CC _)(fun i => f i · g i).
+   = CoproductOfArrows _ _ (CC _) (CC _)(λ i, f i · g i).
 Proof.
 apply CoproductArrowUnique; intro i.
 rewrite assoc, CoproductOfArrowsIn.
@@ -235,11 +235,11 @@ Section coproduct_of_functors.
 Variables (F : I -> functor C D).
 
 Definition coproduct_of_functors_ob (c : C) : D
-  := CoproductObject _ _ (HD (fun i => F i c)).
+  := CoproductObject _ _ (HD (λ i, F i c)).
 
 Definition coproduct_of_functors_mor (c c' : C) (f : c --> c')
   : coproduct_of_functors_ob c --> coproduct_of_functors_ob c' :=
-  CoproductOfArrows _ _ _ _ (fun i => # (F i) f).
+  CoproductOfArrows _ _ _ _ (λ i, # (F i) f).
 
 Definition coproduct_of_functors_data : functor_data C D.
 Proof.
@@ -283,7 +283,7 @@ Defined.
 
 Definition coproduct_nat_trans_in_data i (c : C) :
   D ⟦ (F i) c, coproduct_of_functors c ⟧ :=
-  CoproductIn _ _ (HD (fun j => (F j) c)) i.
+  CoproductIn _ _ (HD (λ j, (F j) c)) i.
 
 Lemma is_nat_trans_coproduct_nat_trans_in_data i :
   is_nat_trans _ _ (coproduct_nat_trans_in_data i).
@@ -302,7 +302,7 @@ Variable f : ∏ i, nat_trans (F i) A.
 
 Definition coproduct_nat_trans_data c :
   coproduct_of_functors c --> A c :=
-    CoproductArrow _ _ _ (fun i => f i c).
+    CoproductArrow _ _ _ (λ i, f i c).
 
 Lemma is_nat_trans_coproduct_nat_trans_data :
   is_nat_trans _ _ coproduct_nat_trans_data.

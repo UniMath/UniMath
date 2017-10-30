@@ -15,9 +15,9 @@ Definition propproperty ( X : hProp ) := pr2 X .
 
 
 
-Lemma total2_paths_UU  {B : UU -> UU} {s s' : total2 (fun x => B x)}
+Lemma total2_paths_UU  {B : UU -> UU} {s s' : total2 (λ x, B x)}
     (p : pr1 s = pr1 s')
-    (q : transportf (fun x => B x) p (pr2 s) = pr2 s') :
+    (q : transportf (λ x, B x) p (pr2 s) = pr2 s') :
                s = s'.
 Proof.
   induction s as [a b].
@@ -30,11 +30,11 @@ Defined.
 
 
 Lemma total2_paths2_UU {B : UU -> UU} {A A': UU} {b : B A}
-     {b' : B A'} (p : A = A') (q : transportf (fun x => B x) p b = b') :
-    tpair (fun x => B x) A b = tpair (fun x => B x) A' b'.
+     {b' : B A'} (p : A = A') (q : transportf (λ x, B x) p b = b') :
+    tpair (λ x, B x) A b = tpair (λ x, B x) A' b'.
 Proof.
   apply (@total2_paths_f _ _
-     (tpair (fun x => B x) A b)(tpair (fun x => B x) A' b') p q).
+     (tpair (λ x, B x) A b)(tpair (λ x, B x) A' b') p q).
 Defined.
 
 
@@ -44,15 +44,15 @@ Proof.
 Defined.
 
 
-Definition fiber_paths_UU {B : UU -> UU} {u v : total2 (fun x => B x)}
-  (p : u = v) : transportf (fun x => B x) (base_paths_UU _ _ p) (pr2 u) = pr2 v.
+Definition fiber_paths_UU {B : UU -> UU} {u v : total2 (λ x, B x)}
+  (p : u = v) : transportf (λ x, B x) (base_paths_UU _ _ p) (pr2 u) = pr2 v.
 Proof.
   induction p.
   apply idpath.
 Defined.
 
 
-Lemma total2_fiber_paths_UU {B : UU -> UU} {x y : total2 (fun x => B x)}
+Lemma total2_fiber_paths_UU {B : UU -> UU} {x y : total2 (λ x, B x)}
  (p : x = y) : total2_paths_UU  _ (fiber_paths_UU p) = p.
 Proof.
   induction p.
@@ -61,7 +61,7 @@ Proof.
 Defined.
 
 
-Lemma base_total2_paths_UU {B : UU -> UU} {x y : total2 (fun x => B x)}
+Lemma base_total2_paths_UU {B : UU -> UU} {x y : total2 (λ x, B x)}
   {p : pr1 x = pr1 y} (q : transportf _ p (pr2 x) = pr2 y) :
   (base_paths_UU _ _ (total2_paths_UU _ q)) = p.
 Proof.
@@ -73,7 +73,7 @@ Proof.
 Defined.
 
 
-Lemma transportf_fiber_total2_paths_UU (B : UU -> UU) (x y : total2 (fun x => B x))
+Lemma transportf_fiber_total2_paths_UU (B : UU -> UU) (x y : total2 (λ x, B x))
   (p : pr1 x = pr1 y) (q : transportf _ p (pr2 x) = pr2 y) :
   transportf (fun p' : pr1 x = pr1 y => transportf _ p' (pr2 x) = pr2 y)
   (base_total2_paths_UU q)  (fiber_paths_UU (total2_paths_UU _ q)) = q.
@@ -88,14 +88,14 @@ Defined.
 
 
 
-Lemma eq_equalities_between_pairs (A : UU)(B : A -> UU)(x y : total2 (fun x => B x))
+Lemma eq_equalities_between_pairs (A : UU)(B : A -> UU)(x y : total2 (λ x, B x))
     (p q : x = y) (H : base_paths _ _ p = base_paths _ _ q)
     (H2 : transportf (fun p : pr1 x = pr1 y =>  transportf _ p (pr2 x) = pr2 y )
          H (fiber_paths p) = fiber_paths q) :  p = q.
 Proof.
   apply (invmaponpathsweq (total2_paths_equiv _ _ _ )).
   apply (total2_paths_f (B:=(fun p : pr1 x = pr1 y =>
-          transportf (fun x : A => B x) p (pr2 x) = pr2 y))
+          transportf (λ x : A, B x) p (pr2 x) = pr2 y))
           (s:=(total2_paths_equiv B x y) p)
           (s':=(total2_paths_equiv B x y) q) H).
   assumption.

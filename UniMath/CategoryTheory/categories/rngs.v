@@ -23,11 +23,11 @@ Section def_rng_precategory.
   Definition rng_fun_space (A B : rng) : hSet := hSetpair (rngfun A B) (isasetrigfun A B).
 
   Definition rng_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) rng (fun A B : rng => rng_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) rng (λ A B : rng, rng_fun_space A B).
 
   Definition rng_precategory_data : precategory_data :=
     precategory_data_pair
-      rng_precategory_ob_mor (fun (X : rng) => (rigisotorigfun (idrigiso X)))
+      rng_precategory_ob_mor (λ (X : rng), (rigisotorigfun (idrigiso X)))
       (fun (X Y Z : rng) (f : rngfun X Y) (g : rngfun Y Z) => rigfuncomp f g).
 
   Local Lemma rng_id_left (X Y : rng) (f : rngfun X Y) :

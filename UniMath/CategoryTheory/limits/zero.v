@@ -23,7 +23,7 @@ Section def_zero.
     - apply impred. intros t. apply isapropiscontr.
   Qed.
 
-  Definition Zero : UU := total2 (fun a => isZero a).
+  Definition Zero : UU := total2 (λ a, isZero a).
 
   Definition ZeroObject (Z : Zero) : C := pr1 Z.
   Coercion ZeroObject : Zero >-> ob.
@@ -177,7 +177,7 @@ Section def_zero.
   Qed.
 
   Lemma transport_source_ZeroArrow {a b c : C} (Z : Zero) (e : b = a) :
-    transportf (fun (a' : ob C) => precategory_morphisms a' c) e (ZeroArrow Z b c) = ZeroArrow Z a c.
+    transportf (λ (a' : ob C), precategory_morphisms a' c) e (ZeroArrow Z b c) = ZeroArrow Z a c.
   Proof.
     induction e. apply idpath.
   Qed.

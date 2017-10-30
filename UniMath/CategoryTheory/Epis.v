@@ -89,7 +89,7 @@ Section def_epi.
   Definition isEpi_precomp {x y z : C} (f : x --> y) (g : y --> z) : isEpi (f · g) -> isEpi g.
   Proof.
     intros X. intros w φ ψ H.
-    apply (maponpaths (fun g' => f · g')) in H.
+    apply (maponpaths (λ g', f · g')) in H.
     repeat rewrite assoc in H.
     apply (X w _ _ H).
   Defined.
@@ -107,7 +107,7 @@ Section def_epi.
   Qed.
 
   Lemma transport_source_isEpi {x y z : C} (f : y --> z) (E : isEpi f) (e : y = x) :
-    isEpi (transportf (fun x' : ob C => precategory_morphisms x' z) e f).
+    isEpi (transportf (λ x' : ob C, precategory_morphisms x' z) e f).
   Proof.
     induction e. apply E.
   Qed.
@@ -122,10 +122,10 @@ Section epis_subcategory.
   Variable C : precategory.
   Hypothesis hs : has_homsets C.
 
-  Definition hsubtype_obs_isEpi : hsubtype C := (fun c : C => hProppair _ isapropunit).
+  Definition hsubtype_obs_isEpi : hsubtype C := (λ c : C, hProppair _ isapropunit).
 
   Definition hsubtype_mors_isEpi : ∏ (a b : C), hsubtype (C⟦a, b⟧) :=
-    (fun a b : C => (fun f : C⟦a, b⟧ => hProppair _ (isapropisEpi C hs f))).
+    (λ a b : C, (fun f : C⟦a, b⟧ => hProppair _ (isapropisEpi C hs f))).
 
   Definition subprecategory_of_epis : sub_precategories C.
   Proof.

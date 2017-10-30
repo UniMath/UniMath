@@ -24,7 +24,7 @@ Variable C : precategory.
 
 Definition isInitial (a : C) : UU := ∏ b : C, iscontr (a --> b).
 
-Definition Initial : UU := total2 (fun a => isInitial a).
+Definition Initial : UU := total2 (λ a, isInitial a).
 
 Definition InitialObject (O : Initial) : C := pr1 O.
 Coercion InitialObject : Initial >-> ob.
@@ -130,7 +130,7 @@ End Initial_and_EmptyCoprod.
 (* Definition empty_graph : graph. *)
 (* Proof. *)
 (*   exists empty. *)
-(*   exact (fun _ _ => empty). *)
+(*   exact (λ _ _, empty). *)
 (* Defined. *)
 
 (* Definition initDiagram : diagram empty_graph C. *)

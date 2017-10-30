@@ -117,7 +117,7 @@ Section def_pseudo_element.
   Definition PEqEq {c : A} {PE1 PE2 : PseudoElem c} (PE : PEq PE1 PE2) :
     (PEqEpi1 PE) · PE2 = (PEqEpi2 PE) · PE1 := pr2 (pr2 (pr2 PE)).
 
-  Definition PEq_hrel {c : A} : hrel (PseudoElem c) := fun (PE1 PE2 : PseudoElem c) => ∥ PEq PE1 PE2 ∥.
+  Definition PEq_hrel {c : A} : hrel (PseudoElem c) := λ (PE1 PE2 : PseudoElem c), ∥ PEq PE1 PE2 ∥.
 
   Definition PEq_precomp_Epi {c d : A} (P : PseudoElem c) (E : Epi A d (PseudoOb P)) :
     PEq P (mk_PseudoElem (E · P)).
@@ -431,7 +431,7 @@ Section def_pseudo_element.
         * cbn. rewrite id_left. apply pathsinv0.
           set (tmp := PullbackSqrCommutes Pb).
           set (tmp' := factorization1 hs f).
-          apply (maponpaths (fun gg : _ => gg · (factorization1_monic A f))) in tmp.
+          apply (maponpaths (λ gg : _, gg · (factorization1_monic A f))) in tmp.
           rewrite <- assoc in tmp. rewrite <- tmp' in tmp. clear tmp'.
           use (pathscomp0 tmp). clear tmp. rewrite <- assoc. apply cancel_precomposition.
           use (KernelCommutes (to_Zero A) K).

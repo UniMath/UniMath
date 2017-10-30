@@ -53,7 +53,7 @@ Lemma is_nat_trans_pre_whisker (A B C : precategory_data)
    is_nat_trans
         (functor_composite_data F G)
         (functor_composite_data F H)
-   (fun a : A => gamma (F a)).
+   (λ a : A, gamma (F a)).
 Proof.
   intros a b f; simpl.
   apply nat_trans_ax.
@@ -64,7 +64,7 @@ Definition pre_whisker {A B C : precategory_data}
    (F : functor_data A B)  {G H : functor_data B C} (gamma : nat_trans G H) :
    nat_trans (functor_composite_data F G)  (functor_composite_data F H).
 Proof.
-  exists (fun a => pr1 gamma (pr1 F a)).
+  exists (λ a, pr1 gamma (pr1 F a)).
   apply is_nat_trans_pre_whisker.
 Defined.
 
@@ -84,7 +84,7 @@ Lemma is_nat_trans_post_whisker (B C D : precategory_data)
         (K : functor C D):
   is_nat_trans (functor_composite_data  G K)
                          (functor_composite_data H K)
-     (fun b : B => #K (gamma b)).
+     (λ b : B, #K (gamma b)).
 Proof.
   unfold is_nat_trans.
   simpl in *.
@@ -99,7 +99,7 @@ Definition post_whisker {B C D : precategory_data}
         (K : functor C D)
   : nat_trans (functor_composite_data G K) (functor_composite_data H K).
 Proof.
-  exists (fun a : ob B => #(pr1 K) (pr1 gamma  a)).
+  exists (λ a : ob B, #(pr1 K) (pr1 gamma  a)).
   apply is_nat_trans_post_whisker.
 Defined.
 
@@ -122,8 +122,8 @@ Definition pre_composition_functor_data (A B C : precategory)
   (hsB: has_homsets B) (hsC: has_homsets C)
       (H : ob [A, B, hsB]) : functor_data [B,C,hsC] [A,C,hsC].
 Proof.
-  exists (fun G => functor_compose _ _ H G).
-  exact (fun a b gamma => pre_whisker (pr1 H)  gamma).
+  exists (λ G, functor_compose _ _ H G).
+  exact (λ a b gamma, pre_whisker (pr1 H)  gamma).
 Defined.
 
 
@@ -179,8 +179,8 @@ Definition post_composition_functor_data (A B C : precategory)
   (hsB: has_homsets B) (hsC: has_homsets C)
       (H : ob [B, C, hsC]) : functor_data [A,B,hsB] [A,C,hsC].
 Proof.
-  exists (fun G => functor_compose _ _ G H).
-  exact (fun a b gamma => post_whisker gamma H).
+  exists (λ G, functor_compose _ _ G H).
+  exact (λ a b gamma, post_whisker gamma H).
 Defined.
 
 

@@ -25,6 +25,8 @@ Require Import UniMath.Ktheory.Utilities
                UniMath.Ktheory.Nat
                UniMath.Ktheory.MoreEquivalences.
 
+Unset Automatic Introduction.
+
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Open Scope hz_scope.
 
@@ -77,7 +79,7 @@ Proof. intros.
                 (∏ n : nat, pr2 f (S n) = IH n (pr2 f n)) ×
                 (pr1 f O = IH' O (pr2 f O)) ×
                 (∏ n : nat, pr1 f (S n) = IH' (S n) (pr1 f n))).
-       { apply (weqbandf (weqsecovercoprodtoprod (fun w => P (negpos w)))).
+       { apply (weqbandf (weqsecovercoprodtoprod (λ w, P (negpos w)))).
          intro f. apply idweq. }
        intermediate_iscontr (
               ∑ f : (∏ n, P (negpos (ii2 n))) ×
@@ -119,9 +121,9 @@ Proof. intros.
        { apply weqfibtototal; intro f2. apply weqfibtototal; intro h0.
          apply weqpr1; intro ih2.
          exact (Nat.Uniqueness.hNatRecursionUniq
-                   (fun n => P (negpos (ii1 n)))
+                   (λ n, P (negpos (ii1 n)))
                    (IH' O (f2 O))
-                   (fun n => IH' (S n))). }
+                   (λ n, IH' (S n))). }
        apply Nat.Uniqueness.hNatRecursionUniq.
 Defined.
 
@@ -132,7 +134,7 @@ Lemma A (P:ℤ->Type) (p0:P zero)
       (@hfiber
          (total2 (ℤRecursionData P IH IH'))
          (P zero)
-         (fun fh => pr1 fh zero)
+         (λ fh, pr1 fh zero)
          p0).
 Proof. intros.
        simple refine (weqpair _ (gradth _ _ _ _)).
@@ -145,7 +147,7 @@ Lemma ℤRecursion_weq (P:ℤ->Type)
       (IH :∏ n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':∏ n, P(- toℤ n) -> P(- toℤ (S n))) :
   weq (total2 (ℤRecursionData P IH IH')) (P 0).
-Proof. intros. exists (fun f => pr1 f zero). intro p0.
+Proof. intros. exists (λ f, pr1 f zero). intro p0.
        apply (iscontrweqf (A _ _ _ _)). apply ℤRecursionUniq. Defined.
 
 Lemma ℤRecursion_weq_compute (P:ℤ->Type)
@@ -166,15 +168,15 @@ Definition ℤBiRecursion_weq (P:ℤ->Type) (IH :∏ i, weq (P i) (P(1+i))) :
 Proof. intros.
        assert (k : ∏ n, one + toℤ n = toℤ (S n)).
        { intro. rewrite nattohzandS. reflexivity. }
-       set (l := fun n : nat => weq_transportf P (k n)).
+       set (l := λ n : nat, weq_transportf P (k n)).
        assert (k' : ∏ n, - toℤ n = one + (- toℤ (S n))).
        { intros. unfold one, toℤ. rewrite nattohzand1.
          rewrite nattohzandS. rewrite hzminusplus. rewrite <- (hzplusassoc one).
          rewrite (hzpluscomm one). rewrite hzlminus. rewrite hzplusl0.
          reflexivity. }
-       set (l' := fun n => weq_transportf P (k' n)).
-       set (ih := fun n => weqcomp (IH (toℤ n)) (l n)).
-       set (ih':= fun n => (weqcomp (l' n) (invweq (IH (- toℤ (S n)))))).
+       set (l' := λ n, weq_transportf P (k' n)).
+       set (ih := λ n, weqcomp (IH (toℤ n)) (l n)).
+       set (ih':= λ n, (weqcomp (l' n) (invweq (IH (- toℤ (S n)))))).
        set (G := ℤRecursion_weq P ih ih'). simple refine (weqcomp _ G).
        apply weqfibtototal. intro f. unfold ℤRecursionData, ℤBiRecursionData.
        simple refine (weqcomp (weqonsecbase _ negpos) _).
@@ -214,18 +216,18 @@ Definition GuidedSection {T:Torsor ℤ}
 Definition ℤTorsorRecursion_weq {T:Torsor ℤ} (P:T->Type)
       (IH:∏ t, weq (P t) (P (one + t))) (t0:T) :
   weq (total2 (GuidedSection P IH)) (P t0).
-Proof. intros. exists (fun fh => pr1 fh t0). intro q.
+Proof. intros. exists (λ fh, pr1 fh t0). intro q.
        set (w := triviality_isomorphism T t0).
        assert (k0 : ∏ i, one + w i = w (1+i)%hz).
        { intros. simpl. unfold right_mult, ac_mult. rewrite act_assoc.
          reflexivity. }
-       set (l0 := (fun i => eqweqmap (ap P (k0 i)))
+       set (l0 := (λ i, eqweqmap (ap P (k0 i)))
                : ∏ i, weq (P(one + w i)) (P(w(1+i)%hz))).
        assert( e : right_mult t0 zero = t0 ). { apply act_unit. }
-       set (H := fun f => ∏ t : T, f (one + t) = (IH t) (f t)).
-       set ( IH' := (fun i => weqcomp (IH (w i)) (l0 i))
+       set (H := λ f, ∏ t : T, f (one + t) = (IH t) (f t)).
+       set ( IH' := (λ i, weqcomp (IH (w i)) (l0 i))
                     : ∏ i:ℤ, weq (P (w i)) (P (w(1+i)%hz))).
-       set (J := fun f => ∏ i : ℤ, f (1 + i)%hz = (IH' i) (f i)).
+       set (J := λ f, ∏ i : ℤ, f (1 + i)%hz = (IH' i) (f i)).
        simple refine (iscontrweqb (@weq_over_sections ℤ T w 0 t0 e P q (e#'q) _ H J _) _).
        { apply transportfbinv. }
        { intro. apply invweq. unfold H,J,maponsec1. simple refine (weqonsec _ _ w _).
@@ -234,7 +236,7 @@ Proof. intros. exists (fun fh => pr1 fh t0). intro q.
          { unfold l0. rewrite (k0 i). reflexivity. }
          { unfold IH'. unfold weqcomp; simpl.
            rewrite (homotinvweqweq (l0 i)). reflexivity. } }
-       exact (pr2 (ℤBiRecursion_weq (fun i => P(w i)) IH') (e #' q)).
+       exact (pr2 (ℤBiRecursion_weq (λ i, P(w i)) IH') (e #' q)).
 Defined.
 
 Definition ℤTorsorRecursion_compute {T:Torsor ℤ} (P:T->Type)
@@ -278,7 +280,7 @@ Proof. intros.
 Definition ℤTorsorRecursion {T:Torsor ℤ} (P:T->Type)
       (IH:∏ t, weq (P t) (P (one + t)))
       (t t':T) :
-  weq (P t) (P t').
+  (P t) ≃ (P t').
 Proof. intros.
        exact (weqcomp (invweq (ℤTorsorRecursion_weq P IH t))
                       (ℤTorsorRecursion_weq P IH t')). Defined.
@@ -333,7 +335,7 @@ Proof. intros. apply (squash_to_prop (torsor_nonempty T)).
           by a corollary of it, with the new center. *)
        apply ( iscontrweqb (Y := ∑ y:Y, y = f t0)).
        { apply weqfibtototal; intro y.
-         exact (ℤTorsorRecursion_weq _ (fun t => weq_pathscomp0r _ _) t0). }
+         exact (ℤTorsorRecursion_weq _ (λ t, weq_pathscomp0r _ _) t0). }
        apply iscontrcoconustot. Defined.
 
 Corollary proofirrGuidedHomotopy {Y} (T:Torsor ℤ) (f:T->Y) (s:target_paths f) :
@@ -357,30 +359,30 @@ Definition iscontrGuidedHomotopy_comp_2 {Y} :
         (idpath (f t0)).
 Proof. intros.
        assert (a2 := fiber_paths (iscontrweqb_compute
-                      (weqfibtototal (GHomotopy f s) (fun y : Y => y = f t0)
-                                     (fun y : Y =>
-                                        ℤTorsorRecursion_weq (fun t : T => y = f t)
-                                                              (fun t : T => weq_pathscomp0r y (s t)) t0))
+                      (weqfibtototal (GHomotopy f s) (λ y : Y, y = f t0)
+                                     (λ y : Y,
+                                        ℤTorsorRecursion_weq (λ t : T, y = f t)
+                                                              (λ t : T, weq_pathscomp0r y (s t)) t0))
                       (iscontrcoconustot Y (f t0)))
                 : @paths (GHomotopy f s (f t0)) _ _).
        assert (Q1 := eqtohomot (ap pr1 ((idpath _ :
                                             (pr2
                                                (thePoint
                                                   (iscontrweqb
-                                                     (weqfibtototal (GHomotopy f s) (fun y : Y => y = f t0)
-                                                                    (fun y : Y =>
-                                                                       ℤTorsorRecursion_weq (fun t : T => y = f t)
-                                                                                            (fun t : T => weq_pathscomp0r y (s t)) t0))
+                                                     (weqfibtototal (GHomotopy f s) (λ y : Y, y = f t0)
+                                                                    (λ y : Y,
+                                                                       ℤTorsorRecursion_weq (λ t : T, y = f t)
+                                                                                            (λ t : T, weq_pathscomp0r y (s t)) t0))
                                                      (iscontrcoconustot Y (f t0)))))
                                             =
                                             (path_start a2)) @ a2)) t0).
        assert (Q2 := eqtohomot
                        (ap pr1
                            (compute_pr2_invmap_weqfibtototal
-                              (fun y : Y =>
+                              (λ y : Y,
                                  ℤTorsorRecursion_weq
-                                   (fun t : T => y = f t)
-                                   (fun t : T => weq_pathscomp0r y (s t)) t0)
+                                   (λ t : T, y = f t)
+                                   (λ t : T, weq_pathscomp0r y (s t)) t0)
                               (f t0,, idpath (f t0))))
                        t0).
        assert (Q3 := ℤTorsorRecursion_inv_compute
@@ -417,8 +419,8 @@ Definition makeGuidedHomotopy {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y=f t0) :
   GuidedHomotopy f s.
 Proof. intros. exact (y ,, invweq (ℤTorsorRecursion_weq
-               (fun t : T => y = f t)
-               (fun t => weq_pathscomp0r y (s t))
+               (λ t : T, y = f t)
+               (λ t, weq_pathscomp0r y (s t))
                t0) h0). Defined.
 
 Definition makeGuidedHomotopy1 {T:Torsor ℤ} {Y} (f:T->Y)
@@ -452,7 +454,7 @@ Definition makeGuidedHomotopy_transPath {T:Torsor ℤ} {Y} (f:T->Y)
   makeGuidedHomotopy f s t0 h0 = makeGuidedHomotopy f s (one+t0) (h0 @ s t0).
 Proof. intros. apply (maponpaths (tpair _ _)).
        exact (ℤTorsorRecursion_transition_inv
-                _ (fun t => weq_pathscomp0r y (s t)) _ _). Defined.
+                _ (λ t, weq_pathscomp0r y (s t)) _ _). Defined.
 
 Definition makeGuidedHomotopy_transPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y=f t0) :
@@ -461,7 +463,7 @@ Proof. intros.
        unfold makeGuidedHomotopy_transPath.
        exact (pair_path_in2_comp1 _
                 (ℤTorsorRecursion_transition_inv
-                   _ (fun t => weq_pathscomp0r y (s t)) _ _)). Defined.
+                   _ (λ t, weq_pathscomp0r y (s t)) _ _)). Defined.
 
 Definition makeGuidedHomotopy_diagonalPath {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) (t0:T) :
@@ -551,7 +553,7 @@ Proof. intros. set (p' := squash_path t (one + t)).
        destruct e. apply check_paths. Defined.
 
 Definition add_one {T:Torsor ℤ} : affine_line T -> affine_line T.
-Proof. intros ?. exact (squash_fun (fun t => one + t)). Defined.
+Proof. intros ?. exact (squash_fun (λ t, one + t)). Defined.
 
 (** ** The image of the mere point in an affine line
 

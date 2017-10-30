@@ -107,7 +107,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_leaf (X : hSet) (x : X) (f : pr1 A × X × X -> X) : foldr X x f leaf = x.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn1 _ (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -116,7 +116,7 @@ Lemma foldr_node (X : hSet) (x : X) (f : pr1 A × X × X -> X)
                  (a : pr1 A) (l1 l2 : pr1 Tree) :
   foldr X x f (node (a,,l1,,l2)) = f (a,,foldr X x f l1,,foldr X x f l2).
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _)· x)
+assert (F := maponpaths (λ x, BinCoproductIn2 _ (BinCoproductsHSET _ _)· x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 assert (Fal := toforallpaths _ _ _ F (a,,l1,,l2)).
 clear F.
@@ -155,7 +155,7 @@ Defined.
 Opaque is_omega_cocont_treeFunctor.
 
 Lemma isalghom_pr1foldr :
-  is_algebra_mor _ Tree_alg Tree_alg (fun l => pr1 (foldr P'HSET P0' Pc' l)).
+  is_algebra_mor _ Tree_alg Tree_alg (λ l, pr1 (foldr P'HSET P0' Pc' l)).
 Proof.
 apply BinCoproductArrow_eq_cor.
 - apply funextfun; intro x; destruct x.
@@ -200,7 +200,7 @@ Section nat_examples.
 Local Open Scope nat_scope.
 
 Definition size : pr1 (Tree natHSET) -> nat :=
-  foldr natHSET natHSET 0 (fun x => S (pr1 (pr2 x) + pr2 (pr2 x))).
+  foldr natHSET natHSET 0 (λ x, S (pr1 (pr2 x) + pr2 (pr2 x))).
 
 Lemma size_node a l1 l2 : size (node natHSET (a,,l1,,l2)) = 1 + size l1 + size l2.
 Proof.
@@ -222,7 +222,7 @@ apply treeIndProp.
 Qed.
 
 Definition sum : pr1 (Tree natHSET) -> nat :=
-  foldr natHSET natHSET 0 (fun x => pr1 x + pr1 (pr2 x) + pr2 (pr2 x)).
+  foldr natHSET natHSET 0 (λ x, pr1 x + pr1 (pr2 x) + pr2 (pr2 x)).
 
 Definition testtree : pr1 (Tree natHSET).
 Proof.
