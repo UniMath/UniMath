@@ -205,11 +205,14 @@ Proof.
       rewrite hzmultx0.
       rewrite hzplusl0.
       rewrite hzremaindermoditerated.
-      (* Coq hangs on this command on Oct. 29, 2017: apply idpath. Solution: *)
+      (* Coq hangs on this command on Oct. 29, 2017: apply idpath. Solution by Benedikt Ahrens : *)
+      exact (idpath _).
+(* a less pleasing solution was the following - together with interesting observations:
       apply hzplusladd.
       Fail (apply hzmultlmul).
       Fail (apply hzmultrmul).
       apply idpath.
+*)
     }
     rewrite h.
     apply idpath.
@@ -520,7 +523,7 @@ Proof.
                                       hzquotientmod m is (precarry m is a n)) +
                hzremaindermod m is (b (S n) +
                                     hzquotientmod m is (precarry m is b n)) ) _ ).
-      (* the next command takes too long, hence compilation ended here on Oct. 29, 2017 *)
+      (* the next command takes too long:
       change (hzremaindermod m is (a (S n) +
                                    hzquotientmod m is (precarry m is a n)) +
               hzremaindermod m is (b (S n) +
@@ -529,24 +532,43 @@ Proof.
                             hzquotientmod m is (precarry m is a n))%rng +
        hzremaindermod m is (b (S n) +
                             hzquotientmod m is (precarry m is b n))%rng)%hz.
-
-
-      rewrite <-
-(hzremaindermodandplus m is (a (S n) + hzquotientmod m is (precarry m
-is a n)) (b (S n) + hzquotientmod m is (precarry m is b n)) ).
-rewrite <- hzremaindermodandplus.  change ( ((a (S n) + hzquotientmod
-m is (precarry m is a n))%rng + (b (S n) + hzquotientmod m is
-(precarry m is b n))%rng + hzquotientmod m is (precarry m is (carry m
-is a + carry m is b)%rng n))%hz ) with ((a (S n) + hzquotientmod m is
-(precarry m is a n))%rng + (b (S n) + hzquotientmod m is (precarry m
-is b n))%rng + hzquotientmod m is (precarry m is (carry m is a + carry
-m is b)%rng n))%rng.  rewrite <- ( rngassoc1 hz ( a ( S n ) +
-hzquotientmod m is ( precarry m is a n ) ) (b (S n) ) ( hzquotientmod
-m is (precarry m is b n)) ).  rewrite ( rngassoc1 hz ( a ( S n ) ) (
-hzquotientmod m is ( precarry m is a n ) ) ( b ( S n ) ) ).  rewrite (
-rngcomm1 hz ( hzquotientmod m is ( precarry m is a n ) ) ( b ( S n ) )
-). rewrite <- 3! ( rngassoc1 hz ). apply idpath.  apply ( funextfun _
-_ f ).  Defined.
+      instead of the subterm present the whole side of the equation: *)
+      intermediate_path (hzremaindermod m is (hzremaindermod m is
+      (hzremaindermod m is (a (S n) +
+                            hzquotientmod m is (precarry m is a n))%rng +
+       hzremaindermod m is (b (S n) +
+                            hzquotientmod m is (precarry m is b n))%rng)%hz +
+       hzremaindermod m is (hzquotientmod m is
+                             (precarry m is (carry m is a + carry m is b)%rng n))))%hz.
+      + rewrite <- (hzremaindermodandplus m is (a (S n) +
+                       hzquotientmod m is (precarry m is a n)) (b (S n) +
+                                       hzquotientmod m is (precarry m is b n)) ).
+        rewrite <- hzremaindermodandplus.
+        change ( ((a (S n) +
+                   hzquotientmod m is (precarry m is a n))%rng +
+                  (b (S n) +
+                   hzquotientmod m is (precarry m is b n))%rng +
+          hzquotientmod m is (precarry m is (carry m is a + carry m is b)%rng n))%hz ) with
+                 ((a (S n) +
+                   hzquotientmod m is (precarry m is a n))%rng +
+                  (b (S n) +
+                   hzquotientmod m is (precarry m is b n))%rng +
+          hzquotientmod m is (precarry m is (carry m is a + carry m is b)%rng n))%rng.
+        rewrite <- ( rngassoc1 hz ( a ( S n ) + hzquotientmod m is ( precarry m is a n ) )
+                                  (b (S n) )
+                                  ( hzquotientmod m is (precarry m is b n)) ).
+        rewrite ( rngassoc1 hz ( a ( S n ) )
+                               (hzquotientmod m is ( precarry m is a n ) )
+                               ( b ( S n ) ) ).
+        rewrite ( rngcomm1 hz ( hzquotientmod m is ( precarry m is a n ) )
+                           ( b ( S n ) ) ).
+        rewrite <- 3! ( rngassoc1 hz ).
+        apply idpath.
+      + apply idpath.
+  }
+  apply ( funextfun _ _ f ).
+ (* [Defined.] does not terminate *)
+Admitted.
 
 Definition quotientprecarry ( m : hz ) ( is : hzneq 0 m ) ( a :
 fpscommrng hz ) : fpscommrng hz := fun x : nat => hzquotientmod m is (
