@@ -310,26 +310,33 @@ Defined.
 Definition carryequiv ( m : hz ) ( is : hzneq 0 m ) :
   eqrel ( fpscommrng hz ) := eqrelpair _ ( carryequiviseqrel m is ).
 
+Lemma precarryandcarry_pointwise ( m : hz ) ( is : hzneq 0 m )
+  ( a : fpscommrng hz ) :
+  forall n : nat, ( precarry m is ( carry m is a ) ) n ~>
+           ( ( carry m is a ) n ).
+Proof.
+  intros.
+  induction n.
+  - simpl.
+    apply idpath.
+  - simpl.
+    rewrite IHn.
+    unfold carry at 2.
+    rewrite <- hzqrandremainderq.
+    rewrite hzplusr0.
+    exact (idpath _ ).
+(* [Defined.] takes an exceedingly long time - only checked once in
+   a different form of the lemma in commit fbee2b1 *)
+Admitted.
+
 Lemma precarryandcarry ( m : hz ) ( is : hzneq 0 m ) ( a : fpscommrng hz ) :
   precarry m is ( carry m is a ) ~> carry m is a.
 Proof.
   intros.
-  assert ( forall n : nat, ( precarry m is ( carry m is a ) ) n ~>
-                           ( ( carry m is a ) n ) ) as f.
-  { intros n.
-    induction n.
-    - simpl.
-      apply idpath.
-    - simpl.
-      rewrite IHn.
-      unfold carry at 2.
-      rewrite <- hzqrandremainderq.
-      rewrite hzplusr0.
-      apply idpath.
-  }
-  apply ( funextfun _ _ f ).
-(* [Defined.] takes an exceedingly long time - only checked once in commit fbee2b1 *)
-Admitted.
+  apply funextfun.
+  intro n.
+  apply precarryandcarry_pointwise.
+Defined.
 
 Lemma hzqrandcarryeq ( m : hz ) ( is : hzneq 0 m )
   ( a : fpscommrng hz ) ( n : nat ) :
