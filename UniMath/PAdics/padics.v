@@ -317,14 +317,13 @@ Lemma precarryandcarry_pointwise ( m : hz ) ( is : hzneq 0 m )
 Proof.
   intros.
   induction n.
-  - simpl.
-    apply idpath.
-  - simpl.
+  - exact (idpath _).
+  - unfold precarry.
+    fold precarry.
     rewrite IHn.
     unfold carry at 2.
     rewrite <- hzqrandremainderq.
-    rewrite hzplusr0.
-    exact (idpath _ ).
+    apply hzplusr0.
 (* [Defined.] takes an exceedingly long time - only checked once in
    a different form of the lemma in commit fbee2b1 *)
 Admitted.
