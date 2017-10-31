@@ -221,9 +221,7 @@ Proof.
     }
     rewrite h.
     apply idpath.
-(* [Defined.] now seems to run forever:
-Defined.
- *)
+(* [Defined.] takes an exceedingly long time - only checked once in commit fbee2b1 *)
 Admitted.
 
 Close Scope hz_scope.
@@ -330,7 +328,7 @@ Proof.
       apply idpath.
   }
   apply ( funextfun _ _ f ).
-(* [Defined.] does not terminate *)
+(* [Defined.] takes an exceedingly long time - only checked once in commit fbee2b1 *)
 Admitted.
 
 Lemma hzqrandcarryeq ( m : hz ) ( is : hzneq 0 m )
@@ -401,7 +399,7 @@ Proof.
       apply idpath.
   }
   apply ( funextfun _ _ f ).
-(* [Defined.] does not terminate *)
+(* [Defined.] takes an exceedingly long time - only checked once in commit fbee2b1 *)
 Admitted.
 
 Lemma carryandcarryequiv ( m : hz ) ( is : hzneq 0 m )
@@ -495,7 +493,7 @@ Proof.
     rewrite hzremaindermoditerated.
     rewrite <- ( hzremaindermodandplus m is ( precarry m is b ( S n ) ) _ ).
     apply idpath.
- (* [Defined.] does not terminate *)
+(* [Defined.] takes an exceedingly long time - only checked once in commit fbee2b1 *)
 Admitted.
 
 
@@ -572,7 +570,7 @@ Proof.
       + apply idpath.
   }
   apply ( funextfun _ _ f ).
- (* [Defined.] does not terminate *)
+ (* [Defined.] never ended *)
 Admitted.
 
 Definition quotientprecarry ( m : hz ) ( is : hzneq 0 m )
@@ -848,7 +846,7 @@ Proof.
       apply idpath.
   }
   apply ( funextfun _ _ f ).
- (* [Defined.] does not terminate *)
+ (* [Defined.] never ended *)
 Admitted.
 
 Lemma carryandtimesr ( m : hz ) ( is : hzneq 0 m )
@@ -2343,7 +2341,7 @@ Proof.
     + apply one.
     + apply two.
     + apply natlthnsn.
-(* [Defined.] does not terminate *)
+(* [Defined.] never ended *)
 Admitted.
 
 
