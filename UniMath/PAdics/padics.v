@@ -229,19 +229,46 @@ Close Scope hz_scope.
 (** * II. The carrying operation and induced equivalence relation on
 formal power series *)
 
+(** A lemma that does not depend on a non-zero integer and that used to
+    appear where needed below - the point has been marked by a comment. *)
+
 Open Scope rng_scope.
 
-Fixpoint precarry ( m : hz ) ( is : hzneq 0 m ) ( a : fpscommrng hz )
-  ( n : nat ) : hz :=
+Lemma natsummationplusshift { R : commrng } ( upper : nat )
+  ( f g : nat -> R ) :
+  ( natsummation0 ( S upper ) f ) + ( natsummation0 upper g ) ~>
+  ( f 0%nat + ( natsummation0 upper ( fun x : nat => f ( S x ) + g x ) ) ).
+Proof.
+  intros.
+  destruct upper.
+  unfold natsummation0.
+  simpl.
+  apply ( rngassoc1 R ).
+  rewrite (natsummationshift0 ( S upper ) f ).
+  rewrite ( rngcomm1 R _ ( f 0%nat ) ).
+  rewrite ( rngassoc1 R ).
+  rewrite natsummationplusdistr.
+  apply idpath.
+Defined.
+
+Close Scope hz_scope.
+
+Section carry.
+
+Open Scope rng_scope.
+
+Variable m : hz.
+Variable is : hzneq 0 m.
+
+Fixpoint precarry ( a : fpscommrng hz ) ( n : nat ) : hz :=
   match n with
   | 0%nat => a 0%nat
-  | S n => a ( S n ) + ( hzquotientmod m is ( precarry m is a n ) )
+  | S n => a ( S n ) + ( hzquotientmod m is ( precarry a n ) )
   end.
 
-Definition carry ( m : hz ) ( is : hzneq 0 m ) :
-  fpscommrng hz -> fpscommrng hz :=
+Definition carry : fpscommrng hz -> fpscommrng hz :=
   fun (a : fpscommrng hz) (n : nat) =>
-    hzremaindermod m is ( precarry m is a n ).
+    hzremaindermod m is ( precarry a n ).
 
 (* precarry and carry are as described in the following example:
 
@@ -266,22 +293,18 @@ Next we first precarry and then carry:
 
 2 2 0 1 2 1 2 <--- carried sequence *)
 
-Lemma isapropcarryequiv ( m : hz ) ( is : hzneq 0 m )
-  ( a b : fpscommrng hz ) :
-  isaprop ( ( carry m is a ) ~> ( carry m is b ) ).
+Lemma isapropcarryequiv ( a b : fpscommrng hz ) :
+  isaprop ( carry a ~> carry b ).
 Proof.
   intros.
   apply ( fps hz ).
 Defined.
 
-Definition carryequiv0 ( m : hz ) ( is : hzneq 0 m ) :
-  hrel ( fpscommrng hz ) :=
-  fun a b : fpscommrng hz => hProppair _ ( isapropcarryequiv m is a b ).
+Definition carryequiv0 : hrel ( fpscommrng hz ) :=
+  fun a b : fpscommrng hz => hProppair _ ( isapropcarryequiv a b ).
 
-Lemma carryequiviseqrel ( m : hz ) ( is : hzneq 0 m ) :
-  iseqrel ( carryequiv0 m is ).
+Lemma carryequiviseqrel : iseqrel carryequiv0.
 Proof.
-  intros.
   split.
   - split.
     + intros a b c i j.
@@ -297,9 +320,8 @@ Proof.
     apply idpath.
 Defined.
 
-Lemma carryandremainder ( m : hz ) ( is : hzneq 0 m )
-  ( a : fpscommrng hz ) ( n : nat ) :
-  hzremaindermod m is ( carry m is a n ) ~> carry m is a n.
+Lemma carryandremainder ( a : fpscommrng hz ) ( n : nat ) :
+  hzremaindermod m is ( carry a n ) ~> carry a n.
 Proof.
   intros.
   unfold carry.
@@ -307,13 +329,12 @@ Proof.
   apply idpath.
 Defined.
 
-Definition carryequiv ( m : hz ) ( is : hzneq 0 m ) :
-  eqrel ( fpscommrng hz ) := eqrelpair _ ( carryequiviseqrel m is ).
+Definition carryequiv : eqrel ( fpscommrng hz ) :=
+  eqrelpair _ carryequiviseqrel.
 
-Lemma precarryandcarry_pointwise ( m : hz ) ( is : hzneq 0 m )
-  ( a : fpscommrng hz ) :
-  forall n : nat, ( precarry m is ( carry m is a ) ) n ~>
-           ( ( carry m is a ) n ).
+Lemma precarryandcarry_pointwise ( a : fpscommrng hz ) :
+  forall n : nat,
+    ( precarry ( carry a ) ) n ~> ( ( carry a ) n ).
 Proof.
   intros.
   induction n.
@@ -328,8 +349,8 @@ Proof.
    a different form of the lemma in commit fbee2b1 *)
 Admitted.
 
-Lemma precarryandcarry ( m : hz ) ( is : hzneq 0 m ) ( a : fpscommrng hz ) :
-  precarry m is ( carry m is a ) ~> carry m is a.
+Lemma precarryandcarry ( a : fpscommrng hz ) :
+  precarry ( carry a ) ~> carry a.
 Proof.
   intros.
   apply funextfun.
@@ -337,9 +358,8 @@ Proof.
   apply precarryandcarry_pointwise.
 Defined.
 
-Lemma hzqrandcarryeq ( m : hz ) ( is : hzneq 0 m )
-  ( a : fpscommrng hz ) ( n : nat ) :
-  carry m is a n ~> ( ( m * 0 ) + carry m is a n ).
+Lemma hzqrandcarryeq ( a : fpscommrng hz ) ( n : nat ) :
+  carry a n ~> ( ( m * 0 ) + carry a n ).
 Proof.
   intros.
   rewrite hzmultx0.
@@ -347,47 +367,44 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma hzqrandcarryineq ( m : hz ) ( is : hzneq 0 m )
-  ( a : fpscommrng hz ) ( n : nat ) :
-  dirprod ( hzleh 0 ( carry m is a n ) )
-          ( hzlth ( carry m is a n ) ( nattohz ( hzabsval m ) ) ).
+Lemma hzqrandcarryineq ( a : fpscommrng hz ) ( n : nat ) :
+  dirprod ( hzleh 0 ( carry a n ) )
+          ( hzlth ( carry a n ) ( nattohz ( hzabsval m ) ) ).
 Proof.
   intros.
   split.
   - unfold carry.
-    apply ( pr2 ( pr1 ( divalgorithm ( precarry m is a n ) m is ) ) ).
+    apply ( pr2 ( pr1 ( divalgorithm ( precarry a n ) m is ) ) ).
   - unfold carry.
-    apply ( pr2 ( pr1 ( divalgorithm ( precarry m is a n ) m is ) ) ).
+    apply ( pr2 ( pr1 ( divalgorithm ( precarry a n ) m is ) ) ).
 Defined.
 
-Lemma hzqrandcarryq ( m : hz ) ( is : hzneq 0 m )
-  ( a : fpscommrng hz ) ( n : nat ) :
-  0 ~> hzquotientmod m is ( carry m is a n ).
+Lemma hzqrandcarryq ( a : fpscommrng hz ) ( n : nat ) :
+  0 ~> hzquotientmod m is ( carry a n ).
 Proof.
   intros.
-  apply ( hzqrtestq m is ( carry m is a n ) 0 ( carry m is a n ) ).
+  apply ( hzqrtestq m is ( carry a n ) 0 ( carry a n ) ).
   split.
   - apply hzqrandcarryeq.
   - apply hzqrandcarryineq.
 Defined.
 
-Lemma hzqrandcarryr ( m : hz ) ( is : hzneq 0 m )
-  ( a : fpscommrng hz ) ( n : nat ) :
-  carry m is a n ~> hzremaindermod m is ( carry m is a n ).
+Lemma hzqrandcarryr ( a : fpscommrng hz ) ( n : nat ) :
+  carry a n ~> hzremaindermod m is ( carry a n ).
 Proof.
   intros.
-  apply ( hzqrtestr m is ( carry m is a n ) 0 ( carry m is a n ) ).
+  apply ( hzqrtestr m is ( carry a n ) 0 ( carry a n ) ).
   split.
   - apply hzqrandcarryeq.
   - apply hzqrandcarryineq.
 Defined.
 
-Lemma doublecarry ( m : hz ) ( is : hzneq 0 m ) ( a : fpscommrng hz ):
-  carry m is ( carry m is a ) ~> carry m is a.
+Lemma doublecarry ( a : fpscommrng hz ):
+  carry ( carry a ) ~> carry a.
 Proof.
   intros.
-  assert ( forall n : nat, ( carry m is ( carry m is a ) ) n ~>
-                           ( ( carry m is a ) n ) ) as f.
+  assert ( forall n : nat, ( carry ( carry a ) ) n ~>
+                           ( ( carry a ) n ) ) as f.
   { intros.
     induction n.
     - unfold carry.
@@ -395,9 +412,9 @@ Proof.
       apply hzremaindermoditerated.
     - unfold carry.
       simpl.
-      change (precarry m is (fun n0 : nat =>
-        hzremaindermod m is (precarry m is a n0)) n) with
-      ( ( precarry m is ( carry m is a ) ) n ).
+      change (precarry (fun n0 : nat =>
+        hzremaindermod m is (precarry a n0)) n) with
+      ( ( precarry ( carry a ) ) n ).
       rewrite precarryandcarry.
       rewrite <- hzqrandcarryq.
       rewrite hzplusr0.
@@ -408,9 +425,8 @@ Proof.
 (* [Defined.] takes an exceedingly long time - only checked once in commit fbee2b1 *)
 Admitted.
 
-Lemma carryandcarryequiv ( m : hz ) ( is : hzneq 0 m )
-  ( a : fpscommrng hz ) :
-  carryequiv m is ( carry m is a ) a.
+Lemma carryandcarryequiv ( a : fpscommrng hz ) :
+  carryequiv ( carry a ) a.
 Proof.
   intros.
   simpl.
@@ -418,12 +434,11 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma quotientprecarryplus ( m : hz ) ( is : hzneq 0 m )
-  ( a b : fpscommrng hz ) ( n : nat ) :
-  hzquotientmod m is ( precarry m is ( a + b ) n ) ~>
-  ( hzquotientmod m is ( precarry m is a n ) +
-    hzquotientmod m is ( precarry m is b n ) +
-    hzquotientmod m is ( precarry m is ( carry m is a + carry m is b ) n ) ).
+Lemma quotientprecarryplus ( a b : fpscommrng hz ) ( n : nat ) :
+  hzquotientmod m is ( precarry ( a + b ) n ) ~>
+  ( hzquotientmod m is ( precarry a n ) +
+    hzquotientmod m is ( precarry b n ) +
+    hzquotientmod m is ( precarry ( carry a + carry b ) n ) ).
 Proof.
   intros.
   induction n.
@@ -436,42 +451,42 @@ Proof.
     rewrite hzquotientmodandplus.
     apply idpath.
   - change ( hzquotientmod m is ( a ( S n ) + b ( S n ) +
-             hzquotientmod m is ( precarry m is (a + b) n ) ) ~>
-            (hzquotientmod m is (precarry m is a (S n)) +
-             hzquotientmod m is (precarry m is b (S n)) +
-             hzquotientmod m is (carry m is a ( S n ) +
-                                 carry m is b ( S n ) +
-                    hzquotientmod m is ( precarry m is (carry m is a +
-                                                        carry m is b) n)) ) ).
+             hzquotientmod m is ( precarry (a + b) n ) ) ~>
+            (hzquotientmod m is (precarry a (S n)) +
+             hzquotientmod m is (precarry b (S n)) +
+             hzquotientmod m is (carry a ( S n ) +
+                                 carry b ( S n ) +
+                    hzquotientmod m is ( precarry (carry a +
+                                                   carry b) n)) ) ).
     rewrite IHn.
     rewrite ( rngassoc1 hz ( a ( S n ) ) ( b ( S n ) ) _ ).
     rewrite <- ( rngassoc1 hz ( b ( S n ) ) ).
     rewrite ( rngcomm1 hz ( b ( S n ) ) _ ).
     rewrite <- 3! ( rngassoc1 hz ( a ( S n ) ) _ _ ).
-    change ( a ( S n ) + hzquotientmod m is ( precarry m is a n ) ) with
-    ( precarry m is a ( S n ) ).
-    set ( pa := precarry m is a ( S n ) ).
+    change ( a ( S n ) + hzquotientmod m is ( precarry a n ) ) with
+    ( precarry a ( S n ) ).
+    set ( pa := precarry a ( S n ) ).
     rewrite ( rngassoc1 hz pa _ ( b ( S n ) ) ).
     rewrite ( rngcomm1 hz _ ( b ( S n ) ) ).
-    change ( b ( S n ) + hzquotientmod m is ( precarry m is b n ) ) with
-    ( precarry m is b ( S n ) ).
-    set ( pb := precarry m is b ( S n ) ).
-    set ( ab := precarry m is ( carry m is a + carry m is b ) ).
-    rewrite ( rngassoc1 hz ( carry m is a ( S n ) )
-                        ( carry m is b ( S n ) )
+    change ( b ( S n ) + hzquotientmod m is ( precarry b n ) ) with
+    ( precarry b ( S n ) ).
+    set ( pb := precarry b ( S n ) ).
+    set ( ab := precarry ( carry a + carry b ) ).
+    rewrite ( rngassoc1 hz ( carry a ( S n ) )
+                        ( carry b ( S n ) )
                         ( hzquotientmod m is ( ab n ) ) ).
-    rewrite ( hzquotientmodandplus m is ( carry m is a ( S n ) ) _ ).
+    rewrite ( hzquotientmodandplus m is ( carry a ( S n ) ) _ ).
     unfold carry at 1.
     rewrite <- hzqrandremainderq.
     rewrite hzplusl0.
-    rewrite ( hzquotientmodandplus m is ( carry m is b ( S n ) ) _ ).
+    rewrite ( hzquotientmodandplus m is ( carry b ( S n ) ) _ ).
     unfold carry at 1.
     rewrite <- hzqrandremainderq.
     rewrite hzplusl0.
     rewrite ( rngassoc1 hz pa pb _ ).
     rewrite ( hzquotientmodandplus m is pa _ ).
     change (pb + hzquotientmod m is (ab n)) with
-    (pb + hzquotientmod m is (ab n))%hz.
+           (pb + hzquotientmod m is (ab n))%hz.
     rewrite ( hzquotientmodandplus m is pb ( hzquotientmod m is ( ab n ) ) ).
     rewrite <- 2! ( rngassoc1 hz ( hzquotientmod m is pa ) _ _ ).
     rewrite <- 2! ( rngassoc1 hz ( hzquotientmod m is pa +
@@ -486,30 +501,29 @@ Proof.
                            x ) ).
     unfold carry at 1 2.
     rewrite 2! hzremaindermoditerated.
-    change ( precarry m is b ( S n ) ) with pb.
-    change ( precarry m is a ( S n ) ) with pa.
+    change ( precarry b ( S n ) ) with pb.
+    change ( precarry a ( S n ) ) with pa.
     apply ( maponpaths ( fun x : hz =>
                            ( hzquotientmod m is (hzremaindermod m is pb +
                   hzremaindermod m is (hzquotientmod m is (ab n)))%hz ) +
                            x ) ).
     apply maponpaths.
     apply ( maponpaths ( fun x : hz => hzremaindermod m is pa + x ) ).
-    rewrite ( hzremaindermodandplus m is ( carry m is b ( S n ) ) _ ).
+    rewrite ( hzremaindermodandplus m is ( carry b ( S n ) ) _ ).
     unfold carry.
     rewrite hzremaindermoditerated.
-    rewrite <- ( hzremaindermodandplus m is ( precarry m is b ( S n ) ) _ ).
+    rewrite <- ( hzremaindermodandplus m is ( precarry b ( S n ) ) _ ).
     apply idpath.
 (* [Defined.] takes an exceedingly long time - only checked once in commit fbee2b1 *)
 Admitted.
 
 
-Lemma carryandplus ( m : hz ) ( is : hzneq 0 m )
-  ( a b : fpscommrng hz ) :
-  carry m is ( a + b ) ~> carry m is ( carry m is a + carry m is b ).
+Lemma carryandplus ( a b : fpscommrng hz ) :
+  carry ( a + b ) ~> carry ( carry a + carry b ).
 Proof.
   intros.
-  assert ( forall n : nat, carry m is ( a + b ) n ~>
-              ( carry m is ( carry m is a + carry m is b ) n ) ) as f.
+  assert ( forall n : nat, carry ( a + b ) n ~>
+              ( carry ( carry a + carry b ) n ) ) as f.
   { intros n.
     destruct n.
     - change ( hzremaindermod m is ( a 0%nat + b 0%nat ) ~>
@@ -519,57 +533,57 @@ Proof.
       apply idpath.
     - change ( hzremaindermod m is ( a ( S n ) +
                                      b ( S n ) +
-        hzquotientmod m is ( precarry m is ( a + b ) n ) ) ~>
+        hzquotientmod m is ( precarry ( a + b ) n ) ) ~>
                hzremaindermod m is ( hzremaindermod m is ( a ( S n ) +
-                              hzquotientmod m is ( precarry m is a n ) ) +
+                              hzquotientmod m is ( precarry a n ) ) +
                hzremaindermod m is ( b ( S n ) +
-                              hzquotientmod m is ( precarry m is b n ) ) +
-               hzquotientmod m is ( precarry m is ( carry m is a +
-                                                    carry m is b ) n ) ) ).
+                              hzquotientmod m is ( precarry b n ) ) +
+               hzquotientmod m is ( precarry ( carry a +
+                                                    carry b ) n ) ) ).
       rewrite quotientprecarryplus.
       rewrite ( hzremaindermodandplus m is
                                       ( hzremaindermod m is (a (S n) +
-                                      hzquotientmod m is (precarry m is a n)) +
+                                      hzquotientmod m is (precarry a n)) +
                hzremaindermod m is (b (S n) +
-                                    hzquotientmod m is (precarry m is b n)) ) _ ).
+                                    hzquotientmod m is (precarry b n)) ) _ ).
       (* the next command takes too long:
       change (hzremaindermod m is (a (S n) +
-                                   hzquotientmod m is (precarry m is a n)) +
+                                   hzquotientmod m is (precarry a n)) +
               hzremaindermod m is (b (S n) +
-                                   hzquotientmod m is (precarry m is b n))) with
+                                   hzquotientmod m is (precarry b n))) with
       (hzremaindermod m is (a (S n) +
-                            hzquotientmod m is (precarry m is a n))%rng +
+                            hzquotientmod m is (precarry a n))%rng +
        hzremaindermod m is (b (S n) +
-                            hzquotientmod m is (precarry m is b n))%rng)%hz.
+                            hzquotientmod m is (precarry b n))%rng)%hz.
       instead of the subterm present the whole side of the equation: *)
       intermediate_path (hzremaindermod m is (hzremaindermod m is
       (hzremaindermod m is (a (S n) +
-                            hzquotientmod m is (precarry m is a n))%rng +
+                            hzquotientmod m is (precarry a n))%rng +
        hzremaindermod m is (b (S n) +
-                            hzquotientmod m is (precarry m is b n))%rng)%hz +
+                            hzquotientmod m is (precarry b n))%rng)%hz +
        hzremaindermod m is (hzquotientmod m is
-                             (precarry m is (carry m is a + carry m is b)%rng n))))%hz.
+                             (precarry (carry a + carry b)%rng n))))%hz.
       + rewrite <- (hzremaindermodandplus m is (a (S n) +
-                       hzquotientmod m is (precarry m is a n)) (b (S n) +
-                                       hzquotientmod m is (precarry m is b n)) ).
+                       hzquotientmod m is (precarry a n)) (b (S n) +
+                                       hzquotientmod m is (precarry b n)) ).
         rewrite <- hzremaindermodandplus.
         change ( ((a (S n) +
-                   hzquotientmod m is (precarry m is a n))%rng +
+                   hzquotientmod m is (precarry a n))%rng +
                   (b (S n) +
-                   hzquotientmod m is (precarry m is b n))%rng +
-          hzquotientmod m is (precarry m is (carry m is a + carry m is b)%rng n))%hz ) with
+                   hzquotientmod m is (precarry b n))%rng +
+          hzquotientmod m is (precarry (carry a + carry b)%rng n))%hz ) with
                  ((a (S n) +
-                   hzquotientmod m is (precarry m is a n))%rng +
+                   hzquotientmod m is (precarry a n))%rng +
                   (b (S n) +
-                   hzquotientmod m is (precarry m is b n))%rng +
-          hzquotientmod m is (precarry m is (carry m is a + carry m is b)%rng n))%rng.
-        rewrite <- ( rngassoc1 hz ( a ( S n ) + hzquotientmod m is ( precarry m is a n ) )
+                   hzquotientmod m is (precarry b n))%rng +
+          hzquotientmod m is (precarry (carry a + carry b)%rng n))%rng.
+        rewrite <- ( rngassoc1 hz ( a ( S n ) + hzquotientmod m is ( precarry a n ) )
                                   (b (S n) )
-                                  ( hzquotientmod m is (precarry m is b n)) ).
+                                  ( hzquotientmod m is (precarry b n)) ).
         rewrite ( rngassoc1 hz ( a ( S n ) )
-                               (hzquotientmod m is ( precarry m is a n ) )
+                               (hzquotientmod m is ( precarry a n ) )
                                ( b ( S n ) ) ).
-        rewrite ( rngcomm1 hz ( hzquotientmod m is ( precarry m is a n ) )
+        rewrite ( rngcomm1 hz ( hzquotientmod m is ( precarry a n ) )
                            ( b ( S n ) ) ).
         rewrite <- 3! ( rngassoc1 hz ).
         apply idpath.
@@ -579,11 +593,10 @@ Proof.
  (* [Defined.] never ended *)
 Admitted.
 
-Definition quotientprecarry ( m : hz ) ( is : hzneq 0 m )
-  ( a : fpscommrng hz ) : fpscommrng hz :=
-  fun x : nat => hzquotientmod m is ( precarry m is a x ).
+Definition quotientprecarry ( a : fpscommrng hz ) : fpscommrng hz :=
+  fun x : nat => hzquotientmod m is ( precarry a x ).
 
-Lemma quotientandtimesrearrangel ( m : hz ) ( is : hzneq 0 m ) ( x y : hz ) :
+Lemma quotientandtimesrearrangel ( x y : hz ) :
   hzquotientmod m is ( x * y ) ~>
   ( ( hzquotientmod m is x ) * y +
     hzquotientmod m is ( ( hzremaindermod m is x ) * y ) ).
@@ -626,56 +639,40 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma natsummationplusshift { R : commrng } ( upper : nat )
-  ( f g : nat -> R ) :
-  ( natsummation0 ( S upper ) f ) + ( natsummation0 upper g ) ~>
-  ( f 0%nat + ( natsummation0 upper ( fun x : nat => f ( S x ) + g x ) ) ).
-Proof.
-  intros.
-  destruct upper.
-  unfold natsummation0.
-  simpl.
-  apply ( rngassoc1 R ).
-  rewrite (natsummationshift0 ( S upper ) f ).
-  rewrite ( rngcomm1 R _ ( f 0%nat ) ).
-  rewrite ( rngassoc1 R ).
-  rewrite natsummationplusdistr.
-  apply idpath.
-Defined.
+(** here used to be shown the lemma [natsummationplusshift] *)
 
-Lemma precarryandtimesl ( m : hz ) ( is: hzneq 0 m )
-  ( a b : fpscommrng hz ) ( n : nat ) :
-  hzquotientmod m is ( precarry m is (a * b ) n ) ~>
-  ( ( quotientprecarry m is a * b ) n +
-        hzquotientmod m is ( precarry m is ( ( carry m is a ) * b ) n ) ).
+Lemma precarryandtimesl ( a b : fpscommrng hz ) ( n : nat ) :
+  hzquotientmod m is ( precarry (a * b ) n ) ~>
+  ( ( quotientprecarry a * b ) n +
+        hzquotientmod m is ( precarry ( ( carry a ) * b ) n ) ).
 Proof.
   intros.
   induction n.
   - unfold precarry.
     change ( ( a * b ) 0%nat ) with ( a 0%nat * b 0%nat ).
-    change ( ( quotientprecarry m is a * b ) 0%nat ) with
+    change ( ( quotientprecarry a * b ) 0%nat ) with
     ( hzquotientmod m is ( a 0%nat ) * b 0%nat ).
     rewrite quotientandtimesrearrangel.
-    change ( ( carry m is a * b ) 0%nat ) with
+    change ( ( carry a * b ) 0%nat ) with
     ( hzremaindermod m is ( a 0%nat ) * b 0%nat ).
     apply idpath.
-  - change ( precarry m is ( a * b ) ( S n ) ) with
+  - change ( precarry ( a * b ) ( S n ) ) with
     ( ( a * b ) ( S n ) +
-      hzquotientmod m is ( precarry m is ( a * b ) n ) ).
+      hzquotientmod m is ( precarry ( a * b ) n ) ).
     rewrite IHn.
     rewrite <- ( rngassoc1 hz ).
     assert ( ( ( a * b ) ( S n ) +
-               ( quotientprecarry m is a * b ) n ) ~>
-      ( @op2 ( fpscommrng hz ) ( precarry m is a ) b ) ( S n ) ) as f.
+               ( quotientprecarry a * b ) n ) ~>
+      ( @op2 ( fpscommrng hz ) ( precarry a ) b ) ( S n ) ) as f.
     { change ( ( a * b ) ( S n ) )
      with ( natsummation0 ( S n ) ( fun x : nat => a x * b ( minus ( S n ) x ) ) ).
-     change ( ( quotientprecarry m is a * b ) n ) with
+     change ( ( quotientprecarry a * b ) n ) with
      ( natsummation0 n ( fun x : nat =>
-         quotientprecarry m is a x * b ( minus n x ) ) ).
+         quotientprecarry a x * b ( minus n x ) ) ).
      rewrite natsummationplusshift.
-     change ( ( @op2 ( fpscommrng hz ) ( precarry m is a ) b ) ( S n ) ) with
+     change ( ( @op2 ( fpscommrng hz ) ( precarry a ) b ) ( S n ) ) with
      ( natsummation0 ( S n ) ( fun x : nat =>
-         ( precarry m is a ) x * b ( minus ( S n ) x ) ) ).
+         ( precarry a ) x * b ( minus ( S n ) x ) ) ).
      rewrite natsummationshift0.
      unfold precarry at 2.
      simpl.
@@ -689,120 +686,119 @@ Proof.
     }
     rewrite f.
     rewrite hzquotientmodandplus.
-    change ( @op2 ( fpscommrng hz ) ( precarry m is a ) b ) with
-    ( fpstimes hz ( precarry m is a ) b ).
-    rewrite ( hzquotientandfpstimesl m is ( precarry m is a ) b ).
-    change ( @op2 ( fpscommrng hz ) ( carry m is a ) b ) with
-    ( fpstimes hz ( carry m is a ) b ) at 1.
+    change ( @op2 ( fpscommrng hz ) ( precarry a ) b ) with
+    ( fpstimes hz ( precarry a ) b ).
+    rewrite ( hzquotientandfpstimesl m is ( precarry a ) b ).
+    change ( @op2 ( fpscommrng hz ) ( carry a ) b ) with
+    ( fpstimes hz ( carry a ) b ) at 1.
     unfold fpstimes at 1.
     unfold carry at 1.
     change (fun n0 : nat =>
               let t' := fun m0 : nat =>
                           b (n0 - m0)%nat in natsummation0 n0 (fun x : nat =>
-                     (hzremaindermod m is (precarry m is a x) * t' x)%rng)) with
-    ( carry m is a * b ).
-    change ( ( quotientprecarry m is a * b ) ( S n ) ) with
+                     (hzremaindermod m is (precarry a x) * t' x)%rng)) with
+    ( carry a * b ).
+    change ( ( quotientprecarry a * b ) ( S n ) ) with
     ( natsummation0 ( S n ) ( fun i : nat =>
-        hzquotientmod m is ( precarry m is a i ) * b ( S n - i )%nat ) ).
+        hzquotientmod m is ( precarry a i ) * b ( S n - i )%nat ) ).
     rewrite 2! hzplusassoc.
     apply ( maponpaths ( fun v : _ => natsummation0 ( S n ) ( fun i : nat =>
-      hzquotientmod m is ( precarry m is a i ) * b ( S n - i )%nat ) + v ) ).
-    change ( precarry m is ( carry m is a * b ) ( S n ) ) with
-    ( ( carry m is a * b ) ( S n ) +
-      hzquotientmod m is ( precarry m is ( carry m is a * b ) n ) ).
-    change ((carry m is a * b) (S n) +
-            hzquotientmod m is (precarry m is (carry m is a * b) n)) with
-    ((carry m is a * b)%rng (S n) +
-     hzquotientmod m is (precarry m is (carry m is a * b) n)%rng)%hz.
+      hzquotientmod m is ( precarry a i ) * b ( S n - i )%nat ) + v ) ).
+    change ( precarry ( carry a * b ) ( S n ) ) with
+    ( ( carry a * b ) ( S n ) +
+      hzquotientmod m is ( precarry ( carry a * b ) n ) ).
+    change ((carry a * b) (S n) +
+            hzquotientmod m is (precarry (carry a * b) n)) with
+    ((carry a * b)%rng (S n) +
+     hzquotientmod m is (precarry (carry a * b) n)%rng)%hz.
     rewrite ( hzquotientmodandplus m is
-                                   ( ( carry m is a * b ) ( S n ) )
-     ( hzquotientmod m is ( precarry m is ( carry m is a * b ) n ) ) ).
-    change ( ( carry m is a * b ) ( S n ) ) with
+                                   ( ( carry a * b ) ( S n ) )
+     ( hzquotientmod m is ( precarry ( carry a * b ) n ) ) ).
+    change ( ( carry a * b ) ( S n ) ) with
     ( natsummation0 ( S n ) ( fun i : nat =>
-        hzremaindermod m is ( precarry m is a i ) * b ( S n  - i )%nat ) ).
+        hzremaindermod m is ( precarry a i ) * b ( S n  - i )%nat ) ).
     rewrite hzplusassoc.
     apply ( maponpaths ( fun v : _ =>
        ( hzquotientmod m is ( natsummation0 ( S n ) ( fun i : nat =>
             hzremaindermod m is
-                   ( precarry m is a i ) * b ( S n - i )%nat ) ) ) + v ) ).
+                   ( precarry a i ) * b ( S n - i )%nat ) ) ) + v ) ).
     apply ( maponpaths ( fun v : _ =>
         hzquotientmod m is
            ( hzquotientmod m is
-              ( precarry m is ( carry m is a * b )%rng n ) ) + v ) ).
+              ( precarry ( carry a * b )%rng n ) ) + v ) ).
     apply maponpaths.
     apply ( maponpaths ( fun v : _ =>
                            v + hzremaindermod m is
-    ( hzquotientmod m is ( precarry m is ( carry m is a * b )%rng n ) ) ) ).
+    ( hzquotientmod m is ( precarry ( carry a * b )%rng n ) ) ) ).
     unfold fpstimes.
     rewrite hzqrandnatsummation0r.
     rewrite ( hzqrandnatsummation0r m is ( fun i : nat =>
-      hzremaindermod m is ( precarry m is a i ) * b ( S n - i )%nat ) ).
+      hzremaindermod m is ( precarry a i ) * b ( S n - i )%nat ) ).
     apply maponpaths.
     apply natsummationpathsupperfixed.
     intros j p.
     change ( hzremaindermod m is
-                            (hzremaindermod m is (precarry m is a j) *
+                            (hzremaindermod m is (precarry a j) *
                              b ( minus ( S n ) j)) ) with
     ( hzremaindermod m is
-                     (hzremaindermod m is (precarry m is a j) *
+                     (hzremaindermod m is (precarry a j) *
                       b (S n - j)%nat)%hz ).
     rewrite ( hzremaindermodandtimes m is
-                ( hzremaindermod m is ( precarry m is a j ) )
+                ( hzremaindermod m is ( precarry a j ) )
                 ( b ( minus ( S n ) j ) ) ).
     rewrite hzremaindermoditerated.
     rewrite <- hzremaindermodandtimes.
     apply idpath.
 Defined.
 
-Lemma carryandtimesl ( m : hz ) ( is : hzneq 0 m )
-  ( a b : fpscommrng hz ) :
-  carry m is ( a * b ) ~> carry m is ( carry m is a * b ).
+Lemma carryandtimesl ( a b : fpscommrng hz ) :
+  carry ( a * b ) ~> carry ( carry a * b ).
 Proof.
   intros.
-  assert ( forall n : nat, carry m is ( a * b ) n ~>
-                          carry m is ( carry m is a * b ) n ) as f.
+  assert ( forall n : nat, carry ( a * b ) n ~>
+                          carry ( carry a * b ) n ) as f.
   { intros n.
     destruct n.
     - unfold carry at 1 2.
-      change ( precarry m is ( a * b ) 0%nat ) with
+      change ( precarry ( a * b ) 0%nat ) with
       ( a 0%nat * b 0%nat ).
-      change ( precarry m is ( carry m is a * b ) 0%nat ) with
-      ( carry m is a 0%nat * b 0%nat ).
+      change ( precarry ( carry a * b ) 0%nat ) with
+      ( carry a 0%nat * b 0%nat ).
       unfold carry.
-      change (hzremaindermod m is (precarry m is a 0) * b 0%nat) with
-      (hzremaindermod m is (precarry m is a 0) * b 0%nat )%hz.
+      change (hzremaindermod m is (precarry a 0) * b 0%nat) with
+      (hzremaindermod m is (precarry a 0) * b 0%nat )%hz.
       rewrite ( hzremaindermodandtimes m is
-        ( hzremaindermod m is ( precarry m is a 0%nat ) ) ( b 0%nat ) ).
+        ( hzremaindermod m is ( precarry a 0%nat ) ) ( b 0%nat ) ).
       rewrite hzremaindermoditerated.
       rewrite <- hzremaindermodandtimes.
-      change ( precarry m is a 0%nat ) with ( a 0%nat ).
+      change ( precarry a 0%nat ) with ( a 0%nat ).
       apply idpath.
     - unfold carry at 1 2.
-      change ( precarry m is ( a * b ) ( S n ) ) with
-      ( ( a * b ) ( S n ) + hzquotientmod m is ( precarry m is ( a * b ) n ) ).
+      change ( precarry ( a * b ) ( S n ) ) with
+      ( ( a * b ) ( S n ) + hzquotientmod m is ( precarry ( a * b ) n ) ).
       rewrite precarryandtimesl.
       rewrite <- ( rngassoc1 hz ).
       rewrite hzremaindermodandplus.
       assert ( hzremaindermod m is
-          ( ( a * b ) ( S n ) + ( quotientprecarry m is a * b ) n ) ~>
-        hzremaindermod m is ( ( carry m is a * b ) ( S n ) ) ) as g.
+          ( ( a * b ) ( S n ) + ( quotientprecarry a * b ) n ) ~>
+        hzremaindermod m is ( ( carry a * b ) ( S n ) ) ) as g.
       { change ( hzremaindermod m is ( ( natsummation0 ( S n ) ( fun u : nat =>
                                              a u * b ( minus ( S n ) u ) ) ) +
                                        ( natsummation0 n ( fun u : nat =>
-                       ( quotientprecarry m is a ) u * b ( minus n u ) ) ) ) ~>
+                       ( quotientprecarry a ) u * b ( minus n u ) ) ) ) ~>
                  hzremaindermod m is ( natsummation0 ( S n ) ( fun u : nat =>
-                              ( carry m is a ) u * b ( minus ( S n ) u ) ) ) ).
+                              ( carry a ) u * b ( minus ( S n ) u ) ) ) ).
         rewrite ( natsummationplusshift n ).
         rewrite ( natsummationshift0 n ( fun u : nat =>
-                                    carry m is a u * b ( minus ( S n ) u ) ) ).
+                                    carry a u * b ( minus ( S n ) u ) ) ).
         assert ( hzremaindermod m is ( natsummation0 n ( fun x : nat =>
                               a ( S x ) * b ( minus ( S n ) ( S x ) ) +
-                              quotientprecarry m is a x * b ( minus n x ) ) ) ~>
+                              quotientprecarry a x * b ( minus n x ) ) ) ~>
                  hzremaindermod m is (natsummation0 n ( fun x : nat =>
-                   carry m is a ( S x ) * b ( minus ( S n ) ( S x ) ) ) ) ) as h.
+                   carry a ( S x ) * b ( minus ( S n ) ( S x ) ) ) ) ) as h.
         { rewrite hzqrandnatsummation0r.
           rewrite ( hzqrandnatsummation0r m is ( fun x : nat =>
-                          carry m is a ( S x ) * b ( minus ( S n ) ( S x ) ) ) ).
+                          carry a ( S x ) * b ( minus ( S n ) ( S x ) ) ) ).
           apply maponpaths.
           apply natsummationpathsupperfixed.
           intros j p.
@@ -810,24 +806,24 @@ Proof.
           simpl.
 (* the following command takes overly long on Oct. 30, 2017:
           change (a (S j) * b ( minus n j) +
-                  hzquotientmod m is (precarry m is a j) * b ( minus n j)) with
+                  hzquotientmod m is (precarry a j) * b ( minus n j)) with
                  (a (S j) * b ( minus n j) +
-                  hzquotientmod m is (precarry m is a j) * b ( minus n j) )%hz.
+                  hzquotientmod m is (precarry a j) * b ( minus n j) )%hz.
  *)
           intermediate_path (hzremaindermod m is ((a (S j) * b ( minus n j) +
-                   hzquotientmod m is (precarry m is a j) * b ( minus n j) )%hz)).
+                   hzquotientmod m is (precarry a j) * b ( minus n j) )%hz)).
           + exact (idpath _).
           + rewrite <- ( hzrdistr ( a ( S j ) )
-                                 ( hzquotientmod m is ( precarry m is a j ) )
+                                 ( hzquotientmod m is ( precarry a j ) )
                                  ( b ( minus n j ) ) ).
             rewrite hzremaindermodandtimes.
             change ( hzremaindermod m is
                         (hzremaindermod m is (a (S j) +
-                         hzquotientmod m is (precarry m is a j)) *
+                         hzquotientmod m is (precarry a j)) *
                            hzremaindermod m is (b ( minus n j))) ~>
-                     hzremaindermod m is (carry m is a (S j) * b(minus n j)) )%rng.
+                     hzremaindermod m is (carry a (S j) * b(minus n j)) )%rng.
             rewrite <- ( hzremaindermoditerated m is (a (S j) +
-                                         hzquotientmod m is (precarry m is a j)) ).
+                                         hzquotientmod m is (precarry a j)) ).
             unfold carry.
             rewrite <- hzremaindermodandtimes.
             apply idpath.
@@ -837,12 +833,12 @@ Proof.
         rewrite <- hzremaindermodandplus.
         unfold carry at 3.
         rewrite ( hzremaindermodandplus m is _
-                    ( hzremaindermod m is ( precarry m is a 0%nat ) *
+                    ( hzremaindermod m is ( precarry a 0%nat ) *
                                             b ( minus ( S n ) 0%nat ) ) ).
         rewrite hzremaindermodandtimes.
         rewrite hzremaindermoditerated.
         rewrite <- hzremaindermodandtimes.
-        change ( precarry m is a 0%nat ) with ( a 0%nat ).
+        change ( precarry a 0%nat ) with ( a 0%nat ).
         rewrite <- hzremaindermodandplus.
         rewrite hzpluscomm.
         apply idpath.
@@ -855,9 +851,8 @@ Proof.
  (* [Defined.] never ended *)
 Admitted.
 
-Lemma carryandtimesr ( m : hz ) ( is : hzneq 0 m )
-  ( a b : fpscommrng hz ) :
-  carry m is ( a * b ) ~> carry m is ( a * carry m is b ).
+Lemma carryandtimesr ( a b : fpscommrng hz ) :
+  carry ( a * b ) ~> carry ( a * carry b ).
 Proof.
   intros.
   rewrite ( @rngcomm2 ( fpscommrng hz ) ).
@@ -866,10 +861,8 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma carryandtimes ( m : hz ) ( is : hzneq 0 m )
-  ( a b : fpscommrng hz ) :
-  carry m is ( a * b ) ~> carry m is
-                           ( carry m is a * carry m is b ).
+Lemma carryandtimes ( a b : fpscommrng hz ) :
+  carry ( a * b ) ~> carry ( carry a * carry b ).
 Proof.
   intros.
   rewrite carryandtimesl.
@@ -877,11 +870,10 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma rngcarryequiv ( m : hz ) ( is : hzneq 0 m ) :
-  @rngeqrel ( fpscommrng hz ).
+Lemma rngcarryequiv : @rngeqrel ( fpscommrng hz ).
 Proof.
   intros.
-  split with ( carryequiv m is ).
+  split with carryequiv.
   split.
   - split.
     + intros a b c q.
@@ -911,6 +903,8 @@ Proof.
       rewrite <- carryandtimes.
       apply idpath.
 Defined.
+
+End carry.
 
 (** ** Some preparation for parts III/IV that does not depend on a prime number *)
 (** Those used to appear where needed below, those points have been marked by comments. *)
