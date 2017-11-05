@@ -322,13 +322,13 @@ Lemma natlehdecomp ( b a : nat ) :
   hexists ( fun c : nat => ( a + c )%nat ~> b ) -> natleh a b.
 Proof.
   intro b. induction b.
-  - intros a p. refine (hinhuniv _ p).
+  - intros a p. use (hinhuniv _ p).
     intro t. destruct t as [ c f ]. destruct a.
     + apply isreflnatleh.
     + assert empty.
       { simpl in f . exact ( negpathssx0 ( a + c ) f ). }
       contradiction.
-  - intros a p. refine (hinhuniv _ p).
+  - intros a p. use (hinhuniv _ p).
     intro t. destruct t as [ c f ]. destruct a.
     + apply natleh0n.
     + assert ( natleh a b ) as q.
@@ -1031,7 +1031,7 @@ Proof.
       * assumption.
     + destruct IHn as [ l' | r' ].
       * apply ii1.
-        refine (hinhuniv _ l').
+        use (hinhuniv _ l').
         intro m.
         destruct m as [ m m' ].
         apply total2tohexists.
@@ -1042,7 +1042,7 @@ Proof.
         -- apply (pr2 m').
       * apply ii2. intro j.
         apply r'.
-        refine (hinhuniv _ j).
+        use (hinhuniv _ j).
         intro m. destruct m as [ m m' ].
         -- apply total2tohexists. split with m.
            split.
@@ -1093,7 +1093,7 @@ Proof.
       assert ( forall m : nat, coprod ( P' m ) ( neg ( P' m ) ) ) as is'.
       { intros m. unfold P'. apply ( is ( S m ) ). }
       set ( c := IHn P' is' u ).
-      refine (hinhuniv _ c).
+      use (hinhuniv _ c).
       intros k.
       destruct k as [ k v ]. destruct v as [ v0 v1 ].
       apply total2tohexists. split with ( S k ). split.

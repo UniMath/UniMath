@@ -1142,7 +1142,7 @@ Proof.
   intros a a' b b' i j.
   apply hPropUnivalence.
   - intro k.
-    refine (hinhuniv _ k).
+    use (hinhuniv _ k).
     intros u.
     destruct u as [ n u ].
     apply total2tohexists.
@@ -1150,7 +1150,7 @@ Proof.
     rewrite <- i , <- j.
     assumption.
   - intro k.
-    refine (hinhuniv _ k).
+    use (hinhuniv _ k).
     intros u.
     destruct u as [ n u ].
     apply total2tohexists.
@@ -1179,7 +1179,7 @@ Defined.
 Lemma issymmpadicapart0 : issymm padicapart0.
 Proof.
   intros a b f.
-  refine (hinhuniv _ f).
+  use (hinhuniv _ f).
   intros u.
   destruct u as [ n u ].
   apply total2tohexists.
@@ -1194,7 +1194,7 @@ Defined.
 Lemma iscotranspadicapart0 : iscotrans padicapart0.
 Proof.
   intros a b c f.
-  refine (hinhuniv _ f).
+  use (hinhuniv _ f).
   intro u.
   destruct u as [ n u ].
   intros P j.
@@ -1372,7 +1372,7 @@ Proof.
       assumption.
   }
   set ( leexists := leastelementprinciple n P isdec x ).
-  refine (hinhuniv _ leexists).
+  use (hinhuniv _ leexists).
   intro k.
   destruct k as [ k k' ].
   destruct k' as [ k' k'' ].
@@ -1456,7 +1456,7 @@ Lemma padicplusisbinopapart0 ( a b c : fpscommrng hz )
   padicapart0 b c.
 Proof.
   intros.
-  refine (hinhuniv _ u).
+  use (hinhuniv _ u).
   intros n.
   destruct n as [ n n' ].
   set ( P := fun x : nat => neq hz ( carry p ( isaprimetoneq0 is ) ( a + b) x)
@@ -1475,7 +1475,7 @@ Proof.
       assumption.
   }
   set ( le := leastelementprinciple n P isdec n').
-  refine (hinhuniv _ le).
+  use (hinhuniv _ le).
   intro k.
   destruct k as [ k k' ].
   destruct k' as [ k' k'' ].
@@ -1608,7 +1608,7 @@ Proof.
       assumption.
   }
   set ( leexists := leastelementprinciple n P isdec x ).
-  refine (hinhuniv _ leexists).
+  use (hinhuniv _ leexists).
   intro k.
   destruct k as [ k k' ].
   destruct k' as [ k' k'' ].
@@ -1676,7 +1676,7 @@ Proof.
         apply idpath.
       }
       contradiction.
-    + refine (hinhuniv _ r).
+    + use (hinhuniv _ r).
       intros o.
       destruct o as [ o o' ].
       apply total2tohexists.
@@ -1689,7 +1689,7 @@ Lemma padictimesisbinopapart0 ( a b c : fpscommrng hz )
   padicapart0 b c.
 Proof.
   intros.
-  refine (hinhuniv _ u).
+  use (hinhuniv _ u).
   intros n.
   destruct n as [ n n' ].
   destruct n.
@@ -1763,7 +1763,7 @@ Proof.
         apply idpath.
       }
       contradiction.
-    + refine (hinhuniv _ r).
+    + use (hinhuniv _ r).
       intros k.
       destruct k as [ k k' ].
       apply total2tohexists.
@@ -1942,7 +1942,7 @@ Lemma primedivorcoprime ( a : hz ) :
   hdisj ( hzdiv p a ) ( gcd p a ( isaprimetoneq0 is ) ~> 1 ).
 Proof.
   intro a. intros P i.
-  refine (hinhuniv _ ( pr2 is
+  use (hinhuniv _ ( pr2 is
                         ( gcd p a ( isaprimetoneq0 is ) )
                         ( pr1 ( gcdiscommondiv p a ( isaprimetoneq0 is ) ) ) )).
   intro t.
@@ -1959,14 +1959,14 @@ Lemma primeandtimes ( a b : hz ) ( x : hzdiv p ( a * b ) ) :
   hdisj ( hzdiv p a ) ( hzdiv p b ).
 Proof.
   intros.
-  refine (hinhuniv _ ( primedivorcoprime a )).
+  use (hinhuniv _ ( primedivorcoprime a )).
   intros j. intros P i.
   apply i.
   destruct j as [ j0 | j1 ].
   - apply ii1.
     assumption.
   - apply ii2.
-    refine (hinhuniv _ x).
+    use (hinhuniv _ x).
     intro u.
     destruct u as [ k u ].
     unfold hzdiv0 in u.
@@ -2029,10 +2029,10 @@ Proof.
        ( hzremaindermod p (isaprimetoneq0 is) a * b )%rng )%hz.
     apply ( hzdivequationmod p ( isaprimetoneq0 is ) ( a * b ) ).
   }
-  refine (hinhuniv _ ( primeandtimes a b i )).
+  use (hinhuniv _ ( primeandtimes a b i )).
   intro t.
   destruct t as [ t0 | t1 ].
-  - refine (hinhuniv _ t0).
+  - use (hinhuniv _ t0).
     intros k.
     destruct k as [ k k' ].
     intros Q j.
@@ -2054,7 +2054,7 @@ Proof.
         -- apply ( istranshzlth _ 1 _ ).
            ++ apply hzlthnsn.
            ++ apply is.
-  - refine (hinhuniv _ t1).
+  - use (hinhuniv _ t1).
     intros k.
     destruct k as [ k k' ].
     intros Q j.
@@ -2134,10 +2134,10 @@ Proof.
   rewrite setquotprandpadictimes.
   rewrite 3! padicapartcomputation.
   intros i j.
-  refine (hinhuniv _ i).
+  use (hinhuniv _ i).
   intros i0.
   destruct i0 as [ i0 i1 ].
-  refine (hinhuniv _ j).
+  use (hinhuniv _ j).
   intros j0.
   destruct j0 as [ j0 j1 ].
   rewrite carryandzero in i1, j1.
@@ -2173,10 +2173,10 @@ Proof.
   }
   set ( le1 := leastelementprinciple i0 P isdec1 i1 ).
   set ( le2 := leastelementprinciple j0 P' isdec2 j1 ).
-  refine (hinhuniv _ le1).
+  use (hinhuniv _ le1).
   intro k.
   destruct k as [ k k' ].
-  refine (hinhuniv _ le2).
+  use (hinhuniv _ le2).
   intro o.
   destruct o as [ o o' ].
   apply total2tohexists.
@@ -2232,7 +2232,7 @@ Proof.
       change ( hzremaindermod p ( isaprimetoneq0 is )
                               ( a 0%nat * b 0%nat ) ~> 0%hz ) in v.
       assert hfalse.
-      { refine (hinhuniv _ ( hzremaindermodprimeandtimes
+      { use (hinhuniv _ ( hzremaindermodprimeandtimes
                                        ( a 0%nat ) ( b 0%nat ) v )).
         intros t.
         destruct t as [ t0 | t1 ].
@@ -2269,7 +2269,7 @@ Proof.
         { set (aux :=  hzremaindermodprimeandtimes
                          ( carry p ( isaprimetoneq0 is ) a 0%nat )
                          ( carry p ( isaprimetoneq0 is ) b ( S o ) ) v).
-          refine (hinhuniv _ aux).
+          use (hinhuniv _ aux).
           intros s.
           destruct s as [ l | r ].
           -- unfold P in k'. unfold neq in k'.
@@ -2307,7 +2307,7 @@ Proof.
       { set (aux := hzremaindermodprimeandtimes
                       ( carry p ( isaprimetoneq0 is ) a ( S k ) )
                       ( carry p ( isaprimetoneq0 is ) b (o ) ) v).
-        refine (hinhuniv _ aux).
+        use (hinhuniv _ aux).
         intros s.
         destruct s as [ l | r ].
         * unfold P in k'. unfold neq in k'.
