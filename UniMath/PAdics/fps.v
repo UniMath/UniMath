@@ -136,8 +136,8 @@ Proof.
       set (H4:=pr2 H3).
       simpl in H4.
       apply H4.
-    + assert empty by exact ( negnatlehsn0 i p ).
-      contradiction.
+    + apply fromempty.
+      exact ( negnatlehsn0 i p ).
   - intros f i p. destruct i.
     + apply natsummationshift0.
     + destruct ( natlehchoice ( S i ) ( S upper ) p ) as [ h | k ].
@@ -219,8 +219,8 @@ Proof.
   intros R upper. induction upper.
   - intros n f q. destruct n.
     + auto.
-    + assert empty by exact ( negnatlehsn0 n q ).
-      contradiction.
+    + apply fromempty.
+      exact ( negnatlehsn0 n q ).
   - intros n f q. destruct n.
     + auto.
     + change ( natsummation0 ( S ( minus upper n ) ) f ~>
@@ -355,28 +355,22 @@ Proof.
     + split.
       * unfold nattruncautoinv.
         destruct ( natgthorleh ( i n ) upper ) as [ l | r ].
-        assert empty.
-        { apply ( isirreflnatlth ( i n ) ).
-          apply ( natlehlthtrans _ upper ).
-          -- apply (pr2 p). assumption.
-          -- assumption.
-        }
-        contradiction.
-        apply ( nattruncautoisinj p ).
-        -- apply ( nattruncautopreimageineq ).
-        -- assumption.
-        -- apply ( nattruncautopreimagepath p r ).
+        -- apply fromempty.
+           apply ( isirreflnatlth ( i n ) ).
+           apply ( natlehlthtrans _ upper ).
+           ++ apply (pr2 p). assumption.
+           ++ assumption.
+        -- apply ( nattruncautoisinj p ).
+           ++ apply ( nattruncautopreimageineq ).
+           ++ assumption.
+           ++ apply ( nattruncautopreimagepath p r ).
       * intros m x v. unfold nattruncautoinv in v.
         destruct ( natgthorleh m upper ) as [ l | r ].
-        assert empty.
-        { apply ( isirreflnatlth upper ).
-          apply ( natlthlehtrans _ m ).
-          -- assumption.
-          -- assumption.
-        }
-        contradiction.
-        rewrite <- v.
-        apply ( nattruncautopreimagepath p r ).
+        -- apply fromempty.
+           apply ( isirreflnatlth upper ).
+           apply ( natlthlehtrans _ m ); assumption.
+        -- rewrite <- v.
+           apply ( nattruncautopreimagepath p r ).
   - intros x X. unfold nattruncautoinv.
     destruct ( natgthorleh x upper ) as [ l | r ].
     * assumption.
@@ -404,41 +398,35 @@ Proof.
   destruct ( natlthorgeh ( i n ) ( S upper) ) as [ l | r ].
   - apply natlthsntoleh. assumption.
   - destruct ( natgehchoice ( i n ) ( S upper ) ) as [ l' | r' ].
-    + assert empty.
-      { apply ( isirreflnatlth ( i n ) ).
-        apply ( natlehlthtrans _ ( S upper ) ).
-        * apply (pr2 p).
-          apply natlthtoleh.
-          apply ( natlehlthtrans _ upper ).
-          -- assumption.
-          -- apply natlthnsn.
-        * assumption.
-      }
-      contradiction.
+    + apply fromempty.
+      apply ( isirreflnatlth ( i n ) ).
+      apply ( natlehlthtrans _ ( S upper ) ).
+      * apply (pr2 p).
+        apply natlthtoleh.
+        apply ( natlehlthtrans _ upper ).
+        -- assumption.
+        -- apply natlthnsn.
+      * assumption.
     + destruct ( isdeceqnat n ( S upper ) ) as [ l'' | r'' ].
-      * assert empty.
-        { apply ( isirreflnatlth upper ).
-          apply ( natlthlehtrans _ ( S upper ) ).
-          apply natlthnsn.
-          rewrite <- l''.
-          assumption.
-        }
-        contradiction.
+      * apply fromempty.
+        apply ( isirreflnatlth upper ).
+        apply ( natlthlehtrans _ ( S upper ) ).
+        -- apply natlthnsn.
+        -- rewrite <- l''.
+           assumption.
       * assert ( natleh ( i ( S upper ) ) ( S upper ) ) as aux.
         { apply (pr2 p). apply isreflnatleh. }
         destruct ( natlehchoice _ _ aux ) as [ l''' | r''' ].
         -- apply natlthsntoleh. assumption.
-        -- assert empty.
-           { apply r''.
-             apply ( nattruncautoisinj p ).
-             ++ apply natlthtoleh.
-                apply ( natlehlthtrans _ upper ).
-                ** assumption.
-                ** apply natlthnsn.
-             ++ apply isreflnatleh.
-             ++ rewrite r'. rewrite r'''. apply idpath.
-           }
-           contradiction.
+        -- apply fromempty.
+           apply r''.
+           apply ( nattruncautoisinj p ).
+           ++ apply natlthtoleh.
+              apply ( natlehlthtrans _ upper ).
+              ** assumption.
+              ** apply natlthnsn.
+           ++ apply isreflnatleh.
+           ++ rewrite r'. rewrite r'''. apply idpath.
 Defined.
 
 Lemma truncnattruncautoisinj { upper : nat } { i : nat -> nat }
@@ -460,55 +448,49 @@ Proof.
     destruct ( natlthorgeh ( i n ) ( S upper ) ) as [ a0 | a1 ].
     + destruct ( natlthorgeh ( i m ) ( S upper ) ) as [ b0 | b1 ].
       * assumption.
-      * assert empty.
-        { assert ( i m ~> S upper ) as f0.
-          { destruct ( natgehchoice ( i m ) ( S upper ) b1 ) as [ l | l' ].
-            -- assert empty.
-               { apply ( isirreflnatlth ( S upper ) ).
-                 apply ( natlehlthtrans _ ( i n ) ).
-                 ++ rewrite s. assumption.
-                 ++ assumption.
-               }
-               contradiction.
-            -- assumption.
-          }
-          destruct (natgehchoice ( i m ) ( S upper ) b1 ) as [ a00 | a10 ].
-          -- apply (isirreflnatgth ( S upper ) ).
-             rewrite f0 in a00.
-             assumption.
-          -- destruct ( isdeceqnat m ( S upper ) ) as [ a000 | a100 ].
-             ++ rewrite s in a0. rewrite f0 in a0.
-                apply ( isirreflnatlth ( S upper ) ).
-                assumption.
-             ++ assert ( i m ~> n ) as f1.
-                { apply ( nattruncautoisinj p ).
-                  ** rewrite f0.
-                     apply isreflnatleh.
-                  ** apply natlthtoleh.
-                     apply ( natlehlthtrans _ upper ).
-                     --- assumption.
-                     --- apply natlthnsn.
-                  ** rewrite f0. rewrite s. apply idpath.
-                }
-                apply ( isirreflnatlth upper ).
-                apply ( natlthlehtrans _ n ).
-                ** rewrite <- f1, f0.
-                   apply natlthnsn.
-                ** assumption.
-        }
-        contradiction.
-    + destruct ( natgehchoice ( i n ) ( S upper ) a1 ) as [ a00 | a01 ].
-      * assert empty.
-        { apply ( isirreflnatlth ( S upper ) ).
-          apply ( natlthlehtrans _ ( i n ) ).
-          -- assumption.
-          -- apply ( pr2 p ).
-             apply natlthtoleh.
-             apply ( natlehlthtrans _ upper ).
+      * apply fromempty.
+        assert ( i m ~> S upper ) as f0.
+        { destruct ( natgehchoice ( i m ) ( S upper ) b1 ) as [ l | l' ].
+          -- apply fromempty.
+             apply ( isirreflnatlth ( S upper ) ).
+             apply ( natlehlthtrans _ ( i n ) ).
+             ++ rewrite s. assumption.
              ++ assumption.
-             ++ apply natlthnsn.
+          -- assumption.
         }
-        contradiction.
+        destruct (natgehchoice ( i m ) ( S upper ) b1 ) as [ a00 | a10 ].
+        -- apply (isirreflnatgth ( S upper ) ).
+           rewrite f0 in a00.
+           assumption.
+        -- destruct ( isdeceqnat m ( S upper ) ) as [ a000 | a100 ].
+           ++ rewrite s in a0. rewrite f0 in a0.
+              apply ( isirreflnatlth ( S upper ) ).
+              assumption.
+           ++ assert ( i m ~> n ) as f1.
+              { apply ( nattruncautoisinj p ).
+                ** rewrite f0.
+                   apply isreflnatleh.
+                ** apply natlthtoleh.
+                   apply ( natlehlthtrans _ upper ).
+                   --- assumption.
+                   --- apply natlthnsn.
+                ** rewrite f0. rewrite s. apply idpath.
+              }
+              apply ( isirreflnatlth upper ).
+              apply ( natlthlehtrans _ n ).
+              ** rewrite <- f1, f0.
+                 apply natlthnsn.
+              ** assumption.
+    + destruct ( natgehchoice ( i n ) ( S upper ) a1 ) as [ a00 | a01 ].
+      * apply fromempty.
+        apply ( isirreflnatlth ( S upper ) ).
+        apply ( natlthlehtrans _ ( i n ) ).
+        -- assumption.
+        -- apply ( pr2 p ).
+           apply natlthtoleh.
+           apply ( natlehlthtrans _ upper ).
+           ++ assumption.
+           ++ apply natlthnsn.
       * destruct ( natlthorgeh ( i m ) ( S upper ) ) as [ b0 | b1 ].
         -- destruct ( isdeceqnat n ( S upper ) ) as [ a000 | a001 ].
            ++ assumption.
@@ -521,29 +503,23 @@ Proof.
                    --- apply natlthnsn.
                 ** assumption.
               }
-              assert empty.
-              { apply a001. rewrite f0.
-                assert empty.
-                { apply ( isirreflnatlth ( S upper ) ).
-                  apply ( natlehlthtrans _ upper ).
-                  ** rewrite f0. assumption.
-                  ** apply natlthnsn.
-                }
-                contradiction.
-              }
-              contradiction.
+              apply fromempty.
+              apply a001. rewrite f0.
+              apply fromempty.
+              apply ( isirreflnatlth ( S upper ) ).
+              apply ( natlehlthtrans _ upper ).
+              ** rewrite f0. assumption.
+              ** apply natlthnsn.
         -- destruct ( natgehchoice ( i m ) ( S upper ) b1 ) as [ b00 | b01 ].
-           ++ assert empty.
-              { apply ( isirreflnatlth ( i m ) ).
-                apply ( natlehlthtrans _ ( S upper ) ).
-                ** apply (pr2 p).
-                   apply ( natlthtoleh ).
-                   apply ( natlehlthtrans _ upper ).
-                   --- assumption.
-                   --- apply natlthnsn.
-                ** assumption.
-              }
-              contradiction.
+           ++ apply fromempty.
+              apply ( isirreflnatlth ( i m ) ).
+              apply ( natlehlthtrans _ ( S upper ) ).
+              ** apply (pr2 p).
+                 apply ( natlthtoleh ).
+                 apply ( natlehlthtrans _ upper ).
+                 --- assumption.
+                 --- apply natlthnsn.
+              ** assumption.
            ++ rewrite b01. rewrite a01. apply idpath.
 Defined.
 
@@ -575,13 +551,11 @@ Proof.
              rewrite r.
              apply idpath.
            }
-           assert empty.
-           { apply ( isirreflnatlth ( S upper ) ).
-             apply ( natlehlthtrans _ upper ).
-             ++ rewrite <- f0. assumption.
-             ++ apply natlthnsn.
-           }
-           contradiction.
+           apply fromempty.
+           apply ( isirreflnatlth ( S upper ) ).
+           apply ( natlehlthtrans _ upper ).
+           ++ rewrite <- f0. assumption.
+           ++ apply natlthnsn.
       * split.
         -- apply ( nattruncautoisinj p ).
            ++ apply natlthtoleh.
@@ -590,54 +564,46 @@ Proof.
                  destruct ( natlehchoice _ _ ( nattruncautopreimageineq p
                                    ( isreflnatleh ( S upper ) ) ) ) as [ l | r].
                  --- apply natlthsntoleh. assumption.
-                 --- assert empty.
-                     { assert ( S upper ~> n ) as f0.
-                       { rewrite <- ( nattruncautopreimagepath p ( isreflnatleh ( S upper ) ) ).
-                         rewrite r.
-                         rewrite <- i0.
-                         rewrite ( nattruncautopreimagepath p q' ).
-                         apply idpath.
-                       }
-                       apply ( isirreflnatlth ( S upper ) ).
-                       apply ( natlehlthtrans _ upper ).
-                       +++ rewrite f0. assumption.
-                       +++ apply natlthnsn.
+                 --- apply fromempty.
+                     assert ( S upper ~> n ) as f0.
+                     { rewrite <- ( nattruncautopreimagepath p ( isreflnatleh ( S upper ) ) ).
+                       rewrite r.
+                       rewrite <- i0.
+                       rewrite ( nattruncautopreimagepath p q' ).
+                       apply idpath.
                      }
-                     contradiction.
+                     apply ( isirreflnatlth ( S upper ) ).
+                     apply ( natlehlthtrans _ upper ).
+                     +++ rewrite f0. assumption.
+                     +++ apply natlthnsn.
               ** apply natlthnsn.
            ++ assumption.
            ++ unfold truncnattruncauto.
               destruct ( isdeceqnat ( nattruncautopreimage p
                                (isreflnatleh ( S upper ) ) ) ) as [ l | r ].
-              ** assert empty.
-                { assert ( S upper ~> n ) as f0.
-                  { rewrite <- ( nattruncautopreimagepath p (isreflnatleh ( S upper ) ) ).
-                    rewrite l.
-                    rewrite <- i0.
-                    rewrite ( nattruncautopreimagepath p q' ).
-                    apply idpath.
-                  }
-                  apply ( isirreflnatlth ( S upper ) ).
-                  apply ( natlehlthtrans _ upper ).
-                  --- rewrite f0. assumption.
-                  --- apply natlthnsn.
-                }
-                contradiction.
+              ** apply fromempty.
+                 assert ( S upper ~> n ) as f0.
+                 { rewrite <- ( nattruncautopreimagepath p (isreflnatleh ( S upper ) ) ).
+                   rewrite l.
+                   rewrite <- i0.
+                   rewrite ( nattruncautopreimagepath p q' ).
+                   apply idpath.
+                 }
+                 apply ( isirreflnatlth ( S upper ) ).
+                 apply ( natlehlthtrans _ upper ).
+                 --- rewrite f0. assumption.
+                 --- apply natlthnsn.
               ** destruct ( natlthorgeh ( i ( nattruncautopreimage p
                      ( isreflnatleh ( S upper ) ) ) ) ( S upper ) ) as [ l' | r' ].
-                 --- assert empty.
-                     { apply ( isirreflnatlth ( S upper ) ).
-                       rewrite ( nattruncautopreimagepath p ) in l'.
-                       assumption.
-                     }
-                     contradiction.
+                 --- apply fromempty.
+                     apply ( isirreflnatlth ( S upper ) ).
+                     rewrite ( nattruncautopreimagepath p ) in l'.
+                     assumption.
                  --- destruct ( natgehchoice _ _ r' ) as [ l'' | r'' ].
-                     +++ assert empty.
-                         { apply ( isirreflnatlth ( S upper ) ).
-                           rewrite ( nattruncautopreimagepath p ) in l''.
-                           assumption.
-                         }
-                         contradiction.
+                     +++ apply fromempty.
+                         apply ( isirreflnatlth ( S upper ) ).
+                         rewrite ( nattruncautopreimagepath p ) in l''.
+                         assumption.
                      +++ rewrite <- i0.
                          rewrite ( nattruncautopreimagepath p q' ).
                          apply idpath.
@@ -662,29 +628,23 @@ Proof.
                        rewrite ( nattruncautopreimagepath p q' ).
                        apply idpath.
                  }
-                 assert empty.
-                 { apply ( isirreflnatlth ( S upper ) ).
-                   apply ( natlehlthtrans _ upper ).
-                   --- rewrite f0. assumption.
-                   --- apply natlthnsn.
-                 }
-                 contradiction.
-              ** destruct ( isdeceqnat x ( S upper ) ) as [ l' | r' ].
-                 --- assert empty.
-                     { apply ( isirreflnatlth ( S upper ) ).
-                       apply ( natlehlthtrans _ upper ).
-                       +++ rewrite <- l'. assumption.
-                       +++ apply natlthnsn.
-                     }
-                     contradiction.
+                 apply fromempty.
+                 apply ( isirreflnatlth ( S upper ) ).
+                 apply ( natlehlthtrans _ upper ).
+                 --- rewrite f0. assumption.
+                 --- apply natlthnsn.
+               ** destruct ( isdeceqnat x ( S upper ) ) as [ l' | r' ].
+                 --- apply fromempty.
+                     apply ( isirreflnatlth ( S upper ) ).
+                     apply ( natlehlthtrans _ upper ).
+                     +++ rewrite <- l'. assumption.
+                     +++ apply natlthnsn.
                  --- destruct ( natgehchoice _ _ r ) as [ l'' | r'' ].
-                     +++ assert empty.
-                         { apply ( isirreflnatlth n ).
-                           apply ( natlehlthtrans _ ( S upper ) ).
-                           *** assumption.
-                           *** rewrite <- y. assumption.
-                         }
-                         contradiction.
+                     +++ apply fromempty.
+                         apply ( isirreflnatlth n ).
+                         apply ( natlehlthtrans _ ( S upper ) ).
+                         *** assumption.
+                         *** rewrite <- y. assumption.
                      +++ rewrite ( nattruncautopreimagepath p _ ).
                          rewrite r''.
                          apply idpath.
@@ -692,9 +652,9 @@ Proof.
       split.
       * destruct ( natlehchoice _ _ ( nattruncautopreimageineq p q' ) ) as [ l | r ].
         -- apply natlthsntoleh. assumption.
-        -- assert empty.
-           { apply i1. assumption. }
-           contradiction.
+        -- apply fromempty.
+           apply i1.
+           assumption.
       * split.
         -- unfold truncnattruncauto.
            destruct ( natlthorgeh ( i ( nattruncautopreimage p q' ) )
@@ -702,15 +662,13 @@ Proof.
            ++ apply nattruncautopreimagepath.
            ++ destruct ( natgehchoice _ _ r ) as [ l' | r' ].
               ** apply nattruncautopreimagepath.
-              ** assert empty.
-                 { apply ( isirreflnatlth ( S upper ) ).
-                   apply ( natlehlthtrans _ upper ).
-                   --- rewrite <- r'.
-                       rewrite ( nattruncautopreimagepath p q' ).
-                       assumption.
-                   --- apply natlthnsn.
-                 }
-                 contradiction.
+              ** apply fromempty.
+                 apply ( isirreflnatlth ( S upper ) ).
+                 apply ( natlehlthtrans _ upper ).
+                 --- rewrite <- r'.
+                     rewrite ( nattruncautopreimagepath p q' ).
+                     assumption.
+                 --- apply natlthnsn.
         -- intros x X y. apply ( nattruncautoisinj p ).
            ++ set (H:=pr1 p). simpl in H.
               set (H1:=pr2 p). simpl in H1.
@@ -726,25 +684,21 @@ Proof.
               destruct ( natlthorgeh ( i x ) ( S upper ) ) as [ l | r ].
               ** rewrite y. apply idpath.
               ** destruct ( isdeceqnat x ( S upper ) ) as [ l' | r' ].
-                 --- assert empty.
-                     { apply ( isirreflnatlth ( S upper ) ).
-                       apply ( natlehlthtrans _ upper ).
-                       +++ rewrite <- l'. assumption.
-                       +++ apply natlthnsn.
-                     }
-                     contradiction.
+                 --- apply fromempty.
+                     apply ( isirreflnatlth ( S upper ) ).
+                     apply ( natlehlthtrans _ upper ).
+                     +++ rewrite <- l'. assumption.
+                     +++ apply natlthnsn.
                  --- destruct ( natgehchoice _ _ r ).
                      +++ rewrite y. apply idpath.
-                     +++ assert empty.
-                         { apply i1.
-                           apply ( nattruncautoisinj p ).
-                           *** apply ( nattruncautopreimageineq p ).
-                           *** apply isreflnatleh.
-                           *** rewrite ( nattruncautopreimagepath p q' ).
-                               rewrite y.
-                               apply idpath.
-                         }
-                         contradiction.
+                     +++ apply fromempty.
+                         apply i1.
+                         apply ( nattruncautoisinj p ).
+                         *** apply ( nattruncautopreimageineq p ).
+                         *** apply isreflnatleh.
+                         *** rewrite ( nattruncautopreimagepath p q' ).
+                             rewrite y.
+                             apply idpath.
   - apply truncnattruncautobound.
 Defined.
 
@@ -794,18 +748,16 @@ Proof.
            ++ unfold natcoface.
               rewrite l'.
               apply idpath.
-           ++ assert empty.
-              { apply ( isirreflnatlth v ).
-                apply ( natlehlthtrans _ n ).
-                ** assumption.
-                ** apply ( istransnatlth _ ( S n ) ).
-                   apply natlthnsn.
-                   unfold natcoface in f0.
-                   rewrite ( natgehimplnatgtbfalse v n r' ) in f0.
-                   rewrite f0.
-                   assumption.
-              }
-              contradiction.
+           ++ apply fromempty.
+              apply ( isirreflnatlth v ).
+              apply ( natlehlthtrans _ n ).
+              ** assumption.
+              ** apply ( istransnatlth _ ( S n ) ).
+                 apply natlthnsn.
+                 unfold natcoface in f0.
+                 rewrite ( natgehimplnatgtbfalse v n r' ) in f0.
+                 rewrite f0.
+                 assumption.
     + (* CASE v <= m' *) set ( j := nattruncautopreimagepath p aaa ).
       change ( nattruncautopreimage p aaa ) with m' in j.
       set ( m'' := minus m' 1 ).
@@ -819,8 +771,8 @@ Proof.
              ++ apply natlthnsn.
           -- apply nattruncautopreimageineq.
         * destruct ( natgehchoice 0 m' h' ) as [ k | k' ].
-          -- assert empty by apply ( negnatgth0n m' k ).
-             contradiction.
+          -- apply fromempty.
+             apply ( negnatgth0n m' k ).
           -- unfold m''.
              rewrite <- k'.
              apply natleh0n.
@@ -834,12 +786,10 @@ Proof.
              assumption.
           -- destruct ( natlehchoice 0 m' ( natleh0n m' ) ) as [ k | k' ].
              ++ assumption.
-             ++ assert empty.
-                { apply ( negnatgth0n v ).
-                  rewrite k'.
-                  assumption.
-                }
-                contradiction.
+             ++ apply fromempty.
+                apply ( negnatgth0n v ).
+                rewrite k'.
+                assumption.
         }
         assert ( i ( natcoface v m'' ) ~> m ) as a1.
         { unfold natcoface.
@@ -850,12 +800,10 @@ Proof.
              assumption.
           -- destruct ( natlehchoice 0 m' ( natleh0n m' ) ) as [ k | k' ].
              ++ assumption.
-             ++ assert empty.
-                { apply ( negnatgth0n v ).
-                  rewrite k'.
-                  assumption.
-                }
-                contradiction.
+             ++ apply fromempty.
+                apply ( negnatgth0n v ).
+                rewrite k'.
+                assumption.
         }
         split with m''. split.
         -- assumption.
@@ -886,21 +834,19 @@ Proof.
               unfold funcomp.
               rewrite g.
               apply idpath.
-      * assert empty.
-        { apply ( isirreflnatlth ( S upper ) ).
-          apply ( natlehlthtrans _ upper ).
-          -- assert ( S upper ~> m ) as g.
-             { rewrite <- ( nattruncautopreimagepath p ( isreflnatleh ( S upper ) ) ).
-               change ( i v ~> m ).
-               rewrite <- j.
-               rewrite r'.
-               apply idpath.
-             }
-             rewrite g.
-             assumption.
-          -- apply natlthnsn.
-        }
-        contradiction.
+      * apply fromempty.
+        apply ( isirreflnatlth ( S upper ) ).
+        apply ( natlehlthtrans _ upper ).
+        -- assert ( S upper ~> m ) as g.
+           { rewrite <- ( nattruncautopreimagepath p ( isreflnatleh ( S upper ) ) ).
+             change ( i v ~> m ).
+             rewrite <- j.
+             rewrite r'.
+             apply idpath.
+           }
+           rewrite g.
+           assumption.
+        -- apply natlthnsn.
   - intros x X.
     unfold funcomp.
     assert ( natleh ( i ( natcoface v x ) ) ( S upper ) ) as a0.
@@ -927,22 +873,20 @@ Proof.
                 assumption.
         * assumption.
       }
-      assert empty.
-      { destruct ( natgthorleh v x ) as [ a | b ].
-        * unfold natcoface in g.
-          rewrite a in g.
-          apply ( isirreflnatlth x ).
-          rewrite g in a.
-          assumption.
-        * unfold natcoface in g.
-          rewrite ( natgehimplnatgtbfalse v x b ) in g.
-          apply ( isirreflnatlth x ).
-          apply ( natlthlehtrans _ ( S x ) ).
-          -- apply natlthnsn.
-          -- rewrite <- g.
-             assumption.
-      }
-      contradiction.
+      apply fromempty.
+      destruct ( natgthorleh v x ) as [ a | b ].
+      * unfold natcoface in g.
+        rewrite a in g.
+        apply ( isirreflnatlth x ).
+        rewrite g in a.
+        assumption.
+      * unfold natcoface in g.
+        rewrite ( natgehimplnatgtbfalse v x b ) in g.
+        apply ( isirreflnatlth x ).
+        apply ( natlthlehtrans _ ( S x ) ).
+        -- apply natlthnsn.
+        -- rewrite <- g.
+           assumption.
 Defined.
 
 Lemma nattruncautocompstable { R : commrng } { upper : nat }
@@ -1010,13 +954,11 @@ Proof.
     assert ( nattruncreverse upper m' ~> m ) as a1.
     { unfold nattruncreverse.
       + destruct ( natgthorleh m' upper ).
-        * assert empty.
-          { apply isirreflnatlth with ( n := m' ).
-            apply natlehlthtrans with ( m := upper ).
-            -- assumption.
-            -- assumption.
-          }
-          contradiction.
+        * apply fromempty.
+          apply isirreflnatlth with ( n := m' ).
+          apply natlehlthtrans with ( m := upper ).
+          -- assumption.
+          -- assumption.
         * unfold m'.
           rewrite doubleminuslehpaths.
           -- apply idpath.
@@ -1031,13 +973,11 @@ Proof.
         rewrite <- u.
         unfold nattruncreverse.
         destruct ( natgthorleh n upper ) as [ l | r ].
-        -- assert empty.
-           { apply ( isirreflnatlth n ).
-             apply ( natlehlthtrans _ upper ).
-             ++ assumption.
-             ++ assumption.
-           }
-           contradiction.
+        -- apply fromempty.
+           apply ( isirreflnatlth n ).
+           apply ( natlehlthtrans _ upper ).
+           ++ assumption.
+           ++ assumption.
         -- rewrite doubleminuslehpaths.
            ++ apply idpath.
            ++ assumption.
@@ -1057,30 +997,32 @@ Proof.
   - destruct ( isdeceqnat 0%nat n ) as [i0 | _ ].
     + destruct ( isdeceqnat 0%nat upper ) as [ i1 | e1 ].
       * rewrite <- i0. rewrite <- i1. apply idpath.
-      * assert empty.
-        { apply e1. rewrite i. rewrite i0. apply idpath. }
-        contradiction.
+      * apply fromempty.
+        apply e1.
+        rewrite i.
+        rewrite i0.
+        apply idpath.
     + destruct ( isdeceqnat 0%nat 0%nat ) as [ _ | e1 ].
       * assumption.
-      * assert empty.
-        { apply e1. auto. }
-        contradiction.
+      * apply fromempty.
+        apply e1.
+        auto.
   - destruct ( isdeceqnat 0%nat n ) as [i0 | e0 ].
     + destruct ( isdeceqnat 0%nat upper ) as [ i1 | _ ].
       * rewrite <- i0. rewrite i1. apply idpath.
       * destruct ( isdeceqnat upper upper ) as [ _ | e2 ].
         -- assumption.
-        -- assert empty.
-           { apply e2. auto. }
-           contradiction.
+        -- apply fromempty.
+           apply e2.
+           auto.
     + destruct ( isdeceqnat 0%nat n ) as [ i1 | _ ].
-      * assert empty.
-        { apply e0. assumption. }
-        contradiction.
+      * apply fromempty.
+        apply e0.
+        assumption.
       * destruct ( isdeceqnat upper n ) as [ i2 | _ ].
-        -- assert empty.
-           { apply e. assumption. }
-           contradiction.
+        -- apply fromempty.
+           apply e.
+           assumption.
         -- apply idpath.
 Defined.
 
@@ -1132,23 +1074,21 @@ Proof.
     set ( v := nattruncautopreimage p (natlthtoleh m (S upper)
                (natlehlthtrans m upper (S upper) q (natlthnsn upper)))).
     destruct ( isdeceqnat 0%nat v ) as [ i0 | i1 ].
-    + assert empty.
-      { apply ( isirreflnatlth ( i 0%nat ) ).
-        apply ( natlehlthtrans _ upper ).
-        * rewrite i0.
-          unfold v.
-          rewrite nattruncautopreimagepath.
-          assumption.
-        * rewrite j.
-          apply natlthnsn.
-      }
-      contradiction.
+    + apply fromempty.
+      apply ( isirreflnatlth ( i 0%nat ) ).
+      apply ( natlehlthtrans _ upper ).
+      * rewrite i0.
+        unfold v.
+        rewrite nattruncautopreimagepath.
+        assumption.
+      * rewrite j.
+        apply natlthnsn.
     + assert ( natlth 0 v ) as aux.
       { destruct ( natlehchoice _ _ ( natleh0n v ) ).
         * assumption.
-        * assert empty.
-          { apply i1. assumption. }
-          contradiction.
+        * apply fromempty.
+          apply i1.
+          assumption.
       }
       split with ( minus v 1 ).
       split.
@@ -1178,22 +1118,20 @@ Proof.
     + destruct ( natlehchoice _ _ aux ) as [ h | k ].
       * apply natlthsntoleh.
         assumption.
-      * assert empty.
-        { assert ( 0%nat ~> S x ) as ii.
-          { apply ( nattruncautoisinj p ).
-            -- apply natleh0n.
-            -- assumption.
-            -- rewrite j.
-               rewrite k.
-               apply idpath.
-          }
-          apply ( isirreflnatlth ( S x ) ).
-          apply ( natlehlthtrans _ x ).
-          -- rewrite <- ii.
-             apply natleh0n.
-          -- apply natlthnsn.
+      * apply fromempty.
+        assert ( 0%nat ~> S x ) as ii.
+        { apply ( nattruncautoisinj p ).
+          -- apply natleh0n.
+          -- assumption.
+          -- rewrite j.
+             rewrite k.
+             apply idpath.
         }
-        contradiction.
+        apply ( isirreflnatlth ( S x ) ).
+        apply ( natlehlthtrans _ x ).
+        -- rewrite <- ii.
+           apply natleh0n.
+        -- apply natlthnsn.
 Defined.
 
 (* The following lemma says that we may reindex sums along
@@ -1210,8 +1148,8 @@ Proof.
     assert ( 0%nat ~> i 0%nat ) as f0.
     { destruct ( natlehchoice ( i 0%nat ) 0%nat ( pr2 p 0%nat ( isreflnatleh 0%nat ) ) )
         as [ h | k ].
-      + assert empty by exact ( negnatlthn0 ( i 0%nat ) h ).
-        contradiction.
+      + apply fromempty.
+        exact ( negnatlthn0 ( i 0%nat ) h ).
       + rewrite k.
         apply idpath.
     }
@@ -1627,13 +1565,11 @@ Proof.
     unfold funcomp.
     unfold nattruncreverse.
     destruct (natgthorleh m n ).
-    - assert empty.
-      { apply isirreflnatlth with ( n := n ).
-        apply natlthlehtrans with ( m := m ).
-        + apply h.
-        + assumption.
-      }
-      contradiction.
+    - apply fromempty.
+      apply isirreflnatlth with ( n := n ).
+      apply natlthlehtrans with ( m := m ).
+      + apply h.
+      + assumption.
     - apply maponpaths.
       apply maponpaths.
       apply pathsinv0.

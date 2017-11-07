@@ -1047,8 +1047,8 @@ Proof.
     assert ( a ( S m ) * b ( minus ( S m ) ( S m ) ) ~> 0%hz ) as g.
     { destruct k.
       + destruct k'.
-        * assert empty by apply ( negnatgth0n ( S m ) j ).
-          contradiction.
+        * apply fromempty.
+          apply ( negnatgth0n ( S m ) j ).
         * rewrite minusnn0.
           rewrite ( is' 0%nat ( natlehlthtrans 0%nat k' ( S k' )
                                              ( natleh0n k' )
@@ -1094,11 +1094,9 @@ Proof.
     destruct k'.
     + assert ( forall m : nat, natlth m 0%nat -> b' m ~> 0%hz ) as two.
       { intros m0 j0.
-        assert empty.
-        { apply ( negnatgth0n m0).
-          assumption.
-        }
-        contradiction.
+        apply fromempty.
+        apply ( negnatgth0n m0).
+        assumption.
       }
       apply ( IHm k is b' 0%nat two one ).
     + assert ( forall m : nat, natlth m k' -> b' m ~> 0%hz ) as two.
@@ -1639,13 +1637,13 @@ Proof.
         assumption.
     }
     destruct ( isdecisbndqdec Q isdec' ( S k ) ) as [ l | r ].
-    + assert hfalse as xx.
-      { apply ( k'' k ).
-        apply natlthnsn.
-        intro j.
-        unfold P in k'. unfold neq in k'.
-        apply k'.
-        change ( ( natsummation0 ( S k ) ( fun x : nat =>
+    + apply fromempty.
+      apply ( k'' k ).
+      apply natlthnsn.
+      intro j.
+      unfold P in k'. unfold neq in k'.
+      apply k'.
+      change ( ( natsummation0 ( S k ) ( fun x : nat =>
                      carry p ( isaprimetoneq0 is ) a x *
                      carry p ( isaprimetoneq0 is ) b ( minus ( S k ) x ) ) ) +
                  hzquotientmod p ( isaprimetoneq0 is )
@@ -1659,23 +1657,21 @@ Proof.
                                ( precarry p ( isaprimetoneq0 is )
                                           ( carry p ( isaprimetoneq0 is ) a *
                                             carry p ( isaprimetoneq0 is ) c ) k ) ) ).
-        assert ( natsummation0 ( S k ) (fun x0 : nat =>
+      assert ( natsummation0 ( S k ) (fun x0 : nat =>
                    carry p (isaprimetoneq0 is) a x0 *
                    carry p (isaprimetoneq0 is) b ( minus ( S k ) x0)) ~>
                  natsummation0 ( S k ) (fun x0 : nat =>
                    carry p (isaprimetoneq0 is) a x0 *
                    carry p (isaprimetoneq0 is) c ( minus ( S k ) x0)) ) as f.
-        { apply natsummationpathsupperfixed.
-          intros m y.
-          rewrite ( l ( minus ( S k ) m ) ).
-          * apply idpath.
-          * apply minusleh.
-        }
-        rewrite f.
-        rewrite j.
-        apply idpath.
+      { apply natsummationpathsupperfixed.
+        intros m y.
+        rewrite ( l ( minus ( S k ) m ) ).
+        * apply idpath.
+        * apply minusleh.
       }
-      contradiction.
+      rewrite f.
+      rewrite j.
+      apply idpath.
     + refine (hinhuniv _ r).
       intros o.
       destruct o as [ o o' ].
@@ -1725,12 +1721,12 @@ Proof.
     destruct ( isdecisbndqdec Q isdec'( S n ) ) as [ l | r ].
     + apply ( padicapartandtimesprecarryl a b c n ).
       intros j.
-      assert hfalse as xx.
-      { unfold neq in n'.
-        apply n'.
-        rewrite carryandtimes.
-        rewrite ( carryandtimes p ( isaprimetoneq0 is ) a c ).
-        change ( hzremaindermod p ( isaprimetoneq0 is )
+      apply fromempty.
+      unfold neq in n'.
+      apply n'.
+      rewrite carryandtimes.
+      rewrite ( carryandtimes p ( isaprimetoneq0 is ) a c ).
+      change ( hzremaindermod p ( isaprimetoneq0 is )
                    ( natsummation0 ( S n ) ( fun x : nat =>
                        carry p ( isaprimetoneq0 is ) a x *
                        carry p ( isaprimetoneq0 is ) b ( minus ( S n ) x ) ) +
@@ -1746,23 +1742,21 @@ Proof.
                        ( precarry p ( isaprimetoneq0 is )
                                   ( carry p ( isaprimetoneq0 is ) a *
                                     carry p ( isaprimetoneq0 is ) c ) n ) ) ) ).
-        rewrite j.
-        assert ( natsummation0 ( S n ) (fun x0 : nat =>
+      rewrite j.
+      assert ( natsummation0 ( S n ) (fun x0 : nat =>
                    carry p (isaprimetoneq0 is) a x0 *
                    carry p (isaprimetoneq0 is) b ( minus ( S n ) x0)) ~>
                  natsummation0 ( S n ) (fun x0 : nat =>
                    carry p (isaprimetoneq0 is) a x0 *
                   carry p (isaprimetoneq0 is) c ( minus ( S n ) x0)) ) as f.
-        { apply natsummationpathsupperfixed.
-          intros m y.
-          rewrite ( l ( minus ( S n ) m ) ).
-          * apply idpath.
-          * apply minusleh.
-        }
-        rewrite f.
-        apply idpath.
+      { apply natsummationpathsupperfixed.
+        intros m y.
+        rewrite ( l ( minus ( S n ) m ) ).
+        * apply idpath.
+        * apply minusleh.
       }
-      contradiction.
+      rewrite f.
+      apply idpath.
     + refine (hinhuniv _ r).
       intros k.
       destruct k as [ k k' ].
@@ -2187,10 +2181,9 @@ Proof.
     destruct ( isdeceqhz ( carry p ( isaprimetoneq0 is ) a m ) 0%hz )
       as [ left0 | right0 ].
     - assumption.
-    - assert empty.
-      { apply ( ( pr2 k' ) m m0 ).
-        assumption. }
-      contradiction.
+    - apply fromempty.
+      apply ( ( pr2 k' ) m m0 ).
+      assumption.
   }
   assert ( forall m : nat, natlth m o ->
     carry p ( isaprimetoneq0 is ) b m ~> 0%hz ) as two.
@@ -2198,10 +2191,9 @@ Proof.
     destruct ( isdeceqhz ( carry p ( isaprimetoneq0 is ) b m ) 0%hz )
       as [ left0 | right0 ].
     - assumption.
-    - assert empty.
-      { apply ( ( pr2 o' ) m m0 ).
-        assumption. }
-      contradiction.
+    - apply fromempty.
+      apply ( ( pr2 o' ) m m0 ).
+      assumption.
   }
   assert ( dirprod
              ( neq hz ( carry p ( isaprimetoneq0 is ) a k ) 0%hz )

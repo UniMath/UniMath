@@ -77,8 +77,7 @@ Defined.
 Lemma minussn1non0 ( n : nat ) ( p : natlth 0 n ) : S ( minus n 1 ) ~> n.
 Proof.
   intro. destruct n.
-  - intro p. assert empty by exact (isirreflnatlth 0%nat p ).
-    contradiction.
+  - intro p. apply fromempty. exact (isirreflnatlth 0%nat p ).
   - intro. apply maponpaths. apply minus0r.
 Defined.
 
@@ -98,7 +97,7 @@ Proof.
   intro n. destruct n.
   - auto.
   - intros m p q r. destruct m.
-    + assert empty by exact (isirreflnatlth 0%nat q ). contradiction.
+    + apply fromempty. exact (isirreflnatlth 0%nat q ).
     + assert ( natleh n m ) as a by apply r.
       assert ( natleh ( minus n 0%nat ) m ) as a0 by
         exact (transportf ( fun x : nat => natleh x m ) ( pathsinv0 ( minus0r n ) ) a).
@@ -111,7 +110,7 @@ Proof.
   intro n. destruct n.
   - auto.
   - intros m p q. destruct m.
-    + assert empty by exact ( isirreflnatlth 0%nat q). contradiction.
+    + apply fromempty. exact ( isirreflnatlth 0%nat q).
     + apply ( natlehlthtrans _ n _ ).
       * apply ( minusleh n m ).
       * apply natlthnsn.
@@ -123,7 +122,7 @@ Proof.
   - intros m p. destruct m.
     + apply isreflnatleh.
     + assert ( natlth m 0 ) as q by apply p.
-      assert empty by exact ( negnatgth0n m q ). contradiction.
+      apply fromempty. exact ( negnatgth0n m q ).
   - intros m p. destruct m.
     + apply natleh0n.
     + apply ( IHn m ). assumption.
@@ -133,7 +132,7 @@ Lemma natlthminus0 { n m : nat } ( p : natlth m n ) :
   natlth 0 ( minus n m ).
 Proof.
   intro n. induction n.
-  - intros m p. assert empty by exact ( negnatlthn0 m p ). contradiction.
+  - intros m p. apply fromempty. exact ( negnatlthn0 m p ).
   - intros m p. destruct m.
     + auto.
     + apply IHn. apply p.
@@ -143,7 +142,7 @@ Lemma natlthsnminussmsn ( n m : nat ) ( p : natlth m n ) :
   natlth ( minus ( S n ) ( S m ) ) ( S n ).
 Proof.
   intro. induction n.
-  - intros m p. assert empty by apply (negnatlthn0 m p). contradiction.
+  - intros m p. apply fromempty. apply (negnatlthn0 m p).
   - intros m p. destruct m.
     + assert ( minus ( S ( S n ) ) 1 ~> S n ) as f.
       { destruct n.
@@ -173,9 +172,8 @@ Proof.
   intro n. induction n.
   - intros m p. destruct m.
     + auto.
-    + assert empty.
-      { apply nopathstruetofalse. apply pathsinv0. assumption. }
-      contradiction.
+    + apply fromempty.
+      apply nopathstruetofalse. apply pathsinv0. assumption.
   - intros m p. destruct m.
     + auto.
     + apply IHn. apply p.
@@ -213,7 +211,7 @@ Proof.
   - intros k l p q. destruct k.
     + destruct l.
       * auto.
-      * assert empty. exact ( negnatlehsn0 l q ). contradiction.
+      * apply fromempty. exact ( negnatlehsn0 l q ).
     + destruct l.
       * auto.
       * apply ( IHn k l ); assumption.
@@ -222,7 +220,7 @@ Defined.
 Lemma minusnleh1 ( n m : nat ) ( p : natlth m n ) : natleh m ( minus n 1 ).
 Proof.
   intro n. destruct n.
-  - intros m p. assert empty by exact (negnatlthn0 m p ). contradiction.
+  - intros m p. apply fromempty. exact (negnatlthn0 m p ).
   - intros m p. destruct m.
     + apply natleh0n.
     + apply natlthsntoleh.
@@ -235,7 +233,7 @@ Lemma doubleminuslehpaths ( n m : nat ) ( p : natleh m n ) :
 Proof.
   intro n. induction n.
   - intros m p. destruct ( natlehchoice m 0 p ) as [ h | k ].
-    + assert empty. apply negnatlthn0 with ( n := m ). assumption. contradiction.
+    + apply fromempty. apply negnatlthn0 with ( n := m ). assumption.
     + simpl. apply pathsinv0. assumption.
   - intros. destruct m.
     + simpl. apply minusnn0.
@@ -252,7 +250,7 @@ Defined.
 Lemma boolnegtrueimplfalse ( v : bool ) ( p : neg ( v ~> true ) ) : v ~> false.
 Proof.
   intros. destruct v.
-  - assert empty by (apply p; auto). contradiction.
+  - apply fromempty. apply p; auto.
   - auto.
 Defined.
 
@@ -325,9 +323,9 @@ Proof.
   - intros a p. refine (hinhuniv _ p).
     intro t. destruct t as [ c f ]. destruct a.
     + apply isreflnatleh.
-    + assert empty.
-      { simpl in f . exact ( negpathssx0 ( a + c ) f ). }
-      contradiction.
+    + apply fromempty.
+      simpl in f .
+      exact ( negpathssx0 ( a + c ) f ).
   - intros a p. refine (hinhuniv _ p).
     intro t. destruct t as [ c f ]. destruct a.
     + apply natleh0n.
@@ -723,18 +721,16 @@ Proof.
   intros.
   destruct ( natlthorgeh ( hzabsval n ) ( hzabsval m ) ) as [ h | k ].
   - assumption.
-  - assert empty.
-    { apply ( isirreflhzlth m ).
-      apply ( hzlehlthtrans _ n _ ).
-      + rewrite <- ( hzabsvalgeh0 ).
-        rewrite <- ( hzabsvalgeh0 p ).
-        apply nattohzandleh.
-        apply k.
-        apply hzgthtogeh.
-        apply ( hzgthgehtrans _ n _ ); assumption.
-      + assumption.
-    }
-    contradiction.
+  - apply fromempty.
+    apply ( isirreflhzlth m ).
+    apply ( hzlehlthtrans _ n _ ).
+    + rewrite <- ( hzabsvalgeh0 ).
+      rewrite <- ( hzabsvalgeh0 p ).
+      apply nattohzandleh.
+      apply k.
+      apply hzgthtogeh.
+      apply ( hzgthgehtrans _ n _ ); assumption.
+    + assumption.
 Defined.
 
 Lemma nattohzandlthinv ( n m : nat ) ( p : hzlth ( nattohz n ) (nattohz m ) ) :
@@ -1048,9 +1044,10 @@ Proof.
            split.
            ++ destruct ( natlehchoice m ( S n ) ( pr1 m' ) ) as [ h | p ].
               ** apply natlthsntoleh. assumption.
-              ** assert empty.
-                 { apply r. rewrite <- p. apply (pr2 m'). }
-                 contradiction.
+              ** apply fromempty.
+                 apply r.
+                 rewrite <- p.
+                 apply (pr2 m').
            ++ apply (pr2 m').
 Defined.
 
@@ -1064,10 +1061,10 @@ Proof.
   - apply ii1. intros m j.
     destruct ( is m ) as [ l' | r' ].
     + assumption.
-    + assert hfalse as x.
-      { apply r. apply total2tohexists.
-        split with m. split; assumption. }
-      contradiction.
+    + apply fromempty.
+      apply r. apply total2tohexists.
+      split with m.
+      split; assumption.
 Defined.
 
 Lemma leastelementprinciple ( n : nat ) ( P : nat -> hProp )
@@ -1080,15 +1077,15 @@ Proof.
     split with 0%nat. split.
     + assumption.
     + intros m i.
-      assert empty by apply ( negnatgth0n m i ).
-      contradiction.
+      apply fromempty.
+      apply ( negnatgth0n m i ).
   - intros P is u.
     destruct ( is 0%nat ) as [ l | r ].
     + apply total2tohexists. split with 0%nat. split.
       * assumption.
       * intros m i.
-        assert empty by apply ( negnatgth0n m i ).
-        contradiction.
+        apply fromempty.
+        apply ( negnatgth0n m i ).
     + set ( P' := fun m : nat => P ( S m ) ).
       assert ( forall m : nat, coprod ( P' m ) ( neg ( P' m ) ) ) as is'.
       { intros m. unfold P'. apply ( is ( S m ) ). }

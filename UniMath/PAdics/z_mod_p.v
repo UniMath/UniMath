@@ -448,13 +448,11 @@ Proof.
               ** apply isreflhzleh.
               ** rewrite equal.
                  apply ( pr2 ( pr2 ( pr2 ( a ) ) ) ).
-      * assert empty.
-        { rewrite k in p.
-          simpl in p.
-          apply p.
-          apply idpath.
-        }
-        contradiction.
+      * apply fromempty.
+        rewrite k in p.
+        simpl in p.
+        apply p.
+        apply idpath.
   - set ( choice2 := hzlthorgeh m 0 ).
     destruct choice2 as [ m_neg | m_nonneg ].
     + (*Case III. Assume n>=0, m<0:*)
@@ -496,10 +494,9 @@ Proof.
       { rewrite hzabsvalgeh0.
         * destruct ( hzneqchoice 0 m ) as [ l | r ].
           -- apply p.
-          -- assert empty.
-             { apply ( isirreflhzgth 0 ).
-               apply ( hzgthgehtrans 0 m 0 ); assumption. }
-             contradiction.
+          -- apply fromempty.
+             apply ( isirreflhzgth 0 ).
+             apply ( hzgthgehtrans 0 m 0 ); assumption.
           -- assumption.
         * assumption.
       }
@@ -637,14 +634,12 @@ Proof.
             apply lemmas.hzabsvalneq0. (* the culprit is the prefix [lemmas] *)
             assumption.
       }
-      assert empty.
-      { apply ( isirreflhzlth ( nattohz ( hzabsval m ) ) ).
-        apply ( hzlehlthtrans _ ( nattohz ( hzabsval ( r' - r ) ) ) _ ).
-        + apply nattohzandleh.
-          assumption.
-        + assumption.
-      }
-      contradiction.
+      apply fromempty.
+      apply ( isirreflhzlth ( nattohz ( hzabsval m ) ) ).
+      apply ( hzlehlthtrans _ ( nattohz ( hzabsval ( r' - r ) ) ) _ ).
+      + apply nattohzandleh.
+        assumption.
+      + assumption.
     - assert ( r' ~> r ) as i.
       { assert ( r' - r ~> 0 ) as i0.
         { apply hzabsvaleq0.
@@ -1286,10 +1281,9 @@ Proof.
              }
              destruct C as [ C0 | C1 ].
              ++ assumption.
-             ++ assert empty.
-                { rewrite C1 in x0.
-                  apply x0. }
-                contradiction.
+             ++ apply fromempty.
+                rewrite C1 in x0.
+                apply x0.
           -- assumption.
         * apply ( istranshzleh _ 0 _ ).
           assumption.
@@ -1626,19 +1620,17 @@ Proof.
   intros.
   destruct ( hzneqchoice 0 ( gcd n m i )
                            ( gcdneq0 n m i ) ) as [ left | right ].
-  - assert empty.
-    { assert ( hzleh ( - ( gcd n m i ) ) ( gcd n m i ) ) as i0.
-      { apply ( gcdisgreatest n m i ).
-        apply commonhzdivsignswap.
-        exact ( gcdiscommondiv n m i ).
-      }
-      apply ( isirreflhzlth 0 ).
-      apply ( istranshzlth _ ( - ( gcd n m i ) ) _ ).
-      + apply hzlth0andminus.
-        assumption.
-      + apply ( hzlehlthtrans _ ( gcd n m i ) _ ); assumption.
+  - apply fromempty.
+    assert ( hzleh ( - ( gcd n m i ) ) ( gcd n m i ) ) as i0.
+    { apply ( gcdisgreatest n m i ).
+      apply commonhzdivsignswap.
+      exact ( gcdiscommondiv n m i ).
     }
-    contradiction.
+    apply ( isirreflhzlth 0 ).
+    apply ( istranshzlth _ ( - ( gcd n m i ) ) _ ).
+    + apply hzlth0andminus.
+      assumption.
+    + apply ( hzlehlthtrans _ ( gcd n m i ) _ ); assumption.
   - assumption.
 Defined.
 
@@ -1660,18 +1652,16 @@ Proof.
            ++ assumption.
         -- apply hzgthtogeh.
            apply ( gcdpositive n m i ).
-      * assert empty.
-        { assert ( n ~> 0 ) as f.
-          { rewrite hzabsvaleq0.
-            -- apply idpath.
-            -- assumption.
-          }
-          unfold hzneq in i. (* crucial *)
-          apply i.
-          apply pathsinv0.
-          assumption.
+      * apply fromempty.
+        assert ( n ~> 0 ) as f.
+        { rewrite hzabsvaleq0.
+          -- apply idpath.
+          -- assumption.
         }
-        contradiction.
+        unfold hzneq in i. (* crucial *)
+        apply i.
+        apply pathsinv0.
+        assumption.
     + apply ( pr2 ( pr2 ( pr1 ( euclideanalgorithm n m i ) ) ) ).
       apply commonhzdivsignswap.
       split.
@@ -1696,15 +1686,13 @@ Proof.
            exact ( transportf ( fun x : _ =>
              hzleh ( nattohz ( hzabsval ( gcd n m i ) ) ) x ) ( pathsinv0 f ) j ).
         -- apply gcdpositive.
-      * assert empty.
-        { unfold hzneq in i. (* crucial *)
-          apply i.
-          apply pathsinv0.
-          rewrite hzabsvaleq0.
-          apply idpath.
-          assumption.
-        }
-        contradiction.
+      * apply fromempty.
+        unfold hzneq in i. (* crucial *)
+        apply i.
+        apply pathsinv0.
+        rewrite hzabsvaleq0.
+        apply idpath.
+        assumption.
     + apply ( gcdisgreatest n m i ).
       split.
       * apply hzdivisrefl.
@@ -1740,24 +1728,21 @@ Proof.
       + rewrite hzmultl1.
         rewrite hzplusr0.
         assumption.
-      + assert empty.
-        { apply ( isirreflhzlth ( gcd ( nattohz n ) 0 i ) ).
-          apply ( istranshzlth _ 0 _ ).
-          * rewrite right.
-            apply hzgth0andminus.
-            change 0 with ( nattohz 0%nat ).
-
-            apply nattohzandgth.
-            apply natneq0togth0.
-            refine (pr1 (natneq_iff_neq _ _) _). (* this is the culprit for advancing *)
-            intro f.
-            unfold hzneq in i. (* crucial *)
-            apply i.
-            rewrite f.
-            apply idpath.
-          * apply gcdpositive.
-        }
-        contradiction.
+      + apply fromempty.
+        apply ( isirreflhzlth ( gcd ( nattohz n ) 0 i ) ).
+        apply ( istranshzlth _ 0 _ ).
+        * rewrite right.
+          apply hzgth0andminus.
+          change 0 with ( nattohz 0%nat ).
+          apply nattohzandgth.
+          apply natneq0togth0.
+          refine (pr1 (natneq_iff_neq _ _) _). (* this is the culprit for advancing *)
+          intro f.
+          unfold hzneq in i. (* crucial *)
+          apply i.
+          rewrite f.
+          apply idpath.
+        * apply gcdpositive.
     - (* Induction Case: *)
       intros m x y. intros n i.
       assert ( hzneq 0 ( nattohz m ) ) as p.
@@ -2267,23 +2252,21 @@ Proof.
   intro t.
   destruct t as [ t0 | t1 ].
   - apply t0.
-  - assert empty.
-    { apply q.
-      simpl.
-      assert ( hzremaindermod p x a ~> 0 ) as f.
-      { assert ( hzdiv p a ) as u.
-        { rewrite <- t1.
-          apply ( pr2 ( gcdiscommondiv _ _ _ ) ).
-        }
-        rewrite hzremaindermodanddiv.
-        + apply idpath.
-        + assumption.
+  - apply fromempty.
+    apply q.
+    simpl.
+    assert ( hzremaindermod p x a ~> 0 ) as f.
+    { assert ( hzdiv p a ) as u.
+      { rewrite <- t1.
+        apply ( pr2 ( gcdiscommondiv _ _ _ ) ).
       }
-      rewrite f.
-      rewrite hzqrand0r.
-      apply idpath.
+      rewrite hzremaindermodanddiv.
+      + apply idpath.
+      + assumption.
     }
-    contradiction.
+    rewrite f.
+    rewrite hzqrand0r.
+    apply idpath.
 Defined.
 
 Lemma hzremaindermodandmultl ( p : hz ) ( x : hzneq 0 p ) ( a b : hz ) :
