@@ -542,9 +542,6 @@ Proof.
   - abstract (cbn; apply (PullbackArrow_PullbackPr1 (mk_Pullback f g d h k H isPb))).
 Defined.
 
-
-Ltac mk_pair := simple refine (tpair _ _ _ ).
-
 (** Diagonal morphisms are equivalent to sections *)
 
 Definition section_from_diagonal (isPb : isPullback _ _ _ _ H)
@@ -553,7 +550,7 @@ Definition section_from_diagonal (isPb : isPullback _ _ _ _ H)
     ∑ s' : C⟦b, d⟧, s' · h = identity _ .
 Proof.
   intro X.
-  mk_pair.
+  use tpair.
   - simple refine (PullbackArrow (mk_Pullback _ _ _ _ _ _ isPb) _ (identity _ ) (pr1 X) _ ).
     abstract (rewrite id_left ;  apply (! (pr2 X))).
   - cbn. apply (PullbackArrow_PullbackPr1 (mk_Pullback f g d h k H isPb) ).
