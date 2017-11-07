@@ -440,7 +440,7 @@ Definition is_iso_inv_from_iso_disp {C : category} {D : disp_cat_data C}
     :
     is_iso_disp (iso_inv_from_iso f) (inv_mor_disp_from_iso i).
 Proof.
-  mkpair.
+  use tpair.
   - change ( xx -->[ iso_inv_from_iso (iso_inv_from_iso f)] yy).
     set (XR := transportb (mor_disp xx yy )
                           (maponpaths pr1 (iso_inv_iso_inv _ _ _ f))).
@@ -487,9 +487,9 @@ Definition iso_disp_comp {C : category} {D : disp_cat C}
     :
     iso_disp (iso_comp f g) xx zz.
 Proof.
-  mkpair.
+  use tpair.
   - apply (ff ;; gg).
-  - mkpair.
+  - use tpair.
     + apply (transportb (mor_disp zz xx) (maponpaths pr1 (iso_inv_of_iso_comp _ _ _ _ f g))).
       cbn.
       apply (inv_mor_disp_from_iso gg ;; inv_mor_disp_from_iso ff).
@@ -979,7 +979,7 @@ Definition is_iso_disp_from_total {xx yy : total_category}
     (ffi := isopair ff i)
   : is_iso_disp (iso_base_from_total (ff,,i)) (pr2 ff).
 Proof.
-  mkpair; [ | split].
+  use tpair; [ | split].
   - eapply transportb. apply inv_iso_base_from_total.
     exact (pr2 (inv_from_iso ffi)).
   - etrans. apply mor_disp_transportf_postwhisker.
@@ -1384,7 +1384,7 @@ Definition disp_functor_composite_data
     (FF' : disp_functor F' D' D'')
   : disp_functor_data (functor_composite F F') D D''.
 Proof.
-  mkpair.
+  use tpair.
   + intros x xx. exact (FF' _ (FF _ xx)).
   + intros x y xx yy f ff. exact (# FF' (# FF ff)).
 Defined.
@@ -1420,7 +1420,7 @@ Definition disp_functor_composite
     (FF' : disp_functor F' D' D'')
   : disp_functor (functor_composite F F') D D''.
 Proof.
-  mkpair.
+  use tpair.
   - apply (disp_functor_composite_data FF FF').
   - apply disp_functor_composite_axioms.
 Defined.
@@ -1429,10 +1429,10 @@ Definition disp_functor_identity
     {C : category} (D : disp_cat C)
   : disp_functor (functor_identity _ ) D D.
 Proof.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + intros; assumption.
-    + intros; assumption.
+    + cbn. intros. assumption.
   - split; simpl.
     + intros; apply idpath.
     + intros; apply idpath.
@@ -1630,7 +1630,7 @@ Definition total_functor_data {C' C} {F}
     {D' : disp_cat C'} {D : disp_cat C} (FF : disp_functor F D' D)
   : functor_data (total_category D') (total_category D).
 Proof.
-  mkpair.
+  use tpair.
   - intros xx. exists (F (pr1 xx)). exact (FF _ (pr2 xx)).
   - intros xx yy ff. exists (# F (pr1 ff))%cat. exact (# FF (pr2 ff)).
 Defined.
@@ -1837,7 +1837,7 @@ Definition disp_nat_trans_id
   (R' : disp_functor_data F' D' D)
   : disp_nat_trans (nat_trans_id F') R' R'.
 Proof.
-  mkpair.
+  use tpair.
   - intros x xx.
     apply id_disp.
   - apply disp_nat_trans_id_ax.
@@ -1896,7 +1896,7 @@ Definition disp_nat_trans_comp
   (b : disp_nat_trans a R' R)
   : disp_nat_trans (nat_trans_comp _ _ _ a' a) R'' R.
 Proof.
-  mkpair.
+  use tpair.
   - intros x xx.
     apply (comp_disp (b' _ _ )  (b _ _ )).
   - apply disp_nat_trans_comp_ax.

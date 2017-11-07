@@ -46,7 +46,7 @@ Section pullbacks_slice_products_equiv.
     intros isPull [Y i] [j jeq] [k keq]; simpl in *.
     unfold isPullback in isPull. specialize isPull with Y j k.
     use unique_exists.
-    + mkpair.
+    + use tpair.
       ++ apply isPull.
          abstract (simpl; now rewrite <- jeq , keq).
       ++ abstract (simpl; now rewrite leq, assoc, (pr1 (pr2 (pr1 (isPull _)))), jeq).

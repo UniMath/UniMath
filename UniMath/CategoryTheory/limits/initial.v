@@ -168,14 +168,14 @@ Definition Initial_functor_precat : Initial [C, D, hsD].
 Proof.
 use mk_Initial.
 - use mk_functor.
-  + mkpair.
+  + use tpair.
     * intros c; apply (InitialObject ID).
     * simpl; intros a b f; apply (InitialArrow ID).
   + split.
     * intro a; apply pathsinv0, InitialEndo_is_identity.
     * intros a b c f g; apply pathsinv0, InitialArrowUnique.
 - intros F.
-  mkpair.
+  use tpair.
   + use mk_nat_trans; simpl.
     * intro a; apply InitialArrow.
     * intros a b f; simpl.

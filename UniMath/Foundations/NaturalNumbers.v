@@ -159,12 +159,12 @@ Defined.
 
 Lemma natneqinjS (x x' : nat) : x ≠ x' -> S x ≠ S x'.
 Proof.
-  intros x x' r. now apply nat_nopath_to_neq, noeqinjS, nat_neq_to_nopath.
+  intros x x' r. apply nat_nopath_to_neq, noeqinjS, nat_neq_to_nopath. assumption.
 Defined.
 
 Lemma isirrefl_natneq i : ¬ (i ≠ i).
 Proof.
-  intros ? ne. now apply (nat_neq_to_nopath ne).
+  intros ? ne. apply (nat_neq_to_nopath ne). apply idpath.
 Defined.
 
 Lemma issymm_natneq i j : i ≠ j -> j ≠ i.
@@ -205,13 +205,13 @@ Lemma nat_eq_or_neq (m n : nat) : (m = n) ⨿ (m ≠ n).
 Proof.
   intros n. induction n as [|n N].
   - intro m. induction m as [|m _].
-    + now apply ii1.
-    + now apply ii2.
+    + apply ii1. apply idpath.
+    + apply ii2. exact tt.
   - intro m. induction m as [|m _].
-    + now apply ii2.
+    + apply ii2. exact tt.
     + induction (N m) as [eq|neq].
-      * now apply ii1, maponpaths.
-      * now apply ii2.
+      * apply ii1, maponpaths. assumption.
+      * apply ii2. assumption.
 Defined.
 
 Definition isdecrel_natneq : isdecrel natneq.
@@ -383,11 +383,11 @@ Defined.
 Lemma iscotransnatgth (n m k : nat) : n > k -> (n > m) ⨿ (m > k).
 Proof.
   intros x y z gxz. destruct (isdecrelnatgth x y) as [ p | np ].
-  - now apply ii1.
+  - apply ii1. assumption.
   - apply ii2. destruct (isdecrelnatgth y x) as [r|nr].
     + apply (istransnatgth _ _ _ r gxz).
     + assert (e := isantisymmnegnatgth _ _ np nr); clear np nr.
-      now induction e.
+      induction e. assumption.
 Defined.
 
 
@@ -442,7 +442,7 @@ Defined.
 
 Definition iscotransnatlth (n m k : nat) : n < k -> (n < m) ⨿ (m < k).
 Proof.
-  intros n m k lnk. now apply coprodcomm, iscotransnatgth.
+  intros n m k lnk. apply coprodcomm, iscotransnatgth. assumption.
 Defined.
 
 
@@ -529,7 +529,9 @@ Proof.
       change (S m ≤ S n) with (m ≤ n) in r.
       change (S n ≤ S m) with (n ≤ m) in s.
       apply (maponpaths S).
-      now apply M.
+      apply M.
+      * assumption.
+      * assumption.
 Defined.
 
 Definition natlehdec : decrel nat := decrelpair isdecrelnatleh.
@@ -549,13 +551,13 @@ Proof.
     + apply natgthsn0.
     + change (S n > S m) with (n > m) in r.
       change (S (S n) > S m) with (S n > m).
-      now apply N.
+      apply N. assumption.
 Defined.
 
 Definition iscoasymmnatleh (n m : nat) : ¬ (n ≤ m) -> m ≤ n.
 Proof.
   intros ? ? r. apply negnatgthtoleh. intros s. unfold natleh in r.
-  apply r. now apply natlthtoleh.
+  apply r. apply natlthtoleh. assumption.
 Defined.
 
 Definition istotalnatleh : istotal natleh.
@@ -607,7 +609,7 @@ Defined.
 
 Definition natlehtonegnatgth (n m : nat) : n ≤ m -> ¬ (n > m).
 Proof.
-  intros n m r. now apply @natlehneggth.
+  intros n m r. apply @natlehneggth. assumption.
 Defined.
 
 Definition  natgthtonegnatleh (n m : nat) : n > m -> ¬ (n ≤ m) := λ g l, natlehtonegnatgth _ _ l g.
@@ -620,7 +622,7 @@ Definition natlthtonegnatgeh (n m : nat) : n < m -> ¬ (n ≥ m) :=
 
 Definition negnatgehtolth (n m : nat) : ¬ (n ≥ m) -> n < m.
 Proof.
-  intros ? ? r. now apply negnatlehtogth.
+  intros ? ? r. apply negnatlehtogth. assumption.
 Defined.
 
 Definition negnatlthtogeh (n m : nat) : ¬ (n < m) -> n ≥ m := λ nl, negnatgthtoleh nl.
@@ -638,8 +640,8 @@ Definition natgthorleh (n m : nat) : (n > m) ⨿ (n ≤ m).
 Proof.
   intros.
   induction (isdecrelnatgth n m) as [a|a].
-  - now apply ii1.
-  - apply ii2. now apply negnatgthtoleh.
+  - apply ii1. assumption.
+  - apply ii2. apply negnatgthtoleh. assumption.
 Defined.
 
 Definition natlthorgeh (n m : nat) : (n < m) ⨿ (n ≥ m) := natgthorleh _ _.
@@ -703,7 +705,7 @@ Defined.
 
 Lemma natltltSlt (i j n : nat) : i < j -> j < S n -> i < n.
 Proof.
-  intros i j n l. now apply natlthlehtrans.
+  intros i j n l. apply natlthlehtrans. assumption.
 Defined.
 
 
@@ -944,26 +946,26 @@ Definition natlehmplusnm (n m : nat) : m ≤ n + m.
 Proof.
   intros. induction n as [|n N].
   - change (0+m) with m. apply isreflnatleh.
-  - now apply natlehtolehs.
+  - apply natlehtolehs. assumption.
 Defined.
 
 Definition natlehnplusnm (n m : nat) : n ≤ n + m.
 Proof.
   intros. induction m as [|m M].
   - induction (!natplusr0 n). apply isreflnatleh.
-  - induction (plus_n_Sm n m). now apply natlehtolehs.
+  - induction (plus_n_Sm n m). apply natlehtolehs. assumption.
 Defined.
 
 Definition natlehandplusl (n m k : nat) : n ≤ m ->  k + n ≤ k + m.
 Proof.
   unfold natleh. intros ? ? ? r.
-  rewrite (plus_n_Sm k m). now apply natgthandplusl.
+  rewrite (plus_n_Sm k m). apply natgthandplusl. assumption.
 Defined.
 
 Definition natlehandplusr (n m k : nat) : n ≤ m -> n + k ≤ m + k.
 Proof.
   unfold natleh. intros ? ? ? r.
-  change (S (m + k)) with (S m + k). now apply natgthandplusr.
+  change (S (m + k)) with (S m + k). apply natgthandplusr. assumption.
 Defined.
 
 Definition natlehandplus (i j k l : nat) : i ≤ j -> k ≤ l -> i + k ≤ j + l.
@@ -978,14 +980,14 @@ Definition natlehandpluslinv (n m k : nat) : k + n ≤ k + m -> n ≤ m.
 Proof.
   unfold natleh. intros ? ? ? r.
   rewrite (plus_n_Sm k m) in r.
-  now apply (natgthandpluslinv _ _ k).
+  apply (natgthandpluslinv _ _ k). assumption.
 Defined.
 
 Definition natlehandplusrinv (n m k : nat) : n + k ≤ m + k -> n ≤ m.
 Proof.
   unfold natleh. intros ? ? ? r.
   change (S (m + k)) with (S m + k) in r.
-  now apply (natgthandplusrinv _ _ k).
+  apply (natgthandplusrinv _ _ k). assumption.
 Defined.
 
 (** [natgeh] *)
@@ -1209,7 +1211,7 @@ Defined.
 Definition minuseq0' (n : nat) : n - n = 0.
 Proof.
   induction n as [|n I].
-  - reflexivity.
+  - apply idpath.
   - simpl. exact I.
 Defined.
 
@@ -1638,7 +1640,7 @@ Lemma natmultn0 (n : nat) : n * 0 = 0.
 Proof.
   intro n.
   induction n as [ | n IHn ].
-  - reflexivity.
+  - apply idpath.
   - simpl. exact (natplusr0 _ @ IHn).
 Defined.
 Hint Resolve natmultn0 : natarith.
@@ -1653,7 +1655,8 @@ Lemma multnsm (n m : nat) : n * S m = n + n * m.
 Proof.
   intro n.
   induction n as [|n IHn].
-  - reflexivity.
+  - intros.
+    apply idpath.
   - intro m. simpl.
     rewrite <- natplusassoc.
     rewrite (natpluscomm _ m).
@@ -1676,7 +1679,7 @@ Lemma natrdistr (n m k : nat) : (n + m) * k = n * k + m * k.
 Proof.
   intros.
   induction n as [ | n IHn ].
-  - reflexivity.
+  - apply idpath.
   - simpl.
     rewrite natplusassoc. rewrite (natpluscomm k _).
     rewrite <- natplusassoc.
@@ -1696,7 +1699,7 @@ Lemma natmultassoc (n m k : nat) : ((n * m) * k) = (n * (m * k)).
 Proof.
   intros.
   induction n as [ | n IHn ].
-  - reflexivity.
+  - apply idpath.
   - simpl.
     rewrite natrdistr.
     apply (maponpaths (λ x, x + m * k)).
@@ -1726,7 +1729,7 @@ Definition natneq0andmult (n m : nat) : n ≠ 0 -> m ≠ 0 -> n * m ≠ 0.
 Proof.
   intros ? ? isn ism. induction n as [|n].
   - easy.
-  - clear isn. simpl. now apply natplusnonzero.
+  - clear isn. simpl. apply natplusnonzero. assumption.
 Defined.
 
 Definition natneq0andmultlinv (n m : nat) : n * m ≠ 0 -> n ≠ 0.
@@ -1797,28 +1800,28 @@ Definition natlthandmultrinv (n m k : nat) : n * k < m * k -> n < m := natgthand
 Definition natlehandmultl (n m k : nat) : n ≤ m -> k * n ≤ k * m.
 Proof.
   intros ? ? ? r. apply negnatgthtoleh; intro t.
-  apply (natlehtonegnatgth _ _ r). now apply (natgthandmultlinv _ _ k).
+  apply (natlehtonegnatgth _ _ r). apply (natgthandmultlinv _ _ k). assumption.
 Defined.
 
 Definition natlehandmultr (n m k : nat) : n ≤ m -> n * k ≤ m * k.
 Proof.
   intros ? ? ? r. apply negnatgthtoleh; intro t.
   apply (natlehtonegnatgth _ _ r).
-  now apply (natgthandmultrinv _ _ k).
+  apply (natgthandmultrinv _ _ k). assumption.
 Defined.
 
 Definition natlehandmultlinv (n m k : nat) : k ≠ 0 -> k * n ≤ k * m -> n ≤ m.
 Proof.
   intros ? ? ? r s. apply negnatgthtoleh; intro t.
   apply (natlehtonegnatgth _ _ s).
-  now apply (natgthandmultl _ _ _ r).
+  apply (natgthandmultl _ _ _ r). assumption.
 Defined.
 
 Definition natlehandmultrinv (n m k : nat) : k ≠ 0 -> n * k ≤ m * k -> n ≤ m.
 Proof.
   intros ? ? ? r s. apply negnatgthtoleh; intro t.
   apply (natlehtonegnatgth _ _ s).
-  now apply (natgthandmultr _ _ _ r).
+  apply (natgthandmultr _ _ _ r). assumption.
 Defined.
 
 (** [natgeh] *)
@@ -2004,7 +2007,7 @@ Lemma di_eq1 {i x} : x < i → di i x = x.
 Proof.
   intros ? ? lt. unfold di.
   induction (natlthorgeh x i) as [_|P].
-  - reflexivity.
+  - apply idpath.
   - apply fromempty. exact (natgehtonegnatlth _ _ P lt).
 Defined.
 
@@ -2013,7 +2016,7 @@ Proof.
   intros ? ? lt. unfold di.
   induction (natlthorgeh x i) as [P|_].
   - apply fromempty. exact (natlthtonegnatgeh _ _ P lt).
-  - reflexivity.
+  - apply idpath.
 Defined.
 
 Lemma di_neq_i (i x : nat) : i ≠ di i x.
@@ -2110,13 +2113,13 @@ Defined.
 Theorem weqdicompl (i : nat) : nat ≃ nat_compl i.
 Proof.
   intros i.
-  simple refine (weqgradth _ _ _ _).
+  use weqgradth.
   - intro j. exists (di i j). apply di_neq_i.
   - intro j. exact (si i (pr1 j)).
   - simpl. intro j. unfold di. induction (natlthorgeh j i) as [lt|ge].
     + unfold si. induction (natlthorgeh i j) as [lt'|ge'].
       * contradicts (isasymmnatlth _ _ lt') lt.
-      * reflexivity.
+      * apply idpath.
     + unfold si. induction (natlthorgeh i (S j)) as [lt'|ge'].
       * change (S j) with (1 + j). rewrite natpluscomm. apply plusminusnmm.
       * unfold natgeh,natleh in ge. contradicts (natlehneggth ge') ge.
@@ -2128,7 +2131,7 @@ Proof.
         induction (natlthorgeh i j) as [lt'|_].
         { contradicts (isasymmnatlth _ _ lt') lt. }
         { unfold di. induction (natlthorgeh j i) as [lt'|ge'].
-          - reflexivity.
+          - apply idpath.
           - contradicts (natgehtonegnatlth _ _ ge') lt. }
       * assert (lt := natleh_neq ge ne); clear ne ge.
         induction (natlthorgeh i j) as [_|ge'].
@@ -2152,16 +2155,16 @@ Defined.
 Lemma natminusminus (n i j : nat) : n - i - j = n - (i + j).
 Proof.
   intros n; induction n as [|n N].
-  - reflexivity.
+  - intros. apply idpath.
   - intros i; induction i as [|i _].
-    + reflexivity.
+    + intros. apply idpath.
     + apply N.
 Defined.
 
 Lemma natltplusS (n i : nat) : i < i + S n.
 Proof.
   intros. rewrite <- (natplusr0 i).
-  rewrite natplusassoc. apply natlthandplusl. reflexivity.
+  rewrite natplusassoc. apply natlthandplusl. apply idpath.
 Defined.
 
 Lemma nat_split {n m i : nat} : (i < n + m) -> (i ≥ n) -> i - n < m.
@@ -2170,13 +2173,15 @@ Proof.
   induction (plusminusnmm m n).
   apply natlthandminusl.
   - induction (natpluscomm n m). exact p.
-  - induction (natpluscomm n m). now apply (natlehlthtrans _ i).
+  - induction (natpluscomm n m). apply (natlehlthtrans _ i).
+    * assumption.
+    * assumption.
 Defined.
 
 Lemma natplusminusle {a b c} : b ≥ c -> a+(b-c) = (a+b)-c.
 Proof.
   intros ? ? ? e. assert (E := minusplusnmm b c e). rewrite <- E. clear E e.
-  rewrite <- natplusassoc. rewrite plusminusnmm. rewrite plusminusnmm. reflexivity.
+  rewrite <- natplusassoc. rewrite plusminusnmm. rewrite plusminusnmm. apply idpath.
 Defined.
 
 Lemma natdiffplusdiff {a b c} : a ≥ b -> b ≥ c -> a-c = (a-b) + (b-c).

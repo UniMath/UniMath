@@ -201,7 +201,7 @@ Qed.
 
 Theorem GenMendlerIteration : ∃! (h : L μF --> X), #L inF · h = ψ μF h.
 Proof.
-mkpair.
+use tpair.
 - apply (preIt,,preIt_ok).
 - exact preIt_uniq.
 Defined.
@@ -233,7 +233,7 @@ Qed.
 
 Definition ψ_from_comps : ψ_source ⟹ ψ_target.
 Proof.
-mkpair.
+use tpair.
 - intros A f.
   exact (θ A · #G f · ρ).
 - apply is_nat_trans_ψ_from_comps.

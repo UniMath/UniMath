@@ -107,7 +107,7 @@ Definition mk_CoproductCocone (a : I -> C) (c : C) (f : ∏ i, a i --> c) :
    isCoproductCocone _ _ f →  CoproductCocone a.
 Proof.
 intro H.
-mkpair.
+use tpair.
 - apply (tpair _ c f).
 - apply H.
 Defined.
@@ -188,7 +188,7 @@ Section functors.
 Definition coproduct_functor_data (I : UU) {C : precategory}
   (PC : Coproducts I C) : functor_data (power_precategory I C) C.
 Proof.
-mkpair.
+use tpair.
 - intros p.
   apply (CoproductObject _ _ (PC p)).
 - simpl; intros p q f.
@@ -330,7 +330,7 @@ simple refine (mk_CoproductCocone _ _ _ _ _ _).
 - simple refine (mk_isCoproductCocone _ _ _ _ _ _ _).
   + apply functor_category_has_homsets.
   + intros A f.
-    mkpair.
+    use tpair.
     * apply (tpair _ (coproduct_nat_trans A f)).
       abstract (intro i; apply (nat_trans_eq hsD); intro c;
                 apply (CoproductInCommutes I D _ (HD (λ j, (F j) c)))).
@@ -368,7 +368,7 @@ Defined.
 Definition CoproductsCocone c (F : I → C) (H : ∏ i, F i --> c) :
   cocone (coproducts_diagram F) c.
 Proof.
-mkpair.
+use tpair.
 + intro v; apply H.
 + abstract (intros u v e; induction e).
 Defined.
