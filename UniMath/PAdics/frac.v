@@ -234,7 +234,7 @@ Proof.
   destruct f as [ f f' ].
   assert ( a * f * d # e * b * d ) as v.
   { apply azerormultcomp; assumption. }
-  refine (hinhuniv _
+  use (hinhuniv _
     ( ( acommrng_acotrans A ( a * f * d ) ( c * b * f ) ( e * b * d ) ) v ) ).
   intro u. intros P k.
   apply k.

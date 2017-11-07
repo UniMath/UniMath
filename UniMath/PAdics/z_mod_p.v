@@ -41,10 +41,10 @@ Defined.
 Lemma hzdivistrans : istrans hzdiv.
 Proof.
   intros a b c p q.
-  refine (hinhuniv _ p).
+  use (hinhuniv _ p).
   intro k.
   destruct k as [ k f ].
-  refine (hinhuniv _ q).
+  use (hinhuniv _ q).
   intro l.
   destruct l as [ l g ].
   intros P s.
@@ -61,9 +61,9 @@ Lemma hzdivlinearcombleft ( a b c d : hz ) ( f : a ~> ( b + c ) )
   ( x : hzdiv d a ) ( y : hzdiv d b ) : hzdiv d c.
 Proof.
   intros a b c d f x y P s.
-  refine (hinhuniv _ x).
+  use (hinhuniv _ x).
   intro x'.
-  refine (hinhuniv _ y).
+  use (hinhuniv _ y).
   intro y'.
   destruct x' as [ k g ].
   destruct y' as [ l h ].
@@ -87,9 +87,9 @@ Lemma hzdivlinearcombright ( a b c d : hz ) ( f : a ~> ( b + c ) )
   ( x: hzdiv d b ) ( y : hzdiv d c ) : hzdiv d a.
 Proof.
   intros a b c d f x y P s.
-  refine (hinhuniv _ x).
+  use (hinhuniv _ x).
   intro x'.
-  refine (hinhuniv _ y).
+  use (hinhuniv _ y).
   intro y'.
   destruct x' as [ k g ].
   destruct y' as [ l h ].
@@ -1183,7 +1183,7 @@ gcd ( n , m ) := 1. if m = 0, then take n.  2. if m \neq 0, then
 Lemma hzdivandmultl ( a c d : hz ) ( p : hzdiv d a ) : hzdiv d ( c * a ).
 Proof.
   intros. intros P s.
-  refine (hinhuniv _ p).
+  use (hinhuniv _ p).
   intro k.
   destruct k as [ k f ].
   apply s.
@@ -1208,7 +1208,7 @@ Defined.
 Lemma hzdivandminus ( a d : hz ) ( p : hzdiv d a ) : hzdiv d ( - a ).
 Proof.
   intros. intros P s.
-  refine (hinhuniv _ p).
+  use (hinhuniv _ p).
   intro k.
   destruct k as [ k f ].
   apply s.
@@ -1257,7 +1257,7 @@ Proof.
         * rewrite <- hzabsvalgth0.
           -- apply nattohzandleh.
              unfold hzdiv in t0.
-             refine (hinhuniv _ t0).
+             use (hinhuniv _ t0).
              intro t2.
              destruct t2 as [ k t2 ].
              unfold hzdiv0 in t2.
@@ -1371,7 +1371,7 @@ Proof.
       split with a.
       split.
       + split.
-        * refine (hinhuniv _ j0).
+        * use (hinhuniv _ j0).
           intro k.
           destruct k as [ k f ].
           unfold hzdiv0 in f.
@@ -1386,7 +1386,7 @@ Proof.
       + intros l f.
         apply i1.
         split.
-        * refine (hinhuniv _ ( pr1 f )).
+        * use (hinhuniv _ ( pr1 f )).
           intro k.
           destruct k as [ k g ].
           unfold hzdiv0 in g.
@@ -1406,7 +1406,7 @@ Proof.
       split with a.
       split.
       + split.
-        * refine (hinhuniv _ j0).
+        * use (hinhuniv _ j0).
           intro k.
           destruct k as [ k f ].
           unfold hzdiv0 in f.
@@ -1422,7 +1422,7 @@ Proof.
       + intros l f.
         apply i1.
         split.
-        * refine (hinhuniv _ ( pr1 f )).
+        * use (hinhuniv _ ( pr1 f )).
           intro k.
           destruct k as [ k g ].
           unfold hzdiv0 in g.
@@ -1582,7 +1582,7 @@ Proof.
   intros.
   destruct p as [ p0 p1 ].
   split.
-  - refine (hinhuniv _ p0).
+  - use (hinhuniv _ p0).
     intro t. intros P s.
     apply s.
     destruct t as [ l f ].
@@ -1592,7 +1592,7 @@ Proof.
     change ( k * l ) with ( k * l )%rng in f.
     rewrite <- rngmultminusminus in f.
     assumption.
-  - refine (hinhuniv _ p1).
+  - use (hinhuniv _ p1).
     intro t.
     destruct t as [ l f ].
     unfold hzdiv0 in f.
@@ -1641,7 +1641,7 @@ Proof.
   destruct ( hzneqchoice 0 n i ) as [ left | right ].
   - apply ii2.
     apply isantisymmhzleh.
-    + refine (hinhuniv _
+    + use (hinhuniv _
         ( hzdivhzabsval ( gcd n m i ) n ( pr1 ( gcdiscommondiv n m i ) ) )).
       intro c'.
       destruct c' as [ c0 | c1 ].
@@ -1669,7 +1669,7 @@ Proof.
       * assumption.
   - apply ii1.
     apply isantisymmhzleh.
-    + refine (hinhuniv _
+    + use (hinhuniv _
         ( hzdivhzabsval ( gcd n m i ) n ( pr1 ( gcdiscommondiv n m i ) ) )).
       intro c'.
       destruct c' as [ c0 | c1 ].
@@ -1736,7 +1736,7 @@ Proof.
           change 0 with ( nattohz 0%nat ).
           apply nattohzandgth.
           apply natneq0togth0.
-          refine (pr1 (natneq_iff_neq _ _) _). (* this is the culprit for advancing *)
+          use (pr1 (natneq_iff_neq _ _)). (* this is the culprit for advancing *)
           intro f.
           unfold hzneq in i. (* crucial *)
           apply i.

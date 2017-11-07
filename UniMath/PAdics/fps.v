@@ -1730,7 +1730,7 @@ Lemma apartbinarysum0 ( R : acommrng ) ( a b : R ) ( p : a + b # 0 ) :
   hdisj ( a # 0 ) ( b # 0 ).
 Proof.
   intros. intros P s.
-  refine ( hinhuniv _ ( acommrng_acotrans R ( a + b ) a 0 p ) ).
+  use ( hinhuniv _ ( acommrng_acotrans R ( a + b ) a 0 p ) ).
   intro k.
   destruct k as [ l | r ].
   - apply s.
@@ -1761,10 +1761,10 @@ Proof.
     + assumption.
   - intros. intros P s.
     simpl in p.
-    refine ( hinhuniv _ (apartbinarysum0 R _ _ p ) ).
+    use ( hinhuniv _ (apartbinarysum0 R _ _ p ) ).
     intro k.
     destruct k as [ l | r ].
-    + refine ( hinhuniv _ (IHupper f l ) ).
+    + use ( hinhuniv _ (IHupper f l ) ).
       intro k.
       destruct k as [ n ab ].
       destruct ab as [ a b ].
@@ -1793,7 +1793,7 @@ Proof.
   split.
   - intros s f.
     assert ( hfalse ) as i.
-    { refine (hinhuniv _ f).
+    { use (hinhuniv _ f).
       intro k.
       destruct k as [ n p ].
       apply (acommrng_airrefl R ( s n ) p).
@@ -1801,17 +1801,17 @@ Proof.
     apply i.
   - split.
     + intros s t p P j.
-      refine (hinhuniv _ p).
+      use (hinhuniv _ p).
       intro k.
       destruct k as [ n q ].
       apply j.
       split with n.
       apply ( acommrng_asymm R ( s n ) ( t n ) q ).
     + intros s t u p P j.
-      refine (hinhuniv _ p).
+      use (hinhuniv _ p).
       intro k.
       destruct k as [ n q ].
-      refine ( hinhuniv _ (acommrng_acotrans R ( s n ) ( t n ) ( u n ) q ) ).
+      use ( hinhuniv _ (acommrng_acotrans R ( s n ) ( t n ) ( u n ) q ) ).
       intro l.
       destruct l as [ l | r ].
       * apply j.
@@ -1832,7 +1832,7 @@ Lemma fpsapartisbinopapartplusl ( R : acommrng ) :
   isbinopapartl ( fpsapart R ) ( @op1 ( fpscommrng R ) ).
 Proof.
   intros. intros a b c p. intros P s.
-  refine (hinhuniv _ p).
+  use (hinhuniv _ p).
   intro k.
   destruct k as [ n q ].
   apply s.
@@ -1856,7 +1856,7 @@ Lemma fpsapartisbinopapartmultl ( R : acommrng ) :
   isbinopapartl ( fpsapart R ) ( @op2 ( fpsrng R ) ).
 Proof.
   intros. intros a b c p. intros P s.
-  refine (hinhuniv _ p).
+  use (hinhuniv _ p).
   intro k.
   destruct k as [ n q ].
   change ( ( a * b ) n ) with
@@ -1884,7 +1884,7 @@ Proof.
     rewrite ( rngmultwithminus1 R ).
     assumption.
   }
-  refine ( hinhuniv _ ( apartnatsummation0 R n _ q' ) ).
+  use ( hinhuniv _ ( apartnatsummation0 R n _ q' ) ).
   intro k.
   destruct k as [ m g ].
   destruct g as [ g g' ].
@@ -1947,7 +1947,7 @@ Proof.
       { apply IHn.
         unfold fpsshift.
         assumption. }
-      refine (hinhuniv _ j).
+      use (hinhuniv _ j).
       intro k.
       destruct k as [ k i ].
       intros P s.
@@ -1965,14 +1965,14 @@ Proof.
   intros R is n.
   induction n.
   - intros a b p q.
-    refine (hinhuniv _ q).
+    use (hinhuniv _ q).
     intros k.
     destruct k as [ k k0 ].
     apply ( leadingcoefficientapartdec R a is p k ).
     assumption.
   - intros a b p q.
     destruct ( is ( a 0%nat ) 0 ) as [ left | right ].
-    + refine (hinhuniv _ q).
+    + use (hinhuniv _ q).
       intros k.
       destruct k as [ k k0 ].
       apply ( leadingcoefficientapartdec R a is left k ).
@@ -1983,7 +1983,7 @@ Proof.
           assumption.
         * assumption.
       }
-      refine (hinhuniv _ i).
+      use (hinhuniv _ i).
       intros k.
       destruct k as [ k k0 ].
       intros P s.
@@ -2009,7 +2009,7 @@ Proof.
     change ( @rngunel2 R # ( @rngunel1 R ) ).
     apply R.
   - intros a b p q.
-    refine (hinhuniv _ p).
+    use (hinhuniv _ p).
     intro n.
     destruct n as [ n n0 ].
     apply ( apartdecintdom0 R is n); assumption.
