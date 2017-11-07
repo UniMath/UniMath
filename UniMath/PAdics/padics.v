@@ -221,7 +221,8 @@ Proof.
     }
     rewrite h.
     apply idpath.
-(* [Defined.] takes an exceedingly long time - only checked once in commit fbee2b1 *)
+    (* [Defined.] takes an exceedingly long time - only checked once in commit fbee2b1 *)
+Show.
 Admitted.
 
 Close Scope hz_scope.
@@ -347,7 +348,24 @@ Proof.
     apply hzplusr0.
 (* [Defined.] takes an exceedingly long time - only checked once in
    a different form of the lemma in commit fbee2b1 *)
+Show.
 Admitted.
+
+
+(** A non-interactive alternative obtained from [Show Proof.] is no better since
+    it takes a very long time as well:
+Definition precarryandcarry_pointwise_ALT ( a : fpscommrng hz ) :
+  forall n : nat,
+    ( precarry ( carry a ) ) n ~> ( ( carry a ) n ) :=
+  (λ (n : nat),
+ nat_rect (λ n0 : nat, precarry (carry a) n0 = carry a n0) (idpath (precarry (carry a) 0))
+   (λ (n0 : nat) (IHn : precarry (carry a) n0 = carry a n0),
+    internal_paths_rew_r hz (precarry (carry a) n0) (carry a n0)
+      (λ p : hz, carry a (S n0) + hzquotientmod m is p = carry a (S n0))
+      (internal_paths_rew hz 0%hz (λ p : hz, carry a (S n0) + p = carry a (S n0))
+         (hzplusr0 (carry a (S n0))) (hzquotientmod m is (hzremaindermod m is (precarry a n0)))
+         (hzqrandremainderq m is (precarry a n0))) IHn) n).
+*)
 
 Lemma precarryandcarry ( a : fpscommrng hz ) :
   precarry ( carry a ) ~> carry a.
@@ -423,6 +441,7 @@ Proof.
   }
   apply ( funextfun _ _ f ).
 (* [Defined.] takes an exceedingly long time - only checked once in commit fbee2b1 *)
+Show.
 Admitted.
 
 Lemma carryandcarryequiv ( a : fpscommrng hz ) :
@@ -515,6 +534,7 @@ Proof.
     rewrite <- ( hzremaindermodandplus m is ( precarry b ( S n ) ) _ ).
     apply idpath.
 (* [Defined.] takes an exceedingly long time - only checked once in commit fbee2b1 *)
+Show.
 Admitted.
 
 
@@ -591,6 +611,7 @@ Proof.
   }
   apply ( funextfun _ _ f ).
  (* [Defined.] never ended *)
+Show.
 Admitted.
 
 Definition quotientprecarry ( a : fpscommrng hz ) : fpscommrng hz :=
@@ -849,6 +870,7 @@ Proof.
   }
   apply ( funextfun _ _ f ).
  (* [Defined.] never ended *)
+Show.
 Admitted.
 
 Lemma carryandtimesr ( a b : fpscommrng hz ) :
@@ -2316,6 +2338,7 @@ Proof.
     + apply two.
     + apply natlthnsn.
 (* [Defined.] never ended *)
+Show.
 Admitted.
 
 
