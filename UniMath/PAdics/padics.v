@@ -5,9 +5,11 @@
 (** 2012 *)
 
 (** made compatible with the current UniMath library by Ralph Matthes in October 2017 *)
-(** caveat: seven occurrences of "Admitted." instead of "Defined." at the end of
+(** caveat: seven occurrences of "Abort." instead of "Defined." at the end of
     proofs while there was no more subgoal - it is not clear (to me) how long the
-    verification of these proofs would take *)
+    verification of these proofs would take
+    As a replacement, dependencies on these are tracked as extra assumptions.
+*)
 
 (** Settings *)
 
@@ -131,17 +133,20 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma hzquotientandfpstimesl ( m : hz ) ( x : hzneq 0 m )
-   ( a b : nat -> hz ) ( upper : nat ) :
+Definition hzquotientandfpstimeslStatement ( m : hz ) ( x : hzneq 0 m )
+   ( a b : nat -> hz ) ( upper : nat ) :=
   hzquotientmod m x ( fpstimes hz a b upper ) ~>
   ( natsummation0 upper ( fun i : nat =>
       ( hzquotientmod m x ( a i ) ) * b ( minus upper i ) ) +
     hzquotientmod m x ( natsummation0 upper ( fun i : nat =>
       ( hzremaindermod m x ( a i ) ) * b ( minus upper i ) ) ) ).
+
+Lemma hzquotientandfpstimesl ( m : hz ) ( x : hzneq 0 m )
+   ( a b : nat -> hz ) ( upper : nat ) : hzquotientandfpstimeslStatement m x a b upper.
 Proof.
   intros.
   destruct upper as [ | upper].
-  - simpl.
+  - red.
     unfold fpstimes.
     simpl.
     rewrite hzquotientandtimesl.
@@ -156,7 +161,8 @@ Proof.
     rewrite hzplusl0.
     rewrite hzremaindermoditerated.
     apply idpath.
-  - unfold fpstimes.
+  - red.
+    unfold fpstimes.
     rewrite hzqrandnatsummation0q.
     assert ( forall n : nat, hzquotientmod m x (a n * b ( minus ( S upper ) n)%nat) ~>
       ( ( hzquotientmod m x ( a n ) ) * b ( minus ( S upper ) n ) +
@@ -223,7 +229,7 @@ Proof.
     apply idpath.
     (* [Defined.] takes an exceedingly long time - only checked once in commit fbee2b1 *)
 Show.
-Admitted.
+Abort.
 
 Close Scope hz_scope.
 
@@ -333,10 +339,14 @@ Defined.
 Definition carryequiv : eqrel ( fpscommrng hz ) :=
   eqrelpair _ carryequiviseqrel.
 
-Lemma precarryandcarry_pointwise ( a : fpscommrng hz ) :
+Definition precarryandcarry_pointwiseStatement ( a : fpscommrng hz ) :=
   forall n : nat,
     ( precarry ( carry a ) ) n ~> ( ( carry a ) n ).
+
+Lemma precarryandcarry_pointwise ( a : fpscommrng hz ) :
+  precarryandcarry_pointwiseStatement a.
 Proof.
+  red.
   intros.
   induction n.
   - exact (idpath _).
@@ -349,14 +359,13 @@ Proof.
 (* [Defined.] takes an exceedingly long time - only checked once in
    a different form of the lemma in commit fbee2b1 *)
 Show.
-Admitted.
+Abort.
 
 
 (** A non-interactive alternative obtained from [Show Proof.] is no better since
     it takes a very long time as well:
 Definition precarryandcarry_pointwise_ALT ( a : fpscommrng hz ) :
-  forall n : nat,
-    ( precarry ( carry a ) ) n ~> ( ( carry a ) n ) :=
+  precarryandcarry_pointwiseStatement a :=
   (λ (n : nat),
  nat_rect (λ n0 : nat, precarry (carry a) n0 = carry a n0) (idpath (precarry (carry a) 0))
    (λ (n0 : nat) (IHn : precarry (carry a) n0 = carry a n0),
@@ -368,12 +377,12 @@ Definition precarryandcarry_pointwise_ALT ( a : fpscommrng hz ) :
 *)
 
 Lemma precarryandcarry ( a : fpscommrng hz ) :
-  precarry ( carry a ) ~> carry a.
+  precarryandcarry_pointwiseStatement a -> precarry ( carry a ) ~> carry a.
 Proof.
-  intros.
+  intros a Hyp.
   apply funextfun.
   intro n.
-  apply precarryandcarry_pointwise.
+  apply Hyp.
 Defined.
 
 Lemma hzqrandcarryeq ( a : fpscommrng hz ) ( n : nat ) :
@@ -417,10 +426,14 @@ Proof.
   - apply hzqrandcarryineq.
 Defined.
 
-Lemma doublecarry ( a : fpscommrng hz ):
-  carry ( carry a ) ~> carry a.
+
+Definition doublecarryStatement ( a : fpscommrng hz ) :=
+  precarryandcarry_pointwiseStatement a -> carry ( carry a ) ~> carry a.
+
+Lemma doublecarry ( a : fpscommrng hz ) : doublecarryStatement a.
 Proof.
-  intros.
+  red.
+  intros a Hyp.
   assert ( forall n : nat, ( carry ( carry a ) ) n ~>
                            ( ( carry a ) n ) ) as f.
   { intros.
@@ -434,30 +447,37 @@ Proof.
         hzremaindermod m is (precarry a n0)) n) with
       ( ( precarry ( carry a ) ) n ).
       rewrite precarryandcarry.
-      rewrite <- hzqrandcarryq.
-      rewrite hzplusr0.
-      rewrite hzremaindermoditerated.
-      apply idpath.
+      + rewrite <- hzqrandcarryq.
+        rewrite hzplusr0.
+        rewrite hzremaindermoditerated.
+        apply idpath.
+      + exact Hyp.
   }
   apply ( funextfun _ _ f ).
 (* [Defined.] takes an exceedingly long time - only checked once in commit fbee2b1 *)
 Show.
-Admitted.
+Abort.
 
 Lemma carryandcarryequiv ( a : fpscommrng hz ) :
+  precarryandcarry_pointwiseStatement a ->
+  doublecarryStatement a ->
   carryequiv ( carry a ) a.
 Proof.
-  intros.
+  intros a Hyp1 Hyp2.
   simpl.
-  rewrite doublecarry.
-  apply idpath.
+  rewrite Hyp2.
+  - apply idpath.
+  - exact Hyp1.
 Defined.
 
-Lemma quotientprecarryplus ( a b : fpscommrng hz ) ( n : nat ) :
+Definition quotientprecarryplusStatement ( a b : fpscommrng hz ) ( n : nat ) :=
   hzquotientmod m is ( precarry ( a + b ) n ) ~>
   ( hzquotientmod m is ( precarry a n ) +
     hzquotientmod m is ( precarry b n ) +
     hzquotientmod m is ( precarry ( carry a + carry b ) n ) ).
+
+Lemma quotientprecarryplus ( a b : fpscommrng hz ) ( n : nat ) :
+    quotientprecarryplusStatement a b n.
 Proof.
   intros.
   induction n.
@@ -535,13 +555,16 @@ Proof.
     apply idpath.
 (* [Defined.] takes an exceedingly long time - only checked once in commit fbee2b1 *)
 Show.
-Admitted.
+Abort.
 
 
-Lemma carryandplus ( a b : fpscommrng hz ) :
+Definition carryandplusStatement ( a b : fpscommrng hz ) :=
+  (forall n : nat, quotientprecarryplusStatement a b n) ->
   carry ( a + b ) ~> carry ( carry a + carry b ).
+
+Lemma carryandplus ( a b : fpscommrng hz ) : carryandplusStatement a b.
 Proof.
-  intros.
+  intros a b Hyp.
   assert ( forall n : nat, carry ( a + b ) n ~>
               ( carry ( carry a + carry b ) n ) ) as f.
   { intros n.
@@ -560,7 +583,7 @@ Proof.
                               hzquotientmod m is ( precarry b n ) ) +
                hzquotientmod m is ( precarry ( carry a +
                                                     carry b ) n ) ) ).
-      rewrite quotientprecarryplus.
+      rewrite Hyp.
       rewrite ( hzremaindermodandplus m is
                                       ( hzremaindermod m is (a (S n) +
                                       hzquotientmod m is (precarry a n)) +
@@ -612,7 +635,7 @@ Proof.
   apply ( funextfun _ _ f ).
  (* [Defined.] never ended *)
 Show.
-Admitted.
+Abort.
 
 Definition quotientprecarry ( a : fpscommrng hz ) : fpscommrng hz :=
   fun x : nat => hzquotientmod m is ( precarry a x ).
@@ -663,11 +686,13 @@ Defined.
 (** here used to be shown the lemma [natsummationplusshift] *)
 
 Lemma precarryandtimesl ( a b : fpscommrng hz ) ( n : nat ) :
+  (forall ( a' b' : fpscommrng hz ) ( n' : nat ),
+      hzquotientandfpstimeslStatement m is a' b' n') ->
   hzquotientmod m is ( precarry (a * b ) n ) ~>
   ( ( quotientprecarry a * b ) n +
         hzquotientmod m is ( precarry ( ( carry a ) * b ) n ) ).
 Proof.
-  intros.
+  intros ? ? ? Hyp.
   induction n.
   - unfold precarry.
     change ( ( a * b ) 0%nat ) with ( a 0%nat * b 0%nat ).
@@ -709,7 +734,7 @@ Proof.
     rewrite hzquotientmodandplus.
     change ( @op2 ( fpscommrng hz ) ( precarry a ) b ) with
     ( fpstimes hz ( precarry a ) b ).
-    rewrite ( hzquotientandfpstimesl m is ( precarry a ) b ).
+    rewrite ( Hyp ( precarry a ) b ).
     change ( @op2 ( fpscommrng hz ) ( carry a ) b ) with
     ( fpstimes hz ( carry a ) b ) at 1.
     unfold fpstimes at 1.
@@ -772,10 +797,15 @@ Proof.
     apply idpath.
 Defined.
 
-Lemma carryandtimesl ( a b : fpscommrng hz ) :
+Definition carryandtimeslStatement ( a b : fpscommrng hz ) :=
+  (forall ( a' b' : fpscommrng hz ) ( n' : nat ),
+      hzquotientandfpstimeslStatement m is a' b' n') ->
   carry ( a * b ) ~> carry ( carry a * b ).
+
+Lemma carryandtimesl ( a b : fpscommrng hz ) :
+  carryandtimeslStatement a b.
 Proof.
-  intros.
+  intros a b Hyp.
   assert ( forall n : nat, carry ( a * b ) n ~>
                           carry ( carry a * b ) n ) as f.
   { intros n.
@@ -797,7 +827,7 @@ Proof.
     - unfold carry at 1 2.
       change ( precarry ( a * b ) ( S n ) ) with
       ( ( a * b ) ( S n ) + hzquotientmod m is ( precarry ( a * b ) n ) ).
-      rewrite precarryandtimesl.
+      rewrite precarryandtimesl; try exact Hyp.
       rewrite <- ( rngassoc1 hz ).
       rewrite hzremaindermodandplus.
       assert ( hzremaindermod m is
@@ -871,58 +901,87 @@ Proof.
   apply ( funextfun _ _ f ).
  (* [Defined.] never ended *)
 Show.
-Admitted.
+Abort.
 
 Lemma carryandtimesr ( a b : fpscommrng hz ) :
+  (forall ( a' b' : fpscommrng hz ) ( n' : nat ),
+      hzquotientandfpstimeslStatement m is a' b' n') ->
+  carryandtimeslStatement b a ->
   carry ( a * b ) ~> carry ( a * carry b ).
 Proof.
-  intros.
+  intros a b Hyp1 Hyp2.
   rewrite ( @rngcomm2 ( fpscommrng hz ) ).
-  rewrite carryandtimesl.
+  rewrite Hyp2; try exact Hyp1.
   rewrite ( @rngcomm2 ( fpscommrng hz ) ).
   apply idpath.
 Defined.
 
 Lemma carryandtimes ( a b : fpscommrng hz ) :
+  (forall ( a' b' : fpscommrng hz ) ( n' : nat ),
+      hzquotientandfpstimeslStatement m is a' b' n') ->
+  carryandtimeslStatement b (carry a) ->
+  carryandtimeslStatement a b ->
   carry ( a * b ) ~> carry ( carry a * carry b ).
 Proof.
-  intros.
-  rewrite carryandtimesl.
-  rewrite carryandtimesr.
-  apply idpath.
+  intros a b Hyp1 Hyp2 Hyp3.
+  rewrite Hyp3; try exact Hyp1.
+  rewrite carryandtimesr; try exact Hyp1.
+  - apply idpath.
+  - exact Hyp2.
 Defined.
 
-Lemma rngcarryequiv : @rngeqrel ( fpscommrng hz ).
+Lemma rngcarryequiv :
+  (forall ( a' b' : fpscommrng hz ) ( n' : nat ),
+      quotientprecarryplusStatement a' b' n') ->
+  (forall ( a' b' : fpscommrng hz ) ( n' : nat ),
+      hzquotientandfpstimeslStatement m is a' b' n') ->
+  (forall ( a' b' : fpscommrng hz ),
+      carryandplusStatement a' b') ->
+  (forall ( a' b' : fpscommrng hz ),
+      carryandtimeslStatement a' b') ->
+  @rngeqrel ( fpscommrng hz ).
 Proof.
-  intros.
+  intros Hyp1 Hyp2 Hyp3 Hyp4.
   split with carryequiv.
   split.
   - split.
     + intros a b c q.
       simpl.
       simpl in q.
-      rewrite carryandplus.
+      rewrite Hyp3.
+      Focus 2. intro. apply Hyp1.
       rewrite q.
-      rewrite <- carryandplus.
+      rewrite <- Hyp3.
+      Focus 2. intro. apply Hyp1.
       apply idpath.
     + intros a b c q.
       simpl.
-      rewrite carryandplus.
+      rewrite Hyp3.
+      Focus 2. intro. apply Hyp1.
       rewrite q.
-      rewrite <- carryandplus.
+      rewrite <- Hyp3.
+      Focus 2. intro. apply Hyp1.
       apply idpath.
   - split.
     + intros a b c q.
       simpl.
-      rewrite carryandtimes.
+      rewrite carryandtimes; try exact Hyp2.
+      Focus 2. apply Hyp4.
+      Focus 2. apply Hyp4.
       rewrite q.
-      rewrite <- carryandtimes.
+      rewrite <- carryandtimes; try exact Hyp2.
+      Focus 2. apply Hyp4.
+      Focus 2. apply Hyp4.
       apply idpath.
     + intros a b c q.
       simpl.
-      rewrite carryandtimes.
+      rewrite carryandtimes; try exact Hyp2.
+      Focus 2. apply Hyp4.
+      Focus 2. apply Hyp4.
       rewrite q.
-      rewrite <- carryandtimes.
+      rewrite <- carryandtimes; try exact Hyp2.
+      Focus 2. apply Hyp4.
+      Focus 2. apply Hyp4.
       apply idpath.
 Defined.
 
@@ -1140,8 +1199,17 @@ Defined.
 Variable p : hz.
 Variable is : isaprime p.
 
+Hypothesis Hyp1: forall ( a' b' : fpscommrng hz ) ( n' : nat ),
+    quotientprecarryplusStatement p  ( isaprimetoneq0 is ) a' b' n'.
+Hypothesis Hyp2 : forall ( a' b' : fpscommrng hz ) ( n' : nat ),
+      hzquotientandfpstimeslStatement p  ( isaprimetoneq0 is ) a' b' n'.
+Hypothesis Hyp3 : forall ( a' b' : fpscommrng hz ),
+    carryandplusStatement p  ( isaprimetoneq0 is ) a' b'.
+Hypothesis Hyp4 : forall ( a' b' : fpscommrng hz ),
+    carryandtimeslStatement p  ( isaprimetoneq0 is ) a' b'.
+
 Definition commrngofpadicints :=
-  commrngquot ( rngcarryequiv p ( isaprimetoneq0 is ) ).
+  commrngquot ( rngcarryequiv p ( isaprimetoneq0 is ) Hyp1 Hyp2 Hyp3 Hyp4).
 
 Definition padicplus := @op1 commrngofpadicints.
 
@@ -1522,7 +1590,8 @@ Proof.
       intros j.
       unfold P in k'. unfold neq in k'.
       apply k'.
-      rewrite carryandplus.
+      rewrite Hyp3.
+      Focus 2. intro. apply Hyp1.
       unfold carry at 1.
       change (hzremaindermod p ( isaprimetoneq0 is )
                 ( carry p ( isaprimetoneq0 is ) a ( S k ) +
@@ -1534,7 +1603,8 @@ Proof.
       carry p ( isaprimetoneq0 is ) ( a + c ) ( S k ) ).
       rewrite l.
       rewrite j.
-      rewrite ( carryandplus p ( isaprimetoneq0 is ) a c ).
+      rewrite ( Hyp3 a c ).
+      Focus 2. intro. apply Hyp1.
       unfold carry at 5.
       change ( precarry p ( isaprimetoneq0 is )
                         ( carry p ( isaprimetoneq0 is ) a +
@@ -1569,13 +1639,13 @@ Proof.
                                  hProppair _ ( int x x' x'' ) ) ).
   intros a b c.
   change (pr1 padicapart
-              (padicplus (setquotpr (rngcarryequiv p (isaprimetoneq0 is)) a)
-                         (setquotpr (rngcarryequiv p (isaprimetoneq0 is)) b))
-              (padicplus (setquotpr (rngcarryequiv p (isaprimetoneq0 is)) a)
-                         (setquotpr (rngcarryequiv p (isaprimetoneq0 is)) c)) ->
+              (padicplus (setquotpr (rngcarryequiv p (isaprimetoneq0 is) Hyp1 Hyp2 Hyp3 Hyp4) a)
+                         (setquotpr (rngcarryequiv p (isaprimetoneq0 is) Hyp1 Hyp2 Hyp3 Hyp4) b))
+              (padicplus (setquotpr (rngcarryequiv p (isaprimetoneq0 is) Hyp1 Hyp2 Hyp3 Hyp4) a)
+                         (setquotpr (rngcarryequiv p (isaprimetoneq0 is) Hyp1 Hyp2 Hyp3 Hyp4) c)) ->
           pr1 padicapart
-              (setquotpr (rngcarryequiv p (isaprimetoneq0 is)) b)
-              (setquotpr (rngcarryequiv p (isaprimetoneq0 is)) c)).
+              (setquotpr (rngcarryequiv p (isaprimetoneq0 is) Hyp1 Hyp2 Hyp3 Hyp4) b)
+              (setquotpr (rngcarryequiv p (isaprimetoneq0 is) Hyp1 Hyp2 Hyp3 Hyp4) c)).
   unfold padicplus.
   rewrite 2! setquotprandpadicplus.
   rewrite 2! padicapartcomputation.
@@ -1701,6 +1771,8 @@ Proof.
       split with o.
       apply o'.
 Defined.
+
+(* NOT YET FINISHED FROM HERE ONWARDS
 
 Lemma padictimesisbinopapart0 ( a b c : fpscommrng hz )
   ( u : padicapart0 ( a * b ) ( a * c ) ) :
@@ -2339,7 +2411,7 @@ Proof.
     + apply natlthnsn.
 (* [Defined.] never ended *)
 Show.
-Admitted.
+Abort.
 
 
 Definition padicintegers : aintdom.
@@ -2362,6 +2434,6 @@ Proof.
 Defined.
 
 Definition padics : afld := afldfrac padicintegers.
-
+*)
 Close Scope rng_scope.
 (** END OF FILE*)
