@@ -66,9 +66,9 @@ Definition mkBindingSig {I : UU} (h : isaset I) (f : I -> list nat) : BindingSig
 Definition SumBindingSig : BindingSig -> BindingSig -> BindingSig.
 Proof.
 intros s1 s2.
-mkpair.
+use tpair.
 - apply (BindingSigIndex s1 ⨿ BindingSigIndex s2).
-- mkpair.
+- use tpair.
   + apply (isasetcoprod _ _ (BindingSigIsaset s1) (BindingSigIsaset s2)).
   + induction 1 as [i|i]; [ apply (BindingSigMap s1 i) | apply (BindingSigMap s2 i) ].
 Defined.
@@ -116,7 +116,7 @@ Defined.
 Definition precomp_option_iter_Signature (BCC : BinCoproducts C)
   (TC : Terminal C) (n : nat) : Signature C hsC C hsC.
 Proof.
-  mkpair.
+  use tpair.
   - exact (precomp_option_iter BCC TC n).
   - destruct n; simpl.
     + apply θ_functor_identity.

@@ -608,8 +608,8 @@ Lemma isPullback_two_pullback
 Proof.
   apply (mk_isPullback).
   intros e x y Hxy.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     use (PullbackArrow (mk_Pullback _ _ _ _ _ _ Houterpb)).
     + apply x.
     + apply (y · k).
@@ -968,7 +968,7 @@ Proof.
 intro T.
 use mk_isPullback; intros E h k Hhk.
 use unique_exists.
-- mkpair.
+- use tpair.
   + intro x; apply (g T E h k Hhk).
   + apply is_nat_trans_g.
 - abstract (split; apply (nat_trans_eq hsD); intro x;

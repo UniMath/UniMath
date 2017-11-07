@@ -46,7 +46,7 @@ Definition hfibertosec { X : UU } (P:X -> UU):
 Definition sectohfibertosec { X : UU } (P:X -> UU):
   ∏ a : (∏ x:X, P x), hfibertosec _ (sectohfiber _ a) = a.
 Proof.
-  reflexivity.
+  apply idpath.
 Defined.
 
 Lemma isweqtransportf10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  x = x' ) : isweq ( transportf P e ).
@@ -207,7 +207,7 @@ Section UnivalenceImplications.
         assert ( ee' : R' v = R' w ).
         * apply (  maponpaths R' e ).
         * assumption.
-      + destruct ee. now apply l1.
+      + destruct ee. apply l1. assumption.
   Defined.
 
   Corollary isweqweqtransportbUAH
@@ -219,7 +219,7 @@ Section UnivalenceImplications.
   Proof.
     intros.
     assert ( e : R X X' w ~ transportb P ( weqtopathsUAH w )).
-    - unfold homot. now apply weqtransportbUAH.
+    - unfold homot. apply weqtransportbUAH. assumption.
     - assert ( ee : transportb P ( weqtopathsUAH w ) ~ R X X' w).
       + intro p'. apply ( pathsinv0 ( e p' ) ).
       + clear e.
@@ -308,12 +308,12 @@ Section UnivalenceImplications.
   Proof.
     unfold funextcontrStatement.
     intros.
-    unshelve refine (iscontrretract (X := ∏ t, ∑ p, p = g t) _ _ _ _).
-    - intros x. unshelve refine (_,,_).
+    use (iscontrretract (X := ∏ t, ∑ p, p = g t)).
+    - intros x. use tpair.
       + intro t. exact (pr1 (x t)).
       + intro t; simpl. exact (pr2 (x t)).
     - intros y t. exists (pr1 y t). exact (pr2 y t).
-    - intros u. induction u as [t x]. reflexivity.
+    - intros u. induction u as [t x]. apply idpath.
     - apply funcontrUAH. intro t. apply iscontrcoconustot.
   Defined.
   Arguments funextcontrUAH {_} _ _.

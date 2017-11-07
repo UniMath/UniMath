@@ -86,15 +86,16 @@ Proof.
 use mk_cone.
 - intro m1f1.
   transparent assert (m1gf1 : (c ↓ K)).
-  { mkpair.
+  { use tpair.
     + apply (pr1 m1f1).
     + apply (g · pr2 m1f1). }
   exact (coneOut (lambda c) m1gf1).
 - intros x y f; simpl in *.
   transparent assert (e : ((c ↓ K) ⟦ pr1 x,, g · pr2 x, pr1 y,, g · pr2 y ⟧)).
-  { mkpair.
-    + apply (pr1 f).
-    + now rewrite <- assoc; rewrite (pr2 f). }
+  { use tpair.
+    + exact (pr1 f).
+    + change (g · pr2 x · # K (pr1 f) = g · pr2 y).
+      rewrite <- assoc. rewrite (pr2 f). apply idpath. }
   exact (coneOutCommutes (lambda c) _ _ e).
 Defined.
 
@@ -136,9 +137,9 @@ unfold eps_n; simpl.
 transparent assert (v : (K n ↓ K)).
 { apply (n',, # K h · identity (K n')). }
 transparent assert (e : (K n ↓ K ⟦ Kid n, v ⟧)).
-{ mkpair.
+{ use tpair.
   + apply h.
-  + abstract (now rewrite id_left, id_right).
+  + abstract (cbn ; now rewrite id_left, id_right).
 }
 now apply pathsinv0; eapply pathscomp0; [apply (coneOutCommutes (lambda (K n)) _ _ e)|].
 Qed.
@@ -198,7 +199,7 @@ use left_adjoint_from_partial.
     now apply pathsinv0, limArrowUnique.
   }
 
-  mkpair.
+  use tpair.
   + apply (tpair _ (tpair _ σ is_nat_trans_σ)).
     apply (nat_trans_eq hsA); intro n; cbn.
     generalize (limArrowCommutes (LA (K n ↓ K) (QT T (K n))) _ (cc _) (Kid n)); simpl.

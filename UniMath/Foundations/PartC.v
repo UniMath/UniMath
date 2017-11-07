@@ -71,7 +71,7 @@ Proof.
   intros. apply invproofirrelevance. intros i j.
   apply funextsec; intro x; apply funextsec; intro y.
   generalize (i x y) as p; generalize (j x y) as q; intros.
-  now apply isProofIrrelevant_paths.
+  apply isProofIrrelevant_paths. assumption.
 Defined.
 
 (** See also [ isapropneg2 ] *)
@@ -236,12 +236,12 @@ Defined.
 
 Definition weqoncompl_compute {X Y : UU} (w : X ≃ Y) (x : X) :
   ∏ x', pr1 (weqoncompl w x x') = w (pr1 x').
-Proof. intros. induction x' as [x' b]. reflexivity. Defined.
+Proof. intros. induction x' as [x' b]. apply idpath. Defined.
 
 Definition weqoncompl_ne_compute {X Y : UU}
            (w : X ≃ Y) (x : X) (neq_x : neqPred x) (neq_wx : neqPred (w x)) x' :
   pr1 (weqoncompl_ne w x neq_x neq_wx x') = w (pr1 x').
-Proof. reflexivity. Defined.
+Proof. intros. apply idpath. Defined.
 
 Definition homotweqoncomplcomp {X Y Z : UU} (f : X ≃ Y) (g : Y ≃ Z)
            (x : X) : homot (weqcomp (weqoncompl f x) (weqoncompl g (f x)))
@@ -296,12 +296,12 @@ Proof.
          apply proofirrelevance. exact (pr1 (pr2 (neq_x y))). }}
      + induction u. unfold f,g,invrecompl_ne;simpl.
        induction (is x) as [eq|neq].
-       {simpl. reflexivity. }
-       {apply fromempty. now apply neq. }}
+       {simpl. apply idpath. }
+       {apply fromempty. apply neq. apply idpath. }}
   {intro y. unfold f,g,invrecompl_ne;simpl.
    induction (is y) as [eq|neq].
-   - induction eq. reflexivity.
-   - simpl. reflexivity. }
+   - induction eq. apply idpath.
+   - simpl. apply idpath. }
 Defined.
 
 Theorem isweqrecompl_ne' (X : UU) (x : X) (is : isisolated X x)
@@ -316,18 +316,20 @@ Proof.
     contradicts (!e) (negProp_to_neg neq). }
    {change x with (f (ii2 tt)). simple refine ((_,,_),,_).
     {exact tt. }
-    {reflexivity. }
+    {apply idpath. }
     {intro w. induction w as [t e]. unfold f in *; simpl in *. induction t.
      apply maponpaths. apply isaproppathsfromisolated. exact is. }}}
   {refine (iscontrweqf (weqii1withneg _ _) _).
    {intros z; induction z as [z e]; simpl in *. contradicts ne e. }
    {simple refine ((_,,_),,_).
-    {exists y. now apply neg_to_negProp. }
-    {simpl. reflexivity. }
+    {exists y. apply neg_to_negProp. assumption. }
+    {simpl. apply idpath. }
     intros z; induction z as [z e]; induction z as [z neq];
       induction e; simpl in *.
-    now induction (proofirrelevance _ (pr1 (pr2 (neq_x z))) neq
-                                    (neg_to_negProp ne)). }}
+    induction (proofirrelevance _ (pr1 (pr2 (neq_x z))) neq
+                                (neg_to_negProp ne)).
+    apply idpath.
+  }}
 Defined.
 
 Definition weqrecompl_ne (X : UU) (x : X) (is : isisolated X x)
@@ -387,7 +389,7 @@ Proof.
   apply (isweqhomot (weqrecompl_ne X x is neq_x
                                    ∘ weqcoprodf (compl_ne_weq_compl X x neq_x)
                                    (idweq unit))%weq).
-  {intro y. induction y as [y|t]; reflexivity. }
+  {intro y. induction y as [y|t]; apply idpath. }
   apply weqproperty.
 Defined.
 

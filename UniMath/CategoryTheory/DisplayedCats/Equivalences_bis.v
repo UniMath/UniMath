@@ -40,7 +40,7 @@ Proof.
   destruct XR as [c'' [i [xx' ii]]].
   set (YY := Y _ _ i xx').
   destruct YY as [ dd pe ].
-  mkpair.
+  use tpair.
   - apply dd.
   -
     (* now need disp_functor_on_iso_disp *)
@@ -111,8 +111,8 @@ Coercion adj_equiv_of_precats_from_adj {A B : precategory} (E : adj_equiv A B)
 
 Coercion adj_from_adj_equiv {A B} (F : adj_equiv A B) : adjunction A B.
 Proof.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + exact (pr1 F).
     + exists (right_adjoint F).
       exists (adjunit F).
@@ -123,7 +123,7 @@ Defined.
 
 Coercion equiv_from_adj_equiv {A B} (F : adj_equiv A B) : equivalence_of_precats A B.
 Proof.
-  mkpair.
+  use tpair.
   - exact F.
   - exists (pr1 (pr2 (pr2 F))).
     exact (pr2 (pr2 (pr2 F))).
@@ -366,7 +366,7 @@ Definition is_equiv_of_equiv_over {C C' : category} (E : adj_equiv C C')
            (EE : equiv_over E D D')
 : is_equiv_over E (left_adj_over EE).
 Proof.
-  mkpair.
+  use tpair.
   - apply (right_adjoint_of_disp_adjunction EE).
   - apply (axioms_of_equiv_over E EE).
 Defined.
@@ -585,7 +585,7 @@ Qed.
 (*
 Local Definition GG_data : disp_functor_data (functor_identity _ ) D D'.
 Proof.
-  mkpair.
+  use tpair.
   + intros x xx. exact (pr1 (FF_split x xx)).
   + intros x y xx yy f ff; simpl.
     set (Hxx := FF_split x xx).
@@ -853,7 +853,7 @@ Qed.
 
 Local Definition inv : disp_nat_trans (nat_trans_id _ ) GG FF.
 Proof.
-  mkpair.
+  use tpair.
   - intros x xx.
     apply (inv_mor_disp_from_iso (Ha _ _ )).
   - apply inv_ax.
@@ -906,7 +906,7 @@ Defined.
 
 Lemma form_equiv_inv_adjunction_data : form_equiv_over_id inv_adjunction_data.
 Proof.
-  cbn. mkpair.
+  cbn. use tpair.
     + intros. cbn.
       set (XR:= @is_iso_inv_from_is_iso_disp).
       specialize (XR _ D _  _ _ _ _ _ (  is_iso_counit_over_id (pr2 isEquiv) x xx)).
@@ -1018,10 +1018,10 @@ Qed.
 
 Definition equiv_inv : is_equiv_over_id GG.
 Proof.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + exact (FF,, (η_inv,, ε_inv)).
-    + mkpair. cbn. apply inv_triangle_1_statement_over_id.
+    + use tpair. cbn. apply inv_triangle_1_statement_over_id.
       apply inv_triangle_2_statement_over_id.
   - apply form_equiv_inv_adjunction_data.
 Defined.
@@ -1051,12 +1051,12 @@ Definition fiber_is_left_adj
 : is_left_adjoint (fiber_functor FF c).
 Proof.
   destruct EFF as [[GG [η ε]] axs]; simpl in axs.
-  mkpair.
+  use tpair.
   set (XR := fiber_functor GG (left_functor A c)).
   exists (fiber_functor GG _).
   exists (fiber_nat_trans η _,
           fiber_nat_trans ε _).
-  mkpair; cbn.
+  use tpair; cbn.
   + unfold triangle_1_statement.
     intros d; cbn.
     set (thisax := pr1 axs c d); clearbody thisax; clear axs.
@@ -1082,7 +1082,7 @@ Definition fiber_equiv {D D' : disp_cat C}
 Proof.
   exists (fiber_is_left_adj EFF c).
   destruct EFF as [[[GG [η ε]] tris] isos]; cbn in isos; cbn.
-  mkpair.
+  use tpair.
   + intros d.
     apply is_iso_fiber_from_is_iso_disp.
     apply (is_iso_unit_over_id isos).

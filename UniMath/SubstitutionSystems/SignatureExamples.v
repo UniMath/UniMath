@@ -128,10 +128,10 @@ Section δ_for_id.
 
 Definition DL_id : DistributiveLaw (functor_identity C).
 Proof.
-mkpair; simpl.
-+ mkpair; simpl.
+use tpair; simpl.
++ use tpair; simpl.
   * intro x.
-    { mkpair.
+    { use tpair.
       - intro y; simpl; apply identity.
       - abstract (now intros y y' f; rewrite id_left, id_right).
     }
@@ -296,7 +296,7 @@ Qed.
 
 Definition DL_comp : DistributiveLaw (G2 • G1 : [C,C,hsC]).
 Proof.
-mkpair.
+use tpair.
   * exact δ_comp.
   * split.
     - exact δ_comp_law1.
@@ -372,7 +372,7 @@ Qed.
 
 Definition δ_genoption : δ_source genopt ⟹ δ_target genopt.
 Proof.
-mkpair.
+use tpair.
 - intro Ze.
   apply (tpair _ (δ_genoption_mor Ze) (is_nat_trans_δ_genoption_mor Ze)).
 - apply is_nat_trans_δ_genoption_mor_nat_trans.
@@ -475,10 +475,10 @@ Definition θ_functor_identity : ∑
   θ : θ_source (functor_identity [C,C,hsC]) ⟹ θ_target (functor_identity [C,C,hsC]),
   θ_Strength1_int θ × θ_Strength2_int θ.
 Proof.
-mkpair; simpl.
-+ mkpair; simpl.
+use tpair; simpl.
++ use tpair; simpl.
   * intro x.
-    { mkpair.
+    { use tpair.
       - intro y; simpl; apply identity.
       - abstract (now intros y y' f; rewrite id_left, id_right).
     }
@@ -510,10 +510,10 @@ Section constantly_constant_signature.
   Definition θ_const_const : ∑
   θ : θ_source H  ⟹ θ_target H, θ_Strength1_int θ × θ_Strength2_int θ.
 Proof.
-mkpair; simpl.
-+ mkpair; simpl.
+use tpair; simpl.
++ use tpair; simpl.
   * intro x.
-    { mkpair.
+    { use tpair.
       - intro y; simpl; apply identity.
       - abstract (now intros y y' f; rewrite id_left, id_right).
     }

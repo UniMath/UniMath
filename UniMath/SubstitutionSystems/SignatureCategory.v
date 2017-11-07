@@ -153,8 +153,8 @@ Qed.
 
 Definition SignatureForgetfulFunctor : functor Signature_precategory [[C,C],[C,D]].
 Proof.
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + intros F; apply(Signature_Functor _ _ _ _ F).
   + intros F G α; apply α.
 - abstract (now split).
@@ -194,9 +194,9 @@ Qed.
 Local Definition Signature_precategory_pr1 (Ht1 Ht2 : Signature C hsC D hsD) :
   SignatureMor C D (BinProduct_of_Signatures C hsC D hsD BD Ht1 Ht2) Ht1.
 Proof.
-mkpair.
+use tpair.
 + apply (BinProductPr1 _ (BCD (pr1 Ht1) (pr1 Ht2))).
-+ apply Signature_precategory_pr1_diagram.
++ cbn. apply Signature_precategory_pr1_diagram.
 Defined.
 
 Local Lemma Signature_precategory_pr2_diagram (Ht1 Ht2 : Signature C hsC D hsD) X Y :
@@ -209,9 +209,9 @@ Qed.
 Local Definition Signature_precategory_pr2 (Ht1 Ht2 : Signature C hsC D hsD) :
   SignatureMor C D (BinProduct_of_Signatures C hsC D hsD BD Ht1 Ht2) Ht2.
 Proof.
-mkpair.
+use tpair.
 + apply (BinProductPr2 _ (BCD (pr1 Ht1) (pr1 Ht2))).
-+ apply Signature_precategory_pr2_diagram.
++ cbn. apply Signature_precategory_pr2_diagram.
 Defined.
 
 Local Lemma BinProductArrow_diagram Ht1 Ht2 Ht3
@@ -290,9 +290,9 @@ Defined.
 Local Definition Signature_precategory_in (Ht : I → Signature_precategory C D) (i : I) :
   SignatureMor C D (Ht i) (Sum_of_Signatures I C _ D _ CD Ht).
 Proof.
-mkpair.
+use tpair.
 + apply (CoproductIn _ _ (CCD (λ j, pr1 (Ht j))) i).
-+ apply Signature_precategory_in_diagram.
++ cbn. apply Signature_precategory_in_diagram.
 Defined.
 
 Lemma CoproductArrow_diagram (Hti : I → Signature_precategory C D)
@@ -316,9 +316,9 @@ Proof.
 apply (mk_isCoproductCocone _ _ (has_homsets_Signature_precategory C D)); simpl.
 intros Ht F.
 use unique_exists; simpl.
-+ mkpair.
++ use tpair.
   - apply (CoproductArrow I _ (CCD (λ j, pr1 (Hti j))) (λ i, pr1 (F i))).
-  - apply CoproductArrow_diagram.
+  - cbn. apply CoproductArrow_diagram.
 + abstract (intro i; apply SignatureMor_eq, (CoproductInCommutes _ _ _ (CCD (λ j, pr1 (Hti j))))).
 + abstract (intros X; apply impred; intro i; apply has_homsets_Signature_precategory).
 + abstract (intros X Hi;  apply SignatureMor_eq; simpl;

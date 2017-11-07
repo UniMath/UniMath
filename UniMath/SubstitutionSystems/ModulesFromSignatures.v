@@ -509,7 +509,7 @@ Qed.
 
 Let j_ptd : precategory_Ptd C hs ⟦ ptd_from_mon hs T_mon, ptd_from_mon hs M⟧.
 Proof.
-  mkpair.
+  use tpair.
   - apply j.
   - intros x.
     apply j_mon_η.

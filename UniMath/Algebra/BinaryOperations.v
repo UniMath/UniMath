@@ -983,9 +983,9 @@ Lemma isgrop_weq_fwd {X Y : UU} (H : X ≃ Y) (opp : binop X) :
   isgrop opp → isgrop (binop_weq_fwd H opp).
 Proof.
   intros X Y H opp is.
-  mkpair.
-  apply ismonoidop_weq_fwd, (pr1 is).
-  apply invstruct_weq_fwd, (pr2 is).
+  use tpair.
+  - apply ismonoidop_weq_fwd, (pr1 is).
+  - apply invstruct_weq_fwd, (pr2 is).
 Defined.
 
 Lemma iscomm_weq_fwd {X Y : UU} (H : X ≃ Y) (opp : binop X) :
@@ -1067,7 +1067,7 @@ Lemma isrigops_weq_fwd {X Y : UU} (H : X ≃ Y) (op1 op2 : binop X) :
 Proof.
   intros X Y H op1 op2 is.
   split.
-  - mkpair.
+  - use tpair.
     + split.
       apply isabmonoidop_weq_fwd, (pr1 (pr1 (pr1 is))).
       apply ismonoidop_weq_fwd, (pr2 (pr1 (pr1 is))).
@@ -1220,7 +1220,7 @@ Lemma isgrop_weq_bck {X Y : UU} (H : X ≃ Y) (opp : binop Y) :
   isgrop opp → isgrop (binop_weq_bck H opp).
 Proof.
   intros X Y H opp is.
-  mkpair.
+  use tpair.
   apply ismonoidop_weq_bck, (pr1 is).
   apply invstruct_weq_bck, (pr2 is).
 Defined.
@@ -1304,7 +1304,7 @@ Lemma isrigops_weq_bck {X Y : UU} (H : X ≃ Y) (op1 op2 : binop Y) :
 Proof.
   intros X Y H op1 op2 is.
   split.
-  - mkpair.
+  - use tpair.
     + split.
       apply isabmonoidop_weq_bck, (pr1 (pr1 (pr1 is))).
       apply ismonoidop_weq_bck, (pr2 (pr1 (pr1 is))).

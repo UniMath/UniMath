@@ -326,7 +326,7 @@ Qed.
 (** Equivalence between list and List for A a set *)
 Lemma weq_list (A : HSET) : list (pr1 A) ≃ List A.
 Proof.
-mkpair.
+use tpair.
 - apply to_List.
 - use gradth.
   + apply to_list.
