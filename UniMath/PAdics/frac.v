@@ -24,23 +24,45 @@ Section aint.
 
 Variable A : aintdom.
 
-Ltac permute := solve [ repeat rewrite rngassoc2; match goal with | [
-  |- ?X = ?X ] => apply idpath | [ |- ?X * ?Y = ?X * ?Z ] => apply
-  maponpaths; permute | [ |- ?Y * ?X = ?Z * ?X ] => apply (
-  maponpaths ( fun x => x * X ) ); permute | [ |- ?X * ?Y = ?Y * ?X ]
-  => apply rngcomm2 | [ |- ?X * ?Y = ?K ] => solve [ repeat rewrite
-  <- rngassoc2; match goal with | [ |- ?H = ?V * X ] => rewrite (
-  @rngcomm2 A V X ); repeat rewrite rngassoc2; apply maponpaths;
-  permute end | repeat rewrite rngassoc2; match goal with | [ |- ?H =
-  ?Z * ?V ] => repeat rewrite <- rngassoc2; match goal with | [ |- ?W
-  * Z = ?L ] => rewrite ( @rngcomm2 A W Z ); repeat rewrite
-  rngassoc2; apply maponpaths; permute end end ] |[ |- ?X * ( ?Y * ?Z
-  ) = ?K ] => rewrite ( @rngcomm2 A Y Z ); permute end | repeat
-  rewrite <- rngassoc2; match goal with | [ |- ?X * ?Y = ?X * ?Z ] =>
-  apply maponpaths; permute | [ |- ?Y * ?X = ?Z * ?X ] => apply (
-  maponpaths ( fun x => x * X ) ); permute | [ |- ?X * ?Y = ?Y * ?X ]
-  => apply rngcomm2 end | apply idpath | idtac "The tactic permute
-  does not apply to the current goal!" ].
+Ltac permute := solve
+  [
+    repeat rewrite rngassoc2;
+    match goal with
+    | [  |- ?X = ?X ] => apply idpath
+    | [ |- ?X * ?Y = ?X * ?Z ] => apply  maponpaths; permute
+    | [ |- ?Y * ?X = ?Z * ?X ] => apply (  maponpaths ( fun x => x * X ) ); permute
+    | [ |- ?X * ?Y = ?Y * ?X ]  => apply rngcomm2
+    | [ |- ?X * ?Y = ?K ] => solve
+             [
+               repeat rewrite  <- rngassoc2;
+               match goal with
+               | [ |- ?H = ?V * X ] => rewrite ( @rngcomm2 A V X );
+                                     repeat rewrite rngassoc2;
+                                     apply maponpaths;
+                                     permute
+               end
+             | repeat rewrite rngassoc2;
+               match goal with
+               | [ |- ?H =  ?Z * ?V ] => repeat rewrite <- rngassoc2;
+                                       match goal with
+                                       | [ |- ?W  * Z = ?L ] => rewrite ( @rngcomm2 A W Z );
+                                                              repeat rewrite rngassoc2;
+                                                              apply maponpaths;
+                                                              permute
+                                       end
+               end
+             ]
+    | [ |- ?X * ( ?Y * ?Z  ) = ?K ] => rewrite ( @rngcomm2 A Y Z ); permute
+    end
+  | repeat rewrite <- rngassoc2;
+    match goal with
+    | [ |- ?X * ?Y = ?X * ?Z ] => apply maponpaths; permute
+    | [ |- ?Y * ?X = ?Z * ?X ] => apply ( maponpaths ( fun x => x * X ) ); permute
+    | [ |- ?X * ?Y = ?Y * ?X ] => apply rngcomm2
+    end
+  | apply idpath
+  | idtac "The tactic permute does not apply to the current goal!"
+  ].
 
 Lemma azerorelcomp ( cd : dirprod A ( aintdomazerosubmonoid A ) )
   ( ef : dirprod A ( aintdomazerosubmonoid A ) )
