@@ -26,31 +26,31 @@ Section aint.
 Variable A : aintdom.
 
 Ltac permute := solve [ repeat rewrite rngassoc2; match goal with | [
-  |- ?X ~> ?X ] => apply idpath | [ |- ?X * ?Y ~> ?X * ?Z ] => apply
-  maponpaths; permute | [ |- ?Y * ?X ~> ?Z * ?X ] => apply (
-  maponpaths ( fun x => x * X ) ); permute | [ |- ?X * ?Y ~> ?Y * ?X ]
-  => apply rngcomm2 | [ |- ?X * ?Y ~> ?K ] => solve [ repeat rewrite
-  <- rngassoc2; match goal with | [ |- ?H ~> ?V * X ] => rewrite (
+  |- ?X = ?X ] => apply idpath | [ |- ?X * ?Y = ?X * ?Z ] => apply
+  maponpaths; permute | [ |- ?Y * ?X = ?Z * ?X ] => apply (
+  maponpaths ( fun x => x * X ) ); permute | [ |- ?X * ?Y = ?Y * ?X ]
+  => apply rngcomm2 | [ |- ?X * ?Y = ?K ] => solve [ repeat rewrite
+  <- rngassoc2; match goal with | [ |- ?H = ?V * X ] => rewrite (
   @rngcomm2 A V X ); repeat rewrite rngassoc2; apply maponpaths;
-  permute end | repeat rewrite rngassoc2; match goal with | [ |- ?H ~>
+  permute end | repeat rewrite rngassoc2; match goal with | [ |- ?H =
   ?Z * ?V ] => repeat rewrite <- rngassoc2; match goal with | [ |- ?W
-  * Z ~> ?L ] => rewrite ( @rngcomm2 A W Z ); repeat rewrite
+  * Z = ?L ] => rewrite ( @rngcomm2 A W Z ); repeat rewrite
   rngassoc2; apply maponpaths; permute end end ] |[ |- ?X * ( ?Y * ?Z
-  ) ~> ?K ] => rewrite ( @rngcomm2 A Y Z ); permute end | repeat
-  rewrite <- rngassoc2; match goal with | [ |- ?X * ?Y ~> ?X * ?Z ] =>
-  apply maponpaths; permute | [ |- ?Y * ?X ~> ?Z * ?X ] => apply (
-  maponpaths ( fun x => x * X ) ); permute | [ |- ?X * ?Y ~> ?Y * ?X ]
+  ) = ?K ] => rewrite ( @rngcomm2 A Y Z ); permute end | repeat
+  rewrite <- rngassoc2; match goal with | [ |- ?X * ?Y = ?X * ?Z ] =>
+  apply maponpaths; permute | [ |- ?Y * ?X = ?Z * ?X ] => apply (
+  maponpaths ( fun x => x * X ) ); permute | [ |- ?X * ?Y = ?Y * ?X ]
   => apply rngcomm2 end | apply idpath | idtac "The tactic permute
   does not apply to the current goal!" ].
 
 Lemma azerorelcomp ( cd : dirprod A ( aintdomazerosubmonoid A ) )
   ( ef : dirprod A ( aintdomazerosubmonoid A ) )
-  ( p : ( pr1 cd ) * ( pr1 ( pr2 ef ) ) ~>
+  ( p : ( pr1 cd ) * ( pr1 ( pr2 ef ) ) =
       ( ( pr1 ef ) * ( pr1 ( pr2 cd ) ) ) )
   ( q : ( pr1 cd ) # 0 ) : ( pr1 ef ) # 0.
 Proof.
   intros.
-  change ( ( @op2 A ( pr1 cd ) ( pr1 ( pr2 ef ) ) ) ~>
+  change ( ( @op2 A ( pr1 cd ) ( pr1 ( pr2 ef ) ) ) =
            ( @op2 A ( pr1 ef ) ( pr1 ( pr2 cd ) ) ) ) in p.
   assert ( ( @op2 A ( pr1 cd ) ( pr1 ( pr2 ef ) ) ) # 0 ) as v.
   { apply A.
@@ -125,27 +125,27 @@ Proof.
     apply ( pr2 ( acommrng_amult A ) f ).
     apply ( pr2 ( acommrng_amult A ) i ).
     apply ( pr2 ( acommrng_amult A ) i' ).
-    assert ( a * f * d * i * h * i' ~> c * h * b * f * i * i' ) as l.
-    { assert ( a * f * d * i * h * i' ~> a * d * i * f * h * i' ) as l0.
-      { change ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A a f ) d ) i ) h ) i' ~>
+    assert ( a * f * d * i * h * i' = c * h * b * f * i * i' ) as l.
+    { assert ( a * f * d * i * h * i' = a * d * i * f * h * i' ) as l0.
+      { change ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A a f ) d ) i ) h ) i' =
                  @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A a d ) i ) f ) h ) i' ).
         permute.
       }
       rewrite l0.
       rewrite j.
-      change ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A c b ) i ) f ) h ) i' ~>
+      change ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A c b ) i ) f ) h ) i' =
                @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A c h ) b ) f ) i ) i' ).
       permute.
     }
     rewrite l in v0.
-    assert ( e * b * d * i * h * i' ~> g * d * b * f * i * i' ) as k.
-    { assert ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A e b ) d ) i ) h ) i' ~>
+    assert ( e * b * d * i * h * i' = g * d * b * f * i * i' ) as k.
+    { assert ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A e b ) d ) i ) h ) i' =
                @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A e h ) i' ) i ) b ) d ) as k0
       by permute.
-      change ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A e b ) d ) i ) h ) i' ~>
+      change ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A e b ) d ) i ) h ) i' =
                @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A g d ) b ) f ) i ) i' ).
       rewrite k0.
-      assert ( @op2 A ( @op2 A e h ) i' ~> @op2 A ( @op2 A g f ) i' ) as j''
+      assert ( @op2 A ( @op2 A e h ) i' = @op2 A ( @op2 A g f ) i' ) as j''
       by assumption.
       rewrite j''.
       permute.
@@ -177,28 +177,28 @@ Proof.
     apply ( pr2 ( acommrng_amult A ) h ).
     apply ( pr2 ( acommrng_amult A ) i ).
     apply ( pr2 ( acommrng_amult A ) i' ).
-    assert ( c * h * b * f * i * i' ~> a * f * d * h * i * i' ) as k.
-    { assert ( c * h * b * f * i * i' ~> c * b * i * f * h * i' ) as k0.
-      { change ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A c h ) b ) f ) i ) i' ~>
+    assert ( c * h * b * f * i * i' = a * f * d * h * i * i' ) as k.
+    { assert ( c * h * b * f * i * i' = c * b * i * f * h * i' ) as k0.
+      { change ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A c h ) b ) f ) i ) i' =
                 @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A c b ) i ) f ) h ) i' ).
         permute.
       }
       rewrite k0.
       rewrite <- j.
-      change ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A a d ) i ) f ) h ) i' ~>
+      change ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A a d ) i ) f ) h ) i' =
                @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A a f ) d ) h ) i ) i' ).
       permute.
     }
     rewrite k in v.
-    assert ( g * d * b * f * i * i' ~> e * b * d * h * i * i' ) as l.
-    { assert ( g * d * b * f * i * i' ~> g * f * i' * d * i * b ) as l0.
-      { change ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A g d ) b ) f ) i ) i' ~>
+    assert ( g * d * b * f * i * i' = e * b * d * h * i * i' ) as l.
+    { assert ( g * d * b * f * i * i' = g * f * i' * d * i * b ) as l0.
+      { change ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A g d ) b ) f ) i ) i' =
                  @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A g f ) i' ) d ) i ) b ).
         permute.
       }
       rewrite l0.
       rewrite <- j'.
-      change (@op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A e h ) i' ) d ) i ) b ~>
+      change (@op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A e h ) i' ) d ) i ) b =
               @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A e b ) d ) h ) i ) i' ).
       permute.
     }
@@ -243,18 +243,18 @@ Proof.
   destruct u as [ left | right ].
   - apply ii1.
     apply ( pr2 ( acommrng_amult A ) f ).
-    assert ( @op2 A ( @op2 A a f ) d ~> @op2 A ( @op2 A a d ) f ) as i
+    assert ( @op2 A ( @op2 A a f ) d = @op2 A ( @op2 A a d ) f ) as i
     by permute.
     change ( @op2 A ( @op2 A a d ) f # @op2 A ( @op2 A c b ) f ).
     rewrite <- i.
     assumption.
   - apply ii2.
     apply ( pr2 ( acommrng_amult A ) b ).
-    assert ( @op2 A ( @op2 A c f ) b ~> @op2 A ( @op2 A c b ) f ) as i
+    assert ( @op2 A ( @op2 A c f ) b = @op2 A ( @op2 A c b ) f ) as i
     by permute.
     change ( @op2 A ( @op2 A c f ) b # @op2 A ( @op2 A e d ) b ).
     rewrite i.
-    assert ( @op2 A ( @op2 A e d ) b ~> @op2 A ( @op2 A e b ) d ) as j
+    assert ( @op2 A ( @op2 A e d ) b = @op2 A ( @op2 A e b ) d ) as j
     by permute.
     change ( @op2 A ( @op2 A c b ) f # @op2 A ( @op2 A e d ) b ).
     rewrite j.
@@ -323,7 +323,7 @@ Proof.
            (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
            (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
     @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-    (acommrngtocommrng (pr1aintdom A))) d a) b) f) ~>
+    (acommrngtocommrng (pr1aintdom A))) d a) b) f) =
            (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
            (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
            (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
@@ -335,7 +335,7 @@ Proof.
            (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
            (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
     @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-    (acommrngtocommrng (pr1aintdom A))) b c) b) f) ~>
+    (acommrngtocommrng (pr1aintdom A))) b c) b) f) =
           (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
           (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
           (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
@@ -347,7 +347,7 @@ Proof.
            (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
            (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
     @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-    (acommrngtocommrng (pr1aintdom A))) b e) b) d) ~>
+    (acommrngtocommrng (pr1aintdom A))) b e) b) d) =
            (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
            (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
            (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
@@ -405,7 +405,7 @@ Proof.
   simpl in u.
   apply ( pr2 ( acommrng_amult A ) a ).
   apply ( pr2 ( acommrng_amult A ) b ).
-  assert ( c * f * a * b ~>
+  assert ( c * f * a * b =
     (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
         @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
                 (acommrngtocommrng (pr1aintdom A)))
@@ -415,12 +415,12 @@ Proof.
     (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
         @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
                 (acommrngtocommrng (pr1aintdom A))) b f)) ) as i.
-  { change ( c * f * a * b ~> a * c * ( b * f ) ).
+  { change ( c * f * a * b = a * c * ( b * f ) ).
     permute.
   }
   change ( c * f * a * b # e * d * a * b ).
   rewrite i.
-  assert ( e * d * a * b ~>
+  assert ( e * d * a * b =
     (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
         @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
                 (acommrngtocommrng (pr1aintdom A)))
@@ -430,7 +430,7 @@ Proof.
     (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
         @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
                 (acommrngtocommrng (pr1aintdom A))) b d)) ) as i'.
-  { change ( e * d * a * b ~> a * e * ( b * d ) ).
+  { change ( e * d * a * b = a * e * ( b * d ) ).
     permute.
   }
   rewrite i'.
@@ -501,7 +501,7 @@ Proof.
     - change ( setquotpr ( eqrelcommrngfrac A ( aintdomazerosubmonoid A ) )
         ( dirprodpair ( @op2 A ( pr1 ( afldfracmultinvint ( dirprodpair b c ) is' ) ) b )
                       ( @op ( aintdomazerosubmonoid A ) ( pr2 ( afldfracmultinvint
-                                                  ( dirprodpair b c ) is' ) ) c ) ) ~>
+                                                  ( dirprodpair b c ) is' ) ) c ) ) =
       ( commrngfracunel2 A ( aintdomazerosubmonoid A ) ) ).
       apply iscompsetquotpr.
       unfold commrngfracunel2int.
@@ -516,7 +516,7 @@ Proof.
     - change ( setquotpr ( eqrelcommrngfrac A ( aintdomazerosubmonoid A ) )
         ( dirprodpair ( @op2 A b ( pr1 ( afldfracmultinvint ( dirprodpair b c ) is' ) ) )
                       ( @op ( aintdomazerosubmonoid A ) c ( pr2 ( afldfracmultinvint
-                                                  ( dirprodpair b c ) is' ) ) ) ) ~>
+                                                  ( dirprodpair b c ) is' ) ) ) ) =
       ( commrngfracunel2 A ( aintdomazerosubmonoid A ) ) ).
       apply iscompsetquotpr.
       destruct c as [ c c' ].

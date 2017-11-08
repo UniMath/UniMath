@@ -29,52 +29,50 @@ Require Export stnfsets.*)
 
 (** * Notation, terminology and very basic facts *)
 
-Notation "x ~> y" := ( paths x y ) ( at level 50 ) : type_scope.
-
 Arguments tpair [ T P ].
 
 Lemma pathintotalfiber ( B : UU ) ( E : B -> UU ) ( b0 b1 : B ) ( e0 :
-E b0 ) ( e1 : E b1 ) ( p0 : b0 ~> b1 ) ( p1 : transportf E p0 e0 ~> e1 ) : ( tpair b0 e0 ) ~> ( tpair b1 e1 ).
+E b0 ) ( e1 : E b1 ) ( p0 : b0 = b1 ) ( p1 : transportf E p0 e0 = e1 ) : ( tpair b0 e0 ) = ( tpair b1 e1 ).
 Proof.
   intros. destruct p0, p1. apply idpath.
 Defined.
 
 Definition neq ( X : UU ) : X -> X -> hProp :=
-  fun x y : X => hProppair (neg (x ~> y)) (isapropneg (x ~> y)).
+  fun x y : X => hProppair (neg (x = y)) (isapropneg (x = y)).
 
-Definition pathintotalpr1 { B : UU } { E : B -> UU } { v w : total2 E} ( p : v ~> w ) : ( pr1 v ) ~> ( pr1 w ) :=
+Definition pathintotalpr1 { B : UU } { E : B -> UU } { v w : total2 E} ( p : v = w ) : ( pr1 v ) = ( pr1 w ) :=
   maponpaths ( fun x => pr1 x ) p.
 
-Lemma isinclisinj { A B : UU } { f : A -> B } ( p : isincl f ) { a b : A } ( p : f a ~> f b ) : a ~> b.
+Lemma isinclisinj { A B : UU } { f : A -> B } ( p : isincl f ) { a b : A } ( p : f a = f b ) : a = b.
 Proof.
   intros.
   set ( q := p ( f a )).
   set ( a' := hfiberpair f a ( idpath ( f a ) ) ).
   set ( b' := hfiberpair f b ( pathsinv0 p0 ) ).
-  assert ( a' ~> b' ) as p1 by apply (p ( f a ) ).
+  assert ( a' = b' ) as p1 by apply (p ( f a ) ).
   apply ( pathintotalpr1 p1 ).
 Defined.
 
 (** * I. Lemmas on natural numbers *)
 
-Lemma minus0r ( n : nat ) : minus n 0 ~> n.
+Lemma minus0r ( n : nat ) : minus n 0 = n.
 Proof.
   intros n. destruct n; apply idpath.
 Defined.
 
-Lemma minusnn0 ( n : nat ) : minus n n ~> 0%nat.
+Lemma minusnn0 ( n : nat ) : minus n n = 0%nat.
 Proof.
   intro. induction n.
   - apply idpath.
   - assumption.
 Defined.
 
-Lemma minussn1 ( n : nat ) : minus ( S n ) 1 ~> n.
+Lemma minussn1 ( n : nat ) : minus ( S n ) 1 = n.
 Proof.
   intro. destruct n; apply idpath.
 Defined.
 
-Lemma minussn1non0 ( n : nat ) ( p : natlth 0 n ) : S ( minus n 1 ) ~> n.
+Lemma minussn1non0 ( n : nat ) ( p : natlth 0 n ) : S ( minus n 1 ) = n.
 Proof.
   intro. destruct n.
   - intro p. apply fromempty. exact (isirreflnatlth 0%nat p ).
@@ -144,7 +142,7 @@ Proof.
   intro. induction n.
   - intros m p. apply fromempty. apply (negnatlthn0 m p).
   - intros m p. destruct m.
-    + assert ( minus ( S ( S n ) ) 1 ~> S n ) as f.
+    + assert ( minus ( S ( S n ) ) 1 = S n ) as f.
       { destruct n.
         * auto.
         * auto. }
@@ -167,7 +165,7 @@ Proof.
 Defined.
 
 Lemma pathssminus ( n m : nat ) ( p : natlth m ( S n ) ) :
-  S ( minus n m ) ~> minus ( S n ) m.
+  S ( minus n m ) = minus ( S n ) m.
 Proof.
   intro n. induction n.
   - intros m p. destruct m.
@@ -204,7 +202,7 @@ Proof.
 Defined.
 
 Lemma natdoubleminus { n k l : nat } ( p : natleh k n ) ( q : natleh l k ) :
-  ( minus n k) ~> ( minus ( minus n l ) ( minus k l ) ).
+  ( minus n k) = ( minus ( minus n l ) ( minus k l ) ).
 Proof.
   intro n. induction n.
   - auto.
@@ -229,7 +227,7 @@ Proof.
 Defined.
 
 Lemma doubleminuslehpaths ( n m : nat ) ( p : natleh m n ) :
-  minus n (minus n m ) ~> m.
+  minus n (minus n m ) = m.
 Proof.
   intro n. induction n.
   - intros m p. destruct ( natlehchoice m 0 p ) as [ h | k ].
@@ -237,7 +235,7 @@ Proof.
     + simpl. apply pathsinv0. assumption.
   - intros. destruct m.
     + simpl. apply minusnn0.
-    + change ( minus ( S n ) (minus n m ) ~> S m ).
+    + change ( minus ( S n ) (minus n m ) = S m ).
       rewrite <- pathssminus.
       * rewrite IHn.
         ++  apply idpath.
@@ -247,7 +245,7 @@ Proof.
         ++ apply (natlehlthtrans _ m ). apply natleh0n. apply natlthnsn.
 Defined.
 
-Lemma boolnegtrueimplfalse ( v : bool ) ( p : neg ( v ~> true ) ) : v ~> false.
+Lemma boolnegtrueimplfalse ( v : bool ) ( p : neg ( v = true ) ) : v = false.
 Proof.
   intros. destruct v.
   - apply fromempty. apply p; auto.
@@ -272,7 +270,7 @@ Proof.
   - apply p.
 Defined.
 
-Lemma natgehimplnatgtbfalse ( m n : nat ) ( p : natgeh n m ) : natgtb m n ~> false.
+Lemma natgehimplnatgtbfalse ( m n : nat ) ( p : natgeh n m ) : natgtb m n = false.
 Proof.
   intros. unfold natgeh in p. unfold natgth in p.
   apply boolnegtrueimplfalse.
@@ -289,24 +287,24 @@ Proof.
 Defined.
 
 Lemma natcofaceretractisretract ( i : nat ) :
-  funcomp ( natcoface i ) ( natcofaceretract i ) ~> idfun nat.
+  funcomp ( natcoface i ) ( natcofaceretract i ) = idfun nat.
 Proof.
   intro i.
   simpl. apply funextfun.
   intro n. unfold funcomp.
   set ( c := natlthorgeh n i ). destruct c as [ h | k ].
   - unfold natcoface. rewrite h. unfold natcofaceretract. rewrite h.  apply idpath.
-  - assert ( natgtb i n ~> false ) as f.
+  - assert ( natgtb i n = false ) as f.
     { apply natgehimplnatgtbfalse. assumption. }
     unfold natcoface. rewrite f. unfold natcofaceretract.
-    assert ( natgtb i ( S n ) ~> false ) as ff.
+    assert ( natgtb i ( S n ) = false ) as ff.
     { apply natgehimplnatgtbfalse.
       apply ( istransnatgeh _ n ).
       apply natgthtogeh. apply natgthsnn. assumption. }
     rewrite ff.  rewrite minussn1.  apply idpath.
 Defined.
 
-Lemma isinjnatcoface ( i x y : nat ) : natcoface i x ~> natcoface i y -> x ~> y.
+Lemma isinjnatcoface ( i x y : nat ) : natcoface i x = natcoface i y -> x = y.
 Proof.
   intros i x y p.
   change x with ( ( idfun _ ) x).
@@ -317,7 +315,7 @@ Proof.
 Defined.
 
 Lemma natlehdecomp ( b a : nat ) :
-  hexists ( fun c : nat => ( a + c )%nat ~> b ) -> natleh a b.
+  hexists ( fun c : nat => ( a + c )%nat = b ) -> natleh a b.
 Proof.
   intro b. induction b.
   - intros a p. use (hinhuniv _ p).
@@ -340,8 +338,8 @@ Proof.
       apply q.
 Defined.
 
-Lemma natdivleh ( a b k : nat ) ( f : ( a * k )%nat ~> b ) :
-  coprod ( natleh a b ) ( b ~> 0%nat ).
+Lemma natdivleh ( a b k : nat ) ( f : ( a * k )%nat = b ) :
+  coprod ( natleh a b ) ( b = 0%nat ).
 Proof.
   intros. destruct k.
   - rewrite natmultcomm in f. simpl in f. apply ii2.
@@ -357,13 +355,13 @@ Defined.
 Open Scope rng_scope.
 
 Lemma rngminusdistr { X : commrng } ( a b c : X ) :
-  a * (b - c) ~> (a * b - a * c).
+  a * (b - c) = (a * b - a * c).
 Proof.
   intros. rewrite rngldistr. rewrite rngrmultminus. apply idpath.
 Defined.
 
 Lemma rngminusdistl { X : commrng } ( a b c : X ) :
-  (b - c) * a ~> (b * a - c * a).
+  (b - c) * a = (b * a - c * a).
 Proof.
   intros. rewrite rngrdistr. rewrite rnglmultminus. apply idpath.
 Defined.
@@ -373,30 +371,30 @@ Lemma multinvmultstable ( A : commrng ) ( a b : A ) ( p : multinvpair A a )
 Proof.
   intros. destruct p as [ a' p ]. destruct q as [ b' q ].
   split with ( b' * a' ). split.
-  - change ( ( ( b' * a' ) * ( a * b ) )%rng ~> (@rngunel2 A )).
+  - change ( ( ( b' * a' ) * ( a * b ) )%rng = (@rngunel2 A )).
     rewrite ( rngassoc2 A b').
     rewrite <- ( rngassoc2 A a' ).
-    change ( dirprod ( ( a' * a )%rng ~> ( @rngunel2 A ) )
-                     ( ( a * a' )%rng ~> ( @rngunel2 A ) ) ) in p.
-    change ( dirprod ( ( b' * b )%rng ~> ( @rngunel2 A ) )
-                     ( ( b * b' )%rng ~> ( @rngunel2 A ) ) ) in q.
+    change ( dirprod ( ( a' * a )%rng = ( @rngunel2 A ) )
+                     ( ( a * a' )%rng = ( @rngunel2 A ) ) ) in p.
+    change ( dirprod ( ( b' * b )%rng = ( @rngunel2 A ) )
+                     ( ( b * b' )%rng = ( @rngunel2 A ) ) ) in q.
     rewrite <- ( pr1 q ). apply maponpaths.
-    assert ( a' * a * b ~> 1 * b ) as f by
+    assert ( a' * a * b = 1 * b ) as f by
           apply ( maponpaths ( fun x => x * b ) ( pr1 p ) ).
     rewrite rnglunax2 in f. assumption.
-  - change ( ( ( a * b ) * ( b' * a' ) )%rng ~> ( @rngunel2 A )).
+  - change ( ( ( a * b ) * ( b' * a' ) )%rng = ( @rngunel2 A )).
     rewrite ( rngassoc2 A a). rewrite <- ( rngassoc2 A b ).
-    change ( dirprod ( ( a' * a )%rng ~> ( @rngunel2 A ) )
-                     ( ( a * a' )%rng ~> ( @rngunel2 A ) ) ) in p.
-    change ( dirprod ( ( b' * b )%rng ~> ( @rngunel2 A ) )
-                     ( ( b * b' )%rng ~> ( @rngunel2 A ) ) ) in q.
+    change ( dirprod ( ( a' * a )%rng = ( @rngunel2 A ) )
+                     ( ( a * a' )%rng = ( @rngunel2 A ) ) ) in p.
+    change ( dirprod ( ( b' * b )%rng = ( @rngunel2 A ) )
+                     ( ( b * b' )%rng = ( @rngunel2 A ) ) ) in q.
     rewrite <- ( pr2 q ). rewrite ( pr2 q ).
     rewrite rnglunax2. apply (pr2 p).
 Defined.
 
 Lemma commrngaddinvunique ( X : commrng ) ( a b c : X )
-      ( p : @op1 X a b ~> @rngunel1 X )
-      ( q : @op1 X a c ~> @rngunel1 X ) : b ~> c.
+      ( p : @op1 X a b = @rngunel1 X )
+      ( q : @op1 X a c = @rngunel1 X ) : b = c.
 Proof.
   intros. rewrite ( pathsinv0 ( rngrunax1 X b ) ).
   rewrite ( pathsinv0 q ).
@@ -410,23 +408,23 @@ Defined.
 Lemma isapropmultinvpair ( X : commrng ) ( a : X ) : isaprop ( multinvpair X a ).
 Proof.
   intros. unfold isaprop. intros b c.
-  assert ( b ~> c ) as f.
+  assert ( b = c ) as f.
   { destruct b as [ b b' ].
     destruct c as [ c c'].
-    assert ( b ~> c ) as f0.
+    assert ( b = c ) as f0.
     { rewrite <- ( @rngrunax2 X b ).
       change ( b * ( @rngunel2 X ) ) with ( b * 1 )%multmonoid.
       rewrite <- ( pr2 c' ).
-      change ( ( b * ( a * c ) )%rng ~> c ).
+      change ( ( b * ( a * c ) )%rng = c ).
       rewrite <- ( rngassoc2 X ).
       change ( b * a )%rng with ( b * a )%multmonoid.
       rewrite ( pr1 b' ).
-      change ( ( @rngunel2 X ) * c ~> c )%rng.
+      change ( ( @rngunel2 X ) * c = c )%rng.
       apply rnglunax2.
     }
     apply pathintotalfiber with ( p0 := f0 ).
-    assert ( isaprop ( dirprod (c * a ~> ( @rngunel2 X ) )
-                               (a * c ~> ( @rngunel2 X )) ) ) as is.
+    assert ( isaprop ( dirprod (c * a = ( @rngunel2 X ) )
+                               (a * c = ( @rngunel2 X )) ) ) as is.
     { apply isofhleveldirprod.
       - apply ( setproperty X ).
       - apply ( setproperty X ).
@@ -453,33 +451,33 @@ Close Scope rng_scope.
 
 Open Scope hz_scope.
 
-Lemma hzaddinvplus ( n m : hz ) : - ( n + m ) ~> ( ( - n ) + ( - m ) ).
+Lemma hzaddinvplus ( n m : hz ) : - ( n + m ) = ( ( - n ) + ( - m ) ).
 Proof.
   intros.
   apply commrngaddinvunique with ( a := n + m ).
   - apply rngrinvax1.
-  - assert ( ( n + m ) + ( - n + - m ) ~> ( n + - n + m + - m ) ) as i.
-    { assert ( n + m + ( - n + - m ) ~> ( n + ( m + ( - n + - m ) ) ) ) as i0 by
+  - assert ( ( n + m ) + ( - n + - m ) = ( n + - n + m + - m ) ) as i.
+    { assert ( n + m + ( - n + - m ) = ( n + ( m + ( - n + - m ) ) ) ) as i0 by
             apply rngassoc1.
-      assert ( n + ( m + ( - n + - m ) ) ~> ( n + ( m + - n + - m ) ) ) as i1.
+      assert ( n + ( m + ( - n + - m ) ) = ( n + ( m + - n + - m ) ) ) as i1.
       { apply maponpaths. apply pathsinv0. apply rngassoc1. }
-      assert ( n + ( m + - n + - m ) ~> ( n + (- n + m + - m ) ) ) as i2.
+      assert ( n + ( m + - n + - m ) = ( n + (- n + m + - m ) ) ) as i2.
       { apply maponpaths. apply ( maponpaths ( fun x : _ => x + - m ) ).
         apply rngcomm1. }
-      assert ( n + ( - n + m + - m ) ~> ( n + ( - n + m ) + - m ) ) as i3.
+      assert ( n + ( - n + m + - m ) = ( n + ( - n + m ) + - m ) ) as i3.
       { apply pathsinv0. apply rngassoc1. }
-      assert ( n + ( - n + m ) + - m ~> ( n + - n + m + - m ) ) as i4.
+      assert ( n + ( - n + m ) + - m = ( n + - n + m + - m ) ) as i4.
       { apply pathsinv0. apply ( maponpaths ( fun x : _ => x + - m ) ).
         apply rngassoc1. }
       exact ( pathscomp0 i0 ( pathscomp0 i1 ( pathscomp0 i2 ( pathscomp0 i3 i4 ) ) ) ).    }
-    assert ( n + - n + m + -m ~> 0 ) as j.
-    { assert ( n + - n + m + - m ~> ( 0 + m + - m ) ) as j0.
+    assert ( n + - n + m + -m = 0 ) as j.
+    { assert ( n + - n + m + - m = ( 0 + m + - m ) ) as j0.
       { apply ( maponpaths ( fun x : _ => x + m + - m ) ).
         apply rngrinvax1. }
-      assert ( 0 + m + - m ~> ( m + - m ) ) as j1.
+      assert ( 0 + m + - m = ( m + - m ) ) as j1.
       { apply ( maponpaths ( fun x : _ => x + - m ) ).
         apply rnglunax1. }
-      assert ( m + - m ~> 0 ) as j2 by apply rngrinvax1.
+      assert ( m + - m = 0 ) as j2 by apply rngrinvax1.
       exact ( pathscomp0 j0 ( pathscomp0 j1 j2 ) ).
     }
     exact ( pathscomp0 i j ).
@@ -504,13 +502,13 @@ Proof.
 Defined.
 
 Lemma hzabsvalchoice ( n : hz ) :
-  coprod ( 0%nat ~> ( hzabsval n ) ) ( total2 ( fun x : nat => S x ~> ( hzabsval n ) ) ).
+  coprod ( 0%nat = ( hzabsval n ) ) ( total2 ( fun x : nat => S x = ( hzabsval n ) ) ).
 Proof.
   intros.
   destruct ( natlehchoice _ _ ( natleh0n ( hzabsval n ) ) ) as [ l | r ].
   - apply ii2. split with ( minus ( hzabsval n ) 1 ).
     rewrite pathssminus.
-    + change ( minus ( hzabsval n ) 0 ~> hzabsval n ).
+    + change ( minus ( hzabsval n ) 0 = hzabsval n ).
       rewrite minus0r. apply idpath.
     + assumption.
   - apply ii1. assumption.
@@ -522,7 +520,7 @@ Proof.
   change ( hzlth ( n + - n + - m ) ( - n ) ).
   rewrite hzplusassoc. rewrite ( hzpluscomm ( -n ) ).
   rewrite <- hzplusassoc.
-  assert ( - n ~> ( 0 + - n ) ) as f.
+  assert ( - n = ( 0 + - n ) ) as f.
   { apply pathsinv0. apply hzplusl0. }
   assert ( hzlth ( n + - m + - n ) ( 0 + - n ) ) as q.
   { apply hzlthandplusr.  rewrite <- ( hzrminus m ).
@@ -574,7 +572,7 @@ Proof.
 Defined.
 
 Lemma hzabsvalandminuspos ( n m : hz ) ( p : hzleh 0 n ) ( q : hzleh 0 m ) :
-  nattohz ( hzabsval ( n - m ) ) ~> nattohz ( hzabsval ( m - n ) ).
+  nattohz ( hzabsval ( n - m ) ) = nattohz ( hzabsval ( m - n ) ).
 Proof.
   intros. destruct ( hzlthorgeh n m ) as [ l | r ].
   - assert ( hzlth ( n - m ) 0 ) as a.
@@ -613,7 +611,7 @@ Proof.
       }
       rewrite ( hzabsvallth0 b ).
       rewrite hzabsvalgth0.
-      * change ( ( n + - m ) ~> - ( m + - n ) ).
+      * change ( ( n + - m ) = - ( m + - n ) ).
         rewrite hzaddinvplus.
         change ( - - n ) with ( - - n )%rng.
         rewrite rngminusminus.
@@ -635,14 +633,14 @@ Proof.
     + apply right.
 Defined.
 
-Definition hzrdistr ( a b c : hz ) : ( a + b ) * c ~> ( ( a * c ) + ( b * c ) ) :=
+Definition hzrdistr ( a b c : hz ) : ( a + b ) * c = ( ( a * c ) + ( b * c ) ) :=
   rngrdistr hz a b c.
 
-Definition hzldistr ( a b c : hz ) : c * ( a + b ) ~> ( ( c * a ) + ( c * b ) ) :=
+Definition hzldistr ( a b c : hz ) : c * ( a + b ) = ( ( c * a ) + ( c * b ) ) :=
   rngldistr hz a b c.
 
 
-Lemma hzabsvaland1 : hzabsval 1 ~> 1%nat.
+Lemma hzabsvaland1 : hzabsval 1 = 1%nat.
 Proof.
   apply ( isinclisinj isinclnattohz ).
   rewrite hzabsvalgth0.
@@ -652,7 +650,7 @@ Proof.
 Defined.
 
 Lemma hzabsvalandplusnonneg ( n m : hz ) ( p : hzleh 0 n ) ( q : hzleh 0 m ) :
-  hzabsval ( n + m ) ~> ( ( hzabsval n ) + ( hzabsval m ) )%nat.
+  hzabsval ( n + m ) = ( ( hzabsval n ) + ( hzabsval m ) )%nat.
 Proof.
   intros.
   assert ( hzleh 0 ( n + m ) ) as r.
@@ -676,7 +674,7 @@ Proof.
 Defined.
 
 Lemma hzabsvalandplusneg ( n m : hz ) ( p : hzlth n 0 ) ( q : hzlth m 0 ) :
-  hzabsval ( n + m ) ~> ( ( hzabsval n ) + ( hzabsval m ) )%nat.
+  hzabsval ( n + m ) = ( ( hzabsval n ) + ( hzabsval m ) )%nat.
 Proof.
   intros.
   assert ( hzlth ( n + m ) 0 ) as r.
@@ -699,7 +697,7 @@ Proof.
   - assumption.
 Defined.
 
-Lemma hzabsvalandnattohz ( n : nat ) : hzabsval ( nattohz n ) ~> n.
+Lemma hzabsvalandnattohz ( n : nat ) : hzabsval ( nattohz n ) = n.
 Proof.
   induction n.
   - rewrite nattohzand0.
@@ -757,7 +755,7 @@ Definition isapart { X : UU } ( R : hrel X ) :=
   dirprod ( isirrefl R ) ( dirprod ( issymm R ) ( iscotrans R ) ).
 
 Definition istightapart { X : UU } ( R : hrel X ) :=
-  dirprod ( isapart R ) ( forall x y : X, neg ( R x y ) -> ( x ~> y ) ).
+  dirprod ( isapart R ) ( forall x y : X, neg ( R x y ) -> ( x = y ) ).
 
 Definition apart ( X : hSet ) := total2 ( fun R : hrel X => isapart R ).
 
@@ -785,7 +783,7 @@ Proof.
 Defined.
 
 Definition isapartdec { X : hSet } ( R : apart X ) :=
-  forall a b : X, coprod ( ( pr1 R ) a b ) ( a ~> b ).
+  forall a b : X, coprod ( ( pr1 R ) a b ) ( a = b ).
 
 Lemma isapartdectodeceq { X : hSet } ( R : apart X ) ( is : isapartdec R ) :
   isdeceq X.
@@ -877,13 +875,13 @@ Proof.
   intros. destruct p as [ a' p ].
   assert ( a' * a # 0 ) as q.
   { change ( a' * a # 0 ).
-    assert ( a' * a ~> a * a' ) as f by apply ( rngcomm2 A ).
-    assert ( a * a' ~> 1 ) as g by apply (pr2 p).
+    assert ( a' * a = a * a' ) as f by apply ( rngcomm2 A ).
+    assert ( a * a' = 1 ) as g by apply (pr2 p).
     rewrite f, g.
     apply (pr2 A).
   }
   assert ( a' * a # a' * ( rngunel1 ( X := A ) ) ) as q'.
-  { assert ( ( rngunel1 ( X := A ) ) ~> ( a' * ( rngunel1 ( X := A ) ) ) ) as f.
+  { assert ( ( rngunel1 ( X := A ) ) = ( a' * ( rngunel1 ( X := A ) ) ) ) as f.
     { apply pathsinv0. apply ( rngmultx0 A ). }
     rewrite <- f. assumption.
   }
@@ -918,7 +916,7 @@ Proof.
   intros.
   rewrite <- ( rngrunax1 A a ) in p.
   rewrite <- ( rngrunax1 A b ) in p.
-  assert ( a + 0 ~> ( a + ( b - b ) ) ) as f.
+  assert ( a + 0 = ( a + ( b - b ) ) ) as f.
   { rewrite <- ( rngrinvax1 A b ). apply idpath. }
   rewrite f in p.
   rewrite <- ( rngmultwithminus1 A ) in p.
@@ -973,7 +971,7 @@ Proof.
 Defined.
 
 Lemma setquotprpathsandR { X : UU } ( R : eqrel X ) :
-  forall x y : X, setquotpr R x ~> setquotpr R y -> R x y.
+  forall x y : X, setquotpr R x = setquotpr R y -> R x y.
 Proof.
   intros.
   assert ( pr1 ( setquotpr R x ) y ) as i.

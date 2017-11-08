@@ -23,7 +23,7 @@ Open Scope hz_scope.
 (** * I. Divisibility and the division algorithm *)
 
 Definition hzdiv0 : hz -> hz -> hz -> UU :=
-  fun n m k => ( n * k ~> m ).
+  fun n m k => ( n * k = m ).
 
 Definition hzdiv : hz -> hz -> hProp :=
   fun n m => hexists ( fun k : hz => hzdiv0 n m k ).
@@ -57,7 +57,7 @@ Proof.
   assumption.
 Defined.
 
-Lemma hzdivlinearcombleft ( a b c d : hz ) ( f : a ~> ( b + c ) )
+Lemma hzdivlinearcombleft ( a b c d : hz ) ( f : a = ( b + c ) )
   ( x : hzdiv d a ) ( y : hzdiv d b ) : hzdiv d c.
 Proof.
   intros a b c d f x y P s.
@@ -73,7 +73,7 @@ Proof.
   rewrite hzldistr.
   rewrite g.
   rewrite ( rngrmultminus hz ).
-  change ( ( a + ( - ( d * l ) ) )%hz ~> c ).
+  change ( ( a + ( - ( d * l ) ) )%hz = c ).
   rewrite h.
   apply ( hzplusrcan _ _ b ).
   rewrite hzplusassoc.
@@ -83,7 +83,7 @@ Proof.
   assumption.
 Defined.
 
-Lemma hzdivlinearcombright ( a b c d : hz ) ( f : a ~> ( b + c ) )
+Lemma hzdivlinearcombright ( a b c d : hz ) ( f : a = ( b + c ) )
   ( x: hzdiv d b ) ( y : hzdiv d c ) : hzdiv d a.
 Proof.
   intros a b c d f x y P s.
@@ -97,14 +97,14 @@ Proof.
   apply s.
   split with ( k + l ).
   rewrite hzldistr.
-  change ( (d * k + d * l)%hz ~> a ).
+  change ( (d * k + d * l)%hz = a ).
   rewrite g, h, f.
   apply idpath.
 Defined.
 
 Lemma divalgorithmnonneg ( n : nat ) ( m : nat ) ( p : hzlth 0 ( nattohz m ) ) :
   total2 ( fun qr : dirprod hz hz =>
-    ( ( dirprod ( nattohz n ~> ( ( ( nattohz m ) * ( pr1 qr ) ) + ( pr2 qr ) ) )
+    ( ( dirprod ( nattohz n = ( ( ( nattohz m ) * ( pr1 qr ) ) + ( pr2 qr ) ) )
         ( dirprod ( hzleh 0 ( pr2 qr ) ) ( hzlth ( pr2 qr ) ( nattohz ( m ) ) ) ) ) ) ).
 Proof.
   intros ? ?.
@@ -116,7 +116,7 @@ Proof.
       rewrite ( rngrunax1 hz ).
       rewrite ( rngmultx0 hz ).
       rewrite nattohzand0.
-      change ( 0 ~> 0%hz ).
+      change ( 0 = 0%hz ).
       apply idpath.
     + split.
       * apply isreflhzleh.
@@ -140,7 +140,7 @@ Proof.
       * rewrite (nattohzandS _ ).
         rewrite hzpluscomm.
         rewrite f.
-        change ( nattohz m * q' + r' + 1 ~> ( nattohz m * q' + ( r' + 1 ) ) ).
+        change ( nattohz m * q' + r' + 1 = ( nattohz m * q' + ( r' + 1 ) ) ).
         apply rngassoc1.
       * split.
         -- apply ( istranshzleh 0 r' ( r' + 1 ) ).
@@ -153,7 +153,7 @@ Proof.
       * rewrite ( nattohzandS _ ).
         rewrite hzpluscomm.
         rewrite f.
-        change ( nattohz m * q' + r' + 1 ~> ( nattohz m * ( q' + 1 ) + 0 ) ).
+        change ( nattohz m * q' + r' + 1 = ( nattohz m * ( q' + 1 ) + 0 ) ).
         rewrite hzplusassoc.
         rewrite h.
         rewrite ( rngldistr _ q' _ ).
@@ -237,7 +237,7 @@ Eval lazy in hzabsval ( pr2 ( pr1 ( divalgorithmnonneg 18 9 testlemma9 ) ) ).
 
 Theorem divalgorithmexists ( n m : hz ) ( p : hzneq 0 m ) :
   total2 ( fun qr : dirprod hz hz =>
-    ( ( dirprod ( n ~> ( ( m * ( pr1 qr ) ) + ( pr2 qr ) ) )
+    ( ( dirprod ( n = ( ( m * ( pr1 qr ) ) + ( pr2 qr ) ) )
           ( dirprod ( hzleh 0 ( pr2 qr ) )
                     ( hzlth ( pr2 qr ) ( nattohz ( hzabsval m ) ) ) ) ) ) ).
 Proof.
@@ -247,10 +247,10 @@ Proof.
     + (*Case I: n<0, m<0:*)
       set ( n' := hzabsval n ).
       set ( m' := hzabsval m ).
-      assert ( nattohz m' ~> ( - m ) ) as f.
+      assert ( nattohz m' = ( - m ) ) as f.
       { apply hzabsvallth0.
         assumption. }
-      assert ( - - n ~> - ( nattohz n' ) ) as f0.
+      assert ( - - n = - ( nattohz n' ) ) as f0.
       { rewrite <- ( hzabsvallth0 n_neg ).
         rewrite ( hzabsvallth0 n_neg ).
         unfold n'.
@@ -273,7 +273,7 @@ Proof.
       * split with ( dirprodpair Q R ).
         split.
         -- rewrite ( pathsinv0( rngminusminus hz n) ).
-           assert ( - nattohz n' ~> ( m * Q + R ) ) as f1.
+           assert ( - nattohz n' = ( m * Q + R ) ) as f1.
            { unfold Q.
              unfold R.
              rewrite ( pr1 ( ( pr2 a ) ) ).
@@ -285,7 +285,7 @@ Proof.
              rewrite rngminusminus.
              rewrite ( rngldistr _ q _ _ ).
              rewrite hzmultr1.
-             change ( ( m * q ) + - r ~> ( ( m * q + m ) + ( - m + - r ) ) ).
+             change ( ( m * q ) + - r = ( ( m * q + m ) + ( - m + - r ) ) ).
              rewrite hzplusassoc.
              rewrite <- ( hzplusassoc m _ _ ).
              change ( m + - m ) with ( m - m ).
@@ -318,7 +318,7 @@ Proof.
                    apply hzgth0andminus.
                    exact less.
                  }
-                 assert ( - m + 0 ~> ( - m ) ) as f' by apply hzplusr0.
+                 assert ( - m + 0 = ( - m ) ) as f' by apply hzplusr0.
                  exact ( transportf ( fun x : _ =>
                                         hzlth ( - m + - r ) x ) f' u ).
               ** apply hzlthtoleh.
@@ -326,14 +326,14 @@ Proof.
       * split with (dirprodpair q 0 ).
         split.
         -- rewrite <- ( rngminusminus hz n ).
-           assert ( - nattohz n' ~> ( m * q + 0 ) ) as f1.
+           assert ( - nattohz n' = ( m * q + 0 ) ) as f1.
            { rewrite ( pr1 ( pr2 (a ) ) ).
              change ( pr1 (pr1 a ) ) with q.
              change ( pr2 ( pr1 a ) ) with r.
              rewrite hzplusr0.
              rewrite ( pathsinv0 equal ).
              rewrite hzplusr0.
-             assert ( - ( nattohz m' * q ) ~> ( ( - ( nattohz m' ) ) * q ) ) as f2.
+             assert ( - ( nattohz m' * q ) = ( ( - ( nattohz m' ) ) * q ) ) as f2.
              { apply pathsinv0.
                apply rnglmultminus. }
              rewrite f2.
@@ -361,10 +361,10 @@ Proof.
         set ( a := divalgorithmnonneg ( hzabsval n ) ( hzabsval m ) p' ).
         set ( q' := pr1 ( pr1 a ) ).
         set ( r' := pr2 ( pr1 a ) ).
-        assert ( n ~> - - n ) as f0.
+        assert ( n = - - n ) as f0.
         { apply pathsinv0.
           apply rngminusminus. }
-        assert ( - - n ~> - ( nattohz ( hzabsval n ) ) ) as f1.
+        assert ( - - n = - ( nattohz ( hzabsval n ) ) ) as f1.
         { apply pathsinv0.
           apply maponpaths.
           apply hzabsvalleh0.
@@ -378,7 +378,7 @@ Proof.
               change ( pr2 ( dirprodpair ( - q' - 1 ) ( m - r' ) ) ) with ( m - r' ).
               change ( - q' - 1 ) with ( - q' + ( - 1%hz ) ).
               rewrite hzldistr.
-              assert ( - nattohz ( hzabsval n ) ~>
+              assert ( - nattohz ( hzabsval n ) =
                        ( ( m * ( - q' ) + m * ( - 1%hz ) ) + ( m - r' ) ) ) as f2.
               { rewrite ( pr1 ( pr2 ( a ) ) ).
                 change ( pr1 ( pr1 a ) ) with q'.
@@ -388,19 +388,19 @@ Proof.
                    rewrite ( rngrmultminus hz ).
                    rewrite ( hzplusassoc _ ( m * ( - 1%hz ) ) _ ).
                    apply ( maponpaths ( fun x : _ => - ( m * q' ) + x ) ).
-                   assert ( - m + ( m - r' ) ~> ( m * ( - 1%hz ) + ( m - r' ) ) ) as f3.
+                   assert ( - m + ( m - r' ) = ( m * ( - 1%hz ) + ( m - r' ) ) ) as f3.
                    { apply ( maponpaths ( fun x : _ => x + ( m - r' ) ) ).
                      apply pathsinv0.
-                     assert ( m * ( - 1%hz ) ~> ( - ( m * 1%hz ) ) ) as f30
+                     assert ( m * ( - 1%hz ) = ( - ( m * 1%hz ) ) ) as f30
                      by apply rngrmultminus.
-                     assert ( - ( m * 1 ) ~> - m ) as f31.
+                     assert ( - ( m * 1 ) = - m ) as f31.
                      { rewrite hzmultr1.
                        apply idpath. }
                      rewrite f30.
                      assumption.
                    }
-                   assert ( - r' ~> ( - m + ( m - r' ) ) ) as f4.
-                   { change ( - r' ~> ( -m + ( m + - r' ) ) ).
+                   assert ( - r' = ( - m + ( m - r' ) ) ) as f4.
+                   { change ( - r' = ( -m + ( m + - r' ) ) ).
                      rewrite <- hzplusassoc.
                      rewrite hzlminus, hzplusl0.
                      apply idpath.
@@ -430,7 +430,7 @@ Proof.
            split.
            ++ change ( pr1 ( dirprodpair ( - q' ) 0 ) ) with ( - q' ).
               change ( pr2 ( dirprodpair ( - q' ) 0 ) ) with 0.
-              assert ( - nattohz ( hzabsval n ) ~> ( m * - q' + 0 ) ) as f2.
+              assert ( - nattohz ( hzabsval n ) = ( m * - q' + 0 ) ) as f2.
               { rewrite ( hzplusr0 ).
                 rewrite ( pr1 ( pr2 ( a ) ) ).
                 change ( pr1 ( pr1 a ) ) with q'.
@@ -477,9 +477,9 @@ Proof.
            change ( pr2 ( dirprodpair ( - q' ) r' ) ) with r'.
            rewrite hzabsvalleh0.
            ++ apply ( maponpaths ( fun x : _ => x + r' ) ).
-              assert ( - m * q' ~> - ( m * q' ) ) as f0
+              assert ( - m * q' = - ( m * q' ) ) as f0
               by apply rnglmultminus.
-              assert ( - ( m * q' ) ~> m * ( - q' ) ) as f1.
+              assert ( - ( m * q' ) = m * ( - q' ) ) as f1.
               { apply pathsinv0.
                 apply rngrmultminus. }
               exact ( pathscomp0 f0 f1 ).
@@ -521,7 +521,7 @@ Proof.
 Defined.
 
 Lemma hzdivhzabsval ( a b : hz ) ( p : hzdiv a b ) :
-  hdisj ( natleh ( hzabsval a ) ( hzabsval b ) ) ( hzabsval b ~> 0%nat ).
+  hdisj ( natleh ( hzabsval a ) ( hzabsval b ) ) ( hzabsval b = 0%nat ).
 Proof.
   intros a b p P q.
   apply ( p P ).
@@ -537,7 +537,7 @@ Defined.
 
 Lemma divalgorithm ( n m : hz ) ( p : hzneq 0 m ) :
   iscontr ( total2 ( fun qr : dirprod hz hz =>
-    ( ( dirprod ( n ~> ( ( m * ( pr1 qr ) ) + ( pr2 qr ) ) )
+    ( ( dirprod ( n = ( ( m * ( pr1 qr ) ) + ( pr2 qr ) ) )
          ( dirprod ( hzleh 0 ( pr2 qr ) )
                    ( hzlth ( pr2 qr ) ( nattohz ( hzabsval m ) ) ) ) ) ) ) ).
 Proof.
@@ -556,9 +556,9 @@ Proof.
   simpl in f.
   simpl in p1p2p2dae.
   simpl in p2p2p2dae.
-  assert ( r' ~> r ) as h.
-  { (* Proof that r' ~> r : *)
-    assert ( m * ( q - q' ) ~> ( r' - r ) ) as h0.
+  assert ( r' = r ) as h.
+  { (* Proof that r' = r : *)
+    assert ( m * ( q - q' ) = ( r' - r ) ) as h0.
     { change ( q - q' ) with ( q + - q' ).
       rewrite hzldistr.
       rewrite <- ( hzplusr0 ( r' - r ) ).
@@ -582,7 +582,7 @@ Proof.
       apply idpath.
     }
     assert ( hdisj ( natleh ( hzabsval m ) ( hzabsval ( r' - r ) ) )
-                   ( hzabsval ( r' - r ) ~> 0%nat ) ) as v.
+                   ( hzabsval ( r' - r ) = 0%nat ) ) as v.
     { apply hzdivhzabsval.
       intro P.
       intro s.
@@ -591,8 +591,8 @@ Proof.
       unfold hzdiv0.
       assumption.
     }
-    assert ( isaprop ( r' ~> r ) ) as P by apply isasethz.
-    apply ( v ( hProppair ( r' ~> r ) P ) ).
+    assert ( isaprop ( r' = r ) ) as P by apply isasethz.
+    apply ( v ( hProppair ( r' = r ) P ) ).
     intro s.
     destruct s as [ left | right ].
     - assert ( hzlth ( nattohz ( hzabsval ( r' - r ) ) ) ( nattohz ( hzabsval m ) ) ) as u.
@@ -640,26 +640,26 @@ Proof.
       + apply nattohzandleh.
         assumption.
       + assumption.
-    - assert ( r' ~> r ) as i.
-      { assert ( r' - r ~> 0 ) as i0.
+    - assert ( r' = r ) as i.
+      { assert ( r' - r = 0 ) as i0.
         { apply hzabsvaleq0.
           assumption. }
         rewrite <- ( hzplusl0 r ).
         rewrite <- ( hzplusr0 r' ).
-        assert ( r' + ( r - r ) ~> ( 0 + r ) ) as i00.
+        assert ( r' + ( r - r ) = ( 0 + r ) ) as i00.
         { change ( r - r ) with ( r + - r ).
           rewrite ( hzpluscomm _ ( - r ) ).
           rewrite <- hzplusassoc.
           apply ( maponpaths ( fun x : _ => x + r ) ).
           apply i0.
         }
-        exact ( transportf ( fun x : _ => ( r' + x ~> ( 0 + r ) ) )
+        exact ( transportf ( fun x : _ => ( r' + x = ( 0 + r ) ) )
                            ( ( hzrminus r ) ) i00 ).
       }
       apply i.
   }
-  assert ( q' ~> q ) as g.
-  { (* Proof that q' ~> q:*)
+  assert ( q' = q ) as g.
+  { (* Proof that q' = q:*)
     rewrite h in f'.
     rewrite f in f'.
     apply ( hzmultlcan q' q m ).
@@ -673,11 +673,11 @@ Proof.
       apply f'.
   }
   (* Path in direct product: *)
-  assert ( dirprodpair q' r' ~> ( dirprodpair q r ) ) as j
+  assert ( dirprodpair q' r' = ( dirprodpair q r ) ) as j
   by (apply pathsdirprod; assumption).
   (* Proof of general path: *)
   apply pathintotalfiber with ( p0 := j ).
-  assert ( iscontr ( dirprod ( n ~> ( m * q + r ) )
+  assert ( iscontr ( dirprod ( n = ( m * q + r ) )
              ( dirprod ( hzleh 0 r )
                ( hzlth r ( nattohz ( hzabsval m ) ) ) ) ) ) as contract.
   { change iscontr with ( isofhlevel 0 ).
@@ -704,7 +704,7 @@ Definition hzremaindermod ( p : hz ) ( x : hzneq 0 p ) : hz -> hz :=
   fun n : hz => ( pr2 ( pr1 ( divalgorithmexists n p x ) ) ).
 
 Definition hzdivequationmod ( p : hz ) ( x : hzneq 0 p ) ( n : hz ) :
-  n ~> ( p * ( hzquotientmod p x n ) + ( hzremaindermod p x n ) ) :=
+  n = ( p * ( hzquotientmod p x n ) + ( hzremaindermod p x n ) ) :=
   pr1 ( pr2 ( divalgorithmexists n p x ) ).
 
 Definition hzleh0remaindermod ( p : hz ) ( x : hzneq 0 p ) ( n : hz ) :
@@ -726,7 +726,7 @@ Eval lazy in hzabsval ( ( ( hzremaindermod ( 1 + 1 ) testlemma2
 
 Definition isaprime ( p : hz ) : UU :=
   dirprod ( hzlth 1 p )
-          ( forall m : hz, hzdiv m p -> hdisj ( m ~> 1 ) ( m ~> p ) ).
+          ( forall m : hz, hzdiv m p -> hdisj ( m = 1 ) ( m = p ) ).
 
 Lemma isapropisaprime ( p : hz ) :
   isaprop ( isaprime p ).
@@ -737,7 +737,7 @@ Proof.
   - apply impred.
     intro m.
     apply impredfun.
-    apply ( hdisj ( m ~> 1 ) ( m ~> p ) ).
+    apply ( hdisj ( m = 1 ) ( m = p ) ).
 Defined.
 
 Lemma isaprimetoneq0 { p : hz } ( x : isaprime p ) : hzneq 0 p.
@@ -751,16 +751,16 @@ Proof.
 Defined.
 
 Lemma hzqrtest ( m : hz ) ( x : hzneq 0 m ) ( a q r : hz ) :
-  dirprod ( a ~> ( ( m * q ) + r ) )
+  dirprod ( a = ( ( m * q ) + r ) )
           ( dirprod ( hzleh 0 r ) ( hzlth r ( nattohz (hzabsval m ) ) ) ) ->
-  dirprod ( q ~> hzquotientmod m x a ) ( r ~> hzremaindermod m x a ).
+  dirprod ( q = hzquotientmod m x a ) ( r = hzremaindermod m x a ).
 Proof.
   intros m x a q r d.
   set ( k := tpair ( P := ( fun qr : dirprod hz hz =>
-    dirprod ( a ~> ( m * ( pr1 qr ) + pr2 qr ) )
+    dirprod ( a = ( m * ( pr1 qr ) + pr2 qr ) )
             ( dirprod ( hzleh 0 ( pr2 qr ) ) ( hzlth ( pr2 qr ) ( nattohz ( hzabsval m ) ) ) ) ) )
    ( dirprodpair q r ) d ).
-  assert ( k ~> ( pr1 ( divalgorithm a m x ) ) ) as f
+  assert ( k = ( pr1 ( divalgorithm a m x ) ) ) as f
   by apply ( pr2 ( divalgorithm a m x ) ).
   split.
   - change q with ( pr1 ( pr1 k ) ).
@@ -772,16 +772,16 @@ Proof.
 Defined.
 
 Definition hzqrtestq ( m : hz ) ( x : hzneq 0 m ) ( a q r : hz )
-  ( d : dirprod ( a ~> ( ( m * q ) + r ) )
+  ( d : dirprod ( a = ( ( m * q ) + r ) )
                 ( dirprod ( hzleh 0 r ) ( hzlth r ( nattohz ( hzabsval m ) ) ) ) ) :=
   pr1 ( hzqrtest m x a q r d ).
 
 Definition hzqrtestr ( m : hz ) ( x : hzneq 0 m ) ( a q r : hz )
-  ( d : dirprod ( a ~> ( ( m * q ) + r ) )
+  ( d : dirprod ( a = ( ( m * q ) + r ) )
                 ( dirprod ( hzleh 0 r ) ( hzlth r ( nattohz ( hzabsval m ) ) ) ) ) :=
   pr2 ( hzqrtest m x a q r d ).
 
-Lemma hzqrand0eq ( p : hz ) ( x : hzneq 0 p ) : 0 ~> ( ( p * 0 ) + 0 ).
+Lemma hzqrand0eq ( p : hz ) ( x : hzneq 0 p ) : 0 = ( ( p * 0 ) + 0 ).
 Proof.
   intros.
   rewrite hzmultx0.
@@ -799,7 +799,7 @@ Proof.
     assumption.
 Defined.
 
-Lemma hzqrand0q ( p : hz ) ( x : hzneq 0 p ) : hzquotientmod p x 0 ~> 0.
+Lemma hzqrand0q ( p : hz ) ( x : hzneq 0 p ) : hzquotientmod p x 0 = 0.
 Proof.
   intros.
   apply pathsinv0.
@@ -809,7 +809,7 @@ Proof.
   - apply ( hzqrand0ineq p x ).
 Defined.
 
-Lemma hzqrand0r ( p : hz ) ( x : hzneq 0 p ) : hzremaindermod p x 0 ~> 0.
+Lemma hzqrand0r ( p : hz ) ( x : hzneq 0 p ) : hzremaindermod p x 0 = 0.
 Proof.
   intros.
   apply pathsinv0.
@@ -819,7 +819,7 @@ Proof.
   - apply ( hzqrand0ineq p x ).
 Defined.
 
-Lemma hzqrand1eq ( p : hz ) ( is : isaprime p ) : 1 ~> ( ( p * 0 ) + 1 ).
+Lemma hzqrand1eq ( p : hz ) ( is : isaprime p ) : 1 = ( ( p * 0 ) + 1 ).
 Proof.
   intros.
   rewrite hzmultx0.
@@ -842,7 +842,7 @@ Proof.
 Defined.
 
 Lemma hzqrand1q ( p : hz ) ( is : isaprime p ) :
-  hzquotientmod p ( isaprimetoneq0 is ) 1 ~> 0.
+  hzquotientmod p ( isaprimetoneq0 is ) 1 = 0.
 Proof.
   intros.
   apply pathsinv0.
@@ -853,7 +853,7 @@ Proof.
 Defined.
 
 Lemma hzqrand1r ( p : hz ) ( is : isaprime p ) :
-  hzremaindermod p ( isaprimetoneq0 is ) 1 ~> 1.
+  hzremaindermod p ( isaprimetoneq0 is ) 1 = 1.
 Proof.
   intros.
   apply pathsinv0.
@@ -863,7 +863,7 @@ Proof.
   - apply ( hzqrand1ineq p is ).
 Defined.
 
-Lemma hzqrandselfeq ( p : hz ) ( x : hzneq 0 p ) : p ~> ( p * 1 + 0 ).
+Lemma hzqrandselfeq ( p : hz ) ( x : hzneq 0 p ) : p = ( p * 1 + 0 ).
 Proof.
   intros.
   rewrite hzmultr1.
@@ -880,7 +880,7 @@ Proof.
     assumption.
 Defined.
 
-Lemma hzqrandselfq ( p : hz ) ( x : hzneq 0 p ) : hzquotientmod p x p ~> 1.
+Lemma hzqrandselfq ( p : hz ) ( x : hzneq 0 p ) : hzquotientmod p x p = 1.
 Proof.
   intros.
   apply pathsinv0.
@@ -890,7 +890,7 @@ Proof.
   - apply ( hzqrandselfineq p x ).
 Defined.
 
-Lemma hzqrandselfr ( p : hz ) ( x : hzneq 0 p ) : hzremaindermod p x p ~> 0.
+Lemma hzqrandselfr ( p : hz ) ( x : hzneq 0 p ) : hzremaindermod p x p = 0.
 Proof.
   intros.
   apply pathsinv0.
@@ -901,7 +901,7 @@ Proof.
 Defined.
 
 Lemma hzqrandpluseq ( p : hz ) ( x : hzneq 0 p ) ( a c : hz ) :
-  ( a + c ) ~>
+  ( a + c ) =
   ( ( p * ( hzquotientmod p x a + hzquotientmod p x c +
             hzquotientmod p x ( hzremaindermod p x a + hzremaindermod p x c ) ) ) +
     hzremaindermod p x ( ( hzremaindermod p x a ) + ( hzremaindermod p x c ) ) ).
@@ -934,7 +934,7 @@ Proof.
 Defined.
 
 Lemma hzremaindermodandplus ( p : hz ) ( x : hzneq 0 p ) ( a c : hz ) :
-  hzremaindermod p x ( a + c ) ~>
+  hzremaindermod p x ( a + c ) =
   hzremaindermod p x ( hzremaindermod p x a + hzremaindermod p x c ).
 Proof.
   intros.
@@ -944,7 +944,7 @@ Proof.
 Defined.
 
 Lemma hzquotientmodandplus ( p : hz ) ( x : hzneq 0 p ) ( a c : hz ) :
-  hzquotientmod p x ( a + c ) ~>
+  hzquotientmod p x ( a + c ) =
   ( hzquotientmod p x a + hzquotientmod p x c +
     hzquotientmod p x ( hzremaindermod p x a + hzremaindermod p x c ) ).
 Proof.
@@ -955,7 +955,7 @@ Proof.
 Defined.
 
 Lemma hzqrandtimeseq ( m : hz ) ( x : hzneq 0 m ) ( a b : hz ) :
-  ( a * b ) ~>
+  ( a * b ) =
   ( ( m * ( ( hzquotientmod m x ) a * ( hzquotientmod m x ) b * m +
             ( hzremaindermod m x b ) * ( hzquotientmod m x a ) +
             ( hzremaindermod m x a ) * ( hzquotientmod m x b ) +
@@ -974,12 +974,12 @@ Proof.
             m * (hzremaindermod m x b * hzquotientmod m x a)%hz)%rng ) with
            ((m * hzquotientmod m x a * (m * hzquotientmod m x b)) +
             m * (hzremaindermod m x b * hzquotientmod m x a) )%hz.
-  change ( a * b ~>
+  change ( a * b =
                  (((m * hzquotientmod m x a * (m * hzquotientmod m x b) +
                     m * (hzremaindermod m x b * hzquotientmod m x a))%hz +
                     m * (hzremaindermod m x a * hzquotientmod m x b)%hz)%rng +
                    hzremaindermod m x a * hzremaindermod m x b) ) with
-          ( a * b ~>
+          ( a * b =
                  (((m * hzquotientmod m x a * (m * hzquotientmod m x b) +
                     m * (hzremaindermod m x b * hzquotientmod m x a)) +
                     m * (hzremaindermod m x a * hzquotientmod m x b))%hz +
@@ -1019,7 +1019,7 @@ Proof.
 Defined.
 
 Lemma hzquotientmodandtimes ( m : hz ) ( x : hzneq 0 m ) ( a b : hz ) :
-  hzquotientmod m x ( a * b ) ~>
+  hzquotientmod m x ( a * b ) =
   ( ( hzquotientmod m x ) a * ( hzquotientmod m x ) b * m +
     ( hzremaindermod m x b ) * ( hzquotientmod m x a ) +
     ( hzremaindermod m x a ) * ( hzquotientmod m x b ) +
@@ -1035,7 +1035,7 @@ Proof.
 Defined.
 
 Lemma hzremaindermodandtimes ( m : hz ) ( x : hzneq 0 m ) ( a b : hz ) :
-  hzremaindermod m x ( a * b ) ~>
+  hzremaindermod m x ( a * b ) =
   ( hzremaindermod m x ( hzremaindermod m x a * hzremaindermod m x b ) ).
 Proof.
   intros.
@@ -1052,7 +1052,7 @@ Proof.
 Defined.
 
 Lemma hzqrandremaindereq ( m : hz ) ( is : hzneq 0 m ) ( n : hz ) :
-  hzremaindermod m is n ~>
+  hzremaindermod m is n =
   ( ( m * ( pr1 ( dirprodpair 0 ( hzremaindermod m is n ) ) ) +
           ( pr2 ( dirprodpair (@rngunel1 hz ) ( hzremaindermod m is n ) ) ) ) ).
 Proof.
@@ -1074,7 +1074,7 @@ Proof.
 Defined.
 
 Lemma hzremaindermoditerated ( m : hz ) ( is : hzneq 0 m ) ( n : hz ) :
-  hzremaindermod m is ( hzremaindermod m is n ) ~> ( hzremaindermod m is n ).
+  hzremaindermod m is ( hzremaindermod m is n ) = ( hzremaindermod m is n ).
 Proof.
   intros.
   apply pathsinv0.
@@ -1085,7 +1085,7 @@ Proof.
 Defined.
 
 Lemma hzqrandremainderq ( m : hz ) ( is : hzneq 0 m ) ( n : hz ) :
-  0 ~> hzquotientmod m is ( hzremaindermod m is n ).
+  0 = hzquotientmod m is ( hzremaindermod m is n ).
 Proof.
   intros.
   apply ( hzqrtestq m is ( hzremaindermod m is n ) 0 ( hzremaindermod m is n ) ).
@@ -1141,12 +1141,12 @@ Proof.
         apply impredfun.
         apply ( hzleh t x ).
   }
-  assert ( k ~> l ) as f.
+  assert ( k = l ) as f.
   { destruct k as [ k pq ].
     destruct pq as [ p q ].
     destruct l as [ l pq ].
     destruct pq as [ p' q' ].
-    assert ( k ~> l ) as f0.
+    assert ( k = l ) as f0.
     { apply isantisymmhzleh.
       - apply q'.
         assumption.
@@ -1262,7 +1262,7 @@ Proof.
              destruct t2 as [ k t2 ].
              unfold hzdiv0 in t2.
              assert ( coprod ( natleh ( hzabsval l ) n )
-                             ( n ~> 0%nat ) ) as C.
+                             ( n = 0%nat ) ) as C.
              { apply ( natdivleh ( hzabsval l ) ( n ) ( hzabsval k ) ).
                apply ( isinclisinj isinclnattohz ).
                rewrite nattohzandmult.
@@ -1358,11 +1358,11 @@ Proof.
   assumption.
 Defined.
 
-Lemma hzgcdandminusl ( m n : hz ) : hzgcd m n ~> hzgcd ( - m ) n.
+Lemma hzgcdandminusl ( m n : hz ) : hzgcd m n = hzgcd ( - m ) n.
 Proof.
   intros.
   assert ( hProppair ( hzgcd m n ) ( isaprophzgcd _ _ )
-      ~> ( hProppair ( hzgcd ( - m ) n ) ( isaprophzgcd _ _ ) ) ) as x.
+      = ( hProppair ( hzgcd ( - m ) n ) ( isaprophzgcd _ _ ) ) ) as x.
   { apply hPropUnivalence.
     - intro i.
       destruct i as [ a i ].
@@ -1438,10 +1438,10 @@ Proof.
   apply ( pathintotalpr1 x ).
 Defined.
 
-Lemma hzgcdsymm ( m n : hz ) : hzgcd m n ~> hzgcd n m.
+Lemma hzgcdsymm ( m n : hz ) : hzgcd m n = hzgcd n m.
 Proof.
   intros.
-  assert ( hProppair ( hzgcd m n ) ( isaprophzgcd _ _ ) ~>
+  assert ( hProppair ( hzgcd m n ) ( isaprophzgcd _ _ ) =
          ( hProppair ( hzgcd n m ) ( isaprophzgcd _ _ ) ) ) as x.
   { apply hPropUnivalence.
     - intro i.
@@ -1472,7 +1472,7 @@ Proof.
   apply ( pathintotalpr1 x ).
 Defined.
 
-Lemma hzgcdandminusr ( m n : hz ) : hzgcd m n ~> hzgcd m ( - n ).
+Lemma hzgcdandminusr ( m n : hz ) : hzgcd m n = hzgcd m ( - n ).
 Proof.
   intros.
   rewrite 2! ( hzgcdsymm m ).
@@ -1565,7 +1565,7 @@ Proof.
   unfold hzneq in i. (* is crucial *)
   simpl in i.
   apply i.
-  apply ( p ( hProppair ( 0 ~> n ) ( isasethz 0 n ) ) ).
+  apply ( p ( hProppair ( 0 = n ) ( isasethz 0 n ) ) ).
   intro t.
   destruct t as [ k f ].
   unfold hzdiv0 in f.
@@ -1635,7 +1635,7 @@ Proof.
 Defined.
 
 Lemma gcdanddiv ( n m : hz ) ( i : hzneq 0 n ) ( p : hzdiv n m ) :
-  coprod ( gcd n m i ~> n ) ( gcd n m i ~> - n ).
+  coprod ( gcd n m i = n ) ( gcd n m i = - n ).
 Proof.
   intros.
   destruct ( hzneqchoice 0 n i ) as [ left | right ].
@@ -1653,7 +1653,7 @@ Proof.
         -- apply hzgthtogeh.
            apply ( gcdpositive n m i ).
       * apply fromempty.
-        assert ( n ~> 0 ) as f.
+        assert ( n = 0 ) as f.
         { rewrite hzabsvaleq0.
           -- apply idpath.
           -- assumption.
@@ -1674,7 +1674,7 @@ Proof.
       intro c'.
       destruct c' as [ c0 | c1 ].
       * rewrite <- hzabsvalgth0.
-        -- assert ( n ~> nattohz ( hzabsval n ) ) as f.
+        -- assert ( n = nattohz ( hzabsval n ) ) as f.
            { apply pathsinv0.
              apply hzabsvalgth0.
              assumption.
@@ -1700,7 +1700,7 @@ Proof.
 Defined.
 
 Lemma gcdand0 ( n : hz ) ( i : hzneq 0 n ) :
-  coprod ( gcd n 0 i ~> n ) ( gcd n 0 i ~> - n ).
+  coprod ( gcd n 0 i = n ) ( gcd n 0 i = - n ).
 Proof.
   intros.
   apply gcdanddiv.
@@ -1709,12 +1709,12 @@ Defined.
 
 Lemma natbezoutstrong ( m n : nat ) ( i : hzneq 0 ( nattohz n ) ) :
   total2 ( fun ab : dirprod hz hz =>
-             ( gcd ( nattohz n ) ( nattohz m ) i ~>
+             ( gcd ( nattohz n ) ( nattohz m ) i =
              ( ( pr1 ab ) * ( nattohz n ) + ( pr2 ab ) * ( nattohz m ) ) ) ).
 Proof.
   set ( E := ( fun m : nat => forall n : nat, forall i : hzneq 0 ( nattohz n ),
           total2 ( fun ab : dirprod hz hz =>
-            gcd ( nattohz n ) ( nattohz m ) i ~>
+            gcd ( nattohz n ) ( nattohz m ) i =
             ( ( pr1 ab ) * ( nattohz n ) + ( pr2 ab ) * ( nattohz m ) ) ) ) ).
   assert ( forall x : nat, E x ) as goal.
   { apply stronginduction.
@@ -1770,7 +1770,7 @@ Proof.
                           ( ( hzabsval ( nattohz m ) ) ) ) as ii.
           { apply hzabsvalandlth.
             * exact ( hzleh0remaindermod ( nattohz m ) p ( nattohz n ) ).
-            * assert ( nattohz ( hzabsval ( nattohz m ) ) ~> ( nattohz m ) ) as f.
+            * assert ( nattohz ( hzabsval ( nattohz m ) ) = ( nattohz m ) ) as f.
               { apply maponpaths.
                 apply hzabsvalandnattohz.
               }
@@ -1788,7 +1788,7 @@ Proof.
       simpl in f.
       (* split with ( dirprodpair ( ( nattohz n ) - q * ( nattohz m ) ) ( a - b * q ) ).*)
       split with ( dirprodpair b ( a - b * q ) ).
-      assert ( gcd ( nattohz m ) ( nattohz ( hzabsval r ) ) p ~>
+      assert ( gcd ( nattohz m ) ( nattohz ( hzabsval r ) ) p =
              ( gcd ( nattohz n ) ( nattohz m ) i ) ) as g.
       { apply isantisymmhzleh.
         + apply ( gcdisgreatest ( nattohz n ) ( nattohz m ) i ).
@@ -1818,7 +1818,7 @@ Proof.
       rewrite <- g.
       rewrite f.
       simpl.
-      assert ( nattohz ( hzabsval r ) ~> ( ( nattohz n ) - ( q * nattohz m ) ) ) as h.
+      assert ( nattohz ( hzabsval r ) = ( ( nattohz n ) - ( q * nattohz m ) ) ) as h.
       { rewrite ( hzdivequationmod ( nattohz m ) p ( nattohz n ) ).
         change ( hzquotientmod ( nattohz m ) p ( nattohz n ) ) with q.
         change ( hzremaindermod ( nattohz m ) p ( nattohz n ) ) with r.
@@ -1886,7 +1886,7 @@ Defined.
 
 Lemma bezoutstrong ( m n : hz ) ( i : hzneq 0 n ) :
   total2 ( fun ab : dirprod hz hz =>
-             ( gcd n m i ~> ( ( pr1 ab ) * n + ( pr2 ab ) * m ) ) ).
+             ( gcd n m i = ( ( pr1 ab ) * n + ( pr2 ab ) * m ) ) ).
 Proof.
   intros.
   assert ( hzneq 0 ( nattohz ( hzabsval n ) ) ) as i'.
@@ -1906,7 +1906,7 @@ Proof.
   destruct c as [ ab f ].
   destruct ab as [ a b ].
   simpl in f.
-  assert ( gcd n m i ~>
+  assert ( gcd n m i =
            gcd ( nattohz ( hzabsval n ) ) ( nattohz ( hzabsval m ) ) i' ) as g.
   { destruct ( hzneqchoice 0 n i ) as [ left_n | right_n ].
     - apply isantisymmhzleh.
@@ -1986,7 +1986,7 @@ Proof.
   - destruct ( hzlthorgeh 0 m ) as [ left_m | right_m ].
     + split with ( dirprodpair ( - a ) b ).
       simpl.
-      assert ( - a * n + b * m ~>
+      assert ( - a * n + b * m =
              ( a * ( nattohz ( hzabsval n ) ) + b * ( nattohz ( hzabsval m ) ) ) ) as l.
       { rewrite hzabsvallth0.
         * rewrite hzabsvalgth0.
@@ -2034,7 +2034,7 @@ Defined.
 (** * V. Z/nZ *)
 
 Lemma hzmodisaprop ( p : hz ) ( x : hzneq 0 p ) ( n m : hz ) :
-  isaprop ( hzremaindermod p x n ~> ( hzremaindermod p x m ) ).
+  isaprop ( hzremaindermod p x n = ( hzremaindermod p x m ) ).
 Proof.
   intros.
   apply isasethz.
@@ -2043,7 +2043,7 @@ Defined.
 Definition hzmod ( p : hz ) ( x : hzneq 0 p ) : hz -> hz -> hProp.
 Proof.
   intros p x n m.
-  exact ( hProppair ( hzremaindermod p x n ~>
+  exact ( hProppair ( hzremaindermod p x n =
                     ( hzremaindermod p x m ) ) ( hzmodisaprop p x n m ) ).
 Defined.
 
@@ -2053,7 +2053,7 @@ Proof.
   unfold isrefl.
   intro n.
   unfold hzmod.
-  assert ( hzremaindermod p x n ~> ( hzremaindermod p x n ) ) as a
+  assert ( hzremaindermod p x n = ( hzremaindermod p x n ) ) as a
       by apply idpath.
   apply a.
 Defined.
@@ -2065,7 +2065,7 @@ Proof.
   intros n m.
   unfold hzmod.
   intro v.
-  assert ( hzremaindermod p x m ~> hzremaindermod p x n ) as a
+  assert ( hzremaindermod p x m = hzremaindermod p x n ) as a
   by exact ( pathsinv0 ( v ) ).
   apply a.
 Defined.
@@ -2078,7 +2078,7 @@ Proof.
   unfold hzmod.
   unfold hzmod in u.
   unfold hzmod in v.
-  assert ( hzremaindermod p x n ~> hzremaindermod p x k ) as a
+  assert ( hzremaindermod p x n = hzremaindermod p x k ) as a
   by exact ( pathscomp0 u v ).
   apply a.
 Defined.
@@ -2097,7 +2097,7 @@ Lemma hzmodcompatmultl ( p : hz ) ( x : hzneq 0 p ) :
 Proof.
   intros p x a b c v.
   unfold hzmod.
-  change (hzremaindermod p x (c * a) ~> hzremaindermod p x (c * b)).
+  change (hzremaindermod p x (c * a) = hzremaindermod p x (c * b)).
   rewrite hzremaindermodandtimes.
   rewrite v.
   rewrite <- hzremaindermodandtimes.
@@ -2119,7 +2119,7 @@ Lemma hzmodcompatplusl ( p : hz ) ( x : hzneq 0 p ) :
 Proof.
   intros p x a b c v.
   unfold hzmod.
-  change ( hzremaindermod p x ( c + a ) ~> hzremaindermod p x ( c + b ) ).
+  change ( hzremaindermod p x ( c + a ) = hzremaindermod p x ( c + b ) ).
   rewrite hzremaindermodandplus.
   rewrite v.
   rewrite <- hzremaindermodandplus.
@@ -2213,27 +2213,27 @@ Proof.
 Defined.
 
 Lemma hzremaindermodanddiv ( p : hz ) ( x : hzneq 0 p ) ( a : hz )
-      ( y : hzdiv p a ) : hzremaindermod p x a ~> 0.
+      ( y : hzdiv p a ) : hzremaindermod p x a = 0.
 Proof.
   intros.
-  assert ( isaprop ( hzremaindermod p x a ~> 0 ) ) as v
+  assert ( isaprop ( hzremaindermod p x a = 0 ) ) as v
   by apply isasethz.
   apply ( y ( hProppair _ v ) ).
   intro t.
   destruct t as [ k f ].
   unfold hzdiv0 in f.
-  assert ( a ~> ( p * k + 0 ) ) as f'.
+  assert ( a = ( p * k + 0 ) ) as f'.
   { rewrite f.
     rewrite hzplusr0.
     apply idpath.
   }
   set ( e := tpair ( P := (fun qr : dirprod hz hz =>
-                             dirprod (a ~> (p * pr1 qr + pr2 qr))
+                             dirprod (a = (p * pr1 qr + pr2 qr))
                                      (dirprod (hzleh 0 (pr2 qr))
                                                  (hzlth (pr2 qr) (nattohz (hzabsval p))))) )
          ( dirprodpair k 0 ) (dirprodpair f'
                               ( dirprodpair ( isreflhzleh 0 ) ( lemmas.hzabsvalneq0 p x ) ) ) ).
-  assert ( e ~> ( pr1 ( divalgorithm a p x ) ) ) as s
+  assert ( e = ( pr1 ( divalgorithm a p x ) ) ) as s
   by apply ( pr2 ( divalgorithm a p x ) ).
   set ( w := pathintotalpr1 ( pathsinv0 s ) ).
   unfold e in w.
@@ -2242,10 +2242,10 @@ Proof.
 Defined.
 
 Lemma gcdandprime ( p : hz ) ( x : hzneq 0 p ) ( y : isaprime p )
-      ( a : hz ) ( q : neg ( hzmod p x a 0 ) ) : gcd p a x ~> 1.
+      ( a : hz ) ( q : neg ( hzmod p x a 0 ) ) : gcd p a x = 1.
 Proof.
   intros.
-  assert ( isaprop ( gcd p a x ~> 1) ) as is
+  assert ( isaprop ( gcd p a x = 1) ) as is
   by apply isasethz.
   apply ( pr2 y ( gcd p a x )
               ( pr1 ( gcdiscommondiv p a x ) ) (hProppair _ is ) ).
@@ -2255,7 +2255,7 @@ Proof.
   - apply fromempty.
     apply q.
     simpl.
-    assert ( hzremaindermod p x a ~> 0 ) as f.
+    assert ( hzremaindermod p x a = 0 ) as f.
     { assert ( hzdiv p a ) as u.
       { rewrite <- t1.
         apply ( pr2 ( gcdiscommondiv _ _ _ ) ).
@@ -2270,10 +2270,10 @@ Proof.
 Defined.
 
 Lemma hzremaindermodandmultl ( p : hz ) ( x : hzneq 0 p ) ( a b : hz ) :
-  hzremaindermod p x ( p * a + b ) ~> hzremaindermod p x b.
+  hzremaindermod p x ( p * a + b ) = hzremaindermod p x b.
 Proof.
   intros.
-  assert ( p * a + b ~>
+  assert ( p * a + b =
          ( p * ( a + hzquotientmod p x b ) + hzremaindermod p x b ) ) as f.
   { rewrite hzldistr.
     rewrite hzplusassoc.
@@ -2297,9 +2297,9 @@ Lemma hzmodprimeinv ( p : hz ) ( x : hzneq 0 p ) ( y : isaprime p )
 Proof.
   intros.
   split with ( pr2 ( pr1 ( bezoutstrong a p x ) ) ).
-  assert ( 1 ~> (pr1 (pr1 (bezoutstrong a p x)) * p +
+  assert ( 1 = (pr1 (pr1 (bezoutstrong a p x)) * p +
                  pr2 (pr1 (bezoutstrong a p x)) * a) ) as f'.
-  { assert ( 1 ~> gcd p a x ) as f''.
+  { assert ( 1 = gcd p a x ) as f''.
     { apply pathsinv0.
       apply gcdandprime; assumption.
     }
@@ -2326,7 +2326,7 @@ Proof.
 Defined.
 
 Lemma quotientrngsumdecom ( X : commrng ) ( R : rngeqrel ( X := X ) ) ( a b : X ) :
-  @op2 ( commrngquot R ) ( setquotpr R a ) ( setquotpr R b ) ~>
+  @op2 ( commrngquot R ) ( setquotpr R a ) ( setquotpr R b ) =
   ( setquotpr R ( a * b )%rng ).
 Proof.
   intros.
@@ -2353,12 +2353,12 @@ Proof.
     }
     unfold hzmodisrngeqrel in o.
     simpl in o.
-    assert ( hzremaindermod p ( isaprimetoneq0 y ) 0 ~> 0 ) as o'.
+    assert ( hzremaindermod p ( isaprimetoneq0 y ) 0 = 0 ) as o'.
     { rewrite hzqrand0r.
       apply idpath.
     }
     rewrite o' in o.
-    assert ( hzremaindermod p ( isaprimetoneq0 y ) 1 ~> 1 ) as o''.
+    assert ( hzremaindermod p ( isaprimetoneq0 y ) 1 = 1 ) as o''.
     { assert ( hzlth 1 p ) as v by apply  y.
       rewrite hzqrand1r.
       apply idpath.
