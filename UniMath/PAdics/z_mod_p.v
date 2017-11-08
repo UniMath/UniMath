@@ -8,8 +8,7 @@
 
 (** Settings *)
 
-Unset Automatic Introduction. (** This line has to be removed for the
-file to compile with Coq8.2 *)
+Unset Automatic Introduction.
 
 (** Imports *)
 
@@ -17,6 +16,7 @@ Require Import UniMath.PAdics.lemmas.
 Require Import UniMath.NumberSystems.Integers.
 Require Import UniMath.Foundations.Preamble.
 
+Unset Kernel Term Sharing. (** for quicker proof-checking, approx. by factor 10 *)
 
 Open Scope hz_scope.
 

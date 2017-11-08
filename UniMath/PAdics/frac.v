@@ -8,8 +8,7 @@
 
 (** Settings *)
 
-Unset Automatic Introduction. (** This line has to be removed for the
-file to compile with Coq8.2 *)
+Unset Automatic Introduction.
 
 (** Imports *)
 

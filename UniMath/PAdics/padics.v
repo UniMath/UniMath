@@ -8,8 +8,7 @@
 
 (** Settings *)
 
-Unset Automatic Introduction. (** This line has to be removed for the
-file to compile with Coq8.2 *)
+Unset Automatic Introduction.
 
 (** Imports *)
 
@@ -20,10 +19,11 @@ Require Import UniMath.PAdics.z_mod_p.
 
 Require Import UniMath.NumberSystems.Integers.
 
-Unset Kernel Term Sharing. (** important for timely proof-checking *)
+Unset Kernel Term Sharing. (** crucial for timely proof-checking, otherwise unbearable *)
 
 Section Upstream.
-  (* these lemmas are only used for pointing to a problem *)
+  (* these lemmas are only used for pointing to a problem but could be worth
+     integrating into upstream *)
 Open Scope hz_scope.
 
 Lemma hzmultrmul (a b c : hz) (is : a = b) : (a * c) = (b * c).

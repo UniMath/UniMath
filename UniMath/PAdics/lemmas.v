@@ -7,8 +7,7 @@
 
 (** Settings *)
 
-Unset Automatic Introduction. (** This line has to be removed for the
-file to compile with Coq8.2 *)
+Unset Automatic Introduction.
 
 (** Imports *)
 
@@ -20,10 +19,7 @@ Require Import UniMath.Algebra.Domains_and_Fields.
 Require Import UniMath.NumberSystems.Integers.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
-
-(*Require Export finitesets.
-
-Require Export stnfsets.*)
+Unset Kernel Term Sharing. (** for quicker proof-checking, approx. by factor 25 *)
 
 (** Fixing some notation *)
 
