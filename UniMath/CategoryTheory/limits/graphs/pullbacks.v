@@ -93,7 +93,7 @@ Proof.
   { eapply pathscomp0; [apply (coneOutCommutes cx One Two tt)|].
     apply pathsinv0, (coneOutCommutes cx Three Two tt). }
   set (H2 := H1 p).
-  mkpair.
+  use tpair.
   + exists (pr1 (pr1 H2)).
     use three_rec_dep.
     * apply (pr1 (pr2 (pr1 H2))).
@@ -129,8 +129,8 @@ Definition mk_Pullback {a b c : C} (f : C⟦b, a⟧)(g : C⟦c, a⟧)
     (ispb : isPullback f g p1 p2 H)
   : Pullback f g.
 Proof.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + apply d.
     + use PullbCone; assumption.
   - apply ispb.
@@ -216,8 +216,8 @@ Definition isPullback_Pullback {a b c : C} {f : C⟦b, a⟧}{g : C⟦c, a⟧}
 Proof.
   apply mk_isPullback.
   intros e h k HK.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + apply (PullbackArrow P _ h k HK).
     + split.
       * apply PullbackArrow_PullbackPr1.
@@ -244,8 +244,8 @@ Proof.
   intro X.
   intros R cc.
   set (XR := limits.pullbacks.mk_Pullback _ _ _ _ _ _ X).
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + use (pullbacks.PullbackArrow XR).
       * apply (coneOut cc One).
       * apply (coneOut cc Three).
@@ -304,8 +304,8 @@ Proof.
   intro X.
   set (XR := mk_Pullback _ _ _ _ _  _ X).
   intros R k h HH.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     use (PullbackArrow XR); try assumption.
     split.
     + apply (PullbackArrow_PullbackPr1 XR).

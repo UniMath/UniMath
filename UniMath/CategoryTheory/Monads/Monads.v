@@ -417,10 +417,10 @@ Section Monad_eq_helper.
 
     Definition Monad_to_raw_data {C : precategory} (T : Monad C) : raw_Monad_data C.
     Proof.
-      mkpair.
+      use tpair.
       - exact (functor_on_objects T).
-      - mkpair.
-        + mkpair.
+      - use tpair.
+        + use tpair.
           * exact (@functor_on_morphisms C C T).
           * exact (μ T).
         + exact (η T).

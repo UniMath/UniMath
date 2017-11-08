@@ -268,7 +268,7 @@ Section elems_slice_equiv.
   Proof.
     destruct X as [[[X Xmor] Xisfunct] [Xnat Xisnat]].
     simpl in *.
-    repeat (mkpair; simpl).
+    repeat (use tpair; simpl).
     + intros x [p q].
       exact (pr1 q).
     + intros A B f.
@@ -327,7 +327,7 @@ Section elems_slice_equiv.
   Definition PreShv_unit_fun (F : PreShv ∫P) :
     (functor_identity _) F --> (PreShv_to_slice ∙ slice_to_PreShv) F.
   Proof.
-    mkpair.
+    use tpair.
     + intros [X p] x.
       exact ((p ,, x) ,, idpath p).
     + intros [X p] [X' p'] [f feq].

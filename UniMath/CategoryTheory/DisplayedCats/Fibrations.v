@@ -381,9 +381,9 @@ Definition fibration_from_discrete_fibration C (D : discrete_fibration C)
   : cleaving D.
 Proof.
   intros c c' f d.
-  mkpair.
+  use tpair.
   - exact (pr1 (iscontrpr1 (unique_lift f d))).
-  - mkpair.
+  - use tpair.
     + exact (pr2 (iscontrpr1 (unique_lift f d))).
     + intros c'' g db hh.
       set (ff := pr2 (iscontrpr1 (unique_lift f d))  ). cbn in ff.
@@ -503,7 +503,7 @@ Definition Precat_of_discrete_fibs : category
 Definition preshv_data_from_disc_fib_ob (D : discrete_fibration C)
   : functor_data C^op HSET_univalent_category.
 Proof.
-  mkpair.
+  use tpair.
   + intro c. exists (D c). apply  isaset_fiber_discrete_fibration.
   + intros c' c f x. cbn in *.
     exact (pr1 (iscontrpr1 (unique_lift f x))).
@@ -535,7 +535,7 @@ Definition foo : functor_data Precat_of_discrete_fibs (PreShv C).
 Proof.
   exists preshv_from_disc_fib_ob.
   intros D D' a.
-  mkpair.
+  use tpair.
   - intro c. simpl.
     exact (pr1 a c).
   - abstract (
@@ -568,8 +568,8 @@ Definition functor_Disc_Fibs_to_preShvs : functor _ _
 (* TODO: split into data and properties *)
 Definition disp_cat_from_preshv (D : PreShv C) : disp_cat C.
 Proof.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + exists (λ c, pr1hSet (pr1 D c)).
       intros x y c d f. exact (functor_on_morphisms (pr1 D) f d = c).
     + split.
@@ -579,14 +579,14 @@ Proof.
         cbn; etrans; [ apply maponpaths; apply X0 |]; (* here maponpaths depends on cbn *)
         apply X.
   - abstract (
-         repeat mkpair; cbn; intros; try apply setproperty;
+         repeat use tpair; cbn; intros; try apply setproperty;
          apply isasetaprop; apply setproperty
        ).
 Defined.
 
 Definition disc_fib_from_preshv (D : PreShv C) : discrete_fibration C.
 Proof.
-  mkpair.
+  use tpair.
   - apply (disp_cat_from_preshv D).
   - cbn.
     split.
@@ -604,17 +604,17 @@ Defined.
 Definition functor_data_preShv_Disc_fibs
   : functor_data (PreShv C) Precat_of_discrete_fibs.
 Proof.
-  mkpair.
+  use tpair.
   - apply disc_fib_from_preshv.
   - intros F G a.
-    mkpair.
-    + mkpair.
+    use tpair.
+    + use tpair.
       * intros c. apply (pr1 a c).
       * intros x y X Y f H;
         assert (XR := nat_trans_ax a);
         apply pathsinv0; etrans; [|apply (toforallpaths _ _ _ (XR _ _ f))];
         cbn; apply maponpaths, (!H).
-    +  abstract (repeat mkpair; intros; apply setproperty).
+    +  cbn. abstract (repeat use tpair; cbn; intros; apply setproperty).
 Defined.
 
 (** *** Functor properties *)
@@ -633,9 +633,9 @@ Definition functor_preShvs_to_Disc_Fibs : functor _ _
 Definition η_disc_fib : nat_trans (functor_identity _ )
                           (functor_preShvs_to_Disc_Fibs ∙ functor_Disc_Fibs_to_preShvs).
 Proof.
-  mkpair.
+  use tpair.
   - intro F.
-    cbn. mkpair.
+    cbn. use tpair.
     + cbn. intro c; apply idfun.
     + intros c c' f. cbn in *. apply idpath.
   - abstract (
@@ -649,12 +649,12 @@ Definition ε_disc_fib
   : nat_trans (functor_Disc_Fibs_to_preShvs ∙ functor_preShvs_to_Disc_Fibs)
               (functor_identity _ ).
 Proof.
-  mkpair.
+  use tpair.
   - intro D.
-    mkpair.
-    + mkpair.
+    use tpair.
+    + use tpair.
       * cbn. intro c; apply idfun.
-      * intros c c' x y f H. cbn.
+      * cbn. intros c c' x y f H.
         set (XR := pr2 (iscontrpr1 (unique_lift f y))). cbn in XR.
         apply (transportf (λ t, t -->[f] y) H XR).
     + abstract (split; cbn; unfold idfun; intros; apply  disp_mor_unique_disc_fib).
@@ -665,11 +665,11 @@ Definition ε_inv_disc_fib
   : nat_trans (functor_identity _ )
       (functor_Disc_Fibs_to_preShvs ∙ functor_preShvs_to_Disc_Fibs).
 Proof.
-  mkpair.
+  use tpair.
   - intro D.
     cbn.
-    mkpair.
-    + mkpair.
+    use tpair.
+    + use tpair.
       * cbn. intro c; apply idfun.
       * abstract (
             intros c c' x y f H; cbn;
@@ -735,7 +735,7 @@ Context (C : category)
 Definition iso_cleaving_category : iso_cleaving D.
 Proof.
   intros c c' i d.
-  mkpair.
+  use tpair.
   - exact (transportb D (isotoid _ Ccat i) d).
   - generalize i. clear i.
     apply forall_isotoid.
@@ -790,7 +790,7 @@ Proof.
   repeat split.
   - intros c d.
     cbn.
-    mkpair.
+    use tpair.
     + apply pathsinv0.
       apply path_to_ctr.
       apply id_disp.
@@ -798,7 +798,7 @@ Proof.
       apply  (disp_mor_unique_disc_fib _ (D,,X)).
   - intros c c' c'' f g d.
     cbn.
-    mkpair.
+    use tpair.
     + set (XR := unique_lift f d).
       set (d' := pr1 (iscontrpr1 XR)).
       set (f' := pr2 (iscontrpr1 XR)). cbn in f'.
@@ -825,7 +825,7 @@ Let lift_f :  ∏ d : D c, cartesian_lift d f := F _ _ f.
 
 Definition fiber_functor_from_cleaving_data : functor_data (D [{c}]) (D [{c'}]).
 Proof.
-  mkpair.
+  use tpair.
   + intro d. exact (object_of_cartesian_lift _ _ (lift_f d)).
   + intros d' d ff. cbn.
 

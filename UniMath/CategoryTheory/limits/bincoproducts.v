@@ -667,7 +667,7 @@ Section functors.
 Definition bincoproduct_functor_data {C : precategory} (PC : BinCoproducts C) :
   functor_data (precategory_binproduct C C) C.
 Proof.
-mkpair.
+use tpair.
 - intros p.
   apply (BinCoproductObject _ (PC (pr1 p) (pr2 p))).
 - simpl; intros p q f.

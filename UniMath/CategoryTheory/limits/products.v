@@ -192,7 +192,7 @@ Context (I : UU) {C : precategory} (PC : Products I C).
 Definition product_functor_data :
   functor_data (power_precategory I C) C.
 Proof.
-mkpair.
+use tpair.
 - intros p.
   apply (ProductObject _ _ (PC p)).
 - simpl; intros p q f.
@@ -318,7 +318,7 @@ simple refine (mk_ProductCone _ _ _ _ _ _).
 - simple refine (mk_isProductCone _ _ _ _ _ _ _).
   + apply functor_category_has_homsets.
   + intros A f.
-    mkpair.
+    use tpair.
     * apply (tpair _ (product_nat_trans A f)).
       abstract (intro i; apply (nat_trans_eq hsD); intro c;
                 apply (ProductPrCommutes I D _ (HD (λ j, (F j) c)))).
@@ -355,7 +355,7 @@ Defined.
 Definition productscone c (F : I → C) (H : ∏ i, c --> F i) :
   cone (products_diagram F) c.
 Proof.
-mkpair.
+use tpair.
 + intro v; apply H.
 + abstract (intros u v e; induction e).
 Defined.

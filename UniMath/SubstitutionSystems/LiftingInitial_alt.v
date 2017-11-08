@@ -91,8 +91,8 @@ Definition InitAlg : Alg :=
 Lemma isInitial_pre_comp (Z : Ptd) : isInitial [C, C, hsC] (ℓ (U Z) InitialEndC).
 Proof.
 use mk_isInitial; intros F.
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + intros c; simpl; apply InitialArrow.
   + abstract (intros x y f; cbn; apply InitialArrowEq).
 - abstract (intros G; apply subtypeEquality;
@@ -147,7 +147,7 @@ Definition aux_iso_1 (Z : Ptd)
            (CPEndEndC (constant_functor [C, C, hsC] [C, C, hsC] (U Z))
               (functor_fix_snd_arg [C, C, hsC] Ptd [C, C, hsC] (θ_source H) Z))⟧.
 Proof.
-mkpair.
+use tpair.
 - intro X.
   exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (ρ_functor (U Z))
            (nat_trans_id (θ_source H (X⊗Z):functor C C))).
@@ -180,7 +180,7 @@ Local Definition aux_iso_1_inv (Z: Ptd)
               (functor_fix_snd_arg [C, C, hsC] Ptd [C, C, hsC] (θ_source H) Z)),
       functor_composite Id_H (ℓ (U Z)) ⟧.
 Proof.
-mkpair.
+use tpair.
 - intro X.
   exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (λ_functor (U Z))
          (nat_trans_id (θ_source H (X⊗Z):functor C C))).
@@ -219,7 +219,7 @@ Local Definition aux_iso_2_inv (Z : Ptd)
                     (functor_fix_snd_arg [C, C, hsC] Ptd [C, C, hsC] (θ_target H) Z)),
       functor_composite (ℓ (U Z) )   (Const_plus_H (U Z)) ⟧.
 Proof.
-mkpair.
+use tpair.
 - intro X.
   exact (nat_trans_id ((@BinCoproductObject EndC (U Z) (θ_target H (X⊗Z)) (CPEndC _ _) )
            : functor C C)).
@@ -364,14 +364,14 @@ Qed.
 Definition bracket_for_InitAlg : bracket InitAlg.
 Proof.
 intros Z f.
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + exact (bracket_Thm15 Z f).
   + exact (bracket_Thm15_ok_cor Z f).
     (* B: better to prove the whole outside, and apply it here *)
     (* when the first components were not opaque, the following proof
        became extremely slow *)
-- apply bracket_unique.
+- cbn. apply bracket_unique.
 Defined.
 
 (* produce some output to keep TRAVIS running *)
@@ -452,7 +452,7 @@ Local Definition iso2' (Z : Ptd) : EndEndC ⟦
              (functor_fix_snd_arg [C, C, hsC] Ptd [C, C, hsC] (θ_target H) Z)),
   functor_composite (ℓ (U Z)) Ghat ⟧.
 Proof.
-mkpair.
+use tpair.
 - intro X.
   exact (nat_trans_id ((@BinCoproductObject EndC _ (θ_target H (X⊗Z)) (CPEndC _ _) )
             : functor C C)).
@@ -476,7 +476,7 @@ Definition Phi_fusion (Z : Ptd) (X : EndC) (b : pr1 InitAlg --> X) :
    ⟹
   functor_composite (functor_opp (ℓ (U Z))) (Yon X) .
 Proof.
-mkpair.
+use tpair.
 - intros Y a.
   exact (a · b).
 - abstract (intros ? ? ?; simpl; apply funextsec; intro;

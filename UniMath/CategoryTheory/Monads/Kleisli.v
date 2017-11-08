@@ -47,7 +47,7 @@ Section monad_types_equiv.
   Definition Kleisli_to_μ {C : precategory} (T: Kleisli C) :
     Kleisli_to_functor T ∙ Kleisli_to_functor T ⟹ Kleisli_to_functor T.
   Proof.
-    mkpair.
+    use tpair.
     - exact (λ (x : C), r_bind T (identity (T x))).
     - intros x x' f; simpl.
       now rewrite (r_bind_r_bind T), <- assoc, (r_eta_r_bind T (T x')), id_right, (r_bind_r_bind T), id_left.
@@ -56,7 +56,7 @@ Section monad_types_equiv.
   Definition Kleisli_to_η {C : precategory} (T: Kleisli C) :
     functor_identity C ⟹ Kleisli_to_functor T.
   Proof.
-    mkpair.
+    use tpair.
     - exact (r_eta T).
     - intros x x' f; simpl.
       now rewrite (r_eta_r_bind T x).

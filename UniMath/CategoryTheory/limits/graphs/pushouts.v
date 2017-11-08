@@ -91,7 +91,7 @@ Section def_po.
     { eapply pathscomp0; [apply (coconeInCommutes cx One Two tt)|].
       apply pathsinv0, (coconeInCommutes cx One Three tt). }
     set (H2 := H1 p).
-    mkpair.
+    use tpair.
     + exists (pr1 (pr1 H2)).
       use three_rec_dep.
       * abstract (use (pathscomp0 _ (coconeInCommutes cx One Two tt));
@@ -113,7 +113,7 @@ Section def_po.
              (i1 : C⟦b,d⟧) (i2 : C ⟦c,d⟧) (H : f · i1 = g · i2)
              (ispo : isPushout f g i1 i2 H) : Pushout f g.
   Proof.
-    mkpair.
+    use tpair.
     - exists d.
       use PushoutCocone; assumption.
     - apply ispo.
@@ -177,8 +177,8 @@ Section def_po.
   Proof.
     apply mk_isPushout.
     intros e h k HK.
-    mkpair.
-    - mkpair.
+    use tpair.
+    - use tpair.
       + apply (PushoutArrow P _ h k HK).
       + split.
         * apply PushoutArrow_PushoutIn1.

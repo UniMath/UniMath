@@ -44,7 +44,7 @@ Proof.
   destruct XR as [c'' [i [xx' ii]]].
   set (YY := Y _ _ i xx').
   destruct YY as [ dd pe ].
-  mkpair.
+  use tpair.
   - apply dd.
   -
     (* now need disp_functor_on_iso_disp *)
@@ -565,7 +565,7 @@ Qed.
 (* TODO: does [Local Definition] actually keep it local?  It seems not — e.g. [Print GG_data] still works after the section closes. Is there a way to actually keep them local?  If not, find less generic names for [GG] and its components. *)
 Local Definition GG_data : disp_functor_data (functor_identity _ ) D D'.
 Proof.
-  mkpair.
+  use tpair.
   + intros x xx. exact (pr1 (FF_split x xx)).
   + intros x y xx yy f ff; simpl.
     set (Hxx := FF_split x xx).
@@ -818,7 +818,7 @@ Qed.
 
 Local Definition inv : disp_nat_trans (nat_trans_id _ ) GG FF.
 Proof.
-  mkpair.
+  use tpair.
   - intros x xx.
     apply (inv_mor_disp_from_iso (Ha _ _ )).
   - apply inv_ax.
@@ -871,14 +871,14 @@ Defined.
 
 Lemma form_equiv_inv_adjunction_data : form_equiv_over_id inv_adjunction_data.
 Proof.
-  cbn. mkpair.
+  cbn. use tpair.
     + intros. cbn.
       set (XR:= @is_iso_inv_from_is_iso_disp).
       specialize (XR _ D _  _ _ _ _ _ (  is_iso_counit_over_id (pr2 isEquiv) x xx)).
       cbn in XR.
       eapply is_iso_disp_independent_of_is_iso.
       apply XR.
-    + intros. cbn.
+    + cbn. intros.
       set (XR:= @is_iso_inv_from_is_iso_disp).
       specialize (XR _ D' _  _ _ _ _ _ (  is_iso_unit_over_id (pr2 isEquiv) x xx)).
       cbn in XR.
@@ -983,10 +983,10 @@ Qed.
 
 Definition equiv_inv : is_equiv_over_id GG.
 Proof.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + exact (FF,, (η_inv,, ε_inv)).
-    + mkpair. cbn. apply inv_triangle_1_statement_over_id.
+    + use tpair. cbn. apply inv_triangle_1_statement_over_id.
       apply inv_triangle_2_statement_over_id.
   - apply form_equiv_inv_adjunction_data.
 Defined.
@@ -1014,7 +1014,7 @@ Proof.
   exists (fiber_functor GG _).
   exists (fiber_nat_trans η _,,
           fiber_nat_trans ε _).
-  mkpair; cbn.
+  use tpair; cbn.
   + unfold triangle_1_statement.
     intros d; cbn.
     set (thisax := pr1 axs c d); clearbody thisax; clear axs.
@@ -1039,7 +1039,7 @@ Definition fiber_equiv {D D' : disp_cat C}
 Proof.
   exists (fiber_is_left_adj EFF c).
   destruct EFF as [[[GG [η ε]] tris] isos]; cbn in isos; cbn.
-  mkpair.
+  use tpair.
   + intros d.
     apply is_iso_fiber_from_is_iso_disp.
     apply (is_iso_unit_over_id isos).

@@ -347,8 +347,8 @@ Proof.
   revert D H.
   induction n as [ | n IHn] ; intros D H m Hm Hn.
   - apply hinhpr.
-    mkpair.
-    mkpair.
+    use tpair.
+    use tpair.
     apply (nattorng m * hqdiv (pr1 c) 2).
     abstract (apply hq0lehandmult ;
               [ clear ;
@@ -386,8 +386,8 @@ Proof.
       * rewrite natplusassoc.
         exact Hn.
     + apply hinhpr.
-      mkpair.
-      mkpair.
+      use tpair.
+      use tpair.
       apply (nattorng m * hqdiv (pr1 c) 2).
       abstract (apply hq0lehandmult ;
                 [ clear ;
