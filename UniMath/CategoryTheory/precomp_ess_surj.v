@@ -36,10 +36,6 @@ Local Notation "FF ^-1" := (fully_faithful_inv_hom FF _ _ ) (at level 20).
 Local Notation "F '^-i'" := (iso_from_fully_faithful_reflection F) (at level 20).
 Local Notation "G 'O' F" := (functor_compose _ _ _ F G) (at level 25).
 
-Ltac simp_rew lem := let H:=fresh in
-     assert (H:= lem); simpl in *; rewrite H; clear H.
-Ltac simp_rerew lem := let H:=fresh in
-     assert (H:= lem); simpl in *; rewrite <- H; clear H.
 Ltac inv_functor HF x y :=
    let H:=fresh in
    set (H:= homotweqinvweq (weq_from_fully_faithful HF x y));
