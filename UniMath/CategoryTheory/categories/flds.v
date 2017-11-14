@@ -23,11 +23,11 @@ Section def_fld_precategory.
   Definition fld_fun_space (A B : fld) : hSet := hSetpair (rngfun A B) (isasetrigfun A B).
 
   Definition fld_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) fld (fun A B : fld => fld_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) fld (λ A B : fld, fld_fun_space A B).
 
   Definition fld_precategory_data : precategory_data :=
     precategory_data_pair
-      fld_precategory_ob_mor (fun (X : fld) => (rigisotorigfun (idrigiso X)))
+      fld_precategory_ob_mor (λ (X : fld), (rigisotorigfun (idrigiso X)))
       (fun (X Y Z : fld) (f : rngfun X Y) (g : rngfun Y Z) => rigfuncomp f g).
 
   Local Lemma fld_id_left (X Y : fld) (f : rngfun X Y) :

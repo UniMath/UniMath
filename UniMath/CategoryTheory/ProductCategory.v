@@ -71,7 +71,7 @@ Variables C : precategory.
 
 
 Definition power_precategory : precategory
-  := product_precategory I (fun _ => C).
+  := product_precategory I (λ _, C).
 
 Definition has_homsets_power_precategory (hsC : has_homsets C) :
   has_homsets power_precategory.

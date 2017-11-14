@@ -7,6 +7,7 @@ Require UniMath.Combinatorics.FiniteSequences.
 Require UniMath.Combinatorics.FiniteSets.
 Require UniMath.Combinatorics.OrderedSets.
 Require UniMath.Combinatorics.StandardFiniteSets.
+Require UniMath.MoreFoundations.DecidablePropositions.
 
 Module Test_list.
 
@@ -275,6 +276,8 @@ Module Test_fin.
 
     (* This module exports nothing. *)
 
+    Import UniMath.MoreFoundations.DecidablePropositions.
+
     (* The proofs of isfinite_isdeceq and isfinite_isaset depend on funextfun
        and funextemptyAxiom, so here we do an experiment to see if that impedes
        computability of equality using it. *)
@@ -349,6 +352,8 @@ End Test_seq.
 
 Module Test_finite_sets.
   Import UniMath.Combinatorics.FiniteSets.
+  Import UniMath.MoreFoundations.DecidablePropositions.
+
   Local Open Scope stn.
 
   Goal 3 = fincard_standardSubset (λ i:stn 10, 2*i < 6)%dnat. Proof. reflexivity. Defined.
@@ -363,6 +368,7 @@ Module Test_ord.
 
   Import UniMath.Combinatorics.OrderedSets.
   Import UniMath.Combinatorics.StandardFiniteSets.
+  Import UniMath.MoreFoundations.DecidablePropositions.
 
   Local Open Scope stn.
 
@@ -392,6 +398,8 @@ Module Test_ord.
   End TestLex.
 
   Module TestLex2.
+
+    Import UniMath.MoreFoundations.DecidablePropositions.
 
     Open Scope foset.
 

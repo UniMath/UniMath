@@ -21,7 +21,7 @@ Context {C : precategory}.
 Definition empty_graph : graph.
 Proof.
   exists empty.
-  exact (fun _ _ => empty).
+  exact (λ _ _, empty).
 Defined.
 
 Definition termDiagram : diagram empty_graph C.
@@ -52,7 +52,7 @@ simple refine (tpair _ _ _).
 Defined.
 
 Definition Terminal : UU := LimCone termDiagram.
-(* Definition Terminal := total2 (fun a => isTerminal a). *)
+(* Definition Terminal := total2 (λ a, isTerminal a). *)
 
 Definition mk_Terminal (b : C) (H : isTerminal b) : Terminal.
 Proof.

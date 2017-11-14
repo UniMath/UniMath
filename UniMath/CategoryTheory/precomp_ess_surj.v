@@ -79,10 +79,10 @@ Section preimage.
 
 Local Definition X (b : B) := total2 (
  fun ck :
-  total2 (fun c : C =>
+  total2 (λ c : C,
                 ∏ a : A,
                      iso (H a) b -> iso (F a) c) =>
-    ∏ t t' : total2 (fun a : A => iso (H a) b),
+    ∏ t t' : total2 (λ a : A, iso (H a) b),
           ∏ f : pr1 t --> pr1 t',
              (#H f · pr2 t' = pr2 t ->
                     #F f · pr2 ck (pr1 t') (pr2 t') = pr2 ck (pr1 t) (pr2 t))).
@@ -92,7 +92,7 @@ Local Definition kX {b : B} (t : X b) := (pr2 (pr1 t)).
 (** The following is the third component of the center of [X b] *)
 
 Lemma X_aux_type_center_of_contr_proof (b : B) (anot : A) (hnot : iso (H anot) b) :
-  ∏ (t t' : total2 (fun a :  A => iso (H a) b))
+  ∏ (t t' : total2 (λ a :  A, iso (H a) b))
     (f : pr1 t --> pr1 t'),
   #H f· pr2 t' = pr2 t ->
   #F f·
@@ -190,7 +190,7 @@ Proof.
   intro b.
   assert (HH : isaprop (iscontr (X b))).
   apply isapropiscontr.
-  apply (p b (tpair (fun x => isaprop x) (iscontr (X b)) HH)).
+  apply (p b (tpair (λ x, isaprop x) (iscontr (X b)) HH)).
   intro t.
   exists (X_aux_type_center_of_contr b (pr1 t) (pr2 t)).
   apply (X_aux_type_contr_eq b (pr1 t) (pr2 t)).
@@ -202,7 +202,7 @@ Defined.
 (** *** [G] on objects *)
 
 Definition Go : B -> C :=
-   fun b : B => pr1 (pr1 (pr1 (iscontr_X b))).
+   λ b : B, pr1 (pr1 (pr1 (iscontr_X b))).
 
 Local Definition k (b : B) :
      ∏ a : A, iso (H a) b -> iso (F a) (Go b) :=
@@ -250,7 +250,7 @@ Qed.
 (*
 Lemma k_transport (b : ob B) (*t : X b*) (c : ob C)
    (p : pr1 (pr1 t) = c) (a : ob A) (h : iso (pr1 H a) b):
-transportf (fun c' : ob C => ∏ a : ob A, iso (pr1 H a) b ->
+transportf (λ c' : ob C, ∏ a : ob A, iso (pr1 H a) b ->
                           iso ((pr1 F) a) c')
    p (k) a h = (k b) b a h · idtoiso p .
 *)
@@ -400,9 +400,9 @@ Definition Y_iscontr  (b b' : B) (f : b --> b') :
 Proof.
   assert (HH : isaprop (iscontr (Y f))).
     apply isapropiscontr.
-  apply (p b (tpair (fun x => isaprop x) (iscontr (Y f)) HH)).
+  apply (p b (tpair (λ x, isaprop x) (iscontr (Y f)) HH)).
   intros [a0 h0].
-  apply (p b' (tpair (fun x => isaprop x) (iscontr (Y f)) HH)).
+  apply (p b' (tpair (λ x, isaprop x) (iscontr (Y f)) HH)).
   intros [a0' h0'].
   exists (Y_inhab b b' f a0 h0 a0' h0').
   apply Y_contr_eq.
@@ -456,13 +456,13 @@ Proof.
   assert (HHHH : isaprop (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
                         pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f')))).
     apply (pr2 Ccat).
-  apply (p b (tpair (fun x => isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
+  apply (p b (tpair (λ x, isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
            pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
   intros [a0 h0]; simpl.
-  apply (p b' (tpair (fun x => isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
+  apply (p b' (tpair (λ x, isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
            pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
   intros [a0' h0']; simpl.
-  apply (p b'' (tpair (fun x => isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
+  apply (p b'' (tpair (λ x, isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
            pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
   intros [a0'' h0''].
   simpl; clear HHHH.
@@ -754,7 +754,7 @@ Definition GG : [B, C, pr2 Ccat] := tpair _ preimage_functor_data
    This allows to prove [G (H a) = F a]. *)
 
 Lemma qF (a0 : A) :
-  ∏ (t t' : total2 (fun a :  A => iso (H a) (H a0)))
+  ∏ (t t' : total2 (λ a :  A, iso (H a) (H a0)))
     (f : pr1 t --> pr1 t'),
   #H f· pr2 t' = pr2 t ->
   #F f· #F (fH^-1 (pr2 t')) =

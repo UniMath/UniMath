@@ -246,7 +246,7 @@ Section abelian_monic_pullbacks.
     set (tmp := BinProductPr1Commutes
                   A _ _ BinProd _ (CokernelArrow (to_Cokernels A x z M1))
                   (CokernelArrow (to_Cokernels A y z M2))).
-    apply (maponpaths (fun h : _ => KernelArrow ker · h)) in tmp.
+    apply (maponpaths (λ h : _, KernelArrow ker · h)) in tmp.
     apply (pathscomp0 (!tmp)). clear tmp.
     rewrite assoc. rewrite (KernelCompZero (to_Zero A) ker).
     apply ZeroArrow_comp_left.
@@ -262,7 +262,7 @@ Section abelian_monic_pullbacks.
     set (tmp := BinProductPr2Commutes
                   A _ _ BinProd _ (CokernelArrow (to_Cokernels A x z M1))
                   (CokernelArrow (to_Cokernels A y z M2))).
-    apply (maponpaths (fun h : _ => KernelArrow ker · h)) in tmp.
+    apply (maponpaths (λ h : _, KernelArrow ker · h)) in tmp.
     apply (pathscomp0 (!tmp)). clear tmp.
     rewrite assoc. rewrite (KernelCompZero (to_Zero A) ker).
     apply ZeroArrow_comp_left.
@@ -354,10 +354,10 @@ Section abelian_monic_pullbacks.
     (* commutativity *)
     - split.
       + use (KernelInsEq (to_Zero A) ker1).  cbn. rewrite <- assoc.
-        set (com'1 := maponpaths (fun f : _ => KernelIn (to_Zero A) ker e (h · M1) e''1 · f) com1).
+        set (com'1 := maponpaths (λ f : _, KernelIn (to_Zero A) ker e (h · M1) e''1 · f) com1).
         cbn in com'1. use (pathscomp0 com'1). use KernelCommutes.
       + use (KernelInsEq (to_Zero A) ker2). cbn. rewrite <- assoc.
-        set (com'2 := maponpaths (fun f : _ => KernelIn (to_Zero A) ker e (h · M1) e''1 · f) com2).
+        set (com'2 := maponpaths (λ f : _, KernelIn (to_Zero A) ker e (h · M1) e''1 · f) com2).
         cbn in com'2. use (pathscomp0 com'2). rewrite <- H. use KernelCommutes.
     (* Equality of equalities of morphisms *)
     - intros y0. apply isapropdirprod.
@@ -368,7 +368,7 @@ Section abelian_monic_pullbacks.
       apply (KernelArrowisMonic (to_Zero A) ker).
       rewrite (KernelCommutes (to_Zero A) ker).
       rewrite <- (KernelCommutes (to_Zero A) ker1 ker _ (monics_Pullback_eq1 M1 M2 BinProd ker)).
-      rewrite assoc. use (pathscomp0 (maponpaths (fun f : _ => f · KernelArrow ker1) t)).
+      rewrite assoc. use (pathscomp0 (maponpaths (λ f : _, f · KernelArrow ker1) t)).
       apply idpath.
   Qed.
 
@@ -402,7 +402,7 @@ Section abelian_monic_pullbacks.
     set (tmp := BinCoproductIn1Commutes
                   A _ _ BinCoprod _ (KernelArrow (to_Kernels A x y E1))
                   (KernelArrow (to_Kernels A x z E2))).
-    apply (maponpaths (fun h : _ => h · CokernelArrow coker)) in tmp.
+    apply (maponpaths (λ h : _, h · CokernelArrow coker)) in tmp.
     apply (pathscomp0 (!tmp)).
     rewrite <- assoc. rewrite (CokernelCompZero (to_Zero A) coker).
     apply ZeroArrow_comp_right.
@@ -420,7 +420,7 @@ Section abelian_monic_pullbacks.
     set (tmp := BinCoproductIn2Commutes
                   A _ _ BinCoprod _ (KernelArrow (to_Kernels A x y E1))
                   (KernelArrow (to_Kernels A x z E2))).
-    apply (maponpaths (fun h : _ => h · CokernelArrow coker)) in tmp.
+    apply (maponpaths (λ h : _, h · CokernelArrow coker)) in tmp.
     apply (pathscomp0 (!tmp)).
     rewrite <- assoc. rewrite (CokernelCompZero (to_Zero A) coker).
     apply ZeroArrow_comp_right.
@@ -518,12 +518,12 @@ Section abelian_monic_pullbacks.
     - split.
       + use (CokernelOutsEq (to_Zero A) coker1). cbn.
         set (com'1 := maponpaths
-                        (fun f : _ => f · CokernelOut (to_Zero A) coker e (E1 · h) e''1) com1).
+                        (λ f : _, f · CokernelOut (to_Zero A) coker e (E1 · h) e''1) com1).
         cbn in com'1. rewrite assoc. use (pathscomp0 com'1).
         use CokernelCommutes.
       + use (CokernelOutsEq (to_Zero A) coker2). cbn.
         set (com'2 := maponpaths
-                        (fun f : _ => f · CokernelOut (to_Zero A) coker e (E1 · h) e''1) com2).
+                        (λ f : _, f · CokernelOut (to_Zero A) coker e (E1 · h) e''1) com2).
         cbn in com'2. rewrite assoc. use (pathscomp0 com'2). rewrite <- H.
         use CokernelCommutes.
     (* Equality on equalities of morphisms *)
@@ -536,7 +536,7 @@ Section abelian_monic_pullbacks.
       rewrite (CokernelCommutes (to_Zero A) coker).
       rewrite <- (CokernelCommutes
                    (to_Zero A) coker1 coker _ (epis_Pushout_eq1 E1 E2 BinCoprod coker)).
-      rewrite <- assoc. use (pathscomp0 (maponpaths (fun f : _ => CokernelArrow coker1 · f) t)).
+      rewrite <- assoc. use (pathscomp0 (maponpaths (λ f : _, CokernelArrow coker1 · f) t)).
       apply idpath.
   Qed.
 
@@ -575,7 +575,7 @@ Section abelian_equalizers.
   Proof.
     set (BinProd := to_BinProducts A x y).
     intros z h1 h2 H.
-    apply (maponpaths (fun h : _ => h · (BinProductPr1 A BinProd))) in H.
+    apply (maponpaths (λ h : _, h · (BinProductPr1 A BinProd))) in H.
     rewrite <- assoc in H. rewrite <- assoc in H.
     set (com1 := BinProductPr1Commutes A _ _ BinProd x (identity x) f).
     rewrite com1 in H.
@@ -599,9 +599,9 @@ Section abelian_equalizers.
     assert (H1 : ar1 · (BinProductPr1 A BinProd) = identity x) by apply BinProductPr1Commutes.
     assert (H2 : ar2 · (BinProductPr1 A BinProd) = identity x) by apply BinProductPr1Commutes.
     use (pathscomp0 (! (id_right (PullbackPr1 Pb)))).
-    use (pathscomp0 (! (maponpaths (fun h : _ => PullbackPr1 Pb · h) H1))).
+    use (pathscomp0 (! (maponpaths (λ h : _, PullbackPr1 Pb · h) H1))).
     use (pathscomp0 _ ((id_right (PullbackPr2 Pb)))).
-    use (pathscomp0 _ (maponpaths (fun h : _ => PullbackPr2 Pb · h) H2)).
+    use (pathscomp0 _ (maponpaths (λ h : _, PullbackPr2 Pb · h) H2)).
     rewrite assoc. rewrite assoc. apply cancel_postcomposition.
     apply PullbackSqrCommutes.
   Qed.
@@ -688,7 +688,7 @@ Section abelian_equalizers.
   Proof.
     set (BinCoprod := to_BinCoproducts A x y).
     intros z h1 h2 H.
-    apply (maponpaths (fun f : _ => (BinCoproductIn1 A BinCoprod) · f)) in H.
+    apply (maponpaths (λ f : _, (BinCoproductIn1 A BinCoprod) · f)) in H.
     rewrite assoc in H. rewrite assoc in H.
     set (com1 := BinCoproductIn1Commutes A _ _ BinCoprod x (identity x) f).
     rewrite com1 in H. clear com1.
@@ -713,9 +713,9 @@ Section abelian_equalizers.
     assert (H2 : (BinCoproductIn1 A BinCoprod) · ar2 = identity x) by
         apply BinCoproductIn1Commutes.
     use (pathscomp0 (!(id_left (PushoutIn1 Po)))).
-    use (pathscomp0 (!(maponpaths (fun h : _ => h · PushoutIn1 Po) H1))).
+    use (pathscomp0 (!(maponpaths (λ h : _, h · PushoutIn1 Po) H1))).
     use (pathscomp0 _ ((id_left (PushoutIn2 Po)))).
-    use (pathscomp0 _ (maponpaths (fun h : _ => h · PushoutIn2 Po) H2)).
+    use (pathscomp0 _ (maponpaths (λ h : _, h · PushoutIn2 Po) H2)).
     rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
     apply PushoutSqrCommutes.
   Qed.
@@ -940,7 +940,7 @@ Section abelian_MonicToKernels.
     }
     set (isoar := isopair (CoequalizerArrow Coeq) e5).
     set (coeq_eq := CoequalizerEqAr Coeq).
-    apply (maponpaths (fun f : _ => f · inv_from_iso isoar)) in coeq_eq.
+    apply (maponpaths (λ f : _, f · inv_from_iso isoar)) in coeq_eq.
     rewrite <- assoc in coeq_eq. rewrite <- assoc in coeq_eq.
     assert(areq : CoequalizerArrow Coeq = isoar). apply idpath.
     rewrite areq in coeq_eq.
@@ -995,7 +995,7 @@ Section abelian_MonicToKernels.
     assert (e2 : f · (CokernelArrow (to_Cokernels A _ _ Eqar_monic)) = ZeroArrow (to_Zero A) _ _).
     {
       rewrite e1. rewrite <- assoc.
-      set (tmp := maponpaths (fun f : _ => Eqar · f) (KernelCompZero (to_Zero A) Eq_ker)).
+      set (tmp := maponpaths (λ f : _, Eqar · f) (KernelCompZero (to_Zero A) Eq_ker)).
       use (pathscomp0 tmp).
       apply ZeroArrow_comp_right.
     }
@@ -1018,7 +1018,7 @@ Section abelian_MonicToKernels.
     }
     set (isoar := isopair (EqualizerArrow Eq) e5).
     set (Eq_eq := EqualizerEqAr Eq).
-    apply (maponpaths (fun f : _ => inv_from_iso isoar · f)) in Eq_eq.
+    apply (maponpaths (λ f : _, inv_from_iso isoar · f)) in Eq_eq.
     rewrite assoc in Eq_eq. rewrite assoc in Eq_eq.
     assert(areq : EqualizerArrow Eq = isoar). apply idpath.
     rewrite areq in Eq_eq.
@@ -1145,7 +1145,7 @@ Section abelian_factorization.
       {
         (* Use CoImage Image equation *)
         set (tmp := CoIm_to_Im_eq f).
-        apply (maponpaths (fun f : _ => (KernelArrow (to_Kernels A _ _ E)) · f)) in tmp.
+        apply (maponpaths (λ f : _, (KernelArrow (to_Kernels A _ _ E)) · f)) in tmp.
         use (pathscomp0 tmp).
         (* rewrite com1 *)
         rewrite <- assoc. rewrite <- com1.
@@ -1224,7 +1224,7 @@ Section abelian_factorization.
       {
         (* Use CoImage Image equation *)
         set (tmp := CoIm_to_Im_eq f).
-        apply (maponpaths (fun f : _ => f · (CokernelArrow (to_Cokernels A _ _ M)))) in tmp.
+        apply (maponpaths (λ f : _, f · (CokernelArrow (to_Cokernels A _ _ M)))) in tmp.
         use (pathscomp0 tmp).
         (* rewrite com1 *)
         rewrite <- com1.

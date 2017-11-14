@@ -36,11 +36,11 @@ Definition hqaddabgr : abgr := hq .
 Definition hqmultabmonoid : abmonoid := rngmultabmonoid hq .
 Definition hqtype : UU := hq .
 
-Definition hzhztohq : hz -> ( intdomnonzerosubmonoid hzintdom ) -> hq := fun x a => setquotpr _ ( dirprodpair x a ) .
+Definition hzhztohq : hz -> ( intdomnonzerosubmonoid hzintdom ) -> hq := λ x a, setquotpr _ ( dirprodpair x a ) .
 
 Definition hqplus : hq -> hq -> hq := @op1 hq.
 Definition hqsign : hq -> hq := grinv hqaddabgr .
-Definition hqminus : hq -> hq -> hq := fun x y => hqplus x ( hqsign y ) .
+Definition hqminus : hq -> hq -> hq := λ x y, hqplus x ( hqsign y ) .
 Definition hqzero : hq := unel hqaddabgr .
 
 Definition hqmult : hq -> hq -> hq := @op2 hq .
@@ -63,15 +63,15 @@ Definition isdeceqhq : isdeceq hq := isdeceqfldfrac hzintdom isdeceqhz .
 
 Definition isasethq := setproperty hq .
 
-Definition hqeq ( x y : hq ) : hProp := hProppair ( paths x y ) ( isasethq _ _  )  .
-Definition isdecrelhqeq : isdecrel hqeq  := fun a b => isdeceqhq a b .
+Definition hqeq ( x y : hq ) : hProp := hProppair ( x = y ) ( isasethq _ _  )  .
+Definition isdecrelhqeq : isdecrel hqeq  := λ a b, isdeceqhq a b .
 Definition hqdeceq : decrel hq := decrelpair isdecrelhqeq .
 
 (* Canonical Structure hqdeceq. *)
 
 Definition hqbooleq := decreltobrel hqdeceq .
 
-Definition hqneq ( x y : hq ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
+Definition hqneq ( x y : hq ) : hProp := hProppair ( neg ( x = y ) ) ( isapropneg _  )  .
 Definition isdecrelhqneq : isdecrel hqneq  := isdecnegrel _ isdecrelhqeq .
 Definition hqdecneq : decrel hq := decrelpair isdecrelhqneq .
 
@@ -103,20 +103,20 @@ Proof . intro. apply ( rnglinvax1 hq x ) . Defined .
 Lemma hqrminus  ( x : hq ) : paths ( x - x ) 0 .
 Proof . intro. apply ( rngrinvax1 hq x ) . Defined .
 
-Lemma isinclhqplusr ( n : hq ) : isincl ( fun m : hq => m + n ) .
+Lemma isinclhqplusr ( n : hq ) : isincl ( λ m : hq, m + n ) .
 Proof. intro . apply ( pr2 ( weqtoincl _ _ ( weqrmultingr hqaddabgr n ) ) ) . Defined.
 
-Lemma isinclhqplusl ( n : hq ) : isincl ( fun m : hq => n + m ) .
+Lemma isinclhqplusl ( n : hq ) : isincl ( λ m : hq, n + m ) .
 Proof.  intro.  apply ( pr2 ( weqtoincl _ _ ( weqlmultingr hqaddabgr n ) ) ) . Defined .
 
 
-Lemma hqpluslcan ( a b c : hq ) ( is : paths ( c + a ) ( c + b ) ) : paths a b .
+Lemma hqpluslcan ( a b c : hq ) ( is : paths ( c + a ) ( c + b ) ) : a = b .
 Proof . intros . apply ( @grlcan hqaddabgr a b c is ) .  Defined .
 
-Lemma hqplusrcan ( a b c : hq ) ( is : paths ( a + c ) ( b + c ) ) : paths a b .
+Lemma hqplusrcan ( a b c : hq ) ( is : paths ( a + c ) ( b + c ) ) : a = b .
 Proof . intros . apply ( @grrcan hqaddabgr a b c is ) .  Defined .
 
-Definition hqinvmaponpathsminus { a b : hq } ( e :  paths ( - a ) ( - b ) ) : paths a b := grinvmaponpathsinv hqaddabgr e .
+Definition hqinvmaponpathsminus { a b : hq } ( e :  paths ( - a ) ( - b ) ) : a = b := grinvmaponpathsinv hqaddabgr e .
 
 
 
@@ -146,7 +146,7 @@ Proof . intros .  apply ( rngcomm2 hq  x y ) . Defined .
 
 Note : in our definition it is possible to divide by 0 . The result in this case is 0 . *)
 
-Definition hqmultinv : hq -> hq := fun x => fldfracmultinv0 hzintdom isdeceqhz x .
+Definition hqmultinv : hq -> hq := λ x, fldfracmultinv0 hzintdom isdeceqhz x .
 
 Lemma hqislinvmultinv ( x : hq ) ( ne : hqneq x 0 ) : paths ( ( hqmultinv x ) * x ) 1 .
 Proof. intros .  apply ( islinvinfldfrac hzintdom isdeceqhz x ne ) . Defined .
@@ -167,11 +167,11 @@ Definition hqdiv ( x y : hq ) : hq := hqmult x ( hqmultinv y ) .
 
 Definition hqgth : hrel hq := fldfracgt hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth ( ct ( hzgth , isdecrelhzgth,  1%hz , 0%hz ) ) hzneqchoice .
 
-Definition hqlth : hrel hq := fun a b => hqgth b a .
+Definition hqlth : hrel hq := λ a b, hqgth b a .
 
-Definition hqleh : hrel hq := fun a b => hProppair ( neg ( hqgth a b ) ) ( isapropneg _ )  .
+Definition hqleh : hrel hq := λ a b, hProppair ( neg ( hqgth a b ) ) ( isapropneg _ )  .
 
-Definition hqgeh : hrel hq := fun a b => hProppair ( neg ( hqgth b a ) ) ( isapropneg _ )  .
+Definition hqgeh : hrel hq := λ a b, hProppair ( neg ( hqgth b a ) ) ( isapropneg _ )  .
 
 
 
@@ -186,7 +186,7 @@ Definition hqgthdec := decrelpair isdecrelhqgth .
 
 (* Canonical Structure hqgthdec . *)
 
-Definition isdecrelhqlth : isdecrel hqlth := fun x x' => isdecrelhqgth x' x .
+Definition isdecrelhqlth : isdecrel hqlth := λ x x', isdecrelhqgth x' x .
 
 Definition hqlthdec := decrelpair isdecrelhqlth .
 
@@ -198,7 +198,7 @@ Definition hqlehdec := decrelpair isdecrelhqleh .
 
 (* Canonical Structure hqlehdec . *)
 
-Definition isdecrelhqgeh : isdecrel hqgeh := fun x x' => isdecrelhqleh x' x .
+Definition isdecrelhqgeh : isdecrel hqgeh := λ x x', isdecrelhqleh x' x .
 
 Definition hqgehdec := decrelpair isdecrelhqgeh .
 
@@ -219,13 +219,13 @@ Proof. apply isirreflfldfracgt . exact isirreflhzgth .   Defined .
 Lemma isasymmhqgth ( n m : hq ) : hqgth n m -> hqgth m n -> empty .
 Proof. apply isasymmfldfracgt .  exact isasymmhzgth .  Defined .
 
-Lemma isantisymmneghqgth ( n m : hq ) : neg ( hqgth n m ) -> neg ( hqgth m n ) -> paths n m .
+Lemma isantisymmneghqgth ( n m : hq ) : neg ( hqgth n m ) -> neg ( hqgth m n ) -> n = m .
 Proof . apply isantisymmnegfldfracgt . exact isirreflhzgth . exact isantisymmneghzgth .   Defined .
 
 Lemma isnegrelhqgth : isnegrel hqgth .
 Proof . apply isdecreltoisnegrel . apply isdecrelhqgth . Defined .
 
-Lemma iscoantisymmhqgth ( n m : hq ) : neg ( hqgth n m ) -> coprod ( hqgth m n ) ( paths n m ) .
+Lemma iscoantisymmhqgth ( n m : hq ) : neg ( hqgth n m ) -> ( hqgth m n ) ⨿ ( n = m ) .
 Proof . apply isantisymmnegtoiscoantisymm . apply isdecrelhqgth .  intros n m . apply isantisymmneghqgth . Defined .
 
 Lemma iscotranshqgth ( n m k : hq ) : hqgth n k -> hdisj ( hqgth n m ) ( hqgth m k ) .
@@ -237,17 +237,17 @@ Proof . intros x y z gxz .  destruct ( isdecrelhqgth x y ) as [ gxy | ngxy ] . a
 (** [ hqlth ] *)
 
 
-Definition istranshqlth ( n m k  : hq ) : hqlth n m -> hqlth m k -> hqlth n k := fun lnm lmk => istranshqgth _ _ _ lmk lnm .
+Definition istranshqlth ( n m k  : hq ) : hqlth n m -> hqlth m k -> hqlth n k := λ lnm lmk, istranshqgth _ _ _ lmk lnm .
 
 Definition isirreflhqlth ( n : hq ) : neg ( hqlth n n ) := isirreflhqgth n .
 
-Definition isasymmhqlth ( n m : hq ) : hqlth n m -> hqlth m n -> empty := fun lnm lmn => isasymmhqgth _ _ lmn lnm .
+Definition isasymmhqlth ( n m : hq ) : hqlth n m -> hqlth m n -> empty := λ lnm lmn, isasymmhqgth _ _ lmn lnm .
 
-Definition isantisymmneghqtth  ( n m : hq ) : neg ( hqlth n m ) -> neg ( hqlth m n ) -> paths n m := fun nlnm nlmn => isantisymmneghqgth _ _ nlmn nlnm .
+Definition isantisymmneghqtth  ( n m : hq ) : neg ( hqlth n m ) -> neg ( hqlth m n ) -> n = m := λ nlnm nlmn, isantisymmneghqgth _ _ nlmn nlnm .
 
-Definition isnegrelhqlth : isnegrel hqlth := fun n m => isnegrelhqgth m n .
+Definition isnegrelhqlth : isnegrel hqlth := λ n m, isnegrelhqgth m n .
 
-Definition iscoantisymmhqlth ( n m : hq ) : neg ( hqlth n m ) -> coprod ( hqlth m n ) ( paths n m ) .
+Definition iscoantisymmhqlth ( n m : hq ) : neg ( hqlth n m ) -> ( hqlth m n ) ⨿ ( n = m ) .
 Proof . intros n m nlnm . destruct ( iscoantisymmhqgth m n nlnm ) as [ l | e ] . apply ( ii1 l ) . apply ( ii2 ( pathsinv0 e ) ) . Defined .
 
 Definition iscotranshqlth ( n m k : hq ) : hqlth n k -> hdisj ( hqlth n m ) ( hqlth m k ) .
@@ -263,7 +263,7 @@ Proof. apply istransnegrel . unfold iscotrans. apply iscotranshqgth .  Defined.
 
 Definition isreflhqleh ( n : hq ) : hqleh n n := isirreflhqgth n .
 
-Definition isantisymmhqleh ( n m : hq ) : hqleh n m -> hqleh m n -> paths n m := isantisymmneghqgth n m .
+Definition isantisymmhqleh ( n m : hq ) : hqleh n m -> hqleh m n -> n = m := isantisymmneghqgth n m .
 
 Definition isnegrelhqleh : isnegrel hqleh .
 Proof . apply isdecreltoisnegrel . apply isdecrelhqleh . Defined .
@@ -278,17 +278,17 @@ Proof . intros x y . destruct ( isdecrelhqleh x y ) as [ lxy | lyx ] . apply ( h
 (**  [ hqgeh ] . *)
 
 
-Definition istranshqgeh ( n m k : hq ) : hqgeh n m -> hqgeh m k -> hqgeh n k := fun gnm gmk => istranshqleh _ _ _ gmk gnm .
+Definition istranshqgeh ( n m k : hq ) : hqgeh n m -> hqgeh m k -> hqgeh n k := λ gnm gmk, istranshqleh _ _ _ gmk gnm .
 
 Definition isreflhqgeh ( n : hq ) : hqgeh n n := isreflhqleh _ .
 
-Definition isantisymmhqgeh ( n m : hq ) : hqgeh n m -> hqgeh m n -> paths n m := fun gnm gmn => isantisymmhqleh _ _ gmn gnm .
+Definition isantisymmhqgeh ( n m : hq ) : hqgeh n m -> hqgeh m n -> n = m := λ gnm gmn, isantisymmhqleh _ _ gmn gnm .
 
-Definition isnegrelhqgeh : isnegrel hqgeh := fun n m => isnegrelhqleh m n .
+Definition isnegrelhqgeh : isnegrel hqgeh := λ n m, isnegrelhqleh m n .
 
 Definition iscoasymmhqgeh ( n m : hq ) ( nl : neg ( hqgeh n m ) ) : hqgeh m n := iscoasymmhqleh _ _ nl .
 
-Definition istotalhqgeh : istotal hqgeh := fun n m => istotalhqleh m n .
+Definition istotalhqgeh : istotal hqgeh := λ n m, istotalhqleh m n .
 
 (** ** [hq] is archimedean *)
 
@@ -313,11 +313,11 @@ Definition hqlthtoleh ( n m : hq ) : hqlth n m -> hqleh n m := hqgthtogeh _ _ .
 Definition hqlehtoneghqgth ( n m : hq ) : hqleh n m -> neg ( hqgth n m )  .
 Proof. intros n m is is' . apply ( is is' ) .  Defined .
 
-Definition  hqgthtoneghqleh ( n m : hq ) : hqgth n m -> neg ( hqleh n m ) := fun g l  => hqlehtoneghqgth _ _ l g .
+Definition  hqgthtoneghqleh ( n m : hq ) : hqgth n m -> neg ( hqleh n m ) := λ g l , hqlehtoneghqgth _ _ l g .
 
-Definition hqgehtoneghqlth ( n m : hq ) : hqgeh n m -> neg ( hqlth n m ) := fun gnm lnm => hqlehtoneghqgth _ _ gnm lnm .
+Definition hqgehtoneghqlth ( n m : hq ) : hqgeh n m -> neg ( hqlth n m ) := λ gnm lnm, hqlehtoneghqgth _ _ gnm lnm .
 
-Definition hqlthtoneghqgeh ( n m : hq ) : hqlth n m -> neg ( hqgeh n m ) := fun gnm lnm => hqlehtoneghqgth _ _ lnm gnm .
+Definition hqlthtoneghqgeh ( n m : hq ) : hqlth n m -> neg ( hqgeh n m ) := λ gnm lnm, hqlehtoneghqgth _ _ lnm gnm .
 
 Definition neghqlehtogth ( n m : hq ) : neg ( hqleh n m ) -> hqgth n m := isnegrelhqgth n m .
 
@@ -326,25 +326,25 @@ Definition neghqgehtolth ( n m : hq ) : neg ( hqgeh n m ) -> hqlth n m := isnegr
 Definition neghqgthtoleh ( n m : hq ) : neg ( hqgth n m ) -> hqleh n m .
 Proof . intros n m ng . destruct ( isdecrelhqleh n m ) as [ l | nl ] . apply l . destruct ( nl ng ) .  Defined .
 
-Definition neghqlthtogeh ( n m : hq ) : neg ( hqlth n m ) -> hqgeh n m := fun nl => neghqgthtoleh _ _ nl .
+Definition neghqlthtogeh ( n m : hq ) : neg ( hqlth n m ) -> hqgeh n m := λ nl, neghqgthtoleh _ _ nl .
 
 
 
 (** *** Comparison alternatives *)
 
 
-Definition hqgthorleh ( n m : hq ) : coprod ( hqgth n m ) ( hqleh n m ) .
+Definition hqgthorleh ( n m : hq ) : ( hqgth n m ) ⨿ ( hqleh n m ) .
 Proof . intros . apply ( isdecrelhqgth n m ) .  Defined .
 
-Definition hqlthorgeh ( n m : hq ) : coprod ( hqlth n m ) ( hqgeh n m ) := hqgthorleh _ _ .
+Definition hqlthorgeh ( n m : hq ) : ( hqlth n m ) ⨿ ( hqgeh n m ) := hqgthorleh _ _ .
 
-Definition hqneqchoice ( n m : hq ) ( ne : neg ( paths n m ) ) : coprod ( hqgth n m ) ( hqlth n m ) .
+Definition hqneqchoice ( n m : hq ) ( ne : neg ( n = m ) ) : ( hqgth n m ) ⨿ ( hqlth n m ) .
 Proof . intros . destruct ( hqgthorleh n m ) as [ g | l ]  .  destruct ( hqlthorgeh n m ) as [ g' | l' ] . destruct ( isasymmhqgth _ _ g g' )  .  apply ( ii1 g ) . destruct ( hqlthorgeh n m ) as [ l' | g' ] . apply ( ii2 l' ) . destruct ( ne ( isantisymmhqleh _ _ l g' ) ) . Defined .
 
-Definition hqlehchoice ( n m : hq ) ( l : hqleh n m ) : coprod ( hqlth n m ) ( paths n m ) .
+Definition hqlehchoice ( n m : hq ) ( l : hqleh n m ) : ( hqlth n m ) ⨿ ( n = m ) .
 Proof .  intros . destruct ( hqlthorgeh n m ) as [ l' | g ] .   apply ( ii1 l' ) . apply ( ii2 ( isantisymmhqleh _ _ l g ) ) . Defined .
 
-Definition hqgehchoice ( n m : hq ) ( g : hqgeh n m ) : coprod ( hqgth n m ) ( paths n m ) .
+Definition hqgehchoice ( n m : hq ) ( g : hqgeh n m ) : ( hqgth n m ) ⨿ ( n = m ) .
 Proof .  intros . destruct ( hqgthorleh n m ) as [ g' | l ] .  apply ( ii1 g' ) .  apply ( ii2 ( isantisymmhqleh _ _ l g ) ) .  Defined .
 
 
@@ -380,9 +380,9 @@ Definition isrngaddhzgth : @isbinophrel hqaddabgr hqgth .
 Proof . apply isrngaddfldfracgt . exact isirreflhzgth . Defined .
 
 
-Definition hqgthandplusl ( n m k : hq ) : hqgth n m -> hqgth ( k + n ) ( k + m ) := fun g => ( pr1 isrngaddhzgth ) n m k g .
+Definition hqgthandplusl ( n m k : hq ) : hqgth n m -> hqgth ( k + n ) ( k + m ) := λ g, ( pr1 isrngaddhzgth ) n m k g .
 
-Definition hqgthandplusr ( n m k : hq ) : hqgth n m -> hqgth ( n + k ) ( m + k ) := fun g => ( pr2 isrngaddhzgth ) n m k g .
+Definition hqgthandplusr ( n m k : hq ) : hqgth n m -> hqgth ( n + k ) ( m + k ) := λ g, ( pr2 isrngaddhzgth ) n m k g .
 
 Definition hqgthandpluslinv  ( n m k : hq ) : hqgth ( k + n ) ( k + m ) -> hqgth n m  .
 Proof. intros n m k g . set ( g' := hqgthandplusl _ _ ( - k ) g ) . clearbody g' . rewrite ( pathsinv0 ( hqplusassoc _ _ n ) ) in g' . rewrite ( pathsinv0 ( hqplusassoc _ _ m ) ) in g' .  rewrite ( hqlminus k ) in g' . rewrite ( hqplusl0 _ ) in g' .   rewrite ( hqplusl0 _ ) in g' . apply g' .  Defined .
@@ -652,10 +652,10 @@ rewrite en .  rewrite ( hqmultx0 m ) . apply isreflhqgeh .   Defined .
 
 (** *** Cancellation properties of multiplication on [ hq ] *)
 
-Lemma hqmultlcan ( a b c : hq ) ( ne : neg ( paths c 0 ) ) ( e : paths ( c * a ) ( c * b ) ) : paths a b .
+Lemma hqmultlcan ( a b c : hq ) ( ne : neg ( c = 0 ) ) ( e : paths ( c * a ) ( c * b ) ) : a = b .
 Proof . intros . apply ( intdomlcan hq _ _ _ ne e ) . Defined .
 
-Lemma hqmultrcan ( a b c : hq ) ( ne : neg ( paths c 0 ) ) ( e : paths ( a * c ) ( b * c ) ) : paths a b .
+Lemma hqmultrcan ( a b c : hq ) ( ne : neg ( c = 0 ) ) ( e : paths ( a * c ) ( b * c ) ) : a = b .
 Proof . intros . apply ( intdomrcan hq _ _ _ ne e ) . Defined .
 
 
@@ -664,7 +664,7 @@ Proof . intros . apply ( intdomrcan hq _ _ _ ne e ) . Defined .
 (** *** Positive rationals *)
 
 Definition hqpos : @subabmonoid hqmultabmonoid .
-Proof . split with ( fun x => hqgth x 0 ) . split .  intros x1 x2 . apply ( isrngmulthqgth ) . apply ( pr2 x1 ) .  apply ( pr2 x2 ) .  apply ( ct ( hqgth , isdecrelhqgth , 1 , 0 ) ) . Defined .
+Proof . split with ( λ x, hqgth x 0 ) . split .  intros x1 x2 . apply ( isrngmulthqgth ) . apply ( pr2 x1 ) .  apply ( pr2 x2 ) .  apply ( ct ( hqgth , isdecrelhqgth , 1 , 0 ) ) . Defined .
 
 
 (** *** Canonical ring homomorphism from [ hz ] to [ hq ] *)

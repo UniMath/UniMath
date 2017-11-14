@@ -32,7 +32,7 @@ COQBIN ?=
 our-all: check-first
 our-all: check-for-change-to-Foundations
 everything: TAGS our-all html install
-check-first: enforce-prescribed-ordering check-travis enforce-listing-of-proof-files
+check-first: enforce-prescribed-ordering check-travis
 
 COQIDE_OPTION := no
 

@@ -148,7 +148,7 @@ Section def_grothendiecktopology.
       which satisfy the isSheaf proposition. *)
   Definition hsubtype_obs_isSheaf (GT : GrothendieckTopology) :
     hsubtype (functor_precategory (opp_precat C) HSET has_homsets_HSET) :=
-    (fun P : functor_precategory (opp_precat C) HSET has_homsets_HSET =>
+    (λ P : functor_precategory (opp_precat C) HSET has_homsets_HSET,
        hProppair _ (isaprop_isSheaf GT (mk_Presheaf P))).
 
   Definition categoryOfSheaves (GT : GrothendieckTopology) :

@@ -64,7 +64,7 @@ Proof.
     + intro b.
       assert (Heq : isaprop (gamma b = delta b)).
       { apply hsC . }
-      apply (p b (tpair (fun x => isaprop x) (gamma b = delta b) Heq)).
+      apply (p b (tpair (λ x, isaprop x) (gamma b = delta b) Heq)).
       simpl in *; clear Heq.
       intros [a f].
       apply (pre_comp_with_iso_is_inj C (F (H a)) (F b) (G b) (# F f)
@@ -179,7 +179,7 @@ Proof.
      (fun g : F b --> G b =>
       ∏ (a : A) (f : iso (H a) b),
       gamma a = (#F f· g)· #G (inv_from_iso f)))).
-  apply (p b (tpair (fun x => isaprop x) _ X)).
+  apply (p b (tpair (λ x, isaprop x) _ X)).
   intros [anot h].
   simpl in *.
   set (g := #F (inv_from_iso h) · gamma anot · #G h).
@@ -218,7 +218,7 @@ Defined.
 
 
 Definition pdelta : ∏ b : B, F b --> G b :=
-         fun b => pr1 (pr1 (iscontr_aux_space b)).
+         λ b, pr1 (pr1 (iscontr_aux_space b)).
 
 Lemma is_nat_trans_pdelta :
      is_nat_trans F G pdelta.
@@ -231,7 +231,7 @@ Proof.
                          #F f· pdelta b') T )).
   intro t; destruct t as [a h].
   simpl in *.
-  apply (p b' (tpair (fun x => isaprop x)
+  apply (p b' (tpair (λ x, isaprop x)
                        (pdelta b· #G f =
                          #F f· pdelta b')
                        (T ))).

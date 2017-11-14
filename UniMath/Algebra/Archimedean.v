@@ -534,13 +534,9 @@ Proof.
     intros n.
     exists (pr1 n).
     abstract (
-        tryif primitive_projections
-        then pattern x at 1
-        else pattern x at 2;
+        pattern x at 1;
         rewrite <- (riglunax1 X x) ;
-        tryif primitive_projections
-        then pattern (0%rig : X) at 1
-        else pattern (0%rig : X) at 2 ;
+        pattern (0%rig : X) at 1;
         rewrite <- (rigmultx0 X (nattorig (pr1 n))) ;
         rewrite nattorig_natmult ;
         exact (pr2 n)).
@@ -550,9 +546,7 @@ Proof.
     intros n.
     exists (pr1 n).
     abstract (
-        tryif primitive_projections
-        then pattern (0%rig : X) at 1
-        else pattern (0%rig : X) at 2;
+        pattern (0%rig : X) at 1;
         rewrite <- (rigmultx0 X (nattorig (pr1 n))), nattorig_natmult ;
         exact (pr2 n)).
 Defined.

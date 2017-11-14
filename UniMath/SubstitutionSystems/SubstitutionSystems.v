@@ -77,9 +77,7 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 
 Definition eta_from_alg (T : algebra_ob Id_H) : EndC ⟦ functor_identity _,  `T ⟧.
 Proof.
-  tryif primitive_projections
-  then exact (BinCoproductIn1 _ (CPEndC _ _) · alg_map _ T)
-  else exact (BinCoproductIn1 _ _            · alg_map _ T).
+  exact (BinCoproductIn1 _ (CPEndC _ _) · alg_map _ T).
 Defined.
 
 Local Notation η := eta_from_alg.
@@ -92,9 +90,7 @@ Defined.
 
 Definition tau_from_alg (T : algebra_ob Id_H) : EndC ⟦H `T, `T⟧.
 Proof.
-  tryif primitive_projections
-  then exact (BinCoproductIn2 _ (CPEndC _ _) · alg_map _ T)
-  else exact (BinCoproductIn2 _ _            · alg_map _ T).
+  exact (BinCoproductIn2 _ (CPEndC _ _) · alg_map _ T).
 Defined.
 Local Notation τ := tau_from_alg.
 
@@ -154,7 +150,7 @@ Proof.
     simpl.
     unfold coproduct_nat_trans_in1_data.
     assert (Hyp_inst := nat_trans_eq_pointwise Hyp c); clear Hyp.
-    apply (maponpaths (fun m => BinCoproductIn1 C (CP _ _)· m)) in Hyp_inst.
+    apply (maponpaths (λ m, BinCoproductIn1 C (CP _ _)· m)) in Hyp_inst.
     match goal with |[ H1 : _  = ?f |- _ = _   ] =>
          pathvia (f) end.
 
@@ -175,7 +171,7 @@ Proof.
     simpl.
     unfold coproduct_nat_trans_in2_data.
     assert (Hyp_inst := nat_trans_eq_pointwise Hyp c); clear Hyp.
-    apply (maponpaths (fun m =>  BinCoproductIn2 C (CP _ _)· m)) in Hyp_inst.
+    apply (maponpaths (λ m,  BinCoproductIn2 C (CP _ _)· m)) in Hyp_inst.
     match goal with |[ H1 : _  = ?f |- _ = _   ] =>
          pathvia (f) end.
 

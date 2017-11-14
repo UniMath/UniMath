@@ -67,7 +67,7 @@ Definition sub_precategories (C : precategory) := total2 (
 
 Lemma is_sub_precategory_full (C : precategory)
          (C':hsubtype (ob C)) :
-        is_sub_precategory C' (fun a b => fun f => htrue).
+        is_sub_precategory C' (λ a b, λ f, htrue).
 Proof.
   split;
   intros; exact tt.
@@ -76,7 +76,7 @@ Defined.
 Definition full_sub_precategory {C : precategory}
          (C': hsubtype (ob C)) :
    sub_precategories C :=
-  tpair _  (dirprodpair C' (fun a b f => htrue)) (is_sub_precategory_full C C').
+  tpair _  (dirprodpair C' (λ a b f, htrue)) (is_sub_precategory_full C C').
 
 
 (** We have a coercion [carrier] turning every predicate [P] on a type [A] into the
@@ -162,7 +162,7 @@ Definition sub_precategory_ob_mor (C : precategory)(C':sub_precategories C) :
      precategory_ob_mor.
 Proof.
   exists (sub_ob C').
-  exact (fun a b => @sub_precategory_morphisms _ C' a b).
+  exact (λ a b, @sub_precategory_morphisms _ C' a b).
 Defined.
 
 (*
@@ -204,8 +204,8 @@ Lemma eq_in_sub_precategory2 (C : precategory)(C':sub_precategories C)
      (a b : sub_ob C') (f g : a --> b)
  (pf : sub_precategory_predicate_morphisms C' _ _ f)
  (pg : sub_precategory_predicate_morphisms C' _ _ g):
-  f = g -> (tpair (fun f => sub_precategory_predicate_morphisms _ _ _ f) f pf) =
-      (tpair (fun f => sub_precategory_predicate_morphisms _ _ _ f) g pg).
+  f = g -> (tpair (λ f, sub_precategory_predicate_morphisms _ _ _ f) f pf) =
+      (tpair (λ f, sub_precategory_predicate_morphisms _ _ _ f) g pg).
 Proof.
   intro H.
   apply (two_arg_paths_f H).
@@ -361,7 +361,7 @@ Defined.
 
 Definition weq_hom_in_subcat_from_hom_in_precat (C : precategory)
      (C' : hsubtype (ob C))
-    (a b : ob (full_sub_precategory C')): weq (pr1 a --> pr1 b) (a-->b) :=
+    (a b : ob (full_sub_precategory C')): (pr1 a --> pr1 b) ≃ (a-->b) :=
   tpair _ _ (isweq_hom_in_subcat_from_hom_in_precat C C' a b).
 
 
@@ -383,9 +383,9 @@ Proof.
   intros a b.
   set (H' := weq_hom_in_subcat_from_hom_in_precat).
   set (H'' := H' D (is_in_img_functor F)).
-  set (Fa := tpair (fun a : ob D => is_in_img_functor F a)
+  set (Fa := tpair (λ a : ob D, is_in_img_functor F a)
         (F a) (image_is_in_image _ _ F a)).
-  set (Fb := tpair (fun a : ob D => is_in_img_functor F a)
+  set (Fb := tpair (λ a : ob D, is_in_img_functor F a)
         (F b) (image_is_in_image _ _ F b)).
   set (H3 := (H'' Fa Fb)).
   assert (H2 : functor_on_morphisms (functor_full_img F) (a:=a) (b:=b) =
@@ -441,7 +441,7 @@ Proof.
 
   generalize Fmor.
   clear Fax.
-  assert (H' : Fob = (fun a : ob C => Fob a)).
+  assert (H' : Fob = (λ a : ob C, Fob a)).
    apply H.
 
   generalize dependent a .

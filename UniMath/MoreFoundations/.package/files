@@ -3,10 +3,10 @@ Tactics.v
 Notations.v
 AlternativeProofs.v
 Subposets.v
+DecidablePropositions.v
 Propositions.v
 Sets.v
 Subtypes.v
-DecidablePropositions.v
 AxiomOfChoice.v
 StructureIdentity.v
 PartA.v
