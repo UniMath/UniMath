@@ -103,14 +103,20 @@ Definition coprod_rect_compute_1
            (f : ∏ (a : A), P (ii1 a))
            (g : ∏ (b : B), P (ii2 b)) (a:A) :
   coprod_rect P f g (ii1 a) = f a.
-Proof. intros. apply idpath. Defined.
+Proof.
+  intros.
+  apply idpath.
+Defined.
 
 Definition coprod_rect_compute_2
            (A B : UU) (P : A ⨿ B -> UU)
            (f : ∏ a : A, P (ii1 a))
            (g : ∏ b : B, P (ii2 b)) (b:B) :
   coprod_rect P f g (ii2 b) = g b.
-Proof. intros. apply idpath. Defined.
+Proof.
+  intros.
+  apply idpath.
+Defined.
 
 (** Dependent sums.
 
@@ -191,9 +197,12 @@ Defined.
 Notation mult := mul.           (* this overrides the notation "mult" defined in Coq's Peano.v *)
 Notation "n * m" := (mul n m) : nat_scope.
 
+(** Some tactics  *)
 
+(* Apply this tactic to a proof of ([X] and [X -> ∅]), in either order: *)
+Ltac contradicts a b := solve [ induction (a b) | induction (b a) ].
 
-(** A few tactics, thanks go to Jason Gross *)
+(** A few more tactics, thanks go to Jason Gross *)
 
 Ltac simple_rapply p :=
   simple refine p ||
@@ -217,6 +226,11 @@ Tactic Notation "use" uconstr(p) := simple_rapply p.
 
 Tactic Notation "transparent" "assert" "(" ident(name) ":" constr(type) ")" :=
   simple refine (let name := (_ : type) in _).
+
+Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
+  let T := type of x in
+  let G := match goal with |- ?G => constr:(G) end in
+  exact (((λ g:G, g) : T -> G) x).
 
 (** reserve notations for later use: *)
 

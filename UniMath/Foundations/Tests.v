@@ -73,10 +73,14 @@ Module Test_sets.
 
   Goal ∏ Y (is:isaset Y) (F:Y->UU) (e :∏ y y', F y -> F y' -> y=y')
          y (f:F y), squash_pairs_to_set F is e (hinhpr (y,,f)) = y.
-  Proof. intros. apply idpath. Qed.
+  Proof.
+    intros. apply idpath.
+  Qed.
 
   Goal ∏ X Y (is:isaset Y) (f:X->Y) (e:∏ x x', f x = f x'),
          f = funcomp hinhpr (squash_to_set is f e).
-  Proof. intros. apply idpath. Qed.
+  Proof.
+    intros. apply idpath.
+  Qed.
 
 End Test_sets.

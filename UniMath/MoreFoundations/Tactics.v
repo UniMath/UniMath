@@ -8,7 +8,7 @@ Require Import UniMath.MoreFoundations.Foundations.
 
 (** A version of "easy" specialized for the needs of UniMath.
 This tactic is supposed to be simple and predictable. The goal
-is to use it to finish of "trivial" goals *)
+is to use it to finish "trivial" goals *)
 Ltac unimath_easy :=
   trivial; intros; solve
    [ repeat (solve [trivial | apply pathsinv0; trivial] || split)

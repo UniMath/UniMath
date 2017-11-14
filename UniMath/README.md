@@ -31,6 +31,8 @@ checking systems, and we follow a style of coding designed to render proofs
 less fragile and to make the files have a more uniform and pleasing appearance.
 
 * Do not use `Admitted` or introduce new axioms.
+* Do not use `apply` with a term that needs no additional arguments filled in,
+  because using `exact` would be clearer.
 * Do not use `Prop` or `Set`, and ensure definitions don't produce
   elements of them.
 * Do not use `Type`, except in `Foundations/Basics/Preamble.v`.

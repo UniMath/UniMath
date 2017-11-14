@@ -23,6 +23,7 @@ Require Import UniMath.Ktheory.Utilities
                UniMath.NumberSystems.Integers
                UniMath.Ktheory.Integers
                UniMath.Ktheory.Nat
+               UniMath.Ktheory.Tactics
                UniMath.Ktheory.MoreEquivalences.
 
 Unset Automatic Introduction.
