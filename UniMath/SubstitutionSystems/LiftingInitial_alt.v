@@ -271,9 +271,9 @@ Lemma bracket_Thm15_ok_part1 (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
 Proof.
 apply (nat_trans_eq hsC); intro c.
 assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
-assert (h_eq' := maponpaths (fun m =>
+assert (h_eq' := maponpaths (λ m,
                (((aux_iso_1_inv Z):(_⟹_)) _)· m) h_eq); clear h_eq.
-assert (h_eq1' := maponpaths (fun m =>
+assert (h_eq1' := maponpaths (λ m,
                (BinCoproductIn1 EndC (CPEndC _ _))· m) h_eq'); clear h_eq'.
 assert (h_eq1'_inst := nat_trans_eq_pointwise h_eq1' c); clear h_eq1'.
 eapply pathscomp0, pathscomp0; [|apply (!h_eq1'_inst)|]; clear h_eq1'_inst.
@@ -297,10 +297,10 @@ Lemma bracket_Thm15_ok_part2 (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
 Proof.
 apply (nat_trans_eq hsC); intro c.
 assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
-assert (h_eq' := maponpaths (fun m =>
+assert (h_eq' := maponpaths (λ m,
                 (((aux_iso_1_inv Z):(_⟹_)) _)· m) h_eq); clear h_eq.
 (* until here same as in previous lemma *)
-assert (h_eq2' := maponpaths (fun m =>
+assert (h_eq2' := maponpaths (λ m,
                 (BinCoproductIn2 EndC (CPEndC _ _))· m) h_eq');  clear h_eq'.
 assert (h_eq2'_inst := nat_trans_eq_pointwise h_eq2' c); clear h_eq2'.
 eapply pathscomp0, pathscomp0; [|apply (!h_eq2'_inst)|]; clear h_eq2'_inst.
@@ -393,7 +393,7 @@ Definition constant_nat_trans (C' D : precategory)
    (hsD : has_homsets D) (d d' : D) (m : D⟦d,d'⟧)
     : [C', D, hsD] ⟦constant_functor C' D d, constant_functor C' D d'⟧.
 Proof.
-exists (fun _ => m).
+exists (λ _, m).
 abstract (intros ? ? ?; pathvia m; [ apply id_left | apply pathsinv0, id_right]).
 Defined.
 

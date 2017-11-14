@@ -496,7 +496,6 @@ Definition flatten_partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) :
 Proof.
   intros. intro i.
   change (x (weqstnsum1 f (pr1 (invmap (weqstnsum1 f) i),, pr2 (invmap (weqstnsum1 f) i))) = x i).
-  tryif primitive_projections then idtac else rewrite <- tppr.
   apply maponpaths. apply subtypeEquality_prop. now rewrite homotweqinvweq.
 Defined.
 

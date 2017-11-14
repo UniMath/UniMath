@@ -24,7 +24,7 @@ Section def_po.
   Definition isPushout {a b c d : C} (f : a --> b) (g : a --> c)
              (in1 : b --> d) (in2 : c --> d) (H : f · in1 = g · in2) : UU :=
     ∏ e (h : b --> e) (k : c --> e)(H : f · h = g · k),
-    iscontr (total2 (fun hk : d --> e => dirprod (in1 · hk = h) (in2 · hk = k))).
+    iscontr (total2 (fun hk : d --> e => (in1 · hk = h) × (in2 · hk = k))).
 
   Lemma isaprop_isPushout {a b c d : C} (f : a --> b) (g : a --> c)
         (in1 : b --> d) (in2 : c --> d) (H : f · in1 = g · in2) :
@@ -49,7 +49,7 @@ Section def_po.
   Qed.
 
   Definition Pushout {a b c : C} (f : a --> b) (g : a --> c) :=
-    total2 (fun pfg : total2 (fun p : C => dirprod (b --> p) (c --> p)) =>
+    total2 (fun pfg : total2 (λ p : C, (b --> p) × (c --> p)) =>
               total2 (fun H : f · pr1 (pr2 pfg) = g · pr2 (pr2 pfg) =>
                         isPushout f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
 
@@ -61,7 +61,7 @@ Section def_po.
 
 
   Definition PushoutObject {a b c : C} {f : a --> b} {g : a --> c}:
-    Pushout f g -> C := fun H => pr1 (pr1 H).
+    Pushout f g -> C := λ H, pr1 (pr1 H).
   Coercion PushoutObject : Pushout >-> ob.
 
   Definition PushoutIn1 {a b c : C} {f : a --> b} {g : a --> c}
@@ -314,7 +314,7 @@ Section epi_po.
     apply mk_isEpi. intros z g0 h X.
     use (MorphismsOutofPushoutEqual (isPushout_Pushout PB) _ _ _ X).
 
-    set (X0 := maponpaths (fun f => g · f) X); simpl in X0.
+    set (X0 := maponpaths (λ f, g · f) X); simpl in X0.
     rewrite assoc in X0. rewrite assoc in X0.
     rewrite <- (PushoutSqrCommutes PB) in X0.
     rewrite <- assoc in X0. rewrite <- assoc in X0.
@@ -328,7 +328,7 @@ Section epi_po.
     apply mk_isEpi. intros z g0 h X.
     use (MorphismsOutofPushoutEqual (isPushout_Pushout PB) _ _ X).
 
-    set (X0 := maponpaths (fun f' => f · f') X); simpl in X0.
+    set (X0 := maponpaths (λ f', f · f') X); simpl in X0.
     rewrite assoc in X0. rewrite assoc in X0.
     rewrite (PushoutSqrCommutes PB) in X0.
     rewrite <- assoc in X0. rewrite <- assoc in X0.
@@ -368,8 +368,8 @@ Section po_criteria.
     intros e h k Hk.
     set (com1 := BinCoproductIn1Commutes C _ _ BinCoprod _ h k).
     set (com2 := BinCoproductIn2Commutes C _ _ BinCoprod _ h k).
-    apply (maponpaths (fun l : _ => f · l)) in com1.
-    apply (maponpaths (fun l : _ => g · l)) in com2.
+    apply (maponpaths (λ l : _, f · l)) in com1.
+    apply (maponpaths (λ l : _, g · l)) in com2.
     rewrite <- com1 in Hk. rewrite <- com2 in Hk.
     repeat rewrite assoc in Hk.
     apply (unique_exists (CoequalizerOut CEq _ _ Hk)).

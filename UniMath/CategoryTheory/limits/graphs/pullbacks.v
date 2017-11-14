@@ -139,7 +139,7 @@ Defined.
 
 (*
 Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
-     total2 (fun pfg : total2 (fun p : C => dirprod (p --> b) (p --> c)) =>
+     total2 (fun pfg : total2 (λ p : C, (p --> b) × (p --> c)) =>
          total2 (fun H : pr1 (pr2 pfg) · f = pr2 (pr2 pfg) · g =>
         isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
  *)
@@ -152,7 +152,7 @@ Definition hasPullbacks := ∏ (a b c : C) (f : C⟦b, a⟧) (g : C⟦c, a⟧),
 
 
 Definition PullbackObject {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}:
-   Pullback f g -> C := fun H => lim H.
+   Pullback f g -> C := λ H, lim H.
 (* Coercion PullbackObject : Pullback >-> ob. *)
 
 Definition PullbackPr1 {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}

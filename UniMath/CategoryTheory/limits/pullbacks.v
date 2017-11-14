@@ -62,7 +62,7 @@ Proof.
 Qed.
 
 Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
-     total2 (fun pfg : total2 (fun p : C => dirprod (p --> b) (p --> c)) =>
+     total2 (fun pfg : total2 (λ p : C, (p --> b) × (p --> c)) =>
          total2 (fun H : pr1 (pr2 pfg) · f = pr2 (pr2 pfg) · g =>
         isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
 
@@ -74,7 +74,7 @@ Definition hasPullbacks := ∏ (a b c : C) (f : b --> a) (g : c --> a),
 
 
 Definition PullbackObject {a b c : C} {f : b --> a} {g : c --> a}:
-   Pullback f g -> C := fun H => pr1 (pr1 H).
+   Pullback f g -> C := λ H, pr1 (pr1 H).
 Coercion PullbackObject : Pullback >-> ob.
 
 Definition PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a}
@@ -377,7 +377,7 @@ Section monic_pb.
     apply mk_isMonic. intros x g0 h X.
     use (MorphismsIntoPullbackEqual (isPullback_Pullback PB) _ _ _ X).
 
-    set (X0 := maponpaths (fun f => f · g) X); simpl in X0.
+    set (X0 := maponpaths (λ f, f · g) X); simpl in X0.
     rewrite <- assoc in X0. rewrite <- assoc in X0.
     rewrite <- (PullbackSqrCommutes PB) in X0.
     rewrite assoc in X0. rewrite assoc in X0.
@@ -391,7 +391,7 @@ Section monic_pb.
     apply mk_isMonic. intros x g h X.
     use (MorphismsIntoPullbackEqual (isPullback_Pullback PB) _ _ X).
 
-    set (X0 := maponpaths (fun f' => f' · f) X); simpl in X0.
+    set (X0 := maponpaths (λ f', f' · f) X); simpl in X0.
     rewrite <- assoc in X0. rewrite <- assoc in X0.
     rewrite (PullbackSqrCommutes PB) in X0.
     rewrite assoc in X0. rewrite assoc in X0.
@@ -432,8 +432,8 @@ Section pb_criteria.
     intros e h k Hk.
     set (com1 := BinProductPr1Commutes C _ _ BinProd _ h k).
     set (com2 := BinProductPr2Commutes C _ _ BinProd _ h k).
-    apply (maponpaths (fun l : _ => l · f)) in com1.
-    apply (maponpaths (fun l : _ => l · g)) in com2.
+    apply (maponpaths (λ l : _, l · f)) in com1.
+    apply (maponpaths (λ l : _, l · g)) in com2.
     rewrite <- com1 in Hk. rewrite <- com2 in Hk.
     repeat rewrite <- assoc in Hk.
     apply (unique_exists (EqualizerIn Eq _ _ Hk)).

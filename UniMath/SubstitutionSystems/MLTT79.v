@@ -136,7 +136,7 @@ induction n as [|n ih].
 Defined.
 
 (** Define the signature of the constructors for Fin *)
-Definition FinSigConstructors (n : nat) : stn n -> list nat := fun _ => [].
+Definition FinSigConstructors (n : nat) : stn n -> list nat := λ _, [].
 
 (* The FinSig family is defined by recursion and decomposed into the
    type, the constructors and the eliminator *)
@@ -184,7 +184,7 @@ Definition NatSig : BindingSig :=
 Definition WSig : BindingSig :=
   mkBindingSig (isasetstn 3) (three_rec [0,1] [0,0] [0,3]).
 
-Definition USig : BindingSig := mkBindingSig isasetnat (fun _ => []).
+Definition USig : BindingSig := mkBindingSig isasetnat (λ _, []).
 
 Let SigHSET := Signature HSET has_homsets_HSET HSET has_homsets_HSET.
 

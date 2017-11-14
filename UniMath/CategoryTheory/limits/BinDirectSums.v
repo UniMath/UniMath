@@ -385,7 +385,7 @@ Section bindirectsums_monics_and_epis.
   Lemma to_In1_isMonic {a b : A} (B : BinDirectSumCone A a b) : isMonic (to_In1 A B).
   Proof.
     intros z f g H.
-    apply (maponpaths (fun h : _ => h · (to_Pr1 A B))) in H.
+    apply (maponpaths (λ h : _, h · (to_Pr1 A B))) in H.
     repeat rewrite <- assoc in H. rewrite (to_IdIn1 A B) in H.
     repeat rewrite id_right in H. apply H.
   Qed.
@@ -393,7 +393,7 @@ Section bindirectsums_monics_and_epis.
   Lemma to_In2_isMonic {a b : A} (B : BinDirectSumCone A a b) : isMonic (to_In2 A B).
   Proof.
     intros z f g H.
-    apply (maponpaths (fun h : _ => h · (to_Pr2 A B))) in H.
+    apply (maponpaths (λ h : _, h · (to_Pr2 A B))) in H.
     repeat rewrite <- assoc in H. rewrite (to_IdIn2 A B) in H.
     repeat rewrite id_right in H. apply H.
   Qed.
@@ -401,7 +401,7 @@ Section bindirectsums_monics_and_epis.
   Lemma to_Pr1_isEpi {a b : A} (B : BinDirectSumCone A a b) : isEpi (to_Pr1 A B).
   Proof.
     intros z f g H.
-    apply (maponpaths (fun h : _ => (to_In1 A B) · h)) in H.
+    apply (maponpaths (λ h : _, (to_In1 A B) · h)) in H.
     repeat rewrite assoc in H. rewrite (to_IdIn1 A B) in H.
     repeat rewrite id_left in H. apply H.
   Qed.
@@ -409,7 +409,7 @@ Section bindirectsums_monics_and_epis.
   Lemma to_Pr2_isEpi {a b : A} (B : BinDirectSumCone A a b) : isEpi (to_Pr2 A B).
   Proof.
     intros z f g H.
-    apply (maponpaths (fun h : _ => (to_In2 A B) · h)) in H.
+    apply (maponpaths (λ h : _, (to_In2 A B) · h)) in H.
     repeat rewrite assoc in H. rewrite (to_IdIn2 A B) in H.
     repeat rewrite id_left in H. apply H.
   Qed.

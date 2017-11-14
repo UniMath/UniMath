@@ -662,7 +662,7 @@ Section transport_section'.
 
   Lemma transport_hz_source_target (f : hz -> ob C) (n : hz) (H : ∏ (i : hz), C⟦f i, f (i + n)⟧)
         (i i' : hz) (e1 : i = i') :
-    H i' = transportf (fun (x : ob C) => C⟦x, f (i' + n)⟧) (maponpaths f e1)
+    H i' = transportf (λ (x : ob C), C⟦x, f (i' + n)⟧) (maponpaths f e1)
                       (transportf (precategory_morphisms (f i))
                                   (maponpaths f (hzplusradd i i' n e1)) (H i)).
   Proof.
@@ -673,7 +673,7 @@ Section transport_section'.
         (i i' : hz) (e1 : i = i') :
     H i' = transportf (precategory_morphisms (f i'))
                       (maponpaths f (hzplusradd i i' n e1))
-                      (transportf (fun (x : ob C) => C⟦x, f (i + n)⟧) (maponpaths f e1) (H i)).
+                      (transportf (λ (x : ob C), C⟦x, f (i + n)⟧) (maponpaths f e1) (H i)).
   Proof.
     induction e1. apply idpath.
   Qed.
@@ -681,7 +681,7 @@ Section transport_section'.
   Lemma transport_hz_section (f : hz -> ob C) (n : hz) (H : ∏ (i : hz), C⟦f i, f (i + n)⟧)
         (i i' : hz) (e1 : i = i') :
     transportf (precategory_morphisms (f i)) (maponpaths f (hzplusradd i i' n e1)) (H i) =
-    transportf (fun (x : ob C) => C⟦x, f (i' + n)⟧) (maponpaths f (! e1)) (H i').
+    transportf (λ (x : ob C), C⟦x, f (i' + n)⟧) (maponpaths f (! e1)) (H i').
   Proof.
     induction e1. apply idpath.
   Qed.
@@ -689,7 +689,7 @@ Section transport_section'.
   Lemma transport_hz_section' (f : hz -> ob C) (n : hz) (H : ∏ (i : hz), C⟦f (i + n), f i⟧)
         (i i' : hz) (e1 : i + n = i' + n) (e2 : i = i') :
     transportf (precategory_morphisms (f (i + n))) (maponpaths f e2) (H i) =
-    transportf (fun (x : ob C) => C⟦x, f i'⟧) (maponpaths f (! e1)) (H i').
+    transportf (λ (x : ob C), C⟦x, f i'⟧) (maponpaths f (! e1)) (H i').
   Proof.
     induction e2. assert (e : e1 = idpath _) by apply isasethz. rewrite e. clear e. apply idpath.
   Qed.
@@ -697,7 +697,7 @@ Section transport_section'.
   Lemma transport_hz_double_section (f f' : hz -> ob C) (H : ∏ (i : hz), C⟦f i, f' i⟧)
         (i i' : hz) (e : i = i') :
     transportf (precategory_morphisms (f i)) (maponpaths f' e) (H i) =
-    transportf (fun (x : ob C) => C⟦x, f' i'⟧) (maponpaths f (! e)) (H i').
+    transportf (λ (x : ob C), C⟦x, f' i'⟧) (maponpaths f (! e)) (H i').
   Proof.
     induction e. apply idpath.
   Qed.
@@ -705,7 +705,7 @@ Section transport_section'.
   Lemma transport_hz_double_section_source_target (f f' : hz -> ob C) (H : ∏ (i : hz), C⟦f i, f' i⟧)
         (i i' : hz) (e : i = i') :
     H i' = transportf (precategory_morphisms (f i')) (maponpaths f' e)
-                      (transportf (fun (x : ob C) => C⟦x, f' i⟧) (maponpaths f e) (H i)).
+                      (transportf (λ (x : ob C), C⟦x, f' i⟧) (maponpaths f e) (H i)).
   Proof.
     induction e. apply idpath.
   Qed.
@@ -935,7 +935,7 @@ Section acyclic_complexes.
       * exact (fromempty (hzeqeisi e e')).
       * induction (isdecrelhzeq (i + 1) (i0 + 1)) as [e'' | n''].
         -- exact (FromAcyclicComplexFromObject_comm_eq1 f i0 e e'').
-        -- exact (fromempty (n'' (maponpaths (fun i' : hz => i' + 1) e))).
+        -- exact (fromempty (n'' (maponpaths (λ i' : hz, i' + 1) e))).
     + induction (isdecrelhzeq (i + 1) i0) as [e' | n'].
       * induction (isdecrelhzeq i (i0 + 1)) as [e'' | n''].
         -- exact (fromempty (hzeqsnmnsm e' e'')).
@@ -973,13 +973,13 @@ Section acyclic_complexes.
     induction (isdecrelhzeq (i - 1) i0) as [e | n].
     - use compose.
       + exact (C i).
-      + exact (transportf (fun x' : ob A => A⟦x', C i⟧) (maponpaths C e)
+      + exact (transportf (λ x' : ob A, A⟦x', C i⟧) (maponpaths C e)
                           (transportf (precategory_morphisms (C (i - 1)))
                                       (maponpaths C (hzrminusplus i 1))
                                       (Diff C (i - 1)))).
       + exact f.
     - induction (isdecrelhzeq (i - 1 + 1) i0) as [e' | n'].
-      + exact (transportf (fun x' : ob A => A⟦x', a⟧) (maponpaths C (! (hzrminusplus i 1) @ e')) f).
+      + exact (transportf (λ x' : ob A, A⟦x', a⟧) (maponpaths C (! (hzrminusplus i 1) @ e')) f).
       + exact (ZeroArrow (Additive.to_Zero A) (C i0) (Additive.to_Zero A)).
   Defined.
 
@@ -1099,11 +1099,11 @@ Section complexes_precat.
   (** ** Construction of the category of complexes *)
 
   Definition ComplexPreCat_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) (Complex A) (fun C1 C2 : Complex A => Morphism C1 C2).
+    tpair (λ ob : UU, ob -> ob -> UU) (Complex A) (λ C1 C2 : Complex A, Morphism C1 C2).
 
   Definition ComplexPreCat_data : precategory_data :=
     precategory_data_pair
-      ComplexPreCat_ob_mor (fun (C : Complex A) => IdMor C)
+      ComplexPreCat_ob_mor (λ (C : Complex A), IdMor C)
       (fun (C1 C2 C3 : Complex A) (M1 : Morphism C1 C2) (M2 : Morphism C2 C3) => MorphismComp M1 M2).
 
   Lemma is_precategory_ComplexPreCat_data : is_precategory ComplexPreCat_data.
@@ -2079,18 +2079,18 @@ Section transport_hz_toBinDirectSums.
   Context {A : Additive}.
 
   Lemma transport_to_BinDirectSums (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
-    @maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i0) (f' i0)) _ _ e =
-    (@maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i0) (f' i')) _ _ e)
-      @ (@maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i) (f' i0)) _ _ e).
+    @maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e =
+    (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i')) _ _ e)
+      @ (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i) (f' i0)) _ _ e).
   Proof.
     induction e. apply idpath.
   Qed.
 
   Lemma transport_to_BinDirectSums_comm (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
-    (@maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i0) (f' i')) _ _ e)
-      @ (@maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i) (f' i0)) _ _ e) =
-    (@maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i') (f' i0)) _ _ e)
-      @ (@maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i0) (f' i)) _ _ e).
+    (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i')) _ _ e)
+      @ (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i) (f' i0)) _ _ e) =
+    (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i') (f' i0)) _ _ e)
+      @ (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i)) _ _ e).
   Proof.
     induction e. apply idpath.
   Qed.
@@ -2098,8 +2098,8 @@ Section transport_hz_toBinDirectSums.
   Lemma transport_hz_to_In1 (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
     to_In1 A (to_BinDirectSums A (f i) (f' i)) =
     transportf (precategory_morphisms (f i))
-               (@maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i0) (f' i0)) _ _ e)
-               (transportf (fun (x : ob A) => A⟦x, to_BinDirectSums A (f i') (f' i')⟧)
+               (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
+               (transportf (λ (x : ob A), A⟦x, to_BinDirectSums A (f i') (f' i')⟧)
                            (maponpaths f e) (to_In1 A (to_BinDirectSums A (f i') (f' i')))).
   Proof.
     induction e. apply idpath.
@@ -2107,9 +2107,9 @@ Section transport_hz_toBinDirectSums.
 
   Lemma transport_hz_to_In1' (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
     transportf (precategory_morphisms (f i))
-               (@maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i0) (f' i0)) _ _ (! e))
+               (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ (! e))
                (to_In1 A (to_BinDirectSums A (f i) (f' i))) =
-    transportf (fun (x : ob A) => A⟦x, to_BinDirectSums A (f i') (f' i')⟧) (maponpaths f e)
+    transportf (λ (x : ob A), A⟦x, to_BinDirectSums A (f i') (f' i')⟧) (maponpaths f e)
                (to_In1 A (to_BinDirectSums A (f i') (f' i'))).
   Proof.
     induction e. apply idpath.
@@ -2118,8 +2118,8 @@ Section transport_hz_toBinDirectSums.
   Lemma transport_hz_to_In2 (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
     to_In2 A (to_BinDirectSums A (f i) (f' i)) =
     transportf (precategory_morphisms (f' i))
-               (@maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i0) (f' i0)) _ _ e)
-               (transportf (fun (x : ob A) => A⟦x, to_BinDirectSums A (f i') (f' i')⟧)
+               (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
+               (transportf (λ (x : ob A), A⟦x, to_BinDirectSums A (f i') (f' i')⟧)
                            (maponpaths f' e) (to_In2 A (to_BinDirectSums A (f i') (f' i')))).
   Proof.
     induction e. apply idpath.
@@ -2127,9 +2127,9 @@ Section transport_hz_toBinDirectSums.
 
   Lemma transport_hz_to_In2' (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
     transportf (precategory_morphisms (f' i))
-               (@maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i0) (f' i0)) _ _ (! e))
+               (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ (! e))
                (to_In2 A (to_BinDirectSums A (f i) (f' i))) =
-    transportf (fun (x : ob A) => A⟦x, to_BinDirectSums A (f i') (f' i')⟧) (maponpaths f' e)
+    transportf (λ (x : ob A), A⟦x, to_BinDirectSums A (f i') (f' i')⟧) (maponpaths f' e)
                (to_In2 A (to_BinDirectSums A (f i') (f' i'))).
   Proof.
     induction e. apply idpath.
@@ -2139,8 +2139,8 @@ Section transport_hz_toBinDirectSums.
     to_Pr1 A (to_BinDirectSums A (f i) (f' i)) =
     transportf (precategory_morphisms (to_BinDirectSums A (f i) (f' i)))
                (maponpaths f e)
-               (transportf (fun (x : ob A) => A⟦x, (f i')⟧)
-                           (@maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i0) (f' i0)) _ _ e)
+               (transportf (λ (x : ob A), A⟦x, (f i')⟧)
+                           (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
                            (to_Pr1 A (to_BinDirectSums A (f i') (f' i')))).
   Proof.
     induction e. apply idpath.
@@ -2149,8 +2149,8 @@ Section transport_hz_toBinDirectSums.
   Lemma transport_hz_to_Pr1' (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
     transportf (precategory_morphisms (to_BinDirectSums A (f i) (f' i)))
                (maponpaths f (! e)) (to_Pr1 A (to_BinDirectSums A (f i) (f' i))) =
-               (transportf (fun (x : ob A) => A⟦x, (f i')⟧)
-                           (@maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i0) (f' i0)) _ _ e)
+               (transportf (λ (x : ob A), A⟦x, (f i')⟧)
+                           (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
                            (to_Pr1 A (to_BinDirectSums A (f i') (f' i')))).
   Proof.
     induction e. apply idpath.
@@ -2160,8 +2160,8 @@ Section transport_hz_toBinDirectSums.
     to_Pr2 A (to_BinDirectSums A (f i) (f' i)) =
     transportf (precategory_morphisms (to_BinDirectSums A (f i) (f' i)))
                (maponpaths f' e)
-               (transportf (fun (x : ob A) => A⟦x, (f' i')⟧)
-                           (@maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i0) (f' i0)) _ _ e)
+               (transportf (λ (x : ob A), A⟦x, (f' i')⟧)
+                           (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
                            (to_Pr2 A (to_BinDirectSums A (f i') (f' i')))).
   Proof.
     induction e. apply idpath.
@@ -2170,8 +2170,8 @@ Section transport_hz_toBinDirectSums.
   Lemma transport_hz_to_Pr2' (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
     transportf (precategory_morphisms (to_BinDirectSums A (f i) (f' i)))
                (maponpaths f' (! e)) (to_Pr2 A (to_BinDirectSums A (f i) (f' i))) =
-               (transportf (fun (x : ob A) => A⟦x, (f' i')⟧)
-                           (@maponpaths hz A (fun i0 : hz => to_BinDirectSums A (f i0) (f' i0)) _ _ e)
+               (transportf (λ (x : ob A), A⟦x, (f' i')⟧)
+                           (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
                            (to_Pr2 A (to_BinDirectSums A (f i') (f' i')))).
   Proof.
     induction e. apply idpath.

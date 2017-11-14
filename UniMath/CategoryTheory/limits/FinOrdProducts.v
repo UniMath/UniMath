@@ -39,7 +39,7 @@ Section FinOrdProduct_criteria.
   Proof.
     intros a.
     use (mk_ProductCone _ _ _ T
-                        (fun i : stn 0 => fromempty (weqstn0toempty i))).
+                        (λ i : stn 0, fromempty (weqstn0toempty i))).
     use (mk_isProductCone _ _ hs).
     intros c g. use unique_exists.
 
@@ -85,9 +85,9 @@ Section FinOrdProduct_criteria.
 
     (* General case. *)
     intros a.
-    set (a1 := fun (i : stn n) => a (dni_lastelement i)).
+    set (a1 := λ (i : stn n), a (dni_lastelement i)).
     set (Cone1 := IHn a1).
-    set (a2 := (fun _ : stn 1 => a lastelement)).
+    set (a2 := (λ _ : stn 1, a lastelement)).
     set (Cone2 := identity_to_product a2). (* Case n = 1 *)
     set (Cone1Pr := ProductPr _ _ Cone1).
     set (Cone2Pr := ProductPr _ _ Cone2).
@@ -95,8 +95,8 @@ Section FinOrdProduct_criteria.
                              (ProductObject (stn 1) C Cone2)).
     set (p1 := BinProductPr1 _ BinCone).
     set (p2 := BinProductPr2 _ BinCone).
-    set (m1 := fun i1 : stn n => p1 · (Cone1Pr i1)).
-    set (m2 := fun i2 : stn 1 => p2 · (Cone2Pr i2)).
+    set (m1 := λ i1 : stn n, p1 · (Cone1Pr i1)).
+    set (m2 := λ i2 : stn 1, p2 · (Cone2Pr i2)).
     set (BinConeOb := BinProductObject _ BinCone).
     fold BinConeOb in p1, p2, m1, m2.
 
@@ -113,13 +113,13 @@ Section FinOrdProduct_criteria.
     use (mk_isProductCone _ _ hs).
     intros c g.
 
-    set (g1 := fun i : stn n => g(dni_lastelement i)).
+    set (g1 := λ i : stn n, g(dni_lastelement i)).
     set (ar1 := ProductArrow _ _ Cone1 g1). fold ar1.
     set (com1 := BinProductPr1Commutes  _ _ _ BinCone c ar1 (g lastelement)).
     set (com2 := BinProductPr2Commutes _ _ _ BinCone c ar1 (g lastelement)).
     set (com3 := ProductPrCommutes _ _ _ Cone1 _ g1).
     set (com4 := ProductPrCommutes _ _ _ Cone2 _
-                                   (fun _ : stn 1 => g lastelement)).
+                                   (λ _ : stn 1, g lastelement)).
 
     use (unique_exists).
 
@@ -134,7 +134,7 @@ Section FinOrdProduct_criteria.
     apply remove_id_right. apply idpath.
 
     unfold m1. unfold p1. rewrite assoc. fold g1. fold ar1.
-    use (pathscomp0 (maponpaths (fun f : _ => f · Cone1Pr (stnpair n (pr1 i) a0))
+    use (pathscomp0 (maponpaths (λ f : _, f · Cone1Pr (stnpair n (pr1 i) a0))
                                 com1)).
     fold ar1 in com3. rewrite com3. unfold g1. apply idpath.
 
@@ -144,7 +144,7 @@ Section FinOrdProduct_criteria.
     apply remove_id_right. apply idpath.
 
     unfold m2. unfold p2. rewrite assoc. fold g1. fold ar1.
-    use (pathscomp0 (maponpaths (fun f : _ => f · Cone2Pr lastelement) com2)).
+    use (pathscomp0 (maponpaths (λ f : _, f · Cone2Pr lastelement) com2)).
     rewrite com4. apply idpath.
 
 
@@ -197,14 +197,14 @@ Section FinOrdProduct_criteria.
     apply cancel_precomposition. unfold Cone2Pr.
 
     set (e := isconnectedstn1 i (invweq(weqstn1tounit) tt)).
-    use (pathscomp0 _ (ProductPr_idtoiso (stn 1) C (fun _ : _ => a lastelement)
+    use (pathscomp0 _ (ProductPr_idtoiso (stn 1) C (λ _ : _, a lastelement)
                                          Cone2 (!e))).
     rewrite maponpathsinv0.
     apply cancel_precomposition.
     apply maponpaths. apply maponpaths. (* Why we need maponpaths twice? *)
     apply maponpaths.
-    fold (@funcomp (stn 1) _ _ (fun _ : stn 1 => lastelement) a).
-    rewrite <- (maponpathscomp (fun _ : stn 1 => lastelement) a).
+    fold (@funcomp (stn 1) _ _ (λ _ : stn 1, lastelement) a).
+    rewrite <- (maponpathscomp (λ _ : stn 1, lastelement) a).
     apply maponpaths. apply isasetstn.
   Defined.
 End FinOrdProduct_criteria.

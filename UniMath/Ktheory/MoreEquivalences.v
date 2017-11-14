@@ -4,16 +4,17 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Ktheory.Utilities.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Ktheory.Equivalences.
+Unset Automatic Introduction.
 
 Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.
   intros ? ? [f r].
   unfold isweq in r.
-  set (g := fun y => hfiberpr1 f y (thePoint (r y))).
-  set (p := fun y => pr2 (pr1 (r y))).
+  set (g := λ y, hfiberpr1 f y (thePoint (r y))).
+  set (p := λ y, pr2 (pr1 (r y))).
   simpl in p.
-  set (L := fun x => pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
-  set (q := fun x => ap pr1 (L x)).
-  set (q' := fun x => !q x).
+  set (L := λ x, pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
+  set (q := λ x, ap pr1 (L x)).
+  set (q' := λ x, !q x).
   refine (makeEquivalence Y X g f q' p _).
   intro y.
   admit.
@@ -25,7 +26,7 @@ Proof. intros ? ? [f [g [p [q h]]]]. exists g. unfold isweq. intro x.
        admit.
 Abort.
 
-Definition weq_pathscomp0r {X} x {y z:X} (p:y = z) : weq (x = y) (x = z).
+Definition weq_pathscomp0r {X} x {y z:X} (p:y = z) : (x = y) ≃ (x = z).
 Proof. intros. exact (weqpair _ (isweqpathscomp0r _ p)). Defined.
 
 Definition iscontrretract_compute {X Y} (p:X->Y) (s:Y->X)
@@ -40,25 +41,25 @@ Proof. intros. unfold iscontrweqb. rewrite iscontrretract_compute.
        reflexivity. Defined.
 
 Definition compute_iscontrweqb_weqfibtototal_1 {T} {P Q:T->Type}
-           (f:∏ t, weq (P t) (Q t))
+           (f:∏ t, (P t) ≃ (Q t))
            (is:iscontr (total2 Q)) :
   pr1 (thePoint (iscontrweqb (weqfibtototal P Q f) is)) = pr1 (thePoint is).
 Proof. intros. destruct is as [ctr uni]. reflexivity. Defined.
 
 Definition compute_pr1_invmap_weqfibtototal {T} {P Q:T->Type}
-           (f:∏ t, weq (P t) (Q t))
+           (f:∏ t, (P t) ≃ (Q t))
            (w:total2 Q) :
   pr1 (invmap (weqfibtototal P Q f) w) = pr1 w.
 Proof. intros. reflexivity. Defined.
 
 Definition compute_pr2_invmap_weqfibtototal {T} {P Q:T->Type}
-           (f:∏ t, weq (P t) (Q t))
+           (f:∏ t, (P t) ≃ (Q t))
            (w:total2 Q) :
   pr2 (invmap (weqfibtototal P Q f) w) = invmap (f (pr1 w)) (pr2 w).
 Proof. intros. reflexivity. Defined.
 
 Definition compute_iscontrweqb_weqfibtototal_3 {T} {P Q:T->Type}
-           (f:∏ t, weq (P t) (Q t))
+           (f:∏ t, (P t) ≃ (Q t))
            (is:iscontr (total2 Q)) :
   ap pr1 (iscontrweqb_compute (weqfibtototal P Q f) is)
   =
@@ -73,8 +74,8 @@ Definition funfibtototal {X} (P Q:X->Type) (f:∏ x:X, P x -> Q x) :
   total2 P -> total2 Q.
 Proof. intros ? ? ? ? [x p]. exact (x,,f x p). Defined.
 
-Definition weqfibtototal_comp {X} (P Q:X->Type) (f:∏ x:X, weq (P x) (Q x)) :
-  invmap (weqfibtototal P Q f) = funfibtototal Q P (fun x => invmap (f x)).
+Definition weqfibtototal_comp {X} (P Q:X->Type) (f:∏ x:X, (P x) ≃ (Q x)) :
+  invmap (weqfibtototal P Q f) = funfibtototal Q P (λ x, invmap (f x)).
 Proof. intros. apply funextsec; intros [x q]. reflexivity. Defined.
 
 Definition eqweqmapap_inv {T} (P:T->Type) {t u:T} (e:t = u) (p:P u) :
@@ -89,7 +90,7 @@ Definition weqpr1_irr_sec {X} {P:X->Type}
            (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x) : weq (total2 P) X.
 (* compare with weqpr1 *)
 Proof. intros.
-       set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
+       set (isc := λ x, iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
        apply Equivalence_to_weq.
        simple refine (makeEquivalence _ _ _ _ _ _ _).
        { exact pr1. } { intro x. exact (x,,sec x). } { intro x. reflexivity. }
@@ -100,7 +101,7 @@ Definition invweqpr1_irr_sec {X} {P:X->Type}
            (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x) : X ≃ (total2 P).
 (* compare with weqpr1 *)
 Proof. intros.
-       set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
+       set (isc := λ x, iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
        apply Equivalence_to_weq.
        simple refine (makeEquivalence _ _ _ _ _ _ _).
        { intro x. exact (x,,sec x). } { exact pr1. }

@@ -126,7 +126,7 @@ Context (C:category).
 
 Definition arrow_disp_ob_mor : disp_cat_ob_mor (prod_category C C).
 Proof.
-  exists (fun xy : (C × C) => (pr1 xy) --> (pr2 xy)).
+  exists (λ xy : (C × C), (pr1 xy) --> (pr2 xy)).
   simpl; intros xx' yy' g h ff'.
     exact (pr1 ff' · h = g · pr2 ff').
 Defined.
@@ -171,7 +171,7 @@ Context (C:category).
 
 Definition NAction_disp_ob_mor : disp_cat_ob_mor C.
 Proof.
-  exists (fun c => c --> c).
+  exists (λ c, c --> c).
   intros x y xx yy f. exact (f · yy = xx · f).
 Defined.
 
@@ -215,7 +215,7 @@ Section Elements_Disp.
 Definition elements_ob_mor : disp_cat_ob_mor SET.
 Proof.
   use tpair.
-  - simpl. exact (fun X => X).
+  - simpl. exact (λ X, X).
   - simpl. intros X Y x y f. exact (f x = y).
 Defined.
 
@@ -595,7 +595,7 @@ Variables C C' : category.
 Definition disp_cartesian_ob_mor : disp_cat_ob_mor C.
 Proof.
   mkpair.
-  - exact (fun c => C').
+  - exact (λ c, C').
   - cbn. intros x y x' y' f. exact (C'⟦x', y'⟧).
 Defined.
 

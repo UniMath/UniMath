@@ -59,11 +59,11 @@ Ltac apply_pr2 T :=
 
 Ltac apply_pr2_in T H :=
   first [ apply (pr2 (T)) in H
-        | apply (fun H0 => pr2 (T H0)) in H
-        | apply (fun H0 H1 => pr2 (T H0 H1)) in H
-        | apply (fun H0 H1 H2 => pr2 (T H0 H1 H2)) in H
-        | apply (fun H0 H1 H2 H3 => pr2 (T H0 H1 H2 H3)) in H
-        | apply (fun H0 H1 H2 H3 H4 => pr2 (T H0 H1 H2 H3 H4)) in H ].
+        | apply (λ H0, pr2 (T H0)) in H
+        | apply (λ H0 H1, pr2 (T H0 H1)) in H
+        | apply (λ H0 H1 H2, pr2 (T H0 H1 H2)) in H
+        | apply (λ H0 H1 H2 H3, pr2 (T H0 H1 H2 H3)) in H
+        | apply (λ H0 H1 H2 H3 H4, pr2 (T H0 H1 H2 H3 H4)) in H ].
 
 (** ** About nat *)
 
@@ -184,9 +184,8 @@ Proof.
   - intros _.
     apply tt.
   - intros _ m.
-    rewrite (tppr m) ;
-      generalize (pr1 m) (pr2 m) ;
-      clear m ; intros m Hm.
+    generalize (pr1 m) (pr2 m).
+    intros m' Hm.
     apply fromempty.
     revert Hm.
     apply negnatlthn0.
@@ -223,12 +222,13 @@ Proof.
     simple refine (H (1,,_)).
     reflexivity.
   - intros H m ; simpl.
-    rewrite (tppr m) ;
-      generalize (pr1 m) (pr2 m) ;
-      clear m ; intros m Hm.
+    change m with (pr1 m,,pr2 m).
+    generalize (pr1 m) (pr2 m).
+    clear m.
+    intros m Hm.
     induction m as [ | m _].
-    apply (pr1 H).
-    apply (pr2 H).
+    + apply (pr1 H).
+    + apply (pr2 H).
 Qed.
 
 Lemma finite_intersection_case {X : UU} :
@@ -256,8 +256,8 @@ Proof.
       apply fromempty.
       induction (negnatlthn0 _ (pr2 n)).
     + intros Hx m.
-      rewrite (tppr m) ;
-        generalize (pr1 m) (pr2 m) ;
+      change m with (pr1 m,,pr2 m).
+      generalize (pr1 m) (pr2 m) ;
         clear m ;
         intros m Hm.
       induction (natlehchoice _ _ (natlthsntoleh _ _ Hm)) as [Hm' | ->].
@@ -307,8 +307,8 @@ Proof.
       rewrite <- finite_intersection_and.
       apply X0.
       intros n.
-      rewrite (tppr n) ;
-        generalize (pr1 n) (pr2 n) ;
+      change n with (pr1 n,,pr2 n).
+      generalize (pr1 n) (pr2 n) ;
         clear n ;
         intros n Hn.
       now induction n as [ | n _] ; simpl.

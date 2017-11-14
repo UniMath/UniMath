@@ -70,7 +70,7 @@ Definition is_functor_r_lift (R : RelMonad)
 Proof.
   split; [intro c | intros a b c f g]; cbn; unfold r_lift; cbn.
   - etrans. apply maponpaths.
-      etrans. eapply (maponpaths (fun x => x · _  )). apply functor_id.
+      etrans. eapply (maponpaths (λ x, x · _  )). apply functor_id.
       apply id_left.
     apply (r_bind_r_eta R).
   - etrans. Focus 2. eapply pathsinv0; apply (r_bind_r_bind R).
@@ -95,11 +95,11 @@ Section Kleisli_precat.
 Context {C D : precategory} {J : functor C D} (R : RelMonad J).
 
 Definition Kleisli_precat_ob_mor : precategory_ob_mor :=
-  precategory_ob_mor_pair (ob C) (fun c d => J c --> R d).
+  precategory_ob_mor_pair (ob C) (λ c d, J c --> R d).
 
 Definition Kleisli_precat_data : precategory_data :=
-  precategory_data_pair Kleisli_precat_ob_mor (fun c => r_eta R c)
-                                              (fun a b c f g => f · r_bind R g).
+  precategory_data_pair Kleisli_precat_ob_mor (λ c, r_eta R c)
+                                              (λ a b c f g, f · r_bind R g).
 
 Lemma Kleisli_precat_is_precat : is_precategory Kleisli_precat_data.
   do 2 try apply tpair;

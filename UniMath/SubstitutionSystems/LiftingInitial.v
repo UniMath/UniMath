@@ -521,7 +521,7 @@ Definition constant_nat_trans (C' D : precategory)
    (m : d --> d')
     : [C', D, hsD] ⟦constant_functor C' D d, constant_functor C' D d'⟧.
 Proof.
-  exists (fun _ => m).
+  exists (λ _, m).
   abstract (
     intros ? ? ? ;
     pathvia m ;

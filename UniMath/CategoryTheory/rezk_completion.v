@@ -152,7 +152,7 @@ Proof.
   apply T.
 Defined.
 
-Lemma path_to_ctr (A' : UU) (B : A' -> UU) (isc : iscontr (total2 (fun a => B a)))
+Lemma path_to_ctr (A' : UU) (B : A' -> UU) (isc : iscontr (total2 (λ a, B a)))
            (a : A') (p : B a) : a = pr1 (pr1 isc).
 Proof.
   exact (maponpaths pr1 (pr2 isc (tpair _ a p))).

@@ -16,7 +16,7 @@ Require Import UniMath.CategoryTheory.bicategories.notations.
 Definition is_bicategory (C : prebicategory)
   := (has_homcats C) × (forall (a b : C), isweq (path_to_adj_int_equivalence a b)).
 
-Definition bicategory := total2 (fun C : prebicategory => is_bicategory C).
+Definition bicategory := total2 (λ C : prebicategory, is_bicategory C).
 
 (******************************************************************************)
 (* Being a bicategory is a prop *)

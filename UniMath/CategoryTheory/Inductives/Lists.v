@@ -106,7 +106,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A → X -> X) : foldr X x f nil = x.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn1 _ (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x (λ a, f (pr1 a) (pr2 a))))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -115,7 +115,7 @@ Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A → X -> X)
                  (a : pr1 A) (l : List) :
   foldr X x f (cons a l) = f a (foldr X x f l).
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn2 _ (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x (λ a, f (pr1 a) (pr2 a))))).
 assert (Fal := toforallpaths _ _ _ F (a,,l)).
 clear F.
@@ -148,7 +148,7 @@ Defined.
 Opaque is_omega_cocont_listFunctor.
 
 Lemma isalghom_pr1foldr :
-  is_algebra_mor _ List_alg List_alg (fun l => pr1 (foldr P'HSET P0' Pc' l)).
+  is_algebra_mor _ List_alg List_alg (λ l, pr1 (foldr P'HSET P0' Pc' l)).
 Proof.
 apply (BinCoproductArrow_eq_cor _ BinCoproductsHSET).
 - apply funextfun; intro x; induction x.
@@ -214,7 +214,7 @@ apply listIndProp.
 Qed.
 
 Definition concatenate : List -> List -> List :=
-  fun l l' => foldr _ l cons l'.
+  λ l l', foldr _ l cons l'.
 
 End lists.
 
@@ -232,7 +232,7 @@ Definition testlistS : List natHSET :=
   map natHSET S testlist.
 
 Definition sum : List natHSET -> nat :=
-  foldr natHSET natHSET 0 (fun x y => x + y).
+  foldr natHSET natHSET 0 (λ x y, x + y).
 
 (* None of these compute *)
 (* Eval cbn in length _ (nil natHSET). *)
@@ -261,7 +261,7 @@ Abort.
 
 (* some experiments: *)
 
-(* Definition const {A B : UU} : A -> B -> A := fun x _ => x. *)
+(* Definition const {A B : UU} : A -> B -> A := λ x _, x. *)
 
 (* Eval compute in const 0 (nil natHSET). *)
 
@@ -308,7 +308,7 @@ induction n as [|n IHn]; simpl.
 - rewrite foldr_nil.
   now destruct l.
 - rewrite foldr_cons; simpl.
-  now rewrite IHn; simpl; try rewrite <- (tppr l).
+  now rewrite IHn.
 Qed.
 
 Lemma to_ListK (A : HSET) : ∏ y : List A, to_List A (to_list A y) = y.
@@ -357,7 +357,7 @@ Definition constprod_functor : functor HSET HSET :=
   BinProduct_of_functors HSET HSET BinProductsHSET (constant_functor HSET HSET x)
                                          (functor_identity HSET).
 
-Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := fun x y => f y x.
+Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := λ x y, f y x.
 
 Lemma omega_cocontConstProdFunctor : is_omega_cocont constprod_functor.
 Proof.
@@ -376,7 +376,8 @@ simple refine (tpair _ _ _).
     apply HX.
   + cbn.
     destruct cc as [f hf]; simpl; intro n.
-    apply funextfun; intro p; rewrite (tppr p).
+    apply funextfun; intro p.
+    change p with (pr1 p,,pr2 p).
     assert (XR := colimArrowCommutes (mk_ColimCocone hF c L ccL) _ HX n).
     unfold flip, curry, colimIn in *; simpl in *.
     now rewrite <- (toforallpaths _ _ _ (toforallpaths _ _ _ XR (pr2 p)) (pr1 p)).
@@ -532,7 +533,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A × X -> X) : foldr X x f nil = x.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn1 _ (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -541,7 +542,7 @@ Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A × X -> X)
                  (a : pr1 A) (l : pr1 List) :
   foldr X x f (cons (a,,l)) = f (a,,foldr X x f l).
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn2 _ (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F (a,,l)).
 Qed.
@@ -565,7 +566,7 @@ abstract (apply (isofhleveltotal2 2); [ apply setproperty | intro x; apply PhSet
 Defined.
 
 Lemma isalghom_pr1foldr :
-  is_algebra_mor _ List_alg List_alg (fun l => pr1 (foldr P'HSET P0' Pc' l)).
+  is_algebra_mor _ List_alg List_alg (λ l, pr1 (foldr P'HSET P0' Pc' l)).
 Proof.
 apply BinCoproductArrow_eq_cor.
 - apply funextfun; intro x; destruct x; apply idpath.
@@ -606,7 +607,7 @@ abstract (apply isasetnat).
 Defined.
 
 Definition length : pr1 List -> nat :=
-  foldr natHSET 0 (fun x => S (pr2 x)).
+  foldr natHSET 0 (λ x, S (pr2 x)).
 
 Definition map (f : pr1 A -> pr1 A) : pr1 List -> pr1 List :=
   foldr _ nil (λ xxs : pr1 A × pr1 List, cons (f (pr1 xxs),, pr2 xxs)).
@@ -637,7 +638,7 @@ Definition testlistS : pr1 (List natHSET) :=
   map natHSET S testlist.
 
 Definition sum : pr1 (List natHSET) -> nat :=
-  foldr natHSET natHSET 0 (fun xy => pr1 xy + pr2 xy).
+  foldr natHSET natHSET 0 (λ xy, pr1 xy + pr2 xy).
 
 (* All of these work *)
 (* Eval cbn in length _ (nil natHSET). *)

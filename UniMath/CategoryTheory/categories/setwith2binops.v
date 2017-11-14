@@ -22,13 +22,13 @@ Section def_setwith2binop_precategory.
     hSetpair (twobinopfun A B) (isasettwobinopfun A B).
 
   Definition setwith2binop_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) setwith2binop
-          (fun A B : setwith2binop => setwith2binop_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) setwith2binop
+          (λ A B : setwith2binop, setwith2binop_fun_space A B).
 
   Definition setwith2binop_precategory_data : precategory_data :=
     precategory_data_pair
       setwith2binop_precategory_ob_mor
-      (fun (X : setwith2binop) => ((idtwobinopiso X) : twobinopfun X X))
+      (λ (X : setwith2binop), ((idtwobinopiso X) : twobinopfun X X))
       (fun (X Y Z : setwith2binop) (f : twobinopfun X Y) (g : twobinopfun Y Z)
        => twobinopfuncomp f g).
 
@@ -131,7 +131,7 @@ Section def_setwith2binop_category.
   Opaque setwith2binop_iso_equiv_is_equiv.
 
   Definition setwith2binop_iso_equiv_weq (X Y : ob setwith2binop_precategory) :
-    weq (iso X Y) (twobinopiso X Y).
+    (iso X Y) ≃ (twobinopiso X Y).
   Proof.
     use weqpair.
     - exact (setwith2binop_iso_equiv X Y).

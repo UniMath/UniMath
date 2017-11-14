@@ -285,7 +285,7 @@ Proof.
   { intros ff. repeat (apply impred; intro).
     apply isapropiscontr. }
   etrans.
-    refine (@functtransportf_2 (D c') _ _ (fun x => pr1) _ _ _ _).
+    refine (@functtransportf_2 (D c') _ _ (λ x, pr1) _ _ _ _).
   cbn. etrans. apply transportf_precompose_disp.
   rewrite idtoiso_isotoid_disp.
   refine (pathscomp0 (maponpaths _ _) (transportfbinv _ _ _)).
@@ -321,7 +321,7 @@ Proof.
   assert (g : ((a,,b) : total2 B)
                 =
               ( (pr1 (iscontrpr1 H),, pr2 (iscontrpr1 H)) : total2 B)).
-  { etrans. apply (pr2 H). apply tppr. }
+  { etrans. apply (pr2 H). reflexivity. }
   apply (maponpaths pr1 g).
 Defined.
 
@@ -570,7 +570,7 @@ Definition disp_cat_from_preshv (D : PreShv C) : disp_cat C.
 Proof.
   mkpair.
   - mkpair.
-    + exists (fun c => pr1hSet (pr1 D c)).
+    + exists (λ c, pr1hSet (pr1 D c)).
       intros x y c d f. exact (functor_on_morphisms (pr1 D) f d = c).
     + split.
       * intros; cbn in *; apply (toforallpaths _ _ _ (functor_id D x ) _ ).
@@ -656,7 +656,7 @@ Proof.
       * cbn. intro c; apply idfun.
       * intros c c' x y f H. cbn.
         set (XR := pr2 (iscontrpr1 (unique_lift f y))). cbn in XR.
-        apply (transportf (fun t => t -->[f] y) H XR).
+        apply (transportf (λ t, t -->[f] y) H XR).
     + abstract (split; cbn; unfold idfun; intros; apply  disp_mor_unique_disc_fib).
   - abstract (intros c c' f; apply eq_discrete_fib_mor; intros; apply idpath).
 Defined.
@@ -764,7 +764,7 @@ Definition is_split_id {C : category} {D : disp_cat C}
   := ∏ c (d : D c),
       ∑ e : cleaving_ob X (identity _) d = d,
             cleaving_mor X (identity _) d =
-            transportb (fun x => x -->[ _ ] _ ) e (id_disp d).
+            transportb (λ x, x -->[ _ ] _ ) e (id_disp d).
 
 Definition is_split_comp {C : category} {D : disp_cat C}
            (X : cleaving D) : UU
@@ -773,7 +773,7 @@ Definition is_split_comp {C : category} {D : disp_cat C}
       ∑ e : cleaving_ob X (g · f) d =
                 cleaving_ob X g (cleaving_ob X f d),
             cleaving_mor X (g · f) d =
-            transportb (fun x => x -->[ _ ] _ ) e
+            transportb (λ x, x -->[ _ ] _ ) e
                        (cleaving_mor X g (cleaving_ob X f d) ;;
                                      cleaving_mor X f d).
 

@@ -28,7 +28,7 @@ Section Auxiliary.
 
 (* TODO: perhaps upstream; consider name *)
 Lemma total2_reassoc_paths {A} {B : A → UU} {C : (∑ a, B a) -> UU}
-    (BC : A -> UU := fun a => ∑ b, C (a,,b))
+    (BC : A -> UU := λ a, ∑ b, C (a,,b))
     {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
     (ea : a1 = a2)
     (eb : transportf _ ea (pr1 bc1) = pr1 bc2)
@@ -42,7 +42,7 @@ Defined.
 
 (* TODO: as for non-primed version above *)
 Lemma total2_reassoc_paths' {A} {B : A → UU} {C : (∑ a, B a) -> UU}
-    (BC : A -> UU := fun a => ∑ b, C (a,,b))
+    (BC : A -> UU := λ a, ∑ b, C (a,,b))
     {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
     (ea : a1 = a2)
     (eb : pr1 bc1 = transportb _ ea (pr1 bc2))
@@ -145,7 +145,7 @@ Context {C : category} (D1 D2 : disp_cat C).
 
 Definition dirprod_disp_cat_ob_mor : disp_cat_ob_mor C.
 Proof.
-  exists (fun c => D1 c × D2 c).
+  exists (λ c, D1 c × D2 c).
   intros x y xx yy f.
   exact (pr1 xx -->[f] pr1 yy × pr2 xx -->[f] pr2 yy).
 Defined.
@@ -237,7 +237,7 @@ Context {C : category}
 
 Definition sigma_disp_cat_ob_mor : disp_cat_ob_mor C.
 Proof.
-  exists (fun c => ∑ (d : D c), (E (c,,d))).
+  exists (λ c, ∑ (d : D c), (E (c,,d))).
   intros x y xx yy f.
   exact (∑ (fD : pr1 xx -->[f] pr1 yy),
                 (pr2 xx -->[f,,fD] pr2 yy)).
@@ -316,7 +316,7 @@ Qed.
 Lemma pr2_transportf_sigma_disp {x y : C} {f f' : x --> y} (e : f = f')
     {xxx : sigma_disp_cat x} {yyy} (fff : xxx -->[f] yyy)
   : pr2 (transportf _ e fff)
-  = transportf (fun ff => pr2 xxx -->[ff] _ ) (two_arg_paths_f (*total2_paths2*) e (! pr1_transportf_sigma_disp e fff))
+  = transportf (λ ff, pr2 xxx -->[ff] _ ) (two_arg_paths_f (*total2_paths2*) e (! pr1_transportf_sigma_disp e fff))
       (pr2 fff).
 Proof.
   destruct e. apply pathsinv0.
@@ -413,7 +413,7 @@ Definition sigma_disp_iso_map
   : (∑ ff : iso_disp f (pr1 xx) (pr1 yy),
        iso_disp (@total_iso _ _ (_,,_) (_,,_) f ff) (pr2 xx) (pr2 yy))
   -> iso_disp f xx yy
-:= fun ff => sigma_disp_iso _ _ (pr1 ff) (pr2 ff).
+:= λ ff, sigma_disp_iso _ _ (pr1 ff) (pr2 ff).
 
 Lemma sigma_disp_iso_isweq
     {x y} (xx : sigma_disp_cat x) (yy : sigma_disp_cat y)
@@ -437,7 +437,7 @@ Proof.
   intros x xx yy.
   use weqhomot.
   - destruct xx as [xx xxx], yy as [yy yyy].
-     use (@weqcomp _ (∑ ee : xx = yy, transportf (fun r => E (x,,r)) ee xxx = yyy) _ _ _).
+     use (@weqcomp _ (∑ ee : xx = yy, transportf (λ r, E (x,,r)) ee xxx = yyy) _ _ _).
       refine (total2_paths_equiv _ _ _).
     set (i := fun (ee : xx = yy) => (total2_paths2 (idpath _) ee)).
     apply @weqcomp with
@@ -455,18 +455,18 @@ Proof.
          (@total_iso _ D (_,,_) (_,,_) _ (idtoiso_disp (idpath _) ee)) xxx yyy).
       apply weqfibtototal; intros ee.
       mkpair.
-        refine (transportf (fun I => iso_disp I xxx yyy) _).
+        refine (transportf (λ I, iso_disp I xxx yyy) _).
         unfold i.
       (* TODO: maybe break out this lemma on [idtoiso]? *)
       (* Note: [abstract] here is to speed up a [cbn] below. *)
         destruct ee. abstract (apply eq_iso, idpath).
-      exact (isweqtransportf (fun I => iso_disp I xxx yyy) _).
+      exact (isweqtransportf (λ I, iso_disp I xxx yyy) _).
     apply (@weqcomp _ (∑ f : iso_disp (identity_iso x) xx yy,
                       (iso_disp (@total_iso _ D (_,,_) (_,,_) _ f) xxx yyy)) _).
       refine (weqfp (weqpair _ _) _). refine (DD _ _ (idpath _) _ _).
     apply (sigma_disp_iso_equiv (_,,_) (_,,_) _).
   - assert (lemma2 : forall i i' (e : i = i') ii,
-                 pr1 (transportf (fun i => iso_disp i (pr2 xx) (pr2 yy)) e ii)
+                 pr1 (transportf (λ i, iso_disp i (pr2 xx) (pr2 yy)) e ii)
                  = transportf _ (maponpaths pr1 e) (pr1 ii)).
       intros; destruct e; apply idpath.
     intros ee; apply eq_iso_disp.
@@ -508,7 +508,7 @@ Lemma foo
   (c' : C')
   (xx' : D' c')
   :
-  pr1 (transportf (fun x => disp_nat_trans x FF' FF) p b) c' xx' =
+  pr1 (transportf (λ x, disp_nat_trans x FF' FF) p b) c' xx' =
       transportf (mor_disp (FF' c' xx') (FF c' xx'))
            (nat_trans_eq_pointwise p _ )  (b c' xx').
 Proof.
@@ -1069,7 +1069,7 @@ Context {C C' : category} {D} {D'}
 Definition fiber_functor_data : functor_data D[{x}] D'[{F x}].
 Proof.
   mkpair.
-  - apply (fun xx' => FF xx').
+  - apply (λ xx', FF xx').
   - intros xx' xx ff.
     apply (transportf _ (functor_id _ _ ) (# FF ff)).
 Defined.

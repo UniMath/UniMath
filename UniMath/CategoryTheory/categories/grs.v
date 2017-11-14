@@ -23,11 +23,11 @@ Section def_gr_precategory.
   Definition gr_fun_space (A B : gr) : hSet := hSetpair (monoidfun A B) (isasetmonoidfun A B).
 
   Definition gr_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) gr (fun A B : gr => gr_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) gr (λ A B : gr, gr_fun_space A B).
 
   Definition gr_precategory_data : precategory_data :=
     precategory_data_pair
-      gr_precategory_ob_mor (fun (X : gr) => ((idmonoidiso X) : monoidfun X X))
+      gr_precategory_ob_mor (λ (X : gr), ((idmonoidiso X) : monoidfun X X))
       (fun (X Y Z : gr) (f : monoidfun X Y) (g : monoidfun Y Z) => monoidfuncomp f g).
 
   Local Lemma gr_id_left (X Y : gr) (f : monoidfun X Y) : monoidfuncomp (idmonoidiso X) f = f.

@@ -46,7 +46,7 @@ Proof.
 Defined.
 
 Lemma leFtototal2withnat {T : UU} (F : T -> T) (t t' : T) (a : leF F t t') :
-  total2 (fun n : nat => (iteration F n t) = t').
+  total2 (λ n : nat, (iteration F n t) = t').
 Proof.
   intros. induction a as [ | b H0 IH0 ].
   - split with O. apply idpath.
@@ -56,7 +56,7 @@ Proof.
 Defined.
 
 Lemma total2withnattoleF {T : UU} (F : T -> T) (t t' : T)
-      (a : total2 (fun n : nat => paths (iteration F n t) t')) : leF F t t'.
+      (a : total2 (λ n : nat, (iteration F n t) = t')) : leF F t t'.
 Proof.
   intros. destruct a as [ n e ]. destruct e. apply leFiter.
 Defined.
@@ -67,8 +67,8 @@ Proof.
   intros. induction n as [ | n IHn ].
   - apply idpath.
   - simpl.
-    set (h := fun ne : total2 (fun n0 : nat => paths (iteration F n0 t) (iteration F n t)) =>
-                tpair (fun n0 : nat => paths (iteration F n0 t) (iteration F (S n) t)) (S (pr1 ne))
+    set (h := fun ne : total2 (λ n0 : nat, paths (iteration F n0 t) (iteration F n t)) =>
+                tpair (λ n0 : nat, paths (iteration F n0 t) (iteration F (S n) t)) (S (pr1 ne))
                       (maponpaths F (pr2 ne))).
     apply (@maponpaths _ _ h  _ _ IHn).
 Defined.
@@ -96,7 +96,7 @@ Proof.
 Defined.
 
 Definition weqleFtototalwithnat { T : UU } (F : T -> T) (t t' : T) :
-  weq (leF F t t') (total2 (fun n : nat => paths (iteration F n t) t')) :=
+  weq (leF F t t') (total2 (λ n : nat, (iteration F n t) = t')) :=
   weqpair _ (isweqleFtototal2withnat F t t').
 
 
@@ -113,8 +113,8 @@ Proof.
   intros.
   apply (isofhlevelweqb 1 (weqleFtototalwithnat S n m)).
   apply invproofirrelevance. intros x x'.
-  set (i := @pr1 _ (fun n0 : nat => paths (iteration S n0 n) m)).
-  assert (is : isincl i) by apply (isinclpr1 _ (fun n0 : nat => isasetnat (iteration S n0 n) m)).
+  set (i := @pr1 _ (λ n0 : nat, (iteration S n0 n) = m)).
+  assert (is : isincl i) by apply (isinclpr1 _ (λ n0 : nat, isasetnat (iteration S n0 n) m)).
   apply (invmaponpathsincl _  is).
   destruct x as [ n1 e1 ]. destruct x' as [ n2 e2 ]. simpl.
   set (int1 := pathsinv0 (pathsitertoplus n1 n)).

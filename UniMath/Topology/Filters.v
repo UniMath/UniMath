@@ -695,7 +695,6 @@ Proof.
   generalize (filter_and _ _ _ Fax Fay).
   apply filter_imply.
   intros xy Fxy.
-  rewrite (tppr xy).
   apply Ha.
   exact (pr1 Fxy).
   exact (pr2 Fxy).

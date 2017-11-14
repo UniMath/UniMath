@@ -608,7 +608,7 @@ Definition two_graph : graph := (bool,,λ _ _,empty).
 
 Definition bincoproduct_diagram (a b : C) : diagram two_graph C.
 Proof.
-exists (fun x : bool => if x then a else b).
+exists (λ x : bool, if x then a else b).
 abstract (intros u v F; induction F).
 Defined.
 

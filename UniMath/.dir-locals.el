@@ -5,7 +5,11 @@
 	     (make-local-variable 'coq-use-project-file)
 	     (setq coq-use-project-file nil)
 	     (make-local-variable 'coq-prog-args)
-	     (setq coq-prog-args `("-emacs" "-indices-matter" "-Q" ,(concat unimath-topdir "UniMath") "UniMath" "-w" "none"))
+	     (setq coq-prog-args `("-emacs"
+				   "-indices-matter"
+				   "-Q" ,(concat unimath-topdir "UniMath") "UniMath"
+				   "-w" "-notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option"
+				   ))
 	     (if (equal buffer-file-name (concat unimath-topdir "UniMath/Foundations/Resizing2.v"))
 		 (setq coq-prog-args (cons "-type-in-type" coq-prog-args)))
 	     (make-local-variable 'coq-prog-name)

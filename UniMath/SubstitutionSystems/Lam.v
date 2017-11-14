@@ -230,7 +230,7 @@ Proof.
   split.
   - (* the "easy" eta part *)
     apply pr1 in Hyp.
-    apply (maponpaths (fun x => x· #U (inv_from_iso bla))) in Hyp.
+    apply (maponpaths (λ x, x· #U (inv_from_iso bla))) in Hyp.
     rewrite <- functor_comp in Hyp.
     rewrite <- assoc in Hyp.
     rewrite iso_inv_after_iso in Hyp.

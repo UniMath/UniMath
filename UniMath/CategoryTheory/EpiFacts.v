@@ -73,7 +73,7 @@ Section IsEffectivePw.
     use tpair.
     use StandardFiniteSets.three_rec_dep; apply idpath.
     use StandardFiniteSets.three_rec_dep;  use StandardFiniteSets.three_rec_dep;
-      exact (Empty_set_rect _ ) ||  (exact (fun _ => idpath _)).
+      exact (Empty_set_rect _ ) ||  (exact (λ _, idpath _)).
   Defined.
 
   Lemma eq_coeq_pw {X Y: functor C D} (a b:X ⟹ Y) (c:C) :
@@ -132,8 +132,6 @@ Section IsEffectivePw.
 
 End IsEffectivePw.
 
-Set Automatic Introduction.
-
 (**  if the target category has pushouts, a natural transformation that is
   an epimorphism is pointwise epimorphic *)
 Section PointwiseEpi.
@@ -151,7 +149,7 @@ Section PointwiseEpi.
     use tpair.
     use StandardFiniteSets.three_rec_dep;  apply idpath.
     use StandardFiniteSets.three_rec_dep;  use StandardFiniteSets.three_rec_dep;
-      exact (Empty_set_rect _ )||exact (fun _ => idpath _).
+      exact (Empty_set_rect _ )||exact (λ _, idpath _).
   Defined.
 
   Lemma Pushouts_pw_epi (colimD : graphs.pushouts.Pushouts D) (A B : functor C D)

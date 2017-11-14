@@ -16,8 +16,6 @@ Require Export UniMath.CategoryTheory.categories.category_hset.
 
 Local Open Scope cat.
 
-Set Automatic Introduction.
-
 (** bifunctor commutativity *)
 
 Definition comm_functor_data {I A B : category} :

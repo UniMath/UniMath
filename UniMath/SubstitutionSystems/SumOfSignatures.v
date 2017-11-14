@@ -122,7 +122,7 @@ Proof.
 mkpair.
 - apply H; intro i.
   apply (S i).
-- exists (θ (fun i => S i) (fun i => theta (S i))).
+- exists (θ (λ i, S i) (λ i, theta (S i))).
   split.
   + apply SumStrength1'; intro i; apply (Sig_strength_law1 _ _ _ _ (S i)).
   + apply SumStrength2'; intro i; apply (Sig_strength_law2 _ _ _ _ (S i)).
