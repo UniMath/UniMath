@@ -540,7 +540,7 @@ use is_iso_isColim.
 - apply functor_category_has_homsets.
 - apply D'.
 - use is_iso_qinv.
-  + mkpair.
+  + use tpair.
     * intros a; apply identity.
     * abstract (intros a b f; rewrite id_left, id_right; simpl;
                 apply (colimArrowUnique (CC a)); intro u; cbn;
@@ -560,7 +560,7 @@ Context {C D : precategory} (F : functor C D).
 
 Definition mapdiagram {g : graph} (d : diagram g C) : diagram g D.
 Proof.
-mkpair.
+use tpair.
 - intros n; apply (F (dob d n)).
 - simpl; intros m n e.
   apply (# F (dmor d e)).

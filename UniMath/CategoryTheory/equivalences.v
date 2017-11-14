@@ -57,7 +57,7 @@ Definition mk_adj_equivalence_of_precats {A B : precategory} (F : functor A B)
            (H2 : forms_equivalence ((F,,G,,η,,ε)))
   : adj_equivalence_of_precats F.
 Proof.
-  mkpair.
+  use tpair.
   - exists G. exists (η,,ε). apply H1.
   - apply H2.
 Defined.
@@ -274,7 +274,7 @@ End adjointification.
 Lemma identity_functor_is_adj_equivalence {A : precategory} :
   adj_equivalence_of_precats (functor_identity A).
 Proof.
-  mkpair.
+  use tpair.
   - exact is_left_adjoint_functor_identity.
   - now split; intros a; apply identity_is_iso.
 Defined.

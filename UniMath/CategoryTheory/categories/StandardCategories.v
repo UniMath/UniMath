@@ -15,14 +15,13 @@ Proof. intros. exact (compose f g). Defined.
 Definition type_precat : precategory.
 Proof.
   use mk_precategory.
-  - repeat mkpair.
+  - use tpair; use tpair.
     + exact UU.
     + exact (λ X Y, X -> Y).
     + exact (λ X, idfun X).
     + exact (λ X Y Z f g, funcomp f g).
   - repeat split; intros; apply idpath.
 Defined.
-
 
 (** *** the path groupoid *)
 

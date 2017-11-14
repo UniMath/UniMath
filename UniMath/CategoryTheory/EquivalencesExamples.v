@@ -44,14 +44,14 @@ Context {C : precategory} (PC : BinProducts C).
 Lemma is_left_adjoint_bindelta_functor : is_left_adjoint (bindelta_functor C).
 Proof.
 apply (tpair _ (binproduct_functor PC)).
-mkpair.
+use tpair.
 - split.
-  + mkpair.
+  + use tpair.
     * simpl; intro x.
       apply (BinProductArrow _ _ (identity x) (identity x)).
     * abstract (intros p q f; simpl;
                 now rewrite precompWithBinProductArrow, id_right, postcompWithBinProductArrow, id_left).
-  + mkpair.
+  + use tpair.
     * simpl; intro x; split; [ apply BinProductPr1 | apply BinProductPr2 ].
     * abstract (intros p q f; unfold precatbinprodmor, compose; simpl;
                 now rewrite BinProductOfArrowsPr1, BinProductOfArrowsPr2).
@@ -74,15 +74,15 @@ Lemma is_left_adjoint_delta_functor :
   is_left_adjoint (delta_functor I C).
 Proof.
 apply (tpair _ (product_functor _ PC)).
-mkpair.
+use tpair.
 - split.
-  + mkpair.
+  + use tpair.
     * simpl; intro x.
       apply (ProductArrow _ _ _ (λ _, identity x)).
     * abstract (intros p q f; simpl;
                 now rewrite precompWithProductArrow, id_right,
                             postcompWithProductArrow, id_left).
-  + mkpair.
+  + use tpair.
     * intros x i; apply ProductPr.
     * abstract (intros p q f; apply funextsec; intro i; unfold compose; simpl;
                 now rewrite ProductOfArrowsPr).
@@ -104,14 +104,14 @@ Context {C : precategory} (PC : BinCoproducts C).
 Lemma is_left_adjoint_bincoproduct_functor : is_left_adjoint (bincoproduct_functor PC).
 Proof.
 apply (tpair _ (bindelta_functor _)).
-mkpair.
+use tpair.
 - split.
-  + mkpair.
+  + use tpair.
     * simpl; intro p; set (x := pr1 p); set (y := pr2 p).
       split; [ apply (BinCoproductIn1 _ (PC x y)) | apply (BinCoproductIn2 _ (PC x y)) ].
     * abstract (intros p q f; unfold precatbinprodmor, compose; simpl;
                 now rewrite BinCoproductOfArrowsIn1, BinCoproductOfArrowsIn2).
-  + mkpair.
+  + use tpair.
     * intro x; apply (BinCoproductArrow _ _ (identity x) (identity x)).
     * abstract (intros p q f; simpl;
                 now rewrite precompWithBinCoproductArrow, postcompWithBinCoproductArrow,
@@ -135,13 +135,13 @@ Lemma is_left_adjoint_coproduct_functor :
   is_left_adjoint (coproduct_functor I PC).
 Proof.
 apply (tpair _ (delta_functor _ _)).
-mkpair.
+use tpair.
 - split.
-  + mkpair.
+  + use tpair.
     * intros p i; apply CoproductIn.
     * abstract (intros p q f; apply funextsec; intro i; unfold compose; simpl;
                 now rewrite CoproductOfArrowsIn).
-  + mkpair.
+  + use tpair.
     * intro x; apply (CoproductArrow _ _ _ (λ _, identity x)).
     * abstract (intros p q f; simpl;
                 now rewrite precompWithCoproductArrow,
@@ -165,11 +165,11 @@ Local Notation "[ C , D ]" := (functor_category C D).
 Lemma functor_swap {C D : precategory} {E : category} : functor C [D,E] → functor D [C,E].
 Proof.
 intros F.
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + intro d; simpl.
-  { mkpair.
-    - mkpair.
+  { use tpair.
+    - use tpair.
       + intro c.
         apply (pr1 (F c) d).
       + intros a b f; apply (# F f).
@@ -178,7 +178,7 @@ mkpair.
       | now intros a b c f g; simpl; rewrite (functor_comp F)]).
   }
   + intros a b f; simpl.
-  { mkpair.
+  { use tpair.
     - intros x; apply (# (pr1 (F x)) f).
     - abstract (intros c d g; simpl; apply pathsinv0, nat_trans_ax).
   }
@@ -191,9 +191,9 @@ Lemma functor_cat_swap_nat_trans {C D : precategory} {E : category}
   (F G : functor C [D, E]) (α : nat_trans F G) :
   nat_trans (functor_swap F) (functor_swap G).
 Proof.
-mkpair.
+use tpair.
 + intros d; simpl.
-  mkpair.
+  use tpair.
   * intro c; apply (α c).
   * abstract (intros a b f; apply (nat_trans_eq_pointwise (nat_trans_ax α _ _ f) d)).
 + abstract (intros a b f; apply (nat_trans_eq (homset_property E)); intro c; simpl; apply nat_trans_ax).
@@ -201,10 +201,10 @@ Defined.
 
 Lemma functor_cat_swap (C D : precategory) (E : category) : functor [C, [D, E]] [D, [C, E]].
 Proof.
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + apply functor_swap.
-  + apply functor_cat_swap_nat_trans.
+  + cbn. apply functor_cat_swap_nat_trans.
 - abstract (split;
   [ intro F; apply (nat_trans_eq (functor_category_has_homsets _ _ (homset_property E))); simpl; intro d;
     now apply (nat_trans_eq (homset_property E))
@@ -217,11 +217,11 @@ Definition id_functor_cat_swap (C D : precategory) (E : category) :
             (functor_composite (functor_cat_swap C D E) (functor_cat_swap D C E)).
 Proof.
 set (hsE := homset_property E).
-mkpair.
+use tpair.
 + intros F.
-  mkpair.
+  use tpair.
   - intro c.
-     mkpair.
+     use tpair.
      * now intro f; apply identity.
      * abstract (now intros a b f; rewrite id_left, id_right).
   - abstract (now intros a b f; apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
@@ -234,11 +234,11 @@ Definition functor_cat_swap_id (C D : precategory) (E : category) :
             (functor_identity [D,[C,E]]).
 Proof.
 set (hsE := homset_property E).
-mkpair.
+use tpair.
 + intros F.
-  mkpair.
+  use tpair.
   - intro c.
-    mkpair.
+    use tpair.
     * now intro f; apply identity.
     * abstract (now intros a b f; rewrite id_left, id_right).
   - abstract (now intros a b f; apply (nat_trans_eq hsE); intro d; simpl; rewrite id_left, id_right).
@@ -264,7 +264,7 @@ Qed. (* This Qed is very slow... I don't see how to make it faster *)
 Lemma are_adjoint_functor_cat_swap (C D : precategory) (E : category) :
   are_adjoints (@functor_cat_swap C D E) (@functor_cat_swap D C E).
 Proof.
-mkpair.
+use tpair.
 - split; [ apply id_functor_cat_swap | apply functor_cat_swap_id ].
 - apply form_adjunction_functor_cat_swap.
 Defined.
@@ -272,7 +272,7 @@ Defined.
 Lemma is_left_adjoint_functor_cat_swap (C D : precategory) (E : category) :
   is_left_adjoint (functor_cat_swap C D E).
 Proof.
-mkpair.
+use tpair.
 + apply functor_cat_swap.
 + apply are_adjoint_functor_cat_swap.
 Defined.

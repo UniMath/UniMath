@@ -319,7 +319,7 @@ Context {C : precategory} (PC : BinProducts C).
 Definition binproduct_functor_data :
   functor_data (precategory_binproduct C C) C.
 Proof.
-mkpair.
+use tpair.
 - intros p.
   apply (BinProductObject _ (PC (pr1 p) (pr2 p))).
 - simpl; intros p q f.

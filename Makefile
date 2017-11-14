@@ -13,6 +13,7 @@ PACKAGES += MoreFoundations
 PACKAGES += Combinatorics
 PACKAGES += Algebra
 PACKAGES += NumberSystems
+PACKAGES += PAdics
 PACKAGES += CategoryTheory
 PACKAGES += Ktheory
 PACKAGES += Topology

@@ -271,7 +271,7 @@ Proof.
   intros ? d.
   unfold decidable in *.
   induction d as [x|x'].
-  - apply ii1. now apply hinhpr.
+  - apply ii1. apply hinhpr. assumption.
   - apply ii2. intros p.
     apply (squash_to_prop p).
     + exact isapropempty.
@@ -391,10 +391,14 @@ Notation "X ∨ Y" := (hdisj X Y) (at level 85, right associativity) : type_scop
   (* precedence same as ‌\/, whereas ⨿ has the opposite associativity *)
 
 Definition hdisj_in1 {P Q : UU} : P -> P ∨ Q.
-Proof. intros. apply hinhpr. now apply ii1. Defined.
+Proof.
+  intros. apply hinhpr. apply ii1. assumption.
+Defined.
 
 Definition hdisj_in2 {P Q : UU} : Q -> P ∨ Q.
-Proof. intros. apply hinhpr. now apply ii2. Defined.
+Proof.
+  intros. apply hinhpr. apply ii2. assumption.
+Defined.
 
 Lemma disjoint_disjunction (P Q : hProp) : (P -> Q -> ∅) -> hProp.
 Proof.
@@ -547,11 +551,11 @@ Proof.
   intros ? ? npq k.
   assert (e : ¬¬ Q).
   {
-    intro n. apply k. now apply hdisj_in2.
+    intro n. apply k. apply hdisj_in2. assumption.
   }
   assert (d : ¬¬ P).
   {
-    intro n. apply k. now apply hdisj_in1.
+    intro n. apply k. apply hdisj_in1. assumption.
   }
   clear k.
   apply d; clear d. intro p. apply e; clear e. intro q.
@@ -585,7 +589,7 @@ Proof.
   intros ? ? n.
   simpl in *.
   assert (n' := negf hinhpr n); simpl in n'; clear n.
-  now apply fromnegcoprod.
+  apply fromnegcoprod. assumption.
 Defined.
 
 Lemma hdisjtoimpl {P : UU} {Q : hProp} : P ∨ Q -> ¬ P -> Q.

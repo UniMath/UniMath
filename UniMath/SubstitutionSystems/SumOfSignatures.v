@@ -119,7 +119,7 @@ End construction.
 
 Definition Sum_of_Signatures (S : I -> Signature C hsC D hsD) : Signature C hsC D hsD.
 Proof.
-mkpair.
+use tpair.
 - apply H; intro i.
   apply (S i).
 - exists (θ (λ i, S i) (λ i, theta (S i))).

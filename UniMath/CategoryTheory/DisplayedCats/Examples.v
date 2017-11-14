@@ -323,17 +323,17 @@ Definition iso_cleaving_functor_alg : iso_cleaving disp_cat_functor_alg.
 Proof.
   intros c c' i d.
   cbn in *.
-  mkpair.
+  use tpair.
   - exact (compose (compose (functor_on_iso F i) d) (iso_inv_from_iso i)).
   - cbn. unfold iso_disp. cbn.
-    mkpair.
+    use tpair.
     + abstract (
           etrans; [eapply pathsinv0; apply id_right |];
           repeat rewrite <- assoc;
           do 2 apply maponpaths;
           apply pathsinv0; apply iso_after_iso_inv
         ).
-    + mkpair.
+    + use tpair.
       * unfold functor_alg_mor.
         cbn. repeat rewrite assoc.
         unfold functor_alg_mor. cbn.
@@ -375,12 +375,12 @@ Proof.
   }
   transparent assert (LL : (LimCone (mapdiagram π D))).
   { use mk_LimCone. apply x. apply L. apply isL. }
-  mkpair.
-  - mkpair.
-    + mkpair.
+  use tpair.
+  - use tpair.
+    + use tpair.
       * use (limArrow LL). apply FC.
       * abstract (
-          mkpair ;
+          use tpair ;
           [
             intro j; cbn;
             set (XR := limArrowCommutes LL _ FC); cbn in XR;
@@ -408,7 +408,7 @@ Proof.
     intros x' CC.
     set (πCC := mapcone π D CC).
     use unique_exists.
-    + mkpair.
+    + use tpair.
       * cbn.
         use (limArrow LL _ πCC).
       * set (XR := limArrowCommutes LL).
@@ -500,11 +500,11 @@ Variable C : category.
 
 Definition disp_over_unit_data : disp_cat_data unit_category.
 Proof.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + intro. apply (ob C).
     + simpl. intros x y c c' e. apply (C ⟦c, c'⟧).
-  - mkpair.
+  - use tpair.
     + simpl. intros. apply identity.
     + intros ? ? ? ? ? a b c f g.
       apply (compose (C:=C) f g ).
@@ -545,8 +545,8 @@ Variable C : category.
 
 Definition disp_arrow_data : disp_cat_data (cartesian C C).
 Proof.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + intro H.
       exact (pr1 H --> pr2 H).
     + cbn. intros xy ab f g h.
@@ -594,7 +594,7 @@ Variables C C' : category.
 
 Definition disp_cartesian_ob_mor : disp_cat_ob_mor C.
 Proof.
-  mkpair.
+  use tpair.
   - exact (λ c, C').
   - cbn. intros x y x' y' f. exact (C'⟦x', y'⟧).
 Defined.
@@ -602,7 +602,7 @@ Defined.
 Definition disp_cartesian_data : disp_cat_data C.
 Proof.
   exists disp_cartesian_ob_mor.
-  mkpair; cbn.
+  use tpair; cbn.
   - intros; apply identity.
   - intros ? ? ? ? ? ? ? ? f g. apply (f · g).
 Defined.

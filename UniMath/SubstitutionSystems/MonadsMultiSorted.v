@@ -76,9 +76,9 @@ Definition sort_in {Γ:SET_over_sort}(M:wellsorted_in Γ): sort := pr2 (pr1 T Γ
 Definition aux_fh {A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
    (f : A1->wellsorted_in Γ2)(H: forall a1:A1, sort_in (f a1) = f1 a1) : SET_over_sort⟦(A1,,f1),T Γ2⟧.
 Proof.
-   mkpair.
+   use tpair.
     * exact f.
-    * abstract(apply funextsec; intro a1; now apply pathsinv0).
+    * cbn. abstract(apply funextsec; intro a1; now apply pathsinv0).
 Defined.
 
 Definition bind_slice {A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
@@ -192,7 +192,7 @@ Qed.
 Definition aux_inject_N {Γ:SET_over_sort}(N : wellsorted_in Γ):
   SET_over_sort⟦constHSET_slice (sort_in N),T Γ⟧.
 Proof.
-  mkpair.
+  use tpair.
   + exact (fun _=> N).
   + now apply funextsec.
 Defined.
