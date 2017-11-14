@@ -1296,10 +1296,8 @@ Definition abmonoidfrac_lattice (X : abmonoid) (Y : @submonoid X) (lat : lattice
            (Hmin : ispartrdistr Y (Lmin lat) op) (Hmax : ispartrdistr Y (Lmax lat) op) : lattice (abmonoidfrac X Y).
 Proof.
   intros X Y lat Hmin Hmax.
-  mkpair.
-  exact (abmonoidfrac_min X Y Hmin).
-  mkpair.
-  exact (abmonoidfrac_max X Y Hmax).
+  exists (abmonoidfrac_min X Y Hmin).
+  exists (abmonoidfrac_max X Y Hmax).
   apply abmonoidfrac_islatticeop.
 Defined.
 
@@ -1584,11 +1582,11 @@ Definition abmonoidfrac_latticewithgt (X : abmonoid) (Y : @submonoid X) (lat : l
            (Hmin : ispartrdistr Y (Lmin lat) op) (Hmax : ispartrdistr Y (Lmax lat) op) : latticewithgt (abmonoidfrac X Y).
 Proof.
   intros X Y lat Hgt Hop Hmin Hmax.
-  mkpair.
+  simple refine (tpair _ _ _).
   refine (abmonoidfrac_lattice _ _ _ _ _).
   exact Hmin.
   exact Hmax.
-  mkpair.
+  simple refine (tpair _ _ _).
   simple refine (StrongOrder_abmonoidfrac _ _ _).
   apply (Lgt lat).
   apply Hgt.
@@ -1645,8 +1643,7 @@ Definition abmonoidfrac_latticedec {X : abmonoid} (Y : @submonoid X) (lat : latt
   latticedec (abmonoidfrac X Y).
 Proof.
   intros X Y lat Hop Hmin Hmax.
-  mkpair.
-  apply (abmonoidfrac_lattice X Y lat Hmin Hmax).
+  exists (abmonoidfrac_lattice X Y lat Hmin Hmax).
   split.
   - apply istotal_Lle_abmonoidfrac.
     apply istotal_latticedec.
