@@ -103,14 +103,14 @@ Definition coprod_rect_compute_1
            (f : ∏ (a : A), P (ii1 a))
            (g : ∏ (b : B), P (ii2 b)) (a:A) :
   coprod_rect P f g (ii1 a) = f a.
-Proof. reflexivity. Defined.
+Proof. intros. apply idpath. Defined.
 
 Definition coprod_rect_compute_2
            (A B : UU) (P : A ⨿ B -> UU)
            (f : ∏ a : A, P (ii1 a))
            (g : ∏ b : B, P (ii2 b)) (b:B) :
   coprod_rect P f g (ii2 b) = g b.
-Proof. reflexivity. Defined.
+Proof. intros. apply idpath. Defined.
 
 (** Dependent sums.
 
@@ -153,18 +153,6 @@ Notation "'∑'  x .. y , P" := (total2 (λ x, .. (total2 (λ y, P)) ..))
   (* type this in emacs in agda-input method with \sum *)
 
 Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser than '+' *)
-
-Ltac mkpair := (simple refine (tpair _ _ _ ) ; [| cbn]).
-
-(* How to use "mkpair":
-
-Goal ∏ X (Y : X -> UU) (x : X) (y : Y x), ∑ x, Y x.
-  intros X Y x y.
-  mkpair.
-  - apply x.
-  - apply y.
-Defined.
-*)
 
 (*
 

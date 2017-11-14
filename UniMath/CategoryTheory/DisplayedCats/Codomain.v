@@ -168,7 +168,7 @@ Proof.
     + split.
       * exact (maponpaths pr1 (pr2 HRR)).
       * etrans. apply (pr1 HRR). apply id_right.
-    + mkpair.
+    + use tpair.
       * rewrite id_right.
         exact (pr2 HRR).
       * apply subtypeEquality.

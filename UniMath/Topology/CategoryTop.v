@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 Definition top_disp_cat_ob_mor : disp_cat_ob_mor HSET.
 Proof.
-  mkpair.
+  use tpair.
   - intro X. exact (isTopologicalSet (pr1hSet X)).
   - cbn. intros X Y T U f.
     apply (@continuous (pr1hSet X,,T) (pr1hSet Y,,U) f).
@@ -26,7 +26,7 @@ Defined.
 Definition top_disp_cat_data : disp_cat_data HSET.
 Proof.
   exists top_disp_cat_ob_mor.
-  mkpair.
+  use tpair.
   - intros X XX. cbn. unfold continuous. intros.
     unfold continuous_at. cbn. unfold is_lim. cbn.
     unfold filterlim. cbn. unfold filter_le. cbn.

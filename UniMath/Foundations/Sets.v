@@ -420,7 +420,9 @@ Proof.
     apply isapropsubtype. intros y y' f f'.
     apply (squash_to_prop f). apply is. clear f; intro f.
     apply (squash_to_prop f'). apply is. clear f'; intro f'.
-    now apply e.
+    apply e.
+    - assumption.
+    - assumption.
   }
   intros w.
   assert (p : P).
@@ -448,7 +450,7 @@ Proof.
   assert (p : P).
   {
     apply (squash_to_prop w). exact j. intro x0.
-    exists (f x0). apply hinhpr. exists x0. reflexivity.
+    exists (f x0). apply hinhpr. exists x0. apply idpath.
   }
   exact (pr1 p).
 Defined.
@@ -1275,7 +1277,7 @@ Notation " 'ct' ( R , is , x , y ) " := (ctlong R is x y (idpath true))
 
 Definition deceq_to_decrel {X:UU} : isdeceq X -> decrel X.
 Proof. intros ? i. use decrelpair.
-       - intros x y. exists (x=y). now apply isasetifdeceq.
+       - intros x y. exists (x=y). apply isasetifdeceq. assumption.
        - exact i.
 Defined.
 
@@ -1549,9 +1551,10 @@ Proof.
       apply (hfiberpr2 _ _ y).
     + intro eqx.
       apply hinhpr.
-      use tpair;[now exists b|exact eqx].
+      use tpair.
+      * exists b. apply idpath.
+      * exact eqx.
 Qed.
-
 
 
 (** ** Universal property enjoyed by surjections
@@ -1622,7 +1625,7 @@ Section LiftSurjection.
     intros g H b.
     apply (surjectionisepitosets p); [easy|easy|].
     intro x.
-    now rewrite H,univ_surj_ax.
+    rewrite H,univ_surj_ax. apply idpath.
   Qed.
 
 
@@ -1681,7 +1684,7 @@ Proof.
   intros X R.
   apply (isasetsubset (@pr1 _ _) (isasethsubtype X)).
   apply isinclpr1; intro x.
-  now apply isapropiseqclass.
+  apply isapropiseqclass.
 Defined.
 
 Definition setquotinset {X : UU} (R : hrel X) : hSet :=
@@ -3104,7 +3107,7 @@ Proof.
   set (h := λ e : X = Y, maponpaths pr1hSet e).
   assert (comp : f = g ∘ h).
   {
-    apply funextfun; intro e. induction e. reflexivity.
+    apply funextfun; intro e. induction e. apply idpath.
   }
   induction (!comp). apply twooutof3c.
   - apply isweqonpathsincl. apply isinclpr1. exact isapropisaset.

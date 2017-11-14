@@ -401,7 +401,7 @@ Definition LimFunctor : functor A C := tpair _ _ is_functor_LimFunctor_data.
 
 Definition lim_nat_trans_in_data v : [A, C, hsC] ⟦ LimFunctor, dob D v ⟧.
 Proof.
-mkpair.
+use tpair.
 - intro a; exact (limOut (HCg a) v).
 - abstract (intros a a' f; apply (limOfArrowsOut _ _ (HCg a) (HCg a'))).
 Defined.
@@ -419,8 +419,8 @@ Lemma LimFunctor_unique (F : [A, C, hsC]) (cc : cone D F) :
   iscontr (∑ x : [A, C, hsC] ⟦ F, LimFunctor ⟧,
             ∏ v, x · lim_nat_trans_in_data v = coneOut cc v).
 Proof.
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + apply (tpair _ (λ a, limArrow (HCg a) _ (cone_pointwise F cc a))).
     abstract (intros a a' f; simpl; apply pathsinv0; eapply pathscomp0;
     [ apply (postCompWithLimOfArrows _ _ (HCg a))

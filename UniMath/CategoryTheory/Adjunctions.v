@@ -219,7 +219,7 @@ Coercion adjunction_data_from_is_left_adjoint {A B : precategory}
         (H1 : is_left_adjoint F1) (H2 : is_left_adjoint F2) :
     is_left_adjoint (functor_composite F1 F2).
   Proof.
-    mkpair.
+    use tpair.
     - apply (functor_composite (pr1 H2) (pr1 H1)).
     - apply are_adjoints_functor_composite.
       + apply (pr2 H1).
@@ -233,7 +233,7 @@ Coercion adjunction_data_from_is_left_adjoint {A B : precategory}
     set (α := pr1 αiso : nat_trans F G).
     set (αinv := inv_from_iso αiso : nat_trans G F).
     destruct HF as [F' [[α' β'] [HF1 HF2]]]; simpl in HF1, HF2.
-    mkpair.
+    use tpair.
     - apply F'.
     - use mk_are_adjoints.
       + apply (nat_trans_comp _ _ _ α' (post_whisker α F')).
@@ -267,7 +267,7 @@ Coercion adjunction_data_from_is_left_adjoint {A B : precategory}
   Lemma is_left_adjoint_functor_identity {A : precategory} :
     is_left_adjoint (functor_identity A).
   Proof.
-    mkpair.
+    use tpair.
     + exact (functor_identity A).
     + exists (nat_trans_id _,, nat_trans_id _).
       abstract (now split; [intros a; apply id_left| intros a; apply id_left]).
@@ -289,7 +289,7 @@ Context {X A : precategory}
 
 Local Definition G_data : functor_data A X.
 Proof.
-  mkpair.
+  use tpair.
   + apply G0.
   + intros a b f.
     apply (pr1 (pr1 (Huniv b (G0 a) (eps a · f)))).
@@ -340,14 +340,14 @@ Defined.
 
 Local Definition counit :  nat_trans (functor_composite G F) (functor_identity A).
 Proof.
-  mkpair.
+  use tpair.
   * apply eps.
   * abstract (intros a b f; simpl; apply (pathsinv0 (pr2 (pr1 (Huniv b (G0 a) (eps a · f)))))).
 Defined.
 
 Local Lemma form_adjunctionFG : form_adjunction F G unit counit.
 Proof.
-  mkpair; simpl.
+  use tpair; simpl.
   + unfold triangle_1_statement; cbn.
     intros x.
     destruct (Huniv (F x) x (identity (F x))) as [[f hf] H]; simpl.
@@ -391,7 +391,7 @@ Context {X A : precategory}
 
 Local Definition F_data : functor_data X A.
 Proof.
-  mkpair.
+  use tpair.
   + apply F0.
   + intros a b f.
     use (pr1 (pr1 (Huniv _ _ _ ))). apply (f · eta _ ).
@@ -443,7 +443,7 @@ Defined.
 
 Local Definition unit_left_from_partial : functor_identity X ⟹ functor_composite F G.
 Proof.
-  mkpair.
+  use tpair.
   * apply eta.
   * abstract (intros a b f; simpl; apply (pathsinv0 (pr2 (pr1 (Huniv _ _  (f · eta _ )))))).
 Defined.
@@ -451,7 +451,7 @@ Defined.
 Local Lemma form_adjunctionFG_left_from_partial
   : form_adjunction F G unit_left_from_partial counit_left_from_partial.
 Proof.
-  mkpair; simpl.
+  use tpair; simpl.
   + unfold triangle_1_statement; cbn.
     intros x; simpl.
     destruct (Huniv _ _ (identity (G (F0 x)))) as [[f hf] H]; simpl.
@@ -499,7 +499,7 @@ Lemma is_left_adjoint_post_composition_functor :
   is_left_adjoint (post_composition_functor C D E hsD hsE F).
 Proof.
   exists (post_composition_functor _ _ _ _ _ G).
-  mkpair.
+  use tpair.
   - split.
     + use mk_nat_trans.
       * simpl; intros F'.

@@ -262,8 +262,8 @@ Defined.
 Local Definition shiftIsColimCocone : isColimCocone FFchain L shiftCocone.
 Proof.
 intros x cc; simpl.
-mkpair.
-+ mkpair.
+use tpair.
++ use tpair.
   * apply colimArrow, (unshiftCocone _ cc).
   * abstract (intro n; apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n))).
 + abstract (intros p; apply subtypeEquality;
@@ -451,9 +451,9 @@ Proof.
 transparent assert (HH : (∑ x : D ⟦ F L, y ⟧,
             ∏ v : vertex g,
             coconeIn (mapcocone F d cc) v · x = coconeIn (ccFy y ccGy) v)).
-{ mkpair.
+{ use tpair.
   - apply (pr1 α L · f').
-  - abstract (intro v; rewrite <- Hf', !assoc; apply cancel_postcomposition, nat_trans_ax).
+  - cbn. abstract (intro v; rewrite <- Hf', !assoc; apply cancel_postcomposition, nat_trans_ax).
 }
 apply pathsinv0.
 generalize (maponpaths pr1 (HHf HH)); intro Htemp; simpl in *.
@@ -501,8 +501,8 @@ Lemma preserves_colimit_identity {g : graph} (d : diagram g C) (L : C)
 Proof.
 intros HcL y ccy; simpl.
 set (CC := mk_ColimCocone _ _ _ HcL).
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + apply (colimArrow CC), ccy.
   + abstract (simpl; intro n; apply (colimArrowCommutes CC)).
 - abstract (simpl; intro t; apply subtypeEquality;
@@ -537,7 +537,7 @@ Lemma preserves_colimit_constant_functor {g : graph} (v : vertex g)
   preserves_colimit (constant_functor C D x) d L cc.
 Proof.
 intros HcL y ccy; simpl.
-mkpair.
+use tpair.
 - apply (tpair _ (coconeIn ccy v)).
   abstract (now intro u; generalize (coconeInCommutes ccy _ _ (conn u));
             rewrite !id_left; intro H; rewrite H).
@@ -550,7 +550,7 @@ Defined.
 Lemma is_omega_cocont_constant_functor : is_omega_cocont (constant_functor C D x).
 Proof.
 intros c L ccL HccL y ccy.
-mkpair.
+use tpair.
 - apply (tpair _ (coconeIn ccy 0)).
   abstract (intro n; rewrite id_left; destruct ccy as [f Hf]; simpl;
             now induction n as [|n IHn]; [apply idpath|]; rewrite IHn, <- (Hf n (S n) (idpath _)), id_left).
@@ -577,8 +577,8 @@ Lemma preserves_colimit_functor_composite (F : functor C D) (G : functor D E)
 Proof.
 intros HcL y ccy; simpl.
 set (CC := mk_ColimCocone _ _ _ (H2 (H1 HcL))).
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + apply (colimArrow CC), ccy.
   + abstract (simpl; intro v; apply (colimArrowCommutes CC)).
 - abstract (simpl; intro t; apply subtypeEquality;
@@ -661,15 +661,15 @@ transparent assert (HHH : (cocone cAB (x,, ob2 ab))).
                [ apply (pr2 ccx m n e) | apply (maponpaths dirprod_pr2 ((pr2 ccab) m n e)) ]).
 }
 destruct (Hccab _ HHH) as [[[x1 x2] p1] p2].
-mkpair.
+use tpair.
 - apply (tpair _ x1).
   abstract (intro n; apply (maponpaths pr1 (p1 n))).
 - intro t.
   transparent assert (X : (∑ x0, ∏ v, coconeIn ccab v · x0 =
                                  precatbinprodmor (pr1 ccx v) (pr2 (pr1 ccab v)))).
-  { mkpair.
+  { use tpair.
     - split; [ apply (pr1 t) | apply (identity _) ].
-    - abstract (intro n; rewrite id_right; apply pathsdirprod;
+    - cbn. abstract (intro n; rewrite id_right; apply pathsdirprod;
                  [ apply (pr2 t) | apply idpath ]).
   }
   abstract (apply subtypeEquality; simpl;
@@ -705,15 +705,15 @@ transparent assert (HHH : (cocone cAB (pr1 ab,, x))).
                 [ apply (maponpaths pr1 (pr2 ccab m n e)) | apply (pr2 ccx m n e) ]).
  }
 destruct (Hccab _ HHH) as [[[x1 x2] p1] p2].
-mkpair.
+use tpair.
 - apply (tpair _ x2).
   abstract (intro n; apply (maponpaths dirprod_pr2 (p1 n))).
 - intro t.
   transparent assert (X : (∑ x0, ∏ v, coconeIn ccab v · x0 =
                                  precatbinprodmor (pr1 (pr1 ccab v)) (pr1 ccx v))).
-  { mkpair.
+  { use tpair.
     - split; [ apply (identity _) | apply (pr1 t) ].
-    - abstract (intro n; rewrite id_right; apply pathsdirprod;
+    - cbn. abstract (intro n; rewrite id_right; apply pathsdirprod;
                  [ apply idpath | apply (pr2 t) ]).
   }
   abstract (apply subtypeEquality; simpl;
@@ -749,7 +749,7 @@ transparent assert (cGBY : (cocone (mapdiagram G (mapdiagram (pr2_functor A B) c
 destruct (HF _ _ _ (isColimCocone_pr1_functor cAB ml ccml Hccml) _ cFAX) as [[f hf1] hf2].
 destruct (HG _ _ _ (isColimCocone_pr2_functor cAB ml ccml Hccml) _ cGBY) as [[g hg1] hg2].
 simpl in *.
-mkpair.
+use tpair.
 - apply (tpair _ (f,,g)).
   abstract (intro n; unfold precatbinprodmor, compose; simpl;
             now rewrite hf1, hg1).
@@ -810,7 +810,7 @@ Proof.
       [ exact (toforallpaths _ _ _ (pr2 f1 v) i) |
         exact (toforallpaths _ _ _ (pr2 f2 v) i) ]
       ) .
-  - mkpair.
+  - use tpair.
     + intros i.
       refine (pr1 (pr1 (M i _ (mapcocone (pr_functor I B i) _ cc')))).
     + abstract (
@@ -904,7 +904,7 @@ transparent assert (HHH : (cocone c (λ j, ifI i j x (L j)))).
         | apply (toforallpaths _ _ _ (pr2 ccL m n e) j)]).
 }
 destruct (M _ HHH) as [[x1 p1] p2].
-mkpair.
+use tpair.
 - apply (tpair _ (transportf _ (ifI_eq _ _ _) (x1 i))).
   abstract (intro n;
     rewrite <- idtoiso_postcompose, assoc;
@@ -917,12 +917,12 @@ mkpair.
     now rewrite hp, idpath_transportf).
 - intro t.
   transparent assert (X : (∑ x0, ∏ n, coconeIn ccL n · x0 = coconeIn HHH n)).
-  { mkpair.
+  { use tpair.
     - simpl; intro j; unfold ifI.
       destruct (HI i j).
       + apply (transportf (λ i, A ⟦ L i, x ⟧) p (pr1 t)).
       + apply identity.
-    - abstract (intro n; apply funextsec; intro j; unfold ifI; destruct (HI i j);
+    - cbn. abstract (intro n; apply funextsec; intro j; unfold ifI; destruct (HI i j);
           [ now destruct p; rewrite <- (pr2 t), !idpath_transportf
           | apply id_right ]).
   }
@@ -953,8 +953,8 @@ transparent assert (cc : (∏ i, cocone (mapdiagram (F i) (mapdiagram (pr_functo
   - abstract (intros m n e; apply (toforallpaths _ _ _ (pr2 ccxy m n e) i)).
 }
 set (X i := HF i _ _ _ (isColimCocone_pr_functor _ _ _ Hccml i) (xy i) (cc i)).
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + intro i; apply (pr1 (pr1 (X i))).
   + abstract (intro n; apply funextsec; intro j; apply (pr2 (pr1 (X j)) n)).
 - abstract (intro t; apply subtypeEquality; simpl;
@@ -1376,7 +1376,7 @@ Qed.
 (* Define the chain A_i * M *)
 Local Definition AiM_chain : chain C.
 Proof.
-  mkpair.
+  use tpair.
   - intro i; apply (colim (CCAiB i)).
   - intros i j e; destruct e.
     apply (colimOfArrows (CCAiB i) (CCAiB (S i)) (f i) (fNat i)).
@@ -1522,11 +1522,11 @@ Local Definition isColimProductOfColims :  ∃! x : C ⟦ BinProductObject C (PC
      (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) · x =
    coconeIn ccK v.
 Proof.
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + apply (colimArrow HAiM K ccAiM_K).
-  + apply is_cocone_morphism.
-- apply is_unique_cocone_morphism.
+  + cbn. apply is_cocone_morphism.
+- cbn. apply is_unique_cocone_morphism.
 Defined.
 
 End omega_cocont_binproduct.
@@ -1717,17 +1717,17 @@ Proof.
 intros HccL y ccy.
 set (CC := mk_ColimCocone _ _ _ HccL).
 transparent assert (c : (HSET / X)).
-{ mkpair.
+{ use tpair.
   - exists (∑ (x : pr1 X), pr1 y).
     abstract (apply isaset_total2; intros; apply setproperty).
-  - apply pr1.
+  - cbn. apply pr1.
 }
 transparent assert (cc : (cocone d c)).
 { use mk_cocone.
   - intros n.
-    mkpair; simpl.
+    use tpair; simpl.
     + intros z.
-      mkpair.
+      use tpair.
       * exact (pr2 L (pr1 (coconeIn ccL n) z)).
       * apply (coconeIn ccy n z).
     + abstract (now apply funextsec; intro z;
@@ -1750,7 +1750,7 @@ use unique_exists.
 - simpl; intros f Hf.
 apply funextsec; intro l.
 transparent assert (k : (HSET/X⟦colim CC,c⟧)).
-{ mkpair.
+{ use tpair.
   - intros l'.
     exists (pr2 L l').
     apply (f l').

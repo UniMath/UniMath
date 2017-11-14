@@ -572,12 +572,12 @@ Defined.
 Definition weqhfiberunit {X Z : UU} (i : X -> Z) (z : Z) :
   (∑ x, hfiber (λ _ : unit, z) (i x)) ≃ hfiber i z.
 Proof.
-  intros. simple refine (weqgradth _ _ _ _).
+  intros. use weqgradth.
   + intros [x [t e]]. exact (x,,!e).
   + intros [x e]. exact (x,,tt,,!e).
   + intros [x [t e]]. apply maponpaths. simple refine (two_arg_paths_f _ _).
     * apply isapropunit.
-    * simpl. induction e. rewrite pathsinv0inv0. induction t. reflexivity.
+    * simpl. induction e. rewrite pathsinv0inv0. induction t. apply idpath.
   + intros [x e]. apply maponpaths. apply pathsinv0inv0.
 Defined.
 
@@ -667,7 +667,7 @@ Proof.
   apply invproofirrelevance; intros p p'.
   refine (_ @ (_ : g (f p) = g (f p')) @ _).
   - apply pathsinv0. apply h.
-  - apply maponpaths. now apply proofirrelevance.
+  - apply maponpaths. apply proofirrelevance. exact i.
   - apply h.
 Defined.
 
@@ -788,13 +788,13 @@ Definition isinclpr1 {X : UU} (P : X -> UU) (is : ∏ x : X, isaprop (P x)) :
 Theorem subtypeInjectivity {A : UU} (B : A -> UU) :
   isPredicate B -> ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1 y).
 Proof.
-  intros. apply Injectivity. apply isweqonpathsincl. now apply isinclpr1.
+  intros. apply Injectivity. apply isweqonpathsincl. apply isinclpr1. exact X.
 Defined.
 
 Corollary subtypeEquality {A : UU} {B : A -> UU} (is : isPredicate B)
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> s = s'.
 Proof.
-  intros A B H s s'. apply invmap. now apply subtypeInjectivity.
+  intros A B H s s'. apply invmap. apply subtypeInjectivity. exact H.
 Defined.
 
 Corollary subtypeEquality' {A : UU} {B : A -> UU}
@@ -835,7 +835,7 @@ Proof.
   apply (iscontrweqf (X := hfibersgftog f g z xe = ye)).
   { exists (ezmap _ _ _ (fibseq1 _ _ _ (fibseqhf f g z ye) _)).
     exact (isweqezmap1 _ _ _ _ _). }
-  apply isapropifcontr. now apply iscontrhfiberofincl.
+  apply isapropifcontr. apply iscontrhfiberofincl. exact is1.
 Defined.
 
 (** *** Basics about types of h-level 2 - "sets" *)
@@ -949,10 +949,10 @@ Corollary set_bijection_to_weq {X Y : UU} (f : X -> Y) :
 Proof.
   (* compare with bijection_to_weq: this one doesn't use gradth *)
   intros ? ? ? bij i y. set (sur := pr1 bij); set (inj := pr2 bij).
-  unshelve refine (_,,_).
+  use tpair.
   - exists (pr1 (sur y)). exact (pr2 (sur y)).
   - intro w.
-    unshelve refine (total2_paths_f _ _).
+    use total2_paths_f.
     + simpl. apply inj. intermediate_path y.
       * exact (pr2 w).
       * exact (! pr2 (sur y)).
@@ -1023,7 +1023,7 @@ Proof.
   intros ? ? b c.
   induction b as [b|b'].
   - induction c as [c|c'].
-    + now apply ii1.
+    + apply ii1. exact (b,,c).
     + apply ii2. clear b. intro k. apply c'. exact (pr2 k).
   - clear c. apply ii2. intro k. apply b'. exact (pr1 k).
 Defined.
@@ -1033,9 +1033,12 @@ Proof.
   intros ? [Q [i [r s]]]; simpl in *.
   split.
   * intros pq. split.
-    - intros p q. now apply s.
+    - intros p q. apply s.
+      + assumption.
+      + assumption.
     - assumption.
-  * intros [j c]. assumption.
+      * intros [j c].
+        assumption.
 Defined.
 
 Lemma negProp_to_uniqueChoice P (Q:negProp P) : (isaprop P × (P ⨿ Q)) <-> iscontr (P ⨿ Q).
@@ -1073,7 +1076,7 @@ Proof.
   intros ? i.
   split.
   - exact (ii1 (iscontrpr1 i)).
-  - now apply isapropifcontr.
+  - apply isapropifcontr. assumption.
 Defined.
 
 Lemma isdecpropempty : isdecprop ∅.
@@ -1088,8 +1091,8 @@ Lemma isdecpropweqf {X Y} : X≃Y -> isdecprop X -> isdecprop Y.
 Proof.
   intros ? ? w i. unfold isdecprop in *. induction i as [xnx i]. split.
   - clear i. induction xnx as [x|nx].
-    * apply ii1. now apply w.
-    * apply ii2. intro x'. apply nx. now apply (invmap w).
+    * apply ii1. apply w. assumption.
+    * apply ii2. intro x'. apply nx. apply (invmap w). assumption.
   - apply (isofhlevelweqf 1 (X:=X)).
     { exact w. }
     { exact i. }
@@ -1099,8 +1102,8 @@ Lemma isdecpropweqb {X Y} : X≃Y -> isdecprop Y -> isdecprop X.
 Proof.
   intros ? ? w i. unfold isdecprop in *. induction i as [yny i]. split.
   - clear i. induction yny as [y|ny].
-    * apply ii1. now apply (invmap w).
-    * apply ii2. intro x. apply ny. now apply w.
+    * apply ii1. apply (invmap w). assumption.
+    * apply ii2. intro x. apply ny. apply w. assumption.
   - apply (isofhlevelweqb 1 (Y:=Y)).
     { exact w. }
     { exact i. }
@@ -1126,7 +1129,7 @@ Lemma isdecpropfromneg {P : UU} : ¬P -> isdecprop P.
 Proof.
   intros ? n. split.
   - exact (ii2 n).
-  - now apply isapropifnegtrue.
+  - apply isapropifnegtrue. assumption.
 Defined.
 
 (** *** Types with decidable equality *)
@@ -1212,7 +1215,7 @@ Definition isisolated_to_isisolated_ne {X x neq_x} :
 Proof.
   intros ? ? ? i y. induction (i y) as [eq|ne].
   - exact (ii1 eq).
-  - apply ii2. now apply neg_to_negProp.
+  - apply ii2. apply neg_to_negProp. assumption.
 Defined.
 
 Definition isisolated_ne_to_isisolated {X x neq_x} :
@@ -1220,7 +1223,9 @@ Definition isisolated_ne_to_isisolated {X x neq_x} :
 Proof.
   intros ? ? ? i y. induction (i y) as [eq|ne].
   - exact (ii1 eq).
-  - apply ii2. now simple refine (negProp_to_neg _).
+  - apply ii2. use negProp_to_neg.
+    + exact (neq_x y).
+    + exact ne.
 Defined.
 
 Definition isolated ( T : UU ) := ∑ t:T, isisolated _ t.
@@ -1263,7 +1268,7 @@ Proof.
   - assert (b := transport_map (λ y p, ii1 p : Q y) m j); simpl in b;
       assert (c := transport_map (λ y p, ii1 p : Q y) n j); simpl in c.
     assert (d := equality_by_case (!b @ a @ c)); simpl in d.
-    rewrite 2? transportf_id1 in d. now apply (pathscomp_cancel_left j).
+    rewrite 2? transportf_id1 in d. apply (pathscomp_cancel_left j). assumption.
   - contradicts (neq_x x k) (idpath x).
 Defined.
 
@@ -1279,8 +1284,8 @@ Lemma isisolatedweqf { X Y : UU } (f : X ≃ Y) (x:X) : isisolated X x -> isisol
 Proof.
   intros ? ? ? ? is. unfold isisolated. intro y.
   induction (is (invmap f y)) as [ eq | ne ].
-  { apply ii1. now apply pathsweq1'. }
-  { apply ii2. intro eq. apply ne; clear ne. now apply pathsweq1. }
+  { apply ii1. apply pathsweq1'. assumption. }
+  { apply ii2. intro eq. apply ne; clear ne. apply pathsweq1. assumption. }
 Defined.
 
 Theorem isisolatedinclb {X Y : UU} (f : X -> Y) (is : isincl f) (x : X)

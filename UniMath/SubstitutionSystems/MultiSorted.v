@@ -119,7 +119,7 @@ Local Definition proj_fun (s : sort) : SET / sort -> SET :=
 
 Definition proj_functor (s : sort) : functor (SET / sort) SET.
 Proof.
-mkpair.
+use tpair.
 - exists (proj_fun s).
   intros X Y f p.
   exists (pr1 f (pr1 p)).
@@ -132,8 +132,8 @@ Defined.
 (** The left adjoint to the proj_functor *)
 Definition hat_functor (t : sort) : functor SET (SET / sort).
 Proof.
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + intro A; apply (A,,λ _, t).
   + intros A B f; apply (tpair _ f), idpath.
 - abstract (now split; [intros A|intros A B C f g];
@@ -389,7 +389,7 @@ use mk_are_adjoints.
     now apply subtypeEquality; trivial; intros y; apply setproperty.
 + use mk_nat_trans.
   - intros X; simpl in *.
-    mkpair; simpl.
+    use tpair; simpl.
     * intros H; apply (pr1 H).
     * abstract (apply funextsec; intro x; apply (! pr2 x)).
   - now intros X Y f; apply (eq_mor_slicecat has_homsets_HSET).
@@ -573,8 +573,8 @@ Local Definition mk_sortToC (f : sort → C) : sortToC :=
 
 Local Definition proj_gen_fun (D : precategory) (E : category) (d : D) : functor [D,E] E.
 Proof.
-mkpair.
-+ mkpair.
+use tpair.
++ use tpair.
   - intro f; apply (pr1 f d).
   - simpl; intros a b f; apply (f d).
 + abstract (split; [intro f; apply idpath|intros f g h fg gh; apply idpath]).
@@ -582,11 +582,11 @@ Defined.
 
 Local Definition proj_gen {D : precategory} {E : category} : functor D [[D,E],E].
 Proof.
-mkpair.
-+ mkpair.
+use tpair.
++ use tpair.
   - apply proj_gen_fun.
   - intros d1 d2 f.
-    mkpair.
+    use tpair.
     * simpl; intro F; apply (# F f).
     * abstract (intros F G α; simpl in *; apply pathsinv0, (nat_trans_ax α d1 d2 f)).
 + abstract (split;
@@ -627,10 +627,10 @@ Defined.
 (* The function part of Definition 3 *)
 Local Definition option_functor_data  (s : sort) : functor_data sortToC sortToC.
 Proof.
-mkpair.
+use tpair.
 + apply (option_fun s).
-+ intros F G α.
-  mkpair.
++ cbn. intros F G α.
+  use tpair.
   * simpl; intro t.
     induction (eq s t) as [p|p]; simpl; clear p.
     { apply (BinCoproductOfArrows _ _ _ (α t) (identity _)). }

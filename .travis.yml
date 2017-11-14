@@ -16,7 +16,7 @@ install:
   - sudo apt-get install -y emacs
 # build coqide along with the Tactics package, just because it's a short package
 env:
-  - PACKAGES="Foundations Combinatorics Algebra NumberSystems"
+  - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics"
   - PACKAGES=CategoryTheory
   - PACKAGES="MoreFoundations Ktheory"
   - PACKAGES=Topology
