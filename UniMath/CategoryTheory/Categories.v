@@ -81,8 +81,8 @@ Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) : cat.
 
 Definition precategory_id_comp (C : precategory_ob_mor) : UU
   :=
-    (∏ c : C, c --> c)
-      × (* identities *)
+    (∏ c : C, c --> c) (* identities *)
+      ×
     (∏ a b c : C, a --> b -> b --> c -> a --> c). (* composition *)
 
 Definition precategory_data : UU := ∑ X, precategory_id_comp X.
