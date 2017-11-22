@@ -22,6 +22,7 @@ Ltac prop_logic :=
 Lemma iscontrweqb' {X Y} (is:iscontr Y) (w:X ≃ Y) : iscontr X.
 Proof. intros. apply (iscontrweqb (Y:=Y)). assumption. assumption. Defined.
 
+Ltac intermediate_iscontr  Y' := apply (iscontrweqb (Y := Y')).
 Ltac intermediate_iscontr' Y' := apply (iscontrweqb' (Y := Y')).
 
 Ltac isaprop_goal x :=
