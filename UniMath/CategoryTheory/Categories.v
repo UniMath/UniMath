@@ -44,8 +44,8 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 (** * Definition of a precategory *)
 
-Definition precategory_ob_mor := total2 (
-  λ ob : UU, ob -> ob -> UU).
+Definition precategory_ob_mor : UU
+  := ∑ ob : UU, ob -> ob -> UU.
 
 Definition precategory_ob_mor_pair (ob : UU)(mor : ob -> ob -> UU) :
     precategory_ob_mor := tpair _ ob mor.
@@ -61,11 +61,8 @@ Definition precategory_morphisms { C : precategory_ob_mor } :
     we define this notation within the scope "cat" *)
 
 Delimit Scope cat with cat.     (* for precategories *)
-
 Delimit Scope cat with Cat.     (* a slight enhancement for categories *)
-
 Delimit Scope cat_deprecated with cat_deprecated.
-
 Local Open Scope cat.
 
 Notation "a --> b" := (precategory_morphisms a b) : cat.
@@ -82,31 +79,32 @@ Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) : cat.
     - composition
 *)
 
-Definition precategory_id_comp (C : precategory_ob_mor) :=
-     (∏ c : C, c --> c) × (* identities *)
-             (∏ a b c : C,
-                 a --> b -> b --> c -> a --> c).
+Definition precategory_id_comp (C : precategory_ob_mor) : UU
+  :=
+    (∏ c : C, c --> c) (* identities *)
+      ×
+    (∏ a b c : C, a --> b -> b --> c -> a --> c). (* composition *)
 
-Definition precategory_data := total2 precategory_id_comp.
+Definition precategory_data : UU := ∑ X, precategory_id_comp X.
 
 Definition precategory_data_pair (C : precategory_ob_mor)
     (id : ∏ c : C, c --> c)
-    (comp: ∏ a b c : C,
-         a --> b -> b --> c -> a --> c) : precategory_data :=
-   tpair _ C (dirprodpair id comp).
+    (comp: ∏ a b c : C, a --> b -> b --> c -> a --> c)
+  : precategory_data
+  := tpair _ C (dirprodpair id comp).
 
 Definition precategory_ob_mor_from_precategory_data (C : precategory_data) :
      precategory_ob_mor := pr1 C.
 Coercion precategory_ob_mor_from_precategory_data :
   precategory_data >-> precategory_ob_mor.
 
-Definition identity { C : precategory_data } :
-    ∏ c : C, c --> c :=
-         pr1 (pr2 C).
+Definition identity {C : precategory_data}
+  : ∏ c : C, c --> c
+  := pr1 (pr2 C).
 
-Definition compose { C : precategory_data }
-  { a b c : C } :
-    a --> b -> b --> c -> a --> c := pr2 (pr2 C) a b c.
+Definition compose {C : precategory_data} { a b c : C }
+  : a --> b -> b --> c -> a --> c
+  := pr2 (pr2 C) a b c.
 
 Notation "f ;; g" := (compose f g) : cat_deprecated.
 
@@ -116,8 +114,9 @@ Notation "f · g" := (compose f g) : cat.
 Notation "g ∘ f" := (compose f g) (only parsing) : cat.
 (* agda input \circ *)
 
-Definition postcompose  {C : precategory_data} {a b c : C} (g : b --> c) (f : a --> b) : a --> c :=
-  compose f g.
+Definition postcompose {C : precategory_data} {a b c : C} (g : b --> c) (f : a --> b)
+  : a --> c
+  := compose f g.
 
 (** ** Axioms of a precategory *)
 (**
@@ -125,53 +124,33 @@ Definition postcompose  {C : precategory_data} {a b c : C} (g : b --> c) (f : a 
         - composition is associative
 *)
 
-Definition is_precategory (C : precategory_data) :=
-  ((∏ (a b : C) (f : a --> b), identity a · f = f)
-     × (∏ (a b : C) (f : a --> b), f · identity b = f))
-    × (∏ (a b c d : C) (f : a --> b) (g : b --> c) (h : c --> d), f · (g · h) = (f · g) · h).
+Definition is_precategory (C : precategory_data) : UU
+  :=
+    ((∏ (a b : C) (f : a --> b), identity a · f = f)
+     ×
+     (∏ (a b : C) (f : a --> b), f · identity b = f))
+    ×
+    (∏ (a b c d : C) (f : a --> b) (g : b --> c) (h : c --> d), f · (g · h) = (f · g) · h).
 
 Definition mk_is_precategory {C : precategory_data}
            (H1 : ∏ (a b : C) (f : a --> b), identity a · f = f)
            (H2 : ∏ (a b : C) (f : a --> b), f · identity b = f)
-           (H3 : ∏ (a b c d : C) (f : a --> b) (g : b --> c) (h : c --> d), f · (g · h) = (f · g) · h) :
-  is_precategory C := dirprodpair (dirprodpair H1 H2) H3.
-
-
-(*
-Definition is_hs_precategory_data (C : precategory_data) := ∏ (a b : C), isaset (a --> b).
-*)
-(*
-Definition hs_precategory_data := total2 is_hs_precategory_data.
-Definition precategory_data_from_hs_precategory_data (C : hs_precategory_data) :
-  precategory_data := pr1 C.
-Coercion precategory_data_from_hs_precategory_data : hs_precategory_data >-> precategory_data.
-*)
+           (H3 : ∏ (a b c d : C) (f : a --> b) (g : b --> c) (h : c --> d), f · (g · h) = (f · g) · h)
+  : is_precategory C
+  := dirprodpair (dirprodpair H1 H2) H3.
 
 
 Definition precategory := total2 is_precategory.
 
-Definition mk_precategory (C : precategory_data) (H : is_precategory C) : precategory :=
-  tpair _ C H.
-
-
-Definition hs_precategory := total2 (λ C : precategory_data,
-  dirprod (is_precategory C) (∏ a b : C, isaset (a --> b))).
-
-Definition hs_precategory_has_homsets (C : hs_precategory) := pr2 (pr2 C).
+Definition mk_precategory (C : precategory_data) (H : is_precategory C)
+  : precategory
+  := tpair _ C H.
 
 Definition precategory_data_from_precategory (C : precategory) :
        precategory_data := pr1 C.
 Coercion precategory_data_from_precategory : precategory >-> precategory_data.
-(*
-Definition precategory_data_from_hs_precategory (C : hs_precategory) :
-       precategory_data := pr1 C.
-Coercion precategory_data_from_hs_precategory : hs_precategory >-> precategory_data.
-*)
-Definition precategory_from_hs_precategory (C : hs_precategory) : precategory :=
-  tpair _ (pr1 C) (pr1 (pr2 C)).
-Coercion precategory_from_hs_precategory : hs_precategory >-> precategory.
 
-Definition has_homsets (C : precategory_ob_mor) := ∏ a b : C, isaset (a --> b).
+Definition has_homsets (C : precategory_ob_mor) : UU := ∏ a b : C, isaset (a --> b).
 
 Lemma isaprop_has_homsets (C : precategory_ob_mor) : isaprop (has_homsets C).
 Proof.
