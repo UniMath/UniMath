@@ -277,7 +277,7 @@ clean::; rm -f .check-travis.okay
 
 
 # here we ensure that every *.v file F in each package P is listed in the corresponding file UniMath/P/.package/files
-# except for one, which someone has to look at and fix or eliminate:
+# except for those listed in $GRANDFATHER_UNLISTED (currently none)
 GRANDFATHER_UNLISTED = 
 enforce-listing-of-proof-files:
 	@ if declare -A islisted 2>/dev/null ;										\
