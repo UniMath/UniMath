@@ -9,16 +9,11 @@ addons:
     sources:
       - avsm
     packages:
-      - ocaml
-      - ocaml-nox
-      - ocaml-native-compilers
-      - ocaml-findlib
-      - camlp5
-      - camlp4-extra
+      - opam
+      - aspcud
       - time
       - libgtk2.0
       - libgtksourceview2.0
-      - liblablgtk-extras-ocaml-dev
       - emacs
 git:
   submodules:   false
@@ -35,6 +30,9 @@ env:
   - FOUNDATIONS_CHANGE_ERROR=yes BUILD_ALSO="check-for-change-to-Foundations enforce-listing-of-proof-files"
 # building Coq in a separate stage folds up the output in the log:
 before_script:
+  - opam init --yes --no-setup
+  - eval $(opam config env)
+  - opam install lablgtk camlp5 --yes --verbose
   - time make build-coq
 script:
   - time make TIMECMD=time $PACKAGES $BUILD_ALSO FOUNDATIONS_CHANGE_ERROR=$FOUNDATIONS_CHANGE_ERROR
