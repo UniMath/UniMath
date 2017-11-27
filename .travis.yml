@@ -4,17 +4,24 @@ language:       generic
 sudo: 		required
 # "trusty" is the most modern release of Ubuntu supported
 dist: 		trusty
+addons:
+  apt:
+    sources:
+      - avsm
+    packages:
+      - ocaml
+      - ocaml-nox
+      - ocaml-native-compilers
+      - ocaml-findlib
+      - camlp5
+      - camlp4-extra
+      - time
+      - libgtk2.0
+      - libgtksourceview2.0
+      - liblablgtk-extras-ocaml-dev
+      - emacs
 git:
   submodules:   false
-before_install:
-  - sudo apt-get update -qq
-install:
-  - sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers ocaml-findlib
-  - sudo apt-get install -y camlp5 camlp4-extra time libgtk2.0 libgtksourceview2.0
-  - sudo apt-get install -y liblablgtk-extras-ocaml-dev
-  # get etags from emacs:
-  - sudo apt-get install -y emacs
-# build coqide along with the Tactics package, just because it's a short package
 env:
   - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics"
   - PACKAGES=CategoryTheory
