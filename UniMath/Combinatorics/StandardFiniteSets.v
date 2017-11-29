@@ -128,8 +128,8 @@ Defined.
 Lemma stn_eq_or_neq {n} (i j:stn n) : (i=j) ⨿ (i≠j).
 Proof.
   intros. induction (nat_eq_or_neq i j) as [eq|ne].
-  - now apply ii1, subtypeEquality_prop.
-  - now apply ii2.
+  - apply ii1, subtypeEquality_prop. assumption.
+  - apply ii2. assumption.
 Defined.
 
 Definition weqisolatedstntostn ( n : nat ) : ( isolated ( stn n ) ) ≃ ( stn n ) .
@@ -164,10 +164,10 @@ Proof.
   split.
   - unfold ispreorder.
     split.
-    * intros i j k. refine istransnatleh.
+    * intros i j k. apply istransnatleh.
     * intros i. apply isreflnatleh.
   - intros i j r s. apply (invmaponpathsincl _ ( isinclstntonat _ )).
-    now apply isantisymmnatleh.
+    apply isantisymmnatleh; assumption.
 Defined.
 
 Definition lastelement {n} : stn (S n) .
@@ -508,7 +508,7 @@ Proof.
       + intros _. exact (natlehlthtrans (S j) i (S n) lt (pr2 i)).
     - split; exact (idfun _). }
   refine (_ ∘ (weq_subtypes w (λ j, j < n) (λ j, pr1 j < S n) eq))%weq.
-  refine (weqtotal2comm12 _ _).
+  use weqtotal2comm12.
 Defined.
 
 Definition weqdnicompl_compute {n} (j:stn (S n)) (i:stn n) : pr1 (weqdnicompl j i) = dni j i.
@@ -540,7 +540,7 @@ Proof.
   intros.
   intros i.
   induction i as [i|i].
-  - apply subtypeEquality_prop. now induction i as [i I].
+  - apply subtypeEquality_prop. induction i as [i I]. apply idpath.
   - apply idpath.
 Defined.
 
@@ -556,7 +556,7 @@ Definition weqoverdnicoprod {n} (P:⟦S n⟧→UU) :
   (∑ i, P i) ≃ (∑ j, P(dni lastelement j)) ⨿ P lastelement.
 Proof.
   intros.
-  simple refine (weqcomp (weqtotal2overcoprod' P (weqdnicoprod n lastelement)) _).
+  use (weqcomp (weqtotal2overcoprod' P (weqdnicoprod n lastelement))).
   apply weqcoprodf.
   - apply idweq.
   - apply weqtotal2overunit.
@@ -924,10 +924,10 @@ Proof.
   intros ? ? j.
   assert (m : 0 < n).
   { apply (natlehlthtrans _ j). { apply natleh0n. } exact (pr2 j). }
-  assert (l : 1 ≤ n). { now apply natlthtolehsn. }
+  assert (l : 1 ≤ n). { apply natlthtolehsn. assumption. }
   assert (e : n = S (n - 1)).
   { change (S (n - 1)) with (1 + (n - 1)). rewrite natpluscomm.
-    apply pathsinv0. now apply minusplusnmm. }
+    apply pathsinv0. apply minusplusnmm. assumption. }
   rewrite (transport_stnsum (!e) f).
   rewrite (stnsum_dni _ (transportf stn e j)).
   unfold funcomp.
@@ -947,7 +947,7 @@ Proof.
   induction n as [|n IH].
   { apply idpath. }
   simpl.
-  simple refine (natpluscomm _ _ @ _).
+  use (natpluscomm _ _ @ _).
   apply maponpaths.
   exact IH.
 Defined.
@@ -985,7 +985,7 @@ Proof.
   simpl in m1.
   change (stnsum m1 + j < stnsum m).
   assert (s := stnsum_left_le' m (I : S i ≤ n)).
-  simple refine (natlthlehtrans _ _ _ _ s).
+  use (natlthlehtrans _ _ _ _ s).
   clear s.
   induction n as [|n _].
   - induction (negnatlthn0 _ I).
@@ -1016,7 +1016,7 @@ Local Definition weqstnsum_invmap {n : nat} (m : stn n -> nat) : stn (stnsum m) 
 Proof.
   intros ?.
   induction n as [|n IH].
-  { intros ? l. now apply fromempty, negstn0. }
+  { intros ? l. apply fromempty, negstn0. assumption. }
   intros ? l.
   change (⟦ stnsum (m ∘ dni lastelement) + m lastelement ⟧) in l.
   (* we are careful to use weqfromcoprodofstn_invmap both here and in concatenate' *)
@@ -1065,25 +1065,25 @@ Proof.
     induction IH' as [ijJ Q]. induction ijJ as [i jJ]. induction jJ as [j J].
     use tpair.
     + exists (dni_lastelement i). exists j.
-      abstract (simple refine (_ @ J); apply (maponpaths (λ x, x+j)); apply stnsum_eq; intro r;
-      unfold m'; unfold funcomp; apply maponpaths; now apply subtypeEquality_prop).
-    + intro t. now apply partial_sum_prop.
+      abstract (use (_ @ J); apply (maponpaths (λ x, x+j)); apply stnsum_eq; intro r;
+      unfold m'; unfold funcomp; apply maponpaths; apply subtypeEquality_prop, idpath).
+    + intro t. apply partial_sum_prop. assumption.
   - clear IH. set (j := l - len').
     apply iscontraprop1.
-    { now apply partial_sum_prop. }
+    { apply partial_sum_prop. assumption. }
     assert (K := minusplusnmm _ _ J). change (l-len') with j in K.
     exists lastelement.
     use tpair.
     * exists j. apply (natlthandpluslinv _ _ len'). rewrite natpluscomm.
       induction (!K); clear K J j.
       assert(C : len = len' + m lastelement).
-      { simple refine (stnsum_step _ @ _). unfold len', m'; clear m' len'.
+      { use (stnsum_step _ @ _). unfold len', m'; clear m' len'.
         rewrite replace_dni_last. apply idpath. }
       induction C. exact lt.
     * simpl. intermediate_path (stnsum m' + j).
       -- apply (maponpaths (λ x, x+j)). apply stnsum_eq; intro i.
-         unfold m'. unfold funcomp. apply maponpaths. now apply subtypeEquality_prop.
-      -- rewrite natpluscomm. exact (K).
+         unfold m'. unfold funcomp. apply maponpaths. apply subtypeEquality_prop, idpath.
+      -- rewrite natpluscomm. exact K.
 Defined.
 
 Lemma stn_right_first n i : stn_right i (S n) firstelement = stnpair (i + S n) i (natltplusS n i).
@@ -1109,8 +1109,8 @@ Proof.
     - exact (negstn0 ∘ pr1).
     - exact negstn0. }
   intros f. change (⟦ stnsum f ⟧) with (⟦ stnsum (f ∘ dni lastelement) + f lastelement ⟧).
-  simple refine (weqcomp _ (weqfromcoprodofstn _ _)).
-  simple refine (weqcomp (weqoverdnicoprod _) _).
+  use (weqcomp _ (weqfromcoprodofstn _ _)).
+  use (weqcomp (weqoverdnicoprod _) _).
   apply weqcoprodf1.
   apply IHn.
 Defined.
@@ -1215,13 +1215,13 @@ Proof.
       * apply homotrefl.
     + clear I.
       generalize k; clear k.
-      simple refine (homotweqinv
+      use (homotweqinv
                 (λ c, invmap (weqoverdnicoprod (λ i, ⟦ f i ⟧))
                              (coprodf (weqstnsum_invmap (λ i, f (dni lastelement i)))
                                       (idweq (⟦ f lastelement ⟧))
                                       c))
                 (weqfromcoprodofstn (stnsum (f ∘ dni lastelement)) (f lastelement))
-                _ _).
+                ).
       unfold funcomp.
       intro c.
       induction c as [r|s].
@@ -1245,7 +1245,7 @@ Defined.
 
 Definition weqstnsum1 {n} (f : stn n -> nat) : (∑ i, stn (f i)) ≃ stn (stnsum f).
 Proof.
-  intros. simple refine (remakeweqboth (weqstnsum1_prelim_eq _) (weqstnsum1_prelim_eq' _)).
+  intros. use (remakeweqboth (weqstnsum1_prelim_eq _) (weqstnsum1_prelim_eq' _)).
 Defined.
 
 Lemma weqstnsum1_eq {n} (f : stn n -> nat) : pr1weq (weqstnsum1 f) = weqstnsum_map f.
@@ -1265,7 +1265,7 @@ Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat) :
 Proof.
   intros ? ? ? w.
   intermediate_weq (∑ i, stn (f i)).
-  - apply invweq. now apply weqfibtototal.
+  - apply invweq. apply weqfibtototal. assumption.
   - apply weqstnsum1.
 Defined.
 
@@ -1273,7 +1273,7 @@ Corollary weqstnsum2 { X : UU } {n} (f : stn n -> nat) (g : X -> stn n) :
   (∏ i, ⟦f i⟧ ≃ hfiber g i) -> X ≃ ⟦stnsum f⟧.
 Proof.
   intros ? ? ? ? w.
-  simple refine (weqcomp _ (weqstnsum _ _ w)).
+  use (weqcomp _ (weqstnsum _ _ w)).
   apply weqtococonusf.
 Defined.
 
@@ -1587,7 +1587,7 @@ Proof. intro.
          + intro X. apply (fromempty (negweqstn0sn _ X)).
        - intro n'. destruct n' as [ | n' ] .
          + intro X. apply (fromempty ( negweqstnsn0 n X)).
-         + intro X. apply maponpaths. apply IHn. now apply weqcutforstn.
+         + intro X. apply maponpaths. apply IHn. apply weqcutforstn. assumption.
 Defined.
 
 Corollary stnsdnegweqtoeq ( n n' : nat ) ( dw : dneg ((stn n) ≃ (stn n')) ) : n = n'.
@@ -1911,7 +1911,7 @@ Defined.
 Definition concatenate'_r0' {X:UU} {m} (f : stn m -> X) (g : stn 0 -> X) (i : stn (m+0)) :
   concatenate' f g i = f (transportf stn (natplusr0 m) i).
 Proof.
-  intros. unfold concatenate'. now rewrite weqfromcoprodofstn_invmap_r0.
+  intros. unfold concatenate'. rewrite weqfromcoprodofstn_invmap_r0. apply idpath.
 Defined.
 
 Definition flatten' {X n} {m:stn n->nat} : (∏ (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
@@ -1994,7 +1994,7 @@ Lemma is_incr_impl_strincr {m} (f : ⟦m⟧→nat) :
 Proof.
   intros ? ? incl incr i j e.
   assert (d : i ≤ j).
-  { now apply natlthtoleh. }
+  { apply natlthtoleh. assumption. }
   assert (c := incr _ _ d); clear d.
   assert (b : i != j).
   { intro p. induction p. exact (isirreflnatlth _ e). }
@@ -2054,12 +2054,12 @@ Proof.
   - rewrite stnsum_step.
     change (f (dni_firstelement lastelement)) with (f lastelement).
     rewrite natpluscomm.
-    simple refine (_ @ ! @natdiffplusdiff
+    use (_ @ ! @natdiffplusdiff
                      (f lastelement)
                      (f (dni_lastelement lastelement))
                      (f firstelement) _ _).
     + apply maponpaths.
-      simple refine (_ @ I (f ∘ dni_lastelement) _ @ _).
+      use (_ @ I (f ∘ dni_lastelement) _ @ _).
       * unfold funcomp. apply stnsum_eq; intros i. rewrite replace_dni_last. apply idpath.
       * intros i j s. unfold funcomp. apply e. apply s.
       * apply idpath.
@@ -2097,15 +2097,15 @@ Proof.
   intros ? ? inc ?.
   assert (strincr : is_stn_strictly_increasing (pr1weq f)).
   { apply is_incr_impl_strincr.
-    { simple refine (isinclcomp (weqtoincl _ _ f) (stntonat_incl _)). }
+    { use (isinclcomp (weqtoincl _ _ f) (stntonat_incl _)). }
     { exact inc. } }
   induction n as [|n I].
-  - apply fromempty. now apply negstn0.
+  - apply fromempty. apply negstn0. assumption.
   - assert (M : stntonat _ (f lastelement) = n).
     { apply isantisymmnatgeh.
       * assert (N : f lastelement ≥ f firstelement + n).
         { exact (stn_ord_incl (pr1weq f) strincr). }
-        simple refine (istransnatgeh _ _ _ N _).
+        use (istransnatgeh _ _ _ N).
         apply natgehplusnmm.
       * exact (stnlt (f lastelement)). }
     assert (L : ∏ j, f (dni_lastelement j) < n).
