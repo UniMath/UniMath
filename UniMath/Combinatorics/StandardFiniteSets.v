@@ -1101,19 +1101,22 @@ Proof.
   rewrite weqfromcoprodofstn_eq1. apply idpath.
 Defined.
 
-Lemma partial_sum_prop {n : nat} {m : ⟦n⟧ → nat} l : l < stnsum m  ->
+Lemma partial_sum_prop {n : nat} {m : ⟦n⟧ → nat} {l : nat} : l < stnsum m  ->
   isaprop (∑ (i : ⟦n⟧ ) (j : ⟦m i⟧ ), stnsum (m ∘ stn_left'' (stnlt i)) + j = l).
 Proof.
-
-
-
-
+  intros.
+  (* proof has not been carried out for unknown reasons *)
 Abort.
 
-Lemma partial_sum_slot {n : nat} {m : ⟦n⟧ → nat} l : l < stnsum m  ->
+Definition partial_sum_prop_statement :=
+  forall (n : nat) (m : ⟦n⟧ → nat) (l : nat), l < stnsum m ->
+  isaprop (∑ (i : ⟦n⟧ ) (j : ⟦m i⟧ ), stnsum (m ∘ stn_left'' (stnlt i)) + j = l).
+
+Lemma partial_sum_slot {n : nat} {m : ⟦n⟧ → nat} {l : nat} : l < stnsum m ->
+  partial_sum_prop_statement ->
   ∃! (i : ⟦n⟧ ) (j : ⟦m i⟧ ), stnsum (m ∘ stn_left'' (stnlt i)) + j = l.
 Proof.
-  intros ? ? ? lt.
+  intros ? ? ? lt partial_sum_prop.
   set (len := stnsum m).
   induction n as [|n IH].
   { apply fromempty. change (hProptoType(l < 0)) in lt. exact (negnatlthn0 _ lt). }
@@ -1126,7 +1129,9 @@ Proof.
     + exists (dni_lastelement i). exists j.
       abstract (use (_ @ J); apply (maponpaths (λ x, x+j)); apply stnsum_eq; intro r;
       unfold m'; unfold funcomp; apply maponpaths; apply subtypeEquality_prop, idpath).
-    + intro t. apply partial_sum_prop. assumption.
+    + intro t.
+      apply partial_sum_prop.
+      assumption.
   - clear IH. set (j := l - len').
     apply iscontraprop1.
     { apply partial_sum_prop. assumption. }
