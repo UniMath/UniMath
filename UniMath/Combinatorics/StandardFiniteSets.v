@@ -1104,7 +1104,11 @@ Defined.
 Lemma partial_sum_prop {n : nat} {m : ⟦n⟧ → nat} l : l < stnsum m  ->
   isaprop (∑ (i : ⟦n⟧ ) (j : ⟦m i⟧ ), stnsum (m ∘ stn_left'' (stnlt i)) + j = l).
 Proof.
-Admitted.
+
+
+
+
+Abort.
 
 Lemma partial_sum_slot {n : nat} {m : ⟦n⟧ → nat} l : l < stnsum m  ->
   ∃! (i : ⟦n⟧ ) (j : ⟦m i⟧ ), stnsum (m ∘ stn_left'' (stnlt i)) + j = l.
