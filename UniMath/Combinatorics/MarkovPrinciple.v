@@ -10,15 +10,16 @@ number satisfying [ P ], we can find a natural number satisfying [ P ].
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.Topology.Prelim.
 
 Section constr_indef_descr.
   Context
-    (P : nat -> hProp)
+    (P : nat → hProp)
     (P_dec : ∏ n : nat, P n ⨿ ¬ P n)
-    (P_inhab : ishinh (∑ n : nat, P n)).
+    (P_inhab : ∃ n : nat, P n).
 
-  Local Definition minimal (n : nat) : UU := ∏ m : nat, P m -> (n <= m)%nat.
+  Local Definition minimal (n : nat) : UU := ∏ m : nat, P m → (n ≤ m).
   Local Definition isapropminimal (n : nat) : isaprop (minimal n).
   Proof.
     apply impred_isaprop.
@@ -45,7 +46,7 @@ Section constr_indef_descr.
 
   Local Definition min_n : hProp := hProppair min_n_UU isapropmin_n.
 
-  Local Definition smaller (n : nat) := ∑ l : nat, P l × minimal l × (l <= n)%nat.
+  Local Definition smaller (n : nat) := ∑ l : nat, P l × minimal l × (l ≤ n)%nat.
 
   Local Definition smaller_S (n : nat) (k : smaller n) : smaller (S n).
   Proof.
@@ -56,7 +57,7 @@ Section constr_indef_descr.
     apply z.
   Defined.
 
-  Local Definition bounded_search (n : nat) : smaller n ⨿ ∏ l : nat, (l <= n)%nat → ¬ P l.
+  Local Definition bounded_search (n : nat) : smaller n ⨿ ∏ l : nat, (l ≤ n)%nat → ¬ P l.
   Proof.
     induction n.
     - assert (P 0 ⨿ ¬ P 0) as X.
@@ -97,7 +98,7 @@ Section constr_indef_descr.
 
   Local Definition n_to_min_n (n : nat) (p : P n) : min_n.
   Proof.
-    assert (smaller n ⨿ ∏ l : nat, (l <= n)%nat → ¬ P l) as X.
+    assert (smaller n ⨿ ∏ l : nat, (l ≤ n)%nat → ¬ P l) as X.
     apply bounded_search.
     destruct X as [[l [q [m z]]]|none].
     - refine (l,,q,,m).
@@ -121,7 +122,7 @@ Section constr_indef_descr.
 End constr_indef_descr.
 
 
-Definition someseq : nat -> bool.
+Definition someseq : nat → bool.
 Proof.
   intros n. destruct n.
   - exact false.
