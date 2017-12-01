@@ -179,12 +179,12 @@ Defined.
 Definition isdeceqnat: isdeceq nat.
 Proof.
   unfold isdeceq. intro x. induction x as [ | x IHx ].
-  - intro x'. destruct x'.
+  - intro x'. induction x'.
     + apply (ii1 (idpath O)).
     + apply (ii2 (negpaths0sx x')).
-  - intro x'. destruct x'.
+  - intro x'. induction x'.
     + apply (ii2 (negpathssx0 x)).
-    + destruct (IHx x') as [ p | e ].
+    + induction (IHx x') as [ p | e ].
       * apply (ii1 (maponpaths S  p)).
       * apply (ii2 (noeqinjS  _ _ e)).
 Defined.
@@ -249,7 +249,7 @@ Proof.
   - apply (isinclS n).
   - destruct n as [ | n ].
     + assert (nh : ¬ (hfiber S 0)).
-      * intro hf. destruct hf as [ m e ]. apply (negpathssx0 _ e).
+      * intro hf. induction hf as [ m e ]. apply (negpathssx0 _ e).
       * apply (ii2 nh).
     + apply (ii1 (hfiberpair _ n (idpath _))).
 Defined.
@@ -303,13 +303,13 @@ Lemma negnatgth0tois0 (n : nat) (ng : ¬ (n > 0)) : n = 0.
 Proof.
   intro. destruct n as [ | n ].
   - intro. apply idpath.
-  - intro ng. destruct (ng (natgthsn0 _)).
+  - intro ng. induction (ng (natgthsn0 _)).
 Defined.
 
 Lemma natneq0togth0 (n : nat) (ne : n ≠ 0) : n > 0.
 Proof.
   intros. destruct n as [ | n ].
-  - destruct ne.
+  - induction ne.
   - apply natgthsn0.
 Defined.
 
@@ -317,15 +317,15 @@ Lemma nat1gthtois0 (n : nat) (g : 1 > n) : n = 0.
 Proof.
   intro. destruct n as [ | n ].
   - intro. apply idpath.
-  - intro x. destruct (negnatgth0n n x).
+  - intro x. induction (negnatgth0n n x).
 Defined.
 
 Lemma istransnatgth (n m k : nat) : n > m -> m > k -> n > k.
 Proof.
   intro. induction n as [ | n IHn ].
-  - intros m k g. destruct (negnatgth0n _ g).
+  - intros m k g. induction (negnatgth0n _ g).
   - intro m. destruct m as [ | m ].
-    + intros k g g'. destruct (negnatgth0n _ g').
+    + intros k g g'. induction (negnatgth0n _ g').
     + intro k. destruct k as [ | k ].
       * intros. apply natgthsn0.
       * apply (IHn m k).
@@ -357,7 +357,7 @@ Proof.
   intro n. induction n as [ | n IHn ].
   - intros m ng0m ngm0. apply (pathsinv0 (negnatgth0tois0 _ ngm0)).
   - intro m. destruct m as [ | m ].
-    + intros ngsn0 ng0sn. destruct (ngsn0 (natgthsn0 _)).
+    + intros ngsn0 ng0sn. induction (ngsn0 (natgthsn0 _)).
     + intros ng1 ng2. apply (maponpaths S (IHn m ng1 ng2)).
 Defined.
 
@@ -382,9 +382,9 @@ Defined.
 
 Lemma iscotransnatgth (n m k : nat) : n > k -> (n > m) ⨿ (m > k).
 Proof.
-  intros x y z gxz. destruct (isdecrelnatgth x y) as [ p | np ].
+  intros x y z gxz. induction (isdecrelnatgth x y) as [ p | np ].
   - apply ii1. assumption.
-  - apply ii2. destruct (isdecrelnatgth y x) as [r|nr].
+  - apply ii2. induction (isdecrelnatgth y x) as [r|nr].
     + apply (istransnatgth _ _ _ r gxz).
     + assert (e := isantisymmnegnatgth _ _ np nr); clear np nr.
       induction e. assumption.
@@ -435,7 +435,7 @@ Definition isnegrelnatlth : isnegrel natlth := λ n m, isnegrelnatgth m n.
 Definition iscoantisymmnatlth (n m : nat) : ¬ (natlth n m) -> (natlth m n) ⨿ (n = m).
 Proof.
   intros n m nlnm.
-  destruct (iscoantisymmnatgth m n nlnm) as [ l | e ].
+  induction (iscoantisymmnatgth m n nlnm) as [ l | e ].
   - apply (ii1 l).
   - apply (ii2 (pathsinv0 e)).
 Defined.
@@ -562,7 +562,7 @@ Defined.
 
 Definition istotalnatleh : istotal natleh.
 Proof.
-  intros x y. destruct (isdecrelnatleh x y) as [ lxy | lyx ].
+  intros x y. induction (isdecrelnatleh x y) as [ lxy | lyx ].
   - apply (hinhpr (ii1 lxy)).
   - apply hinhpr. apply ii2. apply (iscoasymmnatleh _ _ lyx).
 Defined.
@@ -664,14 +664,14 @@ Defined.
 
 Definition natlehchoice (n m : nat) (l : n ≤ m) : (n < m) ⨿ (n = m).
 Proof.
-  intros. destruct (natlthorgeh n m) as [ l' | g ].
+  intros. induction (natlthorgeh n m) as [ l' | g ].
   - apply (ii1 l').
   - apply (ii2 (isantisymmnatleh _ _ l g)).
 Defined.
 
 Definition natgehchoice (n m : nat) (g : n ≥ m) : (n > m) ⨿ (n = m).
 Proof.
-  intros. destruct (natgthorleh n m) as [ g' | l ].
+  intros. induction (natgthorleh n m) as [ g' | l ].
   - apply (ii1 g').
   - apply (ii2 (isantisymmnatleh _ _ l g)).
 Defined.
@@ -681,14 +681,14 @@ Defined.
 
 Lemma natgthgehtrans (n m k : nat) : n > m -> m ≥ k -> n > k.
 Proof.
-  intros n m k gnm gmk. destruct (natgehchoice m k gmk) as [ g' | e ].
+  intros n m k gnm gmk. induction (natgehchoice m k gmk) as [ g' | e ].
   - apply (istransnatgth _ _ _ gnm g').
   - rewrite e in gnm. apply gnm.
 Defined.
 
 Lemma natgehgthtrans (n m k : nat) : n ≥ m -> m > k -> n > k.
 Proof.
-  intros n m k gnm gmk. destruct (natgehchoice n m gnm) as [ g' | e ].
+  intros n m k gnm gmk. induction (natgehchoice n m gnm) as [ g' | e ].
   - apply (istransnatgth _ _ _ g' gmk).
   - rewrite e. apply gmk.
 Defined.
@@ -714,7 +714,7 @@ Defined.
 Lemma natgthtogehsn (n m : nat) : n > m -> n ≥ (S m).
 Proof.
   intro n. induction n as [ | n IHn ].
-  - intros m X. destruct (negnatgth0n _ X).
+  - intros m X. induction (negnatgth0n _ X).
   - intros m X. destruct m as [ | m ].
     + apply (natgehn0 n).
     + apply (IHn m X).
@@ -764,14 +764,14 @@ Defined. (* PeWa *)
 
 Lemma natlehchoice2 (n m : nat) : n ≤ m -> (S n ≤ m) ⨿ (n = m).
 Proof.
-  intros n m l. destruct (natlehchoice n m l) as [ l' | e ].
+  intros n m l. induction (natlehchoice n m l) as [ l' | e ].
   - apply (ii1 (natlthtolehsn _ _ l')).
   - apply (ii2 e).
 Defined.
 
 Lemma natgehchoice2 (n m : nat) : n ≥ m -> (n ≥ (S m)) ⨿ (n = m).
 Proof.
-  intros n m g. destruct (natgehchoice n m g) as [ g' | e ].
+  intros n m g. induction (natgehchoice n m g) as [ g' | e ].
   - apply (ii1 (natgthtogehsn _ _ g')).
   - apply (ii2 e).
 Defined.
@@ -779,7 +779,7 @@ Defined.
 Lemma natgthchoice2 (n m : nat) : n > m -> (n > S m) ⨿ (n = (S m)).
 Proof.
   intros n m g.
-  destruct (natgehchoice _ _ (natgthtogehsn _ _ g)) as [ g' | e ].
+  induction (natgehchoice _ _ (natgthtogehsn _ _ g)) as [ g' | e ].
   - apply (ii1 g').
   - apply (ii2 e).
 Defined.
@@ -787,7 +787,7 @@ Defined.
 Lemma natlthchoice2 (n m : nat) : n < m -> (S n < m) ⨿ ((S n) = m).
 Proof.
   intros n m l.
-  destruct (natlehchoice _ _ (natlthtolehsn _ _ l)) as [ l' | e ].
+  induction (natlehchoice _ _ (natlthtolehsn _ _ l)) as [ l' | e ].
   - apply (ii1 l').
   - apply (ii2 e).
 Defined.
@@ -1013,7 +1013,7 @@ Definition natgehandplusrinv (n m k : nat) :  n + k ≥ m + k -> n ≥ m := natl
 
 Definition natgthtogthp1 (n m : nat) : n > m -> (n + 1) > m.
 Proof.
-  intros n m is. destruct (natpluscomm 1 n).
+  intros n m is. induction (natpluscomm 1 n).
   apply (natgthtogths n m is).
 Defined.
 
@@ -1021,7 +1021,7 @@ Definition natlthtolthp1 (n m : nat) : n < m -> n < m + 1 := natgthtogthp1 _ _.
 
 Definition natlehtolehp1 (n m : nat) : n ≤ m -> n ≤ m + 1.
 Proof.
-  intros n m is. destruct (natpluscomm 1 m).
+  intros n m is. induction (natpluscomm 1 m).
   apply (natlehtolehs n m is).
 Defined.
 
@@ -1032,37 +1032,37 @@ Definition natgehtogehp1 (n m : nat) : n ≥ m -> (n + 1) ≥ m := natlehtolehp1
 
 Lemma natgthtogehp1 (n m : nat) : n > m -> n ≥ (m + 1).
 Proof.
-  intros n m is. destruct (natpluscomm 1 m).
+  intros n m is. induction (natpluscomm 1 m).
   apply (natgthtogehsn n m is).
 Defined.
 
 Lemma natgthp1togeh (n m : nat) : (n + 1) > m -> n ≥ m.
 Proof.
-  intros n m is. destruct (natpluscomm 1 n).
+  intros n m is. induction (natpluscomm 1 n).
   apply (natgthsntogeh n m is).
 Defined. (* PeWa *)
 
 Lemma natlehp1tolth (n m : nat) : n + 1 ≤ m -> n < m.
 Proof.
-  intros n m is. destruct (natpluscomm 1 n).
+  intros n m is. induction (natpluscomm 1 n).
   apply (natlehsntolth n m is).
 Defined.
 
 Lemma natlthtolehp1 (n m : nat) : n < m -> n + 1 ≤  m.
 Proof.
-  intros n m is. destruct (natpluscomm 1 n).
+  intros n m is. induction (natpluscomm 1 n).
   apply (natlthtolehsn n m is).
 Defined.
 
 Lemma natlthp1toleh (n m : nat) : n < m + 1 -> n ≤ m.
 Proof.
-  intros n m is. destruct (natpluscomm 1 m).
+  intros n m is. induction (natpluscomm 1 m).
   apply (natlthsntoleh n m is).
 Defined. (* PeWa *)
 
 Lemma natgehp1togth (n m : nat) : n ≥ (m + 1) -> n > m.
 Proof.
-  intros n m is. destruct (natpluscomm 1 m).
+  intros n m is. induction (natpluscomm 1 m).
   apply (natgehsntogth n m is).
 Defined.
 
@@ -1071,14 +1071,14 @@ Defined.
 
 Lemma natlehchoice3 (n m : nat) : n ≤ m -> (n + 1 ≤ m) ⨿ (n = m).
 Proof.
-  intros n m l. destruct (natlehchoice n m l) as [ l' | e ].
+  intros n m l. induction (natlehchoice n m l) as [ l' | e ].
   - apply (ii1 (natlthtolehp1 _ _ l')).
   - apply (ii2 e).
 Defined.
 
 Lemma natgehchoice3 (n m : nat) : n ≥ m -> (n ≥ (m + 1)) ⨿ (n = m).
 Proof.
-  intros n m g. destruct (natgehchoice n m g) as [ g' | e ].
+  intros n m g. induction (natgehchoice n m g) as [ g' | e ].
   - apply (ii1 (natgthtogehp1 _ _ g')).
   - apply (ii2 e).
 Defined.
@@ -1086,7 +1086,7 @@ Defined.
 Lemma natgthchoice3 (n m : nat) : n > m -> (n > (m + 1)) ⨿ (n = (m + 1)).
 Proof.
   intros n m g.
-  destruct (natgehchoice _ _ (natgthtogehp1 _ _ g)) as [ g' | e ].
+  induction (natgehchoice _ _ (natgthtogehp1 _ _ g)) as [ g' | e ].
   - apply (ii1 g').
   - apply (ii2 e).
 Defined.
@@ -1094,7 +1094,7 @@ Defined.
 Lemma natlthchoice3 (n m : nat) : n < m -> (n + 1 < m) ⨿ ((n + 1) = m).
 Proof.
   intros n m l.
-  destruct (natlehchoice _ _ (natlthtolehp1 _ _ l)) as [ l' | e ].
+  induction (natlehchoice _ _ (natlthtolehp1 _ _ l)) as [ l' | e ].
   - apply (ii1 l').
   - apply (ii2 e).
 Defined.
@@ -1150,8 +1150,8 @@ Proof.
   - apply isinclnatplusr.
   - induction m as [ | m IHm ].
     + set (e := natleh0tois0 is). split with 0. apply e.
-    + destruct (natlehchoice2 _ _ is) as [ l | e ].
-      * set (j := IHm l). destruct j as [ j e' ]. split with (S j). simpl.
+    + induction (natlehchoice2 _ _ is) as [ l | e ].
+      * set (j := IHm l). induction j as [ j e' ]. split with (S j). simpl.
         apply (maponpaths S e').
       * split with 0. simpl. assumption.
 Defined.
@@ -1163,23 +1163,23 @@ Proof.
   - induction m as [ | m IHm ].
     + set (e := natleh0tois0 is). split with 0.
       rewrite <- plus_n_O. apply e.
-    + destruct (natlehchoice2 _ _ is) as [ l | e ].
-      * set (j := IHm l). destruct j as [ j e' ]. split with (S j). simpl.
+    + induction (natlehchoice2 _ _ is) as [ l | e ].
+      * set (j := IHm l). induction j as [ j e' ]. split with (S j). simpl.
         rewrite <- plus_n_Sm. apply (maponpaths S e').
       * split with 0. simpl. rewrite <- plus_n_O. assumption.
 Defined.
 
 Lemma neghfibernatplusr (n m : nat) (is : m < n) : ¬ (hfiber (λ i : nat, i + n) m).
 Proof.
-  intros. intro h. destruct h as [ i e ]. rewrite (pathsinv0 e) in is.
-  destruct (natlehtonegnatgth _ _ (natlehmplusnm i n) is).
+  intros. intro h. induction h as [ i e ]. rewrite (pathsinv0 e) in is.
+  induction (natlehtonegnatgth _ _ (natlehmplusnm i n) is).
 Defined.
 
 Lemma isdecinclnatplusr (n : nat) : isdecincl (λ i : nat, i + n).
 Proof.
   intros. intro m. apply isdecpropif.
   - apply (isinclnatplusr _ m).
-  - destruct (natlthorgeh m n) as [ ni | i ].
+  - induction (natlthorgeh m n) as [ ni | i ].
     + apply (ii2 (neghfibernatplusr n m ni)).
     + apply (ii1 (pr1 (iscontrhfibernatplusr n m i))).
 Defined.
@@ -1218,8 +1218,8 @@ Defined.
 Definition minusgth0 (n m : nat) (is : n > m) : n - m > 0.
 Proof.
   intro n. induction n as [ | n IHn ].
-  - intros. destruct (negnatgth0n _ is).
-  - intro m. destruct m as [ | m ].
+  - intros. induction (negnatgth0n _ is).
+  - intro m. induction m as [ | m ].
     + intro. apply natgthsn0.
     + intro is. apply (IHn m is).
 Defined.
@@ -1227,7 +1227,7 @@ Defined.
 Definition minusgth0inv (n m : nat) (is : n - m > 0) : n > m.
 Proof.
   intro. induction n as [ | n IHn ].
-  - intros. destruct (negnatgth0n _ is).
+  - intros. induction (negnatgth0n _ is).
   - intro. destruct m as [ | m ].
     + intros. apply natgthsn0.
     + intro. apply (IHn m is).
@@ -1252,9 +1252,9 @@ Definition natminusgehn (n m : nat) : n ≥ n - m := natminuslehn _ _.
 Definition natminuslthn (n m : nat) (is : n > 0) (is' : m > 0) : n - m < n.
 Proof.
   intro. induction n as [ | n IHn ].
-  - intros. destruct (negnatgth0n _ is).
+  - intros. induction (negnatgth0n _ is).
   - intro m. induction m.
-    + intros. destruct (negnatgth0n _ is').
+    + intros. induction (negnatgth0n _ is').
     + intros. apply (natlehlthtrans _ n _).
       * apply (natminuslehn n m).
       * apply natlthnsn.
@@ -1263,9 +1263,9 @@ Defined.
 Definition natminuslthninv (n m : nat) (is : n - m < n) : m > 0.
 Proof.
   intro. induction n as [ | n IHn ].
-  - intros. destruct (negnatlthn0 _ is).
+  - intros. induction (negnatlthn0 _ is).
   - intro m. destruct m as [ | m ].
-    + intro. destruct (negnatlthnn _ is).
+    + intro. induction (negnatlthnn _ is).
     + intro. apply (natgthsn0 m).
 Defined.
 
@@ -1281,7 +1281,7 @@ Defined.
 
 Definition minusplusnmmineq (n m : nat) : (n - m) + m ≥ n.
 Proof.
-  intros. destruct (natlthorgeh n m) as [ lt | ge ].
+  intros. induction (natlthorgeh n m) as [ lt | ge ].
   - rewrite (minuseq0 _ _ (natlthtoleh _ _ lt)).
     apply (natgthtogeh _ _ lt).
   - rewrite (minusplusnmm _ _ ge).
@@ -1753,7 +1753,7 @@ Defined.
 Definition natgthandmultl (n m k : nat) : k ≠ 0 -> n > m -> (k * n) > (k * m).
 Proof.
   intro n. induction n as [ | n IHn ].
-  - intros m k g g'. destruct (negnatgth0n _ g').
+  - intros m k g g'. induction (negnatgth0n _ g').
   - intro m. destruct m as [ | m ].
     + intros k g g'.
       rewrite (natmultn0 k). rewrite (multnsm k n).
@@ -1771,7 +1771,7 @@ Defined.
 Definition natgthandmultlinv (n m k : nat) : (k * n) > (k * m) -> n > m.
 Proof.
   intro n. induction n as [ | n IHn ].
-  - intros m k g. rewrite (natmultn0 k) in g. destruct (negnatgth0n _ g).
+  - intros m k g. rewrite (natmultn0 k) in g. induction (negnatgth0n _ g).
   - intro m. destruct m as [ | m ].
     + intros. apply (natgthsn0 _).
     + intros k g. rewrite (multnsm k n) in g. rewrite (multnsm k m) in g.
@@ -1843,7 +1843,7 @@ Definition natdivrem (n m : nat) : dirprod nat nat.
 Proof.
   intros. induction n as [ | n IHn ].
   - intros. apply (dirprodpair 0 0).
-  - destruct (natlthorgeh (S (pr2 IHn)) m).
+  - induction (natlthorgeh (S (pr2 IHn)) m).
     + apply (dirprodpair (pr1 IHn) (S (pr2 IHn))).
     + apply (dirprodpair (S (pr1 IHn)) 0).
 Defined.
@@ -1859,7 +1859,7 @@ Lemma lthnatrem (n m : nat) : m ≠ 0 -> n /+ m < m.
 Proof.
   unfold natrem. intros ? ? is. destruct n as [ | n ].
   - simpl. intros. apply (natneq0togth0 _ is).
-  - simpl. destruct (natlthorgeh (S (pr2 (natdivrem n m))) m) as [ nt | t ].
+  - simpl. induction (natlthorgeh (S (pr2 (natdivrem n m))) m) as [ nt | t ].
     + simpl. apply nt.
     + simpl. apply (natneq0togth0 _ is).
 Defined.
@@ -1869,11 +1869,11 @@ Proof.
   intro. induction n as [ | n IHn ].
   - simpl. intros. apply idpath.
   - intros m is. unfold natrem. unfold natdiv. simpl.
-    destruct (natlthorgeh (S (pr2 (natdivrem n m))) m)  as [ nt | t ].
+    induction (natlthorgeh (S (pr2 (natdivrem n m))) m)  as [ nt | t ].
     + simpl. apply (maponpaths S (IHn m is)).
     + simpl. set (is' := lthnatrem n m is).
-      destruct (natgthchoice2 _ _ is') as [ h | e ].
-      destruct (natlehtonegnatgth _ _ t h).
+      induction (natgthchoice2 _ _ is') as [ h | e ].
+      induction (natlehtonegnatgth _ _ t h).
       fold (natdiv n m).
       set (e'' := maponpaths S (IHn m is)).
       change (S (natrem n m + natdiv n m * m))
@@ -1915,7 +1915,7 @@ Proof.
       rewrite natplusr0 in e.
       rewrite <- e in lj'.
       rewrite <- natplusassoc in lj'.
-      destruct (negnatgthmplusnm _ _ lj').
+      induction (negnatgthmplusnm _ _ lj').
     + simpl in e.
       rewrite <- (natplusassoc j) in e.
       rewrite <- (natplusassoc j') in e.
@@ -2029,14 +2029,14 @@ Defined.
 
 Lemma natlehdinsn (i n : nat) : (di i n) ≤ (S n).
 Proof.
-  intros. unfold di. destruct (natlthorgeh n i).
+  intros. unfold di. induction (natlthorgeh n i).
   - apply natlthtoleh. apply natlthnsn.
   - apply isreflnatleh.
 Defined.
 
 Lemma natgehdinn (i n : nat) : (di i n) ≥ n.
 Proof.
-  intros. unfold di. destruct (natlthorgeh n i).
+  intros. unfold di. induction (natlthorgeh n i).
   - apply isreflnatleh.
   - apply natlthtoleh. apply natlthnsn.
 Defined.
@@ -2045,14 +2045,14 @@ Lemma isincldi (i : nat) : isincl (di i).
 Proof.
   intro. apply (isinclbetweensets (di i) isasetnat isasetnat).
   intros x x'. unfold di. intro e.
-  destruct (natlthorgeh x i) as [ l | nel ].
-  - destruct (natlthorgeh x' i) as [ l' | nel' ].
+  induction (natlthorgeh x i) as [ l | nel ].
+  - induction (natlthorgeh x' i) as [ l' | nel' ].
     + apply e.
     + rewrite e in l. assert (e' := natgthtogths _ _  l).
       change (S i > S x') with (i > x') in e'.
       contradicts (natlehtonegnatgth _ _ nel') e'.
-  - destruct  (natlthorgeh x' i)  as [ l' | nel' ].
-    + destruct e.
+  - induction  (natlthorgeh x' i)  as [ l' | nel' ].
+    + induction e.
       set (e' := natgthtogths _ _ l').
       contradicts (natlehtonegnatgth _ _ nel) e'.
     + apply (invmaponpathsS _ _ e).
@@ -2060,34 +2060,34 @@ Defined.
 
 Lemma neghfiberdi (i : nat) : ¬ (hfiber (di i) i).
 Proof.
-  intros i hf. unfold di in hf. destruct hf as [ j e ].
-  destruct (natlthorgeh j i) as [ l | g ]. destruct e.
-  apply (isirreflnatlth _ l). destruct e in g. apply (negnatgehnsn _ g).
+  intros i hf. unfold di in hf. induction hf as [ j e ].
+  induction (natlthorgeh j i) as [ l | g ]. induction e.
+  apply (isirreflnatlth _ l). induction e in g. apply (negnatgehnsn _ g).
 Defined.
 
 Lemma iscontrhfiberdi (i j : nat) (ne : i ≠ j) : iscontr (hfiber (di i) j).
 Proof.
   intros. apply iscontraprop1. apply (isincldi i j).
-  destruct (natlthorgeh j i) as [ l | nel ].
+  induction (natlthorgeh j i) as [ l | nel ].
   - split with j. unfold di.
-    destruct (natlthorgeh j i) as [ l' | nel' ].
+    induction (natlthorgeh j i) as [ l' | nel' ].
     + apply idpath.
     + contradicts (natlehtonegnatgth _ _ nel') l.
-  - destruct (natgehchoice2 _ _ nel) as [ g | e ].
+  - induction (natgehchoice2 _ _ nel) as [ g | e ].
     destruct j as [ | j ].
-    + destruct (negnatgeh0sn _ g).
-    + split with j. unfold di. destruct (natlthorgeh j i) as [ l' | g' ].
+    + induction (negnatgeh0sn _ g).
+    + split with j. unfold di. induction (natlthorgeh j i) as [ l' | g' ].
       * contradicts (natlehtonegnatgth _ _ g) l'.
       * apply idpath.
-    + destruct ((nat_neq_to_nopath ne) (pathsinv0 e)).
+    + induction ((nat_neq_to_nopath ne) (pathsinv0 e)).
 Defined.
 
 Lemma isdecincldi (i : nat) : isdecincl (di i).
 Proof.
   intros i j. apply isdecpropif.
   - apply (isincldi i j).
-  - destruct (nat_eq_or_neq i j)  as [ eq | neq ].
-    + apply ii2. destruct eq.  apply (neghfiberdi i).
+  - induction (nat_eq_or_neq i j)  as [ eq | neq ].
+    + apply ii2. induction eq.  apply (neghfiberdi i).
     + apply ii1. apply (pr1 (iscontrhfiberdi i j neq)).
 Defined.
 
