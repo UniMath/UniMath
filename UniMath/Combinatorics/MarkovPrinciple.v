@@ -37,7 +37,7 @@ Section constr_indef_descr.
       apply isapropdirprod. apply (P n).
       apply isapropminimal.
     - intros n n' k k'.
-      destruct k as [p m], k' as [p' m'].
+      induction k as [p m], k' as [p' m'].
       apply isantisymmnatleh.
       + exact (m n' p').
       + exact (m' n p).
@@ -49,7 +49,7 @@ Section constr_indef_descr.
 
   Local Definition smaller_S (n : nat) (k : smaller n) : smaller (S n).
   Proof.
-    destruct k as [l [p [m z]]].
+    induction k as [l [p [m z]]].
     refine (l,,p,,m,,_).
     refine (istransnatgth _ _ _ _ _).
     apply natgthsnn.
@@ -61,7 +61,7 @@ Section constr_indef_descr.
     induction n.
     - assert (P 0 ⨿ ¬ P 0) as X.
       apply P_dec.
-      destruct X.
+      induction X as [h|].
       + apply ii1.
         refine (O,,h,,_,,_).
         * intros ? ?. apply natleh0n.
@@ -70,25 +70,24 @@ Section constr_indef_descr.
         assert (l = O).
         apply natleh0tois0. assumption.
         rewrite H. assumption.
-    - destruct IHn.
+    - induction IHn as [|n0].
       + apply ii1. apply smaller_S. assumption.
       + assert (P (S n) ⨿ ¬ P (S n)) as X.
         apply P_dec.
-        destruct X.
+        induction X as [h|].
         * refine (ii1 (S n,,h,,_,,_)).
           -- intros m q.
              assert (((S n) > m)%nat ⨿ (S n ≤ m)) as X.
              apply natgthorleh.
-             destruct X.
-             ++ assert empty.
+             induction X as [h0|].
+             ++ apply fromempty.
                 refine (n0 m h0 q).
-                destruct H.
              ++ assumption.
           -- apply isreflnatleh.
         * apply ii2. intros l q.
           assert ((l > n)%nat ⨿ (l ≤ n)) as X.
           apply natgthorleh.
-          destruct X.
+          induction X as [h|h].
           -- assert (l = S n).
              apply isantisymmnatgeh. apply h. apply q. rewrite H. assumption.
           -- exact (n0 l h).
@@ -99,23 +98,22 @@ Section constr_indef_descr.
   Proof.
     assert (smaller n ⨿ ∏ l : nat, (l ≤ n)%nat → ¬ P l) as X.
     apply bounded_search.
-    destruct X as [[l [q [m z]]]|none].
+    induction X as [[l [q [m z]]]|none]. (* TODO fix nested brackets *)
     - refine (l,,q,,m).
-    - assert empty.
+    - apply fromempty.
       refine (none n (isreflnatgeh _ ) p).
-      destruct H.
   Defined.
 
   Local Definition prop_n_to_min_n : min_n.
   Proof.
     refine (@hinhuniv (∑ n : nat, P n) _ _ _).
-    - destruct 1 as [n p]. exact (n_to_min_n n p).
+    - induction 1 as [n p]. exact (n_to_min_n n p).
     - exact P_inhab.
   Defined.
 
   Definition minimal_n : ∑ n : nat, P n.
   Proof.
-    destruct prop_n_to_min_n as [n [p ?]]. exact (n,,p).
+    induction prop_n_to_min_n as [n [p ?]]. exact (n,,p). (* TODO fix nested brackets *)
   Defined.
 
 End constr_indef_descr.
