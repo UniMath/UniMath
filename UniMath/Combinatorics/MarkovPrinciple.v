@@ -98,8 +98,11 @@ Section constr_indef_descr.
   Proof.
     assert (smaller n ⨿ ∏ l : nat, (l ≤ n)%nat → ¬ P l) as X.
     apply bounded_search.
-    induction X as [[l [q [m z]]]|none]. (* TODO fix nested brackets *)
-    - refine (l,,q,,m).
+    induction X as [lqmz|none].
+    - induction lqmz as [l qmz].
+      induction qmz as [q mz].
+      induction mz as [m z].
+      refine (l,,q,,m).
     - apply fromempty.
       refine (none n (isreflnatgeh _ ) p).
   Defined.
@@ -113,7 +116,8 @@ Section constr_indef_descr.
 
   Definition minimal_n : ∑ n : nat, P n.
   Proof.
-    induction prop_n_to_min_n as [n [p ?]]. exact (n,,p). (* TODO fix nested brackets *)
+    induction prop_n_to_min_n as [n pl]. induction pl as [p _].
+    exact (n,,p). (* TODO fix nested brackets *)
   Defined.
 
 End constr_indef_descr.
