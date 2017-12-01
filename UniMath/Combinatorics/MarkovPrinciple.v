@@ -11,7 +11,7 @@ number satisfying [ P ], we can find a natural number satisfying [ P ].
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.NaturalNumbers.
-Require Import UniMath.Topology.Prelim.
+Require Import UniMath.MoreFoundations.Propositions.
 
 Section constr_indef_descr.
   Context
@@ -32,8 +32,7 @@ Section constr_indef_descr.
 
   Local Definition isapropmin_n : isaprop min_n_UU.
   Proof.
-    apply isaproptotal2'.
-    - exact isasetnat.
+    apply isaproptotal2.
     - intros n.
       apply isapropdirprod. apply (P n).
       apply isapropminimal.

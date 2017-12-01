@@ -9,23 +9,6 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** ** hProp *)
 
-Lemma isaproptotal2' {X : UU} (P : X → UU) :
-  isaset X →
-  isPredicate P →
-  (∏ x y : X, P x → P y → x = y) →
-  isaprop (∑ x : X, P x).
-Proof.
-  intros X P HX HP Heq x y ; simpl.
-  eapply iscontrweqb.
-  apply subtypeInjectivity.
-  exact HP.
-  rewrite (Heq (pr1 y) (pr1 x)).
-  apply iscontrloopsifisaset.
-  exact HX.
-  exact (pr2 y).
-  exact (pr2 x).
-Qed.
-
 Lemma hinhuniv' {P X : UU} :
   isaprop P → (X → P) → (∥ X ∥ → P).
 Proof.
