@@ -496,14 +496,8 @@ Module Test_markov.
 
   Import UniMath.Combinatorics.MarkovPrinciple.
   Import UniMath.Foundations.Propositions.
-  Import UniMath.Foundations.PartD.
-  Require Import UniMath.Foundations.PartD.
-  Require Import UniMath.Foundations.Propositions.
-  Require Import UniMath.Foundations.NaturalNumbers.
-  Require Import UniMath.MoreFoundations.Propositions.
-  Open Scope nat_scope.
 
-  Local Definition someseq : nat -> bool.
+  Local Definition someseq (n : nat) : bool.
   Proof.
     intros n. destruct n.
     - exact false.
@@ -514,7 +508,7 @@ Module Test_markov.
         * exact false.
   Defined.
 
-  Definition P : nat -> hProp.
+  Definition P : nat → hProp.
   Proof.
     intros n.
     refine (hProppair (someseq n = true) _).
