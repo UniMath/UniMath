@@ -27,6 +27,9 @@ Contributing to UniMath
 To contribute to UniMath, submit a pull request or contact us.  Your code will
 be subject to the copyright and license agreement in the file ```LICENSE.md```.
 
+For the style guide and other instructions, see
+```UniMath/README.md``` (one directory deeper than this file).
+
 Discussing UniMath & Getting Help
 ---------------------------------
 
