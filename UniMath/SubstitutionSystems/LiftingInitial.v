@@ -306,7 +306,7 @@ Proof.
   clear h_eq1'.
 (* match goal right in the beginning in contrast with earlier approach - suggestion by Benedikt *)
   match goal with |[ H1 : _  = ?f |- _ = _   ] =>
-         pathvia f end.
+         intermediate_path f end.
 
   - clear h_eq1'_inst.
     unfold coproduct_nat_trans_data; simpl.
@@ -360,7 +360,7 @@ Proof.
   assert (h_eq2'_inst := nat_trans_eq_pointwise h_eq2' c).
   clear h_eq2'.
   match goal with |[ H1 : _  = ?f |- _ = _   ] =>
-                   pathvia (f) end.
+                   intermediate_path (f) end.
   - clear h_eq2'_inst.
     apply BinCoproductIn2Commutes_right_in_ctx_dir.
     unfold aux_iso_1; simpl.
@@ -524,7 +524,7 @@ Proof.
   exists (λ _, m).
   abstract (
     intros ? ? ? ;
-    pathvia m ;
+    intermediate_path m ;
     [
     apply id_left |
     apply pathsinv0 ;
@@ -656,7 +656,7 @@ Proof.
   set ( rhohat := BinCoproductArrow EndC  (CPEndC _ _ )  β (tau_from_alg T')
                   :  pr1 Ghat T' --> T').
   set (X:= SpecializedGMIt Z _ Ghat rhohat (thetahat Z f)).
-  pathvia (pr1 (pr1 X)).
+  intermediate_path (pr1 (pr1 X)).
   - set (TT:= fusion_law _ _ _ IA _ hsEndC (pr1 InitAlg) T' _ (KanExt Z)).
     set (Psi := ψ_from_comps _ (Id_H) _ hsEndC _ (ℓ (U Z)) (Const_plus_H (U Z)) (ρ_Thm15 Z f)
                              (aux_iso_1 Z · θ'_Thm15 Z · aux_iso_2_inv Z) ).
@@ -667,7 +667,7 @@ Proof.
     set (T4 := T3 Psi').
     set (Φ := (Phi_fusion Z T' β)).
     set (T5 := T4 Φ).
-    pathvia (Φ _ (fbracket InitHSS f)).
+    intermediate_path (Φ _ (fbracket InitHSS f)).
     + apply idpath.
     + eapply pathscomp0. Focus 2. apply T5.
       (* hypothesis of fusion law *)
@@ -725,7 +725,7 @@ Proof.
         assert (H_nat_inst_c := nat_trans_eq_pointwise H_nat_inst c); clear H_nat_inst.
         {
           match goal with |[ H1 : _  = ?f |- _ = _· ?g · ?h  ] =>
-             pathvia (f·g·h) end.
+             intermediate_path (f·g·h) end.
           + clear H_nat_inst_c.
             simpl.
             repeat rewrite <- assoc.
