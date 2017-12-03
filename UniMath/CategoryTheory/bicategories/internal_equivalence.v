@@ -86,7 +86,7 @@ Proof.
   rewrite <- !assoc.
   apply iso_inv_on_right.
 
-  pathvia (identity (identity_1mor a ;1; identity_1mor a)).
+  intermediate_path (identity (identity_1mor a ;1; identity_1mor a)).
     rewrite whisker_right_inv.
     apply iso_inv_on_right.
     apply iso_inv_on_right.

@@ -146,9 +146,9 @@ Defined.
 Definition LamE_algebra_on_Lam : FunctorAlg (Id_H _ _ CC LamE_S) hsEndC.
 Proof.
   exists ((*ob_from_algebra_ob _ _*) `Lam).
-  refine (BinCoproductArrow _ (CPEndC _ _ )  _ _ ) .
+  use (BinCoproductArrow _ (CPEndC _ _ )).
   + exact Lam_Var.
-  + refine (BinCoproductArrow _ (CPEndC _ _ )  _ _ ).
+  + use (BinCoproductArrow _ (CPEndC _ _ )).
     * apply Lam_App_Abs. (* do NOT destruct and reassemble more, use App_Abs directly *)
     * apply Lam_Flatten.
 Defined.
@@ -165,7 +165,7 @@ Defined.
 (** preparations for typedness *)
 Local Definition bla': (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) --> (ptd_from_alg_functor CC _ Lam).
 Proof.
-  simple refine (tpair _ _ _ ).
+  use tpair.
     + apply (nat_trans_id _ ).
     + abstract
         (intro c; rewrite id_right
@@ -175,7 +175,7 @@ Defined.
 
 Local Definition bla'_inv: (ptd_from_alg_functor CC _ Lam) --> (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
 Proof.
-  simple refine (tpair _ _ _ ).
+  use tpair.
     + apply (nat_trans_id _ ).
     + abstract
         (intro c; rewrite id_right ;
@@ -486,10 +486,10 @@ Definition bracket_for_LamE_algebra_on_Lam_at (Z : Ptd)
   :
     bracket_at C hs CC LamE_S LamE_algebra_on_Lam f.
 Proof.
-  unshelve refine (tpair _ _ _ ).
+  use tpair.
   - exists (fbracket_for_LamE_algebra_on_Lam Z f).
     apply (bracket_property_for_LamE_algebra_on_Lam Z f).
-  - apply bracket_for_LamE_algebra_on_Lam_unique.
+  - simpl; apply bracket_for_LamE_algebra_on_Lam_unique.
 Defined.
 
 Definition bracket_for_LamE_algebra_on_Lam : bracket LamE_algebra_on_Lam.

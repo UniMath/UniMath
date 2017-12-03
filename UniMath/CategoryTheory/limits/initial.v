@@ -111,8 +111,8 @@ Section Initial_and_EmptyCoprod.
     CoproductCocone empty C fromempty -> Initial C.
   Proof.
     intros X.
-    refine (mk_Initial (CoproductObject _ _ X) _).
-    refine (mk_isInitial _ _).
+    use (mk_Initial (CoproductObject _ _ X)).
+    use mk_isInitial.
     intros b.
     assert (H : ∏ i : empty, C⟦fromempty i, b⟧) by
         (intros i; apply (fromempty i)).

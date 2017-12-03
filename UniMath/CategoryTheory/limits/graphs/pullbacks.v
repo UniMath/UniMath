@@ -89,7 +89,7 @@ Definition mk_isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
 Proof.
   intros H' x cx; simpl in *.
   set (H1 := H' x (coneOut cx One) (coneOut cx Three) ).
-  simple refine (let p : coneOut cx One · f = coneOut cx Three · g := _ in _ ).
+  use (let p : coneOut cx One · f = coneOut cx Three · g := _ in _ ).
   { eapply pathscomp0; [apply (coneOutCommutes cx One Two tt)|].
     apply pathsinv0, (coneOutCommutes cx Three Two tt). }
   set (H2 := H1 p).
@@ -180,14 +180,14 @@ Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
    (Pb : Pullback f g) e (h : C⟦e, b⟧) (k : C⟦e, c⟧)(H : h · f = k · g) :
    PullbackArrow Pb e h k H · PullbackPr1 Pb = h.
 Proof.
-  refine (limArrowCommutes Pb e _ One).
+  exact (limArrowCommutes Pb e _ One).
 Qed.
 
 Lemma PullbackArrow_PullbackPr2 {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
    (Pb : Pullback f g) e (h : C⟦e, b⟧) (k : C⟦e, c⟧)(H : h · f = k · g) :
    PullbackArrow Pb e h k H · PullbackPr2 Pb = k.
 Proof.
-  refine (limArrowCommutes Pb e _ Three).
+  exact (limArrowCommutes Pb e _ Three).
 Qed.
 
 Lemma PullbackArrowUnique {a b c d : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧)
@@ -226,7 +226,7 @@ Proof.
     apply subtypeEquality.
     + intro. apply isapropdirprod; apply hs.
     + destruct t as [t p]. simpl.
-      refine (PullbackArrowUnique _ _ P _ _ _ _ _ _ _ ).
+      use (PullbackArrowUnique _ _ P).
       * apply e.
       * apply (pr1 p).
       * apply (pr2 p).

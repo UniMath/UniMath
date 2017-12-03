@@ -305,7 +305,7 @@ Qed.
 Definition MultiSortedSigToSignature (M : MultiSortedSig) : Signature _ hs _ hs.
 Proof.
 set (Hyps := λ (op : ops M), Sig_hat_exp_functor_list (arity M op)).
-refine (Sum_of_Signatures (ops M) _ Hyps).
+use (Sum_of_Signatures (ops M) _ Hyps).
 apply Coproducts_slice_precat, CoproductsHSET, setproperty.
 Defined.
 
