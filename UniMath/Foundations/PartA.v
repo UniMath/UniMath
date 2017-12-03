@@ -752,12 +752,12 @@ Local Open Scope transport.
 
 Definition transportbfinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P t) : e#'e#p = p.
 Proof.
-  intros. destruct e. apply idpath.
+  intros. induction e. apply idpath.
 Defined.
 
 Definition transportfbinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P u) : e#e#'p = p.
 Proof.
-  intros. destruct e. apply idpath.
+  intros. induction e. apply idpath.
 Defined.
 
 Close Scope transport.
