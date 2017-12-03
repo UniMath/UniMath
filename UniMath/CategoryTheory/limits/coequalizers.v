@@ -76,11 +76,11 @@ Section def_coequalizers.
              (H : f · e = g · e) (isE : isCoequalizer f g e H) :
     Coequalizer f g.
   Proof.
-    simple refine (tpair _ _ _).
-    - simple refine (tpair _ _ _).
+    use tpair.
+    - use tpair.
       + apply w.
       + apply e.
-    - simpl. refine (tpair _ H isE).
+    - simpl. exact (tpair _ H isE).
   Defined.
 
   (** Coequalizers in precategories. *)

@@ -111,8 +111,8 @@ Section def_po.
              (ispb : isPushout f g in1 in2 H)
     : Pushout f g.
   Proof.
-    simple refine (tpair _ _ _ ).
-    - simple refine (tpair _ _ _ ).
+    use tpair.
+    - use tpair.
       + apply d.
       + exists in1.
         exact in2.

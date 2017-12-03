@@ -527,7 +527,7 @@ Definition weq_ff_functor_on_iso_weqbandf {C D : precategory}
   (HF : fully_faithful F) (a b : C)
   : iso a b ≃ iso (F a) (F b).
 Proof.
-  simple refine (weqbandf _ _ _ _ ).
+  use weqbandf.
   - apply (weqpair _ (HF a b)).
   - simpl; intro f.
     apply weqimplimpl.
@@ -555,7 +555,7 @@ Proof.
   intro d.
   apply invproofirrelevance.
   intros [c e] [c' e'].
-  simple refine (total2_paths_f _ _ ).
+  use total2_paths_f.
   - simpl.
     set (X := idtoiso (e @ ! e')).
     (* set (X' := invmap (@weq_ff_functor_on_iso _ _ _ HF _ _ ) X). *)

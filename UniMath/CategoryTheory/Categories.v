@@ -1077,9 +1077,9 @@ Lemma z_iso_comp_right_isweq {C:precategory} {a b:ob C} (h:z_iso a b) (c:C) :
   isweq (fun f : b --> c => h · f).
 Proof.
   intros. apply (gradth _ (λ g, inv_from_z_iso h · g)).
-       { intros f. refine (_ @ maponpaths (λ m, m · f) (pr2 (pr2 (pr2 h))) @ _).
+       { intros f. use (_ @ maponpaths (λ m, m · f) (pr2 (pr2 (pr2 h))) @ _).
          { apply assoc. } { apply id_left. } }
-       { intros g. refine (_ @ maponpaths (λ m, m · g) (pr1 (pr2 (pr2 h))) @ _).
+       { intros g. use (_ @ maponpaths (λ m, m · g) (pr1 (pr2 (pr2 h))) @ _).
          { apply assoc. } { apply id_left. } }
 Defined.
 
@@ -1090,9 +1090,9 @@ Lemma z_iso_comp_left_isweq {C:precategory} {a b:ob C} (h:z_iso a b) (c:C) :
   isweq (fun f : c --> a => f · h).
 Proof.
   intros. apply (gradth _ (λ g, g · inv_from_z_iso h)).
-       { intros f. refine (_ @ maponpaths (λ m, f·m) (pr1 (pr2 (pr2 h))) @ _).
+  { intros f. use (_ @ maponpaths (λ m, f·m) (pr1 (pr2 (pr2 h))) @ _).
          { apply pathsinv0. apply assoc. }  { apply id_right. } }
-       { intros g. refine (_ @ maponpaths (λ m, g·m) (pr2 (pr2 (pr2 h))) @ _).
+       { intros g. use (_ @ maponpaths (λ m, g·m) (pr2 (pr2 (pr2 h))) @ _).
          { apply pathsinv0, assoc. } { apply id_right. } }
 Defined.
 Definition z_iso_comp_left_weq {C:precategory} {a b:C} (h:z_iso a b) (c:C) :

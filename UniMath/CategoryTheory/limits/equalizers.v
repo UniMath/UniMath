@@ -76,11 +76,11 @@ Section def_equalizers.
              (H : e · f = e · g) (isE : isEqualizer f g e H) :
     Equalizer f g.
   Proof.
-    simple refine (tpair _ _ _).
-    - simple refine (tpair _ _ _).
+    use tpair.
+    - use tpair.
       + apply x.
       + apply e.
-    - simpl. refine (tpair _ H isE).
+    - simpl. exact (tpair _ H isE).
   Defined.
 
   (** Equalizers in precategories. *)

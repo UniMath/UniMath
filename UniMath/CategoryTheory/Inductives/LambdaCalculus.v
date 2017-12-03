@@ -142,7 +142,7 @@ Definition mk_lambdaAlgebra (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X�
   (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) : algebra_ob lambdaFunctor.
 Proof.
 apply (tpair _ X).
-simple refine (BinCoproductArrow _ _ fvar (BinCoproductArrow _ _ fapp flam)).
+use (BinCoproductArrow _ _ fvar (BinCoproductArrow _ _ fapp flam)).
 Defined.
 
 Definition foldr_map (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)

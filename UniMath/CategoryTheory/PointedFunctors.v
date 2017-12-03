@@ -116,7 +116,7 @@ Defined.
 Lemma eq_ptd_mor_precat {F G : precategory_Ptd} (a b : F --> G)
   : a = b ≃ (a : ptd_mor F G) = b.
 Proof.
-  simple refine (tpair _ _ _).
+  use tpair.
   intro H.
   exact H.
   apply idisweq.

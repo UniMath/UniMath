@@ -130,8 +130,8 @@ Definition mk_Pullback {a b c : C} (f : C⟦b, a⟧)(g : C⟦c, a⟧)
     (ispb : isPullback f g p1 p2 H)
   : Pullback f g.
 Proof.
-  simple refine (tpair _ _ _ ).
-  - simple refine (tpair _ _ _ ).
+  use tpair.
+  - use tpair.
     + apply d.
     + exists p1.
       exact p2.
@@ -507,12 +507,12 @@ Lemma is_symmetric_isPullback
   : isPullback _ _ _ _ H -> isPullback _ _ _ _ (!H).
 Proof.
   intro isPb.
-  simple refine (mk_isPullback _ _ _ _ _ _ ).
+  use mk_isPullback.
   intros e x y Hxy.
   set (Pb := mk_Pullback _ _ _ _ _ _ isPb).
-  simple refine (tpair _ _ _ ).
-  - simple refine (tpair _ _ _ ).
-    + simple refine (PullbackArrow Pb _ _ _ _ ).
+  use tpair.
+  - use tpair.
+    + use (PullbackArrow Pb).
       * assumption.
       * assumption.
       * apply (!Hxy).
@@ -535,9 +535,9 @@ Definition pb_of_section (isPb : isPullback _ _ _ _ H)
   (s : C⟦a,c⟧) (K : s · g = identity _ )
   : ∑ s' : C⟦b, d⟧, s' · h = identity _ .
 Proof.
-  simple refine (tpair _ _ _ ).
-  - simple refine (PullbackArrow (mk_Pullback _ _ _ _ _ _ isPb) b (identity _ )
-                  (f · s) _ ).
+  use tpair.
+  - use (PullbackArrow (mk_Pullback _ _ _ _ _ _ isPb) b (identity _ )
+                  (f · s)).
     abstract (rewrite id_left, <- assoc, K, id_right; apply idpath).
   - abstract (cbn; apply (PullbackArrow_PullbackPr1 (mk_Pullback f g d h k H isPb))).
 Defined.
@@ -551,7 +551,7 @@ Definition section_from_diagonal (isPb : isPullback _ _ _ _ H)
 Proof.
   intro X.
   use tpair.
-  - simple refine (PullbackArrow (mk_Pullback _ _ _ _ _ _ isPb) _ (identity _ ) (pr1 X) _ ).
+  - use (PullbackArrow (mk_Pullback _ _ _ _ _ _ isPb) _ (identity _ ) (pr1 X)).
     abstract (rewrite id_left ;  apply (! (pr2 X))).
   - cbn. apply (PullbackArrow_PullbackPr1 (mk_Pullback f g d h k H isPb) ).
 Defined.
@@ -666,12 +666,12 @@ Lemma isPullback_iso_of_morphisms (b' d' : C) (h' : C⟦d', b'⟧)
      isPullback _ _ _ _ H'.
 Proof.
   intro isPb.
-  simple refine (mk_isPullback _ _ _ _ _ _ ).
+  use mk_isPullback.
   intros e x y Hxy.
   set (Pb:= mk_Pullback _ _ _ _ _ _ isPb).
-  simple refine (tpair _ _ _ ).
-  - simple refine (tpair _ _ _ ).
-    + simple refine ( PullbackArrow Pb _ _  _ _ · _ ).
+  use tpair.
+  - use tpair.
+    + use ( PullbackArrow Pb _ _  _ _ · _ ).
       * apply (x · i).
       * apply y.
       * abstract (rewrite <- assoc; apply Hxy).
@@ -746,7 +746,7 @@ Variable X : isPullback _ _ _ _ functor_on_square.
 
 Lemma isPullback_preimage_square : isPullback _ _ _ _ H.
 Proof.
-  refine (mk_isPullback _ _ _ _ _ _ ).
+  use mk_isPullback.
   intros e x y Hxy.
   set (T := maponpaths (#F) Hxy).
   set (T' := !functor_comp _ _ _
@@ -758,12 +758,12 @@ Proof.
   set (FxFy := pr1 (pr1 TH)).
   set (HFxFy := pr2 (pr1 TH)). simpl in HFxFy.
   set (xy := fully_faithful_inv_hom Fff _ _ FxFy).
-  simple refine (tpair _ _ _ ).
+  use tpair.
   - exists xy.
     set (t := pr1 HFxFy).
     set (p := pr2 HFxFy).
     split.
-    + refine ( invmaponpathsweq (weqpair _ (Fff _ _ )) _ _ _ ).
+    + use (invmaponpathsweq (weqpair _ (Fff _ _ ))).
       simpl.
       rewrite functor_comp.
       assert (XX:=homotweqinvweq (weqpair _ (Fff e d ))). simpl in XX.
@@ -773,7 +773,7 @@ Proof.
       eapply cancel_postcomposition.
       assert (XXX := XX FxFy).
       apply XX. exact t.
-    + refine ( invmaponpathsweq (weqpair _ (Fff _ _ )) _ _ _ ).
+    + use (invmaponpathsweq (weqpair _ (Fff _ _ ))).
       simpl.
       rewrite functor_comp.
       assert (XX:=homotweqinvweq (weqpair _ (Fff e d ))). simpl in XX.
@@ -788,7 +788,7 @@ Proof.
     apply subtypeEquality.
     + intro kkkk. apply isapropdirprod; apply hsC.
     + simpl.
-      refine ( invmaponpathsweq (weqpair _ (Fff _ _ )) _ _ _ ).
+      use (invmaponpathsweq (weqpair _ (Fff _ _ ))).
       simpl.
       unfold xy.
       assert (XX:=homotweqinvweq (weqpair _ (Fff e d ))). simpl in XX.
@@ -849,7 +849,7 @@ Proof.
   set (umorPr1 := PullbackArrow_PullbackPr1 Pb _ _ _ XX).
   set (umorPr2 := PullbackArrow_PullbackPr2 Pb _ _ _ XX).
   cbn in *.
-  simple refine (tpair _ _ _ ).
+  use tpair.
   - exists (inv_from_iso i · #F umor ).
     split.
     + rewrite <- assoc. apply iso_inv_on_right.
