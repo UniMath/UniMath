@@ -145,7 +145,7 @@ Definition aux_iso_1 (Z : Ptd)
            (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (U Z))
               (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_source H) Z))⟧.
 Proof.
-  simple refine (tpair _ _ _).
+  use tpair.
   - intro X.
     exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (ρ_functor (U Z))
             (nat_trans_id (θ_source H (X⊗Z):functor C C))).
@@ -189,7 +189,7 @@ Local Definition aux_iso_1_inv (Z: Ptd)
               (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_source H) Z)),
       functor_composite Id_H (ℓ (U Z)) ⟧.
 Proof.
-  simple refine (tpair _ _ _).
+  use tpair.
   - intro X.
     exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (λ_functor (U Z))
            (nat_trans_id (θ_source H (X⊗Z):functor C C))).
@@ -244,7 +244,7 @@ Local Definition aux_iso_2_inv (Z : Ptd)
                     (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_target H) Z)),
       functor_composite (ℓ (U Z) )   (Const_plus_H (U Z)) ⟧.
 Proof.
-  simple refine (tpair _ _ _).
+  use tpair.
   - intro X.
     exact (nat_trans_id ((@BinCoproductObject EndC (U Z) (θ_target H (X⊗Z)) (CPEndC _ _) )
              : functor C C)).
@@ -488,14 +488,14 @@ Qed.
 Definition bracket_for_InitAlg : bracket InitAlg.
 Proof.
   intros Z f.
-  unshelve refine (tpair _ _ _ ).
-  - unshelve refine (tpair _ _ _ ).
+  use tpair.
+  - use tpair.
     + exact (bracket_Thm15 Z f).
     + exact (bracket_Thm15_ok_cor Z f).
        (* B: better to prove the whole outside, and apply it here *)
      (* when the first components were not opaque, the following proof
         became extremely slow *)
-  - apply foo'.
+  - simpl; apply foo'.
 Defined.
 
 (* produce some output to keep TRAVIS running *)
@@ -598,7 +598,7 @@ Local Definition iso2' (Z : Ptd) : EndEndC ⟦
              (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_target H) Z)),
   functor_composite (ℓ (U Z)) Ghat ⟧.
 Proof.
-    simple refine (tpair _ _ _).
+    use tpair.
   - intro X.
     exact (nat_trans_id ((@BinCoproductObject EndC _ (θ_target H (X⊗Z)) (CPEndC _ _) )
             : functor C C)).
@@ -624,7 +624,7 @@ Definition Phi_fusion (Z : Ptd) (X : EndC) (b : pr1 InitAlg --> X) :
    ⟹
   functor_composite (functor_opp (ℓ (U Z))) (Yon X) .
 Proof.
-  simple refine (tpair _ _ _ ).
+  use tpair.
   - intro Y.
     intro a.
     exact (a · b).
@@ -868,7 +868,7 @@ Qed.
 
 Lemma isInitial_InitHSS : isInitial (hss_precategory CP H) InitHSS.
 Proof.
-  simple refine (mk_isInitial _ _).
+  use mk_isInitial.
   intro T.
   exists (hss_InitMor T).
   apply hss_InitMor_unique.
@@ -877,7 +877,7 @@ Defined.
 
 Lemma InitialHSS : Initial (hss_precategory CP H).
 Proof.
-  simple refine (mk_Initial InitHSS _).
+  use (mk_Initial InitHSS).
   apply isInitial_InitHSS.
 Defined.
 
