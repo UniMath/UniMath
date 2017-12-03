@@ -239,10 +239,6 @@ Proof.
 Defined.
 
 
-(* destruct -> induction ok to this point *)
-
-
-
 Theorem isofhlevelfsnfib (n : nat) {X : UU} (P : X -> UU) (x : X)
         (is : isofhlevel (S n) (x = x)) : isofhlevelf (S n) (tpair P x).
 Proof.
