@@ -69,14 +69,14 @@ Proof.
     etrans. apply id_left.
     destruct ff as [ff H].
     apply pathsinv0.
-    etrans. use(pr1_transportf (C⟦x,y⟧)).
+    etrans. use (pr1_transportf (C⟦x,y⟧)).
     use transportf_const.
   - apply subtypeEquality.
     { intro. apply homset_property. }
     etrans. apply id_right.
     destruct ff as [ff H].
     apply pathsinv0.
-    etrans. use(pr1_transportf (C⟦x,y⟧)).
+    etrans. use (pr1_transportf (C⟦x,y⟧)).
     use transportf_const.
   - apply subtypeEquality.
     { intro. apply homset_property. }

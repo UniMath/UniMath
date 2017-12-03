@@ -226,7 +226,7 @@ Proof.
     apply subtypeEquality.
     + intro. apply isapropdirprod; apply hs.
     + destruct t as [t p]. simpl.
-      use(PullbackArrowUnique _ _ P).
+      use (PullbackArrowUnique _ _ P).
       * apply e.
       * apply (pr1 p).
       * apply (pr2 p).

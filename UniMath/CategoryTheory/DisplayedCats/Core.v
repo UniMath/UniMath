@@ -393,7 +393,7 @@ Proof.
     etrans. apply transport_f_f.
     etrans. apply maponpaths, id_left_disp.
     etrans. apply transport_f_f.
-    use(@maponpaths_2 _ _ _ (transportf _) _ (idpath _)).
+    use (@maponpaths_2 _ _ _ (transportf _) _ (idpath _)).
     apply homset_property.
 Qed.
 
