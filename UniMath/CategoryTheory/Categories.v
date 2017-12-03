@@ -40,8 +40,6 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 (** * Definition of a precategory *)
 
 Definition precategory_ob_mor : UU
@@ -226,9 +224,9 @@ Lemma remove_id_left (C : precategory) (a b : C) (f g : a --> b) (h : a --> a):
   h = identity _ -> f = g -> h · f = g.
 Proof.
   intros H eq.
-  pathvia (identity _ · f).
+  intermediate_path (identity _ · f).
   - destruct H. apply idpath.
-  - pathvia f.
+  - intermediate_path f.
     + apply id_left.
     + apply eq.
 Defined.
@@ -237,9 +235,9 @@ Lemma remove_id_right (C : precategory) (a b : C) (f g : a --> b) (h : b --> b):
   h = identity _ -> f = g -> f · h = g.
 Proof.
   intros H eq.
-  pathvia (f · identity _).
+  intermediate_path (f · identity _).
   - destruct H. apply idpath.
-  - pathvia f.
+  - intermediate_path f.
     + apply id_right.
     + apply eq.
 Defined.
@@ -359,7 +357,7 @@ Proof.
   set (T:= invmaponpathsweq (weqpair (precomp_with f) (pr2 f b))).
   apply T; clear T; simpl.
   unfold precomp_with.
-  pathvia ((f· inv_from_iso f)·f).
+  intermediate_path ((f· inv_from_iso f)·f).
   - apply assoc.
   - apply remove_id_left.
     + apply iso_inv_after_iso.
@@ -372,12 +370,12 @@ Proof.
   apply (gradth _ (precomp_with f)).
   - intro g.
     unfold precomp_with.
-    pathvia ((f · inv_from_iso f) · g).
+    intermediate_path ((f · inv_from_iso f) · g).
     + apply assoc.
     + apply remove_id_left. apply iso_inv_after_iso. apply idpath.
   - intro g.
     unfold precomp_with.
-    pathvia ((inv_from_iso f·f)·g).
+    intermediate_path ((inv_from_iso f·f)·g).
     + apply assoc.
     + apply remove_id_left. apply iso_after_iso_inv. apply idpath.
 Defined.
@@ -427,7 +425,7 @@ Lemma iso_inv_on_right (C : precategory) (a b c: ob C)
 Proof.
   apply (invmaponpathsweq (weqpair (precomp_with f) (pr2 f c))).
   unfold precomp_with; simpl.
-  pathvia ((f·inv_from_iso f)·h).
+  intermediate_path ((f·inv_from_iso f)·h).
   - apply assoc.
   - apply remove_id_left.
     + apply iso_inv_after_iso.
@@ -511,7 +509,7 @@ Proof.
   apply eq_iso. simpl.
   set (T:=invmaponpathsweq (weqpair (precomp_with f) (pr2 f a ))).
   apply T; simpl.
-  pathvia (identity a ).
+  intermediate_path (identity a ).
   + assumption.
   + apply pathsinv0. apply iso_inv_after_iso.
 Defined.
@@ -522,7 +520,7 @@ Proof.
   intro H.
   set (T:=invmaponpathsweq (weqpair (precomp_with f) (pr2 f a ))).
   apply T; simpl.
-  pathvia (identity a ).
+  intermediate_path (identity a ).
   + assumption.
   + apply pathsinv0. apply iso_inv_after_iso.
 Defined.
@@ -534,7 +532,7 @@ Lemma iso_inv_of_iso_comp (C : precategory) (a b c : ob C)
 Proof.
   apply pathsinv0.
   apply inv_iso_unique. simpl. unfold precomp_with.
-  pathvia (f · (g·inv_from_iso g) · inv_from_iso f).
+  intermediate_path (f · (g·inv_from_iso g) · inv_from_iso f).
   - repeat rewrite assoc.  apply idpath.
   - rewrite iso_inv_after_iso. rewrite id_right.
     apply iso_inv_after_iso.
@@ -571,7 +569,7 @@ Lemma post_comp_with_iso_is_inj (C : precategory) (b c : ob C)
 Proof.
   intro HH.
   set (T:=iso_inv_after_iso (tpair _ h H)). simpl in T.
-  pathvia (f · (h · inv_from_iso (tpair _ h H))).
+  intermediate_path (f · (h · inv_from_iso (tpair _ h H))).
   - rewrite T. clear T.
     apply pathsinv0, id_right.
   - rewrite assoc. rewrite HH.
@@ -1017,7 +1015,7 @@ Proof.
   unfold inv_from_iso; simpl.
   destruct f as [f [f' Hf]]. simpl in *.
   destruct g as [g [g' Hg]]; simpl in *.
-  pathvia ((f · (g · g')) · f').
+  intermediate_path ((f · (g · g')) · f').
   repeat rewrite assoc; apply idpath.
   rewrite (pr1 Hg).
   rewrite id_right.
@@ -1026,7 +1024,7 @@ Proof.
 
   destruct f as [f [f' Hf]]. simpl in *.
   destruct g as [g [g' Hg]]; simpl in *.
-  pathvia ((g' · (f' · f)) · g).
+  intermediate_path ((g' · (f' · f)) · g).
   repeat rewrite assoc; apply idpath.
   rewrite (pr2 Hf).
   rewrite id_right.
@@ -1262,7 +1260,7 @@ Lemma double_transport_idtoiso (C : precategory) (a a' b b' : ob C)
 Proof.
   destruct p.
   destruct q.
-  pathvia (identity _ · f).
+  intermediate_path (identity _ · f).
   - apply pathsinv0; apply id_left.
   - apply pathsinv0; apply id_right.
 Defined.

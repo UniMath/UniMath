@@ -128,7 +128,7 @@ Section def_equalizers.
     rewrite <- assoc. rewrite H. rewrite assoc. apply idpath.
     set (E' := mk_Equalizer _ _ _ _ E).
     set (E'ar := EqualizerIn E' w (φ1 · e) H'1).
-    pathvia E'ar.
+    intermediate_path E'ar.
     apply isEqualizerInUnique. apply idpath.
     apply pathsinv0. apply isEqualizerInUnique. apply pathsinv0. apply H'.
   Defined.

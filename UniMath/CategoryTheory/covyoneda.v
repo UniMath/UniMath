@@ -27,8 +27,6 @@ Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 Ltac unf := unfold identity,
                    compose,
                    precategory_morphisms;

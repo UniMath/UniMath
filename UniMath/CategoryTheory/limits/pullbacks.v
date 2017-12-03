@@ -183,7 +183,7 @@ Proof.
   { rewrite <- assoc , H, assoc; apply idpath. }
   set (Pb := mk_Pullback _ _ _ _ _ _ P).
   set (Xw := PullbackArrow Pb e (w·p1) (w·p2) Hw).
-  pathvia Xw; [ apply PullbackArrowUnique; apply idpath |].
+  intermediate_path Xw; [ apply PullbackArrowUnique; apply idpath |].
   apply pathsinv0.
   apply PullbackArrowUnique. apply pathsinv0. apply H1.
   apply pathsinv0. apply H2.
@@ -621,7 +621,7 @@ Proof.
       ];
       apply (MorphismsIntoPullbackEqual Hinnerpb);
       [rewrite <- assoc;
-        match goal with |[ |- ?KK · ( _ · _ ) = _ ] => pathvia (KK · (h' · i)) end;
+        match goal with |[ |- ?KK · ( _ · _ ) = _ ] => intermediate_path (KK · (h' · i)) end;
         [ apply maponpaths; apply (!Hleft) |
           rewrite assoc;
           assert (T:= PullbackArrow_PullbackPr1 (mk_Pullback (i · f) g d' h' (i' · k) _ Houterpb));
@@ -682,7 +682,7 @@ Proof.
         {
         match goal with
           |[ |- ?AA · _ · _ = _ ] =>
-           pathvia (AA · h · inv_from_iso (isopair i xi)) end.
+           intermediate_path (AA · h · inv_from_iso (isopair i xi)) end.
         - repeat rewrite <- assoc. apply maponpaths.
           apply iso_inv_on_right.
           rewrite assoc.
@@ -697,7 +697,7 @@ Proof.
         repeat rewrite assoc.
         {
         match goal with |[|- ?AA · _ · _ · ?K = _ ]
-                         => pathvia (AA ·  K) end.
+                         => intermediate_path (AA ·  K) end.
         - apply cancel_postcomposition.
           repeat rewrite <- assoc.
           rewrite iso_after_iso_inv.

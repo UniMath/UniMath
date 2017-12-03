@@ -35,8 +35,6 @@ Require Import UniMath.CategoryTheory.whiskering.
 
 Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 Ltac unf := unfold identity,
                    compose,
                    precategory_morphisms;
@@ -190,7 +188,7 @@ Proof.
   intro a'; simpl.
   apply funextsec; intro f.
   unfold yoneda_map_1.
-  pathvia ((alpha c · #F f) (identity c)).
+  intermediate_path ((alpha c · #F f) (identity c)).
     apply idpath.
   rewrite <- nat_trans_ax.
   unf; apply maponpaths.

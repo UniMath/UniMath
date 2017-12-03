@@ -130,7 +130,7 @@ Section def_coequalizers.
     set (E' := mk_Coequalizer _ _ _ _ E).
     repeat rewrite <- assoc in H'1.
     set (E'ar := CoequalizerOut E' w0 (e · φ1) H'1).
-    pathvia E'ar.
+    intermediate_path E'ar.
     apply isCoequalizerOutUnique. apply idpath.
     apply pathsinv0. apply isCoequalizerOutUnique. apply pathsinv0. apply H'.
   Defined.
