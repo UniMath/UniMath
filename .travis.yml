@@ -26,12 +26,12 @@ env:
   - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics"
   - PACKAGES=CategoryTheory
   - PACKAGES="MoreFoundations Ktheory"
+  - PACKAGES=HomologicalAlgebra
   - PACKAGES=Topology
   - PACKAGES=RealNumbers
   - PACKAGES=SubstitutionSystems
   - PACKAGES=Tactics BUILD_COQIDE=yes BUILD_ALSO=TAGS
   - PACKAGES=Folds
-  - PACKAGES=HomologicalAlgebra
   - FOUNDATIONS_CHANGE_ERROR=yes BUILD_ALSO="check-for-change-to-Foundations enforce-listing-of-proof-files"
 # building Coq in a separate stage folds up the output in the log:
 before_script:
