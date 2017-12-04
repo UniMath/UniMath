@@ -29,6 +29,7 @@
   - Subobjects
   - Quotient objects
   - Direct products
+  - Group of invertible elements in a monoid
  - Abelian groups
   - Basic definitions
   - Univalence for abelian groups
@@ -2111,6 +2112,39 @@ Defined.
 Definition grdirprod (X Y : gr) : gr.
 Proof. split with (setwithbinopdirprod X Y). apply isgrdirprod. Defined.
 
+(** **** Group of invertible elements in a monoid *)
+
+Local Open Scope multmonoid.
+
+Definition invertible_submonoid_grop X : isgrop (@op (invertible_submonoid X)).
+Proof.
+  intros X.
+  pose (submon := invertible_submonoid X).
+  pose (submon_carrier := ismonoidcarrier submon).
+
+  (** We know that if each element has an inverse, it's a grop *)
+  apply (isgropif submon_carrier).
+
+  intros [x x_in_submon].
+  pose (unel := (unel_is submon_carrier)).
+
+  (** We can use other hProps when proving an hProp (assume it has an inverse) *)
+  apply (squash_to_prop x_in_submon (isaprophaslinv op submon_carrier _)).
+
+  intros [xinv isxinv].
+  unfold haslinv.
+  apply hinhpr.
+  refine ((xinv,, inverse_in_submonoid _ x xinv x_in_submon isxinv),, _).
+  apply subtypeEquality_prop.
+  exact (pr1 isxinv).
+Defined.
+
+Local Close Scope multmonoid.
+
+Definition gr_invertible_elements : monoid -> gr :=
+  fun X => (carrierofasubsetwithbinop
+             (submonoidtosubsetswithbinop
+                _ (invertible_submonoid X)),, invertible_submonoid_grop X).
 
 (** *** Abelian groups *)
 
