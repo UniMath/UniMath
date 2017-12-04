@@ -49,7 +49,9 @@ Section constr_indef_descr.
 
   Local Definition smaller_S (n : nat) (k : smaller n) : smaller (S n).
   Proof.
-    induction k as [l [p [m z]]].
+    induction k as [l pmz].
+    induction pmz as [p mz].
+    induction mz as [m z].
     refine (l,,p,,m,,_).
     refine (istransnatgth _ _ _ _ _).
     apply natgthsnn.
@@ -117,7 +119,7 @@ Section constr_indef_descr.
   Definition minimal_n : ∑ n : nat, P n.
   Proof.
     induction prop_n_to_min_n as [n pl]. induction pl as [p _].
-    exact (n,,p). (* TODO fix nested brackets *)
+    exact (n,,p).
   Defined.
 
 End constr_indef_descr.
