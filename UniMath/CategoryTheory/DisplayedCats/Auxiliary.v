@@ -107,7 +107,7 @@ Defined.
 
 Definition prod_precategory_ob_mor (C D : precategory) : precategory_ob_mor.
   (* ob *) exists (C × D).
-  (* mor *) intros a b. refine (_ × _).
+  (* mor *) intros a b. use (_ × _).
     exact ((pr1 a) --> (pr1 b)). exact ((pr2 a) --> (pr2 b)).
 Defined.
 
@@ -226,7 +226,7 @@ Section Discrete_cats.
 
 Definition discrete_cat (X : hSet) : category.
 Proof.
-  refine (path_groupoid X _).
+  use (path_groupoid X).
     apply hlevelntosn, setproperty.
 Defined.
 

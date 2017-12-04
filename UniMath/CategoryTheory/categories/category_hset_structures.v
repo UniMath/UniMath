@@ -177,7 +177,7 @@ Defined.
 
 Lemma rel0_impl a b (Hab : rel0 a b) : from_cobase_eqrel a b.
 Proof.
-refine (Hab _ _). clear Hab.
+use Hab. clear Hab.
 intro H; simpl.
 destruct H as [f Hf].
 generalize (toforallpaths _ _ _ (coconeInCommutes cc (pr1 a) (pr1 b) f) (pr2 a)).
@@ -867,7 +867,7 @@ use mk_are_adjoints.
   + intros x; apply eq_mor_slicecat, funextsec; intro x1; simpl.
     use total2_paths_f; [apply idpath|]; cbn.
     apply funextsec; intro y.
-    simple refine (subtypeEquality _ _).
+    use subtypeEquality.
     * intro z; apply setproperty.
     * simpl.
       apply maponpaths.
@@ -954,14 +954,14 @@ Proof.
   - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
     apply subtypeEquality; simpl.
       intros x; apply isapropdirprod; apply setproperty.
-    refine (@toforallpaths unitset _ (λ _, ab) (λ _, ab') _ tt).
-    refine (MorphismsIntoPullbackEqual pb _ _ _ _ );
+    use (@toforallpaths unitset _ (λ _, ab) (λ _, ab') _ tt).
+    use (MorphismsIntoPullbackEqual pb);
     apply funextsec; intros []; cbn;
     (eapply @pathscomp0; [ eassumption | apply pathsinv0; eassumption]).
-  - simple refine (_,,_).
-    refine (_ tt).
-    refine (PullbackArrow Pb (unitset : HSET)
-      (λ _, a) (λ _, b) _).
+  - use (_,,_).
+    use (_ tt).
+    use (PullbackArrow Pb (unitset : HSET)
+      (λ _, a) (λ _, b)).
     apply funextsec; intro; exact e.
     simpl; split.
     + generalize tt; apply toforallpaths.

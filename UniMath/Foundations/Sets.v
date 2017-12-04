@@ -373,17 +373,17 @@ Proof.
   assert (egf : ∏ a : _, paths (g (f a)) a).
   {
     intro a.
-    destruct a as [ xy is ].
-    destruct xy as [ x y ].
-    destruct is as [ isx isy ].
+    induction a as [ xy is ].
+    induction xy as [ x y ].
+    induction is as [ isx isy ].
     apply idpath.
   }
   assert (efg : ∏ a : _, paths (f (g a)) a).
   {
     intro a.
-    destruct a as [ xis yis ].
-    destruct xis as [ x isx ].
-    destruct yis as [ y isy ].
+    induction a as [ xis yis ].
+    induction xis as [ x isx ].
+    induction yis as [ y isy ].
     apply idpath.
   }
   apply (gradth _ _ egf efg).
@@ -414,8 +414,8 @@ Proof.
     apply (pr2 (A x0)).
   }
   apply (invmaponpathsincl (@pr1 _ A) X0).
-  destruct x as [ x0 is0 ].
-  destruct x' as [ x0' is0' ].
+  induction x as [ x0 is0 ].
+  induction x' as [ x0' is0' ].
   simpl.
   apply (is x0 x0' is0 is0').
 Defined.
@@ -624,16 +624,16 @@ Defined.
 Lemma isdecreltoisnegrel {X : UU} {R : hrel X} (is : isdecrel R) : isnegrel R.
 Proof.
   intros. intros x1 x2.
-  destruct (is x1 x2) as [ r | nr ].
+  induction (is x1 x2) as [ r | nr ].
   - intro. apply r.
-  - intro nnr. destruct (nnr nr).
+  - intro nnr. induction (nnr nr).
 Defined.
 
 Lemma isantisymmnegtoiscoantisymm {X : UU} {R : hrel X}
       (isdr : isdecrel R) (isr : isantisymmneg R) : iscoantisymm R.
 Proof.
   intros. intros x1 x2 nrx12.
-  destruct (isdr x2 x1) as [ r | nr ].
+  induction (isdr x2 x1) as [ r | nr ].
   apply (ii1 r). apply ii2. apply (isr _ _ nrx12 nr).
 Defined.
 
@@ -724,7 +724,7 @@ Definition isdecrellogeqf {X : UU} {L R : hrel X}
            (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isdecrel L) : isdecrel R.
 Proof.
   intros. intros x1 x2.
-  destruct (isl x1 x2) as [ l | nl ].
+  induction (isl x1 x2) as [ l | nl ].
   - apply (ii1 (pr1 (lg _ _) l)).
   - apply (ii2 (negf (pr2 (lg _ _)) nl)).
 Defined.
@@ -1021,7 +1021,7 @@ Lemma isdecnegrel {X : UU} (R : hrel X) (isr : isdecrel R) :
 (* uses [funextemptyAxiom] *)
 Proof.
   intros. intros x1 x2.
-  destruct (isr x1 x2) as [ r | nr ].
+  induction (isr x1 x2) as [ r | nr ].
   - apply ii2. apply (todneg _ r).
   - apply (ii1 nr).
 Defined.
@@ -1051,20 +1051,20 @@ Definition neqh {X : UU} (is : isdeceq X) : hrel X
 Lemma isrefleqh {X : UU} (is : isdeceq X) : isrefl (eqh is).
 Proof.
   intros. unfold eqh. unfold booleq.
-  intro x. destruct (is x x) as [ e | ne ].
+  intro x. induction (is x x) as [ e | ne ].
   - simpl. apply idpath.
-  - destruct (ne (idpath x)).
+  - induction (ne (idpath x)).
 Defined.
 
 Definition weqeqh {X : UU} (is : isdeceq X) (x x' : X) :
   (x = x') ≃ (eqh is x x').
 Proof.
   intros. apply weqimplimpl.
-  - intro e. destruct e. apply isrefleqh.
+  - intro e. induction e. apply isrefleqh.
   - intro e. unfold eqh in e. unfold booleq in e.
-    destruct (is x x') as [ e' | ne' ].
+    induction (is x x') as [ e' | ne' ].
     + apply e'.
-    + destruct (nopathsfalsetotrue e).
+    + induction (nopathsfalsetotrue e).
   - unfold isaprop. unfold isofhlevel. apply (isasetifdeceq X is x x').
   - unfold eqh. simpl. unfold isaprop. unfold isofhlevel.
     apply (isasetbool _ true).
@@ -1074,11 +1074,11 @@ Definition weqneqh {X : UU} (is : isdeceq X) (x x' : X) :
   (x != x') ≃ (neqh is x x').
 Proof.
   intros. unfold neqh. unfold booleq. apply weqimplimpl.
-  - destruct (is x x') as [ e | ne ].
-    + intro ne. destruct (ne e).
+  - induction (is x x') as [ e | ne ].
+    + intro ne. induction (ne e).
     + intro ne'. simpl. apply idpath.
-  - destruct (is x x') as [ e | ne ].
-    + intro tf. destruct (nopathstruetofalse tf).
+  - induction (is x x') as [ e | ne ].
+    + intro tf. induction (nopathstruetofalse tf).
     + intro. exact ne.
   - apply (isapropneg).
   - simpl. unfold isaprop. unfold isofhlevel. apply (isasetbool _ false).
@@ -1098,7 +1098,7 @@ Coercion pr1decrel : decrel >-> hrel.
 
 Definition decreltobrel {X : UU} (R : decrel X) : brel X.
 Proof.
-  intros. intros x x'. destruct ((pr2 R) x x').
+  intros. intros x x'. induction ((pr2 R) x x').
   - apply true.
   - apply false.
 Defined.
@@ -1111,24 +1111,24 @@ Definition pathstor {X : UU} (R : decrel X) (x x' : X)
            (e : decreltobrel R x x' = true) : R x x'.
 Proof.
   unfold decreltobrel. intros.
-  destruct (pr2 R x x') as [ e' | ne ].
+  induction (pr2 R x x') as [ e' | ne ].
   - apply e'.
-  - destruct (nopathsfalsetotrue e).
+  - induction (nopathsfalsetotrue e).
 Defined.
 
 Definition rtopaths {X : UU} (R : decrel X) (x x' : X) (r : R x x') :
   decreltobrel R x x' = true.
 Proof.
-  unfold decreltobrel. intros. destruct ((pr2 R) x x') as [ r' | nr ].
+  unfold decreltobrel. intros. induction ((pr2 R) x x') as [ r' | nr ].
   - apply idpath.
-  - destruct (nr r).
+  - induction (nr r).
 Defined.
 
 Definition pathstonegr {X : UU} (R : decrel X) (x x' : X)
            (e : decreltobrel R x x' = false) : neg (R x x').
 Proof.
-  unfold decreltobrel. intros. destruct (pr2 R x x') as [ e' | ne ].
-  - destruct (nopathstruetofalse e).
+  unfold decreltobrel. intros. induction (pr2 R x x') as [ e' | ne ].
+  - induction (nopathstruetofalse e).
   - apply ne.
 Defined.
 
@@ -1136,8 +1136,8 @@ Definition negrtopaths {X : UU} (R : decrel X) (x x' : X) (nr : neg (R x x')) :
   decreltobrel R x x' = false.
 Proof.
   unfold decreltobrel. intros.
-  destruct (pr2 R x x') as [ r | nr' ].
-  - destruct (nr r).
+  induction (pr2 R x x') as [ r | nr' ].
+  - induction (nr r).
   - apply idpath.
 Defined.
 
@@ -1150,8 +1150,8 @@ Defined.
 
   Definition pathstor_comp {X : UU} (R : decrel X) (x x' : X)
   (e : (decreltobrel R x x') = true) : R x x'.
-  Proof. unfold decreltobrel. intros.  destruct (pr2 R x x') as [ e' | ne ].
-  apply e'. destruct (nopathsfalsetotrue e).
+  Proof. unfold decreltobrel. intros.  induction (pr2 R x x') as [ e' | ne ].
+  apply e'. induction (nopathsfalsetotrue e).
 Defined.
 
   Notation " 'ct' (R, x, y) " := ((pathstor_comp _ x y (idpath true)) : R x y)
@@ -1162,9 +1162,9 @@ Defined.
 Definition ctlong {X : UU} (R : hrel X) (is : isdecrel R) (x x' : X)
            (e : decreltobrel (decrelpair is) x x' = true) : R x x'.
 Proof.
-  unfold decreltobrel. intros. simpl in e. destruct (is x x') as [ e' | ne ].
+  unfold decreltobrel. intros. simpl in e. induction (is x x') as [ e' | ne ].
   - apply e'.
-  - destruct (nopathsfalsetotrue e).
+  - induction (nopathsfalsetotrue e).
 Defined.
 
 Notation " 'ct' ( R , is , x , y ) " := (ctlong R is x y (idpath true))
@@ -1322,7 +1322,7 @@ Defined.
 Definition iscoantisymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
            (isl : iscoantisymm L) : iscoantisymm (resrel L P).
 Proof.
-  intros. intros x1 x2 r12. destruct (isl _ _ r12) as [ l | e ].
+  intros. intros x1 x2 r12. induction (isl _ _ r12) as [ l | e ].
   - apply (ii1 l).
   - apply ii2. apply (invmaponpathsincl _ (isinclpr1carrier _) _ _ e).
 Defined.
@@ -1414,7 +1414,7 @@ Proof.
   unfold issurjective in is1.
   assert (s1: (hfiber f y)-> paths (g1 y) (g2 y)).
   {
-    intro X1. destruct X1 as [t x ]. induction x. apply (isf t).
+    intro X1. induction X1 as [t x ]. induction x. apply (isf t).
   }
   assert (s2: ishinh (paths (g1 y) (g2 y)))
     by apply (hinhfun s1 (is1 y)).
@@ -1529,8 +1529,8 @@ Section LiftSurjection.
        intros x1 x2.
        apply (@hinhuniv2 _ _ (hProppair _ (hsc _ _))).
        simpl; intros y1 y2; simpl.
-       destruct y1 as [ [z1 h1] h1' ].
-       destruct y2 as [ [z2 h2] h2' ].
+       induction y1 as [ [z1 h1] h1' ].
+       induction y2 as [ [z2 h2] h2' ].
        rewrite <- h1' ,<-h2'.
        apply comp_f_epi;simpl.
        rewrite h1,h2.
@@ -1694,9 +1694,9 @@ Proof.
   intros y1 y2. simpl.
   apply (@hinhuniv2 _ _ (hProppair (y1 = y2) (pr2 Y y1 y2))).
   intros x1 x2. simpl.
-  destruct c as [ A iseq ].
-  destruct x1 as [ x1 is1 ]. destruct x2 as [ x2 is2 ].
-  destruct x1 as [ x1 is1' ]. destruct x2 as [ x2 is2' ].
+  induction c as [ A iseq ].
+  induction x1 as [ x1 is1 ]. induction x2 as [ x2 is2 ].
+  induction x1 as [ x1 is1' ]. induction x2 as [ x2 is2' ].
   simpl in is1. simpl in is2. simpl in is1'. simpl in is2'.
   assert (r : R x1 x2) by apply (eqax2 iseq _ _ is1' is2').
   apply (pathscomp0 (pathsinv0 is1) (pathscomp0 (is _ _ r) is2)).
@@ -2000,14 +2000,14 @@ Proof.
   {
     apply (setquotunivprop _ (λ a : _, (hProppair _ (isasetsetquot _ (g (f a))
                                                                     a)))).
-    intro xy. destruct xy as [ x y ]. simpl.
+    intro xy. induction xy as [ x y ]. simpl.
     apply (invmaponpathsincl _ (isinclpr1setquot _)).
     simpl. apply funextsec. intro xy'.
-    destruct xy' as [ x' y' ]. apply idpath.
+    induction xy' as [ x' y' ]. apply idpath.
   }
   assert (efg : ∏ a : _, paths (f (g a)) a).
   {
-    intro a. destruct a as [ ax ay ]. apply pathsdirprod.
+    intro a. induction a as [ ax ay ]. apply pathsdirprod.
     generalize ax. clear ax.
     apply (setquotunivprop RX (λ ax : _, (hProppair _ (isasetsetquot _ _ _)))).
     intro x. simpl. generalize ay. clear ay.
@@ -2054,7 +2054,7 @@ Local Lemma setquotuniv2_iscomprelfun {X : UU} (R : hrel X) (Y : hSet) (f : X ->
   iscomprelfun (hreldirprod R R) (λ xy : dirprod X X, f (pr1 xy) (pr2 xy)).
 Proof.
   intros X R Y f is c c0.
-  intros xy x'y'. simpl. intro dp. destruct dp as [ r r'].
+  intros xy x'y'. simpl. intro dp. induction dp as [ r r'].
   apply (is _ _ _ _ r r').
 Defined.
 Global Opaque setquotuniv2_iscomprelfun.
@@ -2158,7 +2158,7 @@ Defined.
 Definition setquotbooleqint {X : UU} (R : eqrel X)
            (is : ∏ x x' : X, isdecprop (R x x')) (x x' : X) : bool.
 Proof.
-  intros. destruct (pr1 (is x x')). apply true. apply false.
+  intros. induction (pr1 (is x x')). apply true. apply false.
 Defined.
 
 Lemma setquotbooleqintcomp {X : UU} (R : eqrel X)
@@ -2167,14 +2167,14 @@ Lemma setquotbooleqintcomp {X : UU} (R : eqrel X)
 Proof.
   intros. unfold iscomprelfun2.
   intros x x' x0 x0' r r0. unfold setquotbooleqint.
-  destruct (pr1 (is x x0)) as [ r1 | nr1 ].
-  - destruct (pr1 (is x' x0')) as [ r1' | nr1' ].
+  induction (pr1 (is x x0)) as [ r1 | nr1 ].
+  - induction (pr1 (is x' x0')) as [ r1' | nr1' ].
     + apply idpath.
-    + destruct (nr1' (eqreltrans
+    + induction (nr1' (eqreltrans
                         R _ _ _ (eqreltrans
                                    R _ _ _ (eqrelsymm R _ _ r) r1) r0)).
-  - destruct (pr1 (is x' x0')) as [ r1' | nr1' ].
-    + destruct (nr1 (eqreltrans
+  - induction (pr1 (is x' x0')) as [ r1' | nr1' ].
+    + induction (nr1 (eqreltrans
                        R _ _ _ r (eqreltrans
                                     R _ _ _ r1' (eqrelsymm R _ _ r0)))).
     + apply idpath.
@@ -2201,33 +2201,33 @@ Proof.
   intros x x'.
   change ((setquotbooleqint R is x x') = true
           -> paths (setquotpr R x) (setquotpr R x')).
-  unfold setquotbooleqint. destruct (pr1 (is x x')) as [ i1 | i2 ].
+  unfold setquotbooleqint. induction (pr1 (is x x')) as [ i1 | i2 ].
   - intro. apply (weqpathsinsetquot R _ _ i1).
-  - intro H. destruct (nopathsfalsetotrue H).
+  - intro H. induction (nopathsfalsetotrue H).
 Defined.
 
 Lemma setquotpathstobooleq {X : UU} (R : eqrel X)
       (is : ∏ x x' : X, isdecprop (R x x')) (x x' : setquot R) :
   x = x' -> setquotbooleq R is x x' = true.
 Proof.
-  intros X R is x x' e. destruct e. generalize x.
+  intros X R is x x' e. induction e. generalize x.
   apply (setquotunivprop
            R (λ x, hProppair _ (isasetbool (setquotbooleq R is x x) true))).
   simpl. intro x0.
   change ((setquotbooleqint R is x0 x0) = true).
-  unfold setquotbooleqint. destruct (pr1 (is x0 x0)) as [ i1 | i2 ].
+  unfold setquotbooleqint. induction (pr1 (is x0 x0)) as [ i1 | i2 ].
   - apply idpath.
-  - destruct (i2 (eqrelrefl R x0)).
+  - induction (i2 (eqrelrefl R x0)).
 Defined.
 
 Definition isdeceqsetquot {X : UU} (R : eqrel X)
            (is : ∏ x x' : X, isdecprop (R x x')) : isdeceq (setquot R).
 Proof.
   intros. intros x x'.
-  destruct (boolchoice (setquotbooleq R is x x')) as [ i | ni ].
+  induction (boolchoice (setquotbooleq R is x x')) as [ i | ni ].
   - apply (ii1 (setquotbooleqtopaths R is x x' i)).
   - apply ii2. intro e.
-    destruct (falsetonegtrue _ ni (setquotpathstobooleq R is x x' e)).
+    induction (falsetonegtrue _ ni (setquotpathstobooleq R is x x' e)).
 Defined.
 
 
@@ -2274,7 +2274,7 @@ Proof.
     - apply (pr1 (lg _ _)).
     - apply (pr2 (lg _ _)).
   }
-  destruct e. destruct e'.
+  induction e. induction e'.
   apply (is _ _ _ _ r r0).
 Defined.
 
@@ -2485,21 +2485,21 @@ Proof.
   set (f := decreltobrel L). unfold brel.
   apply (setquotuniv2 R boolset f).
   intros x x' x0 x0' r r0. unfold f. unfold decreltobrel in *.
-  destruct (pr2 L x x0') as [ l | nl ].
-  - destruct (pr2 L x' x0') as [ l' | nl' ].
-    + destruct (pr2 L x x0) as [ l'' | nl'' ].
+  induction (pr2 L x x0') as [ l | nl ].
+  - induction (pr2 L x' x0') as [ l' | nl' ].
+    + induction (pr2 L x x0) as [ l'' | nl'' ].
       * apply idpath.
       * set (e := is x x' x0 x0' r r0).
-        destruct e. destruct (nl'' l').
-    + destruct (pr2 L x x0) as [ l'' | nl'' ].
-      * set (e := is x x' x0 x0' r r0). destruct e. destruct (nl' l'').
+        induction e. induction (nl'' l').
+    + induction (pr2 L x x0) as [ l'' | nl'' ].
+      * set (e := is x x' x0 x0' r r0). induction e. induction (nl' l'').
       * apply idpath.
-  - destruct (pr2 L x x0) as [ l' | nl' ].
-    + destruct (pr2 L x' x0') as [ l'' | nl'' ].
+  - induction (pr2 L x x0) as [ l' | nl' ].
+    + induction (pr2 L x' x0') as [ l'' | nl'' ].
       * apply idpath.
-      * set (e := is x x' x0 x0' r r0). destruct e. destruct (nl'' l').
-    + destruct (pr2 L x' x0') as [ l'' | nl'' ].
-      * set (e := is x x' x0 x0' r r0). destruct e. destruct (nl' l'').
+      * set (e := is x x' x0 x0' r r0). induction e. induction (nl'' l').
+    + induction (pr2 L x' x0') as [ l'' | nl'' ].
+      * set (e := is x x' x0 x0' r r0). induction e. induction (nl' l'').
       * apply idpath.
 Defined.
 
@@ -2597,7 +2597,7 @@ Proof.
   }
   assert (egf : ∏ (a : P), paths (g (f a)) a).
   {
-    intros a. destruct a as [ p isp ].
+    intros a. induction a as [ p isp ].
     generalize isp. generalize p. clear isp. clear p.
     assert (int : ∏ (p : setquot R),
                   isaprop (∏ isp : P p, paths (g (f (tpair _ p isp)))
@@ -2913,7 +2913,7 @@ Inductive try0 (T : UU) (t : T) :
 Definition try0map1 (T : UU) (t : T) (t1 t2 : T) (e1 : t = t1)
    (e2 : t = t2) (X : try0 T t t1 t2 e1 e2) : t1 = t2.
 Proof.
-  intros. destruct  X. apply idpath.
+  intros. induction  X. apply idpath.
 Defined.
 
 Definition try0map2 (T : UU) (t : T) (t1 t2 : T) (e1 : t = t1)
@@ -2941,7 +2941,7 @@ Lemma test {X : UU} (R : eqrel X) (Y : hSet) (f : setquot R -> Y) :
            (λ x x' : X, λ r : R x x',
                                 maponpaths f (iscompsetquotpr R x x' r))).
 Proof.
- intros. apply funextfun. intro c. simpl. destruct c as [ A iseq ]. simpl. *)
+ intros. apply funextfun. intro c. simpl. induction c as [ A iseq ]. simpl. *)
 
 
 
@@ -3028,7 +3028,7 @@ Proof.
   intros. apply weqimplimpl. apply iscompsetquot2pr.
   set (int := setquot2univ R hPropset (λ x'', R x x'')
                            (weqpathssetquot2l1 R x)).
-  intro e. change (pr1 (int (setquot2pr R x'))). destruct e.
+  intro e. change (pr1 (int (setquot2pr R x'))). induction e.
   change (R x x). apply (eqrelrefl R). apply (pr2 (R x x')).
   apply (isasetsetquot2).
 Defined.

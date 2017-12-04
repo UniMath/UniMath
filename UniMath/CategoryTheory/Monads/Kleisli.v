@@ -64,7 +64,7 @@ Section monad_types_equiv.
 
   Definition Kleisli_to_Monad {C : precategory} (T : Kleisli C) : Monad C.
   Proof.
-    refine (((Kleisli_to_functor T,, Kleisli_to_μ T) ,, Kleisli_to_η T) ,, _).
+    use (((Kleisli_to_functor T,, Kleisli_to_μ T) ,, Kleisli_to_η T) ,, _).
     do 2 try apply tpair; intros; simpl.
     - apply (r_eta_r_bind T).
     - now rewrite (r_bind_r_bind T), <- assoc, (r_eta_r_bind T (T c)), id_right, (r_bind_r_eta T).

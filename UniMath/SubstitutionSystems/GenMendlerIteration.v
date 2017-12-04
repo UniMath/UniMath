@@ -39,7 +39,6 @@ Require Import UniMath.CategoryTheory.Adjunctions.
 Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
 Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Local Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "↓ f").
 (* in Agda mode \downarrow *)
@@ -197,14 +196,14 @@ Focus 2.
       apply maponpaths.
       exact h_rec_eq.
     + (* set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial --> ⟨ R X, φ (ψ (R X) (ε X)) ⟩). *)
-       simple refine (let X : AF ⟦ InitialObject μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _).
+       use (let X : AF ⟦ InitialObject μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _).
        * apply (tpair _ (φ h)); assumption.
        * apply (maponpaths pr1 (InitialArrowUnique _ _ X0)).
 Qed.
 
 Theorem GenMendlerIteration : iscontr (∑ h : L μF --> X, #L inF · h = ψ μF h).
 Proof.
-  simple refine (tpair _ _ _ ).
+  use tpair.
   - exists preIt.
     exact preIt_ok.
   - exact preIt_uniq.
@@ -247,7 +246,7 @@ Section special_case.
 
   Definition ψ_from_comps : ψ_source ⟹ ψ_target.
   Proof.
-    simple refine (tpair _ _ _ ).
+    use tpair.
     - intro A. simpl. intro f.
       unfold yoneda_objects_ob in *.
       exact (θ A · #G f · ρ).

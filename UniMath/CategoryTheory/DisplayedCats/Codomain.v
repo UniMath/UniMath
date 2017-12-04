@@ -69,14 +69,14 @@ Proof.
     etrans. apply id_left.
     destruct ff as [ff H].
     apply pathsinv0.
-    etrans. refine (pr1_transportf (C⟦x,y⟧) _ _ _ _ _ _ ).
+    etrans. use (pr1_transportf (C⟦x,y⟧)).
     use transportf_const.
   - apply subtypeEquality.
     { intro. apply homset_property. }
     etrans. apply id_right.
     destruct ff as [ff H].
     apply pathsinv0.
-    etrans. refine (pr1_transportf (C⟦x,y⟧) _ _ _ _ _ _ ).
+    etrans. use (pr1_transportf (C⟦x,y⟧)).
     use transportf_const.
   - apply subtypeEquality.
     { intro. apply homset_property. }
@@ -84,7 +84,7 @@ Proof.
     destruct ff as [ff H].
     apply pathsinv0.
     etrans. unfold mor_disp.
-    refine (pr1_transportf (C⟦x,w⟧) _ _ _ _ _ _ ).
+    use (pr1_transportf (C⟦x,w⟧)).
     use transportf_const.
   - apply (isofhleveltotal2 2).
     + apply homset_property.
@@ -111,7 +111,7 @@ Proof.
     use Hpb.
     + exact (pr1 q).
     + exact (pr1 hh).
-    + simpl in q. refine (pr2 q · g).
+    + simpl in q. use (pr2 q · g).
     + etrans. apply (pr2 hh). apply assoc.
   } Unfocus.
   eapply weqcomp.

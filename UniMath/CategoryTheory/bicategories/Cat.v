@@ -56,7 +56,7 @@ Proof.
 
     (* Which is natural. *)
     intros oba oba' f.
-    refine (id_right _ @ !(id_left _)).
+    use (id_right _ @ !(id_left _)).
 
   - (* Step 2: Show the above is natural, so given
        f : F -> F', g : G -> G', h : H -> H', *)
