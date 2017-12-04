@@ -5,6 +5,7 @@
  - Binary operations
   - General definitions
   - Standard conditions on one binary operation on a set
+   - Elements with inverses
   - Standard conditions on a pair of binary operations on a set
  - Sets with one binary operation
   - General definitions
@@ -87,6 +88,13 @@ Proof.
   apply impred. intro x''.
   simpl. apply (setproperty X).
 Defined.
+
+Lemma assoc4 {X : hSet} (opp : binop X) (isa : isassoc opp) :
+  ∏ w x y z : X, opp (opp (opp w x) y) z = opp (opp w (opp x y)) z.
+Proof.
+  intros.
+  repeat rewrite isa; exact (idpath _).
+Qed.
 
 (** *)
 
@@ -299,10 +307,89 @@ Definition allinvvertibleinv {X : hSet} {opp : binop X} (is : ismonoidop opp)
 
 *)
 
+(** ***** Elements with inverses  *)
+
+Section ElementsWithInverses.
+  Context {X : hSet}.
+  Context (opp : binop X) (is0 : ismonoidop opp).
+
+  (** Is this element x0 the left/right inverse of x? *)
+
+  Definition islinvel (x : X) : X -> UU := fun x0 => (opp x x0) = unel_is is0.
+
+  Definition isrinvel (x : X) : X -> UU := fun x0 => (opp x0 x) = unel_is is0.
+
+  Definition isinvel (x : X) : X -> UU := fun x0 => islinvel x x0 × isrinvel x x0.
+
+  (** The above are propositions *)
+
+  Definition isapropislinvel (x x0 : X) : isaprop (islinvel x x0) :=
+    pr2 X _ _.
+
+  Definition isapropisrinvel (x x0 : X) : isaprop (isrinvel x x0) :=
+    pr2 X _ _.
+
+  Definition isapropisinvel (x x0 : X) : isaprop (isinvel x x0) :=
+    isapropdirprod _ _ (isapropislinvel _ _) (isapropisrinvel _ _).
+
+  (** Is there some element x0 that is the left/right inverse of x? *)
+
+  Definition haslinv (x : X) : UU := ∃ x0 : X, islinvel x x0.
+
+  Definition hasrinv (x : X) : UU := ∃ x0 : X, isrinvel x x0.
+
+  Definition hasinv (x : X) : UU := ∃ x0 : X, isinvel x x0.
+
+  (** The above are propositions *)
+
+  Definition isaprophaslinv (x : X) : isaprop (haslinv x) :=
+    isapropishinh _.
+
+  Definition isaprophasrinv (x : X) : isaprop (haslinv x) :=
+    isapropishinh _.
+
+  Definition isaprophasinv (x : X) : isaprop (hasinv x) :=
+    isapropishinh _.
+
+  (** The subset of elements that have inverses *)
+
+  Definition invertible_elements : hsubtype X :=
+    fun x => (hasinv x,, isaprophasinv x).
+
+  (** Lemmas for elements with inverses *)
+
+  (** The inverse of an element's two-sided inverse is just that element *)
+  Definition is_inv_inv : ∏ (x x0 : X), (isinvel x x0 -> isinvel x0 x) :=
+    fun x x0 isinv => (dirprodpair (pr2 isinv) (pr1 isinv)).
+
+  (** This is a similar statement to grinvop *)
+  Lemma invop :
+    ∏ (x y : X), (hasinv x -> hasinv y -> hasinv (opp x y)).
+  Proof.
+    intros x y xhasinv yhasinv.
+    unfold hasinv, hProptoType in *; cbn in *.
+    apply (@hinhfun2 (∑ x0 : X, isinvel x x0) (∑ y0 : X, isinvel y y0));
+      try assumption.
+    intros [xinv [isxlinv isxrinv]] [yinv [isylinv isyrinv]].
+    refine (opp yinv xinv,, _).
+    pose (assoc := pr1 is0).
+    split; unfold islinvel, isrinvel;
+      rewrite <- assoc;
+      rewrite (assoc4 opp assoc).
+    * rewrite isylinv.
+      rewrite (pr2 (pr2 (pr2 is0))).
+      assumption.
+    * rewrite isxrinv.
+      rewrite (pr2 (pr2 (pr2 is0))).
+      assumption.
+  Defined.
+
+End ElementsWithInverses.
+
 (** The following lemma is an analog of [Bourbaki, Alg. 1, ex. 2, p. 132] *)
 
 Lemma isgropif {X : hSet} {opp : binop X} (is0 : ismonoidop opp)
-      (is : ∏ x : X, hexists (λ x0 : X, (opp x x0) = (unel_is is0))) : isgrop opp.
+      (is : ∏ x : X, haslinv opp is0 x) : isgrop opp.
 Proof.
   split with is0.
   destruct is0 as [ assoc isun0 ].
