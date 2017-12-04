@@ -85,6 +85,19 @@ Proof.
   apply proofirrelevance. now apply f.
 Defined.
 
+Lemma isaproptotal2 {X : UU} (P : X → UU) :
+  isPredicate P →
+  (∏ x y : X, P x → P y → x = y) →
+  isaprop (∑ x : X, P x).
+Proof.
+  intros HP Heq.
+  apply invproofirrelevance.
+  intros [x p] [y q].
+  induction (Heq x y p q).
+  induction (iscontrpr1 (HP x p q)).
+  apply idpath.
+Defined.
+
 Lemma squash_rec {X : UU} (P : ∥ X ∥ -> hProp) : (∏ x, P (hinhpr x)) -> (∏ x, P x).
 Proof.
   intros xp x'. simple refine (hinhuniv _ x'). intro x.
