@@ -52,7 +52,7 @@ Definition pr3bimodule {I : UU} {rngs : I -> rng} (MM : multimodule rngs)
   : multimodule_struct (pr2multimodule MM) := (pr2 (pr2 MM)).
 
 Definition ith_module {I : UU} {rngs : I -> rng} (MM : multimodule rngs) (i : I)
-  : module (rngs i) := (pr1multimodule MM,, pr2multimodule MM intro).
+  : module (rngs i) := (pr1multimodule MM,, pr2multimodule MM i).
 
 (** **** Propositions *)
 
