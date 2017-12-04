@@ -1,19 +1,26 @@
 # validate this file at http://lint.travis-ci.org/
 # ocaml and coq are not on the list of languages:
 language:       generic
-sudo: 		required
+sudo: 		false
 # "trusty" is the most modern release of Ubuntu supported
 dist: 		trusty
 git:
   submodules:   false
-before_install:
-  - sudo apt-get update -qq
-install:
-  - sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers ocaml-findlib
-  - sudo apt-get install -y camlp5 camlp4-extra time libgtk2.0 libgtksourceview2.0
-  - sudo apt-get install -y liblablgtk-extras-ocaml-dev
-  # get etags from emacs:
-  - sudo apt-get install -y emacs
+cache:
+  apt: true
+addons:
+  apt:
+    packages:
+      - ocaml
+      - ocaml-nox
+      - ocaml-native-compilers
+      - ocaml-findlib
+      - camlp5
+      - camlp4-extra time
+      - libgtk2.0
+      - libgtksourceview2.0
+      - liblablgtk-extras-ocaml-dev
+      - emacs
 # build coqide along with the Tactics package, just because it's a short package
 env:
   - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics"
