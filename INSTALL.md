@@ -4,7 +4,7 @@ Installation of UniMath
 Prepare for installation by installing the OCAML compiler and a more modern
 version of `bash` on your system.
 
-##Preparing for the installation under Mac OS
+## Preparing for the installation under Mac OS
 
 Under Mac OS X, the most convenient way to
 do that is with "Homebrew", available from http://brew.sh/, with the following
@@ -32,7 +32,7 @@ required; you may even need the current development version if your emacs is
 recent.
 
 
-##Preparing for the installation under Linux
+## Preparing for the installation under Linux
 
 Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
 
@@ -40,7 +40,7 @@ Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
 $ sudo apt-get install git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
 ```
 
-##Installing UniMath under Mac OS or Linux
+## Installing UniMath under Mac OS or Linux
 
 To download UniMath and prepare for building it, issue the following
 shell commands.
