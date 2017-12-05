@@ -662,7 +662,7 @@ Corollary isconnectedstn1 : ∏ i1 i2 : ⟦1⟧, i1 = i2.
 Proof.
   intros i1 i2.
   apply (invmaponpathsweq weqstn1tounit).
-  apply isconnectedunit.
+  apply isProofIrrelevantUnit.
 Defined.
 
 Lemma isinclfromstn1 { X : UU } ( f : ⟦1⟧ -> X ) ( is : isaset X ) : isincl f.

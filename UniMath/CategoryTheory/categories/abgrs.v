@@ -222,13 +222,13 @@ Section def_abgr_zero.
     (t : monoidfun unitabgr (a : abgr)) = abgrfunfromunit (a : abgr).
   Proof.
     use monoidfun_paths. use funextfun. intros x.
-    use (pathscomp0 _ (monoidfununel t)). use maponpaths. use isconnectedunit.
+    use (pathscomp0 _ (monoidfununel t)). use maponpaths. use isProofIrrelevantUnit.
   Qed.
 
   Lemma isconnectedtounitabgr (a : abgr_category) (t : abgr_category ⟦a, unitabgr⟧):
     (t : monoidfun (a : abgr) unitabgr) = abgrfuntounit a.
   Proof.
-    use monoidfun_paths. use funextfun. intros x. use isconnectedunit.
+    use monoidfun_paths. use funextfun. intros x. use isProofIrrelevantUnit.
   Qed.
 
   Definition abgr_isZero : isZero abgr_category unitabgr.

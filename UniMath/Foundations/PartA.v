@@ -1500,7 +1500,7 @@ Defined.
 (** [ unit ] is contractible (recall that [ tt ] is the name of the
     canonical term of the type [ unit ]). *)
 
-Lemma isconnectedunit : ∏ x x' : unit, x = x'.
+Lemma isProofIrrelevantUnit : ∏ x x' : unit, x = x'.
 Proof.
   intros. induction x. induction x'. apply idpath.
 Defined.
@@ -1534,7 +1534,7 @@ Defined.
 
 Theorem iscontrunit: iscontr (unit).
 Proof.
-  split with tt. intros t. apply (isconnectedunit t tt).
+  split with tt. intros t. apply (isProofIrrelevantUnit t tt).
 Defined.
 
 (** [ paths ] in [ unit ] are contractible. *)
@@ -1542,7 +1542,7 @@ Defined.
 Theorem iscontrpathsinunit (x x' : unit) : iscontr (x = x').
 Proof.
   intros.
-  split with (isconnectedunit x x').
+  split with (isProofIrrelevantUnit x x').
   intros e'.
   induction x.
   induction x'.
@@ -1568,7 +1568,7 @@ Proof.
   split with hc.
   intros ha.
   induction ha as [x e].
-  unfold hc. unfold hfiberpair. unfold isconnectedunit.
+  unfold hc. unfold hfiberpair. unfold isProofIrrelevantUnit.
   simpl.
   apply (λ q, two_arg_paths_f (h x) q).
   apply ifcontrthenunitl0.
@@ -1765,7 +1765,7 @@ Lemma isweq_to_isweq_unit {X:UU} (f g:X->unit) : isweq f -> isweq g.
 Proof.
   intros ? ? ? i.
   assert (h : f ~ g).
-  { intros t. apply isconnectedunit. }
+  { intros t. apply isProofIrrelevantUnit. }
   exact (isweqhomot f g h i).
 Defined.
 
