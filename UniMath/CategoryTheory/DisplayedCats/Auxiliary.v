@@ -81,7 +81,7 @@ Proof.
   use tpair. use tpair.
   (* ob, mor *) exists unit. intros; exact unit.
   (* identity, comp *) split; intros; constructor.
-  (* id_left *) simpl; split; try split; intros; apply isconnectedunit.
+  (* id_left *) simpl; split; try split; intros; apply isProofIrrelevantUnit.
 Defined.
 
 Definition unit_functor C : functor C unit_precategory.
