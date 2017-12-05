@@ -1,5 +1,4 @@
-(** * Constructive instance of Markov's principle
-
+(**
 Auke Booij
 Nov. 2017
 

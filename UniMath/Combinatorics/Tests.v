@@ -7,7 +7,7 @@ Require UniMath.Combinatorics.FiniteSequences.
 Require UniMath.Combinatorics.FiniteSets.
 Require UniMath.Combinatorics.OrderedSets.
 Require UniMath.Combinatorics.StandardFiniteSets.
-Require UniMath.Combinatorics.MarkovPrinciple.
+Require UniMath.Combinatorics.BoundedSearch.
 Require UniMath.MoreFoundations.DecidablePropositions.
 
 Module Test_list.
@@ -492,9 +492,9 @@ Module Test_ord.
 
 End Test_ord.
 
-Module Test_markov.
+Module Test_search.
 
-  Import UniMath.Combinatorics.MarkovPrinciple.
+  Import UniMath.Combinatorics.BoundedSearch.
   Import UniMath.Foundations.Propositions.
 
   Local Definition someseq (n : nat) : bool.
@@ -538,4 +538,4 @@ Module Test_markov.
 
   Definition new_n' :  ∑ n : nat, P n := minimal_n P P_dec P_inhab'.
 
-End Test_markov.
+End Test_search.
