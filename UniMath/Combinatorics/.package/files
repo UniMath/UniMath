@@ -4,5 +4,5 @@ FiniteSets.v
 OrderedSets.v
 WellOrderedSets.v
 FiniteSequences.v
-MarkovPrinciple.v
+BoundedSearch.v
 Tests.v
