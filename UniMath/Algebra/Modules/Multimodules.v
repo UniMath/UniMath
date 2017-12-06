@@ -104,18 +104,19 @@ Definition pr1multilinearfun {I : UU} {rngs : I -> rng} {MM NN : multimodule rng
 Coercion pr1multilinearfun : multilinearfun >-> Funclass.
 
 Definition ith_linearfun {I : UU} {rngs : I -> rng} {MM NN : multimodule rngs}
-           (f : multilinearfun MM NN) (i : I)
-  : linearfun (ith_module MM i) (ith_module NN i) := (pr1 f,, pr2 f i).
+           (f : multilinearfun MM NN) (i : I) :
+  linearfun (ith_module MM i) (ith_module NN i) :=
+  (pr1 f,, pr2 f i).
 
 Definition ismultilinearfuncomp {I : UU} {rngs : I -> rng}
            {MM NN PP : multimodule rngs} (f : multilinearfun MM NN)
-           (g : multilinearfun NN PP) : ismultilinear (pr1 g ∘ pr1 f)%functions
-  := (fun i => islinearfuncomp (ith_linearfun f i) (ith_linearfun g i)).
+           (g : multilinearfun NN PP) : ismultilinear (pr1 g ∘ pr1 f)%functions :=
+  (fun i => islinearfuncomp (ith_linearfun f i) (ith_linearfun g i)).
 
 Definition multilinearfuncomp {I : UU} {rngs : I -> rng}
            {MM NN PP : multimodule rngs} (f : multilinearfun MM NN)
-           (g : multilinearfun NN PP) : multilinearfun MM PP
-  := (funcomp f g,, ismultilinearfuncomp f g).
+           (g : multilinearfun NN PP) : multilinearfun MM PP :=
+  (funcomp f g,, ismultilinearfuncomp f g).
 
 (** **** Multimodule morphisms *)
 
@@ -136,8 +137,8 @@ Definition multimodulefun {I : UU} {rngs : I -> rng}
            (MM NN : multimodule rngs) : UU := ∑ f : MM -> NN, ismultimodulefun f.
 
 Definition multimodulefunpair {I : UU} {rngs : I -> rng}
-           {MM NN : multimodule rngs} (f : MM -> NN) (is : ismultimodulefun f)
-  : multimodulefun MM NN := tpair _ f is.
+           {MM NN : multimodule rngs} (f : MM -> NN) (is : ismultimodulefun f) :
+  multimodulefun MM NN := tpair _ f is.
 
 Definition pr1multimodulefun {I : UU} {rngs : I -> rng}
            {MM NN : multimodule rngs} (f : multimodulefun MM NN) : MM -> NN := pr1 f.
@@ -145,50 +146,51 @@ Definition pr1multimodulefun {I : UU} {rngs : I -> rng}
 Coercion pr1multimodulefun : multimodulefun >-> Funclass.
 
 Definition ith_modulefun {I : UU} {rngs : I -> rng} {MM NN : multimodule rngs}
-           (f : multimodulefun MM NN) (i : I)
-  : modulefun (ith_module MM i) (ith_module NN i) := 
+           (f : multimodulefun MM NN) (i : I) :
+  modulefun (ith_module MM i) (ith_module NN i) :=
   (pr1 f,, (dirprodpair (pr1 (pr2 f)) (pr2 (pr2 f) i))).
 
 Definition multimodulefun_to_isbinopfun {I : UU} {rngs : I -> rng}
-           {MM NN : multimodule rngs} (f : multimodulefun MM NN)
-  : isbinopfun (pr1multimodulefun f) := pr1 (pr2 f).
+           {MM NN : multimodule rngs} (f : multimodulefun MM NN) :
+  isbinopfun (pr1multimodulefun f) := pr1 (pr2 f).
 
 Definition multimodulefun_to_binopfun {I : UU} {rngs : I -> rng}
-           {MM NN : multimodule rngs} (f : multimodulefun MM NN)
-  : binopfun MM NN := binopfunpair (pr1multimodulefun f)
+           {MM NN : multimodule rngs} (f : multimodulefun MM NN) :
+  binopfun MM NN := binopfunpair (pr1multimodulefun f)
                                    (multimodulefun_to_isbinopfun f).
 
 Definition multimodulefun_to_ith_islinear {I : UU} {rngs : I -> rng}
-           {MM NN : multimodule rngs} (f : multimodulefun MM NN) (i : I)
-  : islinear (ith_modulefun f i) := pr2 (pr2 (ith_modulefun f i)).
+           {MM NN : multimodule rngs} (f : multimodulefun MM NN) (i : I) :
+  islinear (ith_modulefun f i) := pr2 (pr2 (ith_modulefun f i)).
 
 Definition multimodulefun_to_ith_linearfun {I : UU} {rngs : I -> rng}
-           {MM NN : multimodule rngs} (f : multimodulefun MM NN) (i : I)
-  : linearfun (ith_module MM i) (ith_module NN i) :=
+           {MM NN : multimodule rngs} (f : multimodulefun MM NN) (i : I) :
+  linearfun (ith_module MM i) (ith_module NN i) :=
   linearfunpair (ith_modulefun f i) (multimodulefun_to_ith_islinear f i).
 
 (** Properties of the ring actions *)
 
 Definition multimodule_ith_mult {I : UU} {rngs : I -> rng}
-           (MM : multimodule rngs) (i : I) : (rngs i) -> MM -> MM
-  := @module_mult (rngs i) (ith_module MM i).
+           (MM : multimodule rngs) (i : I) : (rngs i) -> MM -> MM :=
+  @module_mult (rngs i) (ith_module MM i).
 
 (** If you take the underlying group of the ith module, its the same as the
     underlying group of the multimodule. *)
 Lemma multimodule_same_abgrp {I : UU} {rngs : I -> rng}
       (MM : multimodule rngs) (i : I) : @eq abgr MM (ith_module MM i).
+Proof.
   reflexivity.
 Defined.
 
 (** Multiplying something by 0 always gives you the identity.
     Equationally, 0R * x = 0G for all x. *)
 Definition multimodule_ith_mult_0_to_0 {I : UU} {rngs : I -> rng}
-           {MM : multimodule rngs} (i : I) (x : MM)
-  : multimodule_ith_mult MM i (@rngunel1 (rngs i)) x = @unel MM :=
+           {MM : multimodule rngs} (i : I) (x : MM) :
+  multimodule_ith_mult MM i (@rngunel1 (rngs i)) x = @unel MM :=
   @module_mult_0_to_0 (rngs i) (ith_module MM i) x.
 
 (* TODO *)
 Definition multimodulefun_unel {I : UU} {rngs : I -> rng}
-           {MM NN : multimodule rngs} (f : multimodulefun MM NN)
-  : f (unel MM) = unel NN.
+           {MM NN : multimodule rngs} (f : multimodulefun MM NN) :
+  f (unel MM) = unel NN.
 Abort.

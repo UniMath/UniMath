@@ -508,6 +508,7 @@ Local Open Scope rig.
 
 (** Following Bourbaki's Algebra, I, §8.3, Example V *)
 Definition opposite_rig (X : rig) : rig.
+Proof.
   intros X.
 
   (* Use the same underlying set and addition, flip the multiplication *)
@@ -516,7 +517,6 @@ Definition opposite_rig (X : rig) : rig.
                                          (fun x y => y * x)%rig),, _).
 
   unfold op2; cbn; fold (@op1 X) (@op2 X).
-  Check mk_isrigops.
   apply (mk_isrigops (rigop1axs X)).
 
   (* For these proofs, we just have to switch some arguments around *)
@@ -533,6 +533,7 @@ Defined.
 Notation "X ⁰" := (opposite_rig X) (at level 12) : rig_scope.
 
 Definition opposite_opposite_rig (X : rig) : rigiso X ((X⁰)⁰).
+Proof.
   intros X.
   refine ((idfun X,, idisweq X),, _).
   easy.
@@ -711,6 +712,7 @@ Definition opposite_commrig (X : commrig) : commrig :=
 
 (** Commutativity makes taking the opposite trivial *)
 Definition iso_commrig_opposite (X : commrig) : rigiso X (opposite_commrig X).
+Proof.
   intros X.
   refine ((idfun X,, idisweq X),, _).
   do 2 (split; try easy).
@@ -1491,12 +1493,13 @@ Local Open Scope rig.
 
 (** We just need to reuse and rearrange the opposite rig *)
 Definition opposite_rng (X : rng) : rng.
+Proof.
   intros X.
   refine (pr1 (X⁰),, _).
   split.
   - split.
     apply mk_isabgrop.
-    * exact (pr1 (rigop1axs (X⁰)),, pr2 (pr1 (rngop1axs X))). 
+    * exact (pr1 (rigop1axs (X⁰)),, pr2 (pr1 (rngop1axs X))).
     * exact (pr2 (rngop1axs X)).
     * exact (rigop2axs (X⁰)).
   - exact (rigdistraxs (X⁰)).
