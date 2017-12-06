@@ -428,7 +428,7 @@ Proof.
       etrans. apply assoc_disp.
       eapply transportf_bind.
       etrans. eapply cancel_postcomposition_disp.
-        refine (disp_nat_trans_ax η (# GG (ε x yy))). (*2*)
+        exact (disp_nat_trans_ax η (# GG (ε x yy))). (*2*)
       eapply transportf_bind.
       etrans. apply assoc_disp_var.
       eapply transportf_bind.
@@ -556,7 +556,7 @@ Definition FFinv_on_iso_is_iso   {x y} {xx : D' x} {yy : D' y} {f : iso x y}
   : is_iso_disp _ (FFinv ff).
 Proof.
   apply disp_functor_id_ff_reflects_isos.
-  refine (transportf _ _ Hff).
+  use (transportf _ _ Hff).
   apply @pathsinv0. use homotweqinvweq.
 Qed.
 
@@ -610,7 +610,7 @@ Proof.
           etrans. apply assoc_disp_var.
           apply maponpaths.
           etrans. apply maponpaths.
-            refine (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
+            exact (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
           etrans. apply mor_disp_transportf_prewhisker.
           etrans. apply maponpaths, id_right_disp.
           apply transport_f_f.
@@ -669,7 +669,7 @@ Definition η_ses_ff_data
 Proof.
   intros x xx. cbn.
   apply FFinv.
-  refine (inv_mor_disp_from_iso (pr2 (FF_split _ _))).
+  exact (inv_mor_disp_from_iso (pr2 (FF_split _ _))).
 Defined.
 
 Definition η_ses_ff_ax
@@ -744,7 +744,7 @@ Qed.
 
 Theorem is_equiv_from_ff_ess_over_id : is_equiv_over_id FF.
 Proof.
-  simple refine ((GGεη,, _) ,, _).
+  use ((GGεη,, _) ,, _).
   split. apply tri_1_GGεη. apply tri_2_GGεη.
   apply form_equiv_GGεη.
 Defined.
@@ -1020,14 +1020,14 @@ Proof.
     set (thisax := pr1 axs c d); clearbody thisax; clear axs.
     etrans. apply maponpaths, thisax.
     etrans. apply transport_f_b.
-    refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
+    use (@maponpaths_2 _ _ _ _ _ (paths_refl _)).
     apply homset_property.
   + unfold triangle_2_statement.
     intros d; cbn.
     set (thisax := pr2 axs c d); clearbody thisax; clear axs.
     etrans. apply maponpaths, thisax.
     etrans. apply transport_f_b.
-    refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
+    use (@maponpaths_2 _ _ _ _ _ (paths_refl _)).
     apply homset_property.
 Defined.
 

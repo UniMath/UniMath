@@ -41,8 +41,8 @@ Lemma is_univalent_groupoid {C : category}: is_groupoid C -> is_univalent C.
 Proof. intros ig  .
   split.
   { intros a b.
-    refine (isofhlevelff 0 idtoiso (morphism_from_iso _ _ _) _ _).
-    { refine (isweqhomot (idtomor _ _) _ _ _).
+    use (isofhlevelff 0 idtoiso (morphism_from_iso _ _ _)).
+    { use (isweqhomot (idtomor _ _)).
       { intro p. destruct p. reflexivity. }
       { apply ig. } }
     apply morphism_from_iso_is_incl. }
@@ -55,10 +55,10 @@ Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> category.
      be useful, because in it, each arrow is a path, rather than an
      equivalence class of paths. *)
   intros iobj.
-  unshelve refine (makecategory X (λ x y, x = y) _ _ _ _ _ _).
+  use (makecategory X (λ x y, x = y)); simpl.
+  { intros. exact (iobj _ _). }
   { reflexivity. }
   { intros. exact (f @ g). }
-  { intros. exact (iobj _ _). }
   { reflexivity. }
   { intros. apply pathscomp0rid. }
   { intros. apply path_assoc. }

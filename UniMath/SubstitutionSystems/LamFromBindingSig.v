@@ -183,7 +183,7 @@ rewrite <- assoc.
 eapply pathscomp0; [eapply maponpaths, BinCoproductIn2Commutes|].
 rewrite <- assoc.
 eapply pathscomp0; eapply maponpaths.
-  refine (CoproductInCommutes _ _ _ _ _ _ true).
+  exact (CoproductInCommutes _ _ _ _ _ _ true).
 apply idpath.
 Defined.
 
@@ -214,7 +214,7 @@ eapply pathscomp0.
   eapply maponpaths, BinCoproductIn2Commutes.
 rewrite <- assoc.
 eapply pathscomp0; eapply maponpaths.
-  refine (CoproductInCommutes _ _ _ _ _ _ false).
+  exact (CoproductInCommutes _ _ _ _ _ _ false).
 apply idpath.
 Defined.
 

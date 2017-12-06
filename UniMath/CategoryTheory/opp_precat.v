@@ -172,7 +172,7 @@ Proof.
   intros HF d.
   set (TH := HF d).
   set (X:=@hinhuniv  (∑ a : C, iso (F a) d)).
-  refine (X _ _ TH).
+  use (X _ _ TH).
   intro H. clear TH. clear X.
   apply hinhpr.
   destruct H as [a X].
@@ -199,7 +199,7 @@ Definition from_opp_to_opp_opp (A C : precategory) (hsC : has_homsets C) :
 Proof.
 apply (tpair _ functor_opp).
 simpl; intros F G α.
-simple refine (tpair _ _ _).
+use tpair.
 + simpl; intro a; apply α.
 + abstract (intros a b f; simpl in *;
             apply pathsinv0, (nat_trans_ax α)).
@@ -220,9 +220,9 @@ Definition functor_from_opp_to_opp_opp (A C : precategory) (hsC : has_homsets C)
 Definition from_opp_opp_to_opp (A C : precategory) (hsC : has_homsets C) :
   functor_data [A^op, C^op, has_homsets_opp hsC] [A, C, hsC]^op.
 Proof.
-simple refine (tpair _ _ _); simpl.
+use tpair; simpl.
 - intro F.
-  simple refine (tpair _ _ _).
+  use tpair.
   + exists F.
     apply (λ a b f, # F f).
   + abstract (split; [ intro a; apply (functor_id F)

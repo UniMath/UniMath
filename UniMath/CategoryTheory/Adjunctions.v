@@ -557,7 +557,7 @@ Section HomSetIso_from_Adjunction.
     assert (X2 := nat_trans_ax η). simpl in X2.
     rewrite <- X2; clear X2.
     rewrite <- assoc.
-    pathvia (g · identity _).
+    intermediate_path (g · identity _).
     - apply maponpaths.
       apply X'.
     - apply id_right.
@@ -572,7 +572,7 @@ Section HomSetIso_from_Adjunction.
     rewrite <- assoc.
     rewrite X2; clear X2.
     rewrite assoc.
-    pathvia (identity _ · f).
+    intermediate_path (identity _ · f).
     - apply cancel_postcomposition.
       apply triangle_id_left_ad.
     - apply id_left.

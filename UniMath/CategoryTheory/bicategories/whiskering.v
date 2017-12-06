@@ -32,7 +32,7 @@ Lemma whisker_left_id_2mor {C : prebicategory} {a b c : C}
            (f : a -1-> b) (g : b -1-> c)
   : whisker_left f (identity_2mor g) = identity_2mor (f ;1; g).
 Proof.
-  pathvia (functor_on_morphisms (compose_functor a b c)
+  intermediate_path (functor_on_morphisms (compose_functor a b c)
                                 (identity (precatbinprodpair f g))).
   reflexivity.
   apply functor_id.
@@ -63,7 +63,7 @@ Proof.
   unfold whisker_left.
   unfold identity_2mor.
 
-  pathvia (inv_from_iso (identity_iso f);h;inv_from_iso alpha).
+  intermediate_path (inv_from_iso (identity_iso f);h;inv_from_iso alpha).
     set (W := maponpaths pr1 (iso_inv_of_iso_id _ f)).
     simpl in W.
     rewrite <- W.
@@ -79,7 +79,7 @@ Lemma whisker_left_id_inj {C : prebicategory} {b c : C}
 Proof.
   intros w.
 
-  pathvia (iso_inv_from_iso (left_unitor _)
+  intermediate_path (iso_inv_from_iso (left_unitor _)
            ;v; whisker_left (identity_1mor _) alpha
            ;v; left_unitor _ ).
     apply pathsinv0.
@@ -88,7 +88,7 @@ Proof.
     rewrite assoc.
     apply whisker_left_id_1mor.
 
-  pathvia (iso_inv_from_iso (left_unitor _)
+  intermediate_path (iso_inv_from_iso (left_unitor _)
            ;v; whisker_left (identity_1mor _) alpha'
            ;v; left_unitor _ ).
     apply cancel_postcomposition.
@@ -108,7 +108,7 @@ Lemma whisker_left_on_comp {C : prebicategory} {a b c : C}
   = whisker_left f alpha ;v; whisker_left f alpha'.
 Proof.
   unfold whisker_left.
-  pathvia ((identity_2mor f;v; identity_2mor f);h;(alpha;v;alpha')).
+  intermediate_path ((identity_2mor f;v; identity_2mor f);h;(alpha;v;alpha')).
     rewrite id_left.
     reflexivity.
   now apply interchange.
@@ -132,7 +132,7 @@ Lemma whisker_right_id_2mor {C : prebicategory} {a b c : C}
   (f : a -1-> b) (g : b -1-> c)
   : whisker_right (identity_2mor f) g = identity_2mor (f ;1; g).
 Proof.
-  pathvia (functor_on_morphisms (compose_functor a b c)
+  intermediate_path (functor_on_morphisms (compose_functor a b c)
                                 (identity (precatbinprodpair f g))).
   reflexivity.
   apply functor_id.
@@ -163,7 +163,7 @@ Proof.
   unfold whisker_right.
   unfold identity_2mor.
 
-  pathvia (inv_from_iso alpha ;h; inv_from_iso (identity_iso h)).
+  intermediate_path (inv_from_iso alpha ;h; inv_from_iso (identity_iso h)).
     set (W := maponpaths pr1 (iso_inv_of_iso_id _ h)).
     simpl in W.
     rewrite <- W.
@@ -179,7 +179,7 @@ Lemma whisker_right_id_inj {C : prebicategory} {a b : C}
 Proof.
   intros w.
 
-  pathvia (iso_inv_from_iso (right_unitor _)
+  intermediate_path (iso_inv_from_iso (right_unitor _)
            ;v; whisker_right alpha (identity_1mor _)
            ;v; right_unitor _ ).
     apply pathsinv0.
@@ -188,7 +188,7 @@ Proof.
     rewrite assoc.
     apply whisker_right_id_1mor.
 
-  pathvia (iso_inv_from_iso (right_unitor _)
+  intermediate_path (iso_inv_from_iso (right_unitor _)
            ;v; whisker_right alpha' (identity_1mor _)
            ;v; right_unitor _ ).
     apply cancel_postcomposition.
@@ -207,7 +207,7 @@ Lemma whisker_right_on_comp {C : prebicategory} {a b c : C}
   = whisker_right alpha i ;v; whisker_right alpha' i.
 Proof.
   unfold whisker_right.
-  pathvia ((alpha;v;alpha');h;(identity_2mor i;v; identity_2mor i)).
+  intermediate_path ((alpha;v;alpha');h;(identity_2mor i;v; identity_2mor i)).
     rewrite id_left.
     reflexivity.
   now apply interchange.
@@ -218,7 +218,7 @@ Lemma left_unitor_naturality {C : prebicategory} {a b : C}
   : whisker_left (identity_1mor _) alpha ;v; left_unitor g
   = left_unitor f ;v; alpha.
 Proof.
-  pathvia ((functor_on_morphisms
+  intermediate_path ((functor_on_morphisms
                  (functor_composite
                      (bindelta_pair_functor
                         (functor_composite (unit_functor _) (constant_functor unit_precategory _ (identity_1mor a)))
@@ -228,7 +228,7 @@ Proof.
            ;v;(left_unitor g)).
     reflexivity.
 
-  pathvia (left_unitor f ;v; functor_on_morphisms (functor_identity _) alpha).
+  intermediate_path (left_unitor f ;v; functor_on_morphisms (functor_identity _) alpha).
     apply (nat_trans_ax (left_unitor_trans a b)).
 
   reflexivity.
@@ -239,7 +239,7 @@ Lemma right_unitor_naturality {C : prebicategory} {a b : C}
   : whisker_right alpha (identity_1mor _) ;v; right_unitor g
   = right_unitor f ;v; alpha.
 Proof.
-  pathvia ((functor_on_morphisms
+  intermediate_path ((functor_on_morphisms
                  (functor_composite
                     (bindelta_pair_functor
                        (functor_identity _)
@@ -249,7 +249,7 @@ Proof.
            ;v;(right_unitor _)).
     reflexivity.
 
-  pathvia (right_unitor f ;v; functor_on_morphisms (functor_identity _) alpha).
+  intermediate_path (right_unitor f ;v; functor_on_morphisms (functor_identity _) alpha).
     apply (nat_trans_ax (right_unitor_trans a b)).
 
   reflexivity.
@@ -262,7 +262,7 @@ Lemma associator_naturality {C : prebicategory} { a b c d : C }
   : (alpha ;h; (beta ;h; gamma)) ;v; associator f' g' h'
   = associator f g h ;v; ((alpha ;h; beta) ;h; gamma).
 Proof.
-  pathvia ((functor_on_morphisms
+  intermediate_path ((functor_on_morphisms
             (functor_composite
               (pair_functor (functor_identity _) (compose_functor b c d))
               (compose_functor a b d))
@@ -271,7 +271,7 @@ Proof.
           ).
     reflexivity.
 
-  pathvia (associator f g h ;v;
+  intermediate_path (associator f g h ;v;
           (functor_on_morphisms
             (functor_composite
               (precategory_binproduct_assoc _ _ _)
@@ -293,11 +293,11 @@ Lemma twomor_naturality {C : prebicategory} {a b c : C}
 Proof.
   unfold whisker_left, whisker_right.
 
-  pathvia ((gamma ;v; identity_2mor g);h;(identity_2mor h ;v; delta)).
+  intermediate_path ((gamma ;v; identity_2mor g);h;(identity_2mor h ;v; delta)).
     apply pathsinv0.
     apply interchange.
 
-  pathvia ((identity_2mor f ;v; gamma);h;(delta ;v; identity_2mor k)).
+  intermediate_path ((identity_2mor f ;v; gamma);h;(delta ;v; identity_2mor k)).
     rewrite !id_left, !id_right.
     reflexivity.
 
@@ -409,10 +409,10 @@ Lemma left_unitor_id_is_right_unitor_id {C : prebicategory} {a : C}
 Proof.
   apply whisker_right_id_inj.
   apply (pre_comp_with_iso_is_inj _ _ _ _ (associator _ _ _) (pr2 (associator _ _ _))).
-  pathvia (left_unitor_2mor ((identity_1mor a) ;1; (identity_1mor a))).
+  intermediate_path (left_unitor_2mor ((identity_1mor a) ;1; (identity_1mor a))).
     apply pathsinv0.
     apply kelly_left.
-  pathvia (whisker_left (identity_1mor a) (left_unitor (identity_1mor a))).
+  intermediate_path (whisker_left (identity_1mor a) (left_unitor (identity_1mor a))).
     apply pathsinv0.
     apply left_unitor_on_id.
   apply (triangle_axiom (identity_1mor a) (identity_1mor a)).
