@@ -60,7 +60,7 @@ Section abelian_is_additive.
     isMonic (DiagonalMap BinProd).
   Proof.
     intros x u v H.
-    apply (maponpaths (fun f : _ => f · (BinProductPr1 A BinProd))) in H.
+    apply (maponpaths (λ f : _, f · (BinProductPr1 A BinProd))) in H.
     repeat rewrite <- assoc in H. unfold DiagonalMap in H.
     repeat rewrite (BinProductPr1Commutes A _ _ BinProd _ (identity X) _) in H.
     repeat rewrite id_right in H.
@@ -71,7 +71,7 @@ Section abelian_is_additive.
     isMonic (IdZeroMap BinProd).
   Proof.
     intros x u v H.
-    apply (maponpaths (fun f : _ => f · (BinProductPr1 A BinProd))) in H.
+    apply (maponpaths (λ f : _, f · (BinProductPr1 A BinProd))) in H.
     repeat rewrite <- assoc in H. unfold IdZeroMap in H.
     repeat rewrite (BinProductPr1Commutes A _ _ BinProd _ (identity X) _) in H.
     repeat rewrite id_right in H.
@@ -82,7 +82,7 @@ Section abelian_is_additive.
     isMonic (ZeroIdMap BinProd).
   Proof.
     intros x u v H.
-    apply (maponpaths (fun f : _ => f · (BinProductPr2 A BinProd))) in H.
+    apply (maponpaths (λ f : _, f · (BinProductPr2 A BinProd))) in H.
     repeat rewrite <- assoc in H. unfold ZeroIdMap in H.
     repeat rewrite (BinProductPr2Commutes A _ _ BinProd _ _ (identity X)) in H.
     repeat rewrite id_right in H.
@@ -328,7 +328,7 @@ Section abelian_is_additive.
       · CokernelArrow (CokernelOfDiagonal (to_BinProducts A Y Y)).
 
   Definition Abelian_op (X Y : A) : binop (A⟦X, Y⟧) :=
-    (fun f : _ => fun g : _ => Abelian_minus_op f (Abelian_minus_op (ZeroArrow (to_Zero A) _ _) g)).
+    (λ f : _, λ g : _, Abelian_minus_op f (Abelian_minus_op (ZeroArrow (to_Zero A) _ _) g)).
 
   (** Construction of a precategory with binops from Abelian category. *)
   Definition AbelianToprecategoryWithBinops : precategoryWithBinOps.
@@ -601,7 +601,7 @@ Section abelian_is_additive.
   Proof.
     rewrite <- (AbelianPreCat_homset_inv_left' f).
     set (tmp := AbelianPreCat_homset_zero_right' f).
-    apply (maponpaths (fun g : _ => Abelian_op X Y (Abelian_minus_op f f) g)) in tmp.
+    apply (maponpaths (λ g : _, Abelian_op X Y (Abelian_minus_op f f) g)) in tmp.
     apply pathsinv0 in tmp.
     use (pathscomp0 tmp).
     unfold Abelian_op.
@@ -629,11 +629,11 @@ Section abelian_is_additive.
   Proof.
     (* Use zero left for f *)
     set (tmp1 := AbelianPreCat_homset_zero_left f).
-    apply (maponpaths (fun h : _ => Abelian_op X Y h g)) in tmp1.
+    apply (maponpaths (λ h : _, Abelian_op X Y h g)) in tmp1.
     apply pathsinv0 in tmp1. use (pathscomp0 tmp1). clear tmp1.
     (* Use zero left for g *)
     set (tmp2 := AbelianPreCat_homset_zero_left g).
-    apply (maponpaths (fun h : _ => Abelian_op X Y h f)) in tmp2.
+    apply (maponpaths (λ h : _, Abelian_op X Y h f)) in tmp2.
     use (pathscomp0 _ tmp2). clear tmp2.
     (* The goal follows from eq3 and comm' *)
     unfold Abelian_op.
@@ -677,7 +677,7 @@ Section abelian_is_additive.
     Abelian_minus_op (Abelian_minus_op (AbelianPreCat_homset_zero X Y) f) g.
   Proof.
     set (tmp := AbelianPreCat_homset_inv_left' (AbelianPreCat_homset_zero X Y)).
-    apply (maponpaths (fun h : _ => Abelian_minus_op h (Abelian_op X Y f g))) in tmp.
+    apply (maponpaths (λ h : _, Abelian_minus_op h (Abelian_op X Y f g))) in tmp.
     apply pathsinv0 in tmp. use (pathscomp0 tmp).
     unfold Abelian_op.
     rewrite AbelianPreCat_op_eq3.
@@ -699,7 +699,7 @@ Section abelian_is_additive.
      Abelian_op _ _ (Abelian_op _ _ f g) h = Abelian_op _ _ f (Abelian_op _ _ g h).
   Proof.
     set (tmp := AbelianPreCat_homset_zero_left h).
-    apply (maponpaths (fun k : _ => Abelian_op X Y (Abelian_op X Y f g) k)) in tmp.
+    apply (maponpaths (λ k : _, Abelian_op X Y (Abelian_op X Y f g) k)) in tmp.
     apply pathsinv0 in tmp. use (pathscomp0 tmp).
     unfold Abelian_op.
     rewrite AbelianPreCat_op_eq3.
@@ -760,7 +760,7 @@ Section abelian_is_additive.
         {
           set (tmp := ZeroArrow_comp_right A (to_Zero A) x y z f).
           apply (maponpaths
-                   (fun h : _ => BinProductArrow A bpz (f · x')
+                   (λ h : _, BinProductArrow A bpz (f · x')
                                               ((BinProductArrow A bpz h (f · x'0))
                                                  · CokernelArrow (CokernelOfDiagonal bpz))))
             in tmp.

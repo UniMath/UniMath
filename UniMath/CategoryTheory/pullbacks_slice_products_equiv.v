@@ -46,7 +46,7 @@ Section pullbacks_slice_products_equiv.
     intros isPull [Y i] [j jeq] [k keq]; simpl in *.
     unfold isPullback in isPull. specialize isPull with Y j k.
     use unique_exists.
-    + mkpair.
+    + use tpair.
       ++ apply isPull.
          abstract (simpl; now rewrite <- jeq , keq).
       ++ abstract (simpl; now rewrite leq, assoc, (pr1 (pr2 (pr1 (isPull _)))), jeq).
@@ -54,7 +54,7 @@ Section pullbacks_slice_products_equiv.
                 [apply (pr1 (pr2 (pr1 (isPull _)))) | apply (pr2 (pr2 (pr1 (isPull _))))]).
     + abstract (now intros q; apply isapropdirprod; apply (has_homsets_slice_precat hsC)).
     + abstract (intros q [H1 H2]; apply (eq_mor_slicecat hsC);
-                refine (maponpaths pr1 ((pr2 (isPull _)) ((pr1 q) ,, (_ ,, _))));
+                use (maponpaths pr1 ((pr2 (isPull _)) ((pr1 q) ,, (_ ,, _))));
                 [apply (maponpaths pr1 H1) | apply (maponpaths pr1 H2)]).
   Defined.
 
@@ -69,7 +69,7 @@ Section pullbacks_slice_products_equiv.
                                   maponpaths pr1 (pr2 (pr2 (pr1 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))))))).
     + abstract (intros x; apply isofhleveldirprod; apply (hsC _ _)).
     + intros t teqs.
-      refine (maponpaths pr1 (maponpaths pr1 (pr2 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))
+      use (maponpaths pr1 (maponpaths pr1 (pr2 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))
                                                   ((t ,, (maponpaths (λ x, x · f) (!(pr1 teqs)) @ !(assoc _ _ _) @ maponpaths (λ x, t · x) (idpath _))) ,, _)))).
       abstract (split; apply eq_mor_slicecat; [exact (pr1 teqs) | exact (pr2 teqs)]).
   Defined.
@@ -164,7 +164,7 @@ Section pullbacks_slice_products_equiv.
   Definition pullback_to_binprod : some_pullback C Z → some_binprod (C / Z).
   Proof.
     intros [A [B [f [g P]]]].
-    refine ((A ,, f) ,, (B ,, g) ,, pullback_to_slice_binprod hsC P).
+    use ((A ,, f) ,, (B ,, g) ,, pullback_to_slice_binprod hsC P).
   Defined.
 
   (** ** binprod_to_pullback is invertible *)

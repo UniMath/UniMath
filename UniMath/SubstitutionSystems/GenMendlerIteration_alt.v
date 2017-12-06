@@ -37,7 +37,6 @@ Local Open Scope cat.
 Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
 Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Local Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "↓ f").
 Local Notation "'chain'" := (diagram nat_graph).
@@ -201,7 +200,7 @@ Qed.
 
 Theorem GenMendlerIteration : ∃! (h : L μF --> X), #L inF · h = ψ μF h.
 Proof.
-mkpair.
+use tpair.
 - apply (preIt,,preIt_ok).
 - exact preIt_uniq.
 Defined.
@@ -233,7 +232,7 @@ Qed.
 
 Definition ψ_from_comps : ψ_source ⟹ ψ_target.
 Proof.
-mkpair.
+use tpair.
 - intros A f.
   exact (θ A · #G f · ρ).
 - apply is_nat_trans_ψ_from_comps.

@@ -38,7 +38,7 @@ Definition isProductCone (c : ∏ (i : I), C) (p : C)
     iscontr (total2 (fun (fap : a --> p) => ∏ i, fap · pi i = f i)).
 
 Definition ProductCone (ci : ∏ i, C) :=
-   total2 (fun pp1p2 : total2 (fun p : C => ∏ i, p --> ci i) =>
+   total2 (fun pp1p2 : total2 (λ p : C, ∏ i, p --> ci i) =>
              isProductCone ci (pr1 pp1p2) (pr2 pp1p2)).
 
 Definition Products := ∏ (ci : ∏ i, C), ProductCone ci.
@@ -87,7 +87,7 @@ Definition mk_ProductCone (a : ∏ i, C) :
   ∏ (c : C) (f : ∏ i, C⟦c,a i⟧), isProductCone _ _ f -> ProductCone a.
 Proof.
   intros c f X.
-  simple refine (tpair _ (c,,f) X).
+  exact (tpair _ (c,,f) X).
 Defined.
 
 Definition mk_isProductCone (hsC : has_homsets C) (a : I -> C) (p : C)
@@ -100,7 +100,7 @@ Defined.
 
 Lemma ProductArrowEta (c : ∏ i, C) (P : ProductCone c) (x : C)
     (f : x --> ProductObject P) :
-    f = ProductArrow P (fun i => f · ProductPr P i).
+    f = ProductArrow P (λ i, f · ProductPr P i).
 Proof.
   now apply ProductArrowUnique.
 Qed.
@@ -108,7 +108,7 @@ Qed.
 Definition ProductOfArrows {c : ∏ i, C} (Pc : ProductCone c) {a : ∏ i, C}
     (Pa : ProductCone a) (f : ∏ i, a i --> c i) :
       ProductObject Pa --> ProductObject Pc :=
-    ProductArrow Pc (fun i => ProductPr Pa i · f i).
+    ProductArrow Pc (λ i, ProductPr Pa i · f i).
 
 Lemma ProductOfArrowsPr {c : ∏ i, C} (Pc : ProductCone c) {a : ∏ i, C}
     (Pa : ProductCone a) (f : ∏ i, a i --> c i) :
@@ -122,7 +122,7 @@ Lemma postcompWithProductArrow {c : ∏ i, C} (Pc : ProductCone c) {a : ∏ i, C
     (Pa : ProductCone a) (f : ∏ i, a i --> c i)
     {x : C} (k : ∏ i, x --> a i) :
         ProductArrow Pa k · ProductOfArrows Pc Pa f =
-        ProductArrow Pc (fun i => k i · f i).
+        ProductArrow Pc (λ i, k i · f i).
 Proof.
 apply ProductArrowUnique; intro i.
 now rewrite <- assoc, ProductOfArrowsPr, assoc, ProductPrCommutes.
@@ -130,7 +130,7 @@ Qed.
 
 Lemma precompWithProductArrow {c : ∏ i, C} (Pc : ProductCone c)
   {a : C} (f : ∏ i, a --> c i) {x : C} (k : x --> a)  :
-       k · ProductArrow Pc f = ProductArrow Pc (fun i => k · f i).
+       k · ProductArrow Pc f = ProductArrow Pc (λ i, k · f i).
 Proof.
 apply ProductArrowUnique; intro i.
 now rewrite <- assoc, ProductPrCommutes.
@@ -145,7 +145,7 @@ Variables (I : UU) (C : precategory) (CC : Products I C).
 Definition ProductOfArrows_comp (a b c : ∏ (i : I), C)
   (f : ∏ i, a i --> b i) (g : ∏ i, b i --> c i)
   : ProductOfArrows _ _ _ _ f · ProductOfArrows _ _ _ (CC _) g
-    = ProductOfArrows _ _ (CC _) (CC _) (fun i => f i · g i).
+    = ProductOfArrows _ _ (CC _) (CC _) (λ i, f i · g i).
 Proof.
 apply ProductArrowUnique; intro i.
 rewrite <- assoc, ProductOfArrowsPr.
@@ -192,7 +192,7 @@ Context (I : UU) {C : precategory} (PC : Products I C).
 Definition product_functor_data :
   functor_data (power_precategory I C) C.
 Proof.
-mkpair.
+use tpair.
 - intros p.
   apply (ProductObject _ _ (PC p)).
 - simpl; intros p q f.
@@ -229,11 +229,11 @@ Section product_of_functors.
 Variables F : I -> functor C D.
 
 Definition product_of_functors_ob (c : C) : D :=
-  ProductObject _ _ (HD (fun i => F i c)).
+  ProductObject _ _ (HD (λ i, F i c)).
 
 Definition product_of_functors_mor (c c' : C) (f : c --> c') :
   product_of_functors_ob c --> product_of_functors_ob c' :=
-    ProductOfArrows _ _ _ _ (fun i => # (F i) f).
+    ProductOfArrows _ _ _ _ (λ i, # (F i) f).
 
 Definition product_of_functors_data : functor_data C D.
 Proof.
@@ -270,7 +270,7 @@ Defined.
 
 Definition product_nat_trans_pr_data i (c : C) :
   D ⟦ product_of_functors c, (F i) c ⟧ :=
-  ProductPr _ _ (HD (fun j => (F j) c)) i.
+  ProductPr _ _ (HD (λ j, (F j) c)) i.
 
 Lemma is_nat_trans_product_nat_trans_pr_data i :
   is_nat_trans _ _ (product_nat_trans_pr_data i).
@@ -291,7 +291,7 @@ Variable f : ∏ i, nat_trans A (F i).
 
 Definition product_nat_trans_data c :
   A c --> product_of_functors c:=
-    ProductArrow _ _ _ (fun i => f i c).
+    ProductArrow _ _ _ (λ i, f i c).
 
 Lemma is_nat_trans_product_nat_trans_data :
   is_nat_trans _ _ product_nat_trans_data.
@@ -312,13 +312,13 @@ End vertex.
 Definition functor_precat_product_cone
   : ProductCone I [C, D, hsD] F.
 Proof.
-simple refine (mk_ProductCone _ _ _ _ _ _).
+use mk_ProductCone.
 - apply product_of_functors.
 - apply product_nat_trans_pr.
-- simple refine (mk_isProductCone _ _ _ _ _ _ _).
+- use mk_isProductCone.
   + apply functor_category_has_homsets.
   + intros A f.
-    mkpair.
+    use tpair.
     * apply (tpair _ (product_nat_trans A f)).
       abstract (intro i; apply (nat_trans_eq hsD); intro c;
                 apply (ProductPrCommutes I D _ (HD (λ j, (F j) c)))).
@@ -355,7 +355,7 @@ Defined.
 Definition productscone c (F : I → C) (H : ∏ i, c --> F i) :
   cone (products_diagram F) c.
 Proof.
-mkpair.
+use tpair.
 + intro v; apply H.
 + abstract (intros u v e; induction e).
 Defined.

@@ -157,7 +157,7 @@ Section QuotientFunctor.
      computation slow in some cases (see issue 548) *)
   Definition quot_functor_ob (d:D) :hSet.
   Proof.
-    mkpair.
+    use tpair.
     - apply (setquot (hequiv d)).
     - abstract (apply isasetsetquot).
   Defined.
@@ -189,7 +189,7 @@ Section QuotientFunctor.
   Definition quot_functor  : functor D HSET := tpair _ _ is_functor_quot_functor_data.
 
   Definition pr_quot_functor_data : ∏ x , HSET ⟦R x, quot_functor x⟧ :=
-    fun x a => setquotpr _ a.
+    λ x a, setquotpr _ a.
 
   Lemma is_nat_trans_pr_quot_functor : is_nat_trans _ _ pr_quot_functor_data.
   Proof.
@@ -198,9 +198,8 @@ Section QuotientFunctor.
 
   Definition pr_quot_functor : (nat_trans R  quot_functor) := (_ ,, is_nat_trans_pr_quot_functor).
 
-  Lemma isEpi_pr_quot_functor : isEpi (C:=functor_precategory _ _ has_homsets_HSET) pr_quot_functor.
+  Lemma isEpi_pw_pr_quot_functor : ∏ x, isEpi  (pr_quot_functor x).
   Proof.
-    apply is_nat_trans_epi_from_pointwise_epis.
     intros a z f g eqfg.
     apply funextfun.
     intro x.
@@ -210,6 +209,12 @@ Section QuotientFunctor.
     intro u.
     apply toforallpaths in eqfg.
     apply eqfg.
+  Qed.
+
+  Lemma isEpi_pr_quot_functor : isEpi (C:=functor_precategory _ _ has_homsets_HSET) pr_quot_functor.
+  Proof.
+    apply is_nat_trans_epi_from_pointwise_epis.
+    apply isEpi_pw_pr_quot_functor.
   Qed.
 
   Lemma weqpathsinpr_quot_functor X x y : hequiv X x y ≃ pr_quot_functor X x = pr_quot_functor X y.

@@ -29,7 +29,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.Monads.
+Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.slicecat.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
@@ -184,7 +184,7 @@ Lemma foldr_var X (fvar : SET_over_sort2⟦1,X⟧)
   (flam : ∏ s t, SET_over_sort2⟦lam_source s t X,X⟧) :
   var_map · foldr_map X fvar fapp flam = fvar.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
 rewrite assoc in F.
 eapply pathscomp0; [apply F|].

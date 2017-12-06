@@ -34,13 +34,13 @@ Section set_slice_fam_equiv.
   Local Definition mkfam (f : X → hSet) := functor_discrete_precategory (pr1 X) HSET f.
 
   Definition slice_to_fam_fun (a : slice X) : fam X :=
-    mkfam (fun x : X => hfiber_hSet (pr2 a) x).
+    mkfam (λ x : X, hfiber_hSet (pr2 a) x).
 
   Local Notation s_to_f := slice_to_fam_fun.
 
   Definition slice_to_fam_mor_fun {a b : slice X} (f : a --> b) (x : X) :
     (s_to_f a : functor (discrete X) HSET) x --> (s_to_f b : functor (discrete X) HSET) x :=
-    fun p => hfibersgftog (pr1 f) (pr2 b) _ (transportf (fun p => hfiber p x) (pr2 f) p).
+    λ p, hfibersgftog (pr1 f) (pr2 b) _ (transportf (λ p, hfiber p x) (pr2 f) p).
 
   Definition is_nat_trans_slice_to_fam_mor {a b : slice X} (f : a --> b) :
     is_nat_trans (s_to_f a : functor (discrete X) HSET)
@@ -77,7 +77,7 @@ Section set_slice_fam_equiv.
   Local Notation f_to_s := fam_to_slice_fun.
 
   Definition fam_to_slice_mor {a b : fam X} (f : a --> b) : f_to_s a --> f_to_s b :=
-  (fun h => pr1 h ,, (pr1 f) (pr1 h) (pr2 h)) ,, (idpath (pr2 (f_to_s a))).
+  (λ h, pr1 h ,, (pr1 f) (pr1 h) (pr2 h)) ,, (idpath (pr2 (f_to_s a))).
 
   Definition fam_to_slice_data : functor_data (fam X) (slice X) :=
     functor_data_constr _ _ fam_to_slice_fun (@fam_to_slice_mor).
@@ -86,8 +86,7 @@ Section set_slice_fam_equiv.
   Proof.
     split; [intro f | intros f f' f'' F F'];
       apply eq_mor_slicecat.
-    + apply funextsec. intro p.
-      exact (!tppr p).
+    + apply funextsec. intro p. reflexivity.
     + reflexivity.
   Qed.
 
@@ -125,10 +124,10 @@ Section set_slice_fam_equiv.
     intro x.
     apply iso_to_slice_precat_iso.
     simpl.
-    change (fun h : total2 (fun x' : X => hfiber (@pr2 _ (fun a : hSet => forall _ : a, X) x) x')
+    change (fun h : total2 (λ x' : X, hfiber (@pr2 _ (λ a : hSet, forall _ : a, X) x) x')
             => pr1 (pr2 h))
     with (fromcoconusf (pr2 x)).
-    exact (hset_equiv_is_iso (hSetpair (coconusf (pr2 x)) (isaset_total2_hSet X (fun y => (hfiber_hSet (pr2 x) y)))) _ (weqfromcoconusf (pr2 x))).
+    exact (hset_equiv_is_iso (hSetpair (coconusf (pr2 x)) (isaset_total2_hSet X (λ y, (hfiber_hSet (pr2 x) y)))) _ (weqfromcoconusf (pr2 x))).
   Qed.
 
   Definition slice_unit := nat_trans_inv_from_pointwise_inv _ _
@@ -137,7 +136,7 @@ Section set_slice_fam_equiv.
 
   Definition fam_unit_fun_fun (f : fam X) (x : X) :
     (pr1 ((functor_identity_data _) f)) x --> (pr1 ((functor_composite_data fam_to_slice_data slice_to_fam_data) f)) x :=
-    fun a => ((x ,, a) ,, idpath x).
+    λ a, ((x ,, a) ,, idpath x).
 
   Definition is_nat_trans_fam_unit_fun (f : fam X) :
     is_nat_trans (pr1 ((functor_identity_data _) f))
@@ -176,7 +175,7 @@ Section set_slice_fam_equiv.
     exact (hset_equiv_is_iso ((pr1 F) x)
                              (hSetpair (hfiber pr1 x)
                                        (isaset_hfiber pr1 x
-                                                      (isaset_total2_hSet X (fun x => (pr1 F) x)) (pr2 X)))
+                                                      (isaset_total2_hSet X (λ x, (pr1 F) x)) (pr2 X)))
                              (ezweqpr1 (funcomp (pr1 (pr1 F)) pr1) x)).
   Defined.
 
@@ -193,7 +192,7 @@ Section set_slice_fam_equiv.
     + intro f.
       apply eq_mor_slicecat.
       apply funextsec. intro x.
-      exact (!tppr _).
+      reflexivity.
     + intro F.
       apply (nat_trans_eq has_homsets_HSET).
       intro x.

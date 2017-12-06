@@ -24,14 +24,14 @@ Local Open Scope cat.
 
 Section move_upstream.
 
-Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : iscontr (total2 (fun a => B a)))
+Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : iscontr (total2 (λ a, B a)))
            (a : A) (p : B a) : a = pr1 (pr1 isc).
 Proof.
 exact (maponpaths pr1 (pr2 isc (tpair _ a p))).
 Defined.
 
 Lemma uniqueExists (A : UU) (P : A -> UU)
-  (Hexists : iscontr (total2 (fun a => P a)))
+  (Hexists : iscontr (total2 (λ a, P a)))
   (a b : A) (Ha : P a) (Hb : P b) : a = b.
 Proof.
 assert (H : tpair _ _ Ha = tpair _ _ Hb).
@@ -146,7 +146,7 @@ Definition limOfArrows {J C : precategory} {F1 F2 : functor J C}
   (fNat : ∏ u v (e : J⟦u,v⟧), f u · # F2 e = # F1 e · f v) :
   C⟦lim CC1 , lim CC2⟧.
 Proof.
-apply limArrow; simple refine (mk_cone _ _).
+apply limArrow; use mk_cone.
 - now intro u; apply (limOut CC1 u · f u).
 - abstract (intros u v e; simpl;
             now rewrite <- assoc, fNat, assoc, limOutCommutes).
@@ -202,10 +202,10 @@ Lemma lim_endo_is_identity {J C : precategory} {F : functor J C}
   (H : ∏ u, k · limOut CC u = limOut CC u) :
   identity _ = k.
 Proof.
-unshelve refine (uniqueExists _ _ (limUnivProp CC _ _) _ _ _ _).
+use (uniqueExists _ _ (limUnivProp CC _ _)).
 - now apply (limCone CC).
 - now intros v; apply id_left.
-- now apply H.
+- simpl; now apply H.
 Qed.
 
 (*
@@ -277,9 +277,9 @@ End lim_def.
 
 Section Lims.
 
-Definition Lims (C : precategory) : UU := ∏ {J : precategory} (F : functor J C), LimCone F.
+Definition Lims (C : precategory) : UU := ∏ (J : precategory) (F : functor J C), LimCone F.
 Definition hasLims : UU  :=
-  ∏ {J C : precategory} (F : functor J C), ishinh (LimCone F).
+  ∏ (J C : precategory) (F : functor J C), ishinh (LimCone F).
 Definition Lims_of_shape (J C : precategory) : UU := ∏ (F : functor J C), LimCone F.
 
 Section Universal_Unique.
@@ -317,10 +317,10 @@ Variable (D : functor J [A, C, hsC]).
 
 Definition functor_pointwise (a : A) : functor J C.
 Proof.
-mkpair.
-- apply (tpair _ (fun v => pr1 (D v) a)).
+use tpair.
+- apply (tpair _ (λ v, pr1 (D v) a)).
   intros u v e; simpl; apply (pr1 (# D e) a).
-- abstract (mkpair;
+- abstract (use tpair;
     [ intro x; simpl;
       apply (toforallpaths _ _ _ (maponpaths pr1 (functor_id D x)) a)
     | intros x y z f g; simpl;
@@ -334,7 +334,7 @@ Definition LimFunctor_ob (a : A) : C := lim (HCg a).
 Definition LimFunctor_mor (a a' : A) (f : A⟦a, a'⟧) :
   C⟦LimFunctor_ob a,LimFunctor_ob a'⟧.
 Proof.
-simple refine (limOfArrows _ _ _ _).
+use limOfArrows.
 - now intro u; apply (# (pr1 (D u)) f).
 - abstract (now intros u v e; simpl; apply (nat_trans_ax (# D e))).
 Defined.
@@ -362,7 +362,7 @@ Definition LimFunctor : functor A C := tpair _ _ is_functor_LimFunctor_data.
 
 Definition lim_nat_trans_in_data v : [A, C, hsC] ⟦ LimFunctor, D v ⟧.
 Proof.
-mkpair.
+use tpair.
 - intro a; exact (limOut (HCg a) v).
 - abstract (intros a a' f; apply (limOfArrowsOut (HCg a) (HCg a'))).
 Defined.
@@ -370,7 +370,7 @@ Defined.
 Definition cone_pointwise (F : [A,C,hsC]) (cc : cone D F) a :
   cone (functor_pointwise a) (pr1 F a).
 Proof.
-simple refine (mk_cone _ _).
+use mk_cone.
 - now intro v; apply (pr1 (coneOut cc v) a).
 - abstract (intros u v e;
     now apply (nat_trans_eq_pointwise (coneOutCommutes cc u v e))).
@@ -380,15 +380,15 @@ Lemma LimFunctor_unique (F : [A, C, hsC]) (cc : cone D F) :
   iscontr (∑ x : [A, C, hsC] ⟦ F, LimFunctor ⟧,
             ∏ v, x · lim_nat_trans_in_data v = coneOut cc v).
 Proof.
-mkpair.
-- mkpair.
-  + apply (tpair _ (fun a => limArrow (HCg a) _ (cone_pointwise F cc a))).
+use tpair.
+- use tpair.
+  + apply (tpair _ (λ a, limArrow (HCg a) _ (cone_pointwise F cc a))).
     abstract (intros a a' f; simpl; apply pathsinv0; eapply pathscomp0;
     [ apply (postcompWithLimOfArrows (HCg a))
     | apply pathsinv0; eapply pathscomp0;
       [ apply postcompWithLimArrow
       | apply limArrowUnique; intro u; eapply pathscomp0;
-      [ now apply limArrowCommutes | now refine (nat_trans_ax _ _ _ _)]]]).
+      [ now apply limArrowCommutes | now use nat_trans_ax]]]).
   + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a;
               now apply (limArrowCommutes (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
@@ -401,9 +401,9 @@ Defined.
 
 Lemma LimFunctorCone : LimCone D.
 Proof.
-simple refine (mk_LimCone _ _ _ _).
+use mk_LimCone.
 - exact LimFunctor.
-- simple refine (mk_cone _ _).
+- use mk_cone.
   + now apply lim_nat_trans_in_data.
   + abstract (now intros u v e; apply (nat_trans_eq hsC);
                   intro a; apply (limOutCommutes (HCg a))).

@@ -23,11 +23,11 @@ Section def_monoid_precategory.
     hSetpair (monoidfun A B) (isasetmonoidfun A B).
 
   Definition monoid_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) monoid (fun A B : monoid => monoid_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) monoid (λ A B : monoid, monoid_fun_space A B).
 
   Definition monoid_precategory_data : precategory_data :=
     precategory_data_pair
-      monoid_precategory_ob_mor (fun (X : monoid) => ((idmonoidiso X) : monoidfun X X))
+      monoid_precategory_ob_mor (λ (X : monoid), ((idmonoidiso X) : monoidfun X X))
       (fun (X Y Z : monoid) (f : monoidfun X Y) (g : monoidfun Y Z) => monoidfuncomp f g).
 
   Local Lemma monoid_id_left {X Y : monoid} (f : monoidfun X Y) :
@@ -125,7 +125,7 @@ Section def_monoid_category.
   Defined.
   Opaque monoid_iso_equiv_is_equiv.
 
-  Definition monoid_iso_equiv_weq (X Y : ob monoid_precategory) : weq (iso X Y) (monoidiso X Y).
+  Definition monoid_iso_equiv_weq (X Y : ob monoid_precategory) : (iso X Y) ≃ (monoidiso X Y).
   Proof.
     use weqpair.
     - exact (monoid_iso_equiv X Y).

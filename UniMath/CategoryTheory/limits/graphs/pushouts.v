@@ -86,12 +86,12 @@ Section def_po.
   Proof.
     intros H' x cx; simpl in *.
     set (H1 := H' x (coconeIn cx Two) (coconeIn cx Three)).
-    simple refine (let p : f · coconeIn cx Two = g · coconeIn cx Three
+    use (let p : f · coconeIn cx Two = g · coconeIn cx Three
                        := _ in _ ).
     { eapply pathscomp0; [apply (coconeInCommutes cx One Two tt)|].
       apply pathsinv0, (coconeInCommutes cx One Three tt). }
     set (H2 := H1 p).
-    mkpair.
+    use tpair.
     + exists (pr1 (pr1 H2)).
       use three_rec_dep.
       * abstract (use (pathscomp0 _ (coconeInCommutes cx One Two tt));
@@ -113,7 +113,7 @@ Section def_po.
              (i1 : C⟦b,d⟧) (i2 : C ⟦c,d⟧) (H : f · i1 = g · i2)
              (ispo : isPushout f g i1 i2 H) : Pushout f g.
   Proof.
-    mkpair.
+    use tpair.
     - exists d.
       use PushoutCocone; assumption.
     - apply ispo.
@@ -124,7 +124,7 @@ Section def_po.
   Definition hasPushouts : UU := ∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦a, c⟧), ishinh (Pushout f g).
 
   Definition PushoutObject {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}:
-    Pushout f g -> C := fun H => colim H.
+    Pushout f g -> C := λ H, colim H.
   (* Coercion PushoutObject : Pushout >-> ob. *)
 
   Definition PushoutIn1 {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧} (Po : Pushout f g) :
@@ -150,14 +150,14 @@ Section def_po.
         (e : C) (h : C⟦b , e⟧) (k : C⟦c, e⟧) (H : f · h = g · k) :
     PushoutIn1 Po · PushoutArrow Po e h k H = h.
   Proof.
-    refine (colimArrowCommutes Po e _ Two).
+    exact (colimArrowCommutes Po e _ Two).
   Qed.
 
   Lemma PushoutArrow_PushoutIn2 {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧} (Po : Pushout f g)
         (e : C) (h : C⟦b, e⟧) (k : C⟦c, e⟧) (H : f · h = g · k) :
     PushoutIn2 Po · PushoutArrow Po e h k H = k.
   Proof.
-    refine (colimArrowCommutes Po e _ Three).
+    exact (colimArrowCommutes Po e _ Three).
   Qed.
 
   Lemma PushoutArrowUnique {a b c d : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) (Po : Pushout f g) (e : C)
@@ -168,7 +168,7 @@ Section def_po.
     apply path_to_ctr.
     use three_rec_dep; try assumption.
     set (X := colimInCommutes Po One Two tt).
-    use (pathscomp0 (! (maponpaths (fun h' : _ => h' · w) X))).
+    use (pathscomp0 (! (maponpaths (λ h' : _, h' · w) X))).
     now rewrite <- assoc; simpl; rewrite <- H1.
   Qed.
 
@@ -177,8 +177,8 @@ Section def_po.
   Proof.
     apply mk_isPushout.
     intros e h k HK.
-    mkpair.
-    - mkpair.
+    use tpair.
+    - use tpair.
       + apply (PushoutArrow P _ h k HK).
       + split.
         * apply PushoutArrow_PushoutIn1.
@@ -187,7 +187,7 @@ Section def_po.
       apply subtypeEquality.
       + intro. apply isapropdirprod; apply hs.
       + destruct t as [t p]. simpl.
-        refine (PushoutArrowUnique _ _ P _ _ _ _ _ _ _ ).
+        use (PushoutArrowUnique _ _ P).
         * apply e.
         * apply (pr1 p).
         * apply (pr2 p).
@@ -226,7 +226,7 @@ Section def_po.
     use three_rec_dep; cbn.
     - unfold colimIn.
       set (T := (coconeInCommutes (colimCocone Po) One Three tt)).
-      use (pathscomp0 (! (maponpaths (fun h' : _ => h' · k) T))).
+      use (pathscomp0 (! (maponpaths (λ h' : _, h' · k) T))).
       use (pathscomp0 _ (coconeInCommutes (colimCocone Po) One Three tt)).
       rewrite <- assoc. apply cancel_precomposition.
       apply kH2.

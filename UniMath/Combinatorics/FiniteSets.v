@@ -19,7 +19,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 (** Imports. *)
 
 Require Import UniMath.MoreFoundations.Tactics.
-
+Require Import UniMath.MoreFoundations.DecidablePropositions.
 Require Export UniMath.Combinatorics.StandardFiniteSets .
 
 
@@ -37,9 +37,9 @@ Coercion nelstructToFunction : nelstruct >-> Funclass.
 
 Definition nelstructonstn ( n : nat ) : nelstruct n ( stn n ) := idweq _ .
 
-Definition nelstructweqf { X Y : UU } { n : nat } ( w : weq X Y ) ( sx : nelstruct n X ) : nelstruct n Y := weqcomp sx w .
+Definition nelstructweqf { X Y : UU } { n : nat } ( w : X ≃ Y ) ( sx : nelstruct n X ) : nelstruct n Y := weqcomp sx w .
 
-Definition nelstructweqb { X Y : UU } { n : nat } ( w : weq X Y ) ( sy : nelstruct n Y ) : nelstruct n X := weqcomp sy ( invweq w ) .
+Definition nelstructweqb { X Y : UU } { n : nat } ( w : X ≃ Y ) ( sy : nelstruct n Y ) : nelstruct n X := weqcomp sy ( invweq w ) .
 
 Definition nelstructonempty : nelstruct 0 empty := weqstn0toempty .
 
@@ -62,7 +62,7 @@ Defined.
 
 Definition nelstructoncoprod { X  Y : UU } { n m : nat } ( sx : nelstruct n X ) ( sy : nelstruct m Y ) : nelstruct ( n + m ) ( coprod X Y ) := weqcomp ( invweq ( weqfromcoprodofstn n m ) ) ( weqcoprodf sx sy ) .
 
-Definition nelstructontotal2 { X : UU } ( P : X -> UU ) ( f : X -> nat ) { n : nat } ( sx : nelstruct n X ) ( fs : ∏ x : X , nelstruct ( f x ) ( P x ) ) : nelstruct ( stnsum ( funcomp ( pr1 sx ) f ) ) ( total2 P )  := weqcomp ( invweq ( weqstnsum ( funcomp ( pr1 sx ) P ) ( funcomp ( pr1 sx ) f ) ( fun i : stn n => fs ( ( pr1 sx ) i ) ) ) )  ( weqfp sx P )  .
+Definition nelstructontotal2 { X : UU } ( P : X -> UU ) ( f : X -> nat ) { n : nat } ( sx : nelstruct n X ) ( fs : ∏ x : X , nelstruct ( f x ) ( P x ) ) : nelstruct ( stnsum ( funcomp ( pr1 sx ) f ) ) ( total2 P )  := weqcomp ( invweq ( weqstnsum ( funcomp ( pr1 sx ) P ) ( funcomp ( pr1 sx ) f ) ( λ i : stn n, fs ( ( pr1 sx ) i ) ) ) )  ( weqfp sx P )  .
 
 Definition nelstructondirprod { X Y : UU } { n m : nat } ( sx : nelstruct n X ) ( sy : nelstruct m Y ) : nelstruct ( n * m ) ( dirprod X Y ) := weqcomp ( invweq ( weqfromprodofstn n m ) ) ( weqdirprodf sx sy ) .
 
@@ -70,9 +70,9 @@ Definition nelstructondirprod { X Y : UU } { n m : nat } ( sx : nelstruct n X ) 
 
 Definition nelstructonfun { X Y : UU } { n m : nat } ( sx : nelstruct n X ) ( sy : nelstruct m Y ) : nelstruct ( natpower m n ) ( X -> Y ) := weqcomp ( invweq ( weqfromfunstntostn n m ) ) ( weqcomp ( weqbfun _ ( invweq sx ) ) ( weqffun _ sy ) )  .
 
-Definition nelstructonforall { X : UU } ( P : X -> UU ) ( f : X -> nat ) { n : nat } ( sx : nelstruct n X ) ( fs : ∏ x : X , nelstruct ( f x ) ( P x ) ) : nelstruct ( stnprod ( funcomp ( pr1 sx ) f ) ) ( ∏ x : X , P x )  := invweq ( weqcomp ( weqonsecbase P sx ) ( weqstnprod ( funcomp ( pr1 sx ) P ) ( funcomp ( pr1 sx ) f ) ( fun i : stn n => fs ( ( pr1 sx ) i ) ) ) )  .
+Definition nelstructonforall { X : UU } ( P : X -> UU ) ( f : X -> nat ) { n : nat } ( sx : nelstruct n X ) ( fs : ∏ x : X , nelstruct ( f x ) ( P x ) ) : nelstruct ( stnprod ( funcomp ( pr1 sx ) f ) ) ( ∏ x : X , P x )  := invweq ( weqcomp ( weqonsecbase P sx ) ( weqstnprod ( funcomp ( pr1 sx ) P ) ( funcomp ( pr1 sx ) f ) ( λ i : stn n, fs ( ( pr1 sx ) i ) ) ) )  .
 
-Definition nelstructonweq { X : UU } { n : nat } ( sx : nelstruct n X ) : nelstruct ( factorial n ) ( weq X X ) := weqcomp ( invweq ( weqfromweqstntostn n ) ) ( weqcomp ( weqbweq _ ( invweq sx ) ) ( weqfweq _ sx ) ) .
+Definition nelstructonweq { X : UU } { n : nat } ( sx : nelstruct n X ) : nelstruct ( factorial n ) ( X ≃ X ) := weqcomp ( invweq ( weqfromweqstntostn n ) ) ( weqcomp ( weqbweq _ ( invweq sx ) ) ( weqfweq _ sx ) ) .
 
 
 
@@ -85,9 +85,9 @@ Proof. intros.  apply @hinhuniv with ( weq ( stn n ) X ) . assumption. assumptio
 
 Definition isofnelstn ( n : nat ) : isofnel n ( stn n ) := hinhpr ( nelstructonstn n ) .
 
-Definition isofnelweqf { X Y : UU } { n : nat } ( w : weq X Y ) ( sx : isofnel n X ) : isofnel n Y := hinhfun ( fun sx0 : _ =>  nelstructweqf w sx0 ) sx .
+Definition isofnelweqf { X Y : UU } { n : nat } ( w : X ≃ Y ) ( sx : isofnel n X ) : isofnel n Y := hinhfun ( λ sx0 : _,  nelstructweqf w sx0 ) sx .
 
-Definition isofnelweqb { X Y : UU } { n : nat } ( w : weq X Y ) ( sy : isofnel n Y ) : isofnel n X :=  hinhfun ( fun sy0 : _ => nelstructweqb w sy0 ) sy .
+Definition isofnelweqb { X Y : UU } { n : nat } ( w : X ≃ Y ) ( sy : isofnel n Y ) : isofnel n X :=  hinhfun ( λ sy0 : _, nelstructweqb w sy0 ) sy .
 
 Definition isofnelempty : isofnel 0 empty := hinhpr nelstructonempty .
 
@@ -99,21 +99,21 @@ Definition isofnelcontr { X : UU } ( is : iscontr X ) : isofnel 1 X := hinhpr ( 
 
 Definition isofnelbool : isofnel 2 bool := hinhpr nelstructonbool .
 
-Definition isofnelcoprodwithunit { X : UU } { n : nat } ( sx : isofnel n X ) : isofnel ( S n ) ( coprod X unit ) :=   hinhfun ( fun sx0 : _ =>  nelstructoncoprodwithunit sx0 ) sx .
+Definition isofnelcoprodwithunit { X : UU } { n : nat } ( sx : isofnel n X ) : isofnel ( S n ) ( coprod X unit ) :=   hinhfun ( λ sx0 : _,  nelstructoncoprodwithunit sx0 ) sx .
 
-Definition isofnelcompl { X : UU } { n : nat } ( x : X ) ( sx : isofnel ( S n ) X ) : isofnel n ( compl X x ) := hinhfun ( fun sx0 : _ =>  nelstructoncompl x sx0 ) sx .
+Definition isofnelcompl { X : UU } { n : nat } ( x : X ) ( sx : isofnel ( S n ) X ) : isofnel n ( compl X x ) := hinhfun ( λ sx0 : _,  nelstructoncompl x sx0 ) sx .
 
-Definition isofnelcoprod { X  Y : UU } { n m : nat } ( sx : isofnel n X ) ( sy : isofnel m Y ) : isofnel ( n + m ) ( coprod X Y ) :=  hinhfun2 ( fun sx0 : _ => fun sy0 : _ =>  nelstructoncoprod sx0 sy0 ) sx sy .
+Definition isofnelcoprod { X  Y : UU } { n m : nat } ( sx : isofnel n X ) ( sy : isofnel m Y ) : isofnel ( n + m ) ( coprod X Y ) :=  hinhfun2 ( λ sx0 : _, λ sy0 : _,  nelstructoncoprod sx0 sy0 ) sx sy .
 
 (** For a result corresponding to [ nelstructontotal2 ] see below . *)
 
-Definition isofnelondirprod { X Y : UU } { n m : nat } ( sx : isofnel n X ) ( sy : isofnel m Y ) : isofnel ( n * m ) ( dirprod X Y ) := hinhfun2 ( fun sx0 : _ => fun sy0 : _ =>  nelstructondirprod sx0 sy0 ) sx sy .
+Definition isofnelondirprod { X Y : UU } { n m : nat } ( sx : isofnel n X ) ( sy : isofnel m Y ) : isofnel ( n * m ) ( dirprod X Y ) := hinhfun2 ( λ sx0 : _, λ sy0 : _,  nelstructondirprod sx0 sy0 ) sx sy .
 
-Definition isofnelonfun { X Y : UU } { n m : nat } ( sx : isofnel n X ) ( sy : isofnel m Y ) : isofnel ( natpower m n ) ( X -> Y ) := hinhfun2 ( fun sx0 : _ => fun sy0 : _ =>  nelstructonfun sx0 sy0 ) sx sy .
+Definition isofnelonfun { X Y : UU } { n m : nat } ( sx : isofnel n X ) ( sy : isofnel m Y ) : isofnel ( natpower m n ) ( X -> Y ) := hinhfun2 ( λ sx0 : _, λ sy0 : _,  nelstructonfun sx0 sy0 ) sx sy .
 
 (** For a result corresponding to [ nelstructonforall ] see below . *)
 
-Definition isofnelonweq { X : UU } { n : nat } ( sx : isofnel n X ) : isofnel ( factorial n ) ( weq X X ) := hinhfun ( fun sx0 : _ =>  nelstructonweq sx0 ) sx .
+Definition isofnelonweq { X : UU } { n : nat } ( sx : isofnel n X ) : isofnel ( factorial n ) ( X ≃ X ) := hinhfun ( λ sx0 : _,  nelstructonweq sx0 ) sx .
 
 
 
@@ -123,19 +123,19 @@ Definition isofnelonweq { X : UU } { n : nat } ( sx : isofnel n X ) : isofnel ( 
 (** *** Finite structure on a type [ X ] defined as a pair [ ( n , w ) ] where [ n : nat ] and [ w : weq ( stn n ) X ] *)
 
 
-Definition finstruct  ( X : UU ) := total2 ( fun n : nat => nelstruct n X ) .
+Definition finstruct  ( X : UU ) := total2 ( λ n : nat, nelstruct n X ) .
 
 Definition finstructToFunction {X} (S : finstruct X) := pr2 S : nelstruct (pr1 S) X.
 
 Coercion finstructToFunction : finstruct >-> nelstruct.
 
-Definition finstructpair  ( X : UU )  := tpair ( fun n : nat => nelstruct n X ) .
+Definition finstructpair  ( X : UU )  := tpair ( λ n : nat, nelstruct n X ) .
 
 Definition finstructonstn ( n : nat ) : finstruct ( stn n ) := tpair _ n ( nelstructonstn n ) .
 
-Definition finstructweqf { X Y : UU } ( w : weq X Y ) ( sx : finstruct X ) : finstruct Y := tpair _ ( pr1 sx ) ( nelstructweqf w ( pr2 sx ) ) .
+Definition finstructweqf { X Y : UU } ( w : X ≃ Y ) ( sx : finstruct X ) : finstruct Y := tpair _ ( pr1 sx ) ( nelstructweqf w ( pr2 sx ) ) .
 
-Definition finstructweqb { X Y : UU } ( w : weq X Y ) ( sy : finstruct Y ) : finstruct X :=  tpair _ ( pr1 sy ) ( nelstructweqb w ( pr2 sy ) ) .
+Definition finstructweqb { X Y : UU } ( w : X ≃ Y ) ( sy : finstruct Y ) : finstruct X :=  tpair _ ( pr1 sy ) ( nelstructweqb w ( pr2 sy ) ) .
 
 Definition finstructonempty : finstruct empty := tpair _ 0 nelstructonempty .
 
@@ -156,7 +156,7 @@ Proof . intros . unfold finstruct .  unfold finstruct in sx . destruct sx as [ n
 
 Definition finstructoncoprod { X  Y : UU } ( sx : finstruct X ) ( sy : finstruct Y ) : finstruct ( coprod X Y ) := tpair _ ( ( pr1 sx ) + ( pr1 sy ) ) ( nelstructoncoprod ( pr2 sx ) ( pr2 sy ) ) .
 
-Definition finstructontotal2 { X : UU } ( P : X -> UU )   ( sx : finstruct X ) ( fs : ∏ x : X , finstruct ( P x ) ) : finstruct ( total2 P ) := tpair _ ( stnsum ( funcomp ( pr1 ( pr2 sx ) ) ( fun x : X =>  pr1 ( fs x ) ) ) ) ( nelstructontotal2 P ( fun x : X => pr1 ( fs x ) ) ( pr2 sx ) ( fun x : X => pr2 ( fs x ) ) ) .
+Definition finstructontotal2 { X : UU } ( P : X -> UU )   ( sx : finstruct X ) ( fs : ∏ x : X , finstruct ( P x ) ) : finstruct ( total2 P ) := tpair _ ( stnsum ( funcomp ( pr1 ( pr2 sx ) ) ( λ x : X,  pr1 ( fs x ) ) ) ) ( nelstructontotal2 P ( λ x : X, pr1 ( fs x ) ) ( pr2 sx ) ( λ x : X, pr2 ( fs x ) ) ) .
 
 Definition finstructondirprod { X Y : UU } ( sx : finstruct X ) ( sy : finstruct Y ) : finstruct ( dirprod X Y ) := tpair _ ( ( pr1 sx ) * ( pr1 sy ) ) ( nelstructondirprod ( pr2 sx ) ( pr2 sy ) ) .
 
@@ -165,9 +165,9 @@ Definition finstructondecsubset { X : UU }  ( f : X -> bool ) ( sx : finstruct X
 
 Definition finstructonfun { X Y : UU } ( sx : finstruct X ) ( sy : finstruct Y ) : finstruct ( X -> Y ) := tpair _ ( natpower ( pr1 sy ) ( pr1 sx ) ) ( nelstructonfun ( pr2 sx ) ( pr2 sy ) ) .
 
-Definition finstructonforall { X : UU } ( P : X -> UU )  ( sx : finstruct X ) ( fs : ∏ x : X , finstruct ( P x ) ) : finstruct ( ∏ x : X , P x )  := tpair _ ( stnprod ( funcomp ( pr1 ( pr2 sx ) ) ( fun x : X =>  pr1 ( fs x ) ) ) ) ( nelstructonforall P ( fun x : X => pr1 ( fs x ) ) ( pr2 sx ) ( fun x : X => pr2 ( fs x ) ) ) .
+Definition finstructonforall { X : UU } ( P : X -> UU )  ( sx : finstruct X ) ( fs : ∏ x : X , finstruct ( P x ) ) : finstruct ( ∏ x : X , P x )  := tpair _ ( stnprod ( funcomp ( pr1 ( pr2 sx ) ) ( λ x : X,  pr1 ( fs x ) ) ) ) ( nelstructonforall P ( λ x : X, pr1 ( fs x ) ) ( pr2 sx ) ( λ x : X, pr2 ( fs x ) ) ) .
 
-Definition finstructonweq { X : UU }  ( sx : finstruct X ) : finstruct ( weq X X ) := tpair _ ( factorial ( pr1 sx ) ) ( nelstructonweq ( pr2 sx ) ) .
+Definition finstructonweq { X : UU }  ( sx : finstruct X ) : finstruct ( X ≃ X ) := tpair _ ( factorial ( pr1 sx ) ) ( nelstructonweq ( pr2 sx ) ) .
 
 
 
@@ -215,9 +215,9 @@ Definition isfinitestn ( n : nat ) : isfinite ( stn n ) := hinhpr ( finstructons
 
 Definition standardFiniteSet n : FiniteSet := isfinite_to_FiniteSet (isfinitestn n).
 
-Definition isfiniteweqf { X Y : UU } ( w : weq X Y ) ( sx : isfinite X ) : isfinite Y :=  hinhfun ( fun sx0 : _ =>  finstructweqf w sx0 ) sx .
+Definition isfiniteweqf { X Y : UU } ( w : X ≃ Y ) ( sx : isfinite X ) : isfinite Y :=  hinhfun ( λ sx0 : _,  finstructweqf w sx0 ) sx .
 
-Definition isfiniteweqb { X Y : UU } ( w : weq X Y ) ( sy : isfinite Y ) : isfinite X :=   hinhfun ( fun sy0 : _ =>  finstructweqb w sy0 ) sy .
+Definition isfiniteweqb { X Y : UU } ( w : X ≃ Y ) ( sy : isfinite Y ) : isfinite X :=   hinhfun ( λ sy0 : _,  finstructweqb w sy0 ) sy .
 
 Definition isfiniteempty : isfinite empty := hinhpr finstructonempty .
 
@@ -229,14 +229,14 @@ Definition isfinitecontr { X : UU } ( is : iscontr X ) : isfinite X := hinhpr ( 
 
 Definition isfinitebool : isfinite bool := hinhpr finstructonbool .
 
-Definition isfinitecoprodwithunit { X : UU } ( sx : isfinite X ) : isfinite ( coprod X unit ) :=  hinhfun ( fun sx0 : _ => finstructoncoprodwithunit sx0 ) sx .
+Definition isfinitecoprodwithunit { X : UU } ( sx : isfinite X ) : isfinite ( coprod X unit ) :=  hinhfun ( λ sx0 : _, finstructoncoprodwithunit sx0 ) sx .
 
-Definition isfinitecompl { X : UU } ( x : X ) ( sx : isfinite X ) : isfinite ( compl X x ) := hinhfun ( fun sx0 : _ => finstructoncompl x sx0 ) sx .
+Definition isfinitecompl { X : UU } ( x : X ) ( sx : isfinite X ) : isfinite ( compl X x ) := hinhfun ( λ sx0 : _, finstructoncompl x sx0 ) sx .
 
-Definition isfinitecoprod { X  Y : UU } ( sx : isfinite X ) ( sy : isfinite Y ) : isfinite ( coprod X Y ) := hinhfun2 ( fun sx0 : _ => fun sy0 : _ => finstructoncoprod sx0 sy0 ) sx sy .
+Definition isfinitecoprod { X  Y : UU } ( sx : isfinite X ) ( sy : isfinite Y ) : isfinite ( coprod X Y ) := hinhfun2 ( λ sx0 : _, λ sy0 : _, finstructoncoprod sx0 sy0 ) sx sy .
 
 Definition isfinitetotal2 { X : UU } ( P : X -> UU ) ( sx : isfinite X ) ( fs : ∏ x : X , isfinite ( P x ) ) : isfinite ( total2 P ) .
-Proof . intros . set ( fs' := ischoicebasefiniteset sx _ fs ) .  apply ( hinhfun2 ( fun fx0 : ∏ x : X , finstruct ( P x )  => fun sx0 : _ => finstructontotal2 P sx0 fx0 ) fs' sx ) .  Defined .
+Proof . intros . set ( fs' := ischoicebasefiniteset sx _ fs ) .  apply ( hinhfun2 ( fun fx0 : ∏ x : X , finstruct ( P x )  => λ sx0 : _, finstructontotal2 P sx0 fx0 ) fs' sx ) .  Defined .
 
 Definition FiniteSetSum {I:FiniteSet} (X : I -> FiniteSet) : FiniteSet.
 Proof.
@@ -248,20 +248,20 @@ Defined.
 
 Delimit Scope finset with finset.
 
-Notation "'∑' x .. y , P" := (FiniteSetSum (fun x =>.. (FiniteSetSum (fun y => P))..))
+Notation "'∑' x .. y , P" := (FiniteSetSum (λ x,.. (FiniteSetSum (λ y, P))..))
   (at level 200, x binder, y binder, right associativity) : finset.
   (* type this in emacs in agda-input method with \sum *)
 
-Definition isfinitedirprod { X Y : UU } ( sx : isfinite X ) ( sy : isfinite Y ) : isfinite ( dirprod X Y ) := hinhfun2 ( fun sx0 : _ => fun sy0 : _ => finstructondirprod sx0 sy0 ) sx sy .
+Definition isfinitedirprod { X Y : UU } ( sx : isfinite X ) ( sy : isfinite Y ) : isfinite ( dirprod X Y ) := hinhfun2 ( λ sx0 : _, λ sy0 : _, finstructondirprod sx0 sy0 ) sx sy .
 
-Definition isfinitedecsubset { X : UU } ( f : X -> bool ) ( sx : isfinite X ) : isfinite ( hfiber f true ) := hinhfun ( fun sx0 : _ =>  finstructondecsubset f sx0 ) sx .
+Definition isfinitedecsubset { X : UU } ( f : X -> bool ) ( sx : isfinite X ) : isfinite ( hfiber f true ) := hinhfun ( λ sx0 : _,  finstructondecsubset f sx0 ) sx .
 
-Definition isfinitefun { X Y : UU } ( sx : isfinite X ) ( sy : isfinite Y ) : isfinite ( X -> Y ) := hinhfun2 ( fun sx0 : _ => fun sy0 : _ => finstructonfun sx0 sy0 ) sx sy .
+Definition isfinitefun { X Y : UU } ( sx : isfinite X ) ( sy : isfinite Y ) : isfinite ( X -> Y ) := hinhfun2 ( λ sx0 : _, λ sy0 : _, finstructonfun sx0 sy0 ) sx sy .
 
 Definition isfiniteforall { X : UU } ( P : X -> UU ) ( sx : isfinite X ) ( fs : ∏ x : X , isfinite ( P x ) ) : isfinite ( ∏ x : X , P x ) .
-Proof . intros . set ( fs' := ischoicebasefiniteset sx _ fs ) .  apply ( hinhfun2 ( fun fx0 : ∏ x : X , finstruct ( P x )  => fun sx0 : _ => finstructonforall P sx0 fx0 ) fs' sx ) .  Defined .
+Proof . intros . set ( fs' := ischoicebasefiniteset sx _ fs ) .  apply ( hinhfun2 ( fun fx0 : ∏ x : X , finstruct ( P x )  => λ sx0 : _, finstructonforall P sx0 fx0 ) fs' sx ) .  Defined .
 
-Definition isfiniteweq { X : UU } ( sx : isfinite X ) : isfinite ( weq X X ) := hinhfun ( fun sx0 : _ =>  finstructonweq sx0 ) sx .
+Definition isfiniteweq { X : UU } ( sx : isfinite X ) : isfinite ( X ≃ X ) := hinhfun ( λ sx0 : _,  finstructonweq sx0 ) sx .
 
 
 
@@ -278,11 +278,11 @@ Definition isfiniteweq { X : UU } ( sx : isfinite X ) : isfinite ( weq X X ) := 
 Definition carddneg  ( X : UU ) (is: isfinite X): nat:= pr1 (isfiniteimplisfinite0 X is).
 
 Definition preweq  ( X : UU ) (is: isfinite X): isofnel (carddneg X is) X.
-Proof. intros X is X0.  set (c:= carddneg X is). set (dnw:= pr2 (isfiniteimplisfinite0 X is)). simpl in dnw. change (pr1 nat (fun n : nat => isofnel0 n X) (isfiniteimplisfinite0 X is)) with c in dnw.
+Proof. intros X is X0.  set (c:= carddneg X is). set (dnw:= pr2 (isfiniteimplisfinite0 X is)). simpl in dnw. change (pr1 nat (λ n : nat, isofnel0 n X) (isfiniteimplisfinite0 X is)) with c in dnw.
 
 assert (f: dirprod (finitestruct X) (dneg (weq (stn c) X)) -> weq (stn c) X). intro H. destruct H as [ t x ].  destruct t as [ t x0 ].
-assert (dw: dneg (weq (stn t) (stn c))). set (ff:= fun ab:dirprod (weq (stn t) X)(weq (stn c) X) => weqcomp _ _ _ (pr1 ab) (invweq (pr2 ab))).  apply (dnegf _ _ ff (inhdnegand _ _ (todneg _ x0) x)).
-assert (e:paths t c). apply (stnsdnegweqtoeq _ _  dw). clear dnw. destruct e. assumption. unfold isofnel.
+assert (dw: dneg ((stn t) ≃ (stn c))). set (ff:= fun ab:dirprod (weq (stn t) X)(weq (stn c) X) => weqcomp _ _ _ (pr1 ab) (invweq (pr2 ab))).  apply (dnegf _ _ ff (inhdnegand _ _ (todneg _ x0) x)).
+assert (e:t = c). apply (stnsdnegweqtoeq _ _  dw). clear dnw. destruct e. assumption. unfold isofnel.
 apply (hinhfun _ _ f (hinhand (finitestruct X) _ is (hinhpr dnw))). Defined.
 
 *)

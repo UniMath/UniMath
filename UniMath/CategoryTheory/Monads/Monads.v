@@ -33,8 +33,6 @@ Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 (** * Definition of monads *)
 Section Monad_def.
 
@@ -217,8 +215,8 @@ Definition forgetfunctor_Monad (C : category) :
 Proof.
   use mk_functor.
   - use mk_functor_data.
-    + exact (fun M => pr1 M:functor C C).
-    + exact (fun M N f => pr1 f).
+    + exact (λ M, pr1 M:functor C C).
+    + exact (λ M N f, pr1 f).
   - abstract (split; red; intros;  reflexivity).
 Defined.
 
@@ -417,10 +415,10 @@ Section Monad_eq_helper.
 
     Definition Monad_to_raw_data {C : precategory} (T : Monad C) : raw_Monad_data C.
     Proof.
-      mkpair.
+      use tpair.
       - exact (functor_on_objects T).
-      - mkpair.
-        + mkpair.
+      - use tpair.
+        + use tpair.
           * exact (@functor_on_morphisms C C T).
           * exact (μ T).
         + exact (η T).

@@ -41,7 +41,7 @@ Unset Automatic Introduction.
 Definition isStrongOrder {X : UU} (R : hrel X) := istrans R × iscotrans R × isirrefl R.
 Definition StrongOrder (X : UU) := ∑ R : hrel X, isStrongOrder R.
 Definition pairStrongOrder {X : UU} (R : hrel X) (is : isStrongOrder R) : StrongOrder X :=
-  tpair (fun R : hrel X => isStrongOrder R ) R is.
+  tpair (λ R : hrel X, isStrongOrder R ) R is.
 Definition pr1StrongOrder {X : UU} : StrongOrder X → hrel X := pr1.
 Coercion  pr1StrongOrder : StrongOrder >-> hrel.
 

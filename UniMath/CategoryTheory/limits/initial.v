@@ -24,7 +24,7 @@ Variable C : precategory.
 
 Definition isInitial (a : C) : UU := ∏ b : C, iscontr (a --> b).
 
-Definition Initial : UU := total2 (fun a => isInitial a).
+Definition Initial : UU := total2 (λ a, isInitial a).
 
 Definition InitialObject (O : Initial) : C := pr1 O.
 Coercion InitialObject : Initial >-> ob.
@@ -111,8 +111,8 @@ Section Initial_and_EmptyCoprod.
     CoproductCocone empty C fromempty -> Initial C.
   Proof.
     intros X.
-    refine (mk_Initial (CoproductObject _ _ X) _).
-    refine (mk_isInitial _ _).
+    use (mk_Initial (CoproductObject _ _ X)).
+    use mk_isInitial.
     intros b.
     assert (H : ∏ i : empty, C⟦fromempty i, b⟧) by
         (intros i; apply (fromempty i)).
@@ -130,7 +130,7 @@ End Initial_and_EmptyCoprod.
 (* Definition empty_graph : graph. *)
 (* Proof. *)
 (*   exists empty. *)
-(*   exact (fun _ _ => empty). *)
+(*   exact (λ _ _, empty). *)
 (* Defined. *)
 
 (* Definition initDiagram : diagram empty_graph C. *)
@@ -168,14 +168,14 @@ Definition Initial_functor_precat : Initial [C, D, hsD].
 Proof.
 use mk_Initial.
 - use mk_functor.
-  + mkpair.
+  + use tpair.
     * intros c; apply (InitialObject ID).
     * simpl; intros a b f; apply (InitialArrow ID).
   + split.
     * intro a; apply pathsinv0, InitialEndo_is_identity.
     * intros a b c f g; apply pathsinv0, InitialArrowUnique.
 - intros F.
-  mkpair.
+  use tpair.
   + use mk_nat_trans; simpl.
     * intro a; apply InitialArrow.
     * intros a b f; simpl.

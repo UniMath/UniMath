@@ -760,7 +760,6 @@ Proof.
   intros xy A.
   apply hinhuniv.
   intros A'.
-  rewrite (tppr xy).
   apply (pr2 (pr2 (pr2 (pr2 A')))).
   exact (pr1 (pr1 (pr2 (pr2 A')))).
   exact (pr1 (pr1 (pr2 (pr2 (pr2 A'))))).
@@ -1096,6 +1095,14 @@ Definition continuous_on {U V : TopologicalSet} (dom : U → hProp) (f : ∏ (x 
 Definition continuous {U V : TopologicalSet} (f : U → V) :=
   ∏ x : U, continuous_at f x.
 
+Lemma isaprop_continuous (x y : TopologicalSet)
+  (f : x → y)
+  : isaprop (continuous (λ x0 : x,  f x0)).
+Proof.
+  do 3 (apply impred_isaprop; intro).
+  apply propproperty.
+Qed.
+
 Definition continuous_base_at {U V : TopologicalSet} (f : U → V) (x : U) base_x base_fx :=
   is_lim_base f (locally_base x base_x) (f x) base_fx.
 
@@ -1120,6 +1127,18 @@ Lemma continuous_comp {X : UU} {U V : TopologicalSet} (f : X → U) (g : U → V
 Proof.
   apply filterlim_comp.
 Qed.
+
+Lemma continuous_funcomp {X Y Z : TopologicalSet} (f : X → Y) (g : Y → Z) :
+  continuous f → continuous g →
+  continuous (funcomp f g).
+Proof.
+  intros Hf Hg x.
+  refine (continuous_comp _ _ _ _ _ _).
+  apply Hf.
+  apply Hg.
+Qed.
+
+
 Lemma continuous2d_comp {X : UU} {U V W : TopologicalSet} (f : X → U) (g : X → V) (h : U → V → W) (F : Filter X) (lf : U) (lg : V) :
   is_lim f F lf → is_lim g F lg → continuous2d_at h lf lg →
   is_lim (λ x, h (f x) (g x)) F (h lf lg).
@@ -1169,8 +1188,8 @@ Proof.
   - exact (pr1 (pr1 O)).
   - exact (pr2 (pr2 O)).
   - apply hinhpr.
-    mkpair.
-    mkpair.
+    use tpair.
+    use tpair.
     + apply (λ xy : U × V, pr1 O (pr1 xy)).
     + intros xy' Oxy.
       apply hinhpr.
@@ -1194,8 +1213,8 @@ Proof.
   - exact (pr1 (pr1 O)).
   - exact (pr2 (pr2 O)).
   - apply hinhpr.
-    mkpair.
-    mkpair.
+    use tpair.
+    use tpair.
     + apply (λ xy : U × V, pr1 O (pr2 xy)).
     + intros xy' Oxy.
       apply hinhpr.

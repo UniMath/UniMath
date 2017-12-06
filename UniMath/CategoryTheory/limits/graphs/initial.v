@@ -20,7 +20,7 @@ Context {C : precategory}.
 Definition empty_graph : graph.
 Proof.
   exists empty.
-  exact (fun _ _ => empty).
+  exact (λ _ _, empty).
 Defined.
 
 Definition initDiagram : diagram empty_graph C.
@@ -31,7 +31,7 @@ Defined.
 
 Definition initCocone (c : C) : cocone initDiagram c.
 Proof.
-simple refine (mk_cocone _ _); intro v; induction v.
+use mk_cocone; intro v; induction v.
 Defined.
 
 Definition isInitial (a : C) :=
@@ -42,7 +42,7 @@ Definition mk_isInitial (a : C) (H : ∏ (b : C), iscontr (a --> b)) :
   isInitial a.
 Proof.
 intros b cb.
-simple refine (tpair _ _ _).
+use tpair.
 - exists (pr1 (H b)); intro v; induction v.
 - intro t.
   apply subtypeEquality; simpl;
@@ -51,15 +51,15 @@ simple refine (tpair _ _ _).
 Defined.
 
 Definition Initial : UU := ColimCocone initDiagram.
-(* total2 (fun a => isInitial a). *)
+(* total2 (λ a, isInitial a). *)
 
 Definition mk_Initial (a : C) (H : isInitial a) : Initial.
 Proof.
-refine (mk_ColimCocone _ a (initCocone a) _).
+use (mk_ColimCocone _ a (initCocone a)).
 apply mk_isInitial.
 intro b.
 set (x := H b (initCocone b)).
-simple refine (tpair _ _ _).
+use tpair.
 - apply (pr1 x).
 - simpl; intro f; apply path_to_ctr; intro v; induction v.
 Defined.

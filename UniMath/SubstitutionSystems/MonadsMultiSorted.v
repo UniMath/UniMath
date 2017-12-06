@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.Monads.
+Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.categories.category_hset_structures.
 Require Import UniMath.CategoryTheory.slicecat.
@@ -76,9 +76,9 @@ Definition sort_in {Γ:SET_over_sort}(M:wellsorted_in Γ): sort := pr2 (pr1 T Γ
 Definition aux_fh {A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
    (f : A1->wellsorted_in Γ2)(H: forall a1:A1, sort_in (f a1) = f1 a1) : SET_over_sort⟦(A1,,f1),T Γ2⟧.
 Proof.
-   mkpair.
+   use tpair.
     * exact f.
-    * abstract(apply funextsec; intro a1; now apply pathsinv0).
+    * cbn. abstract(apply funextsec; intro a1; now apply pathsinv0).
 Defined.
 
 Definition bind_slice {A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
@@ -128,11 +128,11 @@ Lemma bind_η_slice {A1:hSet}{f1:A1->sort}(H: forall a1:A1, sort_in (η_slice(Γ
 Proof.
   unfold bind_slice, η_slice.
   unfold bind_instantiated.
-  assert (H1 : aux_fh (fun a:A1 => pr1 ((Monads.η T) (A1,, f1)) a) H = (Monads.η T) (A1,, f1)).
+  assert (H1 : aux_fh (λ a:A1, pr1 ((Monads.η T) (A1,, f1)) a) H = (Monads.η T) (A1,, f1)).
   + unfold aux_fh.
     now apply eq_mor_slicecat.
   + intermediate_path (pr1 (bind ((Monads.η T) (A1,, f1))) M).
-    * apply (maponpaths (fun f => f M)).
+    * apply (maponpaths (λ f, f M)).
       apply maponpaths.
       apply maponpaths.
       exact H1.
@@ -153,12 +153,12 @@ Lemma bind_bind_slice {A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}{Γ3:SET_over_
   (g : A2->wellsorted_in Γ3)(H2: forall a2:A2, sort_in (g a2) = f2 a2)
   (HH: forall a1:A1, sort_in (bind_slice g H2 (f a1)) = f1 a1)
   (M: wellsorted_in (A1,,f1)) :
-    bind_slice g H2 (bind_slice f H1 M) = bind_slice (fun a1:A1 => bind_slice g H2 (f a1)) HH M.
+    bind_slice g H2 (bind_slice f H1 M) = bind_slice (λ a1:A1, bind_slice g H2 (f a1)) HH M.
 Proof.
   unfold bind_slice.
   intermediate_path (pr1 (bind_instantiated (aux_fh f H1) · bind_instantiated (aux_fh g H2)) M).
   + apply idpath.
-  + apply (maponpaths (fun f => f M)).
+  + apply (maponpaths (λ f, f M)).
     apply maponpaths.
     unfold bind_instantiated.
     rewrite bind_bind.
@@ -182,7 +182,7 @@ Lemma bind_bind_slice_inst {A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}{Γ3:SET_
   (HH: forall a1:A1, sort_in (bind_slice g H2 (f a1)) = f1 a1)
   (M: wellsorted_in (A1,,f1)) :
   bind_slice g H2 (bind_slice f H1 M) =
-  bind_slice (fun a1:A1 => bind_slice g H2 (f a1)) (HH_bind_bind_slice f H1 g H2) M.
+  bind_slice (λ a1:A1, bind_slice g H2 (f a1)) (HH_bind_bind_slice f H1 g H2) M.
 Proof.
   apply bind_bind_slice.
 Qed.
@@ -192,7 +192,7 @@ Qed.
 Definition aux_inject_N {Γ:SET_over_sort}(N : wellsorted_in Γ):
   SET_over_sort⟦constHSET_slice (sort_in N),T Γ⟧.
 Proof.
-  mkpair.
+  use tpair.
   + exact (fun _=> N).
   + now apply funextsec.
 Defined.
@@ -247,7 +247,7 @@ Qed.
 Definition subst_slice_as_bind_slice {Γ:SET_over_sort}(N : wellsorted_in Γ)
   (M : wellsorted_in (sorted_option_functor (sort_in N) Γ)): wellsorted_in Γ.
 Proof.
-  refine (bind_slice (BinCoproductArrow _ (BinCoproductsHSET _ _) (fun _ => N) (η_slice(Γ:=Γ))) _ M).
+  use (bind_slice (BinCoproductArrow _ (BinCoproductsHSET _ _) (λ _, N) (η_slice(Γ:=Γ))) _ M).
   abstract(intro a1; induction a1 as [u | a1];
            [apply idpath | unfold BinCoproductArrow; simpl; now rewrite η_slice_ok]).
 Defined.
@@ -258,7 +258,7 @@ Lemma subst_slice_as_bind_slice_agrees {Γ:SET_over_sort}(N : wellsorted_in Γ)
 Proof.
   unfold subst_slice_as_bind_slice, subst_slice.
   unfold bind_slice, monadSubstGen_instantiated.
-  apply (maponpaths (fun f => f M)).
+  apply (maponpaths (λ f, f M)).
   apply maponpaths.
   unfold monadSubstGen, bind_instantiated.
   apply maponpaths.
@@ -301,9 +301,9 @@ Qed.
 
 Definition mweak_slice_as_bind_slice (Γ1 : SET_over_sort)(Γ2 : SET_over_sort)(M : wellsorted_in Γ2) : wellsorted_in (Γ1 ⊕ Γ2).
 Proof.
-  refine (bind_slice (fun a1 => η_slice(Γ:=Γ1 ⊕ Γ2) (pr1 (BinCoproductIn2 _ (BC _ _)) a1)) _ M).
+  use (bind_slice (λ a1, η_slice(Γ:=Γ1 ⊕ Γ2) (pr1 (BinCoproductIn2 _ (BC _ _)) a1)) _ M).
   intro a1.
-  now rewrite η_slice_ok.
+  simpl; now rewrite η_slice_ok.
 Defined.
 
 Lemma mweak_slice_as_bind_slice_agrees (Γ1 : SET_over_sort){Γ2 : SET_over_sort}(M : wellsorted_in Γ2) :
@@ -311,7 +311,7 @@ Lemma mweak_slice_as_bind_slice_agrees (Γ1 : SET_over_sort){Γ2 : SET_over_sort
 Proof.
   unfold mweak_slice_as_bind_slice, mweak_slice.
   unfold bind_slice, mweak_instantiated.
-  apply (maponpaths (fun f => f M)).
+  apply (maponpaths (λ f, f M)).
   apply maponpaths.
   unfold mweak, bind_instantiated.
   apply maponpaths.
@@ -351,7 +351,7 @@ Proof.
   set (a1 := BinCoproductIn1 _ (BinCoproductsHSET _ _) · BinCoproductIn2 _ (BinCoproductsHSET _ _): HSET⟦pr1 Γ1, pr1(Γ2 ⊕ (Γ1 ⊕ Γ3))⟧).
   set (a21 := BinCoproductIn1 _ (BinCoproductsHSET _ _): HSET⟦pr1 Γ2, pr1(Γ2 ⊕ (Γ1 ⊕ Γ3))⟧).
   set (a22 := BinCoproductIn2 _ (BinCoproductsHSET _ _) · BinCoproductIn2 _ (BinCoproductsHSET _ _): HSET⟦pr1 Γ3, pr1(Γ2 ⊕ (Γ1 ⊕ Γ3))⟧).
-  refine (bind_slice ((BinCoproductArrow _ _ a1 (BinCoproductArrow _ _ a21 a22)) · η_slice(Γ:=Γ2 ⊕ (Γ1 ⊕ Γ3))) _ M).
+  use (bind_slice ((BinCoproductArrow _ _ a1 (BinCoproductArrow _ _ a21 a22)) · η_slice(Γ:=Γ2 ⊕ (Γ1 ⊕ Γ3))) _ M).
   intro x.
   induction x as [x1 | x2].
   + unfold BinCoproductArrow.
@@ -377,7 +377,7 @@ Lemma mexch_slice_as_bind_slice_agrees {Γ1 Γ2 Γ3: SET_over_sort}(M : wellsort
 Proof.
   unfold mexch_slice_as_bind_slice, mexch_slice.
   unfold bind_slice, mexch_instantiated.
-  apply (maponpaths (fun f => f M)).
+  apply (maponpaths (λ f, f M)).
   apply maponpaths.
   unfold mexch, bind_instantiated.
   apply maponpaths.

@@ -342,7 +342,7 @@ Section mapping_cone_of_id.
   Proof.
     intros i.
     exact (transportf
-             (fun x' : ob A => precategory_morphisms
+             (λ x' : ob A, precategory_morphisms
                               x' ((MappingCone A (@identity (ComplexPreCat_Additive A) C)) (i - 1)))
              (maponpaths C (hzrminusplus i 1))
              (to_In1 A (to_BinDirectSums A (C (i - 1 + 1)) (C (i - 1))))).
@@ -383,8 +383,8 @@ Section mapping_cone_of_id.
       {
         unfold DS1, DS2, DS3, DS4.
         set (tmp := transport_hz_double_section_source_target
-                      A C (fun (i0 : hz) => to_BinDirectSums A (C (i0 + 1)) (C i0))
-                      (fun (i0 : hz) => to_binop (C i0) (to_BinDirectSums A (C (i0 + 1)) (C i0))
+                      A C (λ (i0 : hz), to_BinDirectSums A (C (i0 + 1)) (C i0))
+                      (λ (i0 : hz), to_binop (C i0) (to_BinDirectSums A (C (i0 + 1)) (C i0))
                                               (to_inv (Diff C i0)
                                                       · to_In1 A (to_BinDirectSums
                                                                      A (C (i0 + 1)) (C i0)))
@@ -392,7 +392,7 @@ Section mapping_cone_of_id.
                       _ _ (hzrminusplus i 1)).
         cbn beta in tmp. use (pathscomp0 _ (! tmp)). clear tmp. apply idpath.
       }
-      apply (maponpaths (fun gg : _ =>
+      apply (maponpaths (λ gg : _,
                            to_binop _ _ gg ((transportf
                                                (precategory_morphisms (C i))
                                                (maponpaths
@@ -418,9 +418,9 @@ Section mapping_cone_of_id.
       {
         unfold DS1, DS2, DS3, DS4.
         set (tmp := transport_hz_double_section_source_target
-                      A (fun i0 : hz => C (i0 + 1)) (fun (i0 : hz) =>
+                      A (λ i0 : hz, C (i0 + 1)) (λ (i0 : hz),
                                                     to_BinDirectSums A (C (i0 + 1)) (C i0))
-                      (fun (i0 : hz) => to_In1 A (to_BinDirectSums A (C (i0 + 1)) (C i0))) _ _
+                      (λ (i0 : hz), to_In1 A (to_BinDirectSums A (C (i0 + 1)) (C i0))) _ _
                       (hzrplusminus i 1)). cbn beta in tmp.
         use (pathscomp0 _ (! tmp)). clear tmp. apply maponpaths.
         assert (e3 : (maponpaths C (hzrminusplus (i + 1) 1)) =
@@ -481,9 +481,9 @@ Section mapping_cone_of_id.
       {
         unfold DS1, DS2.
         set (tmp := transport_hz_double_section_source_target
-                      A (fun (i0 : hz) => to_BinDirectSums A (C (i0 + 1)) (C i0))
-                      (fun i0 : hz => C (i0 + 1))
-                      (fun (i0 : hz) => to_binop (to_BinDirectSums A (C (i0 + 1)) (C i0)) (C (i0 + 1))
+                      A (λ (i0 : hz), to_BinDirectSums A (C (i0 + 1)) (C i0))
+                      (λ i0 : hz, C (i0 + 1))
+                      (λ (i0 : hz), to_binop (to_BinDirectSums A (C (i0 + 1)) (C i0)) (C (i0 + 1))
                                               (to_Pr1 A (to_BinDirectSums A (C (i0 + 1)) (C i0)))
                                               (to_Pr2 A (to_BinDirectSums A (C (i0 + 1)) (C i0))
                                                       · Diff C i0))
@@ -491,9 +491,9 @@ Section mapping_cone_of_id.
         use (pathscomp0 _ (! tmp)). clear tmp. apply maponpaths.
         rewrite transport_target_to_binop.
         set (tmp := transport_hz_double_section
-                      A (fun i0 : hz => to_BinDirectSums A (C (i0 + 1)) (C i0))
-                      (fun (i0 : hz) => C (i0 + 1))
-                      (fun i0 : hz => (to_binop (to_BinDirectSums A (C (i0 + 1)) (C i0)) (C (i0 + 1))
+                      A (λ i0 : hz, to_BinDirectSums A (C (i0 + 1)) (C i0))
+                      (λ (i0 : hz), C (i0 + 1))
+                      (λ i0 : hz, (to_binop (to_BinDirectSums A (C (i0 + 1)) (C i0)) (C (i0 + 1))
                                              (to_Pr1 A (to_BinDirectSums A (C (i0 + 1)) (C i0)))
                                              (to_Pr2 A (to_BinDirectSums A (C (i0 + 1)) (C i0))
                                                      · Diff C i0))) _ _
@@ -502,7 +502,7 @@ Section mapping_cone_of_id.
                      (maponpaths C (! hzrminusplus (i + 1) 1))).
         {
           assert (e3 : maponpaths (λ i0 : hz, C (i0 + 1)) (! hzrplusminus i 1) =
-                       maponpaths C (maponpaths (fun (i0 : hz) => i0 + 1) (! hzrplusminus i 1))).
+                       maponpaths C (maponpaths (λ (i0 : hz), i0 + 1) (! hzrplusminus i 1))).
           {
             induction (hzrplusminus i 1). apply idpath.
           }
@@ -520,7 +520,7 @@ Section mapping_cone_of_id.
         }
         rewrite e4. apply idpath.
       }
-      apply (maponpaths (fun gg : _ => to_binop
+      apply (maponpaths (λ gg : _, to_binop
                                       _ _
                                       (transportf (precategory_morphisms DS1)
                                                   (maponpaths (λ i0 : pr1 hz, C (i0 + 1))
@@ -544,7 +544,7 @@ Section mapping_cone_of_id.
         apply maponpaths. rewrite <- maponpathsinv0. rewrite pathsinv0inv0.
         induction (hzrminusplus i 1). apply idpath.
       }
-      apply (maponpaths (fun gg : _ => to_binop _ _ gg
+      apply (maponpaths (λ gg : _, to_binop _ _ gg
                                              (to_binop DS1 (C (i + 1)) (to_Pr1 A DS1)
                                                        (to_Pr2 A DS1 · Diff C i))))
         in e2.
@@ -563,7 +563,7 @@ Section mapping_cone_of_id.
     intros i. cbn.
     exact ((to_Pr2 A (to_BinDirectSums A (C (i + 1)) (C i)))
              · (transportf
-                   (fun x' : ob A => precategory_morphisms
+                   (λ x' : ob A, precategory_morphisms
                                     x' ((MappingCone A (@identity (ComplexPreCat_Additive A) C))
                                           (i - 1)))
                    (maponpaths C (hzrminusplus i 1))
@@ -619,8 +619,8 @@ Section mapping_cone_of_id.
       {
         unfold DS1.
         set (tmp := transport_hz_double_section_source_target
-                      A C (fun i0 : hz => (to_BinDirectSums A (C (i0 + 1)) (C i0)))
-                      (fun i0 : hz => to_inv (Diff C i0)
+                      A C (λ i0 : hz, (to_BinDirectSums A (C (i0 + 1)) (C i0)))
+                      (λ i0 : hz, to_inv (Diff C i0)
                                           · to_In1 A (to_BinDirectSums A (C (i0 + 1)) (C i0)))
                       _ _ (hzrminusplus i 1)). cbn beta in tmp.
         unfold DS3.
@@ -637,15 +637,15 @@ Section mapping_cone_of_id.
       {
         unfold DS1, DS3.
         set (tmp := transport_hz_double_section_source_target
-                      A C (fun i0 : hz => (to_BinDirectSums A (C (i0 + 1)) (C i0)))
-                      (fun i0 : hz => to_In2 A (to_BinDirectSums A (C (i0 + 1)) (C i0)))
+                      A C (λ i0 : hz, (to_BinDirectSums A (C (i0 + 1)) (C i0)))
+                      (λ i0 : hz, to_In2 A (to_BinDirectSums A (C (i0 + 1)) (C i0)))
                       _ _ (hzrminusplus i 1)). cbn beta in tmp.
         exact (! tmp).
       }
       set (e3 := to_binop_eq e1 e2).
-      apply (maponpaths (fun gg : _ => to_Pr2 A DS1 · gg)) in e3.
+      apply (maponpaths (λ gg : _, to_Pr2 A DS1 · gg)) in e3.
       apply (maponpaths
-               (fun gg : _ => to_binop
+               (λ gg : _, to_binop
                              _ _ gg
                              (to_binop DS1 (C (i + 1)) (to_Pr1 A DS1)
                                        (to_Pr2 A DS1 · Diff C i) · transportf
@@ -673,9 +673,9 @@ Section mapping_cone_of_id.
       {
         unfold DS1, DS5.
         set (tmp := transport_hz_double_section_source_target
-                      A (fun i0 : hz => C (i0 + 1))
-                      (fun i0 : hz => (to_BinDirectSums A (C (i0 + 1)) (C i0)))
-                      (fun i0 : hz => to_In1 A (to_BinDirectSums A (C (i0 + 1)) (C i0)))
+                      A (λ i0 : hz, C (i0 + 1))
+                      (λ i0 : hz, (to_BinDirectSums A (C (i0 + 1)) (C i0)))
+                      (λ i0 : hz, to_In1 A (to_BinDirectSums A (C (i0 + 1)) (C i0)))
                       _ _ (hzrplusminus i 1)). cbn beta in tmp.
         use (pathscomp0 _ (! tmp)). clear tmp.
         apply maponpaths.
@@ -683,7 +683,7 @@ Section mapping_cone_of_id.
                      (maponpaths (λ i0 : hz, C (i0 + 1)) (hzrplusminus i 1))).
         {
           assert (e6 : maponpaths (λ i0 : hz, C (i0 + 1)) (hzrplusminus i 1) =
-                       maponpaths C (maponpaths (fun i0 : hz => i0 + 1) (hzrplusminus i 1))).
+                       maponpaths C (maponpaths (λ i0 : hz, i0 + 1) (hzrplusminus i 1))).
           {
             induction (hzrplusminus i 1). apply idpath.
           }
@@ -692,7 +692,7 @@ Section mapping_cone_of_id.
         rewrite e5. apply idpath.
       }
       apply (maponpaths
-               (fun gg : _ => to_binop DS1 (to_BinDirectSums A (C (i + 1)) (C i))
+               (λ gg : _, to_binop DS1 (to_BinDirectSums A (C (i + 1)) (C i))
                                     (to_Pr2 A DS1 · to_binop (C i) (to_BinDirectSums
                                                                        A (C (i + 1)) (C i))
                                             (to_inv (Diff C i) · to_In1 A DS1)
@@ -910,7 +910,7 @@ Section rotation_mapping_cone.
       + exact (C2 i).
       + exact (to_Pr2 A (to_BinDirectSums A (C1 (i + 1)) (C2 i))).
       + exact (transportf
-                 (fun x' : ob A => precategory_morphisms
+                 (λ x' : ob A, precategory_morphisms
                                   x' (to_BinDirectSums
                                         A (C2 (i - 1 + 1))
                                         (to_BinDirectSums A (C1 (i - 1 + 1)) (C2 (i - 1)))))
@@ -1052,9 +1052,9 @@ Section rotation_mapping_cone.
       unfold DS2, DS1, DS6, DS5.
       set (tmp := transport_hz_double_section_source_target
                     A C2
-                    (fun i0 : hz => (to_BinDirectSums
+                    (λ i0 : hz, (to_BinDirectSums
                                     A (C2 (i0 + 1)) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
-                    (fun i0 : hz => to_inv (Diff C2 i0)
+                    (λ i0 : hz, to_inv (Diff C2 i0)
                                         · (to_In1
                                               A (to_BinDirectSums
                                                    A (C2 (i0 + 1))
@@ -1066,9 +1066,9 @@ Section rotation_mapping_cone.
     + unfold DS2, DS1, DS6, DS5.
       set (tmp := transport_hz_double_section_source_target
                     A C2
-                    (fun i0 : hz => (to_BinDirectSums
+                    (λ i0 : hz, (to_BinDirectSums
                                     A (C2 (i0 + 1)) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
-                    (fun i0 : hz => to_In2 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)) · to_In2 A
+                    (λ i0 : hz, to_In2 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)) · to_In2 A
                                         (to_BinDirectSums
                                            A (C2 (i0 + 1))
                                            (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
@@ -1100,10 +1100,10 @@ Section rotation_mapping_cone.
     rewrite assoc. rewrite <- (assoc _ (to_In2 A DS3)). rewrite (to_IdIn2 A DS3).
     rewrite id_right. rewrite transport_target_postcompose. apply cancel_precomposition.
     set (tmp := transport_hz_double_section_source_target
-                  A (fun i0 : hz => C2 (i0 + 1))
-                  (fun i0 : hz => (to_BinDirectSums
+                  A (λ i0 : hz, C2 (i0 + 1))
+                  (λ i0 : hz, (to_BinDirectSums
                                   A (C2 (i0 + 1)) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
-                  (fun i0 : hz => to_In1 A (to_BinDirectSums
+                  (λ i0 : hz, to_In1 A (to_BinDirectSums
                                            A (C2 (i0 + 1))
                                            (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
                   _ _ (hzrplusminus i 1)). cbn beta in tmp.
@@ -1158,10 +1158,10 @@ Section rotation_mapping_cone.
     rewrite (to_Unel1' DS3). rewrite (to_IdIn2 A DS3). rewrite id_right. rewrite id_right.
     rewrite ZeroArrow_comp_right. rewrite to_lunax''. apply cancel_precomposition.
     set (tmp := transport_hz_double_section_source_target
-                  A (fun i0 : hz => C2 (i0 + 1))
-                  (fun i0 : hz => (to_BinDirectSums
+                  A (λ i0 : hz, C2 (i0 + 1))
+                  (λ i0 : hz, (to_BinDirectSums
                                   A (C2 (i0 + 1)) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
-                  (fun i0 : hz => to_In1 A (to_BinDirectSums
+                  (λ i0 : hz, to_In1 A (to_BinDirectSums
                                            A (C2 (i0 + 1))
                                            (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
                   _ _ (hzrplusminus i 1)). cbn beta in tmp.
@@ -1248,7 +1248,7 @@ Section rotation_mapping_cone.
     intros i. cbn. use compose.
     - exact (C2 i).
     - exact (to_Pr2 A (to_BinDirectSums A (C1 (i + 1)) (C2 i))).
-    - exact (transportf (fun x' : ob A => precategory_morphisms
+    - exact (transportf (λ x' : ob A, precategory_morphisms
                                          x' (to_BinDirectSums A (C2 (i - 1 + 1))
                                                               (to_BinDirectSums A (C1 (i - 1 + 1))
                                                                                 (C2 (i - 1)))))
@@ -1271,12 +1271,12 @@ Section rotation_mapping_cone.
         * exact (C2 (i + 1)).
         * exact (to_inv (Diff C2 i)).
         * exact (transportf
-                   (fun x' : ob A => precategory_morphisms
+                   (λ x' : ob A, precategory_morphisms
                                     x' (to_BinDirectSums
                                           A (C2 (i - 1 + 1 + 1))
                                           (to_BinDirectSums A (C1 (i - 1 + 1 + 1))
                                                             (C2 (i - 1 + 1)))))
-                   (maponpaths C2 (maponpaths (fun i0 : hz => (i0 + 1)) (hzrminusplus i 1)))
+                   (maponpaths C2 (maponpaths (λ i0 : hz, (i0 + 1)) (hzrminusplus i 1)))
                    (to_In1 A (to_BinDirectSums
                                 A (C2 (i - 1 + 1 + 1))
                                 (to_BinDirectSums
@@ -1286,7 +1286,7 @@ Section rotation_mapping_cone.
       + exact (to_Pr2 A (to_BinDirectSums A (C1 (i + 1)) (C2 i))).
       + use compose.
         * exact (to_BinDirectSums A (C1 (i - 1 + 1 + 1)) (C2 (i - 1 + 1))).
-        * exact (transportf (fun x' : ob A => precategory_morphisms
+        * exact (transportf (λ x' : ob A, precategory_morphisms
                                              x' (to_BinDirectSums A (C1 (i - 1 + 1 + 1))
                                                                   (C2 (i - 1 + 1))))
                             (maponpaths C2 (hzrminusplus i 1))
@@ -1336,7 +1336,7 @@ Section rotation_mapping_cone.
       + use compose.
         * exact (C2 (i + 1)).
         * exact (f (i + 1)).
-        * exact (transportf (fun x' : ob A => precategory_morphisms
+        * exact (transportf (λ x' : ob A, precategory_morphisms
                                              x' (to_BinDirectSums
                                                    A (C2 (i + 1 - 1 + 1))
                                                    (to_BinDirectSums A (C1 (i + 1 - 1 + 1))
@@ -1352,7 +1352,7 @@ Section rotation_mapping_cone.
       + use compose.
         * exact (C2 (i + 1)).
         * exact (Diff C2 i).
-        * exact (transportf (fun x' : ob A => precategory_morphisms
+        * exact (transportf (λ x' : ob A, precategory_morphisms
                                              x' (to_BinDirectSums
                                                    A (C2 (i + 1 - 1 + 1))
                                                    (to_BinDirectSums A (C1 (i + 1 - 1 + 1))
@@ -1478,8 +1478,8 @@ Section rotation_mapping_cone.
         use to_lrw. apply maponpaths.
         unfold DS4, DS3, DS6, DS5.
         set (tmp := @transport_hz_to_In1
-                      A (fun i0 : hz => C2 (i0 + 1))
-                      (fun i0 : hz => to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
+                      A (λ i0 : hz, C2 (i0 + 1))
+                      (λ i0 : hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
                       _ _ (hzrminusplus i 1)).
         cbn in tmp.
         assert (e : (maponpaths C2 (maponpaths (λ i0 : pr1 hz, i0 + 1) (hzrminusplus i 1))) =
@@ -1489,8 +1489,8 @@ Section rotation_mapping_cone.
         }
         cbn in e. rewrite e. clear e. use (pathscomp0 (! tmp)). clear tmp.
         set (tmp := @transport_hz_to_In1
-                      A (fun i0 : hz => C2 (i0 + 1))
-                      (fun i0 : hz => to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
+                      A (λ i0 : hz, C2 (i0 + 1))
+                      (λ i0 : hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
                       _ _ (hzrplusminus i 1)).
         cbn in tmp. use (pathscomp0 tmp). clear tmp.
         apply maponpaths.
@@ -1498,7 +1498,7 @@ Section rotation_mapping_cone.
                     (maponpaths C2 (hzrminusplus (i + 1) 1))).
         {
           assert (e' : maponpaths (λ i0 : pr1 hz, C2 (i0 + 1)) (hzrplusminus i 1) =
-                       maponpaths C2 (maponpaths (fun i0 : hz => i0 + 1) (hzrplusminus i 1))).
+                       maponpaths C2 (maponpaths (λ i0 : hz, i0 + 1) (hzrplusminus i 1))).
           {
             induction (hzrplusminus i 1). apply idpath.
           }
@@ -1511,8 +1511,8 @@ Section rotation_mapping_cone.
         use to_binop_eq.
         * apply cancel_precomposition.
           set (tmp := @transport_hz_to_In1
-                        A (fun i0 : hz => C2 (i0 + 1))
-                        (fun i0 : hz => to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
+                        A (λ i0 : hz, C2 (i0 + 1))
+                        (λ i0 : hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
                         _ _ (hzrplusminus i 1)).
           cbn in tmp. unfold DS2, DS1. use (pathscomp0 _ (! tmp)). clear tmp.
           apply maponpaths. unfold DS6, DS5.
@@ -1693,10 +1693,10 @@ Section inv_rotation_mapping_cone.
         }
         rewrite e. clear e. unfold DS5.
         set (tmp := transport_hz_double_section
-                      A (fun (i0 : hz) => to_BinDirectSums
+                      A (λ (i0 : hz), to_BinDirectSums
                                          A (C1 (i0 + 1 - 1 + 1 + 1)) (C2 (i0 + 1 - 1 + 1)))
-                      (fun (i0 : hz) => C2 (i0 + 1 - 1 + 1))
-                      (fun (i0 : hz) =>
+                      (λ (i0 : hz), C2 (i0 + 1 - 1 + 1))
+                      (λ (i0 : hz),
                          to_Pr2 A (to_BinDirectSums
                                      A (C1 (i0 + 1 - 1 + 1 + 1)) (C2 (i0 + 1 - 1 + 1))))
                       _ _ (! (hzrplusminus i 1))).
@@ -1706,18 +1706,18 @@ Section inv_rotation_mapping_cone.
         cbn in e1, e2.
 
         set (tmp' := transport_hz_double_section
-                      A (fun (i0 : hz) => to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
+                      A (λ (i0 : hz), to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
                       C2
-                      (fun (i0 : hz) =>
+                      (λ (i0 : hz),
                          to_Pr2 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
                       _ _ (hzplusradd (i + 1 - 1) i 1 (hzrplusminus i 1))).
         cbn in tmp'. unfold e1.
         use (pathscomp0 _ (! tmp')). clear tmp'. unfold DS3.
 
         set (tmp' := transport_hz_double_section
-                      A (fun (i0 : hz) => to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
+                      A (λ (i0 : hz), to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
                       C2
-                      (fun (i0 : hz) =>
+                      (λ (i0 : hz),
                          to_Pr2 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
                       _ _ (hzrplusminus (i + 1) 1)). cbn in tmp'.
         rewrite tmp'. clear tmp'. rewrite transport_f_f.
@@ -1774,17 +1774,17 @@ Section inv_rotation_mapping_cone.
             rewrite e. clear e.
             unfold DS5.
             set (tmp' := transport_hz_double_section
-                           A (fun (i0 : hz) => to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
+                           A (λ (i0 : hz), to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
                            C2
-                           (fun (i0 : hz) =>
+                           (λ (i0 : hz),
                               to_Pr2 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
                            _ _ (hzrminusplus (i + 1) 1)).
             cbn in tmp'.
             use (pathscomp0 _ (! tmp')). clear tmp'. unfold DS3.
             set (tmp' := transport_hz_double_section
-                           A (fun (i0 : hz) => to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
+                           A (λ (i0 : hz), to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
                            C2
-                           (fun (i0 : hz) =>
+                           (λ (i0 : hz),
                               to_Pr2 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
                            _ _ (hzrplusminus (i + 1) 1)). cbn in tmp'.
             cbn. cbn in tmp'. rewrite tmp'. clear tmp'. rewrite transport_f_f.
@@ -1808,7 +1808,7 @@ Section inv_rotation_mapping_cone.
             cbn in e. cbn. rewrite e. clear e. apply idpath.
           }
           apply (maponpaths
-                   (fun g : _ => to_binop _ _ g
+                   (λ g : _, to_binop _ _ g
                                        (to_inv
                                           (transportf (precategory_morphisms DS1)
                                                       (maponpaths C1 (hzrminusplus (i + 1) 1))
@@ -1823,9 +1823,9 @@ Section inv_rotation_mapping_cone.
           set (DS6 := to_BinDirectSums A (C1 (i + 1 - 1 + 1 + 1)) (C2 (i + 1))).
           rewrite <- (to_Unel1' DS6). rewrite <- transport_compose. unfold DS3.
           set (tmp' := transport_hz_double_section
-                         A (fun (i0 : hz) => to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
+                         A (λ (i0 : hz), to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
                          C2
-                         (fun (i0 : hz) =>
+                         (λ (i0 : hz),
                             to_Pr2 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
                          _ _ (hzrplusminus (i + 1) 1)). cbn in tmp'.
           rewrite tmp'. clear tmp'. rewrite transport_compose. rewrite transport_f_f.
@@ -1874,7 +1874,7 @@ Section inv_rotation_mapping_cone.
             rewrite maponpathsinv0. rewrite <- pathscomp_inv. rewrite pathsinv0l. apply idpath.
           }
           apply (maponpaths
-                   (fun g : _ => transportf (λ x : A, A ⟦ x, C2 (i + 1 - 1 + 1) ⟧) g (to_Pr2 A DS5)))
+                   (λ g : _, transportf (λ x : A, A ⟦ x, C2 (i + 1 - 1 + 1) ⟧) g (to_Pr2 A DS5)))
             in e.
           use (pathscomp0 _ (! e)). apply idpath.
     - apply idpath.
@@ -1916,7 +1916,7 @@ Section inv_rotation_mapping_cone.
     - exact (C1 i).
     - exact (to_Pr2 A (to_BinDirectSums
                          A (to_BinDirectSums A (C1 (i + 1 - 1 + 1)) (C2 (i + 1 - 1))) (C1 i))).
-    - exact (transportf (fun x' : ob A => precategory_morphisms
+    - exact (transportf (λ x' : ob A, precategory_morphisms
                                          x' (to_BinDirectSums A (C1 (i - 1 + 1)) (C2 (i - 1))))
                         (maponpaths C1 (hzrminusplus i 1))
                         (to_In1 A (to_BinDirectSums A (C1 (i - 1 + 1)) (C2 (i - 1))))).
@@ -2033,9 +2033,9 @@ Section inv_rotation_mapping_cone.
         }
         rewrite e. clear e.
         set (tmp := @transport_hz_double_section_source_target
-                      A (fun i0 : hz => C1 (i0 + 1))
-                      (fun i0 : hz => to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
-                      (fun i0 : hz => to_In1 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
+                      A (λ i0 : hz, C1 (i0 + 1))
+                      (λ i0 : hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
+                      (λ i0 : hz, to_In1 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
                       _ _ (hzrminusplus i 1)). cbn in tmp.
         assert (e : maponpaths (λ i0 : pr1 hz, C1 (i0 + 1)) (hzrminusplus i 1) =
                     maponpaths C1 (hzplusradd (i - 1 + 1) i 1 (hzrminusplus i 1))).
@@ -2044,9 +2044,9 @@ Section inv_rotation_mapping_cone.
         }
         rewrite e in tmp. clear e. use (pathscomp0 (! tmp)). clear tmp.
         set (tmp := @transport_hz_double_section_source_target
-                      A (fun i0 : hz => C1 (i0 + 1))
-                      (fun i0 : hz => to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
-                      (fun i0 : hz => to_In1 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
+                      A (λ i0 : hz, C1 (i0 + 1))
+                      (λ i0 : hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
+                      (λ i0 : hz, to_In1 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
                       _ _ (hzrplusminus i 1)). cbn in tmp.
         use (pathscomp0 tmp). clear tmp. apply maponpaths.
         assert (e : maponpaths (λ i0 : pr1 hz, C1 (i0 + 1)) (hzrplusminus i 1) =
@@ -2062,7 +2062,7 @@ Section inv_rotation_mapping_cone.
         rewrite e. apply idpath.
       }
       apply (maponpaths
-               (fun g : _ =>
+               (λ g : _,
                   to_binop DS2 (to_BinDirectSums A (C1 (i + 1)) (C2 i))
                            (to_inv
                               (to_Pr2 A DS2
@@ -2075,7 +2075,7 @@ Section inv_rotation_mapping_cone.
                                          _ _ (hzrminusplus i 1))
                                       (to_In1 A DS5))) g)) in e.
       apply (maponpaths
-               (fun g : _ =>
+               (λ g : _,
                   to_binop DS2 (to_BinDirectSums A (C1 (i + 1)) (C2 i)) g
                            ((to_inv ((to_Pr1 A DS2)
                                        · (transportf
@@ -2140,7 +2140,7 @@ Section inv_rotation_mapping_cone.
     use compose.
     - exact (to_BinDirectSums A (C1 (i + 1 - 1 + 1)) (C2 (i + 1 - 1))).
     - exact (transportf
-               (fun x' : ob A => precategory_morphisms
+               (λ x' : ob A, precategory_morphisms
                                 x' (to_BinDirectSums A (C1 (i + 1 - 1 + 1)) (C2 (i + 1 - 1))))
                (maponpaths C2 (hzrplusminus i 1))
                (to_In2 A (to_BinDirectSums A (C1 (i + 1 - 1 + 1)) (C2 (i + 1 - 1))))).
@@ -2207,7 +2207,7 @@ Section inv_rotation_mapping_cone.
     rewrite <- maponpathscomp0.
     set (tmp := @transport_hz_double_section
                   A C2 (λ i0 : pr1 hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
-                  (fun i0 : hz => to_In2 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))) _ _
+                  (λ i0 : hz, to_In2 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))) _ _
                   (hzrminusplus (i + 1) 1 @ ! hzrplusminus (i + 1) 1)).
     cbn in tmp. use (pathscomp0 tmp).
     assert (e : (maponpaths C2 (! (hzrminusplus (i + 1) 1 @ ! hzrplusminus (i + 1) 1))) =
@@ -2260,7 +2260,7 @@ Section inv_rotation_mapping_cone.
                          A (to_BinDirectSums A (C1 (i + 1 - 1 + 1)) (C2 (i + 1 - 1))) (C1 i))).
     - use compose.
       + exact (to_BinDirectSums A (C1 (i - 1 + 1 - 1 + 1)) (C2 (i - 1 + 1 - 1))).
-      + exact (transportf (fun x' : ob A => precategory_morphisms
+      + exact (transportf (λ x' : ob A, precategory_morphisms
                                            x' (to_BinDirectSums
                                                  A (C1 (i - 1 + 1 - 1 + 1)) (C2 (i - 1 + 1 - 1))))
                           (maponpaths C1 (hzrminusplus (i - 1 + 1) 1 @ hzrminusplus i 1))
@@ -2398,7 +2398,7 @@ Section inv_rotation_mapping_cone.
       rewrite pathsinv0l. rewrite pathscomp0rid. apply idpath.
     }
     apply (maponpaths
-             (fun ee : _ =>
+             (λ ee : _,
                 transportf
                   (precategory_morphisms (to_BinDirectSums A (C1 (i + 1)) (C2 i)))
                   (@maponpaths
@@ -2431,7 +2431,7 @@ Section inv_rotation_mapping_cone.
       apply idpath.
     }
     apply (maponpaths
-             (fun ee : _ =>
+             (λ ee : _,
                 transportf
                   (precategory_morphisms (to_BinDirectSums A (C1 (i + 1)) (C2 i)))
                   (@maponpaths
@@ -2443,14 +2443,14 @@ Section inv_rotation_mapping_cone.
     use (pathscomp0 _ (! e)). clear e.
     set (m1 := to_In1 A DS2). unfold DS2, DS1 in m1.
     set (e := @maponpaths hz A
-                          (fun i0 : hz => to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
+                          (λ i0 : hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
                           _ _ (hzrplusminus i 1)).
     cbn in e.
     apply pathsinv0.
 
     use pathscomp0.
     - exact (transportf
-               (fun x' : ob A => precategory_morphisms x' _)
+               (λ x' : ob A, precategory_morphisms x' _)
                e
                (to_In1 A DS2)).
     - unfold DS10, DS9, DS6, DS5, DS2, DS1. unfold e.
@@ -2458,8 +2458,8 @@ Section inv_rotation_mapping_cone.
       apply idpath.
     - unfold DS10, DS9, DS6, DS5, DS2, DS1. unfold e. clear e.
       set (tmp := @transport_hz_to_In1'
-                    A (fun i0 : hz => to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
-                    (fun i0 : hz => C1 i) _ _ (hzrplusminus i 1)).
+                    A (λ i0 : hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
+                    (λ i0 : hz, C1 i) _ _ (hzrplusminus i 1)).
       cbn in tmp. use (pathscomp0 (! tmp)). clear tmp.
       set (e := (@maponpaths
                    hz A (λ i0 : pr1 hz,
@@ -2477,8 +2477,8 @@ Section inv_rotation_mapping_cone.
         rewrite pathsinv0r. cbn. unfold idfun.
 
         set (tmp := @transport_hz_to_In1'
-                      A (fun i0 : hz => to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
-                      (fun i0 : hz => C1 (i + 1 - 1)) _ _
+                      A (λ i0 : hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
+                      (λ i0 : hz, C1 (i + 1 - 1)) _ _
                       (hzrplusminus (i + 1 - 1) 1 @ hzrplusminus i 1)).
         cbn in tmp. use (pathscomp0 _ tmp). clear tmp. clear e. clear m1.
         assert (e : @maponpaths
@@ -2509,12 +2509,12 @@ Section inv_rotation_mapping_cone.
           rewrite <- pathscomp_inv.
           apply maponpaths.
           set (tmp := @transport_to_BinDirectSums
-                        A (fun i0 : hz => to_BinDirectSums
+                        A (λ i0 : hz, to_BinDirectSums
                                          A (C1 (i0 + 1 - 1 + 1)) (C2 (i0 + 1 - 1)))
-                        (fun i0 : hz => C1 i0) _ _ (hzrplusminus i 1)).
+                        (λ i0 : hz, C1 i0) _ _ (hzrplusminus i 1)).
           cbn in tmp.
           apply (maponpaths
-                   (fun g : _ => g @ @maponpaths
+                   (λ g : _, g @ @maponpaths
                                 hz A (λ i0 : pr1 hz, to_BinDirectSums
                                                        A (to_BinDirectSums
                                                             A (C1 (i0 + 1)) (C2 i0)) (C1 i))
@@ -2522,11 +2522,11 @@ Section inv_rotation_mapping_cone.
           cbn in tmp.
           use (pathscomp0 tmp). clear tmp. rewrite <- path_assoc.
           set (tmp := @transport_to_BinDirectSums_comm
-                        A (fun i0 : hz => to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
-                        (fun i0 : hz => C1 i0) _ _ (hzrplusminus i 1)).
+                        A (λ i0 : hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
+                        (λ i0 : hz, C1 i0) _ _ (hzrplusminus i 1)).
           cbn in tmp.
           apply (maponpaths
-                   (fun g : _ => @maponpaths
+                   (λ g : _, @maponpaths
                                 hz A
                                 (λ i0 : pr1 hz,
                                         to_BinDirectSums
@@ -2537,17 +2537,17 @@ Section inv_rotation_mapping_cone.
           use (pathscomp0 (! tmp)). clear tmp.
           apply maponpaths.
           set (tmp := @transport_to_BinDirectSums
-                        A (fun i0 : hz => to_BinDirectSums
+                        A (λ i0 : hz, to_BinDirectSums
                                          A (C1 (i0 + 1)) (C2 i0))
-                        (fun i0 : hz => C1 i0) _ _ (hzrplusminus i 1)).
+                        (λ i0 : hz, C1 i0) _ _ (hzrplusminus i 1)).
           cbn in tmp. exact (! tmp).
         }
         cbn in e. rewrite e. clear e.
         rewrite pathscomp_inv. rewrite <- transport_f_f.
         set (tmp := @transport_to_BinDirectSums
-                      A (fun i0 : hz => to_BinDirectSums
+                      A (λ i0 : hz, to_BinDirectSums
                                        A (C1 (i0 + 1)) (C2 i0))
-                      (fun i0 : hz => C1 i0) _ _ (hzrplusminus i 1)).
+                      (λ i0 : hz, C1 i0) _ _ (hzrplusminus i 1)).
         cbn in tmp. rewrite tmp. clear tmp. rewrite pathscomp_inv. rewrite <- transport_f_f.
         assert (e : transportf
                       (precategory_morphisms (to_BinDirectSums A (C1 (i + 1)) (C2 i)))
@@ -2627,14 +2627,14 @@ Section inv_rotation_mapping_cone.
                                          to_BinDirectSums
                                            A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
                                            (C1 (i + 1 - 1)))
-                            _ _ (maponpaths (fun i1 : hz => i1 + 1 - 1) (hzrplusminus i 1))).
+                            _ _ (maponpaths (λ i1 : hz, i1 + 1 - 1) (hzrplusminus i 1))).
             {
               induction (hzrplusminus i 1). apply idpath.
             }
             rewrite e''. clear e''. apply maponpaths. apply isasethz.
           }
           apply (maponpaths
-                   (fun g : _ => g @ (@maponpaths
+                   (λ g : _, g @ (@maponpaths
                                      hz A (λ i0 : pr1 hz, to_BinDirectSums
                                                             A (to_BinDirectSums
                                                                  A (C1 (i0 + 1)) (C2 i0))
@@ -2953,11 +2953,11 @@ Section inv_rotation_mapping_cone.
         rewrite transport_source_target_comm.
         set (e := hzrplusminus (i + 1 - 1) 1).
         set (tmp := @transport_hz_double_section_source_target
-                      A (fun i0 : hz => C1 (i0 + 1 - 1 + 1))
-                      (fun i0 : hz => to_BinDirectSums
+                      A (λ i0 : hz, C1 (i0 + 1 - 1 + 1))
+                      (λ i0 : hz, to_BinDirectSums
                                      A (to_BinDirectSums
                                           A (C1 (i0 + 1 - 1 + 1)) (C2 (i0 + 1 - 1))) (C1 i0))
-                      (fun i0 : hz => (to_In1 A (to_BinDirectSums
+                      (λ i0 : hz, (to_In1 A (to_BinDirectSums
                                                 A (C1 (i0 + 1 - 1  + 1)) (C2 (i0 + 1 - 1))))
                                      · (to_In1 A (to_BinDirectSums
                                                      A (to_BinDirectSums
@@ -3022,7 +3022,7 @@ Section inv_rotation_mapping_cone.
     intros i. cbn.
     use compose.
     - exact (to_BinDirectSums A (C1 (i - 1 + 1 - 1 + 1)) (C2 (i - 1 + 1 - 1))).
-    - exact (transportf (fun x' : ob A => precategory_morphisms x' _)
+    - exact (transportf (λ x' : ob A, precategory_morphisms x' _)
                         (maponpaths C1 (hzrminusplus (i - 1 + 1) 1 @ hzrminusplus i 1))
                         (to_In1 A (to_BinDirectSums A (C1 (i - 1 + 1 - 1 + 1))
                                                     (C2 (i - 1 + 1 - 1))))).
@@ -3052,7 +3052,7 @@ Section inv_rotation_mapping_cone.
                               (((InvRotMorphismInv f) : (ComplexPreCat_Additive A)⟦_, _⟧))
                               (((InvRotMorphism f) : (ComplexPreCat_Additive A)⟦_, _⟧))).
     cbn beta in tmp'. rewrite tmp'. clear tmp'.
-    apply (maponpaths (fun g : _ => # (ComplexHomotFunctor A) f · g)) in tmp.
+    apply (maponpaths (λ g : _, # (ComplexHomotFunctor A) f · g)) in tmp.
     use (pathscomp0 tmp). clear tmp. rewrite id_right.
     set (tmp := InvRotMorphismComm2 f). cbn beta in tmp.
     apply (maponpaths (# (ComplexHomotFunctor A))) in tmp.
@@ -4070,9 +4070,9 @@ Section mapping_cone_octa.
     - exact (to_Pr2 A _ · to_Pr1 A _).
     - use compose.
       + exact (to_BinDirectSums A (x (i - 1 + 1 + 1)) (y (i - 1 + 1))).
-      + exact (to_inv (transportf (fun x' : ob A => precategory_morphisms x' _)
+      + exact (to_inv (transportf (λ x' : ob A, precategory_morphisms x' _)
                                   (maponpaths
-                                     x (maponpaths (fun i0 : hz => (i0 + 1)) (hzrminusplus i 1)))
+                                     x (maponpaths (λ i0 : hz, (i0 + 1)) (hzrminusplus i 1)))
                                   (to_In1 A (to_BinDirectSums A (x (i - 1 + 1 + 1))
                                                               (y (i - 1 + 1)))))).
       + exact (to_In1 A _).
@@ -4271,11 +4271,11 @@ Section mapping_cone_octa.
         apply cancel_precomposition.
         rewrite <- transport_target_postcompose. rewrite <- transport_source_precompose.
         set (tmp := transport_hz_double_section_source_target
-                        A (fun i0 : hz => x (i0 + 1 + 1))
-                        (fun i0 : hz => to_BinDirectSums
+                        A (λ i0 : hz, x (i0 + 1 + 1))
+                        (λ i0 : hz, to_BinDirectSums
                                        A (to_BinDirectSums A (x (i0 + 1 + 1)) (y (i0 + 1)))
                                        (to_BinDirectSums A (x (i0 + 1)) (z i0)))
-                        (fun i0 : hz => ((to_In1 A (to_BinDirectSums
+                        (λ i0 : hz, ((to_In1 A (to_BinDirectSums
                                                    A (x (i0 + 1 + 1)) (y (i0 + 1))))
                                         · to_In1 A (to_BinDirectSums
                                                        A (to_BinDirectSums
@@ -4346,8 +4346,8 @@ Section mapping_cone_octa.
           rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
           apply cancel_precomposition. apply cancel_precomposition.
           set (tmp := transport_hz_section
-                        A (fun i0 : hz => x (i0 + 1)) 1
-                        (fun i0 : hz => Diff x (i0 + 1)) _ _ (! hzrminusplus i 1)).
+                        A (λ i0 : hz, x (i0 + 1)) 1
+                        (λ i0 : hz, Diff x (i0 + 1)) _ _ (! hzrminusplus i 1)).
           cbn in tmp. rewrite pathsinv0inv0 in tmp.
           assert (e : (maponpaths (λ i0 : pr1 hz, x (i0 + 1)) (hzrminusplus i 1)) =
                       (maponpaths x (maponpaths (λ i0 : pr1 hz, i0 + 1) (hzrminusplus i 1)))).
@@ -4368,11 +4368,11 @@ Section mapping_cone_octa.
           rewrite <- transport_source_precompose.
           rewrite transport_source_target_comm.
           set (tmp := transport_hz_double_section_source_target
-                        A (fun i0 : hz => x (i0 + 1 + 1))
-                        (fun i0 : hz => to_BinDirectSums
+                        A (λ i0 : hz, x (i0 + 1 + 1))
+                        (λ i0 : hz, to_BinDirectSums
                                        A (to_BinDirectSums A (x (i0 + 1 + 1)) (y (i0 + 1)))
                                        (to_BinDirectSums A (x (i0 + 1)) (z i0)))
-                        (fun i0 : hz => ((to_In1 A (to_BinDirectSums
+                        (λ i0 : hz, ((to_In1 A (to_BinDirectSums
                                                    A (x (i0 + 1 + 1)) (y (i0 + 1))))
                                         · to_In1 A (to_BinDirectSums
                                                        A (to_BinDirectSums
@@ -4388,11 +4388,11 @@ Section mapping_cone_octa.
           }
           rewrite e in tmp. clear e.  use (pathscomp0 _ tmp). clear tmp.
           set (tmp := transport_hz_double_section_source_target
-                        A (fun i0 : hz => x (i0 + 1 + 1))
-                        (fun i0 : hz => to_BinDirectSums
+                        A (λ i0 : hz, x (i0 + 1 + 1))
+                        (λ i0 : hz, to_BinDirectSums
                                        A (to_BinDirectSums A (x (i0 + 1 + 1)) (y (i0 + 1)))
                                        (to_BinDirectSums A (x (i0 + 1)) (z i0)))
-                        (fun i0 : hz => ((to_In1 A (to_BinDirectSums
+                        (λ i0 : hz, ((to_In1 A (to_BinDirectSums
                                                    A (x (i0 + 1 + 1)) (y (i0 + 1))))
                                         · to_In1 A (to_BinDirectSums
                                                        A (to_BinDirectSums
@@ -4443,7 +4443,7 @@ Section mapping_cone_octa.
     - exact (to_Pr1 A _).
     - use compose.
       + exact (to_BinDirectSums A (x (i - 1 + 1 + 1)) (y (i - 1 + 1))).
-      + exact (to_inv (transportf (fun x' : ob A => A⟦x', _⟧)
+      + exact (to_inv (transportf (λ x' : ob A, A⟦x', _⟧)
                                   (maponpaths x (hzplusradd _ _ 1 (hzrminusplus i 1)))
                                   (to_In1 A _))).
       + exact (to_In1 A _).
@@ -4598,11 +4598,11 @@ Section mapping_cone_octa.
         * apply idpath.
         * rewrite <- transport_source_precompose. rewrite <- transport_source_precompose.
           set (tmp := transport_hz_double_section_source_target
-                        A (fun i0 : hz => x (i0 + 1))
-                        (fun i0 : hz => to_BinDirectSums
+                        A (λ i0 : hz, x (i0 + 1))
+                        (λ i0 : hz, to_BinDirectSums
                                        A (to_BinDirectSums A (x (i0 + 1 + 1)) (y (i0 + 1)))
                                        (to_BinDirectSums A (x (i0 + 1)) (z i0)))
-                        (fun i0 : hz => ((Diff x (i0 + 1))
+                        (λ i0 : hz, ((Diff x (i0 + 1))
                                         · to_In1 A (to_BinDirectSums
                                                        A (x (i0 + 1 + 1)) (y (i0 + 1)))
                                         · to_In1 A (to_BinDirectSums
@@ -4621,11 +4621,11 @@ Section mapping_cone_octa.
           rewrite <- transport_source_precompose.
           unfold DS16, DS15, DS14.
           set (tmp := transport_hz_double_section_source_target
-                        A (fun i0 : hz => x (i0 + 1 + 1))
-                        (fun i0 : hz => to_BinDirectSums
+                        A (λ i0 : hz, x (i0 + 1 + 1))
+                        (λ i0 : hz, to_BinDirectSums
                                        A (to_BinDirectSums A (x (i0 + 1 + 1)) (y (i0 + 1)))
                                        (to_BinDirectSums A (x (i0 + 1)) (z i0)))
-                        (fun i0 : hz => (to_In1 A (to_BinDirectSums
+                        (λ i0 : hz, (to_In1 A (to_BinDirectSums
                                                   A (x (i0 + 1 + 1)) (y (i0 + 1)))
                                              · to_In1 A (to_BinDirectSums
                                                             A (to_BinDirectSums

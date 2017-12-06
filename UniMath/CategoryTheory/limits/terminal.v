@@ -25,7 +25,7 @@ Variable C : precategory.
 
 Definition isTerminal (b : C) : UU := ∏ a : C, iscontr (a --> b).
 
-Definition Terminal : UU := total2 (fun a => isTerminal a).
+Definition Terminal : UU := total2 (λ a, isTerminal a).
 
 Definition TerminalObject (T : Terminal) : C := pr1 T.
 Coercion TerminalObject : Terminal >-> ob.
@@ -114,8 +114,8 @@ Section Terminal_and_EmptyProd.
     ProductCone empty C fromempty -> Terminal C.
   Proof.
     intros X.
-    refine (mk_Terminal (ProductObject _ C X) _).
-    refine (mk_isTerminal _ _).
+    use (mk_Terminal (ProductObject _ C X)).
+    use mk_isTerminal.
     intros a.
     assert (H : ∏ i : empty, C⟦a, fromempty i⟧) by
         (intros i; apply (fromempty i)).
@@ -138,7 +138,7 @@ End Terminal_and_EmptyProd.
 (* Definition empty_graph : graph. *)
 (* Proof. *)
 (*   exists empty. *)
-(*   exact (fun _ _ => empty). *)
+(*   exact (λ _ _, empty). *)
 (* Defined. *)
 
 (* Definition termDiagram : diagram empty_graph C^op. *)
@@ -176,14 +176,14 @@ Definition Terminal_functor_precat : Terminal [C,D,hsD].
 Proof.
 use mk_Terminal.
 - use mk_functor.
-  + mkpair.
+  + use tpair.
     * intros c; apply (TerminalObject ID).
     * simpl; intros a b f; apply (TerminalArrow ID).
   + split.
     * intro a; apply pathsinv0, TerminalEndo_is_identity.
     * intros a b c f g; apply pathsinv0, TerminalArrowUnique.
 - intros F.
-  mkpair.
+  use tpair.
   + use mk_nat_trans; simpl.
     * intro a; apply TerminalArrow.
     * intros a b f; simpl.

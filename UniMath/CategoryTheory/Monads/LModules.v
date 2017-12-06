@@ -23,13 +23,11 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.Monads.
+Require Import UniMath.CategoryTheory.Monads.Monads.
 
 Local Open Scope cat.
 
 Local Notation "F ;;; G" := (nat_trans_comp _ _ _ F G) (at level 35).
-
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 (** * Definition of module *)
 Section LModule_over_monad.

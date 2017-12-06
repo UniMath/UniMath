@@ -58,8 +58,6 @@ Require Import UniMath.CategoryTheory.Categories.
 
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 (** * Functors : Morphisms of precategories *)
 Section functors.
 
@@ -103,7 +101,7 @@ Definition functor_compax {C C' : precategory_data} (F : functor_data C C') :=
   ∏ a b c : ob C, ∏ f : a --> b, ∏ g : b --> c, #F (f · g) = #F f · #F g .
 
 Definition is_functor {C C' : precategory_data} (F : functor_data C C') :=
-  dirprod ( functor_idax F ) ( functor_compax F ) .
+  ( functor_idax F ) × ( functor_compax F ) .
 
 Lemma isaprop_is_functor (C C' : precategory_data) (hs: has_homsets C')
       (F : functor_data C C') : isaprop (is_functor F).
@@ -116,7 +114,7 @@ Proof.
 Qed.
 
 Definition functor (C C' : precategory_data) : UU :=
-  total2 ( fun F : functor_data C C' => is_functor F ).
+  total2 ( λ F : functor_data C C', is_functor F ).
 
 Notation "a ⟶ b" := (functor a b) (at level 39) : cat.
 (* to input: type "\-->" with Agda input method *)
@@ -216,7 +214,7 @@ Lemma functor_id_id (A B : precategory) (G : functor A B) (a : A) (f : a --> a)
   : f = identity _ -> #G f = identity _ .
 Proof.
   intro e.
-  pathvia (#G (identity a )).
+  intermediate_path (#G (identity a )).
   - apply maponpaths. apply e.
   - apply functor_id.
 Defined.
@@ -322,8 +320,8 @@ Notation "# F" := (functor_on_morphisms F)(at level 3) : cat. (* Notations do no
 
 (** ** Functors preserve inverses *)
 
-Lemma functor_on_inv_from_iso (C C' : precategory) (F : functor C C')
-    (a b : ob C)(f : iso a b) :
+Lemma functor_on_inv_from_iso {C C' : precategory} (F : functor C C')
+    {a b : ob C}(f : iso a b) :
       #F (inv_from_iso f) = inv_from_iso (functor_on_iso F f) .
 Proof.
   apply inv_iso_unique'; simpl.
@@ -349,7 +347,7 @@ Qed.
 
 Definition weq_from_fully_faithful {C D : precategory_data}{F : functor C D}
       (FF : fully_faithful F) (a b : ob C) :
-   weq (a --> b) (F a --> F b).
+   (a --> b) ≃ (F a --> F b).
 Proof.
   exists (functor_on_morphisms F (a:=a) (b:=b)).
   exact (FF a b).
@@ -529,7 +527,7 @@ Definition weq_ff_functor_on_iso_weqbandf {C D : precategory}
   (HF : fully_faithful F) (a b : C)
   : iso a b ≃ iso (F a) (F b).
 Proof.
-  simple refine (weqbandf _ _ _ _ ).
+  use weqbandf.
   - apply (weqpair _ (HF a b)).
   - simpl; intro f.
     apply weqimplimpl.
@@ -557,7 +555,7 @@ Proof.
   intro d.
   apply invproofirrelevance.
   intros [c e] [c' e'].
-  simple refine (total2_paths_f _ _ ).
+  use total2_paths_f.
   - simpl.
     set (X := idtoiso (e @ ! e')).
     (* set (X' := invmap (@weq_ff_functor_on_iso _ _ _ HF _ _ ) X). *)
@@ -567,7 +565,7 @@ Proof.
     apply (isotoid _ HC X2).
   - simpl.
     set (T:=@functtransportf _ _ (functor_on_objects F)).
-    set (T' := T (fun c => c = d)). simpl in T'.
+    set (T' := T (λ c, c = d)). simpl in T'.
     rewrite T'.
     rewrite (maponpaths_isotoid _ _ _ HC HD).
     rewrite functor_on_iso_iso_from_ff_reflection.
@@ -584,7 +582,7 @@ Qed.
 (** ** Essentially surjective functors *)
 
 Definition essentially_surjective {C D : precategory_data} (F : functor C D) :=
-  ∏ b, ishinh (total2 (fun a => iso (F a) b)).
+  ∏ b, ishinh (total2 (λ a, iso (F a) b)).
 
 (** ** Faithful functors *)
 
@@ -609,7 +607,7 @@ Definition full {C D : precategory_data} (F : functor C D) :=
 (** ** Fully faithful is the same as full and faithful *)
 
 Definition full_and_faithful {C D : precategory_data} (F : functor C D) :=
-   dirprod (full F) (faithful F).
+   (full F) × (faithful F).
 
 
 Lemma fully_faithful_implies_full_and_faithful (C D : precategory_data) (F : functor C D) :
@@ -651,7 +649,7 @@ Qed.
 
 
 Definition weq_fully_faithful_full_and_faithful (C D : precategory_data) (F : functor C D) :
-   weq (fully_faithful F) (full_and_faithful F) :=
+   (fully_faithful F) ≃ (full_and_faithful F) :=
   weqimplimpl (fully_faithful_implies_full_and_faithful _ _ F)
               (full_and_faithful_implies_fully_faithful _ _ F)
               (isaprop_fully_faithful _ _ F)
@@ -664,11 +662,11 @@ Definition weq_fully_faithful_full_and_faithful (C D : precategory_data) (F : fu
 Definition is_in_img_functor {C D : precategory_data} (F : functor C D)
       (d : ob D) :=
   ishinh (
-  total2 (fun c : ob C => iso (F c) d)).
+  total2 (λ c : ob C, iso (F c) d)).
 
 Definition sub_img_functor {C D : precategory_data}(F : functor C D) :
     hsubtype (ob D) :=
-       fun d : ob D => is_in_img_functor F d.
+       λ d : ob D, is_in_img_functor F d.
 
 
 
@@ -678,7 +676,7 @@ Definition sub_img_functor {C D : precategory_data}(F : functor C D) :
 
 Definition functor_composite_data {C C' C'' : precategory_ob_mor } (F : functor_data C C')
            (F' : functor_data C' C'') : functor_data C C'' :=
-  functor_data_constr C C'' (fun a => F' (F a))  (fun (a b : ob C) f => #F' (#F f)) .
+  functor_data_constr C C'' (λ a, F' (F a))  (λ (a b : ob C) f, #F' (#F f)) .
 
 
 Lemma is_functor_composite {C C' C'' : precategory_data}
@@ -704,7 +702,7 @@ Definition functor_composite {C C' C'' : precategory_data} (F : functor C C') (F
 (** *** Identity functor *)
 
 Definition functor_identity_data ( C  : precategory_data ) : functor_data C C :=
-  functor_data_constr C C (fun a => a) (fun (a b : ob C) f => f) .
+  functor_data_constr C C (λ a, a) (λ (a b : ob C) f, f) .
 
 Lemma is_functor_identity (C : precategory_data) : is_functor ( functor_identity_data C ) .
 Proof.
@@ -730,7 +728,7 @@ Variables C D : precategory.
 Variable d : D.
 
 Definition constant_functor_data: functor_data C D :=
-   functor_data_constr C D (fun _ => d) (fun _ _ _  => identity _) .
+   functor_data_constr C D (λ _, d) (λ _ _ _ , identity _) .
 
 Lemma is_functor_constant: is_functor constant_functor_data.
 Proof.
@@ -833,14 +831,14 @@ Qed.
 
 Definition functor_precategory_ob_mor (C C' : precategory_data):
   precategory_ob_mor := precategory_ob_mor_pair
-   (functor C C') (fun F F' : functor C C' => nat_trans F F').
+   (functor C C') (λ F F' : functor C C', nat_trans F F').
 
 
 (** *** Identity natural transformation *)
 
 Lemma is_nat_trans_id {C : precategory_data}{C' : precategory}
   (F : functor_data C C') : is_nat_trans F F
-     (fun c : ob C => identity (F c)).
+     (λ c : ob C, identity (F c)).
 Proof.
   intros ? ? ? .
   now rewrite id_left, id_right.
@@ -856,7 +854,7 @@ Lemma is_nat_trans_comp {C : precategory_data}{C' : precategory}
   {F G H : functor_data C C'}
   (a : nat_trans F G)
   (b : nat_trans G H): is_nat_trans F H
-     (fun x : ob C => a x · b x).
+     (λ x : ob C, a x · b x).
 Proof.
   intros ? ? ?.
   now rewrite assoc, nat_trans_ax, <- assoc, nat_trans_ax, assoc.
@@ -905,7 +903,7 @@ Qed.
 
 Definition functor_precategory (C : precategory_data) (C' : precategory)
   (hs: has_homsets C'): precategory :=
-  tpair (fun C => is_precategory C)
+  tpair (λ C, is_precategory C)
         (functor_precategory_data C C')
         (is_precategory_functor_precategory_data C C' hs).
 
@@ -926,7 +924,7 @@ Lemma nat_trans_comp_pointwise (C : precategory_data)(C' : precategory) (hs: has
         ∏ a, pr1 A a · pr1 A' a = pr1 B a.
 Proof.
   intros H' a.
-  pathvia (pr1 (A · A') a).
+  intermediate_path (pr1 (A · A') a).
   apply idpath.
   destruct H'.
   apply idpath.
@@ -939,7 +937,7 @@ Variable hsD : has_homsets D.
 Context {F G : functor C D}.
 Variables alpha beta : nat_trans F G.
 
-Definition nat_trans_eq_weq : weq (alpha = beta) (∏ c, alpha c = beta c).
+Definition nat_trans_eq_weq : (alpha = beta) ≃ (∏ c, alpha c = beta c).
 Proof.
   eapply weqcomp.
   - apply subtypeInjectivity.
@@ -957,7 +955,7 @@ Lemma is_nat_trans_inv_from_pointwise_inv_ext {C : precategory_data} {D : precat
   {F G : functor_data C D} {A : nat_trans F G}
   (H : forall a : ob C, is_iso (pr1 A a)) :
   is_nat_trans _ _
-     (fun a : ob C => inv_from_iso (tpair _ _ (H a))).
+     (λ a : ob C, inv_from_iso (tpair _ _ (H a))).
 Proof.
   unfold is_nat_trans.
   intros x x' f.
@@ -977,7 +975,7 @@ Lemma is_nat_trans_inv_from_pointwise_inv (C : precategory_data)(D : precategory
   (F G : ob [C,D,hs]) (A : F --> G)
   (H : forall a : ob C, is_iso (pr1 A a)) :
   is_nat_trans _ _
-     (fun a : ob C => inv_from_iso (tpair _ _ (H a))).
+     (λ a : ob C, inv_from_iso (tpair _ _ (H a))).
 Proof.
   apply is_nat_trans_inv_from_pointwise_inv_ext.
   exact hs.
@@ -1091,7 +1089,7 @@ Definition functor_iso_pointwise_if_iso (C : precategory_data) (C' : precategory
   (H : is_iso A) :
      ∏ a : ob C,
        iso (pr1 F a) (pr1 G a) :=
-  fun a => tpair _ _ (is_functor_iso_pointwise_if_iso C C' _ F G A H a).
+  λ a, tpair _ _ (is_functor_iso_pointwise_if_iso C C' _ F G A H a).
 
 Lemma nat_trans_inv_pointwise_inv_after_p (C : precategory_data) (C' : precategory)
   (hs: has_homsets C')
@@ -1132,10 +1130,10 @@ Lemma transport_of_functor_map_is_pointwise (C : precategory_data) (D : precateg
 transportf (fun x : ob C -> ob D =>
             ∏ a0 b0 : ob  C, a0 --> b0 -> x a0 --> x b0)
            gamma  F1 a b f =
-transportf (fun TT : ob D => G0 a --> TT)
-  (toforallpaths (fun _ : ob C => D) F0 G0 gamma b)
-  (transportf (fun SS : ob D => SS --> F0 b)
-     (toforallpaths (fun _ : ob C => D) F0 G0 gamma a) (F1 a b f)).
+transportf (λ TT : ob D, G0 a --> TT)
+  (toforallpaths (λ _ : ob C, D) F0 G0 gamma b)
+  (transportf (λ SS : ob D, SS --> F0 b)
+     (toforallpaths (λ _ : ob C, D) F0 G0 gamma a) (F1 a b f)).
 Proof.
   induction gamma.
   apply idpath.
@@ -1161,7 +1159,7 @@ Proof.
   apply funextsec; intro f.
   rewrite transport_of_functor_map_is_pointwise.
   rewrite toforallpaths_funextsec.
-  pathvia ((inv_from_iso
+  intermediate_path ((inv_from_iso
         (idtoiso
            (isotoid D H
               (functor_iso_pointwise_if_iso C D _ F G A (pr2 A) a)))·
@@ -1179,7 +1177,7 @@ Proof.
   rewrite idtoiso_isotoid.
   destruct A as [A Aiso].
   simpl in *.
-  pathvia
+  intermediate_path
     (inv_from_iso (functor_iso_pointwise_if_iso C D hs F G A Aiso a) ·
        (A a · #G f)).
   rewrite <- assoc.
@@ -1213,7 +1211,7 @@ Lemma idtoiso_compute_pointwise (C : precategory_data) (D : precategory)
      (p : F = G) (a : ob C) :
   functor_iso_pointwise_if_iso C D _ F G (idtoiso p) (pr2 (idtoiso p)) a =
 idtoiso
-  (toforallpaths (fun _ : ob C => D) (pr1 (pr1 F)) (pr1 (pr1 G))
+  (toforallpaths (λ _ : ob C, D) (pr1 (pr1 F)) (pr1 (pr1 G))
      (base_paths (pr1 F) (pr1 G) (base_paths F G p)) a).
 Proof.
   induction p.
@@ -1253,9 +1251,9 @@ Proof.
   simpl; apply nat_trans_eq; intro a. apply hs.
   assert (H':= idtoiso_compute_pointwise C D _ F G (functor_eq_from_functor_iso _ H F G gamma) a).
   simpl in *.
-  pathvia (pr1
+  intermediate_path (pr1
        (idtoiso
-          (toforallpaths (fun _ : ob C => D) (pr1 (pr1 F)) (pr1 (pr1 G))
+          (toforallpaths (λ _ : ob C, D) (pr1 (pr1 F)) (pr1 (pr1 G))
              (base_paths (pr1 F) (pr1 G)
                 (base_paths F G (functor_eq_from_functor_iso hs H F G gamma))) a))).
       assert (H2 := maponpaths (@pr1 _ _ ) H').
@@ -1265,7 +1263,7 @@ Proof.
   rewrite base_total2_paths.
   unfold pr1_functor_eq_from_functor_iso.
   rewrite base_total2_paths.
-  pathvia (pr1 (idtoiso
+  intermediate_path (pr1 (idtoiso
      (isotoid D H (functor_iso_pointwise_if_iso C D hs F G gamma (pr2 gamma) a)))).
   apply maponpaths.
   apply maponpaths.
@@ -1328,7 +1326,7 @@ Lemma functor_identity_right (C D : precategory) (F : functor C D) :
   functor_composite F (functor_identity D) = F.
 Proof.
   destruct F as [ [ Fob Fmor ] is ] .
-  apply ( maponpaths ( fun p => tpair is_functor (tpair _ Fob Fmor) p ) ) .
+  apply ( maponpaths ( λ p, tpair is_functor (tpair _ Fob Fmor) p ) ) .
   destruct is as [ idax compax ] .
   apply pathsdirprod .
   simpl . apply funextsec . intro t . unfold functor_identity .  unfold functor_id . simpl .
@@ -1354,7 +1352,7 @@ Proof.
   destruct F1 as [ [ F1ob F1mor ] is1 ] .
   destruct F2 as [ [ F2ob F2mor ] is2 ] . simpl .
   unfold functor_composite . simpl .
-  apply ( maponpaths ( fun p => tpair is_functor _ p ) ) . simpl .
+  apply ( maponpaths ( λ p, tpair is_functor _ p ) ) . simpl .
   apply pathsdirprod .
   apply funextsec .
   intro t .
@@ -1367,9 +1365,9 @@ Proof.
   simpl .
 
   rewrite path_assoc.
-  apply ( maponpaths ( fun e => pathscomp0 e ( is2id (F1ob (F0ob t)) ) ) ) .
+  apply ( maponpaths ( λ e, pathscomp0 e ( is2id (F1ob (F0ob t)) ) ) ) .
   rewrite maponpathscomp0 .
-  apply ( maponpaths ( fun e => pathscomp0 e ( maponpaths
+  apply ( maponpaths ( λ e, pathscomp0 e ( maponpaths
                                                  (F2mor (F1ob (F0ob t)) (F1ob (F0ob t)))
                                                  (is1id (F0ob t)) ) ) ) .
   apply maponpathscomp .
@@ -1385,12 +1383,12 @@ Proof.
   simpl .
 
   rewrite path_assoc.
-  apply ( maponpaths ( fun e =>
+  apply ( maponpaths ( λ e,
                          pathscomp0 e ( is2comp (F1ob (F0ob t)) (F1ob (F0ob t0)) (F1ob (F0ob t1))
                                                 (F1mor (F0ob t) (F0ob t0) (F0mor t t0 f))
                                                 (F1mor (F0ob t0) (F0ob t1) (F0mor t0 t1 g)) ) ) ) .
   rewrite maponpathscomp0 .
-  apply ( maponpaths ( fun e =>
+  apply ( maponpaths ( λ e,
                          pathscomp0 e ( maponpaths (F2mor (F1ob (F0ob t)) (F1ob (F0ob t1)))
                                                    (is1comp (F0ob t) (F0ob t0) (F0ob t1)
                                                             (F0mor t t0 f) (F0mor t0 t1 g)) ))).

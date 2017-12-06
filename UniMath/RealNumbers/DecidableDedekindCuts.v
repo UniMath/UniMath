@@ -10,6 +10,8 @@ Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
 Require Export UniMath.RealNumbers.NonnegativeReals.
 
+Unset Automatic Introduction.
+
 Open Scope Dcuts_scope.
 
 (** ** Definition *)
@@ -23,7 +25,7 @@ Proof.
   apply pr2.
 Qed.
 Definition isboolDcuts : hsubtype Dcuts :=
-  (fun x : Dcuts => hProppair _ (isboolDcuts_isaprop x)).
+  (λ x : Dcuts, hProppair _ (isboolDcuts_isaprop x)).
 
 Lemma isaset_boolDcuts : isaset isboolDcuts.
 Proof.

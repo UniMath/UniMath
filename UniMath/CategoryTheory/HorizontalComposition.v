@@ -19,8 +19,6 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 Section horizontal_composition.
 
 Variables C D E : precategory.
@@ -73,7 +71,7 @@ Definition functorial_composition_data (A B C : precategory) (hsB: has_homsets B
   functor_data (precategory_binproduct_data [A, B, hsB] [B, C, hsC])
                [A, C, hsC].
 Proof.
-  exists (fun FG => functor_composite (pr1 FG) (pr2 FG)).
+  exists (λ FG, functor_composite (pr1 FG) (pr2 FG)).
   intros a b αβ.
   induction αβ as [α β].
   exact (horcomp α β).

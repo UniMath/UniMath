@@ -22,8 +22,6 @@ Section interface.
 
 Variable C : category.
 
-Set Automatic Introduction.
-
 Definition isCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
   binarySumProperty ia ib.
 

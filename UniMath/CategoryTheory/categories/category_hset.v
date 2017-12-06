@@ -40,8 +40,8 @@ Definition hset_fun_space (A B : hSet) : hSet :=
   hSetpair _ (isaset_set_fun_space A B).
 
 Definition hset_precategory_ob_mor : precategory_ob_mor :=
-  tpair (fun ob : UU => ob -> ob -> UU) hSet
-        (fun A B : hSet => hset_fun_space A B).
+  tpair (λ ob : UU, ob -> ob -> UU) hSet
+        (λ A B : hSet, hset_fun_space A B).
 
 Definition hset_precategory_data : precategory_data :=
   precategory_data_pair hset_precategory_ob_mor (fun (A:hSet) (x : A) => x)
@@ -97,7 +97,7 @@ Proof.
     apply (toforallpaths _ _ _ (iso_after_iso_inv f)).
 Defined.
 
-Lemma hset_iso_equiv (A B : ob HSET) : iso A B -> weq (pr1 A) (pr1 B).
+Lemma hset_iso_equiv (A B : ob HSET) : iso A B -> (pr1 A) ≃ (pr1 B).
 Proof.
   intro f.
   exists (pr1 f).
@@ -109,7 +109,7 @@ Defined.
 *)
 
 Lemma hset_equiv_is_iso (A B : hSet)
-      (f : weq (pr1 A) (pr1 B)) :
+      (f : (pr1 A) ≃ (pr1 B)) :
            is_iso (C:=HSET) (pr1 f).
 Proof.
   apply (is_iso_qinv (C:=HSET) _ (invmap f)).
@@ -122,7 +122,7 @@ Proof.
     apply homotweqinvweq.
 Defined.
 
-Lemma hset_equiv_iso (A B : ob HSET) : weq (pr1 A) (pr1 B) -> iso A B.
+Lemma hset_equiv_iso (A B : ob HSET) : (pr1 A) ≃ (pr1 B) -> iso A B.
 Proof.
   intro f.
   simpl in *.
@@ -143,7 +143,7 @@ Proof.
     + reflexivity.
 Qed.
 
-Definition hset_iso_equiv_weq (A B : ob HSET) : weq (iso A B) (weq (pr1 A) (pr1 B)).
+Definition hset_iso_equiv_weq (A B : ob HSET) : (iso A B) ≃ ((pr1 A) ≃ (pr1 B)).
 Proof.
   exists (hset_iso_equiv A B).
   apply hset_iso_equiv_is_equiv.
@@ -161,7 +161,7 @@ Proof.
 Qed.
 
 Definition hset_equiv_iso_weq (A B : ob HSET) :
-  weq (weq (pr1 A) (pr1 B))(iso A B).
+  (pr1 A ≃ pr1 B) ≃ iso A B.
 Proof.
   exists (hset_equiv_iso A B).
   apply hset_equiv_iso_is_equiv.
@@ -169,11 +169,11 @@ Defined.
 
 (** ** HSET is a univalent_category. *)
 
-Definition univalenceweq (X X' : UU) : weq (X = X') (weq X X') :=
+Definition univalenceweq (X X' : UU) : (X = X') ≃ (X ≃ X') :=
    tpair _ _ (univalenceAxiom X X').
 
 Definition hset_id_iso_weq (A B : ob HSET) :
-  weq (A = B) (iso A B) :=
+  (A = B) ≃ (iso A B) :=
   weqcomp (UA_for_HLevels 2 A B) (hset_equiv_iso_weq A B).
 
 
@@ -208,6 +208,13 @@ Lemma is_univalent_HSET : is_univalent HSET.
 Proof.
   split.
   - apply is_weq_precat_paths_to_iso_hset.
+  - apply has_homsets_HSET.
+Defined.
+
+Definition HSET_univalent_category : univalent_category.
+Proof.
+  exists HSET; split.
+  - apply is_univalent_HSET.
   - apply has_homsets_HSET.
 Defined.
 

@@ -23,11 +23,11 @@ Section def_rig_precategory.
   Definition rig_fun_space (A B : rig) : hSet := hSetpair (rigfun A B) (isasetrigfun A B).
 
   Definition rig_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) rig (fun A B : rig => rig_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) rig (λ A B : rig, rig_fun_space A B).
 
   Definition rig_precategory_data : precategory_data :=
     precategory_data_pair
-      rig_precategory_ob_mor (fun (X : rig) => (rigisotorigfun (idrigiso X)))
+      rig_precategory_ob_mor (λ (X : rig), (rigisotorigfun (idrigiso X)))
       (fun (X Y Z : rig) (f : rigfun X Y) (g : rigfun Y Z) => rigfuncomp f g).
 
   Local Definition rig_id_left (X Y : rig) (f : rigfun X Y) :

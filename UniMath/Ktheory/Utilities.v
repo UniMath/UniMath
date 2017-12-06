@@ -1,11 +1,12 @@
 (** * Utilities concerning paths, hlevel, and logic *)
 
-Global Unset Automatic Introduction.
+Unset Automatic Introduction.
 Require Export UniMath.Foundations.PartD.
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Export UniMath.Ktheory.Tactics.
 Require Import UniMath.MoreFoundations.Tactics.
+Unset Automatic Introduction.
 
 (** ** Null homotopies, an aid for proving things about propositional truncation *)
 
@@ -48,7 +49,7 @@ Defined.
 Definition paths_from {X} (x:X) := coconusfromt X x.
 Definition point_to {X} {x:X} : paths_from x -> X := coconusfromtpr1 _ _.
 Definition paths_from_path {X} {x:X} (w:paths_from x) := pr2 w.
-Definition paths' {X} (x:X) := λ y, paths y x.
+Definition paths' {X} (x:X) := λ y, y = x.
 Definition idpath' {X} (x:X) := idpath x : paths' x x.
 Definition paths_to {X} (x:X) := coconustot X x.
 Definition point_from {X} {x:X} : paths_to x -> X := coconustotpr1 _ _.
@@ -85,7 +86,7 @@ Proof. intros ? ? ? ?.
 Definition cone_squash_map {X Y} (f:X->Y) (y:Y) :
   nullHomotopyTo f y -> ∥ X ∥ -> Y.
 Proof. intros ? ? ? ? e h.
-       exact (point_from (h (paths_to_prop y) (fun x => f x,,e x))). Defined.
+       exact (point_from (h (paths_to_prop y) (λ x, f x,,e x))). Defined.
 
 Goal ∏ X Y (y:Y) (f:X->Y) (e:∏ m:X, f m = y),
        f = funcomp squash_element (cone_squash_map f y e).
@@ -122,7 +123,7 @@ Lemma squash_map_uniqueness {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) :
   g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
 Proof.
   intros ? ? ? ? ? h.
-  set ( Q := fun y => g y = g' y ).
+  set ( Q := λ y, g y = g' y ).
   unfold homot.
   apply (@factor_dep_through_squash X). intros y. apply ip.
   intro x. apply h.
@@ -140,7 +141,7 @@ Qed.
 Notation ap := maponpaths.
 (* see table 3.1 in the coq manual for parsing levels *)
 (* funcomp' is like funcomp, but with the arguments in the other order *)
-Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) .
+Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := λ x : X, g ( f x ) .
 Open Scope transport.
 
 (* some jargon reminders: *)
@@ -156,7 +157,7 @@ Definition an_inclusion_is_injective {X Y} (f:X->Y) (inj:isincl f) x x': f x = f
 Proof. intros ? ? ? ? ? ?. exact (invmaponpathsincl _ inj _ _). Defined.
 
 (* paths *)
-Definition confun T {Y} (y:Y) := fun _:T => y.
+Definition confun T {Y} (y:Y) := λ _:T, y.
 Definition path_type {X} {x x':X} (p:x = x') := X.
 Definition path_start {X} {x x':X} (p:x = x') := x.
 Definition path_end {X} {x x':X} (p:x = x') := x'.
@@ -309,18 +310,14 @@ Proof. intros. reflexivity. Defined.
 (** ** Transport *)
 
 Definition transport_type_path {X Y:Type} (p:X = Y) (x:X) :
-  transportf (fun T:Type => T) p x = cast p x.
+  transportf (λ T:Type, T) p x = cast p x.
 Proof. intros. induction p. reflexivity. Defined.
 
 Definition transport_fun_path {X Y} {f g:X->Y} {x x':X} {p:x = x'} {e:f x = g x} {e':f x' = g x'} :
   e @ ap g p = ap f p @ e' ->
-  transportf (fun x => f x = g x) p e = e'.
+  transportf (λ x, f x = g x) p e = e'.
 Proof. intros ? ? ? ? ? ? ? ? ? k. induction p. rewrite maponpaths_idpath in k. rewrite maponpaths_idpath in k.
        rewrite pathscomp0rid in k. exact k. Defined.
-
-Definition transportf_pathsinv0 {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
-  !p # v = u -> p # u = v.
-Proof. intros ? ? ? ? ? ? ? e. induction p, e. reflexivity. Defined.
 
 Definition transportf_pathsinv0' {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
   p # u = v -> !p # v = u.
@@ -333,7 +330,7 @@ Proof. intros. induction p. reflexivity. Defined.
 
 Lemma transport_functions {X} {Y:X->Type} {Z:∏ x (y:Y x), Type}
       {f f':∏ x : X, Y x} (p:f = f') (z:∏ x, Z x (f x)) x :
-    transportf (fun f => ∏ x, Z x (f x)) p z x =
+    transportf (λ f, ∏ x, Z x (f x)) p z x =
     transportf (Z x) (toforallpaths _ _ _ p x) (z x).
 Proof. intros. induction p. reflexivity. Defined.
 
@@ -341,33 +338,33 @@ Definition transport_funapp {T} {X Y:T->Type}
            (f:∏ t, X t -> Y t) (x:∏ t, X t)
            {t t':T} (p:t = t') :
   transportf _ p ((f t)(x t))
-  = (transportf (fun t => X t -> Y t) p (f t)) (transportf _ p (x t)).
+  = (transportf (λ t, X t -> Y t) p (f t)) (transportf _ p (x t)).
 Proof. intros. induction p. reflexivity. Defined.
 
 Definition helper_A {T} {Y} (P:T->Y->Type) {y y':Y} (k:∏ t, P t y) (e:y = y') t :
-  transportf (fun y => P t y) e (k t)
+  transportf (λ y, P t y) e (k t)
   =
-  (transportf (fun y => ∏ t, P t y) e k) t.
+  (transportf (λ y, ∏ t, P t y) e k) t.
 Proof. intros. induction e. reflexivity. Defined.
 
 Definition helper_B {T} {Y} (f:T->Y) {y y':Y} (k:∏ t, y = f t) (e:y = y') t :
-  transportf (fun y => y = f t) e (k t)
+  transportf (λ y, y = f t) e (k t)
   =
-  (transportf (fun y => ∏ t, y = f t) e k) t.
+  (transportf (λ y, ∏ t, y = f t) e k) t.
 Proof. intros. exact (helper_A _ k e t). Defined.
 
-Definition transport_invweq {T} {X Y:T->Type} (f:∏ t, weq (X t) (Y t))
+Definition transport_invweq {T} {X Y:T->Type} (f:∏ t, (X t) ≃ (Y t))
            {t t':T} (p:t = t') :
-  transportf (fun t => weq (Y t) (X t)) p (invweq (f t))
+  transportf (λ t, (Y t) ≃ (X t)) p (invweq (f t))
   =
-  invweq (transportf (fun t => weq (X t) (Y t)) p (f t)).
+  invweq (transportf (λ t, (X t) ≃ (Y t)) p (f t)).
 Proof. intros. induction p. reflexivity. Defined.
 
-Definition transport_invmap {T} {X Y:T->Type} (f:∏ t, weq (X t) (Y t))
+Definition transport_invmap {T} {X Y:T->Type} (f:∏ t, (X t) ≃ (Y t))
            {t t':T} (p:t=t') :
-  transportf (fun t => Y t -> X t) p (invmap (f t))
+  transportf (λ t, Y t -> X t) p (invmap (f t))
   =
-  invmap (transportf (fun t => weq (X t) (Y t)) p (f t)).
+  invmap (transportf (λ t, (X t) ≃ (Y t)) p (f t)).
 Proof. intros. induction p. reflexivity. Defined.
 
   (** *** Double transport *)
@@ -393,7 +390,7 @@ Proof. intros. induction p. reflexivity. Defined.
   (* replace this with transportf_total2 (?) : *)
   Definition transportf_pair X (Y:X->Type) (Z:∏ x, Y x->Type)
              x x' (p:x = x') (y:Y x) (z:Z x y) :
-    transportf (fun x => total2 (Z x)) p (tpair (Z x) y z)
+    transportf (λ x, total2 (Z x)) p (tpair (Z x) y z)
     =
     tpair (Z x') (transportf Y p y) (transportf2 _ p y z).
   Proof. intros. induction p. reflexivity. Defined.
@@ -402,7 +399,7 @@ Proof. intros. induction p. reflexivity. Defined.
              x x' (p:x = x')
              (y':Y x') (z':Z x' y')
              (z' : (Z x' y')) :
-    transportb (fun x => total2 (Z x)) p (tpair (Z x') y' z')
+    transportb (λ x, total2 (Z x)) p (tpair (Z x') y' z')
     =
     tpair (Z x) (transportb Y p y') (transportb2 _ p y' z').
   Proof. intros. induction p. reflexivity. Defined.
@@ -445,17 +442,17 @@ Definition pr1_eqweqmap { X Y } ( e: X = Y ) : cast e = pr1 (eqweqmap e).
 Proof. intros. induction e. reflexivity. Defined.
 
 Definition pr1_eqweqmap2 { X Y } ( e: X = Y ) :
-  pr1 (eqweqmap e) = transportf (fun T:Type => T) e.
+  pr1 (eqweqmap e) = transportf (λ T:Type, T) e.
 Proof. intros. induction e. reflexivity. Defined.
 
 Definition weqonsec {X Y} (P:X->Type) (Q:Y->Type)
            (f:X ≃ Y) (g:∏ x, weq (P x) (Q (f x))) :
-  weq (∏ x:X, P x) (∏ y:Y, Q y).
+  (∏ x:X, P x) ≃ (∏ y:Y, Q y).
 Proof. intros.
-       exact (weqcomp (weqonsecfibers P (fun x => Q(f x)) g)
+       exact (weqcomp (weqonsecfibers P (λ x, Q(f x)) g)
                       (invweq (weqonsecbase Q f))). Defined.
 
-Definition weq_transportf {X} (P:X->Type) {x y:X} (p:x = y) : weq (P x) (P y).
+Definition weq_transportf {X} (P:X->Type) {x y:X} (p:x = y) : (P x) ≃ (P y).
 Proof. intros. induction p. apply idweq. Defined.
 
 Definition weq_transportf_comp {X} (P:X->Type) {x y:X} (p:x = y) (f:∏ x, P x) :
@@ -463,7 +460,7 @@ Definition weq_transportf_comp {X} (P:X->Type) {x y:X} (p:x = y) (f:∏ x, P x) 
 Proof. intros. induction p. reflexivity. Defined.
 
 Definition weqonpaths2 {X Y} (w:X ≃ Y) {x x':X} {y y':Y} :
-  w x = y -> w x' = y' -> weq (x = x') (y = y').
+  w x = y -> w x' = y' -> (x = x') ≃ (y = y').
 Proof. intros ? ? ? ? ? ? ? p q. induction p,q. apply weqonpaths. Defined.
 
 Definition eqweqmap_ap {T} (P:T->Type) {t t':T} (e:t = t') (f:∏ t:T, P t) :
@@ -475,7 +472,7 @@ Definition eqweqmap_ap' {T} (P:T->Type) {t t':T} (e:t = t') (f:∏ t:T, P t) :
 Proof. intros. induction e. reflexivity. Defined.
 
 Definition weqpath_transport {X Y} (w:X ≃ Y) (x:X) :
-  transportf (fun T => T) (weqtopaths w) = pr1 w.
+  transportf (λ T, T) (weqtopaths w) = pr1 w.
 Proof. intros. exact (!pr1_eqweqmap2 _ @ ap pr1 (weqpathsweq w)). Defined.
 
 Definition weqpath_cast {X Y} (w:X ≃ Y) (x:X) : cast (weqtopaths w) = w.
@@ -491,8 +488,8 @@ Definition weqbandfrel {X Y T}
            (e:Y->T) (t:T) (f : X ≃ Y)
            (P:X -> Type) (Q: Y -> Type)
            (g:∏ x:X, weq (P x) (Q (f x))) :
-  weq (hfiber (fun xp:total2 P => e(f(pr1 xp))) t)
-      (hfiber (fun yq:total2 Q => e(  pr1 yq )) t).
+  weq (hfiber (λ xp:total2 P, e(f(pr1 xp))) t)
+      (hfiber (λ yq:total2 Q, e(  pr1 yq )) t).
 Proof. intros. refine (weqbandf (weqbandf f _ _ g) _ _ _).
        intros [x p]. simpl. apply idweq. Defined.
 
@@ -503,8 +500,8 @@ Definition weq_over_sections {S T} (w:S ≃ T)
            (H:(∏ t, P t) -> UU)
            (J:(∏ s, P(w s)) -> UU)
            (g:∏ f:(∏ t, P t), weq (H f) (J (maponsec1 P w f))) :
-  weq (hfiber (fun fh:total2 H => pr1 fh t0) p0 )
-      (hfiber (fun fh:total2 J => pr1 fh s0) pw0).
+  weq (hfiber (λ fh:total2 H, pr1 fh t0) p0 )
+      (hfiber (λ fh:total2 J, pr1 fh s0) pw0).
 Proof. intros. simple refine (weqbandf _ _ _ _).
        { simple refine (weqbandf _ _ _ _).
          { exact (weqonsecbase P w). }

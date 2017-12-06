@@ -211,8 +211,8 @@ Section transport_morphisms.
   Qed.
 
   Lemma transport_source_to_inv {x y z : ob PA} (f : y --> z) (e : y = x) :
-    to_inv (transportf (fun x' : ob PA => precategory_morphisms x' z) e f) =
-    transportf (fun x' : ob PA => precategory_morphisms x' z) e (to_inv f).
+    to_inv (transportf (λ x' : ob PA, precategory_morphisms x' z) e f) =
+    transportf (λ x' : ob PA, precategory_morphisms x' z) e (to_inv f).
   Proof.
     induction e. apply idpath.
   Qed.
@@ -226,9 +226,9 @@ Section transport_morphisms.
   Qed.
 
   Lemma transport_source_to_binop {x y z : ob PA} (f g : y --> z) (e : y = x) :
-    to_binop _ _ (transportf (fun x' : ob PA => precategory_morphisms x' z) e f)
-             (transportf (fun x' : ob PA => precategory_morphisms x' z) e g) =
-    transportf (fun x' : ob PA => precategory_morphisms x' z) e (to_binop _ _ f g).
+    to_binop _ _ (transportf (λ x' : ob PA, precategory_morphisms x' z) e f)
+             (transportf (λ x' : ob PA, precategory_morphisms x' z) e g) =
+    transportf (λ x' : ob PA, precategory_morphisms x' z) e (to_binop _ _ f g).
   Proof.
     induction e. apply idpath.
   Qed.

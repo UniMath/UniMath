@@ -33,7 +33,7 @@ Definition Equivalence_toAdjointness {X Y} (f:Equivalence X Y)
   := pr2 (pr2 (pr2 (pr2 f))).
 
 Lemma transportf_fun_idpath {X Y} {f:X->Y} x x' (w:x = x') (t:f x = f x) :
-              transportf (fun x' => f x' = f x) w (idpath (f x)) = maponpaths f (!w).
+              transportf (λ x', f x' = f x) w (idpath (f x)) = maponpaths f (!w).
 Proof. intros ? ? k. induction w. reflexivity. Qed.
 
 Definition Equivalence_to_weq {X Y} : X ≅ Y -> X ≃ Y.
@@ -89,14 +89,14 @@ Abort.
 Definition weq_to_Equivalence' X Y : X ≃ Y -> Equivalence X Y.
   intros ? ? [f r].
   unfold isweq in r.
-  set (g := fun y => hfiberpr1 f y (pr1 (r y))).
-  set (p := fun y => pr2 (pr1 (r y))).
+  set (g := λ y, hfiberpr1 f y (pr1 (r y))).
+  set (p := λ y, pr2 (pr1 (r y))).
   simpl in p.
-  set (L := fun x => pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
-  set (q := fun x => ap pr1 (L x)).
-  set (q' := fun x => !q x).
+  set (L := λ x, pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
+  set (q := λ x, ap pr1 (L x)).
+  set (q' := λ x, !q x).
   exact (makeEquivalence X Y f g p q'
-             (fun x =>
+             (λ x,
                  ! transportf_fun_idpath x (pr1 (pr1 (r (f x)))) (q x) (idpath (f x))
                  @ (fiber_paths (L x)))).
 Defined.
@@ -195,7 +195,7 @@ Proof. intros. apply pathsinv0.
          rewrite <- (maponpathscomp f g). set (y' := f (g y)).
          assert (r := maponpaths_fun_fun_fun_natl p g q y'). simpl in r.
          rewrite (maponpathscomp f). rewrite (maponpathscomp g).
-         rewrite (maponpathscomp g (fun x : X => g (f x))) in r.
+         rewrite (maponpathscomp g (λ x : X, g (f x))) in r.
          rewrite maponpathsidfun in r. exact r. }
        intermediate_path (
             !(ap g (p y))

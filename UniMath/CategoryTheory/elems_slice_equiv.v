@@ -35,11 +35,11 @@ Section elems_slice_equiv.
   Local Definition mk_mor := @make_mor C P.
 
   Definition PreShv_to_slice_ob_funct_fun (F : PreShv ∫P) : C^op → SET :=
-    fun X => total2_hSet (fun p : ##P X => (pr1 F) (mk_ob X p)).
+    λ X, total2_hSet (fun p : ##P X => (pr1 F) (mk_ob X p)).
 
   Definition PreShv_to_slice_ob_funct_mor (F : PreShv ∫P) {X Y : C^op} (f : X --> Y) :
     PreShv_to_slice_ob_funct_fun F X --> PreShv_to_slice_ob_funct_fun F Y :=
-    fun p => # (pr1 P) f (pr1 p) ,, # (pr1 F) (mor_to_el_mor (C:=C) f (pr1 p)) (pr2 p).
+    λ p, # (pr1 P) f (pr1 p) ,, # (pr1 F) (mor_to_el_mor (C:=C) f (pr1 p)) (pr2 p).
 
 
   Definition PreShv_to_slice_ob_funct_data (F : PreShv ∫P) : functor_data C^op SET :=
@@ -75,16 +75,16 @@ Section elems_slice_equiv.
 
     + set (T := ∑ p' : ## P X, p' = # (pr1 P) (identity X) p : UU).
       set (T' := ∑ p' : ## P X, (pr1 F) (X ,, p) --> (pr1 F) (X ,, p') : UU).
-      set (phi := fun (x : T) => mk_mor (X ,, pr1 x) (X ,, p) (identity X) (pr2 x)).
-      set (G := fun (x : T) => pr1 x ,, # (pr1 F) (phi x) : T').
+      set (phi := λ (x : T), mk_mor (X ,, pr1 x) (X ,, p) (identity X) (pr2 x)).
+      set (G := λ (x : T), pr1 x ,, # (pr1 F) (phi x) : T').
       set (e := fun (x : ∫P) => eqtohomot (!((functor_id P) (pr1 x))) (pr2 x)).
-      set (h := fun (x : T') => pr1 x ,, (pr2 x) q : pr1hSet (PreShv_to_slice_ob_funct_fun F X)).
+      set (h := λ (x : T'), pr1 x ,, (pr2 x) q : pr1hSet (PreShv_to_slice_ob_funct_fun F X)).
 
-      refine (maponpaths (funcomp G h)
+      use (maponpaths (funcomp G h)
                          (connectedcoconustot ((# (pr1 P) (identity X) p) ,, idpath _) (p ,, e (X ,, p))) @ _).
-      refine (@pair_path_in2 _ (fun x => pr1hSet ((pr1 F) (X ,, x))) p _ _ _).
-      refine (eqtohomot _ q @ eqtohomot (functor_id F (X ,, p)) q).
-      refine (maponpaths (# (pr1 F)) _).
+      use (@pair_path_in2 _ (λ x, pr1hSet ((pr1 F) (X ,, x))) p).
+      use (eqtohomot _ q @ eqtohomot (functor_id F (X ,, p)) q).
+      use (maponpaths (# (pr1 F))).
       use total2_paths_f.
       * reflexivity.
       * rewrite idpath_transportf;
@@ -92,25 +92,25 @@ Section elems_slice_equiv.
 
     + set (T := ∑ p' : ## P Z, p' = # (pr1 P) (g ∘ f) p : UU).
       set (T' := ∑ p' : ## P Z, (pr1 F) (X ,, p) --> (pr1 F) (Z ,, p') : UU).
-      set (phi := fun (x : T) => mk_mor (Z ,, pr1 x) (X ,, p) (g ∘ f) (pr2 x)).
-      set (G := fun (x : T) => (pr1 x ,, # (pr1 F) (phi x)) : T').
+      set (phi := λ (x : T), mk_mor (Z ,, pr1 x) (X ,, p) (g ∘ f) (pr2 x)).
+      set (G := λ (x : T), (pr1 x ,, # (pr1 F) (phi x)) : T').
       set (e := fun (z y x : ∫P) (f : z --> y) (g : y --> x) =>
                   ((pr2 f) @ maponpaths (# (pr1 P) (pr1 f)) (pr2 g)
                     @ (eqtohomot (!(functor_comp P) (pr1 g) (pr1 f)) (pr2 x)))).
-      set (h := fun (x : T') => pr1 x ,, (pr2 x) q : pr1hSet (PreShv_to_slice_ob_funct_fun F Z)).
+      set (h := λ (x : T'), pr1 x ,, (pr2 x) q : pr1hSet (PreShv_to_slice_ob_funct_fun F Z)).
 
-      refine (maponpaths (funcomp G h)
+      use (maponpaths (funcomp G h)
                          (connectedcoconustot (# (pr1 P) (g ∘ f) p ,, idpath _)
                                               (# (pr1 P) g (# (pr1 P) f p) ,,
                                                  e (mk_ob Z (# (pr1 P) g (# (pr1 P) f p)))
                                                  (mk_ob Y (# (pr1 P) f p)) (mk_ob X p)
                                                  (g ,, idpath _) (f ,, idpath _))) @ _).
-      refine (@pair_path_in2 _ (fun x => pr1hSet ((pr1 F) (Z ,, x))) (# (pr1 P) g (# (pr1 P) f p)) _ _ _).
-      refine (eqtohomot _ q @ eqtohomot (@functor_comp _ _ F (mk_ob X p)
+      use (@pair_path_in2 _ (λ x, pr1hSet ((pr1 F) (Z ,, x))) (# (pr1 P) g (# (pr1 P) f p))).
+      use (eqtohomot _ q @ eqtohomot (@functor_comp _ _ F (mk_ob X p)
                                                        (mk_ob Y (# (pr1 P) f p))
                                                        (mk_ob Z (# (pr1 P) g (# (pr1 P) f p)))
                                                        (f ,, idpath _) (g,, idpath _)) q).
-      refine (maponpaths (# (pr1 F)) _).
+      use (maponpaths (# (pr1 F))).
       use total2_paths_f.
       * reflexivity.
       * rewrite idpath_transportf;
@@ -131,7 +131,7 @@ Section elems_slice_equiv.
 
   Definition PreShv_to_slice_ob_nat {X Y : PreShv ∫P} (f : X --> Y) (c : C)
     : (∑ Px : ## P c, ## X (c,, Px)) → (∑ Px : ## P c, ## Y (c,, Px)) :=
-    fun p => pr1 p ,, (pr1 f) (c ,, (pr1 p)) (pr2 p).
+    λ p, pr1 p ,, (pr1 f) (c ,, (pr1 p)) (pr2 p).
 
   Definition PreShv_to_slice_ob_isnat {X Y : PreShv ∫P} (f : X --> Y) :
     is_nat_trans (PreShv_to_slice_ob_funct_data X) (PreShv_to_slice_ob_funct_data Y) (PreShv_to_slice_ob_nat f).
@@ -159,7 +159,7 @@ Section elems_slice_equiv.
       unfold PreShv_to_slice_ob_nat , PreShv_to_slice_ob_funct_fun;
       intro c;
       apply funextsec; intro p;
-      now rewrite tppr.
+      reflexivity.
   Defined.
 
   Definition PreShv_to_slice : functor (PreShv ∫P) (PreShv C / P) :=
@@ -167,7 +167,7 @@ Section elems_slice_equiv.
 
   (** ** Construction of the functor from PreShv C / P to PreShv ∫P *)
   Definition slice_to_PreShv_ob_ob (Q : PreShv C / P) : (∫P)^op → SET :=
-    fun p =>
+    λ p,
       hfiber ((pr1 (pr2 Q)) (pr1 p)) (pr2 p) ,,
              isaset_hfiber ((pr1 (pr2 Q)) (pr1 p)) (pr2 p) (pr2 (((pr1 (pr1 Q)) (pr1 p)))) (pr2 ((pr1 P) (pr1 p))).
 
@@ -180,7 +180,7 @@ Section elems_slice_equiv.
     apply (hfibersgftog (Qmor _ _ f) (Qnat y)).
     exists (pr1 s).
     rewrite feq.
-    refine (eqtohomot (Qisnat _ _ f) (pr1 s) @ _).
+    use (eqtohomot (Qisnat _ _ f) (pr1 s) @ _).
     exact (maponpaths (# (pr1 P) f) (pr2 s)).
   Defined.
 
@@ -201,15 +201,15 @@ Section elems_slice_equiv.
   Qed.
 
   Definition slice_to_PreShv_ob : PreShv C / P → PreShv ∫P :=
-    fun Q =>  slice_to_PreShv_ob_funct_data Q ,,  slice_to_PreShv_ob_is_funct Q.
+    λ Q,  slice_to_PreShv_ob_funct_data Q ,,  slice_to_PreShv_ob_is_funct Q.
 
   Definition slice_to_PreShv_ob_nat {X Y : PreShv C / P} (F : X --> Y) (e : ∫P^op) :
     (slice_to_PreShv_ob_ob X) e --> (slice_to_PreShv_ob_ob Y) e.
   Proof.
     induction e as [e Pe].
-    exact (fun p => hfibersgftog ((pr1 (pr1 F)) e)
+    exact (λ p, hfibersgftog ((pr1 (pr1 F)) e)
                                  ((pr1 (pr2 Y)) e) Pe
-                                 (transportf (fun x => hfiber (x e) Pe) (base_paths _ _ (pr2 F)) p)).
+                                 (transportf (λ x, hfiber (x e) Pe) (base_paths _ _ (pr2 F)) p)).
   Defined.
 
   Definition slice_to_PreShv_ob_is_nat {X Y : PreShv C / P} (F : X --> Y) :
@@ -268,7 +268,7 @@ Section elems_slice_equiv.
   Proof.
     destruct X as [[[X Xmor] Xisfunct] [Xnat Xisnat]].
     simpl in *.
-    repeat (mkpair; simpl).
+    repeat (use tpair; simpl).
     + intros x [p q].
       exact (pr1 q).
     + intros A B f.
@@ -307,13 +307,13 @@ Section elems_slice_equiv.
     intros X; simpl.
     match goal with
     | |- is_iso ?t => assert (eq : t =
-                                   (fun X0 => pr1 (pr2 X0)))
+                                   (λ X0, pr1 (pr2 X0)))
     end.
     { apply funextsec. intros [p q]. simpl. reflexivity. }
     rewrite eq.
-    change (fun X0 => pr1 (pr2 X0)) with (fromcoconusf (Fnat X)).
+    change (λ X0, pr1 (pr2 X0)) with (fromcoconusf (Fnat X)).
     exact (hset_equiv_is_iso (hSetpair (coconusf (Fnat X))
-                                         (isaset_total2_hSet _ (fun y => (hfiber_hSet (Fnat X) y)))) _
+                                         (isaset_total2_hSet _ (λ y, (hfiber_hSet (Fnat X) y)))) _
                                (weqfromcoconusf (Fnat X))).
   Qed.
 
@@ -327,7 +327,7 @@ Section elems_slice_equiv.
   Definition PreShv_unit_fun (F : PreShv ∫P) :
     (functor_identity _) F --> (PreShv_to_slice ∙ slice_to_PreShv) F.
   Proof.
-    mkpair.
+    use tpair.
     + intros [X p] x.
       exact ((p ,, x) ,, idpath p).
     + intros [X p] [X' p'] [f feq].
@@ -371,7 +371,7 @@ Section elems_slice_equiv.
     assert (H : isweq (λ x : pr1hSet (F (X,, p)) , (p,, x) ,, idpath p : pr1hSet (slice_to_PreShv_ob_ob (PreShv_to_slice_ob ((F,, Fmor),, Fisfunct)) (X,, p)))).
     { unfold isweq. intros [[p' x'] e'].
       simpl in *. induction e'.
-      refine ((x',, idpath _),, _).
+      use ((x',, idpath _),, _).
       intros [x'' t].
       apply (invmaponpathsincl pr1).
       apply isofhlevelfpr1;
@@ -383,7 +383,7 @@ Section elems_slice_equiv.
         exact ((pr2 c) _ @ !((pr2 c) _)).
       }
       set (eq := fiber_paths (maponpaths pr1 t)).
-      refine (_ @ eq).
+      use (_ @ eq).
       rewrite (transportf_paths _ eq_id).
       now rewrite idpath_transportf.
     }
