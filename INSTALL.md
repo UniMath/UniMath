@@ -182,6 +182,12 @@ files of UniMath is opened in emacs; in order to use them more generally, such
 as from the command line,, then add the full path for the directory
 ```./sub/coq/bin``` to your ```PATH``` environment variable, or set the emacs
 variable ```coq-prog-name``` in your emacs initialization file, ```.emacs```.
+If you don't use the version of Coq built by ```make```, then you might wish to
+remove the following lines from ```UniMath/.dir-locals.el```:
+```emacs
+(make-local-variable 'coq-prog-name)
+(setq coq-prog-name (concat unimath-topdir "sub/coq/bin/coqtop"))
+```
 
 The various *.v files are compiled by Coq in such a way that the fully
 qualified name of each identifier begins with UniMath.  For example, the fully
