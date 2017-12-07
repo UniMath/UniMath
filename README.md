@@ -5,6 +5,12 @@ This Coq library aims to formalize a substantial body of mathematics using the
 [univalent point of view](https://en.wikipedia.org/wiki/Univalent_foundations).
 It is licensed for use under the terms in the file ```LICENSE.md```.
 
+Installation
+------------
+
+See
+[INSTALL.md](https://github.com/UniMath/UniMath/blob/master/INSTALL.md).
+
 Contents
 --------
 
@@ -14,12 +20,6 @@ information about its contents.
 
 Some articles describing the contents of UniMath are listed in the 
 [wiki](https://github.com/UniMath/UniMath/wiki/Documentation:-Articles-describing-UniMath).
-
-Installation
-------------
-
-For installation instructions, please see the file
-[INSTALL.md](https://github.com/UniMath/UniMath/blob/master/INSTALL.md).
 
 Contributing to UniMath
 -----------------------
