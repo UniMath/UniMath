@@ -33,8 +33,6 @@ Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 (** * Definition of monads *)
 Section Monad_def.
 

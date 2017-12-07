@@ -63,7 +63,7 @@ Let Tree_alg : algebra_ob treeFunctor :=
 Definition leaf_map : HSET⟦unitHSET,Tree⟧.
 Proof.
 simpl; intro x.
-simple refine (Tree_mor _).
+use Tree_mor.
 apply inl, x.
 Defined.
 
@@ -72,7 +72,7 @@ Definition leaf : pr1 Tree := leaf_map tt.
 Definition node_map : HSET⟦(A × (Tree × Tree))%set,Tree⟧.
 Proof.
 intros xs.
-simple refine (Tree_mor _).
+use Tree_mor.
 exact (inr xs).
 Defined.
 

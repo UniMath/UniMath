@@ -805,17 +805,17 @@ Proof.
     apply funextsec; intros i;
     assert (MM := M i _ (mapcocone (pr_functor I B i) _ cc'));
     assert (H := proofirrelevance _ (isapropifcontr MM));
-    refine (maponpaths pr1 (H (pr1 f1 i,,_) (pr1 f2 i,,_)));
+    use (maponpaths pr1 (H (pr1 f1 i,,_) (pr1 f2 i,,_)));
       clear MM H; intros v ;
       [ exact (toforallpaths _ _ _ (pr2 f1 v) i) |
         exact (toforallpaths _ _ _ (pr2 f2 v) i) ]
       ) .
   - use tpair.
     + intros i.
-      refine (pr1 (pr1 (M i _ (mapcocone (pr_functor I B i) _ cc')))).
+      use (pr1 (pr1 (M i _ (mapcocone (pr_functor I B i) _ cc')))).
     + abstract (
           intros v; apply funextsec; intros i;
-          refine (pr2 (pr1 (M i _ (mapcocone (pr_functor I B i) _ cc'))) v)
+          use (pr2 (pr1 (M i _ (mapcocone (pr_functor I B i) _ cc'))) v)
         ).
 Defined.
 
@@ -949,7 +949,7 @@ Proof.
 intros cAB ml ccml Hccml xy ccxy; simpl in *.
 transparent assert (cc : (∏ i, cocone (mapdiagram (F i) (mapdiagram (pr_functor I (λ _ : I, A) i) cAB)) (xy i))).
 { intro i; use mk_cocone.
-  - intro n; simple refine (pr1 ccxy n _).
+  - intro n; use (pr1 ccxy n).
   - abstract (intros m n e; apply (toforallpaths _ _ _ (pr2 ccxy m n e) i)).
 }
 set (X i := HF i _ _ _ (isColimCocone_pr_functor _ _ _ Hccml i) (xy i) (cc i)).
@@ -1157,7 +1157,7 @@ Lemma is_cocont_coproduct_of_functors
   {F : ∏ (i : I), functor C D} (HF : ∏ i, is_cocont (F i)) :
   is_cocont (coproduct_of_functors I _ _ HD F).
 Proof.
-  refine (transportf _
+  use (transportf _
         (coproduct_of_functors_alt_eq_coproduct_of_functors _ _ _ _ hsD F)
         _).
   apply is_cocont_functor_composite; try apply hsD.
@@ -1170,7 +1170,7 @@ Lemma is_omega_cocont_coproduct_of_functors
   {F : ∏ (i : I), functor C D} (HF : ∏ i, is_omega_cocont (F i)) :
   is_omega_cocont (coproduct_of_functors I _ _ HD F).
 Proof.
-  refine (transportf _
+  use (transportf _
         (coproduct_of_functors_alt_eq_coproduct_of_functors _ _ _ _ hsD F)
         _).
   apply is_omega_cocont_functor_composite; try apply hsD.

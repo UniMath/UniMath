@@ -55,7 +55,7 @@ Proof.
   set (H' := nat_trans_ax  (adjunit (pr1 H))).
   simpl in H'; rewrite <- H'; clear H'; simpl in *.
   rewrite <- assoc.
-  pathvia (f · identity _).
+  intermediate_path (f · identity _).
   apply maponpaths.
   set (H' := iso_inv_after_iso (eta b)).
   apply H'.

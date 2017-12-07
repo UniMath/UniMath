@@ -114,8 +114,8 @@ Section Terminal_and_EmptyProd.
     ProductCone empty C fromempty -> Terminal C.
   Proof.
     intros X.
-    refine (mk_Terminal (ProductObject _ C X) _).
-    refine (mk_isTerminal _ _).
+    use (mk_Terminal (ProductObject _ C X)).
+    use mk_isTerminal.
     intros a.
     assert (H : ∏ i : empty, C⟦a, fromempty i⟧) by
         (intros i; apply (fromempty i)).

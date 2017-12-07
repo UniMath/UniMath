@@ -111,8 +111,8 @@ Section def_po.
              (ispb : isPushout f g in1 in2 H)
     : Pushout f g.
   Proof.
-    simple refine (tpair _ _ _ ).
-    - simple refine (tpair _ _ _ ).
+    use tpair.
+    - use tpair.
       + apply d.
       + exists in1.
         exact in2.
@@ -146,7 +146,7 @@ Section def_po.
     set (Pb := mk_Pushout _ _ _ _ _ _ P).
     rewrite <- assoc in Hw. rewrite <- assoc in Hw.
     set (Xw := PushoutArrow Pb e (in1 · w) (in2 · w) Hw).
-    pathvia Xw; [ apply PushoutArrowUnique; apply idpath |].
+    intermediate_path Xw; [ apply PushoutArrowUnique; apply idpath |].
     apply pathsinv0.
     apply PushoutArrowUnique. apply pathsinv0. apply H1.
     apply pathsinv0. apply H2.

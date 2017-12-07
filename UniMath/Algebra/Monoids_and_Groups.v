@@ -108,12 +108,12 @@ Delimit Scope multmonoid_scope with multmonoid.
 Definition unitmonoid_ismonoid : ismonoidop (λ x : unitset, λ y : unitset, x).
 Proof.
   use mk_ismonoidop.
-  - intros x x' x''. use isconnectedunit.
+  - intros x x' x''. use isProofIrrelevantUnit.
   - use isunitalpair.
     + exact tt.
     + use isunitpair.
-      * intros x. use isconnectedunit.
-      * intros x. use isconnectedunit.
+      * intros x. use isProofIrrelevantUnit.
+      * intros x. use isProofIrrelevantUnit.
 Qed.
 
 Definition unitmonoid : monoid :=
@@ -206,8 +206,8 @@ Definition unelmonoidfun (X Y : monoid) : monoidfun X Y :=
 Lemma monoidfuntounit_ismonoidfun (X : monoid) : ismonoidfun (λ x : X, (unel unitmonoid)).
 Proof.
   intros X. use mk_ismonoidfun.
-  - use mk_isbinopfun. intros x x'. use isconnectedunit.
-  - use isconnectedunit.
+  - use mk_isbinopfun. intros x x'. use isProofIrrelevantUnit.
+  - use isProofIrrelevantUnit.
 Qed.
 
 Definition monoidfuntounit (X : monoid) : monoidfun X unitmonoid :=
@@ -533,7 +533,7 @@ Definition unitabmonoid_isabmonoid : isabmonoidop (@op unitmonoid).
 Proof.
   use mk_isabmonoidop.
   - exact unitmonoid_ismonoid.
-  - intros x x'. use isconnectedunit.
+  - intros x x'. use isProofIrrelevantUnit.
 Qed.
 
 Definition unitabmonoid : abmonoid := abmonoidpair unitmonoid unitabmonoid_isabmonoid.
@@ -541,8 +541,8 @@ Definition unitabmonoid : abmonoid := abmonoidpair unitmonoid unitabmonoid_isabm
 Lemma abmonoidfuntounit_ismonoidfun (X : abmonoid) : ismonoidfun (λ x : X, (unel unitabmonoid)).
 Proof.
   intros X. use mk_ismonoidfun.
-  - use mk_isbinopfun. intros x x'. use isconnectedunit.
-  - use isconnectedunit.
+  - use mk_isbinopfun. intros x x'. use isProofIrrelevantUnit.
+  - use isProofIrrelevantUnit.
 Qed.
 
 Definition abmonoidfuntounit (X : abmonoid) : monoidfun X unitabmonoid :=
@@ -1649,8 +1649,8 @@ Proof.
   - use mk_invstruct.
     + intros i. exact i.
     + use mk_isinv.
-      * intros x. use isconnectedunit.
-      * intros x. use isconnectedunit.
+      * intros x. use isProofIrrelevantUnit.
+      * intros x. use isProofIrrelevantUnit.
 Qed.
 
 Definition unitgr : gr := grpair unitmonoid unitgr_isgrop.
@@ -1658,8 +1658,8 @@ Definition unitgr : gr := grpair unitmonoid unitgr_isgrop.
 Lemma grfuntounit_ismonoidfun (X : gr) : ismonoidfun (λ x : X, (unel unitgr)).
 Proof.
   intros X. use mk_ismonoidfun.
-  - use mk_isbinopfun. intros x x'. use isconnectedunit.
-  - use isconnectedunit.
+  - use mk_isbinopfun. intros x x'. use isProofIrrelevantUnit.
+  - use isProofIrrelevantUnit.
 Qed.
 
 Definition grfuntounit (X : gr) : monoidfun X unitgr := monoidfunconstr (grfuntounit_ismonoidfun X).
@@ -2050,8 +2050,8 @@ Definition unitabgr : abgr := abgrpair unitabmonoid unitabgr_isabgrop.
 Lemma abgrfuntounit_ismonoidfun (X : abgr) : ismonoidfun (λ x : X, (unel unitabgr)).
 Proof.
   intros X. use mk_ismonoidfun.
-  - use mk_isbinopfun. intros x x'. use isconnectedunit.
-  - use isconnectedunit.
+  - use mk_isbinopfun. intros x x'. use isProofIrrelevantUnit.
+  - use isProofIrrelevantUnit.
 Qed.
 
 Definition abgrfuntounit (X : abgr) : monoidfun X unitabgr :=

@@ -146,7 +146,7 @@ Definition limOfArrows {J C : precategory} {F1 F2 : functor J C}
   (fNat : ∏ u v (e : J⟦u,v⟧), f u · # F2 e = # F1 e · f v) :
   C⟦lim CC1 , lim CC2⟧.
 Proof.
-apply limArrow; simple refine (mk_cone _ _).
+apply limArrow; use mk_cone.
 - now intro u; apply (limOut CC1 u · f u).
 - abstract (intros u v e; simpl;
             now rewrite <- assoc, fNat, assoc, limOutCommutes).
@@ -202,10 +202,10 @@ Lemma lim_endo_is_identity {J C : precategory} {F : functor J C}
   (H : ∏ u, k · limOut CC u = limOut CC u) :
   identity _ = k.
 Proof.
-unshelve refine (uniqueExists _ _ (limUnivProp CC _ _) _ _ _ _).
+use (uniqueExists _ _ (limUnivProp CC _ _)).
 - now apply (limCone CC).
 - now intros v; apply id_left.
-- now apply H.
+- simpl; now apply H.
 Qed.
 
 (*
@@ -334,7 +334,7 @@ Definition LimFunctor_ob (a : A) : C := lim (HCg a).
 Definition LimFunctor_mor (a a' : A) (f : A⟦a, a'⟧) :
   C⟦LimFunctor_ob a,LimFunctor_ob a'⟧.
 Proof.
-simple refine (limOfArrows _ _ _ _).
+use limOfArrows.
 - now intro u; apply (# (pr1 (D u)) f).
 - abstract (now intros u v e; simpl; apply (nat_trans_ax (# D e))).
 Defined.
@@ -370,7 +370,7 @@ Defined.
 Definition cone_pointwise (F : [A,C,hsC]) (cc : cone D F) a :
   cone (functor_pointwise a) (pr1 F a).
 Proof.
-simple refine (mk_cone _ _).
+use mk_cone.
 - now intro v; apply (pr1 (coneOut cc v) a).
 - abstract (intros u v e;
     now apply (nat_trans_eq_pointwise (coneOutCommutes cc u v e))).
@@ -388,7 +388,7 @@ use tpair.
     | apply pathsinv0; eapply pathscomp0;
       [ apply postcompWithLimArrow
       | apply limArrowUnique; intro u; eapply pathscomp0;
-      [ now apply limArrowCommutes | now refine (nat_trans_ax _ _ _ _)]]]).
+      [ now apply limArrowCommutes | now use nat_trans_ax]]]).
   + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a;
               now apply (limArrowCommutes (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
@@ -401,9 +401,9 @@ Defined.
 
 Lemma LimFunctorCone : LimCone D.
 Proof.
-simple refine (mk_LimCone _ _ _ _).
+use mk_LimCone.
 - exact LimFunctor.
-- simple refine (mk_cone _ _).
+- use mk_cone.
   + now apply lim_nat_trans_in_data.
   + abstract (now intros u v e; apply (nat_trans_eq hsC);
                   intro a; apply (limOutCommutes (HCg a))).

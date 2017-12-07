@@ -119,7 +119,7 @@ Definition mk_BinProductCone (a b : C) :
    isBinProductCone _ _ _ f g -> BinProductCone a b.
 Proof.
   intros.
-  simple refine (tpair _ _ _ ).
+  use tpair.
   - exists c.
     exists f.
     exact g.
@@ -562,11 +562,11 @@ Qed.
 Definition functor_precat_binproduct_cone
   : BinProductCone [C, D, hsD] F G.
 Proof.
-simple refine (mk_BinProductCone _ _ _ _ _ _ _).
+use mk_BinProductCone.
 - apply BinProduct_of_functors.
 - apply binproduct_nat_trans_pr1.
 - apply binproduct_nat_trans_pr2.
-- simple refine (mk_isBinProductCone _ _ _ _ _ _ _ _).
+- use mk_isBinProductCone.
   + apply functor_category_has_homsets.
   + intros A f g.
     exists (tpair _ (binproduct_nat_trans A f g)

@@ -394,7 +394,7 @@ Definition constant_nat_trans (C' D : precategory)
     : [C', D, hsD] ⟦constant_functor C' D d, constant_functor C' D d'⟧.
 Proof.
 exists (λ _, m).
-abstract (intros ? ? ?; pathvia m; [ apply id_left | apply pathsinv0, id_right]).
+abstract (intros ? ? ?; intermediate_path m; [ apply id_left | apply pathsinv0, id_right]).
 Defined.
 
 Definition thetahat_0 (Z : Ptd) (f : Z --> ptd_from_alg InitAlg) :
@@ -497,7 +497,7 @@ match goal with | [|- _ · ?b = _ ] => set (β := b) end.
 set (rhohat := BinCoproductArrow EndC  (CPEndC _ _ )  β (tau_from_alg T')
                 :  pr1 Ghat T' --> T').
 set (X:= SpecializedGMIt Z _ Ghat rhohat (thetahat Z f)).
-pathvia (pr1 (pr1 X)).
+intermediate_path (pr1 (pr1 X)).
 - set (TT := @fusion_law EndC hsEndC InitialEndC Colims_of_shape_nat_graph_EndC
                          Id_H is_omega_cocont_Id_H _ hsEndC (pr1 (InitAlg)) T').
   set (Psi := ψ_from_comps (Id_H) hsEndC _ (ℓ (U Z)) (Const_plus_H (U Z)) (ρ_Thm15 Z f)
@@ -509,7 +509,7 @@ pathvia (pr1 (pr1 X)).
   set (T4 := T3 (isInitial_pre_comp Z) Psi').
   set (Φ := (Phi_fusion Z T' β)).
   set (T5 := T4 Φ).
-  pathvia (Φ _ (fbracket InitHSS f)); trivial.
+  intermediate_path (Φ _ (fbracket InitHSS f)); trivial.
   eapply pathscomp0; [|apply T5]; clear TT T2 T3 T4 T5 X.
   * now apply cancel_postcomposition.
   * (* hypothesis of fusion law *)

@@ -19,8 +19,6 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 Section horizontal_composition.
 
 Variables C D E : precategory.
