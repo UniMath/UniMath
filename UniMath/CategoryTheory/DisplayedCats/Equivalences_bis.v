@@ -429,7 +429,7 @@ Proof.
       etrans. apply assoc_disp.
       eapply transportf_bind.
       etrans. eapply cancel_postcomposition_disp.
-        refine (disp_nat_trans_ax η (# GG (ε x yy))). (*2*)
+        exact (disp_nat_trans_ax η (# GG (ε x yy))). (*2*)
       eapply transportf_bind.
       etrans. apply assoc_disp_var.
       eapply transportf_bind.
@@ -574,7 +574,7 @@ Definition FFinv_on_iso_is_iso {x y} {xx : D x} {yy : D y} {f : iso x y}
   : is_iso_disp _ (FFinv ff).
 Proof.
   apply disp_functor_id_ff_reflects_isos.
-  refine (transportf _ _ Hff).
+  use (transportf _ _ Hff).
   apply @pathsinv0. use homotweqinvweq.
 Qed.
 

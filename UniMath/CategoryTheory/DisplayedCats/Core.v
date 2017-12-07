@@ -393,7 +393,7 @@ Proof.
     etrans. apply transport_f_f.
     etrans. apply maponpaths, id_left_disp.
     etrans. apply transport_f_f.
-    refine (@maponpaths_2 _ _ _ (transportf _) _ (idpath _) _ _).
+    use (@maponpaths_2 _ _ _ (transportf _) _ (idpath _)).
     apply homset_property.
 Qed.
 
@@ -704,15 +704,15 @@ Definition precomp_with_iso_disp_is_inj
   : (ii ;; ff = ii ;; ff') -> ff = ff'.
 Proof.
   intros e.
-  simple refine (pathscomp0 _ _).
-  - refine (transportf _ _ ((iso_inv_from_iso_disp ii ;; ii) ;; ff)).
+  use pathscomp0.
+  - use (transportf _ _ ((iso_inv_from_iso_disp ii ;; ii) ;; ff)).
     etrans; [ apply maponpaths_2, iso_after_iso_inv | apply id_left ].
   - apply pathsinv0.
     etrans. eapply transportf_bind.
       eapply cancel_postcomposition_disp, (iso_disp_after_inv_mor ii).
     rewrite id_left_disp.
     etrans. apply transport_f_f.
-    refine (@maponpaths_2 _ _ _ _ _ (idpath _) _ _).
+    use (@maponpaths_2 _ _ _ _ _ (idpath _)).
     apply homset_property.
   - etrans. eapply transportf_bind, assoc_disp_var.
     rewrite e.
@@ -721,7 +721,7 @@ Proof.
       eapply cancel_postcomposition_disp, (iso_disp_after_inv_mor ii).
     rewrite id_left_disp.
     etrans. apply transport_f_f.
-    refine (@maponpaths_2 _ _ _ _ _ (idpath _) _ _).
+    use (@maponpaths_2 _ _ _ _ _ (idpath _)).
     apply homset_property.
 Qed.
 
@@ -801,7 +801,7 @@ Definition idtoiso_isotoid_disp
     {c c' : C} (e : c = c') {d : D c} {d'} (i : iso_disp (idtoiso e) d d')
   : idtoiso_disp e (isotoid_disp D_cat e i) = i.
 Proof.
-  refine (homotweqinvweq _ _).
+  use homotweqinvweq.
 Qed.
 
 Definition isotoid_idtoiso_disp
@@ -809,7 +809,7 @@ Definition isotoid_idtoiso_disp
     {c c' : C} (e : c = c') {d : D c} {d'} (ee : transportf _ e d = d')
   : isotoid_disp D_cat e (idtoiso_disp e ee) = ee.
 Proof.
-  refine (homotinvweqweq _ _).
+  use homotinvweqweq.
 Qed.
 
 End Univalent_Categories.
@@ -986,13 +986,13 @@ Proof.
     etrans. apply maponpaths, @pathsinv0.
       exact (fiber_paths (!iso_after_iso_inv ffi)).
     etrans. apply transport_f_f.
-    refine (toforallpaths _ _ _ _ (id_disp _)).
+    use (toforallpaths _ _ _ _ (id_disp _)).
     unfold transportb; apply maponpaths, homset_property.
   - etrans. apply mor_disp_transportf_prewhisker.
     etrans. apply maponpaths, @pathsinv0.
       exact (fiber_paths (!iso_inv_after_iso ffi)).
     etrans. apply transport_f_f.
-    refine (toforallpaths _ _ _ _ (id_disp _)).
+    use (toforallpaths _ _ _ _ (id_disp _)).
     unfold transportb; apply maponpaths, homset_property.
 Qed.
 
@@ -1058,7 +1058,7 @@ Proof.
     + apply eq_iso_disp.
       etrans. apply transportf_iso_disp.
       simpl pr2. simpl (pr1 (iso_disp_from_total _)).
-      refine (@maponpaths_2 _ _ _ (transportf _) _ (idpath _) _ _).
+      use (@maponpaths_2 _ _ _ (transportf _) _ (idpath _)).
       apply homset_property.
   - intros f. apply eq_iso; simpl.
     destruct f as [[f ff] w]; apply idpath.
@@ -1084,7 +1084,7 @@ Proof.
     intros e. exists (λ ee, idtoiso_disp e ee).
     apply DD.
   apply (@weqcomp _ (∑ f : iso x y, iso_disp f xx yy) _).
-    refine (weqfp (weqpair _ _) _). apply CC.
+    use (weqfp (weqpair _ _)). apply CC.
   apply total_iso_equiv.
   intros e; destruct e; apply eq_iso; cbn.
     apply idpath.

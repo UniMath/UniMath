@@ -24,8 +24,6 @@ Require Import UniMath.CategoryTheory.functor_categories.
 
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 (** * Definition of relative monads *)
 Section RMonad_def.
 

@@ -134,7 +134,7 @@ Section def_equalizers.
   Lemma EqualizerArrowComm {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) (e : C) (h : C⟦e, a⟧)
         (H : h · f = h · g) : EqualizerIn E e h H · EqualizerArrow E = h.
   Proof.
-    refine (limArrowCommutes E e _ One).
+    exact (limArrowCommutes E e _ One).
   Qed.
 
   Lemma EqualizerInUnique {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) (e : C) (h : C⟦e, a⟧)
