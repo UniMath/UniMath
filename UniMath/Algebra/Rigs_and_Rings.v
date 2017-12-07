@@ -815,6 +815,15 @@ Definition isrngfun {X Y : rng} (f : X -> Y) := @isrigfun X Y f.
 
 Definition rngfun (X Y : rng) := rigfun X Y.
 
+Lemma isaset_rngfun (X Y : rng) : isaset (rngfun X Y).
+Proof.
+   intros X Y. apply (isofhleveltotal2 2).
+   - use impred_isaset. intro x.
+     apply setproperty.
+   - intro f. apply isasetaprop.
+     apply isapropisrigfun.
+Defined.
+
 Definition rngfunconstr {X Y : rng} {f : X -> Y} (is : isrngfun f) : rngfun X Y := rigfunconstr is.
 Identity Coercion id_rngfun : rngfun >-> rigfun.
 
