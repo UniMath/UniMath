@@ -76,11 +76,11 @@ Section def_coequalizers.
              (H : f · e = g · e) (isE : isCoequalizer f g e H) :
     Coequalizer f g.
   Proof.
-    simple refine (tpair _ _ _).
-    - simple refine (tpair _ _ _).
+    use tpair.
+    - use tpair.
       + apply w.
       + apply e.
-    - simpl. refine (tpair _ H isE).
+    - simpl. exact (tpair _ H isE).
   Defined.
 
   (** Coequalizers in precategories. *)
@@ -130,7 +130,7 @@ Section def_coequalizers.
     set (E' := mk_Coequalizer _ _ _ _ E).
     repeat rewrite <- assoc in H'1.
     set (E'ar := CoequalizerOut E' w0 (e · φ1) H'1).
-    pathvia E'ar.
+    intermediate_path E'ar.
     apply isCoequalizerOutUnique. apply idpath.
     apply pathsinv0. apply isCoequalizerOutUnique. apply pathsinv0. apply H'.
   Defined.

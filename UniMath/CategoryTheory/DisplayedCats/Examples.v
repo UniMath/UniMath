@@ -432,7 +432,7 @@ Proof.
 
         {
           unfold functor_alg_mor.
-          pathvia (limArrow LL _ X).
+          intermediate_path (limArrow LL _ X).
           - apply (limArrowUnique LL).
             intro j. rewrite <- assoc.
             rewrite (limArrowCommutes LL).

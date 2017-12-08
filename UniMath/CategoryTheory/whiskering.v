@@ -31,8 +31,6 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 Definition functor_compose {A B C : precategory} (hsB: has_homsets B)
                            (hsC: has_homsets C) (F : ob [A, B, hsB])
       (G : ob [B , C, hsC]) : ob [A , C, hsC] :=

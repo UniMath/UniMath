@@ -30,7 +30,6 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Ltac simp_rew lem := let H:=fresh in
      assert (H:= lem); simpl in *; rewrite H; clear H.
 Ltac simp_rerew lem := let H:=fresh in
@@ -192,7 +191,7 @@ Proof.
              (iso_comp f (iso_inv_from_iso h))).
     set (GHk := functor_on_iso G
                 (functor_on_iso H k)).
-    pathvia (#F (#H k) · gamma anot · iso_inv_from_iso GHk).
+    intermediate_path (#F (#H k) · gamma anot · iso_inv_from_iso GHk).
       apply (post_comp_with_iso_is_inj _ _ _ GHk (pr2 GHk)).
       rewrite <- assoc.
       change (iso_inv_from_iso GHk · GHk) with (inv_from_iso GHk · GHk).
@@ -275,7 +274,7 @@ Proof.
   repeat rewrite <- assoc.
   simpl in *.
   rewrite <- functor_comp.
-  pathvia (inv_from_iso (functor_on_iso F h)·
+  intermediate_path (inv_from_iso (functor_on_iso F h)·
        (gamma a· #G (h· f · iso_inv_from_iso h' · h')) ).
     repeat rewrite <- assoc.
     simpl. rewrite iso_after_iso_inv, id_right.
@@ -325,7 +324,7 @@ Proof.
   simpl.
   set (tr := pr1 (iscontr_aux_space (H a))).
   change (gamma a) with (pr1 gamma a).
-  pathvia ((#F (identity (H a))· pr1 tr)·
+  intermediate_path ((#F (identity (H a))· pr1 tr)·
        #G (inv_from_iso (identity_iso (H a)))).
   rewrite functor_id.
   rewrite id_left.

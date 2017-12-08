@@ -30,16 +30,10 @@ Require Import UniMath.CategoryTheory.whiskering.
 
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 Local Notation "FF ^-1" := (fully_faithful_inv_hom FF _ _ ) (at level 20).
 Local Notation "F '^-i'" := (iso_from_fully_faithful_reflection F) (at level 20).
 Local Notation "G 'O' F" := (functor_compose _ _ _ F G) (at level 25).
 
-Ltac simp_rew lem := let H:=fresh in
-     assert (H:= lem); simpl in *; rewrite H; clear H.
-Ltac simp_rerew lem := let H:=fresh in
-     assert (H:= lem); simpl in *; rewrite <- H; clear H.
 Ltac inv_functor HF x y :=
    let H:=fresh in
    set (H:= homotweqinvweq (weq_from_fully_faithful HF x y));
@@ -160,7 +154,7 @@ Proof.
     apply id_right.
   assert (quack := qhelp feedtoqhelp).
   simpl in *.
-  pathvia (iso_comp  (functor_on_iso F
+  intermediate_path (iso_comp  (functor_on_iso F
        (fH^-i (iso_comp h (iso_inv_from_iso hnot)))) (idtoiso w) ).
   generalize w; intro w0.
   induction w0.
@@ -312,7 +306,7 @@ Proof.
     unfold l0.
     inv_functor fH a0 a0'.
     unfold hfh.
-    pathvia (h0 · f · (inv_from_iso h0' · h0') · inv_from_iso h').
+    intermediate_path (h0 · f · (inv_from_iso h0' · h0') · inv_from_iso h').
       repeat rewrite assoc; apply idpath.
     rewrite iso_after_iso_inv, id_right, functor_comp.
     inv_functor fH a0 a.
@@ -478,7 +472,7 @@ Proof.
     inv_functor fH a0' a0''.
     unfold l0.
     inv_functor fH a0 a0'.
-    pathvia (h0 · f · (inv_from_iso h0' · h0') · f' · inv_from_iso h0'').
+    intermediate_path (h0 · f · (inv_from_iso h0' · h0') · f' · inv_from_iso h0'').
       repeat rewrite assoc; apply idpath.
     rewrite iso_after_iso_inv, id_right.
     unfold l0''.
@@ -518,7 +512,7 @@ Proof.
       inv_functor fH a0' a'.
       unfold l0.
       inv_functor fH a0 a0'.
-      pathvia (h0 · f · (inv_from_iso h0' · h0') · inv_from_iso h').
+      intermediate_path (h0 · f · (inv_from_iso h0' · h0') · inv_from_iso h').
         repeat rewrite assoc; apply idpath.
       rewrite iso_after_iso_inv, id_right, functor_comp.
       inv_functor fH a0 a.
@@ -607,7 +601,7 @@ Proof.
       inv_functor fH a0'' a''.
       unfold l0'.
       inv_functor fH a0' a0''.
-      pathvia (h0' · f' · (inv_from_iso h0'' · h0'') · inv_from_iso h'').
+      intermediate_path (h0' · f' · (inv_from_iso h0'' · h0'') · inv_from_iso h'').
         repeat rewrite assoc; apply idpath.
       rewrite iso_after_iso_inv, id_right, functor_comp.
       inv_functor fH a0' a'.
@@ -683,7 +677,7 @@ Proof.
       inv_functor fH a0'' a''.
       unfold l0''.
       inv_functor fH a0 a0''.
-      pathvia (h0 · (f · f') · (inv_from_iso h0'' · h0'') · inv_from_iso h'').
+      intermediate_path (h0 · (f · f') · (inv_from_iso h0'' · h0'') · inv_from_iso h'').
         repeat rewrite assoc; apply idpath.
       rewrite iso_after_iso_inv, id_right, functor_comp.
       inv_functor fH a0 a.
@@ -727,7 +721,7 @@ Proof.
     apply idpath.
   clear PR2.
   rewrite HGf, HGf'.
-  pathvia (inv_from_iso (k b a0 h0)· #F l0· (k b' a0' h0'·
+  intermediate_path (inv_from_iso (k b a0 h0)· #F l0· (k b' a0' h0'·
               inv_from_iso (k b' a0' h0'))· #F l0'· k b'' a0'' h0'').
     rewrite iso_inv_after_iso, id_right.
     rewrite HGff'.
@@ -834,7 +828,7 @@ Proof.
       inv_functor fH a a0.
       inv_functor fH a' a0'.
       apply pathsinv0, alpha.
-    pathvia (#F (fH^-1 h· f)).
+    intermediate_path (#F (fH^-1 h· f)).
       rewrite functor_comp.
       apply idpath.
     rewrite HH4.
