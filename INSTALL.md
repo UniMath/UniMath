@@ -6,24 +6,50 @@ version of `bash` on your system.
 
 ## Preparing for the installation under Mac OS
 
-Under Mac OS X, the most convenient way to
-do that is with "Homebrew", available from http://brew.sh/, with the following
-command:
+Under Mac OS X, the most convenient way to do that is with "Homebrew",
+available from http://brew.sh/, with the following command:
 
 ```bash
-$ brew install objective-caml camlp5 camlp4 lablgtk bash
+$ brew install bash opam
+$ opam init --no-setup --compiler=4.02.1
+$ opam install --yes lablgtk camlp5 ocamlfind
 ```
 
-Also install "ocamlfind" using "homebrew" with the following commands.
+(We choose version 4.02.1 of ocamlc above, because it can successfully compile
+Coq 8.6.1.)
+
+Now arrange for the programs installed by opam to be available to the currently
+running shell:
 
 ```bash
-$ brew tap mht208/formal
-$ brew install ocaml-findlib
+$ eval `opam config env`
 ```
 
-(It is also possible to install "ocamlfind" with "opam", but that is a bit more
-complicated.  One uses "homebrew" to install "opam" and then uses "opam" to
-install "ocamlfind", but it ends up in a nonstandard place.)
+If you haven't done it previously in connection with installing opam, as you
+have just done, arrange for the programs (such as ocamlc) that opam will
+install for you to be found by your shell, the next time you log in, by adding
+the line
+
+```bash
+$ . ~/.opam/opam-init/init.sh
+```
+
+to your file `~/.profile`, after any lines in the file that add
+`/usr/local/bin` to the `PATH` environment variable.  (Homebrew and opam both
+know how to install `ocamlc`, and we intend to use `opam` to get a version of
+`ocamlc` appropriate for compiling the version of Coq used by UniMath.)
+
+The next time you log in, or now, you may check that the progams installed by
+opam are accessible by you as follows.
+
+```bash
+$ type ocamlc
+ocamlc is hashed (/Users/XXXXXXXX/.opam/4.02.1/bin/ocamlc)
+$ ocamlc -version
+4.02.1
+$ camlp5 -v
+Camlp5 version 7.03 (ocaml 4.02.1)
+```
 
 Under Mac OS X, you may obtain ProofGeneral from http://proofgeneral.inf.ed.ac.uk/.
 It comes with installation instructions.  Your version of emacs determines
