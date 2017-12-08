@@ -53,7 +53,7 @@ Defined.
 
 Lemma isweqtransportf10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  x = x' ) : isweq ( transportf P e ).
 Proof.
-  intros. destruct e.  apply idisweq.
+  intros. induction e.  apply idisweq.
 Defined.
 
 Lemma isweqtransportb10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  x = x' ) : isweq ( transportb P e ).
@@ -63,7 +63,7 @@ Defined.
 
 Lemma l1  { X0 X0' : UU } ( ee : X0 = X0' ) ( P : UU -> UU ) ( pp' : P X0' ) ( R : ∏ X X' : UU , ∏ w : X ≃ X' , P X' -> P X ) ( r : ∏ X : UU , ∏ p : P X , paths ( R X X ( idweq X ) p ) p ) : paths ( R X0 X0' ( eqweqmap ee ) pp' ) (  transportb P ee pp' ).
 Proof.
-  destruct ee. simpl. apply r.
+  induction ee. simpl. apply r.
 Defined.
 
 (** Axiom statements (propositions) *)
@@ -217,7 +217,7 @@ Section UnivalenceImplications.
         assert ( ee' : R' v = R' w ).
         * apply (  maponpaths R' e ).
         * assumption.
-      + destruct ee. apply l1. assumption.
+      + induction ee. apply l1. assumption.
   Defined.
 
   Corollary isweqweqtransportbUAH

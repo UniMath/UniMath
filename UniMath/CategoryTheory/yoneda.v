@@ -35,8 +35,6 @@ Require Import UniMath.CategoryTheory.whiskering.
 
 Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 Ltac unf := unfold identity,
                    compose,
                    precategory_morphisms;
@@ -190,7 +188,7 @@ Proof.
   intro a'; simpl.
   apply funextsec; intro f.
   unfold yoneda_map_1.
-  pathvia ((alpha c · #F f) (identity c)).
+  intermediate_path ((alpha c · #F f) (identity c)).
     apply idpath.
   rewrite <- nat_trans_ax.
   unf; apply maponpaths.
@@ -243,7 +241,7 @@ Definition yoneda_iso_target (C : precategory) (hs : has_homsets C)
            (F : [C^op, HSET, has_homsets_HSET])
   : functor C^op HSET.
 Proof.
-  simple refine (@functor_composite _ [C^op, HSET, has_homsets_HSET]^op _ _ _  ).
+  use (@functor_composite _ [C^op, HSET, has_homsets_HSET]^op).
   - apply functor_opp.
     apply yoneda. apply hs.
   - apply (yoneda _ (functor_category_has_homsets _ _ _ ) F).
@@ -314,7 +312,7 @@ Lemma isweq_yoneda_map_1 (C : precategory) (hs: has_homsets C) (c : C)
      (yoneda_map_1 C hs c F).
 Proof.
   set (T:=yoneda_map_2 C hs c F). simpl in T.
-  simple refine (gradth _ _ _ _ ).
+  use gradth.
   - apply T.
   - apply yoneda_map_1_2.
   - apply yoneda_map_2_1.
@@ -363,7 +361,7 @@ Variable c : C.
 Definition yoneda_functor_precomp' : nat_trans (yoneda_objects C hsC c)
       (functor_composite (functor_opp F) (yoneda_objects D hsD (F c))).
 Proof.
-  simple refine (tpair _ _ _ ).
+  use tpair.
   - intros d f ; simpl.
     apply (#F f).
   - abstract (intros d d' f ;
@@ -401,7 +399,7 @@ Definition yoneda_functor_precomp_nat_trans :
       (yoneda C hsC)
       (functor_composite A B).
 Proof.
-  simple refine (tpair _ _ _ ).
+  use tpair.
   - intro c; simpl.
     apply yoneda_functor_precomp.
   - abstract (

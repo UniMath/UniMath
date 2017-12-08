@@ -491,7 +491,8 @@ Proof.
     intro X1.
     assert (s2: coprod P Q -> R).
     {
-      intro X2. destruct X2 as [ XP | XQ ].
+      intro X2.
+      induction X2 as [ XP | XQ ].
       - apply X0. apply XP.
       - apply (pr2 X0). apply XQ.
     }
@@ -515,7 +516,7 @@ Lemma hexistsnegtonegforall {X : UU} (F : X -> UU) :
 Proof.
   intros X F. simpl.
   apply (@hinhuniv _ (hProppair _ (isapropneg (∏ x : X, F x)))).
-  simpl. intros t2 f2. destruct t2 as [ x d2 ]. apply (d2 (f2 x)).
+  simpl. intros t2 f2. induction t2 as [ x d2 ]. apply (d2 (f2 x)).
 Defined.
 
 Lemma forallnegtoneghexists {X : UU} (F : X -> UU) :
@@ -523,7 +524,7 @@ Lemma forallnegtoneghexists {X : UU} (F : X -> UU) :
 Proof.
   intros X F nf.
   change ((ishinh_UU (total2 F)) -> hfalse).
-  apply hinhuniv. intro t2. destruct t2 as [ x f ]. apply (nf x f).
+  apply hinhuniv. intro t2. induction t2 as [ x f ]. apply (nf x f).
 Defined.
 
 Lemma neghexisttoforallneg {X : UU} (F : X -> UU) :
@@ -556,7 +557,7 @@ Lemma tonegdirprod {X Y : UU} : ¬ X ∨ ¬ Y -> ¬ (X × Y).
 Proof.
   intros X Y. simpl.
   apply (@hinhuniv _ (hProppair _ (isapropneg (X × Y)))).
-  intro c. destruct c as [ nx | ny ].
+  intro c. induction c as [ nx | ny ].
   - simpl. intro xy. apply (nx (pr1 xy)).
   - simpl. intro xy. apply (ny (pr2 xy)).
 Defined.
@@ -580,7 +581,7 @@ Defined.
 
 Lemma tonegcoprod {X Y : UU} : ¬ X × ¬ Y -> ¬ (X ⨿ Y).
 Proof.
-  intros ? ? is. intro c. destruct c as [ x | y ].
+  intros ? ? is. intro c. induction c as [ x | y ].
   - apply (pr1 is x).
   - apply (pr2 is y).
 Defined.
@@ -617,8 +618,8 @@ Proof.
     apply (pr2 Q).
   }
   simpl. apply (@hinhuniv _ (hProppair _ int)).
-  simpl. intro pq. destruct pq as [ p | q ].
-  - intro np. destruct (np p).
+  simpl. intro pq. induction pq as [ p | q ].
+  - intro np. induction (np p).
   - intro np. apply q.
 Defined.
 
@@ -633,9 +634,9 @@ Lemma isdecprophdisj {X Y : UU} (isx : isdecprop X) (isy : isdecprop Y) :
 Proof.
   intros.
   apply isdecpropif. apply (pr2 (hdisj X Y)).
-  destruct (pr1 isx) as [ x | nx ].
+  induction (pr1 isx) as [ x | nx ].
   - apply (ii1 (hinhpr (ii1 x))).
-  - destruct (pr1 isy) as [ y | ny ].
+  - induction (pr1 isy) as [ y | ny ].
     + apply (ii1 (hinhpr (ii2 y))).
     + apply (ii2 (toneghdisj (dirprodpair nx ny))).
 Defined.
@@ -682,7 +683,7 @@ Defined.
 
 Definition eqweqmaphProp {P P' : hProp} (e : @paths hProp P P') : P ≃ P'.
 Proof.
-  intros. destruct e. apply idweq.
+  intros. induction e. apply idweq.
 Defined.
 
 Definition weqtopathshProp {P P' : hProp} (w : P ≃ P') : P = P'
@@ -750,7 +751,7 @@ Defined.
 
 Lemma iscontrtildehProp : iscontr tildehProp.
 Proof.
-  split with (tpair _ htrue tt). intro tP. destruct tP as [ P p ].
+  split with (tpair _ htrue tt). intro tP. induction tP as [ P p ].
   apply (invmaponpathsincl _ (isinclpr1 (λ P : hProp, P) (λ P, pr2 P))).
   simpl. apply hPropUnivalence. apply (λ x, tt). intro t. apply p.
 Defined.

@@ -324,10 +324,10 @@ End vertex.
 Definition functor_precat_coproduct_cocone
   : CoproductCocone I [C, D, hsD] F.
 Proof.
-simple refine (mk_CoproductCocone _ _ _ _ _ _).
+use mk_CoproductCocone.
 - apply coproduct_of_functors.
 - apply coproduct_nat_trans_in.
-- simple refine (mk_isCoproductCocone _ _ _ _ _ _ _).
+- use mk_isCoproductCocone.
   + apply functor_category_has_homsets.
   + intros A f.
     use tpair.

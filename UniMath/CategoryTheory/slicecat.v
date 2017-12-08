@@ -159,7 +159,7 @@ Qed.
 Lemma eq_iso_slicecat (af bg : C / x) (f g : iso af bg) : pr1 f = pr1 g -> f = g.
 Proof.
 case g; case f; clear f g; simpl; intros f fP g gP eq.
-refine (subtypePairEquality _ eq).
+use (subtypePairEquality _ eq).
 now intro; apply isaprop_is_iso.
 Qed.
 
@@ -507,7 +507,7 @@ Definition pullback_to_slice_binprod {A B Z : C} {f : A --> Z} {g : B --> Z} :
   Pullback f g -> BinProductCone (C / Z) (A ,, f) (B ,, g).
 Proof.
   intros P.
-  refine (((PullbackObject P ,, (PullbackPr1 P) · f) ,, (((PullbackPr1 P) ,, idpath _) ,, (((PullbackPr2 P) ,, (PullbackSqrCommutes P))))) ,, _).
+  use (((PullbackObject P ,, (PullbackPr1 P) · f) ,, (((PullbackPr1 P) ,, idpath _) ,, (((PullbackPr2 P) ,, (PullbackSqrCommutes P))))) ,, _).
   intros Y [j jeq] [k keq]; simpl in jeq , keq.
   use unique_exists.
   + use tpair.
@@ -530,7 +530,7 @@ Proof.
   induction AZ as [A f].
   induction BZ as [B g].
   intros [[[P h] [[l leq] [r req]]] PisProd].
-  refine ((P ,, l ,, r) ,, (! leq @ req) ,, _).
+  use ((P ,, l ,, r) ,, (! leq @ req) ,, _).
   intros Y j k Yeq. simpl in *.
   use unique_exists.
   + exact (pr1 (pr1 (pr1 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))))).
@@ -538,7 +538,7 @@ Proof.
                                 maponpaths pr1 (pr2 (pr2 (pr1 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))))))).
   + abstract (intros x; apply isofhleveldirprod; apply (hsC _ _)).
   + intros t teqs.
-    refine (maponpaths pr1 (maponpaths pr1 (pr2 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq)) ((t ,, (maponpaths (λ x, x · f) (!(pr1 teqs)) @ !(assoc _ _ _) @ maponpaths (λ x, t · x) (!leq))) ,, _)))).
+    use (maponpaths pr1 (maponpaths pr1 (pr2 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq)) ((t ,, (maponpaths (λ x, x · f) (!(pr1 teqs)) @ !(assoc _ _ _) @ maponpaths (λ x, t · x) (!leq))) ,, _)))).
     abstract (split; apply eq_mor_slicecat; [exact (pr1 teqs) | exact (pr2 teqs)]).
 Defined.
 
