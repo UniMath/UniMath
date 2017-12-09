@@ -243,6 +243,23 @@ by the Agda input method is ```C-H I```.
 
 In this section we describe some problems that have been encountered during compilation, and how to fix them.
 
+### Errors while compiling Coq
+
+The following type mismatch error during compilation of Coq results from a mismatch
+between the version of Ocaml used and the version of Coq being compiled.
+
+```
+"/usr/local/bin/ocamlfind" opt -rectypes -dtypes -w -3-52-56  -I config -I lib -I kernel -I kernel/byterun -I library -I proofs -I tactics -I pretyping -I interp -I stm -I toplevel -I parsing -I printing -I intf -I engine -I ltac -I tools -I tools/coqdoc -I plugins/omega -I plugins/romega -I plugins/micromega -I plugins/quote -I plugins/setoid_ring -I plugins/extraction -I plugins/fourier -I plugins/cc -I plugins/funind -I plugins/firstorder -I plugins/derive -I plugins/rtauto -I plugins/nsatz -I plugins/syntax -I plugins/decl_mode -I plugins/btauto -I plugins/ssrmatching -I plugins/ltac -I "/usr/local/Cellar/camlp5/7.03_1/lib/ocaml/camlp5" -thread -g    -c lib/pp_control.ml
+File "lib/pp_control.ml", line 61, characters 22-33:
+Error: This expression has type bytes -> int -> int -> unit
+       but an expression was expected of type string -> int -> int -> unit
+       Type bytes is not compatible with type string 
+```
+
+For example, Coq 8.6.1 cannot be compiled by Ocaml 4.06.0, and must instead be
+compiled by an older version.  In the instructions above, we arrange for Ocaml
+4.02.3 to be used to compile Coq 8.6.1.
+
 ### Problems caused by ill-formed input to make
 
 When calling ```make```, various files are read, some of them not under version control by git. 
