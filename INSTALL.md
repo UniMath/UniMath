@@ -11,11 +11,11 @@ available from http://brew.sh/, with the following command:
 
 ```bash
 $ brew install bash opam
-$ opam init --no-setup --compiler=4.02.1
+$ opam init --no-setup --compiler=4.02.3
 $ opam install --yes lablgtk camlp5 ocamlfind
 ```
 
-(We choose version 4.02.1 of ocamlc above, because it can successfully compile
+(We choose version 4.02.3 of ocamlc above, because it can successfully compile
 Coq 8.6.1.)
 
 Now arrange for the programs installed by opam to be available to the currently
@@ -31,7 +31,7 @@ install for you to be found by your shell, the next time you log in, by adding
 the line
 
 ```bash
-$ . ~/.opam/opam-init/init.sh
+$ eval `opam config env`
 ```
 
 to your file `~/.profile`, after any lines in the file that add
@@ -44,11 +44,11 @@ opam are accessible by you as follows.
 
 ```bash
 $ type ocamlc
-ocamlc is hashed (/Users/XXXXXXXX/.opam/4.02.1/bin/ocamlc)
+ocamlc is hashed (/Users/XXXXXXXX/.opam/4.02.3/bin/ocamlc)
 $ ocamlc -version
-4.02.1
+4.02.3
 $ camlp5 -v
-Camlp5 version 7.03 (ocaml 4.02.1)
+Camlp5 version 7.03 (ocaml 4.02.3)
 ```
 
 Under Mac OS X, you may obtain ProofGeneral from http://proofgeneral.inf.ed.ac.uk/.
