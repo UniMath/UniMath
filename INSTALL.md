@@ -10,7 +10,7 @@ Under Mac OS X, the most convenient way to do that is with "Homebrew",
 available from http://brew.sh/, with the following command:
 
 ```bash
-$ brew install bash opam
+$ brew install bash opam gtk+
 $ opam init --no-setup --compiler=4.02.3
 $ opam install --yes lablgtk camlp5 ocamlfind
 ```
