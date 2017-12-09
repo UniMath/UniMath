@@ -66,6 +66,10 @@ Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
 $ sudo apt-get install git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
 ```
 
+## ProofGeneral add-ons
+
+Some useful ProofGeneral add-ons are available for installation at https://github.com/cpitclaudel/company-coq
+
 ## Installing UniMath under Mac OS or Linux
 
 To download UniMath and prepare for building it, issue the following
