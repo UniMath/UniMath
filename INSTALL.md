@@ -6,6 +6,33 @@ version of `bash` on your system.
 
 ## Preparing for the installation under Mac OS
 
+### First method (recommended for beginners)
+
+Under Mac OS X, the most convenient way to
+do that is with "Homebrew", available from http://brew.sh/, with the following
+command:
+
+```bash
+$ brew install objective-caml camlp5 camlp4 lablgtk bash
+```
+
+Also install "ocamlfind" using "homebrew" with the following commands.
+
+```bash
+$ brew tap mht208/formal
+$ brew install ocaml-findlib
+```
+
+Under Mac OS X, you may obtain ProofGeneral from http://proofgeneral.inf.ed.ac.uk/.
+It comes with installation instructions.  Your version of emacs determines
+which version of ProofGeneral you need, roughly, so some experimentation may be
+required; you may even need the current development version if your emacs is
+recent.
+
+Now proceed with "Installing UniMath under Mac OS or Linux" below.
+
+### Second method (allows more flexibility, but is more involved than first method)
+
 Under Mac OS X, the most convenient way to do that is with "Homebrew",
 available from http://brew.sh/, with the following command:
 
