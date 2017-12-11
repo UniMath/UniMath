@@ -90,7 +90,7 @@ recent.
 Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
 
 ```bash
-$ sudo apt-get install git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
+$ sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
 ```
 
 ## ProofGeneral add-ons
