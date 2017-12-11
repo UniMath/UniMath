@@ -28,6 +28,16 @@ Definition idfun_multilinear {I : UU} {rngs : I -> rng} (MM : multimodule rngs) 
 Definition id_modulefun {R : rng} (M : module R) : ismodulefun (idfun M).
 Proof. easy. Defined.
 
+(** The identity function is a morphism of modules *)
+Definition idmoduleiso {R : rng} (M : module R) : moduleiso M M.
+Proof.
+   use moduleisopair.
+   - exact (idweq (pr1module M)).
+   - apply dirprodpair.
+     + intros x y. apply idpath.
+     + intros r x. apply idpath.
+Defined.
+
 (** The identity function is a multimodule morphism *)
 Definition id_multimodulefun {I : UU} {rngs : I -> rng} (MM : multimodule rngs)
   : @ismultimodulefun I rngs MM MM (idfun MM) :=
