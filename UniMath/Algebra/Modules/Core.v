@@ -11,8 +11,10 @@ Require Import UniMath.Foundations.PartD.
 (** ** Contents
 - The ring of endomorphisms of an abelian group
 - Modules (the definition of the small type of R-modules over a ring R)
- - R-module homomorphisms
+ - R-module morphisms
   - Linearity
+  - [modulefun]
+  - Isomorphisms ([moduleiso])
 *)
 
 Local Open Scope addmonoid_scope.
@@ -408,6 +410,8 @@ Definition mult_to_module {R : rng} {G : abgr} {m : R -> G -> G} (ax1 : mult_isl
 
 (** *** R-module morphisms *)
 
+(** **** Linearity *)
+
 Definition islinear {R : rng} {M N : module R} (f : M -> N) :=
   ∏ r : R, ∏ x : M, f (r * x) = r * (f x).
 
@@ -433,17 +437,34 @@ Defined.
 Definition linearfuncomp {R : rng} {M N P : module R} (f : linearfun M N) (g : linearfun N P) :
   linearfun M P := tpair _ (funcomp f g) (islinearfuncomp f g).
 
-Definition ismodulefun {R : rng} {M N : module R} (f : M -> N) : UU :=
-   (isbinopfun f) × (islinear f).
-
-Lemma isapropismodulefun {R : rng} {M N : module R} (f : M -> N) : isaprop (ismodulefun f).
+Definition isapropislinear {R : rng} {M N : module R} (f : M -> N) :
+  isaprop (islinear f).
 Proof.
-   refine (@isofhleveldirprod 1 (isbinopfun f) (islinear f) _ _).
-   exact (isapropisbinopfun f).
    apply (impred 1 _). intro r.
    apply (impred 1 _). intro x.
    apply (setproperty N).
 Defined.
+
+(** The type of linear functions M -> N is a set. *)
+Definition isasetlinearfun {R : rng} (M N : module R) : isaset (linearfun M N).
+  intros. apply (isasetsubset (@pr1linearfun R M N)).
+  - change (isofhlevel 2 (M -> N)).
+    apply impred.
+    exact (fun x => setproperty N).
+  - refine (isinclpr1 _ _).
+    intro.
+    apply isapropislinear.
+Defined.
+
+(** **** [modulefun] *)
+
+Definition ismodulefun {R : rng} {M N : module R} (f : M -> N) : UU :=
+   (isbinopfun f) × (islinear f).
+
+Definition isapropismodulefun {R : rng} {M N : module R} (f : M -> N) :
+  isaprop (ismodulefun f) :=
+  @isofhleveldirprod 1 (isbinopfun f) (islinear f)
+                       (isapropisbinopfun f) (isapropislinear f).
 
 Definition modulefun {R : rng} (M N : module R) : UU := ∑ f : M -> N, ismodulefun f.
 
@@ -465,6 +486,14 @@ Definition modulefun_to_islinear {R : rng} {M N : module R} (f : modulefun M N) 
 
 Definition modulefun_to_linearfun {R : rng} {M N : module R} (f : modulefun M N) : linearfun M N :=
   linearfunpair f (modulefun_to_islinear f).
+
+Definition ismodulefun_comp {R} {M N P : module R} (f : modulefun M N) (g : modulefun N P) :
+  ismodulefun (g ∘ f)%functions :=
+    dirprodpair (isbinopfuncomp (modulefun_to_binopfun f) (modulefun_to_binopfun g))
+                (islinearfuncomp (modulefun_to_linearfun f) (modulefun_to_linearfun g)).
+Definition modulefun_comp
+  {R} {M N P : module R} (f : modulefun M N) (g : modulefun N P) : modulefun M P :=
+  (funcomp f g,, ismodulefun_comp f g).
 
 Lemma modulefun_unel {R : rng} {M N : module R} (f : modulefun M N) : f (unel M) = unel N.
 Proof.
@@ -490,6 +519,7 @@ Proof.
   - use proofirrelevance. use isapropismodulefun.
 Defined.
 
+(** The type of module morphisms M -> N is a set. *)
 Lemma isasetmodulefun {R : rng} (M N : module R) : isaset (modulefun M N).
 Proof.
   intros. apply (isasetsubset (@pr1modulefun R M N)).
@@ -635,3 +665,103 @@ Proof.
   - intros r r0 f. use modulefun_paths. intros x. apply module_mult_assoc.
   - intros f. use modulefun_paths. intros x. cbn. apply module_mult_unel2.
 Defined.
+
+(** **** Isomorphisms ([moduleiso]) *)
+
+Definition moduleiso {R : rng} (M N : module R) : UU :=
+  ∑ w : pr1module M ≃ pr1module N, ismodulefun w.
+
+Definition moduleiso_to_modulefun {R} (M N : module R) :
+  moduleiso M N -> modulefun M N := fun f => (tpair _ (pr1weq (pr1 f)) (pr2 f)).
+
+Coercion moduleiso_to_modulefun : moduleiso >-> modulefun.
+
+Definition pr1moduleiso {R : rng} {M N : module R} (f : moduleiso M N) :
+  (pr1module M) ≃ (pr1module N) := pr1 f.
+
+Coercion pr1moduleiso : moduleiso >-> weq.
+
+Definition moduleisopair {R} {M N : module R} f is : moduleiso M N := tpair _ f is.
+
+Definition isbinopfuninvmap {R} {M N : module R} (f : moduleiso M N) :
+  isbinopfun (invmap f).
+Proof.
+   intros x y.
+   apply (invmaponpathsweq f).
+   rewrite (homotweqinvweq f (op x y)).
+   symmetry.
+   transitivity (op ((pr1moduleiso f) (invmap f x)) ((pr1moduleiso f) (invmap f y))).
+   apply (modulefun_to_isbinopfun f (invmap f x) (invmap f y)).
+   rewrite 2 (homotweqinvweq f).
+   apply idpath.
+Defined.
+
+Definition islinearinvmap {R} {M N : module R} (f : moduleiso M N) :
+  islinear (invmap f).
+Proof.
+   intros r x.
+   apply (invmaponpathsweq f).
+   transitivity (module_mult N r x).
+   exact (homotweqinvweq f (module_mult N r x)).
+   transitivity (module_mult N r (pr1 f (invmap (pr1 f) x))).
+   rewrite (homotweqinvweq (pr1 f) x).
+   apply idpath.
+   symmetry.
+   apply (pr2 (pr2 f) r (invmap f x)).
+Defined.
+
+Definition invmoduleiso {R} {M N : module R} (f : moduleiso M N) : moduleiso N M.
+Proof.
+   use moduleisopair.
+   - exact (invweq f).
+   - apply dirprodpair.
+     + exact (isbinopfuninvmap f).
+     + exact (islinearinvmap f).
+Defined.
+
+Definition moduleiso' {R} (M N : module R) : UU :=
+  ∑ w : monoidiso (pr1module M) (pr1module N), islinear w.
+
+Definition moduleiso_to_moduleiso' {R} (M N : module R) :
+  moduleiso M N -> moduleiso' M N.
+Proof.
+   intro w.
+   use tpair.
+   - use tpair.
+     + exact w.
+     + use tpair.
+       * exact (modulefun_to_isbinopfun w).
+       * apply (modulefun_unel w).
+   - exact (modulefun_to_islinear w).
+Defined.
+
+Definition moduleiso'_to_moduleiso {R} (M N : module R) :
+  moduleiso' M N -> moduleiso M N.
+Proof.
+   intro w.
+   use tpair.
+   - exact (pr1 w).
+   - apply dirprodpair.
+     + exact (pr1 (pr2 (pr1 w))).
+     + exact (pr2 w).
+Defined.
+
+Lemma modulefun_unel_uniqueness {R} {M N : module R}
+      {f : pr1module M -> pr1module N} {is: ismodulefun f}
+      (p : f (@unel (pr1module M)) = @unel (pr1module N)) :
+  modulefun_unel (f,,is) = p.
+Proof.
+   apply (setproperty (pr1module N)).
+Defined.
+
+Definition moduleiso'_to_moduleiso_isweq {R} (M N : module R) : isweq (moduleiso'_to_moduleiso M N).
+Proof.
+   use (gradth _ (moduleiso_to_moduleiso' M N)). intro w.
+   unfold moduleiso'_to_moduleiso, moduleiso_to_moduleiso'. cbn.
+   rewrite (modulefun_unel_uniqueness (dirprod_pr2 (pr2 (pr1 w)))).
+   apply idpath.
+   intro w. apply idpath.
+Defined.
+
+Definition moduleiso'_to_moduleiso_weq {R} (M N : module R) : (moduleiso' M N) ≃ (moduleiso M N) :=
+   weqpair (moduleiso'_to_moduleiso M N) (moduleiso'_to_moduleiso_isweq M N).
