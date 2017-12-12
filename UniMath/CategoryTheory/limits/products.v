@@ -87,7 +87,7 @@ Definition mk_ProductCone (a : ∏ i, C) :
   ∏ (c : C) (f : ∏ i, C⟦c,a i⟧), isProductCone _ _ f -> ProductCone a.
 Proof.
   intros c f X.
-  simple refine (tpair _ (c,,f) X).
+  exact (tpair _ (c,,f) X).
 Defined.
 
 Definition mk_isProductCone (hsC : has_homsets C) (a : I -> C) (p : C)
@@ -312,10 +312,10 @@ End vertex.
 Definition functor_precat_product_cone
   : ProductCone I [C, D, hsD] F.
 Proof.
-simple refine (mk_ProductCone _ _ _ _ _ _).
+use mk_ProductCone.
 - apply product_of_functors.
 - apply product_nat_trans_pr.
-- simple refine (mk_isProductCone _ _ _ _ _ _ _).
+- use mk_isProductCone.
   + apply functor_category_has_homsets.
   + intros A f.
     use tpair.

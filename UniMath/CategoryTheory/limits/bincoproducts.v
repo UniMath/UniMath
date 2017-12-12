@@ -158,7 +158,7 @@ Definition mk_BinCoproductCocone (a b : C) :
    isBinCoproductCocone _ _ _ f g →  BinCoproductCocone a b.
 Proof.
   intros.
-  simple refine (tpair _ _ _ ).
+  use tpair.
   - exists c.
     exists f.
     exact g.
@@ -962,11 +962,11 @@ Qed.
 Definition functor_precat_coproduct_cocone
   : BinCoproductCocone [C, D, hsD] F G.
 Proof.
-  simple refine (mk_BinCoproductCocone _ _ _ _ _ _ _ ).
+  use mk_BinCoproductCocone.
   - apply BinCoproduct_of_functors.
   - apply coproduct_nat_trans_in1.
   - apply coproduct_nat_trans_in2.
-  - simple refine (mk_isBinCoproductCocone _ _ _ _ _ _ _ _ ).
+  - use mk_isBinCoproductCocone.
     + apply functor_category_has_homsets.
     + intros A f g.
      exists (tpair _ (coproduct_nat_trans A f g)

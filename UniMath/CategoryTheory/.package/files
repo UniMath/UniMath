@@ -8,6 +8,7 @@ ProductCategory.v
 whiskering.v
 Adjunctions.v
 equivalences.v
+equivalences_lemmas.v
 sub_precategories.v
 Monics.v
 Epis.v

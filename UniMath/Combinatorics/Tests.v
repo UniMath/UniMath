@@ -7,6 +7,7 @@ Require UniMath.Combinatorics.FiniteSequences.
 Require UniMath.Combinatorics.FiniteSets.
 Require UniMath.Combinatorics.OrderedSets.
 Require UniMath.Combinatorics.StandardFiniteSets.
+Require UniMath.Combinatorics.BoundedSearch.
 Require UniMath.MoreFoundations.DecidablePropositions.
 
 Module Test_list.
@@ -490,3 +491,51 @@ Module Test_ord.
   Goal invmap (idweq nat ∘ invweq (idweq _) ∘ idweq _)%weq 3 = 3. reflexivity. Defined.
 
 End Test_ord.
+
+Module Test_search.
+
+  Import UniMath.Combinatorics.BoundedSearch.
+  Import UniMath.Foundations.Propositions.
+
+  Local Definition someseq (n : nat) : bool.
+  Proof.
+    intros n. destruct n.
+    - exact false.
+    - destruct n.
+      + exact true.
+      + destruct n.
+        * exact true.
+        * exact false.
+  Defined.
+
+  Definition P : nat → hProp.
+  Proof.
+    intros n.
+    refine (hProppair (someseq n = true) _).
+    refine (isasetbool _ _).
+  Defined.
+
+  Local Definition P_dec (n : nat) : P n ⨿ ¬ P n.
+  Proof.
+    unfold P, someseq.
+    destruct n.
+    - apply ii2. exact nopathsfalsetotrue.
+    - destruct n.
+      + apply ii1. apply idpath.
+      + destruct n.
+        * apply ii1, idpath.
+        * apply ii2. exact nopathsfalsetotrue.
+  Defined.
+
+  Local Definition P_inhab : ∃ n, P n.
+  Proof.
+    apply hinhpr. refine (2%nat,,_). apply idpath.
+  Defined.
+
+  Goal 1 = pr1 (minimal_n P P_dec P_inhab). reflexivity. Defined.
+
+  Axiom P_inhab' : ∃ n, P n.
+
+  Definition new_n' :  ∑ n : nat, P n := minimal_n P P_dec P_inhab'.
+
+End Test_search.

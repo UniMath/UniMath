@@ -166,14 +166,14 @@ Definition dirprod_disp_cat_axioms
   : disp_cat_axioms _ dirprod_disp_cat_data.
 Proof.
   repeat apply tpair.
-  - intros. apply dirprod_paths; refine (id_left_disp @ !_).
-    + refine (pr1_transportf _ _ _ _ _ _ _).
+  - intros. apply dirprod_paths; use (id_left_disp @ !_).
+    + use pr1_transportf.
     + apply pr2_transportf.
-  - intros. apply dirprod_paths; refine (id_right_disp @ !_).
-    + refine (pr1_transportf _ _ _ _ _ _ _).
+  - intros. apply dirprod_paths; use (id_right_disp @ !_).
+    + use pr1_transportf.
     + apply pr2_transportf.
-  - intros. apply dirprod_paths; refine (assoc_disp @ !_).
-    + refine (pr1_transportf _ _ _ _ _ _ _).
+  - intros. apply dirprod_paths; use (assoc_disp @ !_).
+    + use pr1_transportf.
     + apply pr2_transportf.
   - intros. apply isaset_dirprod; apply homsets_disp.
 Qed.
@@ -362,7 +362,7 @@ Proof.
         | apply pathsinv0, pr1_transportf_sigma_disp]).
     + etrans. Focus 2. apply @pathsinv0, pr2_transportf_sigma_disp.
       etrans. apply maponpaths.
-        refine (mor_disp_transportf_postwhisker
+        use (mor_disp_transportf_postwhisker
           (@inv_mor_total_iso _ _ (_,,_) (_,,_) f ffi) _ (pr2 fff)).
       etrans. apply functtransportf.
       etrans. apply transport_f_f.
@@ -375,7 +375,7 @@ Proof.
         | apply pathsinv0, pr1_transportf_sigma_disp ]).
     + etrans. Focus 2. apply @pathsinv0, pr2_transportf_sigma_disp.
       etrans. apply maponpaths.
-      refine (mor_disp_transportf_prewhisker
+      use (mor_disp_transportf_prewhisker
         (@inv_mor_total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff) _).
       etrans. apply functtransportf.
       etrans. apply transport_f_f.
@@ -1112,12 +1112,12 @@ Proof.
   + set (H := pr2 (pr2 Hff)).
     etrans. apply maponpaths, H.
     etrans. apply transport_f_b.
-    refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
+    use (@maponpaths_2 _ _ _ _ _ (paths_refl _)).
     apply homset_property.
   + set (H := pr1 (pr2 Hff)).
     etrans. apply maponpaths, H.
     etrans. apply transport_f_b.
-    refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
+    use (@maponpaths_2 _ _ _ _ _ (paths_refl _)).
     apply homset_property.
 Qed.
 

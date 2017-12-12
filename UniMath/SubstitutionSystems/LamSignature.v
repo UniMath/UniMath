@@ -367,7 +367,7 @@ Focus 2.
   + assert (NN :=  nat_trans_ax (pr2 (pr2 XZ)) _ _ (BinCoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')
          (identity (TerminalObject terminal)) f)).
     match goal with |[ H1: _ = ?f·?g |- _ = ?h · _ ] =>
-         pathvia (h·(f·g)) end.
+         intermediate_path (h·(f·g)) end.
     * rewrite <- NN.
       clear NN.
       unfold functor_identity.
@@ -408,7 +408,7 @@ Focus 2.
   + assert (NN :=  nat_trans_ax e _ _ (BinCoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')
          (identity (TerminalObject terminal)) f)).
     match goal with |[ H1: _ = ?f·?g |- _ = ?h · _ ] =>
-         pathvia (h·(f·g)) end.
+         intermediate_path (h·(f·g)) end.
     * rewrite <- NN.
       clear NN.
       unfold functor_identity.
@@ -525,7 +525,7 @@ Focus 2.
     assert (NN := nat_trans_ax e' _ _ (e (BinCoproductObject C (CC (TerminalObject terminal) c)))).
     simpl in NN. (* is important for success of the trick *)
     match goal with |[ H1: _ = ?f·?g |- ?h · _ = _ ] =>
-         pathvia (h·(f·g)) end.
+         intermediate_path (h·(f·g)) end.
     * apply idpath.
     * simpl. rewrite <- NN.
       clear NN.
@@ -535,7 +535,7 @@ Focus 2.
          (# Z (BinCoproductIn2 C (CC (TerminalObject terminal) c))))).
       simpl in NNN.
       match goal with |[ H1: _ = ?f·?g |- _ = ?h · _] =>
-         pathvia (h·(f·g)) end.
+         intermediate_path (h·(f·g)) end.
       - simpl. rewrite <- NNN.
         clear NNN.
         do 2 rewrite assoc.

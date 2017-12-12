@@ -36,8 +36,6 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.precomp_fully_faithful.
 Require Import UniMath.CategoryTheory.precomp_ess_surj.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 (** * Construction of the Rezk completion via Yoneda *)
 
 Section rezk.
@@ -166,7 +164,7 @@ Definition Rezk_completion_endo_is_identity (D : functor_from A)
 Proof.
   intros X H.
   set (DH' := DH D).
-  pathvia (pr1 (pr1 DH')).
+  intermediate_path (pr1 (pr1 DH')).
   - apply path_to_ctr.
     apply H.
   - apply pathsinv0.

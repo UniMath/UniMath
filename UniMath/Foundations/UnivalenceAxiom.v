@@ -35,7 +35,9 @@ Require Export UniMath.Foundations.PartB.
 (* everything related to eta correction is obsolete *)
 
 Definition eqweqmap { T1 T2 : UU } : T1 = T2 -> T1 ≃ T2.
-Proof. intro e. induction e. apply idweq. Defined.
+Proof.
+  intro e. induction e. apply idweq.
+Defined.
 
 Definition sectohfiber { X : UU } (P:X -> UU): (∏ x:X, P x) -> (hfiber (λ f, λ x, pr1  (f x)) (λ x:X, x)) := (fun a : ∏ x:X, P x => tpair _ (λ x, tpair _ x (a x)) (idpath (λ x:X, x))).
 
@@ -50,13 +52,19 @@ Proof.
 Defined.
 
 Lemma isweqtransportf10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  x = x' ) : isweq ( transportf P e ).
-Proof. intros. destruct e.  apply idisweq. Defined.
+Proof.
+  intros. induction e.  apply idisweq.
+Defined.
 
 Lemma isweqtransportb10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  x = x' ) : isweq ( transportb P e ).
-Proof. intros. apply ( isweqtransportf10 _ ( pathsinv0 e ) ). Defined.
+Proof.
+  intros. apply ( isweqtransportf10 _ ( pathsinv0 e ) ).
+Defined.
 
 Lemma l1  { X0 X0' : UU } ( ee : X0 = X0' ) ( P : UU -> UU ) ( pp' : P X0' ) ( R : ∏ X X' : UU , ∏ w : X ≃ X' , P X' -> P X ) ( r : ∏ X : UU , ∏ p : P X , paths ( R X X ( idweq X ) p ) p ) : paths ( R X0 X0' ( eqweqmap ee ) pp' ) (  transportb P ee pp' ).
-Proof. destruct ee. simpl. apply r. Defined.
+Proof.
+  induction ee. simpl. apply r.
+Defined.
 
 (** Axiom statements (propositions) *)
 
@@ -156,7 +164,9 @@ Section UnivalenceImplications.
   Hypothesis univalenceAxiom : univalenceStatement.
 
   Theorem univalenceUAH (X Y:UU) : (X=Y) ≃ (X≃Y).
-  Proof. exact (weqpair _ (univalenceAxiom X Y)). Defined.
+  Proof.
+    exact (weqpair _ (univalenceAxiom X Y)).
+  Defined.
 
   Definition weqtopathsUAH : weqtopathsStatement.
   Proof.
@@ -207,7 +217,7 @@ Section UnivalenceImplications.
         assert ( ee' : R' v = R' w ).
         * apply (  maponpaths R' e ).
         * assumption.
-      + destruct ee. apply l1. assumption.
+      + induction ee. apply l1. assumption.
   Defined.
 
   Corollary isweqweqtransportbUAH
@@ -240,10 +250,14 @@ Section UnivalenceImplications.
 
   Lemma eqcor0UAH { X X' : UU } ( w :  X ≃ X' ) ( Y : UU ) ( f1 f2 : X' -> Y ) :
     (λ x : X, f1 ( w x )) = (λ x : X, f2 ( w x ) ) -> f1 = f2.
-  Proof. apply ( invmaponpathsweq ( weqpair _ ( isweqcompwithweqUAH w Y ) ) f1 f2 ). Defined.
+  Proof.
+    apply ( invmaponpathsweq ( weqpair _ ( isweqcompwithweqUAH w Y ) ) f1 f2 ).
+  Defined.
 
   Lemma apathpr1toprUAH ( T : UU ) : paths ( λ z :  pathsspace T, pr1 z ) ( λ z : pathsspace T, pr1 ( pr2 z ) ).
-  Proof. apply ( eqcor0UAH ( weqpair _ ( isweqdeltap T ) ) _ ( λ z :  pathsspace T, pr1 z ) ( λ z :  pathsspace T, pr1 ( pr2 z ) ) ( idpath ( idfun T ) ) ) . Defined.
+  Proof.
+    apply ( eqcor0UAH ( weqpair _ ( isweqdeltap T ) ) _ ( λ z :  pathsspace T, pr1 z ) ( λ z :  pathsspace T, pr1 ( pr2 z ) ) ( idpath ( idfun T ) ) ) .
+  Defined.
 
   Theorem funextfunPreliminaryUAH : funextfunStatement.
   Proof.
