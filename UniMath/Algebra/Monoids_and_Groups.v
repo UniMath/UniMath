@@ -1639,6 +1639,11 @@ Proof.
   apply (pr2 (pr2 f)).
 Defined.
 
+Definition grinv_path_from_op_path {X : gr} {x y : X} (p : (x * y)%multmonoid = unel X) :
+  grinv X x = y.
+Proof.
+  intros. now rewrite <- (lunax X y), <- (grlinvax X x), assocax, p, runax.
+Defined.
 
 (** **** Construction of the trivial abmonoid consisting of one element given by unit. *)
 

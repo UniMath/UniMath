@@ -1,4 +1,4 @@
-(** Authors Anthony Bordg, February-March 2017 *)
+(** Authors Anthony Bordg and Floris van Doorn, February-December 2017 *)
 
 Require Import UniMath.Algebra.Rigs_and_Rings.
 Require Import UniMath.Algebra.Monoids_and_Groups.
@@ -46,7 +46,8 @@ Defined.
 
 Notation "f + g" := (rngofendabgr_op1 f g) : abgr_scope.
 
-(** the composition below uses the diagrammatic order following the general convention used in UniMath *)
+(** the composition below uses the diagrammatic order following the general convention used in
+UniMath *)
 
 Notation "f ∘ g" := (rngofendabgr_op2 g f) : abgr_scope.
 
@@ -61,9 +62,11 @@ Definition pr1setofendabgr {G : abgr} (f : setofendabgr G) : G -> G := pr1 f.
 
 Definition pr2setofendabgr {G : abgr} (f : setofendabgr G) : ismonoidfun (pr1 f) := pr2 f.
 
-Definition setofendabgr_to_isbinopfun {G : abgr} (f : setofendabgr G) : isbinopfun (pr1setofendabgr f) := pr1 (pr2 f).
+Definition setofendabgr_to_isbinopfun {G : abgr} (f : setofendabgr G) :
+  isbinopfun (pr1setofendabgr f) := pr1 (pr2 f).
 
-Definition setofendabgr_to_unel {G : abgr} (f : setofendabgr G) : pr1setofendabgr f 0 = 0 := pr2 (pr2setofendabgr f).
+Definition setofendabgr_to_unel {G : abgr} (f : setofendabgr G) : pr1setofendabgr f 0 = 0 :=
+  pr2 (pr2setofendabgr f).
 
 (** We endow setofendabgr with the two binary operations defined above *)
 
@@ -76,7 +79,7 @@ Definition setwith2binopofendabgr (G : abgr) : setwith2binop :=
 
 Local Open Scope abgr_scope.
 
-Definition isassoc_rngofendabgr_op1 {G : abgr} : isassoc (@rngofendabgr_op1 G).
+Lemma isassoc_rngofendabgr_op1 {G : abgr} : isassoc (@rngofendabgr_op1 G).
 Proof.
    intros f g h.
    use total2_paths_f.
@@ -86,7 +89,7 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition setofendabgr_un0 {G: abgr} : monoidfun G G.
+Lemma setofendabgr_un0 {G: abgr} : monoidfun G G.
 Proof.
    apply (@monoidfunconstr _ _ (λ x : G, 0)).
    apply dirprodpair.
@@ -96,7 +99,7 @@ Proof.
      - reflexivity.
 Defined.
 
-Definition islunit_setofendabgr_un0 {G : abgr} : islunit (@rngofendabgr_op1 G) setofendabgr_un0.
+Lemma islunit_setofendabgr_un0 {G : abgr} : islunit (@rngofendabgr_op1 G) setofendabgr_un0.
 Proof.
    intro f.
    use total2_paths_f.
@@ -105,7 +108,7 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isrunit_setofendabgr_un0 {G : abgr} : isrunit (@rngofendabgr_op1 G) setofendabgr_un0.
+Lemma isrunit_setofendabgr_un0 {G : abgr} : isrunit (@rngofendabgr_op1 G) setofendabgr_un0.
 Proof.
    intros f.
    use total2_paths_f.
@@ -114,14 +117,14 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isunit_setofendabgr_un0 {G : abgr} : isunit (@rngofendabgr_op1 G) setofendabgr_un0 :=
-  isunitpair islunit_setofendabgr_un0 isrunit_setofendabgr_un0.
+Lemma isunit_setofendabgr_un0 {G : abgr} : isunit (@rngofendabgr_op1 G) setofendabgr_un0.
+Proof. exact (isunitpair islunit_setofendabgr_un0 isrunit_setofendabgr_un0). Defined.
 
-Definition isunital_rngofendabgr_op1 {G : abgr} : isunital (@rngofendabgr_op1 G) :=
-  isunitalpair setofendabgr_un0 isunit_setofendabgr_un0.
+Lemma isunital_rngofendabgr_op1 {G : abgr} : isunital (@rngofendabgr_op1 G).
+Proof. exact (isunitalpair setofendabgr_un0 isunit_setofendabgr_un0). Defined.
 
-Definition ismonoidop_rngofendabgr_op1 {G : abgr} : ismonoidop (@rngofendabgr_op1 G) :=
-   mk_ismonoidop isassoc_rngofendabgr_op1 isunital_rngofendabgr_op1.
+Lemma ismonoidop_rngofendabgr_op1 {G : abgr} : ismonoidop (@rngofendabgr_op1 G).
+Proof. exact (mk_ismonoidop isassoc_rngofendabgr_op1 isunital_rngofendabgr_op1). Defined.
 
 Local Close Scope abgr_scope.
 
@@ -142,7 +145,8 @@ Defined.
 
 Local Open Scope abgr_scope.
 
-Definition islinv_setofendabgr_inv {G : abgr} : islinv (@rngofendabgr_op1 G) setofendabgr_un0 setofendabgr_inv.
+Lemma islinv_setofendabgr_inv {G : abgr} :
+  islinv (@rngofendabgr_op1 G) setofendabgr_un0 setofendabgr_inv.
 Proof.
    intro f.
    use total2_paths_f.
@@ -151,7 +155,8 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isrinv_setofendabgr_inv {G : abgr} : isrinv (@rngofendabgr_op1 G) setofendabgr_un0 setofendabgr_inv.
+Lemma isrinv_setofendabgr_inv {G : abgr} :
+  isrinv (@rngofendabgr_op1 G) setofendabgr_un0 setofendabgr_inv.
 Proof.
    intro f.
    use total2_paths_f.
@@ -160,16 +165,18 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isinv_setofendabgr_inv {G : abgr} : isinv (@rngofendabgr_op1 G) (unel_is (@ismonoidop_rngofendabgr_op1 G)) setofendabgr_inv :=
-  mk_isinv islinv_setofendabgr_inv isrinv_setofendabgr_inv.
+Lemma isinv_setofendabgr_inv {G : abgr} :
+  isinv (@rngofendabgr_op1 G) (unel_is (@ismonoidop_rngofendabgr_op1 G)) setofendabgr_inv.
+Proof. exact (mk_isinv islinv_setofendabgr_inv isrinv_setofendabgr_inv). Defined.
 
-Definition invstruct_setofendabgr_inv {G : abgr} : invstruct (@rngofendabgr_op1 G) ismonoidop_rngofendabgr_op1 :=
-   mk_invstruct (@setofendabgr_inv G) (@isinv_setofendabgr_inv G).
+Definition invstruct_setofendabgr_inv {G : abgr} :
+  invstruct (@rngofendabgr_op1 G) ismonoidop_rngofendabgr_op1.
+Proof. exact (mk_invstruct (@setofendabgr_inv G) (@isinv_setofendabgr_inv G)). Defined.
 
-Definition isgrop_rngofendabgr_op1 {G : abgr} : isgrop (@rngofendabgr_op1 G) :=
-   isgroppair ismonoidop_rngofendabgr_op1 invstruct_setofendabgr_inv.
+Lemma isgrop_rngofendabgr_op1 {G : abgr} : isgrop (@rngofendabgr_op1 G).
+Proof. exact (isgroppair ismonoidop_rngofendabgr_op1 invstruct_setofendabgr_inv). Defined.
 
-Definition iscomm_rngofendabgr_op1 {G : abgr} : iscomm (@rngofendabgr_op1 G).
+Lemma iscomm_rngofendabgr_op1 {G : abgr} : iscomm (@rngofendabgr_op1 G).
 Proof.
    intros f g.
    use total2_paths_f.
@@ -178,12 +185,12 @@ Proof.
    - apply (isapropismonoidfun).
 Defined.
 
-Definition isabgrop_rngofendabgr_op1 {G : abgr} : isabgrop (@rngofendabgr_op1 G) :=
-  mk_isabgrop isgrop_rngofendabgr_op1 iscomm_rngofendabgr_op1.
+Lemma isabgrop_rngofendabgr_op1 {G : abgr} : isabgrop (@rngofendabgr_op1 G).
+Proof. exact (mk_isabgrop isgrop_rngofendabgr_op1 iscomm_rngofendabgr_op1). Defined.
 
 (** rngofendabgr_op2 is a monoid operation *)
 
-Definition isassoc_rngofendabgr_op2 {G : abgr} : isassoc (@rngofendabgr_op2 G).
+Lemma isassoc_rngofendabgr_op2 {G : abgr} : isassoc (@rngofendabgr_op2 G).
 Proof.
   intros f g h.
   use total2_paths_f.
@@ -199,7 +206,7 @@ Proof.
    - reflexivity.
 Defined.
 
-Definition islunit_setofendabgr_un1 {G : abgr} : islunit (@rngofendabgr_op2 G) setofendabgr_un1.
+Lemma islunit_setofendabgr_un1 {G : abgr} : islunit (@rngofendabgr_op2 G) setofendabgr_un1.
 Proof.
    intro f.
    use total2_paths_f.
@@ -207,7 +214,7 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isrunit_setofendabgr_un1 {G : abgr} : isrunit (@rngofendabgr_op2 G) setofendabgr_un1.
+Lemma isrunit_setofendabgr_un1 {G : abgr} : isrunit (@rngofendabgr_op2 G) setofendabgr_un1.
 Proof.
    intros f.
    use total2_paths_f.
@@ -215,18 +222,19 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isunit_setofendabgr_un1 {G : abgr} : isunit (@rngofendabgr_op2 G) setofendabgr_un1 :=
-  isunitpair islunit_setofendabgr_un1 isrunit_setofendabgr_un1.
+Lemma isunit_setofendabgr_un1 {G : abgr} : isunit (@rngofendabgr_op2 G) setofendabgr_un1.
+Proof. exact (isunitpair islunit_setofendabgr_un1 isrunit_setofendabgr_un1). Defined.
 
-Definition isunital_rngofendabgr_op2 {G : abgr} : isunital (@rngofendabgr_op2 G) :=
-  isunitalpair setofendabgr_un1 isunit_setofendabgr_un1.
+Lemma isunital_rngofendabgr_op2 {G : abgr} : isunital (@rngofendabgr_op2 G).
+Proof. exact (isunitalpair setofendabgr_un1 isunit_setofendabgr_un1). Defined.
 
-Definition ismonoidop_rngofendabgr_op2 {G : abgr} : ismonoidop (@rngofendabgr_op2 G) :=
-   mk_ismonoidop isassoc_rngofendabgr_op2 isunital_rngofendabgr_op2.
+Lemma ismonoidop_rngofendabgr_op2 {G : abgr} : ismonoidop (@rngofendabgr_op2 G).
+Proof. exact (mk_ismonoidop isassoc_rngofendabgr_op2 isunital_rngofendabgr_op2). Defined.
 
 (** rngofendabgr_op2 is distributive over rngofendabgr_op1 *)
 
-Definition isldistr_setofendabgr_op {G : abgr} : isldistr (@rngofendabgr_op1 G) (@rngofendabgr_op2 G).
+Lemma isldistr_setofendabgr_op {G : abgr} :
+  isldistr (@rngofendabgr_op1 G) (@rngofendabgr_op2 G).
 Proof.
    intros f g h.
    use total2_paths_f.
@@ -235,7 +243,8 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@rngofendabgr_op1 G) (@rngofendabgr_op2 G).
+Lemma isrdistr_setofendabgr_op {G : abgr} :
+  isrdistr (@rngofendabgr_op1 G) (@rngofendabgr_op2 G).
 Proof.
    intros f g h.
    use total2_paths_f.
@@ -243,16 +252,20 @@ Proof.
    - apply isapropismonoidfun.
 Defined.
 
-Definition isdistr_setofendabgr_op {G : abgr} : isdistr (@rngofendabgr_op1 G) (@rngofendabgr_op2 G) :=
-   dirprodpair isldistr_setofendabgr_op isrdistr_setofendabgr_op.
+Lemma isdistr_setofendabgr_op {G : abgr} :
+  isdistr (@rngofendabgr_op1 G) (@rngofendabgr_op2 G).
+Proof. exact (dirprodpair isldistr_setofendabgr_op isrdistr_setofendabgr_op). Defined.
 
-Definition isrngops_setofendabgr_op {G : abgr} : isrngops (@rngofendabgr_op1 G) (@rngofendabgr_op2 G) :=
-   mk_isrngops isabgrop_rngofendabgr_op1 ismonoidop_rngofendabgr_op2 isdistr_setofendabgr_op.
+Lemma isrngops_setofendabgr_op {G : abgr} :
+  isrngops (@rngofendabgr_op1 G) (@rngofendabgr_op2 G).
+Proof.
+  exact (mk_isrngops isabgrop_rngofendabgr_op1 ismonoidop_rngofendabgr_op2 isdistr_setofendabgr_op).
+Defined.
 
 (** The set of endomorphisms of an abelian group is a ring *)
 
 Definition rngofendabgr (G : abgr) : rng :=
-   @rngpair (setwith2binopofendabgr G) (@isrngops_setofendabgr_op G).
+  @rngpair (setwith2binopofendabgr G) (@isrngops_setofendabgr_op G).
 
 
 (** ** Modules: the definition of the small type of R-modules over a ring R  *)
@@ -282,7 +295,8 @@ Definition modulepair {R : rng} (G : abgr) (f : module_struct R G) : module R :=
 
 (** The ring action gives rise to a notion of multiplication. *)
 
-Definition module_mult {R : rng} (M : module R) : R -> M -> M := λ r : R, λ x : M, (pr1setofendabgr (pr2module M r) x).
+Definition module_mult {R : rng} (M : module R) : R -> M -> M :=
+  λ r : R, λ x : M, (pr1setofendabgr (pr2module M r) x).
 
 Notation "r * x" := (module_mult _ r x) : module_scope.
 
@@ -296,7 +310,7 @@ Local Close Scope rig_scope.
 
 Local Open Scope module.
 
-Definition module_mult_0_to_0 {R : rng} {M : module R} (x : M) : rngunel1 * x = @unel M.
+Lemma module_mult_0_to_0 {R : rng} {M : module R} (x : M) : rngunel1 * x = @unel M.
 Proof.
    unfold module_mult. cbn.
    assert (pr2module M rngunel1 = @rngunel1 (rngofendabgr M)).
@@ -307,46 +321,55 @@ Defined.
 
 Local Open Scope addmonoid.
 
-Definition module_mult_is_ldistr {R : rng} {M : module R} (r : R) (x y : M) : r * (x + y) = r * x + r * y :=
-pr1 (pr2 (pr2module M r)) x y.
+Lemma module_mult_is_ldistr {R : rng} {M : module R} (r : R) (x y : M) :
+  r * (x + y) = r * x + r * y.
+Proof. exact (pr1 (pr2 (pr2module M r)) x y). Defined.
 
-Definition module_mult_is_rdistr {R : rng} {M : module R} (r s : R) (x : M) : (op1 r s) * x = r * x + s * x :=
-maponpaths (λ r, pr1setofendabgr r x) (pr1 (pr1 (pr2 (pr2module M))) r s).
+Lemma module_mult_is_rdistr {R : rng} {M : module R} (r s : R) (x : M) :
+  (op1 r s) * x = r * x + s * x.
+Proof. exact (maponpaths (λ r, pr1setofendabgr r x) (pr1 (pr1 (pr2 (pr2module M))) r s)). Defined.
 
-Definition module_mult_assoc {R : rng} {M : module R} (r s : R) (x : M) : (op2 r s) * x = r * (s * x) :=
-maponpaths (λ r, pr1setofendabgr r x) (pr1 (pr2 (pr2 (pr2module M))) r s).
+Lemma module_mult_assoc {R : rng} {M : module R} (r s : R) (x : M) :
+  (op2 r s) * x = r * (s * x).
+Proof. exact (maponpaths (λ r, pr1setofendabgr r x) (pr1 (pr2 (pr2 (pr2module M))) r s)). Defined.
 
-Definition module_mult_1 {R : rng} {M : module R} (r : R) : r * unel M = unel M :=
-pr2 (pr2 (pr2module M r)).
+Lemma module_mult_1 {R : rng} {M : module R} (r : R) : r * unel M = unel M.
+Proof. exact (pr2 (pr2 (pr2module M r))). Defined.
 
-Definition module_mult_unel2 {R : rng} {M : module R} (m : M) : rngunel2 * m = m.
-Admitted.
+Lemma module_mult_unel2 {R : rng} {M : module R} (m : M) : rngunel2 * m = m.
+Proof. exact (maponpaths (λ r, pr1setofendabgr r m) (pr2 (pr2 (pr2 (pr2module M))))). Defined.
 
-Definition module_inv_mult {R : rng} {M : module R} (r : R) (x : M) : @grinv _ (r * x) = r * @grinv _ x.
-Admitted.
+Lemma module_inv_mult {R : rng} {M : module R} (r : R) (x : M) :
+  @grinv _ (r * x) = r * @grinv _ x.
+Proof.
+  apply grinv_path_from_op_path. now rewrite <- module_mult_is_ldistr, grrinvax, module_mult_1.
+Defined.
 
-Definition module_mult_neg1 {R : rng} {M : module R} (x : M) : rngminus1 * x = @grinv _ x.
-Admitted.
+(* Definition module_mult_neg1 {R : rng} {M : module R} (x : M) : rngminus1 * x = @grinv _ x. *)
 
-Definition module_inv_mult_to_inv1 {R : rng} {M : module R} (r : R) (x : M) : @grinv _ (r * x) = rnginv1 r * x.
-Admitted.
+(* Definition module_inv_mult_to_inv1 {R : rng} {M : module R} (r : R) (x : M) : *)
+(*   @grinv _ (r * x) = rnginv1 r * x. *)
 
-Definition module_mult_inv_to_inv1 {R : rng} {M : module R} (r : R) (x : M) : r * @grinv _ x = rnginv1 r * x.
-Admitted.
+(* Definition module_mult_inv_to_inv1 {R : rng} {M : module R} (r : R) (x : M) : *)
+(*   r * @grinv _ x = rnginv1 r * x. *)
 
 (** To construct a module from a left action satisfying four axioms *)
 
-Definition mult_isldistr_wrt_grop {R : rng} {G : abgr} (m : R -> G -> G) : UU := ∏ r : R, ∏ x y : G, m r (x + y) = (m r x) + (m r y).
+Definition mult_isldistr_wrt_grop {R : rng} {G : abgr} (m : R -> G -> G) : UU :=
+  ∏ r : R, ∏ x y : G, m r (x + y) = (m r x) + (m r y).
 
-Definition mult_isrdistr_wrt_rngop1 {R : rng} {G : abgr} (m : R -> G -> G) : UU := ∏ r s : R, ∏ x : G, m (op1 r s) x = (m r x) + (m s x).
+Definition mult_isrdistr_wrt_rngop1 {R : rng} {G : abgr} (m : R -> G -> G) : UU :=
+  ∏ r s : R, ∏ x : G, m (op1 r s) x = (m r x) + (m s x).
 
-Definition mult_isrdistr_wrt_rngop2 {R : rng} {G : abgr} (m : R -> G -> G) : UU := ∏ r s : R, ∏ x : G, m (op2 r s) x = m r (m s x).
+Definition mult_isrdistr_wrt_rngop2 {R : rng} {G : abgr} (m : R -> G -> G) : UU :=
+  ∏ r s : R, ∏ x : G, m (op2 r s) x = m r (m s x).
 
 Definition mult_unel {R : rng} {G : abgr} (m : R -> G -> G) : UU := ∏ x : G, m rngunel2 x = x.
 
 Local Close Scope addmonoid.
 
-Definition mult_to_rngofendabgr {R : rng} {G : abgr} {m : R -> G -> G} (ax1 : mult_isldistr_wrt_grop m) (r : R) : rngofendabgr G.
+Definition mult_to_rngofendabgr {R : rng} {G : abgr} {m : R -> G -> G}
+           (ax1 : mult_isldistr_wrt_grop m) (r : R) : rngofendabgr G.
 Proof.
     use monoidfunconstr.
     intro x. exact (m r x).
@@ -359,8 +382,9 @@ Proof.
       apply idpath.
 Defined.
 
-Definition mult_to_module_struct {R : rng} {G : abgr} {m : R -> G -> G} (ax1 : mult_isldistr_wrt_grop m) (ax2 : mult_isrdistr_wrt_rngop1 m)
-  (ax3 : mult_isrdistr_wrt_rngop2 m) (ax4 : mult_unel m) : module_struct R G.
+Definition mult_to_module_struct {R : rng} {G : abgr} {m : R -> G -> G}
+           (ax1 : mult_isldistr_wrt_grop m) (ax2 : mult_isrdistr_wrt_rngop1 m)
+           (ax3 : mult_isrdistr_wrt_rngop2 m) (ax4 : mult_unel m) : module_struct R G.
 Proof.
   split with (λ r : R, mult_to_rngofendabgr ax1 r).
   apply dirprodpair.
@@ -370,8 +394,8 @@ Proof.
       * apply funextfun. intro x. apply ax2.
       * apply isapropismonoidfun.
     + use total2_paths2_f.
-      * apply funextfun. intro x. change (m rngunel1 x = unel G). apply (grlcan G (m (rngunel1) x)). rewrite runax.
-        rewrite <- (ax2 rngunel1 rngunel1 x). rewrite rngrunax1. apply idpath.
+      * apply funextfun. intro x. change (m rngunel1 x = unel G). apply (grlcan G (m (rngunel1) x)).
+        rewrite runax. rewrite <- (ax2 rngunel1 rngunel1 x). rewrite rngrunax1. apply idpath.
       * apply isapropismonoidfun.
   -  apply dirprodpair.
      + intros r s.
@@ -383,8 +407,9 @@ Proof.
        * apply isapropismonoidfun.
 Defined.
 
-Definition mult_to_module {R : rng} {G : abgr} {m : R -> G -> G} (ax1 : mult_isldistr_wrt_grop m) (ax2 : mult_isrdistr_wrt_rngop1 m)
-  (ax3 : mult_isrdistr_wrt_rngop2 m) (ax4 : mult_unel m) : module R := modulepair G (mult_to_module_struct ax1 ax2 ax3 ax4).
+Definition mult_to_module {R : rng} {G : abgr} {m : R -> G -> G} (ax1 : mult_isldistr_wrt_grop m)
+           (ax2 : mult_isrdistr_wrt_rngop1 m) (ax3 : mult_isrdistr_wrt_rngop2 m)
+           (ax4 : mult_unel m) : module R := modulepair G (mult_to_module_struct ax1 ax2 ax3 ax4).
 
 (** *** R-module morphisms *)
 
@@ -393,13 +418,15 @@ Definition islinear {R : rng} {M N : module R} (f : M -> N) :=
 
 Definition linearfun {R : rng} (M N : module R) : UU := ∑ f : M -> N, islinear f.
 
-Definition linearfunpair {R : rng} {M N : module R} (f : M -> N) (is : islinear f) : linearfun M N := tpair _ f is.
+Definition linearfunpair {R : rng} {M N : module R} (f : M -> N) (is : islinear f) :
+  linearfun M N := tpair _ f is.
 
 Definition pr1linearfun {R : rng} {M N : module R} (f : linearfun M N) : M -> N := pr1 f.
 
 Coercion pr1linearfun : linearfun >-> Funclass.
 
-Definition islinearfuncomp {R : rng} {M N P : module R} (f : linearfun M N) (g : linearfun N P) : islinear (funcomp (pr1 f) (pr1 g)).
+Lemma islinearfuncomp {R : rng} {M N P : module R} (f : linearfun M N) (g : linearfun N P) :
+  islinear (funcomp (pr1 f) (pr1 g)).
 Proof.
   intros r x.
   unfold funcomp.
@@ -408,8 +435,8 @@ Proof.
   apply idpath.
 Defined.
 
-Definition linearfuncomp {R : rng} {M N P : module R} (f : linearfun M N) (g : linearfun N P) : linearfun M P :=
-  tpair _ (funcomp f g) (islinearfuncomp f g).
+Definition linearfuncomp {R : rng} {M N P : module R} (f : linearfun M N) (g : linearfun N P) :
+  linearfun M P := tpair _ (funcomp f g) (islinearfuncomp f g).
 
 Definition ismodulefun {R : rng} {M N : module R} (f : M -> N) : UU :=
    (isbinopfun f) × (islinear f).
@@ -425,24 +452,26 @@ Defined.
 
 Definition modulefun {R : rng} (M N : module R) : UU := ∑ f : M -> N, ismodulefun f.
 
-Definition modulefunpair {R : rng} {M N : module R} (f : M -> N) (is : ismodulefun f) : modulefun M N :=
-   tpair _ f is.
+Definition modulefunpair {R : rng} {M N : module R} (f : M -> N) (is : ismodulefun f) :
+  modulefun M N := tpair _ f is.
 
 Definition pr1modulefun {R : rng} {M N : module R} (f : modulefun M N) : M -> N := pr1 f.
 
 Coercion pr1modulefun : modulefun >-> Funclass.
 
-Definition modulefun_to_isbinopfun {R : rng} {M N : module R} (f : modulefun M N) : isbinopfun (pr1modulefun f) := pr1 (pr2 f).
+Definition modulefun_to_isbinopfun {R : rng} {M N : module R} (f : modulefun M N) :
+  isbinopfun (pr1modulefun f) := pr1 (pr2 f).
 
 Definition modulefun_to_binopfun {R : rng} {M N : module R} (f : modulefun M N) : binopfun M N :=
   binopfunpair (pr1modulefun f) (modulefun_to_isbinopfun f).
 
-Definition modulefun_to_islinear {R : rng} {M N : module R} (f : modulefun M N): islinear (pr1modulefun f) := pr2 (pr2 f).
+Definition modulefun_to_islinear {R : rng} {M N : module R} (f : modulefun M N) :
+  islinear (pr1modulefun f) := pr2 (pr2 f).
 
 Definition modulefun_to_linearfun {R : rng} {M N : module R} (f : modulefun M N) : linearfun M N :=
   linearfunpair f (modulefun_to_islinear f).
 
-Definition modulefun_unel {R : rng} {M N : module R} (f : modulefun M N) : f (unel M) = unel N.
+Lemma modulefun_unel {R : rng} {M N : module R} (f : modulefun M N) : f (unel M) = unel N.
 Proof.
    rewrite <- (module_mult_0_to_0 (unel M)).
    rewrite ((modulefun_to_islinear f) rngunel1 (unel M)).
@@ -450,14 +479,16 @@ Proof.
    reflexivity.
 Defined.
 
-Definition modulefun_to_monoidfun {R : rng} {M N : module R} (f : modulefun M N) : monoidfun (abgrtoabmonoid (pr1module M)) (abgrtoabmonoid (pr1module N)) :=
+Definition modulefun_to_monoidfun {R : rng} {M N : module R} (f : modulefun M N) :
+  monoidfun (abgrtoabmonoid (pr1module M)) (abgrtoabmonoid (pr1module N)) :=
 tpair _ (pr1 f) (tpair _ (pr1 (pr2 f)) (modulefun_unel f)).
 
-Definition modulefun_from_monoidfun {R : rng} {M N : module R} (f : monoidfun M N) (H : ismodulefun (pr1 f)) :
-   modulefun M N :=
+Definition modulefun_from_monoidfun {R : rng} {M N : module R} (f : monoidfun M N)
+           (H : ismodulefun (pr1 f)) : modulefun M N :=
 (tpair _ (pr1 f) H).
 
-Definition modulefun_paths {R : rng} {M N : module R} {f g : modulefun M N} (p : pr1 f ~ pr1 g) : f = g.
+Lemma modulefun_paths {R : rng} {M N : module R} {f g : modulefun M N} (p : pr1 f ~ pr1 g) :
+  f = g.
 Proof.
   use total2_paths_f.
   - apply funextfun. exact p.
@@ -479,7 +510,8 @@ Lemma modulehombinop_ismodulefun {R : rng} {M N : module R} (f g : modulefun M N
   @ismodulefun R M N (λ x : pr1 M, (pr1 f x * pr1 g x)%multmonoid).
 Proof.
   - use tpair.
-    exact (pr1 (abmonoidshombinop_ismonoidfun (modulefun_to_monoidfun f) (modulefun_to_monoidfun g))).
+    exact (pr1 (abmonoidshombinop_ismonoidfun (modulefun_to_monoidfun f)
+                                              (modulefun_to_monoidfun g))).
     intros r m. rewrite (pr2 (pr2 f)). rewrite (pr2 (pr2 g)).
     rewrite <- module_mult_is_ldistr. reflexivity.
 Defined.
@@ -533,7 +565,7 @@ Proof.
       * intros f. exact (modulebinop_runax f).
 Defined.
 
-Definition modulehombinop_inv_ismodulefun {R : rng} {M N : module R} (f : modulefun M N) :
+Lemma modulehombinop_inv_ismodulefun {R : rng} {M N : module R} (f : modulefun M N) :
   ismodulefun (λ m : M, grinv N (pr1 f m)).
 Proof.
   use tpair.
@@ -546,13 +578,13 @@ Qed.
 Definition modulehombinop_inv {R : rng} {M N : module R} (f : modulefun M N) : modulefun M N :=
   tpair _ _ (modulehombinop_inv_ismodulefun f).
 
-Definition modulehombinop_linvax {R : rng} {M N : module R} (f : modulefun M N) :
+Lemma modulehombinop_linvax {R : rng} {M N : module R} (f : modulefun M N) :
   modulehombinop (modulehombinop_inv f) f = unelmodulefun M N.
 Proof.
   use modulefun_paths. intros x. use (@grlinvax N).
 Qed.
 
-Definition modulehombinop_rinvax {R : rng} {M N : module R} (f : modulefun M N) :
+Lemma modulehombinop_rinvax {R : rng} {M N : module R} (f : modulefun M N) :
   modulehombinop f (modulehombinop_inv f) = unelmodulefun M N.
 Proof.
   use modulefun_paths. intros x. use (grrinvax N).
@@ -583,8 +615,8 @@ Proof.
   - exact (modulehomabgr_isabgrop M N).
 Defined.
 
-Definition modulehombinop_scalar_ismodulefun {R : commrng} {M N : module R} (r : R) (f : modulefun M N) :
-  ismodulefun (λ m : M, r * (pr1 f m)).
+Definition modulehombinop_scalar_ismodulefun {R : commrng} {M N : module R} (r : R)
+           (f : modulefun M N) : ismodulefun (λ m : M, r * (pr1 f m)).
 Proof.
   use tpair.
   - use mk_isbinopfun. intros x x'. cbn.
@@ -593,7 +625,8 @@ Proof.
     rewrite rngcomm2. reflexivity.
 Qed.
 
-Definition modulehombinop_smul {R : commrng} {M N : module R} (r : R) (f : modulefun M N) : modulefun M N :=
+Definition modulehombinop_smul {R : commrng} {M N : module R} (r : R) (f : modulefun M N) :
+  modulefun M N :=
 modulefunpair _ (modulehombinop_scalar_ismodulefun r f).
 
 Definition modulehommodule {R : commrng} (M N : module R) : module R.
