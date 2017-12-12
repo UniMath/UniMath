@@ -35,35 +35,38 @@ Definition id_multimodulefun {I : UU} {rngs : I -> rng} (MM : multimodule rngs)
 
 (** ** (Multi)modules *)
 
-(** The right action of a ring through a ring homomorphism
+(** The left action of a ring through a ring homomorphism
     See Bourbaki's Algebra, II §1.4, no. 1, Example 1.
  *)
-Definition rngfun_right_mult {R S : rng} (f : rngfun R S) (r : R)
-  : rngofendabgr S :=
+Definition rngfun_left_mult {R S : rng} (f : rngfun R S) (r : R)
+: rngofendabgr S.
+Proof.
+  refine
   (* This is the actual definition of the function *)
-  ((λ x : S, (x * (f r))),,
+  ((λ x : S, (f r * x)),,
    (* And this is the justification that it's a monoid morphism *)
-   (λ _ _, rigrdistr S _ _ _),, rigmult0x S _).
+                       (λ _ _, _),, _).
+  apply (rigldistr S _ _ _). apply (rigmultx0 S).
+Defined.
 
-(** An important special case: the right action of a ring on itself *)
-Example rng_right_mult {R : rng} : R -> rngofendabgr R :=
-  rngfun_right_mult (rigisotorigfun (idrigiso R)).
+(** An important special case: the left action of a ring on itself *)
+Example rng_left_mult {R : rng} : R -> rngofendabgr R :=
+  rngfun_left_mult (rigisotorigfun (idrigiso R)).
 
 
 (** A ring morphism R -> S defines an R-module structure on the additive abelian
     group of S *)
 Definition ringfun_module {R S : rng} (f : rngfun R S) : module R.
   refine (@rngaddabgr S,, _).
-  apply (@mult_to_module_struct R S (pr1 ∘ rngfun_right_mult f)%functions);
-    unfold funcomp, pr1, rngfun_right_mult.
-  - exact (fun r x y => rngrdistr S x y (f r)).
-  - exact (fun r s x => (maponpaths _ ((pr1 (pr1 (pr2 f))) r s)) @
-                        (rngldistr _ (f r) (f s) x)).
-  - exact (fun r s x => (maponpaths (fun y => x * y) ((pr1 (pr2 (pr2 f))) r s)) @
-                        !(rigassoc2 S x (f r) (f s))).
-  - unfold mult_unel.
-    exact (fun x => maponpaths (fun y => x * y) (pr2 (pr2 (pr2 f))) @
-                               (@rigrunax2 S x)).
+  apply (@mult_to_module_struct R S (pr1 ∘ rngfun_left_mult f)%functions);
+    unfold funcomp, pr1, rngfun_left_mult.
+  - exact (fun r x y => rngldistr S x y (f r)).
+  - exact (fun r s x => (maponpaths (λ x, x * _) ((pr1 (pr1 (pr2 f))) r s)) @
+                        (rngrdistr _ (f r) (f s) x)).
+  - exact (fun r s x => ((maponpaths (fun y => y * x) ((pr1 (pr2 (pr2 f))) r s) @
+                         (rigassoc2 S (f r) (f s) x)))).
+  - exact (fun x => maponpaths (fun y => y * x) (pr2 (pr2 (pr2 f))) @
+                               (@riglunax2 S x)).
 Defined.
 
 (** An important special case: a ring is a module over itself *)
@@ -121,8 +124,8 @@ Example commrng_bimodule (R : commrng) : bimodule R R.
   intros r s.
   apply funextfun.
   intros x.
-  exact (!(@rigassoc2 R x r s @ (maponpaths (fun z => x * z) (@rngcomm2 R r s))
-                      @ !(rigassoc2 R x s r))).
+  exact (!@rigassoc2 R r s x @ (maponpaths (fun z => z * x) (@rngcomm2 R r s))
+                      @ (rigassoc2 R s r x)).
 Defined. (* TODO: this line takes a while, not sure why *)
 
 Local Close Scope rng.

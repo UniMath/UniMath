@@ -41,14 +41,14 @@ Defined.
 Definition rngofendabgr_op2 {G : abgr} : binop (monoidfun G G).
 Proof.
   intros f g.
-  apply (monoidfuncomp f g).
+  apply (monoidfuncomp g f).
 Defined.
 
 Notation "f + g" := (rngofendabgr_op1 f g) : abgr_scope.
 
 (** the composition below uses the diagrammatic order following the general convention used in UniMath *)
 
-Notation "f ∘ g" := (rngofendabgr_op2 f g) : abgr_scope.
+Notation "f ∘ g" := (rngofendabgr_op2 g f) : abgr_scope.
 
 (** The underlying set of the ring of endomorphisms of an abelian group *)
 
@@ -230,7 +230,8 @@ Definition isldistr_setofendabgr_op {G : abgr} : isldistr (@rngofendabgr_op1 G) 
 Proof.
    intros f g h.
    use total2_paths_f.
-   - apply funextfun. intro x. reflexivity.
+   - apply funextfun. intro x.
+     apply (setofendabgr_to_isbinopfun h).
    - apply isapropismonoidfun.
 Defined.
 
@@ -238,8 +239,7 @@ Definition isrdistr_setofendabgr_op {G : abgr} : isrdistr (@rngofendabgr_op1 G) 
 Proof.
    intros f g h.
    use total2_paths_f.
-   - apply funextfun. intro x.
-     apply (setofendabgr_to_isbinopfun h).
+   - apply funextfun. intro x. reflexivity.
    - apply isapropismonoidfun.
 Defined.
 
@@ -305,15 +305,27 @@ Proof.
      reflexivity.
 Defined.
 
-(** To construct a module from a left action satisfying four axioms *)
-
 Local Open Scope addmonoid.
+
+Definition module_mult_is_ldistr {R : rng} {M : module R} (r : R) (x y : M) : r * (x + y) = r * x + r * y :=
+pr1 (pr2 (pr2module M r)) x y.
+
+Definition module_mult_is_rdistr {R : rng} {M : module R} (r s : R) (x : M) : (op1 r s) * x = r * x + s * x :=
+maponpaths (λ r, pr1setofendabgr r x) (pr1 (pr1 (pr2 (pr2module M))) r s).
+
+Definition module_mult_assoc {R : rng} {M : module R} (r s : R) (x : M) : (op2 r s) * x = r * (s * x) :=
+maponpaths (λ r, pr1setofendabgr r x) (pr1 (pr2 (pr2 (pr2module M))) r s).
+
+Definition module_mult_1 {R : rng} {M : module R} (r : R) : r * unel M = unel M :=
+pr2 (pr2 (pr2module M r)).
+
+(** To construct a module from a left action satisfying four axioms *)
 
 Definition mult_isldistr_wrt_grop {R : rng} {G : abgr} (m : R -> G -> G) : UU := ∏ r : R, ∏ x y : G, m r (x + y) = (m r x) + (m r y).
 
 Definition mult_isrdistr_wrt_rngop1 {R : rng} {G : abgr} (m : R -> G -> G) : UU := ∏ r s : R, ∏ x : G, m (op1 r s) x = (m r x) + (m s x).
 
-Definition mult_isrdistr_wrt_rngop2 {R : rng} {G : abgr} (m : R -> G -> G) : UU := ∏ r s : R, ∏ x : G, m (op2 r s) x = m s (m r x).
+Definition mult_isrdistr_wrt_rngop2 {R : rng} {G : abgr} (m : R -> G -> G) : UU := ∏ r s : R, ∏ x : G, m (op2 r s) x = m r (m s x).
 
 Definition mult_unel {R : rng} {G : abgr} (m : R -> G -> G) : UU := ∏ x : G, m rngunel2 x = x.
 
@@ -421,4 +433,28 @@ Proof.
    rewrite ((modulefun_to_islinear f) rngunel1 (unel M)).
    rewrite (module_mult_0_to_0 _).
    reflexivity.
+Defined.
+
+Definition modulefun_to_monoidfun {R : rng} {M N : module R} (f : modulefun M N) : monoidfun (abgrtoabmonoid (pr1module M)) (abgrtoabmonoid (pr1module N)) :=
+tpair _ (pr1 f) (tpair _ (pr1 (pr2 f)) (modulefun_unel f)).
+
+Definition modulefun_from_monoidfun {R : rng} {M N : module R} (f : monoidfun M N) (H : ismodulefun (pr1 f)) :
+   modulefun M N :=
+(tpair _ (pr1 f) H).
+
+Definition modulefun_paths {R : rng} {M N : module R} {f g : modulefun M N} (p : pr1 f ~ pr1 g) : f = g.
+Proof.
+  use total2_paths_f.
+  - apply funextfun. exact p.
+  - use proofirrelevance. use isapropismodulefun.
+Defined.
+
+Lemma isasetmodulefun {R : rng} (M N : module R) : isaset (modulefun M N).
+Proof.
+  intros. apply (isasetsubset (@pr1modulefun R M N)).
+  - change (isofhlevel 2 (M -> N)).
+    apply impred. intro.
+    apply (setproperty N).
+  - refine (isinclpr1 _ _). intro.
+    apply isapropismodulefun.
 Defined.
