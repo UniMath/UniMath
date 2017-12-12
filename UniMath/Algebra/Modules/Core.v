@@ -46,11 +46,6 @@ Defined.
 
 Notation "f + g" := (rngofendabgr_op1 f g) : abgr_scope.
 
-(** the composition below uses the diagrammatic order following the general convention used in
-UniMath *)
-
-Notation "f ∘ g" := (rngofendabgr_op2 g f) : abgr_scope.
-
 (** The underlying set of the ring of endomorphisms of an abelian group *)
 
 Definition setofendabgr (G : abgr) : hSet :=
