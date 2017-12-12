@@ -506,13 +506,17 @@ Definition modulefun_from_monoidfun {R : rng} {M N : module R} (f : monoidfun M 
            (H : ismodulefun (pr1 f)) : modulefun M N :=
 (tpair _ (pr1 f) H).
 
-Lemma modulefun_paths {R : rng} {M N : module R} {f g : modulefun M N} (p : pr1 f ~ pr1 g) :
+Lemma modulefun_paths {R : rng} {M N : module R} {f g : modulefun M N} (p : pr1 f = pr1 g) :
   f = g.
 Proof.
   use total2_paths_f.
-  - apply funextfun. exact p.
+  - exact p.
   - use proofirrelevance. use isapropismodulefun.
 Defined.
+
+Lemma modulefun_paths2 {R : rng} {M N : module R} {f g : modulefun M N} (p : pr1 f ~ pr1 g) :
+  f = g.
+Proof. exact (modulefun_paths (funextfun _ _ p)). Defined.
 
 Lemma isasetmodulefun {R : rng} (M N : module R) : isaset (modulefun M N).
 Proof.
@@ -551,25 +555,25 @@ Definition unelmodulefun {R : rng} (M N : module R) : modulefun M N :=
 Lemma modulebinop_runax {R : rng} {M N : module R} (f : modulefun M N) :
   modulehombinop f (unelmodulefun M N) = f.
 Proof.
-  use modulefun_paths. intros x. use (runax N).
+  use modulefun_paths2. intros x. use (runax N).
 Qed.
 
 Lemma modulebinop_lunax {R : rng} {M N : module R} (f : modulefun M N) :
   modulehombinop (unelmodulefun M N) f = f.
 Proof.
-  use modulefun_paths. intros x. use (lunax N).
+  use modulefun_paths2. intros x. use (lunax N).
 Qed.
 
 Lemma modulehombinop_assoc {R : rng} {M N : module R} (f g h : modulefun M N) :
   modulehombinop (modulehombinop f g) h = modulehombinop f (modulehombinop g h).
 Proof.
-  use modulefun_paths. intros x. use assocax.
+  use modulefun_paths2. intros x. use assocax.
 Qed.
 
 Lemma modulehombinop_comm {R : rng} {M N : module R} (f g : modulefun M N) :
   modulehombinop f g = modulehombinop g f.
 Proof.
-  use modulefun_paths. intros x. use (commax N).
+  use modulefun_paths2. intros x. use (commax N).
 Qed.
 
 Lemma modulehomabmodule_ismoduleop {R : rng} {M N : module R} :
@@ -600,13 +604,13 @@ Definition modulehombinop_inv {R : rng} {M N : module R} (f : modulefun M N) : m
 Lemma modulehombinop_linvax {R : rng} {M N : module R} (f : modulefun M N) :
   modulehombinop (modulehombinop_inv f) f = unelmodulefun M N.
 Proof.
-  use modulefun_paths. intros x. use (@grlinvax N).
+  use modulefun_paths2. intros x. use (@grlinvax N).
 Qed.
 
 Lemma modulehombinop_rinvax {R : rng} {M N : module R} (f : modulefun M N) :
   modulehombinop f (modulehombinop_inv f) = unelmodulefun M N.
 Proof.
-  use modulefun_paths. intros x. use (grrinvax N).
+  use modulefun_paths2. intros x. use (grrinvax N).
 Qed.
 
 Lemma modulehomabgr_isabgrop {R : rng} (M N : module R) :
@@ -654,8 +658,8 @@ Proof.
   use (modulehomabgr M N).
   use mult_to_module_struct.
   exact modulehombinop_smul.
-  - intros r f g. use modulefun_paths. intros x. apply module_mult_is_ldistr.
-  - intros r r0 f. use modulefun_paths. intros x. apply module_mult_is_rdistr.
-  - intros r r0 f. use modulefun_paths. intros x. apply module_mult_assoc.
-  - intros f. use modulefun_paths. intros x. cbn. apply module_mult_unel2.
+  - intros r f g. use modulefun_paths2. intros x. apply module_mult_is_ldistr.
+  - intros r r0 f. use modulefun_paths2. intros x. apply module_mult_is_rdistr.
+  - intros r r0 f. use modulefun_paths2. intros x. apply module_mult_assoc.
+  - intros f. use modulefun_paths2. intros x. cbn. apply module_mult_unel2.
 Defined.
