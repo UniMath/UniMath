@@ -319,6 +319,21 @@ maponpaths (λ r, pr1setofendabgr r x) (pr1 (pr2 (pr2 (pr2module M))) r s).
 Definition module_mult_1 {R : rng} {M : module R} (r : R) : r * unel M = unel M :=
 pr2 (pr2 (pr2module M r)).
 
+Definition module_mult_unel2 {R : rng} {M : module R} (m : M) : rngunel2 * m = m.
+Admitted.
+
+Definition module_inv_mult {R : rng} {M : module R} (r : R) (x : M) : @grinv _ (r * x) = r * @grinv _ x.
+Admitted.
+
+Definition module_mult_neg1 {R : rng} {M : module R} (x : M) : rngminus1 * x = @grinv _ x.
+Admitted.
+
+Definition module_inv_mult_to_inv1 {R : rng} {M : module R} (r : R) (x : M) : @grinv _ (r * x) = rnginv1 r * x.
+Admitted.
+
+Definition module_mult_inv_to_inv1 {R : rng} {M : module R} (r : R) (x : M) : r * @grinv _ x = rnginv1 r * x.
+Admitted.
+
 (** To construct a module from a left action satisfying four axioms *)
 
 Definition mult_isldistr_wrt_grop {R : rng} {G : abgr} (m : R -> G -> G) : UU := ∏ r : R, ∏ x y : G, m r (x + y) = (m r x) + (m r y).
@@ -457,4 +472,138 @@ Proof.
     apply (setproperty N).
   - refine (isinclpr1 _ _). intro.
     apply isapropismodulefun.
+Defined.
+
+(* categorical structure of modules *)
+Lemma modulehombinop_ismodulefun {R : rng} {M N : module R} (f g : modulefun M N) :
+  @ismodulefun R M N (λ x : pr1 M, (pr1 f x * pr1 g x)%multmonoid).
+Proof.
+  - use tpair.
+    exact (pr1 (abmonoidshombinop_ismonoidfun (modulefun_to_monoidfun f) (modulefun_to_monoidfun g))).
+    intros r m. rewrite (pr2 (pr2 f)). rewrite (pr2 (pr2 g)).
+    rewrite <- module_mult_is_ldistr. reflexivity.
+Defined.
+
+Definition modulehombinop {R : rng} {M N : module R} : binop (modulefun M N) :=
+  (λ f g, modulefunpair _ (modulehombinop_ismodulefun f g)).
+
+Lemma unelmodulefun_ismodulefun {R : rng} (M N : module R) : ismodulefun (λ x : M, (unel N)).
+Proof.
+  use tpair.
+  - use mk_isbinopfun. intros m m'. use pathsinv0. use lunax.
+  - intros r m. rewrite module_mult_1. reflexivity.
+Qed.
+
+Definition unelmodulefun {R : rng} (M N : module R) : modulefun M N :=
+  modulefunpair _ (unelmodulefun_ismodulefun M N).
+
+Lemma modulebinop_runax {R : rng} {M N : module R} (f : modulefun M N) :
+  modulehombinop f (unelmodulefun M N) = f.
+Proof.
+  use modulefun_paths. intros x. use (runax N).
+Qed.
+
+Lemma modulebinop_lunax {R : rng} {M N : module R} (f : modulefun M N) :
+  modulehombinop (unelmodulefun M N) f = f.
+Proof.
+  use modulefun_paths. intros x. use (lunax N).
+Qed.
+
+Lemma modulehombinop_assoc {R : rng} {M N : module R} (f g h : modulefun M N) :
+  modulehombinop (modulehombinop f g) h = modulehombinop f (modulehombinop g h).
+Proof.
+  use modulefun_paths. intros x. use assocax.
+Qed.
+
+Lemma modulehombinop_comm {R : rng} {M N : module R} (f g : modulefun M N) :
+  modulehombinop f g = modulehombinop g f.
+Proof.
+  use modulefun_paths. intros x. use (commax N).
+Qed.
+
+Lemma modulehomabmodule_ismoduleop {R : rng} {M N : module R} :
+  ismonoidop (λ f g : modulefun M N, modulehombinop f g).
+Proof.
+  use mk_ismonoidop.
+  - intros f g h. exact (modulehombinop_assoc f g h).
+  - use isunitalpair.
+    + exact (unelmodulefun M N).
+    + use isunitpair.
+      * intros f. exact (modulebinop_lunax f).
+      * intros f. exact (modulebinop_runax f).
+Defined.
+
+Definition modulehombinop_inv_ismodulefun {R : rng} {M N : module R} (f : modulefun M N) :
+  ismodulefun (λ m : M, grinv N (pr1 f m)).
+Proof.
+  use tpair.
+  - use mk_isbinopfun. intros x x'. cbn.
+    rewrite (pr1 (pr2 f)). rewrite (pr2 (pr2 (pr1module N))). use (grinvop N).
+  - intros r m. rewrite <- module_inv_mult. apply maponpaths.
+    apply (pr2 f).
+Qed.
+
+Definition modulehombinop_inv {R : rng} {M N : module R} (f : modulefun M N) : modulefun M N :=
+  tpair _ _ (modulehombinop_inv_ismodulefun f).
+
+Definition modulehombinop_linvax {R : rng} {M N : module R} (f : modulefun M N) :
+  modulehombinop (modulehombinop_inv f) f = unelmodulefun M N.
+Proof.
+  use modulefun_paths. intros x. use (@grlinvax N).
+Qed.
+
+Definition modulehombinop_rinvax {R : rng} {M N : module R} (f : modulefun M N) :
+  modulehombinop f (modulehombinop_inv f) = unelmodulefun M N.
+Proof.
+  use modulefun_paths. intros x. use (grrinvax N).
+Qed.
+
+Lemma modulehomabgr_isabgrop {R : rng} (M N : module R) :
+  isabgrop (λ f g : modulefun M N, modulehombinop f g).
+Proof.
+  use mk_isabgrop.
+  use mk_isgrop.
+  - use modulehomabmodule_ismoduleop.
+  - use mk_invstruct.
+    + intros f. exact (modulehombinop_inv f).
+    + use mk_isinv.
+      * intros f. exact (modulehombinop_linvax f).
+      * intros f. exact (modulehombinop_rinvax f).
+  - intros f g. exact (modulehombinop_comm f g).
+Defined.
+
+Definition modulehomabgr {R : rng} (M N : module R) : abgr.
+Proof.
+  use abgrpair.
+  use setwithbinoppair.
+  use hSetpair.
+  - exact (modulefun M N).
+  - exact (isasetmodulefun M N).
+  - exact (@modulehombinop R M N).
+  - exact (modulehomabgr_isabgrop M N).
+Defined.
+
+Definition modulehombinop_scalar_ismodulefun {R : commrng} {M N : module R} (r : R) (f : modulefun M N) :
+  ismodulefun (λ m : M, r * (pr1 f m)).
+Proof.
+  use tpair.
+  - use mk_isbinopfun. intros x x'. cbn.
+    rewrite (pr1 (pr2 f)). rewrite module_mult_is_ldistr. reflexivity.
+  - intros r0 m. rewrite (pr2 (pr2 f)). do 2 rewrite <- module_mult_assoc.
+    rewrite rngcomm2. reflexivity.
+Qed.
+
+Definition modulehombinop_smul {R : commrng} {M N : module R} (r : R) (f : modulefun M N) : modulefun M N :=
+modulefunpair _ (modulehombinop_scalar_ismodulefun r f).
+
+Definition modulehommodule {R : commrng} (M N : module R) : module R.
+Proof.
+  use modulepair.
+  use (modulehomabgr M N).
+  use mult_to_module_struct.
+  exact modulehombinop_smul.
+  - intros r f g. use modulefun_paths. intros x. apply module_mult_is_ldistr.
+  - intros r r0 f. use modulefun_paths. intros x. apply module_mult_is_rdistr.
+  - intros r r0 f. use modulefun_paths. intros x. apply module_mult_assoc.
+  - intros f. use modulefun_paths. intros x. cbn. apply module_mult_unel2.
 Defined.
