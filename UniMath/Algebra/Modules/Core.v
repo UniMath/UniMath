@@ -289,6 +289,11 @@ Identity Coercion id_module_struct : module_struct >-> rngfun.
 
 Definition modulepair {R : rng} (G : abgr) (f : module_struct R G) : module R := tpair _ G f.
 
+Lemma isasetmodule {R : rng} (M : module R) : isaset M.
+Proof.
+  exact (pr2 (pr1 (pr1 (pr1 M)))).
+Defined.
+
 (** The ring action gives rise to a notion of multiplication. *)
 
 Definition module_mult {R : rng} (M : module R) : R -> M -> M :=
@@ -448,6 +453,10 @@ Definition linearfuncomp {R : rng} {M N P : module R} (f : linearfun M N) (g : l
 
 Definition ismodulefun {R : rng} {M N : module R} (f : M -> N) : UU :=
    (isbinopfun f) × (islinear f).
+
+Definition ismodulefunpair {R : rng} {M N : module R} {f : M -> N}
+           (H1 : isbinopfun f) (H2 : islinear f) : ismodulefun f :=
+tpair _ H1 H2.
 
 Lemma isapropismodulefun {R : rng} {M N : module R} (f : M -> N) : isaprop (ismodulefun f).
 Proof.
