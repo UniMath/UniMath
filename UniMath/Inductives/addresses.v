@@ -54,4 +54,6 @@ Section Addresses.
         exact (ind_case t b (n' ,, addr0') (ind' (arg t b) addr0')).
   Defined.
 
+
+
 End Addresses.

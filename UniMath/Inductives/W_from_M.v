@@ -5,7 +5,8 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Export UniMath.Inductives.algebras.
+Require Export UniMath.Inductives.addresses.
+
 
 
 Section Wtypes.
@@ -107,7 +108,6 @@ Section Wtypes.
     apply (X b).
   Defined.
 
-  (*
   Definition arg (w : W) (b : B (label w)) : W.
   Proof.
     intros w. destruct w as [m p].
@@ -115,11 +115,14 @@ Section Wtypes.
     intro b.
     exists (f b).
     simpl in b.
-    revert b.
-    apply wf_then_subtr_wf.
+    exact (wf_then_subtr_wf (supM (a,, f)) p b).
+  Defined.
 
-    intros P step.
-    simpl in b.
+  Variable (C : Type) (sC : coalgebra_structure (polynomial_functor A B) C).
+
+  (*
+  Definition LHom (w : W) :=
+    ∑ h : Addr w -> C, ∏ addr :
   *)
 
 End Wtypes.
