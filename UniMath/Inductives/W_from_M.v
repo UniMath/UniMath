@@ -13,7 +13,7 @@ Section Wtypes.
 
   (* Assuming M-types construct W-types *)
 
-  Variable (A : UU) (B : A -> UU).
+  Context {A : UU} {B : A -> UU}.
 
   CoInductive M : Type :=
     supM : total2 (fun a : A => B a -> M) -> M.
@@ -118,11 +118,89 @@ Section Wtypes.
     exact (wf_then_subtr_wf (supM (a,, f)) p b).
   Defined.
 
-  Variable (C : Type) (sC : coalgebra_structure (polynomial_functor A B) C).
+  Variable (C : Type) (sC : algebra_structure (polynomial_functor A B) C).
+  Definition step a f := sC (a ,, f).
+
+  Definition LHom (w : W) :=
+    ∑ h : Addr w -> C, ∏ addr : Addr w,
+      step (label_at w addr)
+        (h ∘ (extend_addr (label:=label) (arg:=arg) w addr)) =
+      h addr.
+
+  Definition equiv_addr_match (w : W) (P : Addr (arg:=arg) w -> UU) :
+               (∏ addr : Addr w, P addr) ≃
+               (P (root_addr _)) ×
+                 (∏ b : B (label w), ∏ addr , P (subtree_addr w b addr)).
+  Proof.
+    intros w P.
+    use weqgradth.
+      - exact (fun f => (f (root_addr _) ,, fun b addr' => f (subtree_addr _ b addr'))).
+      - intros [root_case subtree_case] addr. revert w addr P root_case subtree_case.
+        use addresses_induction.
+          + intros. intros ? ? ?.
+            exact root_case.
+          + intros. intros ? ? ? .
+            apply subtree_case.
+      - intro f.
+        apply funextsec.
+        intro addr. revert w addr P f.
+        use addresses_induction.
+          + intros. intros ? ?. reflexivity.
+          + intros. intros ? ?. reflexivity.
+      - intros pair. destruct pair. simpl. reflexivity.
+  Defined.
+
 
   (*
-  Definition LHom (w : W) :=
-    ∑ h : Addr w -> C, ∏ addr :
+  Definition equiv_arg_recursor (w : W) :
+               LHom w ≃ ∏ b : B (label w), LHom (arg w b).
+  Proof.
+    intros.
+    intermediate_weq
+      (∑ h,
+        (step (label_at w (root_addr _)) (h ∘ extend_addr w (root_addr _)) = h (root_addr _)) ×
+        (∏ b : B (label w), ∏ addr : Addr (arg w b),
+          step (label_at w (subtree_addr w b addr))
+               (h ∘ extend_addr w (subtree_addr w b addr)) =
+          h (subtree_addr w b addr))).
+      - use weqfibtototal.
+        intro h.
+        apply (equiv_addr_match w (fun addr => step (label_at w addr) (h ∘ extend_addr w addr) = h addr)).
+      - intermediate_weq
+       (∑ ch : C × (∏ b : B (label w), Addr (label:=label) (arg:=arg) (arg w b) -> C),
+         (step (label w) (fun b => (pr2 ch) b (root_addr _)) = pr1 ch) ×
+         (∏ b : B (label w), ∏ addr : Addr (arg w b),
+           step (label_at (arg w b) addr) (fun b' => (pr2 ch) b (extend_addr _ addr b')) = (pr2 ch) b addr)).
+        + use weqbandf.
+          use equiv_addr_match.
+          intro h.
+          apply weqdirprodf.
+            * simpl. apply idweq.
+            * simpl. apply idweq.
+        + intermediate_weq
+            (∑ h : (∏ b : B (label w), Addr (label:=label) (arg:=arg) (arg w b) -> C),
+              (∏ b : B (label w), ∏ addr : Addr (arg w b),
+                step (label_at (arg w b) addr)
+                     (fun b' => h b (extend_addr _ addr b')) = h b addr)).
+          use weqgradth.
+            * exact (fun chP => (pr2 (pr1 chP) ,, pr2 (pr2 chP))).
+            * intros. destruct X as [h P2].
+              exists (step (label w) (fun b => h b (root_addr _)) ,, h).
+              simpl.
+              exact ((idpath _) ,, P2).
+            * intros chP. destruct chP as [ch P]. destruct ch as [c h].
+              destruct P as [P1 P2].
+              simpl. use total2_paths_f.
+                -- simpl. use total2_paths2.
+                     ++ exact P1.
+                     ++ reflexivity.
+                -- rewrite transportf_dirprod.
+                   use total2_paths2.
+                     ++ simpl. reflexivity.
   *)
+
+
+
+
 
 End Wtypes.
