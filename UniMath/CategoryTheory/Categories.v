@@ -36,7 +36,6 @@ Contents :
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-
 Require Import UniMath.MoreFoundations.Tactics.
 
 
@@ -152,8 +151,7 @@ Definition has_homsets (C : precategory_ob_mor) : UU := ∏ a b : C, isaset (a -
 
 Lemma isaprop_has_homsets (C : precategory_ob_mor) : isaprop (has_homsets C).
 Proof.
-  do 2 (apply impred; intro).
-  apply isapropisaset.
+  hleveltac.
 Qed.
 
 Definition category := ∑ C:precategory, has_homsets C.
@@ -189,10 +187,8 @@ Definition makecategory
 Lemma isaprop_is_precategory (C : precategory_data)(hs: has_homsets C)
   : isaprop (is_precategory C).
 Proof.
-  apply isofhleveltotal2.
-  { apply isofhleveltotal2. { repeat (apply impred; intro). apply hs. }
-    intros _. repeat (apply impred; intro); apply hs. }
-  intros _. repeat (apply impred; intro); apply hs.
+  unfold is_precategory.
+  hleveltac; apply hs.
 Qed.
 
 
@@ -327,7 +323,8 @@ Definition is_iso {C : precategory_data} {a b : C} (f : a --> b) :=
 
 Lemma isaprop_is_iso {C : precategory_data}(a b : C) (f : a --> b) : isaprop (is_iso f).
 Proof.
-  apply impred; intro.
+  unfold is_iso.
+  hleveltac.
   apply isapropisweq.
 Qed.
 
@@ -394,8 +391,8 @@ Defined.
 Lemma isaset_iso {C : precategory_data} (hs: has_homsets C) (a b :ob C) :
   isaset (iso a b).
 Proof.
-  change isaset with (isofhlevel 2).
-  apply isofhleveltotal2.
+  unfold iso.
+  hleveltac.
   - apply hs.
   - intro f.
     apply isasetaprop.
@@ -693,7 +690,8 @@ End are_isomorphic.
 Lemma isaprop_is_inverse_in_precat (C : precategory_data) (hs: has_homsets C) (a b : ob C)
    (f : a --> b) (g : b --> a) : isaprop (is_inverse_in_precat f g).
 Proof.
-  apply isapropdirprod; apply hs.
+  unfold is_inverse_in_precat.
+  hleveltac; apply hs.
 Qed.
 
 Lemma inverse_unique_precat (C : precategory) (a b : ob C)
@@ -1150,17 +1148,9 @@ Defined.
 
 Lemma isaprop_is_univalent (C : precategory) : isaprop (is_univalent C).
 Proof.
-  apply isapropdirprod.
-  - apply impred.
-    intro a.
-    apply impred.
-    intro b.
-    apply isapropisweq.
-  - apply impred.
-    intro a.
-    apply impred.
-    intro b.
-    apply isapropisaset.
+  unfold is_univalent.
+  hleveltac.
+  apply isapropisweq.
 Qed.
 
 Definition univalent_category : UU := total2 (λ C : precategory, is_univalent C).
