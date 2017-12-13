@@ -1,6 +1,7 @@
 total2_paths.v
 Categories.v
 functor_categories.v
+preorder_categories.v
 Monads/RelativeMonads.v
 opp_precat.v
 PrecategoryBinProduct.v
