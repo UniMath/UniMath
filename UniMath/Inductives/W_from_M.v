@@ -151,11 +151,11 @@ Section Wtypes.
   Defined.
 
 
-  (*
   Definition equiv_arg_recursor (w : W) :
                LHom w ≃ ∏ b : B (label w), LHom (arg w b).
   Proof.
     intros.
+    (* *)
     intermediate_weq
       (∑ h,
         (step (label_at w (root_addr _)) (h ∘ extend_addr w (root_addr _)) = h (root_addr _)) ×
@@ -166,6 +166,7 @@ Section Wtypes.
       - use weqfibtototal.
         intro h.
         apply (equiv_addr_match w (fun addr => step (label_at w addr) (h ∘ extend_addr w addr) = h addr)).
+      (* *)
       - intermediate_weq
        (∑ ch : C × (∏ b : B (label w), Addr (label:=label) (arg:=arg) (arg w b) -> C),
          (step (label w) (fun b => (pr2 ch) b (root_addr _)) = pr1 ch) ×
@@ -177,6 +178,7 @@ Section Wtypes.
           apply weqdirprodf.
             * simpl. apply idweq.
             * simpl. apply idweq.
+        (* *)
         + intermediate_weq
             (∑ h : (∏ b : B (label w), Addr (label:=label) (arg:=arg) (arg w b) -> C),
               (∏ b : B (label w), ∏ addr : Addr (arg w b),
@@ -196,11 +198,20 @@ Section Wtypes.
                      ++ reflexivity.
                 -- rewrite transportf_dirprod.
                    use total2_paths2.
-                     ++ simpl. reflexivity.
-  *)
-
-
-
-
+                     ++ simpl in *. induction P1. reflexivity.
+                     ++ simpl in *. induction P1. reflexivity.
+            * intros. reflexivity.
+            (* *)
+            * unfold LHom.
+              use weqgradth.
+                -- intros h b.
+                   exists ((pr1 h) b).
+                   exact ((pr2 h) b).
+                -- intro h.
+                   exists (fun b => pr1 (h b)).
+                   exact (fun b => pr2 (h b)).
+                -- intros. reflexivity.
+                -- intros. reflexivity.
+  Defined.
 
 End Wtypes.
