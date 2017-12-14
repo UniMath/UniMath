@@ -9,7 +9,6 @@ Require Import UniMath.Algebra.Domains_and_Fields.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Algebra.Modules.Core.
 Require Import UniMath.MoreFoundations.Subtypes.
-Require Import UniMath.CategoryTheory.categories.abgrs.
 
 (** ** Contents
 - Subobjects of modules
