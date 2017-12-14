@@ -22,7 +22,8 @@ Section def_FinOrdCoproducts.
 
   Definition FinOrdCoproducts : UU :=
     ∏ (n : nat) (a : stn n -> C), CoproductCocone (stn n) C a.
-  Definition hasFinOrdCoproducts := ishinh FinOrdCoproducts.
+  Definition hasFinOrdCoproducts :=
+    ∏ (n : nat) (a : stn n -> C), ∥ CoproductCocone (stn n) C a ∥.
 
 End def_FinOrdCoproducts.
 

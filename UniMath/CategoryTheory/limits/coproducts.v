@@ -40,7 +40,7 @@ Definition CoproductCocone (a : I -> C) :=
           isCoproductCocone a (pr1 coia) (pr2 coia).
 
 Definition Coproducts := ∏ (a : I -> C), CoproductCocone a.
-Definition hasCoproducts := ishinh Coproducts.
+Definition hasCoproducts :=  ∏ (a : I -> C), ∥ CoproductCocone a ∥.
 
 Definition CoproductObject {a : I -> C} (CC : CoproductCocone a) : C := pr1 (pr1 CC).
 Definition CoproductIn {a : I -> C} (CC : CoproductCocone a): ∏ i, a i --> CoproductObject CC :=

@@ -22,7 +22,8 @@ Section def_FinOrdProducts.
 
   Definition FinOrdProducts : UU :=
     ∏ (n : nat) (a : stn n -> C), ProductCone (stn n) C a.
-  Definition hasFinOrdProducts := ishinh FinOrdProducts.
+  Definition hasFinOrdProducts :=
+    ∏ (n : nat) (a : stn n -> C), ∥ ProductCone (stn n) C a ∥.
 
 End def_FinOrdProducts.
 
