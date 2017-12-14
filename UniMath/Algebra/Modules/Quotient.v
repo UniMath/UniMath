@@ -161,13 +161,13 @@ Section bla.
       + unfold iscomm.
         simple refine (setquotuniv2prop quotrel (λ a b, hProppair (quotmod_op a b = quotmod_op b a) _) _).
         * use isasetsetquot.
-        *        intros m m'.
-                 unfold quotmod_op.
-                 etrans.
-                 apply setquotuniv2comm.
-                 rewrite setquotuniv2comm.
-                 apply maponpaths.
-                 apply (commax M).
+        * intros m m'.
+          unfold quotmod_op.
+          etrans.
+          apply setquotuniv2comm.
+          rewrite setquotuniv2comm.
+          apply maponpaths.
+          apply (commax M).
   Defined.
 
   Local Open Scope module_scope.
@@ -263,10 +263,65 @@ Section bla.
           use module_mult_unel2.
   Defined.
 
-  Definition quotmod_module : module_struct R quotmod_abgr.
+  Definition quotmod_mod_struct : module_struct R quotmod_abgr.
   Proof.
     unfold module_struct.
     exact quotmod_rngfun.
+  Defined.
+
+  Definition quotmod : module R.
+  Proof.
+    use modulepair.
+    - exact quotmod_abgr.
+    - exact quotmod_mod_struct.
+  Defined.
+
+  Definition quotmod_quotmap : modulefun M quotmod.
+  Proof.
+    use modulefunpair.
+    - exact (setquotpr quotrel).
+    - split.
+      + use mk_isbinopfun.
+        intros m m'.
+        apply idpath.
+      + intros r m.
+        apply idpath.
+  Defined.
+
+  Definition quotmoduniv
+             (N : module R)
+             (f : modulefun M N)
+             (is : iscomprelfun quotrel f) :
+    modulefun quotmod N.
+  Proof.
+    use modulefunpair.
+    - use setquotuniv.
+      + exact f.
+      + assumption.
+    - split.
+      + use mk_isbinopfun.
+        simple refine (setquotuniv2prop quotrel (λ m n, hProppair _ _) _).
+        * apply (pr2 (pr1 (pr1 (pr1 N)))).
+        * intros m m'.
+          simpl.
+          unfold quotmod_op.
+          rewrite setquotuniv2comm.
+          do 3 rewrite (setquotunivcomm quotrel).
+          apply modulefun_to_isbinopfun.
+      + intros r.
+        simple refine (setquotunivprop quotrel (λ m, hProppair _ _) _).
+        * apply (pr2 (pr1 (pr1 (pr1 N)))).
+        * intros m.
+          simpl.
+          assert (H : r * quotmod_quotmap m = quotmod_quotmap (r * m)).
+          {
+            rewrite <- modulefun_to_islinear.
+            apply idpath.
+          }
+          simpl in H.
+          rewrite H.
+          do 2 rewrite (setquotunivcomm quotrel).
+          apply modulefun_to_islinear.
   Defined.
 
 End bla.
