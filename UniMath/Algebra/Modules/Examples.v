@@ -83,6 +83,15 @@ Defined.
 Definition ring_is_module (R : rng) : module R :=
   ringfun_module (rigisotorigfun (idrigiso R)).
 
+(** The zero module is the unique R-module structure on the zero group (the
+    group with a single element) *)
+Definition zero_module (R : rng) : module R.
+Proof.
+  refine (unitabgr,, _).
+  apply (@mult_to_module_struct _ _ (λ _ u, u));
+    easy.
+Defined.
+
 (** *** Bimodules *)
 
 Local Open Scope rng.
