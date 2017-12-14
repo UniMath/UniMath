@@ -58,11 +58,8 @@ Section Wtypes.
     exact step.
   Defined.
 
-  Definition W_is_algebra : algebra_structure (polynomial_functor A B) W.
-  Proof.
-    intro t. destruct t as [a f].
-    exact (sup a f).
-  Defined.
+  Definition W_is_algebra : algebra_structure (polynomial_functor A B) W :=
+    fun t => sup (pr1 t) (pr2 t).
 
   Definition W_as_algebra : algebra (polynomial_functor A B) :=
     (W ,, W_is_algebra).
@@ -349,7 +346,84 @@ Section Wtypes.
     intro t. apply iscontr_LHom.
   Defined.
 
+  Definition sup_and_arg a f : arg (sup a f) = f.
+  Proof.
+    intros.
+    apply funextsec.
+    intro.
+    simpl.
+    apply subtypeEquality.
+      - intro. apply isprop_isWf.
+      - simpl. reflexivity.
+  Defined.
+
+  Definition m_and_sup m : supM (labelM m ,, argM m) = m.
+  Proof.
+    intro.
+    destruct m.
+    simpl. reflexivity.
+  Defined.
+
+  Definition W_equiv_FW : W ≃ (polynomial_functor A B).0 W.
+  Proof.
+    use weqgradth.
+      - intros w. exact (label w ,, arg w).
+      - exact W_is_algebra.
+      - simpl. intro w. unfold W_is_algebra. simpl.
+        apply subtypeEquality. intro. apply isprop_isWf.
+        destruct w. simpl. destruct pr1. reflexivity.
+      - intro af. destruct af as [a f]. unfold W_is_algebra.
+        use total2_paths_f.
+          + reflexivity.
+          + rewrite idpath_transportf.
+            apply sup_and_arg.
+  Defined.
 
 
+  (*
+  Definition WHom_equiv_to_WHom' : WHom' ≃ algebra_morphism W_as_algebra (C ,, sC).
+  Proof.
+    unfold WHom'.
+    use weqfibtototal.
+    simpl. unfold polynomial_functor_on_types.
+    intro.
+    eapply weqcomp.
+    apply (weqonsecbase _ _ W_equiv_FW).
+    Print weqonsecbase.
+
+
+
+
+    use weqgradth.
+      - intros H w. destruct w as [a f]. set (test := H (sup a f)).
+        unfold W_is_algebra. unfold polynomial_functor_on_maps.
+        rewrite H. rewrite sup_and_arg. reflexivity.
+      - intros H w. destruct w as [m iswf]. destruct m. destruct t as [a f].
+        unfold W_is_algebra in H.
+        transparent assert (fw : (∑ a : A, B a → W)).
+        { exists a.
+          intro b. exists (f b).
+          apply (wf_then_subtr_wf (supM (a,, f)) iswf). }
+        transparent assert (coh : (supM (a,, f),, iswf = sup (pr1 fw) (pr2 fw))).
+        { use maponpaths. apply isprop_isWf. }
+        rewrite !coh. clear coh.
+        rewrite (H fw).
+        unfold polynomial_functor_on_maps. destruct fw.
+        rewrite sup_and_arg.
+        reflexivity.
+      - simpl.
+
+
+        set (test := H (a ,,
+        unfold sup in H. simpl in H.
+
+        set (W_is_algebra (
+        simpl.
+        rewrite (H (a,, f)).
+  Defined.
+
+
+  Definition arg_and_sup p : sup (arg p) = pr2 p.
+  *)
 
 End Wtypes.
