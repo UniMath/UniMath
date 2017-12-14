@@ -702,102 +702,99 @@ Proof.
   - apply isapropisdistr.
 Defined.
 
-Lemma multx0_is_l {X : UU} {opp1 opp2 : binop X} (is1 : isgrop opp1) (is2 : ismonoidop opp2)
-      (is12 : isdistr opp1 opp2) : ∏ x : X, paths (opp2 x (unel_is (pr1 is1))) (unel_is (pr1 is1)).
-Proof.
-  intros.
-  destruct is12 as [ ldistr0 rdistr0 ].
-  destruct is2 as [ assoc2 [ un2 [ lun2 run2 ] ] ].
-  simpl in *.
-  apply (invmaponpathsweq (weqpair _ (isweqrmultingr_is is1 (opp2 x un2)))).
-  simpl.
-  destruct is1 as [ [ assoc1 [ un1 [ lun1 run1 ] ] ] [ inv0 [ linv0 rinv0 ] ] ].
-  unfold unel_is. simpl in *.
-  rewrite (lun1 (opp2 x un2)). destruct (ldistr0 un1 un2 x).
-  rewrite (run2 x). rewrite (lun1 un2). rewrite (run2 x). apply idpath.
-Defined.
-Opaque multx0_is_l.
+Section rngops.
+  Context {X : UU} {opp1 opp2 : binop X}
+          (is1 : isgrop opp1) (is2 : ismonoidop opp2) (is12 : isdistr opp1 opp2).
+  Local Notation "x + y" := (opp1 x y).
+  Local Notation "x * y" := (opp2 x y).
+  Local Notation "0" := (unel_is (pr1 is1)).
+  Local Notation "1" := (unel_is (pr1 is2)).
 
-Lemma mult0x_is_l {X : UU} {opp1 opp2 : binop X} (is1 : isgrop opp1) (is2 : ismonoidop opp2)
-      (is12 : isdistr opp1 opp2) : ∏ x : X, paths (opp2 (unel_is (pr1 is1)) x) (unel_is (pr1 is1)).
-Proof.
-  intros.
-  destruct is12 as [ ldistr0 rdistr0 ].
-  destruct is2 as [ assoc2 [ un2 [ lun2 run2 ] ] ]. simpl in *.
-  apply (invmaponpathsweq (weqpair _ (isweqrmultingr_is is1 (opp2 un2 x)))).
-  simpl.
-  destruct is1 as [ [ assoc1 [ un1 [ lun1 run1 ] ] ] [ inv0 [ linv0 rinv0 ] ] ].
-  unfold unel_is. simpl in *.
-  rewrite (lun1 (opp2 un2 x)). destruct (rdistr0 un1 un2 x).
-  rewrite (lun2 x). rewrite (lun1 un2). rewrite (lun2 x). apply idpath.
-Defined.
-Opaque mult0x_is_l.
+  Lemma multx0_is_l : ∏ x : X, (x * 0) = 0.
+  Proof.
+    intros x.
+    destruct is12 as [ ldistr0 rdistr0 ].
+    destruct is2 as [ assoc2 [ un2 [ lun2 run2 ] ] ].
+    simpl in *.
+    apply (invmaponpathsweq (weqpair _ (isweqrmultingr_is is1 (x * un2)))).
+    simpl.
+    destruct is1 as [ [ assoc1 [ un1 [ lun1 run1 ] ] ] [ inv0 [ linv0 rinv0 ] ] ].
+    unfold unel_is. simpl in *.
+    rewrite (lun1 (x * un2)). destruct (ldistr0 un1 un2 x).
+    rewrite (run2 x), (lun1 un2), (run2 x); apply idpath.
+  Defined.
+  Opaque multx0_is_l.
 
-Definition minus1_is_l {X : UU} {opp1 opp2 : binop X} (is1 : isgrop opp1)
-           (is2 : ismonoidop opp2) := (grinv_is is1) (unel_is is2).
+  Lemma mult0x_is_l : ∏ x : X, (0 * x) = 0.
+  Proof.
+    intros x.
+    destruct is12 as [ ldistr0 rdistr0 ].
+    destruct is2 as [ assoc2 [ un2 [ lun2 run2 ] ] ]. simpl in *.
+    apply (invmaponpathsweq (weqpair _ (isweqrmultingr_is is1 (un2 * x)))).
+    simpl.
+    destruct is1 as [ [ assoc1 [ un1 [ lun1 run1 ] ] ] [ inv0 [ linv0 rinv0 ] ] ].
+    unfold unel_is. simpl in *.
+    rewrite (lun1 (opp2 un2 x)). destruct (rdistr0 un1 un2 x).
+    rewrite (lun2 x), (lun1 un2), (lun2 x); apply idpath.
+  Defined.
+  Opaque mult0x_is_l.
 
-Lemma islinvmultwithminus1_is_l {X : UU} {opp1 opp2 : binop X}
-      (is1 : isgrop opp1) (is2 : ismonoidop opp2) (is12 : isdistr opp1 opp2)
-      (x : X) : paths (opp1 (opp2 (minus1_is_l is1 is2) x) x) (unel_is (pr1 is1)).
-Proof.
-  intros.
-  set (xinv := opp2 (minus1_is_l is1 is2) x).
-  rewrite (pathsinv0 (lunax_is is2 x)).
-  unfold xinv.
-  rewrite (pathsinv0 (pr2 is12 _ _ x)).
-  unfold minus1_is_l. unfold grinv_is.
-  rewrite (grlinvax_is is1 _). apply mult0x_is_l.
-  - apply is2.
-  - apply is12.
-Defined.
-Opaque islinvmultwithminus1_is_l.
+  Definition minus1_is_l : X := ((grinv_is is1) (unel_is is2)).
+  Local Notation "¬1" := ((grinv_is is1) (unel_is is2)).
 
-Lemma isrinvmultwithminus1_is_l {X : UU} {opp1 opp2 : binop X} (is1 : isgrop opp1)
-      (is2 : ismonoidop opp2) (is12 : isdistr opp1 opp2) (x : X) :
-  paths (opp1 x (opp2 (minus1_is_l is1 is2) x)) (unel_is (pr1 is1)).
-Proof.
-  intros.
-  set (xinv := opp2 (minus1_is_l is1 is2) x).
-  rewrite (pathsinv0 (lunax_is is2 x)). unfold xinv.
-  rewrite (pathsinv0 (pr2 is12 _ _ x)). unfold minus1_is_l. unfold grinv_is.
-  rewrite (grrinvax_is is1 _).
-  apply mult0x_is_l. apply is2. apply is12.
-Defined.
-Opaque isrinvmultwithminus1_is_l.
+  Lemma islinvmultwithminus1_is_l (x : X) : ((¬1 * x) + x) = 0.
+  Proof.
+    intros x.
+    set (xinv := opp2 ¬1 x).
+    rewrite (pathsinv0 (lunax_is is2 x)).
+    unfold xinv.
+    rewrite (pathsinv0 (pr2 is12 _ _ x)).
+    rewrite (grlinvax_is is1 _). apply mult0x_is_l.
+  Defined.
+  Opaque islinvmultwithminus1_is_l.
 
-Lemma isminusmultwithminus1_is_l {X : UU} {opp1 opp2 : binop X} (is1 : isgrop opp1)
-      (is2 : ismonoidop opp2) (is12 : isdistr opp1 opp2) (x : X) :
-  paths (opp2 (minus1_is_l is1 is2) x) (grinv_is is1 x).
-Proof.
-  intros.
-  apply (invmaponpathsweq (weqpair _ (isweqrmultingr_is is1 x))).
-  simpl. rewrite (islinvmultwithminus1_is_l is1 is2 is12 x).
-  unfold grinv_is. rewrite (grlinvax_is is1 x). apply idpath.
-Defined.
-Opaque isminusmultwithminus1_is_l.
+  Lemma isrinvmultwithminus1_is_l (x : X) : (x + (¬1 * x)) = 0.
+  Proof.
+    intros x.
+    set (xinv := (¬1 * x)).
+    rewrite (pathsinv0 (lunax_is is2 x)). unfold xinv.
+    rewrite (pathsinv0 (pr2 is12 _ _ x)). unfold grinv_is.
+    rewrite (grrinvax_is is1 _).
+    apply mult0x_is_l.
+  Defined.
+  Opaque isrinvmultwithminus1_is_l.
 
-Lemma isrngopsif {X : UU} {opp1 opp2 : binop X} (is1 : isgrop opp1) (is2 : ismonoidop opp2)
-      (is12 : isdistr opp1 opp2) : isrngops opp1 opp2.
-Proof.
-  intros.
-  set (assoc1 := pr1 (pr1 is1)).
-  split.
-  - split.
-    + split with is1.
-      intros x y.
-      apply (invmaponpathsweq
-               (weqpair _ (isweqrmultingr_is is1 (opp2 (minus1_is_l is1 is2) (opp1 x y))))).
-      simpl. rewrite (isrinvmultwithminus1_is_l is1 is2 is12 (opp1 x y)).
-      rewrite (pr1 is12 x y _).
-      destruct (assoc1 (opp1 y x) (opp2 (minus1_is_l is1 is2) x) (opp2 (minus1_is_l is1 is2) y)).
-      rewrite (assoc1 y x _).
-      destruct (pathsinv0 (isrinvmultwithminus1_is_l is1 is2 is12 x)).
-      unfold unel_is. rewrite (runax_is (pr1 is1) y).
-      rewrite (isrinvmultwithminus1_is_l is1 is2 is12 y).
-      apply idpath.
-    + apply is2.
-  - apply is12.
-Defined.
+  Lemma isminusmultwithminus1_is_l (x : X) : ¬1 * x = (grinv_is is1 x).
+  Proof.
+    intros x.
+    apply (invmaponpathsweq (weqpair _ (isweqrmultingr_is is1 x))).
+    simpl. rewrite (islinvmultwithminus1_is_l x).
+    unfold grinv_is. rewrite (grlinvax_is is1 x). apply idpath.
+  Defined.
+  Opaque isminusmultwithminus1_is_l.
+
+  Lemma isrngopsif : isrngops opp1 opp2.
+  Proof.
+    set (assoc1 := assocax_is is1).
+    split.
+    - split.
+      + split with is1.
+        intros x y.
+        apply (invmaponpathsweq
+                (weqpair _ (isweqrmultingr_is is1 (¬1 * (x + y))))).
+        simpl. rewrite (isrinvmultwithminus1_is_l (x + y)).
+        rewrite (pr1 is12 x y _).
+        destruct (assoc1 (y + x) (¬1 * x) (¬1 * y)).
+        rewrite (assoc1 y x _).
+        destruct (pathsinv0 (isrinvmultwithminus1_is_l x)).
+        unfold unel_is. rewrite (runax_is (pr1 is1) y).
+        change (grinv_is is1 (pr1 (pr2 is2)) * y) with (¬1 * y).
+        rewrite (isrinvmultwithminus1_is_l y).
+        apply idpath.
+      + apply is2.
+    - apply is12.
+  Defined.
+End rngops.
 
 Definition rngmultx0_is {X : UU} {opp1 opp2 : binop X} (is : isrngops opp1 opp2) :
   ∏ (x : X), opp2 x (unel_is (pr1 (rngop1axs_is is))) = unel_is (pr1 (rngop1axs_is is)) :=
