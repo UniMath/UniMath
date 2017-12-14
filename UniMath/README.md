@@ -10,13 +10,13 @@ Each package contains a subdirectory called ".package".  The file
 ".packages/files" consists of a list of the paths to the *.v files of the
 package, in order, i.e., a file is listed after files it depends on.
 (That's just so the TAGS file will be correctly sequenced.)  To add a file to a
-package, add its path to that file.
+package, add its path to that file, and run the script "util/regenerate-export-files.sh".
 
 ## Adding a new package
 
 Create a subdirectory of this directory, populate it with your files, add a
-README (or README.md) file, and add a file .package/files, listing the *.v
-files of your package, as above.  Then add the name of your package to the head
+README (or README.md) file, add a file ".package/files" listing the *.v
+files of your package as above, and run the script "util/regenerate-export-files.sh".  Then add the name of your package to the head
 of the list assigned to "PACKAGES" in the file "./Makefile", or, alternatively,
 if you'd like to test your package without modifying "./Makefile", which you might
 accidentally commit and push, add its name to the head of the list in
