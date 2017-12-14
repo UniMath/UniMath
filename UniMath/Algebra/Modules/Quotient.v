@@ -9,8 +9,7 @@ Section bla.
 
   Context {R : rng}
           (M : module R)
-          (A : hsubtype M)
-          {subm : issubmodule A}.
+          (A : submodule M).
 
   Local Notation "x + y" := (@op _ x y).
   Local Notation "x - y" := (@op _ x (grinv _ y)).
@@ -22,15 +21,15 @@ Section bla.
     split.
     - unfold ispreorder. split.
       + unfold istrans. intros x y z xy yz.
-        assert (xyyz := submoduleadd A subm (x - y) (y - z) xy yz).
+        assert (xyyz := submoduleadd A (x - y) (y - z) xy yz).
         rewrite (assocax M) in xyyz.
         rewrite <- (assocax M (grinv _ y) y) in xyyz.
         rewrite grlinvax in xyyz.
         now rewrite lunax in xyyz.
-      + unfold isrefl. intros x. assert (a0 := submodule0 A subm).
+      + unfold isrefl. intros x. assert (a0 := submodule0 A).
         now rewrite <- (grrinvax M x) in a0.
     - unfold issymm. intros x y axy.
-      assert (ainv := submoduleinv A subm (x - y) axy).
+      assert (ainv := submoduleinv A (x - y) axy).
       rewrite grinvop in ainv.
       now rewrite grinvinv in ainv.
   Defined.
@@ -44,7 +43,7 @@ Section bla.
     intros m m' n n' Hmm' Hnn'.
     apply weqpathsinsetquot.
     unfold quotrel in Hmm', Hnn'.
-    generalize (submoduleadd A subm _ _ Hmm' Hnn').
+    generalize (submoduleadd A _ _ Hmm' Hnn').
     assert (H : m + n - (m' + n') = (m - m') + (n - n')).
     {
       rewrite assocax, assocax; apply maponpaths.
@@ -73,7 +72,7 @@ Section bla.
     simpl in H.
     rewrite H.
     assert (H'mm' : A (grinv M (m - m'))).
-    apply (submoduleinv A subm _ Hmm').
+    apply (submoduleinv A _ Hmm').
     rewrite grinvop in H'mm'.
     now rewrite grinvinv in H'mm'.
   Defined.
@@ -183,7 +182,7 @@ Section bla.
       unfold quotrel. simpl.
       rewrite module_inv_mult.
       rewrite <- (module_mult_is_ldistr r m).
-      use (submodulemult A subm). assumption.
+      use (submodulemult A). assumption.
     + use mk_ismonoidfun.
       * use mk_isbinopfun.
         simple refine (setquotuniv2prop quotrel (λ a b, hProppair _ _) _); [use isasetsetquot|].
