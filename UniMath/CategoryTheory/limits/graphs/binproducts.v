@@ -75,7 +75,7 @@ Proof.
 Defined.
 
 Definition BinProducts := ∏ (a b : C), BinProductCone a b.
-Definition BinProducts := ∏ (a b : C), ∥ BinProductCone a b ∥.
+Definition hasBinProducts := ∏ (a b : C), ∥ BinProductCone a b ∥.
 
 Definition BinProductObject {c d : C} (P : BinProductCone c d) : C := lim P.
 Definition BinProductPr1 {c d : C} (P : BinProductCone c d): C⟦BinProductObject P,c⟧ :=
