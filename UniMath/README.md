@@ -18,7 +18,7 @@ Create a subdirectory of this directory, populate it with your files, add a
 README (or README.md) file, and add a file .package/files, listing the *.v
 files of your package, as above.  Then add the name of your package to the head
 of the list assigned to "PACKAGES" in the file "./Makefile", or, alternatively,
-if you'd like to test your package with modifying "./Makefile", which you might
+if you'd like to test your package without modifying "./Makefile", which you might
 accidentally commit and push, add its name to the head of the list in
 "../build/Makefile-configuration", which is created from
 "../build/Makefile-configuration-template".
