@@ -57,6 +57,15 @@ Section Wtypes.
     exact step.
   Defined.
 
+  Definition W_is_algebra : algebra_structure (polynomial_functor A B) W.
+  Proof.
+    intro t. destruct t as [a f].
+    exact (sup a f).
+  Defined.
+
+  Definition W_as_algebra : algebra (polynomial_functor A B) :=
+    (W ,, W_is_algebra).
+
   Definition label : W -> A.
   Proof.
     intro w. destruct w as [m p].
@@ -163,9 +172,9 @@ Section Wtypes.
           step (label_at w (subtree_addr w b addr))
                (h ∘ extend_addr w (subtree_addr w b addr)) =
           h (subtree_addr w b addr))).
-      - use weqfibtototal.
+      { use weqfibtototal.
         intro h.
-        apply (equiv_addr_match w (fun addr => step (label_at w addr) (h ∘ extend_addr w addr) = h addr)).
+        apply (equiv_addr_match w (fun addr => step (label_at w addr) (h ∘ extend_addr w addr) = h addr)). }
       (* *)
       - intermediate_weq
        (∑ ch : C × (∏ b : B (label w), Addr (label:=label) (arg:=arg) (arg w b) -> C),
@@ -213,5 +222,87 @@ Section Wtypes.
                 -- intros. reflexivity.
                 -- intros. reflexivity.
   Defined.
+
+  Definition iscontr_LHom (w : W) : iscontr (LHom w).
+  Proof.
+    intros.
+    destruct w as [m wf].
+    destruct m. destruct t as [a f].
+    transparent assert (iscontrforanywf : (M -> hProp)).
+      { intros m0. exists (∏ wf, iscontr (LHom (m0 ,, wf))).
+        apply impred. intro t. apply isapropiscontr. }
+    apply (wf iscontrforanywf).
+    intros a0 f0 IH.
+    intro wf'.
+    apply (iscontrweqb (equiv_arg_recursor _)). apply impred_iscontr.
+    intros b. apply IH.
+  Defined.
+
+  Definition local_recursor (w : W) :=
+    iscontrpr1 (iscontr_LHom w).
+
+  Definition WHom' :=
+    ∑ f : W -> C,
+      ∏ w, f w = step (label w) (f ∘ (arg w)).
+
+
+  Definition WHom'_to_LHom (h : WHom') (w : W) : LHom w.
+  Proof.
+    intros.
+    destruct h as [h1 h2].
+    exists (h1 ∘ (subtree_at w)).
+    intros addr.
+    refine (_ @ !(h2 ((subtree_at w) addr))).
+    apply (maponpaths (fun f => step ((label_at w) addr) (h1 ∘ f))).
+    use subtree_at_extend_addr.
+  Defined.
+
+  Definition arg_recursor {w : W}
+            (h : LHom w) (b : B (label w)) : LHom ((arg w) b) :=
+    ((pr1 h) ∘ subtree_addr w b ,, (pr2 h) ∘ subtree_addr w b).
+
+
+  Definition LHom_to_WHom' (h : forall w, LHom w) :
+    WHom'.
+  Proof.
+    intro h.
+    exists (fun w => (pr1 (h w)) (root_addr w)).
+    intros w.
+    refine (!((pr2 (h w)) (root_addr _)) @ _).
+    apply (maponpaths (step (label w))).
+    apply funextfun. intros b.
+    change ((pr1 (arg_recursor (h w) b)) (root_addr _) =
+            (pr1 (h (arg w b))) (root_addr _)).
+    apply (maponpaths (fun h' : LHom _ => (pr1 h') (root_addr _))).
+    use proofirrelevancecontr.
+    apply iscontr_LHom.
+  Defined.
+
+
+  Definition moveR_Mp {X : UU} {a b c : X} (p : a = b) (q : a = c) (r : b = c) :
+    q = p @ r -> !p @ q = r.
+  Proof.
+    intros.
+    induction p. induction q. exact X0.
+  Defined.
+
+  (*
+  Definition WHom'_to_LHoml_is_sect (h : WHom') :
+    LHom_to_WHom' (WHom'_to_LHom h) = h.
+  Proof.
+    intros h.
+    use total2_paths_f.
+    - reflexivity.
+    - apply funextsec. intros w'.
+      rewrite idpath_transportf.
+      unfold LHom_to_WHom'.
+      unfold WHom'_to_LHom.
+      apply moveR_Mp.
+      simpl. rewrite pathsinv0l.
+  Defined.
+  *)
+
+
+
 
 End Wtypes.

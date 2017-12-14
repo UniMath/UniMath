@@ -82,4 +82,15 @@ Section Addresses.
       - intros t b addr' extend_addr' b'. exact (subtree_addr t b (extend_addr' b')).
   Defined.
 
+  Lemma subtree_at_extend_addr {t : T}
+        (addr : Addr t) :
+    (subtree_at t) ∘ extend_addr t addr = arg ((subtree_at t) addr).
+  Proof.
+    eapply addresses_induction.
+    - reflexivity.
+    - intros t b addr' IH.
+      exact IH.
+  Defined.
+
+
 End Addresses.
