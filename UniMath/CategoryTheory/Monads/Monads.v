@@ -87,6 +87,18 @@ Proof.
 exact (pr2 (pr2 T)).
 Qed.
 
+Lemma Monad_law4 {C : precategory} {T : Monad C} {a b: C} (f: a --> b) : η T a · # T f = f · η T b.
+Proof.
+  apply pathsinv0.
+  apply (nat_trans_ax (η T)_ _ f).
+Qed.
+
+Lemma Monad_law5 {C : precategory} {T : Monad C} {a b: C} (f: a --> b) :
+  # T (# T f) · (μ T b) = (μ T a) · (# T f).
+Proof.
+  apply (nat_trans_ax (μ T)_ _ f).
+Qed.
+
 End Monad_def.
 
 (** * Monad precategory *)
