@@ -424,13 +424,16 @@ Definition pr1linearfun {R : rng} {M N : module R} (f : linearfun M N) : M -> N 
 
 Coercion pr1linearfun : linearfun >-> Funclass.
 
+Definition linearfun_islinear {R} {M N : module R} (f : linearfun M N) :
+  islinear f := pr2 f.
+
 Lemma islinearfuncomp {R : rng} {M N P : module R} (f : linearfun M N) (g : linearfun N P) :
-  islinear (funcomp (pr1 f) (pr1 g)).
+  islinear (funcomp f g).
 Proof.
   intros r x.
   unfold funcomp.
-  rewrite (pr2 f).
-  rewrite (pr2 g).
+  rewrite (linearfun_islinear f).
+  rewrite (linearfun_islinear g).
   apply idpath.
 Defined.
 
@@ -474,21 +477,26 @@ Definition modulefun {R : rng} (M N : module R) : UU := ∑ f : M -> N, ismodule
 Definition modulefunpair {R : rng} {M N : module R} (f : M -> N) (is : ismodulefun f) :
   modulefun M N := tpair _ f is.
 
-Definition pr1modulefun {R : rng} {M N : module R} (f : modulefun M N) : M -> N := pr1 f.
+Section accessors.
+  Context {R : rng} {M N : module R} (f : modulefun M N).
+
+  Definition pr1modulefun : M -> N := pr1 f.
+  
+  Definition modulefun_ismodulefun : ismodulefun pr1modulefun := pr2 f.
+  
+  Definition modulefun_to_isbinopfun : isbinopfun pr1modulefun :=
+    pr1 modulefun_ismodulefun.
+
+  Definition modulefun_to_binopfun : binopfun M N :=
+    binopfunpair pr1modulefun modulefun_to_isbinopfun.
+
+  Definition modulefun_to_islinear : islinear pr1modulefun := pr2 modulefun_ismodulefun.
+
+  Definition modulefun_to_linearfun : linearfun M N :=
+    linearfunpair pr1modulefun modulefun_to_islinear.
+End accessors.
 
 Coercion pr1modulefun : modulefun >-> Funclass.
-
-Definition modulefun_to_isbinopfun {R : rng} {M N : module R} (f : modulefun M N) :
-  isbinopfun (pr1modulefun f) := pr1 (pr2 f).
-
-Definition modulefun_to_binopfun {R : rng} {M N : module R} (f : modulefun M N) : binopfun M N :=
-  binopfunpair (pr1modulefun f) (modulefun_to_isbinopfun f).
-
-Definition modulefun_to_islinear {R : rng} {M N : module R} (f : modulefun M N) :
-  islinear (pr1modulefun f) := pr2 (pr2 f).
-
-Definition modulefun_to_linearfun {R : rng} {M N : module R} (f : modulefun M N) : linearfun M N :=
-  linearfunpair f (modulefun_to_islinear f).
 
 Lemma ismodulefun_comp {R} {M N P : module R} (f : modulefun M N) (g : modulefun N P) :
   ismodulefun (g ∘ f)%functions.
@@ -516,7 +524,7 @@ Definition modulefun_to_monoidfun {R : rng} {M N : module R} (f : modulefun M N)
 tpair _ (pr1 f) (tpair _ (pr1 (pr2 f)) (modulefun_unel f)).
 
 Definition modulefun_from_monoidfun {R : rng} {M N : module R} (f : monoidfun M N)
-           (H : ismodulefun (pr1 f)) : modulefun M N :=
+          (H : ismodulefun (pr1 f)) : modulefun M N :=
 (tpair _ (pr1 f) H).
 
 Lemma modulefun_paths {R : rng} {M N : module R} {f g : modulefun M N} (p : pr1 f ~ pr1 g) :
@@ -679,17 +687,19 @@ Defined.
 Definition moduleiso {R : rng} (M N : module R) : UU :=
   ∑ w : pr1module M ≃ pr1module N, ismodulefun w.
 
-Definition moduleiso_to_modulefun {R} (M N : module R) :
-  moduleiso M N -> modulefun M N := fun f => (tpair _ (pr1weq (pr1 f)) (pr2 f)).
+Section accessors_moduleiso.
+  Context {R : rng} {M N : module R} (f : moduleiso M N).
 
+  Definition moduleiso_to_weq : (pr1module M) ≃ (pr1module N) := pr1 f.
+  Definition moduleiso_ismodulefun : ismodulefun moduleiso_to_weq := pr2 f.
+  Definition moduleiso_to_modulefun : modulefun M N :=
+    (tpair _ (pr1weq moduleiso_to_weq) (pr2 f)).
+End accessors_moduleiso.
+
+Coercion moduleiso_to_weq : moduleiso >-> weq.
 Coercion moduleiso_to_modulefun : moduleiso >-> modulefun.
 
-Definition pr1moduleiso {R : rng} {M N : module R} (f : moduleiso M N) :
-  (pr1module M) ≃ (pr1module N) := pr1 f.
-
-Coercion pr1moduleiso : moduleiso >-> weq.
-
-Definition moduleisopair {R} {M N : module R} f is : moduleiso M N := tpair _ f is.
+Definition mk_moduleiso {R} {M N : module R} f is : moduleiso M N := tpair _ f is.
 
 Lemma isbinopfuninvmap {R} {M N : module R} (f : moduleiso M N) :
   isbinopfun (invmap f).
@@ -698,7 +708,7 @@ Proof.
    apply (invmaponpathsweq f).
    rewrite (homotweqinvweq f (op x y)).
    symmetry.
-   transitivity (op ((pr1moduleiso f) (invmap f x)) ((pr1moduleiso f) (invmap f y))).
+   transitivity (op ((moduleiso_to_weq f) (invmap f x)) ((moduleiso_to_weq f) (invmap f y))).
    apply (modulefun_to_isbinopfun f (invmap f x) (invmap f y)).
    rewrite 2 (homotweqinvweq f).
    apply idpath.
@@ -710,16 +720,16 @@ Proof.
    apply (invmaponpathsweq f).
    transitivity (module_mult N r x).
    exact (homotweqinvweq f (module_mult N r x)).
-   transitivity (module_mult N r (pr1 f (invmap (pr1 f) x))).
-   rewrite (homotweqinvweq (pr1 f) x).
+   transitivity (module_mult N r (moduleiso_to_weq f (invmap (moduleiso_to_weq f) x))).
+   rewrite (homotweqinvweq (moduleiso_to_weq f) x).
    apply idpath.
    symmetry.
-   apply (pr2 (pr2 f) r (invmap f x)).
+   apply (pr2 (moduleiso_ismodulefun f) r (invmap f x)).
 Defined.
 
 Definition invmoduleiso {R} {M N : module R} (f : moduleiso M N) : moduleiso N M.
 Proof.
-   use moduleisopair.
+   use mk_moduleiso.
    - exact (invweq f).
    - apply dirprodpair.
      + exact (isbinopfuninvmap f).
@@ -753,23 +763,19 @@ Proof.
      + exact (pr2 w).
 Defined.
 
-Lemma modulefun_unel_uniqueness {R} {M N : module R}
-      {f : pr1module M -> pr1module N} {is: ismodulefun f}
-      (p : f (@unel (pr1module M)) = @unel (pr1module N)) :
-  modulefun_unel (f,,is) = p.
-Proof.
-   apply (setproperty (pr1module N)).
-Defined.
-
 Lemma moduleiso'_to_moduleiso_isweq {R} (M N : module R) :
   isweq (moduleiso'_to_moduleiso M N).
 Proof.
   use (gradth _ (moduleiso_to_moduleiso' M N)).
-  * intro w.
+  - intro w.
     unfold moduleiso'_to_moduleiso, moduleiso_to_moduleiso'. cbn.
-    rewrite (modulefun_unel_uniqueness (dirprod_pr2 (pr2 (pr1 w)))).
-    exact (idpath _).
-  * exact (fun _ => idpath _).
+    induction w as [w1 w2]; cbn.
+    use total2_paths_f; cbn.
+    * use total2_paths_f; cbn.
+      + reflexivity.
+      + apply isapropismonoidfun.
+    * apply isapropislinear.
+ - reflexivity.
 Defined.
 
 Definition moduleiso'_to_moduleiso_weq {R} (M N : module R) : (moduleiso' M N) ≃ (moduleiso M N) :=

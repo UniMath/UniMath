@@ -31,7 +31,7 @@ Proof. easy. Defined.
 (** The identity function is a morphism of modules *)
 Definition idmoduleiso {R : rng} (M : module R) : moduleiso M M.
 Proof.
-   use moduleisopair.
+   use mk_moduleiso.
    - exact (idweq (pr1module M)).
    - apply dirprodpair.
      + intros x y. apply idpath.
