@@ -6,6 +6,7 @@ Unset Kernel Term Sharing.
 (** Imports *)
 
 Require Export UniMath.Inductives.addresses.
+Require Export UniMath.MoreFoundations.All.
 
 
 
@@ -286,7 +287,18 @@ Section Wtypes.
     induction p. induction q. exact X0.
   Defined.
 
-  (*
+  Lemma funextfun_id (X Y : UU) (f : X -> Y) :
+    funextfun _ _ (fun x : X => idpath (f x) ) = idpath _ .
+  Proof.
+    intros.
+    apply (invmaponpathsweq ( (weqtoforallpaths _ _ _ ))).
+    cbn.
+    etrans.
+    apply (homotweqinvweq (weqtoforallpaths _ _ _)).
+    apply idpath.
+  Defined.
+
+
   Definition WHom'_to_LHoml_is_sect (h : WHom') :
     LHom_to_WHom' (WHom'_to_LHom h) = h.
   Proof.
@@ -295,12 +307,47 @@ Section Wtypes.
     - reflexivity.
     - apply funextsec. intros w'.
       rewrite idpath_transportf.
-      unfold LHom_to_WHom'.
-      unfold WHom'_to_LHom.
       apply moveR_Mp.
       simpl. rewrite pathsinv0l.
+      transitivity (maponpaths (step (label w'))
+                       (funextfun _ _
+                             (fun b =>
+                                maponpaths (fun h' => (pr1 h') (root_addr _))
+                                           (idpath (WHom'_to_LHom h (arg w' b)))))).
+        * repeat apply maponpaths.
+          apply funextsec. intro. repeat apply maponpaths.
+          destruct h.
+          assert (isset_LHom : isaset (LHom (arg w' x))).
+            + apply hlevelntosn. apply hlevelntosn. apply iscontr_LHom.
+            + apply isset_LHom.
+        * destruct h. simpl.
+
+          set (test := (funextfun
+                (λ b : B (label w'),
+                  (pr1 ∘ subtree_at (arg w' b))
+                    (root_addr (arg w' b)))
+                 (λ b : B (label w'),
+                  (pr1 ∘ subtree_at (arg w' b))
+                    (root_addr (arg w' b)))
+                 (λ b : B (label w'),
+                  idpath
+                    ((pr1 ∘ subtree_at (arg w' b))
+                       (root_addr (arg w' b)))))).
+          assert (test = idpath _).
+            -- apply funextfun_id.
+            -- rewrite X. simpl. reflexivity.
   Defined.
-  *)
+
+
+  Definition iscontr_WHom' : iscontr WHom'.
+  Proof.
+    use (@iscontrretract (∏ w, LHom w)).
+    exact LHom_to_WHom'.
+    exact WHom'_to_LHom.
+    exact WHom'_to_LHoml_is_sect.
+    use impred_iscontr.
+    intro t. apply iscontr_LHom.
+  Defined.
 
 
 
