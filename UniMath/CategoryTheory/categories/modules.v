@@ -203,4 +203,46 @@ Definition is_univalent_mod : is_univalent mod_precategory :=
 
 Definition univalent_category_mod_precategory : univalent_category := mk_category mod_precategory is_univalent_mod.
 
+(** * Abelian structure *)
+
+(** ** Zero object and zero arrow
+- The zero object (0) is the zero abelian group, considered as a module.
+- The type (hSet) Hom(0, M) is contractible, the center is the zero map.
+- The type (hSet) Hom(M, 0) is contractible, the center is the zero map.
+ *)
+
+(** ** Zero in abelian category *)
+
+(** The set of maps 0 -> M is contractible, it only contains the zero morphism. *)
+Lemma iscontrfromzero_module (M : mod_category) : iscontr (mod_category⟦zero_module R, M⟧).
+Proof.
+  refine (unelmodulefun _ _,, _).
+  intros f; apply modulefun_paths; intros x.
+  unfold unelmodulefun; cbn.
+  refine (!maponpaths (fun z => (pr1 f) z)
+           (isProofIrrelevantUnit (@unel (zero_module R)) x) @ _).
+  apply (monoidfununel (modulefun_to_monoidfun f)).
+Defined.
+
+(** The set of maps M -> 0 is contractible, it only contains the zero morphism. *)
+Lemma iscontrtozero_module (M : mod_category) : iscontr (mod_category⟦M, zero_module R⟧).
+Proof.
+  refine (unelmodulefun _ _,, _).
+  intros f; apply modulefun_paths.
+  exact (fun x => isProofIrrelevantUnit _ _).
+Defined.
+
+Lemma isZero_zero_module : isZero mod_category (zero_module R).
+Proof.
+  exact (@mk_isZero mod_category (zero_module _)
+                    iscontrfromzero_module iscontrtozero_module).
+Defined.
+
+Definition mod_category_Zero : Zero mod_category :=
+  @mk_Zero mod_category (zero_module _) isZero_zero_module.
+
+(** ** Preadditive structure *)
+
+(** ** Additive structure *)
+
 End Mod.
