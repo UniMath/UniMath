@@ -1,7 +1,6 @@
 total2_paths.v
 Categories.v
 functor_categories.v
-preorder_categories.v
 Monads/RelativeMonads.v
 opp_precat.v
 PrecategoryBinProduct.v
@@ -118,6 +117,7 @@ categories/commrngs.v
 categories/intdoms.v
 categories/flds.v
 categories/StandardCategories.v
+categories/preorder_categories.v
 Monads/Derivative.v
 DisplayedCats/Auxiliary.v
 DisplayedCats/Core.v

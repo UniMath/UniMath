@@ -5,7 +5,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 
-Context (X : UU).
+Section po_category_def.
+Context {X : UU}.
 Context (PO : po X).
 
 (* Precategory over a po *)
@@ -43,3 +44,5 @@ Defined.
 
 Definition po_category : category :=
    tpair _ po_precategory po_precategory_has_homsets.
+
+End po_category_def.
