@@ -360,7 +360,7 @@ Definition HomPair_2 {C:category} (a b c:C) :
 Definition BinaryProduct {C:category} (a b:C) :=
   Representation (HomPair a b).
 
-Definition hasBinaryProducts (C:category) := ∏ (a b:C), BinaryProduct a b.
+Definition BinaryProducts (C:category) := ∏ (a b:C), BinaryProduct a b.
 
 Definition pr_1 {C:category} {a b:C} (prod : BinaryProduct a b) :
   universalObject prod --> a
@@ -407,14 +407,14 @@ Defined.
 Definition BinarySum {C:category} (a b:C) :=
   BinaryProduct (opp_ob a) (opp_ob b).
 
-Definition hasBinarySums (C:category) := ∏ (a b:C), BinarySum a b.
+Definition BinarySums (C:category) := ∏ (a b:C), BinarySum a b.
 
 Lemma binarySumsToProducts {C:category} :
-  hasBinarySums C -> hasBinaryProducts C^op.
+  BinarySums C -> BinaryProducts C^op.
 Proof. intros sum. exact sum. Defined.
 
 Lemma binaryProductToSums {C:category} :
-  hasBinaryProducts C -> hasBinarySums C^op.
+  BinaryProducts C -> BinarySums C^op.
 Proof. intro prod. exact prod. Defined.
 
 Definition in_1 {C:category} {a b:C} (sum : BinarySum a b) :
@@ -621,7 +621,7 @@ Definition po_eqn {C:category} {a b c:C} {f:a-->c} {g:a-->c} (po : Pushout f g) 
 
 (** kernels and cokernels *)
 
-Definition Annihilator (C:category) (zero:hasZeroMaps C) {c d:C} (f:c --> d) :
+Definition Annihilator (C:category) (zero:ZeroMaps C) {c d:C} (f:c --> d) :
   C^op ⟶ SET.
 Proof.
   unshelve refine (_,,_).
@@ -645,26 +645,26 @@ Proof.
       | simpl; unfold opp_mor; apply pathsinv0, assoc ] ]) using _N_. }
 Defined.
 
-Definition Kernel {C:category} (zero:hasZeroMaps C) {c d:ob C} (f:c --> d) :=
+Definition Kernel {C:category} (zero:ZeroMaps C) {c d:ob C} (f:c --> d) :=
   Representation (Annihilator C zero f).
 
-Definition Cokernel {C:category} (zero:hasZeroMaps C) {c d:ob C} (f:c --> d) :=
-  Representation (Annihilator C^op (hasZeroMaps_opp C zero) f).
+Definition Cokernel {C:category} (zero:ZeroMaps C) {c d:ob C} (f:c --> d) :=
+  Representation (Annihilator C^op (ZeroMaps_opp C zero) f).
 
-Definition kernelMap {C:category} {zero:hasZeroMaps C} {c d:ob C} {f:c --> d}
+Definition kernelMap {C:category} {zero:ZeroMaps C} {c d:ob C} {f:c --> d}
            (r : Kernel zero f) : universalObject r --> c
   := pr1 (universalElement r).
 
-Definition kernelEquation {C:category} {zero:hasZeroMaps C} {c d:ob C} {f:c --> d}
+Definition kernelEquation {C:category} {zero:ZeroMaps C} {c d:ob C} {f:c --> d}
            (ker : Kernel zero f) :
   f ∘ kernelMap ker = pr1 zero _ _
   := pr2 (universalElement ker).
 
-Definition cokernelMap {C:category} {zero:hasZeroMaps C} {c d:ob C} {f:c --> d}
+Definition cokernelMap {C:category} {zero:ZeroMaps C} {c d:ob C} {f:c --> d}
            (r : Cokernel zero f) : d --> universalObject r
   := pr1 (universalElement r).
 
-Definition cokernelEquation {C:category} {zero:hasZeroMaps C} {c d:ob C} {f:c --> d}
+Definition cokernelEquation {C:category} {zero:ZeroMaps C} {c d:ob C} {f:c --> d}
            (coker : Cokernel zero f) :
   cokernelMap coker ∘ f = pr1 zero _ _
   := pr2 (universalElement coker).
@@ -799,15 +799,15 @@ Definition inj_comm {C I:category} {D: I⟶C} (colim:Colimit D) {i j:I} (f:i-->j
   inj_ colim j ∘ # D f = inj_ colim i.
 Proof. intros. exact (pr2 (universalElement colim) _ _ f). Defined.
 
-Definition hasLimits (C:category) := ∏ (I:category) (D: I⟶C), Limit D.
+Definition Limits (C:category) := ∏ (I:category) (D: I⟶C), Limit D.
 
-Definition hasColimits (C:category) := ∏ (I:category) (D: I⟶C), Colimit D.
+Definition Colimits (C:category) := ∏ (I:category) (D: I⟶C), Colimit D.
 
-Definition lim_functor (C:category) (lim:hasLimits C) (I:category) :
+Definition lim_functor (C:category) (lim:Limits C) (I:category) :
   [I,C] ⟶ C
   := universalObjectFunctor C □ addStructure cone_functor (lim I).
 
-Definition colim_functor (C:category) (colim:hasColimits C) (I:category) :
+Definition colim_functor (C:category) (colim:Colimits C) (I:category) :
   [I,C] ⟶ C
   := functorRmOp (
          universalObjectFunctor C^op □ addStructure cocone_functor (colim I)).
@@ -903,7 +903,7 @@ Proof.
 Defined.
 
 Lemma BinaryProductFunctorAssoc {B C : category}
-      (prod : hasBinaryProducts C)
+      (prod : BinaryProducts C)
       (F G : [B, C]) :
   iso (bifunctor_assoc (binaryProductFunctor F G)) (HomPair F G).
 Proof.
@@ -943,7 +943,7 @@ Proof.
 Defined.
 
 Theorem functorBinaryProduct {B C:category} :
-  hasBinaryProducts C -> hasBinaryProducts [B,C].
+  BinaryProducts C -> BinaryProducts [B,C].
 Proof.
   intros prod F G. unshelve refine (iso_Representation_weq _ _).
   { exact (bifunctor_assoc (binaryProductFunctor F G)). }
@@ -951,14 +951,14 @@ Proof.
   { apply bifunctor_assoc_repn. intro b. apply prod. }
 Defined.
 
-Lemma functorBinaryProduct_eqn {B C:category} (prod : hasBinaryProducts C)
+Lemma functorBinaryProduct_eqn {B C:category} (prod : BinaryProducts C)
       (F G : [B,C]) (b:B) :
   universalObject (functorBinaryProduct prod F G) ◾ b
   =
   universalObject (prod (F ◾ b) (G ◾ b)).
 Proof. reflexivity. Defined.
 
-Lemma functorBinaryProduct_map_eqn {B C:category} (prod : hasBinaryProducts C)
+Lemma functorBinaryProduct_map_eqn {B C:category} (prod : BinaryProducts C)
       (F G F' G' : [B,C]) (p:F-->F') (q:G-->G') (b:B) :
   binaryProductMap_2 (functorBinaryProduct prod F G) (functorBinaryProduct prod F' G') p q ◽ b
   =
@@ -982,7 +982,7 @@ Proof.
 Defined.
 
 Theorem functorBinarySum {B C:category} :
-  hasBinarySums C -> hasBinarySums [B,C].
+  BinarySums C -> BinarySums [B,C].
 Proof.
   intros sum F G.
   exact (isomorphismRepresentability
@@ -992,14 +992,14 @@ Proof.
            (HomPairOp F G)).
 Defined.
 
-Lemma functorBinarySum_eqn {B C:category} (sum : hasBinarySums C)
+Lemma functorBinarySum_eqn {B C:category} (sum : BinarySums C)
       (F G : [B,C]) (b:B) :
   universalObject (functorBinarySum sum F G) ◾ b
   =
   universalObject (sum (F ◾ b) (G ◾ b)).
 Proof. reflexivity. Defined.
 
-Lemma functorBinarySum_map_eqn {B C:category} (sum : hasBinarySums C)
+Lemma functorBinarySum_map_eqn {B C:category} (sum : BinarySums C)
       (F G F' G' : [B,C]) (p:F-->F') (q:G-->G') (b:B) :
   binarySumMap_2 (functorBinarySum sum F G) (functorBinarySum sum F' G') p q ◽ b
   =
@@ -1015,10 +1015,10 @@ Proof.
      (universalObject sum)] *)
 Abort.
 
-Theorem functorLimits (B C:category) : hasLimits C -> hasLimits [B,C].
+Theorem functorLimits (B C:category) : Limits C -> Limits [B,C].
 Proof.
   intros lim I D.
-  unfold hasLimits, Limit in lim.
+  unfold Limits, Limit in lim.
   set (D' := bifunctor_comm _ _ _ D).
   assert (M := bifunctor_assoc_repn (cone_functor □ D') (λ b, lim I (D' ◾ b))); clear lim.
   exists (universalObject M).
@@ -1027,7 +1027,7 @@ Proof.
 
 Abort.
 
-Theorem functorColimits (B C:category) : hasColimits C -> hasColimits [B,C].
+Theorem functorColimits (B C:category) : Colimits C -> Colimits [B,C].
 Proof.
 Abort.
 

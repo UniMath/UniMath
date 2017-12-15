@@ -513,20 +513,20 @@ Defined.
 
 (* zero maps, definition: *)
 
-Definition hasZeroMaps (C:category) :=
+Definition ZeroMaps (C:category) :=
   ∑ (zero : ∏ a b:C, a --> b),
   (∏ a b c, ∏ f:b --> c, f ∘ zero a b = zero a c)
     ×
     (∏ a b c, ∏ f:c --> b, zero b a ∘ f = zero c a).
 
-Definition is {C:category} (zero: hasZeroMaps C) {a b:C} (f:a-->b)
+Definition is {C:category} (zero: ZeroMaps C) {a b:C} (f:a-->b)
   := f = pr1 zero _ _.
 
-Definition hasZeroMaps_opp (C:category) : hasZeroMaps C -> hasZeroMaps C^op
+Definition ZeroMaps_opp (C:category) : ZeroMaps C -> ZeroMaps C^op
   := λ z, (λ a b, pr1 z b a) ,, pr2 (pr2 z) ,, pr1 (pr2 z).
 
-Definition hasZeroMaps_opp_opp (C:category) (zero:hasZeroMaps C) :
-  hasZeroMaps_opp C^op (hasZeroMaps_opp C zero) = zero.
+Definition ZeroMaps_opp_opp (C:category) (zero:ZeroMaps C) :
+  ZeroMaps_opp C^op (ZeroMaps_opp C zero) = zero.
 Proof.
   unshelve refine (total2_paths_f _ _).
   - reflexivity.
