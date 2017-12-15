@@ -79,11 +79,10 @@ less fragile and to make the files have a more uniform and pleasing appearance.
   of `pr1` and `pr2`. This makes the code easier to maintain in the
   long run (if the structure is rearranged the proofs will still work
   if the accessor functions are changed accordingly).
-* Define constructor functions starting with `mk_` for structures
-  taking all of the required data in the right order. This way one can
-  write `use mk_S` when constructing an `S` instead of having a nested
-  chain of `use tpair` leading to flatter proof scripts for
-  instantiating structures.
+* Define constructor functions for structures taking all of the
+  required data in the right order. This way one can write `use
+  constructor` instead of having a nested chain of `use tpair` leading
+  to flatter proof scripts for instantiating structures.
 
 Our files don't adhere yet to all of these conventions, but it's a goal we
 strive for.
