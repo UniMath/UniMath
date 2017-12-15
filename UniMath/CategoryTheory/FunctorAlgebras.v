@@ -55,7 +55,7 @@ Definition alg_map (X : algebra_ob) : F X --> X := pr2 X.
 
 (** A morphism of an F-algebras (F X, g : F X --> X) and (F Y, h : F Y --> Y)
     is a morphism f : X --> Y such that the following diagram commutes:
-    
+
     <<
          F f
     F x ----> F y
@@ -345,7 +345,7 @@ assert (Ha'a : a' · a = identity A).
     eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'].
     now apply assoc.
   apply pathsinv0; set (X := tpair _ _ algMor_a'a).
-  now apply (maponpaths pr1 (InitialEndo_is_identity _ AaInitial X)).
+  now apply (maponpaths pr1 (!@InitialEndo_is_identity _ AaInitial X)).
 split; simpl; trivial.
 eapply pathscomp0; [apply Ha'|]; simpl.
 rewrite <- functor_comp.
@@ -468,7 +468,7 @@ Section Nats.
            (algebra_mor_commutes F (pr1 N) _ (InitialArrow N (mk_F_alg f g)))).
     rewrite (F_compute2 _) in diagram.
 
-    (** Using the η-rules for coproducts, we can assume that alg_map X = [f,g] 
+    (** Using the η-rules for coproducts, we can assume that alg_map X = [f,g]
         for f : 1 --> X, g : X --> X. *)
     rewrite (BinCoproductArrowEta C 1 X (bc _ _) _ _) in diagram.
 
@@ -540,4 +540,5 @@ Section Nats.
   Defined.
 
   Opaque nat_ob_rec_s.
+
 End Nats.
