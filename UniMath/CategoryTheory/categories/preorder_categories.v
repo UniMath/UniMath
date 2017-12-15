@@ -46,3 +46,45 @@ Definition po_category : category :=
    tpair _ po_precategory po_precategory_has_homsets.
 
 End po_category_def.
+
+Section poset_univalent_category_def.
+(* A poset is a univalent category *)
+
+Context (POS : Poset).
+
+Definition poset_category : category :=
+  po_category (popair (posetRelation POS) (pr1 (pr2 (pr2 POS)))).
+
+Lemma poset_category_iso_is_eq {A B : poset_category} (isoAB : iso A B) :
+  A = B.
+Proof.
+  apply (isantisymm_posetRelation POS).
+  apply (morphism_from_iso poset_category A B isoAB).
+  apply (inv_from_iso isoAB).
+Defined.
+
+Lemma poset_category_isweq {A B : poset_category} :
+  isweq (λ p : A = B, idtoiso p).
+Proof.
+  use gradth.
+  - apply poset_category_iso_is_eq.
+  - intro eq.
+    apply proofirrelevance.
+    apply setproperty.
+  - intro iso.
+    use eq_iso.
+    apply proofirrelevance.
+    apply propproperty.
+Defined.
+
+Lemma poset_category_is_univalent : is_univalent poset_category.
+  use mk_is_univalent.
+  - intros a b.
+    apply poset_category_isweq.
+  - apply po_precategory_has_homsets.
+Defined.
+
+Definition poset_univalent_category : univalent_category :=
+  mk_category poset_category poset_category_is_univalent.
+
+End poset_univalent_category_def.
