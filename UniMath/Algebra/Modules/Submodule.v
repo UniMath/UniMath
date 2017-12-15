@@ -17,14 +17,17 @@ Require Import UniMath.MoreFoundations.Subtypes.
 *)
 
 Definition issubsetwithsmul {R : hSet} {M : hSet} (smul : R → M → M) (A : hsubtype M) : UU :=
-∏ r m, A m → A (smul r m).
+  ∏ r m, A m → A (smul r m).
 
 Definition issubmodule {R : rng} {M : module R} (A : hsubtype M) : UU :=
-issubgr A × issubsetwithsmul (module_mult M) A.
+  issubgr A × issubsetwithsmul (module_mult M) A.
 
 Definition issubmodulepair {R : rng} {M : module R} {A : hsubtype M}
            (H1 : issubgr A) (H2 : issubsetwithsmul (module_mult M) A) : issubmodule A :=
-dirprodpair H1 H2.
+  dirprodpair H1 H2.
+
+Definition issubmodule_is {R : rng} {M : module R} (A : hsubtype M) : UU :=
+  issubgr A × issubsetwithsmul (module_mult M) A.
 
 Lemma isapropissubmodule {R : rng} {M : module R} (A : hsubtype M) : isaprop (issubmodule A).
 Proof.
@@ -44,9 +47,13 @@ Definition submodulepair {R : rng} {M : module R} :
   ∏ (t : hsubtype M), (λ A : hsubtype M, issubmodule A) t → ∑ A : hsubtype M, issubmodule A :=
   tpair (λ A : hsubtype M, issubmodule A).
 
-Definition submoduletosubabgr {R : rng} (M : module R) : submodule M -> @subabgr M :=
+Definition submoduletosubabgr {R : rng} {M : module R} : submodule M -> @subabgr M :=
   λ A : _, subgrpair (pr1 A) (pr1 (pr2 A)).
 Coercion submoduletosubabgr : submodule >-> subabgr.
+
+Definition submodule_to_issubsetwithsmul {R : rng} {M : module R} (A : submodule M) :
+  issubsetwithsmul (module_mult M) A :=
+  pr2 (pr2 A).
 
 Local Open Scope module_scope.
 
@@ -54,7 +61,7 @@ Definition submodule_smul {R : rng} {M : module R} {A : submodule M} (r : R) (m 
 Proof.
   use tpair.
   exact (r * pr1 m).
-  exact (pr2 (pr2 A) r (pr1 m) (pr2 m)).
+  exact (submodule_to_issubsetwithsmul A r (pr1 m) (pr2 m)).
 Defined.
 
 Definition carrierofasubmodule {R : rng} {M : module R} (A : submodule M) : module R.
@@ -97,7 +104,7 @@ Proof.
   split.
   apply abgr_Kernel_subabgr_issubgr.
   intros r x. apply hinhfun. cbn. intro p.
-  now rewrite (pr2 (pr2 f)), p, module_mult_1.
+  now rewrite (modulefun_to_islinear f), p, module_mult_1.
 Defined.
 
 Definition module_kernel {R : rng} {A B : module R} (f : modulefun A B) : submodule A :=

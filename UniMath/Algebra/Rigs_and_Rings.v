@@ -194,6 +194,9 @@ Definition rigaddfun {X Y : rig} (f : rigfun X Y) :
 Definition rigmultfun {X Y : rig} (f : rigfun X Y) :
   monoidfun (rigmultmonoid X) (rigmultmonoid Y) := monoidfunconstr (pr2 (pr2 f)).
 
+Definition rigfun_to_unel_rigaddmonoid {X Y : rig} (f : rigfun X Y) : f (0%rig) = 0%rig :=
+  pr2 (pr1 (pr2 f)).
+
 Definition rigfuncomp {X Y Z : rig} (f : rigfun X Y) (g : rigfun Y Z) : rigfun X Z.
 Proof.
   intros X Y Z f g.

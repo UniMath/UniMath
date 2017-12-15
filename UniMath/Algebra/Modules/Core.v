@@ -303,12 +303,6 @@ Notation "r * x" := (module_mult _ r x) : module_scope.
 
 Delimit Scope module_scope with module.
 
-Local Open Scope rig_scope.
-
-Definition rigfun_to_unel_rigaddmonoid {X Y : rig} (f : rigfun X Y) : f 0 = 0 := pr2 (pr1 (pr2 f)).
-
-Local Close Scope rig_scope.
-
 Local Open Scope module.
 
 Lemma module_mult_0_to_0 {R : rng} {M : module R} (x : M) : rngunel1 * x = @unel M.
@@ -456,7 +450,7 @@ Definition ismodulefun {R : rng} {M N : module R} (f : M -> N) : UU :=
 
 Definition ismodulefunpair {R : rng} {M N : module R} {f : M -> N}
            (H1 : isbinopfun f) (H2 : islinear f) : ismodulefun f :=
-tpair _ H1 H2.
+  tpair _ H1 H2.
 
 Lemma isapropismodulefun {R : rng} {M N : module R} (f : M -> N) : isaprop (ismodulefun f).
 Proof.
@@ -500,11 +494,11 @@ Definition moduletomonoid  {R : rng} (M : module R) : abmonoid := abgrtoabmonoid
 
 Definition modulefun_to_monoidfun {R : rng} {M N : module R} (f : modulefun M N) :
   monoidfun (moduletomonoid M) (moduletomonoid N) :=
-tpair _ (pr1 f) (tpair _ (pr1 (pr2 f)) (modulefun_unel f)).
+  tpair _ (pr1 f) (tpair _ (pr1 (pr2 f)) (modulefun_unel f)).
 
 Definition modulefun_from_monoidfun {R : rng} {M N : module R} (f : monoidfun M N)
-           (H : ismodulefun (pr1 f)) : modulefun M N :=
-(tpair _ (pr1 f) H).
+           (H : islinear (pr1 f)) : modulefun M N :=
+  modulefunpair (pr1 f) (ismodulefunpair (pr1 (pr2 f)) H).
 
 Lemma modulefun_paths {R : rng} {M N : module R} {f g : modulefun M N} (p : pr1 f = pr1 g) :
   f = g.
@@ -528,14 +522,14 @@ Proof.
     apply isapropismodulefun.
 Defined.
 
-(* categorical structure of modules *)
+(* module structure of morphisms between modules *)
 Lemma modulehombinop_ismodulefun {R : rng} {M N : module R} (f g : modulefun M N) :
   @ismodulefun R M N (λ x : pr1 M, (pr1 f x * pr1 g x)%multmonoid).
 Proof.
   - use tpair.
     exact (pr1 (abmonoidshombinop_ismonoidfun (modulefun_to_monoidfun f)
                                               (modulefun_to_monoidfun g))).
-    intros r m. rewrite (pr2 (pr2 f)). rewrite (pr2 (pr2 g)).
+    intros r m. rewrite (modulefun_to_islinear f). rewrite (modulefun_to_islinear g).
     rewrite <- module_mult_is_ldistr. reflexivity.
 Defined.
 
@@ -644,13 +638,13 @@ Proof.
   use tpair.
   - use mk_isbinopfun. intros x x'. cbn.
     rewrite (pr1 (pr2 f)). rewrite module_mult_is_ldistr. reflexivity.
-  - intros r0 m. rewrite (pr2 (pr2 f)). do 2 rewrite <- module_mult_assoc.
+  - intros r0 m. rewrite (modulefun_to_islinear f). do 2 rewrite <- module_mult_assoc.
     rewrite rngcomm2. reflexivity.
 Qed.
 
 Definition modulehombinop_smul {R : commrng} {M N : module R} (r : R) (f : modulefun M N) :
   modulefun M N :=
-modulefunpair _ (modulehombinop_scalar_ismodulefun r f).
+  modulefunpair _ (modulehombinop_scalar_ismodulefun r f).
 
 Definition modulehommodule {R : commrng} (M N : module R) : module R.
 Proof.
