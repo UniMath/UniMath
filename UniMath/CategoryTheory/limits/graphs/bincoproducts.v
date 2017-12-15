@@ -87,7 +87,7 @@ Proof.
 Defined.
 
 Definition BinCoproducts := ∏ (a b : C), BinCoproductCocone a b.
-Definition hasBinCoproducts := ishinh BinCoproducts.
+Definition hasBinCoproducts := ∏ (a b : C), ∥ BinCoproductCocone a b ∥.
 
 Definition BinCoproductObject {a b : C} (CC : BinCoproductCocone a b) : C := colim CC.
 Definition BinCoproductIn1 {a b : C} (CC : BinCoproductCocone a b): a --> BinCoproductObject CC
