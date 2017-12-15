@@ -42,7 +42,7 @@ Definition ProductCone (ci : ∏ i, C) :=
              isProductCone ci (pr1 pp1p2) (pr2 pp1p2)).
 
 Definition Products := ∏ (ci : ∏ i, C), ProductCone ci.
-Definition hasProducts := ishinh Products.
+Definition hasProducts := ∏ (ci : ∏ i, C), ∥ ProductCone ci ∥.
 
 Definition ProductObject {c : ∏ i, C} (P : ProductCone c) : C := pr1 (pr1 P).
 Definition ProductPr {c : ∏ i, C} (P : ProductCone c) : ∏ i, ProductObject P --> c i :=

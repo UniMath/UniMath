@@ -52,7 +52,7 @@ Definition BinProductCone (c d : C) :=
 
 
 Definition BinProducts := ∏ (c d : C), BinProductCone c d.
-Definition hasBinProducts := ishinh BinProducts.
+Definition hasBinProducts := ∏ (c d : C), ∥ BinProductCone c d ∥.
 
 Definition BinProductObject {c d : C} (P : BinProductCone c d) : C := pr1 (pr1 P).
 Definition BinProductPr1 {c d : C} (P : BinProductCone c d): BinProductObject P --> c :=

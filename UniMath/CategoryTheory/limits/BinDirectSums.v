@@ -123,7 +123,7 @@ Section def_bindirectsums.
 
   Definition mk_BinDirectSums (H : ∏ (a b : A), BinDirectSumCone a b) : BinDirectSums := H.
 
-  Definition has_BinDirectSums : UU := ishinh BinDirectSums.
+  Definition has_BinDirectSums : UU := ∏ (a b : A), ∥ BinDirectSumCone a b ∥.
 
   (** The direct sum object. *)
   Definition BinDirectSumConeOb {a b : A} (B : BinDirectSumCone a b) : A := pr1 (pr1 B).
