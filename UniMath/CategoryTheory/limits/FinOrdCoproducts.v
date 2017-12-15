@@ -7,13 +7,12 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.ProductCategory.
-
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 
+Local Open Scope cat.
 
 (** Definition of finite ordered coproducts. *)
 Section def_FinOrdCoproducts.
@@ -21,8 +20,9 @@ Section def_FinOrdCoproducts.
   Variable C : precategory.
 
   Definition FinOrdCoproducts : UU :=
-    ∏ (n : nat) (a : stn n -> C), CoproductCocone (stn n) C a.
-  Definition hasFinOrdCoproducts := ishinh FinOrdCoproducts.
+    ∏ (n : nat) (a : stn n -> C), Coproduct (stn n) C a.
+  Definition hasFinOrdCoproducts : UU :=
+    ∏ (n : nat) (a : stn n -> C), ∥ Coproduct (stn n) C a ∥.
 
 End def_FinOrdCoproducts.
 
@@ -35,12 +35,12 @@ Section FinOrdCoproduct_criteria.
 
   (** Case n = 0 of the theorem. *)
   Lemma InitialToCoproduct (I : Initial C):
-    ∏ (a : stn 0 -> C), CoproductCocone (stn 0) C a.
+    ∏ (a : stn 0 -> C), Coproduct (stn 0) C a.
   Proof.
     intros a.
-    use (mk_CoproductCocone _ _ _ I
+    use (mk_Coproduct _ _ _ I
                             (λ i : stn 0, fromempty (weqstn0toempty i))).
-    use (mk_isCoproductCocone _ _ hs).
+    use (mk_isCoproduct _ _ hs).
     intros c g. use unique_exists.
 
     apply (InitialArrow I c).
@@ -51,15 +51,15 @@ Section FinOrdCoproduct_criteria.
 
   (** Case n = 1 of the theorem. *)
   Lemma ObjectToCoproduct:
-    ∏ (a : stn 1 -> C), CoproductCocone (stn 1) C a.
+    ∏ (a : stn 1 -> C), Coproduct (stn 1) C a.
   Proof.
     intros a.
     set (stn1ob := invweq(weqstn1tounit) tt).
-    use (mk_CoproductCocone _ _ _ (a stn1ob)).
+    use (mk_Coproduct _ _ _ (a stn1ob)).
     intros i. exact (idtoiso (! (maponpaths a (isconnectedstn1 stn1ob i)))).
 
     (* isCoproductcocone *)
-    use (mk_isCoproductCocone _ _ hs).
+    use (mk_isCoproduct _ _ hs).
     intros c g.
     use (unique_exists (g stn1ob)).
 
@@ -97,7 +97,7 @@ Section FinOrdCoproduct_criteria.
     set (m1 := λ i1 : stn n, (Cone1In i1) · in1).
     set (m2 := λ i2 : stn 1, (Cone2In i2) · in2).
 
-    use (mk_CoproductCocone (stn (S n)) C a (BinCoproductObject _ BinCone) _).
+    use (mk_Coproduct (stn (S n)) C a (BinCoproductObject _ BinCone) _).
 
     (* Construction of the arrows from a i to BinCone *)
     intros i. induction (natlehchoice4 (pr1 i) _ (pr2 i)) as [a0|b].
@@ -106,8 +106,8 @@ Section FinOrdCoproduct_criteria.
     exact (idtoiso (maponpaths a (lastelement_eq n i b))
                    ·  m2 (invweq(weqstn1tounit) tt)).
 
-    (* Construction of isCoproductCocone. *)
-    use (mk_isCoproductCocone _ _ hs).
+    (* Construction of isCoproduct. *)
+    use (mk_isCoproduct _ _ hs).
 
     intros c g.
     set (g1 := λ i : stn n, g(dni_lastelement i)).
@@ -203,4 +203,5 @@ Section FinOrdCoproduct_criteria.
     rewrite <- (maponpathscomp (λ _ : stn 1, lastelement) a).
     apply maponpaths. apply isasetstn.
   Defined.
+
 End FinOrdCoproduct_criteria.

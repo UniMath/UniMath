@@ -171,7 +171,7 @@ Definition pr1foldr_algmor : algebra_mor _ Tree_alg Tree_alg :=
 
 Lemma pr1foldr_algmor_identity : identity _ = pr1foldr_algmor.
 Proof.
-now rewrite <- (InitialEndo_is_identity _ treeFunctor_Initial pr1foldr_algmor).
+now rewrite (@InitialEndo_is_identity _ treeFunctor_Initial pr1foldr_algmor).
 Qed.
 
 Lemma treeInd l : P l.

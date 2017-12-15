@@ -251,7 +251,7 @@ Defined.
 
 
 (* rules for coproducts in HSET *)
-Lemma BinCoproductIn1CommutesHSET (A B : HSET) (CC : BinCoproductCocone HSET A B)(C : HSET)
+Lemma BinCoproductIn1CommutesHSET (A B : HSET) (CC : BinCoproduct HSET A B)(C : HSET)
       (f : A --> C)(g: B --> C) (a:pr1 A):
   BinCoproductArrow HSET CC f g (BinCoproductIn1 HSET CC a)  = f a.
 Proof.
@@ -260,7 +260,7 @@ Proof.
   now apply H1.
 Qed.
 
-Lemma BinCoproductIn2CommutesHSET (A B : HSET) (CC : BinCoproductCocone HSET A B)(C : HSET)
+Lemma BinCoproductIn2CommutesHSET (A B : HSET) (CC : BinCoproduct HSET A B)(C : HSET)
       (f : A --> C)(g: B --> C) (b:pr1 B):
   BinCoproductArrow HSET CC f g (BinCoproductIn2 HSET CC b)  = g b.
 Proof.
@@ -269,7 +269,7 @@ Proof.
   now apply H1.
 Qed.
 
-Lemma postcompWithBinCoproductArrowHSET {A B : HSET} (CCAB : BinCoproductCocone HSET A B) {C : HSET}
+Lemma postcompWithBinCoproductArrowHSET {A B : HSET} (CCAB : BinCoproduct HSET A B) {C : HSET}
     (f : A --> C) (g : B --> C) {X : HSET} (k : C --> X) z:
        k (BinCoproductArrow _ CCAB f g z) = BinCoproductArrow _ CCAB (f · k) (g · k) z.
 Proof.
@@ -284,12 +284,12 @@ Qed.
 Lemma BinCoproductsHSET : BinCoproducts HSET.
 Proof.
 intros A B.
-use mk_BinCoproductCocone.
+use mk_BinCoproduct.
 - simpl in *; apply (tpair _ (coprod A B)).
   abstract (apply isasetcoprod; apply setproperty).
 - simpl in *; apply ii1.
 - simpl in *; intros x; apply (ii2 x).
-- apply (mk_isBinCoproductCocone _ has_homsets_HSET).
+- apply (mk_isBinCoproduct _ has_homsets_HSET).
   intros C f g; simpl in *.
   use tpair.
   * apply (tpair _ (sumofmaps f g)); abstract (split; apply idpath).
@@ -304,12 +304,12 @@ Defined.
 Lemma CoproductsHSET (I : UU) (HI : isaset I) : Coproducts I HSET.
 Proof.
 intros A.
-use mk_CoproductCocone.
+use mk_Coproduct.
 - use tpair.
   + apply (∑ i, pr1 (A i)).
   + eapply (isaset_total2 _ HI); intro i; apply setproperty.
 - simpl; apply tpair.
-- apply (mk_isCoproductCocone _ _ has_homsets_HSET).
+- apply (mk_isCoproduct _ _ has_homsets_HSET).
   intros C f; simpl in *.
   use tpair.
   * apply (tpair _ (λ X, f (pr1 X) (pr2 X))); abstract (intro i; apply idpath).
@@ -458,12 +458,12 @@ Defined.
 Lemma BinProductsHSET : BinProducts HSET.
 Proof.
 intros A B.
-use mk_BinProductCone.
+use mk_BinProduct.
 - simpl in *; apply (tpair _ (A × B)).
   abstract (apply isasetdirprod; apply setproperty).
 - simpl in *; apply pr1.
 - simpl in *; intros x; apply (pr2 x).
-- apply (mk_isBinProductCone _ has_homsets_HSET).
+- apply (mk_isBinProduct _ has_homsets_HSET).
   intros C f g; simpl in *.
   use tpair.
   * apply (tpair _ (prodtofuntoprod (f ,, g))); abstract (split; apply idpath).
@@ -478,10 +478,10 @@ Defined.
 Lemma ProductsHSET (I : UU) : Products I HSET.
 Proof.
 intros A.
-use mk_ProductCone.
+use mk_Product.
 - apply (tpair _ (∏ i, pr1 (A i))); apply isaset_forall_hSet.
 - simpl; intros i f; apply (f i).
-- apply (mk_isProductCone _ _ has_homsets_HSET).
+- apply (mk_isProduct _ _ has_homsets_HSET).
   intros C f; simpl in *.
   use tpair.
   * apply (tpair _ (λ c i, f i c)); intro i; apply idpath.
@@ -898,7 +898,7 @@ Section products_set_slice.
 Lemma Products_HSET_slice I X : Products I (HSET / X).
 Proof.
 intros F.
-use mk_ProductCone.
+use mk_Product.
 + use tpair.
   - exists (∑ x : pr1 X, ∏ i : I, hfiber_hSet (pr2 (F i)) x).
     abstract (apply isaset_total2; [apply setproperty|];
