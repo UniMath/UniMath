@@ -46,17 +46,14 @@ Section quotmod_submodule.
     use eqrelconstr.
     - exact (λ m m', A (m - m')).
     - intros x y z xy yz.
-      assert (xyyz := submoduleadd A (x - y) (y - z) xy yz).
-      rewrite (assocax M) in xyyz.
-      rewrite <- (assocax M (grinv _ y) y) in xyyz.
-      rewrite grlinvax in xyyz.
-      now rewrite lunax in xyyz.
-    - intros x. assert (a0 := submodule0 A).
-      now rewrite <- (grrinvax M x) in a0.
-    - unfold issymm. intros x y axy.
-      assert (ainv := submoduleinv A (x - y) axy).
-      rewrite grinvop in ainv.
-      now rewrite grinvinv in ainv.
+      generalize (submoduleadd A (x - y) (y - z) xy yz).
+      now rewrite (assocax M), <- (assocax M (grinv _ y) y), grlinvax, lunax.
+    - intros x.
+      generalize (submodule0 A).
+      now rewrite <- (grrinvax M x).
+    - intros x y axy.
+      generalize (submoduleinv A (x - y) axy).
+      now rewrite grinvop, grinvinv.
   Defined.
 
   Definition monoideqrelsubmodule : monoideqrel M.
@@ -68,29 +65,24 @@ Section quotmod_submodule.
         assert (H : a - b = c + a - (c + b)).
         {
           etrans; [|eapply (maponpaths (λ z, z - (c + b))); apply (commax M)];
-          rewrite assocax.
+            rewrite assocax.
           apply maponpaths.
-          rewrite grinvop, commax, assocax, grlinvax;
-          now rewrite runax.
+          now rewrite grinvop, commax, assocax, grlinvax, runax.
         }
         simpl in *.
         now rewrite H.
       + intros a b c.
         assert (H : a - b = a + c - (b + c)).
         {
-          rewrite assocax;
-          use (@maponpaths _ _ (λ z, a + z));
-          rewrite grinvop, <- (assocax M), grrinvax;
-          now rewrite lunax.
+          rewrite assocax.
+          apply maponpaths.
+          now rewrite grinvop, <- (assocax M), grrinvax, lunax.
         }
         simpl in *.
         now rewrite H.
     - intros r m m'.
-      assert (H : (r * m) - (r * m') = r * (m - m')).
-      {
-        rewrite module_inv_mult;
-        now rewrite module_mult_is_ldistr.
-      }
+      assert (H : (r * m) - (r * m') = r * (m - m')) by
+          now rewrite module_inv_mult, module_mult_is_ldistr.
       generalize (submodulemult A r (m - m')).
       simpl in *.
       now rewrite H.
@@ -108,91 +100,58 @@ Section quotmod_def.
   Local Notation "x - y" := (@op _ x (grinv _ y)).
   Local Open Scope module_scope.
 
-  Definition quotmod_U : hSet := hSetpair (setquot E) (isasetsetquot E).
-
   Definition quotmod_abgr : abgr := abgrquot E.
 
-  Definition quotmod_rngact : R -> rngofendabgr quotmod_abgr.
+  Definition quotmod_rngact (r : R) : quotmod_abgr -> quotmod_abgr.
   Proof.
-    intros r. use tpair.
-    + use setquotuniv.
-      intros m.
+    use setquotuniv.
+    - intros m.
       exact (setquotpr E (r * m)).
-      intros m m' Hmm'.
+    - intros m m' Hmm'.
       apply weqpathsinsetquot.
       now apply isacthrelmonoideqrel.
+  Defined.
+
+  Definition quotmod_rngmap : R -> rngofendabgr quotmod_abgr.
+  Proof.
+    intros r. use tpair.
+    + exact (quotmod_rngact r).
     + use mk_ismonoidfun.
       * use mk_isbinopfun.
         use (setquotuniv2prop E (λ a b, hProppair _ _)); [use isasetsetquot|].
         intros m m'.
-        unfold setquotfun2.
-        rewrite (setquotunivcomm E), (setquotunivcomm E).
-        simpl. unfold setquotfun2.
-        rewrite (setquotuniv2comm E), (setquotuniv2comm E), (setquotunivcomm E).
+        unfold quotmod_rngact, setquotfun2;
+          rewrite (setquotunivcomm E), (setquotunivcomm E);
+          simpl; unfold setquotfun2;
+            rewrite (setquotuniv2comm E), (setquotuniv2comm E), (setquotunivcomm E).
         apply weqpathsinsetquot.
         assert (H : r * (m + m') = r * m + r * m') by use module_mult_is_ldistr.
-        simpl in H.
-        rewrite H.
+        simpl in H; rewrite H.
         use eqrelrefl.
-      * unfold unel. simpl. rewrite (setquotunivcomm E).
+      * unfold unel, quotmod_rngact; simpl; rewrite (setquotunivcomm E).
         apply maponpaths.
         apply module_mult_1.
   Defined.
-
 
   Definition quotmod_rngfun : rngfun R (rngofendabgr quotmod_abgr).
   Proof.
     unfold rngfun. unfold rigfun.
     use rigfunconstr.
-    - use quotmod_rngact.
-    - use mk_isrigfun.
-      + use mk_ismonoidfun.
-        * use mk_isbinopfun.
-          intros r r'.
-          use monoidfun_paths.
-          use funextfun.
-          use (setquotunivprop E (λ m, hProppair _ _)); [use isasetsetquot|].
-          intros m.
-          simpl.
-          do 3 rewrite (setquotunivcomm E).
-          unfold op, setquotfun2.
-          rewrite (setquotuniv2comm E).
-          apply maponpaths.
-          use module_mult_is_rdistr.
-        * use monoidfun_paths. use funextfun.
-          use (setquotunivprop E (λ m, hProppair _ _)); [use isasetsetquot|].
-          intros m.
-          simpl.
-          unfold unel.
-          rewrite (setquotunivcomm E).
-          simpl. unfold unel.
-          use maponpaths.
-          use module_mult_0_to_0.
-      + use mk_ismonoidfun.
-        * use mk_isbinopfun.
-          intros r r'.
-          use monoidfun_paths.
-          use funextfun.
-          use (setquotunivprop E (λ m, hProppair _ _)); [use isasetsetquot|].
-          intros m.
-          simpl.
-          unfold funcomp.
-
-          do 2 rewrite (setquotunivcomm E).
-
-
-          rewrite (setquotunivcomm E).
-          apply maponpaths.
-          use module_mult_assoc.
-        * use monoidfun_paths. use funextfun.
-          use (setquotunivprop E (λ m, hProppair _ _)); [use isasetsetquot|].
-          intros m.
-          simpl.
-          unfold unel.
-          rewrite (setquotunivcomm E).
-          simpl. unfold unel.
-          use maponpaths.
-          use module_mult_unel2.
+    - use quotmod_rngmap.
+    - use mk_isrigfun;
+        [ use mk_ismonoidfun | use mk_ismonoidfun ];
+        [ use mk_isbinopfun; intros r r' | | use mk_isbinopfun; intros r r' | ].
+      all: use monoidfun_paths; use funextfun.
+      all: use (setquotunivprop E (λ m, hProppair _ _)); [use isasetsetquot|].
+      all: intros m.
+      all: simpl; unfold unel, quotmod_rngact, funcomp.
+      all: [> do 3 rewrite (setquotunivcomm E) | rewrite (setquotunivcomm E)
+            | do 3 rewrite (setquotunivcomm E) | rewrite (setquotunivcomm E)].
+      all: use maponpaths; simpl.
+      + use module_mult_is_rdistr.
+      + use module_mult_0_to_0.
+      + use module_mult_assoc.
+      + use module_mult_unel2.
   Defined.
 
   Definition quotmod_mod_struct : module_struct R quotmod_abgr.
@@ -212,12 +171,7 @@ Section quotmod_def.
   Proof.
     use modulefunpair.
     - exact (setquotpr E).
-    - split.
-      + use mk_isbinopfun.
-        intros m m'.
-        apply idpath.
-      + intros r m.
-        apply idpath.
+    - now use (ismodulefunpair (mk_isbinopfun _)).
   Defined.
 
   Definition quotmoduniv
@@ -227,32 +181,25 @@ Section quotmod_def.
     modulefun quotmod N.
   Proof.
     use modulefunpair.
-    - use setquotuniv.
-      + exact f.
-      + assumption.
-    - split.
+    - now use (setquotuniv E _ f).
+    - use ismodulefunpair.
       + use mk_isbinopfun.
-        use (setquotuniv2prop E (λ m n, hProppair _ _)).
-        * apply (pr2 (pr1 (pr1 (pr1 N)))).
-        * intros m m'.
-          simpl.
-          unfold op, setquotfun2.
-          rewrite setquotuniv2comm.
-          do 3 rewrite (setquotunivcomm E).
-          apply modulefun_to_isbinopfun.
+        use (setquotuniv2prop E (λ m n, hProppair _ _)); [use isasetmodule|].
+        intros m m'.
+        simpl.
+        unfold op, setquotfun2.
+        rewrite setquotuniv2comm.
+        do 3 rewrite (setquotunivcomm E).
+        apply modulefun_to_isbinopfun.
       + intros r.
-        use (setquotunivprop E (λ m, hProppair _ _)).
-        * apply (pr2 (pr1 (pr1 (pr1 N)))).
-        * intros m.
-          simpl.
-          assert (H : r * quotmod_quotmap m = quotmod_quotmap (r * m)).
-          {
-            apply (! modulefun_to_islinear _ _ _).
-          }
-          simpl in H.
-          rewrite H.
-          do 2 rewrite (setquotunivcomm E).
-          apply modulefun_to_islinear.
+        use (setquotunivprop E (λ m, hProppair _ _)); [use isasetmodule|].
+        intros m.
+        assert (H : r * quotmod_quotmap m = quotmod_quotmap (r * m)) by
+            use (! modulefun_to_islinear _ _ _).
+        simpl in H. simpl.
+        rewrite H.
+        do 2 rewrite (setquotunivcomm E).
+        apply modulefun_to_islinear.
   Defined.
 
 End quotmod_def.
