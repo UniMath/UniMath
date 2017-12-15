@@ -21,7 +21,6 @@ Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
-Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -53,9 +52,10 @@ Require Import UniMath.HomologicalAlgebra.TranslationFunctors.
 
 Unset Kernel Term Sharing.
 
-Open Scope hz_scope.
-Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow.
+Local Open Scope hz_scope.
+Local Open Scope cat.
 
+Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow.
 
 (** * Mapping cone *)
 (** ** Introduction
@@ -372,7 +372,7 @@ Section mapping_cone_of_id.
       rewrite transport_source_to_binop. unfold DiffTranslationComplex.
       assert (e1 : (transportf
                       (precategory_morphisms (C i))
-                      (maponpaths (λ i0 : pr1 hz, BinDirectSumConeOb
+                      (maponpaths (λ i0 : pr1 hz, BinDirectSumOb
                                                     _ (to_BinDirectSums A (C (i0 + 1)) (C i0)))
                                   (hzrminusplus i 1))
                       (transportf (λ x' : A, A ⟦ x', DS3 ⟧) (maponpaths C (hzrminusplus i 1))
@@ -396,7 +396,7 @@ Section mapping_cone_of_id.
                            to_binop _ _ gg ((transportf
                                                (precategory_morphisms (C i))
                                                (maponpaths
-                                                  (λ i0 : pr1 hz, BinDirectSumConeOb
+                                                  (λ i0 : pr1 hz, BinDirectSumOb
                                                                     _  (to_BinDirectSums
                                                                           A (C (i0 + 1)) (C i0)))
                                                   (hzrplusminus i 1))
@@ -409,7 +409,7 @@ Section mapping_cone_of_id.
 
       assert (e2 : transportf (precategory_morphisms (C (i + 1)))
                               (maponpaths (λ i0 : pr1 hz,
-                                                  BinDirectSumConeOb
+                                                  BinDirectSumOb
                                                     _ (to_BinDirectSums A (C (i0 + 1)) (C i0)))
                                           (hzrplusminus i 1))
                               (transportf (λ x' : A, A ⟦ x', DS4 ⟧)
@@ -509,10 +509,10 @@ Section mapping_cone_of_id.
           rewrite e3. clear e3. apply maponpaths. apply isasethz.
         }
         rewrite e2 in tmp. clear e2. use (pathscomp0 tmp). clear tmp.
-        assert (e4 : (maponpaths (λ i0 : hz, BinDirectSumConeOb _ (to_BinDirectSums
+        assert (e4 : (maponpaths (λ i0 : hz, BinDirectSumOb _ (to_BinDirectSums
                                                                      A (C (i0 + 1)) (C i0)))
                                  (! (! hzrplusminus i 1))) =
-                     (maponpaths (λ i0 : hz, BinDirectSumConeOb
+                     (maponpaths (λ i0 : hz, BinDirectSumOb
                                                _ (to_BinDirectSums A (C (i0 + 1)) (C i0)))
                                  (hzrplusminus i 1))).
         {
@@ -609,7 +609,7 @@ Section mapping_cone_of_id.
       rewrite transport_target_postcompose. rewrite <- transport_target_to_binop.
       assert (e1 : transportf (precategory_morphisms (C i))
                               (maponpaths (λ i0 : pr1 hz,
-                                                  BinDirectSumConeOb
+                                                  BinDirectSumOb
                                                     _ (to_BinDirectSums A (C (i0 + 1)) (C i0)))
                                           (hzrminusplus i 1))
                               (transportf (λ x' : A, A ⟦ x', DS3 ⟧)
@@ -627,7 +627,7 @@ Section mapping_cone_of_id.
         exact (! tmp).
       }
       assert (e2 : transportf (precategory_morphisms (C i))
-                              (maponpaths (λ i0 : pr1 hz, BinDirectSumConeOb
+                              (maponpaths (λ i0 : pr1 hz, BinDirectSumOb
                                                     _ (to_BinDirectSums A (C (i0 + 1)) (C i0)))
                                           (hzrminusplus i 1))
                               (transportf (λ x' : A, A ⟦ x', DS3 ⟧)
@@ -652,7 +652,7 @@ Section mapping_cone_of_id.
                                        (precategory_morphisms (C (i + 1)))
                                        (maponpaths
                                           (λ i0 : pr1 hz,
-                                                  BinDirectSumConeOb
+                                                  BinDirectSumOb
                                                     _ (to_BinDirectSums
                                                          A (C (i0 + 1)) (C i0)))
                                           (hzrplusminus i 1))
@@ -664,7 +664,7 @@ Section mapping_cone_of_id.
       use (pathscomp0 _ (! e3)). clear e3. clear e1 e2.
       assert (e4 : transportf
                      (precategory_morphisms (C (i + 1)))
-                     (maponpaths (λ i0 : pr1 hz, BinDirectSumConeOb
+                     (maponpaths (λ i0 : pr1 hz, BinDirectSumOb
                                                    _ (to_BinDirectSums A (C (i0 + 1)) (C i0)))
                                  (hzrplusminus i 1))
                      (transportf (λ x' : A, A ⟦ x', DS5 ⟧)
@@ -1732,7 +1732,7 @@ Section inv_rotation_mapping_cone.
           set (tmp' := @maponpathscomp0
                          _ _ _ _ _
                          (λ i0 : pr1 hz,
-                                 BinDirectSumConeOb _ (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
+                                 BinDirectSumOb _ (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
                          (! hzrplusminus (i + 1) 1)
                          (! (hzrminusplus (i + 1) 1 @ ! hzrplusminus (i + 1) 1))).
           use (pathscomp0 (! tmp')). clear tmp'. apply maponpaths. apply isasethz.
@@ -1799,7 +1799,7 @@ Section inv_rotation_mapping_cone.
               set (tmp' := @maponpathscomp0
                              _ _ _ _ _
                              (λ i0 : pr1 hz,
-                                     BinDirectSumConeOb _ (to_BinDirectSums
+                                     BinDirectSumOb _ (to_BinDirectSums
                                                              A (C1 (i0 + 1)) (C2 i0)))
                              (! hzrplusminus (i + 1) 1)
                              (! (hzrminusplus (i + 1) 1 @ ! hzrplusminus (i + 1) 1))).
