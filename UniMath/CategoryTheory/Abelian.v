@@ -29,7 +29,6 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
@@ -50,6 +49,7 @@ Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 
+Local Open Scope cat.
 
 (** * Definition of Abelian categories
    Abelian category is a [precategory] which has
@@ -237,7 +237,7 @@ Section abelian_monic_pullbacks.
   (** ** Pullbacks of monics *)
 
   Local Lemma monics_Pullback_eq1 {x y z : A} (M1 : Monic A x z) (M2 : Monic A y z)
-             (BinProd : BinProductCone A (to_Cokernels A x z M1) (to_Cokernels A y z M2))
+             (BinProd : BinProduct A (to_Cokernels A x z M1) (to_Cokernels A y z M2))
              (ker : Kernel (to_Zero A)
                            (BinProductArrow A BinProd (CokernelArrow (to_Cokernels A x z M1))
                                             (CokernelArrow (to_Cokernels A y z M2)))) :
@@ -253,7 +253,7 @@ Section abelian_monic_pullbacks.
   Qed.
 
   Local Lemma monics_Pullback_eq2 {x y z : A} (M1 : Monic A x z) (M2 : Monic A y z)
-             (BinProd : BinProductCone A (to_Cokernels A x z M1) (to_Cokernels A y z M2))
+             (BinProd : BinProduct A (to_Cokernels A x z M1) (to_Cokernels A y z M2))
              (ker : Kernel (to_Zero A) (BinProductArrow
                                       A BinProd (CokernelArrow (to_Cokernels A x z M1))
                                       (CokernelArrow (to_Cokernels A y z M2)))) :
@@ -269,7 +269,7 @@ Section abelian_monic_pullbacks.
   Qed.
 
   Local Lemma monics_Pullback_eq3 {x y z : A} (M1 : Monic A x z) (M2 : Monic A y z)
-        (BinProd : BinProductCone A (to_Cokernels A x z M1) (to_Cokernels A y z M2))
+        (BinProd : BinProduct A (to_Cokernels A x z M1) (to_Cokernels A y z M2))
         (ker : Kernel (to_Zero A)
                       (BinProductArrow
                          A BinProd (CokernelArrow (to_Cokernels A x z M1))
@@ -285,7 +285,7 @@ Section abelian_monic_pullbacks.
   Qed.
 
   Local Lemma monics_Pullback_isPullback {x y z : A} (M1 : Monic A x z) (M2 : Monic A y z)
-             (BinProd : BinProductCone A (to_Cokernels A x z M1) (to_Cokernels A y z M2))
+             (BinProd : BinProduct A (to_Cokernels A x z M1) (to_Cokernels A y z M2))
              (ker : Kernel (to_Zero A) (BinProductArrow
                                           A BinProd (CokernelArrow (to_Cokernels A x z M1))
                                           (CokernelArrow (to_Cokernels A y z M2)))) :
@@ -391,7 +391,7 @@ Section abelian_monic_pullbacks.
   (** ** Pushouts of epis *)
 
   Definition epis_Pushout_eq1 {x y z : A} (E1 : Epi A x y) (E2 : Epi A x z)
-             (BinCoprod : BinCoproductCocone
+             (BinCoprod : BinCoproduct
                             A (to_Kernels A x y E1) (to_Kernels A x z E2))
              (coker : Cokernel (to_Zero A) (BinCoproductArrow
                                           A BinCoprod (KernelArrow (to_Kernels A x y E1))
@@ -409,7 +409,7 @@ Section abelian_monic_pullbacks.
   Qed.
 
   Definition epis_Pushout_eq2 {x y z : A} (E1 : Epi A x y) (E2 : Epi A x z)
-             (BinCoprod : BinCoproductCocone
+             (BinCoprod : BinCoproduct
                             A (to_Kernels A x y E1) (to_Kernels A x z E2))
              (coker : Cokernel (to_Zero A) (BinCoproductArrow
                                           A BinCoprod (KernelArrow (to_Kernels A x y E1))
@@ -427,7 +427,7 @@ Section abelian_monic_pullbacks.
   Qed.
 
   Definition epis_Pushout_eq3 {x y z : A} (E1 : Epi A x y) (E2 : Epi A x z)
-             (BinCoprod : BinCoproductCocone
+             (BinCoprod : BinCoproduct
                             A (to_Kernels A x y E1) (to_Kernels A x z E2))
              (coker : Cokernel (to_Zero A) (BinCoproductArrow
                                           A BinCoprod (KernelArrow (to_Kernels A x y E1))
@@ -443,7 +443,7 @@ Section abelian_monic_pullbacks.
   Qed.
 
   Definition epis_Pushout_isPushout {x y z : A} (E1 : Epi A x y) (E2 : Epi A x z)
-             (BinCoprod : BinCoproductCocone
+             (BinCoprod : BinCoproduct
                             A (to_Kernels A x y E1) (to_Kernels A x z E2))
              (coker : Cokernel (to_Zero A) (BinCoproductArrow
                                           A BinCoprod (KernelArrow (to_Kernels A x y E1))
