@@ -55,8 +55,9 @@ less fragile and to make the files have a more uniform and pleasing appearance.
 * Start all proofs with `Proof.` on a separate line and end it with
   `Defined.` on a separate line, as this makes it possible for us to generate
   HTML with expansible/collapsible proofs.
-* Use `Definition` for definitions and, `Lemma` or `Theorem` for
-  proofs of properties about the definitions.
+* Use `Lemma`, `Proposition`, or `Theorem` for proofs of propositions;
+  for defining elements of types that are not propositions, use
+  `Definition`.
 * Use Unicode notation freely, but make the parsing conventions uniform across files, and consider
   putting them into a scope.
 * Each line should be limited to at most 100 (unicode) characters.  The
