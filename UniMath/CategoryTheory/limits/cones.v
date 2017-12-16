@@ -20,8 +20,7 @@ Variables J C : precategory.
 Variable hs: has_homsets C.
 Variable F : functor J C.
 
-Definition ConeData := total2 (
-  λ a : C, ∏ j : J, a --> F j).
+Definition ConeData : UU := ∑ a : C, ∏ j : J, a --> F j.
 
 Definition ConeTop (a : ConeData) : C := pr1 a.
 Definition ConeMor (a : ConeData) (j : J) : ConeTop a --> F j := (pr2 a) j.
