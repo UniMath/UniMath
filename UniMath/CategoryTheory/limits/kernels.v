@@ -13,11 +13,11 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.zero.
 
+Local Open Scope cat.
 
 (** Definition of kernels *)
 Section def_kernels.
@@ -29,9 +29,9 @@ Section def_kernels.
 
   (** Definition and construction of Kernels *)
   Definition isKernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = ZeroArrow Z x z) : UU :=
-    ∏ (w : C) (h : w --> y) (H : h · g = ZeroArrow Z w z), iscontr (∑ φ : w --> x, φ · f = h).
+    ∏ (w : C) (h : w --> y) (H : h · g = ZeroArrow Z w z), ∃! φ : w --> x, φ · f = h.
 
-  Lemma isKernel_paths {x y z : C} (f : x --> y) (g : y --> z) (H H' : f · g = (ZeroArrow Z x z))
+  Lemma isKernel_paths {x y z : C} (f : x --> y) (g : y --> z) (H H' : f · g = ZeroArrow Z x z)
         (isK : isKernel f g H) : isKernel f g H'.
   Proof.
     assert (e : H = H') by apply hs.
@@ -40,7 +40,7 @@ Section def_kernels.
 
   Definition mk_isKernel {x y z : C} (f : x --> y) (g : y --> z) (H1 : f · g = ZeroArrow Z x z)
              (H2 : ∏ (w : C) (h : w --> y) (H' : h · g = ZeroArrow Z w z),
-                   iscontr (∑ ψ : w --> x, ψ · f = h)) : isKernel f g H1.
+                   ∃! ψ : w --> x, ψ · f = h) : isKernel f g H1.
   Proof.
     unfold isKernel.
     intros w h H.
@@ -55,7 +55,7 @@ Section def_kernels.
     ∑ D : (∑ x : ob C, x --> y),
           ∑ (e : (pr2 D) · g = ZeroArrow Z (pr1 D) z), isKernel (pr2 D) g e.
 
-  Definition mk_Kernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = (ZeroArrow Z x z))
+  Definition mk_Kernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = ZeroArrow Z x z)
              (isE : isKernel f g H) : Kernel g := ((x,,f),,(H,,isE)).
 
   Definition Kernels : UU := ∏ (y z : C) (g : y --> z), Kernel g.
