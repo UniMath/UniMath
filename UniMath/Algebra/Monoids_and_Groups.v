@@ -1917,18 +1917,16 @@ Definition subgrtosubmonoid (X : gr) : subgr X -> submonoid X :=
   λ A : _, submonoidpair (pr1 A) (pr1 (pr2 A)).
 Coercion subgrtosubmonoid : subgr >-> submonoid.
 
-Definition totalsubgr (X : gr) : @subgr X.
+Definition totalsubgr (X : gr) : subgr X.
 Proof.
-  intro X.
   split with (@totalsubtype X).
   split.
   - exact (pr2 (totalsubmonoid X)).
   - exact (fun _ _ => tt).
 Defined.
 
-Definition trivialsubgr (X : gr) : @subgr X.
+Definition trivialsubgr (X : gr) : subgr X.
 Proof.
-  intro X.
   exists (λ x, x = @unel X)%set.
   split.
   - exact (pr2 (@trivialsubmonoid X)).
@@ -2295,8 +2293,8 @@ Proof.
       * exact (@op A (pr1 ae) (pr1 a'e)).
       * use (pathscomp0 (binopfunisbinopfun f (pr1 ae) (pr1 a'e))).
         use two_arg_paths.
-        -- exact (pr2 ae).
-        -- exact (pr2 a'e).
+          exact (pr2 ae).
+          exact (pr2 a'e).
     + use hinhpr. use tpair.
       * exact (unel A).
       * exact (monoidfununel f).
