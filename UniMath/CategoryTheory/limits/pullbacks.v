@@ -37,7 +37,7 @@ Context {C : precategory} (hsC : has_homsets C).
 Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
         (p1 : d --> b) (p2 : d --> c) (H : p1 · f = p2· g) : UU :=
    ∏ e (h : e --> b) (k : e --> c)(H : h · f = k · g ),
-      iscontr (total2 (fun hk : e --> d => dirprod (hk · p1 = h)(hk · p2 = k))).
+      ∃! hk : e --> d, (hk · p1 = h) × (hk · p2 = k).
 
 Lemma isaprop_isPullback {a b c d : C} (f : b --> a) (g : c --> a)
         (p1 : d --> b) (p2 : d --> c) (H : p1 · f = p2 · g) :
@@ -61,17 +61,16 @@ Proof.
   exact (base_paths _ _ T').
 Qed.
 
-Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
-     total2 (fun pfg : total2 (λ p : C, (p --> b) × (p --> c)) =>
-         total2 (fun H : pr1 (pr2 pfg) · f = pr2 (pr2 pfg) · g =>
-        isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
+Definition Pullback {a b c : C} (f : b --> a) (g : c --> a) :=
+     ∑ pfg : (∑ p : C, (p --> b) × (p --> c)),
+       ∑ (H : pr1 (pr2 pfg) · f = pr2 (pr2 pfg) · g),
+         isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H.
 
-Definition Pullbacks := ∏ (a b c : C)(f : b --> a)(g : c --> a),
-       Pullback f g.
+Definition Pullbacks : UU :=
+  ∏ (a b c : C) (f : b --> a) (g : c --> a), Pullback f g.
 
-Definition hasPullbacks := ∏ (a b c : C) (f : b --> a) (g : c --> a),
-         ishinh (Pullback f g).
-
+Definition hasPullbacks : UU :=
+  ∏ (a b c : C) (f : b --> a) (g : c --> a), ishinh (Pullback f g).
 
 Definition PullbackObject {a b c : C} {f : b --> a} {g : c --> a}:
    Pullback f g -> C := λ H, pr1 (pr1 H).
@@ -142,8 +141,7 @@ Defined.
 Definition mk_isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
            (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 · f = p2· g) :
   (∏ e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h · f = k · g ),
-      iscontr (total2 (fun hk : C⟦e,d⟧ => dirprod (hk · p1 = h)(hk · p2 = k))))
-  →
+   ∃! hk : C⟦e,d⟧, (hk · p1 = h) × (hk · p2 = k)) →
   isPullback f g p1 p2 H.
 Proof.
   intros H' x cx k sqr.
@@ -191,8 +189,8 @@ Qed.
 
 
 Definition identity_is_Pullback_input {a b c : C}{f : b --> a} {g : c --> a} (Pb : Pullback f g) :
- total2 (fun hk : Pb --> Pb =>
-   dirprod (hk · PullbackPr1 Pb = PullbackPr1 Pb)(hk · PullbackPr2 Pb = PullbackPr2 Pb)).
+  ∑ hk : Pb --> Pb,
+   (hk · PullbackPr1 Pb = PullbackPr1 Pb) × (hk · PullbackPr2 Pb = PullbackPr2 Pb).
 Proof.
   exists (identity Pb).
   apply dirprodpair; apply id_left.
@@ -410,7 +408,7 @@ Section pb_criteria.
   Hypothesis hs : has_homsets C.
 
   Definition Pullback_from_Equalizer_BinProduct_eq (X Y Z : C)
-             (f : X --> Z) (g : Y --> Z) (BinProd : BinProductCone C X Y)
+             (f : X --> Z) (g : Y --> Z) (BinProd : BinProduct C X Y)
              (Eq : Equalizer ((BinProductPr1 C BinProd) · f)
                              ((BinProductPr2 C BinProd) · g)) :
     EqualizerArrow Eq · (BinProductPr1 C BinProd) · f
@@ -420,7 +418,7 @@ Section pb_criteria.
   Qed.
 
   Definition Pullback_from_Equalizer_BinProduct_isPullback (X Y Z : C)
-             (f : X --> Z) (g : Y --> Z) (BinProd : BinProductCone C X Y)
+             (f : X --> Z) (g : Y --> Z) (BinProd : BinProduct C X Y)
              (Eq : Equalizer ((BinProductPr1 C BinProd) · f)
                              ((BinProductPr2 C BinProd) · g)) :
     isPullback f g (EqualizerArrow Eq · BinProductPr1 C BinProd)
@@ -459,7 +457,7 @@ Section pb_criteria.
   Qed.
 
   Definition Pullback_from_Equalizer_BinProduct (X Y Z : C)
-             (f : X --> Z) (g : Y --> Z) (BinProd : BinProductCone C X Y)
+             (f : X --> Z) (g : Y --> Z) (BinProd : BinProduct C X Y)
              (Eq : Equalizer ((BinProductPr1 C BinProd) · f)
                              ((BinProductPr2 C BinProd) · g)) :
     Pullback f g.
@@ -985,22 +983,21 @@ Section binproduct_from_pullback.
 Context {C : precategory} (Pb : Pullbacks C) (T : Terminal C).
 
 Definition UnivProductFromPullback (c d a : C) (f : a --> c) (g : a --> d):
-total2
-     (fun fg : a --> Pb T c d (TerminalArrow c) (TerminalArrow d) =>
-      dirprod (fg· PullbackPr1 (Pb T c d (TerminalArrow c) (TerminalArrow d)) = f)
-        (fg· PullbackPr2 (Pb T c d (TerminalArrow c) (TerminalArrow d)) = g)).
+  ∑ fg : a --> Pb T c d (TerminalArrow T c) (TerminalArrow T d),
+      (fg· PullbackPr1 (Pb T c d (TerminalArrow T c) (TerminalArrow T d)) = f)
+    × (fg· PullbackPr2 (Pb T c d (TerminalArrow T c) (TerminalArrow T d)) = g).
 Proof.
   unfold Pullbacks in Pb.
-  exists (PullbackArrow (Pb _ _ _ (TerminalArrow c)(TerminalArrow d)) _ f g
-       (ArrowsToTerminal _ _ _ _ _)).
+  exists (PullbackArrow (Pb _ _ _ (TerminalArrow _ c)(TerminalArrow _ d)) _ f g
+       (TerminalArrowEq _ _)).
   split.
   apply PullbackArrow_PullbackPr1 .
   apply PullbackArrow_PullbackPr2 .
 Defined.
 
-Lemma isBinProductCone_PullbackCone (c d : C):
-   isBinProductCone C c d
-            (PullbackObject (Pb _ _ _ (TerminalArrow c) (TerminalArrow (T:=T) d)))
+Lemma isBinProduct_Pullback (c d : C):
+   isBinProduct C c d
+            (PullbackObject (Pb _ _ _ (TerminalArrow T c) (TerminalArrow T d)))
    (PullbackPr1 _  ) (PullbackPr2 _ ).
 Proof.
   intros a f g.
@@ -1009,18 +1006,18 @@ Proof.
   apply proofirrelevance,
         isapropifcontr,
         isPullback_Pullback,
-        ArrowsToTerminal.
+        TerminalArrowEq.
 Qed.
 
-Definition BinProductCone_PullbackCone (c d : C) : BinProductCone _ c d.
+Definition BinProduct_Pullback (c d : C) : BinProduct _ c d.
 Proof.
   exists
-  (tpair _ (PullbackObject (Pb _ _ _ (TerminalArrow c)(TerminalArrow (T:=T) d)))
+  (tpair _ (PullbackObject (Pb _ _ _ (TerminalArrow T c) (TerminalArrow T d)))
                (dirprodpair  (PullbackPr1 _) (PullbackPr2 _))).
- exact (isBinProductCone_PullbackCone c d).
+ exact (isBinProduct_Pullback c d).
 Defined.
 
-Definition BinProductsFromPullbacks : BinProducts C := BinProductCone_PullbackCone.
+Definition BinProductsFromPullbacks : BinProducts C := BinProduct_Pullback.
 
 End binproduct_from_pullback.
 
