@@ -59,6 +59,7 @@ Unset Kernel Term Sharing.
 
 Require Export UniMath.Algebra.BinaryOperations.
 Require Import UniMath.MoreFoundations.Subtypes.
+Require Import UniMath.MoreFoundations.Tactics.
 
 (** To upstream files *)
 
@@ -137,7 +138,7 @@ Definition ismonoidfununel {X Y : monoid} {f : X -> Y} (H : ismonoidfun f) : f (
 
 Lemma isapropismonoidfun {X Y : monoid} (f : X -> Y) : isaprop (ismonoidfun f).
 Proof.
-  intros. apply isofhleveldirprod.
+  intros. unfold ismonoidfun. hleveltac.
   - apply isapropisbinopfun.
   - apply (setproperty Y).
 Defined.
@@ -168,7 +169,7 @@ Lemma isasetmonoidfun (X Y : monoid) : isaset (monoidfun X Y).
 Proof.
   intros. apply (isasetsubset (pr1monoidfun X Y)).
   - change (isofhlevel 2 (X -> Y)).
-    apply impred. intro.
+    hleveltac.
     apply (setproperty Y).
   - refine (isinclpr1 _ _). intro.
     apply isapropismonoidfun.
@@ -377,9 +378,9 @@ Definition issubmonoidpair {X : monoid} {A : hsubtype X} (H1 : issubsetwithbinop
 Lemma isapropissubmonoid {X : monoid} (A : hsubtype X) :
   isaprop (issubmonoid A).
 Proof.
-  intros. apply (isofhleveldirprod 1).
+  intros. unfold issubmonoid. hleveltac.
   - apply isapropissubsetwithbinop.
-  - apply (pr2 (A (unel X))).
+  - apply (propproperty (A (unel X))).
 Defined.
 
 Definition submonoid {X : monoid} : UU := total2 (λ A : hsubtype X, issubmonoid A).
@@ -1360,9 +1361,7 @@ Proof.
                                   neg (abmonoidfracrel X A is x2 x1) ->
                                   x1 = x2)).
   {
-    intros x1 x2.
-    apply impred. intro.
-    apply impred. intro.
+    hleveltac.
     apply (isasetsetquot _ x1 x2).
   }
   unfold isantisymmneg.
@@ -1390,9 +1389,7 @@ Proof.
                                   (abmonoidfracrel X A is x2 x1) ->
                                   x1 = x2)).
   {
-    intros x1 x2.
-    apply impred. intro.
-    apply impred. intro.
+    hleveltac.
     apply (isasetsetquot _ x1 x2).
   }
   apply (setquotuniv2prop _ (λ x1 x2, hProppair _ (int x1 x2))).
@@ -1479,8 +1476,7 @@ Proof.
                                    X A is (prabmonoidfrac X A (pr1 aa) aa' + z)
                                    (prabmonoidfrac X A (pr1 aa) aa' + z'))).
   {
-    intros z z'.
-    apply impred. intro.
+    hleveltac.
     apply (pr2 (abmonoidfracrel _ _ _ _ _)).
   }
   apply (setquotuniv2prop _ (λ z z', hProppair _ (int z z'))).
@@ -1519,8 +1515,7 @@ Proof.
                                          (z + (prabmonoidfrac X A (pr1 aa) aa'))
                                          (z' + prabmonoidfrac X A (pr1 aa) aa'))).
   {
-    intros z z'.
-    apply impred. intro.
+    hleveltac.
     apply (pr2 (abmonoidfracrel _ _ _ _ _)).
   }
   apply (setquotuniv2prop _ (λ z z', hProppair _ (int z z'))).
@@ -1914,11 +1909,11 @@ Definition issubgrpair {X : gr} {A : hsubtype X} (H1 : issubmonoid A)
 
 Lemma isapropissubgr {X : gr} (A : hsubtype X) : isaprop (issubgr A).
 Proof.
-  intros. apply (isofhleveldirprod 1).
+  unfold issubgr.
+  hleveltac.
   - apply isapropissubmonoid.
-  - apply impred. intro x.
-    apply impred. intro a.
-    apply (pr2 (A (grinv X x))).
+  - hleveltac.
+    apply (propproperty (A (grinv X _))).
 Defined.
 
 Definition subgr {X : gr} : UU := total2 (λ A : hsubtype X, issubgr A).
@@ -2496,9 +2491,8 @@ Proof.
   intros X L is x1 x2. split.
   - assert (int : ∏ x x', isaprop (abgrdiffrel' X is x x' -> abgrdiffrel X is x x')).
     {
-      intros x x'.
-      apply impred. intro.
-      apply (pr2 _).
+      hleveltac.
+      apply (propproperty _).
     }
     generalize x1 x2. clear x1 x2.
     apply (setquotuniv2prop _ (λ x x', hProppair _ (int x x'))).
@@ -2506,9 +2500,8 @@ Proof.
     change ((abgrdiffrelint' X L x x')  -> (abgrdiffrelint _ L x x')).
     apply (pr1 (logeqabgrdiffrelints X L x x')).
   - assert (int : ∏ x x', isaprop (abgrdiffrel X is x x' -> abgrdiffrel' X is x x')).
-    intros x x'.
-    apply impred. intro.
-    apply (pr2 _).
+    hleveltac.
+    apply (propproperty _).
     generalize x1 x2. clear x1 x2.
     apply (setquotuniv2prop _ (λ x x', hProppair _ (int x x'))).
     intros x x'.

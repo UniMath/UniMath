@@ -5,6 +5,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 Require Import UniMath.Algebra.Rigs_and_Rings.
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.Tactics.
 
 (** ** Contents
 - Definitions
@@ -60,6 +61,7 @@ Lemma isaproparecompatibleactions
       {R S G} (mr : module_struct R G) (ms : module_struct S G) :
   isaprop (arecompatibleactions mr ms).
 Proof.
+  hleveltac.
   apply (impredtwice 1); intros r s.
 
   (* We'll prove that all the homotopies are identical *)
@@ -69,7 +71,8 @@ Proof.
   apply invweq.
   apply weqfunextsec.
 
-  apply (impred 1); intros x.
+  unfold homot.
+  hleveltac.
   apply (pr2 (pr1 (pr1 G))).
 Defined.
 
@@ -77,8 +80,8 @@ Lemma isapropmultimodule_struct {I : UU} {rngs : I -> rng} {G : abgr}
                                 (structs : ∏ i : I, module_struct (rngs i) G) :
   isaprop (multimodule_struct structs).
 Proof.
-  apply (impredtwice 1); intros i1 i2.
-  apply impredfun.
+  unfold multimodule_struct.
+  hleveltac.
   apply isaproparecompatibleactions.
 Defined.
 
@@ -127,10 +130,12 @@ Definition ismultimodulefun {I : UU} {rngs : I -> rng}
 Lemma isapropismultimodulefun {I : UU} {rngs : I -> rng}
       {MM NN : multimodule rngs} (f : MM -> NN) : isaprop (ismultimodulefun f).
 Proof.
-  refine (@isofhleveldirprod 1 (isbinopfun f) (ismultilinear f)
-                             (isapropisbinopfun f) _).
-  do 3 (apply (impred 1 _); intros ?).
-  apply setproperty.
+  unfold ismultimodulefun.
+  hleveltac.
+  - exact (isapropisbinopfun f).
+  - unfold ismultilinear, islinear.
+    hleveltac.
+    apply setproperty.
 Defined.
 
 Definition multimodulefun {I : UU} {rngs : I -> rng}

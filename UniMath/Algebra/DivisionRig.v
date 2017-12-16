@@ -26,12 +26,8 @@ Definition isDivRig (X : rig) : UU :=
 
 Lemma isaprop_isDivRig (X : rig) : isaprop (isDivRig X).
 Proof.
-  intro X.
-  apply isofhleveldirprod.
-  - now apply isapropneg.
-  - apply impred_isaprop ; intro.
-    apply isapropimpl.
-    now apply isapropinvpair.
+  hleveltac.
+  now apply isapropinvpair.
 Qed.
 
 Definition isDivRig_zero {X : rig} (is : isDivRig X) : X := 0%rig.

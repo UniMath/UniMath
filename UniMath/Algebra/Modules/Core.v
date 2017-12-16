@@ -7,6 +7,7 @@ Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.Algebra.Domains_and_Fields.
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.MoreFoundations.Tactics.
 
 (** ** Contents
 - The ring of endomorphisms of an abelian group
@@ -420,8 +421,13 @@ Definition pr1linearfun {R : rng} {M N : module R} (f : linearfun M N) : M -> N 
 
 Coercion pr1linearfun : linearfun >-> Funclass.
 
-Lemma islinearfuncomp {R : rng} {M N P : module R} (f : linearfun M N) (g : linearfun N P) :
-  islinear (funcomp (pr1 f) (pr1 g)).
+Lemma isapropislinear {R : rng} {M N : module R} (f : M -> N) : isaprop (islinear f).
+  unfold islinear.
+  hleveltac.
+  apply (setproperty N).
+Defined.
+
+Definition islinearfuncomp {R : rng} {M N P : module R} (f : linearfun M N) (g : linearfun N P) : islinear (funcomp (pr1 f) (pr1 g)).
 Proof.
   intros r x.
   unfold funcomp.
@@ -438,11 +444,10 @@ Definition ismodulefun {R : rng} {M N : module R} (f : M -> N) : UU :=
 
 Lemma isapropismodulefun {R : rng} {M N : module R} (f : M -> N) : isaprop (ismodulefun f).
 Proof.
-   refine (@isofhleveldirprod 1 (isbinopfun f) (islinear f) _ _).
-   exact (isapropisbinopfun f).
-   apply (impred 1 _). intro r.
-   apply (impred 1 _). intro x.
-   apply (setproperty N).
+  unfold ismodulefun.
+  hleveltac.
+  - exact (isapropisbinopfun f).
+  - exact (isapropislinear f).
 Defined.
 
 Definition modulefun {R : rng} (M N : module R) : UU := ∑ f : M -> N, ismodulefun f.
