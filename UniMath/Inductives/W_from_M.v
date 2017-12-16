@@ -8,6 +8,41 @@ Unset Kernel Term Sharing.
 Require Export UniMath.Inductives.addresses.
 Require Export UniMath.MoreFoundations.All.
 
+(* Lemmas that should be elsewhere *)
+
+Definition impred_iscontr_computational :
+  ∏ (T : UU) (P : T → UU), (∏ t : T, iscontr (P t)) ->
+    iscontr (∏ t : T, P t).
+Proof.
+  intros T P sc.
+  exists (fun t => iscontrpr1 (sc t)).
+  intros sec.
+  use funextsec.
+  intros t.
+  apply proofirrelevancecontr.
+  exact (sc t).
+Defined.
+
+Lemma funextfun_id (X Y : UU) (f : X -> Y) :
+  funextfun _ _ (fun x : X => idpath (f x) ) = idpath _ .
+Proof.
+  intros.
+  apply (invmaponpathsweq ( (weqtoforallpaths _ _ _ ))).
+  cbn.
+  etrans.
+  apply (homotweqinvweq (weqtoforallpaths _ _ _)).
+  apply idpath.
+Defined.
+
+
+  Definition moveR_Mp {X : UU} {a b c : X} (p : a = b) (q : a = c) (r : b = c) :
+    q = p @ r -> !p @ q = r.
+  Proof.
+    intros.
+    induction p. induction q. exact X0.
+  Defined.
+
+
 
 
 Section Wtypes.
@@ -93,7 +128,7 @@ Section Wtypes.
     apply impred.
     intro.
     apply isprop_isWf.
-  Defined.
+  Qed.
 
   Definition Pp (m : M) : hProp.
   Proof.
@@ -156,7 +191,6 @@ Section Wtypes.
           + intros. intros ? ?. reflexivity.
       - intros pair. destruct pair. simpl. reflexivity.
   Defined.
-
 
   Definition equiv_arg_recursor (w : W) :
                LHom w ≃ ∏ b : B (label w), LHom (arg w b).
@@ -232,9 +266,10 @@ Section Wtypes.
     apply (wf iscontrforanywf).
     intros a0 f0 IH.
     intro wf'.
-    apply (iscontrweqb (equiv_arg_recursor _)). apply impred_iscontr.
+    apply (iscontrweqb (equiv_arg_recursor _)). apply impred_iscontr_computational.
     intros b. apply IH.
   Defined.
+
 
   Definition local_recursor (w : W) :=
     iscontrpr1 (iscontr_LHom w).
@@ -275,26 +310,6 @@ Section Wtypes.
     use proofirrelevancecontr.
     apply iscontr_LHom.
   Defined.
-
-
-  Definition moveR_Mp {X : UU} {a b c : X} (p : a = b) (q : a = c) (r : b = c) :
-    q = p @ r -> !p @ q = r.
-  Proof.
-    intros.
-    induction p. induction q. exact X0.
-  Defined.
-
-  Lemma funextfun_id (X Y : UU) (f : X -> Y) :
-    funextfun _ _ (fun x : X => idpath (f x) ) = idpath _ .
-  Proof.
-    intros.
-    apply (invmaponpathsweq ( (weqtoforallpaths _ _ _ ))).
-    cbn.
-    etrans.
-    apply (homotweqinvweq (weqtoforallpaths _ _ _)).
-    apply idpath.
-  Defined.
-
 
   Definition WHom'_to_LHoml_is_sect (h : WHom') :
     LHom_to_WHom' (WHom'_to_LHom h) = h.
@@ -342,7 +357,7 @@ Section Wtypes.
     exact LHom_to_WHom'.
     exact WHom'_to_LHom.
     exact WHom'_to_LHoml_is_sect.
-    use impred_iscontr.
+    use impred_iscontr_computational.
     intro t. apply iscontr_LHom.
   Defined.
 
@@ -364,23 +379,19 @@ Section Wtypes.
     simpl. reflexivity.
   Defined.
 
-  Definition W_equiv_FW : W ≃ (polynomial_functor A B).0 W.
+  Definition FW_equiv_W : (polynomial_functor A B).0 W ≃ W.
   Proof.
     use weqgradth.
-      - intros w. exact (label w ,, arg w).
       - exact W_is_algebra.
+      - exact (fun w => (label w ,, arg w)).
+      - intro af. use total2_paths_f.
+          + reflexivity.
+          + rewrite idpath_transportf. apply sup_and_arg.
       - simpl. intro w. unfold W_is_algebra. simpl.
         apply subtypeEquality. intro. apply isprop_isWf.
         destruct w. simpl. destruct pr1. reflexivity.
-      - intro af. destruct af as [a f]. unfold W_is_algebra.
-        use total2_paths_f.
-          + reflexivity.
-          + rewrite idpath_transportf.
-            apply sup_and_arg.
   Defined.
 
-
-  (*
   Definition WHom_equiv_to_WHom' : WHom' ≃ algebra_morphism W_as_algebra (C ,, sC).
   Proof.
     unfold WHom'.
@@ -388,42 +399,96 @@ Section Wtypes.
     simpl. unfold polynomial_functor_on_types.
     intro.
     eapply weqcomp.
-    apply (weqonsecbase _ _ W_equiv_FW).
-    Print weqonsecbase.
-
-
-
-
-    use weqgradth.
-      - intros H w. destruct w as [a f]. set (test := H (sup a f)).
-        unfold W_is_algebra. unfold polynomial_functor_on_maps.
-        rewrite H. rewrite sup_and_arg. reflexivity.
-      - intros H w. destruct w as [m iswf]. destruct m. destruct t as [a f].
-        unfold W_is_algebra in H.
-        transparent assert (fw : (∑ a : A, B a → W)).
-        { exists a.
-          intro b. exists (f b).
-          apply (wf_then_subtr_wf (supM (a,, f)) iswf). }
-        transparent assert (coh : (supM (a,, f),, iswf = sup (pr1 fw) (pr2 fw))).
-        { use maponpaths. apply isprop_isWf. }
-        rewrite !coh. clear coh.
-        rewrite (H fw).
-        unfold polynomial_functor_on_maps. destruct fw.
-        rewrite sup_and_arg.
-        reflexivity.
-      - simpl.
-
-
-        set (test := H (a ,,
-        unfold sup in H. simpl in H.
-
-        set (W_is_algebra (
-        simpl.
-        rewrite (H (a,, f)).
+    exact (weqonsecbase _ FW_equiv_W).
+    apply weqonsecfibers.
+    intros af.
+    destruct af as [a f].
+    simpl.
+    unfold polynomial_functor_on_maps.
+    unfold step.
+    change (
+    x (W_is_algebra (a,, f)) = sC (a,, x ∘ arg (sup a f))
+  ≃ x (W_is_algebra (a,, f)) = sC (a,, x ∘ f)).
+    rewrite sup_and_arg.
+    apply idweq.
   Defined.
 
+  Definition iscontr_WHom : iscontr (algebra_morphism W_as_algebra (C ,, sC)).
+  Proof.
+    apply (iscontrweqf WHom_equiv_to_WHom').
+    exact iscontr_WHom'.
+  Defined.
 
-  Definition arg_and_sup p : sup (arg p) = pr2 p.
-  *)
+End Wtypes.
+
+
+Definition W_is_initial_algebra (A : UU) (B : A -> UU) :
+             is_initial (@W_as_algebra A B).
+Proof.
+  intros.
+  intro C.
+  exact (iscontr_WHom (pr1 C) (pr2 C)).
+Defined.
+
+
+
+(* Testig computability *)
+
+  (*
+Definition B : bool -> UU.
+Proof.
+  intro tf.
+  induction tf.
+  exact unit.
+  exact empty.
+Defined.
+
+Definition nat' := @W bool B.
+Definition zero' : nat' := sup false fromempty.
+
+Definition computes_zero : ((pr1 (iscontrpr1 (iscontr_WHom' nat' (@W_is_algebra bool B)))) zero') = zero'.
+Proof.
+  unfold iscontr_WHom'.
+  unfold iscontrretract.
+  unfold iscontrpr1.
+  unfold pr1.
+  unfold impred_iscontr_computational.
+  unfold LHom_to_WHom'.
+  unfold iscontrpr1.
+  unfold pr1.
+  unfold zero'.
+  unfold sup.
+  unfold iscontr_LHom.
+  unfold iscontrweqb.
+  unfold iscontrretract.
+  unfold impred_iscontr_computational.
+  unfold iscontrpr1.
+  unfold invmap.
+  unfold hfiberpr1.
+  unfold weqccontrhfiber.
+  unfold weqproperty.
+  unfold pr1.
+  unfold pr2.
+  unfold iscontrpr1.
+  unfold equiv_arg_recursor.
+  Print iscontrweqb.
+
+Definition nat_is_algebra :
+             algebra_structure (polynomial_functor bool B) nat.
+Proof.
+  intro.
+
+  Variable (a : A) (f : B a -> W).
+
+  Definition XX : ((pr1 (iscontrpr1 (iscontr_WHom'))) (sup a f)) = ((pr1 (iscontrpr1 (iscontr_WHom'))) (sup a f)).
+  Proof.
+    cbn.
+    destruct w as [m iswf].
+    destruct m.
+    destruct t as [a f].
+    unfold impred_iscontr_computational. unfold iscontrpr1. simpl. unfold funcontr.
+    unfold iscontr_LHom. simpl.
+*)
+
 
 End Wtypes.
