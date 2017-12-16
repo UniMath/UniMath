@@ -104,7 +104,7 @@ Proof.
   split.
   apply abgr_Kernel_subabgr_issubgr.
   intros r x. apply hinhfun. cbn. intro p.
-  now rewrite (modulefun_to_islinear f), p, module_mult_1.
+  now rewrite (modulefun_to_islinear f), <- (module_mult_1 r), <- p.
 Defined.
 
 Definition module_kernel {R : rng} {A B : module R} (f : modulefun A B) : submodule A :=
@@ -113,7 +113,7 @@ Definition module_kernel {R : rng} {A B : module R} (f : modulefun A B) : submod
 Lemma module_kernel_eq {R : rng} {A B : module R} (f : modulefun A B) x :
   f (submodule_incl (module_kernel f) x) = unel B.
 Proof.
-  unshelve refine (@hinhuniv _ (tpair _ _ _) _ (pr2 x)).
+   use (squash_to_prop (pr2 x)).
   - apply isasetmodule.
   - apply idfun.
 Defined.
