@@ -489,6 +489,3 @@ Proof.
     unfold impred_iscontr_computational. unfold iscontrpr1. simpl. unfold funcontr.
     unfold iscontr_LHom. simpl.
 *)
-
-
-End Wtypes.
