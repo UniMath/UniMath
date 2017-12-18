@@ -118,7 +118,7 @@ Defined.
 
 (** Equivalence between isomorphisms and moduleiso in Mod R *)
 
-Lemma iso_isweq {M N : ob mod_precategory} (f : iso M N) :
+Lemma moduleiso_isweq {M N : ob mod_precategory} (f : iso M N) :
   isweq (pr1modulefun (morphism_from_iso _ _ _ f)).
 Proof.
    use (iso_isweq (pr1modulefun (morphism_from_iso _ _ _ f))).
@@ -139,7 +139,7 @@ Proof.
    use mk_moduleiso.
    - use weqpair.
      + exact (pr1modulefun (morphism_from_iso _ _ _ f)).
-     + exact (iso_isweq f).
+     + exact (moduleiso_isweq f).
    - exact (modulefun_ismodulefun (morphism_from_iso _ _ _ f)).
 Defined.
 
