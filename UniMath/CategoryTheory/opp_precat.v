@@ -34,14 +34,18 @@ Definition opp_precat_data (C : precategory_data) : precategory_data :=
   tpair _ _ (tpair _ (λ c : opp_precat_ob_mor C, identity c)
                      (λ (a b c : opp_precat_ob_mor C) f g, g · f)).
 
+(** We don't use mk_precategory here because it automatically dualizes the proof
+    of associativity. Instead, we want to actually swap the proofs to get
+    judgemental equality.
+ *)
 Lemma is_precat_opp_precat_data (C : precategory) : is_precategory (opp_precat_data C).
 Proof.
-repeat split; intros; unfold compose; simpl.
-- apply id_right.
-- apply id_left.
-- apply pathsinv0.              (* this prevents C^op^op and C being the same, judgmentally *)
-  apply assoc.
-Qed.
+  repeat split.
+  - exact (fun _ _ => pr2 (pr1 (pr1 (pr2 C))) _ _).
+  - exact (fun _ _ => pr1 (pr1 (pr1 (pr2 C))) _ _).
+  - exact (fun _ _ _ _ _ _ _ => pr2 (pr2 C) _ _ _ _ _ _ _).
+  - exact (fun _ _ _ _ _ _ _ => pr2 (pr1 (pr2 C)) _ _ _ _ _ _ _).
+Defined.
 
 Definition opp_precat (C : precategory) : precategory :=
   tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).
@@ -77,11 +81,7 @@ Defined.
 
 Lemma opp_opp_precat (C : precategory) (hs : has_homsets C) : C = C^op^op.
 Proof.
-
-
-  use total2_paths_f.
-  - apply opp_opp_precat_data.
-  - apply (isaprop_is_precategory _ hs).
+  exact (idpath _).
 Qed.
 
 Definition opp_is_iso {C : precategory} {a b : C} (f : a --> b) :

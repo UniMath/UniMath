@@ -885,20 +885,15 @@ Lemma is_precategory_functor_precategory_data
   (C:precategory_data)(C' : precategory) (hs: has_homsets C'):
    is_precategory (functor_precategory_data C C').
 Proof.
-  repeat split; simpl; intros.
-  unfold identity.
-  simpl.
-  apply nat_trans_eq. apply hs.
-  intro x; simpl.
-  apply id_left.
-
-  apply nat_trans_eq. apply hs.
-  intro x; simpl.
-  apply id_right.
-
-  apply nat_trans_eq. apply hs.
-  intro x; simpl.
-  apply assoc.
+  apply mk_is_precategory;
+    intros;
+    apply nat_trans_eq;
+    try (exact hs);
+    intro x;
+    cbn.
+  - apply id_left.
+  - apply id_right.
+  - apply assoc.
 Qed.
 
 Definition functor_precategory (C : precategory_data) (C' : precategory)

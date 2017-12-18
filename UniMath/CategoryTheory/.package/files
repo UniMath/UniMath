@@ -1,15 +1,15 @@
 total2_paths.v
 Categories.v
 functor_categories.v
-Monads/RelativeMonads.v
 opp_precat.v
+sub_precategories.v
+Monads/RelativeMonads.v
 PrecategoryBinProduct.v
 ProductCategory.v
 whiskering.v
 Adjunctions.v
 equivalences.v
 equivalences_lemmas.v
-sub_precategories.v
 Monics.v
 Epis.v
 CategoriesWithBinOps.v
