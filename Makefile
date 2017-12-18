@@ -179,7 +179,7 @@ sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 rebuild-coq sub/coq/bin/coq_makefile sub/coq/bin/coqc:
 	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqbinaries tools states
 sub/coq/bin/coqide: sub/coq/config/coq_config.ml
-	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
+	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-files bin/coqide
 configure-coq: sub/coq/config/coq_config.ml
 git-describe:
 	git describe --dirty --long --always --abbrev=40
