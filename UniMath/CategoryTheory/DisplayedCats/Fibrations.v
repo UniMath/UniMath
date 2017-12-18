@@ -127,7 +127,7 @@ Definition cartesian_factorisation' {C : category} {D : disp_cat C}
     (e : (g · f = h))
   : d'' -->[g] d'.
 Proof.
-  simple refine (cartesian_factorisation H g _).
+  use (cartesian_factorisation H g).
   exact (transportb _ e hh).
 Defined.
 
@@ -201,9 +201,9 @@ Lemma is_iso_from_is_cartesian {C : category} {D : disp_cat C}
   : is_cartesian ff -> is_iso_disp i ff.
 Proof.
   intros Hff.
-  simple refine (_,,_); try split.
-  - simple refine
-      (cartesian_factorisation' Hff (inv_from_iso i) (id_disp _) _).
+  use (_,,_); try split.
+  - use
+      (cartesian_factorisation' Hff (inv_from_iso i) (id_disp _)).
     apply iso_after_iso_inv.
   - apply cartesian_factorisation_commutes'.
   - apply (cartesian_factorisation_unique Hff).
@@ -235,7 +235,7 @@ Definition cartesian_lifts_iso {C : category} {D : disp_cat C}
     {c} {d : D c} {c' : C} {f : c' --> c} (fd fd' : cartesian_lift d f)
   : iso_disp (identity_iso c') fd fd'.
 Proof.
-  simple refine (_,,(_,,_)).
+  use (_,,(_,,_)).
   - exact (cartesian_factorisation' fd' (identity _) fd (id_left _)).
   - exact (cartesian_factorisation' fd (identity _) fd' (id_left _)).
   - cbn; split.
@@ -285,14 +285,14 @@ Proof.
   { intros ff. repeat (apply impred; intro).
     apply isapropiscontr. }
   etrans.
-    refine (@functtransportf_2 (D c') _ _ (λ x, pr1) _ _ _ _).
+    use (@functtransportf_2 (D c') _ _ (λ x, pr1)).
   cbn. etrans. apply transportf_precompose_disp.
   rewrite idtoiso_isotoid_disp.
-  refine (pathscomp0 (maponpaths _ _) (transportfbinv _ _ _)).
+  use (pathscomp0 (maponpaths _ _) (transportfbinv _ _ _)).
   apply (precomp_with_iso_disp_is_inj (cartesian_lifts_iso fd fd')).
   etrans. apply assoc_disp.
   etrans. eapply transportf_bind, cancel_postcomposition_disp.
-    refine (inv_mor_after_iso_disp _).
+    use inv_mor_after_iso_disp.
   etrans. eapply transportf_bind, id_left_disp.
   apply pathsinv0.
   etrans. apply mor_disp_transportf_prewhisker.

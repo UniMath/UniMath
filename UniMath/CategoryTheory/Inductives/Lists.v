@@ -32,8 +32,6 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Local Open Scope cat.
 
-Local Open Scope cat.
-
 (** * Lists as the colimit of a chain given by the list functor: F(X) = 1 + A * X *)
 Section lists.
 
@@ -164,7 +162,7 @@ Definition pr1foldr_algmor : algebra_mor _ List_alg List_alg :=
 
 Lemma pr1foldr_algmor_identity : identity _ = pr1foldr_algmor.
 Proof.
-now rewrite <- (InitialEndo_is_identity _ listFunctor_Initial pr1foldr_algmor).
+now rewrite (@InitialEndo_is_identity _ listFunctor_Initial pr1foldr_algmor).
 Qed.
 
 (** The induction principle for lists *)
@@ -362,15 +360,15 @@ Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := λ x y, f y x.
 Lemma omega_cocontConstProdFunctor : is_omega_cocont constprod_functor.
 Proof.
 intros hF c L ccL HcL cc.
-simple refine (tpair _ _ _).
+use tpair.
 - transparent assert (HX : (cocone hF (hset_fun_space x HcL))).
-  { simple refine (mk_cocone _ _).
+  {  use mk_cocone.
     * simpl; intro n; apply flip, curry, (pr1 cc).
     * abstract (destruct cc as [f hf]; simpl; intros m n e;
                 rewrite <- (hf m n e); destruct e; simpl;
                 repeat (apply funextfun; intro); apply idpath).
   }
-  simple refine (tpair _ _ _).
+  use tpair.
   + simpl; apply uncurry, flip.
     apply (colimArrow (mk_ColimCocone _ _ _ ccL) (hset_fun_space x HcL)).
     apply HX.
@@ -384,12 +382,12 @@ simple refine (tpair _ _ _).
 - abstract (
   intro p; unfold uncurry; simpl; apply subtypeEquality; simpl;
   [ intro g; apply impred; intro t;
-    simple refine (let ff : HSET ⟦(x × dob hF t)%set,HcL⟧ := _ in _);
+    use (let ff : HSET ⟦(x × dob hF t)%set,HcL⟧ := _ in _);
     [ simpl; apply (pr1 cc)
     | apply (@has_homsets_HSET _ HcL _ ff) ]
   | destruct p as [t p]; simpl;
     apply funextfun; intro xc; destruct xc as [x' c']; simpl;
-    simple refine (let g : HSET⟦colim (mk_ColimCocone hF c L ccL),
+    use (let g : HSET⟦colim (mk_ColimCocone hF c L ccL),
                                 hset_fun_space x HcL⟧ := _ in _);
     [ simpl; apply flip, curry, t
     | rewrite <- (colimArrowUnique _ _ _ g); [apply idpath | ];
@@ -412,12 +410,12 @@ Definition constcoprod_functor : functor C C :=
 Lemma omega_cocontConstCoprodFunctor : is_omega_cocont constcoprod_functor.
 Proof.
 intros hF c L ccL HcL cc.
-simple refine (tpair _ _ _).
-- simple refine (tpair _ _ _).
+use tpair.
+- use tpair.
   + eapply BinCoproductArrow.
     * exact (BinCoproductIn1 _ (PC x (dob hF 0)) · pr1 cc 0).
-    * simple refine (let ccHcL : cocone hF HcL := _ in _).
-      { simple refine (mk_cocone _ _).
+    * use (let ccHcL : cocone hF HcL := _ in _).
+      { use mk_cocone.
         - intros n; exact (BinCoproductIn2 _ (PC x (dob hF n)) · pr1 cc n).
         - abstract (
             intros m n e; destruct e; simpl;
@@ -441,7 +439,7 @@ simple refine (tpair _ _ _).
   | destruct t as [t p]; destruct ccL as [t0 p0]; unfold BinCoproduct_of_functors_mor in *; destruct t0 as [t0 p1]; simpl;
     apply BinCoproductArrowUnique;
     [ now rewrite <- (p 0), assoc, BinCoproductOfArrowsIn1, id_left
-    | simple refine (let temp : ∑ x0 : C ⟦ c, HcL ⟧, ∏ v : nat,
+    | use (let temp : ∑ x0 : C ⟦ c, HcL ⟧, ∏ v : nat,
          coconeIn L v · x0 = BinCoproductIn2 C (PC x (dob hF v)) · f v := _ in _);
          [ apply (tpair _ (BinCoproductIn2 C (PC x c) · t));
           now intro n; rewrite <- (p n), !assoc, BinCoproductOfArrowsIn2|];
@@ -489,7 +487,7 @@ Let List_alg : algebra_ob listFunctor :=
 Definition nil_map : HSET⟦unitHSET,List⟧.
 Proof.
 simpl; intro x.
-refine (List_mor _).
+use List_mor.
 apply inl.
 exact x.
 Defined.
@@ -499,7 +497,7 @@ Definition nil : pr1 List := nil_map tt.
 Definition cons_map : HSET⟦(A × List)%set,List⟧.
 Proof.
 intros xs.
-refine (List_mor _).
+use List_mor.
 exact (inr xs).
 Defined.
 
@@ -579,7 +577,7 @@ Definition pr1foldr_algmor : algebra_mor _ List_alg List_alg :=
 
 Lemma pr1foldr_algmor_identity : identity _ = pr1foldr_algmor.
 Proof.
-now rewrite <- (InitialEndo_is_identity _ listFunctor_Initial pr1foldr_algmor).
+now rewrite (@InitialEndo_is_identity _ listFunctor_Initial pr1foldr_algmor).
 Qed.
 
 Lemma listInd l : P l.

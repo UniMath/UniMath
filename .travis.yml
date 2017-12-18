@@ -6,28 +6,34 @@ sudo: 		required
 dist: 		trusty
 git:
   submodules:   false
-before_install:
-  - sudo apt-get update -qq
-install:
-  - sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers ocaml-findlib
-  - sudo apt-get install -y camlp5 camlp4-extra time libgtk2.0 libgtksourceview2.0
-  - sudo apt-get install -y liblablgtk-extras-ocaml-dev
-  # get etags from emacs:
-  - sudo apt-get install -y emacs
+addons:
+  apt:
+    sources:
+      - avsm
+    packages:
+      - opam
+      - aspcud
+      - time
+      - libgtk2.0-dev
+      - libgtksourceview2.0-dev
+      - emacs
 # build coqide along with the Tactics package, just because it's a short package
 env:
   - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics"
   - PACKAGES=CategoryTheory
   - PACKAGES="MoreFoundations Ktheory"
+  - PACKAGES=HomologicalAlgebra
   - PACKAGES=Topology
   - PACKAGES=RealNumbers
   - PACKAGES=SubstitutionSystems
   - PACKAGES=Tactics BUILD_COQIDE=yes BUILD_ALSO=TAGS
   - PACKAGES=Folds
-  - PACKAGES=HomologicalAlgebra
   - FOUNDATIONS_CHANGE_ERROR=yes BUILD_ALSO="check-for-change-to-Foundations enforce-listing-of-proof-files"
 # building Coq in a separate stage folds up the output in the log:
 before_script:
+  - opam init --yes --no-setup
+  - eval $(opam config env)
+  - opam install lablgtk camlp5 --yes --verbose
   - time make build-coq
 script:
   - time make TIMECMD=time $PACKAGES $BUILD_ALSO FOUNDATIONS_CHANGE_ERROR=$FOUNDATIONS_CHANGE_ERROR

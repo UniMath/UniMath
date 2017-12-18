@@ -222,13 +222,13 @@ Section def_abgr_zero.
     (t : monoidfun unitabgr (a : abgr)) = abgrfunfromunit (a : abgr).
   Proof.
     use monoidfun_paths. use funextfun. intros x.
-    use (pathscomp0 _ (monoidfununel t)). use maponpaths. use isconnectedunit.
+    use (pathscomp0 _ (monoidfununel t)). use maponpaths. use isProofIrrelevantUnit.
   Qed.
 
   Lemma isconnectedtounitabgr (a : abgr_category) (t : abgr_category ⟦a, unitabgr⟧):
     (t : monoidfun (a : abgr) unitabgr) = abgrfuntounit a.
   Proof.
-    use monoidfun_paths. use funextfun. intros x. use isconnectedunit.
+    use monoidfun_paths. use funextfun. intros x. use isProofIrrelevantUnit.
   Qed.
 
   Definition abgr_isZero : isZero abgr_category unitabgr.
@@ -432,7 +432,7 @@ Section abgr_additive.
     - use (lunax B).
   Qed.
 
-  Lemma abgr_isBinCoproductCocone_Comm1 {X Y Z : abgr}
+  Lemma abgr_isBinCoproduct_Comm1 {X Y Z : abgr}
         (f : abgr_PreAdditive ⟦X, Z⟧) (g : abgr_PreAdditive ⟦Y, Z⟧) :
     (monoidfuncomp (abgr_DirectSumIn1 X Y)
                    (@abmonoidshombinop
@@ -456,7 +456,7 @@ Section abgr_additive.
       use (lunax (Z : abgr)).
   Qed.
 
-  Lemma abgr_isBinCoproductCocone_Path1 {X Y Z : abgr}
+  Lemma abgr_isBinCoproduct_Path1 {X Y Z : abgr}
         (f : abgr_PreAdditive ⟦X, Z⟧) (g : abgr_PreAdditive ⟦Y, Z⟧)
         (t1 : abgr_PreAdditive ⟦abgrdirprod X Y, Z⟧)
         (H1 : abgr_DirectSumIn1 X Y · t1 = f) (H2 : abgr_DirectSumIn2 X Y · t1 = g) :
@@ -481,41 +481,41 @@ Section abgr_additive.
       use funextfun. intros x. use idpath.
   Qed.
 
-  Lemma abgr_isBinCoproductCocone_Pair {X Y Z : abgr} (f : monoidfun X Z) (g : monoidfun Y Z) :
+  Lemma abgr_isBinCoproduct_Pair {X Y Z : abgr} (f : monoidfun X Z) (g : monoidfun Y Z) :
     ∑ (k : abgr_PreAdditive ⟦abgrdirprod X Y, Z⟧),
     (abgr_DirectSumIn1 X Y · k = f) × (abgr_DirectSumIn2 X Y · k = g).
   Proof.
     use tpair.
     - exact (@abmonoidshombinop
                (abgrdirprod X Y) Z (abgr_DirectSumPr1 X Y · f) (abgr_DirectSumPr2 X Y · g)).
-    - exact (abgr_isBinCoproductCocone_Comm1 f g).
+    - exact (abgr_isBinCoproduct_Comm1 f g).
   Defined.
 
-  Lemma abgr_isBinCoproductCocone_Uniqueness {X Y Z : abgr} (f : monoidfun X Z) (g : monoidfun Y Z)
+  Lemma abgr_isBinCoproduct_Uniqueness {X Y Z : abgr} (f : monoidfun X Z) (g : monoidfun Y Z)
         (t : ∑ (k : abgr_PreAdditive ⟦abgrdirprod X Y, Z⟧),
              (abgr_DirectSumIn1 X Y · k = f) × (abgr_DirectSumIn2 X Y · k = g)) :
-    t = abgr_isBinCoproductCocone_Pair f g.
+    t = abgr_isBinCoproduct_Pair f g.
   Proof.
     use total2_paths_f.
-    - exact (abgr_isBinCoproductCocone_Path1
+    - exact (abgr_isBinCoproduct_Path1
                f g (pr1 t) (dirprod_pr1 (pr2 t)) (dirprod_pr2 (pr2 t))).
     - use proofirrelevance. use isapropdirprod.
       + use setproperty.
       + use setproperty.
   Qed.
 
-  Lemma abgr_isBinCoproductCocone (X Y : abgr) :
-    isBinCoproductCocone
+  Lemma abgr_isBinCoproduct (X Y : abgr) :
+    isBinCoproduct
       abgr_PreAdditive X Y (abgrdirprod X Y) (abgr_DirectSumIn1 X Y) (abgr_DirectSumIn2 X Y).
   Proof.
-    use mk_isBinCoproductCocone.
+    use mk_isBinCoproduct.
     - use homset_property.
     - intros Z f g. use iscontrpair.
-      + exact (abgr_isBinCoproductCocone_Pair f g).
-      + intros t. exact (abgr_isBinCoproductCocone_Uniqueness f g t).
+      + exact (abgr_isBinCoproduct_Pair f g).
+      + intros t. exact (abgr_isBinCoproduct_Uniqueness f g t).
   Defined.
 
-  Lemma abgr_isBinProductCone_Comm1 {X Y Z : abgr} (f : abgr_PreAdditive ⟦Z, X⟧)
+  Lemma abgr_isBinProduct_Comm1 {X Y Z : abgr} (f : abgr_PreAdditive ⟦Z, X⟧)
         (g : abgr_PreAdditive ⟦Z, Y⟧) :
     (monoidfuncomp
        (@abmonoidshombinop
@@ -533,7 +533,7 @@ Section abgr_additive.
     - use monoidfun_paths. use funextfun. intros z. use (lunax Y).
   Qed.
 
-  Lemma abgr_isBinProductCone_Paths1 {X Y Z : abgr} (f : abgr_PreAdditive ⟦Z, X⟧)
+  Lemma abgr_isBinProduct_Paths1 {X Y Z : abgr} (f : abgr_PreAdditive ⟦Z, X⟧)
         (g : abgr_PreAdditive ⟦Z, Y⟧) (t : abgr_PreAdditive ⟦Z, abgrdirprod X Y⟧)
         (H1 : t · abgr_DirectSumPr1 X Y = f) (H2 : t · abgr_DirectSumPr2 X Y = g) :
     t = @abmonoidshombinop
@@ -552,7 +552,7 @@ Section abgr_additive.
     - cbn. rewrite <- H1. rewrite <- H2. use funextfun. intros z. use idpath.
   Qed.
 
-  Definition abgr_isBinProductCone_Pair {X Y Z : abgr} (f : abgr_category⟦Z, X⟧)
+  Definition abgr_isBinProduct_Pair {X Y Z : abgr} (f : abgr_category⟦Z, X⟧)
              (g : abgr_category⟦Z, Y⟧) :
     ∑ (k : abgr_PreAdditive ⟦Z, abgrdirprod X Y⟧),
     (k · abgr_DirectSumPr1 X Y = f) × (k · abgr_DirectSumPr2 X Y = g).
@@ -560,42 +560,42 @@ Section abgr_additive.
     use tpair.
     - exact (@abmonoidshombinop
                Z (abgrdirprod X Y) (f · abgr_DirectSumIn1 X Y) (g · abgr_DirectSumIn2 X Y)).
-    - exact (abgr_isBinProductCone_Comm1 f g).
+    - exact (abgr_isBinProduct_Comm1 f g).
   Defined.
 
-  Lemma abgr_isBinProductCone_Uniqueness {X Y Z : abgr} (f : abgr_category⟦Z, X⟧)
+  Lemma abgr_isBinProduct_Uniqueness {X Y Z : abgr} (f : abgr_category⟦Z, X⟧)
         (g : abgr_category⟦Z, Y⟧)
         (t : ∑ k : abgr_PreAdditive ⟦ Z, abgrdirprod X Y ⟧,
                    k · abgr_DirectSumPr1 X Y = f × k · abgr_DirectSumPr2 X Y = g) :
-    t = abgr_isBinProductCone_Pair f g.
+    t = abgr_isBinProduct_Pair f g.
   Proof.
     use total2_paths_f.
-    - exact (abgr_isBinProductCone_Paths1
+    - exact (abgr_isBinProduct_Paths1
                f g (pr1 t) (dirprod_pr1 (pr2 t)) (dirprod_pr2 (pr2 t))).
     - use proofirrelevance. use isapropdirprod.
       + use setproperty.
       + use setproperty.
   Qed.
 
-  Lemma abgr_isBinProductCone (X Y : abgr) :
-    isBinProductCone
+  Lemma abgr_isBinProduct (X Y : abgr) :
+    isBinProduct
       abgr_PreAdditive X Y (abgrdirprod X Y) (abgr_DirectSumPr1 X Y) (abgr_DirectSumPr2 X Y).
   Proof.
-    use mk_isBinProductCone.
+    use mk_isBinProduct.
     - use homset_property.
     - intros Z f g. use iscontrpair.
-      + exact (abgr_isBinProductCone_Pair f g).
-      + intros t. exact (abgr_isBinProductCone_Uniqueness f g t).
+      + exact (abgr_isBinProduct_Pair f g).
+      + intros t. exact (abgr_isBinProduct_Uniqueness f g t).
   Defined.
 
-  Lemma abgr_isBinDirectSumCone (X Y : abgr) :
-    isBinDirectSumCone
+  Lemma abgr_isBinDirectSum (X Y : abgr) :
+    isBinDirectSum
       abgr_PreAdditive X Y (abgrdirprod X Y) (abgr_DirectSumIn1 X Y) (abgr_DirectSumIn2 X Y)
       (abgr_DirectSumPr1 X Y) (abgr_DirectSumPr2 X Y).
   Proof.
-    use mk_isBinDirectSumCone.
-    - exact (abgr_isBinCoproductCocone X Y).
-    - exact (abgr_isBinProductCone X Y).
+    use mk_isBinDirectSum.
+    - exact (abgr_isBinCoproduct X Y).
+    - exact (abgr_isBinProduct X Y).
     - exact (abgr_DirectSumIdIn1 X Y).
     - exact (abgr_DirectSumIdIn2 X Y).
     - exact (abgr_DirectSumUnel1 X Y).
@@ -607,13 +607,13 @@ Section abgr_additive.
   Proof.
     use mk_isAdditive.
     - exact abgr_Zero.
-    - use mk_BinDirectSums. intros X Y. use mk_BinDirectSumCone.
+    - use mk_BinDirectSums. intros X Y. use mk_BinDirectSum.
       + exact (abgrdirprod X Y).
       + exact (abgr_DirectSumIn1 X Y).
       + exact (abgr_DirectSumIn2 X Y).
       + exact (abgr_DirectSumPr1 X Y).
       + exact (abgr_DirectSumPr2 X Y).
-      + exact (abgr_isBinDirectSumCone X Y).
+      + exact (abgr_isBinDirectSum X Y).
   Defined.
 
   Definition abgr_Additive : Additive := mk_Additive abgr_PreAdditive abgr_isAdditive.

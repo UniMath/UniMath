@@ -30,13 +30,13 @@ Section pullbacks_slice_products_equiv.
     ∑ A B (f : A --> Z) (g : B --> Z) , Pullback f g.
 
   Definition some_binprod (C : precategory) : UU :=
-    ∑ A B , BinProductCone C A B.
+    ∑ A B , BinProduct C A B.
 
   Context {C : precategory} (hsC : has_homsets C).
   Local Notation "C / X" := (slice_precat C X hsC).
 
-  Lemma isPullback_to_isBinProductCone {Z : C} {AZ BZ PZ : C / Z} {l : PZ --> AZ} {r : PZ --> BZ} :
-     isPullback (pr2 AZ) (pr2 BZ) (pr1 l) (pr1 r) (! (pr2 l) @ (pr2 r)) → isBinProductCone (C / Z) AZ BZ PZ l r.
+  Lemma isPullback_to_isBinProduct {Z : C} {AZ BZ PZ : C / Z} {l : PZ --> AZ} {r : PZ --> BZ} :
+     isPullback (pr2 AZ) (pr2 BZ) (pr1 l) (pr1 r) (! (pr2 l) @ (pr2 r)) → isBinProduct (C / Z) AZ BZ PZ l r.
   Proof.
     induction AZ as [A f].
     induction BZ as [B g].
@@ -54,13 +54,13 @@ Section pullbacks_slice_products_equiv.
                 [apply (pr1 (pr2 (pr1 (isPull _)))) | apply (pr2 (pr2 (pr1 (isPull _))))]).
     + abstract (now intros q; apply isapropdirprod; apply (has_homsets_slice_precat hsC)).
     + abstract (intros q [H1 H2]; apply (eq_mor_slicecat hsC);
-                refine (maponpaths pr1 ((pr2 (isPull _)) ((pr1 q) ,, (_ ,, _))));
+                use (maponpaths pr1 ((pr2 (isPull _)) ((pr1 q) ,, (_ ,, _))));
                 [apply (maponpaths pr1 H1) | apply (maponpaths pr1 H2)]).
   Defined.
 
-  Lemma slice_isBinProductCone_to_isPullback
+  Lemma slice_isBinProduct_to_isPullback
         {A B Z P : C} {f : A --> Z} {g : B --> Z} {l : P --> A} {r : P --> B} {e : l · f = r · g} :
-    isBinProductCone (C / Z) (A ,, f) (B ,, g) (P ,, l · f) (l ,, idpath _) (r ,, e) → isPullback f g l r e.
+    isBinProduct (C / Z) (A ,, f) (B ,, g) (P ,, l · f) (l ,, idpath _) (r ,, e) → isPullback f g l r e.
   Proof.
     intros PisProd Y j k Yeq.
     use unique_exists.
@@ -69,14 +69,14 @@ Section pullbacks_slice_products_equiv.
                                   maponpaths pr1 (pr2 (pr2 (pr1 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))))))).
     + abstract (intros x; apply isofhleveldirprod; apply (hsC _ _)).
     + intros t teqs.
-      refine (maponpaths pr1 (maponpaths pr1 (pr2 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))
+      use (maponpaths pr1 (maponpaths pr1 (pr2 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))
                                                   ((t ,, (maponpaths (λ x, x · f) (!(pr1 teqs)) @ !(assoc _ _ _) @ maponpaths (λ x, t · x) (idpath _))) ,, _)))).
       abstract (split; apply eq_mor_slicecat; [exact (pr1 teqs) | exact (pr2 teqs)]).
   Defined.
 
-  (** ** equivalence of function taking proof of isPullback to proof of isBinProductCone *)
-  Lemma isweq_isPullback_to_isBinProductCone {Z : C} {AZ BZ PZ : C / Z} {l : PZ --> AZ} {r : PZ --> BZ} :
-    isweq (@isPullback_to_isBinProductCone Z AZ BZ PZ l r).
+  (** ** equivalence of function taking proof of isPullback to proof of isBinProduct *)
+  Lemma isweq_isPullback_to_isBinProduct {Z : C} {AZ BZ PZ : C / Z} {l : PZ --> AZ} {r : PZ --> BZ} :
+    isweq (@isPullback_to_isBinProduct Z AZ BZ PZ l r).
   Proof.
     apply isweqimplimpl.
     + induction AZ as [A f].
@@ -87,22 +87,22 @@ Section pullbacks_slice_products_equiv.
       simpl in *. induction (! leq).
       assert (H : leq = idpath (l · f)) by apply hsC.
       intros PisProd.
-      apply slice_isBinProductCone_to_isPullback; simpl.
+      apply slice_isBinProduct_to_isPullback; simpl.
       rewrite <- H.
       exact PisProd.
     + apply isaprop_isPullback.
-    + apply isaprop_isBinProductCone.
+    + apply isaprop_isBinProduct.
   Qed.
 
-  (** ** equivalence of function taking proof of isBinProductCone to proof of isPullback *)
-  Lemma isweq_slice_isBinProductCone_to_isPullback
+  (** ** equivalence of function taking proof of isBinProduct to proof of isPullback *)
+  Lemma isweq_slice_isBinProduct_to_isPullback
         {A B Z P : C} {f : A --> Z} {g : B --> Z} {l : P --> A} {r : P --> B} {e : l · f = r · g} :
-    isweq (@slice_isBinProductCone_to_isPullback A B Z P f g l r e).
+    isweq (@slice_isBinProduct_to_isPullback A B Z P f g l r e).
   Proof.
     apply isweqimplimpl.
     + intros isPull.
-      now apply isPullback_to_isBinProductCone.
-    + now apply isaprop_isBinProductCone.
+      now apply isPullback_to_isBinProduct.
+    + now apply isaprop_isBinProduct.
     + now apply isaprop_isPullback.
   Qed.
 
@@ -125,7 +125,7 @@ Section pullbacks_slice_products_equiv.
   Qed.
 
   (** ** slice_binprod_to_pullback is invertible *)
-  Lemma slice_binprod_to_pullback_inv {AZ BZ : C / Z} (P : BinProductCone (C / Z) AZ BZ) :
+  Lemma slice_binprod_to_pullback_inv {AZ BZ : C / Z} (P : BinProduct (C / Z) AZ BZ) :
     pullback_to_slice_binprod hsC (slice_binprod_to_pullback hsC P) = P.
   Proof.
     induction AZ as [A f].
@@ -134,7 +134,7 @@ Section pullbacks_slice_products_equiv.
     apply (invmaponpathsincl pr1).
     { apply isinclpr1.
       intros ?.
-      apply isaprop_isBinProductCone.
+      apply isaprop_isBinProduct.
     }
     simpl in *.
     use total2_paths2_f.
@@ -164,7 +164,7 @@ Section pullbacks_slice_products_equiv.
   Definition pullback_to_binprod : some_pullback C Z → some_binprod (C / Z).
   Proof.
     intros [A [B [f [g P]]]].
-    refine ((A ,, f) ,, (B ,, g) ,, pullback_to_slice_binprod hsC P).
+    use ((A ,, f) ,, (B ,, g) ,, pullback_to_slice_binprod hsC P).
   Defined.
 
   (** ** binprod_to_pullback is invertible *)

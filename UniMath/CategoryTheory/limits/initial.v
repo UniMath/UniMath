@@ -15,39 +15,37 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Epis.
+Require Import UniMath.CategoryTheory.limits.coproducts.
 
 Local Open Scope cat.
 
 Section def_initial.
 
-Variable C : precategory.
+Context {C : precategory}.
 
 Definition isInitial (a : C) : UU := ∏ b : C, iscontr (a --> b).
 
-Definition Initial : UU := total2 (λ a, isInitial a).
+Definition Initial : UU := ∑ a, isInitial a.
 
 Definition InitialObject (O : Initial) : C := pr1 O.
 Coercion InitialObject : Initial >-> ob.
 
-Definition InitialArrow (O : Initial) (b : C) : O --> b :=  pr1 (pr2 O b).
+Definition InitialArrow (O : Initial) (b : C) : O --> b := pr1 (pr2 O b).
 
-Lemma InitialEndo_is_identity (O : Initial) (f : O --> O) : identity O = f.
+Lemma InitialArrowUnique {I : Initial} {a : C} (f : C⟦InitialObject I,a⟧) :
+  f = InitialArrow I _.
 Proof.
-  apply proofirrelevance.
-  apply isapropifcontr.
-  apply (pr2 O O).
-Qed.
-
-Lemma InitialArrowUnique (I : Initial) (a : C)
-  (f : C⟦InitialObject I,a⟧) : f = InitialArrow I _.
-Proof.
-  apply (pr2 (pr2 I _ ) _ ).
+exact (pr2 (pr2 I _ ) _ ).
 Defined.
 
-Lemma InitialArrowEq (O : Initial) (a : C) (f g : O --> a) : f = g.
+Lemma InitialEndo_is_identity {O : Initial} (f : O --> O) : f = identity O.
 Proof.
-rewrite (InitialArrowUnique _ _ f), (InitialArrowUnique _ _ g).
-apply idpath.
+now apply proofirrelevance, isapropifcontr, (pr2 O O).
+Qed.
+
+Lemma InitialArrowEq {O : Initial} {a : C} (f g : O --> a) : f = g.
+Proof.
+now rewrite (InitialArrowUnique f), (InitialArrowUnique g).
 Qed.
 
 Definition mk_Initial (a : C) (H : isInitial a) : Initial.
@@ -66,12 +64,11 @@ Lemma isiso_from_Initial_to_Initial (O O' : Initial) :
    is_iso (InitialArrow O O').
 Proof.
   apply (is_iso_qinv _ (InitialArrow O' O)).
-  split; apply pathsinv0;
-   apply InitialEndo_is_identity.
+  split; apply InitialEndo_is_identity.
 Defined.
 
 Definition iso_Initials (O O' : Initial) : iso O O' :=
-   tpair _ (InitialArrow O O') (isiso_from_Initial_to_Initial O O') .
+   (InitialArrow O O',,isiso_from_Initial_to_Initial O O').
 
 Definition hasInitial := ishinh Initial.
 
@@ -97,28 +94,28 @@ End def_initial.
 
 Arguments Initial : clear implicits.
 Arguments isInitial : clear implicits.
-Arguments InitialObject {_} _ .
-Arguments InitialArrow {_} _ _ .
-Arguments InitialArrowUnique {_} _ _ _ .
-Arguments mk_isInitial {_} _ _ _ .
+Arguments InitialObject {_} _.
+Arguments InitialArrow {_} _ _.
+Arguments InitialArrowUnique {_} _ _ _.
+Arguments mk_isInitial {_} _ _ _.
 Arguments mk_Initial {_} _ _.
 
 Section Initial_and_EmptyCoprod.
-  Require Import UniMath.CategoryTheory.limits.coproducts.
 
   (** Construct Initial from empty arbitrary coproduct. *)
   Definition initial_from_empty_coproduct (C : precategory):
-    CoproductCocone empty C fromempty -> Initial C.
+    Coproduct empty C fromempty -> Initial C.
   Proof.
     intros X.
-    refine (mk_Initial (CoproductObject _ _ X) _).
-    refine (mk_isInitial _ _).
+    use (mk_Initial (CoproductObject _ _ X)).
+    use mk_isInitial.
     intros b.
     assert (H : ∏ i : empty, C⟦fromempty i, b⟧) by
         (intros i; apply (fromempty i)).
     apply (iscontrpair (CoproductArrow _ _ X H)); intros t.
     apply CoproductArrowUnique; intros i; apply (fromempty i).
   Defined.
+
 End Initial_and_EmptyCoprod.
 
 (* Section Initial_from_Colims. *)
@@ -172,14 +169,14 @@ use mk_Initial.
     * intros c; apply (InitialObject ID).
     * simpl; intros a b f; apply (InitialArrow ID).
   + split.
-    * intro a; apply pathsinv0, InitialEndo_is_identity.
+    * intro a; apply InitialEndo_is_identity.
     * intros a b c f g; apply pathsinv0, InitialArrowUnique.
 - intros F.
   use tpair.
   + use mk_nat_trans; simpl.
     * intro a; apply InitialArrow.
     * intros a b f; simpl.
-      rewrite <- (InitialEndo_is_identity _ ID (InitialArrow ID ID)), id_left.
+      rewrite (InitialEndo_is_identity (InitialArrow ID ID)), id_left.
       now apply pathsinv0, InitialArrowUnique.
   + abstract (intros α; apply (nat_trans_eq hsD); intro a; apply InitialArrowUnique).
 Defined.

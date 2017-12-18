@@ -136,7 +136,7 @@ Section def_coequalizers.
   Lemma CoequalizerArrowComm {a b : C} {f g : C⟦a, b⟧} (E : Coequalizer f g) (e : C) (h : C⟦b, e⟧)
         (H : f · h = g · h) : CoequalizerArrow E · CoequalizerOut E e h H = h.
   Proof.
-    refine (colimArrowCommutes E e _ Two).
+    exact (colimArrowCommutes E e _ Two).
   Qed.
 
   Lemma CoequalizerOutUnique {a b : C} {f g : C⟦a, b⟧} (E : Coequalizer f g) (e : C) (h : C⟦b, e⟧)

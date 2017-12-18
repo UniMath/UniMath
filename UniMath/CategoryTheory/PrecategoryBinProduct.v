@@ -37,8 +37,6 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 Definition precategory_binproduct_mor (C D : precategory_ob_mor) (cd cd' : C × D) := pr1 cd --> pr1 cd' × pr2 cd --> pr2 cd'.
 
 Definition precategory_binproduct_ob_mor (C D : precategory_ob_mor) : precategory_ob_mor
@@ -179,7 +177,7 @@ Proof.
   use tpair. use tpair.
   (* ob, mor *) exists unit. intros; exact unit.
   (* identity, comp *) split; intros; constructor.
-  (* id_left *) simpl; split; try split; intros; apply isconnectedunit.
+  (* id_left *) simpl; split; try split; intros; apply isProofIrrelevantUnit.
 Defined.
 
 Definition unit_functor C : functor C unit_precategory.

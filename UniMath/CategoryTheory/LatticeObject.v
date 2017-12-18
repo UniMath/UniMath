@@ -126,7 +126,7 @@ Definition join_mor {L : C} (isL : latticeob L) : C⟦L ⊗ L,L⟧ := pr1 (pr2 i
 Context {TC : Terminal C}.
 
 Let ι {x : C} : C⟦x,TC ⊗ x⟧ :=
-  BinProductArrow _ _ (TerminalArrow _) (identity x).
+  BinProductArrow _ _ (TerminalArrow _ _) (identity x).
 
 (** Given u : C⟦TC,L⟧ the equation witnessing the left unit law is given
     by the diagram:

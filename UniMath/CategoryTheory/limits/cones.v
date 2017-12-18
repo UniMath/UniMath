@@ -20,8 +20,7 @@ Variables J C : precategory.
 Variable hs: has_homsets C.
 Variable F : functor J C.
 
-Definition ConeData := total2 (
-  λ a : C, ∏ j : J, a --> F j).
+Definition ConeData : UU := ∑ a : C, ∏ j : J, a --> F j.
 
 Definition ConeTop (a : ConeData) : C := pr1 a.
 Definition ConeMor (a : ConeData) (j : J) : ConeTop a --> F j := (pr2 a) j.
@@ -222,17 +221,17 @@ Definition isotoid_CONE_pr1 (a b : CONE) : iso a b -> pr1 a = pr1 b.
 Proof.
   intro f.
   apply (total2_paths_f (isotoid _ is_cat_C (ConeConnectIso f))).
-  pathvia ((λ c : J,
+  intermediate_path ((λ c : J,
      idtoiso (!isotoid C is_cat_C (ConeConnectIso f))· pr2 (pr1 a) c)).
   apply transportf_isotoid_dep'.
   apply funextsec.
   intro t.
-  pathvia (idtoiso (isotoid C is_cat_C (iso_inv_from_iso (ConeConnectIso f)))·
+  intermediate_path (idtoiso (isotoid C is_cat_C (iso_inv_from_iso (ConeConnectIso f)))·
        pr2 (pr1 a) t).
   apply cancel_postcomposition.
   apply maponpaths. apply maponpaths.
   apply inv_isotoid.
-  pathvia (iso_inv_from_iso (ConeConnectIso f)· pr2 (pr1 a) t).
+  intermediate_path (iso_inv_from_iso (ConeConnectIso f)· pr2 (pr1 a) t).
   apply cancel_postcomposition.
   set (H := idtoiso_isotoid _ is_cat_C _ _ (iso_inv_from_iso (ConeConnectIso f))).
   simpl in *.
@@ -269,14 +268,14 @@ base_paths (pr1 M) (pr1 M)
       (base_paths M M (isotoid_CONE (identity_iso M))) =
     base_paths (pr1 M) (pr1 M) (idpath (pr1 M)).
 Proof.
-  pathvia (base_paths (pr1 M) (pr1 M) (isotoid_CONE_pr1 M M (identity_iso M))).
+  intermediate_path (base_paths (pr1 M) (pr1 M) (isotoid_CONE_pr1 M M (identity_iso M))).
   unfold Cone_eq.
   apply maponpaths.
   apply base_total2_paths.
-  pathvia (isotoid C is_cat_C (ConeConnectIso (identity_iso M))).
+  intermediate_path (isotoid C is_cat_C (ConeConnectIso (identity_iso M))).
   unfold isotoid_CONE_pr1.
   apply base_total2_paths.
-  pathvia (isotoid C is_cat_C (identity_iso (ConeTop (pr1 M)))).
+  intermediate_path (isotoid C is_cat_C (identity_iso (ConeTop (pr1 M)))).
   apply maponpaths, ConeConnectIso_identity_iso.
   apply isotoid_identity_iso.
 Defined.

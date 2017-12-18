@@ -53,8 +53,9 @@ Definition mk_CoproductCocone (a b : C) :
     isCoproductCocone _ _ _ f g -> CoproductCocone a b
   := λ c f g i, c,,(f,,g),,i.
 
-Definition Coproducts := hasBinarySums C.
-Definition hasCoproducts := ishinh Coproducts.
+Definition Coproducts := BinarySums C.
+Definition hasCoproducts (C:category) := ∏ (a b:C), ∥ BinarySum a b ∥.
+
 
 Definition CoproductObject {a b : C} (CC : CoproductCocone a b) : C :=
   universalObject CC.

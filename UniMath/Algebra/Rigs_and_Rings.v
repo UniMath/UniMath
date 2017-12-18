@@ -8,12 +8,14 @@
   - Subobjects
   - Quotient objects
   - Direct products
+  - Opposite rigs
  - Commutative rigs
   - General definitions
   - Relations similar to "greater" on commutative rigs
   - Subobjects
   - Quotient objects
   - Direct products
+  - Opposite commutative rigs
  - Rings
   - General definitions
   - Homomorphisms of rings
@@ -26,6 +28,7 @@
   - Subobjects
   - Quotient objects
   - Direct products
+  - Opposite rings
   - Ring of differences associated with a rig
   - Canonical homomorphism to the ring associated with a rig (ring of
     differences)
@@ -39,6 +42,7 @@
   - Subobjects
   - Quotient objects
   - Direct products
+  - Opposite commutative rings
   - Commutative rigs to commutative rings
   - Rings of fractions
   - Canonical homomorphism to the ring of fractions
@@ -498,6 +502,44 @@ Defined.
 
 Definition rigdirprod (X Y : rig) : rig := @rigpair (setwith2binopdirprod X Y) (isrigdirprod X Y).
 
+(** **** Opposite rigs *)
+
+Local Open Scope rig.
+
+(** Following Bourbaki's Algebra, I, §8.3, Example V *)
+Definition opposite_rig (X : rig) : rig.
+Proof.
+  intros X.
+
+  (* Use the same underlying set and addition, flip the multiplication *)
+  refine (setwith2binoppair (pr1 (pr1rig X))
+                            (dirprodpair (pr1 (pr2 (pr1rig X)))
+                                         (fun x y => y * x)%rig),, _).
+
+  unfold op2; cbn; fold (@op1 X) (@op2 X).
+  apply (mk_isrigops (rigop1axs X)).
+
+  (* For these proofs, we just have to switch some arguments around *)
+  - apply mk_ismonoidop.
+    * exact (fun x y z => !(rigassoc2 _ z y x)).
+    * refine (1,, _). (* same unit, opposite proofs *)
+      exact (dirprodpair (rigrunax2 _) (riglunax2 _)).
+  - exact (rigmultx0 _).
+  - exact (rigmult0x _).
+  - exact (dirprodpair (rigrdistr _) (rigldistr _)).
+Defined.
+
+(** In Emacs, use the function insert-char and choose SUPERSCRIPT ZERO *)
+Notation "X ⁰" := (opposite_rig X) (at level 12) : rig_scope.
+
+Definition opposite_opposite_rig (X : rig) : rigiso X ((X⁰)⁰).
+Proof.
+  intros X.
+  refine ((idfun X,, idisweq X),, _).
+  easy.
+Defined.
+
+Local Close Scope rig.
 
 (** *** Commutative rigs *)
 
@@ -660,6 +702,26 @@ Defined.
 Definition commrigdirprod (X Y : commrig) : commrig :=
   commrigpair (setwith2binopdirprod X Y) (iscommrigdirprod X Y).
 
+(** **** Opposite commutative rigs *)
+
+Local Open Scope rig.
+
+(** We reuse much of the proof for general rigs *)
+Definition opposite_commrig (X : commrig) : commrig :=
+  ((pr1 (X⁰)),, (dirprodpair (pr2 (X⁰)) (fun x y => @rigcomm2 X y x))).
+
+(** Commutativity makes taking the opposite trivial *)
+Definition iso_commrig_opposite (X : commrig) : rigiso X (opposite_commrig X).
+Proof.
+  intros X.
+  refine ((idfun X,, idisweq X),, _).
+  do 2 (split; try easy).
+  unfold isbinopfun.
+  exact (fun x y => @rigcomm2 X x y).
+Defined.
+
+Local Close Scope rig.
+
 
 (** *** Rings *)
 
@@ -752,6 +814,15 @@ Coercion rngtorig : rng >-> rig.
 Definition isrngfun {X Y : rng} (f : X -> Y) := @isrigfun X Y f.
 
 Definition rngfun (X Y : rng) := rigfun X Y.
+
+Lemma isaset_rngfun (X Y : rng) : isaset (rngfun X Y).
+Proof.
+   intros X Y. apply (isofhleveltotal2 2).
+   - use impred_isaset. intro x.
+     apply setproperty.
+   - intro f. apply isasetaprop.
+     apply isapropisrigfun.
+Defined.
 
 Definition rngfunconstr {X Y : rng} {f : X -> Y} (is : isrngfun f) : rngfun X Y := rigfunconstr is.
 Identity Coercion id_rngfun : rngfun >-> rigfun.
@@ -1425,6 +1496,27 @@ Defined.
 
 Definition rngdirprod (X Y : rng) : rng := @rngpair (setwith2binopdirprod X Y) (isrngdirprod X Y).
 
+(** **** Opposite rings *)
+
+Local Open Scope rig.
+
+(** We just need to reuse and rearrange the opposite rig *)
+Definition opposite_rng (X : rng) : rng.
+Proof.
+  intros X.
+  refine (pr1 (X⁰),, _).
+  split.
+  - split.
+    apply mk_isabgrop.
+    * exact (pr1 (rigop1axs (X⁰)),, pr2 (pr1 (rngop1axs X))).
+    * exact (pr2 (rngop1axs X)).
+    * exact (rigop2axs (X⁰)).
+  - exact (rigdistraxs (X⁰)).
+Defined.
+
+Notation "X ⁰" := (opposite_rng X) (at level 12) : rng_scope.
+
+Local Close Scope rig.
 
 (** **** Ring of differences associated with a rig *)
 
@@ -2010,8 +2102,21 @@ Defined.
 Definition commrngdirprod (X Y : commrng) : commrng :=
   commrngpair (setwith2binopdirprod X Y) (iscommrngdirprod X Y).
 
+(** **** Opposite commutative rings *)
 
-(** **** Commutative rigs to commuttaive rings *)
+Local Open Scope rng.
+
+(** We reuse much of the proof for general rigs *)
+Definition opposite_commrng (X : commrng) : commrng :=
+  ((pr1 (X⁰)),, (dirprodpair (pr2 (X⁰)) (fun x y => @rngcomm2 X y x))).
+
+(** Commutativity makes taking the opposite trivial *)
+Definition iso_commrng_opposite (X : commrng) : rigiso X (opposite_commrng X) :=
+  iso_commrig_opposite X.
+
+Local Close Scope rig.
+
+(** **** Commutative rigs to commutative rings *)
 
 Open Scope rig_scope.
 

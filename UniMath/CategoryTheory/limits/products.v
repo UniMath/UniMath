@@ -32,42 +32,42 @@ Section product_def.
 
 Variable (I : UU) (C : precategory).
 
-Definition isProductCone (c : ∏ (i : I), C) (p : C)
+Definition isProduct (c : ∏ (i : I), C) (p : C)
   (pi : ∏ i, p --> c i) :=
   ∏ (a : C) (f : ∏ i, a --> c i),
-    iscontr (total2 (fun (fap : a --> p) => ∏ i, fap · pi i = f i)).
+    ∃! (fap : a --> p), ∏ i, fap · pi i = f i.
 
-Definition ProductCone (ci : ∏ i, C) :=
-   total2 (fun pp1p2 : total2 (λ p : C, ∏ i, p --> ci i) =>
-             isProductCone ci (pr1 pp1p2) (pr2 pp1p2)).
+Definition Product (ci : ∏ i, C) :=
+  ∑ pp1p2 : (∑ p : C, ∏ i, p --> ci i),
+    isProduct ci (pr1 pp1p2) (pr2 pp1p2).
 
-Definition Products := ∏ (ci : ∏ i, C), ProductCone ci.
-Definition hasProducts := ishinh Products.
+Definition Products := ∏ (ci : ∏ i, C), Product ci.
+Definition hasProducts := ∏ (ci : ∏ i, C), ∥ Product ci ∥.
 
-Definition ProductObject {c : ∏ i, C} (P : ProductCone c) : C := pr1 (pr1 P).
-Definition ProductPr {c : ∏ i, C} (P : ProductCone c) : ∏ i, ProductObject P --> c i :=
+Definition ProductObject {c : ∏ i, C} (P : Product c) : C := pr1 (pr1 P).
+Definition ProductPr {c : ∏ i, C} (P : Product c) : ∏ i, ProductObject P --> c i :=
   pr2 (pr1 P).
 
-Definition isProductCone_ProductCone {c : ∏ i, C} (P : ProductCone c) :
-   isProductCone c (ProductObject P) (ProductPr P).
+Definition isProduct_Product {c : ∏ i, C} (P : Product c) :
+   isProduct c (ProductObject P) (ProductPr P).
  Proof.
   exact (pr2 P).
 Defined.
 
-Definition ProductArrow {c : ∏ i, C} (P : ProductCone c) {a : C} (f : ∏ i, a --> c i)
+Definition ProductArrow {c : ∏ i, C} (P : Product c) {a : C} (f : ∏ i, a --> c i)
   : a --> ProductObject P.
 Proof.
-  apply (pr1 (pr1 (isProductCone_ProductCone P _ f))).
+  apply (pr1 (pr1 (isProduct_Product P _ f))).
 Defined.
 
-Lemma ProductPrCommutes (c : ∏ i, C) (P : ProductCone c) :
+Lemma ProductPrCommutes (c : ∏ i, C) (P : Product c) :
      ∏ (a : C) (f : ∏ i, a --> c i) i, ProductArrow P f · ProductPr P i = f i.
 Proof.
   intros a f i.
-  apply (pr2 (pr1 (isProductCone_ProductCone P _ f)) i).
+  apply (pr2 (pr1 (isProduct_Product P _ f)) i).
 Qed.
 
-Lemma ProductPr_idtoiso {i1 i2 : I} (a : I -> C) (P : ProductCone a)
+Lemma ProductPr_idtoiso {i1 i2 : I} (a : I -> C) (P : Product a)
       (e : i1 = i2) :
   ProductPr P i1 · idtoiso (maponpaths a e) = ProductPr P i2.
 Proof.
@@ -75,51 +75,51 @@ Proof.
   apply id_right.
 Qed.
 
-Lemma ProductArrowUnique (c : ∏ i, C) (P : ProductCone c) (x : C)
+Lemma ProductArrowUnique (c : ∏ i, C) (P : Product c) (x : C)
     (f : ∏ i, x --> c i) (k : x --> ProductObject P)
     (Hk : ∏ i, k · ProductPr P i = f i) : k = ProductArrow P f.
 Proof.
-  set (H' := pr2 (isProductCone_ProductCone P _ f) (k,,Hk)).
+  set (H' := pr2 (isProduct_Product P _ f) (k,,Hk)).
   apply (base_paths _ _ H').
 Qed.
 
-Definition mk_ProductCone (a : ∏ i, C) :
-  ∏ (c : C) (f : ∏ i, C⟦c,a i⟧), isProductCone _ _ f -> ProductCone a.
+Definition mk_Product (a : ∏ i, C) :
+  ∏ (c : C) (f : ∏ i, C⟦c,a i⟧), isProduct _ _ f -> Product a.
 Proof.
   intros c f X.
-  simple refine (tpair _ (c,,f) X).
+  exact (tpair _ (c,,f) X).
 Defined.
 
-Definition mk_isProductCone (hsC : has_homsets C) (a : I -> C) (p : C)
+Definition mk_isProduct (hsC : has_homsets C) (a : I -> C) (p : C)
   (pa : ∏ i, C⟦p,a i⟧) : (∏ (c : C) (f : ∏ i, C⟦c,a i⟧),
                                   ∃! k : C⟦c,p⟧, ∏ i, k · pa i = f i) ->
-                              isProductCone a p pa.
+                              isProduct a p pa.
 Proof.
 intros H c cc; apply H.
 Defined.
 
-Lemma ProductArrowEta (c : ∏ i, C) (P : ProductCone c) (x : C)
+Lemma ProductArrowEta (c : ∏ i, C) (P : Product c) (x : C)
     (f : x --> ProductObject P) :
     f = ProductArrow P (λ i, f · ProductPr P i).
 Proof.
   now apply ProductArrowUnique.
 Qed.
 
-Definition ProductOfArrows {c : ∏ i, C} (Pc : ProductCone c) {a : ∏ i, C}
-    (Pa : ProductCone a) (f : ∏ i, a i --> c i) :
+Definition ProductOfArrows {c : ∏ i, C} (Pc : Product c) {a : ∏ i, C}
+    (Pa : Product a) (f : ∏ i, a i --> c i) :
       ProductObject Pa --> ProductObject Pc :=
     ProductArrow Pc (λ i, ProductPr Pa i · f i).
 
-Lemma ProductOfArrowsPr {c : ∏ i, C} (Pc : ProductCone c) {a : ∏ i, C}
-    (Pa : ProductCone a) (f : ∏ i, a i --> c i) :
+Lemma ProductOfArrowsPr {c : ∏ i, C} (Pc : Product c) {a : ∏ i, C}
+    (Pa : Product a) (f : ∏ i, a i --> c i) :
     ∏ i, ProductOfArrows Pc Pa f · ProductPr Pc i = ProductPr Pa i · f i.
 Proof.
   unfold ProductOfArrows; intro i.
   now rewrite (ProductPrCommutes _ _ _ _ i).
 Qed.
 
-Lemma postcompWithProductArrow {c : ∏ i, C} (Pc : ProductCone c) {a : ∏ i, C}
-    (Pa : ProductCone a) (f : ∏ i, a i --> c i)
+Lemma postcompWithProductArrow {c : ∏ i, C} (Pc : Product c) {a : ∏ i, C}
+    (Pa : Product a) (f : ∏ i, a i --> c i)
     {x : C} (k : ∏ i, x --> a i) :
         ProductArrow Pa k · ProductOfArrows Pc Pa f =
         ProductArrow Pc (λ i, k i · f i).
@@ -128,7 +128,7 @@ apply ProductArrowUnique; intro i.
 now rewrite <- assoc, ProductOfArrowsPr, assoc, ProductPrCommutes.
 Qed.
 
-Lemma precompWithProductArrow {c : ∏ i, C} (Pc : ProductCone c)
+Lemma precompWithProductArrow {c : ∏ i, C} (Pc : Product c)
   {a : C} (f : ∏ i, a --> c i) {x : C} (k : x --> a)  :
        k · ProductArrow Pc f = ProductArrow Pc (λ i, k · f i).
 Proof.
@@ -169,7 +169,7 @@ Variables (I : UU) (C : precategory).
 Variable CC : Products I C.
 Variables a : ∏ (i : I), C.
 
-Lemma Product_endo_is_identity (P : ProductCone _ _ a)
+Lemma Product_endo_is_identity (P : Product _ _ a)
   (k : ProductObject _ _ P --> ProductObject _ _ P)
   (H1 : ∏ i, k · ProductPr _ _ P i = ProductPr _ _ P i)
   : identity _ = k.
@@ -310,12 +310,12 @@ Definition product_nat_trans : nat_trans A product_of_functors
 End vertex.
 
 Definition functor_precat_product_cone
-  : ProductCone I [C, D, hsD] F.
+  : Product I [C, D, hsD] F.
 Proof.
-simple refine (mk_ProductCone _ _ _ _ _ _).
+use mk_Product.
 - apply product_of_functors.
 - apply product_nat_trans_pr.
-- simple refine (mk_isProductCone _ _ _ _ _ _ _).
+- use mk_isProduct.
   + apply functor_category_has_homsets.
   + intros A f.
     use tpair.
@@ -364,10 +364,10 @@ Lemma Products_from_Lims : Lims_of_shape I_graph C -> Products I C.
 Proof.
 intros H F.
 set (HF := H (products_diagram F)).
-use mk_ProductCone.
+use mk_Product.
 + apply (lim HF).
 + intros i; apply (limOut HF).
-+ apply (mk_isProductCone _ _ hsC); intros c Fic.
++ apply (mk_isProduct _ _ hsC); intros c Fic.
   use unique_exists.
   - apply limArrow.
     use mk_cone.
