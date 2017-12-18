@@ -82,7 +82,7 @@ Section def_setwith2binop_category.
   Lemma setwith2binop_iso_is_equiv (A B : ob setwith2binop_precategory) (f : iso A B) :
     isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
+    use iso_isweq.
     - exact (pr1twobinopfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -121,7 +121,7 @@ Section def_setwith2binop_category.
   Lemma setwith2binop_iso_equiv_is_equiv (X Y : setwith2binop_precategory) :
     isweq (setwith2binop_iso_equiv X Y).
   Proof.
-    use gradth.
+    use iso_isweq.
     - exact (setwith2binop_equiv_iso X Y).
     - intros x. use eq_iso. use twobinopfun_paths. use idpath.
     - intros y. use twobinopiso_paths. use subtypeEquality.
@@ -141,7 +141,7 @@ Section def_setwith2binop_category.
   Lemma setwith2binop_equiv_iso_is_equiv (X Y : ob setwith2binop_precategory) :
     isweq (setwith2binop_equiv_iso X Y).
   Proof.
-    use gradth.
+    use iso_isweq.
     - exact (setwith2binop_iso_equiv X Y).
     - intros y. use twobinopiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.

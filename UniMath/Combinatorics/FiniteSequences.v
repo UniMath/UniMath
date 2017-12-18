@@ -234,7 +234,7 @@ Proof.
   set (destr := (λ f, f x0) : secs->fib).
   set (constr:= iscontr_rect X is x0 P : fib->secs).
   exists destr.
-  apply (gradth destr constr).
+  apply (iso_isweq destr constr).
   - intros f. apply funextsec; intros x.
     unfold destr, constr.
     apply transport_section.
@@ -334,7 +334,7 @@ Proof. reflexivity. Defined.
 
 Theorem SequenceAssembly {X} : Sequence X ≃ unit ⨿ (X × Sequence X).
 Proof.
-  intros. exists disassembleSequence. apply (gradth _ assembleSequence).
+  intros. exists disassembleSequence. apply (iso_isweq _ assembleSequence).
   { intros. induction x as [n x]. induction n as [|n].
     { apply nil_unique. }
     apply drop_and_append'. }

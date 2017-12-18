@@ -727,7 +727,7 @@ Proof.
     apply (invmaponpathsweq (weqpair h is) _ _ X').
   }
   set (egf := λ a1, (egf1 _ _ (egf0 a1))).
-  set (is2 := gradth _ _ egf efg).
+  set (is2 := iso_isweq _ _ egf efg).
   apply (isweqtotaltofib P1 P2 (λ XY : hProp × hProp,
                                   @eqweqmaphProp (pr1 XY) (pr2 XY)) is2
                          (dirprodpair P P')).

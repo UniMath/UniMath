@@ -481,9 +481,9 @@ Section accessors.
   Context {R : rng} {M N : module R} (f : modulefun M N).
 
   Definition pr1modulefun : M -> N := pr1 f.
-  
+
   Definition modulefun_ismodulefun : ismodulefun pr1modulefun := pr2 f.
-  
+
   Definition modulefun_to_isbinopfun : isbinopfun pr1modulefun :=
     pr1 modulefun_ismodulefun.
 
@@ -766,7 +766,7 @@ Defined.
 Lemma moduleiso'_to_moduleiso_isweq {R} (M N : module R) :
   isweq (moduleiso'_to_moduleiso M N).
 Proof.
-  use (gradth _ (moduleiso_to_moduleiso' M N)).
+  use (iso_isweq _ (moduleiso_to_moduleiso' M N)).
   - intro w.
     unfold moduleiso'_to_moduleiso, moduleiso_to_moduleiso'. cbn.
     induction w as [w1 w2]; cbn.

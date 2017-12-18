@@ -116,7 +116,7 @@ Section monad_types_equiv.
 
   Definition isweq_Monad_to_Kleisli {C : precategory} (hs: has_homsets C) :
     isweq Monad_to_Kleisli :=
-    gradth _ _ (Monad_to_Kleisli_to_Monad hs) (Kleisli_to_Monad_to_Kleisli hs).
+    iso_isweq _ _ (Monad_to_Kleisli_to_Monad hs) (Kleisli_to_Monad_to_Kleisli hs).
 
   Definition weq_Kleisli_Monad {C : precategory} (hs : has_homsets C) :
     (Monad C) ≃ (Kleisli C) := _,, (isweq_Monad_to_Kleisli hs).

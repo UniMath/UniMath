@@ -325,7 +325,7 @@ Proof.
         -- use mk_isbinopfun.
            exact (dirprod_pr2 (pr2 (pr1 i'))).
         -- exact (dirprod_pr2 (pr2 i')).
-  - use gradth.
+  - use iso_isweq.
     + intros i. use mk_rigiso'.
       * exact (pr1rigiso _ _ i).
       * use mk_istwobinopfun.
@@ -895,7 +895,7 @@ Definition rng_univalence_weq1 : rng ≃ rng'.
 Proof.
   use weqpair.
   - intros R. exact (mk_rng' R).
-  - use gradth.
+  - use iso_isweq.
     + intros R'. exact (mk_rng_from_rng' R').
     + intros R. use idpath.
     + intros R'.

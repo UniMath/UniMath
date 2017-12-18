@@ -288,7 +288,7 @@ Proof.
   (* does not use [funextemptyAxiom] *)
   intros.
   set (f := recompl_ne X x neq_x). set (g := invrecompl_ne X x neq_x is).
-  refine (gradth f g _ _).
+  refine (iso_isweq f g _ _).
   {intro u. induction (is (f u)) as [ eq | ne ].
    - induction u as [ c | u].
      + simpl. induction c as [ t neq ]; simpl; simpl in eq.
@@ -390,7 +390,7 @@ Proof.
       + apply idpath.
       + induction (e (idpath x)).
   }
-  apply (gradth f g egf efg).
+  apply (iso_isweq f g egf efg).
 Defined.
 
 Theorem isweqrecompl' (X : UU) (x : X) (is : isisolated X x) :
@@ -536,7 +536,7 @@ Definition weqtranspos0 {T : UU} (t1 t2 : T) :
   isisolated T t1 -> isisolated T t2 -> compl T t1 ≃ compl T t2.
 Proof.
   intros ? ? ? is1 is2.
-  simple refine (weqgradth (funtranspos0 t1 t2 is2)
+  simple refine (iso_weq (funtranspos0 t1 t2 is2)
                            (funtranspos0 t2 t1 is1) _ _).
   - intro x. apply (homottranspos0t2t1t1t2 t1 t2 is1 is2).
   - intro x. apply (homottranspos0t2t1t1t2 t2 t1 is2 is1).
@@ -574,7 +574,7 @@ Proof.
     by (intro; refine (homottranspost2t1t1t2 _ _ _ _ _)).
   assert (efg : ∏ t : T, paths (f (g t)) t)
     by (intro; refine (homottranspost2t1t1t2 _ _ _ _ _)).
-  apply (gradth _ _ egf efg).
+  apply (iso_isweq _ _ egf efg).
 Defined.
 
 
@@ -972,7 +972,7 @@ Proof.
     - simpl. apply idpath.
     - induction hg as [ y ge ]. simpl. apply idpath.
   }
-  apply (gradth _ _ eggff effgg).
+  apply (iso_isweq _ _ eggff effgg).
 Defined.
 
 
@@ -1106,7 +1106,7 @@ Proof.
       apply (maponpaths (fun ee : (neg (paths (ii1 x) (ii2 y)))
                          => (complpair _ _ (ii2 y) ee)) e).
   }
-  apply (gradth f g egf efg).
+  apply (iso_isweq f g egf efg).
 Defined.
 
 
@@ -1164,7 +1164,7 @@ Proof.
       apply (maponpaths (fun ee : (neg (paths (ii2 y) (ii2 y0)))
                          => (complpair _ _ (ii2 y0) ee)) e).
   }
-  apply (gradth f g egf efg).
+  apply (iso_isweq f g egf efg).
 Defined.
 
 
@@ -1198,7 +1198,7 @@ Proof.
       induction ee. apply idpath.
     - induction u. simpl. apply (fromempty (x (idpath _))).
   }
-  apply (gradth ff gg egf efg).
+  apply (iso_isweq ff gg egf efg).
 Defined.
 
 

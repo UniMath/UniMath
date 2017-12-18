@@ -87,7 +87,7 @@ Section BINOP_category.
   Lemma binop_iso_is_equiv (A B : ob BINOP)
         (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    apply (gradth _ (pr1binopfun _ _ (inv_from_iso f))).
+    apply (iso_isweq _ (pr1binopfun _ _ (inv_from_iso f))).
     - intro x.
       set (T:=iso_inv_after_iso f).
       apply subtypeInjectivity in T.
@@ -139,7 +139,7 @@ Section BINOP_category.
 
   Lemma binop_iso_equiv_is_equiv (A B : BINOP) : isweq (binop_iso_equiv A B).
   Proof.
-    apply (gradth _ (binop_equiv_iso A B)).
+    apply (iso_isweq _ (binop_equiv_iso A B)).
     intro; apply eq_iso. apply maponpaths.
     unfold binop_equiv_iso, binop_iso_equiv. cbn.
     use total2_paths_f. cbn. unfold binopfunpair.
@@ -170,7 +170,7 @@ Section BINOP_category.
 
   Lemma binop_equiv_iso_is_equiv (A B : BINOP) : isweq (binop_equiv_iso A B).
   Proof.
-    apply (gradth _ (binop_iso_equiv A B)).
+    apply (iso_isweq _ (binop_iso_equiv A B)).
     intros x. apply subtypeEquality.
     intros y. apply isapropisbinopfun.
 

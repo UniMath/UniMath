@@ -75,7 +75,7 @@ Section def_gr_category.
 
   Lemma gr_iso_is_equiv (A B : ob gr_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
+    use iso_isweq.
     - exact (pr1monoidfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -113,7 +113,7 @@ Section def_gr_category.
 
   Lemma gr_iso_equiv_is_equiv (X Y : gr_precategory) : isweq (gr_iso_equiv X Y).
   Proof.
-    use gradth.
+    use iso_isweq.
     - exact (gr_equiv_iso X Y).
     - intros x. use eq_iso. use monoidfun_paths. use idpath.
     - intros y. use monoidiso_paths. use subtypeEquality.
@@ -132,7 +132,7 @@ Section def_gr_category.
 
   Lemma gr_equiv_iso_is_equiv (X Y : ob gr_precategory) : isweq (gr_equiv_iso X Y).
   Proof.
-    use gradth.
+    use iso_isweq.
     - exact (gr_iso_equiv X Y).
     - intros y. use monoidiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.

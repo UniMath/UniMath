@@ -78,7 +78,7 @@ Section def_monoid_category.
 
   Lemma monoid_iso_is_equiv (A B : ob monoid_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
+    use iso_isweq.
     - exact (pr1monoidfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -116,7 +116,7 @@ Section def_monoid_category.
 
   Lemma monoid_iso_equiv_is_equiv (X Y : monoid_precategory) : isweq (monoid_iso_equiv X Y).
   Proof.
-    use gradth.
+    use iso_isweq.
     - exact (monoid_equiv_iso X Y).
     - intros x. use eq_iso. use monoidfun_paths. use idpath.
     - intros y. use monoidiso_paths. use subtypeEquality.
@@ -134,7 +134,7 @@ Section def_monoid_category.
 
   Lemma monoid_equiv_iso_is_equiv (X Y : ob monoid_precategory) : isweq (monoid_equiv_iso X Y).
   Proof.
-    use gradth.
+    use iso_isweq.
     - exact (monoid_iso_equiv X Y).
     - intros y. use monoidiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.

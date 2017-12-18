@@ -977,7 +977,7 @@ Lemma iso_disp_iso_fiber (a b : fiber_category) :
   iso a b ≃ iso_disp (identity_iso c) a b.
 Proof.
   exists (iso_disp_from_iso_fiber a b).
-  use (gradth _ (iso_fiber_from_iso_disp _ _ )).
+  use (iso_isweq _ (iso_fiber_from_iso_disp _ _ )).
   - intro. apply eq_iso. apply idpath.
   - intro. apply eq_iso_disp. apply idpath.
 Defined.

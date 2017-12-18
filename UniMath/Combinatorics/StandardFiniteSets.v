@@ -707,7 +707,7 @@ Proof.
     - apply idpath.
     - apply idpath.
   }
-  apply ( gradth _ _ egf efg ).
+  apply ( iso_isweq _ _ egf efg ).
 Defined.
 
 Lemma isinjstntonat (n : nat) : isInjectiveFunction (pr1 : stnset n -> natset).
@@ -777,12 +777,12 @@ Proof.
     + apply isinjstntonat. cbn. rewrite natpluscomm. apply minusplusnmm. apply H.
 Qed.
 
-(** A proof of weqfromcoprodofstn using gradth *)
+(** A proof of weqfromcoprodofstn using iso_isweq *)
 Theorem weqfromcoprodofstn (n m : nat) : (⟦n⟧ ⨿ ⟦m⟧) ≃ ⟦n+m⟧.
 Proof.
   intros n m.
   use (tpair _ (weqfromcoprodofstn_map n m)).
-  use (gradth _ (weqfromcoprodofstn_invmap n m)).
+  use (iso_isweq _ (weqfromcoprodofstn_invmap n m)).
   - exact (weqfromcoprodofstn_eq1 n m).
   - exact (weqfromcoprodofstn_eq2 n m).
 Defined.

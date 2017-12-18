@@ -147,7 +147,7 @@ Defined.
 Definition transposition_weq {X} (dec: isdeceq X) (i j:X) : isweq (transposition0 dec i j).
 Proof.
   intros.
-  apply (gradth _ (transposition0 dec i j)).
+  apply (iso_isweq _ (transposition0 dec i j)).
   { apply transposition_squared. }
   { apply transposition_squared. }
 Defined.
@@ -674,7 +674,7 @@ Module NN_agreement.
     set (markednat :=
            make_MarkedAbelianMonoid R nataddabmonoid (λ _, 1) fromemptysec).
     exists (map_base (thePoint (iscontrMarkedAbelianMonoidMap markednat))).
-    simple refine (gradth _ _ _ _).
+    simple refine (iso_isweq _ _ _ _).
     { intros m. { exact (m * one). } }
     { intros w.
       apply (squash_to_prop (lift R w)).

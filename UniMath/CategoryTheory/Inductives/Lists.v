@@ -326,7 +326,7 @@ Lemma weq_list (A : HSET) : list (pr1 A) ≃ List A.
 Proof.
 use tpair.
 - apply to_List.
-- use gradth.
+- use iso_isweq.
   + apply to_list.
   + apply to_listK.
   + apply to_ListK.

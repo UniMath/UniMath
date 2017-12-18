@@ -320,7 +320,7 @@ Lemma is_univalent_CONE : is_univalent CONE.
 Proof.
   split.
   - intros a b.
-    apply (gradth _  (@isotoid_CONE a b)).
+    apply (iso_isweq _  (@isotoid_CONE a b)).
     apply isotoid_CONE_idtoiso.
     apply idtoiso_isotoid_CONE.
   - intros x y. apply isaset_Cone_Mor.

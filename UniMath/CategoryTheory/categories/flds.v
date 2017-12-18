@@ -77,7 +77,7 @@ Section def_fld_category.
 
   Lemma fld_iso_is_equiv (A B : ob fld_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
+    use iso_isweq.
     - exact (pr1rigfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -115,7 +115,7 @@ Section def_fld_category.
 
   Lemma fld_iso_equiv_is_equiv (X Y : fld_precategory) : isweq (fld_iso_equiv X Y).
   Proof.
-    use gradth.
+    use iso_isweq.
     - exact (fld_equiv_iso X Y).
     - intros x. use eq_iso. use rigfun_paths. use idpath.
     - intros y. use rigiso_paths. use subtypeEquality.
@@ -134,7 +134,7 @@ Section def_fld_category.
 
   Lemma fld_equiv_iso_is_equiv (X Y : ob fld_precategory) : isweq (fld_equiv_iso X Y).
   Proof.
-    use gradth.
+    use iso_isweq.
     - exact (fld_iso_equiv X Y).
     - intros y. use rigiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.

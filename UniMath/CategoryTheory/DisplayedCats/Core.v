@@ -577,7 +577,7 @@ Lemma iso_disp_precomp {C : category} {D : disp_cat C}
           isweq (fun ff' : yy -->[ f' ] yy' => pr1 ff ;; ff').
 Proof.
   intros y' f' yy'.
-  use gradth.
+  use iso_isweq.
   + intro X.
     set (XR := (pr1 (pr2 ff)) ;; X).
     set (XR' := transportf _ (assoc _ _ _   ) XR).
@@ -623,7 +623,7 @@ Lemma iso_disp_postcomp {C : category} {D : disp_cat C}
           isweq (fun ff : xx' -->[ f' ] xx => ff ;; ii)%mor_disp.
 Proof.
   intros y' f' yy'.
-  use gradth.
+  use iso_isweq.
   + intro X.
     set (XR := X ;; (pr1 (pr2 ii))).
     set (XR' := transportf (λ x, _ -->[ x ] _) (!assoc _ _ _   ) XR).
@@ -1051,7 +1051,7 @@ Definition total_iso_equiv_map {xx yy : total_category}
 Definition total_iso_isweq (xx yy : total_category)
   : isweq (@total_iso_equiv_map xx yy).
 Proof.
-  use gradth.
+  use iso_isweq.
   - intros ff. exists (iso_base_from_total ff). apply iso_disp_from_total.
   - intros [f ff]. use total2_paths_f.
     + apply eq_iso, idpath.

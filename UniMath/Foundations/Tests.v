@@ -13,19 +13,19 @@ Goal ∏ n, 1*n = n. intros. apply idpath. Defined.
 Goal ∏ n, 4*n = n+n+n+n. intros. apply idpath. Defined.
 Goal ∏ X x, idweq X x = x. intros. apply idpath. Defined.
 
-Module Test_gradth.
+Module Test_iso_isweq.
   Let f := idfun nat.
-  Definition w : nat ≃ nat := weqgradth f f (λ _, idpath _) (λ _, idpath _).
+  Definition w : nat ≃ nat := iso_weq f f (λ _, idpath _) (λ _, idpath _).
   Goal homotinvweqweq w 3 = idpath _. apply idpath. Defined.
   Goal homotweqinvweq w 3 = idpath _. apply idpath. Defined.
   Goal homotweqinvweqweq w 3 = idpath _. apply idpath. Defined.
 
   Definition v : bool ≃ bool.
-    simple refine (weqgradth negb negb _ _); intro x; induction x; apply idpath. Defined.
+    simple refine (iso_weq negb negb _ _); intro x; induction x; apply idpath. Defined.
   Goal homotinvweqweq v true = idpath _. apply idpath. Defined.
   Goal homotweqinvweq v true = idpath _. apply idpath. Defined.
   Goal homotweqinvweqweq v true = idpath _. apply idpath. Defined.
-End Test_gradth.
+End Test_iso_isweq.
 
 Goal ∏ X x, invweq (idweq X) x = x. intros. apply idpath. Defined.
 

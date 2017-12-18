@@ -863,7 +863,7 @@ Proof.
   { unshelve refine (makeNatiso _ _).
     { intros F. apply hset_equiv_iso.
       unfold bifunctor_assoc; simpl.
-      unshelve refine (weqgradth _ _ _ _).
+      unshelve refine (iso_weq _ _ _ _).
       - intros _. exact tt.
       - intros x. unshelve refine (_,,_).
         + unfold θ_1; simpl. intro b. exact tt.
@@ -910,7 +910,7 @@ Proof.
   set (ISO := @iso).
   unshelve refine (makeNatiso (C := [B, C]^op) _ _).
   { intro H. apply hset_equiv_iso.
-    unshelve refine (weqgradth _ _ _ _).
+    unshelve refine (iso_weq _ _ _ _).
     { intros w.
       unshelve refine (_,,_).
       { unshelve refine (makeNattrans _ _).

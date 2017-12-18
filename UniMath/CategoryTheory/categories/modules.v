@@ -121,7 +121,7 @@ Defined.
 Lemma iso_isweq {M N : ob mod_precategory} (f : iso M N) :
   isweq (pr1modulefun (morphism_from_iso _ _ _ f)).
 Proof.
-   use (gradth (pr1modulefun (morphism_from_iso _ _ _ f))).
+   use (iso_isweq (pr1modulefun (morphism_from_iso _ _ _ f))).
    - exact (pr1modulefun (inv_from_iso f)).
    - intro; set (T:= iso_inv_after_iso f).
      apply subtypeInjectivity in T.
@@ -167,7 +167,7 @@ Defined.
 
 Lemma moduleiso_iso_isweq (M N : ob mod_precategory) : isweq (@moduleiso_iso M N).
 Proof.
-   apply (gradth _ (iso_moduleiso M N)).
+   apply (iso_isweq _ (iso_moduleiso M N)).
    - intro.
      apply subtypeEquality.
      + intro; apply isapropismodulefun.

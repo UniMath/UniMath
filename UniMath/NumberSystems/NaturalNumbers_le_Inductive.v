@@ -92,7 +92,7 @@ Proof.
     intro x. destruct x as [ n e ]. destruct e. simpl.
     apply leFtototal2withnat_l0.
   }
-  apply (gradth _ _ egf efg).
+  apply (iso_isweq _ _ egf efg).
 Defined.
 
 Definition weqleFtototalwithnat { T : UU } (F : T -> T) (t t' : T) :

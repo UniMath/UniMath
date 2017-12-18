@@ -89,7 +89,7 @@ Section HSET_category.
 Lemma hset_iso_is_equiv (A B : ob HSET)
    (f : iso A B) : isweq (pr1 f).
 Proof.
-  apply (gradth _ (inv_from_iso f)).
+  apply (iso_isweq _ (inv_from_iso f)).
   - intro x.
     set (T:=iso_inv_after_iso f).
     set (T':=toforallpaths _ _ _ T). apply T'.
@@ -135,7 +135,7 @@ Defined.
 
 Lemma hset_iso_equiv_is_equiv (A B : ob HSET) : isweq (hset_iso_equiv A B).
 Proof.
-  apply (gradth _ (hset_equiv_iso A B)).
+  apply (iso_isweq _ (hset_equiv_iso A B)).
   intro; apply eq_iso.
   - reflexivity.
   - intro; apply subtypeEquality.
@@ -151,7 +151,7 @@ Defined.
 
 Lemma hset_equiv_iso_is_equiv (A B : ob HSET) : isweq (hset_equiv_iso A B).
 Proof.
-  apply (gradth _ (hset_iso_equiv A B)).
+  apply (iso_isweq _ (hset_iso_equiv A B)).
   { intro f.
     apply subtypeEquality.
     { intro; apply isapropisweq. }

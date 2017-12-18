@@ -570,7 +570,7 @@ Definition weq_section_from_diagonal (isPb : isPullback _ _ _ _ H)
     ∑ s' : C⟦b, d⟧, s' · h = identity _ .
 Proof.
   exists (section_from_diagonal isPb).
-  apply (gradth _ (diagonal_from_section isPb )).
+  apply (iso_isweq _ (diagonal_from_section isPb )).
   - abstract (intro x; apply subtypeEquality; [intro; apply hsC  |];
               apply (PullbackArrow_PullbackPr2 (mk_Pullback f g d h k H isPb) )).
   - abstract (intro y; apply subtypeEquality; [intro; apply hsC |];

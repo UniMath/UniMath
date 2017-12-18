@@ -293,7 +293,7 @@ Proof.
   set (BBcat := is_univalent_functor_category B _ HB).
   set (Et := isotoid _ AAcat et).
   set (Ep := isotoid _ BBcat ep).
-  apply (gradth _ (λ b, pr1 (right_adjoint (pr1 HF)) b)); intro a.
+  apply (iso_isweq _ (λ b, pr1 (right_adjoint (pr1 HF)) b)); intro a.
   apply (!toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Et)) a).
   now apply (toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Ep))).
 Defined.

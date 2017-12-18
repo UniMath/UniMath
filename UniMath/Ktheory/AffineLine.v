@@ -62,7 +62,7 @@ Proof. intros.
               (f (ii1 O) = IH' O (f (ii2 O))) ×
               (∏ n : nat, f (ii1 (S n)) = IH' (S n) (f (ii1 n))))).
        { apply (weqbandf (weqonsecbase _ negpos)). intro f.
-         simple refine (weqpair _ (gradth _ _ _ _)).
+         simple refine (weqpair _ (iso_isweq _ _ _ _)).
          { intros [h0 [hp hn]]. simple refine (_,,_,,_,,_).
            { exact h0. } { exact hp. }
            { exact (hn O). } { intro n. exact (hn (S n)). } }
@@ -138,7 +138,7 @@ Lemma A (P:ℤ->Type) (p0:P zero)
          (λ fh, pr1 fh zero)
          p0).
 Proof. intros.
-       simple refine (weqpair _ (gradth _ _ _ _)).
+       simple refine (weqpair _ (iso_isweq _ _ _ _)).
        { intros [f [h0 h]]. exact ((f,,h),,h0). }
        { intros [[f h] h0]. exact (f,,(h0,,h)). }
        { intros [f [h0 h]]. reflexivity. }
