@@ -56,7 +56,7 @@ Unset Kernel Term Sharing.
 (** Imports *)
 
 Require Export UniMath.Algebra.BinaryOperations.
-Require Import UniMath.MoreFoundations.Subtypes.
+Require Import UniMath.MoreFoundations.All.
 
 (** To upstream files *)
 
@@ -438,7 +438,9 @@ Qed.
 
 Lemma ismonoidfun_pr1 {X : monoid} (A : submonoid X) : @ismonoidfun A X pr1.
 Proof.
-  use mk_ismonoidfun; easy.
+  use mk_ismonoidfun.
+  - intros a a'. reflexivity.
+  - reflexivity.
 Defined.
 
 Definition submonoid_incl {X : monoid} (A : submonoid X) : monoidfun A X :=

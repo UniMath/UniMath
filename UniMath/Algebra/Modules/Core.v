@@ -1,12 +1,8 @@
 (** Authors Anthony Bordg and Floris van Doorn, February-December 2017 *)
 
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Rigs_and_Rings.
 Require Import UniMath.Algebra.Monoids_and_Groups.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.Algebra.Domains_and_Fields.
-Require Import UniMath.Foundations.PartD.
 
 (** ** Contents
 - The ring of endomorphisms of an abelian group
@@ -344,7 +340,7 @@ Defined.
 
 Lemma module_mult_neg1 {R : rng} {M : module R} (x : M) : rngminus1 * x = @grinv _ x.
 Proof.
-  symmetry. apply grinv_path_from_op_path.
+  apply pathsinv0. apply grinv_path_from_op_path.
   refine (maponpaths (λ y, y * _)%multmonoid (!(module_mult_unel2 x)) @ _).
   now rewrite <- module_mult_is_rdistr, rngrinvax1, module_mult_0_to_0.
 Defined.
@@ -571,10 +567,10 @@ Defined.
 Lemma modulehombinop_ismodulefun {R : rng} {M N : module R} (f g : modulefun M N) :
   @ismodulefun R M N (λ x : pr1 M, (pr1 f x * pr1 g x)%multmonoid).
 Proof.
-  - use tpair.
-    exact (pr1 (abmonoidshombinop_ismonoidfun (modulefun_to_monoidfun f)
+  use ismodulefunpair.
+  -  exact (pr1 (abmonoidshombinop_ismonoidfun (modulefun_to_monoidfun f)
                                               (modulefun_to_monoidfun g))).
-    intros r m. rewrite (modulefun_to_islinear f). rewrite (modulefun_to_islinear g).
+  - intros r m. rewrite (modulefun_to_islinear f). rewrite (modulefun_to_islinear g).
     rewrite <- module_mult_is_ldistr. reflexivity.
 Defined.
 
@@ -583,7 +579,7 @@ Definition modulehombinop {R : rng} {M N : module R} : binop (modulefun M N) :=
 
 Lemma unelmodulefun_ismodulefun {R : rng} (M N : module R) : ismodulefun (λ x : M, (unel N)).
 Proof.
-  use tpair.
+  use ismodulefunpair.
   - use mk_isbinopfun. intros m m'. use pathsinv0. use lunax.
   - intros r m. rewrite module_mult_1. reflexivity.
 Qed.
@@ -728,7 +724,7 @@ Proof.
    intros x y.
    apply (invmaponpathsweq f).
    rewrite (homotweqinvweq f (op x y)).
-   symmetry.
+   apply pathsinv0.
    transitivity (op ((moduleiso_to_weq f) (invmap f x)) ((moduleiso_to_weq f) (invmap f y))).
    apply (modulefun_to_isbinopfun f (invmap f x) (invmap f y)).
    rewrite 2 (homotweqinvweq f).
@@ -744,7 +740,7 @@ Proof.
    transitivity (module_mult N r (moduleiso_to_weq f (invmap (moduleiso_to_weq f) x))).
    rewrite (homotweqinvweq (moduleiso_to_weq f) x).
    apply idpath.
-   symmetry.
+   apply pathsinv0.
    apply (pr2 (moduleiso_ismodulefun f) r (invmap f x)).
 Defined.
 

@@ -1,14 +1,9 @@
 (** Authors Floris van Doorn, December 2017 *)
 
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Rigs_and_Rings.
 Require Import UniMath.Algebra.Monoids_and_Groups.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.Algebra.Domains_and_Fields.
-Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Algebra.Modules.Core.
-Require Import UniMath.MoreFoundations.Subtypes.
 
 (** ** Contents
 - Subobjects of modules
@@ -60,8 +55,8 @@ Local Open Scope module_scope.
 Definition submodule_smul {R : rng} {M : module R} {A : submodule M} (r : R) (m : A) : A.
 Proof.
   use tpair.
-  exact (r * pr1 m).
-  exact (submodule_to_issubsetwithsmul A r (pr1 m) (pr2 m)).
+  - exact (r * pr1 m).
+  - exact (submodule_to_issubsetwithsmul A r (pr1 m) (pr2 m)).
 Defined.
 
 Definition carrierofasubmodule {R : rng} {M : module R} (A : submodule M) : module R.
@@ -90,7 +85,7 @@ Lemma ismodulefun_pr1 {R : rng} {M : module R} (A : submodule M) : @ismodulefun 
 Proof.
   use ismodulefunpair.
   exact (pr1 (ismonoidfun_pr1 A)).
-  easy.
+  intros r a. reflexivity.
 Defined.
 
 Definition submodule_incl {R : rng} {M : module R} (A : submodule M) : modulefun A M :=
@@ -102,9 +97,9 @@ Lemma issubmodule_kernel {R : rng} {A B : module R} (f : modulefun A B) :
   issubmodule (abgr_kernel_hsubtype (modulefun_to_monoidfun f)).
 Proof.
   split.
-  apply abgr_Kernel_subabgr_issubgr.
-  intros r x. apply hinhfun. cbn. intro p.
-  now rewrite (modulefun_to_islinear f), <- (module_mult_1 r), <- p.
+  - apply abgr_Kernel_subabgr_issubgr.
+  - intros r x. apply hinhfun. cbn. intro p.
+    now rewrite (modulefun_to_islinear f), <- (module_mult_1 r), <- p.
 Defined.
 
 Definition module_kernel {R : rng} {A B : module R} (f : modulefun A B) : submodule A :=
@@ -113,7 +108,7 @@ Definition module_kernel {R : rng} {A B : module R} (f : modulefun A B) : submod
 Lemma module_kernel_eq {R : rng} {A B : module R} (f : modulefun A B) x :
   f (submodule_incl (module_kernel f) x) = unel B.
 Proof.
-   use (squash_to_prop (pr2 x)).
+  use (squash_to_prop (pr2 x)).
   - apply isasetmodule.
   - apply idfun.
 Defined.
@@ -122,9 +117,9 @@ Lemma issubmodule_image {R : rng} {A B : module R} (f : modulefun A B) :
   issubmodule (abgr_image_hsubtype (modulefun_to_monoidfun f)).
 Proof.
   split.
-  apply abgr_image_issubgr.
-  intros r x. apply hinhfun. cbn. intro ap. induction ap as [a p].
-  split with (r * a). now rewrite (modulefun_to_islinear f), <- p.
+  - apply abgr_image_issubgr.
+  - intros r x. apply hinhfun. cbn. intro ap. induction ap as [a p].
+    split with (r * a). now rewrite (modulefun_to_islinear f), <- p.
 Defined.
 
 Definition module_image {R : rng} {A B : module R} (f : modulefun A B) : submodule B :=
