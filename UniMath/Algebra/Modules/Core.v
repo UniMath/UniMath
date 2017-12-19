@@ -763,10 +763,10 @@ Proof.
      + exact (pr2 w).
 Defined.
 
-Lemma moduleiso'_to_moduleiso_isweq {R} (M N : module R) :
+Lemma moduleiso'_to_moduleisweq_iso {R} (M N : module R) :
   isweq (moduleiso'_to_moduleiso M N).
 Proof.
-  use (iso_isweq _ (moduleiso_to_moduleiso' M N)).
+  use (isweq_iso _ (moduleiso_to_moduleiso' M N)).
   - intro w.
     unfold moduleiso'_to_moduleiso, moduleiso_to_moduleiso'. cbn.
     induction w as [w1 w2]; cbn.
@@ -778,5 +778,5 @@ Proof.
  - reflexivity.
 Defined.
 
-Definition moduleiso'_to_moduleiso_weq {R} (M N : module R) : (moduleiso' M N) ≃ (moduleiso M N) :=
-   weqpair (moduleiso'_to_moduleiso M N) (moduleiso'_to_moduleiso_isweq M N).
+Definition moduleiso'_to_moduleweq_iso {R} (M N : module R) : (moduleiso' M N) ≃ (moduleiso M N) :=
+   weqpair (moduleiso'_to_moduleiso M N) (moduleiso'_to_moduleisweq_iso M N).

@@ -146,7 +146,7 @@ Proof.
                    pr1 S ,, (λ s : hq, ∃ r : hq, r < s × ¬ pr1 S r)
                        ,, isOneSided_TwoSided (pr1 S) (pr2 S))
             : (∑ S, isOneSided S) → ∑ L U : hq → hProp, isTwoSided L U).
-  apply (iso_weq f g).
+  apply (weq_iso f g).
   - intros LU.
     change (pr1 (g (f LU)),, pr2 (g (f LU)) = pr1 LU,, pr2 LU).
     apply pair_path_in2.
@@ -530,7 +530,7 @@ set (g := (λ D : Dcuts,
     isDcuts_OneSided (pr1 D) (is_Dcuts_bot D) (is_Dcuts_open D)
     (is_Dcuts_corr D),, Hg D)
           : Dcuts → ∑ S : hq → hProp, isOneSided S × (∏ q : hq, q < 0 → S q)).
-  apply (iso_weq f g).
+  apply (weq_iso f g).
   - intros D.
     simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
     + apply isapropdirprod.

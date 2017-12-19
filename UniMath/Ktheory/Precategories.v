@@ -270,7 +270,7 @@ Lemma weq_iff_iso_SET {X Y:SET} (f:X-->Y) : is_iso f <-> isweq f.
 Proof.
   split.
   - intro i. set (F := isopair f i).
-    refine (iso_isweq f (inv_from_iso F)
+    refine (isweq_iso f (inv_from_iso F)
                    (λ x, eqtohomot (iso_inv_after_iso F) x)
                    (λ y, eqtohomot (iso_after_iso_inv F) y)).
   - exact (λ i Z, weqproperty (weqbfun (Z:hSet) (weqpair f i))).
@@ -372,7 +372,7 @@ Proof.
   unshelve refine (_,,_).
   { unshelve refine (_,,_).
     { exact functorOp. }
-    { intros H H'. unshelve refine (iso_isweq _ _ _ _).
+    { intros H H'. unshelve refine (isweq_iso _ _ _ _).
       { simpl. intros p. unshelve refine (makeNattrans _ _).
         { intros b. exact (pr1 p b). }
         { abstract (intros b b' f; simpl; exact (!nat_trans_ax p _ _ f)) using _L_. } }
@@ -382,7 +382,7 @@ Proof.
       { abstract (intro p; apply nat_trans_eq;
                   [ apply homset_property
                   | intro b; reflexivity ]) using _L_. }}}
-  { simpl. unshelve refine (iso_isweq _ _ _ _).
+  { simpl. unshelve refine (isweq_iso _ _ _ _).
     { exact (functor_opp : B^op ⟶ C^op -> B ⟶ C). }
     { abstract (intros H; simpl; apply (functor_eq _ _ (homset_property C));
                 unshelve refine (total2_paths_f _ _); reflexivity) using _L_. }

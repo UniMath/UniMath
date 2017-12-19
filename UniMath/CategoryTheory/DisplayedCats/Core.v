@@ -577,7 +577,7 @@ Lemma iso_disp_precomp {C : category} {D : disp_cat C}
           isweq (fun ff' : yy -->[ f' ] yy' => pr1 ff ;; ff').
 Proof.
   intros y' f' yy'.
-  use iso_isweq.
+  use isweq_iso.
   + intro X.
     set (XR := (pr1 (pr2 ff)) ;; X).
     set (XR' := transportf _ (assoc _ _ _   ) XR).
@@ -623,7 +623,7 @@ Lemma iso_disp_postcomp {C : category} {D : disp_cat C}
           isweq (fun ff : xx' -->[ f' ] xx => ff ;; ii)%mor_disp.
 Proof.
   intros y' f' yy'.
-  use iso_isweq.
+  use isweq_iso.
   + intro X.
     set (XR := X ;; (pr1 (pr2 ii))).
     set (XR' := transportf (λ x, _ -->[ x ] _) (!assoc _ _ _   ) XR).
@@ -1048,10 +1048,10 @@ Definition total_iso_equiv_map {xx yy : total_category}
   -> iso xx yy
 := λ ff, total_iso (pr1 ff) (pr2 ff).
 
-Definition total_iso_isweq (xx yy : total_category)
+Definition total_isweq_iso (xx yy : total_category)
   : isweq (@total_iso_equiv_map xx yy).
 Proof.
-  use iso_isweq.
+  use isweq_iso.
   - intros ff. exists (iso_base_from_total ff). apply iso_disp_from_total.
   - intros [f ff]. use total2_paths_f.
     + apply eq_iso, idpath.
@@ -1067,7 +1067,7 @@ Qed.
 Definition total_iso_equiv (xx yy : total_category)
   : (∑ f : iso (pr1 xx) (pr1 yy), iso_disp f (pr2 xx) (pr2 yy))
   ≃ iso xx yy
-:= weqpair _ (total_iso_isweq xx yy).
+:= weqpair _ (total_isweq_iso xx yy).
 
 Lemma is_univalent_total_category (CC : is_univalent C) (DD : is_univalent_disp D)
   : is_univalent (total_category).

@@ -224,7 +224,7 @@ Defined.
 
 Lemma isweqlistfun {A} n : isweq (@nth' A n).
 Proof.
-  simple refine (iso_isweq _ (functionToList' _) _ _).
+  simple refine (isweq_iso _ (functionToList' _) _ _).
   - intros. induction n as [|n N].
     + apply isapropunit.
     + simpl in x. induction x as [a x]. apply dirprodeq.

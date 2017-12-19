@@ -581,7 +581,7 @@ Section HomSetIso_from_Adjunction.
   Definition adjunction_hom_weq (A : C) (B : D) : F A --> B ≃ A --> G B.
   Proof.
     exists φ_adj.
-    apply (iso_isweq _ φ_adj_inv).
+    apply (isweq_iso _ φ_adj_inv).
     - apply φ_adj_inv_after_φ_adj.
     - apply φ_adj_after_φ_adj_inv.
   Defined.

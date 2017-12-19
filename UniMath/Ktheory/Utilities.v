@@ -512,7 +512,7 @@ Proof. intros. simple refine (weqbandf _ _ _ _).
 
 Definition weq_total2_prod {X Y} (Z:Y->Type) : (∑ y, X × Z y) ≃ (X × ∑ y, Z y).
 Proof.                          (* move upstream *)
-       intros. simple refine (weqpair _ (iso_isweq _ _ _ _)).
+       intros. simple refine (weqpair _ (isweq_iso _ _ _ _)).
        { intros [y [x z]]. exact (x,,y,,z). }
        { intros [x [y z]]. exact (y,,x,,z). }
        { intros [y [x z]]. reflexivity. }
@@ -521,7 +521,7 @@ Proof.                          (* move upstream *)
 (* associativity of ∑ *)
 Definition totalAssociativity {X:UU} {Y: ∏ (x:X), UU} (Z: ∏ (x:X) (y:Y x), UU) : (∑ (x:X) (y:Y x), Z x y) ≃ (∑ (p:∑ (x:X), Y x), Z (pr1 p) (pr2 p)).
 Proof.                          (* move upstream *)
-  intros. simple refine (_,,iso_isweq _ _ _ _).
+  intros. simple refine (_,,isweq_iso _ _ _ _).
   { intros [x [y z]]. exact ((x,,y),,z). }
   { intros [[x y] z]. exact (x,,(y,,z)). }
   { intros [x [y z]]. reflexivity. }

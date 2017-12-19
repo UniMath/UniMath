@@ -141,7 +141,7 @@ Proof.
           { simpl in h .  apply isweqpr1pr1 . }
           apply ( invmaponpathsweq ( weqpair h is ) _ _ X' ).
         * set ( egf := λ a1 , egf1 _ _ ( egf0 a1 ) ).
-          set ( is2 := iso_isweq _ _ egf efg ).
+          set ( is2 := isweq_iso _ _ egf efg ).
           apply ( isweqtotaltofib _ _ ( λ _, eqweqmap) is2 ( dirprodpair T1 T2 ) ).
           }
   { intros ua.
@@ -184,7 +184,7 @@ Section UnivalenceImplications.
   Proof.
     unfold propositionalUnivalenceStatement; intros ? ? i j f g.
     apply weqtopathsUAH.
-    simple refine (weqpair f (iso_isweq f g _ _)).
+    simple refine (weqpair f (isweq_iso f g _ _)).
     - intro p. apply proofirrelevance, i.
     - intro q. apply proofirrelevance, j.
   Defined.
@@ -284,7 +284,7 @@ Section UnivalenceImplications.
   Lemma isweqlcompwithweqUAH {X X' : UU} (w: X ≃ X') (Y:UU) : isweq (fun (a:X'->Y) x => a (w x)).
   (* this lemma is currently unused *)
   Proof.
-    simple refine (iso_isweq _ _ _ _).
+    simple refine (isweq_iso _ _ _ _).
     exact (λ b x', b (invweq w x')).
     exact (λ a, funextfunPreliminaryUAH _ a (λ x', maponpaths a (homotweqinvweq w x'))).
     exact (λ a, funextfunPreliminaryUAH _ a (λ x , maponpaths a (homotinvweqweq w x ))).
@@ -293,7 +293,7 @@ Section UnivalenceImplications.
   Lemma isweqrcompwithweqUAH { Y Y':UU } (w: Y ≃ Y')(X:UU) :
     isweq (fun a:X->Y => (λ x, w (a x))).
   Proof.
-    simple refine (iso_isweq _ _ _ _).
+    simple refine (isweq_iso _ _ _ _).
     exact (fun a':X->Y' => λ x, (invweq  w (a' x))).
     exact (fun a :X->Y  => funextfunPreliminaryUAH _ a (λ x, homotinvweqweq w (a x))).
     exact (fun a':X->Y' => funextfunPreliminaryUAH _ a' (λ x, homotweqinvweq w (a' x))).

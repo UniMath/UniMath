@@ -20,7 +20,7 @@ Contents :
 - various lemmas:
   - uniqueness of inverse, composition etc.
   - stability under composition
-  - Analogue to [iso_isweq]: [is_iso_qinv]
+  - Analogue to [isweq_iso]: [is_iso_qinv]
 
 - Alternative definition of isomorphisms: [z_iso]
   - Definition: [is_z_iso f := ∑ g, ...]
@@ -367,7 +367,7 @@ Defined.
 Definition is_iso_inv_from_iso {C:precategory}{a b : C} (f : iso a b) : is_iso (inv_from_iso f).
 Proof.
   intro c.
-  apply (iso_isweq _ (precomp_with f)).
+  apply (isweq_iso _ (precomp_with f)).
   - intro g.
     unfold precomp_with.
     intermediate_path ((f · inv_from_iso f) · g).
@@ -590,7 +590,7 @@ Definition iso_comp_right_weq {C:precategory_data} {a b:C} (h:iso a b) (c:C) :
 Lemma iso_comp_left_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
   isweq (fun f : c --> a => f · h).
 Proof.
-  intros. apply (iso_isweq _ (λ g, g · inv_from_iso h)).
+  intros. apply (isweq_iso _ (λ g, g · inv_from_iso h)).
   - intro x. rewrite <- assoc. apply remove_id_right.
     apply iso_inv_after_iso. apply idpath.
   - intro y. rewrite <- assoc. apply remove_id_right.
@@ -644,7 +644,7 @@ Definition is_iso_qinv {C:precategory} {a b : C} (f : a --> b) (g : b --> a) :
   is_inverse_in_precat f g -> is_iso f.
 Proof.
   intros H c.
-  apply (iso_isweq _ (precomp_with g)).
+  apply (isweq_iso _ (precomp_with g)).
   - intro h. unfold precomp_with.
     rewrite assoc.
     apply remove_id_left.
@@ -1076,7 +1076,7 @@ Defined.
 Lemma z_iso_comp_right_isweq {C:precategory} {a b:ob C} (h:z_iso a b) (c:C) :
   isweq (fun f : b --> c => h · f).
 Proof.
-  intros. apply (iso_isweq _ (λ g, inv_from_z_iso h · g)).
+  intros. apply (isweq_iso _ (λ g, inv_from_z_iso h · g)).
        { intros f. use (_ @ maponpaths (λ m, m · f) (pr2 (pr2 (pr2 h))) @ _).
          { apply assoc. } { apply id_left. } }
        { intros g. use (_ @ maponpaths (λ m, m · g) (pr1 (pr2 (pr2 h))) @ _).
@@ -1089,7 +1089,7 @@ Definition z_iso_comp_right_weq {C:precategory} {a b:C} (h:z_iso a b) (c:C) :
 Lemma z_iso_comp_left_isweq {C:precategory} {a b:ob C} (h:z_iso a b) (c:C) :
   isweq (fun f : c --> a => f · h).
 Proof.
-  intros. apply (iso_isweq _ (λ g, g · inv_from_z_iso h)).
+  intros. apply (isweq_iso _ (λ g, g · inv_from_z_iso h)).
   { intros f. use (_ @ maponpaths (λ m, f·m) (pr1 (pr2 (pr2 h))) @ _).
          { apply pathsinv0. apply assoc. }  { apply id_right. } }
        { intros g. use (_ @ maponpaths (λ m, g·m) (pr2 (pr2 (pr2 h))) @ _).

@@ -189,7 +189,7 @@ Section pullbacks_slice_products_equiv.
   Qed.
 
   Definition isweq_binprod_to_pullback : isweq binprod_to_pullback :=
-    iso_isweq _ _ binprod_to_pullback_inv pullback_to_binprod_inv.
+    isweq_iso _ _ binprod_to_pullback_inv pullback_to_binprod_inv.
 
   (** ** the equivalence of the types of binary products in C/Z
          and pullbacks of pairs of arrows to Z in C *)

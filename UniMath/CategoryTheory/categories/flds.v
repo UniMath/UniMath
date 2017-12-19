@@ -77,7 +77,7 @@ Section def_fld_category.
 
   Lemma fld_iso_is_equiv (A B : ob fld_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use iso_isweq.
+    use isweq_iso.
     - exact (pr1rigfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -115,7 +115,7 @@ Section def_fld_category.
 
   Lemma fld_iso_equiv_is_equiv (X Y : fld_precategory) : isweq (fld_iso_equiv X Y).
   Proof.
-    use iso_isweq.
+    use isweq_iso.
     - exact (fld_equiv_iso X Y).
     - intros x. use eq_iso. use rigfun_paths. use idpath.
     - intros y. use rigiso_paths. use subtypeEquality.
@@ -134,7 +134,7 @@ Section def_fld_category.
 
   Lemma fld_equiv_iso_is_equiv (X Y : ob fld_precategory) : isweq (fld_equiv_iso X Y).
   Proof.
-    use iso_isweq.
+    use isweq_iso.
     - exact (fld_iso_equiv X Y).
     - intros y. use rigiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.
@@ -143,7 +143,7 @@ Section def_fld_category.
   Defined.
   Opaque fld_equiv_iso_is_equiv.
 
-  Definition fld_equiv_iso_weq (X Y : ob fld_precategory) :
+  Definition fld_equiv_weq_iso (X Y : ob fld_precategory) :
     (rngiso (X : fld) (Y : fld)) ≃ (iso X Y).
   Proof.
     use weqpair.
@@ -158,8 +158,8 @@ Section def_fld_category.
   Proof.
     use (@isweqhomot
            (X = Y) (iso X Y)
-           (pr1weq (weqcomp (fld_univalence X Y) (fld_equiv_iso_weq X Y)))
-           _ _ (weqproperty (weqcomp (fld_univalence X Y) (fld_equiv_iso_weq X Y)))).
+           (pr1weq (weqcomp (fld_univalence X Y) (fld_equiv_weq_iso X Y)))
+           _ _ (weqproperty (weqcomp (fld_univalence X Y) (fld_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.

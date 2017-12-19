@@ -386,7 +386,7 @@ Proof.
     induction yis as [ y isy ].
     apply idpath.
   }
-  apply (iso_isweq _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 Lemma ishinhsubtypedirprod  {X Y : UU} (A : hsubtype X) (B : hsubtype Y)
@@ -1942,7 +1942,7 @@ Proof.
     simpl. intro x. unfold ff. unfold gg.
     apply (maponpaths (setquotpr RY) (homotweqinvweq f x)).
   }
-  apply (iso_isweq _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 Definition weqsetquotsurj {X Y : UU} (RX : eqrel X) (RY : eqrel Y) (f : X -> Y)
@@ -2022,7 +2022,7 @@ Proof.
     apply (invmaponpathsincl _ (isinclpr1setquot _)). apply funextsec.
     intro x0. simpl. apply idpath.
   }
-  apply (iso_isweq _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 
@@ -2631,7 +2631,7 @@ Proof.
     apply (invmaponpathsincl _ (isinclpr1 _ (λ a, isapropiseqclass _ a))).
     apply idpath.
   }
-  apply (iso_isweq _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 (** Comment: unfortunetely [weqsubquot] is not as useful as it should be at

@@ -90,7 +90,7 @@ Proof. intros ? [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
        simple refine (weqpair _ _).
        { intros p g x. simpl in x. simpl.
          exact (eqtohomot (eqtohomot (ap act_mult p) g) x). }
-       simple refine (iso_isweq _ _ _ _).
+       simple refine (isweq_iso _ _ _ _).
        { unfold cast; simpl.
          intro i.
          assert (p:Xm=Ym).
@@ -174,7 +174,7 @@ Definition Action_univalence_prelim_comp {G:gr} {X Y:Action G} (p:X = Y) :
 Proof. intros. destruct p. apply (maponpaths (tpair _ _)). apply funextsec; intro g.
        apply funextsec; intro x. apply setproperty. Defined.
 
-Lemma path_to_ActionIso_isweq {G:gr} {X Y:Action G}  :
+Lemma path_to_ActionIsweq_iso {G:gr} {X Y:Action G}  :
    isweq (@path_to_ActionIso G X Y).
 Proof. intros. exact (isweqhomot Action_univalence_prelim
                          path_to_ActionIso
@@ -183,7 +183,7 @@ Proof. intros. exact (isweqhomot Action_univalence_prelim
 
 Definition Action_univalence {G:gr} {X Y:Action G} :
   (X = Y) ≃ (ActionIso X Y).
-Proof. intros. exists path_to_ActionIso. apply path_to_ActionIso_isweq. Defined.
+Proof. intros. exists path_to_ActionIso. apply path_to_ActionIsweq_iso. Defined.
 
 Definition Action_univalence_comp {G:gr} {X Y:Action G} (p:X = Y) :
    Action_univalence p = path_to_ActionIso p.
@@ -287,7 +287,7 @@ Definition trivialTorsor (G:gr) : Torsor G.
 Proof.
   intros. exists (makeAction G (make G G op (lunax G) (assocax G))).
   exact (hinhpr (unel G),,
-         λ x, iso_isweq
+         λ x, isweq_iso
            (λ g, op g x)
            (λ g, op g (grinv _ x))
            (λ g, assocax _ g x (grinv _ x) @ ap (op g) (grrinvax G x) @ runax _ g)
@@ -314,7 +314,7 @@ Proof. intros.
        exact (torsor_mult_weq X x,, univ_function_is_equivariant X x). Defined.
 
 Definition trivialTorsor_weq (G:gr) (g:G) : (trivialTorsor G) ≃ (trivialTorsor G).
-Proof. intros. exists (λ h, op h g). apply (iso_isweq _ (λ h, op h (grinv G g))).
+Proof. intros. exists (λ h, op h g). apply (isweq_iso _ (λ h, op h (grinv G g))).
        { exact (λ h, assocax _ _ _ _ @ ap (op _) (grrinvax _ _) @ runax _ _). }
        { exact (λ h, assocax _ _ _ _ @ ap (op _) (grlinvax _ _) @ runax _ _). }
 Defined.
@@ -328,7 +328,7 @@ Lemma pr1weq_injectivity {X Y} (f g:X ≃ Y) : (f = g) ≃ (pr1weq f = pr1weq g)
 Proof. intros. apply weqonpathsincl. apply isinclpr1weq.  Defined.
 
 Definition autos (G:gr) : G ≃ (ActionIso (trivialTorsor G) (trivialTorsor G)).
-Proof. intros. exists (trivialTorsorAuto G). simple refine (iso_isweq _ _ _ _).
+Proof. intros. exists (trivialTorsorAuto G). simple refine (isweq_iso _ _ _ _).
        { intro f. exact (f (unel G)). } { intro g; simpl. exact (lunax _ g). }
        { intro f; simpl. apply (invweq (underlyingIso_injectivity _ _)); simpl.
          apply (invweq (pr1weq_injectivity _ _)). apply funextsec; intro g.

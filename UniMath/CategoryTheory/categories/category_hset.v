@@ -89,7 +89,7 @@ Section HSET_category.
 Lemma hset_iso_is_equiv (A B : ob HSET)
    (f : iso A B) : isweq (pr1 f).
 Proof.
-  apply (iso_isweq _ (inv_from_iso f)).
+  apply (isweq_iso _ (inv_from_iso f)).
   - intro x.
     set (T:=iso_inv_after_iso f).
     set (T':=toforallpaths _ _ _ T). apply T'.
@@ -135,7 +135,7 @@ Defined.
 
 Lemma hset_iso_equiv_is_equiv (A B : ob HSET) : isweq (hset_iso_equiv A B).
 Proof.
-  apply (iso_isweq _ (hset_equiv_iso A B)).
+  apply (isweq_iso _ (hset_equiv_iso A B)).
   intro; apply eq_iso.
   - reflexivity.
   - intro; apply subtypeEquality.
@@ -151,7 +151,7 @@ Defined.
 
 Lemma hset_equiv_iso_is_equiv (A B : ob HSET) : isweq (hset_equiv_iso A B).
 Proof.
-  apply (iso_isweq _ (hset_iso_equiv A B)).
+  apply (isweq_iso _ (hset_iso_equiv A B)).
   { intro f.
     apply subtypeEquality.
     { intro; apply isapropisweq. }
@@ -160,7 +160,7 @@ Proof.
   reflexivity.
 Qed.
 
-Definition hset_equiv_iso_weq (A B : ob HSET) :
+Definition hset_equiv_weq_iso (A B : ob HSET) :
   (pr1 A ≃ pr1 B) ≃ iso A B.
 Proof.
   exists (hset_equiv_iso A B).
@@ -172,9 +172,9 @@ Defined.
 Definition univalenceweq (X X' : UU) : (X = X') ≃ (X ≃ X') :=
    tpair _ _ (univalenceAxiom X X').
 
-Definition hset_id_iso_weq (A B : ob HSET) :
+Definition hset_id_weq_iso (A B : ob HSET) :
   (A = B) ≃ (iso A B) :=
-  weqcomp (UA_for_HLevels 2 A B) (hset_equiv_iso_weq A B).
+  weqcomp (UA_for_HLevels 2 A B) (hset_equiv_weq_iso A B).
 
 
 (** The map [precat_paths_to_iso]
@@ -185,8 +185,8 @@ Definition hset_id_iso_weq (A B : ob HSET) :
     is an equivalence.
 *)
 
-Lemma hset_id_iso_weq_is (A B : ob HSET):
-    @idtoiso _ A B = pr1 (hset_id_iso_weq A B).
+Lemma hset_id_weq_iso_is (A B : ob HSET):
+    @idtoiso _ A B = pr1 (hset_id_weq_iso A B).
 Proof.
   apply funextfun.
   intro p; elim p.
@@ -200,8 +200,8 @@ Defined.
 Lemma is_weq_precat_paths_to_iso_hset (A B : ob HSET):
    isweq (@idtoiso _ A B).
 Proof.
-  rewrite hset_id_iso_weq_is.
-  apply (pr2 (hset_id_iso_weq A B)).
+  rewrite hset_id_weq_iso_is.
+  apply (pr2 (hset_id_weq_iso A B)).
 Defined.
 
 Lemma is_univalent_HSET : is_univalent HSET.

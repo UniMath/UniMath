@@ -2113,7 +2113,7 @@ Defined.
 Theorem weqdicompl (i : nat) : nat ≃ nat_compl i.
 Proof.
   intros i.
-  use iso_weq.
+  use weq_iso.
   - intro j. exists (di i j). apply di_neq_i.
   - intro j. exact (si i (pr1 j)).
   - simpl. intro j. unfold di. induction (natlthorgeh j i) as [lt|ge].

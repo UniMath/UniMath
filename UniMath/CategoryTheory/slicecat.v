@@ -187,7 +187,7 @@ exists (pr1 hinv); split.
 - apply (maponpaths pr1 h2).
 Qed.
 
-Lemma iso_weq (af bg : C / x) :
+Lemma weq_iso (af bg : C / x) :
   weq (iso af bg) (total2 (fun h : iso (pr1 af) (pr1 bg) => pr2 af = h · pr2 bg)).
 Proof.
 apply (weqcomp (weqtotal2asstor _ _)).
@@ -290,7 +290,7 @@ assert (weq3 : weq (total2 (fun (p : a = b) => idtoiso (! p) · f = g))
   rewrite Hp, assoc, iso_after_iso_inv, id_left; apply idpath.
 
 assert (weq4 : weq (total2 (λ h : iso a b, f = h · g)) (iso af bg)).
-  apply invweq; apply iso_weq.
+  apply invweq; apply weq_iso.
 
 apply (weqcomp weq1 (weqcomp weq2 (weqcomp weq3 weq4))).
 Defined.

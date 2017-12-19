@@ -457,7 +457,7 @@ Section Monad_eq_helper.
     Monad_to_raw_data T = Monad_to_raw_data T' -> T = T'.
   Proof.
     intro e.
-    apply (invmaponpathsweq (_,, (iso_isweq _ _ (@Monad_to_Monad'_to_Monad C)
+    apply (invmaponpathsweq (_,, (isweq_iso _ _ (@Monad_to_Monad'_to_Monad C)
                                              (@Monad'_to_Monad_to_Monad' C)))).
     now apply (Monad'_eq_raw_data hs).
   Qed.

@@ -78,7 +78,7 @@ Section def_abmonoid_category.
 
   Lemma abmonoid_iso_is_equiv (A B : ob abmonoid_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use iso_isweq.
+    use isweq_iso.
     - exact (pr1monoidfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -120,7 +120,7 @@ Section def_abmonoid_category.
   Lemma abmonoid_iso_equiv_is_equiv (X Y : ob abmonoid_precategory) :
     isweq (abmonoid_iso_equiv X Y).
   Proof.
-    use iso_isweq.
+    use isweq_iso.
     - exact (abmonoid_equiv_iso X Y).
     - intros x. use eq_iso. use monoidfun_paths. use idpath.
     - intros y. use monoidiso_paths. use subtypeEquality.
@@ -140,7 +140,7 @@ Section def_abmonoid_category.
   Lemma abmonoid_equiv_iso_is_equiv (X Y : ob abmonoid_precategory) :
     isweq (abmonoid_equiv_iso X Y).
   Proof.
-    use iso_isweq.
+    use isweq_iso.
     - exact (abmonoid_iso_equiv X Y).
     - intros y. use monoidiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.
@@ -149,7 +149,7 @@ Section def_abmonoid_category.
   Defined.
   Opaque abmonoid_equiv_iso_is_equiv.
 
-  Definition abmonoid_equiv_iso_weq (X Y : ob abmonoid_precategory) :
+  Definition abmonoid_equiv_weq_iso (X Y : ob abmonoid_precategory) :
     (monoidiso (X : abmonoid) (Y : abmonoid)) ≃ (iso X Y).
   Proof.
     use weqpair.
@@ -165,8 +165,8 @@ Section def_abmonoid_category.
   Proof.
     use (@isweqhomot
            (X = Y) (iso X Y)
-           (pr1weq (weqcomp (abmonoid_univalence X Y) (abmonoid_equiv_iso_weq X Y)))
-           _ _ (weqproperty (weqcomp (abmonoid_univalence X Y) (abmonoid_equiv_iso_weq X Y)))).
+           (pr1weq (weqcomp (abmonoid_univalence X Y) (abmonoid_equiv_weq_iso X Y)))
+           _ _ (weqproperty (weqcomp (abmonoid_univalence X Y) (abmonoid_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
