@@ -12,7 +12,6 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -34,6 +33,7 @@ Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
 Require Import UniMath.CategoryTheory.Abelian.
 
+Local Open Scope cat.
 
 (** * AbelianPreCat is Additive. *)
 Section abelian_is_additive.
@@ -44,19 +44,19 @@ Section abelian_is_additive.
   (** ** Preliminaries *)
 
   (** Some maps we are going to use. *)
-  Definition DiagonalMap {X : A} (BinProd : BinProductCone A X X) :
+  Definition DiagonalMap {X : A} (BinProd : BinProduct A X X) :
     A⟦X, (BinProductObject A BinProd)⟧ := BinProductArrow A BinProd (identity X) (identity X).
 
-  Definition IdZeroMap {X : A} (BinProd : BinProductCone A X X) :
+  Definition IdZeroMap {X : A} (BinProd : BinProduct A X X) :
     A⟦X, (BinProductObject A BinProd)⟧ := BinProductArrow A BinProd (identity X)
                                                           (ZeroArrow (to_Zero A) X X).
 
-  Definition ZeroIdMap {X : A} (BinProd : BinProductCone A X X) :
+  Definition ZeroIdMap {X : A} (BinProd : BinProduct A X X) :
     A⟦X, (BinProductObject A BinProd)⟧ := BinProductArrow A BinProd (ZeroArrow (to_Zero A) X X)
                                                           (identity X).
 
   (** Proofs that these maps are monics. *)
-  Lemma DiagonalMap_isMonic {X : A} (BinProd : BinProductCone A X X) :
+  Lemma DiagonalMap_isMonic {X : A} (BinProd : BinProduct A X X) :
     isMonic (DiagonalMap BinProd).
   Proof.
     intros x u v H.
@@ -67,7 +67,7 @@ Section abelian_is_additive.
     exact H.
   Qed.
 
-  Lemma IdZeroMap_isMonic {X : A} (BinProd : BinProductCone A X X) :
+  Lemma IdZeroMap_isMonic {X : A} (BinProd : BinProduct A X X) :
     isMonic (IdZeroMap BinProd).
   Proof.
     intros x u v H.
@@ -78,7 +78,7 @@ Section abelian_is_additive.
     exact H.
   Qed.
 
-  Lemma ZeroIdMap_isMonic {X : A} (BinProd : BinProductCone A X X) :
+  Lemma ZeroIdMap_isMonic {X : A} (BinProd : BinProduct A X X) :
     isMonic (ZeroIdMap BinProd).
   Proof.
     intros x u v H.
@@ -90,7 +90,7 @@ Section abelian_is_additive.
   Qed.
 
   (** We show that Pr1 and Pr2 of BinProduct are epimorphisms. *)
-  Lemma BinProductPr1_isEpi {X : A} (BinProd : BinProductCone A X X) :
+  Lemma BinProductPr1_isEpi {X : A} (BinProd : BinProduct A X X) :
     isEpi (BinProductPr1 A BinProd).
   Proof.
     use isEpi_precomp.
@@ -100,7 +100,7 @@ Section abelian_is_additive.
       apply identity_isEpi.
   Qed.
 
-  Lemma BinProductPr2_isEpi {X : A} (BinProd : BinProductCone A X X) :
+  Lemma BinProductPr2_isEpi {X : A} (BinProd : BinProduct A X X) :
     isEpi (BinProductPr2 A BinProd).
   Proof.
     use isEpi_precomp.
@@ -111,14 +111,14 @@ Section abelian_is_additive.
   Qed.
 
   (** We construct kernels of BinProduct Pr1 and Pr2. *)
-  Lemma KernelOfPr1_Eq {X : A} (BinProd : BinProductCone A X X) :
+  Lemma KernelOfPr1_Eq {X : A} (BinProd : BinProduct A X X) :
     ZeroIdMap BinProd · BinProductPr1 A BinProd = ZeroArrow (to_Zero A) X X.
   Proof.
     unfold ZeroIdMap.
     exact (BinProductPr1Commutes A _ _ BinProd _ _ (identity X)).
   Qed.
 
-  Local Lemma KernelOfPr1_isKernel_comm (X : A) (BinProd : BinProductCone A X X) (w : A)
+  Local Lemma KernelOfPr1_isKernel_comm (X : A) (BinProd : BinProduct A X X) (w : A)
         (h : A ⟦ w, BinProductObject A BinProd ⟧)
         (H' : h · BinProductPr1 A BinProd = ZeroArrow (to_Zero A) _ _) :
     h · (BinProductPr2 A BinProd)
@@ -131,7 +131,7 @@ Section abelian_is_additive.
       apply id_right.
   Qed.
 
-  Local Lemma KernelOfPr1_isKernel_unique (X : A) (BinProd : BinProductCone A X X) (w : A)
+  Local Lemma KernelOfPr1_isKernel_unique (X : A) (BinProd : BinProduct A X X) (w : A)
         (h : A ⟦ w, BinProductObject A BinProd ⟧)
         (H' : h · BinProductPr1 A BinProd = ZeroArrow (to_Zero A) _ _)
         (y : A ⟦ w, X ⟧)
@@ -143,7 +143,7 @@ Section abelian_is_additive.
     rewrite id_right. apply idpath.
   Qed.
 
-  Lemma KernelOfPr1_isKernel {X : A} (BinProd : BinProductCone A X X) :
+  Lemma KernelOfPr1_isKernel {X : A} (BinProd : BinProduct A X X) :
     isKernel (to_Zero A) (ZeroIdMap BinProd) (BinProductPr1 A BinProd) (KernelOfPr1_Eq BinProd).
   Proof.
     use (mk_isKernel hs).
@@ -160,21 +160,21 @@ Section abelian_is_additive.
     - exact (KernelOfPr1_isKernel_unique X BinProd w h H').
   Qed.
 
-  Definition KernelOfPr1 {X : A} (BinProd : BinProductCone A X X) :
+  Definition KernelOfPr1 {X : A} (BinProd : BinProduct A X X) :
     kernels.Kernel (to_Zero A) (BinProductPr1 A BinProd).
   Proof.
     exact (mk_Kernel (to_Zero A) (ZeroIdMap BinProd) _ (KernelOfPr1_Eq BinProd)
                      (KernelOfPr1_isKernel BinProd)).
   Defined.
 
-  Lemma KernelOfPr2_Eq {X : A} (BinProd : BinProductCone A X X) :
+  Lemma KernelOfPr2_Eq {X : A} (BinProd : BinProduct A X X) :
     IdZeroMap BinProd · BinProductPr2 A BinProd = ZeroArrow (to_Zero A) X X.
   Proof.
     unfold IdZeroMap. rewrite (BinProductPr2Commutes A _ _ BinProd _ (identity X) _).
     apply idpath.
   Qed.
 
-  Local Lemma KernelOfPr2_isKernel_comm (X : A) (BinProd : BinProductCone A X X) (w : A)
+  Local Lemma KernelOfPr2_isKernel_comm (X : A) (BinProd : BinProduct A X X) (w : A)
         (h : A ⟦w, BinProductObject A BinProd⟧)
         (H' : h · BinProductPr2 A BinProd = ZeroArrow (to_Zero A) _ _) :
     h · (BinProductPr1 A BinProd)
@@ -187,7 +187,7 @@ Section abelian_is_additive.
       rewrite H'. rewrite ZeroArrow_comp_right. apply idpath.
   Qed.
 
-  Local Lemma KernelOfPr2_isKernel_unique (X : A) (BinProd : BinProductCone A X X) (w : A)
+  Local Lemma KernelOfPr2_isKernel_unique (X : A) (BinProd : BinProduct A X X) (w : A)
         (h : A ⟦ w, BinProductObject A BinProd ⟧)
         (H' : h · BinProductPr2 A BinProd = ZeroArrow (to_Zero A) _ _)
         (y : A ⟦ w, X ⟧)
@@ -199,7 +199,7 @@ Section abelian_is_additive.
     rewrite id_right. apply idpath.
   Qed.
 
-  Definition KernelOfPr2_isKernel {X : A} (BinProd : BinProductCone A X X) :
+  Definition KernelOfPr2_isKernel {X : A} (BinProd : BinProduct A X X) :
     isKernel (to_Zero A) (IdZeroMap BinProd) (BinProductPr2 A BinProd) (KernelOfPr2_Eq BinProd).
   Proof.
     use (mk_isKernel hs).
@@ -216,7 +216,7 @@ Section abelian_is_additive.
     - intros y H. exact (KernelOfPr2_isKernel_unique X BinProd w h H' y H).
   Qed.
 
-  Definition KernelOfPr2 {X : A} (BinProd : BinProductCone A X X) :
+  Definition KernelOfPr2 {X : A} (BinProd : BinProduct A X X) :
     kernels.Kernel (to_Zero A) (BinProductPr2 A BinProd).
   Proof.
     exact (mk_Kernel (to_Zero A) (IdZeroMap BinProd) _ (KernelOfPr2_Eq BinProd)
@@ -225,14 +225,14 @@ Section abelian_is_additive.
 
   (** From properties of abelian categories, it follows that Pr1 and Pr2 are
       cokernels of the above kernels since they are epimorphisms. *)
-  Definition CokernelOfKernelOfPr1 {X : A} (BinProd : BinProductCone A X X) :
+  Definition CokernelOfKernelOfPr1 {X : A} (BinProd : BinProduct A X X) :
     cokernels.Cokernel (to_Zero A) (KernelArrow (KernelOfPr1 BinProd)).
   Proof.
     exact (EpiToCokernel' A hs (mk_Epi A _ (BinProductPr1_isEpi BinProd))
                           (KernelOfPr1 BinProd)).
   Defined.
 
-  Definition CokernelOfKernelOfPr2 {X : A} (BinProd : BinProductCone A X X) :
+  Definition CokernelOfKernelOfPr2 {X : A} (BinProd : BinProduct A X X) :
     cokernels.Cokernel (to_Zero A) (KernelArrow (KernelOfPr2 BinProd)).
   Proof.
     exact (EpiToCokernel' A hs (mk_Epi A _ (BinProductPr2_isEpi BinProd))
@@ -241,7 +241,7 @@ Section abelian_is_additive.
 
   (** We construct a cokernel of the DiagonalMap. The CokernelOb is the
       object X.*)
-  Lemma CokernelOfDiagonal_is_iso {X : A} (BinProd : BinProductCone A X X) :
+  Lemma CokernelOfDiagonal_is_iso {X : A} (BinProd : BinProduct A X X) :
     is_z_isomorphism ((BinProductArrow A BinProd (identity X) (ZeroArrow (to_Zero A) X X))
                         · (CokernelArrow (Cokernel (DiagonalMap BinProd)))).
   Proof.
@@ -312,7 +312,7 @@ Section abelian_is_additive.
       + intros y H. apply ArrowsFromZero.
   Qed.
 
-  Definition CokernelOfDiagonal {X : A} (BinProd : BinProductCone A X X) :
+  Definition CokernelOfDiagonal {X : A} (BinProd : BinProduct A X X) :
     cokernels.Cokernel (to_Zero A) (DiagonalMap BinProd).
   Proof.
     set (X0 := z_iso_inv (mk_z_iso _ _ (CokernelOfDiagonal_is_iso BinProd))).

@@ -75,9 +75,7 @@ Proof.
 Defined.
 
 Definition BinProducts := ∏ (a b : C), BinProductCone a b.
-
-(* What is the best definition of this? *)
-(* Definition hasBinProducts (C : precategory) := ishinh (BinProducts C). *)
+Definition hasBinProducts := ∏ (a b : C), ∥ BinProductCone a b ∥.
 
 Definition BinProductObject {c d : C} (P : BinProductCone c d) : C := lim P.
 Definition BinProductPr1 {c d : C} (P : BinProductCone c d): C⟦BinProductObject P,c⟧ :=

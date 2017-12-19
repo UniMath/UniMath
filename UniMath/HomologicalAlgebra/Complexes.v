@@ -1371,11 +1371,11 @@ Section complexes_additive.
   Defined.
   Opaque ComplexPreCat_isZero.
 
-  Lemma ComplexPreCat_isBinCoproductCocone (C1 C2 : Complex A) :
-    isBinCoproductCocone ComplexPreCat_PreAdditive C1 C2 (DirectSumComplex A C1 C2)
+  Lemma ComplexPreCat_isBinCoproduct (C1 C2 : Complex A) :
+    isBinCoproduct ComplexPreCat_PreAdditive C1 C2 (DirectSumComplex A C1 C2)
                          (DirectSumComplexIn1 A C1 C2) (DirectSumComplexIn2 A C1 C2).
   Proof.
-    use mk_isBinCoproductCocone.
+    use mk_isBinCoproduct.
     - apply has_homsets_ComplexPreCat.
     - intros D f g.
       use unique_exists.
@@ -1399,11 +1399,11 @@ Section complexes_additive.
         * rewrite <- (pr2 T). apply idpath.
   Qed.
 
-  Lemma ComplexPreCat_isBinProductCone (C1 C2 : Complex A) :
-    isBinProductCone ComplexPreCat_PreAdditive C1 C2 (DirectSumComplex A C1 C2)
+  Lemma ComplexPreCat_isBinProduct (C1 C2 : Complex A) :
+    isBinProduct ComplexPreCat_PreAdditive C1 C2 (DirectSumComplex A C1 C2)
                      (DirectSumComplexPr1 A C1 C2) (DirectSumComplexPr2 A C1 C2).
   Proof.
-    use mk_isBinProductCone.
+    use mk_isBinProduct.
     - apply has_homsets_ComplexPreCat.
     - intros D f g.
       use unique_exists.
@@ -1427,14 +1427,14 @@ Section complexes_additive.
         * rewrite <- (pr2 T). apply idpath.
   Qed.
 
-  Lemma ComplexPreCat_isBinDirectSumCone (C1 C2 : Complex A) :
-    isBinDirectSumCone
+  Lemma ComplexPreCat_isBinDirectSum (C1 C2 : Complex A) :
+    isBinDirectSum
       ComplexPreCat_PreAdditive C1 C2 (DirectSumComplex A C1 C2) (DirectSumComplexIn1 A C1 C2)
       (DirectSumComplexIn2 A C1 C2) (DirectSumComplexPr1 A C1 C2) (DirectSumComplexPr2 A C1 C2).
   Proof.
-    use mk_isBinDirectSumCone.
-    - exact (ComplexPreCat_isBinCoproductCocone C1 C2).
-    - exact (ComplexPreCat_isBinProductCone C1 C2).
+    use mk_isBinDirectSum.
+    - exact (ComplexPreCat_isBinCoproduct C1 C2).
+    - exact (ComplexPreCat_isBinProduct C1 C2).
     - apply (! (DirectSumIdIn1 A C1 C2)).
     - apply (! (DirectSumIdIn2 A C1 C2)).
     - cbn. rewrite (DirectSumUnit1 A C1 C2). apply idpath.
@@ -1452,13 +1452,13 @@ Section complexes_additive.
         * exact ZeroComplex.
         * exact ComplexPreCat_isZero.
       + intros C1 C2.
-        use (mk_BinDirectSumCone ComplexPreCat_PreAdditive).
+        use (mk_BinDirectSum ComplexPreCat_PreAdditive).
         * exact (DirectSumComplex A C1 C2).
         * exact (DirectSumComplexIn1 A C1 C2).
         * exact (DirectSumComplexIn2 A C1 C2).
         * exact (DirectSumComplexPr1 A C1 C2).
         * exact (DirectSumComplexPr2 A C1 C2).
-        * exact (ComplexPreCat_isBinDirectSumCone C1 C2).
+        * exact (ComplexPreCat_isBinDirectSum C1 C2).
   Defined.
 
   Local Transparent ZeroArrow.

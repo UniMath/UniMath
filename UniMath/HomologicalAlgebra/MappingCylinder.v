@@ -16,7 +16,6 @@ Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
-Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -49,7 +48,9 @@ Require Import UniMath.HomologicalAlgebra.MappingCone.
 
 Unset Kernel Term Sharing.
 
-Open Scope hz_scope.
+Local Open Scope hz_scope.
+Local Open Scope cat.
+
 Local Opaque hz isdecrelhzeq hzplus iscommrngops ZeroArrow.
 
 (** * Mapping cylinder *)
@@ -498,7 +499,7 @@ Section mapping_cylinder_KA_iso.
     (transportf (precategory_morphisms
                    (to_BinDirectSums A (C1 i) (to_BinDirectSums A (C1 (i + 1)) (C2 i))))
                 (maponpaths (λ (i0 : hz),
-                             BinDirectSumConeOb
+                             BinDirectSumOb
                                A (to_BinDirectSums
                                     A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
                             (hzrminusplus i 1))
@@ -555,7 +556,7 @@ Section mapping_cylinder_KA_iso.
                     (precategory_morphisms (C1 i))
                     (maponpaths
                        (λ (i0 : pr1 hz),
-                        BinDirectSumConeOb
+                        BinDirectSumOb
                           A (to_BinDirectSums
                                A (C1 i0)
                                (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
@@ -565,7 +566,7 @@ Section mapping_cylinder_KA_iso.
     {
       cbn. unfold DS2, DS1, DS6, DS5.
       set (tmp := λ (i0 : hz),
-                    BinDirectSumConeOb
+                    BinDirectSumOb
                       A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))).
       set (tmp'' := (λ (i0 : hz),
                        to_In1 A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
@@ -584,7 +585,7 @@ Section mapping_cylinder_KA_iso.
     assert (e1 : (transportf (precategory_morphisms (C1 i))
                              (maponpaths
                                 (λ (i0 : pr1 hz),
-                                 BinDirectSumConeOb
+                                 BinDirectSumOb
                                    A (to_BinDirectSums
                                         A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
                                 (hzrminusplus i 1))
@@ -594,7 +595,7 @@ Section mapping_cylinder_KA_iso.
                  (Diff C1 i · to_In1 A DS1 · to_In2 A DS2)).
     {
       cbn. unfold DS2, DS1, DS6, DS5.
-      set (tmp := λ i0 : hz, BinDirectSumConeOb
+      set (tmp := λ i0 : hz, BinDirectSumOb
                                 A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                 (C2 i0)))).
       set (tmp'' := (λ (i0 : hz),
@@ -610,7 +611,7 @@ Section mapping_cylinder_KA_iso.
     rewrite <- e1. clear e1. use to_rrw.
     (* Solve the rest *)
     cbn. unfold DS2, DS1, DS6, DS5.
-    set (tmp := λ i0 : hz, BinDirectSumConeOb
+    set (tmp := λ i0 : hz, BinDirectSumOb
                               A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                               (C2 i0)))).
     set (tmp'' := (λ (i0 : hz),
@@ -658,7 +659,7 @@ Section mapping_cylinder_KA_iso.
     (transportf (precategory_morphisms
                    (to_BinDirectSums A (C1 i) (to_BinDirectSums A (C1 (i + 1)) (C2 i))))
                 (maponpaths (λ (i0 : pr1 hz),
-                             BinDirectSumConeOb
+                             BinDirectSumOb
                                A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                (C2 i0))))
                             (hzrplusminus i 1))
@@ -688,7 +689,7 @@ Section mapping_cylinder_KA_iso.
     assert (e1 : (transportf (precategory_morphisms DS2)
                              (maponpaths
                                 (λ (i0 : pr1 hz),
-                                 BinDirectSumConeOb
+                                 BinDirectSumOb
                                    A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                    (C2 i0))))
                                 (hzrplusminus i 1))
@@ -703,7 +704,7 @@ Section mapping_cylinder_KA_iso.
       rewrite <- transport_target_postcompose. rewrite <- transport_source_precompose.
       rewrite <- PreAdditive_invrcomp.
       unfold DS2, DS1, DS6, DS5.
-      set (tmp := λ i0 : hz, BinDirectSumConeOb
+      set (tmp := λ i0 : hz, BinDirectSumOb
                                 A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                 (C2 i0)))).
       set (tmp'' := (λ i0 : hz,
@@ -740,7 +741,7 @@ Section mapping_cylinder_KA_iso.
     unfold DS2, DS1, DS6, DS5.
     rewrite transport_target_to_inv. rewrite transport_source_to_inv.
     rewrite inv_inv_eq.
-    set (tmp := λ i0 : hz, BinDirectSumConeOb
+    set (tmp := λ i0 : hz, BinDirectSumOb
                               A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                               (C2 i0)))).
     set (tmp'' := (λ i0 : hz,

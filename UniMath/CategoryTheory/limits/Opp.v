@@ -21,7 +21,6 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.opp_precat.
@@ -38,6 +37,7 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
+Local Open Scope cat.
 
 (** * Translation of structures from C^op to C *)
 Section def_opposites.
@@ -317,19 +317,19 @@ Section def_opposites.
 
   (** ** BinProducts and BinCoproducts *)
 
-  Definition opp_isBinProductCone (c d p : C) (p1 : (C^op)⟦p, c⟧) (p2 : (C^op)⟦p, d⟧)
-             (iBPC : @isBinProductCone (C^op) c d p p1 p2) : @isBinCoproductCocone C c d p p1 p2 :=
+  Definition opp_isBinProduct (c d p : C) (p1 : (C^op)⟦p, c⟧) (p2 : (C^op)⟦p, d⟧)
+             (iBPC : @isBinProduct (C^op) c d p p1 p2) : @isBinCoproduct C c d p p1 p2 :=
     iBPC.
 
-  Definition opp_isBinCoproductCone (a b co : C) (ia : (C^op)⟦a, co⟧) (ib : (C^op)⟦b, co⟧)
-             (iBCC : @isBinCoproductCocone (C^op) a b co ia ib) :
-    @isBinProductCone C a b co ia ib := iBCC.
+  Definition opp_isBinCoproduct (a b co : C) (ia : (C^op)⟦a, co⟧) (ib : (C^op)⟦b, co⟧)
+             (iBCC : @isBinCoproduct (C^op) a b co ia ib) :
+    @isBinProduct C a b co ia ib := iBCC.
 
-  Definition opp_BinProductCone (c d : C) (BPC : @BinProductCone (C^op) c d) :
-    @BinCoproductCocone C c d := BPC.
+  Definition opp_BinProduct (c d : C) (BPC : @BinProduct (C^op) c d) :
+    @BinCoproduct C c d := BPC.
 
-  Definition opp_BinCoproductCoCone (c d : C) (BCC : @BinCoproductCocone (C^op) c d) :
-    @BinProductCone C c d := BCC.
+  Definition opp_BinCoproduct (c d : C) (BCC : @BinCoproduct (C^op) c d) :
+    @BinProduct C c d := BCC.
 
   Definition opp_BinProducts (BP : @BinProducts (C^op)) : @BinCoproducts C := BP.
 
@@ -584,19 +584,19 @@ Section def_opposites'.
 
   (** ** BinProducts and BinCoproducts *)
 
-  Definition isBinProductCone_opp (c d p : C) (p1 : C⟦p, c⟧) (p2 : C⟦p, d⟧)
-             (iBPC : @isBinProductCone C c d p p1 p2) :
-    @isBinCoproductCocone (C^op) c d p p1 p2 := iBPC.
+  Definition isBinProduct_opp (c d p : C) (p1 : C⟦p, c⟧) (p2 : C⟦p, d⟧)
+             (iBPC : @isBinProduct C c d p p1 p2) :
+    @isBinCoproduct (C^op) c d p p1 p2 := iBPC.
 
-  Definition isBinCoproductCone_opp (a b co : C) (ia : C⟦a, co⟧) (ib : C⟦b, co⟧)
-             (iBCC : @isBinCoproductCocone C a b co ia ib) :
-    @isBinProductCone (C^op) a b co ia ib := iBCC.
+  Definition isBinCoproduct_opp (a b co : C) (ia : C⟦a, co⟧) (ib : C⟦b, co⟧)
+             (iBCC : @isBinCoproduct C a b co ia ib) :
+    @isBinProduct (C^op) a b co ia ib := iBCC.
 
-  Definition BinProductCone_opp (c d : C) (iBPC : @BinProductCone C c d) :
-    @BinCoproductCocone (C^op) c d := iBPC.
+  Definition BinProduct_opp (c d : C) (iBPC : @BinProduct C c d) :
+    @BinCoproduct (C^op) c d := iBPC.
 
-  Definition BinCoproductCoCone_opp (c d : C) (iBCC : @BinCoproductCocone C c d) :
-    @BinProductCone (C^op) c d := iBCC.
+  Definition BinCoproduct_opp (c d : C) (iBCC : @BinCoproduct C c d) :
+    @BinProduct (C^op) c d := iBCC.
 
   Definition BinProducts_opp (BP : @BinProducts C) : @BinCoproducts (C^op) := BP.
 
