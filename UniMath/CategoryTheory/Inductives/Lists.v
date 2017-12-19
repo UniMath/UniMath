@@ -32,8 +32,6 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Local Open Scope cat.
 
-Local Open Scope cat.
-
 (** * Lists as the colimit of a chain given by the list functor: F(X) = 1 + A * X *)
 Section lists.
 
@@ -164,7 +162,7 @@ Definition pr1foldr_algmor : algebra_mor _ List_alg List_alg :=
 
 Lemma pr1foldr_algmor_identity : identity _ = pr1foldr_algmor.
 Proof.
-now rewrite <- (InitialEndo_is_identity _ listFunctor_Initial pr1foldr_algmor).
+now rewrite (@InitialEndo_is_identity _ listFunctor_Initial pr1foldr_algmor).
 Qed.
 
 (** The induction principle for lists *)
@@ -579,7 +577,7 @@ Definition pr1foldr_algmor : algebra_mor _ List_alg List_alg :=
 
 Lemma pr1foldr_algmor_identity : identity _ = pr1foldr_algmor.
 Proof.
-now rewrite <- (InitialEndo_is_identity _ listFunctor_Initial pr1foldr_algmor).
+now rewrite (@InitialEndo_is_identity _ listFunctor_Initial pr1foldr_algmor).
 Qed.
 
 Lemma listInd l : P l.

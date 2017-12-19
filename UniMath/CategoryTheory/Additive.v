@@ -11,7 +11,6 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -28,6 +27,7 @@ Require Import UniMath.CategoryTheory.limits.kernels.
 Require Import UniMath.CategoryTheory.limits.cokernels.
 Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 
+Local Open Scope cat.
 
 (** * Definition of additive categories *)
 Section def_additive.
@@ -72,13 +72,13 @@ Section def_additive.
   Defined.
 
 
-  Lemma to_Unel1' {A : Additive} {a b : A} (BS : BinDirectSumCone A a b) :
+  Lemma to_Unel1' {A : Additive} {a b : A} (BS : BinDirectSum A a b) :
     to_In1 A BS · to_Pr2 A BS = ZeroArrow (to_Zero A) _ _.
   Proof.
     rewrite (to_Unel1 A BS). apply PreAdditive_unel_zero.
   Qed.
 
-  Lemma to_Unel2' {A : Additive} {a b : A} (BS : BinDirectSumCone A a b) :
+  Lemma to_Unel2' {A : Additive} {a b : A} (BS : BinDirectSum A a b) :
     to_In2 A BS · to_Pr1 A BS = ZeroArrow (to_Zero A) _ _.
   Proof.
     rewrite (to_Unel2 A BS). apply PreAdditive_unel_zero.
@@ -292,7 +292,7 @@ Section additive_minus_monic.
   Variable A : Additive.
 
   Lemma isMonic_to_binop_BinDirectSum1 {x y z : A} (f : Monic A x y) (g : x --> z)
-        (DS : BinDirectSumCone A y z) :
+        (DS : BinDirectSum A y z) :
     isMonic (to_binop _ _ (f · to_In1 _ DS) (g · to_In2 _ DS)).
   Proof.
     use mk_isMonic.
@@ -311,14 +311,14 @@ Section additive_minus_monic.
 
   (** This version is used in AbelianPushoutPullback *)
   Lemma isMonic_to_binop_BinDirectSum1' {x y z : A} (f : Monic A x y) (g : x --> z)
-        (DS : BinDirectSumCone A y z) :
+        (DS : BinDirectSum A y z) :
     isMonic (to_binop _ _ (f · to_In1 _ DS) (to_inv (g · to_In2 _ DS))).
   Proof.
     rewrite PreAdditive_invlcomp. use isMonic_to_binop_BinDirectSum1.
   Qed.
 
   Lemma isMonic_to_binop_BinDirectSum2 {x y z : A} (f : x --> y) (g : Monic A x z)
-        (DS : BinDirectSumCone A y z) :
+        (DS : BinDirectSum A y z) :
     isMonic (to_binop _ _ (f · to_In1 _ DS) (g · to_In2 _ DS)).
   Proof.
     use mk_isMonic.
@@ -336,7 +336,7 @@ Section additive_minus_monic.
   Qed.
 
   Lemma isEpi_to_binop_BinDirectSum1 {x y z : A} (f : Epi A y x) (g : z --> x)
-        (DS : BinDirectSumCone A y z) :
+        (DS : BinDirectSum A y z) :
     isEpi (to_binop _ _ (to_Pr1 _ DS · f) (to_Pr2 _ DS · g)).
   Proof.
     use mk_isEpi.
@@ -354,14 +354,14 @@ Section additive_minus_monic.
 
   (** This version is used in AbelianPushoutPullback *)
   Lemma isEpi_to_binop_BinDirectSum1' {x y z : A} (f : Epi A x z) (g : y --> z)
-        (DS : BinDirectSumCone A x y) :
+        (DS : BinDirectSum A x y) :
     isEpi (to_binop _ _ (to_Pr1 _ DS · f) (to_inv (to_Pr2 _ DS · g))).
   Proof.
     rewrite PreAdditive_invrcomp. use isEpi_to_binop_BinDirectSum1.
   Qed.
 
   Lemma isEpi_to_binop_BinDirectSum2 {x y z : A} (f : y --> x) (g : Epi A z x)
-        (DS : BinDirectSumCone A y z) :
+        (DS : BinDirectSum A y z) :
     isEpi (to_binop _ _ (to_Pr1 _ DS · f) (to_Pr2 _ DS · g)).
   Proof.
     use mk_isEpi.

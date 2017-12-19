@@ -28,7 +28,7 @@ Require Import UniMath.CategoryTheory.Epis.
 
 Local Open Scope cat.
 
-(** BinDirectSumCone is at the same time product and coproduct of the underlying objects together
+(** BinDirectSum is at the same time product and coproduct of the underlying objects together
     with the following equalities
 
     i1 · p1 = identity  and   i2 · p2 = identity
@@ -40,156 +40,148 @@ Section def_bindirectsums.
   Variable A : PreAdditive.
   Hypothesis hs : has_homsets A.
 
-  (** Definition of isBinDirectSumCone *)
-  Definition isBinDirectSumCone (a b co : A) (i1 : a --> co) (i2 : b --> co)
+  (** Definition of isBinDirectSum *)
+  Definition isBinDirectSum (a b co : A) (i1 : a --> co) (i2 : b --> co)
              (p1 : co --> a) (p2 : co --> b) : UU :=
-    (isBinCoproductCocone A a b co i1 i2)
-      × (isBinProductCone A a b co p1 p2)
+    (isBinCoproduct A a b co i1 i2)
+      × (isBinProduct A a b co p1 p2)
       × (i1 · p1 = identity a) × (i2 · p2 = identity b)
       × (i1 · p2 = (to_unel a b)) × (i2 · p1 = (to_unel b a))
       × ((to_binop co co) (p1 · i1) (p2 · i2) = identity co).
 
-  Lemma isaprop_isBinDirectSumCone {a b co : A} {i1 : a --> co} {i2 : b --> co}
+  Lemma isaprop_isBinDirectSum {a b co : A} {i1 : a --> co} {i2 : b --> co}
         {p1 : co --> a} {p2 : co --> b} :
-    isaprop (isBinDirectSumCone a b co i1 i2 p1 p2).
+    isaprop (isBinDirectSum a b co i1 i2 p1 p2).
   Proof.
     apply isapropdirprod.
-    - apply isaprop_isBinCoproductCocone.
+    - apply isaprop_isBinCoproduct.
     - apply isapropdirprod.
-      + apply isaprop_isBinProductCone.
-      + apply isapropdirprod.
-        * apply hs.
-        * apply isapropdirprod.
-          -- apply hs.
-          -- apply isapropdirprod.
-             ++ apply hs.
-             ++ apply isapropdirprod.
-                ** apply hs.
-                ** apply hs.
+      + apply isaprop_isBinProduct.
+      + do 5 (apply isapropdirprod; try apply hs).
   Qed.
 
-  Definition to_isBinCoproductCocone {a b co : A} {i1 : a --> co} {i2 : b --> co}
-             {p1 : co --> a} {p2 : co --> b} (B : isBinDirectSumCone a b co i1 i2 p1 p2) :
-    isBinCoproductCocone A a b co i1 i2 := dirprod_pr1 B.
+  Definition to_isBinCoproduct {a b co : A} {i1 : a --> co} {i2 : b --> co}
+             {p1 : co --> a} {p2 : co --> b} (B : isBinDirectSum a b co i1 i2 p1 p2) :
+    isBinCoproduct A a b co i1 i2 := dirprod_pr1 B.
 
-  Definition to_isBinProductCone {a b co : A} {i1 : a --> co} {i2 : b --> co}
-             {p1 : co --> a} {p2 : co --> b} (B : isBinDirectSumCone a b co i1 i2 p1 p2) :
-    isBinProductCone A a b co p1 p2 := dirprod_pr1 (dirprod_pr2 B).
+  Definition to_isBinProduct {a b co : A} {i1 : a --> co} {i2 : b --> co}
+             {p1 : co --> a} {p2 : co --> b} (B : isBinDirectSum a b co i1 i2 p1 p2) :
+    isBinProduct A a b co p1 p2 := dirprod_pr1 (dirprod_pr2 B).
 
   Definition to_IdIn1 {a b co : A} {i1 : a --> co} {i2 : b --> co} {p1 : co --> a} {p2 : co --> b}
-             (B : isBinDirectSumCone a b co i1 i2 p1 p2) :
+             (B : isBinDirectSum a b co i1 i2 p1 p2) :
     i1 · p1 = identity a := dirprod_pr1 (dirprod_pr2 (dirprod_pr2 B)).
 
   Definition to_IdIn2 {a b co : A} {i1 : a --> co} {i2 : b --> co} {p1 : co --> a} {p2 : co --> b}
-             (B : isBinDirectSumCone a b co i1 i2 p1 p2) :
+             (B : isBinDirectSum a b co i1 i2 p1 p2) :
     i2 · p2 = identity b := dirprod_pr1 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 B))).
 
   Definition to_Unel1 {a b co : A} {i1 : a --> co} {i2 : b --> co} {p1 : co --> a} {p2 : co --> b}
-             (B : isBinDirectSumCone a b co i1 i2 p1 p2) :
+             (B : isBinDirectSum a b co i1 i2 p1 p2) :
     i1 · p2 = (to_unel a b) := pr1 (pr2 (pr2 (pr2 (pr2 B)))).
 
   Definition to_Unel2 {a b co : A} {i1 : a --> co} {i2 : b --> co} {p1 : co --> a} {p2 : co --> b}
-             (B : isBinDirectSumCone a b co i1 i2 p1 p2) :
+             (B : isBinDirectSum a b co i1 i2 p1 p2) :
     i2 · p1 = (to_unel b a) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 B))))).
 
   Definition to_BinOpId {a b co : A} {i1 : a --> co} {i2 : b --> co} {p1 : co --> a} {p2 : co --> b}
-             (B : isBinDirectSumCone a b co i1 i2 p1 p2) :
+             (B : isBinDirectSum a b co i1 i2 p1 p2) :
     (to_binop co co) (p1 · i1) (p2 · i2) = identity co := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 B))))).
 
 
-  (** The following definition constructs isBinDirectSumCone from data. *)
-  Definition mk_isBinDirectSumCone (a b co : A)
+  (** The following definition constructs isBinDirectSum from data. *)
+  Definition mk_isBinDirectSum (a b co : A)
              (i1 : a --> co) (i2 : b --> co) (p1 : co --> a) (p2 : co --> b)
-             (isBC : isBinCoproductCocone A a b co i1 i2)
-             (isBP : isBinProductCone A a b co p1 p2)
+             (isBC : isBinCoproduct A a b co i1 i2)
+             (isBP : isBinProduct A a b co p1 p2)
              (H1 : i1 · p1 = identity a) (H2 : i2 · p2 = identity b)
              (H3 : i1 · p2 = (to_unel a b)) (H4 : i2 · p1 = (to_unel b a))
              (H5 : (to_binop co co) (p1 · i1) (p2 · i2) = identity co)
-    : isBinDirectSumCone a b co i1 i2 p1 p2 := isBC,,(isBP,,(H1,,(H2,,(H3,,(H4,,H5))))).
+    : isBinDirectSum a b co i1 i2 p1 p2 := isBC,,(isBP,,(H1,,(H2,,(H3,,(H4,,H5))))).
 
   (** Definition of BinDirectSums. *)
-  Definition BinDirectSumCone (a b : A) : UU :=
+  Definition BinDirectSum (a b : A) : UU :=
     ∑ coab : (∑ co : A, a --> co × b --> co × co --> a × co --> b),
-             isBinDirectSumCone a b (pr1 coab) (pr1 (pr2 coab)) (pr1 (pr2 (pr2 coab)))
+             isBinDirectSum a b (pr1 coab) (pr1 (pr2 coab)) (pr1 (pr2 (pr2 coab)))
                                 (pr1 (pr2 (pr2 (pr2 coab)))) (pr2 (pr2 (pr2 (pr2 coab)))).
 
-  (** Construction of BinDirectSumCone. *)
-  Definition mk_BinDirectSumCone (a b co : A) (i1 : a --> co) (i2 : b --> co)
-             (p1 : co --> a) (p2 : co --> b) (H :  isBinDirectSumCone a b co i1 i2 p1 p2) :
-    BinDirectSumCone a b := tpair _ (tpair _ co (i1,,(i2,,(p1,,p2)))) H.
+  (** Construction of BinDirectSum. *)
+  Definition mk_BinDirectSum (a b co : A) (i1 : a --> co) (i2 : b --> co)
+             (p1 : co --> a) (p2 : co --> b) (H :  isBinDirectSum a b co i1 i2 p1 p2) :
+    BinDirectSum a b := tpair _ (tpair _ co (i1,,(i2,,(p1,,p2)))) H.
 
   (** BinDirectSum in categories. *)
-  Definition BinDirectSums : UU := ∏ (a b : A), BinDirectSumCone a b.
+  Definition BinDirectSums : UU := ∏ (a b : A), BinDirectSum a b.
 
-  Definition mk_BinDirectSums (H : ∏ (a b : A), BinDirectSumCone a b) : BinDirectSums := H.
+  Definition mk_BinDirectSums (H : ∏ (a b : A), BinDirectSum a b) : BinDirectSums := H.
 
-  Definition has_BinDirectSums : UU := ishinh BinDirectSums.
+  Definition hasBinDirectSums : UU := ∏ (a b : A), ∥ BinDirectSum a b ∥.
 
   (** The direct sum object. *)
-  Definition BinDirectSumConeOb {a b : A} (B : BinDirectSumCone a b) : A := pr1 (pr1 B).
-  Coercion BinDirectSumConeOb : BinDirectSumCone >-> ob.
+  Definition BinDirectSumOb {a b : A} (B : BinDirectSum a b) : A := pr1 (pr1 B).
+  Coercion BinDirectSumOb : BinDirectSum >-> ob.
 
   (** Accessor functions *)
-  Definition to_In1 {a b : A} (B : BinDirectSumCone a b) : A⟦a, B⟧ := dirprod_pr1 (pr2 (pr1 B)).
+  Definition to_In1 {a b : A} (B : BinDirectSum a b) : A⟦a, B⟧ := dirprod_pr1 (pr2 (pr1 B)).
 
-  Definition to_In2 {a b : A} (B : BinDirectSumCone a b) : A⟦b, B⟧ :=
+  Definition to_In2 {a b : A} (B : BinDirectSum a b) : A⟦b, B⟧ :=
     dirprod_pr1 (dirprod_pr2 (pr2 (pr1 B))).
 
-  Definition to_Pr1 {a b : A} (B : BinDirectSumCone a b) : A⟦B, a⟧ :=
+  Definition to_Pr1 {a b : A} (B : BinDirectSum a b) : A⟦B, a⟧ :=
     dirprod_pr1 (dirprod_pr2 (dirprod_pr2 (pr2 (pr1 B)))).
 
-  Definition to_Pr2 {a b : A} (B : BinDirectSumCone a b) : A⟦B, b⟧ :=
+  Definition to_Pr2 {a b : A} (B : BinDirectSum a b) : A⟦B, b⟧ :=
     dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (pr2 (pr1 B)))).
 
   (** Another coercion *)
-  Definition BinDirectSum_isBinDirectSumCone {a b : A} (B : BinDirectSumCone a b) :
-    isBinDirectSumCone a b B (to_In1 B) (to_In2 B) (to_Pr1 B) (to_Pr2 B) := pr2 B.
-  Coercion BinDirectSum_isBinDirectSumCone : BinDirectSumCone >-> isBinDirectSumCone.
+  Definition BinDirectSum_isBinDirectSum {a b : A} (B : BinDirectSum a b) :
+    isBinDirectSum a b B (to_In1 B) (to_In2 B) (to_Pr1 B) (to_Pr2 B) := pr2 B.
+  Coercion BinDirectSum_isBinDirectSum : BinDirectSum >-> isBinDirectSum.
 
   (** Construction of BinCoproduct and BinProduct from BinDirectSum. *)
-  Definition BinDirectSum_BinCoproduct {a b : A} (B : BinDirectSumCone a b) :
-    BinCoproductCocone A a b.
+  Definition BinDirectSum_BinCoproduct {a b : A} (B : BinDirectSum a b) :
+    BinCoproduct A a b.
   Proof.
-    use (mk_BinCoproductCocone A a b B (to_In1 B) (to_In2 B)).
-    exact (to_isBinCoproductCocone B).
+    use (mk_BinCoproduct A a b B (to_In1 B) (to_In2 B)).
+    exact (to_isBinCoproduct B).
   Defined.
 
-  Definition BinDirectSum_BinProduct {a b : A} (B : BinDirectSumCone a b) : BinProductCone A a b.
+  Definition BinDirectSum_BinProduct {a b : A} (B : BinDirectSum a b) : BinProduct A a b.
   Proof.
-    use (mk_BinProductCone A a b B (to_Pr1 B) (to_Pr2 B)).
-    exact (to_isBinProductCone B).
+    use (mk_BinProduct A a b B (to_Pr1 B) (to_Pr2 B)).
+    exact (to_isBinProduct B).
   Defined.
 
   (** An arrow to BinDirectSum and arrow from BinDirectSum. *)
-  Definition ToBinDirectSum {a b : A} (B : BinDirectSumCone a b) {c : A} (f : c --> a)
+  Definition ToBinDirectSum {a b : A} (B : BinDirectSum a b) {c : A} (f : c --> a)
              (g : c --> b) : A⟦c, B⟧ := BinProductArrow A (BinDirectSum_BinProduct B) f g.
 
-  Definition FromBinDirectSum {a b : A} (B : BinDirectSumCone a b) {c : A} (f : a --> c)
+  Definition FromBinDirectSum {a b : A} (B : BinDirectSum a b) {c : A} (f : a --> c)
              (g : b --> c) : A⟦B, c⟧ := BinCoproductArrow A (BinDirectSum_BinCoproduct B) f g.
 
   (** Commutativity of BinDirectSum. *)
-  Definition BinDirectSumIn1Commutes {a b : A} (B : BinDirectSumCone a b) :
+  Definition BinDirectSumIn1Commutes {a b : A} (B : BinDirectSum a b) :
     ∏ (c : A) (f : a --> c) (g : b --> c), (to_In1 B) · (FromBinDirectSum B f g) = f.
   Proof.
     intros c f g.
     apply (BinCoproductIn1Commutes A a b (BinDirectSum_BinCoproduct B) c f g).
   Qed.
 
-  Definition BinDirectSumIn2Commutes {a b : A} (B : BinDirectSumCone a b) :
+  Definition BinDirectSumIn2Commutes {a b : A} (B : BinDirectSum a b) :
     ∏ (c : A) (f : a --> c) (g : b --> c), (to_In2 B) · (FromBinDirectSum B f g) = g.
   Proof.
     intros c f g.
     apply (BinCoproductIn2Commutes A a b (BinDirectSum_BinCoproduct B) c f g).
   Qed.
 
-  Definition BinDirectSumPr1Commutes {a b : A} (B : BinDirectSumCone a b) :
+  Definition BinDirectSumPr1Commutes {a b : A} (B : BinDirectSum a b) :
     ∏ (c : A) (f : c --> a) (g : c --> b), (ToBinDirectSum B f g) · (to_Pr1 B) = f.
   Proof.
     intros c f g.
     apply (BinProductPr1Commutes A a b (BinDirectSum_BinProduct B) c f g).
   Qed.
 
-  Definition BinDirectSumPr2Commutes {a b : A} (B : BinDirectSumCone a b) :
+  Definition BinDirectSumPr2Commutes {a b : A} (B : BinDirectSum a b) :
     ∏ (c : A) (f : c --> a) (g : c --> b), (ToBinDirectSum B f g) · (to_Pr2 B) = g.
   Proof.
     intros c f g.
@@ -198,18 +190,18 @@ Section def_bindirectsums.
 
   (** Uniqueness of arrow to and from BinDirectSum using the BinProduct and BinCoproduct
       structures. *)
-  Definition ToBinDirectSumUnique {a b : A} (B : BinDirectSumCone a b) {c : A} (f : c --> a)
+  Definition ToBinDirectSumUnique {a b : A} (B : BinDirectSum a b) {c : A} (f : c --> a)
              (g : c --> b) (k : c --> B) :
     k · to_Pr1 B = f -> k · to_Pr2 B = g -> k = ToBinDirectSum B f g :=
     BinProductArrowUnique _ _ _ (BinDirectSum_BinProduct B) c f g k.
 
-  Definition FromBinDirectSumUnique {a b : A} (B : BinDirectSumCone a b) {c : A} (f : a --> c)
+  Definition FromBinDirectSumUnique {a b : A} (B : BinDirectSum a b) {c : A} (f : a --> c)
              (g : b --> c) (k : B --> c) :
     to_In1 B · k = f -> to_In2 B · k = g -> k = FromBinDirectSum B f g :=
     BinCoproductArrowUnique _ _ _ (BinDirectSum_BinCoproduct B) c f g k.
 
   (** Uniqueness of arrows to and from BinDirectSum *)
-  Lemma ToBinDirectSumsEq {c d : A} (DS : BinDirectSumCone c d) {x : A} (k1 k2 : x --> DS) :
+  Lemma ToBinDirectSumsEq {c d : A} (DS : BinDirectSum c d) {x : A} (k1 k2 : x --> DS) :
     k1 · to_Pr1 DS = k2 · to_Pr1 DS ->
     k1 · to_Pr2 DS = k2 · to_Pr2 DS -> k1 = k2.
   Proof.
@@ -223,7 +215,7 @@ Section def_bindirectsums.
     - apply idpath.
   Qed.
 
-  Lemma FromBinDirectSumsEq {c d : A} (DS : BinDirectSumCone c d) {x : A} (k1 k2 : DS --> x) :
+  Lemma FromBinDirectSumsEq {c d : A} (DS : BinDirectSum c d) {x : A} (k1 k2 : DS --> x) :
     to_In1 DS · k1 = to_In1 DS · k2 -> to_In2 DS · k1 = to_In2 DS · k2 -> k1 = k2.
   Proof.
     intros H1 H2.
@@ -242,14 +234,14 @@ Section def_bindirectsums.
       to bindirectsum unique arrow     =   f · in1 + g · in2
       from bindirectsum unique arrow   =   pr1 · f + pr2 · g
    *)
-  Definition ToBinDirectSumFormula {a b : A} (B : BinDirectSumCone a b) {c : A} (f : c --> a)
+  Definition ToBinDirectSumFormula {a b : A} (B : BinDirectSum a b) {c : A} (f : c --> a)
              (g : c --> b) : A⟦c, B⟧ := (to_binop c B) (f · to_In1 B) (g · to_In2 B).
 
-  Definition FromBinDirectSumFormula {a b : A} (B : BinDirectSumCone a b) {c : A} (f : a --> c)
+  Definition FromBinDirectSumFormula {a b : A} (B : BinDirectSum a b) {c : A} (f : a --> c)
              (g : b --> c) : A⟦B, c⟧ := (to_binop B c) (to_Pr1 B · f) (to_Pr2 B · g).
 
   (** Let us prove that these formulas indeed are the unique morphisms we claimed them to be. *)
-  Lemma ToBinDirectSumFormulaUnique {a b : A} (B : BinDirectSumCone a b) {c : A} (f : c --> a)
+  Lemma ToBinDirectSumFormulaUnique {a b : A} (B : BinDirectSum a b) {c : A} (f : c --> a)
         (g : c --> b) : ToBinDirectSumFormula B f g = ToBinDirectSum B f g.
   Proof.
     apply ToBinDirectSumUnique.
@@ -277,7 +269,7 @@ Section def_bindirectsums.
       apply (to_lunax c b).
   Qed.
 
-  Lemma FromBinDirectSumFormulaUnique {a b : A} (B : BinDirectSumCone a b) {c : A} (f : a --> c)
+  Lemma FromBinDirectSumFormulaUnique {a b : A} (B : BinDirectSum a b) {c : A} (f : a --> c)
         (g : b --> c) : FromBinDirectSumFormula B f g = FromBinDirectSum B f g.
   Proof.
     unfold FromBinDirectSumFormula.
@@ -304,20 +296,20 @@ Section def_bindirectsums.
       morphisms f : a --> b and g : c --> d , by using the binary direct sums as a product and as a
       coproduct. *)
   Definition BinDirectSumIndAr {a b c d : A} (f : a --> b) (g : c --> d)
-             (B1 : BinDirectSumCone a c) (B2 : BinDirectSumCone b d) :
+             (B1 : BinDirectSum a c) (B2 : BinDirectSum b d) :
     A⟦B1, B2⟧ := ToBinDirectSum B2 ((to_Pr1 B1) · f) ((to_Pr2 B1) · g).
 
   Definition BinDirectSumIndAr' {a b c d : A} (f : a --> b) (g : c --> d)
-             (B1 : BinDirectSumCone a c) (B2 : BinDirectSumCone b d) :
+             (B1 : BinDirectSum a c) (B2 : BinDirectSum b d) :
     A⟦B1, B2⟧ := FromBinDirectSum B1 (f · (to_In1 B2)) (g · (to_In2 B2)).
 
   (** Both of the above morphisms are given by the following formula. *)
   Definition BinDirectSumIndArFormula {a b c d: A}  (f : a --> b) (g : c --> d)
-             (B1 : BinDirectSumCone a c) (B2 : BinDirectSumCone b d) :
+             (B1 : BinDirectSum a c) (B2 : BinDirectSum b d) :
     A⟦B1, B2⟧ := (to_binop B1 B2) (to_Pr1 B1 · f · to_In1 B2) (to_Pr2 B1 · g · to_In2 B2).
 
   Lemma BinDirectSumIndArEq1 {a b c d : A} (f : a --> b) (g : c --> d)
-             (B1 : BinDirectSumCone a c) (B2 : BinDirectSumCone b d) :
+             (B1 : BinDirectSum a c) (B2 : BinDirectSum b d) :
     BinDirectSumIndAr f g B1 B2 = BinDirectSumIndArFormula f g B1 B2.
   Proof.
     unfold BinDirectSumIndAr.
@@ -328,7 +320,7 @@ Section def_bindirectsums.
   Qed.
 
   Lemma BinDirectSumIndArEq2 {a b c d : A} (f : a --> b) (g : c --> d)
-             (B1 : BinDirectSumCone a c) (B2 : BinDirectSumCone b d) :
+             (B1 : BinDirectSum a c) (B2 : BinDirectSum b d) :
     BinDirectSumIndAr' f g B1 B2 = BinDirectSumIndArFormula f g B1 B2.
   Proof.
     unfold BinDirectSumIndAr'.
@@ -341,7 +333,7 @@ Section def_bindirectsums.
 
   (** Thus we have equality. *)
   Definition BinDirectSumIndArEq {a b c d : A} (f : a --> b) (g : c --> d)
-             (B1 : BinDirectSumCone a c) (B2 : BinDirectSumCone b d) :
+             (B1 : BinDirectSum a c) (B2 : BinDirectSum b d) :
     BinDirectSumIndAr f g B1 B2 = BinDirectSumIndAr' f g B1 B2.
   Proof.
     rewrite -> BinDirectSumIndArEq1.
@@ -351,8 +343,8 @@ Section def_bindirectsums.
 
   (** ** Composition of IndAr *)
   Lemma BinDirectSumIndArComp {a b c d e f : A} (f1 : a --> b) (f2 : b --> c)
-        (g1 : d --> e) (g2 : e --> f) (B1 : BinDirectSumCone a d) (B2 : BinDirectSumCone b e)
-        (B3 : BinDirectSumCone c f) :
+        (g1 : d --> e) (g2 : e --> f) (B1 : BinDirectSum a d) (B2 : BinDirectSum b e)
+        (B3 : BinDirectSum c f) :
     BinDirectSumIndAr f1 g1 B1 B2 · BinDirectSumIndAr f2 g2 B2 B3 =
     BinDirectSumIndAr (f1 · f2) (g1 · g2) B1 B3.
   Proof.
@@ -382,7 +374,7 @@ Section bindirectsums_monics_and_epis.
 
   Variable A : PreAdditive.
 
-  Lemma to_In1_isMonic {a b : A} (B : BinDirectSumCone A a b) : isMonic (to_In1 A B).
+  Lemma to_In1_isMonic {a b : A} (B : BinDirectSum A a b) : isMonic (to_In1 A B).
   Proof.
     intros z f g H.
     apply (maponpaths (λ h : _, h · (to_Pr1 A B))) in H.
@@ -390,7 +382,7 @@ Section bindirectsums_monics_and_epis.
     repeat rewrite id_right in H. apply H.
   Qed.
 
-  Lemma to_In2_isMonic {a b : A} (B : BinDirectSumCone A a b) : isMonic (to_In2 A B).
+  Lemma to_In2_isMonic {a b : A} (B : BinDirectSum A a b) : isMonic (to_In2 A B).
   Proof.
     intros z f g H.
     apply (maponpaths (λ h : _, h · (to_Pr2 A B))) in H.
@@ -398,7 +390,7 @@ Section bindirectsums_monics_and_epis.
     repeat rewrite id_right in H. apply H.
   Qed.
 
-  Lemma to_Pr1_isEpi {a b : A} (B : BinDirectSumCone A a b) : isEpi (to_Pr1 A B).
+  Lemma to_Pr1_isEpi {a b : A} (B : BinDirectSum A a b) : isEpi (to_Pr1 A B).
   Proof.
     intros z f g H.
     apply (maponpaths (λ h : _, (to_In1 A B) · h)) in H.
@@ -406,7 +398,7 @@ Section bindirectsums_monics_and_epis.
     repeat rewrite id_left in H. apply H.
   Qed.
 
-  Lemma to_Pr2_isEpi {a b : A} (B : BinDirectSumCone A a b) : isEpi (to_Pr2 A B).
+  Lemma to_Pr2_isEpi {a b : A} (B : BinDirectSum A a b) : isEpi (to_Pr2 A B).
   Proof.
     intros z f g H.
     apply (maponpaths (λ h : _, (to_In2 A B) · h)) in H.
@@ -424,33 +416,33 @@ Section bindirectsums_criteria.
   Hypothesis hs : has_homsets A.
   Variable Z : Zero A.
 
-  Definition BinDirectSums_from_binproduct_bincoproducts_eq1 {X Y : A} (P : BinProductCone A X Y) :
+  Definition BinDirectSums_from_binproduct_bincoproducts_eq1 {X Y : A} (P : BinProduct A X Y) :
     BinProductArrow A P (identity X) (ZeroArrow Z X Y) · BinProductPr1 A P = identity _ .
   Proof.
     apply BinProductPr1Commutes.
   Qed.
 
-  Definition BinDirectSums_from_binproduct_bincoproducts_eq2 {X Y : A} (P : BinProductCone A X Y) :
+  Definition BinDirectSums_from_binproduct_bincoproducts_eq2 {X Y : A} (P : BinProduct A X Y) :
     BinProductArrow A P (identity X) (ZeroArrow Z X Y) · BinProductPr2 A P = to_unel X Y.
   Proof.
     rewrite (PreAdditive_unel_zero A Z).
     apply BinProductPr2Commutes.
   Qed.
 
-  Definition BinDirectSums_from_binproduct_bincoproducts_eq3 {X Y : A} (P : BinProductCone A X Y) :
+  Definition BinDirectSums_from_binproduct_bincoproducts_eq3 {X Y : A} (P : BinProduct A X Y) :
     BinProductArrow A P (ZeroArrow Z Y X) (identity _ ) · BinProductPr1 A P = to_unel Y X.
   Proof.
     rewrite (PreAdditive_unel_zero A Z).
     apply BinProductPr1Commutes.
   Qed.
 
-  Definition BinDirectSums_from_binproduct_bincoproducts_eq4 {X Y : A} (P : BinProductCone A X Y) :
+  Definition BinDirectSums_from_binproduct_bincoproducts_eq4 {X Y : A} (P : BinProduct A X Y) :
     BinProductArrow A P (ZeroArrow Z Y X) (identity _ ) · BinProductPr2 A P = identity _ .
   Proof.
     apply BinProductPr2Commutes.
   Qed.
 
-  Definition BinDirectSums_from_binproduct_bincoproducts_eq5 {X Y : A} (P : BinProductCone A X Y) :
+  Definition BinDirectSums_from_binproduct_bincoproducts_eq5 {X Y : A} (P : BinProduct A X Y) :
     to_binop
       (BinProductObject A P) (BinProductObject A P)
       (BinProductPr1 A P · BinProductArrow A P(identity X) (ZeroArrow Z X Y))
@@ -474,12 +466,12 @@ Section bindirectsums_criteria.
   Qed.
 
   Definition BinDirectSums_from_binproduct_bincoproducts_isCoproduct {X Y : A}
-             (P : BinProductCone A X Y) :
-    isBinCoproductCocone A X Y (BinProductObject A P)
+             (P : BinProduct A X Y) :
+    isBinCoproduct A X Y (BinProductObject A P)
                          (BinProductArrow A P (identity X) (ZeroArrow Z X Y))
                          (BinProductArrow A P (ZeroArrow Z Y X) (identity Y)).
   Proof.
-    use (mk_isBinCoproductCocone _ hs).
+    use (mk_isBinCoproduct _ hs).
     intros c f g.
     use unique_exists.
     - exact (to_binop (BinProductObject A P) c (BinProductPr1 A P · f) (BinProductPr2 A P · g)).
@@ -509,10 +501,10 @@ Section bindirectsums_criteria.
   Qed.
 
   Definition BinDirectSums_from_binproduct_bincoproducts_isProduct {X Y : A}
-             (P : BinProductCone A X Y) :
-    isBinProductCone A X Y (BinProductObject A P) (BinProductPr1 A P) (BinProductPr2 A P).
+             (P : BinProduct A X Y) :
+    isBinProduct A X Y (BinProductObject A P) (BinProductPr1 A P) (BinProductPr2 A P).
   Proof.
-    use (mk_isBinProductCone _ hs).
+    use (mk_isBinProduct _ hs).
     intros c f g.
     use unique_exists.
     - exact (BinProductArrow A P f g).
@@ -529,16 +521,16 @@ Section bindirectsums_criteria.
       + rewrite <- assoc. rewrite BinProductPr2Commutes. apply idpath.
   Qed.
 
-  Definition BinDirectSum_from_BinProduct {X Y : A} (P : BinProductCone A X Y) :
-    BinDirectSumCone A X Y :=
-    mk_BinDirectSumCone
+  Definition BinDirectSum_from_BinProduct {X Y : A} (P : BinProduct A X Y) :
+    BinDirectSum A X Y :=
+    mk_BinDirectSum
       A X Y
       (BinProductObject A P)
       (BinProductArrow A P (identity X) (ZeroArrow Z X Y))
       (BinProductArrow A P (ZeroArrow Z Y X) (identity Y))
       (BinProductPr1 A P)
       (BinProductPr2 A P)
-      (mk_isBinDirectSumCone
+      (mk_isBinDirectSum
          _ _ _ _ _ _ _ _
          (BinDirectSums_from_binproduct_bincoproducts_isCoproduct P)
          (BinDirectSums_from_binproduct_bincoproducts_isProduct P)
@@ -569,12 +561,12 @@ Section bindirectsums_in_quot.
   Hypothesis PAS : PreAdditiveSubabgrs A.
   Hypothesis PAC : PreAdditiveComps A PAS.
 
-  Lemma Quotcategory_isBinCoproductCocone (x y : A) :
-    isBinCoproductCocone (Quotcategory_PreAdditive A PAS PAC) x y (BD x y)
+  Lemma Quotcategory_isBinCoproduct (x y : A) :
+    isBinCoproduct (Quotcategory_PreAdditive A PAS PAC) x y (BD x y)
                          (to_quot_mor A PAS (to_In1 A (BD x y)))
                          (to_quot_mor A PAS (to_In2 A (BD x y))).
   Proof.
-    use mk_isBinCoproductCocone.
+    use mk_isBinCoproduct.
     - apply has_homsets_Quotcategory.
     - intros c f g.
       set (f'' := @issurjsetquotpr (@to_abgrop A x c) (binopeqrel_subgr_eqrel (PAS x c)) f).
@@ -627,12 +619,12 @@ Section bindirectsums_in_quot.
           apply idpath.
   Qed.
 
-  Lemma Quotcategory_isBinProductCone (x y : A) :
-    isBinProductCone (Quotcategory_PreAdditive A PAS PAC) x y (BD x y)
+  Lemma Quotcategory_isBinProduct (x y : A) :
+    isBinProduct (Quotcategory_PreAdditive A PAS PAC) x y (BD x y)
                      (to_quot_mor A PAS (to_Pr1 A (BD x y)))
                      (to_quot_mor A PAS (to_Pr2 A (BD x y))).
   Proof.
-    use mk_isBinProductCone.
+    use mk_isBinProduct.
     - apply has_homsets_Quotcategory.
     - intros c f g.
       set (f'' := @issurjsetquotpr (@to_abgrop A c x) (binopeqrel_subgr_eqrel (PAS c x)) f).
@@ -686,15 +678,15 @@ Section bindirectsums_in_quot.
   Qed.
 
   Opaque Quotcategory_PreAdditive. (* This speeds up the following proof significantly. *)
-  Lemma Quotcategory_isBinDirectSumCone (x y : A) :
-    isBinDirectSumCone
+  Lemma Quotcategory_isBinDirectSum (x y : A) :
+    isBinDirectSum
       (Quotcategory_PreAdditive A PAS PAC) x y (BD x y)
       (to_quot_mor A PAS (to_In1 A (BD x y))) (to_quot_mor A PAS (to_In2 A (BD x y)))
       (to_quot_mor A PAS (to_Pr1 A (BD x y))) (to_quot_mor A PAS (to_Pr2 A (BD x y))).
   Proof.
-    use mk_isBinDirectSumCone.
-    - exact (Quotcategory_isBinCoproductCocone x y).
-    - exact (Quotcategory_isBinProductCone x y).
+    use mk_isBinDirectSum.
+    - exact (Quotcategory_isBinCoproduct x y).
+    - exact (Quotcategory_isBinProduct x y).
     - unfold to_quot_mor.
       rewrite <- comp_eq.
       set (tmp := @Quotcategory_comp_linear A PAS PAC x (BD x y) x).
@@ -735,13 +727,13 @@ Section bindirectsums_in_quot.
   Definition Quotcategory_BinDirectSums : BinDirectSums (Quotcategory_PreAdditive A PAS PAC).
   Proof.
     intros x y.
-    use mk_BinDirectSumCone.
+    use mk_BinDirectSum.
     - exact (BD x y).
     - exact (to_quot_mor A PAS (to_In1 A (BD x y))).
     - exact (to_quot_mor A PAS (to_In2 A (BD x y))).
     - exact (to_quot_mor A PAS (to_Pr1 A (BD x y))).
     - exact (to_quot_mor A PAS (to_Pr2 A (BD x y))).
-    - exact (Quotcategory_isBinDirectSumCone x y).
+    - exact (Quotcategory_isBinDirectSum x y).
   Defined.
 
 End bindirectsums_in_quot.

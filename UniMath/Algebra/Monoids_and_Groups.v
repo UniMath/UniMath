@@ -394,9 +394,23 @@ Definition pr1submonoid (X : monoid) : @submonoid X -> hsubtype X := @pr1 _ _.
 
 Definition totalsubmonoid (X : monoid) : @submonoid X.
 Proof.
-  intro. split with (λ x : _, htrue). split.
+  intro. split with (totalsubtype X). split.
   - intros x x'. apply tt.
   - apply tt.
+Defined.
+
+Definition trivialsubmonoid (X : monoid) : @submonoid X.
+Proof.
+  intros.
+  exists (λ x, x = @unel X)%set.
+  split.
+  - intros b c.
+    induction b as [x p], c as [y q].
+    cbn in *.
+    induction (!p), (!q).
+    rewrite lunax.
+    apply idpath.
+  - apply idpath.
 Defined.
 
 Definition submonoidtosubsetswithbinop (X : monoid) : @submonoid X -> @subsetswithbinop X :=
@@ -1639,6 +1653,11 @@ Proof.
   apply (pr2 (pr2 f)).
 Defined.
 
+Definition grinv_path_from_op_path {X : gr} {x y : X} (p : (x * y)%multmonoid = unel X) :
+  grinv X x = y.
+Proof.
+  intros. now rewrite <- (lunax X y), <- (grlinvax X x), assocax, p, runax.
+Defined.
 
 (** **** Construction of the trivial abmonoid consisting of one element given by unit. *)
 
@@ -1915,6 +1934,27 @@ Definition subgrconstr {X : gr} :
 Definition subgrtosubmonoid (X : gr) : @subgr X -> @submonoid X :=
   λ A : _, submonoidpair (pr1 A) (pr1 (pr2 A)).
 Coercion subgrtosubmonoid : subgr >-> submonoid.
+
+Definition totalsubgr (X : gr) : @subgr X.
+Proof.
+  intro X.
+  split with (@totalsubtype X).
+  split.
+  - exact (pr2 (totalsubmonoid X)).
+  - exact (fun _ _ => tt).
+Defined.
+
+Definition trivialsubgr (X : gr) : @subgr X.
+Proof.
+  intro X.
+  exists (λ x, x = @unel X)%set.
+  split.
+  - exact (pr2 (@trivialsubmonoid X)).
+  - intro.
+    intro eq_1.
+    induction (!eq_1).
+    apply grinvunel.
+Defined.
 
 Lemma isinvoncarrier {X : gr} (A : @subgr X) :
   isinv (@op A) (unel A) (λ a : A, carrierpair _ (grinv X (pr1 a)) (pr2 (pr2 A) (pr1 a) (pr2 a))).
