@@ -1808,7 +1808,7 @@ Proof.
   apply (pr2 (A (opp (pr1 a) (pr1 a')))).
 Defined.
 
-Definition subsetswithbinop {X : setwithbinop} : UU :=
+Definition subsetswithbinop (X : setwithbinop) : UU :=
   total2 (λ A : hsubtype X, issubsetwithbinop (@op X) A).
 
 Definition subsetswithbinoppair {X : setwithbinop} :
@@ -1820,19 +1820,19 @@ Definition subsetswithbinopconstr {X : setwithbinop} :
   ∏ (t : hsubtype X), (λ A : hsubtype X, issubsetwithbinop op A) t →
                        ∑ A : hsubtype X, issubsetwithbinop op A := @subsetswithbinoppair X.
 
-Definition pr1subsetswithbinop (X : setwithbinop) : @subsetswithbinop X -> hsubtype X :=
+Definition pr1subsetswithbinop (X : setwithbinop) : subsetswithbinop X -> hsubtype X :=
   @pr1 _ (λ A : hsubtype X, issubsetwithbinop (@op X) A).
 Coercion pr1subsetswithbinop : subsetswithbinop >-> hsubtype.
 
-Definition pr2subsetswithbinop {X : setwithbinop} (Y : @subsetswithbinop X) :
+Definition pr2subsetswithbinop {X : setwithbinop} (Y : subsetswithbinop X) :
   issubsetwithbinop (@op X) (pr1subsetswithbinop X Y) := pr2 Y.
 
-Definition totalsubsetwithbinop (X : setwithbinop) : @subsetswithbinop X.
+Definition totalsubsetwithbinop (X : setwithbinop) : subsetswithbinop X.
 Proof.
   intros. split with (λ x : X, htrue). intros x x'. apply tt.
 Defined.
 
-Definition carrierofasubsetwithbinop {X : setwithbinop} (A : @subsetswithbinop X) : setwithbinop.
+Definition carrierofasubsetwithbinop {X : setwithbinop} (A : subsetswithbinop X) : setwithbinop.
 Proof.
   intros.
   set (aset := (hSetpair (carrier A) (isasetsubset (pr1carrier A) (setproperty X)
@@ -1898,36 +1898,36 @@ Proof.
   - intros a b c rab. apply (isb a b c c rab (isr c)).
 Defined.
 
-Definition binophrel {X : setwithbinop} : UU := total2 (λ R : hrel X, isbinophrel R).
+Definition binophrel (X : setwithbinop) : UU := total2 (λ R : hrel X, isbinophrel R).
 
 Definition binophrelpair {X : setwithbinop} :
   ∏ (t : hrel X), (λ R : hrel X, isbinophrel R) t → ∑ R : hrel X, isbinophrel R :=
   tpair (λ R : hrel X, isbinophrel R).
 
-Definition pr1binophrel (X : setwithbinop) : @binophrel X -> hrel X :=
+Definition pr1binophrel (X : setwithbinop) : binophrel X -> hrel X :=
   @pr1 _ (λ R : hrel X, isbinophrel R).
 Coercion pr1binophrel : binophrel >-> hrel.
 
-Definition binoppo {X : setwithbinop} : UU := total2 (λ R : po X, isbinophrel R).
+Definition binoppo (X : setwithbinop) : UU := total2 (λ R : po X, isbinophrel R).
 
 Definition binoppopair {X : setwithbinop} :
   ∏ (t : po X), (λ R : po X, isbinophrel R) t → ∑ R : po X, isbinophrel R :=
   tpair (λ R : po X, isbinophrel R).
 
-Definition pr1binoppo (X : setwithbinop) : @binoppo X -> po X := @pr1 _ (λ R : po X, isbinophrel R).
+Definition pr1binoppo (X : setwithbinop) : binoppo X -> po X := @pr1 _ (λ R : po X, isbinophrel R).
 Coercion pr1binoppo : binoppo >-> po.
 
-Definition binopeqrel {X : setwithbinop} : UU := total2 (λ R : eqrel X, isbinophrel R).
+Definition binopeqrel (X : setwithbinop) : UU := total2 (λ R : eqrel X, isbinophrel R).
 
 Definition binopeqrelpair {X : setwithbinop} :
   ∏ (t : eqrel X), (λ R : eqrel X, isbinophrel R) t → ∑ R : eqrel X, isbinophrel R :=
   tpair (λ R : eqrel X, isbinophrel R).
 
-Definition pr1binopeqrel (X : setwithbinop) : @binopeqrel X -> eqrel X :=
+Definition pr1binopeqrel (X : setwithbinop) : binopeqrel X -> eqrel X :=
   @pr1 _ (λ R : eqrel X, isbinophrel R).
 Coercion pr1binopeqrel : binopeqrel >-> eqrel.
 
-Definition setwithbinopquot {X : setwithbinop} (R : @binopeqrel X) : setwithbinop.
+Definition setwithbinopquot {X : setwithbinop} (R : binopeqrel X) : setwithbinop.
 Proof.
   intros. split with (setquotinset R).
   set (qt  := setquot R). set (qtset := setquotinset R).
@@ -2094,7 +2094,7 @@ Defined.
 
 (** **** Quotient relations *)
 
-Lemma isbinopquotrel {X : setwithbinop} (R : @binopeqrel X) {L : hrel X} (is : iscomprelrel R L)
+Lemma isbinopquotrel {X : setwithbinop} (R : binopeqrel X) {L : hrel X} (is : iscomprelrel R L)
       (isl : isbinophrel L) : @isbinophrel (setwithbinopquot R) (quotrel is).
 Proof.
   intros. unfold isbinophrel. split.
@@ -2515,7 +2515,7 @@ Proof.
     apply (pr2 (A (op2 (pr1 a) (pr1 a')))).
 Defined.
 
-Definition subsetswith2binop {X : setwith2binop} : UU :=
+Definition subsetswith2binop (X : setwith2binop) : UU :=
   total2 (λ A : hsubtype X, issubsetwith2binop A).
 
 Definition subsetswith2binoppair {X : setwith2binop} :
@@ -2528,18 +2528,18 @@ Definition subsetswith2binopconstr {X : setwith2binop} :
                        ∑ A : hsubtype X, issubsetwith2binop A :=
   @subsetswith2binoppair X.
 
-Definition pr1subsetswith2binop (X : setwith2binop) : @subsetswith2binop X -> hsubtype X :=
+Definition pr1subsetswith2binop (X : setwith2binop) : subsetswith2binop X -> hsubtype X :=
   @pr1 _ (λ A : hsubtype X, issubsetwith2binop A).
 Coercion pr1subsetswith2binop : subsetswith2binop >-> hsubtype.
 
-Definition totalsubsetwith2binop (X : setwith2binop) : @subsetswith2binop X.
+Definition totalsubsetwith2binop (X : setwith2binop) : subsetswith2binop X.
 Proof.
   intros. split with (λ x : X, htrue). split.
   - intros x x'. apply tt.
   - intros. apply tt.
 Defined.
 
-Definition carrierofsubsetwith2binop {X : setwith2binop} (A : @subsetswith2binop X) : setwith2binop.
+Definition carrierofsubsetwith2binop {X : setwith2binop} (A : subsetswith2binop X) : setwith2binop.
 Proof.
   intros.
   set (aset := (hSetpair (carrier A) (isasetsubset (pr1carrier A) (setproperty X)
@@ -2575,37 +2575,37 @@ Proof.
   - apply (@iscompbinoptransrel (setwithbinop2 X) R is (pr2 isb)).
 Defined.
 
-Definition twobinophrel {X : setwith2binop} : UU := total2 (λ R : hrel X, is2binophrel R).
+Definition twobinophrel (X : setwith2binop) : UU := total2 (λ R : hrel X, is2binophrel R).
 
 Definition twobinophrelpair {X : setwith2binop} :
   ∏ (t : hrel X), (λ R : hrel X, is2binophrel R) t → ∑ R : hrel X, is2binophrel R :=
   tpair (λ R : hrel X, is2binophrel R).
 
-Definition pr1twobinophrel (X : setwith2binop) : @twobinophrel X -> hrel X :=
+Definition pr1twobinophrel (X : setwith2binop) : twobinophrel X -> hrel X :=
   @pr1 _ (λ R : hrel X, is2binophrel R).
 Coercion pr1twobinophrel : twobinophrel >-> hrel.
 
-Definition twobinoppo {X : setwith2binop} : UU := total2 (λ R : po X, is2binophrel R).
+Definition twobinoppo (X : setwith2binop) : UU := total2 (λ R : po X, is2binophrel R).
 
 Definition twobinoppopair {X : setwith2binop} :
   ∏ (t : po X), (λ R : po X, is2binophrel R) t → ∑ R : po X, is2binophrel R :=
   tpair (λ R : po X, is2binophrel R).
 
-Definition pr1twobinoppo (X : setwith2binop) : @twobinoppo X -> po X :=
+Definition pr1twobinoppo (X : setwith2binop) : twobinoppo X -> po X :=
   @pr1 _ (λ R : po X, is2binophrel R).
 Coercion pr1twobinoppo : twobinoppo >-> po.
 
-Definition twobinopeqrel {X : setwith2binop} : UU := total2 (λ R : eqrel X, is2binophrel R).
+Definition twobinopeqrel (X : setwith2binop) : UU := total2 (λ R : eqrel X, is2binophrel R).
 
 Definition twobinopeqrelpair {X : setwith2binop} :
   ∏ (t : eqrel X), (λ R : eqrel X, is2binophrel R) t → ∑ R : eqrel X, is2binophrel R :=
   tpair (λ R : eqrel X, is2binophrel R).
 
-Definition pr1twobinopeqrel (X : setwith2binop) : @twobinopeqrel X -> eqrel X :=
+Definition pr1twobinopeqrel (X : setwith2binop) : twobinopeqrel X -> eqrel X :=
   @pr1 _ (λ R : eqrel X, is2binophrel R).
 Coercion pr1twobinopeqrel : twobinopeqrel >-> eqrel.
 
-Definition setwith2binopquot {X : setwith2binop} (R : @twobinopeqrel X) : setwith2binop.
+Definition setwith2binopquot {X : setwith2binop} (R : twobinopeqrel X) : setwith2binop.
 Proof.
   intros. split with (setquotinset R).
   set (qt := setquot R). set (qtset := setquotinset R).
