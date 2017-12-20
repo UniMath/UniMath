@@ -109,13 +109,13 @@ Lemma CoAlg_is_precategory (hasHom : has_homsets C)
 Proof.
   split.
   - split.
-    + intros ? ? ?. apply coalgebra_homo_eq.
+    + intros. apply coalgebra_homo_eq.
       * apply hasHom.
       * apply id_left.
-    + intros ? ? ?. apply coalgebra_homo_eq.
+    + intros. apply coalgebra_homo_eq.
       * apply hasHom.
       * apply id_right.
-  - intros ? ? ? ? ? ? ?.
+  - intros.
     apply coalgebra_homo_eq.
     + apply hasHom.
     + apply assoc.
@@ -179,11 +179,8 @@ Proof.
   apply (coalgebra_homo_commutes F f).
 Defined.
 
-Lemma αα'_idA : α · α' = identity A.
-Proof.
-  apply pathsinv0.
-  apply (maponpaths pr1 (!@TerminalEndo_is_identity F_CoAlg TerminalX αα'_mor)).
-Defined.
+Definition αα'_idA : α · α' = identity A
+  := maponpaths pr1 (TerminalEndo_is_identity (T:=TerminalX) αα'_mor).
 
 Lemma α'α_idFA : α' · α = identity (F A).
 Proof.
