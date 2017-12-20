@@ -182,7 +182,7 @@ Defined.
 Lemma αα'_idA : α · α' = identity A.
 Proof.
   apply pathsinv0.
-  apply (maponpaths pr1 (TerminalEndo_is_identity F_CoAlg TerminalX αα'_mor)).
+  apply (maponpaths pr1 (!@TerminalEndo_is_identity F_CoAlg TerminalX αα'_mor)).
 Defined.
 
 Lemma α'α_idFA : α' · α = identity (F A).
