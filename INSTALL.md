@@ -83,7 +83,7 @@ Camlp5 version 7.03 (ocaml 4.02.3)
 
 ## Preparing for the installation under Linux
 
-uUnder Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
+Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
 
 ```bash
 $ sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
