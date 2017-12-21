@@ -83,7 +83,7 @@ Camlp5 version 7.03 (ocaml 4.02.3)
 
 ## Preparing for the installation under Linux
 
-Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
+uUnder Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
 
 ```bash
 $ sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
@@ -97,7 +97,13 @@ Arch Linux and Manjaro Linux:
       sudo pacman-key --populate archlinux
       sudo pacman --sync --needed ocaml camlp5 ocaml-findlib
 
-    Install ProofGeneral from its website as described above.
+    Install ProofGeneral from its website as described above.  Or,
+    alternatively, install it from AUR (
+    https://aur.archlinux.org/packages/proofgeneral/ ) using an auxiliary
+    package manager such as "cower" ( https://aur.archlinux.org/packages/cower/
+    ) or yaourt ( https://aur.archlinux.org/packages/yaourt/ ).  That approach
+    will be especially convenient for expert Arch Linux users who find other
+    packages at AUR worth installing.
 
     To upgrade the system:
 
