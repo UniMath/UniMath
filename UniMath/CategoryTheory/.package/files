@@ -55,6 +55,7 @@ yoneda.v
 Monads/Monads.v
 Monads/LModules.v
 FunctorAlgebras.v
+FunctorCoalgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
 rezk_completion.v
