@@ -6,7 +6,7 @@ version of `bash` on your system.
 
 ## Preparing for the installation under Mac OS
 
-For the other required components, there are two methods.
+To prepare for the installation under Mac OS, there are two methods.
 
 ### First method (recommended for beginners)
 
