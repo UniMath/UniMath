@@ -101,7 +101,7 @@ Defined.
 Definition modules_univalence_map_isweq (M N : mod_precategory) : isweq (modules_univalence_map M N).
 Proof.
    use isweqhomot.
-   - exact (weqcomp (weqcomp (total2_paths_equiv _ M N) (modules_univalence_weq M N)) (moduleiso'_to_moduleiso_weq M N)).
+   - exact (weqcomp (weqcomp (total2_paths_equiv _ M N) (modules_univalence_weq M N)) (moduleiso'_to_moduleweq_iso M N)).
    - intro p.
      induction p.
      apply (pathscomp0 weqcomp_to_funcomp_app).
@@ -118,10 +118,10 @@ Defined.
 
 (** Equivalence between isomorphisms and moduleiso in Mod R *)
 
-Lemma iso_isweq {M N : ob mod_precategory} (f : iso M N) :
+Lemma moduleisweq_iso {M N : ob mod_precategory} (f : iso M N) :
   isweq (pr1modulefun (morphism_from_iso _ _ _ f)).
 Proof.
-   use (gradth (pr1modulefun (morphism_from_iso _ _ _ f))).
+   use (isweq_iso (pr1modulefun (morphism_from_iso _ _ _ f))).
    - exact (pr1modulefun (inv_from_iso f)).
    - intro; set (T:= iso_inv_after_iso f).
      apply subtypeInjectivity in T.
@@ -139,7 +139,7 @@ Proof.
    use mk_moduleiso.
    - use weqpair.
      + exact (pr1modulefun (morphism_from_iso _ _ _ f)).
-     + exact (iso_isweq f).
+     + exact (moduleisweq_iso f).
    - exact (modulefun_ismodulefun (morphism_from_iso _ _ _ f)).
 Defined.
 
@@ -165,9 +165,9 @@ Proof.
    - exact (moduleiso_is_iso f).
 Defined.
 
-Lemma moduleiso_iso_isweq (M N : ob mod_precategory) : isweq (@moduleiso_iso M N).
+Lemma moduleiso_isweq_iso (M N : ob mod_precategory) : isweq (@moduleiso_iso M N).
 Proof.
-   apply (gradth _ (iso_moduleiso M N)).
+   apply (isweq_iso _ (iso_moduleiso M N)).
    - intro.
      apply subtypeEquality.
      + intro; apply isapropismodulefun.
@@ -181,14 +181,14 @@ Proof.
      + apply isaprop_is_iso.
 Defined.
 
-Definition moduleiso_iso_weq (M N : mod_precategory) : (moduleiso M N) ≃ (iso M N) :=
-   weqpair (moduleiso_iso M N) (moduleiso_iso_isweq M N).
+Definition moduleiso_weq_iso (M N : mod_precategory) : (moduleiso M N) ≃ (iso M N) :=
+   weqpair (moduleiso_iso M N) (moduleiso_isweq_iso M N).
 
-Definition mod_precategory_idtoiso_isweq :
+Definition mod_precategory_idtoisweq_iso :
   ∏ M N : mod_precategory, isweq (fun p : M = N => idtoiso p).
 Proof.
    intros M N.
-   use (isweqhomot (weqcomp (modules_univalence M N) (moduleiso_iso_weq M N)) _).
+   use (isweqhomot (weqcomp (modules_univalence M N) (moduleiso_weq_iso M N)) _).
    - intro p.
      induction p.
      use (pathscomp0 weqcomp_to_funcomp_app). cbn.
@@ -199,7 +199,7 @@ Proof.
 Defined.
 
 Definition is_univalent_mod : is_univalent mod_precategory :=
-  mk_is_univalent mod_precategory_idtoiso_isweq has_homsets_mod.
+  mk_is_univalent mod_precategory_idtoisweq_iso has_homsets_mod.
 
 Definition univalent_category_mod_precategory : univalent_category := mk_category mod_precategory is_univalent_mod.
 
@@ -217,10 +217,11 @@ Definition univalent_category_mod_precategory : univalent_category := mk_categor
 Lemma iscontrfromzero_module (M : mod_category) : iscontr (mod_category⟦zero_module R, M⟧).
 Proof.
   refine (unelmodulefun _ _,, _).
-  intros f; apply modulefun_paths; intros x.
+  intros f; apply modulefun_paths.
+  apply funextfun; intro x.
   unfold unelmodulefun; cbn.
   refine (!maponpaths (fun z => (pr1 f) z)
-           (isProofIrrelevantUnit (@unel (zero_module R)) x) @ _).
+           (isProofIrrelevantUnit (@unel (zero_module R)) _ ) @ _).
   apply (monoidfununel (modulefun_to_monoidfun f)).
 Defined.
 
@@ -229,6 +230,7 @@ Lemma iscontrtozero_module (M : mod_category) : iscontr (mod_category⟦M, zero_
 Proof.
   refine (unelmodulefun _ _,, _).
   intros f; apply modulefun_paths.
+  apply funextfun.
   exact (fun x => isProofIrrelevantUnit _ _).
 Defined.
 

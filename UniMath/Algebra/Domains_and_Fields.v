@@ -928,7 +928,7 @@ Proof.
       rewrite (rngrmultminus X _ _). rewrite (rnglmultminus X _ _).
       apply idpath.
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 Lemma isrngfunweqfldfracgt_b (X : intdom) (is : isdeceq X) {R : hrel X} (is1 : isrngmultgt X R)
