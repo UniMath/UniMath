@@ -217,10 +217,11 @@ Definition univalent_category_mod_precategory : univalent_category := mk_categor
 Lemma iscontrfromzero_module (M : mod_category) : iscontr (mod_category⟦zero_module R, M⟧).
 Proof.
   refine (unelmodulefun _ _,, _).
-  intros f; apply modulefun_paths; intros x.
+  intros f; apply modulefun_paths.
+  apply funextfun; intro x.
   unfold unelmodulefun; cbn.
   refine (!maponpaths (fun z => (pr1 f) z)
-           (isProofIrrelevantUnit (@unel (zero_module R)) x) @ _).
+           (isProofIrrelevantUnit (@unel (zero_module R)) _ ) @ _).
   apply (monoidfununel (modulefun_to_monoidfun f)).
 Defined.
 
@@ -229,6 +230,7 @@ Lemma iscontrtozero_module (M : mod_category) : iscontr (mod_category⟦M, zero_
 Proof.
   refine (unelmodulefun _ _,, _).
   intros f; apply modulefun_paths.
+  apply funextfun.
   exact (fun x => isProofIrrelevantUnit _ _).
 Defined.
 
