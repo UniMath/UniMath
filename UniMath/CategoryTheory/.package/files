@@ -106,6 +106,8 @@ Elements.v
 ElementsOp.v
 elems_slice_equiv.v
 Monads/Kleisli.v
+Monads/KTriples.v
+Monads/KTriplesEquiv.v
 categories/setwith2binops.v
 categories/monoids.v
 categories/abmonoids.v
