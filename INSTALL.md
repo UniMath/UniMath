@@ -6,13 +6,6 @@ version of `bash` on your system.
 
 ## Preparing for the installation under Mac OS
 
-First install ProofGeneral.  You may obtain ProofGeneral from by using the
-quick installation instructions at http://proofgeneral.inf.ed.ac.uk/ or at
-https://proofgeneral.github.io/.  Your version of emacs determines which
-version of ProofGeneral you need, roughly, so some experimentation may be
-required; you may even need the current development version if your emacs is
-recent.
-
 For the other required components, there are two methods.
 
 ### First method (recommended for beginners)
@@ -81,43 +74,41 @@ $ camlp5 -v
 Camlp5 version 7.03 (ocaml 4.02.3)
 ```
 
-## Preparing for the installation under Linux
+## Preparing for the installation under Ubuntu or Debian (Linux)
 
-Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
+Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with the
+following shell command.
 
 ```bash
-$ sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
+ sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
 ```
 
-Arch Linux and Manjaro Linux:
+## Preparing for the installation under Arch Linux or Manjaro Linux
 
-    To prepare for compiling it yourself:
-
-      sudo pacman --sync --needed archlinux-keyring
-      sudo pacman-key --populate archlinux
-      sudo pacman --sync --needed ocaml camlp5 ocaml-findlib
-
-    Install ProofGeneral from its website as described above.  Or,
-    alternatively, install it from AUR (
-    https://aur.archlinux.org/packages/proofgeneral/ ) using an auxiliary
-    package manager such as "cower" ( https://aur.archlinux.org/packages/cower/
-    ) or yaourt ( https://aur.archlinux.org/packages/yaourt/ ).  That approach
-    will be especially convenient for expert Arch Linux users who find other
-    packages at AUR worth installing.
-
-    To upgrade the system:
-
-      sudo pacman-key --refresh-keys
-      sudo pacman --sync --refresh --sysupgrade
-
-## ProofGeneral add-ons
-
-Some useful ProofGeneral add-ons are available for installation at https://github.com/cpitclaudel/company-coq
-
-## Installing UniMath under Mac OS or Linux
-
-To download UniMath and prepare for building it, issue the following
+Under Arch Linux or Manjaro Linux you may install ocaml with the following
 shell commands.
+
+```bash
+ sudo pacman --sync --needed archlinux-keyring
+ sudo pacman-key --populate archlinux
+ sudo pacman --sync --needed ocaml camlp5 ocaml-findlib
+```
+
+## Installation of ProofGeneral
+
+Install ProofGeneral, if it hasn't been installed in one of the steps above.
+You may obtain ProofGeneral from by using the quick installation instructions
+at http://proofgeneral.inf.ed.ac.uk/ or at https://proofgeneral.github.io/.
+Your version of emacs determines which version of ProofGeneral you need,
+roughly, so some experimentation may be required; you may even need the current
+development version if your emacs is recent.
+
+Some useful ProofGeneral add-ons are available for installation at
+https://github.com/cpitclaudel/company-coq/.
+
+## Installing UniMath
+
+To download UniMath, issue the following shell commands.
 
 ```bash
 $ git clone https://github.com/UniMath/UniMath
