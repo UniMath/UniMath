@@ -938,7 +938,7 @@ Proof.
       simpl in e. destruct e.
       apply idpath.
     }
-    apply (gradth _ _ egf efg).
+    apply (isweq_iso _ _ egf efg).
   }
   apply (dirprodpair isl (weqlinvertiblerinvertible (@op (abmonoidfrac X A))
                                                     (commax (abmonoidfrac X A))

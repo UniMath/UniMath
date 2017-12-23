@@ -108,7 +108,7 @@ Section def_abgr_category.
 
   Lemma abgr_iso_is_equiv (A B : ob abgr_category) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (pr1monoidfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -141,7 +141,7 @@ Section def_abgr_category.
 
   Lemma abgr_iso_equiv_is_equiv (X Y : abgr_category) : isweq (abgr_iso_equiv X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (abgr_equiv_iso X Y).
     - intros x. use eq_iso. use monoidfun_paths. use idpath.
     - intros y. use monoidiso_paths. use subtypeEquality.
@@ -159,7 +159,7 @@ Section def_abgr_category.
 
   Lemma abgr_equiv_iso_is_equiv (X Y : ob abgr_category) : isweq (abgr_equiv_iso X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (abgr_iso_equiv X Y).
     - intros y. use monoidiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.
@@ -167,7 +167,7 @@ Section def_abgr_category.
     - intros x. use eq_iso. use monoidfun_paths. use idpath.
   Qed.
 
-  Definition abgr_equiv_iso_weq (X Y : ob abgr_category) :
+  Definition abgr_equiv_weq_iso (X Y : ob abgr_category) :
     (monoidiso (X : abgr) (Y : abgr)) ≃ (iso X Y).
   Proof.
     use weqpair.
@@ -182,8 +182,8 @@ Section def_abgr_category.
   Proof.
     use (@isweqhomot
            (a = b) (iso a b)
-           (pr1weq (weqcomp (abgr_univalence a b) (abgr_equiv_iso_weq a b)))
-           _ _ (weqproperty (weqcomp (abgr_univalence a b) (abgr_equiv_iso_weq a b)))).
+           (pr1weq (weqcomp (abgr_univalence a b) (abgr_equiv_weq_iso a b)))
+           _ _ (weqproperty (weqcomp (abgr_univalence a b) (abgr_equiv_weq_iso a b)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
