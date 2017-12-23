@@ -627,56 +627,6 @@ End abgr_additive.
  *)
 Section abgr_kernels_and_cokernels.
 
-  Definition abgr_kernel_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype A :=
-    (λ x : A, ishinh ((f x) = unel B)).
-
-  Definition abgr_image_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype B :=
-    (λ y : B, ∃ x : A, (f x) = y).
-
-  (** ** Kernels
-      Let f : X -> Y be a morphism of abelian groups. A kernel of f is given by the subgroup of X
-      consisting of elements x such that [f x = unel Y].
-   *)
-
-  (** *** Kernel as abelian group *)
-
-  Definition abgr_Kernel_subabgr_issubgr {A B : abgr} (f : monoidfun A B) :
-    issubgr (abgr_kernel_hsubtype f).
-  Proof.
-    use issubgrpair.
-    - use issubmonoidpair.
-      + intros a a'.
-        use (hinhuniv _ (pr2 a)). intros ae.
-        use (hinhuniv _ (pr2 a')). intros a'e.
-        use hinhpr.
-        use (pathscomp0 (binopfunisbinopfun f (pr1 a) (pr1 a'))).
-        rewrite ae. rewrite a'e. use (runax B).
-      + use hinhpr. exact (monoidfununel f).
-    - intros x a.
-      use (hinhuniv _ a). intros ae.
-      use hinhpr.
-      use (grrcan B (f x)).
-      use (pathscomp0 (! (binopfunisbinopfun f (grinv A x) x))).
-      use (pathscomp0 (maponpaths (λ a : A, f a) (grlinvax A x))).
-      use (pathscomp0 (monoidfununel f)).
-      use pathsinv0. use (pathscomp0 (lunax B (f x))). exact ae.
-  Qed.
-
-  Definition abgr_Kernel_subabgr {A B : abgr} (f : monoidfun A B) : @subabgr A :=
-    subgrconstr (@abgr_kernel_hsubtype A B f) (abgr_Kernel_subabgr_issubgr f).
-
-  (** *** The inclusion Kernel f --> X is a morphism of abelian groups *)
-
-  Definition abgr_Kernel_monoidfun_ismonoidfun {A B : abgr} (f : monoidfun A B) :
-    @ismonoidfun (abgr_Kernel_subabgr f) A
-                 (inclpair (pr1carrier (abgr_kernel_hsubtype f))
-                           (isinclpr1carrier (abgr_kernel_hsubtype f))).
-  Proof.
-    use mk_ismonoidfun.
-    - use mk_isbinopfun. intros x x'. use idpath.
-    - use idpath.
-  Qed.
-
   Definition abgr_Kernel_monoidfun {A B : abgr} (f : monoidfun A B) :
     abgr_category⟦carrierofasubabgr (abgr_Kernel_subabgr f), A⟧ :=
     monoidincltomonoidfun
@@ -780,42 +730,10 @@ Section abgr_kernels_and_cokernels.
     intros A B f. exact (abgr_Kernel f).
   Defined.
 
-
   (** ** Cokernels
      - Let f : X --> Y be a morphism of abelian groups. A cokernel for f is given by the quotient
        quotient group Y/(Im f) together with the canonical morphism Y --> Y/(Im f).
    *)
-
-  (** *** Image of f is a subgroup *)
-
-  Definition abgr_image_issubgr {A B : abgr} (f : monoidfun A B) : issubgr (abgr_image_hsubtype f).
-  Proof.
-    use issubgrpair.
-    - use issubmonoidpair.
-      + intros a a'.
-        use (hinhuniv _ (pr2 a)). intros ae.
-        use (hinhuniv _ (pr2 a')). intros a'e.
-        use hinhpr.
-        use tpair.
-        * exact (@op A (pr1 ae) (pr1 a'e)).
-        * use (pathscomp0 (binopfunisbinopfun f (pr1 ae) (pr1 a'e))).
-          use two_arg_paths.
-          -- exact (pr2 ae).
-          -- exact (pr2 a'e).
-      + use hinhpr. use tpair.
-        * exact (unel A).
-        * exact (monoidfununel f).
-    - intros b b'.
-      use (hinhuniv _ b'). intros eb.
-      use hinhpr.
-      use tpair.
-      + exact (grinv A (pr1 eb)).
-      + use (pathscomp0 _ (maponpaths (λ bb : B, (grinv B bb)) (pr2 eb))).
-        use monoidfuninvtoinv.
-  Qed.
-
-  Definition abgr_image {A B : abgr} (f : monoidfun A B) : @subabgr B :=
-    @subgrconstr B (@abgr_image_hsubtype A B f) (abgr_image_issubgr f).
 
   (** *** Subgroup gives an equivalence relation. *)
 
