@@ -1786,7 +1786,7 @@ Proof.
   apply X0.
 Defined.
 
-(** This is kept to keep compatibility with publications that uses the
+(** This is kept to preserve compatibility with publications that use the
     name "gradth" for the "grad theorem". *)
 Definition gradth {X Y : UU} (f : X -> Y) (g : Y -> X)
         (egf: ∏ x : X, g (f x) = x)
