@@ -8,10 +8,12 @@ Unset Kernel Term Sharing.
 Require Export UniMath.Inductives.algebras.
 
 
-(* Addresses *)
+(* Addresses in trees *)
 
 Section Addresses.
 
+  (* T represents an abstract type of trees.
+     A tree has nodes. Each node has a label and subtrees given by [arg]. *)
   Context {T A : UU} {B : A -> UU} {label : T -> A} {arg : ∏ t : T, B (label t) -> T}.
 
   Definition Addr0 (n : nat) (t : T) : UU.
@@ -22,21 +24,19 @@ Section Addresses.
       - intro t. exact (total2 (fun b : B (label t) => Addr0' (arg t b))).
   Defined.
 
+  (* the type of addresses of a tree *)
   Definition Addr (t : T) : UU.
   Proof.
-    intros.
-    exact (total2 (fun n => Addr0 n t)).
+    intros. exact (total2 (fun n => Addr0 n t)).
   Defined.
 
-  (* constructors *)
+  (* constructors of addresses *)
   Definition root_addr (t : T) : Addr t :=
     (0 ,, tt).
 
   Definition subtree_addr (t : T) (b : B (label t)) (nx : Addr (arg t b)) : Addr t.
   Proof.
-    intros.
-    destruct nx as [n x].
-    exact (S n ,, (b ,, x)).
+    intros. exact (S (pr1 nx) ,, (b ,, (pr2 nx))).
   Defined.
 
   (* induction principle for addresses *)
@@ -50,7 +50,7 @@ Section Addresses.
     intros ? ? ? ?.
     induction n as [| n' ind'].
       - intros. destruct addr0. exact (base t).
-      - intros. destruct addr0 as [b addr0'].
+      - intros. set (b := pr1 addr0). set (addr0' := pr2 addr0).
         exact (ind_case t b (n' ,, addr0') (ind' (arg t b) addr0')).
   Defined.
 
@@ -61,10 +61,11 @@ Section Addresses.
                              P (arg t b) addr -> P t (subtree_addr t b addr))
                (t : T) (addr : Addr t) : P t addr.
   Proof.
-    intros. destruct addr as [n addr0].
+    intros. set (n := pr1 addr). set (addr0 := pr2 addr).
     exact (addresses_induction' P base ind_case n t addr0).
   Defined.
 
+  (* given an address and a tree, we get the tree at that address *)
   Definition subtree_at (t : T) (addr : Addr t) : T.
   Proof.
     apply addresses_induction.
@@ -72,6 +73,7 @@ Section Addresses.
       - exact (fun _ _ _ t' => t').
   Defined.
 
+  (* we also get its label *)
   Definition label_at (t : T) (addr : Addr t) : A :=
     label (subtree_at t addr).
 
@@ -91,6 +93,5 @@ Section Addresses.
     - intros t b addr' IH.
       exact IH.
   Defined.
-
 
 End Addresses.
