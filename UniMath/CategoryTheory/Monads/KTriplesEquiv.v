@@ -80,8 +80,8 @@ Definition functor_data_unkleislify (C : precategory) (hs : has_homsets C) :
   functor_data (precategory_Kleisli C hs) (precategory_Monad C hs).
 Proof.
   use mk_functor_data.
-  exact (λ T : Kleisli C, unkleislify T).
-  intros. apply (unkleislify_mor X).
+  - exact (λ T : Kleisli C, unkleislify T).
+  - intros. apply (unkleislify_mor X).
 Defined.
 
 Lemma is_functor_unkleislify {C : precategory} (hs : has_homsets C) :
@@ -169,8 +169,8 @@ Definition functor_data_kleislify (C : precategory) (hs : has_homsets C) :
   functor_data (precategory_Monad C hs) (precategory_Kleisli C hs).
 Proof.
   use mk_functor_data.
-  exact (λ T : Monad C, kleislify T).
-  intros. apply (kleislify_mor X).
+  - exact (λ T : Monad C, kleislify T).
+  - intros. apply (kleislify_mor X).
 Defined.
 
 (* ----- Functoriality of [kleislify]. ----- *)
@@ -377,7 +377,7 @@ Section Adjunction.
   Lemma etainv_morph_law (M : Monad C) :
     Monad_Mor_laws (T := M) (T' := (unkleislify (kleislify M))) (etainv_data M).
   Proof.
-    split; simpl; intros.
+    split; simpl; intro a.
     - unfold eta_arrow.
       rewrite id_right.
       rewrite id_left.

@@ -315,12 +315,12 @@ Lemma has_homsets_Kleisli (C : category) :
 Proof.
   intros F G. simpl. unfold Kleisli_Mor.
   apply isaset_total2 .
-  apply impred_isaset.
-  intro. apply C.
-  intros.
-  apply isasetaprop.
-  apply isaprop_Kleisli_Mor_laws.
-  apply C.
+  - apply impred_isaset.
+    intro. apply C.
+  - intros.
+    apply isasetaprop.
+    apply isaprop_Kleisli_Mor_laws.
+    apply C.
 Defined.
 
 (* ----- Category of Kleisli Monads ----- *)
