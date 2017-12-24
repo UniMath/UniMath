@@ -11,12 +11,14 @@ addons:
     sources:
       - avsm
     packages:
-      - opam
       - aspcud
       - time
       - libgtk2.0-dev
       - libgtksourceview2.0-dev
       - emacs
+      - aspcud
+      - m4
+      - unzip
 # build coqide along with the Tactics package, just because it's a short package
 env:
   - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics"
@@ -31,7 +33,9 @@ env:
   - FOUNDATIONS_CHANGE_ERROR=yes BUILD_ALSO="check-for-change-to-Foundations enforce-listing-of-proof-files"
 # building Coq in a separate stage folds up the output in the log:
 before_script:
-  - opam init --yes --no-setup
+  - wget https://raw.github.com/ocaml/opam/master/shell/opam_installer.sh -O - | sudo sh -s /usr/local/bin
+  - opam --version
+  - opam init --yes --no-setup --compiler=4.06.0
   - eval $(opam config env)
   - opam install lablgtk camlp5 --yes --verbose
   - time make build-coq
