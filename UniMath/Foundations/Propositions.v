@@ -99,7 +99,9 @@ Definition tildehProp := total2 (λ P : hProp, P).
 Definition tildehProppair {P : hProp} (p : P) : tildehProp := tpair _ P p.
 
 Definition negProp_to_hProp {P : UU} (Q : negProp P) : hProp.
-Proof. intros. exists (negProp_to_type Q). apply negProp_to_isaprop. Defined.
+Proof.
+  intros. exists (negProp_to_type Q). apply negProp_to_isaprop.
+Defined.
 Coercion negProp_to_hProp : negProp >-> hProp.
 
 (* convenient corollaries of some theorems that take separate isaprop
@@ -107,14 +109,20 @@ Coercion negProp_to_hProp : negProp >-> hProp.
 
 Corollary subtypeInjectivity_prop {A : UU} (B : A -> hProp) :
   ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1 y).
-Proof. intros. apply subtypeInjectivity. intro. apply propproperty. Defined.
+Proof.
+  intros. apply subtypeInjectivity. intro. apply propproperty.
+Defined.
 
 Corollary subtypeEquality_prop {A : UU} {B : A -> hProp}
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> s = s'.
-Proof. intros A B s s'. apply invmap. apply subtypeInjectivity_prop. Defined.
+Proof.
+  intros A B s s'. apply invmap. apply subtypeInjectivity_prop.
+Defined.
 
 Corollary impred_prop {T : UU} (P : T -> hProp) : isaprop (∏ t : T, P t).
-Proof. intros. apply impred; intro. apply propproperty. Defined.
+Proof.
+  intros. apply impred; intro. apply propproperty.
+Defined.
 
 Corollary isaprop_total2 (X : hProp) (Y : X -> hProp) : isaprop (∑ x, Y x).
 Proof.
@@ -125,7 +133,9 @@ Proof.
 Defined.
 
 Lemma isaprop_forall_hProp (X : UU) (Y : X -> hProp) : isaprop (∏ x, Y x).
-Proof. intros. apply impred_isaprop. intro x. apply propproperty. Defined.
+Proof.
+  intros. apply impred_isaprop. intro x. apply propproperty.
+Defined.
 
 Definition forall_hProp {X : UU} (Y : X -> hProp) : hProp
   := hProppair (∏ x, Y x) (isaprop_forall_hProp X Y).
@@ -225,10 +235,14 @@ Definition hinhuniv {X : UU} {P : hProp} (f : X -> P) (wit : ∥ X ∥) : P
   := wit P f.
 
 Corollary factor_through_squash {X Q : UU} : isaprop Q -> (X -> Q) -> ∥ X ∥ -> Q.
-Proof. intros ? ? i f h. exact (@hinhuniv X (Q,,i) f h). Defined.
+Proof.
+  intros ? ? i f h. exact (@hinhuniv X (Q,,i) f h).
+Defined.
 
 Corollary squash_to_prop {X Q : UU} : ∥ X ∥ -> isaprop Q -> (X -> Q) -> Q.
-Proof. intros ? ? h i f. exact (@hinhuniv X (Q,,i) f h). Defined.
+Proof.
+  intros ? ? h i f. exact (@hinhuniv X (Q,,i) f h).
+Defined.
 
 Definition hinhand {X Y : UU} (inx1 : ∥ X ∥) (iny1 : ∥ Y ∥) : ∥ X × Y ∥
   := λ P : _, ddualand (inx1 P) (iny1 P).
@@ -297,7 +311,7 @@ Proof.
   intros ? d.
   unfold decidable in *.
   induction d as [x|x'].
-  - apply ii1. now apply hinhpr.
+  - apply ii1. apply hinhpr. assumption.
   - apply ii2. intros p.
     apply (squash_to_prop p).
     + exact isapropempty.
@@ -417,10 +431,14 @@ Notation "X ∨ Y" := (hdisj X Y) (at level 85, right associativity) : type_scop
   (* precedence same as ‌\/, whereas ⨿ has the opposite associativity *)
 
 Definition hdisj_in1 {P Q : UU} : P -> P ∨ Q.
-Proof. intros. apply hinhpr. now apply ii1. Defined.
+Proof.
+  intros. apply hinhpr. apply ii1. assumption.
+Defined.
 
 Definition hdisj_in2 {P Q : UU} : Q -> P ∨ Q.
-Proof. intros. apply hinhpr. now apply ii2. Defined.
+Proof.
+  intros. apply hinhpr. apply ii2. assumption.
+Defined.
 
 Lemma disjoint_disjunction (P Q : hProp) : (P -> Q -> ∅) -> hProp.
 Proof.
@@ -438,7 +456,9 @@ Notation "'¬' X" := (hneg X) (at level 35, right associativity) : logic.
 Delimit Scope logic with logic.
 
 Definition himpl (P : UU) (Q : hProp) : hProp.
-Proof. intros. split with (P -> Q). apply impred. intro. apply (pr2 Q). Defined.
+Proof.
+  intros. split with (P -> Q). apply impred. intro. apply (pr2 Q).
+Defined.
 
 Local Notation "A ⇒ B" := (himpl A B) (at level 95, no associativity) : logic.
   (* precedence same as <-> *)
@@ -497,7 +517,8 @@ Proof.
     intro X1.
     assert (s2: coprod P Q -> R).
     {
-      intro X2. destruct X2 as [ XP | XQ ].
+      intro X2.
+      induction X2 as [ XP | XQ ].
       - apply X0. apply XP.
       - apply (pr2 X0). apply XQ.
     }
@@ -521,7 +542,7 @@ Lemma hexistsnegtonegforall {X : UU} (F : X -> UU) :
 Proof.
   intros X F. simpl.
   apply (@hinhuniv _ (hProppair _ (isapropneg (∏ x : X, F x)))).
-  simpl. intros t2 f2. destruct t2 as [ x d2 ]. apply (d2 (f2 x)).
+  simpl. intros t2 f2. induction t2 as [ x d2 ]. apply (d2 (f2 x)).
 Defined.
 
 Lemma forallnegtoneghexists {X : UU} (F : X -> UU) :
@@ -529,7 +550,7 @@ Lemma forallnegtoneghexists {X : UU} (F : X -> UU) :
 Proof.
   intros X F nf.
   change ((ishinh_UU (total2 F)) -> hfalse).
-  apply hinhuniv. intro t2. destruct t2 as [ x f ]. apply (nf x f).
+  apply hinhuniv. intro t2. induction t2 as [ x f ]. apply (nf x f).
 Defined.
 
 Lemma neghexisttoforallneg {X : UU} (F : X -> UU) :
@@ -562,7 +583,7 @@ Lemma tonegdirprod {X Y : UU} : ¬ X ∨ ¬ Y -> ¬ (X × Y).
 Proof.
   intros X Y. simpl.
   apply (@hinhuniv _ (hProppair _ (isapropneg (X × Y)))).
-  intro c. destruct c as [ nx | ny ].
+  intro c. induction c as [ nx | ny ].
   - simpl. intro xy. apply (nx (pr1 xy)).
   - simpl. intro xy. apply (ny (pr2 xy)).
 Defined.
@@ -573,11 +594,11 @@ Proof.
   intros ? ? npq k.
   assert (e : ¬¬ Q).
   {
-    intro n. apply k. now apply hdisj_in2.
+    intro n. apply k. apply hdisj_in2. assumption.
   }
   assert (d : ¬¬ P).
   {
-    intro n. apply k. now apply hdisj_in1.
+    intro n. apply k. apply hdisj_in1. assumption.
   }
   clear k.
   apply d; clear d. intro p. apply e; clear e. intro q.
@@ -586,7 +607,7 @@ Defined.
 
 Lemma tonegcoprod {X Y : UU} : ¬ X × ¬ Y -> ¬ (X ⨿ Y).
 Proof.
-  intros ? ? is. intro c. destruct c as [ x | y ].
+  intros ? ? is. intro c. induction c as [ x | y ].
   - apply (pr1 is x).
   - apply (pr2 is y).
 Defined.
@@ -611,7 +632,7 @@ Proof.
   intros ? ? n.
   simpl in *.
   assert (n' := negf hinhpr n); simpl in n'; clear n.
-  now apply fromnegcoprod.
+  apply fromnegcoprod. assumption.
 Defined.
 
 Lemma hdisjtoimpl {P : UU} {Q : hProp} : P ∨ Q -> ¬ P -> Q.
@@ -623,8 +644,8 @@ Proof.
     apply (pr2 Q).
   }
   simpl. apply (@hinhuniv _ (hProppair _ int)).
-  simpl. intro pq. destruct pq as [ p | q ].
-  - intro np. destruct (np p).
+  simpl. intro pq. induction pq as [ p | q ].
+  - intro np. induction (np p).
   - intro np. apply q.
 Defined.
 
@@ -639,9 +660,9 @@ Lemma isdecprophdisj {X Y : UU} (isx : isdecprop X) (isy : isdecprop Y) :
 Proof.
   intros.
   apply isdecpropif. apply (pr2 (hdisj X Y)).
-  destruct (pr1 isx) as [ x | nx ].
+  induction (pr1 isx) as [ x | nx ].
   - apply (ii1 (hinhpr (ii1 x))).
-  - destruct (pr1 isy) as [ y | ny ].
+  - induction (pr1 isy) as [ y | ny ].
     + apply (ii1 (hinhpr (ii2 y))).
     + apply (ii2 (toneghdisj (dirprodpair nx ny))).
 Defined.
@@ -692,7 +713,9 @@ Proof.
 Defined.
 
 Definition eqweqmaphProp {P P' : hProp} (e : @paths hProp P P') : P ≃ P'.
-Proof. intros. destruct e. apply idweq. Defined.
+Proof.
+  intros. induction e. apply idweq.
+Defined.
 
 Definition weqtopathshProp {P P' : hProp} (w : P ≃ P') : P = P'
   := hPropUnivalence P P' w (invweq w).
@@ -734,7 +757,7 @@ Proof.
     apply (invmaponpathsweq (weqpair h is) _ _ X').
   }
   set (egf := λ a1, (egf1 _ _ (egf0 a1))).
-  set (is2 := gradth _ _ egf efg).
+  set (is2 := isweq_iso _ _ egf efg).
   apply (isweqtotaltofib P1 P2 (λ XY : hProp × hProp,
                                   @eqweqmaphProp (pr1 XY) (pr2 XY)) is2
                          (dirprodpair P P')).
@@ -752,12 +775,14 @@ Defined.
 
 Definition weqpathsweqhProp' {P P' : hProp} (e : P = P') :
   weqtopathshProp (eqweqmaphProp e) = e.
-Proof. intros. apply isasethProp. Defined.
+Proof.
+  intros. apply isasethProp.
+Defined.
 
 Lemma iscontrtildehProp@{i j} : iscontr@{j} tildehProp@{i j}.
 Proof.
   Set Printing Universes.
-  split with (tpair _ htrue tt). intro tP. destruct tP as [ P p ].
+  split with (tpair _ htrue tt). intro tP. induction tP as [ P p ].
   apply subtypeEquality.
   - intros Q. induction Q as [Q ipQ]. change (isaprop@{j} Q).
     exact ipQ.
@@ -768,10 +793,14 @@ Proof.
 Defined.
 
 Lemma isaproptildehProp : isaprop tildehProp.
-Proof. apply (isapropifcontr iscontrtildehProp). Defined.
+Proof.
+  apply (isapropifcontr iscontrtildehProp).
+Defined.
 
 Lemma isasettildehProp : isaset tildehProp.
-Proof. apply (isasetifcontr iscontrtildehProp). Defined.
+Proof.
+  apply (isasetifcontr iscontrtildehProp).
+Defined.
 
 
 (* ** Logical equivalence yields weak equivalence *)

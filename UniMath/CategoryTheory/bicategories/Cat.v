@@ -56,7 +56,7 @@ Proof.
 
     (* Which is natural. *)
     intros oba oba' f.
-    refine (id_right _ @ !(id_left _)).
+    use (id_right _ @ !(id_left _)).
 
   - (* Step 2: Show the above is natural, so given
        f : F -> F', g : G -> G', h : H -> H', *)
@@ -234,9 +234,9 @@ Defined.
 
 Definition PreCat_1mor_2mor : prebicategory_ob_1mor_2mor.
 Proof.
-  exists hs_precategory.
+  exists category.
   intros a b.
-  exact (functor_precategory a b (hs_precategory_has_homsets b)).
+  exact (functor_precategory a b (homset_property b)).
 Defined.
 
 Definition PreCat_id_comp : prebicategory_id_comp.
@@ -247,8 +247,8 @@ Proof.
     exact functor_identity.
   - simpl.
     intros a b c.
-    exact (functorial_composition a b c (hs_precategory_has_homsets b)
-                                        (hs_precategory_has_homsets c)).
+    exact (functorial_composition a b c (homset_property b)
+                                        (homset_property c)).
 Defined.
 
 Definition PreCat_data : prebicategory_data.
@@ -258,16 +258,16 @@ Proof.
   repeat split.
   - intros.
     simpl in a,b,c,d.
-    exact (Catlike_associator a b c d (hs_precategory_has_homsets b)
-                                      (hs_precategory_has_homsets c)
-                                      (hs_precategory_has_homsets d)).
+    exact (Catlike_associator a b c d (homset_property b)
+                                      (homset_property c)
+                                      (homset_property d)).
   - intros.
     simpl in a, b.
-    exact (Catlike_left_unitor a b (hs_precategory_has_homsets a)
-                                   (hs_precategory_has_homsets b)).
+    exact (Catlike_left_unitor a b (homset_property a)
+                                   (homset_property b)).
   - intros.
     simpl in a, b.
-    exact (Catlike_right_unitor a b (hs_precategory_has_homsets b)).
+    exact (Catlike_right_unitor a b (homset_property b)).
 Defined.
 
 Definition PreCat_has_2mor_set : has_2mor_sets PreCat_data.
@@ -275,7 +275,7 @@ Proof.
   unfold has_2mor_sets.
   intros a b f g.
   apply isaset_nat_trans.
-  exact (hs_precategory_has_homsets b).
+  exact (homset_property b).
 Defined.
 
 Definition PreCat_associator_and_unitors_are_iso : associator_and_unitors_are_iso PreCat_data.

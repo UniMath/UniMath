@@ -159,7 +159,7 @@ Qed.
 Lemma eq_iso_slicecat (af bg : C / x) (f g : iso af bg) : pr1 f = pr1 g -> f = g.
 Proof.
 case g; case f; clear f g; simpl; intros f fP g gP eq.
-refine (subtypePairEquality _ eq).
+use (subtypePairEquality _ eq).
 now intro; apply isaprop_is_iso.
 Qed.
 
@@ -187,7 +187,7 @@ exists (pr1 hinv); split.
 - apply (maponpaths pr1 h2).
 Qed.
 
-Lemma iso_weq (af bg : C / x) :
+Lemma weq_iso (af bg : C / x) :
   weq (iso af bg) (total2 (fun h : iso (pr1 af) (pr1 bg) => pr2 af = h · pr2 bg)).
 Proof.
 apply (weqcomp (weqtotal2asstor _ _)).
@@ -205,7 +205,7 @@ Defined.
 Definition slicecat_to_cat : functor (C / x) C.
 Proof.
 use mk_functor.
-+ mkpair.
++ use tpair.
   - apply pr1.
   - intros a b; apply pr1.
 + now split.
@@ -215,14 +215,14 @@ Defined.
 Definition cat_to_slicecat (BPC : BinProducts C) : functor C (C / x).
 Proof.
 use mk_functor.
-+ mkpair.
++ use tpair.
   * intro y.
     exists (BinProductObject _ (BPC x y)).
     apply BinProductPr1.
   * intros A B f; cbn.
-    mkpair.
+    use tpair.
     - apply (BinProductOfArrows _ _ _ (identity x) f).
-    - abstract (now rewrite BinProductOfArrowsPr1, id_right).
+    - abstract (cbn; now rewrite BinProductOfArrowsPr1, id_right).
 + split.
   * intros A; apply eq_mor_slicecat;
     now apply pathsinv0, BinProductArrowUnique; rewrite id_left, id_right.
@@ -290,7 +290,7 @@ assert (weq3 : weq (total2 (fun (p : a = b) => idtoiso (! p) · f = g))
   rewrite Hp, assoc, iso_after_iso_inv, id_left; apply idpath.
 
 assert (weq4 : weq (total2 (λ h : iso a b, f = h · g)) (iso af bg)).
-  apply invweq; apply iso_weq.
+  apply invweq; apply weq_iso.
 
 apply (weqcomp weq1 (weqcomp weq2 (weqcomp weq3 weq4))).
 Defined.
@@ -432,7 +432,7 @@ Proof.
 set (CC := mk_ColimCocone _ _ _ H).
 intros y ccy.
 use unique_exists.
-+ mkpair; simpl.
++ use tpair; simpl.
   * apply (colimArrow CC), (mapcocone U _ ccy).
   * abstract (apply pathsinv0;
               eapply pathscomp0; [apply (postcompWithColimArrow _ CC (pr1 y) (mapcocone U d ccy))|];
@@ -453,7 +453,7 @@ Lemma slice_precat_ColimCocone (d : diagram g (C / x))
   ColimCocone d.
 Proof.
 use mk_ColimCocone.
-- mkpair.
+- use tpair.
   + apply (colim H).
   + apply colimArrow.
     use mk_cocone.
@@ -461,13 +461,13 @@ use mk_ColimCocone.
     * abstract (intros u v e; apply (! pr2 (dmor d e))).
 - use mk_cocone.
   + intro v; simpl.
-    mkpair; simpl.
+    use tpair; simpl.
     * apply (colimIn H v).
     * abstract (apply pathsinv0, (colimArrowCommutes H)).
   + abstract (intros u v e; apply eq_mor_slicecat, (coconeInCommutes (colimCocone H))).
 - intros y ccy.
   use unique_exists.
-  + mkpair; simpl.
+  + use tpair; simpl.
     * apply colimArrow, (mapcocone U _ ccy).
     * abstract (apply pathsinv0, colimArrowUnique; intros v; simpl; rewrite assoc;
                 eapply pathscomp0;
@@ -504,16 +504,16 @@ Context {C : precategory} (hsC : has_homsets C).
 Local Notation "C / X" := (slice_precat C X hsC).
 
 Definition pullback_to_slice_binprod {A B Z : C} {f : A --> Z} {g : B --> Z} :
-  Pullback f g -> BinProductCone (C / Z) (A ,, f) (B ,, g).
+  Pullback f g -> BinProduct (C / Z) (A ,, f) (B ,, g).
 Proof.
   intros P.
-  refine (((PullbackObject P ,, (PullbackPr1 P) · f) ,, (((PullbackPr1 P) ,, idpath _) ,, (((PullbackPr2 P) ,, (PullbackSqrCommutes P))))) ,, _).
+  use (((PullbackObject P ,, (PullbackPr1 P) · f) ,, (((PullbackPr1 P) ,, idpath _) ,, (((PullbackPr2 P) ,, (PullbackSqrCommutes P))))) ,, _).
   intros Y [j jeq] [k keq]; simpl in jeq , keq.
   use unique_exists.
-  + mkpair.
-    ++ apply (PullbackArrow P _ j k).
-       abstract (now rewrite <- jeq , keq).
-    ++ abstract (now rewrite assoc, PullbackArrow_PullbackPr1, <- jeq).
+  + use tpair.
+    - apply (PullbackArrow P _ j k).
+      abstract (now rewrite <- jeq , keq).
+    - abstract (cbn; now rewrite assoc, PullbackArrow_PullbackPr1, <- jeq).
   + abstract (split; apply eq_mor_slicecat; simpl;
               [ apply PullbackArrow_PullbackPr1 | apply PullbackArrow_PullbackPr2 ]).
   + abstract (now intros h; apply isapropdirprod; apply has_homsets_slice_precat).
@@ -525,12 +525,12 @@ Definition BinProducts_slice_precat (PC : Pullbacks C) : ∏ x, BinProducts (C /
  λ x a b, pullback_to_slice_binprod (PC _ _ _ (pr2 a) (pr2 b)).
 
 Definition slice_binprod_to_pullback {Z : C} {AZ BZ : C / Z} :
-  BinProductCone (C / Z) AZ BZ → Pullback (pr2 AZ) (pr2 BZ).
+  BinProduct (C / Z) AZ BZ → Pullback (pr2 AZ) (pr2 BZ).
 Proof.
   induction AZ as [A f].
   induction BZ as [B g].
   intros [[[P h] [[l leq] [r req]]] PisProd].
-  refine ((P ,, l ,, r) ,, (! leq @ req) ,, _).
+  use ((P ,, l ,, r) ,, (! leq @ req) ,, _).
   intros Y j k Yeq. simpl in *.
   use unique_exists.
   + exact (pr1 (pr1 (pr1 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))))).
@@ -538,7 +538,7 @@ Proof.
                                 maponpaths pr1 (pr2 (pr2 (pr1 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq))))))).
   + abstract (intros x; apply isofhleveldirprod; apply (hsC _ _)).
   + intros t teqs.
-    refine (maponpaths pr1 (maponpaths pr1 (pr2 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq)) ((t ,, (maponpaths (λ x, x · f) (!(pr1 teqs)) @ !(assoc _ _ _) @ maponpaths (λ x, t · x) (!leq))) ,, _)))).
+    use (maponpaths pr1 (maponpaths pr1 (pr2 (PisProd (Y ,, j · f) (j ,, idpath _) (k ,, Yeq)) ((t ,, (maponpaths (λ x, x · f) (!(pr1 teqs)) @ !(assoc _ _ _) @ maponpaths (λ x, t · x) (!leq))) ,, _)))).
     abstract (split; apply eq_mor_slicecat; [exact (pr1 teqs) | exact (pr2 teqs)]).
 Defined.
 
@@ -557,15 +557,15 @@ Local Notation "C / X" := (slice_precat C X hsC).
 Lemma BinCoproducts_slice_precat (x : C) : BinCoproducts (C / x).
 Proof.
 intros a b.
-use mk_BinCoproductCocone.
+use mk_BinCoproduct.
 + exists (BinCoproductObject _ (BC (pr1 a) (pr1 b))).
   apply (BinCoproductArrow _ _ (pr2 a) (pr2 b)).
-+ mkpair.
++ use tpair.
   - apply BinCoproductIn1.
-  - abstract (now rewrite BinCoproductIn1Commutes).
-+ mkpair.
+  - abstract (cbn; now rewrite BinCoproductIn1Commutes).
++ use tpair.
   - apply BinCoproductIn2.
-  - abstract (now rewrite BinCoproductIn2Commutes).
+  - abstract (cbn; now rewrite BinCoproductIn2Commutes).
 + intros c f g.
   use unique_exists.
   - exists (BinCoproductArrow _ _ (pr1 f) (pr1 g)).
@@ -590,10 +590,10 @@ Local Notation "C / X" := (slice_precat C X hsC).
 Lemma Coproducts_slice_precat (x : C) : Coproducts I (C / x).
 Proof.
 intros a.
-use mk_CoproductCocone.
+use mk_Coproduct.
 + exists (CoproductObject _ _ (BC (λ i, pr1 (a i)))).
   apply CoproductArrow; intro i; apply (pr2 (a i)).
-+ intro i; mkpair; simpl.
++ intro i; use tpair; simpl.
   - apply (CoproductIn I C (BC (λ i, pr1 (a i))) i).
   - abstract (now rewrite (CoproductInCommutes I C _ (BC (λ i, pr1 (a i))))).
 + intros c f.
@@ -620,7 +620,7 @@ Local Notation "C / X" := (slice_precat C X hsC).
 Lemma Initial_slice_precat (x : C) : Initial (C / x).
 Proof.
 use mk_Initial.
-- mkpair.
+- use tpair.
   + apply (InitialObject IC).
   + apply InitialArrow.
 - intros y.
@@ -642,7 +642,7 @@ Local Notation "C / X" := (slice_precat C X hsC).
 Lemma Terminal_slice_precat (x : C) : Terminal (C / x).
 Proof.
 use mk_Terminal.
-- mkpair.
+- use tpair.
   + apply x.
   + apply (identity x).
 - intros y.
@@ -664,12 +664,12 @@ Local Notation "C / X" := (slice_precat C X hsC).
 
 Definition base_change_functor_data {c c' : C} (g : C⟦c,c'⟧) : functor_data (C / c') (C / c).
 Proof.
-mkpair.
+use tpair.
 - intros Af'.
   exists (PullbackObject (PC _ _ _ g (pr2 Af'))).
   apply PullbackPr1.
 - intros a b f.
-  mkpair; simpl.
+  use tpair; simpl.
   + use PullbackArrow.
     * apply PullbackPr1.
     * apply (PullbackPr2 _ · pr1 f).
@@ -699,7 +699,7 @@ Local Definition eta {c c' : C} (g : C⟦c,c'⟧) :
 Proof.
 use mk_nat_trans.
 - intros x.
-  mkpair; simpl.
+  use tpair; simpl.
   + use (PullbackArrow _ _ (pr2 x) (identity _)).
     abstract (now rewrite id_left).
   + abstract (now rewrite PullbackArrow_PullbackPr1).
@@ -726,7 +726,7 @@ Defined.
 Local Lemma form_adjunction_eta_eps {c c' : C} (g : C⟦c,c'⟧) :
   form_adjunction (slicecat_functor hsC g) (base_change_functor g) (eta g) (eps g).
 Proof.
-mkpair.
+use tpair.
 - now intros x; apply eq_mor_slicecat; simpl; rewrite PullbackArrow_PullbackPr2.
 - intros x; apply (eq_mor_slicecat hsC); simpl.
   apply pathsinv0, PullbackEndo_is_identity.
@@ -770,7 +770,7 @@ Defined.
 Lemma dependent_product_to_exponentials c : has_exponentials (BPC c).
 Proof.
 intros Af.
-mkpair.
+use tpair.
 + apply (functor_composite (base_change_functor (pr2 Af))
                            (dependent_product_functor (pr2 Af))).
 + rewrite const_prod_functor1_slicecat.

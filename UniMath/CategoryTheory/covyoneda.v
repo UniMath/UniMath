@@ -27,8 +27,6 @@ Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 Ltac unf := unfold identity,
                    compose,
                    precategory_morphisms;
@@ -292,7 +290,7 @@ Definition covyoneda (C : precategory) (hs: has_homsets C) :
 (*      (yoneda_map_1 C hs c F). *)
 (* Proof. *)
 (*   set (T:=yoneda_map_2 C hs c F). simpl in T. *)
-(*   simple refine (gradth _ _ _ _ ). *)
+(*   simple refine (isweq_iso _ _ _ _ ). *)
 (*   - apply T. *)
 (*   - apply yoneda_map_1_2. *)
 (*   - apply yoneda_map_2_1. *)
@@ -309,7 +307,7 @@ Definition covyoneda (C : precategory) (hs: has_homsets C) :
 (* Lemma yoneda_fully_faithful (C : precategory) (hs: has_homsets C) : fully_faithful (yoneda C hs). *)
 (* Proof. *)
 (*   intros a b; simpl. *)
-(*   apply (gradth _ *)
+(*   apply (isweq_iso _ *)
 (*       (yoneda_map_1 C hs a (pr1 (yoneda C hs) b))). *)
 (*   - intro; simpl in *. *)
 (*     apply id_left. *)

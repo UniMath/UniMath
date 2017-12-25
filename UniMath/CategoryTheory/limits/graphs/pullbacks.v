@@ -89,11 +89,11 @@ Definition mk_isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
 Proof.
   intros H' x cx; simpl in *.
   set (H1 := H' x (coneOut cx One) (coneOut cx Three) ).
-  simple refine (let p : coneOut cx One · f = coneOut cx Three · g := _ in _ ).
+  use (let p : coneOut cx One · f = coneOut cx Three · g := _ in _ ).
   { eapply pathscomp0; [apply (coneOutCommutes cx One Two tt)|].
     apply pathsinv0, (coneOutCommutes cx Three Two tt). }
   set (H2 := H1 p).
-  mkpair.
+  use tpair.
   + exists (pr1 (pr1 H2)).
     use three_rec_dep.
     * apply (pr1 (pr2 (pr1 H2))).
@@ -129,8 +129,8 @@ Definition mk_Pullback {a b c : C} (f : C⟦b, a⟧)(g : C⟦c, a⟧)
     (ispb : isPullback f g p1 p2 H)
   : Pullback f g.
 Proof.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + apply d.
     + use PullbCone; assumption.
   - apply ispb.
@@ -180,14 +180,14 @@ Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
    (Pb : Pullback f g) e (h : C⟦e, b⟧) (k : C⟦e, c⟧)(H : h · f = k · g) :
    PullbackArrow Pb e h k H · PullbackPr1 Pb = h.
 Proof.
-  refine (limArrowCommutes Pb e _ One).
+  exact (limArrowCommutes Pb e _ One).
 Qed.
 
 Lemma PullbackArrow_PullbackPr2 {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
    (Pb : Pullback f g) e (h : C⟦e, b⟧) (k : C⟦e, c⟧)(H : h · f = k · g) :
    PullbackArrow Pb e h k H · PullbackPr2 Pb = k.
 Proof.
-  refine (limArrowCommutes Pb e _ Three).
+  exact (limArrowCommutes Pb e _ Three).
 Qed.
 
 Lemma PullbackArrowUnique {a b c d : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧)
@@ -216,8 +216,8 @@ Definition isPullback_Pullback {a b c : C} {f : C⟦b, a⟧}{g : C⟦c, a⟧}
 Proof.
   apply mk_isPullback.
   intros e h k HK.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + apply (PullbackArrow P _ h k HK).
     + split.
       * apply PullbackArrow_PullbackPr1.
@@ -226,7 +226,7 @@ Proof.
     apply subtypeEquality.
     + intro. apply isapropdirprod; apply hs.
     + destruct t as [t p]. simpl.
-      refine (PullbackArrowUnique _ _ P _ _ _ _ _ _ _ ).
+      use (PullbackArrowUnique _ _ P).
       * apply e.
       * apply (pr1 p).
       * apply (pr2 p).
@@ -244,8 +244,8 @@ Proof.
   intro X.
   intros R cc.
   set (XR := limits.pullbacks.mk_Pullback _ _ _ _ _ _ X).
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + use (pullbacks.PullbackArrow XR).
       * apply (coneOut cc One).
       * apply (coneOut cc Three).
@@ -304,8 +304,8 @@ Proof.
   intro X.
   set (XR := mk_Pullback _ _ _ _ _  _ X).
   intros R k h HH.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     use (PullbackArrow XR); try assumption.
     split.
     + apply (PullbackArrow_PullbackPr1 XR).

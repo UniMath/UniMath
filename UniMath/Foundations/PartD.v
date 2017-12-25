@@ -94,18 +94,18 @@ Theorem isweqforalltototal {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU) :
   isweq (foralltototal P PP).
 Proof.
   intros.
-  simple refine (gradth (foralltototal P PP) (totaltoforall P PP) _ _).
-  - reflexivity.
-  - reflexivity.
+  simple refine (isweq_iso (foralltototal P PP) (totaltoforall P PP) _ _).
+  - apply idpath.
+  - apply idpath.
 Defined.
 
 Theorem isweqtotaltoforall {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU) :
   isweq (totaltoforall P PP).
 Proof.
   intros.
-  simple refine (gradth (totaltoforall P PP) (foralltototal P PP) _ _).
-  - reflexivity.
-  - reflexivity.
+  simple refine (isweq_iso (totaltoforall P PP) (foralltototal P PP) _ _).
+  - apply idpath.
+  - apply idpath.
 Defined.
 
 Definition weqforalltototal {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU)
@@ -140,10 +140,10 @@ Theorem weqfuntoprodtoprod (X Y Z : UU) :
   weq (X -> dirprod Y Z) ((X -> Y) × (X -> Z)).
 Proof.
   intros.
-  simple refine (weqpair _ (gradth (@funtoprodtoprod X Y Z)
+  simple refine (weqpair _ (isweq_iso (@funtoprodtoprod X Y Z)
                                    (@prodtofuntoprod X Y Z) _ _)).
-  - intro a. apply funextfun. intro x. reflexivity.
-  - intro a. now induction a as [ fy fz ].
+  - intro a. apply funextfun. intro x. apply idpath.
+  - intro a. induction a as [ fy fz ]. apply idpath.
 Defined.
 
 (** ** Homotopy fibers of the map [∏ x : X, P x -> ∏ x : X, Q x] *)
@@ -319,7 +319,9 @@ Definition maponsec1l0 {X : UU} (P : X -> UU) (f : X -> X)
 
 Lemma maponsec1l1 {X : UU} (P : X -> UU) (x : X) (s :∏ x : X, P x) :
   paths (maponsec1l0 P (λ x : X, x) (λ x : X, idpath x) s x) (s x).
-Proof. intros. unfold maponsec1l0. apply idpath. Defined.
+Proof.
+  intros. unfold maponsec1l0. apply idpath.
+Defined.
 
 
 Lemma maponsec1l2 {X : UU} (P : X -> UU) (f : X -> X) (h : ∏ x : X, (f x) = x)
@@ -388,7 +390,7 @@ Proof.
   assert (egf : ∏ sy : (∏ y : Y, P y), paths (invmapp (map sy)) sy)
     by (intro; apply (funextsec _ _ _ (egf0 sy))).
 
-  apply (gradth map invmapp egf efg).
+  apply (isweq_iso map invmapp egf efg).
 Defined.
 
 Definition weqonsecbase {X Y : UU} (P : Y -> UU) (f : X ≃ Y)
@@ -473,7 +475,7 @@ Proof.
     intro x. apply idpath. apply funextsec.
     intro y. apply idpath.
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 
@@ -509,10 +511,10 @@ Theorem weqfunfromcoprodtoprod (X Y Z : UU) :
 Proof.
   intros.
   simple refine (
-           weqpair _ (gradth (@funfromcoprodtoprod X Y Z)
+           weqpair _ (isweq_iso (@funfromcoprodtoprod X Y Z)
                              (@prodtofunfromcoprod X Y Z) _ _)).
-  - intro a. apply funextfun; intro xy. induction xy as [ x | y ]; reflexivity.
-  - intro a. induction a as [fx fy]. reflexivity.
+  - intro a. apply funextfun; intro xy. induction xy as [ x | y ]; apply idpath.
+  - intro a. induction a as [fx fy]. apply idpath.
 Defined.
 
 (** ** Sections of families over contractible types and over [ total2 ] (over dependent sums) *)
@@ -523,7 +525,9 @@ Defined.
 
 
 Definition tosecoverunit (P : unit -> UU) (p : P tt) : ∏ t : unit, P t.
-Proof. intros. induction t. apply p. Defined.
+Proof.
+  intros. induction t. apply p.
+Defined.
 
 Definition weqsecoverunit (P : unit -> UU) : (∏ t : unit, P t) ≃ (P tt).
 Proof.
@@ -536,7 +540,7 @@ Proof.
     intro t. induction t. apply idpath.
   }
   assert (efg : ∏ a : _, paths (f (g a)) a) by (intros; apply idpath).
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 
@@ -550,7 +554,9 @@ Defined.
 Definition tosecovertotal2 {X : UU} (P : X -> UU) (Q : total2 P -> UU)
            (a : ∏ x : X, ∏ p : P x, Q (tpair _ x p)) :
   ∏ xp : total2 P, Q xp.
-Proof. intros. induction xp as [ x p ]. apply (a x p). Defined.
+Proof.
+  intros. induction xp as [ x p ]. apply (a x p).
+Defined.
 
 
 Definition weqsecovertotal2 {X : UU} (P : X -> UU) (Q : total2 P -> UU) :
@@ -571,7 +577,7 @@ Proof.
     intro x. apply funextsec.
     intro p. apply idpath.
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 
@@ -634,15 +640,21 @@ Defined.
 
 Corollary impred_iscontr {T : UU} (P : T -> UU) :
   (∏ t : T, iscontr (P t)) -> (iscontr (∏ t : T, P t)).
-Proof. intros. apply (impred 0). assumption. Defined.
+Proof.
+  intros. apply (impred 0). assumption.
+Defined.
 
 Corollary impred_isaprop {T : UU} (P : T -> UU) :
   (∏ t : T, isaprop (P t)) -> (isaprop (∏ t : T, P t)).
-Proof. apply impred. Defined.
+Proof.
+  apply impred.
+Defined.
 
 Corollary impred_isaset {T : UU} (P : T -> UU) :
   (∏ t : T, isaset (P t)) -> (isaset (∏ t : T, P t)).
-Proof. intros. apply (impred 2). assumption. Defined.
+Proof.
+  intros. apply (impred 2). assumption.
+Defined.
 
 Corollary impredtwice  (n : nat) {T T' : UU} (P : T -> T' -> UU) :
   (∏ (t : T) (t': T'), isofhlevel n (P t t'))
@@ -657,7 +669,9 @@ Defined.
 
 Corollary impredfun (n : nat) (X Y : UU) (is : isofhlevel n Y) :
   isofhlevel n (X -> Y).
-Proof. intros. apply (impred n (λ x , Y) (λ x : X, is)). Defined.
+Proof.
+  intros. apply (impred n (λ x , Y) (λ x : X, is)).
+Defined.
 
 
 Theorem impredtech1 (n : nat) (X Y : UU) :
@@ -702,7 +716,9 @@ Defined.
 (** *** Functions to a proposition *)
 
 Lemma isapropimpl (X Y : UU) (isy : isaprop Y) : isaprop (X -> Y).
-Proof. intros. apply impred. intro. assumption. Defined.
+Proof.
+  intros. apply impred. intro. assumption.
+Defined.
 
 
 
@@ -710,7 +726,9 @@ Proof. intros. apply impred. intro. assumption. Defined.
 
 
 Theorem isapropneg2 (X : UU) {Y : UU} (is : neg Y) : isaprop (X -> Y).
-Proof. intros. apply impred. intro. apply (isapropifnegtrue is). Defined.
+Proof.
+  intros. apply impred. intro. apply (isapropifnegtrue is).
+Defined.
 
 
 
@@ -789,7 +807,9 @@ Proof.
 Defined.
 
 Corollary isapropisaprop (X : UU) : isaprop (isaprop X).
-Proof. intro. apply (isapropisofhlevel (S O)). Defined.
+Proof.
+  intro. apply (isapropisofhlevel (S O)).
+Defined.
 
 Definition isapropisdecprop (X : UU) : isaprop (isdecprop X).
 Proof.
@@ -798,11 +818,13 @@ Proof.
   apply (isofhlevelweqf 1 (weqdirprodcomm _ _)).
   apply isofhleveltotal2.
   - apply isapropisaprop.
-  - intro i. now apply isapropdec.
+  - intro i. apply isapropdec. assumption.
 Defined.
 
 Corollary isapropisaset (X : UU) : isaprop (isaset X).
-Proof. intro. apply (isapropisofhlevel (S (S O))). Defined.
+Proof.
+  intro. apply (isapropisofhlevel (S (S O))).
+Defined.
 
 Theorem isapropisofhlevelf (n : nat) {X Y : UU} (f : X -> Y) :
   isaprop (isofhlevelf n f).
@@ -836,13 +858,19 @@ Defined.
 
 
 Theorem isinclpr1weq (X Y : UU) : isincl (pr1weq : X ≃ Y -> X -> Y).
-Proof. intros. refine (isinclpr1 _ _). intro f.   apply isapropisweq.  Defined.
+Proof.
+  intros. refine (isinclpr1 _ _). intro f.   apply isapropisweq.
+Defined.
 
 Corollary isinjpr1weq (X Y : UU) : isInjective (pr1weq : X ≃ Y -> X -> Y).
-Proof. intros. apply isweqonpathsincl. apply isinclpr1weq. Defined.
+Proof.
+  intros. apply isweqonpathsincl. apply isinclpr1weq.
+Defined.
 
 Theorem isinclpr1isolated (T : UU) : isincl (pr1isolated T).
-Proof. intro. apply (isinclpr1 _ (λ t : T, isapropisisolated T t)). Defined.
+Proof.
+  intro. apply (isinclpr1 _ (λ t : T, isapropisisolated T t)).
+Defined.
 
 (** associativity of weqcomp **)
 
@@ -851,7 +879,7 @@ Definition weqcomp_assoc {W X Y Z : UU} (f : W ≃ X) (g: X ≃ Y) (h : Y ≃ Z)
 Proof.
   intros. apply subtypeEquality.
   - intros p. apply isapropisweq.
-  - simpl. reflexivity.
+  - simpl. apply idpath.
 Defined.
 
 Lemma eqweqmap_pathscomp0 {A B C : UU} (p : A = B) (q : B = C)
@@ -863,7 +891,7 @@ Proof.
   eapply total2_paths_f.
     apply isapropisweq.
     Unshelve.
-  reflexivity.
+  apply idpath.
 Defined.
 
 Lemma inv_idweq_is_idweq {A : UU} :
@@ -873,7 +901,7 @@ Proof.
   eapply total2_paths_f.
   apply isapropisweq.
   Unshelve.
-  reflexivity.
+  apply idpath.
 Defined.
 
 Lemma eqweqmap_pathsinv0 {A B : UU} (p : A = B)
@@ -903,7 +931,7 @@ Proof.
     intro b. apply (invmaponpathsincl _ (isinclpr1weq _ _)). apply funextfun.
     intro x. apply (homotweqinvweq w (b x)).
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 Theorem weqbweq {X Y : UU} (Z : UU) (w : X ≃ Y) : (Y ≃ Z) ≃ (X ≃ Z).
@@ -922,14 +950,14 @@ Proof.
     intro b. apply (invmaponpathsincl _ (isinclpr1weq _ _)). apply funextfun.
     intro x. apply (maponpaths b (homotinvweqweq w x)).
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 Theorem weqweq {X Y : UU} (w: X ≃ Y) : (X ≃ X) ≃ (Y ≃ Y).
 Proof.
   intros. intermediate_weq (X ≃ Y).
-  - now apply weqfweq.
-  - apply invweq. now apply weqbweq.
+  - apply weqfweq. assumption.
+  - apply invweq. apply weqbweq. assumption.
 Defined.
 
 (** *** Invertion on weak equivalences as a weak equivalence *)
@@ -954,7 +982,7 @@ Proof.
     intro. apply (invmaponpathsincl _ (isinclpr1weq _ _)). apply funextfun.
     intro x. apply idpath.
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 
@@ -986,57 +1014,81 @@ Defined.
 (** *** Weak equivalences to and from contractible types *)
 
 Theorem isapropweqtocontr (X : UU) {Y : UU} (is : iscontr Y) : isaprop (X ≃ Y).
-Proof. intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropifcontr is)). Defined.
+Proof.
+  intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropifcontr is)).
+Defined.
 
 Theorem isapropweqfromcontr (X : UU) {Y : UU} (is : iscontr Y) : isaprop (Y ≃ X).
-Proof. intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropifcontr is)). Defined.
+Proof.
+  intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropifcontr is)).
+Defined.
 
 
 (** *** Weak equivalences to and from propositions *)
 
 
 Theorem isapropweqtoprop (X  Y : UU) (is : isaprop Y) : isaprop (X ≃ Y).
-Proof. intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ is). Defined.
+Proof.
+  intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ is).
+Defined.
 
 Theorem isapropweqfromprop (X Y : UU) (is : isaprop Y) : isaprop (Y ≃ X).
-Proof. intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ is). Defined.
+Proof.
+  intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ is).
+Defined.
 
 
 (** *** Weak equivalences to and from sets *)
 
 Theorem isasetweqtoset (X  Y : UU) (is : isaset Y) : isaset (X ≃ Y).
-Proof. intros. apply (isofhlevelsnweqtohlevelsn 1 _ _ is). Defined.
+Proof.
+  intros. apply (isofhlevelsnweqtohlevelsn 1 _ _ is).
+Defined.
 
 Theorem isasetweqfromset (X Y : UU) (is : isaset Y) : isaset (Y ≃ X).
-Proof. intros. apply (isofhlevelsnweqfromhlevelsn 1 X _ is). Defined.
+Proof.
+  intros. apply (isofhlevelsnweqfromhlevelsn 1 X _ is).
+Defined.
 
 
 
 (** *** Weak equivalences to an empty type *)
 
 Theorem isapropweqtoempty (X : UU) : isaprop (X ≃ empty).
-Proof. intro. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropempty)). Defined.
+Proof.
+  intro. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropempty)).
+Defined.
 
 
 Theorem isapropweqtoempty2 (X : UU) {Y : UU} (is : neg Y) : isaprop (X ≃ Y).
-Proof. intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropifnegtrue is)). Defined.
+Proof.
+  intros. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropifnegtrue is)).
+Defined.
 
 
 (** *** Weak equivalences from an empty type *)
 
 Theorem isapropweqfromempty (X : UU) : isaprop (empty ≃ X).
-Proof. intro. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropempty)). Defined.
+Proof.
+  intro. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropempty)).
+Defined.
 
 Theorem isapropweqfromempty2 (X : UU) {Y : UU} (is : neg Y) : isaprop (Y ≃ X).
-Proof. intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropifnegtrue is)). Defined.
+Proof.
+  intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropifnegtrue is)).
+Defined.
 
 (** *** Weak equivalences to and from [ unit ] *)
 
 Theorem isapropweqtounit (X : UU) : isaprop (X ≃ unit).
-Proof. intro. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropunit)). Defined.
+Proof.
+  intro. apply (isofhlevelsnweqtohlevelsn 0 _ _ (isapropunit)).
+Defined.
 
 Theorem isapropweqfromunit (X : UU) : isaprop (unit ≃ X).
-Proof. intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropunit)). Defined.
+Proof.
+  intros. apply (isofhlevelsnweqfromhlevelsn 0 X _ (isapropunit)).
+Defined.
 
 (** ** Weak auto-equivalences of a type with an isolated point *)
 
@@ -1044,11 +1096,11 @@ Definition cutonweq {T : UU} t (is : isisolated T t) (w : T ≃ T) :
   isolated T × (compl T t ≃ compl T t).
 Proof.
   intros. split.
-  - exists (w t). now apply isisolatedweqf.
+  - exists (w t). apply isisolatedweqf. assumption.
   - intermediate_weq (compl T (w t)).
     + apply weqoncompl.
     + apply weqtranspos0.
-      * now apply isisolatedweqf.
+      * apply isisolatedweqf. assumption.
       * assumption.
 Defined.
 
@@ -1075,7 +1127,7 @@ Definition weqcutonweq (T : UU) (t : T) (is : isisolated T t) :
 Proof.
   intros.
   set (f := cutonweq t is). set (g := invcutonweq t is).
-  apply (weqgradth f g).
+  apply (weq_iso f g).
   - intro w. Set Printing Coercions. idtac.
     apply (invmaponpathsincl _ (isinclpr1weq _ _)).
     apply funextfun; intro t'. simpl.
@@ -1174,7 +1226,8 @@ end.
 
 Definition locsplitsecissec (X Y : UU) (f : X -> Y) (ls : locsplit f)
 (u:dnegimage  f) : paths (xtodnegimage f (locsplitsec  f ls u)) u.
-Proof. intros. set (p := xtodnegimage f). set (s := locsplitsec f ls).
+Proof.
+  intros. set (p := xtodnegimage f). set (s := locsplitsec f ls).
 assert (paths (pr1 (p (s u))) (pr1  u)). unfold p. unfold xtodnegimage.
 unfold s. unfold locsplitsec. simpl. induction u. set (lst := ls t).
 induction lst.  simpl. apply (pr2  x0). induction (x y).
@@ -1209,13 +1262,13 @@ end.
 Definition weqcompidl {X Y} (f:X ≃ Y) : weqcomp (idweq X) f = f.
 Proof.
   intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
-  apply funextsec; intro x; simpl. reflexivity.
+  apply funextsec; intro x; simpl. apply idpath.
 Defined.
 
 Definition weqcompidr {X Y} (f:X ≃ Y) : weqcomp f (idweq Y) = f.
 Proof.
   intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
-  apply funextsec; intro x; simpl. reflexivity.
+  apply funextsec; intro x; simpl. apply idpath.
 Defined.
 
 Definition weqcompinvl {X Y} (f:X ≃ Y) : weqcomp (invweq f) f = idweq Y.
@@ -1234,13 +1287,13 @@ Definition weqcompassoc {X Y Z W} (f:X ≃ Y) (g:Y ≃ Z) (h:Z ≃ W) :
   weqcomp (weqcomp f g) h = weqcomp f (weqcomp g h).
 Proof.
   intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
-  apply funextsec; intro x; simpl. reflexivity.
+  apply funextsec; intro x; simpl. apply idpath.
 Defined.
 
 Definition weqcompweql {X Y Z} (f:X ≃ Y) :
   isweq (fun g:Y ≃ Z => weqcomp f g).
 Proof.
-  intros. simple refine (gradth _ _ _ _).
+  intros. simple refine (isweq_iso _ _ _ _).
   { intro h. exact (weqcomp (invweq f) h). }
   { intro g. simpl. rewrite <- weqcompassoc. rewrite weqcompinvl. apply weqcompidl. }
   { intro h. simpl. rewrite <- weqcompassoc. rewrite weqcompinvr. apply weqcompidl. }
@@ -1249,7 +1302,7 @@ Defined.
 Definition weqcompweqr {X Y Z} (g:Y ≃ Z) :
   isweq (fun f:X ≃ Y => weqcomp f g).
 Proof.
-  intros. simple refine (gradth _ _ _ _).
+  intros. simple refine (isweq_iso _ _ _ _).
   { intro h. exact (weqcomp h (invweq g)). }
   { intro f. simpl. rewrite weqcompassoc. rewrite weqcompinvr. apply weqcompidr. }
   { intro h. simpl. rewrite weqcompassoc. rewrite weqcompinvl. apply weqcompidr. }
@@ -1274,7 +1327,7 @@ Definition invweqcomp {X Y Z} (f:X ≃ Y) (g:Y ≃ Z) :
 Proof.
   intros. apply (weqcompinjr (weqcomp f g)). rewrite weqcompinvl.
   rewrite weqcompassoc. rewrite <- (weqcompassoc (invweq f)).
-  rewrite weqcompinvl. rewrite weqcompidl. rewrite weqcompinvl. reflexivity.
+  rewrite weqcompinvl. rewrite weqcompidl. rewrite weqcompinvl. apply idpath.
 Defined.
 
 Definition invmapweqcomp {X Y Z} (f:X ≃ Y) (g:Y ≃ Z) :

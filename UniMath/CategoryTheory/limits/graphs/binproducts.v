@@ -33,7 +33,7 @@ Defined.
 Definition ProdCone {a b c : C} (ca : C⟦c,a⟧) (cb : C⟦c,b⟧) :
   cone (binproduct_diagram a b) c.
 Proof.
-simple refine (tpair _ _ _); simpl.
+use tpair; simpl.
 - intro v; induction v.
   + exact ca.
   + exact cb.
@@ -52,11 +52,11 @@ Proof.
 intros H c cc.
 simpl in *.
 set (H' := H c (coneOut cc true) (coneOut cc false)).
-unshelve refine (tpair _ _ _).
+use tpair.
 - exists (pr1 (pr1 H')).
   set (T := pr2 (pr1 H')); simpl in T.
   abstract (intro u; induction u; simpl; [exact (pr1 T)|exact (pr2 T)]).
-- abstract (intros; apply subtypeEquality;
+- abstract (simpl; intros; apply subtypeEquality;
               [intro; apply impred;intro; apply hsC|]; simpl;
             apply path_to_ctr; split; [ apply (pr2 t true) | apply (pr2 t false) ]).
 Defined.
@@ -68,16 +68,14 @@ Definition mk_BinProductCone (a b : C) :
    isBinProductCone _ _ _ f g -> BinProductCone a b.
 Proof.
   intros.
-  simple refine (tpair _ _ _ ).
+  use tpair.
   - exists c.
     apply (ProdCone f g).
   - apply X.
 Defined.
 
 Definition BinProducts := ∏ (a b : C), BinProductCone a b.
-
-(* What is the best definition of this? *)
-(* Definition hasBinProducts (C : precategory) := ishinh (BinProducts C). *)
+Definition hasBinProducts := ∏ (a b : C), ∥ BinProductCone a b ∥.
 
 Definition BinProductObject {c d : C} (P : BinProductCone c d) : C := lim P.
 Definition BinProductPr1 {c d : C} (P : BinProductCone c d): C⟦BinProductObject P,c⟧ :=
@@ -93,7 +91,7 @@ Definition BinProductArrow {a b : C} (P : BinProductCone a b) {c : C}
   (f : C⟦c,a⟧) (g : C⟦c,b⟧) : C⟦c,BinProductObject P⟧.
 Proof.
 apply (limArrow P).
-simple refine (mk_cone _ _).
+use mk_cone.
 - intro v; induction v; [ apply f | apply g ].
 - intros ? ? e; induction e. (* <- should not be opaque! otherwise BinProductPr1Commutes doesn't work *)
 Defined.
@@ -118,7 +116,7 @@ Lemma BinProductArrowUnique (a b : C) (P : BinProductCone a b) (c : C)
       k = BinProductArrow P f g.
 Proof.
 intros H1 H2.
-refine (limArrowUnique _ _ _ _ _); simpl.
+use limArrowUnique; simpl.
 now intro u; induction u; simpl; [ apply H1 | apply H2 ].
 Qed.
 

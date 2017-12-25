@@ -5,6 +5,8 @@
 /build/Makefile-configuration
 /.coq_makefile_input
 /.coq_makefile_output
+/.coq_makefile_output.conf
+/.coqdeps.d
 /build/CoqMakefile.make
 /latex/*.log
 /latex/*.aux

@@ -76,9 +76,9 @@ Definition sort_in {Γ:SET_over_sort}(M:wellsorted_in Γ): sort := pr2 (pr1 T Γ
 Definition aux_fh {A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
    (f : A1->wellsorted_in Γ2)(H: forall a1:A1, sort_in (f a1) = f1 a1) : SET_over_sort⟦(A1,,f1),T Γ2⟧.
 Proof.
-   mkpair.
+   use tpair.
     * exact f.
-    * abstract(apply funextsec; intro a1; now apply pathsinv0).
+    * cbn. abstract(apply funextsec; intro a1; now apply pathsinv0).
 Defined.
 
 Definition bind_slice {A1:hSet}{f1:A1->sort}{Γ2:SET_over_sort}
@@ -192,7 +192,7 @@ Qed.
 Definition aux_inject_N {Γ:SET_over_sort}(N : wellsorted_in Γ):
   SET_over_sort⟦constHSET_slice (sort_in N),T Γ⟧.
 Proof.
-  mkpair.
+  use tpair.
   + exact (fun _=> N).
   + now apply funextsec.
 Defined.
@@ -247,7 +247,7 @@ Qed.
 Definition subst_slice_as_bind_slice {Γ:SET_over_sort}(N : wellsorted_in Γ)
   (M : wellsorted_in (sorted_option_functor (sort_in N) Γ)): wellsorted_in Γ.
 Proof.
-  refine (bind_slice (BinCoproductArrow _ (BinCoproductsHSET _ _) (λ _, N) (η_slice(Γ:=Γ))) _ M).
+  use (bind_slice (BinCoproductArrow _ (BinCoproductsHSET _ _) (λ _, N) (η_slice(Γ:=Γ))) _ M).
   abstract(intro a1; induction a1 as [u | a1];
            [apply idpath | unfold BinCoproductArrow; simpl; now rewrite η_slice_ok]).
 Defined.
@@ -301,9 +301,9 @@ Qed.
 
 Definition mweak_slice_as_bind_slice (Γ1 : SET_over_sort)(Γ2 : SET_over_sort)(M : wellsorted_in Γ2) : wellsorted_in (Γ1 ⊕ Γ2).
 Proof.
-  refine (bind_slice (λ a1, η_slice(Γ:=Γ1 ⊕ Γ2) (pr1 (BinCoproductIn2 _ (BC _ _)) a1)) _ M).
+  use (bind_slice (λ a1, η_slice(Γ:=Γ1 ⊕ Γ2) (pr1 (BinCoproductIn2 _ (BC _ _)) a1)) _ M).
   intro a1.
-  now rewrite η_slice_ok.
+  simpl; now rewrite η_slice_ok.
 Defined.
 
 Lemma mweak_slice_as_bind_slice_agrees (Γ1 : SET_over_sort){Γ2 : SET_over_sort}(M : wellsorted_in Γ2) :
@@ -351,7 +351,7 @@ Proof.
   set (a1 := BinCoproductIn1 _ (BinCoproductsHSET _ _) · BinCoproductIn2 _ (BinCoproductsHSET _ _): HSET⟦pr1 Γ1, pr1(Γ2 ⊕ (Γ1 ⊕ Γ3))⟧).
   set (a21 := BinCoproductIn1 _ (BinCoproductsHSET _ _): HSET⟦pr1 Γ2, pr1(Γ2 ⊕ (Γ1 ⊕ Γ3))⟧).
   set (a22 := BinCoproductIn2 _ (BinCoproductsHSET _ _) · BinCoproductIn2 _ (BinCoproductsHSET _ _): HSET⟦pr1 Γ3, pr1(Γ2 ⊕ (Γ1 ⊕ Γ3))⟧).
-  refine (bind_slice ((BinCoproductArrow _ _ a1 (BinCoproductArrow _ _ a21 a22)) · η_slice(Γ:=Γ2 ⊕ (Γ1 ⊕ Γ3))) _ M).
+  use (bind_slice ((BinCoproductArrow _ _ a1 (BinCoproductArrow _ _ a21 a22)) · η_slice(Γ:=Γ2 ⊕ (Γ1 ⊕ Γ3))) _ M).
   intro x.
   induction x as [x1 | x2].
   + unfold BinCoproductArrow.

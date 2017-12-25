@@ -71,14 +71,16 @@ Proof.
   intros. apply invproofirrelevance. intros i j.
   apply funextsec; intro x; apply funextsec; intro y.
   generalize (i x y) as p; generalize (j x y) as q; intros.
-  now apply isProofIrrelevant_paths.
+  apply isProofIrrelevant_paths. assumption.
 Defined.
 
 (** See also [ isapropneg2 ] *)
 
 
 Corollary isapropdneg (X : UU) : isaprop (dneg X).
-Proof. intro. apply (isapropneg (neg X)). Defined.
+Proof.
+  intro. apply (isapropneg (neg X)).
+Defined.
 
 
 Definition isaninvprop (X : UU) := isweq (todneg X).
@@ -126,7 +128,9 @@ Definition pr1compl (X : UU) (x : X) := @pr1 _ (λ x' : X, x != x').
 
 
 Lemma isinclpr1compl (X : UU) (x : X) : isincl (pr1compl X x).
-Proof. intros. apply (isinclpr1 _ (λ x' : X, isapropneg _)). Defined.
+Proof.
+  intros. apply (isinclpr1 _ (λ x' : X, isapropneg _)).
+Defined.
 
 Definition compl_ne (X:UU) (x:X) (neq_x : neqPred x) := ∑ y, neq_x y.
 
@@ -139,17 +143,22 @@ Definition pr1compl_ne (X : UU) (x : X) (neq_x : neqPred x)
   X := pr1 c.
 
 Definition make_negProp {P : UU} : negProp P.
-Proof. intros. exists (¬ P). split.
+Proof.
+  intros. exists (¬ P). split.
        - apply isapropneg.  (* uses [funextemptyAxiom] *)
        - apply isrefl_logeq.
 Defined.
 
 Definition make_neqProp {X : UU} (x y : X) : neqProp x y.
-Proof. intros. apply make_negProp. Defined.
+Proof.
+  intros. apply make_negProp.
+Defined.
 
 Lemma isinclpr1compl_ne (X : UU) (x : X) (neq_x : neqPred x) :
   isincl (pr1compl_ne X x neq_x).
-Proof. intros. apply isinclpr1. intro y. apply negProp_to_isaprop. Defined.
+Proof.
+  intros. apply isinclpr1. intro y. apply negProp_to_isaprop.
+Defined.
 
 Lemma compl_ne_weq_compl (X : UU) (x : X) (neq_x : neqPred x) :
   compl X x ≃ compl_ne X x neq_x.
@@ -224,9 +233,9 @@ Proof.
   intros. intermediate_weq (∑ x', neq_wx (w x')).
   - apply weqfibtototal; intro x'.
     apply weqiff.
-    {intermediate_logeq (x != x').
+    {apply (logeq_trans (Y := x != x')).
      {apply issymm_logeq, negProp_to_iff. }
-     intermediate_logeq (w x != w x').
+     apply (logeq_trans (Y := w x != w x')).
      {apply logeqnegs. apply weq_to_iff. apply weqonpaths. }
      apply negProp_to_iff. }
     {apply negProp_to_isaprop. }
@@ -236,12 +245,16 @@ Defined.
 
 Definition weqoncompl_compute {X Y : UU} (w : X ≃ Y) (x : X) :
   ∏ x', pr1 (weqoncompl w x x') = w (pr1 x').
-Proof. intros. induction x' as [x' b]. reflexivity. Defined.
+Proof.
+  intros. induction x' as [x' b]. apply idpath.
+Defined.
 
 Definition weqoncompl_ne_compute {X Y : UU}
            (w : X ≃ Y) (x : X) (neq_x : neqPred x) (neq_wx : neqPred (w x)) x' :
   pr1 (weqoncompl_ne w x neq_x neq_wx x') = w (pr1 x').
-Proof. reflexivity. Defined.
+Proof.
+  intros. apply idpath.
+Defined.
 
 Definition homotweqoncomplcomp {X Y Z : UU} (f : X ≃ Y) (g : Y ≃ Z)
            (x : X) : homot (weqcomp (weqoncompl f x) (weqoncompl g (f x)))
@@ -275,7 +288,7 @@ Proof.
   (* does not use [funextemptyAxiom] *)
   intros.
   set (f := recompl_ne X x neq_x). set (g := invrecompl_ne X x neq_x is).
-  refine (gradth f g _ _).
+  refine (isweq_iso f g _ _).
   {intro u. induction (is (f u)) as [ eq | ne ].
    - induction u as [ c | u].
      + simpl. induction c as [ t neq ]; simpl; simpl in eq.
@@ -296,12 +309,12 @@ Proof.
          apply proofirrelevance. exact (pr1 (pr2 (neq_x y))). }}
      + induction u. unfold f,g,invrecompl_ne;simpl.
        induction (is x) as [eq|neq].
-       {simpl. reflexivity. }
-       {apply fromempty. now apply neq. }}
+       {simpl. apply idpath. }
+       {apply fromempty. apply neq. apply idpath. }}
   {intro y. unfold f,g,invrecompl_ne;simpl.
    induction (is y) as [eq|neq].
-   - induction eq. reflexivity.
-   - simpl. reflexivity. }
+   - induction eq. apply idpath.
+   - simpl. apply idpath. }
 Defined.
 
 Theorem isweqrecompl_ne' (X : UU) (x : X) (is : isisolated X x)
@@ -316,18 +329,20 @@ Proof.
     contradicts (!e) (negProp_to_neg neq). }
    {change x with (f (ii2 tt)). simple refine ((_,,_),,_).
     {exact tt. }
-    {reflexivity. }
+    {apply idpath. }
     {intro w. induction w as [t e]. unfold f in *; simpl in *. induction t.
      apply maponpaths. apply isaproppathsfromisolated. exact is. }}}
   {refine (iscontrweqf (weqii1withneg _ _) _).
    {intros z; induction z as [z e]; simpl in *. contradicts ne e. }
    {simple refine ((_,,_),,_).
-    {exists y. now apply neg_to_negProp. }
-    {simpl. reflexivity. }
+    {exists y. apply neg_to_negProp. assumption. }
+    {simpl. apply idpath. }
     intros z; induction z as [z e]; induction z as [z neq];
       induction e; simpl in *.
-    now induction (proofirrelevance _ (pr1 (pr2 (neq_x z))) neq
-                                    (neg_to_negProp ne)). }}
+    induction (proofirrelevance _ (pr1 (pr2 (neq_x z))) neq
+                                (neg_to_negProp ne)).
+    apply idpath.
+  }}
 Defined.
 
 Definition weqrecompl_ne (X : UU) (x : X) (is : isisolated X x)
@@ -375,7 +390,7 @@ Proof.
       + apply idpath.
       + induction (e (idpath x)).
   }
-  apply (gradth f g egf efg).
+  apply (isweq_iso f g egf efg).
 Defined.
 
 Theorem isweqrecompl' (X : UU) (x : X) (is : isisolated X x) :
@@ -387,7 +402,7 @@ Proof.
   apply (isweqhomot (weqrecompl_ne X x is neq_x
                                    ∘ weqcoprodf (compl_ne_weq_compl X x neq_x)
                                    (idweq unit))%weq).
-  {intro y. induction y as [y|t]; reflexivity. }
+  {intro y. induction y as [y|t]; apply idpath. }
   apply weqproperty.
 Defined.
 
@@ -499,7 +514,8 @@ Definition funtranspos0 {T: UU} (t1 t2 : T) (is2 : isisolated T t2)
 Definition homottranspos0t2t1t1t2 {T : UU} (t1 t2 : T)
            (is1 : isisolated T t1) (is2 : isisolated T t2) :
   funtranspos0 t2 t1 is1 ∘ funtranspos0 t1 t2 is2 ~ idfun _.
-Proof. intros. intro x. unfold funtranspos0. unfold funcomp.
+Proof.
+  intros. intro x. unfold funtranspos0. unfold funcomp.
        induction x as [ t net1 ]; simpl.
        induction (is2 t) as [ et2 | net2 ].
        - induction (is2 t1) as [ et2t1 | net2t1 ].
@@ -520,7 +536,7 @@ Definition weqtranspos0 {T : UU} (t1 t2 : T) :
   isisolated T t1 -> isisolated T t2 -> compl T t1 ≃ compl T t2.
 Proof.
   intros ? ? ? is1 is2.
-  simple refine (weqgradth (funtranspos0 t1 t2 is2)
+  simple refine (weq_iso (funtranspos0 t1 t2 is2)
                            (funtranspos0 t2 t1 is1) _ _).
   - intro x. apply (homottranspos0t2t1t1t2 t1 t2 is1 is2).
   - intro x. apply (homottranspos0t2t1t1t2 t2 t1 is2 is1).
@@ -558,7 +574,7 @@ Proof.
     by (intro; refine (homottranspost2t1t1t2 _ _ _ _ _)).
   assert (efg : ∏ t : T, paths (f (g t)) t)
     by (intro; refine (homottranspost2t1t1t2 _ _ _ _ _)).
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 
@@ -623,7 +639,9 @@ Defined.
 
 
 Definition eqbx (X : UU) (x : X) (is : isisolated X x) : X -> bool.
-Proof. intros X x is x'. induction (is x'). apply true. apply false. Defined.
+Proof.
+  intros X x is x'. induction (is x'). apply true. apply false.
+Defined.
 
 Lemma iscontrhfibereqbx (X : UU) (x : X) (is : isisolated X x) :
   iscontr (hfiber (eqbx X x is) true).
@@ -954,7 +972,7 @@ Proof.
     - simpl. apply idpath.
     - induction hg as [ y ge ]. simpl. apply idpath.
   }
-  apply (gradth _ _ eggff effgg).
+  apply (isweq_iso _ _ eggff effgg).
 Defined.
 
 
@@ -1088,7 +1106,7 @@ Proof.
       apply (maponpaths (fun ee : (neg (paths (ii1 x) (ii2 y)))
                          => (complpair _ _ (ii2 y) ee)) e).
   }
-  apply (gradth f g egf efg).
+  apply (isweq_iso f g egf efg).
 Defined.
 
 
@@ -1146,7 +1164,7 @@ Proof.
       apply (maponpaths (fun ee : (neg (paths (ii2 y) (ii2 y0)))
                          => (complpair _ _ (ii2 y0) ee)) e).
   }
-  apply (gradth f g egf efg).
+  apply (isweq_iso f g egf efg).
 Defined.
 
 
@@ -1180,7 +1198,7 @@ Proof.
       induction ee. apply idpath.
     - induction u. simpl. apply (fromempty (x (idpath _))).
   }
-  apply (gradth ff gg egf efg).
+  apply (isweq_iso ff gg egf efg).
 Defined.
 
 
@@ -1188,7 +1206,9 @@ Definition weqtocompltodisjoint (X : UU) : X ≃ compl (X ⨿ unit) (ii2 tt)
   := weqpair _ (isweqtocompltodisjoint X).
 
 Corollary isweqfromcompltodisjoint (X : UU) : isweq (fromcompltodisjoint X).
-Proof. intros. apply (isweqinvmap (weqtocompltodisjoint X)). Defined.
+Proof.
+  intros. apply (isweqinvmap (weqtocompltodisjoint X)).
+Defined.
 
 (** ** Decidable propositions and decidable inclusions *)
 
@@ -1210,7 +1230,9 @@ Proof.
 Defined.
 
 Lemma isdeceqif {X : UU} (is : ∏ x x' : X, isdecprop (x = x')) : isdeceq X.
-Proof. intros. intros x x'. apply (pr1 (is x x')). Defined.
+Proof.
+  intros. intros x x'. apply (pr1 (is x x')).
+Defined.
 
 Lemma isaninv1 (X : UU) : isdecprop X -> isaninvprop X.
 Proof.
@@ -1314,7 +1336,9 @@ Defined.
 
 Definition isdecincl {X Y : UU} (f : X -> Y) := ∏ y : Y, isdecprop (hfiber f y).
 Lemma isdecincltoisincl {X Y : UU} (f : X -> Y) : isdecincl f -> isincl f.
-Proof. intros X Y f is. intro y. apply (isdecproptoisaprop _ (is y)). Defined.
+Proof.
+  intros X Y f is. intro y. apply (isdecproptoisaprop _ (is y)).
+Defined.
 Coercion isdecincltoisincl : isdecincl >-> isincl.
 
 Lemma isdecinclfromisweq {X Y : UU} (f : X -> Y) : isweq f -> isdecincl f.

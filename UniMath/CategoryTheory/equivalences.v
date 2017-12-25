@@ -57,7 +57,7 @@ Definition mk_adj_equivalence_of_precats {A B : precategory} (F : functor A B)
            (H2 : forms_equivalence ((F,,G,,η,,ε)))
   : adj_equivalence_of_precats F.
 Proof.
-  mkpair.
+  use tpair.
   - exists G. exists (η,,ε). apply H1.
   - apply H2.
 Defined.
@@ -274,7 +274,7 @@ End adjointification.
 Lemma identity_functor_is_adj_equivalence {A : precategory} :
   adj_equivalence_of_precats (functor_identity A).
 Proof.
-  mkpair.
+  use tpair.
   - exact is_left_adjoint_functor_identity.
   - now split; intros a; apply identity_is_iso.
 Defined.
@@ -293,7 +293,7 @@ Proof.
   set (BBcat := is_univalent_functor_category B _ HB).
   set (Et := isotoid _ AAcat et).
   set (Ep := isotoid _ BBcat ep).
-  apply (gradth _ (λ b, pr1 (right_adjoint (pr1 HF)) b)); intro a.
+  apply (isweq_iso _ (λ b, pr1 (right_adjoint (pr1 HF)) b)); intro a.
   apply (!toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Et)) a).
   now apply (toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Ep))).
 Defined.
@@ -325,7 +325,7 @@ Proof.
   set (fminusf := iso_comp f (iso_inv_from_iso f')).
   set (g := iso_from_fully_faithful_reflection HF fminusf).
   apply (two_arg_paths_f (B:=λ a', iso ((pr1 F) a') b) (isotoid _ HA g)).
-  pathvia (iso_comp (iso_inv_from_iso
+  intermediate_path (iso_comp (iso_inv_from_iso
     (functor_on_iso F (idtoiso (isotoid _ HA g)))) f).
     generalize (isotoid _ HA g).
     intro p0; destruct p0.

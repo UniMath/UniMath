@@ -344,7 +344,7 @@ Lemma horizontal_comp_id {C : prebicategory_id_comp} {a b c : C}
   = identity_2mor (f ;1; g).
 Proof.
   unfold compose_2mor_horizontal.
-  pathvia (functor_on_morphisms (compose_functor a b c)
+  intermediate_path (functor_on_morphisms (compose_functor a b c)
             (identity (precatbinprodpair f g))).
     reflexivity.
   apply functor_id.

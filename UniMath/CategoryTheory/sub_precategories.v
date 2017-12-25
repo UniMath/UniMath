@@ -335,7 +335,7 @@ Lemma isweq_hom_in_precat_from_hom_in_full_subcat (C : precategory)
     (a b : ob (full_sub_precategory C')):
  isweq (hom_in_precat_from_hom_in_full_subcat _ _ a b).
 Proof.
-  apply (gradth _
+  apply (isweq_iso _
          (hom_in_subcat_from_hom_in_precat _ _ a b)).
   intro f.
   destruct f. simpl.
@@ -349,7 +349,7 @@ Lemma isweq_hom_in_subcat_from_hom_in_precat (C : precategory)
     (a b : ob (full_sub_precategory C')):
  isweq (hom_in_subcat_from_hom_in_precat  _ _ a b).
 Proof.
-  apply (gradth _
+  apply (isweq_iso _
          (hom_in_precat_from_hom_in_full_subcat _ _ a b)).
   intro f.
   intros. apply idpath.
@@ -511,7 +511,7 @@ Definition iso_in_sub_from_iso (a b : ob (full_sub_precategory C'))
 Lemma isweq_iso_from_iso_in_sub (a b : ob (full_sub_precategory C')):
      isweq (iso_from_iso_in_sub a b).
 Proof.
-  apply (gradth _ (iso_in_sub_from_iso a b)).
+  apply (isweq_iso _ (iso_in_sub_from_iso a b)).
   intro f.
   apply eq_iso; simpl.
   - apply eq_in_sub_precategory, idpath.
@@ -521,7 +521,7 @@ Defined.
 Lemma isweq_iso_in_sub_from_iso (a b : ob (full_sub_precategory C')):
      isweq (iso_in_sub_from_iso a b).
 Proof.
-  apply (gradth _ (iso_from_iso_in_sub a b)).
+  apply (isweq_iso _ (iso_from_iso_in_sub a b)).
   intro f; apply eq_iso, idpath.
   intro f; apply eq_iso; simpl.
   apply eq_in_sub_precategory, idpath.
@@ -603,7 +603,7 @@ Lemma functor_full_img_essentially_surjective (A B : precategory)
   essentially_surjective (functor_full_img F).
 Proof.
   intro b.
-  refine (pr2 b _ _).
+  use (pr2 b).
   intros [c h] q Hq.
   apply Hq.
   exists c.

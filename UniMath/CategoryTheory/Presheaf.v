@@ -140,9 +140,9 @@ Context {C : precategory}.
 Definition constant_PreShv (A : HSET) : PreShv C.
 Proof.
 use mk_functor.
-+ mkpair.
++ use tpair.
   - intros _; apply A.
-  - intros a b f; apply idfun.
+  - cbn. intros a b f. apply idfun.
 + now split.
 Defined.
 
@@ -189,14 +189,14 @@ Qed.
 
 Definition maximal_sieve (c : C) : sieve c.
 Proof.
-mkpair.
+use tpair.
 - intro S; apply htrue.
-- intros; apply tt.
+- cbn. intros; apply tt.
 Defined.
 
 Definition empty_sieve (c : C) : sieve c.
 Proof.
-mkpair.
+use tpair.
 - intros S; apply hfalse.
 - intros f S y g; apply S.
 Defined.
@@ -204,7 +204,7 @@ Defined.
 Definition intersection_sieve (c : C) : binop (sieve c).
 Proof.
 simpl; intros S1 S2.
-mkpair.
+use tpair.
 - intros f.
   apply (S1 f ∧ S2 f).
 - simpl; intros f S f'.
@@ -216,7 +216,7 @@ Defined.
 Definition union_sieve (c : C) : binop (sieve c).
 Proof.
 simpl; intros S1 S2.
-mkpair.
+use tpair.
 - intros f.
   apply (S1 f ∨ S2 f).
 - intros f S y f'; simpl in S; apply S; clear S; intro S.
@@ -255,7 +255,7 @@ Defined.
 Definition sieve_mor a b (f : C⟦b,a⟧) : sieve a → sieve b.
 Proof.
 simpl; intros S.
-mkpair.
+use tpair.
 - intros g.
   apply (S (pr1 g,,pr2 g · f)).
 - abstract (intros g H y h; simpl; rewrite <- assoc; apply (pr2 S (pr1 g,,pr2 g · f)), H).

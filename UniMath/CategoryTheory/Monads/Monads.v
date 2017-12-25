@@ -33,8 +33,6 @@ Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 (** * Definition of monads *)
 Section Monad_def.
 
@@ -417,10 +415,10 @@ Section Monad_eq_helper.
 
     Definition Monad_to_raw_data {C : precategory} (T : Monad C) : raw_Monad_data C.
     Proof.
-      mkpair.
+      use tpair.
       - exact (functor_on_objects T).
-      - mkpair.
-        + mkpair.
+      - use tpair.
+        + use tpair.
           * exact (@functor_on_morphisms C C T).
           * exact (μ T).
         + exact (η T).
@@ -459,7 +457,7 @@ Section Monad_eq_helper.
     Monad_to_raw_data T = Monad_to_raw_data T' -> T = T'.
   Proof.
     intro e.
-    apply (invmaponpathsweq (_,, (gradth _ _ (@Monad_to_Monad'_to_Monad C)
+    apply (invmaponpathsweq (_,, (isweq_iso _ _ (@Monad_to_Monad'_to_Monad C)
                                              (@Monad'_to_Monad_to_Monad' C)))).
     now apply (Monad'_eq_raw_data hs).
   Qed.

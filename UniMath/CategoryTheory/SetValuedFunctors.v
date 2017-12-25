@@ -157,7 +157,7 @@ Section QuotientFunctor.
      computation slow in some cases (see issue 548) *)
   Definition quot_functor_ob (d:D) :hSet.
   Proof.
-    mkpair.
+    use tpair.
     - apply (setquot (hequiv d)).
     - abstract (apply isasetsetquot).
   Defined.

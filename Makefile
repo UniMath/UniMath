@@ -13,6 +13,7 @@ PACKAGES += MoreFoundations
 PACKAGES += Combinatorics
 PACKAGES += Algebra
 PACKAGES += NumberSystems
+PACKAGES += PAdics
 PACKAGES += CategoryTheory
 PACKAGES += Ktheory
 PACKAGES += Topology
@@ -164,7 +165,7 @@ build/CoqMakefile.make: .coq_makefile_input
 # "clean::" occurs also in build/CoqMakefile.make, hence both colons
 clean::
 	rm -f .coq_makefile_input .coq_makefile_output build/CoqMakefile.make COQC.log
-	find UniMath \( -name .\*.aux -o -name \*.glob -o -name \*.v.d -o -name \*.vo \) -delete
+	find UniMath \( -name .\*.aux -o -name \*.glob -o -name \*.d -o -name \*.vo \) -delete
 	find UniMath -type d -empty -delete
 clean::; rm -rf $(ENHANCEDDOCTARGET)
 latex-clean clean::; cd $(LATEXDIR) ; rm -f *.pdf *.tex *.log *.aux *.out *.blg *.bbl
@@ -187,7 +188,7 @@ sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 rebuild-coq sub/coq/bin/coq_makefile sub/coq/bin/coqc:
 	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqbinaries tools states
 sub/coq/bin/coqide: sub/coq/config/coq_config.ml
-	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
+	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-files bin/coqide
 configure-coq: sub/coq/config/coq_config.ml
 git-describe:
 	git describe --dirty --long --always --abbrev=40
@@ -241,6 +242,41 @@ show-long-lines:
 SHELL = bash
 enforce-prescribed-ordering: .enforce-prescribed-ordering.okay
 clean::; rm -f .enforce-prescribed-ordering.okay
+
+ifdef VDFILE
+# Coq >= 8.8
+.enforce-prescribed-ordering.okay: Makefile $(VDFILE).d
+	: "--- enforce ordering prescribed by the files UniMath/*/.packages/files ---"
+	@set -e ;															\
+	if declare -A seqnum 2>/dev/null ;												\
+	then n=0 ;															\
+	     for i in $(VOFILES) ;													\
+	     do n=$$(( $$n + 1 )) ;													\
+		seqnum[$$i]=$$n ;													\
+	     done ;															\
+	     for i in $(VFILES:.v=.vo);													\
+	     do grep $(VDFILE).d $$i ;													\
+	     done															\
+	     | sed -E -e 's/[^ ]*\.(glob|v\.beautified|v)([ :]|$$)/\2/g' -e 's/ *: */ /'						\
+	     | while read line ;													\
+	       do for i in $$line ; do echo $$i ; done											\
+		  | ( read target ;													\
+		      [ "$${seqnum[$$target]}" ] || (echo unknown target: $$target; false) >&2 ;					\
+		      while read prereq ;												\
+		      do [ "$${seqnum[$$prereq]}" ] || (echo "unknown prereq of $$target : $$prereq" ; false) >&2 ;			\
+			 echo "$$(($${seqnum[$$target]} > $${seqnum[$$prereq]})) error: *** $$target should not require $$prereq" ;	\
+		      done ) ;														\
+	       done | grep ^0 | sed 's/^0 //' |												\
+	       ( haderror= ;														\
+		 while read line ;													\
+		 do if [ ! "$$haderror" ] ; then haderror=1 ; fi ;									\
+		    echo "$$line" ;													\
+		 done ;															\
+		 [ ! "$$haderror" ] ) ;													\
+	else echo "make: *** skipping enforcement of linear ordering of packages, because 'bash' is too old" ;				\
+	fi
+	touch $@
+else
 .enforce-prescribed-ordering.okay: Makefile $(VFILES:.v=.v.d)
 	: "--- enforce ordering prescribed by the files UniMath/*/.packages/files ---"
 	@set -e ;															\
@@ -272,6 +308,7 @@ clean::; rm -f .enforce-prescribed-ordering.okay
 	else echo "make: *** skipping enforcement of linear ordering of packages, because 'bash' is too old" ;				\
 	fi
 	touch $@
+endif
 
 # here we ensure that the travis script checks every package
 check-travis:.check-travis.okay
@@ -286,8 +323,8 @@ clean::; rm -f .check-travis.okay
 
 
 # here we ensure that every *.v file F in each package P is listed in the corresponding file UniMath/P/.package/files
-# except for one, which someone has to look at and fix or eliminate:
-GRANDFATHER_UNLISTED = UniMath/CategoryTheory/equivalences_lemmas.v
+# except for those listed in $GRANDFATHER_UNLISTED (currently none)
+GRANDFATHER_UNLISTED = 
 enforce-listing-of-proof-files:
 	@ if declare -A islisted 2>/dev/null ;										\
 	  then for i in $(VFILES) $(GRANDFATHER_UNLISTED) ;								\

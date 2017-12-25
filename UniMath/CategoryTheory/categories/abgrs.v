@@ -108,7 +108,7 @@ Section def_abgr_category.
 
   Lemma abgr_iso_is_equiv (A B : ob abgr_category) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (pr1monoidfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -141,7 +141,7 @@ Section def_abgr_category.
 
   Lemma abgr_iso_equiv_is_equiv (X Y : abgr_category) : isweq (abgr_iso_equiv X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (abgr_equiv_iso X Y).
     - intros x. use eq_iso. use monoidfun_paths. use idpath.
     - intros y. use monoidiso_paths. use subtypeEquality.
@@ -159,7 +159,7 @@ Section def_abgr_category.
 
   Lemma abgr_equiv_iso_is_equiv (X Y : ob abgr_category) : isweq (abgr_equiv_iso X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (abgr_iso_equiv X Y).
     - intros y. use monoidiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.
@@ -167,7 +167,7 @@ Section def_abgr_category.
     - intros x. use eq_iso. use monoidfun_paths. use idpath.
   Qed.
 
-  Definition abgr_equiv_iso_weq (X Y : ob abgr_category) :
+  Definition abgr_equiv_weq_iso (X Y : ob abgr_category) :
     (monoidiso (X : abgr) (Y : abgr)) ≃ (iso X Y).
   Proof.
     use weqpair.
@@ -182,8 +182,8 @@ Section def_abgr_category.
   Proof.
     use (@isweqhomot
            (a = b) (iso a b)
-           (pr1weq (weqcomp (abgr_univalence a b) (abgr_equiv_iso_weq a b)))
-           _ _ (weqproperty (weqcomp (abgr_univalence a b) (abgr_equiv_iso_weq a b)))).
+           (pr1weq (weqcomp (abgr_univalence a b) (abgr_equiv_weq_iso a b)))
+           _ _ (weqproperty (weqcomp (abgr_univalence a b) (abgr_equiv_weq_iso a b)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
@@ -222,13 +222,13 @@ Section def_abgr_zero.
     (t : monoidfun unitabgr (a : abgr)) = abgrfunfromunit (a : abgr).
   Proof.
     use monoidfun_paths. use funextfun. intros x.
-    use (pathscomp0 _ (monoidfununel t)). use maponpaths. use isconnectedunit.
+    use (pathscomp0 _ (monoidfununel t)). use maponpaths. use isProofIrrelevantUnit.
   Qed.
 
   Lemma isconnectedtounitabgr (a : abgr_category) (t : abgr_category ⟦a, unitabgr⟧):
     (t : monoidfun (a : abgr) unitabgr) = abgrfuntounit a.
   Proof.
-    use monoidfun_paths. use funextfun. intros x. use isconnectedunit.
+    use monoidfun_paths. use funextfun. intros x. use isProofIrrelevantUnit.
   Qed.
 
   Definition abgr_isZero : isZero abgr_category unitabgr.
@@ -432,7 +432,7 @@ Section abgr_additive.
     - use (lunax B).
   Qed.
 
-  Lemma abgr_isBinCoproductCocone_Comm1 {X Y Z : abgr}
+  Lemma abgr_isBinCoproduct_Comm1 {X Y Z : abgr}
         (f : abgr_PreAdditive ⟦X, Z⟧) (g : abgr_PreAdditive ⟦Y, Z⟧) :
     (monoidfuncomp (abgr_DirectSumIn1 X Y)
                    (@abmonoidshombinop
@@ -456,7 +456,7 @@ Section abgr_additive.
       use (lunax (Z : abgr)).
   Qed.
 
-  Lemma abgr_isBinCoproductCocone_Path1 {X Y Z : abgr}
+  Lemma abgr_isBinCoproduct_Path1 {X Y Z : abgr}
         (f : abgr_PreAdditive ⟦X, Z⟧) (g : abgr_PreAdditive ⟦Y, Z⟧)
         (t1 : abgr_PreAdditive ⟦abgrdirprod X Y, Z⟧)
         (H1 : abgr_DirectSumIn1 X Y · t1 = f) (H2 : abgr_DirectSumIn2 X Y · t1 = g) :
@@ -481,41 +481,41 @@ Section abgr_additive.
       use funextfun. intros x. use idpath.
   Qed.
 
-  Lemma abgr_isBinCoproductCocone_Pair {X Y Z : abgr} (f : monoidfun X Z) (g : monoidfun Y Z) :
+  Lemma abgr_isBinCoproduct_Pair {X Y Z : abgr} (f : monoidfun X Z) (g : monoidfun Y Z) :
     ∑ (k : abgr_PreAdditive ⟦abgrdirprod X Y, Z⟧),
     (abgr_DirectSumIn1 X Y · k = f) × (abgr_DirectSumIn2 X Y · k = g).
   Proof.
     use tpair.
     - exact (@abmonoidshombinop
                (abgrdirprod X Y) Z (abgr_DirectSumPr1 X Y · f) (abgr_DirectSumPr2 X Y · g)).
-    - exact (abgr_isBinCoproductCocone_Comm1 f g).
+    - exact (abgr_isBinCoproduct_Comm1 f g).
   Defined.
 
-  Lemma abgr_isBinCoproductCocone_Uniqueness {X Y Z : abgr} (f : monoidfun X Z) (g : monoidfun Y Z)
+  Lemma abgr_isBinCoproduct_Uniqueness {X Y Z : abgr} (f : monoidfun X Z) (g : monoidfun Y Z)
         (t : ∑ (k : abgr_PreAdditive ⟦abgrdirprod X Y, Z⟧),
              (abgr_DirectSumIn1 X Y · k = f) × (abgr_DirectSumIn2 X Y · k = g)) :
-    t = abgr_isBinCoproductCocone_Pair f g.
+    t = abgr_isBinCoproduct_Pair f g.
   Proof.
     use total2_paths_f.
-    - exact (abgr_isBinCoproductCocone_Path1
+    - exact (abgr_isBinCoproduct_Path1
                f g (pr1 t) (dirprod_pr1 (pr2 t)) (dirprod_pr2 (pr2 t))).
     - use proofirrelevance. use isapropdirprod.
       + use setproperty.
       + use setproperty.
   Qed.
 
-  Lemma abgr_isBinCoproductCocone (X Y : abgr) :
-    isBinCoproductCocone
+  Lemma abgr_isBinCoproduct (X Y : abgr) :
+    isBinCoproduct
       abgr_PreAdditive X Y (abgrdirprod X Y) (abgr_DirectSumIn1 X Y) (abgr_DirectSumIn2 X Y).
   Proof.
-    use mk_isBinCoproductCocone.
+    use mk_isBinCoproduct.
     - use homset_property.
     - intros Z f g. use iscontrpair.
-      + exact (abgr_isBinCoproductCocone_Pair f g).
-      + intros t. exact (abgr_isBinCoproductCocone_Uniqueness f g t).
+      + exact (abgr_isBinCoproduct_Pair f g).
+      + intros t. exact (abgr_isBinCoproduct_Uniqueness f g t).
   Defined.
 
-  Lemma abgr_isBinProductCone_Comm1 {X Y Z : abgr} (f : abgr_PreAdditive ⟦Z, X⟧)
+  Lemma abgr_isBinProduct_Comm1 {X Y Z : abgr} (f : abgr_PreAdditive ⟦Z, X⟧)
         (g : abgr_PreAdditive ⟦Z, Y⟧) :
     (monoidfuncomp
        (@abmonoidshombinop
@@ -533,7 +533,7 @@ Section abgr_additive.
     - use monoidfun_paths. use funextfun. intros z. use (lunax Y).
   Qed.
 
-  Lemma abgr_isBinProductCone_Paths1 {X Y Z : abgr} (f : abgr_PreAdditive ⟦Z, X⟧)
+  Lemma abgr_isBinProduct_Paths1 {X Y Z : abgr} (f : abgr_PreAdditive ⟦Z, X⟧)
         (g : abgr_PreAdditive ⟦Z, Y⟧) (t : abgr_PreAdditive ⟦Z, abgrdirprod X Y⟧)
         (H1 : t · abgr_DirectSumPr1 X Y = f) (H2 : t · abgr_DirectSumPr2 X Y = g) :
     t = @abmonoidshombinop
@@ -552,7 +552,7 @@ Section abgr_additive.
     - cbn. rewrite <- H1. rewrite <- H2. use funextfun. intros z. use idpath.
   Qed.
 
-  Definition abgr_isBinProductCone_Pair {X Y Z : abgr} (f : abgr_category⟦Z, X⟧)
+  Definition abgr_isBinProduct_Pair {X Y Z : abgr} (f : abgr_category⟦Z, X⟧)
              (g : abgr_category⟦Z, Y⟧) :
     ∑ (k : abgr_PreAdditive ⟦Z, abgrdirprod X Y⟧),
     (k · abgr_DirectSumPr1 X Y = f) × (k · abgr_DirectSumPr2 X Y = g).
@@ -560,42 +560,42 @@ Section abgr_additive.
     use tpair.
     - exact (@abmonoidshombinop
                Z (abgrdirprod X Y) (f · abgr_DirectSumIn1 X Y) (g · abgr_DirectSumIn2 X Y)).
-    - exact (abgr_isBinProductCone_Comm1 f g).
+    - exact (abgr_isBinProduct_Comm1 f g).
   Defined.
 
-  Lemma abgr_isBinProductCone_Uniqueness {X Y Z : abgr} (f : abgr_category⟦Z, X⟧)
+  Lemma abgr_isBinProduct_Uniqueness {X Y Z : abgr} (f : abgr_category⟦Z, X⟧)
         (g : abgr_category⟦Z, Y⟧)
         (t : ∑ k : abgr_PreAdditive ⟦ Z, abgrdirprod X Y ⟧,
                    k · abgr_DirectSumPr1 X Y = f × k · abgr_DirectSumPr2 X Y = g) :
-    t = abgr_isBinProductCone_Pair f g.
+    t = abgr_isBinProduct_Pair f g.
   Proof.
     use total2_paths_f.
-    - exact (abgr_isBinProductCone_Paths1
+    - exact (abgr_isBinProduct_Paths1
                f g (pr1 t) (dirprod_pr1 (pr2 t)) (dirprod_pr2 (pr2 t))).
     - use proofirrelevance. use isapropdirprod.
       + use setproperty.
       + use setproperty.
   Qed.
 
-  Lemma abgr_isBinProductCone (X Y : abgr) :
-    isBinProductCone
+  Lemma abgr_isBinProduct (X Y : abgr) :
+    isBinProduct
       abgr_PreAdditive X Y (abgrdirprod X Y) (abgr_DirectSumPr1 X Y) (abgr_DirectSumPr2 X Y).
   Proof.
-    use mk_isBinProductCone.
+    use mk_isBinProduct.
     - use homset_property.
     - intros Z f g. use iscontrpair.
-      + exact (abgr_isBinProductCone_Pair f g).
-      + intros t. exact (abgr_isBinProductCone_Uniqueness f g t).
+      + exact (abgr_isBinProduct_Pair f g).
+      + intros t. exact (abgr_isBinProduct_Uniqueness f g t).
   Defined.
 
-  Lemma abgr_isBinDirectSumCone (X Y : abgr) :
-    isBinDirectSumCone
+  Lemma abgr_isBinDirectSum (X Y : abgr) :
+    isBinDirectSum
       abgr_PreAdditive X Y (abgrdirprod X Y) (abgr_DirectSumIn1 X Y) (abgr_DirectSumIn2 X Y)
       (abgr_DirectSumPr1 X Y) (abgr_DirectSumPr2 X Y).
   Proof.
-    use mk_isBinDirectSumCone.
-    - exact (abgr_isBinCoproductCocone X Y).
-    - exact (abgr_isBinProductCone X Y).
+    use mk_isBinDirectSum.
+    - exact (abgr_isBinCoproduct X Y).
+    - exact (abgr_isBinProduct X Y).
     - exact (abgr_DirectSumIdIn1 X Y).
     - exact (abgr_DirectSumIdIn2 X Y).
     - exact (abgr_DirectSumUnel1 X Y).
@@ -607,13 +607,13 @@ Section abgr_additive.
   Proof.
     use mk_isAdditive.
     - exact abgr_Zero.
-    - use mk_BinDirectSums. intros X Y. use mk_BinDirectSumCone.
+    - use mk_BinDirectSums. intros X Y. use mk_BinDirectSum.
       + exact (abgrdirprod X Y).
       + exact (abgr_DirectSumIn1 X Y).
       + exact (abgr_DirectSumIn2 X Y).
       + exact (abgr_DirectSumPr1 X Y).
       + exact (abgr_DirectSumPr2 X Y).
-      + exact (abgr_isBinDirectSumCone X Y).
+      + exact (abgr_isBinDirectSum X Y).
   Defined.
 
   Definition abgr_Additive : Additive := mk_Additive abgr_PreAdditive abgr_isAdditive.
@@ -626,56 +626,6 @@ End abgr_additive.
    - Cokernels in the category of abelian groups
  *)
 Section abgr_kernels_and_cokernels.
-
-  Definition abgr_kernel_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype A :=
-    (λ x : A, ishinh ((f x) = unel B)).
-
-  Definition abgr_image_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype B :=
-    (λ y : B, ∃ x : A, (f x) = y).
-
-  (** ** Kernels
-      Let f : X -> Y be a morphism of abelian groups. A kernel of f is given by the subgroup of X
-      consisting of elements x such that [f x = unel Y].
-   *)
-
-  (** *** Kernel as abelian group *)
-
-  Definition abgr_Kernel_subabgr_issubgr {A B : abgr} (f : monoidfun A B) :
-    issubgr (abgr_kernel_hsubtype f).
-  Proof.
-    use issubgrpair.
-    - use issubmonoidpair.
-      + intros a a'.
-        use (hinhuniv _ (pr2 a)). intros ae.
-        use (hinhuniv _ (pr2 a')). intros a'e.
-        use hinhpr.
-        use (pathscomp0 (binopfunisbinopfun f (pr1 a) (pr1 a'))).
-        rewrite ae. rewrite a'e. use (runax B).
-      + use hinhpr. exact (monoidfununel f).
-    - intros x a.
-      use (hinhuniv _ a). intros ae.
-      use hinhpr.
-      use (grrcan B (f x)).
-      use (pathscomp0 (! (binopfunisbinopfun f (grinv A x) x))).
-      use (pathscomp0 (maponpaths (λ a : A, f a) (grlinvax A x))).
-      use (pathscomp0 (monoidfununel f)).
-      use pathsinv0. use (pathscomp0 (lunax B (f x))). exact ae.
-  Qed.
-
-  Definition abgr_Kernel_subabgr {A B : abgr} (f : monoidfun A B) : @subabgr A :=
-    subgrconstr (@abgr_kernel_hsubtype A B f) (abgr_Kernel_subabgr_issubgr f).
-
-  (** *** The inclusion Kernel f --> X is a morphism of abelian groups *)
-
-  Definition abgr_Kernel_monoidfun_ismonoidfun {A B : abgr} (f : monoidfun A B) :
-    @ismonoidfun (abgr_Kernel_subabgr f) A
-                 (inclpair (pr1carrier (abgr_kernel_hsubtype f))
-                           (isinclpr1carrier (abgr_kernel_hsubtype f))).
-  Proof.
-    use mk_ismonoidfun.
-    - use mk_isbinopfun. intros x x'. use idpath.
-    - use idpath.
-  Qed.
 
   Definition abgr_Kernel_monoidfun {A B : abgr} (f : monoidfun A B) :
     abgr_category⟦carrierofasubabgr (abgr_Kernel_subabgr f), A⟧ :=
@@ -780,42 +730,10 @@ Section abgr_kernels_and_cokernels.
     intros A B f. exact (abgr_Kernel f).
   Defined.
 
-
   (** ** Cokernels
      - Let f : X --> Y be a morphism of abelian groups. A cokernel for f is given by the quotient
        quotient group Y/(Im f) together with the canonical morphism Y --> Y/(Im f).
    *)
-
-  (** *** Image of f is a subgroup *)
-
-  Definition abgr_image_issubgr {A B : abgr} (f : monoidfun A B) : issubgr (abgr_image_hsubtype f).
-  Proof.
-    use issubgrpair.
-    - use issubmonoidpair.
-      + intros a a'.
-        use (hinhuniv _ (pr2 a)). intros ae.
-        use (hinhuniv _ (pr2 a')). intros a'e.
-        use hinhpr.
-        use tpair.
-        * exact (@op A (pr1 ae) (pr1 a'e)).
-        * use (pathscomp0 (binopfunisbinopfun f (pr1 ae) (pr1 a'e))).
-          use two_arg_paths.
-          -- exact (pr2 ae).
-          -- exact (pr2 a'e).
-      + use hinhpr. use tpair.
-        * exact (unel A).
-        * exact (monoidfununel f).
-    - intros b b'.
-      use (hinhuniv _ b'). intros eb.
-      use hinhpr.
-      use tpair.
-      + exact (grinv A (pr1 eb)).
-      + use (pathscomp0 _ (maponpaths (λ bb : B, (grinv B bb)) (pr2 eb))).
-        use monoidfuninvtoinv.
-  Qed.
-
-  Definition abgr_image {A B : abgr} (f : monoidfun A B) : @subabgr B :=
-    @subgrconstr B (@abgr_image_hsubtype A B f) (abgr_image_issubgr f).
 
   (** *** Subgroup gives an equivalence relation. *)
 

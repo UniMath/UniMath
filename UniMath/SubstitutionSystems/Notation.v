@@ -41,7 +41,6 @@ Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
 Notation "G • F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
 Notation "α ∙∙ β" := (horcomp β α) (at level 20).
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
 Notation "Z ∘ α" := (post_whisker α Z) (at level 50, left associativity).

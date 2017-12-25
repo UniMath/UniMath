@@ -152,7 +152,7 @@ Proof.
     assert (Hyp_inst := nat_trans_eq_pointwise Hyp c); clear Hyp.
     apply (maponpaths (λ m, BinCoproductIn1 C (CP _ _)· m)) in Hyp_inst.
     match goal with |[ H1 : _  = ?f |- _ = _   ] =>
-         pathvia (f) end.
+         intermediate_path (f) end.
 
     * clear Hyp_inst.
       rewrite <- assoc.
@@ -173,7 +173,7 @@ Proof.
     assert (Hyp_inst := nat_trans_eq_pointwise Hyp c); clear Hyp.
     apply (maponpaths (λ m,  BinCoproductIn2 C (CP _ _)· m)) in Hyp_inst.
     match goal with |[ H1 : _  = ?f |- _ = _   ] =>
-         pathvia (f) end.
+         intermediate_path (f) end.
 
     * clear Hyp_inst.
       do 2 rewrite <- assoc.

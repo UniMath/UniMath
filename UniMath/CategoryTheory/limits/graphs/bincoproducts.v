@@ -35,7 +35,8 @@ Defined.
 
 Definition CopCocone {C : precategory} {a b : C} {c : C} (ac : a --> c) (bc : b --> c) :
    cocone (bincoproduct_diagram a b) c.
-simple refine (tpair _ _ _ ).
+Proof.
+  use tpair.
 + intro v.
   induction v; simpl.
   - exact ac.
@@ -60,12 +61,12 @@ Definition mk_isBinCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a -->
 Proof.
   intros H c cc.
   set (H':= H c (coconeIn cc true) (coconeIn cc false)).
-  unshelve refine (tpair _ _ _ ).
+  use tpair.
   - exists (pr1 (pr1 H')).
     set (T := pr2 (pr1 H')). simpl in T.
     abstract (intro u; induction u;
               [ apply (pr1 T) | apply (pr2 T)]).
-  - intros. abstract (intros;
+  - simpl. intros. abstract (intros;
               apply subtypeEquality;
               [ intro; apply impred; intro; apply hsC
               | apply path_to_ctr; split; [ apply (pr2 t true) | apply (pr2 t false)] ]).
@@ -79,14 +80,14 @@ Definition mk_BinCoproductCocone (a b : C) :
    isBinCoproductCocone _ _ _ f g →  BinCoproductCocone a b.
 Proof.
   intros.
-  simple refine (tpair _ _ _ ).
+  use tpair.
   - exists c.
     apply (CopCocone f g).
   - apply X.
 Defined.
 
 Definition BinCoproducts := ∏ (a b : C), BinCoproductCocone a b.
-Definition hasBinCoproducts := ishinh BinCoproducts.
+Definition hasBinCoproducts := ∏ (a b : C), ∥ BinCoproductCocone a b ∥.
 
 Definition BinCoproductObject {a b : C} (CC : BinCoproductCocone a b) : C := colim CC.
 Definition BinCoproductIn1 {a b : C} (CC : BinCoproductCocone a b): a --> BinCoproductObject CC
@@ -99,7 +100,7 @@ Definition BinCoproductArrow {a b : C} (CC : BinCoproductCocone a b) {c : C} (f 
       BinCoproductObject CC --> c.
 Proof.
   apply (colimArrow CC).
-  simple refine (mk_cocone _ _ ).
+  use mk_cocone.
   + intro v. induction v.
     - apply f.
     - apply g.
@@ -130,7 +131,7 @@ Lemma BinCoproductArrowUnique (a b : C) (CC : BinCoproductCocone a b) (x : C)
       k = BinCoproductArrow CC f g.
 Proof.
   intros H1 H2.
-  refine (colimArrowUnique _ _ _ _ _ ).
+  use colimArrowUnique.
   simpl. intro u; induction u; simpl.
   - apply H1.
   - apply H2.
@@ -218,7 +219,7 @@ Lemma BinCoproduct_endo_is_identity (CC : BinCoproductCocone a b)
   : identity _ = k.
 Proof.
 (*  apply pathsinv0. *)
-  refine (colim_endo_is_identity _ _ _ _).
+  use colim_endo_is_identity.
   intro u; induction u; simpl; assumption.
 Defined.
 

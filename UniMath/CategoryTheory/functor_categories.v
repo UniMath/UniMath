@@ -58,8 +58,6 @@ Require Import UniMath.CategoryTheory.Categories.
 
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 (** * Functors : Morphisms of precategories *)
 Section functors.
 
@@ -216,7 +214,7 @@ Lemma functor_id_id (A B : precategory) (G : functor A B) (a : A) (f : a --> a)
   : f = identity _ -> #G f = identity _ .
 Proof.
   intro e.
-  pathvia (#G (identity a )).
+  intermediate_path (#G (identity a )).
   - apply maponpaths. apply e.
   - apply functor_id.
 Defined.
@@ -471,7 +469,7 @@ Definition weq_ff_functor_on_iso {C D : precategory}{F : functor C D}
   : iso a b ≃ iso (F a) (F b).
 Proof.
   exists (functor_on_iso F).
-  apply (gradth _ (iso_from_fully_faithful_reflection HF (a:=a)(b:=b))).
+  apply (isweq_iso _ (iso_from_fully_faithful_reflection HF (a:=a)(b:=b))).
   - apply iso_from_fully_faithful_reflection_functor_on_iso.
   - apply functor_on_iso_iso_from_fully_faithful_reflection.
 Defined.
@@ -524,12 +522,12 @@ Proof.
 Defined.
 
 
-Definition weq_ff_functor_on_iso_weqbandf {C D : precategory}
+Definition weq_ff_functor_on_weq_isobandf {C D : precategory}
   {F : functor C D}
   (HF : fully_faithful F) (a b : C)
   : iso a b ≃ iso (F a) (F b).
 Proof.
-  simple refine (weqbandf _ _ _ _ ).
+  use weqbandf.
   - apply (weqpair _ (HF a b)).
   - simpl; intro f.
     apply weqimplimpl.
@@ -542,9 +540,9 @@ Defined.
 
 (** Computation check *)
 
-Lemma weq_ff_functor_on_iso_weqbandf_compute {C D : precategory} (F : functor C D)
+Lemma weq_ff_functor_on_weq_isobandf_compute {C D : precategory} (F : functor C D)
       (HF : fully_faithful F) {a b : C} (f : iso a b)
-: #F f = weq_ff_functor_on_iso_weqbandf HF _ _ f.
+: #F f = weq_ff_functor_on_weq_isobandf HF _ _ f.
 Proof.
   apply idpath.
 Defined.
@@ -557,7 +555,7 @@ Proof.
   intro d.
   apply invproofirrelevance.
   intros [c e] [c' e'].
-  simple refine (total2_paths_f _ _ ).
+  use total2_paths_f.
   - simpl.
     set (X := idtoiso (e @ ! e')).
     (* set (X' := invmap (@weq_ff_functor_on_iso _ _ _ HF _ _ ) X). *)
@@ -926,7 +924,7 @@ Lemma nat_trans_comp_pointwise (C : precategory_data)(C' : precategory) (hs: has
         ∏ a, pr1 A a · pr1 A' a = pr1 B a.
 Proof.
   intros H' a.
-  pathvia (pr1 (A · A') a).
+  intermediate_path (pr1 (A · A') a).
   apply idpath.
   destruct H'.
   apply idpath.
@@ -1161,7 +1159,7 @@ Proof.
   apply funextsec; intro f.
   rewrite transport_of_functor_map_is_pointwise.
   rewrite toforallpaths_funextsec.
-  pathvia ((inv_from_iso
+  intermediate_path ((inv_from_iso
         (idtoiso
            (isotoid D H
               (functor_iso_pointwise_if_iso C D _ F G A (pr2 A) a)))·
@@ -1179,7 +1177,7 @@ Proof.
   rewrite idtoiso_isotoid.
   destruct A as [A Aiso].
   simpl in *.
-  pathvia
+  intermediate_path
     (inv_from_iso (functor_iso_pointwise_if_iso C D hs F G A Aiso a) ·
        (A a · #G f)).
   rewrite <- assoc.
@@ -1253,7 +1251,7 @@ Proof.
   simpl; apply nat_trans_eq; intro a. apply hs.
   assert (H':= idtoiso_compute_pointwise C D _ F G (functor_eq_from_functor_iso _ H F G gamma) a).
   simpl in *.
-  pathvia (pr1
+  intermediate_path (pr1
        (idtoiso
           (toforallpaths (λ _ : ob C, D) (pr1 (pr1 F)) (pr1 (pr1 G))
              (base_paths (pr1 F) (pr1 G)
@@ -1265,7 +1263,7 @@ Proof.
   rewrite base_total2_paths.
   unfold pr1_functor_eq_from_functor_iso.
   rewrite base_total2_paths.
-  pathvia (pr1 (idtoiso
+  intermediate_path (pr1 (idtoiso
      (isotoid D H (functor_iso_pointwise_if_iso C D hs F G gamma (pr2 gamma) a)))).
   apply maponpaths.
   apply maponpaths.
@@ -1280,7 +1278,7 @@ Lemma isweq_idtoiso_functorcat (C : precategory_data) (D : precategory) (H : is_
     (F G : ob [C, D, (pr2 H)]) :
    isweq (@idtoiso _ F G).
 Proof.
-  apply (gradth _ (functor_eq_from_functor_iso _ H F G)).
+  apply (isweq_iso _ (functor_eq_from_functor_iso _ H F G)).
   apply functor_eq_from_functor_iso_idtoiso.
   apply idtoiso_functor_eq_from_functor_iso.
 Defined.
