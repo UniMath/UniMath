@@ -18,7 +18,7 @@ Unset Automatic Introduction.
 
 Notation UUU := Set .
 
-Notation UU  := Type.
+Notation UU  := Type (only parsing).
 
 Global Set Universe Polymorphism.
 Global Set Polymorphic Inductive Cumulativity.
