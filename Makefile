@@ -353,18 +353,19 @@ check-for-change-to-Foundations:
 all: UniMath/CONTENTS.md
 UniMath/CONTENTS.md: Makefile UniMath/*/.package/files
 	$(SHOW)'making $@'
-	$(HIDE) exec >$@ ;						\
-	   echo "# Contents of the UniMath library" ;			\
-	   for P in $(PACKAGES) ;					\
-	   do if [ -f UniMath/$$P/README.md ] ;				\
-	      then echo "## [$$P]($$P/README.md)" ;		\
-	      elif [ -f UniMath/$$P/README ] ;				\
-	      then echo "## [$$P]($$P/README)" ;		\
-	      else echo "## $$P" ;					\
-	      fi ;							\
-	      for F in `<UniMath/$$P/.package/files $(FILES_FILTER)` ;	\
-	      do echo "   - [$$F]($$P/$$F)" ;				\
-	      done ;							\
+	$(HIDE) exec >$@ ;													\
+	   echo "# Contents of the UniMath library" ;										\
+	   echo "The packages and files are listed here in logical order: each file depends only on files ocurring earlier." ;	\
+	   for P in $(PACKAGES) ;												\
+	   do if [ -f UniMath/$$P/README.md ] ;											\
+	      then echo "## Package [$$P]($$P/README.md)" ;									\
+	      elif [ -f UniMath/$$P/README ] ;											\
+	      then echo "## Package [$$P]($$P/README)" ;									\
+	      else echo "## Package $$P" ;											\
+	      fi ;														\
+	      for F in `<UniMath/$$P/.package/files $(FILES_FILTER)` ;								\
+	      do echo "   - [$$F]($$P/$$F)" ;											\
+	      done ;														\
 	   done
 
 #################################
