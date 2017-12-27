@@ -357,9 +357,9 @@ UniMath/CONTENTS.md: Makefile UniMath/*/.package/files
 	   echo "# Contents of the UniMath library" ;			\
 	   for P in $(PACKAGES) ;					\
 	   do if [ -f UniMath/$$P/README.md ] ;				\
-	      then echo "## [$$P](UniMath/$$P/README.md)" ;		\
+	      then echo "## [$$P]($$P/README.md)" ;		\
 	      elif [ -f UniMath/$$P/README ] ;				\
-	      then echo "## [$$P](UniMath/$$P/README)" ;		\
+	      then echo "## [$$P]($$P/README)" ;		\
 	      else echo "## $$P" ;					\
 	      fi ;							\
 	      for F in `<UniMath/$$P/.package/files $(FILES_FILTER)` ;	\
