@@ -31,9 +31,9 @@ env:
   - FOUNDATIONS_CHANGE_ERROR=yes BUILD_ALSO="check-for-change-to-Foundations enforce-listing-of-proof-files"
 # building Coq in a separate stage folds up the output in the log:
 before_script:
-  - opam init --yes --no-setup
+  - opam init --yes --no-setup --compiler=4.06.0
   - eval $(opam config env)
-  - opam install lablgtk camlp5 --yes --verbose
+  - opam install lablgtk camlp5 num --yes --verbose
   - time make build-coq
 script:
   - time make TIMECMD=time $PACKAGES $BUILD_ALSO FOUNDATIONS_CHANGE_ERROR=$FOUNDATIONS_CHANGE_ERROR
