@@ -82,12 +82,15 @@ Require Export UniMath.Foundations.Resizing2.
 
 (** ** The type [hProp] of types of h-level 1 *)
 
-Definition hProp@{i j} : Type@{j} := total2@{j} isaprop@{i}. (* i < j *)
+(** [hProp] might initially be defined as [∑ T:Type, isaprop T], but
+   we want to make the universe levels explicit, so we
+   choose universe levels i < j, and define it as follows: *)
+Definition hProp@{i j} : Type@{j} := @total2@{j} Type@{i} isaprop@{i}.
 
-Definition hProppair@{i j} (X : Type@{i}) (is : isaprop@{i} X) : hProp@{i j}
-  := tpair@{j} (isaprop@{i}) X is.
+Definition hProppair (X : Type) (is : isaprop X) : hProp
+  := tpair (isaprop) X is.
 
-Definition hProptoType@{i j} := @pr1@{j} _ _ : hProp@{i j} -> Type@{i}.
+Definition hProptoType := @pr1 _ _ : hProp -> Type.
 
 Coercion hProptoType : hProp >-> Sortclass.
 
@@ -177,15 +180,16 @@ Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
 
 Section A.
 
-  Universes i j l.
-  Constraint i < j.
-  Constraint j < l.
+  Universes i j k l.
+  Constraint i < j, k < l, i <= k, j <= l.
 
-  Definition change_universe_hProp@{} : weq@{l} hProp@{i j} hProp@{j l}.
+  Definition change_universe_hProp@{} : weq@{l} hProp@{i j} hProp@{k l}.
   Proof.
     simple refine (weqpair _ (gradth _ _ _ _)).
-    - intro P. exact (@tpair Type@{j} isaprop (pr1 P) (pr2 P)).
-    - intro P. exact (@tpair Type@{i} isaprop (ResizeProp@{i j} (pr1 P) (pr2 P)) (pr2 P)).
+    - intro P.
+      exact (@tpair Type@{k} isaprop (pr1 P) (pr2 P)).
+    - intro P.
+      exact (@tpair Type@{i} isaprop (ResizeProp@{i j} (pr1 P) (pr2 P)) (pr2 P)).
     - reflexivity.
     - reflexivity.
   Defined.
@@ -213,7 +217,8 @@ Proof.
   intro. unfold ishinh_resized. apply isapropishinh_UU.
 Defined.
 
-Definition ishinh@{i j} (X : Type@{i}) : hProp@{i j} := hProppair (ishinh_resized@{i j} X) (isapropishinh@{i j} X).
+Definition ishinh@{i j} (X : Type@{i}) : hProp@{i j}
+  := hProppair (ishinh_resized@{i j} X) (isapropishinh@{i j} X).
 
 Notation nonempty := ishinh (only parsing).
 
@@ -693,23 +698,18 @@ Definition hinhimplinhdneg (X : UU) (inx1 : ishinh X) : isinhdneg X
 
 (** ** Univalence for hProp *)
 
-Theorem hPropUnivalence@{i j} : ∏ (P Q : hProp@{i j}), (P -> Q) -> (Q -> P) -> paths@{j} P Q.
+Theorem hPropUnivalence : ∏ (P Q : hProp), (P -> Q) -> (Q -> P) -> P = Q.
   (* this theorem replaced a former axiom, with the same statement, called
      "uahp" *)
 Proof.
-  Set Printing Universes.
-  Unset Printing Notations.
   intros ? ? f g.
   apply subtypeEquality.
-  - intro X. change (isofhlevel@{j} 1 (isofhlevel@{i} 1 X)).
-    apply isapropisofhlevel@{i}.
+  - intro X. apply isapropisaprop.
   - apply propositionalUnivalenceAxiom.
     + apply propproperty.
     + apply propproperty.
-    + exact f.
-    + exact g.
-  Unset Printing Universes.
-  Set Printing Notations.
+    + assumption.
+    + assumption.
 Defined.
 
 Definition eqweqmaphProp {P P' : hProp} (e : @paths hProp P P') : P ≃ P'.
@@ -727,19 +727,20 @@ Proof.
   apply (isapropweqtoprop P P' (pr2 P')).
 Defined.
 
+
 Theorem univfromtwoaxiomshProp (P P' : hProp) : isweq (@eqweqmaphProp P P').
 Proof.
   intros.
 
-  set (P1 := λ XY : hProp × hProp, pr1 XY = pr2 XY).
-  set (P2 := λ XY : hProp × hProp, pr1 XY ≃ pr2 XY).
+  set (P1 := λ XY : hProp × hProp, paths (pr1 XY) (pr2 XY)).
+  set (P2 := λ XY : hProp × hProp, (pr1 XY) ≃ (pr2 XY)).
   set (Z1 :=  total2 P1).
   set (Z2 :=  total2 P2).
   set (f := (totalfun _ _ (λ XY : hProp × hProp,
                              @eqweqmaphProp (pr1 XY) (pr2 XY)): Z1 -> Z2)).
   set (g := (totalfun _ _ (λ XY : hProp × hProp,
                              @weqtopathshProp (pr1 XY) (pr2 XY)): Z2 -> Z1)).
-  assert (efg : ∏ z2 : Z2 , @paths Z2 (f (g z2)) z2).
+  assert (efg : ∏ z2 : Z2 , paths (f (g z2)) z2).
   {
     intros. induction z2 as [ XY w].
     exact (maponpaths (fun w : (pr1 XY) ≃ (pr2 XY) => tpair P2 XY w)
@@ -747,9 +748,9 @@ Proof.
   }
 
   set (h := λ a1 : Z1, (pr1 (pr1 a1))).
-  assert (egf0 : ∏ a1 : Z1, (pr1 (g (f a1))) = (pr1 a1))
+  assert (egf0 : ∏ a1 : Z1, paths (pr1 (g (f a1))) (pr1 a1))
          by (intro; apply idpath).
-  assert (egf1 : ∏ a1 a1' : Z1, (pr1 a1') = (pr1 a1) -> a1' = a1).
+  assert (egf1 : ∏ a1 a1' : Z1, paths (pr1 a1') (pr1 a1) -> a1' = a1).
   {
     intros ? ? X.
     set (X' := maponpaths (@pr1 _ _) X).
@@ -779,17 +780,11 @@ Proof.
   intros. apply isasethProp.
 Defined.
 
-Lemma iscontrtildehProp@{i j} : iscontr@{j} tildehProp@{i j}.
+Lemma iscontrtildehProp : iscontr tildehProp.
 Proof.
-  Set Printing Universes.
   split with (tpair _ htrue tt). intro tP. induction tP as [ P p ].
-  apply subtypeEquality.
-  - intros Q. induction Q as [Q ipQ]. change (isaprop@{j} Q).
-    exact ipQ.
-  - change (P = htrue@{i j}). apply hPropUnivalence.
-    + intros _. exact tt.
-    + intros _. exact p.
-  Unset Printing Universes.
+  apply (invmaponpathsincl _ (isinclpr1 (λ P : hProp, P) (λ P, pr2 P))).
+  simpl. apply hPropUnivalence. apply (λ x, tt). intro t. apply p.
 Defined.
 
 Lemma isaproptildehProp : isaprop tildehProp.

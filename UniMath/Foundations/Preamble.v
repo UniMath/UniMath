@@ -24,6 +24,11 @@ Global Set Universe Polymorphism.
 Global Set Polymorphic Inductive Cumulativity.
 Global Unset Universe Minimization ToSet.
 
+(* for debugging, temporarily: *)
+Global Set Printing Universes.
+Global Set Printing Coercions.
+Global Unset Printing Notations.
+
 Inductive empty : UU := .
 
 Notation "∅" := empty.
@@ -143,7 +148,8 @@ Set Primitive Projections.
 
 Set Nonrecursive Elimination Schemes.
 
-Record total2@{i} { T: Type@{i} } ( P: T -> Type@{i} ) := tpair { pr1 : T; pr2 : P pr1 }.
+Record total2@{i} { T: Type@{i} } ( P: T -> Type@{i} ) : Type@{i}
+  := tpair { pr1 : T; pr2 : P pr1 }.
 
 Arguments tpair {_} _ _ _.
 Arguments pr1 {_ _} _.

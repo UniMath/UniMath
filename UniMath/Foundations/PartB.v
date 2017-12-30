@@ -792,7 +792,7 @@ Defined.
 Definition weqonpathsincl {X Y : UU} (f : X -> Y) (is : isincl f) (x x' : X)
   := weqpair _ (isweqonpathsincl f is x x').
 
-Definition invmaponpathsincl@{i} {X Y : Type@{i}} (f : X -> Y) :
+Definition invmaponpathsincl {X Y : Type} (f : X -> Y) :
   isincl f -> ∏ x x', f x = f x' -> x = x'.
 Proof.
   intros ? ? ? is x x'.
