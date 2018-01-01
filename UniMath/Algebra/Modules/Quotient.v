@@ -1,3 +1,8 @@
+(** * Quotienting a module over a ring by a submodule
+
+Auke Booij, December 2017
+*)
+
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Rigs_and_Rings.
@@ -5,6 +10,9 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 Require Import UniMath.Algebra.Modules.Core.
 Require Import UniMath.Algebra.Modules.Submodule.
 
+(** * Preliminaries: notion of an equivalence relation on a module that is closed under the module
+structure
+*)
 Section quotmod_rel.
 
   Context {R : rng}
@@ -12,25 +20,27 @@ Section quotmod_rel.
 
 
   Local Open Scope module_scope.
-  Definition isacthrel (E : hrel M) : UU :=
+  Definition isactionhrel (E : hrel M) : UU :=
     ∏ r a b, E a b -> E (r * a) (r * b).
 
   Definition monoideqrel : UU :=
-    total2 (λ E : eqrel M, isbinophrel E × isacthrel E).
+    ∑ E : eqrel M, isbinophrel E × isactionhrel E.
   Definition hrelmonoideqrel (E : monoideqrel) : eqrel M := pr1 E.
   Coercion hrelmonoideqrel : monoideqrel >-> eqrel.
 
   Definition binophrelmonoideqrel (E : monoideqrel) : binopeqrel := binopeqrelpair E (pr1 (pr2 E)).
   Coercion binophrelmonoideqrel : monoideqrel >-> binopeqrel.
 
-  Definition isacthrelmonoideqrel (E : monoideqrel) : isacthrel E := pr2 (pr2 E).
-  Coercion isacthrelmonoideqrel : monoideqrel >-> isacthrel.
+  Definition isactionhrelmonoideqrel (E : monoideqrel) : isactionhrel E := pr2 (pr2 E).
+  Coercion isactionhrelmonoideqrel : monoideqrel >-> isactionhrel.
 
-  Definition mk_monoideqrel (E : eqrel M) : isbinophrel E -> isacthrel E -> monoideqrel :=
+  Definition mk_monoideqrel (E : eqrel M) : isbinophrel E -> isactionhrel E -> monoideqrel :=
     λ H0 H1, (E,,(H0,,H1)).
 
 End quotmod_rel.
 
+(** * Preliminaries: construction of an appropriate equivalence relation from a submodule
+*)
 Section quotmod_submodule.
 
   Context {R : rng}
@@ -90,6 +100,8 @@ Section quotmod_submodule.
 
 End quotmod_submodule.
 
+(** * Construction of quotient module, as well as its universal property
+*)
 Section quotmod_def.
 
   Context {R : rng}
@@ -109,7 +121,7 @@ Section quotmod_def.
       exact (setquotpr E (r * m)).
     - intros m m' Hmm'.
       apply weqpathsinsetquot.
-      now apply isacthrelmonoideqrel.
+      now apply isactionhrelmonoideqrel.
   Defined.
 
   Definition quotmod_rngmap : R -> rngofendabgr quotmod_abgr.
@@ -135,7 +147,7 @@ Section quotmod_def.
 
   Definition quotmod_rngfun : rngfun R (rngofendabgr quotmod_abgr).
   Proof.
-    unfold rngfun. unfold rigfun.
+    unfold rngfun, rigfun.
     use rigfunconstr.
     - use quotmod_rngmap.
     - use mk_isrigfun;
@@ -154,11 +166,7 @@ Section quotmod_def.
       + use module_mult_unel2.
   Defined.
 
-  Definition quotmod_mod_struct : module_struct R quotmod_abgr.
-  Proof.
-    unfold module_struct.
-    exact quotmod_rngfun.
-  Defined.
+  Definition quotmod_mod_struct : module_struct R quotmod_abgr := quotmod_rngfun.
 
   Definition quotmod : module R.
   Proof.
