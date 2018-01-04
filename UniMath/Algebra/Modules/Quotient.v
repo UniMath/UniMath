@@ -186,7 +186,8 @@ Section quotmod_def.
     - exact quotmod_mod_struct.
   Defined.
 
-  Definition quotmod_quotmap : modulefun M quotmod.
+  Local Notation "R-mod( M , N )" := (modulefun M N) : module_scope.
+  Definition quotmod_quotmap : R-mod(M, quotmod).
   Proof.
     use modulefunpair.
     - exact (setquotpr E).
@@ -195,9 +196,9 @@ Section quotmod_def.
 
   Definition quotmoduniv
              (N : module R)
-             (f : modulefun M N)
+             (f : R-mod(M, N))
              (is : iscomprelfun E f) :
-    modulefun quotmod N.
+    R-mod(quotmod, N).
   Proof.
     use modulefunpair.
     - now use (setquotuniv E _ f).
