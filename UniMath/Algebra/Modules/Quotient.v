@@ -150,16 +150,27 @@ Section quotmod_def.
     unfold rngfun, rigfun.
     use rigfunconstr.
     - use quotmod_rngmap.
-    - use mk_isrigfun;
-        [ use mk_ismonoidfun | use mk_ismonoidfun ];
-        [ use mk_isbinopfun; intros r r' | | use mk_isbinopfun; intros r r' | ].
+    - use mk_isrigfun.
+      (* To show that quotmod_rngmap is a ring action, we show it is a monoid homomorphism with
+      respect to both monoids on R. *)
+      all: use mk_ismonoidfun;
+        (* To show that a map is a monoid homomorphism, we show that it respects the binary
+        operation, as well as that it preserves the unit. *)
+        [ use mk_isbinopfun; intros r r' | ].
+      (* It suffices to prove the underlying maps of the resulting automorphism of our group are
+      equal. *)
       all: use monoidfun_paths; use funextfun.
+      (* We show this using the universal property of the set quotient. *)
       all: use (setquotunivprop E (λ m, hProppair _ _)); [use isasetsetquot|].
-      all: intros m.
-      all: simpl; unfold unel, quotmod_rngact, funcomp.
+      (* Expand out some definitions. *)
+      all: intros m; simpl; unfold unel, quotmod_rngact, funcomp.
+      (* Apply the computation rule of the universal property of the set quotient. *)
       all: [> do 3 rewrite (setquotunivcomm E) | rewrite (setquotunivcomm E)
             | do 3 rewrite (setquotunivcomm E) | rewrite (setquotunivcomm E)].
+      (* We can show the required equalities because the representatives of the equivalence classes
+      are already equal. *)
       all: use maponpaths; simpl.
+      (* The representatives are equal because of the fact that our input map was a ring action. *)
       + use module_mult_is_rdistr.
       + use module_mult_0_to_0.
       + use module_mult_assoc.
