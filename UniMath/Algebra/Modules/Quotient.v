@@ -222,3 +222,5 @@ Section quotmod_def.
   Defined.
 
 End quotmod_def.
+
+Local Notation "M / A" := (quotmod M (monoideqrelsubmodule M A)) : module_scope.
