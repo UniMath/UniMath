@@ -1101,22 +1101,77 @@ Proof.
   rewrite weqfromcoprodofstn_eq1. apply idpath.
 Defined.
 
-Lemma partial_sum_prop {n : nat} {m : ⟦n⟧ → nat} {l : nat} : l < stnsum m  ->
+Lemma partial_sum_prop_aux {n : nat} {m : ⟦n⟧ → nat} :
+  ∏ (i i' : ⟦ n ⟧) (j : ⟦ m i ⟧) (j' : ⟦ m i' ⟧),
+  i < i' → stnsum (m ∘ stn_left'' (stnlt i)) + j <
+           stnsum (m ∘ stn_left'' (stnlt i')) + j'.
+Proof.
+  intros ? ? ? ? ? ? lt.
+  apply natlthtolehsn in lt.
+  pose (ltS := (natlehlthtrans _ _ _ lt (stnlt i'))).
+  refine (natlthlehtrans _ _ _ _ (natlehnplusnm _ _)).
+  apply natlthlehtrans with (stnsum (m ∘ stn_left'' ltS)).
+  - rewrite stnsum_step.
+    assert (stnsum (m ∘ stn_left'' (stnlt i)) =
+            stnsum (m ∘ stn_left'' ltS ∘ dni lastelement)) as e. {
+      apply stnsum_eq.
+      intros k.
+      unfold funcomp. apply maponpaths.
+      apply subtypeEquality_prop. simpl.
+      apply pathsinv0, di_eq1.
+      apply (stnlt k).
+    }
+    induction e.
+    apply natlthandplusl.
+    assert ((m ∘ stn_left'' ltS) lastelement = m i) as e. {
+      unfold funcomp. apply maponpaths.
+      apply subtypeEquality_prop, idpath.
+    }
+    induction e.
+    apply (stnlt j).
+  - assert (stnsum (m ∘ stn_left'' ltS) =
+            stnsum (m ∘ stn_left'' (stnlt i') ∘ stn_left' _ _ lt)) as e. {
+      apply stnsum_eq.
+      intros k.
+      unfold funcomp. apply maponpaths.
+      apply subtypeEquality_prop, idpath.
+    }
+    rewrite e.
+    apply stnsum_left_le'.
+Defined.
+
+Lemma partial_sum_prop {n : nat} {m : ⟦n⟧ → nat} {l : nat} :
   isaprop (∑ (i : ⟦n⟧ ) (j : ⟦m i⟧ ), stnsum (m ∘ stn_left'' (stnlt i)) + j = l).
 Proof.
   intros.
-  (* proof has not been carried out for unknown reasons *)
-Abort.
-
-Definition partial_sum_prop_statement :=
-  forall (n : nat) (m : ⟦n⟧ → nat) (l : nat), l < stnsum m ->
-  isaprop (∑ (i : ⟦n⟧ ) (j : ⟦m i⟧ ), stnsum (m ∘ stn_left'' (stnlt i)) + j = l).
+  apply invproofirrelevance.
+  intros t t'.
+  induction t as [i je]. induction je as [j e].
+  induction t' as [i' je']. induction je' as [j' e'].
+  pose (e'' := e @ !e').
+  assert (i = i') as p. {
+    induction (nat_eq_or_neq i i') as [eq | ne].
+    + apply subtypeEquality_prop. assumption.
+    + apply fromempty.
+      generalize e''.
+      apply nat_neq_to_nopath.
+      induction (natneqchoice _ _ ne);
+        [apply natgthtoneq | apply natlthtoneq];
+        apply partial_sum_prop_aux;
+        assumption.
+  }
+  apply total2_paths_f with p.
+  - use total2_paths_f.
+    + induction p. simpl.
+      apply subtypeEquality_prop.
+      apply (natpluslcan _ _ _ e'').
+    + apply isasetnat.
+Defined.
 
 Lemma partial_sum_slot {n : nat} {m : ⟦n⟧ → nat} {l : nat} : l < stnsum m ->
-  partial_sum_prop_statement ->
   ∃! (i : ⟦n⟧ ) (j : ⟦m i⟧ ), stnsum (m ∘ stn_left'' (stnlt i)) + j = l.
 Proof.
-  intros ? ? ? lt partial_sum_prop.
+  intros ? ? ? lt.
   set (len := stnsum m).
   induction n as [|n IH].
   { apply fromempty. change (hProptoType(l < 0)) in lt. exact (negnatlthn0 _ lt). }
@@ -1131,10 +1186,9 @@ Proof.
       unfold m'; unfold funcomp; apply maponpaths; apply subtypeEquality_prop, idpath).
     + intro t.
       apply partial_sum_prop.
-      assumption.
   - clear IH. set (j := l - len').
     apply iscontraprop1.
-    { apply partial_sum_prop. assumption. }
+    { apply partial_sum_prop. }
     assert (K := minusplusnmm _ _ J). change (l-len') with j in K.
     exists lastelement.
     use tpair.
