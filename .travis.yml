@@ -19,11 +19,14 @@ env:
     - PACKAGES=Folds
     - FOUNDATIONS_CHANGE_ERROR=yes BUILD_ALSO="check-for-change-to-Foundations enforce-listing-of-proof-files"
 
+# The "docker run" command will pull if needed.
+# Running this first gives two tries in case of network lossage.
 before_script:
-  - docker pull palmskog/xenial-unimath
+  - timeout 5m docker pull palmskog/xenial-unimath || true
 
 # Using travis_wait here seems to cause the job to terminate after 1 minute
 # with no error (!).
+# The git commands are tried twice, in case of temporary network failure.
 # The fcntl line works around a bug where Travis truncates logs and fails.
 script:
   - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
@@ -35,9 +38,9 @@ script:
   - echo "TRAVIS_BRANCH=${TRAVIS_BRANCH}"
   - echo "REMOTE_ORIGIN_URL=${REMOTE_ORIGIN_URL}"
   - echo "TRAVIS_EVENT_TYPE=${TRAVIS_EVENT_TYPE}"
+  - echo "TRAVIS_COMMIT=${TRAVIS_COMMIT}"
   - echo "TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}"
   - echo "TRAVIS_PULL_REQUEST_BRANCH=${TRAVIS_PULL_REQUEST_BRANCH}"
-  - echo "TRAVIS_COMMIT=${TRAVIS_COMMIT}"
   - echo "TRAVIS_PULL_REQUEST_SHA=${TRAVIS_PULL_REQUEST_SHA}"
   - echo "TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}"
   - >-
@@ -62,3 +65,4 @@ script:
 
 git:
   depth: 9
+  submodules: false
