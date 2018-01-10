@@ -33,6 +33,7 @@ script:
   - REMOTE_ORIGIN_URL=`git config --get remote.origin.url`
   - echo "THIS_REPO=${THIS_REPO}"
   - echo "PACKAGES=${PACKAGES}"
+  - echo "BUILD_COQIDE=${BUILD_COQIDE}"
   - echo "BUILD_ALSO=${BUILD_ALSO}"
   - echo "FOUNDATIONS_CHANGE_ERROR=${FOUNDATIONS_CHANGE_ERROR}"
   - echo "TRAVIS_BRANCH=${TRAVIS_BRANCH}"
@@ -60,7 +61,7 @@ script:
          git checkout -qf $TRAVIS_COMMIT
        fi &&
        . /root/.opam/opam-init/init.sh &&
-       time make build-coq &&
+       time make build-coq BUILD_COQIDE=$BUILD_COQIDE &&
        time make TIMECMD=time $PACKAGES $BUILD_ALSO FOUNDATIONS_CHANGE_ERROR=$FOUNDATIONS_CHANGE_ERROR"
 
 git:
