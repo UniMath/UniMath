@@ -86,6 +86,8 @@ Definition lunax (X : monoid) : islunit (@op X) (unel X) := pr1 (pr2 (pr2 (pr2 X
 
 Definition runax (X : monoid) : isrunit (@op X) (unel X) := pr2 (pr2 (pr2 (pr2 X))).
 
+Definition isasetmonoid (X : monoid) : isaset X := pr2 (pr1 (pr1 X)).
+
 Notation "x + y" := (op x y) : addmonoid_scope.
 Notation "0" := (unel _) : addmonoid_scope.
 
@@ -148,6 +150,9 @@ Definition monoidfuntobinopfun (X Y : monoid) : monoidfun X Y -> binopfun X Y :=
 Coercion monoidfuntobinopfun : monoidfun >-> binopfun.
 
 Definition monoidfununel {X Y : monoid} (f : monoidfun X Y) : f (unel X) = (unel Y) := pr2 (pr2 f).
+
+Definition monoidfunmul {X Y : monoid} (f : monoidfun X Y) (x x' : X) : f (op x x') = op (f x) (f x') :=
+  pr1 (pr2 f) x x'.
 
 Definition monoidfun_paths {X Y : monoid} (f g : monoidfun X Y) (e : pr1 f = pr1 g) : f = g.
 Proof.
@@ -483,6 +488,35 @@ Definition ismonoidquot {X : monoid} (R : binopeqrel X) : ismonoidop (@op (setwi
 Definition monoidquot {X : monoid} (R : binopeqrel X) : monoid.
 Proof. split with (setwithbinopquot R). apply ismonoidquot. Defined.
 
+Lemma ismonoidfun_setquotpr {X : monoid} (R : binopeqrel X) : @ismonoidfun X (monoidquot R) (setquotpr R).
+Proof.
+  use mk_ismonoidfun.
+  - intros x y. reflexivity.
+  - reflexivity.
+Defined.
+
+Definition monoidquotpr {X : monoid} (R : binopeqrel X) : monoidfun X (monoidquot R) :=
+  monoidfunconstr (ismonoidfun_setquotpr R).
+
+Lemma ismonoidfun_setquotuniv {X Y : monoid} {R : binopeqrel X} (f : monoidfun X Y)
+      (H : iscomprelfun R f) : @ismonoidfun (monoidquot R) Y (setquotuniv R Y f H).
+Proof.
+  use mk_ismonoidfun.
+  - refine (setquotuniv2prop' _ _ _).
+    + intros. apply isasetmonoid.
+    + intros. simpl. rewrite setquotfun2comm. rewrite !setquotunivcomm.
+      apply monoidfunmul.
+  - exact (setquotunivcomm _ _ _ _ _ @ monoidfununel _).
+Defined.
+
+Definition monoidquotuniv {X Y : monoid} {R : binopeqrel X} (f : monoidfun X Y)
+      (H : iscomprelfun R f) : monoidfun (monoidquot R) Y :=
+  monoidfunconstr (ismonoidfun_setquotuniv f H).
+
+Definition monoidquotfun {X Y : monoid} {R : binopeqrel X} {S : binopeqrel Y}
+  (f : monoidfun X Y) (H : ∏ x x' : X, R x x' → S (f x) (f x')) : monoidfun (monoidquot R) (monoidquot S) :=
+monoidquotuniv (monoidfuncomp f (monoidquotpr S)) (λ x x' r, iscompsetquotpr _ _ _ (H _ _ r)).
+
 
 (** **** Direct products *)
 
@@ -534,6 +568,9 @@ Definition commax (X : abmonoid) : iscomm (@op X) := pr2 (pr2 X).
 
 Definition abmonoidrer (X : abmonoid) (a b c d : X) :
   paths (op (op a b) (op c d)) (op (op a c) (op b d)) := abmonoidoprer (pr2 X) a b c d.
+
+Definition abmonoid_of_monoid (X : monoid) (H : iscomm (@op X)) : abmonoid :=
+  abmonoidpair X (mk_isabmonoidop (pr2 X) H).
 
 
 (** **** Construction of the trivial abmonoid consisting of one element given by unit. *)
@@ -1627,6 +1664,9 @@ Definition grlinvax (X : gr) : islinv (@op X) (unel X) (grinv X) := pr1 (pr2 (pr
 
 Definition grrinvax (X : gr) : isrinv (@op X) (unel X) (grinv X) := pr2 (pr2 (pr2 (pr2 X))).
 
+Definition gr_of_monoid (X : monoid) (H : invstruct (@op X) (pr2 X)) : gr :=
+  grpair X (mk_isgrop (pr2 X) H).
+
 Lemma monoidfuninvtoinv {X Y : gr} (f : monoidfun X Y) (x : X) :
   f (grinv X x) = grinv Y (f x).
 Proof.
@@ -2059,6 +2099,8 @@ Definition abgrtoabmonoid : abgr -> abmonoid :=
   λ X : _, abmonoidpair (pr1 X) (dirprodpair (pr1 (pr1 (pr2 X))) (pr2 (pr2 X))).
 Coercion abgrtoabmonoid : abgr >-> abmonoid.
 
+Definition abgr_of_gr (X : gr) (H : iscomm (@op X)) : abgr :=
+  abgrpair X (mk_isabgrop (pr2 X) H).
 
 (** **** Construction of the trivial abgr consisting of one element given by unit. *)
 

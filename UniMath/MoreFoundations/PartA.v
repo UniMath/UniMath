@@ -96,3 +96,8 @@ Proof.
   induction e.
   apply idpath.
 Defined.
+
+Lemma coprodcomm_coprodcomm {X Y : UU} (v : X ⨿ Y) : coprodcomm Y X (coprodcomm X Y v) = v.
+Proof.
+  induction v as [x|y]; reflexivity.
+Defined.
