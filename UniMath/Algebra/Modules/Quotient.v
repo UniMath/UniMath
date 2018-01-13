@@ -1,4 +1,4 @@
-(** * Quotienting a module over a ring by a submodule
+(** * Taking a quotient of a submodule of a module over a fixed ring
 
 Auke Booij, December 2017
 *)
