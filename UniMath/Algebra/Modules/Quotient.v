@@ -149,7 +149,7 @@ Section quotmod_def.
   Proof.
     unfold rngfun, rigfun.
     use rigfunconstr.
-    - use quotmod_rngmap.
+    - exact quotmod_rngmap.
     - use mk_isrigfun.
       (* To show that quotmod_rngmap is a ring action, we show it is a monoid homomorphism with
       respect to both monoids on R. *)
