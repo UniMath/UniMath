@@ -59,8 +59,8 @@ Section quotmod_submodule.
       generalize (submoduleadd A (x - y) (y - z) xy yz).
       now rewrite (assocax M), <- (assocax M (grinv _ y) y), grlinvax, lunax.
     - intros x.
-      generalize (submodule0 A).
-      now rewrite <- (grrinvax M x).
+      rewrite (grrinvax M x).
+      exact (submodule0 A).
     - intros x y axy.
       generalize (submoduleinv A (x - y) axy).
       now rewrite grinvop, grinvinv.
