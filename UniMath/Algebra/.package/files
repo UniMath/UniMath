@@ -15,7 +15,6 @@ Modules/Core.v
 Modules/Submodule.v
 Modules/Multimodules.v
 Modules/Examples.v
-Modules/Submodule.v
 Modules/Quotient.v
 Modules.v
 Matrix.v
