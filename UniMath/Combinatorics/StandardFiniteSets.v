@@ -2251,25 +2251,61 @@ Proof.
   exact H.
 Defined.
 
-Lemma stn_ord_bij {n : nat} (f : ⟦ n ⟧ ≃ ⟦ n ⟧) :
+Lemma stn_ord_inj {n : nat} (f : incl (⟦n⟧) (⟦n⟧)) :
   (∏ (i j: ⟦n⟧ ), i ≤ j → f i ≤ f j) -> ∏ i, f i = i.
 Proof.
   intros ? ? inc ?.
-  assert (strincr : is_stn_strictly_increasing (pr1weq f)).
-  { apply is_incr_impl_strincr.
-    { use (isinclcomp (weqtoincl _ _ f) (stntonat_incl _)). }
-    { exact inc. } }
   induction n as [|n I].
   - apply fromempty. apply negstn0. assumption.
-  - assert (M : stntonat _ (f lastelement) = n).
+  - assert (strincr : is_stn_strictly_increasing (pr1incl _ _ f)).
+    { apply is_incr_impl_strincr.
+      { use (isinclcomp f (stntonat_incl _)). }
+      { exact inc. } }
+    assert (M : stntonat _ (f lastelement) = n).
     { apply isantisymmnatgeh.
       * assert (N : f lastelement ≥ f firstelement + n).
-        { exact (stn_ord_incl (pr1weq f) strincr). }
+        { exact (stn_ord_incl (pr1incl _ _ f) strincr). }
         use (istransnatgeh _ _ _ N).
         apply natgehplusnmm.
       * exact (stnlt (f lastelement)). }
-    assert (L : ∏ j, f (dni_lastelement j) < n).
-    { intros. induction M. apply strincr. exact (stnlt j). }
-    set (f' := λ j : ⟦n⟧, stnpair n (stntonat _ (f (dni_lastelement j))) (L j)).
+    assert (L : ∏ j, f (dni lastelement j) < n).
+    { intros. induction M. apply strincr. apply dni_last_lt. }
+    (* set (f' := λ j : ⟦n⟧, stnpair n (stntonat _ (f (dni_lastelement j))) (L j)). *)
+    pose (f'' :=
+        inclcomp (inclcomp (inclpair _ (isincldni n lastelement)) f)
+                 (inclpair _ (isinclstntonat _))).
+    pose (f' := λ j : ⟦n⟧, stnpair n (f'' j) (L j)).
+    assert (J : isincl f').
+    { unfold f'. intros x j j'.
+      apply iscontraprop1.
+      * apply isaset_hfiber; apply isasetstn.
+      * use subtypeEquality.
+        ** intros ?. apply isasetstn.
+        ** induction j as [j e]. induction j' as [j' e']. simpl.
+           apply (invmaponpathsincl f'' (pr2 f'')).
+           apply (base_paths _ _ (e @ !e')). }
+    assert (F : ∏ j : ⟦n⟧, f' j = j).
+    { apply (I (inclpair _ J)).
+      intros j j' lt. apply inc.
+      change (pr1 (dni lastelement j) ≤ pr1 (dni lastelement j')).
+      rewrite 2?dni_last. assumption. }
 
-Abort.
+    apply subtypeEquality_prop.
+    change (stntonat _ (f i) = i).
+    induction (natgehchoice _ _ (lastelement_ge i)) as [ge | eq].
+    + pose (p := maponpaths (stntonat _) (F (stnpair n i ge))).
+      simpl in p. induction p.
+      change (stntonat _ (f i) = f (dni lastelement (stnpair n i ge))).
+      apply maponpaths, maponpaths, pathsinv0.
+      apply subtypeEquality_prop. apply dni_last.
+    + apply subtypeEquality_prop in eq.
+      rewrite <- eq.
+      apply M.
+Defined.
+
+Lemma stn_ord_bij {n : nat} (f : ⟦ n ⟧ ≃ ⟦ n ⟧) :
+  (∏ (i j: ⟦n⟧ ), i ≤ j → f i ≤ f j) -> ∏ i, f i = i.
+Proof.
+  intros ? ?.
+  apply (stn_ord_inj (weqtoincl _ _ f)).
+Defined.
