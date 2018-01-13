@@ -185,8 +185,9 @@ Section quotmod_def.
     - exact quotmod_abgr.
     - exact quotmod_mod_struct.
   Defined.
+  Notation "M / A" := (quotmod M (monoideqrelsubmodule M A)) : module_scope.
 
-  Local Notation "R-mod( M , N )" := (modulefun M N) : module_scope.
+  Notation "R-mod( M , N )" := (modulefun M N) : module_scope.
   Definition quotmod_quotmap : R-mod(M, quotmod).
   Proof.
     use modulefunpair.
@@ -223,5 +224,3 @@ Section quotmod_def.
   Defined.
 
 End quotmod_def.
-
-Local Notation "M / A" := (quotmod M (monoideqrelsubmodule M A)) : module_scope.
