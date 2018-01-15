@@ -22,7 +22,7 @@ env:
 # The "docker run" command will pull if needed.
 # Running this first gives two tries in case of network lossage.
 before_script:
-  - timeout 5m docker pull palmskog/xenial-unimath || true
+  - timeout 5m docker pull palmskog/xenial-unimath || timeout 5m docker pull palmskog/xenial-unimath || timeout 5m docker pull palmskog/xenial-unimath
 
 # Using travis_wait here seems to cause the job to terminate after 1 minute
 # with no error (!).
