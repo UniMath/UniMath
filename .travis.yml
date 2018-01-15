@@ -45,7 +45,7 @@ script:
   - echo "TRAVIS_PULL_REQUEST_SHA=${TRAVIS_PULL_REQUEST_SHA}"
   - echo "TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}"
   - >-
-    docker run palmskog/xenial-unimath /bin/bash -c "true &&
+    docker run palmskog/xenial-unimath /bin/bash -x -c "true &&
        if [ $TRAVIS_EVENT_TYPE = pull_request ] ; then
          git clone --quiet --depth 9 $REMOTE_ORIGIN_URL $THIS_REPO || git clone --quiet --depth 9 $REMOTE_ORIGIN_URL $THIS_REPO
          cd $THIS_REPO
