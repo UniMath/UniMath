@@ -6,17 +6,10 @@ sudo: 		required
 dist: 		trusty
 git:
   submodules:   false
-addons:
-  apt:
-    sources:
-      - avsm
-    packages:
-      - opam
-      - aspcud
-      - time
-      - libgtk2.0-dev
-      - libgtksourceview2.0-dev
-      - emacs
+install:
+  - sudo add-apt-repository -y ppa:avsm
+  - sudo apt-get update
+  - sudo apt-get install -y opam aspcud time libgtk2.0-dev libgtksourceview2.0-dev emacs
 # build coqide along with the Tactics package, just because it's a short package
 env:
   - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics"
@@ -33,7 +26,7 @@ env:
 before_script:
   - opam init --yes --no-setup
   - eval $(opam config env)
-  - opam install lablgtk camlp5 --yes --verbose
+  - opam install lablgtk camlp5 num --yes --verbose
   - time make build-coq
 script:
   - time make TIMECMD=time $PACKAGES $BUILD_ALSO FOUNDATIONS_CHANGE_ERROR=$FOUNDATIONS_CHANGE_ERROR
