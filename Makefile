@@ -355,7 +355,7 @@ UniMath/CONTENTS.md: Makefile UniMath/*/.package/files
 	$(SHOW)'making $@'
 	$(HIDE) exec >$@ ;													\
 	   echo "# Contents of the UniMath library" ;										\
-	   echo "The packages and files are listed here in logical order: each file depends only on files ocurring earlier." ;	\
+	   echo "The packages and files are listed here in logical order: each file depends only on files occurring earlier." ;	\
 	   for P in $(PACKAGES) ;												\
 	   do if [ -f UniMath/$$P/README.md ] ;											\
 	      then echo "## Package [$$P]($$P/README.md)" ;									\
