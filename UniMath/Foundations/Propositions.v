@@ -67,7 +67,7 @@ Unset Automatic Introduction.
 (** Imports *)
 
 Require Export UniMath.Foundations.PartD.
-Require Export UniMath.Foundations.Resizing2.
+Require Export UniMath.Foundations.Resizing.
 
 (** Universe structure *)
 

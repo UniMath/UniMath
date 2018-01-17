@@ -76,7 +76,7 @@ endif
 
 # this list is duplicated in UniMath/.dir-locals.el :
 TYPE_IN_TYPE_FILES := 				\
-	UniMath/Foundations/Resizing2.vo
+	UniMath/Foundations/Resizing.vo
 
 $(TYPE_IN_TYPE_FILES) : OTHERFLAGS += -type-in-type
 

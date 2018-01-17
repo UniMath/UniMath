@@ -4,6 +4,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Preamble.v](Foundations/Preamble.v)
    - [PartA.v](Foundations/PartA.v)
    - [PartB.v](Foundations/PartB.v)
+   - [Resizing.v](Foundations/Resizing.v)
    - [UnivalenceAxiom.v](Foundations/UnivalenceAxiom.v)
    - [PartC.v](Foundations/PartC.v)
    - [PartD.v](Foundations/PartD.v)
