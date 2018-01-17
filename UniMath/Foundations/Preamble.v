@@ -46,6 +46,16 @@ Hint Resolve paths_refl : core .
 Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 Notation idpath := paths_refl .
 
+Section A.
+  Universe i j.
+  Constraint i < j.
+  Context (A:Type) (a b:A).
+  Goal paths@{i} a b = paths@{j} a b.
+  Proof.
+    reflexivity.                (* Polymorphic Inductive Cumulativity makes this work *)
+  Qed.
+End A.
+
 (* When the goal is displayed as x=y and the types of x and y are hard to discern,
    use this tactic -- it will add the type to the context in simplified form. *)
 Ltac show_id_type := match goal with |- @paths ?ID _ _ => set (TYPE := ID); simpl in TYPE end.
