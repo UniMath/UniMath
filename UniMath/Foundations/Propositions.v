@@ -82,44 +82,31 @@ Require Export UniMath.Foundations.Resizing.
 
 (** ** The type [hProp] of types of h-level 1 *)
 
-(** [hProp] might initially be defined as [∑ T:Type, isaprop T], but
-   we want to make the universe levels explicit, so we
-   choose universe levels i < j, and define it as follows: *)
-Definition hProp@{i j} : Type@{j} := total2@{j} isaprop@{i}.
+(* think of uu0 as the smallest universe level and uu1 as its successor *)
+Monomorphic Universe uu0 uu1.
 
-Section A.
-  Universe i j k l.
-  Constraint i < j, j < k, k < l.
-  Context (P : hProp@{i k}).
-  (*
-    Check (P : hProp@{i l}).      (* we can raise the second level *)
-    Check (P : hProp@{j k}).      (* but not the first level *)
-    (*  The error message is:
-         The term "P" has type "hProp@{i k}" while it is expected to have type
-         "hProp@{j k}" (universe inconsistency: Cannot enforce j = i because i < j).
-      The reason this is an error is that
-         hProp@{j k} == @total2@{k} Type@{j} isaprop@{j}
-      but
-         P           == @tpair@{k}  Type@{i} isaprop@{i} (pr1 P) (pr2 P)
-      and we can't unify Type@{i} with Type@{j}, nor isaprop@{i} with isaprop@{j}.
-   *)
-  *)
-End A.
+(** [hProp] is essentially defined as [∑ T:Type, isaprop T], but
+    here we make the universe levels explicit. *)
 
-Section B.
-  (** ** Change of universe level for hProp *)
-  Universe i j k.
-  Constraint i < j, j < k.
-  Definition raise_hProp@{} (P : hProp@{i k}) : hProp@{j k}
-    := tpair@{k} isaprop@{j} (pr1 P) (pr2 P).
-  Definition lower_hProp@{} (P : hProp@{j k}) : hProp@{i k}
-    := tpair@{k} isaprop@{i} (ResizeProp@{i j} (pr1 P) (pr2 P)) (pr2 P).
-  Definition change_universe_hProp@{} : weq@{k} hProp@{i k} hProp@{j k}
-    := weqpair _ (gradth raise_hProp lower_hProp (λ P, idpath _) (λ P, idpath _)).
-End B.
+Definition hProp : Type@{uu1} := total2@{uu1} isaprop@{uu0}.
 
-Definition hProppair (X : Type) (is : isaprop X) : hProp
-  := tpair (isaprop) X is.
+(* Section B. *)
+(*   (** ** Change of universe level for hProp *) *)
+(*   Universe i j k. *)
+(*   Constraint i < j, j < k. *)
+(*   Goal hProp@{i j} = hProp@{i k}. *)
+(*     reflexivity. *)
+(*   Defined. *)
+(*   Definition raise_hProp@{} (P : hProp@{i k}) : hProp@{j k} *)
+(*     := tpair@{k} isaprop@{j} (pr1 P) (pr2 P). *)
+(*   Definition lower_hProp@{} (P : hProp@{j k}) : hProp@{i k} *)
+(*     := tpair@{k} isaprop@{i} (ResizeProp@{i j} (pr1 P) (pr2 P)) (pr2 P). *)
+(*   Definition change_universe_hProp@{} : weq@{k} hProp@{i k} hProp@{j k} *)
+(*     := weqpair _ (gradth raise_hProp lower_hProp (λ P, idpath _) (λ P, idpath _)). *)
+(* End B. *)
+
+Definition hProppair@{i} (X : Type@{i}) (is : isaprop@{i} X) : hProp
+  := tpair@{uu1} isaprop@{uu0} (ResizeProp@{uu0 i} X is) is.
 
 Definition hProptoType := @pr1 _ _ : hProp -> Type.
 
@@ -212,16 +199,16 @@ Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
 
 (** *** The [hProp] version of the "inhabited" construction. *)
 
-Definition ishinh_UU@{h i} (X : Type@{i}) : Type@{i}           (* h < i *)
-  := ∏ P : hProp@{h i}, ((X -> P) -> P).
+Definition ishinh_UU@{i} (X : Type@{i}) : Type@{i}
+  := ∏ P : hProp, ((X -> P) -> P).
 
-Lemma isapropishinh@{h i} (X : Type@{i}) : isaprop@{i} (ishinh_UU@{h i} X).
+Lemma isapropishinh@{i} (X : Type@{i}) : isaprop@{i} (ishinh_UU@{i} X).
 Proof.
   intro. apply impred. intros P. apply impred. intros _. apply propproperty.
 Qed.
 
-Definition ishinh@{h i u} (X : Type@{i}) : hProp@{i u}
-  := hProppair (ishinh_UU@{h i} X) (isapropishinh X).
+Definition ishinh@{i} (X : Type@{i}) : hProp
+  := hProppair (ishinh_UU@{i} X) (isapropishinh X).
 
 Notation nonempty := ishinh (only parsing).
 
@@ -375,10 +362,8 @@ Lemma issurjcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
       (isf : issurjective f) (isg : issurjective g) :
   issurjective (funcomp f g).
 Proof.
-  intros. unfold issurjective.
-  intro z. apply (λ ff, hinhuniv ff (isg z)).
-  intro ye. apply (hinhfun (hfibersftogf f g z ye)).
-  apply (isf).
+  intros. intro z.
+  exact (hinhuniv (λ ye : hfiber g z, hinhfun (hfibersftogf f g z ye) (isf (pr1 ye))) (isg z)).
 Defined.
 
 Notation issurjtwooutof3c := issurjcomp.
