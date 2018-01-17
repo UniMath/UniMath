@@ -85,7 +85,38 @@ Require Export UniMath.Foundations.Resizing2.
 (** [hProp] might initially be defined as [∑ T:Type, isaprop T], but
    we want to make the universe levels explicit, so we
    choose universe levels i < j, and define it as follows: *)
-Definition hProp@{i j} : Type@{j} := @total2@{j} Type@{i} isaprop@{i}.
+Definition hProp@{i j} : Type@{j} := total2@{j} isaprop@{i}.
+
+Section A.
+  Universe i j k l.
+  Constraint i < j, j < k, k < l.
+  Context (P : hProp@{i k}).
+  (*
+    Check (P : hProp@{i l}).      (* we can raise the second level *)
+    Check (P : hProp@{j k}).      (* but not the first level *)
+    (*  The error message is:
+         The term "P" has type "hProp@{i k}" while it is expected to have type
+         "hProp@{j k}" (universe inconsistency: Cannot enforce j = i because i < j).
+      The reason this is an error is that
+         hProp@{j k} == @total2@{k} Type@{j} isaprop@{j}
+      but
+         P           == @tpair@{k}  Type@{i} isaprop@{i} (pr1 P) (pr2 P)
+      and we can't unify Type@{i} with Type@{j}, nor isaprop@{i} with isaprop@{j}.
+   *)
+  *)
+End A.
+
+Section B.
+  (** ** Change of universe level for hProp *)
+  Universe i j k.
+  Constraint i < j, j < k.
+  Definition raise_hProp@{} (P : hProp@{i k}) : hProp@{j k}
+    := tpair@{k} isaprop@{j} (pr1 P) (pr2 P).
+  Definition lower_hProp@{} (P : hProp@{j k}) : hProp@{i k}
+    := tpair@{k} isaprop@{i} (ResizeProp@{i j} (pr1 P) (pr2 P)) (pr2 P).
+  Definition change_universe_hProp@{} : weq@{k} hProp@{i k} hProp@{j k}
+    := weqpair _ (gradth raise_hProp lower_hProp (λ P, idpath _) (λ P, idpath _)).
+End B.
 
 Definition hProppair (X : Type) (is : isaprop X) : hProp
   := tpair (isaprop) X is.
@@ -176,49 +207,21 @@ Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
 
 *)
 
-(** ** Change of universe level for hProp *)
-
-Section A.
-
-  Universes i j k l.
-  Constraint i < j, k < l, i <= k, j <= l.
-
-  Definition change_universe_hProp@{} : weq@{l} hProp@{i j} hProp@{k l}.
-  Proof.
-    simple refine (weqpair _ (gradth _ _ _ _)).
-    - intro P.
-      exact (@tpair Type@{k} isaprop (pr1 P) (pr2 P)).
-    - intro P.
-      exact (@tpair Type@{i} isaprop (ResizeProp@{i j} (pr1 P) (pr2 P)) (pr2 P)).
-    - reflexivity.
-    - reflexivity.
-  Defined.
-
-End A.
-
 (** ** Intuitionistic logic on [hProp] *)
 
 
 (** *** The [hProp] version of the "inhabited" construction. *)
 
-Definition ishinh_UU@{i j} (X : Type@{i}) : Type@{j}           (* i < j *)
-  := ∏ P : hProp@{i j}, ((X -> P) -> P).
+Definition ishinh_UU@{h i} (X : Type@{i}) : Type@{i}           (* h < i *)
+  := ∏ P : hProp@{h i}, ((X -> P) -> P).
 
-Lemma isapropishinh_UU@{i j} (X : Type@{i}) : isaprop@{j} (ishinh_UU@{i j} X).
+Lemma isapropishinh@{h i} (X : Type@{i}) : isaprop@{i} (ishinh_UU@{h i} X).
 Proof.
   intro. apply impred. intros P. apply impred. intros _. apply propproperty.
 Qed.
 
-Definition ishinh_resized@{i j} (X : Type@{i}) : Type@{i}           (* i < j *)
-  := ResizeProp@{i j} (ishinh_UU X) (isapropishinh_UU _).
-
-Lemma isapropishinh (X : Type) : isaprop (ishinh_resized X).
-Proof.
-  intro. unfold ishinh_resized. apply isapropishinh_UU.
-Defined.
-
-Definition ishinh@{i j} (X : Type@{i}) : hProp@{i j}
-  := hProppair (ishinh_resized@{i j} X) (isapropishinh@{i j} X).
+Definition ishinh@{h i u} (X : Type@{i}) : hProp@{i u}
+  := hProppair (ishinh_UU@{h i} X) (isapropishinh X).
 
 Notation nonempty := ishinh (only parsing).
 
