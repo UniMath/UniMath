@@ -3052,20 +3052,6 @@ Proof.
   - apply isasetsetquot2.
 Defined.
 
-
-
-  exact (weqimplimpl (iscompsetquot2pr R x x')
-                     (let int := setquot2univ R hPropset (λ x'' : X, R x x'') (weqpathssetquot2l1 R x) in
-                      λ (e : setquot2pr R x = setquot2pr R x') (s := setquot2pr R x'),
-                      paths_rect (setquot2 R) (setquot2pr R x)
-                                 (λ (s0 : setquot2 R) (_ : setquot2pr R x = s0), pr1 (int s0))
-                                 (eqrelrefl R x) s e) (pr2 (R x x'))
-                     (isasetsetquot2 R (setquot2pr R x) (setquot2pr R x'))).
-
-
-
-
-
 (* *** Comparison of setquot2 and setquot.  *)
 
 

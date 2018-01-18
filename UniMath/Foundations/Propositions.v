@@ -321,8 +321,7 @@ Definition image@{i} {X Y : Type@{i}} (f : X -> Y) : Type@{i}
 Definition imagepair {X Y : UU} (f : X -> Y) :
   ∏ (t : Y), (λ y : Y, ∥ hfiber f y ∥) t → ∑ y : Y, ∥ hfiber f y ∥
   := tpair (λ y : Y, ishinh (hfiber f y)).
-Definition pr1image {X Y : UU} (f : X -> Y) :
-  (∑ y : Y, ∥ hfiber f y ∥) → Y
+Definition pr1image@{i} {X Y : Type@{i}} (f : X -> Y) : image@{i} f → Y
   := @pr1 _  (λ y : Y, ishinh (hfiber f y)).
 
 Definition prtoimage {X Y : UU} (f : X -> Y) : X -> image f.
@@ -339,7 +338,7 @@ Proof.
   intro t. apply (pr2 (ishinh (hfiber f t))).
 Defined.
 
-Lemma isinclpr1image {X Y : UU} (f : X -> Y): isincl (pr1image f).
+Lemma isinclpr1image@{i} {X Y : Type@{i}} (f : X -> Y): isincl (pr1image@{i} f).
 Proof.
   intros. refine (isofhlevelfpr1 _ _ _).
   intro. apply (pr2 (ishinh (hfiber f x))).
