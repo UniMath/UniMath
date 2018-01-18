@@ -82,8 +82,7 @@ Require Export UniMath.Foundations.Resizing.
 
 (** ** The type [hProp] of types of h-level 1 *)
 
-(* think of uu0 as the smallest universe level and uu1 as its successor *)
-Monomorphic Universe uu0 uu1.
+Monomorphic Universe uu0 uu1 uu2.
 
 (** [hProp] is essentially defined as [∑ T:Type, isaprop T], but
     here we make the universe levels explicit. *)
@@ -108,7 +107,7 @@ Definition hProp : Type@{uu1} := total2@{uu1} isaprop@{uu0}.
 Definition hProppair@{i} (X : Type@{i}) (is : isaprop@{i} X) : hProp
   := tpair@{uu1} isaprop@{uu0} (ResizeProp@{uu0 i} X is) is.
 
-Definition hProptoType := @pr1 _ _ : hProp -> Type.
+Definition hProptoType@{} := @pr1 _ _ : hProp -> Type@{uu0}.
 
 Coercion hProptoType : hProp >-> Sortclass.
 
@@ -234,9 +233,9 @@ Proof.
   intros ? ? i f h. exact (@hinhuniv X (Q,,i) f h).
 Defined.
 
-Corollary squash_to_prop {X Q : UU} : ∥ X ∥ -> isaprop Q -> (X -> Q) -> Q.
+Corollary squash_to_prop@{i} {X Q : Type@{i}} : ishinh@{i} X -> isaprop Q -> (X -> Q) -> Q.
 Proof.
-  intros ? ? h i f. exact (@hinhuniv X (Q,,i) f h).
+  intros ? ? h i f. exact (@hinhuniv X (ResizeProp Q i,,i) f h).
 Defined.
 
 Definition hinhand {X Y : UU} (inx1 : ∥ X ∥) (iny1 : ∥ Y ∥) : ∥ X × Y ∥
@@ -317,8 +316,8 @@ Defined.
 (both depend only on the behavior of the corresponding function between the sets
 of connected components) **)
 
-Definition image {X Y : UU} (f : X -> Y) : UU
-  := total2 (λ y : Y, ishinh (hfiber f y)).
+Definition image@{i} {X Y : Type@{i}} (f : X -> Y) : Type@{i}
+  := total2@{i} (λ y : Y, ishinh@{i} (hfiber f y)).
 Definition imagepair {X Y : UU} (f : X -> Y) :
   ∏ (t : Y), (λ y : Y, ∥ hfiber f y ∥) t → ∑ y : Y, ∥ hfiber f y ∥
   := tpair (λ y : Y, ishinh (hfiber f y)).
@@ -351,7 +350,7 @@ Proof.
   intros. intro z.
   set (f' := prtoimage f).
   assert (ff: hfiber (funcomp f' (pr1image f)) (pr1 z) -> hfiber f' z)
-    by refine (invweq (samehfibers _ _ (isinclpr1image f) z)).
+    by refine (invweq (samehfibers f' _ (isinclpr1image f) z)).
   apply (hinhfun ff).
   exact (pr2 z).
 Defined.
@@ -362,8 +361,13 @@ Lemma issurjcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
       (isf : issurjective f) (isg : issurjective g) :
   issurjective (funcomp f g).
 Proof.
-  intros. intro z.
-  exact (hinhuniv (λ ye : hfiber g z, hinhfun (hfibersftogf f g z ye) (isf (pr1 ye))) (isg z)).
+  intros. unfold issurjective.
+  intro z.
+  apply (hinhuniv (X := hfiber g z) (P := ishinh (hfiber (funcomp f g) z))).
+  - intro ye.
+    apply (hinhfun (hfibersftogf f _ _ ye)).
+    apply isf.
+  - apply isg.
 Defined.
 
 Notation issurjtwooutof3c := issurjcomp.
