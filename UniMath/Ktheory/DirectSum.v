@@ -4,6 +4,8 @@
     sum to the product is an isomorphism, then the sum is called a direct sum. *)
 
 Require Import
+        UniMath.Foundations.Preamble.
+Require Import
         UniMath.Foundations.Sets
         UniMath.CategoryTheory.Categories
         UniMath.CategoryTheory.functor_categories
