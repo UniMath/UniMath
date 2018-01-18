@@ -120,18 +120,27 @@ Definition tildehProppair {P : hProp} (p : P) : tildehProp := tpair _ P p.
 
 Definition negProp_to_hProp {P : UU} (Q : negProp P) : hProp.
 Proof.
-  intros. exists (negProp_to_type Q). apply negProp_to_isaprop.
+  intros. use (hProppair (negProp_to_type Q)). apply negProp_to_isaprop.
 Defined.
 Coercion negProp_to_hProp : negProp >-> hProp.
 
 (* convenient corollaries of some theorems that take separate isaprop
    arguments: *)
 
-Corollary subtypeInjectivity_prop {A : UU} (B : A -> hProp) :
-  ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1 y).
-Proof.
-  intros. apply subtypeInjectivity. intro. apply propproperty.
-Defined.
+Section subtypeInjectivity_prop.
+
+  Universe i.
+
+  (* without this constraint, Coq makes uu0 = i.  ???  *)
+  Constraint uu0 < i.
+
+  Corollary subtypeInjectivity_prop@{} {A : Type@{i}} (B : A -> hProp) :
+    ∏ (x y : total2@{i} B), (x = y) ≃ (pr1 x = pr1 y).
+  Proof.
+    intros. apply subtypeInjectivity. intro. apply propproperty.
+  Defined.
+
+End subtypeInjectivity_prop.
 
 Corollary subtypeEquality_prop {A : UU} {B : A -> hProp}
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> s = s'.
@@ -330,7 +339,7 @@ Proof.
   apply (imagepair _ (f X0) (hinhpr (hfiberpair f X0 (idpath _)))).
 Defined.
 
-Definition issurjective {X Y : UU} (f : X -> Y) := ∏ y : Y, ishinh (hfiber f y).
+Definition issurjective@{i} {X Y : Type@{i}} (f : X -> Y) : Type@{i} := ∏ y : Y, ishinh@{i} (hfiber f y).
 
 Lemma isapropissurjective {X Y : UU} (f : X -> Y) : isaprop (issurjective f).
 Proof.
@@ -439,7 +448,7 @@ Defined.
 Lemma disjoint_disjunction (P Q : hProp) : (P -> Q -> ∅) -> hProp.
 Proof.
   intros ? ? n.
-  exact (P ⨿ Q,, isapropcoprod P Q (propproperty P) (propproperty Q) n).
+  exact (hProppair (P ⨿ Q) (isapropcoprod P Q (propproperty P) (propproperty Q) n)).
 Defined.
 
 Definition hneg (P : UU) : hProp := hProppair (¬ P) (isapropneg P).
@@ -453,7 +462,7 @@ Delimit Scope logic with logic.
 
 Definition himpl (P : UU) (Q : hProp) : hProp.
 Proof.
-  intros. split with (P -> Q). apply impred. intro. apply (pr2 Q).
+  intros. use (hProppair (P → Q)). apply impred. intro. apply propproperty.
 Defined.
 
 Local Notation "A ⇒ B" := (himpl A B) (at level 95, no associativity) : logic.
@@ -515,13 +524,14 @@ Proof.
     {
       intro X2.
       induction X2 as [ XP | XQ ].
-      - apply X0. apply XP.
-      - apply (pr2 X0). apply XQ.
+      - exact (pr1 X0 XP).
+      - exact (pr2 X0 XQ).
     }
     apply (hinhuniv s2). apply X1.
   }
-  unfold himpl. simpl. apply s1.
+  unfold himpl. simpl. exact s1.
 Defined.
+
 
 (** *** Negation and quantification.
 

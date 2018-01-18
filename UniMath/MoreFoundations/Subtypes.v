@@ -126,7 +126,7 @@ Defined.
 Theorem hsubtype_rect {X:UU} (S T : hsubtype X) (P : S ≡ T -> UU) :
   (∏ e : S=T, P (hsubtype_univalence S T e)) ≃ ∏ f, P f.
 Proof.
-  intros. apply weqinvweq, weqonsecbase.
+  intros. exact (weqinvweq _ _ (weqonsecbase _ (hsubtype_univalence _ _))).
 Defined.
 
 Ltac hsubtype_induction f e := generalize f; apply hsubtype_rect; intro e; clear f.

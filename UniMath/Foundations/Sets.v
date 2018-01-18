@@ -296,7 +296,7 @@ Definition carrierpair {X : UU} (A : hsubtype X) :
    ∏ t : X, A t → ∑ x : X, A x := tpair A.
 Definition pr1carrier {X : UU} (A : hsubtype X) := @pr1 _ _  : carrier A -> X.
 
-Lemma isaset_carrier_subset (X : hSet) (Y : hsubtype X) : isaset (∑ x, Y x).
+Lemma isaset_carrier_subset@{i u} (X : hSet@{i u}) (Y : hsubtype@{i} X) : isaset (total2@{i} Y).
 Proof.
   intros. apply isaset_total2.
   - apply setproperty.
