@@ -20,7 +20,7 @@ Foundations.  However, now that universe polymorphism has been turned on, defini
 in PartA and PartB should take at most one explicit polymorphic universe parameter,
 and definitions with implicit polymorphic universe parameters should, in principle, be
 capable of being annotated so a single explicit universe parameter is accepted without breaking
-any proofs.
+any proofs.  Another way of putting it is that Coq should generate no inequalities.
 
 Part A was created as a separate file on Dec. 3, 2014.
 
@@ -510,7 +510,7 @@ Defined.
 
 (** *** Homotopy between sections *)
 
-Definition homot {X : UU} {P : X -> UU} (f g : ∏ x : X, P x) := ∏ x : X , f x = g x.
+Definition homot@{i} {X : Type@{i}} {P : X -> Type@{i}} (f g : ∏ x : X, P x) := ∏ x : X , f x = g x.
 
 Notation "f ~ g" := (homot f g) (at level 70, no associativity).
 
@@ -984,8 +984,9 @@ Defined.
 
 (** *** Homotopies between families and the total spaces *)
 
-Definition famhomotfun {X : UU} {P Q : X -> UU}
-           (h : P ~ Q) (xp : total2 P) : total2 Q.
+Definition famhomotfun@{i j} {X : Type@{i}} {P Q : X -> Type@{i}}
+           (h : homot@{j} P Q) (xp : total2@{j} P) : total2@{j} Q.
+(* move this function out of PartA, because it uses two universes, as VV observed *)
 Proof.
   intros.
   induction xp as [ x p ].

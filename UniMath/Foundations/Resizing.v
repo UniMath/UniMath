@@ -6,7 +6,9 @@ Section A.
 
   Universe i j.
 
-  Constraint i < j.             (* we impose this constraint so we don't resize a type needlessly *)
+  (* If we don't impose this constraint, Coq generates the constraint j <= i for us, which
+     excludes exactly the cases we want. *)
+  Constraint i < j.
 
   Definition ResizeProp@{} (T : Type@{j}) : isaprop@{j} T -> Type@{i}.
   Proof.
