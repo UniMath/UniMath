@@ -339,7 +339,7 @@ Proof.
   apply (imagepair _ (f X0) (hinhpr (hfiberpair f X0 (idpath _)))).
 Defined.
 
-Definition issurjective@{i} {X Y : Type@{i}} (f : X -> Y) : Type@{i} := ∏ y : Y, ishinh@{i} (hfiber f y).
+Definition issurjective {X Y : Type} (f : X -> Y) : Type := ∏ y : Y, ishinh (hfiber f y).
 
 Lemma isapropissurjective {X Y : UU} (f : X -> Y) : isaprop (issurjective f).
 Proof.
@@ -347,7 +347,7 @@ Proof.
   intro t. apply (pr2 (ishinh (hfiber f t))).
 Defined.
 
-Lemma isinclpr1image@{i} {X Y : Type@{i}} (f : X -> Y): isincl (pr1image@{i} f).
+Lemma isinclpr1image {X Y : Type} (f : X -> Y): isincl (pr1image f).
 Proof.
   intros. refine (isofhlevelfpr1 _ _ _).
   intro. apply (pr2 (ishinh (hfiber f x))).
