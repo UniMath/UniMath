@@ -168,7 +168,7 @@ Proof. intros lem is x y. exact (lem (hProppair (x = y) (is x y))). Defined.
 
 Lemma isaprop_LEM : isaprop LEM.
 Proof.
-  unfold LEM. apply impred_isaprop; intro P. apply isapropdec. apply propproperty.
+  unfold LEM. use impred_isaprop; intro P. apply isapropdec. apply propproperty.
 Defined.
 
 Lemma dneg_LEM (P : hProp) : LEM -> ¬¬ P -> P.

@@ -22,7 +22,7 @@ Proof.
   - simpl. use tpair.
     + exists (pr1carrier _).
       intros s t a. simpl in s,t. exact a.
-    + simpl. apply isinclpr1carrier.
+    + simpl. use isinclpr1carrier.
 Defined.
 
 Definition Subposet'_to_Subposet {X:Poset} : Subposet' X -> Subposet X.
