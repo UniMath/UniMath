@@ -114,10 +114,10 @@ Section complexes_homotopies.
     }
     rewrite e1. clear e1.
     rewrite <- PreAdditive_unel_zero. rewrite to_lunax'. rewrite to_runax'.
-    (* Here the idea is to apply cancel_precomposition *)
-    rewrite transport_target_postcompose. rewrite <- assoc. apply cancel_precomposition.
-    (* Other application of cancel_precomposition *)
-    rewrite transport_compose. rewrite transport_target_postcompose. apply cancel_precomposition.
+    (* Here the idea is to apply maponpaths *)
+    rewrite transport_target_postcompose. rewrite <- assoc. apply maponpaths.
+    (* Other application of maponpaths *)
+    rewrite transport_compose. rewrite transport_target_postcompose. apply maponpaths.
     (* Follows frm transport of differentials *)
     apply pathsinv0. rewrite <- maponpathsinv0.
     use (pathscomp0 _ (transport_hz_section A C2 1 (Diff C2) _ _ (hzrplusminus i 1))).

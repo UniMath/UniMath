@@ -18,7 +18,8 @@ Written by: Anders Mörtberg, 2017
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-
+Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Algebra.Lattice.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -224,11 +225,11 @@ apply BinProductArrowUnique.
   now rewrite assoc, BinProductOfArrowsPr1, <- assoc, BinProductOfArrowsPr1, assoc.
 - rewrite postcompWithBinProductArrow.
   apply BinProductArrowUnique.
-  + etrans; [ apply cancel_postcomposition; rewrite <-assoc;
+  + etrans; [ apply maponpaths_2; rewrite <-assoc;
               apply maponpaths, BinProductPr2Commutes |].
     rewrite <- assoc, BinProductPr1Commutes.
     now rewrite assoc, BinProductOfArrowsPr1, <- assoc, BinProductOfArrowsPr2, assoc.
-  + etrans; [ apply cancel_postcomposition; rewrite <-assoc;
+  + etrans; [ apply maponpaths_2; rewrite <-assoc;
               apply maponpaths, BinProductPr2Commutes |].
     now rewrite <- assoc, BinProductPr2Commutes, BinProductOfArrowsPr2.
 Qed.
@@ -248,7 +249,7 @@ Proof.
 unfold isassoc_cat; intros H; apply Hi.
 rewrite <-!assoc, !Hfg, !assoc, BinProductOfArrows_comp, Hfg, <- !assoc, identity_comm.
 rewrite <- BinProductOfArrows_comp, <- assoc, H, !assoc.
-apply cancel_postcomposition.
+apply maponpaths_2.
 rewrite <-!assoc, BinProductOfArrows_comp, Hfg, identity_comm.
 now rewrite <- BinProductOfArrows_comp, !assoc, binprod_assoc_comm.
 Qed.
@@ -259,7 +260,7 @@ Proof.
 unfold iscomm_cat; intros H; apply Hi.
 rewrite <- !assoc, !Hfg.
 etrans; [eapply maponpaths, H|].
-rewrite !assoc; apply cancel_postcomposition.
+rewrite !assoc; apply maponpaths_2.
 unfold binprod_swap; rewrite postcompWithBinProductArrow.
 apply BinProductArrowUnique; rewrite <- assoc.
 * now rewrite BinProductPr1Commutes, BinProductOfArrowsPr2.
@@ -274,10 +275,10 @@ unfold isabsorb_cat; intros H; apply Hi.
 assert (HH : BinProductPr1 C (BPC M M) · i = (i ×× i) · BinProductPr1 C (BPC L L)).
 { now rewrite BinProductOfArrowsPr1. }
 rewrite HH, <- H, <-!assoc, Hfg1, !assoc.
-apply cancel_postcomposition.
+apply maponpaths_2.
 rewrite <-!assoc, BinProductOfArrows_comp, Hfg2, identity_comm, !assoc.
 rewrite BinProductOfArrows_comp, <-identity_comm, binprod_delta_comm.
-etrans; [| eapply pathsinv0; do 2 apply cancel_postcomposition;
+etrans; [| eapply pathsinv0; do 2 apply maponpaths_2;
            now rewrite <-BinProductOfArrows_comp].
 rewrite <-!assoc; apply maponpaths.
 rewrite assoc, binprod_assoc_comm, <-assoc; apply maponpaths.
@@ -322,11 +323,11 @@ unfold islunit_cat; intros H; apply Hi.
 rewrite <-!assoc.
 etrans; [ do 2 apply maponpaths; apply Hf |].
 rewrite identity_comm, <-H, postcompWithBinProductArrow, !assoc.
-apply cancel_postcomposition.
+apply maponpaths_2.
 rewrite !postcompWithBinProductArrow, <-assoc, Hg, !id_left.
 apply pathsinv0, BinProductArrowUnique.
 - rewrite <- assoc, BinProductPr1Commutes, assoc.
-  now apply cancel_postcomposition, TerminalArrowUnique.
+  now apply maponpaths_2, TerminalArrowUnique.
 - now rewrite <- assoc, BinProductPr2Commutes, id_right.
 Qed.
 

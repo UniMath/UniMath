@@ -15,7 +15,7 @@ Written by: Ambroise Lafont (November 2016)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -122,10 +122,10 @@ Proof.
   unfold nat_trans_from_module_mor.
   rewrite assoc.
     etrans; revgoals.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     apply (LModule_Mor_σ α a).
     rewrite <- !assoc.
-    apply cancel_precomposition.
+    apply maponpaths.
     apply (LModule_Mor_σ α' a).
 Qed.
 
@@ -241,20 +241,20 @@ Section Pullback_module.
       rewrite assoc.
       rewrite <- (functor_comp T).
       etrans.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       apply maponpaths.
       apply Monad_Mor_μ.
       rewrite functor_comp.
       rewrite <- assoc.
       etrans.
-      apply cancel_precomposition.
+      apply maponpaths.
       apply LModule_law2.
       repeat rewrite functor_comp.
       etrans.
       rewrite <- assoc.
-      apply cancel_precomposition.
+      apply maponpaths.
       rewrite assoc.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       apply (nat_trans_ax (σ M' T)).
       now repeat rewrite assoc.
   Qed.
@@ -284,10 +284,10 @@ Section Pullback_Module_Morphism.
     cbn.
     eapply pathscomp0;revgoals.
     rewrite <-assoc.
-    apply cancel_precomposition.
+    apply maponpaths.
     apply LModule_Mor_σ.
     repeat rewrite assoc.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     apply pathsinv0.
     apply nat_trans_ax.
   Qed.

@@ -16,6 +16,7 @@ as the one one already proved formally for the standard notion of heterogeneous 
 
 *)
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 
@@ -91,7 +92,7 @@ Proof.
   cbn.
   rewrite <- assoc.
   etrans; [|apply id_right].
-  apply cancel_precomposition.
+  apply maponpaths.
   apply Monad_law2.
 Qed.
 
@@ -123,7 +124,7 @@ Proof.
                                                   _
                                                   (identity _) ) x). }
   etrans;[eapply pathsinv0;apply id_right|].
-  apply cancel_precomposition.
+  apply (maponpaths (compose _)).
   apply pathsinv0.
   etrans.
   { eapply nat_trans_eq_pointwise.
@@ -154,18 +155,18 @@ Proof.
   - intro c.
     etrans; [apply assoc|].
     etrans.
-    {  apply cancel_postcomposition.
+    {  apply maponpaths_2.
        apply ( θ_nat_2_pw Mf (id_Ptd C hsC) (p T) (ptd_mor_pt hsC _) c). }
     etrans.
-    { apply cancel_postcomposition.
+    { apply maponpaths_2.
       rewrite (horcomp_pre_post _ _ (category_pair _ hsC )).
       rewrite (functor_comp H).
       etrans; [apply assoc|].
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       apply strength_law1_pw. }
     etrans;[|apply id_right].
     rewrite <- assoc.
-    apply cancel_precomposition.
+    apply maponpaths.
     etrans; [ apply functor_comp_pw|].
     etrans; [|apply (nat_trans_eq_pointwise (functor_id H Mf))].
     apply functor_cancel_pw.
@@ -175,26 +176,26 @@ Proof.
     cbn.
     etrans.
     { rewrite assoc.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       etrans; [ apply (θ_nat_2_pw Mf _ _ (ptd_mor_from_μ)  c)|].
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       apply (strength_law2_pw Mf (p T) (p T)).  }
     etrans; revgoals.
     { rewrite <- assoc.
-      apply cancel_precomposition.
+      apply maponpaths.
       rewrite assoc.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       eapply pathsinv0.
       apply (θ_nat_1_pw _ _ (σ M) (p T) c). }
     cbn.
     repeat rewrite <- assoc.
-    apply cancel_precomposition.
-    apply cancel_precomposition.
+    apply maponpaths.
+    apply maponpaths.
     etrans; revgoals.
     { eapply pathsinv0.
       apply (functor_comp_pw hsC hsD H). }
     etrans.
-    { apply cancel_precomposition.
+    { apply maponpaths.
       apply (functor_comp_pw hsC hsD H). }
     etrans; [ apply (functor_comp_pw hsC hsD H)|].
     apply functor_cancel_pw.
@@ -400,23 +401,23 @@ Proof.
   + apply pathsinv0,id_left.
   + apply pathsinv0.
     etrans;[apply assoc|].
-    apply cancel_postcomposition.
+    apply (maponpaths_2 compose).
     etrans;[apply assoc|].
     etrans.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     apply (θ_nat_1_pw _ _ a (p T_alg)).
     rewrite <- assoc.
-    apply cancel_precomposition.
+    apply (maponpaths (compose _)).
     etrans; revgoals.
     { eapply pathsinv0.
       eapply nat_trans_eq_pointwise.
       apply (functor_comp H (_:EndC⟦ T_mon ∙ x', T_mon ∙ x⟧)). }
-    apply cancel_postcomposition.
+    apply (maponpaths_2 compose).
     apply functor_cancel_pw.
     apply (nat_trans_eq hs).
     intro c'.
     etrans;[|apply id_right].
-    apply cancel_precomposition.
+    apply (maponpaths (compose _)).
     apply (functor_id   x).
 Qed.
 
@@ -455,7 +456,7 @@ Proof.
   intros x.
   etrans.
   { etrans.
-    apply cancel_postcomposition.
+    eapply (maponpaths_2 compose).
     apply BinCoproductArrowEta.
     apply postcompWithBinCoproductArrow. }
   apply BinCoproductArrow_eq.
@@ -474,14 +475,14 @@ Proof.
   { eapply pathsinv0.
     apply assoc. }
   etrans.
-  { apply cancel_precomposition.
+  { apply maponpaths.
     apply (nat_trans_eq_pointwise (algebra_mor_commutes _ _ _ j) x). }
   etrans; [apply assoc|].
   etrans.
-  { apply cancel_postcomposition.
+  { apply maponpaths_2.
     apply BinCoproductIn2Commutes. }
   etrans;[eapply pathsinv0; apply assoc|].
-  apply cancel_precomposition.
+  apply maponpaths.
   apply BinCoproductIn2Commutes.
 Qed.
 
@@ -494,15 +495,15 @@ Proof.
   { eapply pathsinv0.
     apply assoc. }
   etrans.
-  { apply cancel_precomposition.
+  { apply maponpaths.
     apply (nat_trans_eq_pointwise (algebra_mor_commutes _ _ _ j) a). }
   etrans;[apply assoc|].
   etrans.
-  { apply cancel_postcomposition.
+  { apply maponpaths_2.
     apply BinCoproductIn1Commutes. }
   etrans;[eapply pathsinv0;apply assoc|].
   etrans.
-  { apply cancel_precomposition.
+  { apply maponpaths.
     apply BinCoproductIn1Commutes. }
   apply id_left.
 Qed.
@@ -526,21 +527,21 @@ Proof.
   - (* T monad law *)
     etrans;[apply assoc|].
     etrans.
-    { apply cancel_postcomposition.
+    { apply maponpaths_2.
       apply (Monad_law1 (T:=T_mon)). }
     apply id_left.
   - (* tau_T is a module morphism *)
     etrans;[apply assoc|].
     etrans.
-    { apply cancel_postcomposition.
+    { apply maponpaths_2.
       apply (LModule_Mor_σ _  τT). }
     etrans;[eapply pathsinv0;apply assoc|].
     etrans;[eapply pathsinv0;apply assoc|].
     etrans; [| apply assoc].
-    apply cancel_precomposition.
+    apply maponpaths.
     rewrite functor_comp.
     etrans; [| apply assoc].
-    apply cancel_precomposition.
+    apply maponpaths.
     apply j_mor_rep.
 Qed.
 
@@ -554,65 +555,65 @@ Proof.
   apply coprod_iter_eq; intro x.
   - etrans;[apply assoc|].
     etrans.
-    { apply cancel_postcomposition.
+    { apply maponpaths_2.
       etrans;[apply assoc|].
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       apply j_mon_η. }
     etrans.
-    { apply cancel_postcomposition.
+    { apply maponpaths_2.
       eapply pathsinv0.
       apply (nat_trans_ax (Monads.η M )). }
     etrans; [|apply id_right].
     rewrite <- assoc.
-    apply cancel_precomposition.
+    apply maponpaths.
     apply Monad_law1.
   - etrans;[apply assoc|].
     etrans.
-    { apply cancel_postcomposition.
+    { apply maponpaths_2.
       etrans;[apply assoc|].
       etrans.
-      { apply cancel_postcomposition.
+      { apply maponpaths_2.
         apply j_mor_rep. }
       rewrite <- assoc.
-      apply cancel_precomposition.
+      apply maponpaths.
       eapply pathsinv0.
       apply (nat_trans_ax τ_M). }
     etrans.
     { repeat rewrite <- assoc.
-      apply cancel_precomposition.
-      apply cancel_precomposition.
+      apply maponpaths.
+      apply maponpaths.
       apply (LModule_Mor_σ _  τ_M ( x)). }
     repeat rewrite assoc.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     etrans.
     { repeat rewrite <- assoc.
-      apply cancel_precomposition.
+      apply maponpaths.
       etrans;[apply assoc|].
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       apply (θ_nat_2_pw _ _ _ j_ptd). }
     etrans.
     { repeat rewrite assoc.
-      apply cancel_postcomposition.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
+      apply maponpaths_2.
       apply (θ_nat_1_pw _ _ j_mor (ptd_from_mon hs T_mon)). }
     repeat rewrite <- assoc.
-    apply cancel_precomposition.
+    apply maponpaths.
     rewrite functor_comp.
     rewrite functor_comp.
     repeat rewrite assoc.
-    apply cancel_postcomposition.
+    apply (maponpaths_2 compose).
     rewrite <- functor_comp.
     etrans;[ apply functor_comp_pw|].
     apply functor_cancel_pw.
     apply (nat_trans_eq hs).
     intro y.
     etrans.
-    { apply cancel_postcomposition.
+    { eapply (maponpaths_2 compose).
       etrans.
-      { apply cancel_precomposition.
-        apply functor_id. }
+      { eapply (maponpaths (compose _)).
+        refine (functor_id _ _). }
       apply id_right. }
-    apply cancel_precomposition.
+    apply (maponpaths (compose _)).
     apply id_left.
 Qed.
 

@@ -10,6 +10,7 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Epis.
@@ -334,7 +335,7 @@ Section cokernels_iso.
     rewrite H.
     rewrite <- (ZeroArrow_comp_left _ _ _ _ _ h).
     rewrite assoc.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     apply CokernelCompZero.
   Qed.
 
@@ -356,8 +357,8 @@ Section cokernels_iso.
                              (is_inverse_in_precat1 h)). cbn in tmp.
       use (pathscomp0 _ (! tmp)). clear tmp. rewrite id_left.
       use CokernelOutsEq. rewrite CokernelCommutes. rewrite assoc.
-      rewrite <- X. apply cancel_postcomposition. rewrite H.
-      apply cancel_precomposition. apply idpath.
+      rewrite <- X. apply maponpaths_2. rewrite H.
+      apply maponpaths. apply idpath.
   Qed.
 
   Definition Cokernel_up_to_iso {x y z : C} (f : x --> y) (g : y --> z) (CK : Cokernel Z f)
@@ -482,7 +483,7 @@ Section cokernels_epis.
       + use CokernelOut.
         * exact h.
         * rewrite <- (ZeroArrow_comp_right _ _ _ _ _ E). rewrite <- assoc.
-          apply cancel_precomposition. exact H'.
+          apply maponpaths. exact H'.
       + cbn. rewrite CokernelCommutes. apply idpath.
       + intros y0. apply hs.
       + intros y0 X.

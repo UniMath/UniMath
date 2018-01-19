@@ -24,6 +24,7 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
@@ -602,7 +603,7 @@ Section abelian_equalizers.
     use (pathscomp0 (! (maponpaths (λ h : _, PullbackPr1 Pb · h) H1))).
     use (pathscomp0 _ ((id_right (PullbackPr2 Pb)))).
     use (pathscomp0 _ (maponpaths (λ h : _, PullbackPr2 Pb · h) H2)).
-    rewrite assoc. rewrite assoc. apply cancel_postcomposition.
+    rewrite assoc. rewrite assoc. apply maponpaths_2.
     apply PullbackSqrCommutes.
   Qed.
 
@@ -619,7 +620,7 @@ Section abelian_equalizers.
     assert (H2 : BinProductArrow A BinProd (identity x) f2 · (BinProductPr2 A BinProd) = f2) by
         apply BinProductPr2Commutes.
     rewrite <- H1. rewrite <- H2. rewrite assoc. rewrite assoc.
-    apply cancel_postcomposition. unfold BinProd.
+    apply maponpaths_2. unfold BinProd.
     set (X := PullbackSqrCommutes (Equalizer_Pullback f1 f2)).
     rewrite <- H in X. apply X.
   Qed.
@@ -716,7 +717,7 @@ Section abelian_equalizers.
     use (pathscomp0 (!(maponpaths (λ h : _, h · PushoutIn1 Po) H1))).
     use (pathscomp0 _ ((id_left (PushoutIn2 Po)))).
     use (pathscomp0 _ (maponpaths (λ h : _, h · PushoutIn2 Po) H2)).
-    rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+    rewrite <- assoc. rewrite <- assoc. apply maponpaths.
     apply PushoutSqrCommutes.
   Qed.
 
@@ -730,7 +731,7 @@ Section abelian_equalizers.
     set (Pb := Coequalizer_Pushout f1 f2).
     rewrite <- (BinCoproductIn2Commutes A _ _ BinCoprod _ (identity x) f1).
     rewrite <- (BinCoproductIn2Commutes A _ _ BinCoprod _ (identity x) f2).
-    repeat rewrite <- assoc. apply cancel_precomposition.
+    repeat rewrite <- assoc. apply maponpaths.
     set (X := PushoutSqrCommutes (Coequalizer_Pushout f1 f2)).
     rewrite <- H in X. apply X.
   Qed.
@@ -1104,7 +1105,7 @@ Section abelian_factorization.
     set (com0 := CokernelCommutes (to_Zero A) (CoImage f) y f (CoIm_ar_eq f)).
     apply pathsinv0 in com0. use (pathscomp0 com0).
     (* Cancel precomposition *)
-    rewrite <- assoc. apply cancel_precomposition.
+    rewrite <- assoc. apply maponpaths.
     (* Commutativity of kernel *)
     set (com1 := KernelCommutes (to_Zero A) (Image f) (CoImage f) (CoIm_ar f) (CoIm_to_Im_eq2 f)).
     apply pathsinv0 in com1. use (pathscomp0 com1).
@@ -1138,7 +1139,7 @@ Section abelian_factorization.
       {
         set (tmp := CokernelCompZero (to_Zero A) (EpiToCokernel E)).
         rewrite <- tmp.
-        apply cancel_precomposition.
+        apply maponpaths.
         unfold E. apply idpath.
       }
       assert (e : (KernelArrow (to_Kernels A _ _ E)) · f = ZeroArrow (to_Zero A) _ _).
@@ -1154,7 +1155,7 @@ Section abelian_factorization.
         set (tmpar1 := CoIm_to_Im f · KernelArrow (Image f)).
         set (tmpar2 := CoequalizerOut q y tmpar1 H).
         rewrite <- (ZeroArrow_comp_left A (to_Zero A) _ _ _ tmpar2).
-        apply cancel_postcomposition.
+        apply maponpaths_2.
         rewrite <- assoc.
         rewrite e0. apply idpath.
       }
@@ -1167,7 +1168,7 @@ Section abelian_factorization.
         fold l.
         rewrite <- (ZeroArrow_comp_right A (to_Zero A) _ _ _ l).
         rewrite <- assoc.
-        apply cancel_precomposition.
+        apply maponpaths.
         unfold CoImage.
         apply CokernelCompZero.
       }
@@ -1218,7 +1219,7 @@ Section abelian_factorization.
                    ZeroArrow (to_Zero A) (MonicToKernel M) _).
       {
         use (pathscomp0 _ (KernelCompZero (to_Zero A) (MonicToKernel M))).
-        apply cancel_precomposition. apply idpath.
+        apply maponpaths. apply idpath.
       }
       assert (e : f · (CokernelArrow (to_Cokernels A _ _ M)) = ZeroArrow (to_Zero A) _ _).
       {
@@ -1233,7 +1234,7 @@ Section abelian_factorization.
         set (tmpar2 := EqualizerIn q x tmpar1 H).
         rewrite <- (ZeroArrow_comp_right A (to_Zero A) _ _ _ tmpar2).
         rewrite <- assoc. rewrite <- assoc.
-        apply cancel_precomposition.
+        apply maponpaths.
         rewrite assoc.
         rewrite e0. apply idpath.
       }
@@ -1246,7 +1247,7 @@ Section abelian_factorization.
         fold l.
         rewrite <- (ZeroArrow_comp_left A (to_Zero A) _ _ _ l).
         rewrite assoc.
-        apply cancel_postcomposition.
+        apply maponpaths_2.
         unfold Image.
         apply KernelCompZero.
       }
@@ -1256,7 +1257,7 @@ Section abelian_factorization.
                    KernelArrow (Image f)).
       {
         rewrite <- com2. rewrite <- assoc.
-        apply cancel_precomposition. unfold ker.
+        apply maponpaths. unfold ker.
         apply idpath.
       }
       assert (e3 : (KernelIn (to_Zero A) ker (Image f) _ e1) · (EqualizerArrow q)  = identity _).

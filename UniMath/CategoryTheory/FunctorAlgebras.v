@@ -24,6 +24,7 @@ Contents :
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -342,7 +343,7 @@ Proof.
 assert (Ha'a : a' · a = identity A).
   assert (algMor_a'a : is_algebra_mor _ _ _ (a' · a)).
     unfold is_algebra_mor, a'; rewrite functor_comp.
-    eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'].
+    eapply pathscomp0; [|eapply maponpaths_2; apply Ha'].
     now apply assoc.
   apply pathsinv0; set (X := tpair _ _ algMor_a'a).
   now apply (maponpaths pr1 (!@InitialEndo_is_identity _ AaInitial X)).

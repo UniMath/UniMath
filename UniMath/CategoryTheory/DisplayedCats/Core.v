@@ -253,7 +253,7 @@ Lemma mor_disp_transportf_postwhisker
     {x y z : C} {f f' : x --> y} (ef : f = f') {g : y --> z}
     {xx : D x} {yy} {zz} (ff : xx -->[f] yy) (gg : yy -->[g] zz)
   : (transportf _ ef ff) ;; gg
-  = transportf _ (cancel_postcomposition _ _ g ef) (ff ;; gg).
+  = transportf _ (maponpaths_2 _ ef _) (ff ;; gg).
 Proof.
   destruct ef; apply idpath.
 Qed.
@@ -270,23 +270,23 @@ Qed.
 
 (* TODO: use the following lemmas in more of the displayed category proofs. Most instances of [mor_disp_transportf_Xwhisker] are places that can be simplified with these. *)
 (* TODO: consider naming of [cancel_Xcomposition_disp].  Currently follows the UniMath base lemmas, but those are bad names — cancellation properties traditionally mean things like like [ ax = ay -> x = y ], whereas these lemmas are the converse of that. *)
-Lemma cancel_postcomposition_disp {C} {D : disp_cat C}
+Lemma maponpaths_2_disp {C} {D : disp_cat C}
   {x y z} {f f' : x --> y} {e : f' = f} {g : y --> z}
   {xx : D x} {yy} {zz}
   {ff : xx -->[f] yy} {ff' : xx -->[f'] yy} (gg : yy -->[g] zz)
   (ee : ff = transportf _ e ff')
-: ff ;; gg = transportf _ (cancel_postcomposition _ _ g e) (ff' ;; gg).
+: ff ;; gg = transportf _ (maponpaths_2 _ e _) (ff' ;; gg).
 Proof.
   etrans. apply maponpaths_2, ee.
   apply mor_disp_transportf_postwhisker.
 Qed.
 
-Lemma cancel_precomposition_disp {C} {D : disp_cat C}
+Lemma maponpaths_disp {C} {D : disp_cat C}
   {x y z} {f : x --> y} {g g' : y --> z} {e : g' = g}
   {xx : D x} {yy} {zz}
   (ff : xx -->[f] yy) {gg : yy -->[g] zz} {gg' : yy -->[g'] zz}
   (ee : gg = transportf _ e gg')
-: ff ;; gg = transportf _ (cancel_precomposition _ _ _ _ _ _ f e) (ff ;; gg').
+: ff ;; gg = transportf _ (maponpaths _ e) (ff ;; gg').
 Proof.
   etrans. apply maponpaths, ee.
   apply mor_disp_transportf_prewhisker.
@@ -709,7 +709,7 @@ Proof.
     etrans; [ apply maponpaths_2, iso_after_iso_inv | apply id_left ].
   - apply pathsinv0.
     etrans. eapply transportf_bind.
-      eapply cancel_postcomposition_disp, (iso_disp_after_inv_mor ii).
+      eapply maponpaths_2_disp, (iso_disp_after_inv_mor ii).
     rewrite id_left_disp.
     etrans. apply transport_f_f.
     use (@maponpaths_2 _ _ _ _ _ (idpath _)).
@@ -718,7 +718,7 @@ Proof.
     rewrite e.
     etrans. eapply transportf_bind, assoc_disp.
     etrans. eapply transportf_bind.
-      eapply cancel_postcomposition_disp, (iso_disp_after_inv_mor ii).
+      eapply maponpaths_2_disp, (iso_disp_after_inv_mor ii).
     rewrite id_left_disp.
     etrans. apply transport_f_f.
     use (@maponpaths_2 _ _ _ _ _ (idpath _)).
@@ -1012,7 +1012,7 @@ Proof.
 Defined.
 
 (* TODO: look more for this in library.  If doesn’t exist, upstream it? *)
-Lemma cancel_precomposition_iso {C' : precategory} {x y z : C'}
+Lemma maponpaths_iso {C' : precategory} {x y z : C'}
     (f : iso x y) (g1 g2 : y --> z)
   : (f ;; g1 = f ;; g2 -> g1 = g2)%cat_deprecated.
 Proof.
@@ -1035,7 +1035,7 @@ Lemma inv_mor_total_iso {xx yy : total_category}
   = (inv_from_iso f,, inv_mor_disp_from_iso ff).
 Proof.
   (* Could de-opacify [is_iso_total] and then use [inv_from_iso_from_is_z_iso].  If de-opacfying [is_iso_total] would make its inverse compute definitionally, that’d be wonderful, but for the sake of just this one lemma, it’s probably not worth it.  So we prove this the hard way. *)
-  apply cancel_precomposition_iso with (total_iso f ff).
+  apply maponpaths_iso with (total_iso f ff).
   etrans. apply iso_inv_after_iso. apply pathsinv0.
   use total2_paths_f; cbn.
   - apply iso_inv_after_iso.

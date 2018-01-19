@@ -42,7 +42,7 @@ Contents:
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -471,7 +471,7 @@ use mk_ColimCocone.
     * apply colimArrow, (mapcocone U _ ccy).
     * abstract (apply pathsinv0, colimArrowUnique; intros v; simpl; rewrite assoc;
                 eapply pathscomp0;
-                  [apply cancel_postcomposition,
+                  [apply maponpaths_2,
                         (colimArrowCommutes H _ (mapcocone U _ ccy) v)|];
                 destruct ccy as [f Hf]; simpl; apply (! pr2 (f v))).
   + abstract (intro v; apply eq_mor_slicecat; simpl;

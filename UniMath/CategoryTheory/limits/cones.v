@@ -8,6 +8,7 @@ Written by Benedikt Ahrens, following discussions with J. Gross, D. Grayson and 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
@@ -228,11 +229,11 @@ Proof.
   intro t.
   intermediate_path (idtoiso (isotoid C is_cat_C (iso_inv_from_iso (ConeConnectIso f)))·
        pr2 (pr1 a) t).
-  apply cancel_postcomposition.
+  apply maponpaths_2.
   apply maponpaths. apply maponpaths.
   apply inv_isotoid.
   intermediate_path (iso_inv_from_iso (ConeConnectIso f)· pr2 (pr1 a) t).
-  apply cancel_postcomposition.
+  apply maponpaths_2.
   set (H := idtoiso_isotoid _ is_cat_C _ _ (iso_inv_from_iso (ConeConnectIso f))).
   simpl in *.
   apply (base_paths _ _ H).

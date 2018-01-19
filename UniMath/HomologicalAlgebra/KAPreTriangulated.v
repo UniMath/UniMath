@@ -16,6 +16,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
@@ -410,7 +412,7 @@ Section KAPreTriangulated.
                       (AddEquivUnitIso (TranslationEquiv A) (Source (KADTriDataMor I)))))))
       in tmp'''.
     use (pathscomp0 _ (! tmp''')). clear tmp'''. unfold postcompose.
-    apply cancel_postcomposition. apply maponpaths.
+    apply maponpaths_2. apply maponpaths.
     use InvTranslationFunctorHImEq. apply idpath.
   Qed.
 
@@ -424,7 +426,7 @@ Section KAPreTriangulated.
   Proof.
     rewrite id_left. use (pathscomp0 (! (InvRotMorphismInvComm1 A I'))).
     use (pathscomp0 (functor_comp (ComplexHomotFunctor A) _ _)).
-    use cancel_postcomposition.
+    use maponpaths_2.
     exact (hfiberpr2 _ _ (KADTriDataFiber I)).
   Qed.
 
@@ -531,7 +533,7 @@ Section KAPreTriangulated.
                 ** exact (! (KAIdComm _ _ (idpath _))).
                 ** exact (! (KAIdComm _ _ (idpath _))).
           -- cbn. rewrite id_left.
-             use (pathscomp0 (! (id_right _))). apply cancel_precomposition.
+             use (pathscomp0 (! (id_right _))). apply maponpaths.
              apply (! (functor_id _ _)).
         * use mk_TriMor_is_iso.
           -- exact (is_z_isomorphism_identity _).
@@ -557,10 +559,10 @@ Section KAPreTriangulated.
     rewrite <- (assoc (MPMor1 (TriIsoInv (KADTriDataIso I1)))).
     rewrite <- (assoc (MPMor1 (TriIsoInv (KADTriDataIso I1)))).
     rewrite <- (assoc (MPMor1 (TriIsoInv (KADTriDataIso I1)))).
-    apply cancel_precomposition.
+    apply maponpaths.
     apply (maponpaths (postcompose (MPMor2 (KADTriDataIso I2)))) in H.
     unfold postcompose in H. use (pathscomp0 _ H). clear H.
-    rewrite <- (assoc g1). rewrite <- (assoc g1). apply cancel_precomposition.
+    rewrite <- (assoc g1). rewrite <- (assoc g1). apply maponpaths.
     exact (MPComm1 (KADTriDataIso I2)).
   Qed.
 
@@ -652,7 +654,7 @@ Section KAPreTriangulated.
            _ (maponpaths # (ComplexHomotFunctor A)
                          (MappingConeMorExtComm2 A I1' I2' h1' h2' HH1 (! HH2)))).
     use (pathscomp0 _ (! (functor_comp (ComplexHomotFunctor A) _ _))).
-    apply cancel_precomposition. use TranslationFunctorHImEq.
+    apply maponpaths. use TranslationFunctorHImEq.
     exact (hfiberpr2 _ _ h1).
   Qed.
 

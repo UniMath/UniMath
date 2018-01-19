@@ -18,6 +18,7 @@ Based on a note by Ralph Matthes.
 
 Require Import UniMath.Foundations.PartD.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -167,7 +168,7 @@ assert (H' : ∏ n, # L (e (S n)) · # L inF_inv · ψ μF preIt = pr1 (Pow (S n
 { intro n.
   rewrite e_comm, functor_comp.
   eapply pathscomp0;
-   [apply cancel_postcomposition; rewrite <-assoc;  apply maponpaths, H''|].
+   [apply maponpaths_2; rewrite <-assoc;  apply maponpaths, H''|].
   rewrite id_right.
   assert (H1 : # L (# F (e n)) · ψ μF preIt = ψ (iter_functor F n 0) (# L (e n) · preIt)).
   { apply pathsinv0, (toforallpaths _ _ _ (nat_trans_ax ψ _ _ (e n))). }

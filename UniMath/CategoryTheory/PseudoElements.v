@@ -9,6 +9,7 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
@@ -135,7 +136,7 @@ Section def_pseudo_element.
   Proof.
     intros Pb.
     rewrite <- assoc. rewrite <- assoc. rewrite (PEqEq P2). rewrite <- (PEqEq P1).
-    rewrite assoc. rewrite assoc. apply cancel_postcomposition.
+    rewrite assoc. rewrite assoc. apply maponpaths_2.
     apply pathsinv0. exact (PullbackSqrCommutes Pb).
   Qed.
 
@@ -233,7 +234,7 @@ Section def_pseudo_element.
   Local Lemma PEq_Im_Eq {c d : A} (P1 P2 : PseudoElem c) (f : c --> d) (H : PEq P1 P2):
     PEqEpi1 H · (P2 · f) = PEqEpi2 H · (P1 · f).
   Proof.
-    rewrite assoc. rewrite assoc. apply cancel_postcomposition. exact (PEqEq H).
+    rewrite assoc. rewrite assoc. apply maponpaths_2. exact (PEqEq H).
   Qed.
 
   Definition PEq_Im {c d : A} (P1 P2 : PseudoElem c) (f : c --> d) (H : PEq P1 P2) :
@@ -433,7 +434,7 @@ Section def_pseudo_element.
           set (tmp' := factorization1 hs f).
           apply (maponpaths (λ gg : _, gg · (factorization1_monic A f))) in tmp.
           rewrite <- assoc in tmp. rewrite <- tmp' in tmp. clear tmp'.
-          use (pathscomp0 tmp). clear tmp. rewrite <- assoc. apply cancel_precomposition.
+          use (pathscomp0 tmp). clear tmp. rewrite <- assoc. apply maponpaths.
           use (KernelCommutes (to_Zero A) K).
     - intros X.
       set (fac := factorization1 hs f).
@@ -453,7 +454,7 @@ Section def_pseudo_element.
             {
               cbn. set (ee := PEqEq PE). cbn in ee. rewrite ee.
               rewrite assoc. rewrite <- (assoc _ _ (KernelArrow (Abelian.Image f))).
-              apply cancel_precomposition. exact fac.
+              apply maponpaths. exact fac.
             }
             set (tmp := PullbackArrow
                           Pb _ (PEqEpi1 PE)
@@ -527,10 +528,10 @@ Section def_pseudo_element.
     cbn in tmp. cbn. rewrite <- tmp. clear tmp.
     set (tmp' := @to_postmor_linear' PA _ _ _ (PEqEpi1 H · a') (PEqEpi1 H · @to_inv PA _ _ a') f).
     use (pathscomp0 (! tmp')). clear tmp'.
-    rewrite <- (ZeroArrow_comp_left _ _ _ _ _ f). apply cancel_postcomposition.
+    rewrite <- (ZeroArrow_comp_left _ _ _ _ _ f). apply maponpaths_2.
     set (tmp' := @to_premor_linear' PA _ _ _ (PEqEpi1 H) a' (@to_inv PA _ _ a')).
     use (pathscomp0 (! tmp')). clear tmp'.
-    rewrite <- (ZeroArrow_comp_right _ _ _ _ _ (PEqEpi1 H)). apply cancel_precomposition.
+    rewrite <- (ZeroArrow_comp_right _ _ _ _ _ (PEqEpi1 H)). apply maponpaths.
     use (@to_rinvax' PA).
   Qed.
 
@@ -547,7 +548,7 @@ Section def_pseudo_element.
     set (tmp := PEqEq H). cbn in tmp.
     set (tmp' := @to_postmor_linear' PA _ _ _ (PEqEpi2 H · a) (PEqEpi1 H · @to_inv PA _ _ a') g).
     use (pathscomp0 tmp'). clear tmp'. rewrite <- assoc. cbn. rewrite X. rewrite ZeroArrow_comp_right.
-    rewrite (@to_lunax'' PA). rewrite assoc. apply cancel_postcomposition.
+    rewrite (@to_lunax'' PA). rewrite assoc. apply maponpaths_2.
     rewrite <- (@PreAdditive_invlcomp PA). rewrite <- (@PreAdditive_invrcomp PA).
     apply idpath.
   Qed.

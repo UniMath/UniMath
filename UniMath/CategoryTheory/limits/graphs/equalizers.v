@@ -7,6 +7,7 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
@@ -87,7 +88,7 @@ Section def_equalizers.
       + use (pathscomp0 _ (coneOutCommutes cx One Two (ii1 tt))).
         change (coneOut (Equalizer_cone f g d h H) (● 1)%stn) with (h · f).
         rewrite assoc.
-        apply cancel_postcomposition, (pr2 (pr1 H2)).
+        apply maponpaths_2, (pr2 (pr1 H2)).
     - abstract (intro t; apply subtypeEquality;
                 [ intros y; apply impred; intros t0; apply hs
                 | induction t as [t p]; apply path_to_ctr, (p One)]).
@@ -149,7 +150,7 @@ Section def_equalizers.
       use (pathscomp0 (!X)); rewrite assoc.
       change (dmor _ _) with f.
       change (coneOut _ _) with (h · f).
-      apply cancel_postcomposition, H'.
+      apply maponpaths_2, H'.
   Qed.
 
   Definition isEqualizer_Equalizer {a b : C} {f g : C⟦a, b⟧} (E : Equalizer f g) :
@@ -190,7 +191,7 @@ Section def_equalizers.
       use (pathscomp0 (! (maponpaths (λ h' : _, k · h') X))).
       use (pathscomp0 _ X).
       rewrite assoc; change (dmor _ _) with f.
-      apply cancel_postcomposition, kH.
+      apply maponpaths_2, kH.
   Qed.
 
   Definition from_Equalizer_to_Equalizer {a b : C} {f g : C⟦a, b⟧} (E1 E2 : Equalizer f g) :

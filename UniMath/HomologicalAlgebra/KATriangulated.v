@@ -11,6 +11,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
@@ -190,9 +192,9 @@ Section KATriangulated.
     - use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _))).
       apply maponpaths. exact (KAOctaMor2Comm f1'' g1'').
     - use (pathscomp0 (KAOctaComm5' f1'' g1'')).
-      apply cancel_postcomposition. exact (hfiberpr2 _ _ g1').
+      apply maponpaths_2. exact (hfiberpr2 _ _ g1').
     - use (pathscomp0 (KAOctaComm4' f1'' g1'')).
-      apply cancel_precomposition. apply maponpaths. exact (hfiberpr2 _ _ f1').
+      apply maponpaths. apply maponpaths. exact (hfiberpr2 _ _ f1').
   Qed.
 
   Definition KATriang : Triang.

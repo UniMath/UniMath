@@ -159,11 +159,11 @@ Section FinOrdProduct_criteria.
     (* From stn n *)
     apply ProductArrowUnique.
     intros i. rewrite <- (X (dni_lastelement i)). rewrite <- assoc.
-    apply cancel_precomposition.
+    apply maponpaths.
     induction (natlehchoice4 (pr1 (dni_lastelement i)) n
                              (pr2 (dni_lastelement i))) as [a0|b].
     unfold m1. rewrite <- assoc. unfold p1.
-    apply cancel_precomposition.
+    apply maponpaths.
     unfold cone1Pr. apply pathsinv0.
 
     set (e := dni_lastelement_is_inj (dni_lastelement_eq n (dni_lastelement i)
@@ -171,7 +171,7 @@ Section FinOrdProduct_criteria.
     use (pathscomp0 _ (ProductPr_idtoiso (stn n) C (a ∘ dni_lastelement)%functions cone1
                                          (!e))).
     rewrite maponpathsinv0.
-    apply cancel_precomposition.
+    apply maponpaths.
     apply maponpaths. apply maponpaths. (* Why we need maponpaths twice? *)
     apply maponpaths.
     rewrite <- (maponpathscomp _ a).
@@ -186,7 +186,7 @@ Section FinOrdProduct_criteria.
     (* From stn 1 *)
     apply ProductArrowUnique.
     intros i. rewrite <- (X lastelement).  rewrite <- assoc.
-    apply cancel_precomposition.
+    apply maponpaths.
     induction (natlehchoice4 (pr1 lastelement) n (pr2 lastelement)) as [a0|b].
 
     (* This case is false because of a0 *)
@@ -194,13 +194,13 @@ Section FinOrdProduct_criteria.
 
     (* This case makes sense *)
     apply pathsinv0. unfold m2. rewrite <- assoc. unfold p2.
-    apply cancel_precomposition. unfold cone2Pr.
+    apply maponpaths. unfold cone2Pr.
 
     set (e := isconnectedstn1 i (invweq(weqstn1tounit) tt)).
     use (pathscomp0 _ (ProductPr_idtoiso (stn 1) C (λ _ : _, a lastelement)
                                          cone2 (!e))).
     rewrite maponpathsinv0.
-    apply cancel_precomposition.
+    apply maponpaths.
     apply maponpaths. apply maponpaths. (* Why we need maponpaths twice? *)
     apply maponpaths.
     fold (@funcomp (stn 1) _ _ (λ _ : stn 1, lastelement) a).

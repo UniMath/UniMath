@@ -26,6 +26,7 @@ Unset Kernel Term Sharing.
 
 Require Import UniMath.Foundations.PartD.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -127,7 +128,7 @@ Proof.
     assert (H3 := nat_trans_eq_pointwise H2 c).
     simpl in *.
     intermediate_path (identity _ · pr1 (τ T) c).
-    + apply cancel_postcomposition. apply H3.
+    + apply maponpaths_2. apply H3.
     + apply id_left.
 Qed.
 
@@ -232,9 +233,9 @@ Proof.
                   pr1 (# H μ_2) c · pr1 (τ T) c).
       * unfold tau_from_alg; cbn.
         do 2 rewrite assoc.
-        apply cancel_postcomposition.
-        apply cancel_postcomposition.
-        apply cancel_postcomposition.
+        apply maponpaths_2.
+        apply maponpaths_2.
+        apply maponpaths_2.
         assert (H':=θ_nat_2 _ _ _ _ H θ).
         assert (H2 := H' (`T) _ _ μ_0_ptd); clear H'.
         assert (H3:= nat_trans_eq_weq hs _ _ H2 c); clear H2.
@@ -255,10 +256,10 @@ Proof.
             apply H2; clear H2. (* rewrite done *)
           - clear H2.
             do 2 rewrite assoc.
-            apply cancel_postcomposition.
+            apply maponpaths_2.
             eapply pathscomp0.
             apply (nat_trans_ax (τ T) ).
-            apply cancel_postcomposition.
+            apply maponpaths_2.
             apply pathsinv0.
             apply id_right.
         }
@@ -337,8 +338,8 @@ Proof.
     repeat rewrite assoc.
     match goal with |[H1 : ?g = _ |- _ · _ · ?f · ?h = _ ] =>
          intermediate_path (g · f · h) end.
-    + apply cancel_postcomposition.
-      apply cancel_postcomposition.
+    + apply maponpaths_2.
+      apply maponpaths_2.
       apply pathsinv0.
       eapply pathscomp0. apply H1; clear H1.
       apply maponpaths.
@@ -362,7 +363,7 @@ Proof.
         apply assoc.
       * clear H3.
         repeat rewrite assoc.
-        apply cancel_postcomposition.
+        apply maponpaths_2.
         assert (H1 := nat_trans_ax (τ T )).
         unfold tau_from_alg in H1.
         eapply pathscomp0; [ | apply H1]; clear H1.
@@ -408,14 +409,14 @@ Proof.
     transitivity (identity _ · μ_2 c).
     + apply pathsinv0, id_left.
     + eapply pathscomp0; [ | apply (!assoc _ _ _ ) ].
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       assert (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
       apply (!H1).
   - set (B:= τ T).
     match goal with | [|- _ · # ?H (?f · _ ) · _ = _ ] => set (F:=f : (*TtimesTthenT'*) T•T² --> _ ) end.
     assert (H3:= functor_comp H F μ_2).
     unfold functor_compose in H3.
-    eapply pathscomp0. apply cancel_postcomposition. apply maponpaths. apply H3.
+    eapply pathscomp0. apply maponpaths_2. apply maponpaths. apply H3.
     clear H3.
     apply nat_trans_eq; try assumption.
     intro c.
@@ -436,9 +437,9 @@ Proof.
       intermediate_path (pr1 (θ ((`T) ⊗ (ptd_from_alg T))) (pr1 (pr1 (pr1 T)) c)·
                        f  · h · x· y) end.
     * repeat rewrite assoc.
-      apply cancel_postcomposition.
-      apply cancel_postcomposition.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
+      apply maponpaths_2.
+      apply maponpaths_2.
       unfold Ac. clear Ac.
       eapply pathscomp0. Focus 2. apply assoc.
       eapply pathscomp0. Focus 2. apply maponpaths. apply (!HXX).
@@ -484,7 +485,7 @@ Proof.
           repeat rewrite <- assoc in H5. apply H5.
         - clear H5.
           repeat rewrite assoc.
-          apply cancel_postcomposition.
+          apply maponpaths_2.
           assert (HT := fbracket_τ T (identity _ )).
           assert (H6:= nat_trans_eq_pointwise HT); clear HT.
           unfold coproduct_nat_trans_in2_data.
@@ -516,7 +517,7 @@ Proof.
     rewrite assoc.
     intermediate_path (identity _ · μ_2 c).
     + apply pathsinv0, id_left.
-    + apply cancel_postcomposition.
+    + apply maponpaths_2.
       rewrite id_left.
       assert (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
       simpl in H1.
@@ -536,9 +537,9 @@ Proof.
     simpl in HX'.
     match goal with | [ H : _  = ?f |- _ · _ · ?g · ?h · ?i = _ ] =>
                       intermediate_path (f · g · h · i) end.
-    + apply cancel_postcomposition.
-      apply cancel_postcomposition.
-      apply cancel_postcomposition.
+    + apply maponpaths_2.
+      apply maponpaths_2.
+      apply maponpaths_2.
       apply HX'.
     + clear HX'.
       rewrite id_left.
@@ -550,8 +551,8 @@ Proof.
       simpl in HXX.
       match goal with | [ H : ?x = _ |- ?e · _ · _ · ?f · ?g = _ ] =>
                  intermediate_path (e · x · f · g) end.
-      * apply cancel_postcomposition.
-        apply cancel_postcomposition.
+      * apply maponpaths_2.
+        apply maponpaths_2.
         repeat rewrite <- assoc.
         apply maponpaths.
         {
@@ -582,7 +583,7 @@ Proof.
         rewrite functor_id.
         rewrite id_left.
         repeat rewrite assoc.
-        apply cancel_postcomposition.
+        apply maponpaths_2.
         assert (H4':= fbracket_τ T (identity _ )).
         assert (H6:= nat_trans_eq_pointwise H4' (pr1 `T x)); clear H4'.
         simpl in H6.
@@ -648,7 +649,7 @@ Proof.
     rewrite compute_fbracket.
     rewrite <- assoc.
     apply maponpaths.
-    apply cancel_postcomposition.
+    apply (maponpaths_2 compose).
     apply idpath.
   - unfold μ_0.
     intro c.

@@ -19,6 +19,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
@@ -224,7 +225,7 @@ Section def_cohomology_complex.
     use MorphismEq.
     intros i. cbn. apply pathsinv0.
     apply CokernelEndo_is_identity. unfold CohomologyMorphism_Mor. rewrite CokernelCommutes.
-    rewrite <- id_left. apply cancel_postcomposition.
+    rewrite <- id_left. apply maponpaths_2.
     use KernelInsEq. rewrite KernelCommutes.
     rewrite id_left. rewrite id_right. apply idpath.
   Qed.
@@ -239,7 +240,7 @@ Section def_cohomology_complex.
     intros i. cbn. unfold CohomologyMorphism_Mor. use CokernelOutsEq. rewrite CokernelCommutes.
     rewrite assoc. rewrite CokernelCommutes.
     rewrite <- assoc. rewrite CokernelCommutes.
-    rewrite assoc. apply cancel_postcomposition.
+    rewrite assoc. apply maponpaths_2.
     use KernelInsEq. rewrite KernelCommutes.
     rewrite <- assoc. rewrite KernelCommutes.
     rewrite assoc. rewrite KernelCommutes.
@@ -535,7 +536,7 @@ Section def_cohomology'_complex.
         use (KernelArrowisMonic (to_Zero A) (Kernel (Diff C i))). unfold K1.
         rewrite <- assoc. rewrite KernelCommutes.
         fold φ1. rewrite <- (KernelCommutes (to_Zero A) K3 _ _ H').
-        apply cancel_precomposition. apply idpath.
+        apply maponpaths. apply idpath.
       + intros y. apply hs.
       + intros y X. cbn beta in X. apply (CohomologyComplexIso_isMonic C i). fold K1. rewrite X.
         use (KernelArrowisMonic (to_Zero A) (Kernel (Diff C i))). unfold K1.
@@ -610,7 +611,7 @@ Section def_cohomology'_complex.
                                                  (Diff C (i - 1))))).
         unfold CK1. rewrite assoc. rewrite CokernelCommutes. fold φ2.
         rewrite <- (CokernelCommutes (to_Zero A) CK3 _ _ H').
-        apply cancel_postcomposition. apply idpath.
+        apply maponpaths_2. apply idpath.
       + intros y. apply hs.
       + intros y X. cbn beta in X. apply (CohomologyComplexIso_isEpi C i). fold CK1. rewrite X.
         use (CokernelArrowisEpi
@@ -955,7 +956,7 @@ Section def_cohomology_functor_additive.
       cbn in tmp. rewrite <- tmp. clear tmp.
       use CokernelOutsEq. rewrite CokernelCommutes. rewrite CokernelCommutes.
       set (tmp := @to_postmor_linear' (AbelianToAdditive A hs)). cbn in tmp.
-      rewrite <- tmp. clear tmp. apply cancel_postcomposition.
+      rewrite <- tmp. clear tmp. apply maponpaths_2.
       set (tmp := KernelInOp (AbelianToAdditive A hs)).
       cbn in tmp. rewrite <- tmp. clear tmp.
       use KernelInsEq. rewrite KernelCommutes. rewrite KernelCommutes.
@@ -979,7 +980,7 @@ Section def_cohomology_functor_additive.
       use CokernelOutsEq.
       rewrite CokernelCommutes. rewrite ZeroArrow_comp_right.
       rewrite <- (ZeroArrow_comp_left _ _ _ _ _ (CokernelArrow CK2)).
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       use KernelInsEq.
       rewrite KernelCommutes.
       rewrite ZeroArrow_comp_left. cbn. rewrite ZeroArrow_comp_right. apply idpath.
@@ -1092,7 +1093,7 @@ Section def_cohomology_homotopy.
                                 (CohomologyComplex_KernelIn_eq A hs C2 i))).
     {
       use KernelInsEq. rewrite KernelCommutes. rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition. rewrite KernelCommutes.
+      apply maponpaths. rewrite KernelCommutes.
       rewrite transport_target_postcompose. apply idpath.
     }
     cbn. cbn in e1. rewrite e1. clear e1. rewrite <- assoc. rewrite CokernelCompZero.
@@ -1409,7 +1410,7 @@ Section def_kernel_cokernel_complex.
   Proof.
     rewrite <- assoc.
     rewrite <- (ZeroArrow_comp_right _ _ _ _ _ (KernelArrow (Kernel (Diff C i)))).
-    apply cancel_precomposition.
+    apply maponpaths.
     exact (DSq (AbelianToAdditive A hs) C i).
   Qed.
 
@@ -1478,7 +1479,7 @@ Section def_kernel_cokernel_complex.
     rewrite ZeroArrow_comp_right. rewrite assoc. rewrite CokernelCommutes.
     rewrite <- assoc. rewrite CokernelCommutes. rewrite assoc.
     rewrite <- (ZeroArrow_comp_left _ _ _ _ _ (CokernelArrow (Cokernel (Diff C (i + 1 + 1 - 1))))).
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     use (transport_source_path _ _ (! maponpaths C (hzrplusminus i 1 @ hzrminusplus' i 1))).
     rewrite <- transport_source_precompose.
     rewrite <- maponpathsinv0. rewrite <- functtransportf.
@@ -1714,7 +1715,7 @@ Section def_kernel_cokernel_complex.
                              (C (i + 1)) (Diff C i) (CohomologyComplex_KernelIn_eq A hs C i))).
     cbn. use (KernelArrowisMonic (to_Zero A) (Kernel (Diff C (i + 1)))).
     rewrite <- assoc. rewrite <- assoc. rewrite KernelCommutes. rewrite ZeroArrow_comp_left.
-    cbn. cbn in K. fold K. rewrite <- (KernelCompZero (to_Zero A) K). apply cancel_precomposition.
+    cbn. cbn in K. fold K. rewrite <- (KernelCompZero (to_Zero A) K). apply maponpaths.
     use CokernelOutsEq. rewrite assoc. rewrite CokernelCommutes. rewrite CokernelCommutes.
     use transport_source_path.
     - exact (C (i - 1 + 1)).
@@ -1840,7 +1841,7 @@ Section def_kernel_cokernel_complex.
     rewrite <- (KernelCompZero (to_Zero A) K2).
     unfold CKO. unfold K2. clear K2. unfold CKO. clear CKO. cbn.
     rewrite <- assoc.
-    apply cancel_precomposition.
+    apply maponpaths.
     apply pathsinv0. use KernelCommutes.
   Qed.
 
@@ -1909,7 +1910,7 @@ Section def_kernel_cokernel_complex.
                                  (CokernelArrow CK1))
                               (CokernelKernelCohomology1_Mor1_eq1 C i))).
     {
-      rewrite assoc. rewrite assoc. apply cancel_postcomposition.
+      rewrite assoc. rewrite assoc. apply maponpaths_2.
       assert (ee' : (CohomologyComplexIso_Mor_i A hs C i)
                       · (inv_from_iso ((CohomologyComplexIso_Mor_i A hs C i)
                                           ,, (CohomologyComplexIso_is_iso_i A hs C i))) =
@@ -1931,7 +1932,7 @@ Section def_kernel_cokernel_complex.
     use (pathscomp0 ee). clear ee.
     (* Use KernelCommutes and CokernelCommutes to solve the goal *)
     rewrite assoc. rewrite KernelCommutes. rewrite <- id_right. rewrite <- assoc.
-    apply cancel_precomposition. use CokernelOutsEq.
+    apply maponpaths. use CokernelOutsEq.
     rewrite id_right. rewrite assoc. rewrite CokernelCommutes.
     use transport_source_path.
     -- exact (C i).
@@ -2012,7 +2013,7 @@ Section def_kernel_cokernel_complex.
     cbn.
     use KernelInsEq. rewrite <- assoc. rewrite KernelCommutes. rewrite assoc.
     rewrite KernelCommutes.
-    rewrite id_left. rewrite <- id_right. rewrite <- assoc. apply cancel_precomposition.
+    rewrite id_left. rewrite <- id_right. rewrite <- assoc. apply maponpaths.
     use CokernelOutsEq. rewrite assoc. rewrite CokernelCommutes. rewrite id_right.
     use transport_source_path.
     - exact (C (i - 1 + 1)).
@@ -2064,7 +2065,7 @@ Section def_kernel_cokernel_complex.
     - exact (C (i + 1 - 1)).
     - exact (! maponpaths C (hzrplusminus i 1)).
     - rewrite transport_source_ZeroArrow. cbn in tmp. rewrite <- tmp. clear tmp.
-      rewrite transport_source_precompose. apply cancel_postcomposition. clear CK.
+      rewrite transport_source_precompose. apply maponpaths_2. clear CK.
       rewrite transport_source_KernelIn. use KernelInsEq.
       rewrite KernelCommutes. rewrite KernelCommutes.
       apply pathsinv0. rewrite <- maponpathsinv0.

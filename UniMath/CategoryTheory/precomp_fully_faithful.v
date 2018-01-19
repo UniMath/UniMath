@@ -24,6 +24,7 @@ Precomposition with a fully faithful and
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -70,7 +71,7 @@ Proof.
          (functor_on_iso_is_iso _ _ _ _ _ f)).
       repeat rewrite nat_trans_ax.
       change (gamma (H a)) with (pr1 gamma ((pr1 H) a)).
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       apply (nat_trans_eq_pointwise ex a).
 Qed.
 

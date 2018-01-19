@@ -16,6 +16,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
@@ -290,7 +291,7 @@ Section def_complexes.
     rewrite assoc.
     rewrite <- (MComm M1).
     rewrite <- assoc. rewrite <- assoc.
-    apply cancel_precomposition.
+    apply maponpaths.
     exact (MComm M2 i).
   Qed.
 
@@ -595,7 +596,7 @@ Section def_complexes.
     rewrite <- (MComm g i).
     rewrite assoc. rewrite assoc.
     rewrite <- to_postmor_linear'.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     rewrite <- FromBinDirectSumFormulaUnique.
     unfold FromBinDirectSumFormula.
     apply idpath.
@@ -628,7 +629,7 @@ Section def_complexes.
     rewrite (MComm g i).
     rewrite <- assoc. rewrite <- assoc.
     rewrite <- to_premor_linear'.
-    apply cancel_precomposition.
+    apply maponpaths.
     rewrite <- ToBinDirectSumFormulaUnique.
     unfold ToBinDirectSumFormula.
     apply idpath.
@@ -901,7 +902,7 @@ Section acyclic_complexes.
     identity a · transportf (precategory_morphisms a) (maponpaths C e'') (f · Diff C i).
   Proof.
     rewrite id_left. rewrite transport_target_postcompose.
-    rewrite transport_compose. apply cancel_precomposition.
+    rewrite transport_compose. apply maponpaths.
     rewrite <- maponpathsinv0.
     use (pathscomp0 (! (transport_hz_section A C 1 (Diff C) _ _ e))).
     use transportf_paths. apply maponpaths. apply isasethz.
@@ -993,7 +994,7 @@ Section acyclic_complexes.
   Proof.
     rewrite id_right. rewrite <- (pathsinv0inv0 (! hzrminusplus i 1 @ e'')).
     rewrite maponpathsinv0. rewrite <- transport_compose.
-    apply cancel_postcomposition. rewrite transport_source_target_comm.
+    apply maponpaths_2. rewrite transport_source_target_comm.
     induction e. use transportf_paths. apply maponpaths. apply isasethz.
   Qed.
 
@@ -1009,14 +1010,14 @@ Section acyclic_complexes.
     rewrite ZeroArrow_comp_left. rewrite assoc.
     rewrite <- (pathsinv0inv0 e'). rewrite maponpathsinv0.
     rewrite <- transport_compose.
-    rewrite <- (ZeroArrow_comp_left _ _ _ _ _ f). apply cancel_postcomposition.
+    rewrite <- (ZeroArrow_comp_left _ _ _ _ _ f). apply maponpaths_2.
     use (transport_target_path _ _ (! maponpaths C (hzrminusplus i 1))).
     rewrite <- transport_target_postcompose. rewrite transport_f_f.
     rewrite pathsinv0r. rewrite transport_target_ZeroArrow.
     use (transport_target_path _ _ (maponpaths C (hzplusradd _ _ 1 e'))).
     rewrite transport_target_ZeroArrow. rewrite transport_f_f. cbn.
     rewrite <- (DSq A C i0). rewrite transport_compose.
-    rewrite transport_target_postcompose. apply cancel_precomposition.
+    rewrite transport_target_postcompose. apply maponpaths.
     use (pathscomp0 (transport_hz_source_target A _ 1 (Diff C) _ _ e')).
     rewrite transport_source_target_comm.
     rewrite maponpathsinv0. rewrite pathsinv0inv0.
@@ -1156,7 +1157,7 @@ Section complexes_precat.
     - induction T. exact H.
     - induction (isdecrelhzeq (i + 1) i0) as [T' | F'].
       + induction T'. cbn. unfold idfun. rewrite <- assoc. rewrite <- assoc. rewrite <- MComm.
-        rewrite assoc. rewrite assoc. apply cancel_postcomposition.
+        rewrite assoc. rewrite assoc. apply maponpaths_2.
         exact H.
       + apply idpath.
   Qed.
@@ -1215,7 +1216,7 @@ Section complexes_precat.
       }
       cbn in e. cbn. rewrite e. clear e.
       rewrite transport_target_postcompose.
-      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+      rewrite <- assoc. rewrite <- assoc. apply maponpaths.
       rewrite transport_f_f. rewrite <- maponpathscomp0.
       use (@transport_source_path
              A (C1 i) (C1 (i0 + 1)) a _ _
@@ -1281,7 +1282,7 @@ Section complexes_precat.
           apply (iso_inv_after_iso (isopair _ (H i))).
         }
         rewrite assoc. rewrite assoc. rewrite e0. rewrite id_left.
-        rewrite <- (MComm f i). apply cancel_precomposition.
+        rewrite <- (MComm f i). apply maponpaths.
         assert (e1 : inv_from_iso (MMor f (i + 1),, H (i + 1)) · MMor f (i + 1) = identity _).
         {
           apply (iso_after_iso_inv (isopair _ (H (i + 1)))).
@@ -1843,7 +1844,7 @@ Section complexes_abelian.
     rewrite <- assoc. rewrite <- assoc. fold ker.
     rewrite (KernelCommutes _ ker). cbn. use (pathscomp0 _ (MComm h i)).
     set (tmp := MComm (MonicArrow _ M) i). cbn in tmp. rewrite <- tmp. clear tmp.
-    rewrite assoc. apply cancel_postcomposition.
+    rewrite assoc. apply maponpaths_2.
     apply (KernelCommutes _ (MonicToKernel (mk_Monic A _ (isM i))) (w i) (MMor h i)).
   Qed.
 
@@ -1987,7 +1988,7 @@ Section complexes_abelian.
     apply (CokernelArrowisEpi _ coker). rewrite assoc. rewrite assoc. rewrite CokernelCommutes.
     use (pathscomp0 _ (! (MComm h i))). cbn.
     set (tmp := MComm (EpiArrow _ E) i). cbn in tmp. rewrite tmp. clear tmp.
-    rewrite <- assoc. apply cancel_precomposition.
+    rewrite <- assoc. apply maponpaths.
     apply (CokernelCommutes _ (EpiToCokernel (mk_Epi A _ (isE (i + 1))))).
   Qed.
 

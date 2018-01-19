@@ -131,7 +131,7 @@ Section undercategories_morphisms.
   Proof.
     cbn.
     rewrite <- assoc.
-    apply cancel_precomposition.
+    apply maponpaths.
     set (tmp := Under_mor_eq C c' g).
     unfold Under_mor_mor.
     unfold Under_mor_mor, Under_ob_mor in tmp.

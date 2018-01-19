@@ -16,6 +16,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -117,7 +118,7 @@ intermediate_path (pr1 (pr1 h1_inv) · pr1 (pr2 x1)).
 { apply maponpaths, pathsinv0, (pr2 f). }
 etrans; [ apply maponpaths, (maponpaths pr1 (pr2 (pr1 h1))) |]; simpl.
 rewrite assoc.
-etrans; [ eapply cancel_postcomposition, (maponpaths pr1 (maponpaths pr1 Hh1)) |].
+etrans; [ eapply maponpaths_2, (maponpaths pr1 (maponpaths pr1 Hh1)) |].
 apply id_left.
 Qed.
 

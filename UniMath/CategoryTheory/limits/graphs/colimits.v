@@ -16,7 +16,7 @@ Written by Benedikt Ahrens and Anders Mörtberg, 2015-2016
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
@@ -317,11 +317,11 @@ apply (tpair _ (colimArrow (mk_ColimCocone D d cd H) (colim CC) (colimCocone CC)
 abstract (split;
     [ apply pathsinv0, colim_endo_is_identity; simpl; intro u;
       rewrite assoc;
-      eapply pathscomp0; [eapply cancel_postcomposition; apply colimArrowCommutes|];
+      eapply pathscomp0; [eapply maponpaths_2; apply colimArrowCommutes|];
       apply (colimArrowCommutes CD) |
       apply pathsinv0, (colim_endo_is_identity _ CD); simpl; intro u;
       rewrite assoc;
-      eapply pathscomp0; [eapply cancel_postcomposition; apply (colimArrowCommutes CD)|];
+      eapply pathscomp0; [eapply maponpaths_2; apply (colimArrowCommutes CD)|];
       apply colimArrowCommutes ]).
 Defined.
 
@@ -346,7 +346,7 @@ use tpair.
   + exact (iinv · colimArrow CC x cx).
   + simpl; intro u.
     rewrite <- (colimArrowCommutes CC x cx u), assoc.
-    apply cancel_postcomposition, pathsinv0, z_iso_inv_on_left, pathsinv0, colimArrowCommutes.
+    apply maponpaths_2, pathsinv0, z_iso_inv_on_left, pathsinv0, colimArrowCommutes.
 - intros p; destruct p as [f Hf].
   apply subtypeEquality.
   + intro a; apply impred; intro u; apply hsC.

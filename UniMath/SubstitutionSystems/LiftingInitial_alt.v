@@ -16,6 +16,7 @@ Set Kernel Term Sharing.
 
 Require Import UniMath.Foundations.PartD.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -511,7 +512,7 @@ intermediate_path (pr1 (pr1 X)).
   set (T5 := T4 Φ).
   intermediate_path (Φ _ (fbracket InitHSS f)); trivial.
   eapply pathscomp0; [|apply T5]; clear TT T2 T3 T4 T5 X.
-  * now apply cancel_postcomposition.
+  * now apply (maponpaths_2 compose).
   * (* hypothesis of fusion law *)
     apply funextsec; intro t.
     apply (nat_trans_eq hsC); intro c; simpl.
@@ -541,7 +542,7 @@ intermediate_path (pr1 (pr1 X)).
       simpl.
       rewrite <- !assoc.
       eapply pathscomp0;
-        [| eapply pathsinv0, cancel_postcomposition,
+        [| eapply pathsinv0, maponpaths_2,
            (nat_trans_eq_pointwise (functor_comp H t β) c)].
       simpl; rewrite <- assoc.
       apply maponpaths, BinCoproductIn2Commutes_left_in_ctx_dir.
@@ -567,7 +568,7 @@ intermediate_path (pr1 (pr1 X)).
       rewrite !assoc.
       assert (fbracket_η_inst_c := nat_trans_eq_pointwise (fbracket_η T' (f· ptd_from_alg_mor _ hsC CP H β0)) c).
       eapply pathscomp0; [| apply (!fbracket_η_inst_c)].
-      apply cancel_postcomposition, (ptd_mor_commutes _ (ptd_from_alg_mor _ hsC CP H β0) ((pr1 Z) c)).
+      apply (maponpaths_2 compose), (ptd_mor_commutes _ (ptd_from_alg_mor _ hsC CP H β0) ((pr1 Z) c)).
     + (* now the difficult case *)
       repeat rewrite <- assoc.
       apply BinCoproductIn2Commutes_right_in_ctx_dir.
@@ -588,7 +589,7 @@ intermediate_path (pr1 (pr1 X)).
         apply idpath.
       do 2 rewrite assoc.
       eapply pathscomp0.
-        apply cancel_postcomposition.
+        apply maponpaths_2.
         eapply pathsinv0.
         assert (τ_part_of_alg_mor_inst := τ_part_of_alg_mor _ hsC CP H _ _ β0).
         assert (τ_part_of_alg_mor_inst_Zc :=
@@ -608,8 +609,8 @@ intermediate_path (pr1 (pr1 X)).
       simpl.
       unfold coproduct_nat_trans_in2_data.
       repeat rewrite assoc.
-      apply cancel_postcomposition.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
+      apply maponpaths_2.
       assert (Hyp:
                  ((# (pr1 (ℓ(U Z))) (# H β))·
                  (theta H) ((alg_carrier _  T') ⊗ Z)·
@@ -624,7 +625,7 @@ intermediate_path (pr1 (pr1 X)).
       clear c. clear X. clear rhohat.
       rewrite (functor_comp H).
       rewrite assoc.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       apply (nat_trans_eq hsC); intro c.
       assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hsC _ hsC H θ _ _ β Z c).
       eapply pathscomp0 ; [exact θ_nat_1_pointwise_inst | ].

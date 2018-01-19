@@ -140,7 +140,7 @@ Proof.
     eapply pathscomp0. apply @pathsinv0, assoc.
     eapply pathscomp0. apply maponpaths, gg.
     eapply pathscomp0. apply assoc.
-    eapply pathscomp0. apply cancel_postcomposition, ff.
+    eapply pathscomp0. apply maponpaths_2, ff.
     apply pathsinv0, assoc.
 Qed.
 
@@ -184,7 +184,7 @@ Proof.
     eapply pathscomp0. apply @pathsinv0, assoc.
     eapply pathscomp0. apply maponpaths, gg.
     eapply pathscomp0. apply assoc.
-    eapply pathscomp0. apply cancel_postcomposition, ff.
+    eapply pathscomp0. apply maponpaths_2, ff.
     apply pathsinv0, assoc.
 Qed.
 

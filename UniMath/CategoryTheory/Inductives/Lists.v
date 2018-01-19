@@ -13,6 +13,7 @@ Require Import UniMath.Foundations.NaturalNumbers.
 
 Require Import UniMath.Combinatorics.Lists.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
@@ -420,7 +421,7 @@ use tpair.
         - abstract (
             intros m n e; destruct e; simpl;
             destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
-            rewrite <- (hf m _ (idpath _)), !assoc; apply cancel_postcomposition;
+            rewrite <- (hf m _ (idpath _)), !assoc; apply maponpaths_2;
             now unfold BinCoproduct_of_functors_mor; rewrite BinCoproductOfArrowsIn2). }
       apply (pr1 (pr1 (ccL HcL ccHcL))).
   + abstract (

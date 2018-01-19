@@ -291,7 +291,7 @@ Proof.
   use (pathscomp0 (maponpaths _ _) (transportfbinv _ _ _)).
   apply (precomp_with_iso_disp_is_inj (cartesian_lifts_iso fd fd')).
   etrans. apply assoc_disp.
-  etrans. eapply transportf_bind, cancel_postcomposition_disp.
+  etrans. eapply transportf_bind, maponpaths_2_disp.
     use inv_mor_after_iso_disp.
   etrans. eapply transportf_bind, id_left_disp.
   apply pathsinv0.

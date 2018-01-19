@@ -2,6 +2,7 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
@@ -158,18 +159,18 @@ Section FinOrdCoproduct_criteria.
     (* From stn n *)
     apply CoproductArrowUnique.
     intros i. rewrite <- (X (dni_lastelement i)). rewrite assoc.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     induction (natlehchoice4 (pr1 (dni_lastelement i)) n
                              (pr2 (dni_lastelement i))) as [a0|b].
     unfold m1. rewrite assoc. unfold in1.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     unfold Cone1In. apply pathsinv0.
 
     set (e := dni_lastelement_is_inj (dni_lastelement_eq n (dni_lastelement i)
                                                          a0)).
     use (pathscomp0 _ (CoproductIn_idtoiso (stn n) C (a ∘ dni_lastelement)%functions Cone1
                                            e)).
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     apply maponpaths. apply maponpaths. (* Why we need maponpaths twice? *)
     rewrite <- (maponpathscomp _ a).
     apply maponpaths. apply isasetstn.
@@ -183,21 +184,21 @@ Section FinOrdCoproduct_criteria.
     (* From stn 1 *)
     apply CoproductArrowUnique.
     intros i. rewrite <- (X lastelement). rewrite assoc.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     induction (natlehchoice4 (pr1 lastelement) n (pr2 lastelement)) as [a0|b].
 
     (* This case is false because of a0 *)
     apply fromempty. cbn in a0. apply (isirreflnatlth _ a0).
 
     apply pathsinv0. unfold m2. rewrite assoc. unfold in2.
-    apply cancel_postcomposition. unfold Cone2In.
+    apply maponpaths_2. unfold Cone2In.
 
     (* This case makes sense *)
     set (e := isconnectedstn1 i (invweq(weqstn1tounit) tt)).
     use (pathscomp0 _ (CoproductIn_idtoiso (stn 1) C
                                            (λ _ : _, a lastelement)
                                            Cone2 e)).
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     apply maponpaths. apply maponpaths. (* Why we need maponpaths twice? *)
     fold (@funcomp (stn 1) _ _ (λ _ : stn 1, lastelement) a).
     rewrite <- (maponpathscomp (λ _ : stn 1, lastelement) a).

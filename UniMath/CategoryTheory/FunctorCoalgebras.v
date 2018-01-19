@@ -174,7 +174,7 @@ Proof.
   exists (α · α').
   unfold is_coalgebra_homo.
   rewrite <- assoc.
-  apply cancel_precomposition.
+  apply maponpaths.
   rewrite functor_comp.
   apply (coalgebra_homo_commutes F f).
 Defined.
