@@ -9,6 +9,7 @@ Written by: Anders Mörtberg, 2017
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.Combinatorics.Lists.
@@ -189,7 +190,7 @@ assert (F := maponpaths (λ x, BinCoproductIn1 _ (BinCoproducts_functor_precat _
 rewrite assoc in F.
 eapply pathscomp0; [apply F|].
 rewrite assoc.
-eapply pathscomp0; [eapply cancel_postcomposition, BinCoproductOfArrowsIn1|].
+eapply pathscomp0; [eapply maponpaths_2, BinCoproductOfArrowsIn1|].
 rewrite <- assoc.
 eapply pathscomp0; [eapply maponpaths, BinCoproductIn1Commutes|].
 apply id_left.

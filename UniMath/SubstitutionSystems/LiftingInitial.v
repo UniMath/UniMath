@@ -25,6 +25,7 @@ Contents :
 Set Kernel Term Sharing.
 
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
@@ -704,7 +705,7 @@ Proof.
         apply BinCoproductIn1Commutes_right_dir.
         apply idpath.
       * (* a bit out of order what follows *)
-        apply cancel_postcomposition.
+        apply (maponpaths_2 compose).
         apply idpath.
       * (* second diagram *)
         clear TT T2 T3 T4 T5.
@@ -768,7 +769,7 @@ Proof.
         rewrite id_left. apply BinCoproductIn1Commutes_right_dir. apply idpath.
       do 2 rewrite assoc.
       eapply pathscomp0.
-        apply cancel_postcomposition.
+        apply maponpaths_2.
         assert (ptd_mor_commutes_inst := ptd_mor_commutes _ (ptd_from_alg_mor _ hs CP H β0) ((pr1 Z) c)).
         apply ptd_mor_commutes_inst.
       assert (fbracket_η_inst := fbracket_η T' (f· ptd_from_alg_mor _ hs CP H β0)).
@@ -794,7 +795,7 @@ Proof.
         apply idpath.
       do 2 rewrite assoc.
       eapply pathscomp0.
-        apply cancel_postcomposition.
+        apply maponpaths_2.
         eapply pathsinv0.
         assert (τ_part_of_alg_mor_inst := τ_part_of_alg_mor _ hs CP H _ _ β0).
         assert (τ_part_of_alg_mor_inst_Zc :=
@@ -814,8 +815,8 @@ Proof.
       simpl.
       unfold coproduct_nat_trans_in2_data.
       repeat rewrite assoc.
-      apply cancel_postcomposition.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
+      apply maponpaths_2.
       assert (Hyp:
                  ((# (pr1 (ℓ(U Z))) (# H β))·
                  (theta H) ((alg_carrier _  T') ⊗ Z)·
@@ -832,7 +833,7 @@ Proof.
       clear c. clear X. clear rhohat.
       rewrite (functor_comp H).
       rewrite assoc.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       fold θ.
       apply nat_trans_eq; try (exact hs).
       intro c.

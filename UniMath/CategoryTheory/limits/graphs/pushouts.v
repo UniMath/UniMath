@@ -6,6 +6,8 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
@@ -97,7 +99,7 @@ Section def_po.
       * abstract (use (pathscomp0 _ (coconeInCommutes cx One Two tt));
         change (three_rec_dep _ _ _ _ _) with (f · i1);
         change (dmor _ _) with f; rewrite <- assoc;
-        apply cancel_precomposition, (pr1 (pr2 (pr1 H2)))).
+        apply maponpaths, (pr1 (pr2 (pr1 H2)))).
       * abstract ( apply (pr1 (pr2 (pr1 H2)))).
       * abstract (now use (pathscomp0 _ (pr2 (pr2 (pr1 H2))))).
     + abstract (intro t; apply subtypeEquality;
@@ -228,7 +230,7 @@ Section def_po.
       set (T := (coconeInCommutes (colimCocone Po) One Three tt)).
       use (pathscomp0 (! (maponpaths (λ h' : _, h' · k) T))).
       use (pathscomp0 _ (coconeInCommutes (colimCocone Po) One Three tt)).
-      rewrite <- assoc. apply cancel_precomposition.
+      rewrite <- assoc. apply maponpaths.
       apply kH2.
     - apply kH1.
     - apply kH2.

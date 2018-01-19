@@ -9,7 +9,7 @@ Written by: Benedikt Ahrens, Ralph Matthes (2015)
 ************************************************************)
 
 Require Import UniMath.Foundations.PartD.
-
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -102,10 +102,10 @@ Proof.
 
     simpl.
     rewrite <- ?assoc.
-    apply cancel_precomposition.
+    apply maponpaths.
     rewrite (functor_comp _).
     rewrite -> ?assoc.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     apply pathsinv0.
     apply nat_trans_ax.
 Defined.

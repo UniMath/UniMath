@@ -20,7 +20,7 @@ Contents:
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -158,14 +158,14 @@ Proof.
   match goal with |[ |- ?i1 · ?i2 · _ · _ · _ · _ = _ ] =>
                    set (i := i1); set (i':= i2) end.
 
-  etrans. apply cancel_postcomposition. repeat rewrite <- assoc.
+  etrans. apply maponpaths_2. repeat rewrite <- assoc.
           rewrite etaH. apply idpath.
   etrans. repeat rewrite <- assoc. rewrite <- functor_comp.
           rewrite (epsH). rewrite functor_comp. apply idpath.
   etrans. apply maponpaths. apply maponpaths. repeat rewrite assoc. rewrite etaH.
-          apply cancel_postcomposition. rewrite <- assoc. rewrite <- functor_comp.
+          apply maponpaths_2. rewrite <- assoc. rewrite <- functor_comp.
           rewrite T1. rewrite functor_id. apply id_right.
-  etrans. apply maponpaths. rewrite assoc. apply cancel_postcomposition.
+  etrans. apply maponpaths. rewrite assoc. apply maponpaths_2.
           use (iso_after_iso_inv (isopair _ (Hη _ ))).
   rewrite id_left.
   apply (iso_after_iso_inv ).
@@ -223,7 +223,7 @@ Proof.
   cbn in ηinvH. simpl in ηinvH.
   assert (εinvH := nat_trans_ax (inv_from_iso εntiso)).
   cbn in εinvH. simpl in εinvH.
-  etrans. apply cancel_postcomposition. apply cancel_postcomposition.
+  etrans. apply maponpaths_2. apply maponpaths_2.
           etrans. apply maponpaths. apply (! (id_right _ )).
           apply εinvH.
           rewrite id_right.
@@ -237,7 +237,7 @@ Proof.
     apply functor_id.
   - assert (XR := nat_trans_inv_pointwise_inv_before _ _ _ _ _ εntiso (pr2 εntiso)).
     cbn in XR.
-    etrans. apply cancel_postcomposition. eapply pathsinv0. apply id_right. apply XR.
+    etrans. apply maponpaths_2. eapply pathsinv0. apply id_right. apply XR.
 Qed.
 
 Lemma adjointification_forms_equivalence :

@@ -60,6 +60,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
@@ -156,7 +157,7 @@ induction j as [|j IHj].
     * now rewrite <- (IHj h h0), assoc.
     * destruct p; simpl.
       destruct (natlehchoice4 _ _ h); [destruct (isirreflnatlth _ h0)|].
-      apply cancel_postcomposition, maponpaths, isasetnat.
+      apply maponpaths_2, maponpaths, isasetnat.
   + destruct p, (isirreflnatlth _ HSij).
 Qed.
 
@@ -169,10 +170,10 @@ destruct j.
 - simpl; destruct (natlehchoice4 i (S j) HiSj).
   + destruct (natlehchoice4 _ _ h).
     * destruct (natlehchoice4 _ _ Hij); [|destruct p, (isirreflnatlth _ h0)].
-      apply cancel_postcomposition, cancel_postcomposition, maponpaths, isasetbool.
+      apply maponpaths_2, maponpaths_2, maponpaths, isasetbool.
     * destruct p; simpl.
       destruct (natlehchoice4 _ _ Hij); [destruct (isirreflnatlth _ h0)|].
-      apply cancel_postcomposition, maponpaths, isasetnat.
+      apply maponpaths_2, maponpaths, isasetnat.
   + generalize Hij; rewrite p; intros H.
     destruct (isirreflnatlth _ H).
 Qed.
@@ -333,7 +334,7 @@ destruct e.
 induction n as [|n IHn].
 - now apply InitialArrowUnique.
 - simpl; rewrite assoc.
-  apply cancel_postcomposition, pathsinv0.
+  apply maponpaths_2, pathsinv0.
   eapply pathscomp0; [|simpl; apply functor_comp].
   now apply maponpaths, pathsinv0, IHn.
 Qed.
@@ -354,9 +355,9 @@ destruct n as [|n].
 - now apply InitialArrowUnique.
 - rewrite assoc, unfold_inv_from_iso_α.
   eapply pathscomp0;
-    [apply cancel_postcomposition, (colimArrowCommutes shiftColimCocone)|].
+    [apply maponpaths_2, (colimArrowCommutes shiftColimCocone)|].
   simpl; rewrite assoc, <- functor_comp.
-  apply cancel_postcomposition, maponpaths, (colimArrowCommutes CC).
+  apply maponpaths_2, maponpaths, (colimArrowCommutes CC).
 Qed.
 
 Local Definition ad_mor : algebra_mor F α_alg Aa := tpair _ _ ad_is_algebra_mor.
@@ -375,7 +376,7 @@ induction n as [|n IHn]; simpl.
 - rewrite <- IHn, functor_comp, <- assoc.
   eapply pathscomp0; [| eapply maponpaths; apply hf].
   rewrite assoc.
-  apply cancel_postcomposition, pathsinv0, (iso_inv_to_right _ _ _ _ _ α).
+  apply maponpaths_2, pathsinv0, (iso_inv_to_right _ _ _ _ _ α).
   rewrite unfold_inv_from_iso_α; apply pathsinv0.
   now eapply pathscomp0; [apply (colimArrowCommutes shiftColimCocone)|].
 Qed.
@@ -426,7 +427,7 @@ Proof.
 use mk_cocone.
 - intro v; apply (pr1 α (dob d v) · coconeIn ccGy v).
 - abstract (simpl; intros u v e; rewrite <- (coconeInCommutes ccGy u v e), !assoc;
-            apply cancel_postcomposition, nat_trans_ax).
+            apply maponpaths_2, nat_trans_ax).
 Defined.
 
 Lemma αinv_f_commutes y (ccGy : cocone (mapdiagram G d) y) (f : D⟦F L,y⟧)
@@ -434,10 +435,10 @@ Lemma αinv_f_commutes y (ccGy : cocone (mapdiagram G d) y) (f : D⟦F L,y⟧)
        ∏ v, # G (coconeIn cc v) · (pr1 αinv L · f) = coconeIn ccGy v.
 Proof.
 intro v; rewrite assoc.
-eapply pathscomp0; [apply cancel_postcomposition, nat_trans_ax|].
+eapply pathscomp0; [apply maponpaths_2, nat_trans_ax|].
 rewrite <- assoc; eapply pathscomp0; [apply maponpaths, (Hf v)|]; simpl; rewrite assoc.
 eapply pathscomp0.
-  apply cancel_postcomposition.
+  apply maponpaths_2.
   apply (nat_trans_eq_pointwise (@iso_after_iso_inv [C,D,hsD] _ _ (isopair _ Hα))).
 now rewrite id_left.
 Qed.
@@ -453,13 +454,13 @@ transparent assert (HH : (∑ x : D ⟦ F L, y ⟧,
             coconeIn (mapcocone F d cc) v · x = coconeIn (ccFy y ccGy) v)).
 { use tpair.
   - apply (pr1 α L · f').
-  - cbn. abstract (intro v; rewrite <- Hf', !assoc; apply cancel_postcomposition, nat_trans_ax).
+  - cbn. abstract (intro v; rewrite <- Hf', !assoc; apply maponpaths_2, nat_trans_ax).
 }
 apply pathsinv0.
 generalize (maponpaths pr1 (HHf HH)); intro Htemp; simpl in *.
 rewrite <- Htemp; simpl; rewrite assoc.
 eapply pathscomp0.
-  apply cancel_postcomposition.
+  apply maponpaths_2.
   apply (nat_trans_eq_pointwise (@iso_after_iso_inv [C,D,hsD] _ _ (isopair _ Hα))).
 now apply id_left.
 Qed.
@@ -909,7 +910,7 @@ use tpair.
   abstract (intro n;
     rewrite <- idtoiso_postcompose, assoc;
     eapply pathscomp0;
-      [eapply cancel_postcomposition, (toforallpaths _ _ _ (p1 n) i)|];
+      [eapply maponpaths_2, (toforallpaths _ _ _ (p1 n) i)|];
     unfold ifI, ifI_eq; simpl;
     destruct (HI i i); [|destruct (n0 (idpath _))];
     rewrite idtoiso_postcompose, idpath_transportf;
@@ -1278,13 +1279,13 @@ unfold BinProduct_of_functors_mor, map_to_K.
 destruct (natlthorgeh i j) as [h|h].
 - destruct (natlthorgeh i (S j)) as [h0|h0].
   * rewrite assoc, <- (coconeInCommutes ccK j (S j) (idpath _)), assoc; simpl.
-    apply cancel_postcomposition; unfold fun_lt.
+    apply maponpaths_2; unfold fun_lt.
     rewrite BinProductOfArrows_comp, id_left.
     eapply pathscomp0; [apply BinProductOfArrows_comp|].
     rewrite id_right.
     apply BinProductOfArrows_eq; trivial; rewrite id_left; simpl.
     destruct (natlehchoice4 i j h0) as [h1|h1].
-    + apply cancel_postcomposition, maponpaths, maponpaths, isasetbool.
+    + apply (maponpaths_2 compose), maponpaths, maponpaths, isasetbool.
     + destruct h1; destruct (isirreflnatlth _ h).
   * destruct (isirreflnatlth _ (natlthlehtrans _ _ _ (natlthtolths _ _ h) h0)).
 - destruct (natlthorgeh i (S j)) as [h0|h0].
@@ -1294,22 +1295,22 @@ destruct (natlthorgeh i j) as [h|h].
       { destruct h2; destruct (isirreflnatlth _ h0). }
     + destruct h1; simpl.
       rewrite <- (coconeInCommutes ccK i (S i) (idpath _)), assoc.
-      eapply pathscomp0; [apply cancel_postcomposition, BinProductOfArrows_comp|].
+      eapply pathscomp0; [apply maponpaths_2, BinProductOfArrows_comp|].
       rewrite id_left, id_right.
-      apply cancel_postcomposition, BinProductOfArrows_eq; trivial.
+      apply maponpaths_2, BinProductOfArrows_eq; trivial.
       simpl; destruct (natlehchoice4 i i h0) as [h1|h1]; [destruct (isirreflnatlth _ h1)|].
       apply maponpaths, maponpaths, isasetnat.
   * destruct (natgehchoice i j h) as [h1|h1].
     + destruct (natgehchoice i (S j) h0) as [h2|h2].
       { unfold fun_gt; rewrite assoc.
-        eapply pathscomp0; [eapply cancel_postcomposition, BinProductOfArrows_comp|].
+        eapply pathscomp0; [eapply maponpaths_2, BinProductOfArrows_comp|].
         rewrite id_right.
-        apply cancel_postcomposition, BinProductOfArrows_eq; trivial.
+        apply maponpaths_2, BinProductOfArrows_eq; trivial.
         now rewrite <- (chain_mor_right h1 h2). }
       { destruct h; unfold fun_gt; simpl.
         generalize h1; clear h1.
         rewrite h2; intro h1.
-        apply cancel_postcomposition.
+        apply maponpaths_2.
         apply BinProductOfArrows_eq; trivial; simpl.
         destruct (natlehchoice4 j j h1); [destruct (isirreflnatlth _ h)|].
         apply maponpaths, maponpaths, isasetnat. }
@@ -1410,7 +1411,7 @@ Proof.
   unfold map_to_K.
   destruct (natlthorgeh (S i) j).
   + destruct (natlthorgeh i j).
-    * rewrite assoc; apply cancel_postcomposition.
+    * rewrite assoc; apply maponpaths_2.
       unfold f, fun_lt; simpl.
       eapply pathscomp0; [apply BinProductOfArrows_comp|].
       now rewrite id_right, <- (chain_mor_right h0 h).
@@ -1424,14 +1425,14 @@ Proof.
         - destruct (natgehchoice i j h).
           + destruct h.
             rewrite <- (coconeInCommutes ccK i _ (idpath _)); simpl.
-            rewrite !assoc; apply cancel_postcomposition.
+            rewrite !assoc; apply maponpaths_2.
             unfold f, fun_gt.
             rewrite BinProductOfArrows_comp.
             eapply pathscomp0; [apply BinProductOfArrows_comp|].
             now rewrite !id_left, !id_right, <- (chain_mor_left h1 h0).
           + destruct p.
             rewrite <- (coconeInCommutes ccK i _ (idpath _)), assoc.
-            apply cancel_postcomposition.
+            apply maponpaths_2.
             unfold f, fun_gt.
             eapply pathscomp0; [apply BinProductOfArrows_comp|].
             rewrite id_left, id_right.
@@ -1441,7 +1442,7 @@ Proof.
        }
     * destruct p, h.
       destruct (natlthorgeh i (S i)); [|destruct (negnatgehnsn _ h)].
-      apply cancel_postcomposition; unfold f, fun_lt.
+      apply maponpaths_2; unfold f, fun_lt.
       apply BinProductOfArrows_eq; trivial; simpl.
       destruct (natlehchoice4 i i h); [destruct (isirreflnatlth _ h0)|].
       assert (H : idpath (S i) = maponpaths S p). apply isasetnat.
@@ -1468,7 +1469,7 @@ Proof.
   simpl; destruct h, p.
   intros HHH.
   rewrite <- HHH, assoc.
-  apply cancel_postcomposition.
+  apply maponpaths_2.
   unfold colimIn; simpl; unfold BinProduct_of_functors_mor; simpl.
   apply pathsinv0.
   eapply pathscomp0; [apply BinProductOfArrows_comp|].
@@ -1492,7 +1493,7 @@ Proof.
     induction (natlthorgeh i j) as [h|h].
     * rewrite <- (p j); unfold fun_lt.
       rewrite !assoc.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       unfold colimIn; simpl; unfold BinProduct_of_functors_mor; simpl.
       eapply pathscomp0; [apply BinProductOfArrows_comp|].
       apply pathsinv0.
@@ -1502,7 +1503,7 @@ Proof.
       apply (maponpaths pr1 (chain_mor_coconeIn cAB LM ccLM i j h)).
     * destruct (natgehchoice i j h).
       { unfold fun_gt; rewrite <- (p i), !assoc.
-        apply cancel_postcomposition.
+        apply maponpaths_2.
         unfold colimIn; simpl; unfold BinProduct_of_functors_mor; simpl.
         eapply pathscomp0; [apply BinProductOfArrows_comp|].
         apply pathsinv0.
@@ -1510,7 +1511,7 @@ Proof.
         now rewrite !id_left, id_right, <- (chain_mor_coconeIn cAB LM ccLM _ _ h0). }
       { destruct p0.
         rewrite <- (p i), assoc.
-        apply cancel_postcomposition.
+        apply maponpaths_2.
         unfold colimIn; simpl; unfold BinProduct_of_functors_mor; simpl.
         eapply pathscomp0; [apply BinProductOfArrows_comp|].
         now rewrite id_left, id_right. }

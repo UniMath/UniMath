@@ -1,5 +1,5 @@
 Require Import UniMath.Foundations.PartD.
-
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -91,8 +91,8 @@ Proof.
   intermediate_path (iso_inv_from_iso (left_unitor _)
            ;v; whisker_left (identity_1mor _) alpha'
            ;v; left_unitor _ ).
-    apply cancel_postcomposition.
-    apply cancel_precomposition.
+    apply maponpaths_2.
+    apply maponpaths.
     assumption.
 
   apply iso_inv_to_right.
@@ -191,8 +191,8 @@ Proof.
   intermediate_path (iso_inv_from_iso (right_unitor _)
            ;v; whisker_right alpha' (identity_1mor _)
            ;v; right_unitor _ ).
-    apply cancel_postcomposition.
-    apply cancel_precomposition.
+    apply maponpaths_2.
+    apply maponpaths.
     assumption.
 
   apply iso_inv_to_right.
@@ -328,7 +328,7 @@ Proof.
   rewrite (cancel_whisker_right (triangle_axiom f g) h).
   rewrite whisker_right_on_comp.
   rewrite assoc.
-  apply cancel_postcomposition.
+  apply maponpaths_2.
 
   apply (pentagon_axiom f (identity_1mor b) g h).
 Defined.

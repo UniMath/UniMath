@@ -217,7 +217,7 @@ Proof.
     rewrite <- (id_left u), <- (id_left v).
     rewrite <- (pr2 hf).
     repeat rewrite <- assoc.
-    now apply cancel_precomposition.
+    now apply maponpaths.
 Qed.
 
 End DefSplitEpis.

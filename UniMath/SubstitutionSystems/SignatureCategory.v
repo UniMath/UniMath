@@ -11,6 +11,7 @@ Written by: Anders Mörtberg in October 2016 based on a note of Benedikt Ahrens.
 
 Require Import UniMath.Foundations.PartD.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -109,9 +110,9 @@ Proof.
 destruct α as [α Hα]; destruct β as [β Hβ].
 unfold Signature_category_mor_diagram in *; simpl.
 rewrite (assoc ((theta Ht1) (X,,Y))).
-etrans; [apply (cancel_postcomposition ((theta Ht1) (X,,Y) · _)), Hα|].
+etrans; [apply maponpaths_2, Hα|].
 rewrite <- assoc; etrans; [apply maponpaths, Hβ|].
-rewrite assoc; apply (cancel_postcomposition (C:=[C,D]) _  (_ ∙∙ identity (U Y))).
+rewrite assoc; apply maponpaths_2.
 apply (nat_trans_eq hsD); intro c; simpl.
 now rewrite assoc, !functor_id, !id_right.
 Qed.
@@ -225,10 +226,10 @@ etrans; [apply postcompWithBinProductArrow|].
 apply pathsinv0, BinProductArrowUnique; rewrite <- assoc.
 + etrans; [apply maponpaths, BinProductPr1Commutes|].
   etrans; [apply (nat_trans_eq_pointwise (pr2 F X Y) c)|].
-  now etrans; [apply cancel_postcomposition, horcomp_id_left|].
+  now etrans; [eapply (maponpaths_2 compose), horcomp_id_left|].
 + etrans; [apply maponpaths, BinProductPr2Commutes|].
   etrans; [apply (nat_trans_eq_pointwise (pr2 G X Y) c)|].
-  now etrans; [apply cancel_postcomposition, horcomp_id_left|].
+  now etrans; [eapply (maponpaths_2 compose), horcomp_id_left|].
 Qed.
 
 Local Lemma isBinProduct_Signature_precategory (Ht1 Ht2 : Signature C hsC D hsD) :
@@ -304,9 +305,9 @@ apply Signature_category_mor_diagram_pointwise; intro c.
 etrans; [apply precompWithCoproductArrow|].
 apply pathsinv0, CoproductArrowUnique; intro i; rewrite assoc; simpl.
 etrans;
-  [apply cancel_postcomposition, (CoproductInCommutes _ _ _ (CD (λ j, pr1 (pr1 (Hti j) X) _)))|].
+  [apply maponpaths_2, (CoproductInCommutes _ _ _ (CD (λ j, pr1 (pr1 (Hti j) X) _)))|].
 apply pathsinv0; etrans; [apply (nat_trans_eq_pointwise (pr2 (F i) X Y) c)|].
-now etrans; [apply cancel_postcomposition, horcomp_id_left|].
+now etrans; [eapply (maponpaths_2 compose), horcomp_id_left|].
 Qed.
 
 Local Lemma isCoproduct_Signature_precategory (Hti : I → Signature_precategory C D) :

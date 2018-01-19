@@ -226,7 +226,7 @@ Section translation_functor.
     (* Show that the first elements of to_binop are the same *)
     set (tmp := @transport_hz_source_target A C2 1 (Diff C2) _ _ (hzrplusminus (i - 1 + 1) 1)).
     rewrite tmp. clear tmp. rewrite transport_compose.
-    rewrite transport_target_postcompose. apply cancel_precomposition.
+    rewrite transport_target_postcompose. apply maponpaths.
     rewrite transport_f_f. rewrite <- maponpathsinv0. rewrite <- maponpathscomp0.
     rewrite pathsinv0r. rewrite <- functtransportf. rewrite idpath_transportf.
     apply transportf_paths. apply maponpaths. apply isasethz.
@@ -323,7 +323,7 @@ Section translation_functor.
       set (tmp := transport_hz_double_section A C1 C2 (MMor f) _ _ (hzrplusminus (i - 1 + 1) 1)).
       cbn. cbn in tmp. rewrite tmp. clear tmp.
       rewrite <- (transport_compose' _ _ (maponpaths C1 (! hzrplusminus (i - 1 + 1) 1))).
-      apply cancel_precomposition. apply idpath.
+      apply maponpaths. apply idpath.
   Qed.
 
   Definition InvTranslationMorphism (C1 C2 : Complex A) (f : Morphism C1 C2) :
@@ -398,7 +398,7 @@ Section translation_functor.
                             (maponpaths C2 (hzrplusminus (i + 1 - 1 - 1) 1))
                             (Diff C1 (i + 1 - 1 - 1) · H (i + 1 - 1 - 1 + 1))).
     {
-      rewrite transport_target_postcompose. rewrite transport_compose. apply cancel_precomposition.
+      rewrite transport_target_postcompose. rewrite transport_compose. apply maponpaths.
       rewrite <- maponpathsinv0.
       rewrite <- (transport_hz_double_section A _ _ H _ _ (hzrminusplus (i + 1 - 1) 1)).
       use transportf_paths.

@@ -25,7 +25,7 @@ Contents:
 ************************************************************)
 
 Require Import UniMath.Foundations.PartD.
-
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -164,7 +164,7 @@ use left_adjoint_from_partial.
     + intro mf; apply (# S (pr2 mf) · α (pr1 mf)).
     + abstract (intros fm fm' h; simpl; rewrite <- assoc;
                 eapply pathscomp0; [apply maponpaths, (pathsinv0 (nat_trans_ax α _ _ (pr1 h)))|];
-                simpl; rewrite assoc, <- functor_comp; apply cancel_postcomposition, maponpaths, (pr2 h)).
+                simpl; rewrite assoc, <- functor_comp; apply maponpaths_2, maponpaths, (pr2 h)).
   }
 
   transparent assert (σ : (∏ c, A ⟦ S c, R T c ⟧)).
@@ -215,7 +215,7 @@ use left_adjoint_from_partial.
     rewrite temp; simpl.
     destruct u as [n g]; simpl in *.
     apply pathsinv0; eapply pathscomp0;
-    [rewrite assoc; apply cancel_postcomposition, (nat_trans_ax t _ _ g)|].
+    [rewrite assoc; apply maponpaths_2, (nat_trans_ax t _ _ g)|].
     rewrite <- !assoc; apply maponpaths.
     generalize (limArrowCommutes (LA (K n ↓ K) _) _ (Rmor_cone T c (K n) g) (Kid n)).
     now simpl; rewrite id_right.

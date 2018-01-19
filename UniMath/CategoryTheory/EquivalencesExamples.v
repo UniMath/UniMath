@@ -20,7 +20,7 @@ Written by: Anders Mörtberg, 2016
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -91,7 +91,7 @@ use tpair.
     | cbn; rewrite postcompWithProductArrow;
       apply pathsinv0, Product_endo_is_identity; intro i;
       eapply pathscomp0; [|apply (ProductPrCommutes I C _ (PC x))];
-      apply cancel_postcomposition, maponpaths, funextsec; intro j; apply id_left]).
+      apply maponpaths_2, maponpaths, funextsec; intro j; apply id_left]).
 Defined.
 
 End delta_functor_adjunction.

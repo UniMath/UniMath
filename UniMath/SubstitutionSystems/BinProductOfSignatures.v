@@ -13,6 +13,8 @@ Written by Anders Mörtberg, 2016 (adapted from SumOfSignatures.v)
 
 Require Import UniMath.Foundations.PartD.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
@@ -91,7 +93,7 @@ Proof.
   intros [X Z] [X' Z'] [α β].
   apply (nat_trans_eq hs); intro c; simpl.
   eapply pathscomp0; [ | eapply pathsinv0, BinProductOfArrows_comp].
-  eapply pathscomp0; [ apply cancel_postcomposition, BinProductOfArrows_comp |].
+  eapply pathscomp0; [ apply maponpaths_2, BinProductOfArrows_comp |].
   eapply pathscomp0; [ apply BinProductOfArrows_comp |].
   apply BinProductOfArrows_eq.
   + exact (nat_trans_eq_pointwise (nat_trans_ax θ1 _ _ (α,,β)) c).
@@ -126,7 +128,7 @@ Proof.
   apply (nat_trans_eq hs); intro x.
   eapply pathscomp0; [ apply BinProductOfArrows_comp |].
   apply pathsinv0.
-  eapply pathscomp0; [ apply cancel_postcomposition; simpl; apply BinProductOfArrows_comp|].
+  eapply pathscomp0; [ eapply (maponpaths_2 compose); simpl; apply BinProductOfArrows_comp|].
   eapply pathscomp0; [ apply BinProductOfArrows_comp|].
   apply pathsinv0, BinProductOfArrows_eq.
   - assert (Ha := S12 X Z Z' Y α); simpl in Ha.

@@ -10,7 +10,7 @@ Revised and extended by Ralph Matthes, 2017
 *)
 
 Require Import UniMath.Foundations.PartD.
-
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -179,7 +179,7 @@ eapply pathscomp0.
   eapply maponpaths, maponpaths, H.
 rewrite assoc; apply pathsinv0.
 eapply pathscomp0.
-  eapply cancel_postcomposition, nat_trans_ax.
+  eapply maponpaths_2, nat_trans_ax.
 now rewrite <- assoc, <- functor_comp.
 Qed.
 
@@ -246,9 +246,9 @@ intros Ze Z'e' αX; induction Ze as [Z e]; induction Z'e' as [Z' e']; induction 
 apply (nat_trans_eq hsC); intro c; simpl; rewrite functor_id, !id_right, !id_left.
 eapply pathscomp0.
   rewrite assoc.
-  eapply cancel_postcomposition, pathsinv0, functor_comp.
+  eapply maponpaths_2, pathsinv0, functor_comp.
 eapply pathscomp0.
-  eapply cancel_postcomposition, maponpaths.
+  eapply maponpaths_2, maponpaths.
   generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G1 DL1) (Z,,e) (Z',, e') (α,,X)) c).
   simpl; rewrite id_left, functor_id, id_right; intro H1.
   apply H1.
@@ -270,7 +270,7 @@ apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_left, id_right.
 eapply pathscomp0.
   eapply maponpaths, (nat_trans_eq_pointwise (distributive_law1 G2 DL2) (G1 c)).
 eapply pathscomp0.
-  eapply cancel_postcomposition, maponpaths, (nat_trans_eq_pointwise (distributive_law1  G1 DL1) c).
+  eapply maponpaths_2, maponpaths, (nat_trans_eq_pointwise (distributive_law1  G1 DL1) c).
 now rewrite id_right; apply functor_id.
 Qed.
 
@@ -279,17 +279,17 @@ Proof.
 intros Ze Ze'.
 apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_left, !id_right.
 eapply pathscomp0.
-  eapply cancel_postcomposition, maponpaths, (nat_trans_eq_pointwise (distributive_law2 G1 DL1 Ze Ze') c).
+  eapply maponpaths_2, maponpaths, (nat_trans_eq_pointwise (distributive_law2 G1 DL1 Ze Ze') c).
 eapply pathscomp0.
   eapply maponpaths, (nat_trans_eq_pointwise (distributive_law2 G2 DL2 Ze Ze') (G1 c)).
 simpl; rewrite !id_left, !id_right.
 eapply pathscomp0.
-  eapply cancel_postcomposition, functor_comp.
+  eapply maponpaths_2, functor_comp.
 rewrite <- !assoc.
 apply maponpaths.
 rewrite assoc.
 eapply pathscomp0.
-  eapply cancel_postcomposition, (nat_trans_ax (δ G2 DL2 Ze') _ _ (pr1 (δ G1 DL1 Ze) c)).
+  eapply maponpaths_2, (nat_trans_ax (δ G2 DL2 Ze') _ _ (pr1 (δ G1 DL1 Ze) c)).
 simpl; rewrite <- !assoc.
 now apply maponpaths, pathsinv0, functor_comp.
 Qed.
@@ -333,18 +333,18 @@ rewrite id_left.
 apply pathsinv0, BinCoproductArrowUnique.
 - eapply pathscomp0.
     rewrite assoc.
-    eapply cancel_postcomposition, BinCoproductIn1Commutes.
+    eapply maponpaths_2, BinCoproductIn1Commutes.
   rewrite <- assoc.
   eapply pathscomp0.
     eapply maponpaths, pathsinv0, (nat_trans_ax e).
   simpl; rewrite assoc.
-  apply cancel_postcomposition.
+  apply maponpaths_2.
   eapply pathscomp0.
     apply BinCoproductOfArrowsIn1.
   now rewrite id_left.
 - rewrite assoc.
   eapply pathscomp0.
-    eapply cancel_postcomposition, BinCoproductIn2Commutes.
+    eapply maponpaths_2, BinCoproductIn2Commutes.
   rewrite <- !functor_comp.
   now apply maponpaths, BinCoproductOfArrowsIn2.
 Qed.
@@ -361,12 +361,12 @@ rewrite precompWithBinCoproductArrow.
 apply pathsinv0, BinCoproductArrowUnique.
 - rewrite id_left, assoc.
   eapply pathscomp0.
-    eapply cancel_postcomposition, BinCoproductIn1Commutes.
+    eapply maponpaths_2, BinCoproductIn1Commutes.
   rewrite <- assoc.
   now apply maponpaths, X.
 - rewrite assoc.
   eapply pathscomp0.
-    eapply cancel_postcomposition, BinCoproductIn2Commutes.
+    eapply maponpaths_2, BinCoproductIn2Commutes.
   now apply nat_trans_ax.
 Qed.
 
@@ -397,18 +397,18 @@ rewrite !id_left, id_right.
 apply pathsinv0, BinCoproductArrowUnique.
 - rewrite assoc.
   eapply pathscomp0.
-    eapply cancel_postcomposition, BinCoproductIn1Commutes.
+    eapply maponpaths_2, BinCoproductIn1Commutes.
   rewrite <- assoc.
   eapply pathscomp0.
     eapply maponpaths, pathsinv0, (nat_trans_ax e').
   simpl; rewrite assoc.
   eapply pathscomp0.
-    eapply cancel_postcomposition, BinCoproductIn1Commutes.
+    eapply maponpaths_2, BinCoproductIn1Commutes.
   rewrite <- !assoc.
   now apply maponpaths, (nat_trans_ax e').
 - rewrite assoc.
   eapply pathscomp0.
-    eapply cancel_postcomposition, BinCoproductIn2Commutes.
+    eapply maponpaths_2, BinCoproductIn2Commutes.
   eapply pathscomp0.
     eapply pathsinv0, functor_comp.
   now apply maponpaths, BinCoproductIn2Commutes.

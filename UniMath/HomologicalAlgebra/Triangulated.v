@@ -18,6 +18,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
@@ -472,7 +474,7 @@ Section def_triangles.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
     apply maponpaths. rewrite assoc. rewrite <- functor_comp.
     set (tmp := maponpaths (# (AddEquiv2 T)) (DComm3 M)). rewrite tmp. clear tmp.
-    rewrite functor_comp. rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+    rewrite functor_comp. rewrite <- assoc. rewrite <- assoc. apply maponpaths.
     set (tmp := AddEquivUnitComm T _ _ (MPMor1 M)). cbn in tmp.
     use (! AddEquivUnitInv T (MPMor1 M)).
   Qed.
@@ -483,7 +485,7 @@ Section def_triangles.
          · # (AddEquiv1 T) (# (AddEquiv2 T) (MPMor3 M)).
   Proof.
     set (tmp := MPComm2 M). rewrite assoc. rewrite tmp. clear tmp.
-    rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+    rewrite <- assoc. rewrite <- assoc. apply maponpaths.
     use (! AddEquivCounitInv T (MPMor3 M)).
   Qed.
 
@@ -944,7 +946,7 @@ Section rotation_isos.
       · ((Mor3 D) · (z_iso_inv_mor (AddEquivCounitIso Trans ((AddEquiv1 Trans) (Ob1 D))))) =
     Mor3 D · # (AddEquiv1 (@Trans PT)) (AddEquivUnitIso Trans (Ob1 D)).
   Proof.
-    rewrite id_left. apply cancel_precomposition. use AddEquivCounitUnit.
+    rewrite id_left. apply maponpaths. use AddEquivCounitUnit.
   Qed.
 
   Definition RotInvIso_Mor (D : DTri) : TriMor D (InvRotDTri PT (RotDTri PT D)).
@@ -1037,7 +1039,7 @@ Section rotation_isos.
     rewrite <- PreAdditive_invlcomp in tmp. rewrite <- PreAdditive_invrcomp in tmp.
     apply cancel_inv in tmp. rewrite <- functor_comp in tmp.
     use (AddEquiv1Inj Trans). use (pathscomp0 _ tmp). clear tmp.
-    rewrite functor_comp. apply cancel_postcomposition.
+    rewrite functor_comp. apply maponpaths_2.
     set (tmp := AddEquivCounitMorComm Trans (MPMor3 Mor)).
     use (pathscomp0 _ (! tmp)). clear tmp. cbn. rewrite functor_comp. rewrite functor_comp.
     set (tmp := AddEquivCounitUnit Trans (Ob1 D1)).
@@ -1046,7 +1048,7 @@ Section rotation_isos.
                             # (AddEquiv1 Trans)
                             (z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2))))) in tmp.
     use (pathscomp0 (! tmp)). clear tmp. rewrite <- assoc. rewrite <- assoc.
-    apply cancel_precomposition. apply cancel_precomposition.
+    apply maponpaths. apply maponpaths.
     use (! AddEquivCounitUnit' Trans (Ob1 D2)).
   Qed.
 
@@ -1057,7 +1059,7 @@ Section rotation_isos.
                                z_iso_inv_mor (AddEquivUnitIso Trans (Ob1 D2))).
   Proof.
     set (tmp := MPComm2 Mor). cbn in tmp. cbn. rewrite tmp. clear tmp.
-    apply cancel_precomposition.
+    apply maponpaths.
     use (pathscomp0 (AddEquivCounitMorComm Trans (MPMor3 Mor))).
     set (tmp := AddEquivCounitUnit Trans (Ob1 D1)).
     apply (maponpaths
@@ -1065,7 +1067,7 @@ Section rotation_isos.
                                   (MPMor3 Mor))
                             · (AddEquivCounit Trans) ((AddEquiv1 Trans) (Ob1 D2)))) in tmp.
     use (pathscomp0 tmp). clear tmp. rewrite <- assoc. rewrite <- assoc. rewrite functor_comp.
-    apply cancel_precomposition. rewrite functor_comp. apply cancel_precomposition.
+    apply maponpaths. rewrite functor_comp. apply maponpaths.
     exact (AddEquivCounitUnit' Trans (Ob1 D2)).
   Qed.
 
@@ -1105,9 +1107,9 @@ Section rotation_isos.
     rewrite <- PreAdditive_invlcomp.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
     rewrite <- PreAdditive_invlcomp.
-    apply maponpaths. apply cancel_postcomposition.
+    apply maponpaths. apply maponpaths_2.
     rewrite <- functor_comp. apply (maponpaths (# (AddEquiv2 Trans))) in H. use (pathscomp0 H).
-    rewrite functor_comp. apply cancel_postcomposition. rewrite <- assoc.
+    rewrite functor_comp. apply maponpaths_2. rewrite <- assoc.
     set (tmp := is_inverse_in_precat2 (AddEquivUnitIso Trans (Ob1 D1))).
     apply (maponpaths (compose (# (AddEquiv2 Trans) (Mor3 D1)))) in tmp.
     use (pathscomp0 _ (! tmp)). rewrite id_right. apply idpath.
@@ -1121,8 +1123,8 @@ Section rotation_isos.
   Proof.
     use (post_comp_with_z_iso_inv_is_inj (AddEquivCounitIso Trans (Ob3 D2))).
     rewrite <- assoc. use (pathscomp0 (DComm3 Mor)). rewrite <- assoc. rewrite <- assoc.
-    cbn. rewrite <- assoc. apply cancel_precomposition. rewrite <- assoc.
-    apply cancel_precomposition.
+    cbn. rewrite <- assoc. apply maponpaths. rewrite <- assoc.
+    apply maponpaths.
     set (tmp := is_inverse_in_precat1 (AddEquivCounitIso Trans (Ob3 D2))).
     apply (maponpaths (compose (# (AddEquiv1 Trans) (MPMor1 Mor)))) in tmp.
     use (pathscomp0 _ (! tmp)). clear tmp. rewrite id_right. apply idpath.
@@ -1266,7 +1268,7 @@ Section short_short_exact_sequences.
   Proof.
     cbn. rewrite <- (@AdditiveZeroArrow_postmor_Abelian PT).
     use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor.
-    rewrite <- assoc. apply cancel_precomposition. exact (DTriCompZero D).
+    rewrite <- assoc. apply maponpaths. exact (DTriCompZero D).
   Qed.
 
   Definition ShortShortExactData_from_object (D : @DTri PT) (X : ob PT) :
@@ -1339,7 +1341,7 @@ Section short_short_exact_sequences.
   Proof.
     rewrite <- (@AdditiveZeroArrow_premor_Abelian PT).
     use monoidfun_paths. use funextfun. intros x. cbn. unfold to_premor. rewrite assoc.
-    apply cancel_postcomposition. exact (DTriCompZero D).
+    apply maponpaths_2. exact (DTriCompZero D).
   Qed.
 
   Definition ShortShortExactData_to_object (D : @DTri PT) (X : ob PT) :
@@ -1488,14 +1490,14 @@ Section triangulated_five_lemma.
   Proof.
     use mk_FiveRowMorsComm.
     - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor.
-      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition. exact (! MPComm1 M).
+      rewrite <- assoc. rewrite <- assoc. apply maponpaths. exact (! MPComm1 M).
     - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor.
-      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition. exact (! MPComm2 M).
+      rewrite <- assoc. rewrite <- assoc. apply maponpaths. exact (! MPComm2 M).
     - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor.
-      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition. exact (! DComm3 M).
+      rewrite <- assoc. rewrite <- assoc. apply maponpaths. exact (! DComm3 M).
     - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor.
       rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition. rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
+      apply maponpaths. rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
       apply maponpaths. rewrite <- functor_comp. rewrite <- functor_comp.
       apply maponpaths. exact (! MPComm1 M).
   Qed.
@@ -1588,19 +1590,19 @@ Section triangulated_five_lemma.
     use mk_FiveRowMorsComm.
     - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_premor.
       rewrite assoc. rewrite assoc.
-      apply cancel_postcomposition. rewrite <- PreAdditive_invlcomp.
+      apply maponpaths_2. rewrite <- PreAdditive_invlcomp.
       rewrite <- PreAdditive_invrcomp.
       apply maponpaths. rewrite <- functor_comp. rewrite <- functor_comp.
       apply maponpaths. exact (MPComm1 M).
     - use monoidfun_paths. use funextfun.
       intros x. cbn. unfold to_premor. rewrite assoc. rewrite assoc.
-      apply cancel_postcomposition. exact (DComm3 M).
+      apply maponpaths_2. exact (DComm3 M).
     - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_premor.
       rewrite assoc. rewrite assoc.
-      apply cancel_postcomposition. exact (MPComm2 M).
+      apply maponpaths_2. exact (MPComm2 M).
     - use monoidfun_paths. use funextfun.
       intros x. cbn. unfold to_premor. rewrite assoc. rewrite assoc.
-      apply cancel_postcomposition. exact (MPComm1 M).
+      apply maponpaths_2. exact (MPComm1 M).
   Qed.
 
   Definition TriangulatedMorphism_to_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
@@ -1677,7 +1679,7 @@ Section Ext_isomorphisms.
     rewrite assoc. rewrite assoc. rewrite <- (MPComm2 I1).
     rewrite <- (assoc _ (Mor2 D1')). rewrite comm1. rewrite assoc. rewrite assoc.
     rewrite assoc. cbn. rewrite (is_inverse_in_precat1 (TriMor_is_iso2 I1)).
-    rewrite id_left. rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+    rewrite id_left. rewrite <- assoc. rewrite <- assoc. apply maponpaths.
     rewrite assoc. rewrite (MPComm2 I2). rewrite <- assoc.
     rewrite (is_inverse_in_precat1 (TriMor_is_iso3 I2)). apply id_right.
   Qed.
@@ -1775,13 +1777,13 @@ Section Octa_isomorphisms.
   Proof.
     use mk_MPMorComms.
     - cbn. rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition.
+      apply maponpaths.
       set (tmp := is_inverse_in_precat2 (TriMor_is_iso3 I3)).
       apply (maponpaths (compose (OctaMor1 O))) in tmp.
       use (pathscomp0 _ (! tmp)). clear tmp.
       rewrite id_right. apply idpath.
     - cbn. rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition.
+      apply maponpaths.
       set (tmp := is_inverse_in_precat2 (TriMor_is_iso3 I2)).
       apply (maponpaths (compose (OctaMor2 O))) in tmp.
       use (pathscomp0 _ (! tmp)). clear tmp.
@@ -1810,9 +1812,9 @@ Section Octa_isomorphisms.
   Proof.
     cbn. rewrite assoc.
     set (tmp := DComm3 I2). cbn in tmp. rewrite tmp. clear tmp.
-    rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+    rewrite <- assoc. rewrite <- assoc. apply maponpaths.
     rewrite <- functor_comp. rewrite <- functor_comp. apply maponpaths.
-    set (tmp := MPComm2 I1). cbn in tmp. rewrite <- tmp. apply cancel_postcomposition.
+    set (tmp := MPComm2 I1). cbn in tmp. rewrite <- tmp. apply maponpaths_2.
     exact II12.
   Qed.
 
@@ -1896,7 +1898,7 @@ Section Octa_isomorphisms.
     set (tmp := OctaComm3 O). rewrite <- (assoc _ f2'). rewrite tmp. clear tmp.
     rewrite assoc.
     set (tmp := MPComm1 I2). cbn in tmp. cbn in II12. rewrite <- II12. rewrite tmp. clear tmp.
-    rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+    rewrite <- assoc. rewrite <- assoc. apply maponpaths.
     cbn in II23. rewrite II23. rewrite assoc.
     set (tmp := MPComm2 I3). cbn in tmp. rewrite tmp. clear tmp.
     rewrite <- assoc. set (tmp := is_inverse_in_precat1 (TriMor_is_iso3 I3)). cbn in tmp.
@@ -1934,9 +1936,9 @@ Section Octa_isomorphisms.
       use is_z_isomorphism_mor_eq. exact II12.
     }
     cbn in e. rewrite e. clear e. rewrite <- tmp. clear tmp.
-    rewrite functor_comp. rewrite assoc. rewrite assoc. apply cancel_postcomposition.
+    rewrite functor_comp. rewrite assoc. rewrite assoc. apply maponpaths_2.
     set (tmp := DComm3 I3). cbn in tmp. rewrite tmp. clear tmp.
-    cbn. use (pathscomp0 _ (id_right _)). rewrite <- assoc. apply cancel_precomposition.
+    cbn. use (pathscomp0 _ (id_right _)). rewrite <- assoc. apply maponpaths.
     rewrite <- functor_id.
     use (pathscomp0 (! (functor_comp (AddEquiv1 Trans) _ _))). apply maponpaths.
     cbn in II13. rewrite <- II13.

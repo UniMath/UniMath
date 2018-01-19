@@ -25,6 +25,7 @@ Set Kernel Term Sharing.
 
 Require Import UniMath.Foundations.PartD.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -249,7 +250,7 @@ Proof.
     rewrite idness. clear idness.
     rewrite id_right.
     (* does not work:
-       apply cancel_postcomposition.
+       apply maponpaths_2.
        although the terms are of identical type:
     match goal with | [ |- _ · ?l = _ ] => let ty:= (type of l) in idtac ty end.
 (*
@@ -266,7 +267,7 @@ Proof.
 *)
     apply nat_trans_eq; try (exact hs).
     intro c.
-    apply cancel_postcomposition.
+    apply (maponpaths_2 compose).
     apply BinCoproductIn1Commutes_right_dir.
     apply idpath.
     (* this proof did not work with pointedness but with brute force *)
@@ -281,7 +282,7 @@ Proof.
        the τ considered here is a BinCoproduct arrow *)
 
     rewrite τ_LamE_algebra_on_Lam.
-    eapply pathscomp0; [apply cancel_postcomposition ; apply BinCoproductOfArrows_comp | ].
+    eapply pathscomp0; [eapply (maponpaths_2 compose) ; apply BinCoproductOfArrows_comp | ].
     eapply pathscomp0. apply precompWithBinCoproductArrow.
     apply pathsinv0.
 
@@ -293,7 +294,7 @@ Proof.
 
     apply BinCoproductArrowUnique.
     + eapply pathscomp0. apply assoc.
-      eapply pathscomp0. apply cancel_postcomposition. apply BinCoproductIn1Commutes.
+      eapply pathscomp0. apply maponpaths_2. apply BinCoproductIn1Commutes.
       assert (T:= nat_trans_eq_pointwise Hyp2 c).
       clear Hyp2.
       apply pathsinv0.
@@ -304,7 +305,7 @@ Proof.
 
     + clear Hyp2.
       eapply pathscomp0. apply assoc.
-      eapply pathscomp0. apply cancel_postcomposition. apply BinCoproductIn2Commutes.
+      eapply pathscomp0. apply maponpaths_2. apply BinCoproductIn2Commutes.
       unfold Lam_Flatten.
 
     (* from here on 'simpl' is feasible
@@ -341,18 +342,18 @@ Proof.
 
       repeat rewrite assoc.
 (*
-    apply cancel_postcomposition. (* that's a bad idea, because it fucks up use of third monad law and
+    apply maponpaths_2. (* that's a bad idea, because it fucks up use of third monad law and
                                       leads to something that is generally false *)
 *)
 
       match goal with |[ T3' : _ = ?f |- _ = ?a · ?b · _ · ?d  ] => transitivity (a · b · #T f · d) end.
-        Focus 2. apply cancel_postcomposition. apply maponpaths. apply maponpaths. apply (!T3').
+        Focus 2. apply maponpaths_2. apply maponpaths. apply maponpaths. apply (!T3').
       clear T3'.
       apply pathsinv0.
 
       assert (T3':= nat_trans_eq_pointwise T3 (T (Z c))).
 
-      eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition. apply maponpaths. apply T3'.
+      eapply pathscomp0. apply maponpaths_2. apply maponpaths_2. apply maponpaths. apply T3'.
       clear T3'.
       apply pathsinv0.
       destruct f as [f fptdmor]. simpl in *.
@@ -366,8 +367,8 @@ Proof.
       rewrite functor_comp in X'.
 
       apply pathsinv0.
-      eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition.
-                       apply cancel_postcomposition. apply X'.
+      eapply pathscomp0. apply maponpaths_2. apply maponpaths_2.
+                       apply maponpaths_2. apply X'.
                        clear X'.
 
       assert (X := Monad_law_2_from_hss _ _ CC Lam_S LamHSS (T (Z c))).
@@ -375,13 +376,13 @@ Proof.
 
       match goal with |[ X : ?e = _ |- ?a · ?b · _ · _  = _ ] =>
                      assert (X' : e = a · b) end.
-      { apply cancel_postcomposition. apply maponpaths.
+      { apply maponpaths_2. apply maponpaths.
         apply pathsinv0, BinCoproductIn1Commutes.
       }
 
       rewrite X' in X. clear X'.
 
-      eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition. apply X. clear X.
+      eapply pathscomp0. apply maponpaths_2. apply maponpaths_2. apply X. clear X.
 
       rewrite id_left.
 
@@ -389,7 +390,7 @@ Proof.
       assert (X := μ_2_nat _ _ (f c)).
       unfold μ_2 in X.
 
-      eapply pathscomp0. Focus 2. apply cancel_postcomposition. apply X. clear X.
+      eapply pathscomp0. Focus 2. apply maponpaths_2. apply X. clear X.
 
       rewrite functor_comp.
       repeat rewrite <- assoc.
@@ -400,7 +401,7 @@ Proof.
       simpl in X'.
 
       eapply pathscomp0. apply X'.
-      clear X'. apply cancel_postcomposition. apply id_left.
+      clear X'. apply maponpaths_2. apply id_left.
 Qed.
 
 (** * Uniqueness of the bracket operation *)
@@ -443,7 +444,7 @@ Proof.
       simpl.
       rewrite id_right.
       eapply pathscomp0. apply HT.
-      simpl. repeat rewrite assoc. apply cancel_postcomposition.
+      simpl. repeat rewrite assoc. apply maponpaths_2.
       apply BinCoproductIn1Commutes.
     + apply parts_from_whole in Ht. destruct Ht as [_ H2].
       apply nat_trans_eq; try assumption.
@@ -457,7 +458,7 @@ Proof.
       match goal with |[X : _ = ?f |- _ ] => transitivity f end.
        Focus 2. rewrite τ_LamE_algebra_on_Lam.
        eapply pathscomp0. apply assoc.
-       apply cancel_postcomposition. apply BinCoproductIn1Commutes.
+       apply (maponpaths_2 compose). apply BinCoproductIn1Commutes.
 
       match goal with |[X : ?e = _ |- _ ] => transitivity e end.
        Focus 2. apply X.
@@ -466,14 +467,14 @@ Proof.
 
       apply pathsinv0.
       eapply pathscomp0. apply assoc.
-      eapply pathscomp0. apply cancel_postcomposition. apply assoc.
-      eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition.
+      eapply pathscomp0. apply maponpaths_2. apply assoc.
+      eapply pathscomp0. apply maponpaths_2. apply maponpaths_2.
       apply BinCoproductIn1Commutes.
 
       repeat rewrite <- assoc.
       eapply pathscomp0. apply maponpaths. apply assoc.
 
-      eapply pathscomp0. apply maponpaths. apply cancel_postcomposition. apply BinCoproductIn1Commutes.
+      eapply pathscomp0. apply maponpaths. apply maponpaths_2. apply BinCoproductIn1Commutes.
 
       eapply pathscomp0. apply maponpaths. apply (!assoc _ _ _ ).
       simpl. apply maponpaths. apply maponpaths.

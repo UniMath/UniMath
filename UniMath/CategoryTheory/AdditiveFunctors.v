@@ -19,6 +19,7 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
@@ -325,12 +326,12 @@ Section additivefunctor_preserves_bindirectsums.
     rewrite <- (id_right mor). rewrite assoc. unfold invmor. rewrite to_postmor_linear'.
     use (pathscomp0 (! (AdditiveFunctorPreservesBinDirectSums_isBinCoproductCocone_id2' F DS))).
     use to_binop_eq.
-    - fold BDS. apply cancel_postcomposition. rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition.
+    - fold BDS. apply maponpaths_2. rewrite <- assoc. rewrite <- assoc.
+      apply maponpaths.
       rewrite (BinDirectSumPr1Commutes B BDS _ (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS))).
       apply idpath.
-    - fold BDS. apply cancel_postcomposition. rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition.
+    - fold BDS. apply maponpaths_2. rewrite <- assoc. rewrite <- assoc.
+      apply maponpaths.
       rewrite (BinDirectSumPr2Commutes B BDS _ (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS))).
       apply idpath.
   Qed.
@@ -462,12 +463,12 @@ Section additivefunctor_preserves_bindirectsums.
     unfold invmor. rewrite to_premor_linear'. rewrite assoc. rewrite assoc.
     use (pathscomp0 (! (AdditiveFunctorPreservesBinDirectSums_isBinProduct_id2' F DS))).
     use to_binop_eq.
-    - fold BDS. apply cancel_postcomposition.
-      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition. rewrite assoc.
+    - fold BDS. apply maponpaths_2.
+      rewrite <- assoc. rewrite <- assoc. apply maponpaths. rewrite assoc.
       rewrite (BinDirectSumIn1Commutes B BDS _ (# F (to_In1 A DS)) (# F (to_In2 A DS))).
       apply idpath.
-    - fold BDS. apply cancel_postcomposition.
-      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition. rewrite assoc.
+    - fold BDS. apply maponpaths_2.
+      rewrite <- assoc. rewrite <- assoc. apply maponpaths. rewrite assoc.
       rewrite (BinDirectSumIn2Commutes B BDS _ (# F (to_In1 A DS)) (# F (to_In2 A DS))).
       apply idpath.
   Qed.
@@ -560,14 +561,14 @@ Section additivefunctor_criteria.
       + cbn. intros t.
         use (pathscomp0 (!(BinDirectSumIn1Commutes B BDS _ t (ZeroArrow (to_Zero B) _ _)))).
         use (pathscomp0 _ (BinDirectSumIn2Commutes B BDS _ t (ZeroArrow (to_Zero B) _ _))).
-        cbn. apply cancel_precomposition. apply idpath.
+        cbn. apply maponpaths. apply idpath.
     - intros a.
       use tpair.
       + apply (ZeroArrow (to_Zero B) _ _).
       + cbn. intros t.
         use (pathscomp0 (!(BinDirectSumPr1Commutes B BDS _ t (ZeroArrow (to_Zero B) _ _)))).
         use (pathscomp0 _ (BinDirectSumPr2Commutes B BDS _ t (ZeroArrow (to_Zero B) _ _))).
-        cbn. apply cancel_postcomposition. apply idpath.
+        cbn. apply maponpaths_2. apply idpath.
   Qed.
 
   (** F preserves unel *)
@@ -846,7 +847,7 @@ Section def_additive_equivalence.
     use (pre_comp_with_z_iso_is_inj (AddEquivUnitIso AE x)). rewrite assoc.
     rewrite (is_inverse_in_precat1 (AddEquivUnitIso AE x)). rewrite id_left.
     use (post_comp_with_z_iso_is_inj (AddEquivUnitIso AE x')).
-    rewrite AddEquivUnitComm. rewrite <- assoc. apply cancel_precomposition. cbn.
+    rewrite AddEquivUnitComm. rewrite <- assoc. apply maponpaths. cbn.
     rewrite <- assoc.
     set (tmp := is_inverse_in_precat2 (AddEquivUnitIso AE x')). cbn in tmp. cbn. rewrite tmp.
     rewrite id_right. apply idpath.
@@ -862,7 +863,7 @@ Section def_additive_equivalence.
     rewrite (is_inverse_in_precat1 (AddEquivCounitIso AE x)). rewrite id_left.
     use (post_comp_with_z_iso_is_inj (AddEquivCounitIso AE x')).
     use (pathscomp0 (AddEquivCounitComm AE _ _ f)). rewrite <- assoc.
-    apply cancel_precomposition. cbn.
+    apply maponpaths. cbn.
     rewrite <- assoc.
     set (tmp := is_inverse_in_precat2 (AddEquivCounitIso AE x')). cbn in tmp. cbn. rewrite tmp.
     rewrite id_right. apply idpath.

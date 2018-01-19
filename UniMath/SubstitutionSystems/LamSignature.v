@@ -462,7 +462,7 @@ Proof.
   eapply pathscomp0. Focus 2. eapply pathsinv0.
   apply postcompWithBinCoproductArrow.
 (*
-  eapply cancel_postcomposition. apply postcompWithBinCoproductArrow.
+  eapply maponpaths_2. apply postcompWithBinCoproductArrow.
 *)
 (*  rewrite postcompWithBinCoproductArrow. *)
   apply BinCoproductArrow_eq.

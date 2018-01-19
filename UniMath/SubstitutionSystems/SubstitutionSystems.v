@@ -25,6 +25,7 @@ Contents :
 
 
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -331,7 +332,7 @@ Proof.
     assert (H':=nat_trans_ax (tau_from_alg T)).
     simpl in H'.
     eapply pathscomp0. Focus 2. apply (!assoc _ _ _ ).
-    eapply pathscomp0. Focus 2.  apply  cancel_postcomposition. apply H'.
+    eapply pathscomp0. Focus 2.  apply  maponpaths_2. apply H'.
     clear H'.
     set (H':=fbracket_τ T g).
     simpl in H'.
@@ -359,9 +360,9 @@ Proof.
     apply maponpaths.
     simpl.
     repeat rewrite assoc.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     rewrite (functor_comp H).
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     clear H'.
     set (A:=horcomp_id_postwhisker C _ _ hs hs).
     rewrite A.
@@ -442,7 +443,7 @@ Proof.
   repeat rewrite assoc.
   unfold coproduct_nat_trans_data.
   eapply pathscomp0.
-  apply cancel_postcomposition.
+  apply maponpaths_2.
   apply BinCoproductIn1Commutes.
   simpl.
   repeat rewrite <- assoc.
@@ -588,7 +589,7 @@ Proof.
     apply assoc.
   (* match goal with | [|- ?l = _ ] => assert (Hyp : l = fbracket T f· pr1 β· pr1 γ) end. *)
   eapply pathscomp0.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     apply isbracketMor_hssMor.
   rewrite <- assoc.
   eapply pathscomp0.
@@ -597,7 +598,7 @@ Proof.
   rewrite assoc.
   rewrite functor_comp.
   rewrite assoc.
-  apply cancel_postcomposition.
+  apply maponpaths_2.
   apply pathsinv0, (functor_comp (pre_composition_functor _ _ C _ hs (U Z)) ).
 Qed.
 

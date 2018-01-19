@@ -11,6 +11,7 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Monics.
@@ -336,7 +337,7 @@ Section kernels_iso.
     rewrite H.
     rewrite <- (ZeroArrow_comp_right _ _ _ _ _ h).
     rewrite <- assoc.
-    apply cancel_precomposition.
+    apply maponpaths.
     apply KernelCompZero.
   Qed.
 
@@ -357,7 +358,7 @@ Section kernels_iso.
       use (pathscomp0 _ (! (maponpaths (λ gg : _, KernelIn Z K w h0 H' · gg)
                                        (is_inverse_in_precat2 h)))).
       rewrite id_right. use KernelInsEq. rewrite KernelCommutes. rewrite <- X.
-      rewrite <- assoc. apply cancel_precomposition. apply pathsinv0.
+      rewrite <- assoc. apply maponpaths. apply pathsinv0.
       apply H.
   Qed.
 
@@ -482,7 +483,7 @@ Section kernels_monics.
       use unique_exists.
       + use KernelIn.
         * exact h.
-        * rewrite assoc. rewrite <- (ZeroArrow_comp_left _ _ _ _ _ M). apply cancel_postcomposition.
+        * rewrite assoc. rewrite <- (ZeroArrow_comp_left _ _ _ _ _ M). apply maponpaths_2.
           exact H'.
       + cbn. rewrite KernelCommutes. apply idpath.
       + intros y0. apply hs.

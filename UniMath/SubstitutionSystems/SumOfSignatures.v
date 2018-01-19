@@ -16,6 +16,8 @@ Adapted from the binary case
 
 Require Import UniMath.Foundations.PartD.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
@@ -78,7 +80,7 @@ Proof.
 intros [X Z] [X' Z'] αβ.
 apply (nat_trans_eq hsD); intro c.
 eapply pathscomp0; [ | eapply pathsinv0, CoproductOfArrows_comp].
-eapply pathscomp0; [ apply cancel_postcomposition, CoproductOfArrows_comp |].
+eapply pathscomp0; [ eapply (maponpaths_2 compose), CoproductOfArrows_comp |].
 eapply pathscomp0; [ apply CoproductOfArrows_comp |].
 apply CoproductOfArrows_eq, funextsec; intro i.
 apply (nat_trans_eq_pointwise (nat_trans_ax (θ1 i) (X,,Z) (X',,Z') αβ) c).
@@ -100,7 +102,7 @@ apply pathsinv0, Coproduct_endo_is_identity; intro i.
 eapply pathscomp0.
   apply (CoproductOfArrowsIn _ _ (CD (λ i, pr1 (pr1 (H1 i) X) x))).
 eapply pathscomp0; [ | apply id_left].
-apply cancel_postcomposition, (nat_trans_eq_pointwise (S11' i X) x).
+apply maponpaths_2, (nat_trans_eq_pointwise (S11' i X) x).
 Qed.
 
 Lemma SumStrength2' : θ_Strength2_int θ.

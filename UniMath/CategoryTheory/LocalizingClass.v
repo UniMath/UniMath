@@ -2,6 +2,7 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
@@ -305,12 +306,12 @@ Section def_roofs.
         set (tmp := RoofTopEq1 T2). repeat rewrite <- assoc. rewrite <- tmp. clear tmp.
         repeat rewrite assoc. repeat rewrite <- (assoc (pr2 t)). rewrite D2.
         repeat rewrite <- assoc.
-        apply cancel_precomposition. apply cancel_precomposition.
+        apply maponpaths. apply maponpaths.
         exact (RoofTopEq1 T1).
       + induction p as [p1 p2]. repeat rewrite assoc in p2.
         set (tmp := RoofTopEq2 T2). repeat rewrite <- assoc. rewrite <- tmp. clear tmp.
         repeat rewrite assoc. rewrite p2. repeat rewrite <- assoc.
-        apply cancel_precomposition. apply cancel_precomposition.
+        apply maponpaths. apply maponpaths.
         exact (RoofTopEq2 T1).
     (* isrefl *)
     - intros R1.
@@ -522,11 +523,11 @@ Section def_roofs.
     - cbn. split.
       + rewrite <- (LocSqr1Comm sqr3).
         rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
-        apply cancel_postcomposition. apply cancel_postcomposition.
+        apply maponpaths_2. apply maponpaths_2.
         apply (LocSqr1Comm sqr1).
       + rewrite (PreSwitchEq PreS).
         rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
-        apply cancel_postcomposition. apply cancel_postcomposition.
+        apply maponpaths_2. apply maponpaths_2.
         apply (LocSqr1Comm sqr2).
   Defined.
   Opaque RoofTopToCoroof.
@@ -561,7 +562,7 @@ Section def_roofs.
       rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
       rewrite <- (dirprod_pr1 eq). rewrite <- (dirprod_pr2 eq).
       rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       set (tmp := LocSqr2Comm sqr6). rewrite assoc in tmp. rewrite assoc in tmp.
       apply tmp.
     }
@@ -579,7 +580,7 @@ Section def_roofs.
         * exact (LocSqr2Mor2Is sqr6).
       + exact (RoofMor1Is R4).
     - cbn.
-      rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+      rewrite <- assoc. rewrite <- assoc. apply maponpaths.
       apply (! (LocSqr2Comm sqr6)).
     - cbn.
       rewrite assoc. rewrite assoc.
@@ -612,7 +613,7 @@ Section def_roofs.
       rewrite <- (assoc _ (LocSqr2Mor1 sqr4)). rewrite (LocSqr2Comm sqr4).
       rewrite <- (assoc _ (LocSqr2Mor1 sqr5)). rewrite (LocSqr2Comm sqr5).
       rewrite assoc. rewrite assoc.
-      apply cancel_postcomposition. apply cancel_postcomposition.
+      apply maponpaths_2. apply maponpaths_2.
       apply (LocSqr2Comm sqr6).
     }
     set (PostS := isLocClassPost iLC _ _ _
@@ -628,7 +629,7 @@ Section def_roofs.
         * exact (PostSwitchMorIs PostS).
         * exact (LocSqr2Mor2Is sqr6).
       + exact (RoofMor1Is R4).
-    - cbn. rewrite assoc. rewrite assoc. apply cancel_postcomposition.
+    - cbn. rewrite assoc. rewrite assoc. apply maponpaths_2.
       set (tmp := ! (LocSqr2Comm sqr6)).
       apply (maponpaths (λ f : _, PostSwitchMor PostS · f)) in tmp.
       rewrite assoc in tmp. rewrite assoc in tmp. apply tmp.
@@ -923,9 +924,9 @@ Section def_roofs.
       rewrite assoc. rewrite assoc.
       rewrite <- (assoc _ (LocSqr2Mor1 sqr2)). rewrite (LocSqr2Comm sqr2).
       rewrite assoc.
-      apply cancel_postcomposition. apply cancel_postcomposition.
+      apply maponpaths_2. apply maponpaths_2.
       rewrite <- (LocSqr2Comm sqr). rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition.
+      apply maponpaths.
       apply (! (LocSqr2Comm sqr3)).
     }
     set (PostS := isLocClassPost iLC _ _ _ (LocSqr2Mor2 sqr · RoofMor2 R6')
@@ -942,9 +943,9 @@ Section def_roofs.
         * exact (LocSqr2Mor2Is sqr).
       + exact (RoofMor1Is R6').
     - rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition. cbn. fold sqr1. fold sqr2. fold sqr3. fold sqr4.
+      apply maponpaths. cbn. fold sqr1. fold sqr2. fold sqr3. fold sqr4.
       rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
-      apply cancel_postcomposition. apply cancel_postcomposition.
+      apply maponpaths_2. apply maponpaths_2.
       exact (! (LocSqr2Comm sqr)).
     - rewrite <- assoc. rewrite <- assoc.
       exact (PostSwitchEq PostS).
@@ -993,13 +994,13 @@ Section def_roofs.
       rewrite <- (assoc _ (LocSqr2Mor1 sqr2)). rewrite (LocSqr2Comm sqr2). rewrite assoc.
       rewrite <- assoc. rewrite <- (LocSqr1Comm sqrop). rewrite assoc.
       rewrite <- (assoc _ _ (LocSqr1Mor2 sqrop)). rewrite <- (LocSqr1Comm sqrop). rewrite assoc.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       rewrite <- (assoc _ (LocSqr2Mor1 sqr3)). rewrite (LocSqr2Comm sqr3). rewrite assoc.
 
       rewrite <- assoc. rewrite <- assoc. rewrite (LocSqr2Comm sqr4). rewrite assoc.
       rewrite <- (LocSqr2Comm sqr).
       rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
-      apply cancel_precomposition. apply cancel_precomposition.
+      apply maponpaths. apply maponpaths.
       apply (! (LocSqr2Comm sqr1)).
     }
     set (PostS := isLocClassPost iLC _ _ _ (LocSqr2Mor2 sqr · LocSqr2Mor1 sqr4 · LocSqr2Mor1 sqr2)
@@ -1016,12 +1017,12 @@ Section def_roofs.
         * exact (LocSqr2Mor2Is sqr).
       + exact (RoofMor1Is R6').
     - cbn. fold sqr1. fold sqr2. fold sqr3. fold sqr4.
-      rewrite <- assoc. apply pathsinv0. rewrite <- assoc. apply cancel_precomposition.
-      rewrite assoc. rewrite assoc. rewrite assoc. apply cancel_postcomposition.
+      rewrite <- assoc. apply pathsinv0. rewrite <- assoc. apply maponpaths.
+      rewrite assoc. rewrite assoc. rewrite assoc. apply maponpaths_2.
       rewrite <- assoc. apply (LocSqr2Comm sqr).
     - cbn. fold sqr1. fold sqr2. fold sqr3. fold sqr4.
       rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       set (tmp := PostSwitchEq PostS). rewrite assoc in tmp. rewrite assoc in tmp.
       rewrite assoc in tmp. rewrite assoc in tmp.
       exact tmp.
@@ -1167,7 +1168,7 @@ Section def_roofs.
       cbn. fold sqrop.
       rewrite <- assoc. rewrite <- (LocSqr1Comm sqrop). rewrite id_left.
       rewrite <- assoc. rewrite <- (LocSqr1Comm sqrop). rewrite id_left.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       set (tmp := LocSqr2Comm sqr1). cbn in tmp. rewrite id_right in tmp.
       exact tmp.
     }
@@ -1269,7 +1270,7 @@ Section def_roofs.
         set (tmp := iso_inv_after_iso iso1). cbn in tmp.
         apply tmp.
       + set (tmp := iso_inv_after_iso iso2). cbn in tmp. rewrite <- tmp. clear tmp.
-        rewrite <- assoc. apply cancel_precomposition.
+        rewrite <- assoc. apply maponpaths.
         apply (post_comp_with_iso_is_inj _ _ _ g H2).
         set (tmp := iso_after_iso_inv iso2). cbn in tmp. rewrite tmp. clear tmp.
         rewrite <- assoc. set (tmp := iso_after_iso_inv iso1). cbn in tmp. exact tmp.
@@ -1334,7 +1335,7 @@ Section def_roofs.
     }
     rewrite X.
     rewrite inv_from_iso_comp. rewrite <- assoc.
-    apply cancel_precomposition.
+    apply maponpaths.
     rewrite assoc.
     set (tmp := iso_after_iso_inv iso4). cbn in tmp. rewrite tmp. clear tmp.
     apply id_left.
@@ -1423,15 +1424,15 @@ Section def_roofs.
     }
     rewrite X. rewrite inv_from_iso_comp. rewrite functor_comp. rewrite assoc.
     unfold MorMap. rewrite assoc. fold iso3 iso4.
-    apply cancel_postcomposition.
-    rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+    apply maponpaths_2.
+    rewrite <- assoc. rewrite <- assoc. apply maponpaths.
     set (tmp := LocSqr2Comm sqr).
     apply (pre_comp_with_iso_is_inj D _ _ _ _ (pr2 iso2)). rewrite assoc.
     set (tmp2 := iso_inv_after_iso iso2). cbn in tmp2. cbn. rewrite tmp2. clear tmp2.
     rewrite id_left.
     apply (post_comp_with_iso_is_inj D _ _ _ (pr2 iso4)). cbn. rewrite <- functor_comp.
     rewrite tmp. clear tmp. rewrite functor_comp. rewrite <- assoc.
-    apply cancel_precomposition.
+    apply maponpaths.
     rewrite <- assoc.
     set (tmp2 := iso_after_iso_inv iso4). cbn in tmp2. rewrite tmp2. rewrite id_right.
     apply idpath.
@@ -1665,7 +1666,7 @@ Section def_roofs.
                          _ _ _
                          (RoofEqclassFromRoof (InvRoofFromMorInSom (RoofMor1 f1) (RoofMor1Is f1)))
                          (RoofEqclassFromRoof (MorToRoof (RoofMor2 f1))))).
-      unfold functor_composite. cbn. apply cancel_postcomposition.
+      unfold functor_composite. cbn. apply (maponpaths_2 compose).
       set (iso1 := isopair _ (H' f1 a (RoofMor1 f1) (RoofMor1Is f1))).
       apply (post_comp_with_iso_is_inj _ _ _ _ (pr2 iso1)).
       use (pathscomp0 _ (! (iso_after_iso_inv iso1))).
