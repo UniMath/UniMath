@@ -539,7 +539,7 @@ Definition opposite_opposite_rig (X : rig) : rigiso X ((X⁰)⁰).
 Proof.
   intros X.
   refine ((idfun X,, idisweq X),, _).
-  easy.
+  repeat split.
 Defined.
 
 Local Close Scope rig.
@@ -718,7 +718,7 @@ Definition iso_commrig_opposite (X : commrig) : rigiso X (opposite_commrig X).
 Proof.
   intros X.
   refine ((idfun X,, idisweq X),, _).
-  do 2 (split; try easy).
+  repeat split.
   unfold isbinopfun.
   exact (fun x y => @rigcomm2 X x y).
 Defined.

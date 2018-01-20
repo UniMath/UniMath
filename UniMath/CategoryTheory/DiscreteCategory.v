@@ -64,10 +64,24 @@ Definition is_nat_trans_discrete_precategory {D : precategory} (Dhom : has_homse
   : is_nat_trans (pr1 f) (pr1 g) F.
 Proof.
   intros x y h.
-  rewrite h.
-  rewrite (pr1 (pr2 f)) , (pr1 (pr2 g)).
-  rewrite (id_left (F y)) , (id_right (F y)).
-  reflexivity.
+  unfold discrete_precategory in h. simpl in h.
+  induction h.
+  change (idpath x) with (identity x).
+
+  Check (pr1 f).
+  assert (k := ! functor_id f x).
+  (* The type of k is displayed as [ identity (f x) = # f (identity x) ],
+     but neither side of that equation can be typed in: *)
+  (* Check (identity (f x)). *)
+  (* Check (# f (identity x)). *)
+  unfold functor_data_from_functor in k.
+  induction k.
+  assert (k := ! functor_id g x).
+  unfold functor_data_from_functor in k.
+  induction k.
+  intermediate_path (F x).
+  - apply id_left.
+  - apply pathsinv0. apply id_right.
 Defined.
 
 End Discretecategory.
