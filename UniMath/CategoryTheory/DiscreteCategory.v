@@ -67,13 +67,7 @@ Proof.
   unfold discrete_precategory in h. simpl in h.
   induction h.
   change (idpath x) with (identity x).
-
-  Check (pr1 f).
   assert (k := ! functor_id f x).
-  (* The type of k is displayed as [ identity (f x) = # f (identity x) ],
-     but neither side of that equation can be typed in: *)
-  (* Check (identity (f x)). *)
-  (* Check (# f (identity x)). *)
   unfold functor_data_from_functor in k.
   induction k.
   assert (k := ! functor_id g x).

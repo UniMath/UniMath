@@ -132,14 +132,6 @@ Proof.
   reflexivity.
 Defined.
 
-(* Lemma three_arg_paths {A B:UU} {C:A -> B -> UU} {D:UU} {f : ∏ (a:A) (b:B), C a b -> D} {a1 b1 c1 a2 b2 c2} : *)
-(*   a1 = a2 -> b1 = b2 -> c1 = c2 -> f a1 b1 c1 = f a2 b2 c2. *)
-(* Proof. *)
-(*   intros p q r. induction p. induction q. induction r. apply idpath. *)
-(* Defined. *)
-
-
-
 Lemma eqweq_correct_hom_is_comp {A B : precategory}
   (F : catiso A B)
   : forall a a' : A, forall f : F a --> F a',
