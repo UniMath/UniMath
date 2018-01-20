@@ -32,7 +32,7 @@ Definition arecompatibleactions {R S G}
 
 Definition multimodule_struct {I : UU} {rngs : I -> rng} {G : abgr}
            (structs : ∏ i : I, module_struct (rngs i) G) :=
-  ∏ (i1 i2 : I) (ne : (i1 = i2) -> False),
+  ∏ (i1 i2 : I) (ne : (i1 = i2) -> hfalse),
     arecompatibleactions (structs i1) (structs i2).
 
 Definition multimodule {I : UU} (rngs : I -> rng) : UU
@@ -177,7 +177,7 @@ Definition multimodule_ith_mult {I : UU} {rngs : I -> rng}
 (** If you take the underlying group of the ith module, its the same as the
     underlying group of the multimodule. *)
 Lemma multimodule_same_abgrp {I : UU} {rngs : I -> rng}
-      (MM : multimodule rngs) (i : I) : @eq abgr MM (ith_module MM i).
+      (MM : multimodule rngs) (i : I) : @paths abgr MM (ith_module MM i).
 Proof.
   reflexivity.
 Defined.

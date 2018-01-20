@@ -835,7 +835,7 @@ Definition nattohzandgeh ( n m : nat ) ( is : natgeh n m ) : hzgeh ( nattohz n )
 (** *** Absolute value on [ hz ] *)
 
 Definition hzabsvalint : ( dirprod nat nat ) -> nat .
-Proof . intro nm . destruct ( natgthorleh ( pr1 nm ) ( pr2  nm ) ) .  apply ( minus ( pr1 nm ) ( pr2 nm ) ) . apply ( minus ( pr2 nm ) ( pr1 nm ) ) . Defined .
+Proof . intro nm . destruct ( natgthorleh ( pr1 nm ) ( pr2  nm ) ) .  apply ( sub ( pr1 nm ) ( pr2 nm ) ) . apply ( sub ( pr2 nm ) ( pr1 nm ) ) . Defined .
 
 Lemma hzabsvalintcomp : @iscomprelfun ( dirprod nat nat ) nat ( hrelabgrdiff nataddabmonoid )  hzabsvalint .
 Proof . unfold iscomprelfun .  intros x x' . unfold hrelabgrdiff . simpl . apply ( @hinhuniv _ ( hProppair _ ( isasetnat (hzabsvalint x) (hzabsvalint x') ) ) ) .  unfold hzabsvalint . set ( n := ( pr1 x ) : nat  ) . set ( m := ( pr2 x ) : nat ) . set ( n' := ( pr1 x' ) : nat ) . set ( m' := ( pr2 x' ) : nat ) .   set ( int := natgthorleh n m ) . set ( int' := natgthorleh n' m' ) .   intro tt0 . simpl .  destruct tt0 as [ x0 eq ] .  simpl in eq .  assert ( e' := invmaponpathsincl _ ( isinclnatplusr x0 ) _ _ eq ) .

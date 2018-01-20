@@ -10,6 +10,7 @@ Direct definition of initial object together with:
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.

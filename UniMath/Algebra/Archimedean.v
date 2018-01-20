@@ -63,9 +63,10 @@ Lemma natmult_plus :
     natmult (n + m) x = (natmult n x + natmult m x)%addmonoid.
 Proof.
   induction n as [|n IHn] ; intros m x.
-  - rewrite plus_O_n, lunax.
+  - rewrite lunax.
     reflexivity.
-  - rewrite plus_Sn_m, !natmultS, IHn, assocax.
+  - change (S n + m)%nat with (S (n + m))%nat.
+    rewrite !natmultS, IHn, assocax.
     reflexivity.
 Qed.
 Lemma nattorig_plus :
@@ -84,7 +85,7 @@ Proof.
   - reflexivity.
   - simpl (_ * _)%nat.
     assert (H : S n = (n + 1)%nat).
-    { rewrite <- plus_n_Sm, <- plus_n_O.
+    { rewrite <- plus_n_Sm, natplusr0.
       reflexivity. }
     rewrite H ; clear H.
     rewrite !natmult_plus, IHn.
@@ -806,7 +807,7 @@ Proof.
       apply hinhpr ; simpl.
       exists c.
       change (R
-                (natmult (Datatypes.S n) (natmult (X := X) m (pr1 x)) * 1 * pr1 c)%rng
+                (natmult (succ n) (natmult (X := X) m (pr1 x)) * 1 * pr1 c)%rng
                 (1 * pr1 (pr2 x) * pr1 c)%rng).
       rewrite <- (nattorig_natmult (X := X)), (rngrunax2 X), (rnglunax2 X), (rngassoc2 X), (nattorig_natmult (X := X)).
       eapply Htra.
@@ -848,7 +849,7 @@ Proof.
       exact Hn.
     + apply hinhpr ; simpl.
       exists (pr2 x).
-      change (n * m + m)%nat with (Datatypes.S n * m)%nat.
+      change (n * m + m)%nat with (succ n * m)%nat.
       unfold nattorng.
       apply (isrngmultgttoisrrngmultgt X).
       exact Hop1.
