@@ -23,9 +23,9 @@ Definition on_maps (F : prefunctor) {A B : UU} (f : A -> B) :
 
 
 Notation "F .0" :=
-  (on_objects F) (at level 60, right associativity) : functor_scope.
+  (on_objects F) (at level 45, right associativity) : functor_scope.
 Notation "F .1" :=
-  (on_maps F) (at level 60, right associativity) : functor_scope.
+  (on_maps F) (at level 45, right associativity) : functor_scope.
   (* I chose the levels arbitrarily *)
 
 Open Scope functor_scope.
@@ -108,7 +108,7 @@ Section Algebras.
                                       algebra_structure F A := pr2 _.
 
   Notation "A .s" :=
-    (algebra_to_algebra_str A) (at level 60, right associativity) : algebra_scope.
+    (algebra_to_algebra_str A) (at level 45, right associativity) : algebra_scope.
   Open Scope algebra_scope.
 
   (* algebra morphisms *)
@@ -124,7 +124,7 @@ Section Algebras.
     pr1 f.
 
   Notation "f .f" :=
-    (algebra_morphism_to_function f) (at level 60, right associativity) : algebra_scope.
+    (algebra_morphism_to_function f) (at level 45, right associativity) : algebra_scope.
     (* this notation might be a bit weird *)
 
   Definition algebra_morphism_identity {F : functor} (A : algebra F) :
@@ -275,54 +275,51 @@ Section CoAlgebras.
                                       coalgebra_structure F A := pr2 _.
 
   Notation "A .s" :=
-    (coalgebra_to_coalgebra_str A) (at level 60, right associativity) : coalgebra_scope.
+    (coalgebra_to_coalgebra_str A) (at level 45, right associativity) : coalgebra_scope.
 
   Open Scope coalgebra_scope.
 
-  (* coalgebra morphisms *)
-  Definition coalgebra_str_morphism
-             (F : functor) (A B : coalgebra F) (h : A -> B) : UU :=
-    ∏ x : A, F.1 h (A.s x) = B.s (h x).
-
   Definition coalgebra_morphism {F : functor} (A B : coalgebra F) : UU :=
-    total2 (coalgebra_str_morphism F A B).
+    ∑ f : A -> B,
+          B.s ∘ f = F.1 f ∘ A.s.
 
   Definition coalgebra_morphism_to_function {F : functor} {A B : coalgebra F}
                (f : coalgebra_morphism A B) : A -> B :=
     pr1 f.
 
   Notation "f .f" :=
-    (coalgebra_morphism_to_function f) (at level 60, right associativity) : coalgebra_scope.
+    (coalgebra_morphism_to_function f) (at level 45, right associativity) : coalgebra_scope.
 
   Definition coalgebra_morphism_identity {F : functor} (A : coalgebra F) :
     coalgebra_morphism A A.
   Proof.
     intros. exists (idfun _).
-    intro x. rewrite (functor_id_to_id F _). reflexivity.
+    rewrite (functor_id_to_id F _). reflexivity.
   Defined.
 
   Definition coalgebra_morphism_composition {F : functor} {A B C : coalgebra F}
     (f : coalgebra_morphism A B) (g : coalgebra_morphism B C) :
       coalgebra_morphism A C.
   Proof.
-    intros. exists ((g.f) ∘ (f.f)).
-    intro x.
-    rewrite (functor_comp_to_comp F _). simpl.
-    unfold funcomp.
-    rewrite (pr2 f _). rewrite (pr2 g _).
+    intros. exists (g.f ∘ f.f).
+    apply (pathscomp0 (maponpaths (λ h, h ∘ f.f : A -> F.0 C)
+                                  (pr2 g))).
+    apply (pathscomp0 (maponpaths (λ h, F.1 (g.f) ∘ h : A -> F.0 C)
+                                  (pr2 f))).
+    rewrite (functor_comp_to_comp F _).
     reflexivity.
   Defined.
 
   (* final coalgebras *)
   Definition is_final_coalgebra {F : functor} (A : coalgebra F) : UU :=
-    ∏ B : coalgebra F, iscontr (coalgebra_morphism A B).
+    ∏ B : coalgebra F, iscontr (coalgebra_morphism B A).
 
   Definition finality_morphism_coalgebra {F : functor} (A : coalgebra F) (d : is_final_coalgebra A)
-               (B : coalgebra F) : coalgebra_morphism A B :=
+               (B : coalgebra F) : coalgebra_morphism B A :=
     pr1 (d B).
 
   Definition uniqueness_morphism_coalgebra {F : functor} (A : coalgebra F) (d : is_final_coalgebra A)
-               (B : coalgebra F) (m m' : coalgebra_morphism A B) : m = m'.
+               (B : coalgebra F) (m m' : coalgebra_morphism B A) : m = m'.
   Proof.
     intros. apply proofirrelevancecontr. apply d.
   Qed.
@@ -333,8 +330,8 @@ Section CoAlgebras.
   Qed.
 
   Definition unique_endomorphism_coalgebra {F : functor} (A : coalgebra F) (d : is_final_coalgebra A)
-             (B : coalgebra F) (m : coalgebra_morphism B A) :
-    coalgebra_morphism_composition (finality_morphism_coalgebra A d B) m = coalgebra_morphism_identity A.
+             (B : coalgebra F) (m : coalgebra_morphism A B) :
+    coalgebra_morphism_composition m (finality_morphism_coalgebra A d B) = coalgebra_morphism_identity A.
   Proof.
     intros. apply uniqueness_morphism_coalgebra. apply d.
   Defined.

@@ -1,3 +1,4 @@
 algebras.v
+M_from_nat.v
 addresses.v
 W_from_M.v
