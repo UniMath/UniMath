@@ -88,7 +88,7 @@ Require Export UniMath.Foundations.Propositions.
 
 Definition hSet@{i u} : Type@{u} := total2@{u} isaset@{i}.
 Definition hSetpair (X : UU) (i : isaset X) := tpair isaset X i : hSet.
-Definition pr1hSet : hSet -> UU := @pr1 UU (λ X : UU, isaset X).
+Definition pr1hSet@{i u} : hSet@{i u} -> Type@{i} := pr1.
 Coercion pr1hSet: hSet >-> Sortclass.
 
 Definition eqset {X : hSet} (x x' : X) : hProp
@@ -283,7 +283,7 @@ Defined.
 Section hsubtype.
 
   Universe i.
-  (* Constraint uu1 < i. *)
+  Constraint uu1 < i.
 
   Definition hsubtype@{} (X : Type@{i}) : Type@{i} := X -> hProp.
   Identity Coercion id_hsubtype :  hsubtype >-> Funclass.
@@ -296,9 +296,9 @@ Definition carrierpair {X : UU} (A : hsubtype X) :
    ∏ t : X, A t → ∑ x : X, A x := tpair A.
 Definition pr1carrier {X : UU} (A : hsubtype X) := @pr1 _ _  : carrier A -> X.
 
-Lemma isaset_carrier_subset@{i u} (X : hSet@{i u}) (Y : hsubtype@{i} X) : isaset (total2@{i} Y).
+Lemma isaset_carrier_subset@{i u} (X : hSet@{i u}) (Y : hsubtype@{i} X) : isaset@{i} (total2@{i} Y).
 Proof.
-  intros. apply isaset_total2.
+  intros. apply isaset_total2@{i i u u}.
   - apply setproperty.
   - intro x. apply isasetaprop, propproperty.
 Defined.
@@ -313,9 +313,9 @@ Notation "'∑' x .. y , P"
 
 Delimit Scope subset with subset.
 
-Lemma isinclpr1carrier@{i} {X : Type@{i}} (A : hsubtype@{i} X) : isincl (@pr1carrier X A).
+Lemma isinclpr1carrier@{i u} {X : Type@{i}} (A : hsubtype@{i} X) : isincl (@pr1carrier X A).
 Proof.
-  intros. apply (isinclpr1 A (λ x : _, pr2 (A x))).
+  intros. apply (isinclpr1@{i i i u} A (λ x : _, pr2 (A x))).
 Defined.
 
 Lemma isasethsubtype (X : UU) : isaset (hsubtype X).
@@ -410,14 +410,14 @@ Defined.
 (** *** A subtype with paths between any two elements is an [hProp]. *)
 
 
-Lemma isapropsubtype@{i} {X : Type@{i}} (A : hsubtype@{i} X)
+Lemma isapropsubtype@{i u} {X : Type@{i}} (A : hsubtype@{i} X)
       (is : ∏ (x1 x2 : X), A x1 -> A x2 -> x1 = x2) : isaprop (carrier@{i} A).
 Proof.
   intros. apply invproofirrelevance.
   intros x x'.
   assert (X0 : isincl (@pr1 _ A)).
   {
-    apply isinclpr1.
+    apply isinclpr1@{i i i u}.
     intro x0.
     apply (pr2 (A x0)).
   }
@@ -489,7 +489,7 @@ Defined.
 Section hrel.
 
   Universe i.
-  (* Constraint uu1 < i. *)
+  Constraint uu1 < i.
 
   Definition hrel@{} (X : Type@{i}) : Type@{i} := X -> X -> hProp.
   Identity Coercion idhrel : hrel >-> Funclass.
@@ -1105,8 +1105,8 @@ Defined.
 (** *** Boolean representation of decidable relations *)
 
 
-Definition decrel (X : UU) : UU := total2 (λ R : hrel X, isdecrel R).
-Definition pr1decrel (X : UU) : decrel X -> hrel X := @pr1 _ _.
+Definition decrel@{i} (X : Type@{i}) : Type@{i} := total2 (λ R : hrel@{i} X, isdecrel@{i i i i} R).
+Definition pr1decrel@{i} (X : Type@{i}) : decrel X -> hrel@{i} X := @pr1 _ _.
 Definition decrelpair {X : UU} {R : hrel X} (is : isdecrel R) : decrel X
   := tpair _ R is.
 Coercion pr1decrel : decrel >-> hrel.
@@ -1356,8 +1356,8 @@ Defined.
 
 
 
-Definition iseqclass {X : Type} (R : hrel X) (A : hsubtype X) : Type
-  := dirprod (ishinh (carrier A))
+Definition iseqclass@{i u} {X : Type@{i}} (R : hrel@{i} X) (A : hsubtype@{i} X) : Type@{i}
+  := dirprod (ishinh@{i u} (carrier A))
              (dirprod (∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2)
                       (∏ x1 x2 : X, A x1 ->  A x2 -> R x1 x2)).
 
@@ -1376,8 +1376,8 @@ Definition eqax2 {X : UU} {R : hrel X} {A : hsubtype X} :
   iseqclass R A -> ∏ x1 x2 : X, A x1 -> A x2 -> R x1 x2
   := λ is : iseqclass R A, pr2 (pr2 is).
 
-Lemma isapropiseqclass {X : UU} (R : hrel X) (A : hsubtype X) :
-  isaprop (iseqclass R A).
+Lemma isapropiseqclass@{i j} {X : Type@{i}} (R : hrel X) (A : hsubtype X) :
+  isaprop (iseqclass@{i j} R A).
 Proof.
 intros X R A.
 apply (isofhleveldirprod 1).
@@ -1388,7 +1388,6 @@ apply (isofhleveldirprod 1).
   + repeat (apply impred; intro).
     exact (pr2 (R t t0)).
 Defined.
-
 
 (** *** Direct product of equivalence classes *)
 
@@ -1421,8 +1420,8 @@ Defined.
 
 (** ** Surjections to sets are epimorphisms  *)
 
-Theorem surjectionisepitosets {X Y Z : UU} (f : X -> Y) (g1 g2 : Y -> Z)
-        (is1 : issurjective f) (is2 : isaset Z)
+Theorem surjectionisepitosets@{i j} {X Y Z : Type@{i}} (f : X -> Y) (g1 g2 : Y -> Z)
+        (is1 : issurjective@{i i i i j i} f) (is2 : isaset Z)
         (isf : ∏ x : X, g1 (f x) = g2 (f x)) : ∏ y : Y, g1 y = g2 y.
 Proof.
   intros.
@@ -1613,8 +1612,8 @@ be considered in the section about types of h-level 3.
 (** *** Setquotient defined in terms of equivalence classes *)
 
 
-Definition setquot@{i} {X : Type@{i}} (R : hrel X) : Type@{i}
-  := total2@{i} (λ A : _, iseqclass R A).
+Definition setquot@{i u} {X : Type@{i}} (R : hrel X) : Type@{i}
+  := total2@{i} (λ A : _, iseqclass@{i u} R A).
 Definition setquotpair {X : UU} (R : hrel X) (A : hsubtype X)
            (is : iseqclass R A) : setquot R := tpair _ A is.
 Definition pr1setquot {X : UU} (R : hrel X) : setquot R -> (hsubtype X)
@@ -1703,7 +1702,7 @@ Proof.
 Defined.
 
 Lemma isapropimeqclass@{i u} {X : Type@{i}} (R : hrel X) (Y : hSet@{i u}) (f : X -> Y)
-      (is : iscomprelfun R f) (c : setquot@{i} R) :
+      (is : iscomprelfun R f) (c : setquot@{i u} R) :
   isaprop (image (λ x : c, f (pr1 x))).
 Proof.
   intros. apply isapropsubtype.
@@ -1720,7 +1719,7 @@ Defined.
 Global Opaque isapropimeqclass.
 
 Theorem setquotuniv@{i u} {X : Type@{i}} (R : hrel X) (Y : hSet@{i u}) (f : X -> Y)
-        (is : iscomprelfun R f) (c : setquot@{i} R) : Y.
+        (is : iscomprelfun R f) (c : setquot@{i u} R) : Y.
 Proof.
   intros.
   apply (pr1image (λ x : c, f (pr1 x))).
@@ -2519,7 +2518,7 @@ Proof.
       * apply idpath.
 Defined.
 
-Definition quotdecrelintlogeq {X : UU} {R : eqrel X} (L : decrel X)
+Definition quotdecrelintlogeq@{i j} {X : Type@{i}} {R : eqrel X} (L : decrel X)
            (is : iscomprelrel R (pr1 L)) (x x' : setquot R) :
   breltodecrel (quotdecrelint L is) x x' <-> quotrel is x x'.
 Proof.

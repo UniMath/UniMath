@@ -49,23 +49,6 @@ Definition negb (b:bool) := if b then false else true.
 
 (** The coproduct of two types *)
 
-Inductive paths {A:Type} (a:A) : A -> Type := paths_refl : paths a a.
-Hint Resolve paths_refl : core .
-Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
-Notation idpath := paths_refl .
-
-Section A.
-  Universe i j.
-  Constraint i < j.
-  Context (A:Type) (a b:A).
-  Goal paths@{i} a b = paths@{j} a b.
-  Proof.
-    reflexivity.                (* Polymorphic Inductive Cumulativity makes this work *)
-  Qed.
-End A.
-
-(** Coproduct of two types *)
-
 Inductive coprod (A B:UU) : UU :=
 | ii1 : A -> coprod A B
 | ii2 : B -> coprod A B.
@@ -84,7 +67,7 @@ Notation "X ⨿ Y" := (coprod X Y).
 
 (* Declare ML Module "nat_syntax_plugin". *)
 
-Inductive nat : UU :=
+Inductive nat : Type@{uu1} :=
   | O : nat
   | S : nat -> nat.
 
@@ -163,13 +146,22 @@ Notation "24" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S 
 
 (** Identity Types *)
 
-Inductive paths {A:UU} (a:A) : A -> UU := paths_refl : paths a a.
-Hint Resolve paths_refl : core .
+Inductive paths@{i} {A:Type@{i}} (a:A) : A -> Type@{i} := idpath : paths a a.
+Hint Resolve idpath : core .
 Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
-Notation idpath := paths_refl .
+
+Section A.
+  Universe i j.
+  Constraint i < j.
+  Context (A:Type) (a b:A).
+  Goal paths@{i} a b = paths@{j} a b.
+  Proof.
+    reflexivity.                (* Polymorphic Inductive Cumulativity makes this work *)
+  Qed.
+End A.
 
 (* Remark: all of the uu0.v now uses only paths_rect and not the direct "match" construction
-on paths. By adding a constantin paths for the computation rule for paths_rect and then making
+on paths. By adding a constant in paths for the computation rule for paths_rect and then making
 both this constant and paths_rect itself opaque it is possible to check which of the
 constructions of the uu0 can be done with the weakened version of the Martin-Lof Type Theory
 that is interpreted by the Bezem-Coquand-Huber cubical set model of 2014. *)

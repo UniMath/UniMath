@@ -134,8 +134,8 @@ Section subtypeInjectivity_prop.
   (* without this constraint, Coq makes uu0 = i.  ???  *)
   Constraint uu0 < i.
 
-  Corollary subtypeInjectivity_prop@{} {A : Type@{i}} (B : A -> hProp) :
-    ∏ (x y : total2@{i} B), (x = y) ≃ (pr1 x = pr1 y).
+  Corollary subtypeInjectivity_prop {A : Type} (B : A -> hProp) :
+    ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1 y).
   Proof.
     intros. apply subtypeInjectivity. intro. apply propproperty.
   Defined.
@@ -210,13 +210,13 @@ Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
 Definition ishinh_UU@{i} (X : Type@{i}) : Type@{i}
   := ∏ P : hProp, ((X -> P) -> P).
 
-Lemma isapropishinh@{i} (X : Type@{i}) : isaprop@{i} (ishinh_UU@{i} X).
+Lemma isapropishinh@{i j} (X : Type@{i}) : isaprop@{i} (ishinh_UU@{i} X).
 Proof.
-  intro. apply impred. intros P. apply impred. intros _. apply propproperty.
+  intro. apply impred@{_ j}. intros P. apply impred. intros _. apply propproperty.
 Qed.
 
-Definition ishinh@{i} (X : Type@{i}) : hProp
-  := hProppair (ishinh_UU@{i} X) (isapropishinh X).
+Definition ishinh@{i j} (X : Type@{i}) : hProp
+  := hProppair (ishinh_UU@{i} X) (isapropishinh@{i j} X).
 
 Notation nonempty := ishinh (only parsing).
 
@@ -242,7 +242,7 @@ Proof.
   intros ? ? i f h. exact (@hinhuniv X (Q,,i) f h).
 Defined.
 
-Corollary squash_to_prop@{i} {X Q : Type@{i}} : ishinh@{i} X -> isaprop Q -> (X -> Q) -> Q.
+Corollary squash_to_prop@{i j} {X Q : Type@{i}} : ishinh@{i j} X -> isaprop Q -> (X -> Q) -> Q.
 Proof.
   intros ? ? h i f. exact (@hinhuniv X (ResizeProp Q i,,i) f h).
 Defined.
@@ -325,12 +325,12 @@ Defined.
 (both depend only on the behavior of the corresponding function between the sets
 of connected components) **)
 
-Definition image@{i} {X Y : Type@{i}} (f : X -> Y) : Type@{i}
-  := total2@{i} (λ y : Y, ishinh@{i} (hfiber f y)).
+Definition image@{i j} {X Y : Type@{i}} (f : X -> Y) : Type@{i}
+  := total2@{i} (λ y : Y, ishinh@{i j} (hfiber f y)).
 Definition imagepair {X Y : UU} (f : X -> Y) :
   ∏ (t : Y), (λ y : Y, ∥ hfiber f y ∥) t → ∑ y : Y, ∥ hfiber f y ∥
   := tpair (λ y : Y, ishinh (hfiber f y)).
-Definition pr1image@{i} {X Y : Type@{i}} (f : X -> Y) : image@{i} f → Y
+Definition pr1image@{i j} {X Y : Type@{i}} (f : X -> Y) : image@{i j} f → Y
   := @pr1 _  (λ y : Y, ishinh (hfiber f y)).
 
 Definition prtoimage {X Y : UU} (f : X -> Y) : X -> image f.

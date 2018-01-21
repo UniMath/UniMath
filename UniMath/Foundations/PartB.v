@@ -430,7 +430,7 @@ Defined.
 (** *** h-levelf of [ pr1 ] *)
 
 
-Theorem isofhlevelfpr1@{i} (n : nat) {X : Type@{i}} (P : X -> Type@{i})
+Theorem isofhlevelfpr1 (n : nat) {X : Type} (P : X -> Type)
         (is : ∏ x : X, isofhlevel n (P x)) : isofhlevelf n (@pr1 X P).
 Proof.
   intros. unfold isofhlevelf. intro x.
@@ -804,8 +804,8 @@ Proof.
   intros X Y f X0. apply (isofhlevelfsn O f X0).
 Defined.
 
-Definition isinclpr1@{i} {X : Type@{i}} (P : X -> Type@{i}) (is : ∏ x : X, isaprop@{i} (P x)) :
-  isincl@{i} (@pr1@{i} X P):= isofhlevelfpr1 (S O) P is.
+Definition isinclpr1 {X : Type} (P : X -> Type) (is : ∏ x : X, isaprop (P x)) :
+  isincl (@pr1 X P):= isofhlevelfpr1 (S O) P is.
 
 Theorem subtypeInjectivity {A : UU} (B : A -> UU) :
   isPredicate B -> ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1 y).
@@ -813,7 +813,7 @@ Proof.
   intros. apply Injectivity. apply isweqonpathsincl. apply isinclpr1. exact X.
 Defined.
 
-Corollary subtypeEquality@{i} {A : Type@{i}} {B : A -> Type@{i}} (is : isPredicate B)
+Corollary subtypeEquality {A : Type} {B : A -> Type} (is : isPredicate B)
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> s = s'.
 Proof.
   intros A B H s s'. apply invmap. apply subtypeInjectivity. exact H.

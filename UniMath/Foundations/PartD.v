@@ -619,22 +619,22 @@ Definition weqfunfromdirprod (X X' Y : UU) :
 
 (** *** General case *)
 
-(* we should be able to make do with one universe parameter here *)
-Theorem impred@{j k} (n : nat) {T : Type@{k}} (P : T -> Type@{j}) : (* j ≤ k *)
-  (∏ t : T, isofhlevel@{j} n (P t)) -> (isofhlevel@{k} n (∏ t : T, P t)).
+Theorem impred@{i j} (n : nat) {T : Type@{i}} (P : (T -> Type@{i} : Type@{j})) :
+  ((∏ t : T, isofhlevel n (P t)) -> isofhlevel n (∏ t : T, P t) : Type@{i}).
 Proof.
-  intro. induction n as [ | n IHn ].
-  - intros T P X. apply (funcontr@{k j k} P X).
+  intro.
+  induction n as [ | n IHn ].   (* this induction uses nat_rect@{j} *)
+  - intros T P X. apply (funcontr P X).
   - intros T P X. unfold isofhlevel in X. unfold isofhlevel. intros x x'.
     assert (is : ∏ t : T, isofhlevel n (paths (x t) (x' t)))
       by (intro; apply (X t (x t) (x' t))).
-    assert (is2 : isofhlevel n (∏ t : T, paths@{j} (x t) (x' t)))
+    assert (is2 : isofhlevel n (∏ t : T, paths (x t) (x' t)))
       by apply (IHn _ (λ t0 : T, (x t0) = (x' t0)) is).
-    set (u := toforallpaths@{k j k} P x x').
+    set (u := toforallpaths P x x').
     assert (is3: isweq u) by apply isweqtoforallpaths.
-    set (v:= invmap@{k} (weqpair@{k} u is3)).
-    assert (is4: isweq v) by apply isweqinvmap@{k k k}.
-    apply (isofhlevelweqf@{k k} n (weqpair v is4)).
+    set (v:= invmap (weqpair u is3)).
+    assert (is4: isweq v) by apply isweqinvmap.
+    apply (isofhlevelweqf n (weqpair v is4)).
     assumption.
 Defined.
 
