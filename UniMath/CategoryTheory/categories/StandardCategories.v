@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.CategoryTheory.Categories
-               UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 Local Open Scope cat.

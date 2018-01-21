@@ -2,7 +2,9 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+
 Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Categories.
@@ -63,15 +65,15 @@ Proof.
   - use three_rec_dep; try assumption.
     apply (f' · f).
   - use three_rec_dep; use three_rec_dep.
-    + exact (Empty_set_rect _ ).
+    + exact (empty_rect _ ).
     + intro x; apply idpath.
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
-    + exact (Empty_set_rect _ ).
+    + exact (empty_rect _ ).
+    + exact (empty_rect _ ).
+    + exact (empty_rect _ ).
+    + exact (empty_rect _ ).
+    + exact (empty_rect _ ).
     + intro x; apply (!H).
-    + exact (Empty_set_rect _ ).
+    + exact (empty_rect _ ).
 Defined.
 
 Definition isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)

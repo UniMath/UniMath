@@ -1,4 +1,5 @@
 Require Export UniMath.MoreFoundations.Notations.
+Require Export UniMath.MoreFoundations.Tactics.
 Require Export UniMath.MoreFoundations.DecidablePropositions.
 
 Local Open Scope logic.

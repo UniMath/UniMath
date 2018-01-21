@@ -73,7 +73,7 @@ Section IsEffectivePw.
     use tpair.
     use StandardFiniteSets.three_rec_dep; apply idpath.
     use StandardFiniteSets.three_rec_dep;  use StandardFiniteSets.three_rec_dep;
-      exact (Empty_set_rect _ ) ||  (exact (λ _, idpath _)).
+      exact (empty_rect _ ) ||  (exact (λ _, idpath _)).
   Defined.
 
   Lemma eq_coeq_pw {X Y: functor C D} (a b:X ⟹ Y) (c:C) :
@@ -86,7 +86,7 @@ Section IsEffectivePw.
     use tpair.
     use StandardFiniteSets.two_rec_dep; reflexivity.
     use StandardFiniteSets.two_rec_dep;  use StandardFiniteSets.two_rec_dep;
-       try exact (Empty_set_rect _ ).
+       try exact (empty_rect _ ).
     intros g'.
     destruct g'.
     apply idpath.
@@ -149,7 +149,7 @@ Section PointwiseEpi.
     use tpair.
     use StandardFiniteSets.three_rec_dep;  apply idpath.
     use StandardFiniteSets.three_rec_dep;  use StandardFiniteSets.three_rec_dep;
-      exact (Empty_set_rect _ )||exact (λ _, idpath _).
+      exact (empty_rect _ )||exact (λ _, idpath _).
   Defined.
 
   Lemma Pushouts_pw_epi (colimD : graphs.pushouts.Pushouts D) (A B : functor C D)

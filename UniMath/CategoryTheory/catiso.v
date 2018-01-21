@@ -91,7 +91,7 @@ Lemma correct_hom {A B : precategory_data}
         (eqweqmap (catiso_to_precategory_ob_path F) a').
 Proof.
   intros a a'.
-  set (W := (!(homotweqinvweq (univalence _ _)) (catiso_ob_weq F))).
+  assert (W := (!(homotweqinvweq (univalence _ _)) (catiso_ob_weq F))).
   exact (maponpaths (λ T, (pr1weq T) a --> (pr1weq T) a') W ).
 Defined.
 
@@ -101,14 +101,23 @@ Lemma eqweq_ob_path_is_functor_app {A B : precategory_data}
   : forall a : A, eqweqmap (catiso_to_precategory_ob_path F) a = F a.
 Proof.
   intros a.
-  unfold catiso_to_precategory_ob_path.
-
-  set (W := (@homotweqinvweq _ _  (univalence (ob A) (ob B)))).
-  simpl in W.
-  rewrite W.
-
-  reflexivity.
+  exact (! toforallpaths (λ _ : A, B) F
+    (pr1 (eqweqmap (invmap (univalence A B) (catiso_ob_weq F))))
+    (maponpaths pr1 (! homotweqinvweq (univalence A B) (catiso_ob_weq F))) a).
 Defined.
+
+Lemma eqweq_ob_path_is_functor_app_compute
+  (A B : precategory)
+  (F : catiso A B)
+  (a a' : A)
+  (f : B ⟦ F a, F a' ⟧):
+  eqweq_ob_path_is_functor_app F a =
+  ! toforallpaths (λ _ : A, B) F
+      (pr1weq (eqweqmap (invmap (univalence A B) (catiso_ob_weq F))))
+      (maponpaths pr1weq (! homotweqinvweq (univalence A B) (catiso_ob_weq F))) a.
+Proof.
+  unfold eqweq_ob_path_is_functor_app.
+Abort.
 
 Lemma eqweq_maponpaths_mor {A B : precategory}
   (F G : A ≃ B) (p : F = G) (a a' : A) (f : F a --> F a')
@@ -123,6 +132,14 @@ Proof.
   reflexivity.
 Defined.
 
+(* Lemma three_arg_paths {A B:UU} {C:A -> B -> UU} {D:UU} {f : ∏ (a:A) (b:B), C a b -> D} {a1 b1 c1 a2 b2 c2} : *)
+(*   a1 = a2 -> b1 = b2 -> c1 = c2 -> f a1 b1 c1 = f a2 b2 c2. *)
+(* Proof. *)
+(*   intros p q r. induction p. induction q. induction r. apply idpath. *)
+(* Defined. *)
+
+
+
 Lemma eqweq_correct_hom_is_comp {A B : precategory}
   (F : catiso A B)
   : forall a a' : A, forall f : F a --> F a',
@@ -132,22 +149,12 @@ Lemma eqweq_correct_hom_is_comp {A B : precategory}
       · (idtomor _ _ (!eqweq_ob_path_is_functor_app F a')).
 Proof.
   intros a a' f.
-  unfold correct_hom.
-
-  rewrite (eqweq_maponpaths_mor
-             _
-             _
+  rewrite (eqweq_maponpaths_mor _ _
              (! homotweqinvweq (univalence A B) (catiso_ob_weq F))
              a a').
-
-  unfold catiso_to_precategory_ob_path.
+  apply maponpaths. apply maponpaths.
   unfold eqweq_ob_path_is_functor_app.
-  simpl.
-
-  set (W := (@homotweqinvweq _ _  (univalence (ob A) (ob B)))(catiso_ob_weq F)).
-  simpl in W.
-  rewrite W.
-
+  rewrite pathsinv0inv0.
   reflexivity.
 Defined.
 
@@ -160,7 +167,7 @@ Proof.
   intros a a'.
   unfold catiso_fully_faithful_path.
 
-  set (W := (@homotweqinvweq _ _  (univalence (a --> a') (F a --> F a')))).
+  assert (W := (@homotweqinvweq _ _  (univalence (a --> a') (F a --> F a')))).
   simpl in W.
   rewrite W.
 
@@ -223,8 +230,11 @@ Lemma transport_id {A0 B0 : UU} (p0 : A0 = B0)
                @ !weqtoforallpaths _ _ _ (weqtoforallpaths _ _ _ p1 a) a))
     (idB (eqweqmap p0 a)).
 Proof.
+  intro.
   induction p0.
-  rewrite p1.
+  change (transportb _ _ _) with B1 in p1.
+  induction p1.
+  simpl.
   reflexivity.
 Defined.
 
@@ -239,9 +249,9 @@ Proof.
   apply pathsinv0.
   eapply pathscomp0. apply eqweq_correct_hom_is_comp.
 
-  rewrite (eqweq_ob_path_is_functor_app F).
-  rewrite !id_left.
-
+  induction (eqweq_ob_path_is_functor_app F a).
+  simpl.
+  rewrite 2 id_right.
   reflexivity.
 Defined.
 
@@ -328,8 +338,10 @@ Lemma transport_comp {A0 B0 : UU} (p0 : A0 = B0)
     = transport_comp_target p0 A1 B1 p1 a a' a''
         (compB (eqweqmap p0 a) (eqweqmap p0 a') (eqweqmap p0 a'')).
 Proof.
+  intros.
   induction p0.
-  rewrite p1.
+  change (A1 = B1) in p1.
+  induction p1.
   reflexivity.
 Defined.
 
@@ -341,12 +353,13 @@ Lemma correct_hom_on_comp {A B : precategory}
     =  (eqweqmap (correct_hom F _ _)) (f · g).
 Proof.
   intros a a' a'' f g.
-
   rewrite !eqweq_correct_hom_is_comp.
-  rewrite !(eqweq_ob_path_is_functor_app F).
-  rewrite !id_left.
-  rewrite !id_right.
-
+  induction (eqweq_ob_path_is_functor_app F a).
+  induction (eqweq_ob_path_is_functor_app F a').
+  induction (eqweq_ob_path_is_functor_app F a'').
+  rewrite 3 id_left.
+  simpl.
+  rewrite 3 id_right.
   reflexivity.
 Defined.
 
