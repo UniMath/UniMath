@@ -13,9 +13,9 @@ Require Export UniMath.Foundations.Init.
 
 (** Universe structure *)
 
-Monomorphic Universe uu0.
-Monomorphic Universe uu1.
-Monomorphic Universe uu2.
+Monomorphic Universe uu0.       (* level 0 -- resized propositions and elements of hProp live here *)
+Monomorphic Universe uu1.       (* level 1 -- empty, unit, bool, nat, and hProp live here *)
+Monomorphic Universe uu2.       (* level 2 -- hPropset lives here *)
 
 Global Set Universe Polymorphism.
 Global Set Polymorphic Inductive Cumulativity.
@@ -37,7 +37,7 @@ Notation "∅" := empty.
 (** The one-element type *)
 
 Inductive unit : Type@{uu1} :=
-    tt : unit.
+  | tt : unit.
 
 (** The two-element type *)
 
@@ -50,8 +50,8 @@ Definition negb (b:bool) := if b then false else true.
 (** The coproduct of two types *)
 
 Inductive coprod (A B:UU) : UU :=
-| ii1 : A -> coprod A B
-| ii2 : B -> coprod A B.
+  | ii1 : A -> coprod A B
+  | ii2 : B -> coprod A B.
 
 Arguments coprod_rect {_ _} _ _ _ _.
 Arguments ii1 {_ _} _.
@@ -160,11 +160,11 @@ Section A.
   Qed.
 End A.
 
-(* Remark: all of the uu0.v now uses only paths_rect and not the direct "match" construction
-on paths. By adding a constant in paths for the computation rule for paths_rect and then making
-both this constant and paths_rect itself opaque it is possible to check which of the
-constructions of the uu0 can be done with the weakened version of the Martin-Lof Type Theory
-that is interpreted by the Bezem-Coquand-Huber cubical set model of 2014. *)
+(* Remark: in general we strive to use only paths_rect and not the direct "match" construction on
+paths. By adding a constant in paths for the computation rule for paths_rect and then making both
+this constant and paths_rect itself opaque it is possible to check which of the constructions of the
+uu0 can be done with the weakened version of the Martin-Lof Type Theory that is interpreted by the
+Bezem-Coquand-Huber cubical set model of 2014. *)
 
 (** Dependent sums.
 
@@ -175,20 +175,6 @@ definitions in Coq.
 We use "Record", which is equivalent to "Structure", instead of "Inductive" here, so we can take
 advantage of the "primitive projections" feature of Coq, which introduces η-reduction for pairs, by
 adding the option "Set Primitive Projections".  It also speeds up compilation by 56 percent.
-
-The terms produced by the "induction" tactic, when we define "total2" as a record, contain the
-"match" construction instead appealing to the eliminator.  However, assuming the eliminator will be
-justified mathematically, the way to justify the the "match" construction is to point out that it
-can be regarded as an abbreviation for the eliminator that omits explicit mention of the first two
-parameters (X:Type) and (Y:X->Type).
-
-I.e., whenever you see
-
-       [match w as t0 return TYPE with | tpair _ _ x y => BODY end]
-
-in a proof term, just mentally replace it by
-
-       [@total2_rect _ _ (λ t0, TYPE) (λ x y, BODY) w]
 
 *)
 
@@ -207,3 +193,8 @@ Notation "'∑'  x .. y , P" := (total2 (λ x, .. (total2 (λ y, P)) ..))
   (* type this in emacs in agda-input method with \sum *)
 
 Notation "x ,, y" := (tpair _ x y).
+
+Definition foo (X:Type) (xy : @total2 X (λ _, X)) : X.
+  induction xy as [x y].
+  exact x.
+Defined.
