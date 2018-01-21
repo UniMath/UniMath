@@ -134,9 +134,9 @@ Lemma hzquotientandfpstimesl ( m : hz ) ( x : hzneq 0 m )
    ( a b : nat -> hz ) ( upper : nat ) :
   hzquotientmod m x ( fpstimes hz a b upper ) =
   ( natsummation0 upper ( fun i : nat =>
-      ( hzquotientmod m x ( a i ) ) * b ( minus upper i ) ) +
+      ( hzquotientmod m x ( a i ) ) * b ( sub upper i ) ) +
     hzquotientmod m x ( natsummation0 upper ( fun i : nat =>
-      ( hzremaindermod m x ( a i ) ) * b ( minus upper i ) ) ) ).
+      ( hzremaindermod m x ( a i ) ) * b ( sub upper i ) ) ) ).
 Proof.
   intros.
   destruct upper as [ | upper].
@@ -157,30 +157,30 @@ Proof.
     apply idpath.
   - unfold fpstimes.
     rewrite hzqrandnatsummation0q.
-    assert ( forall n : nat, hzquotientmod m x (a n * b ( minus ( S upper ) n)%nat) =
-      ( ( hzquotientmod m x ( a n ) ) * b ( minus ( S upper ) n ) +
-        ( hzremaindermod m x ( a n ) ) * ( hzquotientmod m x ( b ( minus ( S upper ) n ) ) ) +
+    assert ( forall n : nat, hzquotientmod m x (a n * b ( sub ( S upper ) n)%nat) =
+      ( ( hzquotientmod m x ( a n ) ) * b ( sub ( S upper ) n ) +
+        ( hzremaindermod m x ( a n ) ) * ( hzquotientmod m x ( b ( sub ( S upper ) n ) ) ) +
         hzquotientmod m x ( ( hzremaindermod m x ( a n ) ) *
-                            ( hzremaindermod m x ( b ( minus ( S upper ) n ) ) ) ) ) ) as f.
+                            ( hzremaindermod m x ( b ( sub ( S upper ) n ) ) ) ) ) ) as f.
     { intro k.
       rewrite hzquotientandtimesl.
       apply idpath.
     }
     rewrite ( natsummationpathsupperfixed _ _ ( fun x0 p => f x0 ) ).
     rewrite ( natsummationplusdistr ( S upper ) ( fun x0 : nat =>
-      hzquotientmod m x (a x0) * b ( minus ( S upper ) x0)%nat +
+      hzquotientmod m x (a x0) * b ( sub ( S upper ) x0)%nat +
       hzremaindermod m x (a x0) * hzquotientmod m x (b (S upper - x0)%nat) ) ).
     rewrite ( natsummationplusdistr ( S upper ) ( fun x0 : nat =>
                            hzquotientmod m x (a x0) * b (S upper - x0)%nat ) ).
     rewrite 2! hzplusassoc.
     apply ( maponpaths ( fun v : _ => natsummation0 ( S upper ) ( fun i : nat =>
-               hzquotientmod m x ( a i ) * b ( minus ( S upper ) i ) ) + v ) ).
+               hzquotientmod m x ( a i ) * b ( sub ( S upper ) i ) ) + v ) ).
     rewrite ( hzqrandnatsummation0q m x ( fun i : nat =>
-                    hzremaindermod m x ( a i ) * b ( minus ( S upper ) i ) ) ).
+                    hzremaindermod m x ( a i ) * b ( sub ( S upper ) i ) ) ).
     assert ( (natsummation0 (S upper) (fun n : nat =>
       hzremaindermod m x (hzremaindermod m x (a n) * b (S upper - n)%nat))) =
       ( natsummation0 ( S upper ) ( fun n : nat =>
-             hzremaindermod m x ( a n * b ( minus ( S upper ) n ) ) ) ) ) as g.
+             hzremaindermod m x ( a n * b ( sub ( S upper ) n ) ) ) ) ) as g.
     { apply natsummationpathsupperfixed.
       intros j p.
       rewrite hzremaindermodandtimes.
@@ -199,11 +199,11 @@ Proof.
       hzquotientmod m x (hzremaindermod m x (a n) * b (S upper - n)%nat)) ) as h.
     { rewrite <- ( natsummationplusdistr ( S upper ) ( fun x0 : nat =>
                      hzremaindermod m x ( a x0 ) *
-                     hzquotientmod m x ( b ( minus ( S upper ) x0 ) ) ) ).
+                     hzquotientmod m x ( b ( sub ( S upper ) x0 ) ) ) ).
       apply natsummationpathsupperfixed.
       intros j p.
       rewrite ( hzquotientmodandtimes m x ( hzremaindermod m x ( a j ) )
-                                      ( ( b ( minus ( S upper ) j ) ) ) ).
+                                      ( ( b ( sub ( S upper ) j ) ) ) ).
       rewrite <- hzqrandremainderq.
       rewrite 2! hzmult0x.
       rewrite hzmultx0.
@@ -647,14 +647,14 @@ Proof.
                ( quotientprecarry a * b ) n ) =
       ( @op2 ( fpscommrng hz ) ( precarry a ) b ) ( S n ) ) as f.
     { change ( ( a * b ) ( S n ) )
-     with ( natsummation0 ( S n ) ( fun x : nat => a x * b ( minus ( S n ) x ) ) ).
+     with ( natsummation0 ( S n ) ( fun x : nat => a x * b ( sub ( S n ) x ) ) ).
      change ( ( quotientprecarry a * b ) n ) with
      ( natsummation0 n ( fun x : nat =>
-         quotientprecarry a x * b ( minus n x ) ) ).
+         quotientprecarry a x * b ( sub n x ) ) ).
      rewrite natsummationplusshift.
      change ( ( @op2 ( fpscommrng hz ) ( precarry a ) b ) ( S n ) ) with
      ( natsummation0 ( S n ) ( fun x : nat =>
-         ( precarry a ) x * b ( minus ( S n ) x ) ) ).
+         ( precarry a ) x * b ( sub ( S n ) x ) ) ).
      rewrite natsummationshift0.
      unfold precarry at 2.
      simpl.
@@ -721,13 +721,13 @@ Proof.
     intros j p.
     change ( hzremaindermod m is
                             (hzremaindermod m is (precarry a j) *
-                             b ( minus ( S n ) j)) ) with
+                             b ( sub ( S n ) j)) ) with
     ( hzremaindermod m is
                      (hzremaindermod m is (precarry a j) *
                       b (S n - j)%nat)%hz ).
     rewrite ( hzremaindermodandtimes m is
                 ( hzremaindermod m is ( precarry a j ) )
-                ( b ( minus ( S n ) j ) ) ).
+                ( b ( sub ( S n ) j ) ) ).
     rewrite hzremaindermoditerated.
     rewrite <- hzremaindermodandtimes.
     apply idpath.
@@ -765,45 +765,45 @@ Proof.
           ( ( a * b ) ( S n ) + ( quotientprecarry a * b ) n ) =
         hzremaindermod m is ( ( carry a * b ) ( S n ) ) ) as g.
       { change ( hzremaindermod m is ( ( natsummation0 ( S n ) ( fun u : nat =>
-                                             a u * b ( minus ( S n ) u ) ) ) +
+                                             a u * b ( sub ( S n ) u ) ) ) +
                                        ( natsummation0 n ( fun u : nat =>
-                       ( quotientprecarry a ) u * b ( minus n u ) ) ) ) =
+                       ( quotientprecarry a ) u * b ( sub n u ) ) ) ) =
                  hzremaindermod m is ( natsummation0 ( S n ) ( fun u : nat =>
-                              ( carry a ) u * b ( minus ( S n ) u ) ) ) ).
+                              ( carry a ) u * b ( sub ( S n ) u ) ) ) ).
         rewrite ( natsummationplusshift n ).
         rewrite ( natsummationshift0 n ( fun u : nat =>
-                                    carry a u * b ( minus ( S n ) u ) ) ).
+                                    carry a u * b ( sub ( S n ) u ) ) ).
         assert ( hzremaindermod m is ( natsummation0 n ( fun x : nat =>
-                              a ( S x ) * b ( minus ( S n ) ( S x ) ) +
-                              quotientprecarry a x * b ( minus n x ) ) ) =
+                              a ( S x ) * b ( sub ( S n ) ( S x ) ) +
+                              quotientprecarry a x * b ( sub n x ) ) ) =
                  hzremaindermod m is (natsummation0 n ( fun x : nat =>
-                   carry a ( S x ) * b ( minus ( S n ) ( S x ) ) ) ) ) as h.
+                   carry a ( S x ) * b ( sub ( S n ) ( S x ) ) ) ) ) as h.
         { rewrite hzqrandnatsummation0r.
           rewrite ( hzqrandnatsummation0r m is ( fun x : nat =>
-                          carry a ( S x ) * b ( minus ( S n ) ( S x ) ) ) ).
+                          carry a ( S x ) * b ( sub ( S n ) ( S x ) ) ) ).
           apply maponpaths.
           apply natsummationpathsupperfixed.
           intros j p.
           unfold quotientprecarry.
           simpl.
 (* the following command takes overly long on Oct. 30, 2017:
-          change (a (S j) * b ( minus n j) +
-                  hzquotientmod m is (precarry a j) * b ( minus n j)) with
-                 (a (S j) * b ( minus n j) +
-                  hzquotientmod m is (precarry a j) * b ( minus n j) )%hz.
+          change (a (S j) * b ( sub n j) +
+                  hzquotientmod m is (precarry a j) * b ( sub n j)) with
+                 (a (S j) * b ( sub n j) +
+                  hzquotientmod m is (precarry a j) * b ( sub n j) )%hz.
  *)
-          intermediate_path (hzremaindermod m is ((a (S j) * b ( minus n j) +
-                   hzquotientmod m is (precarry a j) * b ( minus n j) )%hz)).
+          intermediate_path (hzremaindermod m is ((a (S j) * b ( sub n j) +
+                   hzquotientmod m is (precarry a j) * b ( sub n j) )%hz)).
           + exact (idpath _).
           + rewrite <- ( hzrdistr ( a ( S j ) )
                                  ( hzquotientmod m is ( precarry a j ) )
-                                 ( b ( minus n j ) ) ).
+                                 ( b ( sub n j ) ) ).
             rewrite hzremaindermodandtimes.
             change ( hzremaindermod m is
                         (hzremaindermod m is (a (S j) +
                          hzquotientmod m is (precarry a j)) *
-                           hzremaindermod m is (b ( minus n j))) =
-                     hzremaindermod m is (carry a (S j) * b(minus n j)) )%rng.
+                           hzremaindermod m is (b ( sub n j))) =
+                     hzremaindermod m is (carry a (S j) * b(sub n j)) )%rng.
             rewrite <- ( hzremaindermoditerated m is (a (S j) +
                                          hzquotientmod m is (precarry a j)) ).
             unfold carry.
@@ -816,7 +816,7 @@ Proof.
         unfold carry at 3.
         rewrite ( hzremaindermodandplus m is _
                     ( hzremaindermod m is ( precarry a 0%nat ) *
-                                            b ( minus ( S n ) 0%nat ) ) ).
+                                            b ( sub ( S n ) 0%nat ) ) ).
         rewrite hzremaindermodandtimes.
         rewrite hzremaindermoditerated.
         rewrite <- hzremaindermodandtimes.
@@ -936,11 +936,11 @@ Proof.
       apply idpath.
     + rewrite natplusr0.
       change ( natsummation0 k ( fun x : nat =>
-               a x * b ( minus ( S k ) x ) ) +
-               a ( S k ) * b ( minus ( S k ) ( S k ) ) =
+               a x * b ( sub ( S k ) x ) ) +
+               a ( S k ) * b ( sub ( S k ) ( S k ) ) =
       a ( S k ) * b 0%nat ).
       assert ( natsummation0 k ( fun x : nat =>
-                          a x * b ( minus ( S k ) x ) ) =
+                          a x * b ( sub ( S k ) x ) ) =
                natsummation0 k ( fun x : nat => 0%hz ) ) as f.
       { apply natsummationpathsupperfixed.
         intros m i.
@@ -962,8 +962,8 @@ Proof.
   - intros.
     rewrite natplusnsm.
     change ( natsummation0 ( k + k' )%nat ( fun x : nat =>
-               a x * b ( minus ( S k + k' ) x ) ) +
-               a ( S k + k' )%nat * b ( minus ( S k + k' ) ( S k + k' ) ) =
+               a x * b ( sub ( S k + k' ) x ) ) +
+               a ( S k + k' )%nat * b ( sub ( S k + k' ) ( S k + k' ) ) =
              a k * b ( S k' ) ).
     set ( b' := fpsshift b ).
     rewrite minusnn0.
@@ -972,7 +972,7 @@ Proof.
     rewrite hzmultx0.
     rewrite hzplusr0.
     assert ( natsummation0 ( k + k' )%nat ( fun x : nat =>
-                           a x * b ( minus ( S k + k' ) x ) ) =
+                           a x * b ( sub ( S k + k' ) x ) ) =
             fpstimes hz a b' ( k + k' )%nat ) as f.
     { apply natsummationpathsupperfixed.
       intros m v.
@@ -1019,13 +1019,13 @@ Proof.
       apply idpath.
   - intros k is b k' is' j.
     change ( natsummation0 ( S m ) ( fun x : nat =>
-                      a x * b ( minus ( S m ) x ) ) =
+                      a x * b ( sub ( S m ) x ) ) =
             0%hz ).
     change ( natsummation0 m ( fun x : nat =>
-               a x * b ( minus ( S m ) x ) ) +
-               a ( S m ) * b ( minus ( S m ) ( S m ) ) =
+               a x * b ( sub ( S m ) x ) ) +
+               a ( S m ) * b ( sub ( S m ) ( S m ) ) =
              0%hz ).
-    assert ( a ( S m ) * b ( minus ( S m ) ( S m ) ) = 0%hz ) as g.
+    assert ( a ( S m ) * b ( sub ( S m ) ( S m ) ) = 0%hz ) as g.
     { destruct k.
       + destruct k'.
         * apply fromempty.
@@ -1052,9 +1052,9 @@ Proof.
     rewrite hzplusr0.
     set ( b' := fpsshift b ).
     assert ( natsummation0 m ( fun x : nat =>
-                                 a x * b ( minus ( S m ) x ) ) =
+                                 a x * b ( sub ( S m ) x ) ) =
              natsummation0 m ( fun x : nat =>
-                                 a x * b' ( minus m x ) ) ) as f.
+                                 a x * b' ( sub m x ) ) ) as f.
     { apply natsummationpathsupperfixed.
       intros n i.
       unfold b'.
@@ -1626,27 +1626,27 @@ Proof.
       apply k'.
       change ( ( natsummation0 ( S k ) ( fun x : nat =>
                      carry p ( isaprimetoneq0 is ) a x *
-                     carry p ( isaprimetoneq0 is ) b ( minus ( S k ) x ) ) ) +
+                     carry p ( isaprimetoneq0 is ) b ( sub ( S k ) x ) ) ) +
                  hzquotientmod p ( isaprimetoneq0 is )
                                ( precarry p ( isaprimetoneq0 is )
                                           ( carry p ( isaprimetoneq0 is ) a *
                                             carry p ( isaprimetoneq0 is ) b ) k ) =
                 (( natsummation0 ( S k ) ( fun x : nat =>
                      carry p ( isaprimetoneq0 is ) a x *
-                     carry p ( isaprimetoneq0 is ) c ( minus ( S k ) x ) ) ) +
+                     carry p ( isaprimetoneq0 is ) c ( sub ( S k ) x ) ) ) +
                  hzquotientmod p ( isaprimetoneq0 is )
                                ( precarry p ( isaprimetoneq0 is )
                                           ( carry p ( isaprimetoneq0 is ) a *
                                             carry p ( isaprimetoneq0 is ) c ) k ) ) ).
       assert ( natsummation0 ( S k ) (fun x0 : nat =>
                    carry p (isaprimetoneq0 is) a x0 *
-                   carry p (isaprimetoneq0 is) b ( minus ( S k ) x0)) =
+                   carry p (isaprimetoneq0 is) b ( sub ( S k ) x0)) =
                  natsummation0 ( S k ) (fun x0 : nat =>
                    carry p (isaprimetoneq0 is) a x0 *
-                   carry p (isaprimetoneq0 is) c ( minus ( S k ) x0)) ) as f.
+                   carry p (isaprimetoneq0 is) c ( sub ( S k ) x0)) ) as f.
       { apply natsummationpathsupperfixed.
         intros m y.
-        rewrite ( l ( minus ( S k ) m ) ).
+        rewrite ( l ( sub ( S k ) m ) ).
         * apply idpath.
         * apply minusleh.
       }
@@ -1710,7 +1710,7 @@ Proof.
       change ( hzremaindermod p ( isaprimetoneq0 is )
                    ( natsummation0 ( S n ) ( fun x : nat =>
                        carry p ( isaprimetoneq0 is ) a x *
-                       carry p ( isaprimetoneq0 is ) b ( minus ( S n ) x ) ) +
+                       carry p ( isaprimetoneq0 is ) b ( sub ( S n ) x ) ) +
                      hzquotientmod p ( isaprimetoneq0 is )
                        ( precarry p ( isaprimetoneq0 is )
                                   ( carry p ( isaprimetoneq0 is ) a *
@@ -1718,7 +1718,7 @@ Proof.
                ( hzremaindermod p ( isaprimetoneq0 is )
                    ( natsummation0 ( S n ) ( fun x : nat =>
                        carry p ( isaprimetoneq0 is ) a x *
-                       carry p ( isaprimetoneq0 is ) c ( minus ( S n ) x ) ) +
+                       carry p ( isaprimetoneq0 is ) c ( sub ( S n ) x ) ) +
                      hzquotientmod p ( isaprimetoneq0 is )
                        ( precarry p ( isaprimetoneq0 is )
                                   ( carry p ( isaprimetoneq0 is ) a *
@@ -1726,13 +1726,13 @@ Proof.
       rewrite j.
       assert ( natsummation0 ( S n ) (fun x0 : nat =>
                    carry p (isaprimetoneq0 is) a x0 *
-                   carry p (isaprimetoneq0 is) b ( minus ( S n ) x0)) =
+                   carry p (isaprimetoneq0 is) b ( sub ( S n ) x0)) =
                  natsummation0 ( S n ) (fun x0 : nat =>
                    carry p (isaprimetoneq0 is) a x0 *
-                  carry p (isaprimetoneq0 is) c ( minus ( S n ) x0)) ) as f.
+                  carry p (isaprimetoneq0 is) c ( sub ( S n ) x0)) ) as f.
       { apply natsummationpathsupperfixed.
         intros m y.
-        rewrite ( l ( minus ( S n ) m ) ).
+        rewrite ( l ( sub ( S n ) m ) ).
         * apply idpath.
         * apply minusleh.
       }
@@ -1823,7 +1823,7 @@ Proof.
     apply idpath.
   - change ( natsummation0 ( S m ) ( fun z : nat =>
                ( carry p ( isaprimetoneq0 is ) a z ) *
-               ( carry p ( isaprimetoneq0 is ) b ( minus ( S m ) z ) ) ) +
+               ( carry p ( isaprimetoneq0 is ) b ( sub ( S m ) z ) ) ) +
           hzquotientmod p ( isaprimetoneq0 is )
                  ( precarry p ( isaprimetoneq0 is )
                     ( fpstimes hz ( carry p ( isaprimetoneq0 is ) a )
@@ -1838,7 +1838,7 @@ Proof.
       rewrite hzplusr0.
       assert ( natsummation0 (S m) (fun z : nat =>
                  carry p (isaprimetoneq0 is) a z *
-                 carry p (isaprimetoneq0 is) b ( minus ( S m ) z)) =
+                 carry p (isaprimetoneq0 is) b ( sub ( S m ) z)) =
              ( natsummation0 ( S m ) ( fun z : nat => 0%hz ) ) ) as f.
       { apply natsummationpathsupperfixed.
         intros k v.

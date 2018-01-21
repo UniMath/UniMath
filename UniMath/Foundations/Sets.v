@@ -1574,7 +1574,7 @@ Section LiftSurjection.
                             (b : B), g b = univ_surj b.
   Proof.
     intros g H b.
-    use (surjectionisepitosets p); [easy|easy|].
+    use (surjectionisepitosets p); [assumption|assumption|].
     intro x.
     rewrite H,univ_surj_ax. apply idpath.
   Qed.

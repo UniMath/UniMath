@@ -7,18 +7,15 @@ notations for constructions defined in Coq.Init library as well as the definitio
 
 *)
 
+(** Initial setup unrelated to Univalent Foundations *)
 
-
-
-(** Preamble. *)
-
-Unset Automatic Introduction.
+Require Export UniMath.Foundations.Init.
 
 (** Universe structure *)
 
-Notation UUU := Set .
-
-Notation UU  := Type (only parsing).
+Monomorphic Universe uu0.
+Monomorphic Universe uu1.
+Monomorphic Universe uu2.
 
 Global Set Universe Polymorphism.
 Global Set Polymorphic Inductive Cumulativity.
@@ -29,17 +26,28 @@ Global Set Printing Universes.
 Global Set Printing Coercions.
 Global Unset Printing Notations.
 
-Inductive empty : UU := .
+Notation UU  := Type (only parsing).
+
+(** The empty type *)
+
+Inductive empty : Type@{uu1} := .
 
 Notation "∅" := empty.
 
-(** Identity Types. Identity types are introduced in Coq.Init.Datatypes by the lines :
+(** The one-element type *)
 
-[ Inductive identity ( A : Type ) ( a : A ) : A -> Type := identity_refl : identity _ a a .
+Inductive unit : Type@{uu1} :=
+    tt : unit.
 
-Hint Resolve identity_refl : core . ]
+(** The two-element type *)
 
-*)
+Inductive bool : Type@{uu1} :=
+  | true : bool
+  | false : bool.
+
+Definition negb (b:bool) := if b then false else true.
+
+(** The coproduct of two types *)
 
 Inductive paths {A:Type} (a:A) : A -> Type := paths_refl : paths a a.
 Hint Resolve paths_refl : core .
@@ -56,77 +64,115 @@ Section A.
   Qed.
 End A.
 
-(* When the goal is displayed as x=y and the types of x and y are hard to discern,
-   use this tactic -- it will add the type to the context in simplified form. *)
-Ltac show_id_type := match goal with |- @paths ?ID _ _ => set (TYPE := ID); simpl in TYPE end.
+(** Coproduct of two types *)
+
+Inductive coprod (A B:UU) : UU :=
+| ii1 : A -> coprod A B
+| ii2 : B -> coprod A B.
+
+Arguments coprod_rect {_ _} _ _ _ _.
+Arguments ii1 {_ _} _.
+Arguments ii2 {_ _} _.
+
+Notation inl := ii1.            (* deprecated; will be removed eventually *)
+Notation inr := ii2.            (* deprecated; will be removed eventually *)
+
+Notation "X ⨿ Y" := (coprod X Y).
+(* type this in emacs with C-X 8 RET AMALGAMATION OR COPRODUCT *)
+
+(** The natural numbers *)
+
+(* Declare ML Module "nat_syntax_plugin". *)
+
+Inductive nat : UU :=
+  | O : nat
+  | S : nat -> nat.
+
+Definition succ := S.
+
+Delimit Scope nat_scope with nat.
+Bind Scope nat_scope with nat.
+Arguments S _%nat.
+Open Scope nat_scope.
+
+Fixpoint add n m :=
+  match n with
+  | O => m
+  | S p => S (p + m)
+  end
+where "n + m" := (add n m) : nat_scope.
+
+Fixpoint sub n m :=
+  match n, m with
+  | S k, S l => k - l
+  | _, _ => n
+  end
+where "n - m" := (sub n m) : nat_scope.
+
+(* note: our mul differs from that in Coq.Init.Nat  *)
+Definition mul : nat -> nat -> nat.
+Proof.
+  intros n m.
+  induction n as [|p pm].
+  - exact O.
+  - exact (pm + m).
+Defined.
+
+Notation "n * m" := (mul n m) : nat_scope.
+
+Fixpoint max n m :=
+  match n, m with
+    | O, _ => m
+    | S n', O => n
+    | S n', S m' => S (max n' m')
+  end.
+
+Fixpoint min n m :=
+  match n, m with
+    | O, _ => O
+    | S n', O => O
+    | S n', S m' => S (min n' m')
+  end.
+
+(* some code is commented out with this comment: wait for numeral parsing *)
+Notation  "0" := (O) : nat_scope.
+Notation  "1" := (S O) : nat_scope.
+Notation  "2" := (S (S O)) : nat_scope.
+Notation  "3" := (S (S (S O))) : nat_scope.
+Notation  "4" := (S (S (S (S O)))) : nat_scope.
+Notation  "5" := (S (S (S (S (S O))))) : nat_scope.
+Notation  "6" := (S (S (S (S (S (S O)))))) : nat_scope.
+Notation  "7" := (S (S (S (S (S (S (S O))))))) : nat_scope.
+Notation  "8" := (S (S (S (S (S (S (S (S O)))))))) : nat_scope.
+Notation  "9" := (S (S (S (S (S (S (S (S (S O))))))))) : nat_scope.
+Notation "10" := (S (S (S (S (S (S (S (S (S (S O)))))))))) : nat_scope.
+Notation "11" := (S (S (S (S (S (S (S (S (S (S (S O))))))))))) : nat_scope.
+Notation "12" := (S (S (S (S (S (S (S (S (S (S (S (S O)))))))))))) : nat_scope.
+Notation "13" := (S (S (S (S (S (S (S (S (S (S (S (S (S O))))))))))))) : nat_scope.
+Notation "14" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S O)))))))))))))) : nat_scope.
+Notation "15" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O))))))))))))))) : nat_scope.
+Notation "16" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O)))))))))))))))) : nat_scope.
+Notation "17" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O))))))))))))))))) : nat_scope.
+Notation "18" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O)))))))))))))))))) : nat_scope.
+Notation "19" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O))))))))))))))))))) : nat_scope.
+Notation "20" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O)))))))))))))))))))) : nat_scope.
+Notation "21" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O))))))))))))))))))))) : nat_scope.
+Notation "22" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O)))))))))))))))))))))) : nat_scope.
+Notation "23" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O))))))))))))))))))))))) : nat_scope.
+Notation "24" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O)))))))))))))))))))))))) : nat_scope.
+
+(** Identity Types *)
+
+Inductive paths {A:UU} (a:A) : A -> UU := paths_refl : paths a a.
+Hint Resolve paths_refl : core .
+Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
+Notation idpath := paths_refl .
 
 (* Remark: all of the uu0.v now uses only paths_rect and not the direct "match" construction
 on paths. By adding a constantin paths for the computation rule for paths_rect and then making
 both this constant and paths_rect itself opaque it is possible to check which of the
 constructions of the uu0 can be done with the weakened version of the Martin-Lof Type Theory
-that is interpreted by the Bezm-Coquand-Huber cubical set model of 2014. *)
-
-
-
-
-(** Coproducts .
-
-The coproduct of two types is introduced in Coq.Init.Datatypes by the lines:
-
-[ Inductive sum (A B:Type) : Type :=
-  | inl : A -> sum A B
-  | inr : B -> sum A B. ]
-*)
-
-(* Notation coprod := sum . *)
-(* Notation coprod_rect := sum_rect. *)
-
-Inductive coprod (__A__ __B__:Type) : Type :=
-  | inl : __A__ -> coprod __A__ __B__
-  | inr : __B__ -> coprod __A__ __B__.
-(* Do not use "induction" on an element of this type without specifying names; seeing __A__ or __B__
-   will indicate that you did that. *)
-
-Arguments coprod_rect {_ _} _ _ _ _.
-
-Notation ii1fun := inl .
-Notation ii2fun := inr .
-
-Notation ii1 := inl .
-Notation ii2 := inr .
-Arguments ii1 {A B} _ : rename.
-Arguments ii2 {A B} _ : rename.
-
-Notation "X ⨿ Y" := (coprod X Y) (at level 50, left associativity).
-  (* type this in emacs with C-X 8 RET AMALGAMATION OR COPRODUCT *)
-
-Notation "'∏'  x .. y , P" := (forall x, .. (forall y, P) ..)
-  (at level 200, x binder, y binder, right associativity) : type_scope.
-  (* type this in emacs in agda-input method with \prod *)
-
-Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
-  (at level 200, x binder, y binder, right associativity).
-  (* type this in emacs in agda-input method with \lambda *)
-
-Definition coprod_rect_compute_1
-           (A B : UU) (P : A ⨿ B -> UU)
-           (f : ∏ (a : A), P (ii1 a))
-           (g : ∏ (b : B), P (ii2 b)) (a:A) :
-  coprod_rect P f g (ii1 a) = f a.
-Proof.
-  intros.
-  apply idpath.
-Defined.
-
-Definition coprod_rect_compute_2
-           (A B : UU) (P : A ⨿ B -> UU)
-           (f : ∏ a : A, P (ii1 a))
-           (g : ∏ b : B, P (ii2 b)) (b:B) :
-  coprod_rect P f g (ii2 b) = g b.
-Proof.
-  intros.
-  apply idpath.
-Defined.
+that is interpreted by the Bezem-Coquand-Huber cubical set model of 2014. *)
 
 (** Dependent sums.
 
@@ -155,7 +201,6 @@ in a proof term, just mentally replace it by
 *)
 
 Set Primitive Projections.
-
 Set Nonrecursive Elimination Schemes.
 
 Record total2@{i} { T: Type@{i} } ( P: T -> Type@{i} ) : Type@{i}
@@ -169,157 +214,4 @@ Notation "'∑'  x .. y , P" := (total2 (λ x, .. (total2 (λ y, P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
   (* type this in emacs in agda-input method with \sum *)
 
-Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser than '+' *)
-
-(*
-
-(** The phantom type family ( following George Gonthier ) *)
-
-Inductive Phant ( T : Type ) := phant : Phant T .
-
-
-*)
-
-
-
-(** The following command checks whether the flag [-indices-matter] which modifies the universe
-level assignment for inductive types has been set. With the flag it returns [ paths 0 0 : UUU
-]. Without the flag it returns [ paths 0 0 : Prop ]. *)
-
-Check (O = O) .
-
-(* notation *)
-
-Notation "X <- Y" := (Y -> X) (at level 90, only parsing, left associativity) : type_scope.
-
-Notation "x → y" := (x -> y)
-  (at level 99, y at level 200, right associativity): type_scope.
-(* written \to or \r- in Agda input method *)
-(* the level comes from sub/coq/theories/Unicode/Utf8_core.v *)
-
-(* so we do it the other way around: *)
-Definition mul : nat -> nat -> nat.
-Proof.
-  intros n m.
-  induction n as [|p pm].
-  - exact O.
-  - exact (pm + m).
-Defined.
-Notation mult := mul.           (* this overrides the notation "mult" defined in Coq's Peano.v *)
-Notation "n * m" := (mul n m) : nat_scope.
-
-(** Some tactics  *)
-
-(* Apply this tactic to a proof of ([X] and [X -> ∅]), in either order: *)
-Ltac contradicts a b := solve [ induction (a b) | induction (b a) ].
-
-(** A few more tactics, thanks go to Jason Gross *)
-
-Ltac simple_rapply p :=
-  simple refine p ||
-  simple refine (p _) ||
-  simple refine (p _ _) ||
-  simple refine (p _ _ _) ||
-  simple refine (p _ _ _ _) ||
-  simple refine (p _ _ _ _ _) ||
-  simple refine (p _ _ _ _ _ _) ||
-  simple refine (p _ _ _ _ _ _ _) ||
-  simple refine (p _ _ _ _ _ _ _ _) ||
-  simple refine (p _ _ _ _ _ _ _ _ _) ||
-  simple refine (p _ _ _ _ _ _ _ _ _ _) ||
-  simple refine (p _ _ _ _ _ _ _ _ _ _ _) ||
-  simple refine (p _ _ _ _ _ _ _ _ _ _ _ _) ||
-  simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _) ||
-  simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _) ||
-  simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).
-
-Tactic Notation "use" uconstr(p) := simple_rapply p.
-
-Tactic Notation "transparent" "assert" "(" ident(name) ":" constr(type) ")" :=
-  simple refine (let name := (_ : type) in _).
-
-Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
-  let T := type of x in
-  let G := match goal with |- ?G => constr:(G) end in
-  exact (((λ g:G, g) : T -> G) x).
-
-(** reserve notations for later use: *)
-
-Reserved Notation "∅".
-
-Reserved Notation "a --> b" (at level 50).
-
-Reserved Notation "C ⟦ a , b ⟧" (at level 50).
-(* ⟦   to input: type "\[[" or "\(" with Agda input method
-   ⟧   to input: type "\]]" or "\)" with Agda input method *)
-
-Reserved Notation "f ;; g"  (at level 50, left associativity, only parsing). (* deprecated *)
-
-Reserved Notation "f · g"  (at level 50, format "f  ·  g", left associativity).
-(* to input: type "\centerdot" or "\cdot" with Agda input method *)
-
-Reserved Notation "g ∘ f"  (at level 50, left associativity).
-(* agda input \circ *)
-
-(* conflict:
-    Reserved Notation "# F"  (at level 3).
-    Reserved Notation "p # x" (right associativity, at level 65, only parsing).
-*)
-
-Reserved Notation "p #' x" (right associativity, at level 65, only parsing).
-
-Reserved Notation "C '^op'" (at level 3, format "C ^op").
-
-Reserved Notation "a <-- b" (at level 50).
-
-Reserved Notation "[ C , D ]" .
-
-Reserved Notation "C [ a , b ]"  (at level 50).
-
-Reserved Notation "X ⟶ Y"  (at level 39).
-(* to input: type "\-->" with Agda input method *)
-
-Reserved Notation "X ⟹ Y"  (at level 39).
-(* same parsing level as ⟶ *)
-(* to input: type "\==>" with Agda input method *)
-
-Reserved Notation "F ∙ G" (at level 35).
-(* to input: type "\." with Agda input method *)
-(* the old notation had the arguments in the opposite order *)
-
-(* conflict:
-    Reserved Notation "s □ x" (at level 64, left associativity).
-    Reserved Notation "G □ F" (at level 35).
-    (* to input: type "\Box" or "\square" or "\sqw" or "\sq" with Agda input method *)
-*)
-
-Reserved Notation "F ◾ b"  (at level 40, left associativity).
-(* to input: type "\sqb" or "\sq" with Agda input method *)
-
-Reserved Notation "F ▭ f"  (at level 40, left associativity). (* \rew1 *)
-(* to input: type "\rew" or "\re" with Agda input method *)
-
-(* conflict:
-    Reserved Notation "A ⇒ B" (at level 95, no associativity).
-    Reserved Notation "c ⇒ X" (at level 50).
-    (* to input: type "\Rightarrow" or "\r=" or "\r" or "\Longrightarrow" or "\=>" with Agda input method *)
-*)
-
-Reserved Notation "X ⇐ c"   (at level 50).
-(* to input: type "\Leftarrow" or "\Longleftarrow" or "\l=" or "\l" with Agda input method *)
-
-Reserved Notation "x ⟲ f"  (at level 50, left associativity).
-(* to input: type "\l" and select from the menu, row 4, spot 2, with Agda input method *)
-
-Reserved Notation "q ⟳ x"  (at level 50, left associativity).
-(* to input: type "\r" and select from the menu, row 4, spot 3, with Agda input method *)
-
-Reserved Notation "p ◽ b"  (at level 40).
-(* to input: type "\sqw" or "\sq" with Agda input method *)
-
-Reserved Notation "xe ⟲⟲ p"  (at level 50).
-(* to input: type "\l" and select from the menu, row 4, spot 2, with Agda input method *)
-
-Reserved Notation "r \\ x"  (at level 50, left associativity).
-
-Reserved Notation "x // r"  (at level 50, left associativity).
+Notation "x ,, y" := (tpair _ x y).

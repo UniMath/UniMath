@@ -135,8 +135,6 @@ Tomi Pannila 2016.
 (** *** Settings *)
 
 Unset Automatic Introduction.
-(* The above line has to be removed for the file to compile with Coq8.2 *)
-
 
 (** *** Imports *)
 
@@ -177,7 +175,7 @@ Delimit Scope functions with functions.
 
 Open Scope functions.
 
-Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity) : functions.
+Notation "g ∘ f" := (funcomp f g) : functions.
 
 (** back and forth between functions of pairs and functions returning
   functions *)
@@ -221,7 +219,7 @@ Definition adjev2 {X Y : UU} (phi : ((X -> Y) -> Y) -> Y) : X -> Y :=
 
 Definition dirprod@{i} (X Y : Type@{i}) : Type@{i} := ∑ x:X, Y.
 
-Notation "A × B" := (dirprod A B) (at level 75, right associativity) : type_scope.
+Notation "A × B" := (dirprod A B) : type_scope.
 
 Definition dirprod_pr1 {X Y : UU} := pr1 : X × Y -> X.
 Definition dirprod_pr2 {X Y : UU} := pr2 : X × Y -> Y.
@@ -248,18 +246,17 @@ Defined.
 
 Definition neg (X : UU) : UU := X -> empty.
 
-Notation "'¬' X" := (neg X) (at level 35, right associativity).
+Notation "'¬' X" := (neg X).
 (* type this in emacs in agda-input method with \neg *)
 
-Notation "x != y" := (neg (x = y)) (at level 70).
+Notation "x != y" := (neg (x = y)).
 
 Definition negf {X Y : UU} (f : X -> Y) : ¬ Y -> ¬ X := λ phi x, phi (f x).
 
 Definition dneg (X : UU) : UU := ¬ ¬ X.
 
-Notation "'¬¬' X" := (dneg X) (at level 35, right associativity).
+Notation "'¬¬' X" := (dneg X).
 (* type this in emacs in agda-input method with \neg twice *)
-
 
 Definition dnegf {X Y : UU} (f : X -> Y) : dneg X -> dneg Y :=
   negf (negf f).
@@ -367,10 +364,7 @@ Hint Resolve @pathscomp0 : pathshints.
 Ltac intermediate_path x := apply (pathscomp0 (b := x)).
 Ltac etrans := eapply pathscomp0.
 
-(** Notation [p @ q] added by B.A., oct 2014 *)
-
-Notation "p @ q" := (pathscomp0 p q) (at level 60, right associativity).
-
+Notation "p @ q" := (pathscomp0 p q).
 
 Definition pathscomp0rid {X : UU} {a b : X} (e1 : a = b) : e1 @ idpath b = e1.
 Proof.
@@ -399,10 +393,7 @@ Proof.
   intros. induction f. apply idpath.
 Defined.
 
-(** Notation [! p] added by B.A., oct 2014 *)
-
-Notation "! p " := (pathsinv0 p) (at level 50).
-
+Notation "! p " := (pathsinv0 p).
 
 Definition pathsinv0l {X : UU} {a b : X} (e : a = b) : !e @ e = idpath _.
 Proof.
@@ -512,7 +503,7 @@ Defined.
 
 Definition homot@{i} {X : Type@{i}} {P : X -> Type@{i}} (f g : ∏ x : X, P x) := ∏ x : X , f x = g x.
 
-Notation "f ~ g" := (homot f g) (at level 70, no associativity).
+Notation "f ~ g" := (homot f g).
 
 Definition homotrefl {X : UU} {P : X -> UU} (f: ∏ x : X, P x) : f ~ f.
 Proof.
@@ -654,10 +645,8 @@ Definition transportf_eq {X : UU} (P : X -> UU) {x x' : X} (e : x = x') ( p : P 
 Definition transportb {X : UU} (P : X -> UU) {x x' : X}
            (e : x = x') : P x' -> P x := transportf P (!e).
 
-Notation "p # x" := (transportf _ p x)
-  (right associativity, at level 65, only parsing) : transport.
-Notation "p #' x" := (transportb _ p x)
-  (right associativity, at level 65, only parsing) : transport.
+Notation "p #  x" := (transportf _ p x) : transport.
+Notation "p #' x" := (transportb _ p x) : transport.
 Delimit Scope transport with transport.
 
 Definition idpath_transportf {X : UU} (P : X -> UU) {x : X} (p : P x) :
@@ -1261,7 +1250,7 @@ Defined.
 
 Definition weq@{i} (X Y : Type@{i}) : Type@{i} := ∑ f:X->Y, isweq@{i} f.
 
-Notation "X ≃ Y" := (weq X Y) (at level 80, no associativity) : type_scope.
+Notation "X ≃ Y" := (weq X Y) : type_scope.
 (* written \~- or \simeq in Agda input method *)
 
 Definition pr1weq {X Y : UU} := pr1 : X ≃ Y -> (X -> Y).
@@ -1859,7 +1848,7 @@ Defined.
 Definition PathPair {A : UU} {B : A -> UU} (x y : ∑ x, B x) :=
   ∑ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y.
 
-Notation "a ╝ b" := (PathPair a b) (at level 70, no associativity) : type_scope.
+Notation "a ╝ b" := (PathPair a b) : type_scope.
 (* the two horizontal lines represent an equality in the base and
    the two vertical lines represent an equality in the fiber *)
 (* in agda input mode use \--= and select the 6-th one in the first set,
@@ -2215,7 +2204,7 @@ Definition weqcontrcontr {X Y : UU} (isx : iscontr X) (isy : iscontr Y) :=
 Definition weqcomp {X Y Z : UU} (w1 : X ≃ Y) (w2 : Y ≃ Z) : X ≃ Z :=
   weqpair (λ (x : X), w2 (w1 x)) (twooutof3c w1 w2 (pr2 w1) (pr2 w2)).
 
-Notation "g ∘ f" := (weqcomp f g) (at level 50, left associativity) : weq_scope.
+Notation "g ∘ f" := (weqcomp f g) : weq_scope.
 
 Delimit Scope weq_scope with weq.
 

@@ -535,7 +535,7 @@ Definition pointedType X x := X,,x : PointedType.
 
 Definition underlyingType (X:PointedType) := pr1 X.
 
-Coercion underlyingType : PointedType >-> Sortclass.
+Coercion underlyingType : PointedType >-> UU.
 
 Definition basepoint (X:PointedType) := pr2 X.
 

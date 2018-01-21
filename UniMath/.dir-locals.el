@@ -6,6 +6,7 @@
 	     (setq coq-use-project-file nil)
 	     (make-local-variable 'coq-prog-args)
 	     (setq coq-prog-args `("-emacs"
+				   "-noinit"
 				   "-indices-matter"
 				   "-Q" ,(concat unimath-topdir "UniMath") "UniMath"
 				   "-w" "-notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option"

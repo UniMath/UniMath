@@ -136,7 +136,8 @@ Proof.
   repeat split.
   - intros S T U i j x. exact (j x ∘ i x).
   - intros S x s. exact s.
-  - intros S T i j. apply (invmap (hsubtype_univalence S T)). now apply subtype_equal_cond.
+  - intros S T i j. apply (invmap (hsubtype_univalence S T)). apply subtype_equal_cond.
+    split; assumption.
 Defined.
 
 Lemma subtype_inc_comp {X:UU} {S T U : hsubtype X} (i:S⊆T) (j:T⊆U) (s:S) :
