@@ -87,22 +87,7 @@ Monomorphic Universe uu0 uu1 uu2.
 (** [hProp] is essentially defined as [∑ T:Type, isaprop T], but
     here we make the universe levels explicit. *)
 
-Definition hProp : Type@{uu1} := total2@{uu1} isaprop@{uu0}.
-
-(* Section B. *)
-(*   (** ** Change of universe level for hProp *) *)
-(*   Universe i j k. *)
-(*   Constraint i < j, j < k. *)
-(*   Goal hProp@{i j} = hProp@{i k}. *)
-(*     reflexivity. *)
-(*   Defined. *)
-(*   Definition raise_hProp@{} (P : hProp@{i k}) : hProp@{j k} *)
-(*     := tpair@{k} isaprop@{j} (pr1 P) (pr2 P). *)
-(*   Definition lower_hProp@{} (P : hProp@{j k}) : hProp@{i k} *)
-(*     := tpair@{k} isaprop@{i} (ResizeProp@{i j} (pr1 P) (pr2 P)) (pr2 P). *)
-(*   Definition change_universe_hProp@{} : weq@{k} hProp@{i k} hProp@{j k} *)
-(*     := weqpair _ (gradth raise_hProp lower_hProp (λ P, idpath _) (λ P, idpath _)). *)
-(* End B. *)
+Definition hProp@{} : Type@{uu1} := @total2@{uu1} Type@{uu0} isaprop@{uu0}.
 
 Definition hProppair@{i} (X : Type@{i}) (is : isaprop@{i} X) : hProp
   := tpair@{uu1} isaprop@{uu0} (ResizeProp@{uu0 i} X is) is.
@@ -210,13 +195,13 @@ Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
 Definition ishinh_UU@{i} (X : Type@{i}) : Type@{i}
   := ∏ P : hProp, ((X -> P) -> P).
 
-Lemma isapropishinh@{i j} (X : Type@{i}) : isaprop@{i} (ishinh_UU@{i} X).
+Lemma isapropishinh@{i} (X : Type@{i}) : isaprop@{i} (ishinh_UU@{i} X).
 Proof.
-  intro. apply impred@{_ j}. intros P. apply impred. intros _. apply propproperty.
+  intro. apply impred. intros P. apply impred. intros _. apply propproperty.
 Qed.
 
-Definition ishinh@{i j} (X : Type@{i}) : hProp
-  := hProppair (ishinh_UU@{i} X) (isapropishinh@{i j} X).
+Definition ishinh@{i} (X : Type@{i}) : hProp
+  := hProppair (ishinh_UU@{i} X) (isapropishinh@{i} X).
 
 Notation nonempty := ishinh (only parsing).
 
@@ -242,7 +227,7 @@ Proof.
   intros ? ? i f h. exact (@hinhuniv X (Q,,i) f h).
 Defined.
 
-Corollary squash_to_prop@{i j} {X Q : Type@{i}} : ishinh@{i j} X -> isaprop Q -> (X -> Q) -> Q.
+Corollary squash_to_prop@{i j} {X Q : Type@{i}} : ishinh@{i} X -> isaprop Q -> (X -> Q) -> Q.
 Proof.
   intros ? ? h i f. exact (@hinhuniv X (ResizeProp Q i,,i) f h).
 Defined.
@@ -325,12 +310,12 @@ Defined.
 (both depend only on the behavior of the corresponding function between the sets
 of connected components) **)
 
-Definition image@{i j} {X Y : Type@{i}} (f : X -> Y) : Type@{i}
-  := total2@{i} (λ y : Y, ishinh@{i j} (hfiber f y)).
+Definition image@{i} {X Y : Type@{i}} (f : X -> Y) : Type@{i}
+  := total2 (λ y : Y, ishinh@{i} (hfiber f y)).
 Definition imagepair {X Y : UU} (f : X -> Y) :
   ∏ (t : Y), (λ y : Y, ∥ hfiber f y ∥) t → ∑ y : Y, ∥ hfiber f y ∥
   := tpair (λ y : Y, ishinh (hfiber f y)).
-Definition pr1image@{i j} {X Y : Type@{i}} (f : X -> Y) : image@{i j} f → Y
+Definition pr1image@{i j} {X Y : Type@{i}} (f : X -> Y) : image@{i} f → Y
   := @pr1 _  (λ y : Y, ishinh (hfiber f y)).
 
 Definition prtoimage {X Y : UU} (f : X -> Y) : X -> image f.

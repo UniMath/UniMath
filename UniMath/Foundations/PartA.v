@@ -974,7 +974,7 @@ Defined.
 (** *** Homotopies between families and the total spaces *)
 
 Definition famhomotfun@{i j} {X : Type@{i}} {P Q : X -> Type@{i}}
-           (h : homot@{j} P Q) (xp : total2@{j} P) : total2@{j} Q.
+           (h : homot@{j} P Q) (xp : total2 P) : total2 Q.
 (* move this function out of PartA, because it uses two universes, as VV observed *)
 Proof.
   intros.
@@ -1041,7 +1041,7 @@ Defined.
 
 (** *** Homotopy fibers [ hfiber ] *)
 
-Definition hfiber@{i} {X Y : Type@{i}} (f : X -> Y) (y : Y) : Type@{i} := total2@{i} (λ x, f x = y).
+Definition hfiber@{i} {X Y : Type@{i}} (f : X -> Y) (y : Y) : Type@{i} := total2 (λ x, f x = y).
 
 Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
            (x : X) (e : f x = y) : hfiber f y :=
