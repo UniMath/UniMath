@@ -2085,6 +2085,17 @@ Proof.
                      (dirprodtosetquot R R (dirprodpair c c0))).
 Defined.
 
+Definition setquotuniv2'@{i u} {X Y : Type@{i}} (R : hrel@{i} X) (isa : isaset Y) (f : X -> X -> Y)
+           (is : iscomprelfun2@{i i i i} R f) (c c0 : setquot R) : Y.
+Proof.
+  intros.
+  set (ff := λ xy : dirprod@{i} X X, f (pr1 xy) (pr2 xy)).
+  set (RR := hreldirprod@{i i i i i i i} R R).
+  set (Yset := hSetpair@{i u} Y isa).
+  apply (setquotuniv RR Yset ff (setquotuniv2_iscomprelfun R Yset f is c c0)
+                     (dirprodtosetquot R R (dirprodpair c c0))).
+Defined.
+
 Theorem setquotuniv2comm {X : UU} (R : eqrel X) (Y : hSet) (f : X -> X -> Y)
         (is : iscomprelfun2 R f) :
   ∏ x x' : X, setquotuniv2 R Y f is (setquotpr R x) (setquotpr R x') = f x x'.
@@ -2298,12 +2309,23 @@ Section quotrel.
 
   Universe i u.
   Constraint i < u.
-  Constraint uu1 < i.
+  Constraint uu1 < i.           (* without this, the next definition yields uu1=i ! *)
 
   Definition quotrel@{} {X : Type@{i}} {R L : hrel@{i} X} (is : iscomprelrel@{i i i} R L) :
-    hrel (setquot@{i} R) := setquotuniv2@{i u} R hPropset L is.
+    hrel (setquot@{i} R) := @setquotuniv2'@{i u} X hProp R isasethProp L is.
 
 End quotrel.
+
+Section quotrel_uu1.
+
+  Universe i u.
+  Constraint i < u.
+  Constraint uu1 = i.
+
+  Definition quotrel_uu1@{} {X : Type@{i}} {R L : hrel@{i} X} (is : iscomprelrel@{i i i} R L) :
+    hrel (setquot@{i} R) := @setquotuniv2'@{i u} X hProp R isasethProp L is.
+
+End quotrel_uu1.
 
 Lemma istransquotrel {X : UU} {R : eqrel X} {L : hrel X}
       (is : iscomprelrel R L) (isl : istrans L) : istrans (quotrel is).
