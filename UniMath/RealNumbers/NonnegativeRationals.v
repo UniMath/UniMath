@@ -5,6 +5,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 Unset Kernel Term Sharing.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.Fields.
@@ -105,8 +106,8 @@ Proof.
   split ; [ split | repeat split ].
   - exact ispreorder_hnnq_le.
   - exact isStrongOrder_hnnq_lt.
-  - easy.
-  - easy.
+  - intros. assumption.
+  - intros. assumption.
   - intros x y z.
     now apply hqlthlehtrans.
   - intros x y z.

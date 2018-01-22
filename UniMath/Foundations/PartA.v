@@ -130,8 +130,6 @@ Tomi Pannila 2016.
 (** *** Settings *)
 
 Unset Automatic Introduction.
-(* The above line has to be removed for the file to compile with Coq8.2 *)
-
 
 (** *** Imports *)
 
@@ -170,7 +168,7 @@ Delimit Scope functions with functions.
 
 Open Scope functions.
 
-Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity) : functions.
+Notation "g ∘ f" := (funcomp f g) : functions.
 
 (** back and forth between functions of pairs and functions returning
   functions *)
@@ -214,7 +212,7 @@ Definition adjev2 {X Y : UU} (phi : ((X -> Y) -> Y) -> Y) : X -> Y :=
 
 Definition dirprod (X Y : UU) := ∑ x:X, Y.
 
-Notation "A × B" := (dirprod A B) (at level 75, right associativity) : type_scope.
+Notation "A × B" := (dirprod A B) : type_scope.
 
 Definition dirprod_pr1 {X Y : UU} := pr1 : X × Y -> X.
 Definition dirprod_pr2 {X Y : UU} := pr2 : X × Y -> Y.
@@ -241,18 +239,17 @@ Defined.
 
 Definition neg (X : UU) : UU := X -> empty.
 
-Notation "'¬' X" := (neg X) (at level 35, right associativity).
+Notation "'¬' X" := (neg X).
 (* type this in emacs in agda-input method with \neg *)
 
-Notation "x != y" := (neg (x = y)) (at level 70).
+Notation "x != y" := (neg (x = y)).
 
 Definition negf {X Y : UU} (f : X -> Y) : ¬ Y -> ¬ X := λ phi x, phi (f x).
 
 Definition dneg (X : UU) : UU := ¬ ¬ X.
 
-Notation "'¬¬' X" := (dneg X) (at level 35, right associativity).
+Notation "'¬¬' X" := (dneg X).
 (* type this in emacs in agda-input method with \neg twice *)
-
 
 Definition dnegf {X Y : UU} (f : X -> Y) : dneg X -> dneg Y :=
   negf (negf f).
@@ -360,10 +357,7 @@ Hint Resolve @pathscomp0 : pathshints.
 Ltac intermediate_path x := apply (pathscomp0 (b := x)).
 Ltac etrans := eapply pathscomp0.
 
-(** Notation [p @ q] added by B.A., oct 2014 *)
-
-Notation "p @ q" := (pathscomp0 p q) (at level 60, right associativity).
-
+Notation "p @ q" := (pathscomp0 p q).
 
 Definition pathscomp0rid {X : UU} {a b : X} (e1 : a = b) : e1 @ idpath b = e1.
 Proof.
@@ -392,10 +386,7 @@ Proof.
   intros. induction f. apply idpath.
 Defined.
 
-(** Notation [! p] added by B.A., oct 2014 *)
-
-Notation "! p " := (pathsinv0 p) (at level 50).
-
+Notation "! p " := (pathsinv0 p).
 
 Definition pathsinv0l {X : UU} {a b : X} (e : a = b) : !e @ e = idpath _.
 Proof.
@@ -505,7 +496,7 @@ Defined.
 
 Definition homot {X : UU} {P : X -> UU} (f g : ∏ x : X, P x) := ∏ x : X , f x = g x.
 
-Notation "f ~ g" := (homot f g) (at level 70, no associativity).
+Notation "f ~ g" := (homot f g).
 
 Definition homotrefl {X : UU} {P : X -> UU} (f: ∏ x : X, P x) : f ~ f.
 Proof.
@@ -647,10 +638,8 @@ Definition transportf_eq {X : UU} (P : X -> UU) {x x' : X} (e : x = x') ( p : P 
 Definition transportb {X : UU} (P : X -> UU) {x x' : X}
            (e : x = x') : P x' -> P x := transportf P (!e).
 
-Notation "p # x" := (transportf _ p x)
-  (right associativity, at level 65, only parsing) : transport.
-Notation "p #' x" := (transportb _ p x)
-  (right associativity, at level 65, only parsing) : transport.
+Notation "p #  x" := (transportf _ p x) : transport.
+Notation "p #' x" := (transportb _ p x) : transport.
 Delimit Scope transport with transport.
 
 Definition idpath_transportf {X : UU} (P : X -> UU) {x : X} (p : P x) :
@@ -1254,7 +1243,7 @@ Defined.
 
 Definition weq (X Y : UU) : UU := ∑ f:X->Y, isweq f.
 
-Notation "X ≃ Y" := (weq X Y) (at level 80, no associativity) : type_scope.
+Notation "X ≃ Y" := (weq X Y) : type_scope.
 (* written \~- or \simeq in Agda input method *)
 
 Definition pr1weq {X Y : UU} := pr1 : X ≃ Y -> (X -> Y).
@@ -1769,7 +1758,7 @@ Proof.
   exact (isweqhomot f g h i).
 Defined.
 
-Theorem gradth {X Y : UU} (f : X -> Y) (g : Y -> X)
+Theorem isweq_iso {X Y : UU} (f : X -> Y) (g : Y -> X)
         (egf: ∏ x : X, g (f x) = x)
         (efg: ∏ y : Y, f (g y) = y) : isweq f.
 Proof.
@@ -1786,10 +1775,16 @@ Proof.
   apply X0.
 Defined.
 
-Definition weqgradth {X Y : UU} (f : X -> Y) (g : Y -> X)
+(** This is kept to preserve compatibility with publications that use the
+    name "gradth" for the "grad theorem". *)
+Definition gradth {X Y : UU} (f : X -> Y) (g : Y -> X)
+        (egf: ∏ x : X, g (f x) = x)
+        (efg: ∏ y : Y, f (g y) = y) : isweq f := isweq_iso f g egf efg.
+
+Definition weq_iso {X Y : UU} (f : X -> Y) (g : Y -> X)
            (egf: ∏ x : X, g (f x) = x)
            (efg: ∏ y : Y, f (g y) = y) : X ≃ Y :=
-  weqpair _ (gradth _ _ egf efg).
+  weqpair _ (isweq_iso _ _ egf efg).
 
 Definition UniqueConstruction {X Y:UU} (f:X->Y) :=
   (∏ y, ∑ x, f x = y) × (∏ x x', f x = f x' -> x = x').
@@ -1798,7 +1793,7 @@ Corollary UniqueConstruction_to_weq {X Y:UU} (f:X->Y) : UniqueConstruction f -> 
 
 Proof.
   intros ? ? ? bij. assert (sur := pr1 bij). assert (inj := pr2 bij).
-  use (gradth f).
+  use (isweq_iso f).
   - intros y. exact (pr1 (sur y)).
   - intros. simpl. simpl in inj. apply inj. exact (pr2 (sur (f x))).
   - intros. simpl. exact (pr2 (sur y)).
@@ -1815,7 +1810,7 @@ Proof.
   apply homotweqinvweq.
   assert (egf : ∏ (x : X), invmap w (w x) = x).
   apply homotinvweqweq.
-  apply (gradth _ _ efg egf).
+  apply (isweq_iso _ _ efg egf).
 Defined.
 
 Definition invweq {X Y : UU} (w : X ≃ Y) : Y ≃ X :=
@@ -1846,7 +1841,7 @@ Defined.
 Definition PathPair {A : UU} {B : A -> UU} (x y : ∑ x, B x) :=
   ∑ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y.
 
-Notation "a ╝ b" := (PathPair a b) (at level 70, no associativity) : type_scope.
+Notation "a ╝ b" := (PathPair a b) : type_scope.
 (* the two horizontal lines represent an equality in the base and
    the two vertical lines represent an equality in the fiber *)
 (* in agda input mode use \--= and select the 6-th one in the first set,
@@ -1859,7 +1854,7 @@ Proof.
   exists (λ r : x = y,
             tpair (λ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y)
                   (base_paths _ _ r) (fiber_paths r)).
-  apply (gradth _ (λ pq, total2_paths_f (pr1 pq) (pr2 pq))).
+  apply (isweq_iso _ (λ pq, total2_paths_f (pr1 pq) (pr2 pq))).
   - intro p.
     apply total2_fiber_paths.
   - intros [p q]. simpl.
@@ -1879,7 +1874,7 @@ Proof.
   { intro. induction t. apply idpath. }
   assert (efg : ∏ x : X, f (g x) = x).
   { intro. apply (! (pr2 is x)). }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 (** A weak equivalence between types defines weak equivalences on the
@@ -1889,7 +1884,7 @@ Corollary isweqmaponpaths {X Y : UU} (w : X ≃ Y) (x x' : X) :
   isweq (@maponpaths _ _ w x x').
 Proof.
   intros.
-  apply (gradth (@maponpaths _ _ w x x')
+  apply (isweq_iso (@maponpaths _ _ w x x')
                 (@invmaponpathsweq _ _ w x x')
                 (@pathsweq3 _ _ w x x')
                 (@pathsweq4 _ _ w x x')).
@@ -1903,7 +1898,7 @@ Definition weqonpaths {X Y : UU} (w : X ≃ Y) (x x' : X) : x = x' ≃ w x = w x
 Corollary isweqpathsinv0 {X : UU} (x x' : X) : isweq (@pathsinv0 _ x x').
 Proof.
   intros.
-  apply (gradth (@pathsinv0 _ x x')
+  apply (isweq_iso (@pathsinv0 _ x x')
                 (@pathsinv0 _ x' x)
                 (@pathsinv0inv0 _ _ _)
                 (@pathsinv0inv0 _ _ _)).
@@ -1922,7 +1917,7 @@ Proof.
   { intro e. induction e. induction e'. apply idpath. }
   assert (efg : ∏ e : _, f (g e) = e).
   { intro e. induction e. induction e'. apply idpath. }
-  apply (gradth f g egf efg).
+  apply (isweq_iso f g egf efg).
 Defined.
 
 (** Weak equivalences to and from coconuses and total path spaces *)
@@ -1930,7 +1925,7 @@ Defined.
 Corollary isweqtococonusf {X Y : UU} (f : X -> Y) : isweq (tococonusf f).
 Proof.
   intros.
-  apply (gradth _ _ (homotfromtococonusf f) (homottofromcoconusf f)).
+  apply (isweq_iso _ _ (homotfromtococonusf f) (homottofromcoconusf f)).
 Defined.
 
 Definition weqtococonusf {X Y : UU} (f : X -> Y) : X ≃ coconusf f :=
@@ -1939,7 +1934,7 @@ Definition weqtococonusf {X Y : UU} (f : X -> Y) : X ≃ coconusf f :=
 Corollary isweqfromcoconusf {X Y : UU} (f : X -> Y) : isweq (fromcoconusf f).
 Proof.
   intros.
-  apply (gradth _ _ (homottofromcoconusf f) (homotfromtococonusf f)).
+  apply (isweq_iso _ _ (homottofromcoconusf f) (homotfromtococonusf f)).
 Defined.
 
 Definition weqfromcoconusf {X Y : UU} (f : X -> Y) : coconusf f ≃ X :=
@@ -1956,7 +1951,7 @@ Proof.
     induction c as [x e]. induction e.
     apply idpath.
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 Corollary isweqpr1pr1 (T : UU) :
@@ -1974,7 +1969,7 @@ Proof.
     induction e. unfold f. unfold g.
     apply idpath.
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 (** The weak equivalence between hfibers of homotopic functions *)
@@ -2012,7 +2007,7 @@ Proof.
     apply (hfibertriangle2 f xe1 xe2 (idpath x) eee).
   }
 
-  apply (gradth _ _ eggff effgg).
+  apply (isweq_iso _ _ eggff effgg).
 Defined.
 
 (** *** The 2-out-of-3 property of weak equivalences
@@ -2043,7 +2038,7 @@ Proof.
   assert (einvff: ∏ x : X, invf (f x) = x).
   { intro. unfold invf. apply (homotinvweqweq gfw x). }
 
-  apply (gradth f invf einvff efinvf).
+  apply (isweq_iso f invf einvff efinvf).
 Defined.
 
 Theorem twooutof3b {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
@@ -2093,7 +2088,7 @@ Proof.
     apply int6.
   }
 
-  apply (gradth g invg einvgg eginvg).
+  apply (isweq_iso g invg einvgg eginvg).
 Defined.
 
 Lemma isweql3 {X Y : UU} (f : X -> Y) (g : Y -> X)
@@ -2145,7 +2140,7 @@ Proof.
     apply int2.
   }
 
-  apply (gradth gf invgf egfinvgf einvgfgf).
+  apply (isweq_iso gf invgf egfinvgf einvgfgf).
 Defined.
 
 Corollary twooutof3c_iff_2 {X Y Z : UU} (f : X -> Y) (g : Y -> Z) :
@@ -2202,7 +2197,7 @@ Definition weqcontrcontr {X Y : UU} (isx : iscontr X) (isy : iscontr Y) :=
 Definition weqcomp {X Y Z : UU} (w1 : X ≃ Y) (w2 : Y ≃ Z) : X ≃ Z :=
   weqpair (λ (x : X), w2 (w1 x)) (twooutof3c w1 w2 (pr2 w1) (pr2 w2)).
 
-Notation "g ∘ f" := (weqcomp f g) (at level 50, left associativity) : weq_scope.
+Notation "g ∘ f" := (weqcomp f g) : weq_scope.
 
 Delimit Scope weq_scope with weq.
 
@@ -2249,7 +2244,7 @@ Proof.
 
   set (hpuu := homotcomp (homotcomp h1 h2) hvpv).
 
-  exact (gradth u pu hupu hpuu).
+  exact (isweq_iso u pu hupu hpuu).
 Defined.
 
 Theorem twooutofsixv {X Y Z K : UU} {u : X -> Y} {v : Y -> Z} {w : Z -> K}
@@ -2277,7 +2272,7 @@ Proof.
   assert (efg : ∏ a : _, (f (g a)) = a).
   intro a. induction a as [ x x' ].  simpl. apply pathsdirprod.
   apply (homotweqinvweq w x). apply (homotweqinvweq w' x').
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 Definition weqdirprodf {X Y X' Y' : UU} (w : X ≃ Y) (w' : X' ≃ Y') : X × X' ≃ Y × Y'
@@ -2294,7 +2289,7 @@ Proof.
   assert (egf : ∏ x : X, (g (f x)) = x). intro. apply idpath.
   assert (efg : ∏ xu : _, (f (g xu)) = xu). intro. induction xu as [ t x ].
   induction x. apply idpath.
-  apply (gradth f g egf efg).
+  apply (isweq_iso f g egf efg).
 Defined.
 
 
@@ -2335,7 +2330,7 @@ Proof.
   intro. induction xpq as [ xp q ]. induction xp as [ x p ]. apply idpath.
   assert (efg : ∏ xpq : _ , (f (g xpq)) = xpq).
   intro. induction xpq as [ x pq ]. induction pq as [ p q ]. apply idpath.
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 Definition weqtotal2asstol {X : UU} (P : X -> UU) (Q : total2 P -> UU) :
@@ -2361,14 +2356,14 @@ Proof.
   intro. induction xy. apply idpath.
   assert (efg : ∏ yx : _, (f (g yx)) = yx).
   intro. induction yx. apply idpath.
-  split with f. apply (gradth _ _ egf efg).
+  split with f. apply (isweq_iso _ _ egf efg).
 Defined.
 
 Definition weqtotal2dirprodcomm {X Y : UU} (P : X × Y -> UU) :
   (∑ xy : X × Y, P xy) ≃ (∑ xy : Y × X, P (weqdirprodcomm _ _ xy)).
 Proof.
   intros.
-  use weqgradth.
+  use weq_iso.
   - intros xyp. induction xyp as [xy p]. induction xy as [x y].
     exact ((y,,x),,p).
   - intros yxp. induction yxp as [yx p]. induction yx as [y x].
@@ -2382,7 +2377,7 @@ Defined.
 Definition weqtotal2dirprodassoc  {X Y : UU} (P : X × Y -> UU) :
   (∑ xy : X × Y, P xy) ≃ (∑ (x : X) (y : Y), P (x,,y)).
   intros.
-  use weqgradth.
+  use weq_iso.
   - intros xyp. induction xyp as [xy p]. induction xy as [x y].
     exact (x,,y,,p).
   - intros xyp. induction xyp as [x yp]. induction yp as [y p].
@@ -2397,7 +2392,7 @@ Definition weqtotal2dirprodassoc' {X Y : UU} (P : X × Y -> UU) :
   (∑ xy : X × Y, P xy) ≃ (∑ (y : Y) (x : X), P (x,,y)).
 Proof.
   intros.
-  use weqgradth.
+  use weq_iso.
   - intros xyp. induction xyp as [xy p]. induction xy as [x y].
     exact (y,,x,,p).
   - intros yxp. induction yxp as [x yp]. induction yp as [y p].
@@ -2412,7 +2407,7 @@ Definition weqtotal2comm12 {X} (P Q : X -> UU) :
   (∑ (w : ∑ x, P x), Q (pr1 w)) ≃ (∑ (w : ∑ x, Q x), P (pr1 w)).
 Proof.
   intros.
-  use weqgradth.
+  use weq_iso.
   - intros [[x p] q]. exact ((x,,q),,p).
   - intros [[x q] p]. exact ((x,,p),,q).
   - intros [[x p] q]. apply idpath.
@@ -2458,7 +2453,7 @@ Proof.
   assert (efg: ∏ a, (f (g a)) = a). intro. induction a as [ t x ].
   induction x. apply idpath. apply idpath.
 
-  apply (gradth f g egf efg).
+  apply (isweq_iso f g egf efg).
 Defined.
 
 Definition weqrdistrtoprod (X Y Z : UU) := weqpair _ (isweqrdistrtoprod X Y Z).
@@ -2514,7 +2509,7 @@ Proof.
     apply idpath.
     induction yp as [ y p ].
     apply idpath. }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 (** *** Pairwise sum of functions, coproduct associativity and commutativity  *)
@@ -2559,7 +2554,7 @@ Proof.
   assert (efg : ∏ xyz, (f (g xyz)) = xyz). intro xyz.
   induction xyz as [ x | c ].  apply idpath. induction c.
   apply idpath. apply idpath.
-  apply (gradth f g egf efg).
+  apply (isweq_iso f g egf efg).
 Defined.
 
 Definition weqcoprodasstor (X Y Z : UU) := weqpair _ (isweqcoprodasstor X Y Z).
@@ -2582,7 +2577,7 @@ Proof.
   induction xy. apply idpath. apply idpath.
   assert (efg : ∏ yx : _, (f (g yx)) = yx). intro.
   induction yx. apply idpath. apply idpath.
-  apply (gradth f g egf efg).
+  apply (isweq_iso f g egf efg).
 Defined.
 
 Definition weqcoprodcomm (X Y : UU) := weqpair _ (isweqcoprodcomm X Y).
@@ -2600,7 +2595,7 @@ Proof.
   assert (egf : ∏ x : X, (g (f x)) = x). intro. apply idpath.
   assert (efg : ∏ xy : X ⨿ Y, (f (g xy)) = xy). intro.
   induction xy as [ x | y ]. apply idpath. apply (fromempty (nf y)).
-  apply (gradth f g egf efg).
+  apply (isweq_iso f g egf efg).
 Defined.
 
 Definition weqii1withneg (X : UU) {Y : UU} (nf : ¬ Y)
@@ -2617,7 +2612,7 @@ Proof.
   assert (egf : ∏ y : Y, (g (f y)) = y). intro. apply idpath.
   assert (efg : ∏ xy : X ⨿ Y, (f (g xy)) = xy). intro.
   induction xy as [ x | y ]. apply (fromempty (nf x)). apply idpath.
-  apply (gradth f g egf efg).
+  apply (isweq_iso f g egf efg).
 Defined.
 
 Definition weqii2withneg {X : UU} (Y : UU) (nf : ¬ X)
@@ -2675,7 +2670,7 @@ Proof.
   intro. induction xy' as [ x | y ]. simpl.
   apply (maponpaths (@ii1 X' Y') (homotweqinvweq w x)).
   apply (maponpaths (@ii2 X' Y') (homotweqinvweq w' y)).
-  apply (gradth ff gg egf efg).
+  apply (isweq_iso ff gg egf efg).
 Defined.
 
 Definition weqcoprodf {X Y X' Y' : UU} : X ≃ X' -> Y ≃ Y' -> X ⨿ Y ≃ X' ⨿ Y'.
@@ -2781,7 +2776,7 @@ Proof.
   assert (efg : ∏ t : _, f (g t) = t). induction t. apply idpath.
   apply idpath.
 
-  apply (gradth f g egf efg).
+  apply (isweq_iso f g egf efg).
 Defined.
 
 
@@ -2819,7 +2814,7 @@ Proof.
   induction xy. apply idpath. apply idpath.
   assert (efg : ∏ xy : total2 (boolsumfun X Y), (f (g xy)) = xy).
   intro. induction xy as [ t x ]. induction t. apply idpath. apply idpath.
-  apply (gradth f g egf efg).
+  apply (isweq_iso f g egf efg).
 Defined.
 
 Definition weqcoprodtoboolsum (X Y : UU) := weqpair _ (isweqcoprodtoboolsum X Y).
@@ -2943,7 +2938,7 @@ Proof.
   fold (ff (cnew x)).
   assert (e2 : (ff (cnew x)) = (ff cnewx)). apply (maponpaths ff e1).
   apply (pathscomp0 (pathscomp0 e2 ee) eee).
-  apply (gradth f g egf efg).
+  apply (isweq_iso f g egf efg).
 
   unfold isweq. intro y0. induction (e0 (g y0)).
 Defined.
@@ -3105,7 +3100,7 @@ Proof.
   set (e4 := maponpathscomp (ezmap f g z (pr1 fs)) (hfiberpr1 g z)
                             (homotinvweqweq (ezweq f g z fs) x)).
   simpl in e4. apply (pathscomp0 e3 e4). apply (pathscomp0 e2 e1).
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 Definition ezweq1 {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
@@ -3157,7 +3152,7 @@ Proof.
                      (ezmappr1 _ z (invezmappr1 P z x)) = x).
   intros. induction x as [ x t0 ]. induction t0. simpl in x. simpl.
   induction x. simpl. unfold transportf. unfold ezmappr1. apply idpath.
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 Definition ezweqpr1 {Z : UU} (P : Z -> UU) (z : Z)
@@ -3343,7 +3338,7 @@ Proof.
                  = (ffgg f g (g y) (hfiberpair g y (idpath _)) xee')).
   induction xee' as [ xe e' ]. induction xe as [ x e ]. apply idpath.
   apply (pathscomp0 hint (homotffggid _ _ _ _ xee')).
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 
@@ -3487,7 +3482,7 @@ Proof.
 
   assert (egf : ∏ p : P x , (g (f p)) = p). intro. apply idpath.
 
-  apply (gradth f g egf efg).
+  apply (isweq_iso f g egf efg).
 Defined.
 
 
@@ -3518,7 +3513,7 @@ Proof.
   intro. induction u as [ t x ]. induction x as [ t0 x ]. induction t0.
   simpl in x. simpl. unfold fromint. unfold toint. simpl. apply idpath.
 
-  assert (is : isweq toint). apply (gradth toint fromint fromto tofrom).
+  assert (is : isweq toint). apply (isweq_iso toint fromint fromto tofrom).
 
   clear tofrom. clear fromto. clear fromint.
   set (h := λ u : total2 (λ x : X, P (f x)), toint ((hffpmap2 f P) u)).
@@ -3603,7 +3598,7 @@ Definition weqfp {X Y : UU} (w : X ≃ Y) (P : Y -> UU) :
 Proof.
   intros.
   exists (weqfp_map w P).
-  refine (gradth _ (weqfp_invmap w P) _ _).
+  refine (isweq_iso _ (weqfp_invmap w P) _ _).
   { intros xp. use total2_paths_f.
     { simpl. apply homotinvweqweq. }
     simpl. rewrite <- weq_transportf_adjointness.
@@ -3651,7 +3646,7 @@ Proof.
   assert (egf : ∏ a : _ , (g (f a)) = a).
   intro a. induction a as [ t p ]. induction t. apply idpath.
   assert (efg : ∏ a : _ , (f (g a)) = a).
-  intro a. apply idpath. apply (gradth _ _ egf efg).
+  intro a. apply idpath. apply (isweq_iso _ _ egf efg).
 Defined.
 
 (** *** The function on the total spaces from functions on the bases and on the fibers *)
@@ -3830,7 +3825,7 @@ Proof.
   assert (efg : ∏ hf : _, (ff (gg hf)) = hf).
   intro.
   induction hf as [ tx e ]. induction tx as [ t x ].
-  induction t. apply idpath. apply (gradth _ _ egf efg).
+  induction t. apply idpath. apply (isweq_iso _ _ egf efg).
 Defined.
 
 Lemma hfp_left {X Y Z : UU} (f : X -> Z) (g : Y -> Z) :
@@ -3842,7 +3837,7 @@ Defined.
 Definition hfp_right {X Y Z : UU} (f : X -> Z) (g : Y -> Z) :
   hfp f g ≃ ∑ y, hfiber f (g y).
 Proof.
-  intros. use weqgradth.
+  intros. use weq_iso.
   - intros [[x y] e]. exact (y,,x,,!e).
   - intros [x [y e]]. exact ((y,,x),,!e).
   - intros [[x y] e]. apply maponpaths, pathsinv0inv0.
@@ -3852,7 +3847,7 @@ Defined.
 Definition hfiber_comm {X Y Z : UU} (f : X -> Z) (g : Y -> Z) :
   (∑ x, hfiber g (f x)) ≃ (∑ y, hfiber f (g y)).
 Proof.
-  intros. use weqgradth.
+  intros. use weq_iso.
   - intros [x [y e]]. exact (y,,x,,!e).
   - intros [y [x e]]. exact (x,,y,,!e).
   - intros [x [y e]]. apply maponpaths, maponpaths, pathsinv0inv0.

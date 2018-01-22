@@ -214,7 +214,7 @@ Proof.
       * apply ii2. assumption.
 Defined.
 
-Definition isdecrel_natneq : isdecrel natneq.
+Definition isdecrel_natneq : isdecrel (λ m n, negProp_to_hProp (natneq m n)).
 Proof.
   intros n. induction n as [|n N].
   - intro m. induction m as [|m _].
@@ -949,6 +949,14 @@ Proof.
   - apply natlehtolehs. assumption.
 Defined.
 
+Lemma plus_n_Sm : ∏ n m:nat, S (n + m) = n + S m.
+Proof.
+  intros n m.
+  induction n as [|n I].
+  - reflexivity.
+  - simpl. apply (maponpaths S). auto.
+Qed.
+
 Definition natlehnplusnm (n m : nat) : n ≤ n + m.
 Proof.
   intros. induction m as [|m M].
@@ -1162,11 +1170,11 @@ Proof.
   - apply isinclnatplusl.
   - induction m as [ | m IHm ].
     + set (e := natleh0tois0 is). split with 0.
-      rewrite <- plus_n_O. apply e.
+      rewrite natplusr0. apply e.
     + induction (natlehchoice2 _ _ is) as [ l | e ].
       * set (j := IHm l). induction j as [ j e' ]. split with (S j). simpl.
         rewrite <- plus_n_Sm. apply (maponpaths S e').
-      * split with 0. simpl. rewrite <- plus_n_O. assumption.
+      * split with 0. simpl. rewrite natplusr0. assumption.
 Defined.
 
 Lemma neghfibernatplusr (n m : nat) (is : m < n) : ¬ (hfiber (λ i : nat, i + n) m).
@@ -1722,20 +1730,22 @@ Hint Resolve natmultr1 : natarith.
 
 Definition natplusnonzero (n m : nat) : m ≠ 0 -> n+m ≠ 0.
 Proof.
-  intros ? ? ne. induction n as [|n]; easy.
+  intros ? ? ne. induction n as [|n _].
+  - assumption.
+  - exact tt.
 Defined.
 
 Definition natneq0andmult (n m : nat) : n ≠ 0 -> m ≠ 0 -> n * m ≠ 0.
 Proof.
   intros ? ? isn ism. induction n as [|n].
-  - easy.
+  - apply fromempty. apply isn.
   - clear isn. simpl. apply natplusnonzero. assumption.
 Defined.
 
 Definition natneq0andmultlinv (n m : nat) : n * m ≠ 0 -> n ≠ 0.
 Proof.
   induction n as [|n _].
-  - intros ? r. easy.
+  - intros ? r. apply fromempty, r.
   - intros _ _. apply natneqsx0.
 Defined.
 
@@ -2113,7 +2123,7 @@ Defined.
 Theorem weqdicompl (i : nat) : nat ≃ nat_compl i.
 Proof.
   intros i.
-  use weqgradth.
+  use weq_iso.
   - intro j. exists (di i j). apply di_neq_i.
   - intro j. exact (si i (pr1 j)).
   - simpl. intro j. unfold di. induction (natlthorgeh j i) as [lt|ge].

@@ -469,7 +469,7 @@ Definition weq_ff_functor_on_iso {C D : precategory}{F : functor C D}
   : iso a b ≃ iso (F a) (F b).
 Proof.
   exists (functor_on_iso F).
-  apply (gradth _ (iso_from_fully_faithful_reflection HF (a:=a)(b:=b))).
+  apply (isweq_iso _ (iso_from_fully_faithful_reflection HF (a:=a)(b:=b))).
   - apply iso_from_fully_faithful_reflection_functor_on_iso.
   - apply functor_on_iso_iso_from_fully_faithful_reflection.
 Defined.
@@ -522,7 +522,7 @@ Proof.
 Defined.
 
 
-Definition weq_ff_functor_on_iso_weqbandf {C D : precategory}
+Definition weq_ff_functor_on_weq_isobandf {C D : precategory}
   {F : functor C D}
   (HF : fully_faithful F) (a b : C)
   : iso a b ≃ iso (F a) (F b).
@@ -540,9 +540,9 @@ Defined.
 
 (** Computation check *)
 
-Lemma weq_ff_functor_on_iso_weqbandf_compute {C D : precategory} (F : functor C D)
+Lemma weq_ff_functor_on_weq_isobandf_compute {C D : precategory} (F : functor C D)
       (HF : fully_faithful F) {a b : C} (f : iso a b)
-: #F f = weq_ff_functor_on_iso_weqbandf HF _ _ f.
+: #F f = weq_ff_functor_on_weq_isobandf HF _ _ f.
 Proof.
   apply idpath.
 Defined.
@@ -1278,7 +1278,7 @@ Lemma isweq_idtoiso_functorcat (C : precategory_data) (D : precategory) (H : is_
     (F G : ob [C, D, (pr2 H)]) :
    isweq (@idtoiso _ F G).
 Proof.
-  apply (gradth _ (functor_eq_from_functor_iso _ H F G)).
+  apply (isweq_iso _ (functor_eq_from_functor_iso _ H F G)).
   apply functor_eq_from_functor_iso_idtoiso.
   apply idtoiso_functor_eq_from_functor_iso.
 Defined.

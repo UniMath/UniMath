@@ -55,6 +55,7 @@ yoneda.v
 Monads/Monads.v
 Monads/LModules.v
 FunctorAlgebras.v
+FunctorCoalgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
 rezk_completion.v
@@ -67,6 +68,7 @@ CommaCategories.v
 RightKanExtension.v
 exponentials.v
 slicecat.v
+limits/pullbacks_slice_products_equiv.v
 covyoneda.v
 categories/category_hset_structures.v
 SetValuedFunctors.v
@@ -103,8 +105,9 @@ Presheaf.v
 Elements.v
 ElementsOp.v
 elems_slice_equiv.v
-pullbacks_slice_products_equiv.v
 Monads/Kleisli.v
+Monads/KTriples.v
+Monads/KTriplesEquiv.v
 categories/setwith2binops.v
 categories/monoids.v
 categories/abmonoids.v
@@ -116,7 +119,9 @@ categories/rngs.v
 categories/commrngs.v
 categories/intdoms.v
 categories/flds.v
+categories/modules.v
 categories/StandardCategories.v
+categories/preorder_categories.v
 Monads/Derivative.v
 DisplayedCats/Auxiliary.v
 DisplayedCats/Core.v
