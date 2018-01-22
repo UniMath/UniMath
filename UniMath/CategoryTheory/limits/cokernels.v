@@ -11,12 +11,12 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.precategories.
-Local Open Scope cat.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.zero.
 
+Local Open Scope cat.
 
 (** * Definition of cokernels *)
 Section def_cokernels.
@@ -27,7 +27,7 @@ Section def_cokernels.
 
   (** Definition and construction of Cokernels *)
   Definition isCokernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = (ZeroArrow Z x z)) : UU :=
-    ∏ (w : C) (h : y --> w) (H : f · h = ZeroArrow Z x w), iscontr (∑ φ : z --> w, g · φ = h).
+    ∏ (w : C) (h : y --> w) (H : f · h = ZeroArrow Z x w), ∃! φ : z --> w, g · φ = h.
 
   Lemma isCokernel_paths  {x y z : C} (f : x --> y) (g : y --> z) (H H' : f · g = (ZeroArrow Z x z))
         (isC : isCokernel f g H) : isCokernel f g H'.
@@ -48,7 +48,7 @@ Section def_cokernels.
 
   Definition mk_isCokernel {x y z : C} (f : x --> y) (g : y --> z) (H1 : f · g = ZeroArrow Z x z)
              (H2 : ∏ (w : C) (h : y --> w) (H' : f · h = ZeroArrow Z x w),
-                   iscontr (∑ ψ : z --> w, g · ψ = h)) : isCokernel f g H1.
+                   ∃! ψ : z --> w, g · ψ = h) : isCokernel f g H1.
   Proof.
     unfold isCokernel.
     intros w h H'.
@@ -352,7 +352,7 @@ Section cokernels_iso.
     - intros y0. apply hs.
     - intros y0 X. cbn beta in X.
       use (pre_comp_with_z_iso_is_inj h). rewrite assoc.
-      set (tmp := maponpaths (fun gg : _ => gg · CokernelOut Z CK w h0 H')
+      set (tmp := maponpaths (λ gg : _, gg · CokernelOut Z CK w h0 H')
                              (is_inverse_in_precat1 h)). cbn in tmp.
       use (pathscomp0 _ (! tmp)). clear tmp. rewrite id_left.
       use CokernelOutsEq. rewrite CokernelCommutes. rewrite assoc.

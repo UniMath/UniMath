@@ -9,7 +9,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -20,9 +20,7 @@ Require UniMath.Ktheory.Precategories.
 
 Section interface.
 
-Variable C : Precategory.
-
-Set Automatic Introduction.
+Variable C : category.
 
 Definition isCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
   binarySumProperty ia ib.
@@ -55,8 +53,9 @@ Definition mk_CoproductCocone (a b : C) :
     isCoproductCocone _ _ _ f g -> CoproductCocone a b
   := λ c f g i, c,,(f,,g),,i.
 
-Definition Coproducts := hasBinarySums C.
-Definition hasCoproducts := ishinh Coproducts.
+Definition Coproducts := BinarySums C.
+Definition hasCoproducts (C:category) := ∏ (a b:C), ∥ BinarySum a b ∥.
+
 
 Definition CoproductObject {a b : C} (CC : CoproductCocone a b) : C :=
   universalObject CC.
@@ -156,7 +155,7 @@ Qed.
 
 Section coproduct_unique.
 
-Hypothesis H : is_category C.
+Hypothesis H : is_univalent C.
 
 Variables a b : C.
 
@@ -186,7 +185,7 @@ End interface.
 
 Section def_functor_pointwise_coprod.
 
-Variable C D : Precategory.
+Variable C D : category.
 Variable HD : Coproducts D.
 
 Definition hsD := homset_property D.
@@ -195,7 +194,7 @@ Section coproduct_functor.
 
 Variables F G : functor C D.
 
-Definition Coproducts_functor_precat : Coproducts (functor_Precategory C D).
+Definition Coproducts_functor_precat : Coproducts (functor_category C D).
 Proof.
   apply functorBinarySum.
   exact HD.

@@ -7,7 +7,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -21,7 +21,7 @@ Context {C : precategory}.
 Definition empty_graph : graph.
 Proof.
   exists empty.
-  exact (fun _ _ => empty).
+  exact (λ _ _, empty).
 Defined.
 
 Definition termDiagram : diagram empty_graph C.
@@ -33,7 +33,7 @@ Defined.
 
 Definition termCone (c : C) : cone termDiagram c.
 Proof.
-simple refine (mk_cone _ _); intro v; induction v.
+use mk_cone; intro v; induction v.
 Defined.
 
 Definition isTerminal (a : C) :=
@@ -43,7 +43,7 @@ Definition mk_isTerminal (b : C) (H : ∏ (a : C), iscontr (a --> b)) :
   isTerminal b.
 Proof.
 intros a ca.
-simple refine (tpair _ _ _).
+use tpair.
 - exists (pr1 (H a)); intro v; induction v.
 - intro t.
   apply subtypeEquality; simpl;
@@ -52,15 +52,15 @@ simple refine (tpair _ _ _).
 Defined.
 
 Definition Terminal : UU := LimCone termDiagram.
-(* Definition Terminal := total2 (fun a => isTerminal a). *)
+(* Definition Terminal := total2 (λ a, isTerminal a). *)
 
 Definition mk_Terminal (b : C) (H : isTerminal b) : Terminal.
 Proof.
-refine (mk_LimCone _ b (termCone b) _).
+use (mk_LimCone _ b (termCone b)).
 apply mk_isTerminal.
 intro a.
 set (x := H a (termCone a)).
-simple refine (tpair _ _ _).
+use tpair.
 - apply (pr1 x).
 - simpl; intro f; apply path_to_ctr; intro v; induction v.
 Defined.
@@ -105,7 +105,7 @@ Definition hasTerminal := ishinh Terminal.
 (* TODO: This should be an instance of a general result for limits *)
 (* Section Terminal_Unique. *)
 
-(* Hypothesis H : is_category C. *)
+(* Hypothesis H : is_univalent C. *)
 
 (* Lemma isaprop_Terminal : isaprop Terminal. *)
 (* Proof. *)

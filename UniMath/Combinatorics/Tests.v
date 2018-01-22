@@ -1,8 +1,19 @@
 Unset Automatic Introduction.
 
+Require Import UniMath.Foundations.Preamble.
+Require UniMath.Combinatorics.Lists.
+Require UniMath.Combinatorics.StandardFiniteSets.
+Require UniMath.Combinatorics.FiniteSets.
+Require UniMath.Combinatorics.FiniteSequences.
+Require UniMath.Combinatorics.FiniteSets.
+Require UniMath.Combinatorics.OrderedSets.
+Require UniMath.Combinatorics.StandardFiniteSets.
+Require UniMath.Combinatorics.BoundedSearch.
+Require UniMath.MoreFoundations.DecidablePropositions.
+
 Module Test_list.
 
-  Require Import UniMath.Combinatorics.Lists.
+  Import UniMath.Combinatorics.Lists.
 
   Local Notation "[]" := nil (at level 0, format "[]").
   Local Infix "::" := cons.
@@ -19,7 +30,7 @@ End Test_list.
 
 Module Test_stn.
 
-  Require Import UniMath.Combinatorics.StandardFiniteSets.
+  Import UniMath.Combinatorics.StandardFiniteSets.
 
   Local Open Scope stn.
 
@@ -27,8 +38,8 @@ Module Test_stn.
   Goal stn 6. exact (stnpr 3). Qed.
 
 
-  Goal (stnel(6,3) ≠ stnel(6,4)). easy. Defined.
-  Goal ¬(stnel(6,3) ≠ stnel(6,3)). easy. Defined.
+  Goal (stnel(6,3) ≠ stnel(6,4)). exact tt. Defined.
+  Goal ¬(stnel(6,3) ≠ stnel(6,3)). intro n. apply n. Defined.
 
   Goal ∏ m n (i:m≤n) (j:stn m), pr1 (stnmtostnn m n i j) = pr1 j.
     intros. induction j as [j J]. reflexivity.
@@ -83,7 +94,7 @@ Module Test_stn.
 
     (* here's an example that shows complications need not impede that sort of computability: *)
     Local Definition w : unit ≃ stn 1.
-      simple refine (weqgradth _ _ _ _).
+      simple refine (weq_iso _ _ _ _).
       { intro. exact firstelement. }
       { intro. exact tt. }
       { intro u. simpl. induction u. reflexivity. }
@@ -116,7 +127,7 @@ Module Test_stn.
     Definition i := ●1 : stn 4.
     Definition j := ●0 : stn 4.
     Lemma ne : ¬ (i = j).
-    Proof. apply stnneq_to_nopath. easy. Defined.
+    Proof. apply stnneq_to_nopath. exact tt. Defined.
     Definition re := weqrecompl (stn 4) i (isisolatedinstn _).
     Definition re' := weqrecompl_ne (stn 4) i (isisolatedinstn i) (stnneq i).
     Definition c := complpair (stn 4) i j ne : compl _ i.
@@ -233,7 +244,7 @@ End Test_stn.
 
 Module Test_fin.
 
-  Require Import UniMath.Combinatorics.FiniteSets.
+  Import UniMath.Combinatorics.FiniteSets.
 
   (** ** Test computations. *)
   Goal fincard (isfiniteempty) = 0. reflexivity. Qed.
@@ -266,6 +277,8 @@ Module Test_fin.
   Module Test_isfinite_isdeceq.
 
     (* This module exports nothing. *)
+
+    Import UniMath.MoreFoundations.DecidablePropositions.
 
     (* The proofs of isfinite_isdeceq and isfinite_isaset depend on funextfun
        and funextemptyAxiom, so here we do an experiment to see if that impedes
@@ -333,14 +346,16 @@ End Test_fin.
 
 Module Test_seq.
 
-  Require Import UniMath.Combinatorics.FiniteSequences.
+  Import UniMath.Combinatorics.FiniteSequences.
 
   Local Open Scope stn.
 
 End Test_seq.
 
 Module Test_finite_sets.
-  Require Import UniMath.Combinatorics.FiniteSets.
+  Import UniMath.Combinatorics.FiniteSets.
+  Import UniMath.MoreFoundations.DecidablePropositions.
+
   Local Open Scope stn.
 
   Goal 3 = fincard_standardSubset (λ i:stn 10, 2*i < 6)%dnat. Proof. reflexivity. Defined.
@@ -353,8 +368,9 @@ End Test_finite_sets.
 
 Module Test_ord.
 
-  Require Import UniMath.Combinatorics.OrderedSets.
-  Require Import UniMath.Combinatorics.StandardFiniteSets.
+  Import UniMath.Combinatorics.OrderedSets.
+  Import UniMath.Combinatorics.StandardFiniteSets.
+  Import UniMath.MoreFoundations.DecidablePropositions.
 
   Local Open Scope stn.
 
@@ -384,6 +400,8 @@ Module Test_ord.
   End TestLex.
 
   Module TestLex2.
+
+    Import UniMath.MoreFoundations.DecidablePropositions.
 
     Open Scope foset.
 
@@ -474,3 +492,51 @@ Module Test_ord.
   Goal invmap (idweq nat ∘ invweq (idweq _) ∘ idweq _)%weq 3 = 3. reflexivity. Defined.
 
 End Test_ord.
+
+Module Test_search.
+
+  Import UniMath.Combinatorics.BoundedSearch.
+  Import UniMath.Foundations.Propositions.
+
+  Local Definition someseq (n : nat) : bool.
+  Proof.
+    intros n. destruct n.
+    - exact false.
+    - destruct n.
+      + exact true.
+      + destruct n.
+        * exact true.
+        * exact false.
+  Defined.
+
+  Definition P : nat → hProp.
+  Proof.
+    intros n.
+    refine (hProppair (someseq n = true) _).
+    refine (isasetbool _ _).
+  Defined.
+
+  Local Definition P_dec (n : nat) : P n ⨿ ¬ P n.
+  Proof.
+    unfold P, someseq.
+    destruct n.
+    - apply ii2. exact nopathsfalsetotrue.
+    - destruct n.
+      + apply ii1. apply idpath.
+      + destruct n.
+        * apply ii1, idpath.
+        * apply ii2. exact nopathsfalsetotrue.
+  Defined.
+
+  Local Definition P_inhab : ∃ n, P n.
+  Proof.
+    apply hinhpr. refine (2%nat,,_). apply idpath.
+  Defined.
+
+  Goal 1 = pr1 (minimal_n P P_dec P_inhab). reflexivity. Defined.
+
+  Axiom P_inhab' : ∃ n, P n.
+
+  Definition new_n' :  ∑ n : nat, P n := minimal_n P P_dec P_inhab'.
+
+End Test_search.

@@ -24,11 +24,9 @@ Contents :
 
 Require Import UniMath.Foundations.PartD.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
-
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Section def_ptd.
 
@@ -118,7 +116,7 @@ Defined.
 Lemma eq_ptd_mor_precat {F G : precategory_Ptd} (a b : F --> G)
   : a = b ≃ (a : ptd_mor F G) = b.
 Proof.
-  simple refine (tpair _ _ _).
+  use tpair.
   intro H.
   exact H.
   apply idisweq.

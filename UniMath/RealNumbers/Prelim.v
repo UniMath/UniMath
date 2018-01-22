@@ -1,5 +1,6 @@
 (** * Additionals theorems and definitions *)
 
+Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Export UniMath.Topology.Prelim.
@@ -89,7 +90,7 @@ Lemma hqplusdiv2 : ∏ x : hq, x = (x + x) / 2.
 Qed.
 
 Lemma hqlth_between :
-  ∏ x y : hq, x < y -> total2 (fun z => dirprod (x < z) (z < y)).
+  ∏ x y : hq, x < y -> total2 (λ z, (x < z) × (z < y)).
 Proof.
   assert (H0 : / 2 > 0).
   { apply hqgthandmultlinv with 2.

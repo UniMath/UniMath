@@ -9,11 +9,10 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.sub_precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-
 
 (** * Definition of Monics *)
 Section def_monic.
@@ -89,7 +88,7 @@ Section def_monic.
     isMonic (f · g) -> isMonic f.
   Proof.
     intros X. intros w φ ψ H.
-    apply (maponpaths (fun f' => f' · g)) in H.
+    apply (maponpaths (λ f', f' · g)) in H.
     repeat rewrite <- assoc in H.
     apply (X w _ _ H).
   Defined.
@@ -107,7 +106,7 @@ Section def_monic.
   Qed.
 
   Lemma transport_source_isMonic {x y z : C} (f : y --> z) (E : isMonic f) (e : y = x) :
-    isMonic (transportf (fun x' : ob C => precategory_morphisms x' z) e f).
+    isMonic (transportf (λ x' : ob C, precategory_morphisms x' z) e f).
   Proof.
     induction e. apply E.
   Qed.
@@ -122,10 +121,10 @@ Section monics_subcategory.
   Variable C : precategory.
   Hypothesis hs : has_homsets C.
 
-  Definition hsubtype_obs_isMonic : hsubtype C := (fun c : C => hProppair _ isapropunit).
+  Definition hsubtype_obs_isMonic : hsubtype C := (λ c : C, hProppair _ isapropunit).
 
   Definition hsubtype_mors_isMonic : ∏ (a b : C), hsubtype (C⟦a, b⟧) :=
-    (fun a b : C => (fun f : C⟦a, b⟧ => hProppair _ (isapropisMonic C hs f))).
+    (λ a b : C, (fun f : C⟦a, b⟧ => hProppair _ (isapropisMonic C hs f))).
 
   Definition subprecategory_of_monics : sub_precategories C.
   Proof.

@@ -20,7 +20,7 @@ Require Import UniMath.Foundations.Propositions.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 Local Open Scope cat.
@@ -28,11 +28,11 @@ Local Open Scope cat.
 (** * The opposite precategory of a precategory *)
 
 Definition opp_precat_ob_mor (C : precategory_ob_mor) : precategory_ob_mor :=
-   tpair (fun ob : UU => ob -> ob -> UU) C (fun a b : C => C⟦b, a⟧ ).
+   tpair (λ ob : UU, ob -> ob -> UU) C (λ a b : C, C⟦b, a⟧ ).
 
 Definition opp_precat_data (C : precategory_data) : precategory_data :=
-  tpair _ _ (tpair _ (fun c : opp_precat_ob_mor C => identity c)
-                     (fun (a b c : opp_precat_ob_mor C) f g => g · f)).
+  tpair _ _ (tpair _ (λ c : opp_precat_ob_mor C, identity c)
+                     (λ (a b c : opp_precat_ob_mor C) f g, g · f)).
 
 Lemma is_precat_opp_precat_data (C : precategory) : is_precategory (opp_precat_data C).
 Proof.
@@ -61,27 +61,18 @@ Definition opp_mor_eq {C : precategory} {a b : C} {f g : a --> b} (e : opp_mor f
 
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).
 Proof.
-  tryif primitive_projections then idtac else induction C as [ob mor].
   reflexivity.
 Defined.
 
 Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
   idpath _ = maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
 Proof.
-  tryif primitive_projections
-  then reflexivity
-  else induction C as [ob mor]; apply idpath.
+  reflexivity.
 Defined.
 
 Lemma opp_opp_precat_data (C : precategory_data) : C = opp_precat_data (opp_precat_data C).
 Proof.
-  tryif primitive_projections
-  then reflexivity
-  else (
-      induction C as [obmor idco];
-      induction obmor as [ob mor];
-      induction idco as [id co];
-      apply idpath ).
+  reflexivity.
 Defined.
 
 Lemma opp_opp_precat (C : precategory) (hs : has_homsets C) : C = C^op^op.
@@ -181,7 +172,7 @@ Proof.
   intros HF d.
   set (TH := HF d).
   set (X:=@hinhuniv  (∑ a : C, iso (F a) d)).
-  refine (X _ _ TH).
+  use (X _ _ TH).
   intro H. clear TH. clear X.
   apply hinhpr.
   destruct H as [a X].
@@ -208,7 +199,7 @@ Definition from_opp_to_opp_opp (A C : precategory) (hsC : has_homsets C) :
 Proof.
 apply (tpair _ functor_opp).
 simpl; intros F G α.
-simple refine (tpair _ _ _).
+use tpair.
 + simpl; intro a; apply α.
 + abstract (intros a b f; simpl in *;
             apply pathsinv0, (nat_trans_ax α)).
@@ -229,11 +220,11 @@ Definition functor_from_opp_to_opp_opp (A C : precategory) (hsC : has_homsets C)
 Definition from_opp_opp_to_opp (A C : precategory) (hsC : has_homsets C) :
   functor_data [A^op, C^op, has_homsets_opp hsC] [A, C, hsC]^op.
 Proof.
-simple refine (tpair _ _ _); simpl.
+use tpair; simpl.
 - intro F.
-  simple refine (tpair _ _ _).
+  use tpair.
   + exists F.
-    apply (fun a b f => # F f).
+    apply (λ a b f, # F f).
   + abstract (split; [ intro a; apply (functor_id F)
                      | intros a b c f g; apply (functor_comp F)]).
 - intros F G α; exists α.

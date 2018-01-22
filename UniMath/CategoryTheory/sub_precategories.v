@@ -29,9 +29,9 @@ Contents :
                     Isos in full subcategory are equiv
                       to isos in the precategory
 
-                    Full subcategory of a category is
-                      a category
-                      [is_category_full_subcat]
+                    Full subcategory of a univalent_category is
+                      a univalent_category
+                      [is_univalent_full_subcat]
 
 
 
@@ -40,7 +40,7 @@ Contents :
 
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 
@@ -67,7 +67,7 @@ Definition sub_precategories (C : precategory) := total2 (
 
 Lemma is_sub_precategory_full (C : precategory)
          (C':hsubtype (ob C)) :
-        is_sub_precategory C' (fun a b => fun f => htrue).
+        is_sub_precategory C' (λ a b, λ f, htrue).
 Proof.
   split;
   intros; exact tt.
@@ -76,7 +76,7 @@ Defined.
 Definition full_sub_precategory {C : precategory}
          (C': hsubtype (ob C)) :
    sub_precategories C :=
-  tpair _  (dirprodpair C' (fun a b f => htrue)) (is_sub_precategory_full C C').
+  tpair _  (dirprodpair C' (λ a b f, htrue)) (is_sub_precategory_full C C').
 
 
 (** We have a coercion [carrier] turning every predicate [P] on a type [A] into the
@@ -162,7 +162,7 @@ Definition sub_precategory_ob_mor (C : precategory)(C':sub_precategories C) :
      precategory_ob_mor.
 Proof.
   exists (sub_ob C').
-  exact (fun a b => @sub_precategory_morphisms _ C' a b).
+  exact (λ a b, @sub_precategory_morphisms _ C' a b).
 Defined.
 
 (*
@@ -204,8 +204,8 @@ Lemma eq_in_sub_precategory2 (C : precategory)(C':sub_precategories C)
      (a b : sub_ob C') (f g : a --> b)
  (pf : sub_precategory_predicate_morphisms C' _ _ f)
  (pg : sub_precategory_predicate_morphisms C' _ _ g):
-  f = g -> (tpair (fun f => sub_precategory_predicate_morphisms _ _ _ f) f pf) =
-      (tpair (fun f => sub_precategory_predicate_morphisms _ _ _ f) g pg).
+  f = g -> (tpair (λ f, sub_precategory_predicate_morphisms _ _ _ f) f pf) =
+      (tpair (λ f, sub_precategory_predicate_morphisms _ _ _ f) g pg).
 Proof.
   intro H.
   apply (two_arg_paths_f H).
@@ -316,7 +316,7 @@ Definition functor_full_img {C D: precategory}
 
 
 (** *** Morphisms in the full subprecat are equiv to morphisms in the precategory *)
-(** does of course not need the category hypothesis *)
+(** does of course not need the univalent_category hypothesis *)
 
 Definition hom_in_subcat_from_hom_in_precat (C : precategory)
  (C' : hsubtype (ob C))
@@ -335,7 +335,7 @@ Lemma isweq_hom_in_precat_from_hom_in_full_subcat (C : precategory)
     (a b : ob (full_sub_precategory C')):
  isweq (hom_in_precat_from_hom_in_full_subcat _ _ a b).
 Proof.
-  apply (gradth _
+  apply (isweq_iso _
          (hom_in_subcat_from_hom_in_precat _ _ a b)).
   intro f.
   destruct f. simpl.
@@ -349,7 +349,7 @@ Lemma isweq_hom_in_subcat_from_hom_in_precat (C : precategory)
     (a b : ob (full_sub_precategory C')):
  isweq (hom_in_subcat_from_hom_in_precat  _ _ a b).
 Proof.
-  apply (gradth _
+  apply (isweq_iso _
          (hom_in_precat_from_hom_in_full_subcat _ _ a b)).
   intro f.
   intros. apply idpath.
@@ -361,7 +361,7 @@ Defined.
 
 Definition weq_hom_in_subcat_from_hom_in_precat (C : precategory)
      (C' : hsubtype (ob C))
-    (a b : ob (full_sub_precategory C')): weq (pr1 a --> pr1 b) (a-->b) :=
+    (a b : ob (full_sub_precategory C')): (pr1 a --> pr1 b) ≃ (a-->b) :=
   tpair _ _ (isweq_hom_in_subcat_from_hom_in_precat C C' a b).
 
 
@@ -383,9 +383,9 @@ Proof.
   intros a b.
   set (H' := weq_hom_in_subcat_from_hom_in_precat).
   set (H'' := H' D (is_in_img_functor F)).
-  set (Fa := tpair (fun a : ob D => is_in_img_functor F a)
+  set (Fa := tpair (λ a : ob D, is_in_img_functor F a)
         (F a) (image_is_in_image _ _ F a)).
-  set (Fb := tpair (fun a : ob D => is_in_img_functor F a)
+  set (Fb := tpair (λ a : ob D, is_in_img_functor F a)
         (F b) (image_is_in_image _ _ F b)).
   set (H3 := (H'' Fa Fb)).
   assert (H2 : functor_on_morphisms (functor_full_img F) (a:=a) (b:=b) =
@@ -441,7 +441,7 @@ Proof.
 
   generalize Fmor.
   clear Fax.
-  assert (H' : Fob = (fun a : ob C => Fob a)).
+  assert (H' : Fob = (λ a : ob C, Fob a)).
    apply H.
 
   generalize dependent a .
@@ -460,13 +460,13 @@ Proof.
 *)
 
 
-(** ** Any full subprecategory of a category is a category. *)
+(** ** Any full subprecategory of a univalent_category is a univalent_category. *)
 
 
 Section full_sub_cat.
 
 Variable C : precategory.
-Hypothesis H : is_category C.
+Hypothesis H : is_univalent C.
 
 Variable C' : hsubtype (ob C).
 
@@ -511,7 +511,7 @@ Definition iso_in_sub_from_iso (a b : ob (full_sub_precategory C'))
 Lemma isweq_iso_from_iso_in_sub (a b : ob (full_sub_precategory C')):
      isweq (iso_from_iso_in_sub a b).
 Proof.
-  apply (gradth _ (iso_in_sub_from_iso a b)).
+  apply (isweq_iso _ (iso_in_sub_from_iso a b)).
   intro f.
   apply eq_iso; simpl.
   - apply eq_in_sub_precategory, idpath.
@@ -521,7 +521,7 @@ Defined.
 Lemma isweq_iso_in_sub_from_iso (a b : ob (full_sub_precategory C')):
      isweq (iso_in_sub_from_iso a b).
 Proof.
-  apply (gradth _ (iso_from_iso_in_sub a b)).
+  apply (isweq_iso _ (iso_from_iso_in_sub a b)).
   intro f; apply eq_iso, idpath.
   intro f; apply eq_iso; simpl.
   apply eq_in_sub_precategory, idpath.
@@ -586,9 +586,9 @@ Defined.
 
 (** ** Proof of the targeted theorem: full subcats of cats are cats *)
 
-Lemma is_category_full_subcat: is_category (full_sub_precategory C').
+Lemma is_univalent_full_subcat: is_univalent (full_sub_precategory C').
 Proof.
-  unfold is_category.
+  unfold is_univalent.
   split.
   - apply isweq_sub_precat_paths_to_iso.
   - intros x y. apply is_set_sub_precategory_morphisms. apply (pr2 H).
@@ -603,7 +603,7 @@ Lemma functor_full_img_essentially_surjective (A B : precategory)
   essentially_surjective (functor_full_img F).
 Proof.
   intro b.
-  refine (pr2 b _ _).
+  use (pr2 b).
   intros [c h] q Hq.
   apply Hq.
   exists c.

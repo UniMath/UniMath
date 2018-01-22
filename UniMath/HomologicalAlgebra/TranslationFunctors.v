@@ -19,7 +19,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
 Require Import UniMath.NumberSystems.Integers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
@@ -38,7 +38,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
 
-Require Import UniMath.CategoryTheory.precategoriesWithBinOps.
+Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
@@ -194,7 +194,7 @@ Section translation_functor.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invrcomp.
     rewrite inv_inv_eq.
     assert (e : (maponpaths (λ i0 : pr1 hz, C2 (i0 + 1)) (hzrplusminus (i - 1 + 1) 1)) =
-                (maponpaths C2 (maponpaths (fun (i0 : hz) => i0 + 1) (hzrplusminus (i - 1 + 1) 1)))).
+                (maponpaths C2 (maponpaths (λ (i0 : hz), i0 + 1) (hzrplusminus (i - 1 + 1) 1)))).
     {
       induction (hzrplusminus (i - 1 + 1) 1). apply idpath.
     }

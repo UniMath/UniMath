@@ -24,10 +24,10 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.sub_precategories.
@@ -36,8 +36,6 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.precomp_fully_faithful.
 Require Import UniMath.CategoryTheory.precomp_ess_surj.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 (** * Construction of the Rezk completion via Yoneda *)
 
 Section rezk.
@@ -45,11 +43,11 @@ Section rezk.
 Variable A : precategory.
 Hypothesis hsA: has_homsets A.
 
-Definition Rezk_completion : category.
+Definition Rezk_completion : univalent_category.
 Proof.
   exists (full_img_sub_precategory (yoneda A hsA)).
-  apply is_category_full_subcat.
-  apply (is_category_functor_category _ _ is_category_HSET).
+  apply is_univalent_full_subcat.
+  apply (is_univalent_functor_category _ _ is_univalent_HSET).
 Defined.
 
 Definition Rezk_eta : functor A Rezk_completion.
@@ -73,9 +71,9 @@ End rezk.
 (** * Universal property of the Rezk completion *)
 
 Definition functor_from (C : precategory) : UU
-  := ∑ D : category, functor C D.
+  := ∑ D : univalent_category, functor C D.
 
-Coercion target_category (C : precategory) (X : functor_from C) : category := pr1 X.
+Coercion target_category (C : precategory) (X : functor_from C) : univalent_category := pr1 X.
 Definition func_functor_from {C : precategory} (X : functor_from C) : functor C X := pr2 X.
 
 Definition is_initial_functor_from (C : precategory) (X : functor_from C) : UU
@@ -91,7 +89,7 @@ Hypothesis hsA: has_homsets A.
 Section fix_a_category.
 
 Variable C : precategory.
-Hypothesis Ccat : is_category C.
+Hypothesis Ccat : is_univalent C.
 
 Lemma pre_comp_rezk_eta_is_fully_faithful :
     fully_faithful (pre_composition_functor A (Rezk_completion A hsA) C
@@ -120,7 +118,7 @@ Proof.
   apply (@rad_equivalence_of_precats
            [Rezk_completion A hsA, C, pr2 Ccat]
            [A, C, pr2 Ccat]
-           (is_category_functor_category _ _ _ )
+           (is_univalent_functor_category _ _ _ )
            _
            (pre_comp_rezk_eta_is_fully_faithful)
            (pre_comp_rezk_eta_is_ess_surj)).
@@ -131,9 +129,9 @@ Theorem Rezk_eta_Universal_Property :
    (pr2 (pr2 (Rezk_completion A hsA))) (pr2 Ccat) (Rezk_eta A hsA)).
 Proof.
   apply adj_equiv_of_cats_is_weq_of_objects.
-  - apply is_category_functor_category;
+  - apply is_univalent_functor_category;
     assumption.
-  - apply is_category_functor_category;
+  - apply is_univalent_functor_category;
     assumption.
   - apply Rezk_adj_equiv.
 Defined.
@@ -152,7 +150,7 @@ Proof.
   apply T.
 Defined.
 
-Lemma path_to_ctr (A' : UU) (B : A' -> UU) (isc : iscontr (total2 (fun a => B a)))
+Lemma path_to_ctr (A' : UU) (B : A' -> UU) (isc : iscontr (total2 (λ a, B a)))
            (a : A') (p : B a) : a = pr1 (pr1 isc).
 Proof.
   exact (maponpaths pr1 (pr2 isc (tpair _ a p))).
@@ -166,7 +164,7 @@ Definition Rezk_completion_endo_is_identity (D : functor_from A)
 Proof.
   intros X H.
   set (DH' := DH D).
-  pathvia (pr1 (pr1 DH')).
+  intermediate_path (pr1 (pr1 DH')).
   - apply path_to_ctr.
     apply H.
   - apply pathsinv0.
@@ -189,7 +187,7 @@ Let hsRAop : has_homsets (Rezk_completion A hsA)^op :=
 Section fix_a_category.
 
 Variable C : precategory.
-Hypothesis Ccat : is_category C.
+Hypothesis Ccat : is_univalent C.
 
 Lemma pre_comp_rezk_eta_opp_is_fully_faithful :
     fully_faithful
@@ -223,7 +221,7 @@ Proof.
   apply (@rad_equivalence_of_precats
            [(Rezk_completion A hsA)^op, C, pr2 Ccat]
            [A^op, C, pr2 Ccat]
-           (is_category_functor_category _ _ _ )
+           (is_univalent_functor_category _ _ _ )
            _
            (pre_comp_rezk_eta_opp_is_fully_faithful)
            (pre_comp_rezk_eta_opp_is_ess_surj)).
@@ -234,9 +232,9 @@ Theorem Rezk_eta_opp_Universal_Property :
           hsRAop (pr2 Ccat) (functor_opp (Rezk_eta A hsA))).
 Proof.
   apply adj_equiv_of_cats_is_weq_of_objects.
-  - apply is_category_functor_category;
+  - apply is_univalent_functor_category;
     assumption.
-  - apply is_category_functor_category;
+  - apply is_univalent_functor_category;
     assumption.
   - apply Rezk_op_adj_equiv.
 Defined.

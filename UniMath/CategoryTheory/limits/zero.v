@@ -4,7 +4,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -23,7 +23,7 @@ Section def_zero.
     - apply impred. intros t. apply isapropiscontr.
   Qed.
 
-  Definition Zero : UU := total2 (fun a => isZero a).
+  Definition Zero : UU := total2 (λ a, isZero a).
 
   Definition ZeroObject (Z : Zero) : C := pr1 Z.
   Coercion ZeroObject : Zero >-> ob.
@@ -126,7 +126,7 @@ Section def_zero.
   Definition hasZero := ishinh Zero.
 
   Section Zero_Unique.
-    Hypothesis H : is_category C.
+    Hypothesis H : is_univalent C.
 
     Lemma isaprop_Zero : isaprop Zero.
     Proof.
@@ -177,7 +177,7 @@ Section def_zero.
   Qed.
 
   Lemma transport_source_ZeroArrow {a b c : C} (Z : Zero) (e : b = a) :
-    transportf (fun (a' : ob C) => precategory_morphisms a' c) e (ZeroArrow Z b c) = ZeroArrow Z a c.
+    transportf (λ (a' : ob C), precategory_morphisms a' c) e (ZeroArrow Z b c) = ZeroArrow Z a c.
   Proof.
     induction e. apply idpath.
   Qed.

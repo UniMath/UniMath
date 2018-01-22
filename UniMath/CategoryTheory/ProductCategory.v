@@ -13,8 +13,9 @@ Contents:
 ************************************************************)
 
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 Local Open Scope cat.
@@ -26,7 +27,7 @@ Variables C : I -> precategory.
 
 Definition product_precategory_ob_mor : precategory_ob_mor.
 Proof.
-mkpair.
+use tpair.
 - apply (∏ (i : I), ob (C i)).
 - intros f g.
   apply (∏ i, f i --> g i).
@@ -71,7 +72,7 @@ Variables C : precategory.
 
 
 Definition power_precategory : precategory
-  := product_precategory I (fun _ => C).
+  := product_precategory I (λ _, C).
 
 Definition has_homsets_power_precategory (hsC : has_homsets C) :
   has_homsets power_precategory.
@@ -90,7 +91,7 @@ Definition family_functor_data (I : UU) {A B : I -> precategory}
   functor_data (product_precategory I A)
                (product_precategory I B).
 Proof.
-mkpair.
+use tpair.
 - intros a i; apply (F i (a i)).
 - intros a b f i; apply (# (F i) (f i)).
 Defined.
@@ -109,7 +110,7 @@ Defined.
 Definition pr_functor_data (I : UU) (C : I -> precategory) (i : I) :
   functor_data (product_precategory I C) (C i).
 Proof.
-mkpair.
+use tpair.
 - intro a; apply (a i).
 - intros x y f; simpl; apply (f i).
 Defined.
@@ -124,7 +125,7 @@ Defined.
 Definition delta_functor_data (I : UU) (C : precategory) :
   functor_data C (power_precategory I C).
 Proof.
-mkpair.
+use tpair.
 - intros x i; apply x.
 - intros x y f i; simpl; apply f.
 Defined.
@@ -139,7 +140,7 @@ Defined.
 Definition tuple_functor_data {I : UU} {A : precategory} {B : I → precategory}
   (F : ∏ i, functor A (B i)) : functor_data A (product_precategory I B).
 Proof.
-mkpair.
+use tpair.
 - intros a i; exact (F i a).
 - intros a b f i; exact (# (F i) f).
 Defined.

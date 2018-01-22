@@ -12,7 +12,7 @@ Contents:
 
 - Definition of equivalence of precategories
 - Equivalence of categories yields weak equivalence of object types
-- A fully faithful and ess. surjective functor induces equivalence of precategories, if the source is a category.
+- A fully faithful and ess. surjective functor induces equivalence of precategories, if the source is a univalent_category.
 
 ************************************************************)
 
@@ -23,7 +23,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Adjunctions.
@@ -47,13 +47,17 @@ Coercion adjunction_data_from_equivalence_of_precats {A B}
 Definition adj_equivalence_of_precats {A B : precategory} (F : functor A B) : UU :=
    ∑ (H : is_left_adjoint F), forms_equivalence H.
 
+Definition adj_from_equiv (D1 D2 : precategory) (F : functor D1 D2):
+    adj_equivalence_of_precats F → is_left_adjoint F := λ x, pr1 x.
+Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
+
 Definition mk_adj_equivalence_of_precats {A B : precategory} (F : functor A B)
            (G : functor B A) η ε
            (H1 : form_adjunction F G η ε)
            (H2 : forms_equivalence ((F,,G,,η,,ε)))
   : adj_equivalence_of_precats F.
 Proof.
-  mkpair.
+  use tpair.
   - exists G. exists (η,,ε). apply H1.
   - apply H2.
 Defined.
@@ -172,7 +176,7 @@ Defined.
 
 Section adjointification.
 
-Context {C D : Precategory} (E : equivalence_of_precats C D).
+Context {C D : category} (E : equivalence_of_precats C D).
 Let F : functor C D := left_functor E.
 Let G : functor D C := right_functor E.
 
@@ -270,7 +274,7 @@ End adjointification.
 Lemma identity_functor_is_adj_equivalence {A : precategory} :
   adj_equivalence_of_precats (functor_identity A).
 Proof.
-  mkpair.
+  use tpair.
   - exact is_left_adjoint_functor_identity.
   - now split; intros a; apply identity_is_iso.
 Defined.
@@ -279,23 +283,23 @@ Defined.
 (**  Fundamentally needed that both source and target are categories *)
 
 Lemma adj_equiv_of_cats_is_weq_of_objects (A B : precategory)
-   (HA : is_category A) (HB : is_category B) (F : [A, B, pr2 HB ])
+   (HA : is_univalent A) (HB : is_univalent B) (F : [A, B, pr2 HB ])
    (HF : adj_equivalence_of_precats F) : isweq (pr1 (pr1 F)).
 Proof.
   set (G := right_adjoint (pr1 HF)).
   set (et := unit_iso_from_adj_equivalence_of_precats (pr2 HA)  HF).
   set (ep := counit_iso_from_adj_equivalence_of_precats _ HF).
-  set (AAcat := is_category_functor_category A _ HA).
-  set (BBcat := is_category_functor_category B _ HB).
+  set (AAcat := is_univalent_functor_category A _ HA).
+  set (BBcat := is_univalent_functor_category B _ HB).
   set (Et := isotoid _ AAcat et).
   set (Ep := isotoid _ BBcat ep).
-  apply (gradth _ (fun b => pr1 (right_adjoint (pr1 HF)) b)); intro a.
+  apply (isweq_iso _ (λ b, pr1 (right_adjoint (pr1 HF)) b)); intro a.
   apply (!toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Et)) a).
   now apply (toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Ep))).
 Defined.
 
 Definition weq_on_objects_from_adj_equiv_of_cats (A B : precategory)
-   (HA : is_category A) (HB : is_category B) (F : ob [A, B, pr2 HB])
+   (HA : is_univalent A) (HB : is_univalent B) (F : ob [A, B, pr2 HB])
    (HF : adj_equivalence_of_precats F) : weq
           (ob A) (ob B).
 Proof.
@@ -304,14 +308,14 @@ Proof.
 Defined.
 
 
-(** If the source precategory is a category, then being split essentially surjective
+(** If the source precategory is a univalent_category, then being split essentially surjective
      is a proposition *)
 
 
-Lemma isaprop_sigma_iso (A B : precategory) (HA : is_category A) (*hsB: has_homsets B*)
+Lemma isaprop_sigma_iso (A B : precategory) (HA : is_univalent A) (*hsB: has_homsets B*)
      (F : functor A B) (HF : fully_faithful F) :
       ∏ b : ob B,
-  isaprop (total2 (fun a : ob A => iso (pr1 F a) b)).
+  isaprop (total2 (λ a : ob A, iso (pr1 F a) b)).
 Proof.
   intro b.
   apply invproofirrelevance.
@@ -320,8 +324,8 @@ Proof.
   destruct x' as [a' f'].
   set (fminusf := iso_comp f (iso_inv_from_iso f')).
   set (g := iso_from_fully_faithful_reflection HF fminusf).
-  apply (two_arg_paths_f (B:=fun a' => iso ((pr1 F) a') b) (isotoid _ HA g)).
-  pathvia (iso_comp (iso_inv_from_iso
+  apply (two_arg_paths_f (B:=λ a', iso ((pr1 F) a') b) (isotoid _ HA g)).
+  intermediate_path (iso_comp (iso_inv_from_iso
     (functor_on_iso F (idtoiso (isotoid _ HA g)))) f).
     generalize (isotoid _ HA g).
     intro p0; destruct p0.
@@ -356,10 +360,10 @@ Proof.
 Qed.
 
 
-Lemma isaprop_pi_sigma_iso (A B : precategory) (HA : is_category A) (hsB: has_homsets B)
+Lemma isaprop_pi_sigma_iso (A B : precategory) (HA : is_univalent A) (hsB: has_homsets B)
      (F : ob [A, B, hsB]) (HF : fully_faithful F) :
   isaprop (∏ b : ob B,
-             total2 (fun a : ob A => iso (pr1 F a) b)).
+             total2 (λ a : ob A, iso (pr1 F a) b)).
 Proof.
   apply impred; intro b.
   now apply isaprop_sigma_iso.
@@ -370,13 +374,13 @@ Qed.
 
 (** A fully faithful and ess. surjective functor induces an
    equivalence of precategories, if the source is a
-    category.
+    univalent_category.
 *)
 
 Section from_fully_faithful_and_ess_surj_to_equivalence.
 
 Variables A B : precategory.
-Hypothesis HA : is_category A.
+Hypothesis HA : is_univalent A.
 Variable F : functor A B.
 Hypothesis HF : fully_faithful F.
 Hypothesis HS : essentially_surjective F.
@@ -386,16 +390,16 @@ Hypothesis HS : essentially_surjective F.
 Definition rad_ob : ob B -> ob A.
 Proof.
   intro b.
-  apply (pr1 (HS b (tpair (fun x => isaprop x) _
-               (isaprop_sigma_iso A B HA F HF b)) (fun x => x))).
+  apply (pr1 (HS b (tpair (λ x, isaprop x) _
+               (isaprop_sigma_iso A B HA F HF b)) (λ x, x))).
 Defined.
 
 (** Definition of the epsilon transformation *)
 
 Definition rad_eps (b : ob B) : iso (pr1 F (rad_ob b)) b.
 Proof.
-  apply (pr2 (HS b (tpair (fun x => isaprop x) _
-               (isaprop_sigma_iso A B HA F HF b)) (fun x => x))).
+  apply (pr2 (HS b (tpair (λ x, isaprop x) _
+               (isaprop_sigma_iso A B HA F HF b)) (λ x, x))).
 Defined.
 
 (** The right adjoint on morphisms *)
@@ -454,7 +458,7 @@ Defined.
 
 Lemma rad_eps_is_nat_trans : is_nat_trans
     (functor_composite rad F) (functor_identity B)
-       (fun b => rad_eps b).
+       (λ b, rad_eps b).
 Proof.
   unfold is_nat_trans.
   simpl.
@@ -482,7 +486,7 @@ Ltac inv_functor x y :=
 
 Lemma rad_eta_is_nat_trans : is_nat_trans
          (functor_identity A) (functor_composite F rad)
-       (fun a => rad_eta a).
+       (λ a, rad_eta a).
 Proof.
   unfold is_nat_trans.
   simpl.

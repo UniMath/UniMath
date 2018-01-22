@@ -1,7 +1,7 @@
 Require Import UniMath.Foundations.PartD.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
 
@@ -86,7 +86,7 @@ Proof.
   rewrite <- !assoc.
   apply iso_inv_on_right.
 
-  pathvia (identity (identity_1mor a ;1; identity_1mor a)).
+  intermediate_path (identity (identity_1mor a ;1; identity_1mor a)).
     rewrite whisker_right_inv.
     apply iso_inv_on_right.
     apply iso_inv_on_right.

@@ -2,7 +2,15 @@ Installation of UniMath
 =======================
 
 Prepare for installation by installing the OCAML compiler and a more modern
-version of `bash` on your system.  Under Mac OS X, the most convenient way to
+version of `bash` on your system.
+
+## Preparing for the installation under Mac OS
+
+To prepare for the installation under Mac OS, there are two methods.
+
+### First method (recommended for beginners)
+
+Under Mac OS X, the most convenient way to
 do that is with "Homebrew", available from http://brew.sh/, with the following
 command:
 
@@ -17,24 +25,90 @@ $ brew tap mht208/formal
 $ brew install ocaml-findlib
 ```
 
-(It is also possible to install "ocamlfind" with "opam", but that is a bit more
-complicated.  One uses "homebrew" to install "opam" and then uses "opam" to
-install "ocamlfind", but it ends up in a nonstandard place.)
+Now proceed with "Installing UniMath under Mac OS or Linux" below.
 
-Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
+### Second method (allows more flexibility, but is more involved than first method)
+
+Under Mac OS X, the most convenient way to do that is with "Homebrew",
+available from http://brew.sh/, with the following command:
 
 ```bash
-$ sudo apt-get install ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
+$ brew install bash opam gtk+
+$ opam init --no-setup --compiler=4.02.3
+$ opam install --yes lablgtk camlp5 ocamlfind
 ```
 
-Under Mac OS X, you may obtain ProofGeneral from http://proofgeneral.inf.ed.ac.uk/.
-It comes with installation instructions.  Your version of emacs determines
-which version of ProofGeneral you need, roughly, so some experimentation may be
-required; you may even need the current development version if your emacs is
-recent.
+(We choose version 4.02.3 of ocamlc above, because it can successfully compile
+Coq 8.6.1.)
 
-To download UniMath and prepare for building it, issue the following
+Now arrange for the programs installed by opam to be available to the currently
+running shell:
+
+```bash
+$ eval `opam config env`
+```
+
+If you haven't done it previously in connection with installing opam, as you
+have just done, arrange for the programs (such as ocamlc) that opam will
+install for you to be found by your shell, the next time you log in, by adding
+the line
+
+```bash
+$ eval `opam config env`
+```
+
+to your file `~/.profile`, after any lines in the file that add
+`/usr/local/bin` to the `PATH` environment variable.  (Homebrew and opam both
+know how to install `ocamlc`, and we intend to use `opam` to get a version of
+`ocamlc` appropriate for compiling the version of Coq used by UniMath.)
+
+The next time you log in, or now, you may check that the progams installed by
+opam are accessible by you as follows.
+
+```bash
+$ type ocamlc
+ocamlc is hashed (/Users/XXXXXXXX/.opam/4.02.3/bin/ocamlc)
+$ ocamlc -version
+4.02.3
+$ camlp5 -v
+Camlp5 version 7.03 (ocaml 4.02.3)
+```
+
+## Preparing for the installation under Ubuntu or Debian (Linux)
+
+Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with the
+following shell command.
+
+```bash
+ sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
+```
+
+## Preparing for the installation under Arch Linux or Manjaro Linux
+
+Under Arch Linux or Manjaro Linux you may install ocaml with the following
 shell commands.
+
+```bash
+ sudo pacman --sync --needed archlinux-keyring
+ sudo pacman-key --populate archlinux
+ sudo pacman --sync --needed ocaml camlp5 ocaml-findlib
+```
+
+## Installation of ProofGeneral
+
+Install ProofGeneral, if it hasn't been installed in one of the steps above.
+You may obtain ProofGeneral from by using the quick installation instructions
+at http://proofgeneral.inf.ed.ac.uk/ or at https://proofgeneral.github.io/.
+Your version of emacs determines which version of ProofGeneral you need,
+roughly, so some experimentation may be required; you may even need the current
+development version if your emacs is recent.
+
+Some useful ProofGeneral add-ons are available for installation at
+https://github.com/cpitclaudel/company-coq/.
+
+## Installing UniMath
+
+To download UniMath, issue the following shell commands.
 
 ```bash
 $ git clone https://github.com/UniMath/UniMath
@@ -47,6 +121,17 @@ shell command (in this directory).
 ```bash
 $ make
 ```
+
+To compile an individual package and the files it depends on, e.g., the package `CategoryTheory`, issue
+```bash
+$ make CategoryTheory
+```
+
+To compile an individual file and the files it depends on, e.g., the file `CategoryTheory/Categories.v`, issue
+```bash
+$ make UniMath/CategoryTheory/Categories.vo
+```
+Note the extension `*.vo` required in the command.
 
 If you wish also to build the program ```coqide```, then issue the following
 command instead of the one above.
@@ -192,6 +277,23 @@ by the Agda input method is ```C-H I```.
 ## Problems
 
 In this section we describe some problems that have been encountered during compilation, and how to fix them.
+
+### Errors while compiling Coq
+
+The following type mismatch error during compilation of Coq results from a mismatch
+between the version of Ocaml used and the version of Coq being compiled.
+
+```
+"/usr/local/bin/ocamlfind" opt -rectypes -dtypes -w -3-52-56  -I config -I lib -I kernel -I kernel/byterun -I library -I proofs -I tactics -I pretyping -I interp -I stm -I toplevel -I parsing -I printing -I intf -I engine -I ltac -I tools -I tools/coqdoc -I plugins/omega -I plugins/romega -I plugins/micromega -I plugins/quote -I plugins/setoid_ring -I plugins/extraction -I plugins/fourier -I plugins/cc -I plugins/funind -I plugins/firstorder -I plugins/derive -I plugins/rtauto -I plugins/nsatz -I plugins/syntax -I plugins/decl_mode -I plugins/btauto -I plugins/ssrmatching -I plugins/ltac -I "/usr/local/Cellar/camlp5/7.03_1/lib/ocaml/camlp5" -thread -g    -c lib/pp_control.ml
+File "lib/pp_control.ml", line 61, characters 22-33:
+Error: This expression has type bytes -> int -> int -> unit
+       but an expression was expected of type string -> int -> int -> unit
+       Type bytes is not compatible with type string 
+```
+
+For example, Coq 8.6.1 cannot be compiled by Ocaml 4.06.0, and must instead be
+compiled by an older version.  In the instructions above, we arrange for Ocaml
+4.02.3 to be used to compile Coq 8.6.1.
 
 ### Problems caused by ill-formed input to make
 

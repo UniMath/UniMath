@@ -34,25 +34,15 @@ This equality would not be needed if functional extensionality computed.
 
  *)
 
+Require Import UniMath.MoreFoundations.All.
 
-
-
-
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
-Require Import UniMath.MoreFoundations.Tactics.
-
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
 Local Open Scope cat.
-
-Set Automatic Introduction.
 
 
 Lemma is_exists_unique {A : UU} {B : A → UU} (H : ∃! a : A, B a) :
@@ -64,8 +54,8 @@ Qed.
 
 Lemma transport_swap: ∏ {X Y : UU} (P : X -> Y → UU) {x x':X} {y  y' : Y}
                         (e : x = x') (e' : y = y') (p : P x y),
-                  transportf (fun a => P _ a) e' (transportf (fun a => P a _) e p) =
-                  transportf (fun a => P a _) e (transportf (fun a => P _ a) e' p) .
+                  transportf (λ a, P _ a) e' (transportf (λ a, P a _) e p) =
+                  transportf (λ a, P a _) e (transportf (λ a, P _ a) e' p) .
 Proof.
   intros.
   induction e.
@@ -73,45 +63,29 @@ Proof.
   apply idpath.
 Qed.
 
-
-(* stolen from TypeTheory/Display_Cats/Auxiliary.v *)
-(** Very handy for reasoning with “dependent paths” —
-
-Note: similar to [transportf_pathsinv0_var], [transportf_pathsinv0'],
-but not quite a special case of them, or (as far as I can find) any other
-library lemma.
-*)
-Lemma transportf_transpose {X : UU} {P : X → UU}
-  {x x' : X} (e : x = x') (y : P x) (y' : P x')
-: transportb P e y' = y -> y' = transportf P e y.
-Proof.
-  intro H; induction e; exact H.
-Defined.
-
-
 Lemma transportf2_comp  {X  : UU} (P : X -> X → UU) (x x'  : X)
       (ex : x = x')  (t:P x x) :
-  transportf (fun y => P y y) ex t = transportf (fun y => P y x') ex
-                                             (transportf (fun y => P x y) ex t).
+  transportf (λ y, P y y) ex t = transportf (λ y, P y x') ex
+                                             (transportf (λ y, P x y) ex t).
 Proof.
   now induction ex.
 Qed.
 
-Definition eq_diag  {C : Precategory} {g : graph} (d d' : diagram g C) :=
+Definition eq_diag  {C : category} {g : graph} (d d' : diagram g C) :=
   ∑ (eq_v : ∏ v: vertex g, dob d v = dob d' v), ∏ (v v':vertex g) (f:edge v v'),
-  transportf (fun obj => C⟦obj, dob d v'⟧)  (eq_v v) (dmor d f) =
-  transportb (fun obj => C⟦_, obj⟧) (eq_v v') (dmor d' f).
+  transportf (λ obj, C⟦obj, dob d v'⟧)  (eq_v v) (dmor d f) =
+  transportb (λ obj, C⟦_, obj⟧) (eq_v v') (dmor d' f).
 
-Lemma eq_is_eq_diag {C : Precategory} {g : graph} (d d' : diagram g C)  :
+Lemma eq_is_eq_diag {C : category} {g : graph} (d d' : diagram g C)  :
   d = d' -> eq_diag d d'.
 Proof.
   intro e.
   induction e.
-  exists (fun x => idpath _).
-  exact (fun x y z => idpath _).
+  exists (λ x, idpath _).
+  exact (λ x y z, idpath _).
 Qed.
 
-Lemma eq_diag_is_eq {C : Precategory} {g : graph} (d d' : diagram g C) :
+Lemma eq_diag_is_eq {C : category} {g : graph} (d d' : diagram g C) :
   eq_diag d d' -> d = d'.
 Proof.
   intros [eqv autreq].
@@ -143,20 +117,20 @@ Proof.
     rewrite pathsinv0inv0.
     etrans.
     eapply pathsinv0.
-    apply (  transport_map (P:=P) (Q:=_) (fun x tp => tp  v v' ed)).
+    apply (  transport_map (P:=P) (Q:=_) (λ x tp, tp  v v' ed)).
     etrans.
-    apply (transportf_funextfun (fun x => C⟦ pr1 d' v,x⟧)).
+    apply (transportf_funextfun (λ x, C⟦ pr1 d' v,x⟧)).
     apply maponpaths.
     etrans.
     eapply pathsinv0.
-    apply (  transport_map (P:=P2) (Q:=_) (fun x tp => tp  v v' ed)).
-    apply (transportf_funextfun (fun x => C⟦ x,pr1 d v'⟧)).
+    apply (  transport_map (P:=P2) (Q:=_) (λ x tp, tp  v v' ed)).
+    apply (transportf_funextfun (λ x, C⟦ x,pr1 d v'⟧)).
 Qed.
 
 (* We don't want to use the equivalence with bare identity to show the
 apply pathsinv0 because we want computation (Defined)
  *)
-Lemma sym_eq_diag  {C : Precategory} {g : graph} (d d' : diagram g C) :
+Lemma sym_eq_diag  {C : category} {g : graph} (d d' : diagram g C) :
   eq_diag d d' -> eq_diag d' d.
 Proof.
   intros eq_d.
@@ -185,12 +159,12 @@ Proof.
                                          _ _ _ (! eq_d2));
     rewrite eq_d2';
     unfold transportb; rewrite pathsinv0inv0;
-    apply (transport_swap (fun a b => C⟦b,a⟧))).
+    apply (transport_swap (λ a b, C⟦b,a⟧))).
 
 Defined.
 
 Lemma eq_diag_mkcocone  :
-  ∏ {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : category} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (heq_d: eq_diag d d')
     {c : C} (cc:cocone d c),
@@ -201,7 +175,7 @@ Proof.
   destruct heq_d as [heq heq2].
   use mk_cocone.
   intro v.
-  use (transportf (fun obj => C⟦obj,_⟧ ) (heq v)); simpl.
+  use (transportf (λ obj, C⟦obj,_⟧ ) (heq v)); simpl.
   apply (coconeIn cc).
   abstract(
       intros u v e; simpl;
@@ -223,7 +197,7 @@ Defined.
 
 (* The dual proof *)
 Lemma eq_diag_mkcone  :
-  ∏ {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : category} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (heq_d: eq_diag d d')
     {c : C} (cc:cone d c),
@@ -235,7 +209,7 @@ Proof.
   set (heq2 := pr2 heq_d).
   use mk_cone.
   intro v.
-  apply (transportf (fun obj => C⟦_,obj⟧ ) (heq v) (coneOut cc v)).
+  apply (transportf (λ obj, C⟦_,obj⟧ ) (heq v) (coneOut cc v)).
     abstract(
       intros u v e; simpl;
       rewrite <- ( coneOutCommutes cc u v e);
@@ -245,7 +219,7 @@ Proof.
       apply cancel_precomposition;
       apply transportf_transpose;
       etrans;[
-        apply (transport_swap (fun a b => C⟦a,b⟧))|];
+        apply (transport_swap (λ a b, C⟦a,b⟧))|];
       etrans;[
         apply maponpaths;
         eapply pathsinv0;
@@ -258,7 +232,7 @@ Defined.
 
 
 Lemma eq_diag_islimcone:
-  ∏ {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : category} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (eq_d : eq_diag d d')
     {c : C} {cc:cone d c}
@@ -310,7 +284,7 @@ This proof could be deduced from the previous if there was a lemma
 stating that colimits are limits in the dual category.
  *)
 Lemma eq_diag_iscolimcocone:
-  ∏ {C : Precategory} {g : graph} {d : diagram g C}
+  ∏ {C : category} {g : graph} {d : diagram g C}
     (d' : diagram g C)
     (eq_d : eq_diag d d')
     {c : C} {cc:cocone d c}
@@ -362,7 +336,7 @@ Qed.
 
 
 Definition eq_diag_liftcolimcocone
-           {C : Precategory} {g : graph} {d : diagram g C}
+           {C : category} {g : graph} {d : diagram g C}
            (d' : diagram g C)
            (eq_d : eq_diag d d')
            (cc:ColimCocone d ) : ColimCocone d'
@@ -370,7 +344,7 @@ Definition eq_diag_liftcolimcocone
                                                  (isColimCocone_ColimCocone cc)).
 
 Definition eq_diag_liftlimcone
-           {C : Precategory} {g : graph} {d : diagram g C}
+           {C : category} {g : graph} {d : diagram g C}
            (d' : diagram g C)
            (eq_d : eq_diag d d')
            (cc:LimCone d ) : LimCone d'

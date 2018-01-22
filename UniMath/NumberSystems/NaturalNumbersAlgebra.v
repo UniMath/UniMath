@@ -6,7 +6,7 @@ Require Export UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Definition nataddabmonoid : abmonoid :=
-  abmonoidpair (setwithbinoppair natset (fun n m : nat => n + m))
+  abmonoidpair (setwithbinoppair natset (λ n m : nat, n + m))
                (dirprodpair
                   (dirprodpair natplusassoc
                                (@isunitalpair natset _ 0 (dirprodpair natplusl0 natplusr0)))
@@ -15,7 +15,7 @@ Definition nataddabmonoid : abmonoid :=
 
 Definition natmultabmonoid : abmonoid :=
   abmonoidpair
-    (setwithbinoppair natset (fun n m : nat => n * m))
+    (setwithbinoppair natset (λ n m : nat, n * m))
     (dirprodpair
        (dirprodpair natmultassoc (@isunitalpair natset _ 1 (dirprodpair natmultl1 natmultr1)))
        natmultcomm).
@@ -42,7 +42,7 @@ Defined.
 
 Definition natcommrig : commrig.
 Proof.
-  split with (setwith2binoppair natset (dirprodpair (fun n m : nat => n + m) (fun n m : nat => n * m))).
+  split with (setwith2binoppair natset (dirprodpair (λ n m : nat, n + m) (λ n m : nat, n * m))).
   split.
   - split.
     + split with
@@ -96,11 +96,10 @@ Proof.
   - intros ? ? ? rab rcd.
     induction b as [|b IHb].
     + simpl.
-      rewrite <- 2? plus_n_O.
-      simpl in IHa.
-      rewrite 2? (natmult0n) in IHa.
-      rewrite <- 2? plus_n_O in IHa.
-      apply (natlthandmultl _ _ _ (natgthtoneq _ _ rab) rcd).
+      rewrite 2 natplusr0.
+      apply natlthandmultl.
+      * exact tt.
+      * exact rcd.
     + simpl.
       set (rer := abmonoidrer nataddabmonoid).
       unfold op1, op2; simpl.

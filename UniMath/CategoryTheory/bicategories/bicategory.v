@@ -1,7 +1,7 @@
 Require Import UniMath.Foundations.PartD.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
 
@@ -16,7 +16,7 @@ Require Import UniMath.CategoryTheory.bicategories.notations.
 Definition is_bicategory (C : prebicategory)
   := (has_homcats C) × (forall (a b : C), isweq (path_to_adj_int_equivalence a b)).
 
-Definition bicategory := total2 (fun C : prebicategory => is_bicategory C).
+Definition bicategory := total2 (λ C : prebicategory, is_bicategory C).
 
 (******************************************************************************)
 (* Being a bicategory is a prop *)
@@ -28,7 +28,7 @@ Proof.
   intro a.
   apply impred.
   intro b.
-  apply (isaprop_is_category (a -1-> b)).
+  apply (isaprop_is_univalent (a -1-> b)).
 Qed.
 
 (* Definition isaprop_is_bicategory { C : prebicategory } *)

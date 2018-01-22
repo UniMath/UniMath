@@ -1,4 +1,5 @@
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.Foundations.Preamble.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.bicategories.prebicategory.
 
 Notation "a -1-> b" := (homprecat a b)(at level 50).

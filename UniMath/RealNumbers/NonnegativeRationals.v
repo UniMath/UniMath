@@ -5,6 +5,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 Unset Kernel Term Sharing.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.Fields.
@@ -20,7 +21,7 @@ Open Scope hq_scope.
 Definition hnnq_set := subset (hqleh 0).
 
 Local Definition hnnq_set_to_hq (r : hnnq_set) : hq := pr1 r.
-Coercion hnnq_set_to_hq : pr1hSet >-> pr1hSet.
+
 Local Definition hq_to_hnnq_set (r : hq) (Hr : hqleh 0 r) : hnnq_set :=
   r ,, Hr.
 
@@ -105,8 +106,8 @@ Proof.
   split ; [ split | repeat split ].
   - exact ispreorder_hnnq_le.
   - exact isStrongOrder_hnnq_lt.
-  - easy.
-  - easy.
+  - intros. assumption.
+  - intros. assumption.
   - intros x y z.
     now apply hqlthlehtrans.
   - intros x y z.
@@ -390,7 +391,7 @@ Proof.
   apply coprod_rect ; [intros Hlt | intros Heq].
   - reflexivity.
   - apply fromempty ; generalize Hx0.
-    rewrite (tppr x).
+    change x with (pr1 x,,pr2 x).
     generalize (pr2 x).
     rewrite <- Heq ; intro.
     exact (isirreflhqlth 0%hq).
@@ -784,17 +785,15 @@ Proof.
   - rewrite coprod_rect_compute_1.
     apply subtypeEquality_prop.
     unfold hqminus.
-    pattern r at 4 ;
-      rewrite (tppr r).
-    generalize (pr1 r) (pr1 q) (pr2 r) (hq0leminus (pr1 r) (pr1 q) (hqlthtoleh (pr1 r) (pr1 q) H')) ; intros r' q' Hr Hrq.
+    pattern r at 4.
     simpl.
+    generalize (pr1 r) (pr1 q) (pr2 r) (hq0leminus (pr1 r) (pr1 q) (hqlthtoleh (pr1 r) (pr1 q) H')) ; intros r' q' Hr Hrq.
     now rewrite hqplusassoc, hqlminus, hqplusr0.
   - rewrite coprod_rect_compute_2.
     apply subtypeEquality_prop.
-    rewrite (tppr r).
     generalize (isantisymmhqleh _ _ H H').
-    generalize (pr1 r) (pr2 r) (pr1 q) ; intros r' Hr' q' Heq.
     simpl.
+    generalize (pr1 r) (pr2 r) (pr1 q) ; intros r' Hr' q' Heq.
     now rewrite hqplusl0.
 Qed.
 
@@ -802,14 +801,19 @@ Lemma plusNonnegativeRationals_minus_r :
   ∏ q r : NonnegativeRationals, (r + q) - q = r.
 Proof.
   intros q r.
-  rewrite (tppr r), (tppr q).
+  change r with (pr1 r,,pr2 r).
   generalize (pr1 r) (pr2 r) (pr1 q) (pr2 q) ; intros r' Hr q' Hq.
   rewrite (minusNonnegativeRationals_correct _ _ (plusNonnegativeRationals_le_l _ _)).
   apply subtypeEquality_prop.
   simpl pr1.
   unfold hqminus.
-  now rewrite hqplusassoc, (hqpluscomm q'), (hqlminus q'), hqplusr0.
+  rewrite hqplusassoc.
+  rewrite (hqpluscomm (pr1 q)).
+  rewrite hqlminus.
+  rewrite hqplusr0.
+  reflexivity.
 Qed.
+
 Lemma plusNonnegativeRationals_minus_l :
   ∏ q r : NonnegativeRationals, (q + r) - q = r.
 Proof.
@@ -857,7 +861,6 @@ Proof.
     apply plusNonnegativeRationals_le_r. }
   rewrite (minusNonnegativeRationals_correct _ _ Hxy), (minusNonnegativeRationals_correct _ _ Hxzy).
   revert Hxy Hxzy.
-  rewrite (tppr x), (tppr y), (tppr z).
   intros.
   apply subtypeEquality_prop.
   change (pr1 x - pr1 y + pr1 z = (pr1 x + pr1 z) - pr1 y)%hq.
@@ -1478,7 +1481,8 @@ Qed.
 Lemma NQhalf_double : ∏ x, x = x / 2 + x / 2.
 Proof.
   intros x.
-  rewrite (tppr x) ; generalize (pr1 x) (pr2 x) ; clear x ; intros x Hx.
+  change x with (pr1 x,,pr2 x).
+  generalize (pr1 x) (pr2 x) ; clear x ; intros x Hx.
   unfold divNonnegativeRationals, invNonnegativeRationals, hnnq_inv, twoNonnegativeRationals, Rationals_to_NonnegativeRationals ; simpl pr1 ; simpl pr2.
   generalize (hqlehchoice 0%hq 2%hq (hqlthtoleh 0%hq 2%hq hq2_gt0)) ;
   apply coprod_rect ; intros H2.

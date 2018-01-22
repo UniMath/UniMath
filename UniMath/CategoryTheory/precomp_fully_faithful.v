@@ -25,12 +25,11 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Ltac simp_rew lem := let H:=fresh in
      assert (H:= lem); simpl in *; rewrite H; clear H.
 Ltac simp_rerew lem := let H:=fresh in
@@ -64,7 +63,7 @@ Proof.
     + intro b.
       assert (Heq : isaprop (gamma b = delta b)).
       { apply hsC . }
-      apply (p b (tpair (fun x => isaprop x) (gamma b = delta b) Heq)).
+      apply (p b (tpair (λ x, isaprop x) (gamma b = delta b) Heq)).
       simpl in *; clear Heq.
       intros [a f].
       apply (pre_comp_with_iso_is_inj C (F (H a)) (F b) (G b) (# F f)
@@ -179,7 +178,7 @@ Proof.
      (fun g : F b --> G b =>
       ∏ (a : A) (f : iso (H a) b),
       gamma a = (#F f· g)· #G (inv_from_iso f)))).
-  apply (p b (tpair (fun x => isaprop x) _ X)).
+  apply (p b (tpair (λ x, isaprop x) _ X)).
   intros [anot h].
   simpl in *.
   set (g := #F (inv_from_iso h) · gamma anot · #G h).
@@ -192,7 +191,7 @@ Proof.
              (iso_comp f (iso_inv_from_iso h))).
     set (GHk := functor_on_iso G
                 (functor_on_iso H k)).
-    pathvia (#F (#H k) · gamma anot · iso_inv_from_iso GHk).
+    intermediate_path (#F (#H k) · gamma anot · iso_inv_from_iso GHk).
       apply (post_comp_with_iso_is_inj _ _ _ GHk (pr2 GHk)).
       rewrite <- assoc.
       change (iso_inv_from_iso GHk · GHk) with (inv_from_iso GHk · GHk).
@@ -218,7 +217,7 @@ Defined.
 
 
 Definition pdelta : ∏ b : B, F b --> G b :=
-         fun b => pr1 (pr1 (iscontr_aux_space b)).
+         λ b, pr1 (pr1 (iscontr_aux_space b)).
 
 Lemma is_nat_trans_pdelta :
      is_nat_trans F G pdelta.
@@ -231,7 +230,7 @@ Proof.
                          #F f· pdelta b') T )).
   intro t; destruct t as [a h].
   simpl in *.
-  apply (p b' (tpair (fun x => isaprop x)
+  apply (p b' (tpair (λ x, isaprop x)
                        (pdelta b· #G f =
                          #F f· pdelta b')
                        (T ))).
@@ -275,7 +274,7 @@ Proof.
   repeat rewrite <- assoc.
   simpl in *.
   rewrite <- functor_comp.
-  pathvia (inv_from_iso (functor_on_iso F h)·
+  intermediate_path (inv_from_iso (functor_on_iso F h)·
        (gamma a· #G (h· f · iso_inv_from_iso h' · h')) ).
     repeat rewrite <- assoc.
     simpl. rewrite iso_after_iso_inv, id_right.
@@ -325,7 +324,7 @@ Proof.
   simpl.
   set (tr := pr1 (iscontr_aux_space (H a))).
   change (gamma a) with (pr1 gamma a).
-  pathvia ((#F (identity (H a))· pr1 tr)·
+  intermediate_path ((#F (identity (H a))· pr1 tr)·
        #G (inv_from_iso (identity_iso (H a)))).
   rewrite functor_id.
   rewrite id_left.

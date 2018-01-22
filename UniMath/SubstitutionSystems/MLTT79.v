@@ -12,11 +12,11 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Lists.
 
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.category_hset.
-Require Import UniMath.CategoryTheory.category_hset_structures.
+Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.categories.category_hset_structures.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -29,7 +29,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.Monads.
+Require Import UniMath.CategoryTheory.Monads.Monads.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
@@ -50,10 +50,10 @@ Section preamble.
 Definition four_rec {A : UU} (a b c d : A) : stn 4 -> A.
 Proof.
 induction 1 as [n p].
-induction n as [_|n _]; [apply a|].
-induction n as [_|n _]; [apply b|].
-induction n as [_|n _]; [apply c|].
-induction n as [_|n _]; [apply d|].
+induction n as [|n _]; [apply a|].
+induction n as [|n _]; [apply b|].
+induction n as [|n _]; [apply c|].
+induction n as [|n _]; [apply d|].
 induction (nopathsfalsetotrue p).
 Defined.
 
@@ -136,7 +136,7 @@ induction n as [|n ih].
 Defined.
 
 (** Define the signature of the constructors for Fin *)
-Definition FinSigConstructors (n : nat) : stn n -> list nat := fun _ => [].
+Definition FinSigConstructors (n : nat) : stn n -> list nat := λ _, [].
 
 (* The FinSig family is defined by recursion and decomposed into the
    type, the constructors and the eliminator *)
@@ -184,7 +184,7 @@ Definition NatSig : BindingSig :=
 Definition WSig : BindingSig :=
   mkBindingSig (isasetstn 3) (three_rec [0,1] [0,0] [0,3]).
 
-Definition USig : BindingSig := mkBindingSig isasetnat (fun _ => []).
+Definition USig : BindingSig := mkBindingSig isasetnat (λ _, []).
 
 Let SigHSET := Signature HSET has_homsets_HSET HSET has_homsets_HSET.
 

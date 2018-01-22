@@ -1,7 +1,7 @@
 (**
 
 Definition of the precategory of cones over a precategory C together with a proof that that
-precategory is a category if C is ([is_category_CONE]).
+precategory is a univalent_category if C is ([is_univalent_CONE]).
 
 Written by Benedikt Ahrens, following discussions with J. Gross, D. Grayson and V. Voevodsky
 *)
@@ -10,7 +10,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 
@@ -20,8 +20,7 @@ Variables J C : precategory.
 Variable hs: has_homsets C.
 Variable F : functor J C.
 
-Definition ConeData := total2 (
-  fun a : C => ∏ j : J, a --> F j).
+Definition ConeData : UU := ∑ a : C, ∏ j : J, a --> F j.
 
 Definition ConeTop (a : ConeData) : C := pr1 a.
 Definition ConeMor (a : ConeData) (j : J) : ConeTop a --> F j := (pr2 a) j.
@@ -45,10 +44,10 @@ Proof.
   apply hs.
 Qed.
 
-Definition Cone := total2 (fun a : ConeData => ConeProp a).
+Definition Cone := total2 (λ a : ConeData, ConeProp a).
 
 
-Definition ConeData_from_Cone : Cone -> ConeData := fun a => pr1 a.
+Definition ConeData_from_Cone : Cone -> ConeData := λ a, pr1 a.
 
 Lemma eq_Cone_eq (a b : Cone) (p q : a = b) :
    base_paths _ _ (base_paths _ _ p) =
@@ -141,7 +140,7 @@ Defined.
 
 Definition Cone_precategory_ob_mor : precategory_ob_mor :=
    precategory_ob_mor_pair Cone
-   (fun a b => Cone_Mor a b).
+   (λ a b, Cone_Mor a b).
 
 Definition Cone_precategory_data : precategory_data.
 Proof.
@@ -215,24 +214,24 @@ Defined.
 
 Section CONE_category.
 
-Hypothesis is_cat_C : is_category C.
+Hypothesis is_cat_C : is_univalent C.
 
 
 Definition isotoid_CONE_pr1 (a b : CONE) : iso a b -> pr1 a = pr1 b.
 Proof.
   intro f.
   apply (total2_paths_f (isotoid _ is_cat_C (ConeConnectIso f))).
-  pathvia ((fun c : J =>
+  intermediate_path ((λ c : J,
      idtoiso (!isotoid C is_cat_C (ConeConnectIso f))· pr2 (pr1 a) c)).
   apply transportf_isotoid_dep'.
   apply funextsec.
   intro t.
-  pathvia (idtoiso (isotoid C is_cat_C (iso_inv_from_iso (ConeConnectIso f)))·
+  intermediate_path (idtoiso (isotoid C is_cat_C (iso_inv_from_iso (ConeConnectIso f)))·
        pr2 (pr1 a) t).
   apply cancel_postcomposition.
   apply maponpaths. apply maponpaths.
   apply inv_isotoid.
-  pathvia (iso_inv_from_iso (ConeConnectIso f)· pr2 (pr1 a) t).
+  intermediate_path (iso_inv_from_iso (ConeConnectIso f)· pr2 (pr1 a) t).
   apply cancel_postcomposition.
   set (H := idtoiso_isotoid _ is_cat_C _ _ (iso_inv_from_iso (ConeConnectIso f))).
   simpl in *.
@@ -269,14 +268,14 @@ base_paths (pr1 M) (pr1 M)
       (base_paths M M (isotoid_CONE (identity_iso M))) =
     base_paths (pr1 M) (pr1 M) (idpath (pr1 M)).
 Proof.
-  pathvia (base_paths (pr1 M) (pr1 M) (isotoid_CONE_pr1 M M (identity_iso M))).
+  intermediate_path (base_paths (pr1 M) (pr1 M) (isotoid_CONE_pr1 M M (identity_iso M))).
   unfold Cone_eq.
   apply maponpaths.
   apply base_total2_paths.
-  pathvia (isotoid C is_cat_C (ConeConnectIso (identity_iso M))).
+  intermediate_path (isotoid C is_cat_C (ConeConnectIso (identity_iso M))).
   unfold isotoid_CONE_pr1.
   apply base_total2_paths.
-  pathvia (isotoid C is_cat_C (identity_iso (ConeTop (pr1 M)))).
+  intermediate_path (isotoid C is_cat_C (identity_iso (ConeTop (pr1 M)))).
   apply maponpaths, ConeConnectIso_identity_iso.
   apply isotoid_identity_iso.
 Defined.
@@ -317,11 +316,11 @@ Proof.
 Qed.
 
 
-Lemma is_category_CONE : is_category CONE.
+Lemma is_univalent_CONE : is_univalent CONE.
 Proof.
   split.
   - intros a b.
-    apply (gradth _  (@isotoid_CONE a b)).
+    apply (isweq_iso _  (@isotoid_CONE a b)).
     apply isotoid_CONE_idtoiso.
     apply idtoiso_isotoid_CONE.
   - intros x y. apply isaset_Cone_Mor.
@@ -331,5 +330,5 @@ End CONE_category.
 
 End Cone.
 
-Implicit Arguments CONE [J C].
-Implicit Arguments ConeConnect [J C].
+Arguments CONE [J C].
+Arguments ConeConnect [J C].
