@@ -2,6 +2,7 @@
 (** Author: Catherine LELAY. Jan 2016 - *)
 (** Based on Bourbaky *)
 
+Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Export UniMath.Topology.Filters.
 Require Import UniMath.Algebra.DivisionRig.

@@ -4,8 +4,8 @@
 
 (** In this file our goal is to prove Zorn's Lemma and Zermelo's Well-Ordering Theorem. *)
 
-Require Import UniMath.Combinatorics.OrderedSets.
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.Combinatorics.OrderedSets.
 Require Import UniMath.MoreFoundations.DecidablePropositions.
 Require Import UniMath.MoreFoundations.Propositions.
 
@@ -1025,7 +1025,7 @@ Proof.
         - assert (L := pr1 (cE v) Wv). unfold upto,lt in L.
           assert (Q := @tot_nge_to_le (carrier_set C) (TOSrel C) (TOtot C) _ _ (pr2 L)).
           now apply(h1'' Q).
-        - use (TOeq_to_refl C). now apply subtypeEquality_prop. }
+        - use (TOeq_to_refl C). apply subtypeEquality_prop. simpl. exact (!k). }
       assert (cmax' : ∏ (w : carrier W) (W'c : W' (pr1 c)),
                      subtype_inc W'C (subtype_inc j w) < subtype_inc W'C (pr1 c,,W'c)).
       { intros w W'c'. assert (e : c = subtype_inc W'C (pr1 c,, W'c')).

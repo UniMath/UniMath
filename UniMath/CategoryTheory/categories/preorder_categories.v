@@ -65,7 +65,7 @@ Defined.
 Lemma antisymm_po_category_isweq (PO : po X) {A B : po_category PO}
       (poasymm : isantisymm PO) : isweq (λ p : A = B, idtoiso p).
 Proof.
-  use gradth.
+  use isweq_iso.
   - apply (antisymm_po_category_isoiseq PO poasymm).
   - intro eq.
     apply proofirrelevance.

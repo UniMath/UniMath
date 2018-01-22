@@ -247,7 +247,7 @@ Proof.
     set (e := pr1 axs x0). simpl in e. rewrite e.
     apply (pr2 unaxs x).
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 Lemma isweqlmultingr_is {X : UU} {opp : binop X} (is : isgrop opp) (x0 : X) :
@@ -274,7 +274,7 @@ Proof.
     set (e := pr2 axs x0). simpl in e. rewrite e.
     apply (pr1 unaxs x).
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 Lemma isapropinvstruct {X : hSet} {opp : binop X} (is : ismonoidop opp) :

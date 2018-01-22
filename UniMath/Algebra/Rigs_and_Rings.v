@@ -194,6 +194,9 @@ Definition rigaddfun {X Y : rig} (f : rigfun X Y) :
 Definition rigmultfun {X Y : rig} (f : rigfun X Y) :
   monoidfun (rigmultmonoid X) (rigmultmonoid Y) := monoidfunconstr (pr2 (pr2 f)).
 
+Definition rigfun_to_unel_rigaddmonoid {X Y : rig} (f : rigfun X Y) : f (0%rig) = 0%rig :=
+  pr2 (pr1 (pr2 f)).
+
 Definition rigfuncomp {X Y Z : rig} (f : rigfun X Y) (g : rigfun Y Z) : rigfun X Z.
 Proof.
   intros X Y Z f g.
@@ -325,7 +328,7 @@ Proof.
         -- use mk_isbinopfun.
            exact (dirprod_pr2 (pr2 (pr1 i'))).
         -- exact (dirprod_pr2 (pr2 i')).
-  - use gradth.
+  - use isweq_iso.
     + intros i. use mk_rigiso'.
       * exact (pr1rigiso _ _ i).
       * use mk_istwobinopfun.
@@ -536,7 +539,7 @@ Definition opposite_opposite_rig (X : rig) : rigiso X ((X⁰)⁰).
 Proof.
   intros X.
   refine ((idfun X,, idisweq X),, _).
-  easy.
+  repeat split.
 Defined.
 
 Local Close Scope rig.
@@ -715,7 +718,7 @@ Definition iso_commrig_opposite (X : commrig) : rigiso X (opposite_commrig X).
 Proof.
   intros X.
   refine ((idfun X,, idisweq X),, _).
-  do 2 (split; try easy).
+  repeat split.
   unfold isbinopfun.
   exact (fun x y => @rigcomm2 X x y).
 Defined.
@@ -895,7 +898,7 @@ Definition rng_univalence_weq1 : rng ≃ rng'.
 Proof.
   use weqpair.
   - intros R. exact (mk_rng' R).
-  - use gradth.
+  - use isweq_iso.
     + intros R'. exact (mk_rng_from_rng' R').
     + intros R. use idpath.
     + intros R'.

@@ -263,7 +263,7 @@ Defined.
 Definition swapweq (A B : UU) : (A × B) ≃ (B × A).
 Proof.
   exists (swap A B).
-  apply (gradth _ (swap B A)).
+  apply (isweq_iso _ (swap B A)).
   - intro ab. destruct ab. apply idpath.
   - intro ba. destruct ba. apply idpath.
 Defined.

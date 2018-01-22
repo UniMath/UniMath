@@ -68,8 +68,8 @@ Section constr_indef_descr.
         * intros ? ?. apply natleh0n.
         * apply isreflnatleh.
       + apply ii2. intros l lleq0.
-        assert (l = O).
-        apply natleh0tois0. assumption.
+        assert (H : l = O).
+        { apply natleh0tois0. assumption. }
         rewrite H. assumption.
     - induction IHn as [|n0].
       + apply ii1. apply smaller_S. assumption.
@@ -89,7 +89,7 @@ Section constr_indef_descr.
           assert ((l > n)%nat ⨿ (l ≤ n)) as X.
           apply natgthorleh.
           induction X as [h|h].
-          -- assert (l = S n).
+          -- assert (H : l = S n).
              apply isantisymmnatgeh. apply h. apply q. rewrite H. assumption.
           -- exact (n0 l h).
   Defined.

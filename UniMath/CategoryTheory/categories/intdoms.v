@@ -78,7 +78,7 @@ Section def_intdom_category.
 
   Lemma intdom_iso_is_equiv (A B : ob intdom_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (pr1rigfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -116,7 +116,7 @@ Section def_intdom_category.
 
   Lemma intdom_iso_equiv_is_equiv (X Y : intdom_precategory) : isweq (intdom_iso_equiv X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (intdom_equiv_iso X Y).
     - intros x. use eq_iso. use rigfun_paths. use idpath.
     - intros y. use rigiso_paths. use subtypeEquality.
@@ -136,7 +136,7 @@ Section def_intdom_category.
   Lemma intdom_equiv_iso_is_equiv (X Y : ob intdom_precategory) :
     isweq (intdom_equiv_iso X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (intdom_iso_equiv X Y).
     - intros y. use rigiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.
@@ -145,7 +145,7 @@ Section def_intdom_category.
   Defined.
   Opaque intdom_equiv_iso_is_equiv.
 
-  Definition intdom_equiv_iso_weq (X Y : ob intdom_precategory) :
+  Definition intdom_equiv_weq_iso (X Y : ob intdom_precategory) :
     (rngiso (X : intdom) (Y : intdom)) ≃ (iso X Y).
   Proof.
     use weqpair.
@@ -161,8 +161,8 @@ Section def_intdom_category.
   Proof.
     use (@isweqhomot
            (X = Y) (iso X Y)
-           (pr1weq (weqcomp (intdom_univalence X Y) (intdom_equiv_iso_weq X Y)))
-           _ _ (weqproperty (weqcomp (intdom_univalence X Y) (intdom_equiv_iso_weq X Y)))).
+           (pr1weq (weqcomp (intdom_univalence X Y) (intdom_equiv_weq_iso X Y)))
+           _ _ (weqproperty (weqcomp (intdom_univalence X Y) (intdom_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
