@@ -49,6 +49,8 @@ Section quotmod_submodule.
 
   Local Notation "x + y" := (@op _ x y).
   Local Notation "x - y" := (@op _ x (grinv _ y)).
+  Local Notation "  - y" := (grinv _ y).
+  Local Notation "0" := (unel _).
   Local Open Scope module_scope.
 
   Definition eqrelsubmodule : eqrel M.
@@ -56,14 +58,20 @@ Section quotmod_submodule.
     use eqrelconstr.
     - exact (λ m m', A (m - m')).
     - intros x y z xy yz.
-      generalize (submoduleadd A (x - y) (y - z) xy yz).
-      now rewrite (assocax M), <- (assocax M (grinv _ y) y), grlinvax, lunax.
+      assert (K := submoduleadd A (x - y) (y - z) xy yz).
+      rewrite (assocax M) in K.
+      rewrite <- (assocax M (grinv _ y) y) in K.
+      rewrite grlinvax in K.
+      rewrite lunax in K.
+      exact K.
     - intros x.
       rewrite (grrinvax M x).
       exact (submodule0 A).
     - intros x y axy.
-      generalize (submoduleinv A (x - y) axy).
-      now rewrite grinvop, grinvinv.
+      assert (K := submoduleinv A (x - y) axy).
+      rewrite grinvop in K.
+      rewrite grinvinv in K.
+      exact K.
   Defined.
 
   Definition module_eqrelsubmodule : module_eqrel M.
