@@ -375,6 +375,10 @@ UniMath/CONTENTS.md: Makefile UniMath/*/.package/files
 	      done ;														\
 	   done
 
+
+check-style :
+	util/checkstyle.sh $(VFILES)
+
 #################################
 # targets best used with INCLUDE=no
 git-clean:
