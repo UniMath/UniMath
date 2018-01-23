@@ -36,7 +36,7 @@ Definition free_monoid (X : hSet) : monoid :=
 Definition free_monoid_unit {X : hSet} (x : X) : free_monoid X :=
   x::[].
 
-Definition free_monoid_lift {X : hSet} {Y : monoid} (f : X → Y) : monoidfun (free_monoid X) Y.
+Definition free_monoid_extend {X : hSet} {Y : monoid} (f : X → Y) : monoidfun (free_monoid X) Y.
 Proof.
   use monoidfunconstr.
   - intro l. exact (iterop_list_mon (map f l)).
@@ -46,8 +46,8 @@ Proof.
     + reflexivity.
 Defined.
 
-Lemma free_monoid_lift_comp {X : hSet} {Y : monoid} (g : monoidfun (free_monoid X) Y):
-  free_monoid_lift (g ∘ free_monoid_unit) ~ g.
+Lemma free_monoid_extend_comp {X : hSet} {Y : monoid} (g : monoidfun (free_monoid X) Y):
+  free_monoid_extend (g ∘ free_monoid_unit) ~ g.
 Proof.
   unfold homot. simpl. apply list_ind.
     + exact (! monoidfununel g).
@@ -58,13 +58,13 @@ Defined.
 Definition isfree_free_monoid (X : hSet) (Y : monoid) : (X → Y) ≃ monoidfun (free_monoid X) Y.
 Proof.
   use weq_iso.
-  - apply free_monoid_lift.
+  - apply free_monoid_extend.
   - intro g. exact (g ∘ free_monoid_unit).
   - intro f. apply funextfun. intro x. apply iterop_list_mon_singleton.
-  - intro g. apply monoidfun_paths. apply funextfun. exact (free_monoid_lift_comp g).
+  - intro g. apply monoidfun_paths. apply funextfun. exact (free_monoid_extend_comp g).
 Defined.
 
-(* We don't use free_monoid_lift, so that the underlying function is map *)
+(* We don't use free_monoid_extend, so that the underlying function is map *)
 Definition free_monoidfun {X Y : hSet} (f : X → Y) : monoidfun (free_monoid X) (free_monoid Y).
 Proof.
   use monoidfunconstr.
@@ -123,38 +123,38 @@ Definition free_abmonoid_pr (X : hSet) : monoidfun (free_monoid X) (free_abmonoi
 Definition free_abmonoid_unit {X : hSet} (x : X) : free_abmonoid X :=
    free_abmonoid_pr X (free_monoid_unit x).
 
-Definition free_abmonoid_lift {X : hSet} {Y : abmonoid} (f : X → Y) :
+Definition free_abmonoid_extend {X : hSet} {Y : abmonoid} (f : X → Y) :
   monoidfun (free_abmonoid X) Y.
 Proof.
   use monoidquotuniv.
-  - exact (free_monoid_lift f).
+  - exact (free_monoid_extend f).
   - apply iscomprelfun_generated_binopeqrel. unfold iscomprelfun.
     apply free_abmonoid_hrel_univ.
     + intros. apply (isasetmonoid Y).
     + intros x y. rewrite !monoidfunmul. apply commax.
 Defined.
 
-Lemma free_abmonoid_lift_comp {X : hSet} {Y : abmonoid} (g : monoidfun (free_abmonoid X) Y):
-  free_abmonoid_lift (g ∘ free_abmonoid_unit) ~ g.
+Lemma free_abmonoid_extend_comp {X : hSet} {Y : abmonoid} (g : monoidfun (free_abmonoid X) Y):
+  free_abmonoid_extend (g ∘ free_abmonoid_unit) ~ g.
 Proof.
   unfold homot. apply setquotunivprop'.
     + intro. apply isasetmonoid.
     + intro x. refine (setquotunivcomm _ _ _ _ _ @ _). simpl.
-      apply (free_monoid_lift_comp (monoidfuncomp (free_abmonoid_pr X) g)).
+      apply (free_monoid_extend_comp (monoidfuncomp (free_abmonoid_pr X) g)).
 Defined.
 
 Definition isfree_free_abmonoid (X : hSet) (Y : abmonoid) : (X → Y) ≃ monoidfun (free_abmonoid X) Y.
 Proof.
   use weq_iso.
-  - apply free_abmonoid_lift.
+  - apply free_abmonoid_extend.
   - intro g. exact (g ∘ free_abmonoid_unit).
   - intro f. apply funextfun. intro x. apply iterop_list_mon_singleton.
-  - intro g. apply monoidfun_paths, funextfun, free_abmonoid_lift_comp.
+  - intro g. apply monoidfun_paths, funextfun, free_abmonoid_extend_comp.
 Defined.
 
 Definition free_abmonoidfun {X Y : hSet} (f : X → Y) :
   monoidfun (free_abmonoid X) (free_abmonoid Y) :=
-  free_abmonoid_lift (free_abmonoid_unit ∘ f).
+  free_abmonoid_extend (free_abmonoid_unit ∘ f).
 
 (* Free group on a set. We define it as a quotient of the free monoid on X ⨿ X, where (inr x) is to be treated
    as the inverse of x. *)
@@ -203,10 +203,8 @@ Proof.
   apply map_homot. exact coprodcomm_coprodcomm.
 Defined.
 
-Local Infix "++" := concatenate.
-
 Lemma generated_free_gr_hrel_in {X : hSet} (l : free_monoid (setcoprod X X)) :
-  generated_binopeqrel (free_gr_hrel X) (l ++ fginv l) [].
+  generated_binopeqrel (free_gr_hrel X) (l * fginv l) [].
 Proof.
   intros R H. revert l. apply list_ind.
   - apply eqrelrefl.
@@ -219,7 +217,7 @@ Proof.
 Defined.
 
 Lemma generated_free_gr_hrel_in_rev {X : hSet} (l : free_monoid (setcoprod X X)) :
-  generated_binopeqrel (free_gr_hrel X) (fginv l ++ l) [].
+  generated_binopeqrel (free_gr_hrel X) (fginv l * l) [].
 Proof.
   pose (H := generated_free_gr_hrel_in (fginv l)).
   rewrite fginv_fginv in H. exact H.
@@ -241,12 +239,12 @@ Proof.
     + refine (setquotunivprop' _ _ _).
       * intro. apply isasetmonoid.
       * intro l. refine (maponpaths (λ x, x * _) (setquotunivcomm _ _ _ _ _) @ _).
-        apply (iscompsetquotpr _ (fginv l ++ l) []).
+        apply (iscompsetquotpr _ (fginv l * l) []).
         apply generated_free_gr_hrel_in_rev.
     + refine (setquotunivprop' _ _ _).
       * intro. apply isasetmonoid.
       * intro l. refine (maponpaths (λ x, _ * x) (setquotunivcomm _ _ _ _ _) @ _).
-        apply (iscompsetquotpr _ (l ++ fginv l) []).
+        apply (iscompsetquotpr _ (l * fginv l) []).
         apply generated_free_gr_hrel_in.
 Defined.
 
@@ -260,11 +258,11 @@ Definition free_gr_pr (X : hSet) : monoidfun (free_monoid (setcoprod X X)) (free
 Definition free_gr_unit {X : hSet} (x : X) : free_gr X.
 Proof. refine (free_gr_pr X (free_monoid_unit _)). exact (inl x). Defined.
 
-Definition free_gr_lift {X : hSet} {Y : gr} (f : X → Y) :
+Definition free_gr_extend {X : hSet} {Y : gr} (f : X → Y) :
   monoidfun (free_gr X) Y.
 Proof.
   use monoidquotuniv.
-  - apply free_monoid_lift. exact (sumofmaps f (grinv Y ∘ f)).
+  - apply free_monoid_extend. exact (sumofmaps f (grinv Y ∘ f)).
   - apply iscomprelfun_generated_binopeqrel. unfold iscomprelfun.
     apply free_gr_hrel_univ.
     + intros x y. apply (isasetmonoid Y).
@@ -273,14 +271,14 @@ Proof.
       * apply (grlinvax Y (f x)).
 Defined.
 
-Lemma free_gr_lift_comp {X : hSet} {Y : gr} (g : monoidfun (free_gr X) Y):
-  free_gr_lift (g ∘ free_gr_unit) ~ g.
+Lemma free_gr_extend_comp {X : hSet} {Y : gr} (g : monoidfun (free_gr X) Y):
+  free_gr_extend (g ∘ free_gr_unit) ~ g.
 Proof.
   unfold homot.
   apply setquotunivprop'.
   - intro. apply (isasetmonoid Y).
   - intro l. refine (setquotunivcomm _ _ _ _ _ @ _).
-    refine (_ @ (free_monoid_lift_comp (monoidfuncomp (free_gr_pr X) g)) l).
+    refine (_ @ (free_monoid_extend_comp (monoidfuncomp (free_gr_pr X) g)) l).
     apply (maponpaths iterop_list_mon). apply map_homot. intro x.
     induction x as [x|x].
     + reflexivity.
@@ -290,14 +288,14 @@ Defined.
 Definition isfree_free_gr (X : hSet) (Y : gr) : (X → Y) ≃ monoidfun (free_gr X) Y.
 Proof.
   use weq_iso.
-  - apply free_gr_lift.
+  - apply free_gr_extend.
   - intro g. exact (g ∘ free_gr_unit).
   - intro f. apply funextfun. intro x. apply iterop_list_mon_singleton.
-  - intro g. apply monoidfun_paths, funextfun, free_gr_lift_comp.
+  - intro g. apply monoidfun_paths, funextfun, free_gr_extend_comp.
 Defined.
 
 Definition free_grfun {X Y : hSet} (f : X → Y) : monoidfun (free_gr X) (free_gr Y) :=
-  free_gr_lift (free_gr_unit ∘ f).
+  free_gr_extend (free_gr_unit ∘ f).
 
 (* Free abelian group on a set *)
 
@@ -340,34 +338,34 @@ Definition free_abgr_pr (X : hSet) : monoidfun (free_gr X) (free_abgr X) :=
 Definition free_abgr_unit {X : hSet} (x : X) : free_abgr X :=
    free_abgr_pr X (free_gr_unit x).
 
-Definition free_abgr_lift {X : hSet} {Y : abgr} (f : X → Y) : monoidfun (free_abgr X) Y.
+Definition free_abgr_extend {X : hSet} {Y : abgr} (f : X → Y) : monoidfun (free_abgr X) Y.
 Proof.
   use monoidquotuniv.
-  - exact (free_gr_lift f).
+  - exact (free_gr_extend f).
   - apply iscomprelfun_generated_binopeqrel. unfold iscomprelfun.
     apply free_abgr_hrel_univ.
     + intros. apply (isasetmonoid Y).
     + intros x y. rewrite !monoidfunmul. apply (commax Y).
 Defined.
 
-Lemma free_abgr_lift_comp {X : hSet} {Y : abgr} (g : monoidfun (free_abgr X) Y):
-  free_abgr_lift (g ∘ free_abgr_unit) ~ g.
+Lemma free_abgr_extend_comp {X : hSet} {Y : abgr} (g : monoidfun (free_abgr X) Y):
+  free_abgr_extend (g ∘ free_abgr_unit) ~ g.
 Proof.
   unfold homot. apply setquotunivprop'.
     + intro. apply isasetmonoid.
     + intro x. refine (setquotunivcomm _ _ _ _ _ @ _). simpl.
-      apply (free_gr_lift_comp (monoidfuncomp (free_abgr_pr X) g)).
+      apply (free_gr_extend_comp (monoidfuncomp (free_abgr_pr X) g)).
 Defined.
 
 Definition isfree_free_abgr (X : hSet) (Y : abgr) : (X → Y) ≃ monoidfun (free_abgr X) Y.
 Proof.
   use weq_iso.
-  - apply free_abgr_lift.
+  - apply free_abgr_extend.
   - intro g. exact (g ∘ free_abgr_unit).
   - intro f. apply funextfun. intro x. apply iterop_list_mon_singleton.
-  - intro g. apply monoidfun_paths, funextfun, free_abgr_lift_comp.
+  - intro g. apply monoidfun_paths, funextfun, free_abgr_extend_comp.
 Defined.
 
 Definition free_abgrfun {X Y : hSet} (f : X → Y) :
   monoidfun (free_abgr X) (free_abgr Y) :=
-  free_abgr_lift (free_abgr_unit ∘ f).
+  free_abgr_extend (free_abgr_unit ∘ f).

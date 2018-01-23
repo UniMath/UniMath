@@ -1889,10 +1889,6 @@ Proof.
   simpl. unfold binop. apply qtmlt.
 Defined.
 
-Definition setwithbinopquot_mul {X : setwithbinop} {R : binopeqrel X} (x y : X) :
-  @op (setwithbinopquot R) (setquotpr R x) (setquotpr R y) = setquotpr R (op x y) :=
-  idpath _.
-
 Definition ispartbinophrel {X : setwithbinop} (S : hsubtype X) (R : hrel X) : UU :=
   dirprod (∏ a b c : X, S c -> R a b -> R (op c a) (op c b))
           (∏ a b c : X, S c -> R a b -> R (op a c) (op b c)).
