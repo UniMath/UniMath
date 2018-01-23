@@ -51,31 +51,31 @@ Defined.
 
 (** * I. Lemmas on natural numbers *)
 
-Lemma minus0r ( n : nat ) : minus n 0 = n.
+Lemma minus0r ( n : nat ) : sub n 0 = n.
 Proof.
   intros n. destruct n; apply idpath.
 Defined.
 
-Lemma minusnn0 ( n : nat ) : minus n n = 0%nat.
+Lemma minusnn0 ( n : nat ) : sub n n = 0%nat.
 Proof.
   intro. induction n.
   - apply idpath.
   - assumption.
 Defined.
 
-Lemma minussn1 ( n : nat ) : minus ( S n ) 1 = n.
+Lemma minussn1 ( n : nat ) : sub ( S n ) 1 = n.
 Proof.
   intro. destruct n; apply idpath.
 Defined.
 
-Lemma minussn1non0 ( n : nat ) ( p : natlth 0 n ) : S ( minus n 1 ) = n.
+Lemma minussn1non0 ( n : nat ) ( p : natlth 0 n ) : S ( sub n 1 ) = n.
 Proof.
   intro. destruct n.
   - intro p. apply fromempty. exact (isirreflnatlth 0%nat p ).
   - intro. apply maponpaths. apply minus0r.
 Defined.
 
-Lemma minusleh ( n m : nat ) : natleh ( minus n m ) n.
+Lemma minusleh ( n m : nat ) : natleh ( sub n m ) n.
 Proof.
   intros n. induction n.
   - intros m. apply isreflnatleh.
@@ -86,20 +86,20 @@ Proof.
       apply natlthnsn.
 Defined.
 
-Lemma minus1leh { n m : nat } ( p : natlth 0 n ) ( q : natlth 0 m ) ( r : natleh n m ) : natleh ( minus n 1 ) ( minus m 1 ).
+Lemma minus1leh { n m : nat } ( p : natlth 0 n ) ( q : natlth 0 m ) ( r : natleh n m ) : natleh ( sub n 1 ) ( sub m 1 ).
 Proof.
   intro n. destruct n.
   - auto.
   - intros m p q r. destruct m.
     + apply fromempty. exact (isirreflnatlth 0%nat q ).
     + assert ( natleh n m ) as a by apply r.
-      assert ( natleh ( minus n 0%nat ) m ) as a0 by
+      assert ( natleh ( sub n 0%nat ) m ) as a0 by
         exact (transportf ( fun x : nat => natleh x m ) ( pathsinv0 ( minus0r n ) ) a).
-      exact ( transportf ( fun x : nat => natleh ( minus n 0 ) x ) (pathsinv0 ( minus0r m ) ) a0 ).
+      exact ( transportf ( fun x : nat => natleh ( sub n 0 ) x ) (pathsinv0 ( minus0r m ) ) a0 ).
 Defined.
 
 Lemma minuslth ( n m : nat ) ( p : natlth 0 n ) ( q : natlth 0 m ) :
-  natlth ( minus n m ) n.
+  natlth ( sub n m ) n.
 Proof.
   intro n. destruct n.
   - auto.
@@ -123,7 +123,7 @@ Proof.
 Defined.
 
 Lemma natlthminus0 { n m : nat } ( p : natlth m n ) :
-  natlth 0 ( minus n m ).
+  natlth 0 ( sub n m ).
 Proof.
   intro n. induction n.
   - intros m p. apply fromempty. exact ( negnatlthn0 m p ).
@@ -133,12 +133,12 @@ Proof.
 Defined.
 
 Lemma natlthsnminussmsn ( n m : nat ) ( p : natlth m n ) :
-  natlth ( minus ( S n ) ( S m ) ) ( S n ).
+  natlth ( sub ( S n ) ( S m ) ) ( S n ).
 Proof.
   intro. induction n.
   - intros m p. apply fromempty. apply (negnatlthn0 m p).
   - intros m p. destruct m.
-    + assert ( minus ( S ( S n ) ) 1 = S n ) as f.
+    + assert ( sub ( S ( S n ) ) 1 = S n ) as f.
       { destruct n.
         * auto.
         * auto. }
@@ -149,7 +149,7 @@ Proof.
 Defined.
 
 Lemma natlehsnminussmsn ( n m : nat ) ( p : natleh m n ) :
-  natleh (minus ( S n ) ( S m ) ) ( S n ).
+  natleh (sub ( S n ) ( S m ) ) ( S n ).
 Proof.
   intro n. induction n.
   - intros m p. apply negnatgthtoleh. intro X. apply nopathsfalsetotrue. assumption.
@@ -161,7 +161,7 @@ Proof.
 Defined.
 
 Lemma pathssminus ( n m : nat ) ( p : natlth m ( S n ) ) :
-  S ( minus n m ) = minus ( S n ) m.
+  S ( sub n m ) = sub ( S n ) m.
 Proof.
   intro n. induction n.
   - intros m p. destruct m.
@@ -174,7 +174,7 @@ Proof.
 Defined.
 
 Lemma natlehsminus ( n m : nat ) :
-  natleh ( minus ( S n ) m ) ( S (minus n m ) ).
+  natleh ( sub ( S n ) m ) ( S (sub n m ) ).
 Proof.
   intro n. induction n.
   - intros m. apply negnatgthtoleh. intro X. apply nopathstruetofalse.
@@ -187,10 +187,10 @@ Proof.
 Defined.
 
 Lemma natlthssminus { n m l : nat } ( p : natlth m ( S n ) )
-      ( q : natlth l ( S ( minus ( S n ) m ) ) ) : natlth l ( S ( S n ) ).
+      ( q : natlth l ( S ( sub ( S n ) m ) ) ) : natlth l ( S ( S n ) ).
 Proof.
   intro n. intros m l p q.
-  apply ( natlthlehtrans _ ( S ( minus ( S n ) m ) ) ).
+  apply ( natlthlehtrans _ ( S ( sub ( S n ) m ) ) ).
   - assumption.
   - destruct m.
     + apply isreflnatleh.
@@ -198,7 +198,7 @@ Proof.
 Defined.
 
 Lemma natdoubleminus { n k l : nat } ( p : natleh k n ) ( q : natleh l k ) :
-  ( minus n k) = ( minus ( minus n l ) ( minus k l ) ).
+  ( sub n k) = ( sub ( sub n l ) ( sub k l ) ).
 Proof.
   intro n. induction n.
   - auto.
@@ -211,19 +211,19 @@ Proof.
       * apply ( IHn k l ); assumption.
 Defined.
 
-Lemma minusnleh1 ( n m : nat ) ( p : natlth m n ) : natleh m ( minus n 1 ).
+Lemma minusnleh1 ( n m : nat ) ( p : natlth m n ) : natleh m ( sub n 1 ).
 Proof.
   intro n. destruct n.
   - intros m p. apply fromempty. exact (negnatlthn0 m p ).
   - intros m p. destruct m.
     + apply natleh0n.
     + apply natlthsntoleh.
-      change ( minus ( S n ) 1 ) with ( minus n 0 ).
+      change ( sub ( S n ) 1 ) with ( sub n 0 ).
       rewrite minus0r. assumption.
 Defined.
 
 Lemma doubleminuslehpaths ( n m : nat ) ( p : natleh m n ) :
-  minus n (minus n m ) = m.
+  sub n (sub n m ) = m.
 Proof.
   intro n. induction n.
   - intros m p. destruct ( natlehchoice m 0 p ) as [ h | k ].
@@ -231,7 +231,7 @@ Proof.
     + simpl. apply pathsinv0. assumption.
   - intros. destruct m.
     + simpl. apply minusnn0.
-    + change ( minus ( S n ) (minus n m ) = S m ).
+    + change ( sub ( S n ) (sub n m ) = S m ).
       rewrite <- pathssminus.
       * rewrite IHn.
         ++  apply idpath.
@@ -279,7 +279,7 @@ Definition natcofaceretract ( i : nat ) : nat -> nat.
 Proof.
   intros i n. destruct ( natgtb i n ).
   - exact n.
-  - exact ( minus n 1 ).
+  - exact ( sub n 1 ).
 Defined.
 
 Lemma natcofaceretractisretract ( i : nat ) :
@@ -502,9 +502,9 @@ Lemma hzabsvalchoice ( n : hz ) :
 Proof.
   intros.
   destruct ( natlehchoice _ _ ( natleh0n ( hzabsval n ) ) ) as [ l | r ].
-  - apply ii2. split with ( minus ( hzabsval n ) 1 ).
+  - apply ii2. split with ( sub ( hzabsval n ) 1 ).
     rewrite pathssminus.
-    + change ( minus ( hzabsval n ) 0 = hzabsval n ).
+    + change ( sub ( hzabsval n ) 0 = hzabsval n ).
       rewrite minus0r. apply idpath.
     + assumption.
   - apply ii1. assumption.

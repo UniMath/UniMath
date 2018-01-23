@@ -7,6 +7,7 @@ Written by: Joseph Helfer, Matthew Weaver, 2017
 
 ************************************************************)
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.

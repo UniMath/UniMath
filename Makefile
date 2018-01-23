@@ -66,7 +66,7 @@ $(VFILES:.v=.vo) : $(COQBIN)coqc
 endif
 
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -indices-matter -type-in-type -w '-notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option'
+OTHERFLAGS += -noinit -indices-matter -type-in-type -w '-notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option'
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
@@ -101,10 +101,12 @@ DEFINERS := $(DEFINERS)Scheme[[:space:]]+Equality[[:space:]]+for\|
 DEFINERS := $(DEFINERS)Scheme[[:space:]]+Induction[[:space:]]+for\|
 DEFINERS := $(DEFINERS)Scheme\|
 DEFINERS := $(DEFINERS)Structure\|
-DEFINERS := $(DEFINERS)Theorem
+DEFINERS := $(DEFINERS)Theorem\|
+DEFINERS := $(DEFINERS)Universe
 
 MODIFIERS := 
 MODIFIERS := $(MODIFIERS)Canonical\|
+MODIFIERS := $(MODIFIERS)Monomorphic\|
 MODIFIERS := $(MODIFIERS)Global\|
 MODIFIERS := $(MODIFIERS)Local\|
 MODIFIERS := $(MODIFIERS)Private\|
@@ -201,11 +203,16 @@ sub/coq-tools/find-bug.py:
 help-find-bug:
 	sub/coq-tools/find-bug.py --help
 isolate-bug: sub/coq-tools/find-bug.py
-	cd UniMath && \
-	rm -f $(ISOLATED_BUG_FILE) && \
-	../sub/coq-tools/find-bug.py --coqbin ../sub/coq/bin -R . UniMath \
-		--arg " -indices-matter" \
-		--arg " -type-in-type" \
+	cd UniMath &&												\
+	rm -f $(ISOLATED_BUG_FILE) &&										\
+	../sub/coq-tools/find-bug.py --coqbin ../sub/coq/bin -R . UniMath					\
+		--arg " -indices-matter"									\
+		--arg " -type-in-type"										\
+		--arg " -noinit"										\
+		--arg " -indices-matter"									\
+		--arg " -type-in-type"										\
+		--arg " -w"											\
+		--arg " -notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option"	\
 		$(BUGGY_FILE) $(ISOLATED_BUG_FILE)
 	@ echo "==="
 	@ echo "=== the isolated bug has been deposited in the file UniMath/$(ISOLATED_BUG_FILE)"
@@ -355,7 +362,7 @@ UniMath/CONTENTS.md: Makefile UniMath/*/.package/files
 	$(SHOW)'making $@'
 	$(HIDE) exec >$@ ;													\
 	   echo "# Contents of the UniMath library" ;										\
-	   echo "The packages and files are listed here in logical order: each file depends only on files ocurring earlier." ;	\
+	   echo "The packages and files are listed here in logical order: each file depends only on files occurring earlier." ;	\
 	   for P in $(PACKAGES) ;												\
 	   do if [ -f UniMath/$$P/README.md ] ;											\
 	      then echo "## Package [$$P]($$P/README.md)" ;									\

@@ -1,6 +1,7 @@
 # Contents of the UniMath library
-The packages and files are listed here in logical order: each file depends only on files ocurring earlier.
+The packages and files are listed here in logical order: each file depends only on files occurring earlier.
 ## Package [Foundations](Foundations/README)
+   - [Init.v](Foundations/Init.v)
    - [Preamble.v](Foundations/Preamble.v)
    - [PartA.v](Foundations/PartA.v)
    - [PartB.v](Foundations/PartB.v)

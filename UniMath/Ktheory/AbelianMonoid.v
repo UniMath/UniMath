@@ -1,5 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
+Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Combinatorics.FiniteSets
                UniMath.NumberSystems.NaturalNumbersAlgebra

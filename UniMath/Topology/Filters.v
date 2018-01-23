@@ -2,9 +2,10 @@
 (** Author: Catherine LELAY. Jan 2016 - *)
 (** Based on Bourbaky *)
 
-Require Export UniMath.Topology.Prelim.
-
+Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Tactics.
+Require Export UniMath.Topology.Prelim.
+Require Import UniMath.MoreFoundations.PartA.
 
 Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
 
@@ -691,7 +692,7 @@ Proof.
   intros C ;
     generalize (pr1 C) (pr1 (pr2 C)) (pr1 (pr2 (pr2 C))) (pr1 (pr2 (pr2 (pr2 C)))) (pr2 (pr2 (pr2 (pr2 C)))) ;
     clear C ; intros Ax Ay Fax Fay Ha.
-  simpl in * |-.
+  simpl in *.
   generalize (filter_and _ _ _ Fax Fay).
   apply filter_imply.
   intros xy Fxy.
@@ -710,7 +711,7 @@ Proof.
   repeat split.
   - exact Fa.
   - now apply filter_htrue.
-  - easy.
+  - intros. assumption.
 Qed.
 Goal ∏ {X Y : UU} (F : PreFilter X) (G : PreFilter Y),
     filter_le (PreFilterPr2 (PreFilterDirprod F G)) G.
@@ -722,7 +723,7 @@ Proof.
   repeat split.
   - now apply filter_htrue.
   - exact Fa.
-  - easy.
+  - intros. assumption.
 Qed.
 
 (** ** Other filters *)
@@ -1011,7 +1012,7 @@ Proof.
   split.
   + intros m.
     induction (nopathsfalsetotrue (pr2 m)).
-  + unimath_easy.
+  + easy.
 Qed.
 
 Lemma filtergenerated_and :
@@ -1096,7 +1097,7 @@ Proof.
     apply hinhpr.
     exists (singletonSequence A).
     split.
-    + easy.
+    + intros. assumption.
     + intros x Hx.
       apply (Hx (O,,paths_refl _)).
   - intros F Hf A.
@@ -1124,7 +1125,7 @@ Proof.
     apply hinhpr.
     exists (singletonSequence A).
     split.
-    + easy.
+    + intros; assumption.
     + intros x Hx.
       apply (Hx (O,,paths_refl _)).
   - intros F Hf A.
@@ -1184,7 +1185,7 @@ Proof.
           exists (λ _, htrue).
           split.
           + exact (filter_htrue F).
-          + easy.
+          + intros; assumption.
         - intros L B IHl Hl.
           rewrite finite_intersection_append.
           simple refine (hinhuniv _ _).
@@ -1349,7 +1350,7 @@ Proof.
   exists (pr1 A).
   split.
   apply (pr2 A).
-  easy.
+  intros. exact tt.
 Qed.
 Lemma filterbase_and :
   isfilter_and filterbase.
@@ -1413,7 +1414,7 @@ Proof.
     exists (L n).
     split.
     now apply Hbase.
-    easy.
+    intros; assumption.
 Qed.
 
 Lemma filterbase_genetated :
