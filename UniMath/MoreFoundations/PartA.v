@@ -103,6 +103,20 @@ Proof.
   induction v as [x|y]; reflexivity.
 Defined.
 
+Definition sumofmaps_funcomp {X1 X2 Y1 Y2 Z : UU} (f1 : X1 → X2) (f2 : X2 → Z) (g1 : Y1 → Y2)
+  (g2 : Y2 → Z) : sumofmaps (f2 ∘ f1) (g2 ∘ g1) ~ sumofmaps f2 g2 ∘ coprodf f1 g1.
+Proof.
+  intro x. induction x as [x|y]; reflexivity.
+Defined.
+
+Definition sumofmaps_homot {X Y Z : UU} {f f' : X → Z} {g g' : Y → Z} (h : f ~ f') (h2 : g ~ g')
+  : sumofmaps f g ~ sumofmaps f' g'.
+Proof.
+  intro x. induction x as [x|y].
+  - exact (h x).
+  - exact (h2 y).
+Defined.
+
 (** coprod computation helper lemmas  *)
 
 Definition coprod_rect_compute_1

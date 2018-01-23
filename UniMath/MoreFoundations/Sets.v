@@ -49,6 +49,18 @@ Defined.
 
 Definition eqset_to_path {X:hSet} (x y:X) : eqset x y -> x = y := λ e, e.
 
+Lemma isapropiscomprelfun {X : UU} {Y : hSet} (R : hrel X) (f : X -> Y) : isaprop (iscomprelfun R f).
+Proof.
+  apply impred. intro x. apply impred. intro x'. apply impred. intro r. apply Y.
+Defined.
+
+Lemma iscomprelfun_funcomp {X Y Z : UU} {R : hrel X} {S : hrel Y}
+           {f : X → Y} {g : Y → Z} (Hf : iscomprelrelfun R S f) (Hg : iscomprelfun S g) :
+  iscomprelfun R (g ∘ f).
+Proof.
+  intros x x' r. exact (Hg _ _ (Hf x x' r)).
+Defined.
+
 Theorem setquotunivprop' {X : UU} {R : eqrel X} (P : setquot (pr1 R) -> UU)
         (H : ∏ x, isaprop (P x)) (ps : ∏ x : X, P (setquotpr R x)) : ∏ c : setquot (pr1 R), P c.
 Proof.

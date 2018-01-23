@@ -245,6 +245,24 @@ Proof.
   - intros x xs p. now rewrite mapStep, !concatenateStep, mapStep, p.
 Defined.
 
+Lemma foldr_concatenate {X Y : UU} (f : X → Y) (l : list X) :
+  foldr concatenate [] (map (λ x, f x::[]) l) = map f l.
+Proof.
+  revert l. apply list_ind.
+  - reflexivity.
+  - intros x l IH. now rewrite !map_cons, foldr_cons, IH.
+Defined.
+
+Lemma foldr1_concatenate {X Y : UU} (f : X → Y) (l : list X) :
+  map f l = foldr1 concatenate [] (map (λ x, f x::[]) l).
+Proof.
+  revert l. apply list_ind.
+  - reflexivity.
+  - intros x. refine (list_ind _ _ _).
+    + reflexivity.
+    + intros x' l _ IH. exact (maponpaths (cons (f x)) IH).
+Defined.
+
 (** Append a single element to a list *)
 
 Definition append {X} (x : X) (l : list X) : list X :=
