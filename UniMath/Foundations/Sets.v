@@ -779,12 +779,30 @@ Definition popair {X : UU} (R : hrel X) (is : ispreorder R) : po X
 Definition carrierofpo (X : UU) : po X -> (X -> X -> hProp) := @pr1 _ ispreorder.
 Coercion carrierofpo : po >-> Funclass.
 
+Definition ispreorder_po {X : UU} (PO : po X) : ispreorder PO := pr2 PO.
+
+Definition isrefl_po {X : UU} (PO : po X) : isrefl PO := pr2 (ispreorder_po PO).
+
+Definition istrans_po {X : UU} (PO : po X) : istrans PO := pr1 (ispreorder_po PO).
+
 Definition PreorderedSet : UU := ∑ X : hSet, po X.
 Definition PreorderedSetPair (X : hSet) (R :po X) : PreorderedSet
   := tpair _ X R.
 Definition carrierofPreorderedSet : PreorderedSet -> hSet := pr1.
 Coercion carrierofPreorderedSet : PreorderedSet >-> hSet.
 Definition PreorderedSetRelation (X : PreorderedSet) : hrel X := pr1 (pr2 X).
+
+Definition po_from_PreorderedSet (POS : PreorderedSet) : po POS := pr2 POS.
+
+Definition ispreorder_PreorderedSet (POS : PreorderedSet) :
+  ispreorder (PreorderedSetRelation POS) :=
+  ispreorder_po (po_from_PreorderedSet POS).
+
+Definition isrefl_PreorderedSet (POS : PreorderedSet) :
+  isrefl (PreorderedSetRelation POS) := isrefl_po (po_from_PreorderedSet POS).
+
+Definition istrans_PreorderedSet (POS : PreorderedSet) :
+  istrans (PreorderedSetRelation POS) := istrans_po (po_from_PreorderedSet POS).
 
 (* partial orderings *)
 Definition PartialOrder (X : hSet) : UU := ∑ R : hrel X, isPartialOrder R.
@@ -794,27 +812,46 @@ Definition PartialOrderpair {X : hSet} (R : hrel X) (is : isPartialOrder R) :
 Definition carrierofPartialOrder {X : hSet} : PartialOrder X -> hrel X := pr1.
 Coercion carrierofPartialOrder : PartialOrder >-> hrel.
 
+Definition isPartialOrder_PartialOrder {X : hSet} (PO : PartialOrder X) :
+  isPartialOrder PO := pr2 PO.
+
+Definition po_from_PartialOrder {X : hSet} (PO : PartialOrder X) : po X
+  := popair (carrierofPartialOrder PO) (pr1 (isPartialOrder_PartialOrder PO)).
+
+Definition isrefl_PartialOrder {X : hSet} (PO : PartialOrder X) :
+  isrefl (carrierofPartialOrder PO) := isrefl_po (po_from_PartialOrder PO).
+
+Definition istrans_PartialOrder {X : hSet} (PO : PartialOrder X) :
+  istrans (carrierofPartialOrder PO) := istrans_po (po_from_PartialOrder PO).
+
+Definition isantisymm_PartialOrder {X : hSet} (PO : PartialOrder X) :
+  isantisymm (carrierofPartialOrder PO) := pr2 (isPartialOrder_PartialOrder PO).
+
 Definition Poset : UU := ∑ X, PartialOrder X.
+
 Definition Posetpair (X : hSet) (R : PartialOrder X) : Poset
   := tpair PartialOrder X R.
 Definition carrierofposet : Poset -> hSet := pr1.
 Coercion carrierofposet : Poset >-> hSet.
 Definition posetRelation (X : Poset) : hrel X := pr1 (pr2 X).
 
-Lemma isrefl_posetRelation (X : Poset) : isrefl (posetRelation X).
-Proof.
-  intros ? x. exact (pr2 (pr1 (pr2 (pr2 X))) x).
-Defined.
+Definition PartialOrder_from_Poset (POS : Poset) : PartialOrder (pr1 POS)
+  := pr2 POS.
 
-Lemma istrans_posetRelation (X : Poset) : istrans (posetRelation X).
-Proof.
-  intros ? x y z l m. exact (pr1 (pr1 (pr2 (pr2 X))) x y z l m).
-Defined.
+Definition isPartialOrder_Poset (POS : Poset) : isPartialOrder (posetRelation POS)
+  := isPartialOrder_PartialOrder (PartialOrder_from_Poset POS).
 
-Lemma isantisymm_posetRelation (X : Poset) : isantisymm (posetRelation X).
-Proof.
-  intros ? x y l m. exact (pr2 (pr2 (pr2 X)) x y l m).
-Defined.
+Definition po_from_Poset (POS : Poset) : po POS
+  := po_from_PartialOrder (PartialOrder_from_Poset POS).
+
+Definition isrefl_posetRelation (X : Poset) : isrefl (posetRelation X)
+  := isrefl_po (po_from_Poset X).
+
+Definition istrans_posetRelation (X : Poset) : istrans (posetRelation X)
+  := istrans_po (po_from_Poset X).
+
+Definition isantisymm_posetRelation (X : Poset) : isantisymm (posetRelation X)
+  := isantisymm_PartialOrder (PartialOrder_from_Poset X).
 
 Delimit Scope poset with poset.
 Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) :
