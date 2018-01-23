@@ -460,18 +460,18 @@ Section NatCard.
     stnsum (λ i, stnsum (k i)) = stnsum (uncurry k ∘ lexicalEnumeration m).
   Proof. intros. exact (nat_plus_associativity (uncurry k)). Defined.
 
-  Lemma iterop_fun_nat {n:nat} (x:stn n->nat) : iterop_fun 0 Nat.add x = stnsum x.
+  Lemma iterop_fun_nat {n:nat} (x:stn n->nat) : iterop_fun 0 add x = stnsum x.
   Proof.
     (* these are different because iterop_fun is careful to not add 0 in the case where n=1 *)
     intros. induction n as [|n I].
     - reflexivity.
     - induction n as [|n _].
       + reflexivity.
-      + simple refine (iterop_fun_step 0 Nat.add natplusl0 _ @ _ @ ! stnsum_step _).
+      + simple refine (iterop_fun_step 0 add natplusl0 _ @ _ @ ! stnsum_step _).
         apply (maponpaths (λ i, i + x lastelement)). apply I.
   Defined.
 
-  Theorem associativityNat : isAssociative_fun 0 Nat.add.
+  Theorem associativityNat : isAssociative_fun 0 add.
   Proof.
     intros n m x. unfold iterop_fun_fun. apply pathsinv0. rewrite 2 iterop_fun_nat.
     intermediate_path (stnsum (λ i : stn n, stnsum (x i))).

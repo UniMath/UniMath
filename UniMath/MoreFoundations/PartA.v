@@ -1,5 +1,6 @@
 (** This file contain various results that could be upstreamed to Foundations/PartA.v *)
 Require Import UniMath.MoreFoundations.Foundations.
+Require Import UniMath.MoreFoundations.Tactics.
 
 Lemma base_paths_pair_path_in2 {X : UU} (P : X → UU) {x : X} {p q : P x} (e : p = q) :
   base_paths _ _ (pair_path_in2 P e) = idpath x.
@@ -100,4 +101,26 @@ Defined.
 Lemma coprodcomm_coprodcomm {X Y : UU} (v : X ⨿ Y) : coprodcomm Y X (coprodcomm X Y v) = v.
 Proof.
   induction v as [x|y]; reflexivity.
+Defined.
+
+(** coprod computation helper lemmas  *)
+
+Definition coprod_rect_compute_1
+           (A B : UU) (P : A ⨿ B -> UU)
+           (f : ∏ (a : A), P (ii1 a))
+           (g : ∏ (b : B), P (ii2 b)) (a:A) :
+  coprod_rect P f g (ii1 a) = f a.
+Proof.
+  intros.
+  apply idpath.
+Defined.
+
+Definition coprod_rect_compute_2
+           (A B : UU) (P : A ⨿ B -> UU)
+           (f : ∏ a : A, P (ii1 a))
+           (g : ∏ b : B, P (ii2 b)) (b:B) :
+  coprod_rect P f g (ii2 b) = g b.
+Proof.
+  intros.
+  apply idpath.
 Defined.

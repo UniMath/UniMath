@@ -254,7 +254,7 @@ Definition prod_discrete_cat (X Y : hSet)
             (discrete_cat (X × Y)%set).
 Proof.
   use tpair. use tpair.
-  + (* functor_on_objects *) apply id.
+  + (* functor_on_objects *) apply idfun.
   + (* functor_on_morphisms *)
     intros a b; simpl. apply uncurry, dirprod_paths.
   + (* functor_id, functor_comp *) split; intro; intros; apply setproperty.

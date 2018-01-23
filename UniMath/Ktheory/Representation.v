@@ -1,3 +1,4 @@
+Require Import UniMath.Foundations.Preamble.
 Require Import
         UniMath.CategoryTheory.Categories
         UniMath.CategoryTheory.opp_precat
