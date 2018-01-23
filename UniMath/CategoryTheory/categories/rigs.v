@@ -23,11 +23,11 @@ Section def_rig_precategory.
   Definition rig_fun_space (A B : rig) : hSet := hSetpair (rigfun A B) (isasetrigfun A B).
 
   Definition rig_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) rig (fun A B : rig => rig_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) rig (λ A B : rig, rig_fun_space A B).
 
   Definition rig_precategory_data : precategory_data :=
     precategory_data_pair
-      rig_precategory_ob_mor (fun (X : rig) => (rigisotorigfun (idrigiso X)))
+      rig_precategory_ob_mor (λ (X : rig), (rigisotorigfun (idrigiso X)))
       (fun (X Y Z : rig) (f : rigfun X Y) (g : rigfun Y Z) => rigfuncomp f g).
 
   Local Definition rig_id_left (X Y : rig) (f : rigfun X Y) :
@@ -77,7 +77,7 @@ Section def_rig_category.
 
   Lemma rig_iso_is_equiv (A B : ob rig_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (pr1rigfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -115,7 +115,7 @@ Section def_rig_category.
 
   Lemma rig_iso_equiv_is_equiv (X Y : rig_precategory) : isweq (rig_iso_equiv X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (rig_equiv_iso X Y).
     - intros x. use eq_iso. use rigfun_paths. use idpath.
     - intros y. use rigiso_paths. use subtypeEquality.
@@ -134,7 +134,7 @@ Section def_rig_category.
 
   Lemma rig_equiv_iso_is_equiv (X Y : ob rig_precategory) : isweq (rig_equiv_iso X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (rig_iso_equiv X Y).
     - intros y. use rigiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.
@@ -143,7 +143,7 @@ Section def_rig_category.
   Defined.
   Opaque rig_equiv_iso_is_equiv.
 
-  Definition rig_equiv_iso_weq (X Y : ob rig_precategory) :
+  Definition rig_equiv_weq_iso (X Y : ob rig_precategory) :
     (rigiso (X : rig) (Y : rig)) ≃ (iso X Y).
   Proof.
     use weqpair.
@@ -158,9 +158,9 @@ Section def_rig_category.
   Proof.
     use (@isweqhomot
            (X = Y) (iso X Y)
-           (pr1weq (weqcomp (rig_univalence X Y) (rig_equiv_iso_weq X Y)))
+           (pr1weq (weqcomp (rig_univalence X Y) (rig_equiv_weq_iso X Y)))
            _ _ (weqproperty (weqcomp (rig_univalence X Y)
-                                     (rig_equiv_iso_weq X Y)))).
+                                     (rig_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.

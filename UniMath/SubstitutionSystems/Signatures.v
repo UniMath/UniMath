@@ -348,7 +348,7 @@ Proof.
   assert (H':= functor_id (H X') (pr1 (pr1 Z) c));
   simpl in H'.
   match goal with |[H1 : ?f · _ · ?g = _ , H2 : ?x = _ |- _ ] =>
-                        pathvia (f · x · g) end.
+                        intermediate_path (f · x · g) end.
   - repeat rewrite <- assoc.
     apply maponpaths.
     rewrite H'.

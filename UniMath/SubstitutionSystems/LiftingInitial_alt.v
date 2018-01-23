@@ -91,8 +91,8 @@ Definition InitAlg : Alg :=
 Lemma isInitial_pre_comp (Z : Ptd) : isInitial [C, C, hsC] (ℓ (U Z) InitialEndC).
 Proof.
 use mk_isInitial; intros F.
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + intros c; simpl; apply InitialArrow.
   + abstract (intros x y f; cbn; apply InitialArrowEq).
 - abstract (intros G; apply subtypeEquality;
@@ -147,7 +147,7 @@ Definition aux_iso_1 (Z : Ptd)
            (CPEndEndC (constant_functor [C, C, hsC] [C, C, hsC] (U Z))
               (functor_fix_snd_arg [C, C, hsC] Ptd [C, C, hsC] (θ_source H) Z))⟧.
 Proof.
-mkpair.
+use tpair.
 - intro X.
   exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (ρ_functor (U Z))
            (nat_trans_id (θ_source H (X⊗Z):functor C C))).
@@ -180,7 +180,7 @@ Local Definition aux_iso_1_inv (Z: Ptd)
               (functor_fix_snd_arg [C, C, hsC] Ptd [C, C, hsC] (θ_source H) Z)),
       functor_composite Id_H (ℓ (U Z)) ⟧.
 Proof.
-mkpair.
+use tpair.
 - intro X.
   exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (λ_functor (U Z))
          (nat_trans_id (θ_source H (X⊗Z):functor C C))).
@@ -219,7 +219,7 @@ Local Definition aux_iso_2_inv (Z : Ptd)
                     (functor_fix_snd_arg [C, C, hsC] Ptd [C, C, hsC] (θ_target H) Z)),
       functor_composite (ℓ (U Z) )   (Const_plus_H (U Z)) ⟧.
 Proof.
-mkpair.
+use tpair.
 - intro X.
   exact (nat_trans_id ((@BinCoproductObject EndC (U Z) (θ_target H (X⊗Z)) (CPEndC _ _) )
            : functor C C)).
@@ -271,9 +271,9 @@ Lemma bracket_Thm15_ok_part1 (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
 Proof.
 apply (nat_trans_eq hsC); intro c.
 assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
-assert (h_eq' := maponpaths (fun m =>
+assert (h_eq' := maponpaths (λ m,
                (((aux_iso_1_inv Z):(_⟹_)) _)· m) h_eq); clear h_eq.
-assert (h_eq1' := maponpaths (fun m =>
+assert (h_eq1' := maponpaths (λ m,
                (BinCoproductIn1 EndC (CPEndC _ _))· m) h_eq'); clear h_eq'.
 assert (h_eq1'_inst := nat_trans_eq_pointwise h_eq1' c); clear h_eq1'.
 eapply pathscomp0, pathscomp0; [|apply (!h_eq1'_inst)|]; clear h_eq1'_inst.
@@ -297,10 +297,10 @@ Lemma bracket_Thm15_ok_part2 (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
 Proof.
 apply (nat_trans_eq hsC); intro c.
 assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
-assert (h_eq' := maponpaths (fun m =>
+assert (h_eq' := maponpaths (λ m,
                 (((aux_iso_1_inv Z):(_⟹_)) _)· m) h_eq); clear h_eq.
 (* until here same as in previous lemma *)
-assert (h_eq2' := maponpaths (fun m =>
+assert (h_eq2' := maponpaths (λ m,
                 (BinCoproductIn2 EndC (CPEndC _ _))· m) h_eq');  clear h_eq'.
 assert (h_eq2'_inst := nat_trans_eq_pointwise h_eq2' c); clear h_eq2'.
 eapply pathscomp0, pathscomp0; [|apply (!h_eq2'_inst)|]; clear h_eq2'_inst.
@@ -364,14 +364,14 @@ Qed.
 Definition bracket_for_InitAlg : bracket InitAlg.
 Proof.
 intros Z f.
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + exact (bracket_Thm15 Z f).
   + exact (bracket_Thm15_ok_cor Z f).
     (* B: better to prove the whole outside, and apply it here *)
     (* when the first components were not opaque, the following proof
        became extremely slow *)
-- apply bracket_unique.
+- cbn. apply bracket_unique.
 Defined.
 
 (* produce some output to keep TRAVIS running *)
@@ -393,8 +393,8 @@ Definition constant_nat_trans (C' D : precategory)
    (hsD : has_homsets D) (d d' : D) (m : D⟦d,d'⟧)
     : [C', D, hsD] ⟦constant_functor C' D d, constant_functor C' D d'⟧.
 Proof.
-exists (fun _ => m).
-abstract (intros ? ? ?; pathvia m; [ apply id_left | apply pathsinv0, id_right]).
+exists (λ _, m).
+abstract (intros ? ? ?; intermediate_path m; [ apply id_left | apply pathsinv0, id_right]).
 Defined.
 
 Definition thetahat_0 (Z : Ptd) (f : Z --> ptd_from_alg InitAlg) :
@@ -452,7 +452,7 @@ Local Definition iso2' (Z : Ptd) : EndEndC ⟦
              (functor_fix_snd_arg [C, C, hsC] Ptd [C, C, hsC] (θ_target H) Z)),
   functor_composite (ℓ (U Z)) Ghat ⟧.
 Proof.
-mkpair.
+use tpair.
 - intro X.
   exact (nat_trans_id ((@BinCoproductObject EndC _ (θ_target H (X⊗Z)) (CPEndC _ _) )
             : functor C C)).
@@ -476,7 +476,7 @@ Definition Phi_fusion (Z : Ptd) (X : EndC) (b : pr1 InitAlg --> X) :
    ⟹
   functor_composite (functor_opp (ℓ (U Z))) (Yon X) .
 Proof.
-mkpair.
+use tpair.
 - intros Y a.
   exact (a · b).
 - abstract (intros ? ? ?; simpl; apply funextsec; intro;
@@ -497,7 +497,7 @@ match goal with | [|- _ · ?b = _ ] => set (β := b) end.
 set (rhohat := BinCoproductArrow EndC  (CPEndC _ _ )  β (tau_from_alg T')
                 :  pr1 Ghat T' --> T').
 set (X:= SpecializedGMIt Z _ Ghat rhohat (thetahat Z f)).
-pathvia (pr1 (pr1 X)).
+intermediate_path (pr1 (pr1 X)).
 - set (TT := @fusion_law EndC hsEndC InitialEndC Colims_of_shape_nat_graph_EndC
                          Id_H is_omega_cocont_Id_H _ hsEndC (pr1 (InitAlg)) T').
   set (Psi := ψ_from_comps (Id_H) hsEndC _ (ℓ (U Z)) (Const_plus_H (U Z)) (ρ_Thm15 Z f)
@@ -509,7 +509,7 @@ pathvia (pr1 (pr1 X)).
   set (T4 := T3 (isInitial_pre_comp Z) Psi').
   set (Φ := (Phi_fusion Z T' β)).
   set (T5 := T4 Φ).
-  pathvia (Φ _ (fbracket InitHSS f)); trivial.
+  intermediate_path (Φ _ (fbracket InitHSS f)); trivial.
   eapply pathscomp0; [|apply T5]; clear TT T2 T3 T4 T5 X.
   * now apply cancel_postcomposition.
   * (* hypothesis of fusion law *)

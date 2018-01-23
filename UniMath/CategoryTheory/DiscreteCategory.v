@@ -26,9 +26,9 @@ Variable (A : UU).
 
 Definition discrete_precategory_data : precategory_data.
 Proof.
-mkpair.
-- apply (A,,paths).
-- mkpair; [ apply idpath | apply @pathscomp0 ].
+use tpair.
+- exact (A,,paths).
+- use tpair; [ exact idpath | exact (@pathscomp0 A) ].
 Defined.
 
 Definition is_precategory_discrete_precategory_data : is_precategory discrete_precategory_data.
@@ -50,8 +50,8 @@ Qed.
 Lemma functor_discrete_precategory (D : precategory) (f : A → D) :
   functor discrete_precategory D.
 Proof.
-mkpair.
-+ mkpair.
+use tpair.
++ use tpair.
   - apply f.
   - intros s t []; apply identity.
 + abstract (now split; [intro|intros a b c [] []; simpl; rewrite id_left]).
@@ -64,10 +64,18 @@ Definition is_nat_trans_discrete_precategory {D : precategory} (Dhom : has_homse
   : is_nat_trans (pr1 f) (pr1 g) F.
 Proof.
   intros x y h.
-  rewrite h.
-  rewrite (pr1 (pr2 f)) , (pr1 (pr2 g)).
-  rewrite (id_left (F y)) , (id_right (F y)).
-  reflexivity.
+  unfold discrete_precategory in h. simpl in h.
+  induction h.
+  change (idpath x) with (identity x).
+  assert (k := ! functor_id f x).
+  unfold functor_data_from_functor in k.
+  induction k.
+  assert (k := ! functor_id g x).
+  unfold functor_data_from_functor in k.
+  induction k.
+  intermediate_path (F x).
+  - apply id_left.
+  - apply pathsinv0. apply id_right.
 Defined.
 
 End Discretecategory.

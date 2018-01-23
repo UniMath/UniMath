@@ -28,9 +28,6 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
-
 Section const_comma_category_definition.
 
 Context {M C : precategory}.
@@ -65,7 +62,7 @@ Definition ccomma_id a : ccomma_morphism a a.
 Proof.
   exists (identity _ ).
   abstract (
-  pathvia (pr2 a · identity _ );
+  intermediate_path (pr2 a · identity _ );
    [ apply maponpaths; apply functor_id |];
   apply id_right
   ).

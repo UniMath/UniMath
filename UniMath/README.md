@@ -18,7 +18,7 @@ Create a subdirectory of this directory, populate it with your files, add a
 README (or README.md) file, and add a file .package/files, listing the *.v
 files of your package, as above.  Then add the name of your package to the head
 of the list assigned to "PACKAGES" in the file "./Makefile", or, alternatively,
-if you'd like to test your package with modifying "./Makefile", which you might
+if you'd like to test your package without modifying "./Makefile", which you might
 accidentally commit and push, add its name to the head of the list in
 "../build/Makefile-configuration", which is created from
 "../build/Makefile-configuration-template".
@@ -31,6 +31,8 @@ checking systems, and we follow a style of coding designed to render proofs
 less fragile and to make the files have a more uniform and pleasing appearance.
 
 * Do not use `Admitted` or introduce new axioms.
+* Do not use `apply` with a term that needs no additional arguments filled in,
+  because using `exact` would be clearer.
 * Do not use `Prop` or `Set`, and ensure definitions don't produce
   elements of them.
 * Do not use `Type`, except in `Foundations/Basics/Preamble.v`.
@@ -53,6 +55,9 @@ less fragile and to make the files have a more uniform and pleasing appearance.
 * Start all proofs with `Proof.` on a separate line and end it with
   `Defined.` on a separate line, as this makes it possible for us to generate
   HTML with expansible/collapsible proofs.
+* Use `Lemma`, `Proposition`, or `Theorem` for proofs of propositions;
+  for defining elements of types that are not propositions, use
+  `Definition`.
 * Use Unicode notation freely, but make the parsing conventions uniform across files, and consider
   putting them into a scope.
 * Each line should be limited to at most 100 (unicode) characters.  The
@@ -70,6 +75,14 @@ less fragile and to make the files have a more uniform and pleasing appearance.
   abstracted lemma (whose name typically ends with `_subproof`), because
   its type may vary from one version of Coq to another.  Coq's current behavior is also
   unlikely to be duplicated precisely by a future proof assistant. 
+* Define and use accessor functions for structures instead of chains
+  of `pr1` and `pr2`. This makes the code easier to maintain in the
+  long run (if the structure is rearranged the proofs will still work
+  if the accessor functions are changed accordingly).
+* Define constructor functions for structures taking all of the
+  required data in the right order. This way one can write `use
+  constructor` instead of having a nested chain of `use tpair` leading
+  to flatter proof scripts for instantiating structures.
 
 Our files don't adhere yet to all of these conventions, but it's a goal we
 strive for.

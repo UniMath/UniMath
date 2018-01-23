@@ -119,18 +119,17 @@ End construction.
 
 Definition Sum_of_Signatures (S : I -> Signature C hsC D hsD) : Signature C hsC D hsD.
 Proof.
-mkpair.
+use tpair.
 - apply H; intro i.
   apply (S i).
-- exists (θ (fun i => S i) (fun i => theta (S i))).
+- exists (θ (λ i, S i) (λ i, theta (S i))).
   split.
   + apply SumStrength1'; intro i; apply (Sig_strength_law1 _ _ _ _ (S i)).
   + apply SumStrength2'; intro i; apply (Sig_strength_law2 _ _ _ _ (S i)).
 Defined.
 
 Lemma is_omega_cocont_Sum_of_Signatures (S : I -> Signature C hsC D hsD)
-  (h : ∏ i, is_omega_cocont (S i)) (PC : Products I C) :
-  is_omega_cocont (Sum_of_Signatures S).
+  (h : ∏ i, is_omega_cocont (S i)) : is_omega_cocont (Sum_of_Signatures S).
 Proof.
 apply is_omega_cocont_coproduct_of_functors; try assumption.
 - apply functor_category_has_homsets.

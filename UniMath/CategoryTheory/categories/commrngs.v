@@ -23,11 +23,11 @@ Section def_commrng_precategory.
   Definition commrng_fun_space (A B : commrng) : hSet := hSetpair (rngfun A B) (isasetrigfun A B).
 
   Definition commrng_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) commrng (fun A B : commrng => commrng_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) commrng (λ A B : commrng, commrng_fun_space A B).
 
   Definition commrng_precategory_data : precategory_data :=
     precategory_data_pair
-      commrng_precategory_ob_mor (fun (X : commrng) => (rigisotorigfun (idrigiso X)))
+      commrng_precategory_ob_mor (λ (X : commrng), (rigisotorigfun (idrigiso X)))
       (fun (X Y Z : commrng) (f : rngfun X Y) (g : rngfun Y Z) => rigfuncomp f g).
 
   Local Lemma commrng_id_left (X Y : commrng) (f : rngfun X Y) :
@@ -77,7 +77,7 @@ Section def_commrng_category.
 
   Lemma commrng_iso_is_equiv (A B : ob commrng_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (pr1rigfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -118,7 +118,7 @@ Section def_commrng_category.
 
   Lemma commrng_iso_equiv_is_equiv (X Y : commrng_precategory) : isweq (commrng_iso_equiv X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (commrng_equiv_iso X Y).
     - intros x. use eq_iso. use rigfun_paths. use idpath.
     - intros y. use rigiso_paths. use subtypeEquality.
@@ -137,7 +137,7 @@ Section def_commrng_category.
 
   Lemma commrng_equiv_iso_is_equiv (X Y : ob commrng_precategory) : isweq (commrng_equiv_iso X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (commrng_iso_equiv X Y).
     - intros y. use rigiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.
@@ -146,7 +146,7 @@ Section def_commrng_category.
   Defined.
   Opaque commrng_equiv_iso_is_equiv.
 
-  Definition commrng_equiv_iso_weq (X Y : ob commrng_precategory) :
+  Definition commrng_equiv_weq_iso (X Y : ob commrng_precategory) :
     (rngiso (X : commrng) (Y : commrng)) ≃ (iso X Y).
   Proof.
     use weqpair.
@@ -162,8 +162,8 @@ Section def_commrng_category.
   Proof.
     use (@isweqhomot
            (X = Y) (iso X Y)
-           (pr1weq (weqcomp (commrng_univalence X Y) (commrng_equiv_iso_weq X Y)))
-           _ _ (weqproperty (weqcomp (commrng_univalence X Y) (commrng_equiv_iso_weq X Y)))).
+           (pr1weq (weqcomp (commrng_univalence X Y) (commrng_equiv_weq_iso X Y)))
+           _ _ (weqproperty (weqcomp (commrng_univalence X Y) (commrng_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.

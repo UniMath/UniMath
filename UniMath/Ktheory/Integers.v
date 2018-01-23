@@ -13,6 +13,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Ktheory.GroupAction
                UniMath.NumberSystems.Integers
                UniMath.Ktheory.Nat.
+Unset Automatic Introduction.
 
 Definition ℤ := hzaddabgr.
 Definition toℤ (n:nat) : ℤ := nattohz n.
@@ -65,7 +66,7 @@ Proof. exact (an_inclusion_is_injective _ isinclnattohz). Defined.
 Lemma hzdichot {m n} : neg (nattohz m = - nattohz (S n)).
 Proof. intros. intro e. assert (d := ap hzsign e); clear e.
        rewrite hzsign_hzsign in d.
-       assert( f := ap (fun i => nattohz m + i) d); simpl in f; clear d.
+       assert( f := ap (λ i, nattohz m + i) d); simpl in f; clear d.
        change (nattohz m + - nattohz m) with (nattohz m - nattohz m) in f.
        rewrite hzrminus in f. change (0 = nattohz (m + S n)) in f.
        assert (g := nattohz_inj f); clear f. rewrite natpluscomm in g.
@@ -97,7 +98,7 @@ Defined.
 Definition negpos_weq := weqpair _ negpos' : weq (total2 hz_normal_form) ℤ.
 
 Definition negpos : weq (coprod nat nat) ℤ. (* ℤ = (-inf,-1) + (0,inf) *)
-Proof. simple refine (weqpair _ (gradth _ _ _ _)).
+Proof. simple refine (weqpair _ (isweq_iso _ _ _ _)).
        { intros [n'|n].
          { exact (natnattohz 0 (S n')). } { exact (natnattohz n 0). } }
        { intro i. destruct (hz_to_normal_form i) as [[n p]|[m q]].

@@ -1,4 +1,6 @@
 Require Export UniMath.MoreFoundations.Notations.
+Require Export UniMath.MoreFoundations.Tactics.
+Require Export UniMath.MoreFoundations.DecidablePropositions.
 
 Local Open Scope logic.
 
@@ -55,12 +57,11 @@ Lemma dneg_elim_to_LEM : (∏ P:hProp, ¬ ¬ P -> P) -> LEM.
 (* a converse for Lemma dneg_LEM *)
 Proof.
   intros dne. intros P. simple refine (dne (_,,_) _).
-  - apply isapropdec, P.
-  - simpl. intros n.
-    assert (q : ¬ (P ∨ ¬ P)).
-    { now apply weqnegtonegishinh. }
-    assert (r := fromnegcoprod_prop q).
-    exact (pr2 r (pr1 r)).
+  simpl. intros n.
+  assert (q : ¬ (P ∨ ¬ P)).
+  { now apply weqnegtonegishinh. }
+  assert (r := fromnegcoprod_prop q).
+  exact (pr2 r (pr1 r)).
 Defined.
 
 Lemma negforall_to_existsneg {X:UU} (P:X->hProp) : LEM -> (¬ ∀ x, P x) -> (∃ x, ¬ (P x)).
@@ -83,6 +84,19 @@ Lemma isaprop_assume_it_is {X : UU} : (X -> isaprop X) -> isaprop X.
 Proof.
   intros f. apply invproofirrelevance; intros x y.
   apply proofirrelevance. now apply f.
+Defined.
+
+Lemma isaproptotal2 {X : UU} (P : X → UU) :
+  isPredicate P →
+  (∏ x y : X, P x → P y → x = y) →
+  isaprop (∑ x : X, P x).
+Proof.
+  intros HP Heq.
+  apply invproofirrelevance.
+  intros [x p] [y q].
+  induction (Heq x y p q).
+  induction (iscontrpr1 (HP x p q)).
+  apply idpath.
 Defined.
 
 Lemma squash_rec {X : UU} (P : ∥ X ∥ -> hProp) : (∏ x, P (hinhpr x)) -> (∏ x, P x).

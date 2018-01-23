@@ -159,11 +159,11 @@ Section def_zero.
              (I : Initial C) (T : Terminal C)
              (e: iso (InitialObject I) (TerminalObject T)) : Zero.
   Proof.
-    refine (mk_Zero (InitialObject I) _).
+    use (mk_Zero (InitialObject I)).
     split.
-    - refine (mk_isInitial (InitialObject I) _); intro b.
+    - use (mk_isInitial (InitialObject I)); intro b.
       apply iscontrpair with (x := (InitialArrow I b)), InitialArrowUnique.
-    - refine (mk_isTerminal (InitialObject I) _ ); intro a.
+    - use (mk_isTerminal (InitialObject I)); intro a.
       apply (iscontrretract (postcomp_with (inv_from_iso e))
                             (postcomp_with (morphism_from_iso _ _ _  e))).
       intros y. unfold postcomp_with.

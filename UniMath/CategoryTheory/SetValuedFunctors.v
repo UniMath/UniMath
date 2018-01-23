@@ -157,7 +157,7 @@ Section QuotientFunctor.
      computation slow in some cases (see issue 548) *)
   Definition quot_functor_ob (d:D) :hSet.
   Proof.
-    mkpair.
+    use tpair.
     - apply (setquot (hequiv d)).
     - abstract (apply isasetsetquot).
   Defined.
@@ -189,7 +189,7 @@ Section QuotientFunctor.
   Definition quot_functor  : functor D HSET := tpair _ _ is_functor_quot_functor_data.
 
   Definition pr_quot_functor_data : ∏ x , HSET ⟦R x, quot_functor x⟧ :=
-    fun x a => setquotpr _ a.
+    λ x a, setquotpr _ a.
 
   Lemma is_nat_trans_pr_quot_functor : is_nat_trans _ _ pr_quot_functor_data.
   Proof.

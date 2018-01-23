@@ -77,12 +77,12 @@ Proof.
     apply hinhpr.
     exists (identity a).
     apply idpath.
-  - intros; unfold id, T; simpl.
-    pathvia (compose f (identity _ )).
+  - intros; unfold T; simpl.
+    intermediate_path (compose f (identity _ )).
     + apply maponpaths; assumption.
     + apply id_right.
- - intros; unfold id, T; simpl.
-   pathvia (compose (identity _ ) f).
+ - intros; unfold T; simpl.
+   intermediate_path (compose (identity _ ) f).
    +  rewrite X. apply idpath.
    +  apply id_left.
  - intros a b c f g.
@@ -91,7 +91,7 @@ Proof.
    apply idpath.
  - simpl.
    intros a b c f g h k H1 H2.
-   pathvia (compose f g).
+   intermediate_path (compose f g).
    + apply pathsinv0. apply H1.
    + apply H2.
  - simpl. intros a b c d f g h fg gh fg_h f_gh H1 H2 H3 H4.

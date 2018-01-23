@@ -35,8 +35,6 @@ Require Import UniMath.CategoryTheory.whiskering.
 
 Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 Ltac unf := unfold identity,
                    compose,
                    precategory_morphisms;
@@ -45,7 +43,7 @@ Ltac unf := unfold identity,
 (** The following lemma is already in precategories.v . It should be transparent? *)
 
 Lemma iso_comp_left_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
-  isweq (fun f : hom _ c a => f · h).
+  isweq (λ f : hom _ c a, f · h).
 Proof. intros. apply (@iso_comp_right_isweq C^op b a (opp_iso h)). Qed.
 
 (** * Yoneda functor *)
@@ -58,12 +56,12 @@ Definition yoneda_objects_ob (C : precategory) (c : C)
 Definition yoneda_objects_mor (C : precategory) (c : C)
     (d d' : C) (f : hom C d  d') :
    yoneda_objects_ob C c d' -> yoneda_objects_ob C c d :=
-    fun g => f · g.
+    λ g, f · g.
 
 Definition yoneda_ob_functor_data (C : precategory) (hs: has_homsets C) (c : C) :
     functor_data (C^op) HSET.
 Proof.
-  exists (fun c' => hSetpair (yoneda_objects_ob C c c') (hs c' c)) .
+  exists (λ c', hSetpair (yoneda_objects_ob C c c') (hs c' c)) .
   intros a b f g. unfold yoneda_objects_ob in *. simpl in *.
   exact (f · g).
 Defined.
@@ -92,7 +90,7 @@ Definition yoneda_objects (C : precategory) (hs: has_homsets C) (c : C) :
 Definition yoneda_morphisms_data (C : precategory)(hs: has_homsets C) (c c' : C)
     (f : hom C c c') : ∏ a : ob C^op,
          hom _ (yoneda_objects C hs c a) ( yoneda_objects C hs c' a) :=
-            fun a g => g · f.
+            λ a g, g · f.
 
 Lemma is_nat_trans_yoneda_morphisms_data (C : precategory) (hs: has_homsets C)
      (c c' : ob C) (f : hom C c c') :
@@ -151,7 +149,7 @@ Definition yoneda (C : precategory) (hs: has_homsets C) :
 Definition yoneda_map_1 (C : precategory) (hs: has_homsets C) (c : C)
    (F : functor C^op HSET) :
        hom _ (yoneda C hs c) F -> pr1 (F c) :=
-   fun h =>  pr1 h c (identity c).
+   λ h,  pr1 h c (identity c).
 
 
 
@@ -175,7 +173,7 @@ Definition yoneda_map_2 (C : precategory) (hs: has_homsets C) (c : C)
        pr1 (F c) -> hom _ (yoneda C hs c) F.
 Proof.
   intro x.
-  exists (fun d : ob C => fun f => #F f x).
+  exists (λ d : ob C, λ f, #F f x).
   apply yoneda_map_2_ax.
 Defined.
 
@@ -190,7 +188,7 @@ Proof.
   intro a'; simpl.
   apply funextsec; intro f.
   unfold yoneda_map_1.
-  pathvia ((alpha c · #F f) (identity c)).
+  intermediate_path ((alpha c · #F f) (identity c)).
     apply idpath.
   rewrite <- nat_trans_ax.
   unf; apply maponpaths.
@@ -243,7 +241,7 @@ Definition yoneda_iso_target (C : precategory) (hs : has_homsets C)
            (F : [C^op, HSET, has_homsets_HSET])
   : functor C^op HSET.
 Proof.
-  simple refine (@functor_composite _ [C^op, HSET, has_homsets_HSET]^op _ _ _  ).
+  use (@functor_composite _ [C^op, HSET, has_homsets_HSET]^op).
   - apply functor_opp.
     apply yoneda. apply hs.
   - apply (yoneda _ (functor_category_has_homsets _ _ _ ) F).
@@ -251,7 +249,7 @@ Defined.
 
 Lemma is_natural_yoneda_iso (C : precategory) (hs : has_homsets C) (F : functor C^op HSET):
   is_nat_trans (yoneda_iso_target C hs F) F
-  (fun c => yoneda_map_1 C hs c F).
+  (λ c, yoneda_map_1 C hs c F).
 Proof.
   unfold is_nat_trans.
   intros c c' f. cbn in *.
@@ -284,7 +282,7 @@ Definition natural_trans_yoneda_iso (C : precategory) (hs : has_homsets C)
 
 Lemma is_natural_yoneda_iso_inv (C : precategory) (hs : has_homsets C) (F : functor C^op HSET):
   is_nat_trans F (yoneda_iso_target C hs F)
-  (fun c => yoneda_map_2 C hs c F).
+  (λ c, yoneda_map_2 C hs c F).
 Proof.
   unfold is_nat_trans.
   intros c c' f. cbn in *.
@@ -314,7 +312,7 @@ Lemma isweq_yoneda_map_1 (C : precategory) (hs: has_homsets C) (c : C)
      (yoneda_map_1 C hs c F).
 Proof.
   set (T:=yoneda_map_2 C hs c F). simpl in T.
-  simple refine (gradth _ _ _ _ ).
+  use isweq_iso.
   - apply T.
   - apply yoneda_map_1_2.
   - apply yoneda_map_2_1.
@@ -331,7 +329,7 @@ Definition yoneda_weq (C : precategory) (hs: has_homsets C) (c : C)
 Lemma yoneda_fully_faithful (C : precategory) (hs: has_homsets C) : fully_faithful (yoneda C hs).
 Proof.
   intros a b; simpl.
-  apply (gradth _
+  apply (isweq_iso _
       (yoneda_map_1 C hs a (pr1 (yoneda C hs) b))).
   - intro; simpl in *.
     apply id_left.
@@ -363,7 +361,7 @@ Variable c : C.
 Definition yoneda_functor_precomp' : nat_trans (yoneda_objects C hsC c)
       (functor_composite (functor_opp F) (yoneda_objects D hsD (F c))).
 Proof.
-  simple refine (tpair _ _ _ ).
+  use tpair.
   - intros d f ; simpl.
     apply (#F f).
   - abstract (intros d d' f ;
@@ -401,7 +399,7 @@ Definition yoneda_functor_precomp_nat_trans :
       (yoneda C hsC)
       (functor_composite A B).
 Proof.
-  simple refine (tpair _ _ _ ).
+  use tpair.
   - intro c; simpl.
     apply yoneda_functor_precomp.
   - abstract (

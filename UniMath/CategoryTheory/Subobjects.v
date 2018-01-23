@@ -162,7 +162,7 @@ simpl in *. (* This is slow *)
 apply (iscompsetquotpr (iso_eqrel (Subobjectscategory hsC c))).
 generalize h1; clear h1; apply hinhuniv; intros [h1 Hh1].
 generalize h2; clear h2; apply hinhuniv; intros [h2 Hh2].
-apply hinhpr, (invmap (iso_weq _ (subprecategory_of_monics_ob C hsC c) _ _)).
+apply hinhpr, (invmap (weq_iso _ (subprecategory_of_monics_ob C hsC c) _ _)).
 induction x as [[x []] [fx Hfx]].
 induction y as [[y []] [fy Hfy]].
 simpl in *.
@@ -170,7 +170,7 @@ assert (mon_h1 : isMonic h1).
 { apply (isMonic_postcomp _ h1 fy); rewrite <- Hh1; apply Hfx. }
 assert (mon_h2 : isMonic h2).
 { apply (isMonic_postcomp _ h2 fx); rewrite <- Hh2; apply Hfy. }
-mkpair.
+use tpair.
 - exists (h1,,mon_h1).
   apply (@is_iso_from_is_z_iso (subprecategory_of_monics C hsC)).
   exists (h2,,mon_h2).

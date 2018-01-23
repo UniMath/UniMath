@@ -23,8 +23,8 @@ Section def_po.
 
   Definition isPushout {a b c d : C} (f : a --> b) (g : a --> c)
              (in1 : b --> d) (in2 : c --> d) (H : f · in1 = g · in2) : UU :=
-    ∏ e (h : b --> e) (k : c --> e)(H : f · h = g · k),
-    iscontr (total2 (fun hk : d --> e => dirprod (in1 · hk = h) (in2 · hk = k))).
+    ∏ e (h : b --> e) (k : c --> e) (H : f · h = g · k),
+    ∃! hk : d --> e, (in1 · hk = h) × (in2 · hk = k).
 
   Lemma isaprop_isPushout {a b c d : C} (f : a --> b) (g : a --> c)
         (in1 : b --> d) (in2 : c --> d) (H : f · in1 = g · in2) :
@@ -49,19 +49,18 @@ Section def_po.
   Qed.
 
   Definition Pushout {a b c : C} (f : a --> b) (g : a --> c) :=
-    total2 (fun pfg : total2 (fun p : C => dirprod (b --> p) (c --> p)) =>
-              total2 (fun H : f · pr1 (pr2 pfg) = g · pr2 (pr2 pfg) =>
-                        isPushout f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
+    ∑ pfg : (∑ p : C, (b --> p) × (c --> p)),
+      ∑ H : f · pr1 (pr2 pfg) = g · pr2 (pr2 pfg),
+        isPushout f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H.
 
-  Definition Pushouts := ∏ (a b c : C) (f : a --> b) (g : a --> c),
-      Pushout f g.
+  Definition Pushouts : UU :=
+     ∏ (a b c : C) (f : a --> b) (g : a --> c), Pushout f g.
 
-  Definition hasPushouts := ∏ (a b c : C) (f : a --> b) (g : a --> c),
-      ishinh (Pushout f g).
-
+  Definition hasPushouts : UU :=
+    ∏ (a b c : C) (f : a --> b) (g : a --> c), ishinh (Pushout f g).
 
   Definition PushoutObject {a b c : C} {f : a --> b} {g : a --> c}:
-    Pushout f g -> C := fun H => pr1 (pr1 H).
+    Pushout f g -> C := λ H, pr1 (pr1 H).
   Coercion PushoutObject : Pushout >-> ob.
 
   Definition PushoutIn1 {a b c : C} {f : a --> b} {g : a --> c}
@@ -111,8 +110,8 @@ Section def_po.
              (ispb : isPushout f g in1 in2 H)
     : Pushout f g.
   Proof.
-    simple refine (tpair _ _ _ ).
-    - simple refine (tpair _ _ _ ).
+    use tpair.
+    - use tpair.
       + apply d.
       + exists in1.
         exact in2.
@@ -123,9 +122,7 @@ Section def_po.
   Definition mk_isPushout {a b c d : C} (f : C ⟦a, b⟧) (g : C ⟦a, c⟧)
              (in1 : C⟦b,d⟧) (in2 : C⟦c,d⟧) (H : f · in1 = g · in2) :
     (∏ e (h : C ⟦b, e⟧) (k : C⟦c,e⟧)(Hk : f · h = g · k),
-        iscontr (total2 (fun hk : C⟦d,e⟧ =>
-                           dirprod (in1 · hk = h)(in2 · hk = k))))
-    →
+        ∃! hk : C⟦d,e⟧,(in1 · hk = h) × (in2 · hk = k)) →
     isPushout f g in1 in2 H.
   Proof.
     intros H' x cx k sqr.
@@ -146,7 +143,7 @@ Section def_po.
     set (Pb := mk_Pushout _ _ _ _ _ _ P).
     rewrite <- assoc in Hw. rewrite <- assoc in Hw.
     set (Xw := PushoutArrow Pb e (in1 · w) (in2 · w) Hw).
-    pathvia Xw; [ apply PushoutArrowUnique; apply idpath |].
+    intermediate_path Xw; [ apply PushoutArrowUnique; apply idpath |].
     apply pathsinv0.
     apply PushoutArrowUnique. apply pathsinv0. apply H1.
     apply pathsinv0. apply H2.
@@ -155,9 +152,8 @@ Section def_po.
 
   Definition identity_is_Pushout_input {a b c : C} {f : a --> b} {g : a --> c}
              (Pb : Pushout f g) :
-    total2 (fun hk : Pb --> Pb =>
-              dirprod (PushoutIn1 Pb · hk = PushoutIn1 Pb)
-                      (PushoutIn2 Pb · hk = PushoutIn2 Pb)).
+    ∑ hk : Pb --> Pb,
+      (PushoutIn1 Pb · hk = PushoutIn1 Pb) × (PushoutIn2 Pb · hk = PushoutIn2 Pb).
   Proof.
     exists (identity Pb).
     apply dirprodpair; apply id_right.
@@ -314,7 +310,7 @@ Section epi_po.
     apply mk_isEpi. intros z g0 h X.
     use (MorphismsOutofPushoutEqual (isPushout_Pushout PB) _ _ _ X).
 
-    set (X0 := maponpaths (fun f => g · f) X); simpl in X0.
+    set (X0 := maponpaths (λ f, g · f) X); simpl in X0.
     rewrite assoc in X0. rewrite assoc in X0.
     rewrite <- (PushoutSqrCommutes PB) in X0.
     rewrite <- assoc in X0. rewrite <- assoc in X0.
@@ -328,7 +324,7 @@ Section epi_po.
     apply mk_isEpi. intros z g0 h X.
     use (MorphismsOutofPushoutEqual (isPushout_Pushout PB) _ _ X).
 
-    set (X0 := maponpaths (fun f' => f · f') X); simpl in X0.
+    set (X0 := maponpaths (λ f', f · f') X); simpl in X0.
     rewrite assoc in X0. rewrite assoc in X0.
     rewrite (PushoutSqrCommutes PB) in X0.
     rewrite <- assoc in X0. rewrite <- assoc in X0.
@@ -345,7 +341,7 @@ Section po_criteria.
   Hypothesis hs : has_homsets C.
 
   Definition Pushout_from_Coequalizer_BinCoproduct_eq (X Y Z : C)
-             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproductCocone C X Y)
+             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproduct C X Y)
              (CEq : Coequalizer (f · (BinCoproductIn1 C BinCoprod))
                                 (g · (BinCoproductIn2 C BinCoprod))) :
     f · ((BinCoproductIn1 C BinCoprod) · CoequalizerArrow CEq)
@@ -356,7 +352,7 @@ Section po_criteria.
 
 
   Definition Pushout_from_Coequalizer_BinCoproduct_isPushout (X Y Z : C)
-             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproductCocone C X Y)
+             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproduct C X Y)
              (CEq : Coequalizer (f · (BinCoproductIn1 C BinCoprod))
                                 (g · (BinCoproductIn2 C BinCoprod))) :
     isPushout f g (BinCoproductIn1 C BinCoprod · CoequalizerArrow CEq)
@@ -368,8 +364,8 @@ Section po_criteria.
     intros e h k Hk.
     set (com1 := BinCoproductIn1Commutes C _ _ BinCoprod _ h k).
     set (com2 := BinCoproductIn2Commutes C _ _ BinCoprod _ h k).
-    apply (maponpaths (fun l : _ => f · l)) in com1.
-    apply (maponpaths (fun l : _ => g · l)) in com2.
+    apply (maponpaths (λ l : _, f · l)) in com1.
+    apply (maponpaths (λ l : _, g · l)) in com2.
     rewrite <- com1 in Hk. rewrite <- com2 in Hk.
     repeat rewrite assoc in Hk.
     apply (unique_exists (CoequalizerOut CEq _ _ Hk)).
@@ -396,7 +392,7 @@ Section po_criteria.
   Qed.
 
   Definition Pushout_from_Coequalizer_BinCoproduct (X Y Z : C)
-             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproductCocone C X Y)
+             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproduct C X Y)
              (CEq : Coequalizer (f · (BinCoproductIn1 C BinCoprod))
                                 (g · (BinCoproductIn2 C BinCoprod))) :
     Pushout f g.
@@ -544,7 +540,7 @@ Section EpiPushoutId.
       now rewrite id_left in h1.
   Qed.
 
-  Lemma pushout_to_epi :  isPushout f f (identity _) (identity _) (idpath _)
+  Lemma pushout_to_epi : isPushout f f (identity _) (identity _) (idpath _)
                           -> isEpi f.
   Proof.
     intros hf.

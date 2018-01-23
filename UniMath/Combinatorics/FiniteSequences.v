@@ -234,7 +234,7 @@ Proof.
   set (destr := (λ f, f x0) : secs->fib).
   set (constr:= iscontr_rect X is x0 P : fib->secs).
   exists destr.
-  apply (gradth destr constr).
+  apply (isweq_iso destr constr).
   - intros f. apply funextsec; intros x.
     unfold destr, constr.
     apply transport_section.
@@ -334,7 +334,7 @@ Proof. reflexivity. Defined.
 
 Theorem SequenceAssembly {X} : Sequence X ≃ unit ⨿ (X × Sequence X).
 Proof.
-  intros. exists disassembleSequence. apply (gradth _ assembleSequence).
+  intros. exists disassembleSequence. apply (isweq_iso _ assembleSequence).
   { intros. induction x as [n x]. induction n as [|n].
     { apply nil_unique. }
     apply drop_and_append'. }
@@ -496,7 +496,6 @@ Definition flatten_partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) :
 Proof.
   intros. intro i.
   change (x (weqstnsum1 f (pr1 (invmap (weqstnsum1 f) i),, pr2 (invmap (weqstnsum1 f) i))) = x i).
-  tryif primitive_projections then idtac else rewrite <- tppr.
   apply maponpaths. apply subtypeEquality_prop. now rewrite homotweqinvweq.
 Defined.
 

@@ -1,4 +1,6 @@
 Require Import
+        UniMath.Foundations.Preamble.
+Require Import
         UniMath.CategoryTheory.Categories
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Utilities
@@ -15,8 +17,6 @@ Require Export UniMath.CategoryTheory.categories.category_hset.
 
 
 Local Open Scope cat.
-
-Set Automatic Introduction.
 
 (** bifunctor commutativity *)
 

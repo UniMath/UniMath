@@ -119,7 +119,7 @@ Local Definition proj_fun (s : sort) : SET / sort -> SET :=
 
 Definition proj_functor (s : sort) : functor (SET / sort) SET.
 Proof.
-mkpair.
+use tpair.
 - exists (proj_fun s).
   intros X Y f p.
   exists (pr1 f (pr1 p)).
@@ -132,8 +132,8 @@ Defined.
 (** The left adjoint to the proj_functor *)
 Definition hat_functor (t : sort) : functor SET (SET / sort).
 Proof.
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + intro A; apply (A,,λ _, t).
   + intros A B f; apply (tpair _ f), idpath.
 - abstract (now split; [intros A|intros A B C f g];
@@ -161,7 +161,7 @@ Local Definition option_list (xs : list sort) : functor (SET / sort) (SET / sort
 Proof.
 (* This should be foldr1 in order to avoid composing with the
    identity functor in the base case *)
-use (foldr1 (fun F G => F ∙ G) (functor_identity _) (map sorted_option_functor xs)).
+use (foldr1 (λ F G, F ∙ G) (functor_identity _) (map sorted_option_functor xs)).
 Defined.
 
 (** Define a functor
@@ -199,7 +199,7 @@ set (T := constant_functor [SET_over_sort,SET_over_sort] [SET_over_sort,SET]
 set (XS := map exp_functor xs).
 (* This should be foldr1 in order to avoid composing with the
    constant functor in the base case *)
-use (foldr1 (fun F G => BinProduct_of_functors _ F G) T XS).
+use (foldr1 (λ F G, BinProduct_of_functors _ F G) T XS).
 apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
 
@@ -304,8 +304,8 @@ Qed.
 (* The signature for MultiSortedSigToFunctor *)
 Definition MultiSortedSigToSignature (M : MultiSortedSig) : Signature _ hs _ hs.
 Proof.
-set (Hyps := fun (op : ops M) => Sig_hat_exp_functor_list (arity M op)).
-refine (Sum_of_Signatures (ops M) _ Hyps).
+set (Hyps := λ (op : ops M), Sig_hat_exp_functor_list (arity M op)).
+use (Sum_of_Signatures (ops M) _ Hyps).
 apply Coproducts_slice_precat, CoproductsHSET, setproperty.
 Defined.
 
@@ -389,7 +389,7 @@ use mk_are_adjoints.
     now apply subtypeEquality; trivial; intros y; apply setproperty.
 + use mk_nat_trans.
   - intros X; simpl in *.
-    mkpair; simpl.
+    use tpair; simpl.
     * intros H; apply (pr1 H).
     * abstract (apply funextsec; intro x; apply (! pr2 x)).
   - now intros X Y f; apply (eq_mor_slicecat has_homsets_HSET).
@@ -573,8 +573,8 @@ Local Definition mk_sortToC (f : sort → C) : sortToC :=
 
 Local Definition proj_gen_fun (D : precategory) (E : category) (d : D) : functor [D,E] E.
 Proof.
-mkpair.
-+ mkpair.
+use tpair.
++ use tpair.
   - intro f; apply (pr1 f d).
   - simpl; intros a b f; apply (f d).
 + abstract (split; [intro f; apply idpath|intros f g h fg gh; apply idpath]).
@@ -582,11 +582,11 @@ Defined.
 
 Local Definition proj_gen {D : precategory} {E : category} : functor D [[D,E],E].
 Proof.
-mkpair.
-+ mkpair.
+use tpair.
++ use tpair.
   - apply proj_gen_fun.
   - intros d1 d2 f.
-    mkpair.
+    use tpair.
     * simpl; intro F; apply (# F f).
     * abstract (intros F G α; simpl in *; apply pathsinv0, (nat_trans_ax α d1 d2 f)).
 + abstract (split;
@@ -606,7 +606,7 @@ Defined.
 Definition MultiSortedSig : UU :=
   ∏ (s : sort), ∑ (I : UU), (I → list (list sort × sort)). (* × (isaset I). *)
 
-Definition indices (M : MultiSortedSig) : sort → UU := fun s => pr1 (M s).
+Definition indices (M : MultiSortedSig) : sort → UU := λ s, pr1 (M s).
 
 Definition args (M : MultiSortedSig) (s : sort) : indices M s → list (list sort × sort) :=
   pr2 (M s).
@@ -627,10 +627,10 @@ Defined.
 (* The function part of Definition 3 *)
 Local Definition option_functor_data  (s : sort) : functor_data sortToC sortToC.
 Proof.
-mkpair.
+use tpair.
 + apply (option_fun s).
-+ intros F G α.
-  mkpair.
++ cbn. intros F G α.
+  use tpair.
   * simpl; intro t.
     induction (eq s t) as [p|p]; simpl; clear p.
     { apply (BinCoproductOfArrows _ _ _ (α t) (identity _)). }
@@ -696,7 +696,7 @@ set (XS := map exp_functor xs).
 set (T := constant_functor [sortToC,sortToC] [sortToC,C]
                            (constant_functor sortToC C TC)).
 (* TODO: Maybe use indexed finite products instead of a fold? *)
-apply (foldr1 (fun F G => BinProduct_of_functors BinProductsSortToCToC F G) T XS).
+apply (foldr1 (λ F G, BinProduct_of_functors BinProductsSortToCToC F G) T XS).
 Defined.
 
 (* H follows if C has exponentials? *)

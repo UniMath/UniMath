@@ -142,7 +142,7 @@ Definition mk_lambdaAlgebra (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X�
   (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) : algebra_ob lambdaFunctor.
 Proof.
 apply (tpair _ X).
-simple refine (BinCoproductArrow _ _ fvar (BinCoproductArrow _ _ fapp flam)).
+use (BinCoproductArrow _ _ fvar (BinCoproductArrow _ _ fapp flam)).
 Defined.
 
 Definition foldr_map (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
@@ -163,7 +163,7 @@ Lemma foldr_var (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
   var_map · foldr_map X fvar fapp flam = fvar.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET2 _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn1 _ (BinCoproductsHSET2 _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
 rewrite assoc in F.
 eapply pathscomp0; [apply F|].
@@ -179,7 +179,7 @@ Lemma foldr_app (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   app_map · foldr_map X fvar fapp flam =
   # (pr1 (Id * Id)) (foldr_map X fvar fapp flam) · fapp.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn1 _ (BinCoproductsHSET2 _ _) · BinCoproductIn2 _ (BinCoproductsHSET2 _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn1 _ (BinCoproductsHSET2 _ _) · BinCoproductIn2 _ (BinCoproductsHSET2 _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
 rewrite assoc in F.
 eapply pathscomp0; [apply F|].
@@ -202,7 +202,7 @@ Lemma foldr_lam (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   lam_map · foldr_map X fvar fapp flam =
   # (pr1 (_ o option)) (foldr_map X fvar fapp flam) · flam.
 Proof.
-assert (F := maponpaths (fun x => BinCoproductIn2 _ (BinCoproductsHSET2 _ _) · BinCoproductIn2 _ (BinCoproductsHSET2 _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn2 _ (BinCoproductsHSET2 _ _) · BinCoproductIn2 _ (BinCoproductsHSET2 _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
 rewrite assoc in F.
 eapply pathscomp0; [apply F|].

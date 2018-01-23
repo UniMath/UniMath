@@ -37,8 +37,6 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
 Definition precategory_binproduct_mor (C D : precategory_ob_mor) (cd cd' : C × D) := pr1 cd --> pr1 cd' × pr2 cd --> pr2 cd'.
 
 Definition precategory_binproduct_ob_mor (C D : precategory_ob_mor) : precategory_ob_mor
@@ -179,7 +177,7 @@ Proof.
   use tpair. use tpair.
   (* ob, mor *) exists unit. intros; exact unit.
   (* identity, comp *) split; intros; constructor.
-  (* id_left *) simpl; split; try split; intros; apply isconnectedunit.
+  (* id_left *) simpl; split; try split; intros; apply isProofIrrelevantUnit.
 Defined.
 
 Definition unit_functor C : functor C unit_precategory.
@@ -342,7 +340,7 @@ Definition pair_functor_data {A B C D : precategory}
   (F : functor A C) (G : functor B D) :
   functor_data (precategory_binproduct A B) (precategory_binproduct C D).
 Proof.
-mkpair.
+use tpair.
 - intro x; apply (precatbinprodpair (F (pr1 x)) (G (pr2 x))).
 - intros x y f; simpl; apply (precatbinprodmor (# F (pr1 f)) (# G (pr2 f))).
 Defined.
@@ -360,7 +358,7 @@ Defined.
 Definition pr1_functor_data (A B : precategory) :
   functor_data (precategory_binproduct A B) A.
 Proof.
-mkpair.
+use tpair.
 - intro x; apply (pr1 x).
 - intros x y f; simpl; apply (pr1 f).
 Defined.
@@ -375,7 +373,7 @@ Defined.
 Definition pr2_functor_data (A B : precategory) :
   functor_data (precategory_binproduct A B) B.
 Proof.
-mkpair.
+use tpair.
 - intro x; apply (pr2 x).
 - intros x y f; simpl; apply (pr2 f).
 Defined.
@@ -390,7 +388,7 @@ Defined.
 Definition bindelta_functor_data (C : precategory) :
   functor_data C (precategory_binproduct C C).
 Proof.
-mkpair.
+use tpair.
 - intro x; apply (precatbinprodpair x x).
 - intros x y f; simpl; apply (precatbinprodmor f f).
 Defined.
@@ -407,7 +405,7 @@ Definition bindelta_pair_functor_data (C D E : precategory)
   (G : functor C E) :
   functor_data C (precategory_binproduct D E).
 Proof.
-  mkpair.
+  use tpair.
   - intro c. apply (precatbinprodpair (F c) (G c)).
   - intros x y f. simpl. apply (precatbinprodmor (# F f) (# G f)).
 Defined.

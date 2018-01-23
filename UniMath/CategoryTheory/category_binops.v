@@ -16,8 +16,8 @@ Section BINOPS_precategory.
     hSetpair _ (isasetbinopfun A B).
 
   Definition binops_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) setwithbinop
-          (fun A B : setwithbinop => binops_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) setwithbinop
+          (λ A B : setwithbinop, binops_fun_space A B).
 
   Definition idbinopfun (A : setwithbinop) : binopfun A A.
   Proof.
@@ -53,7 +53,7 @@ Section BINOPS_precategory.
 
   Definition binop_precategory_data : precategory_data :=
     precategory_data_pair binops_precategory_ob_mor
-                          (fun (A : setwithbinop) => idbinopfun A )
+                          (λ (A : setwithbinop), idbinopfun A )
                           (fun (A B C : setwithbinop) (f : binopfun A B)
                              (g : binopfun B C) => binopfuncomp f g).
 
@@ -87,7 +87,7 @@ Section BINOP_category.
   Lemma binop_iso_is_equiv (A B : ob BINOP)
         (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    apply (gradth _ (pr1binopfun _ _ (inv_from_iso f))).
+    apply (isweq_iso _ (pr1binopfun _ _ (inv_from_iso f))).
     - intro x.
       set (T:=iso_inv_after_iso f).
       apply subtypeInjectivity in T.
@@ -139,7 +139,7 @@ Section BINOP_category.
 
   Lemma binop_iso_equiv_is_equiv (A B : BINOP) : isweq (binop_iso_equiv A B).
   Proof.
-    apply (gradth _ (binop_equiv_iso A B)).
+    apply (isweq_iso _ (binop_equiv_iso A B)).
     intro; apply eq_iso. apply maponpaths.
     unfold binop_equiv_iso, binop_iso_equiv. cbn.
     use total2_paths_f. cbn. unfold binopfunpair.
@@ -162,7 +162,7 @@ Section BINOP_category.
     apply isapropisbinopfun.
   Defined.
 
-  Definition binop_iso_equiv_weq (A B : BINOP) : weq (iso A B) (binopiso A B).
+  Definition binop_iso_equiv_weq (A B : BINOP) : (iso A B) ≃ (binopiso A B).
   Proof.
     exists (binop_iso_equiv A B).
     apply binop_iso_equiv_is_equiv.
@@ -170,7 +170,7 @@ Section BINOP_category.
 
   Lemma binop_equiv_iso_is_equiv (A B : BINOP) : isweq (binop_equiv_iso A B).
   Proof.
-    apply (gradth _ (binop_iso_equiv A B)).
+    apply (isweq_iso _ (binop_iso_equiv A B)).
     intros x. apply subtypeEquality.
     intros y. apply isapropisbinopfun.
 
@@ -185,8 +185,8 @@ Section BINOP_category.
     apply isaprop_is_iso.
   Qed.
 
-  Definition binop_equiv_iso_weq (A B : BINOP) :
-    weq (binopiso A B) (iso A B).
+  Definition binop_equiv_weq_iso (A B : BINOP) :
+    (binopiso A B) ≃ (iso A B).
   Proof.
     exists (binop_equiv_iso A B).
     apply binop_equiv_iso_is_equiv.
@@ -197,8 +197,8 @@ Section BINOP_category.
   Proof.
     use (@isweqhomot
            (a = b) (iso a b)
-           (pr1weq (weqcomp (setwithbinop_univalence a b) (binop_equiv_iso_weq a b)))
-           _ _ (weqproperty (weqcomp (setwithbinop_univalence a b) (binop_equiv_iso_weq a b)))).
+           (pr1weq (weqcomp (setwithbinop_univalence a b) (binop_equiv_weq_iso a b)))
+           _ _ (weqproperty (weqcomp (setwithbinop_univalence a b) (binop_equiv_weq_iso a b)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.

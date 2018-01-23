@@ -23,11 +23,11 @@ Section def_gr_precategory.
   Definition gr_fun_space (A B : gr) : hSet := hSetpair (monoidfun A B) (isasetmonoidfun A B).
 
   Definition gr_precategory_ob_mor : precategory_ob_mor :=
-    tpair (fun ob : UU => ob -> ob -> UU) gr (fun A B : gr => gr_fun_space A B).
+    tpair (λ ob : UU, ob -> ob -> UU) gr (λ A B : gr, gr_fun_space A B).
 
   Definition gr_precategory_data : precategory_data :=
     precategory_data_pair
-      gr_precategory_ob_mor (fun (X : gr) => ((idmonoidiso X) : monoidfun X X))
+      gr_precategory_ob_mor (λ (X : gr), ((idmonoidiso X) : monoidfun X X))
       (fun (X Y Z : gr) (f : monoidfun X Y) (g : monoidfun Y Z) => monoidfuncomp f g).
 
   Local Lemma gr_id_left (X Y : gr) (f : monoidfun X Y) : monoidfuncomp (idmonoidiso X) f = f.
@@ -75,7 +75,7 @@ Section def_gr_category.
 
   Lemma gr_iso_is_equiv (A B : ob gr_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (pr1monoidfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -113,7 +113,7 @@ Section def_gr_category.
 
   Lemma gr_iso_equiv_is_equiv (X Y : gr_precategory) : isweq (gr_iso_equiv X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (gr_equiv_iso X Y).
     - intros x. use eq_iso. use monoidfun_paths. use idpath.
     - intros y. use monoidiso_paths. use subtypeEquality.
@@ -132,7 +132,7 @@ Section def_gr_category.
 
   Lemma gr_equiv_iso_is_equiv (X Y : ob gr_precategory) : isweq (gr_equiv_iso X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (gr_iso_equiv X Y).
     - intros y. use monoidiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.
@@ -141,7 +141,7 @@ Section def_gr_category.
   Defined.
   Opaque gr_equiv_iso_is_equiv.
 
-  Definition gr_equiv_iso_weq (X Y : ob gr_precategory) :
+  Definition gr_equiv_weq_iso (X Y : ob gr_precategory) :
     (monoidiso (X : gr) (Y : gr)) ≃ (iso X Y).
   Proof.
     use weqpair.
@@ -156,8 +156,8 @@ Section def_gr_category.
   Proof.
     use (@isweqhomot
            (X = Y) (iso X Y)
-           (pr1weq (weqcomp (gr_univalence X Y) (gr_equiv_iso_weq X Y)))
-           _ _ (weqproperty (weqcomp (gr_univalence X Y) (gr_equiv_iso_weq X Y)))).
+           (pr1weq (weqcomp (gr_univalence X Y) (gr_equiv_weq_iso X Y)))
+           _ _ (weqproperty (weqcomp (gr_univalence X Y) (gr_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.

@@ -13,11 +13,11 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.zero.
 
+Local Open Scope cat.
 
 (** Definition of kernels *)
 Section def_kernels.
@@ -29,9 +29,9 @@ Section def_kernels.
 
   (** Definition and construction of Kernels *)
   Definition isKernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = ZeroArrow Z x z) : UU :=
-    ∏ (w : C) (h : w --> y) (H : h · g = ZeroArrow Z w z), iscontr (∑ φ : w --> x, φ · f = h).
+    ∏ (w : C) (h : w --> y) (H : h · g = ZeroArrow Z w z), ∃! φ : w --> x, φ · f = h.
 
-  Lemma isKernel_paths {x y z : C} (f : x --> y) (g : y --> z) (H H' : f · g = (ZeroArrow Z x z))
+  Lemma isKernel_paths {x y z : C} (f : x --> y) (g : y --> z) (H H' : f · g = ZeroArrow Z x z)
         (isK : isKernel f g H) : isKernel f g H'.
   Proof.
     assert (e : H = H') by apply hs.
@@ -40,7 +40,7 @@ Section def_kernels.
 
   Definition mk_isKernel {x y z : C} (f : x --> y) (g : y --> z) (H1 : f · g = ZeroArrow Z x z)
              (H2 : ∏ (w : C) (h : w --> y) (H' : h · g = ZeroArrow Z w z),
-                   iscontr (∑ ψ : w --> x, ψ · f = h)) : isKernel f g H1.
+                   ∃! ψ : w --> x, ψ · f = h) : isKernel f g H1.
   Proof.
     unfold isKernel.
     intros w h H.
@@ -55,7 +55,7 @@ Section def_kernels.
     ∑ D : (∑ x : ob C, x --> y),
           ∑ (e : (pr2 D) · g = ZeroArrow Z (pr1 D) z), isKernel (pr2 D) g e.
 
-  Definition mk_Kernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = (ZeroArrow Z x z))
+  Definition mk_Kernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = ZeroArrow Z x z)
              (isE : isKernel f g H) : Kernel g := ((x,,f),,(H,,isE)).
 
   Definition Kernels : UU := ∏ (y z : C) (g : y --> z), Kernel g.
@@ -354,7 +354,7 @@ Section kernels_iso.
     - intros y0. apply hs.
     - intros y0 X. cbn beta in X.
       use (post_comp_with_z_iso_is_inj h). rewrite <- assoc.
-      use (pathscomp0 _ (! (maponpaths (fun gg : _ => KernelIn Z K w h0 H' · gg)
+      use (pathscomp0 _ (! (maponpaths (λ gg : _, KernelIn Z K w h0 H' · gg)
                                        (is_inverse_in_precat2 h)))).
       rewrite id_right. use KernelInsEq. rewrite KernelCommutes. rewrite <- X.
       rewrite <- assoc. apply cancel_precomposition. apply pathsinv0.
@@ -561,15 +561,15 @@ Section transport_kernels.
 
   Local Lemma transport_source_KernelIn_eq {x' x y z : C} (f : x --> y) {g : y --> z}
         (K : Kernel Z g) (e : x = x') (H : f · g = ZeroArrow Z _ _) :
-    (transportf (fun x' : ob C => precategory_morphisms x' y) e f) · g = ZeroArrow Z _ _.
+    (transportf (λ x' : ob C, precategory_morphisms x' y) e f) · g = ZeroArrow Z _ _.
   Proof.
     induction e. apply H.
   Qed.
 
   Lemma transport_source_KernelIn {x' x y z : C} (f : x --> y) {g : y --> z} (K : Kernel Z g)
         (e : x = x') (H : f · g = ZeroArrow Z _ _) :
-    transportf (fun x' : ob C => precategory_morphisms x' K) e (KernelIn Z K _ f H) =
-    KernelIn Z K _ (transportf (fun x' : ob C => precategory_morphisms x' y) e f)
+    transportf (λ x' : ob C, precategory_morphisms x' K) e (KernelIn Z K _ f H) =
+    KernelIn Z K _ (transportf (λ x' : ob C, precategory_morphisms x' y) e f)
              (transport_source_KernelIn_eq f K e H).
   Proof.
     induction e. use KernelInsEq. cbn. unfold idfun.

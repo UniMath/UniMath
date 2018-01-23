@@ -18,6 +18,7 @@ Written by: Anders Mörtberg, 2017
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.Algebra.Lattice.
 
@@ -126,7 +127,7 @@ Definition join_mor {L : C} (isL : latticeob L) : C⟦L ⊗ L,L⟧ := pr1 (pr2 i
 Context {TC : Terminal C}.
 
 Let ι {x : C} : C⟦x,TC ⊗ x⟧ :=
-  BinProductArrow _ _ (TerminalArrow _) (identity x).
+  BinProductArrow _ _ (TerminalArrow _ _) (identity x).
 
 (** Given u : C⟦TC,L⟧ the equation witnessing the left unit law is given
     by the diagram:
@@ -211,7 +212,7 @@ Context {join_mor_M : C⟦M ⊗ M,M⟧} (Hjoin : join_mor_M · i = (i ×× i) ·
 
 Local Lemma identity_comm : identity M · i = i · identity L.
 Proof.
-now rewrite id_left, id_right.
+  rewrite id_left, id_right. reflexivity.
 Qed.
 
 Local Lemma binprod_assoc_comm :
@@ -221,16 +222,19 @@ Proof.
 unfold binprod_assoc; rewrite postcompWithBinProductArrow.
 apply BinProductArrowUnique.
 - rewrite <-assoc, BinProductPr1Commutes.
-  now rewrite assoc, BinProductOfArrowsPr1, <- assoc, BinProductOfArrowsPr1, assoc.
+  rewrite assoc, BinProductOfArrowsPr1, <- assoc, BinProductOfArrowsPr1, assoc.
+  reflexivity.
 - rewrite postcompWithBinProductArrow.
   apply BinProductArrowUnique.
   + etrans; [ apply cancel_postcomposition; rewrite <-assoc;
               apply maponpaths, BinProductPr2Commutes |].
     rewrite <- assoc, BinProductPr1Commutes.
-    now rewrite assoc, BinProductOfArrowsPr1, <- assoc, BinProductOfArrowsPr2, assoc.
+    rewrite assoc, BinProductOfArrowsPr1, <- assoc, BinProductOfArrowsPr2, assoc.
+    reflexivity.
   + etrans; [ apply cancel_postcomposition; rewrite <-assoc;
               apply maponpaths, BinProductPr2Commutes |].
-    now rewrite <- assoc, BinProductPr2Commutes, BinProductOfArrowsPr2.
+    rewrite <- assoc, BinProductPr2Commutes, BinProductOfArrowsPr2.
+    reflexivity.
 Qed.
 
 Local Lemma binprod_delta_comm :
@@ -238,8 +242,8 @@ Local Lemma binprod_delta_comm :
 Proof.
 unfold binprod_delta; rewrite postcompWithBinProductArrow.
 apply BinProductArrowUnique.
-now rewrite <-assoc, BinProductPr1Commutes, identity_comm.
-now rewrite <-assoc, BinProductPr2Commutes, identity_comm.
+- rewrite <-assoc, BinProductPr1Commutes, identity_comm. reflexivity.
+- rewrite <-assoc, BinProductPr2Commutes, identity_comm. reflexivity.
 Qed.
 
 Local Lemma isassoc_cat_comm {f : C⟦M ⊗ M,M⟧} {g : C⟦L ⊗ L,L⟧} (Hfg : f · i = (i ×× i) · g) :
@@ -250,7 +254,8 @@ rewrite <-!assoc, !Hfg, !assoc, BinProductOfArrows_comp, Hfg, <- !assoc, identit
 rewrite <- BinProductOfArrows_comp, <- assoc, H, !assoc.
 apply cancel_postcomposition.
 rewrite <-!assoc, BinProductOfArrows_comp, Hfg, identity_comm.
-now rewrite <- BinProductOfArrows_comp, !assoc, binprod_assoc_comm.
+rewrite <- BinProductOfArrows_comp, !assoc, binprod_assoc_comm.
+reflexivity.
 Qed.
 
 Local Lemma iscomm_cat_comm {f : C⟦M ⊗ M,M⟧} {g : C⟦L ⊗ L,L⟧} (Hfg : f · i = (i ×× i) · g) :

@@ -13,8 +13,6 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Local Open Scope cat.
 
-Set Automatic Introduction.
-
 Notation "a <-- b" := (@precategory_morphisms (opp_precat _) a b) (at level 50) : cat.
 
 Definition src {C:precategory} {a b:C} (f:a-->b) : C := a.
@@ -117,7 +115,7 @@ Definition isomorphismOnMor {B C:category} (F:categoryIsomorphism B C)
 Definition makecategory_ob_mor
     (obj : UU)
     (mor : obj -> obj -> UU) : precategory_ob_mor
-  := precategory_ob_mor_pair obj (fun i j:obj => mor i j).
+  := precategory_ob_mor_pair obj (λ i j:obj, mor i j).
 
 Definition makecategory_data
     (obj : UU)
@@ -272,7 +270,7 @@ Lemma weq_iff_iso_SET {X Y:SET} (f:X-->Y) : is_iso f <-> isweq f.
 Proof.
   split.
   - intro i. set (F := isopair f i).
-    refine (gradth f (inv_from_iso F)
+    refine (isweq_iso f (inv_from_iso F)
                    (λ x, eqtohomot (iso_inv_after_iso F) x)
                    (λ y, eqtohomot (iso_after_iso_inv F) y)).
   - exact (λ i Z, weqproperty (weqbfun (Z:hSet) (weqpair f i))).
@@ -331,9 +329,7 @@ Proof. induction C as [[ob mor] [id co]]. reflexivity. Defined.
 Lemma opp_opp_precat (C:category) : C = C^op^op.
 Proof.
   apply category_eq.         (* we need both associativity axioms to avoid this *)
-  tryif primitive_projections
-  then reflexivity
-  else induction C as [[[[obj mor] [id comp]] p] h]; reflexivity.
+  reflexivity.
 Qed.
 
 Definition functorOp {B C : category} : [B, C] ^op ⟶ [B ^op, C ^op].
@@ -376,7 +372,7 @@ Proof.
   unshelve refine (_,,_).
   { unshelve refine (_,,_).
     { exact functorOp. }
-    { intros H H'. unshelve refine (gradth _ _ _ _).
+    { intros H H'. unshelve refine (isweq_iso _ _ _ _).
       { simpl. intros p. unshelve refine (makeNattrans _ _).
         { intros b. exact (pr1 p b). }
         { abstract (intros b b' f; simpl; exact (!nat_trans_ax p _ _ f)) using _L_. } }
@@ -386,7 +382,7 @@ Proof.
       { abstract (intro p; apply nat_trans_eq;
                   [ apply homset_property
                   | intro b; reflexivity ]) using _L_. }}}
-  { simpl. unshelve refine (gradth _ _ _ _).
+  { simpl. unshelve refine (isweq_iso _ _ _ _).
     { exact (functor_opp : B^op ⟶ C^op -> B ⟶ C). }
     { abstract (intros H; simpl; apply (functor_eq _ _ (homset_property C));
                 unshelve refine (total2_paths_f _ _); reflexivity) using _L_. }
@@ -517,20 +513,20 @@ Defined.
 
 (* zero maps, definition: *)
 
-Definition hasZeroMaps (C:category) :=
+Definition ZeroMaps (C:category) :=
   ∑ (zero : ∏ a b:C, a --> b),
   (∏ a b c, ∏ f:b --> c, f ∘ zero a b = zero a c)
     ×
     (∏ a b c, ∏ f:c --> b, zero b a ∘ f = zero c a).
 
-Definition is {C:category} (zero: hasZeroMaps C) {a b:C} (f:a-->b)
+Definition is {C:category} (zero: ZeroMaps C) {a b:C} (f:a-->b)
   := f = pr1 zero _ _.
 
-Definition hasZeroMaps_opp (C:category) : hasZeroMaps C -> hasZeroMaps C^op
+Definition ZeroMaps_opp (C:category) : ZeroMaps C -> ZeroMaps C^op
   := λ z, (λ a b, pr1 z b a) ,, pr2 (pr2 z) ,, pr1 (pr2 z).
 
-Definition hasZeroMaps_opp_opp (C:category) (zero:hasZeroMaps C) :
-  hasZeroMaps_opp C^op (hasZeroMaps_opp C zero) = zero.
+Definition ZeroMaps_opp_opp (C:category) (zero:ZeroMaps C) :
+  ZeroMaps_opp C^op (ZeroMaps_opp C zero) = zero.
 Proof.
   unshelve refine (total2_paths_f _ _).
   - reflexivity.

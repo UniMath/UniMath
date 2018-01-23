@@ -8,6 +8,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Foundations.UnivalenceAxiom
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
+Unset Automatic Introduction.
 
 Local Open Scope nat.
 
@@ -19,7 +20,7 @@ Module Uniqueness.
         (f:∏ n, P n) :
     weq (∏ n, f n = nat_rect P p0 IH n)
         (f 0=p0 × ∏ n, f(S n)=IH n (f n)).
-  Proof. intros. simple refine (_,,gradth _ _ _ _).
+  Proof. intros. simple refine (_,,isweq_iso _ _ _ _).
          { intros h. split.
            { exact (h 0). } { intros. exact (h (S n) @ ap (IH n) (! h n)). } }
          { intros [h0 h'] ?. induction n as [|n' IHn'].
@@ -57,9 +58,9 @@ Module Uniqueness.
         (@hfiber
            (∑ (f:∏ n, P n), ∏ n, f(S n)=IH n (f n))
            (P 0)
-           (fun fh => pr1 fh 0)
+           (λ fh, pr1 fh 0)
            p0).
-  Proof. intros. simple refine (weqpair _ (gradth _ _ _ _)).
+  Proof. intros. simple refine (weqpair _ (isweq_iso _ _ _ _)).
          { intros [f [h0 h']]. exact ((f,,h'),,h0). }
          { intros [[f h'] h0]. exact (f,,(h0,,h')). }
          { intros [f [h0 h']]. reflexivity. }
@@ -68,7 +69,7 @@ Module Uniqueness.
 
   Lemma hNatRecursion_weq (P:nat->Type) (IH:∏ n, P n->P(S n)) :
     weq (total2 (fun f:∏ n, P n => ∏ n, f(S n)=IH n (f n))) (P 0).
-  Proof. intros. exists (fun f => pr1 f 0). intro p0.
+  Proof. intros. exists (λ f, pr1 f 0). intro p0.
          apply (iscontrweqf (helper_D _ _ _)). apply hNatRecursionUniq.
   Defined.
 
@@ -146,7 +147,7 @@ Module Discern.
   Proof. intros. apply proofirrelevance. apply nat_discern_isaprop. Defined.
 
   Definition helper_D m n : isweq (helper_B m n).
-  Proof. intros. simple refine (gradth _ (helper_C _ _) _ _).
+  Proof. intros. simple refine (isweq_iso _ (helper_C _ _) _ _).
          { intro e. assert(p := ! helper_B _ _ e). destruct p.
            apply proofirrelevancecontr. apply nat_discern_iscontr. }
          { intro e. destruct e. induction m as [|m IHm].
@@ -154,7 +155,7 @@ Module Discern.
            { exact (  ap (helper_B (S m) (S m)) (! apSC _ _ (idpath m))
                     @ ap (ap S) IHm). } } Defined.
 
-  Definition E m n : weq (nat_discern m n) (m = n).
+  Definition E m n : (nat_discern m n) ≃ (m = n).
   Proof. intros. exact (weqpair (helper_B _ _) (helper_D _ _)). Defined.
 
   Definition nat_dist_anti m n : nat_dist m n = 0 -> m = n.
@@ -243,7 +244,7 @@ Proof. intros ? ? ? ? j.
        { apply nat_dist_between_le. exact s. exact j. }
 Defined.
 
-Definition natleorle m n : coprod (m≤n) (n≤m).
+Definition natleorle m n : (m≤n) ⨿ (n≤m).
 Proof. intros.
        induction (natgthorleh m n) as [r|s].
        { apply ii2. apply natlthtoleh. exact r. }

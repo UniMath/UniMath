@@ -23,12 +23,12 @@ Section def_equalizers.
   Definition isEqualizer {x y z : C} (f g : y --> z) (e : x --> y)
              (H : e · f = e · g) : UU :=
     ∏ (w : C) (h : w --> y) (H : h · f = h · g),
-      iscontr (∑ φ : w --> x, φ · e = h).
+      ∃! φ : w --> x, φ · e = h.
 
   Definition mk_isEqualizer {x y z : C} (f g : y --> z) (e : x --> y)
              (H : e · f = e · g) :
     (∏ (w : C) (h : w --> y) (H' : h · f = h · g),
-        iscontr (∑ ψ : w --> x, ψ · e = h)) -> isEqualizer f g e H.
+        ∃! ψ : w --> x, ψ · e = h) -> isEqualizer f g e H.
   Proof.
     intros X. unfold isEqualizer. exact X.
   Defined.
@@ -76,16 +76,15 @@ Section def_equalizers.
              (H : e · f = e · g) (isE : isEqualizer f g e H) :
     Equalizer f g.
   Proof.
-    simple refine (tpair _ _ _).
-    - simple refine (tpair _ _ _).
+    use tpair.
+    - use tpair.
       + apply x.
       + apply e.
-    - simpl. refine (tpair _ H isE).
+    - simpl. exact (tpair _ H isE).
   Defined.
 
   (** Equalizers in precategories. *)
   Definition Equalizers : UU := ∏ (y z : C) (f g : y --> z), Equalizer f g.
-
   Definition hasEqualizers : UU := ∏ (y z : C) (f g : y --> z),
       ishinh (Equalizer f g).
 
@@ -128,7 +127,7 @@ Section def_equalizers.
     rewrite <- assoc. rewrite H. rewrite assoc. apply idpath.
     set (E' := mk_Equalizer _ _ _ _ E).
     set (E'ar := EqualizerIn E' w (φ1 · e) H'1).
-    pathvia E'ar.
+    intermediate_path E'ar.
     apply isEqualizerInUnique. apply idpath.
     apply pathsinv0. apply isEqualizerInUnique. apply pathsinv0. apply H'.
   Defined.

@@ -63,9 +63,10 @@ Lemma natmult_plus :
     natmult (n + m) x = (natmult n x + natmult m x)%addmonoid.
 Proof.
   induction n as [|n IHn] ; intros m x.
-  - rewrite plus_O_n, lunax.
+  - rewrite lunax.
     reflexivity.
-  - rewrite plus_Sn_m, !natmultS, IHn, assocax.
+  - change (S n + m)%nat with (S (n + m))%nat.
+    rewrite !natmultS, IHn, assocax.
     reflexivity.
 Qed.
 Lemma nattorig_plus :
@@ -84,7 +85,7 @@ Proof.
   - reflexivity.
   - simpl (_ * _)%nat.
     assert (H : S n = (n + 1)%nat).
-    { rewrite <- plus_n_Sm, <- plus_n_O.
+    { rewrite <- plus_n_Sm, natplusr0.
       reflexivity. }
     rewrite H ; clear H.
     rewrite !natmult_plus, IHn.
@@ -534,13 +535,9 @@ Proof.
     intros n.
     exists (pr1 n).
     abstract (
-        tryif primitive_projections
-        then pattern x at 1
-        else pattern x at 2;
+        pattern x at 1;
         rewrite <- (riglunax1 X x) ;
-        tryif primitive_projections
-        then pattern (0%rig : X) at 1
-        else pattern (0%rig : X) at 2 ;
+        pattern (0%rig : X) at 1;
         rewrite <- (rigmultx0 X (nattorig (pr1 n))) ;
         rewrite nattorig_natmult ;
         exact (pr2 n)).
@@ -550,9 +547,7 @@ Proof.
     intros n.
     exists (pr1 n).
     abstract (
-        tryif primitive_projections
-        then pattern (0%rig : X) at 1
-        else pattern (0%rig : X) at 2;
+        pattern (0%rig : X) at 1;
         rewrite <- (rigmultx0 X (nattorig (pr1 n))), nattorig_natmult ;
         exact (pr2 n)).
 Defined.
@@ -754,7 +749,7 @@ Proof.
     exact Hc2.*)
 Defined.
 
-Lemma natmult_commrngfrac {X : commrng} {S : subabmonoid} :
+Lemma natmult_commrngfrac {X : commrng} {S : subabmonoid _} :
   ∏ n (x : X × S), natmult (X := commrngfrac X S) n (setquotpr (eqrelcommrngfrac X S) x) = setquotpr (eqrelcommrngfrac X S) (natmult (X := X) n (pr1 x) ,, (pr2 x)).
 Proof.
   simpl ; intros X S n x.
@@ -774,7 +769,7 @@ Proof.
     reflexivity.
 Qed.
 
-Lemma isarchcommrngfrac {X : commrng} {S : subabmonoid} (R : hrel X) Hop1 Hop2 Hs:
+Lemma isarchcommrngfrac {X : commrng} {S : subabmonoid _} (R : hrel X) Hop1 Hop2 Hs:
   R 1%rng 0%rng ->
   istrans R ->
   isarchrng R -> isarchrng (X := commrngfrac X S) (commrngfracgt X S (R := R) Hop1 Hop2 Hs).
@@ -812,7 +807,7 @@ Proof.
       apply hinhpr ; simpl.
       exists c.
       change (R
-                (natmult (Datatypes.S n) (natmult (X := X) m (pr1 x)) * 1 * pr1 c)%rng
+                (natmult (succ n) (natmult (X := X) m (pr1 x)) * 1 * pr1 c)%rng
                 (1 * pr1 (pr2 x) * pr1 c)%rng).
       rewrite <- (nattorig_natmult (X := X)), (rngrunax2 X), (rnglunax2 X), (rngassoc2 X), (nattorig_natmult (X := X)).
       eapply Htra.
@@ -854,7 +849,7 @@ Proof.
       exact Hn.
     + apply hinhpr ; simpl.
       exists (pr2 x).
-      change (n * m + m)%nat with (Datatypes.S n * m)%nat.
+      change (n * m + m)%nat with (succ n * m)%nat.
       unfold nattorng.
       apply (isrngmultgttoisrrngmultgt X).
       exact Hop1.
