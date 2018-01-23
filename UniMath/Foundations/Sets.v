@@ -2265,7 +2265,7 @@ Note that all the properties of the quotient relations which we consider other
 than [isantisymm] are also inherited in the opposite direction - if the quotent
 relation satisfies the property then the original relation does. *)
 
-Definition iscomprelrel {X : UU} (R : hrel X) (L : hrel X) : UU
+Definition iscomprelrel@{i} {X : Type@{i}} (R : hrel@{i} X) (L : hrel@{i} X) : Type@{i}
   := iscomprelfun2 R L.
 
 Lemma iscomprelrelif {X : UU} {R : hrel X} (L : hrel X) (isr : issymm R)
@@ -2311,8 +2311,10 @@ Section quotrel.
   Constraint i < u.
   Constraint uu1 < i.           (* without this, the next definition yields uu1=i ! *)
 
-  Definition quotrel@{} {X : Type@{i}} {R L : hrel@{i} X} (is : iscomprelrel@{i i i} R L) :
+  Definition quotrel@{} {X : Type@{i}} {R L : hrel@{i} X} (is : iscomprelrel@{i} R L) :
     hrel (setquot@{i} R) := @setquotuniv2'@{i u} X hProp R isasethProp L is.
+
+  Print quotrel.
 
 End quotrel.
 
@@ -2320,9 +2322,8 @@ Section quotrel_uu1.
 
   Universe i u.
   Constraint i < u.
-  Constraint uu1 = i.
 
-  Definition quotrel_uu1@{} {X : Type@{i}} {R L : hrel@{i} X} (is : iscomprelrel@{i i i} R L) :
+  Definition quotrel_uu1@{} {X : Type@{i}} {R L : hrel@{i} X} (is : iscomprelrel@{i} R L) :
     hrel (setquot@{i} R) := @setquotuniv2'@{i u} X hProp R isasethProp L is.
 
 End quotrel_uu1.

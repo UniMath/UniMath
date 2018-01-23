@@ -17,6 +17,8 @@ Monomorphic Universe uu0.       (* level 0 -- resized propositions and elements 
 Monomorphic Universe uu1.       (* level 1 -- empty, unit, bool, nat, and hProp live here *)
 Monomorphic Universe uu2.       (* level 2 -- hPropset lives here *)
 
+Constraint uu0 < uu1, uu1 < uu2.
+
 Global Set Universe Polymorphism.
 Global Set Polymorphic Inductive Cumulativity.
 Global Unset Universe Minimization ToSet.
