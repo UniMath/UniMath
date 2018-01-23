@@ -13,7 +13,7 @@ die() {
 }
 
 check_grep() {
-    typeset cmd="grep --color=always -E -A4 -B4 -n $1 $2"
+    typeset cmd="grep -E -Hn $1 $2"
     typeset ret_code
 
     output=$($cmd)
@@ -58,7 +58,6 @@ check_line_start() {
 
 check_file() {
 
-    echo "Checking style of $1..."
     # Do not use Admitted or introduce new axioms.
     check_command "$1" "Admitted"
     # Do not use Inductive or Record, except in Foundations/Basics/Preamble.v.
@@ -121,10 +120,6 @@ cmd_check_files() {
     done
 }
 
-cmd_all() {
-    cmd_check_files $(grep -E "^UniMath/" ./.coq_makefile_input)
-}
-
 #
 # END subcommand functions
 #
@@ -134,7 +129,6 @@ COMMAND="$1"
 FAILURES=0
 
 case "$1" in
-        --all) shift;                   cmd_all ;;
         *)                              cmd_check_files "$@" ;;
 esac
 exit 0
