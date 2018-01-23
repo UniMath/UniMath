@@ -45,7 +45,7 @@ check_tactic() {
 }
 
 check_freestanding() {
-    check_grep "[^[:space:]](.*[^a-zA-Z]|)($2)\." "$1"
+    check_grep "[^[:space:]](.*[^a-zA-Z])?($2)\." "$1"
 }
 
 check_line_length() {
