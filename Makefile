@@ -379,6 +379,10 @@ UniMath/CONTENTS.md: Makefile UniMath/*/.package/files
 	      echo "   - [All.v]($$P/All.v)" ;											\
 	   done
 
+# Here we call a shell script checking the Coq files for adherence to our style
+check-style :
+	util/checkstyle $(VFILES)
+
 # Here we create the files UniMath/*/All.v, with * running over the names of the packages.  Each one of these files
 # will "Require Export" all of the files in its package.
 define make-summary-file
@@ -390,6 +394,7 @@ UniMath/$1/All.v: UniMath/$1/.package/files
 	<UniMath/$1/.package/files $(FILES_FILTER_2) | grep -v '^All.v$$$$' |sed -e "s=^=Require Export UniMath.$1.=" -e "s=/=.=g" -e s/\.v$$$$/./
 endef
 $(foreach P, $(PACKAGES), $(eval $(call make-summary-file,$P)) $(eval make-summary-files: UniMath/$P/All.v))
+
 #################################
 # targets best used with INCLUDE=no
 git-clean:
