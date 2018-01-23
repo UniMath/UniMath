@@ -232,3 +232,23 @@ Section quotmod_def.
   Defined.
 
 End quotmod_def.
+
+(** * Universal property in terms of submodules
+*)
+Section from_submodule.
+
+  Context {R : rng}
+          (M : module R)
+          (A : submodule M).
+
+  Notation "R-mod( M , N )" := (modulefun M N) : module_scope.
+  Local Open Scope module_scope.
+
+  Definition quotmoduniv_submodule
+             (N : module R)
+             (f : R-mod(M, N))
+             (is : iscomprelfun (module_eqrelsubmodule M A) f) :
+    R-mod(quotmod M (module_eqrelsubmodule M A), N) :=
+    quotmoduniv M (module_eqrelsubmodule M A) N f is.
+
+End from_submodule.
