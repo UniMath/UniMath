@@ -12,10 +12,10 @@ Contents:
  ******************************************************)
 
 
+Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.sub_precategories.
 Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
@@ -1195,7 +1195,7 @@ Definition is_sub_precategory_isos (C : precategory) : is_sub_precategory (hsubt
 Proof.
   use dirprodpair.
   - intros c X. exact (identity_is_iso C c).
-  - intros. simpl. intros a b c f g fiso giso. exact (is_iso_comp_of_isos (isopair f fiso) (isopair g giso)).
+  - intros a b c f g fiso giso. exact (is_iso_comp_of_isos (isopair f fiso) (isopair g giso)).
 Defined.
 
 Definition sub_precategory_of_isos (C : precategory) : sub_precategories C :=
