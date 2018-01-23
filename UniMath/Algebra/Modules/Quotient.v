@@ -23,18 +23,18 @@ Section quotmod_rel.
   Definition isactionhrel (E : hrel M) : UU :=
     ∏ r a b, E a b -> E (r * a) (r * b).
 
-  Definition monoideqrel : UU :=
+  Definition module_eqrel : UU :=
     ∑ E : eqrel M, isbinophrel E × isactionhrel E.
-  Definition hrelmonoideqrel (E : monoideqrel) : eqrel M := pr1 E.
-  Coercion hrelmonoideqrel : monoideqrel >-> eqrel.
+  Definition hrelmodule_eqrel (E : module_eqrel) : eqrel M := pr1 E.
+  Coercion hrelmodule_eqrel : module_eqrel >-> eqrel.
 
-  Definition binophrelmonoideqrel (E : monoideqrel) : binopeqrel := binopeqrelpair E (pr1 (pr2 E)).
-  Coercion binophrelmonoideqrel : monoideqrel >-> binopeqrel.
+  Definition binophrelmodule_eqrel (E : module_eqrel) : binopeqrel := binopeqrelpair E (pr1 (pr2 E)).
+  Coercion binophrelmodule_eqrel : module_eqrel >-> binopeqrel.
 
-  Definition isactionhrelmonoideqrel (E : monoideqrel) : isactionhrel E := pr2 (pr2 E).
-  Coercion isactionhrelmonoideqrel : monoideqrel >-> isactionhrel.
+  Definition isactionhrelmodule_eqrel (E : module_eqrel) : isactionhrel E := pr2 (pr2 E).
+  Coercion isactionhrelmodule_eqrel : module_eqrel >-> isactionhrel.
 
-  Definition mk_monoideqrel (E : eqrel M) : isbinophrel E -> isactionhrel E -> monoideqrel :=
+  Definition mk_module_eqrel (E : eqrel M) : isbinophrel E -> isactionhrel E -> module_eqrel :=
     λ H0 H1, (E,,(H0,,H1)).
 
 End quotmod_rel.
@@ -66,9 +66,9 @@ Section quotmod_submodule.
       now rewrite grinvop, grinvinv.
   Defined.
 
-  Definition monoideqrelsubmodule : monoideqrel M.
+  Definition module_eqrelsubmodule : module_eqrel M.
   Proof.
-    use mk_monoideqrel.
+    use mk_module_eqrel.
     - exact eqrelsubmodule.
     - split.
       + intros a b c.
@@ -106,7 +106,7 @@ Section quotmod_def.
 
   Context {R : rng}
           (M : module R)
-          (E : monoideqrel M).
+          (E : module_eqrel M).
 
   Local Notation "x + y" := (@op _ x y).
   Local Notation "x - y" := (@op _ x (grinv _ y)).
@@ -121,7 +121,7 @@ Section quotmod_def.
       exact (setquotpr E (r * m)).
     - intros m m' Hmm'.
       apply weqpathsinsetquot.
-      now apply isactionhrelmonoideqrel.
+      now apply isactionhrelmodule_eqrel.
   Defined.
 
   Definition quotmod_rngmap : R -> rngofendabgr quotmod_abgr.
@@ -185,7 +185,7 @@ Section quotmod_def.
     - exact quotmod_abgr.
     - exact quotmod_mod_struct.
   Defined.
-  Notation "M / A" := (quotmod M (monoideqrelsubmodule M A)) : module_scope.
+  Notation "M / A" := (quotmod M (module_eqrelsubmodule M A)) : module_scope.
 
   Notation "R-mod( M , N )" := (modulefun M N) : module_scope.
   Definition quotmod_quotmap : R-mod(M, quotmod).
