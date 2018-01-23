@@ -377,7 +377,7 @@ UniMath/CONTENTS.md: Makefile UniMath/*/.package/files
 
 
 check-style :
-	util/checkstyle.sh $(VFILES)
+	util/checkstyle $(VFILES)
 
 #################################
 # targets best used with INCLUDE=no
