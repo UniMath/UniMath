@@ -188,7 +188,7 @@ Proof.
         apply pathsinv0;
         apply transport_compose|];
       etrans; [
-        apply cancel_postcomposition;
+        apply maponpaths_2;
         eapply pathsinv0; apply heq2|];
       clear;
       now destruct (heq u)).
@@ -216,7 +216,7 @@ Proof.
       etrans;[
         apply transport_compose|];
       rewrite transport_target_postcompose;
-      apply cancel_precomposition;
+      apply maponpaths;
       apply transportf_transpose;
       etrans;[
         apply (transport_swap (λ a b, C⟦a,b⟧))|];

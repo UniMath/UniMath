@@ -9,6 +9,7 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.pushouts.
@@ -207,7 +208,7 @@ Section pushout_monic_pullback_epi.
                             (to_Zero A) K _ h (AbelianPushoutMonicisPullback_eq f g Hk)).
              cbn in comm. rewrite <- comm in Hk'. clear comm.
              apply (AbelianPushoutMonic2 f g Po'). rewrite <- Hk'.
-             cbn. rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
+             cbn. rewrite <- assoc. rewrite <- assoc. apply maponpaths.
              rewrite assoc. rewrite assoc. apply pathsinv0.
              use CoequalizerEqAr.
         * intros y0. apply isapropdirprod.
@@ -360,7 +361,7 @@ Section pushout_monic_pullback_epi.
                             (to_Zero A) CK _ h (AbelianPullbackEpiisPushout1_eq f g Hk)).
              cbn in comm. rewrite <- comm in Hk'. clear comm.
              apply (AbelianPullbackEpi2 f g Pb'). rewrite <- Hk'.
-             cbn. rewrite assoc. rewrite assoc. apply cancel_postcomposition.
+             cbn. rewrite assoc. rewrite assoc. apply maponpaths_2.
              rewrite <- assoc. rewrite <- assoc. apply pathsinv0.
              use EqualizerEqAr.
         * intros y0. apply isapropdirprod.

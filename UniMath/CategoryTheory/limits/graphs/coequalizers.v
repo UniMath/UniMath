@@ -90,7 +90,7 @@ Section def_coequalizers.
         change (coconeIn (Coequalizer_cocone f g d h H) _) with (f · h).
         change (dmor _ _) with f.
         rewrite <- assoc.
-        apply cancel_precomposition, (pr2 (pr1 H2)).
+        apply maponpaths, (pr2 (pr1 H2)).
       + apply (pr2 (pr1 H2)).
     - abstract (intro t; apply subtypeEquality;
                [intros y; apply impred; intros t0; apply hs
@@ -152,7 +152,7 @@ Section def_coequalizers.
       use (pathscomp0 (!X)); rewrite <- assoc.
       change (dmor _ _) with f.
       change (coconeIn _ _) with (f · h).
-      apply cancel_precomposition, H'.
+      apply maponpaths, H'.
     - apply H'.
   Qed.
 
@@ -193,7 +193,7 @@ Section def_coequalizers.
     + set (X := (coconeInCommutes (colimCocone E) One Two (ii1 tt))).
       use (pathscomp0 (! (maponpaths (λ h' : _, h' · k) X))).
       use (pathscomp0 _ X).
-      rewrite <- assoc. apply cancel_precomposition.
+      rewrite <- assoc. apply maponpaths.
       apply kH.
     + apply kH.
   Qed.

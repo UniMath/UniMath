@@ -243,7 +243,7 @@ Section def_shortexactseqs.
       use unique_exists.
       + use KernelIn.
         * exact h.
-        * rewrite <- (ZeroArrow_comp_right _ _ _ _ _ h). apply cancel_precomposition.
+        * rewrite <- (ZeroArrow_comp_right _ _ _ _ _ h). apply maponpaths.
           apply isE. rewrite CokernelCompZero. rewrite ZeroArrow_comp_right.
           apply idpath.
       + cbn. use KernelCommutes.

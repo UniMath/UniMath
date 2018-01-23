@@ -20,7 +20,7 @@ Contents:
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -136,12 +136,12 @@ use tpair.
 + intro x; unfold eta', eps'; cbn.
   rewrite assoc.
   eapply pathscomp0.
-  - eapply cancel_postcomposition.
+  - eapply maponpaths_2.
     exact (nat_trans_ax (inv_from_iso (flip_iso _)) _ _ _).
   - rewrite functor_comp, assoc.
     eapply pathscomp0; [rewrite <- assoc; apply maponpaths, (nat_trans_ax eps)|].
     rewrite <- assoc.
-    eapply pathscomp0; [apply maponpaths; rewrite assoc; apply cancel_postcomposition, H1|].
+    eapply pathscomp0; [apply maponpaths; rewrite assoc; apply maponpaths_2, H1|].
     rewrite id_left.
     apply (nat_trans_eq_pointwise (iso_after_iso_inv (flip_iso a)) x).
 + intro x; cbn.

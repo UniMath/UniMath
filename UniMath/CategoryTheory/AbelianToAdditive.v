@@ -8,6 +8,8 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
 Require Import UniMath.CategoryTheory.total2_paths.
@@ -394,7 +396,7 @@ Section abelian_is_additive.
     set (g := CokernelOut (to_Zero A) (CokernelOfDiagonal bpX) (CokernelOfDiagonal bpY) ar H).
     set (com := CokernelCommutes
                   (to_Zero A) (CokernelOfDiagonal bpX) (CokernelOfDiagonal bpY) ar H).
-    rewrite <- com. apply cancel_precomposition.
+    rewrite <- com. apply maponpaths.
     (* rewrite and use com *)
     set (e1 := Abelian_op_eq_IdZero X).
     set (e2 := Abelian_op_eq_IdZero Y).
@@ -418,7 +420,7 @@ Section abelian_is_additive.
     rewrite <- (id_right f). rewrite <- e2. rewrite assoc.
     rewrite <- e3. unfold ar'. rewrite <- assoc. fold ar.
     rewrite <- id_left. cbn. rewrite <- e1. rewrite <- assoc.
-    apply cancel_precomposition. apply pathsinv0.
+    apply maponpaths. apply pathsinv0.
     apply com.
   Qed.
 
@@ -444,7 +446,7 @@ Section abelian_is_additive.
     use BinProductArrowsEq.
     - rewrite <- assoc. rewrite com1.
       rewrite BinProductPr1Commutes. rewrite assoc.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       use BinProductArrowsEq.
       + rewrite BinProductPr1Commutes. rewrite <- assoc.
         rewrite BinProductPr1Commutes. rewrite assoc.
@@ -458,7 +460,7 @@ Section abelian_is_additive.
         apply idpath.
     - rewrite <- assoc. rewrite com2.
       rewrite BinProductPr2Commutes. rewrite assoc.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       use BinProductArrowsEq.
       + rewrite BinProductPr1Commutes. rewrite <- assoc.
         rewrite BinProductPr1Commutes. rewrite assoc.
@@ -508,7 +510,7 @@ Section abelian_is_additive.
     rewrite assoc.
     set (tmp1 := AbelianPreCat_op_eq2 a c b d).
     unfold Abelian_mor_to_BinProd, Abelian_mor_from_to_BinProd in tmp1.
-    rewrite tmp1. apply cancel_postcomposition.
+    rewrite tmp1. apply (maponpaths_2 compose).
     (* Use idpath *)
     unfold Abelian_minus_op. apply idpath.
   Qed.
@@ -552,7 +554,7 @@ Section abelian_is_additive.
     {
       use (pathscomp0 _ (ZeroArrow_comp_left A (to_Zero A) _ _ _
                                              (CokernelArrow (CokernelOfDiagonal bpY)))).
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       use BinProductArrowsEq.
       - rewrite BinProductPr1Commutes.
         rewrite ZeroArrow_comp_left. apply idpath.
@@ -747,7 +749,7 @@ Section abelian_is_additive.
       split.
       + intros x' x'0. unfold to_premor.
         cbn. unfold Abelian_op. unfold Abelian_minus_op.
-        cbn in x', x'0. rewrite assoc. apply cancel_postcomposition.
+        cbn in x', x'0. rewrite assoc. apply maponpaths_2.
         set (bpz := to_BinProducts A z z).
         assert (e : BinProductArrow
                       A bpz (f · x')
@@ -805,7 +807,7 @@ Section abelian_is_additive.
         repeat rewrite assoc.
         rewrite <- (postcompWithBinProductArrow A _ (to_BinProducts A y y)).
         repeat rewrite <- assoc.
-        apply cancel_precomposition.
+        apply maponpaths.
         unfold BinProductOfArrows.
         apply tmp.
       + unfold to_postmor. cbn.

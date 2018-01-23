@@ -2,6 +2,7 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Categories.
@@ -102,7 +103,7 @@ Proof.
       change (three_rec_dep (λ n, C⟦d,_⟧) _ _ _ _) with (p1 · f).
       rewrite assoc.
       eapply pathscomp0.
-        eapply cancel_postcomposition, (pr2 (pr1 H2)).
+        eapply maponpaths_2, (pr2 (pr1 H2)).
       apply (coneOutCommutes cx One Two tt).
     * apply (pr2 (pr2 (pr1 H2))).
   + abstract (intro t; apply subtypeEquality;
@@ -207,7 +208,7 @@ Proof.
   simpl.
   rewrite assoc.
   eapply pathscomp0.
-    apply cancel_postcomposition, H2.
+    apply maponpaths_2, H2.
   apply (!Hcomm).
 Qed.
 
@@ -380,7 +381,7 @@ Proof.
     assert (T:= coneOutCommutes (limCone Pb) Three Two tt).
     eapply pathscomp0. apply maponpaths. apply (!T).
     rewrite assoc.
-    eapply pathscomp0. apply cancel_postcomposition.
+    eapply pathscomp0. apply maponpaths_2.
        apply kH2.
        apply T.
  - assumption.

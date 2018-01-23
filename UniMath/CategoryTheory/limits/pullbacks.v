@@ -17,7 +17,7 @@ Direct implementation of pullbacks together with:
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
-
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -696,7 +696,7 @@ Proof.
         {
         match goal with |[|- ?AA · _ · _ · ?K = _ ]
                          => intermediate_path (AA ·  K) end.
-        - apply cancel_postcomposition.
+        - apply maponpaths_2.
           repeat rewrite <- assoc.
           rewrite iso_after_iso_inv.
           apply id_right.
@@ -768,7 +768,7 @@ Proof.
       unfold xy.
       simpl.
       eapply pathscomp0.
-      eapply cancel_postcomposition.
+      eapply maponpaths_2.
       assert (XXX := XX FxFy).
       apply XX. exact t.
     + use (invmaponpathsweq (weqpair _ (Fff _ _ ))).
@@ -778,7 +778,7 @@ Proof.
       unfold xy.
       simpl.
       eapply pathscomp0.
-      eapply cancel_postcomposition.
+      eapply maponpaths_2.
       assert (XXX := XX FxFy).
       apply XX. exact p.
   - simpl.
@@ -1040,7 +1040,7 @@ Section pullbacks_functor_category.
     rewrite (nat_trans_ax α a b f).
     rewrite (nat_trans_ax β a b f).
     repeat rewrite assoc.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     exact (PullbackSqrCommutes pba).
   Qed.
 
@@ -1086,12 +1086,12 @@ Section pullbacks_functor_category.
     use PullbackArrowUnique.
     rewrite functor_comp. rewrite assoc.
     rewrite <- assoc. rewrite pz1. rewrite assoc.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     apply py1.
 
     rewrite functor_comp. rewrite assoc.
     rewrite <- assoc. rewrite pz2. rewrite assoc.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     apply py2.
   Qed.
 

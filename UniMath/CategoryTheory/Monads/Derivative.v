@@ -19,6 +19,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -102,14 +103,14 @@ Proof.
   simpl.
   rewrite !assoc.
   etrans.
-    { do 3 apply cancel_postcomposition.
+    { do 3 apply maponpaths_2.
       apply (monad_dist_law1 l).
     }
   (* 3 *)
   rewrite <- (assoc (# T ((η S) (S x)))).
   etrans.
-    { apply cancel_postcomposition.
-      apply cancel_precomposition.
+    { apply maponpaths_2.
+      apply maponpaths.
       apply (Monad_law1).
     }
   (* 4 *)
@@ -148,9 +149,9 @@ Proof.
   rewrite (functor_comp S).
   rewrite <- !assoc.
   etrans.
-    { apply cancel_postcomposition.
+    { apply maponpaths_2.
       apply maponpaths.
-      apply cancel_precomposition.
+      apply maponpaths.
       apply (monad_dist_law2 l).
     }
   (* 2 *)
@@ -196,26 +197,26 @@ Proof.
   rewrite (assoc _ (a (T (S x)))).
   simpl.
   etrans.
-    { apply cancel_postcomposition.
+    { apply maponpaths_2.
       apply maponpaths.
-      apply cancel_precomposition.
-      apply cancel_postcomposition.
+      apply maponpaths.
+      apply maponpaths_2.
       apply (nat_trans_ax a).
     }
   rewrite <- assoc.
   rewrite (assoc _ (# T (a (S x)))).
   etrans.
-    { apply cancel_postcomposition.
+    { apply maponpaths_2.
       apply maponpaths.
-      do 2 apply cancel_precomposition.
-      apply cancel_postcomposition.
+      do 2 apply maponpaths.
+      apply maponpaths_2.
       apply (! (functor_comp T _ _)).
     }
   etrans.
-    { apply cancel_postcomposition.
+    { apply maponpaths_2.
       apply maponpaths.
-      do 2 apply cancel_precomposition.
-      apply cancel_postcomposition.
+      do 2 apply maponpaths.
+      apply maponpaths_2.
       apply maponpaths.
       apply (nat_trans_ax a).
     }
@@ -231,7 +232,7 @@ Proof.
   rewrite !assoc.
   rewrite <- functor_comp.
   etrans.
-    { do 5 apply cancel_postcomposition.
+    { do 5 apply maponpaths_2.
       apply maponpaths.
       apply (nat_trans_ax a).
     }
@@ -295,8 +296,8 @@ Proof.
   rewrite <- functor_comp.
   apply pathsinv0.
   etrans.
-    { apply cancel_precomposition.
-      apply cancel_postcomposition.
+    { apply maponpaths.
+      apply maponpaths_2.
       apply maponpaths.
       apply (nat_trans_ax a).
     }
@@ -313,8 +314,8 @@ Proof.
   simpl.
   rewrite <- !functor_comp.
   etrans.
-    { apply cancel_precomposition.
-      apply cancel_postcomposition.
+    { apply maponpaths.
+      apply maponpaths_2.
       do 2 apply maponpaths.
       apply Monad_law2.
     }
@@ -530,8 +531,8 @@ Proof.
   rewrite assoc.
   rewrite <- (assoc _ (#L (#T (a x)))).
   etrans.
-    { apply cancel_postcomposition.
-      apply cancel_precomposition.
+    { apply maponpaths_2.
+      apply maponpaths.
       apply (nat_trans_ax (lm_mult T L)).
     }
   now rewrite !assoc.

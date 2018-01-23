@@ -14,6 +14,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
@@ -168,7 +169,7 @@ assert (F := maponpaths (λ x, BinCoproductIn1 _ (BinCoproductsHSET2 _ _) · x)
 rewrite assoc in F.
 eapply pathscomp0; [apply F|].
 rewrite assoc.
-eapply pathscomp0; [eapply cancel_postcomposition, BinCoproductOfArrowsIn1|].
+eapply pathscomp0; [eapply maponpaths_2, BinCoproductOfArrowsIn1|].
 rewrite <- assoc.
 eapply pathscomp0; [eapply maponpaths, BinCoproductIn1Commutes|].
 apply id_left.
@@ -185,12 +186,12 @@ rewrite assoc in F.
 eapply pathscomp0; [apply F|].
 rewrite assoc.
 eapply pathscomp0.
-  eapply cancel_postcomposition.
+  eapply maponpaths_2.
   rewrite <- assoc.
   eapply maponpaths, BinCoproductOfArrowsIn2.
 rewrite assoc.
 eapply pathscomp0.
-  eapply cancel_postcomposition, cancel_postcomposition, BinCoproductOfArrowsIn1.
+  eapply maponpaths_2, maponpaths_2, BinCoproductOfArrowsIn1.
 rewrite <- assoc.
 eapply pathscomp0; [eapply maponpaths, BinCoproductIn2Commutes|].
 rewrite <- assoc.
@@ -208,12 +209,12 @@ rewrite assoc in F.
 eapply pathscomp0; [apply F|].
 rewrite assoc.
 eapply pathscomp0.
-  eapply cancel_postcomposition.
+  eapply maponpaths_2.
   rewrite <- assoc.
   eapply maponpaths, BinCoproductOfArrowsIn2.
 rewrite assoc.
 eapply pathscomp0.
-  eapply cancel_postcomposition, cancel_postcomposition, BinCoproductOfArrowsIn2.
+  eapply maponpaths_2, maponpaths_2, BinCoproductOfArrowsIn2.
 rewrite <- assoc.
 eapply pathscomp0.
   eapply maponpaths, BinCoproductIn2Commutes.

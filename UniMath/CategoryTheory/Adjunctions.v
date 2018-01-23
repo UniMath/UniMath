@@ -23,7 +23,7 @@ Contents :
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -196,21 +196,21 @@ Coercion adjunction_data_from_is_left_adjoint {A B : precategory}
     - split; intros a; simpl.
       + rewrite !id_left, !id_right, <-functor_id, <- H11, !functor_comp, <-!assoc.
         apply maponpaths; rewrite assoc.
-        etrans; [eapply cancel_postcomposition, pathsinv0, functor_comp|].
+        etrans; [eapply maponpaths_2, pathsinv0, functor_comp|].
         etrans.
-        apply cancel_postcomposition, maponpaths.
+        apply maponpaths_2, maponpaths.
         apply (nat_trans_ax eps1 (F1 a) (G2 (F2 (F1 a))) (eta2 (F1 a))).
         simpl; rewrite functor_comp, <- assoc.
         etrans; [eapply maponpaths, H21|].
         now apply id_right.
       + rewrite !id_left, !id_right, <- functor_id, <- H22, !functor_comp, assoc.
-        apply cancel_postcomposition; rewrite <- assoc.
+        apply maponpaths_2; rewrite <- assoc.
         etrans; [eapply maponpaths, pathsinv0, functor_comp|].
         etrans.
         eapply maponpaths, maponpaths, pathsinv0.
         apply (nat_trans_ax eta2 (F1 (G1 (G2 a))) (G2 a) (eps1 _)).
         simpl; rewrite functor_comp, assoc.
-        etrans; [apply cancel_postcomposition, H12|].
+        etrans; [apply maponpaths_2, H12|].
         now apply id_left.
   Defined.
 
@@ -241,21 +241,21 @@ Coercion adjunction_data_from_is_left_adjoint {A B : precategory}
       + split.
         * unfold triangle_1_statement.
           simpl; intro a; rewrite assoc, functor_comp.
-          etrans; [ apply cancel_postcomposition; rewrite <- assoc;
+          etrans; [ apply maponpaths_2; rewrite <- assoc;
                     apply maponpaths, (nat_trans_ax αinv)|].
           etrans; [ rewrite assoc, <- !assoc;
                     apply maponpaths, maponpaths, (nat_trans_ax β')|].
           simpl; rewrite assoc.
-          etrans; [ apply cancel_postcomposition, (nat_trans_ax αinv)|].
+          etrans; [ apply maponpaths_2, (nat_trans_ax αinv)|].
           rewrite assoc.
-          etrans; [ apply cancel_postcomposition; rewrite <- assoc;
+          etrans; [ apply maponpaths_2; rewrite <- assoc;
                     apply maponpaths, HF1|].
           now rewrite id_right; apply (nat_trans_eq_pointwise (iso_after_iso_inv αiso)).
         * unfold triangle_2_statement in *.
           simpl; intro b; rewrite functor_comp, assoc.
-          etrans; [ apply cancel_postcomposition; rewrite <- assoc;
+          etrans; [ apply maponpaths_2; rewrite <- assoc;
                     eapply maponpaths, pathsinv0, functor_comp|].
-          etrans; [ apply cancel_postcomposition, maponpaths, maponpaths,
+          etrans; [ apply maponpaths_2, maponpaths, maponpaths,
                     (nat_trans_eq_pointwise (iso_inv_after_iso αiso))|].
           cbn. rewrite (functor_id F'), id_right. apply (HF2 b).
   Defined.
@@ -573,7 +573,7 @@ Section HomSetIso_from_Adjunction.
     rewrite X2; clear X2.
     rewrite assoc.
     intermediate_path (identity _ · f).
-    - apply cancel_postcomposition.
+    - apply maponpaths_2.
       apply triangle_id_left_ad.
     - apply id_left.
   Qed.

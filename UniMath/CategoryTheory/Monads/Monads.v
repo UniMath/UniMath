@@ -22,7 +22,7 @@ Extended by: Anders Mörtberg, 2016
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -147,7 +147,7 @@ Proof.
     apply maponpaths.
     now rewrite !assoc, nat_trans_ax.
   - rewrite assoc.
-    eapply pathscomp0; [apply cancel_postcomposition, Monad_Mor_η|].
+    eapply pathscomp0; [apply maponpaths_2, Monad_Mor_η|].
     apply Monad_Mor_η.
 Qed.
 
@@ -243,7 +243,7 @@ Proof.
 unfold bind.
 rewrite assoc.
 eapply pathscomp0;
-  [apply cancel_postcomposition, (! (nat_trans_ax (η T) _ _ f))|]; simpl.
+  [apply maponpaths_2, (! (nat_trans_ax (η T) _ _ f))|]; simpl.
 rewrite <- assoc.
 eapply pathscomp0; [apply maponpaths, Monad_law1|].
 apply id_right.
@@ -259,7 +259,7 @@ Lemma bind_bind {a b c : C} (f : C⟦a,T b⟧) (g : C⟦b,T c⟧) :
 Proof.
 unfold bind; rewrite <- assoc.
 eapply pathscomp0; [apply maponpaths; rewrite assoc;
-                    apply cancel_postcomposition, (!nat_trans_ax (μ T) _ _ g)|].
+                    apply maponpaths_2, (!nat_trans_ax (μ T) _ _ g)|].
 rewrite !functor_comp, <- !assoc.
 now apply maponpaths, maponpaths, (!Monad_law3 c).
 Qed.
@@ -310,7 +310,7 @@ Proof.
     rewrite <- assoc.
     apply pathsinv0.
     eapply pathscomp0.
-    * apply cancel_precomposition.
+    * apply maponpaths.
       rewrite assoc.
       rewrite BinCoproductIn2Commutes.
       rewrite (η_bind(a:=(c ⊕ a))).
@@ -350,7 +350,7 @@ Proof.
       rewrite (η_bind(a:=let (pr1, _) := pr1 (BC b (c ⊕ a)) in pr1)).
       apply pathsinv0.
       eapply pathscomp0.
-      - apply cancel_precomposition.
+      - apply maponpaths.
         rewrite assoc.
         rewrite BinCoproductIn2Commutes.
         rewrite (η_bind(a:=(c ⊕ a))).

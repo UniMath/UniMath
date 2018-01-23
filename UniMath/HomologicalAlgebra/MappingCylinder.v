@@ -9,6 +9,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
@@ -250,9 +252,9 @@ Section mapping_cylinder.
     rewrite id_right. rewrite to_binop_inv_inv.
     apply cancel_inv. rewrite inv_inv_eq. rewrite to_inv_zero.
     rewrite <- to_postmor_linear'.
-    rewrite <- (ZeroArrow_comp_left _ _ _ _ _ (to_In1 A DS2')). apply cancel_postcomposition.
+    rewrite <- (ZeroArrow_comp_left _ _ _ _ _ (to_In1 A DS2')). apply maponpaths_2.
     rewrite <- assoc. rewrite <- assoc. rewrite <- to_premor_linear'.
-    rewrite <- (ZeroArrow_comp_right _ _ _ _ _ (to_Pr2 A DS1')). apply cancel_precomposition.
+    rewrite <- (ZeroArrow_comp_right _ _ _ _ _ (to_Pr2 A DS1')). apply maponpaths.
     unfold MappingConeDiff.
     unfold MappingConeDiff1. unfold MappingConeDiff2. unfold MappingConeDiff3.
     cbn in *. fold DS1 DS1' DS2 DS2' DS3 DS3'. unfold DiffTranslationComplex.
@@ -333,7 +335,7 @@ Section mapping_cylinder_KA_iso.
     rewrite <- (assoc _ _ (to_Pr2 A DS2)). rewrite (to_IdIn2 A DS2).
     rewrite id_right. rewrite <- PreAdditive_invrcomp.
     rewrite (to_Unel2' DS1). rewrite to_inv_zero. rewrite ZeroArrow_comp_left.
-    rewrite to_lunax''. apply cancel_postcomposition.
+    rewrite to_lunax''. apply maponpaths_2.
     unfold MappingConeDiff. unfold MappingConeDiff1.
     unfold MappingConeDiff2. unfold MappingConeDiff3.
     cbn. fold DS1 DS2 DS3 DS4. rewrite to_premor_linear'. rewrite assoc.
@@ -396,7 +398,7 @@ Section mapping_cylinder_KA_iso.
     rewrite <- (assoc _ _ (to_Pr2 A DS4)). rewrite (to_IdIn2 A DS4). rewrite id_right.
     rewrite <- assoc. rewrite (MComm f i). rewrite assoc. use to_rrw.
     rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- to_premor_linear'.
-    apply cancel_precomposition.
+    apply maponpaths.
     unfold MappingConeDiff. unfold MappingConeDiff1.
     unfold MappingConeDiff2. unfold MappingConeDiff3.
     cbn. fold DS1 DS2 DS3 DS4. rewrite to_postmor_linear'. rewrite to_postmor_linear'.
@@ -515,7 +517,7 @@ Section mapping_cylinder_KA_iso.
     set (DS5 := to_BinDirectSums A (C1 (i - 1 + 1 + 1)) (C2 (i - 1 + 1))).
     set (DS6 := to_BinDirectSums A (C1 (i - 1 + 1)) DS5). cbn.
     rewrite <- assoc. rewrite <- assoc. rewrite <- to_premor_linear'. rewrite <- to_premor_linear'.
-    apply cancel_precomposition. rewrite <- transport_target_postcompose.
+    apply maponpaths. rewrite <- transport_target_postcompose.
     rewrite assoc. rewrite assoc. rewrite <- to_postmor_linear'.
     rewrite <- transport_target_postcompose. rewrite <- transport_source_precompose.
     (* Unfold MappingCylinderDiff *)
@@ -699,8 +701,8 @@ Section mapping_cylinder_KA_iso.
                  ((to_Pr1 A DS2) · (to_inv (Diff C1 i)) · (to_In1 A DS1) · (to_In2 A DS2))).
     {
       rewrite transport_target_postcompose. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
-      rewrite <- assoc. apply cancel_precomposition.
-      rewrite <- PreAdditive_invlcomp. rewrite PreAdditive_invrcomp. apply cancel_precomposition.
+      rewrite <- assoc. apply maponpaths.
+      rewrite <- PreAdditive_invlcomp. rewrite PreAdditive_invrcomp. apply maponpaths.
       rewrite <- transport_target_postcompose. rewrite <- transport_source_precompose.
       rewrite <- PreAdditive_invrcomp.
       unfold DS2, DS1, DS6, DS5.
@@ -718,7 +720,7 @@ Section mapping_cylinder_KA_iso.
       clear tmp''. apply maponpaths.
       rewrite <- transport_source_to_inv. rewrite <- transport_source_to_inv.
       apply maponpaths. rewrite transport_source_precompose. rewrite transport_source_precompose.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       assert (e2 : maponpaths C1 (hzrminusplus (i + 1) 1) =
                    maponpaths (λ i0 : hz, C1 (i0 + 1)) (hzrplusminus i 1)).
       {
@@ -734,8 +736,8 @@ Section mapping_cylinder_KA_iso.
     cbn in e1. cbn. rewrite <- e1. clear e1. use to_rrw.
     (* Use similar technique as above *)
     rewrite transport_target_postcompose. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
-    rewrite <- assoc. apply cancel_precomposition.
-    rewrite <- PreAdditive_invlcomp. rewrite PreAdditive_invrcomp. apply cancel_precomposition.
+    rewrite <- assoc. apply maponpaths.
+    rewrite <- PreAdditive_invlcomp. rewrite PreAdditive_invrcomp. apply maponpaths.
     rewrite <- transport_target_postcompose. rewrite <- transport_source_precompose.
     rewrite <- PreAdditive_invrcomp.
     unfold DS2, DS1, DS6, DS5.
@@ -753,7 +755,7 @@ Section mapping_cylinder_KA_iso.
     unfold tmp'' in tmp'.
     rewrite tmp'. clear tmp'. unfold tmp. clear tmp. clear tmp''. apply maponpaths.
     rewrite transport_source_precompose. rewrite transport_source_precompose.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     assert (e2 : maponpaths C1 (hzrminusplus (i + 1) 1) =
                  maponpaths (λ i0 : hz, C1 (i0 + 1)) (hzrplusminus i 1)).
     {

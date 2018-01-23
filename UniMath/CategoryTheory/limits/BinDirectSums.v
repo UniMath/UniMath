@@ -8,7 +8,7 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.Algebra.BinaryOperations.
@@ -615,7 +615,7 @@ Section bindirectsums_in_quot.
           rewrite <- tmp. clear tmp.
           rewrite comp_eq.
           rewrite (to_BinOpId A (BD x y)).
-          rewrite comp_eq. apply cancel_postcomposition.
+          rewrite comp_eq. apply maponpaths_2.
           apply idpath.
   Qed.
 
@@ -673,7 +673,7 @@ Section bindirectsums_in_quot.
           rewrite <- tmp. clear tmp.
           rewrite comp_eq.
           rewrite (to_BinOpId A (BD x y)).
-          rewrite comp_eq. apply cancel_precomposition.
+          rewrite comp_eq. apply maponpaths.
           apply idpath.
   Qed.
 

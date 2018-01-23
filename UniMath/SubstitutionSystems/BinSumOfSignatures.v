@@ -20,6 +20,8 @@ Contents:
 
 Require Import UniMath.Foundations.PartD.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
@@ -109,7 +111,7 @@ Proof.
     (* on the right-hand side, there is a second but unfolded BinCoproductOfArrows in the row -
        likewise a first such on the left-hand side, to be treater further below *)
     eapply pathscomp0; [ | eapply pathsinv0; apply BinCoproductOfArrows_comp].
-    eapply pathscomp0. apply cancel_postcomposition. apply BinCoproductOfArrows_comp.
+    eapply pathscomp0. apply maponpaths_2. apply BinCoproductOfArrows_comp.
     eapply pathscomp0. apply BinCoproductOfArrows_comp.
     apply BinCoproductOfArrows_eq.
     + apply (nat_trans_eq_pointwise Hyp1 c).
@@ -135,13 +137,13 @@ Proof.
     unfold θ_Strength1 in S11.
     assert (Ha := nat_trans_eq_pointwise (S11 X) x).
     eapply pathscomp0; [ | apply id_left].
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     apply Ha.
   + rewrite BinCoproductOfArrowsIn2.
     unfold θ_Strength1 in S21.
     assert (Ha := nat_trans_eq_pointwise (S21 X) x).
     eapply pathscomp0; [ | apply id_left].
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     apply Ha.
 Qed.
 
@@ -151,7 +153,7 @@ Proof.
   apply (nat_trans_eq hs); intro x.
   eapply pathscomp0; [ apply BinCoproductOfArrows_comp |].
   apply pathsinv0.
-  eapply pathscomp0. apply cancel_postcomposition. simpl. apply BinCoproductOfArrows_comp.
+  eapply pathscomp0. eapply (maponpaths_2 compose). simpl. apply BinCoproductOfArrows_comp.
   eapply pathscomp0. apply BinCoproductOfArrows_comp.
   apply pathsinv0.
   apply BinCoproductOfArrows_eq.
@@ -180,13 +182,13 @@ Proof.
     assert (Ha := nat_trans_eq_pointwise (S11' X) x).
     simpl in Ha.
     eapply pathscomp0; [ | apply id_left].
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     apply Ha.
   + rewrite BinCoproductOfArrowsIn2.
     assert (Ha := nat_trans_eq_pointwise (S21' X) x).
     simpl in Ha.
     eapply pathscomp0; [ | apply id_left].
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     apply Ha.
 Qed.
 
