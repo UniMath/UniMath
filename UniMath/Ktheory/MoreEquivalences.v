@@ -121,7 +121,7 @@ Definition homotinvweqweq'_comp {X} {P:X->Type}
   let f := weqpr1_irr_sec irr sec in
   let w := x,,p in
   let w' := invweq f x in
-  @identity (w' = w)
+  @paths (w' = w)
             (homotinvweqweq' irr sec w)
             (maponpaths _ (irr x (sec x) (pr2 w))).
 Proof. reflexivity.             (* don't change the proof *)
@@ -133,7 +133,7 @@ Definition homotinvweqweq_comp {X} {P:X->Type}
   let f := weqpr1_irr_sec irr sec in
   let w := x,,p in
   let w' := invweq f x in
-  @identity (w' = w)
+  @paths (w' = w)
             (homotinvweqweq f w)
             (maponpaths _ (irr x (sec x) (pr2 w))).
 Proof.
@@ -147,7 +147,7 @@ Definition homotinvweqweq_comp_3 {X} {P:X->Type}
   let g := invweqpr1_irr_sec irr sec in
   let w := x,,p in
   let w' := g x in
-  @identity (w' = w)
+  @paths (w' = w)
             (homotweqinvweq g w)    (* !! *)
             (maponpaths _ (irr x (sec x) (pr2 w))).
 Proof. reflexivity. Defined.

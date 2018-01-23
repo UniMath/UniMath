@@ -96,11 +96,10 @@ Proof.
   - intros ? ? ? rab rcd.
     induction b as [|b IHb].
     + simpl.
-      rewrite <- 2? plus_n_O.
-      simpl in IHa.
-      rewrite 2? (natmult0n) in IHa.
-      rewrite <- 2? plus_n_O in IHa.
-      apply (natlthandmultl _ _ _ (natgthtoneq _ _ rab) rcd).
+      rewrite 2 natplusr0.
+      apply natlthandmultl.
+      * exact tt.
+      * exact rcd.
     + simpl.
       set (rer := abmonoidrer nataddabmonoid).
       unfold op1, op2; simpl.

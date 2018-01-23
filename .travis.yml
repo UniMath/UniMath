@@ -1,39 +1,69 @@
-# validate this file at http://lint.travis-ci.org/
-# ocaml and coq are not on the list of languages:
-language:       generic
-sudo: 		required
-# "trusty" is the most modern release of Ubuntu supported
-dist: 		trusty
-git:
-  submodules:   false
-addons:
-  apt:
-    sources:
-      - avsm
-    packages:
-      - opam
-      - aspcud
-      - time
-      - libgtk2.0-dev
-      - libgtksourceview2.0-dev
-      - emacs
-# build coqide along with the Tactics package, just because it's a short package
+language: generic
+sudo: false
+
+services:
+  - docker
+
 env:
-  - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics"
-  - PACKAGES=CategoryTheory
-  - PACKAGES="MoreFoundations Ktheory"
-  - PACKAGES=HomologicalAlgebra
-  - PACKAGES=Topology
-  - PACKAGES=RealNumbers
-  - PACKAGES=SubstitutionSystems
-  - PACKAGES=Tactics BUILD_COQIDE=yes BUILD_ALSO=TAGS
-  - PACKAGES=Folds
-  - FOUNDATIONS_CHANGE_ERROR=yes BUILD_ALSO="check-for-change-to-Foundations enforce-listing-of-proof-files"
-# building Coq in a separate stage folds up the output in the log:
+  global:
+    - THIS_REPO=UniMath
+  matrix:
+    - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics"
+    - PACKAGES=CategoryTheory
+    - PACKAGES="MoreFoundations Ktheory"
+    - PACKAGES=HomologicalAlgebra
+    - PACKAGES=Topology
+    - PACKAGES=RealNumbers
+    - PACKAGES=SubstitutionSystems
+    - PACKAGES=Tactics BUILD_COQIDE=yes BUILD_ALSO=TAGS
+    - PACKAGES=Folds
+    - FOUNDATIONS_CHANGE_ERROR=yes BUILD_ALSO="check-for-change-to-Foundations enforce-listing-of-proof-files"
+
+# The "docker run" command will pull if needed.
+# Running this first gives two tries in case of network lossage.
 before_script:
-  - opam init --yes --no-setup
-  - eval $(opam config env)
-  - opam install lablgtk camlp5 --yes --verbose
-  - time make build-coq
+  - timeout 5m docker pull palmskog/xenial-unimath || timeout 5m docker pull palmskog/xenial-unimath || timeout 5m docker pull palmskog/xenial-unimath
+
+# Using travis_wait here seems to cause the job to terminate after 1 minute
+# with no error (!).
+# The git commands are tried twice, in case of temporary network failure.
+# The fcntl line works around a bug where Travis truncates logs and fails.
 script:
-  - time make TIMECMD=time $PACKAGES $BUILD_ALSO FOUNDATIONS_CHANGE_ERROR=$FOUNDATIONS_CHANGE_ERROR
+  - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
+  - REMOTE_ORIGIN_URL=`git config --get remote.origin.url`
+  - echo "THIS_REPO=${THIS_REPO}"
+  - echo "PACKAGES=${PACKAGES}"
+  - echo "BUILD_COQIDE=${BUILD_COQIDE}"
+  - echo "BUILD_ALSO=${BUILD_ALSO}"
+  - echo "FOUNDATIONS_CHANGE_ERROR=${FOUNDATIONS_CHANGE_ERROR}"
+  - echo "TRAVIS_BRANCH=${TRAVIS_BRANCH}"
+  - echo "REMOTE_ORIGIN_URL=${REMOTE_ORIGIN_URL}"
+  - echo "TRAVIS_EVENT_TYPE=${TRAVIS_EVENT_TYPE}"
+  - echo "TRAVIS_COMMIT=${TRAVIS_COMMIT}"
+  - echo "TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}"
+  - echo "TRAVIS_PULL_REQUEST_BRANCH=${TRAVIS_PULL_REQUEST_BRANCH}"
+  - echo "TRAVIS_PULL_REQUEST_SHA=${TRAVIS_PULL_REQUEST_SHA}"
+  - echo "TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}"
+  - >-
+    docker run palmskog/xenial-unimath /bin/bash -x -c "true &&
+       if [ $TRAVIS_EVENT_TYPE = pull_request ] ; then
+         git clone --quiet --depth 9 $REMOTE_ORIGIN_URL $THIS_REPO || git clone --quiet --depth 9 $REMOTE_ORIGIN_URL $THIS_REPO
+         cd $THIS_REPO
+         git fetch origin +refs/pull/$TRAVIS_PULL_REQUEST/merge
+         git checkout -qf $TRAVIS_PULL_REQUEST_SHA
+         git config user.email noone@cares.com
+         git config user.name Noone Cares
+         git remote add theupstream https://github.com/$TRAVIS_REPO_SLUG.git
+         git pull --depth 9 theupstream $TRAVIS_BRANCH || git pull --depth 9 theupstream $TRAVIS_BRANCH
+       else
+         git clone --quiet --depth 9 -b $TRAVIS_BRANCH $REMOTE_ORIGIN_URL $THIS_REPO || git clone --quiet --depth 9 -b $TRAVIS_BRANCH $REMOTE_ORIGIN_URL $THIS_REPO
+         cd $THIS_REPO
+         git checkout -qf $TRAVIS_COMMIT
+       fi &&
+       . /root/.opam/opam-init/init.sh &&
+       time make build-coq BUILD_COQIDE=$BUILD_COQIDE &&
+       time make TIMECMD=time $PACKAGES $BUILD_ALSO FOUNDATIONS_CHANGE_ERROR=$FOUNDATIONS_CHANGE_ERROR"
+
+git:
+  depth: 9
+  submodules: false

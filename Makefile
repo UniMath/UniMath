@@ -32,6 +32,7 @@ COQBIN ?=
 .PHONY: all everything install lc lcp wc describe clean distclean build-coq doc build-coqide
 all: check-first
 all: check-for-change-to-Foundations
+all: make-summary-files
 everything: TAGS all html install
 check-first: enforce-prescribed-ordering check-travis
 
@@ -66,7 +67,7 @@ $(VFILES:.v=.vo) : $(COQBIN)coqc
 endif
 
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -indices-matter -type-in-type -w '-notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option'
+OTHERFLAGS += -noinit -indices-matter -type-in-type -w '-notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option'
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
@@ -101,10 +102,12 @@ DEFINERS := $(DEFINERS)Scheme[[:space:]]+Equality[[:space:]]+for\|
 DEFINERS := $(DEFINERS)Scheme[[:space:]]+Induction[[:space:]]+for\|
 DEFINERS := $(DEFINERS)Scheme\|
 DEFINERS := $(DEFINERS)Structure\|
-DEFINERS := $(DEFINERS)Theorem
+DEFINERS := $(DEFINERS)Theorem\|
+DEFINERS := $(DEFINERS)Universe
 
 MODIFIERS := 
 MODIFIERS := $(MODIFIERS)Canonical\|
+MODIFIERS := $(MODIFIERS)Monomorphic\|
 MODIFIERS := $(MODIFIERS)Global\|
 MODIFIERS := $(MODIFIERS)Local\|
 MODIFIERS := $(MODIFIERS)Private\|
@@ -119,6 +122,7 @@ COQDEFS := --language=none																\
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: Makefile $(filter UniMath/$P/%,$(VFILES)); etags $(COQDEFS) -o $$@ $$^))
 TAGS : Makefile $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
+FILES_FILTER_2 := grep -vE '^[[:space:]]*(\#.*)?$$$$'
 $(foreach P,$(PACKAGES),$(eval $P: check-first $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\)=UniMath/$P/\1o=" )))
 install:all
 coqwc:; coqwc $(VFILES)
@@ -142,6 +146,7 @@ describe:; git describe --dirty --long --always --abbrev=40 --all
 	echo ;\
 	for i in $(PACKAGES) ;\
 	do <UniMath/$$i/.package/files $(FILES_FILTER) |sed "s=^=UniMath/$$i/="  ;\
+	   echo UniMath/$$i/All.v ;\
 	done ;\
 	echo ;\
 	echo '# Local ''Variables:' ;\
@@ -201,11 +206,16 @@ sub/coq-tools/find-bug.py:
 help-find-bug:
 	sub/coq-tools/find-bug.py --help
 isolate-bug: sub/coq-tools/find-bug.py
-	cd UniMath && \
-	rm -f $(ISOLATED_BUG_FILE) && \
-	../sub/coq-tools/find-bug.py --coqbin ../sub/coq/bin -R . UniMath \
-		--arg " -indices-matter" \
-		--arg " -type-in-type" \
+	cd UniMath &&												\
+	rm -f $(ISOLATED_BUG_FILE) &&										\
+	../sub/coq-tools/find-bug.py --coqbin ../sub/coq/bin -R . UniMath					\
+		--arg " -indices-matter"									\
+		--arg " -type-in-type"										\
+		--arg " -noinit"										\
+		--arg " -indices-matter"									\
+		--arg " -type-in-type"										\
+		--arg " -w"											\
+		--arg " -notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option"	\
 		$(BUGGY_FILE) $(ISOLATED_BUG_FILE)
 	@ echo "==="
 	@ echo "=== the isolated bug has been deposited in the file UniMath/$(ISOLATED_BUG_FILE)"
@@ -348,6 +358,38 @@ endif
 check-for-change-to-Foundations:
 	$(FOUNDATIONS_CHANGE_ERROR0) ! ( git diff --stat master -- UniMath/Foundations | grep . )
 
+# Here we create a table of contents file, in markdown format, for browsing on github
+# When the file UniMath/CONTENTS.md changes, the new version should be committed to github.
+all: UniMath/CONTENTS.md
+UniMath/CONTENTS.md: Makefile UniMath/*/.package/files
+	$(SHOW)'making $@'
+	$(HIDE) exec >$@ ;													\
+	   echo "# Contents of the UniMath library" ;										\
+	   echo "The packages and files are listed here in logical order: each file depends only on files occurring earlier." ;	\
+	   for P in $(PACKAGES) ;												\
+	   do if [ -f UniMath/$$P/README.md ] ;											\
+	      then echo "## Package [$$P]($$P/README.md)" ;									\
+	      elif [ -f UniMath/$$P/README ] ;											\
+	      then echo "## Package [$$P]($$P/README)" ;									\
+	      else echo "## Package $$P" ;											\
+	      fi ;														\
+	      for F in `<UniMath/$$P/.package/files $(FILES_FILTER)` ;								\
+	      do echo "   - [$$F]($$P/$$F)" ;											\
+	      done ;														\
+	      echo "   - [All.v]($$P/All.v)" ;											\
+	   done
+
+# Here we create the files UniMath/*/All.v, with * running over the names of the packages.  Each one of these files
+# will "Require Export" all of the files in its package.
+define make-summary-file
+UniMath/$1/All.v: UniMath/$1/.package/files
+	$(SHOW)'making $$@'
+	$(HIDE)																		\
+	exec > $$@ ;																	\
+	echo "(* This file has been auto-generated, do not edit it. *)" ;										\
+	<UniMath/$1/.package/files $(FILES_FILTER_2) | grep -v '^All.v$$$$' |sed -e "s=^=Require Export UniMath.$1.=" -e "s=/=.=g" -e s/\.v$$$$/./
+endef
+$(foreach P, $(PACKAGES), $(eval $(call make-summary-file,$P)) $(eval make-summary-files: UniMath/$P/All.v))
 #################################
 # targets best used with INCLUDE=no
 git-clean:

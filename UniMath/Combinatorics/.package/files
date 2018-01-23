@@ -1,6 +1,8 @@
 StandardFiniteSets.v
 Lists.v
 FiniteSets.v
+Graphs.v
+Equivalence_Relations.v
 OrderedSets.v
 WellOrderedSets.v
 FiniteSequences.v

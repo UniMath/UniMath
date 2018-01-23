@@ -46,7 +46,7 @@ Proof. intros ? ? ? ? ?.
          induction n as [|n IH].
          { intros. assert (k:x=z).
            { apply mt_anti. assumption. } destruct k. assumption. }
-         { intros.
+         { intros ? H.
            assert (ne : x != z).
            { intros s. exact (negpaths0sx _ (! mt_path_refl _ _ _ s @ H)). }
            refine (pn z ne _).

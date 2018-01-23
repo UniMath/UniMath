@@ -415,7 +415,7 @@ Definition sigma_disp_iso_map
   -> iso_disp f xx yy
 := λ ff, sigma_disp_iso _ _ (pr1 ff) (pr2 ff).
 
-Lemma sigma_disp_iso_isweq
+Lemma sigma_disp_isweq_iso
     {x y} (xx : sigma_disp_cat x) (yy : sigma_disp_cat y)
     (f : iso x y)
   : isweq (sigma_disp_iso_map xx yy f).
@@ -426,7 +426,7 @@ Abort.
 Definition sigma_disp_iso_equiv
     {x y} (xx : sigma_disp_cat x) (yy : sigma_disp_cat y)
     (f : iso x y)
-:= weqpair _ (sigma_disp_iso_isweq xx yy f).
+:= weqpair _ (sigma_disp_isweq_iso xx yy f).
 *)
 
 (*
@@ -977,7 +977,7 @@ Lemma iso_disp_iso_fiber (a b : fiber_category) :
   iso a b ≃ iso_disp (identity_iso c) a b.
 Proof.
   exists (iso_disp_from_iso_fiber a b).
-  use (gradth _ (iso_fiber_from_iso_disp _ _ )).
+  use (isweq_iso _ (iso_fiber_from_iso_disp _ _ )).
   - intro. apply eq_iso. apply idpath.
   - intro. apply eq_iso_disp. apply idpath.
 Defined.
