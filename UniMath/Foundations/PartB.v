@@ -1440,9 +1440,9 @@ Defined.
 
 (** **** [ bool ] is a set *)
 
-Theorem isasetbool: isaset bool.
+Theorem isasetbool@{i}: isaset@{i} bool.
 Proof.
-  apply (isasetifdeceq _ isdeceqbool).
+  apply (isasetifdeceq@{i i} _ isdeceqbool@{i i i i}).
 Defined.
 
 (** ** Splitting of [ X ] into a coproduct defined by a function [ X -> bool ] *)

@@ -166,7 +166,7 @@ Coercion hProp_to_hSet : hProp >-> hSet.
 
 (** *** Booleans as a set *)
 
-Definition boolset : hSet@{uu1 uu2} := hSetpair bool isasetbool.
+Definition boolset@{} : hSet@{uu1 uu2} := hSetpair bool isasetbool@{uu1}.
 (* Canonical Structure boolset. *)
 
 (* properties of functions between sets *)
@@ -1356,7 +1356,7 @@ Defined.
 
 
 
-Definition iseqclass@{i u} {X : Type@{i}} (R : hrel@{i} X) (A : hsubtype@{i} X) : Type@{i}
+Definition iseqclass@{i} {X : Type@{i}} (R : hrel@{i} X) (A : hsubtype@{i} X) : Type@{i}
   := dirprod (ishinh@{i} (carrier A))
              (dirprod (∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2)
                       (∏ x1 x2 : X, A x1 ->  A x2 -> R x1 x2)).
@@ -1369,15 +1369,15 @@ Definition iseqclassconstr {X : UU} (R : hrel X) {A : hsubtype X}
 
 Definition eqax0 {X : UU} {R : hrel X} {A : hsubtype X} :
   iseqclass R A -> ishinh (carrier A) := λ is : iseqclass R A, pr1 is.
-Definition eqax1 {X : UU} {R : hrel X} {A : hsubtype X} :
+Definition eqax1@{i} {X : Type@{i}} {R : hrel X} {A : hsubtype X} :
   iseqclass R A -> ∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2
-  := λ is : iseqclass R A, pr1 (pr2 is).
-Definition eqax2 {X : UU} {R : hrel X} {A : hsubtype X} :
+  := λ is : iseqclass@{i} R A, pr1 (pr2 is).
+Definition eqax2@{i} {X : Type@{i}} {R : hrel X} {A : hsubtype X} :
   iseqclass R A -> ∏ x1 x2 : X, A x1 -> A x2 -> R x1 x2
-  := λ is : iseqclass R A, pr2 (pr2 is).
+  := λ is : iseqclass@{i} R A, pr2 (pr2 is).
 
-Lemma isapropiseqclass@{i j} {X : Type@{i}} (R : hrel X) (A : hsubtype X) :
-  isaprop (iseqclass@{i j} R A).
+Lemma isapropiseqclass@{i} {X : Type@{i}} (R : hrel X) (A : hsubtype X) :
+  isaprop (iseqclass@{i} R A).
 Proof.
 intros X R A.
 apply (isofhleveldirprod 1).
@@ -1613,10 +1613,10 @@ be considered in the section about types of h-level 3.
 
 
 Definition setquot@{i} {X : Type@{i}} (R : hrel X) : Type@{i}
-  := total2 (λ A : _, iseqclass@{i i} R A).
-Definition setquotpair {X : UU} (R : hrel X) (A : hsubtype X)
-           (is : iseqclass R A) : setquot R := tpair _ A is.
-Definition pr1setquot {X : UU} (R : hrel X) : setquot R -> (hsubtype X)
+  := total2 (λ A : _, iseqclass@{i} R A).
+Definition setquotpair@{i} {X : Type@{i}} (R : hrel X) (A : hsubtype X)
+           (is : iseqclass R A) : setquot@{i} R := tpair _ A is.
+Definition pr1setquot@{i} {X : Type@{i}} (R : hrel X) : setquot R -> hsubtype@{i} X
   := @pr1 _ (λ A : _, iseqclass R A).
 Coercion pr1setquot : setquot >-> hsubtype.
 
@@ -1640,7 +1640,7 @@ Defined.
 Definition setquotinset {X : UU} (R : hrel X) : hSet :=
   hSetpair _ (isasetsetquot R).
 
-Theorem setquotpr {X : UU} (R : eqrel X) : X -> setquot R.
+Theorem setquotpr@{i} {X : Type@{i}} (R : eqrel X) : X -> setquot@{i} R.
 Proof.
   intros X R X0.
   set (rax := eqrelrefl R).
@@ -1654,16 +1654,23 @@ Proof.
     + exact (tax x1 X0 x2 (sax X0 x1 X1) X2).
 Defined.
 
-Lemma setquotl0 {X : UU} (R : eqrel X) (c : setquot R) (x : c) :
-  setquotpr R (pr1 x) = c.
-Proof.
-  intros X R c x.
-  apply (invmaponpathsincl (pr1setquot R) (isinclpr1setquot R) (setquotpr R (pr1 x)) c).
-  apply funextsec; intro x0.
-  use hPropUnivalence.
-  - intro r. exact (eqax1 (pr2 c) (pr1 x) x0 r (pr2 x)).
-  - intro r. exact (eqax2 (pr2 c) (pr1 x) x0 (pr2 x) r).
-Defined.
+Section setquotl0.
+
+  Universe i.
+  Constraint uu1 < i.           (* without this constraint, we get uu1=i in setquotl0.  ???  *)
+
+  Lemma setquotl0@{} {X : Type@{i}} (R : eqrel X) (c : setquot R) (x : c) :
+    setquotpr@{i} R (pr1 x) = c.
+  Proof.
+    intros X R c x.
+    apply (invmaponpathsincl (pr1setquot R) (isinclpr1setquot R) (setquotpr R (pr1 x)) c).
+    apply funextsec; intro x0.
+    use hPropUnivalence.
+    - intro r. exact (eqax1 (pr2 c) (pr1 x) x0 r (pr2 x)).
+    - intro r. exact (eqax2 (pr2 c) (pr1 x) x0 (pr2 x) r).
+  Defined.
+
+End setquotl0.
 
 Theorem issurjsetquotpr {X : UU} (R : eqrel X) : issurjective (setquotpr R).
 Proof.
@@ -1686,9 +1693,9 @@ Proof.
   intro x0'. apply (eqreltrans R _ _ _ a x0').
 Defined.
 
+Print iscompsetquotpr.          (* try to avoid Top.4159 <= uu1 *)
 
-
-
+---
 
 (** *** Universal property of [seqtquot R] for functions to sets satisfying compatibility condition [iscomprelfun] *)
 
@@ -2560,7 +2567,7 @@ Proof.
                          <-> (quotrel is x x'))).
   {
     intros x x'. apply isapropdirprod.
-    - apply impred. intro. apply (pr2 (quotrel _ _ _)).
+    - apply impred. intro. use (pr2 (quotrel _ _ _)).
     - apply impred. intro. apply isasetbool.
   }
   apply (setquotuniv2prop R (λ x x', hProppair _ (int x x'))).
