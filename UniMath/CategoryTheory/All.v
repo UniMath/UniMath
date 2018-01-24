@@ -1,4 +1,5 @@
 (* This file has been auto-generated, do not edit it. *)
+Require Export UniMath.Foundations.Init.
 Require Export UniMath.CategoryTheory.total2_paths.
 Require Export UniMath.CategoryTheory.Categories.
 Require Export UniMath.CategoryTheory.functor_categories.
