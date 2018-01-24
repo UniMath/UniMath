@@ -1,4 +1,5 @@
 (* This file has been auto-generated, do not edit it. *)
+Require Export UniMath.Foundations.Init.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Export UniMath.Algebra.Monoids_and_Groups.
 Require Export UniMath.Algebra.Rigs_and_Rings.

@@ -391,6 +391,7 @@ UniMath/$1/All.v: UniMath/$1/.package/files
 	$(HIDE)																		\
 	exec > $$@ ;																	\
 	echo "(* This file has been auto-generated, do not edit it. *)" ;										\
+	echo "Require Export UniMath.Foundations.Init." ;												\
 	<UniMath/$1/.package/files $(FILES_FILTER_2) | grep -v '^All.v$$$$' |sed -e "s=^=Require Export UniMath.$1.=" -e "s=/=.=g" -e s/\.v$$$$/./
 endef
 $(foreach P, $(PACKAGES), $(eval $(call make-summary-file,$P)) $(eval make-summary-files: UniMath/$P/All.v))
