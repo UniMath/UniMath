@@ -65,7 +65,7 @@ Proof.
       exact (!pr1 (pr2 g) _ _).
 Defined.
 
-Definition isfree_free_monoid (X : hSet) (Y : monoid) : (X → Y) ≃ monoidfun (free_monoid X) Y.
+Definition free_monoid_universal_property (X : hSet) (Y : monoid) : (X → Y) ≃ monoidfun (free_monoid X) Y.
 Proof.
   use weq_iso.
   - apply free_monoid_extend.
@@ -145,7 +145,7 @@ Proof.
       exact (free_monoid_extend_comp (monoidfuncomp (presented_monoid_pr R) g) x).
 Defined.
 
-Definition ispresented_presented_monoid {X : hSet} (R : hrel (free_monoid X)) (Y : monoid) :
+Definition presented_monoid_universal_property {X : hSet} (R : hrel (free_monoid X)) (Y : monoid) :
   monoidfun (presented_monoid X R) Y ≃ ∑(f : X → Y), iscomprelfun R (free_monoid_extend f).
 Proof.
   use weq_iso.
@@ -231,7 +231,7 @@ Proof.
   apply (presented_monoid_extend_comp g).
 Defined.
 
-Definition isfree_free_abmonoid (X : hSet) (Y : abmonoid) : (X → Y) ≃ monoidfun (free_abmonoid X) Y.
+Definition free_abmonoid_universal_property (X : hSet) (Y : abmonoid) : (X → Y) ≃ monoidfun (free_abmonoid X) Y.
 Proof.
   use weq_iso.
   - apply free_abmonoid_extend.
@@ -304,7 +304,7 @@ Proof.
       exact (free_abmonoid_extend_comp (monoidfuncomp (presented_abmonoid_pr R) g) x).
 Defined.
 
-Definition ispresented_presented_abmonoid {X : hSet} (R : hrel (free_abmonoid X)) (Y : abmonoid) :
+Definition presented_abmonoid_universal_property {X : hSet} (R : hrel (free_abmonoid X)) (Y : abmonoid) :
   monoidfun (presented_abmonoid X R) Y ≃ ∑(f : X → Y), iscomprelfun R (free_abmonoid_extend f).
 Proof.
   use weq_iso.
@@ -466,7 +466,7 @@ Proof.
     + simpl. refine (!monoidfuninvtoinv g _ @ _). reflexivity.
 Defined.
 
-Definition isfree_free_gr (X : hSet) (Y : gr) : (X → Y) ≃ monoidfun (free_gr X) Y.
+Definition free_gr_universal_property (X : hSet) (Y : gr) : (X → Y) ≃ monoidfun (free_gr X) Y.
 Proof.
   use weq_iso.
   - apply free_gr_extend.
@@ -552,7 +552,7 @@ Proof.
       exact (free_gr_extend_comp (monoidfuncomp (presented_gr_pr R) g) _).
 Defined.
 
-Definition ispresented_presented_gr {X : hSet} (R : hrel (free_gr X)) (Y : gr) :
+Definition presented_gr_universal_property {X : hSet} (R : hrel (free_gr X)) (Y : gr) :
   monoidfun (presented_gr X R) Y ≃ ∑(f : X → Y), iscomprelfun R (free_gr_extend f).
 Proof.
   use weq_iso.
@@ -638,7 +638,7 @@ Proof.
   exact (presented_gr_extend_comp g _).
 Defined.
 
-Definition isfree_free_abgr (X : hSet) (Y : abgr) : (X → Y) ≃ monoidfun (free_abgr X) Y.
+Definition free_abgr_universal_property (X : hSet) (Y : abgr) : (X → Y) ≃ monoidfun (free_abgr X) Y.
 Proof.
   use weq_iso.
   - apply free_abgr_extend.
@@ -711,7 +711,7 @@ Proof.
       exact (free_abgr_extend_comp (monoidfuncomp (presented_abgr_pr R) g) x).
 Defined.
 
-Definition ispresented_presented_abgr {X : hSet} (R : hrel (free_abgr X)) (Y : abgr) :
+Definition presented_abgr_universal_property {X : hSet} (R : hrel (free_abgr X)) (Y : abgr) :
   monoidfun (presented_abgr X R) Y ≃ ∑(f : X → Y), iscomprelfun R (free_abgr_extend f).
 Proof.
   use weq_iso.
