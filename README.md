@@ -53,7 +53,6 @@ Note that this requires ```\usepackage{url}``` or ```\usepackage{hyperref}```.
 The UniMath Development Team
 ----------------------------
 
-The members of the UniMath Development Team are 
-- Vladimir Voevodsky, 
-- Benedikt Ahrens, and 
-- Daniel Grayson.
+The members of the UniMath Development Team are:
+	- Benedikt Ahrens
+	- Daniel Grayson
