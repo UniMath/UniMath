@@ -2091,7 +2091,7 @@ Definition setquotuniv2@{i u} {X : Type@{i}} (R : hrel X) (Y : hSet@{i u}) (f : 
 Proof.
   intros.
   set (ff := λ xy : dirprod@{i} X X, f (pr1 xy) (pr2 xy)).
-  set (RR := hreldirprod@{i i i i i i i} R R).
+  set (RR := hreldirprod@{i i i i i i} R R).
   apply (setquotuniv RR Y ff (setquotuniv2_iscomprelfun R Y f is c c0)
                      (dirprodtosetquot R R (dirprodpair c c0))).
 Defined.
@@ -2101,7 +2101,7 @@ Definition setquotuniv2'@{i u} {X Y : Type@{i}} (R : hrel@{i} X) (isa : isaset Y
 Proof.
   intros.
   set (ff := λ xy : dirprod@{i} X X, f (pr1 xy) (pr2 xy)).
-  set (RR := hreldirprod@{i i i i i i i} R R).
+  set (RR := hreldirprod@{i i i i i i} R R).
   set (Yset := hSetpair@{i u} Y isa).
   apply (setquotuniv RR Yset ff (setquotuniv2_iscomprelfun R Yset f is c c0)
                      (dirprodtosetquot R R (dirprodpair c c0))).

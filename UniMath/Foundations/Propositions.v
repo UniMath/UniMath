@@ -92,6 +92,9 @@ Definition hProp@{} : Type@{uu1} := @total2@{uu1} Type@{uu0} isaprop@{uu0}.
 Definition hProppair@{i} (X : Type@{i}) (is : isaprop@{i} X) : hProp
   := tpair@{uu1} isaprop@{uu0} (ResizeProp@{uu0 i} X is) is.
 
+Definition hProppair_uu0@{} (X : Type@{uu0}) (is : isaprop@{uu0} X) : hProp
+  := tpair@{uu1} isaprop@{uu0} X is.
+
 Definition hProptoType@{} := @pr1 _ _ : hProp -> Type@{uu0}.
 
 Coercion hProptoType : hProp >-> Sortclass.
@@ -412,8 +415,8 @@ Definition htrue : hProp := hProppair unit isapropunit.
 
 Definition hfalse : hProp := hProppair empty isapropempty.
 
-Definition hconj (P Q : hProp) : hProp
-  := hProppair (P × Q) (isapropdirprod _ _ (pr2 P) (pr2 Q)).
+Definition hconj@{} (P Q : hProp) : hProp
+  := hProppair_uu0 (P × Q) (isapropdirprod _ _ (pr2 P) (pr2 Q)).
 
 Notation "A ∧ B" := (hconj A B) (at level 80, right associativity) : type_scope.
   (* precedence same as /\ *)
@@ -450,9 +453,14 @@ Notation "'¬' X" := (hneg X) (at level 35, right associativity) : logic.
   (* type this in emacs in agda-input method with \neg *)
 Delimit Scope logic with logic.
 
-Definition himpl (P : UU) (Q : hProp) : hProp.
+Definition himpl@{i} (P : Type@{i}) (Q : hProp) : hProp.
 Proof.
-  intros. use (hProppair (P → Q)). apply impred. intro. apply propproperty.
+  intros. use (hProppair@{i} (P → Q)). apply impred. intro. apply propproperty.
+Defined.
+
+Definition himpl_uu0@{} (P : Type@{uu0}) (Q : hProp) : hProp.
+Proof.
+  intros. use (tpair@{uu1} isaprop (P → Q)). apply impred. intro. apply propproperty.
 Defined.
 
 Local Notation "A ⇒ B" := (himpl A B) (at level 95, no associativity) : logic.
