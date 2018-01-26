@@ -494,15 +494,8 @@ Defined.
 
 (** *** Relations and boolean relations *)
 
-Section hrel.
-
-  Universe i.
-  Constraint uu1 <= i.
-
-  Definition hrel@{} (X : Type@{i}) : Type@{i} := X -> X -> hProp.
-  Identity Coercion idhrel : hrel >-> Funclass.
-
-End hrel.
+Definition hrel@{i} (X : Type@{i}) : Type@{i} := X -> X -> hProp.
+Identity Coercion idhrel : hrel >-> Funclass.
 
 Definition brel@{i} (X : Type@{i}) : Type@{i} := X -> X -> bool.
 Identity Coercion idbrel : brel >-> Funclass.
@@ -1693,8 +1686,7 @@ Defined.
 Section iscompsetquotpr.
 
   Universe i.
-  Constraint uu1 < i.
-  (* without the constraint, we get Top.4159 <= uu1 below *)
+  Constraint uu1 < i. (* without this, we get uu1 = i from the next definition *)
 
   Lemma iscompsetquotpr@{} {X : Type@{i}} (R : eqrel X) (x x' : X) (a : R x x') :
     setquotpr R x = setquotpr@{i} R x'.
@@ -2328,22 +2320,12 @@ Section quotrel.
 
   Universe i u.
   Constraint i < u.
-  Constraint uu1 < i.           (* without this, the next definition yields uu1=i ! *)
+  Constraint uu1 < i.           (* without this, the next definition yields uu1=i *)
 
   Definition quotrel@{} {X : Type@{i}} {R L : hrel@{i} X} (is : iscomprelrel@{i} R L) :
     hrel (setquot@{i} R) := @setquotuniv2'@{i u} X hProp R isasethProp L is.
 
 End quotrel.
-
-Section quotrel_uu1.
-
-  Universe i u.
-  Constraint i < u.
-
-  Definition quotrel_uu1@{} {X : Type@{i}} {R L : hrel@{i} X} (is : iscomprelrel@{i} R L) :
-    hrel (setquot@{i} R) := @setquotuniv2'@{i u} X hProp R isasethProp L is.
-
-End quotrel_uu1.
 
 Lemma istransquotrel {X : UU} {R : eqrel X} {L : hrel X}
       (is : iscomprelrel R L) (isl : istrans L) : istrans (quotrel is).
@@ -2545,7 +2527,7 @@ Defined.
 Section quotdecrelint.
 
   Universe i u.
-  Constraint uu1 < i.
+  Constraint uu1 < i. (* without this, the next definition generates the constraint uu1 = i *)
 
   Definition quotdecrelint@{} {X : Type@{i}} {R : hrel X} (L : decrel X)
              (is : iscomprelrel R (pr1 L))  : brel (setquot@{i} R).
