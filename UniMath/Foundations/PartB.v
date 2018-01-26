@@ -1010,7 +1010,8 @@ Defined.
 
 (** *** Propositions equivalent to negations of propositions *)
 
-Definition negProp P := ∑ Q, isaprop Q × (¬P <-> Q).
+Definition negProp@{i u} (P : Type@{i}) : Type@{u}
+  := @total2@{u} Type@{i} (λ Q, isaprop@{i} Q × (logeq@{i} (¬P) Q)).
 
 Definition negProp_to_type {P} (negP : negProp P) := pr1 negP.
 

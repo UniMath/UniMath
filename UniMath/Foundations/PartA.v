@@ -279,7 +279,7 @@ Definition dneganddnegimpldneg {X Y : UU}
 
 (** *** Logical equivalence *)
 
-Definition logeq (X Y : UU) := (X -> Y) × (Y -> X).
+Definition logeq@{i} (X Y : Type@{i}) : Type@{i} := (X -> Y) × (Y -> X).
 Notation " X <-> Y " := (logeq X Y) : type_scope.
 
 Lemma isrefl_logeq (X : UU) : X <-> X.

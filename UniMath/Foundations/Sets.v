@@ -2534,7 +2534,7 @@ Section quotdecrelint.
   Proof.
     intros.
     set (f := decreltobrel@{i} L). unfold brel.
-    apply (setquotuniv2'@{i u} R isasetbool@{uu1} f).
+    (* apply (setquotuniv2 R boolset f). *) apply (setquotuniv2'@{i u} R isasetbool@{uu1} f).
     intros x x' x0 x0' r r0. unfold f. unfold decreltobrel in *.
     induction (pr2 L x x0') as [ l | nl ].
     - induction (pr2 L x' x0') as [ l' | nl' ].
