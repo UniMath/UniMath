@@ -51,6 +51,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Archimedean.v](Algebra/Archimedean.v)
    - [Lattice.v](Algebra/Lattice.v)
    - [IteratedBinaryOperations.v](Algebra/IteratedBinaryOperations.v)
+   - [Free_Monoids_and_Groups.v](Algebra/Free_Monoids_and_Groups.v)
    - [Tests.v](Algebra/Tests.v)
    - [Modules/Core.v](Algebra/Modules/Core.v)
    - [Modules/Submodule.v](Algebra/Modules/Submodule.v)
