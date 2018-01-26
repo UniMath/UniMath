@@ -4,6 +4,20 @@ Univalent Mathematics Coq files
 Each subdirectory of this directory consists of a separate package, with
 various authors, as recorded in the README (or README.md) file in it.
 
+## Contributing code to UniMath
+
+Volunteers may look at unassigned issues at github and volunteer to be assigned
+one of them.  New proposals and ideas may be submitted as issues at github for
+discussion and feedback.
+
+Contributions are submitted in the form of pull requests at github and are
+subject to approval by the UniMath Development Team.
+
+Changes to the package "Foundations" are normally not accepted, for we are
+trying to keep it in a state close to what Vladimir Voevodsky originally
+intended.  A warning is issued if you run `make` or `make all` and have changed
+a file in the Foundations package.
+
 ## Adding a file to a package
 
 Each package contains a subdirectory called ".package".  The file
@@ -35,10 +49,8 @@ less fragile and to make the files have a more uniform and pleasing appearance.
   because using `exact` would be clearer.
 * Do not use `Prop` or `Set`, and ensure definitions don't produce
   elements of them.
-* Do not use `Type`, except in `Foundations/Basics/Preamble.v`.
-  Use `UU` instead.  If higher universes are needed, they should be
-  added to `Foundations/Basics/Preamble.v`.
-* Do not use `Inductive` or `Record`, except in `Foundations/Basics/Preamble.v`.
+* Do not use `Inductive` or `Record`.  Their use is limited to just a few basic
+  types, which are defined in `Foundations/Preamble.v`.
 * Do not use `Module` or `Structure`.
 * Do not use `Fixpoint`.
 * Do not use `destruct`, `match`, `case`, square brackets with `intros`, or
@@ -67,10 +79,6 @@ less fragile and to make the files have a more uniform and pleasing appearance.
 * Always use Coq's proof structuring syntax ( ` { } + - * ` ) to focus on a
   single goal immediately after a tactic creates additional goals.
 * Indentation should normally be that produced automatically by emacs' `coq-mode`.
-* Within the core `Foundations` package:
-  * Do not start lines with `:` or with `:=`.
-  * One should normally put an extra blank line between units.  Exceptions may
-    be made for closely related items.
 * When using `abstract` in a proof, it is unsound to refer later by name to the
   abstracted lemma (whose name typically ends with `_subproof`), because
   its type may vary from one version of Coq to another.  Coq's current behavior is also
