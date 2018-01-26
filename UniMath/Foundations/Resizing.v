@@ -7,25 +7,25 @@ Require Export UniMath.Foundations.PartB.
     for slides from a talk by Voevodsky entitled
     "Resizing Rules - their use and semantic justification" *)
 
-(** This file is compiled with type-in-type. *)
+(** This file is the only file in UniMath that is compiled with type-in-type. *)
 
 Section A.
 
   Universe i j.
 
-  (* If we don't impose this constraint, Coq generates the constraint j <= i for us, which
-     excludes exactly the cases we want. *)
+  (* If we don't impose this constraint, Coq generates the constraint j <= i for us, which excludes
+     the cases we want. *)
   Constraint i < j.
 
   Definition ResizeProp@{} (T : Type@{j}) : isaprop@{j} T -> Type@{i}.
-  (* this is related to the rule he calls RR1 *)
+  (* this is related to the rule Voevodsky calls RR1 *)
   Proof.
     intros _.
     exact T.
   Defined.
 
   Definition ResizeType@{} {S : Type@{i}} (T : Type@{j}) : weq@{j} S T -> Type@{i}.
-  (* this is related to the rule he calls RR5 *)
+  (* this is related to the rule Voevodsky calls RR5 *)
   Proof.
     intros _.
     exact T.

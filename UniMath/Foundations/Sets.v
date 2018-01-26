@@ -318,13 +318,21 @@ Proof.
   intros. apply (isinclpr1 A (λ x : _, pr2 (A x))).
 Defined.
 
-Lemma isasethsubtype (X : UU) : isaset (hsubtype X).
-Proof.
-  intro X.
-  change (isofhlevel 2 (hsubtype X)).
-  apply impred; intro x.
-  exact isasethProp.
-Defined.
+Section isasethsubtype.
+
+  Universe i.
+  Constraint uu1 < i.
+  (* without the constraint we get uu1 = i below *)
+
+  Lemma isasethsubtype@{} (X : Type@{i}) : isaset (hsubtype@{i} X).
+  Proof.
+    intro X.
+    change (isofhlevel 2 (hsubtype X)).
+    apply impred; intro x.
+    exact isasethProp.
+  Defined.
+
+End isasethsubtype.
 
 Definition totalsubtype (X : UU) : hsubtype X := λ x, htrue.
 
@@ -496,7 +504,7 @@ Section hrel.
 
 End hrel.
 
-Definition brel (X : UU) : UU := X -> X -> bool.
+Definition brel@{i} (X : Type@{i}) : Type@{i} := X -> X -> bool.
 Identity Coercion idbrel : brel >-> Funclass.
 
 (** *** Standard properties of relations *)
@@ -1111,7 +1119,7 @@ Definition decrelpair {X : UU} {R : hrel X} (is : isdecrel R) : decrel X
   := tpair _ R is.
 Coercion pr1decrel : decrel >-> hrel.
 
-Definition decreltobrel {X : UU} (R : decrel X) : brel X.
+Definition decreltobrel@{i} {X : Type@{i}} (R : decrel@{i} X) : brel X.
 Proof.
   intros. intros x x'. induction ((pr2 R) x x').
   - apply true.
@@ -1682,20 +1690,24 @@ Proof.
   - apply (eqax0 (pr2 c)).
 Defined.
 
-Lemma iscompsetquotpr {X : UU} (R : eqrel X) (x x' : X) (a : R x x') :
-  setquotpr R x = setquotpr R x'.
-Proof.
-  intros. apply (invmaponpathsincl _ (isinclpr1setquot R)).
-  simpl. apply funextsec.
-  intro x0.
-  use hPropUnivalence.
-  intro r0. apply (eqreltrans R _ _ _ (eqrelsymm R _ _ a) r0).
-  intro x0'. apply (eqreltrans R _ _ _ a x0').
-Defined.
+Section iscompsetquotpr.
 
-Print iscompsetquotpr.          (* try to avoid Top.4159 <= uu1 *)
+  Universe i.
+  Constraint uu1 < i.
+  (* without the constraint, we get Top.4159 <= uu1 below *)
 
----
+  Lemma iscompsetquotpr@{} {X : Type@{i}} (R : eqrel X) (x x' : X) (a : R x x') :
+    setquotpr R x = setquotpr@{i} R x'.
+  Proof.
+    intros. apply (invmaponpathsincl _ (isinclpr1setquot R)).
+    simpl. apply funextsec.
+    intro x0.
+    use hPropUnivalence.
+    intro r0. apply (eqreltrans R _ _ _ (eqrelsymm R _ _ a) r0).
+    intro x0'. apply (eqreltrans R _ _ _ a x0').
+  Defined.
+
+End iscompsetquotpr.
 
 (** *** Universal property of [seqtquot R] for functions to sets satisfying compatibility condition [iscomprelfun] *)
 
@@ -2321,8 +2333,6 @@ Section quotrel.
   Definition quotrel@{} {X : Type@{i}} {R L : hrel@{i} X} (is : iscomprelrel@{i} R L) :
     hrel (setquot@{i} R) := @setquotuniv2'@{i u} X hProp R isasethProp L is.
 
-  Print quotrel.
-
 End quotrel.
 
 Section quotrel_uu1.
@@ -2532,30 +2542,37 @@ Defined.
 (** Constructive proof of decidability of the quotient relation *)
 
 
-Definition quotdecrelint {X : UU} {R : hrel X} (L : decrel X)
-           (is : iscomprelrel R (pr1 L))  : brel (setquot R).
-Proof.
-  intros.
-  set (f := decreltobrel L). unfold brel.
-  apply (setquotuniv2 R boolset f).
-  intros x x' x0 x0' r r0. unfold f. unfold decreltobrel in *.
-  induction (pr2 L x x0') as [ l | nl ].
-  - induction (pr2 L x' x0') as [ l' | nl' ].
-    + induction (pr2 L x x0) as [ l'' | nl'' ].
-      * apply idpath.
-      * set (e := is x x' x0 x0' r r0).
-        induction e. induction (nl'' l').
-    + induction (pr2 L x x0) as [ l'' | nl'' ].
-      * set (e := is x x' x0 x0' r r0). induction e. induction (nl' l'').
-      * apply idpath.
-  - induction (pr2 L x x0) as [ l' | nl' ].
-    + induction (pr2 L x' x0') as [ l'' | nl'' ].
-      * apply idpath.
-      * set (e := is x x' x0 x0' r r0). induction e. induction (nl'' l').
-    + induction (pr2 L x' x0') as [ l'' | nl'' ].
-      * set (e := is x x' x0 x0' r r0). induction e. induction (nl' l'').
-      * apply idpath.
-Defined.
+Section quotdecrelint.
+
+  Universe i u.
+  Constraint uu1 < i.
+
+  Definition quotdecrelint@{} {X : Type@{i}} {R : hrel X} (L : decrel X)
+             (is : iscomprelrel R (pr1 L))  : brel (setquot@{i} R).
+  Proof.
+    intros.
+    set (f := decreltobrel@{i} L). unfold brel.
+    apply (setquotuniv2'@{i u} R isasetbool@{uu1} f).
+    intros x x' x0 x0' r r0. unfold f. unfold decreltobrel in *.
+    induction (pr2 L x x0') as [ l | nl ].
+    - induction (pr2 L x' x0') as [ l' | nl' ].
+      + induction (pr2 L x x0) as [ l'' | nl'' ].
+        * apply idpath.
+        * set (e := is x x' x0 x0' r r0).
+          induction e. induction (nl'' l').
+      + induction (pr2 L x x0) as [ l'' | nl'' ].
+        * set (e := is x x' x0 x0' r r0). induction e. induction (nl' l'').
+        * apply idpath.
+    - induction (pr2 L x x0) as [ l' | nl' ].
+      + induction (pr2 L x' x0') as [ l'' | nl'' ].
+        * apply idpath.
+        * set (e := is x x' x0 x0' r r0). induction e. induction (nl'' l').
+      + induction (pr2 L x' x0') as [ l'' | nl'' ].
+        * set (e := is x x' x0 x0' r r0). induction e. induction (nl' l'').
+        * apply idpath.
+  Defined.
+
+End quotdecrelint.
 
 Definition quotdecrelintlogeq {X : Type} {R : eqrel X} (L : decrel X)
            (is : iscomprelrel R (pr1 L)) (x x' : setquot R) :
