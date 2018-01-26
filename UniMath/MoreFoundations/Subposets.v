@@ -40,7 +40,7 @@ Proof.
     + intros S.
       exists (Subposet_to_Subposet' S).
       apply funextfun; intro z.
-      apply hPropUnivalence.
+      use hPropUnivalence.
       * simple refine (hinhuniv _); intro w.
         simpl in w. induction w as [s p]. induction s as [y q]; simpl in p.
         induction p. exact q.

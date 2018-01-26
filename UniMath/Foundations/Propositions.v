@@ -115,12 +115,10 @@ Coercion negProp_to_hProp : negProp >-> hProp.
 Section subtypeInjectivity_prop.
 
   Universe i.
+  Constraint uu0 < i.           (* without this, Coq makes uu0 = i; it's a bug *)
 
-  (* without this constraint, Coq makes uu0 = i.  ???  *)
-  Constraint uu0 < i.
-
-  Corollary subtypeInjectivity_prop {A : Type} (B : A -> hProp) :
-    ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1 y).
+  Corollary subtypeInjectivity_prop@{} {A : Type@{i}} (B : A -> hProp) :
+    ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1@{i} y).
   Proof.
     intros. apply subtypeInjectivity. intro. apply propproperty.
   Defined.
@@ -146,13 +144,20 @@ Proof.
   - intro x. apply propproperty.
 Defined.
 
-Lemma isaprop_forall_hProp (X : UU) (Y : X -> hProp) : isaprop (∏ x, Y x).
-Proof.
-  intros. apply impred_isaprop. intro x. apply propproperty.
-Defined.
+Section forall_hProp.
 
-Definition forall_hProp {X : UU} (Y : X -> hProp) : hProp
-  := hProppair (∏ x, Y x) (isaprop_forall_hProp X Y).
+  Universe i.
+  Constraint uu1 < i.
+
+  Lemma isaprop_forall_hProp@{} (X : Type@{i}) (Y : X -> hProp) : isaprop@{i} (∏ x, Y x).
+  Proof.
+    intros. apply impred_isaprop. intro x. apply propproperty.
+  Defined.
+
+  Definition forall_hProp@{} {X : Type@{i}} (Y : X -> hProp) : hProp
+    := hProppair@{i} (∏ x, Y x) (isaprop_forall_hProp X Y).
+
+End forall_hProp.
 
 Notation "∀  x .. y , P"
   := (forall_hProp (λ x, .. (forall_hProp (λ y, P))..))
