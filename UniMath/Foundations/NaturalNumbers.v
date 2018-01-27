@@ -108,10 +108,10 @@ Proof.
   intros n.
   induction n as [|n N].
   - intro m. induction m as [|m _].
-    + apply logeq_both_false@{uu0}.
+    + apply logeq_both_false.
       * intro n. exact (n (idpath 0)).
       * simpl. exact (idfun ∅).
-    + apply logeq_both_true@{uu1 uu1 uu1}.
+    + apply logeq_both_true.
       * apply negpaths0sx.
       * simpl. exact tt.
   - intro m. induction m as [|m _].
@@ -125,8 +125,6 @@ Proof.
         apply (pr2 (N m)). exact neq.
 Defined.
 
---
-
 Lemma nat_neq_to_nopath {n m : nat} : ¬ (n = m) <- n ≠ m.
 Proof.
   intros ? ?. exact (pr2 (natneq_iff_neq n m)).
@@ -137,7 +135,7 @@ Proof.
   intros ? ?. exact (pr1 (natneq_iff_neq n m)).
 Defined.
 
-Definition natneq@{i u} (m n : nat) : negProp@{i u} (m = n).
+Definition natneq@{} (m n : nat) : negProp@{uu1 uu2} (m = n).
 Proof.
   intros. exists (m ≠ n). split.
   - apply propproperty.

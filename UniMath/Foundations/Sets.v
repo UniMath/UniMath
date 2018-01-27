@@ -205,18 +205,17 @@ there are models which would validate a possibility of types other than sets
 to satisfy weak axiom of choice.
 *)
 
-Definition ischoicebase_uu1 (X : UU)
-  := ∏ P : X -> UU, (∏ x : X, ishinh (P x)) -> ishinh (∏ x : X, P x).
+Definition ischoicebase_uu1@{i u} (X : Type@{i}) : Type@{u}
+  := ∏ P : X -> Type@{i}, (∏ x : X, ishinh@{i} (P x)) -> ishinh@{i} (∏ x : X, P x).
 
-(** Uses RR1 *)
-Lemma isapropischoicebase (X : UU) : isaprop (ischoicebase_uu1 X).
+Lemma isapropischoicebase@{i u} (X : Type@{i}) : isaprop@{u} (ischoicebase_uu1@{i u} X).
 Proof.
   intro. apply impred.
   intro P. apply impred.
-  intro fs. apply (pr2 (ishinh _)).
+  intro fs. apply propproperty.
 Defined.
 
-Definition ischoicebase (X : UU) : hProp := hProppair _ (isapropischoicebase X).
+Definition ischoicebase@{i u} (X : Type@{i}) : hProp := hProppair@{u} _ (isapropischoicebase@{i u} X).
 
 Lemma ischoicebaseweqf {X Y : UU} (w : X ≃ Y) (is : ischoicebase X) :
   ischoicebase Y.

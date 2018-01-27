@@ -163,7 +163,8 @@ Defined.
 
 Definition isDecidablePredicate {X} (S:X->hProp) := ∏ x, decidable (S x).
 
-Definition subtype_plus@{i} {X:Type@{i}} (S:hsubtype@{i} X) (z:X) : hsubtype X := λ x, S x ∨ z = x.
+Definition subtype_plus@{i} {X:Type@{i}} (S:hsubtype@{i} X) (z:X) : hsubtype@{i} X
+  := λ x, hdisj@{i} (S x) (z = x).
 
 Definition subtype_plus_incl {X} (S:hsubtype X) (z:X) : S ⊆ subtype_plus S z.
 Proof.

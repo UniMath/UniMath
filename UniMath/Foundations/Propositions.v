@@ -422,9 +422,9 @@ Defined.
 (** *** Intuitionistic logic on [hProp]. *)
 
 
-Definition htrue : hProp := hProppair unit isapropunit.
+Definition htrue : hProp := hProppair_uu0 unit isapropunit.
 
-Definition hfalse : hProp := hProppair empty isapropempty.
+Definition hfalse : hProp := hProppair_uu0 empty isapropempty.
 
 Definition hconj@{} (P Q : hProp) : hProp
   := hProppair_uu0 (P × Q) (isapropdirprod _ _ (pr2 P) (pr2 Q)).
@@ -433,7 +433,7 @@ Notation "A ∧ B" := (hconj A B) (at level 80, right associativity) : type_scop
   (* precedence same as /\ *)
   (* in agda-input method, type \and or \wedge *)
 
-Definition hdisj (P Q : UU) : hProp := ishinh (coprod P Q).
+Definition hdisj@{i} (P Q : Type@{i}) : hProp := ishinh@{i} (coprod P Q).
 
 Notation "X ∨ Y" := (hdisj X Y) (at level 85, right associativity) : type_scope.
   (* in agda-input method, type \or *)
