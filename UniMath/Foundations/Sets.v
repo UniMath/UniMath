@@ -280,21 +280,14 @@ Defined.
 
 (** *** General definitions *)
 
-Section hsubtype.
-
-  Universe i.
-  Constraint uu1 <= i.
-
-  Definition hsubtype@{} (X : Type@{i}) : Type@{i} := X -> hProp.
-  Identity Coercion id_hsubtype :  hsubtype >-> Funclass.
-
-End hsubtype.
+Definition hsubtype@{i} (X : Type@{i}) : Type@{i} := X -> hProp.
+Identity Coercion id_hsubtype :  hsubtype >-> Funclass.
 
 Definition carrier@{i} {X : Type@{i}} (A : hsubtype@{i} X) := total2@{i} A.
 Coercion carrier : hsubtype >-> Sortclass.
 Definition carrierpair {X : UU} (A : hsubtype X) :
    ∏ t : X, A t → ∑ x : X, A x := tpair A.
-Definition pr1carrier {X : UU} (A : hsubtype X) := @pr1 _ _  : carrier A -> X.
+Definition pr1carrier@{i} {X : Type@{i}} (A : hsubtype@{i} X) := @pr1 _ _  : carrier A -> X.
 
 Lemma isaset_carrier_subset@{i u} (X : hSet@{i u}) (Y : hsubtype@{i} X) : isaset (total2@{i} Y).
 Proof.
@@ -321,7 +314,7 @@ Defined.
 Section isasethsubtype.
 
   Universe i.
-  Constraint uu1 < i.
+  (* Constraint uu1 < i. *)
   (* without the constraint we get uu1 = i below *)
 
   Lemma isasethsubtype@{} (X : Type@{i}) : isaset (hsubtype@{i} X).
@@ -1106,7 +1099,7 @@ Defined.
 (** *** Boolean representation of decidable relations *)
 
 
-Definition decrel@{i} (X : Type@{i}) : Type@{i} := total2 (λ R : hrel@{i} X, isdecrel@{i i i i} R).
+Definition decrel@{i} (X : Type@{i}) : Type@{i} := total2 (λ R : hrel@{i} X, isdecrel@{i i i} R).
 Definition pr1decrel@{i} (X : Type@{i}) : decrel X -> hrel@{i} X := @pr1 _ _.
 Definition decrelpair {X : UU} {R : hrel X} (is : isdecrel R) : decrel X
   := tpair _ R is.
@@ -1658,7 +1651,7 @@ Defined.
 Section setquotl0.
 
   Universe i.
-  Constraint uu1 < i.           (* without this constraint, we get uu1=i in setquotl0.  ???  *)
+  (* Constraint uu1 < i.           (* without this constraint, we get uu1=i in setquotl0.  ???  *) *)
 
   Lemma setquotl0@{} {X : Type@{i}} (R : eqrel X) (c : setquot R) (x : c) :
     setquotpr@{i} R (pr1 x) = c.
@@ -1686,7 +1679,7 @@ Defined.
 Section iscompsetquotpr.
 
   Universe i.
-  Constraint uu1 < i. (* without this, we get uu1 = i from the next definition *)
+  (* Constraint uu1 < i. (* without this, we get uu1 = i from the next definition *) *)
 
   Lemma iscompsetquotpr@{} {X : Type@{i}} (R : eqrel X) (x x' : X) (a : R x x') :
     setquotpr R x = setquotpr@{i} R x'.
@@ -1717,16 +1710,16 @@ Lemma isapropimeqclass@{i u} {X : Type@{i}} (R : hrel X) (Y : hSet@{i u}) (f : X
       (is : iscomprelfun R f) (c : setquot@{i} R) :
   isaprop (image (λ x : c, f (pr1 x))).
 Proof.
-  intros. apply isapropsubtype.
+  intros. apply isapropsubtype@{i u}.
   intros y1 y2. simpl.
-  apply (@hinhuniv2 _ _ (hProppair (y1 = y2) (pr2 Y y1 y2))).
+  apply (@hinhuniv2@{i i i i i i} _ _ (hProppair@{i} (y1 = y2) (pr2 Y y1 y2))).
   intros x1 x2. simpl.
   induction c as [ A iseq ].
   induction x1 as [ x1 is1 ]. induction x2 as [ x2 is2 ].
   induction x1 as [ x1 is1' ]. induction x2 as [ x2 is2' ].
   simpl in is1. simpl in is2. simpl in is1'. simpl in is2'.
-  assert (r : R x1 x2) by apply (eqax2 iseq _ _ is1' is2').
-  apply (pathscomp0 (pathsinv0 is1) (pathscomp0 (is _ _ r) is2)).
+  assert (r : R x1 x2) by apply (eqax2@{i} iseq _ _ is1' is2').
+  apply (pathscomp0@{i} (pathsinv0@{i} is1) (pathscomp0@{i} (is _ _ r) is2)).
 Defined.
 Global Opaque isapropimeqclass.
 
@@ -2319,8 +2312,7 @@ Defined.
 Section quotrel.
 
   Universe i u.
-  Constraint i < u.
-  Constraint uu1 < i.           (* without this, the next definition yields uu1=i *)
+  (* Constraint uu1 < i.           (* without this, the next definition yields uu1=i *) *)
 
   Definition quotrel@{} {X : Type@{i}} {R L : hrel@{i} X} (is : iscomprelrel@{i} R L) :
     hrel (setquot@{i} R) := @setquotuniv2'@{i u} X hProp R isasethProp L is.
@@ -2527,14 +2519,14 @@ Defined.
 Section quotdecrelint.
 
   Universe i u.
-  Constraint uu1 < i. (* without this, the next definition generates the constraint uu1 = i *)
+  (* Constraint uu1 < i. (* without this, the next definition generates the constraint uu1 = i *) *)
 
   Definition quotdecrelint@{} {X : Type@{i}} {R : hrel X} (L : decrel X)
              (is : iscomprelrel R (pr1 L))  : brel (setquot@{i} R).
   Proof.
     intros.
     set (f := decreltobrel@{i} L). unfold brel.
-    (* apply (setquotuniv2 R boolset f). *) apply (setquotuniv2'@{i u} R isasetbool@{uu1} f).
+    (* apply (setquotuniv2 R boolset f). *) apply (setquotuniv2'@{i u} R isasetbool@{} f).
     intros x x' x0 x0' r r0. unfold f. unfold decreltobrel in *.
     induction (pr2 L x x0') as [ l | nl ].
     - induction (pr2 L x' x0') as [ l' | nl' ].

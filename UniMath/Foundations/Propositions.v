@@ -124,7 +124,7 @@ End negProp_to_hProp.
 Section subtypeInjectivity_prop.
 
   Universe i.
-  (* Constraint uu0 < i.           (* without this, Coq makes uu0 = i; it's a bug *) *)
+  Constraint uu0 < i.           (* without this, Coq makes uu0 = i; it's a bug *)
 
   Corollary subtypeInjectivity_prop@{} {A : Type@{i}} (B : A -> hProp) :
     ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1@{i} y).
@@ -132,23 +132,8 @@ Section subtypeInjectivity_prop.
     intros. apply subtypeInjectivity. intro. apply propproperty.
   Defined.
 
-  Print subtypeInjectivity_prop.
-  (* The Print statement shows the invalid constraint i = uu0 :
-
-            |= i < UniMath.Foundations.Preamble.12
-               i <= uu1
-               i = uu0
-   *)
-
   Context (X:Type@{uu1}).
   Check (@subtypeInjectivity_prop X). (* force an error if i = uu0 *)
-  (*
-        Error:
-        In environment
-        X : Type@{uu1}
-        The term "X" has type "Type@{uu1}" while it is expected to have type
-         "Type@{i}" (universe inconsistency: Cannot enforce uu1 <= i because i < uu1).
-   *)
 
 End subtypeInjectivity_prop.
 
@@ -174,7 +159,7 @@ Defined.
 Section forall_hProp.
 
   Universe i.
-  Constraint uu1 < i.
+  Constraint uu1 < i.           (* without this, the next def'n gives i = uu0 *)
 
   Lemma isaprop_forall_hProp@{} (X : Type@{i}) (Y : X -> hProp) : isaprop@{i} (∏ x, Y x).
   Proof.
