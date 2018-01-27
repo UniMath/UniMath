@@ -697,7 +697,7 @@ Defined.
 
 Section isinclii1.
   Universe i.
-  Constraint uu1 < i.           (* without this we get uu1 = i below *)
+  (* Constraint uu1 < i.           (* without this we get uu1 = i below *) *)
 
   Theorem isinclii1@{i} (X Y : Type@{i}) : isincl@{i} (@ii1 X Y).
   Proof.
@@ -716,7 +716,6 @@ Section isinclii1.
   Defined.
 
   (* We get uu1 = i despite declaring uu1 < i!  This is a bug. *)
-  Print isinclii1.
 
 End isinclii1.
 

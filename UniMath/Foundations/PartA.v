@@ -1557,7 +1557,7 @@ Defined.
 Section isweqcontrtounit.
 
   Universe i.
-  Constraint uu0 < i.           (* without this, we get i = uu0 in the next definition *)
+  (* Constraint uu0 < i.           (* without this, we get i = uu0 in the next definition *) *)
 
   Lemma isweqcontrtounit@{} {T : Type@{i}} (is : iscontr@{i} T) : isweq@{i} (λ _:T, tt).
   Proof.
