@@ -82,8 +82,6 @@ Require Export UniMath.Foundations.Resizing.
 
 (** ** The type [hProp] of types of h-level 1 *)
 
-Monomorphic Universe uu0 uu1 uu2.
-
 (** [hProp] is essentially defined as [∑ T:Type, isaprop T], but
     here we make the universe levels explicit. *)
 
@@ -95,7 +93,7 @@ Definition hProppair@{i} (X : Type@{i}) (is : isaprop@{i} X) : hProp
 Definition hProppair_uu0@{} (X : Type@{uu0}) (is : isaprop@{uu0} X) : hProp
   := tpair@{uu1} isaprop@{uu0} X is.
 
-Definition hProptoType@{} := @pr1 _ _ : hProp -> Type@{uu0}.
+Definition hProptoType@{} := @pr1@{uu1} _ _ : hProp -> Type@{uu0}.
 
 Coercion hProptoType : hProp >-> Sortclass.
 
@@ -106,11 +104,19 @@ Definition propproperty (P : hProp) := pr2 P : isaprop (pr1 P).
 Definition tildehProp := total2 (λ P : hProp, P).
 Definition tildehProppair {P : hProp} (p : P) : tildehProp := tpair _ P p.
 
-Definition negProp_to_hProp {P : UU} (Q : negProp P) : hProp.
-Proof.
-  intros. use (hProppair (negProp_to_type Q)). apply negProp_to_isaprop.
-Defined.
-Coercion negProp_to_hProp : negProp >-> hProp.
+Section negProp_to_hProp.
+
+  Universe i u.
+  (* Constraint uu1 < i. *)
+
+  Definition negProp_to_hProp@{} {P : Type@{i}} (Q : negProp@{i u} P) : hProp.
+  Proof.
+    intros. use (hProppair@{i} (negProp_to_type@{i u} Q)). apply negProp_to_isaprop.
+  Defined.
+
+  Coercion negProp_to_hProp : negProp >-> hProp.
+
+End negProp_to_hProp.
 
 (* convenient corollaries of some theorems that take separate isaprop
    arguments: *)
@@ -235,9 +241,11 @@ Proof.
   intros ? ? i f h. exact (@hinhuniv X (Q,,i) f h).
 Defined.
 
+Set Printing All.
+
 Corollary squash_to_prop@{i j} {X Q : Type@{i}} : ishinh@{i} X -> isaprop Q -> (X -> Q) -> Q.
 Proof.
-  intros ? ? h i f. exact (@hinhuniv X (ResizeProp Q i,,i) f h).
+  intros ? ? h i f. exact (@hinhuniv X (tpair@{i} _ (ResizeProp Q i) i) f h).
 Defined.
 
 Definition hinhand {X Y : UU} (inx1 : ∥ X ∥) (iny1 : ∥ Y ∥) : ∥ X × Y ∥

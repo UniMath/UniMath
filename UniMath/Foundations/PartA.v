@@ -157,8 +157,6 @@ Defined.
 
 Arguments fromempty { X } _.
 
-Inductive unit : UU :=  tt : unit. (* make unit polymorphic; needed due to Coq bug? *)
-
 Definition tounit {X : UU} : X -> unit := λ _, tt.
 
 (** *** Functions from [ unit ] corresponding to terms *)
@@ -304,7 +302,7 @@ Proof.
   - intros y'. exact x.
 Defined.
 
-Definition logeq_both_false {X Y : UU} : ¬X -> ¬Y -> (X <-> Y).
+Definition logeq_both_false@{i} {X Y : Type@{i}} : neg@{i i} X -> neg@{i i} Y -> (X <-> Y).
 Proof.
   intros ? ? nx ny.
   split.
@@ -636,13 +634,13 @@ Proof.
   intro. apply idpath.
 Defined.
 
-Definition transportf {X : UU} (P : X -> UU) {x x' : X}
+Definition transportf@{i} {X : Type@{i}} (P : X -> Type@{i}) {x x' : X}
            (e : x = x') : P x -> P x' := pr1 (constr1 P e).
 
 Definition transportf_eq {X : UU} (P : X -> UU) {x x' : X} (e : x = x') ( p : P x ) :
   tpair _ x p = tpair  _ x' ( transportf P e p ) := ( pr1 ( pr2 ( constr1 P e ))) p .
 
-Definition transportb {X : UU} (P : X -> UU) {x x' : X}
+Definition transportb@{i} {X : Type@{i}} (P : X -> Type@{i}) {x x' : X}
            (e : x = x') : P x' -> P x := transportf P (!e).
 
 Notation "p #  x" := (transportf _ p x) : transport.
@@ -776,7 +774,7 @@ Proof.
   intros. induction p. induction q. apply idpath.
 Defined.
 
-Lemma two_arg_paths_f {A : UU} {B : A -> UU} {C:UU} {f : ∏ a, B a -> C} {a1 b1 a2  b2}
+Lemma two_arg_paths_f@{i} {A : Type@{i}} {B : A -> Type@{i}} {C:Type@{i}} {f : ∏ a, B a -> C} {a1 b1 a2 b2}
       (p : a1 = a2) (q : transportf B p b1 = b2) : f a1 b1 = f a2 b2.
 (* This lemma is a replacement for and a generalization of [total2_paths2_f], formerly called
    [total2_paths2], which does not refer to [total2].  The lemma [total2_paths2_f] can be obtained
@@ -1556,19 +1554,30 @@ Proof.
   apply (iscontrpathsinunit tt tt).
 Defined.
 
-Lemma isweqcontrtounit {T : UU} (is : iscontr T) : isweq (λ (_ : T), tt).
-Proof.
-  intros. unfold isweq. intro y. induction y.
-  induction is as [c h].
-  set (hc := hfiberpair _ c (idpath tt)).
-  split with hc.
-  intros ha.
-  induction ha as [x e].
-  unfold hc. unfold hfiberpair. unfold isProofIrrelevantUnit.
-  simpl.
-  apply (λ q, two_arg_paths_f (h x) q).
-  apply ifcontrthenunitl0.
-Defined.
+Section isweqcontrtounit.
+
+  Universe i.
+  Constraint uu0 < i.           (* without this, we get i = uu0 in the next definition *)
+
+  Lemma isweqcontrtounit@{} {T : Type@{i}} (is : iscontr@{i} T) : isweq@{i} (λ _:T, tt).
+  Proof.
+    intros. unfold isweq. intro y. induction y.
+    induction is as [c h].
+    set (hc := hfiberpair@{i i i} _ c (idpath tt)).
+    split with hc.
+    intros ha.
+    induction ha as [x e].
+    unfold hc. unfold hfiberpair. unfold isProofIrrelevantUnit.
+    apply (λ q, two_arg_paths_f (h x) q).
+    use ifcontrthenunitl0.
+  Defined.
+
+  Check (@isweqcontrtounit bool). (* detect the universe inconsistency *)
+
+  (* another way to fix it is to checkout sub/coq from
+     https://github.com/SkySkimmer/coq/tree/univ-cumul *)
+
+End isweqcontrtounit.
 
 Definition weqcontrtounit {T : UU} (is : iscontr T) : T ≃ unit :=
   weqpair _ (isweqcontrtounit is).
@@ -2853,19 +2862,19 @@ Proof.
   intro. induction x. apply (ii1 (idpath _)). apply (ii2 (idpath _)).
 Defined.
 
-Definition bool_to_type : bool -> UU.
+Definition bool_to_type : bool -> UU0.
 Proof.
   intros b. induction b as [|]. { exact unit. } { exact empty. }
 Defined.
 
-Theorem nopathstruetofalse : true = false -> empty.
+Theorem nopathstruetofalse@{} : true = false -> empty.
 Proof.
-  intro X. apply (transportf bool_to_type X tt).
+  intro X. apply (transportf@{uu1} bool_to_type X tt).
 Defined.
 
-Corollary nopathsfalsetotrue : false = true -> empty.
+Corollary nopathsfalsetotrue@{} : false = true -> empty.
 Proof.
-  intro X. apply (transportb bool_to_type X tt).
+  intro X. apply (transportb@{uu1} bool_to_type X tt).
 Defined.
 
 Definition truetonegfalse (x : bool) : x = true -> x != false.

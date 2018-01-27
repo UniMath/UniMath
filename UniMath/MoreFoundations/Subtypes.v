@@ -126,7 +126,7 @@ Section hsubtype_univalence.
     intros. intermediate_weq (∏ x, S x = T x).
     - apply weqtoforallpaths.
     - unfold subtype_equal. apply weqonsecfibers; intro x.
-      apply weqlogeq.
+      use weqlogeq.
   Defined.
 
 End hsubtype_univalence.
@@ -163,7 +163,7 @@ Defined.
 
 Definition isDecidablePredicate {X} (S:X->hProp) := ∏ x, decidable (S x).
 
-Definition subtype_plus {X} (S:hsubtype X) (z:X) : hsubtype X := λ x, S x ∨ z = x.
+Definition subtype_plus@{i} {X:Type@{i}} (S:hsubtype@{i} X) (z:X) : hsubtype X := λ x, S x ∨ z = x.
 
 Definition subtype_plus_incl {X} (S:hsubtype X) (z:X) : S ⊆ subtype_plus S z.
 Proof.

@@ -15,7 +15,7 @@ Defined.
 
 (** ** Characterize equivalence relations on [bool] *)
 
-Definition eqrel_on_bool (P:hProp) : eqrel boolset.
+Definition eqrel_on_bool@{} (P:hProp) : eqrel boolset.
 (* an equivalence relation on bool amounts to a single proposition *)
 Proof.
   set (ifb := bool_rect (λ _:bool, hProp)).

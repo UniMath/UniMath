@@ -209,7 +209,7 @@ doc: $(GLOBFILES) $(VFILES)
 # The isolated bug will appear in this file, in the UniMath directory:
 ISOLATED_BUG_FILE := isolated_bug.v
 # To use it, run something like this command in an interactive shell:
-#     make isolate-bug BUGGY_FILE=Foundations/Basics/PartB.v
+#     make isolate-bug BUGGY_FILE=Foundations/PartB.v
 sub/coq-tools/find-bug.py:
 	git submodule update --init sub/coq-tools
 help-find-bug:
@@ -221,9 +221,8 @@ isolate-bug: sub/coq-tools/find-bug.py
 		--arg " -indices-matter"									\
 		--arg " -noinit"										\
 		--arg " -indices-matter"									\
-		--arg " -type-in-type"										\
 		--arg " -w"											\
-		--arg " +notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option"	\
+		--arg " -notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option"	\
 		$(BUGGY_FILE) $(ISOLATED_BUG_FILE)
 	@ echo "==="
 	@ echo "=== the isolated bug has been deposited in the file UniMath/$(ISOLATED_BUG_FILE)"

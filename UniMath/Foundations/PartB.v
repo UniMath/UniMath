@@ -1013,24 +1013,25 @@ Defined.
 Definition negProp@{i u} (P : Type@{i}) : Type@{u}
   := @total2@{u} Type@{i} (λ Q, isaprop@{i} Q × (logeq@{i} (¬P) Q)).
 
-Definition negProp_to_type {P} (negP : negProp P) := pr1 negP.
+Definition negProp_to_type@{i u} {P : Type@{i}} (negP : negProp@{i u} P) : Type@{i}
+  := pr1 negP.
 
 Coercion negProp_to_type : negProp >-> Sortclass.
 
-Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop nP
+Definition negProp_to_isaprop@{i u} {P:Type@{i}} (nP : negProp@{i u} P) : isaprop@{i} nP
   := pr1 (pr2 nP).
 
-Definition negProp_to_iff {P} (nP : negProp P) : ¬P <-> nP
+Definition negProp_to_iff@{i u} {P} (nP : negProp@{i u} P) : ¬P <-> nP
   := pr2 (pr2 nP).
 
-Definition negProp_to_neg {P} {nP : negProp P} : nP -> ¬P.
+Definition negProp_to_neg@{i u} {P:Type@{i}} {nP : negProp@{i u} P} : nP -> ¬P.
 Proof.
   intros ? ? np. exact (pr2 (negProp_to_iff nP) np).
 Defined.
 
 Coercion negProp_to_neg : negProp >-> Funclass.
 
-Definition neg_to_negProp {P} {nP : negProp P} : ¬P -> nP.
+Definition neg_to_negProp@{i u} {P:Type@{i}} {nP : negProp@{i u} P} : ¬P -> nP.
 Proof.
   intros ? ? np. exact (pr1 (negProp_to_iff nP) np).
 Defined.
@@ -1239,7 +1240,7 @@ Proof.
   apply (isdeceqifisaprop _ isapropunit).
 Defined.
 
-Theorem isdeceqbool: isdeceq bool.
+Theorem isdeceqbool@{}: isdeceq@{uu1 uu1 uu1} bool.
 Proof.
   unfold isdeceq. intros x' x. induction x.
   - induction x'.
@@ -1441,9 +1442,9 @@ Defined.
 
 (** **** [ bool ] is a set *)
 
-Theorem isasetbool@{i}: isaset@{i} bool.
+Theorem isasetbool@{}: isaset@{uu1} bool.
 Proof.
-  apply (isasetifdeceq@{i i} _ isdeceqbool@{i i i i}).
+  apply (isasetifdeceq@{uu2} _ isdeceqbool).
 Defined.
 
 (** ** Splitting of [ X ] into a coproduct defined by a function [ X -> bool ] *)

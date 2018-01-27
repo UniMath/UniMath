@@ -144,7 +144,7 @@ Notation "'∏' x .. y , P" := (forall_hSet (λ x,.. (forall_hSet (λ y, P))..))
   (at level 200, x binder, y binder, right associativity) : set.
   (* type this in emacs in agda-input method with \sum *)
 
-Definition unitset : hSet@{uu1 uu2} := hSetpair unit isasetunit.
+Definition unitset : hSet@{uu0 uu1} := hSetpair unit isasetunit.
 
 Definition dirprod_hSet (X Y : hSet) : hSet.
 Proof.
@@ -166,7 +166,7 @@ Coercion hProp_to_hSet : hProp >-> hSet.
 
 (** *** Booleans as a set *)
 
-Definition boolset@{} : hSet@{uu1 uu2} := hSetpair bool isasetbool@{uu1}.
+Definition boolset@{} : hSet@{uu1 uu2} := hSetpair bool isasetbool.
 (* Canonical Structure boolset. *)
 
 (* properties of functions between sets *)

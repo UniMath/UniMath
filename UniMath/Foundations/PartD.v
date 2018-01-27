@@ -694,6 +694,17 @@ Proof.
 Defined.
 
 
+Section A.
+  Universe i j.
+  Constraint i < j.
+  Lemma isofhlevel_raise n (X:Type@{i}) : isofhlevel@{i} n X ≃ isofhlevel@{j} n X.
+  Proof.
+    intro.
+    induction n as [|n IH].
+    - intro. exact (idweq _).
+
+  Abort.
+End A.
 
 (** ***  Functions to a contractible type *)
 

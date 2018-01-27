@@ -675,7 +675,7 @@ Proof.
   intros. set (g := eqbx Y y is). set (ye := pr1 (iscontrhfibereqbx Y y is)).
   split with (hfibersftogf f g true ye).
   apply (isofhlevelfffromZ 0 _ _ ye (fibseqhf f g true ye)).
-  apply (isapropifcontr).
+  use isapropifcontr.
   apply (iscontrhfibereqbx _ y is).
 Defined.
 
@@ -695,23 +695,30 @@ Defined.
 
 (** *** h-fibers of [ ii1 ] and [ ii2 ] *)
 
+Section isinclii1.
+  Universe i.
+  Constraint uu1 < i.           (* without this we get uu1 = i below *)
 
-Theorem isinclii1 (X Y : UU) : isincl (@ii1 X Y).
-Proof.
-  intros.
-  set (f := @ii1 X Y). set (g := coprodtoboolsum X Y).
-  set (gf := λ x : X, (g (f x))).
-  set (gf' := λ x : X, tpair (boolsumfun X Y) true x).
-  assert (h : ∏ x : X, paths (gf' x) (gf x))
-    by (intro; apply idpath).
-  assert (is1 : isofhlevelf (S O) gf')
-    by apply (isofhlevelfsnfib O (boolsumfun X Y) true (isasetbool true true)).
-  assert (is2 : isofhlevelf (S O) gf)
-    by apply (isofhlevelfhomot (S O) gf' gf h is1).
-  apply (isofhlevelff (S O) _ _ is2 (isofhlevelfweq (S (S O))
-                                                    (weqcoprodtoboolsum X Y))).
-Defined.
+  Theorem isinclii1@{i} (X Y : Type@{i}) : isincl@{i} (@ii1 X Y).
+  Proof.
+    intros.
+    set (f := @ii1 X Y). set (g := coprodtoboolsum@{i i i i} X Y).
+    set (gf := λ x : X, (g (f x))).
+    set (gf' := λ x : X, tpair@{i} (boolsumfun@{i i i} X Y) true x).
+    assert (h : ∏ x : X, paths@{i} (gf' x) (gf x))
+      by (intro; apply idpath).
+    assert (is1 : isofhlevelf@{i} (S O) gf')
+      by apply (isofhlevelfsnfib O (boolsumfun X Y) true (isasetbool true true)).
+    assert (is2 : isofhlevelf (S O) gf)
+      by apply (isofhlevelfhomot (S O) gf' gf h is1).
+    apply (isofhlevelff (S O) _ _ is2 (isofhlevelfweq (S (S O))
+                                                      (weqcoprodtoboolsum X Y))).
+  Defined.
 
+  (* We get uu1 = i despite declaring uu1 < i!  This is a bug. *)
+  Print isinclii1.
+
+End isinclii1.
 
 Corollary iscontrhfiberii1x (X Y : UU) (x : X) :
   iscontr (hfiber (@ii1 X Y) (ii1 x)).
@@ -743,7 +750,7 @@ Proof.
                                (isasetbool false false)).
   assert (is2 : isofhlevelf (S O) gf)
     by apply (isofhlevelfhomot (S O) gf' gf h is1).
-  apply (isofhlevelff (S O)  _ _ is2
+  exact (isofhlevelff (S O) f g is2
                       (isofhlevelfweq (S (S O)) (weqcoprodtoboolsum X Y))).
 Defined.
 
@@ -890,15 +897,13 @@ Defined.
 
 (** *** Theorems about h-levels of coproducts and their component types *)
 
-
-Theorem isofhlevelsnsummand1 (n : nat) (X Y : UU) :
+Theorem isofhlevelsnsummand1 (n : nat) (X Y : Type) :
   isofhlevel (S n) (coprod X Y) -> isofhlevel (S n) X.
 Proof.
   intros n X Y is.
-  apply (isofhlevelXfromfY (S n) (@ii1 X Y)
-                           (isofhlevelfsnincl n _ (isinclii1 _ _)) is).
+  exact (isofhlevelXfromfY (S n) (@ii1 X Y)
+                           (isofhlevelfsnincl n (@ii1 X Y) (isinclii1 X Y)) is).
 Defined.
-
 
 Theorem isofhlevelsnsummand2 (n : nat) (X Y : UU) :
   isofhlevel (S n) (coprod X Y) -> isofhlevel (S n) Y.
