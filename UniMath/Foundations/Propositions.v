@@ -244,8 +244,6 @@ Proof.
   intros ? ? i f h. exact (@hinhuniv X (Q,,i) f h).
 Defined.
 
-Set Printing All.
-
 Corollary squash_to_prop@{i j} {X Q : Type@{i}} : ishinh@{i} X -> isaprop Q -> (X -> Q) -> Q.
 Proof.
   intros ? ? h i f. exact (@hinhuniv X (tpair@{i} _ (ResizeProp Q i) i) f h).

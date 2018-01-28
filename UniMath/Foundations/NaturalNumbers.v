@@ -199,7 +199,7 @@ Proof.
   apply (isasetifdeceq _ isdeceqnat).
 Defined.
 
-Definition natset : hSet := hSetpair _ isasetnat.
+Definition natset : hSet@{uu1 uu2} := hSetpair _ isasetnat.
 
 Lemma nat_eq_or_neq (m n : nat) : (m = n) ⨿ (m ≠ n).
 Proof.

@@ -153,7 +153,7 @@ Proof.
   apply ( isasetifdeceq _ ( isdeceqstn n ) ).
 Defined.
 
-Definition stnset n := hSetpair (⟦n⟧) (isasetstn n).
+Definition stnset n := hSetpair@{uu1 uu2} (⟦n⟧) (isasetstn n).
 
 Definition stn_to_nat n : stnset n -> natset := pr1.
 
@@ -754,13 +754,13 @@ Proof.
   unfold weqfromcoprodofstn_map, weqfromcoprodofstn_invmap. unfold coprod_rect.
   induction x as [x | x].
   - induction (natlthorgeh (stn_left n m x) n) as [H | H].
-    + apply maponpaths. apply isinjstntonat. apply idpath.
+    + apply maponpaths. use isinjstntonat. apply idpath.
     + apply fromempty. apply (natlthtonegnatgeh x n (stnlt x) H).
   - induction (natlthorgeh (stn_right n m x) n) as [H | H].
     + apply fromempty.
       set (tmp := natlehlthtrans n (n + x) n (natlehnplusnm n x) H).
       use (isirrefl_natneq n (natlthtoneq _ _ tmp)).
-    + apply maponpaths. apply isinjstntonat. cbn.
+    + apply maponpaths. use isinjstntonat. cbn.
       rewrite natpluscomm. apply plusminusnmm.
 Qed.
 
@@ -770,11 +770,11 @@ Proof.
   intros n m x.
   unfold weqfromcoprodofstn_map, weqfromcoprodofstn_invmap. unfold coprod_rect.
   induction (natlthorgeh x n) as [H | H].
-  - apply isinjstntonat. apply idpath.
+  - use isinjstntonat. apply idpath.
   - induction (natchoice0 m) as [H1 | H1].
     + apply fromempty. induction H1. induction (! (natplusr0 n)).
       use (natlthtonegnatgeh x n (stnlt x) H).
-    + apply isinjstntonat. cbn. rewrite natpluscomm. apply minusplusnmm. apply H.
+    + use isinjstntonat. cbn. rewrite natpluscomm. apply minusplusnmm. apply H.
 Qed.
 
 (** A proof of weqfromcoprodofstn using isweq_iso *)

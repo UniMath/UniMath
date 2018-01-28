@@ -1269,31 +1269,31 @@ end.
 
 (** some lemmas about weak equivalences *)
 
-Definition weqcompidl {X Y} (f:X ≃ Y) : weqcomp (idweq X) f = f.
+Definition weqcompidl@{i} {X Y:Type@{i}} (f:X ≃ Y) : weqcomp (idweq X) f = f.
 Proof.
   intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
   apply funextsec; intro x; simpl. apply idpath.
 Defined.
 
-Definition weqcompidr {X Y} (f:X ≃ Y) : weqcomp f (idweq Y) = f.
+Definition weqcompidr@{i} {X Y:Type@{i}} (f:X ≃ Y) : weqcomp f (idweq Y) = f.
 Proof.
   intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
   apply funextsec; intro x; simpl. apply idpath.
 Defined.
 
-Definition weqcompinvl {X Y} (f:X ≃ Y) : weqcomp (invweq f) f = idweq Y.
+Definition weqcompinvl@{i} {X Y : Type@{i}} (f:X ≃ Y) : weqcomp (invweq f) f = idweq Y.
 Proof.
   intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
   apply funextsec; intro y; simpl. apply homotweqinvweq.
 Defined.
 
-Definition weqcompinvr {X Y} (f:X ≃ Y) : weqcomp f (invweq f) = idweq X.
+Definition weqcompinvr@{i} {X Y : Type@{i}} (f:X ≃ Y) : weqcomp f (invweq f) = idweq X.
 Proof.
   intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
   apply funextsec; intro x; simpl. apply homotinvweqweq.
 Defined.
 
-Definition weqcompassoc {X Y Z W} (f:X ≃ Y) (g:Y ≃ Z) (h:Z ≃ W) :
+Definition weqcompassoc@{i} {X Y Z W:Type@{i}} (f:X ≃ Y) (g:Y ≃ Z) (h:Z ≃ W) :
   weqcomp (weqcomp f g) h = weqcomp f (weqcomp g h).
 Proof.
   intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
@@ -1309,33 +1309,33 @@ Proof.
   { intro h. simpl. rewrite <- weqcompassoc. rewrite weqcompinvr. apply weqcompidl. }
 Defined.
 
-Definition weqcompweqr {X Y Z} (g:Y ≃ Z) :
+Definition weqcompweqr@{i} {X Y Z:Type@{i}} (g:Y ≃ Z) :
   isweq (fun f:X ≃ Y => weqcomp f g).
 Proof.
   intros. simple refine (isweq_iso _ _ _ _).
-  { intro h. exact (weqcomp h (invweq g)). }
-  { intro f. simpl. rewrite weqcompassoc. rewrite weqcompinvr. apply weqcompidr. }
-  { intro h. simpl. rewrite weqcompassoc. rewrite weqcompinvl. apply weqcompidr. }
+  { intro h. exact (weqcomp@{i} h (invweq@{i i i} g)). }
+  { intro f. simpl. rewrite weqcompassoc@{i}. rewrite weqcompinvr. apply weqcompidr@{i}. }
+  { intro h. simpl. rewrite weqcompassoc@{i}. rewrite weqcompinvl. apply weqcompidr@{i}. }
 Defined.
 
-Definition weqcompinjr {X Y Z} {f f':X ≃ Y} (g:Y ≃ Z) :
+Definition weqcompinjr@{i} {X Y Z:Type@{i}} {f f':X ≃ Y} (g:Y ≃ Z) :
   weqcomp f g = weqcomp f' g -> f = f'.
 Proof.
   intros ? ? ? ? ? ?.
-  apply (invmaponpathsincl _ (isinclweq _ _ _ (weqcompweqr g))).
+  use (invmaponpathsincl _ (isinclweq _ _ _ (weqcompweqr g))).
 Defined.
 
-Definition weqcompinjl {X Y Z} (f:X ≃ Y) {g g':Y ≃ Z} :
+Definition weqcompinjl@{i} {X Y Z : Type@{i}} (f:X ≃ Y) {g g':Y ≃ Z} :
   weqcomp f g = weqcomp f g' -> g = g'.
 Proof.
   intros ? ? ? ? ? ?.
   apply (invmaponpathsincl _ (isinclweq _ _ _ (weqcompweql f))).
 Defined.
 
-Definition invweqcomp {X Y Z} (f:X ≃ Y) (g:Y ≃ Z) :
+Definition invweqcomp@{i} {X Y Z:Type@{i}} (f:X ≃ Y) (g:Y ≃ Z) :
   invweq (weqcomp f g) = weqcomp (invweq g) (invweq f).
 Proof.
-  intros. apply (weqcompinjr (weqcomp f g)). rewrite weqcompinvl.
+  intros. use (weqcompinjr (weqcomp f g)). rewrite weqcompinvl.
   rewrite weqcompassoc. rewrite <- (weqcompassoc (invweq f)).
   rewrite weqcompinvl. rewrite weqcompidl. rewrite weqcompinvl. apply idpath.
 Defined.

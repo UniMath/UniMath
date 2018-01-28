@@ -1127,7 +1127,7 @@ Proof.
   intros ? i c. exact (c,,i).
 Defined.
 
-Lemma isdecpropfromiscontr {P} : iscontr P -> isdecprop P.
+Lemma isdecpropfromiscontr@{i} {P:Type@{i}} : iscontr P -> isdecprop@{i i i} P.
 Proof.
   intros ? i.
   split.

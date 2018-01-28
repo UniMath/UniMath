@@ -173,7 +173,8 @@ Definition boolset@{} : hSet@{uu1 uu2} := hSetpair bool isasetbool.
 
 Definition isInjectiveFunction {X Y : hSet} (f : X -> Y) : hProp.
 Proof.
-  intros. exists (∏ (x x': X), f x = f x' -> x = x').
+  intros.
+  use (hProppair (∏ (x x': X), f x = f x' -> x = x')).
   abstract (
       intros; apply impred; intro x; apply impred; intro y;
       apply impred; intro e; apply setproperty)

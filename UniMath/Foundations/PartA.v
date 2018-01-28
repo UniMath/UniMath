@@ -2210,7 +2210,7 @@ Definition weqcontrcontr {X Y : UU} (isx : iscontr X) (isy : iscontr Y) :=
 
 (** *** Composition of weak equivalences *)
 
-Definition weqcomp {X Y Z : UU} (w1 : X ≃ Y) (w2 : Y ≃ Z) : X ≃ Z :=
+Definition weqcomp@{i} {X Y Z : Type@{i}} (w1 : X ≃ Y) (w2 : Y ≃ Z) : X ≃ Z :=
   weqpair (λ (x : X), w2 (w1 x)) (twooutof3c w1 w2 (pr2 w1) (pr2 w2)).
 
 Notation "g ∘ f" := (weqcomp f g) : weq_scope.
