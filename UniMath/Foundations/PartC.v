@@ -699,7 +699,7 @@ Section isinclii1.
   Universe i.
   (* Constraint uu1 < i.           (* without this we get uu1 = i below *) *)
 
-  Theorem isinclii1@{i} (X Y : Type@{i}) : isincl@{i} (@ii1 X Y).
+  Theorem isinclii1@{} (X Y : Type@{i}) : isincl@{i} (@ii1 X Y).
   Proof.
     intros.
     set (f := @ii1 X Y). set (g := coprodtoboolsum@{i i i i} X Y).
@@ -714,8 +714,6 @@ Section isinclii1.
     apply (isofhlevelff (S O) _ _ is2 (isofhlevelfweq (S (S O))
                                                       (weqcoprodtoboolsum X Y))).
   Defined.
-
-  (* We get uu1 = i despite declaring uu1 < i!  This is a bug. *)
 
 End isinclii1.
 
