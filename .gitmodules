@@ -1,6 +1,6 @@
 [submodule "sub/coq"]
 	path = sub/coq
-	url = https://github.com/coq/coq.git
+	url = https://github.com/SkySkimmer/coq
 	branch = v8.5
 [submodule "sub/coq-tools"]
 	path = sub/coq-tools
