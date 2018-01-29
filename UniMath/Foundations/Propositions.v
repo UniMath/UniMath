@@ -124,12 +124,12 @@ End negProp_to_hProp.
 Section subtypeInjectivity_prop.
 
   Universe i.
-  Constraint uu0 < i.           (* without this, Coq makes uu0 = i; it's a bug *)
+  (* Constraint uu0 < i.           (* without this, Coq 8.7 makes uu0 = i; it's a bug *) *)
 
   Corollary subtypeInjectivity_prop@{} {A : Type@{i}} (B : A -> hProp) :
     ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1@{i} y).
   Proof.
-    intros. apply subtypeInjectivity. intro. apply propproperty.
+    intros. apply subtypeInjectivity. intro. use propproperty.
   Defined.
 
   Context (X:Type@{uu1}).
