@@ -136,7 +136,8 @@ Context (BPC : BinProducts C) (BCC : BinCoproducts C).
 
 (** [nat] to a Signature *)
 Definition Arity_to_Signature (TC : Terminal C) (xs : list nat) : Signature C hsC C hsC :=
-     foldr1 (BinProduct_of_Signatures _ _ _ _ BPC) (IdSignature _ _)
+  foldr1 (BinProduct_of_Signatures _ _ _ _ BPC)
+         (ConstConstSignature (category_pair C hsC) (category_pair C hsC) (TerminalObject TC))
         (map (precomp_option_iter_Signature BCC TC) xs).
 
 Let BPC2 BPC := BinProducts_functor_precat C _ BPC hsC.
@@ -150,7 +151,7 @@ Lemma is_omega_cocont_Arity_to_Signature
   is_omega_cocont (Arity_to_Signature TC xs).
 Proof.
 destruct xs as [[|n] xs].
-- destruct xs; apply (is_omega_cocont_functor_identity has_homsets_C2).
+- destruct xs; apply (is_omega_cocont_constant_functor has_homsets_C2).
 - induction n as [|n IHn].
   + destruct xs as [m []]; simpl.
     unfold Arity_to_Signature.
